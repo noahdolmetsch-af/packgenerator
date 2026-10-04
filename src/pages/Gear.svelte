@@ -5,6 +5,7 @@
   import { gearStats, matches, groupByCategory, formatWeight, itemWeight, CATEGORIES, BAG, OWNERSHIP } from '../lib/gear.js';
   import WeightOverview from '../lib/gear/WeightOverview.svelte';
   import WeighMode from '../lib/gear/WeighMode.svelte';
+  import ReviewMode from '../lib/gear/ReviewMode.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
 
   // All items, kept up to date by the database (liveQuery re-runs on every change).
@@ -13,8 +14,10 @@
   const stats = $derived(gearStats(items));
 
   let filter = $state({ q: '', category: '', role: '' });
-  let tab = $state('inventory'); // phone only: inventory | wishlist | weigh
+  let tab = $state('inventory'); // phone only: inventory | wishlist | weigh | check
   let weighing = $state(false); // desktop: weigh mode open
+  let reviewing = $state(false); // desktop: inventory check open
+  const toReview = $derived(stats.inventory.filter((i) => !i.reviewedAt).length);
   let dialog = $state(null); // { item } or { item: null } for "Add item"
   // Categories folded shut (10a). On the phone everything starts folded, on the desktop open.
   let folded = $state(phone.matches ? Object.fromEntries(CATEGORIES.map((c) => [c.key, true])) : {});
@@ -51,6 +54,8 @@
 
   {#if weighing && !phone.matches}
     <WeighMode {items} onclose={() => (weighing = false)} />
+  {:else if reviewing && !phone.matches}
+    <ReviewMode {items} onclose={() => (reviewing = false)} />
   {:else}
     {#if !phone.matches || tab === 'inventory'}
       <WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />
@@ -60,12 +65,15 @@
       <div class="tabs" role="tablist" aria-label="Show">
         <button type="button" role="tab" aria-selected={tab === 'inventory'} onclick={() => (tab = 'inventory')}>Inventory <small>{stats.inventory.length}</small></button>
         <button type="button" role="tab" aria-selected={tab === 'wishlist'} onclick={() => (tab = 'wishlist')}>Wishlist <small>{stats.wishlist.length}</small></button>
-        <button type="button" role="tab" aria-selected={tab === 'weigh'} onclick={() => (tab = 'weigh')}>To weigh <small>{stats.unweighed}</small></button>
+        <button type="button" role="tab" aria-selected={tab === 'weigh'} onclick={() => (tab = 'weigh')}>Weigh <small>{stats.unweighed}</small></button>
+        <button type="button" role="tab" aria-selected={tab === 'check'} onclick={() => (tab = 'check')}>Check <small>{toReview}</small></button>
       </div>
     {/if}
 
     {#if phone.matches && tab === 'weigh'}
       <WeighMode {items} />
+    {:else if phone.matches && tab === 'check'}
+      <ReviewMode {items} />
     {:else}
       <div class="toolbar">
         <label class="q"><span class="lbl">Search gear</span><input class="inp" type="search" placeholder="Name, brand, bag or ID" bind:value={filter.q} /></label>
@@ -90,6 +98,7 @@
           </label>
           <div class="acts">
             <button type="button" class="btn" onclick={() => (weighing = true)}>Weigh missing items ({stats.unweighed})</button>
+            {#if toReview}<button type="button" class="btn" onclick={() => (reviewing = true)}>Check inventory ({toReview})</button>{/if}
             <button type="button" class="btn hi" onclick={() => (dialog = { item: null })}>Add item</button>
           </div>
         {/if}
@@ -149,6 +158,16 @@
             {/each}
           </ul>
         </section>
+        {#if stats.gone.length}
+          <details class="gone">
+            <summary>Gone ({stats.gone.length}) <small>kept for the record, not in any list or total</small></summary>
+            <ul class="rows">
+              {#each stats.gone as item (item.id)}
+                <li><button type="button" onclick={() => open(item)}><span class="nm">{item.name}</span><span class="bg">{item.note ?? ''}</span><span class="w num muted">–</span></button></li>
+              {/each}
+            </ul>
+          </details>
+        {/if}
       {/if}
     {/if}
   {/if}
@@ -204,7 +223,7 @@
   }
   .tabs {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     border: 2px solid var(--ink);
     border-radius: 6px;
     overflow: hidden;
@@ -392,6 +411,17 @@
       grid-column: 3;
       grid-row: 1;
     }
+  }
+  .gone {
+    margin-top: 18px;
+  }
+  .gone summary {
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .gone summary small {
+    font-weight: 400;
+    color: var(--ink-3);
   }
   .wish {
     margin-top: 28px;

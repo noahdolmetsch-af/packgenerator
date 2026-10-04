@@ -5,6 +5,7 @@
   import { formatWeight, parseGrams } from '../lib/gear.js';
   import BikeStage from '../lib/bikes/BikeStage.svelte';
   import BagDialog from '../lib/bikes/BagDialog.svelte';
+  import BikeDialog from '../lib/bikes/BikeDialog.svelte';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -23,6 +24,7 @@
   let editMounts = $state(false); // show all places and let the user switch mounts on and off
   let activeSlot = $state(null);
   let dialog = $state(null); // { bag } or { bag: null, slot }
+  let bikeDialog = $state(null); // { bike } or { bike: null }
   let message = $state('');
 
   // Boxes on the drawing: every place this bike has (in edit mode: all places).
@@ -63,6 +65,8 @@
     await db.bikes.update(bike.id, changes);
   }
 
+  const setFixtures = (fixtures) => db.bikes.update(bike.id, { fixtures });
+
   async function saveBikeWeight(event) {
     const text = event.currentTarget.value.trim();
     if (text === '') return db.bikes.update(bike.id, { weightG: null });
@@ -101,17 +105,31 @@
         <button type="button" role="tab" aria-selected={b.id === bike.id} onclick={() => ((pickedId = b.id), (activeSlot = null))}>{b.name}</button>
       {/each}
     </div>
+    <p class="addbike"><button type="button" class="link" onclick={() => (bikeDialog = { bike: null })}>Add bike</button></p>
 
     <section class="bike-card" aria-labelledby="bike-h">
       <div class="bh">
         <div>
           <h2 id="bike-h" class="title">{bike.name}</h2>
-          <p class="sub">{bike.type ?? ''}{bike.use ? ` · ${bike.use}` : ''}</p>
+          <p class="sub">{bike.type ?? ''}{bike.use ? ` · ${bike.use}` : ''} <button type="button" class="link" onclick={() => (bikeDialog = { bike })}>Edit</button></p>
+          <p class="fix">
+            <span class="lbl">Always mounted</span>
+            {#each bike.fixtures ?? [] as f (f)}
+              <span class="chip">{itemsById[f]?.name ?? f}<button type="button" aria-label="Remove {itemsById[f]?.name ?? f}" onclick={() => setFixtures((bike.fixtures ?? []).filter((x) => x !== f))}>×</button></span>
+            {:else}
+              <span class="sub">nothing</span>
+            {/each}
+            <select class="sel mini" aria-label="Add something that is always mounted" value="" onchange={(e) => { if (e.currentTarget.value) setFixtures([...(bike.fixtures ?? []), e.currentTarget.value]); e.currentTarget.value = ''; }}>
+              <option value="">+ add</option>
+              {#each items.filter((i) => i.category === 'bike' && !(bike.fixtures ?? []).includes(i.id) && i.ownership !== 'gone') as i (i.id)}<option value={i.id}>{i.name}</option>{/each}
+            </select>
+          </p>
         </div>
         <div class="kpis">
           <label>
             <span class="lbl">Bike weight (g)</span>
             {#key bike.id}<input class="inp num" type="text" inputmode="numeric" value={bike.weightG ?? ''} onchange={saveBikeWeight} placeholder="not weighed" />{/key}
+            {#if bike.weightNote && !bike.weightG}<small class="hintw">{bike.weightNote}</small>{/if}
           </label>
           <div><span class="lbl">Bags</span><b class="num">{setup.bagCount} · {formatVolume(setup.volumeL)}</b></div>
           <div>
@@ -178,6 +196,10 @@
   </section>
 </div>
 
+{#if bikeDialog}
+  <BikeDialog bike={bikeDialog.bike} {bikes} oncreated={(id) => (pickedId = id)} onclose={() => (bikeDialog = null)} />
+{/if}
+
 {#if dialog}
   <BagDialog bag={dialog.bag} {items} {bags} {bikes} onclose={() => (dialog = null)} />
 {/if}
@@ -231,6 +253,54 @@
     .tabs button:nth-child(-n + 2) {
       border-bottom: 2px solid var(--ink);
     }
+  }
+  .addbike {
+    margin: -6px 0 12px;
+    text-align: right;
+  }
+  .link {
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .fix {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0 0;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 4px 2px 10px;
+    border: 1.5px solid var(--ink-3);
+    border-radius: 999px;
+    background: var(--paper);
+    font-size: 13px;
+  }
+  .chip button {
+    border: 0;
+    background: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--ink-2);
+  }
+  .sel.mini {
+    width: auto;
+    padding: 2px 6px;
+    font-size: 13px;
+  }
+  .hintw {
+    color: var(--ink-3);
+    font-size: 12px;
+    max-width: 160px;
   }
   .bike-card {
     margin-bottom: 32px;

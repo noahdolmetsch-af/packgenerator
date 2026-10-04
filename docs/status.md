@@ -16,12 +16,21 @@ Stand: 4. Oktober 2026
 - **Bikes:** eigene Taschenliste, 4 Velo-Setups mit Velo-Zeichnung, Montagepunkte ein/aus, Velo- und Fahrergewicht.
 - **Pack:** Tour wählen oder neu (Kopie der letzten Tour mit demselben Velo, sonst Standard-Set), Tasche auf der Zeichnung wählen, Teile hinzufügen, verschieben, Anzahl, abhaken (am Phone Tasche für Tasche), Taschen pro Tour ändern, Ready-Check (Standardliste, pro Tour änderbar), Systemgewicht.
 
+- **Runde 3 (Antworten 1–10):** 4 echte Velos mit Setups, fixe Halterungen, Nacht-Sets inkl. Light, Wetter mit Kleider-Vorschlag, Volumen-Warnung mit Taschen-Vorschlag, Wägen aus Pack, Druckliste, Gepäck vorne/hinten, Inventar-Check.
+
+## To-do für Noah
+- [ ] Prototyp-Daten sichern: im Bike Cockpit auf "Saved · Backup" tippen → Export, Datei aufbewahren.
+- [ ] **Inventar durchgehen:** Gear → "Check inventory" (am Phone Tab "Check"). Pro Teil: Still have it / Gone / Replaced by… / fehlende Teile mit "Add item" ergänzen.
+- [ ] Velos wägen und auf "Bikes" eintragen (Scott Scale ca. 13 kg laut Logbuch).
+- [ ] Full-Frame-Tasche wägen (neu in Gear, TA14).
+- [ ] Danach die 303 in Pack neu packen (Taschen für diese Tour prüfen).
+
 ## Läuft
 - Nichts.
 
 ## Als Nächstes
-1. Packen verfeinern nach deinem ersten Test mit der 303 (Wetter, Nacht-Sets, Volumen).
-2. Prototyp-Daten per Backup übernehmen, danach Prototyp ablösen.
+1. Packen verfeinern nach deinem ersten Test mit der 303.
+2. Prototyp ablösen, wenn die 303 in der neuen App gepackt ist.
 3. Bike care (Wartung mit Erinnerung zum Event-Datum).
 4. Debrief, danach Learnings.
 5. Gear: Board-Seite (Kacheln nach Gewicht) als zweite Ansicht.

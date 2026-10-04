@@ -62,3 +62,12 @@ Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
 | 4.10.2026 | **Neue Seite "Bikes"**; Pack nutzt pro Tour eine Kopie des Velo-Setups, Änderungen gelten nur für die Tour | Velo bleibt die Vorlage |
 | 4.10.2026 | Taschen, die in der Excel-Packliste als Teile standen, wandern ins Taschen-Setup der Tour | Gewicht nicht doppelt zählen |
 | 4.10.2026 | Systemgewicht = Gear am Velo + am Körper + Taschen + Velo + Fahrer; Essen und Wasser zählen hier mit | Das echte Tourgewicht; ungewogene Teile zählen als 0 und werden angezeigt |
+| 4.10.2026 | **Vier Velos:** Scott Scale (Excel "Hardtail"), Scott Spark (Excel "Fully"), Factor LS (Excel "Gravel" ist dasselbe Velo, zusammengeführt) und neu Canyon Lux World Cup | Noah |
+| 4.10.2026 | Setups: Factor = Rahmentasche, Oberrohrtasche, 2 Flaschen; Scott Scale = Oberrohrtasche, Full-Frame-Tasche, 2 Food Pouches; Scott Spark = 2 Food Pouches, Full-Frame-Tasche; Canyon = 2 Flaschenhalter, Tool bag. Garmin- und Quad-Lock-Halterung sind fix an allen Velos und zählen zum Velogewicht | Noah, Antwort 1 |
+| 4.10.2026 | Velogewicht 13 kg aus dem Logbuch nur noch als Hinweis, Velos werden neu gewogen | Noah, Antwort 2 |
+| 4.10.2026 | Volumen: Hinweis "about x L of y L", bei zu voller Tasche Warnung mit Vorschlag einer grösseren Tasche für denselben Platz | Noah, Antwort 3 |
+| 4.10.2026 | Nacht-Sets Warm, Sleep, Cook und neu **Light** als Schalter pro Tour; Light startet mit Front-, Rücklicht und Stirnlampe | Noah, Antwort 4 |
+| 4.10.2026 | Wetter pro Tour (Min/Max °C, Regen) mit Kleider-Vorschlag wie im Prototyp | Noah, Antwort 5 |
+| 4.10.2026 | Prototyp-Daten nur als Backup sichern; die 303 wird in der neuen App neu gepackt. Vorher **Inventar-Check** (Still have / Gone / Replaced) | Noah, Antwort 6 und 10 |
+| 4.10.2026 | Pack zeigt "Weigh n" für ungewogene Teile der Tour, "Print list" (pro Tasche, als PDF speicherbar) und Gepäck vorne/hinten | Noah, Antworten 7, 8, 9 |
+| 4.10.2026 | Teile, die weg sind, bekommen den Status "Gone" statt gelöscht zu werden | Verlauf bleibt erhalten |

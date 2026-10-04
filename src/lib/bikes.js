@@ -14,6 +14,8 @@ export const SLOTS = [
   { key: 'ttrear', name: 'Mini bag', where: 'Top tube, rear', box: { x: 284, y: 146, w: 58, h: 42 } },
   { key: 'frame', name: 'Frame bag', where: 'Frame triangle', box: { x: 345, y: 150, w: 140, h: 42 } },
   { key: 'top', name: 'Top tube bag', where: 'Top tube, front', box: { x: 430, y: 76, w: 108, h: 44 } },
+  { key: 'cage1', name: 'Bottle cage 1', where: 'Down tube, inside the frame', box: { x: 428, y: 204, w: 84, h: 38 } },
+  { key: 'cage2', name: 'Bottle cage 2', where: 'Seat tube', box: { x: 236, y: 200, w: 84, h: 38 } },
   { key: 'tool', name: 'Tool bag', where: 'Down tube, below', box: { x: 352, y: 268, w: 116, h: 44 } },
   { key: 'down', name: 'Down tube cage', where: 'Under the down tube', box: { x: 474, y: 232, w: 72, h: 46 } },
   { key: 'fork', name: 'Fork cage', where: 'Fork leg', box: { x: 556, y: 214, w: 72, h: 50 } },
@@ -135,6 +137,6 @@ export const bagsFor = (slotKey, containers) => containers.filter((c) => c.slot 
 export const formatVolume = (l) => (l ? `${Math.round(l * 10) / 10} L` : '–');
 
 /** Bikes in Excel order (the favourite first), new bikes after them by name. */
-const BIKE_ORDER = ['scott-hardtail', 'fully', 'gravel', 'factor-ls'];
+const BIKE_ORDER = ['scott-hardtail', 'fully', 'factor-ls', 'canyon-world-cup', 'gravel'];
 const bikeRank = (b) => (BIKE_ORDER.includes(b.id) ? BIKE_ORDER.indexOf(b.id) : 99);
 export const sortBikes = (bikes) => [...bikes].sort((a, b) => bikeRank(a) - bikeRank(b) || a.name.localeCompare(b.name));

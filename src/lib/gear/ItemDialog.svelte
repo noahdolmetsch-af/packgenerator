@@ -7,7 +7,7 @@
    * readOnly: on the phone the inventory is for looking things up and weighing only,
    * so there the dialog shows the details plus a weight field.
    */
-  let { item, items, readOnly = false, onclose } = $props();
+  let { item, items, readOnly = false, preset = {}, onsaved = null, onclose } = $props();
 
   // svelte-ignore state_referenced_locally
   const isNew = !item;
@@ -16,7 +16,7 @@
   let draft = $state(
     item
       ? { ...item, role: item.role ?? '', model: item.model ?? '', grams: item.weightG ?? '' }
-      : { id: '', name: '', brand: '', model: '', category: 'elec', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], kits: [], domains: ['bikepacking'] },
+      : { id: '', name: '', brand: '', model: '', category: 'elec', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], kits: [], domains: ['bikepacking'], ...preset },
   );
   let error = $state('');
   let dialog;
@@ -45,6 +45,7 @@
       updatedAt: new Date().toISOString(),
     };
     await db.items.put(record);
+    await onsaved?.(record);
     dialog.close();
   }
 
@@ -109,6 +110,12 @@
             {#each Object.entries(ROLES) as [k, v] (k)}<option value={k}>{v}</option>{/each}
           </select>
         </label>
+        <fieldset class="wide sets">
+          <legend class="lbl">Overnight sets (Pack adds them with one switch)</legend>
+          {#each Object.entries(SETS) as [k, v] (k)}
+            <label class="cb"><input type="checkbox" checked={draft.sets?.includes(k)} onchange={(e) => (draft.sets = e.currentTarget.checked ? [...(draft.sets ?? []), k] : (draft.sets ?? []).filter((x) => x !== k))} /> {v.replace('Night: ', '')}</label>
+          {/each}
+        </fieldset>
         <label class="wide"><span class="lbl">Note</span><textarea class="inp" rows="2" bind:value={draft.note}></textarea></label>
       </div>
       {#if item?.learning}<p class="note"><b>Learning:</b> {item.learning}</p>{/if}
@@ -151,6 +158,22 @@
     .grid {
       grid-template-columns: 1fr;
     }
+  }
+  .sets {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+  .sets legend {
+    margin-bottom: 4px;
+  }
+  .cb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .facts {
     display: grid;
