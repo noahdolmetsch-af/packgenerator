@@ -42,6 +42,15 @@ body {
 }
 
 /* ---------- shared building blocks ---------- */
+/* Links in the app's ink, never the browser's blue (design audit T1). */
+a {
+  color: var(--ink);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+}
+a:visited {
+  color: var(--ink);
+}
 .title {
   font-family: var(--font-title);
   font-weight: 800;
@@ -77,6 +86,10 @@ body {
 .btn.ink {
   background: var(--ink);
   color: var(--paper);
+}
+.btn.sm {
+  font-size: 13px;
+  padding: 4px 9px;
 }
 .btn:disabled {
   opacity: 0.5;
