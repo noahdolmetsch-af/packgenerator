@@ -87,6 +87,12 @@ Wichtig: Beide Speicher gehören zum *Browser auf diesem Gerät*. Darum gibt es 
 - **Ersetzen** (`src/lib/replace.js`): Wird ein Teil ersetzt, sucht `replaceEverywhere` alle Touren, Taschen und Halterungen mit der alten ID und setzt die neue ein. Das läuft in einer Transaktion, also ganz oder gar nicht.
 - **Aufräumen beim Start** (`src/lib/tidy.js`): Taschenliste anlegen, Velos ergänzen, alte Touren umstellen. Jeder Schritt ändert nur, was es noch braucht.
 
+## 9b. Bike care (`src/lib/care.js`, `src/pages/Care.svelte`)
+
+- **Alles ist Verlauf:** Jedes Teil eines Velos hat eine Liste `history` mit Einträgen (Datum, km, Messwert, Aktion, Ergebnis). Was fällig ist, wird jedes Mal aus diesem Verlauf und dem km-Stand ausgerechnet, nichts davon wird extra gespeichert. Darum kann nichts "veralten".
+- **Fristen vor einer Tour:** `prepFor` nimmt das Startdatum und zieht pro Aufgabe den Vorlauf in Wochen ab. Die Ergebnisse stehen auf der Tour (`trip.prep`), jede Tour hat also ihre eigene Liste.
+- **Keine neue Tabelle:** Teile hängen am Velo, Vorbereitung an der Tour, Arbeiten in der schon importierten Tabelle `maintenance`. Darum braucht es keine neue Datenbank-Version, und das Backup enthält alles.
+
 ## 10. Tests
 
 `npm test` startet **Vitest**. Die Tests liegen in `tests/` und laufen ohne Browser: `fake-indexeddb` spielt die Browser-Datenbank im Speicher nach. Getestet wird z.B., dass Export → Import genau dieselben Daten ergibt.

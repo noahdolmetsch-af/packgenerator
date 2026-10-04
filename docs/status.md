@@ -23,7 +23,8 @@ Stand: 4. Oktober 2026
 - [ ] **Inventar durchgehen:** Gear → "Check inventory" (am Phone Tab "Check"). Pro Teil: Still have it / Gone / Replaced by… / fehlende Teile mit "Add item" ergänzen.
 - [ ] Scott Scale, Scott Spark und Factor LS wägen (ohne Taschen, mit Garmin-, Quad-Lock- und Flaschenhalterungen) und auf "Bikes" eintragen. Canyon ist erledigt (10.1 kg).
 - [ ] Neue Teile wägen: "Trainerhose lang chillig" und "Gilet Fleece kuschelig".
-- [ ] Bike care einmal durchspielen (Fragen im Chat).
+- [ ] **Service-Fotos** der 4 Velos hochladen (daraus trage ich den letzten Service pro Teil ein), dazu den km-Stand.
+- [ ] Bike care → "Go through them": die 17 Juni-Aufgaben einmal durchgehen.
 - [ ] Full-Frame-Tasche wägen (neu in Gear, TA14).
 - [ ] Danach die 303 in Pack neu packen (Taschen für diese Tour prüfen).
 
@@ -31,7 +32,7 @@ Stand: 4. Oktober 2026
 - Nichts.
 
 ## Als Nächstes
-1. Bike care mit Erinnerungen vor dem Event (Noah, Runde C Antwort 9).
+1. Bike care verfeinern nach deinem ersten Durchgang und den Service-Fotos.
 2. Packen verfeinern nach deinem ersten Test mit der 303.
 3. Prototyp ablösen, wenn die 303 in der neuen App gepackt ist.
 3. Bike care (Wartung mit Erinnerung zum Event-Datum).

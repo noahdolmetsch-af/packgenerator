@@ -6,6 +6,7 @@
   import BikeStage from '../lib/bikes/BikeStage.svelte';
   import BagDialog from '../lib/bikes/BagDialog.svelte';
   import BikeDialog from '../lib/bikes/BikeDialog.svelte';
+  import BikesNav from '../lib/care/BikesNav.svelte';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -100,7 +101,10 @@
 
 <div class="bikes">
   <header class="head">
-    <h1 class="title">Bikes</h1>
+    <div>
+      <BikesNav current="setup" />
+      <h1 class="title">Bikes</h1>
+    </div>
     <label class="rider">
       <span class="lbl">Rider weight (kg)</span>
       <input class="inp num" type="text" inputmode="decimal" value={$riderQ?.value ? $riderQ.value / 1000 : ''} onchange={saveRider} placeholder="e.g. 64" />

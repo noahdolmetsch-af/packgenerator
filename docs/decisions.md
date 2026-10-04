@@ -88,3 +88,13 @@ Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
 | 4.10.2026 | Flaschen: 1 pro 3 h, höchstens 2, Rest unterwegs nachfüllen; eine Extra-Flasche von Hand mit + | Noah, Runde D Antwort 6 |
 | 4.10.2026 | Bike care: Erinnerung nach 1000 km; Wartungsliste aus dem Excel-Blatt "Wartung" als Start, den Ablauf spielen wir vorher einmal komplett durch | Noah, Runde D Antworten 8, 9 |
 | 4.10.2026 | Herstellergewicht der Velos nur als Hinweis neben dem gewogenen Gewicht | Noah, Runde D Antwort 10 |
+| 4.10.2026 | **Bike care** als eigene Liste über alle Velos, unter "Bikes" (Setup / Care). Erinnerungen nur dort, nicht auf Home | Noah, Bike care Antworten 1, 7 |
+| 4.10.2026 | Zwei Arten: Event-Vorbereitung (aus dem Excel-Blatt "Wartung", automatisch für jede Tour mit Datum, Frist = Start minus Vorlauf) und Arbeiten am Velo, getrennt angezeigt. Überfälliges rot ganz oben | Noah, Antworten 2, 3, Beispiel 1 |
+| 4.10.2026 | Jedes Velo hat eine **Teileliste mit Verlauf** (Datum, km, Messwert, Aktion, Modell, wer, Notiz): Kette, Kettenblatt, Kassette, Beläge und Scheiben vorne/hinten getrennt, Gabel, Dämpfer, Sattelhöhe, Schaltung, Reifen + Dichtmilch, Schrauben, Lager | Noah, Beispiel 3, 4 |
+| 4.10.2026 | Kette: Verschleiss in % mit der Kettenlehre, Warnung ab 0.4 %, ersetzen ab 0.5 %; wachsen alle 150 km; beim Ersetzen über 0.75 % Hinweis "Kassette und Kettenblatt prüfen" | Noah, Kette 1, 2, 5, 6 |
+| 4.10.2026 | km-Stand pro Velo nur von Hand; km pro Teil rechnet die App seit dem Einbau | Noah, Antwort 4, Kette 3, Beispiel 9 |
+| 4.10.2026 | 1000-km-Check: Bremsbeläge, Kette, Reifen + Dichtmilch, Schrauben mit Drehmoment, Schaltung, Gabel/Dämpfer-Lockout, Lager. Ein Check vor einem Event zählt auch dafür | Noah, Beispiel 7, 8 |
+| 4.10.2026 | Ergebnis-Knöpfe: "OK", "Ersetzen oder Arbeit nötig", "Ersetzt oder erledigt" (bei der Kette zusätzlich "Waxed"). Ersetzen nötig setzt das Teil (mit Modell) auf die Wunschliste; Ersatz mitnehmen ist nur ein Hinweis | Noah, Beispiel 2, 5, 6, Kette 4 |
+| 4.10.2026 | Wer hat es gemacht: "Me" oder "Bike shop", oben auf Bike care umschaltbar, wird mit jedem Eintrag gespeichert | Noah, Kette 8 |
+| 4.10.2026 | Juni-Aufgaben aus dem Excel einmal durchgehen: Done / Still open / Work needed soon / Not needed any more | Noah, Antwort 8 |
+| 4.10.2026 | Service-Fotos pro Velo und km-Stände liefert Noah später; sie bleiben privat in den Projekt-Dateien | Noah, Kette 7, 10 |
