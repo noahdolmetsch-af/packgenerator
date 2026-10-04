@@ -5,7 +5,7 @@
   import { nextId } from '../lib/gear.js';
   import {
     PART, defaultParts, partInfo, wear, needsWork, lastValue, kmSince, lastReplace, checkState, serviceDue, logPart,
-    taskBike, openRepairs, toReview, prepFor, upcomingTrips, prepParts, prepService, wishFor, CHECK_KM, bikeLog, EXTRA,
+    taskBike, openRepairs, toReview, prepFor, prepRules, upcomingTrips, prepParts, prepService, wishFor, CHECK_KM, bikeLog, EXTRA,
   } from '../lib/care.js';
   import BikesNav from '../lib/care/BikesNav.svelte';
   import PartDialog from '../lib/care/PartDialog.svelte';
@@ -41,7 +41,7 @@
   }
 
   /* ---------- what is due ---------- */
-  const trips = $derived(upcomingTrips($tripsQ ?? [], today).map((t) => ({ trip: t, rows: prepFor(t, tasks, today) })));
+  const trips = $derived(upcomingTrips($tripsQ ?? [], today).map((t) => ({ trip: t, rows: prepFor(t, tasks, today), rules: prepRules(t, tasks) })));
   const checks = $derived(bikes.map((b) => ({ bike: b, check: checkState(b), services: serviceDue(b) })));
   const overdue = $derived([
     ...trips.flatMap(({ trip, rows }) => rows.filter((r) => r.overdue).map((r) => ({ kind: 'prep', trip, row: r }))),
@@ -114,9 +114,9 @@
 
 <div class="care">
   <header class="head">
-    <div>
-      <BikesNav current="care" />
+    <div class="tt">
       <h1 class="title">Bike care</h1>
+      <BikesNav current="care" />
     </div>
     <div class="by" role="group" aria-label="Work done by">
       <span class="lbl">Work done by</span>
@@ -137,9 +137,8 @@
               {#if o.kind === 'prep'}
                 <span><b>{o.row.task.task}</b><small>{o.trip.title} · was due {dueLabel(o.row.due)}{o.row.needed ? ' · work needed' : ''}</small></span>
                 <span class="acts">
-                  <button type="button" class="btn sm" onclick={() => prepResult(o.trip, o.row, 'ok')}>OK</button>
-                  <button type="button" class="btn sm" onclick={() => prepResult(o.trip, o.row, 'needed')}>Work needed</button>
                   <button type="button" class="btn sm hi" onclick={() => prepResult(o.trip, o.row, 'done')}>Done</button>
+                  {@render more(o.row.task.task, [{ name: 'Checked, all OK', run: () => prepResult(o.trip, o.row, 'ok') }, { name: 'Work needed', run: () => prepResult(o.trip, o.row, 'needed') }])}
                 </span>
               {:else if o.kind === 'check'}
                 <span><b>{o.bike.name}: {CHECK_KM.toLocaleString('en')} km check</b><small>{o.n} points due, see the bike below</small></span>
@@ -154,10 +153,21 @@
       </section>
     {/if}
 
-    {#each trips as { trip, rows } (trip.id)}
+    <!-- Design audit C2: one main button per row, the other answers behind •••. -->
+    {#snippet more(label, actions)}
+      <details class="more">
+        <summary aria-label="More answers for {label}">•••</summary>
+        <div class="more-in">{#each actions as a (a.name)}<button type="button" class="btn sm" onclick={(ev) => (ev.currentTarget.closest('details').open = false, a.run())}>{a.name}</button>{/each}</div>
+      </details>
+    {/snippet}
+
+    {#each trips as { trip, rules, rows } (trip.id)}
       <section class="block" aria-labelledby="trip-{trip.id}">
         <h2 id="trip-{trip.id}" class="title">Before {trip.title} <small>{trip.startDate} · {bikeById[trip.bikeId]?.name ?? 'no bike'} · {rows.filter((r) => r.finished).length}/{rows.length}</small></h2>
         {#if rows.some((r) => r.overdue)}<p class="hint">{rows.filter((r) => r.overdue).length} overdue tasks are under "Due now".</p>{/if}
+        {#each rules as r (r.task.id)}
+          <p class="rule"><span class="lbl">{r.from <= today ? 'Rule now' : `Rule from ${dueLabel(r.from)}`}</span>{r.task.task}</p>
+        {/each}
         <ul class="rows">
           {#each rows.filter((r) => !r.overdue) as r (r.task.id)}
             <li class:done={r.finished} class:late={r.overdue} class:need={r.needed}>
@@ -167,9 +177,8 @@
                 {#if r.finished}
                   <button type="button" class="link" onclick={() => undoPrep(trip, r)}>Undo</button>
                 {:else}
-                  <button type="button" class="btn sm" onclick={() => prepResult(trip, r, 'ok')}>OK</button>
-                  <button type="button" class="btn sm" onclick={() => prepResult(trip, r, 'needed')}>Work needed</button>
                   <button type="button" class="btn sm hi" onclick={() => prepResult(trip, r, 'done')}>Done</button>
+                  {@render more(r.task.task, [{ name: 'Checked, all OK', run: () => prepResult(trip, r, 'ok') }, { name: 'Work needed', run: () => prepResult(trip, r, 'needed') }])}
                 {/if}
               </span>
             </li>
@@ -258,9 +267,8 @@
                 <span class="when">{PRIO[t.priority] ?? ''}</span>
                 <span class="txt">{t.task}{#if t.note}<small>{t.note}</small>{/if}</span>
                 <span class="acts">
-                  <button type="button" class="btn sm" onclick={() => repairResult(t, 'needed')}>Work needed</button>
                   <button type="button" class="btn sm hi" onclick={() => repairResult(t, 'done')}>Done</button>
-                  <button type="button" class="x" aria-label="Not needed any more: {t.task}" onclick={() => repairResult(t, 'gone')}>×</button>
+                  {@render more(t.task, [{ name: 'Work needed', run: () => repairResult(t, 'needed') }, { name: 'Not needed any more', run: () => repairResult(t, 'gone') }])}
                 </span>
               </li>
             {/each}
@@ -325,7 +333,13 @@
   .head .title {
     font-size: clamp(48px, 11vw, 88px);
     line-height: 0.95;
-    margin: 12px 0 0;
+    margin: 0;
+  }
+  .tt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 20px;
   }
   .by {
     display: flex;
@@ -349,16 +363,57 @@
     background: var(--ink);
     color: var(--paper);
   }
+  /* Design audit C1: calm card with an orange edge instead of a pink alarm. */
   .due {
-    border: 2px solid #b42318;
-    background: #fbecea;
-    padding: 10px 12px;
+    border: 2px solid var(--ink);
+    border-left: 6px solid var(--hi);
+    border-radius: 6px;
+    background: var(--paper);
+    padding: 10px 14px;
     margin-bottom: 20px;
   }
   .due .title {
     font-size: 24px;
     margin: 0 0 6px;
-    color: #b42318;
+  }
+  .rule {
+    margin: 4px 0 8px;
+    padding: 6px 10px;
+    background: var(--paper-2);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .rule .lbl {
+    margin: 0 0 2px;
+  }
+  .more {
+    position: relative;
+  }
+  .more > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 2px 8px;
+    border: 1.5px solid var(--line);
+    border-radius: 4px;
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+  .more > summary::-webkit-details-marker {
+    display: none;
+  }
+  .more-in {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    z-index: 4;
+    display: grid;
+    gap: 6px;
+    min-width: 170px;
+    padding: 8px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    box-shadow: 0 6px 18px rgba(15, 46, 39, 0.18);
   }
   .due ul,
   .rows,
@@ -375,7 +430,7 @@
     align-items: center;
     gap: 6px 12px;
     padding: 6px 0;
-    border-top: 1px solid rgba(180, 35, 24, 0.25);
+    border-top: 1px solid var(--line);
   }
   .due li > span:first-child,
   .txt {
@@ -416,7 +471,7 @@
   }
   .rows li.late .when,
   .late {
-    color: #b42318;
+    color: var(--ink);
     font-weight: 700;
   }
   .rows li.need .txt {
@@ -587,8 +642,12 @@
     background: var(--hi-soft);
     color: var(--ink);
   }
-  .pill.worn,
   .pill.red {
+    background: var(--hi-soft);
+    color: var(--ink);
+  }
+  /* Red stays for worn parts only: brakes, chain (safety). */
+  .pill.worn {
     background: #f6d5d0;
     color: #b42318;
   }

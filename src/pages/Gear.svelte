@@ -14,9 +14,11 @@
   const stats = $derived(gearStats(items));
 
   let filter = $state({ q: '', category: '', role: '' });
-  let tab = $state('inventory'); // phone only: inventory | wishlist | weigh | check
-  let weighing = $state(false); // desktop: weigh mode open
-  let reviewing = $state(false); // desktop: inventory check open
+  // Tabs on every screen size (design audit G1, G2): the wishlist and weighing no longer hide
+  // at the bottom of a long page. #/gear?tab=weigh opens a tab directly (from the start page).
+  const TABS = ['inventory', 'wishlist', 'weigh', 'check'];
+  const fromHash = new URLSearchParams(location.hash.split('?')[1] ?? '').get('tab');
+  let tab = $state(TABS.includes(fromHash) ? fromHash : 'inventory');
   const toReview = $derived(stats.inventory.filter((i) => !i.reviewedAt).length);
   let dialog = $state(null); // { item } or { item: null } for "Add item"
   // Categories folded shut (10a). On the phone everything starts folded, on the desktop open.
@@ -34,6 +36,11 @@
   const setAll = (shut) => (folded = Object.fromEntries(CATEGORIES.map((c) => [c.key, shut])));
 
   const pickCategory = (key) => (filter.category = filter.category === key ? '' : key);
+  // Side column: jump to a category (and open it).
+  function jump(key) {
+    folded[key] = false;
+    queueMicrotask(() => document.getElementById(`gh-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
   const open = (item) => (dialog = { item });
 </script>
 
@@ -52,122 +59,121 @@
     <p class="card">No gear yet. Import your data on the <a href="#/">start page</a> (Your data → Import backup), or add an item.</p>
   {/if}
 
-  {#if weighing && !phone.matches}
-    <WeighMode {items} onclose={() => (weighing = false)} />
-  {:else if reviewing && !phone.matches}
-    <ReviewMode {items} onclose={() => (reviewing = false)} />
+  <div class="tabs" role="tablist" aria-label="Show">
+    <button type="button" role="tab" aria-selected={tab === 'inventory'} onclick={() => (tab = 'inventory')}>Inventory <small>{stats.inventory.length}</small></button>
+    <button type="button" role="tab" aria-selected={tab === 'wishlist'} onclick={() => (tab = 'wishlist')}>Wishlist <small>{stats.wishlist.length}</small></button>
+    <button type="button" role="tab" aria-selected={tab === 'weigh'} onclick={() => (tab = 'weigh')}>Weigh <small>{stats.unweighed}</small></button>
+    <button type="button" role="tab" aria-selected={tab === 'check'} onclick={() => (tab = 'check')}>Check <small>{toReview}</small></button>
+  </div>
+
+  {#if tab === 'weigh'}
+    <WeighMode {items} />
+  {:else if tab === 'check'}
+    <ReviewMode {items} />
   {:else}
-    {#if !phone.matches || tab === 'inventory'}
-      <WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />
-    {/if}
-
-    {#if phone.matches}
-      <div class="tabs" role="tablist" aria-label="Show">
-        <button type="button" role="tab" aria-selected={tab === 'inventory'} onclick={() => (tab = 'inventory')}>Inventory <small>{stats.inventory.length}</small></button>
-        <button type="button" role="tab" aria-selected={tab === 'wishlist'} onclick={() => (tab = 'wishlist')}>Wishlist <small>{stats.wishlist.length}</small></button>
-        <button type="button" role="tab" aria-selected={tab === 'weigh'} onclick={() => (tab = 'weigh')}>Weigh <small>{stats.unweighed}</small></button>
-        <button type="button" role="tab" aria-selected={tab === 'check'} onclick={() => (tab = 'check')}>Check <small>{toReview}</small></button>
-      </div>
-    {/if}
-
-    {#if phone.matches && tab === 'weigh'}
-      <WeighMode {items} />
-    {:else if phone.matches && tab === 'check'}
-      <ReviewMode {items} />
-    {:else}
-      <div class="toolbar">
-        <label class="q"><span class="lbl">Search gear</span><input class="inp" type="search" placeholder="Name, brand, bag or ID" bind:value={filter.q} /></label>
+    <div class="toolbar">
+      <label class="q"><span class="lbl">Search gear</span><input class="inp" type="search" placeholder="Name, brand, bag or ID" bind:value={filter.q} /></label>
+      <label>
+        <span class="lbl">Category</span>
+        <select class="sel" bind:value={filter.category}>
+          <option value="">All categories</option>
+          {#each stats.cats as c (c.key)}<option value={c.key}>{c.name} ({c.n})</option>{/each}
+        </select>
+      </label>
+      {#if !phone.matches}
         <label>
-          <span class="lbl">Category</span>
-          <select class="sel" bind:value={filter.category}>
-            <option value="">All categories</option>
-            {#each stats.cats as c (c.key)}<option value={c.key}>{c.name} ({c.n})</option>{/each}
+          <span class="lbl">Role</span>
+          <select class="sel" bind:value={filter.role}>
+            <option value="">All roles</option>
+            <option value="worn">Worn</option>
+            <option value="standard">Standard pack</option>
+            <option value="optional">Optional</option>
+            <option value="night">Overnight sets</option>
+            <option value="none">No role</option>
           </select>
         </label>
-        {#if !phone.matches}
-          <label>
-            <span class="lbl">Role</span>
-            <select class="sel" bind:value={filter.role}>
-              <option value="">All roles</option>
-              <option value="worn">Worn</option>
-              <option value="standard">Standard pack</option>
-              <option value="optional">Optional</option>
-              <option value="night">Overnight sets</option>
-              <option value="none">No role</option>
-            </select>
-          </label>
-          <div class="acts">
-            <button type="button" class="btn" onclick={() => (weighing = true)}>Weigh missing items ({stats.unweighed})</button>
-            {#if toReview}<button type="button" class="btn" onclick={() => (reviewing = true)}>Check inventory ({toReview})</button>{/if}
-            <button type="button" class="btn hi" onclick={() => (dialog = { item: null })}>Add item</button>
-          </div>
-        {/if}
-      </div>
+        <div class="acts"><button type="button" class="btn hi" onclick={() => (dialog = { item: null })}>Add item</button></div>
+      {/if}
+    </div>
 
-      {#if !phone.matches || tab === 'inventory'}
-        <p class="count num" aria-live="polite">
-          {inventory.length} of {stats.inventory.length} items
-          {#if !searching && groups.length}<button type="button" class="link" onclick={() => setAll(allOpen)}>{allOpen ? 'Collapse all' : 'Expand all'}</button>{/if}
-        </p>
-        {#each groups as g (g.key)}
-          <section class="cat" aria-labelledby="gh-{g.key}">
-            <h2 id="gh-{g.key}" class="ch">
-              <button type="button" aria-expanded={isOpen(g.key)} disabled={searching} onclick={() => toggle(g.key)}>
-                <span class="sw" style:background={g.color}></span>
-                <span class="title">{g.name}</span>
-                <b class="num k">{formatWeight(catStats[g.key].g)}</b>
-                <span class="m">{catStats[g.key].n} items{catStats[g.key].unweighed ? ` · ${catStats[g.key].unweighed} not weighed` : ''}{catStats[g.key].consumable ? ' · not in gear weight' : ''}</span>
-                {#if !searching}<span class="chev" aria-hidden="true">▾</span>{/if}
-              </button>
-            </h2>
-            {#if isOpen(g.key)}
-            <ul class="rows">
-              {#each g.items as item (item.id)}
-                <li>
-                  <button type="button" onclick={() => open(item)}>
-                    <span class="nm">{item.name}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
-                    <span class="bg">{BAG[item.defaultBag] ?? '–'}</span>
-                    <span class="w num" class:nw={item.weightG == null}>{formatWeight(itemWeight(item))}</span>
-                  </button>
-                </li>
+    {#if tab === 'inventory'}
+      <WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />
+      <div class="inv">
+        {#if !phone.matches}
+          <nav class="side" aria-label="Jump to a category">
+            <span class="lbl">Categories</span>
+            <ul>
+              {#each groups as g (g.key)}
+                <li><button type="button" onclick={() => jump(g.key)}><span class="sw" style:background={g.color}></span><span class="n">{g.name}</span><span class="num">{formatWeight(catStats[g.key].g)}</span></button></li>
               {/each}
             </ul>
-            {/if}
-          </section>
-        {:else}
-          {#if items.length}<p class="card">Nothing matches. <button type="button" class="btn" onclick={() => (filter = { q: '', category: '', role: '' })}>Clear search and filters</button></p>{/if}
-        {/each}
-      {/if}
-
-      {#if !phone.matches || tab === 'wishlist'}
-        <section class="wish" aria-labelledby="wish-h">
-          <h2 id="wish-h" class="title">Wishlist & to buy</h2>
-          <p class="sub">Not owned yet. Not counted in the inventory or any total.</p>
-          <ul class="rows">
-            {#each wishlist as item (item.id)}
-              <li>
-                <button type="button" onclick={() => open(item)}>
-                  <span class="st st-{item.ownership}">{OWNERSHIP[item.ownership]}</span>
-                  <span class="nm">{item.name}</span>
-                  <span class="bg">{CATEGORIES.find((c) => c.key === item.category)?.name}</span>
-                  <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
-                </button>
-              </li>
+          </nav>
+        {/if}
+        <div class="list">
+          <p class="count num" aria-live="polite">
+            {inventory.length} of {stats.inventory.length} items
+            {#if !searching && groups.length}<button type="button" class="link" onclick={() => setAll(allOpen)}>{allOpen ? 'Collapse all' : 'Expand all'}</button>{/if}
+          </p>
+          <div class="cats">
+            {#each groups as g (g.key)}
+              <section class="cat" aria-labelledby="gh-{g.key}">
+                <h2 id="gh-{g.key}" class="ch">
+                  <button type="button" aria-expanded={isOpen(g.key)} disabled={searching} onclick={() => toggle(g.key)}>
+                    <span class="sw" style:background={g.color}></span>
+                    <span class="title">{g.name}</span>
+                    <b class="num k">{formatWeight(catStats[g.key].g)}</b>
+                    <span class="m">{catStats[g.key].n} items{catStats[g.key].unweighed ? ` · ${catStats[g.key].unweighed} not weighed` : ''}{catStats[g.key].consumable ? ' · not in gear weight' : ''}</span>
+                    {#if !searching}<span class="chev" aria-hidden="true">▾</span>{/if}
+                  </button>
+                </h2>
+                {#if isOpen(g.key)}
+                  <ul class="rows">
+                    {#each g.items as item (item.id)}
+                      <li>
+                        <button type="button" onclick={() => open(item)}>
+                          <span class="nm">{item.name}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
+                          <span class="bg">{BAG[item.defaultBag] ?? '–'}</span>
+                          <span class="w num" class:nw={item.weightG == null}>{formatWeight(itemWeight(item))}</span>
+                        </button>
+                      </li>
+                    {/each}
+                  </ul>
+                {/if}
+              </section>
             {:else}
-              <li class="empty">No wishlist items match.</li>
+              {#if items.length}<p class="card">Nothing matches. <button type="button" class="btn" onclick={() => (filter = { q: '', category: '', role: '' })}>Clear search and filters</button></p>{/if}
+            {/each}
+          </div>
+        </div>
+      </div>
+    {:else}
+      <section class="wish" aria-labelledby="wish-h">
+        <h2 id="wish-h" class="title">Wishlist & to buy</h2>
+        <p class="sub">Not owned yet. Not counted in the inventory or any total.</p>
+        <ul class="rows">
+          {#each wishlist as item (item.id)}
+            <li>
+              <button type="button" onclick={() => open(item)}>
+                <span class="st st-{item.ownership}">{OWNERSHIP[item.ownership]}</span>
+                <span class="nm">{item.name}</span>
+                <span class="bg">{CATEGORIES.find((c) => c.key === item.category)?.name}</span>
+                <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
+              </button>
+            </li>
+          {:else}
+            <li class="empty">No wishlist items match.</li>
+          {/each}
+        </ul>
+      </section>
+      {#if stats.gone.length}
+        <details class="gone">
+          <summary>Gone ({stats.gone.length}) <small>kept for the record, not in any list or total</small></summary>
+          <ul class="rows">
+            {#each stats.gone as item (item.id)}
+              <li><button type="button" onclick={() => open(item)}><span class="nm">{item.name}</span><span class="bg">{item.note ?? ''}</span><span class="w num muted">–</span></button></li>
             {/each}
           </ul>
-        </section>
-        {#if stats.gone.length}
-          <details class="gone">
-            <summary>Gone ({stats.gone.length}) <small>kept for the record, not in any list or total</small></summary>
-            <ul class="rows">
-              {#each stats.gone as item (item.id)}
-                <li><button type="button" onclick={() => open(item)}><span class="nm">{item.name}</span><span class="bg">{item.note ?? ''}</span><span class="w num muted">–</span></button></li>
-              {/each}
-            </ul>
-          </details>
-        {/if}
+        </details>
       {/if}
     {/if}
   {/if}
@@ -218,8 +224,9 @@
       font-size: 10px;
     }
   }
+  /* Status stays grey; orange is only for actions (design audit G3). */
   .kpis .un b {
-    color: var(--hi);
+    color: var(--ink-2);
   }
   .tabs {
     display: grid;
@@ -228,6 +235,11 @@
     border-radius: 6px;
     overflow: hidden;
     margin-bottom: 14px;
+  }
+  @media (min-width: 720px) {
+    .tabs {
+      max-width: 640px;
+    }
   }
   .tabs button {
     border: 0;
@@ -261,8 +273,14 @@
   .toolbar .q {
     grid-column: 1 / -1;
   }
+  /* The search stays at the top while you scroll (desktop). */
   @media (min-width: 720px) {
     .toolbar {
+      position: sticky;
+      top: 46px;
+      z-index: 2;
+      background: var(--ground);
+      padding: 6px 0;
       grid-template-columns: minmax(200px, 2fr) 1fr 1fr auto;
     }
     .toolbar .q {
@@ -373,7 +391,7 @@
   }
   @media (hover: hover) {
     .rows button:hover {
-      background: var(--hi-soft);
+      background: var(--paper-2);
     }
   }
   .rows .bg {
@@ -394,13 +412,13 @@
     font-weight: 400;
   }
   .rows .nw {
-    color: var(--hi);
+    color: var(--ink-3);
     font-weight: 600;
     font-size: 13px;
   }
   @media (min-width: 720px) {
     .rows button {
-      grid-template-columns: 1fr 200px 110px;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 150px) 80px;
     }
     .rows .bg {
       grid-column: 2;
@@ -415,6 +433,60 @@
   .gone {
     margin-top: 18px;
   }
+  /* Desktop: a side column to jump between categories, categories in two columns (G1). */
+  @media (min-width: 720px) {
+    .inv {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+    }
+  }
+  .side {
+    position: sticky;
+    top: 130px;
+  }
+  .side ul {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+  }
+  .side button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: none;
+    padding: 6px 2px;
+    font: inherit;
+    font-size: 14px;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .side .n {
+    flex: 1;
+  }
+  .side .num {
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  @media (hover: hover) {
+    .side button:hover {
+      background: var(--paper-2);
+    }
+  }
+  @media (min-width: 1200px) {
+    .cats {
+      columns: 2;
+      column-gap: 28px;
+    }
+    .cat {
+      break-inside: avoid;
+    }
+  }
   .gone summary {
     cursor: pointer;
     font-weight: 700;
@@ -424,10 +496,11 @@
     color: var(--ink-3);
   }
   .wish {
-    margin-top: 28px;
+    margin-top: 8px;
     padding: 16px;
     border: 2px dashed var(--ink-3);
     border-radius: 6px;
+    max-width: 1000px;
   }
   .wish .title {
     font-size: 28px;
@@ -483,8 +556,8 @@
     justify-self: start;
   }
   .st-to-buy {
-    border-color: var(--hi);
-    color: var(--hi);
+    border-color: var(--ink);
+    color: var(--ink);
   }
   .empty {
     padding: 10px 8px;

@@ -70,8 +70,13 @@
 <style>
   .ov {
     display: grid;
-    gap: 20px;
+    gap: 4px;
     margin-bottom: 22px;
+  }
+  @media (min-width: 720px) {
+    .ov {
+      gap: 20px;
+    }
   }
   @media (min-width: 900px) {
     .ov {
@@ -189,7 +194,7 @@
     font-family: var(--font-title);
     font-weight: 900;
     font-size: 20px;
-    color: var(--hi);
+    color: var(--ink-3);
     width: 1.6em;
   }
   .tn {

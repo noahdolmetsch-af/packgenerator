@@ -46,6 +46,15 @@
     }
     location.hash = '#/pack';
   }
+  // Design audit T2: from the empty page straight to "Save as template" on Pack.
+  function saveCurrent() {
+    try {
+      localStorage.setItem('pack.saveTemplate', '1');
+    } catch {
+      /* private mode: Pack opens without the dialog */
+    }
+    location.hash = '#/pack';
+  }
   const bags = (t) => Object.values(t.setup ?? {}).filter(Boolean).map((id) => bagName[id] ?? id);
   const nights = (t) => NIGHT_SETS.filter((n) => t.sets?.[n.key]).map((n) => n.name);
 </script>
@@ -76,7 +85,11 @@
         </div>
       </li>
     {:else}
-      <li class="card">No templates yet. Open a trip on the <a href="#/pack">Pack</a> page and press "Save as template".</li>
+      <li class="card empty">
+        <b>No templates yet.</b>
+        <p>A template remembers bags, items and checks of a trip, so the next trip starts packed.</p>
+        <button type="button" class="btn hi" onclick={saveCurrent}>Save the current trip as a template</button>
+      </li>
     {/each}
   </ul>
 </div>

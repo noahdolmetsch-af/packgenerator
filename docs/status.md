@@ -16,6 +16,7 @@ Stand: 4. Oktober 2026
 - **Bikes:** eigene Taschenliste, 4 Velo-Setups mit Velo-Zeichnung, Montagepunkte ein/aus, Velo- und Fahrergewicht.
 - **Pack:** Tour wählen oder neu (Kopie der letzten Tour mit demselben Velo, sonst Standard-Set), Tasche auf der Zeichnung wählen, Teile hinzufügen, verschieben, Anzahl, abhaken (am Phone Tasche für Tasche), Taschen pro Tour ändern, Ready-Check (Standardliste, pro Tour änderbar), Systemgewicht.
 
+- **Debrief und Startseite (v0.13.0):** Debrief in 3 Schritten (Wie war's, Items durchgehen, Zusammenfassung mit Vorschlägen für Gear, Learnings und Template), alle Learnings durchsuchbar. Startseite zeigt die nächste Tour mit Countdown, Packstand, Ready check, Wartung vor der Tour, Learnings, Velos und Gear. Dazu alle Vorschläge aus dem Design-Audit auf Gear, Pack, Templates, Bikes und Bike care.
 - **Pack mit grossen Taschen-Kästen (v0.12.0):** Taschen zeigen Inhalt direkt auf dem Velo, ruhiger Kopf, Layers gruppiert, Ready check zugeklappt, am Phone Taschen als Streifen. Alle Taschen als Liste mit "Move", Zweck-Namen, Vorlagen als Knöpfe, Undo, ruhigere Farben.
 - **Design-Runde 1 und Template-Editor (v0.11.0):** Gewichte in einer Zeile, Wetter klappt zu, Kacheln ziehen, kurze Namen in der Zeichnung, Templates direkt bearbeiten.
 - **Templates (v0.10.0):** Setup speichern, aktualisieren, neue Tour daraus; Seite Pack → Templates; Kacheln mit "−" statt Häkchen.
@@ -33,12 +34,11 @@ Stand: 4. Oktober 2026
 - [ ] Danach die 303 in Pack neu packen (Taschen für diese Tour prüfen).
 
 ## Läuft
-- Noah testet Pack mit der 303 (Testplan im Chat).
-- Design-Durchgang über die ganze App: Rückfragen an Noah offen.
+- Noah testet Pack mit der 303 (Testplan im Chat), danach erster echter Debrief.
 
 ## Als Nächstes
 1. Bike care verfeinern nach deinem ersten Durchgang und den Service-Fotos.
 2. Packen verfeinern nach deinem ersten Test mit der 303.
 3. Bike care (Wartung mit Erinnerung zum Event-Datum).
-4. Debrief, danach Learnings.
+4. Etappe 2: Fahren und Wartung (Wetter-Vorhersage, Wartung unterwegs).
 5. Gear: Board-Seite (Kacheln nach Gewicht) als zweite Ansicht.

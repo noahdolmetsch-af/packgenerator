@@ -1,6 +1,6 @@
 <script>
   import { db } from '../db.js';
-  import { weighQueue, parseGrams, CATEGORY } from '../gear.js';
+  import { weighQueue, parseGrams, CATEGORY, isInventory } from '../gear.js';
 
   /** items = all items (live); one item at a time, like standing at the scale */
   let { items, onclose = null } = $props();
@@ -15,6 +15,11 @@
     return [...q.filter((i) => !skipped.includes(i.id)), ...q.filter((i) => skipped.includes(i.id))];
   });
   const current = $derived(queue[0]);
+  // Progress over the whole inventory (design audit G5).
+  const owned = $derived(items.filter(isInventory));
+  const weighed = $derived(owned.filter((i) => i.weightG != null).length);
+  const pct = $derived(owned.length ? Math.round((weighed / owned.length) * 100) : 0);
+  let input = $state(null);
 
   async function save(event) {
     event.preventDefault();
@@ -30,12 +35,14 @@
     done++;
     grams = '';
     error = '';
+    input?.focus();
   }
 
   function skip() {
     skipped = [...skipped.filter((id) => id !== current.id), current.id];
     grams = '';
     error = '';
+    input?.focus();
   }
 </script>
 
@@ -45,8 +52,13 @@
     <span class="num">{queue.length} left{done ? ` · ${done} weighed now` : ''}</span>
     {#if onclose}<button type="button" class="btn" onclick={onclose}>Done</button>{/if}
   </div>
+  <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax={owned.length} aria-valuenow={weighed} aria-label="Weighed">
+    <div class="pbar"><i style:width="{pct}%"></i></div>
+    <span class="num">{weighed} of {owned.length} weighed · {pct} %</span>
+  </div>
 
   {#if current}
+    <div class="wrap">
     <form class="card" onsubmit={save} novalidate>
       <p class="cat"><span class="sw" style:background={CATEGORY[current.category]?.color}></span>{CATEGORY[current.category]?.name} · {current.id}</p>
       <p class="name">{current.name}</p>
@@ -55,7 +67,7 @@
       {#if current.weightNote}<p class="sub">{current.weightNote}</p>{/if}
       <label class="lbl" for="w-g">Weight in grams</label>
       <div class="row">
-        <input id="w-g" class="inp big num" type="text" inputmode="numeric" autocomplete="off" placeholder="0" bind:value={grams} aria-describedby="w-err" />
+        <input id="w-g" bind:this={input} class="inp big num" type="text" inputmode="numeric" autocomplete="off" placeholder="0" bind:value={grams} aria-describedby="w-err" />
         <span class="unit">g</span>
       </div>
       <p id="w-err" class="err" role="alert">{error}</p>
@@ -63,7 +75,18 @@
         <button type="submit" class="btn hi">Save and next</button>
         <button type="button" class="btn" onclick={skip}>Skip</button>
       </div>
+      <p class="tip">Enter saves and opens the next item.</p>
     </form>
+    {#if queue.length > 1}
+      <aside class="up">
+        <span class="lbl">Up next</span>
+        <ol>
+          {#each queue.slice(1, 8) as i (i.id)}<li><span class="sw" style:background={CATEGORY[i.category]?.color}></span>{i.name}</li>{/each}
+        </ol>
+        {#if queue.length > 8}<p class="more">+{queue.length - 8} more</p>{/if}
+      </aside>
+    {/if}
+    </div>
   {:else}
     <p class="card">Everything you own is weighed. 🎉</p>
   {/if}
@@ -84,8 +107,72 @@
     color: var(--ink-3);
     flex: 1;
   }
-  form {
-    max-width: 460px;
+  .prog {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    max-width: 900px;
+    color: var(--ink-3);
+    font-size: 14px;
+  }
+  .pbar {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .pbar i {
+    display: block;
+    height: 100%;
+    background: var(--ink);
+  }
+  .wrap {
+    display: grid;
+    gap: 18px;
+    max-width: 900px;
+  }
+  @media (min-width: 720px) {
+    .wrap {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      align-items: start;
+    }
+    form {
+      padding: 22px 26px;
+    }
+    .name {
+      font-size: 44px !important;
+    }
+  }
+  .tip {
+    margin: 10px 0 0;
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .up ol {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+  }
+  .up li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-2);
+  }
+  .up .sw {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    flex: none;
+  }
+  .more {
+    color: var(--ink-3);
+    font-size: 13px;
+    margin: 6px 0 0;
   }
   .cat {
     display: flex;

@@ -1,6 +1,7 @@
 <script>
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
+  import { isOver } from '../lib/debrief.js';
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, formatVolume, sortBikes } from '../lib/bikes.js';
   import { CATEGORY, CATEGORIES, formatWeight, isInventory, matches, weighQueue } from '../lib/gear.js';
@@ -22,7 +23,16 @@
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const templates = $derived($tplQ?.value ?? []);
   const fromTemplate = $derived(templates.find((t) => t.id === trip?.templateId) ?? null);
-  let saveTpl = $state(false);
+  let saveTpl = $state(takeFlag('pack.saveTemplate'));
+  function takeFlag(key) {
+    try {
+      const on = localStorage.getItem(key) === '1';
+      localStorage.removeItem(key);
+      return on;
+    } catch {
+      return false;
+    }
+  }
   let tplNote = $state('');
 
   const trips = $derived([...($tripsQ ?? [])].sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '')));
@@ -57,10 +67,22 @@
       trips[0],
   );
   const bike = $derived(trip ? bikes.find((b) => b.id === trip.bikeId) : null);
+  // Design audit P4: after the trip, Pack leads to the debrief.
+  const over = $derived(trip ? isOver(trip) : false);
+  // Start page "Print list": #/pack?print opens the print dialog once the trip is there.
+  let printed = false;
+  $effect(() => {
+    if (!printed && stats && location.hash.includes('print')) {
+      printed = true;
+      history.replaceState(null, '', '#/pack');
+      setTimeout(() => window.print(), 300);
+    }
+  });
   const stats = $derived(trip ? tripStats(trip, items, bags, bike, $riderQ?.value) : null);
 
   let zoneKey = $state('seat'); // the bag that is open
   let tab = $state('pack'); // phone: pack | add | check
+  let allWeights = $state(false); // phone: show every weight (design audit P1)
   let dialog = $state(null); // { trip } or { trip: null, startFrom? }
   // "New trip from it" on the Templates page opens the new-trip dialog with that template.
   $effect(() => {
@@ -351,21 +373,27 @@
 
     {#if tplNote}<p class="ok" role="status">{tplNote}</p>{/if}
     <!-- Design answer 9b: all weights in one compact line. -->
-    <section class="sys" aria-label="Weights">
+    <!-- Design audit P1, P2: on a phone only System, Gear and Items show, the rest behind "More";
+         in the Add tab the weights step aside so the items start higher up. -->
+    {#if over}
+      <p class="debrief-cta">This trip is over. <a class="btn hi sm" href="#/debrief/{encodeURIComponent(trip.id)}">Start debrief</a><span class="muted">Two minutes: what you used, missed or did not need.</span></p>
+    {/if}
+    <section class="sys" class:short={phone.matches && !allWeights} class:away={phone.matches && tab === 'add'} aria-label="Weights">
       {#snippet ic(name)}<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d={ICONS[name]} /></svg>{/snippet}
       <div class="w1"><span class="lbl">System</span><b class="num">{kg(stats.systemG)}</b></div>
       <div class="w1">{@render ic('bag')}<span class="lbl">Gear</span><b class="num">{formatWeight(stats.gearG)}</b></div>
-      <div class="w1">{@render ic('me')}<span class="lbl">On me</span><b class="num">{formatWeight(stats.onMeG)}</b></div>
-      <div class="w1">{@render ic('bags')}<span class="lbl">Bags</span><b class="num">{formatWeight(stats.bagsG)}</b></div>
-      <div class="w1">{@render ic('bike')}<span class="lbl">Bike</span>{#if stats.missing.bike}<a class="nw" href="#/bikes">not weighed</a>{:else}<b class="num">{formatWeight(stats.bikeG)}</b>{/if}</div>
-      <div class="w1">{@render ic('me')}<span class="lbl">Rider</span>{#if stats.missing.rider}<a class="nw" href="#/bikes">not set</a>{:else}<b class="num">{formatWeight(stats.riderG)}</b>{/if}</div>
-      {#if water}<div class="w1">{@render ic('water')}<span class="lbl">Water</span><b class="num">{Math.round(water * 10) / 10} L</b></div>{/if}
-      <div class="w1" title="Luggage on the front / rear wheel: {formatWeight(axle.front)} / {formatWeight(axle.rear)}">{@render ic('axle')}<span class="lbl">Front / rear</span><b class="num" class:warn={rearPct > rearLimit}>{rearPct != null ? `${100 - rearPct} / ${rearPct} %` : '–'}</b></div>
+      <div class="w1 sec">{@render ic('me')}<span class="lbl">On me</span><b class="num">{formatWeight(stats.onMeG)}</b></div>
+      <div class="w1 sec">{@render ic('bags')}<span class="lbl">Bags</span><b class="num">{formatWeight(stats.bagsG)}</b></div>
+      <div class="w1 sec">{@render ic('bike')}<span class="lbl">Bike</span>{#if stats.missing.bike}<a class="nw" href="#/bikes">not weighed</a>{:else}<b class="num">{formatWeight(stats.bikeG)}</b>{/if}</div>
+      <div class="w1 sec">{@render ic('me')}<span class="lbl">Rider</span>{#if stats.missing.rider}<a class="nw" href="#/bikes">not set</a>{:else}<b class="num">{formatWeight(stats.riderG)}</b>{/if}</div>
+      {#if water}<div class="w1 sec">{@render ic('water')}<span class="lbl">Water</span><b class="num">{Math.round(water * 10) / 10} L</b></div>{/if}
+      <div class="w1 sec" title="Luggage on the front / rear wheel: {formatWeight(axle.front)} / {formatWeight(axle.rear)}">{@render ic('axle')}<span class="lbl">Front / rear</span><b class="num" class:warn={rearPct > rearLimit}>{rearPct != null ? `${100 - rearPct} / ${rearPct} %` : '–'}</b></div>
       <div class="w1">{@render ic('list')}<span class="lbl">Items</span><b class="num">{stats.count}</b></div>
       {#if stats.unweighed}
         <span class="nw">{stats.unweighed} not weighed</span>
         {#if toWeigh}<button type="button" class="btn sm" onclick={() => (weighing = true)}>Weigh {toWeigh}</button>{/if}
       {/if}
+      {#if phone.matches}<button type="button" class="link morew" aria-expanded={allWeights} onclick={() => (allWeights = !allWeights)}>{allWeights ? 'Less' : 'More weights'}</button>{/if}
       {#if canUndo}<button type="button" class="btn sm undo" onclick={undoLast} title="Put back the last change">↶ Undo</button>{/if}
       {#if rearPct > rearLimit}<p class="sys-note warn">{rearPct} % of the luggage is on the rear wheel (hint above {rearLimit} %).</p>{/if}
     </section>
@@ -700,6 +728,31 @@
 {/if}
 
 <style>
+  .debrief-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-left: 6px solid var(--hi);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 0 0 14px;
+    font-weight: 600;
+  }
+  .debrief-cta .muted {
+    font-weight: 400;
+    color: var(--ink-3);
+    font-size: 14px;
+  }
+  .sys.short .sec,
+  .sys.away {
+    display: none;
+  }
+  .morew {
+    font-size: 14px;
+  }
   .big {
     font-size: clamp(38px, 5vw, 56px);
     line-height: 0.95;

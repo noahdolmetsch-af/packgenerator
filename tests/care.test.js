@@ -74,3 +74,35 @@ describe('bike care log', () => {
     expect('limit' in log[1]).toBe(false);
   });
 });
+
+import { careBeforeTrip } from '../src/lib/care.js';
+describe('care before a trip', () => {
+  it('lists unfinished preparation, due checks and open repairs of the bike, overdue first', () => {
+    const tasks = [
+      { id: 1, area: 'Preparation', task: 'Check chain wear', leadWeeks: 2 },
+      { id: 2, area: 'Preparation', task: 'Pump tyres', leadWeeks: 0 },
+      { id: 3, area: 'Bike', subject: 'Hardtail', task: 'Fix shifting', status: 'open' },
+      { id: 4, area: 'Bike', subject: 'Factor', task: 'Other bike', status: 'open' },
+    ];
+    const trip = { id: 't', startDate: '2026-10-15', bikeId: 'scott-hardtail', prep: { 2: { result: 'ok' } } };
+    const bike = { id: 'scott-hardtail', parts: [] };
+    const rows = careBeforeTrip(trip, bike, tasks, '2026-10-04');
+    expect(rows.map((r) => r.name)).toEqual(['Check chain wear', 'Fix shifting']);
+    expect(careBeforeTrip(trip, bike, tasks, '2026-10-10')[0]).toEqual({ name: 'Check chain wear', overdue: true });
+  });
+});
+
+import { isRule, prepRules } from '../src/lib/care.js';
+describe('rules among the preparation tasks', () => {
+  it('shows rules as hints, not as tasks', () => {
+    const tasks = [
+      { id: 19, area: 'Preparation', task: "Do not change saddle height, cleats or shoes any more ('nothing new')", leadWeeks: 5 },
+      { id: 20, area: 'Preparation', task: 'Check chain wear', leadWeeks: 4 },
+    ];
+    expect(isRule(tasks[0])).toBe(true);
+    expect(isRule(tasks[1])).toBe(false);
+    const trip = { startDate: '2026-10-15' };
+    expect(prepFor(trip, tasks, '2026-10-04').map((r) => r.task.id)).toEqual([20]);
+    expect(prepRules(trip, tasks)).toEqual([{ task: tasks[0], from: '2026-09-10' }]);
+  });
+});
