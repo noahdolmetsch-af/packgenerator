@@ -5,6 +5,7 @@
   import Pack from './pages/Pack.svelte';
   import Care from './pages/Care.svelte';
   import Templates from './pages/Templates.svelte';
+  import Debrief from './pages/Debrief.svelte';
 
   // A tiny "router": the part of the address after # decides which page is shown,
   // e.g. …/packgenerator/#/gear. It works offline and needs no server setup.
@@ -17,7 +18,9 @@
     window.addEventListener('hashchange', update);
     return () => window.removeEventListener('hashchange', update);
   });
-  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/bikes') ? 'bikes' : hash.startsWith('#/care') ? 'care' : hash.startsWith('#/pack/templates') ? 'templates' : hash.startsWith('#/pack') ? 'pack' : 'home');
+  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/bikes') ? 'bikes' : hash.startsWith('#/care') ? 'care' : hash.startsWith('#/pack/templates') ? 'templates' : hash.startsWith('#/pack') ? 'pack' : hash.startsWith('#/debrief') ? 'debrief' : 'home');
+  // #/debrief/<trip id> opens one trip's debrief.
+  const param = $derived(hash.split('/')[2] ?? '');
 </script>
 
 <nav class="top" aria-label="Sections">
@@ -25,10 +28,10 @@
   <a href="#/gear" aria-current={page === 'gear' ? 'page' : undefined}>Gear</a>
   <a href="#/pack" aria-current={page === 'pack' || page === 'templates' ? 'page' : undefined}>Pack</a>
   <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}>Bikes</a>
-  <span class="soon" title="Coming later">Debrief <small>soon</small></span>
+  <a href="#/debrief" aria-current={page === 'debrief' ? 'page' : undefined}>Debrief</a>
 </nav>
 
-<main class:wide={page === 'pack' || page === 'templates'}>
+<main class:wide={page === 'pack' || page === 'templates' || page === 'gear' || page === 'home'}>
   {#if page === 'gear'}
     <Gear />
   {:else if page === 'pack'}
@@ -39,6 +42,8 @@
     <Care />
   {:else if page === 'templates'}
     <Templates />
+  {:else if page === 'debrief'}
+    {#key param}<Debrief {param} />{/key}
   {:else}
     <Home />
   {/if}
@@ -85,15 +90,12 @@
       display: inline;
     }
   }
-  .top .soon {
-    opacity: 0.45;
-  }
   main {
     padding: var(--gut);
     max-width: 1200px;
     margin: 0 auto;
   }
-  /* The Pack page uses three columns on a big screen. */
+  /* Pack, Gear and Home use the full width on a big screen (design audit G4, H4). */
   main.wide {
     max-width: 1600px;
   }
