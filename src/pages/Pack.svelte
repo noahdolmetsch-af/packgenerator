@@ -77,7 +77,7 @@
   const today = new Date().toISOString().slice(0, 10);
   const trip = $derived(
     trips.find((t) => t.id === chosen) ??
-      [...trips].filter((t) => (t.startDate ?? '') >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ??
+      [...trips].filter((t) => !t.skipped && (t.startDate ?? '') >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ??
       trips[0],
   );
   const bike = $derived(trip ? bikes.find((b) => b.id === trip.bikeId) : null);
@@ -88,7 +88,7 @@
   // Before the trip (v0.18.2, answer 3a): the same list as on Home and in Bike care: preparation
   // tasks, what the bike needs (workshop from 14 days before) and open repairs.
   const before = $derived.by(() => {
-    if (!trip || over) return null;
+    if (!trip || over || trip.skipped) return null;
     const view = bike ? withVisits(bike, $visitsQ ?? []) : null;
     return tripPrep(view, trip, $tasksQ ?? [], view ? tyreSetup(view, $visitsQ ?? []) : undefined, today);
   });
@@ -419,7 +419,10 @@
         {#if whenLabel(trip.startDate)}<span class="tag hi">{whenLabel(trip.startDate)}</span>{/if}
         <span class="tag">{trip.days} {trip.days === 1 ? 'day' : 'days'}</span>
         <span class="tag">{bike?.name ?? 'No bike'}</span>
+        {#if trip.skipped}<span class="tag">Not riding</span>{/if}
         <button type="button" class="link" onclick={() => (dialog = { trip })}>Edit</button>
+        <!-- v0.19.2 (question 10): a trip you will not ride stays, but is no "next trip" and no reminder. -->
+        <button type="button" class="link" onclick={() => change(() => ({ skipped: !trip.skipped }))}>{trip.skipped ? 'Riding it after all' : 'Not riding'}</button>
       </p>
       <!-- Answer 5a: the templates as buttons; one click starts a new trip from it. -->
       {#if templates.length}

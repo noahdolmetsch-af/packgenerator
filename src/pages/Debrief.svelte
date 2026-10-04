@@ -14,6 +14,7 @@
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems } from '../lib/debrief.js';
   import { parseActivitiesCsv, parseRideFile, ridesOnTrip } from '../lib/activities.js';
   import Pace from '../lib/debrief/Pace.svelte';
+  import Compare from '../lib/debrief/Compare.svelte';
 
   let { param = '' } = $props();
 
@@ -375,6 +376,8 @@
         {/each}
       </section>
     {/if}
+
+    <Compare {trips} {debriefs} {items} />
 
     <Pace />
 
