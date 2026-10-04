@@ -10,9 +10,9 @@
   import { LAST_BACKUP, BACKUP_DAYS, backupDue, downloadBackup } from '../lib/backup.js';
   import { formatWeight } from '../lib/gear.js';
   import { sortBikes } from '../lib/bikes.js';
-  import { withVisits } from '../lib/workshop.js';
+  import { withVisits, tripPrep, tyreSetup } from '../lib/workshop.js';
   import { tripStats, daysUntil, readyDone, RAIN } from '../lib/trips.js';
-  import { careBeforeTrip, checkState, serviceDue, needsWork, wear, taskBike, isPrep } from '../lib/care.js';
+  import { checkState, serviceDue, needsWork, wear, taskBike, isPrep } from '../lib/care.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
@@ -55,7 +55,9 @@
   );
   const ready = $derived(next?.ready ?? []);
   const readyN = $derived(ready.filter((r) => readyDone(r, next)).length);
-  const care = $derived(next ? careBeforeTrip(next, bike, tasks) : []);
+  // v0.18.2 (answer 3a): the same list "Before the trip" as in Pack and Bike care.
+  const before = $derived(next ? tripPrep(bike, next, tasks, bike ? tyreSetup(bike, $visitsQ ?? []) : undefined) : null);
+  const care = $derived(before?.rows ?? []);
   const tips = $derived(learningsFor(next, learnings, 3));
   const debrief = $derived(toDebrief(trips, $debriefsQ ?? [])[0] ?? null);
   const wx = $derived(next?.wx);
@@ -159,10 +161,10 @@
             <p>{ready.filter((r) => !readyDone(r, next)).slice(0, 3).map((r) => r.label).join(', ') || 'All done'}</p>
             <a class="btn sm" href="#/pack" onclick={() => openTrip(next.id)}>{days > 1 ? 'Open on the day' : 'Open'}</a>
           </div>
-          <div class="tile" class:due={care.some((c) => c.overdue)}>
-            <span class="lbl">Bike care before the trip</span>
+          <div class="tile" class:due={care.some((c) => c.late)}>
+            <span class="lbl">Before the trip</span>
             <b class="v num">{care.length ? `${care.length} to do` : 'All done'}</b>
-            <p>{care.slice(0, 2).map((c) => c.name).join(' · ') || 'Nothing due on this bike.'}</p>
+            <p>{care.slice(0, 2).map((c) => c.name).join(' · ') || 'Nothing left to do.'}</p>
             <a class="btn sm" href="#/care">Go to bike care</a>
           </div>
         </div>

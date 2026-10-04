@@ -6,7 +6,7 @@
  *
  * Pure functions only, so they are easy to test.
  */
-import { PART, PARTS, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM } from './care.js';
+import { PART, PARTS, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM, prepFor, prepRules, isPrep, taskBike } from './care.js';
 
 const DAY = 864e5;
 const iso = (d) => d.toISOString().slice(0, 10);
@@ -163,7 +163,14 @@ const lastServiceOf = (p) => [...(p.history ?? [])].reverse().find((h) => h.acti
 export function beforeTrip(bike, trip, setup = { front: null, rear: null }, today = iso(new Date())) {
   if (!bike || !trip?.startDate) return null;
   const end = addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1);
-  if (today > end || today < addDays(trip.startDate, -REMIND_DAYS)) return null;
+  if (today > end) return null;
+  // Earlier than 14 days before: only what is already due today (answer 10a).
+  const early = today < addDays(trip.startDate, -REMIND_DAYS);
+  const res = bikeDue(bike, trip, setup, today, end);
+  return early ? { ...res, rows: res.rows.filter((r) => r.when === 'now' && (r.late || r.worn)) } : res;
+}
+
+function bikeDue(bike, trip, setup, today, end) {
   const tripKm = typeof trip.route?.km === 'number' ? trip.route.km : null;
   const rows = [];
   // By time: fork, shock, sealant.
@@ -189,7 +196,41 @@ export function beforeTrip(bike, trip, setup = { front: null, rear: null }, toda
   }
   // Worn parts and open work.
   for (const p of (bike.parts ?? []).filter((x) => needsWork(x) || wear(x) === 'worn')) {
-    rows.push({ key: p.key, name: `${PART[p.key]?.name ?? p.key}: replace or fix`, when: 'now', detail: needsWork(p) ? 'work needed' : 'worn' });
+    rows.push({ key: p.key, name: `${PART[p.key]?.name ?? p.key}: replace or fix`, when: 'now', worn: true, detail: needsWork(p) ? 'work needed' : 'worn' });
   }
   return { days: Math.max(0, daysBetween(today, trip.startDate)), rows: rows.sort((a, b) => Number(a.when !== 'now') - Number(b.when !== 'now')) };
+}
+
+/* ---------- one list "Before the trip" (v0.18.2, answer 3a) ---------- */
+
+/**
+ * Everything to do before a trip, in one list for Home, Pack and Bike care: the preparation
+ * tasks with their dates, what the bike needs (workshop, from 14 days before; things due
+ * today always) and open repairs of this bike.
+ * Returns { rows, done, total, rules } or null without a dated trip.
+ * rows: [{ key, kind: 'prep' | 'bike' | 'repair', name, detail, late, when: 'now' | 'during', due, prep?, task? }],
+ * late first, then by date, things due on the way last. done/total count the preparation tasks.
+ */
+const short = (date) => new Date(`${date}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+
+export function tripPrep(bike, trip, tasks = [], setup = { front: null, rear: null }, today = iso(new Date())) {
+  if (!trip?.startDate) return null;
+  const prep = prepFor(trip, tasks, today);
+  const rows = prep
+    .filter((r) => !r.finished)
+    .map((r) => ({
+      key: `prep:${r.task.id}`, kind: 'prep', name: r.task.task, late: r.overdue || r.needed, when: 'now', due: r.due, prep: r,
+      detail: r.needed ? 'work needed' : r.overdue ? `was due ${short(r.due)}` : `by ${short(r.due)}`,
+    }));
+  for (const b of beforeTrip(bike, trip, setup, today)?.rows ?? []) {
+    rows.push({ key: `bike:${b.key}:${b.when}`, kind: 'bike', name: b.name, detail: b.detail, late: !!(b.late || b.worn), when: b.when, due: null });
+  }
+  if (bike) {
+    for (const t of tasks.filter((x) => !isPrep(x) && taskBike(x) === bike.id && (x.status === 'open' || x.status === 'needed'))) {
+      rows.push({ key: `repair:${t.id}`, kind: 'repair', name: t.task, detail: t.status === 'needed' ? 'work needed' : 'open repair', late: t.status === 'needed', when: 'now', due: null, task: t });
+    }
+  }
+  const rank = (r) => (r.late ? 0 : r.when === 'during' ? 2 : 1);
+  rows.sort((a, b) => rank(a) - rank(b) || (a.due ?? '9').localeCompare(b.due ?? '9'));
+  return { rows, done: prep.filter((r) => r.finished).length, total: prep.length, rules: prepRules(trip, tasks).filter((r) => r.from <= today) };
 }
