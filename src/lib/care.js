@@ -165,7 +165,7 @@ export function prepFor(trip, tasks, today = iso(new Date())) {
   if (!trip.startDate) return [];
   const start = new Date(`${trip.startDate}T00:00:00Z`).getTime();
   return tasks
-    .filter(isPrep)
+    .filter((t) => isPrep(t) && !isRule(t))
     .map((t) => {
       const due = iso(new Date(start - Math.round((t.leadWeeks ?? 0) * 7) * DAY));
       const state = trip.prep?.[t.id] ?? null;
@@ -173,6 +173,20 @@ export function prepFor(trip, tasks, today = iso(new Date())) {
       return { task: t, due, state, finished, overdue: !finished && due < today, needed: state?.result === 'needed' };
     })
     .sort((a, b) => a.due.localeCompare(b.due) || a.task.id - b.task.id);
+}
+
+/**
+ * Rules instead of tasks (design audit C3): "Do not change saddle height … any more" has nothing
+ * to tick off. They show as a hint from their date on, without buttons.
+ */
+export const isRule = (task) => /^(do not|don't|never)\b|nothing new|no more questions/i.test(task.task);
+export function prepRules(trip, tasks) {
+  if (!trip.startDate) return [];
+  const start = new Date(`${trip.startDate}T00:00:00Z`).getTime();
+  return tasks
+    .filter((t) => isPrep(t) && isRule(t))
+    .map((t) => ({ task: t, from: iso(new Date(start - Math.round((t.leadWeeks ?? 0) * 7) * DAY)) }))
+    .sort((a, b) => a.from.localeCompare(b.from));
 }
 
 /** Trips that get preparation tasks: a date, not over yet. */
@@ -189,4 +203,25 @@ export function wishFor(part, bike, items, id) {
     defaultBag: 'tool', ownership: 'wishlist', role: null, sets: [], kits: [], domains: ['bikepacking'],
     note: `From Bike care: ${p.name} on the ${bike.name} needs replacing.`, updatedAt: new Date().toISOString(),
   };
+}
+
+/**
+ * Everything to do on the trip's bike before the trip (start page, design audit C4):
+ * unfinished preparation tasks of this trip, the 1000 km check, chain service, parts that need work
+ * and open repairs. Each row: { name, overdue }. Overdue rows come first.
+ */
+export function careBeforeTrip(trip, bike, tasks, today = iso(new Date())) {
+  if (!trip) return [];
+  const rows = prepFor(trip, tasks, today)
+    .filter((r) => !r.finished)
+    .map((r) => ({ name: r.task.task, overdue: r.overdue || r.needed }));
+  if (bike) {
+    const parts = bike.parts ?? [];
+    const check = checkState({ ...bike, parts });
+    if (check.due) rows.push({ name: `${CHECK_KM} km check (${check.due} ${check.due === 1 ? 'part' : 'parts'})`, overdue: true });
+    for (const s of serviceDue({ ...bike, parts })) rows.push({ name: s.name, overdue: true });
+    for (const p of parts.filter((x) => needsWork(x) || wear(x) === 'worn')) rows.push({ name: `${PART[p.key]?.name ?? p.key}: replace or fix`, overdue: true });
+    for (const t of tasks.filter((x) => !isPrep(x) && taskBike(x) === bike.id && (x.status === 'open' || x.status === 'needed'))) rows.push({ name: t.task, overdue: false });
+  }
+  return rows.sort((a, b) => Number(b.overdue) - Number(a.overdue));
 }
