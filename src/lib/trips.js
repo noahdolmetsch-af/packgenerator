@@ -7,7 +7,7 @@
  *   entries           [{ itemId, slot, qty, packed }]  slot = a bike place, "body" or "mounted"
  *   ready             [{ id, group, label, itemId?, done }]  this trip's ready check
  */
-import { SLOT, SLOTS, FIXED_ZONES, containerWeight } from './bikes.js';
+import { SLOT, SLOTS, FIXED_ZONES, addedWeight } from './bikes.js';
 import { isInventory } from './gear.js';
 
 /** The fixed ready-check list, suggested for every new trip (decision 7: editable per trip). */
@@ -115,7 +115,7 @@ export function tripStats(trip, items, containers, bike, riderG) {
   });
   const bagsG = SLOTS.reduce((t, s) => {
     const bag = bagsById[trip.setup?.[s.key]];
-    return t + (bag ? containerWeight(bag, itemsById) ?? 0 : 0);
+    return t + (bag ? addedWeight(bag, itemsById) ?? 0 : 0);
   }, 0);
   const onMeG = zones.filter((z) => z.key === 'body').reduce((t, z) => t + z.grams, 0);
   const gearG = zones.filter((z) => z.key !== 'body').reduce((t, z) => t + z.grams, 0);
@@ -155,13 +155,15 @@ export function whenLabel(iso, today) {
  * Bags that were packed like gear (the Excel lists the seat pack, frame bag … as items)
  * belong in the trip's bag setup instead, so their weight is not counted twice.
  * A bag item goes to its place when that place is still free; the entry is removed.
+ * Fixtures (mounts that never come off the bike, like the Garmin mount) are removed too.
  */
-export function absorbBags(trip, containers) {
+export function absorbBags(trip, containers, fixtures = []) {
   const byItem = {};
   for (const c of containers) if (c.itemId && !byItem[c.itemId]) byItem[c.itemId] = c;
   const setup = { ...(trip.setup ?? {}) };
   const entries = [];
   for (const e of trip.entries ?? []) {
+    if (fixtures.includes(e.itemId)) continue; // always on the bike, part of the bike weight
     const bag = byItem[e.itemId];
     if (!bag) {
       entries.push(e);
@@ -185,8 +187,9 @@ export async function ensureTrips(db) {
     const bikes = await db.bikes.toArray();
     const containers = await db.containers.toArray();
     const bagItems = bagItemIds(containers);
+    const fixturesOf = (id) => bikes.find((b) => b.id === id)?.fixtures ?? [];
     const todo = (await db.trips.toArray()).filter(
-      (t) => !t.bikeId || !t.setup || !t.ready || t.entries?.some((e) => !e.slot || bagItems.has(e.itemId)),
+      (t) => !t.bikeId || !t.setup || !t.ready || t.entries?.some((e) => !e.slot || bagItems.has(e.itemId) || fixturesOf(t.bikeId).includes(e.itemId)),
     );
     for (const t of todo) {
       const bike = bikes.find((b) => b.id === t.bikeId) ?? bikes.find((b) => b.name === t.bike) ?? null;
@@ -197,7 +200,7 @@ export async function ensureTrips(db) {
         ready: t.ready ?? freshReady(),
         entries: (t.entries ?? []).map(({ container: c, ...e }) => ({ ...e, slot: e.slot ?? c ?? 'seat', packed: !!e.packed })),
       };
-      await db.trips.put(absorbBags(trip, containers));
+      await db.trips.put(absorbBags(trip, containers, fixturesOf(trip.bikeId)));
     }
     return todo.length;
   });
@@ -210,3 +213,86 @@ export const onTrip = (trip) => new Set(trip.entries.map((e) => e.itemId));
 export const zoneName = (z) => (z.bag ? z.bag.name : z.zone.name) + (z.noBag ? ' (no bag)' : '');
 
 export { SLOT };
+
+/* ---------- overnight sets (answer 4: switches per trip) ---------- */
+
+export const NIGHT_SETS = [
+  { key: 'warm', name: 'Warm' },
+  { key: 'sleep', name: 'Sleep' },
+  { key: 'cook', name: 'Cook' },
+  { key: 'light', name: 'Light' },
+];
+
+/**
+ * Switch an overnight set on or off for a trip.
+ * On: its items are added to their usual bag. Off: its items leave the trip,
+ * unless they are standard items or belong to another set that is still on.
+ */
+export function toggleSet(trip, items, key, on) {
+  const sets = { ...(trip.sets ?? {}), [key]: on };
+  const inSet = items.filter((i) => isInventory(i) && i.sets?.includes(key));
+  let entries = trip.entries;
+  if (on) {
+    const have = new Set(entries.map((e) => e.itemId));
+    entries = [...entries, ...inSet.filter((i) => !have.has(i.id)).map((i) => ({ itemId: i.id, slot: slotFor(i.defaultBag, trip.setup), qty: 1, packed: false }))];
+  } else {
+    const byId = Object.fromEntries(items.map((i) => [i.id, i]));
+    const keep = (i) => i.role === 'standard' || i.role === 'worn' || i.sets?.some((s) => s !== key && (s === 'base' || sets[s]));
+    const drop = new Set(inSet.filter((i) => !keep(i)).map((i) => i.id));
+    entries = entries.filter((e) => !drop.has(e.itemId) || !byId[e.itemId]);
+  }
+  return { sets, entries };
+}
+
+/* ---------- weather (answer 5: a temperature range per trip; the clothes come from layers.js) ---------- */
+
+export const WX_PRESETS = [
+  { name: 'Cold', min: -2, max: 4 },
+  { name: 'Chilly', min: 4, max: 12 },
+  { name: 'Mild', min: 10, max: 18 },
+  { name: 'Warm', min: 16, max: 24 },
+  { name: 'Hot', min: 22, max: 32 },
+];
+export const RAIN = { none: 'dry', showers: 'showers', rain: 'rain' };
+
+/* ---------- bag too full (answer 3: hint, plus an optional suggestion) ---------- */
+
+/** Answer 4 (round C): keep 20 % of every bag free. Over 80 % is a hint, never a blocker. */
+export const FILL_LIMIT = 0.8;
+export const tooFull = (zone) => !!zone.bag?.volumeL && zone.vol > zone.bag.volumeL * FILL_LIMIT;
+
+/** A bigger bag for the same place that keeps 20 % free with what is packed, or null. */
+export function biggerBag(zone, containers) {
+  if (!tooFull(zone)) return null;
+  return (
+    containers
+      .filter((c) => c.slot === zone.key && c.id !== zone.bag.id && (c.volumeL ?? 0) * FILL_LIMIT >= zone.vol)
+      .sort((a, b) => a.volumeL - b.volumeL)[0] ?? null
+  );
+}
+
+/* ---------- weight per wheel (answer 9) ---------- */
+
+// Wheel hubs on the drawing: rear at x 150, front at x 590.
+const REAR_X = 150;
+const FRONT_X = 590;
+
+/**
+ * Luggage on the bike split between the wheels, by where each bag sits on the drawing
+ * (a bag above the rear hub is all rear, one at the handlebar mostly front).
+ * Only gear and bags on the bike; "On me" and the bike itself are left out.
+ */
+export function axleLoad(stats, itemsById) {
+  let front = 0;
+  let rear = 0;
+  for (const z of stats.zones) {
+    if (z.key === 'body') continue;
+    const box = z.zone.box;
+    const share = z.key === 'mounted' || !box ? 0.5 : Math.min(1, Math.max(0, (box.x + box.w / 2 - REAR_X) / (FRONT_X - REAR_X)));
+    const bagG = z.bag ? addedWeight(z.bag, itemsById) ?? 0 : 0;
+    const g = z.grams + bagG;
+    front += g * share;
+    rear += g * (1 - share);
+  }
+  return { front: Math.round(front), rear: Math.round(rear) };
+}

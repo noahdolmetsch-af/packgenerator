@@ -31,6 +31,7 @@ export const BAGS = [
   { key: 'side', name: 'Side bags' },
   { key: 'frame', name: 'Frame bag' },
   { key: 'top', name: 'Top tube bag' },
+  { key: 'bar', name: 'Front roll' },
   { key: 'pouchL', name: 'Pouch left' },
   { key: 'pouchR', name: 'Pouch right' },
   { key: 'tool', name: 'Tool bag' },
@@ -40,15 +41,15 @@ export const BAGS = [
 ];
 export const BAG = Object.fromEntries(BAGS.map((b) => [b.key, b.name]));
 
-export const OWNERSHIP = { owned: 'Owned', unclear: 'Unclear', 'to-buy': 'To buy', wishlist: 'Wishlist' };
+export const OWNERSHIP = { owned: 'Owned', unclear: 'Unclear', 'to-buy': 'To buy', wishlist: 'Wishlist', gone: 'Gone' };
 export const ROLES = { worn: 'Worn', standard: 'Standard pack', optional: 'Optional' };
-export const SETS = { base: 'Night: Base', warm: 'Night: Warm', sleep: 'Night: Sleep', cook: 'Night: Cook' };
+export const SETS = { base: 'Night: Base', warm: 'Night: Warm', sleep: 'Night: Sleep', cook: 'Night: Cook', light: 'Night: Light' };
 
 /** Food and water are used up on the way: they are packed, but not part of the gear weight. */
 export const CONSUMABLE_CATEGORIES = ['food'];
 export const isConsumable = (item) => CONSUMABLE_CATEGORIES.includes(item.category);
 
-/** Owned and unclear items are the inventory; wishlist and to-buy are kept apart. */
+/** Owned and unclear items are the inventory; wishlist and to-buy are kept apart; gone items only stay for the record. */
 export const isInventory = (item) => item.ownership === 'owned' || item.ownership === 'unclear';
 
 /** Weight of all pieces (e.g. a pair of side bags = 2 × 450 g); null when not weighed. */
@@ -69,10 +70,15 @@ export function gearStats(items) {
   const cats = Object.fromEntries(CATEGORIES.map((c) => [c.key, { ...c, g: 0, n: 0, unweighed: 0, consumable: CONSUMABLE_CATEGORIES.includes(c.key) }]));
   const inventory = [];
   const wishlist = [];
+  const gone = [];
   let total = 0;
   let consumablesG = 0;
   let unweighed = 0;
   for (const item of items) {
+    if (item.ownership === 'gone') {
+      gone.push(item);
+      continue;
+    }
     if (!isInventory(item)) {
       wishlist.push(item);
       continue;
@@ -94,7 +100,7 @@ export function gearStats(items) {
     .filter((i) => itemWeight(i) > 0 && !isConsumable(i))
     .sort((a, b) => itemWeight(b) - itemWeight(a) || a.name.localeCompare(b.name))
     .slice(0, 10);
-  return { cats: CATEGORIES.map((c) => cats[c.key]), total, consumablesG, unweighed, top, inventory, wishlist };
+  return { cats: CATEGORIES.map((c) => cats[c.key]), total, consumablesG, unweighed, top, inventory, wishlist, gone };
 }
 
 /** Does an item match the search text and filters? */

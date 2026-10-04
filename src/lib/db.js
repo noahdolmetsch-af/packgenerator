@@ -66,6 +66,8 @@ export const DATA_TABLES = [
  * @property {number|null} weightG
  * @property {string[]} slots       slots this bike has mounts for
  * @property {Object<string, string|null>} setup  slot → container id that sits there by default
+ * @property {string[]} [fixtures]  gear items always mounted on this bike (e.g. Garmin mount); counted in the bike weight
+ * @property {string} [weightNote]
  */
 
 /**

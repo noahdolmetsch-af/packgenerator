@@ -81,6 +81,10 @@ Wichtig: Beide Speicher gehören zum *Browser auf diesem Gerät*. Darum gibt es 
 - **Die Zeichnung** (`BikeStage.svelte`) rechnet die Kästchen aus einem 720 × 420 Bild in Prozent um. So wächst und schrumpft sie mit dem Bildschirm.
 - **Eine Tour** speichert eine Kopie des Velo-Setups und eine Liste `entries` (Teil, Platz, Anzahl, abgehakt). Alle Gewichte rechnet `tripStats` aus dieser Liste, nichts wird doppelt gespeichert.
 - **Datenbank-Version 2:** `db.version(2)` fügt nur die Tabelle `containers` hinzu. Dexie macht das beim nächsten Öffnen selbst, bestehende Daten bleiben.
+- **Daten-Updates aus dem Chat** (`src/lib/updates.js`): Änderungen, die du im Chat beschreibst (z.B. welche Taschen an welchem Velo hängen), laufen einmal pro Gerät. Sie ändern nur die genannten Felder, deine eigenen Eingaben bleiben.
+- **Drucken:** `@media print` in `Pack.svelte` blendet alles aus ausser der Liste pro Tasche. Im Druckdialog "Als PDF speichern" wählen.
+- **Schichten** (`src/lib/layers.js`): Ein Teil kann Felder wie `ride: 'daily'`, `coldBelow: 10` oder `rain: 'yes'` haben. `layerSuggest` liest die Tour (Fahrtart, Stunden, Wetter) und gibt eine Liste zurück: was dazukommt, warum, getragen oder eingepackt, wie viele Stück. Die Regeln stehen also in den Daten, nicht im Code. Darum kannst du sie in Gear selbst ändern.
+- **Ersetzen** (`src/lib/replace.js`): Wird ein Teil ersetzt, sucht `replaceEverywhere` alle Touren, Taschen und Halterungen mit der alten ID und setzt die neue ein. Das läuft in einer Transaktion, also ganz oder gar nicht.
 - **Aufräumen beim Start** (`src/lib/tidy.js`): Taschenliste anlegen, Velos ergänzen, alte Touren umstellen. Jeder Schritt ändert nur, was es noch braucht.
 
 ## 10. Tests

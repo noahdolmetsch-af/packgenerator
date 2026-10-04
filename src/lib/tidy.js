@@ -1,6 +1,7 @@
 import { tidyBrands } from './brand.js';
 import { ensureBikeSetup } from './bikes.js';
 import { ensureTrips } from './trips.js';
+import { applyUpdates } from './updates.js';
 
 /**
  * Small one-time fixes that run on every start and after an import.
@@ -10,4 +11,6 @@ export async function tidyData(db) {
   await tidyBrands(db);
   await ensureBikeSetup(db);
   await ensureTrips(db); // needs the bikes to be set up first
+  await applyUpdates(db); // changes Noah asked for in the chat
+  await ensureTrips(db); // again, for bags and mounts the updates added
 }

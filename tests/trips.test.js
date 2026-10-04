@@ -83,3 +83,43 @@ describe('bags packed as items', () => {
     expect(t.setup).toEqual({ top: 'bag-TA06', carry: 'bag-TA10' });
   });
 });
+
+describe('pack extras', () => {
+  it('switches an overnight set on and off', async () => {
+    const { toggleSet } = await import('../src/lib/trips.js');
+    const its = [
+      { id: 'W1', ownership: 'owned', sets: ['warm'], defaultBag: 'seat' },
+      { id: 'W2', ownership: 'owned', sets: ['warm', 'sleep'], defaultBag: 'seat' },
+      { id: 'S1', ownership: 'owned', sets: ['warm'], role: 'standard', defaultBag: 'top' },
+    ];
+    const trip = { setup: { seat: 'b', top: 'c' }, sets: { sleep: true }, entries: [{ itemId: 'S1', slot: 'top' }] };
+    const on = toggleSet(trip, its, 'warm', true);
+    expect(on.entries.map((e) => e.itemId)).toEqual(['S1', 'W1', 'W2']);
+    const off = toggleSet({ ...trip, ...on }, its, 'warm', false);
+    expect(off.entries.map((e) => e.itemId)).toEqual(['S1', 'W2']); // W2 stays for "sleep", S1 is standard
+  });
+
+  it('hints above 80 % and offers a bag that keeps 20 % free', async () => {
+    const { biggerBag, tooFull } = await import('../src/lib/trips.js');
+    const zone = { key: 'seat', vol: 14, bag: { id: 'a', volumeL: 16.5 } };
+    expect(tooFull(zone)).toBe(true); // 14 L is 85 % of 16.5 L
+    expect(tooFull({ ...zone, vol: 13 })).toBe(false);
+    const bags = [{ id: 'a', slot: 'seat', volumeL: 16.5 }, { id: 's', slot: 'seat', volumeL: 17 }, { id: 't', slot: 'seat', volumeL: 18 }];
+    expect(biggerBag(zone, bags)?.id).toBe('t'); // 17 L would be 82 % full
+    expect(biggerBag({ ...zone, vol: 10 }, bags)).toBe(null);
+  });
+
+  it('splits the luggage between the wheels', async () => {
+    const { axleLoad } = await import('../src/lib/trips.js');
+    const zones = [
+      { key: 'body', grams: 5000, zone: { box: null } },
+      { key: 'seat', grams: 1000, bag: null, zone: { box: { x: 100, w: 100 } } }, // centre 150 = rear hub
+      { key: 'bar', grams: 1000, bag: null, zone: { box: { x: 540, w: 100 } } }, // centre 590 = front hub
+      { key: 'mounted', grams: 400, bag: null, zone: { box: { x: 0, w: 10 } } },
+    ];
+    expect(axleLoad({ zones }, {})).toEqual({ front: 1200, rear: 1200 });
+    // A bottle cage is weighed with the bike, so it adds nothing here.
+    const cage = { key: 'cage1', grams: 0, bag: { slot: 'cage1', itemId: 'BK04', pieces: 1 }, zone: { box: { x: 100, w: 100 } } };
+    expect(axleLoad({ zones: [cage] }, { BK04: { weightG: 40 } })).toEqual({ front: 0, rear: 0 });
+  });
+});
