@@ -33,3 +33,10 @@ Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
 | 4.10.2026 | **Datenmodell bereichsneutral** (Tour-Typ, Behälter statt nur Velotaschen) | Skitour, Reisen usw. später ohne Umbau |
 | 4.10.2026 | **Backup: Desktop sichert automatisch in einen Ordner** (File System Access API) | Fast automatischer Sync ohne Server |
 | 4.10.2026 | **Lernen: jeder PR mit Erklärung in einfachen Worten + Lern-Seite** (`docs/learn/`) | Noah will verstehen, wie der Code funktioniert |
+| 4.10.2026 | **Datenbank: IndexedDB über Dexie**, ein Datenmodell für alle Bereiche (`src/lib/db.js`) | Offline, viel Platz, gut lesbare Abfragen |
+| 4.10.2026 | **Ein Dateiformat für alles:** Export, Import, Ordner-Sicherung und Excel-Import nutzen dieselbe Backup-Datei | Nur ein Weg, der getestet werden muss |
+| 4.10.2026 | Import fragt **"Replace all data" oder "Merge"**; schlägt etwas fehl, bleibt alles unverändert | Daten dürfen nie verloren gehen |
+| 4.10.2026 | Ordner-Sicherung schreibt `pack-generator-latest.json` plus eine Datei pro Tag | Neuester Stand für das Phone, Verlauf als Sicherheit |
+| 4.10.2026 | Excel-Konverter nimmt englische Texte aus dem Prototyp; der Rest kommt aus einer **privaten Übersetzungsdatei** im Projektordner | Persönliche Daten bleiben ausserhalb des öffentlichen Repos |
+| 4.10.2026 | "303 Plan" wird ein geplanter Trip; Alpenbrevet-Etappen hängen am Event; Dashboard, Quellen und Anleitung werden nicht importiert | Diese drei Blätter beschreiben nur die Excel selbst |
+| 4.10.2026 | Standard-Tasche pro Teil nach den Regeln des Prototyps (Packliste, sonst Bibliothek, sonst Kategorie) | In der Excel fehlt sie bei 153 von 191 Teilen |

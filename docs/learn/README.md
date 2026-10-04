@@ -20,6 +20,9 @@ index.html              Einstiegsseite; lädt src/main.js
 src/main.js             Startet Svelte und hängt die App in die Seite
 src/App.svelte          Die Startseite der App (bisher eine Komponente)
 src/app.css             Trail-Journal-Farben und Schriften für alles
+src/lib/                Datenbank, Backups und Bausteine (Komponenten)
+tests/                  Automatische Tests
+tools/import-excel/     Einmaliger Excel-Konverter
 public/                 Dateien, die unverändert mitkommen (Icons, Prototyp)
 public/cockpit/         Der Bike-Cockpit-Prototyp als eigene Offline-App
 vite.config.js          Einstellungen für Vite und die PWA (Manifest, Offline-Cache)
@@ -37,15 +40,40 @@ docs/                   Entscheide, Projektstand und diese Lern-Seite
 ## 4. Wie kommen Daten offline auf das Gerät?
 
 - **Prototyp:** speichert alles im `localStorage` des Browsers (ein einfacher Text-Speicher pro Webseite). Der Backup-Dialog lädt diesen Text als JSON-Datei herunter oder schreibt eine Datei zurück.
-- **Neue App (nächster Schritt):** speichert in **IndexedDB**, einer richtigen Datenbank im Browser, die viel mehr Daten fasst. Wir benutzen dafür die Bibliothek *Dexie*.
+- **Neue App:** speichert in **IndexedDB**, einer richtigen Datenbank im Browser, die viel mehr Daten fasst. Wir benutzen dafür die Bibliothek *Dexie* (`src/lib/db.js`).
 
 Wichtig: Beide Speicher gehören zum *Browser auf diesem Gerät*. Darum gibt es Export/Import, um Daten zwischen Desktop und Phone zu bewegen und zu sichern.
 
-## 5. Selbst ausprobieren
+## 5. Die Datenbank (`src/lib/db.js`)
+
+- Eine **Tabelle** pro Art von Daten: `items` (Gear), `trips`, `debriefs`, `learnings` usw.
+- In `db.version(1).stores({ items: 'id, category, ownership, …' })` steht pro Tabelle zuerst der **Primärschlüssel** (das Feld, das einen Datensatz eindeutig macht, z.B. `EL01`), danach die Felder, nach denen wir schnell suchen wollen (**Indexe**). Alle anderen Felder werden trotzdem gespeichert.
+- `SCHEMA_VERSION`: Ändert sich später die Form der Daten, erhöhen wir die Zahl und schreiben einen Umbau-Schritt. So bleiben alte Daten lesbar.
+- Tabelle `meta` ist nur für die App selbst (z.B. welcher Ordner für Backups gewählt ist) und kommt nie in eine Backup-Datei.
+
+## 6. Backups (`src/lib/backup.js`, `src/lib/folderBackup.js`)
+
+- `buildBackup` liest alle Tabellen und baut **ein JSON-Objekt**: `{ app, schemaVersion, exportedAt, tables }`.
+- `validateBackup` prüft eine Datei, bevor irgendetwas geschrieben wird.
+- `restoreBackup` schreibt alles in **einer Transaktion**: Entweder klappt alles, oder es ändert sich gar nichts. Ein Test prüft genau das ("a broken file changes nothing").
+- Die **Ordner-Sicherung** nutzt die *File System Access API* von Chrome/Edge am Desktop. Der gewählte Ordner wird gemerkt; nach jeder Änderung (Dexie-"Hooks" melden jede Änderung) wartet die App 2 Sekunden und schreibt dann die Dateien. Nach einem Browser-Neustart verlangt Chrome aus Sicherheitsgründen einen Klick auf "Allow backup".
+
+## 7. Svelte-Begriffe aus `src/lib/DataPanel.svelte`
+
+- `liveQuery(...)` (von Dexie): eine Abfrage, die sich selbst neu ausführt, wenn sich die Daten ändern. Mit `$counts` liest Svelte den aktuellen Wert.
+- `$state.raw(...)`: wie `$state`, aber Svelte "verpackt" den Inhalt nicht. Nötig, weil die Datenbank nur reine Daten speichern kann.
+- `onclick={exportFile}`: ruft die Funktion beim Klick auf.
+
+## 8. Tests
+
+`npm test` startet **Vitest**. Die Tests liegen in `tests/` und laufen ohne Browser: `fake-indexeddb` spielt die Browser-Datenbank im Speicher nach. Getestet wird z.B., dass Export → Import genau dieselben Daten ergibt.
+
+## 9. Selbst ausprobieren
 
 ```
 npm install       # einmal: Bausteine herunterladen
 npm run dev       # App lokal starten, Änderungen erscheinen sofort
 npm run build     # fertige App in dist/ bauen
 npm run preview   # gebaute App lokal ansehen (inkl. Offline-Funktion)
+npm test          # alle Tests laufen lassen
 ```

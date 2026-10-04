@@ -1,4 +1,6 @@
 <script>
+  import DataPanel from './lib/DataPanel.svelte';
+
   // $state makes a variable reactive: when it changes, the page updates by itself.
   let online = $state(navigator.onLine);
 
@@ -49,6 +51,8 @@
       {/each}
     </ol>
   </section>
+
+  <DataPanel />
 
   <footer>
     <span class="dot" class:off={!online}></span>
