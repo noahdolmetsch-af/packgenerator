@@ -39,7 +39,7 @@ export function distKm(a, b) {
 }
 
 /** Climbing with a 3 m threshold, so GPS noise on the flat does not count as climbing. */
-function climb(points, threshold = 3) {
+export function climb(points, threshold = 3) {
   let gain = 0;
   let loss = 0;
   let ref = null;
@@ -61,6 +61,23 @@ export function thin(points, n = 200) {
 }
 const round = (v) => Math.round(v * 1e5) / 1e5;
 
+/**
+ * Elevation profile (v0.18.0, answer 4b): [[km from the start, metres], …], at most n points.
+ * Empty when the file has no elevation.
+ */
+export function profileOf(points, n = 300) {
+  if (points.filter((p) => p.ele != null).length < 2) return [];
+  let km = 0;
+  const all = points.map((p, i) => {
+    if (i) km += distKm(points[i - 1], p);
+    return [Math.round(km * 100) / 100, p.ele == null ? null : Math.round(p.ele)];
+  });
+  const withEle = all.filter((x) => x[1] != null);
+  if (withEle.length <= n) return withEle;
+  const step = (withEle.length - 1) / (n - 1);
+  return Array.from({ length: n }, (_, i) => withEle[Math.round(i * step)]);
+}
+
 /** The numbers to store on the trip. */
 export function routeStats(gpx, file = '') {
   const { points } = gpx;
@@ -77,6 +94,7 @@ export function routeStats(gpx, file = '') {
     start: { lat: round(first.lat), lon: round(first.lon) },
     end: { lat: round(last.lat), lon: round(last.lon) },
     line: thin(points),
+    profile: profileOf(points),
     file,
   };
 }

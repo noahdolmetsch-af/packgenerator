@@ -10,7 +10,7 @@
   import BikesNav from '../lib/care/BikesNav.svelte';
   import PartDialog from '../lib/care/PartDialog.svelte';
   import VisitDialog from '../lib/care/VisitDialog.svelte';
-  import { withVisits, visitsOf, visitTotal, tyreSetup, timeDue, costByYear, costByPart, costPer1000, lastPrice } from '../lib/workshop.js';
+  import { withVisits, visitsOf, visitTotal, tyreSetup, timeDue, costByYear, costByPart, costPer1000, lastPrice, beforeTrip } from '../lib/workshop.js';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -48,7 +48,14 @@
   }
 
   /* ---------- what is due ---------- */
-  const trips = $derived(upcomingTrips($tripsQ ?? [], today).map((t) => ({ trip: t, rows: prepFor(t, tasks, today), rules: prepRules(t, tasks) })));
+  // v0.18.0 (answers 9a, 10a): what the bike needs from the workshop before the trip, from 14 days before.
+  const trips = $derived(
+    upcomingTrips($tripsQ ?? [], today).map((t) => {
+      const v = viewById[t.bikeId];
+      const shop = v ? beforeTrip(v, t, tyreSetup(v, visits), today) : null;
+      return { trip: t, rows: prepFor(t, tasks, today), rules: prepRules(t, tasks), shop: (shop?.rows ?? []).filter((r) => !r.late) };
+    }),
+  );
   const checks = $derived(
     views.map((b) => {
       const tyres = tyreSetup(b, visits);
@@ -198,10 +205,16 @@
       </details>
     {/snippet}
 
-    {#each trips as { trip, rules, rows } (trip.id)}
+    {#each trips as { trip, rules, rows, shop } (trip.id)}
       <section class="block" aria-labelledby="trip-{trip.id}">
         <h2 id="trip-{trip.id}" class="title">Before {trip.title} <small>{trip.startDate} · {bikeById[trip.bikeId]?.name ?? 'no bike'} · {rows.filter((r) => r.finished).length}/{rows.length}</small></h2>
         {#if rows.some((r) => r.overdue)}<p class="hint">{rows.filter((r) => r.overdue).length} overdue tasks are under "Due now".</p>{/if}
+        {#if shop.length}
+          <div class="shop">
+            <span class="lbl">Workshop before the trip</span>
+            <ul>{#each shop as r (r.key + r.when)}<li><b>{r.name}</b> <small>{r.detail}</small></li>{/each}</ul>
+          </div>
+        {/if}
         {#each rules as r (r.task.id)}
           <p class="rule"><span class="lbl">{r.from <= today ? 'Rule now' : `Rule from ${dueLabel(r.from)}`}</span>{r.task.task}</p>
         {/each}
@@ -848,5 +861,19 @@
     .log li {
       grid-template-columns: 1fr;
     }
+  }
+  .shop {
+    margin: 0 0 10px;
+    padding: 8px 12px;
+    border-left: 4px solid var(--ink);
+    background: var(--paper-2);
+    border-radius: 6px;
+  }
+  .shop ul {
+    margin: 4px 0 0;
+    padding-left: 18px;
+  }
+  .shop small {
+    color: var(--ink-3);
   }
 </style>

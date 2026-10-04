@@ -6,7 +6,7 @@
  *
  * Pure functions only, so they are easy to test.
  */
-import { PART, PARTS, ensureParts, partInfo } from './care.js';
+import { PART, PARTS, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM } from './care.js';
 
 const DAY = 864e5;
 const iso = (d) => d.toISOString().slice(0, 10);
@@ -145,3 +145,51 @@ export function lastPrice(visits, bikeId, key) {
 
 /** Part keys that can hold a job, for the visit editor. */
 export const JOB_PARTS = [...PARTS.map((p) => ({ key: p.key, name: p.name })), { key: 'other', name: 'Other' }];
+
+/* ---------- workshop before a trip (v0.18.0, answers 9a and 10a) ---------- */
+
+/** The reminder starts this many days before a trip. */
+export const REMIND_DAYS = 14;
+
+const lastServiceOf = (p) => [...(p.history ?? [])].reverse().find((h) => h.action === 'service' || h.action === 'replace') ?? null;
+
+/**
+ * What the bike needs before a trip: everything that is due now, and what becomes due on the way
+ * (by date, or because the route's km push it over its interval). Only from 14 days before the
+ * start until the last day; else null. bike: from withVisits.
+ * Returns { days, rows: [{ key, name, when: 'now' | 'during', late, detail }] }, "now" first.
+ * late: due already today (Bike care lists these under "Due now").
+ */
+export function beforeTrip(bike, trip, setup = { front: null, rear: null }, today = iso(new Date())) {
+  if (!bike || !trip?.startDate) return null;
+  const end = addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1);
+  if (today > end || today < addDays(trip.startDate, -REMIND_DAYS)) return null;
+  const tripKm = typeof trip.route?.km === 'number' ? trip.route.km : null;
+  const rows = [];
+  // By time: fork, shock, sealant.
+  for (const t of timeDue(bike, setup, today)) {
+    if (t.never || t.next > end) continue;
+    const now = t.next < trip.startDate;
+    rows.push({ key: t.key, name: t.name, when: now ? 'now' : 'during', late: t.overdue, detail: t.overdue ? `overdue since ${t.next}` : now ? `due ${t.next}, before the start` : `due ${t.next}, on the trip` });
+  }
+  // By km: services with their own interval (wax the chain every 150 km).
+  for (const p of (bike.parts ?? []).map(partInfo).filter((x) => x.everyKm)) {
+    const since = kmSince(bike, lastServiceOf(p));
+    if (since == null) continue;
+    const name = `${p.service} ${p.name.toLowerCase()}`;
+    if (since >= p.everyKm) rows.push({ key: p.key, name, when: 'now', late: true, detail: `${since} km since the last time (every ${p.everyKm} km)` });
+    else if (tripKm != null && since + tripKm >= p.everyKm) rows.push({ key: p.key, name, when: 'during', detail: `due after ${p.everyKm - since} km of the route` });
+  }
+  // The 1000 km check: due now, or reached on the way.
+  const check = checkState(bike);
+  if (check.due) rows.push({ key: 'check', name: `${CHECK_KM.toLocaleString('en')} km check`, when: 'now', late: true, detail: `${check.due} ${check.due === 1 ? 'point' : 'points'} due` });
+  else if (tripKm != null) {
+    const soon = check.rows.filter((r) => r.since != null && r.since + tripKm >= CHECK_KM);
+    if (soon.length) rows.push({ key: 'check', name: `${CHECK_KM.toLocaleString('en')} km check`, when: 'during', detail: `${soon.length} ${soon.length === 1 ? 'point is' : 'points are'} reached on the route. Do it before.` });
+  }
+  // Worn parts and open work.
+  for (const p of (bike.parts ?? []).filter((x) => needsWork(x) || wear(x) === 'worn')) {
+    rows.push({ key: p.key, name: `${PART[p.key]?.name ?? p.key}: replace or fix`, when: 'now', detail: needsWork(p) ? 'work needed' : 'worn' });
+  }
+  return { days: Math.max(0, daysBetween(today, trip.startDate)), rows: rows.sort((a, b) => Number(a.when !== 'now') - Number(b.when !== 'now')) };
+}

@@ -22,7 +22,7 @@ function fakeFolder(permission = 'granted') {
  */
 function useMemoryMeta(db, handle) {
   let rec = { key: 'backupFolder', handle, lastWrite: null };
-  const meta = { get: async () => rec, put: async (r) => (rec = r), delete: async () => (rec = undefined) };
+  const meta = { get: async (key) => (key === rec?.key ? rec : undefined), put: async (r) => (rec = r), delete: async () => (rec = undefined) };
   const table = db.table.bind(db);
   db.table = (name) => (name === 'meta' ? meta : table(name));
 }

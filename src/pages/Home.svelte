@@ -14,6 +14,8 @@
   import { tripStats, daysUntil, readyDone, RAIN } from '../lib/trips.js';
   import { careBeforeTrip, checkState, serviceDue, needsWork, wear, taskBike, isPrep } from '../lib/care.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
+  import { onTripDay } from '../lib/ride.js';
+  import { demoState } from '../lib/demo.js';
   import { nextTrip, toDebrief, tripEnd, learningsFor, wishCount, unweighedCount } from '../lib/debrief.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -71,7 +73,9 @@
     return { due: 0, text: `${b.km.toLocaleString('en')} km${b.weightG ? ` · ${formatWeight(b.weightG)}` : ''} · all fine` };
   };
 
-  const backup = $derived($lastQ === undefined || !items.length ? { due: false } : backupDue($lastQ));
+  const demoQ = liveQuery(() => demoState(db));
+  // No backup reminder while a demo runs (backups are off then).
+  const backup = $derived($lastQ === undefined || !items.length || $demoQ ? { due: false } : backupDue($lastQ));
   let backingUp = $state(false);
   async function backupNow() {
     backingUp = true;
@@ -92,6 +96,22 @@
       /* fine: Pack opens the next trip anyway */
     }
   };
+
+  // Ride day (answer 1a): on the days of the trip the app opens the ride view, once a day.
+  const riding = $derived(next ? onTripDay(next, new Date().toISOString().slice(0, 10)) : false);
+  $effect(() => {
+    if (!riding) return;
+    const key = 'ride.autoOpened';
+    const day = new Date().toISOString().slice(0, 10);
+    try {
+      if (localStorage.getItem(key) === `${next.id}:${day}`) return;
+      localStorage.setItem(key, `${next.id}:${day}`);
+    } catch {
+      return; // without storage it would open every time: better not at all
+    }
+    openTrip(next.id);
+    location.hash = '#/ride';
+  });
 
   let online = $state(navigator.onLine);
   $effect(() => {
@@ -151,7 +171,10 @@
           <span>{#if fc}Forecast{next.place ? ` ${next.place.name.split(',')[0]}` : ''}: {fc.min} to {fc.max} °C, {RAIN[fc.rain]}.{' '}{/if}{wx && typeof wx.min === 'number' ? `Packed for ${wx.min} to ${wx.max} °C, ${RAIN[wx.rain] ?? 'dry'}.` : 'Packed for 15 °C, dry (the base).'}{#if !fc} Set the start place in Pack to get the forecast.{/if}</span>
         </p>
         <div class="row">
-          {#if days <= 2}
+          {#if riding}
+            <a class="btn hi" href="#/ride" onclick={() => openTrip(next.id)}>Ride day</a>
+            <a class="btn" href="#/pack" onclick={() => openTrip(next.id)}>Pack</a>
+          {:else if days <= 2}
             <a class="btn hi" href="#/pack?day" onclick={() => openTrip(next.id)}>Packing day</a>
             <a class="btn" href="#/pack" onclick={() => openTrip(next.id)}>Continue packing</a>
           {:else}
