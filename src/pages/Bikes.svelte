@@ -7,12 +7,15 @@
   import BagDialog from '../lib/bikes/BagDialog.svelte';
   import BikeDialog from '../lib/bikes/BikeDialog.svelte';
   import BikesNav from '../lib/care/BikesNav.svelte';
+  import { phone } from '../lib/media.svelte.js';
+  import { nextTrip } from '../lib/debrief.js';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
   const rearQ = liveQuery(() => db.settings.get('rearLimitPct'));
+  const tripsQ = liveQuery(() => db.trips.toArray());
 
   const bikes = $derived(sortBikes($bikesQ ?? []));
   const bags = $derived($bagsQ ?? []);
@@ -22,6 +25,9 @@
   let pickedId = $state(null);
   const bike = $derived(bikes.find((b) => b.id === pickedId) ?? bikes[0]);
   const setup = $derived(bike ? bikeSetup(bike, bags, items) : null);
+  // Design audit B4: the bike's bags are the standard; the next trip on it may use others.
+  const tripOn = $derived(bike ? nextTrip(($tripsQ ?? []).filter((t) => t.bikeId === bike.id)) : null);
+  const tripBag = (key) => (tripOn && (tripOn.setup?.[key] ?? null) !== (bike.setup?.[key] ?? null) ? bags.find((b) => b.id === tripOn.setup?.[key]) ?? { name: 'no bag', none: true } : null);
 
   let editMounts = $state(false); // show all places and let the user switch mounts on and off
   let activeSlot = $state(null);
@@ -100,20 +106,24 @@
 </script>
 
 <div class="bikes">
+  <!-- Design audit B3, B5: title first, then Setup / Care; settings fold away. -->
   <header class="head">
-    <div>
-      <BikesNav current="setup" />
-      <h1 class="title">Bikes</h1>
-    </div>
-    <label class="rider">
-      <span class="lbl">Rider weight (kg)</span>
-      <input class="inp num" type="text" inputmode="decimal" value={$riderQ?.value ? $riderQ.value / 1000 : ''} onchange={saveRider} placeholder="e.g. 64" />
-    </label>
-    <label class="rider">
-      <span class="lbl">Hint when rear is over (%)</span>
-      <input class="inp num" type="text" inputmode="numeric" value={$rearQ?.value ?? ''} onchange={saveRear} placeholder="60" />
-    </label>
+    <h1 class="title">Bikes</h1>
+    <BikesNav current="setup" />
   </header>
+  <details class="settings">
+    <summary><span class="lbl">Settings</span> Rider {$riderQ?.value ? formatWeight($riderQ.value) : 'not set'} · rear wheel hint over {$rearQ?.value ?? 60} %</summary>
+    <div class="set-in">
+      <label class="rider">
+        <span class="lbl">Rider weight (kg)</span>
+        <input class="inp num" type="text" inputmode="decimal" value={$riderQ?.value ? $riderQ.value / 1000 : ''} onchange={saveRider} placeholder="e.g. 64" />
+      </label>
+      <label class="rider">
+        <span class="lbl">Hint when rear is over (%)</span>
+        <input class="inp num" type="text" inputmode="numeric" value={$rearQ?.value ?? ''} onchange={saveRear} placeholder="60" />
+      </label>
+    </div>
+  </details>
 
   {#if !bikes.length && $bikesQ}
     <p class="card">No bikes yet. Import your data on the <a href="#/">start page</a> (Your data → Import backup).</p>
@@ -160,7 +170,11 @@
 
       <div class="layout">
       <div class="left">
-      <BikeStage {zones} onpick={pick} label="{bike.name} with its bags" />
+      <!-- Design audit B1: on a phone the drawing is too small to read; it opens on request. -->
+      <details class="onbike" open={!phone.matches || editMounts}>
+        <summary>Show on the bike</summary>
+        <BikeStage {zones} onpick={pick} label="{bike.name} with its bags" />
+      </details>
 
       <div class="mounts">
         <button type="button" class="btn" class:ink={editMounts} aria-pressed={editMounts} onclick={() => (editMounts = !editMounts)}>
@@ -170,20 +184,28 @@
       </div>
       </div>
 
+      <div class="right">
+      <p class="std"><b>Standard bags</b> · Pack starts every new trip on this bike with them; a trip can change its own.</p>
+      <!-- Design audit B2: the places as a grid of small cards; places without a bag stay small and dashed. -->
       <ul class="slots">
         {#each SLOTS.filter((s) => bike.slots.includes(s.key)) as s (s.key)}
           {@const bag = bags.find((b) => b.id === bike.setup?.[s.key])}
           {@const options = bagsFor(s.key, bags)}
-          <li class:active={activeSlot === s.key}>
+          {@const other = tripBag(s.key)}
+          <li class:active={activeSlot === s.key} class:empty={!bag}>
             <label for="slot-{s.key}"><b>{s.name}</b><small>{s.where}</small></label>
+            <span class="w num" class:muted={bag && containerWeight(bag, itemsById) == null}>{bag ? formatWeight(containerWeight(bag, itemsById)) : ''}</span>
             <select id="slot-{s.key}" class="sel" value={bike.setup?.[s.key] ?? ''} onchange={(e) => setBag(s.key, e.currentTarget.value)} onfocus={() => (activeSlot = s.key)}>
               <option value="">No bag</option>
               {#each options as o (o.id)}<option value={o.id}>{o.name}{o.volumeL ? ` · ${formatVolume(o.volumeL)}` : ''}</option>{/each}
             </select>
-            <span class="w num" class:muted={bag && containerWeight(bag, itemsById) == null}>{bag ? formatWeight(containerWeight(bag, itemsById)) : ''}</span>
+            {#if other}
+              <p class="trip-bag">{tripOn.title}: {other.none ? 'no bag here' : `${other.name}${other.volumeL ? ` ${formatVolume(other.volumeL)}` : ''}`}{#if !other.none}<button type="button" class="link" onclick={() => setBag(s.key, other.id)}>Use as standard</button>{/if}</p>
+            {/if}
           </li>
         {/each}
       </ul>
+      </div>
       </div>
       {#if message}<p class="msg" role="status">{message}</p>{/if}
     </section>
@@ -227,10 +249,9 @@
   .head {
     display: flex;
     flex-wrap: wrap;
-    align-items: end;
-    justify-content: space-between;
-    gap: 12px 24px;
-    margin-bottom: 18px;
+    align-items: center;
+    gap: 8px 20px;
+    margin-bottom: 14px;
   }
   .head .title {
     font-size: clamp(56px, 12vw, 88px);
@@ -395,16 +416,33 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    background: var(--paper);
-    border-top: 3px solid var(--ink);
+    display: grid;
+    gap: 8px;
+  }
+  @media (min-width: 560px) {
+    .slots {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   .slots li {
     display: grid;
-    grid-template-columns: 1fr minmax(0, 1.4fr) 80px;
-    gap: 6px 12px;
-    align-items: center;
-    padding: 8px;
-    border-bottom: 1px solid var(--line);
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 10px;
+    align-items: start;
+    padding: 8px 10px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+  }
+  .slots li .sel {
+    grid-column: 1 / -1;
+  }
+  .slots li.empty {
+    background: transparent;
+    border: 2px dashed var(--line);
+  }
+  .slots li.empty b {
+    color: var(--ink-2);
   }
   .slots li.active {
     background: var(--hi-soft);
@@ -424,11 +462,58 @@
     text-align: right;
     font-weight: 700;
   }
+  /* Status in grey, orange only for actions (design audit B5). */
   .muted,
   .nw {
-    color: var(--hi);
+    color: var(--ink-3);
     font-weight: 600;
     font-size: 13px;
+  }
+  .settings {
+    margin: -6px 0 16px;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .settings summary {
+    cursor: pointer;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .settings summary .lbl {
+    display: inline;
+    margin: 0;
+  }
+  .set-in {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin-top: 8px;
+  }
+  .onbike > summary {
+    cursor: pointer;
+    font-weight: 700;
+    padding: 8px 0;
+  }
+  @media (min-width: 720px) {
+    .onbike > summary {
+      display: none;
+    }
+  }
+  .std {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .trip-bag {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 13px;
+    color: var(--ink-2);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    align-items: baseline;
   }
   @media (max-width: 479px) {
     .slots li {
