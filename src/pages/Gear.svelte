@@ -23,7 +23,7 @@
     await db.items.update(item.id, { role: 'optional', updatedAt: new Date().toISOString() });
   }
 
-  let filter = $state({ q: '', category: '', role: '' });
+  let filter = $state({ q: '', category: '', role: '', fav: false });
   // Tabs on every screen size (design audit G1, G2): the wishlist and weighing no longer hide
   // at the bottom of a long page. #/gear?tab=weigh opens a tab directly (from the start page).
   const TABS = ['inventory', 'wishlist', 'dead', 'weigh', 'check'];
@@ -45,7 +45,7 @@
   const groups = $derived(groupByCategory(inventory));
   const catStats = $derived(Object.fromEntries(stats.cats.map((c) => [c.key, c])));
   // While searching or filtering, every matching category is shown open.
-  const searching = $derived(!!(filter.q.trim() || filter.category || filter.role));
+  const searching = $derived(!!(filter.q.trim() || filter.category || filter.role || filter.fav));
   const isOpen = (key) => searching || !folded[key];
   const allOpen = $derived(groups.every((g) => !folded[g.key]));
   const toggle = (key) => (folded[key] = !folded[key]);
@@ -117,6 +117,8 @@
           {#each stats.cats as c (c.key)}<option value={c.key}>{c.name} ({c.n})</option>{/each}
         </select>
       </label>
+      <!-- Noah, 4.10.2026: the favourites list is the base; ★ shows only those. -->
+      <button type="button" class="toggle fav" aria-pressed={filter.fav} onclick={() => (filter.fav = !filter.fav)} title="Only my favourites">★ Favourites <small>{items.filter((i) => i.favorite).length}</small></button>
       {#if !phone.matches}
         <label>
           <span class="lbl">Role</span>
@@ -168,7 +170,7 @@
                     {#each g.items as item (item.id)}
                       <li>
                         <button type="button" onclick={() => open(item)}>
-                          <span class="nm">{item.name}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
+                          <span class="nm">{#if item.favorite}<span class="star" title="Favourite">★</span>{/if}{item.name}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
                           <span class="bg">{BAG[item.defaultBag] ?? '–'}</span>
                           <span class="w num" class:nw={item.weightG == null}>{formatWeight(itemWeight(item))}</span>
                         </button>
@@ -178,7 +180,7 @@
                 {/if}
               </section>
             {:else}
-              {#if items.length}<p class="card">Nothing matches. <button type="button" class="btn" onclick={() => (filter = { q: '', category: '', role: '' })}>Clear search and filters</button></p>{/if}
+              {#if items.length}<p class="card">Nothing matches. <button type="button" class="btn" onclick={() => (filter = { q: '', category: '', role: '', fav: false })}>Clear search and filters</button></p>{/if}
             {/each}
           </div>
         </div>
@@ -192,7 +194,7 @@
             <li>
               <button type="button" onclick={() => open(item)}>
                 <span class="st st-{item.ownership}">{OWNERSHIP[item.ownership]}</span>
-                <span class="nm">{item.name}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
+                <span class="nm">{#if item.favorite}<span class="star" title="Favourite">★</span>{/if}{item.name}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
                 <span class="bg">{CATEGORIES.find((c) => c.key === item.category)?.name}</span>
                 <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
               </button>
@@ -314,6 +316,26 @@
     align-items: end;
     margin-bottom: 8px;
   }
+  .fav {
+    border: 1.5px solid var(--ink-3);
+    background: var(--paper);
+    border-radius: 999px;
+    padding: 7px 12px;
+    font: 600 14px var(--font-body);
+    color: var(--ink);
+    cursor: pointer;
+    justify-self: start;
+    white-space: nowrap;
+  }
+  .fav[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .fav small {
+    font-weight: 400;
+    opacity: 0.8;
+  }
   .toolbar .q {
     grid-column: 1 / -1;
   }
@@ -325,7 +347,7 @@
       z-index: 2;
       background: var(--ground);
       padding: 6px 0;
-      grid-template-columns: minmax(200px, 2fr) 1fr 1fr auto;
+      grid-template-columns: minmax(200px, 2fr) 1fr auto 1fr auto;
     }
     .toolbar .q {
       grid-column: auto;

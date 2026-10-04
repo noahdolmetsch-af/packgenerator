@@ -3,6 +3,7 @@
 Stand: 4. Oktober 2026
 
 ## Fertig
+- **Favoriten als Datengrundlage (v0.19.3):** Noahs Liste "favorites-tested-bikepacking-gear" kommt als private Datei über Startseite → Your data → Import backup → "Apply favourites". Jedes Lieblingsteil bekommt einen ★ (Gear, Pack), Gear hat den Knopf "★ Favourites", in Pack stehen Favoriten oben in "Not packed", und die Liste ist als Template gespeichert. Gewichte und alles andere bleiben; nichts wird gelöscht. Im Item-Dialog lässt sich der Stern ein- und ausschalten.
 - **Werkstatt und Quick note (v0.19.3):** Bike care → "Workshop order": alles, was bis zur nächsten Tour fällig ist, als ein Auftrag mit Preisen aus deinen Quittungen; abwählen, was du selbst machst; als Nachricht (Deutsch) senden oder drucken. Bikes zeigt einen Steckbrief pro Velo (km, Werkstatt dieses Jahr, pro 1000 km, was als Nächstes fällig ist, letzter Besuch). Pack → "Compare bikes": die Velos nebeneinander für die Tour, "Use for this trip" wechselt das Velo. Quick note: runder +-Knopf auf jeder Seite, Foto optional, Seite "Inbox" zum Einordnen (Reparatur, Wunschliste, Learning, Notiz zur Tour, erledigt), alle Notizen bleiben unter "All notes". Am Phone: langes Drücken aufs App-Icon → "New note", und Pack Generator erscheint beim Teilen von Text und Links.
 - **Auswerten (v0.19.2):** Debrief → "Your trips compared": Gepäck pro Tour, gebraucht und nicht gebraucht, mit Trend. Gear → Tab "Dead weight": mitgenommen, aber nie gebraucht, mit "Leave at home"; dazu "Rarely used". Wunschliste mit Grund (fehlte, kaputt, Velo) und nach Nutzen sortiert. Notizen vom Ride day werden im Debrief als Learning vorgeschlagen. In Pack lässt sich eine Tour als "Not riding" markieren: Sie bleibt, zählt aber nicht mehr als nächste Tour.
 - **App lernt (v0.19.0):** Debrief → "Your pace": GPX-Fahrten laden, die App rechnet dein Tempo (aus 8 Fahrten: 28.5 km/h plus 1 h pro 1070 m, Pausen +34 %). Pack und Ride day schätzen die Fahrzeit damit, der Ride day zeigt auch die Ankunft mit deinen üblichen Pausen. Nach 3 Debriefs schlagen die Templates vor, was raus kann (3× nicht gebraucht) und was rein soll (2× gefehlt). Neue Demo-Datei `private/demo/pack-generator-demo-app-lernt.json` (303, Hope 1000, Alpenbrevet).
@@ -35,6 +36,7 @@ Stand: 4. Oktober 2026
 - **Runde 3 (Antworten 1–10):** 4 echte Velos mit Setups, fixe Halterungen, Nacht-Sets inkl. Light, Wetter mit Kleider-Vorschlag, Volumen-Warnung mit Taschen-Vorschlag, Wägen aus Pack, Druckliste, Gepäck vorne/hinten, Inventar-Check.
 
 ## To-do für Noah
+- [ ] Favoriten-Datei am Phone und am Desktop laden (Your data → Import backup → Apply favourites).
 - [ ] **Inventar durchgehen:** Gear → "Check inventory" (am Phone Tab "Check"). Pro Teil: Still have it / Gone / Replaced by… / fehlende Teile mit "Add item" ergänzen.
 - [ ] Scott Scale, Scott Spark und Factor LS wägen (ohne Taschen, mit Garmin-, Quad-Lock- und Flaschenhalterungen) und auf "Bikes" eintragen. Canyon ist erledigt (10.1 kg).
 - [ ] Neue Teile wägen: "Trainerhose lang chillig" und "Gilet Fleece kuschelig".

@@ -105,7 +105,8 @@ export function gearStats(items) {
 }
 
 /** Does an item match the search text and filters? */
-export function matches(item, { q = '', category = '', role = '' } = {}) {
+export function matches(item, { q = '', category = '', role = '', fav = false } = {}) {
+  if (fav && !item.favorite) return false;
   if (category && item.category !== category) return false;
   if (role === 'none' && (item.role || item.sets?.length)) return false;
   if (role === 'night' && !item.sets?.length) return false;

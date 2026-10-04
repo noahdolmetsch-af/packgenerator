@@ -47,6 +47,7 @@
       qty: Math.max(1, Number(rest.qty) || 1),
       role: rest.role || null,
       always: rest.always ? true : null,
+      favorite: rest.favorite ? true : null,
       ride: rest.ride || null,
       rain: rest.rain || null,
       coldBelow: numOrNull(rest.coldBelow),
@@ -87,6 +88,7 @@
         <div><dt>Status</dt><dd>{OWNERSHIP[item.ownership]}</dd></div>
         {#if item.role}<div><dt>Role</dt><dd>{ROLES[item.role]}</dd></div>{/if}
         {#if item.always}<div><dt>Trips</dt><dd>On every trip</dd></div>{/if}
+        {#if item.favorite}<div><dt>Favourite</dt><dd>★ {item.favNote || 'Tested, one of my best items'}</dd></div>{/if}
         {#if item.ride}<div><dt>Layer</dt><dd>{RIDES.find((r) => r.key === item.ride)?.name}</dd></div>{/if}
         {#if item.coldBelow != null}<div><dt>Add when colder than</dt><dd>{item.coldBelow} °C</dd></div>{/if}
         {#if item.rain}<div><dt>Rain</dt><dd>{RAIN_ITEM[item.rain]}</dd></div>{/if}
@@ -132,6 +134,7 @@
           </select>
         </label>
         <label class="cb wide always"><input type="checkbox" bind:checked={draft.always} /> On every trip (always with me: every new trip gets it)</label>
+        <label class="cb wide always"><input type="checkbox" bind:checked={draft.favorite} /> ★ Favourite (tested, one of my best items)</label>
         <fieldset class="wide sets">
           <legend class="lbl">Overnight sets (Pack adds them with one switch)</legend>
           {#each Object.entries(SETS) as [k, v] (k)}
