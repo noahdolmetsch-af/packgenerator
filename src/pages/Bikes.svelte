@@ -127,7 +127,8 @@
     const g = parseGrams(text);
     if (g == null) return (message = 'Type the bike weight in whole grams, e.g. 13000.');
     message = '';
-    await db.bikes.update(bike.id, { weightG: g });
+    // A weighed value replaces an estimate (Strava, logbook), so its note goes.
+    await db.bikes.update(bike.id, { weightG: g, weightNote: '' });
   }
 
   async function saveRider(event) {
@@ -203,7 +204,7 @@
           <label>
             <span class="lbl">Bike weight (g)</span>
             {#key bike.id}<input class="inp num" type="text" inputmode="numeric" value={bike.weightG ?? ''} onchange={saveBikeWeight} placeholder="not weighed" />{/key}
-            {#if bike.weightNote && !bike.weightG}<small class="hintw">{bike.weightNote}</small>{/if}
+            {#if bike.weightNote}<small class="hintw">{bike.weightNote}</small>{/if}
             <small class="hintw">Without bags, with Garmin mount, Quad Lock and bottle cages.</small>
           </label>
           <div><span class="lbl">Bags</span><b class="num">{setup.bagCount} · {formatVolume(setup.volumeL)}</b></div>

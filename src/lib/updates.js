@@ -213,7 +213,35 @@ async function dailyCommuteTemplate(db) {
   return true;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate];
+/**
+ * 4.10.2026, from Noah's Strava gear page: km of each bike today, and Strava's weights as a
+ * start until the bike is weighed (answer 3b). Only fills empty fields: km or weights typed
+ * in the app stay. The Canyon keeps the 10.1 kg Noah gave.
+ */
+const STRAVA_2026 = {
+  'scott-hardtail': { km: 2287, weightG: 13000 },
+  fully: { km: 1460, weightG: 9000 },
+  'factor-ls': { km: 3689, weightG: 12000 },
+  'canyon-world-cup': { km: 0, weightG: 9000 },
+};
+async function stravaKm2026(db) {
+  if (await db.settings.get('update.stravaKm2026')) return false;
+  if (!(await db.bikes.get('canyon-world-cup'))) return false; // the bikes are not set up yet
+  await db.transaction('rw', db.bikes, db.settings, async () => {
+    for (const [id, s] of Object.entries(STRAVA_2026)) {
+      const bike = await db.bikes.get(id);
+      if (!bike) continue;
+      const change = {};
+      if (typeof bike.km !== 'number') Object.assign(change, { km: s.km, kmDate: '2026-10-04' });
+      if (bike.weightG == null) Object.assign(change, { weightG: s.weightG, weightNote: `${s.weightG / 1000} kg from Strava (estimate). Weigh it.` });
+      if (Object.keys(change).length) await db.bikes.update(id, change);
+    }
+    await db.settings.put({ key: 'update.stravaKm2026', value: now() });
+  });
+  return true;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

@@ -38,7 +38,7 @@
 <dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="visit-h">
   <p class="meta">{bike?.name ?? ''} · Workshop</p>
   <h2 id="visit-h" class="title">{visit.shop}, {visit.date}</h2>
-  <p class="facts num">{visit.invoice ? `Invoice ${visit.invoice} · ` : ''}<b>CHF {chf(visitTotal(visit))}</b></p>
+  <p class="facts num">{visit.invoice ? `Invoice ${visit.invoice} · ` : ''}<b>{visitTotal(visit) == null ? 'Cost unknown' : `CHF ${chf(visitTotal(visit))}`}</b></p>
 
   <label class="km">
     <span class="lbl">km at the visit</span>

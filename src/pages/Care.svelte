@@ -329,7 +329,7 @@
                   <li>
                     <button type="button" class="part" onclick={() => (visitOpen = v.id)}>
                       <span class="pn">{v.date} · {v.shop}<small>{v.invoice ? `${v.invoice} · ` : ''}{(v.parts ?? []).length} jobs{v.km != null ? ` · ${v.km.toLocaleString('en')} km` : ''}{v.photos?.length ? ` · ${v.photos.length} receipt ${v.photos.length === 1 ? 'photo' : 'photos'}` : ''}</small></span>
-                      <span class="pv num">{chf(visitTotal(v))}</span>
+                      <span class="pv num">{visitTotal(v) == null ? 'cost unknown' : chf(visitTotal(v))}</span>
                     </button>
                   </li>
                 {/each}
@@ -338,8 +338,8 @@
               {@const top = costByPart(mine, 3)}
               {@const per = costPer1000(mine, bike)}
               <p class="costs">
-                {#each years as y (y.year)}<span><b>{y.year}</b> {chf(y.chf)}</span>{/each}
-                <span>{per ? `${chf(per.chf)} per 1000 km` : 'Cost per 1000 km: add the km at a visit'}</span>
+                {#each years as y (y.year)}<span><b>{y.year}</b> {y.unknown === y.visits ? 'cost unknown' : `${chf(y.chf)}${y.unknown ? ' + unknown' : ''}`}</span>{/each}
+                <span>{per?.chf != null ? `${chf(per.chf)} per 1000 km` : per?.wait ? `Cost per 1000 km after ${per.wait.toLocaleString('en')} more km` : 'Cost per 1000 km: add the km at a visit'}</span>
               </p>
               <p class="hint">Most: {top.map((r) => `${r.name} ${chf(r.chf)}`).join(' · ')}</p>
             {:else}

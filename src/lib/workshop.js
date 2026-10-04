@@ -16,8 +16,12 @@ const daysBetween = (a, b) => Math.round((new Date(`${b}T00:00:00Z`) - new Date(
 /** The visits of one bike, newest first. */
 export const visitsOf = (visits, bikeId) => visits.filter((v) => v.bikeId === bikeId).sort((a, b) => b.date.localeCompare(a.date));
 
-/** What the visit cost: the total on the receipt, else the sum of its jobs. */
-export const visitTotal = (v) => (typeof v.totalChf === 'number' ? v.totalChf : Math.round((v.parts ?? []).reduce((t, p) => t + (p.chf ?? 0), 0) * 100) / 100);
+/** What the visit cost: the total on the receipt, else the sum of its jobs; null when no price is known. */
+export function visitTotal(v) {
+  if (typeof v.totalChf === 'number') return v.totalChf;
+  const priced = (v.parts ?? []).filter((p) => typeof p.chf === 'number');
+  return priced.length ? Math.round(priced.reduce((t, p) => t + p.chf, 0) * 100) / 100 : null;
+}
 
 /** One job of a visit as a part history entry ("by bike shop"). */
 const asEntry = (v, line) => ({
@@ -85,14 +89,16 @@ export function timeDue(bike, setup = { front: null, rear: null }, today = iso(n
 
 /* ---------- costs (answer 18a) ---------- */
 
-/** Cost per year, newest year first: [{ year, chf, visits }]. */
+/** Cost per year, newest year first: [{ year, chf, visits, unknown }] (unknown: visits without a price). */
 export function costByYear(visits) {
   const by = {};
   for (const v of visits) {
     const y = v.date.slice(0, 4);
-    by[y] ??= { year: y, chf: 0, visits: 0 };
-    by[y].chf += visitTotal(v);
+    by[y] ??= { year: y, chf: 0, visits: 0, unknown: 0 };
+    const total = visitTotal(v);
+    by[y].chf += total ?? 0;
     by[y].visits += 1;
+    if (total == null) by[y].unknown += 1;
   }
   return Object.values(by)
     .map((r) => ({ ...r, chf: Math.round(r.chf * 100) / 100 }))
@@ -111,16 +117,18 @@ export function costByPart(visits, top = 4) {
 }
 
 /**
- * Cost per 1000 km: the visits after the first one with known km, over the km ridden since then.
- * Needs the km at two points (a visit and the bike now); null when they are not known.
+ * Cost per 1000 km: everything paid from the first visit with known km and a known price on,
+ * over the km ridden since that visit. Only after 1000 km, so one fresh visit does not look huge.
+ * Returns { chf, km, since } or { wait: km still to ride } or null when the km are not known.
  */
+export const PER_KM_AFTER = 1000;
 export function costPer1000(visits, bike) {
-  const known = visits.filter((v) => typeof v.km === 'number').sort((a, b) => a.km - b.km);
+  const known = visits.filter((v) => typeof v.km === 'number' && visitTotal(v) != null).sort((a, b) => a.date.localeCompare(b.date));
   if (!known.length || typeof bike.km !== 'number') return null;
   const first = known[0];
   const km = bike.km - first.km;
-  if (km < 100) return null;
-  const chf = visits.filter((v) => v !== first && v.date >= first.date).reduce((t, v) => t + visitTotal(v), 0);
+  if (km < PER_KM_AFTER) return { wait: PER_KM_AFTER - Math.max(0, km), since: first.date };
+  const chf = visits.filter((v) => v.date >= first.date).reduce((t, v) => t + (visitTotal(v) ?? 0), 0);
   return { chf: Math.round((chf / km) * 1000), km, since: first.date };
 }
 

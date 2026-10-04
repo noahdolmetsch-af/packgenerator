@@ -17,16 +17,18 @@ describe('chat updates', () => {
     await applyUpdates(db);
     const bikes = Object.fromEntries((await db.bikes.toArray()).map((b) => [b.id, b]));
     expect(Object.keys(bikes).sort()).toEqual(['canyon-world-cup', 'factor-ls', 'fully', 'scott-hardtail']);
-    expect(bikes['scott-hardtail']).toMatchObject({ name: 'Scott Scale', weightG: null, fixtures: ['BK02', 'BK01'] });
-    expect(bikes.fully).toMatchObject({ name: 'Scott Spark', weightG: 14200 });
+    // The logbook weight goes, Strava's estimate fills the gap (answer 3b); a typed weight stays.
+    expect(bikes['scott-hardtail']).toMatchObject({ name: 'Scott Scale', weightG: 13000, km: 2287, fixtures: ['BK02', 'BK01'] });
+    expect(bikes['scott-hardtail'].weightNote).toMatch(/Strava/);
+    expect(bikes.fully).toMatchObject({ name: 'Scott Spark', weightG: 14200, km: 1460 });
     expect(bikes['factor-ls']).toMatchObject({ use: 'Alpenbrevet; Veneto gravel', gearing: [32, 34] });
     expect((await db.trips.get('t')).bikeId).toBe('factor-ls');
     expect((await db.items.get('LI01')).sets).toEqual(['light']);
     expect(bikes['canyon-world-cup']).toMatchObject({ weightG: 10100, slots: ['seat', 'cage1', 'cage2'] });
     expect(bikes['factor-ls'].slots).toEqual(['cage1', 'cage2']);
-    await db.bikes.update('scott-hardtail', { name: 'My Scott' });
+    await db.bikes.update('scott-hardtail', { name: 'My Scott', km: 2500 });
     await applyUpdates(db);
-    expect((await db.bikes.get('scott-hardtail')).name).toBe('My Scott');
+    expect(await db.bikes.get('scott-hardtail')).toMatchObject({ name: 'My Scott', km: 2500 });
   });
 
   it('adds the layers once and never overwrites what was set in the app', async () => {
