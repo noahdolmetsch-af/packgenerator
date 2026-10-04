@@ -1,6 +1,8 @@
 <script>
   import { db } from '../db.js';
+  import { replaceEverywhere } from '../replace.js';
   import { CATEGORY, BAG, CATEGORIES, formatWeight, itemWeight, isInventory } from '../gear.js';
+  import { layerOf } from '../layers.js';
   import ItemDialog from './ItemDialog.svelte';
 
   /**
@@ -15,10 +17,15 @@
 
   const owned = $derived(items.filter(isInventory));
   const queue = $derived.by(() => {
-    const q = owned.filter((i) => !i.reviewedAt).sort((a, b) => (order[a.category] ?? 99) - (order[b.category] ?? 99) || a.name.localeCompare(b.name));
+    // Round C answer 2: layer by layer, starting with what goes on every ride.
+    const q = owned
+      .filter((i) => !i.reviewedAt)
+      .sort((a, b) => layerOf(a).rank - layerOf(b).rank || (order[a.category] ?? 99) - (order[b.category] ?? 99) || a.name.localeCompare(b.name));
     return [...q.filter((i) => !skipped.includes(i.id)), ...q.filter((i) => skipped.includes(i.id))];
   });
   const current = $derived(queue[0]);
+  const layer = $derived(current ? layerOf(current) : null);
+  const leftInLayer = $derived(layer ? queue.filter((i) => layerOf(i).name === layer.name).length : 0);
   const checked = $derived(items.filter((i) => i.reviewedAt).length);
   const now = () => new Date().toISOString();
 
@@ -31,8 +38,14 @@
     const old = current;
     dialog = {
       item: null,
-      preset: { category: old.category, defaultBag: old.defaultBag, role: old.role ?? '', sets: old.sets ?? [], note: `Replaces ${old.name} (${old.id})`, reviewedAt: now() },
-      onsaved: () => db.items.update(old.id, { ownership: 'gone', reviewedAt: now(), note: [old.note, 'Replaced.'].filter(Boolean).join(' '), updatedAt: now() }),
+      preset: {
+        category: old.category, defaultBag: old.defaultBag, role: old.role ?? '', sets: old.sets ?? [], note: `Replaces ${old.name} (${old.id})`, reviewedAt: now(),
+        ...Object.fromEntries(['ride', 'coldBelow', 'rain', 'perHours', 'waterL'].filter((k) => old[k] != null).map((k) => [k, old[k]])),
+      },
+      onsaved: async (r) => {
+        await db.items.update(old.id, { ownership: 'gone', reviewedAt: now(), note: [old.note, `Replaced by ${r.name} (${r.id}).`].filter(Boolean).join(' '), updatedAt: now() });
+        await replaceEverywhere(db, old.id, r.id); // round C answer 3
+      },
     };
   }
   const edit = () => (dialog = { item: current, onsaved: (r) => db.items.update(r.id, { reviewedAt: now() }) });
@@ -49,6 +62,7 @@
 
   {#if current}
     <div class="card">
+      <p class="layer">{layer.name} <small>{leftInLayer} left in this group</small></p>
       <p class="cat"><span class="sw" style:background={CATEGORY[current.category]?.color}></span>{CATEGORY[current.category]?.name} · {current.id}</p>
       <p class="name">{current.name}{#if current.qty > 1}<small> × {current.qty}</small>{/if}</p>
       {#if current.brand || current.model}<p class="sub">{[current.brand, current.model].filter(Boolean).join(' ')}</p>{/if}
@@ -75,6 +89,19 @@
 {/if}
 
 <style>
+  .layer {
+    margin: 0 0 8px;
+    font: 800 14px var(--font-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--hi);
+  }
+  .layer small {
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ink-3);
+  }
   .head {
     display: flex;
     align-items: baseline;

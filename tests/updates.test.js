@@ -22,8 +22,27 @@ describe('chat updates', () => {
     expect(bikes['factor-ls']).toMatchObject({ use: 'Alpenbrevet; Veneto gravel', gearing: [32, 34] });
     expect((await db.trips.get('t')).bikeId).toBe('factor-ls');
     expect((await db.items.get('LI01')).sets).toEqual(['light']);
+    expect(bikes['canyon-world-cup']).toMatchObject({ weightG: 10100, slots: ['seat', 'cage1', 'cage2'] });
+    expect(bikes['factor-ls'].slots).toEqual(['cage1', 'cage2']);
     await db.bikes.update('scott-hardtail', { name: 'My Scott' });
     await applyUpdates(db);
     expect((await db.bikes.get('scott-hardtail')).name).toBe('My Scott');
+  });
+
+  it('adds the layers once and never overwrites what was set in the app', async () => {
+    const db = createDb('layers-test');
+    await db.items.bulkPut([
+      { id: 'KL14', name: 'Leg warmers', ownership: 'owned' },
+      { id: 'RG08', name: 'Overshoes', ownership: 'owned', rain: 'yes' },
+      { id: 'FD01', name: 'Bottle 1.0 L', ownership: 'owned' },
+    ]);
+    await applyUpdates(db);
+    expect(await db.items.get('KL14')).toMatchObject({ coldBelow: 10 });
+    expect((await db.items.get('RG08')).rain).toBe('yes');
+    expect(await db.items.get('FD01')).toMatchObject({ perHours: 3, waterL: 1 });
+    expect(await db.items.get('KL28')).toMatchObject({ name: 'Warm long gloves', ownership: 'unclear', coldBelow: 5 });
+    await db.items.update('KL14', { coldBelow: 8 });
+    await applyUpdates(db);
+    expect((await db.items.get('KL14')).coldBelow).toBe(8);
   });
 });

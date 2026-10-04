@@ -4,7 +4,8 @@
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, formatVolume, sortBikes } from '../lib/bikes.js';
   import { CATEGORY, CATEGORIES, formatWeight, isInventory, matches, weighQueue } from '../lib/gear.js';
-  import { tripStats, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, READY_DEFAULT, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, weatherSuggest, biggerBag, axleLoad, slotFor } from '../lib/trips.js';
+  import { tripStats, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, READY_DEFAULT, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor } from '../lib/trips.js';
+  import { RIDES, layerSuggest, layerDone, applyLayers, waterOn } from '../lib/layers.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import BikeStage from '../lib/bikes/BikeStage.svelte';
   import TripDialog from '../lib/pack/TripDialog.svelte';
@@ -14,6 +15,7 @@
   const bagsQ = liveQuery(() => db.containers.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
+  const rearQ = liveQuery(() => db.settings.get('rearLimitPct'));
 
   const trips = $derived([...($tripsQ ?? [])].sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '')));
   const items = $derived($itemsQ ?? []);
@@ -142,38 +144,33 @@
   const switchSet = (key) => change((t) => toggleSet(t, items, key, !t.sets?.[key]));
   const setCount = (key) => items.filter((i) => isInventory(i) && i.sets?.includes(key)).length;
 
-  // Answer 5: weather range and clothing suggestion.
+  // Answer 5 and round C answer 2: weather range, kind of ride and the layers they add.
   const wx = $derived(trip?.wx ?? null);
-  const suggestion = $derived(trip ? weatherSuggest(wx, items) : null);
+  const suggestion = $derived(trip ? layerSuggest(trip, items) : []);
   const setWx = (patch) => change((t) => ({ wx: { min: t.wx?.min ?? null, max: t.wx?.max ?? null, rain: t.wx?.rain ?? 'none', ...patch } }));
   function typedTemp(field, value) {
     const n = value.trim() === '' ? null : Math.round(Number(value));
     if (n === null || (n >= -30 && n <= 45)) setWx({ [field]: n });
   }
-  const wearOk = (id) => trip.entries.some((e) => e.itemId === id && e.slot === 'body');
-  const packOk = (id) => trip.entries.some((e) => e.itemId === id);
-  function wear(id) {
-    setEntries((es) => (es.some((e) => e.itemId === id) ? es.map((e) => (e.itemId === id ? { ...e, slot: 'body' } : e)) : [...es, { itemId: id, slot: 'body', qty: 1, packed: false }]));
+  function typedHours(value) {
+    const n = value.trim() === '' ? null : Number(value.replace(',', '.'));
+    if (n === null || (n > 0 && n <= 24)) change(() => ({ hours: n }));
   }
-  function packIt(id) {
-    const it = itemsById[id];
-    setEntries((es) => (es.some((e) => e.itemId === id) ? es : [...es, { itemId: id, slot: slotFor(it?.defaultBag, trip.setup), qty: 1, packed: false }]));
-  }
-  function addAllWeather() {
-    setEntries((es) => {
-      let out = [...es];
-      for (const id of suggestion.wear) out = out.some((e) => e.itemId === id) ? out.map((e) => (e.itemId === id ? { ...e, slot: 'body' } : e)) : [...out, { itemId: id, slot: 'body', qty: 1, packed: false }];
-      for (const id of suggestion.pack) if (!out.some((e) => e.itemId === id)) out.push({ itemId: id, slot: slotFor(itemsById[id]?.defaultBag, trip.setup), qty: 1, packed: false });
-      return out;
-    });
-  }
-  const wxOpen = $derived(suggestion ? suggestion.wear.filter((id) => !wearOk(id)).length + suggestion.pack.filter((id) => !packOk(id)).length : 0);
+  const slotOf = (id) => slotFor(itemsById[id]?.defaultBag, trip.setup);
+  const takeLayer = (row) => setEntries((es) => applyLayers(es, [row], slotOf));
+  const openLayers = $derived(trip ? suggestion.filter((r) => !r.optional && !layerDone(r, trip)) : []);
+  const addAllLayers = () => setEntries((es) => applyLayers(es, openLayers, slotOf));
 
   // Answer 3: a bigger bag for the same place, when the open bag is too full.
   const bigger = $derived(zone ? biggerBag(zone, bags) : null);
 
   // Answer 9: luggage on the front and rear wheel.
   const axle = $derived(stats ? axleLoad(stats, itemsById) : null);
+  const rearPct = $derived(axle && axle.front + axle.rear ? Math.round((axle.rear / (axle.front + axle.rear)) * 100) : null);
+  const rearLimit = $derived($rearQ?.value ?? 60);
+
+  // Answer 8: litres of water, already part of the system weight through the full bottles.
+  const water = $derived(trip ? waterOn(trip, itemsById) : 0);
 
   const kg = (g) => (g ? `${(g / 1000).toFixed(1)} kg` : '–');
 </script>
@@ -213,12 +210,14 @@
         <div><dt>Bags</dt><dd class="num">{formatWeight(stats.bagsG)}</dd></div>
         <div><dt>Bike</dt><dd class="num" class:warn={stats.missing.bike}>{stats.missing.bike ? 'not set' : formatWeight(stats.bikeG)}</dd></div>
         <div><dt>Rider</dt><dd class="num" class:warn={stats.missing.rider}>{stats.missing.rider ? 'not set' : formatWeight(stats.riderG)}</dd></div>
-        <div class="axle"><dt>Luggage front / rear</dt><dd class="num">{formatWeight(axle.front)} / {formatWeight(axle.rear)}</dd></div>
+        {#if water}<div><dt>Of it water</dt><dd class="num">{Math.round(water * 10) / 10} L</dd></div>{/if}
+        <div class="axle"><dt>Luggage front / rear</dt><dd class="num" class:warn={rearPct > rearLimit}>{formatWeight(axle.front)} / {formatWeight(axle.rear)}{#if rearPct != null}<small> ({100 - rearPct} / {rearPct} %)</small>{/if}</dd></div>
       </dl>
       <p class="sys-note">
         {stats.packed} of {stats.count} items ticked off{#if stats.unweighed}{' · '}<span class="warn">{stats.unweighed} not weighed (counted as 0)</span>
           {#if toWeigh}<button type="button" class="btn sm" onclick={() => (weighing = true)}>Weigh {toWeigh}</button>{/if}{/if}
         {#if stats.missing.bike || stats.missing.rider}{' · '}set weights on <a href="#/bikes">Bikes</a>{/if}
+        {#if rearPct > rearLimit}{' · '}<span class="warn">{rearPct} % of the luggage is on the rear wheel (hint above {rearLimit} %)</span>{/if}
       </p>
     </section>
 
@@ -251,14 +250,14 @@
             <section class="bag" aria-labelledby="bag-h">
               <div class="bag-h">
                 <h2 id="bag-h" class="title">{zoneName(zone)}</h2>
-                <span class="m num">{zone.entries.length} items · {formatWeight(zone.grams)}{#if zone.bag?.volumeL && zone.vol}{' · '}<span class:warn={zone.vol > zone.bag.volumeL}>about {formatVolume(zone.vol)} of {formatVolume(zone.bag.volumeL)}</span>{/if}</span>
+                <span class="m num">{zone.entries.length} items · {formatWeight(zone.grams)}{#if zone.bag?.volumeL && zone.vol}{' · '}<span class:warn={tooFull(zone)}>about {formatVolume(zone.vol)} of {formatVolume(zone.bag.volumeL)}</span>{/if}</span>
                 {#if zone.entries.length}
                   <button type="button" class="link" onclick={() => tickZone(zone.packed < zone.entries.length)}>{zone.packed < zone.entries.length ? 'Tick all' : 'Untick all'}</button>
                 {/if}
               </div>
-              {#if zone.bag?.volumeL && zone.vol > zone.bag.volumeL}
+              {#if tooFull(zone)}
                 <p class="warnbox soft">
-                  Probably too full: about {formatVolume(zone.vol)} for {formatVolume(zone.bag.volumeL)}.
+                  {zone.vol > zone.bag.volumeL ? 'Probably too full' : `Over ${FILL_LIMIT * 100} %, keep some room free`}: about {formatVolume(zone.vol)} for {formatVolume(zone.bag.volumeL)}.
                   {#if bigger}<button type="button" class="btn sm" onclick={() => setBag(zone.key, bigger.id)}>Take {bigger.name} ({formatVolume(bigger.volumeL)})</button>{/if}
                 </p>
               {/if}
@@ -318,7 +317,16 @@
       <div class="right">
         {#if !phone.matches || tab === 'add'}
           <section class="cond" aria-labelledby="cond-h">
-            <h2 id="cond-h" class="title">Night and weather</h2>
+            <h2 id="cond-h" class="title">Ride, night and weather</h2>
+            <div class="wxin">
+              <label><span class="lbl">Kind of ride</span>
+                <select class="sel" value={trip.ride ?? ''} onchange={(e) => change(() => ({ ride: e.currentTarget.value || null }))}>
+                  <option value="">Choose</option>
+                  {#each RIDES as r (r.key)}<option value={r.key}>{r.name}</option>{/each}
+                </select>
+              </label>
+              <label><span class="lbl">Riding hours{trip.days > 1 ? ' a day' : ''}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder="e.g. 6" /></label>
+            </div>
             <div class="sets" role="group" aria-label="Overnight sets">
               {#each NIGHT_SETS as ns (ns.key)}
                 <button type="button" class="toggle" aria-pressed={setOn(ns.key)} onclick={() => switchSet(ns.key)} disabled={!setCount(ns.key)} title={setCount(ns.key) ? '' : 'No items in this set yet. Tag them in Gear.'}>
@@ -341,18 +349,21 @@
                   </select>
                 </label>
               </div>
-              {#if suggestion}
+              {#if suggestion.length}
                 <div class="sugg">
-                  <p class="sugg-h"><b>Suggested clothes</b>{#if wxOpen}<button type="button" class="btn sm hi" onclick={addAllWeather}>Add all {wxOpen}</button>{:else}<span class="ok">All set</span>{/if}</p>
+                  <p class="sugg-h"><b>Layers for this ride</b>{#if openLayers.length}<button type="button" class="btn sm hi" onclick={addAllLayers}>Add all {openLayers.length}</button>{:else}<span class="ok">All set</span>{/if}</p>
                   <ul>
-                    {#each suggestion.wear as id (id)}
-                      <li><span class="wt">wear</span><span class="nm">{itemsById[id]?.name}</span>{#if wearOk(id)}<span class="ok">On me</span>{:else}<button type="button" class="btn sm" onclick={() => wear(id)}>Wear</button>{/if}</li>
-                    {/each}
-                    {#each suggestion.pack as id (id)}
-                      <li><span class="wt">pack</span><span class="nm">{itemsById[id]?.name}</span>{#if packOk(id)}<span class="ok">Packed</span>{:else}<button type="button" class="btn sm" onclick={() => packIt(id)}>Pack</button>{/if}</li>
+                    {#each suggestion as r (r.id)}
+                      <li>
+                        <span class="wt">{r.why}</span>
+                        <span class="nm">{itemsById[r.id]?.name}{#if r.qty > 1}<small> × {r.qty}</small>{/if}</span>
+                        {#if layerDone(r, trip)}<span class="ok">{r.place === 'wear' ? 'On me' : 'Packed'}</span>{:else}<button type="button" class="btn sm" onclick={() => takeLayer(r)}>{r.place === 'wear' ? 'Wear' : 'Pack'}</button>{/if}
+                      </li>
                     {/each}
                   </ul>
                 </div>
+              {:else if trip.ride || (wx?.min != null && wx?.max != null) || wx?.rain === 'showers' || wx?.rain === 'rain'}
+                <p class="hint">Nothing to add. Set layers on your items in Gear (Edit → Layers).</p>
               {/if}
             </div>
           </section>
@@ -613,6 +624,7 @@
   .wxin {
     display: grid;
     grid-template-columns: 1fr 1fr 1.4fr;
+    align-items: end;
     gap: 8px;
   }
   .sugg {
@@ -634,7 +646,7 @@
   }
   .sugg li {
     display: grid;
-    grid-template-columns: 44px 1fr auto;
+    grid-template-columns: 92px 1fr auto;
     gap: 8px;
     align-items: center;
     padding: 4px 0;
@@ -700,138 +712,7 @@
     gap: 20px;
   }
   @media (min-width: 1000px) {
-    .btn.sm {
-    padding: 3px 10px;
-    font-size: 13px;
-    margin-left: 6px;
-  }
-  .warnbox.soft {
-    border-color: var(--hi);
-    background: var(--hi-soft);
-  }
-  .cond {
-    margin-bottom: 24px;
-  }
-  .cond .title {
-    font-size: 28px;
-    border-bottom: 3px solid var(--ink);
-    margin-bottom: 8px;
-  }
-  .sets,
-  .presets {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 8px;
-  }
-  .toggle {
-    border: 1.5px solid var(--ink-3);
-    background: var(--paper);
-    border-radius: 999px;
-    padding: 5px 12px;
-    font: 600 14px var(--font-body);
-    color: var(--ink);
-    cursor: pointer;
-  }
-  .toggle[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
-  }
-  .toggle:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
-  .toggle small {
-    font-weight: 400;
-    opacity: 0.8;
-  }
-  .wxin {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1.4fr;
-    gap: 8px;
-  }
-  .sugg {
-    margin-top: 10px;
-    background: var(--paper);
-    padding: 8px;
-    border: 1px solid var(--line);
-  }
-  .sugg-h {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0 0 6px;
-  }
-  .sugg ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .sugg li {
-    display: grid;
-    grid-template-columns: 44px 1fr auto;
-    gap: 8px;
-    align-items: center;
-    padding: 4px 0;
-    border-top: 1px solid var(--line);
-  }
-  .wt {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--ink-3);
-  }
-  .ok {
-    font-size: 13px;
-    color: #2f7a4f;
-    font-weight: 700;
-  }
-  .print {
-    display: none;
-  }
-  @media print {
-    :global(nav.top),
-    .head .pick,
-    .sys,
-    .tabs,
-    .cols,
-    :global(.weigh) {
-      display: none !important;
-    }
-    :global(body) {
-      background: #fff !important;
-    }
-    .print {
-      display: block;
-      font-size: 12pt;
-      color: #000;
-    }
-    .print h1 {
-      font-size: 22pt;
-      margin: 0;
-    }
-    .print h2 {
-      font-size: 14pt;
-      margin: 14pt 0 4pt;
-      border-bottom: 1pt solid #000;
-      break-after: avoid;
-    }
-    .print ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      columns: 2;
-    }
-    .print li {
-      padding: 2pt 0;
-      break-inside: avoid;
-    }
-    .head {
-      display: none;
-    }
-  }
-  .cols {
+    .cols {
       grid-template-columns: 1.35fr 1fr;
       align-items: start;
     }

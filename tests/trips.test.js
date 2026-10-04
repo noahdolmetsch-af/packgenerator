@@ -99,16 +99,14 @@ describe('pack extras', () => {
     expect(off.entries.map((e) => e.itemId)).toEqual(['S1', 'W2']); // W2 stays for "sleep", S1 is standard
   });
 
-  it('suggests clothes for the weather and a bigger bag', async () => {
-    const { weatherSuggest, biggerBag } = await import('../src/lib/trips.js');
-    const own = ['KL05', 'KL04', 'KL03', 'KL17', 'KL08', 'RG01', 'RG06'].map((id) => ({ id, ownership: 'owned' }));
-    const s = weatherSuggest({ min: 8, max: 18, rain: 'showers' }, own);
-    expect(s.wear).toEqual(['KL05', 'KL04', 'KL03', 'KL17']);
-    expect(s.pack).toEqual(['KL08', 'RG01']);
-    expect(weatherSuggest(null, own)).toBe(null);
-    const zone = { key: 'seat', vol: 17, bag: { id: 'a', volumeL: 16.5 } };
-    expect(biggerBag(zone, [{ id: 'a', slot: 'seat', volumeL: 16.5 }, { id: 't', slot: 'seat', volumeL: 18 }])?.id).toBe('t');
-    expect(biggerBag({ ...zone, vol: 10 }, [])).toBe(null);
+  it('hints above 80 % and offers a bag that keeps 20 % free', async () => {
+    const { biggerBag, tooFull } = await import('../src/lib/trips.js');
+    const zone = { key: 'seat', vol: 14, bag: { id: 'a', volumeL: 16.5 } };
+    expect(tooFull(zone)).toBe(true); // 14 L is 85 % of 16.5 L
+    expect(tooFull({ ...zone, vol: 13 })).toBe(false);
+    const bags = [{ id: 'a', slot: 'seat', volumeL: 16.5 }, { id: 's', slot: 'seat', volumeL: 17 }, { id: 't', slot: 'seat', volumeL: 18 }];
+    expect(biggerBag(zone, bags)?.id).toBe('t'); // 17 L would be 82 % full
+    expect(biggerBag({ ...zone, vol: 10 }, bags)).toBe(null);
   });
 
   it('splits the luggage between the wheels', async () => {
@@ -120,5 +118,8 @@ describe('pack extras', () => {
       { key: 'mounted', grams: 400, bag: null, zone: { box: { x: 0, w: 10 } } },
     ];
     expect(axleLoad({ zones }, {})).toEqual({ front: 1200, rear: 1200 });
+    // A bottle cage is weighed with the bike, so it adds nothing here.
+    const cage = { key: 'cage1', grams: 0, bag: { slot: 'cage1', itemId: 'BK04', pieces: 1 }, zone: { box: { x: 100, w: 100 } } };
+    expect(axleLoad({ zones: [cage] }, { BK04: { weightG: 40 } })).toEqual({ front: 0, rear: 0 });
   });
 });

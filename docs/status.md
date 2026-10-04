@@ -21,7 +21,8 @@ Stand: 4. Oktober 2026
 ## To-do für Noah
 - [ ] Prototyp-Daten sichern: im Bike Cockpit auf "Saved · Backup" tippen → Export, Datei aufbewahren.
 - [ ] **Inventar durchgehen:** Gear → "Check inventory" (am Phone Tab "Check"). Pro Teil: Still have it / Gone / Replaced by… / fehlende Teile mit "Add item" ergänzen.
-- [ ] Velos wägen und auf "Bikes" eintragen (Scott Scale ca. 13 kg laut Logbuch).
+- [ ] Scott Scale, Scott Spark und Factor LS wägen (ohne Taschen, mit Garmin-, Quad-Lock- und Flaschenhalterungen) und auf "Bikes" eintragen. Canyon ist erledigt (10.1 kg).
+- [ ] Schichten prüfen: Gear → Edit → "Layers". Fehlt noch: was bei 15 °C dazukommt, welche "Trainerhose", ob "Warm long gloves" (neu, Status unclear) stimmt.
 - [ ] Full-Frame-Tasche wägen (neu in Gear, TA14).
 - [ ] Danach die 303 in Pack neu packen (Taschen für diese Tour prüfen).
 
@@ -29,8 +30,9 @@ Stand: 4. Oktober 2026
 - Nichts.
 
 ## Als Nächstes
-1. Packen verfeinern nach deinem ersten Test mit der 303.
-2. Prototyp ablösen, wenn die 303 in der neuen App gepackt ist.
+1. Bike care mit Erinnerungen vor dem Event (Noah, Runde C Antwort 9).
+2. Packen verfeinern nach deinem ersten Test mit der 303.
+3. Prototyp ablösen, wenn die 303 in der neuen App gepackt ist.
 3. Bike care (Wartung mit Erinnerung zum Event-Datum).
 4. Debrief, danach Learnings.
 5. Gear: Board-Seite (Kacheln nach Gewicht) als zweite Ansicht.

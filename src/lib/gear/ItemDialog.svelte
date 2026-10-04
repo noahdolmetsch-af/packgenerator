@@ -1,5 +1,6 @@
 <script>
   import { db } from '../db.js';
+  import { RIDES, RAIN_ITEM } from '../layers.js';
   import { CATEGORIES, CATEGORY, BAGS, BAG, OWNERSHIP, ROLES, SETS, formatWeight, itemWeight, nextId, parseGrams } from '../gear.js';
 
   /**
@@ -15,9 +16,14 @@
   // svelte-ignore state_referenced_locally
   let draft = $state(
     item
-      ? { ...item, role: item.role ?? '', model: item.model ?? '', grams: item.weightG ?? '' }
-      : { id: '', name: '', brand: '', model: '', category: 'elec', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], kits: [], domains: ['bikepacking'], ...preset },
+      ? { ...item, role: item.role ?? '', model: item.model ?? '', grams: item.weightG ?? '', ...layerFields(item) }
+      : { id: '', name: '', brand: '', model: '', category: 'elec', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], kits: [], domains: ['bikepacking'], ...preset, ...layerFields(preset) },
   );
+  // Layers (round C answer 2): kept as text while editing, numbers in the database.
+  function layerFields(src) {
+    return { ride: src.ride ?? '', rain: src.rain ?? '', coldBelow: src.coldBelow ?? '', perHours: src.perHours ?? '', waterL: src.waterL ?? '' };
+  }
+  const numOrNull = (v) => (String(v).trim() === '' || !Number.isFinite(Number(String(v).replace(',', '.'))) ? null : Number(String(v).replace(',', '.')));
   let error = $state('');
   let dialog;
 
@@ -40,6 +46,11 @@
       name: rest.name.trim(),
       qty: Math.max(1, Number(rest.qty) || 1),
       role: rest.role || null,
+      ride: rest.ride || null,
+      rain: rest.rain || null,
+      coldBelow: numOrNull(rest.coldBelow),
+      perHours: numOrNull(rest.perHours),
+      waterL: numOrNull(rest.waterL),
       weightG,
       weightStatus: weightG == null ? 'missing' : weightG !== item?.weightG ? 'measured' : item.weightStatus,
       updatedAt: new Date().toISOString(),
@@ -71,6 +82,10 @@
         <div><dt>Default bag</dt><dd>{BAG[item.defaultBag] ?? '–'}</dd></div>
         <div><dt>Status</dt><dd>{OWNERSHIP[item.ownership]}</dd></div>
         {#if item.role}<div><dt>Role</dt><dd>{ROLES[item.role]}</dd></div>{/if}
+        {#if item.ride}<div><dt>Layer</dt><dd>{RIDES.find((r) => r.key === item.ride)?.name}</dd></div>{/if}
+        {#if item.coldBelow != null}<div><dt>Add when colder than</dt><dd>{item.coldBelow} °C</dd></div>{/if}
+        {#if item.rain}<div><dt>Rain</dt><dd>{RAIN_ITEM[item.rain]}</dd></div>{/if}
+        {#if item.perHours}<div><dt>Amount</dt><dd>1 per {item.perHours} h</dd></div>{/if}
         {#if item.sets?.length}<div><dt>Overnight set</dt><dd>{item.sets.map((s) => SETS[s] ?? s).join(', ')}</dd></div>{/if}
         {#if item.qty > 1}<div><dt>Quantity</dt><dd>{item.qty} × {formatWeight(item.weightG)} = {formatWeight(itemWeight(item))}</dd></div>{/if}
       </dl>
@@ -115,6 +130,24 @@
           {#each Object.entries(SETS) as [k, v] (k)}
             <label class="cb"><input type="checkbox" checked={draft.sets?.includes(k)} onchange={(e) => (draft.sets = e.currentTarget.checked ? [...(draft.sets ?? []), k] : (draft.sets ?? []).filter((x) => x !== k))} /> {v.replace('Night: ', '')}</label>
           {/each}
+        </fieldset>
+        <fieldset class="wide layers">
+          <legend class="lbl">Layers (Pack adds them for the ride and the weather)</legend>
+          <label><span class="lbl">From this ride on</span>
+            <select class="sel" bind:value={draft.ride}>
+              <option value="">–</option>
+              {#each RIDES.filter((r) => r.key !== 'every') as r (r.key)}<option value={r.key}>{r.name}</option>{/each}
+            </select>
+          </label>
+          <label><span class="lbl">Add when colder than (°C)</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.coldBelow} placeholder="e.g. 10" /></label>
+          <label><span class="lbl">When it rains</span>
+            <select class="sel" bind:value={draft.rain}>
+              <option value="">–</option>
+              {#each Object.entries(RAIN_ITEM) as [k, v] (k)}<option value={k}>{v === 'Rain' ? 'Always take it' : 'Offer it'}</option>{/each}
+            </select>
+          </label>
+          <label><span class="lbl">1 piece per … riding hours</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.perHours} placeholder="e.g. 3" /></label>
+          <label><span class="lbl">Water in it (L)</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.waterL} placeholder="e.g. 0.75" /></label>
         </fieldset>
         <label class="wide"><span class="lbl">Note</span><textarea class="inp" rows="2" bind:value={draft.note}></textarea></label>
       </div>
@@ -166,6 +199,17 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px 16px;
+  }
+  .layers {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px 12px;
+  }
+  .layers legend {
+    margin-bottom: 4px;
   }
   .sets legend {
     margin-bottom: 4px;

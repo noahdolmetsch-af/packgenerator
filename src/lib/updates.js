@@ -14,6 +14,9 @@ const now = () => new Date().toISOString();
  * Scott Spark: 2 food pouches, full frame bag. Canyon Lux World Cup: 2 bottle cages, tool bag.
  * Garmin mount and Quad Lock stay on all bikes. The 13 kg from the logbook become a note only.
  */
+// The Excel bikes have no bottle cage places yet; bikes with cages need them to show the cages.
+const withCages = (slots) => [...new Set([...(slots ?? []), 'cage1', 'cage2'])];
+
 async function bikeSetups2026(db) {
   if (!(await db.bikes.get('scott-hardtail')) || (await db.bikes.get('canyon-world-cup'))) return false;
   await db.transaction('rw', db.items, db.containers, db.bikes, db.trips, async () => {
@@ -56,16 +59,17 @@ async function bikeSetups2026(db) {
         type: 'Road / gravel', use, openPoints,
         gearing: factor.gearing?.length ? factor.gearing : gravel?.gearing ?? [],
         setup: { frame: 'bag-TA07', top: 'bag-TA06', cage1: 'bag-cage1', cage2: 'bag-cage2' }, fixtures,
+        slots: withCages(factor.slots),
       });
       if (gravel) {
         await db.trips.filter((t) => t.bikeId === 'gravel').modify({ bikeId: 'factor-ls', bike: 'Factor LS' });
         await db.bikes.delete('gravel');
       }
     }
-    const slots = (await db.bikes.get('scott-hardtail')).slots;
+    const slots = withCages((await db.bikes.get('scott-hardtail')).slots);
     await db.bikes.put({
       id: 'canyon-world-cup', name: 'Canyon Lux World Cup', type: 'Full suspension', use: 'Newly ordered (October 2026)', gearing: [], openPoints: '',
-      weightG: null, slots, setup: { cage1: 'bag-cage1', cage2: 'bag-cage2', tool: 'bag-TA09' }, fixtures,
+      weightG: 10100, slots, setup: { cage1: 'bag-cage1', cage2: 'bag-cage2', tool: 'bag-TA09' }, fixtures,
     });
   });
   return true;
@@ -79,7 +83,43 @@ async function lightSet2026(db) {
   return todo.length > 0;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026];
+/**
+ * 4.10.2026, round C answer 2: layers on top of the every-ride base.
+ * Daily ride: wind jacket, midlayer, lock. Training ride: 1 bottle, 1 carb mix and 1 gel per 3 hours.
+ * Below 10 °C: leg warmers, buff, thin gloves, warm vest. Below 5 °C also: warm Rapha base layer,
+ * warm Gore jersey, long gloves. Rain: rain trousers, rain jacket, rain socks, clear glasses, overshoes (optional).
+ * Bottles carry their litres of water (answer 8). Only empty fields are filled, once.
+ */
+const LAYERS = {
+  RG14: { ride: 'daily' }, KL26: { ride: 'daily' }, WZ24: { ride: 'daily' },
+  FD01: { perHours: 3, waterL: 1 }, FD07: { perHours: 3 }, FD05: { perHours: 3 }, FD02: { waterL: 0.5 },
+  KL14: { coldBelow: 10 }, KL15: { coldBelow: 10 }, KL18: { coldBelow: 10 }, KL13: { coldBelow: 10 },
+  KL07: { coldBelow: 5 }, KL08: { coldBelow: 5 },
+  RG06: { rain: 'yes' }, RG01: { rain: 'yes' }, RG07: { rain: 'yes' }, RG10: { rain: 'yes' }, RG08: { rain: 'optional' },
+};
+async function layers2026(db) {
+  if (await db.settings.get('update.layers2026')) return false;
+  await db.transaction('rw', db.items, db.settings, async () => {
+    for (const [id, fields] of Object.entries(LAYERS)) {
+      const item = await db.items.get(id);
+      if (!item) continue;
+      const todo = Object.fromEntries(Object.entries(fields).filter(([k]) => item[k] == null));
+      if (Object.keys(todo).length) await db.items.update(id, todo);
+    }
+    // Long warm gloves for below 5 °C are not in the Excel list: added as "unclear" for the inventory check.
+    if (!(await db.items.filter((i) => i.name === 'Warm long gloves').count()) && !(await db.items.get('KL28'))) {
+      await db.items.put({
+        id: 'KL28', name: 'Warm long gloves', brand: '', model: '', category: 'onbike', weightG: null, qty: 1, weightStatus: 'missing',
+        carry: 'body', defaultBag: 'pouchR', ownership: 'unclear', role: null, sets: [], kits: [], domains: ['bikepacking'], coldBelow: 5,
+        note: 'Added 4.10.2026 from the chat ("handschuhe lang" below 5 °C). Check it in the inventory.', updatedAt: now(),
+      });
+    }
+    await db.settings.put({ key: 'update.layers2026', value: now() });
+  });
+  return true;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

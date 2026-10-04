@@ -7,7 +7,7 @@
  *   entries           [{ itemId, slot, qty, packed }]  slot = a bike place, "body" or "mounted"
  *   ready             [{ id, group, label, itemId?, done }]  this trip's ready check
  */
-import { SLOT, SLOTS, FIXED_ZONES, containerWeight } from './bikes.js';
+import { SLOT, SLOTS, FIXED_ZONES, addedWeight } from './bikes.js';
 import { isInventory } from './gear.js';
 
 /** The fixed ready-check list, suggested for every new trip (decision 7: editable per trip). */
@@ -115,7 +115,7 @@ export function tripStats(trip, items, containers, bike, riderG) {
   });
   const bagsG = SLOTS.reduce((t, s) => {
     const bag = bagsById[trip.setup?.[s.key]];
-    return t + (bag ? containerWeight(bag, itemsById) ?? 0 : 0);
+    return t + (bag ? addedWeight(bag, itemsById) ?? 0 : 0);
   }, 0);
   const onMeG = zones.filter((z) => z.key === 'body').reduce((t, z) => t + z.grams, 0);
   const gearG = zones.filter((z) => z.key !== 'body').reduce((t, z) => t + z.grams, 0);
@@ -244,7 +244,7 @@ export function toggleSet(trip, items, key, on) {
   return { sets, entries };
 }
 
-/* ---------- weather (answer 5: temperature range and clothing suggestion, as in the prototype) ---------- */
+/* ---------- weather (answer 5: a temperature range per trip; the clothes come from layers.js) ---------- */
 
 export const WX_PRESETS = [
   { name: 'Cold', min: -2, max: 4 },
@@ -255,36 +255,18 @@ export const WX_PRESETS = [
 ];
 export const RAIN = { none: 'dry', showers: 'showers', rain: 'rain' };
 
-// Temperature bands from the prototype: what to wear when it is warmest, what to pack for the coldest part.
-const WX_BANDS = [
-  { max: 2, wear: ['KL06', 'KL04', 'KL08', 'KL12', 'RG01', 'KL27', 'KL14', 'KL18', 'KL15', 'RG13', 'RG07'], pack: [] },
-  { max: 5, wear: ['KL06', 'KL04', 'KL08', 'KL12', 'KL27', 'KL14', 'KL18', 'KL15'], pack: ['RG01'] },
-  { max: 10, wear: ['KL05', 'KL04', 'KL08', 'KL12', 'KL14', 'KL18', 'KL15'], pack: [] },
-  { max: 15, wear: ['KL05', 'KL04', 'KL03', 'KL12', 'KL17'], pack: ['KL10', 'KL14', 'KL18'] },
-  { max: 20, wear: ['KL05', 'KL04', 'KL03', 'KL17'], pack: [] },
-  { max: 99, wear: ['KL05', 'KL04', 'KL03', 'KL17', 'KL19'], pack: [] },
-];
-const band = (t) => WX_BANDS.find((b) => t < b.max) ?? WX_BANDS[WX_BANDS.length - 1];
-
-/** Clothing for a weather range: wear (on me) and pack (in a bag). Only items you own. */
-export function weatherSuggest(wx, items) {
-  if (!wx || typeof wx.min !== 'number' || typeof wx.max !== 'number') return null;
-  const own = new Set(items.filter(isInventory).map((i) => i.id));
-  const wear = [...new Set(band(wx.max).wear)].filter((id) => own.has(id));
-  const pack = [...band(wx.min).wear, ...band(wx.min).pack, ...band(wx.max).pack];
-  if (wx.rain === 'showers' || wx.rain === 'rain') pack.push('RG01');
-  if (wx.rain === 'rain') pack.push('RG06', 'RG08');
-  return { wear, pack: [...new Set(pack)].filter((id) => own.has(id) && !wear.includes(id)) };
-}
-
 /* ---------- bag too full (answer 3: hint, plus an optional suggestion) ---------- */
 
-/** A bigger bag for the same place that fits what is packed, or null. */
+/** Answer 4 (round C): keep 20 % of every bag free. Over 80 % is a hint, never a blocker. */
+export const FILL_LIMIT = 0.8;
+export const tooFull = (zone) => !!zone.bag?.volumeL && zone.vol > zone.bag.volumeL * FILL_LIMIT;
+
+/** A bigger bag for the same place that keeps 20 % free with what is packed, or null. */
 export function biggerBag(zone, containers) {
-  if (!zone.bag?.volumeL || zone.vol <= zone.bag.volumeL) return null;
+  if (!tooFull(zone)) return null;
   return (
     containers
-      .filter((c) => c.slot === zone.key && c.id !== zone.bag.id && (c.volumeL ?? 0) >= zone.vol)
+      .filter((c) => c.slot === zone.key && c.id !== zone.bag.id && (c.volumeL ?? 0) * FILL_LIMIT >= zone.vol)
       .sort((a, b) => a.volumeL - b.volumeL)[0] ?? null
   );
 }
@@ -307,7 +289,7 @@ export function axleLoad(stats, itemsById) {
     if (z.key === 'body') continue;
     const box = z.zone.box;
     const share = z.key === 'mounted' || !box ? 0.5 : Math.min(1, Math.max(0, (box.x + box.w / 2 - REAR_X) / (FRONT_X - REAR_X)));
-    const bagG = z.bag?.itemId && itemsById[z.bag.itemId]?.weightG != null ? itemsById[z.bag.itemId].weightG * (z.bag.pieces || 1) : 0;
+    const bagG = z.bag ? addedWeight(z.bag, itemsById) ?? 0 : 0;
     const g = z.grams + bagG;
     front += g * share;
     rear += g * (1 - share);

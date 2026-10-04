@@ -71,3 +71,13 @@ Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
 | 4.10.2026 | Prototyp-Daten nur als Backup sichern; die 303 wird in der neuen App neu gepackt. Vorher **Inventar-Check** (Still have / Gone / Replaced) | Noah, Antwort 6 und 10 |
 | 4.10.2026 | Pack zeigt "Weigh n" für ungewogene Teile der Tour, "Print list" (pro Tasche, als PDF speicherbar) und Gepäck vorne/hinten | Noah, Antworten 7, 8, 9 |
 | 4.10.2026 | Teile, die weg sind, bekommen den Status "Gone" statt gelöscht zu werden | Verlauf bleibt erhalten |
+| 4.10.2026 | Canyon Lux World Cup wiegt 10.1 kg. Für Scott Spark und Factor LS steht kein Gewicht im Excel | Noah |
+| 4.10.2026 | Velos werden ohne Taschen gewogen, aber mit Garmin-, Quad-Lock- und Flaschenhalterungen. Flaschenhalter zählen darum nicht noch einmal als Taschengewicht | Noah, Runde C Antwort 1 |
+| 4.10.2026 | **Schichten (Layers):** Every ride (Rolle worn/standard) → Daily ride (Windjacke, Midlayer, Schloss) → Training ride (1 Flasche, 1 Carb Mix, 1 Gel pro 3 h) → unter 10 °C (Beinlinge, Buff, dünne Handschuhe, warme Weste) → unter 5 °C (warmes Rapha-Baselayer, warmes Gore-Trikot, lange Handschuhe) → Regen (Regenhose, Regenjacke, Regensocken, klare Brille, Überschuhe optional). Pack schlägt sie aus Fahrtart, Stunden, Temperatur und Regen vor; die Grenzen stehen pro Teil in Gear und sind änderbar | Noah, Runde C Antwort 2. Ersetzt die fixen Temperaturbänder aus dem Prototyp |
+| 4.10.2026 | Kälteschichten werden getragen, wenn es auch am wärmsten Punkt kälter ist als ihre Grenze, sonst eingepackt | Annahme von Claude |
+| 4.10.2026 | Inventar-Check geht Schicht für Schicht vor, beginnend mit Every ride | Noah, Runde C Antwort 2 |
+| 4.10.2026 | Ersetzte Teile: Touren, Ready-Check, verknüpfte Taschen und fixe Halterungen zeigen danach auf das neue Teil | Noah, Runde C Antwort 3 |
+| 4.10.2026 | Volumen-Hinweis schon ab 80 %, damit 20 % Platz frei bleiben. Nur Hinweis, kein Blocker | Noah, Runde C Antwort 4 |
+| 4.10.2026 | Achslast wird angezeigt; Hinweis, wenn hinten mehr als 60 % liegt (einstellbar auf Bikes) | Noah, Runde C Antwort 5 |
+| 4.10.2026 | Wetter manuell; Druckliste mit Abhak-Kästchen; Wasser als Liter pro Flasche, im Systemgewicht enthalten | Noah, Runde C Antworten 6, 7, 8 |
+| 4.10.2026 | Als Nächstes: Bike care mit Erinnerungen vor dem Event. Teilen der Packliste ist nicht nötig | Noah, Runde C Antworten 9, 10 |

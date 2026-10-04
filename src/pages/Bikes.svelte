@@ -11,6 +11,7 @@
   const bagsQ = liveQuery(() => db.containers.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
+  const rearQ = liveQuery(() => db.settings.get('rearLimitPct'));
 
   const bikes = $derived(sortBikes($bikesQ ?? []));
   const bags = $derived($bagsQ ?? []);
@@ -84,6 +85,15 @@
     await db.settings.put({ key: 'riderWeightG', value: g });
   }
 
+  // Answer 5 (round C): Pack shows a hint when more than this share of the luggage sits on the rear wheel.
+  async function saveRear(event) {
+    const text = event.currentTarget.value.trim();
+    const n = text === '' ? null : Math.round(Number(text));
+    if (text !== '' && !(n >= 50 && n <= 90)) return (message = 'Rear wheel hint: a percentage from 50 to 90.');
+    message = '';
+    await db.settings.put({ key: 'rearLimitPct', value: n });
+  }
+
   const onBikes = (bagId) => bikes.filter((b) => Object.values(b.setup ?? {}).includes(bagId)).map((b) => b.name);
   const bagsBySlot = $derived(SLOTS.map((s) => ({ slot: s, list: bagsFor(s.key, bags) })).filter((g) => g.list.length));
 </script>
@@ -94,6 +104,10 @@
     <label class="rider">
       <span class="lbl">Rider weight (kg)</span>
       <input class="inp num" type="text" inputmode="decimal" value={$riderQ?.value ? $riderQ.value / 1000 : ''} onchange={saveRider} placeholder="e.g. 64" />
+    </label>
+    <label class="rider">
+      <span class="lbl">Hint when rear is over (%)</span>
+      <input class="inp num" type="text" inputmode="numeric" value={$rearQ?.value ?? ''} onchange={saveRear} placeholder="60" />
     </label>
   </header>
 
@@ -130,6 +144,7 @@
             <span class="lbl">Bike weight (g)</span>
             {#key bike.id}<input class="inp num" type="text" inputmode="numeric" value={bike.weightG ?? ''} onchange={saveBikeWeight} placeholder="not weighed" />{/key}
             {#if bike.weightNote && !bike.weightG}<small class="hintw">{bike.weightNote}</small>{/if}
+            <small class="hintw">Without bags, with Garmin mount, Quad Lock and bottle cages.</small>
           </label>
           <div><span class="lbl">Bags</span><b class="num">{setup.bagCount} · {formatVolume(setup.volumeL)}</b></div>
           <div>
@@ -298,6 +313,7 @@
     font-size: 13px;
   }
   .hintw {
+    display: block;
     color: var(--ink-3);
     font-size: 12px;
     max-width: 160px;

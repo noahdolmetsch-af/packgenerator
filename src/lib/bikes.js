@@ -112,13 +112,20 @@ export function containerWeight(container, itemsById) {
   return item?.weightG == null ? null : item.weightG * (container.pieces || 1);
 }
 
+/**
+ * Bottle cages stay on the bike and are weighed with it (answer 1, 4.10.2026: bikes are weighed
+ * without bags but with Garmin mount, Quad Lock and bottle cages), so they add nothing on top.
+ */
+export const ON_BIKE_SLOTS = ['cage1', 'cage2'];
+export const addedWeight = (container, itemsById) => (ON_BIKE_SLOTS.includes(container.slot) ? 0 : containerWeight(container, itemsById));
+
 /** Bags on a bike: one row per slot the bike has, with the bag and its numbers. */
 export function bikeSetup(bike, containers, items) {
   const byId = Object.fromEntries(containers.map((c) => [c.id, c]));
   const itemsById = Object.fromEntries(items.map((i) => [i.id, i]));
   const rows = SLOTS.filter((s) => bike.slots?.includes(s.key)).map((slot) => {
     const bag = byId[bike.setup?.[slot.key]] ?? null;
-    return { slot, bag, weightG: bag ? containerWeight(bag, itemsById) : null };
+    return { slot, bag, weightG: bag ? addedWeight(bag, itemsById) : null };
   });
   const used = rows.filter((r) => r.bag);
   return {
