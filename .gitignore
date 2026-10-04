@@ -1,0 +1,6 @@
+node_modules
+dist
+dev-dist
+# Personal data never goes into this public repository.
+*.xlsx
+*backup*.json
