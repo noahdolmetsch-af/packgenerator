@@ -4,6 +4,8 @@
  * private translations file (outside the repo).
  */
 
+import { splitBrand } from '../../src/lib/brand.js';
+
 export const CATEGORY = {
   Elektronik: 'elec', Licht: 'light', 'Kleidung on-bike': 'onbike', 'Regen & Kälte': 'rain',
   'Kleidung off-bike': 'offbike', Schuhe: 'shoes', 'Werkzeug & Reparatur': 'tools',
@@ -72,7 +74,7 @@ export function mapItem(row, lib, t, wishPriority) {
     id,
     name: lib?.[2] || t(str(row[2])),
     nameDe: str(row[2]),
-    brand: lib?.[3] || str(row[3]),
+    ...splitBrand(lib?.[3] || str(row[3])),
     category: lib?.[1] || CATEGORY[str(row[1])] || 'other',
     weightG,
     qty: num(row[5]) ?? 1,

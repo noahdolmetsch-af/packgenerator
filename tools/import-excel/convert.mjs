@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import readExcel from 'read-excel-file/node';
 import { mapItem, appliesTo, isoDate, hhmm, PRIORITY } from './mapping.js';
+import { startContainers, completeBike } from '../../src/lib/bikes.js';
 
 const args = Object.fromEntries(
   process.argv.slice(2).reduce((acc, a, i, all) => (a.startsWith('--') ? [...acc, [a.slice(2), all[i + 1]]] : acc), []),
@@ -170,8 +171,13 @@ const trips = [
   },
 ];
 
-const tables = { items, kits, trips, debriefs: [], learnings, events, maintenance, bikes, weightChecks, settings };
-const backup = { app: 'pack-generator', schemaVersion: 1, exportedAt: new Date().toISOString(), source: 'Bikepacking_Master_v2.xlsx', tables };
+// Bag list and bike setups, with the same rules the app uses on start.
+const containers = startContainers(items);
+const settingValues = Object.fromEntries(settings.map((s) => [s.key, s.value]));
+const fullBikes = bikes.map((b) => completeBike(b, containers, settingValues));
+
+const tables = { items, kits, trips, debriefs: [], learnings, events, maintenance, bikes: fullBikes, containers, weightChecks, settings };
+const backup = { app: 'pack-generator', schemaVersion: 2, exportedAt: new Date().toISOString(), source: 'Bikepacking_Master_v2.xlsx', tables };
 writeFileSync(args.out, JSON.stringify(backup, null, 2));
 
 // ---------- report ----------

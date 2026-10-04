@@ -9,12 +9,14 @@
    */
   let { item, items, readOnly = false, onclose } = $props();
 
+  // svelte-ignore state_referenced_locally
   const isNew = !item;
   // A copy to edit; nothing is saved until "Save".
+  // svelte-ignore state_referenced_locally
   let draft = $state(
     item
-      ? { ...item, role: item.role ?? '', grams: item.weightG ?? '' }
-      : { id: '', name: '', brand: '', category: 'elec', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], kits: [], domains: ['bikepacking'] },
+      ? { ...item, role: item.role ?? '', model: item.model ?? '', grams: item.weightG ?? '' }
+      : { id: '', name: '', brand: '', model: '', category: 'elec', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], kits: [], domains: ['bikepacking'] },
   );
   let error = $state('');
   let dialog;
@@ -64,6 +66,7 @@
     {#if readOnly}
       <dl class="facts">
         {#if item.brand}<div><dt>Brand</dt><dd>{item.brand}</dd></div>{/if}
+        {#if item.model}<div><dt>Model</dt><dd>{item.model}</dd></div>{/if}
         <div><dt>Default bag</dt><dd>{BAG[item.defaultBag] ?? '–'}</dd></div>
         <div><dt>Status</dt><dd>{OWNERSHIP[item.ownership]}</dd></div>
         {#if item.role}<div><dt>Role</dt><dd>{ROLES[item.role]}</dd></div>{/if}
@@ -77,7 +80,8 @@
     {:else}
       <div class="grid">
         <label class="wide"><span class="lbl">Name</span><input class="inp" bind:value={draft.name} required /></label>
-        <label><span class="lbl">Brand</span><input class="inp" bind:value={draft.brand} /></label>
+        <label><span class="lbl">Brand</span><input class="inp" bind:value={draft.brand} placeholder="e.g. Garmin" /></label>
+        <label><span class="lbl">Model / colour</span><input class="inp" bind:value={draft.model} placeholder="e.g. Edge 1040 Solar" /></label>
         <label>
           <span class="lbl">Category</span>
           <select class="sel" bind:value={draft.category} disabled={!isNew} title={isNew ? '' : 'The category is part of the ID'}>

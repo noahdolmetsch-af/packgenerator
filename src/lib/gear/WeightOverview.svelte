@@ -5,15 +5,15 @@
   /** stats from gearStats(); category = the active filter; onpick(key) toggles it; onopen(item) opens an item */
   let { stats, category, onpick, onopen } = $props();
 
-  // Heaviest category first; categories without weighed items are not in the bar.
-  const cats = $derived(stats.cats.filter((c) => c.g > 0).sort((a, b) => b.g - a.g));
+  // Heaviest category first; categories without weighed items and food & water (used up on the way) are not in the bar.
+  const cats = $derived(stats.cats.filter((c) => c.g > 0 && !c.consumable).sort((a, b) => b.g - a.g));
   const total = $derived(stats.total || 1);
   const maxTop = $derived(stats.top.length ? itemWeight(stats.top[0]) : 1);
 </script>
 
 <div class="ov">
   <section aria-labelledby="ov-cat">
-    <h2 id="ov-cat" class="h">Weight by category <small>{stats.unweighed} not weighed, not in the bar</small></h2>
+    <h2 id="ov-cat" class="h">Weight by category <small>{stats.unweighed} not weighed{stats.consumablesG ? ` · food & water (${formatWeight(stats.consumablesG)}) not counted` : ''}</small></h2>
     <div class="bar" role="group" aria-label="Weight by category, tap to filter">
       {#each cats as c (c.key)}
         <button

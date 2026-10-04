@@ -51,3 +51,14 @@ Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
 | 4.10.2026 | Idee QR-Kleber an Taschen: **notiert, später entscheiden** | Noah, Antwort 10b |
 | 4.10.2026 | Gear zuerst als **Ledger**; Board folgt als zweite Ansicht in einem eigenen Schritt | Kleinere, prüfbare Schritte |
 | 4.10.2026 | Gewicht wird **pro Stück** gespeichert, angezeigt als Stück × Anzahl; im Waage-Modus wiegt man alle Stücke zusammen | Paare (Seitentaschen, Pouches) richtig rechnen |
+| 4.10.2026 | **Gear-Gewicht ohne Essen und Wasser** (Kategorie Food & drink zählt nicht ins Total und nicht in die Top 10) | Noah, Antwort 7b; das echte Tourgewicht zeigt Packen |
+| 4.10.2026 | **Brand nur noch Hersteller**, Modell/Farbe in eigenem Feld "Model"; ältere Daten werden beim Start einmal aufgeräumt | Noah, Antwort 8a |
+| 4.10.2026 | **Wägen beginnt mit Teilen für jede Tour** (Worn/Standard), dann Nacht-Sets, dann Optional, dann der Rest | Noah, Antwort 9b |
+| 4.10.2026 | **Kategorien auf- und zuklappbar**; am Phone starten alle zu, am Desktop offen; beim Suchen ist alles offen | Noah, Antwort 10a |
+| 4.10.2026 | Taschen und Packen nach den Empfehlungen: 13 Taschen aus der Excel als Start, feste Halterungen und Standard-Taschen pro Velo, Packen-Screen wie im Prototyp, eine Velo-Zeichnung für alle, neue Tour = Kopie der letzten mit demselben Velo, Ready-Check-Änderung gilt nur für diese Tour, Velo-Gewicht pro Velo, Fahrergewicht fix in den Einstellungen, Packen bis zur 303 am 15.10. fertig, Tasche für Tasche abhaken am Phone | Noah: "weiter machen" ohne eigene Antworten zu diesen 10 Fragen |
+| 4.10.2026 | **Taschenliste als eigene Tabelle** (`containers`): jede Tasche hat einen Platz am Velo, ein Volumen und holt ihr Gewicht vom verknüpften Gear-Teil | Gewicht nur an einer Stelle pflegen; Datenformat Version 2 (nur neue Tabelle, nichts geht verloren) |
+| 4.10.2026 | Start-Taschen: 11 Taschen aus der Kategorie "Bags" plus Cargo cage und Mini bag aus dem Prototyp; Dry bags und Spanngurte bleiben Gear | Sie sind kein Platz am Velo |
+| 4.10.2026 | Alle 4 Velos starten mit dem Standard-Setup des Prototyps (Ortlieb, Rahmentasche, Oberrohr, 2 Pouches, Tool bag); 13 kg aus dem Logbuch beim Scott | Noah passt es pro Velo an |
+| 4.10.2026 | **Neue Seite "Bikes"**; Pack nutzt pro Tour eine Kopie des Velo-Setups, Änderungen gelten nur für die Tour | Velo bleibt die Vorlage |
+| 4.10.2026 | Taschen, die in der Excel-Packliste als Teile standen, wandern ins Taschen-Setup der Tour | Gewicht nicht doppelt zählen |
+| 4.10.2026 | Systemgewicht = Gear am Velo + am Körper + Taschen + Velo + Fahrer; Essen und Wasser zählen hier mit | Das echte Tourgewicht; ungewogene Teile zählen als 0 und werden angezeigt |

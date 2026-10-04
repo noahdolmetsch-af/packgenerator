@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2; // 2: bags (containers) table, bike setups
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -24,7 +24,8 @@ export const DATA_TABLES = [
   'learnings', // rules learned from past trips
   'events', // past and planned events from the logbook
   'maintenance', // bike and preparation tasks
-  'bikes',
+  'bikes', // bike setups: weight, which mounts it has, which bag sits where
+  'containers', // bags and cages that can go on a bike (own list, linked to a gear item for the weight)
   'weightChecks', // where a disputed weight came from
   'settings', // key/value, e.g. rider weight
 ];
@@ -34,7 +35,8 @@ export const DATA_TABLES = [
  * @property {string} id            Short ID from the Excel, e.g. "EL01"
  * @property {string} name          English name
  * @property {string} [nameDe]      Original German name from the Excel
- * @property {string} [brand]
+ * @property {string} [brand]     Maker only, e.g. "Garmin"
+ * @property {string} [model]     Model, colour or variant, e.g. "Edge 1040 Solar"
  * @property {string} category      e.g. "elec", "onbike", "sleep"
  * @property {number|null} weightG  Weight of one piece in grams; null = still to weigh
  * @property {number} qty
@@ -49,11 +51,29 @@ export const DATA_TABLES = [
  */
 
 /**
+ * @typedef {Object} Container      A bag or cage that goes on a bike slot
+ * @property {string} id            e.g. "bag-TA02"
+ * @property {string} name
+ * @property {string} slot          where it fits on the bike, e.g. "seat" (see SLOTS in bikes.js)
+ * @property {number|null} volumeL
+ * @property {string|null} itemId   gear item that holds its weight, e.g. "TA02"
+ * @property {number} pieces        how many pieces of that item this bag is (side bags = 2)
+ * @property {string} [note]
+ *
+ * @typedef {Object} Bike
+ * @property {string} id
+ * @property {string} name
+ * @property {number|null} weightG
+ * @property {string[]} slots       slots this bike has mounts for
+ * @property {Object<string, string|null>} setup  slot → container id that sits there by default
+ */
+
+/**
  * @param {string} [name] database name; tests use their own name
  */
 export function createDb(name = 'pack-generator') {
   const db = new Dexie(name);
-  db.version(SCHEMA_VERSION).stores({
+  db.version(1).stores({
     items: 'id, category, ownership, weightStatus, *domains',
     kits: 'id, domain',
     trips: 'id, domain, status, startDate',
@@ -65,6 +85,10 @@ export function createDb(name = 'pack-generator') {
     weightChecks: 'id',
     settings: 'key',
     meta: 'key', // app-internal (e.g. backup folder); never exported
+  });
+  // Version 2 only adds a table, so existing data stays as it is.
+  db.version(2).stores({
+    containers: 'id, slot',
   });
   return db;
 }

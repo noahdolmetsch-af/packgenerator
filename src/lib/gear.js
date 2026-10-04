@@ -44,6 +44,10 @@ export const OWNERSHIP = { owned: 'Owned', unclear: 'Unclear', 'to-buy': 'To buy
 export const ROLES = { worn: 'Worn', standard: 'Standard pack', optional: 'Optional' };
 export const SETS = { base: 'Night: Base', warm: 'Night: Warm', sleep: 'Night: Sleep', cook: 'Night: Cook' };
 
+/** Food and water are used up on the way: they are packed, but not part of the gear weight. */
+export const CONSUMABLE_CATEGORIES = ['food'];
+export const isConsumable = (item) => CONSUMABLE_CATEGORIES.includes(item.category);
+
 /** Owned and unclear items are the inventory; wishlist and to-buy are kept apart. */
 export const isInventory = (item) => item.ownership === 'owned' || item.ownership === 'unclear';
 
@@ -57,12 +61,16 @@ export function formatWeight(g) {
   return `${String(Math.round(g)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} g`;
 }
 
-/** Totals for the overview: per category, top 10, inventory and wishlist. */
+/**
+ * Totals for the overview: per category, top 10, inventory and wishlist.
+ * total and top leave out consumables (food and water); consumablesG is their weight on its own.
+ */
 export function gearStats(items) {
-  const cats = Object.fromEntries(CATEGORIES.map((c) => [c.key, { ...c, g: 0, n: 0, unweighed: 0 }]));
+  const cats = Object.fromEntries(CATEGORIES.map((c) => [c.key, { ...c, g: 0, n: 0, unweighed: 0, consumable: CONSUMABLE_CATEGORIES.includes(c.key) }]));
   const inventory = [];
   const wishlist = [];
   let total = 0;
+  let consumablesG = 0;
   let unweighed = 0;
   for (const item of items) {
     if (!isInventory(item)) {
@@ -77,15 +85,16 @@ export function gearStats(items) {
       unweighed++;
       if (c) c.unweighed++;
     } else {
-      total += w;
+      if (isConsumable(item)) consumablesG += w;
+      else total += w;
       if (c) c.g += w;
     }
   }
   const top = inventory
-    .filter((i) => itemWeight(i) > 0)
+    .filter((i) => itemWeight(i) > 0 && !isConsumable(i))
     .sort((a, b) => itemWeight(b) - itemWeight(a) || a.name.localeCompare(b.name))
     .slice(0, 10);
-  return { cats: CATEGORIES.map((c) => cats[c.key]), total, unweighed, top, inventory, wishlist };
+  return { cats: CATEGORIES.map((c) => cats[c.key]), total, consumablesG, unweighed, top, inventory, wishlist };
 }
 
 /** Does an item match the search text and filters? */
@@ -96,7 +105,7 @@ export function matches(item, { q = '', category = '', role = '' } = {}) {
   if (role && role !== 'none' && role !== 'night' && item.role !== role) return false;
   const text = q.trim().toLowerCase();
   if (!text) return true;
-  const hay = [item.name, item.brand, item.id, item.nameDe, CATEGORY[item.category]?.name, BAG[item.defaultBag]]
+  const hay = [item.name, item.brand, item.model, item.id, item.nameDe, CATEGORY[item.category]?.name, BAG[item.defaultBag]]
     .filter(Boolean)
     .join(' ')
     .toLowerCase();
@@ -108,12 +117,25 @@ export function groupByCategory(items) {
   return CATEGORIES.map((c) => ({ ...c, items: items.filter((i) => i.category === c.key) })).filter((g) => g.items.length);
 }
 
-/** Items still to weigh, in category order (the "To weigh" queue). */
+/** How soon an item should be weighed: what goes on every ride first, then overnight sets, then optional, then the rest. */
+export function weighPriority(item) {
+  if (item.role === 'worn' || item.role === 'standard') return 0;
+  if (item.sets?.length) return 1;
+  if (item.role === 'optional') return 2;
+  return 3;
+}
+
+/** Items still to weigh (the "To weigh" queue): by priority, then category order, then name. */
 export function weighQueue(items) {
   const order = Object.fromEntries(CATEGORIES.map((c, i) => [c.key, i]));
   return items
     .filter((i) => isInventory(i) && i.weightG == null)
-    .sort((a, b) => (order[a.category] ?? 99) - (order[b.category] ?? 99) || a.name.localeCompare(b.name));
+    .sort(
+      (a, b) =>
+        weighPriority(a) - weighPriority(b) ||
+        (order[a.category] ?? 99) - (order[b.category] ?? 99) ||
+        a.name.localeCompare(b.name),
+    );
 }
 
 /** Next free ID for a category, e.g. "EL20" after "EL19". */

@@ -18,8 +18,9 @@
   // The three chapters of the app, in build order (decision 5b: Gear and Pack first).
   const chapters = [
     { no: '01', name: 'Gear', text: 'Inventory: what you own and what it weighs. Wishlist apart.', state: 'Open', href: '#/gear' },
-    { no: '02', name: 'Pack', text: 'New trip as a copy of the last one, bags on the bike, ready check.', state: 'Next up' },
-    { no: '03', name: 'Debrief', text: 'Tap what you did not use, plus weather, comfort and notes.', state: 'Later' },
+    { no: '02', name: 'Pack', text: 'New trip as a copy of the last one, bags on the bike, tick off bag by bag, ready check.', state: 'Open', href: '#/pack' },
+    { no: '03', name: 'Bikes', text: 'Your four bikes: which bag sits where, bike and rider weight.', state: 'Open', href: '#/bikes' },
+    { no: '04', name: 'Debrief', text: 'Tap what you did not use, plus weather, comfort and notes.', state: 'Later' },
   ];
 </script>
 
