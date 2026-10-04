@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 3; // 2: bags (containers) table, bike setups. 3: workshop visits, photos
+export const SCHEMA_VERSION = 4; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -30,6 +30,7 @@ export const DATA_TABLES = [
   'settings', // key/value, e.g. rider weight
   'visits', // workshop visits: date, shop, invoice, cost, the jobs done and the receipt photos
   'photos', // setup photos of a bike, shown in a gallery and pale behind the bags in Pack
+  'notes', // quick notes from any page, sorted later on the Inbox page
 ];
 
 /**
@@ -117,6 +118,10 @@ export function createDb(name = 'pack-generator') {
   db.version(3).stores({
     visits: 'id, bikeId, date',
     photos: 'id, bikeId, tripId',
+  });
+  // Version 4 only adds the quick notes table, so existing data stays as it is.
+  db.version(4).stores({
+    notes: 'id, status, at',
   });
   return db;
 }

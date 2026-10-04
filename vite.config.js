@@ -29,6 +29,10 @@ export default defineConfig({
           { src: 'icons/app-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/app-512.png', sizes: '512x512', type: 'image/png' },
         ],
+        // Quick note (v0.19.3, answer 3a): long-press the app icon → "New note"; and Pack Generator
+        // in the Android share sheet (text and links; a photo is added in the note itself).
+        shortcuts: [{ name: 'New note', short_name: 'Note', url: `${base}#/inbox/new`, icons: [{ src: 'icons/app-192.png', sizes: '192x192' }] }],
+        share_target: { action: base, method: 'GET', params: { title: 'title', text: 'text', url: 'url' } },
       },
       workbox: {
         // Everything the app needs is stored on the device at install time.

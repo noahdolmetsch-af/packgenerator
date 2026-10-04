@@ -92,6 +92,20 @@ export function newTrip({ title, startDate, days, bike, readyStandard = null }, 
   };
 }
 
+/**
+ * The trip on another bike: it takes that bike's bags; items in a place it has no bag for
+ * go to the seat pack. Returns the changes to store.
+ */
+export function switchBike(trip, bike) {
+  const setup = { ...(bike.setup ?? {}) };
+  return {
+    bikeId: bike.id,
+    bike: bike.name,
+    setup,
+    entries: trip.entries.map((e) => (e.slot === 'body' || e.slot === 'mounted' || setup[e.slot] ? e : { ...e, slot: slotFor(e.slot, setup) })),
+  };
+}
+
 /** Is a ready-check row done? Rows linked to an item are done when that item is on the trip. */
 export function readyDone(row, trip) {
   if (row.itemId) return trip.entries.some((e) => e.itemId === row.itemId);
