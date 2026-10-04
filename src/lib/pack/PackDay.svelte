@@ -239,6 +239,8 @@
     list-style: none;
     padding: 0;
     display: grid;
+    /* minmax(0, …): a long learning hint (one line, cut with …) must not widen the items past the screen */
+    grid-template-columns: minmax(0, 1fr);
     gap: 8px;
   }
   .it {

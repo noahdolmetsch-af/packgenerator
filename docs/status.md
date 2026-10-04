@@ -3,6 +3,7 @@
 Stand: 4. Oktober 2026
 
 ## Fertig
+- **Probefahrt 303 (v0.18.1):** Die Lucerne 303 als Demo durchgespielt (14 Tage vorher, Packtag, Start, Nacht, Debrief). Daraus: Packtag warnt, wenn die Vorhersage kälter oder nasser ist als gepackt, und springt zu den passenden Layers; Debrief zeigt deine Notizen vom Tourtag und schlägt bei "fehlte" ähnliche Teile aus deinem Gear vor; Packtag am Phone ohne Querscrollen; Demo-Tag lässt sich mehrmals hintereinander wechseln. Demo-Datei: `private/demo/pack-generator-demo-lucerne-303.json` im Projektordner.
 - **Tagesansicht, Werkstatt-Erinnerung, Demo-Modus (v0.18.0):** Pack → "Ride day": alle Taschen mit Inhalt, Etappe mit km, Höhenmetern, Fahrzeit, Ankunft und Höhenprofil, Wetter Stunde für Stunde am Start und am Ziel (bleibt offline sichtbar), Notizen für den Debrief. Mehrtägige Touren: Tag für Tag; Nonstop: eine Etappe über Nacht mit deinen Blöcken. Am Tourtag öffnet die Startseite die Tagesansicht. Pack und Bike care zeigen ab 14 Tagen vor einer Tour, was die Werkstatt noch machen muss. Demo-Dateien starten einen Demo-Modus, "End demo" setzt alles zurück.
 - Grundgerüst: Svelte + Vite, installierbar (PWA), funktioniert offline, online auf GitHub Pages.
 - Bike-Cockpit-Prototyp: seit 4.10.2026 archiviert in `archive/cockpit/`, nicht mehr online.
@@ -45,10 +46,9 @@ Stand: 4. Oktober 2026
 - [ ] Erstes Backup herunterladen (Startseite → Download backup).
 
 ## Läuft
-- Probefahrt 303 als Demo: Claude spielt die Lucerne 303 (nonstop) bis zum Debrief durch, Bericht mit Screenshots, danach 0.18.1.
+- 0.18.2: eine gemeinsame Liste "Vor der Tour" für Startseite, Pack und Bike care (Antwort 3a).
 
 ## Als Nächstes
-1. 0.18.1: was die Probefahrt 303 findet.
-2. 0.19.0 App lernt: weitere Demo-Touren (Hope 1000, Alpenbrevet), danach schlägt die App nach 3 Debriefs Änderungen an den Vorlagen vor.
-3. 0.20.0: ganze App Deutsch/Englisch umschaltbar.
-4. Paket 5: weitere Bereiche (Skitouren, Weekend-Trip, Weltreise) und Merkliste "All my favorite things".
+1. 0.19.0 App lernt: weitere Demo-Touren (Hope 1000, Alpenbrevet), danach schlägt die App nach 3 Debriefs Änderungen an den Vorlagen vor.
+2. 0.20.0: ganze App Deutsch/Englisch umschaltbar.
+3. Paket 5: weitere Bereiche (Skitouren, Weekend-Trip, Weltreise) und Merkliste "All my favorite things".

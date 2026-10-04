@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { describe, it, expect, afterEach } from 'vitest';
 import { createDb, SCHEMA_VERSION } from '../src/lib/db.js';
 import { APP_ID } from '../src/lib/backup.js';
-import { isDemoFile, startDemo, endDemo, demoState, applyClock } from '../src/lib/demo.js';
+import { isDemoFile, startDemo, endDemo, demoState, applyClock, setClock, clockOffset } from '../src/lib/demo.js';
 
 const demoFile = {
   app: APP_ID,
@@ -49,5 +49,16 @@ describe('demo day', () => {
     expect(Math.round((Date.now() - now) / 864e5)).toBe(10);
     expect(Math.round((new Date().getTime() - now) / 864e5)).toBe(10);
     expect(new Date('2026-10-15T00:00:00Z').toISOString()).toBe('2026-10-15T00:00:00.000Z');
+  });
+  it('picks a second demo day from the real day, not from the shifted one', () => {
+    const store = {};
+    globalThis.localStorage = { getItem: (k) => store[k] ?? null, setItem: (k, v) => (store[k] = v), removeItem: (k) => delete store[k] };
+    setClock('2026-10-14');
+    applyClock(clockOffset());
+    expect(new Date().toISOString().slice(0, 10)).toBe('2026-10-14');
+    setClock('2026-10-15');
+    const off = clockOffset();
+    expect(new Real(Real.now() + off).toISOString().slice(0, 10)).toBe('2026-10-15');
+    delete globalThis.localStorage;
   });
 });

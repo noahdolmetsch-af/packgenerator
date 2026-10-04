@@ -255,9 +255,9 @@ export const wishCount = (items) => items.filter((i) => i.ownership === 'wishlis
 export const unweighedCount = (items) => items.filter((i) => isInventory(i) && i.weightG == null).length;
 
 /**
- * Gear that may be what you missed (v0.18.1, found in the 303 demo: "Warm gloves" went to the
- * wishlist although gloves were in the gear). Items not on the trip that share a word of 4 or more
- * letters with the name (English or German), best match first. Returns at most n items.
+ * Gear that may be what you missed (v0.18.1, from the 303 demo). Items not on the trip whose name
+ * (English or German) holds the thing itself, the last word of 4 or more letters ("warm GLOVES");
+ * the other words rank them. Returns at most n items, best match first.
  */
 export function similarItems(name, items, n = 4) {
   const words = name.toLowerCase().split(/[^a-zäöüéè0-9]+/).filter((w) => w.length >= 4);
@@ -269,7 +269,8 @@ export function similarItems(name, items, n = 4) {
       // The last word is the thing itself ("warm GLOVES"), so it counts double.
       return { i, score: words.reduce((t, w, n) => t + (hay.includes(stem(w)) ? (n === words.length - 1 ? 2 : 1) : 0), 0) };
     })
-    .filter((x) => x.score > 0)
+    // Only items that match the thing itself (the last word): "warm gloves" never offers a warm gilet.
+    .filter((x) => x.score >= 2)
     .sort((a, b) => b.score - a.score || a.i.name.localeCompare(b.i.name))
     .slice(0, n)
     .map((x) => x.i);
