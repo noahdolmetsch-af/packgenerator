@@ -38,7 +38,7 @@ export const DATA_TABLES = [
  * @property {string} category      e.g. "elec", "onbike", "sleep"
  * @property {number|null} weightG  Weight of one piece in grams; null = still to weigh
  * @property {number} qty
- * @property {'logbook'|'online'|'missing'|'conflict'} weightStatus
+ * @property {'logbook'|'online'|'measured'|'missing'|'conflict'} weightStatus  measured = weighed in the app
  * @property {'body'|'bike'|'luggage'} carry
  * @property {string|null} defaultBag
  * @property {'owned'|'to-buy'|'wishlist'|'unclear'} ownership

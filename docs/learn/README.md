@@ -64,11 +64,19 @@ Wichtig: Beide Speicher gehören zum *Browser auf diesem Gerät*. Darum gibt es 
 - `$state.raw(...)`: wie `$state`, aber Svelte "verpackt" den Inhalt nicht. Nötig, weil die Datenbank nur reine Daten speichern kann.
 - `onclick={exportFile}`: ruft die Funktion beim Klick auf.
 
-## 8. Tests
+## 8. Seiten und Gear (`src/App.svelte`, `src/pages/`, `src/lib/gear/`)
+
+- **Router:** `App.svelte` schaut auf den Teil der Adresse nach `#` (z.B. `#/gear`) und zeigt die passende Seite. Das funktioniert offline und braucht keinen Server.
+- **Regeln getrennt vom Aussehen:** `src/lib/gear.js` enthält nur Rechnungen (Totale, Suche, "To weigh"-Reihenfolge, neue IDs). Die `.svelte`-Dateien zeigen nur an. So lassen sich die Regeln mit Tests prüfen (`tests/gear.test.js`).
+- `$derived(...)`: ein Wert, der aus anderen Werten berechnet wird und sich selbst aktualisiert, z.B. `stats` aus der Liste aller Teile.
+- `src/lib/media.svelte.js`: merkt sich, ob der Bildschirm schmal ist (Phone). Komponenten lesen `phone.matches` und passen sich an.
+- Gewicht: In der Datenbank steht das Gewicht **eines Stücks** (`weightG`) und die **Anzahl** (`qty`). Angezeigt wird `weightG × qty`, z.B. Seitentaschen 2 × 450 g = 900 g.
+
+## 9. Tests
 
 `npm test` startet **Vitest**. Die Tests liegen in `tests/` und laufen ohne Browser: `fake-indexeddb` spielt die Browser-Datenbank im Speicher nach. Getestet wird z.B., dass Export → Import genau dieselben Daten ergibt.
 
-## 9. Selbst ausprobieren
+## 10. Selbst ausprobieren
 
 ```
 npm install       # einmal: Bausteine herunterladen
