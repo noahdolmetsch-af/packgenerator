@@ -10,6 +10,7 @@ const trip = {
   entries: [{ itemId: 'A', slot: 'frame', qty: 2, packed: true }, { itemId: 'B', slot: 'body', qty: 1, packed: true }, { itemId: 'GONE', slot: 'top', qty: 1 }],
   ready: [{ id: 'kit', label: 'Helmet', done: true }, { id: 'a1', label: 'AirPods', itemId: 'EL13' }],
   ride: 'daily', hours: 2, sets: { light: true }, wx: { min: 4, max: 12, rain: 'rain' },
+  purpose: { top: 'Quick access' },
 };
 const items = [
   { id: 'A', ownership: 'owned', defaultBag: 'frame' },
@@ -40,6 +41,7 @@ describe('templates', () => {
     expect(n.ready).toEqual([{ id: 'kit', label: 'Helmet', done: false }]);
     expect(n).toMatchObject({ ride: 'daily', hours: 2, sets: { light: true }, templateId: 'tpl-1', bikeId: 'scott' });
     expect(n.wx).toBeUndefined();
+    expect(n.purpose).toEqual({ top: 'Quick access' }); // what a bag is for comes along
   });
 
   it('upsert replaces by id or adds', () => {

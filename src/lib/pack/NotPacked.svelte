@@ -106,7 +106,7 @@
     bottom: 0;
     display: block;
     height: 28px;
-    background: linear-gradient(rgba(245, 246, 241, 0), var(--paper));
+    background: linear-gradient(rgba(251, 251, 248, 0), var(--paper));
     pointer-events: none;
   }
   .gh {
@@ -120,7 +120,7 @@
     padding: 9px 10px;
     border: 0;
     border-bottom: 1px solid var(--line);
-    background: #e6ebe3;
+    background: var(--paper-2);
     color: var(--ink);
     font: 700 12px var(--font-body);
     letter-spacing: 0.08em;

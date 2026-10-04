@@ -1,13 +1,14 @@
-/* Trail Journal design tokens (same values as the Bike Cockpit prototype). */
+/* Trail Journal design tokens. Calmer since 4.10.2026 (design answer 1a): lighter ground and lines,
+   orange only for actions and the current choice. */
 :root {
   color-scheme: light;
-  --ground: #d9ded4;
-  --paper: #f5f6f1;
-  --paper-2: #e6ebe3;
+  --ground: #eceee8;
+  --paper: #fbfbf8;
+  --paper-2: #eef1ec;
   --ink: #0f2e27;
   --ink-2: #3b4f46;
   --ink-3: #6f8378;
-  --line: #a9b4a8;
+  --line: #c6cec4;
   --hi: #ff5b14;
   --hi-soft: #ffe9dc;
   --font-title: 'Sofia Sans Extra Condensed', 'Arial Narrow', sans-serif;
@@ -28,7 +29,7 @@ body {
   min-height: 100vh;
   background-color: var(--ground);
   /* Topo lines: a repeating SVG drawn in the ink colour at low opacity. */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%230F2E27' stroke-opacity='.07' stroke-width='1.2'%3E%3Cpath d='M0 40c40-18 80 18 120 0s80-18 120 0'/%3E%3Cpath d='M0 100c40-22 80 22 120 0s80-22 120 0'/%3E%3Cpath d='M0 160c40-14 80 14 120 0s80-14 120 0'/%3E%3Cpath d='M0 220c40-20 80 20 120 0s80-20 120 0'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%230F2E27' stroke-opacity='.04' stroke-width='1.2'%3E%3Cpath d='M0 40c40-18 80 18 120 0s80-18 120 0'/%3E%3Cpath d='M0 100c40-22 80 22 120 0s80-22 120 0'/%3E%3Cpath d='M0 160c40-14 80 14 120 0s80-14 120 0'/%3E%3Cpath d='M0 220c40-20 80 20 120 0s80-20 120 0'/%3E%3C/g%3E%3C/svg%3E");
   color: var(--ink);
   font-family: var(--font-body);
   line-height: 1.45;

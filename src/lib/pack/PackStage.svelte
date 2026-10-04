@@ -48,7 +48,7 @@
     if (id) ondropitem(key, id);
   }
   const facts = (c) => {
-    const what = c.empty ? 'empty' : `${c.count} ${c.count === 1 ? 'item' : 'items'} · ${formatWeight(c.grams)}`;
+    const what = c.empty ? 'empty' : `${c.count} ${c.count === 1 ? 'item' : 'items'} · ${c.grams ? formatWeight(c.grams) : 'not weighed'}`;
     // Without item volumes there is no fill to show, only the size of the bag.
     return c.cap && c.fill == null ? `${what} · ${formatVolume(c.cap)}` : what;
   };
