@@ -13,6 +13,9 @@
   import { RAIN } from '../trips.js';
   import Profile from '../ui/Profile.svelte';
   import { stageCount } from '../ride.js';
+  import { liveQuery } from 'dexie';
+  import { paceOf, PACE_KEY } from '../pace.js';
+  import { db } from '../db.js';
 
   let { trip, onchange } = $props();
 
@@ -31,7 +34,10 @@
   let routeMsg = $state('');
   // A nonstop trip has one stage, so the hours are for the whole ride (v0.18.1).
   const stages = $derived(stageCount(trip));
-  const hours = $derived(ridingHours(trip.route, stages));
+  // v0.19.0: your pace from your rides when learned (Debrief → Your pace).
+  const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
+  const pace = $derived(paceOf($paceQ?.value));
+  const hours = $derived(ridingHours(trip.route, stages, pace));
   async function pickGpx(event) {
     const file = event.currentTarget.files[0];
     event.currentTarget.value = '';
@@ -125,7 +131,7 @@
         <label class="link">Other GPX<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
         <button type="button" class="link" onclick={dropRoute}>Remove</button>
       </p>
-      {#if hours != null}<p class="hint">Guess with luggage: {SPEED_KMH} km/h plus 1 h per {CLIMB_MH} m climbing.</p>{/if}
+      {#if hours != null}<p class="hint">{#if pace.mine}Your pace from {pace.n} rides: {pace.kmh} km/h plus 1 h per {pace.climbMh} m climbing. <a href="#/debrief/pace">Change</a>{:else}Guess with luggage: {SPEED_KMH} km/h plus 1 h per {CLIMB_MH} m climbing. <a href="#/debrief/pace">Learn your pace</a>{/if}</p>{/if}
     {:else}
       <label class="btn sm">Add GPX route<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
       <p class="hint">From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.</p>

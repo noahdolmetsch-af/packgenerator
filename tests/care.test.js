@@ -75,7 +75,7 @@ describe('bike care log', () => {
   });
 });
 
-import { careBeforeTrip } from '../src/lib/care.js';
+import { tripPrep } from '../src/lib/workshop.js';
 describe('care before a trip', () => {
   it('lists unfinished preparation, due checks and open repairs of the bike, overdue first', () => {
     const tasks = [
@@ -86,9 +86,9 @@ describe('care before a trip', () => {
     ];
     const trip = { id: 't', startDate: '2026-10-15', bikeId: 'scott-hardtail', prep: { 2: { result: 'ok' } } };
     const bike = { id: 'scott-hardtail', parts: [] };
-    const rows = careBeforeTrip(trip, bike, tasks, '2026-10-04');
+    const rows = tripPrep(bike, trip, tasks, undefined, '2026-10-04').rows;
     expect(rows.map((r) => r.name)).toEqual(['Check chain wear', 'Fix shifting']);
-    expect(careBeforeTrip(trip, bike, tasks, '2026-10-10')[0]).toEqual({ name: 'Check chain wear', overdue: true });
+    expect(tripPrep(bike, trip, tasks, undefined, '2026-10-10').rows[0]).toMatchObject({ name: 'Check chain wear', late: true });
   });
 });
 

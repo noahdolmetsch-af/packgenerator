@@ -18,7 +18,7 @@
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { bikePhotos, packPhoto } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
-  import { withVisits, tyreSetup, beforeTrip } from '../lib/workshop.js';
+  import { withVisits, tyreSetup, tripPrep } from '../lib/workshop.js';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
 
@@ -28,6 +28,7 @@
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const photosQ = liveQuery(() => db.photos.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
+  const tasksQ = liveQuery(() => db.maintenance.toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
   const rearQ = liveQuery(() => db.settings.get('rearLimitPct'));
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
@@ -84,13 +85,15 @@
   const gallery = $derived(bikePhotos(bike, $photosQ ?? []));
   const shot = $derived(packPhoto(trip, bike, $photosQ ?? []));
   let shownPhoto = $state(null);
-  // Workshop before the trip (v0.18.0, answers 9a and 10a): from 14 days before, what is due now
-  // or becomes due on the way. Home stays calm (answer 17b).
-  const workshop = $derived.by(() => {
-    if (!bike || !trip) return null;
-    const view = withVisits(bike, $visitsQ ?? []);
-    return beforeTrip(view, trip, tyreSetup(view, $visitsQ ?? []), today);
+  // Before the trip (v0.18.2, answer 3a): the same list as on Home and in Bike care: preparation
+  // tasks, what the bike needs (workshop from 14 days before) and open repairs.
+  const before = $derived.by(() => {
+    if (!trip || over) return null;
+    const view = bike ? withVisits(bike, $visitsQ ?? []) : null;
+    return tripPrep(view, trip, $tasksQ ?? [], view ? tyreSetup(view, $visitsQ ?? []) : undefined, today);
   });
+  const SHOW = 4;
+  let beforeAll = $state(false);
   // Design audit P4: after the trip, Pack leads to the debrief.
   const over = $derived(trip ? isOver(trip) : false);
   // Start page "Print list": #/pack?print opens the print dialog once the trip is there.
@@ -459,11 +462,12 @@
     {#if over}
       <p class="debrief-cta">This trip is over. <a class="btn hi sm" href="#/debrief/{encodeURIComponent(trip.id)}">Start debrief</a><span class="muted">Two minutes: what you used, missed or did not need.</span></p>
     {/if}
-    {#if workshop?.rows.length}
+    {#if before?.rows.length}
       <section class="shop" aria-labelledby="shop-h">
-        <h2 id="shop-h"><span class="lbl">Workshop before the trip</span> <small>{workshop.days ? `${workshop.days} ${workshop.days === 1 ? 'day' : 'days'} to go` : 'on the way'}</small></h2>
+        <h2 id="shop-h"><span class="lbl">Before the trip</span> <small>{before.rows.length} to do{before.rows.some((r) => r.late) ? ` · ${before.rows.filter((r) => r.late).length} overdue` : ''}</small></h2>
         <ul>
-          {#each workshop.rows as r (r.key + r.when)}<li class:now={r.when === 'now'}><b>{r.name}</b> <small>{r.detail}</small></li>{/each}
+          {#each beforeAll ? before.rows : before.rows.slice(0, SHOW) as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? 'on the trip · ' : ''}{r.detail}</small></li>{/each}
+          {#if !beforeAll && before.rows.length > SHOW}<li class="more-li"><button type="button" class="link" onclick={() => (beforeAll = true)}>{before.rows.length - SHOW} more</button></li>{/if}
         </ul>
         <a class="btn sm" href="#/care">Bike care</a>
       </section>
@@ -853,6 +857,9 @@
     flex: 1 1 300px;
     margin: 0;
     padding-left: 18px;
+  }
+  .shop li.more-li {
+    list-style: none;
   }
   .shop li.now b {
     color: #a03a00;

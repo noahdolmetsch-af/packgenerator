@@ -11,13 +11,17 @@
   import { tripStats } from '../lib/trips.js';
   import { ageText, FORECAST_DAYS } from '../lib/weather.js';
   import Profile from '../lib/ui/Profile.svelte';
-  import { dayIndex, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, addRideNote, DEFAULT_START } from '../lib/ride.js';
+  import { paceOf, PACE_KEY } from '../lib/pace.js';
+  import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, addRideNote, DEFAULT_START } from '../lib/ride.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
+  // v0.19.0: your pace from your rides (Debrief → Your pace), else the standard guess.
+  const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
+  const pace = $derived(paceOf($paceQ?.value));
 
   const today = new Date().toISOString().slice(0, 10);
   const trips = $derived($tripsQ ?? []);
@@ -39,7 +43,7 @@
 
   let day = $state(null); // null: the day of today
   const cur = $derived(Math.min(days - 1, day ?? (trip ? dayIndex(trip, today) : 0)));
-  const st = $derived(trip ? stage(trip, cur) : null);
+  const st = $derived(trip ? stage(trip, cur, pace) : null);
   const dayLabel = (n) => {
     if (!trip?.startDate) return `Day ${n + 1}`;
     const d = new Date(`${trip.startDate}T00:00:00`);
@@ -189,7 +193,8 @@
         </div>
         <div class="times">
           <label>Start <input class="inp" type="time" value={st.start} onchange={(e) => setStart(e.currentTarget.value)} /></label>
-          <p>Arrive about <b class="num">{st.arrive}</b> <small>without breaks</small></p>
+          <p>Arrive about <b class="num">{st.arrive}</b> <small>without breaks{pace.mine ? ', at your pace' : ''}</small></p>
+          {#if pace.stops && st.hours}<p>With your usual stops <b class="num">{addTime(st.start, st.hours * pace.stops)}</b></p>{/if}
         </div>
         {#if plan.length}
           <ol class="blocks">
@@ -203,7 +208,8 @@
               </li>
             {/each}
           </ol>
-          <p class="muted small">{trip.plan?.schedule?.length ? 'Your time plan from the logbook.' : 'Blocks of 3 hours.'} km at {Math.round((st.km / st.hours) * 10) / 10} km/h, the same guess as the riding time.</p>
+          <p class="muted small">{trip.plan?.schedule?.length ? 'Your time plan from the logbook.' : 'Blocks of 3 hours.'} km at {Math.round((st.km / st.hours) * 10) / 10} km/h, the same guess as the riding time{pace.mine ? ` (your pace from ${pace.n} rides)` : ''}.</p>
+          {#if planHours(trip) > st.hours + 1}<p class="small warn">Your time plan has {Math.round(planHours(trip))} h of riding, the route about {st.hours} h. The plan ends where the route ends; is the GPX the whole route?</p>{/if}
         {/if}
         {#if prof}<div class="prof"><Profile points={prof.points} from={days > 1 ? prof.from : null} to={prof.to} label={days > 1 ? `Elevation, stage ${cur + 1} dark` : 'Elevation'} /></div>
         {:else}<p class="muted small">Load the GPX again in Pack to see the elevation profile.</p>{/if}

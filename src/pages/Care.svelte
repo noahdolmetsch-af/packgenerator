@@ -10,7 +10,7 @@
   import BikesNav from '../lib/care/BikesNav.svelte';
   import PartDialog from '../lib/care/PartDialog.svelte';
   import VisitDialog from '../lib/care/VisitDialog.svelte';
-  import { withVisits, visitsOf, visitTotal, tyreSetup, timeDue, costByYear, costByPart, costPer1000, lastPrice, beforeTrip } from '../lib/workshop.js';
+  import { withVisits, visitsOf, visitTotal, tyreSetup, timeDue, costByYear, costByPart, costPer1000, lastPrice, tripPrep } from '../lib/workshop.js';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -48,12 +48,13 @@
   }
 
   /* ---------- what is due ---------- */
-  // v0.18.0 (answers 9a, 10a): what the bike needs from the workshop before the trip, from 14 days before.
+  // v0.18.2 (answer 3a): the same list "Before the trip" as on Home and in Pack. The preparation
+  // tasks keep their buttons here; the bike's part of the list (workshop, repairs) shows as hints.
   const trips = $derived(
     upcomingTrips($tripsQ ?? [], today).map((t) => {
       const v = viewById[t.bikeId];
-      const shop = v ? beforeTrip(v, t, tyreSetup(v, visits), today) : null;
-      return { trip: t, rows: prepFor(t, tasks, today), rules: prepRules(t, tasks), shop: (shop?.rows ?? []).filter((r) => !r.late) };
+      const list = tripPrep(v, t, tasks, v ? tyreSetup(v, visits) : undefined, today);
+      return { trip: t, rows: prepFor(t, tasks, today), rules: prepRules(t, tasks), list, bike: list.rows.filter((r) => r.kind !== 'prep') };
     }),
   );
   const checks = $derived(
@@ -63,7 +64,6 @@
     }),
   );
   const overdue = $derived([
-    ...trips.flatMap(({ trip, rows }) => rows.filter((r) => r.overdue).map((r) => ({ kind: 'prep', trip, row: r }))),
     ...checks.filter((c) => c.check.due).map((c) => ({ kind: 'check', bike: c.bike, n: c.check.due })),
     ...checks.flatMap((c) => c.services.map((s) => ({ kind: 'service', bike: c.bike, s }))),
     // Answer 17b: services by time show here in Bike care only, not on the start page.
@@ -205,21 +205,20 @@
       </details>
     {/snippet}
 
-    {#each trips as { trip, rules, rows, shop } (trip.id)}
-      <section class="block" aria-labelledby="trip-{trip.id}">
-        <h2 id="trip-{trip.id}" class="title">Before {trip.title} <small>{trip.startDate} · {bikeById[trip.bikeId]?.name ?? 'no bike'} · {rows.filter((r) => r.finished).length}/{rows.length}</small></h2>
-        {#if rows.some((r) => r.overdue)}<p class="hint">{rows.filter((r) => r.overdue).length} overdue tasks are under "Due now".</p>{/if}
-        {#if shop.length}
+    {#each trips as { trip, rules, rows, list, bike } (trip.id)}
+      <section class="block" aria-labelledby="trip-{trip.id}" id="before-{trip.id}">
+        <h2 id="trip-{trip.id}" class="title">Before {trip.title} <small>{trip.startDate} · {bikeById[trip.bikeId]?.name ?? 'no bike'} · {list.rows.length ? `${list.rows.length} to do` : 'all done'}</small></h2>
+        {#if bike.length}
           <div class="shop">
-            <span class="lbl">Workshop before the trip</span>
-            <ul>{#each shop as r (r.key + r.when)}<li><b>{r.name}</b> <small>{r.detail}</small></li>{/each}</ul>
+            <span class="lbl">The bike</span>
+            <ul>{#each bike as r (r.key)}<li class:late={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? 'on the trip · ' : ''}{r.detail}</small></li>{/each}</ul>
           </div>
         {/if}
         {#each rules as r (r.task.id)}
           <p class="rule"><span class="lbl">{r.from <= today ? 'Rule now' : `Rule from ${dueLabel(r.from)}`}</span>{r.task.task}</p>
         {/each}
         <ul class="rows">
-          {#each rows.filter((r) => !r.overdue) as r (r.task.id)}
+          {#each rows as r (r.task.id)}
             <li class:done={r.finished} class:late={r.overdue} class:need={r.needed}>
               <span class="when num">{dueLabel(r.due)}</span>
               <span class="txt">{r.task.task}{#if r.state}<small>{r.needed ? 'Work needed' : r.state.result === 'ok' ? 'OK' : 'Done'} · {r.state.date}{r.state.by === 'shop' ? ' · bike shop' : ''}</small>{/if}</span>
@@ -875,5 +874,8 @@
   }
   .shop small {
     color: var(--ink-3);
+  }
+  .shop li.late b {
+    color: #a03a00;
   }
 </style>

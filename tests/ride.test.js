@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { stageCount, blocks, blockHours, addHours, dayIndex, onTripDay, pointAt, stage, addTime, dayGain, dayProfile, placeName, fetchHourly, rideHours, wxSummary, addRideNote } from '../src/lib/ride.js';
 import { parseGpx, routeStats, profileOf } from '../src/lib/route.js';
-import { beforeTrip, REMIND_DAYS } from '../src/lib/workshop.js';
+import { beforeTrip, REMIND_DAYS, tripPrep } from '../src/lib/workshop.js';
 
 const trip = { id: 't1', title: '303', startDate: '2026-10-15', days: 3, entries: [] };
 
@@ -160,9 +160,10 @@ describe('workshop before a trip', () => {
     ],
   };
   const t = { ...trip, route: { km: 303 } };
-  it('only from 14 days before until the end', () => {
+  it('only from 14 days before until the end (earlier: only what is due today)', () => {
     expect(REMIND_DAYS).toBe(14);
-    expect(beforeTrip(bike, t, undefined, '2026-09-30')).toBe(null);
+    expect(beforeTrip(bike, t, undefined, '2026-09-30').rows).toEqual([]);
+    expect(beforeTrip({ ...bike, km: 2700 }, t, undefined, '2026-09-30').rows.map((x) => x.key).sort()).toEqual(['chain', 'check']);
     expect(beforeTrip(bike, t, undefined, '2026-10-18')).toBe(null);
     expect(beforeTrip(bike, t, undefined, '2026-10-01')).not.toBe(null);
   });
@@ -181,6 +182,32 @@ describe('workshop before a trip', () => {
   });
 });
 
+describe('one list before the trip (v0.18.2)', () => {
+  const bike = { id: 'b', km: 2700, parts: [{ key: 'chain', model: '', history: [{ date: '2026-10-01', km: 1950, action: 'service', result: 'done' }] }] };
+  const tasks = [
+    { id: 1, area: 'Preparation', task: 'Check brake pads', leadWeeks: 2 },
+    { id: 2, area: 'Preparation', task: 'Charge lights', leadWeeks: 0.5 },
+    { id: 3, area: 'Preparation', task: "Do not change saddle height any more ('nothing new')", leadWeeks: 3 },
+    { id: 4, area: 'Repair', task: 'Creak in the bottom bracket', bikeId: 'b', status: 'open' },
+    { id: 5, area: 'Repair', task: 'Other bike', bikeId: 'x', status: 'open' },
+  ];
+  const t = { ...trip, route: { km: 303 }, prep: { 1: { result: 'ok', at: '2026-10-02' } } };
+  it('has preparation, bike and repairs in one list, late first', () => {
+    const r = tripPrep(bike, t, tasks, undefined, '2026-10-04');
+    expect(r.total).toBe(2);
+    expect(r.done).toBe(1);
+    expect(r.rules.map((x) => x.task.id)).toEqual([3]);
+    expect(r.rows.map((x) => x.kind)).toEqual(['bike', 'prep', 'repair', 'bike']);
+    expect(r.rows.at(-1).when).toBe('during'); // things due on the way come last
+    expect(r.rows[0].late).toBe(true);
+    expect(r.rows.find((x) => x.kind === 'prep')).toMatchObject({ name: 'Charge lights', detail: 'by 11 Oct' });
+  });
+  it('is empty without a dated trip and drops bike rows after the trip', () => {
+    expect(tripPrep(bike, { id: 'n' }, tasks)).toBe(null);
+    expect(tripPrep(bike, t, tasks, undefined, '2026-10-20').rows.map((x) => x.kind)).toEqual(['prep', 'repair']);
+  });
+});
+
 describe('missing item: similar gear (v0.18.1)', async () => {
   const { similarItems } = await import('../src/lib/debrief.js');
   const items = [
@@ -195,5 +222,14 @@ describe('missing item: similar gear (v0.18.1)', async () => {
     expect(similarItems('Warme Mütze', items).map((i) => i.id)).toEqual(['C']);
     expect(similarItems('Glove', items).map((i) => i.id)).toEqual(['B', 'A']);
     expect(similarItems('Map', items)).toEqual([]);
+  });
+});
+
+describe('time plan hours (v0.19.0)', async () => {
+  const { planHours } = await import('../src/lib/ride.js');
+  it('counts riding blocks over midnight, not breaks', () => {
+    const schedule = [{ block: 'Block 1', from: '09:00', to: '12:00' }, { block: 'Break', from: '12:00', to: '13:00' }, { block: 'Block 2', from: '22:30', to: '01:30' }, { block: 'Note', from: null, to: null }];
+    expect(planHours({ plan: { schedule } })).toBe(6);
+    expect(planHours({})).toBe(null);
   });
 });

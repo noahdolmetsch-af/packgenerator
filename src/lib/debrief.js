@@ -275,3 +275,44 @@ export function similarItems(name, items, n = 4) {
     .slice(0, n)
     .map((x) => x.i);
 }
+
+/* ---------- templates learn from the debriefs (v0.19.0) ---------- */
+
+/** From this many finished debriefs on, templates get suggestions. */
+export const TEMPLATE_AFTER = 3;
+
+/**
+ * What your debriefs say about a template, once there are TEMPLATE_AFTER finished debriefs:
+ * - out: an item of the template that was not used on its last 3 trips (any trip it went on);
+ * - in:  an item you own that was missing on 2 trips or more and is not in the template.
+ * Returns [{ id, kind: 'out' | 'in', itemId, name, why }], 'out' first. Nothing changes here.
+ */
+export function templateHints(tpl, trips, debriefs, items) {
+  const done = debriefs.filter((d) => d.status === 'done');
+  if (!tpl || done.length < TEMPLATE_AFTER) return [];
+  const tripById = Object.fromEntries(trips.map((t) => [t.id, t]));
+  const byId = Object.fromEntries(items.map((i) => [i.id, i]));
+  const rows = done
+    .map((d) => ({ d, t: tripById[d.tripId] }))
+    .filter((x) => x.t)
+    .sort((a, b) => (b.t.startDate ?? '').localeCompare(a.t.startDate ?? ''));
+  const out = [];
+  const have = new Set(tpl.entries.map((e) => e.itemId));
+  for (const itemId of have) {
+    const on = rows.filter(({ t }) => t.entries.some((e) => e.itemId === itemId)).slice(0, LEAVE_AFTER);
+    if (on.length >= LEAVE_AFTER && on.every(({ d }) => d.items?.[itemId] === 'unused') && byId[itemId])
+      out.push({ id: `out:${itemId}`, kind: 'out', itemId, name: byId[itemId].name, why: `Not used on ${on.map(({ t }) => t.title).join(', ')}.` });
+  }
+  const missing = {};
+  for (const { d, t } of rows) for (const m of d.missing ?? []) if (m.itemId && !have.has(m.itemId)) (missing[m.itemId] ??= []).push(t.title);
+  for (const [itemId, titles] of Object.entries(missing))
+    if (titles.length >= 2 && byId[itemId] && byId[itemId].ownership !== 'gone') out.push({ id: `in:${itemId}`, kind: 'in', itemId, name: byId[itemId].name, why: `Missing on ${titles.join(', ')}.` });
+  return out;
+}
+
+/** Apply one hint to a template: take the item out, or put it in its usual bag. */
+export function applyTemplateHint(tpl, hint, items, now = new Date().toISOString()) {
+  if (hint.kind === 'out') return { ...tpl, entries: tpl.entries.filter((e) => e.itemId !== hint.itemId), updatedAt: now };
+  const item = items.find((i) => i.id === hint.itemId);
+  return { ...tpl, entries: [...tpl.entries, { itemId: hint.itemId, slot: item?.defaultBag ?? 'seat', qty: 1 }], updatedAt: now };
+}

@@ -77,7 +77,7 @@ export function addHours(at, hours) {
  * start: the start time ("HH:MM", trip.rideStart[day] or 08:00); arrive: start + riding hours.
  * startAt / endAt: "YYYY-MM-DDTHH:MM" (local time at the place), for the weather hours.
  */
-export function stage(trip, day = 0) {
+export function stage(trip, day = 0, pace = null) {
   const days = stageCount(trip);
   if (day >= days) day = days - 1;
   const date = trip?.startDate ? addDays(trip.startDate, day) : null;
@@ -87,7 +87,7 @@ export function stage(trip, day = 0) {
   const r = trip?.route;
   if (!r?.km) return { day, date, km: null, gainM: null, hours: null, from: trip?.place ?? null, to: null, start, arrive: null, startAt, endAt: null };
   const share = { km: Math.round((r.km / days) * 10) / 10, gainM: dayGain(r, day, days) };
-  const hours = ridingHours({ km: share.km, gainM: share.gainM ?? 0 }, 1);
+  const hours = ridingHours({ km: share.km, gainM: share.gainM ?? 0 }, 1, pace);
   const from = day === 0 ? (r.start ?? pointAt(r.line, 0)) : pointAt(r.line, day / days);
   const to = day === days - 1 ? (r.end ?? pointAt(r.line, 1)) : pointAt(r.line, (day + 1) / days);
   return { day, date, ...share, hours, from, to, start, arrive: addTime(start, hours), startAt, endAt: startAt && hours != null ? addHours(startAt, hours) : null };
@@ -129,6 +129,14 @@ export function blocks(trip, st) {
     at = endAt;
   }
   return rows;
+}
+
+/** Riding hours in the time plan (breaks left out), or null without a plan. */
+export function planHours(trip) {
+  const plan = (trip?.plan?.schedule ?? []).filter((b) => b.from && b.to && !REST.test(b.block));
+  if (!plan.length) return null;
+  const mins = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+  return plan.reduce((h, b) => h + (((mins(b.to) - mins(b.from)) + 1440) % 1440 || 1440) / 60, 0);
 }
 
 /**
