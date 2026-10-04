@@ -312,3 +312,25 @@ export function axleLoad(stats, itemsById) {
   }
   return { front: Math.round(front), rear: Math.round(rear) };
 }
+
+/* ---------- packing day (Noah, 4.10.2026, answer 2a): full screen, bag by bag ---------- */
+
+/**
+ * The steps of the packing day: every bag with items (in the order of the trip), then what is
+ * mounted on the bike, then what you wear and carry. Each step: { key, title, sub, entries, done }.
+ */
+export function packSteps(stats, purpose = {}) {
+  const LAST = { mounted: 1, body: 2 };
+  return stats.zones
+    .filter((z) => z.entries.length)
+    .map((z, n) => ({ z, n }))
+    .sort((a, b) => (LAST[a.z.key] ?? 0) - (LAST[b.z.key] ?? 0) || a.n - b.n)
+    .map(({ z }) => {
+      const name = z.key === 'body' ? 'Wear and carry' : z.key === 'mounted' ? 'On the bike' : purpose[z.key] || zoneName(z);
+      const sub = purpose[z.key] ? zoneName(z) : z.bag && z.bag.name !== z.zone.name ? z.zone.name : '';
+      return { key: z.key, title: name, sub, entries: z.entries, done: z.entries.filter((e) => e.packed).length };
+    });
+}
+
+/** Tick or untick one item as "in the bag" on the packing day. */
+export const togglePacked = (entries, itemId) => entries.map((e) => (e.itemId === itemId ? { ...e, packed: !e.packed } : e));

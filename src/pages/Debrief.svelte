@@ -10,7 +10,7 @@
   import { formatWeight, CATEGORY, isInventory } from '../lib/gear.js';
   import { ZONE } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
-  import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief } from '../lib/debrief.js';
+  import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate } from '../lib/debrief.js';
 
   let { param = '' } = $props();
 
@@ -20,6 +20,7 @@
   const learnQ = liveQuery(() => db.learnings.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
+  const bikesQ = liveQuery(() => db.bikes.toArray());
 
   const trips = $derived($tripsQ ?? []);
   const items = $derived($itemsQ ?? []);
@@ -38,6 +39,14 @@
       .filter((x) => x.t)
       .sort((a, b) => b.t.startDate.localeCompare(a.t.startDate)),
   );
+  const bike = $derived(trip ? ($bikesQ ?? []).find((b) => b.id === trip.bikeId) ?? null : null);
+  // Answer 8b: how often each item was not used before (other trips), shown in step 2.
+  const before = $derived(trip ? unusedTimes(debriefs, trip.id) : {});
+  function setKm(value) {
+    const n = Math.round(Number(String(value).replace(/[^0-9.]/g, '')));
+    d.km = value === '' || !Number.isFinite(n) ? null : n;
+    persist();
+  }
   const drafts = $derived(new Set(debriefs.filter((d) => d.status === 'draft').map((d) => d.tripId)));
 
   /* ---------- one debrief: kept here while you work, saved on every change (autosave) ---------- */
@@ -103,7 +112,7 @@
 
   // Step 3: suggestions, all ticked to start with; ones applied in an earlier save are left out.
   const counts = $derived(d && trip ? debriefCounts(d, trip, items) : null);
-  const sugg = $derived(d && trip ? suggestions(d, trip, items, learnings, templates).filter((s) => !d.applied.includes(s.id)) : []);
+  const sugg = $derived(d && trip ? suggestions(d, trip, items, learnings, templates, debriefs).filter((s) => !d.applied.includes(s.id)) : []);
   const GROUPS = [
     { key: 'home', name: 'Leave at home?' },
     { key: 'wish', name: 'Wishlist' },
@@ -118,8 +127,13 @@
     const on = sugg.filter(ticked).map((s) => s.id);
     const stamp = Date.now().toString(36).toUpperCase();
     const out = applyDebrief($state.snapshot(d), trip, items, learnings, templates, on, { newItemId: (n) => `W${stamp}${n}` });
-    await db.transaction('rw', db.items, db.learnings, db.debriefs, db.trips, db.settings, async () => {
+    const km = kmUpdate(bike, d);
+    await db.transaction('rw', db.items, db.learnings, db.debriefs, db.trips, db.settings, db.bikes, async () => {
       if (out.items.length) await db.items.bulkPut(out.items);
+      if (km) {
+        await db.bikes.update(bike.id, { km: km.km, kmDate: new Date().toISOString().slice(0, 10) });
+        d.kmApplied = km.kmApplied;
+      }
       if (out.learnings.length) await db.learnings.bulkPut(out.learnings);
       if (out.templates) await saveTemplates(db, out.templates);
       d.applied = [...d.applied, ...on];
@@ -188,6 +202,12 @@
           <legend>Bags and bike</legend>
           <div class="seg">{#each BAGS_OK as o (o.key)}<button type="button" aria-pressed={d.bags === o.key} onclick={() => set('bags', o.key)}>{o.name}</button>{/each}</div>
         </fieldset>
+        {#if bike}
+          <label class="km">
+            <span>km of this trip <small>(goes onto {bike.name}{bike.km != null ? `, now ${bike.km.toLocaleString('en')} km` : ''})</small></span>
+            <input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder="e.g. 303" />
+          </label>
+        {/if}
         <label class="note">
           <span>One sentence for next time <small>(optional)</small></span>
           <textarea class="inp" rows="3" bind:value={d.note} oninput={persist} placeholder="e.g. Heatwave, the rain gear was never used"></textarea>
@@ -204,7 +224,7 @@
               {#each g.rows as { e, item } (e.itemId)}
                 {@const st = d.items[e.itemId] ?? 'used'}
                 <li class="it" class:unused={st === 'unused'} class:broken={st === 'broken'}>
-                  <span class="nm">{item.name}{#if e.qty > 1}<small> × {e.qty}</small>{/if}<small class="sub">{CATEGORY[item.category]?.name ?? ''}{item.weightG != null ? ` · ${formatWeight(item.weightG * (e.qty || 1))}` : ''}</small></span>
+                  <span class="nm">{item.name}{#if e.qty > 1}<small> × {e.qty}</small>{/if}<small class="sub">{CATEGORY[item.category]?.name ?? ''}{item.weightG != null ? ` · ${formatWeight(item.weightG * (e.qty || 1))}` : ''}{#if before[e.itemId]}<span class="before"> · not used on {before[e.itemId]} {before[e.itemId] === 1 ? 'trip' : 'trips'} before</span>{/if}</small></span>
                   <span class="acts" role="group" aria-label="{item.name}">
                     <button type="button" class="c" aria-pressed={st === 'used'} aria-label="Used" onclick={() => mark(e.itemId, 'used')}>✓</button>
                     <button type="button" class="c no" aria-pressed={st === 'unused'} aria-label="Not used" onclick={() => mark(e.itemId, 'unused')}>–</button>
@@ -240,7 +260,7 @@
           <div><b class="num">{counts.broken}</b><span class="lbl">broken</span></div>
         </div>
         {#if saved}
-          <p class="card ok">Debrief saved{d.applied.length ? `, ${d.applied.length} ${d.applied.length === 1 ? 'change' : 'changes'} made` : ''}. The learnings now show up on the start page and when you pack.</p>
+          <p class="card ok">Debrief saved{d.applied.length ? `, ${d.applied.length} ${d.applied.length === 1 ? 'change' : 'changes'} made` : ''}{d.kmApplied ? `, ${d.kmApplied} km added to ${bike?.name ?? 'the bike'}` : ''}. The learnings now show up on the start page and when you pack.</p>
           {#if sugg.length}<p class="hint">{sugg.length} more {sugg.length === 1 ? 'suggestion is' : 'suggestions are'} open. Change your answers to see {sugg.length === 1 ? 'it' : 'them'}.</p>{/if}
           <div class="foot two"><button type="button" class="btn" onclick={reopen}>Change answers</button><a class="btn ink wide" href="#/">Done</a></div>
         {:else}
@@ -391,6 +411,23 @@
   .seg button[aria-pressed='true'] {
     background: var(--ink);
     color: var(--paper);
+  }
+  .km {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 16px;
+    font-weight: 700;
+  }
+  .km small {
+    font-weight: 400;
+    color: var(--ink-3);
+  }
+  .km .inp {
+    max-width: 160px;
+    font-size: 18px;
+  }
+  .before {
+    color: var(--ink);
   }
   .note {
     display: grid;

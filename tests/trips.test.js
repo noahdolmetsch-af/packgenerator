@@ -123,3 +123,22 @@ describe('pack extras', () => {
     expect(axleLoad({ zones: [cage] }, { BK04: { weightG: 40 } })).toEqual({ front: 0, rear: 0 });
   });
 });
+
+describe('packing day (answer 2a)', () => {
+  it('goes bag by bag, then mounted, then what you wear', async () => {
+    const { packSteps, togglePacked } = await import('../src/lib/trips.js');
+    const stats = {
+      zones: [
+        { key: 'body', zone: { name: 'On me' }, bag: null, entries: [{ itemId: 'A', packed: false }] },
+        { key: 'mounted', zone: { name: 'Mounted' }, bag: null, entries: [{ itemId: 'B', packed: true }] },
+        { key: 'seat', zone: { name: 'Seat pack' }, bag: { name: 'Tailfin' }, entries: [{ itemId: 'C', packed: true }, { itemId: 'D', packed: false }] },
+        { key: 'frame', zone: { name: 'Frame bag' }, bag: { name: 'Frame bag' }, entries: [] },
+      ],
+    };
+    const steps = packSteps(stats, { seat: 'Sleep' });
+    expect(steps.map((s) => s.key)).toEqual(['seat', 'mounted', 'body']);
+    expect(steps[0]).toMatchObject({ title: 'Sleep', sub: 'Tailfin', done: 1 });
+    expect(steps[2].title).toBe('Wear and carry');
+    expect(togglePacked(stats.zones[2].entries, 'D').map((e) => e.packed)).toEqual([true, true]);
+  });
+});

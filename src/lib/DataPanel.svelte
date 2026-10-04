@@ -2,7 +2,7 @@
   import { tidyData } from './tidy.js';
   import { liveQuery } from 'dexie';
   import { db, DATA_TABLES } from './db.js';
-  import { buildBackup, restoreBackup, validateBackup, countRows, backupFileName } from './backup.js';
+  import { restoreBackup, validateBackup, countRows, downloadBackup } from './backup.js';
   import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, watchForChanges } from './folderBackup.js';
 
   // liveQuery re-runs the query whenever the database changes, so the counts stay current.
@@ -32,13 +32,7 @@
   });
 
   async function exportFile() {
-    const data = await buildBackup(db);
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = backupFileName();
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    await downloadBackup(db);
     message = 'Backup file downloaded.';
   }
 
