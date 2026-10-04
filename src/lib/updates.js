@@ -5,6 +5,7 @@
  */
 
 import { freshReady, slotFor, ALWAYS_OLD } from './trips.js';
+import { loadTemplates, saveTemplates, templateFrom } from './templates.js';
 
 const now = () => new Date().toISOString();
 
@@ -194,7 +195,25 @@ async function readyClean2026(db) {
   return true;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026];
+/**
+ * 4.10.2026, templates answer 10a: the first template "Daily commute" is made from Noah's
+ * trip with that name. Runs once; if there is no such trip yet, it tries again next start.
+ */
+async function dailyCommuteTemplate(db) {
+  if (await db.settings.get('update.dailyCommuteTemplate')) return false;
+  const trip = (await db.trips.toArray()).find((t) => /daily commute/i.test(t.title ?? ''));
+  if (!trip) return false;
+  const list = await loadTemplates(db);
+  if (!list.some((t) => t.name.toLowerCase() === 'daily commute')) {
+    const id = 'tpl-daily-commute';
+    await saveTemplates(db, [...list, templateFrom(trip, { id, name: 'Daily commute' })]);
+    if (!trip.templateId) await db.trips.update(trip.id, { templateId: id });
+  }
+  await db.settings.put({ key: 'update.dailyCommuteTemplate', value: now() });
+  return true;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

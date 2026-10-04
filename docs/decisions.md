@@ -117,3 +117,6 @@ Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
 | 4.10.2026 | Prototyp wird nicht mehr geändert, ist nicht mehr online und liegt in `archive/cockpit/`; keine Daten-Übernahme, Neustart in der neuen App | Noah, Antworten 9a und 10b |
 | 4.10.2026 | "Not packed": kleinere "+"-Knöpfe, immer nur eine Kategorie offen | Noah, Screenshot "Daily commute" |
 | 4.10.2026 | "Kind of ride" als drei Knöpfe (Every, Daily, Training) mit Text, was sie hinzufügen; Hinweis, dass Layers nur Vorschläge sind | Noah: Dropdown nicht verständlich |
+| 4.10.2026 | Templates: Name "Template"; speichert Taschen, Teile mit Platz und Anzahl, Ready-Check, Ride, Stunden, Night; nicht Wetter, Häkchen, Velo; Teile gehen beim neuen Velo in die passenden Taschen | Noah, Template-Antworten 1–5 |
+| 4.10.2026 | "Save as template" oben in Pack; ändern über "Update template" aus einer Tour; neue Tour startet standardmässig mit der letzten Tour auf diesem Velo; Templates in "New trip" und auf eigener Seite (Pack → Templates); erstes Template "Daily commute" aus Noahs Tour | Noah, Antworten 6–10 (7 noch offen, Empfehlung a umgesetzt) |
+| 4.10.2026 | Kacheln in der Tasche: keine Häkchen mehr, dafür ein "−"-Knopf zum Entfernen; "Tick all" weg | Noah: "für was brauchen wir die checkboxes" |

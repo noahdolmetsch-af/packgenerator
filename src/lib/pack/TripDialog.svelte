@@ -1,12 +1,14 @@
 <script>
   import { db } from '../db.js';
   import { newTrip, lastTripOn, slotFor } from '../trips.js';
+  import { tripFromTemplate } from '../templates.js';
 
   /**
    * trip: the trip to edit, or null for "New trip".
-   * A new trip is a copy of the last trip with the same bike (decision 5a).
+   * A new trip is a copy of the last trip with the same bike (decision 5a),
+   * or starts from a template (4.10.2026) or from the standard set.
    */
-  let { trip, trips, bikes, items, defaultBikeId = null, onclose, oncreated } = $props();
+  let { trip, trips, bikes, items, templates = [], startFrom = 'last', defaultBikeId = null, onclose, oncreated } = $props();
 
   // svelte-ignore state_referenced_locally
   const isNew = !trip;
@@ -16,6 +18,8 @@
       ? { title: trip.title, startDate: trip.startDate ?? '', days: trip.days ?? 1, bikeId: trip.bikeId ?? bikes[0]?.id }
       : { title: '', startDate: '', days: 1, bikeId: defaultBikeId ?? bikes[0]?.id },
   );
+  // svelte-ignore state_referenced_locally
+  let start = $state(startFrom);
   let error = $state('');
   let dialog;
   const bike = $derived(bikes.find((b) => b.id === draft.bikeId));
@@ -31,7 +35,10 @@
     if (!bike) return (error = 'Choose a bike.');
     if (isNew) {
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
-      const t = newTrip({ ...draft, bike, readyStandard }, trips, items);
+      const tpl = templates.find((x) => x.id === start);
+      const t = tpl
+        ? tripFromTemplate({ ...draft, bike }, tpl, items)
+        : newTrip({ ...draft, bike, readyStandard }, start === 'standard' ? [] : trips, items);
       await db.trips.put(t);
       oncreated?.(t.id);
     } else {
@@ -71,9 +78,17 @@
       </label>
     </div>
     {#if isNew}
+      <label class="start"><span class="lbl">Start from</span>
+        <select class="sel" bind:value={start}>
+          <option value="last">{from ? `Last trip on this bike: ${from.title}` : 'Last trip on this bike (none yet)'}</option>
+          {#each templates as t (t.id)}<option value={t.id}>Template: {t.name}</option>{/each}
+          <option value="standard">Standard set</option>
+        </select>
+      </label>
       <p class="note">
-        {#if from}Starts as a copy of <b>{from.title}</b> (last trip on this bike). Nothing is ticked off yet.
-        {:else}No trip on this bike yet: starts with your standard set (worn, standard pack, overnight base).{/if}
+        {#if templates.some((t) => t.id === start)}Items go into the bags of this bike. Weather and ticks start empty.
+        {:else if start === 'last' && from}A copy of <b>{from.title}</b>. Nothing is ticked off yet.
+        {:else}Your standard set: worn, standard pack, overnight base and the items "On every trip".{/if}
       </p>
     {:else if draft.bikeId !== trip.bikeId}
       <p class="note">The trip takes the bags of the new bike. Items in a place without a bag move to the seat pack.</p>
@@ -88,6 +103,11 @@
 </dialog>
 
 <style>
+  .start {
+    display: grid;
+    gap: 4px;
+    margin-top: 12px;
+  }
   h2 {
     font-size: 32px;
     margin: 0 0 14px;
