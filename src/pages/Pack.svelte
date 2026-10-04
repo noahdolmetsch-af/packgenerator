@@ -10,6 +10,8 @@
   import BikeStage from '../lib/bikes/BikeStage.svelte';
   import TripDialog from '../lib/pack/TripDialog.svelte';
   import NotPacked from '../lib/pack/NotPacked.svelte';
+  import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
+  import { TEMPLATES_KEY } from '../lib/templates.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -17,6 +19,11 @@
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
   const rearQ = liveQuery(() => db.settings.get('rearLimitPct'));
+  const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
+  const templates = $derived($tplQ?.value ?? []);
+  const fromTemplate = $derived(templates.find((t) => t.id === trip?.templateId) ?? null);
+  let saveTpl = $state(false);
+  let tplNote = $state('');
 
   const trips = $derived([...($tripsQ ?? [])].sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '')));
   const items = $derived($itemsQ ?? []);
@@ -54,7 +61,19 @@
 
   let zoneKey = $state('seat'); // the bag that is open
   let tab = $state('pack'); // phone: pack | add | check
-  let dialog = $state(null); // { trip } or { trip: null }
+  let dialog = $state(null); // { trip } or { trip: null, startFrom? }
+  // "New trip from it" on the Templates page opens the new-trip dialog with that template.
+  $effect(() => {
+    if (!$tplQ) return; // wait until the templates are loaded, so the choice can be shown
+    let id = null;
+    try {
+      id = localStorage.getItem('pack.startFrom');
+      localStorage.removeItem('pack.startFrom');
+    } catch {
+      /* private mode */
+    }
+    if (id) dialog = { trip: null, startFrom: id };
+  });
   let q = $state('');
   let newCheck = $state('');
   let openRow = $state(null); // phone: the row whose actions (amount, move, remove) are shown
@@ -67,7 +86,7 @@
       .map((z) => ({
         key: z.key,
         title: z.bag ? z.bag.name : z.zone.name,
-        sub: `${z.entries.length} · ${formatWeight(z.grams)}${z.entries.length ? ` · ${z.packed}/${z.entries.length} ✓` : ''}`,
+        sub: `${z.entries.length} · ${formatWeight(z.grams)}`,
         box: z.zone.box,
         empty: !z.entries.length,
         active: z.key === zone?.key,
@@ -97,7 +116,6 @@
   }
   const setEntries = (fn) => change((t) => ({ entries: fn(t.entries) }));
 
-  const togglePacked = (itemId) => setEntries((es) => es.map((e) => (e.itemId === itemId ? { ...e, packed: !e.packed } : e)));
   const moveTo = (itemId, slot) => setEntries((es) => es.map((e) => (e.itemId === itemId ? { ...e, slot, packed: false } : e)));
   const removeEntry = (itemId) => setEntries((es) => es.filter((e) => e.itemId !== itemId));
   const setQty = (itemId, qty) => setEntries((es) => es.map((e) => (e.itemId === itemId ? { ...e, qty: Math.max(1, Math.min(20, qty)) } : e)));
@@ -126,7 +144,6 @@
 
   // How full the open bag is, in % (only when the bag has a volume).
   const fill = $derived(zone?.bag?.volumeL && zone.vol ? (zone.vol / zone.bag.volumeL) * 100 : null);
-  const tickZone = (on) => setEntries((es) => es.map((e) => (e.slot === zone.key ? { ...e, packed: on } : e)));
 
   const setBag = (slotKey, bagId) => change((t) => ({ setup: { ...t.setup, [slotKey]: bagId || null } }));
 
@@ -241,6 +258,7 @@
           <span class="tag">{trip.days} {trip.days === 1 ? 'day' : 'days'}</span>
           <span class="tag">{bike?.name ?? 'No bike'}</span>
           <button type="button" class="link" onclick={() => (dialog = { trip })}>Edit trip</button>
+          {#if fromTemplate}<span class="from">From template <a href="#/pack/templates">{fromTemplate.name}</a></span>{/if}
         </p>
       </div>
       <div class="pick">
@@ -251,10 +269,13 @@
           </select>
         </label>
         <button type="button" class="btn" onclick={() => (dialog = { trip: null })}>New trip</button>
+        <button type="button" class="btn" onclick={() => (saveTpl = true)}>Save as template</button>
+        <a class="btn" href="#/pack/templates">Templates <small>{templates.length}</small></a>
         <button type="button" class="btn" onclick={() => window.print()}>Print list</button>
       </div>
     </header>
 
+    {#if tplNote}<p class="ok" role="status">{tplNote}</p>{/if}
     <section class="sys" aria-label="Weights">
       <div class="big-w"><span class="lbl">System weight</span><b class="num">{kg(stats.systemG)}</b></div>
       <dl class="parts">
@@ -267,7 +288,7 @@
         <div class="axle"><dt>Luggage front / rear</dt><dd class="num" class:warn={rearPct > rearLimit}>{formatWeight(axle.front)} / {formatWeight(axle.rear)}{#if rearPct != null}<small> ({100 - rearPct} / {rearPct} %)</small>{/if}</dd></div>
       </dl>
       <p class="sys-note">
-        {stats.packed} of {stats.count} items ticked off{#if stats.unweighed}{' · '}<span class="warn">{stats.unweighed} not weighed (counted as 0)</span>
+        {stats.count} items{#if stats.unweighed}{' · '}<span class="warn">{stats.unweighed} not weighed (counted as 0)</span>
           {#if toWeigh}<button type="button" class="btn sm" onclick={() => (weighing = true)}>Weigh {toWeigh}</button>{/if}{/if}
         {#if stats.missing.bike || stats.missing.rider}{' · '}set weights on <a href="#/bikes">Bikes</a>{/if}
         {#if rearPct > rearLimit}{' · '}<span class="warn">{rearPct} % of the luggage is on the rear wheel (hint above {rearLimit} %)</span>{/if}
@@ -279,7 +300,7 @@
     {:else}
     {#if phone.matches}
       <div class="tabs" role="tablist" aria-label="Show">
-        <button type="button" role="tab" aria-selected={tab === 'pack'} onclick={() => (tab = 'pack')}>Pack <small>{stats.packed}/{stats.count}</small></button>
+        <button type="button" role="tab" aria-selected={tab === 'pack'} onclick={() => (tab = 'pack')}>Pack <small>{stats.count}</small></button>
         <button type="button" role="tab" aria-selected={tab === 'add'} onclick={() => (tab = 'add')}>Add <small>{candidates.length}</small></button>
         <button type="button" role="tab" aria-selected={tab === 'check'} onclick={() => (tab = 'check')}>Check <small>{readyCount}/{readyTotal}</small></button>
       </div>
@@ -423,7 +444,7 @@
             <div class="chips" role="group" aria-label="Bags">
               {#each stats.zones as z (z.key)}
                 <button type="button" class="chip" class:on={z.key === zone?.key} class:warn={z.noBag && z.entries.length} aria-pressed={z.key === zone?.key} onclick={() => (zoneKey = z.key)}>
-                  {z.bag ? z.bag.name : z.zone.name} <small>{z.packed}/{z.entries.length}</small>
+                  {z.bag ? z.bag.name : z.zone.name} <small>{z.entries.length}</small>
                 </button>
               {/each}
             </div>
@@ -434,9 +455,6 @@
               <div class="bag-h">
                 <h2 id="bag-h" class="title">{zoneName(zone)}</h2>
                 <span class="m num">{zone.entries.length} items · {formatWeight(zone.grams)}</span>
-                {#if zone.entries.length}
-                  <button type="button" class="link" onclick={() => tickZone(zone.packed < zone.entries.length)}>{zone.packed < zone.entries.length ? 'Tick all' : 'Untick all'}</button>
-                {/if}
               </div>
               {#if fill != null}
                 <div class="fill" class:warn={tooFull(zone)}>
@@ -457,14 +475,14 @@
               <ul class="tiles">
                 {#each zone.entries as e (e.itemId)}
                   {@const it = itemsById[e.itemId]}
-                  <li class="tile" class:done={e.packed} class:open={openRow === e.itemId} style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>
-                    <label class="ck">
-                      <input type="checkbox" checked={e.packed} onchange={() => togglePacked(e.itemId)} />
-                      <span class="nm">{it?.name ?? e.itemId}</span>
-                    </label>
+                  <li class="tile" class:open={openRow === e.itemId} style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>
+                    <span class="nm">{it?.name ?? e.itemId}</span>
                     <span class="foot">
                       <span class="w num" class:warn={it?.weightG == null}>{it?.weightG == null ? 'not weighed' : formatWeight(it.weightG * (e.qty || 1))}{#if (e.qty || 1) > 1}<small> ({e.qty}×)</small>{/if}</span>
-                      <button type="button" class="more" aria-expanded={openRow === e.itemId} aria-label="Change {it?.name}" onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>⋯</button>
+                      <span class="tb">
+                        <button type="button" class="more" aria-expanded={openRow === e.itemId} aria-label="Amount or other bag for {it?.name}" onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>⋯</button>
+                        <button type="button" class="minus" aria-label="Take {it?.name} out of {zoneName(zone)}" onclick={() => removeEntry(e.itemId)}>−</button>
+                      </span>
                     </span>
                     {#if openRow === e.itemId}
                       <span class="acts">
@@ -477,7 +495,6 @@
                           {#each targets as t (t.key)}<option value={t.key}>{t.bag ? t.bag.name : t.zone.name}</option>{/each}
                           {#if zone.noBag}<option value={zone.key}>{zone.zone.name} (no bag)</option>{/if}
                         </select>
-                        <button type="button" class="x" aria-label="Take {it?.name} off the trip" onclick={() => removeEntry(e.itemId)}>×</button>
                       </span>
                     {/if}
                   </li>
@@ -565,7 +582,10 @@
 </div>
 
 {#if dialog}
-  <TripDialog trip={dialog.trip} {trips} {bikes} {items} defaultBikeId={trip?.bikeId} onclose={() => (dialog = null)} oncreated={choose} />
+  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {templates} startFrom={dialog.startFrom ?? 'last'} defaultBikeId={trip?.bikeId} onclose={() => (dialog = null)} oncreated={choose} />
+{/if}
+{#if saveTpl && trip}
+  <TemplateDialog {trip} {templates} onclose={() => (saveTpl = false)} onsaved={(name) => ((tplNote = `Saved as template "${name}".`), setTimeout(() => (tplNote = ''), 4000))} />
 {/if}
 
 <style>
@@ -606,6 +626,10 @@
     gap: 8px;
     align-items: end;
     flex-wrap: wrap;
+  }
+  .from {
+    font-size: 14px;
+    color: var(--ink-3);
   }
   .pick .sel {
     max-width: 260px;
@@ -1005,19 +1029,30 @@
   .tile.open {
     grid-column: span 2;
   }
-  .tile .ck {
-    align-items: flex-start;
+  .tb {
+    display: inline-flex;
+    gap: 4px;
+  }
+  /* Noah, 4.10.2026: no tick boxes; one click on − takes the item out of the bag. */
+  .minus {
+    width: 26px;
+    height: 26px;
+    border: 1.5px solid var(--ink-3);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 700 16px/1 var(--font-body);
+    cursor: pointer;
+  }
+  @media (hover: hover) {
+    .minus:hover {
+      border-color: #c0392b;
+      color: #c0392b;
+    }
   }
   .tile .nm {
     overflow-wrap: anywhere;
     line-height: 1.25;
-  }
-  .tile.done {
-    background: #e8efe9;
-  }
-  .tile.done .nm {
-    color: var(--ink-3);
-    text-decoration: line-through;
   }
   .foot {
     display: flex;
