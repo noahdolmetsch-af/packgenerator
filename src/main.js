@@ -3,6 +3,10 @@ import './app.css';
 import App from './App.svelte';
 import { db } from './lib/db.js';
 import { tidyData } from './lib/tidy.js';
+import { applyClock } from './lib/demo.js';
+
+// Demo day: the app acts as if it were another day (only while a demo runs).
+applyClock();
 
 // Svelte renders the App component into <div id="app"> in index.html.
 mount(App, { target: document.getElementById('app') });

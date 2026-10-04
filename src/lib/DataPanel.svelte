@@ -3,6 +3,7 @@
   import { liveQuery } from 'dexie';
   import { db, DATA_TABLES } from './db.js';
   import { restoreBackup, validateBackup, countRows, downloadBackup } from './backup.js';
+  import { isDemoFile, startDemo, demoState } from './demo.js';
   import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, watchForChanges } from './folderBackup.js';
 
   // liveQuery re-runs the query whenever the database changes, so the counts stay current.
@@ -54,6 +55,18 @@
     }
   }
 
+  const demoQ = liveQuery(() => demoState(db));
+  async function beginDemo() {
+    try {
+      await startDemo(db, pending.data);
+      await tidyData(db);
+      message = `Demo started: ${pending.data.demo.name}. "End demo" in the yellow bar puts your data back.`;
+      pending = null;
+    } catch (err) {
+      message = `The demo did not start, nothing was changed. ${err.message}`;
+    }
+  }
+
   async function applyImport(mode) {
     try {
       await restoreBackup(db, pending.data, mode);
@@ -89,11 +102,23 @@
   {/if}
 
   <div class="row">
-    <button type="button" class="hi" onclick={exportFile}>Export backup</button>
+    <button type="button" class="hi" onclick={exportFile} disabled={!!$demoQ} title={$demoQ ? 'Off while the demo runs' : undefined}>Export backup</button>
     <label class="btn">Import backup<input type="file" accept="application/json,.json" onchange={pickFile} hidden /></label>
   </div>
 
-  {#if pending}
+  {#if $demoQ}<p class="small">A demo is running: backups are off until you end it (yellow bar on top).</p>{/if}
+
+  {#if pending && isDemoFile(pending.data)}
+    <div class="confirm" role="dialog" aria-label="Start demo">
+      <p><strong>{pending.data.demo.name}</strong> is a demo with {pending.counts.trips} {pending.counts.trips === 1 ? 'trip' : 'trips'}.</p>
+      <p class="small">Your data is kept aside first. "End demo" puts it back exactly as it is now; everything done in the demo is removed then. Backups are off while the demo runs.</p>
+      <div class="row">
+        <button type="button" class="hi" onclick={beginDemo} disabled={!!$demoQ}>Start demo</button>
+        <button type="button" onclick={() => (pending = null)}>Cancel</button>
+      </div>
+      {#if $demoQ}<p class="small">End the running demo first.</p>{/if}
+    </div>
+  {:else if pending}
     <div class="confirm" role="dialog" aria-label="Import backup">
       <p>
         <strong>{pending.name}</strong> contains {pending.counts.items} gear items, {pending.counts.trips} trips and

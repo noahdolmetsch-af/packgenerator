@@ -249,6 +249,12 @@
             <p>Several files at once are fine (one per day). Only rides on the days of this trip count.</p>
           </details>
         {/if}
+        {#if d.rideNotes?.length}
+          <div class="ridenotes">
+            <span class="lbl">Notes from the ride</span>
+            <ul>{#each d.rideNotes as n (n.at)}<li>{#if trip.days > 1}<small>Day {n.day + 1}</small> {/if}{n.text}</li>{/each}</ul>
+          </div>
+        {/if}
         <label class="note">
           <span>One sentence for next time <small>(optional)</small></span>
           <textarea class="inp" rows="3" bind:value={d.note} oninput={persist} placeholder="e.g. Heatwave, the rain gear was never used"></textarea>
@@ -521,6 +527,19 @@
   }
   .before {
     color: var(--ink);
+  }
+  .ridenotes {
+    margin: 12px 0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: var(--paper-2);
+  }
+  .ridenotes ul {
+    margin: 4px 0 0;
+    padding-left: 18px;
+  }
+  .ridenotes small {
+    color: var(--ink-3);
   }
   .note {
     display: grid;

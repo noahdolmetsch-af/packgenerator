@@ -66,6 +66,8 @@ async function writeFile(dir, name, text) {
 /** Write the backup files now (if a folder is chosen and allowed). */
 export async function writeNow(db) {
   const rec = await db.table('meta').get(HANDLE_KEY);
+  // No backup while a demo runs: the demo data must not end up in your backup files.
+  if (await db.table('meta').get('demo')) return false;
   if (!rec || (await rec.handle.queryPermission({ mode: 'readwrite' })) !== 'granted') return false;
   const text = JSON.stringify(await buildBackup(db), null, 2);
   await writeFile(rec.handle, LATEST, text);

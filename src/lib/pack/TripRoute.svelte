@@ -11,6 +11,7 @@
   import { parseGpx, routeStats, ridingHours, SPEED_KMH, CLIMB_MH } from '../route.js';
   import { searchPlace, fetchForecast, forecastForTrip, toWx, forecastFrom, ageText, tripDays } from '../weather.js';
   import { RAIN } from '../trips.js';
+  import Profile from '../ui/Profile.svelte';
 
   let { trip, onchange } = $props();
 
@@ -112,6 +113,7 @@
     <span class="lbl">Route</span>
     {#if trip.route}
       <p class="facts"><b>{trip.route.name || 'Route'}</b> <span class="num">{trip.route.km.toLocaleString('en')} km · ↑ {trip.route.gainM.toLocaleString('en')} m</span></p>
+      {#if trip.route.profile?.length > 1}<Profile points={trip.route.profile} />{/if}
       <p class="acts">
         {#if hours != null}
           {#if trip.hours === hours}<span class="ok">Riding hours: about {hours} h{trip.days > 1 ? ' a day' : ''}</span>

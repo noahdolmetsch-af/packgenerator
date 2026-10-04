@@ -7,6 +7,8 @@
   import Templates from './pages/Templates.svelte';
   import Debrief from './pages/Debrief.svelte';
   import Share from './pages/Share.svelte';
+  import Ride from './pages/Ride.svelte';
+  import DemoBar from './lib/DemoBar.svelte';
 
   // A tiny "router": the part of the address after # decides which page is shown,
   // e.g. …/packgenerator/#/gear. It works offline and needs no server setup.
@@ -19,7 +21,7 @@
     window.addEventListener('hashchange', update);
     return () => window.removeEventListener('hashchange', update);
   });
-  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/bikes') ? 'bikes' : hash.startsWith('#/care') ? 'care' : hash.startsWith('#/pack/templates') ? 'templates' : hash.startsWith('#/pack') ? 'pack' : hash.startsWith('#/debrief') ? 'debrief' : hash.startsWith('#/share/') ? 'share' : 'home');
+  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/bikes') ? 'bikes' : hash.startsWith('#/care') ? 'care' : hash.startsWith('#/pack/templates') ? 'templates' : hash.startsWith('#/pack') ? 'pack' : hash.startsWith('#/debrief') ? 'debrief' : hash.startsWith('#/share/') ? 'share' : hash.startsWith('#/ride') ? 'ride' : 'home');
   // #/debrief/<trip id> opens one trip's debrief.
   const param = $derived(hash.split('/')[2] ?? '');
 </script>
@@ -27,10 +29,12 @@
 <nav class="top" aria-label="Sections">
   <a class="brand" href="#/" aria-label="Pack Generator, start page"><span class="long">Pack Generator</span><span class="short" aria-hidden="true">PG</span></a>
   <a href="#/gear" aria-current={page === 'gear' ? 'page' : undefined}>Gear</a>
-  <a href="#/pack" aria-current={page === 'pack' || page === 'templates' ? 'page' : undefined}>Pack</a>
+  <a href="#/pack" aria-current={page === 'pack' || page === 'templates' || page === 'ride' ? 'page' : undefined}>Pack</a>
   <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}>Bikes</a>
   <a href="#/debrief" aria-current={page === 'debrief' ? 'page' : undefined}>Debrief</a>
 </nav>
+
+<DemoBar />
 
 <main class:wide={page === 'pack' || page === 'templates' || page === 'gear' || page === 'home'}>
   {#if page === 'gear'}
@@ -43,6 +47,8 @@
     <Care />
   {:else if page === 'templates'}
     <Templates />
+  {:else if page === 'ride'}
+    <Ride />
   {:else if page === 'share'}
     {#key param}<Share code={param} />{/key}
   {:else if page === 'debrief'}

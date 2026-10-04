@@ -18,12 +18,14 @@
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { bikePhotos, packPhoto } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
+  import { withVisits, tyreSetup, beforeTrip } from '../lib/workshop.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const photosQ = liveQuery(() => db.photos.toArray());
+  const visitsQ = liveQuery(() => db.visits.toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
   const rearQ = liveQuery(() => db.settings.get('rearLimitPct'));
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
@@ -80,6 +82,13 @@
   const gallery = $derived(bikePhotos(bike, $photosQ ?? []));
   const shot = $derived(packPhoto(trip, bike, $photosQ ?? []));
   let shownPhoto = $state(null);
+  // Workshop before the trip (v0.18.0, answers 9a and 10a): from 14 days before, what is due now
+  // or becomes due on the way. Home stays calm (answer 17b).
+  const workshop = $derived.by(() => {
+    if (!bike || !trip) return null;
+    const view = withVisits(bike, $visitsQ ?? []);
+    return beforeTrip(view, trip, tyreSetup(view, $visitsQ ?? []), today);
+  });
   // Design audit P4: after the trip, Pack leads to the debrief.
   const over = $derived(trip ? isOver(trip) : false);
   // Start page "Print list": #/pack?print opens the print dialog once the trip is there.
@@ -392,6 +401,7 @@
           {#each trips as t (t.id)}<option value={t.id}>{t.title}{t.startDate ? ` · ${t.startDate}` : ''}</option>{/each}
         </select>
         <button type="button" class="btn hi" onclick={() => (packDay = true)}>Packing day{#if stats.packed}<small class="num"> {stats.packed}/{stats.count}</small>{/if}</button>
+        <a class="btn" href="#/ride" onclick={() => choose(trip.id)}>Ride day</a>
         {#snippet actions()}
           <button type="button" class="btn" onclick={() => (dialog = { trip: null })}>New trip</button>
           <button type="button" class="btn" onclick={() => (saveTpl = true)}>Save as template</button>
@@ -418,6 +428,15 @@
          in the Add tab the weights step aside so the items start higher up. -->
     {#if over}
       <p class="debrief-cta">This trip is over. <a class="btn hi sm" href="#/debrief/{encodeURIComponent(trip.id)}">Start debrief</a><span class="muted">Two minutes: what you used, missed or did not need.</span></p>
+    {/if}
+    {#if workshop?.rows.length}
+      <section class="shop" aria-labelledby="shop-h">
+        <h2 id="shop-h"><span class="lbl">Workshop before the trip</span> <small>{workshop.days ? `${workshop.days} ${workshop.days === 1 ? 'day' : 'days'} to go` : 'on the way'}</small></h2>
+        <ul>
+          {#each workshop.rows as r (r.key + r.when)}<li class:now={r.when === 'now'}><b>{r.name}</b> <small>{r.detail}</small></li>{/each}
+        </ul>
+        <a class="btn sm" href="#/care">Bike care</a>
+      </section>
     {/if}
     <section class="sys" class:short={phone.matches && !allWeights} class:away={phone.matches && tab === 'add'} aria-label="Weights">
       {#snippet ic(name)}<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d={ICONS[name]} /></svg>{/snippet}
@@ -776,6 +795,38 @@
 {/if}
 
 <style>
+  .shop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    margin: 0 0 12px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--line);
+    border-left: 5px solid var(--ink);
+    border-radius: 8px;
+    background: var(--paper);
+  }
+  .shop h2 {
+    flex: 1 0 100%;
+    margin: 0;
+    font: inherit;
+  }
+  .shop h2 .lbl {
+    font-weight: 700;
+  }
+  .shop h2 small,
+  .shop li small {
+    color: var(--ink-3);
+  }
+  .shop ul {
+    flex: 1 1 300px;
+    margin: 0;
+    padding-left: 18px;
+  }
+  .shop li.now b {
+    color: #a03a00;
+  }
   .debrief-cta {
     display: flex;
     flex-wrap: wrap;

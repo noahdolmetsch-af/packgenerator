@@ -3,6 +3,7 @@
 Stand: 4. Oktober 2026
 
 ## Fertig
+- **Tagesansicht, Werkstatt-Erinnerung, Demo-Modus (v0.18.0):** Pack → "Ride day": alle Taschen mit Inhalt, Etappe mit km, Höhenmetern, Fahrzeit, Ankunft und Höhenprofil, Wetter Stunde für Stunde am Start und am Ziel (bleibt offline sichtbar), Notizen für den Debrief. Mehrtägige Touren: Tag für Tag; Nonstop: eine Etappe über Nacht mit deinen Blöcken. Am Tourtag öffnet die Startseite die Tagesansicht. Pack und Bike care zeigen ab 14 Tagen vor einer Tour, was die Werkstatt noch machen muss. Demo-Dateien starten einen Demo-Modus, "End demo" setzt alles zurück.
 - Grundgerüst: Svelte + Vite, installierbar (PWA), funktioniert offline, online auf GitHub Pages.
 - Bike-Cockpit-Prototyp: seit 4.10.2026 archiviert in `archive/cockpit/`, nicht mehr online.
 - Datenbank (IndexedDB/Dexie) mit Datenmodell für Gear, Kits, Trips, Debriefs, Learnings, Events, Wartung, Bikes.
@@ -32,7 +33,8 @@ Stand: 4. Oktober 2026
 - [ ] **Inventar durchgehen:** Gear → "Check inventory" (am Phone Tab "Check"). Pro Teil: Still have it / Gone / Replaced by… / fehlende Teile mit "Add item" ergänzen.
 - [ ] Scott Scale, Scott Spark und Factor LS wägen (ohne Taschen, mit Garmin-, Quad-Lock- und Flaschenhalterungen) und auf "Bikes" eintragen. Canyon ist erledigt (10.1 kg).
 - [ ] Neue Teile wägen: "Trainerhose lang chillig" und "Gilet Fleece kuschelig".
-- [ ] **Import-Datei "Werkstatt und Fotos"** (im Chat) auf Desktop und Handy mit **Merge** importieren, vorher ein Backup.
+- [x] Import-Datei "Werkstatt und Fotos" am Handy mit Merge importiert.
+- [ ] Am Desktop die Import-Datei nochmals mit Merge laden (Besuch Veloshop Vonäsch).
 - [ ] Velos wägen: Die Gewichte sind Strava-Schätzungen (Bikes → Bike weight).
 - [ ] Belege für das Canyon schicken, falls es welche gibt.
 - [ ] Bike care → "Go through them": die 17 Juni-Aufgaben einmal durchgehen.
@@ -43,9 +45,10 @@ Stand: 4. Oktober 2026
 - [ ] Erstes Backup herunterladen (Startseite → Download backup).
 
 ## Läuft
-- Noah testet Pack mit der 303 (Testplan im Chat), danach erster echter Debrief.
+- Probefahrt 303 als Demo: Claude spielt die Lucerne 303 (nonstop) bis zum Debrief durch, Bericht mit Screenshots, danach 0.18.1.
 
 ## Als Nächstes
-1. Paket 4: ganze App Deutsch/Englisch umschaltbar.
-2. Paket 5: weitere Bereiche (Skitouren, Weekend-Trip, Weltreise) und Merkliste "All my favorite things".
-3. Bike care und Packen verfeinern nach deinem Test mit der 303 und den Service-Fotos.
+1. 0.18.1: was die Probefahrt 303 findet.
+2. 0.19.0 App lernt: weitere Demo-Touren (Hope 1000, Alpenbrevet), danach schlägt die App nach 3 Debriefs Änderungen an den Vorlagen vor.
+3. 0.20.0: ganze App Deutsch/Englisch umschaltbar.
+4. Paket 5: weitere Bereiche (Skitouren, Weekend-Trip, Weltreise) und Merkliste "All my favorite things".
