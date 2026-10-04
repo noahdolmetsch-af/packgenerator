@@ -4,19 +4,26 @@
   import { sortBikes } from '../lib/bikes.js';
   import { nextId } from '../lib/gear.js';
   import {
-    PART, defaultParts, partInfo, wear, needsWork, lastValue, kmSince, lastReplace, checkState, serviceDue, logPart,
+    PART, ensureParts, partInfo, wear, needsWork, lastValue, kmSince, lastReplace, checkState, serviceDue, logPart,
     taskBike, openRepairs, toReview, prepFor, prepRules, upcomingTrips, prepParts, prepService, wishFor, CHECK_KM, bikeLog, EXTRA,
   } from '../lib/care.js';
   import BikesNav from '../lib/care/BikesNav.svelte';
   import PartDialog from '../lib/care/PartDialog.svelte';
+  import VisitDialog from '../lib/care/VisitDialog.svelte';
+  import { withVisits, visitsOf, visitTotal, tyreSetup, timeDue, costByYear, costByPart, costPer1000, lastPrice } from '../lib/workshop.js';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const tripsQ = liveQuery(() => db.trips.toArray());
   const tasksQ = liveQuery(() => db.maintenance.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
+  const visitsQ = liveQuery(() => db.visits.toArray());
 
-  const bikes = $derived(sortBikes($bikesQ ?? []).map((b) => ({ ...b, parts: b.parts ?? defaultParts(b) })));
+  // What is stored (writes go here) and what is shown: the stored parts plus the jobs of the workshop visits.
+  const bikes = $derived(sortBikes($bikesQ ?? []).map((b) => ({ ...b, parts: ensureParts(b) })));
   const bikeById = $derived(Object.fromEntries(bikes.map((b) => [b.id, b])));
+  const visits = $derived($visitsQ ?? []);
+  const views = $derived(bikes.map((b) => withVisits(b, visits)));
+  const viewById = $derived(Object.fromEntries(views.map((b) => [b.id, b])));
   const tasks = $derived($tasksQ ?? []);
   const items = $derived($itemsQ ?? []);
   const today = new Date().toISOString().slice(0, 10);
@@ -42,31 +49,47 @@
 
   /* ---------- what is due ---------- */
   const trips = $derived(upcomingTrips($tripsQ ?? [], today).map((t) => ({ trip: t, rows: prepFor(t, tasks, today), rules: prepRules(t, tasks) })));
-  const checks = $derived(bikes.map((b) => ({ bike: b, check: checkState(b), services: serviceDue(b) })));
+  const checks = $derived(
+    views.map((b) => {
+      const tyres = tyreSetup(b, visits);
+      return { bike: b, check: checkState(b), services: serviceDue(b), tyres, time: timeDue(b, tyres, today), mine: visitsOf(visits, b.id) };
+    }),
+  );
   const overdue = $derived([
     ...trips.flatMap(({ trip, rows }) => rows.filter((r) => r.overdue).map((r) => ({ kind: 'prep', trip, row: r }))),
     ...checks.filter((c) => c.check.due).map((c) => ({ kind: 'check', bike: c.bike, n: c.check.due })),
     ...checks.flatMap((c) => c.services.map((s) => ({ kind: 'service', bike: c.bike, s }))),
+    // Answer 17b: services by time show here in Bike care only, not on the start page.
+    ...checks.flatMap((c) => c.time.filter((s) => s.overdue).map((s) => ({ kind: 'time', bike: c.bike, s }))),
   ]);
 
   /* ---------- parts ---------- */
   let partOpen = $state(null); // { bike, part }
 
-  async function savePart(bike, key, entry) {
+  async function savePart(view, key, entry) {
+    const bike = bikeById[view.id];
     await db.bikes.update(bike.id, { parts: logPart(bike.parts, key, entry) });
-    // "Replace needed" puts the part on the wishlist (answer 6).
-    if (entry.result === 'needed') {
-      const part = bike.parts.find((p) => p.key === key);
-      const wish = wishFor({ ...part, model: entry.model ?? part.model }, bike, items, nextId(items, 'bike'));
-      if (wish) await db.items.put(wish);
-    }
+    // "Replace needed" puts the part on the wishlist (answer 6), with the last price paid (answer 19a).
+    if (entry.result === 'needed') await wish(view, key, entry.model);
+  }
+  async function wish(view, key, model = null) {
+    const part = view.parts.find((p) => p.key === key);
+    const item = wishFor({ ...part, model: model ?? part.model }, view, items, nextId(items, 'bike'), lastPrice(visits, view.id, key));
+    if (item) await db.items.put(item);
+    return item;
+  }
+  let wished = $state({});
+  async function wishTime(view, s) {
+    const item = await wish(view, s.key);
+    wished = { ...wished, [`${view.id}.${s.key}`]: item ? 'On the wishlist' : 'Already on the wishlist' };
   }
 
   /** Several parts at once (a 1000 km check, or a preparation task that covers them). */
-  async function checkParts(bike, keys, action = 'check', note = '') {
+  async function checkParts(view, keys, action = 'check', note = '') {
+    const bike = bikeById[view.id];
     let parts = bike.parts;
     const entry = { date: today, km: bike.km ?? null, value: null, action, result: action === 'check' ? 'ok' : 'done', by, model: null, note };
-    for (const k of keys) if (parts.some((p) => p.key === k)) parts = logPart(parts, k, entry);
+    for (const k of keys) parts = logPart(parts, k, entry);
     await db.bikes.update(bike.id, { parts });
   }
 
@@ -107,6 +130,14 @@
   const repairsFor = (bikeId) => repairs.filter((t) => taskBike(t) === bikeId && t.status !== 'check');
   const otherRepairs = $derived(repairs.filter((t) => !taskBike(t) && t.status !== 'check'));
 
+  /* ---------- tube or tubeless per wheel (answer 12a) ---------- */
+  const setTyre = (bike, wheel, value) => db.bikes.update(bike.id, { tyreSetup: { ...tyreSetup(bike, visits), ...(bike.tyreSetup ?? {}), [wheel]: value } });
+
+  /* ---------- workshop visits (answers 7a, 8a) ---------- */
+  let visitOpen = $state(null); // visit id
+  const chf = (n) => `CHF ${n.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const inDays = (d) => (d <= 0 ? (d === 0 ? 'due today' : `${-d} days overdue`) : d < 45 ? `in ${d} days` : `in ${Math.round(d / 30.4)} months`);
+
   const fmtKm = (n) => (n == null ? '–' : `${n.toLocaleString('en')} km`);
   const dueLabel = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
   const PRIO = { high: 'High', medium: 'Medium', low: 'Low' };
@@ -143,6 +174,12 @@
               {:else if o.kind === 'check'}
                 <span><b>{o.bike.name}: {CHECK_KM.toLocaleString('en')} km check</b><small>{o.n} points due, see the bike below</small></span>
                 <button type="button" class="btn sm" onclick={() => document.getElementById(`care-${o.bike.id}`)?.scrollIntoView({ behavior: 'smooth' })}>Open</button>
+              {:else if o.kind === 'time'}
+                <span><b>{o.bike.name}: {o.s.name}</b><small>last {o.s.last} · {inDays(o.s.days)}</small></span>
+                <span class="acts">
+                  <button type="button" class="btn sm hi" onclick={() => checkParts(o.bike, [o.s.key], 'service', o.s.name)}>Done</button>
+                  {@render more(o.s.name, [{ name: 'Add to wishlist', run: () => wishTime(o.bike, o.s) }])}
+                </span>
               {:else}
                 <span><b>{o.bike.name}: {o.s.name}</b><small>{o.s.since} km since the last time (every {o.s.every} km)</small></span>
                 <button type="button" class="btn sm hi" onclick={() => checkParts(o.bike, [o.s.key], 'service')}>Done</button>
@@ -210,7 +247,7 @@
       <p class="card rev-cta">{review.length} tasks from the Excel (June) are not checked yet. <button type="button" class="btn hi" onclick={() => (reviewing = true)}>Go through them</button></p>
     {/if}
 
-    {#each checks as { bike, check } (bike.id)}
+    {#each checks as { bike, check, tyres, time, mine } (bike.id)}
       {@const log = bikeLog(bike, tasks)}
       {@const flags = check.due + bike.parts.filter(needsWork).length + repairsFor(bike.id).length}
       <details class="block bike" id="care-{bike.id}" open={flags > 0 || trips.some(({ trip }) => trip.bikeId === bike.id)}>
@@ -256,6 +293,58 @@
                 </li>
               {/each}
             </ul>
+          </div>
+        </div>
+
+        <div class="cols">
+          <div>
+            <h3>Coming up</h3>
+            <ul class="checks">
+              {#each time as s (s.key)}
+                <li class:late={s.overdue}>
+                  <span>{s.name}<small>every {s.every >= 365 ? 'year' : `${Math.round(s.every / 30.4)} months`}</small></span>
+                  <span class="num m">{s.never ? 'not recorded' : `${s.next} · ${inDays(s.days)}`}</span>
+                </li>
+              {/each}
+            </ul>
+            {#each time.filter((s) => s.overdue || (s.days != null && s.days <= 30)) as s (s.key)}
+              <p class="hint">{s.name}: <button type="button" class="link" onclick={() => wishTime(bike, s)}>add the parts to the wishlist</button>{#if wished[`${bike.id}.${s.key}`]} · {wished[`${bike.id}.${s.key}`]}{/if}</p>
+            {/each}
+            <div class="tyres" role="group" aria-label="Tube or tubeless">
+              {#each [['front', 'Front'], ['rear', 'Rear']] as [w, label] (w)}
+                <span class="tw">
+                  <span class="lbl">{label}</span>
+                  <button type="button" class="toggle" aria-pressed={tyres[w] === 'tubeless'} onclick={() => setTyre(bikeById[bike.id], w, 'tubeless')}>Tubeless</button>
+                  <button type="button" class="toggle" aria-pressed={tyres[w] === 'tube'} onclick={() => setTyre(bikeById[bike.id], w, 'tube')}>Tube</button>
+                </span>
+              {/each}
+            </div>
+            <p class="hint">Sealant is only due for tubeless wheels. Brakes are bled when the lever feels soft.</p>
+          </div>
+          <div>
+            <h3>Workshop {#if mine.length}<small>{mine.length} {mine.length === 1 ? 'visit' : 'visits'}</small>{/if}</h3>
+            {#if mine.length}
+              <ul class="visits">
+                {#each mine as v (v.id)}
+                  <li>
+                    <button type="button" class="part" onclick={() => (visitOpen = v.id)}>
+                      <span class="pn">{v.date} · {v.shop}<small>{v.invoice ? `${v.invoice} · ` : ''}{(v.parts ?? []).length} jobs{v.km != null ? ` · ${v.km.toLocaleString('en')} km` : ''}{v.photos?.length ? ` · ${v.photos.length} receipt ${v.photos.length === 1 ? 'photo' : 'photos'}` : ''}</small></span>
+                      <span class="pv num">{chf(visitTotal(v))}</span>
+                    </button>
+                  </li>
+                {/each}
+              </ul>
+              {@const years = costByYear(mine)}
+              {@const top = costByPart(mine, 3)}
+              {@const per = costPer1000(mine, bike)}
+              <p class="costs">
+                {#each years as y (y.year)}<span><b>{y.year}</b> {chf(y.chf)}</span>{/each}
+                <span>{per ? `${chf(per.chf)} per 1000 km` : 'Cost per 1000 km: add the km at a visit'}</span>
+              </p>
+              <p class="hint">Most: {top.map((r) => `${r.name} ${chf(r.chf)}`).join(' · ')}</p>
+            {:else}
+              <p class="hint">No workshop visits yet. Send Claude a photo of the receipt; it comes back as a file to import.</p>
+            {/if}
           </div>
         </div>
 
@@ -314,14 +403,50 @@
 </div>
 
 {#if partOpen}
-  {@const b = bikeById[partOpen.bikeId]}
+  {@const b = viewById[partOpen.bikeId]}
   {@const part = b?.parts.find((p) => p.key === partOpen.key)}
   {#if b && part}
     <PartDialog {part} bike={b} {by} onlog={(entry) => savePart(b, part.key, entry)} onclose={() => (partOpen = null)} />
   {/if}
 {/if}
 
+{#if visitOpen}
+  {@const v = visits.find((x) => x.id === visitOpen)}
+  {#if v}
+    <VisitDialog visit={v} bike={viewById[v.bikeId]} onclose={() => (visitOpen = null)} />
+  {/if}
+{/if}
+
 <style>
+  .tyres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-top: 10px;
+  }
+  .tw {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .tw .lbl {
+    margin: 0 4px 0 0;
+  }
+  .visits {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .costs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin: 8px 0 0;
+    font-size: 15px;
+  }
+  .checks li small {
+    margin-left: 6px;
+  }
   .head {
     display: flex;
     flex-wrap: wrap;

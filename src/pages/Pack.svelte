@@ -16,11 +16,14 @@
   import TripRoute from '../lib/pack/TripRoute.svelte';
   import { sharePayload, shareLink } from '../lib/share.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
+  import { bikePhotos, packPhoto } from '../lib/photo.js';
+  import Lightbox from '../lib/ui/Lightbox.svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
+  const photosQ = liveQuery(() => db.photos.toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
   const rearQ = liveQuery(() => db.settings.get('rearLimitPct'));
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
@@ -73,6 +76,10 @@
       trips[0],
   );
   const bike = $derived(trip ? bikes.find((b) => b.id === trip.bikeId) : null);
+  // Setup photo behind the bags (answers 2a-4a): the trip's own photo, else the bike's main photo.
+  const gallery = $derived(bikePhotos(bike, $photosQ ?? []));
+  const shot = $derived(packPhoto(trip, bike, $photosQ ?? []));
+  let shownPhoto = $state(null);
   // Design audit P4: after the trip, Pack leads to the debrief.
   const over = $derived(trip ? isOver(trip) : false);
   // Start page "Print list": #/pack?print opens the print dialog once the trip is there.
@@ -435,6 +442,9 @@
     {#if packDay}
       <PackDay {trip} steps={daySteps} {itemsById} {tips} {ready} ontoggle={toggleIn} onready={toggleReady} onclose={() => (packDay = false)} />
     {/if}
+    {#if shownPhoto != null && gallery.length}
+      <Lightbox list={gallery.map((p) => ({ src: p.src, name: p.name, sub: bike?.name ?? '' }))} start={shownPhoto} onclose={() => (shownPhoto = null)} />
+    {/if}
     {#if weighing}
       <WeighMode items={tripItems} onclose={() => (weighing = false)} />
     {:else}
@@ -604,7 +614,7 @@
 
       {#if !phone.matches || tab === 'pack'}
         <div class="c-bag">
-          <PackStage {cards} photo={bike?.photo ?? null} strip={phone.matches} onpick={pick} ondropitem={phone.matches ? null : addTo} label="Bags on {bike?.name ?? 'the bike'}, tap one to open it" />
+          <PackStage {cards} photo={shot?.src ?? null} photoName={shot?.name ?? ''} onphoto={() => (shownPhoto = Math.max(0, gallery.findIndex((p) => p.id === shot?.id)))} strip={phone.matches} onpick={pick} ondropitem={phone.matches ? null : addTo} label="Bags on {bike?.name ?? 'the bike'}, tap one to open it" />
 
           <!-- Answer 3a (4.10.2026): under the boxes every bag as a list, items moved with "Move" or by dragging.
                On a phone only the bag chosen in the strip. -->

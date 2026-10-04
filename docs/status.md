@@ -16,6 +16,7 @@ Stand: 4. Oktober 2026
 - **Bikes:** eigene Taschenliste, 4 Velo-Setups mit Velo-Zeichnung, Montagepunkte ein/aus, Velo- und Fahrergewicht.
 - **Pack:** Tour wählen oder neu (Kopie der letzten Tour mit demselben Velo, sonst Standard-Set), Tasche auf der Zeichnung wählen, Teile hinzufügen, verschieben, Anzahl, abhaken (am Phone Tasche für Tasche), Taschen pro Tour ändern, Ready-Check (Standardliste, pro Tour änderbar), Systemgewicht.
 
+- **Werkstatt und Setup-Fotos (v0.17.0):** Bike care zeigt pro Velo die Werkstatt-Besuche (Betrag, Arbeiten, Beleg-Fotos zum Vergrössern, km nachtragen), "Coming up" (Gabel- und Dämpfer-Service jährlich, Dichtmilch alle 3 Monate), Schlauch oder tubeless pro Rad, Kosten pro Jahr und pro 1000 km. Neue Teile: Bremsen, Laufräder, Hinterbau, Cockpit. Bikes zeigt eine Foto-Galerie pro Velo (antippen, wischen, "Show in Pack", einer Tour zuordnen). Pack zeigt das Foto blass hinter den Taschen, mit Knopf zum Vergrössern.
 - **Logbuch, Fahrten-Import, Teilen (v0.16.0):** Debrief zeigt die 12 alten Touren als Logbuch. Im Debrief lassen sich Fahrten aus Strava oder Garmin als Datei importieren (km werden zusammengezählt). Pack → "Share link" kopiert einen Link zur Packliste (nur lesen), "Print / PDF" speichert sie als PDF.
 - **Wetter, Route und Velo-Foto (v0.15.0):** In Pack unter "Ride and weather" eine GPX-Route laden (Distanz, Höhenmeter, geschätzte Fahrstunden), Startort suchen, Wettervorhersage pro Tourtag von Open-Meteo, ein Klick packt für diese Vorhersage. Offline bleibt die letzte Vorhersage sichtbar. Startseite zeigt die Vorhersage. Bikes → Edit → Foto deines Velos; es erscheint in Pack hinter den Taschen.
 - **Packtag und Debrief-Lernen (v0.14.0):** Pack → "Packing day" im Vollbild, Tasche für Tasche mit grosser Schrift, antippen = in der Tasche, am Schluss der Ready check; der Bildschirm bleibt an. Learnings stehen als kleiner Hinweis beim passenden Item. Debrief fragt nach den km der Tour und zählt sie zum Velo. "Leave at home" erst nach 3× nicht gebraucht. Startseite erinnert ans Backup, wenn das letzte älter als 14 Tage ist.
@@ -31,12 +32,13 @@ Stand: 4. Oktober 2026
 - [ ] **Inventar durchgehen:** Gear → "Check inventory" (am Phone Tab "Check"). Pro Teil: Still have it / Gone / Replaced by… / fehlende Teile mit "Add item" ergänzen.
 - [ ] Scott Scale, Scott Spark und Factor LS wägen (ohne Taschen, mit Garmin-, Quad-Lock- und Flaschenhalterungen) und auf "Bikes" eintragen. Canyon ist erledigt (10.1 kg).
 - [ ] Neue Teile wägen: "Trainerhose lang chillig" und "Gilet Fleece kuschelig".
-- [ ] **Service-Fotos** der 4 Velos hochladen (daraus trage ich den letzten Service pro Teil ein), dazu den km-Stand.
+- [ ] **Import-Datei "Werkstatt und Fotos"** (im Chat) auf Desktop und Handy mit **Merge** importieren, vorher ein Backup.
+- [ ] **km-Stand** der 4 Velos eintragen (Bike care → km now), wenn möglich auch bei den 3 Werkstatt-Besuchen.
+- [ ] Belege für das Canyon schicken, falls es welche gibt.
 - [ ] Bike care → "Go through them": die 17 Juni-Aufgaben einmal durchgehen.
 - [ ] Full-Frame-Tasche wägen (neu in Gear, TA14).
 - [ ] Danach die 303 in Pack neu packen (Taschen für diese Tour prüfen).
 - [ ] App auf dem Samsung A56 installieren (Anleitung im Chat).
-- [ ] Für jedes Velo ein Foto von der Seite aufnehmen und unter Bikes → Edit hinzufügen.
 - [ ] Für die 303 den Startort und die GPX-Route in Pack eintragen.
 - [ ] Erstes Backup herunterladen (Startseite → Download backup).
 

@@ -15,6 +15,9 @@
  * The parts a bike can have. unit: what you measure. warnAt / limit: when to warn and when to replace.
  * lowIsWorn: brake pads and rotors get thinner, a chain gets longer.
  * everyKm: a service with its own interval (wax the chain every 150 km).
+ * everyDays: a service by time (Noah, 4.10.2026: fork and shock once a year, sealant every 3 months).
+ *   Due by time or km, whichever comes first (answer 13a). Brakes are bled only when the lever
+ *   feels soft (answer 16b), so they have no interval.
  */
 export const PARTS = [
   { key: 'chain', name: 'Chain', unit: '%', warnAt: 0.4, limit: 0.5, everyKm: 150, service: 'Waxed', hint: 'Chain checker: 0.4 % warning, 0.5 % replace' },
@@ -24,11 +27,15 @@ export const PARTS = [
   { key: 'padsR', name: 'Brake pads rear', unit: '%', warnAt: 60, limit: 50, lowIsWorn: true, hint: 'Pad left in %: below 50 % replace' },
   { key: 'rotorF', name: 'Brake rotor front', unit: 'mm', warnAt: 1.6, limit: 1.5, lowIsWorn: true, hint: 'Thickness in mm (check the minimum printed on the rotor)' },
   { key: 'rotorR', name: 'Brake rotor rear', unit: 'mm', warnAt: 1.6, limit: 1.5, lowIsWorn: true, hint: 'Thickness in mm (check the minimum printed on the rotor)' },
-  { key: 'fork', name: 'Fork', unit: '', suspension: 'fork', hint: 'Lockout, sag, service' },
-  { key: 'shock', name: 'Rear shock', unit: '', suspension: 'full', hint: 'Lockout, sag, service' },
+  { key: 'fork', name: 'Fork', unit: '', suspension: 'fork', everyDays: 365, due: 'Fork service', hint: 'Lockout, sag, service once a year' },
+  { key: 'shock', name: 'Rear shock', unit: '', suspension: 'full', everyDays: 365, due: 'Shock service', hint: 'Lockout, sag, service once a year' },
+  { key: 'linkage', name: 'Rear linkage', unit: '', suspension: 'full', hint: 'Pivot bolts: clean, grease, check for play' },
   { key: 'saddle', name: 'Saddle height', unit: 'mm', hint: 'Centre of the bottom bracket to the top of the saddle' },
   { key: 'shifting', name: 'Shifting', unit: '', hint: 'Cable, housing, indexing' },
-  { key: 'tyres', name: 'Tyres + sealant', unit: '', extra: ['pressureF', 'pressureR', 'sealantMl'], hint: 'Tread, pressure, top up sealant' },
+  { key: 'tyres', name: 'Tyres + sealant', unit: '', extra: ['pressureF', 'pressureR', 'sealantMl'], everyDays: 90, due: 'Top up sealant', tubeless: true, hint: 'Tread, pressure, sealant every 3 months (tubeless only)' },
+  { key: 'brakes', name: 'Brakes (bleed, hoses)', unit: '', hint: 'Bleed when the lever feels soft' },
+  { key: 'wheels', name: 'Wheels', unit: '', hint: 'True, spoke tension, freehub' },
+  { key: 'cockpit', name: 'Cockpit', unit: '', hint: 'Grips or bar tape, lever covers' },
   { key: 'bolts', name: 'Bolts (torque)', unit: '', hint: 'Saddle, thru axles, levers, cages, mounts' },
   { key: 'bearings', name: 'Bearings', unit: '', hint: 'Headset, hubs, bottom bracket: check for play' },
 ];
@@ -38,12 +45,26 @@ export const PART = Object.fromEntries(PARTS.map((p) => [p.key, p]));
 export const CHECK_KM = 1000;
 export const CHECK_PARTS = ['padsF', 'padsR', 'chain', 'tyres', 'bolts', 'shifting', 'fork', 'shock', 'bearings'];
 
-/** The parts of a new bike: suspension parts only where the bike has suspension. */
-export function defaultParts(bike) {
-  const type = (bike.type ?? '').toLowerCase();
-  const fork = type.includes('hardtail') || type.includes('full');
-  const full = type.includes('full');
-  return PARTS.filter((p) => !p.suspension || (p.suspension === 'fork' && fork) || (p.suspension === 'full' && full)).map((p) => ({ key: p.key, model: '', history: [] }));
+/** Does this bike have this kind of part? Suspension parts only where the bike has suspension. */
+function fits(bike, p) {
+  const type = `${bike.type ?? ''} ${bike.id ?? ''}`.toLowerCase();
+  const full = /full|fully/.test(type);
+  const fork = full || type.includes('hardtail');
+  return !p.suspension || (p.suspension === 'fork' && fork) || (p.suspension === 'full' && full);
+}
+
+/** The parts of a new bike. */
+export const defaultParts = (bike) => PARTS.filter((p) => fits(bike, p)).map((p) => ({ key: p.key, model: '', history: [] }));
+
+/** The stored parts plus the parts added since (brakes, wheels, rear linkage, cockpit), in the list order. */
+export function ensureParts(bike) {
+  const stored = bike.parts ?? [];
+  if (!stored.length) return defaultParts(bike);
+  const have = new Set(stored.map((p) => p.key));
+  const added = PARTS.filter((p) => !have.has(p.key) && fits(bike, p)).map((p) => ({ key: p.key, model: '', history: [] }));
+  if (!added.length) return stored;
+  const order = (k) => PARTS.findIndex((p) => p.key === k);
+  return [...stored, ...added].sort((a, b) => order(a.key) - order(b.key));
 }
 
 /** The part's definition merged with what the bike stores (model, history). */
@@ -101,6 +122,7 @@ export function serviceDue(bike) {
  */
 export function logPart(parts, key, entry) {
   const { limit, ...rest } = entry;
+  if (!parts.some((p) => p.key === key)) parts = [...parts, { key, model: '', history: [] }];
   return parts.map((p) =>
     p.key === key ? { ...p, ...(rest.model ? { model: rest.model } : {}), ...(typeof limit === 'number' ? { limit } : {}), history: [...(p.history ?? []), rest] } : p,
   );
@@ -193,15 +215,20 @@ export function prepRules(trip, tasks) {
 export const upcomingTrips = (trips, today = iso(new Date())) =>
   trips.filter((t) => t.startDate && t.startDate >= today).sort((a, b) => a.startDate.localeCompare(b.startDate));
 
-/** A wishlist item for a part that has to be replaced, unless one is already there. */
-export function wishFor(part, bike, items, id) {
+/**
+ * A wishlist item for a part that has to be replaced, unless one is already there.
+ * price: the last price paid (from a workshop receipt, answer 19a), or null.
+ */
+export function wishFor(part, bike, items, id, price = null) {
   const p = partInfo(part);
   const name = `${p.name} (${bike.name})`;
   if (items.some((i) => i.name === name && i.ownership !== 'gone' && i.ownership !== 'owned')) return null;
   return {
-    id, name, brand: '', model: p.model ?? '', category: 'bike', weightG: null, qty: 1, weightStatus: 'missing', carry: 'bike',
+    id, name, brand: '', model: p.model || price?.model || '', category: 'bike', weightG: null, qty: 1, weightStatus: 'missing', carry: 'bike',
     defaultBag: 'tool', ownership: 'wishlist', role: null, sets: [], kits: [], domains: ['bikepacking'],
-    note: `From Bike care: ${p.name} on the ${bike.name} needs replacing.`, updatedAt: new Date().toISOString(),
+    priceChf: price?.chf ?? null,
+    note: `From Bike care: ${p.name} on the ${bike.name} needs replacing.${price ? ` Last time CHF ${price.chf.toFixed(2)} (${price.shop}, ${price.date}).` : ''}`,
+    updatedAt: new Date().toISOString(),
   };
 }
 

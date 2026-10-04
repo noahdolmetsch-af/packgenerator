@@ -10,14 +10,16 @@
   import { LAST_BACKUP, BACKUP_DAYS, backupDue, downloadBackup } from '../lib/backup.js';
   import { formatWeight } from '../lib/gear.js';
   import { sortBikes } from '../lib/bikes.js';
+  import { withVisits } from '../lib/workshop.js';
   import { tripStats, daysUntil, readyDone, RAIN } from '../lib/trips.js';
-  import { defaultParts, careBeforeTrip, checkState, serviceDue, needsWork, wear, taskBike, isPrep } from '../lib/care.js';
+  import { careBeforeTrip, checkState, serviceDue, needsWork, wear, taskBike, isPrep } from '../lib/care.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { nextTrip, toDebrief, tripEnd, learningsFor, wishCount, unweighedCount } from '../lib/debrief.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
+  const visitsQ = liveQuery(() => db.visits.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
   const tasksQ = liveQuery(() => db.maintenance.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
@@ -31,7 +33,8 @@
 
   const trips = $derived($tripsQ ?? []);
   const items = $derived($itemsQ ?? []);
-  const bikes = $derived(sortBikes($bikesQ ?? []).map((b) => ({ ...b, parts: b.parts ?? defaultParts(b) })));
+  // Workshop jobs count as part history here too (services by time stay in Bike care, answer 17b).
+  const bikes = $derived(sortBikes($bikesQ ?? []).map((b) => withVisits(b, $visitsQ ?? [])));
   const tasks = $derived($tasksQ ?? []);
   const learnings = $derived($learnQ ?? []);
   const loaded = $derived(!!$tripsQ && !!$itemsQ);
