@@ -4,7 +4,7 @@ Stand: 4. Oktober 2026
 
 ## Fertig
 - Grundgerüst: Svelte + Vite, installierbar (PWA), funktioniert offline, online auf GitHub Pages.
-- Bike-Cockpit-Prototyp unter `/cockpit/` als eigene Offline-App, mit Backup (Export/Import als JSON-Datei).
+- Bike-Cockpit-Prototyp: seit 4.10.2026 archiviert in `archive/cockpit/`, nicht mehr online.
 - Datenbank (IndexedDB/Dexie) mit Datenmodell für Gear, Kits, Trips, Debriefs, Learnings, Events, Wartung, Bikes.
 - "Your data" auf der Startseite: Anzahl Datensätze, Export, Import (ersetzen oder zusammenführen), automatische Ordner-Sicherung am Desktop.
 - Excel-Konverter (`tools/import-excel/`); deine Excel ist umgewandelt in `data/pack-generator-import.json` im Projektordner.
@@ -16,11 +16,11 @@ Stand: 4. Oktober 2026
 - **Bikes:** eigene Taschenliste, 4 Velo-Setups mit Velo-Zeichnung, Montagepunkte ein/aus, Velo- und Fahrergewicht.
 - **Pack:** Tour wählen oder neu (Kopie der letzten Tour mit demselben Velo, sonst Standard-Set), Tasche auf der Zeichnung wählen, Teile hinzufügen, verschieben, Anzahl, abhaken (am Phone Tasche für Tasche), Taschen pro Tour ändern, Ready-Check (Standardliste, pro Tour änderbar), Systemgewicht.
 
+- **Ready-Check aufgeräumt (v0.9.0):** eine kurze Liste, "Tick all checks", "Save as my standard"; "Always with me" sind jetzt Teile "On every trip". Prototyp archiviert.
 - **Neues Pack-Layout (v0.8.0):** drei Spalten, "Not packed" nach Kategorie zugeklappt, Etiketten, "+" oder Ziehen auf eine Tasche, Kacheln mit Füllbalken, Ready-Check kurz, am Phone fixe Leiste "Adding to".
 - **Runde 3 (Antworten 1–10):** 4 echte Velos mit Setups, fixe Halterungen, Nacht-Sets inkl. Light, Wetter mit Kleider-Vorschlag, Volumen-Warnung mit Taschen-Vorschlag, Wägen aus Pack, Druckliste, Gepäck vorne/hinten, Inventar-Check.
 
 ## To-do für Noah
-- [ ] Prototyp-Daten sichern: im Bike Cockpit auf "Saved · Backup" tippen → Export, Datei aufbewahren.
 - [ ] **Inventar durchgehen:** Gear → "Check inventory" (am Phone Tab "Check"). Pro Teil: Still have it / Gone / Replaced by… / fehlende Teile mit "Add item" ergänzen.
 - [ ] Scott Scale, Scott Spark und Factor LS wägen (ohne Taschen, mit Garmin-, Quad-Lock- und Flaschenhalterungen) und auf "Bikes" eintragen. Canyon ist erledigt (10.1 kg).
 - [ ] Neue Teile wägen: "Trainerhose lang chillig" und "Gilet Fleece kuschelig".
@@ -30,13 +30,11 @@ Stand: 4. Oktober 2026
 - [ ] Danach die 303 in Pack neu packen (Taschen für diese Tour prüfen).
 
 ## Läuft
-- Ready-Check aufräumen: Rückfragen an Noah offen.
-- Prototyp ablösen: Vorschlag an Noah offen.
+- Noah testet Pack mit der 303 (Testplan im Chat).
 
 ## Als Nächstes
 1. Bike care verfeinern nach deinem ersten Durchgang und den Service-Fotos.
 2. Packen verfeinern nach deinem ersten Test mit der 303.
-3. Prototyp ablösen, wenn die 303 in der neuen App gepackt ist.
 3. Bike care (Wartung mit Erinnerung zum Event-Datum).
 4. Debrief, danach Learnings.
 5. Gear: Board-Seite (Kacheln nach Gewicht) als zweite Ansicht.

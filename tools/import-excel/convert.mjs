@@ -22,7 +22,7 @@ if (!args.excel || !args.translations || !args.out) {
 }
 
 // ---------- English texts from the public prototype ----------
-const protoPath = fileURLToPath(new URL('../../public/cockpit/index.html', import.meta.url));
+const protoPath = fileURLToPath(new URL('../../archive/cockpit/index.html', import.meta.url));
 const proto = readFileSync(protoPath, 'utf8');
 /** Read `var NAME = [ ... ];` out of the prototype and evaluate the array literal. */
 function protoArray(name) {

@@ -5,24 +5,39 @@
  * A trip stores:
  *   bikeId, setup     which bike, and which bag sits where for this trip (copied from the bike)
  *   entries           [{ itemId, slot, qty, packed }]  slot = a bike place, "body" or "mounted"
- *   ready             [{ id, group, label, itemId?, done }]  this trip's ready check
+ *   ready             [{ id, label, done }]  this trip's ready check (older trips may still have group/itemId)
  */
 import { SLOT, SLOTS, FIXED_ZONES, addedWeight } from './bikes.js';
 import { isInventory } from './gear.js';
 
-/** The fixed ready-check list, suggested for every new trip (decision 7: editable per trip). */
+/**
+ * The ready check suggested for every new trip (decision 7: editable per trip).
+ * Cleaned up 4.10.2026 with Noah: one short list without groups; the "always with me" items
+ * are now normal items marked "On every trip" (see alwaysEntries). Noah can save his own
+ * list as the standard (setting "readyStandard"), which then replaces this one.
+ */
 export const READY_DEFAULT = [
-  { id: 'gear', group: 'Packing', label: 'Riding gear ready' },
-  { id: 'charged', group: 'Power and fuel', label: 'All devices charged' },
-  { id: 'carbs', group: 'Power and fuel', label: 'Carbs and bottles ready' },
-  { id: 'a1', group: 'Always with me', label: 'AirPods', itemId: 'EL13', slot: 'top' },
-  { id: 'a2', group: 'Always with me', label: 'Garmin', itemId: 'EL07', slot: 'mounted' },
-  { id: 'a3', group: 'Always with me', label: 'HR strap', itemId: 'EL10', slot: 'body' },
-  { id: 'a4', group: 'Always with me', label: 'Glasses', itemId: 'KL22', slot: 'body' },
-  { id: 'a5', group: 'Always with me', label: 'Sunscreen', itemId: 'HY01', slot: 'top' },
-  { id: 'a6', group: 'Always with me', label: 'Lock', itemId: 'WZ23', slot: 'frame' },
+  { id: 'kit', label: 'Helmet, shoes, gloves' },
+  { id: 'charged', label: 'Devices charged' },
+  { id: 'fuel', label: 'Bottles filled, food packed' },
+  { id: 'backpack', label: 'Backpack packed' },
+  { id: 'route', label: 'Route on the Garmin' },
+  { id: 'tyres', label: 'Tyre pressure checked' },
+  { id: 'wallet', label: 'Phone, wallet, keys' },
+  { id: 'tracking', label: 'Live tracking on, someone knows the route' },
 ];
-export const freshReady = () => READY_DEFAULT.map((r) => ({ ...r, done: false }));
+/** Where the old "Always with me" checks put a missing item (used once when trips are updated). */
+export const ALWAYS_OLD = { EL13: 'top', EL07: 'mounted', EL10: 'body', KL22: 'body', HY01: 'top', WZ23: 'frame' };
+/** A fresh ready check: the saved standard (if any) or the suggested list, nothing ticked. */
+export const freshReady = (standard = null) => (standard?.length ? standard : READY_DEFAULT).map((r) => ({ id: r.id, label: r.label, done: false }));
+
+/** Items marked "On every trip" that are not on these entries yet, in their usual place. */
+export function alwaysEntries(items, entries, setup) {
+  const on = new Set(entries.map((e) => e.itemId));
+  return items
+    .filter((i) => i.always && isInventory(i) && !on.has(i.id))
+    .map((i) => ({ itemId: i.id, slot: slotFor(i.defaultBag, setup), qty: 1, packed: false }));
+}
 
 /** Zone names for "body", "mounted" and every bike place. */
 export const ZONE = Object.fromEntries([...FIXED_ZONES, ...SLOTS].map((z) => [z.key, z]));
@@ -52,13 +67,14 @@ export function lastTripOn(bikeId, trips) {
  * A new trip (decision 5a): a copy of the last trip with the same bike,
  * or the standard set when this bike has no trip yet. Nothing is ticked off.
  */
-export function newTrip({ title, startDate, days, bike }, trips, items, now = Date.now()) {
+export function newTrip({ title, startDate, days, bike, readyStandard = null }, trips, items, now = Date.now()) {
   const from = lastTripOn(bike.id, trips);
   const setup = { ...(bike.setup ?? {}) };
   const known = new Set(items.map((i) => i.id));
   const entries = from
     ? from.entries.filter((e) => known.has(e.itemId)).map((e) => ({ ...e, slot: e.slot === 'body' || e.slot === 'mounted' || setup[e.slot] ? e.slot : slotFor(e.slot, setup), packed: false }))
     : standardEntries(items, setup);
+  entries.push(...alwaysEntries(items, entries, setup));
   return {
     id: `trip-${now.toString(36)}`,
     domain: 'bikepacking',
@@ -69,7 +85,7 @@ export function newTrip({ title, startDate, days, bike }, trips, items, now = Da
     bike: bike.name,
     setup,
     entries,
-    ready: freshReady(),
+    ready: freshReady(readyStandard),
     status: 'planned',
     copiedFrom: from?.id ?? null,
     createdAt: new Date(now).toISOString(),

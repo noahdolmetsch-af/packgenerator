@@ -3,7 +3,7 @@
 Personal packing app: gear inventory, trip packing and post-trip debriefs. Installable web app (PWA) for desktop and Android, works offline.
 
 - App: https://noahdolmetsch-af.github.io/packgenerator/
-- Prototype (Bike Cockpit): https://noahdolmetsch-af.github.io/packgenerator/cockpit/
+- Prototype (Bike Cockpit): archived in `archive/cockpit/` (no longer online)
 
 ## Develop
 

@@ -4,7 +4,7 @@
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, formatVolume, sortBikes } from '../lib/bikes.js';
   import { CATEGORY, CATEGORIES, formatWeight, isInventory, matches, weighQueue } from '../lib/gear.js';
-  import { tripStats, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, READY_DEFAULT, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor } from '../lib/trips.js';
+  import { tripStats, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor } from '../lib/trips.js';
   import { RIDES, layerSuggest, layerDone, applyLayers, openRows, waterOn } from '../lib/layers.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import BikeStage from '../lib/bikes/BikeStage.svelte';
@@ -130,23 +130,22 @@
 
   const setBag = (slotKey, bagId) => change((t) => ({ setup: { ...t.setup, [slotKey]: bagId || null } }));
 
-  // Ready check (decision 7 and 6a): edits change only this trip.
+  // Ready check (decision 7, mockup 6a, cleanup 4.10.2026): one short list, edits change only this trip.
+  const standardQ = liveQuery(() => db.settings.get('readyStandard'));
+  const standard = $derived($standardQ?.value ?? null);
   const ready = $derived(trip?.ready ?? []);
-  const readyGroups = $derived([...new Set(ready.map((r) => r.group))].map((g) => ({ group: g, rows: ready.filter((r) => r.group === g) })));
-  const readyCount = $derived(ready.filter((r) => trip && readyDone(r, trip)).length + (stats && stats.count && stats.packed === stats.count ? 1 : 0));
-  const readyTotal = $derived(ready.length + 1);
-  const allTicked = $derived(!!stats?.count && stats.packed === stats.count);
+  const readyCount = $derived(ready.filter((r) => trip && readyDone(r, trip)).length);
+  const readyTotal = $derived(ready.length);
   // Mockup answer 6a: only a short version next to the bag, the whole check opens on a click.
   let readyOpen = $state(false);
   const readyOpenNames = $derived.by(() => {
-    if (!trip || !stats) return '';
+    if (!trip) return '';
     const open = ready.filter((r) => !readyDone(r, trip)).map((r) => r.label);
-    if (!allTicked) open.unshift(`${stats.count - stats.packed} items to tick off`);
     return open.length > 4 ? `${open.slice(0, 4).join(', ')} and ${open.length - 4} more` : open.join(', ');
   });
   function toggleReady(row) {
     if (row.itemId) {
-      // An "always with me" item that is missing gets added to its usual place.
+      // Older trips: an "always with me" row adds its missing item to its usual place.
       if (!readyDone(row, trip) && itemsById[row.itemId]) {
         const slot = row.slot === 'body' || row.slot === 'mounted' || trip.setup?.[row.slot] ? row.slot : 'body';
         return setEntries((es) => [...es, { itemId: row.itemId, slot, qty: 1, packed: false }]);
@@ -155,16 +154,26 @@
     }
     change((t) => ({ ready: t.ready.map((r) => (r.id === row.id ? { ...r, done: !r.done } : r)) }));
   }
+  // Answer 4: accept everything with one click.
+  const tickAllReady = () => change((t) => ({ ready: t.ready.map((r) => (r.itemId ? r : { ...r, done: true })) }));
   const removeReady = (id) => change((t) => ({ ready: t.ready.filter((r) => r.id !== id) }));
   function addReady(event) {
     event.preventDefault();
     const label = newCheck.trim();
     if (!label) return;
     newCheck = '';
-    change((t) => ({ ready: [...t.ready, { id: `own-${Date.now().toString(36)}`, group: 'This trip', label, done: false }] }));
+    change((t) => ({ ready: [...t.ready, { id: `own-${Date.now().toString(36)}`, label, done: false }] }));
   }
-  const resetReady = () => confirm('Use the standard ready check again for this trip?') && change(() => ({ ready: freshReady() }));
-  const readyChanged = $derived(ready.map((r) => r.id).join() !== READY_DEFAULT.map((r) => r.id).join());
+  const resetReady = () => confirm('Use your standard ready check again for this trip?') && change(() => ({ ready: freshReady(standard) }));
+  const readyChanged = $derived(ready.map((r) => r.label).join('|') !== freshReady(standard).map((r) => r.label).join('|'));
+  // Answer 4: save this trip's list as the standard for every new trip.
+  let savedNote = $state('');
+  async function saveStandard() {
+    const list = ready.filter((r) => !r.itemId).map((r, n) => ({ id: r.id.startsWith('own-') ? `std-${n}-${Date.now().toString(36)}` : r.id, label: r.label }));
+    await db.settings.put({ key: 'readyStandard', value: list });
+    savedNote = 'Saved. New trips start with this list.';
+    setTimeout(() => (savedNote = ''), 4000);
+  }
 
   // Answer 7: weigh what is on this trip, right here.
   let weighing = $state(false);
@@ -192,7 +201,7 @@
   const takeLayer = (row) => setEntries((es) => applyLayers(es, [row], slotOf));
   const openLayers = $derived(trip ? openRows(suggestion, trip) : []);
   // Mockup answer 3a: a small label in "Not packed" says why an item is suggested.
-  const tagOf = (i) => suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (i.role === 'standard' || i.role === 'worn' ? 'standard' : '');
+  const tagOf = (i) => suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (i.always ? 'every trip' : i.role === 'standard' || i.role === 'worn' ? 'standard' : '');
   // Round D answer 5: take an alternative (mini lock) or nothing instead of the usual item.
   const pickLayer = (slot, value) => change((t) => ({ layerPick: { ...(t.layerPick ?? {}), [slot]: value === slot ? null : value } }));
   const addAllLayers = () => setEntries((es) => applyLayers(es, openLayers, slotOf));
@@ -345,31 +354,29 @@
 
     {#snippet readyFull()}
       <ul>
-        <li class="auto" class:done={allTicked}>
-          <span class="box" aria-hidden="true">{allTicked ? '✓' : ''}</span>
-          <span>{allTicked ? 'Every bag ticked off' : `${stats.count - stats.packed} items not ticked off yet`}</span>
-        </li>
+        {#each ready as r (r.id)}
+          {@const done = readyDone(r, trip)}
+          <li class:done>
+            <label class="ck">
+              <input type="checkbox" checked={done} disabled={!!r.itemId && done} onchange={() => toggleReady(r)} />
+              <span>{r.label}{#if r.itemId && !done}<small class="warn"> not on this trip, tick to add it</small>{/if}</span>
+            </label>
+            <button type="button" class="x" aria-label="Remove {r.label} from this trip's check" onclick={() => removeReady(r.id)}>×</button>
+          </li>
+        {/each}
       </ul>
-      {#each readyGroups as g (g.group)}
-        <h3>{g.group}</h3>
-        <ul>
-          {#each g.rows as r (r.id)}
-            {@const done = readyDone(r, trip)}
-            <li class:done>
-              <label class="ck">
-                <input type="checkbox" checked={done} disabled={!!r.itemId && done} onchange={() => toggleReady(r)} />
-                <span>{r.label}{#if r.itemId && !done}<small class="warn"> not on this trip, tick to add it</small>{/if}</span>
-              </label>
-              <button type="button" class="x" aria-label="Remove {r.label} from this trip's check" onclick={() => removeReady(r.id)}>×</button>
-            </li>
-          {/each}
-        </ul>
-      {/each}
       <form class="addcheck" onsubmit={addReady}>
         <input class="inp" bind:value={newCheck} placeholder="Add a check for this trip" aria-label="Add a check for this trip" />
         <button type="submit" class="btn">Add</button>
       </form>
-      {#if readyChanged}<button type="button" class="link" onclick={resetReady}>Back to the standard list</button>{/if}
+      <p class="ready-acts">
+        {#if readyCount < readyTotal}<button type="button" class="btn hi" onclick={tickAllReady}>Tick all checks</button>{/if}
+        {#if readyChanged}
+          <button type="button" class="btn" onclick={saveStandard}>Save as my standard</button>
+          <button type="button" class="link" onclick={resetReady}>Back to my standard list</button>
+        {/if}
+      </p>
+      {#if savedNote}<p class="ok" role="status">{savedNote}</p>{/if}
     {/snippet}
 
     {#snippet target()}
@@ -1208,13 +1215,6 @@
     align-items: baseline;
     border-bottom: 3px solid var(--ink);
   }
-  .ready h3 {
-    margin: 12px 0 4px;
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }
   .ready li {
     display: flex;
     align-items: center;
@@ -1225,15 +1225,12 @@
   .ready li.done span {
     color: var(--ink-3);
   }
-  .ready .auto .box {
-    width: 22px;
-    height: 22px;
-    border: 2px solid var(--ink-3);
-    border-radius: 3px;
-    display: grid;
-    place-items: center;
-    font-size: 14px;
-    flex: none;
+  .ready-acts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    margin: 0 0 8px;
   }
   .addcheck {
     display: grid;
