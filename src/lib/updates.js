@@ -84,35 +84,52 @@ async function lightSet2026(db) {
 }
 
 /**
- * 4.10.2026, round C answer 2: layers on top of the every-ride base.
- * Daily ride: wind jacket, midlayer, lock. Training ride: 1 bottle, 1 carb mix and 1 gel per 3 hours.
- * Below 10 °C: leg warmers, buff, thin gloves, warm vest. Below 5 °C also: warm Rapha base layer,
- * warm Gore jersey, long gloves. Rain: rain trousers, rain jacket, rain socks, clear glasses, overshoes (optional).
- * Bottles carry their litres of water (answer 8). Only empty fields are filled, once.
+ * 4.10.2026, rounds C and D: layers on top of the every-ride base (15 °C and dry is the base).
+ * Daily ride: wind jacket, midlayer, large lock (mini lock instead, or none). Training ride: 1 bottle,
+ * 1 carb mix and 1 gel per 3 hours, at most 2 bottles (refill the rest).
+ * Below 15 °C: arm warmers, leg warmers, wind vest. Below 10 °C: buff, thin gloves (instead of
+ * fingerless), cosy fleece gilet. Below 5 °C: warm Rapha base layer instead of the sleeveless one,
+ * warm Gore jersey instead of the short one, long chilled trousers instead of shorts, thin rain
+ * trousers, rain jacket, clear glasses instead of sunglasses.
+ * Rain: rain trousers, rain jacket, rain socks, clear glasses, overshoes (optional).
+ * Bottles carry their litres of water. Only empty fields are filled, once.
  */
+const NEW_ITEMS = [
+  { key: 'trousers', name: 'Trainerhose lang chillig', category: 'onbike', defaultBag: 'body', carry: 'body', coldBelow: 5, replaces: 'KL03' },
+  { key: 'gilet', name: 'Gilet Fleece kuschelig', category: 'onbike', defaultBag: 'seat', carry: 'body', coldBelow: 10 },
+];
 const LAYERS = {
-  RG14: { ride: 'daily' }, KL26: { ride: 'daily' }, WZ24: { ride: 'daily' },
-  FD01: { perHours: 3, waterL: 1 }, FD07: { perHours: 3 }, FD05: { perHours: 3 }, FD02: { waterL: 0.5 },
-  KL14: { coldBelow: 10 }, KL15: { coldBelow: 10 }, KL18: { coldBelow: 10 }, KL13: { coldBelow: 10 },
-  KL07: { coldBelow: 5 }, KL08: { coldBelow: 5 },
-  RG06: { rain: 'yes' }, RG01: { rain: 'yes' }, RG07: { rain: 'yes' }, RG10: { rain: 'yes' }, RG08: { rain: 'optional' },
+  RG14: { ride: 'daily' }, KL26: { ride: 'daily' }, WZ24: { ride: 'daily' }, WZ23: { altFor: 'WZ24' },
+  FD01: { perHours: 3, waterL: 1, maxQty: 2 }, FD07: { perHours: 3 }, FD05: { perHours: 3 }, FD02: { waterL: 0.5 },
+  RG17: { coldBelow: 15 }, KL14: { coldBelow: 15 }, KL12: { coldBelow: 15 },
+  KL15: { coldBelow: 10 }, KL18: { coldBelow: 10, replaces: 'KL17' },
+  KL07: { coldBelow: 5, replaces: 'KL05' }, KL08: { coldBelow: 5, replaces: 'KL04' },
+  RG06: { coldBelow: 5, rain: 'yes' }, RG01: { coldBelow: 5, rain: 'yes' }, RG10: { coldBelow: 5, rain: 'yes', replaces: 'KL22' },
+  RG07: { rain: 'yes' }, RG08: { rain: 'optional' },
 };
 async function layers2026(db) {
   if (await db.settings.get('update.layers2026')) return false;
   await db.transaction('rw', db.items, db.settings, async () => {
+    const all = await db.items.toArray();
+    for (const n of NEW_ITEMS) {
+      if (all.some((i) => i.name === n.name)) continue;
+      const { key, ...fields } = n;
+      const used = all.filter((i) => i.id.startsWith('KL')).map((i) => parseInt(i.id.slice(2), 10) || 0);
+      const id = 'KL' + String(Math.max(0, ...used) + 1).padStart(2, '0');
+      const item = {
+        id, brand: '', model: '', weightG: null, qty: 1, weightStatus: 'missing', ownership: 'owned', role: null,
+        sets: [], kits: [], domains: ['bikepacking'], note: 'Added 4.10.2026 from the chat. Weigh it.', updatedAt: now(), ...fields,
+      };
+      await db.items.put(item);
+      all.push(item);
+    }
     for (const [id, fields] of Object.entries(LAYERS)) {
-      const item = await db.items.get(id);
+      const item = all.find((i) => i.id === id);
       if (!item) continue;
       const todo = Object.fromEntries(Object.entries(fields).filter(([k]) => item[k] == null));
+      // The wind vest moves from "every ride" to "below 15 °C" (15 °C is the base).
+      if (id === 'KL12' && item.role === 'worn' && item.coldBelow == null) todo.role = null;
       if (Object.keys(todo).length) await db.items.update(id, todo);
-    }
-    // Long warm gloves for below 5 °C are not in the Excel list: added as "unclear" for the inventory check.
-    if (!(await db.items.filter((i) => i.name === 'Warm long gloves').count()) && !(await db.items.get('KL28'))) {
-      await db.items.put({
-        id: 'KL28', name: 'Warm long gloves', brand: '', model: '', category: 'onbike', weightG: null, qty: 1, weightStatus: 'missing',
-        carry: 'body', defaultBag: 'pouchR', ownership: 'unclear', role: null, sets: [], kits: [], domains: ['bikepacking'], coldBelow: 5,
-        note: 'Added 4.10.2026 from the chat ("handschuhe lang" below 5 °C). Check it in the inventory.', updatedAt: now(),
-      });
     }
     await db.settings.put({ key: 'update.layers2026', value: now() });
   });

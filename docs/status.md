@@ -22,7 +22,8 @@ Stand: 4. Oktober 2026
 - [ ] Prototyp-Daten sichern: im Bike Cockpit auf "Saved · Backup" tippen → Export, Datei aufbewahren.
 - [ ] **Inventar durchgehen:** Gear → "Check inventory" (am Phone Tab "Check"). Pro Teil: Still have it / Gone / Replaced by… / fehlende Teile mit "Add item" ergänzen.
 - [ ] Scott Scale, Scott Spark und Factor LS wägen (ohne Taschen, mit Garmin-, Quad-Lock- und Flaschenhalterungen) und auf "Bikes" eintragen. Canyon ist erledigt (10.1 kg).
-- [ ] Schichten prüfen: Gear → Edit → "Layers". Fehlt noch: was bei 15 °C dazukommt, welche "Trainerhose", ob "Warm long gloves" (neu, Status unclear) stimmt.
+- [ ] Neue Teile wägen: "Trainerhose lang chillig" und "Gilet Fleece kuschelig".
+- [ ] Bike care einmal durchspielen (Fragen im Chat).
 - [ ] Full-Frame-Tasche wägen (neu in Gear, TA14).
 - [ ] Danach die 303 in Pack neu packen (Taschen für diese Tour prüfen).
 

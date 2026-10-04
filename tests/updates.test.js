@@ -33,16 +33,22 @@ describe('chat updates', () => {
     const db = createDb('layers-test');
     await db.items.bulkPut([
       { id: 'KL14', name: 'Leg warmers', ownership: 'owned' },
+      { id: 'KL12', name: 'Wind vest', ownership: 'owned', role: 'worn' },
+      { id: 'KL27', name: 'Long underwear', ownership: 'owned' },
       { id: 'RG08', name: 'Overshoes', ownership: 'owned', rain: 'yes' },
       { id: 'FD01', name: 'Bottle 1.0 L', ownership: 'owned' },
     ]);
     await applyUpdates(db);
-    expect(await db.items.get('KL14')).toMatchObject({ coldBelow: 10 });
+    expect(await db.items.get('KL14')).toMatchObject({ coldBelow: 15 });
+    expect(await db.items.get('KL12')).toMatchObject({ coldBelow: 15, role: null });
     expect((await db.items.get('RG08')).rain).toBe('yes');
-    expect(await db.items.get('FD01')).toMatchObject({ perHours: 3, waterL: 1 });
-    expect(await db.items.get('KL28')).toMatchObject({ name: 'Warm long gloves', ownership: 'unclear', coldBelow: 5 });
+    expect(await db.items.get('FD01')).toMatchObject({ perHours: 3, waterL: 1, maxQty: 2 });
+    expect(await db.items.get('KL28')).toMatchObject({ name: 'Trainerhose lang chillig', coldBelow: 5, replaces: 'KL03' });
+    expect(await db.items.get('KL29')).toMatchObject({ name: 'Gilet Fleece kuschelig', coldBelow: 10 });
     await db.items.update('KL14', { coldBelow: 8 });
+    await db.settings.delete('update.layers2026');
     await applyUpdates(db);
     expect((await db.items.get('KL14')).coldBelow).toBe(8);
+    expect(await db.items.count()).toBe(7);
   });
 });

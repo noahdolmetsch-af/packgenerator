@@ -51,6 +51,31 @@ describe('layers', () => {
     expect(waterOn({ entries: [{ itemId: 'BOTTLE', qty: 2 }] }, { BOTTLE: items[3] })).toBe(2);
   });
 
+  it('swaps an every-ride item for the warm one, offers alternatives and caps bottles', () => {
+    const list = [
+      own('SHORT', { role: 'worn', defaultBag: 'body' }),
+      own('WARM', { coldBelow: 5, replaces: 'SHORT', defaultBag: 'body' }),
+      own('LOCK', { ride: 'daily' }),
+      own('MINI', { altFor: 'LOCK' }),
+      own('BOTTLE', { ride: 'training', perHours: 3, maxQty: 2 }),
+    ];
+    const trip = { ride: 'training', hours: 8, wx: { min: 0, max: 4 }, entries: [{ itemId: 'SHORT', slot: 'body', qty: 1 }] };
+    const rows = layerSuggest(trip, list);
+    expect(rows.map((r) => r.id)).toEqual(['LOCK', 'BOTTLE', 'WARM']);
+    expect(rows.find((r) => r.id === 'BOTTLE').qty).toBe(2);
+    expect(rows.find((r) => r.id === 'LOCK').alts).toEqual(['LOCK', 'MINI']);
+    const entries = applyLayers(trip.entries, rows, () => 'seat');
+    expect(entries.map((e) => e.itemId)).toEqual(['LOCK', 'BOTTLE', 'WARM']); // shorts are off
+    const mini = layerSuggest({ ...trip, layerPick: { LOCK: 'MINI' } }, list);
+    expect(mini[0]).toMatchObject({ id: 'MINI', slot: 'LOCK' });
+    const none = layerSuggest({ ...trip, layerPick: { LOCK: 'none' } }, list);
+    expect(none[0].skipped).toBe(true);
+    expect(applyLayers([], none, () => 'seat').some((e) => e.itemId === 'LOCK')).toBe(false);
+    // Only packed (not worn) the warm layer leaves the shorts on.
+    const mild = layerSuggest({ ...trip, wx: { min: 2, max: 12 } }, list).find((r) => r.id === 'WARM');
+    expect(mild).toMatchObject({ place: 'pack', replaces: null });
+  });
+
   it('moves a replaced item to its successor on a trip', () => {
     const trip = { entries: [{ itemId: 'A', slot: 'seat', packed: true }], ready: [{ id: 'r', itemId: 'A' }] };
     expect(swapInTrip(trip, 'A', 'B')).toEqual({ entries: [{ itemId: 'B', slot: 'seat', packed: false }], ready: [{ id: 'r', itemId: 'B' }] });

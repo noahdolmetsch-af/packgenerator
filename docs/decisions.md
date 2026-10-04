@@ -81,3 +81,10 @@ Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
 | 4.10.2026 | Achslast wird angezeigt; Hinweis, wenn hinten mehr als 60 % liegt (einstellbar auf Bikes) | Noah, Runde C Antwort 5 |
 | 4.10.2026 | Wetter manuell; Druckliste mit Abhak-Kästchen; Wasser als Liter pro Flasche, im Systemgewicht enthalten | Noah, Runde C Antworten 6, 7, 8 |
 | 4.10.2026 | Als Nächstes: Bike care mit Erinnerungen vor dem Event. Teilen der Packliste ist nicht nötig | Noah, Runde C Antworten 9, 10 |
+| 4.10.2026 | **15 °C und trocken ist die Basis.** Unter 15 °C: Armlinge, Beinlinge, Windweste (die Windweste ist darum nicht mehr "every ride"). Unter 10 °C: Buff, dünne Handschuhe, neues Teil "Gilet Fleece kuschelig". Unter 5 °C: neues Teil "Trainerhose lang chillig", Regenhose dünn, Regenjacke | Noah, Runde D Antworten 1, 2, 4 |
+| 4.10.2026 | "Handschuhe lang" sind die Thin long gloves (kein neues Teil) | Noah, Runde D Antwort 3 |
+| 4.10.2026 | Kälte **tauscht** Basis-Teile, wenn sie getragen wird: warmes Rapha-Baselayer statt ärmellos, warmes Gore-Trikot statt kurzem Trikot, Trainerhose statt Shorts, dünne Handschuhe statt Halbfinger, klare Brille statt Sonnenbrille. Wird die Schicht nur eingepackt, bleibt das Basis-Teil | Noah, Runde D Antwort 7; Einpack-Regel Annahme von Claude |
+| 4.10.2026 | Daily ride: grosses Schloss, pro Tour wählbar Mini cable lock oder kein Schloss | Noah, Runde D Antwort 5 |
+| 4.10.2026 | Flaschen: 1 pro 3 h, höchstens 2, Rest unterwegs nachfüllen; eine Extra-Flasche von Hand mit + | Noah, Runde D Antwort 6 |
+| 4.10.2026 | Bike care: Erinnerung nach 1000 km; Wartungsliste aus dem Excel-Blatt "Wartung" als Start, den Ablauf spielen wir vorher einmal komplett durch | Noah, Runde D Antworten 8, 9 |
+| 4.10.2026 | Herstellergewicht der Velos nur als Hinweis neben dem gewogenen Gewicht | Noah, Runde D Antwort 10 |

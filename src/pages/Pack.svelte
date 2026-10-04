@@ -5,7 +5,7 @@
   import { SLOTS, bagsFor, formatVolume, sortBikes } from '../lib/bikes.js';
   import { CATEGORY, CATEGORIES, formatWeight, isInventory, matches, weighQueue } from '../lib/gear.js';
   import { tripStats, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, READY_DEFAULT, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor } from '../lib/trips.js';
-  import { RIDES, layerSuggest, layerDone, applyLayers, waterOn } from '../lib/layers.js';
+  import { RIDES, layerSuggest, layerDone, applyLayers, openRows, waterOn } from '../lib/layers.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import BikeStage from '../lib/bikes/BikeStage.svelte';
   import TripDialog from '../lib/pack/TripDialog.svelte';
@@ -158,7 +158,9 @@
   }
   const slotOf = (id) => slotFor(itemsById[id]?.defaultBag, trip.setup);
   const takeLayer = (row) => setEntries((es) => applyLayers(es, [row], slotOf));
-  const openLayers = $derived(trip ? suggestion.filter((r) => !r.optional && !layerDone(r, trip)) : []);
+  const openLayers = $derived(trip ? openRows(suggestion, trip) : []);
+  // Round D answer 5: take an alternative (mini lock) or nothing instead of the usual item.
+  const pickLayer = (slot, value) => change((t) => ({ layerPick: { ...(t.layerPick ?? {}), [slot]: value === slot ? null : value } }));
   const addAllLayers = () => setEntries((es) => applyLayers(es, openLayers, slotOf));
 
   // Answer 3: a bigger bag for the same place, when the open bag is too full.
@@ -353,11 +355,19 @@
                 <div class="sugg">
                   <p class="sugg-h"><b>Layers for this ride</b>{#if openLayers.length}<button type="button" class="btn sm hi" onclick={addAllLayers}>Add all {openLayers.length}</button>{:else}<span class="ok">All set</span>{/if}</p>
                   <ul>
-                    {#each suggestion as r (r.id)}
-                      <li>
+                    {#each suggestion as r (r.slot)}
+                      <li class:skip={r.skipped}>
                         <span class="wt">{r.why}</span>
-                        <span class="nm">{itemsById[r.id]?.name}{#if r.qty > 1}<small> × {r.qty}</small>{/if}</span>
-                        {#if layerDone(r, trip)}<span class="ok">{r.place === 'wear' ? 'On me' : 'Packed'}</span>{:else}<button type="button" class="btn sm" onclick={() => takeLayer(r)}>{r.place === 'wear' ? 'Wear' : 'Pack'}</button>{/if}
+                        <span class="nm">
+                          {#if r.alts.length}
+                            <select class="sel alt" aria-label="Choose for {itemsById[r.slot]?.name}" value={r.skipped ? 'none' : r.id} onchange={(e) => pickLayer(r.slot, e.currentTarget.value)}>
+                              {#each r.alts as a (a)}<option value={a}>{itemsById[a]?.name}</option>{/each}
+                              <option value="none">None</option>
+                            </select>
+                          {:else}{itemsById[r.id]?.name}{/if}{#if r.qty > 1}<small> × {r.qty}</small>{/if}
+                          {#if r.replaces}<small class="instead">instead of {itemsById[r.replaces]?.name}</small>{/if}
+                        </span>
+                        {#if r.skipped}<span class="ok muted">Skipped</span>{:else if layerDone(r, trip)}<span class="ok">{r.place === 'wear' ? 'On me' : 'Packed'}</span>{:else}<button type="button" class="btn sm" onclick={() => takeLayer(r)}>{r.replaces ? 'Swap' : r.place === 'wear' ? 'Wear' : 'Pack'}</button>{/if}
                       </li>
                     {/each}
                   </ul>
@@ -656,6 +666,18 @@
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+    color: var(--ink-3);
+  }
+  .instead {
+    display: block;
+    color: var(--ink-3);
+  }
+  .sel.alt {
+    padding: 2px 6px;
+    font-size: 14px;
+    max-width: 100%;
+  }
+  .ok.muted {
     color: var(--ink-3);
   }
   .ok {

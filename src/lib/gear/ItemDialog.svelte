@@ -21,7 +21,7 @@
   );
   // Layers (round C answer 2): kept as text while editing, numbers in the database.
   function layerFields(src) {
-    return { ride: src.ride ?? '', rain: src.rain ?? '', coldBelow: src.coldBelow ?? '', perHours: src.perHours ?? '', waterL: src.waterL ?? '' };
+    return { ride: src.ride ?? '', rain: src.rain ?? '', coldBelow: src.coldBelow ?? '', perHours: src.perHours ?? '', waterL: src.waterL ?? '', maxQty: src.maxQty ?? '', replaces: src.replaces ?? '', altFor: src.altFor ?? '' };
   }
   const numOrNull = (v) => (String(v).trim() === '' || !Number.isFinite(Number(String(v).replace(',', '.'))) ? null : Number(String(v).replace(',', '.')));
   let error = $state('');
@@ -51,6 +51,9 @@
       coldBelow: numOrNull(rest.coldBelow),
       perHours: numOrNull(rest.perHours),
       waterL: numOrNull(rest.waterL),
+      maxQty: numOrNull(rest.maxQty),
+      replaces: rest.replaces || null,
+      altFor: rest.altFor || null,
       weightG,
       weightStatus: weightG == null ? 'missing' : weightG !== item?.weightG ? 'measured' : item.weightStatus,
       updatedAt: new Date().toISOString(),
@@ -85,7 +88,8 @@
         {#if item.ride}<div><dt>Layer</dt><dd>{RIDES.find((r) => r.key === item.ride)?.name}</dd></div>{/if}
         {#if item.coldBelow != null}<div><dt>Add when colder than</dt><dd>{item.coldBelow} °C</dd></div>{/if}
         {#if item.rain}<div><dt>Rain</dt><dd>{RAIN_ITEM[item.rain]}</dd></div>{/if}
-        {#if item.perHours}<div><dt>Amount</dt><dd>1 per {item.perHours} h</dd></div>{/if}
+        {#if item.perHours}<div><dt>Amount</dt><dd>1 per {item.perHours} h{item.maxQty ? `, at most ${item.maxQty}` : ''}</dd></div>{/if}
+        {#if item.replaces}<div><dt>When worn, instead of</dt><dd>{items.find((i) => i.id === item.replaces)?.name ?? item.replaces}</dd></div>{/if}
         {#if item.sets?.length}<div><dt>Overnight set</dt><dd>{item.sets.map((s) => SETS[s] ?? s).join(', ')}</dd></div>{/if}
         {#if item.qty > 1}<div><dt>Quantity</dt><dd>{item.qty} × {formatWeight(item.weightG)} = {formatWeight(itemWeight(item))}</dd></div>{/if}
       </dl>
@@ -147,6 +151,19 @@
             </select>
           </label>
           <label><span class="lbl">1 piece per … riding hours</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.perHours} placeholder="e.g. 3" /></label>
+          <label><span class="lbl">At most … pieces</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.maxQty} placeholder="e.g. 2" /></label>
+          <label><span class="lbl">When worn, instead of</span>
+            <select class="sel" bind:value={draft.replaces}>
+              <option value="">–</option>
+              {#each items.filter((i) => (i.role === 'worn' || i.role === 'standard') && i.id !== draft.id) as i (i.id)}<option value={i.id}>{i.name}</option>{/each}
+            </select>
+          </label>
+          <label><span class="lbl">Can be taken instead of</span>
+            <select class="sel" bind:value={draft.altFor}>
+              <option value="">–</option>
+              {#each items.filter((i) => i.ride && i.id !== draft.id) as i (i.id)}<option value={i.id}>{i.name}</option>{/each}
+            </select>
+          </label>
           <label><span class="lbl">Water in it (L)</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.waterL} placeholder="e.g. 0.75" /></label>
         </fieldset>
         <label class="wide"><span class="lbl">Note</span><textarea class="inp" rows="2" bind:value={draft.note}></textarea></label>
