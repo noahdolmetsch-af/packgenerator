@@ -4,6 +4,7 @@
    * #/debrief            trips to debrief, finished debriefs, all learnings
    * #/debrief/<tripId>   the three steps for one trip (saved while you go)
    * #/debrief/learnings  the same overview, scrolled to the learnings
+   * #/debrief/pace       the same overview, scrolled to "Your pace" (v0.19.0)
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -12,6 +13,7 @@
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems } from '../lib/debrief.js';
   import { parseActivitiesCsv, parseRideFile, ridesOnTrip } from '../lib/activities.js';
+  import Pace from '../lib/debrief/Pace.svelte';
 
   let { param = '' } = $props();
 
@@ -33,7 +35,7 @@
   const templates = $derived($tplQ?.value ?? []);
   const byId = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
 
-  const tripId = $derived(param && param !== 'learnings' ? decodeURIComponent(param) : null);
+  const tripId = $derived(param && param !== 'learnings' && param !== 'pace' ? decodeURIComponent(param) : null);
   const trip = $derived(tripId ? trips.find((t) => t.id === tripId) : null);
   const open = $derived(toDebrief(trips, debriefs));
   const done = $derived(
@@ -206,7 +208,7 @@
     return [...map].map(([topic, ls]) => ({ topic, ls: ls.sort((a, b) => (rank[a.priority] ?? 3) - (rank[b.priority] ?? 3)) })).sort((a, b) => b.ls.length - a.ls.length);
   });
   $effect(() => {
-    if (param === 'learnings' && $learnQ) queueMicrotask(() => document.getElementById('learnings')?.scrollIntoView());
+    if ((param === 'learnings' || param === 'pace') && $learnQ) queueMicrotask(() => document.getElementById(param)?.scrollIntoView());
   });
 </script>
 
@@ -373,6 +375,8 @@
         {/each}
       </section>
     {/if}
+
+    <Pace />
 
     {#if events.length}
       <section id="logbook" aria-labelledby="log-h">

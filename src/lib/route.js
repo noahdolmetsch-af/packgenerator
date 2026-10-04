@@ -102,11 +102,14 @@ export function routeStats(gpx, file = '') {
 /**
  * Riding hours with luggage: 16 km/h on the flat plus one hour for every 600 m of climbing.
  * A rough guess; "Riding hours" stays yours to change. Returns hours a day (0.5 steps).
+ * pace: your own speed and climbing rate (v0.19.0, see pace.js), else the standard.
  */
 export const SPEED_KMH = 16;
 export const CLIMB_MH = 600;
-export function ridingHours(route, days = 1) {
+export function ridingHours(route, days = 1, pace = null) {
   if (!route?.km) return null;
-  const total = route.km / SPEED_KMH + (route.gainM ?? 0) / CLIMB_MH;
+  const kmh = pace?.kmh || SPEED_KMH;
+  const climbMh = pace?.climbMh || CLIMB_MH;
+  const total = route.km / kmh + (route.gainM ?? 0) / climbMh;
   return Math.max(0.5, Math.round((total / Math.max(1, days)) * 2) / 2);
 }

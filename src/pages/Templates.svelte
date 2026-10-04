@@ -10,6 +10,7 @@
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { NIGHT_SETS } from '../lib/trips.js';
   import { RIDES } from '../lib/layers.js';
+  import { templateHints, applyTemplateHint, TEMPLATE_AFTER } from '../lib/debrief.js';
   import TemplateEdit from './TemplateEdit.svelte';
 
   // #/pack/templates/<id> opens the editor for one template (answer 7b).
@@ -24,6 +25,15 @@
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const bagsQ = liveQuery(() => db.containers.toArray());
   const templates = $derived([...($tplQ?.value ?? [])].sort((a, b) => a.name.localeCompare(b.name)));
+  // v0.19.0: after 3 debriefs the templates learn what you never use and what was missing.
+  const tripsQ = liveQuery(() => db.trips.toArray());
+  const debriefsQ = liveQuery(() => db.debriefs.toArray());
+  const itemsQ = liveQuery(() => db.items.toArray());
+  const doneN = $derived(($debriefsQ ?? []).filter((d) => d.status === 'done').length);
+  const hintsFor = (t) => templateHints(t, $tripsQ ?? [], $debriefsQ ?? [], $itemsQ ?? []);
+  async function applyHint(t, h) {
+    await saveTemplates(db, templates.map((x) => (x.id === t.id ? applyTemplateHint(x, h, $itemsQ ?? []) : x)));
+  }
   const bagName = $derived(Object.fromEntries(($bagsQ ?? []).map((b) => [b.id, b.name])));
 
   let error = $state('');
@@ -67,6 +77,7 @@
   <h1 class="title big">Templates</h1>
   <p class="hint">A template is a packing setup you can start new trips from. Save one on the Pack page with "Save as template". Change what is inside with "Edit", or from a trip made from it with "Save as template" → "Update".</p>
   {#if error}<p class="err" role="alert">{error}</p>{/if}
+  {#if templates.length && doneN < TEMPLATE_AFTER}<p class="hint">After {TEMPLATE_AFTER} debriefs the templates learn what you never use and what was missing ({doneN} of {TEMPLATE_AFTER} done).</p>{/if}
   <ul class="list">
     {#each templates as t (t.id)}
       <li class="card">
@@ -78,6 +89,19 @@
         </p>
         {#if bags(t).length}<p class="facts">Bags: {bags(t).join(', ')}</p>{/if}
         <p class="facts muted">Saved {t.updatedAt?.slice(0, 10)}</p>
+        {#if hintsFor(t).length}
+          <div class="hints">
+            <span class="lbl">From your debriefs</span>
+            <ul>
+              {#each hintsFor(t) as h (h.id)}
+                <li>
+                  <span><b>{h.kind === 'out' ? 'Take out' : 'Put in'}: {h.name}</b><small>{h.why}</small></span>
+                  <button type="button" class="btn sm" onclick={() => applyHint(t, h)}>{h.kind === 'out' ? 'Take out' : 'Put in'}</button>
+                </li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
         <div class="acts">
           <button type="button" class="btn hi" onclick={() => start(t)}>New trip from it</button>
           <a class="btn" href="#/pack/templates/{encodeURIComponent(t.id)}">Edit</a>
@@ -134,6 +158,32 @@
     flex-wrap: wrap;
     gap: 8px;
     margin-top: 12px;
+  }
+  .hints {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-left: 4px solid var(--ink);
+    background: var(--paper-2);
+    border-radius: 6px;
+  }
+  .hints ul {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+  }
+  .hints li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 0;
+  }
+  .hints li span {
+    min-width: 0;
+  }
+  .hints small {
+    display: block;
+    color: var(--ink-3);
   }
   .del {
     margin-left: auto;
