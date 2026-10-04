@@ -12,6 +12,7 @@
   import { sortBikes } from '../lib/bikes.js';
   import { tripStats, daysUntil, readyDone, RAIN } from '../lib/trips.js';
   import { defaultParts, careBeforeTrip, checkState, serviceDue, needsWork, wear, taskBike, isPrep } from '../lib/care.js';
+  import { forecastForTrip, toWx } from '../lib/weather.js';
   import { nextTrip, toDebrief, tripEnd, learningsFor, wishCount, unweighedCount } from '../lib/debrief.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -53,6 +54,8 @@
   const tips = $derived(learningsFor(next, learnings, 3));
   const debrief = $derived(toDebrief(trips, $debriefsQ ?? [])[0] ?? null);
   const wx = $derived(next?.wx);
+  // Answer 4a: the saved forecast (offline: the last one loaded).
+  const fc = $derived(next ? toWx(forecastForTrip(next)) : null);
 
   // One line per bike: what is due, else its weight.
   const bikeState = (b) => {
@@ -142,7 +145,7 @@
         </div>
         <p class="wx">
           <span class="lbl">Weather</span>
-          <span>{wx && typeof wx.min === 'number' ? `Packed for ${wx.min} to ${wx.max} °C, ${RAIN[wx.rain] ?? 'dry'}.` : 'Packed for 15 °C, dry (the base).'} Set the forecast in Pack a few days before.</span>
+          <span>{#if fc}Forecast{next.place ? ` ${next.place.name.split(',')[0]}` : ''}: {fc.min} to {fc.max} °C, {RAIN[fc.rain]}.{' '}{/if}{wx && typeof wx.min === 'number' ? `Packed for ${wx.min} to ${wx.max} °C, ${RAIN[wx.rain] ?? 'dry'}.` : 'Packed for 15 °C, dry (the base).'}{#if !fc} Set the start place in Pack to get the forecast.{/if}</span>
         </p>
         <div class="row">
           {#if days <= 2}

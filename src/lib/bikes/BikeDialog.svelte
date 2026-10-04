@@ -1,6 +1,7 @@
 <script>
   import { db } from '../db.js';
   import { SLOTS } from '../bikes.js';
+  import { shrinkImage } from '../photo.js';
 
   /** bike: the bike to edit, or null for "Add bike". */
   let { bike, bikes, oncreated, onclose } = $props();
@@ -8,7 +9,22 @@
   // svelte-ignore state_referenced_locally
   const isNew = !bike;
   // svelte-ignore state_referenced_locally
-  let draft = $state(bike ? { name: bike.name, type: bike.type ?? '', use: bike.use ?? '' } : { name: '', type: '', use: '' });
+  let draft = $state(bike ? { name: bike.name, type: bike.type ?? '', use: bike.use ?? '', photo: bike.photo ?? null } : { name: '', type: '', use: '', photo: null });
+  let reading = $state(false);
+  async function pickPhoto(event) {
+    const file = event.currentTarget.files[0];
+    event.currentTarget.value = '';
+    if (!file) return;
+    reading = true;
+    error = '';
+    try {
+      draft.photo = await shrinkImage(file);
+    } catch (err) {
+      error = err.message || 'This photo could not be read.';
+    } finally {
+      reading = false;
+    }
+  }
   let error = $state('');
   let dialog;
 
@@ -29,10 +45,10 @@
     if (!name) return (error = 'Give the bike a name.');
     if (isNew) {
       const id = newId(name);
-      await db.bikes.put({ id, name, type: draft.type.trim(), use: draft.use.trim(), gearing: [], openPoints: '', weightG: null, slots: SLOTS.map((s) => s.key), setup: {}, fixtures: [] });
+      await db.bikes.put({ id, name, type: draft.type.trim(), use: draft.use.trim(), gearing: [], openPoints: '', weightG: null, slots: SLOTS.map((s) => s.key), setup: {}, fixtures: [], photo: draft.photo });
       oncreated?.(id);
     } else {
-      await db.bikes.update(bike.id, { name, type: draft.type.trim(), use: draft.use.trim() });
+      await db.bikes.update(bike.id, { name, type: draft.type.trim(), use: draft.use.trim(), photo: draft.photo });
       await db.trips.filter((t) => t.bikeId === bike.id).modify({ bike: name });
     }
     dialog.close();
@@ -54,6 +70,14 @@
       <label class="wide"><span class="lbl">Name</span><input class="inp" bind:value={draft.name} required /></label>
       <label class="wide"><span class="lbl">Type</span><input class="inp" bind:value={draft.type} placeholder="e.g. Full suspension" /></label>
       <label class="wide"><span class="lbl">What you use it for</span><input class="inp" bind:value={draft.use} /></label>
+      <div class="wide photo">
+        <span class="lbl">Photo <small>shown in Pack behind the bags; side view works best</small></span>
+        {#if draft.photo}<img src={draft.photo} alt="{draft.name}" />{/if}
+        <div class="pacts">
+          <label class="btn sm">{reading ? 'Reading…' : draft.photo ? 'Other photo' : 'Choose photo'}<input type="file" accept="image/*" onchange={pickPhoto} hidden /></label>
+          {#if draft.photo}<button type="button" class="btn sm" onclick={() => (draft.photo = null)}>Remove photo</button>{/if}
+        </div>
+      </div>
     </div>
     <p class="err" role="alert">{error}</p>
     <div class="foot">
@@ -72,6 +96,26 @@
   .grid {
     display: grid;
     gap: 12px;
+  }
+  .photo {
+    display: grid;
+    gap: 6px;
+  }
+  .photo small {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+  }
+  .photo img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: var(--paper-2, #e6ebe3);
+  }
+  .pacts {
+    display: flex;
+    gap: 8px;
   }
   .err {
     color: #b42318;

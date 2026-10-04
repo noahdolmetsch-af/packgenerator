@@ -10,7 +10,7 @@
   import { formatWeight } from '../gear.js';
   import { formatVolume } from '../bikes.js';
 
-  let { cards, onpick, ondropitem = null, strip = false, label = 'Bags' } = $props();
+  let { cards, onpick, ondropitem = null, strip = false, label = 'Bags', photo = null } = $props();
   let over = $state(null);
 
   // Where a place sits around the bike: the body places on the left, then the bike in three
@@ -94,13 +94,18 @@
     <div class="me">
       {#each me as c (c.key)}{@render card(c)}{/each}
     </div>
-    <div class="bike">
+    <div class="bike" class:hasphoto={!!photo}>
+      {#if photo}
+        <!-- Answer 13b: the own bike behind the bags, pale so the boxes stay readable. -->
+        <img class="photo" src={photo} alt="" />
+      {:else}
       <svg viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <circle cx="130" cy="205" r="82" /><circle cx="515" cy="205" r="82" />
         <path d="M130 205 L285 205 L255 82 Z" /><path d="M258 88 L465 76 L478 120 L285 205" /><path d="M478 120 L515 205" />
         <path d="M255 82 L250 58" /><path d="M222 56 L280 56" />
         <path d="M465 76 L462 56 L494 50" />
       </svg>
+      {/if}
       {#each cells as cell (cell.area)}
         <div class="cell" style:grid-area={cell.area}>
           {#each cell.cards as c (c.key)}{@render card(c, SMALL.includes(c.key) && c.count < 3)}{/each}
@@ -150,6 +155,16 @@
     stroke-linejoin: round;
     fill: none;
     pointer-events: none;
+  }
+  .photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0.4;
+    pointer-events: none;
+    filter: grayscale(0.3);
   }
   .cell {
     position: relative;
