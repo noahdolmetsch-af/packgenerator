@@ -224,3 +224,12 @@ describe('missing item: similar gear (v0.18.1)', async () => {
     expect(similarItems('Map', items)).toEqual([]);
   });
 });
+
+describe('time plan hours (v0.19.0)', async () => {
+  const { planHours } = await import('../src/lib/ride.js');
+  it('counts riding blocks over midnight, not breaks', () => {
+    const schedule = [{ block: 'Block 1', from: '09:00', to: '12:00' }, { block: 'Break', from: '12:00', to: '13:00' }, { block: 'Block 2', from: '22:30', to: '01:30' }, { block: 'Note', from: null, to: null }];
+    expect(planHours({ plan: { schedule } })).toBe(6);
+    expect(planHours({})).toBe(null);
+  });
+});

@@ -131,6 +131,14 @@ export function blocks(trip, st) {
   return rows;
 }
 
+/** Riding hours in the time plan (breaks left out), or null without a plan. */
+export function planHours(trip) {
+  const plan = (trip?.plan?.schedule ?? []).filter((b) => b.from && b.to && !REST.test(b.block));
+  if (!plan.length) return null;
+  const mins = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+  return plan.reduce((h, b) => h + (((mins(b.to) - mins(b.from)) + 1440) % 1440 || 1440) / 60, 0);
+}
+
 /**
  * Climbing of one day: from the elevation profile, scaled to the route's total (the profile is
  * thinned, so it sees less climbing than the full file). Without a profile: an even share.

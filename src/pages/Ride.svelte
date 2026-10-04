@@ -12,7 +12,7 @@
   import { ageText, FORECAST_DAYS } from '../lib/weather.js';
   import Profile from '../lib/ui/Profile.svelte';
   import { paceOf, PACE_KEY } from '../lib/pace.js';
-  import { dayIndex, addTime, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, addRideNote, DEFAULT_START } from '../lib/ride.js';
+  import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, addRideNote, DEFAULT_START } from '../lib/ride.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -208,7 +208,8 @@
               </li>
             {/each}
           </ol>
-          <p class="muted small">{trip.plan?.schedule?.length ? 'Your time plan from the logbook.' : 'Blocks of 3 hours.'} km at {Math.round((st.km / st.hours) * 10) / 10} km/h, the same guess as the riding time.</p>
+          <p class="muted small">{trip.plan?.schedule?.length ? 'Your time plan from the logbook.' : 'Blocks of 3 hours.'} km at {Math.round((st.km / st.hours) * 10) / 10} km/h, the same guess as the riding time{pace.mine ? ` (your pace from ${pace.n} rides)` : ''}.</p>
+          {#if planHours(trip) > st.hours + 1}<p class="small warn">Your time plan has {Math.round(planHours(trip))} h of riding, the route about {st.hours} h. The plan ends where the route ends; is the GPX the whole route?</p>{/if}
         {/if}
         {#if prof}<div class="prof"><Profile points={prof.points} from={days > 1 ? prof.from : null} to={prof.to} label={days > 1 ? `Elevation, stage ${cur + 1} dark` : 'Elevation'} /></div>
         {:else}<p class="muted small">Load the GPX again in Pack to see the elevation profile.</p>{/if}

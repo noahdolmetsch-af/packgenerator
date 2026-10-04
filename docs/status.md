@@ -3,6 +3,7 @@
 Stand: 4. Oktober 2026
 
 ## Fertig
+- **App lernt (v0.19.0):** Debrief → "Your pace": GPX-Fahrten laden, die App rechnet dein Tempo (aus 8 Fahrten: 28.5 km/h plus 1 h pro 1070 m, Pausen +34 %). Pack und Ride day schätzen die Fahrzeit damit, der Ride day zeigt auch die Ankunft mit deinen üblichen Pausen. Nach 3 Debriefs schlagen die Templates vor, was raus kann (3× nicht gebraucht) und was rein soll (2× gefehlt). Neue Demo-Datei `private/demo/pack-generator-demo-app-lernt.json` (303, Hope 1000, Alpenbrevet).
 - **Eine Liste "Before the trip" (v0.18.2):** Startseite, Pack und Bike care zeigen dieselbe Liste mit derselben Zahl: Vorbereitungs-Aufgaben mit Datum, was das Velo braucht (Werkstatt ab 14 Tagen vorher, Fälliges immer) und offene Reparaturen dieses Velos. Überfälliges zuerst und rot. In Bike care stehen die Aufgaben der Tour jetzt alle im Abschnitt der Tour, nicht mehr verteilt auf "Due now".
 - **Probefahrt 303 (v0.18.1):** Die Lucerne 303 als Demo durchgespielt (14 Tage vorher, Packtag, Start, Nacht, Debrief). Daraus: Packtag warnt, wenn die Vorhersage kälter oder nasser ist als gepackt, und springt zu den passenden Layers; Debrief zeigt deine Notizen vom Tourtag und schlägt bei "fehlte" ähnliche Teile aus deinem Gear vor; Packtag am Phone ohne Querscrollen; Demo-Tag lässt sich mehrmals hintereinander wechseln. Demo-Datei: `private/demo/pack-generator-demo-lucerne-303.json` im Projektordner.
 - **Tagesansicht, Werkstatt-Erinnerung, Demo-Modus (v0.18.0):** Pack → "Ride day": alle Taschen mit Inhalt, Etappe mit km, Höhenmetern, Fahrzeit, Ankunft und Höhenprofil, Wetter Stunde für Stunde am Start und am Ziel (bleibt offline sichtbar), Notizen für den Debrief. Mehrtägige Touren: Tag für Tag; Nonstop: eine Etappe über Nacht mit deinen Blöcken. Am Tourtag öffnet die Startseite die Tagesansicht. Pack und Bike care zeigen ab 14 Tagen vor einer Tour, was die Werkstatt noch machen muss. Demo-Dateien starten einen Demo-Modus, "End demo" setzt alles zurück.
@@ -47,9 +48,9 @@ Stand: 4. Oktober 2026
 - [ ] Erstes Backup herunterladen (Startseite → Download backup).
 
 ## Läuft
-- 0.19.0 App lernt: dein Tempo aus den GPX-Dateien, Demo-Touren Hope 1000 und Alpenbrevet.
+- Nutzen pro Seite: Vorschläge N1-N16 im Dokument "Pack Generator: Mehr Nutzen pro Seite", 12 Fragen an Noah offen.
 
 ## Als Nächstes
-1. 0.19.0 App lernt: dein Tempo aus den GPX-Dateien, weitere Demo-Touren (Hope 1000, Alpenbrevet), danach schlägt die App nach 3 Debriefs Änderungen an den Vorlagen vor.
+1. 0.19.1-0.19.3: Nutzen pro Seite (nach Noahs Antworten).
 2. 0.20.0: ganze App Deutsch/Englisch umschaltbar.
 3. Paket 5: weitere Bereiche (Skitouren, Weekend-Trip, Weltreise) und Merkliste "All my favorite things".
