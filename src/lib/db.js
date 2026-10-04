@@ -34,7 +34,8 @@ export const DATA_TABLES = [
  * @property {string} id            Short ID from the Excel, e.g. "EL01"
  * @property {string} name          English name
  * @property {string} [nameDe]      Original German name from the Excel
- * @property {string} [brand]
+ * @property {string} [brand]     Maker only, e.g. "Garmin"
+ * @property {string} [model]     Model, colour or variant, e.g. "Edge 1040 Solar"
  * @property {string} category      e.g. "elec", "onbike", "sleep"
  * @property {number|null} weightG  Weight of one piece in grams; null = still to weigh
  * @property {number} qty

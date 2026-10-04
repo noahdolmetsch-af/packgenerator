@@ -1,4 +1,5 @@
 <script>
+  import { tidyBrands } from './brand.js';
   import { liveQuery } from 'dexie';
   import { db, DATA_TABLES } from './db.js';
   import { buildBackup, restoreBackup, validateBackup, countRows, backupFileName } from './backup.js';
@@ -18,7 +19,7 @@
   let folder = $state({ state: 'off' });
 
   const LABELS = {
-    items: 'Gear items', kits: 'Kits', trips: 'Trips', debriefs: 'Debriefs', learnings: 'Learnings',
+    items: 'Gear + wishlist', kits: 'Kits', trips: 'Trips', debriefs: 'Debriefs', learnings: 'Learnings',
     events: 'Events', maintenance: 'Maintenance tasks', bikes: 'Bikes', weightChecks: 'Weight checks', settings: 'Settings',
   };
 
@@ -62,6 +63,7 @@
   async function applyImport(mode) {
     try {
       await restoreBackup(db, pending.data, mode);
+      await tidyBrands(db);
       message = `Imported ${pending.name} (${mode === 'replace' ? 'replaced all data' : 'merged'}).`;
       pending = null;
     } catch (err) {

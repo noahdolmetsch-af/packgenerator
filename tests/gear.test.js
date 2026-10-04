@@ -29,7 +29,7 @@ describe('gear', () => {
     expect(matches(it_('X', { sets: ['base'] }), { role: 'night' })).toBe(true);
   });
 
-  it('lists only owned, unweighed items to weigh, in category order', () => {
+  it('lists only owned, unweighed items to weigh, in category order when priority is equal', () => {
     const q = weighQueue([
       it_('SL01', { category: 'sleep', weightG: null }),
       it_('EL02', { weightG: null }),
@@ -37,6 +37,25 @@ describe('gear', () => {
       it_('EL04'),
     ]);
     expect(q.map((i) => i.id)).toEqual(['EL02', 'SL01']);
+  });
+
+  it('leaves food and water out of the gear total and the top 10', () => {
+    const s = gearStats([it_('EL01', { weightG: 300 }), it_('FD01', { category: 'food', weightG: 1000 })]);
+    expect(s.total).toBe(300);
+    expect(s.consumablesG).toBe(1000);
+    expect(s.top.map((i) => i.id)).toEqual(['EL01']);
+    expect(s.cats.find((c) => c.key === 'food')).toMatchObject({ g: 1000, consumable: true });
+  });
+
+  it('weighs every-ride items first, then overnight sets, then optional, then the rest', () => {
+    const q = weighQueue([
+      it_('EL01', { weightG: null }),
+      it_('EL02', { weightG: null, role: 'optional' }),
+      it_('SL01', { category: 'sleep', weightG: null, sets: ['sleep'] }),
+      it_('SL02', { category: 'sleep', weightG: null, role: 'standard' }),
+      it_('EL03', { weightG: null, role: 'worn' }),
+    ]);
+    expect(q.map((i) => i.id)).toEqual(['EL03', 'SL02', 'SL01', 'EL02', 'EL01']);
   });
 
   it('helps with IDs, typed grams and display', () => {

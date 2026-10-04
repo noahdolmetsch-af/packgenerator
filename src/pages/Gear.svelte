@@ -16,11 +16,19 @@
   let tab = $state('inventory'); // phone only: inventory | wishlist | weigh
   let weighing = $state(false); // desktop: weigh mode open
   let dialog = $state(null); // { item } or { item: null } for "Add item"
+  // Categories folded shut (10a). On the phone everything starts folded, on the desktop open.
+  let folded = $state(phone.matches ? Object.fromEntries(CATEGORIES.map((c) => [c.key, true])) : {});
 
   const inventory = $derived(stats.inventory.filter((i) => matches(i, filter)));
   const wishlist = $derived(stats.wishlist.filter((i) => matches(i, filter)));
   const groups = $derived(groupByCategory(inventory));
   const catStats = $derived(Object.fromEntries(stats.cats.map((c) => [c.key, c])));
+  // While searching or filtering, every matching category is shown open.
+  const searching = $derived(!!(filter.q.trim() || filter.category || filter.role));
+  const isOpen = (key) => searching || !folded[key];
+  const allOpen = $derived(groups.every((g) => !folded[g.key]));
+  const toggle = (key) => (folded[key] = !folded[key]);
+  const setAll = (shut) => (folded = Object.fromEntries(CATEGORIES.map((c) => [c.key, shut])));
 
   const pickCategory = (key) => (filter.category = filter.category === key ? '' : key);
   const open = (item) => (dialog = { item });
@@ -32,7 +40,7 @@
     <div class="kpis">
       <div><span class="lbl">Items</span><b class="num">{stats.inventory.length}</b></div>
       <div class="un"><span class="lbl">Not weighed</span><b class="num">{stats.unweighed}</b></div>
-      <div class="tot"><span class="lbl">Total weighed</span><b class="num">{formatWeight(stats.total)}</b></div>
+      <div class="tot"><span class="lbl">Gear weight</span><b class="num">{formatWeight(stats.total)}</b></div>
       <div><span class="lbl">Wishlist</span><b class="num">{stats.wishlist.length}</b></div>
     </div>
   </header>
@@ -44,7 +52,9 @@
   {#if weighing && !phone.matches}
     <WeighMode {items} onclose={() => (weighing = false)} />
   {:else}
-    <WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />
+    {#if !phone.matches || tab === 'inventory'}
+      <WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />
+    {/if}
 
     {#if phone.matches}
       <div class="tabs" role="tablist" aria-label="Show">
@@ -86,15 +96,22 @@
       </div>
 
       {#if !phone.matches || tab === 'inventory'}
-        <p class="count num" aria-live="polite">{inventory.length} of {stats.inventory.length} items</p>
+        <p class="count num" aria-live="polite">
+          {inventory.length} of {stats.inventory.length} items
+          {#if !searching && groups.length}<button type="button" class="link" onclick={() => setAll(allOpen)}>{allOpen ? 'Collapse all' : 'Expand all'}</button>{/if}
+        </p>
         {#each groups as g (g.key)}
           <section class="cat" aria-labelledby="gh-{g.key}">
-            <div class="ch">
-              <span class="sw" style:background={g.color}></span>
-              <h2 id="gh-{g.key}" class="title">{g.name}</h2>
-              <span class="m">{catStats[g.key].n} items{catStats[g.key].unweighed ? ` · ${catStats[g.key].unweighed} not weighed` : ''}</span>
-              <b class="num k">{formatWeight(catStats[g.key].g)}</b>
-            </div>
+            <h2 id="gh-{g.key}" class="ch">
+              <button type="button" aria-expanded={isOpen(g.key)} disabled={searching} onclick={() => toggle(g.key)}>
+                <span class="sw" style:background={g.color}></span>
+                <span class="title">{g.name}</span>
+                <b class="num k">{formatWeight(catStats[g.key].g)}</b>
+                <span class="m">{catStats[g.key].n} items{catStats[g.key].unweighed ? ` · ${catStats[g.key].unweighed} not weighed` : ''}{catStats[g.key].consumable ? ' · not in gear weight' : ''}</span>
+                {#if !searching}<span class="chev" aria-hidden="true">▾</span>{/if}
+              </button>
+            </h2>
+            {#if isOpen(g.key)}
             <ul class="rows">
               {#each g.items as item (item.id)}
                 <li>
@@ -106,6 +123,7 @@
                 </li>
               {/each}
             </ul>
+            {/if}
           </section>
         {:else}
           {#if items.length}<p class="card">Nothing matches. <button type="button" class="btn" onclick={() => (filter = { q: '', category: '', role: '' })}>Clear search and filters</button></p>{/if}
@@ -123,7 +141,7 @@
                   <span class="st st-{item.ownership}">{OWNERSHIP[item.ownership]}</span>
                   <span class="nm">{item.name}</span>
                   <span class="bg">{CATEGORIES.find((c) => c.key === item.category)?.name}</span>
-                  <span class="w num" class:nw={item.weightG == null}>{formatWeight(itemWeight(item))}</span>
+                  <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
                 </button>
               </li>
             {:else}
@@ -246,23 +264,73 @@
     margin-bottom: 20px;
   }
   .ch {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
+    margin: 0;
     border-bottom: 3px solid var(--ink);
-    padding-bottom: 4px;
-    flex-wrap: wrap;
   }
-  .ch .sw {
-    align-self: center;
+  .ch button {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 0 8px;
+    width: 100%;
+    padding: 0 0 4px;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .ch button:disabled {
+    cursor: default;
   }
   .ch .title {
     font-size: 26px;
+    min-width: 0;
+  }
+  .ch .k {
+    font-size: 16px;
   }
   .ch .m {
+    grid-column: 2 / 4;
+    grid-row: 2;
     color: var(--ink-3);
     font-size: 13px;
-    flex: 1;
+    font-weight: 400;
+  }
+  .ch .chev {
+    grid-column: 4;
+    grid-row: 1;
+    font-size: 16px;
+    transition: transform 0.15s;
+  }
+  .ch button[aria-expanded='false'] .chev {
+    transform: rotate(-90deg);
+  }
+  @media (min-width: 720px) {
+    .ch button {
+      grid-template-columns: auto auto 1fr auto auto;
+    }
+    .ch .m {
+      grid-column: 3;
+      grid-row: 1;
+    }
+    .ch .k {
+      grid-column: 4;
+    }
+    .ch .chev {
+      grid-column: 5;
+    }
+  }
+  .link {
+    margin-left: 10px;
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    color: var(--ink);
+    text-decoration: underline;
+    cursor: pointer;
   }
   .rows {
     list-style: none;
@@ -284,8 +352,10 @@
     color: inherit;
     cursor: pointer;
   }
-  .rows button:hover {
-    background: var(--hi-soft);
+  @media (hover: hover) {
+    .rows button:hover {
+      background: var(--hi-soft);
+    }
   }
   .rows .bg {
     grid-column: 1;
@@ -299,6 +369,10 @@
     align-self: center;
     font-weight: 700;
     text-align: right;
+  }
+  .rows .muted {
+    color: var(--ink-3);
+    font-weight: 400;
   }
   .rows .nw {
     color: var(--hi);

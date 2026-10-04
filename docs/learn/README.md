@@ -71,6 +71,9 @@ Wichtig: Beide Speicher gehören zum *Browser auf diesem Gerät*. Darum gibt es 
 - `$derived(...)`: ein Wert, der aus anderen Werten berechnet wird und sich selbst aktualisiert, z.B. `stats` aus der Liste aller Teile.
 - `src/lib/media.svelte.js`: merkt sich, ob der Bildschirm schmal ist (Phone). Komponenten lesen `phone.matches` und passen sich an.
 - Gewicht: In der Datenbank steht das Gewicht **eines Stücks** (`weightG`) und die **Anzahl** (`qty`). Angezeigt wird `weightG × qty`, z.B. Seitentaschen 2 × 450 g = 900 g.
+- **Aufklappen:** `folded` merkt sich pro Kategorie, ob sie zu ist. `isOpen(key)` entscheidet: beim Suchen immer offen, sonst nach `folded`.
+- **Einmalige Aufräum-Arbeit beim Start:** `src/lib/brand.js` trennt Hersteller und Modell (`splitBrand`). `tidyBrands` läuft bei jedem Start, ändert aber nur Teile ohne Feld `model`. Darum passiert es pro Teil genau einmal, und man muss nichts neu importieren.
+- **CSS nur für Mäuse:** `@media (hover: hover)` gilt nur auf Geräten mit Maus. So bleibt am Phone nach dem Antippen keine Zeile farbig hängen.
 
 ## 9. Tests
 

@@ -11,13 +11,14 @@ Stand: 4. Oktober 2026
 - **Gear-Seite (Ledger):** Kennzahlen, Gewicht nach Kategorie (Balken, antippen filtert), 10 schwerste Teile, Suche und Filter, Liste nach Kategorie, Wunschliste getrennt, Teil bearbeiten, hinzufügen, löschen.
 - **To weigh (Waage-Modus):** ein Teil nach dem anderen, Gramm eintippen, "Save and next" oder "Skip". Am Phone als Tab, am Desktop über "Weigh missing items".
 - Am Phone ist Gear zum Nachschlagen und Wägen da (Details ansehen, Gewicht eintragen).
+- Gear-Korrekturen nach dem ersten Rundgang: Kategorien auf- und zuklappbar, Gear-Gewicht ohne Essen und Wasser, Brand und Model getrennt, Wägen beginnt mit Teilen für jede Tour, Phone-Layout verbessert.
 
 ## Läuft
 - Nichts.
 
 ## Als Nächstes
-1. Gear: Board-Seite (Kacheln nach Gewicht) als zweite Ansicht.
-2. Taschen und vier Velo-Setups als eigene Liste.
-3. Packen: Trip als Kopie des letzten, Standard-Set, Taschen am Velo, Ready-Check (Vorlage: Prototyp).
-4. Bike care (Wartung mit Erinnerung zum Event-Datum).
-5. Debrief, danach Learnings.
+1. Taschen und vier Velo-Setups als eigene Liste.
+2. Packen: Trip als Kopie des letzten, Standard-Set, Taschen am Velo, Ready-Check (Vorlage: Prototyp).
+3. Bike care (Wartung mit Erinnerung zum Event-Datum).
+4. Debrief, danach Learnings.
+5. Gear: Board-Seite (Kacheln nach Gewicht) als zweite Ansicht.
