@@ -69,3 +69,10 @@ export function tripFromTemplate({ title, startDate, days, bike }, tpl, items, n
     createdAt: new Date(now).toISOString(),
   };
 }
+
+/** Change one template in place: fn gets a copy and returns the changed template. */
+export async function updateTemplate(db, id, fn) {
+  const list = await loadTemplates(db);
+  const now = new Date().toISOString();
+  await saveTemplates(db, list.map((t) => (t.id === id ? { ...fn(structuredClone(t)), updatedAt: now } : t)));
+}

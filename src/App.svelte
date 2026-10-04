@@ -28,7 +28,7 @@
   <span class="soon" title="Coming later">Debrief</span>
 </nav>
 
-<main class:wide={page === 'pack'}>
+<main class:wide={page === 'pack' || page === 'templates'}>
   {#if page === 'gear'}
     <Gear />
   {:else if page === 'pack'}

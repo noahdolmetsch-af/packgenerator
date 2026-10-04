@@ -10,6 +10,16 @@
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { NIGHT_SETS } from '../lib/trips.js';
   import { RIDES } from '../lib/layers.js';
+  import TemplateEdit from './TemplateEdit.svelte';
+
+  // #/pack/templates/<id> opens the editor for one template (answer 7b).
+  let hash = $state(location.hash);
+  $effect(() => {
+    const update = () => (hash = location.hash);
+    window.addEventListener('hashchange', update);
+    return () => window.removeEventListener('hashchange', update);
+  });
+  const editId = $derived(decodeURIComponent(hash.split('/')[3] ?? ''));
 
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -40,10 +50,13 @@
   const nights = (t) => NIGHT_SETS.filter((n) => t.sets?.[n.key]).map((n) => n.name);
 </script>
 
+{#if editId}
+  <TemplateEdit id={editId} />
+{:else}
 <div class="tpls">
   <p class="back"><a href="#/pack">← Pack</a></p>
   <h1 class="title big">Templates</h1>
-  <p class="hint">A template is a packing setup you can start new trips from. Save one on the Pack page with "Save as template". To change what is inside, open a trip made from it and press "Save as template" → "Update".</p>
+  <p class="hint">A template is a packing setup you can start new trips from. Save one on the Pack page with "Save as template". Change what is inside with "Edit", or from a trip made from it with "Save as template" → "Update".</p>
   {#if error}<p class="err" role="alert">{error}</p>{/if}
   <ul class="list">
     {#each templates as t (t.id)}
@@ -58,6 +71,7 @@
         <p class="facts muted">Saved {t.updatedAt?.slice(0, 10)}</p>
         <div class="acts">
           <button type="button" class="btn hi" onclick={() => start(t)}>New trip from it</button>
+          <a class="btn" href="#/pack/templates/{encodeURIComponent(t.id)}">Edit</a>
           <button type="button" class="btn del" onclick={() => remove(t)}>Delete</button>
         </div>
       </li>
@@ -66,6 +80,7 @@
     {/each}
   </ul>
 </div>
+{/if}
 
 <style>
   .big {

@@ -11,7 +11,7 @@
   function dragover(event, key) {
     if (!ondropitem) return;
     event.preventDefault();
-    event.dataTransfer.dropEffect = 'copy';
+    event.dataTransfer.dropEffect = event.dataTransfer.effectAllowed === 'copyMove' ? 'move' : 'copy';
     over = key;
   }
   function drop(event, key) {
@@ -46,7 +46,8 @@
         class:full={z.full}
         class:over={over === z.key}
         style={pos(z.box)}
-        aria-label="{z.title}{z.sub ? `, ${z.sub}` : ''}"
+        aria-label="{z.name ?? z.title}{z.sub ? `, ${z.sub}` : ''}"
+        title={z.name ?? z.title}
         aria-pressed={z.active ? 'true' : undefined}
         onclick={() => onpick?.(z.key)}
         ondragover={(e) => dragover(e, z.key)}
