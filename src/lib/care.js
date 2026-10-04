@@ -28,7 +28,7 @@ export const PARTS = [
   { key: 'shock', name: 'Rear shock', unit: '', suspension: 'full', hint: 'Lockout, sag, service' },
   { key: 'saddle', name: 'Saddle height', unit: 'mm', hint: 'Centre of the bottom bracket to the top of the saddle' },
   { key: 'shifting', name: 'Shifting', unit: '', hint: 'Cable, housing, indexing' },
-  { key: 'tyres', name: 'Tyres + sealant', unit: '', hint: 'Tread, pressure, top up sealant' },
+  { key: 'tyres', name: 'Tyres + sealant', unit: '', extra: ['pressureF', 'pressureR', 'sealantMl'], hint: 'Tread, pressure, top up sealant' },
   { key: 'bolts', name: 'Bolts (torque)', unit: '', hint: 'Saddle, thru axles, levers, cages, mounts' },
   { key: 'bearings', name: 'Bearings', unit: '', hint: 'Headset, hubs, bottom bracket: check for play' },
 ];
@@ -100,7 +100,25 @@ export function serviceDue(bike) {
  * Returns the new parts list; nothing else changes.
  */
 export function logPart(parts, key, entry) {
-  return parts.map((p) => (p.key === key ? { ...p, ...(entry.model ? { model: entry.model } : {}), history: [...(p.history ?? []), entry] } : p));
+  const { limit, ...rest } = entry;
+  return parts.map((p) =>
+    p.key === key ? { ...p, ...(rest.model ? { model: rest.model } : {}), ...(typeof limit === 'number' ? { limit } : {}), history: [...(p.history ?? []), rest] } : p,
+  );
+}
+
+/** Extra values some parts record (tyres: pressure front and rear in bar, sealant in ml). */
+export const EXTRA = { pressureF: { name: 'Pressure front', unit: 'bar' }, pressureR: { name: 'Pressure rear', unit: 'bar' }, sealantMl: { name: 'Sealant added', unit: 'ml' } };
+
+/**
+ * Everything done on one bike, newest first (Noah, 4.10.2026: "what was done when"):
+ * all part entries plus the repairs finished in the app.
+ */
+export function bikeLog(bike, tasks = []) {
+  const parts = (bike.parts ?? []).flatMap((p) => (p.history ?? []).map((h) => ({ ...h, what: PART[p.key]?.name ?? p.key, unit: PART[p.key]?.unit ?? '' })));
+  const repairs = tasks
+    .filter((t) => taskBike(t) === bike.id && t.status === 'done' && t.statusDate)
+    .map((t) => ({ date: t.statusDate, km: null, action: 'repair', result: 'done', by: t.by ?? null, what: t.task, note: '' }));
+  return [...parts, ...repairs].sort((a, b) => (b.date ?? '').localeCompare(a.date ?? '') || (b.km ?? 0) - (a.km ?? 0));
 }
 
 /** When a chain is replaced after more than 0.75 %, cassette and chainring should be checked too. */

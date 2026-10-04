@@ -49,6 +49,6 @@ describe('chat updates', () => {
     await db.settings.delete('update.layers2026');
     await applyUpdates(db);
     expect((await db.items.get('KL14')).coldBelow).toBe(8);
-    expect(await db.items.count()).toBe(7);
+    expect(await db.items.count()).toBe(8); // plus the full frame bag
   });
 });

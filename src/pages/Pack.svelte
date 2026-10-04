@@ -9,6 +9,7 @@
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import BikeStage from '../lib/bikes/BikeStage.svelte';
   import TripDialog from '../lib/pack/TripDialog.svelte';
+  import NotPacked from '../lib/pack/NotPacked.svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -55,8 +56,6 @@
   let tab = $state('pack'); // phone: pack | add | check
   let dialog = $state(null); // { trip } or { trip: null }
   let q = $state('');
-  let cat = $state('');
-  let editBags = $state(false);
   let newCheck = $state('');
   let openRow = $state(null); // phone: the row whose actions (amount, move, remove) are shown
 
@@ -85,7 +84,7 @@
     const on = onTrip(trip);
     const asBag = bagItemIds(bags); // bags go on the bike (Bags for this trip), not into a bag
     const fixed = new Set(bike?.fixtures ?? []); // always mounted, part of the bike
-    const list = items.filter((i) => isInventory(i) && !on.has(i.id) && !asBag.has(i.id) && !fixed.has(i.id) && matches(i, { q, category: cat }));
+    const list = items.filter((i) => isInventory(i) && !on.has(i.id) && !asBag.has(i.id) && !fixed.has(i.id) && matches(i, { q }));
     const order = Object.fromEntries(CATEGORIES.map((c, n) => [c.key, n]));
     const rank = (i) => (i.role === 'standard' || i.role === 'worn' ? 0 : i.sets?.length ? 1 : i.role === 'optional' ? 2 : 3);
     return list.sort((a, b) => rank(a) - rank(b) || (order[a.category] ?? 99) - (order[b.category] ?? 99) || a.name.localeCompare(b.name));
@@ -102,7 +101,31 @@
   const moveTo = (itemId, slot) => setEntries((es) => es.map((e) => (e.itemId === itemId ? { ...e, slot, packed: false } : e)));
   const removeEntry = (itemId) => setEntries((es) => es.filter((e) => e.itemId !== itemId));
   const setQty = (itemId, qty) => setEntries((es) => es.map((e) => (e.itemId === itemId ? { ...e, qty: Math.max(1, Math.min(20, qty)) } : e)));
-  const add = (itemId) => setEntries((es) => [...es, { itemId, slot: zone.noBag ? 'body' : zone.key, qty: 1, packed: false }]);
+  /** Put an item into a bag (key of the place); a place without a bag puts it on me. */
+  function addTo(key, itemId) {
+    const z = stats.zones.find((x) => x.key === key);
+    if (!z || !itemsById[itemId] || onTrip(trip).has(itemId)) return;
+    setEntries((es) => [...es, { itemId, slot: z.noBag ? 'body' : z.key, qty: 1, packed: false }]);
+  }
+  const add = (itemId) => addTo(zone.key, itemId);
+  const targetName = $derived(zone ? (zone.noBag ? 'On me' : zone.bag ? zone.bag.name : zone.zone.name) : 'the trip');
+
+  // Mockup answer 4a: drag an item from "Not packed" onto the open bag (or a bag on the drawing).
+  let bagOver = $state(false);
+  function bagDragover(event) {
+    if (phone.matches || !event.dataTransfer.types.includes('text/plain')) return;
+    event.preventDefault();
+    bagOver = true;
+  }
+  function bagDrop(event) {
+    event.preventDefault();
+    bagOver = false;
+    const id = event.dataTransfer.getData('text/plain');
+    if (id) add(id);
+  }
+
+  // How full the open bag is, in % (only when the bag has a volume).
+  const fill = $derived(zone?.bag?.volumeL && zone.vol ? (zone.vol / zone.bag.volumeL) * 100 : null);
   const tickZone = (on) => setEntries((es) => es.map((e) => (e.slot === zone.key ? { ...e, packed: on } : e)));
 
   const setBag = (slotKey, bagId) => change((t) => ({ setup: { ...t.setup, [slotKey]: bagId || null } }));
@@ -112,6 +135,15 @@
   const readyGroups = $derived([...new Set(ready.map((r) => r.group))].map((g) => ({ group: g, rows: ready.filter((r) => r.group === g) })));
   const readyCount = $derived(ready.filter((r) => trip && readyDone(r, trip)).length + (stats && stats.count && stats.packed === stats.count ? 1 : 0));
   const readyTotal = $derived(ready.length + 1);
+  const allTicked = $derived(!!stats?.count && stats.packed === stats.count);
+  // Mockup answer 6a: only a short version next to the bag, the whole check opens on a click.
+  let readyOpen = $state(false);
+  const readyOpenNames = $derived.by(() => {
+    if (!trip || !stats) return '';
+    const open = ready.filter((r) => !readyDone(r, trip)).map((r) => r.label);
+    if (!allTicked) open.unshift(`${stats.count - stats.packed} items to tick off`);
+    return open.length > 4 ? `${open.slice(0, 4).join(', ')} and ${open.length - 4} more` : open.join(', ');
+  });
   function toggleReady(row) {
     if (row.itemId) {
       // An "always with me" item that is missing gets added to its usual place.
@@ -159,6 +191,8 @@
   const slotOf = (id) => slotFor(itemsById[id]?.defaultBag, trip.setup);
   const takeLayer = (row) => setEntries((es) => applyLayers(es, [row], slotOf));
   const openLayers = $derived(trip ? openRows(suggestion, trip) : []);
+  // Mockup answer 3a: a small label in "Not packed" says why an item is suggested.
+  const tagOf = (i) => suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (i.role === 'standard' || i.role === 'worn' ? 'standard' : '');
   // Round D answer 5: take an alternative (mini lock) or nothing instead of the usual item.
   const pickLayer = (slot, value) => change((t) => ({ layerPick: { ...(t.layerPick ?? {}), [slot]: value === slot ? null : value } }));
   const addAllLayers = () => setEntries((es) => applyLayers(es, openLayers, slotOf));
@@ -234,10 +268,139 @@
       </div>
     {/if}
 
+    {#snippet layers()}
+      <div class="wxin two">
+        <label><span class="lbl">Kind of ride</span>
+          <select class="sel" value={trip.ride ?? ''} onchange={(e) => change(() => ({ ride: e.currentTarget.value || null }))}>
+            <option value="">Choose</option>
+            {#each RIDES as r (r.key)}<option value={r.key}>{r.name}</option>{/each}
+          </select>
+        </label>
+        <label><span class="lbl">Riding hours{trip.days > 1 ? ' a day' : ''}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder="e.g. 6" /></label>
+      </div>
+      <div class="presets" role="group" aria-label="Weather presets">
+        {#each WX_PRESETS as p (p.name)}
+          <button type="button" class="toggle" aria-pressed={wx?.min === p.min && wx?.max === p.max} onclick={() => setWx({ min: p.min, max: p.max })}>{p.name} <small>{p.min}–{p.max}°</small></button>
+        {/each}
+      </div>
+      <div class="wxin">
+        <label><span class="lbl">Min °C</span><input class="inp num" type="text" inputmode="numeric" value={wx?.min ?? ''} onchange={(e) => typedTemp('min', e.currentTarget.value)} /></label>
+        <label><span class="lbl">Max °C</span><input class="inp num" type="text" inputmode="numeric" value={wx?.max ?? ''} onchange={(e) => typedTemp('max', e.currentTarget.value)} /></label>
+        <label><span class="lbl">Rain</span>
+          <select class="sel" value={wx?.rain ?? 'none'} onchange={(e) => setWx({ rain: e.currentTarget.value })}>
+            {#each Object.entries(RAIN) as [k, v] (k)}<option value={k}>{v}</option>{/each}
+          </select>
+        </label>
+      </div>
+      {#if suggestion.length}
+        <div class="sugg">
+          <p class="sugg-h"><b>Layers for this ride</b>{#if openLayers.length}<button type="button" class="btn sm hi" onclick={addAllLayers}>Add all {openLayers.length}</button>{:else}<span class="ok">All set</span>{/if}</p>
+          <ul>
+            {#each suggestion as r (r.slot)}
+              <li class:skip={r.skipped}>
+                <span class="wt">{r.why}</span>
+                <span class="nm">
+                  {#if r.alts.length}
+                    <select class="sel alt" aria-label="Choose for {itemsById[r.slot]?.name}" value={r.skipped ? 'none' : r.id} onchange={(e) => pickLayer(r.slot, e.currentTarget.value)}>
+                      {#each r.alts as a (a)}<option value={a}>{itemsById[a]?.name}</option>{/each}
+                      <option value="none">None</option>
+                    </select>
+                  {:else}{itemsById[r.id]?.name}{/if}{#if r.qty > 1}<small> × {r.qty}</small>{/if}
+                  {#if r.replaces}<small class="instead">instead of {itemsById[r.replaces]?.name}</small>{/if}
+                </span>
+                {#if r.skipped}<span class="ok muted">Skipped</span>{:else if layerDone(r, trip)}<span class="ok">{r.place === 'wear' ? 'On me' : 'Packed'}</span>{:else}<button type="button" class="btn sm" onclick={() => takeLayer(r)}>{r.replaces ? 'Swap' : r.place === 'wear' ? 'Wear' : 'Pack'}</button>{/if}
+              </li>
+            {/each}
+          </ul>
+        </div>
+      {:else if trip.ride || (wx?.min != null && wx?.max != null) || wx?.rain === 'showers' || wx?.rain === 'rain'}
+        <p class="hint">Nothing to add. Set layers on your items in Gear (Edit → Layers).</p>
+      {/if}
+    {/snippet}
+
+    {#snippet night()}
+      <div class="sets" role="group" aria-label="Overnight sets">
+        {#each NIGHT_SETS as ns (ns.key)}
+          <button type="button" class="toggle" aria-pressed={setOn(ns.key)} onclick={() => switchSet(ns.key)} disabled={!setCount(ns.key)} title={setCount(ns.key) ? '' : 'No items in this set yet. Tag them in Gear.'}>
+            {ns.name} <small>{setCount(ns.key)}</small>
+          </button>
+        {/each}
+      </div>
+    {/snippet}
+
+    {#snippet bagChoice()}
+      <ul class="slots">
+        {#each SLOTS.filter((s) => !bike || bike.slots?.includes(s.key)) as s (s.key)}
+          <li>
+            <label for="ts-{s.key}">{s.name}</label>
+            <select id="ts-{s.key}" class="sel" value={trip.setup?.[s.key] ?? ''} onchange={(ev) => setBag(s.key, ev.currentTarget.value)}>
+              <option value="">No bag</option>
+              {#each bagsFor(s.key, bags) as o (o.id)}<option value={o.id}>{o.name}</option>{/each}
+            </select>
+          </li>
+        {/each}
+      </ul>
+      <p class="hint">Starts with the bags set on {bike?.name ?? 'the bike'} (Bikes page). Changes here only count for this trip.</p>
+    {/snippet}
+
+    {#snippet readyFull()}
+      <ul>
+        <li class="auto" class:done={allTicked}>
+          <span class="box" aria-hidden="true">{allTicked ? '✓' : ''}</span>
+          <span>{allTicked ? 'Every bag ticked off' : `${stats.count - stats.packed} items not ticked off yet`}</span>
+        </li>
+      </ul>
+      {#each readyGroups as g (g.group)}
+        <h3>{g.group}</h3>
+        <ul>
+          {#each g.rows as r (r.id)}
+            {@const done = readyDone(r, trip)}
+            <li class:done>
+              <label class="ck">
+                <input type="checkbox" checked={done} disabled={!!r.itemId && done} onchange={() => toggleReady(r)} />
+                <span>{r.label}{#if r.itemId && !done}<small class="warn"> not on this trip, tick to add it</small>{/if}</span>
+              </label>
+              <button type="button" class="x" aria-label="Remove {r.label} from this trip's check" onclick={() => removeReady(r.id)}>×</button>
+            </li>
+          {/each}
+        </ul>
+      {/each}
+      <form class="addcheck" onsubmit={addReady}>
+        <input class="inp" bind:value={newCheck} placeholder="Add a check for this trip" aria-label="Add a check for this trip" />
+        <button type="submit" class="btn">Add</button>
+      </form>
+      {#if readyChanged}<button type="button" class="link" onclick={resetReady}>Back to the standard list</button>{/if}
+    {/snippet}
+
+    {#snippet target()}
+      <label class="target">
+        <span>Adding to</span>
+        <select class="sel" value={zone?.key} onchange={(e) => (zoneKey = e.currentTarget.value)} aria-label="Bag that + adds to">
+          {#each targets as t (t.key)}<option value={t.key}>{t.bag ? t.bag.name : t.zone.name}</option>{/each}
+        </select>
+      </label>
+    {/snippet}
+
     <div class="cols">
-      {#if !phone.matches || tab === 'pack' || tab === 'add'}
-        <div class="left">
-          <BikeStage zones={stageZones} onpick={(k) => (zoneKey = k)} label="Bags on {bike?.name ?? 'the bike'}, tap one to open it" />
+      {#if !phone.matches || tab === 'add'}
+        <div class="c-np">
+          {#if phone.matches}
+            <details class="ph-cond">
+              <summary>Ride, weather and night{#if openLayers.length}<small class="lab">{openLayers.length} layers to add</small>{/if}</summary>
+              {@render layers()}
+              <h3 class="sub">Night</h3>
+              {@render night()}
+            </details>
+          {/if}
+          <NotPacked items={candidates} {tagOf} target={targetName} onadd={add} drag={!phone.matches} bind:q>
+            {#if !phone.matches}{@render target()}{/if}
+          </NotPacked>
+        </div>
+      {/if}
+
+      {#if !phone.matches || tab === 'pack'}
+        <div class="c-bag">
+          <BikeStage zones={stageZones} onpick={(k) => (zoneKey = k)} ondropitem={phone.matches ? null : addTo} label="Bags on {bike?.name ?? 'the bike'}, tap one to open it" />
           {#if phone.matches}
             <div class="chips" role="group" aria-label="Bags">
               {#each stats.zones as z (z.key)}
@@ -248,197 +411,125 @@
             </div>
           {/if}
 
-          {#if zone && (!phone.matches || tab === 'pack')}
-            <section class="bag" aria-labelledby="bag-h">
+          {#if zone}
+            <section class="bag" class:over={bagOver} aria-labelledby="bag-h" ondragover={bagDragover} ondragleave={() => (bagOver = false)} ondrop={bagDrop}>
               <div class="bag-h">
                 <h2 id="bag-h" class="title">{zoneName(zone)}</h2>
-                <span class="m num">{zone.entries.length} items · {formatWeight(zone.grams)}{#if zone.bag?.volumeL && zone.vol}{' · '}<span class:warn={tooFull(zone)}>about {formatVolume(zone.vol)} of {formatVolume(zone.bag.volumeL)}</span>{/if}</span>
+                <span class="m num">{zone.entries.length} items · {formatWeight(zone.grams)}</span>
                 {#if zone.entries.length}
                   <button type="button" class="link" onclick={() => tickZone(zone.packed < zone.entries.length)}>{zone.packed < zone.entries.length ? 'Tick all' : 'Untick all'}</button>
                 {/if}
               </div>
+              {#if fill != null}
+                <div class="fill" class:warn={tooFull(zone)}>
+                  <div class="bar" role="img" aria-label="About {Math.round(fill)} % full">
+                    <span class="in" style:width="{Math.min(100, fill)}%"></span>
+                    <span class="mark" style:left="{FILL_LIMIT * 100}%" title="{FILL_LIMIT * 100} %"></span>
+                  </div>
+                  <span class="num">{formatVolume(zone.vol)} of {formatVolume(zone.bag.volumeL)}</span>
+                </div>
+              {/if}
               {#if tooFull(zone)}
                 <p class="warnbox soft">
                   {zone.vol > zone.bag.volumeL ? 'Probably too full' : `Over ${FILL_LIMIT * 100} %, keep some room free`}: about {formatVolume(zone.vol)} for {formatVolume(zone.bag.volumeL)}.
                   {#if bigger}<button type="button" class="btn sm" onclick={() => setBag(zone.key, bigger.id)}>Take {bigger.name} ({formatVolume(bigger.volumeL)})</button>{/if}
                 </p>
               {/if}
-              {#if zone.noBag}<p class="warnbox">This trip has no bag here. Move these items or choose a bag below.</p>{/if}
-              <ul class="entries">
+              {#if zone.noBag}<p class="warnbox">This trip has no bag here. Move these items or choose a bag in "Bags for this trip".</p>{/if}
+              <ul class="tiles">
                 {#each zone.entries as e (e.itemId)}
                   {@const it = itemsById[e.itemId]}
-                  <li class:done={e.packed}>
+                  <li class="tile" class:done={e.packed} class:open={openRow === e.itemId} style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>
                     <label class="ck">
                       <input type="checkbox" checked={e.packed} onchange={() => togglePacked(e.itemId)} />
                       <span class="nm">{it?.name ?? e.itemId}</span>
                     </label>
-                    <span class="w num" class:warn={it?.weightG == null}>{it?.weightG == null ? 'not weighed' : formatWeight(it.weightG * (e.qty || 1))}{#if (e.qty || 1) > 1}<small> ({e.qty}×)</small>{/if}</span>
-                    {#if phone.matches}
+                    <span class="foot">
+                      <span class="w num" class:warn={it?.weightG == null}>{it?.weightG == null ? 'not weighed' : formatWeight(it.weightG * (e.qty || 1))}{#if (e.qty || 1) > 1}<small> ({e.qty}×)</small>{/if}</span>
                       <button type="button" class="more" aria-expanded={openRow === e.itemId} aria-label="Change {it?.name}" onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>⋯</button>
-                    {/if}
-                    {#if !phone.matches || openRow === e.itemId}
-                    <span class="acts">
-                      <span class="qty">
-                        <button type="button" aria-label="One less {it?.name}" disabled={(e.qty || 1) <= 1} onclick={() => setQty(e.itemId, (e.qty || 1) - 1)}>−</button>
-                        <span class="num">{e.qty || 1}×</span>
-                        <button type="button" aria-label="One more {it?.name}" onclick={() => setQty(e.itemId, (e.qty || 1) + 1)}>+</button>
-                      </span>
-                      <select class="sel mv" aria-label="Move {it?.name} to" value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
-                        {#each targets as t (t.key)}<option value={t.key}>{t.bag ? t.bag.name : t.zone.name}</option>{/each}
-                        {#if zone.noBag}<option value={zone.key}>{zone.zone.name} (no bag)</option>{/if}
-                      </select>
-                      <button type="button" class="x" aria-label="Take {it?.name} off the trip" onclick={() => removeEntry(e.itemId)}>×</button>
                     </span>
+                    {#if openRow === e.itemId}
+                      <span class="acts">
+                        <span class="qty">
+                          <button type="button" aria-label="One less {it?.name}" disabled={(e.qty || 1) <= 1} onclick={() => setQty(e.itemId, (e.qty || 1) - 1)}>−</button>
+                          <span class="num">{e.qty || 1}×</span>
+                          <button type="button" aria-label="One more {it?.name}" onclick={() => setQty(e.itemId, (e.qty || 1) + 1)}>+</button>
+                        </span>
+                        <select class="sel mv" aria-label="Move {it?.name} to" value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
+                          {#each targets as t (t.key)}<option value={t.key}>{t.bag ? t.bag.name : t.zone.name}</option>{/each}
+                          {#if zone.noBag}<option value={zone.key}>{zone.zone.name} (no bag)</option>{/if}
+                        </select>
+                        <button type="button" class="x" aria-label="Take {it?.name} off the trip" onclick={() => removeEntry(e.itemId)}>×</button>
+                      </span>
                     {/if}
                   </li>
                 {:else}
-                  <li class="empty">Nothing in here yet. Add items{phone.matches ? ' in the Add tab' : ' on the right'}.</li>
+                  <li class="empty">Nothing in here yet. {phone.matches ? 'Add items in the Add tab.' : 'Press + in "Not packed" or drag an item onto a bag.'}</li>
                 {/each}
               </ul>
             </section>
+          {/if}
 
-            <details class="setup" bind:open={editBags}>
+          {#if phone.matches}
+            <details class="setup">
               <summary>Bags for this trip</summary>
-              <p class="hint">Starts with the bags of {bike?.name ?? 'the bike'}. Changes here only count for this trip.</p>
-              <ul class="slots">
-                {#each SLOTS.filter((s) => !bike || bike.slots?.includes(s.key)) as s (s.key)}
-                  <li>
-                    <label for="ts-{s.key}">{s.name}</label>
-                    <select id="ts-{s.key}" class="sel" value={trip.setup?.[s.key] ?? ''} onchange={(ev) => setBag(s.key, ev.currentTarget.value)}>
-                      <option value="">No bag</option>
-                      {#each bagsFor(s.key, bags) as o (o.id)}<option value={o.id}>{o.name}</option>{/each}
-                    </select>
-                  </li>
-                {/each}
-              </ul>
+              {@render bagChoice()}
             </details>
           {/if}
         </div>
       {/if}
 
-      <div class="right">
-        {#if !phone.matches || tab === 'add'}
-          <section class="cond" aria-labelledby="cond-h">
-            <h2 id="cond-h" class="title">Ride, night and weather</h2>
-            <div class="wxin">
-              <label><span class="lbl">Kind of ride</span>
-                <select class="sel" value={trip.ride ?? ''} onchange={(e) => change(() => ({ ride: e.currentTarget.value || null }))}>
-                  <option value="">Choose</option>
-                  {#each RIDES as r (r.key)}<option value={r.key}>{r.name}</option>{/each}
-                </select>
-              </label>
-              <label><span class="lbl">Riding hours{trip.days > 1 ? ' a day' : ''}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder="e.g. 6" /></label>
-            </div>
-            <div class="sets" role="group" aria-label="Overnight sets">
-              {#each NIGHT_SETS as ns (ns.key)}
-                <button type="button" class="toggle" aria-pressed={setOn(ns.key)} onclick={() => switchSet(ns.key)} disabled={!setCount(ns.key)} title={setCount(ns.key) ? '' : 'No items in this set yet. Tag them in Gear.'}>
-                  {ns.name} <small>{setCount(ns.key)}</small>
-                </button>
-              {/each}
-            </div>
-            <div class="wx">
-              <div class="presets" role="group" aria-label="Weather presets">
-                {#each WX_PRESETS as p (p.name)}
-                  <button type="button" class="toggle" aria-pressed={wx?.min === p.min && wx?.max === p.max} onclick={() => setWx({ min: p.min, max: p.max })}>{p.name} <small>{p.min}–{p.max}°</small></button>
-                {/each}
-              </div>
-              <div class="wxin">
-                <label><span class="lbl">Min °C</span><input class="inp num" type="text" inputmode="numeric" value={wx?.min ?? ''} onchange={(e) => typedTemp('min', e.currentTarget.value)} /></label>
-                <label><span class="lbl">Max °C</span><input class="inp num" type="text" inputmode="numeric" value={wx?.max ?? ''} onchange={(e) => typedTemp('max', e.currentTarget.value)} /></label>
-                <label><span class="lbl">Rain</span>
-                  <select class="sel" value={wx?.rain ?? 'none'} onchange={(e) => setWx({ rain: e.currentTarget.value })}>
-                    {#each Object.entries(RAIN) as [k, v] (k)}<option value={k}>{v}</option>{/each}
-                  </select>
-                </label>
-              </div>
-              {#if suggestion.length}
-                <div class="sugg">
-                  <p class="sugg-h"><b>Layers for this ride</b>{#if openLayers.length}<button type="button" class="btn sm hi" onclick={addAllLayers}>Add all {openLayers.length}</button>{:else}<span class="ok">All set</span>{/if}</p>
-                  <ul>
-                    {#each suggestion as r (r.slot)}
-                      <li class:skip={r.skipped}>
-                        <span class="wt">{r.why}</span>
-                        <span class="nm">
-                          {#if r.alts.length}
-                            <select class="sel alt" aria-label="Choose for {itemsById[r.slot]?.name}" value={r.skipped ? 'none' : r.id} onchange={(e) => pickLayer(r.slot, e.currentTarget.value)}>
-                              {#each r.alts as a (a)}<option value={a}>{itemsById[a]?.name}</option>{/each}
-                              <option value="none">None</option>
-                            </select>
-                          {:else}{itemsById[r.id]?.name}{/if}{#if r.qty > 1}<small> × {r.qty}</small>{/if}
-                          {#if r.replaces}<small class="instead">instead of {itemsById[r.replaces]?.name}</small>{/if}
-                        </span>
-                        {#if r.skipped}<span class="ok muted">Skipped</span>{:else if layerDone(r, trip)}<span class="ok">{r.place === 'wear' ? 'On me' : 'Packed'}</span>{:else}<button type="button" class="btn sm" onclick={() => takeLayer(r)}>{r.replaces ? 'Swap' : r.place === 'wear' ? 'Wear' : 'Pack'}</button>{/if}
-                      </li>
-                    {/each}
-                  </ul>
-                </div>
-              {:else if trip.ride || (wx?.min != null && wx?.max != null) || wx?.rain === 'showers' || wx?.rain === 'rain'}
-                <p class="hint">Nothing to add. Set layers on your items in Gear (Edit → Layers).</p>
-              {/if}
-            </div>
+      {#if !phone.matches}
+        <aside class="c-side" aria-label="Ride and checks">
+          <section class="box-s" aria-labelledby="cond-h">
+            <h2 id="cond-h" class="title">Layers</h2>
+            {@render layers()}
           </section>
-          <section class="add" aria-labelledby="add-h">
-            <h2 id="add-h" class="title">Add to {zone ? (zone.noBag ? 'On me' : zone.bag ? zone.bag.name : zone.zone.name) : 'the trip'}</h2>
-            <p class="hint">Choose a bag on the drawing first, then add what goes in it.</p>
-            <div class="filters">
-              <input class="inp" type="search" placeholder="Search your gear" bind:value={q} aria-label="Search your gear" />
-              <select class="sel" bind:value={cat} aria-label="Category">
-                <option value="">All categories</option>
-                {#each CATEGORIES as c (c.key)}<option value={c.key}>{c.name}</option>{/each}
-              </select>
-            </div>
-            <ul class="cands">
-              {#each candidates.slice(0, 60) as i (i.id)}
-                <li>
-                  <span class="sw" style:background={CATEGORY[i.category]?.color}></span>
-                  <span class="nm">{i.name}{#if i.role === 'standard' || i.role === 'worn'}<small class="pill">standard</small>{/if}</span>
-                  <span class="w num">{i.weightG == null ? '–' : formatWeight(i.weightG)}</span>
-                  <button type="button" class="plus" aria-label="Add {i.name}" onclick={() => add(i.id)}>+</button>
-                </li>
-              {:else}
-                <li class="empty">{q || cat ? 'Nothing matches.' : 'Everything you own is on this trip.'}</li>
-              {/each}
-            </ul>
-            {#if candidates.length > 60}<p class="hint">{candidates.length - 60} more: search to narrow the list.</p>{/if}
+          <section class="box-s" aria-labelledby="night-h">
+            <h2 id="night-h" class="title">Night</h2>
+            {@render night()}
           </section>
-        {/if}
-
-        {#if !phone.matches || tab === 'check'}
-          <section class="ready" aria-labelledby="ready-h">
+          <section class="box-s ready" aria-labelledby="ready-h">
             <div class="ready-h">
               <h2 id="ready-h" class="title">Ready check</h2>
               <span class="num m">{readyCount} / {readyTotal}</span>
             </div>
-            <ul>
-              <li class="auto" class:done={stats.count && stats.packed === stats.count}>
-                <span class="box" aria-hidden="true">{stats.count && stats.packed === stats.count ? '✓' : ''}</span>
-                <span>{stats.packed === stats.count ? 'Every bag ticked off' : `${stats.count - stats.packed} items not ticked off yet`}</span>
-              </li>
-            </ul>
-            {#each readyGroups as g (g.group)}
-              <h3>{g.group}</h3>
-              <ul>
-                {#each g.rows as r (r.id)}
-                  {@const done = readyDone(r, trip)}
-                  <li class:done>
-                    <label class="ck">
-                      <input type="checkbox" checked={done} disabled={!!r.itemId && done} onchange={() => toggleReady(r)} />
-                      <span>{r.label}{#if r.itemId && !done}<small class="warn"> not on this trip, tick to add it</small>{/if}</span>
-                    </label>
-                    <button type="button" class="x" aria-label="Remove {r.label} from this trip's check" onclick={() => removeReady(r.id)}>×</button>
-                  </li>
-                {/each}
-              </ul>
-            {/each}
-            <form class="addcheck" onsubmit={addReady}>
-              <input class="inp" bind:value={newCheck} placeholder="Add a check for this trip" aria-label="Add a check for this trip" />
-              <button type="submit" class="btn">Add</button>
-            </form>
-            {#if readyChanged}<button type="button" class="link" onclick={resetReady}>Back to the standard list</button>{/if}
+            {#if readyOpen}
+              {@render readyFull()}
+              <button type="button" class="link" onclick={() => (readyOpen = false)}>Show less</button>
+            {:else}
+              <p class="short">{readyCount === readyTotal ? 'Everything is ready.' : `Still open: ${readyOpenNames}`}</p>
+              <button type="button" class="btn" onclick={() => (readyOpen = true)}>Open the full check</button>
+            {/if}
           </section>
-        {/if}
-      </div>
+          <details class="box-s setup">
+            <summary>Bags for this trip</summary>
+            {@render bagChoice()}
+          </details>
+        </aside>
+      {/if}
+
+      {#if phone.matches && tab === 'check'}
+        <section class="ready" aria-labelledby="ready-h">
+          <div class="ready-h">
+            <h2 id="ready-h" class="title">Ready check</h2>
+            <span class="num m">{readyCount} / {readyTotal}</span>
+          </div>
+          {@render readyFull()}
+        </section>
+      {/if}
     </div>
+    {#if phone.matches && tab === 'add' && zone}
+      <div class="addbar">
+        <span class="t">Adding to <b>{targetName}</b>{#if fill != null}{' · '}{formatVolume(zone.vol)} of {formatVolume(zone.bag.volumeL)}{/if}</span>
+        <label class="chg">
+          <span>Change bag</span>
+          <select value={zone.key} onchange={(e) => (zoneKey = e.currentTarget.value)} aria-label="Change the bag that + adds to">
+            {#each targets as t (t.key)}<option value={t.key}>{t.bag ? t.bag.name : t.zone.name}</option>{/each}
+          </select>
+        </label>
+      </div>
+    {/if}
     {/if}
     <section class="print" aria-hidden="true">
       <h1>{trip.title}</h1>
@@ -594,14 +685,6 @@
     border-color: var(--hi);
     background: var(--hi-soft);
   }
-  .cond {
-    margin-bottom: 24px;
-  }
-  .cond .title {
-    font-size: 28px;
-    border-bottom: 3px solid var(--ink);
-    margin-bottom: 8px;
-  }
   .sets,
   .presets {
     display: flex;
@@ -636,6 +719,10 @@
     grid-template-columns: 1fr 1fr 1.4fr;
     align-items: end;
     gap: 8px;
+    margin-bottom: 8px;
+  }
+  .wxin.two {
+    grid-template-columns: 1.4fr 1fr;
   }
   .sugg {
     margin-top: 10px;
@@ -729,15 +816,234 @@
       display: none;
     }
   }
+  /* Mockup answer 1a: three columns. Not packed | bike and open bag | layers, night, ready check. */
   .cols {
     display: grid;
-    gap: 20px;
+    gap: 16px;
   }
-  @media (min-width: 1000px) {
+  .c-np,
+  .c-bag,
+  .c-side {
+    min-width: 0;
+  }
+  .c-side {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+    align-items: start;
+  }
+  @media (min-width: 720px) {
     .cols {
-      grid-template-columns: 1.35fr 1fr;
+      grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
       align-items: start;
     }
+    .c-np {
+      position: sticky;
+      top: 60px;
+      height: calc(100vh - 76px);
+      display: flex;
+      flex-direction: column;
+    }
+    .c-np :global(.np) {
+      flex: 1;
+    }
+    .c-side {
+      grid-column: 2;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+  }
+  @media (min-width: 1180px) {
+    .cols {
+      grid-template-columns: minmax(270px, 330px) minmax(0, 1fr) minmax(290px, 340px);
+    }
+    .c-side {
+      grid-column: auto;
+      grid-template-columns: none;
+    }
+  }
+  .box-s {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 10px;
+  }
+  .box-s .title {
+    font-size: 26px;
+    border-bottom: 3px solid var(--ink);
+    margin-bottom: 8px;
+  }
+  .box-s.setup summary {
+    font-family: var(--font-title);
+    font-size: 22px;
+    text-transform: uppercase;
+  }
+  .short {
+    margin: 8px 0;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .target {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-3);
+  }
+  .target .sel {
+    flex: 1;
+    min-width: 0;
+    border-color: var(--hi);
+    background: var(--hi-soft);
+    font-weight: 700;
+  }
+  .ph-cond {
+    margin-bottom: 12px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 8px 10px;
+  }
+  .ph-cond summary {
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .lab {
+    margin-left: 8px;
+    padding: 0 6px;
+    border: 1px solid var(--hi);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .sub {
+    margin: 12px 0 6px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .bag.over {
+    outline: 3px dashed var(--hi);
+    outline-offset: 4px;
+  }
+  .fill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+    font-size: 13px;
+  }
+  .fill .bar {
+    position: relative;
+    flex: 1;
+    height: 10px;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 2px;
+  }
+  .fill .in {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--ink);
+  }
+  .fill.warn .in {
+    background: var(--hi);
+  }
+  .fill .mark {
+    position: absolute;
+    top: -5px;
+    bottom: -5px;
+    width: 2px;
+    background: var(--hi);
+  }
+  /* Mockup answer 5b: the items in the open bag as tiles. */
+  .tiles {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
+    gap: 8px;
+  }
+  .tile {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 6px;
+    min-height: 64px;
+    padding: 8px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--c);
+  }
+  .tile.open {
+    grid-column: span 2;
+  }
+  .tile .ck {
+    align-items: flex-start;
+  }
+  .tile .nm {
+    overflow-wrap: anywhere;
+    line-height: 1.25;
+  }
+  .tile.done {
+    background: #e8efe9;
+  }
+  .tile.done .nm {
+    color: var(--ink-3);
+    text-decoration: line-through;
+  }
+  .foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .tile .acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .tiles .empty {
+    grid-column: 1 / -1;
+    background: var(--paper);
+    border: 1px dashed var(--ink-3);
+  }
+  /* Mockup answer 8a: on a phone a fixed bar at the bottom says where "+" puts things. */
+  .addbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px var(--gut) calc(10px + env(safe-area-inset-bottom));
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 14px;
+  }
+  .addbar .t {
+    flex: 1;
+    min-width: 0;
+  }
+  .chg {
+    position: relative;
+    flex: none;
+    border: 1.5px solid var(--paper);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-weight: 600;
+  }
+  .chg select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    opacity: 0;
+    font-size: 16px;
+  }
+  .pack:has(.addbar) {
+    padding-bottom: 70px;
   }
   .chips {
     display: flex;
@@ -790,41 +1096,12 @@
     background: #fbe9e7;
     font-size: 14px;
   }
-  .entries,
-  .cands,
   .ready ul,
   .slots {
     list-style: none;
     margin: 0;
     padding: 0;
     background: var(--paper);
-  }
-  .entries li {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 4px 10px;
-    align-items: center;
-    padding: 8px;
-    border-bottom: 1px solid var(--line);
-  }
-  .entries li.done .nm {
-    color: var(--ink-3);
-    text-decoration: line-through;
-  }
-  .entries .acts {
-    grid-column: 1 / -1;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-  @media (min-width: 720px) {
-    .entries li {
-      grid-template-columns: 1fr auto auto;
-    }
-    .entries .acts {
-      grid-column: 3;
-      grid-row: 1;
-    }
   }
   .ck {
     display: flex;
@@ -920,39 +1197,10 @@
     padding: 6px 8px;
     border-bottom: 1px solid var(--line);
   }
-  .add .title,
   .ready .title {
-    font-size: 28px;
-  }
-  .add {
-    margin-bottom: 24px;
-  }
-  .filters {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  .cands {
-    max-height: 480px;
-    overflow: auto;
-    border-top: 3px solid var(--ink);
-  }
-  .cands li {
-    display: grid;
-    grid-template-columns: auto 1fr auto auto;
-    gap: 8px;
-    align-items: center;
-    padding: 6px 8px;
-    border-bottom: 1px solid var(--line);
-  }
-  .pill {
-    margin-left: 6px;
-    padding: 0 5px;
-    border: 1px solid var(--ink-3);
-    border-radius: 999px;
-    font-size: 11px;
-    color: var(--ink-3);
+    font-size: 26px;
+    border-bottom: 0;
+    margin-bottom: 0;
   }
   .ready-h {
     display: flex;

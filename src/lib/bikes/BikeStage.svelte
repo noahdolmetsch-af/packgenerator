@@ -3,8 +3,24 @@
    * The bike drawing with a box per place (same drawing for every bike, decision 4a).
    * zones: [{ key, title, sub, box: {x, y, w, h}, empty, active, full }]
    * onpick(key) is called when a box is tapped.
+   * ondropitem(key, itemId): an item from "Not packed" was dragged onto a box (Pack page only).
    */
-  let { zones, onpick, label = 'Bike' } = $props();
+  let { zones, onpick, ondropitem = null, label = 'Bike' } = $props();
+  let over = $state(null); // the box an item is dragged over
+
+  function dragover(event, key) {
+    if (!ondropitem) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    over = key;
+  }
+  function drop(event, key) {
+    if (!ondropitem) return;
+    event.preventDefault();
+    over = null;
+    const id = event.dataTransfer.getData('text/plain');
+    if (id) ondropitem(key, id);
+  }
 
   // Positions are in a 720 × 420 picture; as % they scale with the screen width.
   const pos = (b) => `left:${(b.x / 720) * 100}%;top:${(b.y / 420) * 100}%;width:${(b.w / 720) * 100}%;height:${(b.h / 420) * 100}%`;
@@ -28,10 +44,14 @@
         class:empty={z.empty}
         class:active={z.active}
         class:full={z.full}
+        class:over={over === z.key}
         style={pos(z.box)}
         aria-label="{z.title}{z.sub ? `, ${z.sub}` : ''}"
         aria-pressed={z.active ? 'true' : undefined}
         onclick={() => onpick?.(z.key)}
+        ondragover={(e) => dragover(e, z.key)}
+        ondragleave={() => over === z.key && (over = null)}
+        ondrop={(e) => drop(e, z.key)}
       >
         <span class="zt">{z.title}</span>
         {#if z.sub}<span class="zm num">{z.sub}</span>{/if}
@@ -96,6 +116,11 @@
   .zone.active {
     border: 2px solid var(--hi);
     background: var(--hi-soft);
+    color: var(--ink);
+  }
+  .zone.over {
+    border: 2px solid var(--hi);
+    background: var(--hi);
     color: var(--ink);
   }
   .zone.full {

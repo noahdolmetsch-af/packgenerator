@@ -136,7 +136,31 @@ async function layers2026(db) {
   return true;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026];
+/**
+ * 4.10.2026: the full frame bag must always be in the bag list, also on a device where the
+ * bike update above did not run (Noah's screenshot only offered the half frame bag).
+ */
+async function fullFrameBag(db) {
+  if (!(await db.items.count())) return false; // nothing imported yet
+  let changed = false;
+  await db.transaction('rw', db.items, db.containers, async () => {
+    if (!(await db.items.get('TA14'))) {
+      await db.items.put({
+        id: 'TA14', name: 'Full frame bag', brand: '', model: '', category: 'bags', weightG: null, qty: 1, weightStatus: 'missing',
+        carry: 'bike', defaultBag: 'frame', ownership: 'owned', role: null, sets: [], kits: [], domains: ['bikepacking'],
+        note: 'Added 4.10.2026: on the Scott Scale and the Scott Spark.', updatedAt: now(),
+      });
+      changed = true;
+    }
+    if (!(await db.containers.get('bag-TA14'))) {
+      await db.containers.put({ id: 'bag-TA14', name: 'Full frame bag', slot: 'frame', volumeL: null, itemId: 'TA14', pieces: 1, note: '' });
+      changed = true;
+    }
+  });
+  return changed;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

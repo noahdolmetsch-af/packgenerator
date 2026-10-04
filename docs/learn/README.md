@@ -85,6 +85,7 @@ Wichtig: Beide Speicher gehören zum *Browser auf diesem Gerät*. Darum gibt es 
 - **Drucken:** `@media print` in `Pack.svelte` blendet alles aus ausser der Liste pro Tasche. Im Druckdialog "Als PDF speichern" wählen.
 - **Schichten** (`src/lib/layers.js`): Ein Teil kann Felder wie `ride: 'daily'`, `coldBelow: 10` oder `rain: 'yes'` haben. `layerSuggest` liest die Tour (Fahrtart, Stunden, Wetter) und gibt eine Liste zurück: was dazukommt, warum, getragen oder eingepackt, wie viele Stück. Die Regeln stehen also in den Daten, nicht im Code. Darum kannst du sie in Gear selbst ändern.
 - **Ersetzen** (`src/lib/replace.js`): Wird ein Teil ersetzt, sucht `replaceEverywhere` alle Touren, Taschen und Halterungen mit der alten ID und setzt die neue ein. Das läuft in einer Transaktion, also ganz oder gar nicht.
+- **Neues Pack-Layout** (`src/lib/pack/NotPacked.svelte`): Drei Spalten. Die Liste "Not packed" gruppiert nach Kategorie, Gruppen sind zugeklappt. Jedes Teil kann man mit der Maus ziehen (`draggable`): `dataTransfer` trägt die Teil-ID, und die Tasche auf der Zeichnung oder die offene Tasche nimmt sie mit `ondrop` an. Mit `{#snippet}` wird ein Stück Oberfläche (z.B. die Schichten) einmal geschrieben und am Desktop in der rechten Spalte, am Phone im Add-Tab gezeigt.
 - **Aufräumen beim Start** (`src/lib/tidy.js`): Taschenliste anlegen, Velos ergänzen, alte Touren umstellen. Jeder Schritt ändert nur, was es noch braucht.
 
 ## 9b. Bike care (`src/lib/care.js`, `src/pages/Care.svelte`)

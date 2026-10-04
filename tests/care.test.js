@@ -59,3 +59,18 @@ describe('bike care', () => {
     expect(wishFor(part, bike, [wish], 'BK21')).toBe(null);
   });
 });
+
+describe('bike care log', () => {
+  it('lists parts and finished repairs of one bike, newest first, with tyre values', async () => {
+    const { bikeLog, logPart, defaultParts } = await import('../src/lib/care.js');
+    let parts = defaultParts({ type: 'Hardtail' });
+    parts = logPart(parts, 'tyres', { date: '2026-09-01', km: 100, action: 'service', result: 'done', pressureF: 1.6, sealantMl: 30 });
+    parts = logPart(parts, 'rotorF', { date: '2026-10-02', km: 200, action: 'check', result: 'ok', value: 1.7, limit: 1.55 });
+    expect(parts.find((p) => p.key === 'rotorF').limit).toBe(1.55);
+    const tasks = [{ id: 1, area: 'Bike', subject: 'Hardtail', status: 'done', statusDate: '2026-10-03', task: 'Inner bar ends' }];
+    const log = bikeLog({ id: 'scott-hardtail', parts }, tasks);
+    expect(log.map((h) => h.what)).toEqual(['Inner bar ends', 'Brake rotor front', 'Tyres + sealant']);
+    expect(log[2]).toMatchObject({ pressureF: 1.6, sealantMl: 30 });
+    expect('limit' in log[1]).toBe(false);
+  });
+});

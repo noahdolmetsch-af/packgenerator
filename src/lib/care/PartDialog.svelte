@@ -1,5 +1,5 @@
 <script>
-  import { partInfo, wear, replaceHint, kmSince, lastReplace } from '../care.js';
+  import { partInfo, wear, replaceHint, kmSince, lastReplace, EXTRA } from '../care.js';
 
   /**
    * One part of a bike: measure it, say how it is, see everything that was done to it.
@@ -13,6 +13,10 @@
   // svelte-ignore state_referenced_locally
   let model = $state(part.model ?? '');
   let note = $state('');
+  // svelte-ignore state_referenced_locally
+  let limit = $state(p.limit ?? '');
+  let extra = $state({});
+  const num = (v) => (String(v ?? '').trim() === '' ? null : Number(String(v).replace(',', '.')));
   let error = $state('');
   let dialog;
 
@@ -24,11 +28,11 @@
   const RESULT = { ok: 'OK', needed: 'Work needed', done: 'Done' };
 
   async function log(action, result) {
-    let v = null;
-    if (String(value).trim() !== '') {
-      v = Number(String(value).replace(',', '.'));
-      if (!Number.isFinite(v)) return (error = 'Type a number, e.g. 0.4');
-    }
+    const v = num(value);
+    if (v != null && !Number.isFinite(v)) return (error = 'Type a number, e.g. 0.4');
+    const lim = num(limit);
+    if (lim != null && !Number.isFinite(lim)) return (error = 'Replace at: type a number, e.g. 1.5');
+    const extras = Object.fromEntries((p.extra ?? []).map((k) => [k, num(extra[k])]).filter(([, x]) => x != null && Number.isFinite(x)));
     await onlog({
       date: new Date().toISOString().slice(0, 10),
       km: typeof bike.km === 'number' ? bike.km : null,
@@ -38,6 +42,8 @@
       by,
       model: model.trim() || null,
       note: note.trim(),
+      ...extras,
+      ...(lim != null && lim !== p.limit ? { limit: lim } : {}),
     });
     dialog.close();
   }
@@ -59,6 +65,10 @@
   <div class="grid">
     <label><span class="lbl">Model</span><input class="inp" bind:value={model} placeholder="e.g. SRAM GX Eagle 12-speed" /></label>
     <label><span class="lbl">Measured{p.unit ? ` (${p.unit})` : ''}</span><input class="inp num" type="text" inputmode="decimal" bind:value={value} placeholder={p.unit ? 'optional' : 'no measurement'} disabled={!p.unit} /></label>
+    {#if p.limit != null}<label><span class="lbl">{p.lowIsWorn ? 'Replace below' : 'Replace at'} ({p.unit}) on this bike</span><input class="inp num" type="text" inputmode="decimal" bind:value={limit} /></label>{/if}
+    {#each p.extra ?? [] as k (k)}
+      <label><span class="lbl">{EXTRA[k].name} ({EXTRA[k].unit})</span><input class="inp num" type="text" inputmode="decimal" bind:value={extra[k]} placeholder="optional" /></label>
+    {/each}
     <label class="wide"><span class="lbl">Note</span><input class="inp" bind:value={note} placeholder="optional" /></label>
   </div>
   <p class="err" role="alert">{error}</p>
@@ -77,8 +87,8 @@
       {#each [...part.history].reverse() as h, n (n)}
         <li>
           <span class="num">{h.date}{h.km != null ? ` · ${h.km.toLocaleString('en')} km` : ''}</span>
-          <b>{h.action === 'check' ? RESULT[h.result] : ACTION[h.action]}{h.value != null ? ` · ${h.value} ${p.unit}` : ''}</b>
-          <span class="m">{[h.model, h.by === 'shop' ? 'bike shop' : h.by === 'self' ? 'me' : '', h.note].filter(Boolean).join(' · ')}</span>
+          <b>{h.action === 'check' ? RESULT[h.result] : h.action === 'replace' && !p.unit ? 'Done' : ACTION[h.action]}{h.value != null ? ` · ${h.value} ${p.unit}` : ''}</b>
+          <span class="m">{[h.model, ...Object.keys(EXTRA).filter((k) => h[k] != null).map((k) => `${EXTRA[k].name.toLowerCase()} ${h[k]} ${EXTRA[k].unit}`), h.by === 'shop' ? 'bike shop' : h.by === 'self' ? 'me' : '', h.note].filter(Boolean).join(' · ')}</span>
         </li>
       {/each}
     </ol>

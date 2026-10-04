@@ -16,6 +16,7 @@ Stand: 4. Oktober 2026
 - **Bikes:** eigene Taschenliste, 4 Velo-Setups mit Velo-Zeichnung, Montagepunkte ein/aus, Velo- und Fahrergewicht.
 - **Pack:** Tour wählen oder neu (Kopie der letzten Tour mit demselben Velo, sonst Standard-Set), Tasche auf der Zeichnung wählen, Teile hinzufügen, verschieben, Anzahl, abhaken (am Phone Tasche für Tasche), Taschen pro Tour ändern, Ready-Check (Standardliste, pro Tour änderbar), Systemgewicht.
 
+- **Neues Pack-Layout (v0.8.0):** drei Spalten, "Not packed" nach Kategorie zugeklappt, Etiketten, "+" oder Ziehen auf eine Tasche, Kacheln mit Füllbalken, Ready-Check kurz, am Phone fixe Leiste "Adding to".
 - **Runde 3 (Antworten 1–10):** 4 echte Velos mit Setups, fixe Halterungen, Nacht-Sets inkl. Light, Wetter mit Kleider-Vorschlag, Volumen-Warnung mit Taschen-Vorschlag, Wägen aus Pack, Druckliste, Gepäck vorne/hinten, Inventar-Check.
 
 ## To-do für Noah
@@ -29,7 +30,8 @@ Stand: 4. Oktober 2026
 - [ ] Danach die 303 in Pack neu packen (Taschen für diese Tour prüfen).
 
 ## Läuft
-- Nichts.
+- Ready-Check aufräumen: Rückfragen an Noah offen.
+- Prototyp ablösen: Vorschlag an Noah offen.
 
 ## Als Nächstes
 1. Bike care verfeinern nach deinem ersten Durchgang und den Service-Fotos.

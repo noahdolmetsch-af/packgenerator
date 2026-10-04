@@ -5,7 +5,7 @@
   import { nextId } from '../lib/gear.js';
   import {
     PART, defaultParts, partInfo, wear, needsWork, lastValue, kmSince, lastReplace, checkState, serviceDue, logPart,
-    taskBike, openRepairs, toReview, prepFor, upcomingTrips, prepParts, prepService, wishFor, CHECK_KM,
+    taskBike, openRepairs, toReview, prepFor, upcomingTrips, prepParts, prepService, wishFor, CHECK_KM, bikeLog, EXTRA,
   } from '../lib/care.js';
   import BikesNav from '../lib/care/BikesNav.svelte';
   import PartDialog from '../lib/care/PartDialog.svelte';
@@ -202,6 +202,7 @@
     {/if}
 
     {#each checks as { bike, check } (bike.id)}
+      {@const log = bikeLog(bike, tasks)}
       {@const flags = check.due + bike.parts.filter(needsWork).length + repairsFor(bike.id).length}
       <details class="block bike" id="care-{bike.id}" open={flags > 0 || trips.some(({ trip }) => trip.bikeId === bike.id)}>
         <summary class="bike-h">
@@ -265,6 +266,22 @@
             {/each}
           </ul>
         {/if}
+
+        <details class="log">
+          <summary>What was done when <small>{log.length}</small></summary>
+          {#if log.length}
+            <ol>
+              {#each log as h, n (n)}
+                <li>
+                  <span class="num when">{h.date}{h.km != null ? ` · ${h.km.toLocaleString('en')} km` : ''}</span>
+                  <span><b>{h.what}</b>: {h.action === 'repair' ? 'done' : h.action === 'replace' ? (h.unit ? 'replaced' : 'done') : h.action === 'service' ? 'serviced' : h.result === 'needed' ? 'work needed' : 'checked, OK'}{h.value != null ? ` · ${h.value} ${h.unit}` : ''}{#each Object.keys(EXTRA).filter((k) => h[k] != null) as k (k)}{` · ${EXTRA[k].name.toLowerCase()} ${h[k]} ${EXTRA[k].unit}`}{/each}{h.by === 'shop' ? ' · bike shop' : ''}{h.note ? ` · ${h.note}` : ''}</span>
+                </li>
+              {/each}
+            </ol>
+          {:else}
+            <p class="hint">Nothing recorded yet. The service photos will be the first entries.</p>
+          {/if}
+        </details>
       </details>
     {/each}
 
@@ -622,5 +639,30 @@
   .err {
     color: #b42318;
     font-size: 14px;
+  }
+  .log {
+    margin-top: 14px;
+  }
+  .log summary {
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .log ol {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+  }
+  .log li {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 2px 12px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  @media (max-width: 640px) {
+    .log li {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
