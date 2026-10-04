@@ -11,6 +11,7 @@
   import { ZONE } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate } from '../lib/debrief.js';
+  import { parseActivitiesCsv, parseRideFile, ridesOnTrip } from '../lib/activities.js';
 
   let { param = '' } = $props();
 
@@ -21,6 +22,9 @@
   const bagsQ = liveQuery(() => db.containers.toArray());
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const bikesQ = liveQuery(() => db.bikes.toArray());
+  const eventsQ = liveQuery(() => db.events.toArray());
+  // Answer 9a: the trips before the app (Hope, Alpenbrevet …) as a logbook to read, newest first.
+  const events = $derived([...($eventsQ ?? [])].sort((a, b) => (b.sortDate ?? '').localeCompare(a.sortDate ?? '')));
 
   const trips = $derived($tripsQ ?? []);
   const items = $derived($itemsQ ?? []);
@@ -42,6 +46,32 @@
   const bike = $derived(trip ? ($bikesQ ?? []).find((b) => b.id === trip.bikeId) ?? null : null);
   // Answer 8b: how often each item was not used before (other trips), shown in step 2.
   const before = $derived(trip ? unusedTimes(debriefs, trip.id) : {});
+  // Answer 6: rides from a Strava or Garmin export fill in the km (file import, no login).
+  let rideMsg = $state('');
+  async function importRides(event) {
+    const files = [...event.currentTarget.files];
+    event.currentTarget.value = '';
+    if (!files.length) return;
+    try {
+      let rides = [];
+      for (const f of files) {
+        const text = await f.text();
+        if (/\.csv$/i.test(f.name)) rides.push(...ridesOnTrip(parseActivitiesCsv(text), trip).rides);
+        else {
+          const r = parseRideFile(text, f.name);
+          if (!r.date || ridesOnTrip([r], trip).rides.length) rides.push(r);
+        }
+      }
+      if (!rides.length) return (rideMsg = `No rides from ${dateText(trip)} in ${files.length === 1 ? 'this file' : 'these files'}.`);
+      const km = Math.round(rides.reduce((t, r) => t + r.km, 0));
+      d.rides = rides.map(({ date, km: k, name }) => ({ date, km: k, name }));
+      d.km = km;
+      rideMsg = `${rides.length} ${rides.length === 1 ? 'ride' : 'rides'} imported: ${km} km.`;
+      persist();
+    } catch (err) {
+      rideMsg = err.message || 'This file could not be read.';
+    }
+  }
   function setKm(value) {
     const n = Math.round(Number(String(value).replace(/[^0-9.]/g, '')));
     d.km = value === '' || !Number.isFinite(n) ? null : n;
@@ -205,8 +235,19 @@
         {#if bike}
           <label class="km">
             <span>km of this trip <small>(goes onto {bike.name}{bike.km != null ? `, now ${bike.km.toLocaleString('en')} km` : ''})</small></span>
-            <input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder="e.g. 303" />
+            <span class="kmrow">
+              <input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder="e.g. 303" />
+              <span class="or">or</span>
+              <span class="btn sm imp">Import from Strava or Garmin<input type="file" accept=".csv,.gpx,.tcx,text/csv,application/gpx+xml" multiple onchange={importRides} /></span>
+            </span>
           </label>
+          {#if rideMsg}<p class="hint ride" role="status">{rideMsg}</p>{/if}
+          <details class="howto">
+            <summary>How to get the file</summary>
+            <p><b>Strava:</b> on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).</p>
+            <p><b>Garmin Connect:</b> on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).</p>
+            <p>Several files at once are fine (one per day). Only rides on the days of this trip count.</p>
+          </details>
         {/if}
         <label class="note">
           <span>One sentence for next time <small>(optional)</small></span>
@@ -308,6 +349,23 @@
             <div><b>{t.title}</b><span class="muted">{dateText(t)} · {c.unused} not used · {c.missing} missing</span></div>
             <span aria-hidden="true">→</span>
           </a>
+        {/each}
+      </section>
+    {/if}
+
+    {#if events.length}
+      <section id="logbook" aria-labelledby="log-h">
+        <h2 id="log-h" class="title h">Logbook <small class="muted">{events.length} earlier trips</small></h2>
+        {#each events as ev (ev.id)}
+          <details class="topic ev">
+            <summary><span class="title">{ev.name}</span> <span class="muted">{ev.dateText ?? ev.sortDate ?? ''}{ev.type ? ` · ${ev.type}` : ''}</span></summary>
+            <dl>
+              {#if ev.bike && ev.bike !== '–'}<dt>Bike</dt><dd>{ev.bike}</dd>{/if}
+              {#if ev.bags && ev.bags !== '–'}<dt>Bags</dt><dd>{ev.bags}</dd>{/if}
+              {#if ev.result}<dt>What worked</dt><dd>{ev.result}</dd>{/if}
+              {#if ev.learnings}<dt>Learnings</dt><dd>{ev.learnings}</dd>{/if}
+            </dl>
+          </details>
         {/each}
       </section>
     {/if}
@@ -425,6 +483,41 @@
   .km .inp {
     max-width: 160px;
     font-size: 18px;
+  }
+  .kmrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    font-weight: 400;
+  }
+  .kmrow .or {
+    color: var(--ink-3);
+  }
+  .imp {
+    position: relative;
+    overflow: hidden;
+  }
+  .imp input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .ride {
+    margin: -8px 0 10px;
+  }
+  .howto {
+    margin: -6px 0 16px;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .howto summary {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .howto p {
+    margin: 6px 0;
   }
   .before {
     color: var(--ink);
@@ -619,6 +712,35 @@
     color: var(--ink-2);
     margin: 4px 0 20px;
     font-size: 17px;
+  }
+  .ev summary .muted {
+    font-size: 14px;
+  }
+  .ev dl {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 6px 12px;
+    margin: 8px 0 4px;
+  }
+  .ev dt {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding-top: 2px;
+  }
+  .ev dd {
+    margin: 0;
+  }
+  @media (max-width: 519px) {
+    .ev dl {
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+    .ev dd {
+      margin-bottom: 8px;
+    }
   }
   .h {
     font-size: 26px;
