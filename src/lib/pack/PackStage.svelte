@@ -1,0 +1,301 @@
+<script>
+  /**
+   * The bags of a trip as big boxes on a pale bike (Noah's sketch, 4.10.2026): each box shows
+   * how many items, the weight, the first items and how full it is. It replaces the small labels
+   * of the bike drawing on the Pack page. On a phone the same boxes are a strip you swipe (answer 10a).
+   *
+   * cards: [{ key, title, name, count, grams, names, more, fill, vol, empty, active, noBag }]
+   * onpick(key): open that bag. ondropitem(key, itemId): an item or tile was dropped on a box.
+   */
+  import { formatWeight } from '../gear.js';
+  import { formatVolume } from '../bikes.js';
+
+  let { cards, onpick, ondropitem = null, strip = false, label = 'Bags' } = $props();
+  let over = $state(null);
+
+  // Where a place sits around the bike: the body places on the left, then the bike in three
+  // columns (rear, frame, front) and three rows. Bottle cages sit low in the frame, where they are.
+  const ME = ['body', 'carry', 'mounted'];
+  const CELLS = [
+    ['r1', ['seat']],
+    ['m1', ['ttrear', 'top']],
+    ['f1', ['pouchL', 'pouchR', 'bar']],
+    ['r2', ['side']],
+    ['m2', ['frame']],
+    ['f2', ['fork']],
+    ['m3', ['cage2', 'cage1', 'tool', 'down']],
+  ];
+  const SMALL = ['cage1', 'cage2', 'down', 'fork', 'ttrear', 'pouchL', 'pouchR'];
+  const placed = new Set([...ME, ...CELLS.flatMap(([, keys]) => keys)]);
+  const byKey = $derived(Object.fromEntries(cards.map((c) => [c.key, c])));
+  const me = $derived(ME.map((k) => byKey[k]).filter(Boolean));
+  const cells = $derived(CELLS.map(([area, keys]) => ({ area, cards: keys.map((k) => byKey[k]).filter(Boolean) })).filter((c) => c.cards.length));
+  // Places the drawing does not know (items in a slot without a bag): next to the frame.
+  const other = $derived(cards.filter((c) => !placed.has(c.key)));
+  const ordered = $derived([...me, ...cells.flatMap((c) => c.cards), ...other]);
+
+  function dragover(event, key) {
+    if (!ondropitem) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = event.dataTransfer.effectAllowed === 'copyMove' ? 'move' : 'copy';
+    over = key;
+  }
+  function drop(event, key) {
+    if (!ondropitem) return;
+    event.preventDefault();
+    over = null;
+    const id = event.dataTransfer.getData('text/plain');
+    if (id) ondropitem(key, id);
+  }
+  const facts = (c) => {
+    const what = c.empty ? 'empty' : `${c.count} ${c.count === 1 ? 'item' : 'items'} · ${formatWeight(c.grams)}`;
+    // Without item volumes there is no fill to show, only the size of the bag.
+    return c.cap && c.fill == null ? `${what} · ${formatVolume(c.cap)}` : what;
+  };
+</script>
+
+{#snippet card(c, small = false)}
+  <button
+    type="button"
+    class="bx"
+    class:small
+    class:empty={c.empty}
+    class:on={c.active}
+    class:over={over === c.key}
+    class:nobag={c.noBag}
+    aria-pressed={c.active}
+    aria-label="{c.name}, {facts(c)}{c.noBag ? ', no bag here' : ''}"
+    title={c.name}
+    onclick={() => onpick?.(c.key)}
+    ondragover={(e) => dragover(e, c.key)}
+    ondragleave={() => over === c.key && (over = null)}
+    ondrop={(e) => drop(e, c.key)}
+  >
+    <span class="n">{c.title}</span>
+    <span class="f num">{facts(c)}</span>
+    {#if !small && !strip && c.names.length}
+      <span class="its">
+        {#each c.names as nm, i (i)}<span class="it">{nm}</span>{/each}
+        {#if c.more}<span class="it more">+{c.more} more</span>{/if}
+      </span>
+    {/if}
+    {#if c.fill != null}
+      <span class="vol num" aria-hidden="true"><span class="bar" class:warn={c.fill > 100}><i style:width="{Math.min(100, c.fill)}%"></i></span>{#if !small}{formatVolume(c.vol)} / {formatVolume(c.cap)}{/if}</span>
+    {/if}
+  </button>
+{/snippet}
+
+{#if strip}
+  <div class="strip" role="group" aria-label={label}>
+    {#each ordered as c (c.key)}{@render card(c, true)}{/each}
+  </div>
+{:else}
+  <div class="stage" role="group" aria-label={label}>
+    <div class="me">
+      {#each me as c (c.key)}{@render card(c)}{/each}
+    </div>
+    <div class="bike">
+      <svg viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <circle cx="130" cy="205" r="82" /><circle cx="515" cy="205" r="82" />
+        <path d="M130 205 L285 205 L255 82 Z" /><path d="M258 88 L465 76 L478 120 L285 205" /><path d="M478 120 L515 205" />
+        <path d="M255 82 L250 58" /><path d="M222 56 L280 56" />
+        <path d="M465 76 L462 56 L494 50" />
+      </svg>
+      {#each cells as cell (cell.area)}
+        <div class="cell" style:grid-area={cell.area}>
+          {#each cell.cards as c (c.key)}{@render card(c, SMALL.includes(c.key) && c.count < 3)}{/each}
+        </div>
+      {/each}
+      {#if other.length}
+        <div class="cell" style:grid-area="f3">
+          {#each other as c (c.key)}{@render card(c, true)}{/each}
+        </div>
+      {/if}
+    </div>
+  </div>
+{/if}
+
+<style>
+  .stage {
+    display: grid;
+    grid-template-columns: minmax(130px, 200px) minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .me {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+  }
+  .bike {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr);
+    grid-template-areas: 'r1 m1 f1' 'r2 m2 f2' 'r3 m3 f3';
+    gap: 10px;
+    min-height: 300px;
+    align-content: space-between;
+  }
+  svg {
+    position: absolute;
+    inset: 4% 0 0;
+    width: 100%;
+    height: 96%;
+    stroke: #cdd4cb;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    pointer-events: none;
+  }
+  .cell {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
+    align-content: flex-start;
+  }
+  .cell > :global(.bx) {
+    flex: 1 1 120px;
+  }
+  .cell > :global(.bx.small) {
+    flex: 0 1 112px;
+  }
+  .bx {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 2px 0 rgba(15, 46, 39, 0.12);
+  }
+  .n {
+    font: 900 20px/1 var(--font-title);
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+  }
+  .small .n {
+    font-size: 16px;
+  }
+  .f {
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .its {
+    display: flex;
+    flex-direction: column;
+    margin-top: 2px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--ink-2);
+  }
+  .it {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .it.more {
+    color: var(--ink-3);
+  }
+  .vol {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  .bar {
+    flex: 1;
+    min-width: 30px;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--paper-2, #e6ebe3);
+    overflow: hidden;
+  }
+  .bar i {
+    display: block;
+    height: 100%;
+    background: var(--ink);
+  }
+  .bar.warn i {
+    background: var(--hi);
+  }
+  /* Answer 4a: places with a bag but nothing in it stay visible, dashed. */
+  .bx.empty {
+    border: 2px dashed var(--line);
+    background: transparent;
+    color: var(--ink-3);
+    box-shadow: none;
+  }
+  .bx.empty .f {
+    color: var(--ink-3);
+  }
+  /* The open bag is dark. */
+  .bx.on {
+    background: var(--ink);
+    border-color: var(--ink);
+    border-style: solid;
+    color: var(--paper);
+  }
+  .bx.on .f,
+  .bx.on .its,
+  .bx.on .vol {
+    color: #c9d4cc;
+  }
+  .bx.on .bar {
+    background: #3b4f46;
+  }
+  .bx.on .bar i {
+    background: var(--hi);
+  }
+  .bx.nobag {
+    border-color: #c0392b;
+  }
+  /* While dragging: the bag under the pointer lights up orange. */
+  .bx.over {
+    outline: 3px solid var(--hi);
+    outline-offset: 2px;
+  }
+  @media (hover: hover) {
+    .bx:hover {
+      outline: 3px solid rgba(255, 91, 20, 0.35);
+      outline-offset: 1px;
+    }
+  }
+  /* Phone: one row of cards to swipe through. */
+  .strip {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding: 2px 2px 8px;
+    margin: 0 0 4px;
+  }
+  .strip .bx {
+    flex: 0 0 auto;
+    min-width: 128px;
+    max-width: 180px;
+    scroll-snap-align: start;
+  }
+  .strip .n {
+    font-size: 17px;
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+  .strip .f {
+    white-space: nowrap;
+  }
+</style>

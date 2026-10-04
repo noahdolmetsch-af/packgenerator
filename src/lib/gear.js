@@ -58,7 +58,8 @@ export const itemWeight = (item) => (item.weightG == null ? null : item.weightG 
 /** 1234 → "1,234 g"; 12345 → "12.35 kg" */
 export function formatWeight(g) {
   if (g == null) return 'not weighed';
-  if (g >= 1000) return `${(g / 1000).toFixed(2)} kg`;
+  // No trailing zeros: 64 kg, 1.5 kg, 1.23 kg (design review: "64.00 kg" looked odd).
+  if (g >= 1000) return `${Number((g / 1000).toFixed(g >= 10000 ? 1 : 2))} kg`;
   return `${String(Math.round(g)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} g`;
 }
 

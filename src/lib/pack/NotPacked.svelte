@@ -99,6 +99,16 @@
     min-height: 0;
     overflow: auto;
   }
+  /* A soft fade at the bottom shows there is more to scroll (design review: rows were cut off). */
+  .np-list::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    display: block;
+    height: 28px;
+    background: linear-gradient(rgba(245, 246, 241, 0), var(--paper));
+    pointer-events: none;
+  }
   .gh {
     position: sticky;
     top: 0;

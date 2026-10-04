@@ -7,7 +7,7 @@
   import { tripStats, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor } from '../lib/trips.js';
   import { RIDES, layerSuggest, layerDone, applyLayers, openRows, waterOn } from '../lib/layers.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
-  import BikeStage from '../lib/bikes/BikeStage.svelte';
+  import PackStage from '../lib/pack/PackStage.svelte';
   import TripDialog from '../lib/pack/TripDialog.svelte';
   import NotPacked from '../lib/pack/NotPacked.svelte';
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
@@ -80,20 +80,27 @@
 
   const zone = $derived(stats?.zones.find((z) => z.key === zoneKey) ?? stats?.zones.find((z) => z.key === 'seat') ?? stats?.zones[0]);
 
-  const stageZones = $derived(
-    (stats?.zones ?? [])
-      .filter((z) => z.zone.box)
-      .map((z) => ({
+  // Noah's sketch (4.10.2026): big boxes per bag with what is inside, instead of small labels.
+  const cards = $derived(
+    (stats?.zones ?? []).map((z) => {
+      const names = z.entries.map((e) => itemsById[e.itemId]?.name ?? e.itemId);
+      const cap = z.bag?.volumeL || null;
+      return {
         key: z.key,
-        // Design answer 1a: the drawing shows the short place name; the full bag name is the tooltip.
         title: z.zone.name,
         name: z.bag ? z.bag.name : z.zone.name,
-        sub: `${z.entries.length} · ${formatWeight(z.grams)}`,
-        box: z.zone.box,
+        count: z.entries.length,
+        grams: z.grams,
+        names: names.slice(0, 4),
+        more: Math.max(0, names.length - 4),
+        fill: cap && z.vol ? (z.vol / cap) * 100 : null,
+        vol: z.vol,
+        cap,
         empty: !z.entries.length,
         active: z.key === zone?.key,
-        full: z.noBag && z.entries.length > 0,
-      })),
+        noBag: z.noBag && z.entries.length > 0,
+      };
+    }),
   );
 
   // Moving into a place: every zone of the trip.
@@ -147,6 +154,16 @@
     if (id) add(id);
   }
 
+  // Answer 9a: on a phone the open bag is one column, with a small title per category.
+  const bagRows = $derived.by(() => {
+    if (!zone) return [];
+    if (!phone.matches) return zone.entries.map((e) => ({ e, head: null }));
+    const order = Object.fromEntries(CATEGORIES.map((c, n) => [c.key, n]));
+    const cat = (e) => itemsById[e.itemId]?.category;
+    const sorted = [...zone.entries].sort((a, b) => (order[cat(a)] ?? 99) - (order[cat(b)] ?? 99));
+    return sorted.map((e, n) => ({ e, head: n === 0 || cat(sorted[n - 1]) !== cat(e) ? CATEGORY[cat(e)]?.name ?? 'Other' : null }));
+  });
+
   // How full the open bag is, in % (only when the bag has a volume).
   const fill = $derived(zone?.bag?.volumeL && zone.vol ? (zone.vol / zone.bag.volumeL) * 100 : null);
 
@@ -158,13 +175,6 @@
   const ready = $derived(trip?.ready ?? []);
   const readyCount = $derived(ready.filter((r) => trip && readyDone(r, trip)).length);
   const readyTotal = $derived(ready.length);
-  // Mockup answer 6a: only a short version next to the bag, the whole check opens on a click.
-  let readyOpen = $state(false);
-  const readyOpenNames = $derived.by(() => {
-    if (!trip) return '';
-    const open = ready.filter((r) => !readyDone(r, trip)).map((r) => r.label);
-    return open.length > 4 ? `${open.slice(0, 4).join(', ')} and ${open.length - 4} more` : open.join(', ');
-  });
   function toggleReady(row) {
     if (row.itemId) {
       // Older trips: an "always with me" row adds its missing item to its usual place.
@@ -205,6 +215,8 @@
   // Answer 4: overnight sets as switches.
   const setOn = (key) => !!trip?.sets?.[key];
   const switchSet = (key) => change((t) => toggleSet(t, items, key, !t.sets?.[key]));
+  const warmItems = $derived(items.filter((i) => isInventory(i) && i.sets?.includes('warm')));
+  const tripIds = $derived(trip ? onTrip(trip) : new Set());
   const setCount = (key) => items.filter((i) => isInventory(i) && i.sets?.includes(key)).length;
 
   // Answer 5 and round C answer 2: weather range, kind of ride and the layers they add.
@@ -223,6 +235,15 @@
   const slotOf = (id) => slotFor(itemsById[id]?.defaultBag, trip.setup);
   const takeLayer = (row) => setEntries((es) => applyLayers(es, [row], slotOf));
   const openLayers = $derived(trip ? openRows(suggestion, trip) : []);
+  const layerGroups = $derived.by(() => {
+    const groups = [];
+    for (const r of suggestion) {
+      let g = groups.at(-1);
+      if (!g || g.why !== r.why) groups.push((g = { why: r.why, rows: [], done: [] }));
+      (!r.skipped && layerDone(r, trip) ? g.done : g.rows).push(r);
+    }
+    return groups;
+  });
   // What a kind of ride adds, in words (Noah did not understand the drop-down, 4.10.2026).
   // Every ride < Daily < Training: each kind also brings what the ones before it bring.
   const rideHint = $derived.by(() => {
@@ -256,28 +277,34 @@
     <h1 class="title big">Pack</h1>
     <p class="card">No trips yet. Import your data on the <a href="#/">start page</a>, or <button type="button" class="btn hi" onclick={() => (dialog = { trip: null })}>Create a trip</button></p>
   {:else if trip && stats}
+    <!-- Answer 1a: title, facts and buttons in one row. -->
     <header class="head">
-      <div class="tt">
-        <h1 class="title big">{trip.title}</h1>
-        <p class="tags">
-          {#if whenLabel(trip.startDate)}<span class="tag hi">{whenLabel(trip.startDate)}</span>{/if}
-          <span class="tag">{trip.days} {trip.days === 1 ? 'day' : 'days'}</span>
-          <span class="tag">{bike?.name ?? 'No bike'}</span>
-          <button type="button" class="link" onclick={() => (dialog = { trip })}>Edit trip</button>
-          {#if fromTemplate}<span class="from">From template <a href="#/pack/templates">{fromTemplate.name}</a></span>{/if}
-        </p>
-      </div>
+      <h1 class="title big">{trip.title}</h1>
+      <p class="tags">
+        {#if whenLabel(trip.startDate)}<span class="tag hi">{whenLabel(trip.startDate)}</span>{/if}
+        <span class="tag">{trip.days} {trip.days === 1 ? 'day' : 'days'}</span>
+        <span class="tag">{bike?.name ?? 'No bike'}</span>
+        <button type="button" class="link" onclick={() => (dialog = { trip })}>Edit</button>
+        {#if fromTemplate}<span class="from">from <a href="#/pack/templates">{fromTemplate.name}</a></span>{/if}
+      </p>
       <div class="pick">
-        <label>
-          <span class="lbl">Trip</span>
-          <select class="sel" value={trip.id} onchange={(e) => choose(e.currentTarget.value)}>
-            {#each trips as t (t.id)}<option value={t.id}>{t.title}{t.startDate ? ` · ${t.startDate}` : ''}</option>{/each}
-          </select>
-        </label>
-        <button type="button" class="btn" onclick={() => (dialog = { trip: null })}>New trip</button>
-        <button type="button" class="btn" onclick={() => (saveTpl = true)}>Save as template</button>
-        <a class="btn" href="#/pack/templates">Templates <small>{templates.length}</small></a>
-        <button type="button" class="btn" onclick={() => window.print()}>Print list</button>
+        <select class="sel" aria-label="Open another trip" value={trip.id} onchange={(e) => choose(e.currentTarget.value)}>
+          {#each trips as t (t.id)}<option value={t.id}>{t.title}{t.startDate ? ` · ${t.startDate}` : ''}</option>{/each}
+        </select>
+        {#snippet actions()}
+          <button type="button" class="btn" onclick={() => (dialog = { trip: null })}>New trip</button>
+          <button type="button" class="btn" onclick={() => (saveTpl = true)}>Save as template</button>
+          <a class="btn" href="#/pack/templates">Templates <small>{templates.length}</small></a>
+          <button type="button" class="btn" onclick={() => window.print()}>Print</button>
+        {/snippet}
+        {#if phone.matches}
+          <details class="menu">
+            <summary aria-label="More: new trip, templates, print">•••</summary>
+            <div class="menu-in">{@render actions()}</div>
+          </details>
+        {:else}
+          {@render actions()}
+        {/if}
       </div>
     </header>
 
@@ -288,7 +315,7 @@
       <div class="w1"><span class="lbl">Gear</span><b class="num">{formatWeight(stats.gearG)}</b></div>
       <div class="w1"><span class="lbl">On me</span><b class="num">{formatWeight(stats.onMeG)}</b></div>
       <div class="w1"><span class="lbl">Bags</span><b class="num">{formatWeight(stats.bagsG)}</b></div>
-      <div class="w1"><span class="lbl">Bike</span>{#if stats.missing.bike}<a class="nw" href="#/bikes">not set</a>{:else}<b class="num">{formatWeight(stats.bikeG)}</b>{/if}</div>
+      <div class="w1"><span class="lbl">Bike</span>{#if stats.missing.bike}<a class="nw" href="#/bikes">not weighed</a>{:else}<b class="num">{formatWeight(stats.bikeG)}</b>{/if}</div>
       <div class="w1"><span class="lbl">Rider</span>{#if stats.missing.rider}<a class="nw" href="#/bikes">not set</a>{:else}<b class="num">{formatWeight(stats.riderG)}</b>{/if}</div>
       {#if water}<div class="w1"><span class="lbl">Water</span><b class="num">{Math.round(water * 10) / 10} L</b></div>{/if}
       <div class="w1" title="Luggage on the front / rear wheel: {formatWeight(axle.front)} / {formatWeight(axle.rear)}"><span class="lbl">Front / rear</span><b class="num" class:warn={rearPct > rearLimit}>{rearPct != null ? `${100 - rearPct} / ${rearPct} %` : '–'}</b></div>
@@ -345,23 +372,31 @@
       {#if suggestion.length}
         <div class="sugg">
           <p class="sugg-h"><b>Layers for this ride</b>{#if openLayers.length}<button type="button" class="btn sm hi" onclick={addAllLayers}>Add all {openLayers.length}</button>{:else}<span class="ok">All set</span>{/if}</p>
-          <ul>
-            {#each suggestion as r (r.slot)}
-              <li class:skip={r.skipped}>
-                <span class="wt">{r.why}</span>
-                <span class="nm">
-                  {#if r.alts.length}
-                    <select class="sel alt" aria-label="Choose for {itemsById[r.slot]?.name}" value={r.skipped ? 'none' : r.id} onchange={(e) => pickLayer(r.slot, e.currentTarget.value)}>
-                      {#each r.alts as a (a)}<option value={a}>{itemsById[a]?.name}</option>{/each}
-                      <option value="none">None</option>
-                    </select>
-                  {:else}{itemsById[r.id]?.name}{/if}{#if r.qty > 1}<small> × {r.qty}</small>{/if}
-                  {#if r.replaces}<small class="instead">instead of {itemsById[r.replaces]?.name}</small>{/if}
-                </span>
-                {#if r.skipped}<span class="ok muted">Skipped</span>{:else if layerDone(r, trip)}<span class="ok">{r.place === 'wear' ? 'On me' : 'Packed'}</span>{:else}<button type="button" class="btn sm" onclick={() => takeLayer(r)}>{r.replaces ? 'Swap' : r.place === 'wear' ? 'Wear' : 'Pack'}</button>{/if}
-              </li>
-            {/each}
-          </ul>
+          <!-- Answer 5a: one title per rule; rows already done fold into one line. -->
+          {#each layerGroups as g, n (n)}
+            <div class="lg">
+              <p class="lgh">{g.why}</p>
+              {#if g.rows.length}
+                <ul>
+                  {#each g.rows as r (r.slot)}
+                    <li class:skip={r.skipped}>
+                      <span class="nm">
+                        {#if r.alts.length}
+                          <select class="sel alt" aria-label="Choose for {itemsById[r.slot]?.name}" value={r.skipped ? 'none' : r.id} onchange={(e) => pickLayer(r.slot, e.currentTarget.value)}>
+                            {#each r.alts as a (a)}<option value={a}>{itemsById[a]?.name}</option>{/each}
+                            <option value="none">None</option>
+                          </select>
+                        {:else}{itemsById[r.id]?.name}{/if}{#if r.qty > 1}<small> × {r.qty}</small>{/if}
+                        {#if r.replaces}<small class="instead">instead of {itemsById[r.replaces]?.name}</small>{/if}
+                      </span>
+                      {#if r.skipped}<span class="ok muted">Skipped</span>{:else}<button type="button" class="btn sm" onclick={() => takeLayer(r)}>{r.replaces ? 'Swap' : r.place === 'wear' ? 'Wear' : 'Pack'}</button>{/if}
+                    </li>
+                  {/each}
+                </ul>
+              {/if}
+              {#if g.done.length}<p class="lgd">✓ Done: {g.done.map((r) => itemsById[r.id]?.name).join(', ')}</p>{/if}
+            </div>
+          {/each}
         </div>
       {:else if trip.ride || (wx?.min != null && wx?.max != null) || wx?.rain === 'showers' || wx?.rain === 'rain'}
         <p class="hint">Nothing to add. Set layers on your items in Gear (Edit → Layers).</p>
@@ -376,6 +411,15 @@
           </button>
         {/each}
       </div>
+      <!-- Noah, 4.10.2026 (1b): what "Warm" brings is shown open. -->
+      {#if warmItems.length}
+        <details class="setlist" open>
+          <summary>Warm: {warmItems.length} items</summary>
+          <ul>
+            {#each warmItems as i (i.id)}<li class:on={tripIds.has(i.id)}>{i.name}{#if tripIds.has(i.id)}<span class="ok"> ✓</span>{/if}</li>{/each}
+          </ul>
+        </details>
+      {/if}
     {/snippet}
 
     {#snippet bagChoice()}
@@ -421,9 +465,12 @@
     {/snippet}
 
     {#snippet target()}
+      <!-- Answer 2a: a calm line instead of a big orange field; the choice opens on "change". -->
       <label class="target">
         <span>Adding to</span>
-        <select class="sel" value={zone?.key} onchange={(e) => (zoneKey = e.currentTarget.value)} aria-label="Bag that + adds to">
+        <b>{targetName}</b>
+        <span class="tc">change</span>
+        <select value={zone?.key} onchange={(e) => (zoneKey = e.currentTarget.value)} aria-label="Bag that + adds to">
           {#each targets as t (t.key)}<option value={t.key}>{t.bag ? t.bag.name : t.zone.name}</option>{/each}
         </select>
       </label>
@@ -448,16 +495,7 @@
 
       {#if !phone.matches || tab === 'pack'}
         <div class="c-bag">
-          <BikeStage zones={stageZones} onpick={(k) => (zoneKey = k)} ondropitem={phone.matches ? null : addTo} label="Bags on {bike?.name ?? 'the bike'}, tap one to open it" />
-          {#if phone.matches}
-            <div class="chips" role="group" aria-label="Bags">
-              {#each stats.zones as z (z.key)}
-                <button type="button" class="chip" class:on={z.key === zone?.key} class:warn={z.noBag && z.entries.length} aria-pressed={z.key === zone?.key} onclick={() => (zoneKey = z.key)}>
-                  {z.bag ? z.bag.name : z.zone.name} <small>{z.entries.length}</small>
-                </button>
-              {/each}
-            </div>
-          {/if}
+          <PackStage {cards} strip={phone.matches} onpick={(k) => (zoneKey = k)} ondropitem={phone.matches ? null : addTo} label="Bags on {bike?.name ?? 'the bike'}, tap one to open it" />
 
           {#if zone}
             <section class="bag" class:over={bagOver} aria-labelledby="bag-h" ondragover={bagDragover} ondragleave={() => (bagOver = false)} ondrop={bagDrop}>
@@ -482,12 +520,13 @@
               {/if}
               {#if zone.noBag}<p class="warnbox">This trip has no bag here. Move these items or choose a bag in "Bags for this trip".</p>{/if}
               <ul class="tiles">
-                {#each zone.entries as e (e.itemId)}
+                {#each bagRows as { e, head } (e.itemId)}
                   {@const it = itemsById[e.itemId]}
+                  {#if head}<li class="cathead" style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>{head}</li>{/if}
                   <li class="tile" class:open={openRow === e.itemId} draggable={!phone.matches} ondragstart={(ev) => (ev.dataTransfer.setData('text/plain', e.itemId), (ev.dataTransfer.effectAllowed = 'copyMove'))} style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>
                     <span class="nm">{it?.name ?? e.itemId}</span>
                     <span class="foot">
-                      <span class="w num" class:nw={it?.weightG == null}>{it?.weightG == null ? 'not weighed' : formatWeight(it.weightG * (e.qty || 1))}{#if (e.qty || 1) > 1}<small> ({e.qty}×)</small>{/if}</span>
+                      <span class="w num" class:nw={it?.weightG == null} title={it?.weightG == null ? 'not weighed' : undefined}>{it?.weightG == null ? '—' : formatWeight(it.weightG * (e.qty || 1))}{#if (e.qty || 1) > 1}<small> ({e.qty}×)</small>{/if}</span>
                       <span class="tb">
                         <button type="button" class="more" aria-expanded={openRow === e.itemId} aria-label="Amount or other bag for {it?.name}" onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>⋯</button>
                         <button type="button" class="minus" aria-label="Take {it?.name} out of {zoneName(zone)}" onclick={() => removeEntry(e.itemId)}>−</button>
@@ -533,19 +572,14 @@
             <h2 id="night-h" class="title">Night</h2>
             {@render night()}
           </section>
-          <section class="box-s ready" aria-labelledby="ready-h">
-            <div class="ready-h">
-              <h2 id="ready-h" class="title">Ready check</h2>
+          <!-- Noah, 4.10.2026: the ready check is always folded; a click opens the whole list. -->
+          <details class="box-s ready fold">
+            <summary class="ready-h">
+              <span class="title">Ready check</span>
               <span class="num m">{readyCount} / {readyTotal}</span>
-            </div>
-            {#if readyOpen}
-              {@render readyFull()}
-              <button type="button" class="link" onclick={() => (readyOpen = false)}>Show less</button>
-            {:else}
-              <p class="short">{readyCount === readyTotal ? 'Everything is ready.' : `Still open: ${readyOpenNames}`}</p>
-              <button type="button" class="btn" onclick={() => (readyOpen = true)}>Open the full check</button>
-            {/if}
-          </section>
+            </summary>
+            {@render readyFull()}
+          </details>
           <details class="box-s setup">
             <summary>Bags for this trip</summary>
             {@render bagChoice()}
@@ -599,23 +633,48 @@
 
 <style>
   .big {
-    font-size: clamp(48px, 10vw, 88px);
-    line-height: 0.9;
+    font-size: clamp(38px, 5vw, 56px);
+    line-height: 0.95;
   }
   .head {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: end;
-    gap: 12px 24px;
-    margin-bottom: 14px;
+    align-items: center;
+    gap: 8px 16px;
+    margin-bottom: 10px;
   }
   .tags {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 6px;
-    margin: 8px 0 0;
+    margin: 0;
+  }
+  .menu {
+    position: relative;
+  }
+  .menu summary {
+    list-style: none;
+    padding: 4px 10px;
+    font: 700 20px/1 var(--font-body);
+    letter-spacing: 2px;
+    cursor: pointer;
+  }
+  .menu summary::-webkit-details-marker {
+    display: none;
+  }
+  .menu-in {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 5;
+    display: grid;
+    gap: 6px;
+    min-width: 200px;
+    padding: 8px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 6px;
   }
   .tag {
     border: 1.5px solid var(--ink);
@@ -633,8 +692,34 @@
   .pick {
     display: flex;
     gap: 8px;
-    align-items: end;
+    align-items: center;
     flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-left: auto;
+  }
+  .pick .btn {
+    padding: 6px 10px;
+  }
+  @media (min-width: 720px) {
+    .pick {
+      flex-wrap: nowrap;
+    }
+    .pick .sel {
+      max-width: 220px;
+    }
+  }
+  @media (max-width: 719px) {
+    .head .title {
+      flex: 1 1 100%;
+    }
+    .pick {
+      flex: 1;
+      flex-wrap: nowrap;
+    }
+    .pick .sel {
+      flex: 1;
+      min-width: 0;
+    }
   }
   .from {
     font-size: 14px;
@@ -758,6 +843,20 @@
     font-weight: 400;
     opacity: 0.8;
   }
+  .setlist summary {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .setlist ul {
+    margin: 4px 0 0;
+    padding: 0 0 0 18px;
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+  .setlist li.on {
+    color: var(--ink);
+  }
   .wxin {
     display: grid;
     grid-template-columns: 1fr 1fr 1.4fr;
@@ -811,19 +910,35 @@
     margin: 0;
     padding: 0;
   }
+  .lg + .lg {
+    margin-top: 6px;
+  }
+  .lgh {
+    margin: 6px 0 0;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--line);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .lgd {
+    margin: 4px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2f7a4f;
+  }
+  .sugg li:first-child {
+    border-top: 0;
+  }
   .sugg li {
     display: grid;
-    grid-template-columns: 92px 1fr auto;
+    grid-template-columns: 1fr auto;
     gap: 8px;
     align-items: center;
     padding: 4px 0;
     border-top: 1px solid var(--line);
-  }
-  .wt {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--ink-3);
   }
   .instead {
     display: block;
@@ -946,11 +1061,6 @@
     font-size: 22px;
     text-transform: uppercase;
   }
-  .short {
-    margin: 8px 0;
-    font-size: 14px;
-    color: var(--ink-2);
-  }
   .target {
     display: flex;
     align-items: center;
@@ -959,12 +1069,34 @@
     font-weight: 700;
     color: var(--ink-3);
   }
-  .target .sel {
+  .target {
+    position: relative;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: var(--paper-2, #e6ebe3);
+    font-weight: 400;
+    color: var(--ink-2);
+  }
+  .target b {
     flex: 1;
     min-width: 0;
-    border-color: var(--hi);
-    background: var(--hi-soft);
-    font-weight: 700;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .target .tc {
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+  .target select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 16px;
   }
   .ph-cond {
     margin-bottom: 12px;
@@ -1031,16 +1163,16 @@
     margin: 10px 0 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
     gap: 8px;
   }
   .tile {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 6px;
-    min-height: 64px;
-    padding: 8px;
+    gap: 2px;
+    min-height: 52px;
+    padding: 6px 8px;
     background: var(--paper);
     border: 1px solid var(--line);
     border-left: 4px solid var(--c);
@@ -1084,6 +1216,45 @@
     gap: 8px;
     align-items: center;
   }
+  /* Answer 9a: a phone shows the open bag as one column of rows, with a title per category. */
+  @media (max-width: 719px) {
+    .tiles {
+      grid-template-columns: 1fr;
+      gap: 0;
+      border: 1px solid var(--line);
+    }
+    .tile {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      min-height: 48px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-left: 4px solid var(--c);
+    }
+    .tile .nm {
+      flex: 1;
+      min-width: 0;
+    }
+    .tile .foot {
+      gap: 6px;
+    }
+    .tile .acts {
+      flex-basis: 100%;
+    }
+    .tile.open {
+      grid-column: auto;
+    }
+  }
+  .cathead {
+    padding: 6px 8px 4px;
+    background: var(--paper-2, #e6ebe3);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
   .tiles .empty {
     grid-column: 1 / -1;
     background: var(--paper);
@@ -1125,31 +1296,6 @@
   }
   .pack:has(.addbar) {
     padding-bottom: 70px;
-  }
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 10px 0;
-  }
-  .chip {
-    border: 1.5px solid var(--ink-3);
-    background: var(--paper);
-    border-radius: 999px;
-    padding: 5px 10px;
-    font: 600 14px var(--font-body);
-    color: var(--ink);
-  }
-  .chip.on {
-    border-color: var(--hi);
-    background: var(--hi-soft);
-  }
-  .chip.warn {
-    border-color: #c0392b;
-  }
-  .chip small {
-    color: var(--ink-3);
-    font-weight: 400;
   }
   .bag {
     margin-top: 12px;
@@ -1284,6 +1430,26 @@
     font-size: 26px;
     border-bottom: 0;
     margin-bottom: 0;
+  }
+  .fold summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .fold summary::-webkit-details-marker {
+    display: none;
+  }
+  .fold summary .title {
+    font-size: 26px;
+  }
+  .fold summary .title::before {
+    content: '▸ ';
+    font-size: 18px;
+  }
+  .fold[open] summary .title::before {
+    content: '▾ ';
+  }
+  .fold[open] summary {
+    margin-bottom: 8px;
   }
   .ready-h {
     display: flex;
