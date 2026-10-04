@@ -9,6 +9,8 @@
   import BikesNav from '../lib/care/BikesNav.svelte';
   import { phone } from '../lib/media.svelte.js';
   import { nextTrip } from '../lib/debrief.js';
+  import { bikePhotos, shrinkImage } from '../lib/photo.js';
+  import Lightbox from '../lib/ui/Lightbox.svelte';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -16,6 +18,7 @@
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
   const rearQ = liveQuery(() => db.settings.get('rearLimitPct'));
   const tripsQ = liveQuery(() => db.trips.toArray());
+  const photosQ = liveQuery(() => db.photos.toArray());
 
   const bikes = $derived(sortBikes($bikesQ ?? []));
   const bags = $derived($bagsQ ?? []);
@@ -28,6 +31,49 @@
   // Design audit B4: the bike's bags are the standard; the next trip on it may use others.
   const tripOn = $derived(bike ? nextTrip(($tripsQ ?? []).filter((t) => t.bikeId === bike.id)) : null);
   const tripBag = (key) => (tripOn && (tripOn.setup?.[key] ?? null) !== (bike.setup?.[key] ?? null) ? bags.find((b) => b.id === tripOn.setup?.[key]) ?? { name: 'no bag', none: true } : null);
+
+  /* ---------- setup photos (Noah, 4.10.2026, answers 1a-6a) ---------- */
+  const gallery = $derived(bikePhotos(bike, $photosQ ?? []));
+  const bikeTrips = $derived(bike ? ($tripsQ ?? []).filter((t) => t.bikeId === bike.id).sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '')) : []);
+  const tripTitle = (id) => ($tripsQ ?? []).find((t) => t.id === id)?.title ?? null;
+  let shown = $state(null); // index in the gallery
+  let photoMsg = $state('');
+  let adding = $state(false);
+  async function addPhotos(event) {
+    const files = [...event.currentTarget.files];
+    event.currentTarget.value = '';
+    adding = true;
+    photoMsg = '';
+    try {
+      for (const [n, file] of files.entries()) {
+        const data = await shrinkImage(file);
+        const id = `photo-${Date.now().toString(36)}-${n}`;
+        await db.photos.put({ id, bikeId: bike.id, name: file.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Setup', tripId: null, main: !gallery.length && n === 0, data, addedAt: new Date().toISOString() });
+      }
+    } catch (err) {
+      photoMsg = err.message || 'This photo could not be read.';
+    } finally {
+      adding = false;
+    }
+  }
+  /** The photo shown pale behind the bags in Pack. The old bike photo is main when no other one is. */
+  async function setMain(p) {
+    const mine = ($photosQ ?? []).filter((x) => x.bikeId === bike.id);
+    await db.transaction('rw', db.photos, async () => {
+      for (const x of mine) await db.photos.update(x.id, { main: x.id === p.id });
+    });
+  }
+  async function rename(p) {
+    const name = prompt('Name of this photo, e.g. "Hope 2026"', p.name);
+    if (name?.trim()) await db.photos.update(p.id, { name: name.trim().slice(0, 60) });
+  }
+  const setTrip = (p, tripId) => db.photos.update(p.id, { tripId: tripId || null });
+  async function removePhoto(p) {
+    if (!confirm(`Remove the photo "${p.name}"?`)) return;
+    if (p.stored) await db.photos.delete(p.id);
+    else await db.bikes.update(bike.id, { photo: null });
+    if (shown != null && shown >= gallery.length - 1) shown = gallery.length > 1 ? gallery.length - 2 : null;
+  }
 
   let editMounts = $state(false); // show all places and let the user switch mounts on and off
   let activeSlot = $state(null);
@@ -139,7 +185,7 @@
       <div class="bh">
         <div>
           <h2 id="bike-h" class="title">{bike.name}</h2>
-          <p class="sub">{bike.type ?? ''}{bike.use ? ` · ${bike.use}` : ''} <button type="button" class="link" onclick={() => (bikeDialog = { bike })}>Edit</button>{#if !bike.photo} · <button type="button" class="link" onclick={() => (bikeDialog = { bike })}>Add photo</button>{/if}</p>
+          <p class="sub">{bike.type ?? ''}{bike.use ? ` · ${bike.use}` : ''} <button type="button" class="link" onclick={() => (bikeDialog = { bike })}>Edit</button></p>
           <p class="fix">
             <span class="lbl">Always mounted</span>
             {#each bike.fixtures ?? [] as f (f)}
@@ -166,6 +212,17 @@
             {#if setup.unweighed}<small class="nw">+ {setup.unweighed} not weighed</small>{/if}
           </div>
         </div>
+      </div>
+
+      <div class="gal" aria-label="Photos of the {bike.name}">
+        {#each gallery as p, n (p.id)}
+          <button type="button" class="th" class:main={p.main} onclick={() => (shown = n)} aria-label="Open photo {p.name}{p.main ? ', shown in Pack' : ''}">
+            <img src={p.src} alt="" loading="lazy" />
+            <span>{p.name}</span>
+          </button>
+        {/each}
+        <label class="th add">{adding ? 'Reading…' : '+ Photo'}<input type="file" accept="image/*" multiple onchange={addPhotos} hidden disabled={adding} /></label>
+        {#if photoMsg}<p class="err" role="alert">{photoMsg}</p>{/if}
       </div>
 
       <div class="layout">
@@ -245,7 +302,93 @@
   <BagDialog bag={dialog.bag} {items} {bags} {bikes} onclose={() => (dialog = null)} />
 {/if}
 
+{#if shown != null && gallery.length}
+  <Lightbox list={gallery.map((p) => ({ src: p.src, name: p.name, sub: [p.main ? 'Shown in Pack' : '', p.tripId ? `For ${tripTitle(p.tripId) ?? 'a trip'}` : ''].filter(Boolean).join(' · ') }))} start={shown} onclose={() => (shown = null)}>
+    {#snippet actions(cur)}
+      {@const p = gallery.find((x) => x.src === cur.src)}
+      {#if p}
+        {#if !p.main}<button type="button" class="lbtn" onclick={() => setMain(p)}>Show in Pack</button>{/if}
+        {#if p.stored}
+          <button type="button" class="lbtn" onclick={() => rename(p)}>Rename</button>
+          <select class="lsel" aria-label="Show for this trip" value={p.tripId ?? ''} onchange={(e) => setTrip(p, e.currentTarget.value)}>
+            <option value="">For every trip</option>
+            {#each bikeTrips as t (t.id)}<option value={t.id}>For {t.title}</option>{/each}
+          </select>
+        {/if}
+        <button type="button" class="lbtn" onclick={() => removePhoto(p)}>Remove</button>
+      {/if}
+    {/snippet}
+  </Lightbox>
+{/if}
+
 <style>
+  .gal {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 0 10px;
+    margin-bottom: 8px;
+  }
+  .th {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 104px;
+    padding: 0;
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font: 600 12px var(--font-body);
+    text-align: left;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .th.main {
+    border-color: var(--ink);
+  }
+  .th img {
+    width: 100%;
+    height: 72px;
+    object-fit: cover;
+    display: block;
+  }
+  .th span {
+    padding: 2px 6px 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .th.add {
+    align-items: center;
+    justify-content: center;
+    min-height: 92px;
+    border-style: dashed;
+    font-size: 14px;
+    text-align: center;
+  }
+  .lbtn,
+  .lsel {
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1.5px solid #f4f6f2;
+    border-radius: 6px;
+    background: none;
+    color: #f4f6f2;
+    font: 600 14px var(--font-body);
+    cursor: pointer;
+  }
+  .lsel option {
+    color: var(--ink);
+  }
+  .gal .err {
+    flex: none;
+    align-self: center;
+    margin: 0;
+    color: #b42318;
+    font-size: 14px;
+  }
   .head {
     display: flex;
     flex-wrap: wrap;

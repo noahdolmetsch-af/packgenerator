@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 2; // 2: bags (containers) table, bike setups
+export const SCHEMA_VERSION = 3; // 2: bags (containers) table, bike setups. 3: workshop visits, photos
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -28,6 +28,8 @@ export const DATA_TABLES = [
   'containers', // bags and cages that can go on a bike (own list, linked to a gear item for the weight)
   'weightChecks', // where a disputed weight came from
   'settings', // key/value, e.g. rider weight
+  'visits', // workshop visits: date, shop, invoice, cost, the jobs done and the receipt photos
+  'photos', // setup photos of a bike, shown in a gallery and pale behind the bags in Pack
 ];
 
 /**
@@ -68,6 +70,25 @@ export const DATA_TABLES = [
  * @property {Object<string, string|null>} setup  slot → container id that sits there by default
  * @property {string[]} [fixtures]  gear items always mounted on this bike (e.g. Garmin mount); counted in the bike weight
  * @property {string} [weightNote]
+ *
+ * @typedef {Object} Visit          One workshop visit (Noah, 4.10.2026, answer 7a)
+ * @property {string} id            e.g. "biketech-R6439"
+ * @property {string} bikeId
+ * @property {string} date          YYYY-MM-DD
+ * @property {string} shop
+ * @property {string} [invoice]
+ * @property {number|null} totalChf
+ * @property {number|null} km       bike km at the visit, when known
+ * @property {{part: string, action: 'check'|'service'|'replace', model?: string, what?: string, chf?: number, setup?: Object}[]} parts
+ * @property {string[]} [photos]    receipt pages as small JPEG data URLs
+ *
+ * @typedef {Object} Photo          A setup photo of a bike (answers 1a, 4a)
+ * @property {string} id
+ * @property {string} bikeId
+ * @property {string} name          e.g. "Hope 2026"
+ * @property {string|null} tripId   shown in Pack for this trip
+ * @property {boolean} main         shown in Pack when the trip has no own photo
+ * @property {string} data          JPEG data URL
  */
 
 /**
@@ -91,6 +112,11 @@ export function createDb(name = 'pack-generator') {
   // Version 2 only adds a table, so existing data stays as it is.
   db.version(2).stores({
     containers: 'id, slot',
+  });
+  // Version 3 only adds tables (workshop visits, photos), so existing data stays as it is.
+  db.version(3).stores({
+    visits: 'id, bikeId, date',
+    photos: 'id, bikeId, tripId',
   });
   return db;
 }

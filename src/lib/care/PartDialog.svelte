@@ -88,7 +88,7 @@
         <li>
           <span class="num">{h.date}{h.km != null ? ` · ${h.km.toLocaleString('en')} km` : ''}</span>
           <b>{h.action === 'check' ? RESULT[h.result] : h.action === 'replace' && !p.unit ? 'Done' : ACTION[h.action]}{h.value != null ? ` · ${h.value} ${p.unit}` : ''}</b>
-          <span class="m">{[h.model, ...Object.keys(EXTRA).filter((k) => h[k] != null).map((k) => `${EXTRA[k].name.toLowerCase()} ${h[k]} ${EXTRA[k].unit}`), h.by === 'shop' ? 'bike shop' : h.by === 'self' ? 'me' : '', h.note].filter(Boolean).join(' · ')}</span>
+          <span class="m">{[h.model, ...Object.keys(EXTRA).filter((k) => h[k] != null).map((k) => `${EXTRA[k].name.toLowerCase()} ${h[k]} ${EXTRA[k].unit}`), h.by === 'shop' ? 'bike shop' : h.by === 'self' ? 'me' : '', h.note, h.chf ? `CHF ${h.chf.toFixed(2)}` : ''].filter(Boolean).join(' · ')}</span>
         </li>
       {/each}
     </ol>

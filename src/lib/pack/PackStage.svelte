@@ -6,11 +6,13 @@
    *
    * cards: [{ key, title, name, count, grams, names, more, fill, vol, empty, active, noBag }]
    * onpick(key): open that bag. ondropitem(key, itemId): an item or tile was dropped on a box.
+   * photo: the bike's setup photo, pale behind the boxes (answer 2a); onphoto(): open it big.
+   * On a phone (strip) there is no room behind the boxes: only a small photo button (answer 3a).
    */
   import { formatWeight } from '../gear.js';
   import { formatVolume } from '../bikes.js';
 
-  let { cards, onpick, ondropitem = null, strip = false, label = 'Bags', photo = null } = $props();
+  let { cards, onpick, ondropitem = null, strip = false, label = 'Bags', photo = null, photoName = '', onphoto = null } = $props();
   let over = $state(null);
 
   // Where a place sits around the bike: the body places on the left, then the bike in three
@@ -85,9 +87,18 @@
   </button>
 {/snippet}
 
+{#snippet photoBtn()}
+  <button type="button" class="pbtn" aria-label="Open the photo{photoName ? ` ${photoName}` : ''}" title="Open the photo" onclick={() => onphoto?.()}>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="10" r="2" /><path d="M21 16l-5-5-9 8" /></svg>
+  </button>
+{/snippet}
+
 {#if strip}
+  <div class="srow">
+  {#if photo && onphoto}{@render photoBtn()}{/if}
   <div class="strip" role="group" aria-label={label}>
     {#each ordered as c (c.key)}{@render card(c, true)}{/each}
+  </div>
   </div>
 {:else}
   <div class="stage" role="group" aria-label={label}>
@@ -98,6 +109,7 @@
       {#if photo}
         <!-- Answer 13b: the own bike behind the bags, pale so the boxes stay readable. -->
         <img class="photo" src={photo} alt="" />
+        {#if onphoto}{@render photoBtn()}{/if}
       {:else}
       <svg viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <circle cx="130" cy="205" r="82" /><circle cx="515" cy="205" r="82" />
@@ -165,6 +177,45 @@
     opacity: 0.4;
     pointer-events: none;
     filter: grayscale(0.3);
+  }
+  .pbtn {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1.5px solid var(--ink-3);
+    border-radius: 6px;
+    background: var(--paper);
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  .pbtn svg {
+    position: static;
+    width: 22px;
+    height: 22px;
+    stroke: var(--ink-2);
+    stroke-width: 1.8;
+  }
+  .srow {
+    display: flex;
+    gap: 8px;
+    min-width: 0;
+  }
+  .srow .strip {
+    flex: 1;
+    min-width: 0;
+  }
+  .srow .pbtn {
+    position: static;
+    flex: none;
+    align-self: flex-start;
+    width: 44px;
+    height: 56px;
   }
   .cell {
     position: relative;
