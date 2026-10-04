@@ -13,12 +13,15 @@ Stand: 4. Oktober 2026
 - Am Phone ist Gear zum Nachschlagen und Wägen da (Details ansehen, Gewicht eintragen).
 - Gear-Korrekturen nach dem ersten Rundgang: Kategorien auf- und zuklappbar, Gear-Gewicht ohne Essen und Wasser, Brand und Model getrennt, Wägen beginnt mit Teilen für jede Tour, Phone-Layout verbessert.
 
+- **Bikes:** eigene Taschenliste, 4 Velo-Setups mit Velo-Zeichnung, Montagepunkte ein/aus, Velo- und Fahrergewicht.
+- **Pack:** Tour wählen oder neu (Kopie der letzten Tour mit demselben Velo, sonst Standard-Set), Tasche auf der Zeichnung wählen, Teile hinzufügen, verschieben, Anzahl, abhaken (am Phone Tasche für Tasche), Taschen pro Tour ändern, Ready-Check (Standardliste, pro Tour änderbar), Systemgewicht.
+
 ## Läuft
 - Nichts.
 
 ## Als Nächstes
-1. Taschen und vier Velo-Setups als eigene Liste.
-2. Packen: Trip als Kopie des letzten, Standard-Set, Taschen am Velo, Ready-Check (Vorlage: Prototyp).
+1. Packen verfeinern nach deinem ersten Test mit der 303 (Wetter, Nacht-Sets, Volumen).
+2. Prototyp-Daten per Backup übernehmen, danach Prototyp ablösen.
 3. Bike care (Wartung mit Erinnerung zum Event-Datum).
 4. Debrief, danach Learnings.
 5. Gear: Board-Seite (Kacheln nach Gewicht) als zweite Ansicht.

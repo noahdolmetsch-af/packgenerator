@@ -75,11 +75,19 @@ Wichtig: Beide Speicher gehören zum *Browser auf diesem Gerät*. Darum gibt es 
 - **Einmalige Aufräum-Arbeit beim Start:** `src/lib/brand.js` trennt Hersteller und Modell (`splitBrand`). `tidyBrands` läuft bei jedem Start, ändert aber nur Teile ohne Feld `model`. Darum passiert es pro Teil genau einmal, und man muss nichts neu importieren.
 - **CSS nur für Mäuse:** `@media (hover: hover)` gilt nur auf Geräten mit Maus. So bleibt am Phone nach dem Antippen keine Zeile farbig hängen.
 
-## 9. Tests
+## 9. Bikes und Pack (`src/lib/bikes.js`, `src/lib/trips.js`, `src/pages/Bikes.svelte`, `src/pages/Pack.svelte`)
+
+- **Plätze statt Taschen:** `SLOTS` sind die Stellen am Velo (Sattelstütze, Rahmendreieck …). Eine Tasche gehört zu genau einem Platz. Ein Velo sagt, welche Plätze es hat (`slots`) und welche Tasche dort normalerweise hängt (`setup`).
+- **Die Zeichnung** (`BikeStage.svelte`) rechnet die Kästchen aus einem 720 × 420 Bild in Prozent um. So wächst und schrumpft sie mit dem Bildschirm.
+- **Eine Tour** speichert eine Kopie des Velo-Setups und eine Liste `entries` (Teil, Platz, Anzahl, abgehakt). Alle Gewichte rechnet `tripStats` aus dieser Liste, nichts wird doppelt gespeichert.
+- **Datenbank-Version 2:** `db.version(2)` fügt nur die Tabelle `containers` hinzu. Dexie macht das beim nächsten Öffnen selbst, bestehende Daten bleiben.
+- **Aufräumen beim Start** (`src/lib/tidy.js`): Taschenliste anlegen, Velos ergänzen, alte Touren umstellen. Jeder Schritt ändert nur, was es noch braucht.
+
+## 10. Tests
 
 `npm test` startet **Vitest**. Die Tests liegen in `tests/` und laufen ohne Browser: `fake-indexeddb` spielt die Browser-Datenbank im Speicher nach. Getestet wird z.B., dass Export → Import genau dieselben Daten ergibt.
 
-## 10. Selbst ausprobieren
+## 11. Selbst ausprobieren
 
 ```
 npm install       # einmal: Bausteine herunterladen

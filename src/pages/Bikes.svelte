@@ -1,7 +1,7 @@
 <script>
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { SLOTS, SLOT, FIXED_ZONES, bikeSetup, bagsFor, containerWeight, formatVolume } from '../lib/bikes.js';
+  import { SLOTS, SLOT, FIXED_ZONES, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume } from '../lib/bikes.js';
   import { formatWeight, parseGrams } from '../lib/gear.js';
   import BikeStage from '../lib/bikes/BikeStage.svelte';
   import BagDialog from '../lib/bikes/BagDialog.svelte';
@@ -11,10 +11,7 @@
   const itemsQ = liveQuery(() => db.items.toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
 
-  // Order as in the Excel (the favourite first), new bikes after them by name.
-  const ORDER = ['scott-hardtail', 'fully', 'gravel', 'factor-ls'];
-  const rank = (b) => (ORDER.includes(b.id) ? ORDER.indexOf(b.id) : 99);
-  const bikes = $derived([...($bikesQ ?? [])].sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name)));
+  const bikes = $derived(sortBikes($bikesQ ?? []));
   const bags = $derived($bagsQ ?? []);
   const items = $derived($itemsQ ?? []);
   const itemsById = $derived(Object.fromEntries(items.map((i) => [i.id, i])));

@@ -133,3 +133,8 @@ export const bagsFor = (slotKey, containers) => containers.filter((c) => c.slot 
 
 /** "16.5 L", or "–" when unknown */
 export const formatVolume = (l) => (l ? `${Math.round(l * 10) / 10} L` : '–');
+
+/** Bikes in Excel order (the favourite first), new bikes after them by name. */
+const BIKE_ORDER = ['scott-hardtail', 'fully', 'gravel', 'factor-ls'];
+const bikeRank = (b) => (BIKE_ORDER.includes(b.id) ? BIKE_ORDER.indexOf(b.id) : 99);
+export const sortBikes = (bikes) => [...bikes].sort((a, b) => bikeRank(a) - bikeRank(b) || a.name.localeCompare(b.name));

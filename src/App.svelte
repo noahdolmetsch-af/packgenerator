@@ -2,6 +2,7 @@
   import Home from './pages/Home.svelte';
   import Gear from './pages/Gear.svelte';
   import Bikes from './pages/Bikes.svelte';
+  import Pack from './pages/Pack.svelte';
 
   // A tiny "router": the part of the address after # decides which page is shown,
   // e.g. …/packgenerator/#/gear. It works offline and needs no server setup.
@@ -14,20 +15,22 @@
     window.addEventListener('hashchange', update);
     return () => window.removeEventListener('hashchange', update);
   });
-  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/bikes') ? 'bikes' : 'home');
+  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/bikes') ? 'bikes' : hash.startsWith('#/pack') ? 'pack' : 'home');
 </script>
 
 <nav class="top" aria-label="Sections">
   <a class="brand" href="#/" aria-label="Pack Generator, start page"><span class="long">Pack Generator</span><span class="short" aria-hidden="true">PG</span></a>
   <a href="#/gear" aria-current={page === 'gear' ? 'page' : undefined}>Gear</a>
+  <a href="#/pack" aria-current={page === 'pack' ? 'page' : undefined}>Pack</a>
   <a href="#/bikes" aria-current={page === 'bikes' ? 'page' : undefined}>Bikes</a>
-  <span class="soon" title="Coming next">Pack</span>
   <span class="soon" title="Coming later">Debrief</span>
 </nav>
 
 <main>
   {#if page === 'gear'}
     <Gear />
+  {:else if page === 'pack'}
+    <Pack />
   {:else if page === 'bikes'}
     <Bikes />
   {:else}
