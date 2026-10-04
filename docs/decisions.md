@@ -115,3 +115,5 @@ Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
 | 4.10.2026 | Neue Standardliste (8 Checks, mit Rucksack), "Tick all checks" mit einem Klick, "Save as my standard" speichert die Liste für alle neuen Touren | Noah, Antworten 4 und 5 |
 | 4.10.2026 | Eigene Checks pro Tour bleiben; Ready-Check immer gleich angezeigt; Phone behält den Check-Tab | Noah, Antworten 6–8 |
 | 4.10.2026 | Prototyp wird nicht mehr geändert, ist nicht mehr online und liegt in `archive/cockpit/`; keine Daten-Übernahme, Neustart in der neuen App | Noah, Antworten 9a und 10b |
+| 4.10.2026 | "Not packed": kleinere "+"-Knöpfe, immer nur eine Kategorie offen | Noah, Screenshot "Daily commute" |
+| 4.10.2026 | "Kind of ride" als drei Knöpfe (Every, Daily, Training) mit Text, was sie hinzufügen; Hinweis, dass Layers nur Vorschläge sind | Noah: Dropdown nicht verständlich |
