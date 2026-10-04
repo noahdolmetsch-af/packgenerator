@@ -71,8 +71,8 @@ describe('costs', () => {
   const visits = [visit(), visit({ id: 'v2', date: '2025-05-01', totalChf: 50, km: 1000 }), visit({ id: 'v3', date: '2026-08-28', totalChf: 30, km: 3000 })];
   it('per year and per part', () => {
     expect(costByYear(visits)).toEqual([
-      { year: '2026', chf: 130, visits: 2 },
-      { year: '2025', chf: 50, visits: 1 },
+      { year: '2026', chf: 130, visits: 2, unknown: 0 },
+      { year: '2025', chf: 50, visits: 1, unknown: 0 },
     ]);
     expect(costByPart([visit()], 2)).toEqual([
       { key: 'fork', name: 'Fork', chf: 50 },
@@ -81,7 +81,9 @@ describe('costs', () => {
   });
   it('per 1000 km once the km are known at a visit and now', () => {
     expect(costPer1000(visits, bike())).toBeNull();
-    expect(costPer1000(visits, bike({ km: 5000 }))).toEqual({ chf: 33, km: 4000, since: '2025-05-01' });
+    // From the 2025 visit (1000 km): 50 + 100 + 30 over 4000 km.
+    expect(costPer1000(visits, bike({ km: 5000 }))).toEqual({ chf: 45, km: 4000, since: '2025-05-01' });
+    expect(costPer1000(visits, bike({ km: 1400 }))).toEqual({ wait: 600, since: '2025-05-01' });
   });
   it('the last price goes to the wishlist', () => {
     const price = lastPrice([visit()], 'fully', 'chain');
@@ -107,5 +109,14 @@ describe('setup photos', () => {
     expect(packPhoto({ id: 't2' }, bike(), photos).name).toBe('Main');
     expect(packPhoto({ id: 't2' }, bike({ photo: 'data:old' }), []).src).toBe('data:old');
     expect(packPhoto({ id: 't2' }, bike(), [])).toBeNull();
+  });
+});
+
+describe('a visit without prices', () => {
+  it('has no total instead of CHF 0', () => {
+    const v = visit({ totalChf: null, parts: [{ part: 'cassette', action: 'replace' }] });
+    expect(visitTotal(v)).toBeNull();
+    expect(costByYear([v])).toEqual([{ year: '2026', chf: 0, visits: 1, unknown: 1 }]);
+    expect(costPer1000([v, visit({ id: 'v2', km: 100 })], bike({ km: 2000 })).since).toBe('2026-06-26');
   });
 });

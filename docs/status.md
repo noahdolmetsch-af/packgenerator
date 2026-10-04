@@ -33,7 +33,7 @@ Stand: 4. Oktober 2026
 - [ ] Scott Scale, Scott Spark und Factor LS wägen (ohne Taschen, mit Garmin-, Quad-Lock- und Flaschenhalterungen) und auf "Bikes" eintragen. Canyon ist erledigt (10.1 kg).
 - [ ] Neue Teile wägen: "Trainerhose lang chillig" und "Gilet Fleece kuschelig".
 - [ ] **Import-Datei "Werkstatt und Fotos"** (im Chat) auf Desktop und Handy mit **Merge** importieren, vorher ein Backup.
-- [ ] **km-Stand** der 4 Velos eintragen (Bike care → km now), wenn möglich auch bei den 3 Werkstatt-Besuchen.
+- [ ] Velos wägen: Die Gewichte sind Strava-Schätzungen (Bikes → Bike weight).
 - [ ] Belege für das Canyon schicken, falls es welche gibt.
 - [ ] Bike care → "Go through them": die 17 Juni-Aufgaben einmal durchgehen.
 - [ ] Full-Frame-Tasche wägen (neu in Gear, TA14).
