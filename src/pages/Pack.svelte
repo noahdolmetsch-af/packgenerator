@@ -13,6 +13,7 @@
   import NotPacked from '../lib/pack/NotPacked.svelte';
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
   import PackDay from '../lib/pack/PackDay.svelte';
+  import TripRoute from '../lib/pack/TripRoute.svelte';
   import { TEMPLATES_KEY } from '../lib/templates.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -438,6 +439,7 @@
         </div>
         <p class="hint">{rideHint}</p>
       </div>
+      <TripRoute {trip} onchange={change} />
       <label class="hours"><span class="lbl">Riding hours{trip.days > 1 ? ' a day' : ''}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder="e.g. 6" /></label>
       <p class="hint hrs">Bottles and food come in amounts per hour (e.g. 1 bottle per 3 h).</p>
       <!-- Design answer 6a: the weather folds away once it is set. -->
@@ -584,7 +586,7 @@
 
       {#if !phone.matches || tab === 'pack'}
         <div class="c-bag">
-          <PackStage {cards} strip={phone.matches} onpick={pick} ondropitem={phone.matches ? null : addTo} label="Bags on {bike?.name ?? 'the bike'}, tap one to open it" />
+          <PackStage {cards} photo={bike?.photo ?? null} strip={phone.matches} onpick={pick} ondropitem={phone.matches ? null : addTo} label="Bags on {bike?.name ?? 'the bike'}, tap one to open it" />
 
           <!-- Answer 3a (4.10.2026): under the boxes every bag as a list, items moved with "Move" or by dragging.
                On a phone only the bag chosen in the strip. -->
@@ -679,7 +681,7 @@
       {#if !phone.matches}
         <aside class="c-side" aria-label="Ride and checks">
           <section class="box-s" aria-labelledby="cond-h">
-            <h2 id="cond-h" class="title">Layers</h2>
+            <h2 id="cond-h" class="title">Ride and weather</h2>
             {@render layers()}
           </section>
           <section class="box-s" aria-labelledby="night-h">

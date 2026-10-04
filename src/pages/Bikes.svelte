@@ -139,7 +139,7 @@
       <div class="bh">
         <div>
           <h2 id="bike-h" class="title">{bike.name}</h2>
-          <p class="sub">{bike.type ?? ''}{bike.use ? ` · ${bike.use}` : ''} <button type="button" class="link" onclick={() => (bikeDialog = { bike })}>Edit</button></p>
+          <p class="sub">{bike.type ?? ''}{bike.use ? ` · ${bike.use}` : ''} <button type="button" class="link" onclick={() => (bikeDialog = { bike })}>Edit</button>{#if !bike.photo} · <button type="button" class="link" onclick={() => (bikeDialog = { bike })}>Add photo</button>{/if}</p>
           <p class="fix">
             <span class="lbl">Always mounted</span>
             {#each bike.fixtures ?? [] as f (f)}
