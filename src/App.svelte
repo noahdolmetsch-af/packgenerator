@@ -6,6 +6,7 @@
   import Care from './pages/Care.svelte';
   import Templates from './pages/Templates.svelte';
   import Debrief from './pages/Debrief.svelte';
+  import Share from './pages/Share.svelte';
 
   // A tiny "router": the part of the address after # decides which page is shown,
   // e.g. …/packgenerator/#/gear. It works offline and needs no server setup.
@@ -18,7 +19,7 @@
     window.addEventListener('hashchange', update);
     return () => window.removeEventListener('hashchange', update);
   });
-  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/bikes') ? 'bikes' : hash.startsWith('#/care') ? 'care' : hash.startsWith('#/pack/templates') ? 'templates' : hash.startsWith('#/pack') ? 'pack' : hash.startsWith('#/debrief') ? 'debrief' : 'home');
+  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/bikes') ? 'bikes' : hash.startsWith('#/care') ? 'care' : hash.startsWith('#/pack/templates') ? 'templates' : hash.startsWith('#/pack') ? 'pack' : hash.startsWith('#/debrief') ? 'debrief' : hash.startsWith('#/share/') ? 'share' : 'home');
   // #/debrief/<trip id> opens one trip's debrief.
   const param = $derived(hash.split('/')[2] ?? '');
 </script>
@@ -42,6 +43,8 @@
     <Care />
   {:else if page === 'templates'}
     <Templates />
+  {:else if page === 'share'}
+    {#key param}<Share code={param} />{/key}
   {:else if page === 'debrief'}
     {#key param}<Debrief {param} />{/key}
   {:else}

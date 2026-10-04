@@ -14,6 +14,7 @@
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
   import PackDay from '../lib/pack/PackDay.svelte';
   import TripRoute from '../lib/pack/TripRoute.svelte';
+  import { sharePayload, shareLink } from '../lib/share.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -92,6 +93,21 @@
   });
   const daySteps = $derived(stats ? packSteps(stats, trip.purpose ?? {}) : []);
   const toggleIn = (itemId) => change((t) => ({ entries: togglePacked(t.entries, itemId) }));
+  // Answer 14: the list as a link (the list travels inside the address, nothing is uploaded).
+  let shareNote = $state('');
+  async function shareList() {
+    const url = await shareLink(sharePayload($state.snapshot(trip), stats, itemsById));
+    try {
+      if (navigator.share && phone.matches) await navigator.share({ title: `Packing list: ${trip.title}`, url });
+      else {
+        await navigator.clipboard.writeText(url);
+        shareNote = 'Link copied. Paste it into a message; it opens a read-only list.';
+      }
+    } catch (err) {
+      if (err?.name !== 'AbortError') shareNote = `Copy this link: ${url}`;
+    }
+    setTimeout(() => (shareNote = ''), 8000);
+  }
   const resetPacked = () => confirm('Untick every item, to pack again from the start?') && change((t) => ({ entries: t.entries.map((e) => ({ ...e, packed: false })) }));
 
   let zoneKey = $state('seat'); // the bag that is open
@@ -373,7 +389,8 @@
           <button type="button" class="btn" onclick={() => (dialog = { trip: null })}>New trip</button>
           <button type="button" class="btn" onclick={() => (saveTpl = true)}>Save as template</button>
           <a class="btn" href="#/pack/templates">Templates <small>{templates.length}</small></a>
-          <button type="button" class="btn" onclick={() => window.print()}>Print</button>
+          <button type="button" class="btn" onclick={() => window.print()} title="In the print dialog choose Save as PDF">Print / PDF</button>
+          <button type="button" class="btn" onclick={shareList}>Share link</button>
           {#if stats.packed}<button type="button" class="btn" onclick={resetPacked}>Untick packed items</button>{/if}
         {/snippet}
         {#if phone.matches}
@@ -388,6 +405,7 @@
     </header>
 
     {#if tplNote}<p class="ok" role="status">{tplNote}</p>{/if}
+    {#if shareNote}<p class="ok share-note" role="status">{shareNote}</p>{/if}
     <!-- Design answer 9b: all weights in one compact line. -->
     <!-- Design audit P1, P2: on a phone only System, Gear and Items show, the rest behind "More";
          in the Add tab the weights step aside so the items start higher up. -->
@@ -1269,6 +1287,9 @@
   }
   .print {
     display: none;
+  }
+  .share-note {
+    overflow-wrap: anywhere;
   }
   @media print {
     :global(nav.top),
