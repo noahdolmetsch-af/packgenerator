@@ -98,3 +98,7 @@ Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
 | 4.10.2026 | Wer hat es gemacht: "Me" oder "Bike shop", oben auf Bike care umschaltbar, wird mit jedem Eintrag gespeichert | Noah, Kette 8 |
 | 4.10.2026 | Juni-Aufgaben aus dem Excel einmal durchgehen: Done / Still open / Work needed soon / Not needed any more | Noah, Antwort 8 |
 | 4.10.2026 | Service-Fotos pro Velo und km-Stände liefert Noah später; sie bleiben privat in den Projekt-Dateien | Noah, Kette 7, 10 |
+| 4.10.2026 | Bike care Runde 3: überfällige Event-Aufgaben geht Noah selbst durch; Teile ohne Eintrag bleiben grau "not recorded"; Beläge in %; Bremsscheiben-Grenze 1.5 mm, pro Velo änderbar; alle Vorbereitungsaufgaben für jede Tour mit Datum; "Work needed" bleibt offen; Arbeiten ohne Teil bleiben unter "Repairs"; neue Velos starten mit der Standard-Teileliste | Noah, Bike care Antworten 1–7, 10 |
+| 4.10.2026 | Reifen: ein Eintrag "Tyres + sealant", dazu Luftdruck vorne/hinten (bar) und Dichtmilch (ml) erfassbar | Noah, Antwort 8 |
+| 4.10.2026 | Pro Velo eine Übersicht "What was done when" über alle Teile und erledigten Arbeiten | Noah, Antwort 9 |
+| 4.10.2026 | Full-Frame-Tasche wird unabhängig vom Velo-Update immer in der Taschenliste angelegt | Noah, Screenshot "add full frame bag to bags" |
