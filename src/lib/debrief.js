@@ -65,12 +65,12 @@ export const isOver = (trip, today = iso(new Date())) => {
 /** Trips that still want a debrief (answer 1a: only trips packed in the app), newest first. */
 export function toDebrief(trips, debriefs, today = iso(new Date())) {
   const done = new Set(debriefs.filter((d) => d.status === 'done').map((d) => d.tripId));
-  return trips.filter((t) => isOver(t, today) && !done.has(t.id) && t.entries?.length).sort((a, b) => b.startDate.localeCompare(a.startDate));
+  return trips.filter((t) => !t.skipped && isOver(t, today) && !done.has(t.id) && t.entries?.length).sort((a, b) => b.startDate.localeCompare(a.startDate));
 }
 
-/** The next trip: the first one that has not ended yet. */
+/** The next trip: the first one that has not ended yet. A trip marked "Not riding" (skipped) does not count. */
 export function nextTrip(trips, today = iso(new Date())) {
-  return [...trips].filter((t) => t.startDate && tripEnd(t) >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null;
+  return [...trips].filter((t) => !t.skipped && t.startDate && tripEnd(t) >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null;
 }
 
 /** An empty debrief for a trip. */
@@ -137,6 +137,10 @@ export function suggestions(debrief, trip, items, learnings = [], templates = []
   for (const l of learnings.filter((x) => x.itemIds?.some((id) => touched.has(id))))
     out.push({ id: `confirm:${l.id}`, group: 'learn', label: `Confirmed again: "${short(l.rule)}"`, detail: l.confirmed ? `Confirmed ${l.confirmed + 1} times now.` : 'First confirmation.' });
   if (debrief.note.trim()) out.push({ id: 'learn:note', group: 'learn', label: `New: "${short(debrief.note.trim())}"`, detail: `Saved as a learning from ${trip.title}.` });
+  // v0.19.2 (N10): the notes from the ride day can become learnings too.
+  (debrief.rideNotes ?? []).forEach((n, i) => {
+    if (n.text?.trim()) out.push({ id: `ride:${i}`, group: 'learn', label: `From the ride: "${short(n.text.trim())}"`, detail: `Saved as a learning from ${trip.title}.` });
+  });
 
   // Template: the trip was started from a template that still exists.
   const tpl = templates.find((t) => t.id === trip.templateId);
@@ -178,10 +182,12 @@ export function applyDebrief(debrief, trip, items, learnings, templates, ticked,
 
   const learnOut = [];
   for (const l of learnings) if (on.has(`confirm:${l.id}`)) learnOut.push({ ...l, confirmed: (l.confirmed ?? 0) + 1, lastConfirmed: trip.title });
-  if (on.has('learn:note') && debrief.note.trim()) {
-    const next = Math.max(0, ...learnings.map((l) => (typeof l.id === 'number' ? l.id : 0))) + 1;
-    learnOut.push({ id: next, topic: 'Debrief', rule: debrief.note.trim(), action: '', itemIds: [], source: trip.title, appliesTo: ['all'], priority: 'medium', confirmed: 0, createdAt: now });
-  }
+  let next = Math.max(0, ...learnings.map((l) => (typeof l.id === 'number' ? l.id : 0))) + 1;
+  const learn = (rule, topic) => learnOut.push({ id: next++, topic, rule, action: '', itemIds: [], source: trip.title, appliesTo: ['all'], priority: 'medium', confirmed: 0, createdAt: now });
+  if (on.has('learn:note') && debrief.note.trim()) learn(debrief.note.trim(), 'Debrief');
+  (debrief.rideNotes ?? []).forEach((n, i) => {
+    if (on.has(`ride:${i}`) && n.text?.trim()) learn(n.text.trim(), 'Ride day');
+  });
 
   let tplOut = null;
   const tplId = [...on].find((x) => x.startsWith('template:'))?.slice(9);

@@ -7,16 +7,26 @@
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
+  import { itemUsage, deadWeight, wishReason } from '../lib/insights.js';
 
   // All items, kept up to date by the database (liveQuery re-runs on every change).
   const itemsQuery = liveQuery(() => db.items.toArray());
   const items = $derived($itemsQuery ?? []);
   const stats = $derived(gearStats(items));
+  // v0.19.2 (Noah 6a, 7a): what the debriefs say about each item.
+  const tripsQ = liveQuery(() => db.trips.toArray());
+  const debriefsQ = liveQuery(() => db.debriefs.toArray());
+  const usage = $derived(itemUsage($tripsQ ?? [], $debriefsQ ?? []));
+  const dead = $derived(deadWeight(items, usage));
+  const debriefN = $derived(($debriefsQ ?? []).filter((d) => d.status === 'done').length);
+  async function leaveHome(item) {
+    await db.items.update(item.id, { role: 'optional', updatedAt: new Date().toISOString() });
+  }
 
   let filter = $state({ q: '', category: '', role: '' });
   // Tabs on every screen size (design audit G1, G2): the wishlist and weighing no longer hide
   // at the bottom of a long page. #/gear?tab=weigh opens a tab directly (from the start page).
-  const TABS = ['inventory', 'wishlist', 'weigh', 'check'];
+  const TABS = ['inventory', 'wishlist', 'dead', 'weigh', 'check'];
   const fromHash = new URLSearchParams(location.hash.split('?')[1] ?? '').get('tab');
   let tab = $state(TABS.includes(fromHash) ? fromHash : 'inventory');
   const toReview = $derived(stats.inventory.filter((i) => !i.reviewedAt).length);
@@ -25,7 +35,13 @@
   let folded = $state(phone.matches ? Object.fromEntries(CATEGORIES.map((c) => [c.key, true])) : {});
 
   const inventory = $derived(stats.inventory.filter((i) => matches(i, filter)));
-  const wishlist = $derived(stats.wishlist.filter((i) => matches(i, filter)));
+  // Wishlist sorted by how much it helps (Noah 7a): missing on trips, needed on the bike, lighter.
+  const wishlist = $derived(
+    stats.wishlist
+      .filter((i) => matches(i, filter))
+      .map((item) => ({ item, ...wishReason(item, items, $tripsQ ?? [], $debriefsQ ?? []) }))
+      .sort((a, b) => b.score - a.score || a.item.name.localeCompare(b.item.name)),
+  );
   const groups = $derived(groupByCategory(inventory));
   const catStats = $derived(Object.fromEntries(stats.cats.map((c) => [c.key, c])));
   // While searching or filtering, every matching category is shown open.
@@ -62,11 +78,32 @@
   <div class="tabs" role="tablist" aria-label="Show">
     <button type="button" role="tab" aria-selected={tab === 'inventory'} onclick={() => (tab = 'inventory')}>Inventory <small>{stats.inventory.length}</small></button>
     <button type="button" role="tab" aria-selected={tab === 'wishlist'} onclick={() => (tab = 'wishlist')}>Wishlist <small>{stats.wishlist.length}</small></button>
+    <button type="button" role="tab" aria-selected={tab === 'dead'} onclick={() => (tab = 'dead')}>Dead weight <small>{dead.dead.length}</small></button>
     <button type="button" role="tab" aria-selected={tab === 'weigh'} onclick={() => (tab = 'weigh')}>Weigh <small>{stats.unweighed}</small></button>
     <button type="button" role="tab" aria-selected={tab === 'check'} onclick={() => (tab = 'check')}>Check <small>{toReview}</small></button>
   </div>
 
-  {#if tab === 'weigh'}
+  {#if tab === 'dead'}
+    <section class="dead" aria-labelledby="dead-h">
+      <h2 id="dead-h" class="title">Dead weight {#if dead.deadG}<small class="num">{formatWeight(dead.deadG)}</small>{/if}</h2>
+      <p class="sub">Taken on 2 trips or more and never used, from your {debriefN} debriefs. Heaviest first.</p>
+      {#if debriefN < 2}<p class="card">Shows up after 2 debriefs. You have {debriefN}.</p>{/if}
+      {#snippet row(r)}
+        <li>
+          <button type="button" class="nmb" onclick={() => open(r.item)}><span class="nm">{r.item.name}</span><small>taken {r.u.taken}×, used {r.u.used}× · {r.u.trips.slice(-3).join(', ')}</small></button>
+          <span class="w num" class:nw={r.item.weightG == null}>{formatWeight(itemWeight(r.item))}</span>
+          {#if r.item.role === 'optional'}<span class="ok small">Stays at home</span>{:else}<button type="button" class="btn sm" onclick={() => leaveHome(r.item)}>Leave at home</button>{/if}
+        </li>
+      {/snippet}
+      {#if dead.dead.length}<ul class="drows">{#each dead.dead as r (r.item.id)}{@render row(r)}{/each}</ul>{:else if debriefN >= 2}<p class="card">Nothing: everything you took got used at least once.</p>{/if}
+      {#if dead.rare.length}
+        <h3 class="title">Rarely used</h3>
+        <p class="sub">Used on a third of the trips or less.</p>
+        <ul class="drows">{#each dead.rare as r (r.item.id)}{@render row(r)}{/each}</ul>
+      {/if}
+      <p class="sub small">"Leave at home" makes it optional: new trips no longer pack it on their own.</p>
+    </section>
+  {:else if tab === 'weigh'}
     <WeighMode {items} />
   {:else if tab === 'check'}
     <ReviewMode {items} />
@@ -149,13 +186,13 @@
     {:else}
       <section class="wish" aria-labelledby="wish-h">
         <h2 id="wish-h" class="title">Wishlist & to buy</h2>
-        <p class="sub">Not owned yet. Not counted in the inventory or any total.</p>
+        <p class="sub">Not owned yet. Not counted in the inventory or any total. Sorted by what helps most: missing on trips, needed on the bike, lighter.</p>
         <ul class="rows">
-          {#each wishlist as item (item.id)}
+          {#each wishlist as { item, reasons } (item.id)}
             <li>
               <button type="button" onclick={() => open(item)}>
                 <span class="st st-{item.ownership}">{OWNERSHIP[item.ownership]}</span>
-                <span class="nm">{item.name}</span>
+                <span class="nm">{item.name}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
                 <span class="bg">{CATEGORIES.find((c) => c.key === item.category)?.name}</span>
                 <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
               </button>
@@ -230,7 +267,7 @@
   }
   .tabs {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     border: 2px solid var(--ink);
     border-radius: 6px;
     overflow: hidden;
@@ -238,7 +275,14 @@
   }
   @media (min-width: 720px) {
     .tabs {
-      max-width: 640px;
+      max-width: 780px;
+    }
+  }
+  @media (max-width: 520px) {
+    .tabs button {
+      font-size: 13px;
+      line-height: 1.15;
+      text-align: center;
     }
   }
   .tabs button {
@@ -494,6 +538,66 @@
   .gone summary small {
     font-weight: 400;
     color: var(--ink-3);
+  }
+  .why {
+    display: block;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .dead {
+    max-width: 1000px;
+  }
+  .dead .title {
+    font-size: 28px;
+  }
+  .dead h3.title {
+    font-size: 22px;
+    margin-top: 20px;
+  }
+  .dead .sub {
+    color: var(--ink-3);
+    margin: 4px 0 10px;
+  }
+  .drows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .drows li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+  }
+  .nmb {
+    border: 0;
+    background: none;
+    padding: 0;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    min-width: 0;
+  }
+  .nmb small {
+    display: block;
+    color: var(--ink-3);
+  }
+  .ok {
+    color: var(--ink-3);
+  }
+  @media (max-width: 520px) {
+    .drows li {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .drows li .btn,
+    .drows li .ok {
+      grid-column: 1 / -1;
+      justify-self: start;
+    }
   }
   .wish {
     margin-top: 8px;
