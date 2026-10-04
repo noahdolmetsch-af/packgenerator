@@ -31,12 +31,6 @@
     <p class="lead">Never forget anything on a trip again.</p>
   </header>
 
-  <section class="card hi" aria-labelledby="cockpit-title">
-    <h2 id="cockpit-title">Pack with the prototype meanwhile</h2>
-    <p>The Bike Cockpit prototype works offline and can be installed on its own. Back up its data from the save label in its header.</p>
-    <a class="btn" href="cockpit/">Open Bike Cockpit</a>
-  </section>
-
   <section aria-labelledby="chapters-title">
     <h2 id="chapters-title" class="section-title">Chapters</h2>
     <ol class="chapters">

@@ -4,6 +4,8 @@
  * the fields it names, so weights or notes you entered in the app stay as they are.
  */
 
+import { freshReady, slotFor, ALWAYS_OLD } from './trips.js';
+
 const now = () => new Date().toISOString();
 
 /**
@@ -160,7 +162,39 @@ async function fullFrameBag(db) {
   return changed;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag];
+/**
+ * 4.10.2026, ready check cleaned up with Noah (answers 1, 2, 3, 5):
+ * - AirPods, Garmin, HR strap, glasses and sunscreen become items "On every trip".
+ *   (The lock stays with the layers: large lock every day, mini lock as the option.)
+ * - Trips that are still ahead (or have no date) get the new short ready check. Checks
+ *   added by hand for one trip stay, with their tick; the "always" items go into the trip.
+ * Past trips stay as they were.
+ */
+const ALWAYS = ['EL13', 'EL07', 'EL10', 'KL22', 'HY01'];
+async function readyClean2026(db) {
+  if (await db.settings.get('update.readyClean2026')) return false;
+  if (!(await db.items.count())) return false; // nothing imported yet
+  const today = now().slice(0, 10);
+  await db.transaction('rw', db.items, db.trips, db.settings, async () => {
+    for (const id of ALWAYS) {
+      const item = await db.items.get(id);
+      if (item && item.always == null) await db.items.update(id, { always: true });
+    }
+    // Only items that really are "On every trip" now (not one switched off in the app), and still owned.
+    const always = (await db.items.bulkGet(ALWAYS)).filter((i) => i?.always && ['owned', 'unclear'].includes(i.ownership)).map((i) => i.id);
+    for (const t of await db.trips.toArray()) {
+      if (t.startDate && t.startDate < today) continue;
+      const own = (t.ready ?? []).filter((r) => r.id.startsWith('own-')).map(({ group, ...r }) => r);
+      const on = new Set((t.entries ?? []).map((e) => e.itemId));
+      const add = always.filter((id) => !on.has(id)).map((id) => ({ itemId: id, slot: slotFor(ALWAYS_OLD[id], t.setup), qty: 1, packed: false }));
+      await db.trips.update(t.id, { ready: [...freshReady(), ...own], entries: [...(t.entries ?? []), ...add] });
+    }
+    await db.settings.put({ key: 'update.readyClean2026', value: now() });
+  });
+  return true;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

@@ -110,3 +110,8 @@ Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
 | 4.10.2026 | Ready-Check am Desktop nur als Kurzfassung, Klick öffnet alles; Aufräumen des Ready-Checks folgt nach Rückfragen | Noah, Mockup-Antwort 6a |
 | 4.10.2026 | Gewichte oben bleiben der grosse Block | Noah, Mockup-Antwort 7b |
 | 4.10.2026 | Phone: fixe Leiste unten "Adding to … · Change bag" im Add-Tab | Noah, Mockup-Antwort 8a |
+| 4.10.2026 | Ready-Check: keine Zeile "items not ticked off" mehr, keine Gruppen, eine kurze Liste | Noah, Ready-Check-Antworten 1 und 3 |
+| 4.10.2026 | "Always with me" (AirPods, Garmin, Brustgurt, Brille, Sonnencreme) werden Teile mit "On every trip" und kommen automatisch in jede neue Tour; das Schloss bleibt bei den Layers | Noah, Antwort 2 |
+| 4.10.2026 | Neue Standardliste (8 Checks, mit Rucksack), "Tick all checks" mit einem Klick, "Save as my standard" speichert die Liste für alle neuen Touren | Noah, Antworten 4 und 5 |
+| 4.10.2026 | Eigene Checks pro Tour bleiben; Ready-Check immer gleich angezeigt; Phone behält den Check-Tab | Noah, Antworten 6–8 |
+| 4.10.2026 | Prototyp wird nicht mehr geändert, ist nicht mehr online und liegt in `archive/cockpit/`; keine Daten-Übernahme, Neustart in der neuen App | Noah, Antworten 9a und 10b |

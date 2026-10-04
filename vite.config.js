@@ -15,7 +15,7 @@ export default defineConfig({
     svelte(),
     VitePWA({
       registerType: 'autoUpdate', // a new version replaces the old one on the next start
-      includeAssets: ['icons/*.svg', 'icons/*.png', 'cockpit/*'],
+      includeAssets: ['icons/*.svg', 'icons/*.png'],
       manifest: {
         name: 'Pack Generator',
         short_name: 'Pack',
@@ -33,8 +33,6 @@ export default defineConfig({
       workbox: {
         // Everything the app needs is stored on the device at install time.
         globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
-        // The prototype is its own page, not a route of the Svelte app.
-        navigateFallbackDenylist: [/\/cockpit\//],
         runtimeCaching: [
           {
             // Trail Journal fonts: cached after the first online visit.

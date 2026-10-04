@@ -30,7 +30,8 @@
     if (!draft.title.trim()) return (error = 'Give the trip a name.');
     if (!bike) return (error = 'Choose a bike.');
     if (isNew) {
-      const t = newTrip({ ...draft, bike }, trips, items);
+      const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
+      const t = newTrip({ ...draft, bike, readyStandard }, trips, items);
       await db.trips.put(t);
       oncreated?.(t.id);
     } else {
