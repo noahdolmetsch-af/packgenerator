@@ -102,3 +102,11 @@ Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
 | 4.10.2026 | Reifen: ein Eintrag "Tyres + sealant", dazu Luftdruck vorne/hinten (bar) und Dichtmilch (ml) erfassbar | Noah, Antwort 8 |
 | 4.10.2026 | Pro Velo eine Übersicht "What was done when" über alle Teile und erledigten Arbeiten | Noah, Antwort 9 |
 | 4.10.2026 | Full-Frame-Tasche wird unabhängig vom Velo-Update immer in der Taschenliste angelegt | Noah, Screenshot "add full frame bag to bags" |
+| 4.10.2026 | Pack-Layout: drei Spalten (Not packed, Velo mit offener Tasche, Schichten/Nacht/Ready-Check) | Noah, Mockup-Antwort 1a |
+| 4.10.2026 | "Not packed": Kategorien zugeklappt, Klick öffnet; Farbquadrat nur bei Kategorien; beim Suchen ist alles offen | Noah, Mockup-Antwort 2b und Dateiname Screenshot |
+| 4.10.2026 | Hinweise ("Below 10 °C", "standard") als kleine Etikette in der Liste | Noah, Mockup-Antwort 3a |
+| 4.10.2026 | "+" legt in die gewählte Tasche, am Desktop auch Ziehen auf eine Tasche (Zeichnung oder offene Tasche) | Noah, Mockup-Antwort 4a |
+| 4.10.2026 | Teile der offenen Tasche als Kacheln mit Füllbalken (Marke bei 80 %) | Noah, Mockup-Antwort 5b |
+| 4.10.2026 | Ready-Check am Desktop nur als Kurzfassung, Klick öffnet alles; Aufräumen des Ready-Checks folgt nach Rückfragen | Noah, Mockup-Antwort 6a |
+| 4.10.2026 | Gewichte oben bleiben der grosse Block | Noah, Mockup-Antwort 7b |
+| 4.10.2026 | Phone: fixe Leiste unten "Adding to … · Change bag" im Add-Tab | Noah, Mockup-Antwort 8a |

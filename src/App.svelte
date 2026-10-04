@@ -27,7 +27,7 @@
   <span class="soon" title="Coming later">Debrief</span>
 </nav>
 
-<main>
+<main class:wide={page === 'pack'}>
   {#if page === 'gear'}
     <Gear />
   {:else if page === 'pack'}
@@ -89,5 +89,9 @@
     padding: var(--gut);
     max-width: 1200px;
     margin: 0 auto;
+  }
+  /* The Pack page uses three columns on a big screen. */
+  main.wide {
+    max-width: 1600px;
   }
 </style>
