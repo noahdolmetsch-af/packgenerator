@@ -66,6 +66,9 @@ describe('gear', () => {
     expect(parseGrams('12.5')).toBe(null);
     expect(formatWeight(1234)).toBe('1.23 kg');
     expect(formatWeight(999)).toBe('999 g');
+    expect(formatWeight(64000)).toBe('64 kg');
+    expect(formatWeight(1500)).toBe('1.5 kg');
+    expect(formatWeight(12340)).toBe('12.3 kg');
     expect(itemWeight(it_('A', { weightG: null }))).toBe(null);
     expect(groupByCategory([it_('SL01', { category: 'sleep' }), it_('EL01')]).map((g) => g.key)).toEqual(['elec', 'sleep']);
   });

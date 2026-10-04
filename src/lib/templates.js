@@ -28,6 +28,7 @@ export function templateFrom(trip, { id, name, now = new Date().toISOString() })
     ride: trip.ride ?? null,
     hours: trip.hours ?? null,
     sets: { ...(trip.sets ?? {}) },
+    purpose: { ...(trip.purpose ?? {}) },
     fromTrip: trip.id,
     updatedAt: now,
   };
@@ -63,6 +64,7 @@ export function tripFromTemplate({ title, startDate, days, bike }, tpl, items, n
     ride: tpl.ride ?? null,
     hours: tpl.hours ?? null,
     sets: { ...(tpl.sets ?? {}) },
+    purpose: { ...(tpl.purpose ?? {}) },
     status: 'planned',
     copiedFrom: null,
     templateId: tpl.id,

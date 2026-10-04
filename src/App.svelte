@@ -25,7 +25,7 @@
   <a href="#/gear" aria-current={page === 'gear' ? 'page' : undefined}>Gear</a>
   <a href="#/pack" aria-current={page === 'pack' || page === 'templates' ? 'page' : undefined}>Pack</a>
   <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}>Bikes</a>
-  <span class="soon" title="Coming later">Debrief</span>
+  <span class="soon" title="Coming later">Debrief <small>soon</small></span>
 </nav>
 
 <main class:wide={page === 'pack' || page === 'templates'}>
