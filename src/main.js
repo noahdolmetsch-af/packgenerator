@@ -2,7 +2,7 @@ import { mount } from 'svelte';
 import './app.css';
 import App from './App.svelte';
 import { db } from './lib/db.js';
-import { tidyBrands } from './lib/brand.js';
+import { tidyData } from './lib/tidy.js';
 
 // Svelte renders the App component into <div id="app"> in index.html.
 mount(App, { target: document.getElementById('app') });
@@ -11,5 +11,5 @@ mount(App, { target: document.getElementById('app') });
 // Without this, a browser may delete website data it considers unimportant.
 navigator.storage?.persist?.();
 
-// Older imports keep brand and model in one field; split them once.
-tidyBrands(db).catch(() => {});
+// One-time fixes for older data (brand/model split, bag list and bike setups).
+tidyData(db).catch((err) => console.warn('tidyData', err));

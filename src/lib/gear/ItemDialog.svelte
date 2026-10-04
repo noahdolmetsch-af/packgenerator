@@ -9,8 +9,10 @@
    */
   let { item, items, readOnly = false, onclose } = $props();
 
+  // svelte-ignore state_referenced_locally
   const isNew = !item;
   // A copy to edit; nothing is saved until "Save".
+  // svelte-ignore state_referenced_locally
   let draft = $state(
     item
       ? { ...item, role: item.role ?? '', model: item.model ?? '', grams: item.weightG ?? '' }
