@@ -59,3 +59,13 @@ describe('backup', () => {
     expect(countRows(file).items).toBe(0);
   });
 });
+
+describe('backup reminder (answer 10a)', () => {
+  it('is due when there was never a backup or the last one is 14 days old', async () => {
+    const { backupDue } = await import('../src/lib/backup.js');
+    const now = new Date('2026-10-20T12:00:00Z');
+    expect(backupDue(null, now)).toEqual({ due: true, days: null });
+    expect(backupDue('2026-10-10T12:00:00Z', now)).toEqual({ due: false, days: 10 });
+    expect(backupDue('2026-10-06T12:00:00Z', now)).toEqual({ due: true, days: 14 });
+  });
+});

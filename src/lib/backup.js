@@ -70,3 +70,32 @@ export async function restoreBackup(db, data, mode = 'replace') {
 export function backupFileName(date = new Date()) {
   return `${APP_ID}-${date.toISOString().slice(0, 10)}.json`;
 }
+
+/* ---------- backup reminder (Noah, 4.10.2026, answer 10a) ---------- */
+
+/** Key in the "meta" table: when the last backup file was downloaded. Never exported. */
+export const LAST_BACKUP = 'lastBackup';
+/** Home reminds you when the last backup is older than this. */
+export const BACKUP_DAYS = 14;
+
+/** Download the whole app as one file and remember when. */
+export async function downloadBackup(db) {
+  const data = await buildBackup(db);
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = backupFileName();
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  await db.table('meta').put({ key: LAST_BACKUP, at: new Date().toISOString() });
+}
+
+/**
+ * Is a backup due? lastIso: the newest of the downloaded file and the folder backup (or null).
+ * Returns { due, days } (days since the last backup, null if never).
+ */
+export function backupDue(lastIso, now = new Date(), limit = BACKUP_DAYS) {
+  if (!lastIso) return { due: true, days: null };
+  const days = Math.floor((now - new Date(lastIso)) / 864e5);
+  return { due: days >= limit, days };
+}

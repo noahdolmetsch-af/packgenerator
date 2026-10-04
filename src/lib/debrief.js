@@ -8,7 +8,8 @@
  *
  * A debrief is stored in the table "debriefs", one per trip (key tripId):
  *   { tripId, status: 'draft' | 'done', weather, amount, bags, note,
- *     items: { [itemId]: 'unused' | 'broken' }, missing: [{ id, name, itemId }], applied: [suggestion ids], doneAt }
+ *     items: { [itemId]: 'unused' | 'broken' }, missing: [{ id, name, itemId }], applied: [suggestion ids], doneAt,
+ *     km, kmApplied }   km of this trip (answer 7a); kmApplied: what was already added to the bike
  * Pure functions only, so the rules are easy to test.
  */
 import { isInventory } from './gear.js';
@@ -33,6 +34,17 @@ export const ITEM_STATE = { used: 'Used', unused: 'Not used', broken: 'Broken' }
 /** Clothing that can wait at home on a warm trip ("only below 10 °C"). */
 const CLOTHING = ['onbike', 'rain', 'offbike'];
 export const WARM_LIMIT = 10;
+/** Answer 8b (4.10.2026): "leave at home" after an item was not used on 3 trips. */
+export const LEAVE_AFTER = 3;
+
+/** How often each item was "not used" in finished debriefs (other trips than tripId). */
+export function unusedTimes(debriefs, tripId = null) {
+  const out = {};
+  for (const d of debriefs)
+    if (d.status === 'done' && d.tripId !== tripId)
+      for (const [id, state] of Object.entries(d.items ?? {})) if (state === 'unused') out[id] = (out[id] ?? 0) + 1;
+  return out;
+}
 
 const iso = (d) => d.toISOString().slice(0, 10);
 const addDays = (isoDate, n) => {
@@ -72,6 +84,8 @@ export const newDebrief = (trip, now = new Date().toISOString()) => ({
   items: {},
   missing: [],
   applied: [],
+  km: null,
+  kmApplied: 0,
   createdAt: now,
   updatedAt: now,
 });
@@ -95,7 +109,7 @@ export function debriefCounts(debrief, trip, items) {
  * groups: 'home' (leave at home next time), 'wish' (wishlist), 'learn' (learnings), 'template'.
  * Nothing is applied here; applyDebrief does that for the ticked ones.
  */
-export function suggestions(debrief, trip, items, learnings = [], templates = []) {
+export function suggestions(debrief, trip, items, learnings = [], templates = [], history = []) {
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
   const out = [];
   const unusedIds = trip.entries.filter((e) => debrief.items[e.itemId] === 'unused').map((e) => e.itemId);
@@ -107,8 +121,10 @@ export function suggestions(debrief, trip, items, learnings = [], templates = []
     for (const i of unused.filter((x) => CLOTHING.includes(x.category) && typeof x.coldBelow !== 'number' && x.role !== 'worn'))
       out.push({ id: `cold:${i.id}`, group: 'home', label: `${i.name}: only below ${WARM_LIMIT} °C`, detail: 'Added by the layers when it gets cold, otherwise it stays at home.' });
   }
-  for (const i of unused.filter((x) => x.role === 'standard' && !out.some((s) => s.id === `cold:${x.id}`)))
-    out.push({ id: `optional:${i.id}`, group: 'home', label: `${i.name}: not on every trip`, detail: 'Changes "Standard pack" to "Optional".' });
+  // Answer 8b: only after the third trip without using it (this one counts).
+  const before = unusedTimes(history, trip.id);
+  for (const i of unused.filter((x) => x.role === 'standard' && !out.some((s) => s.id === `cold:${x.id}`) && (before[x.id] ?? 0) + 1 >= LEAVE_AFTER))
+    out.push({ id: `optional:${i.id}`, group: 'home', label: `${i.name}: leave at home`, detail: `Not used on ${(before[i.id] ?? 0) + 1} trips. Changes "Standard pack" to "Optional".` });
 
   // Wishlist: what was missing and is not in the gear yet, and what broke.
   for (const m of debrief.missing.filter((x) => !x.itemId))
@@ -181,6 +197,17 @@ export function applyDebrief(debrief, trip, items, learnings, templates, ticked,
   return { items: [...Object.values(changed), ...newItems], learnings: learnOut, templates: tplOut };
 }
 
+/**
+ * Answer 7a: the km of the trip go onto the bike. Finishing again after a change only adds the
+ * difference. Returns { km, kmApplied } for the bike and the debrief, or null when nothing changes.
+ */
+export function kmUpdate(bike, debrief) {
+  const km = Math.max(0, Math.round(Number(debrief.km) || 0));
+  const diff = km - (debrief.kmApplied ?? 0);
+  if (!bike || !diff) return null;
+  return { km: Math.max(0, (bike.km ?? 0) + diff), kmApplied: km };
+}
+
 /* ---------- learnings shown on Home and in Pack ---------- */
 
 const PRIO = { high: 3, medium: 2, low: 1 };
@@ -207,6 +234,20 @@ export function learningsFor(trip, learnings, n = 3, today = new Date()) {
     .sort((a, b) => b.s - a.s || String(a.l.id).localeCompare(String(b.l.id), undefined, { numeric: true }))
     .slice(0, n)
     .map((x) => x.l);
+}
+
+/**
+ * Answer 3a: one learning per item as a small hint while packing. The most important one that
+ * names the item (priority, then how often it was confirmed). Returns { [itemId]: learning }.
+ */
+export function tipsByItem(learnings) {
+  const out = {};
+  const rank = (l) => (PRIO[l.priority] ?? 1) * 10 + Math.min(9, l.confirmed ?? 0);
+  for (const l of learnings) {
+    if (l.topic === 'Open question') continue;
+    for (const id of l.itemIds ?? []) if (!out[id] || rank(l) > rank(out[id])) out[id] = l;
+  }
+  return out;
 }
 
 /** Items that are not owned yet but someone will want soon (for the Home gear card). */

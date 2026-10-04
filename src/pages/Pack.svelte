@@ -1,17 +1,18 @@
 <script>
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { isOver } from '../lib/debrief.js';
+  import { isOver, tipsByItem } from '../lib/debrief.js';
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, formatVolume, sortBikes } from '../lib/bikes.js';
   import { CATEGORY, CATEGORIES, formatWeight, isInventory, matches, weighQueue } from '../lib/gear.js';
-  import { tripStats, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor } from '../lib/trips.js';
+  import { tripStats, packSteps, togglePacked, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor } from '../lib/trips.js';
   import { RIDES, layerSuggest, layerDone, applyLayers, openRows, waterOn } from '../lib/layers.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import PackStage from '../lib/pack/PackStage.svelte';
   import TripDialog from '../lib/pack/TripDialog.svelte';
   import NotPacked from '../lib/pack/NotPacked.svelte';
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
+  import PackDay from '../lib/pack/PackDay.svelte';
   import { TEMPLATES_KEY } from '../lib/templates.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -21,6 +22,9 @@
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
   const rearQ = liveQuery(() => db.settings.get('rearLimitPct'));
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
+  const learnQ = liveQuery(() => db.learnings.toArray());
+  // Answer 3a: one learning per item as a small hint while packing.
+  const tips = $derived(tipsByItem($learnQ ?? []));
   const templates = $derived($tplQ?.value ?? []);
   const fromTemplate = $derived(templates.find((t) => t.id === trip?.templateId) ?? null);
   let saveTpl = $state(takeFlag('pack.saveTemplate'));
@@ -79,6 +83,15 @@
     }
   });
   const stats = $derived(trip ? tripStats(trip, items, bags, bike, $riderQ?.value) : null);
+
+  // Packing day (answer 2a): full screen, bag by bag. #/pack?day (from the start page) opens it.
+  let packDay = $state(location.hash.includes('day'));
+  $effect(() => {
+    if (packDay && location.hash.includes('day')) history.replaceState(null, '', '#/pack');
+  });
+  const daySteps = $derived(stats ? packSteps(stats, trip.purpose ?? {}) : []);
+  const toggleIn = (itemId) => change((t) => ({ entries: togglePacked(t.entries, itemId) }));
+  const resetPacked = () => confirm('Untick every item, to pack again from the start?') && change((t) => ({ entries: t.entries.map((e) => ({ ...e, packed: false })) }));
 
   let zoneKey = $state('seat'); // the bag that is open
   let tab = $state('pack'); // phone: pack | add | check
@@ -354,11 +367,13 @@
         <select class="sel" aria-label="Open another trip" value={trip.id} onchange={(e) => choose(e.currentTarget.value)}>
           {#each trips as t (t.id)}<option value={t.id}>{t.title}{t.startDate ? ` · ${t.startDate}` : ''}</option>{/each}
         </select>
+        <button type="button" class="btn hi" onclick={() => (packDay = true)}>Packing day{#if stats.packed}<small class="num"> {stats.packed}/{stats.count}</small>{/if}</button>
         {#snippet actions()}
           <button type="button" class="btn" onclick={() => (dialog = { trip: null })}>New trip</button>
           <button type="button" class="btn" onclick={() => (saveTpl = true)}>Save as template</button>
           <a class="btn" href="#/pack/templates">Templates <small>{templates.length}</small></a>
           <button type="button" class="btn" onclick={() => window.print()}>Print</button>
+          {#if stats.packed}<button type="button" class="btn" onclick={resetPacked}>Untick packed items</button>{/if}
         {/snippet}
         {#if phone.matches}
           <details class="menu">
@@ -398,6 +413,9 @@
       {#if rearPct > rearLimit}<p class="sys-note warn">{rearPct} % of the luggage is on the rear wheel (hint above {rearLimit} %).</p>{/if}
     </section>
 
+    {#if packDay}
+      <PackDay {trip} steps={daySteps} {itemsById} {tips} {ready} ontoggle={toggleIn} onready={toggleReady} onclose={() => (packDay = false)} />
+    {/if}
     {#if weighing}
       <WeighMode items={tripItems} onclose={() => (weighing = false)} />
     {:else}
@@ -615,7 +633,7 @@
                     {@const it = itemsById[e.itemId]}
                     {#if head}<li class="cathead">{head}</li>{/if}
                     <li class="row" class:open={openRow === e.itemId} draggable={!phone.matches} ondragstart={(ev) => (ev.dataTransfer.setData('text/plain', e.itemId), (ev.dataTransfer.effectAllowed = 'copyMove'))} style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>
-                      <span class="nm">{it?.name ?? e.itemId}{#if (e.qty || 1) > 1}<small class="q"> × {e.qty}</small>{/if}</span>
+                      <span class="nm">{it?.name ?? e.itemId}{#if (e.qty || 1) > 1}<small class="q"> × {e.qty}</small>{/if}{#if e.packed}<small class="in" title="In the bag (packing day)"> ✓</small>{/if}{#if tips[e.itemId]}<small class="tip" title={tips[e.itemId].rule}>{tips[e.itemId].rule}</small>{/if}</span>
                       <span class="w num" class:nw={it?.weightG == null} title={it?.weightG == null ? 'not weighed' : undefined}>{it?.weightG == null ? '—' : formatWeight(it.weightG * (e.qty || 1))}</span>
                       <button type="button" class="more" aria-expanded={openRow === e.itemId} aria-label="Amount{phone.matches ? ' or other bag' : ''} for {it?.name}" onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>⋯</button>
                       {#if !phone.matches}
@@ -962,6 +980,23 @@
   }
   .q {
     color: var(--ink-3);
+  }
+  .row .in {
+    color: var(--ink-3);
+  }
+  /* Answer 3a: the learning for this item, one quiet line (the whole sentence on hover). */
+  .row .tip {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    line-height: 1.3;
+    color: var(--ink-3);
+  }
+  .row .tip::before {
+    content: 'Learning: ';
+    font-weight: 700;
   }
   .row .acts {
     grid-column: 1 / -1;

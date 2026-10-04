@@ -16,6 +16,7 @@ Stand: 4. Oktober 2026
 - **Bikes:** eigene Taschenliste, 4 Velo-Setups mit Velo-Zeichnung, Montagepunkte ein/aus, Velo- und Fahrergewicht.
 - **Pack:** Tour wählen oder neu (Kopie der letzten Tour mit demselben Velo, sonst Standard-Set), Tasche auf der Zeichnung wählen, Teile hinzufügen, verschieben, Anzahl, abhaken (am Phone Tasche für Tasche), Taschen pro Tour ändern, Ready-Check (Standardliste, pro Tour änderbar), Systemgewicht.
 
+- **Packtag und Debrief-Lernen (v0.14.0):** Pack → "Packing day" im Vollbild, Tasche für Tasche mit grosser Schrift, antippen = in der Tasche, am Schluss der Ready check; der Bildschirm bleibt an. Learnings stehen als kleiner Hinweis beim passenden Item. Debrief fragt nach den km der Tour und zählt sie zum Velo. "Leave at home" erst nach 3× nicht gebraucht. Startseite erinnert ans Backup, wenn das letzte älter als 14 Tage ist.
 - **Debrief und Startseite (v0.13.0):** Debrief in 3 Schritten (Wie war's, Items durchgehen, Zusammenfassung mit Vorschlägen für Gear, Learnings und Template), alle Learnings durchsuchbar. Startseite zeigt die nächste Tour mit Countdown, Packstand, Ready check, Wartung vor der Tour, Learnings, Velos und Gear. Dazu alle Vorschläge aus dem Design-Audit auf Gear, Pack, Templates, Bikes und Bike care.
 - **Pack mit grossen Taschen-Kästen (v0.12.0):** Taschen zeigen Inhalt direkt auf dem Velo, ruhiger Kopf, Layers gruppiert, Ready check zugeklappt, am Phone Taschen als Streifen. Alle Taschen als Liste mit "Move", Zweck-Namen, Vorlagen als Knöpfe, Undo, ruhigere Farben.
 - **Design-Runde 1 und Template-Editor (v0.11.0):** Gewichte in einer Zeile, Wetter klappt zu, Kacheln ziehen, kurze Namen in der Zeichnung, Templates direkt bearbeiten.
@@ -32,13 +33,15 @@ Stand: 4. Oktober 2026
 - [ ] Bike care → "Go through them": die 17 Juni-Aufgaben einmal durchgehen.
 - [ ] Full-Frame-Tasche wägen (neu in Gear, TA14).
 - [ ] Danach die 303 in Pack neu packen (Taschen für diese Tour prüfen).
+- [ ] App auf dem Samsung A56 installieren (Anleitung im Chat).
+- [ ] Erstes Backup herunterladen (Startseite → Download backup).
 
 ## Läuft
 - Noah testet Pack mit der 303 (Testplan im Chat), danach erster echter Debrief.
 
 ## Als Nächstes
-1. Bike care verfeinern nach deinem ersten Durchgang und den Service-Fotos.
-2. Packen verfeinern nach deinem ersten Test mit der 303.
-3. Bike care (Wartung mit Erinnerung zum Event-Datum).
-4. Etappe 2: Fahren und Wartung (Wetter-Vorhersage, Wartung unterwegs).
-5. Gear: Board-Seite (Kacheln nach Gewicht) als zweite Ansicht.
+1. Paket 2: Wetter (Open-Meteo, Startort von Hand), GPX-Route (Distanz, Höhenmeter, Fahrstunden), Foto des eigenen Velos in Pack.
+2. Paket 3: Logbuch der alten Events, Datei-Import für Garmin/Strava vorbereiten, Teilen als PDF und Link.
+3. Paket 4: ganze App Deutsch/Englisch umschaltbar.
+4. Paket 5: weitere Bereiche (Skitouren, Weekend-Trip, Weltreise).
+5. Bike care und Packen verfeinern nach deinem Test mit der 303 und den Service-Fotos.

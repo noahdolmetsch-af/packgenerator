@@ -7,6 +7,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import DataPanel from '../lib/DataPanel.svelte';
+  import { LAST_BACKUP, BACKUP_DAYS, backupDue, downloadBackup } from '../lib/backup.js';
   import { formatWeight } from '../lib/gear.js';
   import { sortBikes } from '../lib/bikes.js';
   import { tripStats, daysUntil, readyDone, RAIN } from '../lib/trips.js';
@@ -21,6 +22,11 @@
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
+  // Answer 10a: the newest of the downloaded backup file and the automatic folder backup.
+  const lastQ = liveQuery(async () => {
+    const [file, folder] = await Promise.all([db.meta.get(LAST_BACKUP), db.meta.get('backupFolder')]);
+    return [file?.at, folder?.lastWrite].filter(Boolean).sort().at(-1) ?? null;
+  });
 
   const trips = $derived($tripsQ ?? []);
   const items = $derived($itemsQ ?? []);
@@ -59,6 +65,17 @@
     return { due: 0, text: `${b.km.toLocaleString('en')} km${b.weightG ? ` · ${formatWeight(b.weightG)}` : ''} · all fine` };
   };
 
+  const backup = $derived($lastQ === undefined || !items.length ? { due: false } : backupDue($lastQ));
+  let backingUp = $state(false);
+  async function backupNow() {
+    backingUp = true;
+    try {
+      await downloadBackup(db);
+    } finally {
+      backingUp = false;
+    }
+  }
+
   const fmt = (iso, opts) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', opts);
   const dateText = (t) =>
     t.days > 1 ? `${fmt(t.startDate, { weekday: 'short', day: 'numeric' })} – ${fmt(tripEnd(t), { weekday: 'short', day: 'numeric', month: 'short' })} · ${t.days} days` : fmt(t.startDate, { weekday: 'short', day: 'numeric', month: 'short' });
@@ -84,6 +101,15 @@
 
 <div class="home">
   <div class="main">
+    {#if backup.due}
+      <section class="card backup" aria-labelledby="bk-h">
+        <div>
+          <h2 id="bk-h" class="title">Time for a backup</h2>
+          <p>{backup.days == null ? 'You have not saved a backup file yet.' : `Your last backup is ${backup.days} days old.`} Your data lives only in this browser: one file keeps it safe (every {BACKUP_DAYS} days).</p>
+        </div>
+        <button type="button" class="btn hi" disabled={backingUp} onclick={backupNow}>Download backup</button>
+      </section>
+    {/if}
     {#if next}
       <section class="card next" aria-labelledby="next-h">
         <span class="lbl">Next trip</span>
@@ -97,7 +123,7 @@
         <div class="tiles">
           <div class="tile">
             <span class="lbl">Packed</span>
-            <b class="v num">{stats.count} items</b>
+            <b class="v num">{stats.packed ? `${stats.packed} / ${stats.count} in` : `${stats.count} items`}</b>
             <p>{onBikeG ? `${formatWeight(onBikeG)} on the bike` : 'not weighed yet'} · {bagCount} {bagCount === 1 ? 'bag' : 'bags'}</p>
             {#if fullest}<div class="bar"><i style:width="{Math.min(100, fullest.pct)}%"></i></div><p class="small">{fullest.name} {fullest.pct} % full</p>{/if}
           </div>
@@ -119,7 +145,12 @@
           <span>{wx && typeof wx.min === 'number' ? `Packed for ${wx.min} to ${wx.max} °C, ${RAIN[wx.rain] ?? 'dry'}.` : 'Packed for 15 °C, dry (the base).'} Set the forecast in Pack a few days before.</span>
         </p>
         <div class="row">
-          <a class="btn hi" href="#/pack" onclick={() => openTrip(next.id)}>Continue packing</a>
+          {#if days <= 2}
+            <a class="btn hi" href="#/pack?day" onclick={() => openTrip(next.id)}>Packing day</a>
+            <a class="btn" href="#/pack" onclick={() => openTrip(next.id)}>Continue packing</a>
+          {:else}
+            <a class="btn hi" href="#/pack" onclick={() => openTrip(next.id)}>Continue packing</a>
+          {/if}
           <a class="btn" href="#/pack?print" onclick={() => openTrip(next.id)}>Print list</a>
           {#if stats.unweighed}<span class="muted small">{stats.unweighed} not weighed</span>{/if}
         </div>
@@ -191,6 +222,23 @@
 </div>
 
 <style>
+  .backup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    align-items: center;
+    justify-content: space-between;
+    border-left: 4px solid var(--hi);
+  }
+  .backup > div {
+    flex: 1 1 260px;
+  }
+  .backup h2 {
+    margin: 0 0 4px;
+  }
+  .backup p {
+    margin: 0;
+  }
   .home {
     display: grid;
     gap: 20px;

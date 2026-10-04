@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { tripEnd, isOver, toDebrief, nextTrip, newDebrief, debriefCounts, suggestions, applyDebrief, learningsFor } from '../src/lib/debrief.js';
+import { tripEnd, isOver, toDebrief, nextTrip, newDebrief, debriefCounts, suggestions, applyDebrief, learningsFor, unusedTimes, kmUpdate, tipsByItem } from '../src/lib/debrief.js';
 
 const trip = {
   id: 't1', title: '303', startDate: '2026-10-15', days: 3, templateId: 'tpl1',
@@ -66,11 +66,32 @@ describe('debrief summary', () => {
     expect(ids).toContain('broken:PUMP');
     expect(ids).toEqual(expect.arrayContaining(['confirm:1', 'confirm:2', 'learn:note', 'template:tpl1']));
   });
-  it('makes standard items optional when the weather was as planned', () => {
+  it('suggests leaving a standard item at home only on the third trip without it (answer 8b)', () => {
     const d = { ...filled(), weather: 'planned' };
-    const ids = suggestions(d, trip, items, [], []).map((x) => x.id);
-    expect(ids).toContain('optional:JERSEY');
-    expect(ids).not.toContain('cold:RAIN');
+    const past = (tripId, status = 'done') => ({ tripId, status, items: { JERSEY: 'unused' } });
+    expect(suggestions(d, trip, items, [], [], [past('a')]).map((x) => x.id)).not.toContain('optional:JERSEY');
+    // A draft and this trip's own debrief do not count.
+    expect(suggestions(d, trip, items, [], [], [past('a'), past('b', 'draft'), past('t1')]).map((x) => x.id)).not.toContain('optional:JERSEY');
+    const s = suggestions(d, trip, items, [], [], [past('a'), past('b')]);
+    expect(s.map((x) => x.id)).toContain('optional:JERSEY');
+    expect(s.find((x) => x.id === 'optional:JERSEY').detail).toMatch(/3 trips/);
+    expect(s.map((x) => x.id)).not.toContain('cold:RAIN');
+    expect(unusedTimes([past('a'), past('b'), past('c', 'draft')])).toEqual({ JERSEY: 2 });
+  });
+  it('adds the km of the trip to the bike once (answer 7a)', () => {
+    const d = { ...newDebrief(trip, 'x'), km: '312' };
+    expect(kmUpdate({ km: 1000 }, d)).toEqual({ km: 1312, kmApplied: 312 });
+    expect(kmUpdate({}, d)).toEqual({ km: 312, kmApplied: 312 });
+    // Opened again and corrected: only the difference.
+    expect(kmUpdate({ km: 1312 }, { ...d, km: 300, kmApplied: 312 })).toEqual({ km: 1300, kmApplied: 300 });
+    expect(kmUpdate({ km: 1312 }, { ...d, kmApplied: 312 })).toBeNull();
+    expect(kmUpdate(null, d)).toBeNull();
+  });
+  it('picks one learning per item as a packing hint (answer 3a)', () => {
+    const tips = tipsByItem([...learnings, { id: 5, topic: 'Night', rule: 'Low', itemIds: ['LAMP'], priority: 'low' }, { id: 6, topic: 'Open question', rule: 'Q', itemIds: ['PUMP'], priority: 'high' }]);
+    expect(tips.LAMP.id).toBe(2);
+    expect(tips.JERSEY.id).toBe(1);
+    expect(tips.PUMP).toBeUndefined();
   });
 });
 
