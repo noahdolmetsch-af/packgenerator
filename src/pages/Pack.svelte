@@ -85,7 +85,9 @@
       .filter((z) => z.zone.box)
       .map((z) => ({
         key: z.key,
-        title: z.bag ? z.bag.name : z.zone.name,
+        // Design answer 1a: the drawing shows the short place name; the full bag name is the tooltip.
+        title: z.zone.name,
+        name: z.bag ? z.bag.name : z.zone.name,
         sub: `${z.entries.length} · ${formatWeight(z.grams)}`,
         box: z.zone.box,
         empty: !z.entries.length,
@@ -122,8 +124,11 @@
   /** Put an item into a bag (key of the place); a place without a bag puts it on me. */
   function addTo(key, itemId) {
     const z = stats.zones.find((x) => x.key === key);
-    if (!z || !itemsById[itemId] || onTrip(trip).has(itemId)) return;
-    setEntries((es) => [...es, { itemId, slot: z.noBag ? 'body' : z.key, qty: 1, packed: false }]);
+    if (!z || !itemsById[itemId]) return;
+    const slot = z.noBag ? 'body' : z.key;
+    // Design answer 4b: a tile dragged onto another bag moves there.
+    if (onTrip(trip).has(itemId)) return moveTo(itemId, slot);
+    setEntries((es) => [...es, { itemId, slot, qty: 1, packed: false }]);
   }
   const add = (itemId) => addTo(zone.key, itemId);
   const targetName = $derived(zone ? (zone.noBag ? 'On me' : zone.bag ? zone.bag.name : zone.zone.name) : 'the trip');
@@ -204,6 +209,7 @@
 
   // Answer 5 and round C answer 2: weather range, kind of ride and the layers they add.
   const wx = $derived(trip?.wx ?? null);
+  const wxSet = $derived(wx?.min != null && wx?.max != null);
   const suggestion = $derived(trip ? layerSuggest(trip, items) : []);
   const setWx = (patch) => change((t) => ({ wx: { min: t.wx?.min ?? null, max: t.wx?.max ?? null, rain: t.wx?.rain ?? 'none', ...patch } }));
   function typedTemp(field, value) {
@@ -276,23 +282,22 @@
     </header>
 
     {#if tplNote}<p class="ok" role="status">{tplNote}</p>{/if}
+    <!-- Design answer 9b: all weights in one compact line. -->
     <section class="sys" aria-label="Weights">
-      <div class="big-w"><span class="lbl">System weight</span><b class="num">{kg(stats.systemG)}</b></div>
-      <dl class="parts">
-        <div><dt>Gear on the bike</dt><dd class="num">{formatWeight(stats.gearG)}</dd></div>
-        <div><dt>On me</dt><dd class="num">{formatWeight(stats.onMeG)}</dd></div>
-        <div><dt>Bags</dt><dd class="num">{formatWeight(stats.bagsG)}</dd></div>
-        <div><dt>Bike</dt><dd class="num" class:warn={stats.missing.bike}>{stats.missing.bike ? 'not set' : formatWeight(stats.bikeG)}</dd></div>
-        <div><dt>Rider</dt><dd class="num" class:warn={stats.missing.rider}>{stats.missing.rider ? 'not set' : formatWeight(stats.riderG)}</dd></div>
-        {#if water}<div><dt>Of it water</dt><dd class="num">{Math.round(water * 10) / 10} L</dd></div>{/if}
-        <div class="axle"><dt>Luggage front / rear</dt><dd class="num" class:warn={rearPct > rearLimit}>{formatWeight(axle.front)} / {formatWeight(axle.rear)}{#if rearPct != null}<small> ({100 - rearPct} / {rearPct} %)</small>{/if}</dd></div>
-      </dl>
-      <p class="sys-note">
-        {stats.count} items{#if stats.unweighed}{' · '}<span class="warn">{stats.unweighed} not weighed (counted as 0)</span>
-          {#if toWeigh}<button type="button" class="btn sm" onclick={() => (weighing = true)}>Weigh {toWeigh}</button>{/if}{/if}
-        {#if stats.missing.bike || stats.missing.rider}{' · '}set weights on <a href="#/bikes">Bikes</a>{/if}
-        {#if rearPct > rearLimit}{' · '}<span class="warn">{rearPct} % of the luggage is on the rear wheel (hint above {rearLimit} %)</span>{/if}
-      </p>
+      <div class="w1"><span class="lbl">System</span><b class="num">{kg(stats.systemG)}</b></div>
+      <div class="w1"><span class="lbl">Gear</span><b class="num">{formatWeight(stats.gearG)}</b></div>
+      <div class="w1"><span class="lbl">On me</span><b class="num">{formatWeight(stats.onMeG)}</b></div>
+      <div class="w1"><span class="lbl">Bags</span><b class="num">{formatWeight(stats.bagsG)}</b></div>
+      <div class="w1"><span class="lbl">Bike</span>{#if stats.missing.bike}<a class="nw" href="#/bikes">not set</a>{:else}<b class="num">{formatWeight(stats.bikeG)}</b>{/if}</div>
+      <div class="w1"><span class="lbl">Rider</span>{#if stats.missing.rider}<a class="nw" href="#/bikes">not set</a>{:else}<b class="num">{formatWeight(stats.riderG)}</b>{/if}</div>
+      {#if water}<div class="w1"><span class="lbl">Water</span><b class="num">{Math.round(water * 10) / 10} L</b></div>{/if}
+      <div class="w1" title="Luggage on the front / rear wheel: {formatWeight(axle.front)} / {formatWeight(axle.rear)}"><span class="lbl">Front / rear</span><b class="num" class:warn={rearPct > rearLimit}>{rearPct != null ? `${100 - rearPct} / ${rearPct} %` : '–'}</b></div>
+      <div class="w1"><span class="lbl">Items</span><b class="num">{stats.count}</b></div>
+      {#if stats.unweighed}
+        <span class="nw">{stats.unweighed} not weighed</span>
+        {#if toWeigh}<button type="button" class="btn sm" onclick={() => (weighing = true)}>Weigh {toWeigh}</button>{/if}
+      {/if}
+      {#if rearPct > rearLimit}<p class="sys-note warn">{rearPct} % of the luggage is on the rear wheel (hint above {rearLimit} %).</p>{/if}
     </section>
 
     {#if weighing}
@@ -319,20 +324,24 @@
       </div>
       <label class="hours"><span class="lbl">Riding hours{trip.days > 1 ? ' a day' : ''}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder="e.g. 6" /></label>
       <p class="hint hrs">Bottles and food come in amounts per hour (e.g. 1 bottle per 3 h).</p>
-      <div class="presets" role="group" aria-label="Weather presets">
-        {#each WX_PRESETS as p (p.name)}
-          <button type="button" class="toggle" aria-pressed={wx?.min === p.min && wx?.max === p.max} onclick={() => setWx({ min: p.min, max: p.max })}>{p.name} <small>{p.min}–{p.max}°</small></button>
-        {/each}
-      </div>
-      <div class="wxin">
-        <label><span class="lbl">Min °C</span><input class="inp num" type="text" inputmode="numeric" value={wx?.min ?? ''} onchange={(e) => typedTemp('min', e.currentTarget.value)} /></label>
-        <label><span class="lbl">Max °C</span><input class="inp num" type="text" inputmode="numeric" value={wx?.max ?? ''} onchange={(e) => typedTemp('max', e.currentTarget.value)} /></label>
-        <label><span class="lbl">Rain</span>
-          <select class="sel" value={wx?.rain ?? 'none'} onchange={(e) => setWx({ rain: e.currentTarget.value })}>
-            {#each Object.entries(RAIN) as [k, v] (k)}<option value={k}>{v}</option>{/each}
-          </select>
-        </label>
-      </div>
+      <!-- Design answer 6a: the weather folds away once it is set. -->
+      <details class="wxbox" open={!wxSet}>
+        <summary>{wxSet ? `Weather: ${wx.min}–${wx.max} °C, ${RAIN[wx.rain ?? 'none'].toLowerCase()}` : 'Weather'}<span class="chg">{wxSet ? 'Change' : ''}</span></summary>
+        <div class="presets" role="group" aria-label="Weather presets">
+          {#each WX_PRESETS as p (p.name)}
+            <button type="button" class="toggle" aria-pressed={wx?.min === p.min && wx?.max === p.max} onclick={() => setWx({ min: p.min, max: p.max })}>{p.name} <small>{p.min}–{p.max}°</small></button>
+          {/each}
+        </div>
+        <div class="wxin">
+          <label><span class="lbl">Min °C</span><input class="inp num" type="text" inputmode="numeric" value={wx?.min ?? ''} onchange={(e) => typedTemp('min', e.currentTarget.value)} /></label>
+          <label><span class="lbl">Max °C</span><input class="inp num" type="text" inputmode="numeric" value={wx?.max ?? ''} onchange={(e) => typedTemp('max', e.currentTarget.value)} /></label>
+          <label><span class="lbl">Rain</span>
+            <select class="sel" value={wx?.rain ?? 'none'} onchange={(e) => setWx({ rain: e.currentTarget.value })}>
+              {#each Object.entries(RAIN) as [k, v] (k)}<option value={k}>{v}</option>{/each}
+            </select>
+          </label>
+        </div>
+      </details>
       {#if suggestion.length}
         <div class="sugg">
           <p class="sugg-h"><b>Layers for this ride</b>{#if openLayers.length}<button type="button" class="btn sm hi" onclick={addAllLayers}>Add all {openLayers.length}</button>{:else}<span class="ok">All set</span>{/if}</p>
@@ -475,10 +484,10 @@
               <ul class="tiles">
                 {#each zone.entries as e (e.itemId)}
                   {@const it = itemsById[e.itemId]}
-                  <li class="tile" class:open={openRow === e.itemId} style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>
+                  <li class="tile" class:open={openRow === e.itemId} draggable={!phone.matches} ondragstart={(ev) => (ev.dataTransfer.setData('text/plain', e.itemId), (ev.dataTransfer.effectAllowed = 'copyMove'))} style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>
                     <span class="nm">{it?.name ?? e.itemId}</span>
                     <span class="foot">
-                      <span class="w num" class:warn={it?.weightG == null}>{it?.weightG == null ? 'not weighed' : formatWeight(it.weightG * (e.qty || 1))}{#if (e.qty || 1) > 1}<small> ({e.qty}×)</small>{/if}</span>
+                      <span class="w num" class:nw={it?.weightG == null}>{it?.weightG == null ? 'not weighed' : formatWeight(it.weightG * (e.qty || 1))}{#if (e.qty || 1) > 1}<small> ({e.qty}×)</small>{/if}</span>
                       <span class="tb">
                         <button type="button" class="more" aria-expanded={openRow === e.itemId} aria-label="Amount or other bag for {it?.name}" onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>⋯</button>
                         <button type="button" class="minus" aria-label="Take {it?.name} out of {zoneName(zone)}" onclick={() => removeEntry(e.itemId)}>−</button>
@@ -647,43 +656,36 @@
   .sys {
     display: flex;
     flex-wrap: wrap;
-    align-items: end;
-    gap: 8px 28px;
-    padding: 12px 0;
+    align-items: baseline;
+    gap: 6px 22px;
+    padding: 8px 0;
     border-top: 3px solid var(--ink);
     border-bottom: 1px solid var(--line);
     margin-bottom: 14px;
   }
-  .big-w {
+  .w1 {
     display: flex;
-    flex-direction: column;
+    align-items: baseline;
+    gap: 6px;
   }
-  .big-w b {
-    font: 900 44px/1 var(--font-title);
-  }
-  .parts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 22px;
+  .w1 .lbl {
     margin: 0;
   }
-  .parts div {
-    display: flex;
-    flex-direction: column;
-  }
-  .parts dt {
-    font-size: 12px;
-    color: var(--ink-3);
-  }
-  .parts dd {
-    margin: 0;
+  .w1 b {
     font-weight: 700;
+  }
+  .w1:first-child b {
+    font: 900 28px/1 var(--font-title);
+  }
+  /* Design answer 8b: "not weighed" in grey, not orange. */
+  .nw {
+    color: var(--ink-3);
+    font-size: 13px;
   }
   .sys-note {
     flex-basis: 100%;
     margin: 0;
     font-size: 14px;
-    color: var(--ink-2);
   }
   .warn {
     color: var(--hi);
@@ -762,6 +764,23 @@
     align-items: end;
     gap: 8px;
     margin-bottom: 8px;
+  }
+  .wxbox {
+    margin-bottom: 8px;
+  }
+  .wxbox summary {
+    cursor: pointer;
+    font-weight: 700;
+    padding: 4px 0;
+  }
+  .wxbox .chg {
+    margin-left: 8px;
+    font-weight: 400;
+    font-size: 14px;
+    text-decoration: underline;
+  }
+  .wxbox[open] .chg {
+    display: none;
   }
   .ride .hint {
     margin: 2px 0 8px;
@@ -1183,9 +1202,11 @@
     font-weight: 700;
     font-size: 14px;
   }
-  .w.warn {
-    font-weight: 600;
-    font-size: 13px;
+  .w.nw {
+    font-weight: 400;
+  }
+  .tile[draggable='true'] {
+    cursor: grab;
   }
   .qty {
     display: inline-flex;
