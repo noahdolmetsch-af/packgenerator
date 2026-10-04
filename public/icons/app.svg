@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" fill="#0F2E27"/>
+<g fill="none" stroke="#2E4C44" stroke-width="10">
+<path d="M-20 140 C120 90 220 190 540 120"/><path d="M-20 200 C140 150 240 250 540 180"/><path d="M-20 420 C150 370 260 470 540 400"/></g>
+<path d="M96 360 L206 196 L262 276 L318 214 L416 360 Z" fill="#FF5B14"/>
+<path d="M206 196 L234 238 L216 252 L196 232 L178 250 Z" fill="#F5F6F1"/>
+<text x="256" y="452" text-anchor="middle" font-family="DejaVu Sans Condensed, sans-serif" font-weight="bold" font-size="72" fill="#F5F6F1">PACK</text>
+</svg>
