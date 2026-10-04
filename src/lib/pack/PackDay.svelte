@@ -10,7 +10,9 @@
   import { formatWeight } from '../gear.js';
   import { readyDone } from '../trips.js';
 
-  let { trip, steps, itemsById, tips = {}, ready = [], ontoggle, onready, onclose } = $props();
+  let { trip, steps, itemsById, tips = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onclose } = $props();
+  const RAIN_WORD = { none: 'dry', showers: 'showers', rain: 'rain' };
+  const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${RAIN_WORD[w.rain ?? 'none']}`;
 
   // Start at the first bag that still has something to pack.
   let at = $state(Math.max(0, steps.findIndex((s) => s.done < s.entries.length)));
@@ -70,6 +72,12 @@
   </nav>
 
   <div class="body">
+    {#if wxGap && at === 0}
+      <div class="wxgap" role="note">
+        <p><b>The forecast is {wxText(wxGap.fc)}.</b> This trip is packed for {wxText(wxGap.have)}.</p>
+        <button type="button" class="btn hi" onclick={onwx}>Pack for the forecast first</button>
+      </div>
+    {/if}
     {#if step}
       <h1 class="title">{step.title}</h1>
       <p class="sub num">{step.sub ? `${step.sub} · ` : ''}{step.done} of {step.entries.length} in{allIn ? ' · all in' : ''}</p>
@@ -231,6 +239,8 @@
     list-style: none;
     padding: 0;
     display: grid;
+    /* minmax(0, …): a long learning hint (one line, cut with …) must not widen the items past the screen */
+    grid-template-columns: minmax(0, 1fr);
     gap: 8px;
   }
   .it {
@@ -314,6 +324,17 @@
   .go {
     font: 900 24px var(--font-title);
     text-transform: uppercase;
+  }
+  .wxgap {
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    background: #e3eef8;
+    font-size: 17px;
+  }
+  .wxgap p {
+    margin: 0 0 10px;
   }
   .foot {
     display: flex;

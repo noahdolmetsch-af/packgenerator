@@ -55,7 +55,10 @@ export async function endDemo(db) {
 /* ---------- demo day ---------- */
 
 /** Act as if today were this date (YYYY-MM-DD), or null for the real day. Reload afterwards. */
-export function setClock(date, now = Date.now()) {
+/** The real time, even while the demo day shifts Date. */
+export const realNow = () => (globalThis.Date.realNow ? globalThis.Date.realNow() : Date.now());
+
+export function setClock(date, now = realNow()) {
   try {
     if (!date) localStorage.removeItem(CLOCK_KEY);
     else {
@@ -91,5 +94,6 @@ export function applyClock(offset = clockOffset()) {
     }
   }
   DemoDate.demoShifted = true;
+  DemoDate.realNow = () => Real.now();
   globalThis.Date = DemoDate;
 }

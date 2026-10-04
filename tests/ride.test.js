@@ -180,3 +180,20 @@ describe('workshop before a trip', () => {
     expect(late.rows[0].late).toBe(true);
   });
 });
+
+describe('missing item: similar gear (v0.18.1)', async () => {
+  const { similarItems } = await import('../src/lib/debrief.js');
+  const items = [
+    { id: 'A', name: 'Thin long gloves' },
+    { id: 'B', name: 'Latex gloves (rain)' },
+    { id: 'C', name: 'Fleece hat', nameDe: 'Mütze warm' },
+    { id: 'D', name: 'Headlamp' },
+  ];
+  it('finds gloves for "Warm gloves", only the thing itself when it matches', () => {
+    expect(similarItems('Warm gloves', items).map((i) => i.id)).toEqual(['B', 'A']);
+    expect(similarItems('Warm gloves', [{ id: 'G', name: 'Warm gilet' }])).toEqual([]);
+    expect(similarItems('Warme Mütze', items).map((i) => i.id)).toEqual(['C']);
+    expect(similarItems('Glove', items).map((i) => i.id)).toEqual(['B', 'A']);
+    expect(similarItems('Map', items)).toEqual([]);
+  });
+});
