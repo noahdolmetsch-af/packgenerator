@@ -234,3 +234,116 @@ export function tripPrep(bike, trip, tasks = [], setup = { front: null, rear: nu
   rows.sort((a, b) => rank(a) - rank(b) || (a.due ?? '9').localeCompare(b.due ?? '9'));
   return { rows, done: prep.filter((r) => r.finished).length, total: prep.length, rules: prepRules(trip, tasks).filter((r) => r.from <= today) };
 }
+
+/* ---------- workshop order (v0.19.3, N15, answer 8a) ---------- */
+
+/** Which receipt lines tell the price of a job: part, action and, for the sealant, the words on the line. */
+const PRICE_OF = {
+  check: { part: 'bolts', action: 'check' },
+  // A tubeless conversion also mentions sealant but costs much more than topping it up.
+  tyres: { part: 'tyres', action: 'service', match: /sealant|dichtmilch/i, not: /convert|umbau/i },
+};
+/** The jobs in German, for the message to the bike shop. */
+const DE = {
+  fork: 'Gabel-Service', shock: 'Dämpfer-Service', tyres: 'Dichtmilch nachfüllen', check: '1000-km-Check (Bremsen, Kette, Reifen, Schrauben, Schaltung, Lager)',
+  chain: 'Kette', chainring: 'Kettenblatt', cassette: 'Kassette', padsF: 'Bremsbeläge vorne', padsR: 'Bremsbeläge hinten', rotorF: 'Bremsscheibe vorne', rotorR: 'Bremsscheibe hinten',
+  linkage: 'Hinterbau-Lager', saddle: 'Sattelhöhe', shifting: 'Schaltung', brakes: 'Bremsen', wheels: 'Laufräder', cockpit: 'Cockpit', bolts: 'Schrauben', bearings: 'Lager',
+};
+
+/**
+ * What the shop charged last time for this job: this bike's newest receipt line first, else
+ * another bike's. Returns { chf, date, bikeId, shop } or null.
+ */
+export function priceFor(visits, bikeId, key, action = 'service') {
+  const want = PRICE_OF[key] ?? { part: key, action };
+  const fits = (l) => l.part === want.part && l.action === want.action && typeof l.chf === 'number' && l.chf > 0 && (!want.match || want.match.test(l.what ?? '')) && !want.not?.test(l.what ?? '');
+  const newest = [...visits].sort((a, b) => b.date.localeCompare(a.date));
+  for (const mine of [true, false]) {
+    for (const v of newest.filter((x) => (x.bikeId === bikeId) === mine)) {
+      const l = (v.parts ?? []).find(fits);
+      if (l) return { chf: l.chf, date: v.date, bikeId: v.bikeId, shop: v.shop };
+    }
+  }
+  return null;
+}
+
+/**
+ * One order for the bike shop: everything the bike needs before the next trip (or, without a
+ * trip, what is due today), with a price from the receipts where one is known.
+ * bike: from withVisits. Returns { rows, total, unknown, shop } with
+ * rows: [{ key, name, de, detail, when, chf, from }]. Open repairs of the bike come last, without a price.
+ * Waxing the chain is left out: that is done at home.
+ */
+export function workshopOrder(bike, trip, tasks = [], visits = [], setup = { front: null, rear: null }, today = iso(new Date())) {
+  if (!bike) return null;
+  const due = trip?.startDate && today <= addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1)
+    ? bikeDue(bike, trip, setup, today, addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1))
+    : bikeDue(bike, { startDate: today, days: 1 }, setup, today, today);
+  // Waxing the chain every 150 km is done at home, not in the shop.
+  const rows = due.rows.filter((r) => !(r.key === 'chain' && !r.worn)).map((r) => {
+    const action = r.worn ? 'replace' : r.key === 'check' ? 'check' : 'service';
+    const price = priceFor(visits, bike.id, r.key, action);
+    const de = r.worn ? `${DE[r.key] ?? r.key} prüfen, wenn nötig ersetzen` : r.key === 'chain' ? 'Kette wachsen' : DE[r.key] ?? r.name;
+    return { key: `${r.key}:${r.when}`, name: r.name, de, detail: r.detail, when: r.when, chf: price?.chf ?? null, from: price };
+  });
+  for (const t of tasks.filter((x) => !isPrep(x) && taskBike(x) === bike.id && (x.status === 'open' || x.status === 'needed'))) {
+    rows.push({ key: `repair:${t.id}`, name: t.task, de: t.task, detail: t.status === 'needed' ? 'work needed' : 'open repair', when: 'now', chf: null, from: null });
+  }
+  const shop = visitsOf(visits, bike.id)[0]?.shop ?? [...visits].sort((a, b) => b.date.localeCompare(a.date))[0]?.shop ?? '';
+  return { rows, ...orderSum(rows), shop };
+}
+
+/** The estimate of the rows that are ticked: { total, unknown } (unknown: rows without a price). */
+export function orderSum(rows) {
+  const total = Math.round(rows.reduce((t, r) => t + (r.chf ?? 0), 0));
+  return { total, unknown: rows.filter((r) => r.chf == null).length };
+}
+
+/** The message to the bike shop, in German (the bike shops speak German). */
+export function orderText(rows, { bike, trip = null } = {}) {
+  const date = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString('de-CH', { day: 'numeric', month: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  const { total, unknown } = orderSum(rows);
+  const lines = [
+    'Grüezi',
+    '',
+    trip?.startDate ? `Ich möchte mein ${bike.name} vor dem ${date(trip.startDate)} (${trip.title}) in den Service bringen. Bitte:` : `Ich möchte mein ${bike.name} in den Service bringen. Bitte:`,
+    ...rows.map((r) => `- ${r.de}`),
+    '',
+  ];
+  if (total) lines.push(`Nach meinen letzten Quittungen rechne ich mit etwa CHF ${total}${unknown ? ' plus Material' : ''}.`);
+  lines.push('Wann hätten Sie Zeit?', '', 'Freundliche Grüsse');
+  return lines.join('\n');
+}
+
+/* ---------- bike profile (v0.19.3, N14) ---------- */
+
+/**
+ * The facts about one bike in one place: km, what it cost this year and per 1000 km, what is
+ * due next and the last workshop visit. bike: from withVisits.
+ * Returns { km, kmDate, year: { year, chf, unknown, visits } | null, per, next: [{ name, detail, late }], last }.
+ */
+export function bikeProfile(bike, visits = [], setup = { front: null, rear: null }, today = iso(new Date())) {
+  const mine = visitsOf(visits, bike.id);
+  const year = costByYear(mine).find((y) => y.year === today.slice(0, 4)) ?? null;
+  const next = [];
+  // Due now: overdue by time, the 1000 km check, worn parts (the same rules as Bike care).
+  for (const r of bikeDue(bike, { startDate: today, days: 1 }, setup, today, today).rows.filter((x) => x.late || x.worn)) next.push({ name: r.name, detail: r.detail, late: true });
+  if (!next.length) {
+    const t = timeDue(bike, setup, today).find((x) => !x.never);
+    if (t) next.push({ name: t.name, detail: `due ${short(t.next)}`, late: false, days: t.days });
+    const check = checkState(bike).rows.filter((r) => r.since != null);
+    if (check.length) {
+      const left = CHECK_KM - Math.max(...check.map((r) => r.since));
+      next.push({ name: `${CHECK_KM.toLocaleString('en')} km check`, detail: `in ${left.toLocaleString('en')} km`, late: false });
+    }
+  }
+  const lastVisit = mine[0] ?? null;
+  return {
+    km: typeof bike.km === 'number' ? bike.km : null,
+    kmDate: bike.kmDate ?? null,
+    year,
+    per: costPer1000(mine, bike),
+    next,
+    last: lastVisit ? { date: lastVisit.date, shop: lastVisit.shop, chf: visitTotal(lastVisit), jobs: (lastVisit.parts ?? []).length } : null,
+  };
+}

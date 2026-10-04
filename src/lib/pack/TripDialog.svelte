@@ -1,6 +1,6 @@
 <script>
   import { db } from '../db.js';
-  import { newTrip, lastTripOn, slotFor } from '../trips.js';
+  import { newTrip, lastTripOn, switchBike } from '../trips.js';
   import { tripFromTemplate } from '../templates.js';
 
   /**
@@ -43,14 +43,8 @@
       oncreated?.(t.id);
     } else {
       const changes = { title: draft.title.trim(), startDate: draft.startDate, days: Math.max(1, Number(draft.days) || 1) };
-      if (draft.bikeId !== trip.bikeId) {
-        // Another bike brings its own bags; items in a place it has no bag for go to the seat pack.
-        const setup = { ...(bike.setup ?? {}) };
-        changes.bikeId = bike.id;
-        changes.bike = bike.name;
-        changes.setup = setup;
-        changes.entries = trip.entries.map((e) => (e.slot === 'body' || e.slot === 'mounted' || setup[e.slot] ? e : { ...e, slot: slotFor(e.slot, setup) }));
-      }
+      // Another bike brings its own bags; items in a place it has no bag for go to the seat pack.
+      if (draft.bikeId !== trip.bikeId) Object.assign(changes, switchBike(trip, bike));
       await db.trips.update(trip.id, changes);
     }
     dialog.close();

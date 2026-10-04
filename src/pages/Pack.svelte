@@ -5,7 +5,7 @@
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, formatVolume, sortBikes } from '../lib/bikes.js';
   import { CATEGORY, CATEGORIES, formatWeight, isInventory, matches, weighQueue } from '../lib/gear.js';
-  import { tripStats, packSteps, togglePacked, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor } from '../lib/trips.js';
+  import { tripStats, packSteps, togglePacked, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor, switchBike } from '../lib/trips.js';
   import { RIDES, layerSuggest, layerDone, applyLayers, openRows, waterOn } from '../lib/layers.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import PackStage from '../lib/pack/PackStage.svelte';
@@ -14,6 +14,8 @@
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
   import PackDay from '../lib/pack/PackDay.svelte';
   import TripRoute from '../lib/pack/TripRoute.svelte';
+  import BikeChoice from '../lib/pack/BikeChoice.svelte';
+  import { bikeChoice } from '../lib/choice.js';
   import { sharePayload, shareLink } from '../lib/share.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { bikePhotos, packPhoto } from '../lib/photo.js';
@@ -225,6 +227,14 @@
       await db.trips.update(id, fn(structuredClone(cur)));
     });
   }
+  // N13: the bikes side by side for this trip.
+  let choosing = $state(false);
+  const choiceRows = $derived.by(() => {
+    if (!choosing || !trip) return [];
+    const visits = $visitsQ ?? [];
+    return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], today });
+  });
+  const useBike = (b) => change((t) => switchBike(t, b));
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.
   let undo = $state.raw([]); // raw: plain copies, IndexedDB cannot store proxies
   const canUndo = $derived(undo.length > 0 && undo.at(-1).id === trip?.id);
@@ -421,6 +431,7 @@
         <span class="tag">{bike?.name ?? 'No bike'}</span>
         {#if trip.skipped}<span class="tag">Not riding</span>{/if}
         <button type="button" class="link" onclick={() => (dialog = { trip })}>Edit</button>
+        {#if !over && bikes.length > 1}<button type="button" class="link" onclick={() => (choosing = true)}>Compare bikes</button>{/if}
         <!-- v0.19.2 (question 10): a trip you will not ride stays, but is no "next trip" and no reminder. -->
         <button type="button" class="link" onclick={() => change(() => ({ skipped: !trip.skipped }))}>{trip.skipped ? 'Riding it after all' : 'Not riding'}</button>
       </p>
@@ -495,6 +506,9 @@
       {#if rearPct > rearLimit}<p class="sys-note warn">{rearPct} % of the luggage is on the rear wheel (hint above {rearLimit} %).</p>{/if}
     </section>
 
+    {#if choosing && choiceRows.length}
+      <BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => (choosing = false)} />
+    {/if}
     {#if packDay}
       <PackDay {trip} {wxGap} onwx={useForecast} steps={daySteps} {itemsById} {tips} {ready} ontoggle={toggleIn} onready={toggleReady} onclose={() => (packDay = false)} />
     {/if}

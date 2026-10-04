@@ -3,6 +3,7 @@
 Stand: 4. Oktober 2026
 
 ## Fertig
+- **Werkstatt und Quick note (v0.19.3):** Bike care → "Workshop order": alles, was bis zur nächsten Tour fällig ist, als ein Auftrag mit Preisen aus deinen Quittungen; abwählen, was du selbst machst; als Nachricht (Deutsch) senden oder drucken. Bikes zeigt einen Steckbrief pro Velo (km, Werkstatt dieses Jahr, pro 1000 km, was als Nächstes fällig ist, letzter Besuch). Pack → "Compare bikes": die Velos nebeneinander für die Tour, "Use for this trip" wechselt das Velo. Quick note: runder +-Knopf auf jeder Seite, Foto optional, Seite "Inbox" zum Einordnen (Reparatur, Wunschliste, Learning, Notiz zur Tour, erledigt), alle Notizen bleiben unter "All notes". Am Phone: langes Drücken aufs App-Icon → "New note", und Pack Generator erscheint beim Teilen von Text und Links.
 - **Auswerten (v0.19.2):** Debrief → "Your trips compared": Gepäck pro Tour, gebraucht und nicht gebraucht, mit Trend. Gear → Tab "Dead weight": mitgenommen, aber nie gebraucht, mit "Leave at home"; dazu "Rarely used". Wunschliste mit Grund (fehlte, kaputt, Velo) und nach Nutzen sortiert. Notizen vom Ride day werden im Debrief als Learning vorgeschlagen. In Pack lässt sich eine Tour als "Not riding" markieren: Sie bleibt, zählt aber nicht mehr als nächste Tour.
 - **App lernt (v0.19.0):** Debrief → "Your pace": GPX-Fahrten laden, die App rechnet dein Tempo (aus 8 Fahrten: 28.5 km/h plus 1 h pro 1070 m, Pausen +34 %). Pack und Ride day schätzen die Fahrzeit damit, der Ride day zeigt auch die Ankunft mit deinen üblichen Pausen. Nach 3 Debriefs schlagen die Templates vor, was raus kann (3× nicht gebraucht) und was rein soll (2× gefehlt). Neue Demo-Datei `private/demo/pack-generator-demo-app-lernt.json` (303, Hope 1000, Alpenbrevet).
 - **Eine Liste "Before the trip" (v0.18.2):** Startseite, Pack und Bike care zeigen dieselbe Liste mit derselben Zahl: Vorbereitungs-Aufgaben mit Datum, was das Velo braucht (Werkstatt ab 14 Tagen vorher, Fälliges immer) und offene Reparaturen dieses Velos. Überfälliges zuerst und rot. In Bike care stehen die Aufgaben der Tour jetzt alle im Abschnitt der Tour, nicht mehr verteilt auf "Due now".
@@ -52,7 +53,6 @@ Stand: 4. Oktober 2026
 - Nutzen pro Seite: Vorschläge N1-N16 im Dokument "Pack Generator: Mehr Nutzen pro Seite", 12 Fragen an Noah offen.
 
 ## Als Nächstes
-1. 0.19.3: Werkstatt-Auftrag mit Kostenschätzung, Steckbrief und Velo-Wahl; Quick note mit Inbox.
-2. 0.19.4: Packen und Fahren (Ballast-Karte, Marken statt Learning-Text, Ride day pro Block: Kleidung, Essen, Licht).
+1. 0.19.4: Packen und Fahren (Ballast-Karte, Marken statt Learning-Text, Ride day pro Block: Kleidung, Essen, Licht).
 2. 0.20.0: ganze App Deutsch/Englisch umschaltbar.
 3. Paket 5: weitere Bereiche (Skitouren, Weekend-Trip, Weltreise) und Merkliste "All my favorite things".

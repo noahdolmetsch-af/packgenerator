@@ -10,7 +10,8 @@
   import BikesNav from '../lib/care/BikesNav.svelte';
   import PartDialog from '../lib/care/PartDialog.svelte';
   import VisitDialog from '../lib/care/VisitDialog.svelte';
-  import { withVisits, visitsOf, visitTotal, tyreSetup, timeDue, costByYear, costByPart, costPer1000, lastPrice, tripPrep } from '../lib/workshop.js';
+  import OrderDialog from '../lib/care/OrderDialog.svelte';
+  import { withVisits, visitsOf, visitTotal, tyreSetup, timeDue, costByYear, costByPart, costPer1000, lastPrice, tripPrep, workshopOrder } from '../lib/workshop.js';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -60,7 +61,10 @@
   const checks = $derived(
     views.map((b) => {
       const tyres = tyreSetup(b, visits);
-      return { bike: b, check: checkState(b), services: serviceDue(b), tyres, time: timeDue(b, tyres, today), mine: visitsOf(visits, b.id) };
+      // N15: one order for the shop, for this bike's next trip (or what is due today).
+      const trip = upcomingTrips($tripsQ ?? [], today).find((t) => t.bikeId === b.id) ?? null;
+      const order = workshopOrder(b, trip, tasks, visits, tyres, today);
+      return { bike: b, check: checkState(b), services: serviceDue(b), tyres, time: timeDue(b, tyres, today), mine: visitsOf(visits, b.id), order, orderTrip: trip };
     }),
   );
   const overdue = $derived([
@@ -142,6 +146,9 @@
 
   /* ---------- workshop visits (answers 7a, 8a) ---------- */
   let visitOpen = $state(null); // visit id
+  let orderOpen = $state(null); // bike id
+  const orderOf = $derived(Object.fromEntries(checks.map((c) => [c.bike.id, c])));
+  const bikeNames = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
   const chf = (n) => `CHF ${n.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const inDays = (d) => (d <= 0 ? (d === 0 ? 'due today' : `${-d} days overdue`) : d < 45 ? `in ${d} days` : `in ${Math.round(d / 30.4)} months`);
 
@@ -194,6 +201,14 @@
             </li>
           {/each}
         </ul>
+        {#if checks.some((c) => c.order?.rows.length)}
+          <p class="orders">
+            <span class="lbl">For the bike shop</span>
+            {#each checks.filter((c) => c.order?.rows.length) as c (c.bike.id)}
+              <button type="button" class="btn sm" onclick={() => (orderOpen = c.bike.id)}>Workshop order {c.bike.name} · about CHF {c.order.total}</button>
+            {/each}
+          </p>
+        {/if}
       </section>
     {/if}
 
@@ -212,6 +227,7 @@
           <div class="shop">
             <span class="lbl">The bike</span>
             <ul>{#each bike as r (r.key)}<li class:late={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? 'on the trip · ' : ''}{r.detail}</small></li>{/each}</ul>
+            {#if orderOf[trip.bikeId]?.order?.rows.length}<button type="button" class="btn sm" onclick={() => (orderOpen = trip.bikeId)}>Workshop order · about CHF {orderOf[trip.bikeId].order.total}</button>{/if}
           </div>
         {/if}
         {#each rules as r (r.task.id)}
@@ -259,7 +275,7 @@
       <p class="card rev-cta">{review.length} tasks from the Excel (June) are not checked yet. <button type="button" class="btn hi" onclick={() => (reviewing = true)}>Go through them</button></p>
     {/if}
 
-    {#each checks as { bike, check, tyres, time, mine } (bike.id)}
+    {#each checks as { bike, check, tyres, time, mine, order } (bike.id)}
       {@const log = bikeLog(bike, tasks)}
       {@const flags = check.due + bike.parts.filter(needsWork).length + repairsFor(bike.id).length}
       <details class="block bike" id="care-{bike.id}" open={flags > 0 || trips.some(({ trip }) => trip.bikeId === bike.id)}>
@@ -335,6 +351,9 @@
           </div>
           <div>
             <h3>Workshop {#if mine.length}<small>{mine.length} {mine.length === 1 ? 'visit' : 'visits'}</small>{/if}</h3>
+            {#if order?.rows.length}
+              <p class="order"><button type="button" class="btn sm hi" onclick={() => (orderOpen = bike.id)}>Workshop order</button> <span>{order.rows.length} {order.rows.length === 1 ? 'job' : 'jobs'} · about CHF {order.total}{order.unknown ? ' + unknown' : ''}</span></p>
+            {/if}
             {#if mine.length}
               <ul class="visits">
                 {#each mine as v (v.id)}
@@ -427,6 +446,11 @@
   {#if v}
     <VisitDialog visit={v} bike={viewById[v.bikeId]} onclose={() => (visitOpen = null)} />
   {/if}
+{/if}
+
+{#if orderOpen && orderOf[orderOpen]?.order}
+  {@const c = orderOf[orderOpen]}
+  <OrderDialog order={c.order} bike={c.bike} trip={c.orderTrip} {bikeNames} onclose={() => (orderOpen = null)} />
 {/if}
 
 <style>
@@ -860,6 +884,27 @@
     .log li {
       grid-template-columns: 1fr;
     }
+  }
+  .orders {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 0;
+  }
+  .orders .lbl {
+    width: 100%;
+  }
+  .order {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-size: 14px;
+  }
+  .shop .btn {
+    margin-top: 6px;
   }
   .shop {
     margin: 0 0 10px;

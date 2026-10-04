@@ -11,6 +11,7 @@
   import { nextTrip } from '../lib/debrief.js';
   import { bikePhotos, shrinkImage } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
+  import { withVisits, tyreSetup, bikeProfile } from '../lib/workshop.js';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -19,6 +20,7 @@
   const rearQ = liveQuery(() => db.settings.get('rearLimitPct'));
   const tripsQ = liveQuery(() => db.trips.toArray());
   const photosQ = liveQuery(() => db.photos.toArray());
+  const visitsQ = liveQuery(() => db.visits.toArray());
 
   const bikes = $derived(sortBikes($bikesQ ?? []));
   const bags = $derived($bagsQ ?? []);
@@ -31,6 +33,16 @@
   // Design audit B4: the bike's bags are the standard; the next trip on it may use others.
   const tripOn = $derived(bike ? nextTrip(($tripsQ ?? []).filter((t) => t.bikeId === bike.id)) : null);
   const tripBag = (key) => (tripOn && (tripOn.setup?.[key] ?? null) !== (bike.setup?.[key] ?? null) ? bags.find((b) => b.id === tripOn.setup?.[key]) ?? { name: 'no bag', none: true } : null);
+
+  // N14: the bike's profile (km, costs, what is due next, last workshop visit).
+  const profile = $derived.by(() => {
+    if (!bike) return null;
+    const visits = $visitsQ ?? [];
+    const view = withVisits(bike, visits);
+    return bikeProfile(view, visits, tyreSetup(view, visits), new Date().toISOString().slice(0, 10));
+  });
+  const chf = (n) => `CHF ${Math.round(n).toLocaleString('de-CH')}`;
+  const day = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
   /* ---------- setup photos (Noah, 4.10.2026, answers 1a-6a) ---------- */
   const gallery = $derived(bikePhotos(bike, $photosQ ?? []));
@@ -214,6 +226,17 @@
           </div>
         </div>
       </div>
+
+      {#if profile}
+        <dl class="profile" aria-label="Profile of the {bike.name}">
+          <div><dt>km</dt><dd class="num">{profile.km == null ? 'not set' : profile.km.toLocaleString('en')}{#if profile.kmDate}<small>set {day(profile.kmDate)}</small>{/if}</dd></div>
+          <div><dt>Workshop {new Date().getFullYear()}</dt><dd class="num">{profile.year ? (profile.year.unknown === profile.year.visits ? 'cost unknown' : chf(profile.year.chf)) : 'CHF 0'}{#if profile.year}<small>{profile.year.visits} {profile.year.visits === 1 ? 'visit' : 'visits'}</small>{/if}</dd></div>
+          <div><dt>Per 1000 km</dt><dd class="num">{profile.per?.chf != null ? chf(profile.per.chf) : '–'}<small>{profile.per?.chf != null ? `over ${profile.per.km.toLocaleString('en')} km` : profile.per?.wait ? `after ${profile.per.wait.toLocaleString('en')} more km` : 'needs km at a visit'}</small></dd></div>
+          <div class:late={profile.next[0]?.late}><dt>{profile.next[0]?.late ? 'Due now' : 'Next'}</dt><dd>{#each profile.next as n (n.name)}<span>{n.name}<small>{n.detail}</small></span>{:else}<span>nothing recorded</span>{/each}</dd></div>
+          <div><dt>Last workshop</dt><dd>{#if profile.last}<span>{day(profile.last.date)}<small>{profile.last.shop}{profile.last.chf != null ? ` · ${chf(profile.last.chf)}` : ''}</small></span>{:else}<span>none yet</span>{/if}</dd></div>
+        </dl>
+        <p class="to-care"><a class="link" href="#/care">Bike care for the {bike.name}</a></p>
+      {/if}
 
       <div class="gal" aria-label="Photos of the {bike.name}">
         {#each gallery as p, n (p.id)}
@@ -486,6 +509,49 @@
     color: var(--ink-3);
     font-size: 12px;
     max-width: 160px;
+  }
+  .profile {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+    margin: 12px 0 0;
+  }
+  .profile > div {
+    background: var(--paper-2, #f4f2ee);
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-width: 0;
+  }
+  .profile .late {
+    box-shadow: inset 3px 0 0 #b42318;
+  }
+  .profile dt {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .profile dd {
+    margin: 2px 0 0;
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .profile dd span {
+    display: flex;
+    flex-direction: column;
+  }
+  .profile small {
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .to-care {
+    margin: 6px 0 0;
+    font-size: 14px;
   }
   .bike-card {
     margin-bottom: 32px;
