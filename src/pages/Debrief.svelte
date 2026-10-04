@@ -10,7 +10,7 @@
   import { formatWeight, CATEGORY, isInventory } from '../lib/gear.js';
   import { ZONE } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
-  import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate } from '../lib/debrief.js';
+  import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems } from '../lib/debrief.js';
   import { parseActivitiesCsv, parseRideFile, ridesOnTrip } from '../lib/activities.js';
 
   let { param = '' } = $props();
@@ -126,6 +126,13 @@
 
   let missName = $state('');
   const notOnTrip = $derived(trip ? items.filter((i) => isInventory(i) && !trip.entries.some((e) => e.itemId === i.id)) : []);
+  // v0.18.1: gear that may be what you mean, before it goes to the wishlist as something new.
+  const similar = $derived(missName.trim().length >= 4 && !notOnTrip.some((i) => i.name.toLowerCase() === missName.trim().toLowerCase()) ? similarItems(missName, notOnTrip) : []);
+  function addItem(item) {
+    d.missing.push({ id: `m${Date.now().toString(36)}`, name: item.name, itemId: item.id });
+    missName = '';
+    persist();
+  }
   function addMissing(event) {
     event.preventDefault();
     const name = missName.trim();
@@ -135,6 +142,7 @@
     missName = '';
     persist();
   }
+  const noteWhen = (iso) => new Date(iso).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
   function dropMissing(id) {
     d.missing = d.missing.filter((m) => m.id !== id);
     persist();
@@ -218,6 +226,14 @@
       </div>
       <p class="lbl trip">{trip.title} · {dateText(trip)} · {trip.bike ?? ''}</p>
 
+      {#snippet rideNotes()}
+        {#if d.rideNotes?.length}
+          <div class="ridenotes">
+            <span class="lbl">Notes from the ride</span>
+            <ul>{#each d.rideNotes as n (n.at)}<li><small class="num">{noteWhen(n.at)}</small> {n.text}</li>{/each}</ul>
+          </div>
+        {/if}
+      {/snippet}
       {#if step === 1}
         <h1 class="title">How did it go?</h1>
         <fieldset>
@@ -249,12 +265,7 @@
             <p>Several files at once are fine (one per day). Only rides on the days of this trip count.</p>
           </details>
         {/if}
-        {#if d.rideNotes?.length}
-          <div class="ridenotes">
-            <span class="lbl">Notes from the ride</span>
-            <ul>{#each d.rideNotes as n (n.at)}<li>{#if trip.days > 1}<small>Day {n.day + 1}</small> {/if}{n.text}</li>{/each}</ul>
-          </div>
-        {/if}
+        {@render rideNotes()}
         <label class="note">
           <span>One sentence for next time <small>(optional)</small></span>
           <textarea class="inp" rows="3" bind:value={d.note} oninput={persist} placeholder="e.g. Heatwave, the rain gear was never used"></textarea>
@@ -262,6 +273,7 @@
         <div class="foot"><button type="button" class="btn hi wide" onclick={() => (step = 2)}>Next: go through the items</button></div>
       {:else if step === 2}
         <h1 class="title">What did you use?</h1>
+        {@render rideNotes()}
         <p class="hint">Everything counts as used. Tap only what you did not use or what broke. <span class="num">{counts.looked} of {trip.entries.length} marked.</span></p>
         <div class="legend" aria-hidden="true"><span>✓ used</span><span>– not used</span><span>✕ broken</span></div>
         {#each groups as g (g.slot)}
@@ -288,6 +300,9 @@
             <input class="inp" list="gear-names" placeholder="What you missed, e.g. Headlamp" bind:value={missName} aria-label="What you missed" />
             <button type="submit" class="btn">Add</button>
           </form>
+          {#if similar.length}
+            <p class="similar"><span>In your gear:</span>{#each similar as i (i.id)}<button type="button" class="btn sm" onclick={() => addItem(i)}>{i.name}</button>{/each}</p>
+          {/if}
           <datalist id="gear-names">{#each notOnTrip as i (i.id)}<option value={i.name}></option>{/each}</datalist>
           {#if d.missing.length}
             <ul>
@@ -527,6 +542,17 @@
   }
   .before {
     color: var(--ink);
+  }
+  .similar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin: 8px 0 0;
+  }
+  .similar span {
+    color: var(--ink-3);
+    font-size: 14px;
   }
   .ridenotes {
     margin: 12px 0;

@@ -19,6 +19,8 @@
   import { bikePhotos, packPhoto } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { withVisits, tyreSetup, beforeTrip } from '../lib/workshop.js';
+  import { stageCount } from '../lib/ride.js';
+  import { forecastForTrip, toWx } from '../lib/weather.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -108,6 +110,26 @@
     if (packDay && location.hash.includes('day')) history.replaceState(null, '', '#/pack');
   });
   const daySteps = $derived(stats ? packSteps(stats, trip.purpose ?? {}) : []);
+  // v0.18.1 (303 demo): the forecast says something else than what the trip is packed for.
+  // The packing day says so first, so the layers get added before the bags are closed.
+  const fcWx = $derived(trip ? toWx(forecastForTrip(trip)) : null);
+  const wxGap = $derived.by(() => {
+    if (!fcWx) return null;
+    const have = trip.wx?.min != null ? trip.wx : { min: 15, max: 15, rain: 'none' };
+    const colder = fcWx.min < have.min - 2;
+    const wetter = (fcWx.rain !== 'none') !== ((have.rain ?? 'none') !== 'none') || (fcWx.rain === 'rain' && have.rain !== 'rain');
+    return colder || wetter ? { fc: fcWx, have } : null;
+  });
+  function useForecast() {
+    change((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx } }));
+    packDay = false;
+    if (phone.matches) tab = 'add';
+    setTimeout(() => {
+      const box = document.querySelector('.ph-cond');
+      if (box) box.open = true; // phone: the layers sit in the folded "Ride, weather and night"
+      document.querySelector('.sugg-h')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+  }
   const toggleIn = (itemId) => change((t) => ({ entries: togglePacked(t.entries, itemId) }));
   // Answer 14: the list as a link (the list travels inside the address, nothing is uploaded).
   let shareNote = $state('');
@@ -186,11 +208,19 @@
     return list.sort((a, b) => rank(a) - rank(b) || (order[a.category] ?? 99) - (order[b.category] ?? 99) || a.name.localeCompare(b.name));
   });
 
-  /** Change the open trip: fn gets a plain copy and returns the changes to store. */
+  /**
+   * Change the open trip: fn gets a plain copy and returns the changes to store.
+   * The copy is read inside the write (v0.18.1): quick taps on the packing day came in before the
+   * page had the last change back and overwrote it, so ticks got lost.
+   */
   async function change(fn) {
-    const copy = $state.snapshot(trip);
-    undo = [...undo.filter((u) => u.id === trip.id).slice(-19), { id: trip.id, before: $state.snapshot(trip) }];
-    await db.trips.update(trip.id, fn(copy));
+    const id = trip.id;
+    await db.transaction('rw', db.trips, async () => {
+      const cur = await db.trips.get(id);
+      if (!cur) return;
+      undo = [...undo.filter((u) => u.id === id).slice(-19), { id, before: structuredClone(cur) }];
+      await db.trips.update(id, fn(structuredClone(cur)));
+    });
   }
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.
   let undo = $state.raw([]); // raw: plain copies, IndexedDB cannot store proxies
@@ -199,7 +229,7 @@
     const last = undo.at(-1);
     if (!last) return;
     undo = undo.slice(0, -1);
-    try { await db.trips.put(last.before); } catch (e) { console.log("UNDOFAIL", e.name, e.message, e.inner?.message); }
+    await db.trips.put(last.before);
   }
   /** Open a bag from the boxes: it becomes the "Adding to" bag and its list scrolls into view. */
   function pick(key) {
@@ -459,7 +489,7 @@
     </section>
 
     {#if packDay}
-      <PackDay {trip} steps={daySteps} {itemsById} {tips} {ready} ontoggle={toggleIn} onready={toggleReady} onclose={() => (packDay = false)} />
+      <PackDay {trip} {wxGap} onwx={useForecast} steps={daySteps} {itemsById} {tips} {ready} ontoggle={toggleIn} onready={toggleReady} onclose={() => (packDay = false)} />
     {/if}
     {#if shownPhoto != null && gallery.length}
       <Lightbox list={gallery.map((p) => ({ src: p.src, name: p.name, sub: bike?.name ?? '' }))} start={shownPhoto} onclose={() => (shownPhoto = null)} />
@@ -487,7 +517,7 @@
         <p class="hint">{rideHint}</p>
       </div>
       <TripRoute {trip} onchange={change} />
-      <label class="hours"><span class="lbl">Riding hours{trip.days > 1 ? ' a day' : ''}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder="e.g. 6" /></label>
+      <label class="hours"><span class="lbl">Riding hours{stageCount(trip) > 1 ? ' a day' : ''}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder="e.g. 6" /></label>
       <p class="hint hrs">Bottles and food come in amounts per hour (e.g. 1 bottle per 3 h).</p>
       <!-- Design answer 6a: the weather folds away once it is set. -->
       <details class="wxbox" open={!wxSet}>

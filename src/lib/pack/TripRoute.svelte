@@ -12,6 +12,7 @@
   import { searchPlace, fetchForecast, forecastForTrip, toWx, forecastFrom, ageText, tripDays } from '../weather.js';
   import { RAIN } from '../trips.js';
   import Profile from '../ui/Profile.svelte';
+  import { stageCount } from '../ride.js';
 
   let { trip, onchange } = $props();
 
@@ -28,7 +29,9 @@
 
   /* ---------- route ---------- */
   let routeMsg = $state('');
-  const hours = $derived(ridingHours(trip.route, trip.days));
+  // A nonstop trip has one stage, so the hours are for the whole ride (v0.18.1).
+  const stages = $derived(stageCount(trip));
+  const hours = $derived(ridingHours(trip.route, stages));
   async function pickGpx(event) {
     const file = event.currentTarget.files[0];
     event.currentTarget.value = '';
@@ -116,8 +119,8 @@
       {#if trip.route.profile?.length > 1}<Profile points={trip.route.profile} />{/if}
       <p class="acts">
         {#if hours != null}
-          {#if trip.hours === hours}<span class="ok">Riding hours: about {hours} h{trip.days > 1 ? ' a day' : ''}</span>
-          {:else}<button type="button" class="btn sm" onclick={() => onchange(() => ({ hours }))}>Use about {hours} h{trip.days > 1 ? ' a day' : ''} as riding hours</button>{/if}
+          {#if trip.hours === hours}<span class="ok">Riding hours: about {hours} h{stages > 1 ? ' a day' : ''}</span>
+          {:else}<button type="button" class="btn sm" onclick={() => onchange(() => ({ hours }))}>Use about {hours} h{stages > 1 ? ' a day' : ''} as riding hours</button>{/if}
         {/if}
         <label class="link">Other GPX<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
         <button type="button" class="link" onclick={dropRoute}>Remove</button>
