@@ -19,16 +19,10 @@
       .filter((g) => g.items.length),
   );
 
-  // Which groups are open. While searching every group with a match is open.
-  let open = $state(new Set());
-  const isOpen = (key) => !!q.trim() || open.has(key);
-  function flip(key) {
-    const next = new Set(open);
-    next.has(key) ? next.delete(key) : next.add(key);
-    open = next;
-  }
-  const allOpen = $derived(groups.length > 0 && groups.every((g) => open.has(g.key)));
-  const flipAll = () => (open = allOpen ? new Set() : new Set(groups.map((g) => g.key)));
+  // Only one group is open at a time (Noah, 4.10.2026). While searching every group with a match is open.
+  let open = $state(null);
+  const isOpen = (key) => !!q.trim() || open === key;
+  const flip = (key) => (open = open === key ? null : key);
 
   function start(event, id) {
     event.dataTransfer.setData('text/plain', id);
@@ -41,7 +35,6 @@
     <div class="np-h">
       <h2 id="np-h" class="title">Not packed</h2>
       <span class="m num">{items.length} items</span>
-      {#if groups.length && !q.trim()}<button type="button" class="link" onclick={flipAll}>{allOpen ? 'Fold all' : 'Open all'}</button>{/if}
     </div>
     <input class="inp" type="search" placeholder="Search your gear" bind:value={q} aria-label="Search your gear" />
     {@render children?.()}
@@ -101,16 +94,6 @@
     color: var(--ink-3);
     font-size: 14px;
   }
-  .link {
-    border: 0;
-    background: none;
-    padding: 0;
-    font: inherit;
-    font-size: 14px;
-    color: var(--ink);
-    text-decoration: underline;
-    cursor: pointer;
-  }
   .np-list {
     flex: 1;
     min-height: 0;
@@ -160,7 +143,7 @@
     grid-template-columns: 1fr auto auto;
     gap: 8px;
     align-items: center;
-    min-height: 44px;
+    min-height: 40px;
     padding: 2px 10px;
     border-bottom: 1px solid var(--line);
   }
@@ -185,15 +168,28 @@
     font-size: 13px;
     color: var(--ink-3);
   }
+  /* Small, so it sits with the text (Noah, 4.10.2026); the row is still easy to hit on a phone. */
   .plus {
-    width: 40px;
-    height: 34px;
-    border: 0;
+    width: 26px;
+    height: 26px;
+    border: 1.5px solid var(--ink);
     border-radius: 4px;
-    background: var(--ink);
-    color: var(--paper);
-    font: 700 20px/1 var(--font-body);
+    background: var(--paper);
+    color: var(--ink);
+    font: 700 16px/1 var(--font-body);
     cursor: pointer;
+  }
+  @media (max-width: 719px) {
+    .plus {
+      width: 32px;
+      height: 32px;
+    }
+  }
+  @media (hover: hover) {
+    .plus:hover {
+      background: var(--ink);
+      color: var(--paper);
+    }
   }
   .empty {
     padding: 12px 10px;

@@ -200,6 +200,14 @@
   const slotOf = (id) => slotFor(itemsById[id]?.defaultBag, trip.setup);
   const takeLayer = (row) => setEntries((es) => applyLayers(es, [row], slotOf));
   const openLayers = $derived(trip ? openRows(suggestion, trip) : []);
+  // What a kind of ride adds, in words (Noah did not understand the drop-down, 4.10.2026).
+  // Every ride < Daily < Training: each kind also brings what the ones before it bring.
+  const rideHint = $derived.by(() => {
+    if (!trip?.ride) return 'Choose one: it adds what you take on that kind of ride.';
+    const upTo = RIDES.slice(0, RIDES.findIndex((r) => r.key === trip.ride) + 1).map((r) => r.key);
+    const names = items.filter((i) => isInventory(i) && upTo.includes(i.ride)).map((i) => i.name);
+    return names.length ? `Adds: ${names.join(', ')}.` : 'No items set for this kind of ride yet (Gear → Edit → Layers).';
+  });
   // Mockup answer 3a: a small label in "Not packed" says why an item is suggested.
   const tagOf = (i) => suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (i.always ? 'every trip' : i.role === 'standard' || i.role === 'worn' ? 'standard' : '');
   // Round D answer 5: take an alternative (mini lock) or nothing instead of the usual item.
@@ -278,15 +286,18 @@
     {/if}
 
     {#snippet layers()}
-      <div class="wxin two">
-        <label><span class="lbl">Kind of ride</span>
-          <select class="sel" value={trip.ride ?? ''} onchange={(e) => change(() => ({ ride: e.currentTarget.value || null }))}>
-            <option value="">Choose</option>
-            {#each RIDES as r (r.key)}<option value={r.key}>{r.name}</option>{/each}
-          </select>
-        </label>
-        <label><span class="lbl">Riding hours{trip.days > 1 ? ' a day' : ''}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder="e.g. 6" /></label>
+      <p class="hint">Suggestions only: nothing goes on the trip until you press Pack, Wear or Add all.</p>
+      <div class="ride" role="group" aria-label="Kind of ride">
+        <span class="lbl">Kind of ride</span>
+        <div class="presets">
+          {#each RIDES as r (r.key)}
+            <button type="button" class="toggle" aria-pressed={trip.ride === r.key} onclick={() => change(() => ({ ride: trip.ride === r.key ? null : r.key }))}>{r.name.replace(' ride', '')}</button>
+          {/each}
+        </div>
+        <p class="hint">{rideHint}</p>
       </div>
+      <label class="hours"><span class="lbl">Riding hours{trip.days > 1 ? ' a day' : ''}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder="e.g. 6" /></label>
+      <p class="hint hrs">Bottles and food come in amounts per hour (e.g. 1 bottle per 3 h).</p>
       <div class="presets" role="group" aria-label="Weather presets">
         {#each WX_PRESETS as p (p.name)}
           <button type="button" class="toggle" aria-pressed={wx?.min === p.min && wx?.max === p.max} onclick={() => setWx({ min: p.min, max: p.max })}>{p.name} <small>{p.min}–{p.max}°</small></button>
@@ -728,8 +739,17 @@
     gap: 8px;
     margin-bottom: 8px;
   }
-  .wxin.two {
-    grid-template-columns: 1.4fr 1fr;
+  .ride .hint {
+    margin: 2px 0 8px;
+  }
+  .hours {
+    display: grid;
+    grid-template-columns: auto 90px;
+    align-items: center;
+    gap: 10px;
+  }
+  .hint.hrs {
+    margin: 2px 0 10px;
   }
   .sugg {
     margin-top: 10px;
