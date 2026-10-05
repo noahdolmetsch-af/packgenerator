@@ -1,0 +1,179 @@
+<script>
+  /**
+   * Search everything from the top bar (v0.19.6, start page answer 1a): gear, trips, templates,
+   * bikes and notes. On a phone the magnifier opens the field under the bar.
+   */
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
+  import { TEMPLATES_KEY } from '../templates.js';
+  import { searchAll } from '../search.js';
+  import { openTrip } from '../nav.js';
+  import { phone } from '../media.svelte.js';
+
+  let q = $state('');
+  let open = $state(false); // phone: the field is shown
+  let input = $state();
+  const all = liveQuery(async () => {
+    const [items, trips, bikes, notes, tpl] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY)]);
+    return { items, trips, bikes, notes, templates: tpl?.value ?? [] };
+  });
+  const groups = $derived(q.trim().length >= 2 && $all ? searchAll(q, $all) : []);
+  const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
+
+  function go(row) {
+    if (row.tripId) openTrip(row.tripId);
+    q = '';
+    open = false;
+    if (location.hash === row.href) window.dispatchEvent(new HashChangeEvent('hashchange'));
+    else location.hash = row.href;
+  }
+  function toggle() {
+    open = !open;
+    if (open) queueMicrotask(() => input?.focus());
+  }
+  const key = (e) => {
+    if (e.key === 'Escape') (q = ''), (open = false);
+    if (e.key === 'Enter' && count) go(groups[0].rows[0]);
+  };
+</script>
+
+<div class="search" class:ph={phone.matches} class:open>
+  {#if phone.matches}
+    <button type="button" class="icon" aria-label={open ? 'Close search' : 'Search everything'} aria-expanded={open} onclick={toggle}>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
+    </button>
+  {/if}
+  {#if !phone.matches || open}
+    <label class="field">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
+      <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder="Find gear, trips, bikes, notes" aria-label="Search everything" autocomplete="off" />
+    </label>
+  {/if}
+  {#if q.trim().length >= 2}
+    <div class="res" role="region" aria-label="Search results" aria-live="polite">
+      {#each groups as g (g.kind)}
+        <p class="gh">{g.name}{g.more ? ` · ${g.more} more` : ''}</p>
+        <ul>
+          {#each g.rows as r (r.id)}
+            <li><button type="button" onclick={() => go(r)}><b>{r.title}</b>{#if r.sub}<small>{r.sub}</small>{/if}</button></li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="none">Nothing found for "{q.trim()}".</p>
+      {/each}
+    </div>
+  {/if}
+</div>
+
+<style>
+  .search {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: min(320px, 32vw);
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 8px;
+    background: var(--paper);
+    color: var(--ink);
+    box-sizing: border-box;
+  }
+  .field input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--ink);
+    font: 400 15px var(--font-body);
+  }
+  .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: none;
+    color: var(--paper);
+    cursor: pointer;
+  }
+  /* Phone: the field sits under the bar, full width. */
+  .ph .field {
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    top: calc(56px + env(safe-area-inset-top));
+    width: auto;
+    height: 48px;
+    border: 2px solid var(--ink);
+    z-index: 30;
+  }
+  .res {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: min(420px, 90vw);
+    max-height: 70vh;
+    overflow: auto;
+    padding: 8px;
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 10px 30px rgba(15, 46, 39, 0.25);
+    z-index: 30;
+    box-sizing: border-box;
+  }
+  .ph .res {
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    top: calc(110px + env(safe-area-inset-top));
+    width: auto;
+  }
+  .gh {
+    margin: 8px 6px 2px;
+    font: 700 11px var(--font-body);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li button {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    min-height: 44px;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--ink);
+    font: 500 15px var(--font-body);
+    text-align: left;
+    cursor: pointer;
+  }
+  li button:hover,
+  li button:focus-visible {
+    background: var(--paper-2);
+  }
+  li small {
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .none {
+    margin: 6px;
+    color: var(--ink-3);
+  }
+</style>

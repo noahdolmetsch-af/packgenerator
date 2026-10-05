@@ -1,6 +1,7 @@
 <script>
   /**
-   * Quick note (v0.19.3, Noah 4.10.2026, answers 1a-3a): the + button on every page. Write down a
+   * Quick note (v0.19.3, Noah 4.10.2026, answers 1a-3a). Since v0.19.6 (answer 4a) it opens from
+   * "New" in the top bar (phone: the + in the bottom bar); the Inbox count sits in the top bar. Write down a
    * problem or an idea in a few seconds, with a photo if you like; the app adds the date, the page,
    * the next trip and the bike. Sort it later on the Inbox page (#/inbox).
    */
@@ -70,10 +71,6 @@
   }
 </script>
 
-<div class="qn">
-  {#if $openQ && page !== 'inbox'}<a class="inbox" href="#/inbox" aria-label="Inbox, {$openQ} open {$openQ === 1 ? 'note' : 'notes'}">Inbox <b>{$openQ}</b></a>{/if}
-  <button type="button" class="plus" aria-label="Quick note" title="Quick note" onclick={() => (open = true)}>+</button>
-</div>
 {#if saved}<p class="saved" role="status">{saved} <a href="#/inbox">Open</a></p>{/if}
 
 <dialog class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="qn-h">
@@ -105,47 +102,11 @@
 </dialog>
 
 <style>
-  .qn {
-    position: fixed;
-    right: calc(16px + env(safe-area-inset-right));
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    z-index: 20;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-  }
-  .plus {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    border: 0;
-    background: var(--ink);
-    color: var(--paper);
-    font: 700 30px/1 var(--font-body);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
-    cursor: pointer;
-  }
-  .plus:focus-visible {
-    outline: 3px solid var(--hi);
-    outline-offset: 2px;
-  }
-  .inbox {
-    background: var(--paper);
-    border: 1.5px solid var(--ink);
-    border-radius: 999px;
-    padding: 4px 10px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ink);
-    text-decoration: none;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  }
   .saved {
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    bottom: calc(80px + env(safe-area-inset-bottom));
+    bottom: calc(96px + env(safe-area-inset-bottom));
     z-index: 21;
     margin: 0;
     background: var(--ink);

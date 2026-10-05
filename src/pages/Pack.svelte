@@ -23,6 +23,7 @@
   import { withVisits, tyreSetup, tripPrep } from '../lib/workshop.js';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
+  import { take } from '../lib/nav.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -167,16 +168,16 @@
   let allWeights = $state(false); // phone: show every weight (design audit P1)
   let dialog = $state(null); // { trip } or { trip: null, startFrom? }
   // "New trip from it" on the Templates page opens the new-trip dialog with that template.
+  // v0.19.6: also "New → Packing list" from any page (nav.js newTrip), even when Pack is open.
   $effect(() => {
     if (!$tplQ) return; // wait until the templates are loaded, so the choice can be shown
-    let id = null;
-    try {
-      id = localStorage.getItem('pack.startFrom');
-      localStorage.removeItem('pack.startFrom');
-    } catch {
-      /* private mode */
-    }
-    if (id) dialog = { trip: null, startFrom: id };
+    const startNew = () => {
+      const id = take('pack.startFrom');
+      if (id) dialog = { trip: null, startFrom: id };
+    };
+    startNew();
+    window.addEventListener('pg:newtrip', startNew);
+    return () => window.removeEventListener('pg:newtrip', startNew);
   });
   let q = $state('');
   let newCheck = $state('');
@@ -1716,12 +1717,13 @@
     position: fixed;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: calc(62px + env(safe-area-inset-bottom)); /* above the bottom bar (v0.19.6) */
     z-index: 4;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px var(--gut) calc(10px + env(safe-area-inset-bottom));
+    padding: 10px var(--gut);
+    border-bottom: 1px solid #3b5a50;
     background: var(--ink);
     color: var(--paper);
     font-size: 14px;
