@@ -12,6 +12,7 @@
   import { ageText, FORECAST_DAYS } from '../lib/weather.js';
   import Profile from '../lib/ui/Profile.svelte';
   import { paceOf, PACE_KEY } from '../lib/pace.js';
+  import { blockPlan, DRINK_L_PER_H, HOT_C, HOT_EXTRA_L } from '../lib/blockplan.js';
   import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, addRideNote, DEFAULT_START } from '../lib/ride.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -110,13 +111,19 @@
     autoFor = key;
     loadWx();
   });
-  const plan = $derived(nonstop && st ? blocks(trip, st) : []);
+  // v0.19.5 (answer 4b): blocks on every ride, not only nonstop. The time plan from the logbook
+  // only counts for a nonstop ride; a day stage gets blocks of 3 hours.
+  const plan = $derived(st?.km && st.hours ? blocks(nonstop ? trip : { ...trip, plan: null }, st) : []);
   // The weather of a block: from the start place in the first half, from the finish after.
-  const blockWx = (b) => {
+  const blockHrs = (b) => {
     const places = saved?.places ?? [];
     const p = places.length > 1 && (b.kmFrom + b.kmTo) / 2 > st.km / 2 ? places[1] : places[0];
-    return p ? wxSummary(blockHours(p.hours, b)) : '';
+    return p ? blockHours(p.hours, b) : [];
   };
+  // Per block: clothing, food and drink, light (answer 4b).
+  const onTrip = $derived(stats ? stats.zones.flatMap((z) => z.entries.filter((e) => itemsById[e.itemId]).map((e) => ({ item: itemsById[e.itemId], qty: e.qty || 1, place: placeName(trip, z) }))) : []);
+  const bp = $derived(plan.length ? blockPlan(plan, onTrip, { wxOf: blockHrs, place: st.from ?? trip.place ?? null, tripWx: trip.wx ?? null }) : null);
+  const names = (list) => list.map((w) => `${w.name} (${w.place})`).join(', ');
   const setNonstop = (on) => change({ nonstop: on, rideStart: {} });
   const dayName = (t) => new Date(`${t.slice(0, 10)}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'short' });
   const dir = (pct) => (pct == null ? '' : `${Math.round(pct)} %`);
@@ -196,21 +203,6 @@
           <p>Arrive about <b class="num">{st.arrive}</b> <small>without breaks{pace.mine ? ', at your pace' : ''}</small></p>
           {#if pace.stops && st.hours}<p>With your usual stops <b class="num">{addTime(st.start, st.hours * pace.stops)}</b></p>{/if}
         </div>
-        {#if plan.length}
-          <ol class="blocks">
-            {#each plan as b (b.startAt)}
-              <li class:rest={b.rest}>
-                <span class="bt num">{dayName(b.startAt)} {b.from}–{b.to}</span>
-                <b>{b.name}</b>
-                <span class="bk num">{b.rest ? `stop at km ${b.kmTo}` : `km ${b.kmFrom}–${b.kmTo}`}</span>
-                {#if saved}<small class="bw">{blockWx(b)}</small>{/if}
-                {#if b.note}<small class="bn">{b.note}</small>{/if}
-              </li>
-            {/each}
-          </ol>
-          <p class="muted small">{trip.plan?.schedule?.length ? 'Your time plan from the logbook.' : 'Blocks of 3 hours.'} km at {Math.round((st.km / st.hours) * 10) / 10} km/h, the same guess as the riding time{pace.mine ? ` (your pace from ${pace.n} rides)` : ''}.</p>
-          {#if planHours(trip) > st.hours + 1}<p class="small warn">Your time plan has {Math.round(planHours(trip))} h of riding, the route about {st.hours} h. The plan ends where the route ends; is the GPX the whole route?</p>{/if}
-        {/if}
         {#if prof}<div class="prof"><Profile points={prof.points} from={days > 1 ? prof.from : null} to={prof.to} label={days > 1 ? `Elevation, stage ${cur + 1} dark` : 'Elevation'} /></div>
         {:else}<p class="muted small">Load the GPX again in Pack to see the elevation profile.</p>{/if}
         {#if days > 1 && !nonstop}<p class="muted small">The route is shared out evenly over {days} days{prof ? ' (dark: this stage)' : ''}.</p>{/if}
@@ -218,6 +210,51 @@
         <p class="muted">No route yet. Load the GPX in <a href="#/pack">Pack</a> under "Ride and weather".</p>
       {/if}
     </section>
+
+    <!-- v0.19.5 (answer 4b): every block with clothing, food and drink, light, all at once. -->
+    {#if bp}
+      <section class="box" aria-labelledby="blocks-h">
+        <h2 id="blocks-h" class="h">Block by block</h2>
+        <ol class="blocks">
+          {#each bp.rows as b, n (b.startAt)}
+            <li class:rest={b.rest}>
+              <span class="bt num">{dayName(b.startAt)} {b.from}–{b.to}</span>
+              <b>{b.name}</b>
+              <span class="bk num">{b.rest ? `stop at km ${b.kmTo}` : `km ${b.kmFrom}–${b.kmTo}`}</span>
+              {#if b.temp}<small class="bw">{b.temp.lo === b.temp.hi ? `${b.temp.lo} °C` : `${b.temp.lo}–${b.temp.hi} °C`} · {b.wet ? 'rain likely' : 'dry'}{b.wxFrom === 'trip' ? ' (trip weather, no hourly forecast yet)' : ''}</small>{/if}
+              {#if b.note}<small class="bn">{b.note}</small>{/if}
+              {#if !b.rest}
+                <dl class="bp">
+                  <dt>Wear</dt>
+                  <dd>
+                    {#if n === 0 || b.on.length || b.off.length}
+                      {#if n === 0}{b.wear.length ? `Start with ${names(b.wear)}` : 'Every-ride clothes'}{:else}
+                        {#if b.on.length}<span class="on">On: {names(b.on)}</span>{/if}
+                        {#if b.off.length}<span class="off">Off: {names(b.off)}</span>{/if}
+                      {/if}
+                    {:else}<span class="muted">No change</span>{/if}
+                  </dd>
+                  <dt>Eat, drink</dt>
+                  <dd>
+                    {[...b.food.map((f) => `${f.n} × ${f.name}`), `about ${b.drinkL} L to drink`].join(' · ')}
+                    {#if b.refillKm.length}<span class="on">Refill at km {b.refillKm.join(', ')}</span>{/if}
+                    {#if b.food.some((f) => f.short)}<span class="warn">Not enough on the bike: from here on, buy {b.food.filter((f) => f.short).map((f) => `${f.short} × ${f.name}`).join(', ')} on the way</span>{/if}
+                  </dd>
+                  {#if b.light}
+                    <dt>Light</dt>
+                    <dd class:warn={!bp.lights.length}>
+                      {b.light.kind === 'on' ? `On from about ${b.light.at} (km ${b.light.km})` : b.light.kind === 'off' ? `On until about ${b.light.at} (km ${b.light.km})` : 'Dark the whole block'}{!bp.lights.length ? ' · no light on this trip' : n === 0 || b.light.kind === 'on' ? ` · ${names(bp.lights)}` : ''}
+                    </dd>
+                  {/if}
+                </dl>
+              {/if}
+            </li>
+          {/each}
+        </ol>
+        <p class="muted small">{nonstop && trip.plan?.schedule?.length ? 'Your time plan from the logbook.' : 'Blocks of 3 hours.'} km at {Math.round((st.km / st.hours) * 10) / 10} km/h, the same guess as the riding time{pace.mine ? ` (your pace from ${pace.n} rides)` : ''}. Drinking {DRINK_L_PER_H} L per hour ({DRINK_L_PER_H + HOT_EXTRA_L} L from {HOT_C} °C) is a guess{bp.capL ? `; your bottles hold ${Math.round(bp.capL * 10) / 10} L` : '; no bottle on this trip'}. Sunset and sunrise are computed for the start of the day.{saved ? '' : ' Load the forecast below for the weather per block.'}</p>
+        {#if nonstop && planHours(trip) > st.hours + 1}<p class="small warn">Your time plan has {Math.round(planHours(trip))} h of riding, the route about {st.hours} h. The plan ends where the route ends; is the GPX the whole route?</p>{/if}
+      </section>
+    {/if}
 
     <!-- Answer 3a: the weather hour by hour, start and finish. Answer 5a: saved for offline. -->
     <section class="box" aria-labelledby="wx-h">
@@ -527,6 +564,34 @@
   .blocks .bk {
     margin-left: auto;
     font-weight: 600;
+  }
+  .bp {
+    flex-basis: 100%;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 2px 10px;
+    margin: 4px 0 0;
+    font-size: 16px;
+  }
+  .bp dt {
+    color: var(--ink-3);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding-top: 2px;
+  }
+  .bp dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .bp .on,
+  .bp .off,
+  .bp .warn {
+    display: block;
+  }
+  .bp .off {
+    color: var(--ink-2);
   }
   .blocks .bw,
   .blocks .bn {

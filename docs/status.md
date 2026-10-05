@@ -1,8 +1,9 @@
 # Projektstand
 
-Stand: 4. Oktober 2026
+Stand: 5. Oktober 2026
 
 ## Fertig
+- **Packen und Fahren (v0.19.5):** Pack zeigt oben die Karte "Ballast": was auf dieser Tour ist, aber die letzten 2 oder 3 Male nicht gebraucht wurde, mit Gramm, "Leave at home" (einzeln oder alle, Undo geht) und "Keep" (bleibt dabei, die Karte fragt nicht mehr). Statt des Learning-Satzes stehen kurze Marken beim Item ("3× not used", "Missed last time", "Broke last time", "Tip"); antippen zeigt den Satz, auch am Packtag. Ride day hat "Block by block" für jede Tour, nicht nur nonstop: pro 3-Stunden-Block was du anziehst und ausziehst (mit Tasche), wie viel essen und trinken, wo nachfüllen, und ab wann Licht (Sonnenuntergang offline berechnet).
 - **Favoriten als Datengrundlage (v0.19.4):** Noahs Liste "favorites-tested-bikepacking-gear" kommt als private Datei über Startseite → Your data → Import backup → "Apply favourites". Jedes Lieblingsteil bekommt einen ★ (Gear, Pack), Gear hat den Knopf "★ Favourites", in Pack stehen Favoriten oben in "Not packed", und die Liste ist als Template gespeichert. Gewichte und alles andere bleiben; nichts wird gelöscht. Im Item-Dialog lässt sich der Stern ein- und ausschalten.
 - **Werkstatt und Quick note (v0.19.3):** Bike care → "Workshop order": alles, was bis zur nächsten Tour fällig ist, als ein Auftrag mit Preisen aus deinen Quittungen; abwählen, was du selbst machst; als Nachricht (Deutsch) senden oder drucken. Bikes zeigt einen Steckbrief pro Velo (km, Werkstatt dieses Jahr, pro 1000 km, was als Nächstes fällig ist, letzter Besuch). Pack → "Compare bikes": die Velos nebeneinander für die Tour, "Use for this trip" wechselt das Velo. Quick note: runder +-Knopf auf jeder Seite, Foto optional, Seite "Inbox" zum Einordnen (Reparatur, Wunschliste, Learning, Notiz zur Tour, erledigt), alle Notizen bleiben unter "All notes". Am Phone: langes Drücken aufs App-Icon → "New note", und Pack Generator erscheint beim Teilen von Text und Links.
 - **Auswerten (v0.19.2):** Debrief → "Your trips compared": Gepäck pro Tour, gebraucht und nicht gebraucht, mit Trend. Gear → Tab "Dead weight": mitgenommen, aber nie gebraucht, mit "Leave at home"; dazu "Rarely used". Wunschliste mit Grund (fehlte, kaputt, Velo) und nach Nutzen sortiert. Notizen vom Ride day werden im Debrief als Learning vorgeschlagen. In Pack lässt sich eine Tour als "Not riding" markieren: Sie bleibt, zählt aber nicht mehr als nächste Tour.
@@ -52,9 +53,8 @@ Stand: 4. Oktober 2026
 - [ ] Erstes Backup herunterladen (Startseite → Download backup).
 
 ## Läuft
-- Nutzen pro Seite: Vorschläge N1-N16 im Dokument "Pack Generator: Mehr Nutzen pro Seite", 12 Fragen an Noah offen.
+- Nutzen pro Seite: Vorschläge N1-N16 im Dokument "Pack Generator: Mehr Nutzen pro Seite", alle beantwortet und mit 0.19.5 umgesetzt.
 
 ## Als Nächstes
-1. 0.19.5: Packen und Fahren (Ballast-Karte, Marken statt Learning-Text, Ride day pro Block: Kleidung, Essen, Licht).
-2. 0.20.0: ganze App Deutsch/Englisch umschaltbar.
-3. Paket 5: weitere Bereiche (Skitouren, Weekend-Trip, Weltreise) und Merkliste "All my favorite things".
+1. 0.20.0: ganze App Deutsch/Englisch umschaltbar.
+2. Paket 5: weitere Bereiche (Skitouren, Weekend-Trip, Weltreise) und Merkliste "All my favorite things".

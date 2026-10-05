@@ -23,6 +23,7 @@
   import { withVisits, tyreSetup, tripPrep } from '../lib/workshop.js';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
+  import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -37,6 +38,14 @@
   const learnQ = liveQuery(() => db.learnings.toArray());
   // Answer 3a: one learning per item as a small hint while packing.
   const tips = $derived(tipsByItem($learnQ ?? []));
+  const debriefsQ = liveQuery(() => db.debriefs.toArray());
+  // v0.19.5 (F4, answer 3a): short badges per item, the sentence behind them on tap.
+  const badges = $derived(trip ? packBadges(trip, $tripsQ ?? [], $debriefsQ ?? [], tips) : {});
+  // N3 (answer 2a): what was not used the last times, with grams and "Leave at home".
+  const extra = $derived(trip && !over ? ballast(trip, items, $tripsQ ?? [], $debriefsQ ?? []) : null);
+  let ballastAll = $state(false);
+  const leave = (ids) => change((t) => leaveAtHome(t, ids));
+  const keep = (id) => change((t) => keepOnTrip(t, id));
   const templates = $derived($tplQ?.value ?? []);
   const fromTemplate = $derived(templates.find((t) => t.id === trip?.templateId) ?? null);
   let saveTpl = $state(takeFlag('pack.saveTemplate'));
@@ -486,6 +495,23 @@
         <a class="btn sm" href="#/care">Bike care</a>
       </section>
     {/if}
+    {#if extra?.rows.length}
+      <section class="ballast" aria-labelledby="ballast-h">
+        <h2 id="ballast-h"><span class="lbl">Ballast</span> <small class="num">{extra.totalG ? formatWeight(extra.totalG) : ''}{extra.unweighed ? `${extra.totalG ? ' + ' : ''}${extra.unweighed} not weighed` : ''} · not used the last times</small></h2>
+        <ul>
+          {#each ballastAll ? extra.rows : extra.rows.slice(0, SHOW) as r (r.itemId)}
+            <li>
+              <span class="b-nm"><b>{r.name}</b> <small title="Not used on {r.titles.join(', ')}">{r.n}× not used</small></span>
+              <span class="w num" class:nw={r.g == null}>{r.g == null ? 'not weighed' : formatWeight(r.g)}</span>
+              <button type="button" class="link" onclick={() => leave([r.itemId])}>Leave at home</button>
+              <button type="button" class="link quiet" title="Stays on this trip, the card stops asking" onclick={() => keep(r.itemId)}>Keep</button>
+            </li>
+          {/each}
+          {#if !ballastAll && extra.rows.length > SHOW}<li class="more-li"><button type="button" class="link" onclick={() => (ballastAll = true)}>{extra.rows.length - SHOW} more</button></li>{/if}
+        </ul>
+        {#if extra.rows.length > 1}<button type="button" class="btn sm" onclick={() => leave(extra.rows.map((r) => r.itemId))}>Leave all {extra.rows.length} at home{extra.totalG ? ` (−${formatWeight(extra.totalG)})` : ''}</button>{/if}
+      </section>
+    {/if}
     <section class="sys" class:short={phone.matches && !allWeights} class:away={phone.matches && tab === 'add'} aria-label="Weights">
       {#snippet ic(name)}<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d={ICONS[name]} /></svg>{/snippet}
       <div class="w1"><span class="lbl">System</span><b class="num">{kg(stats.systemG)}</b></div>
@@ -510,7 +536,7 @@
       <BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => (choosing = false)} />
     {/if}
     {#if packDay}
-      <PackDay {trip} {wxGap} onwx={useForecast} steps={daySteps} {itemsById} {tips} {ready} ontoggle={toggleIn} onready={toggleReady} onclose={() => (packDay = false)} />
+      <PackDay {trip} {wxGap} onwx={useForecast} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onclose={() => (packDay = false)} />
     {/if}
     {#if shownPhoto != null && gallery.length}
       <Lightbox list={gallery.map((p) => ({ src: p.src, name: p.name, sub: bike?.name ?? '' }))} start={shownPhoto} onclose={() => (shownPhoto = null)} />
@@ -733,7 +759,7 @@
                     {@const it = itemsById[e.itemId]}
                     {#if head}<li class="cathead">{head}</li>{/if}
                     <li class="row" class:open={openRow === e.itemId} draggable={!phone.matches} ondragstart={(ev) => (ev.dataTransfer.setData('text/plain', e.itemId), (ev.dataTransfer.effectAllowed = 'copyMove'))} style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>
-                      <span class="nm">{it?.name ?? e.itemId}{#if (e.qty || 1) > 1}<small class="q"> × {e.qty}</small>{/if}{#if e.packed}<small class="in" title="In the bag (packing day)"> ✓</small>{/if}{#if tips[e.itemId]}<small class="tip" title={tips[e.itemId].rule}>{tips[e.itemId].rule}</small>{/if}</span>
+                      <span class="nm">{it?.name ?? e.itemId}{#if (e.qty || 1) > 1}<small class="q"> × {e.qty}</small>{/if}{#if e.packed}<small class="in" title="In the bag (packing day)"> ✓</small>{/if}{#if badges[e.itemId]}<span class="bdgs">{#each badges[e.itemId] as b (b.key)}<button type="button" class="bdg {b.tone}" title={b.text} aria-expanded={openRow === e.itemId} onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>{b.label}</button>{/each}</span>{/if}</span>
                       <span class="w num" class:nw={it?.weightG == null} title={it?.weightG == null ? 'not weighed' : undefined}>{it?.weightG == null ? '—' : formatWeight(it.weightG * (e.qty || 1))}</span>
                       <button type="button" class="more" aria-expanded={openRow === e.itemId} aria-label="Amount{phone.matches ? ' or other bag' : ''} for {it?.name}" onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>⋯</button>
                       {#if !phone.matches}
@@ -744,6 +770,9 @@
                       {/if}
                       <button type="button" class="minus" aria-label="Take {it?.name} out of {zoneName(z)}" onclick={() => removeEntry(e.itemId)}>−</button>
                       {#if openRow === e.itemId}
+                        {#if badges[e.itemId]}
+                          <span class="why">{#each badges[e.itemId] as b (b.key)}<span><b>{b.key === 'tip' ? 'Learning' : b.label}:</b> {b.text}</span>{/each}</span>
+                        {/if}
                         <span class="acts">
                           <span class="qty">
                             <button type="button" aria-label="One less {it?.name}" disabled={(e.qty || 1) <= 1} onclick={() => setQty(e.itemId, (e.qty || 1) - 1)}>−</button>
@@ -1119,19 +1148,75 @@
   .row .in {
     color: var(--ink-3);
   }
-  /* Answer 3a: the learning for this item, one quiet line (the whole sentence on hover). */
-  .row .tip {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 12px;
-    line-height: 1.3;
+  /* v0.19.5 (F4, answer 3a): short badges, the sentence when the row opens. */
+  .bdgs {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .bdg {
+    padding: 1px 7px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font: 600 11px/1.5 var(--font-body);
+    cursor: pointer;
+  }
+  .bdg.warn {
+    border-color: #c98a55;
+    color: #8a3d00;
+  }
+  .row .why {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  /* N3 (answer 2a): ballast on this trip. */
+  .ballast {
+    margin: 0 0 12px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--line);
+    border-left: 5px solid #c98a55;
+    border-radius: 8px;
+    background: var(--paper);
+  }
+  .ballast h2 {
+    margin: 0 0 4px;
+    font: inherit;
+  }
+  .ballast h2 .lbl {
+    font-weight: 700;
+  }
+  .ballast h2 small,
+  .ballast li small {
     color: var(--ink-3);
   }
-  .row .tip::before {
-    content: 'Learning: ';
-    font-weight: 700;
+  .ballast ul {
+    list-style: none;
+    margin: 0 0 8px;
+    padding: 0;
+  }
+  .ballast li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 12px;
+    padding: 3px 0;
+    border-bottom: 1px solid var(--paper-2, #e6ebe3);
+  }
+  .ballast .b-nm {
+    flex: 1 1 180px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .ballast .quiet {
+    color: var(--ink-3);
   }
   .row .acts {
     grid-column: 1 / -1;
