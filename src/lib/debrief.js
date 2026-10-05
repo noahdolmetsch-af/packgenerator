@@ -57,8 +57,9 @@ const addDays = (isoDate, n) => {
 /** Last day of a trip (YYYY-MM-DD), or null without a start date. */
 export const tripEnd = (trip) => (trip?.startDate ? addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1) : null);
 
-/** Is the trip over (its last day is before today)? Answer 4a: the debrief shows up the day after. */
+/** Is the trip over (its last day is before today, or it was ended on the ride day)? Answer 4a: the debrief shows up the day after. */
 export const isOver = (trip, today = iso(new Date())) => {
+  if (trip?.finished) return true; // v0.20.1: "End trip and debrief" on the ride day
   const end = tripEnd(trip);
   return !!end && end < today;
 };
@@ -71,7 +72,7 @@ export function toDebrief(trips, debriefs, today = iso(new Date())) {
 
 /** The next trip: the first one that has not ended yet. A trip marked "Not riding" (skipped) does not count. */
 export function nextTrip(trips, today = iso(new Date())) {
-  return [...trips].filter((t) => !t.skipped && t.startDate && tripEnd(t) >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null;
+  return [...trips].filter((t) => !t.skipped && !t.finished && t.startDate && tripEnd(t) >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null;
 }
 
 /** An empty debrief for a trip. */
