@@ -323,6 +323,9 @@
   const ready = $derived(trip?.ready ?? []);
   const readyCount = $derived(ready.filter((r) => trip && readyDone(r, trip)).length);
   const readyTotal = $derived(ready.length);
+  // v0.20.2: where the trip stands. 0 pack list, 1 packing day, 2 ride day, 3 debrief.
+  const STEPS = ['Packing list', 'Packing day', 'Ride day', 'Debrief'];
+  const step = $derived(!trip || !stats ? 0 : over ? 3 : stats.count && stats.packed >= stats.count && readyCount >= readyTotal ? 2 : 1);
   function toggleReady(row) {
     if (row.itemId) {
       // Older trips: an "always with me" row adds its missing item to its usual place.
@@ -461,7 +464,7 @@
         </select>
         <button type="button" class="btn hi" onclick={() => (packDay = true)}>{t('Packing day')}{#if stats.packed}<small class="num"> {stats.packed}/{stats.count}</small>{/if}</button>
         <a class="btn" href="#/ride" onclick={() => choose(trip.id)}>{t('Ride day')}</a>
-        {#if trip.finished || (trip.startDate && trip.startDate <= new Date().toISOString().slice(0, 10))}<a class="btn" href="#/debrief/{encodeURIComponent(trip.id)}">{t('Debrief')}</a>{/if}
+        {#if !phone.matches && trip.startDate && trip.startDate <= new Date().toISOString().slice(0, 10) && step < 3}<a class="btn" href="#/debrief/{encodeURIComponent(trip.id)}">{t('Debrief')}</a>{/if}
         {#snippet actions()}
           <button type="button" class="btn" onclick={() => (dialog = { trip: null })}>{t('New trip')}</button>
           <button type="button" class="btn" onclick={() => (saveTpl = true)}>{t('Save as template')}</button>
@@ -486,9 +489,20 @@
     <!-- Design answer 9b: all weights in one compact line. -->
     <!-- Design audit P1, P2: on a phone only System, Gear and Items show, the rest behind "More";
          in the Add tab the weights step aside so the items start higher up. -->
-    {#if over}
-      <p class="debrief-cta">{t('This trip is over.')} <a class="btn hi sm" href="#/debrief/{encodeURIComponent(trip.id)}">{t('Start debrief')}</a><span class="muted">{t('Two minutes: what you used, missed or did not need.')}</span></p>
-    {/if}
+    <!-- v0.20.2 (Noah: "einen grossen Knopf, der mich zum nächsten Schritt bringt"):
+         the four steps of a trip, and one big button for the next one. -->
+    <nav class="next" aria-label={t('Steps of this trip')}>
+      <ol class="steps">
+        {#each STEPS as s, i (s)}<li class:done={i < step} class:cur={i === step}><span class="n">{i < step ? '✓' : i + 1}</span>{t(s)}</li>{/each}
+      </ol>
+      {#if step === 3}
+        <a class="btn hi go" href="#/debrief/{encodeURIComponent(trip.id)}"><b>{t('Next: debrief')}</b><small>{t('Two minutes: what you used, missed or did not need.')}</small></a>
+      {:else if step === 2}
+        <a class="btn hi go" href="#/ride" onclick={() => choose(trip.id)}><b>{t('Next: ride day')}</b><small>{t('Everything packed. Route, weather, what is where, and at the end "End trip and debrief".')}</small></a>
+      {:else}
+        <button type="button" class="btn hi go" onclick={() => (packDay = true)}><b>{t('Next: packing day')}</b><small>{t('Pack bag by bag and tick off, then the ready check: {packed} of {count} packed, {ready} of {total} checks.', { packed: stats.packed, count: stats.count, ready: readyCount, total: readyTotal })}</small></button>
+      {/if}
+    </nav>
     {#if before?.rows.length}
       <section class="shop" aria-labelledby="shop-h">
         <h2 id="shop-h"><span class="lbl">{t('Before the trip')}</span> <small>{t('{n} to do', { n: before.rows.length })}{before.rows.some((r) => r.late) ? ` · ${t('{n} overdue', { n: before.rows.filter((r) => r.late).length })}` : ''}</small></h2>
@@ -914,23 +928,87 @@
   .shop li.now b {
     color: #a03a00;
   }
-  .debrief-cta {
+  /* v0.20.2: the steps of a trip and the big "next" button */
+  .next {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    align-items: center;
+    gap: 12px 24px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    background: var(--paper);
+  }
+  .steps {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 12px;
-    background: var(--paper);
-    border: 2px solid var(--ink);
-    border-left: 6px solid var(--hi);
-    border-radius: 6px;
-    padding: 10px 14px;
-    margin: 0 0 14px;
-    font-weight: 600;
-  }
-  .debrief-cta .muted {
-    font-weight: 400;
+    gap: 6px 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font: 600 14px var(--font-body);
     color: var(--ink-3);
-    font-size: 14px;
+  }
+  .steps li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .steps .n {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    font-size: 12px;
+  }
+  .steps .done {
+    color: var(--ink);
+  }
+  .steps .cur {
+    color: var(--ink);
+  }
+  .steps .cur .n {
+    background: var(--hi);
+    border-color: var(--hi);
+    color: #fff;
+  }
+  .go {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    min-height: 64px;
+    padding: 10px 18px;
+    text-align: left;
+    box-sizing: border-box;
+  }
+  .go b {
+    font-size: 19px;
+  }
+  .go b::after {
+    content: ' →';
+  }
+  .go small {
+    font-weight: 400;
+    font-size: 13px;
+    opacity: 0.92;
+    white-space: normal;
+  }
+  @media (max-width: 719px) {
+    .next {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 12px;
+    }
+    .steps {
+      font-size: 12px;
+      gap: 4px 10px;
+    }
   }
   .sys.short .sec,
   .sys.away {

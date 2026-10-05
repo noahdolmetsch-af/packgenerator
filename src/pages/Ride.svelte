@@ -195,6 +195,11 @@
       {/if}
     </header>
 
+    <!-- v0.20.2: the next step, big, on the last day of the trip. -->
+    {#if cur === days - 1}
+      <button type="button" class="btn hi go" onclick={finish}><b>{trip.finished ? t('Open the debrief') : t('Next: end trip and debrief')}</b><small>{t('When you are back home.')}</small></button>
+    {/if}
+
     <!-- Answer 4a: the day's stage. -->
     <section class="box" aria-labelledby="stage-h">
       <h2 id="stage-h" class="h">{nonstop ? t('Nonstop') : days > 1 ? t('Stage {n}', { n: cur + 1 }) : t('Stage')}</h2>
@@ -662,5 +667,27 @@
   }
   .end p {
     margin: 0 0 12px;
+  }
+  .go {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    width: 100%;
+    min-height: 60px;
+    margin: 0 0 16px;
+    padding: 10px 18px;
+    text-align: left;
+    box-sizing: border-box;
+  }
+  .go b {
+    font-size: 18px;
+  }
+  .go b::after {
+    content: ' →';
+  }
+  .go small {
+    font-weight: 400;
+    font-size: 13px;
   }
 </style>

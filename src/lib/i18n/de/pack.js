@@ -359,4 +359,11 @@ export default {
   "Change the bag that + adds to": "Tasche ändern, zu der + hinzufügt",
   "system weight {kg}": "Systemgewicht {kg}",
   "Saved as template \"{name}\".": "Als Vorlage «{name}» gespeichert.",
+  'Steps of this trip': 'Schritte dieser Tour',
+  'Packing list': 'Packliste',
+  'Next: debrief': 'Weiter: Rückblick',
+  'Next: ride day': 'Weiter: Fahrtag',
+  'Next: packing day': 'Weiter: Packtag',
+  'Everything packed. Route, weather, what is where, and at the end "End trip and debrief".': 'Alles gepackt. Route, Wetter, was wo ist, und am Schluss «Tour beenden und Rückblick».',
+  'Pack bag by bag and tick off, then the ready check: {packed} of {count} packed, {ready} of {total} checks.': 'Tasche für Tasche packen und abhaken, dann der Startcheck: {packed} von {count} gepackt, {ready} von {total} Checks.',
 };

@@ -306,4 +306,6 @@ export default {
   'End the trip and do the debrief now: two minutes on what you used, missed or did not use.': 'Tour beenden und gleich den Rückblick machen: zwei Minuten dazu, was du gebraucht, vermisst oder nicht gebraucht hast.',
   'End trip and debrief': 'Tour beenden und Rückblick',
   'Open the debrief': 'Rückblick öffnen',
+  'Next: end trip and debrief': 'Weiter: Tour beenden und Rückblick',
+  'When you are back home.': 'Wenn du wieder zu Hause bist.',
 };
