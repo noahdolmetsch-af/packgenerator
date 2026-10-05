@@ -10,7 +10,7 @@
   import { formatWeight } from '../gear.js';
   import { readyDone } from '../trips.js';
 
-  let { trip, steps, itemsById, tips = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onclose } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onclose } = $props();
   const RAIN_WORD = { none: 'dry', showers: 'showers', rain: 'rain' };
   const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${RAIN_WORD[w.rain ?? 'none']}`;
 
@@ -84,16 +84,21 @@
       <ul class="items">
         {#each step.entries as e (e.itemId)}
           {@const it = itemsById[e.itemId]}
-          {@const tip = tips[e.itemId]}
+          {@const bs = badges[e.itemId]}
           <li class:in={e.packed}>
             <button type="button" class="it" aria-pressed={!!e.packed} onclick={() => ontoggle(e.itemId)}>
               <span class="box" aria-hidden="true">{e.packed ? '✓' : ''}</span>
               <span class="nm">{it?.name ?? e.itemId}{#if (e.qty || 1) > 1}<b class="q"> × {e.qty}</b>{/if}</span>
               {#if it?.weightG != null}<span class="w num">{formatWeight(it.weightG * (e.qty || 1))}</span>{/if}
             </button>
-            {#if tip}
+            {#if bs}
+              <!-- v0.19.5 (answer 3a): short badges, the sentences on tap. -->
               <button type="button" class="tip" class:open={openTip === e.itemId} aria-expanded={openTip === e.itemId} onclick={() => (openTip = openTip === e.itemId ? null : e.itemId)}>
-                <span class="tl">Learning</span>{tip.rule}
+                {#if openTip === e.itemId}
+                  {#each bs as b (b.key)}<span class="tx"><span class="tl">{b.key === 'tip' ? 'Learning' : b.label}</span>{b.text}</span>{/each}
+                {:else}
+                  {#each bs as b (b.key)}<span class="bdg {b.tone}">{b.label}</span>{/each}
+                {/if}
               </button>
             {/if}
           </li>
