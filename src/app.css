@@ -149,3 +149,9 @@ dialog.sheet {
 dialog.sheet::backdrop {
   background: rgba(15, 46, 39, 0.45);
 }
+
+/* Favourites (Noah, 4.10.2026): a star before the name of every tested best item. */
+.star {
+  color: var(--hi);
+  margin-right: 4px;
+}

@@ -53,7 +53,7 @@
             {#each g.items as i (i.id)}
               {@const tag = tagOf(i)}
               <li draggable={drag} ondragstart={(e) => start(e, i.id)} class:drag>
-                <span class="nm">{i.name}{#if tag}<small class="lab">{tag}</small>{/if}</span>
+                <span class="nm">{#if i.favorite}<span class="star" title="Favourite">★</span>{/if}{i.name}{#if tag}<small class="lab">{tag}</small>{/if}</span>
                 <span class="w num">{i.weightG == null ? '–' : formatWeight(i.weightG)}</span>
                 <button type="button" class="plus" aria-label="Add {i.name} to {target}" onclick={() => onadd(i.id)}>+</button>
               </li>

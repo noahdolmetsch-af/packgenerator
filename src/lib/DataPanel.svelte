@@ -4,6 +4,8 @@
   import { db, DATA_TABLES } from './db.js';
   import { restoreBackup, validateBackup, countRows, downloadBackup } from './backup.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
+  import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
+  import { TEMPLATES_KEY, upsert } from './templates.js';
   import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, watchForChanges } from './folderBackup.js';
 
   // liveQuery re-runs the query whenever the database changes, so the counts stay current.
@@ -43,6 +45,12 @@
     if (!file) return;
     try {
       const data = JSON.parse(await file.text());
+      // The favourites list (Noah, 4.10.2026) is no backup: it only adds stars and new items.
+      if (isFavoritesFile(data)) {
+        pending = { data, name: file.name, fav: planFavorites(data, await db.items.toArray()) };
+        message = '';
+        return;
+      }
       const problems = validateBackup(data);
       if (problems.length) {
         message = problems.join(' ');
@@ -64,6 +72,25 @@
       pending = null;
     } catch (err) {
       message = `The demo did not start, nothing was changed. ${err.message}`;
+    }
+  }
+
+  async function applyFavorites() {
+    try {
+      const listKey = pending.data.list?.key;
+      await db.transaction('rw', db.items, db.settings, async () => {
+        // Planned again inside the write, against the inventory as it is now.
+        const plan = planFavorites(pending.data, await db.items.toArray());
+        for (const u of plan.updates) await db.items.update(u.id, u.changes);
+        if (plan.adds.length) await db.items.bulkPut(plan.adds);
+        const tpl = favoritesTemplate(await db.items.toArray(), { id: listKey, name: pending.data.list?.name ?? listKey });
+        const list = (await db.settings.get(TEMPLATES_KEY))?.value ?? [];
+        await db.settings.put({ key: TEMPLATES_KEY, value: upsert(list, tpl) });
+      });
+      message = `Favourites applied: ${pending.fav.updates.length} items got a star, ${pending.fav.adds.length} new items, template "${pending.data.list?.name}".`;
+      pending = null;
+    } catch (err) {
+      message = `Nothing was changed. ${err.message}`;
     }
   }
 
@@ -108,7 +135,17 @@
 
   {#if $demoQ}<p class="small">A demo is running: backups are off until you end it (yellow bar on top).</p>{/if}
 
-  {#if pending && isDemoFile(pending.data)}
+  {#if pending?.fav}
+    <div class="confirm" role="dialog" aria-label="Apply favourites">
+      <p><strong>{pending.data.list?.name}</strong>: {pending.fav.updates.length} items in your gear get a ★, {pending.fav.adds.length} new items are added, and a template with all favourites is saved.</p>
+      <p class="small">Weights, bags and everything else you typed in stay as they are. Nothing is deleted.</p>
+      <div class="row">
+        <button type="button" class="hi" onclick={applyFavorites} disabled={!!$demoQ}>Apply favourites</button>
+        <button type="button" onclick={() => (pending = null)}>Cancel</button>
+      </div>
+      {#if $demoQ}<p class="small">End the running demo first, else the stars would vanish with it.</p>{/if}
+    </div>
+  {:else if pending && isDemoFile(pending.data)}
     <div class="confirm" role="dialog" aria-label="Start demo">
       <p><strong>{pending.data.demo.name}</strong> is a demo with {pending.counts.trips} {pending.counts.trips === 1 ? 'trip' : 'trips'}.</p>
       <p class="small">Your data is kept aside first. "End demo" puts it back exactly as it is now; everything done in the demo is removed then. Backups are off while the demo runs.</p>
