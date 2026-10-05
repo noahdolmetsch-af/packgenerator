@@ -7,11 +7,12 @@
   import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
   import { TEMPLATES_KEY, upsert } from './templates.js';
   import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, watchForChanges } from './folderBackup.js';
+  import { t, tn, locale } from './i18n.svelte.js';
 
   // liveQuery re-runs the query whenever the database changes, so the counts stay current.
   const counts = liveQuery(async () => {
     const out = {};
-    for (const t of DATA_TABLES) out[t] = await db.table(t).count();
+    for (const k of DATA_TABLES) out[k] = await db.table(k).count();
     return out;
   });
 
@@ -24,6 +25,7 @@
   const LABELS = {
     items: 'Gear + wishlist', kits: 'Kits', trips: 'Trips', debriefs: 'Debriefs', learnings: 'Learnings',
     events: 'Events', maintenance: 'Maintenance tasks', bikes: 'Bikes', containers: 'Bags', weightChecks: 'Weight checks', settings: 'Settings',
+    visits: 'Workshop visits', photos: 'Photos', notes: 'Notes',
   };
 
   async function refreshFolder() {
@@ -36,7 +38,7 @@
 
   async function exportFile() {
     await downloadBackup(db);
-    message = 'Backup file downloaded.';
+    message = t('Backup file downloaded.');
   }
 
   async function pickFile(event) {
@@ -59,7 +61,7 @@
       pending = { data, name: file.name, counts: countRows(data) };
       message = '';
     } catch {
-      message = 'This file could not be read.';
+      message = t('This file could not be read.');
     }
   }
 
@@ -68,10 +70,10 @@
     try {
       await startDemo(db, pending.data);
       await tidyData(db);
-      message = `Demo started: ${pending.data.demo.name}. "End demo" in the yellow bar puts your data back.`;
+      message = t('Demo started: {name}. "End demo" in the yellow bar puts your data back.', { name: pending.data.demo.name });
       pending = null;
     } catch (err) {
-      message = `The demo did not start, nothing was changed. ${err.message}`;
+      message = `${t('The demo did not start, nothing was changed.')} ${err.message}`;
     }
   }
 
@@ -87,10 +89,10 @@
         const list = (await db.settings.get(TEMPLATES_KEY))?.value ?? [];
         await db.settings.put({ key: TEMPLATES_KEY, value: upsert(list, tpl) });
       });
-      message = `Favourites applied: ${pending.fav.updates.length} items got a star, ${pending.fav.adds.length} new items, template "${pending.data.list?.name}".`;
+      message = t('Favourites applied: {stars} items got a star, {adds} new items, template "{name}".', { stars: pending.fav.updates.length, adds: pending.fav.adds.length, name: pending.data.list?.name });
       pending = null;
     } catch (err) {
-      message = `Nothing was changed. ${err.message}`;
+      message = `${t('Nothing was changed.')} ${err.message}`;
     }
   }
 
@@ -98,95 +100,94 @@
     try {
       await restoreBackup(db, pending.data, mode);
       await tidyData(db);
-      message = `Imported ${pending.name} (${mode === 'replace' ? 'replaced all data' : 'merged'}).`;
+      message = mode === 'replace' ? t('Imported {name} (replaced all data).', { name: pending.name }) : t('Imported {name} (merged).', { name: pending.name });
       pending = null;
     } catch (err) {
-      message = `Import failed, nothing was changed. ${err.message}`;
+      message = `${t('Import failed, nothing was changed.')} ${err.message}`;
     }
   }
 
   async function pickFolder() {
     try {
       await chooseFolder(db);
-      message = 'Auto-backup is on.';
+      message = t('Auto-backup is on.');
     } catch (err) {
-      if (err.name !== 'AbortError') message = 'Could not use that folder.';
+      if (err.name !== 'AbortError') message = t('Could not use that folder.');
     }
     refreshFolder();
   }
 </script>
 
 <section class="card" aria-labelledby="data-title">
-  <h2 id="data-title">Your data</h2>
-  <p>Everything is stored in this browser on this device. Use a backup file to move it to your other device.</p>
+  <h2 id="data-title">{t('Your data')}</h2>
+  <p>{t('Everything is stored in this browser on this device. Use a backup file to move it to your other device.')}</p>
 
   {#if $counts}
     <dl class="counts">
-      {#each DATA_TABLES as t (t)}
-        <div><dt>{LABELS[t]}</dt><dd>{$counts[t]}</dd></div>
+      {#each DATA_TABLES as k (k)}
+        <div><dt>{LABELS[k] ? t(LABELS[k]) : k}</dt><dd>{$counts[k]}</dd></div>
       {/each}
     </dl>
   {/if}
 
   <div class="row">
-    <button type="button" class="hi" onclick={exportFile} disabled={!!$demoQ} title={$demoQ ? 'Off while the demo runs' : undefined}>Export backup</button>
-    <label class="btn">Import backup<input type="file" accept="application/json,.json" onchange={pickFile} hidden /></label>
+    <button type="button" class="hi" onclick={exportFile} disabled={!!$demoQ} title={$demoQ ? t('Off while the demo runs') : undefined}>{t('Export backup')}</button>
+    <label class="btn">{t('Import backup')}<input type="file" accept="application/json,.json" onchange={pickFile} hidden /></label>
   </div>
 
-  {#if $demoQ}<p class="small">A demo is running: backups are off until you end it (yellow bar on top).</p>{/if}
+  {#if $demoQ}<p class="small">{t('A demo is running: backups are off until you end it (yellow bar on top).')}</p>{/if}
 
   {#if pending?.fav}
-    <div class="confirm" role="dialog" aria-label="Apply favourites">
-      <p><strong>{pending.data.list?.name}</strong>: {pending.fav.updates.length} items in your gear get a ★, {pending.fav.adds.length} new items are added, and a template with all favourites is saved.</p>
-      <p class="small">Weights, bags and everything else you typed in stay as they are. Nothing is deleted.</p>
+    <div class="confirm" role="dialog" aria-label={t('Apply favourites')}>
+      <p><strong>{pending.data.list?.name}</strong>: {t('{stars} items in your gear get a ★, {adds} new items are added, and a template with all favourites is saved.', { stars: pending.fav.updates.length, adds: pending.fav.adds.length })}</p>
+      <p class="small">{t('Weights, bags and everything else you typed in stay as they are. Nothing is deleted.')}</p>
       <div class="row">
-        <button type="button" class="hi" onclick={applyFavorites} disabled={!!$demoQ}>Apply favourites</button>
-        <button type="button" onclick={() => (pending = null)}>Cancel</button>
+        <button type="button" class="hi" onclick={applyFavorites} disabled={!!$demoQ}>{t('Apply favourites')}</button>
+        <button type="button" onclick={() => (pending = null)}>{t('Cancel')}</button>
       </div>
-      {#if $demoQ}<p class="small">End the running demo first, else the stars would vanish with it.</p>{/if}
+      {#if $demoQ}<p class="small">{t('End the running demo first, else the stars would vanish with it.')}</p>{/if}
     </div>
   {:else if pending && isDemoFile(pending.data)}
-    <div class="confirm" role="dialog" aria-label="Start demo">
-      <p><strong>{pending.data.demo.name}</strong> is a demo with {pending.counts.trips} {pending.counts.trips === 1 ? 'trip' : 'trips'}.</p>
-      <p class="small">Your data is kept aside first. "End demo" puts it back exactly as it is now; everything done in the demo is removed then. Backups are off while the demo runs.</p>
+    <div class="confirm" role="dialog" aria-label={t('Start demo')}>
+      <p><strong>{pending.data.demo.name}</strong> {tn(pending.counts.trips, 'is a demo with {n} trip.', 'is a demo with {n} trips.')}</p>
+      <p class="small">{t('Your data is kept aside first. "End demo" puts it back exactly as it is now; everything done in the demo is removed then. Backups are off while the demo runs.')}</p>
       <div class="row">
-        <button type="button" class="hi" onclick={beginDemo} disabled={!!$demoQ}>Start demo</button>
-        <button type="button" onclick={() => (pending = null)}>Cancel</button>
+        <button type="button" class="hi" onclick={beginDemo} disabled={!!$demoQ}>{t('Start demo')}</button>
+        <button type="button" onclick={() => (pending = null)}>{t('Cancel')}</button>
       </div>
-      {#if $demoQ}<p class="small">End the running demo first.</p>{/if}
+      {#if $demoQ}<p class="small">{t('End the running demo first.')}</p>{/if}
     </div>
   {:else if pending}
-    <div class="confirm" role="dialog" aria-label="Import backup">
+    <div class="confirm" role="dialog" aria-label={t('Import backup')}>
       <p>
-        <strong>{pending.name}</strong> contains {pending.counts.items} gear items, {pending.counts.trips} trips and
-        {pending.counts.learnings} learnings.
+        <strong>{pending.name}</strong> {t('contains {items} gear items, {trips} trips and {learnings} learnings.', { items: pending.counts.items, trips: pending.counts.trips, learnings: pending.counts.learnings })}
       </p>
       <div class="row">
-        <button type="button" class="hi" onclick={() => applyImport('replace')}>Replace all data</button>
-        <button type="button" onclick={() => applyImport('merge')}>Merge</button>
-        <button type="button" onclick={() => (pending = null)}>Cancel</button>
+        <button type="button" class="hi" onclick={() => applyImport('replace')}>{t('Replace all data')}</button>
+        <button type="button" onclick={() => applyImport('merge')}>{t('Merge')}</button>
+        <button type="button" onclick={() => (pending = null)}>{t('Cancel')}</button>
       </div>
-      <p class="small">Replace: the file becomes your data. Merge: records from the file are added or overwrite the same ID.</p>
+      <p class="small">{t('Replace: the file becomes your data. Merge: records from the file are added or overwrite the same ID.')}</p>
     </div>
   {/if}
 
   {#if folderBackupSupported}
-    <h3>Auto-backup to a folder</h3>
+    <h3>{t('Auto-backup to a folder')}</h3>
     {#if folder.state === 'off'}
-      <p>Pick a folder (for example one that syncs to the cloud). After every change the app writes the newest backup there, plus one file per day.</p>
-      <button type="button" onclick={pickFolder}>Choose folder</button>
+      <p>{t('Pick a folder (for example one that syncs to the cloud). After every change the app writes the newest backup there, plus one file per day.')}</p>
+      <button type="button" onclick={pickFolder}>{t('Choose folder')}</button>
     {:else if folder.state === 'needs-ok'}
-      <p>Folder <strong>{folder.name}</strong> is chosen, but the browser needs your OK again after a restart.</p>
+      <p>{t('Folder')} <strong>{folder.name}</strong>: {t('chosen, but the browser needs your OK again after a restart.')}</p>
       <div class="row">
-        <button type="button" class="hi" onclick={async () => { await allowAgain(db); refreshFolder(); }}>Allow backup</button>
-        <button type="button" onclick={async () => { await forgetFolder(db); refreshFolder(); }}>Stop auto-backup</button>
+        <button type="button" class="hi" onclick={async () => { await allowAgain(db); refreshFolder(); }}>{t('Allow backup')}</button>
+        <button type="button" onclick={async () => { await forgetFolder(db); refreshFolder(); }}>{t('Stop auto-backup')}</button>
       </div>
     {:else}
       <p>
-        On: writing to <strong>{folder.name}</strong>.
-        {folder.lastWrite ? `Last backup ${new Date(folder.lastWrite).toLocaleString()}.` : ''}
+        {t('On: writing to')} <strong>{folder.name}</strong>.
+        {folder.lastWrite ? t('Last backup {when}.', { when: new Date(folder.lastWrite).toLocaleString(locale()) }) : ''}
       </p>
-      <button type="button" onclick={async () => { await forgetFolder(db); refreshFolder(); }}>Stop auto-backup</button>
+      <button type="button" onclick={async () => { await forgetFolder(db); refreshFolder(); }}>{t('Stop auto-backup')}</button>
     {/if}
   {/if}
 

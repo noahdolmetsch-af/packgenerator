@@ -250,7 +250,7 @@
   <nav class="quick" aria-label={t('Create')}>
     <button type="button" onclick={() => openNew('list')}><span class="ring hi">{@render ic('plus', 22)}</span>{t('New list')}</button>
     <button type="button" onclick={() => openNote('')}><span class="ring">{@render ic('note', 22)}</span>{t('Note')}</button>
-    <button type="button" onclick={addItem}><span class="ring">{@render ic('star', 22)}</span>{t('Gear item')}</button>
+    <button type="button" onclick={addItem}><span class="ring">{@render ic('star', 22)}</span>{t('Gear item|short')}</button>
     <button type="button" onclick={() => openNew('km')}><span class="ring">{@render ic('bike', 22)}</span>{t('Log km')}</button>
   </nav>
 
@@ -546,6 +546,10 @@
       background: none;
       color: var(--ink);
       font: 600 12px var(--font-body);
+      text-align: center;
+      min-width: 0;
+      hyphens: auto;
+      overflow-wrap: anywhere;
       cursor: pointer;
     }
     .ring {

@@ -2,6 +2,7 @@
   import { db } from '../db.js';
   import { SLOTS, SLOT } from '../bikes.js';
   import { formatWeight } from '../gear.js';
+  import { t, nameOf } from '../i18n.svelte.js';
 
   /** bag: the bag to edit, or null for "Add bag". Weight comes from the linked gear item. */
   let { bag, items, bags, bikes, onclose } = $props();
@@ -31,9 +32,9 @@
 
   async function save(event) {
     event.preventDefault();
-    if (!draft.name.trim()) return (error = 'Give the bag a name.');
+    if (!draft.name.trim()) return (error = t('Give the bag a name.'));
     const vol = String(draft.volumeL).trim() === '' ? null : Number(String(draft.volumeL).replace(',', '.'));
-    if (vol != null && !(vol > 0 && vol <= 100)) return (error = 'Volume: litres from 0.1 to 100, or leave it empty.');
+    if (vol != null && !(vol > 0 && vol <= 100)) return (error = t('Volume: litres from 0.1 to 100, or leave it empty.'));
     const d = $state.snapshot(draft);
     const record = {
       ...d,
@@ -54,7 +55,7 @@
   }
 
   async function remove() {
-    if (!confirm(`Delete the bag "${bag.name}"? It is taken off every bike. The gear item stays.`)) return;
+    if (!confirm(t('Delete the bag "{name}"? It is taken off every bike. The gear item stays.', { name: bag.name }))) return;
     await db.transaction('rw', db.containers, db.bikes, async () => {
       await db.containers.delete(bag.id);
       for (const b of bikes) if (b.setup?.[bag.slot] === bag.id) await db.bikes.update(b.id, { [`setup.${bag.slot}`]: null });
@@ -65,35 +66,35 @@
 
 <dialog class="sheet" bind:this={dialog} {onclose} aria-labelledby="bag-h">
   <form onsubmit={save} novalidate>
-    <p class="meta">{SLOT[draft.slot]?.name ?? 'Bag'}</p>
-    <h2 id="bag-h" class="title">{isNew ? 'Add bag' : bag.name}</h2>
+    <p class="meta">{t(SLOT[draft.slot]?.name ?? 'Bag')}</p>
+    <h2 id="bag-h" class="title">{isNew ? t('Add bag') : bag.name}</h2>
     <div class="grid">
-      <label class="wide"><span class="lbl">Name</span><input class="inp" bind:value={draft.name} required /></label>
+      <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required /></label>
       <label>
-        <span class="lbl">Place on the bike</span>
+        <span class="lbl">{t('Place on the bike')}</span>
         <select class="sel" bind:value={draft.slot}>
-          {#each SLOTS as s (s.key)}<option value={s.key}>{s.name} ({s.where})</option>{/each}
+          {#each SLOTS as s (s.key)}<option value={s.key}>{t(s.name)} ({t(s.where)})</option>{/each}
         </select>
       </label>
-      <label><span class="lbl">Volume (L)</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.volumeL} placeholder="unknown" /></label>
+      <label><span class="lbl">{t('Volume (L)')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.volumeL} placeholder={t('unknown')} /></label>
       <label>
-        <span class="lbl">Weight from gear item</span>
+        <span class="lbl">{t('Weight from gear item')}</span>
         <select class="sel" bind:value={draft.itemId}>
-          <option value="">None</option>
-          {#each linkable as i (i.id)}<option value={i.id}>{i.name} · {i.id}</option>{/each}
+          <option value="">{t('None')}</option>
+          {#each linkable as i (i.id)}<option value={i.id}>{nameOf(i)} · {i.id}</option>{/each}
         </select>
       </label>
-      <label><span class="lbl">Pieces of that item</span><input class="inp num" type="number" min="1" bind:value={draft.pieces} /></label>
-      <label class="wide"><span class="lbl">Note</span><input class="inp" bind:value={draft.note} /></label>
+      <label><span class="lbl">{t('Pieces of that item')}</span><input class="inp num" type="number" min="1" bind:value={draft.pieces} /></label>
+      <label class="wide"><span class="lbl">{t('Note')}</span><input class="inp" bind:value={draft.note} /></label>
     </div>
     <p class="note">
-      Weight: <b>{linked ? (linked.weightG == null ? 'not weighed yet (weigh it in Gear)' : formatWeight(linked.weightG * (Number(draft.pieces) || 1))) : 'no gear item linked'}</b>
+      {t('Weight:')} <b>{linked ? (linked.weightG == null ? t('not weighed yet (weigh it in Gear)') : formatWeight(linked.weightG * (Number(draft.pieces) || 1))) : t('no gear item linked')}</b>
     </p>
     <p class="err" role="alert">{error}</p>
     <div class="foot">
-      <button type="submit" class="btn hi">Save</button>
-      <button type="button" class="btn" onclick={() => dialog.close()}>Cancel</button>
-      {#if !isNew}<button type="button" class="btn del" onclick={remove}>Delete</button>{/if}
+      <button type="submit" class="btn hi">{t('Save')}</button>
+      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+      {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete')}</button>{/if}
     </div>
   </form>
 </dialog>

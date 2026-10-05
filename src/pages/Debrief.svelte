@@ -7,6 +7,7 @@
    * #/debrief/pace       the same overview, scrolled to "Your pace" (v0.19.0)
    */
   import { liveQuery } from 'dexie';
+  import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { db } from '../lib/db.js';
   import { formatWeight, CATEGORY, isInventory } from '../lib/gear.js';
   import { ZONE } from '../lib/trips.js';
@@ -65,14 +66,14 @@
           if (!r.date || ridesOnTrip([r], trip).rides.length) rides.push(r);
         }
       }
-      if (!rides.length) return (rideMsg = `No rides from ${dateText(trip)} in ${files.length === 1 ? 'this file' : 'these files'}.`);
+      if (!rides.length) return (rideMsg = files.length === 1 ? t('No rides from {dates} in this file.', { dates: dateText(trip) }) : t('No rides from {dates} in these files.', { dates: dateText(trip) }));
       const km = Math.round(rides.reduce((t, r) => t + r.km, 0));
       d.rides = rides.map(({ date, km: k, name }) => ({ date, km: k, name }));
       d.km = km;
-      rideMsg = `${rides.length} ${rides.length === 1 ? 'ride' : 'rides'} imported: ${km} km.`;
+      rideMsg = tn(rides.length, '{n} ride imported: {km} km.', '{n} rides imported: {km} km.', { km: num(km) });
       persist();
     } catch (err) {
-      rideMsg = err.message || 'This file could not be read.';
+      rideMsg = err.message || t('This file could not be read.');
     }
   }
   function setKm(value) {
@@ -145,7 +146,7 @@
     missName = '';
     persist();
   }
-  const noteWhen = (iso) => new Date(iso).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+  const noteWhen = (iso) => new Date(iso).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit' });
   function dropMissing(id) {
     d.missing = d.missing.filter((m) => m.id !== id);
     persist();
@@ -194,7 +195,7 @@
   }
 
   const dateText = (t) => {
-    const f = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const f = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
     return t.days > 1 ? `${f(t.startDate)} – ${f(tripEnd(t))}` : f(t.startDate);
   };
 
@@ -216,15 +217,15 @@
 {#if tripId}
   <div class="flow">
     {#if !$tripsQ}
-      <p class="muted">Loading…</p>
+      <p class="muted">{t('Loading…')}</p>
     {:else if !trip}
-      <p class="card">This trip does not exist any more. <a href="#/debrief">Back to Debrief</a></p>
+      <p class="card">{t('This trip does not exist any more.')} <a href="#/debrief">{t('Back to Debrief')}</a></p>
     {:else if d}
       <div class="bar">
-        <a class="back" href="#/debrief" aria-label="Back to Debrief">←</a>
-        <b>Debrief</b>
-        <ol class="steps" aria-label="Steps">
-          {#each [1, 2, 3] as n (n)}<li class:on={step >= n} aria-current={step === n ? 'step' : undefined}><span class="sr">Step {n}</span></li>{/each}
+        <a class="back" href="#/debrief" aria-label={t('Back to Debrief')}>←</a>
+        <b>{t('Debrief')}</b>
+        <ol class="steps" aria-label={t('Steps')}>
+          {#each [1, 2, 3] as n (n)}<li class:on={step >= n} aria-current={step === n ? 'step' : undefined}><span class="sr">{t('Step {n}', { n })}</span></li>{/each}
         </ol>
       </div>
       <p class="lbl trip">{trip.title} · {dateText(trip)} · {trip.bike ?? ''}</p>
@@ -232,65 +233,65 @@
       {#snippet rideNotes()}
         {#if d.rideNotes?.length}
           <div class="ridenotes">
-            <span class="lbl">Notes from the ride</span>
+            <span class="lbl">{t('Notes from the ride')}</span>
             <ul>{#each d.rideNotes as n (n.at)}<li><small class="num">{noteWhen(n.at)}</small> {n.text}</li>{/each}</ul>
           </div>
         {/if}
       {/snippet}
       {#if step === 1}
-        <h1 class="title">How did it go?</h1>
+        <h1 class="title">{t('How did it go?')}</h1>
         <fieldset>
-          <legend>Weather, compared to what you packed for</legend>
-          <div class="seg">{#each WEATHER as o (o.key)}<button type="button" aria-pressed={d.weather === o.key} onclick={() => set('weather', o.key)}>{o.name}</button>{/each}</div>
+          <legend>{t('Weather, compared to what you packed for')}</legend>
+          <div class="seg">{#each WEATHER as o (o.key)}<button type="button" aria-pressed={d.weather === o.key} onclick={() => set('weather', o.key)}>{t(o.name)}</button>{/each}</div>
         </fieldset>
         <fieldset>
-          <legend>How much did you take?</legend>
-          <div class="seg">{#each AMOUNT as o (o.key)}<button type="button" aria-pressed={d.amount === o.key} onclick={() => set('amount', o.key)}>{o.name}</button>{/each}</div>
+          <legend>{t('How much did you take?')}</legend>
+          <div class="seg">{#each AMOUNT as o (o.key)}<button type="button" aria-pressed={d.amount === o.key} onclick={() => set('amount', o.key)}>{t(o.name)}</button>{/each}</div>
         </fieldset>
         <fieldset>
-          <legend>Bags and bike</legend>
-          <div class="seg">{#each BAGS_OK as o (o.key)}<button type="button" aria-pressed={d.bags === o.key} onclick={() => set('bags', o.key)}>{o.name}</button>{/each}</div>
+          <legend>{t('Bags and bike')}</legend>
+          <div class="seg">{#each BAGS_OK as o (o.key)}<button type="button" aria-pressed={d.bags === o.key} onclick={() => set('bags', o.key)}>{t(o.name)}</button>{/each}</div>
         </fieldset>
         {#if bike}
           <label class="km">
-            <span>km of this trip <small>(goes onto {bike.name}{bike.km != null ? `, now ${bike.km.toLocaleString('en')} km` : ''})</small></span>
+            <span>{t('km of this trip')} <small>({bike.km != null ? t('goes onto {bike}, now {km} km', { bike: bike.name, km: num(bike.km) }) : t('goes onto {bike}', { bike: bike.name })})</small></span>
             <span class="kmrow">
-              <input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder="e.g. 303" />
-              <span class="or">or</span>
-              <span class="btn sm imp">Import from Strava or Garmin<input type="file" accept=".csv,.gpx,.tcx,text/csv,application/gpx+xml" multiple onchange={importRides} /></span>
+              <input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder={t('e.g. 303')} />
+              <span class="or">{t('or')}</span>
+              <span class="btn sm imp">{t('Import from Strava or Garmin')}<input type="file" accept=".csv,.gpx,.tcx,text/csv,application/gpx+xml" multiple onchange={importRides} /></span>
             </span>
           </label>
           {#if rideMsg}<p class="hint ride" role="status">{rideMsg}</p>{/if}
           <details class="howto">
-            <summary>How to get the file</summary>
-            <p><b>Strava:</b> on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).</p>
-            <p><b>Garmin Connect:</b> on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).</p>
-            <p>Several files at once are fine (one per day). Only rides on the days of this trip count.</p>
+            <summary>{t('How to get the file')}</summary>
+            <p><b>Strava:</b> {t('on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).')}</p>
+            <p><b>Garmin Connect:</b> {t('on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).')}</p>
+            <p>{t('Several files at once are fine (one per day). Only rides on the days of this trip count.')}</p>
           </details>
         {/if}
         {@render rideNotes()}
         <label class="note">
-          <span>One sentence for next time <small>(optional)</small></span>
-          <textarea class="inp" rows="3" bind:value={d.note} oninput={persist} placeholder="e.g. Heatwave, the rain gear was never used"></textarea>
+          <span>{t('One sentence for next time')} <small>({t('optional')})</small></span>
+          <textarea class="inp" rows="3" bind:value={d.note} oninput={persist} placeholder={t('e.g. Heatwave, the rain gear was never used')}></textarea>
         </label>
-        <div class="foot"><button type="button" class="btn hi wide" onclick={() => (step = 2)}>Next: go through the items</button></div>
+        <div class="foot"><button type="button" class="btn hi wide" onclick={() => (step = 2)}>{t('Next: go through the items')}</button></div>
       {:else if step === 2}
-        <h1 class="title">What did you use?</h1>
+        <h1 class="title">{t('What did you use?')}</h1>
         {@render rideNotes()}
-        <p class="hint">Everything counts as used. Tap only what you did not use or what broke. <span class="num">{counts.looked} of {trip.entries.length} marked.</span></p>
-        <div class="legend" aria-hidden="true"><span>✓ used</span><span>– not used</span><span>✕ broken</span></div>
+        <p class="hint">{t('Everything counts as used. Tap only what you did not use or what broke.')} <span class="num">{t('{n} of {total} marked.', { n: counts.looked, total: trip.entries.length })}</span></p>
+        <div class="legend" aria-hidden="true"><span>✓ {t('used')}</span><span>– {t('not used')}</span><span>✕ {t('broken')}</span></div>
         {#each groups as g (g.slot)}
           <section class="bag">
-            <h2><span class="title">{g.name}</span> <span class="lbl">{g.rows.length} {g.rows.length === 1 ? 'item' : 'items'}</span></h2>
+            <h2><span class="title">{t(g.name)}</span> <span class="lbl">{tn(g.rows.length, '{n} item', '{n} items')}</span></h2>
             <ul>
               {#each g.rows as { e, item } (e.itemId)}
                 {@const st = d.items[e.itemId] ?? 'used'}
                 <li class="it" class:unused={st === 'unused'} class:broken={st === 'broken'}>
-                  <span class="nm">{item.name}{#if e.qty > 1}<small> × {e.qty}</small>{/if}<small class="sub">{CATEGORY[item.category]?.name ?? ''}{item.weightG != null ? ` · ${formatWeight(item.weightG * (e.qty || 1))}` : ''}{#if before[e.itemId]}<span class="before"> · not used on {before[e.itemId]} {before[e.itemId] === 1 ? 'trip' : 'trips'} before</span>{/if}</small></span>
-                  <span class="acts" role="group" aria-label="{item.name}">
-                    <button type="button" class="c" aria-pressed={st === 'used'} aria-label="Used" onclick={() => mark(e.itemId, 'used')}>✓</button>
-                    <button type="button" class="c no" aria-pressed={st === 'unused'} aria-label="Not used" onclick={() => mark(e.itemId, 'unused')}>–</button>
-                    <button type="button" class="c br" aria-pressed={st === 'broken'} aria-label="Broken" onclick={() => mark(e.itemId, 'broken')}>✕</button>
+                  <span class="nm">{nameOf(item)}{#if e.qty > 1}<small> × {e.qty}</small>{/if}<small class="sub">{CATEGORY[item.category]?.name ? t(CATEGORY[item.category].name) : ''}{item.weightG != null ? ` · ${formatWeight(item.weightG * (e.qty || 1))}` : ''}{#if before[e.itemId]}<span class="before"> · {tn(before[e.itemId], 'not used on {n} trip before', 'not used on {n} trips before')}</span>{/if}</small></span>
+                  <span class="acts" role="group" aria-label={nameOf(item)}>
+                    <button type="button" class="c" aria-pressed={st === 'used'} aria-label={t('Used')} onclick={() => mark(e.itemId, 'used')}>✓</button>
+                    <button type="button" class="c no" aria-pressed={st === 'unused'} aria-label={t('Not used')} onclick={() => mark(e.itemId, 'unused')}>–</button>
+                    <button type="button" class="c br" aria-pressed={st === 'broken'} aria-label={t('Broken')} onclick={() => mark(e.itemId, 'broken')}>✕</button>
                   </span>
                 </li>
               {/each}
@@ -298,79 +299,79 @@
           </section>
         {/each}
         <section class="bag">
-          <h2><span class="title">Missing something?</span></h2>
+          <h2><span class="title">{t('Missing something?')}</span></h2>
           <form class="miss" onsubmit={addMissing}>
-            <input class="inp" list="gear-names" placeholder="What you missed, e.g. Headlamp" bind:value={missName} aria-label="What you missed" />
-            <button type="submit" class="btn">Add</button>
+            <input class="inp" list="gear-names" placeholder={t('What you missed, e.g. Headlamp')} bind:value={missName} aria-label={t('What you missed')} />
+            <button type="submit" class="btn">{t('Add')}</button>
           </form>
           {#if similar.length}
-            <p class="similar"><span>In your gear:</span>{#each similar as i (i.id)}<button type="button" class="btn sm" onclick={() => addItem(i)}>{i.name}</button>{/each}</p>
+            <p class="similar"><span>{t('In your gear:')}</span>{#each similar as i (i.id)}<button type="button" class="btn sm" onclick={() => addItem(i)}>{nameOf(i)}</button>{/each}</p>
           {/if}
           <datalist id="gear-names">{#each notOnTrip as i (i.id)}<option value={i.name}></option>{/each}</datalist>
           {#if d.missing.length}
             <ul>
               {#each d.missing as m (m.id)}
-                <li class="it"><span class="nm">{m.name}<small class="sub">{m.itemId ? 'in your gear · goes into the template' : 'not in your gear · goes to the wishlist'}</small></span><button type="button" class="c" aria-label="Remove {m.name}" onclick={() => dropMissing(m.id)}>×</button></li>
+                <li class="it"><span class="nm">{m.name}<small class="sub">{m.itemId ? t('in your gear · goes into the template') : t('not in your gear · goes to the wishlist')}</small></span><button type="button" class="c"  aria-label={t('Remove {name}', { name: m.name })} onclick={() => dropMissing(m.id)}>×</button></li>
               {/each}
             </ul>
           {/if}
         </section>
-        <div class="foot two"><button type="button" class="btn" onclick={() => (step = 1)}>Back</button><button type="button" class="btn hi wide" onclick={() => (step = 3)}>Next: summary</button></div>
+        <div class="foot two"><button type="button" class="btn" onclick={() => (step = 1)}>{t('Back')}</button><button type="button" class="btn hi wide" onclick={() => (step = 3)}>{t('Next: summary')}</button></div>
       {:else}
-        <h1 class="title">{saved ? 'Saved' : 'Next time'}</h1>
+        <h1 class="title">{saved ? t('Saved') : t('Next time')}</h1>
         <div class="kpi">
-          <div><b class="num">{counts.unused}</b><span class="lbl">not used</span></div>
-          <div><b class="num">{counts.unusedG ? `−${formatWeight(counts.unusedG)}` : '–'}</b><span class="lbl">possible</span></div>
-          <div><b class="num">{counts.missing}</b><span class="lbl">missing</span></div>
-          <div><b class="num">{counts.broken}</b><span class="lbl">broken</span></div>
+          <div><b class="num">{counts.unused}</b><span class="lbl">{t('not used')}</span></div>
+          <div><b class="num">{counts.unusedG ? `−${formatWeight(counts.unusedG)}` : '–'}</b><span class="lbl">{t('possible')}</span></div>
+          <div><b class="num">{counts.missing}</b><span class="lbl">{t('missing')}</span></div>
+          <div><b class="num">{counts.broken}</b><span class="lbl">{t('broken')}</span></div>
         </div>
         {#if saved}
-          <p class="card ok">Debrief saved{d.applied.length ? `, ${d.applied.length} ${d.applied.length === 1 ? 'change' : 'changes'} made` : ''}{d.kmApplied ? `, ${d.kmApplied} km added to ${bike?.name ?? 'the bike'}` : ''}. The learnings now show up on the start page and when you pack.</p>
-          {#if sugg.length}<p class="hint">{sugg.length} more {sugg.length === 1 ? 'suggestion is' : 'suggestions are'} open. Change your answers to see {sugg.length === 1 ? 'it' : 'them'}.</p>{/if}
-          <div class="foot two"><button type="button" class="btn" onclick={reopen}>Change answers</button><a class="btn ink wide" href="#/">Done</a></div>
+          <p class="card ok">{t('Debrief saved')}{d.applied.length ? `, ${tn(d.applied.length, '{n} change made', '{n} changes made')}` : ''}{d.kmApplied ? `, ${bike?.name ? t('{km} km added to {bike}', { km: num(d.kmApplied), bike: bike.name }) : t('{km} km added to the bike', { km: num(d.kmApplied) })}` : ''}. {t('The learnings now show up on the start page and when you pack.')}</p>
+          {#if sugg.length}<p class="hint">{tn(sugg.length, '{n} more suggestion is open. Change your answers to see it.', '{n} more suggestions are open. Change your answers to see them.')}</p>{/if}
+          <div class="foot two"><button type="button" class="btn" onclick={reopen}>{t('Change answers')}</button><a class="btn ink wide" href="#/">{t('Done')}</a></div>
         {:else}
-          {#if !sugg.length}<p class="card">Nothing to change. Everything you took was used and nothing was missing.</p>{/if}
+          {#if !sugg.length}<p class="card">{t('Nothing to change. Everything you took was used and nothing was missing.')}</p>{/if}
           {#each GROUPS as grp (grp.key)}
             {@const list = sugg.filter((s) => s.group === grp.key)}
             {#if list.length}
               <section class="sum">
-                <h2 class="title">{grp.name}</h2>
+                <h2 class="title">{t(grp.name)}</h2>
                 {#each list as s (s.id)}
                   <label class="chk"><input type="checkbox" checked={ticked(s)} onchange={(ev) => (ticks[s.id] = ev.currentTarget.checked)} /><span>{s.label}<small>{s.detail}</small></span></label>
                 {/each}
               </section>
             {/if}
           {/each}
-          {#if sugg.length}<p class="hint">Nothing changes without a tick.</p>{/if}
-          <div class="foot two"><button type="button" class="btn" onclick={() => (step = 2)}>Back</button><button type="button" class="btn hi wide" disabled={busy} onclick={finish}>Save debrief</button></div>
+          {#if sugg.length}<p class="hint">{t('Nothing changes without a tick.')}</p>{/if}
+          <div class="foot two"><button type="button" class="btn" onclick={() => (step = 2)}>{t('Back')}</button><button type="button" class="btn hi wide" disabled={busy} onclick={finish}>{t('Save debrief')}</button></div>
         {/if}
       {/if}
     {/if}
   </div>
 {:else}
   <div class="over">
-    <h1 class="title big">Debrief</h1>
-    <p class="lead">After a trip: two minutes on what you used, missed or did not need. The app turns it into tips for the next trip.</p>
+    <h1 class="title big">{t('Debrief')}</h1>
+    <p class="lead">{t('After a trip: two minutes on what you used, missed or did not need. The app turns it into tips for the next trip.')}</p>
 
     <section aria-labelledby="todo-h">
-      <h2 id="todo-h" class="title h">To debrief</h2>
-      {#each open as t (t.id)}
+      <h2 id="todo-h" class="title h">{t('To debrief')}</h2>
+      {#each open as tr (tr.id)}
         <div class="card trip-row">
-          <div><b>{t.title}</b><span class="muted">{dateText(t)} · {t.entries.length} items</span></div>
-          <a class="btn hi" href="#/debrief/{encodeURIComponent(t.id)}">{drafts.has(t.id) ? 'Continue' : 'Start debrief'}</a>
+          <div><b>{tr.title}</b><span class="muted">{dateText(tr)} · {tn(tr.entries.length, '{n} item', '{n} items')}</span></div>
+          <a class="btn hi" href="#/debrief/{encodeURIComponent(tr.id)}">{drafts.has(tr.id) ? t('Continue') : t('Start debrief')}</a>
         </div>
       {:else}
-        <p class="muted">No trip is waiting. A trip shows up here the day after it ends.</p>
+        <p class="muted">{t('No trip is waiting. A trip shows up here the day after it ends.')}</p>
       {/each}
     </section>
 
     {#if done.length}
       <section aria-labelledby="done-h">
-        <h2 id="done-h" class="title h">Done</h2>
-        {#each done as { d: x, t } (t.id)}
-          {@const c = debriefCounts(x, t, items)}
-          <a class="card trip-row link" href="#/debrief/{encodeURIComponent(t.id)}">
-            <div><b>{t.title}</b><span class="muted">{dateText(t)} · {c.unused} not used · {c.missing} missing</span></div>
+        <h2 id="done-h" class="title h">{t('Done')}</h2>
+        {#each done as { d: x, t: tr } (tr.id)}
+          {@const c = debriefCounts(x, tr, items)}
+          <a class="card trip-row link" href="#/debrief/{encodeURIComponent(tr.id)}">
+            <div><b>{tr.title}</b><span class="muted">{dateText(tr)} · {t('{n} not used', { n: c.unused })} · {t('{n} missing', { n: c.missing })}</span></div>
             <span aria-hidden="true">→</span>
           </a>
         {/each}
@@ -383,15 +384,15 @@
 
     {#if events.length}
       <section id="logbook" aria-labelledby="log-h">
-        <h2 id="log-h" class="title h">Logbook <small class="muted">{events.length} earlier trips</small></h2>
+        <h2 id="log-h" class="title h">{t('Logbook')} <small class="muted">{tn(events.length, '{n} earlier trip', '{n} earlier trips')}</small></h2>
         {#each events as ev (ev.id)}
           <details class="topic ev">
             <summary><span class="title">{ev.name}</span> <span class="muted">{ev.dateText ?? ev.sortDate ?? ''}{ev.type ? ` · ${ev.type}` : ''}</span></summary>
             <dl>
-              {#if ev.bike && ev.bike !== '–'}<dt>Bike</dt><dd>{ev.bike}</dd>{/if}
-              {#if ev.bags && ev.bags !== '–'}<dt>Bags</dt><dd>{ev.bags}</dd>{/if}
-              {#if ev.result}<dt>What worked</dt><dd>{ev.result}</dd>{/if}
-              {#if ev.learnings}<dt>Learnings</dt><dd>{ev.learnings}</dd>{/if}
+              {#if ev.bike && ev.bike !== '–'}<dt>{t('Bike')}</dt><dd>{ev.bike}</dd>{/if}
+              {#if ev.bags && ev.bags !== '–'}<dt>{t('Bags')}</dt><dd>{ev.bags}</dd>{/if}
+              {#if ev.result}<dt>{t('What worked')}</dt><dd>{ev.result}</dd>{/if}
+              {#if ev.learnings}<dt>{t('Learnings')}</dt><dd>{ev.learnings}</dd>{/if}
             </dl>
           </details>
         {/each}
@@ -399,22 +400,22 @@
     {/if}
 
     <section id="learnings" aria-labelledby="learn-h">
-      <h2 id="learn-h" class="title h">Learnings <small class="muted">{learnings.length}</small></h2>
-      <input class="inp q" type="search" placeholder="Search learnings" bind:value={lq} aria-label="Search learnings" />
+      <h2 id="learn-h" class="title h">{t('Learnings')} <small class="muted">{learnings.length}</small></h2>
+      <input class="inp q" type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} />
       {#each topics as g (g.topic)}
         <details class="topic" open={!!lq.trim()}>
-          <summary><span class="title">{g.topic}</span> <span class="muted">{g.ls.length}</span></summary>
+          <summary><span class="title">{t(g.topic)}</span> <span class="muted">{g.ls.length}</span></summary>
           <ul>
             {#each g.ls as l (l.id)}
               <li>
-                <span class="prio p-{l.priority}">{l.priority ?? '–'}</span>
-                <span>{l.rule}{#if l.action}<small>→ {l.action}</small>{/if}<small class="muted">{l.source ?? ''}{l.confirmed ? ` · confirmed ${l.confirmed}×` : ''}</small></span>
+                <span class="prio p-{l.priority}">{l.priority ? t(l.priority) : '–'}</span>
+                <span>{l.rule}{#if l.action}<small>→ {l.action}</small>{/if}<small class="muted">{l.source ?? ''}{l.confirmed ? ` · ${t('confirmed {n}×', { n: l.confirmed })}` : ''}</small></span>
               </li>
             {/each}
           </ul>
         </details>
       {:else}
-        <p class="muted">{learnings.length ? 'Nothing matches.' : 'No learnings yet. They come from your Excel import and from every debrief.'}</p>
+        <p class="muted">{learnings.length ? t('Nothing matches.') : t('No learnings yet. They come from your Excel import and from every debrief.')}</p>
       {/each}
     </section>
   </div>

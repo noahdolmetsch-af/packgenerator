@@ -12,6 +12,7 @@
   import VisitDialog from '../lib/care/VisitDialog.svelte';
   import OrderDialog from '../lib/care/OrderDialog.svelte';
   import { withVisits, visitsOf, visitTotal, tyreSetup, timeDue, costByYear, costByPart, costPer1000, lastPrice, tripPrep, workshopOrder } from '../lib/workshop.js';
+  import { t, tn, num, locale } from '../lib/i18n.svelte.js';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -92,7 +93,7 @@
   let wished = $state({});
   async function wishTime(view, s) {
     const item = await wish(view, s.key);
-    wished = { ...wished, [`${view.id}.${s.key}`]: item ? 'On the wishlist' : 'Already on the wishlist' };
+    wished = { ...wished, [`${view.id}.${s.key}`]: item ? t('On the wishlist') : t('Already on the wishlist') };
   }
 
   /** Several parts at once (a 1000 km check, or a preparation task that covers them). */
@@ -107,7 +108,7 @@
   let kmMsg = $state('');
   async function saveKm(bike, text) {
     const n = text.trim() === '' ? null : Math.round(Number(text.replace(/['’,\s]/g, '')));
-    if (n !== null && !(n >= 0 && n <= 500000)) return (kmMsg = 'Type the km as a whole number, e.g. 12400.');
+    if (n !== null && !(n >= 0 && n <= 500000)) return (kmMsg = t('Type the km as a whole number, e.g. 12400.'));
     kmMsg = '';
     await db.bikes.update(bike.id, { km: n, kmDate: today });
   }
@@ -120,9 +121,9 @@
     if (bike && (result === 'ok' || result === 'done')) {
       // The check before the event also counts for the 1000 km check (answer 7).
       const keys = prepParts(row.task);
-      if (keys.length) await checkParts(bikeById[trip.bikeId], keys, 'check', `Before ${trip.title}`);
+      if (keys.length) await checkParts(bikeById[trip.bikeId], keys, 'check', t('Before {trip}', { trip: trip.title }));
       const svc = prepService(row.task);
-      if (svc) await checkParts(bikeById[trip.bikeId], [svc], 'service', `Before ${trip.title}`);
+      if (svc) await checkParts(bikeById[trip.bikeId], [svc], 'service', t('Before {trip}', { trip: trip.title }));
     }
   }
   const undoPrep = (trip, row) => {
@@ -150,62 +151,61 @@
   const orderOf = $derived(Object.fromEntries(checks.map((c) => [c.bike.id, c])));
   const bikeNames = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
   const chf = (n) => `CHF ${n.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const inDays = (d) => (d <= 0 ? (d === 0 ? 'due today' : `${-d} days overdue`) : d < 45 ? `in ${d} days` : `in ${Math.round(d / 30.4)} months`);
+  const inDays = (d) => (d <= 0 ? (d === 0 ? t('due today') : tn(-d, '{n} day overdue', '{n} days overdue')) : d < 45 ? tn(d, 'in {n} day', 'in {n} days') : tn(Math.round(d / 30.4), 'in {n} month', 'in {n} months'));
 
-  const fmtKm = (n) => (n == null ? '–' : `${n.toLocaleString('en')} km`);
-  const dueLabel = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  const dueLabel = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
   const PRIO = { high: 'High', medium: 'Medium', low: 'Low' };
 </script>
 
 <div class="care">
   <header class="head">
     <div class="tt">
-      <h1 class="title">Bike care</h1>
+      <h1 class="title">{t('Bike care')}</h1>
       <BikesNav current="care" />
     </div>
-    <div class="by" role="group" aria-label="Work done by">
-      <span class="lbl">Work done by</span>
-      <button type="button" class="toggle" aria-pressed={by === 'self'} onclick={() => setBy('self')}>Me</button>
-      <button type="button" class="toggle" aria-pressed={by === 'shop'} onclick={() => setBy('shop')}>Bike shop</button>
+    <div class="by" role="group" aria-label={t('Work done by')}>
+      <span class="lbl">{t('Work done by')}</span>
+      <button type="button" class="toggle" aria-pressed={by === 'self'} onclick={() => setBy('self')}>{t('Me')}</button>
+      <button type="button" class="toggle" aria-pressed={by === 'shop'} onclick={() => setBy('shop')}>{t('Bike shop')}</button>
     </div>
   </header>
 
   {#if !bikes.length && $bikesQ}
-    <p class="card">No bikes yet. Import your data on the <a href="#/">start page</a>.</p>
+    <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
   {:else}
     {#if overdue.length}
       <section class="due" aria-labelledby="due-h">
-        <h2 id="due-h" class="title">Due now <small>{overdue.length}</small></h2>
+        <h2 id="due-h" class="title">{t('Due now')} <small>{overdue.length}</small></h2>
         <ul>
           {#each overdue as o, n (n)}
             <li>
               {#if o.kind === 'prep'}
-                <span><b>{o.row.task.task}</b><small>{o.trip.title} · was due {dueLabel(o.row.due)}{o.row.needed ? ' · work needed' : ''}</small></span>
+                <span><b>{o.row.task.task}</b><small>{o.trip.title} · {t('was due {date}', { date: dueLabel(o.row.due) })}{o.row.needed ? ` · ${t('work needed')}` : ''}</small></span>
                 <span class="acts">
-                  <button type="button" class="btn sm hi" onclick={() => prepResult(o.trip, o.row, 'done')}>Done</button>
-                  {@render more(o.row.task.task, [{ name: 'Checked, all OK', run: () => prepResult(o.trip, o.row, 'ok') }, { name: 'Work needed', run: () => prepResult(o.trip, o.row, 'needed') }])}
+                  <button type="button" class="btn sm hi" onclick={() => prepResult(o.trip, o.row, 'done')}>{t('Done|task')}</button>
+                  {@render more(o.row.task.task, [{ name: t('Checked, all OK'), run: () => prepResult(o.trip, o.row, 'ok') }, { name: t('Work needed'), run: () => prepResult(o.trip, o.row, 'needed') }])}
                 </span>
               {:else if o.kind === 'check'}
-                <span><b>{o.bike.name}: {CHECK_KM.toLocaleString('en')} km check</b><small>{o.n} points due, see the bike below</small></span>
-                <button type="button" class="btn sm" onclick={() => document.getElementById(`care-${o.bike.id}`)?.scrollIntoView({ behavior: 'smooth' })}>Open</button>
+                <span><b>{o.bike.name}: {t('{km} km check', { km: num(CHECK_KM) })}</b><small>{tn(o.n, '{n} point due, see the bike below', '{n} points due, see the bike below')}</small></span>
+                <button type="button" class="btn sm" onclick={() => document.getElementById(`care-${o.bike.id}`)?.scrollIntoView({ behavior: 'smooth' })}>{t('Open')}</button>
               {:else if o.kind === 'time'}
-                <span><b>{o.bike.name}: {o.s.name}</b><small>last {o.s.last} · {inDays(o.s.days)}</small></span>
+                <span><b>{o.bike.name}: {o.s.name}</b><small>{t('last {date}', { date: o.s.last })} · {inDays(o.s.days)}</small></span>
                 <span class="acts">
-                  <button type="button" class="btn sm hi" onclick={() => checkParts(o.bike, [o.s.key], 'service', o.s.name)}>Done</button>
-                  {@render more(o.s.name, [{ name: 'Add to wishlist', run: () => wishTime(o.bike, o.s) }])}
+                  <button type="button" class="btn sm hi" onclick={() => checkParts(o.bike, [o.s.key], 'service', o.s.name)}>{t('Done|task')}</button>
+                  {@render more(o.s.name, [{ name: t('Add to wishlist'), run: () => wishTime(o.bike, o.s) }])}
                 </span>
               {:else}
-                <span><b>{o.bike.name}: {o.s.name}</b><small>{o.s.since} km since the last time (every {o.s.every} km)</small></span>
-                <button type="button" class="btn sm hi" onclick={() => checkParts(o.bike, [o.s.key], 'service')}>Done</button>
+                <span><b>{o.bike.name}: {o.s.name}</b><small>{t('{since} km since the last time (every {every} km)', { since: o.s.since, every: o.s.every })}</small></span>
+                <button type="button" class="btn sm hi" onclick={() => checkParts(o.bike, [o.s.key], 'service')}>{t('Done|task')}</button>
               {/if}
             </li>
           {/each}
         </ul>
         {#if checks.some((c) => c.order?.rows.length)}
           <p class="orders">
-            <span class="lbl">For the bike shop</span>
+            <span class="lbl">{t('For the bike shop')}</span>
             {#each checks.filter((c) => c.order?.rows.length) as c (c.bike.id)}
-              <button type="button" class="btn sm" onclick={() => (orderOpen = c.bike.id)}>Workshop order {c.bike.name} · about CHF {c.order.total}</button>
+              <button type="button" class="btn sm" onclick={() => (orderOpen = c.bike.id)}>{t('Workshop order {bike} · about CHF {chf}', { bike: c.bike.name, chf: c.order.total })}</button>
             {/each}
           </p>
         {/if}
@@ -215,35 +215,35 @@
     <!-- Design audit C2: one main button per row, the other answers behind •••. -->
     {#snippet more(label, actions)}
       <details class="more">
-        <summary aria-label="More answers for {label}">•••</summary>
+        <summary aria-label={t('More answers for {label}', { label })}>•••</summary>
         <div class="more-in">{#each actions as a (a.name)}<button type="button" class="btn sm" onclick={(ev) => (ev.currentTarget.closest('details').open = false, a.run())}>{a.name}</button>{/each}</div>
       </details>
     {/snippet}
 
     {#each trips as { trip, rules, rows, list, bike } (trip.id)}
       <section class="block" aria-labelledby="trip-{trip.id}" id="before-{trip.id}">
-        <h2 id="trip-{trip.id}" class="title">Before {trip.title} <small>{trip.startDate} · {bikeById[trip.bikeId]?.name ?? 'no bike'} · {list.rows.length ? `${list.rows.length} to do` : 'all done'}</small></h2>
+        <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} <small>{trip.startDate} · {bikeById[trip.bikeId]?.name ?? t('no bike')} · {list.rows.length ? t('{n} to do', { n: list.rows.length }) : t('all done')}</small></h2>
         {#if bike.length}
           <div class="shop">
-            <span class="lbl">The bike</span>
-            <ul>{#each bike as r (r.key)}<li class:late={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? 'on the trip · ' : ''}{r.detail}</small></li>{/each}</ul>
-            {#if orderOf[trip.bikeId]?.order?.rows.length}<button type="button" class="btn sm" onclick={() => (orderOpen = trip.bikeId)}>Workshop order · about CHF {orderOf[trip.bikeId].order.total}</button>{/if}
+            <span class="lbl">{t('The bike')}</span>
+            <ul>{#each bike as r (r.key)}<li class:late={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : ''}{r.detail}</small></li>{/each}</ul>
+            {#if orderOf[trip.bikeId]?.order?.rows.length}<button type="button" class="btn sm" onclick={() => (orderOpen = trip.bikeId)}>{t('Workshop order · about CHF {chf}', { chf: orderOf[trip.bikeId].order.total })}</button>{/if}
           </div>
         {/if}
         {#each rules as r (r.task.id)}
-          <p class="rule"><span class="lbl">{r.from <= today ? 'Rule now' : `Rule from ${dueLabel(r.from)}`}</span>{r.task.task}</p>
+          <p class="rule"><span class="lbl">{r.from <= today ? t('Rule now') : t('Rule from {date}', { date: dueLabel(r.from) })}</span>{r.task.task}</p>
         {/each}
         <ul class="rows">
           {#each rows as r (r.task.id)}
             <li class:done={r.finished} class:late={r.overdue} class:need={r.needed}>
               <span class="when num">{dueLabel(r.due)}</span>
-              <span class="txt">{r.task.task}{#if r.state}<small>{r.needed ? 'Work needed' : r.state.result === 'ok' ? 'OK' : 'Done'} · {r.state.date}{r.state.by === 'shop' ? ' · bike shop' : ''}</small>{/if}</span>
+              <span class="txt">{r.task.task}{#if r.state}<small>{r.needed ? t('Work needed') : r.state.result === 'ok' ? t('OK') : t('Done|task')} · {r.state.date}{r.state.by === 'shop' ? ` · ${t('bike shop')}` : ''}</small>{/if}</span>
               <span class="acts">
                 {#if r.finished}
-                  <button type="button" class="link" onclick={() => undoPrep(trip, r)}>Undo</button>
+                  <button type="button" class="link" onclick={() => undoPrep(trip, r)}>{t('Undo')}</button>
                 {:else}
-                  <button type="button" class="btn sm hi" onclick={() => prepResult(trip, r, 'done')}>Done</button>
-                  {@render more(r.task.task, [{ name: 'Checked, all OK', run: () => prepResult(trip, r, 'ok') }, { name: 'Work needed', run: () => prepResult(trip, r, 'needed') }])}
+                  <button type="button" class="btn sm hi" onclick={() => prepResult(trip, r, 'done')}>{t('Done|task')}</button>
+                  {@render more(r.task.task, [{ name: t('Checked, all OK'), run: () => prepResult(trip, r, 'ok') }, { name: t('Work needed'), run: () => prepResult(trip, r, 'needed') }])}
                 {/if}
               </span>
             </li>
@@ -253,26 +253,26 @@
     {/each}
 
     {#if reviewing && reviewQueue.length}
-      {@const t = reviewQueue[0]}
+      {@const rv = reviewQueue[0]}
       <section class="review card" aria-labelledby="rev-h">
         <div class="rev-head">
-          <h2 id="rev-h" class="title">Go through the June tasks</h2>
-          <span class="num">{review.length} left</span>
-          <button type="button" class="btn" onclick={() => (reviewing = false)}>Stop</button>
+          <h2 id="rev-h" class="title">{t('Go through the June tasks')}</h2>
+          <span class="num">{t('{n} left', { n: review.length })}</span>
+          <button type="button" class="btn" onclick={() => (reviewing = false)}>{t('Stop')}</button>
         </div>
-        <p class="cat">{bikeById[taskBike(t)]?.name ?? t.subject} · {t.category} · {PRIO[t.priority] ?? ''}</p>
-        <p class="name">{t.task}</p>
-        {#if t.note}<p class="sub">{t.note}</p>{/if}
+        <p class="cat">{bikeById[taskBike(rv)]?.name ?? rv.subject} · {rv.category} · {PRIO[rv.priority] ? t(PRIO[rv.priority]) : ''}</p>
+        <p class="name">{rv.task}</p>
+        {#if rv.note}<p class="sub">{rv.note}</p>{/if}
         <div class="row">
-          <button type="button" class="btn hi" onclick={() => repairResult(t, 'done')}>Done</button>
-          <button type="button" class="btn" onclick={() => repairResult(t, 'open')}>Still open</button>
-          <button type="button" class="btn" onclick={() => repairResult(t, 'needed')}>Work needed soon</button>
-          <button type="button" class="btn" onclick={() => repairResult(t, 'gone')}>Not needed any more</button>
-          <button type="button" class="link" onclick={() => (skipped = [...skipped.filter((x) => x !== t.id), t.id])}>Skip</button>
+          <button type="button" class="btn hi" onclick={() => repairResult(rv, 'done')}>{t('Done|task')}</button>
+          <button type="button" class="btn" onclick={() => repairResult(rv, 'open')}>{t('Still open')}</button>
+          <button type="button" class="btn" onclick={() => repairResult(rv, 'needed')}>{t('Work needed soon')}</button>
+          <button type="button" class="btn" onclick={() => repairResult(rv, 'gone')}>{t('Not needed any more')}</button>
+          <button type="button" class="link" onclick={() => (skipped = [...skipped.filter((x) => x !== rv.id), rv.id])}>{t('Skip')}</button>
         </div>
       </section>
     {:else if review.length}
-      <p class="card rev-cta">{review.length} tasks from the Excel (June) are not checked yet. <button type="button" class="btn hi" onclick={() => (reviewing = true)}>Go through them</button></p>
+      <p class="card rev-cta">{tn(review.length, '{n} task from the Excel (June) is not checked yet.', '{n} tasks from the Excel (June) are not checked yet.')} <button type="button" class="btn hi" onclick={() => (reviewing = true)}>{t('Go through them')}</button></p>
     {/if}
 
     {#each checks as { bike, check, tyres, time, mine, order } (bike.id)}
@@ -280,28 +280,28 @@
       {@const flags = check.due + bike.parts.filter(needsWork).length + repairsFor(bike.id).length}
       <details class="block bike" id="care-{bike.id}" open={flags > 0 || trips.some(({ trip }) => trip.bikeId === bike.id)}>
         <summary class="bike-h">
-          <h2 class="title">{bike.name}{#if flags}<span class="pill red">{flags} open</span>{/if}</h2>
+          <h2 class="title">{bike.name}{#if flags}<span class="pill red">{t('{n} open', { n: flags })}</span>{/if}</h2>
           <label class="km">
-            <span class="lbl">km now</span>
-            <input class="inp num" type="text" inputmode="numeric" value={bike.km ?? ''} placeholder="not set" onchange={(e) => saveKm(bike, e.currentTarget.value)} />
-            {#if bike.kmDate}<small>set {bike.kmDate}</small>{/if}
+            <span class="lbl">{t('km now')}</span>
+            <input class="inp num" type="text" inputmode="numeric" value={bike.km ?? ''} placeholder={t('not set')} onchange={(e) => saveKm(bike, e.currentTarget.value)} />
+            {#if bike.kmDate}<small>{t('set {date}', { date: bike.kmDate })}</small>{/if}
           </label>
         </summary>
         {#if kmMsg}<p class="err">{kmMsg}</p>{/if}
 
         <div class="cols">
           <div>
-            <h3>{CHECK_KM.toLocaleString('en')} km check {#if check.due}<span class="pill red">{check.due} due</span>{/if}</h3>
+            <h3>{t('{km} km check', { km: num(CHECK_KM) })} {#if check.due}<span class="pill red">{t('{n} due', { n: check.due })}</span>{/if}</h3>
             <ul class="checks">
               {#each check.rows as r (r.key)}
-                <li class:late={r.due}><span>{r.name}</span><span class="num m">{needsWork(bike.parts.find((p) => p.key === r.key)) ? 'work needed' : r.unknown ? (bike.km == null ? 'set km' : 'not recorded') : `${r.since.toLocaleString('en')} km ago`}</span></li>
+                <li class:late={r.due}><span>{r.name}</span><span class="num m">{needsWork(bike.parts.find((p) => p.key === r.key)) ? t('work needed') : r.unknown ? (bike.km == null ? t('set km') : t('not recorded')) : t('{km} km ago', { km: num(r.since) })}</span></li>
               {/each}
             </ul>
-            <button type="button" class="btn sm" onclick={() => checkParts(bike, check.rows.map((r) => r.key), 'check', `${CHECK_KM} km check`)}>All checked, OK</button>
-            <p class="hint">Something not OK? Open the part on the right and tap "Replace or work needed".</p>
+            <button type="button" class="btn sm" onclick={() => checkParts(bike, check.rows.map((r) => r.key), 'check', t('{km} km check', { km: CHECK_KM }))}>{t('All checked, OK')}</button>
+            <p class="hint">{t('Something not OK? Open the part on the right and tap "Replace or work needed".')}</p>
           </div>
           <div>
-            <h3>Parts</h3>
+            <h3>{t('Parts')}</h3>
             <ul class="parts">
               {#each bike.parts as part (part.key)}
                 {@const info = partInfo(part)}
@@ -310,11 +310,11 @@
                 {@const since = kmSince(bike, lastReplace(part))}
                 <li>
                   <button type="button" class="part" onclick={() => (partOpen = { bikeId: bike.id, key: part.key })}>
-                    <span class="pn">{info.name}{#if part.model}<small>{part.model}</small>{/if}</span>
+                    <span class="pn">{t(info.name)}{#if part.model}<small>{part.model}</small>{/if}</span>
                     <span class="pv num">
-                      {#if needsWork(part)}<span class="pill red">work needed</span>{/if}
+                      {#if needsWork(part)}<span class="pill red">{t('work needed')}</span>{/if}
                       {#if w}<span class="pill {w}">{v.value} {info.unit}</span>{:else if v}{v.value} {info.unit}{/if}
-                      {#if since != null && info.unit}<small>{since.toLocaleString('en')} km</small>{/if}
+                      {#if since != null && info.unit}<small>{num(since)} km</small>{/if}
                       {#if !part.history?.length}<small class="m">–</small>{/if}
                     </span>
                   </button>
@@ -326,41 +326,41 @@
 
         <div class="cols">
           <div>
-            <h3>Coming up</h3>
+            <h3>{t('Coming up')}</h3>
             <ul class="checks">
               {#each time as s (s.key)}
                 <li class:late={s.overdue}>
-                  <span>{s.name}<small>every {s.every >= 365 ? 'year' : `${Math.round(s.every / 30.4)} months`}</small></span>
-                  <span class="num m">{s.never ? 'not recorded' : `${s.next} · ${inDays(s.days)}`}</span>
+                  <span>{s.name}<small>{s.every >= 365 ? t('every year') : t('every {n} months', { n: Math.round(s.every / 30.4) })}</small></span>
+                  <span class="num m">{s.never ? t('not recorded') : `${s.next} · ${inDays(s.days)}`}</span>
                 </li>
               {/each}
             </ul>
             {#each time.filter((s) => s.overdue || (s.days != null && s.days <= 30)) as s (s.key)}
-              <p class="hint">{s.name}: <button type="button" class="link" onclick={() => wishTime(bike, s)}>add the parts to the wishlist</button>{#if wished[`${bike.id}.${s.key}`]} · {wished[`${bike.id}.${s.key}`]}{/if}</p>
+              <p class="hint">{s.name}: <button type="button" class="link" onclick={() => wishTime(bike, s)}>{t('add the parts to the wishlist')}</button>{#if wished[`${bike.id}.${s.key}`]} · {wished[`${bike.id}.${s.key}`]}{/if}</p>
             {/each}
-            <div class="tyres" role="group" aria-label="Tube or tubeless">
+            <div class="tyres" role="group" aria-label={t('Tube or tubeless')}>
               {#each [['front', 'Front'], ['rear', 'Rear']] as [w, label] (w)}
                 <span class="tw">
-                  <span class="lbl">{label}</span>
-                  <button type="button" class="toggle" aria-pressed={tyres[w] === 'tubeless'} onclick={() => setTyre(bikeById[bike.id], w, 'tubeless')}>Tubeless</button>
-                  <button type="button" class="toggle" aria-pressed={tyres[w] === 'tube'} onclick={() => setTyre(bikeById[bike.id], w, 'tube')}>Tube</button>
+                  <span class="lbl">{t(label)}</span>
+                  <button type="button" class="toggle" aria-pressed={tyres[w] === 'tubeless'} onclick={() => setTyre(bikeById[bike.id], w, 'tubeless')}>{t('Tubeless')}</button>
+                  <button type="button" class="toggle" aria-pressed={tyres[w] === 'tube'} onclick={() => setTyre(bikeById[bike.id], w, 'tube')}>{t('Tube')}</button>
                 </span>
               {/each}
             </div>
-            <p class="hint">Sealant is only due for tubeless wheels. Brakes are bled when the lever feels soft.</p>
+            <p class="hint">{t('Sealant is only due for tubeless wheels. Brakes are bled when the lever feels soft.')}</p>
           </div>
           <div>
-            <h3>Workshop {#if mine.length}<small>{mine.length} {mine.length === 1 ? 'visit' : 'visits'}</small>{/if}</h3>
+            <h3>{t('Workshop')} {#if mine.length}<small>{tn(mine.length, '{n} visit', '{n} visits')}</small>{/if}</h3>
             {#if order?.rows.length}
-              <p class="order"><button type="button" class="btn sm hi" onclick={() => (orderOpen = bike.id)}>Workshop order</button> <span>{order.rows.length} {order.rows.length === 1 ? 'job' : 'jobs'} · about CHF {order.total}{order.unknown ? ' + unknown' : ''}</span></p>
+              <p class="order"><button type="button" class="btn sm hi" onclick={() => (orderOpen = bike.id)}>{t('Workshop order')}</button> <span>{tn(order.rows.length, '{n} job', '{n} jobs')} · {t('about CHF {chf}', { chf: order.total })}{order.unknown ? ` + ${t('unknown')}` : ''}</span></p>
             {/if}
             {#if mine.length}
               <ul class="visits">
                 {#each mine as v (v.id)}
                   <li>
                     <button type="button" class="part" onclick={() => (visitOpen = v.id)}>
-                      <span class="pn">{v.date} · {v.shop}<small>{v.invoice ? `${v.invoice} · ` : ''}{(v.parts ?? []).length} jobs{v.km != null ? ` · ${v.km.toLocaleString('en')} km` : ''}{v.photos?.length ? ` · ${v.photos.length} receipt ${v.photos.length === 1 ? 'photo' : 'photos'}` : ''}</small></span>
-                      <span class="pv num">{visitTotal(v) == null ? 'cost unknown' : chf(visitTotal(v))}</span>
+                      <span class="pn">{v.date} · {v.shop}<small>{v.invoice ? `${v.invoice} · ` : ''}{tn((v.parts ?? []).length, '{n} job', '{n} jobs')}{v.km != null ? ` · ${num(v.km)} km` : ''}{v.photos?.length ? ` · ${tn(v.photos.length, '{n} receipt photo', '{n} receipt photos')}` : ''}</small></span>
+                      <span class="pv num">{visitTotal(v) == null ? t('cost unknown') : chf(visitTotal(v))}</span>
                     </button>
                   </li>
                 {/each}
@@ -369,26 +369,26 @@
               {@const top = costByPart(mine, 3)}
               {@const per = costPer1000(mine, bike)}
               <p class="costs">
-                {#each years as y (y.year)}<span><b>{y.year}</b> {y.unknown === y.visits ? 'cost unknown' : `${chf(y.chf)}${y.unknown ? ' + unknown' : ''}`}</span>{/each}
-                <span>{per?.chf != null ? `${chf(per.chf)} per 1000 km` : per?.wait ? `Cost per 1000 km after ${per.wait.toLocaleString('en')} more km` : 'Cost per 1000 km: add the km at a visit'}</span>
+                {#each years as y (y.year)}<span><b>{y.year}</b> {y.unknown === y.visits ? t('cost unknown') : `${chf(y.chf)}${y.unknown ? ` + ${t('unknown')}` : ''}`}</span>{/each}
+                <span>{per?.chf != null ? t('{chf} per 1000 km', { chf: chf(per.chf) }) : per?.wait ? t('Cost per 1000 km after {km} more km', { km: num(per.wait) }) : t('Cost per 1000 km: add the km at a visit')}</span>
               </p>
-              <p class="hint">Most: {top.map((r) => `${r.name} ${chf(r.chf)}`).join(' · ')}</p>
+              <p class="hint">{t('Most:')} {top.map((r) => `${r.name} ${chf(r.chf)}`).join(' · ')}</p>
             {:else}
-              <p class="hint">No workshop visits yet. Send Claude a photo of the receipt; it comes back as a file to import.</p>
+              <p class="hint">{t('No workshop visits yet. Send Claude a photo of the receipt; it comes back as a file to import.')}</p>
             {/if}
           </div>
         </div>
 
         {#if repairsFor(bike.id).length}
-          <h3>Repairs</h3>
+          <h3>{t('Repairs')}</h3>
           <ul class="rows">
-            {#each repairsFor(bike.id) as t (t.id)}
-              <li class:need={t.status === 'needed'}>
-                <span class="when">{PRIO[t.priority] ?? ''}</span>
-                <span class="txt">{t.task}{#if t.note}<small>{t.note}</small>{/if}</span>
+            {#each repairsFor(bike.id) as rp (rp.id)}
+              <li class:need={rp.status === 'needed'}>
+                <span class="when">{PRIO[rp.priority] ? t(PRIO[rp.priority]) : ''}</span>
+                <span class="txt">{rp.task}{#if rp.note}<small>{rp.note}</small>{/if}</span>
                 <span class="acts">
-                  <button type="button" class="btn sm hi" onclick={() => repairResult(t, 'done')}>Done</button>
-                  {@render more(t.task, [{ name: 'Work needed', run: () => repairResult(t, 'needed') }, { name: 'Not needed any more', run: () => repairResult(t, 'gone') }])}
+                  <button type="button" class="btn sm hi" onclick={() => repairResult(rp, 'done')}>{t('Done|task')}</button>
+                  {@render more(rp.task, [{ name: t('Work needed'), run: () => repairResult(rp, 'needed') }, { name: t('Not needed any more'), run: () => repairResult(rp, 'gone') }])}
                 </span>
               </li>
             {/each}
@@ -396,18 +396,18 @@
         {/if}
 
         <details class="log">
-          <summary>What was done when <small>{log.length}</small></summary>
+          <summary>{t('What was done when')} <small>{log.length}</small></summary>
           {#if log.length}
             <ol>
               {#each log as h, n (n)}
                 <li>
-                  <span class="num when">{h.date}{h.km != null ? ` · ${h.km.toLocaleString('en')} km` : ''}</span>
-                  <span><b>{h.what}</b>: {h.action === 'repair' ? 'done' : h.action === 'replace' ? (h.unit ? 'replaced' : 'done') : h.action === 'service' ? 'serviced' : h.result === 'needed' ? 'work needed' : 'checked, OK'}{h.value != null ? ` · ${h.value} ${h.unit}` : ''}{#each Object.keys(EXTRA).filter((k) => h[k] != null) as k (k)}{` · ${EXTRA[k].name.toLowerCase()} ${h[k]} ${EXTRA[k].unit}`}{/each}{h.by === 'shop' ? ' · bike shop' : ''}{h.note ? ` · ${h.note}` : ''}</span>
+                  <span class="num when">{h.date}{h.km != null ? ` · ${num(h.km)} km` : ''}</span>
+                  <span><b>{h.what}</b>: {h.action === 'repair' ? t('done') : h.action === 'replace' ? (h.unit ? t('replaced') : t('done')) : h.action === 'service' ? t('serviced') : h.result === 'needed' ? t('work needed') : t('checked, OK')}{h.value != null ? ` · ${h.value} ${h.unit}` : ''}{#each Object.keys(EXTRA).filter((k) => h[k] != null) as k (k)}{` · ${t(EXTRA[k].name.toLowerCase())} ${h[k]} ${EXTRA[k].unit}`}{/each}{h.by === 'shop' ? ` · ${t('bike shop')}` : ''}{h.note ? ` · ${h.note}` : ''}</span>
                 </li>
               {/each}
             </ol>
           {:else}
-            <p class="hint">Nothing recorded yet. The service photos will be the first entries.</p>
+            <p class="hint">{t('Nothing recorded yet. The service photos will be the first entries.')}</p>
           {/if}
         </details>
       </details>
@@ -415,15 +415,15 @@
 
     {#if otherRepairs.length}
       <section class="block" aria-labelledby="other-h">
-        <h2 id="other-h" class="title">Other</h2>
+        <h2 id="other-h" class="title">{t('Other')}</h2>
         <ul class="rows">
-          {#each otherRepairs as t (t.id)}
-            <li class:need={t.status === 'needed'}>
-              <span class="when">{t.subject}</span>
-              <span class="txt">{t.task}</span>
+          {#each otherRepairs as rp (rp.id)}
+            <li class:need={rp.status === 'needed'}>
+              <span class="when">{rp.subject}</span>
+              <span class="txt">{rp.task}</span>
               <span class="acts">
-                <button type="button" class="btn sm hi" onclick={() => repairResult(t, 'done')}>Done</button>
-                <button type="button" class="x" aria-label="Not needed any more: {t.task}" onclick={() => repairResult(t, 'gone')}>×</button>
+                <button type="button" class="btn sm hi" onclick={() => repairResult(rp, 'done')}>{t('Done|task')}</button>
+                <button type="button" class="x" aria-label={t('Not needed any more: {task}', { task: rp.task })} onclick={() => repairResult(rp, 'gone')}>×</button>
               </span>
             </li>
           {/each}

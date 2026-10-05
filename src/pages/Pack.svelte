@@ -25,6 +25,7 @@
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
+  import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -48,7 +49,7 @@
   const leave = (ids) => change((t) => leaveAtHome(t, ids));
   const keep = (id) => change((t) => keepOnTrip(t, id));
   const templates = $derived($tplQ?.value ?? []);
-  const fromTemplate = $derived(templates.find((t) => t.id === trip?.templateId) ?? null);
+  const fromTemplate = $derived(templates.find((x) => x.id === trip?.templateId) ?? null);
   let saveTpl = $state(takeFlag('pack.saveTemplate'));
   function takeFlag(key) {
     try {
@@ -151,17 +152,17 @@
   async function shareList() {
     const url = await shareLink(sharePayload($state.snapshot(trip), stats, itemsById));
     try {
-      if (navigator.share && phone.matches) await navigator.share({ title: `Packing list: ${trip.title}`, url });
+      if (navigator.share && phone.matches) await navigator.share({ title: t('Packing list: {title}', { title: trip.title }), url });
       else {
         await navigator.clipboard.writeText(url);
-        shareNote = 'Link copied. Paste it into a message; it opens a read-only list.';
+        shareNote = t('Link copied. Paste it into a message; it opens a read-only list.');
       }
     } catch (err) {
-      if (err?.name !== 'AbortError') shareNote = `Copy this link: ${url}`;
+      if (err?.name !== 'AbortError') shareNote = t('Copy this link: {url}', { url });
     }
     setTimeout(() => (shareNote = ''), 8000);
   }
-  const resetPacked = () => confirm('Untick every item, to pack again from the start?') && change((t) => ({ entries: t.entries.map((e) => ({ ...e, packed: false })) }));
+  const resetPacked = () => confirm(t('Untick every item, to pack again from the start?')) && change((t) => ({ entries: t.entries.map((e) => ({ ...e, packed: false })) }));
 
   let zoneKey = $state('seat'); // the bag that is open
   let tab = $state('pack'); // phone: pack | add | check
@@ -188,12 +189,12 @@
   // Noah's sketch (4.10.2026): big boxes per bag with what is inside, instead of small labels.
   const cards = $derived(
     (stats?.zones ?? []).map((z) => {
-      const names = z.entries.map((e) => itemsById[e.itemId]?.name ?? e.itemId);
+      const names = z.entries.map((e) => (itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId));
       const cap = z.bag?.volumeL || null;
       return {
         key: z.key,
-        title: trip?.purpose?.[z.key] || z.zone.name,
-        name: z.bag ? z.bag.name : z.zone.name,
+        title: trip?.purpose?.[z.key] || t(z.zone.name),
+        name: z.bag ? z.bag.name : t(z.zone.name),
         count: z.entries.length,
         grams: z.grams,
         names: names.slice(0, 4),
@@ -274,7 +275,7 @@
     setEntries((es) => [...es, { itemId, slot, qty: 1, packed: false }]);
   }
   const add = (itemId) => addTo(zone.key, itemId);
-  const targetName = $derived(zone ? (zone.noBag ? 'On me' : zone.bag ? zone.bag.name : zone.zone.name) : 'the trip');
+  const targetName = $derived(zone ? (zone.noBag ? t('On me') : zone.bag ? zone.bag.name : t(zone.zone.name)) : t('the trip'));
 
   // Drag an item from "Not packed", or a row from another bag, onto a bag in the list.
   let overList = $state(null);
@@ -307,7 +308,7 @@
     const order = Object.fromEntries(CATEGORIES.map((c, n) => [c.key, n]));
     const cat = (e) => itemsById[e.itemId]?.category;
     const sorted = [...z.entries].sort((a, b) => (order[cat(a)] ?? 99) - (order[cat(b)] ?? 99));
-    return sorted.map((e, n) => ({ e, head: n === 0 || cat(sorted[n - 1]) !== cat(e) ? CATEGORY[cat(e)]?.name ?? 'Other' : null }));
+    return sorted.map((e, n) => ({ e, head: n === 0 || cat(sorted[n - 1]) !== cat(e) ? t(CATEGORY[cat(e)]?.name ?? 'Other') : null }));
   }
 
   // How full the open bag is, in % (only when the bag has a volume).
@@ -342,14 +343,14 @@
     newCheck = '';
     change((t) => ({ ready: [...t.ready, { id: `own-${Date.now().toString(36)}`, label, done: false }] }));
   }
-  const resetReady = () => confirm('Use your standard ready check again for this trip?') && change(() => ({ ready: freshReady(standard) }));
+  const resetReady = () => confirm(t('Use your standard ready check again for this trip?')) && change(() => ({ ready: freshReady(standard) }));
   const readyChanged = $derived(ready.map((r) => r.label).join('|') !== freshReady(standard).map((r) => r.label).join('|'));
   // Answer 4: save this trip's list as the standard for every new trip.
   let savedNote = $state('');
   async function saveStandard() {
     const list = ready.filter((r) => !r.itemId).map((r, n) => ({ id: r.id.startsWith('own-') ? `std-${n}-${Date.now().toString(36)}` : r.id, label: r.label }));
     await db.settings.put({ key: 'readyStandard', value: list });
-    savedNote = 'Saved. New trips start with this list.';
+    savedNote = t('Saved. New trips start with this list.');
     setTimeout(() => (savedNote = ''), 4000);
   }
 
@@ -393,13 +394,13 @@
   // What a kind of ride adds, in words (Noah did not understand the drop-down, 4.10.2026).
   // Every ride < Daily < Training: each kind also brings what the ones before it bring.
   const rideHint = $derived.by(() => {
-    if (!trip?.ride) return 'Choose one: it adds what you take on that kind of ride.';
+    if (!trip?.ride) return t('Choose one: it adds what you take on that kind of ride.');
     const upTo = RIDES.slice(0, RIDES.findIndex((r) => r.key === trip.ride) + 1).map((r) => r.key);
-    const names = items.filter((i) => isInventory(i) && upTo.includes(i.ride)).map((i) => i.name);
-    return names.length ? `Adds: ${names.join(', ')}.` : 'No items set for this kind of ride yet (Gear → Edit → Layers).';
+    const names = items.filter((i) => isInventory(i) && upTo.includes(i.ride)).map((i) => nameOf(i));
+    return names.length ? t('Adds: {names}.', { names: names.join(', ') }) : t('No items set for this kind of ride yet (Gear → Edit → Layers).');
   });
   // Mockup answer 3a: a small label in "Not packed" says why an item is suggested.
-  const tagOf = (i) => suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (i.always ? 'every trip' : i.role === 'standard' || i.role === 'worn' ? 'standard' : '');
+  const tagOf = (i) => suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (i.always ? t('every trip') : i.role === 'standard' || i.role === 'worn' ? t('standard') : '');
   // Round D answer 5: take an alternative (mini lock) or nothing instead of the usual item.
   const pickLayer = (slot, value) => change((t) => ({ layerPick: { ...(t.layerPick ?? {}), [slot]: value === slot ? null : value } }));
   const addAllLayers = () => setEntries((es) => applyLayers(es, openLayers, slotOf));
@@ -424,52 +425,52 @@
     list: 'M6 4h8M6 8h8M6 12h8M2.5 4h.5M2.5 8h.5M2.5 12h.5',
   };
 
-  const kg = (g) => (g ? `${(g / 1000).toFixed(1)} kg` : '–');
+  const kg = (g) => (g ? `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg` : '–');
 </script>
 
 <div class="pack">
   {#if !trips.length && $tripsQ}
-    <h1 class="title big">Pack</h1>
-    <p class="card">No trips yet. Import your data on the <a href="#/">start page</a>, or <button type="button" class="btn hi" onclick={() => (dialog = { trip: null })}>Create a trip</button></p>
+    <h1 class="title big">{t('Pack')}</h1>
+    <p class="card">{t('No trips yet. Import your data on the')} <a href="#/">{t('start page')}</a>{t(', or')} <button type="button" class="btn hi" onclick={() => (dialog = { trip: null })}>{t('Create a trip')}</button></p>
   {:else if trip && stats}
     <!-- Answer 1a: title, facts and buttons in one row. -->
     <header class="head">
       <h1 class="title big">{trip.title}</h1>
       <p class="tags">
         {#if whenLabel(trip.startDate)}<span class="tag hi">{whenLabel(trip.startDate)}</span>{/if}
-        <span class="tag">{trip.days} {trip.days === 1 ? 'day' : 'days'}</span>
-        <span class="tag">{bike?.name ?? 'No bike'}</span>
-        {#if trip.skipped}<span class="tag">Not riding</span>{/if}
-        <button type="button" class="link" onclick={() => (dialog = { trip })}>Edit</button>
-        {#if !over && bikes.length > 1}<button type="button" class="link" onclick={() => (choosing = true)}>Compare bikes</button>{/if}
+        <span class="tag">{tn(trip.days, '{n} day', '{n} days')}</span>
+        <span class="tag">{bike?.name ?? t('No bike')}</span>
+        {#if trip.skipped}<span class="tag">{t('Not riding')}</span>{/if}
+        <button type="button" class="link" onclick={() => (dialog = { trip })}>{t('Edit')}</button>
+        {#if !over && bikes.length > 1}<button type="button" class="link" onclick={() => (choosing = true)}>{t('Compare bikes')}</button>{/if}
         <!-- v0.19.2 (question 10): a trip you will not ride stays, but is no "next trip" and no reminder. -->
-        <button type="button" class="link" onclick={() => change(() => ({ skipped: !trip.skipped }))}>{trip.skipped ? 'Riding it after all' : 'Not riding'}</button>
+        <button type="button" class="link" onclick={() => change(() => ({ skipped: !trip.skipped }))}>{trip.skipped ? t('Riding it after all') : t('Not riding')}</button>
       </p>
       <!-- Answer 5a: the templates as buttons; one click starts a new trip from it. -->
       {#if templates.length}
-        <p class="tpls" role="group" aria-label="Templates">
-          {#each templates as t (t.id)}
-            <button type="button" class="tpl" class:cur={t.id === fromTemplate?.id} title={t.id === fromTemplate?.id ? 'This trip comes from this template. Click for a new trip from it.' : 'New trip from this template'} onclick={() => (dialog = { trip: null, startFrom: t.id })}>{t.name}</button>
+        <p class="tpls" role="group" aria-label={t('Templates')}>
+          {#each templates as tp (tp.id)}
+            <button type="button" class="tpl" class:cur={tp.id === fromTemplate?.id} title={tp.id === fromTemplate?.id ? t('This trip comes from this template. Click for a new trip from it.') : t('New trip from this template')} onclick={() => (dialog = { trip: null, startFrom: tp.id })}>{tp.name}</button>
           {/each}
         </p>
       {/if}
       <div class="pick">
-        <select class="sel" aria-label="Open another trip" value={trip.id} onchange={(e) => choose(e.currentTarget.value)}>
-          {#each trips as t (t.id)}<option value={t.id}>{t.title}{t.startDate ? ` · ${t.startDate}` : ''}</option>{/each}
+        <select class="sel" aria-label={t('Open another trip')} value={trip.id} onchange={(e) => choose(e.currentTarget.value)}>
+          {#each trips as tr (tr.id)}<option value={tr.id}>{tr.title}{tr.startDate ? ` · ${tr.startDate}` : ''}</option>{/each}
         </select>
-        <button type="button" class="btn hi" onclick={() => (packDay = true)}>Packing day{#if stats.packed}<small class="num"> {stats.packed}/{stats.count}</small>{/if}</button>
-        <a class="btn" href="#/ride" onclick={() => choose(trip.id)}>Ride day</a>
+        <button type="button" class="btn hi" onclick={() => (packDay = true)}>{t('Packing day')}{#if stats.packed}<small class="num"> {stats.packed}/{stats.count}</small>{/if}</button>
+        <a class="btn" href="#/ride" onclick={() => choose(trip.id)}>{t('Ride day')}</a>
         {#snippet actions()}
-          <button type="button" class="btn" onclick={() => (dialog = { trip: null })}>New trip</button>
-          <button type="button" class="btn" onclick={() => (saveTpl = true)}>Save as template</button>
-          <a class="btn" href="#/pack/templates">Templates <small>{templates.length}</small></a>
-          <button type="button" class="btn" onclick={() => window.print()} title="In the print dialog choose Save as PDF">Print / PDF</button>
-          <button type="button" class="btn" onclick={shareList}>Share link</button>
-          {#if stats.packed}<button type="button" class="btn" onclick={resetPacked}>Untick packed items</button>{/if}
+          <button type="button" class="btn" onclick={() => (dialog = { trip: null })}>{t('New trip')}</button>
+          <button type="button" class="btn" onclick={() => (saveTpl = true)}>{t('Save as template')}</button>
+          <a class="btn" href="#/pack/templates">{t('Templates')} <small>{templates.length}</small></a>
+          <button type="button" class="btn" onclick={() => window.print()} title={t('In the print dialog choose Save as PDF')}>{t('Print / PDF')}</button>
+          <button type="button" class="btn" onclick={shareList}>{t('Share link')}</button>
+          {#if stats.packed}<button type="button" class="btn" onclick={resetPacked}>{t('Untick packed items')}</button>{/if}
         {/snippet}
         {#if phone.matches}
           <details class="menu">
-            <summary aria-label="More: new trip, templates, print">•••</summary>
+            <summary aria-label={t('More: new trip, templates, print')}>•••</summary>
             <div class="menu-in">{@render actions()}</div>
           </details>
         {:else}
@@ -484,53 +485,53 @@
     <!-- Design audit P1, P2: on a phone only System, Gear and Items show, the rest behind "More";
          in the Add tab the weights step aside so the items start higher up. -->
     {#if over}
-      <p class="debrief-cta">This trip is over. <a class="btn hi sm" href="#/debrief/{encodeURIComponent(trip.id)}">Start debrief</a><span class="muted">Two minutes: what you used, missed or did not need.</span></p>
+      <p class="debrief-cta">{t('This trip is over.')} <a class="btn hi sm" href="#/debrief/{encodeURIComponent(trip.id)}">{t('Start debrief')}</a><span class="muted">{t('Two minutes: what you used, missed or did not need.')}</span></p>
     {/if}
     {#if before?.rows.length}
       <section class="shop" aria-labelledby="shop-h">
-        <h2 id="shop-h"><span class="lbl">Before the trip</span> <small>{before.rows.length} to do{before.rows.some((r) => r.late) ? ` · ${before.rows.filter((r) => r.late).length} overdue` : ''}</small></h2>
+        <h2 id="shop-h"><span class="lbl">{t('Before the trip')}</span> <small>{t('{n} to do', { n: before.rows.length })}{before.rows.some((r) => r.late) ? ` · ${t('{n} overdue', { n: before.rows.filter((r) => r.late).length })}` : ''}</small></h2>
         <ul>
-          {#each beforeAll ? before.rows : before.rows.slice(0, SHOW) as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? 'on the trip · ' : ''}{r.detail}</small></li>{/each}
-          {#if !beforeAll && before.rows.length > SHOW}<li class="more-li"><button type="button" class="link" onclick={() => (beforeAll = true)}>{before.rows.length - SHOW} more</button></li>{/if}
+          {#each beforeAll ? before.rows : before.rows.slice(0, SHOW) as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : ''}{r.detail}</small></li>{/each}
+          {#if !beforeAll && before.rows.length > SHOW}<li class="more-li"><button type="button" class="link" onclick={() => (beforeAll = true)}>{t('{n} more', { n: before.rows.length - SHOW })}</button></li>{/if}
         </ul>
-        <a class="btn sm" href="#/care">Bike care</a>
+        <a class="btn sm" href="#/care">{t('Bike care')}</a>
       </section>
     {/if}
     {#if extra?.rows.length}
       <section class="ballast" aria-labelledby="ballast-h">
-        <h2 id="ballast-h"><span class="lbl">Ballast</span> <small class="num">{extra.totalG ? formatWeight(extra.totalG) : ''}{extra.unweighed ? `${extra.totalG ? ' + ' : ''}${extra.unweighed} not weighed` : ''} · not used the last times</small></h2>
+        <h2 id="ballast-h"><span class="lbl">{t('Ballast')}</span> <small class="num">{extra.totalG ? formatWeight(extra.totalG) : ''}{extra.unweighed ? `${extra.totalG ? ' + ' : ''}${t('{n} not weighed', { n: extra.unweighed })}` : ''} · {t('not used the last times')}</small></h2>
         <ul>
           {#each ballastAll ? extra.rows : extra.rows.slice(0, SHOW) as r (r.itemId)}
             <li>
-              <span class="b-nm"><b>{r.name}</b> <small title="Not used on {r.titles.join(', ')}">{r.n}× not used</small></span>
-              <span class="w num" class:nw={r.g == null}>{r.g == null ? 'not weighed' : formatWeight(r.g)}</span>
-              <button type="button" class="link" onclick={() => leave([r.itemId])}>Leave at home</button>
-              <button type="button" class="link quiet" title="Stays on this trip, the card stops asking" onclick={() => keep(r.itemId)}>Keep</button>
+              <span class="b-nm"><b>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name}</b> <small title={t('Not used on {trips}', { trips: r.titles.join(', ') })}>{t('{n}× not used', { n: r.n })}</small></span>
+              <span class="w num" class:nw={r.g == null}>{r.g == null ? t('not weighed') : formatWeight(r.g)}</span>
+              <button type="button" class="link" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button>
+              <button type="button" class="link quiet" title={t('Stays on this trip, the card stops asking')} onclick={() => keep(r.itemId)}>{t('Keep')}</button>
             </li>
           {/each}
-          {#if !ballastAll && extra.rows.length > SHOW}<li class="more-li"><button type="button" class="link" onclick={() => (ballastAll = true)}>{extra.rows.length - SHOW} more</button></li>{/if}
+          {#if !ballastAll && extra.rows.length > SHOW}<li class="more-li"><button type="button" class="link" onclick={() => (ballastAll = true)}>{t('{n} more', { n: extra.rows.length - SHOW })}</button></li>{/if}
         </ul>
-        {#if extra.rows.length > 1}<button type="button" class="btn sm" onclick={() => leave(extra.rows.map((r) => r.itemId))}>Leave all {extra.rows.length} at home{extra.totalG ? ` (−${formatWeight(extra.totalG)})` : ''}</button>{/if}
+        {#if extra.rows.length > 1}<button type="button" class="btn sm" onclick={() => leave(extra.rows.map((r) => r.itemId))}>{t('Leave all {n} at home', { n: extra.rows.length })}{extra.totalG ? ` (−${formatWeight(extra.totalG)})` : ''}</button>{/if}
       </section>
     {/if}
-    <section class="sys" class:short={phone.matches && !allWeights} class:away={phone.matches && tab === 'add'} aria-label="Weights">
+    <section class="sys" class:short={phone.matches && !allWeights} class:away={phone.matches && tab === 'add'} aria-label={t('Weights')}>
       {#snippet ic(name)}<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d={ICONS[name]} /></svg>{/snippet}
-      <div class="w1"><span class="lbl">System</span><b class="num">{kg(stats.systemG)}</b></div>
-      <div class="w1">{@render ic('bag')}<span class="lbl">Gear</span><b class="num">{formatWeight(stats.gearG)}</b></div>
-      <div class="w1 sec">{@render ic('me')}<span class="lbl">On me</span><b class="num">{formatWeight(stats.onMeG)}</b></div>
-      <div class="w1 sec">{@render ic('bags')}<span class="lbl">Bags</span><b class="num">{formatWeight(stats.bagsG)}</b></div>
-      <div class="w1 sec">{@render ic('bike')}<span class="lbl">Bike</span>{#if stats.missing.bike}<a class="nw" href="#/bikes">not weighed</a>{:else}<b class="num">{formatWeight(stats.bikeG)}</b>{/if}</div>
-      <div class="w1 sec">{@render ic('me')}<span class="lbl">Rider</span>{#if stats.missing.rider}<a class="nw" href="#/bikes">not set</a>{:else}<b class="num">{formatWeight(stats.riderG)}</b>{/if}</div>
-      {#if water}<div class="w1 sec">{@render ic('water')}<span class="lbl">Water</span><b class="num">{Math.round(water * 10) / 10} L</b></div>{/if}
-      <div class="w1 sec" title="Luggage on the front / rear wheel: {formatWeight(axle.front)} / {formatWeight(axle.rear)}">{@render ic('axle')}<span class="lbl">Front / rear</span><b class="num" class:warn={rearPct > rearLimit}>{rearPct != null ? `${100 - rearPct} / ${rearPct} %` : '–'}</b></div>
-      <div class="w1">{@render ic('list')}<span class="lbl">Items</span><b class="num">{stats.count}</b></div>
+      <div class="w1"><span class="lbl">{t('System')}</span><b class="num">{kg(stats.systemG)}</b></div>
+      <div class="w1">{@render ic('bag')}<span class="lbl">{t('Gear')}</span><b class="num">{formatWeight(stats.gearG)}</b></div>
+      <div class="w1 sec">{@render ic('me')}<span class="lbl">{t('On me')}</span><b class="num">{formatWeight(stats.onMeG)}</b></div>
+      <div class="w1 sec">{@render ic('bags')}<span class="lbl">{t('Bags')}</span><b class="num">{formatWeight(stats.bagsG)}</b></div>
+      <div class="w1 sec">{@render ic('bike')}<span class="lbl">{t('Bike')}</span>{#if stats.missing.bike}<a class="nw" href="#/bikes">{t('not weighed')}</a>{:else}<b class="num">{formatWeight(stats.bikeG)}</b>{/if}</div>
+      <div class="w1 sec">{@render ic('me')}<span class="lbl">{t('Rider')}</span>{#if stats.missing.rider}<a class="nw" href="#/bikes">{t('not set')}</a>{:else}<b class="num">{formatWeight(stats.riderG)}</b>{/if}</div>
+      {#if water}<div class="w1 sec">{@render ic('water')}<span class="lbl">{t('Water')}</span><b class="num">{num(Math.round(water * 10) / 10)} L</b></div>{/if}
+      <div class="w1 sec" title={t('Luggage on the front / rear wheel: {front} / {rear}', { front: formatWeight(axle.front), rear: formatWeight(axle.rear) })}>{@render ic('axle')}<span class="lbl">{t('Front / rear')}</span><b class="num" class:warn={rearPct > rearLimit}>{rearPct != null ? `${100 - rearPct} / ${rearPct} %` : '–'}</b></div>
+      <div class="w1">{@render ic('list')}<span class="lbl">{t('Items')}</span><b class="num">{stats.count}</b></div>
       {#if stats.unweighed}
-        <span class="nw">{stats.unweighed} not weighed</span>
-        {#if toWeigh}<button type="button" class="btn sm" onclick={() => (weighing = true)}>Weigh {toWeigh}</button>{/if}
+        <span class="nw">{t('{n} not weighed', { n: stats.unweighed })}</span>
+        {#if toWeigh}<button type="button" class="btn sm" onclick={() => (weighing = true)}>{t('Weigh {n}', { n: toWeigh })}</button>{/if}
       {/if}
-      {#if phone.matches}<button type="button" class="link morew" aria-expanded={allWeights} onclick={() => (allWeights = !allWeights)}>{allWeights ? 'Less' : 'More weights'}</button>{/if}
-      {#if canUndo}<button type="button" class="btn sm undo" onclick={undoLast} title="Put back the last change">↶ Undo</button>{/if}
-      {#if rearPct > rearLimit}<p class="sys-note warn">{rearPct} % of the luggage is on the rear wheel (hint above {rearLimit} %).</p>{/if}
+      {#if phone.matches}<button type="button" class="link morew" aria-expanded={allWeights} onclick={() => (allWeights = !allWeights)}>{allWeights ? t('Less') : t('More weights')}</button>{/if}
+      {#if canUndo}<button type="button" class="btn sm undo" onclick={undoLast} title={t('Put back the last change')}>↶ {t('Undo')}</button>{/if}
+      {#if rearPct > rearLimit}<p class="sys-note warn">{t('{pct} % of the luggage is on the rear wheel (hint above {limit} %).', { pct: rearPct, limit: rearLimit })}</p>{/if}
     </section>
 
     {#if choosing && choiceRows.length}
@@ -546,48 +547,48 @@
       <WeighMode items={tripItems} onclose={() => (weighing = false)} />
     {:else}
     {#if phone.matches}
-      <div class="tabs" role="tablist" aria-label="Show">
-        <button type="button" role="tab" aria-selected={tab === 'pack'} onclick={() => (tab = 'pack')}>Pack <small>{stats.count}</small></button>
-        <button type="button" role="tab" aria-selected={tab === 'add'} onclick={() => (tab = 'add')}>Add <small>{candidates.length}</small></button>
-        <button type="button" role="tab" aria-selected={tab === 'check'} onclick={() => (tab = 'check')}>Check <small>{readyCount}/{readyTotal}</small></button>
+      <div class="tabs" role="tablist" aria-label={t('Show')}>
+        <button type="button" role="tab" aria-selected={tab === 'pack'} onclick={() => (tab = 'pack')}>{t('Pack')} <small>{stats.count}</small></button>
+        <button type="button" role="tab" aria-selected={tab === 'add'} onclick={() => (tab = 'add')}>{t('Add')} <small>{candidates.length}</small></button>
+        <button type="button" role="tab" aria-selected={tab === 'check'} onclick={() => (tab = 'check')}>{t('Check|ready')} <small>{readyCount}/{readyTotal}</small></button>
       </div>
     {/if}
 
     {#snippet layers()}
-      <p class="hint">Suggestions only: nothing goes on the trip until you press Pack, Wear or Add all.</p>
-      <div class="ride" role="group" aria-label="Kind of ride">
-        <span class="lbl">Kind of ride</span>
+      <p class="hint">{t('Suggestions only: nothing goes on the trip until you press Pack, Wear or Add all.')}</p>
+      <div class="ride" role="group" aria-label={t('Kind of ride')}>
+        <span class="lbl">{t('Kind of ride')}</span>
         <div class="presets">
           {#each RIDES as r (r.key)}
-            <button type="button" class="toggle" aria-pressed={trip.ride === r.key} onclick={() => change(() => ({ ride: trip.ride === r.key ? null : r.key }))}>{r.name.replace(' ride', '')}</button>
+            <button type="button" class="toggle" aria-pressed={trip.ride === r.key} onclick={() => change(() => ({ ride: trip.ride === r.key ? null : r.key }))}>{t(r.name.replace(' ride', ''))}</button>
           {/each}
         </div>
         <p class="hint">{rideHint}</p>
       </div>
       <TripRoute {trip} onchange={change} />
-      <label class="hours"><span class="lbl">Riding hours{stageCount(trip) > 1 ? ' a day' : ''}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder="e.g. 6" /></label>
-      <p class="hint hrs">Bottles and food come in amounts per hour (e.g. 1 bottle per 3 h).</p>
+      <label class="hours"><span class="lbl">{stageCount(trip) > 1 ? t('Riding hours a day') : t('Riding hours')}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder={t('e.g. 6')} /></label>
+      <p class="hint hrs">{t('Bottles and food come in amounts per hour (e.g. 1 bottle per 3 h).')}</p>
       <!-- Design answer 6a: the weather folds away once it is set. -->
       <details class="wxbox" open={!wxSet}>
-        <summary>{wxSet ? `Weather: ${wx.min}–${wx.max} °C, ${RAIN[wx.rain ?? 'none'].toLowerCase()}` : 'Weather'}<span class="chg">{wxSet ? 'Change' : ''}</span></summary>
-        <div class="presets" role="group" aria-label="Weather presets">
+        <summary>{wxSet ? t('Weather: {min}–{max} °C, {rain}', { min: wx.min, max: wx.max, rain: t(RAIN[wx.rain ?? 'none']) }) : t('Weather')}<span class="chg">{wxSet ? t('Change') : ''}</span></summary>
+        <div class="presets" role="group" aria-label={t('Weather presets')}>
           {#each WX_PRESETS as p (p.name)}
-            <button type="button" class="toggle" aria-pressed={wx?.min === p.min && wx?.max === p.max} onclick={() => setWx({ min: p.min, max: p.max })}>{p.name} <small>{p.min}–{p.max}°</small></button>
+            <button type="button" class="toggle" aria-pressed={wx?.min === p.min && wx?.max === p.max} onclick={() => setWx({ min: p.min, max: p.max })}>{t(p.name)} <small>{p.min}–{p.max}°</small></button>
           {/each}
         </div>
         <div class="wxin">
           <label><span class="lbl">Min °C</span><input class="inp num" type="text" inputmode="numeric" value={wx?.min ?? ''} onchange={(e) => typedTemp('min', e.currentTarget.value)} /></label>
           <label><span class="lbl">Max °C</span><input class="inp num" type="text" inputmode="numeric" value={wx?.max ?? ''} onchange={(e) => typedTemp('max', e.currentTarget.value)} /></label>
-          <label><span class="lbl">Rain</span>
+          <label><span class="lbl">{t('Rain')}</span>
             <select class="sel" value={wx?.rain ?? 'none'} onchange={(e) => setWx({ rain: e.currentTarget.value })}>
-              {#each Object.entries(RAIN) as [k, v] (k)}<option value={k}>{v}</option>{/each}
+              {#each Object.entries(RAIN) as [k, v] (k)}<option value={k}>{t(v)}</option>{/each}
             </select>
           </label>
         </div>
       </details>
       {#if suggestion.length}
         <div class="sugg">
-          <p class="sugg-h"><b>Layers for this ride</b>{#if openLayers.length}<button type="button" class="btn sm hi" onclick={addAllLayers}>Add all {openLayers.length}</button>{:else}<span class="ok">All set</span>{/if}</p>
+          <p class="sugg-h"><b>{t('Layers for this ride')}</b>{#if openLayers.length}<button type="button" class="btn sm hi" onclick={addAllLayers}>{t('Add all {n}', { n: openLayers.length })}</button>{:else}<span class="ok">{t('All set')}</span>{/if}</p>
           <!-- Answer 5a: one title per rule; rows already done fold into one line. -->
           {#each layerGroups as g, n (n)}
             <div class="lg">
@@ -598,41 +599,41 @@
                     <li class:skip={r.skipped}>
                       <span class="nm">
                         {#if r.alts.length}
-                          <select class="sel alt" aria-label="Choose for {itemsById[r.slot]?.name}" value={r.skipped ? 'none' : r.id} onchange={(e) => pickLayer(r.slot, e.currentTarget.value)}>
-                            {#each r.alts as a (a)}<option value={a}>{itemsById[a]?.name}</option>{/each}
-                            <option value="none">None</option>
+                          <select class="sel alt" aria-label={t('Choose for {name}', { name: nameOf(itemsById[r.slot]) })} value={r.skipped ? 'none' : r.id} onchange={(e) => pickLayer(r.slot, e.currentTarget.value)}>
+                            {#each r.alts as a (a)}<option value={a}>{nameOf(itemsById[a])}</option>{/each}
+                            <option value="none">{t('None')}</option>
                           </select>
-                        {:else}{itemsById[r.id]?.name}{/if}{#if r.qty > 1}<small> × {r.qty}</small>{/if}
-                        {#if r.replaces}<small class="instead">instead of {itemsById[r.replaces]?.name}</small>{/if}
+                        {:else}{nameOf(itemsById[r.id])}{/if}{#if r.qty > 1}<small> × {r.qty}</small>{/if}
+                        {#if r.replaces}<small class="instead">{t('instead of {name}', { name: nameOf(itemsById[r.replaces]) })}</small>{/if}
                       </span>
-                      {#if r.skipped}<span class="ok muted">Skipped</span>{:else}<button type="button" class="btn sm" onclick={() => takeLayer(r)}>{r.replaces ? 'Swap' : r.place === 'wear' ? 'Wear' : 'Pack'}</button>{/if}
+                      {#if r.skipped}<span class="ok muted">{t('Skipped')}</span>{:else}<button type="button" class="btn sm" onclick={() => takeLayer(r)}>{r.replaces ? t('Swap') : r.place === 'wear' ? t('Wear') : t('Pack')}</button>{/if}
                     </li>
                   {/each}
                 </ul>
               {/if}
-              {#if g.done.length}<p class="lgd">✓ Done: {g.done.map((r) => itemsById[r.id]?.name).join(', ')}</p>{/if}
+              {#if g.done.length}<p class="lgd">✓ {t('Done: {names}', { names: g.done.map((r) => nameOf(itemsById[r.id])).join(', ') })}</p>{/if}
             </div>
           {/each}
         </div>
       {:else if trip.ride || (wx?.min != null && wx?.max != null) || wx?.rain === 'showers' || wx?.rain === 'rain'}
-        <p class="hint">Nothing to add. Set layers on your items in Gear (Edit → Layers).</p>
+        <p class="hint">{t('Nothing to add. Set layers on your items in Gear (Edit → Layers).')}</p>
       {/if}
     {/snippet}
 
     {#snippet night()}
-      <div class="sets" role="group" aria-label="Overnight sets">
+      <div class="sets" role="group" aria-label={t('Overnight sets')}>
         {#each NIGHT_SETS as ns (ns.key)}
-          <button type="button" class="toggle" aria-pressed={setOn(ns.key)} onclick={() => switchSet(ns.key)} disabled={!setCount(ns.key)} title={setCount(ns.key) ? '' : 'No items in this set yet. Tag them in Gear.'}>
-            {ns.name} <small>{setCount(ns.key)}</small>
+          <button type="button" class="toggle" aria-pressed={setOn(ns.key)} onclick={() => switchSet(ns.key)} disabled={!setCount(ns.key)} title={setCount(ns.key) ? '' : t('No items in this set yet. Tag them in Gear.')}>
+            {t(ns.name)} <small>{setCount(ns.key)}</small>
           </button>
         {/each}
       </div>
       <!-- Noah, 4.10.2026 (1b): what "Warm" brings is shown open. -->
       {#if warmItems.length}
         <details class="setlist" open>
-          <summary>Warm: {warmItems.length} items</summary>
+          <summary>{t('Warm')}: {tn(warmItems.length, '{n} item', '{n} items')}</summary>
           <ul>
-            {#each warmItems as i (i.id)}<li class:on={tripIds.has(i.id)}>{i.name}{#if tripIds.has(i.id)}<span class="ok"> ✓</span>{/if}</li>{/each}
+            {#each warmItems as i (i.id)}<li class:on={tripIds.has(i.id)}>{nameOf(i)}{#if tripIds.has(i.id)}<span class="ok"> ✓</span>{/if}</li>{/each}
           </ul>
         </details>
       {/if}
@@ -642,15 +643,15 @@
       <ul class="slots">
         {#each SLOTS.filter((s) => !bike || bike.slots?.includes(s.key)) as s (s.key)}
           <li>
-            <label for="ts-{s.key}">{s.name}</label>
+            <label for="ts-{s.key}">{t(s.name)}</label>
             <select id="ts-{s.key}" class="sel" value={trip.setup?.[s.key] ?? ''} onchange={(ev) => setBag(s.key, ev.currentTarget.value)}>
-              <option value="">No bag</option>
+              <option value="">{t('No bag')}</option>
               {#each bagsFor(s.key, bags) as o (o.id)}<option value={o.id}>{o.name}</option>{/each}
             </select>
           </li>
         {/each}
       </ul>
-      <p class="hint">Starts with the bags set on {bike?.name ?? 'the bike'} (Bikes page). Changes here only count for this trip.</p>
+      <p class="hint">{t('Starts with the bags set on {bike} (Bikes page). Changes here only count for this trip.', { bike: bike?.name ?? t('the bike') })}</p>
     {/snippet}
 
     {#snippet readyFull()}
@@ -660,21 +661,21 @@
           <li class:done>
             <label class="ck">
               <input type="checkbox" checked={done} disabled={!!r.itemId && done} onchange={() => toggleReady(r)} />
-              <span>{r.label}{#if r.itemId && !done}<small class="warn"> not on this trip, tick to add it</small>{/if}</span>
+              <span>{t(r.label)}{#if r.itemId && !done}<small class="warn"> {t('not on this trip, tick to add it')}</small>{/if}</span>
             </label>
-            <button type="button" class="x" aria-label="Remove {r.label} from this trip's check" onclick={() => removeReady(r.id)}>×</button>
+            <button type="button" class="x" aria-label={t("Remove {name} from this trip's check", { name: t(r.label) })} onclick={() => removeReady(r.id)}>×</button>
           </li>
         {/each}
       </ul>
       <form class="addcheck" onsubmit={addReady}>
-        <input class="inp" bind:value={newCheck} placeholder="Add a check for this trip" aria-label="Add a check for this trip" />
-        <button type="submit" class="btn">Add</button>
+        <input class="inp" bind:value={newCheck} placeholder={t('Add a check for this trip')} aria-label={t('Add a check for this trip')} />
+        <button type="submit" class="btn">{t('Add')}</button>
       </form>
       <p class="ready-acts">
-        {#if readyCount < readyTotal}<button type="button" class="btn hi" onclick={tickAllReady}>Tick all checks</button>{/if}
+        {#if readyCount < readyTotal}<button type="button" class="btn hi" onclick={tickAllReady}>{t('Tick all checks')}</button>{/if}
         {#if readyChanged}
-          <button type="button" class="btn" onclick={saveStandard}>Save as my standard</button>
-          <button type="button" class="link" onclick={resetReady}>Back to my standard list</button>
+          <button type="button" class="btn" onclick={saveStandard}>{t('Save as my standard')}</button>
+          <button type="button" class="link" onclick={resetReady}>{t('Back to my standard list')}</button>
         {/if}
       </p>
       {#if savedNote}<p class="ok" role="status">{savedNote}</p>{/if}
@@ -683,11 +684,11 @@
     {#snippet target()}
       <!-- Answer 2a: a calm line instead of a big orange field; the choice opens on "change". -->
       <label class="target">
-        <span>Adding to</span>
+        <span>{t('Adding to')}</span>
         <b>{targetName}</b>
-        <span class="tc">change</span>
-        <select value={zone?.key} onchange={(e) => (zoneKey = e.currentTarget.value)} aria-label="Bag that + adds to">
-          {#each targets as t (t.key)}<option value={t.key}>{t.bag ? t.bag.name : t.zone.name}</option>{/each}
+        <span class="tc">{t('change')}</span>
+        <select value={zone?.key} onchange={(e) => (zoneKey = e.currentTarget.value)} aria-label={t('Bag that + adds to')}>
+          {#each targets as tg (tg.key)}<option value={tg.key}>{tg.bag ? tg.bag.name : t(tg.zone.name)}</option>{/each}
         </select>
       </label>
     {/snippet}
@@ -697,9 +698,9 @@
         <div class="c-np">
           {#if phone.matches}
             <details class="ph-cond">
-              <summary>Ride, weather and night{#if openLayers.length}<small class="lab">{openLayers.length} layers to add</small>{/if}</summary>
+              <summary>{t('Ride, weather and night')}{#if openLayers.length}<small class="lab">{tn(openLayers.length, '{n} layer to add', '{n} layers to add')}</small>{/if}</summary>
               {@render layers()}
-              <h3 class="sub">Night</h3>
+              <h3 class="sub">{t('Night')}</h3>
               {@render night()}
             </details>
           {/if}
@@ -711,7 +712,7 @@
 
       {#if !phone.matches || tab === 'pack'}
         <div class="c-bag">
-          <PackStage {cards} photo={shot?.src ?? null} photoName={shot?.name ?? ''} onphoto={() => (shownPhoto = Math.max(0, gallery.findIndex((p) => p.id === shot?.id)))} strip={phone.matches} onpick={pick} ondropitem={phone.matches ? null : addTo} label="Bags on {bike?.name ?? 'the bike'}, tap one to open it" />
+          <PackStage {cards} photo={shot?.src ?? null} photoName={shot?.name ?? ''} onphoto={() => (shownPhoto = Math.max(0, gallery.findIndex((p) => p.id === shot?.id)))} strip={phone.matches} onpick={pick} ondropitem={phone.matches ? null : addTo} label={bike?.name ? t('Bags on {bike}, tap one to open it', { bike: bike.name }) : t('Bags on the bike, tap one to open it')} />
 
           <!-- Answer 3a (4.10.2026): under the boxes every bag as a list, items moved with "Move" or by dragging.
                On a phone only the bag chosen in the strip. -->
@@ -721,76 +722,76 @@
               {@const purpose = purposeOf(z.key)}
               <section class="bl" class:on={z.key === zone?.key} class:over={overList === z.key} id="bag-{z.key}" aria-label={purpose ?? zoneName(z)} ondragover={(ev) => listDragover(ev, z.key)} ondragleave={() => overList === z.key && (overList = null)} ondrop={(ev) => listDrop(ev, z.key)}>
                 <header class="bl-h">
-                  <h2 class="title">{purpose ?? z.zone.name}</h2>
+                  <h2 class="title">{purpose ?? t(z.zone.name)}</h2>
                   <span class="bn">{purpose ? zoneName(z) : z.bag && z.bag.name !== z.zone.name ? z.bag.name : ''}</span>
-                  <span class="m num">{z.entries.length} {z.entries.length === 1 ? 'item' : 'items'} · {z.grams || !z.entries.length ? formatWeight(z.grams) : 'not weighed'}{#if z.bag?.volumeL}{` · ${formatVolume(z.bag.volumeL)}`}{/if}</span>
+                  <span class="m num">{tn(z.entries.length, '{n} item', '{n} items')} · {z.grams || !z.entries.length ? formatWeight(z.grams) : t('not weighed')}{#if z.bag?.volumeL}{` · ${formatVolume(z.bag.volumeL)}`}{/if}</span>
                   <span class="bl-acts">
-                    <button type="button" class="link" onclick={() => (editPurpose = editPurpose === z.key ? null : z.key)}>{purpose ? 'Rename' : 'Name it'}</button>
+                    <button type="button" class="link" onclick={() => (editPurpose = editPurpose === z.key ? null : z.key)}>{purpose ? t('Rename') : t('Name it')}</button>
                     {#if !phone.matches && !z.noBag}
-                      <button type="button" class="btn sm" class:pressed={z.key === zone?.key} aria-pressed={z.key === zone?.key} onclick={() => (zoneKey = z.key)}>{z.key === zone?.key ? 'Adding here' : '+ Add here'}</button>
+                      <button type="button" class="btn sm" class:pressed={z.key === zone?.key} aria-pressed={z.key === zone?.key} onclick={() => (zoneKey = z.key)}>{z.key === zone?.key ? t('Adding here') : t('+ Add here')}</button>
                     {/if}
                   </span>
                 </header>
                 {#if editPurpose === z.key}
                   <form class="pname" onsubmit={(ev) => (ev.preventDefault(), savePurpose(z.key, new FormData(ev.currentTarget).get('p')))}>
                     <!-- svelte-ignore a11y_autofocus -->
-                    <input class="inp" name="p" value={purpose ?? ''} placeholder="What it is for, e.g. Quick access" aria-label="What {zoneName(z)} is for" autofocus />
-                    <button type="submit" class="btn sm">Save</button>
+                    <input class="inp" name="p" value={purpose ?? ''} placeholder={t('What it is for, e.g. Quick access')} aria-label={t('What {bag} is for', { bag: zoneName(z) })} autofocus />
+                    <button type="submit" class="btn sm">{t('Save')}</button>
                   </form>
                 {/if}
                 {#if zf != null}
                   <div class="fill" class:warn={tooFull(z)}>
-                    <div class="bar" role="img" aria-label="About {Math.round(zf)} % full">
+                    <div class="bar" role="img" aria-label={t('About {pct} % full', { pct: Math.round(zf) })}>
                       <span class="in" style:width="{Math.min(100, zf)}%"></span>
                       <span class="mark" style:left="{FILL_LIMIT * 100}%" title="{FILL_LIMIT * 100} %"></span>
                     </div>
-                    <span class="num">{formatVolume(z.vol)} of {formatVolume(z.bag.volumeL)}</span>
+                    <span class="num">{t('{vol} of {cap}', { vol: formatVolume(z.vol), cap: formatVolume(z.bag.volumeL) })}</span>
                   </div>
                 {/if}
                 {#if tooFull(z)}
                   {@const big = biggerBag(z, bags)}
                   <p class="warnbox soft">
-                    {z.vol > z.bag.volumeL ? 'Probably too full' : `Over ${FILL_LIMIT * 100} %, keep some room free`}: about {formatVolume(z.vol)} for {formatVolume(z.bag.volumeL)}.
-                    {#if big}<button type="button" class="btn sm" onclick={() => setBag(z.key, big.id)}>Take {big.name} ({formatVolume(big.volumeL)})</button>{/if}
+                    {z.vol > z.bag.volumeL ? t('Probably too full: about {vol} for {cap}.', { vol: formatVolume(z.vol), cap: formatVolume(z.bag.volumeL) }) : t('Over {pct} %, keep some room free: about {vol} for {cap}.', { pct: FILL_LIMIT * 100, vol: formatVolume(z.vol), cap: formatVolume(z.bag.volumeL) })}
+                    {#if big}<button type="button" class="btn sm" onclick={() => setBag(z.key, big.id)}>{t('Take {bag} ({vol})', { bag: big.name, vol: formatVolume(big.volumeL) })}</button>{/if}
                   </p>
                 {/if}
-                {#if z.noBag}<p class="warnbox">This trip has no bag here. Move these items or choose a bag in "Bags for this trip".</p>{/if}
+                {#if z.noBag}<p class="warnbox">{t('This trip has no bag here. Move these items or choose a bag in "Bags for this trip".')}</p>{/if}
                 <ul class="rows">
                   {#each rowsOf(z) as { e, head } (e.itemId)}
                     {@const it = itemsById[e.itemId]}
                     {#if head}<li class="cathead">{head}</li>{/if}
                     <li class="row" class:open={openRow === e.itemId} draggable={!phone.matches} ondragstart={(ev) => (ev.dataTransfer.setData('text/plain', e.itemId), (ev.dataTransfer.effectAllowed = 'copyMove'))} style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>
-                      <span class="nm">{it?.name ?? e.itemId}{#if (e.qty || 1) > 1}<small class="q"> × {e.qty}</small>{/if}{#if e.packed}<small class="in" title="In the bag (packing day)"> ✓</small>{/if}{#if badges[e.itemId]}<span class="bdgs">{#each badges[e.itemId] as b (b.key)}<button type="button" class="bdg {b.tone}" title={b.text} aria-expanded={openRow === e.itemId} onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>{b.label}</button>{/each}</span>{/if}</span>
-                      <span class="w num" class:nw={it?.weightG == null} title={it?.weightG == null ? 'not weighed' : undefined}>{it?.weightG == null ? '—' : formatWeight(it.weightG * (e.qty || 1))}</span>
-                      <button type="button" class="more" aria-expanded={openRow === e.itemId} aria-label="Amount{phone.matches ? ' or other bag' : ''} for {it?.name}" onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>⋯</button>
+                      <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<small class="q"> × {e.qty}</small>{/if}{#if e.packed}<small class="in" title={t('In the bag (packing day)')}> ✓</small>{/if}{#if badges[e.itemId]}<span class="bdgs">{#each badges[e.itemId] as b (b.key)}<button type="button" class="bdg {b.tone}" title={b.text} aria-expanded={openRow === e.itemId} onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>{b.label}</button>{/each}</span>{/if}</span>
+                      <span class="w num" class:nw={it?.weightG == null} title={it?.weightG == null ? t('not weighed') : undefined}>{it?.weightG == null ? '—' : formatWeight(it.weightG * (e.qty || 1))}</span>
+                      <button type="button" class="more" aria-expanded={openRow === e.itemId} aria-label={phone.matches ? t('Amount or other bag for {name}', { name: nameOf(it) }) : t('Amount for {name}', { name: nameOf(it) })} onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>⋯</button>
                       {#if !phone.matches}
-                        <select class="sel mv" aria-label="Move {it?.name} to" value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
-                          {#each targets as t (t.key)}<option value={t.key}>{t.key === e.slot ? 'Move' : (purposeOf(t.key) ?? (t.bag ? t.bag.name : t.zone.name))}</option>{/each}
-                          {#if z.noBag}<option value={z.key}>Move</option>{/if}
+                        <select class="sel mv" aria-label={t('Move {name} to', { name: nameOf(it) })} value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
+                          {#each targets as tg (tg.key)}<option value={tg.key}>{tg.key === e.slot ? t('Move') : (purposeOf(tg.key) ?? (tg.bag ? tg.bag.name : t(tg.zone.name)))}</option>{/each}
+                          {#if z.noBag}<option value={z.key}>{t('Move')}</option>{/if}
                         </select>
                       {/if}
-                      <button type="button" class="minus" aria-label="Take {it?.name} out of {zoneName(z)}" onclick={() => removeEntry(e.itemId)}>−</button>
+                      <button type="button" class="minus" aria-label={t('Take {name} out of {bag}', { name: nameOf(it), bag: zoneName(z) })} onclick={() => removeEntry(e.itemId)}>−</button>
                       {#if openRow === e.itemId}
                         {#if badges[e.itemId]}
-                          <span class="why">{#each badges[e.itemId] as b (b.key)}<span><b>{b.key === 'tip' ? 'Learning' : b.label}:</b> {b.text}</span>{/each}</span>
+                          <span class="why">{#each badges[e.itemId] as b (b.key)}<span><b>{b.key === 'tip' ? t('Learning') : b.label}:</b> {b.text}</span>{/each}</span>
                         {/if}
                         <span class="acts">
                           <span class="qty">
-                            <button type="button" aria-label="One less {it?.name}" disabled={(e.qty || 1) <= 1} onclick={() => setQty(e.itemId, (e.qty || 1) - 1)}>−</button>
+                            <button type="button" aria-label={t('One less {name}', { name: nameOf(it) })} disabled={(e.qty || 1) <= 1} onclick={() => setQty(e.itemId, (e.qty || 1) - 1)}>−</button>
                             <span class="num">{e.qty || 1}×</span>
-                            <button type="button" aria-label="One more {it?.name}" onclick={() => setQty(e.itemId, (e.qty || 1) + 1)}>+</button>
+                            <button type="button" aria-label={t('One more {name}', { name: nameOf(it) })} onclick={() => setQty(e.itemId, (e.qty || 1) + 1)}>+</button>
                           </span>
                           {#if phone.matches}
-                            <select class="sel mv" aria-label="Move {it?.name} to" value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
-                              {#each targets as t (t.key)}<option value={t.key}>{purposeOf(t.key) ?? (t.bag ? t.bag.name : t.zone.name)}</option>{/each}
-                              {#if z.noBag}<option value={z.key}>{z.zone.name} (no bag)</option>{/if}
+                            <select class="sel mv" aria-label={t('Move {name} to', { name: nameOf(it) })} value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
+                              {#each targets as tg (tg.key)}<option value={tg.key}>{purposeOf(tg.key) ?? (tg.bag ? tg.bag.name : t(tg.zone.name))}</option>{/each}
+                              {#if z.noBag}<option value={z.key}>{t('{name} (no bag)', { name: t(z.zone.name) })}</option>{/if}
                             </select>
                           {/if}
                         </span>
                       {/if}
                     </li>
                   {:else}
-                    <li class="drophint">{phone.matches ? 'Nothing in here yet. Add items in the Add tab.' : '+ Drop or add an item'}</li>
+                    <li class="drophint">{phone.matches ? t('Nothing in here yet. Add items in the Add tab.') : t('+ Drop or add an item')}</li>
                   {/each}
                 </ul>
               </section>
@@ -799,7 +800,7 @@
 
           {#if phone.matches}
             <details class="setup">
-              <summary>Bags for this trip</summary>
+              <summary>{t('Bags for this trip')}</summary>
               {@render bagChoice()}
             </details>
           {/if}
@@ -807,25 +808,25 @@
       {/if}
 
       {#if !phone.matches}
-        <aside class="c-side" aria-label="Ride and checks">
+        <aside class="c-side" aria-label={t('Ride and checks')}>
           <section class="box-s" aria-labelledby="cond-h">
-            <h2 id="cond-h" class="title">Ride and weather</h2>
+            <h2 id="cond-h" class="title">{t('Ride and weather')}</h2>
             {@render layers()}
           </section>
           <section class="box-s" aria-labelledby="night-h">
-            <h2 id="night-h" class="title">Night</h2>
+            <h2 id="night-h" class="title">{t('Night')}</h2>
             {@render night()}
           </section>
           <!-- Noah, 4.10.2026: the ready check is always folded; a click opens the whole list. -->
           <details class="box-s ready fold">
             <summary class="ready-h">
-              <span class="title">Ready check</span>
+              <span class="title">{t('Ready check')}</span>
               <span class="num m">{readyCount} / {readyTotal}</span>
             </summary>
             {@render readyFull()}
           </details>
           <details class="box-s setup">
-            <summary>Bags for this trip</summary>
+            <summary>{t('Bags for this trip')}</summary>
             {@render bagChoice()}
           </details>
         </aside>
@@ -834,7 +835,7 @@
       {#if phone.matches && tab === 'check'}
         <section class="ready" aria-labelledby="ready-h">
           <div class="ready-h">
-            <h2 id="ready-h" class="title">Ready check</h2>
+            <h2 id="ready-h" class="title">{t('Ready check')}</h2>
             <span class="num m">{readyCount} / {readyTotal}</span>
           </div>
           {@render readyFull()}
@@ -843,11 +844,11 @@
     </div>
     {#if phone.matches && tab === 'add' && zone}
       <div class="addbar">
-        <span class="t">Adding to <b>{targetName}</b>{#if fill != null}{' · '}{formatVolume(zone.vol)} of {formatVolume(zone.bag.volumeL)}{/if}</span>
+        <span class="t">{t('Adding to')} <b>{targetName}</b>{#if fill != null}{' · '}{t('{vol} of {cap}', { vol: formatVolume(zone.vol), cap: formatVolume(zone.bag.volumeL) })}{/if}</span>
         <label class="chg">
-          <span>Change bag</span>
-          <select value={zone.key} onchange={(e) => (zoneKey = e.currentTarget.value)} aria-label="Change the bag that + adds to">
-            {#each targets as t (t.key)}<option value={t.key}>{t.bag ? t.bag.name : t.zone.name}</option>{/each}
+          <span>{t('Change bag')}</span>
+          <select value={zone.key} onchange={(e) => (zoneKey = e.currentTarget.value)} aria-label={t('Change the bag that + adds to')}>
+            {#each targets as tg (tg.key)}<option value={tg.key}>{tg.bag ? tg.bag.name : t(tg.zone.name)}</option>{/each}
           </select>
         </label>
       </div>
@@ -855,15 +856,15 @@
     {/if}
     <section class="print" aria-hidden="true">
       <h1>{trip.title}</h1>
-      <p>{trip.startDate ?? ''} · {trip.days} {trip.days === 1 ? 'day' : 'days'} · {bike?.name ?? ''} · system weight {kg(stats.systemG)}</p>
+      <p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {bike?.name ?? ''} · {t('system weight {kg}', { kg: kg(stats.systemG) })}</p>
       {#each stats.zones.filter((z) => z.entries.length) as z (z.key)}
-        <h2>{zoneName(z)} <small>{z.entries.length} items · {formatWeight(z.grams)}</small></h2>
+        <h2>{zoneName(z)} <small>{tn(z.entries.length, '{n} item', '{n} items')} · {formatWeight(z.grams)}</small></h2>
         <ul>
-          {#each z.entries as e (e.itemId)}<li>☐ {itemsById[e.itemId]?.name ?? e.itemId}{(e.qty || 1) > 1 ? ` × ${e.qty}` : ''}</li>{/each}
+          {#each z.entries as e (e.itemId)}<li>☐ {itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId}{(e.qty || 1) > 1 ? ` × ${e.qty}` : ''}</li>{/each}
         </ul>
       {/each}
-      <h2>Ready check</h2>
-      <ul>{#each ready as r (r.id)}<li>☐ {r.label}</li>{/each}</ul>
+      <h2>{t('Ready check')}</h2>
+      <ul>{#each ready as r (r.id)}<li>☐ {t(r.label)}</li>{/each}</ul>
     </section>
   {/if}
 </div>
@@ -872,7 +873,7 @@
   <TripDialog trip={dialog.trip} {trips} {bikes} {items} {templates} startFrom={dialog.startFrom ?? 'last'} defaultBikeId={trip?.bikeId} onclose={() => (dialog = null)} oncreated={choose} />
 {/if}
 {#if saveTpl && trip}
-  <TemplateDialog {trip} {templates} onclose={() => (saveTpl = false)} onsaved={(name) => ((tplNote = `Saved as template "${name}".`), setTimeout(() => (tplNote = ''), 4000))} />
+  <TemplateDialog {trip} {templates} onclose={() => (saveTpl = false)} onsaved={(name) => ((tplNote = t('Saved as template "{name}".', { name })), setTimeout(() => (tplNote = ''), 4000))} />
 {/if}
 
 <style>

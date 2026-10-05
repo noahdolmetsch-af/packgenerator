@@ -2,6 +2,7 @@
  * Gear rules: categories, bags, labels and the calculations behind the Gear page.
  * Pure functions only (no database, no screen), so they are easy to test.
  */
+import { t } from './i18n.svelte.js';
 
 /** Categories in display order, with the Trail Journal colour of each. */
 export const CATEGORIES = [
@@ -57,7 +58,7 @@ export const itemWeight = (item) => (item.weightG == null ? null : item.weightG 
 
 /** 1234 → "1,234 g"; 12345 → "12.35 kg" */
 export function formatWeight(g) {
-  if (g == null) return 'not weighed';
+  if (g == null) return t('not weighed');
   // No trailing zeros: 64 kg, 1.5 kg, 1.23 kg (design review: "64.00 kg" looked odd).
   if (g >= 1000) return `${Number((g / 1000).toFixed(g >= 10000 ? 1 : 2))} kg`;
   return `${String(Math.round(g)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} g`;
@@ -113,7 +114,9 @@ export function matches(item, { q = '', category = '', role = '', fav = false } 
   if (role && role !== 'none' && role !== 'night' && item.role !== role) return false;
   const text = q.trim().toLowerCase();
   if (!text) return true;
-  const hay = [item.name, item.brand, item.model, item.id, item.nameDe, CATEGORY[item.category]?.name, BAG[item.defaultBag]]
+  const cat = CATEGORY[item.category]?.name;
+  const bag = BAG[item.defaultBag];
+  const hay = [item.name, item.brand, item.model, item.id, item.nameDe, cat, cat && t(cat), bag, bag && t(bag)]
     .filter(Boolean)
     .join(' ')
     .toLowerCase();

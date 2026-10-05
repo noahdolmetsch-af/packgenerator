@@ -6,6 +6,7 @@
    * and notes that go into the debrief. Works offline with what was saved last.
    */
   import { liveQuery } from 'dexie';
+  import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { db } from '../lib/db.js';
   import { nextTrip } from '../lib/debrief.js';
   import { tripStats } from '../lib/trips.js';
@@ -46,10 +47,13 @@
   const cur = $derived(Math.min(days - 1, day ?? (trip ? dayIndex(trip, today) : 0)));
   const st = $derived(trip ? stage(trip, cur, pace) : null);
   const dayLabel = (n) => {
-    if (!trip?.startDate) return `Day ${n + 1}`;
+    if (!trip?.startDate) return t('Day {n}', { n: n + 1 });
+    return t('Day {n} · {date}', { n: n + 1, date: dateOf(n) });
+  };
+  const dateOf = (n) => {
     const d = new Date(`${trip.startDate}T00:00:00`);
     d.setDate(d.getDate() + n);
-    return `Day ${n + 1} · ${d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'numeric' })}`;
+    return d.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' });
   };
 
   async function change(fields) {
@@ -96,7 +100,7 @@
       const rideWx = { ...($state.snapshot(trip.rideWx) ?? {}), [st.date]: wx };
       await change({ rideWx });
     } catch {
-      wxMsg = online ? 'The forecast could not be loaded. Try again later.' : 'No connection. The weather needs the internet; the last saved one stays.';
+      wxMsg = online ? t('The forecast could not be loaded. Try again later.') : t('No connection. The weather needs the internet; the last saved one stays.');
     }
     wxBusy = false;
   }
@@ -125,7 +129,7 @@
   const bp = $derived(plan.length ? blockPlan(plan, onTrip, { wxOf: blockHrs, place: st.from ?? trip.place ?? null, tripWx: trip.wx ?? null }) : null);
   const names = (list) => list.map((w) => `${w.name} (${w.place})`).join(', ');
   const setNonstop = (on) => change({ nonstop: on, rideStart: {} });
-  const dayName = (t) => new Date(`${t.slice(0, 10)}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'short' });
+  const dayName = (t) => new Date(`${t.slice(0, 10)}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short' });
   const dir = (pct) => (pct == null ? '' : `${Math.round(pct)} %`);
 
   /* ---------- notes for the debrief ---------- */
@@ -138,7 +142,7 @@
     if (!note.trim()) return;
     await db.debriefs.put(addRideNote(debrief ? $state.snapshot(debrief) : null, $state.snapshot(trip), note, cur));
     note = '';
-    noteMsg = 'Saved. It shows in the debrief.';
+    noteMsg = t('Saved. It shows in the debrief.');
     setTimeout(() => (noteMsg = ''), 4000);
   }
   async function dropNote(n) {
@@ -146,7 +150,7 @@
     d.rideNotes = d.rideNotes.filter((_, i) => i !== n);
     await db.debriefs.put(d);
   }
-  const time = (iso) => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const time = (iso) => new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
 
   // Keep the screen on while the page is open (where the browser allows it).
   $effect(() => {
@@ -170,80 +174,80 @@
 
 <div class="ride">
   {#if !trip}
-    {#if $tripsQ}<p class="card">No trip yet. Create one in <a href="#/pack">Pack</a>.</p>{/if}
+    {#if $tripsQ}<p class="card">{t('No trip yet. Create one in')} <a href="#/pack">{t('Pack')}</a>.</p>{/if}
   {:else}
     <header class="head">
-      <span class="lbl">Ride day</span>
+      <span class="lbl">{t('Ride day')}</span>
       <h1 class="title">{trip.title}</h1>
       {#if days > 1}
-        <nav class="days" aria-label="Days">
+        <nav class="days" aria-label={t('Days')}>
           {#each Array.from({ length: days }, (_, n) => n) as n (n)}
             <button type="button" class:cur={n === cur} aria-current={n === cur ? 'true' : undefined} onclick={() => (day = n)}>{dayLabel(n)}</button>
           {/each}
         </nav>
       {:else if trip.startDate}
-        <p class="sub">{dayLabel(0).replace('Day 1 · ', '')}</p>
+        <p class="sub">{dateOf(0)}</p>
       {/if}
     </header>
 
     <!-- Answer 4a: the day's stage. -->
     <section class="box" aria-labelledby="stage-h">
-      <h2 id="stage-h" class="h">{nonstop ? 'Nonstop' : days > 1 ? `Stage ${cur + 1}` : 'Stage'}</h2>
+      <h2 id="stage-h" class="h">{nonstop ? t('Nonstop') : days > 1 ? t('Stage {n}', { n: cur + 1 }) : t('Stage')}</h2>
       {#if st.km}
-        <label class="ns"><input type="checkbox" checked={nonstop} onchange={(e) => setNonstop(e.currentTarget.checked)} /> Nonstop: one stage through the night</label>
+        <label class="ns"><input type="checkbox" checked={nonstop} onchange={(e) => setNonstop(e.currentTarget.checked)} /> {t('Nonstop: one stage through the night')}</label>
       {/if}
       {#if st.km}
         <div class="nums">
-          <div><b class="num">{st.km}</b><span>km</span></div>
-          <div><b class="num">{st.gainM ?? '–'}</b><span>m up</span></div>
-          <div><b class="num">{st.hours}</b><span>h riding</span></div>
+          <div><b class="num">{num(st.km)}</b><span>km</span></div>
+          <div><b class="num">{st.gainM ?? '–'}</b><span>{t('m up')}</span></div>
+          <div><b class="num">{st.hours}</b><span>{t('h riding')}</span></div>
         </div>
         <div class="times">
-          <label>Start <input class="inp" type="time" value={st.start} onchange={(e) => setStart(e.currentTarget.value)} /></label>
-          <p>Arrive about <b class="num">{st.arrive}</b> <small>without breaks{pace.mine ? ', at your pace' : ''}</small></p>
-          {#if pace.stops && st.hours}<p>With your usual stops <b class="num">{addTime(st.start, st.hours * pace.stops)}</b></p>{/if}
+          <label>{t('Start')} <input class="inp" type="time" value={st.start} onchange={(e) => setStart(e.currentTarget.value)} /></label>
+          <p>{t('Arrive about')} <b class="num">{st.arrive}</b> <small>{pace.mine ? t('without breaks, at your pace') : t('without breaks')}</small></p>
+          {#if pace.stops && st.hours}<p>{t('With your usual stops')} <b class="num">{addTime(st.start, st.hours * pace.stops)}</b></p>{/if}
         </div>
-        {#if prof}<div class="prof"><Profile points={prof.points} from={days > 1 ? prof.from : null} to={prof.to} label={days > 1 ? `Elevation, stage ${cur + 1} dark` : 'Elevation'} /></div>
-        {:else}<p class="muted small">Load the GPX again in Pack to see the elevation profile.</p>{/if}
-        {#if days > 1 && !nonstop}<p class="muted small">The route is shared out evenly over {days} days{prof ? ' (dark: this stage)' : ''}.</p>{/if}
+        {#if prof}<div class="prof"><Profile points={prof.points} from={days > 1 ? prof.from : null} to={prof.to} label={days > 1 ? t('Elevation, stage {n} dark', { n: cur + 1 }) : t('Elevation')} /></div>
+        {:else}<p class="muted small">{t('Load the GPX again in Pack to see the elevation profile.')}</p>{/if}
+        {#if days > 1 && !nonstop}<p class="muted small">{prof ? t('The route is shared out evenly over {n} days (dark: this stage).', { n: days }) : t('The route is shared out evenly over {n} days.', { n: days })}</p>{/if}
       {:else}
-        <p class="muted">No route yet. Load the GPX in <a href="#/pack">Pack</a> under "Ride and weather".</p>
+        <p class="muted">{t('No route yet. Load the GPX in')} <a href="#/pack">{t('Pack')}</a> {t('under "Ride and weather".')}</p>
       {/if}
     </section>
 
     <!-- v0.19.5 (answer 4b): every block with clothing, food and drink, light, all at once. -->
     {#if bp}
       <section class="box" aria-labelledby="blocks-h">
-        <h2 id="blocks-h" class="h">Block by block</h2>
+        <h2 id="blocks-h" class="h">{t('Block by block')}</h2>
         <ol class="blocks">
           {#each bp.rows as b, n (b.startAt)}
             <li class:rest={b.rest}>
               <span class="bt num">{dayName(b.startAt)} {b.from}–{b.to}</span>
               <b>{b.name}</b>
-              <span class="bk num">{b.rest ? `stop at km ${b.kmTo}` : `km ${b.kmFrom}–${b.kmTo}`}</span>
-              {#if b.temp}<small class="bw">{b.temp.lo === b.temp.hi ? `${b.temp.lo} °C` : `${b.temp.lo}–${b.temp.hi} °C`} · {b.wet ? 'rain likely' : 'dry'}{b.wxFrom === 'trip' ? ' (trip weather, no hourly forecast yet)' : ''}</small>{/if}
+              <span class="bk num">{b.rest ? t('stop at km {km}', { km: b.kmTo }) : `km ${b.kmFrom}–${b.kmTo}`}</span>
+              {#if b.temp}<small class="bw">{b.temp.lo === b.temp.hi ? `${b.temp.lo} °C` : `${b.temp.lo}–${b.temp.hi} °C`} · {b.wet ? t('rain likely') : t('dry')}{b.wxFrom === 'trip' ? ` ${t('(trip weather, no hourly forecast yet)')}` : ''}</small>{/if}
               {#if b.note}<small class="bn">{b.note}</small>{/if}
               {#if !b.rest}
                 <dl class="bp">
-                  <dt>Wear</dt>
+                  <dt>{t('Wear')}</dt>
                   <dd>
                     {#if n === 0 || b.on.length || b.off.length}
-                      {#if n === 0}{b.wear.length ? `Start with ${names(b.wear)}` : 'Every-ride clothes'}{:else}
-                        {#if b.on.length}<span class="on">On: {names(b.on)}</span>{/if}
-                        {#if b.off.length}<span class="off">Off: {names(b.off)}</span>{/if}
+                      {#if n === 0}{b.wear.length ? t('Start with {list}', { list: names(b.wear) }) : t('Every-ride clothes')}{:else}
+                        {#if b.on.length}<span class="on">{t('On: {list}', { list: names(b.on) })}</span>{/if}
+                        {#if b.off.length}<span class="off">{t('Off: {list}', { list: names(b.off) })}</span>{/if}
                       {/if}
-                    {:else}<span class="muted">No change</span>{/if}
+                    {:else}<span class="muted">{t('No change')}</span>{/if}
                   </dd>
-                  <dt>Eat, drink</dt>
+                  <dt>{t('Eat, drink')}</dt>
                   <dd>
-                    {[...b.food.map((f) => `${f.n} × ${f.name}`), `about ${b.drinkL} L to drink`].join(' · ')}
-                    {#if b.refillKm.length}<span class="on">Refill at km {b.refillKm.join(', ')}</span>{/if}
-                    {#if b.food.some((f) => f.short)}<span class="warn">Not enough on the bike: from here on, buy {b.food.filter((f) => f.short).map((f) => `${f.short} × ${f.name}`).join(', ')} on the way</span>{/if}
+                    {[...b.food.map((f) => `${f.n} × ${f.name}`), t('about {n} L to drink', { n: b.drinkL })].join(' · ')}
+                    {#if b.refillKm.length}<span class="on">{t('Refill at km {list}', { list: b.refillKm.join(', ') })}</span>{/if}
+                    {#if b.food.some((f) => f.short)}<span class="warn">{t('Not enough on the bike: from here on, buy {list} on the way', { list: b.food.filter((f) => f.short).map((f) => `${f.short} × ${f.name}`).join(', ') })}</span>{/if}
                   </dd>
                   {#if b.light}
-                    <dt>Light</dt>
+                    <dt>{t('Light')}</dt>
                     <dd class:warn={!bp.lights.length}>
-                      {b.light.kind === 'on' ? `On from about ${b.light.at} (km ${b.light.km})` : b.light.kind === 'off' ? `On until about ${b.light.at} (km ${b.light.km})` : 'Dark the whole block'}{!bp.lights.length ? ' · no light on this trip' : n === 0 || b.light.kind === 'on' ? ` · ${names(bp.lights)}` : ''}
+                      {b.light.kind === 'on' ? t('On from about {time} (km {km})', { time: b.light.at, km: b.light.km }) : b.light.kind === 'off' ? t('On until about {time} (km {km})', { time: b.light.at, km: b.light.km }) : t('Dark the whole block')}{!bp.lights.length ? ` · ${t('no light on this trip')}` : n === 0 || b.light.kind === 'on' ? ` · ${names(bp.lights)}` : ''}
                     </dd>
                   {/if}
                 </dl>
@@ -251,30 +255,30 @@
             </li>
           {/each}
         </ol>
-        <p class="muted small">{nonstop && trip.plan?.schedule?.length ? 'Your time plan from the logbook.' : 'Blocks of 3 hours.'} km at {Math.round((st.km / st.hours) * 10) / 10} km/h, the same guess as the riding time{pace.mine ? ` (your pace from ${pace.n} rides)` : ''}. Drinking {DRINK_L_PER_H} L per hour ({DRINK_L_PER_H + HOT_EXTRA_L} L from {HOT_C} °C) is a guess{bp.capL ? `; your bottles hold ${Math.round(bp.capL * 10) / 10} L` : '; no bottle on this trip'}. Sunset and sunrise are computed for the start of the day.{saved ? '' : ' Load the forecast below for the weather per block.'}</p>
-        {#if nonstop && planHours(trip) > st.hours + 1}<p class="small warn">Your time plan has {Math.round(planHours(trip))} h of riding, the route about {st.hours} h. The plan ends where the route ends; is the GPX the whole route?</p>{/if}
+        <p class="muted small">{nonstop && trip.plan?.schedule?.length ? t('Your time plan from the logbook.') : t('Blocks of 3 hours.')} {t('km at {kmh} km/h, the same guess as the riding time', { kmh: Math.round((st.km / st.hours) * 10) / 10 })}{pace.mine ? ` ${tn(pace.n, '(your pace from {n} ride)', '(your pace from {n} rides)')}` : ''}. {t('Drinking {l} L per hour ({hot} L from {c} °C) is a guess', { l: DRINK_L_PER_H, hot: DRINK_L_PER_H + HOT_EXTRA_L, c: HOT_C })}{bp.capL ? t('; your bottles hold {n} L', { n: Math.round(bp.capL * 10) / 10 }) : t('; no bottle on this trip')}. {t('Sunset and sunrise are computed for the start of the day.')}{saved ? '' : ` ${t('Load the forecast below for the weather per block.')}`}</p>
+        {#if nonstop && planHours(trip) > st.hours + 1}<p class="small warn">{t('Your time plan has {plan} h of riding, the route about {route} h. The plan ends where the route ends; is the GPX the whole route?', { plan: Math.round(planHours(trip)), route: st.hours })}</p>{/if}
       </section>
     {/if}
 
     <!-- Answer 3a: the weather hour by hour, start and finish. Answer 5a: saved for offline. -->
     <section class="box" aria-labelledby="wx-h">
-      <h2 id="wx-h" class="h">Weather</h2>
+      <h2 id="wx-h" class="h">{t('Weather')}</h2>
       {#if !wxPlaces.length}
-        <p class="muted">No place yet. Add the start place or the GPX in <a href="#/pack">Pack</a>.</p>
+        <p class="muted">{t('No place yet. Add the start place or the GPX in')} <a href="#/pack">{t('Pack')}</a>.</p>
       {:else if tooEarly && !saved}
-        <p class="muted">The hourly forecast comes 16 days before the day.</p>
+        <p class="muted">{t('The hourly forecast comes {n} days before the day.', { n: FORECAST_DAYS })}</p>
       {:else}
         {#if saved}
           <div class="wx">
             {#each saved.places as p (p.name)}
               {@const hrs = rideHours(p.hours, st.startAt, st.endAt)}
               <div class="wxp">
-                <h3>{p.name}</h3>
+                <h3>{t(p.name)}</h3>
                 <p class="sum">{wxSummary(hrs)}</p>
                 <details class="hrs" open={!phoneSize}>
-                  <summary>Hour by hour</summary>
+                  <summary>{t('Hour by hour')}</summary>
                 <table>
-                  <thead><tr><th>h</th><th>°C</th><th>Rain</th><th>Wind</th></tr></thead>
+                  <thead><tr><th>h</th><th>°C</th><th>{t('Rain')}</th><th>{t('Wind')}</th></tr></thead>
                   <tbody>
                     {#each hrs as x (x.h)}
                       <tr class:wet={(x.rainMm ?? 0) >= 0.5 || (x.rainPct ?? 0) >= 50} class:newday={x.h === 0}><td class="num">{x.h === 0 || x === hrs[0] ? `${dayName(x.t)} ` : ''}{x.h}</td><td class="num">{x.temp != null ? Math.round(x.temp) : '–'}</td><td class="num">{x.rainMm ? `${x.rainMm} mm` : ''} <small>{dir(x.rainPct)}</small></td><td class="num">{x.wind != null ? Math.round(x.wind) : '–'}{#if x.gust != null && x.gust >= 30}<small> ({Math.round(x.gust)})</small>{/if}</td></tr>
@@ -287,8 +291,8 @@
           </div>
         {/if}
         <p class="wxbar">
-          {#if saved}<span class="muted">Loaded {ageText(saved.fetchedAt)}{online ? '' : ' · offline'}</span>{/if}
-          <button type="button" class="btn sm" disabled={wxBusy || !online} onclick={loadWx}>{wxBusy ? 'Loading …' : saved ? 'Update' : 'Load the forecast'}</button>
+          {#if saved}<span class="muted">{t('Loaded {ago}', { ago: ageText(saved.fetchedAt) })}{online ? '' : ` · ${t('offline')}`}</span>{/if}
+          <button type="button" class="btn sm" disabled={wxBusy || !online} onclick={loadWx}>{wxBusy ? t('Loading …') : saved ? t('Update') : t('Load the forecast')}</button>
         </p>
         {#if wxMsg}<p class="warn" role="status">{wxMsg}</p>{/if}
       {/if}
@@ -296,16 +300,16 @@
 
     <!-- Answer 7a: a note for the debrief. -->
     <section class="box" aria-labelledby="note-h">
-      <h2 id="note-h" class="h">Note for the debrief</h2>
+      <h2 id="note-h" class="h">{t('Note for the debrief')}</h2>
       <form class="noteform" onsubmit={saveNote}>
-        <textarea class="inp big" rows="2" bind:value={note} placeholder="e.g. Puncture at km 80, the rain gloves were too thin"></textarea>
-        <button type="submit" class="btn hi" disabled={!note.trim()}>Save note</button>
+        <textarea class="inp big" rows="2" bind:value={note} placeholder={t('e.g. Puncture at km 80, the rain gloves were too thin')}></textarea>
+        <button type="submit" class="btn hi" disabled={!note.trim()}>{t('Save note')}</button>
       </form>
       {#if noteMsg}<p class="ok" role="status">{noteMsg}</p>{/if}
       {#if notes.length}
         <ul class="notes">
           {#each notes as n, i (n.at)}
-            <li><small class="num">{days > 1 ? `Day ${n.day + 1} · ` : ''}{time(n.at)}</small><span>{n.text}</span><button type="button" class="link" onclick={() => dropNote(i)} aria-label="Remove this note">Remove</button></li>
+            <li><small class="num">{days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{time(n.at)}</small><span>{n.text}</span><button type="button" class="link" onclick={() => dropNote(i)} aria-label={t('Remove this note')}>{t('Remove')}</button></li>
           {/each}
         </ul>
       {/if}
@@ -313,18 +317,18 @@
 
     <!-- Answer 2b: every bag with what is in it. On a phone each bag folds (tap to open). -->
     <section class="box" aria-labelledby="where-h">
-      <h2 id="where-h" class="h">What is where</h2>
+      <h2 id="where-h" class="h">{t('What is where')}</h2>
       <div class="bags">
         {#each bags as z (z.key)}
           <details class="bag" open={!phoneSize}>
             <summary><b>{placeName(trip, z)}</b><span class="num">{z.entries.length}</span></summary>
-            <ul>{#each z.entries as e (e.itemId)}<li>{itemsById[e.itemId]?.name ?? e.itemId}{#if (e.qty || 1) > 1}<small> × {e.qty}</small>{/if}</li>{/each}</ul>
+            <ul>{#each z.entries as e (e.itemId)}<li>{itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId}{#if (e.qty || 1) > 1}<small> × {e.qty}</small>{/if}</li>{/each}</ul>
           </details>
         {/each}
       </div>
     </section>
 
-    <p class="back"><a class="btn" href="#/pack">Back to Pack</a></p>
+    <p class="back"><a class="btn" href="#/pack">{t('Back to Pack')}</a></p>
   {/if}
 </div>
 

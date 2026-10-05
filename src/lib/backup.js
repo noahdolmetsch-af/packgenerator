@@ -1,4 +1,5 @@
 import { DATA_TABLES, SCHEMA_VERSION } from './db.js';
+import { t } from './i18n.svelte.js';
 
 /**
  * Backup files: the whole app as one JSON file.
@@ -24,16 +25,16 @@ export async function buildBackup(db) {
  */
 export function validateBackup(data) {
   const problems = [];
-  if (!data || typeof data !== 'object') return ['The file is not a JSON object.'];
-  if (data.app !== APP_ID) problems.push('This is not a Pack Generator backup file.');
-  if (typeof data.schemaVersion !== 'number') problems.push('The file has no schema version.');
+  if (!data || typeof data !== 'object') return [t('The file is not a JSON object.')];
+  if (data.app !== APP_ID) problems.push(t('This is not a Pack Generator backup file.'));
+  if (typeof data.schemaVersion !== 'number') problems.push(t('The file has no schema version.'));
   else if (data.schemaVersion > SCHEMA_VERSION)
-    problems.push('The file comes from a newer version of the app. Update the app first.');
-  if (!data.tables || typeof data.tables !== 'object') problems.push('The file has no tables.');
+    problems.push(t('The file comes from a newer version of the app. Update the app first.'));
+  if (!data.tables || typeof data.tables !== 'object') problems.push(t('The file has no tables.'));
   else
     for (const [name, rows] of Object.entries(data.tables)) {
-      if (!DATA_TABLES.includes(name)) problems.push(`Unknown table "${name}".`);
-      else if (!Array.isArray(rows)) problems.push(`Table "${name}" is not a list.`);
+      if (!DATA_TABLES.includes(name)) problems.push(t('Unknown table "{name}".', { name }));
+      else if (!Array.isArray(rows)) problems.push(t('Table "{name}" is not a list.', { name }));
     }
   return problems;
 }

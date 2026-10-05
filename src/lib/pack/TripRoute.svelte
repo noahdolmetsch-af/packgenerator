@@ -16,6 +16,7 @@
   import { liveQuery } from 'dexie';
   import { paceOf, PACE_KEY } from '../pace.js';
   import { db } from '../db.js';
+  import { t, num, locale } from '../i18n.svelte.js';
 
   let { trip, onchange } = $props();
 
@@ -46,12 +47,12 @@
       const route = routeStats(parseGpx(await file.text()), file.name);
       routeMsg = '';
       // The route start becomes the weather place when there is none yet.
-      onchange((t) => ({ route, ...(t.place ? {} : { place: { name: route.name ? `Start of ${route.name}` : 'Route start', ...route.start } }) }));
+      onchange((tr) => ({ route, ...(tr.place ? {} : { place: { name: route.name ? t('Start of {name}', { name: route.name }) : t('Route start'), ...route.start } }) }));
     } catch (err) {
-      routeMsg = err.message || 'This file could not be read.';
+      routeMsg = err.message ? t(err.message) : t('This file could not be read.');
     }
   }
-  const dropRoute = () => confirm('Remove the route from this trip?') && onchange(() => ({ route: null }));
+  const dropRoute = () => confirm(t('Remove the route from this trip?')) && onchange(() => ({ route: null }));
 
   /* ---------- place ---------- */
   let q = $state('');
@@ -65,9 +66,9 @@
     placeMsg = '';
     try {
       found = await searchPlace(q);
-      if (!found.length) placeMsg = 'No place found. Try another spelling.';
+      if (!found.length) placeMsg = t('No place found. Try another spelling.');
     } catch {
-      placeMsg = 'No connection. Place search needs the internet.';
+      placeMsg = t('No connection. Place search needs the internet.');
     } finally {
       searching = false;
     }
@@ -98,7 +99,7 @@
       const forecast = await fetchForecast(place);
       onchange(() => ({ forecast }));
     } catch {
-      wxMsg = online ? 'The forecast could not be loaded. Try again later.' : 'Offline: showing the last saved forecast.';
+      wxMsg = online ? t('The forecast could not be loaded. Try again later.') : t('Offline: showing the last saved forecast.');
     } finally {
       loading = false;
     }
@@ -111,43 +112,43 @@
     const age = trip.forecast?.fetchedAt ? Date.now() - new Date(trip.forecast.fetchedAt) : Infinity;
     if (age > 3 * 36e5) load();
   });
-  const useWx = () => onchange((t) => ({ wx: { ...(t.wx ?? {}), ...suggested } }));
+  const useWx = () => onchange((tr) => ({ wx: { ...(tr.wx ?? {}), ...suggested } }));
 
-  const day = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric' });
-  const longDay = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  const day = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric' });
+  const longDay = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
 </script>
 
 <div class="rw">
   <div class="part">
-    <span class="lbl">Route</span>
+    <span class="lbl">{t('Route')}</span>
     {#if trip.route}
-      <p class="facts"><b>{trip.route.name || 'Route'}</b> <span class="num">{trip.route.km.toLocaleString('en')} km · ↑ {trip.route.gainM.toLocaleString('en')} m</span></p>
+      <p class="facts"><b>{trip.route.name || t('Route')}</b> <span class="num">{num(trip.route.km)} km · ↑ {num(trip.route.gainM)} m</span></p>
       {#if trip.route.profile?.length > 1}<Profile points={trip.route.profile} />{/if}
       <p class="acts">
         {#if hours != null}
-          {#if trip.hours === hours}<span class="ok">Riding hours: about {hours} h{stages > 1 ? ' a day' : ''}</span>
-          {:else}<button type="button" class="btn sm" onclick={() => onchange(() => ({ hours }))}>Use about {hours} h{stages > 1 ? ' a day' : ''} as riding hours</button>{/if}
+          {#if trip.hours === hours}<span class="ok">{stages > 1 ? t('Riding hours: about {h} h a day', { h: hours }) : t('Riding hours: about {h} h', { h: hours })}</span>
+          {:else}<button type="button" class="btn sm" onclick={() => onchange(() => ({ hours }))}>{stages > 1 ? t('Use about {h} h a day as riding hours', { h: hours }) : t('Use about {h} h as riding hours', { h: hours })}</button>{/if}
         {/if}
-        <label class="link">Other GPX<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
-        <button type="button" class="link" onclick={dropRoute}>Remove</button>
+        <label class="link">{t('Other GPX')}<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
+        <button type="button" class="link" onclick={dropRoute}>{t('Remove')}</button>
       </p>
-      {#if hours != null}<p class="hint">{#if pace.mine}Your pace from {pace.n} rides: {pace.kmh} km/h plus 1 h per {pace.climbMh} m climbing. <a href="#/debrief/pace">Change</a>{:else}Guess with luggage: {SPEED_KMH} km/h plus 1 h per {CLIMB_MH} m climbing. <a href="#/debrief/pace">Learn your pace</a>{/if}</p>{/if}
+      {#if hours != null}<p class="hint">{#if pace.mine}{t('Your pace from {n} rides: {kmh} km/h plus 1 h per {m} m climbing.', { n: pace.n, kmh: pace.kmh, m: pace.climbMh })} <a href="#/debrief/pace">{t('Change')}</a>{:else}{t('Guess with luggage: {kmh} km/h plus 1 h per {m} m climbing.', { kmh: SPEED_KMH, m: CLIMB_MH })} <a href="#/debrief/pace">{t('Learn your pace')}</a>{/if}</p>{/if}
     {:else}
-      <label class="btn sm">Add GPX route<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
-      <p class="hint">From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.</p>
+      <label class="btn sm">{t('Add GPX route')}<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
+      <p class="hint">{t('From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.')}</p>
     {/if}
     {#if routeMsg}<p class="warn" role="alert">{routeMsg}</p>{/if}
   </div>
 
   <div class="part">
-    <span class="lbl">Forecast</span>
+    <span class="lbl">{t('Forecast')}</span>
     {#if trip.place && !editPlace}
-      <p class="facts"><b>{trip.place.name}</b> <button type="button" class="link" onclick={() => (editPlace = true)}>Change place</button></p>
+      <p class="facts"><b>{trip.place.name}</b> <button type="button" class="link" onclick={() => (editPlace = true)}>{t('Change place')}</button></p>
     {:else}
       <form class="find" onsubmit={search}>
-        <input class="inp" bind:value={q} placeholder="Start place, e.g. Delémont" aria-label="Start place of the trip" />
-        <button type="submit" class="btn sm" disabled={searching || q.trim().length < 2}>Find</button>
-        {#if editPlace}<button type="button" class="link" onclick={() => ((editPlace = false), (found = []))}>Cancel</button>{/if}
+        <input class="inp" bind:value={q} placeholder={t('Start place, e.g. Delémont')} aria-label={t('Start place of the trip')} />
+        <button type="submit" class="btn sm" disabled={searching || q.trim().length < 2}>{t('Find')}</button>
+        {#if editPlace}<button type="button" class="link" onclick={() => ((editPlace = false), (found = []))}>{t('Cancel')}</button>{/if}
       </form>
       {#if found.length}
         <ul class="found">
@@ -161,21 +162,21 @@
       {#if days.length}
         <ul class="days">
           {#each days as d (d.date)}
-            <li><span>{day(d.date)}</span><b class="num">{Math.round(d.min)}–{Math.round(d.max)} °C</b><span class="num rain">{d.rainMm ? `${d.rainMm} mm` : 'dry'}{d.rainPct != null ? ` · ${d.rainPct} %` : ''}</span></li>
+            <li><span>{day(d.date)}</span><b class="num">{Math.round(d.min)}–{Math.round(d.max)} °C</b><span class="num rain">{d.rainMm ? `${d.rainMm} mm` : t('dry')}{d.rainPct != null ? ` · ${d.rainPct} %` : ''}</span></li>
           {/each}
         </ul>
         <p class="acts">
-          {#if same}<span class="ok">Packing for this forecast</span>
-          {:else}<button type="button" class="btn sm hi" onclick={useWx}>Pack for {suggested.min}–{suggested.max} °C, {RAIN[suggested.rain]}</button>{/if}
-          <button type="button" class="link" disabled={loading || !online} onclick={() => load()}>{loading ? 'Loading…' : 'Update'}</button>
+          {#if same}<span class="ok">{t('Packing for this forecast')}</span>
+          {:else}<button type="button" class="btn sm hi" onclick={useWx}>{t('Pack for {min}–{max} °C, {rain}', { min: suggested.min, max: suggested.max, rain: t(RAIN[suggested.rain]) })}</button>{/if}
+          <button type="button" class="link" disabled={loading || !online} onclick={() => load()}>{loading ? t('Loading…') : t('Update')}</button>
         </p>
-        <p class="hint">From Open-Meteo, {ageText(trip.forecast.fetchedAt)}{online ? '' : ' (offline)'}.</p>
+        <p class="hint">{online ? t('From Open-Meteo, {age}.', { age: ageText(trip.forecast.fetchedAt) }) : t('From Open-Meteo, {age} (offline).', { age: ageText(trip.forecast.fetchedAt) })}</p>
       {:else if !trip.startDate}
-        <p class="hint">Set a start date for the trip to get its forecast.</p>
+        <p class="hint">{t('Set a start date for the trip to get its forecast.')}</p>
       {:else if !reachable}
-        <p class="hint">{from > today ? `The forecast reaches this trip from ${longDay(from)} (16 days ahead).` : 'This trip is over.'}</p>
+        <p class="hint">{from > today ? t('The forecast reaches this trip from {date} (16 days ahead).', { date: longDay(from) }) : t('This trip is over.')}</p>
       {:else}
-        <p class="acts"><button type="button" class="btn sm" disabled={loading || !online} onclick={() => load()}>{loading ? 'Loading…' : 'Get forecast'}</button>{#if !online}<span class="hint">Needs the internet.</span>{/if}</p>
+        <p class="acts"><button type="button" class="btn sm" disabled={loading || !online} onclick={() => load()}>{loading ? t('Loading…') : t('Get forecast')}</button>{#if !online}<span class="hint">{t('Needs the internet.')}</span>{/if}</p>
       {/if}
       {#if wxMsg}<p class="warn" role="alert">{wxMsg}</p>{/if}
     {/if}

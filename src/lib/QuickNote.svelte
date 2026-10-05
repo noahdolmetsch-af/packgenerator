@@ -11,6 +11,7 @@
   import { nextTrip } from './debrief.js';
   import { sortBikes } from './bikes.js';
   import { shrinkImage } from './photo.js';
+  import { t } from './i18n.svelte.js';
 
   let { page = 'home', open = $bindable(false), prefill = '' } = $props();
 
@@ -46,7 +47,7 @@
     try {
       photo = await shrinkImage(file, 1200, 0.8);
     } catch (err) {
-      msg = err.message || 'This photo could not be read.';
+      msg = err.message || t('This photo could not be read.');
     } finally {
       reading = false;
     }
@@ -54,10 +55,10 @@
 
   async function save(event) {
     event.preventDefault();
-    if (!text.trim() && !photo) return (msg = 'Write a few words or add a photo.');
+    if (!text.trim() && !photo) return (msg = t('Write a few words or add a photo.'));
     const id = `note-${Date.now().toString(36)}`;
-    await db.notes.put(newNote({ text: text.trim() || 'Photo', photo, page, tripId: trip?.id ?? null, bikeId: bike }, { id, now: new Date().toISOString() }));
-    saved = 'Saved in the Inbox.';
+    await db.notes.put(newNote({ text: text.trim() || t('Photo'), photo, page, tripId: trip?.id ?? null, bikeId: bike }, { id, now: new Date().toISOString() }));
+    saved = t('Saved in the Inbox.');
     setTimeout(() => (saved = ''), 3000);
     dialog.close();
   }
@@ -71,32 +72,32 @@
   }
 </script>
 
-{#if saved}<p class="saved" role="status">{saved} <a href="#/inbox">Open</a></p>{/if}
+{#if saved}<p class="saved" role="status">{saved} <a href="#/inbox">{t('Open')}</a></p>{/if}
 
 <dialog class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="qn-h">
   <form onsubmit={save}>
-    <h2 id="qn-h" class="title">Quick note</h2>
+    <h2 id="qn-h" class="title">{t('Quick note')}</h2>
     <!-- svelte-ignore a11y_autofocus -->
-    <textarea class="inp" bind:value={text} rows="4" placeholder="e.g. Rear brake squeaks on the Spark" aria-label="Note" autofocus></textarea>
+    <textarea class="inp" bind:value={text} rows="4" placeholder={t('e.g. Rear brake squeaks on the Spark')} aria-label={t('Note')} autofocus></textarea>
     <div class="row">
-      <label class="btn sm">{reading ? 'Reading…' : photo ? 'Other photo' : '+ Photo'}<input type="file" accept="image/*" onchange={addPhoto} hidden disabled={reading} /></label>
-      {#if photo}<img class="th" src={photo} alt="Photo of the note" /><button type="button" class="link" onclick={() => (photo = null)}>Remove photo</button>{/if}
+      <label class="btn sm">{reading ? t('Reading…') : photo ? t('Other photo') : `+ ${t('Photo')}`}<input type="file" accept="image/*" onchange={addPhoto} hidden disabled={reading} /></label>
+      {#if photo}<img class="th" src={photo} alt={t('Photo of the note')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
     </div>
     <p class="ctx">
-      <span>{PAGE_NAMES[page] ?? page}</span>
-      {#if trip}<span>Next trip: {trip.title}</span>{/if}
-      <label>Bike
+      <span>{PAGE_NAMES[page] ? t(PAGE_NAMES[page]) : page}</span>
+      {#if trip}<span>{t('Next trip: {title}', { title: trip.title })}</span>{/if}
+      <label>{t('Bike')}
         <select class="sel mini" value={bike ?? ''} onchange={(e) => (bikeId = e.currentTarget.value || null)}>
-          <option value="">none</option>
+          <option value="">{t('none')}</option>
           {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
         </select>
       </label>
     </p>
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     <div class="foot">
-      <button type="submit" class="btn hi">Save</button>
-      <button type="button" class="link" onclick={() => dialog.close()}>Cancel</button>
-      <a class="link inb" href="#/inbox" onclick={() => dialog.close()}>Inbox{$openQ ? ` (${$openQ})` : ''}</a>
+      <button type="submit" class="btn hi">{t('Save')}</button>
+      <button type="button" class="link" onclick={() => dialog.close()}>{t('Cancel')}</button>
+      <a class="link inb" href="#/inbox" onclick={() => dialog.close()}>{t('Inbox')}{$openQ ? ` (${$openQ})` : ''}</a>
     </div>
   </form>
 </dialog>
@@ -180,7 +181,6 @@
     margin-left: auto;
   }
   @media print {
-    .qn,
     .saved {
       display: none;
     }

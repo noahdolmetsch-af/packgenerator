@@ -5,6 +5,7 @@
    */
   import { formatWeight } from '../gear.js';
   import { formatVolume } from '../bikes.js';
+  import { t, tn, num } from '../i18n.svelte.js';
 
   let { rows, trip, onpick, onclose } = $props();
   let dialog;
@@ -17,37 +18,37 @@
     onpick(r.bike);
     dialog.close();
   };
-  const chf = (n) => `CHF ${Math.round(n).toLocaleString('de-CH')}`;
+  const chf = (n) => `CHF ${num(Math.round(n))}`;
 </script>
 
 <dialog class="sheet wide" bind:this={dialog} onclose={onclose} aria-labelledby="choice-h">
   <p class="meta">{trip.title}</p>
-  <h2 id="choice-h" class="title">Which bike?</h2>
+  <h2 id="choice-h" class="title">{t('Which bike?')}</h2>
   <div class="grid">
     {#each rows as r (r.bike.id)}
       <section class="b" class:cur={r.current} aria-label={r.bike.name}>
-        <h3>{r.bike.name}{#if r.current}<span class="tag">this trip</span>{/if}</h3>
+        <h3>{r.bike.name}{#if r.current}<span class="tag">{t('this trip')}</span>{/if}</h3>
         <dl>
-          <dt>Bike + bags</dt>
-          <dd class="num">{r.totalG ? formatWeight(r.totalG) : 'not weighed'}{#if r.lightest}<span class="good">lightest</span>{/if}</dd>
-          <dt>Bags</dt>
+          <dt>{t('Bike + bags')}</dt>
+          <dd class="num">{r.totalG ? formatWeight(r.totalG) : t('not weighed')}{#if r.lightest}<span class="good">{t('lightest')}</span>{/if}</dd>
+          <dt>{t('Bags')}</dt>
           <dd class="num">
-            {formatVolume(r.volumeL)}{#if r.roomiest}<span class="good">most room</span>{/if}
-            {#if r.full}<small class="warn">your gear needs {formatVolume(r.gearL)}: tight</small>{:else if r.gearL != null}<small>your gear needs {formatVolume(r.gearL)}</small>{/if}
+            {formatVolume(r.volumeL)}{#if r.roomiest}<span class="good">{t('most room')}</span>{/if}
+            {#if r.full}<small class="warn">{t('your gear needs {vol}: tight', { vol: formatVolume(r.gearL) })}</small>{:else if r.gearL != null}<small>{t('your gear needs {vol}', { vol: formatVolume(r.gearL) })}</small>{/if}
           </dd>
-          <dt>Before the start</dt>
-          <dd class:warn={r.late}>{r.due ? `${r.due} to do${r.late ? `, ${r.late} overdue` : ''}` : 'nothing due'}</dd>
-          <dt>Per 1000 km</dt>
+          <dt>{t('Before the start')}</dt>
+          <dd class:warn={r.late}>{r.due ? (r.late ? t('{n} to do, {late} overdue', { n: r.due, late: r.late }) : t('{n} to do', { n: r.due })) : t('nothing due')}</dd>
+          <dt>{t('Per 1000 km')}</dt>
           <dd class="num">{r.per?.chf != null ? chf(r.per.chf) : '–'}</dd>
-          <dt>Trips before</dt>
+          <dt>{t('Trips before')}</dt>
           <dd class="num">{r.trips}</dd>
         </dl>
-        {#if !r.current}<button type="button" class="btn sm" onclick={() => pick(r)}>Use for this trip</button>{/if}
+        {#if !r.current}<button type="button" class="btn sm" onclick={() => pick(r)}>{t('Use for this trip')}</button>{/if}
       </section>
     {/each}
   </div>
-  <p class="hint">Another bike brings its own bags. Items in a place without a bag move to the seat pack. Undo puts it back.</p>
-  <div class="foot"><button type="button" class="btn" onclick={() => dialog.close()}>Close</button></div>
+  <p class="hint">{t('Another bike brings its own bags. Items in a place without a bag move to the seat pack. Undo puts it back.')}</p>
+  <div class="foot"><button type="button" class="btn" onclick={() => dialog.close()}>{t('Close')}</button></div>
 </dialog>
 
 <style>

@@ -4,6 +4,7 @@
    * used and not used, with the trend of the last trip against the ones before.
    */
   import { formatWeight } from '../gear.js';
+  import { t, tn, locale } from '../i18n.svelte.js';
   import { tripRows, trend } from '../insights.js';
 
   let { trips, debriefs, items } = $props();
@@ -12,33 +13,33 @@
   const max = $derived(Math.max(1, ...rows.map((r) => r.packedG)));
   const pct = (g) => `${(g / max) * 100}%`;
   const kg = (g) => `${(Math.abs(g) / 1000).toFixed(1)} kg`;
-  const fmtDate = (iso) => (iso ? new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '');
+  const fmtDate = (iso) => (iso ? new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { month: 'short', year: 'numeric' }) : '');
 </script>
 
 {#if rows.length}
   <section id="compare" aria-labelledby="cmp-h">
-    <h2 id="cmp-h" class="title h">Your trips compared <small class="muted">{rows.length} debriefs</small></h2>
+    <h2 id="cmp-h" class="title h">{t('Your trips compared')} <small class="muted">{tn(rows.length, '{n} debrief', '{n} debriefs')}</small></h2>
     <div class="card">
       {#if tr}
         <p class="lead">
-          {tr.last}: {tr.packedDiffG <= -100 ? `${kg(tr.packedDiffG)} lighter than` : tr.packedDiffG >= 100 ? `${kg(tr.packedDiffG)} heavier than` : 'about as heavy as'} the trips before on average,
-          with {tr.unusedDiffG <= -50 ? `${formatWeight(-tr.unusedDiffG)} less` : tr.unusedDiffG >= 50 ? `${formatWeight(tr.unusedDiffG)} more` : 'about as much'} gear not used ({tr.unusedShare} % of what you took).
+          {tr.packedDiffG <= -100 ? t('{trip}: {kg} lighter than the trips before on average,', { trip: tr.last, kg: kg(tr.packedDiffG) }) : tr.packedDiffG >= 100 ? t('{trip}: {kg} heavier than the trips before on average,', { trip: tr.last, kg: kg(tr.packedDiffG) }) : t('{trip}: about as heavy as the trips before on average,', { trip: tr.last })}
+          {tr.unusedDiffG <= -50 ? t('with {w} less gear not used ({pct} % of what you took).', { w: formatWeight(-tr.unusedDiffG), pct: tr.unusedShare }) : tr.unusedDiffG >= 50 ? t('with {w} more gear not used ({pct} % of what you took).', { w: formatWeight(tr.unusedDiffG), pct: tr.unusedShare }) : t('with about as much gear not used ({pct} % of what you took).', { pct: tr.unusedShare })}
         </p>
       {:else}
-        <p class="lead">After the next debrief you see here whether you pack better from trip to trip.</p>
+        <p class="lead">{t('After the next debrief you see here whether you pack better from trip to trip.')}</p>
       {/if}
-      <ul class="bars" aria-label="Gear per trip, used and not used">
+      <ul class="bars" aria-label={t('Gear per trip, used and not used')}>
         {#each rows as r (r.id)}
           <li>
-            <span class="t"><b>{r.title}</b> <small>{fmtDate(r.date)}{r.km ? ` · ${Math.round(r.km)} km` : ''}{r.missingN ? ` · ${r.missingN} missing` : ''}</small></span>
-            <span class="bar" role="img" aria-label="{formatWeight(r.packedG)} gear, {formatWeight(r.unusedG)} not used">
+            <span class="t"><b>{r.title}</b> <small>{fmtDate(r.date)}{r.km ? ` · ${Math.round(r.km)} km` : ''}{r.missingN ? ` · ${t('{n} missing', { n: r.missingN })}` : ''}</small></span>
+            <span class="bar" role="img" aria-label={t('{gear} gear, {unused} not used', { gear: formatWeight(r.packedG), unused: formatWeight(r.unusedG) })}>
               <i class="used" style:width={pct(r.packedG - r.unusedG)}></i><i class="un" style:width={pct(r.unusedG)}></i>
             </span>
-            <span class="v num">{formatWeight(r.packedG)}<small>{r.unusedG ? ` · ${formatWeight(r.unusedG)} not used` : ' · all used'}</small></span>
+            <span class="v num">{formatWeight(r.packedG)}<small>{r.unusedG ? ` · ${t('{w} not used', { w: formatWeight(r.unusedG) })}` : ` · ${t('all used')}`}</small></span>
           </li>
         {/each}
       </ul>
-      <p class="key small"><i class="used"></i> used <i class="un"></i> not used · gear with a known weight, food and water left out</p>
+      <p class="key small"><i class="used"></i> {t('used')} <i class="un"></i> {t('not used')} · {t('gear with a known weight, food and water left out')}</p>
     </div>
   </section>
 {/if}

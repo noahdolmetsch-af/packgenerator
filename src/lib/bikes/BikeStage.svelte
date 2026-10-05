@@ -5,7 +5,9 @@
    * onpick(key) is called when a box is tapped.
    * ondropitem(key, itemId): an item from "Not packed" was dragged onto a box (Pack page only).
    */
-  let { zones, onpick, ondropitem = null, label = 'Bike' } = $props();
+  import { t } from '../i18n.svelte.js';
+
+  let { zones, onpick, ondropitem = null, label = null } = $props();
   let over = $state(null); // the box an item is dragged over
 
   function dragover(event, key) {
@@ -26,7 +28,7 @@
   const pos = (b) => `left:${(b.x / 720) * 100}%;top:${(b.y / 420) * 100}%;width:${(b.w / 720) * 100}%;height:${(b.h / 420) * 100}%`;
 </script>
 
-<div class="stage" role="group" aria-label={label}>
+<div class="stage" role="group" aria-label={label ?? t('Bike')}>
   <div class="bike">
     <svg viewBox="0 0 720 420" preserveAspectRatio="none" aria-hidden="true">
       <path class="ground" d="M20 404 L700 404" />

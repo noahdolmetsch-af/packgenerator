@@ -3,6 +3,8 @@
    * Elevation profile of a route (v0.18.0, answer 4b). points: [[km, metres], …].
    * from/to (km): the part to stand out, e.g. today's stage; the rest stays pale.
    */
+  import { t } from '../i18n.svelte.js';
+
   let { points, from = null, to = null, label = 'Elevation profile' } = $props();
 
   const W = 400;
@@ -26,7 +28,7 @@
   });
 </script>
 
-<svg class="prof" viewBox="0 0 {W} {H}" role="img" aria-label="{label}: {lo} to {top} m over {Math.round(end)} km">
+<svg class="prof" viewBox="0 0 {W} {H}" role="img" aria-label={t('{label}: {lo} to {top} m over {km} km', { label: t(label), lo, top, km: Math.round(end) })}>
   <path d={all} class:pale={from != null} class="a" />
   {#if part}<path d={part} class="a cur" />{/if}
   <line x1={PAD.l} x2={W - PAD.r} y1={y(lo)} y2={y(lo)} class="ax" />

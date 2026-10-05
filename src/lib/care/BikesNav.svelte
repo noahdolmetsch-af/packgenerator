@@ -1,11 +1,13 @@
 <script>
   /** Switch between the bike setup and Bike care (both live under "Bikes"). */
+  import { t } from '../i18n.svelte.js';
+
   let { current } = $props();
 </script>
 
-<nav class="subnav" aria-label="Bikes">
-  <a href="#/bikes" aria-current={current === 'setup' ? 'page' : undefined}>Setup</a>
-  <a href="#/care" aria-current={current === 'care' ? 'page' : undefined}>Care</a>
+<nav class="subnav" aria-label={t('Bikes')}>
+  <a href="#/bikes" aria-current={current === 'setup' ? 'page' : undefined}>{t('Setup')}</a>
+  <a href="#/care" aria-current={current === 'care' ? 'page' : undefined}>{t('Care')}</a>
 </nav>
 
 <style>

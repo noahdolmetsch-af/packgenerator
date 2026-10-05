@@ -5,6 +5,7 @@
    * ride day. Each ride can be left out (e.g. a race without luggage). Saved in settings 'pace'.
    */
   import { liveQuery } from 'dexie';
+  import { t, tn, num } from '../i18n.svelte.js';
   import { db } from '../db.js';
   import { SPEED_KMH, CLIMB_MH } from '../route.js';
   import { PACE_KEY, rideTiming, learnPace, guessFor } from '../pace.js';
@@ -38,9 +39,9 @@
         else if (!list.some((x) => x.id === r.id)) list.push({ ...r, use: true }), added++;
       }
       await store(list);
-      msg = `${added} ${added === 1 ? 'ride' : 'rides'} added.${skipped.length ? ` Without times (planned routes?): ${skipped.join(', ')}.` : ''}`;
+      msg = tn(added, '{n} ride added.', '{n} rides added.') + (skipped.length ? ` ${t('Without times (planned routes?): {files}.', { files: skipped.join(', ') })}` : '');
     } catch (e) {
-      msg = `Could not read the file: ${e.message}`;
+      msg = t('Could not read the file: {error}', { error: e.message });
     } finally {
       busy = false;
     }
@@ -52,17 +53,17 @@
 </script>
 
 <section id="pace" aria-labelledby="pace-h">
-  <h2 id="pace-h" class="title h">Your pace <small class="muted">{pace ? `from ${pace.n} ${pace.n === 1 ? 'ride' : 'rides'}` : 'not learned yet'}</small></h2>
+  <h2 id="pace-h" class="title h">{t('Your pace')} <small class="muted">{pace ? tn(pace.n, 'from {n} ride', 'from {n} rides') : t('not learned yet')}</small></h2>
   <div class="card">
     {#if pace}
-      <p class="big"><b class="num">{pace.kmh} km/h</b> plus 1 h per <b class="num">{pace.climbMh} m</b> climbing</p>
-      <p class="muted">You need {Math.round(pace.factor * 100)} % of the standard guess ({SPEED_KMH} km/h, 1 h per {CLIMB_MH} m). Stops add about {Math.round((pace.stops - 1) * 100)} % to the riding time. Pack and the ride day use this now.</p>
+      <p class="big"><b class="num">{num(pace.kmh)} km/h</b> {t('plus 1 h per')} <b class="num">{num(pace.climbMh)} m</b> {t('climbing')}</p>
+      <p class="muted">{t('You need {pct} % of the standard guess ({kmh} km/h, 1 h per {m} m). Stops add about {stops} % to the riding time. Pack and the ride day use this now.', { pct: Math.round(pace.factor * 100), kmh: SPEED_KMH, m: CLIMB_MH, stops: Math.round((pace.stops - 1) * 100) })}</p>
     {:else}
-      <p>The riding hours are a standard guess: {SPEED_KMH} km/h plus 1 h per {CLIMB_MH} m climbing. Load a few of your recorded rides and the app learns how fast you really are.</p>
+      <p>{t('The riding hours are a standard guess: {kmh} km/h plus 1 h per {m} m climbing. Load a few of your recorded rides and the app learns how fast you really are.', { kmh: SPEED_KMH, m: CLIMB_MH })}</p>
     {/if}
     <p class="acts">
-      <label class="btn sm" class:hi={!pace}>{busy ? 'Reading …' : 'Add rides (GPX)'}<input type="file" accept=".gpx,application/gpx+xml" multiple onchange={pick} hidden disabled={busy} /></label>
-      <span class="muted small">Garmin Connect or Strava: a ride → Export GPX. Read on this device, nothing is uploaded.</span>
+      <label class="btn sm" class:hi={!pace}>{busy ? t('Reading …') : t('Add rides (GPX)')}<input type="file" accept=".gpx,application/gpx+xml" multiple onchange={pick} hidden disabled={busy} /></label>
+      <span class="muted small">{t('Garmin Connect or Strava: a ride → Export GPX. Read on this device, nothing is uploaded.')}</span>
     </p>
     {#if msg}<p class="small" role="status">{msg}</p>{/if}
     {#if rides.length}
@@ -70,12 +71,12 @@
         {#each rides as r (r.id)}
           <li class:off={r.use === false}>
             <label><input type="checkbox" checked={r.use !== false} onchange={() => toggle(r.id)} /> <b>{r.name}</b></label>
-            <span class="muted small">{r.date} · {r.km} km · ↑ {r.gainM} m · riding {hm(r.movingH)} h{r.totalH > r.movingH + 0.05 ? ` (${hm(r.totalH)} h with stops)` : ''}{pace ? ` · guess ${hm(guessFor(r, pace))} h` : ''}</span>
-            <button type="button" class="link small" onclick={() => drop(r.id)} aria-label="Remove {r.name}">Remove</button>
+            <span class="muted small">{r.date} · {r.km} km · ↑ {r.gainM} m · {t('riding {time} h', { time: hm(r.movingH) })}{r.totalH > r.movingH + 0.05 ? ` ${t('({time} h with stops)', { time: hm(r.totalH) })}` : ''}{pace ? ` · ${t('guess {time} h', { time: hm(guessFor(r, pace)) })}` : ''}</span>
+            <button type="button" class="link small" onclick={() => drop(r.id)} aria-label={t('Remove {name}', { name: r.name })}>{t('Remove')}</button>
           </li>
         {/each}
       </ul>
-      <p class="muted small">Untick a ride that does not fit, e.g. a race without luggage.</p>
+      <p class="muted small">{t('Untick a ride that does not fit, e.g. a race without luggage.')}</p>
     {/if}
   </div>
 </section>

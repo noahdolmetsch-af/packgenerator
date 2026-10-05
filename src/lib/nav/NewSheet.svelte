@@ -10,6 +10,7 @@
   import { sortBikes } from '../bikes.js';
   import { TEMPLATES_KEY } from '../templates.js';
   import { newTrip, addItem } from '../nav.js';
+  import { t, tn, num } from '../i18n.svelte.js';
 
   let { mode = $bindable(null), onnote } = $props();
 
@@ -37,9 +38,9 @@
   async function saveKm(event) {
     event.preventDefault();
     const n = Math.round(Number(String(km).replace(/['’,\s]/g, '')));
-    if (!kmBike || !(n >= 0 && n <= 500000) || km === '') return (kmMsg = 'Type the km as a whole number, e.g. 12400.');
+    if (!kmBike || !(n >= 0 && n <= 500000) || km === '') return (kmMsg = t('Type the km as a whole number, e.g. 12400.'));
     await db.bikes.update(kmBike.id, { km: n, kmDate: new Date().toISOString().slice(0, 10) });
-    kmMsg = `${kmBike.name}: ${n.toLocaleString('en')} km saved.`;
+    kmMsg = t('{bike}: {km} km saved.', { bike: kmBike.name, km: num(n) });
     km = '';
     setTimeout(close, 900);
   }
@@ -47,42 +48,42 @@
 
 <dialog class="sheet new" bind:this={dialog} onclose={() => ((mode = null), (kmMsg = ''))} aria-labelledby="new-h">
   <div class="top">
-    <h2 id="new-h" class="title">{mode === 'list' ? 'New packing list' : mode === 'km' ? 'km for a bike' : 'New'}</h2>
-    <button type="button" class="btn sm" onclick={close}>Close</button>
+    <h2 id="new-h" class="title">{mode === 'list' ? t('New packing list') : mode === 'km' ? t('km for a bike') : t('New')}</h2>
+    <button type="button" class="btn sm" onclick={close}>{t('Close')}</button>
   </div>
 
   {#if mode === 'list'}
     <ul class="opts">
-      {#each templates as t (t.id)}
-        <li><button type="button" class="opt" onclick={() => run(() => newTrip(t.id))}><b>From template</b><span>{t.name} · {t.entries?.length ?? 0} items</span></button></li>
+      {#each templates as tp (tp.id)}
+        <li><button type="button" class="opt" onclick={() => run(() => newTrip(tp.id))}><b>{t('From template')}</b><span>{tp.name} · {tn(tp.entries?.length ?? 0, '{n} item', '{n} items')}</span></button></li>
       {/each}
-      <li><button type="button" class="opt" onclick={() => run(() => newTrip('last'))}><b>Copy the last trip</b><span>The last trip on the bike you choose, with its bags and ready check</span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(() => newTrip('standard'))}><b>Standard set</b><span>Worn, standard pack and the items "On every trip"</span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(() => newTrip('last'))}><b>{t('Copy the last trip')}</b><span>{t('The last trip on the bike you choose, with its bags and ready check')}</span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(() => newTrip('standard'))}><b>{t('Standard set')}</b><span>{t('Worn, standard pack and the items "On every trip"')}</span></button></li>
     </ul>
-    <button type="button" class="link" onclick={() => (mode = 'all')}>Something else to create</button>
+    <button type="button" class="link" onclick={() => (mode = 'all')}>{t('Something else to create')}</button>
   {:else if mode === 'km'}
     <form class="km" onsubmit={saveKm}>
-      <label><span class="lbl">Bike</span>
+      <label><span class="lbl">{t('Bike')}</span>
         <select class="sel" value={kmBike?.id ?? ''} onchange={(e) => (bikeId = e.currentTarget.value)}>
-          {#each bikes as b (b.id)}<option value={b.id}>{b.name}{b.km != null ? ` · now ${b.km.toLocaleString('en')} km` : ''}</option>{/each}
+          {#each bikes as b (b.id)}<option value={b.id}>{b.name}{b.km != null ? ` · ${t('now {km} km', { km: num(b.km) })}` : ''}</option>{/each}
         </select>
       </label>
-      <label><span class="lbl">km on the counter</span>
+      <label><span class="lbl">{t('km on the counter')}</span>
         <!-- svelte-ignore a11y_autofocus -->
-        <input class="inp num" type="text" inputmode="numeric" bind:value={km} placeholder={kmBike?.km != null ? String(kmBike.km) : 'e.g. 2400'} autofocus />
+        <input class="inp num" type="text" inputmode="numeric" bind:value={km} placeholder={kmBike?.km != null ? String(kmBike.km) : t('e.g. 2400')} autofocus />
       </label>
-      <button type="submit" class="btn hi">Save km</button>
+      <button type="submit" class="btn hi">{t('Save km')}</button>
       {#if kmMsg}<p class="msg" role="status">{kmMsg}</p>{/if}
-      <p class="small">Or import your rides in Debrief: the km of a trip are added to its bike.</p>
+      <p class="small">{t('Or import your rides in Debrief: the km of a trip are added to its bike.')}</p>
     </form>
   {:else}
     <ul class="opts grid">
-      <li><button type="button" class="opt hi" onclick={() => (mode = 'list')}><b>Packing list</b><span>Template, copy or standard set</span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(addItem)}><b>Gear item</b><span>Name, weight, bag</span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><b>Quick note</b><span>Text or photo, sorted later</span></button></li>
-      <li><button type="button" class="opt" onclick={() => (mode = 'km')}><b>km for a bike</b><span>What the counter says</span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(() => onnote('Workshop receipt: '))}><b>Workshop visit</b><span>Photo of the receipt into the Inbox</span></button></li>
-      <li><a class="opt" href="#/pack/templates" onclick={close}><b>Template</b><span>From the open trip, in Templates</span></a></li>
+      <li><button type="button" class="opt hi" onclick={() => (mode = 'list')}><b>{t('Packing list')}</b><span>{t('Template, copy or standard set')}</span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(addItem)}><b>{t('Gear item')}</b><span>{t('Name, weight, bag')}</span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><b>{t('Quick note')}</b><span>{t('Text or photo, sorted later')}</span></button></li>
+      <li><button type="button" class="opt" onclick={() => (mode = 'km')}><b>{t('km for a bike')}</b><span>{t('What the counter says')}</span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(() => onnote(t('Workshop receipt: ')))}><b>{t('Workshop visit')}</b><span>{t('Photo of the receipt into the Inbox')}</span></button></li>
+      <li><a class="opt" href="#/pack/templates" onclick={close}><b>{t('Template')}</b><span>{t('From the open trip, in Templates')}</span></a></li>
     </ul>
   {/if}
 </dialog>

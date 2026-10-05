@@ -33,10 +33,14 @@ export function setLang(v) {
 
 const fill = (text, vars) => (vars ? text.replace(/\{(\w+)\}/g, (m, k) => (vars[k] ?? m)) : text);
 
-/** The text in the current language. vars fill {placeholders}. */
+/**
+ * The text in the current language. vars fill {placeholders}. 'Done|task' is "Done" in English
+ * with its own German word, for the few English words that need two German ones.
+ */
 export function t(en, vars) {
+  if (typeof en !== 'string') return en ?? '';
   const de = lang.v === 'de' ? DE[en] : null;
-  return fill(de ?? en, vars);
+  return fill(de ?? en.replace(/\|[a-z]+$/, ''), vars);
 }
 
 /** One or many: tn(n, '{n} item', '{n} items'). Both forms need a German entry. */

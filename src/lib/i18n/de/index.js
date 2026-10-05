@@ -6,5 +6,6 @@ import gear from './gear.js';
 import pack from './pack.js';
 import bikes from './bikes.js';
 import ride from './ride.js';
+import common from './common.js';
 
-export default { ...ride, ...bikes, ...gear, ...pack, ...shell };
+export default { ...ride, ...bikes, ...gear, ...pack, ...shell, ...common };

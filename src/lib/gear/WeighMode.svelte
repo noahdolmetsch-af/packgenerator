@@ -1,6 +1,7 @@
 <script>
   import { db } from '../db.js';
   import { weighQueue, parseGrams, CATEGORY, isInventory } from '../gear.js';
+  import { t, nameOf } from '../i18n.svelte.js';
 
   /** items = all items (live); one item at a time, like standing at the scale */
   let { items, onclose = null } = $props();
@@ -25,7 +26,7 @@
     event.preventDefault();
     const g = parseGrams(grams);
     if (g == null) {
-      error = 'Type the weight in whole grams, from 1 to 30,000.';
+      error = t('Type the weight in whole grams, from 1 to 30,000.');
       return;
     }
     // A pair (qty 2) is usually weighed together: store the weight of one piece.
@@ -48,47 +49,47 @@
 
 <section class="weigh" aria-labelledby="weigh-h">
   <div class="head">
-    <h2 id="weigh-h" class="title">To weigh</h2>
-    <span class="num">{queue.length} left{done ? ` · ${done} weighed now` : ''}</span>
-    {#if onclose}<button type="button" class="btn" onclick={onclose}>Done</button>{/if}
+    <h2 id="weigh-h" class="title">{t('To weigh')}</h2>
+    <span class="num">{t('{n} left', { n: queue.length })}{done ? ` · ${t('{n} weighed now', { n: done })}` : ''}</span>
+    {#if onclose}<button type="button" class="btn" onclick={onclose}>{t('Done')}</button>{/if}
   </div>
-  <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax={owned.length} aria-valuenow={weighed} aria-label="Weighed">
+  <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax={owned.length} aria-valuenow={weighed} aria-label={t('Weighed')}>
     <div class="pbar"><i style:width="{pct}%"></i></div>
-    <span class="num">{weighed} of {owned.length} weighed · {pct} %</span>
+    <span class="num">{t('{a} of {b} weighed', { a: weighed, b: owned.length })} · {pct} %</span>
   </div>
 
   {#if current}
     <div class="wrap">
     <form class="card" onsubmit={save} novalidate>
-      <p class="cat"><span class="sw" style:background={CATEGORY[current.category]?.color}></span>{CATEGORY[current.category]?.name} · {current.id}</p>
-      <p class="name">{current.name}</p>
+      <p class="cat"><span class="sw" style:background={CATEGORY[current.category]?.color}></span>{t(CATEGORY[current.category]?.name ?? '')} · {current.id}</p>
+      <p class="name">{nameOf(current)}</p>
       {#if current.brand}<p class="sub">{current.brand}</p>{/if}
-      {#if current.qty > 1}<p class="sub">Weigh all {current.qty} pieces together.</p>{/if}
+      {#if current.qty > 1}<p class="sub">{t('Weigh all {n} pieces together.', { n: current.qty })}</p>{/if}
       {#if current.weightNote}<p class="sub">{current.weightNote}</p>{/if}
-      <label class="lbl" for="w-g">Weight in grams</label>
+      <label class="lbl" for="w-g">{t('Weight in grams')}</label>
       <div class="row">
         <input id="w-g" bind:this={input} class="inp big num" type="text" inputmode="numeric" autocomplete="off" placeholder="0" bind:value={grams} aria-describedby="w-err" />
         <span class="unit">g</span>
       </div>
       <p id="w-err" class="err" role="alert">{error}</p>
       <div class="row">
-        <button type="submit" class="btn hi">Save and next</button>
-        <button type="button" class="btn" onclick={skip}>Skip</button>
+        <button type="submit" class="btn hi">{t('Save and next')}</button>
+        <button type="button" class="btn" onclick={skip}>{t('Skip')}</button>
       </div>
-      <p class="tip">Enter saves and opens the next item.</p>
+      <p class="tip">{t('Enter saves and opens the next item.')}</p>
     </form>
     {#if queue.length > 1}
       <aside class="up">
-        <span class="lbl">Up next</span>
+        <span class="lbl">{t('Up next')}</span>
         <ol>
-          {#each queue.slice(1, 8) as i (i.id)}<li><span class="sw" style:background={CATEGORY[i.category]?.color}></span>{i.name}</li>{/each}
+          {#each queue.slice(1, 8) as i (i.id)}<li><span class="sw" style:background={CATEGORY[i.category]?.color}></span>{nameOf(i)}</li>{/each}
         </ol>
-        {#if queue.length > 8}<p class="more">+{queue.length - 8} more</p>{/if}
+        {#if queue.length > 8}<p class="more">{t('+{n} more', { n: queue.length - 8 })}</p>{/if}
       </aside>
     {/if}
     </div>
   {:else}
-    <p class="card">Everything you own is weighed. 🎉</p>
+    <p class="card">{t('Everything you own is weighed.')} 🎉</p>
   {/if}
 </section>
 
