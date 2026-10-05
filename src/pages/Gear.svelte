@@ -1,4 +1,5 @@
 <script>
+  import { take } from '../lib/nav.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { phone } from '../lib/media.svelte.js';
@@ -23,7 +24,10 @@
     await db.items.update(item.id, { role: 'optional', updatedAt: new Date().toISOString() });
   }
 
-  let filter = $state({ q: '', category: '', role: '', fav: false });
+  // v0.19.6: the search in the top bar opens Gear with ?q=<name>.
+  // ?cat=<key> (start page "Where the weight is") opens one category.
+  const hashQ = new URLSearchParams(location.hash.split('?')[1] ?? '');
+  let filter = $state({ q: hashQ.get('q') ?? '', category: hashQ.get('cat') ?? '', role: '', fav: false });
   // Tabs on every screen size (design audit G1, G2): the wishlist and weighing no longer hide
   // at the bottom of a long page. #/gear?tab=weigh opens a tab directly (from the start page).
   const TABS = ['inventory', 'wishlist', 'dead', 'weigh', 'check'];
@@ -58,6 +62,22 @@
     queueMicrotask(() => document.getElementById(`gh-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
   const open = (item) => (dialog = { item });
+  // v0.19.6: "New → Gear item" from any page opens "Add item" here.
+  $effect(() => {
+    const add = () => take('gear.add') && (dialog = { item: null });
+    add();
+    window.addEventListener('pg:additem', add);
+    return () => window.removeEventListener('pg:additem', add);
+  });
+  // A new search from the top bar while Gear is open.
+  $effect(() => {
+    const read = () => {
+      const q = new URLSearchParams(location.hash.split('?')[1] ?? '').get('q');
+      if (q != null) (filter.q = q), (tab = 'inventory');
+    };
+    window.addEventListener('hashchange', read);
+    return () => window.removeEventListener('hashchange', read);
+  });
 </script>
 
 <div class="gear">
@@ -219,7 +239,7 @@
 </div>
 
 {#if dialog}
-  <ItemDialog item={dialog.item} {items} readOnly={phone.matches} onclose={() => (dialog = null)} />
+  <ItemDialog item={dialog.item} {items} readOnly={phone.matches && !!dialog.item} onclose={() => (dialog = null)} />
 {/if}
 
 <style>
