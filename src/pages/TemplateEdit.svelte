@@ -14,6 +14,7 @@
   import { RIDES } from '../lib/layers.js';
   import { phone } from '../lib/media.svelte.js';
   import NotPacked from '../lib/pack/NotPacked.svelte';
+  import { t, tn, nameOf } from '../lib/i18n.svelte.js';
 
   let { id } = $props();
 
@@ -34,7 +35,7 @@
       const bag = bagById[tpl.setup?.[key]];
       const entries = tpl.entries.filter((e) => e.slot === key);
       const grams = entries.reduce((sum, e) => sum + (itemsById[e.itemId]?.weightG ?? 0) * (e.qty || 1), 0);
-      return { key, name: bag ? bag.name : ZONE[key]?.name ?? key, place: ZONE[key]?.name ?? key, entries, grams };
+      return { key, name: bag ? bag.name : ZONE[key] ? t(ZONE[key].name) : key, place: ZONE[key] ? t(ZONE[key].name) : key, entries, grams };
     });
   });
   let target = $state('seat');
@@ -58,7 +59,7 @@
     clearTimeout(timer);
     timer = setTimeout(() => (saved = false), 2000);
   }
-  const setEntries = (fn) => edit((t) => ({ ...t, entries: fn(t.entries) }));
+  const setEntries = (fn) => edit((x) => ({ ...x, entries: fn(x.entries) }));
   function addTo(key, itemId) {
     if (!itemsById[itemId]) return;
     setEntries((es) => (es.some((e) => e.itemId === itemId) ? es.map((e) => (e.itemId === itemId ? { ...e, slot: key } : e)) : [...es, { itemId, slot: key, qty: 1 }]));
@@ -70,11 +71,11 @@
 
   function rename(value) {
     const clean = value.trim();
-    if (clean && clean !== tpl.name) edit((t) => ({ ...t, name: clean }));
+    if (clean && clean !== tpl.name) edit((x) => ({ ...x, name: clean }));
   }
   function typedHours(value) {
     const n = value.trim() === '' ? null : Number(value.replace(',', '.'));
-    if (n === null || (n > 0 && n <= 24)) edit((t) => ({ ...t, hours: n }));
+    if (n === null || (n > 0 && n <= 24)) edit((x) => ({ ...x, hours: n }));
   }
   let newCheck = $state('');
   function addCheck(event) {
@@ -82,7 +83,7 @@
     const label = newCheck.trim();
     if (!label) return;
     newCheck = '';
-    edit((t) => ({ ...t, ready: [...t.ready, { id: `own-${Date.now().toString(36)}`, label }] }));
+    edit((x) => ({ ...x, ready: [...x.ready, { id: `own-${Date.now().toString(36)}`, label }] }));
   }
 
   let over = $state(null);
@@ -97,26 +98,26 @@
     event.preventDefault();
     over = key;
   }
-  const tagOf = (i) => (i.always ? 'every trip' : i.role === 'standard' || i.role === 'worn' ? 'standard' : '');
+  const tagOf = (i) => (i.always ? t('every trip') : i.role === 'standard' || i.role === 'worn' ? t('standard') : '');
   const totalG = $derived(places.reduce((s, p) => s + p.grams, 0));
 </script>
 
 <div class="te">
-  <p class="back"><a href="#/pack/templates">← Templates</a></p>
+  <p class="back"><a href="#/pack/templates">← {t('Templates')}</a></p>
   {#if !tpl}
-    <p class="card">{$tplQ ? 'This template does not exist any more.' : 'Loading…'}</p>
+    <p class="card">{$tplQ ? t('This template does not exist any more.') : t('Loading…')}</p>
   {:else}
     <header class="head">
-      <label class="nm"><span class="lbl">Template</span><input class="inp big-inp" value={tpl.name} onchange={(e) => rename(e.currentTarget.value)} aria-label="Template name" /></label>
-      <p class="meta num">{tpl.entries.length} items · {formatWeight(totalG)} without bike and bags {#if saved}<span class="ok" role="status">Saved ✓</span>{/if}</p>
+      <label class="nm"><span class="lbl">{t('Template')}</span><input class="inp big-inp" value={tpl.name} onchange={(e) => rename(e.currentTarget.value)} aria-label={t('Template name')} /></label>
+      <p class="meta num">{tn(tpl.entries.length, '{n} item', '{n} items')} · {t('{weight} without bike and bags', { weight: formatWeight(totalG) })} {#if saved}<span class="ok" role="status">{t('Saved ✓')}</span>{/if}</p>
     </header>
 
     <div class="cols">
       <div class="c-np">
         <NotPacked items={candidates} {tagOf} target={targetPlace?.name ?? ''} onadd={add} drag={!phone.matches} bind:q>
           <label class="target">
-            <span>Adding to</span>
-            <select class="sel" bind:value={target} aria-label="Place that + adds to">
+            <span>{t('Adding to')}</span>
+            <select class="sel" bind:value={target} aria-label={t('Place that + adds to')}>
               {#each places as p (p.key)}<option value={p.key}>{p.name}</option>{/each}
             </select>
           </label>
@@ -131,20 +132,20 @@
               {#each p.entries as e (e.itemId)}
                 {@const it = itemsById[e.itemId]}
                 <li style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'} draggable={!phone.matches} ondragstart={(ev) => ev.dataTransfer.setData('text/plain', e.itemId)}>
-                  <span class="in">{it?.name ?? e.itemId}</span>
-                  <span class="w num" class:nw={it?.weightG == null}>{it?.weightG == null ? 'not weighed' : formatWeight(it.weightG * (e.qty || 1))}</span>
+                  <span class="in">{it ? nameOf(it) : e.itemId}</span>
+                  <span class="w num" class:nw={it?.weightG == null}>{it?.weightG == null ? t('not weighed') : formatWeight(it.weightG * (e.qty || 1))}</span>
                   <span class="qty">
-                    <button type="button" aria-label="One less {it?.name}" disabled={(e.qty || 1) <= 1} onclick={() => setQty(e.itemId, (e.qty || 1) - 1)}>−</button>
+                    <button type="button" aria-label={t('One less {name}', { name: nameOf(it) })} disabled={(e.qty || 1) <= 1} onclick={() => setQty(e.itemId, (e.qty || 1) - 1)}>−</button>
                     <span class="num">{e.qty || 1}×</span>
-                    <button type="button" aria-label="One more {it?.name}" onclick={() => setQty(e.itemId, (e.qty || 1) + 1)}>+</button>
+                    <button type="button" aria-label={t('One more {name}', { name: nameOf(it) })} onclick={() => setQty(e.itemId, (e.qty || 1) + 1)}>+</button>
                   </span>
-                  <select class="sel mv" aria-label="Move {it?.name} to" value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
+                  <select class="sel mv" aria-label={t('Move {name} to', { name: nameOf(it) })} value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
                     {#each places as o (o.key)}<option value={o.key}>{o.name}</option>{/each}
                   </select>
-                  <button type="button" class="minus" aria-label="Take {it?.name} out of the template" onclick={() => remove(e.itemId)}>−</button>
+                  <button type="button" class="minus" aria-label={t('Take {name} out of the template', { name: nameOf(it) })} onclick={() => remove(e.itemId)}>−</button>
                 </li>
               {:else}
-                <li class="empty">Empty</li>
+                <li class="empty">{t('Empty')}</li>
               {/each}
             </ul>
           </section>
@@ -153,28 +154,28 @@
 
       <aside class="c-side">
         <section class="box-s">
-          <h2 class="title">Ride</h2>
-          <div class="chips" role="group" aria-label="Kind of ride">
+          <h2 class="title">{t('Ride')}</h2>
+          <div class="chips" role="group" aria-label={t('Kind of ride')}>
             {#each RIDES as r (r.key)}
-              <button type="button" class="toggle" aria-pressed={tpl.ride === r.key} onclick={() => edit((t) => ({ ...t, ride: t.ride === r.key ? null : r.key }))}>{r.name.replace(' ride', '')}</button>
+              <button type="button" class="toggle" aria-pressed={tpl.ride === r.key} onclick={() => edit((x) => ({ ...x, ride: x.ride === r.key ? null : r.key }))}>{t(r.name.replace(' ride', ''))}</button>
             {/each}
           </div>
-          <label class="hours"><span class="lbl">Riding hours</span><input class="inp num" type="text" inputmode="decimal" value={tpl.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder="e.g. 6" /></label>
-          {#if NIGHT_SETS.some((n) => tpl.sets?.[n.key])}<p class="hint">Night: {NIGHT_SETS.filter((n) => tpl.sets?.[n.key]).map((n) => n.name).join(', ')} (their items are in the list)</p>{/if}
+          <label class="hours"><span class="lbl">{t('Riding hours')}</span><input class="inp num" type="text" inputmode="decimal" value={tpl.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder={t('e.g. 6')} /></label>
+          {#if NIGHT_SETS.some((n) => tpl.sets?.[n.key])}<p class="hint">{t('Night: {sets} (their items are in the list)', { sets: NIGHT_SETS.filter((n) => tpl.sets?.[n.key]).map((n) => t(n.name)).join(', ') })}</p>{/if}
         </section>
         <section class="box-s">
-          <h2 class="title">Ready check</h2>
+          <h2 class="title">{t('Ready check')}</h2>
           <ul class="checks">
             {#each tpl.ready as r (r.id)}
-              <li><span>{r.label}</span><button type="button" class="minus" aria-label="Remove {r.label}" onclick={() => edit((t) => ({ ...t, ready: t.ready.filter((x) => x.id !== r.id) }))}>−</button></li>
+              <li><span>{t(r.label)}</span><button type="button" class="minus" aria-label={t('Remove {name}', { name: t(r.label) })} onclick={() => edit((x) => ({ ...x, ready: x.ready.filter((y) => y.id !== r.id) }))}>−</button></li>
             {/each}
           </ul>
           <form class="addcheck" onsubmit={addCheck}>
-            <input class="inp" bind:value={newCheck} placeholder="Add a check" aria-label="Add a check" />
-            <button type="submit" class="btn">Add</button>
+            <input class="inp" bind:value={newCheck} placeholder={t('Add a check')} aria-label={t('Add a check')} />
+            <button type="submit" class="btn">{t('Add')}</button>
           </form>
         </section>
-        <p class="hint">Bags come from the trip the template was saved from. To change which bags it uses, start a trip from it, change "Bags for this trip" and update the template.</p>
+        <p class="hint">{t('Bags come from the trip the template was saved from. To change which bags it uses, start a trip from it, change "Bags for this trip" and update the template.')}</p>
       </aside>
     </div>
   {/if}

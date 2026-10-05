@@ -3,6 +3,7 @@
  * A phone photo is several MB; it is made smaller on the device before it is stored, so the
  * database and backup files stay small (about 100–250 KB per photo).
  */
+import { t } from './i18n.svelte.js';
 
 /** Longest side in pixels after shrinking. */
 export const PHOTO_MAX = 1400;
@@ -15,7 +16,7 @@ export function fitSize(w, h, max = PHOTO_MAX) {
 
 /** Read an image file, shrink it and return a JPEG data URL. Needs a browser. */
 export async function shrinkImage(file, max = PHOTO_MAX, quality = 0.82) {
-  if (!file.type.startsWith('image/')) throw new Error('Please choose a photo (JPG, PNG or HEIC as JPG).');
+  if (!file.type.startsWith('image/')) throw new Error(t('Please choose a photo (JPG, PNG or HEIC as JPG).'));
   const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
   const { w, h } = fitSize(bitmap.width, bitmap.height, max);
   const canvas = document.createElement('canvas');
@@ -35,8 +36,8 @@ export async function shrinkImage(file, max = PHOTO_MAX, quality = 0.82) {
  */
 export function bikePhotos(bike, photos = []) {
   if (!bike) return [];
-  const own = photos.filter((p) => p.bikeId === bike.id).map((p) => ({ id: p.id, src: p.data, name: p.name || 'Photo', main: !!p.main, tripId: p.tripId ?? null, stored: true }));
-  const list = bike.photo ? [{ id: `bike-${bike.id}`, src: bike.photo, name: 'Bike photo', main: !own.some((p) => p.main), tripId: null, stored: false }, ...own] : own;
+  const own = photos.filter((p) => p.bikeId === bike.id).map((p) => ({ id: p.id, src: p.data, name: p.name || t('Photo'), main: !!p.main, tripId: p.tripId ?? null, stored: true }));
+  const list = bike.photo ? [{ id: `bike-${bike.id}`, src: bike.photo, name: t('Bike photo'), main: !own.some((p) => p.main), tripId: null, stored: false }, ...own] : own;
   return list.sort((a, b) => Number(b.main) - Number(a.main));
 }
 

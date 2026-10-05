@@ -8,11 +8,11 @@
    * steps: from packSteps(). ontoggle(itemId), onready(row): save. onclose(): back to Pack.
    */
   import { formatWeight } from '../gear.js';
-  import { readyDone } from '../trips.js';
+  import { readyDone, RAIN } from '../trips.js';
+  import { t, nameOf } from '../i18n.svelte.js';
 
   let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onclose } = $props();
-  const RAIN_WORD = { none: 'dry', showers: 'showers', rain: 'rain' };
-  const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${RAIN_WORD[w.rain ?? 'none']}`;
+  const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${t(RAIN[w.rain ?? 'none'])}`;
 
   // Start at the first bag that still has something to pack.
   let at = $state(Math.max(0, steps.findIndex((s) => s.done < s.entries.length)));
@@ -55,32 +55,32 @@
   });
 </script>
 
-<div class="pd" role="dialog" aria-modal="true" aria-label="Packing day: {trip.title}">
+<div class="pd" role="dialog" aria-modal="true" aria-label={t('Packing day: {title}', { title: trip.title })}>
   <header class="top">
     <span class="where">
       <b>{trip.title}</b>
-      <span class="num">{at < last ? `Bag ${at + 1} of ${steps.length}` : 'Ready check'} · {packed} of {total} packed</span>
+      <span class="num">{at < last ? t('Bag {n} of {total}', { n: at + 1, total: steps.length }) : t('Ready check')} · {t('{n} of {total} packed', { n: packed, total })}</span>
     </span>
-    <button type="button" class="close" onclick={onclose}>Close</button>
+    <button type="button" class="close" onclick={onclose}>{t('Close')}</button>
   </header>
-  <div class="prog" role="img" aria-label="{packed} of {total} items packed"><i style:width="{total ? (packed / total) * 100 : 0}%"></i></div>
-  <nav class="dots" aria-label="Bags">
+  <div class="prog" role="img" aria-label={t('{n} of {total} items packed', { n: packed, total })}><i style:width="{total ? (packed / total) * 100 : 0}%"></i></div>
+  <nav class="dots" aria-label={t('Bags')}>
     {#each steps as s, n (s.key)}
       <button type="button" class:cur={n === at} class:full={s.done === s.entries.length} aria-current={n === at ? 'step' : undefined} onclick={() => go(n)}>{s.title}</button>
     {/each}
-    <button type="button" class:cur={at === last} class:full={ready.length && readyN === ready.length} aria-current={at === last ? 'step' : undefined} onclick={() => go(last)}>Ready check</button>
+    <button type="button" class:cur={at === last} class:full={ready.length && readyN === ready.length} aria-current={at === last ? 'step' : undefined} onclick={() => go(last)}>{t('Ready check')}</button>
   </nav>
 
   <div class="body">
     {#if wxGap && at === 0}
       <div class="wxgap" role="note">
-        <p><b>The forecast is {wxText(wxGap.fc)}.</b> This trip is packed for {wxText(wxGap.have)}.</p>
-        <button type="button" class="btn hi" onclick={onwx}>Pack for the forecast first</button>
+        <p><b>{t('The forecast is {wx}.', { wx: wxText(wxGap.fc) })}</b> {t('This trip is packed for {wx}.', { wx: wxText(wxGap.have) })}</p>
+        <button type="button" class="btn hi" onclick={onwx}>{t('Pack for the forecast first')}</button>
       </div>
     {/if}
     {#if step}
       <h1 class="title">{step.title}</h1>
-      <p class="sub num">{step.sub ? `${step.sub} · ` : ''}{step.done} of {step.entries.length} in{allIn ? ' · all in' : ''}</p>
+      <p class="sub num">{step.sub ? `${step.sub} · ` : ''}{t('{n} of {total} in', { n: step.done, total: step.entries.length })}{allIn ? ` · ${t('all in')}` : ''}</p>
       <ul class="items">
         {#each step.entries as e (e.itemId)}
           {@const it = itemsById[e.itemId]}
@@ -88,14 +88,14 @@
           <li class:in={e.packed}>
             <button type="button" class="it" aria-pressed={!!e.packed} onclick={() => ontoggle(e.itemId)}>
               <span class="box" aria-hidden="true">{e.packed ? '✓' : ''}</span>
-              <span class="nm">{it?.name ?? e.itemId}{#if (e.qty || 1) > 1}<b class="q"> × {e.qty}</b>{/if}</span>
+              <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q"> × {e.qty}</b>{/if}</span>
               {#if it?.weightG != null}<span class="w num">{formatWeight(it.weightG * (e.qty || 1))}</span>{/if}
             </button>
             {#if bs}
               <!-- v0.19.5 (answer 3a): short badges, the sentences on tap. -->
               <button type="button" class="tip" class:open={openTip === e.itemId} aria-expanded={openTip === e.itemId} onclick={() => (openTip = openTip === e.itemId ? null : e.itemId)}>
                 {#if openTip === e.itemId}
-                  {#each bs as b (b.key)}<span class="tx"><span class="tl">{b.key === 'tip' ? 'Learning' : b.label}</span>{b.text}</span>{/each}
+                  {#each bs as b (b.key)}<span class="tx"><span class="tl">{b.key === 'tip' ? t('Learning') : b.label}</span>{b.text}</span>{/each}
                 {:else}
                   {#each bs as b (b.key)}<span class="bdg {b.tone}">{b.label}</span>{/each}
                 {/if}
@@ -105,29 +105,29 @@
         {/each}
       </ul>
     {:else}
-      <h1 class="title">Ready check</h1>
-      <p class="sub num">{readyN} of {ready.length} done</p>
+      <h1 class="title">{t('Ready check')}</h1>
+      <p class="sub num">{t('{n} of {total} done', { n: readyN, total: ready.length })}</p>
       <ul class="items">
         {#each ready as r (r.id)}
           {@const done = readyDone(r, trip)}
           <li class:in={done}>
             <button type="button" class="it" aria-pressed={done} disabled={!!r.itemId && done} onclick={() => onready(r)}>
               <span class="box" aria-hidden="true">{done ? '✓' : ''}</span>
-              <span class="nm">{r.label}</span>
+              <span class="nm">{t(r.label)}</span>
             </button>
           </li>
         {/each}
       </ul>
-      {#if packed === total && readyN === ready.length}<p class="go">Everything is in. Have a good ride!</p>{/if}
+      {#if packed === total && readyN === ready.length}<p class="go">{t('Everything is in. Have a good ride!')}</p>{/if}
     {/if}
   </div>
 
   <footer class="foot">
-    <button type="button" class="btn" disabled={at === 0} onclick={() => go(at - 1)}>Back</button>
+    <button type="button" class="btn" disabled={at === 0} onclick={() => go(at - 1)}>{t('Back')}</button>
     {#if at < last}
-      <button type="button" class="btn hi" onclick={() => go(at + 1)}>{at + 1 < last ? `Next: ${steps[at + 1].title}` : 'Next: ready check'}</button>
+      <button type="button" class="btn hi" onclick={() => go(at + 1)}>{at + 1 < last ? t('Next: {step}', { step: steps[at + 1].title }) : t('Next: ready check')}</button>
     {:else}
-      <button type="button" class="btn hi" onclick={onclose}>Done</button>
+      <button type="button" class="btn hi" onclick={onclose}>{t('Done')}</button>
     {/if}
   </footer>
 </div>

@@ -8,6 +8,7 @@
  * The debrief uses the km of the rides on the trip's days.
  */
 import { parseGpx, routeStats } from './route.js';
+import { t } from './i18n.svelte.js';
 
 /** One ride file (GPX or TCX). Returns { date, km, gainM, name }. */
 export function parseRideFile(text, file = '') {
@@ -68,7 +69,7 @@ const toNum = (s) => {
  */
 export function parseActivitiesCsv(text) {
   const lines = text.replace(/^﻿/, '').split(/\r?\n/).filter((l) => l.trim());
-  if (lines.length < 2) throw new Error('The file has no activities in it.');
+  if (lines.length < 2) throw new Error(t('The file has no activities in it.'));
   const sep = (lines[0].match(/;/g)?.length ?? 0) > (lines[0].match(/,/g)?.length ?? 0) ? ';' : ',';
   const head = cells(lines[0], sep).map((h) => h.toLowerCase());
   const col = (re) => head.findIndex((h) => re.test(h));
@@ -76,7 +77,7 @@ export function parseActivitiesCsv(text) {
   const iDist = col(/^(distance|distanz|strecke)( \(km\))?$/);
   const iName = col(/^(activity name|title|titel|name)$/);
   const iType = col(/^(activity type|type|aktivitätstyp)$/);
-  if (iDate < 0 || iDist < 0) throw new Error('Date or distance column not found. Use the CSV export of Strava or Garmin Connect.');
+  if (iDate < 0 || iDist < 0) throw new Error(t('Date or distance column not found. Use the CSV export of Strava or Garmin Connect.'));
   const metres = /\(m\)|meter/.test(head[iDist]);
   return lines
     .slice(1)

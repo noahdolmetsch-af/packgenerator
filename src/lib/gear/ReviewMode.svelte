@@ -4,6 +4,7 @@
   import { CATEGORY, BAG, CATEGORIES, formatWeight, itemWeight, isInventory } from '../gear.js';
   import { layerOf } from '../layers.js';
   import ItemDialog from './ItemDialog.svelte';
+  import { t, nameOf } from '../i18n.svelte.js';
 
   /**
    * Inventory check (to-do from 4.10.2026): go through everything you own once and say
@@ -54,34 +55,34 @@
 
 <section class="review" aria-labelledby="rev-h">
   <div class="head">
-    <h2 id="rev-h" class="title">Check inventory</h2>
-    <span class="num">{checked} checked · {queue.length} left</span>
-    {#if onclose}<button type="button" class="btn" onclick={onclose}>Done</button>{/if}
+    <h2 id="rev-h" class="title">{t('Check inventory')}</h2>
+    <span class="num">{t('{a} checked · {b} left', { a: checked, b: queue.length })}</span>
+    {#if onclose}<button type="button" class="btn" onclick={onclose}>{t('Done')}</button>{/if}
   </div>
-  <p class="intro">Do you still have it? Mark what is gone, add what replaced it, and add anything new that is missing.</p>
+  <p class="intro">{t('Do you still have it? Mark what is gone, add what replaced it, and add anything new that is missing.')}</p>
 
   {#if current}
     <div class="card">
-      <p class="layer">{layer.name} <small>{leftInLayer} left in this group</small></p>
-      <p class="cat"><span class="sw" style:background={CATEGORY[current.category]?.color}></span>{CATEGORY[current.category]?.name} · {current.id}</p>
-      <p class="name">{current.name}{#if current.qty > 1}<small> × {current.qty}</small>{/if}</p>
+      <p class="layer">{layer.name} <small>{t('{n} left in this group', { n: leftInLayer })}</small></p>
+      <p class="cat"><span class="sw" style:background={CATEGORY[current.category]?.color}></span>{t(CATEGORY[current.category]?.name ?? '')} · {current.id}</p>
+      <p class="name">{nameOf(current)}{#if current.qty > 1}<small> × {current.qty}</small>{/if}</p>
       {#if current.brand || current.model}<p class="sub">{[current.brand, current.model].filter(Boolean).join(' ')}</p>{/if}
-      <p class="sub">{BAG[current.defaultBag] ?? ''}{current.weightG != null ? ` · ${formatWeight(itemWeight(current))}` : ' · not weighed'}</p>
+      <p class="sub">{BAG[current.defaultBag] ? t(BAG[current.defaultBag]) : ''}{current.weightG != null ? ` · ${formatWeight(itemWeight(current))}` : ` · ${t('not weighed')}`}</p>
       {#if current.note}<p class="sub note">{current.note}</p>{/if}
       <div class="row">
-        <button type="button" class="btn hi" onclick={keep}>Still have it</button>
-        <button type="button" class="btn" onclick={gone}>Gone</button>
-        <button type="button" class="btn" onclick={replaced}>Replaced by…</button>
+        <button type="button" class="btn hi" onclick={keep}>{t('Still have it')}</button>
+        <button type="button" class="btn" onclick={gone}>{t('Gone')}</button>
+        <button type="button" class="btn" onclick={replaced}>{t('Replaced by…')}</button>
       </div>
       <div class="row small">
-        <button type="button" class="link" onclick={edit}>Edit</button>
-        <button type="button" class="link" onclick={skip}>Skip for now</button>
+        <button type="button" class="link" onclick={edit}>{t('Edit')}</button>
+        <button type="button" class="link" onclick={skip}>{t('Skip for now')}</button>
       </div>
     </div>
   {:else}
-    <p class="card">Everything you own is checked. 🎉</p>
+    <p class="card">{t('Everything you own is checked.')} 🎉</p>
   {/if}
-  <p class="more">Something missing from the list? <button type="button" class="btn" onclick={addNew}>Add item</button></p>
+  <p class="more">{t('Something missing from the list?')} <button type="button" class="btn" onclick={addNew}>{t('Add item')}</button></p>
 </section>
 
 {#if dialog}

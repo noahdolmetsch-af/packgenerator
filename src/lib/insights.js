@@ -7,6 +7,7 @@
  * Pure functions, easy to test.
  */
 import { isInventory } from './gear.js';
+import { t, nameOf } from './i18n.svelte.js';
 
 const g = (item, qty = 1) => (item?.weightG == null ? 0 : item.weightG * (qty || item.qty || 1));
 const norm = (s) => String(s ?? '').trim().toLowerCase();
@@ -112,7 +113,7 @@ export function wishReason(item, items, trips, debriefs) {
     .filter(({ d }) => (d.missing ?? []).some((m) => norm(m.name) === norm(item.name)))
     .map(({ t }) => t.title);
   if (missedOn.length) {
-    reasons.push(`Missing ${missedOn.length}× (${missedOn.join(', ')})`);
+    reasons.push(t('Missing {n}× ({trips})', { n: missedOn.length, trips: missedOn.join(', ') }));
     score += 10 * missedOn.length;
   }
   if (/^Broke on /.test(item.note ?? '')) {
@@ -120,12 +121,12 @@ export function wishReason(item, items, trips, debriefs) {
     score += 8;
   }
   if (/^From Bike care/.test(item.note ?? '')) {
-    reasons.push('Needed on the bike');
+    reasons.push(t('Needed on the bike'));
     score += 9;
   }
   const old = item.replaces ? items.find((i) => i.id === item.replaces) : null;
   if (old?.weightG != null && item.weightG != null && old.weightG > item.weightG) {
-    reasons.push(`${old.weightG - item.weightG} g lighter than ${old.name}`);
+    reasons.push(t('{g} g lighter than {name}', { g: old.weightG - item.weightG, name: nameOf(old) }));
     score += Math.min(5, (old.weightG - item.weightG) / 100);
   }
   if (typeof item.priceChf === 'number') reasons.push(`CHF ${item.priceChf.toFixed(2)}`);

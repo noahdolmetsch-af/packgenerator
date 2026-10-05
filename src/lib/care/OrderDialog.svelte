@@ -5,6 +5,7 @@
    * then send the message or print it.
    */
   import { orderSum, orderText } from '../workshop.js';
+  import { t, locale } from '../i18n.svelte.js';
 
   let { order, bike, trip = null, bikeNames = {}, onclose } = $props();
   let dialog;
@@ -24,18 +25,18 @@
     s.has(key) ? s.delete(key) : s.add(key);
     off = s;
   };
-  const day = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
-  const from = (r) => (r.from ? `like on ${day(r.from.date)}${r.from.bikeId !== bike.id ? ` (${bikeNames[r.from.bikeId] ?? 'other bike'})` : ''}` : 'no price on your receipts');
+  const day = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  const from = (r) => (r.from ? `${t('like on {date}', { date: day(r.from.date) })}${r.from.bikeId !== bike.id ? ` (${bikeNames[r.from.bikeId] ?? t('other bike')})` : ''}` : t('no price on your receipts'));
 
   async function send() {
     try {
-      if (navigator.share && matchMedia('(pointer: coarse)').matches) await navigator.share({ title: `Service ${bike.name}`, text });
+      if (navigator.share && matchMedia('(pointer: coarse)').matches) await navigator.share({ title: t('Service {bike}', { bike: bike.name }), text });
       else {
         await navigator.clipboard.writeText(text);
-        note = 'Copied. Paste it into an email or a message to the shop.';
+        note = t('Copied. Paste it into an email or a message to the shop.');
       }
     } catch (err) {
-      if (err?.name !== 'AbortError') note = 'Could not copy. Select the text below and copy it.';
+      if (err?.name !== 'AbortError') note = t('Could not copy. Select the text below and copy it.');
     }
   }
 
@@ -43,14 +44,14 @@
   function print() {
     const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
     const rows = picked.map((r) => `<tr><td>☐</td><td>${esc(r.de)}<br><small>${esc(r.name)} · ${esc(r.detail)}</small></td><td class="c">${r.chf == null ? '–' : `CHF ${Math.round(r.chf)}`}</td></tr>`).join('');
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Service ${esc(bike.name)}</title><style>
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(t('Service {bike}', { bike: bike.name }))}</title><style>
       body{font:12pt system-ui,sans-serif;margin:16mm;color:#000}h1{font-size:20pt;margin:0}p{margin:4pt 0}
       table{width:100%;border-collapse:collapse;margin-top:10pt}td{border-top:1pt solid #999;padding:5pt 4pt;vertical-align:top}
       td.c{text-align:right;white-space:nowrap}small{color:#555}.t td{border-top:2pt solid #000;font-weight:700}
     </style></head><body>
-      <h1>Service ${esc(bike.name)}</h1>
-      <p>${trip?.startDate ? `Before ${esc(trip.title)}, ${day(trip.startDate)}` : 'Due now'}${order.shop ? ` · ${esc(order.shop)}` : ''}</p>
-      <table>${rows}<tr class="t"><td></td><td>Estimate from my receipts${sum.unknown ? ` (${sum.unknown} without a price)` : ''}</td><td class="c">CHF ${sum.total}</td></tr></table>
+      <h1>${esc(t('Service {bike}', { bike: bike.name }))}</h1>
+      <p>${trip?.startDate ? esc(t('Before {trip}, {date}', { trip: trip.title, date: day(trip.startDate) })) : esc(t('Due now'))}${order.shop ? ` · ${esc(order.shop)}` : ''}</p>
+      <table>${rows}<tr class="t"><td></td><td>${esc(t('Estimate from my receipts'))}${sum.unknown ? ` (${esc(t('{n} without a price', { n: sum.unknown }))})` : ''}</td><td class="c">CHF ${sum.total}</td></tr></table>
     </body></html>`;
     const frame = document.createElement('iframe');
     frame.setAttribute('aria-hidden', 'true');
@@ -68,31 +69,31 @@
 </script>
 
 <dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="order-h">
-  <p class="meta">{bike.name} · Workshop order</p>
-  <h2 id="order-h" class="title">{trip?.startDate ? `Before ${trip.title}` : 'Due now'}</h2>
-  <p class="facts num"><b>about CHF {sum.total}</b>{#if sum.unknown}{` · ${sum.unknown} without a price`}{/if}{#if order.shop}{` · ${order.shop}`}{/if}</p>
+  <p class="meta">{bike.name} · {t('Workshop order')}</p>
+  <h2 id="order-h" class="title">{trip?.startDate ? t('Before {trip}', { trip: trip.title }) : t('Due now')}</h2>
+  <p class="facts num"><b>{t('about CHF {chf}', { chf: sum.total })}</b>{#if sum.unknown}{` · ${t('{n} without a price', { n: sum.unknown })}`}{/if}{#if order.shop}{` · ${order.shop}`}{/if}</p>
 
   <ul class="jobs">
     {#each order.rows as r (r.key)}
       <li class:off={off.has(r.key)}>
         <label>
           <input type="checkbox" checked={!off.has(r.key)} onchange={() => toggle(r.key)} />
-          <span class="j"><b>{r.name}</b><small>{r.when === 'during' ? 'due on the trip · ' : ''}{r.detail}</small><small>{from(r)}</small></span>
+          <span class="j"><b>{r.name}</b><small>{r.when === 'during' ? `${t('due on the trip')} · ` : ''}{r.detail}</small><small>{from(r)}</small></span>
         </label>
         <span class="num c">{r.chf == null ? '–' : `CHF ${Math.round(r.chf)}`}</span>
       </li>
     {/each}
   </ul>
-  <p class="hint">Untick what you do yourself. The prices are what you paid last time, not a quote.</p>
+  <p class="hint">{t('Untick what you do yourself. The prices are what you paid last time, not a quote.')}</p>
 
-  <h3>Message to the shop</h3>
+  <h3>{t('Message to the shop')}</h3>
   <textarea class="inp msg" readonly rows="8" value={text}></textarea>
   {#if note}<p class="hint" role="status">{note}</p>{/if}
 
   <div class="foot">
-    <button type="button" class="btn hi" onclick={send} disabled={!picked.length}>Send or copy</button>
-    <button type="button" class="btn" onclick={print} disabled={!picked.length}>Print</button>
-    <button type="button" class="link" onclick={() => dialog.close()}>Close</button>
+    <button type="button" class="btn hi" onclick={send} disabled={!picked.length}>{t('Send or copy')}</button>
+    <button type="button" class="btn" onclick={print} disabled={!picked.length}>{t('Print')}</button>
+    <button type="button" class="link" onclick={() => dialog.close()}>{t('Close')}</button>
   </div>
 </dialog>
 

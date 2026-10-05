@@ -5,6 +5,7 @@
    * "+" puts an item into the chosen bag, or drag it onto a bag (4a).
    */
   import { CATEGORIES, formatWeight } from '../gear.js';
+  import { t, tn, nameOf } from '../i18n.svelte.js';
 
   /**
    * items: the candidates, already sorted. tagOf(item): a short label or ''.
@@ -33,10 +34,10 @@
 <section class="np" aria-labelledby="np-h">
   <div class="np-top">
     <div class="np-h">
-      <h2 id="np-h" class="title">Not packed</h2>
-      <span class="m num">{items.length} items</span>
+      <h2 id="np-h" class="title">{t('Not packed')}</h2>
+      <span class="m num">{tn(items.length, '{n} item', '{n} items')}</span>
     </div>
-    <input class="inp" type="search" placeholder="Search your gear" bind:value={q} aria-label="Search your gear" />
+    <input class="inp" type="search" placeholder={t('Search your gear')} bind:value={q} aria-label={t('Search your gear')} />
     {@render children?.()}
   </div>
   <div class="np-list">
@@ -44,7 +45,7 @@
       <div class="grp">
         <button type="button" class="gh" aria-expanded={isOpen(g.key)} onclick={() => flip(g.key)}>
           <span class="sq" style:background={g.color} aria-hidden="true"></span>
-          <span class="gn">{g.name}</span>
+          <span class="gn">{t(g.name)}</span>
           <span class="gc num">{g.items.length}</span>
           <span class="ar" aria-hidden="true">{isOpen(g.key) ? '▾' : '▸'}</span>
         </button>
@@ -53,16 +54,16 @@
             {#each g.items as i (i.id)}
               {@const tag = tagOf(i)}
               <li draggable={drag} ondragstart={(e) => start(e, i.id)} class:drag>
-                <span class="nm">{#if i.favorite}<span class="star" title="Favourite">★</span>{/if}{i.name}{#if tag}<small class="lab">{tag}</small>{/if}</span>
+                <span class="nm">{#if i.favorite}<span class="star" title={t('Favourite')}>★</span>{/if}{nameOf(i)}{#if tag}<small class="lab">{tag}</small>{/if}</span>
                 <span class="w num">{i.weightG == null ? '–' : formatWeight(i.weightG)}</span>
-                <button type="button" class="plus" aria-label="Add {i.name} to {target}" onclick={() => onadd(i.id)}>+</button>
+                <button type="button" class="plus" aria-label={t('Add {name} to {bag}', { name: nameOf(i), bag: target })} onclick={() => onadd(i.id)}>+</button>
               </li>
             {/each}
           </ul>
         {/if}
       </div>
     {:else}
-      <p class="empty">{q.trim() ? 'Nothing matches.' : 'Everything you own is on this trip.'}</p>
+      <p class="empty">{q.trim() ? t('Nothing matches.') : t('Everything you own is on this trip.')}</p>
     {/each}
   </div>
 </section>

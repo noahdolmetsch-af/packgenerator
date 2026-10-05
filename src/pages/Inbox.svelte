@@ -12,6 +12,7 @@
   import { nextId } from '../lib/gear.js';
   import { addRideNote } from '../lib/ride.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
+  import { t, locale } from '../lib/i18n.svelte.js';
 
   let { onnew } = $props();
 
@@ -25,7 +26,7 @@
   const bikes = $derived(sortBikes($bikesQ ?? []));
   const bikeName = (id) => bikes.find((b) => b.id === id)?.name ?? '';
   const trips = $derived([...($tripsQ ?? [])].sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '')));
-  const tripTitle = (id) => trips.find((t) => t.id === id)?.title ?? '';
+  const tripTitle = (id) => trips.find((tr) => tr.id === id)?.title ?? '';
   const KIND = Object.fromEntries(KINDS.map((k) => [k.key, k]));
 
   // Per note what the user changed: { [noteId]: { bikeId, tripId } }; else the app's guess.
@@ -41,7 +42,7 @@
     msg = '';
     const bikeId = bikeOf(note);
     const tripId = tripOf(note);
-    if (kind === 'trip' && !tripId) return (msg = 'There is no trip to put this note on.');
+    if (kind === 'trip' && !tripId) return (msg = t('There is no trip to put this note on.'));
     try {
       await db.transaction('rw', db.notes, db.maintenance, db.items, db.learnings, db.debriefs, db.trips, async () => {
       const ids = {
@@ -55,33 +56,35 @@
       if (out.learning) await db.learnings.put(out.learning);
       if (out.tripNote) {
         const trip = await db.trips.get(tripId);
-        if (!trip) throw new Error('This trip is gone.');
+        if (!trip) throw new Error(t('This trip is gone.'));
         const debrief = await db.debriefs.get(tripId);
         await db.debriefs.put(addRideNote(debrief ?? null, trip, note.text, 0, note.at));
       }
       await db.notes.put(out.note);
     });
     } catch (err) {
-      msg = err.message || 'This note could not be sorted.';
+      msg = err.message || t('This note could not be sorted.');
     }
   }
-  const remove = (n) => confirm(`Delete the note "${n.text.slice(0, 40)}"?`) && db.notes.delete(n.id);
+  const remove = (n) => confirm(t('Delete the note "{text}"?', { text: n.text.slice(0, 40) })) && db.notes.delete(n.id);
   const reopen = (n) => db.notes.update(n.id, { status: 'open', to: null, sortedAt: null });
 
-  const when = (iso) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  // The stored label is English (data); show it in the current language.
+  const labelOf = (to) => (to?.kind === 'repair' && to.label?.startsWith('Repair') ? t('Repair') + to.label.slice(6) : to?.label ? t(to.label) : '');
   const LINK = { repair: '#/care', wish: '#/gear', learning: '#/debrief', trip: '#/debrief' };
 </script>
 
 <div class="inbox">
   <header class="head">
-    <h1 class="title">Inbox</h1>
-    <button type="button" class="btn hi" onclick={onnew}>+ Quick note</button>
+    <h1 class="title">{t('Inbox')}</h1>
+    <button type="button" class="btn hi" onclick={onnew}>+ {t('Quick note')}</button>
   </header>
-  <p class="intro">Notes from the + button on every page. Put each one where it belongs.</p>
+  <p class="intro">{t('Notes from the + button on every page. Put each one where it belongs.')}</p>
   {#if msg}<p class="err" role="alert">{msg}</p>{/if}
 
   {#if !open.length}
-    <p class="card empty">{notes.length ? 'All notes are sorted.' : 'No notes yet. Tap + at the bottom right on any page when something comes up.'}</p>
+    <p class="card empty">{notes.length ? t('All notes are sorted.') : t('No notes yet. Tap + at the bottom right on any page when something comes up.')}</p>
   {/if}
 
   <ul class="list">
@@ -90,36 +93,36 @@
       {@const others = KINDS.filter((k) => k.key !== kind)}
       <li class="note">
         <div class="body">
-          {#if n.photo}<button type="button" class="th" onclick={() => (shown = n.photo)} aria-label="Open photo"><img src={n.photo} alt="" /></button>{/if}
+          {#if n.photo}<button type="button" class="th" onclick={() => (shown = n.photo)} aria-label={t('Open photo')}><img src={n.photo} alt="" /></button>{/if}
           <div class="txt">
             <p class="t">{n.text}</p>
-            <p class="meta">{when(n.at)} · {PAGE_NAMES[n.page] ?? n.page}{n.tripId ? ` · ${tripTitle(n.tripId)}` : ''}</p>
+            <p class="meta">{when(n.at)} · {PAGE_NAMES[n.page] ? t(PAGE_NAMES[n.page]) : n.page}{n.tripId ? ` · ${tripTitle(n.tripId)}` : ''}</p>
           </div>
         </div>
         <div class="ctx">
-          <label>Bike
+          <label>{t('Bike')}
             <select class="sel mini" value={bikeOf(n) ?? ''} onchange={(e) => setPick(n, 'bikeId', e.currentTarget.value)}>
-              <option value="">none</option>
+              <option value="">{t('none')}</option>
               {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
             </select>
           </label>
-          <label>Trip
+          <label>{t('Trip')}
             <select class="sel mini" value={tripOf(n) ?? ''} onchange={(e) => setPick(n, 'tripId', e.currentTarget.value)}>
-              <option value="">none</option>
-              {#each trips as t (t.id)}<option value={t.id}>{t.title}</option>{/each}
+              <option value="">{t('none')}</option>
+              {#each trips as tr (tr.id)}<option value={tr.id}>{tr.title}</option>{/each}
             </select>
           </label>
         </div>
         <div class="acts">
-          <button type="button" class="btn sm hi" onclick={() => file(n, kind)}>{KIND[kind].name}</button>
+          <button type="button" class="btn sm hi" onclick={() => file(n, kind)}>{t(KIND[kind].name)}</button>
           <details class="more">
-            <summary aria-label="Other places for this note">•••</summary>
+            <summary aria-label={t('Other places for this note')}>•••</summary>
             <div class="more-in">
-              {#each others as k (k.key)}<button type="button" class="btn sm" onclick={(ev) => ((ev.currentTarget.closest('details').open = false), file(n, k.key))}>{k.name}</button>{/each}
-              <button type="button" class="btn sm" onclick={() => remove(n)}>Delete</button>
+              {#each others as k (k.key)}<button type="button" class="btn sm" onclick={(ev) => ((ev.currentTarget.closest('details').open = false), file(n, k.key))}>{t(k.name)}</button>{/each}
+              <button type="button" class="btn sm" onclick={() => remove(n)}>{t('Delete')}</button>
             </div>
           </details>
-          <small class="where">→ {KIND[kind].where}</small>
+          <small class="where">→ {t(KIND[kind].where)}</small>
         </div>
       </li>
     {/each}
@@ -127,14 +130,14 @@
 
   {#if sorted.length}
     <details class="all">
-      <summary><span class="title">All notes</span> <small>{sorted.length}</small></summary>
+      <summary><span class="title">{t('All notes')}</span> <small>{sorted.length}</small></summary>
       <ul class="done">
         {#each sorted as n (n.id)}
           <li>
-            <span class="txt"><b>{n.text}</b><small>{when(n.at)} · {n.to?.label ?? ''}{n.to?.kind === 'trip' && n.to.ref ? ` · ${tripTitle(n.to.ref)}` : ''}</small></span>
+            <span class="txt"><b>{n.text}</b><small>{when(n.at)} · {labelOf(n.to)}{n.to?.kind === 'trip' && n.to.ref ? ` · ${tripTitle(n.to.ref)}` : ''}</small></span>
             <span class="r">
-              {#if LINK[n.to?.kind]}<a class="link" href={LINK[n.to.kind]}>Open</a>{/if}
-              {#if n.to?.kind === 'done'}<button type="button" class="link" onclick={() => reopen(n)}>Back to inbox</button>{/if}
+              {#if LINK[n.to?.kind]}<a class="link" href={LINK[n.to.kind]}>{t('Open')}</a>{/if}
+              {#if n.to?.kind === 'done'}<button type="button" class="link" onclick={() => reopen(n)}>{t('Back to inbox')}</button>{/if}
             </span>
           </li>
         {/each}
@@ -144,7 +147,7 @@
 </div>
 
 {#if shown}
-  <Lightbox list={[{ src: shown, name: 'Quick note', sub: '' }]} start={0} onclose={() => (shown = null)} />
+  <Lightbox list={[{ src: shown, name: t('Quick note'), sub: '' }]} start={0} onclose={() => (shown = null)} />
 {/if}
 
 <style>

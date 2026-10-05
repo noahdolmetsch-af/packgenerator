@@ -7,6 +7,7 @@
  */
 import { debriefedTrips } from './insights.js';
 import { isInventory } from './gear.js';
+import { t } from './i18n.svelte.js';
 
 /** Not used this many times in a row (the last times it came along) makes an item ballast. */
 export const BALLAST_AFTER = 2;
@@ -44,11 +45,11 @@ export function packBadges(trip, trips, debriefs, tips = {}) {
   const add = (id, b) => (out[id] ??= []).push(b);
   for (const id of new Set((trip?.entries ?? []).map((e) => e.itemId))) {
     const s = unusedStreak(id, hist);
-    if (s.n >= BALLAST_AFTER) add(id, { key: 'unused', label: `${s.n}× not used`, text: `Not used on ${s.titles.join(', ')}.`, tone: 'warn' });
-    if (last && (last.d.missing ?? []).some((m) => m.itemId === id)) add(id, { key: 'missed', label: 'Missed last time', text: `You missed it on ${last.t.title}. Good that it is on.`, tone: '' });
+    if (s.n >= BALLAST_AFTER) add(id, { key: 'unused', label: t('{n}× not used', { n: s.n }), text: t('Not used on {trips}.', { trips: s.titles.join(', ') }), tone: 'warn' });
+    if (last && (last.d.missing ?? []).some((m) => m.itemId === id)) add(id, { key: 'missed', label: t('Missed last time'), text: t('You missed it on {trip}. Good that it is on.', { trip: last.t.title }), tone: '' });
     const lastOn = hist.find(({ t }) => (t.entries ?? []).some((e) => e.itemId === id));
-    if (lastOn?.d.items?.[id] === 'broken') add(id, { key: 'broke', label: 'Broke last time', text: `It broke on ${lastOn.t.title}. Repaired or replaced?`, tone: 'warn' });
-    if (tips[id]) add(id, { key: 'tip', label: 'Tip', text: tips[id].rule, tone: '' });
+    if (lastOn?.d.items?.[id] === 'broken') add(id, { key: 'broke', label: t('Broke last time'), text: t('It broke on {trip}. Repaired or replaced?', { trip: lastOn.t.title }), tone: 'warn' });
+    if (tips[id]) add(id, { key: 'tip', label: t('Tip'), text: tips[id].rule, tone: '' });
   }
   return out;
 }

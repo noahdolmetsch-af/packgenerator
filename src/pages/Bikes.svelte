@@ -12,6 +12,7 @@
   import { bikePhotos, shrinkImage } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { withVisits, tyreSetup, bikeProfile } from '../lib/workshop.js';
+  import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -32,7 +33,7 @@
   const setup = $derived(bike ? bikeSetup(bike, bags, items) : null);
   // Design audit B4: the bike's bags are the standard; the next trip on it may use others.
   const tripOn = $derived(bike ? nextTrip(($tripsQ ?? []).filter((t) => t.bikeId === bike.id)) : null);
-  const tripBag = (key) => (tripOn && (tripOn.setup?.[key] ?? null) !== (bike.setup?.[key] ?? null) ? bags.find((b) => b.id === tripOn.setup?.[key]) ?? { name: 'no bag', none: true } : null);
+  const tripBag = (key) => (tripOn && (tripOn.setup?.[key] ?? null) !== (bike.setup?.[key] ?? null) ? bags.find((b) => b.id === tripOn.setup?.[key]) ?? { name: t('no bag'), none: true } : null);
 
   // N14: the bike's profile (km, costs, what is due next, last workshop visit).
   const profile = $derived.by(() => {
@@ -42,7 +43,7 @@
     return bikeProfile(view, visits, tyreSetup(view, visits), new Date().toISOString().slice(0, 10));
   });
   const chf = (n) => `CHF ${Math.round(n).toLocaleString('de-CH')}`;
-  const day = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  const day = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 
   /* ---------- setup photos (Noah, 4.10.2026, answers 1a-6a) ---------- */
   const gallery = $derived(bikePhotos(bike, $photosQ ?? []));
@@ -63,7 +64,7 @@
         await db.photos.put({ id, bikeId: bike.id, name: file.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Setup', tripId: null, main: !gallery.length && n === 0, data, addedAt: new Date().toISOString() });
       }
     } catch (err) {
-      photoMsg = err.message || 'This photo could not be read.';
+      photoMsg = err.message || t('This photo could not be read.');
     } finally {
       adding = false;
     }
@@ -76,12 +77,12 @@
     });
   }
   async function rename(p) {
-    const name = prompt('Name of this photo, e.g. "Hope 2026"', p.name);
+    const name = prompt(t('Name of this photo, e.g. "Hope 2026"'), p.name);
     if (name?.trim()) await db.photos.update(p.id, { name: name.trim().slice(0, 60) });
   }
   const setTrip = (p, tripId) => db.photos.update(p.id, { tripId: tripId || null });
   async function removePhoto(p) {
-    if (!confirm(`Remove the photo "${p.name}"?`)) return;
+    if (!confirm(t('Remove the photo "{name}"?', { name: p.name }))) return;
     if (p.stored) await db.photos.delete(p.id);
     else await db.bikes.update(bike.id, { photo: null });
     if (shown != null && shown >= gallery.length - 1) shown = gallery.length > 1 ? gallery.length - 2 : null;
@@ -96,13 +97,13 @@
   // Boxes on the drawing: every place this bike has (in edit mode: all places).
   const zones = $derived.by(() => {
     if (!bike) return [];
-    const fixed = FIXED_ZONES.map((z) => ({ key: z.key, title: z.name, sub: '', box: z.box, empty: false, active: false }));
+    const fixed = FIXED_ZONES.map((z) => ({ key: z.key, title: t(z.name), sub: '', box: z.box, empty: false, active: false }));
     const slots = SLOTS.filter((s) => editMounts || bike.slots.includes(s.key)).map((s) => {
       const has = bike.slots.includes(s.key);
       const bag = bags.find((b) => b.id === bike.setup?.[s.key]);
       return {
         key: s.key,
-        title: has ? (bag ? bag.name : `+ ${s.name}`) : `${s.name} (no mount)`,
+        title: has ? (bag ? bag.name : `+ ${t(s.name)}`) : t('{slot} (no mount)', { slot: t(s.name) }),
         sub: has && bag ? formatVolume(bag.volumeL) : '',
         box: s.box,
         empty: !has || !bag,
@@ -137,7 +138,7 @@
     const text = event.currentTarget.value.trim();
     if (text === '') return db.bikes.update(bike.id, { weightG: null });
     const g = parseGrams(text);
-    if (g == null) return (message = 'Type the bike weight in whole grams, e.g. 13000.');
+    if (g == null) return (message = t('Type the bike weight in whole grams, e.g. 13000.'));
     message = '';
     // A weighed value replaces an estimate (Strava, logbook), so its note goes.
     await db.bikes.update(bike.id, { weightG: g, weightNote: '' });
@@ -146,7 +147,7 @@
   async function saveRider(event) {
     const text = event.currentTarget.value.trim();
     const g = text === '' ? null : Math.round(Number(text.replace(',', '.')) * 1000);
-    if (text !== '' && !(g >= 20000 && g <= 200000)) return (message = 'Type your weight in kilograms, e.g. 64.');
+    if (text !== '' && !(g >= 20000 && g <= 200000)) return (message = t('Type your weight in kilograms, e.g. 64.'));
     message = '';
     await db.settings.put({ key: 'riderWeightG', value: g });
   }
@@ -155,7 +156,7 @@
   async function saveRear(event) {
     const text = event.currentTarget.value.trim();
     const n = text === '' ? null : Math.round(Number(text));
-    if (text !== '' && !(n >= 50 && n <= 90)) return (message = 'Rear wheel hint: a percentage from 50 to 90.');
+    if (text !== '' && !(n >= 50 && n <= 90)) return (message = t('Rear wheel hint: a percentage from 50 to 90.'));
     message = '';
     await db.settings.put({ key: 'rearLimitPct', value: n });
   }
@@ -167,85 +168,85 @@
 <div class="bikes">
   <!-- Design audit B3, B5: title first, then Setup / Care; settings fold away. -->
   <header class="head">
-    <h1 class="title">Bikes</h1>
+    <h1 class="title">{t('Bikes')}</h1>
     <BikesNav current="setup" />
   </header>
   <details class="settings">
-    <summary><span class="lbl">Settings</span> Rider {$riderQ?.value ? formatWeight($riderQ.value) : 'not set'} · rear wheel hint over {$rearQ?.value ?? 60} %</summary>
+    <summary><span class="lbl">{t('Settings')}</span> {t('Rider {weight} · rear wheel hint over {pct} %', { weight: $riderQ?.value ? formatWeight($riderQ.value) : t('not set'), pct: $rearQ?.value ?? 60 })}</summary>
     <div class="set-in">
       <label class="rider">
-        <span class="lbl">Rider weight (kg)</span>
-        <input class="inp num" type="text" inputmode="decimal" value={$riderQ?.value ? $riderQ.value / 1000 : ''} onchange={saveRider} placeholder="e.g. 64" />
+        <span class="lbl">{t('Rider weight (kg)')}</span>
+        <input class="inp num" type="text" inputmode="decimal" value={$riderQ?.value ? $riderQ.value / 1000 : ''} onchange={saveRider} placeholder={t('e.g. 64')} />
       </label>
       <label class="rider">
-        <span class="lbl">Hint when rear is over (%)</span>
+        <span class="lbl">{t('Hint when rear is over (%)')}</span>
         <input class="inp num" type="text" inputmode="numeric" value={$rearQ?.value ?? ''} onchange={saveRear} placeholder="60" />
       </label>
     </div>
   </details>
 
   {#if !bikes.length && $bikesQ}
-    <p class="card">No bikes yet. Import your data on the <a href="#/">start page</a> (Your data → Import backup).</p>
+    <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a> {t('(Your data → Import backup).')}</p>
   {:else if bike}
-    <div class="tabs" role="tablist" aria-label="Bike">
+    <div class="tabs" role="tablist" aria-label={t('Bike')}>
       {#each bikes as b (b.id)}
         <button type="button" role="tab" aria-selected={b.id === bike.id} onclick={() => ((pickedId = b.id), (activeSlot = null))}>{b.name}</button>
       {/each}
     </div>
-    <p class="addbike"><button type="button" class="link" onclick={() => (bikeDialog = { bike: null })}>Add bike</button></p>
+    <p class="addbike"><button type="button" class="link" onclick={() => (bikeDialog = { bike: null })}>{t('Add bike')}</button></p>
 
     <section class="bike-card" aria-labelledby="bike-h">
       <div class="bh">
         <div>
           <h2 id="bike-h" class="title">{bike.name}</h2>
-          <p class="sub">{bike.type ?? ''}{bike.use ? ` · ${bike.use}` : ''} <button type="button" class="link" onclick={() => (bikeDialog = { bike })}>Edit</button></p>
+          <p class="sub">{bike.type ?? ''}{bike.use ? ` · ${bike.use}` : ''} <button type="button" class="link" onclick={() => (bikeDialog = { bike })}>{t('Edit')}</button></p>
           <p class="fix">
-            <span class="lbl">Always mounted</span>
+            <span class="lbl">{t('Always mounted')}</span>
             {#each bike.fixtures ?? [] as f (f)}
-              <span class="chip">{itemsById[f]?.name ?? f}<button type="button" aria-label="Remove {itemsById[f]?.name ?? f}" onclick={() => setFixtures((bike.fixtures ?? []).filter((x) => x !== f))}>×</button></span>
+              <span class="chip">{itemsById[f] ? nameOf(itemsById[f]) : f}<button type="button" aria-label={t('Remove {name}', { name: itemsById[f] ? nameOf(itemsById[f]) : f })} onclick={() => setFixtures((bike.fixtures ?? []).filter((x) => x !== f))}>×</button></span>
             {:else}
-              <span class="sub">nothing</span>
+              <span class="sub">{t('nothing')}</span>
             {/each}
-            <select class="sel mini" aria-label="Add something that is always mounted" value="" onchange={(e) => { if (e.currentTarget.value) setFixtures([...(bike.fixtures ?? []), e.currentTarget.value]); e.currentTarget.value = ''; }}>
-              <option value="">+ add</option>
-              {#each items.filter((i) => i.category === 'bike' && !(bike.fixtures ?? []).includes(i.id) && i.ownership !== 'gone') as i (i.id)}<option value={i.id}>{i.name}</option>{/each}
+            <select class="sel mini" aria-label={t('Add something that is always mounted')} value="" onchange={(e) => { if (e.currentTarget.value) setFixtures([...(bike.fixtures ?? []), e.currentTarget.value]); e.currentTarget.value = ''; }}>
+              <option value="">{t('+ add')}</option>
+              {#each items.filter((i) => i.category === 'bike' && !(bike.fixtures ?? []).includes(i.id) && i.ownership !== 'gone') as i (i.id)}<option value={i.id}>{nameOf(i)}</option>{/each}
             </select>
           </p>
         </div>
         <div class="kpis">
           <label>
-            <span class="lbl">Bike weight (g)</span>
-            {#key bike.id}<input class="inp num" type="text" inputmode="numeric" value={bike.weightG ?? ''} onchange={saveBikeWeight} placeholder="not weighed" />{/key}
+            <span class="lbl">{t('Bike weight (g)')}</span>
+            {#key bike.id}<input class="inp num" type="text" inputmode="numeric" value={bike.weightG ?? ''} onchange={saveBikeWeight} placeholder={t('not weighed')} />{/key}
             {#if bike.weightNote}<small class="hintw">{bike.weightNote}</small>{/if}
-            <small class="hintw">Without bags, with Garmin mount, Quad Lock and bottle cages.</small>
+            <small class="hintw">{t('Without bags, with Garmin mount, Quad Lock and bottle cages.')}</small>
           </label>
-          <div><span class="lbl">Bags</span><b class="num">{setup.bagCount} · {formatVolume(setup.volumeL)}</b></div>
+          <div><span class="lbl">{t('Bags')}</span><b class="num">{setup.bagCount} · {formatVolume(setup.volumeL)}</b></div>
           <div>
-            <span class="lbl">Bags weigh</span><b class="num">{formatWeight(setup.bagsG)}</b>
-            {#if setup.unweighed}<small class="nw">+ {setup.unweighed} not weighed</small>{/if}
+            <span class="lbl">{t('Bags weigh')}</span><b class="num">{formatWeight(setup.bagsG)}</b>
+            {#if setup.unweighed}<small class="nw">{t('+ {n} not weighed', { n: setup.unweighed })}</small>{/if}
           </div>
         </div>
       </div>
 
       {#if profile}
-        <dl class="profile" aria-label="Profile of the {bike.name}">
-          <div><dt>km</dt><dd class="num">{profile.km == null ? 'not set' : profile.km.toLocaleString('en')}{#if profile.kmDate}<small>set {day(profile.kmDate)}</small>{/if}</dd></div>
-          <div><dt>Workshop {new Date().getFullYear()}</dt><dd class="num">{profile.year ? (profile.year.unknown === profile.year.visits ? 'cost unknown' : chf(profile.year.chf)) : 'CHF 0'}{#if profile.year}<small>{profile.year.visits} {profile.year.visits === 1 ? 'visit' : 'visits'}</small>{/if}</dd></div>
-          <div><dt>Per 1000 km</dt><dd class="num">{profile.per?.chf != null ? chf(profile.per.chf) : '–'}<small>{profile.per?.chf != null ? `over ${profile.per.km.toLocaleString('en')} km` : profile.per?.wait ? `after ${profile.per.wait.toLocaleString('en')} more km` : 'needs km at a visit'}</small></dd></div>
-          <div class:late={profile.next[0]?.late}><dt>{profile.next[0]?.late ? 'Due now' : 'Next'}</dt><dd>{#each profile.next as n (n.name)}<span>{n.name}<small>{n.detail}</small></span>{:else}<span>nothing recorded</span>{/each}</dd></div>
-          <div><dt>Last workshop</dt><dd>{#if profile.last}<span>{day(profile.last.date)}<small>{profile.last.shop}{profile.last.chf != null ? ` · ${chf(profile.last.chf)}` : ''}</small></span>{:else}<span>none yet</span>{/if}</dd></div>
+        <dl class="profile" aria-label={t('Profile of the {bike}', { bike: bike.name })}>
+          <div><dt>km</dt><dd class="num">{profile.km == null ? t('not set') : num(profile.km)}{#if profile.kmDate}<small>{t('set {date}', { date: day(profile.kmDate) })}</small>{/if}</dd></div>
+          <div><dt>{t('Workshop {year}', { year: new Date().getFullYear() })}</dt><dd class="num">{profile.year ? (profile.year.unknown === profile.year.visits ? t('cost unknown') : chf(profile.year.chf)) : 'CHF 0'}{#if profile.year}<small>{tn(profile.year.visits, '{n} visit', '{n} visits')}</small>{/if}</dd></div>
+          <div><dt>{t('Per 1000 km')}</dt><dd class="num">{profile.per?.chf != null ? chf(profile.per.chf) : '–'}<small>{profile.per?.chf != null ? t('over {km} km', { km: num(profile.per.km) }) : profile.per?.wait ? t('after {km} more km', { km: num(profile.per.wait) }) : t('needs km at a visit')}</small></dd></div>
+          <div class:late={profile.next[0]?.late}><dt>{profile.next[0]?.late ? t('Due now') : t('Next')}</dt><dd>{#each profile.next as n (n.name)}<span>{n.name}<small>{n.detail}</small></span>{:else}<span>{t('nothing recorded')}</span>{/each}</dd></div>
+          <div><dt>{t('Last workshop')}</dt><dd>{#if profile.last}<span>{day(profile.last.date)}<small>{profile.last.shop}{profile.last.chf != null ? ` · ${chf(profile.last.chf)}` : ''}</small></span>{:else}<span>{t('none yet')}</span>{/if}</dd></div>
         </dl>
-        <p class="to-care"><a class="link" href="#/care">Bike care for the {bike.name}</a></p>
+        <p class="to-care"><a class="link" href="#/care">{t('Bike care for the {bike}', { bike: bike.name })}</a></p>
       {/if}
 
-      <div class="gal" aria-label="Photos of the {bike.name}">
+      <div class="gal" aria-label={t('Photos of the {bike}', { bike: bike.name })}>
         {#each gallery as p, n (p.id)}
-          <button type="button" class="th" class:main={p.main} onclick={() => (shown = n)} aria-label="Open photo {p.name}{p.main ? ', shown in Pack' : ''}">
+          <button type="button" class="th" class:main={p.main} onclick={() => (shown = n)} aria-label={p.main ? t('Open photo {name}, shown in Pack', { name: p.name }) : t('Open photo {name}', { name: p.name })}>
             <img src={p.src} alt="" loading="lazy" />
             <span>{p.name}</span>
           </button>
         {/each}
-        <label class="th add">{adding ? 'Reading…' : '+ Photo'}<input type="file" accept="image/*" multiple onchange={addPhotos} hidden disabled={adding} /></label>
+        <label class="th add">{adding ? t('Reading…') : t('+ Photo')}<input type="file" accept="image/*" multiple onchange={addPhotos} hidden disabled={adding} /></label>
         {#if photoMsg}<p class="err" role="alert">{photoMsg}</p>{/if}
       </div>
 
@@ -253,20 +254,20 @@
       <div class="left">
       <!-- Design audit B1: on a phone the drawing is too small to read; it opens on request. -->
       <details class="onbike" open={!phone.matches || editMounts}>
-        <summary>Show on the bike</summary>
-        <BikeStage {zones} onpick={pick} label="{bike.name} with its bags" />
+        <summary>{t('Show on the bike')}</summary>
+        <BikeStage {zones} onpick={pick} label={t('{bike} with its bags', { bike: bike.name })} />
       </details>
 
       <div class="mounts">
         <button type="button" class="btn" class:ink={editMounts} aria-pressed={editMounts} onclick={() => (editMounts = !editMounts)}>
-          {editMounts ? 'Done with mounts' : 'Edit mounts'}
+          {editMounts ? t('Done with mounts') : t('Edit mounts')}
         </button>
-        <span class="hint">{editMounts ? 'Tap a place on the drawing to switch its mount on or off.' : 'Choose which bag sits where. Pack starts with this setup.'}</span>
+        <span class="hint">{editMounts ? t('Tap a place on the drawing to switch its mount on or off.') : t('Choose which bag sits where. Pack starts with this setup.')}</span>
       </div>
       </div>
 
       <div class="right">
-      <p class="std"><b>Standard bags</b> · Pack starts every new trip on this bike with them; a trip can change its own.</p>
+      <p class="std"><b>{t('Standard bags')}</b> · {t('Pack starts every new trip on this bike with them; a trip can change its own.')}</p>
       <!-- Design audit B2: the places as a grid of small cards; places without a bag stay small and dashed. -->
       <ul class="slots">
         {#each SLOTS.filter((s) => bike.slots.includes(s.key)) as s (s.key)}
@@ -274,14 +275,14 @@
           {@const options = bagsFor(s.key, bags)}
           {@const other = tripBag(s.key)}
           <li class:active={activeSlot === s.key} class:empty={!bag}>
-            <label for="slot-{s.key}"><b>{s.name}</b><small>{s.where}</small></label>
+            <label for="slot-{s.key}"><b>{t(s.name)}</b><small>{t(s.where)}</small></label>
             <span class="w num" class:muted={bag && containerWeight(bag, itemsById) == null}>{bag ? formatWeight(containerWeight(bag, itemsById)) : ''}</span>
             <select id="slot-{s.key}" class="sel" value={bike.setup?.[s.key] ?? ''} onchange={(e) => setBag(s.key, e.currentTarget.value)} onfocus={() => (activeSlot = s.key)}>
-              <option value="">No bag</option>
+              <option value="">{t('No bag')}</option>
               {#each options as o (o.id)}<option value={o.id}>{o.name}{o.volumeL ? ` · ${formatVolume(o.volumeL)}` : ''}</option>{/each}
             </select>
             {#if other}
-              <p class="trip-bag">{tripOn.title}: {other.none ? 'no bag here' : `${other.name}${other.volumeL ? ` ${formatVolume(other.volumeL)}` : ''}`}{#if !other.none}<button type="button" class="link" onclick={() => setBag(s.key, other.id)}>Use as standard</button>{/if}</p>
+              <p class="trip-bag">{tripOn.title}: {other.none ? t('no bag here') : `${other.name}${other.volumeL ? ` ${formatVolume(other.volumeL)}` : ''}`}{#if !other.none}<button type="button" class="link" onclick={() => setBag(s.key, other.id)}>{t('Use as standard')}</button>{/if}</p>
             {/if}
           </li>
         {/each}
@@ -294,18 +295,18 @@
 
   <section class="baglist" aria-labelledby="bags-h">
     <div class="bl-h">
-      <h2 id="bags-h" class="title">Your bags</h2>
-      <button type="button" class="btn hi" onclick={() => (dialog = { bag: null })}>Add bag</button>
+      <h2 id="bags-h" class="title">{t('Your bags')}</h2>
+      <button type="button" class="btn hi" onclick={() => (dialog = { bag: null })}>{t('Add bag')}</button>
     </div>
-    <p class="sub">Every bag and cage that can go on a bike. The weight comes from the linked gear item.</p>
+    <p class="sub">{t('Every bag and cage that can go on a bike. The weight comes from the linked gear item.')}</p>
     {#each bagsBySlot as g (g.slot.key)}
-      <h3 class="slot-h">{g.slot.name} <small>{g.slot.where}</small></h3>
+      <h3 class="slot-h">{t(g.slot.name)} <small>{t(g.slot.where)}</small></h3>
       <ul class="rows">
         {#each g.list as b (b.id)}
           <li>
             <button type="button" onclick={() => (dialog = { bag: b })}>
               <span class="nm">{b.name}</span>
-              <span class="bg">{onBikes(b.id).join(', ') || 'Not on a bike'}</span>
+              <span class="bg">{onBikes(b.id).join(', ') || t('Not on a bike')}</span>
               <span class="v num">{formatVolume(b.volumeL)}</span>
               <span class="w num" class:nw={containerWeight(b, itemsById) == null}>{formatWeight(containerWeight(b, itemsById))}</span>
             </button>
@@ -313,7 +314,7 @@
         {/each}
       </ul>
     {:else}
-      <p class="card">No bags yet. Import your data, or add a bag.</p>
+      <p class="card">{t('No bags yet. Import your data, or add a bag.')}</p>
     {/each}
   </section>
 </div>
@@ -327,19 +328,19 @@
 {/if}
 
 {#if shown != null && gallery.length}
-  <Lightbox list={gallery.map((p) => ({ src: p.src, name: p.name, sub: [p.main ? 'Shown in Pack' : '', p.tripId ? `For ${tripTitle(p.tripId) ?? 'a trip'}` : ''].filter(Boolean).join(' · ') }))} start={shown} onclose={() => (shown = null)}>
+  <Lightbox list={gallery.map((p) => ({ src: p.src, name: p.name, sub: [p.main ? t('Shown in Pack') : '', p.tripId ? t('For {trip}', { trip: tripTitle(p.tripId) ?? t('a trip') }) : ''].filter(Boolean).join(' · ') }))} start={shown} onclose={() => (shown = null)}>
     {#snippet actions(cur)}
       {@const p = gallery.find((x) => x.src === cur.src)}
       {#if p}
-        {#if !p.main}<button type="button" class="lbtn" onclick={() => setMain(p)}>Show in Pack</button>{/if}
+        {#if !p.main}<button type="button" class="lbtn" onclick={() => setMain(p)}>{t('Show in Pack')}</button>{/if}
         {#if p.stored}
-          <button type="button" class="lbtn" onclick={() => rename(p)}>Rename</button>
-          <select class="lsel" aria-label="Show for this trip" value={p.tripId ?? ''} onchange={(e) => setTrip(p, e.currentTarget.value)}>
-            <option value="">For every trip</option>
-            {#each bikeTrips as t (t.id)}<option value={t.id}>For {t.title}</option>{/each}
+          <button type="button" class="lbtn" onclick={() => rename(p)}>{t('Rename')}</button>
+          <select class="lsel" aria-label={t('Show for this trip')} value={p.tripId ?? ''} onchange={(e) => setTrip(p, e.currentTarget.value)}>
+            <option value="">{t('For every trip')}</option>
+            {#each bikeTrips as bt (bt.id)}<option value={bt.id}>{t('For {trip}', { trip: bt.title })}</option>{/each}
           </select>
         {/if}
-        <button type="button" class="lbtn" onclick={() => removePhoto(p)}>Remove</button>
+        <button type="button" class="lbtn" onclick={() => removePhoto(p)}>{t('Remove')}</button>
       {/if}
     {/snippet}
   </Lightbox>

@@ -3,6 +3,7 @@
 Stand: 5. Oktober 2026
 
 ## Fertig
+- **Deutsch und Englisch (v0.20.0):** Oben in der Leiste DE | EN, auf jeder Seite. Die Wahl gilt pro Gerät (Phone und Desktop getrennt) und bleibt gespeichert; Englisch ist Standard. Alle Knöpfe, Titel, Hinweise, Fehlermeldungen, Daten und Zahlen (1’460, 15. Okt.) wechseln mit, Gear-Teile zeigen ihren deutschen Namen aus der Excel. Was du selbst geschrieben hast (Tour- und Taschennamen, Learnings, Notizen, Aufgaben aus der Excel, Logbuch) bleibt, wie es ist. Schweizer Schreibweise (ss statt ß, Velo).
 - **Neue Startseite und Navigation (v0.19.6):** Oben die nächste Tour als dunkles Band (Countdown, Continue packing, Ride day, Print, „Before the trip“). Darunter Pack, Gear und Bikes gleich gross: Pack mit „New packing list“ (Template, letzte Tour kopieren oder Standard-Set), Packstand, Ballast und Listen zum Öffnen; Gear mit Favoriten, wo das Gewicht steckt, schwerstem Teil, Wunschliste und Wäge-Fortschritt; Bikes mit km, Status pro Velo und Werkstattkosten des Jahres. „Good to know“: Wetter und Sonnenzeiten, ein Learning, dein Tempo, Inbox, Backup. Obere Leiste auf jeder Seite: Home, Gear, Pack, Bikes, Debrief, Suche über alles, Inbox mit Zahl und „New“ (Packliste, Gear-Teil, Quick note, km, Werkstatt-Beleg, Template). Am Phone die Bereiche unten mit dem + in der Mitte; der schwebende +-Knopf ist weg.
 - **Packen und Fahren (v0.19.5):** Pack zeigt oben die Karte "Ballast": was auf dieser Tour ist, aber die letzten 2 oder 3 Male nicht gebraucht wurde, mit Gramm, "Leave at home" (einzeln oder alle, Undo geht) und "Keep" (bleibt dabei, die Karte fragt nicht mehr). Statt des Learning-Satzes stehen kurze Marken beim Item ("3× not used", "Missed last time", "Broke last time", "Tip"); antippen zeigt den Satz, auch am Packtag. Ride day hat "Block by block" für jede Tour, nicht nur nonstop: pro 3-Stunden-Block was du anziehst und ausziehst (mit Tasche), wie viel essen und trinken, wo nachfüllen, und ab wann Licht (Sonnenuntergang offline berechnet).
 - **Favoriten als Datengrundlage (v0.19.4):** Noahs Liste "favorites-tested-bikepacking-gear" kommt als private Datei über Startseite → Your data → Import backup → "Apply favourites". Jedes Lieblingsteil bekommt einen ★ (Gear, Pack), Gear hat den Knopf "★ Favourites", in Pack stehen Favoriten oben in "Not packed", und die Liste ist als Template gespeichert. Gewichte und alles andere bleiben; nichts wird gelöscht. Im Item-Dialog lässt sich der Stern ein- und ausschalten.
@@ -57,5 +58,4 @@ Stand: 5. Oktober 2026
 - Nutzen pro Seite: Vorschläge N1-N16 im Dokument "Pack Generator: Mehr Nutzen pro Seite", alle beantwortet und mit 0.19.5 umgesetzt.
 
 ## Als Nächstes
-1. 0.20.0: ganze App Deutsch/Englisch umschaltbar.
-2. Paket 5: weitere Bereiche (Skitouren, Weekend-Trip, Weltreise) und Merkliste "All my favorite things".
+1. Paket 5: weitere Bereiche (Skitouren, Weekend-Trip, Weltreise) und Merkliste "All my favorite things".

@@ -12,6 +12,7 @@
 import { distKm, ridingHours, climb } from './route.js';
 import { zoneName } from './trips.js';
 import { newDebrief } from './debrief.js';
+import { t } from './i18n.svelte.js';
 
 const addDays = (date, n) => {
   const d = new Date(`${date}T00:00:00Z`);
@@ -124,7 +125,7 @@ export function blocks(trip, st) {
   for (let n = 1; km < st.km - 0.05; n++) {
     const endAt = addHours(at, 3);
     const kmTo = Math.min(st.km, km + 3 * speed);
-    rows.push({ name: `Block ${n}`, from: at.slice(11), to: endAt.slice(11), startAt: at, endAt, kmFrom: Math.round(km), kmTo: Math.round(kmTo), rest: false, note: '' });
+    rows.push({ name: t('Block {n}', { n }), from: at.slice(11), to: endAt.slice(11), startAt: at, endAt, kmFrom: Math.round(km), kmTo: Math.round(kmTo), rest: false, note: '' });
     km = kmTo;
     at = endAt;
   }
@@ -169,16 +170,16 @@ export function addTime(hhmm, hours) {
   if (hours == null || !/^\d{1,2}:\d{2}$/.test(hhmm ?? '')) return null;
   const [h, m] = hhmm.split(':').map(Number);
   const mins = h * 60 + m + Math.round(hours * 60);
-  const t = `${String(Math.floor(mins / 60) % 24).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
-  return mins >= 24 * 60 ? `${t} (+1 day)` : t;
+  const hm = `${String(Math.floor(mins / 60) % 24).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
+  return mins >= 24 * 60 ? t('{time} (+1 day)', { time: hm }) : hm;
 }
 
 /* ---------- what is where ---------- */
 
 /** Name of the place an entry is in: the bag's purpose, else the bag, else the zone. */
 export function placeName(trip, zone) {
-  if (zone.key === 'body') return 'On you';
-  if (zone.key === 'mounted') return 'On the bike';
+  if (zone.key === 'body') return t('On you');
+  if (zone.key === 'mounted') return t('On the bike');
   return trip.purpose?.[zone.key] || zoneName(zone);
 }
 
@@ -197,7 +198,7 @@ export async function fetchHourly(places, date, fetcher = fetch, now = new Date(
   for (const p of places) {
     const url = `${API}?latitude=${p.lat}&longitude=${p.lon}&hourly=temperature_2m,precipitation,precipitation_probability,wind_speed_10m,wind_gusts_10m&start_date=${date}&end_date=${endDate}&timezone=auto`;
     const res = await fetcher(url);
-    if (!res.ok) throw new Error(`Forecast failed (${res.status})`);
+    if (!res.ok) throw new Error(t('Forecast failed ({status})', { status: res.status }));
     const { hourly = {} } = await res.json();
     const hours = (hourly.time ?? []).map((t, n) => ({
       t,
@@ -237,9 +238,9 @@ export function wxSummary(hours) {
   const [lo, hi] = [Math.round(Math.min(...temps)), Math.round(Math.max(...temps))];
   const parts = [lo === hi ? `${lo} °C` : `${lo}–${hi} °C`];
   const wet = hours.find((x) => (x.rainMm ?? 0) >= 0.5 || (x.rainPct ?? 0) >= 50);
-  parts.push(wet ? `rain likely from ${wet.h} h` : 'dry');
+  parts.push(wet ? t('rain likely from {h} h', { h: wet.h }) : t('dry'));
   const gusts = hours.map((x) => x.gust ?? x.wind).filter((v) => v != null);
-  if (gusts.length && Math.max(...gusts) >= 30) parts.push(`gusts up to ${Math.round(Math.max(...gusts))} km/h`);
+  if (gusts.length && Math.max(...gusts) >= 30) parts.push(t('gusts up to {n} km/h', { n: Math.round(Math.max(...gusts)) }));
   return parts.join(' · ');
 }
 

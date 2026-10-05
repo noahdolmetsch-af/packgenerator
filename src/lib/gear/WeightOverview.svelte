@@ -1,6 +1,7 @@
 <script>
   import { formatWeight, itemWeight, CATEGORY } from '../gear.js';
   import { phone } from '../media.svelte.js';
+  import { t, nameOf } from '../i18n.svelte.js';
 
   /** stats from gearStats(); category = the active filter; onpick(key) toggles it; onopen(item) opens an item */
   let { stats, category, onpick, onopen } = $props();
@@ -13,8 +14,8 @@
 
 <div class="ov">
   <section aria-labelledby="ov-cat">
-    <h2 id="ov-cat" class="h">Weight by category <small>{stats.unweighed} not weighed{stats.consumablesG ? ` · food & water (${formatWeight(stats.consumablesG)}) not counted` : ''}</small></h2>
-    <div class="bar" role="group" aria-label="Weight by category, tap to filter">
+    <h2 id="ov-cat" class="h">{t('Weight by category')} <small>{t('{n} not weighed', { n: stats.unweighed })}{stats.consumablesG ? ` · ${t('food & water ({w}) not counted', { w: formatWeight(stats.consumablesG) })}` : ''}</small></h2>
+    <div class="bar" role="group" aria-label={t('Weight by category, tap to filter')}>
       {#each cats as c (c.key)}
         <button
           type="button"
@@ -23,20 +24,20 @@
           class:dim={category && category !== c.key}
           style:flex-grow={c.g}
           style:background={c.color}
-          aria-label="{c.name}, {formatWeight(c.g)}. Filter"
+          aria-label={t('{name}, {w}. Filter', { name: t(c.name), w: formatWeight(c.g) })}
           aria-pressed={category === c.key}
           onclick={() => onpick(c.key)}
         ></button>
       {/each}
     </div>
     <details class="fold" open={!phone.matches}>
-    <summary>Category totals</summary>
+    <summary>{t('Category totals')}</summary>
     <ul class="legend">
       {#each cats as c (c.key)}
         <li>
           <button type="button" aria-pressed={category === c.key} onclick={() => onpick(c.key)}>
             <span class="sw" style:background={c.color}></span>
-            <span class="n">{c.name}</span>
+            <span class="n">{t(c.name)}</span>
             <span class="num w">{formatWeight(c.g)}</span>
             <span class="num p">{Math.round((c.g / total) * 100)}%</span>
           </button>
@@ -48,14 +49,14 @@
 
   <section aria-labelledby="ov-top">
     <details class="fold" open={!phone.matches}>
-    <summary><h2 id="ov-top" class="h">10 heaviest <small>owned + unclear</small></h2></summary>
+    <summary><h2 id="ov-top" class="h">{t('10 heaviest')} <small>{t('owned + unclear')}</small></h2></summary>
     <ol class="top">
       {#each stats.top as item, i (item.id)}
         <li>
           <button type="button" onclick={() => onopen(item)}>
             <span class="rk num">{String(i + 1).padStart(2, '0')}</span>
             <span class="tn">
-              <span>{item.name}</span>
+              <span>{nameOf(item)}</span>
               <span class="rule"><i style:width="{(itemWeight(item) / maxTop) * 100}%" style:background={CATEGORY[item.category]?.color}></i></span>
             </span>
             <span class="num tw">{formatWeight(itemWeight(item))}</span>

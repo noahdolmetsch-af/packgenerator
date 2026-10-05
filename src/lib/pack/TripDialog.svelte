@@ -2,6 +2,7 @@
   import { db } from '../db.js';
   import { newTrip, lastTripOn, switchBike } from '../trips.js';
   import { tripFromTemplate } from '../templates.js';
+  import { t } from '../i18n.svelte.js';
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -31,16 +32,16 @@
 
   async function save(event) {
     event.preventDefault();
-    if (!draft.title.trim()) return (error = 'Give the trip a name.');
-    if (!bike) return (error = 'Choose a bike.');
+    if (!draft.title.trim()) return (error = t('Give the trip a name.'));
+    if (!bike) return (error = t('Choose a bike.'));
     if (isNew) {
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       const tpl = templates.find((x) => x.id === start);
-      const t = tpl
+      const nt = tpl
         ? tripFromTemplate({ ...draft, bike }, tpl, items)
         : newTrip({ ...draft, bike, readyStandard }, start === 'standard' ? [] : trips, items);
-      await db.trips.put(t);
-      oncreated?.(t.id);
+      await db.trips.put(nt);
+      oncreated?.(nt.id);
     } else {
       const changes = { title: draft.title.trim(), startDate: draft.startDate, days: Math.max(1, Number(draft.days) || 1) };
       // Another bike brings its own bags; items in a place it has no bag for go to the seat pack.
@@ -51,7 +52,7 @@
   }
 
   async function remove() {
-    if (!confirm(`Delete the trip "${trip.title}"? A backup file can bring it back.`)) return;
+    if (!confirm(t('Delete the trip "{title}"? A backup file can bring it back.', { title: trip.title }))) return;
     await db.trips.delete(trip.id);
     dialog.close();
   }
@@ -59,39 +60,39 @@
 
 <dialog class="sheet" bind:this={dialog} {onclose} aria-labelledby="trip-h">
   <form onsubmit={save} novalidate>
-    <h2 id="trip-h" class="title">{isNew ? 'New trip' : 'Trip details'}</h2>
+    <h2 id="trip-h" class="title">{isNew ? t('New trip') : t('Trip details')}</h2>
     <div class="grid">
-      <label class="wide"><span class="lbl">Name</span><input class="inp" bind:value={draft.title} placeholder="e.g. Jura weekend" required /></label>
-      <label><span class="lbl">Start date</span><input class="inp" type="date" bind:value={draft.startDate} /></label>
-      <label><span class="lbl">Days</span><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} /></label>
+      <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} placeholder={t('e.g. Jura weekend')} required /></label>
+      <label><span class="lbl">{t('Start date')}</span><input class="inp" type="date" bind:value={draft.startDate} /></label>
+      <label><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} /></label>
       <label class="wide">
-        <span class="lbl">Bike</span>
+        <span class="lbl">{t('Bike')}</span>
         <select class="sel" bind:value={draft.bikeId}>
           {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
         </select>
       </label>
     </div>
     {#if isNew}
-      <label class="start"><span class="lbl">Start from</span>
+      <label class="start"><span class="lbl">{t('Start from')}</span>
         <select class="sel" bind:value={start}>
-          <option value="last">{from ? `Last trip on this bike: ${from.title}` : 'Last trip on this bike (none yet)'}</option>
-          {#each templates as t (t.id)}<option value={t.id}>Template: {t.name}</option>{/each}
-          <option value="standard">Standard set</option>
+          <option value="last">{from ? t('Last trip on this bike: {title}', { title: from.title }) : t('Last trip on this bike (none yet)')}</option>
+          {#each templates as tp (tp.id)}<option value={tp.id}>{t('Template: {name}', { name: tp.name })}</option>{/each}
+          <option value="standard">{t('Standard set')}</option>
         </select>
       </label>
       <p class="note">
-        {#if templates.some((t) => t.id === start)}Items go into the bags of this bike. Weather and ticks start empty.
-        {:else if start === 'last' && from}A copy of <b>{from.title}</b>. Nothing is ticked off yet.
-        {:else}Your standard set: worn, standard pack, overnight base and the items "On every trip".{/if}
+        {#if templates.some((x) => x.id === start)}{t('Items go into the bags of this bike. Weather and ticks start empty.')}
+        {:else if start === 'last' && from}{t('A copy of {title}. Nothing is ticked off yet.', { title: from.title })}
+        {:else}{t('Your standard set: worn, standard pack, overnight base and the items "On every trip".')}{/if}
       </p>
     {:else if draft.bikeId !== trip.bikeId}
-      <p class="note">The trip takes the bags of the new bike. Items in a place without a bag move to the seat pack.</p>
+      <p class="note">{t('The trip takes the bags of the new bike. Items in a place without a bag move to the seat pack.')}</p>
     {/if}
     <p class="err" role="alert">{error}</p>
     <div class="foot">
-      <button type="submit" class="btn hi">{isNew ? 'Create trip' : 'Save'}</button>
-      <button type="button" class="btn" onclick={() => dialog.close()}>Cancel</button>
-      {#if !isNew}<button type="button" class="btn del" onclick={remove}>Delete trip</button>{/if}
+      <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}</button>
+      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+      {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete trip')}</button>{/if}
     </div>
   </form>
 </dialog>

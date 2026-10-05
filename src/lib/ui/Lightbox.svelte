@@ -4,6 +4,8 @@
    * next one, Esc or Close to go back. list: [{ src, name, sub }]. actions: an optional snippet
    * under the photo, it gets the shown photo.
    */
+  import { t } from '../i18n.svelte.js';
+
   let { list, start = 0, onclose, actions = null } = $props();
 
   // svelte-ignore state_referenced_locally
@@ -36,18 +38,18 @@
   }
 </script>
 
-<dialog class="lb" bind:this={dialog} onclose={onclose} aria-label="Photo: {cur?.name ?? ''}">
+<dialog class="lb" bind:this={dialog} onclose={onclose} aria-label={t('Photo: {name}', { name: cur?.name ?? '' })}>
   {#if cur}
     <header class="top">
       <span class="nm"><b>{cur.name}</b>{#if cur.sub}<small>{cur.sub}</small>{/if}</span>
       {#if list.length > 1}<span class="num n">{at + 1} / {list.length}</span>{/if}
-      <button type="button" class="close" onclick={() => dialog.close()}>Close</button>
+      <button type="button" class="close" onclick={() => dialog.close()}>{t('Close')}</button>
     </header>
     <div class="pic" onpointerdown={down} onpointerup={up} onpointercancel={() => (x0 = null)} role="presentation">
       <img src={cur.src} alt={cur.name} draggable="false" />
       {#if list.length > 1}
-        <button type="button" class="nav prev" aria-label="Previous photo" onclick={() => go(at - 1)}>‹</button>
-        <button type="button" class="nav next" aria-label="Next photo" onclick={() => go(at + 1)}>›</button>
+        <button type="button" class="nav prev" aria-label={t('Previous photo')} onclick={() => go(at - 1)}>‹</button>
+        <button type="button" class="nav next" aria-label={t('Next photo')} onclick={() => go(at + 1)}>›</button>
       {/if}
     </div>
     {#if actions}<footer class="foot">{@render actions(cur)}</footer>{/if}

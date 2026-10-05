@@ -7,6 +7,7 @@
  *   trip.forecast = { fetchedAt, place, days: [{ date, min, max, rainMm, rainPct }] }
  * "Use forecast" turns it into the packing weather trip.wx = { min, max, rain }.
  */
+import { t, tn } from './i18n.svelte.js';
 
 const GEO = 'https://geocoding-api.open-meteo.com/v1/search';
 const API = 'https://api.open-meteo.com/v1/forecast';
@@ -18,7 +19,7 @@ export async function searchPlace(query, fetcher = fetch) {
   const q = query.trim();
   if (q.length < 2) return [];
   const res = await fetcher(`${GEO}?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);
-  if (!res.ok) throw new Error(`Place search failed (${res.status})`);
+  if (!res.ok) throw new Error(t('Place search failed ({status})', { status: res.status }));
   const data = await res.json();
   return (data.results ?? []).map((r) => ({
     name: r.name,
@@ -34,7 +35,7 @@ const round = (n, d = 4) => Math.round(n * 10 ** d) / 10 ** d;
 export async function fetchForecast(place, fetcher = fetch, now = new Date()) {
   const url = `${API}?latitude=${place.lat}&longitude=${place.lon}&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,precipitation_probability_max&timezone=auto&forecast_days=${FORECAST_DAYS}`;
   const res = await fetcher(url);
-  if (!res.ok) throw new Error(`Forecast failed (${res.status})`);
+  if (!res.ok) throw new Error(t('Forecast failed ({status})', { status: res.status }));
   const { daily = {} } = await res.json();
   const days = (daily.time ?? []).map((date, n) => ({
     date,
@@ -84,7 +85,7 @@ export function ageText(iso, now = new Date()) {
   const days = Math.floor((now - new Date(iso)) / 864e5);
   if (days <= 0) {
     const h = Math.floor((now - new Date(iso)) / 36e5);
-    return h < 1 ? 'just now' : `${h} h ago`;
+    return h < 1 ? t('just now') : t('{h} h ago', { h });
   }
-  return days === 1 ? '1 day ago' : `${days} days ago`;
+  return tn(days, '{n} day ago', '{n} days ago');
 }

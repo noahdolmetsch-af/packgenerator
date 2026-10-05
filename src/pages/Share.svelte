@@ -5,6 +5,7 @@
    */
   import { decodeShare } from '../lib/share.js';
   import { formatWeight } from '../lib/gear.js';
+  import { t, tn, locale } from '../lib/i18n.svelte.js';
 
   let { code } = $props();
   let list = $state(undefined);
@@ -12,21 +13,21 @@
     decodeShare(code).then((x) => (list = x));
   });
   const when = (l) =>
-    l.d ? `${new Date(`${l.d}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} · ${l.n} ${l.n === 1 ? 'day' : 'days'}` : '';
-  const count = (l) => l.g.reduce((t, [, its]) => t + its.length, 0);
+    l.d ? `${new Date(`${l.d}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' })} · ${tn(l.n, '{n} day', '{n} days')}` : '';
+  const count = (l) => l.g.reduce((s, [, its]) => s + its.length, 0);
 </script>
 
 <div class="share">
   {#if list === undefined}
-    <p class="muted">Opening the list…</p>
+    <p class="muted">{t('Opening the list…')}</p>
   {:else if !list}
-    <h1 class="title big">Link broken</h1>
-    <p>This packing list could not be read. Ask for the link again.</p>
+    <h1 class="title big">{t('Link broken')}</h1>
+    <p>{t('This packing list could not be read. Ask for the link again.')}</p>
   {:else}
-    <p class="lbl">Shared packing list</p>
+    <p class="lbl">{t('Shared packing list')}</p>
     <h1 class="title big">{list.t}</h1>
-    <p class="meta">{[when(list), list.b, `${count(list)} items`, list.w ? formatWeight(list.w) : ''].filter(Boolean).join(' · ')}</p>
-    <p class="acts no-print"><button type="button" class="btn" onclick={() => window.print()}>Print or save as PDF</button><a class="link" href="#/">Open Pack Generator</a></p>
+    <p class="meta">{[when(list), list.b, tn(count(list), '{n} item', '{n} items'), list.w ? formatWeight(list.w) : ''].filter(Boolean).join(' · ')}</p>
+    <p class="acts no-print"><button type="button" class="btn" onclick={() => window.print()}>{t('Print or save as PDF')}</button><a class="link" href="#/">{t('Open Pack Generator')}</a></p>
     <div class="bags">
       {#each list.g as [bag, its], n (n)}
         <section class="bag">

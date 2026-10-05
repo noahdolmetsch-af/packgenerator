@@ -1,5 +1,6 @@
 <script>
   import { partInfo, wear, replaceHint, kmSince, lastReplace, EXTRA } from '../care.js';
+  import { t, num as fmtNum } from '../i18n.svelte.js';
 
   /**
    * One part of a bike: measure it, say how it is, see everything that was done to it.
@@ -29,9 +30,9 @@
 
   async function log(action, result) {
     const v = num(value);
-    if (v != null && !Number.isFinite(v)) return (error = 'Type a number, e.g. 0.4');
+    if (v != null && !Number.isFinite(v)) return (error = t('Type a number, e.g. 0.4'));
     const lim = num(limit);
-    if (lim != null && !Number.isFinite(lim)) return (error = 'Replace at: type a number, e.g. 1.5');
+    if (lim != null && !Number.isFinite(lim)) return (error = t('Replace at: type a number, e.g. 1.5'));
     const extras = Object.fromEntries((p.extra ?? []).map((k) => [k, num(extra[k])]).filter(([, x]) => x != null && Number.isFinite(x)));
     await onlog({
       date: new Date().toISOString().slice(0, 10),
@@ -55,47 +56,47 @@
 
 <dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="part-h">
   <p class="meta">{bike.name}</p>
-  <h2 id="part-h" class="title">{p.name}</h2>
-  {#if p.hint}<p class="hint">{p.hint}</p>{/if}
+  <h2 id="part-h" class="title">{t(p.name)}</h2>
+  {#if p.hint}<p class="hint">{t(p.hint)}</p>{/if}
   <p class="facts num">
-    {#if state}<span class="badge {state}">{state === 'ok' ? 'OK' : state === 'warn' ? 'Soon' : 'Worn'}</span>{/if}
-    {#if sinceNew != null}{sinceNew.toLocaleString('en')} km since it was new{:else if bike.km == null}Set the bike's km to count km per part{/if}
+    {#if state}<span class="badge {state}">{state === 'ok' ? t('OK') : state === 'warn' ? t('Soon') : t('Worn|part')}</span>{/if}
+    {#if sinceNew != null}{t('{km} km since it was new', { km: fmtNum(sinceNew) })}{:else if bike.km == null}{t("Set the bike's km to count km per part")}{/if}
   </p>
 
   <div class="grid">
-    <label><span class="lbl">Model</span><input class="inp" bind:value={model} placeholder="e.g. SRAM GX Eagle 12-speed" /></label>
-    <label><span class="lbl">Measured{p.unit ? ` (${p.unit})` : ''}</span><input class="inp num" type="text" inputmode="decimal" bind:value={value} placeholder={p.unit ? 'optional' : 'no measurement'} disabled={!p.unit} /></label>
-    {#if p.limit != null}<label><span class="lbl">{p.lowIsWorn ? 'Replace below' : 'Replace at'} ({p.unit}) on this bike</span><input class="inp num" type="text" inputmode="decimal" bind:value={limit} /></label>{/if}
+    <label><span class="lbl">{t('Model')}</span><input class="inp" bind:value={model} placeholder={t('e.g. SRAM GX Eagle 12-speed')} /></label>
+    <label><span class="lbl">{t('Measured')}{p.unit ? ` (${p.unit})` : ''}</span><input class="inp num" type="text" inputmode="decimal" bind:value={value} placeholder={p.unit ? t('optional') : t('no measurement')} disabled={!p.unit} /></label>
+    {#if p.limit != null}<label><span class="lbl">{p.lowIsWorn ? t('Replace below ({unit}) on this bike', { unit: p.unit }) : t('Replace at ({unit}) on this bike', { unit: p.unit })}</span><input class="inp num" type="text" inputmode="decimal" bind:value={limit} /></label>{/if}
     {#each p.extra ?? [] as k (k)}
-      <label><span class="lbl">{EXTRA[k].name} ({EXTRA[k].unit})</span><input class="inp num" type="text" inputmode="decimal" bind:value={extra[k]} placeholder="optional" /></label>
+      <label><span class="lbl">{t(EXTRA[k].name)} ({EXTRA[k].unit})</span><input class="inp num" type="text" inputmode="decimal" bind:value={extra[k]} placeholder={t('optional')} /></label>
     {/each}
-    <label class="wide"><span class="lbl">Note</span><input class="inp" bind:value={note} placeholder="optional" /></label>
+    <label class="wide"><span class="lbl">{t('Note')}</span><input class="inp" bind:value={note} placeholder={t('optional')} /></label>
   </div>
   <p class="err" role="alert">{error}</p>
   {#if hint}<p class="warnbox soft">{hint}</p>{/if}
   <div class="foot">
-    <button type="button" class="btn" onclick={() => log('check', 'ok')}>OK</button>
-    <button type="button" class="btn" onclick={() => log('check', 'needed')}>Replace or work needed</button>
-    <button type="button" class="btn hi" onclick={() => log('replace', 'done')}>Replaced or done</button>
-    {#if p.service}<button type="button" class="btn" onclick={() => log('service', 'done')}>{p.service}</button>{/if}
+    <button type="button" class="btn" onclick={() => log('check', 'ok')}>{t('OK')}</button>
+    <button type="button" class="btn" onclick={() => log('check', 'needed')}>{t('Replace or work needed')}</button>
+    <button type="button" class="btn hi" onclick={() => log('replace', 'done')}>{t('Replaced or done')}</button>
+    {#if p.service}<button type="button" class="btn" onclick={() => log('service', 'done')}>{t(p.service)}</button>{/if}
   </div>
-  <p class="by">Done by {by === 'shop' ? 'the bike shop' : 'me'} (change at the top of Bike care)</p>
+  <p class="by">{by === 'shop' ? t('Done by the bike shop (change at the top of Bike care)') : t('Done by me (change at the top of Bike care)')}</p>
 
-  <h3>History</h3>
+  <h3>{t('History')}</h3>
   {#if part.history?.length}
     <ol class="hist">
       {#each [...part.history].reverse() as h, n (n)}
         <li>
-          <span class="num">{h.date}{h.km != null ? ` · ${h.km.toLocaleString('en')} km` : ''}</span>
-          <b>{h.action === 'check' ? RESULT[h.result] : h.action === 'replace' && !p.unit ? 'Done' : ACTION[h.action]}{h.value != null ? ` · ${h.value} ${p.unit}` : ''}</b>
-          <span class="m">{[h.model, ...Object.keys(EXTRA).filter((k) => h[k] != null).map((k) => `${EXTRA[k].name.toLowerCase()} ${h[k]} ${EXTRA[k].unit}`), h.by === 'shop' ? 'bike shop' : h.by === 'self' ? 'me' : '', h.note, h.chf ? `CHF ${h.chf.toFixed(2)}` : ''].filter(Boolean).join(' · ')}</span>
+          <span class="num">{h.date}{h.km != null ? ` · ${fmtNum(h.km)} km` : ''}</span>
+          <b>{t(h.action === 'check' ? RESULT[h.result] : h.action === 'replace' && !p.unit ? 'Done' : ACTION[h.action])}{h.value != null ? ` · ${h.value} ${p.unit}` : ''}</b>
+          <span class="m">{[h.model, ...Object.keys(EXTRA).filter((k) => h[k] != null).map((k) => `${t(EXTRA[k].name.toLowerCase())} ${h[k]} ${EXTRA[k].unit}`), h.by === 'shop' ? t('bike shop') : h.by === 'self' ? t('me') : '', h.note, h.chf ? `CHF ${h.chf.toFixed(2)}` : ''].filter(Boolean).join(' · ')}</span>
         </li>
       {/each}
     </ol>
   {:else}
-    <p class="hint">Nothing recorded yet.</p>
+    <p class="hint">{t('Nothing recorded yet.')}</p>
   {/if}
-  <div class="foot"><button type="button" class="btn" onclick={() => dialog.close()}>Close</button></div>
+  <div class="foot"><button type="button" class="btn" onclick={() => dialog.close()}>{t('Close')}</button></div>
 </dialog>
 
 <style>

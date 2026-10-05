@@ -6,6 +6,7 @@
   import { liveQuery } from 'dexie';
   import { db } from './db.js';
   import { demoState, endDemo, setClock, clockOffset } from './demo.js';
+  import { t } from './i18n.svelte.js';
 
   const demoQ = liveQuery(() => demoState(db));
   const demo = $derived($demoQ ?? null);
@@ -18,7 +19,7 @@
     location.reload();
   }
   async function end() {
-    if (!confirm('End the demo? Your own data comes back exactly as it was before the demo. Everything done in the demo is removed.')) return;
+    if (!confirm(t('End the demo? Your own data comes back exactly as it was before the demo. Everything done in the demo is removed.'))) return;
     busy = true;
     await endDemo(db);
     location.hash = '#/';
@@ -27,17 +28,17 @@
 </script>
 
 {#if demo}
-  <div class="demo" role="region" aria-label="Demo">
-    <span class="t"><b>Demo:</b> {demo.name}</span>
+  <div class="demo" role="region" aria-label={t('Demo')}>
+    <span class="t"><b>{t('Demo')}:</b> {demo.name}</span>
     <label>
-      <span>Demo day</span>
+      <span>{t('Demo day')}</span>
       <select value={shifted ? today : ''} onchange={(e) => goTo(e.currentTarget.value)}>
-        <option value="">Real today</option>
+        <option value="">{t('Real today')}</option>
         {#each demo.days as d (d.date)}<option value={d.date}>{d.label}</option>{/each}
         {#if shifted && !demo.days.some((d) => d.date === today)}<option value={today}>{today}</option>{/if}
       </select>
     </label>
-    <button type="button" class="end" disabled={busy} onclick={end}>End demo</button>
+    <button type="button" class="end" disabled={busy} onclick={end}>{t('End demo')}</button>
     {#if demo.note}<p class="note">{demo.note}</p>{/if}
   </div>
 {/if}

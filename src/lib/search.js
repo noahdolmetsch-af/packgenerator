@@ -3,6 +3,8 @@
  * notes. Every word has to be found somewhere in the row (English or German name, brand, model,
  * note). Pure function, easy to test.
  */
+import { t, tn, num, nameOf } from './i18n.svelte.js';
+
 const norm = (s) => String(s ?? '').toLowerCase();
 
 /** Where each kind of result opens. */
@@ -32,18 +34,18 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
     gear: sort(
       items
         .filter((i) => i.ownership !== 'gone' && hit(i.name, i.nameDe, i.brand, i.model, i.note, i.favNote))
-        .map((i) => ({ id: i.id, title: `${i.favorite ? '★ ' : ''}${i.name}`, sub: [i.brand, i.weightG != null ? `${i.weightG} g` : 'not weighed', i.ownership === 'wishlist' || i.ownership === 'to-buy' ? 'wishlist' : ''].filter(Boolean).join(' · '), href: `#/gear?q=${encodeURIComponent(i.name)}` })),
+        .map((i) => ({ id: i.id, title: `${i.favorite ? '★ ' : ''}${nameOf(i)}`, sub: [i.brand, i.weightG != null ? `${num(i.weightG)} g` : t('not weighed'), i.ownership === 'wishlist' || i.ownership === 'to-buy' ? t('wishlist') : ''].filter(Boolean).join(' · '), href: `#/gear?q=${encodeURIComponent(i.name)}` })),
     ),
     trip: trips
-      .filter((t) => hit(t.title, t.place?.name, t.bike))
+      .filter((tr) => hit(tr.title, tr.place?.name, tr.bike))
       .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))
-      .map((t) => ({ id: t.id, title: t.title, sub: [t.startDate, t.bike].filter(Boolean).join(' · '), href: '#/pack', tripId: t.id })),
-    template: sort(templates.filter((t) => hit(t.name)).map((t) => ({ id: t.id, title: t.name, sub: `${t.entries?.length ?? 0} items`, href: '#/pack/templates' }))),
-    bike: sort(bikes.filter((b) => hit(b.name, b.model, b.kind)).map((b) => ({ id: b.id, title: b.name, sub: b.km != null ? `${b.km.toLocaleString('en')} km` : '', href: '#/bikes' }))),
+      .map((tr) => ({ id: tr.id, title: tr.title, sub: [tr.startDate, tr.bike].filter(Boolean).join(' · '), href: '#/pack', tripId: tr.id })),
+    template: sort(templates.filter((tp) => hit(tp.name)).map((tp) => ({ id: tp.id, title: tp.name, sub: tn(tp.entries?.length ?? 0, '{n} item', '{n} items'), href: '#/pack/templates' }))),
+    bike: sort(bikes.filter((b) => hit(b.name, b.model, b.kind)).map((b) => ({ id: b.id, title: b.name, sub: b.km != null ? `${num(b.km)} km` : '', href: '#/bikes' }))),
     note: notes
       .filter((n) => hit(n.text))
       .sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''))
-      .map((n) => ({ id: n.id, title: n.text.length > 60 ? `${n.text.slice(0, 57)}…` : n.text, sub: n.status === 'open' ? 'to sort' : 'sorted', href: '#/inbox' })),
+      .map((n) => ({ id: n.id, title: n.text.length > 60 ? `${n.text.slice(0, 57)}…` : n.text, sub: n.status === 'open' ? t('to sort') : t('sorted'), href: '#/inbox' })),
   };
   return Object.entries(groups)
     .filter(([, rows]) => rows.length)

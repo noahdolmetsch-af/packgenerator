@@ -12,6 +12,7 @@
  * the debrief now). The offset is kept in localStorage and applied in main.js before the app starts.
  */
 import { buildBackup, restoreBackup, validateBackup } from './backup.js';
+import { t } from './i18n.svelte.js';
 
 export const DEMO_KEY = 'demo';
 export const CLOCK_KEY = 'demo.clockOffset';
@@ -31,7 +32,7 @@ export async function demoState(db) {
 export async function startDemo(db, data, now = new Date()) {
   const problems = validateBackup(data);
   if (problems.length) throw new Error(problems.join(' '));
-  if (await db.table('meta').get(DEMO_KEY)) throw new Error('A demo is already running. End it first.');
+  if (await db.table('meta').get(DEMO_KEY)) throw new Error(t('A demo is already running. End it first.'));
   const snapshot = await buildBackup(db);
   await db.table('meta').put({ key: DEMO_KEY, name: data.demo.name ?? 'Demo', note: data.demo.note ?? '', days: data.demo.days ?? [], startedAt: now.toISOString(), snapshot });
   try {

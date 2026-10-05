@@ -11,8 +11,9 @@
    */
   import { formatWeight } from '../gear.js';
   import { formatVolume } from '../bikes.js';
+  import { t, tn } from '../i18n.svelte.js';
 
-  let { cards, onpick, ondropitem = null, strip = false, label = 'Bags', photo = null, photoName = '', onphoto = null } = $props();
+  let { cards, onpick, ondropitem = null, strip = false, label = null, photo = null, photoName = '', onphoto = null } = $props();
   let over = $state(null);
 
   // Where a place sits around the bike: the body places on the left, then the bike in three
@@ -50,7 +51,7 @@
     if (id) ondropitem(key, id);
   }
   const facts = (c) => {
-    const what = c.empty ? 'empty' : `${c.count} ${c.count === 1 ? 'item' : 'items'} · ${c.grams ? formatWeight(c.grams) : 'not weighed'}`;
+    const what = c.empty ? t('empty') : `${tn(c.count, '{n} item', '{n} items')} · ${c.grams ? formatWeight(c.grams) : t('not weighed')}`;
     // Without item volumes there is no fill to show, only the size of the bag.
     return c.cap && c.fill == null ? `${what} · ${formatVolume(c.cap)}` : what;
   };
@@ -66,7 +67,7 @@
     class:over={over === c.key}
     class:nobag={c.noBag}
     aria-pressed={c.active}
-    aria-label="{c.name}, {facts(c)}{c.noBag ? ', no bag here' : ''}"
+    aria-label={`${c.name}, ${facts(c)}${c.noBag ? `, ${t('no bag here')}` : ''}`}
     title={c.name}
     onclick={() => onpick?.(c.key)}
     ondragover={(e) => dragover(e, c.key)}
@@ -78,7 +79,7 @@
     {#if !small && !strip && c.names.length}
       <span class="its">
         {#each c.names as nm, i (i)}<span class="it">{nm}</span>{/each}
-        {#if c.more}<span class="it more">+{c.more} more</span>{/if}
+        {#if c.more}<span class="it more">{t('+{n} more', { n: c.more })}</span>{/if}
       </span>
     {/if}
     {#if c.fill != null}
@@ -88,7 +89,7 @@
 {/snippet}
 
 {#snippet photoBtn()}
-  <button type="button" class="pbtn" aria-label="Open the photo{photoName ? ` ${photoName}` : ''}" title="Open the photo" onclick={() => onphoto?.()}>
+  <button type="button" class="pbtn" aria-label={photoName ? t('Open the photo {name}', { name: photoName }) : t('Open the photo')} title={t('Open the photo')} onclick={() => onphoto?.()}>
     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="10" r="2" /><path d="M21 16l-5-5-9 8" /></svg>
   </button>
 {/snippet}
@@ -96,12 +97,12 @@
 {#if strip}
   <div class="srow">
   {#if photo && onphoto}{@render photoBtn()}{/if}
-  <div class="strip" role="group" aria-label={label}>
+  <div class="strip" role="group" aria-label={label ?? t('Bags')}>
     {#each ordered as c (c.key)}{@render card(c, true)}{/each}
   </div>
   </div>
 {:else}
-  <div class="stage" role="group" aria-label={label}>
+  <div class="stage" role="group" aria-label={label ?? t('Bags')}>
     <div class="me">
       {#each me as c (c.key)}{@render card(c)}{/each}
     </div>

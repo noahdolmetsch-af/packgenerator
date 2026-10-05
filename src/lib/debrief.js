@@ -13,6 +13,7 @@
  * Pure functions only, so the rules are easy to test.
  */
 import { isInventory } from './gear.js';
+import { t, nameOf } from './i18n.svelte.js';
 
 export const WEATHER = [
   { key: 'colder', name: 'Colder' },
@@ -119,34 +120,34 @@ export function suggestions(debrief, trip, items, learnings = [], templates = []
   // Leave at home: warm-weather clothing gets a cold limit, standard items become optional.
   if (debrief.weather === 'warmer') {
     for (const i of unused.filter((x) => CLOTHING.includes(x.category) && typeof x.coldBelow !== 'number' && x.role !== 'worn'))
-      out.push({ id: `cold:${i.id}`, group: 'home', label: `${i.name}: only below ${WARM_LIMIT} °C`, detail: 'Added by the layers when it gets cold, otherwise it stays at home.' });
+      out.push({ id: `cold:${i.id}`, group: 'home', label: t('{name}: only below {n} °C', { name: nameOf(i), n: WARM_LIMIT }), detail: t('Added by the layers when it gets cold, otherwise it stays at home.') });
   }
   // Answer 8b: only after the third trip without using it (this one counts).
   const before = unusedTimes(history, trip.id);
   for (const i of unused.filter((x) => x.role === 'standard' && !out.some((s) => s.id === `cold:${x.id}`) && (before[x.id] ?? 0) + 1 >= LEAVE_AFTER))
-    out.push({ id: `optional:${i.id}`, group: 'home', label: `${i.name}: leave at home`, detail: `Not used on ${(before[i.id] ?? 0) + 1} trips. Changes "Standard pack" to "Optional".` });
+    out.push({ id: `optional:${i.id}`, group: 'home', label: t('{name}: leave at home', { name: nameOf(i) }), detail: t('Not used on {n} trips. Changes "Standard pack" to "Optional".', { n: (before[i.id] ?? 0) + 1 }) });
 
   // Wishlist: what was missing and is not in the gear yet, and what broke.
   for (const m of debrief.missing.filter((x) => !x.itemId))
-    out.push({ id: `wish:${m.id}`, group: 'wish', label: `${m.name} (missing)`, detail: 'New wishlist item.' });
+    out.push({ id: `wish:${m.id}`, group: 'wish', label: t('{name} (missing)', { name: m.name }), detail: t('New wishlist item.') });
   for (const i of brokenIds.map((id) => byId[id]).filter(Boolean))
-    out.push({ id: `broken:${i.id}`, group: 'wish', label: `${i.name} (broken, replace)`, detail: 'New wishlist item; the old one stays in your gear until you mark it gone.' });
+    out.push({ id: `broken:${i.id}`, group: 'wish', label: t('{name} (broken, replace)', { name: nameOf(i) }), detail: t('New wishlist item; the old one stays in your gear until you mark it gone.') });
 
   // Learnings: old ones that this trip confirms, and the sentence from step 1 as a new one.
   const touched = new Set([...unusedIds, ...debrief.missing.map((m) => m.itemId).filter(Boolean)]);
   for (const l of learnings.filter((x) => x.itemIds?.some((id) => touched.has(id))))
-    out.push({ id: `confirm:${l.id}`, group: 'learn', label: `Confirmed again: "${short(l.rule)}"`, detail: l.confirmed ? `Confirmed ${l.confirmed + 1} times now.` : 'First confirmation.' });
-  if (debrief.note.trim()) out.push({ id: 'learn:note', group: 'learn', label: `New: "${short(debrief.note.trim())}"`, detail: `Saved as a learning from ${trip.title}.` });
+    out.push({ id: `confirm:${l.id}`, group: 'learn', label: t('Confirmed again: "{rule}"', { rule: short(l.rule) }), detail: l.confirmed ? t('Confirmed {n} times now.', { n: l.confirmed + 1 }) : t('First confirmation.') });
+  if (debrief.note.trim()) out.push({ id: 'learn:note', group: 'learn', label: t('New: "{rule}"', { rule: short(debrief.note.trim()) }), detail: t('Saved as a learning from {trip}.', { trip: trip.title }) });
   // v0.19.2 (N10): the notes from the ride day can become learnings too.
   (debrief.rideNotes ?? []).forEach((n, i) => {
-    if (n.text?.trim()) out.push({ id: `ride:${i}`, group: 'learn', label: `From the ride: "${short(n.text.trim())}"`, detail: `Saved as a learning from ${trip.title}.` });
+    if (n.text?.trim()) out.push({ id: `ride:${i}`, group: 'learn', label: t('From the ride: "{rule}"', { rule: short(n.text.trim()) }), detail: t('Saved as a learning from {trip}.', { trip: trip.title }) });
   });
 
   // Template: the trip was started from a template that still exists.
   const tpl = templates.find((t) => t.id === trip.templateId);
   const missingOwned = debrief.missing.filter((m) => m.itemId);
   if (tpl && (unusedIds.length || missingOwned.length))
-    out.push({ id: `template:${tpl.id}`, group: 'template', label: `Update "${tpl.name}"`, detail: [unusedIds.length && `${unusedIds.length} not used out`, missingOwned.length && `${missingOwned.length} missing in`].filter(Boolean).join(', ') });
+    out.push({ id: `template:${tpl.id}`, group: 'template', label: t('Update "{name}"', { name: tpl.name }), detail: [unusedIds.length && t('{n} not used out', { n: unusedIds.length }), missingOwned.length && t('{n} missing in', { n: missingOwned.length })].filter(Boolean).join(', ') });
   return out;
 }
 
@@ -307,12 +308,12 @@ export function templateHints(tpl, trips, debriefs, items) {
   for (const itemId of have) {
     const on = rows.filter(({ t }) => t.entries.some((e) => e.itemId === itemId)).slice(0, LEAVE_AFTER);
     if (on.length >= LEAVE_AFTER && on.every(({ d }) => d.items?.[itemId] === 'unused') && byId[itemId])
-      out.push({ id: `out:${itemId}`, kind: 'out', itemId, name: byId[itemId].name, why: `Not used on ${on.map(({ t }) => t.title).join(', ')}.` });
+      out.push({ id: `out:${itemId}`, kind: 'out', itemId, name: nameOf(byId[itemId]), why: t('Not used on {trips}.', { trips: on.map((x) => x.t.title).join(', ') }) });
   }
   const missing = {};
-  for (const { d, t } of rows) for (const m of d.missing ?? []) if (m.itemId && !have.has(m.itemId)) (missing[m.itemId] ??= []).push(t.title);
+  for (const { d, t: tr } of rows) for (const m of d.missing ?? []) if (m.itemId && !have.has(m.itemId)) (missing[m.itemId] ??= []).push(tr.title);
   for (const [itemId, titles] of Object.entries(missing))
-    if (titles.length >= 2 && byId[itemId] && byId[itemId].ownership !== 'gone') out.push({ id: `in:${itemId}`, kind: 'in', itemId, name: byId[itemId].name, why: `Missing on ${titles.join(', ')}.` });
+    if (titles.length >= 2 && byId[itemId] && byId[itemId].ownership !== 'gone') out.push({ id: `in:${itemId}`, kind: 'in', itemId, name: nameOf(byId[itemId]), why: t('Missing on {trips}.', { trips: titles.join(', ') }) });
   return out;
 }
 

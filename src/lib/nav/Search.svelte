@@ -9,6 +9,7 @@
   import { searchAll } from '../search.js';
   import { openTrip } from '../nav.js';
   import { phone } from '../media.svelte.js';
+  import { t } from '../i18n.svelte.js';
 
   let q = $state('');
   let open = $state(false); // phone: the field is shown
@@ -39,27 +40,27 @@
 
 <div class="search" class:ph={phone.matches} class:open>
   {#if phone.matches}
-    <button type="button" class="icon" aria-label={open ? 'Close search' : 'Search everything'} aria-expanded={open} onclick={toggle}>
+    <button type="button" class="icon" aria-label={open ? t('Close search') : t('Search everything')} aria-expanded={open} onclick={toggle}>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
     </button>
   {/if}
   {#if !phone.matches || open}
     <label class="field">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
-      <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder="Find gear, trips, bikes, notes" aria-label="Search everything" autocomplete="off" />
+      <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder={t('Find gear, trips, bikes, notes')} aria-label={t('Search everything')} autocomplete="off" />
     </label>
   {/if}
   {#if q.trim().length >= 2}
-    <div class="res" role="region" aria-label="Search results" aria-live="polite">
+    <div class="res" role="region" aria-label={t('Search results')} aria-live="polite">
       {#each groups as g (g.kind)}
-        <p class="gh">{g.name}{g.more ? ` · ${g.more} more` : ''}</p>
+        <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
         <ul>
           {#each g.rows as r (r.id)}
             <li><button type="button" onclick={() => go(r)}><b>{r.title}</b>{#if r.sub}<small>{r.sub}</small>{/if}</button></li>
           {/each}
         </ul>
       {:else}
-        <p class="none">Nothing found for "{q.trim()}".</p>
+        <p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>
       {/each}
     </div>
   {/if}

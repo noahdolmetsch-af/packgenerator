@@ -15,6 +15,7 @@
  * "Every ride" stays what it was: items with the role worn or standard.
  */
 import { isInventory } from './gear.js';
+import { t } from './i18n.svelte.js';
 
 export const RIDES = [
   { key: 'every', name: 'Every ride' },
@@ -36,6 +37,7 @@ const hasTemps = (wx) => typeof wx?.min === 'number' && typeof wx?.max === 'numb
  */
 export function layerSuggest(trip, items) {
   const rows = [];
+  const rankOf = new Map(); // sort order, kept apart from the (translated) label
   const level = RIDE_RANK[trip?.ride] ?? -1;
   const wx = trip?.wx;
   const hours = Number(trip?.hours) || 0;
@@ -43,22 +45,24 @@ export function layerSuggest(trip, items) {
     if (!isInventory(i) || i.altFor) continue; // alternatives only come in through a choice
     const qty = Math.min(i.maxQty || 99, i.perHours && hours ? Math.max(1, Math.ceil(hours / i.perHours)) : 1);
     if (i.ride && RIDE_RANK[i.ride] <= level) {
-      rows.push({ id: i.id, why: RIDES.find((r) => r.key === i.ride).name, place: i.defaultBag === 'body' ? 'wear' : 'pack', qty, optional: false });
+      rows.push({ id: i.id, why: t(RIDES.find((r) => r.key === i.ride).name), place: i.defaultBag === 'body' ? 'wear' : 'pack', qty, optional: false });
+      rankOf.set(rows.at(-1), i.ride === 'daily' ? 1 : i.ride === 'training' ? 2 : 2.5);
     } else if (typeof i.coldBelow === 'number' && hasTemps(wx) && wx.min < i.coldBelow) {
-      rows.push({ id: i.id, why: `Below ${i.coldBelow} °C`, place: wx.max < i.coldBelow ? 'wear' : 'pack', qty, optional: false });
+      rows.push({ id: i.id, why: t('Below {n} °C', { n: i.coldBelow }), place: wx.max < i.coldBelow ? 'wear' : 'pack', qty, optional: false });
+      rankOf.set(rows.at(-1), 3 + (40 - i.coldBelow) / 100);
     } else if (i.rain && wet(wx)) {
-      rows.push({ id: i.id, why: RAIN_ITEM[i.rain] ?? 'Rain', place: 'pack', qty, optional: i.rain === 'optional' });
+      rows.push({ id: i.id, why: t(RAIN_ITEM[i.rain] ?? 'Rain'), place: 'pack', qty, optional: i.rain === 'optional' });
+      rankOf.set(rows.at(-1), 4 + (i.rain === 'optional' ? 0.5 : 0));
     } else if (qty > 1 && (i.role === 'worn' || i.role === 'standard')) {
       // Every-ride food and drink: more pieces on a longer ride.
-      rows.push({ id: i.id, why: `1 per ${i.perHours} h`, place: i.defaultBag === 'body' ? 'wear' : 'pack', qty, optional: false });
+      rows.push({ id: i.id, why: t('1 per {n} h', { n: i.perHours }), place: i.defaultBag === 'body' ? 'wear' : 'pack', qty, optional: false });
+      rankOf.set(rows.at(-1), 2.5);
     }
   }
   // Same order as the layers are built up: ride, amounts, warm to cold, rain.
-  const rank = (r) => (r.why.startsWith('Below') ? 3 + (40 - itemCold(items, r.id)) / 100 : r.why.startsWith('Rain') ? 4 + (r.optional ? 0.5 : 0) : r.why === 'Daily ride' ? 1 : r.why === 'Training ride' ? 2 : 2.5);
-  rows.sort((a, b) => rank(a) - rank(b));
+  rows.sort((a, b) => rankOf.get(a) - rankOf.get(b));
   return rows.map((r) => withChoice(r, trip, items));
 }
-const itemCold = (items, id) => items.find((i) => i.id === id)?.coldBelow ?? 0;
 
 /**
  * A row with its choices: `slot` is the item it stands for, `alts` the items that can take its
@@ -105,13 +109,13 @@ export function applyLayers(entries, rows, slotOf) {
 
 /** The layer an item belongs to, for the inventory check order and its heading. */
 export function layerOf(item) {
-  if (item.role === 'worn' || item.role === 'standard') return { rank: 0, name: 'Every ride' };
-  if (item.ride === 'daily') return { rank: 1, name: 'Daily ride' };
-  if (item.ride === 'training') return { rank: 2, name: 'Training ride' };
-  if (typeof item.coldBelow === 'number') return { rank: 3 + (40 - item.coldBelow) / 100, name: `Below ${item.coldBelow} °C` };
-  if (item.rain) return { rank: 4, name: 'Rain' };
-  if (item.sets?.length) return { rank: 5, name: 'Overnight sets' };
-  return { rank: 6, name: 'Everything else' };
+  if (item.role === 'worn' || item.role === 'standard') return { rank: 0, name: t('Every ride') };
+  if (item.ride === 'daily') return { rank: 1, name: t('Daily ride') };
+  if (item.ride === 'training') return { rank: 2, name: t('Training ride') };
+  if (typeof item.coldBelow === 'number') return { rank: 3 + (40 - item.coldBelow) / 100, name: t('Below {n} °C', { n: item.coldBelow }) };
+  if (item.rain) return { rank: 4, name: t('Rain') };
+  if (item.sets?.length) return { rank: 5, name: t('Overnight sets') };
+  return { rank: 6, name: t('Everything else') };
 }
 
 /** Litres of water on a trip (bottles and bags with waterL). */
