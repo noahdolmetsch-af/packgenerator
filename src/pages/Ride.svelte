@@ -59,6 +59,11 @@
   async function change(fields) {
     await db.trips.update(trip.id, fields);
   }
+  // v0.20.1: end the trip now (also before its last day) and go straight to its debrief.
+  async function finish() {
+    await change({ finished: new Date().toISOString().slice(0, 10) });
+    location.hash = `#/debrief/${encodeURIComponent(trip.id)}`;
+  }
   function setStart(value) {
     const rideStart = { ...($state.snapshot(trip.rideStart) ?? {}), [cur]: value || DEFAULT_START };
     change({ rideStart });
@@ -326,6 +331,12 @@
           </details>
         {/each}
       </div>
+    </section>
+
+    <section class="card end" aria-labelledby="end-h">
+      <h2 id="end-h" class="title">{t('Back home?')}</h2>
+      <p>{t('End the trip and do the debrief now: two minutes on what you used, missed or did not use.')}</p>
+      <button type="button" class="btn hi" onclick={finish}>{trip.finished ? t('Open the debrief') : t('End trip and debrief')}</button>
     </section>
 
     <p class="back"><a class="btn" href="#/pack">{t('Back to Pack')}</a></p>
@@ -648,5 +659,8 @@
   }
   .back {
     margin: 0 0 24px;
+  }
+  .end p {
+    margin: 0 0 12px;
   }
 </style>

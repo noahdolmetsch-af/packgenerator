@@ -36,7 +36,8 @@
   const tasksQ = liveQuery(() => db.maintenance.toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
   const rearQ = liveQuery(() => db.settings.get('rearLimitPct'));
-  const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
+  // Always an object, also before any template is saved (else "New → Packing list" never opens).
+  const tplQ = liveQuery(async () => (await db.settings.get(TEMPLATES_KEY)) ?? { value: [] });
   const learnQ = liveQuery(() => db.learnings.toArray());
   // Answer 3a: one learning per item as a small hint while packing.
   const tips = $derived(tipsByItem($learnQ ?? []));
@@ -460,6 +461,7 @@
         </select>
         <button type="button" class="btn hi" onclick={() => (packDay = true)}>{t('Packing day')}{#if stats.packed}<small class="num"> {stats.packed}/{stats.count}</small>{/if}</button>
         <a class="btn" href="#/ride" onclick={() => choose(trip.id)}>{t('Ride day')}</a>
+        {#if trip.finished || (trip.startDate && trip.startDate <= new Date().toISOString().slice(0, 10))}<a class="btn" href="#/debrief/{encodeURIComponent(trip.id)}">{t('Debrief')}</a>{/if}
         {#snippet actions()}
           <button type="button" class="btn" onclick={() => (dialog = { trip: null })}>{t('New trip')}</button>
           <button type="button" class="btn" onclick={() => (saveTpl = true)}>{t('Save as template')}</button>

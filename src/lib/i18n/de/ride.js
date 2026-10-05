@@ -302,4 +302,8 @@ export default {
   'The GPX file has no route in it.': 'In der GPX-Datei ist keine Route.',
   'The file has no activities in it.': 'In der Datei sind keine Aktivitäten.',
   'Date or distance column not found. Use the CSV export of Strava or Garmin Connect.': 'Spalte für Datum oder Distanz nicht gefunden. Nimm den CSV-Export von Strava oder Garmin Connect.',
+  'Back home?': 'Zurück zu Hause?',
+  'End the trip and do the debrief now: two minutes on what you used, missed or did not use.': 'Tour beenden und gleich den Rückblick machen: zwei Minuten dazu, was du gebraucht, vermisst oder nicht gebraucht hast.',
+  'End trip and debrief': 'Tour beenden und Rückblick',
+  'Open the debrief': 'Rückblick öffnen',
 };
