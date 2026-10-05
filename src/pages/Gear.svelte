@@ -9,6 +9,7 @@
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import { itemUsage, deadWeight, wishReason } from '../lib/insights.js';
+  import { t, tn, nameOf } from '../lib/i18n.svelte.js';
 
   // All items, kept up to date by the database (liveQuery re-runs on every change).
   const itemsQuery = liveQuery(() => db.items.toArray());
@@ -82,46 +83,46 @@
 
 <div class="gear">
   <header class="head">
-    <h1 class="title">Gear</h1>
+    <h1 class="title">{t('Gear')}</h1>
     <div class="kpis">
-      <div><span class="lbl">Items</span><b class="num">{stats.inventory.length}</b></div>
-      <div class="un"><span class="lbl">Not weighed</span><b class="num">{stats.unweighed}</b></div>
-      <div class="tot"><span class="lbl">Gear weight</span><b class="num">{formatWeight(stats.total)}</b></div>
-      <div><span class="lbl">Wishlist</span><b class="num">{stats.wishlist.length}</b></div>
+      <div><span class="lbl">{t('Items')}</span><b class="num">{stats.inventory.length}</b></div>
+      <div class="un"><span class="lbl">{t('Not weighed')}</span><b class="num">{stats.unweighed}</b></div>
+      <div class="tot"><span class="lbl">{t('Gear weight')}</span><b class="num">{formatWeight(stats.total)}</b></div>
+      <div><span class="lbl">{t('Wishlist')}</span><b class="num">{stats.wishlist.length}</b></div>
     </div>
   </header>
 
   {#if !items.length && $itemsQuery}
-    <p class="card">No gear yet. Import your data on the <a href="#/">start page</a> (Your data → Import backup), or add an item.</p>
+    <p class="card">{t('No gear yet. Import your data on the')} <a href="#/">{t('start page')}</a> {t('(Your data → Import backup), or add an item.')}</p>
   {/if}
 
-  <div class="tabs" role="tablist" aria-label="Show">
-    <button type="button" role="tab" aria-selected={tab === 'inventory'} onclick={() => (tab = 'inventory')}>Inventory <small>{stats.inventory.length}</small></button>
-    <button type="button" role="tab" aria-selected={tab === 'wishlist'} onclick={() => (tab = 'wishlist')}>Wishlist <small>{stats.wishlist.length}</small></button>
-    <button type="button" role="tab" aria-selected={tab === 'dead'} onclick={() => (tab = 'dead')}>Dead weight <small>{dead.dead.length}</small></button>
-    <button type="button" role="tab" aria-selected={tab === 'weigh'} onclick={() => (tab = 'weigh')}>Weigh <small>{stats.unweighed}</small></button>
-    <button type="button" role="tab" aria-selected={tab === 'check'} onclick={() => (tab = 'check')}>Check <small>{toReview}</small></button>
+  <div class="tabs" role="tablist" aria-label={t('Show')}>
+    <button type="button" role="tab" aria-selected={tab === 'inventory'} onclick={() => (tab = 'inventory')}>{t('Inventory')} <small>{stats.inventory.length}</small></button>
+    <button type="button" role="tab" aria-selected={tab === 'wishlist'} onclick={() => (tab = 'wishlist')}>{t('Wishlist')} <small>{stats.wishlist.length}</small></button>
+    <button type="button" role="tab" aria-selected={tab === 'dead'} onclick={() => (tab = 'dead')}>{t('Dead weight')} <small>{dead.dead.length}</small></button>
+    <button type="button" role="tab" aria-selected={tab === 'weigh'} onclick={() => (tab = 'weigh')}>{t('Weigh')} <small>{stats.unweighed}</small></button>
+    <button type="button" role="tab" aria-selected={tab === 'check'} onclick={() => (tab = 'check')}>{t('Check')} <small>{toReview}</small></button>
   </div>
 
   {#if tab === 'dead'}
     <section class="dead" aria-labelledby="dead-h">
-      <h2 id="dead-h" class="title">Dead weight {#if dead.deadG}<small class="num">{formatWeight(dead.deadG)}</small>{/if}</h2>
-      <p class="sub">Taken on 2 trips or more and never used, from your {debriefN} debriefs. Heaviest first.</p>
-      {#if debriefN < 2}<p class="card">Shows up after 2 debriefs. You have {debriefN}.</p>{/if}
+      <h2 id="dead-h" class="title">{t('Dead weight')} {#if dead.deadG}<small class="num">{formatWeight(dead.deadG)}</small>{/if}</h2>
+      <p class="sub">{tn(debriefN, 'Taken on 2 trips or more and never used, from your {n} debrief. Heaviest first.', 'Taken on 2 trips or more and never used, from your {n} debriefs. Heaviest first.')}</p>
+      {#if debriefN < 2}<p class="card">{t('Shows up after 2 debriefs. You have {n}.', { n: debriefN })}</p>{/if}
       {#snippet row(r)}
         <li>
-          <button type="button" class="nmb" onclick={() => open(r.item)}><span class="nm">{r.item.name}</span><small>taken {r.u.taken}×, used {r.u.used}× · {r.u.trips.slice(-3).join(', ')}</small></button>
+          <button type="button" class="nmb" onclick={() => open(r.item)}><span class="nm">{nameOf(r.item)}</span><small>{t('taken {a}×, used {b}×', { a: r.u.taken, b: r.u.used })} · {r.u.trips.slice(-3).join(', ')}</small></button>
           <span class="w num" class:nw={r.item.weightG == null}>{formatWeight(itemWeight(r.item))}</span>
-          {#if r.item.role === 'optional'}<span class="ok small">Stays at home</span>{:else}<button type="button" class="btn sm" onclick={() => leaveHome(r.item)}>Leave at home</button>{/if}
+          {#if r.item.role === 'optional'}<span class="ok small">{t('Stays at home')}</span>{:else}<button type="button" class="btn sm" onclick={() => leaveHome(r.item)}>{t('Leave at home')}</button>{/if}
         </li>
       {/snippet}
-      {#if dead.dead.length}<ul class="drows">{#each dead.dead as r (r.item.id)}{@render row(r)}{/each}</ul>{:else if debriefN >= 2}<p class="card">Nothing: everything you took got used at least once.</p>{/if}
+      {#if dead.dead.length}<ul class="drows">{#each dead.dead as r (r.item.id)}{@render row(r)}{/each}</ul>{:else if debriefN >= 2}<p class="card">{t('Nothing: everything you took got used at least once.')}</p>{/if}
       {#if dead.rare.length}
-        <h3 class="title">Rarely used</h3>
-        <p class="sub">Used on a third of the trips or less.</p>
+        <h3 class="title">{t('Rarely used')}</h3>
+        <p class="sub">{t('Used on a third of the trips or less.')}</p>
         <ul class="drows">{#each dead.rare as r (r.item.id)}{@render row(r)}{/each}</ul>
       {/if}
-      <p class="sub small">"Leave at home" makes it optional: new trips no longer pack it on their own.</p>
+      <p class="sub small">{t('"Leave at home" makes it optional: new trips no longer pack it on their own.')}</p>
     </section>
   {:else if tab === 'weigh'}
     <WeighMode {items} />
@@ -129,29 +130,29 @@
     <ReviewMode {items} />
   {:else}
     <div class="toolbar">
-      <label class="q"><span class="lbl">Search gear</span><input class="inp" type="search" placeholder="Name, brand, bag or ID" bind:value={filter.q} /></label>
+      <label class="q"><span class="lbl">{t('Search gear')}</span><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} bind:value={filter.q} /></label>
       <label>
-        <span class="lbl">Category</span>
+        <span class="lbl">{t('Category')}</span>
         <select class="sel" bind:value={filter.category}>
-          <option value="">All categories</option>
-          {#each stats.cats as c (c.key)}<option value={c.key}>{c.name} ({c.n})</option>{/each}
+          <option value="">{t('All categories')}</option>
+          {#each stats.cats as c (c.key)}<option value={c.key}>{t(c.name)} ({c.n})</option>{/each}
         </select>
       </label>
       <!-- Noah, 4.10.2026: the favourites list is the base; ★ shows only those. -->
-      <button type="button" class="toggle fav" aria-pressed={filter.fav} onclick={() => (filter.fav = !filter.fav)} title="Only my favourites">★ Favourites <small>{items.filter((i) => i.favorite).length}</small></button>
+      <button type="button" class="toggle fav" aria-pressed={filter.fav} onclick={() => (filter.fav = !filter.fav)} title={t('Only my favourites')}>★ {t('Favourites')} <small>{items.filter((i) => i.favorite).length}</small></button>
       {#if !phone.matches}
         <label>
-          <span class="lbl">Role</span>
+          <span class="lbl">{t('Role')}</span>
           <select class="sel" bind:value={filter.role}>
-            <option value="">All roles</option>
-            <option value="worn">Worn</option>
-            <option value="standard">Standard pack</option>
-            <option value="optional">Optional</option>
-            <option value="night">Overnight sets</option>
-            <option value="none">No role</option>
+            <option value="">{t('All roles')}</option>
+            <option value="worn">{t('Worn')}</option>
+            <option value="standard">{t('Standard pack')}</option>
+            <option value="optional">{t('Optional')}</option>
+            <option value="night">{t('Overnight sets')}</option>
+            <option value="none">{t('No role')}</option>
           </select>
         </label>
-        <div class="acts"><button type="button" class="btn hi" onclick={() => (dialog = { item: null })}>Add item</button></div>
+        <div class="acts"><button type="button" class="btn hi" onclick={() => (dialog = { item: null })}>{t('Add item')}</button></div>
       {/if}
     </div>
 
@@ -159,19 +160,19 @@
       <WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />
       <div class="inv">
         {#if !phone.matches}
-          <nav class="side" aria-label="Jump to a category">
-            <span class="lbl">Categories</span>
+          <nav class="side" aria-label={t('Jump to a category')}>
+            <span class="lbl">{t('Categories')}</span>
             <ul>
               {#each groups as g (g.key)}
-                <li><button type="button" onclick={() => jump(g.key)}><span class="sw" style:background={g.color}></span><span class="n">{g.name}</span><span class="num">{formatWeight(catStats[g.key].g)}</span></button></li>
+                <li><button type="button" onclick={() => jump(g.key)}><span class="sw" style:background={g.color}></span><span class="n">{t(g.name)}</span><span class="num">{formatWeight(catStats[g.key].g)}</span></button></li>
               {/each}
             </ul>
           </nav>
         {/if}
         <div class="list">
           <p class="count num" aria-live="polite">
-            {inventory.length} of {stats.inventory.length} items
-            {#if !searching && groups.length}<button type="button" class="link" onclick={() => setAll(allOpen)}>{allOpen ? 'Collapse all' : 'Expand all'}</button>{/if}
+            {t('{a} of {b} items', { a: inventory.length, b: stats.inventory.length })}
+            {#if !searching && groups.length}<button type="button" class="link" onclick={() => setAll(allOpen)}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}
           </p>
           <div class="cats">
             {#each groups as g (g.key)}
@@ -179,9 +180,9 @@
                 <h2 id="gh-{g.key}" class="ch">
                   <button type="button" aria-expanded={isOpen(g.key)} disabled={searching} onclick={() => toggle(g.key)}>
                     <span class="sw" style:background={g.color}></span>
-                    <span class="title">{g.name}</span>
+                    <span class="title">{t(g.name)}</span>
                     <b class="num k">{formatWeight(catStats[g.key].g)}</b>
-                    <span class="m">{catStats[g.key].n} items{catStats[g.key].unweighed ? ` · ${catStats[g.key].unweighed} not weighed` : ''}{catStats[g.key].consumable ? ' · not in gear weight' : ''}</span>
+                    <span class="m">{tn(catStats[g.key].n, '{n} item', '{n} items')}{catStats[g.key].unweighed ? ` · ${t('{n} not weighed', { n: catStats[g.key].unweighed })}` : ''}{catStats[g.key].consumable ? ` · ${t('not in gear weight')}` : ''}</span>
                     {#if !searching}<span class="chev" aria-hidden="true">▾</span>{/if}
                   </button>
                 </h2>
@@ -190,8 +191,8 @@
                     {#each g.items as item (item.id)}
                       <li>
                         <button type="button" onclick={() => open(item)}>
-                          <span class="nm">{#if item.favorite}<span class="star" title="Favourite">★</span>{/if}{item.name}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
-                          <span class="bg">{BAG[item.defaultBag] ?? '–'}</span>
+                          <span class="nm">{#if item.favorite}<span class="star" title={t('Favourite')}>★</span>{/if}{nameOf(item)}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
+                          <span class="bg">{BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–'}</span>
                           <span class="w num" class:nw={item.weightG == null}>{formatWeight(itemWeight(item))}</span>
                         </button>
                       </li>
@@ -200,36 +201,36 @@
                 {/if}
               </section>
             {:else}
-              {#if items.length}<p class="card">Nothing matches. <button type="button" class="btn" onclick={() => (filter = { q: '', category: '', role: '', fav: false })}>Clear search and filters</button></p>{/if}
+              {#if items.length}<p class="card">{t('Nothing matches.')} <button type="button" class="btn" onclick={() => (filter = { q: '', category: '', role: '', fav: false })}>{t('Clear search and filters')}</button></p>{/if}
             {/each}
           </div>
         </div>
       </div>
     {:else}
       <section class="wish" aria-labelledby="wish-h">
-        <h2 id="wish-h" class="title">Wishlist & to buy</h2>
-        <p class="sub">Not owned yet. Not counted in the inventory or any total. Sorted by what helps most: missing on trips, needed on the bike, lighter.</p>
+        <h2 id="wish-h" class="title">{t('Wishlist & to buy')}</h2>
+        <p class="sub">{t('Not owned yet. Not counted in the inventory or any total. Sorted by what helps most: missing on trips, needed on the bike, lighter.')}</p>
         <ul class="rows">
           {#each wishlist as { item, reasons } (item.id)}
             <li>
               <button type="button" onclick={() => open(item)}>
-                <span class="st st-{item.ownership}">{OWNERSHIP[item.ownership]}</span>
-                <span class="nm">{#if item.favorite}<span class="star" title="Favourite">★</span>{/if}{item.name}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
-                <span class="bg">{CATEGORIES.find((c) => c.key === item.category)?.name}</span>
+                <span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>
+                <span class="nm">{#if item.favorite}<span class="star" title={t('Favourite')}>★</span>{/if}{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
+                <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
                 <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
               </button>
             </li>
           {:else}
-            <li class="empty">No wishlist items match.</li>
+            <li class="empty">{t('No wishlist items match.')}</li>
           {/each}
         </ul>
       </section>
       {#if stats.gone.length}
         <details class="gone">
-          <summary>Gone ({stats.gone.length}) <small>kept for the record, not in any list or total</small></summary>
+          <summary>{t('Gone')} ({stats.gone.length}) <small>{t('kept for the record, not in any list or total')}</small></summary>
           <ul class="rows">
             {#each stats.gone as item (item.id)}
-              <li><button type="button" onclick={() => open(item)}><span class="nm">{item.name}</span><span class="bg">{item.note ?? ''}</span><span class="w num muted">–</span></button></li>
+              <li><button type="button" onclick={() => open(item)}><span class="nm">{nameOf(item)}</span><span class="bg">{item.note ?? ''}</span><span class="w num muted">–</span></button></li>
             {/each}
           </ul>
         </details>

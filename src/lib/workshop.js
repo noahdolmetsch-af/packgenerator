@@ -6,7 +6,8 @@
  *
  * Pure functions only, so they are easy to test.
  */
-import { PART, PARTS, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM, prepFor, prepRules, isPrep, taskBike } from './care.js';
+import { PART, PARTS, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM, prepFor, prepRules, isPrep, taskBike, serviceName } from './care.js';
+import { t as tr, tn, num, locale } from './i18n.svelte.js';
 
 const DAY = 864e5;
 const iso = (d) => d.toISOString().slice(0, 10);
@@ -79,10 +80,10 @@ export function timeDue(bike, setup = { front: null, rear: null }, today = iso(n
     .filter((p) => p.everyDays && (!p.tubeless || anyTubeless || unknown))
     .map((p) => {
       const last = [...(p.history ?? [])].reverse().find((h) => h.action === 'service' || h.action === 'replace') ?? null;
-      if (!last?.date) return { key: p.key, name: p.due, every: p.everyDays, last: null, next: null, days: null, overdue: false, never: true };
+      if (!last?.date) return { key: p.key, name: tr(p.due), every: p.everyDays, last: null, next: null, days: null, overdue: false, never: true };
       const next = addDays(last.date, p.everyDays);
       const days = daysBetween(today, next);
-      return { key: p.key, name: p.due, every: p.everyDays, last: last.date, next, days, overdue: days <= 0, never: false };
+      return { key: p.key, name: tr(p.due), every: p.everyDays, last: last.date, next, days, overdue: days <= 0, never: false };
     })
     .sort((a, b) => (a.days ?? Infinity) - (b.days ?? Infinity));
 }
@@ -110,7 +111,7 @@ export function costByPart(visits, top = 4) {
   const by = {};
   for (const v of visits) for (const l of v.parts ?? []) by[l.part] = (by[l.part] ?? 0) + (l.chf ?? 0);
   return Object.entries(by)
-    .map(([key, chf]) => ({ key, name: PART[key]?.name ?? 'Other', chf: Math.round(chf * 100) / 100 }))
+    .map(([key, chf]) => ({ key, name: tr(PART[key]?.name ?? 'Other'), chf: Math.round(chf * 100) / 100 }))
     .filter((r) => r.chf > 0)
     .sort((a, b) => b.chf - a.chf)
     .slice(0, top);
@@ -177,26 +178,26 @@ function bikeDue(bike, trip, setup, today, end) {
   for (const t of timeDue(bike, setup, today)) {
     if (t.never || t.next > end) continue;
     const now = t.next < trip.startDate;
-    rows.push({ key: t.key, name: t.name, when: now ? 'now' : 'during', late: t.overdue, detail: t.overdue ? `overdue since ${t.next}` : now ? `due ${t.next}, before the start` : `due ${t.next}, on the trip` });
+    rows.push({ key: t.key, name: t.name, when: now ? 'now' : 'during', late: t.overdue, detail: t.overdue ? tr('overdue since {date}', { date: t.next }) : now ? tr('due {date}, before the start', { date: t.next }) : tr('due {date}, on the trip', { date: t.next }) });
   }
   // By km: services with their own interval (wax the chain every 150 km).
   for (const p of (bike.parts ?? []).map(partInfo).filter((x) => x.everyKm)) {
     const since = kmSince(bike, lastServiceOf(p));
     if (since == null) continue;
-    const name = `${p.service} ${p.name.toLowerCase()}`;
-    if (since >= p.everyKm) rows.push({ key: p.key, name, when: 'now', late: true, detail: `${since} km since the last time (every ${p.everyKm} km)` });
-    else if (tripKm != null && since + tripKm >= p.everyKm) rows.push({ key: p.key, name, when: 'during', detail: `due after ${p.everyKm - since} km of the route` });
+    const name = serviceName(p);
+    if (since >= p.everyKm) rows.push({ key: p.key, name, when: 'now', late: true, detail: tr('{since} km since the last time (every {every} km)', { since, every: p.everyKm }) });
+    else if (tripKm != null && since + tripKm >= p.everyKm) rows.push({ key: p.key, name, when: 'during', detail: tr('due after {km} km of the route', { km: p.everyKm - since }) });
   }
   // The 1000 km check: due now, or reached on the way.
   const check = checkState(bike);
-  if (check.due) rows.push({ key: 'check', name: `${CHECK_KM.toLocaleString('en')} km check`, when: 'now', late: true, detail: `${check.due} ${check.due === 1 ? 'point' : 'points'} due` });
+  if (check.due) rows.push({ key: 'check', name: tr('{km} km check', { km: num(CHECK_KM) }), when: 'now', late: true, detail: tn(check.due, '{n} point due', '{n} points due') });
   else if (tripKm != null) {
     const soon = check.rows.filter((r) => r.since != null && r.since + tripKm >= CHECK_KM);
-    if (soon.length) rows.push({ key: 'check', name: `${CHECK_KM.toLocaleString('en')} km check`, when: 'during', detail: `${soon.length} ${soon.length === 1 ? 'point is' : 'points are'} reached on the route. Do it before.` });
+    if (soon.length) rows.push({ key: 'check', name: tr('{km} km check', { km: num(CHECK_KM) }), when: 'during', detail: tn(soon.length, '{n} point is reached on the route. Do it before.', '{n} points are reached on the route. Do it before.') });
   }
   // Worn parts and open work.
   for (const p of (bike.parts ?? []).filter((x) => needsWork(x) || wear(x) === 'worn')) {
-    rows.push({ key: p.key, name: `${PART[p.key]?.name ?? p.key}: replace or fix`, when: 'now', worn: true, detail: needsWork(p) ? 'work needed' : 'worn' });
+    rows.push({ key: p.key, name: tr('{part}: replace or fix', { part: PART[p.key] ? tr(PART[p.key].name) : p.key }), when: 'now', worn: true, detail: needsWork(p) ? tr('work needed') : tr('worn') });
   }
   return { days: Math.max(0, daysBetween(today, trip.startDate)), rows: rows.sort((a, b) => Number(a.when !== 'now') - Number(b.when !== 'now')) };
 }
@@ -211,7 +212,7 @@ function bikeDue(bike, trip, setup, today, end) {
  * rows: [{ key, kind: 'prep' | 'bike' | 'repair', name, detail, late, when: 'now' | 'during', due, prep?, task? }],
  * late first, then by date, things due on the way last. done/total count the preparation tasks.
  */
-const short = (date) => new Date(`${date}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+const short = (date) => new Date(`${date}T00:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' });
 
 export function tripPrep(bike, trip, tasks = [], setup = { front: null, rear: null }, today = iso(new Date())) {
   if (!trip?.startDate) return null;
@@ -220,14 +221,14 @@ export function tripPrep(bike, trip, tasks = [], setup = { front: null, rear: nu
     .filter((r) => !r.finished)
     .map((r) => ({
       key: `prep:${r.task.id}`, kind: 'prep', name: r.task.task, late: r.overdue || r.needed, when: 'now', due: r.due, prep: r,
-      detail: r.needed ? 'work needed' : r.overdue ? `was due ${short(r.due)}` : `by ${short(r.due)}`,
+      detail: r.needed ? tr('work needed') : r.overdue ? tr('was due {date}', { date: short(r.due) }) : tr('by {date}', { date: short(r.due) }),
     }));
   for (const b of beforeTrip(bike, trip, setup, today)?.rows ?? []) {
     rows.push({ key: `bike:${b.key}:${b.when}`, kind: 'bike', name: b.name, detail: b.detail, late: !!(b.late || b.worn), when: b.when, due: null });
   }
   if (bike) {
     for (const t of tasks.filter((x) => !isPrep(x) && taskBike(x) === bike.id && (x.status === 'open' || x.status === 'needed'))) {
-      rows.push({ key: `repair:${t.id}`, kind: 'repair', name: t.task, detail: t.status === 'needed' ? 'work needed' : 'open repair', late: t.status === 'needed', when: 'now', due: null, task: t });
+      rows.push({ key: `repair:${t.id}`, kind: 'repair', name: t.task, detail: t.status === 'needed' ? tr('work needed') : tr('open repair'), late: t.status === 'needed', when: 'now', due: null, task: t });
     }
   }
   const rank = (r) => (r.late ? 0 : r.when === 'during' ? 2 : 1);
@@ -287,7 +288,7 @@ export function workshopOrder(bike, trip, tasks = [], visits = [], setup = { fro
     return { key: `${r.key}:${r.when}`, name: r.name, de, detail: r.detail, when: r.when, chf: price?.chf ?? null, from: price };
   });
   for (const t of tasks.filter((x) => !isPrep(x) && taskBike(x) === bike.id && (x.status === 'open' || x.status === 'needed'))) {
-    rows.push({ key: `repair:${t.id}`, name: t.task, de: t.task, detail: t.status === 'needed' ? 'work needed' : 'open repair', when: 'now', chf: null, from: null });
+    rows.push({ key: `repair:${t.id}`, name: t.task, de: t.task, detail: t.status === 'needed' ? tr('work needed') : tr('open repair'), when: 'now', chf: null, from: null });
   }
   const shop = visitsOf(visits, bike.id)[0]?.shop ?? [...visits].sort((a, b) => b.date.localeCompare(a.date))[0]?.shop ?? '';
   return { rows, ...orderSum(rows), shop };
@@ -330,11 +331,11 @@ export function bikeProfile(bike, visits = [], setup = { front: null, rear: null
   for (const r of bikeDue(bike, { startDate: today, days: 1 }, setup, today, today).rows.filter((x) => x.late || x.worn)) next.push({ name: r.name, detail: r.detail, late: true });
   if (!next.length) {
     const t = timeDue(bike, setup, today).find((x) => !x.never);
-    if (t) next.push({ name: t.name, detail: `due ${short(t.next)}`, late: false, days: t.days });
+    if (t) next.push({ name: t.name, detail: tr('due {date}', { date: short(t.next) }), late: false, days: t.days });
     const check = checkState(bike).rows.filter((r) => r.since != null);
     if (check.length) {
       const left = CHECK_KM - Math.max(...check.map((r) => r.since));
-      next.push({ name: `${CHECK_KM.toLocaleString('en')} km check`, detail: `in ${left.toLocaleString('en')} km`, late: false });
+      next.push({ name: tr('{km} km check', { km: num(CHECK_KM) }), detail: tr('in {km} km', { km: num(left) }), late: false });
     }
   }
   const lastVisit = mine[0] ?? null;

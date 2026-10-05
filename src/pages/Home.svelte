@@ -27,6 +27,7 @@
   import { paceOf, PACE_KEY } from '../lib/pace.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { openNew, openNote, openTrip, addItem, newTrip } from '../lib/nav.js';
+  import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -103,21 +104,21 @@
   const year = $derived(costByYear(visits).find((y) => y.year === today.slice(0, 4)) ?? null);
   // One line per bike: what is due, else its km and the last workshop visit.
   const bikeState = (b) => {
-    if (next?.bikeId === b.id && care.length) return { due: care.length, tag: `${care.length} to do`, text: `${b.km != null ? `${b.km.toLocaleString('en')} km · ` : ''}next trip` };
+    if (next?.bikeId === b.id && care.length) return { due: care.length, tag: t('{n} to do', { n: care.length }), text: `${b.km != null ? `${num(b.km)} km · ` : ''}${t('next trip')}` };
     const parts = b.parts ?? [];
     const due = checkState(b).due + serviceDue(b).length + parts.filter((p) => needsWork(p) || wear(p) === 'worn').length + tasks.filter((t) => !isPrep(t) && taskBike(t) === b.id && (t.status === 'open' || t.status === 'needed')).length;
     const lastVisit = visits.filter((v) => v.bikeId === b.id).sort((x, y) => y.date.localeCompare(x.date))[0];
-    const text = [b.km != null ? `${b.km.toLocaleString('en')} km` : null, lastVisit ? `serviced ${fmt(lastVisit.date, { day: 'numeric', month: 'short' })}` : null].filter(Boolean).join(' · ');
-    if (due) return { due, tag: `${due} to do`, text };
-    if (b.km == null) return { due: 0, tag: 'enter km', text: text || 'km not entered' };
-    return { due: 0, tag: 'all fine', text };
+    const text = [b.km != null ? `${num(b.km)} km` : null, lastVisit ? t('serviced {date}', { date: fmt(lastVisit.date, { day: 'numeric', month: 'short' }) }) : null].filter(Boolean).join(' · ');
+    if (due) return { due, tag: t('{n} to do', { n: due }), text };
+    if (b.km == null) return { due: 0, tag: t('enter km'), text: text || t('km not entered') };
+    return { due: 0, tag: t('all fine'), text };
   };
 
   /* ---------- Good to know (answer 6a): one line from each source ---------- */
   const fc = $derived(next ? toWx(forecastForTrip(next)) : null);
   const place = $derived(next ? (next.place ?? next.route?.start ?? null) : null);
   const sun = $derived(next?.startDate && place?.lat != null ? sunTimes(next.startDate, place.lat, place.lon) : null);
-  const clock = (ms) => new Date(ms).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const clock = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
   const tips = $derived(learningsFor(next, learnings, 1));
   const pace = $derived(paceOf($paceQ?.value));
   const notes = $derived([...($notesQ ?? [])].sort((a, b) => (b.at ?? '').localeCompare(a.at ?? '')));
@@ -136,11 +137,11 @@
   }
 
   function fmt(iso, opts) {
-    return new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', opts);
+    return new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), opts);
   }
-  const dateText = (t) =>
-    t.days > 1 ? `${fmt(t.startDate, { weekday: 'short', day: 'numeric' })} – ${fmt(tripEnd(t), { weekday: 'short', day: 'numeric', month: 'short' })} · ${t.days} days` : fmt(t.startDate, { weekday: 'short', day: 'numeric', month: 'short' });
-  const todayText = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  const dateText = (tr) =>
+    tr.days > 1 ? `${fmt(tr.startDate, { weekday: 'short', day: 'numeric' })} – ${fmt(tripEnd(tr), { weekday: 'short', day: 'numeric', month: 'short' })} · ${tn(tr.days, '{n} day', '{n} days')}` : fmt(tr.startDate, { weekday: 'short', day: 'numeric', month: 'short' });
+  const todayText = $derived(new Date().toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }));
 
   // Ride day (answer 1a): on the days of the trip the app opens the ride view, once a day.
   const riding = $derived(next ? onTripDay(next, today) : false);
@@ -183,10 +184,10 @@
   {#if backup.due}
     <section class="note-card" aria-labelledby="bk-h">
       <div>
-        <h2 id="bk-h">Time for a backup</h2>
-        <p>{backup.days == null ? 'You have not saved a backup file yet.' : `Your last backup is ${backup.days} days old.`} Your data lives only in this browser: one file keeps it safe (every {BACKUP_DAYS} days).</p>
+        <h2 id="bk-h">{t('Time for a backup')}</h2>
+        <p>{backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })} {t('Your data lives only in this browser: one file keeps it safe (every {n} days).', { n: BACKUP_DAYS })}</p>
       </div>
-      <button type="button" class="btn hi" disabled={backingUp} onclick={backupNow}>Download backup</button>
+      <button type="button" class="btn hi" disabled={backingUp} onclick={backupNow}>{t('Download backup')}</button>
     </section>
   {/if}
 
@@ -194,33 +195,33 @@
   {#if next}
     <section class="band" aria-labelledby="next-h">
       <div class="who">
-        <span class="lbl">{todayText} · next trip</span>
+        <span class="lbl">{todayText} · {t('next trip')}</span>
         <h1 id="next-h" class="title">{next.title}</h1>
         <p class="facts">
           <span>{dateText(next)}</span>{#if next.bike}<span>{next.bike}</span>{/if}{#if place?.name}<span>{place.name.split(',')[0]}</span>{/if}
-          <span class="num">{stats.count} items</span>{#if stats.gearG}<span class="num">{formatWeight(stats.gearG)} gear</span>{/if}
+          <span class="num">{tn(stats.count, '{n} item', '{n} items')}</span>{#if stats.gearG}<span class="num">{t('{w} gear', { w: formatWeight(stats.gearG) })}</span>{/if}
         </p>
       </div>
-      <div class="count" aria-label={days > 0 ? `${days} ${days === 1 ? 'day' : 'days'} to go` : 'On the way'}>
-        {#if days > 0}<b class="title num">{days}</b><span class="lbl">{days === 1 ? 'day' : 'days'}<br />to go</span>{:else}<b class="title now">On the way</b>{/if}
+      <div class="count" aria-label={days > 0 ? tn(days, '{n} day to go', '{n} days to go') : t('On the way')}>
+        {#if days > 0}<b class="title num">{days}</b><span class="lbl">{days === 1 ? t('day') : t('days')}<br />{t('to go')}</span>{:else}<b class="title now">{t('On the way')}</b>{/if}
       </div>
       <div class="acts">
         {#if riding}
-          <a class="btn hi" href="#/ride" onclick={() => openTrip(next.id)}>Ride day</a>
-          <a class="btn ghost" href="#/pack" onclick={() => openTrip(next.id)}>Pack</a>
+          <a class="btn hi" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>
+          <a class="btn ghost" href="#/pack" onclick={() => openTrip(next.id)}>{t('Pack')}</a>
         {:else if days <= 2}
-          <a class="btn hi" href="#/pack?day" onclick={() => openTrip(next.id)}>Packing day</a>
-          <a class="btn ghost" href="#/pack" onclick={() => openTrip(next.id)}>Continue packing</a>
-          <a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>Ride day</a>
+          <a class="btn hi" href="#/pack?day" onclick={() => openTrip(next.id)}>{t('Packing day')}</a>
+          <a class="btn ghost" href="#/pack" onclick={() => openTrip(next.id)}>{t('Continue packing')}</a>
+          <a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>
         {:else}
-          <a class="btn hi" href="#/pack" onclick={() => openTrip(next.id)}>Continue packing</a>
-          <a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>Ride day</a>
+          <a class="btn hi" href="#/pack" onclick={() => openTrip(next.id)}>{t('Continue packing')}</a>
+          <a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>
         {/if}
-        <a class="btn ghost" href="#/pack?print" onclick={() => openTrip(next.id)}>Print list</a>
+        <a class="btn ghost" href="#/pack?print" onclick={() => openTrip(next.id)}>{t('Print list')}</a>
         {#if care.length}
-          <a class="pill" class:late href="#/care">{late ? `Before the trip: ${care.length} to do, ${late} overdue` : `Before the trip: ${care.length} to do`}</a>
+          <a class="pill" class:late href="#/care">{late ? t('Before the trip: {n} to do, {late} overdue', { n: care.length, late }) : t('Before the trip: {n} to do', { n: care.length })}</a>
         {:else}
-          <span class="pill ok">Before the trip: all done</span>
+          <span class="pill ok">{t('Before the trip: all done')}</span>
         {/if}
       </div>
     </section>
@@ -228,71 +229,71 @@
     <section class="band" aria-labelledby="next-h">
       <div class="who">
         <span class="lbl">{todayText}</span>
-        <h1 id="next-h" class="title">No trip planned</h1>
-        <p class="facts"><span>Start a packing list from a template, from your last trip or from the standard set.</span></p>
+        <h1 id="next-h" class="title">{t('No trip planned')}</h1>
+        <p class="facts"><span>{t('Start a packing list from a template, from your last trip or from the standard set.')}</span></p>
       </div>
-      <div class="acts"><button type="button" class="btn hi" onclick={() => openNew('list')}>New packing list</button></div>
+      <div class="acts"><button type="button" class="btn hi" onclick={() => openNew('list')}>{t('New packing list')}</button></div>
     </section>
   {/if}
 
   {#if debrief}
     <section class="note-card" aria-labelledby="last-h">
       <div>
-        <h2 id="last-h">Last trip: {debrief.title}</h2>
-        <p>Two minutes: mark what you did not use, what broke and what you missed. The app turns it into tips for the next trip.</p>
+        <h2 id="last-h">{t('Last trip: {title}', { title: debrief.title })}</h2>
+        <p>{t('Two minutes: mark what you did not use, what broke and what you missed. The app turns it into tips for the next trip.')}</p>
       </div>
-      <a class="btn hi" href="#/debrief/{encodeURIComponent(debrief.id)}">Start debrief</a>
+      <a class="btn hi" href="#/debrief/{encodeURIComponent(debrief.id)}">{t('Start debrief')}</a>
     </section>
   {/if}
 
   <!-- Phone: four ways to create, one tap each (desktop has "New" in the top bar). -->
-  <nav class="quick" aria-label="Create">
-    <button type="button" onclick={() => openNew('list')}><span class="ring hi">{@render ic('plus', 22)}</span>New list</button>
-    <button type="button" onclick={() => openNote('')}><span class="ring">{@render ic('note', 22)}</span>Note</button>
-    <button type="button" onclick={addItem}><span class="ring">{@render ic('star', 22)}</span>Gear item</button>
-    <button type="button" onclick={() => openNew('km')}><span class="ring">{@render ic('bike', 22)}</span>Log km</button>
+  <nav class="quick" aria-label={t('Create')}>
+    <button type="button" onclick={() => openNew('list')}><span class="ring hi">{@render ic('plus', 22)}</span>{t('New list')}</button>
+    <button type="button" onclick={() => openNote('')}><span class="ring">{@render ic('note', 22)}</span>{t('Note')}</button>
+    <button type="button" onclick={addItem}><span class="ring">{@render ic('star', 22)}</span>{t('Gear item')}</button>
+    <button type="button" onclick={() => openNew('km')}><span class="ring">{@render ic('bike', 22)}</span>{t('Log km')}</button>
   </nav>
 
   <!-- Where to go (answers 5a, 7a, 8a): three equal places, number → create → open. -->
   <div class="hubs">
     <section class="hub" aria-labelledby="pack-h">
-      <header><h2 id="pack-h" class="title"><a href="#/pack">Pack</a></h2>{@render ic('bag', 40)}</header>
-      <button type="button" class="btn hi big" onclick={() => openNew('list')}>{@render ic('plus')}New packing list</button>
+      <header><h2 id="pack-h" class="title"><a href="#/pack">{t('Pack')}</a></h2>{@render ic('bag', 40)}</header>
+      <button type="button" class="btn hi big" onclick={() => openNew('list')}>{@render ic('plus')}{t('New packing list')}</button>
       {#if next}
         <div class="sub">
-          <div class="line"><b>{next.title}</b><span class="num muted">{stats.packed} / {stats.count} in the bags</span></div>
-          <div class="bar" role="img" aria-label="{packedPct} % packed"><i style:width="{Math.max(2, packedPct)}%"></i></div>
+          <div class="line"><b>{next.title}</b><span class="num muted">{t('{packed} / {n} in the bags', { packed: stats.packed, n: stats.count })}</span></div>
+          <div class="bar" role="img" aria-label={t('{n} % packed', { n: packedPct })}><i style:width="{Math.max(2, packedPct)}%"></i></div>
           <p class="small">
-            Ready check {readyN} / {ready.length}{#if extra?.rows.length} · Ballast <b class="num">{formatWeight(extra.totalG)}</b> on {extra.rows.length} {extra.rows.length === 1 ? 'item' : 'items'} you did not use last times. <a href="#/pack" onclick={() => openTrip(next.id)}>Leave at home</a>{/if}
+            {t('Ready check {done} / {n}', { done: readyN, n: ready.length })}{#if extra?.rows.length} · {tn(extra.rows.length, 'Ballast {w} on {n} item you did not use last times.', 'Ballast {w} on {n} items you did not use last times.', { w: formatWeight(extra.totalG) })} <a href="#/pack" onclick={() => openTrip(next.id)}>{t('Leave at home')}</a>{/if}
           </p>
         </div>
       {/if}
       <div>
-        <span class="lbl">Open a list</span>
+        <span class="lbl">{t('Open a list')}</span>
         <ul class="rows">
-          {#each tripList as t (t.id)}
-            <li><a href="#/pack" onclick={() => openTrip(t.id)}><span>{t.title}</span><span class="num muted">{t.startDate ? fmt(t.startDate, { day: 'numeric', month: 'short' }) : ''}{t.bike ? ` · ${t.bike}` : ''}</span></a></li>
+          {#each tripList as tr (tr.id)}
+            <li><a href="#/pack" onclick={() => openTrip(tr.id)}><span>{tr.title}</span><span class="num muted">{tr.startDate ? fmt(tr.startDate, { day: 'numeric', month: 'short' }) : ''}{tr.bike ? ` · ${tr.bike}` : ''}</span></a></li>
           {/each}
-          {#each templates.slice(0, 2) as t (t.id)}
-            <li><button type="button" onclick={() => newTrip(t.id)} title="New trip from this template"><span>{t.name}</span><span class="muted">template</span></button></li>
+          {#each templates.slice(0, 2) as tp (tp.id)}
+            <li><button type="button" onclick={() => newTrip(tp.id)} title={t('New trip from this template')}><span>{tp.name}</span><span class="muted">{t('template')}</span></button></li>
           {/each}
-          <li><a href="#/pack/templates"><span>All templates</span><span aria-hidden="true">→</span></a></li>
+          <li><a href="#/pack/templates"><span>{t('All templates')}</span><span aria-hidden="true">→</span></a></li>
         </ul>
       </div>
     </section>
 
     <section class="hub" aria-labelledby="gear-h">
-      <header><h2 id="gear-h" class="title"><a href="#/gear">Gear</a></h2>{@render ic('star', 40)}</header>
+      <header><h2 id="gear-h" class="title"><a href="#/gear">{t('Gear')}</a></h2>{@render ic('star', 40)}</header>
       <div class="kpis">
-        {#if favs}<div><b class="title num">{favs}</b><span class="lbl">favourites</span></div>{/if}
-        <div><b class="title num">{gs.inventory.length}</b><span class="lbl">items owned</span></div>
+        {#if favs}<div><b class="title num">{favs}</b><span class="lbl">{t('favourites')}</span></div>{/if}
+        <div><b class="title num">{gs.inventory.length}</b><span class="lbl">{t('items owned')}</span></div>
       </div>
       {#if cats.length}
         <div>
-          <span class="lbl">Where the weight is</span>
+          <span class="lbl">{t('Where the weight is')}</span>
           <div class="cats">
             {#each cats as c (c.key)}
-              <a href="#/gear?cat={c.key}" class="cn">{c.name}</a>
+              <a href="#/gear?cat={c.key}" class="cn">{t(c.name)}</a>
               <div class="bar" role="img" aria-label="{formatWeight(c.g)}"><i style:width="{Math.round((c.g / cats[0].g) * 100)}%" style:background={CATEGORY[c.key]?.color}></i></div>
               <span class="num">{formatWeight(c.g)}</span>
             {/each}
@@ -300,89 +301,89 @@
         </div>
       {/if}
       <div>
-        <span class="lbl">Worth a look</span>
+        <span class="lbl">{t('Worth a look')}</span>
         <ul class="rows">
-          {#if heaviest}<li><a href="#/gear?q={encodeURIComponent(heaviest.name)}"><span>Heaviest: {heaviest.name}</span><span class="num muted">{formatWeight(heaviest.weightG)}</span></a></li>{/if}
-          {#if wishTop}<li><a href="#/gear?tab=wishlist"><span>Wishlist top: {wishTop.item.name}</span><span class="muted">{gs.wishlist.length} {gs.wishlist.length === 1 ? 'wish' : 'wishes'}</span></a></li>{/if}
-          {#if gs.unweighed}<li><a href="#/gear?tab=weigh"><span>Weigh next: {gs.unweighed} items</span><span class="num muted">{weighedPct} % done</span></a></li>{/if}
+          {#if heaviest}<li><a href="#/gear?q={encodeURIComponent(heaviest.name)}"><span>{t('Heaviest: {name}', { name: nameOf(heaviest) })}</span><span class="num muted">{formatWeight(heaviest.weightG)}</span></a></li>{/if}
+          {#if wishTop}<li><a href="#/gear?tab=wishlist"><span>{t('Wishlist top: {name}', { name: nameOf(wishTop.item) })}</span><span class="muted">{tn(gs.wishlist.length, '{n} wish', '{n} wishes')}</span></a></li>{/if}
+          {#if gs.unweighed}<li><a href="#/gear?tab=weigh"><span>{tn(gs.unweighed, 'Weigh next: {n} item', 'Weigh next: {n} items')}</span><span class="num muted">{t('{n} % done', { n: weighedPct })}</span></a></li>{/if}
         </ul>
       </div>
       <div class="foot">
-        <button type="button" class="btn sm" onclick={addItem}>{@render ic('plus', 16)}Add item</button>
-        <a class="btn sm" href="#/gear">★ Favourites</a>
-        <a class="btn sm" href="#/gear?tab=wishlist">Wishlist</a>
+        <button type="button" class="btn sm" onclick={addItem}>{@render ic('plus', 16)}{t('Add item')}</button>
+        <a class="btn sm" href="#/gear">★ {t('Favourites')}</a>
+        <a class="btn sm" href="#/gear?tab=wishlist">{t('Wishlist')}</a>
       </div>
     </section>
 
     <section class="hub" aria-labelledby="bikes-h">
-      <header><h2 id="bikes-h" class="title"><a href="#/bikes">Bikes</a></h2>{@render ic('bike', 40)}</header>
+      <header><h2 id="bikes-h" class="title"><a href="#/bikes">{t('Bikes')}</a></h2>{@render ic('bike', 40)}</header>
       {#if bikes.length}
-        <div class="kpis"><div><b class="title num">{totalKm.toLocaleString('en')}</b><span class="lbl">km on {bikes.length} {bikes.length === 1 ? 'bike' : 'bikes'}</span></div></div>
+        <div class="kpis"><div><b class="title num">{num(totalKm)}</b><span class="lbl">{tn(bikes.length, 'km on {n} bike', 'km on {n} bikes')}</span></div></div>
         <ul class="rows">
           {#each bikes as b (b.id)}
             {@const s = bikeState(b)}
             <li><a href={s.due ? '#/care' : '#/bikes'}><span class="two"><b>{b.name}</b><small class="muted">{s.text}</small></span><span class="tag" class:due={s.due}>{s.tag}</span></a></li>
           {/each}
         </ul>
-        {#if year}<p class="small">Workshop {year.year}: <b class="num">{year.unknown === year.visits ? 'cost unknown' : `CHF ${Math.round(year.chf).toLocaleString('en')}${year.unknown ? ' + unknown' : ''}`}</b> ({year.visits} {year.visits === 1 ? 'visit' : 'visits'}).</p>{/if}
+        {#if year}<p class="small">{t('Workshop {year}:', { year: year.year })} <b class="num">{year.unknown === year.visits ? t('cost unknown') : `CHF ${num(Math.round(year.chf))}${year.unknown ? ` + ${t('unknown')}` : ''}`}</b> ({tn(year.visits, '{n} visit', '{n} visits')}).</p>{/if}
       {:else}
-        <p class="small">No bikes yet.</p>
+        <p class="small">{t('No bikes yet.')}</p>
       {/if}
       <div class="foot">
-        <button type="button" class="btn sm" onclick={() => openNew('km')}>{@render ic('plus', 16)}Log km</button>
-        <a class="btn sm" href="#/care">Bike care</a>
-        <a class="btn sm" href="#/care">Workshop order</a>
+        <button type="button" class="btn sm" onclick={() => openNew('km')}>{@render ic('plus', 16)}{t('Log km')}</button>
+        <a class="btn sm" href="#/care">{t('Bike care')}</a>
+        <a class="btn sm" href="#/care">{t('Workshop order')}</a>
       </div>
     </section>
   </div>
 
   <!-- Good to know (answer 6a): five sources, one line each, and where it comes from. -->
   <section class="know" aria-labelledby="know-h">
-    <h2 id="know-h" class="title">Good to know</h2>
+    <h2 id="know-h" class="title">{t('Good to know')}</h2>
     <div class="cards">
       {#if next}
         <div class="sig">
-          <span class="lbl">Weather{place?.name ? ` · ${place.name.split(',')[0]}` : ''}</span>
-          <b>{fc ? `${fc.min} to ${fc.max} °C, ${RAIN[fc.rain]}` : place ? 'No forecast loaded yet' : 'No place set yet'}</b>
-          <span>{sun ? `Sunrise ${clock(sun.rise)} · sunset ${clock(sun.set)}` : next.wx?.min != null ? `Packed for ${next.wx.min} to ${next.wx.max} °C` : 'Set the start place in Pack → Ride and weather.'}</span>
-          <span class="src">{fc ? 'Open-Meteo' : 'Forecast from 16 days before'}{sun ? ' · sun computed offline' : ''}</span>
+          <span class="lbl">{t('Weather')}{place?.name ? ` · ${place.name.split(',')[0]}` : ''}</span>
+          <b>{fc ? t('{min} to {max} °C, {rain}', { min: fc.min, max: fc.max, rain: t(RAIN[fc.rain]) }) : place ? t('No forecast loaded yet') : t('No place set yet')}</b>
+          <span>{sun ? t('Sunrise {rise} · sunset {set}', { rise: clock(sun.rise), set: clock(sun.set) }) : next.wx?.min != null ? t('Packed for {min} to {max} °C', { min: next.wx.min, max: next.wx.max }) : t('Set the start place in Pack → Ride and weather.')}</span>
+          <span class="src">{fc ? 'Open-Meteo' : t('Forecast from 16 days before')}{sun ? ` · ${t('sun computed offline')}` : ''}</span>
         </div>
       {/if}
       <div class="sig">
-        <span class="lbl">From your debriefs</span>
-        {#if tips[0]}<b>{tips[0].rule}</b>{:else}<b>No learnings yet</b>{/if}
-        <span>{tips[0] ? (tips[0].topic ?? '') : 'After a trip, the debrief turns what you did not use into tips.'}</span>
-        <span class="src">{learnings.length} learnings · <a href="#/debrief/learnings">all</a></span>
+        <span class="lbl">{t('From your debriefs')}</span>
+        {#if tips[0]}<b>{tips[0].rule}</b>{:else}<b>{t('No learnings yet')}</b>{/if}
+        <span>{tips[0] ? (tips[0].topic ?? '') : t('After a trip, the debrief turns what you did not use into tips.')}</span>
+        <span class="src">{tn(learnings.length, '{n} learning', '{n} learnings')} · <a href="#/debrief/learnings">{t('all')}</a></span>
       </div>
       <div class="sig">
-        <span class="lbl">Your pace</span>
-        <b class="num">{pace.mine ? `${pace.kmh} km/h moving` : 'Standard guess: 16 km/h'}</b>
-        <span>+1 h per {pace.climbMh.toLocaleString('en')} m climbing{pace.stops ? `, stops add ${Math.round((pace.stops - 1) * 100)} %` : ''}</span>
-        <span class="src">{pace.mine ? `${pace.n} GPX rides` : 'Load your rides'} · <a href="#/debrief/pace">Your pace</a></span>
+        <span class="lbl">{t('Your pace')}</span>
+        <b class="num">{pace.mine ? t('{kmh} km/h moving', { kmh: pace.kmh }) : t('Standard guess: 16 km/h')}</b>
+        <span>{t('+1 h per {m} m climbing', { m: num(pace.climbMh) })}{pace.stops ? t(', stops add {n} %', { n: Math.round((pace.stops - 1) * 100) }) : ''}</span>
+        <span class="src">{pace.mine ? tn(pace.n, '{n} GPX ride', '{n} GPX rides') : t('Load your rides')} · <a href="#/debrief/pace">{t('Your pace')}</a></span>
       </div>
       <div class="sig">
-        <span class="lbl">Inbox</span>
-        <b>{notes.length ? `${notes.length} ${notes.length === 1 ? 'note' : 'notes'} to sort` : 'Nothing to sort'}</b>
-        <span>{notes[0]?.text ?? 'Quick notes land here: tap New → Quick note.'}</span>
-        <span class="src">Quick notes · <a href="#/inbox">{notes.length ? 'sort now' : 'all notes'}</a></span>
+        <span class="lbl">{t('Inbox')}</span>
+        <b>{notes.length ? tn(notes.length, '{n} note to sort', '{n} notes to sort') : t('Nothing to sort')}</b>
+        <span>{notes[0]?.text ?? t('Quick notes land here: tap New → Quick note.')}</span>
+        <span class="src">{t('Quick notes')} · <a href="#/inbox">{notes.length ? t('sort now') : t('all notes')}</a></span>
       </div>
       <div class="sig">
-        <span class="lbl">Your data</span>
-        <b>{$demoQ ? 'Demo running' : backup.days == null ? 'No backup yet' : backup.days === 0 ? 'Backup today' : `Backup ${backup.days} ${backup.days === 1 ? 'day' : 'days'} old`}</b>
-        <span>Phone and desktop keep their own data; a backup file moves it.</span>
-        <span class="src"><button type="button" class="link" disabled={backingUp || !!$demoQ} onclick={backupNow}>Download backup</button></span>
+        <span class="lbl">{t('Your data')}</span>
+        <b>{$demoQ ? t('Demo running') : backup.days == null ? t('No backup yet') : backup.days === 0 ? t('Backup today') : tn(backup.days, 'Backup {n} day old', 'Backup {n} days old')}</b>
+        <span>{t('Phone and desktop keep their own data; a backup file moves it.')}</span>
+        <span class="src"><button type="button" class="link" disabled={backingUp || !!$demoQ} onclick={backupNow}>{t('Download backup')}</button></span>
       </div>
     </div>
   </section>
 
   <details class="data" open={loaded && !trips.length}>
-    <summary><b>Your data</b> <span class="muted">backup, import, export, favourites</span></summary>
+    <summary><b>{t('Your data')}</b> <span class="muted">{t('backup, import, export, favourites')}</span></summary>
     <DataPanel />
   </details>
 
   <footer>
     <span class="dot" class:off={!online}></span>
-    {online ? 'Online' : 'Offline'} · v{__APP_VERSION__}
+    {online ? t('Online') : t('Offline')} · v{__APP_VERSION__}
   </footer>
 </div>
 

@@ -8,6 +8,7 @@
  * Pure functions, easy to test.
  */
 import { addHours } from './ride.js';
+import { nameOf } from './i18n.svelte.js';
 
 /** Assumption, not measured: half a litre per riding hour, a quarter more from 25 °C. */
 export const DRINK_L_PER_H = 0.5;
@@ -71,7 +72,7 @@ export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx =
   const layers = items.filter(({ item }) => typeof item.coldBelow === 'number' || item.rain);
   const food = items.filter(({ item }) => item.perHours && !item.waterL);
   const capL = items.reduce((t, { item, qty }) => t + (item.waterL || 0) * (qty || 1), 0);
-  const lights = items.filter(({ item }) => item.category === 'light').map(({ item, place: p }) => ({ name: item.name, place: p }));
+  const lights = items.filter(({ item }) => item.category === 'light').map(({ item, place: p }) => ({ name: nameOf(item), place: p }));
   const nights = rows.length ? darkTimes(rows[0].startAt, rows.at(-1).endAt, place, offsetOf) : [];
   let wearing = new Set();
   let cumH = 0;
@@ -92,10 +93,10 @@ export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx =
     if (temp || hrs.length || tripWx) {
       const now = layers.filter(({ item }) => (typeof item.coldBelow === 'number' && temp && temp.lo < item.coldBelow) || (item.rain === 'yes' && wet));
       const ids = new Set(now.map(({ item }) => item.id));
-      plan.wear = now.map(({ item, place: p }) => ({ id: item.id, name: item.name, place: p }));
+      plan.wear = now.map(({ item, place: p }) => ({ id: item.id, name: nameOf(item), place: p }));
       if (!b.rest) {
         plan.on = plan.wear.filter((w) => !wearing.has(w.id));
-        plan.off = layers.filter(({ item }) => wearing.has(item.id) && !ids.has(item.id)).map(({ item, place: p }) => ({ id: item.id, name: item.name, place: p }));
+        plan.off = layers.filter(({ item }) => wearing.has(item.id) && !ids.has(item.id)).map(({ item, place: p }) => ({ id: item.id, name: nameOf(item), place: p }));
         wearing = ids;
       }
     }
@@ -109,7 +110,7 @@ export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx =
         // Said once, in the block where it runs out: how many to buy on the way for the whole ride.
         const runsOut = left[item.id] >= 0 && left[item.id] < k;
         left[item.id] -= k;
-        plan.food.push({ id: item.id, name: item.name, n: k, place: p, short: runsOut ? need[item.id] - (qtyOf[item.id] ?? 1) : 0 });
+        plan.food.push({ id: item.id, name: nameOf(item), n: k, place: p, short: runsOut ? need[item.id] - (qtyOf[item.id] ?? 1) : 0 });
       }
       const rate = DRINK_L_PER_H + (temp && temp.hi >= HOT_C ? HOT_EXTRA_L : 0);
       plan.drinkL = Math.round(h * rate * 10) / 10;

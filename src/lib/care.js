@@ -19,6 +19,8 @@
  *   Due by time or km, whichever comes first (answer 13a). Brakes are bled only when the lever
  *   feels soft (answer 16b), so they have no interval.
  */
+import { t as tr } from './i18n.svelte.js';
+
 export const PARTS = [
   { key: 'chain', name: 'Chain', unit: '%', warnAt: 0.4, limit: 0.5, everyKm: 150, service: 'Waxed', hint: 'Chain checker: 0.4 % warning, 0.5 % replace' },
   { key: 'chainring', name: 'Chainring', unit: '' },
@@ -101,7 +103,7 @@ export function checkState(bike) {
     .filter((p) => CHECK_PARTS.includes(p.key))
     .map((p) => {
       const since = kmSince(bike, lastLook(p));
-      return { key: p.key, name: p.key === 'fork' || p.key === 'shock' ? `${PART[p.key].name} lockout` : PART[p.key].name, since, due: since != null && since >= CHECK_KM, unknown: since == null };
+      return { key: p.key, name: p.key === 'fork' || p.key === 'shock' ? tr('{part} lockout', { part: tr(PART[p.key].name) }) : tr(PART[p.key].name), since, due: since != null && since >= CHECK_KM, unknown: since == null };
     });
   return { rows, due: rows.filter((r) => r.due).length, unknown: rows.filter((r) => r.unknown).length };
 }
@@ -111,9 +113,12 @@ export function serviceDue(bike) {
   return (bike.parts ?? [])
     .map(partInfo)
     .filter((p) => p.everyKm)
-    .map((p) => ({ key: p.key, name: `${p.service} ${p.name.toLowerCase()}`, since: kmSince(bike, lastOf(p, (h) => h.action === 'service' || h.action === 'replace')), every: p.everyKm }))
+    .map((p) => ({ key: p.key, name: serviceName(p), since: kmSince(bike, lastOf(p, (h) => h.action === 'service' || h.action === 'replace')), every: p.everyKm }))
     .filter((s) => s.since != null && s.since >= s.every);
 }
+
+/** The name of a service by km, e.g. "Waxed chain" (in the current language). */
+export const serviceName = (p) => tr(`${p.service} ${p.name.toLowerCase()}`);
 
 /**
  * Add a history entry to a part. result: 'ok' (checked, fine), 'needed' (replace or work needed),
@@ -136,7 +141,7 @@ export const EXTRA = { pressureF: { name: 'Pressure front', unit: 'bar' }, press
  * all part entries plus the repairs finished in the app.
  */
 export function bikeLog(bike, tasks = []) {
-  const parts = (bike.parts ?? []).flatMap((p) => (p.history ?? []).map((h) => ({ ...h, what: PART[p.key]?.name ?? p.key, unit: PART[p.key]?.unit ?? '' })));
+  const parts = (bike.parts ?? []).flatMap((p) => (p.history ?? []).map((h) => ({ ...h, what: PART[p.key] ? tr(PART[p.key].name) : p.key, unit: PART[p.key]?.unit ?? '' })));
   const repairs = tasks
     .filter((t) => taskBike(t) === bike.id && t.status === 'done' && t.statusDate)
     .map((t) => ({ date: t.statusDate, km: null, action: 'repair', result: 'done', by: t.by ?? null, what: t.task, note: '' }));
@@ -146,7 +151,7 @@ export function bikeLog(bike, tasks = []) {
 /** When a chain is replaced after more than 0.75 %, cassette and chainring should be checked too. */
 export function replaceHint(part) {
   const v = lastValue(part)?.value;
-  return part.key === 'chain' && v != null && v > 0.75 ? 'The old chain was over 0.75 %: check the cassette and chainring too.' : '';
+  return part.key === 'chain' && v != null && v > 0.75 ? tr('The old chain was over 0.75 %: check the cassette and chainring too.') : '';
 }
 
 /* ---------- tasks from the Excel sheet "Wartung" ---------- */
@@ -227,7 +232,7 @@ export function wishFor(part, bike, items, id, price = null) {
     id, name, brand: '', model: p.model || price?.model || '', category: 'bike', weightG: null, qty: 1, weightStatus: 'missing', carry: 'bike',
     defaultBag: 'tool', ownership: 'wishlist', role: null, sets: [], kits: [], domains: ['bikepacking'],
     priceChf: price?.chf ?? null,
-    note: `From Bike care: ${p.name} on the ${bike.name} needs replacing.${price ? ` Last time CHF ${price.chf.toFixed(2)} (${price.shop}, ${price.date}).` : ''}`,
+    note: tr('From Bike care: {part} on the {bike} needs replacing.', { part: tr(p.name), bike: bike.name }) + (price ? ` ${tr('Last time CHF {chf} ({shop}, {date}).', { chf: price.chf.toFixed(2), shop: price.shop, date: price.date })}` : ''),
     updatedAt: new Date().toISOString(),
   };
 }

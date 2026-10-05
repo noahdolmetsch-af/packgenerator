@@ -9,6 +9,7 @@
  */
 import { SLOT, SLOTS, FIXED_ZONES, addedWeight } from './bikes.js';
 import { isInventory } from './gear.js';
+import { t as tr } from './i18n.svelte.js';
 
 /**
  * The ready check suggested for every new trip (decision 7: editable per trip).
@@ -175,10 +176,10 @@ export function daysUntil(iso, today = new Date()) {
 export function whenLabel(iso, today) {
   const n = daysUntil(iso, today);
   if (n == null || Number.isNaN(n)) return '';
-  if (n === 0) return 'Today';
-  if (n === 1) return 'Tomorrow';
-  if (n > 1) return `In ${n} days`;
-  return n === -1 ? 'Yesterday' : `${-n} days ago`;
+  if (n === 0) return tr('Today');
+  if (n === 1) return tr('Tomorrow');
+  if (n > 1) return tr('In {n} days', { n });
+  return n === -1 ? tr('Yesterday') : tr('{n} days ago', { n: -n });
 }
 
 /**
@@ -240,7 +241,10 @@ export async function ensureTrips(db) {
 export const onTrip = (trip) => new Set(trip.entries.map((e) => e.itemId));
 
 /** Label for a zone: the bag's name, or the place name. */
-export const zoneName = (z) => (z.bag ? z.bag.name : z.zone.name) + (z.noBag ? ' (no bag)' : '');
+export const zoneName = (z) => {
+  const name = z.bag ? z.bag.name : tr(z.zone.name);
+  return z.noBag ? tr('{name} (no bag)', { name }) : name;
+};
 
 export { SLOT };
 
@@ -340,8 +344,8 @@ export function packSteps(stats, purpose = {}) {
     .map((z, n) => ({ z, n }))
     .sort((a, b) => (LAST[a.z.key] ?? 0) - (LAST[b.z.key] ?? 0) || a.n - b.n)
     .map(({ z }) => {
-      const name = z.key === 'body' ? 'Wear and carry' : z.key === 'mounted' ? 'On the bike' : purpose[z.key] || zoneName(z);
-      const sub = purpose[z.key] ? zoneName(z) : z.bag && z.bag.name !== z.zone.name ? z.zone.name : '';
+      const name = z.key === 'body' ? tr('Wear and carry') : z.key === 'mounted' ? tr('On the bike') : purpose[z.key] || zoneName(z);
+      const sub = purpose[z.key] ? zoneName(z) : z.bag && z.bag.name !== z.zone.name ? tr(z.zone.name) : '';
       return { key: z.key, title: name, sub, entries: z.entries, done: z.entries.filter((e) => e.packed).length };
     });
 }

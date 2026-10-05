@@ -6,6 +6,7 @@
  * the item names, amounts and weights go in, nothing else from your data.
  */
 import { zoneName } from './trips.js';
+import { t, nameOf } from './i18n.svelte.js';
 
 /** The small object that goes into the link. */
 export function sharePayload(trip, stats, itemsById) {
@@ -19,10 +20,10 @@ export function sharePayload(trip, stats, itemsById) {
     g: stats.zones
       .filter((z) => z.entries.length)
       .map((z) => [
-        z.key === 'body' ? 'On me' : trip.purpose?.[z.key] || zoneName(z),
+        z.key === 'body' ? t('On me') : trip.purpose?.[z.key] || zoneName(z),
         z.entries.map((e) => {
           const it = itemsById[e.itemId];
-          return [it?.name ?? e.itemId, e.qty || 1, it?.weightG == null ? null : it.weightG * (e.qty || 1)];
+          return [it ? nameOf(it) : e.itemId, e.qty || 1, it?.weightG == null ? null : it.weightG * (e.qty || 1)];
         }),
       ]),
   };

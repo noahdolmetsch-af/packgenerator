@@ -16,6 +16,7 @@
   import { liveQuery } from 'dexie';
   import { db } from './lib/db.js';
   import { phone } from './lib/media.svelte.js';
+  import { t, lang, setLang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
   // e.g. …/packgenerator/#/gear. It works offline and needs no server setup.
@@ -61,6 +62,10 @@
     notePrefill = prefill;
     noteOpen = true;
   };
+  // v0.20.0: the page language for screen readers and the browser.
+  $effect(() => {
+    document.documentElement.lang = lang.v;
+  });
   const inboxQ = liveQuery(() => db.notes.where('status').equals('open').count());
   $effect(() => {
     if (hash === '#/inbox/new') {
@@ -74,27 +79,32 @@
 <!-- v0.19.6 (start page answers 1a-4a): the same places on every page, search, Inbox and one "New".
      On a phone the places move to a bar at the bottom, with the + in the middle. -->
 <header class="top">
-  <a class="brand" href="#/" aria-label="Pack Generator, start page"><span class="long">Pack Generator</span><span class="short" aria-hidden="true">PG</span></a>
+  <a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="long">Pack Generator</span><span class="short" aria-hidden="true">PG</span></a>
   {#if !phone.matches}
-    <nav class="places" aria-label="Sections">
-      <a href="#/" aria-current={page === 'home' ? 'page' : undefined}>Home</a>
-      <a href="#/gear" aria-current={page === 'gear' ? 'page' : undefined}>Gear</a>
-      <a href="#/pack" aria-current={page === 'pack' || page === 'templates' || page === 'ride' ? 'page' : undefined}>Pack</a>
-      <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}>Bikes</a>
-      <a href="#/debrief" aria-current={page === 'debrief' ? 'page' : undefined}>Debrief</a>
+    <nav class="places" aria-label={t('Sections')}>
+      <a href="#/" aria-current={page === 'home' ? 'page' : undefined}>{t('Home')}</a>
+      <a href="#/gear" aria-current={page === 'gear' ? 'page' : undefined}>{t('Gear')}</a>
+      <a href="#/pack" aria-current={page === 'pack' || page === 'templates' || page === 'ride' ? 'page' : undefined}>{t('Pack')}</a>
+      <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}>{t('Bikes')}</a>
+      <a href="#/debrief" aria-current={page === 'debrief' ? 'page' : undefined}>{t('Debrief')}</a>
     </nav>
   {:else}
-    <a class="deb" href="#/debrief" aria-current={page === 'debrief' ? 'page' : undefined}>Debrief</a>
+    <a class="deb" href="#/debrief" aria-current={page === 'debrief' ? 'page' : undefined}>{t('Debrief')}</a>
   {/if}
   <div class="tools">
+    <!-- v0.20.0: German or English, remembered on this device. -->
+    <div class="lang" role="group" aria-label={t('Language')}>
+      <button type="button" aria-pressed={lang.v === 'de'} onclick={() => setLang('de')} lang="de" title="Deutsch">DE</button>
+      <button type="button" aria-pressed={lang.v === 'en'} onclick={() => setLang('en')} lang="en" title="English">EN</button>
+    </div>
     <Search />
-    <a class="inbox" href="#/inbox" aria-current={page === 'inbox' ? 'page' : undefined} aria-label="Inbox{$inboxQ ? `, ${$inboxQ} ${$inboxQ === 1 ? 'note' : 'notes'} to sort` : ''}">
+    <a class="inbox" href="#/inbox" aria-current={page === 'inbox' ? 'page' : undefined} aria-label={$inboxQ ? t('Inbox, {n} to sort', { n: $inboxQ }) : t('Inbox')}>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 13l3-8h10l3 8v6H4z" /><path d="M4 13h5l1 2h4l1-2h5" /></svg>
       {#if $inboxQ}<span class="n num">{$inboxQ}</span>{/if}
     </a>
     {#if !phone.matches && page !== 'share'}
       <button type="button" class="btn hi new" onclick={() => (newMode = 'all')} aria-haspopup="dialog">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>New
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>{t('New')}
       </button>
     {/if}
   </div>
@@ -130,12 +140,12 @@
   <QuickNote {page} bind:open={noteOpen} prefill={notePrefill} />
   <NewSheet bind:mode={newMode} onnote={note} />
   {#if phone.matches}
-    <nav class="bottom" aria-label="Sections">
-      <a href="#/" aria-current={page === 'home' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z" /></svg>Home</a>
-      <a href="#/gear" aria-current={page === 'gear' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.8 6.4.6-4.8 4.3 1.4 6.3L12 16.8 6.4 20l1.4-6.3L3 9.4l6.4-.6z" /></svg>Gear</a>
-      <button type="button" class="plus" aria-label="New" aria-haspopup="dialog" onclick={() => (newMode = 'all')}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></button>
-      <a href="#/pack" aria-current={page === 'pack' || page === 'templates' || page === 'ride' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l1.5 13h-15z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg>Pack</a>
-      <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="16" r="4" /><circle cx="18" cy="16" r="4" /><path d="M6 16l4-8h5l3 8M10 8l4 8" /></svg>Bikes</a>
+    <nav class="bottom" aria-label={t('Sections')}>
+      <a href="#/" aria-current={page === 'home' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z" /></svg>{t('Home')}</a>
+      <a href="#/gear" aria-current={page === 'gear' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.8 6.4.6-4.8 4.3 1.4 6.3L12 16.8 6.4 20l1.4-6.3L3 9.4l6.4-.6z" /></svg>{t('Gear')}</a>
+      <button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" onclick={() => (newMode = 'all')}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></button>
+      <a href="#/pack" aria-current={page === 'pack' || page === 'templates' || page === 'ride' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l1.5 13h-15z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg>{t('Pack')}</a>
+      <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="16" r="4" /><circle cx="18" cy="16" r="4" /><path d="M6 16l4-8h5l3 8M10 8l4 8" /></svg>{t('Bikes')}</a>
     </nav>
   {/if}
 {/if}
@@ -214,6 +224,26 @@
   }
   .new {
     gap: 6px;
+  }
+  .lang {
+    display: flex;
+    border: 1.5px solid #3b5a50;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .lang button {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 6px;
+    border: 0;
+    background: none;
+    color: #a9c2b6;
+    font: 700 13px var(--font-body);
+    cursor: pointer;
+  }
+  .lang button[aria-pressed='true'] {
+    background: var(--paper);
+    color: var(--ink);
   }
   .top .short {
     display: none;

@@ -4,10 +4,11 @@
  *   trip.route = { name, km, gainM, lossM, start: { lat, lon }, end: { lat, lon }, line: [[lat, lon], …], file }
  * The start also gives the place for the weather forecast.
  */
+import { t } from './i18n.svelte.js';
 
 /** Read the points of a GPX file (track points, else route points). Works without a browser. */
 export function parseGpx(text) {
-  if (!/<gpx[\s>]/i.test(text)) throw new Error('This is not a GPX file.');
+  if (!/<gpx[\s>]/i.test(text)) throw new Error(t('This is not a GPX file.'));
   const name = text.match(/<name>\s*(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?\s*<\/name>/i)?.[1]?.trim() || '';
   const grab = (tag) => {
     const out = [];
@@ -22,7 +23,7 @@ export function parseGpx(text) {
   };
   let points = grab('trkpt');
   if (!points.length) points = grab('rtept');
-  if (points.length < 2) throw new Error('The GPX file has no route in it.');
+  if (points.length < 2) throw new Error(t('The GPX file has no route in it.'));
   return { name: decode(name), points };
 }
 
