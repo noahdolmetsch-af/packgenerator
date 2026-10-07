@@ -1,0 +1,60 @@
+/**
+ * v0.24.1 (Noah 5a): writing a change to several gear items at once ("Select" in the Gear list).
+ * Every change is one Dexie transaction and returns a snapshot of the exact records before it,
+ * which `undoBulk` writes back ("Undo"). The new records come from the pure helpers in gear.js.
+ */
+import { bulkDelete } from '../gear.js';
+import { TEMPLATES_KEY } from '../templates.js';
+
+/** Save changed item records (category or ownership). Returns the undo snapshot. */
+export async function saveItems(db, changed) {
+  return db.transaction('rw', db.items, async () => {
+    const before = (await db.items.bulkGet(changed.map((i) => i.id))).filter(Boolean);
+    await db.items.bulkPut(changed);
+    return { items: before };
+  });
+}
+
+/**
+ * What deleting would touch, read fresh from the database (for the confirm text):
+ * { used: IDs on a trip or template, trips, templates }.
+ */
+export async function deletePlan(db, ids) {
+  const trips = await db.trips.toArray();
+  const templates = (await db.settings.get(TEMPLATES_KEY))?.value ?? [];
+  return bulkDelete(ids, trips, templates);
+}
+
+/**
+ * Delete the items and take them off every trip and template, all in one transaction.
+ * Returns the undo snapshot: the items, the trips before, and the template setting before.
+ */
+export async function deleteItems(db, ids) {
+  return db.transaction('rw', db.items, db.trips, db.settings, async () => {
+    const items = (await db.items.bulkGet(ids)).filter(Boolean);
+    const tripsBefore = await db.trips.toArray();
+    const setting = await db.settings.get(TEMPLATES_KEY);
+    const plan = bulkDelete(ids, tripsBefore, setting?.value ?? []);
+    const changedIds = new Set(plan.trips.map((t) => t.id));
+    await db.items.bulkDelete(ids);
+    if (plan.trips.length) await db.trips.bulkPut(plan.trips);
+    if (plan.templates) await db.settings.put({ ...setting, key: TEMPLATES_KEY, value: plan.templates });
+    return {
+      items,
+      trips: tripsBefore.filter((t) => changedIds.has(t.id)),
+      ...(plan.templates ? { templates: setting } : {}),
+    };
+  });
+}
+
+/** Undo: write the records of a snapshot back exactly as they were. */
+export async function undoBulk(db, snap) {
+  return db.transaction('rw', db.items, db.trips, db.settings, async () => {
+    if (snap.items?.length) await db.items.bulkPut(snap.items);
+    if (snap.trips?.length) await db.trips.bulkPut(snap.trips);
+    if ('templates' in snap) {
+      if (snap.templates) await db.settings.put(snap.templates);
+      else await db.settings.delete(TEMPLATES_KEY);
+    }
+  });
+}
