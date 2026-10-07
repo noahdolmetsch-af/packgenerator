@@ -42,6 +42,10 @@
   });
   let target = $state('seat');
   const targetPlace = $derived(places.find((p) => p.key === target) ?? places.find((p) => p.key === 'seat') ?? places[0]);
+  // v0.24.1: a template without a seat pack showed an empty "Adding to"; show the place + really uses.
+  $effect(() => {
+    if (targetPlace && targetPlace.key !== target) target = targetPlace.key;
+  });
 
   let q = $state('');
   const candidates = $derived.by(() => {
