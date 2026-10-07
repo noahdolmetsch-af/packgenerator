@@ -137,6 +137,12 @@ export function bikeSetup(bike, containers, items) {
   };
 }
 
+/**
+ * v0.22.0 (AP04): how sure the bike weight is. 'measured' = a weight typed or weighed in the app;
+ * 'estimate' = a guess with a note saying so (e.g. "9 kg from Strava (estimate)"); 'missing' = no weight.
+ */
+export const bikeWeightKind = (bike) => (bike?.weightG == null ? 'missing' : /estimate/i.test(bike.weightNote ?? '') ? 'estimate' : 'measured');
+
 /** Bags that fit a slot, for the "which bag goes here" choice. */
 export const bagsFor = (slotKey, containers) => containers.filter((c) => c.slot === slotKey);
 

@@ -13,7 +13,7 @@
   import DataPanel from '../lib/DataPanel.svelte';
   import { LAST_BACKUP, LAST_IMPORT, BACKUP_DAYS, backupDue, downloadBackup } from '../lib/backup.js';
   import { openTodos, backupAfterTrip } from '../lib/todos.js';
-  import { CATEGORY, formatWeight, gearStats, isConsumable } from '../lib/gear.js';
+  import { CATEGORY, formatWeight, knownWeight, weightText, gearStats, isConsumable } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
   import { withVisits, tripPrep, prepGroups, tyreSetup, costByYear } from '../lib/workshop.js';
   import { tripStats, daysUntil, readyDone, RAIN } from '../lib/trips.js';
@@ -242,7 +242,7 @@
         <h1 id="next-h" class="title">{next.title}</h1>
         <p class="facts">
           <span>{dateText(next)}</span>{#if !nextByBike}<span>{t(domainName(domainOf(next)))}</span>{:else if next.bike}<span>{next.bike}</span>{/if}{#if place?.name}<span>{place.name.split(',')[0]}</span>{/if}
-          <span class="num">{tn(stats.count, '{n} item', '{n} items')}</span>{#if stats.gearG}<span class="num">{t('{w} gear', { w: formatWeight(stats.gearG) })}</span>{/if}
+          <span class="num">{tn(stats.count, '{n} item', '{n} items')}</span>{#if stats.gearG}<span class="num">{t('{w} gear', { w: knownWeight(stats.gearG, stats.gearMissing) })}</span>{/if}{#if stats.gearMissing}<span class="num">{t('{n} not weighed', { n: stats.gearMissing })}</span>{/if}
         </p>
       </div>
       <div class="count" aria-label={days > 0 ? tn(days, '{n} day to go', '{n} days to go') : t('On the way')}>
@@ -304,10 +304,10 @@
       <button type="button" class="btn hi big" onclick={() => openNew('list')}>{@render ic('plus')}{t('New packing list')}</button>
       {#if next}
         <div class="sub">
-          <div class="line"><b>{next.title}</b><span class="num muted">{t('{packed} / {n} in the bags', { packed: stats.packed, n: stats.count })}</span></div>
+          <div class="line"><b>{next.title}</b><span class="num muted">{t('{packed} packed · {left} still to pack', { packed: stats.packed, left: stats.toPack })}</span></div>
           <div class="bar" role="img" aria-label={t('{n} % packed', { n: packedPct })}><i style:width="{Math.max(2, packedPct)}%"></i></div>
           <p class="small">
-            {t('Ready check {done} / {n}', { done: readyN, n: ready.length })}{#if extra?.rows.length} · {tn(extra.rows.length, 'Ballast {w} on {n} item you did not use last times.', 'Ballast {w} on {n} items you did not use last times.', { w: formatWeight(extra.totalG) })} <a href="#/pack" onclick={() => openTrip(next.id)}>{t('Leave at home')}</a>{/if}
+            {t('Ready check: {done} checked · {open} open', { done: readyN, open: ready.length - readyN })}{#if extra?.rows.length} · {tn(extra.rows.length, 'Ballast {w} on {n} item you did not use last times.', 'Ballast {w} on {n} items you did not use last times.', { w: weightText(extra.totalG, extra.unweighed) })} <a href="#/pack" onclick={() => openTrip(next.id)}>{t('Leave at home')}</a>{/if}
           </p>
         </div>
       {/if}
@@ -337,8 +337,8 @@
           <div class="cats">
             {#each cats as c (c.key)}
               <a href="#/gear?cat={c.key}" class="cn">{t(c.name)}</a>
-              <div class="bar" role="img" aria-label="{formatWeight(c.g)}"><i style:width="{Math.round((c.g / cats[0].g) * 100)}%" style:background={CATEGORY[c.key]?.color}></i></div>
-              <span class="num">{formatWeight(c.g)}</span>
+              <div class="bar" role="img" aria-label={knownWeight(c.g, c.unweighed)}><i style:width="{Math.round((c.g / cats[0].g) * 100)}%" style:background={CATEGORY[c.key]?.color}></i></div>
+              <span class="num">{knownWeight(c.g, c.unweighed)}</span>
             {/each}
           </div>
         </div>

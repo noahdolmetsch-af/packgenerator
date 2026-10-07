@@ -214,4 +214,14 @@ export default {
   '{n} areas': '{n} Reisearten',
   'No favourites yet. In Gear open an item → Edit → tick ★ Favourite.': 'Noch keine Favoriten. In Ausrüstung ein Teil öffnen → Bearbeiten → ★ Favorit anhaken.',
   Pages: 'Seiten',
+  // v0.22.0 (AP04): unknown weight is not zero.
+  'known: {w}': 'bekannt: {w}',
+  '{n} weight missing': '{n} Gewicht fehlt',
+  '{n} weights missing': '{n} Gewichte fehlen',
+  measured: 'gemessen',
+  estimate: 'Schätzung',
+  'bike weight estimated': 'Velogewicht geschätzt',
+  'bike weight measured': 'Velogewicht gemessen',
+  'Bike weighs': 'Velo wiegt',
+  '{n} not weighed (+ {f} food and water)': '{n} nicht gewogen (+ {f} Verpflegung und Wasser)',
 };

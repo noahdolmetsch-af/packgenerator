@@ -9,7 +9,7 @@
   import { liveQuery } from 'dexie';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { db } from '../lib/db.js';
-  import { formatWeight, CATEGORY, isInventory } from '../lib/gear.js';
+  import { formatWeight, knownWeight, CATEGORY, isInventory } from '../lib/gear.js';
   import { ZONE } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems } from '../lib/debrief.js';
@@ -324,7 +324,7 @@
         <h1 class="title">{saved ? t('Saved') : t('Next time')}</h1>
         <div class="kpi">
           <div><b class="num">{counts.unused}</b><span class="lbl">{t('not used')}</span></div>
-          <div><b class="num">{counts.unusedG ? `−${formatWeight(counts.unusedG)}` : '–'}</b><span class="lbl">{t('possible')}</span></div>
+          <div><b class="num">{counts.unusedG ? knownWeight(counts.unusedG, counts.unusedUnweighed, (g) => `−${formatWeight(g)}`) : '–'}</b><span class="lbl">{t('possible')}{#if counts.unusedUnweighed}{' · '}{t('{n} not weighed', { n: counts.unusedUnweighed })}{/if}</span></div>
           <div><b class="num">{counts.missing}</b><span class="lbl">{t('missing')}</span></div>
           <div><b class="num">{counts.broken}</b><span class="lbl">{t('broken')}</span></div>
         </div>

@@ -3,7 +3,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { phone } from '../lib/media.svelte.js';
-  import { gearStats, matches, groupByCategory, formatWeight, itemWeight, CATEGORIES, BAG, OWNERSHIP } from '../lib/gear.js';
+  import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, CATEGORIES, BAG, OWNERSHIP } from '../lib/gear.js';
   import WeightOverview from '../lib/gear/WeightOverview.svelte';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
@@ -11,6 +11,7 @@
   import { itemUsage, deadWeight, wishReason } from '../lib/insights.js';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
+  import Sum from '../lib/ui/Sum.svelte';
 
   // All items, kept up to date by the database (liveQuery re-runs on every change).
   const itemsQuery = liveQuery(() => db.items.toArray());
@@ -91,8 +92,8 @@
     <h1 class="title">{t('Gear')}</h1>
     <div class="kpis">
       <div><span class="lbl">{t('Items')}</span><b class="num">{stats.inventory.length}</b></div>
-      <div class="un"><span class="lbl">{t('Not weighed')}</span><b class="num">{stats.unweighed}</b></div>
-      <div class="tot"><span class="lbl">{t('Gear weight')}</span><b class="num">{formatWeight(stats.total)}</b></div>
+      <!-- v0.22.0 (AP04): unknown is not zero: the known sum with the missing weights right next to it. -->
+      <div class="tot"><span class="lbl">{t('Gear weight')}</span><Sum g={stats.total} missing={stats.totalMissing} miss={stats.consumablesMissing ? t('{n} not weighed (+ {f} food and water)', { n: stats.totalMissing, f: stats.consumablesMissing }) : ''} /></div>
       <div><span class="lbl">{t('Wishlist')}</span><b class="num">{stats.wishlist.length}</b></div>
     </div>
   </header>
@@ -178,7 +179,7 @@
             <span class="lbl">{t('Categories')}</span>
             <ul>
               {#each groups as g (g.key)}
-                <li><button type="button" onclick={() => jump(g.key)}><span class="sw" style:background={g.color}></span><span class="n">{t(g.name)}</span><span class="num">{formatWeight(catStats[g.key].g)}</span></button></li>
+                <li><button type="button" onclick={() => jump(g.key)}><span class="sw" style:background={g.color}></span><span class="n">{t(g.name)}</span><span class="num">{knownWeight(catStats[g.key].g, catStats[g.key].unweighed)}</span></button></li>
               {/each}
             </ul>
           </nav>
@@ -197,7 +198,7 @@
                   <button type="button" aria-expanded={isOpen(g.key)} disabled={searching} onclick={() => toggle(g.key)}>
                     <span class="sw" style:background={g.color}></span>
                     <span class="title">{t(g.name)}</span>
-                    <b class="num k">{formatWeight(catStats[g.key].g)}</b>
+                    <b class="num k">{knownWeight(catStats[g.key].g, catStats[g.key].unweighed)}</b>
                     <span class="m">{tn(catStats[g.key].n, '{n} item', '{n} items')}{catStats[g.key].unweighed ? ` · ${t('{n} not weighed', { n: catStats[g.key].unweighed })}` : ''}{catStats[g.key].consumable ? ` · ${t('not in gear weight')}` : ''}</span>
                     {#if !searching}<span class="chev" aria-hidden="true">▾</span>{/if}
                   </button>
@@ -283,7 +284,8 @@
     display: flex;
     flex-direction: column;
   }
-  .kpis b {
+  .kpis b,
+  .kpis :global(.sum b) {
     font-family: var(--font-title);
     font-weight: 800;
     font-size: 30px;
@@ -296,16 +298,16 @@
       width: 100%;
       gap: 8px;
     }
-    .kpis b {
+    .kpis b,
+    .kpis :global(.sum b) {
       font-size: 22px;
+    }
+    .kpis .tot {
+      grid-column: span 2;
     }
     .kpis .lbl {
       font-size: 10px;
     }
-  }
-  /* Status stays grey; orange is only for actions (design audit G3). */
-  .kpis .un b {
-    color: var(--ink-2);
   }
   .tabs {
     display: grid;

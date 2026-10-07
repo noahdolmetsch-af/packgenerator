@@ -8,7 +8,7 @@
  *   ready             [{ id, label, done }]  this trip's ready check (older trips may still have group/itemId)
  *   domain, packs     v0.21.0: the area; a trip without a bike has its own bags in `packs` (see domains.js)
  */
-import { SLOT, SLOTS, FIXED_ZONES, addedWeight } from './bikes.js';
+import { SLOT, SLOTS, FIXED_ZONES, addedWeight, bikeWeightKind } from './bikes.js';
 import { isInventory, isConsumable } from './gear.js';
 import { t as tr } from './i18n.svelte.js';
 import { inDomain, BIKEPACKING } from './domains.js';
@@ -119,6 +119,9 @@ export function readyDone(row, trip) {
 /**
  * Everything the Pack page shows: per zone the entries and weights, and the totals.
  * System weight (decision 9b) = bike + rider + bags + everything packed and worn.
+ * v0.22.0 (AP04, honest weights): unknown is not zero. Every sum (…G) adds up only known weights
+ * and has its count of unknown weights next to it (…Missing): an item without a weight, a bag
+ * without a weight, a bike or rider without a weight. A sum with missing > 0 is "known: …".
  */
 export function tripStats(trip, items, containers, bike, riderG) {
   const itemsById = Object.fromEntries(items.map((i) => [i.id, i]));
@@ -151,10 +154,9 @@ export function tripStats(trip, items, containers, bike, riderG) {
       packed: entries.filter((e) => e.packed).length,
     };
   });
-  const bagsG = SLOTS.reduce((t, s) => {
-    const bag = bagsById[trip.setup?.[s.key]];
-    return t + (bag ? addedWeight(bag, itemsById) ?? 0 : 0);
-  }, 0);
+  const bagWeights = SLOTS.map((s) => bagsById[trip.setup?.[s.key]]).filter(Boolean).map((bag) => addedWeight(bag, itemsById));
+  const bagsG = bagWeights.reduce((t, g) => t + (g ?? 0), 0);
+  const bagsMissing = bagWeights.filter((g) => g == null).length;
   const onMeG = zones.filter((z) => z.key === 'body').reduce((t, z) => t + z.grams, 0);
   const gearG = zones.filter((z) => z.key !== 'body').reduce((t, z) => t + z.grams, 0);
   const bikeG = bike?.weightG ?? 0;
@@ -167,9 +169,15 @@ export function tripStats(trip, items, containers, bike, riderG) {
     return !!it && (isConsumable(it) || it.waterL > 0);
   };
   const sumOf = (list) => list.reduce((t, e) => t + (w(e) ?? 0), 0);
-  const consumablesG = sumOf(trip.entries.filter(eats));
-  const wornG = sumOf(trip.entries.filter((e) => e.slot === 'body' && !eats(e)));
-  const baseG = sumOf(trip.entries.filter((e) => e.slot !== 'body' && !eats(e)));
+  const missOf = (list) => list.filter((e) => w(e) == null).length;
+  const eatList = trip.entries.filter(eats);
+  const wornList = trip.entries.filter((e) => e.slot === 'body' && !eats(e));
+  const baseList = trip.entries.filter((e) => e.slot !== 'body' && !eats(e));
+  const consumablesG = sumOf(eatList);
+  const wornG = sumOf(wornList);
+  const baseG = sumOf(baseList);
+  const unweighed = missOf(trip.entries);
+  const bikeKind = bikeWeightKind(bike);
   return {
     zones,
     gearG,
@@ -181,9 +189,21 @@ export function tripStats(trip, items, containers, bike, riderG) {
     bikeG,
     riderG: riderG ?? 0,
     systemG: gearG + onMeG + bagsG + bikeG + (riderG ?? 0),
-    unweighed: trip.entries.filter((e) => w(e) == null).length,
+    unweighed,
+    gearMissing: zones.filter((z) => z.key !== 'body').reduce((t, z) => t + z.unweighed, 0),
+    onMeMissing: zones.filter((z) => z.key === 'body').reduce((t, z) => t + z.unweighed, 0),
+    baseMissing: missOf(baseList),
+    wornMissing: missOf(wornList),
+    consumablesMissing: missOf(eatList),
+    bagsMissing,
+    // Items, bags, the bike and the rider without a weight: what the system weight leaves out.
+    systemMissing: unweighed + bagsMissing + (bike?.weightG ? 0 : 1) + (riderG ? 0 : 1),
+    // 'measured' | 'estimate' | 'missing': an estimated bike weight makes the system weight an estimate.
+    bikeKind,
     count: trip.entries.length,
     packed: trip.entries.filter((e) => e.packed).length,
+    // v0.22.0 (AP04): on the list = count; still to pack = count − packed (packing day).
+    toPack: trip.entries.filter((e) => !e.packed).length,
     missing: { bike: !bike?.weightG, rider: !riderG },
   };
 }
@@ -354,16 +374,33 @@ const FRONT_X = 590;
 export function axleLoad(stats, itemsById) {
   let front = 0;
   let rear = 0;
+  // v0.22.0 (AP04): items or bags on the bike without a weight make the split an estimate.
+  let missing = 0;
   for (const z of stats.zones) {
     if (z.key === 'body') continue;
     const box = z.zone.box;
     const share = z.key === 'mounted' || !box ? 0.5 : Math.min(1, Math.max(0, (box.x + box.w / 2 - REAR_X) / (FRONT_X - REAR_X)));
-    const bagG = z.bag ? addedWeight(z.bag, itemsById) ?? 0 : 0;
-    const g = z.grams + bagG;
+    const bagW = z.bag && !z.bag.pack ? addedWeight(z.bag, itemsById) : 0;
+    if (bagW == null) missing++;
+    missing += z.unweighed ?? 0;
+    const g = z.grams + (bagW ?? 0);
     front += g * share;
     rear += g * (1 - share);
   }
-  return { front: Math.round(front), rear: Math.round(rear) };
+  return { front: Math.round(front), rear: Math.round(rear), missing, estimate: missing > 0 };
+}
+
+/**
+ * v0.22.0 (AP04): the front / rear split as shown. Exact percent only when every weight is known;
+ * with missing weights it is an estimate, rounded to 5 % and marked "~". null without luggage.
+ * → { front, rear, estimate }  (front + rear = 100)
+ */
+export function axleSplit(axle) {
+  const sum = axle ? axle.front + axle.rear : 0;
+  if (!sum) return null;
+  const pct = (axle.rear / sum) * 100;
+  const rear = axle.estimate ? Math.round(pct / 5) * 5 : Math.round(pct);
+  return { front: 100 - rear, rear, estimate: !!axle.estimate };
 }
 
 /* ---------- packing day (Noah, 4.10.2026, answer 2a): full screen, bag by bag ---------- */
