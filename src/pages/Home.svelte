@@ -20,7 +20,7 @@
   import { CATEGORY, formatWeight, knownWeight, weightText, gearStats, isConsumable, favouriteCounts } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
   import { withVisits, costByYear } from '../lib/workshop.js';
-  import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine, packStatus, packLine } from '../lib/readiness.js';
+  import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine, packStatus, packLine, isShortRide } from '../lib/readiness.js';
   import { tripStats, daysUntil, RAIN } from '../lib/trips.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { onTripDay } from '../lib/ride.js';
@@ -79,7 +79,8 @@
   // v0.18.2 (answer 3a): the same list "Before the trip" as in Pack and Bike care.
   // v0.22.0 (AP06): three named scopes, the same statements as Pack and Bikes → Care
   // (readiness.js): Bike care of the trip's bike, Event preparation and Packing status.
-  const care = $derived(next && nextByBike && bike ? bikeCare(bike, { tasks, visits, trip: next, today }) : null);
+  // v0.25.0 (Noah 10): a short ride (1 day, no event) has no bike care step here; it stays in Bikes.
+  const care = $derived(next && nextByBike && bike && !isShortRide(next) ? bikeCare(bike, { tasks, visits, trip: next, today }) : null);
   // v0.22.0 (Noah 4b): only for events; a trip without preparation tasks shows no line.
   const prep = $derived.by(() => {
     const p = next && nextByBike ? eventPrep(next, tasks, today) : null;

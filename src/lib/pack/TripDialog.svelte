@@ -1,8 +1,10 @@
 <script>
   import { db } from '../db.js';
-  import { newTrip, lastTripOn, switchBike } from '../trips.js';
+  import { newTrip, lastTripOn, switchBike, WX_PRESETS } from '../trips.js';
+  import { contextTrip, contextSummary, startEntries, applyContext, hasContext } from '../context.js';
+  import { isEvent } from '../care.js';
   import { tripFromTemplate } from '../templates.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, tn, nameOf } from '../i18n.svelte.js';
   import { DOMAINS, DOMAIN, BIKEPACKING, domainName, lastDomain, rememberDomain, newPackTrip, lastTripIn, readyKey, inDomain, hasBike } from '../domains.js';
   import { isInventory } from '../gear.js';
 
@@ -12,8 +14,12 @@
    * or starts from a template (4.10.2026) or from the standard set.
    * v0.21.0 (package 5): a new trip asks the area first (domain; default the last one used on this
    * device). Areas without a bike skip the bike and templates; their bags come with the area.
+   * v0.25.0 (M3, Noah 1a–10): for a bike trip the dialog asks what kind of trip it is (hours per day,
+   * overnight stay, cooking, weather, event) and shows live what the packing list will be
+   * (context.js). Editing a trip applies a changed context at once through onchange (Pack's
+   * change(), so Undo works, 9b).
    */
-  let { trip, trips, bikes, items, templates = [], startFrom = 'last', domain = null, defaultBikeId = null, onclose, oncreated } = $props();
+  let { trip, trips, bikes, items, templates = [], startFrom = 'last', domain = null, defaultBikeId = null, onclose, oncreated, onchange = null } = $props();
 
   // svelte-ignore state_referenced_locally
   const isNew = !trip;
@@ -23,6 +29,33 @@
       ? { title: trip.title, startDate: trip.startDate ?? '', days: trip.days ?? 1, bikeId: trip.bikeId ?? bikes[0]?.id }
       : { title: '', startDate: '', days: 1, bikeId: defaultBikeId ?? bikes[0]?.id },
   );
+  // v0.25.0 (M3): the trip's context. An older trip without an overnight value shows none chosen.
+  // svelte-ignore state_referenced_locally
+  const was = {
+    hours: trip?.hours != null ? String(trip.hours) : '',
+    overnight: trip?.overnight ?? null,
+    cook: !!trip?.cook,
+    min: trip?.wx?.min ?? null,
+    max: trip?.wx?.max ?? null,
+    rain: trip?.wx?.rain ?? 'none',
+    event: trip ? isEvent(trip) : false,
+  };
+  let ctx = $state({ ...was });
+  const days = $derived(Math.max(1, Number(draft.days) || 1));
+  // Noah 1a: None for 1 day, Outdoor from 2 days on, until one is chosen.
+  const night = $derived(ctx.overnight ?? (isNew ? (days > 1 ? 'outdoor' : 'none') : null));
+  const hoursNum = $derived(ctx.hours.trim() === '' ? null : Number(ctx.hours.replace(',', '.')));
+  const hoursOk = $derived(hoursNum === null || (hoursNum >= 0.5 && hoursNum <= 24));
+  const wet = $derived(ctx.rain === 'showers' || ctx.rain === 'rain');
+  const wxOut = $derived(ctx.min != null || ctx.max != null || ctx.rain !== 'none' ? { min: ctx.min, max: ctx.max, rain: ctx.rain } : null);
+  const pickWx = (p) => (ctx.min === p.min && ctx.max === p.max ? ((ctx.min = null), (ctx.max = null)) : ((ctx.min = p.min), (ctx.max = p.max)));
+  /** The context fields to store (only for bike trips). */
+  const ctxFields = () => ({ hours: hoursOk ? hoursNum : null, overnight: night, cook: night === 'outdoor' && ctx.cook, wx: wxOut, event: ctx.event });
+  const OVERNIGHTS = [
+    { key: 'none', name: 'None|overnight' },
+    { key: 'lodging', name: 'Lodging' },
+    { key: 'outdoor', name: 'Outdoor (tent, bivvy)' },
+  ];
   // svelte-ignore state_referenced_locally
   let start = $state(startFrom);
   // A template always makes a bikepacking trip.
@@ -44,10 +77,29 @@
     dialog.showModal();
   });
 
+  /** The start of a new bike trip (template, last trip or standard set), before its context. */
+  function startTrip() {
+    const tpl = templates.find((x) => x.id === start);
+    const base = tpl ? tripFromTemplate({ ...draft, bike }, tpl, items) : newTrip({ ...draft, bike, overnight: night }, start === 'standard' ? [] : trips, items);
+    return { base, tpl, fromCopy: !tpl && !!base.copiedFrom };
+  }
+  // v0.25.0 (M3): "Your packing list", live from the same pure functions as "Create trip".
+  const preview = $derived.by(() => {
+    if (!isNew || !byBike || !bike) return null;
+    const { base, tpl, fromCopy } = startTrip();
+    const fields = ctxFields();
+    const trip = { ...base, ...fields, hours: fields.hours ?? base.hours ?? null };
+    const start = fromCopy ? startEntries(trip, items) : base.entries;
+    const from = tpl ? t('your template {name}', { name: tpl.name }) : fromCopy ? t('your last trip {title}', { title: trips.find((x) => x.id === base.copiedFrom)?.title ?? '' }) : t('your standard set');
+    return { from, ...contextSummary(start, trip, items) };
+  });
+  const setName = (key) => (key === 'lodging' ? t('Lodging') : key === 'base' ? t('Base') : key === 'sleep' ? t('Sleep') : key === 'warm' ? t('Warm') : t('Cook'));
+
   async function save(event) {
     event.preventDefault();
     if (!draft.title.trim()) return (error = t('Give the trip a name.'));
     if (byBike && !bike) return (error = t('Choose a bike.'));
+    if (byBike && !hoursOk) return (error = t('Riding hours per day: between 0.5 and 24, or leave it empty.'));
     if (isNew && !byBike) {
       const readyStandard = (await db.settings.get(readyKey(area)))?.value ?? null;
       const nt = newPackTrip({ ...draft, domain: area, readyStandard }, start === 'standard' ? [] : trips, items);
@@ -57,17 +109,35 @@
     } else if (isNew) {
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       const tpl = templates.find((x) => x.id === start);
-      const nt = tpl
+      const base = tpl
         ? tripFromTemplate({ ...draft, bike }, tpl, items)
-        : newTrip({ ...draft, bike, readyStandard }, start === 'standard' ? [] : trips, items);
-      await db.trips.put(nt);
+        : newTrip({ ...draft, bike, readyStandard, overnight: night }, start === 'standard' ? [] : trips, items);
+      // v0.25.0 (M3, 6b/7b): the context goes straight into the list; a template keeps its hours when none are given.
+      const fields = ctxFields();
+      const nt = contextTrip({ ...base, ...fields, hours: fields.hours ?? base.hours ?? null }, items, { fromCopy: !tpl && !!base.copiedFrom });
+      await db.trips.put($state.snapshot(nt));
       rememberDomain(BIKEPACKING);
       oncreated?.(nt.id);
     } else {
       const changes = { title: draft.title.trim(), startDate: draft.startDate, days: Math.max(1, Number(draft.days) || 1) };
+      if (byBike) {
+        // v0.25.0 (M3): only what was changed here is stored (an older trip keeps its values).
+        const f = ctxFields();
+        if (ctx.hours !== was.hours) changes.hours = f.hours;
+        if (night && (night !== was.overnight || ctx.cook !== was.cook)) Object.assign(changes, { overnight: night, cook: f.cook });
+        if (ctx.min !== was.min || ctx.max !== was.max || ctx.rain !== was.rain) changes.wx = f.wx;
+        if (ctx.event !== was.event) changes.event = ctx.event;
+      }
+      const switching = byBike && draft.bikeId !== trip.bikeId;
       // Another bike brings its own bags; items in a place it has no bag for go to the seat pack.
-      if (byBike && draft.bikeId !== trip.bikeId) Object.assign(changes, switchBike(trip, bike));
-      await db.trips.update(trip.id, changes);
+      // 9b: a changed context (duration, overnight stay, weather) applies at once, with Undo in Pack.
+      const fn = (cur) => {
+        const next = { ...cur, ...changes, ...(switching ? switchBike(cur, bike) : {}) };
+        const out = { ...changes, ...(switching ? switchBike(cur, bike) : {}) };
+        return hasContext(next) ? { ...out, ...applyContext(next, items, cur) } : out;
+      };
+      if (onchange) await onchange(fn);
+      else await db.trips.update(trip.id, fn(await db.trips.get(trip.id)));
     }
     dialog.close();
   }
@@ -94,16 +164,47 @@
       {/if}
       <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} placeholder={t('e.g. Jura weekend')} required /></label>
       <label><span class="lbl">{t('Start date')}</span><input class="inp" type="date" bind:value={draft.startDate} /></label>
-      <label><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} /></label>
       {#if byBike}
-        <label class="wide">
+        <label>
           <span class="lbl">{t('Bike')}</span>
           <select class="sel" bind:value={draft.bikeId}>
             {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
           </select>
         </label>
+      {:else}
+        <label><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} /></label>
       {/if}
     </div>
+    {#if byBike}
+      <!-- v0.25.0 (M3, Noah 1a): what kind of trip it is, all on one page. -->
+      <fieldset class="ctx">
+        <legend class="lbl">{t('How long?')}</legend>
+        <div class="grid">
+          <label><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} aria-label={t('Days')} /><span class="sub">{t('Days')}</span></label>
+          <label><input class="inp num" type="text" inputmode="decimal" bind:value={ctx.hours} placeholder={t('e.g. 2')} aria-label={t('Riding hours per day')} aria-invalid={!hoursOk} /><span class="sub">{t('Riding hours per day')}</span></label>
+        </div>
+        {#if !hoursOk}<p class="warn">{t('Riding hours per day: between 0.5 and 24, or leave it empty.')}</p>{/if}
+      </fieldset>
+      <fieldset class="ctx">
+        <legend class="lbl">{t('Overnight')}</legend>
+        <div class="chips">
+          {#each OVERNIGHTS as o (o.key)}<button type="button" class="toggle" aria-pressed={night === o.key} onclick={() => (ctx.overnight = o.key)}>{t(o.name)}</button>{/each}
+        </div>
+        {#if !night}<p class="note">{t('Not set for this trip: its list stays as it is until you choose.')}</p>{/if}
+        {#if days > 1 && night === 'none'}<p class="note">{t('More than one day without a night? Choose where you sleep.')}</p>{/if}
+        <!-- Noah 3a: cooking only for a night outdoors. -->
+        {#if night === 'outdoor'}<label class="ck"><input type="checkbox" bind:checked={ctx.cook} /> {t('Cooking')}</label>{/if}
+      </fieldset>
+      <fieldset class="ctx">
+        <legend class="lbl">{t('Weather')}</legend>
+        <div class="chips">
+          {#each WX_PRESETS as p (p.name)}<button type="button" class="toggle" aria-pressed={ctx.min === p.min && ctx.max === p.max} onclick={() => pickWx(p)}>{t(p.name)} <small>{p.min}–{p.max}°</small></button>{/each}
+          <button type="button" class="toggle" aria-pressed={wet} onclick={() => (ctx.rain = wet ? 'none' : 'rain')}>+ {t('Rain')}</button>
+        </div>
+        <p class="note small">{t('or get the forecast later in Pack (Edit trip conditions)')}</p>
+      </fieldset>
+      <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
+    {/if}
     {#if isNew && !byBike}
       {#if fromArea}
         <label class="start"><span class="lbl">{t('Start from')}</span>
@@ -126,13 +227,21 @@
           <option value="standard">{t('Standard set')}</option>
         </select>
       </label>
-      <p class="note">
-        {#if templates.some((x) => x.id === start)}{t('Items go into the bags of this bike. Weather and ticks start empty.')}
-        {:else if start === 'last' && from}{t('A copy of {title}. Nothing is ticked off yet.', { title: from.title })}
-        {:else if (Number(draft.days) || 1) > 1}{t('Your standard set: worn, standard pack, overnight base and the items "On every trip".')}
-        <!-- v0.24.0: a day ride leaves the overnight base set out. -->
-        {:else}{t('Your standard set for a day: worn, standard pack and the items "On every trip". The overnight base set comes with 2 days or more.')}{/if}
-      </p>
+      <!-- v0.25.0 (M3): live, from the same functions as "Create trip" (context.js). -->
+      {#if preview}
+        <section class="plan" aria-labelledby="plan-h" aria-live="polite">
+          <h3 id="plan-h">{t('Your packing list|preview')}</h3>
+          <ul>
+            <li>{tn(preview.start, '{n} item from {from}', '{n} items from {from}', { from: preview.from })}{#if start === 'last' && from}{' '}<span class="muted">{t('(a copy, nothing ticked off)')}</span>{/if}</li>
+            {#if preview.amounts.length}<li>{t('By duration')}: {#each preview.amounts as a, n (a.item.id)}{n ? ', ' : ''}{nameOf(a.item)} <b>{a.qty}</b>{/each}</li>{/if}
+            {#if preview.weather.length}<li>{t('For the weather')}: {preview.weather.map((i) => nameOf(i)).join(', ')}</li>{/if}
+            {#if night === 'lodging'}<li>{t('Overnight: lodging set, {n} more', { n: preview.sets[0]?.n ?? 0 })}</li>
+            {:else if night === 'outdoor'}<li>{t('Overnight outdoors: {sets}', { sets: preview.sets.map((x) => `${setName(x.key)} ${x.n}`).join(', ') })}</li>{/if}
+            {#if preview.left.length}<li class="muted">{preview.left.includes('overnight') && preview.left.includes('event') ? t('Not included: overnight gear, event preparation') : preview.left.includes('overnight') ? t('Not included: overnight gear') : t('Not included: event preparation')}</li>{/if}
+          </ul>
+          <p class="muted small">{tn(preview.total, 'Together {n} item. You can change everything in Pack.', 'Together {n} items. You can change everything in Pack.')}</p>
+        </section>
+      {/if}
     {:else if byBike && draft.bikeId !== trip.bikeId}
       <p class="note">{t('The trip takes the bags of the new bike. Items in a place without a bag move to the seat pack.')}</p>
     {/if}
@@ -171,6 +280,70 @@
     border-color: var(--ink);
     color: var(--paper);
   }
+  /* v0.25.0 (M3): the context of a bike trip and the live "Your packing list". */
+  .ctx {
+    border: 0;
+    margin: 14px 0 0;
+    padding: 0;
+    min-width: 0;
+  }
+  .ctx .grid label,
+  .ctx label {
+    display: grid;
+    gap: 2px;
+  }
+  .sub {
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .ck {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    min-height: 40px;
+  }
+  .ck input {
+    width: 20px;
+    height: 20px;
+  }
+  .ev {
+    margin-top: 12px;
+    font-weight: 600;
+  }
+  .warn {
+    color: var(--bad);
+    font-size: 14px;
+    margin: 6px 0 0;
+  }
+  .plan {
+    margin-top: 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: var(--paper-2, var(--paper));
+  }
+  .plan h3 {
+    margin: 0 0 6px;
+    font-size: 17px;
+  }
+  .plan ul {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 4px;
+  }
+  .muted {
+    color: var(--ink-2);
+  }
+  .small {
+    font-size: 13px;
+  }
   .start {
     display: grid;
     gap: 4px;
@@ -187,6 +360,12 @@
   }
   .wide {
     grid-column: 1 / -1;
+  }
+  /* v0.25.0: at 320 px the bike name needs the whole width. */
+  @media (max-width: 360px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
   }
   .note {
     font-size: 14px;

@@ -46,6 +46,7 @@ export default {
   'Night: Sleep': 'Nacht: Schlafen',
   'Night: Cook': 'Nacht: Kochen',
   'Night: Light': 'Nacht: Leicht',
+  Lodging: 'Unterkunft', // v0.25.0 (Noah 4): item set for a night in lodging
 
   // Layers (layers.js)
   'Every ride': 'Jede Fahrt',

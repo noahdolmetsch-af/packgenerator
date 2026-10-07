@@ -25,6 +25,9 @@ export const RIDES = [
 const RIDE_RANK = { every: 0, daily: 1, training: 2 };
 export const RAIN_ITEM = { yes: 'Rain', optional: 'Rain, optional' };
 
+/** v0.25.0 (Noah 2a/8a): riding hours of the whole trip = hours per day × days (0 when not set). */
+export const rideHours = (trip) => (Number(trip?.hours) || 0) * Math.max(1, Number(trip?.days) || 1);
+
 /** A trip with rain expected (showers or rain). */
 const wet = (wx) => wx?.rain === 'showers' || wx?.rain === 'rain';
 const hasTemps = (wx) => typeof wx?.min === 'number' && typeof wx?.max === 'number';
@@ -40,7 +43,9 @@ export function layerSuggest(trip, items) {
   const rankOf = new Map(); // sort order, kept apart from the (translated) label
   const level = RIDE_RANK[trip?.ride] ?? -1;
   const wx = trip?.wx;
-  const hours = Number(trip?.hours) || 0;
+  // v0.25.0 (Noah 2a/8a): trip.hours are riding hours PER DAY; the amounts are for the whole trip
+  // (day amount × days = what you carry; carryHint in context.js asks "buy on the way?").
+  const hours = rideHours(trip);
   for (const i of items) {
     if (!isInventory(i) || i.altFor) continue; // alternatives only come in through a choice
     const qty = Math.min(i.maxQty || 99, i.perHours && hours ? Math.max(1, Math.ceil(hours / i.perHours)) : 1);
