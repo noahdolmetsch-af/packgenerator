@@ -2,16 +2,27 @@
 
 Stand: 7. Oktober 2026
 
-## Zur Abnahme
+## Aktuell live
 
-- **Entwürfe 2 und 3: Entscheidungsprüfung und ruhige Packliste** — Vorschau und [Entwurf PR #32](https://github.com/noahdolmetsch-af/packgenerator/pull/32), noch nicht veröffentlicht. Fortschritt und messbare Kriterien: `docs/calm-preparation.md`; Nachweise: `design-qa.md`. Version 0.22.0 mit Gewichts-/Bereitschaftsverbesserungen integriert. 227 Unit-Tests und 12 Browser-Tests bestanden.
+- **Entwürfe 2 und 3 veröffentlicht:** [PR #32](https://github.com/noahdolmetsch-af/packgenerator/pull/32) ist zusammengeführt, Merge `be041f1`; Build, 12 Browser-Tests und Deployment erfolgreich. Entscheidungsentwurf mit Bestätigung/Abbruch und Übergang zum Packtag im isolierten Browser-Test geprüft; neue Packliste, Review-Leerzustand und Rückweg auf Live geöffnet. Paketversion weiterhin 0.22.0. [Releasebeleg](releases/2026-10-07-calm-preparation.md), [Screenablauf](calm-preparation.md), [Design-QA](../design-qa.md).
+- **PR #30 / M1 implementiert:** AP03–AP06 sind ausgeliefert und in #32 erhalten. Vollständige formale AP-/Meilensteinabnahme und Zeitmessungen sind offen. 227 Unit-Tests bestanden; [Prüfregister](verification.md) trennt Teilnachweise von Gesamtabnahme.
+- **Eine aktive Roadmap:** [AP01–AP26](roadmap.md), mit stabilen IDs, Abhängigkeiten und Kriterien. [Dokumentationsindex](README.md) ordnet alle Quellen ein.
 
-## Fertig
-- **Optimierung M1: Sofortige Klarheit (v0.22.0, Antworten in v0.22.1)** — neues Projekt „Optimierung vom Packgenerator“ (Dokument: Projektordner `optimierung/`, Plan AP01–AP26):
+## Offen zur Integration / Abnahme
+
+- **PR #31, angekündigt v0.22.1:** Eventmodus nur für Events, relative Fälligkeitstexte, „Weitere Dinge“, Gear-Breite und „Leichtestes“ nur bei vollständigen Taschengewichten. Offen und nicht Bestandteil des Live-Stands. Der Branch wurde während dieses Abgleichs aktualisiert: `05a7f84` integriert PR #32 samt Event-Schalter, CI 37667778399 erfolgreich. Gemeinsame Dokumentation wird im Branch nachgeführt. AP04/AP06/AP16/AP21; fachliche Releaseabnahme und Veröffentlichung bleiben offen.
+- Beide neuen Screens mit den fünf Alltagsszenarien fachlich abnehmen. 60-/30-Sekunden-Ziele sind ungemessen.
+- AP01/AP02 abschliessen; Kontext/Übernachtung, Mengen-/Wasser-/Bestandskonflikte, Materialpflege/Kategorieänderung, Bausteine und 320-px-/Screenreaderprüfung bleiben offen. Ausführliche Teilstände in der Roadmap.
+
+## Historie veröffentlichter Funktionen
+
+Die folgenden Einträge beschreiben den jeweiligen damaligen Release. Spätere Entscheidungen haben einzelne Layouts, Navigation und Bezeichnungen ersetzt. Für das heutige Verhalten gelten die Abschnitte oben und das Entscheidungslog.
+
+- **Optimierung M1: Sofortige Klarheit (v0.22.0)** — neues Projekt „Optimierung vom Packgenerator“ (aktuelle Quelle: [Roadmap AP01–AP26](roadmap.md)):
   - **Ruhigere Schrift und Farben (AP03):** Inhalte in Fira Sans (Titel 30–40 px, Text 16 px), keine Grossbuchstaben mehr, dünnere Rahmen, Aktionsorange #b83e08 (Kontrast 5.6:1 statt 3.1:1), nur die aktuelle Hauptaktion ist orange, sichtbarer Fokusrahmen.
-  - **Ehrliche Gewichte und klare Wörter (AP04):** Summen heissen „bekannt: …“ und zeigen daneben, wie viele Gewichte fehlen; Front/Heck ist bei Lücken eine Schätzung; Velogewicht gemessen oder geschätzt. „Not packed“ heisst „Weitere Dinge“ (Noah 1); gepackt / noch einzupacken und Startcheck geprüft / offen getrennt gezählt. Packzeilen haben wieder ein sichtbares „•••“ statt Knöpfen nur beim Darüberfahren.
+  - **Ehrliche Gewichte und klare Wörter (AP04):** Summen heissen „bekannt: …“ und zeigen daneben, wie viele Gewichte fehlen; Front/Heck ist bei Lücken eine Schätzung; Velogewicht gemessen oder geschätzt. „Not packed“ heisst „Weitere Materialien“; gepackt / noch einzupacken und Startcheck geprüft / offen getrennt gezählt. Packzeilen haben wieder ein sichtbares „•••“ statt Knöpfen nur beim Darüberfahren.
   - **Favoriten (AP05):** Stern vor jedem Teil, ein Tipp genügt; der Favoriten-Link öffnet Ausrüstung gefiltert; eine Zählbasis (Inventar + Wunschliste getrennt).
-  - **Bereitschaft einheitlich (AP06):** Startseite, Pack und Velos → Pflege zeigen dasselbe, getrennt nach Velopflege, Eventvorbereitung und Packstand. Ursache des alten Widerspruchs: die Startseite liess zeitfällige Services (Dichtmilch, Gabel) weg. „alles gut“ ist weg; ohne Daten steht „keine Daten“. Die Excel-Eventvorbereitung erscheint nur noch bei Touren mit Häkchen „Event“ (Pack → Vor der Tour oder Velos → Pflege; Noah 4b). Ältere Touren, bei denen schon etwas abgehakt ist, gelten als Event. Überfälliges steht in Tagen, Wochen oder Monaten statt mit Datum (Noah 3a). „Leichtestes“ beim Velovergleich nur, wenn alle Taschen gewogen sind (Noah 2a).
+  - **Bereitschaft einheitlich (AP06):** Startseite, Pack und Velos → Pflege zeigen dasselbe, getrennt nach Velopflege, Eventvorbereitung und Packstand. Ursache des alten Widerspruchs: die Startseite liess zeitfällige Services (Dichtmilch, Gabel) weg. „alles gut“ ist weg; ohne Daten steht „keine Daten“.
 - **Echt benutzen, vereinfachen, Reisearten (v0.21.0):**
   - **Startseite "Still open":** was noch fehlt, damit die App für dich rechnen kann (Velos wägen, GPX laden, Inventar prüfen, Favoriten anwenden, erste echte Tour). Backup-Hinweis auch nach jedem neuen Rückblick. "Your data" zeigt, aus welchem Backup die Daten stammen (Phone ist das Hauptgerät, der Desktop holt den Stand per Backup-Datei).
   - **Velos und Velopflege auf einer Seite:** Velos mit den Tabs Setup | Pflege. Pflege zeigt oben "Jetzt fällig" für alle Velos, dann die nächste Tour; jedes Velo ist eine zugeklappte Zeile. Die Excel-Vorbereitung ist eine Zeile "Vorbereitung: n offen". Pflege von 159 auf 13 Bedienelemente, Setup am Phone von 5.9 auf 2.1 Bildschirme. Die alte Adresse #/care führt auf den Tab Pflege.
@@ -55,7 +66,9 @@ Stand: 7. Oktober 2026
 - **Neues Pack-Layout (v0.8.0):** drei Spalten, "Not packed" nach Kategorie zugeklappt, Etiketten, "+" oder Ziehen auf eine Tasche, Kacheln mit Füllbalken, Ready-Check kurz, am Phone fixe Leiste "Adding to".
 - **Runde 3 (Antworten 1–10):** 4 echte Velos mit Setups, fixe Halterungen, Nacht-Sets inkl. Light, Wetter mit Kleider-Vorschlag, Volumen-Warnung mit Taschen-Vorschlag, Wägen aus Pack, Druckliste, Gepäck vorne/hinten, Inventar-Check.
 
-## To-do für Noah
+## Nutzungs- und Datenaufgaben für Noah
+
+Aus bisherigen Aufgaben übernommen, in dieser Runde nicht neu geprüft. Keine Softwareabnahme daraus ableiten.
 - [ ] Nächste echte Fahrt (Arbeitsweg) am Phone durchspielen bis zum Rückblick.
 - [ ] GPX-Fahrten laden (Rückblick → Your pace).
 - [ ] Skitour-Ausrüstung als Liste schicken.
@@ -65,19 +78,20 @@ Stand: 7. Oktober 2026
 - [ ] Neue Teile wägen: "Trainerhose lang chillig" und "Gilet Fleece kuschelig".
 - [x] Import-Datei "Werkstatt und Fotos" am Handy mit Merge importiert.
 - [ ] Am Desktop die Import-Datei nochmals mit Merge laden (Besuch Veloshop Vonäsch).
-- [ ] Velos wägen: Die Gewichte sind Strava-Schätzungen (Bikes → Bike weight).
 - [ ] Belege für das Canyon schicken, falls es welche gibt.
 - [ ] Bike care → "Go through them": die 17 Juni-Aufgaben einmal durchgehen.
 - [ ] Full-Frame-Tasche wägen (neu in Gear, TA14).
 - [ ] Danach die 303 in Pack neu packen (Taschen für diese Tour prüfen).
 - [ ] App auf dem Samsung A56 installieren (Anleitung im Chat).
 - [ ] Für die 303 den Startort und die GPX-Route in Pack eintragen.
-- [ ] Erstes Backup herunterladen (Startseite → Download backup).
+- [ ] Regelmässiges aktuelles Backup sichern (Startseite → Download backup); ältere „erstes Backup“-Aufgabe nicht als aktuellen Datenstand verstehen.
 
-## Läuft
-- Plan im Dokument "Pack Generator: Ist-Analyse und Plan": Etappen A-D; 10 Rückfragen offen (Annahmen = ★).
+## Nächste Schritte
 
-## Als Nächstes
-1. Etappe A: erste echte Tour (Arbeitsweg) mit Rückblick am Phone. Gate: 1 echter Rückblick.
-2. Etappe D: Vorschläge aus echten Rückblicken sichtbar machen, sobald 3 echte Rückblicke da sind.
-3. Skitour-Ausrüstung importieren, sobald Noah die Liste schickt.
+1. Neue Entscheidung/Packliste im Alltag abnehmen (AP13–15/AP19/AP21/AP23).
+2. Grundlagen- und Restore-Nachweise AP01/AP02 vervollständigen.
+3. Integrierten PR #31 nach Dokumentabgleich fachlich mit Event/Kurzfahrt abnehmen; Veröffentlichung separat.
+4. AP07–AP09 und AP12–AP16 entlang der Roadmap-Abhängigkeiten abschliessen; danach AP10–AP11/AP17–AP24.
+5. Erklärbares Lernen und Geräte-Sync separat als AP25/AP26. Erste echte Arbeitsweg-Tour liefert dafür Nutzungsbelege.
+
+Der frühere Plan „Ist-Analyse und Plan“, Etappen A–D und offene ★-Annahmen sind historische Quellen. Sie sind keine gleichzeitig laufende Roadmap. Bereits umgesetzte Reisearten und Funktionen bleiben; ungelöste Anforderungen werden mit AP-ID in die aktuelle Roadmap aufgenommen.
