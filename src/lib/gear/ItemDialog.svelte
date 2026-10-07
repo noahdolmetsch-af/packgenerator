@@ -1,7 +1,7 @@
 <script>
   import { db } from '../db.js';
   import { RIDES, RAIN_ITEM } from '../layers.js';
-  import { CATEGORIES, CATEGORY, BAGS, BAG, OWNERSHIP, ROLES, SETS, formatWeight, itemWeight, nextId, parseGrams } from '../gear.js';
+  import { CATEGORIES, CATEGORY, BAGS, BAG, OWNERSHIP, ROLES, SETS, formatWeight, itemWeight, itemDraft, itemRecord, parseGrams } from '../gear.js';
   import { t, nameOf } from '../i18n.svelte.js';
   import { DOMAINS, itemDomains, domainName } from '../domains.js';
 
@@ -16,18 +16,17 @@
   const isNew = !item;
   // A copy to edit; nothing is saved until "Save".
   // svelte-ignore state_referenced_locally
-  let draft = $state(
-    item
-      ? { ...item, role: item.role ?? '', model: item.model ?? '', grams: item.weightG ?? '', domains: itemDomains(item), favNote: item.favNote ?? '', ...layerFields(item) }
-      : { id: '', name: '', brand: '', model: '', category: 'elec', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], kits: [], domains: ['bikepacking'], ...preset, ...layerFields(preset) },
-  );
-  // Layers (round C answer 2): kept as text while editing, numbers in the database.
-  function layerFields(src) {
-    return { ride: src.ride ?? '', rain: src.rain ?? '', coldBelow: src.coldBelow ?? '', perHours: src.perHours ?? '', waterL: src.waterL ?? '', maxQty: src.maxQty ?? '', replaces: src.replaces ?? '', altFor: src.altFor ?? '' };
-  }
-  const numOrNull = (v) => (String(v).trim() === '' || !Number.isFinite(Number(String(v).replace(',', '.'))) ? null : Number(String(v).replace(',', '.')));
+  let draft = $state(itemDraft(item, preset));
   let error = $state('');
   let dialog;
+  // v0.23.0 (AP08): a new item asks only for name, category, status and weight; everything else
+  // waits behind "More details". An existing item opens with its details shown, nothing hidden.
+  // svelte-ignore state_referenced_locally
+  let more = $state(!isNew);
+  // v0.23.0 (AP09): the category can change; the ID never does, so every link to the item stays.
+  const moved = $derived(!isNew && draft.category !== item.category);
+  // A new item is never "Gone"; an existing one keeps every status.
+  const statuses = $derived(Object.entries(OWNERSHIP).filter(([k]) => !isNew || k !== 'gone'));
 
   $effect(() => {
     dialog.showModal();
@@ -36,34 +35,14 @@
   async function save(event) {
     event.preventDefault();
     if (!draft.name.trim()) return (error = t('Give the item a name.'));
+    if (!CATEGORY[draft.category] && (isNew || draft.category !== item.category)) return (error = t('Choose a category.'));
     let weightG = null;
     if (String(draft.grams).trim() !== '') {
       weightG = parseGrams(draft.grams);
       if (weightG == null) return (error = t('Weight: whole grams from 1 to 30,000, or leave it empty.'));
     }
-    const { grams, ...rest } = $state.snapshot(draft); // a plain copy for the database
-    const record = {
-      ...rest,
-      id: isNew ? nextId(items, rest.category) : rest.id,
-      name: rest.name.trim(),
-      qty: Math.max(1, Number(rest.qty) || 1),
-      role: rest.role || null,
-      always: rest.always ? true : null,
-      favorite: rest.favorite ? true : null,
-      favNote: rest.favorite ? rest.favNote?.trim() || null : (item?.favNote ?? null),
-      domains: rest.domains?.length ? rest.domains : ['bikepacking'],
-      ride: rest.ride || null,
-      rain: rest.rain || null,
-      coldBelow: numOrNull(rest.coldBelow),
-      perHours: numOrNull(rest.perHours),
-      waterL: numOrNull(rest.waterL),
-      maxQty: numOrNull(rest.maxQty),
-      replaces: rest.replaces || null,
-      altFor: rest.altFor || null,
-      weightG,
-      weightStatus: weightG == null ? 'missing' : weightG !== item?.weightG ? 'measured' : item.weightStatus,
-      updatedAt: new Date().toISOString(),
-    };
+    // v0.23.0 (AP09): the record is built in gear.js (itemRecord), tested there; the ID never changes.
+    const record = itemRecord($state.snapshot(draft), { item, items, weightG });
     await db.items.put(record);
     await onsaved?.(record);
     dialog.close();
@@ -107,28 +86,37 @@
       <label class="lbl" for="i-g">{t('Weight of one piece (g)')}</label>
       <input id="i-g" class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} />
     {:else}
+      <!-- v0.23.0 (AP08): the four main fields first; the rest folds away under "More details". -->
       <div class="grid">
-        <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required /></label>
-        <label><span class="lbl">{t('Brand')}</span><input class="inp" bind:value={draft.brand} placeholder={t('e.g. {x}', { x: 'Garmin' })} /></label>
-        <label><span class="lbl">{t('Model / colour')}</span><input class="inp" bind:value={draft.model} placeholder={t('e.g. {x}', { x: 'Edge 1040 Solar' })} /></label>
+        <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} required /></label>
         <label>
-          <span class="lbl">{t('Category')}</span>
-          <select class="sel" bind:value={draft.category} disabled={!isNew} title={isNew ? '' : t('The category is part of the ID')}>
+          <span class="lbl">{t('Category')} <small class="req">{t('required')}</small></span>
+          <select class="sel" bind:value={draft.category} required>
+            {#if !CATEGORY[draft.category]}<option value={draft.category} disabled>{draft.category ? draft.category : t('Choose a category')}</option>{/if}
             {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
           </select>
         </label>
-        <label><span class="lbl">{t('Weight of one piece (g)')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
+        <label>
+          <span class="lbl">{t('Status')} <small class="req">{t('required')}</small></span>
+          <select class="sel" bind:value={draft.ownership}>
+            {#each statuses as [k, v] (k)}<option value={k}>{t(v)}</option>{/each}
+          </select>
+        </label>
+        <label class="wide"><span class="lbl">{t('Weight of one piece (g)')} <small class="req">{t('optional')}</small></span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
+        {#if moved}
+          <p class="wide moved" role="status">{t('New category: {cat}. The ID {id} stays the same, so trips, templates, kits, bags and favourites keep this item.', { cat: t(CATEGORY[draft.category]?.name ?? draft.category), id: draft.id })}</p>
+        {/if}
+      </div>
+      <details class="more" bind:open={more}>
+        <summary>{t('More details')} <small>{t('brand, quantity, bag, role, areas, overnight sets, layers, note')}</small></summary>
+        <div class="grid">
+        <label><span class="lbl">{t('Brand')}</span><input class="inp" bind:value={draft.brand} placeholder={t('e.g. {x}', { x: 'Garmin' })} /></label>
+        <label><span class="lbl">{t('Model / colour')}</span><input class="inp" bind:value={draft.model} placeholder={t('e.g. {x}', { x: 'Edge 1040 Solar' })} /></label>
         <label><span class="lbl">{t('Quantity')}</span><input class="inp num" type="number" min="1" bind:value={draft.qty} /></label>
         <label>
           <span class="lbl">{t('Default bag')}</span>
           <select class="sel" bind:value={draft.defaultBag}>
             {#each BAGS as b (b.key)}<option value={b.key}>{t(b.name)}</option>{/each}
-          </select>
-        </label>
-        <label>
-          <span class="lbl">{t('Status')}</span>
-          <select class="sel" bind:value={draft.ownership}>
-            {#each Object.entries(OWNERSHIP) as [k, v] (k)}<option value={k}>{t(v)}</option>{/each}
           </select>
         </label>
         <label>
@@ -189,7 +177,8 @@
           <label><span class="lbl">{t('Water in it (L)')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.waterL} placeholder={t('e.g. {x}', { x: '0.75' })} /></label>
         </fieldset>
         <label class="wide"><span class="lbl">{t('Note')}</span><textarea class="inp" rows="2" bind:value={draft.note}></textarea></label>
-      </div>
+        </div>
+      </details>
       {#if item?.learning}<p class="note"><b>{t('Learning:')}</b> {item.learning}</p>{/if}
     {/if}
 
@@ -250,6 +239,52 @@
   }
   .sets legend {
     margin-bottom: 4px;
+  }
+  /* v0.23.0 (AP08) */
+  .req {
+    font-weight: 400;
+    color: var(--ink-3);
+  }
+  .moved {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-2);
+    border-left: 3px solid var(--hi);
+    padding-left: 8px;
+  }
+  .more {
+    margin-top: 14px;
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+  }
+  .more summary {
+    list-style: none;
+    cursor: pointer;
+    font-weight: 600;
+    min-height: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+    padding-top: 8px;
+  }
+  .more summary::-webkit-details-marker {
+    display: none;
+  }
+  .more summary::before {
+    content: '▸';
+    transition: transform 0.15s;
+  }
+  .more[open] summary::before {
+    transform: rotate(90deg);
+  }
+  .more summary small {
+    font-weight: 400;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .more .grid {
+    margin-top: 10px;
   }
   .cb {
     display: flex;

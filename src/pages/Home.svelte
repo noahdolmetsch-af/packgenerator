@@ -7,6 +7,10 @@
    * - What else is good to know? One line each from more sources: weather and sun, the debriefs,
    *   your pace, the Inbox and the backup.
    * Creating is one tap away: "New packing list" here, "New" in the top bar (phone: the +).
+   *
+   * v0.23.0 (AP07): Today leads with ONE trip and ONE next step that fits it (today.js): Continue
+   * planning, Start packing, Ride day or Write debrief; the step opens exactly that trip. Bike care,
+   * event preparation, the backup, a waiting debrief and the Inbox follow as short lines below.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -21,13 +25,14 @@
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
-  import { nextTrip, toDebrief, tripEnd, learningsFor } from '../lib/debrief.js';
+  import { nextTrip, tripEnd, learningsFor } from '../lib/debrief.js';
   import { wishReason } from '../lib/insights.js';
   import { ballast } from '../lib/packhints.js';
   import { sunTimes } from '../lib/blockplan.js';
   import { paceOf, PACE_KEY } from '../lib/pace.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
-  import { openNew, openNote, openTrip, addItem, newTrip } from '../lib/nav.js';
+  import { openNew, openNote, openTrip, addItem, newTrip, wantBike } from '../lib/nav.js';
+  import { todayFocus } from '../lib/today.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
 
@@ -80,7 +85,12 @@
   });
   const packing = $derived(next ? packStatus(next) : null);
   const extra = $derived(next ? ballast(next, items, trips, debriefs) : null);
-  const debrief = $derived(toDebrief(trips, debriefs)[0] ?? null);
+  // v0.23.0 (AP07): the trip Today leads with and its one next step.
+  const focus = $derived(loaded ? todayFocus(trips, debriefs, today) : null);
+  const lead = $derived(focus?.trip ?? null);
+  const leadStats = $derived(lead ? (lead === next ? stats : tripStats(lead, items, $bagsQ ?? [], bikes.find((b) => b.id === lead.bikeId), $riderQ?.value)) : null);
+  const leadByBike = $derived(lead ? hasBike(lead) : true);
+  const debrief = $derived(focus?.debrief ?? null);
   const packedPct = $derived(stats?.count ? Math.round((stats.packed / stats.count) * 100) : 0);
 
   /* ---------- Pack: trips and templates to open ---------- */
@@ -220,47 +230,32 @@
 {#snippet ic(name, size = 20)}<svg class="ic" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><path d={ICON[name]} /></svg>{/snippet}
 
 <div class="home">
-  {#if backup.due}
-    <section class="note-card" aria-labelledby="bk-h">
-      <div>
-        <h2 id="bk-h">{t('Time for a backup')}</h2>
-        <p>{backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })} {t('Your data lives only in this browser: one file keeps it safe (every {n} days).', { n: BACKUP_DAYS })}</p>
-      </div>
-      <!-- v0.22.0 (AP03): only the trip's next step is orange; notices use a calm button. -->
-      <button type="button" class="btn" disabled={backingUp} onclick={backupNow}>{t('Download backup')}</button>
-    </section>
-  {/if}
-
-  <!-- What is next: the strongest contrast on the page, one main action. -->
-  {#if next}
+  <!-- What is next: the strongest contrast on the page, ONE main action (v0.23.0, AP07). -->
+  {#if focus}
     <section class="band" aria-labelledby="next-h">
       <div class="who">
-        <span class="lbl">{todayText} · {t('next trip')}</span>
-        <h1 id="next-h" class="title">{next.title}</h1>
+        <span class="lbl">{todayText} · {focus.kind === 'debrief' ? t('trip ended') : t('next trip')}</span>
+        <h1 id="next-h" class="title">{lead.title}</h1>
         <p class="facts">
-          <span>{dateText(next)}</span>{#if !nextByBike}<span>{t(domainName(domainOf(next)))}</span>{:else if next.bike}<span>{next.bike}</span>{/if}{#if place?.name}<span>{place.name.split(',')[0]}</span>{/if}
-          <span class="num">{tn(stats.count, '{n} item', '{n} items')}</span>{#if stats.gearG}<span class="num">{t('{w} gear', { w: knownWeight(stats.gearG, stats.gearMissing) })}</span>{/if}{#if stats.gearMissing}<span class="num">{t('{n} not weighed', { n: stats.gearMissing })}</span>{/if}
+          <span>{dateText(lead)}</span>{#if !leadByBike}<span>{t(domainName(domainOf(lead)))}</span>{:else if lead.bike}<span>{lead.bike}</span>{/if}{#if lead === next && place?.name}<span>{place.name.split(',')[0]}</span>{/if}
+          <span class="num">{tn(leadStats.count, '{n} item', '{n} items')}</span>{#if leadStats.gearG}<span class="num">{t('{w} gear', { w: knownWeight(leadStats.gearG, leadStats.gearMissing) })}</span>{/if}{#if leadStats.gearMissing}<span class="num">{t('{n} not weighed', { n: leadStats.gearMissing })}</span>{/if}
         </p>
       </div>
-      <div class="count" aria-label={days > 0 ? tn(days, '{n} day to go', '{n} days to go') : t('On the way')}>
-        {#if days > 0}<b class="title num">{days}</b><span class="lbl">{days === 1 ? t('day') : t('days')}<br />{t('to go')}</span>{:else}<b class="title now">{t('On the way')}</b>{/if}
-      </div>
+      {#if focus.days != null}
+        <div class="count" aria-label={focus.days > 0 ? tn(focus.days, '{n} day to go', '{n} days to go') : t('On the way')}>
+          {#if focus.days > 0}<b class="title num">{focus.days}</b><span class="lbl">{focus.days === 1 ? t('day') : t('days')}<br />{t('to go')}</span>{:else}<b class="title now">{t('On the way')}</b>{/if}
+        </div>
+      {/if}
       <div class="acts">
-        {#if riding}
-          <a class="btn hi" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>
-          <a class="btn ghost" href="#/pack" onclick={() => openTrip(next.id)}>{t('Pack')}</a>
-        {:else if days <= 2}
-          <a class="btn hi" href="#/pack?day" onclick={() => openTrip(next.id)}>{t('Packing day')}</a>
-          <a class="btn ghost" href="#/pack" onclick={() => openTrip(next.id)}>{t('Continue packing')}</a>
-          {#if nextByBike}<a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>{/if}
-        {:else}
-          <a class="btn hi" href="#/pack" onclick={() => openTrip(next.id)}>{t('Continue packing')}</a>
-          {#if nextByBike}<a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>{/if}
+        <a class="btn hi main" href={focus.href} onclick={() => openTrip(lead.id)}>{t(focus.label)}</a>
+        <span class="why">{t(focus.why)}</span>
+        <!-- Quiet links, never a second button: the list itself and printing. -->
+        {#if focus.kind !== 'debrief'}
+          <span class="also-links">
+            {#if focus.href !== '#/pack'}<a href="#/pack" onclick={() => openTrip(lead.id)}>{t('Show the list')}</a>{/if}
+            <a href="#/pack?print" onclick={() => openTrip(lead.id)}>{t('Print list')}</a>
+          </span>
         {/if}
-        <a class="btn ghost" href="#/pack?print" onclick={() => openTrip(next.id)}>{t('Print list')}</a>
-        <!-- v0.22.0 (AP06): one pill per scope, each to the right bike or trip. -->
-        {#if care}<a class="pill" class:late={care.status === 'due'} class:nd={care.status === 'nodata'} href={care.href}>{bikeCareLine(care)}</a>{/if}
-        {#if prep}<a class="pill" class:late={prep.overdue > 0} href={prep.href}>{eventPrepLine(prep)}</a>{/if}
       </div>
     </section>
   {:else if loaded}
@@ -270,17 +265,30 @@
         <h1 id="next-h" class="title">{t('No trip planned')}</h1>
         <p class="facts"><span>{t('Start a packing list from a template, from your last trip or from the standard set.')}</span></p>
       </div>
-      <div class="acts"><button type="button" class="btn hi" onclick={() => openNew('list')}>{t('New packing list')}</button></div>
+      <div class="acts"><button type="button" class="btn hi main" onclick={() => openNew('list')}>{t('Start a new trip')}</button></div>
     </section>
   {/if}
 
-  {#if debrief}
-    <section class="note-card" aria-labelledby="last-h">
-      <div>
-        <h2 id="last-h">{t('Last trip: {title}', { title: debrief.title })}</h2>
-        <p>{t('Two minutes: mark what you did not use, what broke and what you missed. The app turns it into tips for the next trip.')}</p>
-      </div>
-      <a class="btn" href="#/debrief/{encodeURIComponent(debrief.id)}">{t('Start debrief')}</a>
+  <!-- v0.23.0 (AP07): everything else that wants attention, one short line each, below the main step. -->
+  {#if loaded && ((care && care.status !== 'ok') || prep || debrief || backup.due || notes.length || !bikes.length || (focus?.kind === 'debrief' && next))}
+    <section class="also" aria-labelledby="also-h">
+      <h2 id="also-h" class="lbl">{t('Also to do')}</h2>
+      <ul>
+        {#if focus?.kind === 'debrief' && next}
+          <li><span>{t('Next trip: {title}', { title: next.title })} · {dateText(next)}</span><a href="#/pack" onclick={() => openTrip(next.id)}>{t('Open the trip')}</a></li>
+        {/if}
+        {#if debrief}
+          <li><span>{t('Last trip: {title}', { title: debrief.title })}</span><a href="#/debrief/{encodeURIComponent(debrief.id)}" onclick={() => openTrip(debrief.id)}>{t('Write debrief')}</a></li>
+        {/if}
+        <!-- v0.22.0 (AP06): one line per scope, each to the right bike or trip. -->
+        {#if care && care.status !== 'ok'}<li class:late={care.status === 'due'}><span>{bikeCareLine(care)}</span><a href={care.href}>{t('Bike care')}</a></li>{/if}
+        {#if prep}<li class:late={prep.overdue > 0}><span>{eventPrepLine(prep)}</span><a href={prep.href}>{t('Tick off in Bike care')}</a></li>{/if}
+        {#if backup.due}
+          <li class="late"><span>{t('Time for a backup')}: {backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}</span><button type="button" class="link" disabled={backingUp} onclick={backupNow}>{t('Download backup')}</button></li>
+        {/if}
+        {#if notes.length}<li><span>{tn(notes.length, '{n} note to sort', '{n} notes to sort')}</span><a href="#/inbox">{t('Inbox')}</a></li>{/if}
+        {#if !bikes.length}<li><span>{t('No bikes yet.')}</span><a href="#/bikes" onclick={wantBike}>{t('Add a bike')}</a></li>{/if}
+      </ul>
     </section>
   {/if}
 
@@ -295,8 +303,7 @@
   <!-- Where to go (answers 5a, 7a, 8a): three equal places, number → create → open. -->
   <div class="hubs">
     <section class="hub" aria-labelledby="pack-h">
-      <header><h2 id="pack-h" class="title"><a href="#/pack">{t('Pack')}</a></h2>{@render ic('bag', 40)}</header>
-      <button type="button" class="btn big" onclick={() => openNew('list')}>{@render ic('plus')}{t('New packing list')}</button>
+      <header><h2 id="pack-h" class="title"><a href="#/pack">{t('Trips|place')}</a></h2>{@render ic('bag', 40)}</header>
       {#if next}
         <div class="sub">
           <div class="line"><b>{next.title}</b><span class="num muted">{t('{packed} packed · {left} still to pack', { packed: stats.packed, left: stats.toPack })}</span></div>
@@ -318,10 +325,13 @@
           <li><a href="#/pack/templates"><span>{t('All templates')}</span><span aria-hidden="true">→</span></a></li>
         </ul>
       </div>
+      <div class="foot">
+        <button type="button" class="btn sm" onclick={() => openNew('list')}>{@render ic('plus', 16)}{t('New packing list')}</button>
+      </div>
     </section>
 
     <section class="hub" aria-labelledby="gear-h">
-      <header><h2 id="gear-h" class="title"><a href="#/gear">{t('Gear')}</a></h2>{@render ic('star', 40)}</header>
+      <header><h2 id="gear-h" class="title"><a href="#/gear">{t('Gear|place')}</a></h2>{@render ic('star', 40)}</header>
       <div class="kpis">
         {#if favN.all}<a class="kpi" href="#/gear?fav=1"><b class="title num">{favN.inventory}</b><span class="lbl">{t('favourites owned')}</span>{#if favN.wishlist}<small class="muted">{tn(favN.wishlist, '+ {n} on the wishlist', '+ {n} on the wishlist')}</small>{/if}</a>{/if}
         <div><b class="title num">{gs.inventory.length}</b><span class="lbl">{t('items owned')}</span></div>
@@ -354,7 +364,7 @@
     </section>
 
     <section class="hub" aria-labelledby="bikes-h">
-      <header><h2 id="bikes-h" class="title"><a href="#/bikes">{t('Bikes')}</a></h2>{@render ic('bike', 40)}</header>
+      <header><h2 id="bikes-h" class="title"><a href="#/bikes">{t('Bikes|place')}</a></h2>{@render ic('bike', 40)}</header>
       {#if bikes.length}
         <div class="kpis"><div><b class="title num">{num(totalKm)}</b><span class="lbl">{tn(bikes.length, 'km on {n} bike', 'km on {n} bikes')}</span></div></div>
         <ul class="rows">
@@ -365,7 +375,7 @@
         </ul>
         {#if year}<p class="small">{t('Workshop {year}:', { year: year.year })} <b class="num">{year.unknown === year.visits ? t('cost unknown') : `CHF ${num(Math.round(year.chf))}${year.unknown ? ` + ${t('unknown')}` : ''}`}</b> ({tn(year.visits, '{n} visit', '{n} visits')}).</p>{/if}
       {:else}
-        <p class="small">{t('No bikes yet.')}</p>
+        <p class="small">{t('No bikes yet.')} <a href="#/bikes" onclick={wantBike}>{t('Add a bike')}</a></p>
       {/if}
       <div class="foot">
         <button type="button" class="btn sm" onclick={() => openNew('km')}>{@render ic('plus', 16)}{t('Log km')}</button>
@@ -470,30 +480,6 @@
     flex: none;
   }
 
-  /* Notices: backup, debrief */
-  .note-card {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 16px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 18px;
-    border: 1.5px solid var(--hi);
-    border-radius: 12px;
-    background: var(--hi-soft);
-  }
-  .note-card > div {
-    flex: 1 1 260px;
-  }
-  .note-card h2 {
-    margin: 0 0 2px;
-    font-size: 18px;
-  }
-  .note-card p {
-    margin: 0;
-    color: var(--ink-2);
-  }
-
   /* The band: the next trip */
   .band {
     display: flex;
@@ -549,35 +535,73 @@
     gap: 10px;
     align-items: center;
   }
-  .btn.ghost {
-    background: transparent;
-    color: var(--paper);
-    border-color: var(--paper);
+  /* v0.23.0 (AP07): one main step; the reason beside it and two quiet links, no second button. */
+  .btn.main {
+    min-height: 52px;
+    padding-inline: 26px;
+    font-size: 18px;
   }
-  .btn.ghost:hover {
-    background: rgba(255, 255, 255, 0.1);
+  .why {
+    flex: 1 1 220px;
+    color: #d6e2db;
+    font-size: 15px;
   }
-  .pill {
-    margin-left: auto;
-    padding: 8px 14px;
-    border-radius: 999px;
-    background: #e3eef8;
+  .also-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+  }
+  .also-links a {
+    color: var(--brand-ink);
+    font-size: 15px;
+  }
+  /* Also to do: short lines, each with its link (not cards, not orange buttons). */
+  .also {
+    padding: 4px 18px 8px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+  }
+  .also h2 {
+    margin: 10px 0 2px;
+  }
+  .also ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .also li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2px 16px;
+    min-height: 44px;
+    padding: 6px 0;
+    border-bottom: 1px solid #dfe4dc;
+  }
+  .also li:last-child {
+    border-bottom: 0;
+  }
+  .also li > span {
+    flex: 1 1 240px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: var(--ink-2);
+  }
+  /* due or overdue: a marker and the words of the line, not colour alone */
+  .also li.late > span {
+    padding-left: 10px;
+    border-left: 3px solid var(--hi);
+    color: var(--ink);
+  }
+  .also li > a,
+  .also li > .link {
     color: var(--ink);
     font-weight: 600;
-    text-decoration: none;
-  }
-  .pill.late {
-    background: var(--hi-soft);
-    color: #8a2f00;
-  }
-  .pill + .pill {
-    margin-left: 0;
-  }
-  /* v0.22.0 (AP06): no data is not fine: a dashed edge and the words "no data". */
-  .pill.nd {
-    background: transparent;
-    color: var(--paper);
-    border: 1.5px dashed #a9c2b6;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
   }
 
   /* Phone: quick create buttons */
@@ -587,9 +611,6 @@
   @media (max-width: 719px) {
     .band {
       padding: 18px;
-    }
-    .pill {
-      margin-left: 0;
     }
     .quick {
       display: grid;
@@ -661,12 +682,6 @@
   }
   .hub h2 a:hover {
     color: var(--hi);
-  }
-  .btn.big {
-    justify-content: center;
-    gap: 8px;
-    min-height: 52px;
-    font-size: 17px;
   }
   .sub {
     display: flex;

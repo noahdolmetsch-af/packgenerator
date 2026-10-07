@@ -17,7 +17,8 @@
   import { liveQuery } from 'dexie';
   import { db } from './lib/db.js';
   import { phone } from './lib/media.svelte.js';
-  import { UserRound, Plus } from '@lucide/svelte';
+  import { UserRound, Sun, Route, Backpack, Bike } from '@lucide/svelte';
+  import { PLACES, pageOf, placeOf } from './lib/nav.js';
   import { t, lang, setLang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
@@ -26,12 +27,18 @@
   $effect(() => {
     const update = () => {
       hash = location.hash;
+      menuOpen = false;
       window.scrollTo(0, 0);
     };
     window.addEventListener('hashchange', update);
     return () => window.removeEventListener('hashchange', update);
   });
-  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/favorites') ? 'favorites' : hash.startsWith('#/bikes') || hash.startsWith('#/care') ? (parseBikesHash(hash).tab === 'care' ? 'care' : 'bikes') : hash.startsWith('#/pack/templates') ? 'templates' : hash.startsWith('#/pack') ? 'pack' : hash.startsWith('#/debrief') ? 'debrief' : hash.startsWith('#/share/') ? 'share' : hash.startsWith('#/ride') ? 'ride' : hash.startsWith('#/inbox') ? 'inbox' : 'home');
+  // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
+  const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
+  const place = $derived(placeOf(page));
+  const ICONS = { today: Sun, trips: Route, gear: Backpack, bikes: Bike };
+  const places = PLACES.map((p) => ({ ...p, icon: ICONS[p.key] }));
+  let menuOpen = $state(false);
   // #/debrief/<trip id> opens one trip's debrief.
   const param = $derived(hash.split('/')[2] ?? '');
 
@@ -79,41 +86,24 @@
 </script>
 
 <!-- v0.19.6 (start page answers 1a-4a): the same places on every page, search, Inbox and one "New".
-     On a phone the places move to a bar at the bottom, with the + in the middle. -->
-<header class="top" class:calm-top={page === 'pack'}>
+     On a phone the places move to a bar at the bottom, with the + in the middle.
+     v0.23.0 (AP07): one navigation for every page, Today / Trips / Gear / Bikes (the Pack page no longer
+     has its own). Debriefs, templates, a quick note and the language sit in the menu behind the profile icon. -->
+<header class="top">
   <a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="long">Pack Generator</span><span class="short" aria-hidden="true">PG</span></a>
   {#if !phone.matches}
     <nav class="places" aria-label={t('Sections')}>
-      {#if page === 'pack'}
-        <a href="#/">{lang.v === 'de' ? 'Heute' : 'Today'}</a><a href="#/pack" aria-current="page">{t('Trips')}</a><a href="#/gear">{lang.v === 'de' ? 'Material' : 'Gear'}</a><a href="#/bikes">{lang.v === 'de' ? 'Fahrräder' : 'Bikes'}</a>
-      {:else}
-        <a href="#/" aria-current={page === 'home' ? 'page' : undefined}>{t('Home')}</a>
-        <a href="#/gear" aria-current={page === 'gear' || page === 'favorites' ? 'page' : undefined}>{t('Gear')}</a>
-        <a href="#/pack" aria-current={page === 'templates' || page === 'ride' ? 'page' : undefined}>{t('Pack')}</a>
-        <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}>{t('Bikes')}</a>
-        <a href="#/debrief" aria-current={page === 'debrief' ? 'page' : undefined}>{t('Debrief')}</a>
-      {/if}
+      {#each places as p (p.key)}<a href={p.href} aria-current={place === p.key ? 'page' : undefined}>{t(p.label)}</a>{/each}
     </nav>
-  {:else if page === 'pack'}
-    <a class="deb" href="#/pack" aria-current="page">{t('Trips')}</a>
-  {:else}
-    <a class="deb" href="#/debrief" aria-current={page === 'debrief' ? 'page' : undefined}>{t('Debrief')}</a>
   {/if}
   <div class="tools">
-    {#if page === 'pack'}
-      <Search compact />
-      {#if !phone.matches}<button class="quiet-new" aria-label={t('New')} title={t('New')} aria-haspopup="dialog" onclick={() => newMode = 'all'}><Plus size={22} /></button>{/if}
-      <details class="profile-menu"><summary aria-label={lang.v === 'de' ? 'Profil und Einstellungen' : 'Profile and settings'}><UserRound size={24} /></summary><div>
-        <div class="lang" role="group" aria-label={t('Language')}><button aria-pressed={lang.v === 'de'} onclick={() => setLang('de')} lang="de">DE</button><button aria-pressed={lang.v === 'en'} onclick={() => setLang('en')} lang="en">EN</button></div>
-        <a href="#/inbox">{t('Inbox')}{#if $inboxQ} ({$inboxQ}){/if}</a><a href="#/debrief">{t('Debrief')}</a>
-      </div></details>
-    {:else}
-
-    <!-- v0.20.0: German or English, remembered on this device. -->
-    <div class="lang" role="group" aria-label={t('Language')}>
-      <button type="button" aria-pressed={lang.v === 'de'} onclick={() => setLang('de')} lang="de" title="Deutsch">DE</button>
-      <button type="button" aria-pressed={lang.v === 'en'} onclick={() => setLang('en')} lang="en" title="English">EN</button>
-    </div>
+    {#if !phone.matches}
+      <!-- v0.20.0: German or English, remembered on this device. -->
+      <div class="lang" role="group" aria-label={t('Language')}>
+        <button type="button" aria-pressed={lang.v === 'de'} onclick={() => setLang('de')} lang="de" title="Deutsch">DE</button>
+        <button type="button" aria-pressed={lang.v === 'en'} onclick={() => setLang('en')} lang="en" title="English">EN</button>
+      </div>
+    {/if}
     <Search />
     <a class="inbox" href="#/inbox" aria-current={page === 'inbox' ? 'page' : undefined} aria-label={$inboxQ ? t('Inbox, {n} to sort', { n: $inboxQ }) : t('Inbox')}>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 13l3-8h10l3 8v6H4z" /><path d="M4 13h5l1 2h4l1-2h5" /></svg>
@@ -124,7 +114,21 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>{t('New')}
       </button>
     {/if}
-    {/if}
+    <details class="profile-menu" bind:open={menuOpen}>
+      <summary aria-label={t('Profile and settings')}><UserRound size={24} /></summary>
+      <div>
+        {#if phone.matches}
+          <div class="lang" role="group" aria-label={t('Language')}>
+            <button type="button" aria-pressed={lang.v === 'de'} onclick={() => setLang('de')} lang="de">DE</button>
+            <button type="button" aria-pressed={lang.v === 'en'} onclick={() => setLang('en')} lang="en">EN</button>
+          </div>
+        {/if}
+        <a href="#/inbox" onclick={() => (menuOpen = false)}>{t('Inbox')}{#if $inboxQ} ({$inboxQ}){/if}</a>
+        {#if page !== 'share'}<button type="button" onclick={() => ((menuOpen = false), note(''))}>{t('Quick note')}</button>{/if}
+        <a href="#/debrief" onclick={() => (menuOpen = false)}>{t('Debriefs and learnings')}</a>
+        <a href="#/pack/templates" onclick={() => (menuOpen = false)}>{t('Templates')}</a>
+      </div>
+    </details>
   </div>
 </header>
 
@@ -159,31 +163,29 @@
 {#if page !== 'share'}
   <QuickNote {page} bind:open={noteOpen} prefill={notePrefill} />
   <NewSheet bind:mode={newMode} onnote={note} />
-  {#if phone.matches}
-    <nav class="bottom" aria-label={t('Sections')}>
-      <a href="#/" aria-current={page === 'home' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z" /></svg>{t('Home')}</a>
-      <a href="#/gear" aria-current={page === 'gear' || page === 'favorites' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.8 6.4.6-4.8 4.3 1.4 6.3L12 16.8 6.4 20l1.4-6.3L3 9.4l6.4-.6z" /></svg>{t('Gear')}</a>
-      <button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" onclick={() => (newMode = 'all')}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></button>
-      <a href="#/pack" aria-current={page === 'pack' || page === 'templates' || page === 'ride' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l1.5 13h-15z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg>{t('Pack')}</a>
-      <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="16" r="4" /><circle cx="18" cy="16" r="4" /><path d="M6 16l4-8h5l3 8M10 8l4 8" /></svg>{t('Bikes')}</a>
-    </nav>
-  {/if}
+{/if}
+{#if phone.matches}
+  <!-- v0.23.0 (AP07): the same four places on every page, also under a shared list (there without +). -->
+  <nav class="bottom" aria-label={t('Sections')}>
+    {#each places as p, i (p.key)}
+      {#if i === 2 && page !== 'share'}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" onclick={() => (newMode = 'all')}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></button>{/if}
+      <a href={p.href} aria-current={place === p.key ? 'page' : undefined}><p.icon size={22} strokeWidth={2} aria-hidden="true" />{t(p.label)}</a>
+    {/each}
+  </nav>
 {/if}
 
 <style>
-  .top.calm-top { min-height: 64px; padding-inline: 4.2vw; background: #12372f; }
-  .calm-top .brand { font-size: 28px; }
-  .calm-top .places { margin-left: 16px; gap: 36px; }
-  .calm-top .places a { font: 500 17px var(--font-body); text-transform: none; letter-spacing: 0; padding: 10px 0; }
-  .quiet-new { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: none; color: #fafbf8; border: 0; cursor: pointer; }
+  /* v0.23.0 (AP07): the menu behind the profile icon (from the calm Pack, PR #32), now on every page. */
   .profile-menu { position: relative; }
-  .profile-menu > summary { list-style: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; cursor: pointer; }
+  .profile-menu > summary { list-style: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 8px; cursor: pointer; }
   .profile-menu > summary::-webkit-details-marker { display: none; }
-  .profile-menu > div { position: absolute; top: 48px; right: 0; width: 220px; padding: 18px; border-radius: 6px; background: #12372f; box-shadow: 0 8px 20px #0f2e2726; }
-  .profile-menu > div > a { display: block; padding: 12px 0; font: 400 16px var(--font-body); text-transform: none; }
+  .profile-menu[open] > summary { background: rgba(255, 255, 255, 0.12); }
+  .profile-menu > div { position: absolute; top: 48px; right: 0; z-index: 7; display: flex; flex-direction: column; width: min(240px, calc(100vw - 32px)); padding: 10px 18px; border-radius: 6px; background: var(--brand); box-shadow: 0 8px 20px #0f2e2726; }
+  .profile-menu > div > a, .profile-menu > div > button { display: block; min-height: 44px; padding: 12px 0; border: 0; background: none; color: var(--brand-ink); font: 400 16px var(--font-body); text-align: left; text-decoration: none; cursor: pointer; }
+  .profile-menu > div > .lang { align-self: flex-start; margin: 8px 0; }
   main.calm { padding: 0 6.9vw 80px; max-width: none; }
   main.calm:has(:global(.review-mode)) { padding-inline: 9.5vw; }
-  @media (max-width: 719px) { main.calm, main.calm:has(:global(.review-mode)) { padding: 0 18px 106px; } .top.calm-top { padding-inline: 18px; } }
+  @media (max-width: 719px) { main.calm, main.calm:has(:global(.review-mode)) { padding: 0 18px 106px; } }
 
   .top {
     position: sticky;
@@ -191,6 +193,8 @@
     z-index: 5;
     display: flex;
     align-items: center;
+    min-height: 64px;
+    box-sizing: border-box;
     gap: 6px 22px;
     padding: calc(8px + env(safe-area-inset-top)) var(--gut) 8px;
     background: var(--brand);
@@ -218,11 +222,12 @@
   .places {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 20px;
+    gap: 4px 28px;
+    margin-left: 8px;
   }
-  .places a,
-  .deb {
-    padding: 8px 0 5px;
+  .places a {
+    font-size: 17px;
+    padding: 10px 0 7px;
     border-bottom: 3px solid transparent;
     color: var(--brand-ink-2);
   }
@@ -300,7 +305,6 @@
     .top .short {
       display: inline;
     }
-    .deb { font-size: 18px; }
     .tools {
       min-width: 0;
       gap: 2px;
@@ -379,6 +383,13 @@
   @media (max-width: 719px) {
     main {
       padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+  }
+  /* v0.23.0 (AP07): the bars never print (a shared list, Print list). */
+  @media print {
+    .top,
+    .bottom {
+      display: none !important;
     }
   }
 </style>

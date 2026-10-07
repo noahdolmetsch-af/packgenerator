@@ -215,3 +215,51 @@ export function parseGrams(text) {
   const n = Number(String(text).trim().replace(/['’,]/g, ''));
   return Number.isInteger(n) && n >= 1 && n <= 30000 ? n : null;
 }
+
+/**
+ * v0.23.0 (AP08/AP09): the copy the item dialog edits. An existing item keeps every field; numbers
+ * of the layer rules become text while editing, the weight goes into `grams`. A new item starts
+ * without a category (it has to be chosen) and with the preset (search text, filter, tab).
+ */
+export function itemDraft(item, preset = {}) {
+  const layerFields = (src) => ({ ride: src.ride ?? '', rain: src.rain ?? '', coldBelow: src.coldBelow ?? '', perHours: src.perHours ?? '', waterL: src.waterL ?? '', maxQty: src.maxQty ?? '', replaces: src.replaces ?? '', altFor: src.altFor ?? '' });
+  return item
+    ? { ...item, role: item.role ?? '', model: item.model ?? '', grams: item.weightG ?? '', domains: item.domains?.length ? item.domains : ['bikepacking'], favNote: item.favNote ?? '', ...layerFields(item) }
+    : { id: '', name: '', brand: '', model: '', category: '', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], kits: [], domains: ['bikepacking'], ...preset, ...layerFields(preset) };
+}
+
+const numOrNull = (v) => (v == null || String(v).trim() === '' || !Number.isFinite(Number(String(v).replace(',', '.'))) ? null : Number(String(v).replace(',', '.')));
+
+/**
+ * v0.23.0 (AP09): the item record "Save" in the item dialog writes. draft: the edited copy
+ * (layer numbers may still be text, `grams` is ignored), item: the item as it was (null = new),
+ * weightG: the checked weight (null = not weighed). A new item gets the next free ID of its
+ * category; an existing item keeps its ID exactly, also when its category changes, so trips,
+ * templates, kits, bags, favourites and learnings that point to the ID keep working.
+ * Every other field of the draft is kept as it is.
+ */
+export function itemRecord(draft, { item = null, items = [], weightG = null, now = new Date().toISOString() } = {}) {
+  const { grams, ...rest } = draft;
+  return {
+    ...rest,
+    id: item ? item.id : nextId(items, rest.category),
+    name: rest.name.trim(),
+    qty: Math.max(1, Number(rest.qty) || 1),
+    role: rest.role || null,
+    always: rest.always ? true : null,
+    favorite: rest.favorite ? true : null,
+    favNote: rest.favorite ? rest.favNote?.trim() || null : (item?.favNote ?? null),
+    domains: rest.domains?.length ? rest.domains : ['bikepacking'],
+    ride: rest.ride || null,
+    rain: rest.rain || null,
+    coldBelow: numOrNull(rest.coldBelow),
+    perHours: numOrNull(rest.perHours),
+    waterL: numOrNull(rest.waterL),
+    maxQty: numOrNull(rest.maxQty),
+    replaces: rest.replaces || null,
+    altFor: rest.altFor || null,
+    weightG,
+    weightStatus: weightG == null ? 'missing' : weightG !== item?.weightG ? 'measured' : item.weightStatus,
+    updatedAt: now,
+  };
+}
