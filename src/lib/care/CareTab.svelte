@@ -1,4 +1,5 @@
 <script>
+  import { localDay } from '../localday.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { sortBikes } from '../bikes.js';
@@ -37,7 +38,7 @@
   const viewById = $derived(Object.fromEntries(views.map((b) => [b.id, b])));
   const tasks = $derived($tasksQ ?? []);
   const items = $derived($itemsQ ?? []);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDay();
   const now = () => new Date().toISOString();
 
   // Who did the work (Noah, 4.10.2026): remembered on this device, stored with every entry.

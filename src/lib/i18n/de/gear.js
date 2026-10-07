@@ -37,6 +37,9 @@ export default {
   Unclear: 'Unklar',
   'To buy': 'Zu kaufen',
   Wishlist: 'Wunschliste',
+  // v0.25.1 (Noah 1a): Gear ?unused=1 from Today's "Long not used"
+  'Only items on no trip since {date}': 'Nur Teile, die seit {date} auf keiner Tour waren',
+  'Only items on no trip for 12 months': 'Nur Teile, die seit 12 Monaten auf keiner Tour waren',
   Gone: 'Weg',
   Worn: 'Getragen',
   'Standard pack': 'Standardpack',

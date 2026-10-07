@@ -1,10 +1,12 @@
 <script>
+  import { localDay } from '../lib/localday.js';
   /**
    * Debrief (stage 1, 4.10.2026): after a trip, in about two minutes.
    * #/debrief            trips to debrief, finished debriefs, all learnings
    * #/debrief/<tripId>   the three steps for one trip (saved while you go)
    * #/debrief/learnings  the same overview, scrolled to the learnings
    * #/debrief/pace       the same overview, scrolled to "Your pace" (v0.19.0)
+   * #/debrief/compare    the same overview, scrolled to "Your trips compared" (v0.25.1, Today's Trips tile and weight trend)
    */
   import { liveQuery } from 'dexie';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
@@ -39,7 +41,9 @@
   const templates = $derived($tplQ?.value ?? []);
   const byId = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
 
-  const tripId = $derived(param && param !== 'learnings' && param !== 'pace' ? decodeURIComponent(param) : null);
+  // v0.25.1 (Noah 3a): 'compare' scrolls to "Your trips compared".
+  const SPOTS = ['learnings', 'pace', 'compare'];
+  const tripId = $derived(param && !SPOTS.includes(param) ? decodeURIComponent(param) : null);
   const trip = $derived(tripId ? trips.find((t) => t.id === tripId) : null);
   const open = $derived(toDebrief(trips, debriefs));
   const done = $derived(
@@ -199,7 +203,7 @@
     await db.transaction('rw', db.items, db.learnings, db.debriefs, db.trips, db.settings, db.bikes, async () => {
       if (out.items.length) await db.items.bulkPut(out.items);
       if (km) {
-        await db.bikes.update(bike.id, { km: km.km, kmDate: new Date().toISOString().slice(0, 10) });
+        await db.bikes.update(bike.id, { km: km.km, kmDate: localDay() });
         d.kmApplied = km.kmApplied;
       }
       if (out.learnings.length) await db.learnings.bulkPut(out.learnings);
@@ -237,7 +241,7 @@
     return [...map].map(([topic, ls]) => ({ topic, ls: ls.sort((a, b) => (rank[a.priority] ?? 3) - (rank[b.priority] ?? 3)) })).sort((a, b) => b.ls.length - a.ls.length);
   });
   $effect(() => {
-    if ((param === 'learnings' || param === 'pace') && $learnQ) queueMicrotask(() => document.getElementById(param)?.scrollIntoView());
+    if (SPOTS.includes(param) && $learnQ && $tripsQ && $debriefsQ && $itemsQ) queueMicrotask(() => document.getElementById(param)?.scrollIntoView());
   });
 </script>
 

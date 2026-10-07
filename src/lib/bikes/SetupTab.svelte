@@ -1,4 +1,5 @@
 <script>
+  import { localDay } from '../localday.js';
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -11,6 +12,7 @@
   import { bikePhotos, shrinkImage } from '../photo.js';
   import Lightbox from '../ui/Lightbox.svelte';
   import Fold from '../ui/Fold.svelte';
+  import IdeasFold from './IdeasFold.svelte';
   import { withVisits, tyreSetup, bikeProfile } from '../workshop.js';
   import { t, tn, num, locale, nameOf } from '../i18n.svelte.js';
   import { take } from '../nav.js';
@@ -43,7 +45,7 @@
     if (!bike) return null;
     const visits = $visitsQ ?? [];
     const view = withVisits(bike, visits);
-    return bikeProfile(view, visits, tyreSetup(view, visits), new Date().toISOString().slice(0, 10));
+    return bikeProfile(view, visits, tyreSetup(view, visits), localDay());
   });
   const chf = (n) => `CHF ${Math.round(n).toLocaleString('de-CH')}`;
   const day = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
@@ -293,6 +295,9 @@
           {#if photoMsg}<p class="err" role="alert">{photoMsg}</p>{/if}
         </div>
       </Fold>
+
+      <!-- v0.25.1 (Noah 2b): "Was geil wäre", the bike's own ideas -->
+      {#key bike.id}<IdeasFold {bike} />{/key}
     </section>
   {/if}
 

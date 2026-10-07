@@ -8,6 +8,7 @@
  */
 import { PART, PARTS, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM, prepFor, prepRules, prepSummary, isPrep, taskBike, serviceName } from './care.js';
 import { t as tr, tn, num, locale } from './i18n.svelte.js';
+import { localDay } from './localday.js';
 
 const DAY = 864e5;
 const iso = (d) => d.toISOString().slice(0, 10);
@@ -72,7 +73,7 @@ export function tyreSetup(bike, visits = []) {
  * bike: from withVisits. Returns [{ key, name, last, next, days, overdue, never }], soonest first.
  * days: days until it is due (negative: overdue). never: nothing recorded yet, so no date.
  */
-export function timeDue(bike, setup = { front: null, rear: null }, today = iso(new Date())) {
+export function timeDue(bike, setup = { front: null, rear: null }, today = localDay()) {
   const anyTubeless = setup.front === 'tubeless' || setup.rear === 'tubeless';
   const unknown = setup.front == null && setup.rear == null;
   return (bike.parts ?? [])
@@ -161,7 +162,7 @@ const lastServiceOf = (p) => [...(p.history ?? [])].reverse().find((h) => h.acti
  * Returns { days, rows: [{ key, name, when: 'now' | 'during', late, detail }] }, "now" first.
  * late: due already today (Bike care lists these under "Due now").
  */
-export function beforeTrip(bike, trip, setup = { front: null, rear: null }, today = iso(new Date())) {
+export function beforeTrip(bike, trip, setup = { front: null, rear: null }, today = localDay()) {
   if (!bike || !trip?.startDate) return null;
   const end = addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1);
   if (today > end) return null;
@@ -230,7 +231,7 @@ export function bikeDue(bike, trip, setup, today, end) {
  */
 const short = (date) => new Date(`${date}T00:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' });
 
-export function tripPrep(bike, trip, tasks = [], setup = { front: null, rear: null }, today = iso(new Date())) {
+export function tripPrep(bike, trip, tasks = [], setup = { front: null, rear: null }, today = localDay()) {
   if (!trip?.startDate) return null;
   const prep = prepFor(trip, tasks, today);
   const rows = prep
@@ -307,7 +308,7 @@ export function priceFor(visits, bikeId, key, action = 'service') {
  * rows: [{ key, name, de, detail, when, chf, from }]. Open repairs of the bike come last, without a price.
  * Waxing the chain is left out: that is done at home.
  */
-export function workshopOrder(bike, trip, tasks = [], visits = [], setup = { front: null, rear: null }, today = iso(new Date())) {
+export function workshopOrder(bike, trip, tasks = [], visits = [], setup = { front: null, rear: null }, today = localDay()) {
   if (!bike) return null;
   const due = trip?.startDate && today <= addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1)
     ? bikeDue(bike, trip, setup, today, addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1))
@@ -355,7 +356,7 @@ export function orderText(rows, { bike, trip = null } = {}) {
  * due next and the last workshop visit. bike: from withVisits.
  * Returns { km, kmDate, year: { year, chf, unknown, visits } | null, per, next: [{ name, detail, late }], last }.
  */
-export function bikeProfile(bike, visits = [], setup = { front: null, rear: null }, today = iso(new Date())) {
+export function bikeProfile(bike, visits = [], setup = { front: null, rear: null }, today = localDay()) {
   const mine = visitsOf(visits, bike.id);
   const year = costByYear(mine).find((y) => y.year === today.slice(0, 4)) ?? null;
   const next = [];

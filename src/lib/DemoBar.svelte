@@ -1,4 +1,5 @@
 <script>
+  import { localDay } from './localday.js';
   /**
    * The bar on top while a demo runs: which demo, the demo day, and "End demo".
    * Ending puts your own data back exactly as it was before the demo.
@@ -10,7 +11,7 @@
 
   const demoQ = liveQuery(() => demoState(db));
   const demo = $derived($demoQ ?? null);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDay();
   const shifted = clockOffset() !== 0;
   let busy = $state(false);
 

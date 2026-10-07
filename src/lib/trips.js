@@ -344,7 +344,7 @@ export function toggleSet(trip, items, key, on) {
 
 export const WX_PRESETS = [
   { name: 'Cold', min: -2, max: 4 },
-  { name: 'Chilly', min: 4, max: 12 },
+  { name: 'Chilly', min: 6, max: 12 }, // v0.25.1 (Noah 6a): from 6 °C, so items "below 5 °C" only come with Cold
   { name: 'Mild', min: 10, max: 18 },
   { name: 'Warm', min: 16, max: 24 },
   { name: 'Hot', min: 22, max: 32 },

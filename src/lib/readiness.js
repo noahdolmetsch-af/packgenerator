@@ -22,8 +22,8 @@ import { bikeDue, beforeTrip, timeDue, tyreSetup } from './workshop.js';
 import { bikesHash } from './bikes.js';
 import { readyDone } from './trips.js';
 import { t, tn } from './i18n.svelte.js';
+import { localDay } from './localday.js';
 
-const iso = (d) => d.toISOString().slice(0, 10);
 
 /** The kind of a bike row: 'time' (sealant, fork, shock), 'km' (wax the chain), 'check' (1000 km), 'part' (worn or work needed). */
 const kindOf = (r) => (r.worn ? 'part' : r.key === 'check' ? 'check' : PART[r.key]?.everyKm ? 'km' : 'time');
@@ -36,7 +36,7 @@ const kindOf = (r) => (r.worn ? 'part' : r.key === 'check' ? 'check' : PART[r.ke
  * status: 'due' (rows), 'nodata' (nothing due but nothing to judge by) or 'ok' (nothing due).
  * gaps: check points and services by time without any record.
  */
-export function bikeCare(bike, { tasks = [], visits = [], trip = null, today = iso(new Date()) } = {}) {
+export function bikeCare(bike, { tasks = [], visits = [], trip = null, today = localDay() } = {}) {
   if (!bike) return null;
   const setup = tyreSetup(bike, visits);
   const rows = bikeDue(bike, { startDate: today, days: 1 }, setup, today, today)
@@ -72,7 +72,7 @@ export const isShortRide = (trip) => !!trip && !(Number(trip.days) > 1) && !isEv
  * Returns { scope: 'prep', tripId, open, overdue, needed, done, total, status, href };
  * status: 'open', 'done' or 'none' (no tasks for this trip).
  */
-export function eventPrep(trip, tasks = [], today = iso(new Date())) {
+export function eventPrep(trip, tasks = [], today = localDay()) {
   if (!trip) return null;
   const sum = prepSummary(prepFor(trip, tasks, today));
   return { scope: 'prep', tripId: trip.id, ...sum, status: sum.open ? 'open' : sum.total ? 'done' : 'none', href: bikesHash({ tab: 'care', trip: trip.id }) };

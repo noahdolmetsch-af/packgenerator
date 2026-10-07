@@ -1,4 +1,5 @@
 <script>
+  import { localDay } from '../localday.js';
   /**
    * "New" (v0.19.6, start page answers 4a and 8a): every way to create something, in one place.
    * Desktop: the orange "New" in the top bar; phone: the + in the middle of the bottom bar.
@@ -46,7 +47,7 @@
     event.preventDefault();
     const n = Math.round(Number(String(km).replace(/['’,\s]/g, '')));
     if (!kmBike || !(n >= 0 && n <= 500000) || km === '') return (kmMsg = t('Type the km as a whole number, e.g. 12400.'));
-    await db.bikes.update(kmBike.id, { km: n, kmDate: new Date().toISOString().slice(0, 10) });
+    await db.bikes.update(kmBike.id, { km: n, kmDate: localDay() });
     kmMsg = t('{bike}: {km} km saved.', { bike: kmBike.name, km: num(n) });
     km = '';
     setTimeout(close, 900);

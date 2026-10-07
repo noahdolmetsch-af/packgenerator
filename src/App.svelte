@@ -9,6 +9,7 @@
   import Ride from './pages/Ride.svelte';
   import Inbox from './pages/Inbox.svelte';
   import Favorites from './pages/Favorites.svelte';
+  import PastTrips from './pages/PastTrips.svelte';
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
@@ -59,16 +60,34 @@
   let newMode = $state(null);
   $effect(() => {
     const open = (e) => (newMode = e.detail ?? 'all');
-    const quick = (e) => note(e.detail ?? '');
+    // v0.25.1 (Noah 3a): "Note on a bike" on Today sends { text, bikeId }.
+    const quick = (e) => (e.detail && typeof e.detail === 'object' ? note(e.detail.text ?? '', e.detail.bikeId ?? null) : note(e.detail ?? ''));
+    // v0.25.1 (Noah 1a): "Day ride" from any page: Pack makes the trip (it listens itself while open).
+    const day = () => {
+      if (pageOf(location.hash) === 'pack') return;
+      keepDayRide();
+      location.hash = '#/pack';
+    };
     window.addEventListener('pg:new', open);
     window.addEventListener('pg:note', quick);
+    window.addEventListener('pg:dayride', day);
     return () => {
       window.removeEventListener('pg:new', open);
       window.removeEventListener('pg:note', quick);
+      window.removeEventListener('pg:dayride', day);
     };
   });
-  const note = (prefill) => {
+  let noteBike = $state(null);
+  const keepDayRide = () => {
+    try {
+      localStorage.setItem('pack.dayRide', '1');
+    } catch {
+      /* private mode: Pack opens without the new day ride */
+    }
+  };
+  const note = (prefill, bikeId = null) => {
     notePrefill = prefill;
+    noteBike = bikeId;
     noteOpen = true;
   };
   // v0.20.0: the page language for screen readers and the browser.
@@ -140,6 +159,9 @@
     <Bikes />
   {:else if page === 'templates'}
     <Templates />
+  {:else if page === 'past'}
+    <!-- v0.25.1 (Noah 3a): the finished trips, from Today's Trips tile -->
+    <PastTrips />
   {:else if page === 'ride'}
     <Ride />
   {:else if page === 'share'}
@@ -157,7 +179,7 @@
 </main>
 
 {#if page !== 'share'}
-  <QuickNote {page} bind:open={noteOpen} prefill={notePrefill} />
+  <QuickNote {page} bind:open={noteOpen} prefill={notePrefill} prefillBike={noteBike} />
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
 {#if phone.matches}

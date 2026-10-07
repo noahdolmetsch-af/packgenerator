@@ -1,12 +1,13 @@
 <script>
   import { db } from '../db.js';
   import { newTrip, lastTripOn, switchBike, WX_PRESETS } from '../trips.js';
-  import { contextTrip, contextSummary, startEntries, applyContext, hasContext } from '../context.js';
+  import { contextSummary, startEntries, applyContext, hasContext } from '../context.js';
   import { isEvent } from '../care.js';
   import { tripFromTemplate } from '../templates.js';
   import { t, tn, nameOf } from '../i18n.svelte.js';
   import { DOMAINS, DOMAIN, BIKEPACKING, domainName, lastDomain, rememberDomain, newPackTrip, lastTripIn, readyKey, inDomain, hasBike } from '../domains.js';
   import { isInventory } from '../gear.js';
+  import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf } from '../dayride.js';
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -27,8 +28,12 @@
   let draft = $state(
     trip
       ? { title: trip.title, startDate: trip.startDate ?? '', days: trip.days ?? 1, bikeId: trip.bikeId ?? bikes[0]?.id }
-      : { title: '', startDate: '', days: 1, bikeId: defaultBikeId ?? bikes[0]?.id },
+      : // v0.25.1 (Noah 2a): a new trip starts filled in: start date (today, after 14:00 tomorrow) and
+        // the bike of the open or last trip; the name follows below. "Create trip" works untouched.
+        { title: '', startDate: rideDate(), days: 1, bikeId: bikes.some((b) => b.id === defaultBikeId) ? defaultBikeId : lastBikeId(trips, bikes) ?? bikes[0]?.id },
   );
+  // v0.25.1 (Noah 2a): the name is made from bike, date and days until Noah types in it.
+  let autoName = $state(isNew);
   // v0.25.0 (M3): the trip's context. An older trip without an overnight value shows none chosen.
   // svelte-ignore state_referenced_locally
   const was = {
@@ -48,7 +53,11 @@
   const hoursOk = $derived(hoursNum === null || (hoursNum >= 0.5 && hoursNum <= 24));
   const wet = $derived(ctx.rain === 'showers' || ctx.rain === 'rain');
   const wxOut = $derived(ctx.min != null || ctx.max != null || ctx.rain !== 'none' ? { min: ctx.min, max: ctx.max, rain: ctx.rain } : null);
-  const pickWx = (p) => (ctx.min === p.min && ctx.max === p.max ? ((ctx.min = null), (ctx.max = null)) : ((ctx.min = p.min), (ctx.max = p.max)));
+  function pickWx(p) {
+    wxTouched = true; // v0.25.1: Noah's own choice; the forecast leaves it alone
+    if (ctx.min === p.min && ctx.max === p.max) (ctx.min = null), (ctx.max = null);
+    else (ctx.min = p.min), (ctx.max = p.max);
+  }
   /** The context fields to store (only for bike trips). */
   const ctxFields = () => ({ hours: hoursOk ? hoursNum : null, overnight: night, cook: night === 'outdoor' && ctx.cook, wx: wxOut, event: ctx.event });
   const OVERNIGHTS = [
@@ -72,6 +81,29 @@
   let dialog;
   const bike = $derived(bikes.find((b) => b.id === draft.bikeId));
   const from = $derived(isNew && bike ? lastTripOn(bike.id, trips) : null);
+  $effect(() => {
+    if (autoName) draft.title = rideName({ bike: byBike ? bike?.name : '', label: byBike ? '' : t(domainName(area)), date: draft.startDate, days });
+  });
+
+  // v0.25.1 (Noah 3a): with a home place and the internet, the weather preset comes from the
+  // forecast for the start date (short timeout; offline or failed: nothing happens). Once Noah
+  // picks a weather himself, the forecast no longer changes it.
+  let forecast = $state.raw(null);
+  let wxTouched = $state(false);
+  const fcWx = $derived(isNew && byBike ? forecastPreset(forecast, draft.startDate) : null);
+  const fromForecast = $derived(!!fcWx && ctx.min === fcWx.min && ctx.max === fcWx.max && ctx.rain === fcWx.rain);
+  $effect(() => {
+    if (!isNew) return;
+    let gone = false;
+    db.settings.get('homePlace').then((r) => (homeOf(r?.value) ? fetchHomeForecast(r.value) : null)).then((fc) => !gone && fc && (forecast = fc)).catch(() => {});
+    return () => (gone = true);
+  });
+  $effect(() => {
+    if (!fcWx || wxTouched) return;
+    ctx.min = fcWx.min;
+    ctx.max = fcWx.max;
+    ctx.rain = fcWx.rain;
+  });
 
   $effect(() => {
     dialog.showModal();
@@ -108,13 +140,9 @@
       oncreated?.(nt.id);
     } else if (isNew) {
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
-      const tpl = templates.find((x) => x.id === start);
-      const base = tpl
-        ? tripFromTemplate({ ...draft, bike }, tpl, items)
-        : newTrip({ ...draft, bike, readyStandard, overnight: night }, start === 'standard' ? [] : trips, items);
-      // v0.25.0 (M3, 6b/7b): the context goes straight into the list; a template keeps its hours when none are given.
-      const fields = ctxFields();
-      const nt = contextTrip({ ...base, ...fields, hours: fields.hours ?? base.hours ?? null }, items, { fromCopy: !tpl && !!base.copiedFrom });
+      // v0.25.1: the same path as the day ride (dayride.js buildBikeTrip); wxFrom says the weather came from the forecast.
+      const fields = { ...ctxFields(), ...(fromForecast ? { wxFrom: 'forecast' } : {}) };
+      const nt = buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips, items, readyStandard, fields });
       await db.trips.put($state.snapshot(nt));
       rememberDomain(BIKEPACKING);
       oncreated?.(nt.id);
@@ -125,7 +153,8 @@
         const f = ctxFields();
         if (ctx.hours !== was.hours) changes.hours = f.hours;
         if (night && (night !== was.overnight || ctx.cook !== was.cook)) Object.assign(changes, { overnight: night, cook: f.cook });
-        if (ctx.min !== was.min || ctx.max !== was.max || ctx.rain !== was.rain) changes.wx = f.wx;
+        // v0.25.1: weather chosen here is no longer "from the forecast".
+        if (ctx.min !== was.min || ctx.max !== was.max || ctx.rain !== was.rain) Object.assign(changes, { wx: f.wx, wxFrom: null });
         if (ctx.event !== was.event) changes.event = ctx.event;
       }
       const switching = byBike && draft.bikeId !== trip.bikeId;
@@ -162,7 +191,7 @@
           </div>
         </fieldset>
       {/if}
-      <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} placeholder={t('e.g. Jura weekend')} required /></label>
+      <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
       <label><span class="lbl">{t('Start date')}</span><input class="inp" type="date" bind:value={draft.startDate} /></label>
       {#if byBike}
         <label>
@@ -198,10 +227,11 @@
       <fieldset class="ctx">
         <legend class="lbl">{t('Weather')}</legend>
         <div class="chips">
-          {#each WX_PRESETS as p (p.name)}<button type="button" class="toggle" aria-pressed={ctx.min === p.min && ctx.max === p.max} onclick={() => pickWx(p)}>{t(p.name)} <small>{p.min}–{p.max}°</small></button>{/each}
-          <button type="button" class="toggle" aria-pressed={wet} onclick={() => (ctx.rain = wet ? 'none' : 'rain')}>+ {t('Rain')}</button>
+          {#each WX_PRESETS as p (p.name)}<button type="button" class="toggle" aria-pressed={ctx.min === p.min && ctx.max === p.max} onclick={() => pickWx(p)}>{t(p.name)} <small>{p.min}–{p.max}°</small>{#if fromForecast && ctx.min === p.min && ctx.max === p.max}<small class="fcmark">{t('from forecast')}</small>{/if}</button>{/each}
+          <button type="button" class="toggle" aria-pressed={wet} onclick={() => ((wxTouched = true), (ctx.rain = wet ? 'none' : 'rain'))}>+ {t('Rain')}</button>
         </div>
-        <p class="note small">{t('or get the forecast later in Pack (Edit trip conditions)')}</p>
+        {#if fromForecast}<p class="note small fc">{t('From the forecast for {place}', { place: forecast.place?.name ?? '' })}</p>
+        {:else}<p class="note small">{t('or get the forecast later in Pack (Edit trip conditions)')}</p>{/if}
       </fieldset>
       <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
     {/if}
@@ -274,6 +304,12 @@
     font: 600 15px var(--font-body);
     color: var(--ink);
     cursor: pointer;
+  }
+  /* v0.25.1 (Noah 3a): the preset the forecast chose. */
+  .fcmark {
+    margin-left: 6px;
+    font-weight: 500;
+    opacity: 0.85;
   }
   .toggle[aria-pressed='true'] {
     background: var(--ink);
