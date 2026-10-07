@@ -94,10 +94,14 @@ async function know(page, T) {
 test('empty cards are hidden; the home place card is the way to set it up', async ({ page, context }, info) => {
   const T = tr('de');
   await start(page, context, info, 'de', null);
-  const k = await know(page, T);
-  // the start-up may still be adding its items: wait for the set-up card and the to-dos
-  await expect(k.locator('[data-card="home"]')).toBeVisible();
-  await expect(k.locator('[data-card="todo"]')).toBeVisible();
+  // the start-up may still be adding its items (the section can render again): wait for the
+  // set-up card and the to-dos, opening the fold again if needed
+  let k;
+  await expect(async () => {
+    k = await know(page, T);
+    await expect(k.locator('[data-card="home"]')).toBeVisible({ timeout: 2000 });
+    await expect(k.locator('[data-card="todo"]')).toBeVisible({ timeout: 2000 });
+  }).toPass();
   const keys = await k.locator('[data-card]').evaluateAll((els) => els.map((e) => e.dataset.card));
   // a fresh app (the start-up adds a few layer items, so a backup is already due): nothing else
   expect(keys).toEqual(expect.arrayContaining(['todo', 'home']));
