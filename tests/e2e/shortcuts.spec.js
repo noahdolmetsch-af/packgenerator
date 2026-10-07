@@ -58,7 +58,8 @@ for (const lang of ['de', 'en']) {
     const dlg = page.getByRole('dialog', { name: T('New trip') });
     await dlg.getByLabel(T('Name')).fill(title);
     await dlg.getByLabel(T('Start date')).fill(today());
-    await expect(dlg).toContainText(T('Your standard set for a day: worn, standard pack and the items "On every trip". The overnight base set comes with 2 days or more.'));
+    // v0.25.0 (M3): the live "Your packing list" says the overnight gear stays at home.
+    await expect(dlg).toContainText(T('Not included: overnight gear, event preparation'));
     await click(dlg.getByRole('button', { name: T('Create trip') }));
     await expect(dlg).toBeHidden();
     await expect(page.getByText('test_data_gtp_ Zahnbürste')).toHaveCount(0);

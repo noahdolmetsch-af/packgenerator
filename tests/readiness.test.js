@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { overdueFor } from '../src/lib/workshop.js';
-import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine, packStatus, packLine } from '../src/lib/readiness.js';
+import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine, packStatus, packLine, isShortRide } from '../src/lib/readiness.js';
 import { bikeChoice } from '../src/lib/choice.js';
 import { withVisits } from '../src/lib/workshop.js';
 import { ensureParts, logPart, CHECK_PARTS } from '../src/lib/care.js';
@@ -163,5 +163,16 @@ describe('overdue in words (Noah 3a, 2026-10-07)', () => {
     expect(overdueFor('2026-10-06', '2026-10-07')).toBe('overdue for 1 day');
     expect(overdueFor('2026-09-16', '2026-10-07')).toBe('overdue for 3 weeks');
     expect(overdueFor('2026-07-01', '2026-10-07')).toBe('overdue for 3 months');
+  });
+});
+
+describe('v0.25.0 short ride (Noah 10)', () => {
+  it('1 day and not an event: no bike care step; more days or an event: bike care again', () => {
+    expect(isShortRide({ days: 1 })).toBe(true);
+    expect(isShortRide({})).toBe(true);
+    expect(isShortRide({ days: 2 })).toBe(false);
+    expect(isShortRide({ days: 1, event: true })).toBe(false);
+    expect(isShortRide({ days: 1, prep: { t1: { done: true } } })).toBe(false);
+    expect(isShortRide(null)).toBe(false);
   });
 });

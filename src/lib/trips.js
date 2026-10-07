@@ -76,13 +76,15 @@ export function lastTripOn(bikeId, trips) {
  * A new trip (decision 5a): a copy of the last trip with the same bike,
  * or the standard set when this bike has no trip yet. Nothing is ticked off.
  */
-export function newTrip({ title, startDate, days, bike, readyStandard = null }, trips, items, now = Date.now()) {
+export function newTrip({ title, startDate, days, bike, readyStandard = null, overnight = null }, trips, items, now = Date.now()) {
   const from = lastTripOn(bike.id, trips);
   const setup = { ...(bike.setup ?? {}) };
   const known = new Set(items.map((i) => i.id));
   const entries = from
-    ? from.entries.filter((e) => known.has(e.itemId)).map((e) => ({ ...e, slot: e.slot === 'body' || e.slot === 'mounted' || setup[e.slot] ? e.slot : slotFor(e.slot, setup), packed: false }))
-    : standardEntries(items, setup, { overnight: (Number(days) || 1) > 1 });
+    ? from.entries.filter((e) => known.has(e.itemId)).map(({ qtyManual, ...e }) => ({ ...e, slot: e.slot === 'body' || e.slot === 'mounted' || setup[e.slot] ? e.slot : slotFor(e.slot, setup), packed: false }))
+    // v0.25.0 (Noah 4): with a known overnight stay the base set only comes through the context
+    // (context.js, "Outdoor"); without one the v0.24.0 rule stays (base set from 2 days on).
+    : standardEntries(items, setup, { overnight: overnight ? false : (Number(days) || 1) > 1 });
   entries.push(...alwaysEntries(items, entries, setup));
   return {
     id: `trip-${now.toString(36)}`,

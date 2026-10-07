@@ -7,6 +7,7 @@
   import { CATEGORIES, formatWeight, weightText, isInventory, matches, weighQueue } from '../lib/gear.js';
   import { tripStats, packSteps, togglePacked, packAll, tickReady, packAndReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike } from '../lib/trips.js';
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
+  import { applyContext, hasContext, carryHint } from '../lib/context.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import CalmPack from '../lib/pack/CalmPack.svelte';
   import { acceptReview } from '../lib/preparation.js';
@@ -26,7 +27,7 @@
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { withVisits, overdueFor } from '../lib/workshop.js';
   import { prepFor, isEvent } from '../lib/care.js';
-  import { bikeCare, bikeCareLine, eventPrep, eventPrepLine } from '../lib/readiness.js';
+  import { bikeCare, bikeCareLine, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
@@ -114,7 +115,8 @@
     if (!trip || over || trip.skipped || !bikeTrip) return null;
     const view = bike ? withVisits(bike, $visitsQ ?? []) : null;
     const tasks = $tasksQ ?? [];
-    const care = view ? bikeCare(view, { tasks, visits: $visitsQ ?? [], trip, today }) : null;
+    // v0.25.0 (Noah 10): a short ride (1 day, no event) shows no bike care here (it stays in Bikes).
+    const care = view && !isShortRide(trip) ? bikeCare(view, { tasks, visits: $visitsQ ?? [], trip, today }) : null;
     const prep = eventPrep(trip, tasks, today);
     const open = prepFor(trip, tasks, today).filter(r => !r.finished);
     // v0.22.1 (Noah 4b): shown on every bike trip, so the Event switch is always in reach.
@@ -150,7 +152,7 @@
     return colder || wetter ? { fc: fcWx, have } : null;
   });
   function useForecast() {
-    change((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx } }));
+    changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx } }));
     packDay = false;
 
   }
@@ -370,15 +372,23 @@
   const wx = $derived(trip?.wx ?? null);
   const wxSet = $derived(wx?.min != null && wx?.max != null);
   const suggestion = $derived(trip ? layerSuggest(trip, items) : []);
-  const setWx = (patch) => change((t) => ({ wx: { min: t.wx?.min ?? null, max: t.wx?.max ?? null, rain: t.wx?.rain ?? 'none', ...patch } }));
+  // v0.25.0 (M3, Noah 9b): on a trip with its context a change of weather or hours applies at once (Undo).
+  const changeContext = (fn) => change((cur) => {
+    const patch = fn(cur);
+    const next = { ...cur, ...patch };
+    return hasContext(next) ? { ...patch, ...applyContext(next, items, cur) } : patch;
+  });
+  const setWx = (patch) => changeContext((t) => ({ wx: { min: t.wx?.min ?? null, max: t.wx?.max ?? null, rain: t.wx?.rain ?? 'none', ...patch } }));
   function typedTemp(field, value) {
     const n = value.trim() === '' ? null : Math.round(Number(value));
     if (n === null || (n >= -30 && n <= 45)) setWx({ [field]: n });
   }
   function typedHours(value) {
     const n = value.trim() === '' ? null : Number(value.replace(',', '.'));
-    if (n === null || (n > 0 && n <= 24)) change(() => ({ hours: n }));
+    if (n === null || (n > 0 && n <= 24)) changeContext(() => ({ hours: n }));
   }
+  // v0.25.0 (M3, Noah 8a): "Buy … on the way?" for amounts over more days or above what you can carry.
+  const carry = $derived(new Set(trip && bikeTrip ? carryHint(trip, items).map((i) => i.id) : []));
   const openLayers = $derived(trip ? openRows(suggestion, trip) : []);
   // What a kind of ride adds, in words (Noah did not understand the drop-down, 4.10.2026).
   // Every ride < Daily < Training: each kind also brings what the ones before it bring.
@@ -416,7 +426,7 @@
         </div>
         <p class="hint">{rideHint}</p>
       </div>
-      <TripRoute {trip} onchange={change} />
+      <TripRoute {trip} onchange={changeContext} />
       <label class="hours"><span class="lbl">{stageCount(trip) > 1 ? t('Riding hours a day') : t('Riding hours')}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder={t('e.g. 6')} /></label>
       <p class="hint hrs">{t('Bottles and food come in amounts per hour (e.g. 1 bottle per 3 h).')}</p>
       <!-- Design answer 6a: the weather folds away once it is set. -->
@@ -500,9 +510,10 @@
       {#if savedNote}<p class="ok" role="status">{savedNote}</p>{/if}
     {/snippet}
 
-  <CalmPack {trip} {stats} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} bind:q bind:zoneKey bind:review
     actions={{
-      choose, addTo, addMany, qty: (id, qty) => setEntries(es => es.map(e => e.itemId === id ? { ...e, qty: Math.max(1, Math.min(20, qty)), packed: (e.qty || 1) === qty ? e.packed : false } : e)),
+      // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
+      choose, addTo, addMany, qty: (id, qty) => setEntries(es => es.map(e => e.itemId === id ? { ...e, qty: Math.max(1, Math.min(20, qty)), qtyManual: true, packed: (e.qty || 1) === qty ? e.packed : false } : e)),
       move: moveTo, remove: removeEntry, undo: undoLast,
       apply: choices => change(cur => acceptReview(cur, items, choices)),
       edit: () => dialog = { trip }, newTrip: () => dialog = { trip: null },
@@ -512,7 +523,7 @@
     }}>
     {#snippet settings(mode)}
       {#if mode === 'conditions'}
-        {#if bikeTrip}{@render layers()}<h3>{t('Night')}</h3>{@render night()}{:else}<TripRoute {trip} onchange={change} />{/if}
+        {#if bikeTrip}{@render layers()}<h3>{t('Night')}</h3>{@render night()}{:else}<TripRoute {trip} onchange={changeContext} />{/if}
       {:else if mode === 'bags'}{@render bagChoice()}
       {:else if mode === 'purposes'}{#each stats.zones as z}<label class="bag-purpose">{zoneName(z)}<input class="inp" value={trip.purpose?.[z.key] ?? ''} placeholder={t('What it is for, e.g. Quick access')} onchange={e => savePurpose(z.key, e.currentTarget.value)} /></label>{/each}
       {:else if mode === 'ready'}{@render readyFull()}{/if}
@@ -529,7 +540,8 @@
     {#snippet preparation()}
       {#if before}
         <details class="calm-extra">
-          <summary>{t('Before the trip')} · {[before.care ? bikeCareLine(before.care) : null, before.prep.total ? eventPrepLine(before.prep) : null].filter(Boolean).join(' · ') || t('Event preparation: no tasks')}</summary>
+          <!-- v0.25.0 (Noah 10): a short ride has no bike care line; then the ready check says where it stands. -->
+          <summary>{t('Before the trip')} · {[before.care ? bikeCareLine(before.care) : null, before.prep.total ? eventPrepLine(before.prep) : null].filter(Boolean).join(' · ') || (before.care || before.event ? t('Event preparation: no tasks') : t('Ready check {done} / {n}', { done: readyCount, n: readyTotal }))}</summary>
           <div class="extra-inner">
             {#if before.care}
               <p><a href={before.care.href}>{bikeCareLine(before.care)}</a></p>
@@ -568,7 +580,7 @@
       <ul>{#each ready as r (r.id)}<li>☐ {t(r.label)}</li>{/each}</ul>
     </section>{/if}
 {#if dialog}
-  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {templates} startFrom={dialog.startFrom ?? 'last'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onclose={() => (dialog = null)} oncreated={choose} />
+  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {templates} startFrom={dialog.startFrom ?? 'last'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? change : null} onclose={() => (dialog = null)} oncreated={choose} />
 {/if}
 {#if saveTpl && trip}
   <TemplateDialog {trip} {templates} onclose={() => (saveTpl = false)} onsaved={(name) => ((tplNote = t('Saved as template "{name}".', { name })), setTimeout(() => (tplNote = ''), 4000))} />

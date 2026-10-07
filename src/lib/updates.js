@@ -242,7 +242,28 @@ async function stravaKm2026(db) {
   return true;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026];
+/**
+ * v0.25.0 (M3, Noah answer 4, 7.10.2026): with a night in lodging only these come along (besides
+ * worn, standard and "On every trip"): toothbrush, toothpaste, shower gel, towel, moisturiser,
+ * insect repellent, training trousers and the wind jacket. They get the item set "lodging", once.
+ * (Noah 1b/2a: the fleece hoodie is a new item he creates and ticks himself.) Only owned or unclear
+ * items that exist; other sets and fields stay; a set removed later in Gear is not added again.
+ */
+export const LODGING_IDS = ['HY07', 'HY08', 'HY09', 'HY05', 'HY15', 'HY12', 'KL28', 'RG14'];
+async function lodgingSet2026(db) {
+  if (await db.settings.get('update.lodgingSet2026')) return false;
+  if (!(await db.items.count())) return false; // nothing imported yet
+  await db.transaction('rw', db.items, db.settings, async () => {
+    for (const item of await db.items.bulkGet(LODGING_IDS)) {
+      if (!item || !['owned', 'unclear'].includes(item.ownership) || item.sets?.includes('lodging')) continue;
+      await db.items.update(item.id, { sets: [...(item.sets ?? []), 'lodging'] });
+    }
+    await db.settings.put({ key: 'update.lodgingSet2026', value: now() });
+  });
+  return true;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

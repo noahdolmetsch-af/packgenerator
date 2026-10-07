@@ -17,7 +17,7 @@
  *
  * Pure functions (the texts follow the language), so they are easy to test.
  */
-import { checkState, isPrep, taskBike, prepFor, prepSummary, PART } from './care.js';
+import { checkState, isPrep, taskBike, prepFor, prepSummary, PART, isEvent } from './care.js';
 import { bikeDue, beforeTrip, timeDue, tyreSetup } from './workshop.js';
 import { bikesHash } from './bikes.js';
 import { readyDone } from './trips.js';
@@ -60,6 +60,12 @@ export function bikeCare(bike, { tasks = [], visits = [], trip = null, today = i
   const status = rows.length ? 'due' : blind ? 'nodata' : 'ok';
   return { scope: 'bike', bikeId: bike.id, bikeName: bike.name, rows, soon, late: rows.filter((r) => r.late).length, gaps, kmMissing, status, href: bikesHash({ tab: 'care', bike: bike.id, open: true }) };
 }
+
+/**
+ * v0.25.0 (Noah answer 10): a short ride (1 day, not an event) shows no bike care as a step
+ * before the trip, in Pack and on Today; bike care stays on the Bikes page.
+ */
+export const isShortRide = (trip) => !!trip && !(Number(trip.days) > 1) && !isEvent(trip);
 
 /**
  * Event preparation for one trip: the tasks from the Excel list with their dates.

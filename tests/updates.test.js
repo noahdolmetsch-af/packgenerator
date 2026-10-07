@@ -53,4 +53,25 @@ describe('chat updates', () => {
     expect((await db.items.get('KL14')).coldBelow).toBe(8);
     expect(await db.items.count()).toBe(8); // plus the full frame bag
   });
+
+  it('v0.25.0: tags the lodging items once, only owned ones, and never the hoodie', async () => {
+    const db = createDb('lodging-test');
+    await db.items.bulkPut([
+      { id: 'HY07', name: 'test_data_gtp_ toothbrush', ownership: 'owned', sets: ['base'] },
+      { id: 'HY08', name: 'test_data_gtp_ toothpaste', ownership: 'owned' },
+      { id: 'HY09', name: 'test_data_gtp_ shower gel', ownership: 'wishlist', sets: [] },
+      { id: 'OB06', name: 'test_data_gtp_ hoodie', ownership: 'owned', sets: [] },
+      { id: 'RG14', name: 'test_data_gtp_ wind jacket', ownership: 'owned', sets: ['lodging'], weightG: 120 },
+    ]);
+    await applyUpdates(db);
+    expect((await db.items.get('HY07')).sets).toEqual(['base', 'lodging']);
+    expect((await db.items.get('HY08')).sets).toEqual(['lodging']);
+    expect((await db.items.get('HY09')).sets).toEqual([]);
+    expect((await db.items.get('OB06')).sets).toEqual([]);
+    expect(await db.items.get('RG14')).toMatchObject({ sets: ['lodging'], weightG: 120 });
+    // Once: a set taken off in Gear stays off.
+    await db.items.update('HY08', { sets: [] });
+    await applyUpdates(db);
+    expect((await db.items.get('HY08')).sets).toEqual([]);
+  });
 });

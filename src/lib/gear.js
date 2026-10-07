@@ -44,7 +44,7 @@ export const BAG = Object.fromEntries(BAGS.map((b) => [b.key, b.name]));
 
 export const OWNERSHIP = { owned: 'Owned', unclear: 'Unclear', 'to-buy': 'To buy', wishlist: 'Wishlist', gone: 'Gone' };
 export const ROLES = { worn: 'Worn', standard: 'Standard pack', optional: 'Optional' };
-export const SETS = { base: 'Night: Base', warm: 'Night: Warm', sleep: 'Night: Sleep', cook: 'Night: Cook', light: 'Night: Light' };
+export const SETS = { base: 'Night: Base', warm: 'Night: Warm', sleep: 'Night: Sleep', cook: 'Night: Cook', light: 'Night: Light', lodging: 'Lodging' }; // v0.25.0 (Noah 4): lodging set
 
 /** Food and water are used up on the way: they are packed, but not part of the gear weight. */
 export const CONSUMABLE_CATEGORIES = ['food'];

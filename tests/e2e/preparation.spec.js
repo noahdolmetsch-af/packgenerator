@@ -46,7 +46,9 @@ test('review, apply, edit and pack a tour', async ({ page, context }) => {
   await list.locator('.weight-details > summary').click();
   await expect(list.locator('.weight-grid').getByText('bekannt:', { exact: true }).first()).toBeVisible();
   await expect(list.locator('.weight-grid .miss').first()).toContainText('nicht gewogen');
-  await expect(list.locator('.calm-extra > summary').filter({hasText:'Velopflege'})).toContainText('keine Daten');
+  // v0.25.0 (Noah 10): a short ride (1 day, no event) shows no bike care before the trip, only the ready check.
+  await expect(list.locator('.calm-extra > summary').filter({hasText:'Velopflege'})).toHaveCount(0);
+  await expect(list.locator('.calm-extra > summary').filter({hasText:'Vor der Tour'})).toContainText('Startcheck');
   await list.locator('.weight-details > summary').click();
   await page.getByLabel('Packliste gruppieren').selectOption('category');
   await expect(list.getByText('Carb-Pulver', { exact: true })).toHaveCount(0); // categories start folded

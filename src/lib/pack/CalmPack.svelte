@@ -7,7 +7,8 @@
   import { formatWeight } from '../gear.js';
   import { RAIN, tooFull, heavyHigh, isDayTrip } from '../trips.js';
   import { phone } from '../media.svelte.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, readyCount, readyTotal, over, step, debriefStep, q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent } = $props();
+  import { hasContext } from '../context.js';
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent } = $props();
   let grouping = $state('bags');
   let opened = $state({ frame: true });
   let itemMenu = $state(null);
@@ -18,6 +19,11 @@
   const groups = $derived(planningGroups(stats, items, grouping));
   const date = $derived(trip.startDate ? new Date(`${trip.startDate}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' }) : t('No date set'));
   const wxText = $derived(trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C · ${t(RAIN[trip.wx.rain ?? 'none'])}` : t('No weather set'));
+  // v0.25.0 (M3): "2 h per day · 1 day · no overnight stay" for a trip with its context; older trips as before.
+  const NIGHT = { none: 'no overnight stay', lodging: 'Lodging', outdoor: 'Outdoor' };
+  const durationText = $derived(hasContext(trip)
+    ? [trip.hours ? t('{n} h per day', { n: trip.hours }) : t('Duration not set'), tn(Math.max(1, Number(trip.days) || 1), '{n} day', '{n} days'), t(NIGHT[trip.overnight])].join(' · ')
+    : `${trip.hours ? t('{n} hours', { n: trip.hours }) : t('Duration not set')}${trip.days > 1 ? ` · ${tn(trip.days, '{n} day', '{n} days')}` : review ? ` · ${t('no overnight stay')}` : ''}`);
   const phases = $derived(bikeTrip ? ['Plan|stage', 'Pack|stage', 'On the road', 'Debrief'] : ['Plan|stage', 'Pack|stage', 'Debrief']);
   const zoneTitle = (g) => grouping === 'category' ? t(g.zone.name) : (trip.purpose?.[g.key] || t(g.key === 'mounted' ? 'On the bike|zone' : g.zone.name));
   const icon = (key) => key === 'body' ? UserRound : key === 'mounted' ? Bike : Briefcase;
@@ -43,7 +49,7 @@
     {#if review}<h1>{trip.title}</h1>{:else}<h1>{t('Your packing list')}</h1><h2>{trip.title}</h2>{/if}
     <div class="context-line tags">
       <span><CalendarDays size={22} />{date}</span><span>{#if bikeTrip}<Bike size={24} />{bike?.name ?? t('No bike')}{:else}<Backpack size={22} />{domainLabel}{/if}</span>
-      <span><Clock3 size={22} />{trip.hours ? t('{n} hours', { n: trip.hours }) : t('Duration not set')}{trip.days > 1 ? ` · ${tn(trip.days, '{n} day', '{n} days')}` : review ? ` · ${t('no overnight stay')}` : ''}</span>
+      <span><Clock3 size={22} />{durationText}</span>
       <button class="text-button edit-trip" onclick={actions.edit}><Pencil size={18} />{t('Edit trip')}</button>
       {#if !review}<span class="weather"><CloudRain size={24} />{wxText}</span>{/if}
     </div>
@@ -95,7 +101,7 @@
                   <li class="planning-row" class:open draggable={grouping === 'bags' && !phone.matches} ondragstart={(e) => { e.dataTransfer.setData('text/plain', entry.itemId); e.dataTransfer.effectAllowed = 'copyMove'; }}>
                     <GripVertical class="drag-handle" size={20} />
                     <button class="row-main" aria-label={t('Amount, move or take out: {name}', { name })} aria-describedby={`calm-w-${entry.itemId}`} aria-expanded={open} aria-controls={`calm-act-${entry.itemId}`} onclick={() => itemMenu = open ? null : entry.itemId}>
-                      <span class="item-name"><span>{name}</span>{#if qty > 1}<span class="item-qty"> × {qty}</span>{/if}</span>
+                      <span class="item-name"><span>{name}</span>{#if qty > 1}<span class="item-qty"> × {qty}</span>{/if}{#if carry.has(entry.itemId)}<small class="carry-hint">{t('Buy {name} on the way?', { name })}</small>{/if}</span>
                       <span class="item-weight" id={`calm-w-${entry.itemId}`}>{item?.weightG == null ? t('not weighed') : formatWeight(item.weightG * qty)}</span>
                       <ChevronDown class="row-chevron" size={20} aria-hidden="true" />
                     </button>
