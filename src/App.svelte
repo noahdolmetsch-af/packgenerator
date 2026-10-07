@@ -17,6 +17,7 @@
   import { liveQuery } from 'dexie';
   import { db } from './lib/db.js';
   import { phone } from './lib/media.svelte.js';
+  import { UserRound, Plus } from '@lucide/svelte';
   import { t, lang, setLang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
@@ -79,20 +80,35 @@
 
 <!-- v0.19.6 (start page answers 1a-4a): the same places on every page, search, Inbox and one "New".
      On a phone the places move to a bar at the bottom, with the + in the middle. -->
-<header class="top">
+<header class="top" class:calm-top={page === 'pack'}>
   <a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="long">Pack Generator</span><span class="short" aria-hidden="true">PG</span></a>
   {#if !phone.matches}
     <nav class="places" aria-label={t('Sections')}>
-      <a href="#/" aria-current={page === 'home' ? 'page' : undefined}>{t('Home')}</a>
-      <a href="#/gear" aria-current={page === 'gear' || page === 'favorites' ? 'page' : undefined}>{t('Gear')}</a>
-      <a href="#/pack" aria-current={page === 'pack' || page === 'templates' || page === 'ride' ? 'page' : undefined}>{t('Pack')}</a>
-      <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}>{t('Bikes')}</a>
-      <a href="#/debrief" aria-current={page === 'debrief' ? 'page' : undefined}>{t('Debrief')}</a>
+      {#if page === 'pack'}
+        <a href="#/">{lang.v === 'de' ? 'Heute' : 'Today'}</a><a href="#/pack" aria-current="page">{t('Trips')}</a><a href="#/gear">{lang.v === 'de' ? 'Material' : 'Gear'}</a><a href="#/bikes">{lang.v === 'de' ? 'Fahrräder' : 'Bikes'}</a>
+      {:else}
+        <a href="#/" aria-current={page === 'home' ? 'page' : undefined}>{t('Home')}</a>
+        <a href="#/gear" aria-current={page === 'gear' || page === 'favorites' ? 'page' : undefined}>{t('Gear')}</a>
+        <a href="#/pack" aria-current={page === 'templates' || page === 'ride' ? 'page' : undefined}>{t('Pack')}</a>
+        <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}>{t('Bikes')}</a>
+        <a href="#/debrief" aria-current={page === 'debrief' ? 'page' : undefined}>{t('Debrief')}</a>
+      {/if}
     </nav>
+  {:else if page === 'pack'}
+    <a class="deb" href="#/pack" aria-current="page">{t('Trips')}</a>
   {:else}
     <a class="deb" href="#/debrief" aria-current={page === 'debrief' ? 'page' : undefined}>{t('Debrief')}</a>
   {/if}
   <div class="tools">
+    {#if page === 'pack'}
+      <Search compact />
+      {#if !phone.matches}<button class="quiet-new" aria-label={t('New')} title={t('New')} aria-haspopup="dialog" onclick={() => newMode = 'all'}><Plus size={22} /></button>{/if}
+      <details class="profile-menu"><summary aria-label={lang.v === 'de' ? 'Profil und Einstellungen' : 'Profile and settings'}><UserRound size={24} /></summary><div>
+        <div class="lang" role="group" aria-label={t('Language')}><button aria-pressed={lang.v === 'de'} onclick={() => setLang('de')} lang="de">DE</button><button aria-pressed={lang.v === 'en'} onclick={() => setLang('en')} lang="en">EN</button></div>
+        <a href="#/inbox">{t('Inbox')}{#if $inboxQ} ({$inboxQ}){/if}</a><a href="#/debrief">{t('Debrief')}</a>
+      </div></details>
+    {:else}
+
     <!-- v0.20.0: German or English, remembered on this device. -->
     <div class="lang" role="group" aria-label={t('Language')}>
       <button type="button" aria-pressed={lang.v === 'de'} onclick={() => setLang('de')} lang="de" title="Deutsch">DE</button>
@@ -108,12 +124,13 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>{t('New')}
       </button>
     {/if}
+    {/if}
   </div>
 </header>
 
 <DemoBar />
 
-<main class:wide={page === 'pack' || page === 'templates' || page === 'gear' || page === 'home'}>
+<main class:calm={page === 'pack'} class:wide={page === 'pack' || page === 'templates' || page === 'gear' || page === 'home'}>
   {#if page === 'gear'}
     <Gear />
   {:else if page === 'pack'}
@@ -154,6 +171,20 @@
 {/if}
 
 <style>
+  .top.calm-top { min-height: 64px; padding-inline: 4.2vw; background: #12372f; }
+  .calm-top .brand { font-size: 28px; }
+  .calm-top .places { margin-left: 16px; gap: 36px; }
+  .calm-top .places a { font: 500 17px var(--font-body); text-transform: none; letter-spacing: 0; padding: 10px 0; }
+  .quiet-new { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: none; color: #fafbf8; border: 0; cursor: pointer; }
+  .profile-menu { position: relative; }
+  .profile-menu > summary { list-style: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; cursor: pointer; }
+  .profile-menu > summary::-webkit-details-marker { display: none; }
+  .profile-menu > div { position: absolute; top: 48px; right: 0; width: 220px; padding: 18px; border-radius: 6px; background: #12372f; box-shadow: 0 8px 20px #0f2e2726; }
+  .profile-menu > div > a { display: block; padding: 12px 0; font: 400 16px var(--font-body); text-transform: none; }
+  main.calm { padding: 0 6.9vw 80px; max-width: none; }
+  main.calm:has(:global(.review-mode)) { padding-inline: 9.5vw; }
+  @media (max-width: 719px) { main.calm, main.calm:has(:global(.review-mode)) { padding: 0 18px 106px; } .top.calm-top { padding-inline: 18px; } }
+
   .top {
     position: sticky;
     top: 0;
@@ -253,7 +284,7 @@
   }
   @media (max-width: 719px) {
     .top {
-      gap: 6px 14px;
+      gap: 6px 10px;
     }
     .top .long {
       display: none;
@@ -261,7 +292,9 @@
     .top .short {
       display: inline;
     }
+    .deb { font-size: 18px; }
     .tools {
+      min-width: 0;
       gap: 2px;
     }
   }

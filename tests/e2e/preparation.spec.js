@@ -1,0 +1,46 @@
+import { test, expect } from '@playwright/test';
+import { fileURLToPath } from 'node:url';
+const fixture = fileURLToPath(new URL('./preparation-fixture.json', import.meta.url));
+
+// This catches premature writes, a lost alternative, a lost quantity, and accidentally
+// mixing packing checkboxes back into planning. It exercises IndexedDB through the app.
+test('review, apply, edit and pack a tour', async ({ page, context }) => {
+  await page.clock.setFixedTime(new Date('2026-10-07T12:00:00Z'));
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, route => route.abort());
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('dialog', d => d.accept());
+  await page.goto('./');
+  const data = page.locator('details.data');
+  if (!(await data.evaluate(d => d.open))) await data.locator('summary').click();
+  await data.getByLabel('Backup importieren').setInputFiles(fixture);
+  await data.getByRole('button', { name: 'Alle Daten ersetzen' }).press('Enter');
+  await expect(data.getByText(/importiert.*alle Daten ersetzt/i)).toBeVisible();
+  await page.goto('./#/pack');
+  await expect(page.getByRole('heading', { name: 'Deine Packliste' })).toBeVisible();
+  const list = page.locator('.calm-pack');
+  await expect(list.locator('.planning-rows input[type=checkbox]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Wettervorschläge prüfen' }).click();
+  await expect(page.getByRole('heading', { name: 'Noch zu entscheiden' })).toBeVisible();
+  await page.getByLabel('Alternative für Warme Schicht').selectOption('albion');
+  await page.getByRole('button', { name: 'Zurück', exact: true }).click();
+  await expect(list.getByText('Midlayer Albion', { exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Wettervorschläge prüfen' }).click();
+  await page.getByLabel('Alternative für Warme Schicht').selectOption('albion');
+  await page.getByRole('button', { name: 'Auswahl übernehmen' }).click();
+  await expect(page.getByRole('heading', { name: 'Deine Packliste' })).toBeVisible();
+  await expect(list.getByText('Midlayer Albion', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Carb-Pulver: eins mehr' }).click();
+  const carb = list.locator('.planning-row').filter({ hasText: 'Carb-Pulver' });
+  await expect(carb.locator('.amount span')).toHaveText('3');
+  await expect(carb.locator('.item-weight')).toHaveText('240 g');
+  await page.reload();
+  await expect(page.locator('.planning-row').filter({ hasText: 'Carb-Pulver' }).locator('.amount span')).toHaveText('3');
+  await page.getByLabel('Packliste gruppieren').selectOption('category');
+  await expect(list.getByText('Carb-Pulver', { exact: true })).toHaveCount(0); // categories start folded
+  await expect(page.evaluate(() => document.documentElement.scrollWidth)).resolves.toBeLessThanOrEqual(page.viewportSize().width);
+  await page.getByRole('button', { name: 'Packkontrolle starten' }).click();
+  await expect(page.getByRole('dialog', { name: 'Packtag: Alpine Tagestour' })).toBeVisible();
+  expect(errors).toEqual([]);
+});

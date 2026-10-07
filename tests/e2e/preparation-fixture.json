@@ -1,0 +1,405 @@
+{
+  "app": "pack-generator",
+  "schemaVersion": 4,
+  "exportedAt": "2026-10-07T08:00:00.000Z",
+  "tables": {
+    "items": [
+      {
+        "id": "multi",
+        "name": "Mini-Multitool",
+        "nameDe": "Mini-Multitool",
+        "category": "tool",
+        "weightG": 45,
+        "ownership": "owned",
+        "defaultBag": "frame",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "tube",
+        "name": "Ersatzschlauch",
+        "nameDe": "Ersatzschlauch",
+        "category": "tool",
+        "weightG": 93,
+        "ownership": "owned",
+        "defaultBag": "frame",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "carb",
+        "name": "Carb-Pulver",
+        "nameDe": "Carb-Pulver",
+        "category": "food",
+        "weightG": 80,
+        "ownership": "owned",
+        "defaultBag": "frame",
+        "role": "standard",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ],
+        "perHours": 3,
+        "note": "Nach drei Stunden Nachschub prüfen."
+      },
+      {
+        "id": "rain",
+        "name": "Regenjacke Haglöfs",
+        "nameDe": "Regenjacke Haglöfs",
+        "category": "rain",
+        "weightG": 180,
+        "ownership": "owned",
+        "defaultBag": "frame",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ],
+        "rain": "yes"
+      },
+      {
+        "id": "warm",
+        "name": "Warme Schicht",
+        "nameDe": "Warme Schicht",
+        "category": "onbike",
+        "weightG": null,
+        "ownership": "owned",
+        "defaultBag": "frame",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ],
+        "coldBelow": 8
+      },
+      {
+        "id": "albion",
+        "name": "Midlayer Albion",
+        "nameDe": "Midlayer Albion",
+        "category": "onbike",
+        "weightG": null,
+        "ownership": "owned",
+        "defaultBag": "frame",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ],
+        "altFor": "warm"
+      },
+      {
+        "id": "body0",
+        "name": "Helm",
+        "nameDe": "Helm",
+        "category": "onbike",
+        "weightG": null,
+        "ownership": "owned",
+        "defaultBag": "body",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "body1",
+        "name": "Trikot",
+        "nameDe": "Trikot",
+        "category": "onbike",
+        "weightG": null,
+        "ownership": "owned",
+        "defaultBag": "body",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "body2",
+        "name": "Bibshorts",
+        "nameDe": "Bibshorts",
+        "category": "onbike",
+        "weightG": null,
+        "ownership": "owned",
+        "defaultBag": "body",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "body3",
+        "name": "Handschuhe",
+        "nameDe": "Handschuhe",
+        "category": "onbike",
+        "weightG": null,
+        "ownership": "owned",
+        "defaultBag": "body",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "bike0",
+        "name": "Garmin",
+        "nameDe": "Garmin",
+        "category": "elec",
+        "weightG": null,
+        "ownership": "owned",
+        "defaultBag": "mounted",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "bike1",
+        "name": "Frontlicht",
+        "nameDe": "Frontlicht",
+        "category": "elec",
+        "weightG": null,
+        "ownership": "owned",
+        "defaultBag": "mounted",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "bike2",
+        "name": "Rücklicht",
+        "nameDe": "Rücklicht",
+        "category": "elec",
+        "weightG": null,
+        "ownership": "owned",
+        "defaultBag": "mounted",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "bike3",
+        "name": "Flasche links",
+        "nameDe": "Flasche links",
+        "category": "elec",
+        "weightG": 60,
+        "ownership": "owned",
+        "defaultBag": "mounted",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "bike4",
+        "name": "Flasche rechts",
+        "nameDe": "Flasche rechts",
+        "category": "elec",
+        "weightG": 60,
+        "ownership": "owned",
+        "defaultBag": "mounted",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "bike5",
+        "name": "Pumpe",
+        "nameDe": "Pumpe",
+        "category": "elec",
+        "weightG": 60,
+        "ownership": "owned",
+        "defaultBag": "mounted",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      }
+    ],
+    "kits": [],
+    "trips": [
+      {
+        "id": "test-alpine",
+        "domain": "bikepacking",
+        "title": "Alpine Tagestour",
+        "startDate": "2026-10-09",
+        "days": 1,
+        "hours": 6,
+        "wx": {
+          "min": 4,
+          "max": 12,
+          "rain": "showers"
+        },
+        "bikeId": "bike-alpine",
+        "setup": {
+          "frame": "bag-frame"
+        },
+        "entries": [
+          {
+            "itemId": "multi",
+            "slot": "frame",
+            "qty": 1,
+            "packed": false
+          },
+          {
+            "itemId": "tube",
+            "slot": "frame",
+            "qty": 1,
+            "packed": false
+          },
+          {
+            "itemId": "carb",
+            "slot": "frame",
+            "qty": 2,
+            "packed": false
+          },
+          {
+            "itemId": "rain",
+            "slot": "frame",
+            "qty": 1,
+            "packed": false
+          },
+          {
+            "itemId": "body0",
+            "slot": "body",
+            "qty": 1,
+            "packed": false
+          },
+          {
+            "itemId": "body1",
+            "slot": "body",
+            "qty": 1,
+            "packed": false
+          },
+          {
+            "itemId": "body2",
+            "slot": "body",
+            "qty": 1,
+            "packed": false
+          },
+          {
+            "itemId": "body3",
+            "slot": "body",
+            "qty": 1,
+            "packed": false
+          },
+          {
+            "itemId": "bike0",
+            "slot": "mounted",
+            "qty": 1,
+            "packed": false
+          },
+          {
+            "itemId": "bike1",
+            "slot": "mounted",
+            "qty": 1,
+            "packed": false
+          },
+          {
+            "itemId": "bike2",
+            "slot": "mounted",
+            "qty": 1,
+            "packed": false
+          },
+          {
+            "itemId": "bike3",
+            "slot": "mounted",
+            "qty": 1,
+            "packed": false
+          },
+          {
+            "itemId": "bike4",
+            "slot": "mounted",
+            "qty": 1,
+            "packed": false
+          },
+          {
+            "itemId": "bike5",
+            "slot": "mounted",
+            "qty": 1,
+            "packed": false
+          }
+        ],
+        "ready": [
+          {
+            "id": "charged",
+            "label": "Devices charged",
+            "done": false
+          }
+        ],
+        "status": "planned"
+      }
+    ],
+    "debriefs": [],
+    "learnings": [],
+    "events": [],
+    "maintenance": [],
+    "bikes": [
+      {
+        "id": "bike-alpine",
+        "name": "Scott Spark",
+        "weightG": 9000,
+        "slots": [
+          "frame"
+        ],
+        "setup": {
+          "frame": "bag-frame"
+        },
+        "fixtures": []
+      }
+    ],
+    "containers": [
+      {
+        "id": "bag-frame",
+        "name": "Rahmentasche",
+        "slot": "frame",
+        "volumeL": 3,
+        "weightG": 100
+      }
+    ],
+    "weightChecks": [],
+    "settings": [
+      {
+        "key": "riderWeightG",
+        "value": 64000
+      }
+    ],
+    "visits": [],
+    "photos": [],
+    "notes": []
+  }
+}
