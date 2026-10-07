@@ -9,6 +9,8 @@ import pkg from './package.json' with { type: 'json' };
 
 export default defineConfig({
   base,
+  preview: { host: "127.0.0.1" },
+  server: { host: "0.0.0.0", allowedHosts: ["terminal.local"] },
   // Replaces __APP_VERSION__ in the code with the version from package.json.
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   // v0.21.0: Vitest runs the unit tests only; the browser test in tests/e2e runs with `npm run e2e`.

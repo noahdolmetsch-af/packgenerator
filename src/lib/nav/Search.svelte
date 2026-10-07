@@ -11,6 +11,7 @@
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
 
+  let { compact = false } = $props();
   let q = $state('');
   let open = $state(false); // phone: the field is shown
   let input = $state();
@@ -38,13 +39,13 @@
   };
 </script>
 
-<div class="search" class:ph={phone.matches} class:open>
-  {#if phone.matches}
+<div class="search" class:ph={phone.matches || compact} class:open>
+  {#if phone.matches || compact}
     <button type="button" class="icon" aria-label={open ? t('Close search') : t('Search everything')} aria-expanded={open} onclick={toggle}>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
     </button>
   {/if}
-  {#if !phone.matches || open}
+  {#if (!phone.matches && !compact) || open}
     <label class="field">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
       <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder={t('Find gear, trips, bikes, notes')} aria-label={t('Search everything')} autocomplete="off" />

@@ -50,7 +50,7 @@ for (const lang of ['en', 'de']) {
     const data = page.locator('details.data');
     if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
     await data.getByLabel(T('Import backup')).setInputFiles(FIXTURE);
-    await data.getByRole('button', { name: T('Replace all data') }).click();
+    await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
     await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'fixture.json' }))).toBeVisible();
     await fits('start page');
 
@@ -77,7 +77,7 @@ for (const lang of ['en', 'de']) {
     // 4. Pack: the big "Next: packing day" button.
     await expect(page).toHaveURL(/#\/pack/);
     const go = page.locator('.next .go');
-    await expect(go).toContainText(T('Next: packing day'));
+    await expect(go).toContainText(T('Start packing check'));
     await fits('Pack');
     await go.click();
 

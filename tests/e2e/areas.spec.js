@@ -38,7 +38,7 @@ for (const lang of ['en', 'de']) {
     const data = page.locator('details.data');
     if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
     await data.getByLabel(T('Import backup')).setInputFiles(FIXTURE);
-    await data.getByRole('button', { name: T('Replace all data') }).click();
+    await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
     await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'fixture.json' }))).toBeVisible();
 
     // 2. New → Packing list → the area first: Weekend → Items of this area.
@@ -70,17 +70,19 @@ for (const lang of ['en', 'de']) {
 
     // 5. Add an item of the area ("Paperback book" is optional, so not on the list yet).
     const addBtn = page.getByRole('button', { name: T('Add {name} to {bag}', { name: 'Paperback book', bag: T('Travel bag') }) });
-    if (phone) await page.getByRole('tab', { name: new RegExp(`^${esc(T('Add'))}`) }).click();
+    await page.getByRole('button', { name: T('Add material'), exact: true }).click();
+    await page.getByLabel(T('Adding to'), { exact: true }).selectOption('bag');
     const grp = page.locator('.np .gh', { hasText: T('Comfort & luxury') });
     if (!(await addBtn.isVisible())) await grp.click();
     await addBtn.click();
     await expect(addBtn).toHaveCount(0);
-    if (phone) await page.getByRole('tab', { name: new RegExp(`^${esc(T('Pack'))}`) }).click();
+    await page.getByRole('dialog', { name: T('Add material'), exact: true }).getByRole('button', { name: T('Done'), exact: true }).click();
+    await page.getByRole('button', { name: new RegExp(esc(T('Travel bag'))) }).click();
     await expect(page.locator('.blist').getByText('Paperback book')).toBeVisible();
 
     // 6. Packing day: tick everything, then the ready check.
     const go = page.locator('.next .go');
-    await expect(go).toContainText(T('Next: packing day'));
+    await expect(go).toContainText(T('Start packing check'));
     await go.click();
     const day = page.getByRole('dialog', { name: T('Packing day: {title}', { title }) });
     await expect(day).toBeVisible();
