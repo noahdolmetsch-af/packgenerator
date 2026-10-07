@@ -17,6 +17,10 @@ Stand: 07.10.2026, Softwarestand PR #32 / `be041f14fd35fd3caf98e8e7b7284bda9dcb9
 
 Alle 12 E2E-Tests laufen auf einem frischen Build. Playwright blockiert Service Worker; externe Dienste werden in der neuen Funktionsprüfung blockiert. PWA/echte Forecastabfrage daher separat prüfen. Beispielbestände sind isoliert; Nutzerexporte nicht veröffentlichen.
 
+## Paralleler Branch-Nachweis
+
+PR #31 integriert in Commit `05a7f841e1a8da5509eed88c27a0d9cb7fc40616` die Screens von PR #32 samt Event-Schalter. [CI 37667778399](https://github.com/noahdolmetsch-af/packgenerator/actions/runs/37667778399) ist erfolgreich. Dies ist ein Nachweis des offenen Branches, keine Veröffentlichung und keine automatische vollständige PF13-/AP16-Abnahme. Dokumentkonflikte werden durch Übernahme der gemeinsamen Dokumentquellen gelöst; Software bleibt dabei unverändert.
+
 ## Gesamtprüffälle PF01–PF16
 
 | PF | Vorhandener Teilnachweis | Noch zu prüfen / messen | Vollständig bestanden? |
@@ -33,7 +37,7 @@ Alle 12 E2E-Tests laufen auf einem frischen Build. Playwright blockiert Service 
 | PF10 Mehrere Herkünfte | Vorhandene/unabhängige Review-Einträge erhalten E04 | Zwei Bausteine plus Wetter, Herkunft und Mengen ohne Duplikate | Nein |
 | PF11 Verschieben/Undo / eigenes Seatpack | Manuelle Vorschau E07; Gruppierung ändert Ort nicht E04 | Gesamter Seatpack-/Mehrtour-/Standard-Isolationsfall | Nein |
 | PF12 Haken/Neuladen/Vorlage | Packloop E02, Mengenpersistenz/Packreset E03/E04 | Teilweise Haken plus Vorlagenkopie und zwei Touren zusammen | Nein |
-| PF13 Kurzfahrt/Event/Pflege | Gemeinsame Bikepflege E06 | PR #31 integrieren; Kurzfahrt ohne Eventwarnlast, Event mit Fahrplan | Nein |
+| PF13 Kurzfahrt/Event/Pflege | Gemeinsame Bikepflege E06 | Integrierten PR #31 fachlich abnehmen; Kurzfahrt ohne Eventwarnlast, Event mit Fahrplan | Nein |
 | PF14 Gewicht/Volumen/Leerzustände | Gewichtslücken E03/E06; Live-Review ohne Vorschläge E08 | Unbekanntes Volumen, kein Bike, Suche/Wetter und volle Fallkombination | Nein |
 | PF15 Responsive/Tastatur/Screenreader | 390 px Touch und Desktop E02/E03/E05; Fokusstile vorhanden | 320/768 px, Tastatureinblendung, Dialogfokus und Screenreader | Nein |
 | PF16 Integrationen/Backup/Offline | Vorhandene Tourloops und synthetischer Import E01/E02 | Siehe einzelne Teilnachweise unten | Nein |

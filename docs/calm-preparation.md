@@ -33,7 +33,7 @@ Die während der Umsetzung eingetroffene Version 0.22.0 ist integriert. Ihre ehr
 
 ## Nächster überprüfbarer Schritt
 
-Die Veröffentlichung dieses Teilschritts ist abgeschlossen. Beide Ansichten jetzt mit den drei Alltagstouren und den zwei Material-/Listenaufgaben abnehmen; Verständlichkeit und Zeitmessungen protokollieren. Anschliessend offene Kontext-/Übernachtungsregeln konkretisieren; PR #31 zur Eventvorbereitung vor einer weiteren Veröffentlichung integrieren und erneut prüfen. Materialverwaltung, neue Bausteine und ein umfassendes Cockpit sind kein Bestandteil dieses Umsetzungsschritts.
+Die Veröffentlichung dieses Teilschritts ist abgeschlossen. Beide Ansichten jetzt mit den drei Alltagstouren und den zwei Material-/Listenaufgaben abnehmen; Verständlichkeit und Zeitmessungen protokollieren. Anschliessend offene Kontext-/Übernachtungsregeln konkretisieren; PR #31 zur Eventvorbereitung ist inzwischen im Branch integriert; vor separater Veröffentlichung Dokumentabgleich und fachliche Abnahme abschliessen. Materialverwaltung, neue Bausteine und ein umfassendes Cockpit sind kein Bestandteil dieses Umsetzungsschritts.
 
 Die Screenshots und der Vergleich mit den ausgewählten Entwürfen stehen in `qa/`; die genaue Prüfung ist in `design-qa.md` dokumentiert.
 

@@ -10,7 +10,7 @@ Stand: 7. Oktober 2026
 
 ## Offen zur Integration / Abnahme
 
-- **PR #31, v0.22.1:** Eventmodus nur für Events, relative Fälligkeitstexte, „Weitere Dinge“, Gear-Breite. Konflikte gelöst und in die neue Packansicht integriert (Event-Häkchen unter „Vor der Tour“); auf dem integrierten Stand erneut geprüft, siehe PR #31. Noch nicht live, bis Noah zusammenführt. AP04/AP06/AP16/AP21.
+- **PR #31, angekündigt v0.22.1:** Eventmodus nur für Events, relative Fälligkeitstexte, „Weitere Dinge“, Gear-Breite und „Leichtestes“ nur bei vollständigen Taschengewichten. Offen und nicht Bestandteil des Live-Stands. Der Branch wurde während dieses Abgleichs aktualisiert: `05a7f84` integriert PR #32 samt Event-Schalter, CI 37667778399 erfolgreich. Gemeinsame Dokumentation wird im Branch nachgeführt. AP04/AP06/AP16/AP21; fachliche Releaseabnahme und Veröffentlichung bleiben offen.
 - Beide neuen Screens mit den fünf Alltagsszenarien fachlich abnehmen. 60-/30-Sekunden-Ziele sind ungemessen.
 - AP01/AP02 abschliessen; Kontext/Übernachtung, Mengen-/Wasser-/Bestandskonflikte, Materialpflege/Kategorieänderung, Bausteine und 320-px-/Screenreaderprüfung bleiben offen. Ausführliche Teilstände in der Roadmap.
 
@@ -18,11 +18,11 @@ Stand: 7. Oktober 2026
 
 Die folgenden Einträge beschreiben den jeweiligen damaligen Release. Spätere Entscheidungen haben einzelne Layouts, Navigation und Bezeichnungen ersetzt. Für das heutige Verhalten gelten die Abschnitte oben und das Entscheidungslog.
 
-- **Optimierung M1: Sofortige Klarheit (v0.22.0, Antworten in v0.22.1)** — neues Projekt „Optimierung vom Packgenerator“ (aktuelle Quelle: [Roadmap AP01–AP26](roadmap.md)):
+- **Optimierung M1: Sofortige Klarheit (v0.22.0)** — neues Projekt „Optimierung vom Packgenerator“ (aktuelle Quelle: [Roadmap AP01–AP26](roadmap.md)):
   - **Ruhigere Schrift und Farben (AP03):** Inhalte in Fira Sans (Titel 30–40 px, Text 16 px), keine Grossbuchstaben mehr, dünnere Rahmen, Aktionsorange #b83e08 (Kontrast 5.6:1 statt 3.1:1), nur die aktuelle Hauptaktion ist orange, sichtbarer Fokusrahmen.
-  - **Ehrliche Gewichte und klare Wörter (AP04):** Summen heissen „bekannt: …“ und zeigen daneben, wie viele Gewichte fehlen; Front/Heck ist bei Lücken eine Schätzung; Velogewicht gemessen oder geschätzt. „Not packed“ heisst „Weitere Dinge“ (Noah 1); gepackt / noch einzupacken und Startcheck geprüft / offen getrennt gezählt. Packzeilen haben wieder ein sichtbares „•••“ statt Knöpfen nur beim Darüberfahren.
+  - **Ehrliche Gewichte und klare Wörter (AP04):** Summen heissen „bekannt: …“ und zeigen daneben, wie viele Gewichte fehlen; Front/Heck ist bei Lücken eine Schätzung; Velogewicht gemessen oder geschätzt. „Not packed“ heisst „Weitere Materialien“; gepackt / noch einzupacken und Startcheck geprüft / offen getrennt gezählt. Packzeilen haben wieder ein sichtbares „•••“ statt Knöpfen nur beim Darüberfahren.
   - **Favoriten (AP05):** Stern vor jedem Teil, ein Tipp genügt; der Favoriten-Link öffnet Ausrüstung gefiltert; eine Zählbasis (Inventar + Wunschliste getrennt).
-  - **Bereitschaft einheitlich (AP06):** Startseite, Pack und Velos → Pflege zeigen dasselbe, getrennt nach Velopflege, Eventvorbereitung und Packstand. Ursache des alten Widerspruchs: die Startseite liess zeitfällige Services (Dichtmilch, Gabel) weg. „alles gut“ ist weg; ohne Daten steht „keine Daten“. Die Excel-Eventvorbereitung erscheint nur noch bei Touren mit Häkchen „Event“ (Pack → Vor der Tour oder Velos → Pflege; Noah 4b). Ältere Touren, bei denen schon etwas abgehakt ist, gelten als Event. Überfälliges steht in Tagen, Wochen oder Monaten statt mit Datum (Noah 3a). „Leichtestes“ beim Velovergleich nur, wenn alle Taschen gewogen sind (Noah 2a).
+  - **Bereitschaft einheitlich (AP06):** Startseite, Pack und Velos → Pflege zeigen dasselbe, getrennt nach Velopflege, Eventvorbereitung und Packstand. Ursache des alten Widerspruchs: die Startseite liess zeitfällige Services (Dichtmilch, Gabel) weg. „alles gut“ ist weg; ohne Daten steht „keine Daten“.
 - **Echt benutzen, vereinfachen, Reisearten (v0.21.0):**
   - **Startseite "Still open":** was noch fehlt, damit die App für dich rechnen kann (Velos wägen, GPX laden, Inventar prüfen, Favoriten anwenden, erste echte Tour). Backup-Hinweis auch nach jedem neuen Rückblick. "Your data" zeigt, aus welchem Backup die Daten stammen (Phone ist das Hauptgerät, der Desktop holt den Stand per Backup-Datei).
   - **Velos und Velopflege auf einer Seite:** Velos mit den Tabs Setup | Pflege. Pflege zeigt oben "Jetzt fällig" für alle Velos, dann die nächste Tour; jedes Velo ist eine zugeklappte Zeile. Die Excel-Vorbereitung ist eine Zeile "Vorbereitung: n offen". Pflege von 159 auf 13 Bedienelemente, Setup am Phone von 5.9 auf 2.1 Bildschirme. Die alte Adresse #/care führt auf den Tab Pflege.
@@ -90,7 +90,7 @@ Aus bisherigen Aufgaben übernommen, in dieser Runde nicht neu geprüft. Keine S
 
 1. Neue Entscheidung/Packliste im Alltag abnehmen (AP13–15/AP19/AP21/AP23).
 2. Grundlagen- und Restore-Nachweise AP01/AP02 vervollständigen.
-3. PR #31 gegen heutigen `main` integrieren und Event/Kurzfahrt prüfen.
+3. Integrierten PR #31 nach Dokumentabgleich fachlich mit Event/Kurzfahrt abnehmen; Veröffentlichung separat.
 4. AP07–AP09 und AP12–AP16 entlang der Roadmap-Abhängigkeiten abschliessen; danach AP10–AP11/AP17–AP24.
 5. Erklärbares Lernen und Geräte-Sync separat als AP25/AP26. Erste echte Arbeitsweg-Tour liefert dafür Nutzungsbelege.
 
