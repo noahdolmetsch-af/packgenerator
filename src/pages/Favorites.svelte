@@ -41,7 +41,7 @@
         </ul>
       </section>
     {:else}
-      <p class="card">{t('No favourites yet. In Gear open an item → Edit → tick ★ Favourite.')}</p>
+      <p class="card">{t('No favourites yet. In Gear tap the ☆ in front of an item.')}</p>
     {/each}
   {/if}
 </div>

@@ -7,27 +7,38 @@
   import MoreMenu from './MoreMenu.svelte';
   import { prepSummary } from '../care.js';
   import { t, locale } from '../i18n.svelte.js';
+  import { bikeCareLine, eventPrepLine } from '../readiness.js';
 
-  let { trip, rows, rules, list, bikeRows, bikeName, today, order = null, onorder, onresult, onundo } = $props();
+  // v0.22.0 (AP06): care = Bike care of the trip's bike (readiness.js), prep = Event preparation;
+  // two named scopes with their own count. focus: opened from a link to this trip's preparation.
+  let { trip, rows, rules, care = null, prep = null, focus = false, bikeName, today, order = null, onorder, onresult, onundo } = $props();
 
   const sum = $derived(prepSummary(rows));
+  const bikeRows = $derived(care ? [...care.rows, ...care.soon] : []);
   let prepOpen = $state(false); // the rows are only drawn when the row is opened
+  $effect(() => {
+    if (focus) prepOpen = true;
+  });
   const dueLabel = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
 </script>
 
 <section class="block" aria-labelledby="trip-{trip.id}" id="before-{trip.id}">
-  <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} <small>{trip.startDate} · {bikeName ?? t('no bike')} · {list.rows.length ? t('{n} to do', { n: list.rows.length }) : t('all done')}</small></h2>
-  {#if bikeRows.length}
+  <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} <small>{trip.startDate} · {bikeName ?? t('no bike')}</small></h2>
+  {#if care}
     <div class="shop">
-      <span class="lbl">{t('The bike')}</span>
-      <ul>{#each bikeRows as r (r.key)}<li class:late={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : ''}{r.detail}</small></li>{/each}</ul>
+      <span class="lbl">{bikeCareLine(care)}</span>
+      {#if bikeRows.length}
+        <ul>{#each bikeRows as r (r.key)}<li class:late={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : r.late ? '' : `${t('before the start')} · `}{r.detail}</small></li>{/each}</ul>
+      {:else if care.status === 'nodata'}
+        <p class="nd">{t('No data: enter km and record a check or service, then the app can tell.')}</p>
+      {/if}
       {#if order?.rows.length}<button type="button" class="btn sm" onclick={onorder}>{t('Workshop order · about CHF {chf}', { chf: order.total })}</button>{/if}
     </div>
   {/if}
   {#if rows.length || rules.length}
     <details class="prep" class:late={sum.overdue || sum.needed} bind:open={prepOpen}>
       <summary>
-        <span class="pt">{sum.open ? (sum.overdue ? t('Preparation: {n} open ({m} overdue)', { n: sum.open, m: sum.overdue }) : t('Preparation: {n} open', { n: sum.open })) : t('Preparation: all done')}</span>
+        <span class="pt">{eventPrepLine(prep)}</span>
         <small>{t('{done} of {total} done · from the Excel list', { done: sum.done, total: sum.total })}{sum.needed ? ` · ${t('{n} work needed', { n: sum.needed })}` : ''}</small>
       </summary>
       {#if prepOpen}
@@ -80,6 +91,11 @@
     border-left: 4px solid var(--ink);
     background: var(--paper-2);
     border-radius: 6px;
+  }
+  .shop .nd {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: var(--ink-2);
   }
   .shop ul {
     margin: 4px 0 0;

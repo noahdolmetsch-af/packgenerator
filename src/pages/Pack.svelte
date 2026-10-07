@@ -21,7 +21,9 @@
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { bikePhotos, packPhoto } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
-  import { withVisits, tyreSetup, tripPrep, prepGroups } from '../lib/workshop.js';
+  import { withVisits } from '../lib/workshop.js';
+  import { prepFor } from '../lib/care.js';
+  import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine } from '../lib/readiness.js';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
@@ -106,14 +108,22 @@
   let shownPhoto = $state(null);
   // Before the trip (v0.18.2, answer 3a): the same list as on Home and in Bike care: preparation
   // tasks, what the bike needs (workshop from 14 days before) and open repairs.
+  // v0.22.0 (AP06): two named scopes, the same statements as Home and Bikes → Care (readiness.js):
+  // Bike care of this trip's bike and the Event preparation (Excel tasks) of this trip.
   const before = $derived.by(() => {
     // v0.21.0: the preparation tasks and the bike's needs are bike things; a trip without a bike skips them.
     if (!trip || over || trip.skipped || !bikeTrip) return null;
     const view = bike ? withVisits(bike, $visitsQ ?? []) : null;
-    return tripPrep(view, trip, $tasksQ ?? [], view ? tyreSetup(view, $visitsQ ?? []) : undefined, today);
+    const tasks = $tasksQ ?? [];
+    const care = view ? bikeCare(view, { tasks, visits: $visitsQ ?? [], trip, today }) : null;
+    const prep = eventPrep(trip, tasks, today);
+    const open = prepFor(trip, tasks, today).filter((r) => !r.finished);
+    return care || prep.total ? { care, prep, open } : null;
   });
-  const beforeGroups = $derived(prepGroups(before?.rows ?? []));
   const SHOW = 4;
+  // The short form in the folded line: "Bike care: 1 due".
+  const bikeCareWordsShort = (c) => t('Bike care: {state}', { state: bikeCareWords(c).tag });
+  const dayShort = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
   // Design audit P4: after the trip, Pack leads to the debrief.
   const over = $derived(trip ? isOver(trip) : false);
   // Start page "Print list": #/pack?print opens the print dialog once the trip is there.
@@ -277,7 +287,7 @@
   const choiceRows = $derived.by(() => {
     if (!choosing || !trip) return [];
     const visits = $visitsQ ?? [];
-    return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], today });
+    return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], tasks: $tasksQ ?? [], today });
   });
   const useBike = (b) => change((t) => switchBike(t, b));
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.
@@ -578,24 +588,29 @@
     </nav>
     <!-- v0.21.0 (decision 5): "Before the trip" folded, its counts in the summary. Inside, the
          preparation tasks (answer 2b: they stay on every trip) fold into one line; bike rows apart. -->
-    {#if before?.rows.length}
-      {@const late = before.rows.filter((r) => r.late).length}
+    {#if before}
       <details class="shop">
-        <summary><span class="lbl">{t('Before the trip')}</span> <small>{t('{n} to do', { n: before.rows.length })}{late ? ` · ${t('{n} overdue', { n: late })}` : ''}</small></summary>
-        {#if beforeGroups.prep.rows.length}
-          <details class="prepg">
-            <summary>{beforeGroups.prep.late ? t('Preparation: {n} open ({late} overdue)', { n: beforeGroups.prep.rows.length, late: beforeGroups.prep.late }) : t('Preparation: {n} open', { n: beforeGroups.prep.rows.length })}</summary>
+        <summary><span class="lbl">{t('Before the trip')}</span> <small>{[before.care ? bikeCareWordsShort(before.care) : null, eventPrepLine(before.prep)].filter(Boolean).join(' · ')}</small></summary>
+        {#if before.care}
+          {@const rows = [...before.care.rows, ...before.care.soon]}
+          <p class="scope"><a href={before.care.href}>{bikeCareLine(before.care)}</a></p>
+          {#if rows.length}
             <ul>
-              {#each beforeGroups.prep.rows as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.detail}</small></li>{/each}
+              {#each rows as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : r.late ? '' : `${t('before the start')} · `}{r.detail}</small></li>{/each}
             </ul>
+          {:else if before.care.status === 'nodata'}
+            <p class="nd">{t('No data: enter km and record a check or service, then the app can tell.')}</p>
+          {/if}
+        {/if}
+        {#if before.prep.total}
+          <details class="prepg">
+            <summary>{eventPrepLine(before.prep)}</summary>
+            <ul>
+              {#each before.open as r (r.task.id)}<li class:now={r.overdue || r.needed}><b>{r.task.task}</b> <small>{r.needed ? t('work needed') : r.overdue ? t('was due {date}', { date: dayShort(r.due) }) : t('by {date}', { date: dayShort(r.due) })}</small></li>{/each}
+            </ul>
+            <a class="btn sm" href={before.prep.href}>{t('Tick off in Bike care')}</a>
           </details>
         {/if}
-        {#if beforeGroups.bike.rows.length}
-          <ul>
-            {#each beforeGroups.bike.rows as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : ''}{r.detail}</small></li>{/each}
-          </ul>
-        {/if}
-        {#if bikeTrip}<a class="btn sm" href={bikesHash({ tab: 'care', bike: trip?.bikeId })}>{t('Bike care')}</a>{/if}
       </details>
     {/if}
     {#if extra?.rows.length}
@@ -1045,6 +1060,19 @@
   }
   .shop[open] > summary {
     margin-bottom: 6px;
+  }
+  /* v0.22.0 (AP06): Bike care as its own named line, linked to the bike in Care. */
+  .shop .scope {
+    margin: 0 0 2px;
+    font-weight: 600;
+  }
+  .shop .scope a {
+    color: inherit;
+  }
+  .shop .nd {
+    margin: 2px 0 8px;
+    font-size: 14px;
+    color: var(--ink-2);
   }
   .prepg {
     margin: 0 0 6px;

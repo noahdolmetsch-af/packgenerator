@@ -105,6 +105,23 @@ export function gearStats(items) {
   return { cats: CATEGORIES.map((c) => cats[c.key]), total, consumablesG, unweighed, top, inventory, wishlist, gone };
 }
 
+/**
+ * v0.22.0 (AP05): favourites counted on the same bases as Gear's tabs, so every number says
+ * what it counts: { inventory (owned or unclear), wishlist (wishlist or to buy), gone, all }.
+ * Home and Gear show `inventory` as "favourites" and name the wishlist ones apart.
+ */
+export function favouriteCounts(items = []) {
+  const n = { inventory: 0, wishlist: 0, gone: 0, all: 0 };
+  for (const i of items) {
+    if (!i.favorite) continue;
+    n.all++;
+    if (i.ownership === 'gone') n.gone++;
+    else if (isInventory(i)) n.inventory++;
+    else n.wishlist++;
+  }
+  return n;
+}
+
 /** Does an item match the search text and filters? */
 export function matches(item, { q = '', category = '', role = '', fav = false, domain = '' } = {}) {
   if (fav && !item.favorite) return false;

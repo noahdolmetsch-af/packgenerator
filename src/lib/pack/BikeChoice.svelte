@@ -6,6 +6,7 @@
   import { formatWeight } from '../gear.js';
   import { formatVolume } from '../bikes.js';
   import { t, tn, num } from '../i18n.svelte.js';
+  import { bikeCareWords } from '../readiness.js';
 
   let { rows, trip, onpick, onclose } = $props();
   let dialog;
@@ -36,8 +37,9 @@
             {formatVolume(r.volumeL)}{#if r.roomiest}<span class="good">{t('most room')}</span>{/if}
             {#if r.full}<small class="warn">{t('your gear needs {vol}: tight', { vol: formatVolume(r.gearL) })}</small>{:else if r.gearL != null}<small>{t('your gear needs {vol}', { vol: formatVolume(r.gearL) })}</small>{/if}
           </dd>
-          <dt>{t('Before the start')}</dt>
-          <dd class:warn={r.late}>{r.due ? (r.late ? t('{n} to do, {late} overdue', { n: r.due, late: r.late }) : t('{n} to do', { n: r.due })) : t('nothing due')}</dd>
+          <!-- v0.22.0 (AP06): Bike care in the same words as Home, Pack and Care. -->
+          <dt>{t('Bike care')}</dt>
+          <dd class:warn={r.late}>{bikeCareWords(r.care).tag}{#if r.care.soon.length} · {tn(r.care.soon.length, '{n} more before or on the trip', '{n} more before or on the trip')}{/if}{#if r.care.status === 'due'}<small>{bikeCareWords(r.care).text}</small>{/if}</dd>
           <dt>{t('Per 1000 km')}</dt>
           <dd class="num">{r.per?.chf != null ? chf(r.per.chf) : '–'}</dd>
           <dt>{t('Trips before')}</dt>

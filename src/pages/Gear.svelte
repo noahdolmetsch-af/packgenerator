@@ -3,7 +3,8 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { phone } from '../lib/media.svelte.js';
-  import { gearStats, matches, groupByCategory, formatWeight, itemWeight, CATEGORIES, BAG, OWNERSHIP } from '../lib/gear.js';
+  import { gearStats, matches, groupByCategory, formatWeight, itemWeight, favouriteCounts, CATEGORIES, BAG, OWNERSHIP } from '../lib/gear.js';
+  import FavStar from '../lib/gear/FavStar.svelte';
   import WeightOverview from '../lib/gear/WeightOverview.svelte';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
@@ -29,7 +30,24 @@
   // v0.19.6: the search in the top bar opens Gear with ?q=<name>.
   // ?cat=<key> (start page "Where the weight is") opens one category.
   const hashQ = new URLSearchParams(location.hash.split('?')[1] ?? '');
-  let filter = $state({ q: hashQ.get('q') ?? '', category: hashQ.get('cat') ?? '', role: '', fav: false, domain: hashQ.get('area') ?? '' });
+  // v0.22.0 (AP05): ?fav=1 (start page "Favourites") opens with the favourites filter on.
+  let filter = $state({ q: hashQ.get('q') ?? '', category: hashQ.get('cat') ?? '', role: '', fav: hashQ.get('fav') === '1', domain: hashQ.get('area') ?? '' });
+  // The favourites filter lives in the address too, so back, forward and a reload keep it.
+  function setFav(on) {
+    filter.fav = on;
+    const [path, query = ''] = location.hash.split('?');
+    const q = new URLSearchParams(query);
+    if (on) q.set('fav', '1');
+    else q.delete('fav');
+    const s = q.toString();
+    history.replaceState(history.state, '', `${path || '#/gear'}${s ? `?${s}` : ''}`);
+  }
+  const clearFilters = () => {
+    filter = { q: '', category: '', role: '', fav: false, domain: '' };
+    setFav(false);
+  };
+  // v0.22.0 (AP05): the same bases as the tabs; the button counts what the list below shows.
+  const favN = $derived(favouriteCounts(items));
   // v0.21.0 (package 5): the area filter shows once items belong to more than one area.
   const perArea = $derived(countByDomain(items));
   const areaKeys = $derived([...DOMAINS.map((d) => d.key), ...Object.keys(perArea).filter((k) => !DOMAINS.some((d) => d.key === k))].filter((k) => perArea[k]));
@@ -78,8 +96,11 @@
   // A new search from the top bar while Gear is open.
   $effect(() => {
     const read = () => {
-      const q = new URLSearchParams(location.hash.split('?')[1] ?? '').get('q');
+      if (!location.hash.startsWith('#/gear')) return;
+      const params = new URLSearchParams(location.hash.split('?')[1] ?? '');
+      const q = params.get('q');
       if (q != null) (filter.q = q), (tab = 'inventory');
+      filter.fav = params.get('fav') === '1';
     };
     window.addEventListener('hashchange', read);
     return () => window.removeEventListener('hashchange', read);
@@ -153,7 +174,7 @@
           </select>
         </label>
       {/if}
-      <button type="button" class="toggle fav" aria-pressed={filter.fav} onclick={() => (filter.fav = !filter.fav)} title={t('Only my favourites')}>★ {t('Favourites')} <small>{items.filter((i) => i.favorite).length}</small></button>
+      <button type="button" class="toggle fav" aria-pressed={filter.fav} onclick={() => setFav(!filter.fav)} title={t('Only my favourites')}>★ {t('Favourites')} <small>{tab === 'wishlist' ? favN.wishlist : favN.inventory}</small></button>
       {#if !phone.matches}
         <label>
           <span class="lbl">{t('Role')}</span>
@@ -190,6 +211,12 @@
             <!-- v0.21.0: every favourite by area, read-only and printable -->
             {#if filter.fav}<a class="favlink" href="#/favorites">{t('All my favourite things')} →</a>{/if}
           </p>
+          {#if filter.fav}
+            <!-- v0.22.0 (AP05): what the favourites number counts, and where the others are. -->
+            <p class="favbase">
+              {tn(favN.inventory, '{n} favourite in your inventory', '{n} favourites in your inventory')}{#if favN.wishlist}{' · '}<button type="button" class="link" onclick={() => (tab = 'wishlist')}>{tn(favN.wishlist, '{n} on the wishlist', '{n} on the wishlist')}</button>{/if}{#if favN.gone}{' · '}{tn(favN.gone, '{n} gone', '{n} gone')}{/if}
+            </p>
+          {/if}
           <div class="cats">
             {#each groups as g (g.key)}
               <section class="cat" aria-labelledby="gh-{g.key}">
@@ -205,9 +232,10 @@
                 {#if isOpen(g.key)}
                   <ul class="rows">
                     {#each g.items as item (item.id)}
-                      <li>
+                      <li class="fr">
+                        <FavStar {item} describedby="gn-{item.id}" />
                         <button type="button" onclick={() => open(item)}>
-                          <span class="nm">{#if item.favorite}<span class="star" title={t('Favourite')}>★</span>{/if}{nameOf(item)}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
+                          <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
                           <span class="bg">{BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–'}</span>
                           <span class="w num" class:nw={item.weightG == null}>{formatWeight(itemWeight(item))}</span>
                         </button>
@@ -217,7 +245,9 @@
                 {/if}
               </section>
             {:else}
-              {#if items.length}<p class="card">{t('Nothing matches.')} <button type="button" class="btn" onclick={() => (filter = { q: '', category: '', role: '', fav: false, domain: '' })}>{t('Clear search and filters')}</button></p>{/if}
+              {#if items.length && filter.fav && !favN.inventory}
+                <p class="card">{t('No favourites in your inventory yet. Tap the ☆ in front of an item to mark it.')} <button type="button" class="btn" onclick={clearFilters}>{t('Show all items')}</button></p>
+              {:else if items.length}<p class="card">{t('Nothing matches.')} <button type="button" class="btn" onclick={clearFilters}>{t('Clear search and filters')}</button></p>{/if}
             {/each}
           </div>
         </div>
@@ -228,16 +258,17 @@
         <p class="sub">{t('Not owned yet. Not counted in the inventory or any total. Sorted by what helps most: missing on trips, needed on the bike, lighter.')}</p>
         <ul class="rows">
           {#each wishlist as { item, reasons } (item.id)}
-            <li>
+            <li class="fr">
+              <FavStar {item} describedby="gn-{item.id}" />
               <button type="button" onclick={() => open(item)}>
                 <span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>
-                <span class="nm">{#if item.favorite}<span class="star" title={t('Favourite')}>★</span>{/if}{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
+                <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
                 <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
                 <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
               </button>
             </li>
           {:else}
-            <li class="empty">{t('No wishlist items match.')}</li>
+            <li class="empty">{filter.fav ? t('No favourites on the wishlist.') : t('No wishlist items match.')}</li>
           {/each}
         </ul>
       </section>
@@ -486,6 +517,26 @@
     text-decoration: underline;
     cursor: pointer;
   }
+  /* v0.22.0 (AP05): the star button sits before the row's own button. */
+  .rows .fr {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+  }
+  .rows .fr > button {
+    flex: 1;
+    min-width: 0;
+    border-bottom: 0;
+  }
+  .rows .fr .nm {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .favbase {
+    margin: -4px 0 10px;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
   .rows {
     list-style: none;
     margin: 0;
@@ -494,7 +545,7 @@
   }
   .rows button {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 2px 12px;
     width: 100%;
     text-align: left;
@@ -690,7 +741,7 @@
     background: transparent;
   }
   .wish .rows button {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
   }
   .wish .st {
     grid-row: 1 / span 2;

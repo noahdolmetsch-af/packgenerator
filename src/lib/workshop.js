@@ -171,7 +171,8 @@ export function beforeTrip(bike, trip, setup = { front: null, rear: null }, toda
   return early ? { ...res, rows: res.rows.filter((r) => r.when === 'now' && (r.late || r.worn)) } : res;
 }
 
-function bikeDue(bike, trip, setup, today, end) {
+/** v0.22.0: exported for readiness.js (the same rules for Home, Pack and Care). */
+export function bikeDue(bike, trip, setup, today, end) {
   const tripKm = typeof trip.route?.km === 'number' ? trip.route.km : null;
   const rows = [];
   // By time: fork, shock, sealant.
