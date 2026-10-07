@@ -114,7 +114,7 @@ describe('packing status', () => {
   it('packed items and the ready check of one trip', () => {
     const s = packStatus(soonTrip);
     expect(s).toMatchObject({ packed: 1, count: 2, ready: 1, readyTotal: 2, status: 'open' });
-    expect(packLine(s)).toBe('Packing status: 1 of 2 packed · ready check 1 of 2');
+    expect(packLine(s)).toBe('Packing status: 1 packed · 1 still to pack · ready check 1 checked · 1 open');
     expect(packStatus(laterTrip).status).toBe('empty');
   });
 });
