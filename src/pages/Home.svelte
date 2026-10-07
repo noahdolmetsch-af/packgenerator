@@ -15,7 +15,7 @@
   import { openTodos, backupAfterTrip } from '../lib/todos.js';
   import { CATEGORY, formatWeight, gearStats, isConsumable } from '../lib/gear.js';
   import { sortBikes } from '../lib/bikes.js';
-  import { withVisits, tripPrep, tyreSetup, costByYear } from '../lib/workshop.js';
+  import { withVisits, tripPrep, prepGroups, tyreSetup, costByYear } from '../lib/workshop.js';
   import { tripStats, daysUntil, readyDone, RAIN } from '../lib/trips.js';
   import { checkState, serviceDue, needsWork, wear, taskBike, isPrep } from '../lib/care.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
@@ -71,6 +71,15 @@
   // v0.18.2 (answer 3a): the same list "Before the trip" as in Pack and Bike care.
   const care = $derived(next ? (tripPrep(bike, next, tasks, bike ? tyreSetup(bike, visits) : undefined)?.rows ?? []) : []);
   const late = $derived(care.filter((c) => c.late).length);
+  // v0.21.0 (decision 5, answer 2b): preparation and bike counted apart, as in Pack.
+  const careText = $derived.by(() => {
+    const g = prepGroups(care);
+    const v = (x) => ({ n: x.rows.length, late: x.late });
+    const prep = !g.prep.rows.length ? null : g.prep.late ? t('preparation {n} ({late} overdue)', v(g.prep)) : t('preparation {n}', v(g.prep));
+    const forBike = !g.bike.rows.length ? null : g.bike.late ? t('bike {n} ({late} overdue)', v(g.bike)) : t('bike {n}', v(g.bike));
+    const what = [prep, forBike].filter(Boolean).join(' · ');
+    return t('Before the trip: {what}', { what });
+  });
   const extra = $derived(next ? ballast(next, items, trips, debriefs) : null);
   const debrief = $derived(toDebrief(trips, debriefs)[0] ?? null);
   const packedPct = $derived(stats?.count ? Math.round((stats.packed / stats.count) * 100) : 0);
@@ -250,7 +259,7 @@
         {/if}
         <a class="btn ghost" href="#/pack?print" onclick={() => openTrip(next.id)}>{t('Print list')}</a>
         {#if care.length}
-          <a class="pill" class:late href="#/care">{late ? t('Before the trip: {n} to do, {late} overdue', { n: care.length, late }) : t('Before the trip: {n} to do', { n: care.length })}</a>
+          <a class="pill" class:late href="#/care">{careText}</a>
         {:else}
           <span class="pill ok">{t('Before the trip: all done')}</span>
         {/if}

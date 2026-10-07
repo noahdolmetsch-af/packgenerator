@@ -4,7 +4,8 @@
    * how many items, the weight, the first items and how full it is. It replaces the small labels
    * of the bike drawing on the Pack page. On a phone the same boxes are a strip you swipe (answer 10a).
    *
-   * cards: [{ key, title, name, count, grams, names, more, fill, vol, empty, active, noBag }]
+   * cards: [{ key, title, name, count, grams, names, more, fill, vol, empty, active, noBag, heavy? }]
+ * heavy (v0.21.0): names of heavy items high up or far back; the box shows a quiet hint.
    * onpick(key): open that bag. ondropitem(key, itemId): an item or tile was dropped on a box.
    * photo: the bike's setup photo, pale behind the boxes (answer 2a); onphoto(): open it big.
    * On a phone (strip) there is no room behind the boxes: only a small photo button (answer 3a).
@@ -67,7 +68,7 @@
     class:over={over === c.key}
     class:nobag={c.noBag}
     aria-pressed={c.active}
-    aria-label={`${c.name}, ${facts(c)}${c.noBag ? `, ${t('no bag here')}` : ''}`}
+    aria-label={`${c.name}, ${facts(c)}${c.noBag ? `, ${t('no bag here')}` : ''}${c.heavy?.length ? `. ${t('Heavy item high or far back: move to the frame bag?')}` : ''}`}
     title={c.name}
     onclick={() => onpick?.(c.key)}
     ondragover={(e) => dragover(e, c.key)}
@@ -81,6 +82,9 @@
         {#each c.names as nm, i (i)}<span class="it">{nm}</span>{/each}
         {#if c.more}<span class="it more">{t('+{n} more', { n: c.more })}</span>{/if}
       </span>
+    {/if}
+    {#if !small && !strip && c.heavy?.length}
+      <span class="hv" title={c.heavy.join(', ')}>{t('Heavy item high or far back: move to the frame bag?')}</span>
     {/if}
     {#if c.fill != null}
       <span class="vol num" aria-hidden="true"><span class="bar" class:warn={c.fill > 100}><i style:width="{Math.min(100, c.fill)}%"></i></span>{#if !small}{formatVolume(c.vol)} / {formatVolume(c.cap)}{/if}</span>
@@ -134,6 +138,17 @@
 {/if}
 
 <style>
+  /* v0.21.0 (stage D): a quiet hint, no warning colour. */
+  .hv {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.3;
+    font-style: italic;
+    opacity: 0.85;
+    white-space: normal;
+  }
   .stage {
     display: grid;
     grid-template-columns: minmax(130px, 200px) minmax(0, 1fr);

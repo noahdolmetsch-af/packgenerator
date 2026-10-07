@@ -8,7 +8,7 @@
  *   ready             [{ id, label, done }]  this trip's ready check (older trips may still have group/itemId)
  */
 import { SLOT, SLOTS, FIXED_ZONES, addedWeight } from './bikes.js';
-import { isInventory } from './gear.js';
+import { isInventory, isConsumable } from './gear.js';
 import { t as tr } from './i18n.svelte.js';
 
 /**
@@ -151,10 +151,25 @@ export function tripStats(trip, items, containers, bike, riderG) {
   const onMeG = zones.filter((z) => z.key === 'body').reduce((t, z) => t + z.grams, 0);
   const gearG = zones.filter((z) => z.key !== 'body').reduce((t, z) => t + z.grams, 0);
   const bikeG = bike?.weightG ?? 0;
+  // v0.21.0 (decision 5, 9a): four figures. Food and water (food items and anything that holds
+  // water, e.g. full bottles) count on their own, wherever they are, also in a jersey pocket.
+  // Base = gear in the bags and on the bike without food and water; worn = on me without food.
+  // base + worn + consumables = gear + on me, so nothing is counted twice.
+  const eats = (e) => {
+    const it = itemsById[e.itemId];
+    return !!it && (isConsumable(it) || it.waterL > 0);
+  };
+  const sumOf = (list) => list.reduce((t, e) => t + (w(e) ?? 0), 0);
+  const consumablesG = sumOf(trip.entries.filter(eats));
+  const wornG = sumOf(trip.entries.filter((e) => e.slot === 'body' && !eats(e)));
+  const baseG = sumOf(trip.entries.filter((e) => e.slot !== 'body' && !eats(e)));
   return {
     zones,
     gearG,
     onMeG,
+    baseG,
+    wornG,
+    consumablesG,
     bagsG,
     bikeG,
     riderG: riderG ?? 0,
@@ -164,6 +179,18 @@ export function tripStats(trip, items, containers, bike, riderG) {
     packed: trip.entries.filter((e) => e.packed).length,
     missing: { bike: !bike?.weightG, rider: !riderG },
   };
+}
+
+/**
+ * v0.21.0 (stage D): heavy items high up or far back make the bike swing. Places on the
+ * handlebar and the seat post; an item counts as heavy above HEAVY_G grams (one piece).
+ */
+export const HIGH_OR_BACK = ['bar', 'pouchL', 'pouchR', 'seat'];
+export const HEAVY_G = 500;
+/** The heavy items of a zone (from tripStats) that would sit better in the frame bag: [itemId]. */
+export function heavyHigh(zone, itemsById) {
+  if (!zone || !HIGH_OR_BACK.includes(zone.key)) return [];
+  return zone.entries.filter((e) => (itemsById[e.itemId]?.weightG ?? 0) > HEAVY_G).map((e) => e.itemId);
 }
 
 /** Whole days from today to a date (YYYY-MM-DD); negative when it is in the past. */
