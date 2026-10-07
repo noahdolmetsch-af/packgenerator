@@ -5,7 +5,7 @@
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, sortBikes, bikesHash } from '../lib/bikes.js';
   import { CATEGORIES, formatWeight, weightText, isInventory, matches, weighQueue } from '../lib/gear.js';
-  import { tripStats, packSteps, togglePacked, packAll, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike } from '../lib/trips.js';
+  import { tripStats, packSteps, togglePacked, packAll, tickReady, packAndReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike } from '../lib/trips.js';
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import CalmPack from '../lib/pack/CalmPack.svelte';
@@ -267,6 +267,13 @@
     if (onTrip(trip).has(itemId)) return moveTo(itemId, slot);
     return setEntries((es) => [...es, { itemId, slot, qty: 1, packed: false }]);
   }
+  // v0.24.1 (Noah 6a): the ticked items of "Add material" into one place, in one write (one Undo).
+  function addMany(key, itemIds) {
+    const z = stats.zones.find((x) => x.key === key);
+    const ids = itemIds.filter((id) => itemsById[id]);
+    if (!z || !ids.length) return;
+    return setEntries((es) => addEntries(es, ids, z.noBag ? 'body' : z.key, { packed: false }));
+  }
   // v0.24.0 (Noah): "Add … as a new item and pack it" from the search in "Add material". An item
   // you already own under that name is packed instead of making a second one.
   let newItem = $state(null); // { name, key }
@@ -317,7 +324,17 @@
     change((t) => ({ ready: t.ready.map((r) => (r.id === row.id ? { ...r, done: !r.done } : r)) }));
   }
   // Answer 4: accept everything with one click.
-  const tickAllReady = () => change((t) => ({ ready: t.ready.map((r) => (r.itemId ? r : { ...r, done: true })) }));
+  const tickAllReady = () => change((t) => ({ ready: tickReady(t.ready) }));
+  // v0.24.1 (Noah 2a): a day ride skips the packing day: every item packed and the whole ready
+  // check in one write (packAll + tickReady, one Undo), then on to the ride day.
+  async function packAndGo() {
+    await change((t) => packAndReady(t));
+    goRide();
+  }
+  function goRide() {
+    choose(trip.id);
+    location.hash = '#/ride';
+  }
   const removeReady = (id) => change((t) => ({ ready: t.ready.filter((r) => r.id !== id) }));
   function addReady(event) {
     event.preventDefault();
@@ -485,11 +502,11 @@
 
   <CalmPack {trip} {stats} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} bind:q bind:zoneKey bind:review
     actions={{
-      choose, addTo, qty: (id, qty) => setEntries(es => es.map(e => e.itemId === id ? { ...e, qty: Math.max(1, Math.min(20, qty)), packed: (e.qty || 1) === qty ? e.packed : false } : e)),
+      choose, addTo, addMany, qty: (id, qty) => setEntries(es => es.map(e => e.itemId === id ? { ...e, qty: Math.max(1, Math.min(20, qty)), packed: (e.qty || 1) === qty ? e.packed : false } : e)),
       move: moveTo, remove: removeEntry, undo: undoLast,
       apply: choices => change(cur => acceptReview(cur, items, choices)),
       edit: () => dialog = { trip }, newTrip: () => dialog = { trip: null },
-      pack: () => packDay = true, ride: () => { choose(trip.id); location.hash = '#/ride'; }, end: endTrip,
+      pack: () => packDay = true, ride: goRide, packAndGo, end: endTrip,
       photo: () => shownPhoto = Math.max(0, gallery.findIndex(p => p.id === shot?.id)), compare: () => choosing = true, template: () => saveTpl = true, share: shareList, resetPacked,
       skip: () => change(() => ({ skipped: !trip.skipped })),
     }}>
@@ -500,7 +517,7 @@
       {:else if mode === 'purposes'}{#each stats.zones as z}<label class="bag-purpose">{zoneName(z)}<input class="inp" value={trip.purpose?.[z.key] ?? ''} placeholder={t('What it is for, e.g. Quick access')} onchange={e => savePurpose(z.key, e.currentTarget.value)} /></label>{/each}
       {:else if mode === 'ready'}{@render readyFull()}{/if}
     {/snippet}
-    {#snippet picker(addItem)}<NotPacked items={candidates} {tagOf} target={targetName} onadd={addItem} drag={false} bind:q oncreate={createAndPack} />{/snippet}
+    {#snippet picker(addItem, addItems)}<NotPacked items={candidates} {tagOf} target={targetName} onadd={addItem} onaddmany={addItems} drag={false} bind:q oncreate={createAndPack} />{/snippet}
     {#snippet moreWeights()}
       <div class="extra-inner">
         <p>{bikeTrip ? t('System') : t('Total')}: {bikeTrip ? `${stats.bikeKind === 'estimate' ? '~' : ''}${weightText(stats.systemG, stats.systemMissing, kg)}` : weightText(stats.gearG + stats.onMeG, stats.unweighed, kg)} · {t('Bags')}: {weightText(stats.bagsG, stats.bagsMissing)}{#if bikeTrip} · {t('Bike')}: {stats.missing.bike ? t('not weighed') : `${stats.bikeKind === 'estimate' ? '~' : ''}${formatWeight(stats.bikeG)} · ${stats.bikeKind === 'estimate' ? t('estimate') : t('measured')}`} · {t('Rider')}: {stats.missing.rider ? t('not set') : formatWeight(stats.riderG)}{/if}</p>

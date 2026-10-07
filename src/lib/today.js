@@ -5,6 +5,8 @@
  * Order:
  * 1. A trip under way (between its first and last day): bike trip → Ride day, else open the trip.
  * 2. A trip that ended and still wants its debrief, unless the next trip starts within two days.
+ *    v0.24.1 (Noah 3a): Today asks "How was {trip}?" with "All good" (saves at once) and
+ *    "In detail" (the three steps); the step's label and address are the "In detail" ones.
  * 3. The next trip: within two days → Pack (packing day); all packed → Ride day (bike) / the trip;
  *    nothing on the list yet or later than two days → Continue planning.
  */
@@ -21,7 +23,8 @@ export const STEP = {
   pack: { label: 'Start packing', href: () => '#/pack?day', why: 'Packing day: bag by bag, then the ready check.' },
   ride: { label: 'Ride day', href: () => '#/ride', why: 'Route, weather and the list for the day.' },
   trip: { label: 'Open the trip', href: () => '#/pack', why: 'Your list for the way.' },
-  debrief: { label: 'Write debrief', href: (trip) => `#/debrief/${encodeURIComponent(trip.id)}`, why: 'Two minutes: what you did not use, what broke, what you missed.' },
+  // v0.24.1 (Noah 3a): the card "How was {trip}?"; "All good" is the quick save on Today itself.
+  debrief: { label: 'In detail', href: (trip) => `#/debrief/${encodeURIComponent(trip.id)}`, why: '"All good": every item counts as used and nothing else changes.', ask: true },
 };
 
 /**
@@ -54,6 +57,7 @@ export function todayFocus(trips, debriefs, today) {
     href: step.href(trip),
     label: step.label,
     why: step.why,
+    ask: !!step.ask,
     next,
     debrief: kind === 'debrief' ? null : waiting,
   };

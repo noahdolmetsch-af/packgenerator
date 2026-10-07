@@ -263,3 +263,59 @@ export function itemRecord(draft, { item = null, items = [], weightG = null, now
     updatedAt: now,
   };
 }
+
+/*
+ * v0.24.1 (Noah 5a): several items at once in the Gear list ("Select"). The functions below only
+ * compute the new records; src/lib/gear/bulk.js writes them in one database transaction and the
+ * page keeps the old records in memory for "Undo".
+ */
+
+/**
+ * v0.24.1 (Noah 5a): the selected items moved to another category. The IDs never change (like AP09
+ * in itemRecord), so trips, templates, kits, bags and favourites keep them. Returns only the items
+ * that really change.
+ */
+export function bulkCategory(items, ids, category, now = new Date().toISOString()) {
+  const pick = new Set(ids);
+  return items.filter((i) => pick.has(i.id) && i.category !== category).map((i) => ({ ...i, category, updatedAt: now }));
+}
+
+/** v0.24.1 (Noah 5a): the selected items onto the wishlist ('wishlist') or into my gear ('owned'); only the ones that change. */
+export function bulkOwnership(items, ids, ownership, now = new Date().toISOString()) {
+  const pick = new Set(ids);
+  return items.filter((i) => pick.has(i.id) && i.ownership !== ownership).map((i) => ({ ...i, ownership, updatedAt: now }));
+}
+
+// Does a trip or template list one of the picked items (as an entry or an old ready row)?
+const lists = (x, pick) => (x.entries ?? []).some((e) => pick.has(e.itemId)) || (x.ready ?? []).some((r) => r.itemId && pick.has(r.itemId));
+
+/** v0.24.1 (Noah 5a): the IDs of the selected items that a trip or a template still lists. */
+export function itemsInUse(ids, trips = [], templates = []) {
+  return ids.filter((id) => [...trips, ...templates].some((x) => lists(x, new Set([id]))));
+}
+
+/**
+ * v0.24.1 (Noah 5a): what deleting the selected items changes, so nothing points to a missing item:
+ * { ids, used (IDs that were on a trip or template), trips (only the changed trips, without those
+ * entries and their ready rows), templates (the new list, or null when no template changes) }.
+ */
+export function bulkDelete(ids, trips = [], templates = []) {
+  const pick = new Set(ids);
+  const strip = (x) => ({
+    ...x,
+    entries: (x.entries ?? []).filter((e) => !pick.has(e.itemId)),
+    ...(Array.isArray(x.ready) ? { ready: x.ready.filter((r) => !(r.itemId && pick.has(r.itemId))) } : {}),
+  });
+  return {
+    ids: [...pick],
+    used: itemsInUse([...pick], trips, templates),
+    trips: trips.filter((x) => lists(x, pick)).map(strip),
+    templates: templates.some((x) => lists(x, pick)) ? templates.map((x) => (lists(x, pick) ? strip(x) : x)) : null,
+  };
+}
+
+/** v0.24.1 (Noah 5a): up to `max` names for a confirm text: "A, B, C, D, E and 3 more". */
+export function namesList(names, max = 5) {
+  const shown = names.slice(0, max).join(', ');
+  return names.length > max ? t('{names} and {n} more', { names: shown, n: names.length - max }) : shown;
+}

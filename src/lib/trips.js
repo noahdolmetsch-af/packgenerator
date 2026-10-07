@@ -437,3 +437,28 @@ export const packAll = (entries, itemIds = null) => {
   const ids = itemIds && new Set(itemIds);
   return entries.map((e) => (!ids || ids.has(e.itemId) ? { ...e, packed: true } : e));
 };
+
+/** v0.24.1 (Noah 2a): tick the whole ready check; "always with me" rows stay as they are (they count by the item). */
+export const tickReady = (ready = []) => ready.map((r) => (r.itemId ? r : { ...r, done: true }));
+
+/** v0.24.1 (Noah 2a): a day ride "All packed, let's go": every item packed and the whole ready check, in one write. */
+export const packAndReady = (trip) => ({ entries: packAll(trip.entries ?? []), ready: tickReady(trip.ready ?? []) });
+
+/** v0.24.1 (Noah 1a/2a): a day ride (1 day or no days set). */
+export const isDayTrip = (trip) => !(Number(trip?.days) > 1);
+
+/**
+ * v0.24.1 (Noah 6a): "Add material" with tick boxes: several items into one place in one write.
+ * Items already on the list stay where they are; an id given twice is added once.
+ * fresh: extra fields of a new entry (a trip adds packed: false, a template nothing).
+ */
+export function addEntries(entries, itemIds, slot, fresh = {}) {
+  const have = new Set(entries.map((e) => e.itemId));
+  const added = [];
+  for (const itemId of itemIds) {
+    if (!itemId || have.has(itemId)) continue;
+    have.add(itemId);
+    added.push({ itemId, slot, qty: 1, ...fresh });
+  }
+  return added.length ? [...entries, ...added] : entries;
+}

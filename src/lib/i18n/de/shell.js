@@ -371,6 +371,12 @@ export default {
   'Start packing': 'Packen',
   'Open the trip': 'Tour öffnen',
   'Write debrief': 'Rückblick schreiben',
+  // v0.24.1 (Noah 3a): Today asks how the trip was; "All good" saves right away, with Undo.
+  'How was {trip}?': 'Wie war {trip}?',
+  'All good': 'Alles gut',
+  'In detail': 'Genauer',
+  '"All good": every item counts as used and nothing else changes.': '«Alles gut»: Alle Teile zählen als gebraucht, sonst ändert sich nichts.',
+  'Saved: {trip}.': 'Gespeichert: {trip}.',
   'Choose what comes along; the list stays editable.': 'Wähle, was mitkommt; die Liste bleibt änderbar.',
   'Packing day: bag by bag, then the ready check.': 'Packtag: Tasche für Tasche, dann der Startcheck.',
   'Route, weather and the list for the day.': 'Route, Wetter und die Liste für den Tag.',

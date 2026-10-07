@@ -74,12 +74,13 @@ for (const lang of ['en', 'de']) {
     await tripDlg.getByRole('button', { name: T('Create trip') }).click();
     await expect(tripDlg).toBeHidden();
 
-    // 4. Pack: the big "Next: packing day" button.
+    // 4. Pack: a day ride's big button packs everything at once (v0.24.1, Noah 2a); this test
+    // goes through the packing day by the "Packing check" link next to it.
     await expect(page).toHaveURL(/#\/pack/);
     const go = page.locator('.next .go');
-    await expect(go).toContainText(T('Start packing check'));
+    await expect(go).toContainText(T("All packed, let's go"));
     await fits('Pack');
-    await go.click();
+    await page.locator('.next .day-check').click();
 
     // 5. Packing day: tick every item bag by bag, then the whole ready check.
     const day = page.getByRole('dialog', { name: T('Packing day: {title}', { title }) });

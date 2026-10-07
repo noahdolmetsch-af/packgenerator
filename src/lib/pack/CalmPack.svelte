@@ -5,7 +5,7 @@
   import { planningGroups } from '../preparation.js';
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
   import { formatWeight } from '../gear.js';
-  import { RAIN, tooFull, heavyHigh } from '../trips.js';
+  import { RAIN, tooFull, heavyHigh, isDayTrip } from '../trips.js';
   import { phone } from '../media.svelte.js';
   let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, readyCount, readyTotal, over, step, debriefStep, q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent } = $props();
   let grouping = $state('bags');
@@ -25,6 +25,10 @@
   function show(mode) { sheet = mode; itemMenu = null; }
   $effect(() => { if (sheet && sheetEl && !sheetEl.open) sheetEl.showModal(); });
   async function add(id) { try { await actions.addTo(zoneKey, id); note = t('Added to this trip.'); } catch { note = t('Could not save. Please try again.'); } }
+  // v0.24.1 (Noah 6a): the ticked items in one write; NotPacked clears its ticks when this succeeds.
+  async function addMany(ids) { try { await actions.addMany(zoneKey, ids); note = tn(ids.length, '{n} item added to this trip.', '{n} items added to this trip.'); } catch (err) { note = t('Could not save. Please try again.'); throw err; } }
+  // v0.24.1 (Noah 2a): a bike day ride packs everything in one tap and goes to the ride day.
+  const dayRide = $derived(bikeTrip && isDayTrip(trip));
   async function apply(choices) { await actions.apply(choices); review = false; note = t('Selection saved. Your packing list is up to date.'); window.scrollTo({ top: 0 }); }
   function changeTrip(id) { review = false; opened = { frame: true }; actions.choose(id); }
   function closeMenu(event) { event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); }
@@ -85,13 +89,22 @@
                 {#each group.entries as entry (entry.itemId)}
                   {@const item = itemsById[entry.itemId]}
                   {@const name = item ? nameOf(item) : entry.itemId}
-                  <li class="planning-row" draggable={grouping === 'bags' && !phone.matches} ondragstart={(e) => { e.dataTransfer.setData('text/plain', entry.itemId); e.dataTransfer.effectAllowed = 'copyMove'; }}>
+                  {@const qty = entry.qty || 1}
+                  {@const open = itemMenu === entry.itemId}
+                  <!-- v0.24.1 (Noah 1a): a calm row, name (× n above 1) and weight; a tap opens amount, move and take out. -->
+                  <li class="planning-row" class:open draggable={grouping === 'bags' && !phone.matches} ondragstart={(e) => { e.dataTransfer.setData('text/plain', entry.itemId); e.dataTransfer.effectAllowed = 'copyMove'; }}>
                     <GripVertical class="drag-handle" size={20} />
-                    <span class="item-name">{name}</span>
-                    <div class="amount" role="group" aria-label={t('Amount for {name}', { name })}><button aria-label={t('One less {name}', { name })} disabled={(entry.qty || 1) <= 1} onclick={() => actions.qty(entry.itemId, (entry.qty || 1) - 1)}><Minus size={16} /></button><span>{entry.qty || 1}</span><button aria-label={t('One more {name}', { name })} disabled={(entry.qty || 1) >= 20} onclick={() => actions.qty(entry.itemId, (entry.qty || 1) + 1)}><Plus size={16} /></button></div>
-                    <span class="item-weight">{item?.weightG == null ? t('not weighed') : formatWeight(item.weightG * (entry.qty || 1))}</span>
-                    <button class="item-more" aria-label={t('Actions for {name}', { name })} aria-expanded={itemMenu === entry.itemId} onclick={() => itemMenu = itemMenu === entry.itemId ? null : entry.itemId}><MoreHorizontal size={22} /></button>
-                    {#if itemMenu === entry.itemId}<div class="item-actions"><label>{t('Move')}<select class="sel" aria-label={t('Move {name} to', { name })} value={entry.slot} onchange={(e) => actions.move(entry.itemId, e.currentTarget.value)}>{#each targets as tg}<option value={tg.key}>{trip.purpose?.[tg.key] || t(tg.zone.name)}</option>{/each}{#if !targets.some(t => t.key === entry.slot)}<option value={entry.slot}>{entry.slot}</option>{/if}</select></label><button class="text-button" onclick={() => { actions.remove(entry.itemId); itemMenu = null; }}>{t('Take out')}</button>{#if item?.note}<p>{item.note}</p>{/if}</div>{/if}
+                    <button class="row-main" aria-label={t('Amount, move or take out: {name}', { name })} aria-describedby={`calm-w-${entry.itemId}`} aria-expanded={open} aria-controls={`calm-act-${entry.itemId}`} onclick={() => itemMenu = open ? null : entry.itemId}>
+                      <span class="item-name"><span>{name}</span>{#if qty > 1}<span class="item-qty"> × {qty}</span>{/if}</span>
+                      <span class="item-weight" id={`calm-w-${entry.itemId}`}>{item?.weightG == null ? t('not weighed') : formatWeight(item.weightG * qty)}</span>
+                      <ChevronDown class="row-chevron" size={20} aria-hidden="true" />
+                    </button>
+                    {#if open}<div class="item-actions" id={`calm-act-${entry.itemId}`}>
+                      <div class="amount" role="group" aria-label={t('Amount for {name}', { name })}><button aria-label={t('One less {name}', { name })} disabled={qty <= 1} onclick={() => actions.qty(entry.itemId, qty - 1)}><Minus size={16} /></button><span>{qty}</span><button aria-label={t('One more {name}', { name })} disabled={qty >= 20} onclick={() => actions.qty(entry.itemId, qty + 1)}><Plus size={16} /></button></div>
+                      <label>{t('Move to')}<select class="sel" aria-label={t('Move {name} to', { name })} value={entry.slot} onchange={(e) => actions.move(entry.itemId, e.currentTarget.value)}>{#each targets as tg}<option value={tg.key}>{trip.purpose?.[tg.key] || t(tg.zone.name)}</option>{/each}{#if !targets.some(t => t.key === entry.slot)}<option value={entry.slot}>{entry.slot}</option>{/if}</select></label>
+                      <button class="text-button" onclick={() => { actions.remove(entry.itemId); itemMenu = null; }}>{t('Take out')}</button>
+                      {#if item?.note}<p>{item.note}</p>{/if}
+                    </div>{/if}
                   </li>
                 {:else}<li class="empty-bag"><p>{t('This bag is still empty.')}</p><button class="text-button" onclick={() => { zoneKey = grouping === 'bags' ? group.key : targets[0]?.key; show('add'); }}>{t('Add material')}</button></li>{/each}
               </ul>
@@ -103,9 +116,9 @@
     {#if bikeTrip}<button class="detail-link" onclick={() => { review = true; window.scrollTo({ top: 0 }); }}><ChevronRight size={22} /><CloudSun size={28} /><strong>{t('Review weather suggestions')}</strong>{#if openLayers.length}<small>{tn(openLayers.length, '{n} open', '{n} open')}</small>{/if}<ChevronRight size={20} /></button>{/if}
     <details class="weight-details"><summary><ChevronRight size={22} /><Weight size={28} /><strong>{t('View weight details')}</strong></summary><div class="weight-grid"><div><span>{t('Base')}</span><Sum g={stats.baseG} missing={stats.baseMissing} /></div><div><span>{t('On you')}</span><Sum g={stats.wornG} missing={stats.wornMissing} /></div><div><span>{t('Food and water')}</span><Sum g={stats.consumablesG} missing={stats.consumablesMissing} /></div><div><span>{t('Items')}</span><b>{stats.count}</b></div></div>{@render moreWeights?.()}</details>
     {@render preparation?.()}{@render ballastContent?.()}
-    <footer class="list-footer next"><p class="weight-note"><Info size={22} />{stats.unweighed ? t('{n} weights missing · displayed weights are known values.', { n: stats.unweighed }) : t('All material weights are recorded.')}</p><div class="footer-actions"><a href="#/" class="text-button">{t('Back to trip overview')}</a>{#if step === debriefStep}<button class="primary go" onclick={over ? () => location.hash = `#/debrief/${encodeURIComponent(trip.id)}` : actions.end}>{t('Next: debrief')}<ArrowRight size={20} /></button>{:else if step === 2}<button class="primary go" onclick={actions.ride}>{t('Next: ride day')}<ArrowRight size={20} /></button>{:else}<button class="primary go" onclick={actions.pack}>{t('Start packing check')}<ArrowRight size={20} /></button>{/if}</div></footer>
+    <footer class="list-footer next"><p class="weight-note"><Info size={22} />{stats.unweighed ? t('{n} weights missing · displayed weights are known values.', { n: stats.unweighed }) : t('All material weights are recorded.')}</p><div class="footer-actions"><a href="#/" class="text-button">{t('Back to trip overview')}</a>{#if step === debriefStep}<button class="primary go" onclick={over ? () => location.hash = `#/debrief/${encodeURIComponent(trip.id)}` : actions.end}>{t('Next: debrief')}<ArrowRight size={20} /></button>{:else if step === 2}<button class="primary go" onclick={actions.ride}>{t('Next: ride day')}<ArrowRight size={20} /></button>{:else if dayRide}<button class="text-button day-check" onclick={actions.pack}>{t('Packing check')}</button><button class="primary go" onclick={actions.packAndGo}>{t("All packed, let's go")}<ArrowRight size={20} /></button>{:else}<button class="primary go" onclick={actions.pack}>{t('Start packing check')}<ArrowRight size={20} /></button>{/if}</div></footer>
   {/if}
-  {#if note}<p class="calm-status" role="status">{note}</p>{/if}
+  {#if note && sheet !== 'add'}<p class="calm-status" role="status">{note}</p>{/if}
 </div>
 
 {#if sheet}
@@ -113,7 +126,9 @@
     <header><h2 id="calm-sheet-h">{sheet === 'add' ? t('Add material') : sheet === 'conditions' ? t('Edit trip conditions') : sheet === 'bags' ? t('Bags for this trip') : sheet === 'purposes' ? t('Name your bags') : t('Ready check')}</h2><button class="text-button" onclick={() => sheetEl.close()}>{t('Close')}</button></header>
     {#if sheet === 'add'}
       <label class="add-target">{t('Adding to')}<select class="sel" aria-label={t('Adding to')} bind:value={zoneKey}>{#each targets as tg}<option value={tg.key}>{trip.purpose?.[tg.key] || (tg.bag ? tg.bag.name : t(tg.zone.name))}</option>{/each}</select></label>
-      {@render picker(add)}
+      {@render picker(add, addMany)}
+      <!-- v0.24.1 (Noah 6a): what was added is said inside the sheet (the page behind it is inert). -->
+      {#if note}<p class="calm-status" role="status">{note}</p>{/if}
     {:else}{@render settings(sheet)}{/if}
     <footer><button class="primary" onclick={() => sheetEl.close()}>{t('Done')}</button>{#if sheet === 'conditions' && bikeTrip}<button class="text-button" onclick={() => { sheetEl.close(); review = true; }}>{t('Review weather suggestions')}</button>{/if}</footer>
   </dialog>

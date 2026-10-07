@@ -3,7 +3,8 @@
 // Run with `npm run e2e`. It builds the app and serves it like GitHub Pages does (/packgenerator/).
 import { defineConfig } from '@playwright/test';
 
-const PORT = 4191;
+// v0.24.1: E2E_PORT lets several checkouts run the tests at the same time.
+const PORT = Number(process.env.E2E_PORT) || 4191;
 
 export default defineConfig({
   testDir: 'tests/e2e',

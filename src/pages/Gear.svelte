@@ -3,7 +3,10 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { phone } from '../lib/media.svelte.js';
-  import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, BAG, OWNERSHIP } from '../lib/gear.js';
+  import { untrack } from 'svelte';
+  import { SvelteSet } from 'svelte/reactivity';
+  import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, BAG, OWNERSHIP, bulkCategory, bulkOwnership, namesList } from '../lib/gear.js';
+  import { saveItems, deletePlan, deleteItems, undoBulk } from '../lib/gear/bulk.js';
   import FavStar from '../lib/gear/FavStar.svelte';
   import WeightOverview from '../lib/gear/WeightOverview.svelte';
   import WeighMode from '../lib/gear/WeighMode.svelte';
@@ -135,6 +138,84 @@
     window.addEventListener('hashchange', read);
     return () => window.removeEventListener('hashchange', read);
   });
+
+  // v0.24.1 (Noah 5a): select several items, then change their category, move them to the
+  // wishlist or back, or delete them. A tap on a row ticks it instead of opening the item.
+  let selecting = $state(false);
+  const picked = new SvelteSet();
+  // What the list shows right now (search and filters included); only these count as selected,
+  // so a hidden item is never changed by mistake.
+  const shown = $derived(tab === 'wishlist' ? wishlist.map((w) => w.item) : inventory);
+  const chosen = $derived(shown.filter((i) => picked.has(i.id)));
+  let newCat = $state('');
+  let busy = $state(false);
+  // The last bulk change, kept in memory for ~10 s: { text, snap }. Raw: the snapshot goes back
+  // into the database as it is (a $state proxy cannot be stored).
+  let undo = $state.raw(null);
+  let undoTimer;
+  function setSelecting(on) {
+    selecting = on;
+    picked.clear();
+  }
+  // Another tab is another list: start again.
+  $effect(() => {
+    void tab;
+    untrack(() => picked.clear());
+  });
+  const flip = (id) => (picked.has(id) ? picked.delete(id) : picked.add(id));
+  const pickAll = (list, on) => list.forEach((i) => (on ? picked.add(i.id) : picked.delete(i.id)));
+  const allPicked = (list) => list.length > 0 && list.every((i) => picked.has(i.id));
+  function offerUndo(text, snap) {
+    clearTimeout(undoTimer);
+    undo = { text, snap };
+    undoTimer = setTimeout(() => (undo = null), 10_000);
+    picked.clear();
+  }
+  async function run(fn) {
+    if (busy) return;
+    busy = true;
+    try {
+      await fn();
+    } finally {
+      busy = false;
+    }
+  }
+  const moveTo = () =>
+    run(async () => {
+      const changed = bulkCategory(chosen, chosen.map((i) => i.id), newCat);
+      const n = chosen.length;
+      const cat = t(CATEGORY[newCat]?.name ?? newCat);
+      offerUndo(tn(n, '{n} item moved to {cat}. The IDs stay the same.', '{n} items moved to {cat}. The IDs stay the same.', { cat }), await saveItems(db, changed));
+      newCat = '';
+    });
+  const own = (ownership) =>
+    run(async () => {
+      const n = chosen.length;
+      const snap = await saveItems(db, bulkOwnership(chosen, chosen.map((i) => i.id), ownership));
+      offerUndo(ownership === 'wishlist' ? tn(n, '{n} item moved to the wishlist.', '{n} items moved to the wishlist.') : tn(n, '{n} item moved to my gear.', '{n} items moved to my gear.'), snap);
+    });
+  const remove = () =>
+    run(async () => {
+      const list = chosen;
+      const ids = list.map((i) => i.id);
+      const plan = await deletePlan(db, ids);
+      const text = [
+        tn(ids.length, 'Delete {n} item from your gear?', 'Delete {n} items from your gear?'),
+        namesList(list.map((i) => nameOf(i))),
+        plan.used.length ? t('{n} of them are on a trip or template; they disappear from there too.', { n: plan.used.length }) : '',
+        t('You can undo this for a few seconds.'),
+      ].filter(Boolean);
+      if (!confirm(text.join('\n\n'))) return;
+      offerUndo(tn(ids.length, '{n} item deleted.', '{n} items deleted.'), await deleteItems(db, ids));
+    });
+  async function doUndo() {
+    if (!undo) return;
+    const { snap } = undo;
+    clearTimeout(undoTimer);
+    undo = null;
+    await undoBulk(db, snap);
+  }
+  $effect(() => () => clearTimeout(undoTimer));
 </script>
 
 <div class="gear">
@@ -205,6 +286,8 @@
         </label>
       {/if}
       <button type="button" class="toggle fav" aria-pressed={filter.fav} onclick={() => setFav(!filter.fav)} title={t('Only my favourites')}>★ {t('Favourites')} <small>{tab === 'wishlist' ? favN.wishlist : favN.inventory}</small></button>
+      <!-- v0.24.1 (Noah 5a): select several items for one change -->
+      <button type="button" class="toggle fav pick" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
       {#if !phone.matches}
         <label>
           <span class="lbl">{t('Role')}</span>
@@ -220,6 +303,13 @@
         <div class="acts"><button type="button" class="btn hi" onclick={() => addItem()}>{t('Add item')}</button></div>
       {/if}
     </div>
+    {#if selecting}
+      <div class="selrow">
+        <b class="num" aria-live="polite">{tn(chosen.length, '{n} selected', '{n} selected')}</b>
+        <button type="button" class="btn" disabled={!shown.length || allPicked(shown)} onclick={() => pickAll(shown, true)}>{t('Select all')}</button>
+        <button type="button" class="btn" disabled={!chosen.length} onclick={() => pickAll(shown, false)}>{t('Select none')}</button>
+      </div>
+    {/if}
 
     {#if tab === 'inventory'}
       <div class="inv">
@@ -258,16 +348,25 @@
                     {#if !searching}<span class="chev" aria-hidden="true">▾</span>{/if}
                   </button>
                 </h2>
+                {#if selecting}
+                  <!-- v0.24.1 (Noah 5a): the whole category at once, also while it is folded -->
+                  {@const all = allPicked(g.items)}
+                  <button type="button" class="link gpick" aria-label={all ? t('Select none: {cat}', { cat: t(g.name) }) : t('Select all: {cat}', { cat: t(g.name) })} onclick={() => pickAll(g.items, !all)}>{all ? t('Select none') : t('Select all')}</button>
+                {/if}
                 {#if isOpen(g.key)}
                   <ul class="rows">
                     {#each g.items as item (item.id)}
                       <li class="fr">
-                        <FavStar {item} describedby="gn-{item.id}" />
-                        <button type="button" onclick={() => open(item)}>
-                          <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
-                          <span class="bg">{BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–'}</span>
-                          <span class="w num" class:nw={item.weightG == null}>{formatWeight(itemWeight(item))}</span>
-                        </button>
+                        {#if selecting}
+                          {@render pickRow(item, BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–')}
+                        {:else}
+                          <FavStar {item} describedby="gn-{item.id}" />
+                          <button type="button" onclick={() => open(item)}>
+                            <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
+                            <span class="bg">{BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–'}</span>
+                            <span class="w num" class:nw={item.weightG == null}>{formatWeight(itemWeight(item))}</span>
+                          </button>
+                        {/if}
                       </li>
                     {/each}
                   </ul>
@@ -293,13 +392,17 @@
         <ul class="rows">
           {#each wishlist as { item, reasons } (item.id)}
             <li class="fr">
-              <FavStar {item} describedby="gn-{item.id}" />
-              <button type="button" onclick={() => open(item)}>
-                <span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>
-                <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
-                <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
-                <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
-              </button>
+              {#if selecting}
+                {@render pickRow(item, `${t(OWNERSHIP[item.ownership] ?? '')} · ${t(CATEGORY[item.category]?.name ?? '')}`)}
+              {:else}
+                <FavStar {item} describedby="gn-{item.id}" />
+                <button type="button" onclick={() => open(item)}>
+                  <span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>
+                  <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
+                  <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
+                  <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
+                </button>
+              {/if}
             </li>
           {:else}
             <li class="empty">{filter.fav ? t('No favourites on the wishlist.') : t('No wishlist items match.')}{#if filter.q.trim() && !filter.fav}{' '}<button type="button" class="btn sm" onclick={() => addItem({ name: filter.q.trim() })}>{t('Add "{q}" as a new item', { q: filter.q.trim() })}</button>{/if}</li>
@@ -330,6 +433,44 @@
     </div>
   </div>
 {/snippet}
+
+{#snippet pickRow(item, sub)}
+  <!-- v0.24.1 (Noah 5a): in "Select" a tap anywhere on the row ticks its box. -->
+  <label class="pr" class:on={picked.has(item.id)}>
+    <input type="checkbox" checked={picked.has(item.id)} onchange={() => flip(item.id)} aria-label={nameOf(item)} />
+    <span class="nm">{nameOf(item)}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
+    <span class="bg">{sub}</span>
+    <span class="w num" class:nw={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
+  </label>
+{/snippet}
+
+{#if (selecting && (tab === 'inventory' || tab === 'wishlist')) || undo}
+  <!-- v0.24.1 (Noah 5a): the actions for the selected items, at the bottom above the phone bar. -->
+  <div class="bulkpad" aria-hidden="true"></div>
+  <div class="bulk" role="region" aria-label={t('Selected items')}>
+    {#if undo}
+      <p class="undo" role="status"><span>{undo.text}</span> <button type="button" class="btn hi" onclick={doUndo}>{t('Undo')}</button></p>
+    {/if}
+    {#if selecting && (tab === 'inventory' || tab === 'wishlist')}
+      <div class="bacts">
+        <b class="num">{tn(chosen.length, '{n} selected', '{n} selected')}</b>
+        <span class="mv">
+          <select class="sel" bind:value={newCat} aria-label={t('New category')} disabled={!chosen.length || busy}>
+            <option value="">{t('Category …')}</option>
+            {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
+          </select>
+          <button type="button" class="btn" disabled={!chosen.length || !newCat || busy} onclick={moveTo}>{t('Change category')}</button>
+        </span>
+        {#if tab === 'wishlist'}
+          <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => own('owned')}>{t('To my gear')}</button>
+        {:else}
+          <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => own('wishlist')}>{t('To wishlist')}</button>
+        {/if}
+        <button type="button" class="btn danger" disabled={!chosen.length || busy} onclick={remove}>{t('Delete')}</button>
+      </div>
+    {/if}
+  </div>
+{/if}
 
 {#if dialog}
   <ItemDialog item={dialog.item} {items} preset={dialog.preset ?? {}} readOnly={phone.matches && !!dialog.item} onclose={() => (dialog = null)} />
@@ -497,10 +638,11 @@
       z-index: 2;
       background: var(--ground);
       padding: 6px 0;
-      grid-template-columns: minmax(200px, 2fr) 1fr auto 1fr auto;
+      /* v0.24.1 (Noah 5a): one more auto column for "Select" */
+      grid-template-columns: minmax(200px, 2fr) 1fr auto auto 1fr auto;
     }
     .toolbar.areas {
-      grid-template-columns: minmax(200px, 2fr) 1fr 1fr auto 1fr auto;
+      grid-template-columns: minmax(200px, 2fr) 1fr 1fr auto auto 1fr auto;
     }
     .toolbar .q {
       grid-column: auto;
@@ -909,5 +1051,128 @@
   .empty {
     padding: 10px 8px;
     color: var(--ink-3);
+  }
+  /* v0.24.1 (Noah 5a): selecting several items. */
+  .selrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    margin: 4px 0 8px;
+  }
+  .selrow b {
+    margin-right: 4px;
+  }
+  .gpick {
+    display: block;
+    margin: 4px 0 2px auto;
+    min-height: 32px;
+    padding: 4px 0;
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .rows .fr > .pr {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2px 10px;
+    padding: 9px 8px;
+    cursor: pointer;
+  }
+  .pr.on {
+    background: var(--paper-2);
+  }
+  .pr input {
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    grid-row: 1 / span 2;
+    accent-color: var(--ink);
+  }
+  .pr .nm {
+    grid-column: 2;
+  }
+  .pr .bg {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .pr .w {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+  /* Room under the list so the bar never covers the last item. */
+  .bulkpad {
+    height: 150px;
+  }
+  .bulk {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    background: var(--paper);
+    border-top: 1.5px solid var(--line-strong);
+    box-shadow: 0 -4px 14px rgb(0 0 0 / 0.08);
+    padding: 8px max(12px, calc((100vw - 1560px) / 2)) calc(8px + env(safe-area-inset-bottom));
+  }
+  /* Phone: above the bottom bar with its raised + button. */
+  @media (max-width: 719px) {
+    .bulk {
+      bottom: calc(76px + env(safe-area-inset-bottom));
+      padding-bottom: 8px;
+    }
+  }
+  .bacts,
+  .undo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+  .undo {
+    padding-bottom: 6px;
+  }
+  .undo + .bacts {
+    border-top: 1px solid var(--line);
+    padding-top: 6px;
+  }
+  .undo span {
+    flex: 1 1 180px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .bacts b {
+    margin-right: auto;
+  }
+  .bacts .mv {
+    display: flex;
+    gap: 6px;
+    flex: 0 1 460px;
+    min-width: 0;
+  }
+  .bacts .mv .sel {
+    flex: 1;
+    min-height: 40px;
+  }
+  .bacts .btn {
+    white-space: nowrap;
+  }
+  .btn.danger {
+    border-color: var(--bad);
+    color: var(--bad);
+  }
+  @media (max-width: 719px) {
+    .bacts b {
+      flex: 1 0 100%;
+    }
+    .bacts .mv {
+      flex-basis: 100%;
+    }
+    .bacts > .btn {
+      flex: 1 1 auto;
+    }
   }
 </style>

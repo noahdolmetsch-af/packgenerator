@@ -14,6 +14,7 @@
  */
 import { isInventory } from './gear.js';
 import { t, nameOf } from './i18n.svelte.js';
+import { domainOf, hasBike } from './domains.js';
 
 export const WEATHER = [
   { key: 'colder', name: 'Colder' },
@@ -91,6 +92,72 @@ export const newDebrief = (trip, now = new Date().toISOString()) => ({
   createdAt: now,
   updatedAt: now,
 });
+
+/**
+ * v0.24.1 (Noah 3a): "All good" on Today. The finished debrief Debrief.svelte's finish() would
+ * write after "All as planned" with nothing ticked: weather as planned, amount right, bags fine,
+ * every item used, nothing missing, NO suggestion applied (items, templates and learnings stay as
+ * they are). A draft keeps what it already has (its answers, km, note, ride notes); only the empty
+ * answers are filled. The km are not added to the bike here (kmApplied stays as it is).
+ */
+export function quickDebrief(trip, draft = null, now = new Date().toISOString()) {
+  const d = draft ? structuredClone(draft) : newDebrief(trip, now);
+  return {
+    ...d,
+    tripId: trip.id,
+    weather: d.weather ?? 'planned',
+    amount: d.amount ?? 'right',
+    bags: d.bags ?? 'fine',
+    items: d.items ?? {},
+    missing: d.missing ?? [],
+    note: d.note ?? '',
+    applied: d.applied ?? [],
+    status: 'done',
+    doneAt: now,
+    updatedAt: now,
+  };
+}
+
+/** Days of a trip, at least 1. */
+const tripDays = (trip) => Math.max(1, Number(trip?.days) || 1);
+
+/**
+ * v0.24.1 (Noah 4a): offer "Save as template" after the debrief of a day trip? Only when the trip
+ * had 1 day, goes by bike (templates are bike trips), was not started from (or saved as) a template,
+ * the offer was not turned down for it (trip.tplOffer === 'no'), and no template was saved yet
+ * from a day trip of the same area and bike.
+ */
+export function templateOffer(trip, templates = [], trips = []) {
+  if (!trip || tripDays(trip) !== 1 || !hasBike(trip) || trip.templateId || trip.tplOffer === 'no') return false;
+  const byId = Object.fromEntries(trips.map((x) => [x.id, x]));
+  return !templates.some((tp) => {
+    const src = byId[tp.fromTrip];
+    return !!src && tripDays(src) === 1 && domainOf(src) === domainOf(trip) && (src.bikeId ?? null) === (trip.bikeId ?? null);
+  });
+}
+
+/** The kind of a bike from its type ("Full suspension", "Hardtail" → MTB; "Road / gravel" → Gravel), or null. */
+export function bikeKind(bike) {
+  const type = `${bike?.type ?? ''}`.toLowerCase();
+  if (/full|hardtail|mtb|mountain|enduro/.test(type)) return 'MTB';
+  if (/gravel/.test(type)) return 'Gravel';
+  if (/road/.test(type)) return 'Road';
+  return null;
+}
+
+/**
+ * The name the offer starts with: "MTB day ride" when the bike's kind is known, else
+ * "Day ride <bike>", else "Day ride". A name that is already taken gets a number ("… 2").
+ */
+export function templateName(trip, bike = null, templates = []) {
+  const kind = bikeKind(bike);
+  const bikeName = bike?.name ?? trip?.bike ?? '';
+  const base = kind ? t('{kind} day ride', { kind }) : bikeName ? t('Day ride {bike}', { bike: bikeName }) : t('Day ride');
+  const taken = new Set(templates.map((x) => `${x.name}`.toLowerCase()));
+  let name = base;
+  for (let n = 2; taken.has(name.toLowerCase()); n++) name = `${base} ${n}`;
+  return name;
+}
 
 /** Counts for the summary: items not used, their weight, broken and missing. */
 export function debriefCounts(debrief, trip, items) {

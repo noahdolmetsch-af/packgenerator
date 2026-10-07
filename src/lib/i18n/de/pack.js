@@ -494,4 +494,14 @@ export default {
   'Amount, move or take out': 'Menge, verschieben oder herausnehmen',
   'estimate, {n} not weighed': 'Schätzung, {n} nicht gewogen',
   'About {pct} % of the luggage is on the rear wheel (hint above {limit} %, estimate: not everything is weighed).': 'Etwa {pct} % des Gepäcks liegt auf dem Hinterrad (Hinweis ab {limit} %, Schätzung: nicht alles ist gewogen).',
+  // v0.24.1 (Noah 1a, 2a, 6a): calm rows, a day ride in one tap, "Add material" with tick boxes.
+  'Move to': 'Verschieben nach',
+  "All packed, let's go": 'Alles gepackt, los',
+  'Packing check': 'Packkontrolle',
+  '{n} item added to this trip.': '{n} Teil zu dieser Tour hinzugefügt.',
+  '{n} items added to this trip.': '{n} Teile zu dieser Tour hinzugefügt.',
+  'Add {n} item to {bag}': '{n} Teil in {bag} einpacken',
+  'Add {n} items to {bag}': '{n} Teile in {bag} einpacken',
+  'Select all: {group}': 'Alle auswählen: {group}',
+  'Select none: {group}': 'Keine auswählen: {group}',
 };

@@ -46,14 +46,20 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-pack .bag-heading strong { font-weight: 500; }
 .calm-pack .bag-heading small { margin-left: auto; font-size: 14px; color: var(--calm-muted); padding-right: 44px; }
 .calm-pack .planning-rows { margin: 0; padding: 0; list-style: none; }
-.calm-pack .planning-row { position: relative; display: grid; grid-template-columns: minmax(0, 1.4fr) 126px minmax(140px, 1fr) 44px; gap: 28px; align-items: center; min-height: 54px; padding: 6px 8px 6px 76px; border-top: 1px solid #e0e5e4; font-size: 16px; }
+/* v0.24.1 (Noah 1a): a calm row is one button (name, × n, weight); amount, move and take out open below it. */
+.calm-pack .planning-row { position: relative; display: block; padding: 0 0 0 66px; border-top: 1px solid #e0e5e4; font-size: 16px; }
+.calm-pack .planning-row.open { background: #f3f6f3; }
+.calm-pack .row-main { display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 20px; align-items: center; width: 100%; min-height: 54px; padding: 6px 10px; border: 0; background: none; text-align: left; font-size: 16px; }
+.calm-pack .row-main:hover { background: #f3f6f3; }
+.calm-pack .row-chevron { color: #849598; transition: transform .15s; }
+.calm-pack .planning-row.open .row-chevron { transform: rotate(180deg); }
 .calm-pack .item-name { min-width: 0; overflow-wrap: anywhere; }
-.calm-pack .amount { display: flex; height: 38px; border: 1px solid var(--calm-line); border-radius: 4px; overflow: hidden; background: #fff; }
+.calm-pack .item-qty { color: var(--calm-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.calm-pack .amount { display: flex; width: 126px; height: 38px; border: 1px solid var(--calm-line); border-radius: 4px; overflow: hidden; background: #fff; }
 .calm-pack .amount button { width: 38px; border: 0; background: #f4f6f4; display: flex; justify-content: center; align-items: center; }
 .calm-pack .amount span { flex: 1; display: flex; justify-content: center; align-items: center; border-inline: 1px solid var(--calm-line); font-variant-numeric: tabular-nums; }
-.calm-pack .item-weight { font-variant-numeric: tabular-nums; text-align: center; font-size: 15px; }
-.calm-pack .item-more { height: 44px; width: 44px; border: 0; background: none; display: flex; align-items: center; justify-content: center; }
-.calm-pack .item-actions { grid-column: 1 / -1; display: flex; gap: 16px; flex-wrap: wrap; padding: 8px 0 16px; }
+.calm-pack .item-weight { font-variant-numeric: tabular-nums; text-align: right; font-size: 15px; color: var(--calm-muted); }
+.calm-pack .item-actions { display: flex; gap: 16px 24px; flex-wrap: wrap; align-items: center; padding: 4px 10px 16px; }
 .calm-pack .item-actions label { display: flex; gap: 10px; align-items: center; font-size: 14px; }
 .calm-pack .item-actions select { width: 240px; }
 .calm-pack .item-actions p { width: 100%; margin: 0; color: var(--calm-muted); }
@@ -110,7 +116,7 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-pack .review-empty p { color: var(--calm-muted); }
 .calm-pack .calm-error { margin: 12px 20px; color: #9b3909; background: #fff3e1; padding: 12px; }
 .calm-pack .calm-muted { color: var(--calm-muted); font-size: 14px; padding: 0 20px; }
-.calm-pack .calm-status { margin: 16px 0; padding: 12px 16px; background: #edf2ee; color: var(--ink); font-size: 14px; }
+.calm-pack .calm-status, .calm-sheet .calm-status { margin: 16px 0; padding: 12px 16px; background: #edf2ee; color: var(--ink); font-size: 14px; }
 .calm-sheet { max-width: 760px; width: calc(100vw - 32px); max-height: calc(100dvh - 40px); padding: 24px; background: #fafbf8; border: 1px solid #b9c8c5; border-radius: 8px; color: var(--ink); }
 .calm-sheet::backdrop { background: #0f2e2770; }
 .calm-sheet > header { display: flex; gap: 20px; justify-content: space-between; align-items: center; margin-bottom: 24px; }
@@ -123,6 +129,10 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-sheet .np-top { padding: 0 0 16px; border-bottom: 1px solid #d5dddc; }
 .calm-sheet .np-h { display: none; }
 .calm-sheet .inp, .calm-sheet .sel { border: 1px solid #b9c8c5; }
+/* v0.24.1 (Noah 6a): the "Add n items" bar sticks to the bottom of the sheet while it scrolls. */
+.calm-sheet .np-list { overflow: visible; }
+.calm-sheet .np .pick-bar { bottom: -24px; padding-bottom: 16px; }
+@media (max-width: 719px) { .calm-sheet .np .pick-bar { bottom: -18px; } }
 .calm-pack .calm-extra { border-bottom: 1px solid var(--calm-line); padding: 14px 10px; font-size: 15px; }
 .calm-pack .calm-extra summary { cursor: pointer; }
 .calm-pack .extra-inner { padding: 16px 0; }
@@ -155,12 +165,13 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
   .calm-pack .bag-heading { gap: 12px; min-height: 64px; padding-inline: 0; font-size: 16px; }
   .calm-pack .bag-heading small { padding-right: 0; font-size: 12px; white-space: nowrap; }
   .calm-pack .bag-heading > svg:nth-child(2) { width: 22px; }
-  .calm-pack .planning-row { grid-template-columns: minmax(0, 1fr) 44px; gap: 6px 12px; padding: 12px 0 14px 34px; }
+  .calm-pack .planning-row { padding: 0 0 0 26px; }
+  .calm-pack .row-main { gap: 10px; min-height: 52px; padding: 8px 0 8px 8px; }
   .calm-pack .item-name { font-size: 15px; }
-  .calm-pack .item-more { grid-row: 1 / span 2; grid-column: 2; align-self: start; }
-  .calm-pack .amount { grid-column: 1; width: 142px; height: 44px; margin-top: 4px; }
+  .calm-pack .amount { width: 142px; height: 44px; }
   .calm-pack .amount button { width: 44px; }
-  .calm-pack .item-weight { grid-column: 1; text-align: left; font-size: 13px; color: var(--calm-muted); }
+  .calm-pack .item-weight { font-size: 13px; }
+  .calm-pack .item-actions { padding: 4px 0 16px 8px; }
   .calm-pack .item-actions label { flex-direction: column; align-items: flex-start; width: 100%; }
   .calm-pack .item-actions select { width: 100%; }
   .calm-pack .detail-link, .calm-pack .weight-details > summary { gap: 12px; padding-inline: 0; font-size: 16px; }
@@ -191,12 +202,13 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
   .calm-pack .review-footer > div { width: 100%; text-align: center; }
   .calm-pack .review-footer .primary { min-width: 0; width: 100%; }
   .calm-pack .empty-bag { padding-left: 34px; }
+  .calm-pack .footer-actions .day-check { align-self: center; }
   .calm-sheet { max-height: calc(100dvh - 24px); padding: 18px; }
   .calm-sheet h2 { font-size: 23px; }
 }
 @media print { .calm-pack, .calm-sheet { display: none !important; } }
 
-.calm-pack .drag-handle { position: absolute; left: 20px; color: #849598; cursor: grab; }
+.calm-pack .drag-handle { position: absolute; left: 20px; top: 17px; color: #849598; cursor: grab; }
 @media (max-width: 719px) { .calm-pack .drag-handle { display: none; } }
 /* v0.24.0 (Noah, fewer clicks): on a wide screen the next step stays in view below a long list. */
 @media (min-width: 720px) { .calm-pack .list-footer.next { position: sticky; bottom: 0; z-index: 4; background: var(--ground); border-top: 1px solid var(--calm-line); padding: 12px 0; } }
