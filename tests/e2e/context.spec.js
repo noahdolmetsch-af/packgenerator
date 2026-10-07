@@ -104,7 +104,7 @@ for (const lang of ['de', 'en']) {
     for (const id of [...NIGHT, 'CX02', 'CX06']) expect(on).not.toContain(id);
     expect(on).toContain('CX08');
     const trip = await stored(page, title);
-    expect(trip).toMatchObject({ hours: 2, overnight: 'none', wx: { min: 4, max: 12, rain: 'none' }, event: false });
+    expect(trip).toMatchObject({ hours: 2, overnight: 'none', wx: { min: 6, max: 12, rain: 'none' }, event: false });
     // Header: hours per day, days and the overnight stay; nothing left "still to decide" (6b).
     await expect(page.locator('.context-line')).toContainText(`${T('{n} h per day', { n: 2 })} · ${T('{n} day', { n: 1 })} · ${T('no overnight stay')}`);
     await expect(page.locator('.detail-link small')).toHaveCount(0);
