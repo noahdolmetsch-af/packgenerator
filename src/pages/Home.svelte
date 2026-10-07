@@ -639,6 +639,7 @@
     border-radius: 14px;
     background: var(--paper);
   }
+  .hub header h2 { min-width: 0; overflow-wrap: anywhere; }
   .hub header {
     display: flex;
     justify-content: space-between;

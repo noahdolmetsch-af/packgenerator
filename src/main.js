@@ -1,4 +1,13 @@
 import { mount } from 'svelte';
+// Keep the existing typefaces available offline and independent of Google Fonts.
+import '@fontsource/fira-sans/latin-400.css';
+import '@fontsource/fira-sans/latin-500.css';
+import '@fontsource/fira-sans/latin-600.css';
+import '@fontsource/fira-sans/latin-700.css';
+import '@fontsource/sofia-sans-extra-condensed/latin-600.css';
+import '@fontsource/sofia-sans-extra-condensed/latin-700.css';
+import '@fontsource/sofia-sans-extra-condensed/latin-800.css';
+import '@fontsource/sofia-sans-extra-condensed/latin-900.css';
 import './app.css';
 import App from './App.svelte';
 import { db } from './lib/db.js';
