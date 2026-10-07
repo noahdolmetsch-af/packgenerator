@@ -30,8 +30,12 @@ export async function deletePlan(db, ids) {
  * Returns the undo snapshot: the items, the trips before, and the template setting before.
  */
 export async function deleteItems(db, ids) {
-  return db.transaction('rw', db.items, db.trips, db.settings, async () => {
+  return db.transaction('rw', db.items, db.trips, db.settings, db.containers, async () => {
     const items = (await db.items.bulkGet(ids)).filter(Boolean);
+    // A bag on a bike that is this item keeps its place but loses the link (no dangling ID).
+    const gone = new Set(ids);
+    const bagsBefore = (await db.containers.toArray()).filter((c) => c.itemId && gone.has(c.itemId));
+    if (bagsBefore.length) await db.containers.bulkPut(bagsBefore.map((c) => ({ ...c, itemId: null })));
     const tripsBefore = await db.trips.toArray();
     const setting = await db.settings.get(TEMPLATES_KEY);
     const plan = bulkDelete(ids, tripsBefore, setting?.value ?? []);
@@ -43,14 +47,16 @@ export async function deleteItems(db, ids) {
       items,
       trips: tripsBefore.filter((t) => changedIds.has(t.id)),
       ...(plan.templates ? { templates: setting } : {}),
+      ...(bagsBefore.length ? { containers: bagsBefore } : {}),
     };
   });
 }
 
 /** Undo: write the records of a snapshot back exactly as they were. */
 export async function undoBulk(db, snap) {
-  return db.transaction('rw', db.items, db.trips, db.settings, async () => {
+  return db.transaction('rw', db.items, db.trips, db.settings, db.containers, async () => {
     if (snap.items?.length) await db.items.bulkPut(snap.items);
+    if (snap.containers?.length) await db.containers.bulkPut(snap.containers);
     if (snap.trips?.length) await db.trips.bulkPut(snap.trips);
     if ('templates' in snap) {
       if (snap.templates) await db.settings.put(snap.templates);
