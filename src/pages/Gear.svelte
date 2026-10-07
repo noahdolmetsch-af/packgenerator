@@ -59,7 +59,15 @@
   const fromHash = new URLSearchParams(location.hash.split('?')[1] ?? '').get('tab');
   let tab = $state(TABS.includes(fromHash) ? fromHash : 'inventory');
   const toReview = $derived(stats.inventory.filter((i) => !i.reviewedAt).length);
-  let dialog = $state(null); // { item } or { item: null } for "Add item"
+  let dialog = $state(null); // { item } or { item: null, preset? } for "Add item"
+  // v0.23.0 (AP08): the weight analyses sit below the list, folded shut until opened.
+  let analysis = $state(false);
+  // v0.23.0 (AP08): "Add item" starts with what the page already knows: the search text as the name,
+  // the chosen category and area, and "Wishlist" on the wishlist tab.
+  function addItem(extra = {}) {
+    const preset = { ...(filter.domain ? { domains: [filter.domain] } : {}), ...(filter.category ? { category: filter.category } : {}), ...(tab === 'wishlist' ? { ownership: 'wishlist' } : {}), ...extra };
+    dialog = { item: null, preset };
+  }
   // Categories folded shut (10a). On the phone everything starts folded, on the desktop open.
   let folded = $state(phone.matches ? Object.fromEntries(CATEGORIES.map((c) => [c.key, true])) : {});
 
@@ -89,7 +97,7 @@
   const open = (item) => (dialog = { item });
   // v0.19.6: "New → Gear item" from any page opens "Add item" here.
   $effect(() => {
-    const add = () => take('gear.add') && (dialog = { item: null });
+    const add = () => take('gear.add') && addItem();
     add();
     window.addEventListener('pg:additem', add);
     return () => window.removeEventListener('pg:additem', add);
@@ -188,12 +196,11 @@
             <option value="none">{t('No role')}</option>
           </select>
         </label>
-        <div class="acts"><button type="button" class="btn hi" onclick={() => (dialog = { item: null })}>{t('Add item')}</button></div>
+        <div class="acts"><button type="button" class="btn hi" onclick={() => addItem()}>{t('Add item')}</button></div>
       {/if}
     </div>
 
     {#if tab === 'inventory'}
-      <WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />
       <div class="inv">
         {#if !phone.matches}
           <nav class="side" aria-label={t('Jump to a category')}>
@@ -248,11 +255,16 @@
             {:else}
               {#if items.length && filter.fav && !favN.inventory}
                 <p class="card">{t('No favourites in your inventory yet. Tap the ☆ in front of an item to mark it.')} <button type="button" class="btn" onclick={clearFilters}>{t('Show all items')}</button></p>
-              {:else if items.length}<p class="card">{t('Nothing matches.')} <button type="button" class="btn" onclick={clearFilters}>{t('Clear search and filters')}</button></p>{/if}
+              {:else if items.length}{@render nothing()}{/if}
             {/each}
           </div>
         </div>
       </div>
+      <!-- v0.23.0 (AP08): the analyses come after the list, in one fold that starts closed. -->
+      <details class="analysis" bind:open={analysis}>
+        <summary><span class="title">{t('Analysis')}</span> <small>{t('Weight by category and the heaviest items')}</small></summary>
+        {#if analysis}<WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />{/if}
+      </details>
     {:else}
       <section class="wish" aria-labelledby="wish-h">
         <h2 id="wish-h" class="title">{t('Wishlist & to buy')}</h2>
@@ -269,7 +281,7 @@
               </button>
             </li>
           {:else}
-            <li class="empty">{filter.fav ? t('No favourites on the wishlist.') : t('No wishlist items match.')}</li>
+            <li class="empty">{filter.fav ? t('No favourites on the wishlist.') : t('No wishlist items match.')}{#if filter.q.trim() && !filter.fav}{' '}<button type="button" class="btn sm" onclick={() => addItem({ name: filter.q.trim() })}>{t('Add "{q}" as a new item', { q: filter.q.trim() })}</button>{/if}</li>
           {/each}
         </ul>
       </section>
@@ -287,8 +299,19 @@
   {/if}
 </div>
 
+{#snippet nothing()}
+  <!-- v0.23.0 (AP08): zero results offer to add what was searched for. -->
+  <div class="card none">
+    <p><b>{t('Nothing found.')}</b>{#if filter.q.trim()}{' '}{t('No item matches "{q}".', { q: filter.q.trim() })}{/if}</p>
+    <div class="acts">
+      {#if filter.q.trim()}<button type="button" class="btn hi" onclick={() => addItem({ name: filter.q.trim() })}>{t('Add "{q}" as a new item', { q: filter.q.trim() })}</button>{/if}
+      <button type="button" class="btn" onclick={clearFilters}>{t('Clear search and filters')}</button>
+    </div>
+  </div>
+{/snippet}
+
 {#if dialog}
-  <ItemDialog item={dialog.item} {items} preset={filter.domain ? { domains: [filter.domain] } : {}} readOnly={phone.matches && !!dialog.item} onclose={() => (dialog = null)} />
+  <ItemDialog item={dialog.item} {items} preset={dialog.preset ?? {}} readOnly={phone.matches && !!dialog.item} onclose={() => (dialog = null)} />
 {/if}
 
 <style>
@@ -638,6 +661,50 @@
   }
   .gone {
     margin-top: 18px;
+  }
+  /* v0.23.0 (AP08): the folded analyses under the list. */
+  .analysis {
+    margin-top: 24px;
+    border-top: 1px solid var(--line-strong);
+    padding-top: 10px;
+  }
+  .analysis summary {
+    list-style: none;
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 10px;
+  }
+  .analysis summary::-webkit-details-marker {
+    display: none;
+  }
+  .analysis summary::before {
+    content: '▸';
+    margin-right: 2px;
+    transition: transform 0.15s;
+  }
+  .analysis[open] summary::before {
+    transform: rotate(90deg);
+  }
+  .analysis summary .title {
+    font-size: var(--fs-sub);
+    font-weight: 600;
+  }
+  .analysis summary small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .none p {
+    margin: 0 0 10px;
+    overflow-wrap: anywhere;
+  }
+  .none .btn {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: left;
   }
   /* Desktop: a side column to jump between categories, categories in two columns (G1). */
   @media (min-width: 720px) {

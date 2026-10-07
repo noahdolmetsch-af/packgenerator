@@ -235,4 +235,19 @@ export default {
   'bike weight measured': 'Velogewicht gemessen',
   'Bike weighs': 'Velo wiegt',
   '{n} not weighed (+ {f} food and water)': '{n} nicht gewogen (+ {f} Verpflegung und Wasser)',
+  // v0.23.0 (AP08): list first, short "Add item" dialog
+  Analysis: 'Auswertung',
+  'Weight by category and the heaviest items': 'Gewicht nach Kategorie und die schwersten Teile',
+  'Nothing found.': 'Nichts gefunden.',
+  'No item matches "{q}".': 'Kein Teil passt zu «{q}».',
+  'Add "{q}" as a new item': '«{q}» als neues Material erfassen',
+  required: 'Pflicht',
+  optional: 'optional',
+  'Choose a category': 'Kategorie wählen',
+  'Choose a category.': 'Wähle eine Kategorie.',
+  'More details': 'Mehr Angaben',
+  'brand, quantity, bag, role, areas, overnight sets, layers, note': 'Marke, Anzahl, Tasche, Rolle, Reisearten, Übernachtungssets, Schichten, Notiz',
+  // v0.23.0 (AP09): the category of an existing item can change, its ID stays
+  'New category: {cat}. The ID {id} stays the same, so trips, templates, kits, bags and favourites keep this item.':
+    'Neue Kategorie: {cat}. Die ID {id} bleibt gleich, Touren, Vorlagen, Kits, Taschen und Favoriten behalten das Teil.',
 };
