@@ -126,8 +126,7 @@ for (const lang of ['en', 'de']) {
     await page.getByLabel(T('Area'), { exact: true }).selectOption('weekend');
     await expect(page.locator('.rows').getByText('Paperback book')).toBeVisible();
     await expect(page.locator('.rows').getByText('Bib shorts')).toHaveCount(0);
-    // (no width check here: without the web font the German Gear title and tabs are wider than 390 px,
-    // also before v0.21.0; reported to Noah)
+    await fits('Gear');
 
     // 10. All my favourite things, by area.
     await page.goto('./#/favorites');

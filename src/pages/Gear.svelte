@@ -270,6 +270,9 @@
   }
   .head .title {
     font-size: clamp(56px, 12vw, 88px);
+    /* v0.21.0: without the web font (offline) the German title was wider than a 390 px phone. */
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
   .kpis {
     display: flex;
@@ -306,7 +309,7 @@
   }
   .tabs {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr)); /* v0.21.0: tabs may shrink below their label width */
     border: 2px solid var(--ink);
     border-radius: 6px;
     overflow: hidden;
@@ -334,6 +337,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    hyphens: auto;
   }
   .tabs button:last-child {
     border-right: 0;

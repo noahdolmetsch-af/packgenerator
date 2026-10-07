@@ -1,8 +1,14 @@
 # Projektstand
 
-Stand: 5. Oktober 2026
+Stand: 7. Oktober 2026
 
 ## Fertig
+- **Echt benutzen, vereinfachen, Reisearten (v0.21.0):**
+  - **Startseite "Still open":** was noch fehlt, damit die App für dich rechnen kann (Velos wägen, GPX laden, Inventar prüfen, Favoriten anwenden, erste echte Tour). Backup-Hinweis auch nach jedem neuen Rückblick. "Your data" zeigt, aus welchem Backup die Daten stammen (Phone ist das Hauptgerät, der Desktop holt den Stand per Backup-Datei).
+  - **Velos und Velopflege auf einer Seite:** Velos mit den Tabs Setup | Pflege. Pflege zeigt oben "Jetzt fällig" für alle Velos, dann die nächste Tour; jedes Velo ist eine zugeklappte Zeile. Die Excel-Vorbereitung ist eine Zeile "Vorbereitung: n offen". Pflege von 159 auf 13 Bedienelemente, Setup am Phone von 5.9 auf 2.1 Bildschirme. Die alte Adresse #/care führt auf den Tab Pflege.
+  - **Pack ruhiger:** ein Menü "•••" für Tourwahl und seltene Aktionen, vier Gewichte (System, Basis, Am Körper, Essen und Wasser), der Rest unter "Mehr". "Vor der Tour", "Fahrt und Wetter" und "Nacht" zugeklappt mit einer Zeile Zusammenfassung. Knöpfe pro Teil erscheinen am Desktop beim Darüberfahren, am Phone nach Antippen. Hinweis bei schweren Teilen (über 500 g) in Lenker-, Seiten- oder Satteltasche. Desktop von 296 auf 48 Bedienelemente.
+  - **Reisearten (Paket 5):** neben Bikepacking auch Skitour (Rucksack 30 L), Wochenende (Reisetasche + Tagesrucksack) und Weltreise (Rucksack 60 L + Tagesrucksack), jeweils mit "Am Körper". Neue Tour fragt zuerst die Reiseart; ohne Velo keine Zeichnung, kein Fahrtag (Packliste → Packtag → Rückblick). Ein Inventar: Teile können zu mehreren Reisearten gehören (Gear → Teil bearbeiten), Filter nach Reiseart in Gear, sobald es mehr als eine gibt. Neue Seite "All my favourite things" (alle ★, nach Reiseart, druckbar).
+  - **Automatischer Test der ganzen Runde:** bei jedem Pull Request im Browser (Phone und Desktop, Deutsch und Englisch): Daten laden → neue Tour → packen → Packtag → Fahrtag → Rückblick, dazu eine Wochenend-Tour. Er hat schon 2 Fehler in Pack gefunden (Dialog öffnete vor den Velos, Knopfreihe zu breit) und einen in Gear (ohne Schrift offline zu breit am Phone).
 - **Grosser Knopf „Weiter“ (v0.20.2):** Pack zeigt oben die vier Schritte der Tour (Packliste, Packtag, Fahrtag, Rückblick) und einen grossen orangen Knopf zum nächsten: Packtag, solange nicht alles gepackt und der Startcheck nicht fertig ist; dann Fahrtag; nach der Tour Rückblick. Der Fahrtag hat am letzten Tag oben „Weiter: Tour beenden und Rückblick“.
 - **Ganze Runde durchspielbar (v0.20.1):** „Neu → Packliste“ öffnete keine neue Tour, solange noch keine Vorlage gespeichert war; behoben. Fahrtag hat unten „Tour beenden und Rückblick“: Die Tour gilt sofort als beendet (nicht erst am Tag danach) und der Rückblick öffnet. Pack zeigt ab dem Starttag einen Knopf „Rückblick“. Runde: Neu → Packliste → Tour erstellen → packen → Fahrtag → Tour beenden → Rückblick.
 - **Deutsch und Englisch (v0.20.0):** Oben in der Leiste DE | EN, auf jeder Seite. Die Wahl gilt pro Gerät (Phone und Desktop getrennt) und bleibt gespeichert; Englisch ist Standard. Alle Knöpfe, Titel, Hinweise, Fehlermeldungen, Daten und Zahlen (1’460, 15. Okt.) wechseln mit, Gear-Teile zeigen ihren deutschen Namen aus der Excel. Was du selbst geschrieben hast (Tour- und Taschennamen, Learnings, Notizen, Aufgaben aus der Excel, Logbuch) bleibt, wie es ist. Schweizer Schreibweise (ss statt ß, Velo).
@@ -41,6 +47,9 @@ Stand: 5. Oktober 2026
 - **Runde 3 (Antworten 1–10):** 4 echte Velos mit Setups, fixe Halterungen, Nacht-Sets inkl. Light, Wetter mit Kleider-Vorschlag, Volumen-Warnung mit Taschen-Vorschlag, Wägen aus Pack, Druckliste, Gepäck vorne/hinten, Inventar-Check.
 
 ## To-do für Noah
+- [ ] Nächste echte Fahrt (Arbeitsweg) am Phone durchspielen bis zum Rückblick.
+- [ ] GPX-Fahrten laden (Rückblick → Your pace).
+- [ ] Skitour-Ausrüstung als Liste schicken.
 - [ ] Favoriten-Datei am Phone und am Desktop laden (Your data → Import backup → Apply favourites).
 - [ ] **Inventar durchgehen:** Gear → "Check inventory" (am Phone Tab "Check"). Pro Teil: Still have it / Gone / Replaced by… / fehlende Teile mit "Add item" ergänzen.
 - [ ] Scott Scale, Scott Spark und Factor LS wägen (ohne Taschen, mit Garmin-, Quad-Lock- und Flaschenhalterungen) und auf "Bikes" eintragen. Canyon ist erledigt (10.1 kg).
@@ -57,7 +66,9 @@ Stand: 5. Oktober 2026
 - [ ] Erstes Backup herunterladen (Startseite → Download backup).
 
 ## Läuft
-- Nutzen pro Seite: Vorschläge N1-N16 im Dokument "Pack Generator: Mehr Nutzen pro Seite", alle beantwortet und mit 0.19.5 umgesetzt.
+- Plan im Dokument "Pack Generator: Ist-Analyse und Plan": Etappen A-D; 10 Rückfragen offen (Annahmen = ★).
 
 ## Als Nächstes
-1. Paket 5: weitere Bereiche (Skitouren, Weekend-Trip, Weltreise) und Merkliste "All my favorite things".
+1. Etappe A: erste echte Tour (Arbeitsweg) mit Rückblick am Phone. Gate: 1 echter Rückblick.
+2. Etappe D: Vorschläge aus echten Rückblicken sichtbar machen, sobald 3 echte Rückblicke da sind.
+3. Skitour-Ausrüstung importieren, sobald Noah die Liste schickt.
