@@ -16,7 +16,13 @@
   let dialog;
 
   // Gear items that can hold the weight of a bag: bags first, then bike parts.
-  const linkable = $derived(items.filter((i) => i.category === 'bags' || i.category === 'bike').sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name)));
+  // v0.23.0 (AP09): the item already linked stays in the list, also after its category changed,
+  // so saving the bag never drops the link (and the weight) without being asked.
+  const linkable = $derived(
+    items
+      .filter((i) => i.category === 'bags' || i.category === 'bike' || (bag?.itemId && i.id === bag.itemId))
+      .sort((a, b) => (a.category ?? '').localeCompare(b.category ?? '') || a.name.localeCompare(b.name)),
+  );
   const linked = $derived(items.find((i) => i.id === draft.itemId));
 
   $effect(() => {

@@ -1,0 +1,287 @@
+{
+ "app": "pack-generator",
+ "schemaVersion": 4,
+ "exportedAt": "2026-10-07T10:00:00.000Z",
+ "tables": {
+  "items": [
+   {
+    "id": "test_data_gtp_KL92",
+    "name": "test_data_gtp_ Rain jacket",
+    "nameDe": "test_data_gtp_ Regenjacke",
+    "brand": "Testbrand",
+    "model": "Blue M",
+    "category": "onbike",
+    "weightG": 300,
+    "qty": 1,
+    "weightStatus": "logbook",
+    "weightNote": "from the logbook",
+    "carry": "luggage",
+    "defaultBag": "bar",
+    "ownership": "owned",
+    "role": "standard",
+    "always": true,
+    "favorite": true,
+    "favNote": "never let me down",
+    "lists": [
+     "test_data_gtp_list"
+    ],
+    "sets": [
+     "base"
+    ],
+    "kits": [
+     "test_data_gtp_K"
+    ],
+    "domains": [
+     "bikepacking",
+     "weekend"
+    ],
+    "ride": "daily",
+    "rain": "yes",
+    "coldBelow": 10,
+    "perHours": 3,
+    "waterL": 0.5,
+    "maxQty": 2,
+    "replaces": "test_data_gtp_KL90",
+    "altFor": "test_data_gtp_KL91",
+    "volumeL": 8,
+    "learning": "Pack it on top",
+    "note": "fictional test item",
+    "reviewedAt": "2026-10-01T10:00:00.000Z",
+    "updatedAt": "2026-10-01T10:00:00.000Z"
+   },
+   {
+    "id": "test_data_gtp_TA90",
+    "name": "test_data_gtp_ Roll bag",
+    "category": "bags",
+    "weightG": 300,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "bar",
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "nameDe": "test_data_gtp_ Rolltasche"
+   },
+   {
+    "id": "test_data_gtp_KL90",
+    "name": "test_data_gtp_ Jersey",
+    "category": "onbike",
+    "weightG": 150,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "body",
+    "ownership": "owned",
+    "role": "worn",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_KL91",
+    "name": "test_data_gtp_ Wind vest",
+    "category": "onbike",
+    "weightG": 80,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": "standard",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "ride": "daily"
+   },
+   {
+    "id": "test_data_gtp_EL90",
+    "name": "test_data_gtp_ Bike computer with a really long name that has to wrap on a small phone screen",
+    "category": "elec",
+    "weightG": null,
+    "qty": 1,
+    "weightStatus": "missing",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_WZ90",
+    "name": "test_data_gtp_ Multitool",
+    "category": "tools",
+    "weightG": 120,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_SL90",
+    "name": "test_data_gtp_ Sleeping bag",
+    "category": "sleep",
+    "weightG": 700,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "wishlist",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   }
+  ],
+  "kits": [
+   {
+    "id": "test_data_gtp_K",
+    "name": "test_data_gtp_ Kit",
+    "domain": "bikepacking"
+   }
+  ],
+  "trips": [
+   {
+    "id": "test_data_gtp_trip",
+    "domain": "bikepacking",
+    "title": "test_data_gtp_ Trip",
+    "startDate": "2026-12-10",
+    "days": 2,
+    "hours": 6,
+    "bikeId": "test_data_gtp_bike",
+    "setup": {
+     "bar": "bag-test_data_gtp_roll"
+    },
+    "entries": [
+     {
+      "itemId": "test_data_gtp_KL92",
+      "slot": "bar",
+      "qty": 2,
+      "packed": true
+     },
+     {
+      "itemId": "test_data_gtp_WZ90",
+      "slot": "bar",
+      "qty": 1,
+      "packed": false
+     }
+    ],
+    "ready": [
+     {
+      "id": "charged",
+      "label": "Devices charged",
+      "done": false
+     }
+    ],
+    "status": "planned"
+   }
+  ],
+  "debriefs": [],
+  "learnings": [
+   {
+    "id": "test_data_gtp_L1",
+    "topic": "Bags",
+    "rule": "Pack it on top",
+    "action": "",
+    "itemIds": [
+     "test_data_gtp_KL92"
+    ],
+    "source": "test",
+    "appliesTo": [
+     "all"
+    ],
+    "priority": "high"
+   }
+  ],
+  "events": [],
+  "maintenance": [],
+  "bikes": [
+   {
+    "id": "test_data_gtp_bike",
+    "name": "test_data_gtp_ Bike",
+    "weightG": 10000,
+    "slots": [
+     "bar",
+     "seat"
+    ],
+    "setup": {
+     "bar": "bag-test_data_gtp_roll",
+     "seat": null
+    },
+    "fixtures": []
+   }
+  ],
+  "containers": [
+   {
+    "id": "bag-test_data_gtp_roll",
+    "name": "test_data_gtp_ Roll bag",
+    "slot": "bar",
+    "volumeL": 8,
+    "itemId": "test_data_gtp_TA90",
+    "pieces": 2,
+    "note": ""
+   }
+  ],
+  "weightChecks": [
+   {
+    "id": 1,
+    "item": "test_data_gtp_ Rain jacket",
+    "itemId": "test_data_gtp_KL92",
+    "logbook": "320 g",
+    "online": "290 g",
+    "adoptedG": 300,
+    "decision": "weighed",
+    "sources": "",
+    "link": ""
+   }
+  ],
+  "settings": [
+   {
+    "key": "templates",
+    "value": [
+     {
+      "id": "test_data_gtp_tpl",
+      "name": "test_data_gtp_ Weekend",
+      "setup": {
+       "bar": "bag-test_data_gtp_roll"
+      },
+      "entries": [
+       {
+        "itemId": "test_data_gtp_KL92",
+        "slot": "bar",
+        "qty": 2
+       }
+      ],
+      "ready": [],
+      "sets": {},
+      "purpose": {}
+     }
+    ]
+   }
+  ],
+  "visits": [],
+  "photos": [],
+  "notes": []
+ }
+}
