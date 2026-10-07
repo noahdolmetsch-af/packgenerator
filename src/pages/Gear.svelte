@@ -102,6 +102,16 @@
     window.addEventListener('pg:additem', add);
     return () => window.removeEventListener('pg:additem', add);
   });
+  // v0.23.1 (Noah): "Search" on the start page Gear card opens Gear with ?find=1: the inventory
+  // tab with the cursor in the search field.
+  let searchEl = $state();
+  function findFocus() {
+    tab = 'inventory';
+    requestAnimationFrame(() => searchEl?.focus());
+  }
+  $effect(() => {
+    if (searchEl && hashQ.get('find') === '1') findFocus();
+  });
   // A new search from the top bar while Gear is open.
   $effect(() => {
     const read = () => {
@@ -110,6 +120,7 @@
       const q = params.get('q');
       if (q != null) (filter.q = q), (tab = 'inventory');
       filter.fav = params.get('fav') === '1';
+      if (params.get('find') === '1') findFocus();
     };
     window.addEventListener('hashchange', read);
     return () => window.removeEventListener('hashchange', read);
@@ -165,7 +176,7 @@
     <ReviewMode {items} />
   {:else}
     <div class="toolbar" class:areas={showAreas}>
-      <label class="q"><span class="lbl">{t('Search gear')}</span><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} bind:value={filter.q} /></label>
+      <label class="q"><span class="lbl">{t('Search gear')}</span><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} bind:value={filter.q} bind:this={searchEl} /></label>
       <label>
         <span class="lbl">{t('Category')}</span>
         <select class="sel" bind:value={filter.category}>

@@ -150,7 +150,7 @@ test('Today folds the places on the phone', async ({ page, context }, info) => {
   // touch opens Trips, the keyboard opens Gear
   await folds.nth(0).locator('summary').tap();
   await expect(folds.nth(0)).toHaveJSProperty('open', true);
-  await expect(folds.nth(0).getByRole('button', { name: T('New packing list') })).toBeVisible();
+  await expect(folds.nth(0).getByRole('button', { name: T('Plan a trip') })).toBeVisible();
   await folds.nth(1).locator('summary').focus();
   await page.keyboard.press('Enter');
   await expect(folds.nth(1)).toHaveJSProperty('open', true);
@@ -158,4 +158,25 @@ test('Today folds the places on the phone', async ({ page, context }, info) => {
   await expect(page.locator('main section.band')).toBeVisible();
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
+});
+
+// v0.23.1 (Noah): "Search" on the Gear card puts the cursor in Gear's search field, and "+" says
+// it plans a trip. Empty database.
+test('Gear card search and + plans a trip', async ({ page, context }) => {
+  const T = tr('de');
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.goto('./#/gear?find=1');
+  await expect(page.getByRole('searchbox', { name: T('Search gear') })).toBeFocused();
+  await page.goto('./#/');
+  // On the phone the Gear card is folded: open it first.
+  const gearFold = page.locator('details.hub').filter({ has: page.locator('#gear-h') });
+  if (await gearFold.count()) await gearFold.locator('summary').click();
+  await page.locator('.hub').filter({ has: page.locator('#gear-h') }).getByRole('link', { name: T('Search'), exact: true }).click();
+  await expect(page).toHaveURL(/#\/gear\?find=1/);
+  await expect(page.getByRole('searchbox', { name: T('Search gear') })).toBeFocused();
+  await page.goto('./#/');
+  await page.getByRole('button', { name: T('New'), exact: true }).first().click();
+  await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
+  await expect(page.getByRole('dialog', { name: T('Plan a new trip') })).toContainText(T('Choose how the packing list starts. Next you set the name, date, days and bike.'));
 });

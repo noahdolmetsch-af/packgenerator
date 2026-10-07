@@ -323,7 +323,7 @@
 
   <!-- Phone: four ways to create, one tap each (desktop has "New" in the top bar). -->
   <nav class="quick" aria-label={t('Create')}>
-    <button type="button" onclick={() => openNew('list')}><span class="ring hi">{@render ic('plus', 22)}</span>{t('New list')}</button>
+    <button type="button" onclick={() => openNew('list')}><span class="ring hi">{@render ic('plus', 22)}</span>{t('Plan a trip')}</button>
     <button type="button" onclick={() => openNote('')}><span class="ring">{@render ic('note', 22)}</span>{t('Note')}</button>
     <button type="button" onclick={addItem}><span class="ring">{@render ic('star', 22)}</span>{t('Gear item|short')}</button>
     <button type="button" onclick={() => openNew('km')}><span class="ring">{@render ic('bike', 22)}</span>{t('Log km')}</button>
@@ -354,7 +354,7 @@
         </ul>
       </div>
       <div class="foot">
-        <button type="button" class="btn sm" onclick={() => openNew('list')}>{@render ic('plus', 16)}{t('New packing list')}</button>
+        <button type="button" class="btn sm" onclick={() => openNew('list')}>{@render ic('plus', 16)}{t('Plan a trip')}</button>
       </div>
     {/snippet}
     {@render hub('pack', t('Trips|place'), '#/pack', 'bag', packBody)}
@@ -386,6 +386,8 @@
       </div>
       <div class="foot">
         <button type="button" class="btn sm" onclick={addItem}>{@render ic('plus', 16)}{t('Add item')}</button>
+        <!-- v0.23.1 (Noah): search right from the card, the cursor waits in Gear's search field. -->
+        <a class="btn sm" href="#/gear?find=1">{t('Search')}</a>
         <a class="btn sm" href="#/gear?fav=1">★ {t('Favourites')}</a>
         <a class="btn sm" href="#/gear?tab=wishlist">{t('Wishlist')}</a>
       </div>

@@ -43,8 +43,8 @@ for (const lang of ['en', 'de']) {
 
     // 2. New → Packing list → the area first: Weekend → Items of this area.
     await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
-    await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Packing list') }).click();
-    const list = page.getByRole('dialog', { name: T('New packing list') });
+    await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
+    const list = page.getByRole('dialog', { name: T('Plan a new trip') });
     await list.getByRole('group', { name: T('Area') }).getByRole('button', { name: T('Weekend'), exact: true }).click();
     await fits('New packing list, weekend');
     await list.getByRole('button', { name: T('Items of this area') }).click();

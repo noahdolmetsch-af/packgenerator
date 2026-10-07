@@ -378,6 +378,12 @@ export default {
   'Two minutes: what you did not use, what broke, what you missed.': 'Zwei Minuten: was du nicht gebraucht hast, was kaputt ging, was gefehlt hat.',
   'Show the list': 'Liste ansehen',
   'Start a new trip': 'Neue Tour starten',
+  // v0.23.1 (Noah): "+" plans a trip; search from the Gear card.
+  'Plan a trip': 'Tour planen',
+  'Plan a new trip': 'Neue Tour planen',
+  'Name, date, bike and packing list': 'Name, Datum, Velo und Packliste',
+  'Choose how the packing list starts. Next you set the name, date, days and bike.': 'Wähle, womit die Packliste startet. Danach legst du Name, Datum, Tage und Velo fest.',
+  'Search': 'Suchen',
   'Also to do': 'Ausserdem zu tun',
   'Add a bike': 'Velo erfassen',
   // v0.23.1 (Noah 3b): the folded places on Today, phone

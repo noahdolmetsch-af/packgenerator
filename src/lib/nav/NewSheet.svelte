@@ -55,7 +55,7 @@
 
 <dialog class="sheet new" bind:this={dialog} onclose={() => ((mode = null), (kmMsg = ''))} aria-labelledby="new-h">
   <div class="top">
-    <h2 id="new-h" class="title">{mode === 'list' ? t('New packing list') : mode === 'km' ? t('km for a bike') : t('New')}</h2>
+    <h2 id="new-h" class="title">{mode === 'list' ? t('Plan a new trip') : mode === 'km' ? t('km for a bike') : t('New')}</h2>
     <button type="button" class="btn sm" onclick={close}>{t('Close')}</button>
   </div>
 
@@ -63,6 +63,8 @@
     <div class="areas" role="group" aria-label={t('Area')}>
       {#each DOMAINS as d (d.key)}<button type="button" class="chip" aria-pressed={area === d.key} onclick={() => (area = d.key)}>{t(d.name)}</button>{/each}
     </div>
+    <!-- v0.23.1 (Noah): "+" plans a trip; say what comes after the start choice. -->
+    <p class="small">{t('Choose how the packing list starts. Next you set the name, date, days and bike.')}</p>
     <ul class="opts">
       {#if !byBike}
         <li><button type="button" class="opt" onclick={() => run(() => newTrip('last', area))}><b>{t('Copy the last trip')}</b><span>{t('The last {area} trip, or the {area} items when there is none', { area: t(domainName(area)) })}</span></button></li>
@@ -93,7 +95,7 @@
     </form>
   {:else}
     <ul class="opts grid">
-      <li><button type="button" class="opt hi" onclick={() => (mode = 'list')}><b>{t('Packing list')}</b><span>{t('Template, copy or standard set')}</span></button></li>
+      <li><button type="button" class="opt hi" onclick={() => (mode = 'list')}><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => run(addItem)}><b>{t('Gear item')}</b><span>{t('Name, weight, bag')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><b>{t('Quick note')}</b><span>{t('Text or photo, sorted later')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => (mode = 'km')}><b>{t('km for a bike')}</b><span>{t('What the counter says')}</span></button></li>
