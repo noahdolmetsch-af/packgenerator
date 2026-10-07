@@ -1,7 +1,7 @@
 <script>
   /**
    * Edit a template directly, without a trip (Noah, 4.10.2026, templates answer 7b):
-   * add items from "Not packed" (+ or drag onto a place), change the amount, move or remove
+   * add items from "Other gear" (+ or drag onto a place), change the amount, move or remove
    * them, and edit the name, the kind of ride, the riding hours and the ready check.
    * Every change is saved right away.
    */
@@ -10,7 +10,7 @@
   import { TEMPLATES_KEY, updateTemplate } from '../lib/templates.js';
   import { ZONE, NIGHT_SETS } from '../lib/trips.js';
   import { FIXED_ZONES, SLOTS } from '../lib/bikes.js';
-  import { CATEGORY, CATEGORIES, formatWeight, isInventory, matches } from '../lib/gear.js';
+  import { CATEGORY, CATEGORIES, formatWeight, knownWeight, weightText, sumKnown, isInventory, matches } from '../lib/gear.js';
   import { RIDES } from '../lib/layers.js';
   import { phone } from '../lib/media.svelte.js';
   import NotPacked from '../lib/pack/NotPacked.svelte';
@@ -34,8 +34,9 @@
     return keys.map((key) => {
       const bag = bagById[tpl.setup?.[key]];
       const entries = tpl.entries.filter((e) => e.slot === key);
-      const grams = entries.reduce((sum, e) => sum + (itemsById[e.itemId]?.weightG ?? 0) * (e.qty || 1), 0);
-      return { key, name: bag ? bag.name : ZONE[key] ? t(ZONE[key].name) : key, place: ZONE[key] ? t(ZONE[key].name) : key, entries, grams };
+      // v0.22.0 (AP04): unknown is not zero: known grams and the count of items without a weight.
+      const { g: grams, missing } = sumKnown(entries.map((e) => (itemsById[e.itemId]?.weightG == null ? null : itemsById[e.itemId].weightG * (e.qty || 1))));
+      return { key, name: bag ? bag.name : ZONE[key] ? t(ZONE[key].name) : key, place: ZONE[key] ? t(ZONE[key].name) : key, entries, grams, missing };
     });
   });
   let target = $state('seat');
@@ -100,6 +101,7 @@
   }
   const tagOf = (i) => (i.always ? t('every trip') : i.role === 'standard' || i.role === 'worn' ? t('standard') : '');
   const totalG = $derived(places.reduce((s, p) => s + p.grams, 0));
+  const totalMissing = $derived(places.reduce((s, p) => s + p.missing, 0));
 </script>
 
 <div class="te">
@@ -109,7 +111,7 @@
   {:else}
     <header class="head">
       <label class="nm"><span class="lbl">{t('Template')}</span><input class="inp big-inp" value={tpl.name} onchange={(e) => rename(e.currentTarget.value)} aria-label={t('Template name')} /></label>
-      <p class="meta num">{tn(tpl.entries.length, '{n} item', '{n} items')} · {t('{weight} without bike and bags', { weight: formatWeight(totalG) })} {#if saved}<span class="ok" role="status">{t('Saved ✓')}</span>{/if}</p>
+      <p class="meta num">{tn(tpl.entries.length, '{n} item', '{n} items')} · {t('{weight} without bike and bags', { weight: knownWeight(totalG, totalMissing) })}{#if totalMissing}{' · '}{t('{n} not weighed', { n: totalMissing })}{/if} {#if saved}<span class="ok" role="status">{t('Saved ✓')}</span>{/if}</p>
     </header>
 
     <div class="cols">
@@ -127,7 +129,7 @@
       <div class="c-main">
         {#each places as p (p.key)}
           <section class="place" class:over={over === p.key} aria-label={p.name} ondragover={(e) => dragover(e, p.key)} ondragleave={() => over === p.key && (over = null)} ondrop={(e) => drop(e, p.key)}>
-            <h2 class="ph"><span class="title">{p.name}</span>{#if p.name !== p.place}<small>{p.place}</small>{/if}<span class="m num">{p.entries.length} · {formatWeight(p.grams)}</span></h2>
+            <h2 class="ph"><span class="title">{p.name}</span>{#if p.name !== p.place}<small>{p.place}</small>{/if}<span class="m num">{p.entries.length} · {p.entries.length && p.missing === p.entries.length ? t('not weighed') : weightText(p.grams, p.missing)}</span></h2>
             <ul>
               {#each p.entries as e (e.itemId)}
                 {@const it = itemsById[e.itemId]}
@@ -190,7 +192,7 @@
     flex-wrap: wrap;
     align-items: end;
     gap: 8px 20px;
-    border-bottom: 3px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
     padding-bottom: 8px;
     margin-bottom: 14px;
   }
@@ -201,8 +203,7 @@
     min-width: min(100%, 280px);
   }
   .big-inp {
-    font: 900 32px/1.1 var(--font-title);
-    text-transform: uppercase;
+    font: 900 var(--fs-section)/1.1 var(--font-title);
   }
   .meta {
     margin: 0;
@@ -210,7 +211,7 @@
     font-size: 14px;
   }
   .ok {
-    color: #2f7a4f;
+    color: var(--ok);
     font-weight: 700;
     margin-left: 8px;
   }
@@ -259,7 +260,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
     color: var(--ink-3);
   }
@@ -282,19 +283,19 @@
     align-items: baseline;
     gap: 8px;
     margin: 0 0 4px;
-    border-bottom: 2px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
   }
   .ph .title {
-    font-size: 22px;
+    font-size: var(--fs-sub);
   }
   .ph small {
     color: var(--ink-3);
-    font-size: 12px;
+    font-size: var(--fs-small);
     font-weight: 400;
   }
   .ph .m {
     margin-left: auto;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 400;
     color: var(--ink-3);
   }
@@ -334,7 +335,7 @@
     overflow-wrap: anywhere;
   }
   .w {
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
   }
   .nw {
@@ -363,11 +364,11 @@
   .qty .num {
     min-width: 24px;
     text-align: center;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .mv {
     padding: 2px 6px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     min-width: 0;
   }
   .box-s {
@@ -376,8 +377,8 @@
     padding: 10px;
   }
   .box-s .title {
-    font-size: 24px;
-    border-bottom: 3px solid var(--ink);
+    font-size: var(--fs-sub);
+    border-bottom: 1px solid var(--line-strong);
     margin: 0 0 8px;
   }
   .chips {

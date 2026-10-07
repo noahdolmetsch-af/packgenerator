@@ -137,6 +137,12 @@ export function bikeSetup(bike, containers, items) {
   };
 }
 
+/**
+ * v0.22.0 (AP04): how sure the bike weight is. 'measured' = a weight typed or weighed in the app;
+ * 'estimate' = a guess with a note saying so (e.g. "9 kg from Strava (estimate)"); 'missing' = no weight.
+ */
+export const bikeWeightKind = (bike) => (bike?.weightG == null ? 'missing' : /estimate/i.test(bike.weightNote ?? '') ? 'estimate' : 'measured');
+
 /** Bags that fit a slot, for the "which bag goes here" choice. */
 export const bagsFor = (slotKey, containers) => containers.filter((c) => c.slot === slotKey);
 
@@ -158,15 +164,19 @@ export function parseBikesHash(hash = '') {
   const [path, query = ''] = hash.replace(/^#/, '').split('?');
   const q = new URLSearchParams(query);
   const tab = path.startsWith('/care') || q.get('tab') === 'care' ? 'care' : 'setup';
-  return { tab, bike: q.get('bike') || null, open: q.get('open') === '1' };
+  const out = { tab, bike: q.get('bike') || null, open: q.get('open') === '1' };
+  // v0.22.0 (AP06): &trip=<id> on Care opens that trip's event preparation.
+  if (tab === 'care' && q.get('trip')) out.trip = q.get('trip');
+  return out;
 }
 
 /** The address for a tab (and bike): the canonical form of the Bikes page. */
-export function bikesHash({ tab = 'setup', bike = null, open = false } = {}) {
+export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null } = {}) {
   const q = new URLSearchParams();
   if (tab === 'care') q.set('tab', 'care');
   if (bike) q.set('bike', bike);
   if (open && bike) q.set('open', '1');
+  if (trip && tab === 'care') q.set('trip', trip);
   const s = q.toString();
   return `#/bikes${s ? `?${s}` : ''}`;
 }

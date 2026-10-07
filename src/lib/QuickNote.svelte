@@ -120,7 +120,7 @@
     color: var(--hi);
   }
   h2 {
-    font-size: 26px;
+    font-size: var(--fs-section);
     margin: 0 0 8px;
   }
   textarea {
@@ -147,7 +147,7 @@
     flex-wrap: wrap;
     gap: 4px 12px;
     align-items: center;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     margin: 4px 0 0;
   }
@@ -157,7 +157,7 @@
     align-items: center;
   }
   .err {
-    color: #b42318;
+    color: var(--bad);
     font-size: 14px;
     margin: 6px 0 0;
   }

@@ -100,6 +100,8 @@ export function debriefCounts(debrief, trip, items) {
   return {
     unused: unused.length,
     unusedG: grams,
+    // v0.22.0 (AP04): not-used items without a weight; unusedG is then only the known part.
+    unusedUnweighed: unused.filter((e) => byId[e.itemId]?.weightG == null).length,
     broken: trip.entries.filter((e) => debrief.items[e.itemId] === 'broken').length,
     missing: debrief.missing.length,
     looked: Object.keys(debrief.items).length,

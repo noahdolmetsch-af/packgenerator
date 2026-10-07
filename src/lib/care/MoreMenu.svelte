@@ -36,12 +36,12 @@
     min-width: 170px;
     padding: 8px;
     background: var(--paper);
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 6px;
     box-shadow: 0 6px 18px rgba(15, 46, 39, 0.18);
   }
   .btn.sm {
     padding: 3px 10px;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
 </style>

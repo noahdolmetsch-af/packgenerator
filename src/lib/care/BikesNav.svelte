@@ -15,7 +15,7 @@
 <style>
   .subnav {
     display: inline-flex;
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--line-strong);
     border-radius: 6px;
     overflow: hidden;
   }
@@ -27,7 +27,7 @@
     background: var(--paper);
   }
   a + a {
-    border-left: 2px solid var(--ink);
+    border-left: 1px solid var(--line);
   }
   a[aria-current='page'] {
     background: var(--ink);

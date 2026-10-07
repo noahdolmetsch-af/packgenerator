@@ -5,8 +5,8 @@
   import { isOver, tipsByItem } from '../lib/debrief.js';
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, formatVolume, sortBikes, bikesHash } from '../lib/bikes.js';
-  import { CATEGORY, CATEGORIES, formatWeight, isInventory, matches, weighQueue } from '../lib/gear.js';
-  import { tripStats, packSteps, togglePacked, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor, switchBike, heavyHigh } from '../lib/trips.js';
+  import { CATEGORY, CATEGORIES, formatWeight, knownWeight, weightText, isInventory, matches, weighQueue } from '../lib/gear.js';
+  import { tripStats, packSteps, togglePacked, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, axleSplit, slotFor, switchBike, heavyHigh } from '../lib/trips.js';
   import { RIDES, layerSuggest, layerDone, applyLayers, openRows, waterOn } from '../lib/layers.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import PackStage from '../lib/pack/PackStage.svelte';
@@ -21,7 +21,10 @@
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { bikePhotos, packPhoto } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
-  import { withVisits, tyreSetup, tripPrep, prepGroups } from '../lib/workshop.js';
+  import Sum from '../lib/ui/Sum.svelte';
+  import { withVisits } from '../lib/workshop.js';
+  import { prepFor } from '../lib/care.js';
+  import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine } from '../lib/readiness.js';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
@@ -106,14 +109,22 @@
   let shownPhoto = $state(null);
   // Before the trip (v0.18.2, answer 3a): the same list as on Home and in Bike care: preparation
   // tasks, what the bike needs (workshop from 14 days before) and open repairs.
+  // v0.22.0 (AP06): two named scopes, the same statements as Home and Bikes → Care (readiness.js):
+  // Bike care of this trip's bike and the Event preparation (Excel tasks) of this trip.
   const before = $derived.by(() => {
     // v0.21.0: the preparation tasks and the bike's needs are bike things; a trip without a bike skips them.
     if (!trip || over || trip.skipped || !bikeTrip) return null;
     const view = bike ? withVisits(bike, $visitsQ ?? []) : null;
-    return tripPrep(view, trip, $tasksQ ?? [], view ? tyreSetup(view, $visitsQ ?? []) : undefined, today);
+    const tasks = $tasksQ ?? [];
+    const care = view ? bikeCare(view, { tasks, visits: $visitsQ ?? [], trip, today }) : null;
+    const prep = eventPrep(trip, tasks, today);
+    const open = prepFor(trip, tasks, today).filter((r) => !r.finished);
+    return care || prep.total ? { care, prep, open } : null;
   });
-  const beforeGroups = $derived(prepGroups(before?.rows ?? []));
   const SHOW = 4;
+  // The short form in the folded line: "Bike care: 1 due".
+  const bikeCareWordsShort = (c) => t('Bike care: {state}', { state: bikeCareWords(c).tag });
+  const dayShort = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
   // Design audit P4: after the trip, Pack leads to the debrief.
   const over = $derived(trip ? isOver(trip) : false);
   // Start page "Print list": #/pack?print opens the print dialog once the trip is there.
@@ -228,6 +239,7 @@
         name: z.bag ? z.bag.name : t(z.zone.name),
         count: z.entries.length,
         grams: z.grams,
+        unweighed: z.unweighed,
         names: names.slice(0, 4),
         more: Math.max(0, names.length - 4),
         fill: cap && z.vol ? (z.vol / cap) * 100 : null,
@@ -277,7 +289,7 @@
   const choiceRows = $derived.by(() => {
     if (!choosing || !trip) return [];
     const visits = $visitsQ ?? [];
-    return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], today });
+    return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], tasks: $tasksQ ?? [], today });
   });
   const useBike = (b) => change((t) => switchBike(t, b));
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.
@@ -311,7 +323,7 @@
   const add = (itemId) => addTo(zone.key, itemId);
   const targetName = $derived(zone ? (zone.noBag ? t('On me') : zone.bag ? zone.bag.name : t(zone.zone.name)) : t('the trip'));
 
-  // Drag an item from "Not packed", or a row from another bag, onto a bag in the list.
+  // Drag an item from "Other gear", or a row from another bag, onto a bag in the list.
   let overList = $state(null);
   function listDragover(event, key) {
     if (phone.matches || !event.dataTransfer.types.includes('text/plain')) return;
@@ -441,7 +453,7 @@
     const names = items.filter((i) => isInventory(i) && upTo.includes(i.ride)).map((i) => nameOf(i));
     return names.length ? t('Adds: {names}.', { names: names.join(', ') }) : t('No items set for this kind of ride yet (Gear → Edit → Layers).');
   });
-  // Mockup answer 3a: a small label in "Not packed" says why an item is suggested.
+  // Mockup answer 3a: a small label in "Other gear" says why an item is suggested.
   // v0.21.0: an item of another area (found by the search) is labelled with its area.
   const tagOf = (i) => (!inDomain(i, domain) ? t(domainName(itemDomains(i)[0])) : '') || (suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (i.always ? t('every trip') : i.role === 'standard' || i.role === 'worn' ? t('standard') : ''));
   // Round D answer 5: take an alternative (mini lock) or nothing instead of the usual item.
@@ -474,7 +486,8 @@
 
   // Answer 9: luggage on the front and rear wheel.
   const axle = $derived(stats ? axleLoad(stats, itemsById) : null);
-  const rearPct = $derived(axle && axle.front + axle.rear ? Math.round((axle.rear / (axle.front + axle.rear)) * 100) : null);
+  // v0.22.0 (AP04): exact percent only when every weight on the bike is known, else "~" and rounded.
+  const split = $derived(axleSplit(axle));
   const rearLimit = $derived($rearQ?.value ?? 60);
 
   // Answer 8: litres of water, already part of the system weight through the full bottles.
@@ -573,34 +586,39 @@
       {:else if step === 2}
         <a class="btn hi go" href="#/ride" onclick={() => choose(trip.id)}><b>{t('Next: ride day')}</b><small>{t('Everything packed. Route, weather, what is where, and at the end "End trip and debrief".')}</small></a>
       {:else}
-        <button type="button" class="btn hi go" onclick={() => (packDay = true)}><b>{t('Next: packing day')}</b><small>{t('Pack bag by bag and tick off, then the ready check: {packed} of {count} packed, {ready} of {total} checks.', { packed: stats.packed, count: stats.count, ready: readyCount, total: readyTotal })}</small></button>
+        <button type="button" class="btn hi go" onclick={() => (packDay = true)}><b>{t('Next: packing day')}</b><small>{t('Pack bag by bag and tick off, then the ready check. {count} on the list: {packed} packed, {left} still to pack. Ready check: {ready} checked, {open} open.', { packed: stats.packed, count: stats.count, left: stats.toPack, ready: readyCount, open: readyTotal - readyCount })}</small></button>
       {/if}
     </nav>
     <!-- v0.21.0 (decision 5): "Before the trip" folded, its counts in the summary. Inside, the
          preparation tasks (answer 2b: they stay on every trip) fold into one line; bike rows apart. -->
-    {#if before?.rows.length}
-      {@const late = before.rows.filter((r) => r.late).length}
+    {#if before}
       <details class="shop">
-        <summary><span class="lbl">{t('Before the trip')}</span> <small>{t('{n} to do', { n: before.rows.length })}{late ? ` · ${t('{n} overdue', { n: late })}` : ''}</small></summary>
-        {#if beforeGroups.prep.rows.length}
-          <details class="prepg">
-            <summary>{beforeGroups.prep.late ? t('Preparation: {n} open ({late} overdue)', { n: beforeGroups.prep.rows.length, late: beforeGroups.prep.late }) : t('Preparation: {n} open', { n: beforeGroups.prep.rows.length })}</summary>
+        <summary><span class="lbl">{t('Before the trip')}</span> <small>{[before.care ? bikeCareWordsShort(before.care) : null, eventPrepLine(before.prep)].filter(Boolean).join(' · ')}</small></summary>
+        {#if before.care}
+          {@const rows = [...before.care.rows, ...before.care.soon]}
+          <p class="scope"><a href={before.care.href}>{bikeCareLine(before.care)}</a></p>
+          {#if rows.length}
             <ul>
-              {#each beforeGroups.prep.rows as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.detail}</small></li>{/each}
+              {#each rows as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : r.late ? '' : `${t('before the start')} · `}{r.detail}</small></li>{/each}
             </ul>
+          {:else if before.care.status === 'nodata'}
+            <p class="nd">{t('No data: enter km and record a check or service, then the app can tell.')}</p>
+          {/if}
+        {/if}
+        {#if before.prep.total}
+          <details class="prepg">
+            <summary>{eventPrepLine(before.prep)}</summary>
+            <ul>
+              {#each before.open as r (r.task.id)}<li class:now={r.overdue || r.needed}><b>{r.task.task}</b> <small>{r.needed ? t('work needed') : r.overdue ? t('was due {date}', { date: dayShort(r.due) }) : t('by {date}', { date: dayShort(r.due) })}</small></li>{/each}
+            </ul>
+            <a class="btn sm" href={before.prep.href}>{t('Tick off in Bike care')}</a>
           </details>
         {/if}
-        {#if beforeGroups.bike.rows.length}
-          <ul>
-            {#each beforeGroups.bike.rows as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : ''}{r.detail}</small></li>{/each}
-          </ul>
-        {/if}
-        {#if bikeTrip}<a class="btn sm" href={bikesHash({ tab: 'care', bike: trip?.bikeId })}>{t('Bike care')}</a>{/if}
       </details>
     {/if}
     {#if extra?.rows.length}
       <section class="ballast" aria-labelledby="ballast-h">
-        <h2 id="ballast-h"><span class="lbl">{t('Ballast')}</span> <small class="num">{extra.totalG ? formatWeight(extra.totalG) : ''}{extra.unweighed ? `${extra.totalG ? ' + ' : ''}${t('{n} not weighed', { n: extra.unweighed })}` : ''} · {t('not used the last times')}</small></h2>
+        <h2 id="ballast-h"><span class="lbl">{t('Ballast')}</span> <small class="num">{extra.unweighed === extra.rows.length ? t('{n} not weighed', { n: extra.unweighed }) : weightText(extra.totalG, extra.unweighed)} · {t('not used the last times')}</small></h2>
         <ul>
           {#each ballastAll ? extra.rows : extra.rows.slice(0, SHOW) as r (r.itemId)}
             <li>
@@ -612,36 +630,35 @@
           {/each}
           {#if !ballastAll && extra.rows.length > SHOW}<li class="more-li"><button type="button" class="link" onclick={() => (ballastAll = true)}>{t('{n} more', { n: extra.rows.length - SHOW })}</button></li>{/if}
         </ul>
-        {#if extra.rows.length > 1}<button type="button" class="btn sm" onclick={() => leave(extra.rows.map((r) => r.itemId))}>{t('Leave all {n} at home', { n: extra.rows.length })}{extra.totalG ? ` (−${formatWeight(extra.totalG)})` : ''}</button>{/if}
+        {#if extra.rows.length > 1}<button type="button" class="btn sm" onclick={() => leave(extra.rows.map((r) => r.itemId))}>{t('Leave all {n} at home', { n: extra.rows.length })}{extra.totalG ? ` (${knownWeight(extra.totalG, extra.unweighed, (g) => `−${formatWeight(g)}`)})` : ''}</button>{/if}
       </section>
     {/if}
-    <!-- v0.21.0 (decision 5, 9a): four figures in sight, every other one under "More". -->
+    <!-- v0.21.0 (decision 5, 9a): four figures in sight, every other one under "More".
+         v0.22.0 (AP04): unknown is not zero. A figure with missing weights reads "known: …" and
+         shows right next to it how many weights are missing; the bike says measured or estimate. -->
     <section class="sys" class:away={phone.matches && tab === 'add'} aria-label={t('Weights')}>
       {#snippet ic(name)}<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d={ICONS[name]} /></svg>{/snippet}
-      {#if bikeTrip}<div class="w1"><span class="lbl">{t('System')}</span><b class="num">{kg(stats.systemG)}</b></div>
-      {:else}<div class="w1" title={t('Everything packed and worn')}><span class="lbl">{t('Total')}</span><b class="num">{kg(stats.gearG + stats.onMeG)}</b></div>{/if}
-      <div class="w1" title={bikeTrip ? t('Gear in the bags and on the bike, without what you wear and without food and water') : t('Gear in the bags, without what you wear and without food and water')}>{@render ic('bag')}<span class="lbl">{t('Base')}</span><b class="num">{formatWeight(stats.baseG)}</b></div>
-      <div class="w1" title={t('What you wear, without food in the pockets')}>{@render ic('me')}<span class="lbl">{t('On you')}</span><b class="num">{formatWeight(stats.wornG)}</b></div>
-      <div class="w1" title={t('Food and full bottles, wherever they are')}>{@render ic('water')}<span class="lbl">{t('Food and water')}</span><b class="num">{formatWeight(stats.consumablesG)}</b></div>
+      {#if bikeTrip}<div class="w1"><span class="lbl">{t('System')}</span><Sum g={stats.systemG} missing={stats.systemMissing} fmt={kg} estimate={stats.bikeKind === 'estimate'} miss={stats.systemMissing ? tn(stats.systemMissing, '{n} weight missing', '{n} weights missing') : ''} />{#if stats.bikeKind === 'estimate'}<small class="nw">{t('bike weight estimated')}</small>{/if}</div>
+      {:else}<div class="w1" title={t('Everything packed and worn')}><span class="lbl">{t('Total')}</span><Sum g={stats.gearG + stats.onMeG} missing={stats.unweighed} fmt={kg} /></div>{/if}
+      <div class="w1" title={bikeTrip ? t('Gear in the bags and on the bike, without what you wear and without food and water') : t('Gear in the bags, without what you wear and without food and water')}>{@render ic('bag')}<span class="lbl">{t('Base')}</span><Sum g={stats.baseG} missing={stats.baseMissing} /></div>
+      <div class="w1" title={t('What you wear, without food in the pockets')}>{@render ic('me')}<span class="lbl">{t('On you')}</span><Sum g={stats.wornG} missing={stats.wornMissing} /></div>
+      <div class="w1" title={t('Food and full bottles, wherever they are')}>{@render ic('water')}<span class="lbl">{t('Food and water')}</span><Sum g={stats.consumablesG} missing={stats.consumablesMissing} /></div>
       <button type="button" class="link morew" aria-expanded={allWeights} aria-controls="sys-more" onclick={() => (allWeights = !allWeights)}>{allWeights ? t('Less') : t('More')}</button>
       {#if canUndo}<button type="button" class="btn sm undo" onclick={undoLast} title={t('Put back the last change')}>↶ {t('Undo')}</button>{/if}
       {#if allWeights}
         <div class="more-w" id="sys-more">
           {#if bikeTrip}
-          <div class="w1">{@render ic('bags')}<span class="lbl">{t('Bags')}</span><b class="num">{formatWeight(stats.bagsG)}</b></div>
-          <div class="w1">{@render ic('bike')}<span class="lbl">{t('Bike')}</span>{#if stats.missing.bike}<a class="nw" href="#/bikes">{t('not weighed')}</a>{:else}<b class="num">{formatWeight(stats.bikeG)}</b>{/if}</div>
+          <div class="w1">{@render ic('bags')}<span class="lbl">{t('Bags')}</span><Sum g={stats.bagsG} missing={stats.bagsMissing} /></div>
+          <div class="w1">{@render ic('bike')}<span class="lbl">{t('Bike')}</span>{#if stats.missing.bike}<a class="nw" href="#/bikes">{t('not weighed')}</a>{#if bike?.weightNote}<small class="nw">{bike.weightNote}</small>{/if}{:else}<b class="num">{stats.bikeKind === 'estimate' ? '~' : ''}{formatWeight(stats.bikeG)}</b><small class="nw">{stats.bikeKind === 'estimate' ? t('estimate') : t('measured')}</small>{/if}</div>
           <div class="w1">{@render ic('me')}<span class="lbl">{t('Rider')}</span>{#if stats.missing.rider}<a class="nw" href="#/bikes">{t('not set')}</a>{:else}<b class="num">{formatWeight(stats.riderG)}</b>{/if}</div>
           {/if}
           {#if water}<div class="w1">{@render ic('water')}<span class="lbl">{t('Water')}</span><b class="num">{num(Math.round(water * 10) / 10)} L</b></div>{/if}
-          {#if bikeTrip}<div class="w1" title={t('Luggage on the front / rear wheel: {front} / {rear}', { front: formatWeight(axle.front), rear: formatWeight(axle.rear) })}>{@render ic('axle')}<span class="lbl">{t('Front / rear')}</span><b class="num" class:warn={rearPct > rearLimit}>{rearPct != null ? `${100 - rearPct} / ${rearPct} %` : '–'}</b></div>{/if}
+          {#if bikeTrip}<div class="w1">{@render ic('axle')}<span class="lbl">{t('Front / rear')}</span>{#if split}<b class="num" class:warn={split.rear > rearLimit}>{split.estimate ? '~' : ''}{split.front} / {split.rear} %</b>{#if split.estimate}<small class="nw">{t('estimate, {n} not weighed', { n: axle.missing })}</small>{:else}<small class="nw num">{formatWeight(axle.front)} / {formatWeight(axle.rear)}</small>{/if}{:else}<b class="num">–</b>{/if}</div>{/if}
           <div class="w1">{@render ic('list')}<span class="lbl">{t('Items')}</span><b class="num">{stats.count}</b></div>
-          {#if stats.unweighed}
-            <span class="nw">{t('{n} not weighed', { n: stats.unweighed })}</span>
-            {#if toWeigh}<button type="button" class="btn sm" onclick={() => (weighing = true)}>{t('Weigh {n}', { n: toWeigh })}</button>{/if}
-          {/if}
+          {#if stats.unweighed && toWeigh}<button type="button" class="btn sm" onclick={() => (weighing = true)}>{t('Weigh {n}', { n: toWeigh })}</button>{/if}
         </div>
       {/if}
-      {#if bikeTrip && rearPct > rearLimit}<p class="sys-note warn">{t('{pct} % of the luggage is on the rear wheel (hint above {limit} %).', { pct: rearPct, limit: rearLimit })}</p>{/if}
+      {#if bikeTrip && split && split.rear > rearLimit}<p class="sys-note warn">{split.estimate ? t('About {pct} % of the luggage is on the rear wheel (hint above {limit} %, estimate: not everything is weighed).', { pct: split.rear, limit: rearLimit }) : t('{pct} % of the luggage is on the rear wheel (hint above {limit} %).', { pct: split.rear, limit: rearLimit })}</p>{/if}
     </section>
 
     {#if choosing && choiceRows.length}
@@ -698,7 +715,7 @@
       </details>
       {#if suggestion.length}
         <div class="sugg">
-          <p class="sugg-h"><b>{t('Layers for this ride')}</b>{#if openLayers.length}<button type="button" class="btn sm hi" onclick={addAllLayers}>{t('Add all {n}', { n: openLayers.length })}</button>{:else}<span class="ok">{t('All set')}</span>{/if}</p>
+          <p class="sugg-h"><b>{t('Layers for this ride')}</b>{#if openLayers.length}<button type="button" class="btn sm" onclick={addAllLayers}>{t('Add all {n}', { n: openLayers.length })}</button>{:else}<span class="ok">{t('All set')}</span>{/if}</p>
           <!-- Answer 5a: one title per rule; rows already done fold into one line. -->
           {#each layerGroups as g, n (n)}
             <div class="lg">
@@ -782,7 +799,7 @@
         <button type="submit" class="btn">{t('Add')}</button>
       </form>
       <p class="ready-acts">
-        {#if readyCount < readyTotal}<button type="button" class="btn hi" onclick={tickAllReady}>{t('Tick all checks')}</button>{/if}
+        {#if readyCount < readyTotal}<button type="button" class="btn" onclick={tickAllReady}>{t('Tick all checks')}</button>{/if}
         {#if readyChanged}
           <button type="button" class="btn" onclick={saveStandard}>{t('Save as my standard')}</button>
           <button type="button" class="link" onclick={resetReady}>{t('Back to my standard list')}</button>
@@ -834,7 +851,7 @@
                 <header class="bl-h">
                   <h2 class="title">{purpose ?? t(z.zone.name)}</h2>
                   <span class="bn">{purpose ? zoneName(z) : z.bag && z.bag.name !== z.zone.name ? z.bag.name : ''}</span>
-                  <span class="m num">{tn(z.entries.length, '{n} item', '{n} items')} · {z.grams || !z.entries.length ? formatWeight(z.grams) : t('not weighed')}{#if z.bag?.volumeL}{` · ${formatVolume(z.bag.volumeL)}`}{/if}</span>
+                  <span class="m num">{tn(z.entries.length, '{n} item', '{n} items')} · {#if z.entries.length && z.unweighed === z.entries.length}{t('not weighed')}{:else}<Sum g={z.grams} missing={z.unweighed} />{/if}{#if z.bag?.volumeL}{` · ${formatVolume(z.bag.volumeL)}`}{/if}</span>
                   <span class="bl-acts">
                     <button type="button" class="link ra" onclick={() => (editPurpose = editPurpose === z.key ? null : z.key)}>{purpose ? t('Rename') : t('Name it')}</button>
                     {#if !phone.matches && !z.noBag}
@@ -873,9 +890,10 @@
                   {#each rowsOf(z) as { e, head } (e.itemId)}
                     {@const it = itemsById[e.itemId]}
                     {#if head}<li class="cathead">{head}</li>{/if}
-                    <!-- v0.21.0 (decision 5): a desktop row shows name and weight; "•••", "Move" and "−"
-                         appear when the row is hovered, focused or open (keyboard: Tab reaches them).
-                         On a phone the whole row is one button that opens amount, bag and "Take out". -->
+                    <!-- v0.21.0 (decision 5): a desktop row shows name and weight.
+                         v0.22.0 (concept: nothing only on hover): one quiet "•••" is always in sight and
+                         opens amount, "Move" and "Take out", on a desktop as on a phone. Dragging still moves.
+                         On a phone the whole row is one button that opens the same. -->
                     <li class="row" class:open={openRow === e.itemId} class:ph={phone.matches} draggable={!phone.matches} ondragstart={(ev) => (ev.dataTransfer.setData('text/plain', e.itemId), (ev.dataTransfer.effectAllowed = 'copyMove'))} style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>
                       {#snippet nm()}{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<small class="q"> × {e.qty}</small>{/if}{#if e.packed}<small class="in" title={t('In the bag (packing day)')}> ✓</small>{/if}{#if badges[e.itemId]}<span class="bdgs">{#each badges[e.itemId] as b (b.key)}<span class="bdg {b.tone}" title={b.text}>{b.label}</span>{/each}</span>{/if}{/snippet}
                       {#if phone.matches}
@@ -885,12 +903,7 @@
                       {/if}
                       <span class="w num" class:nw={it?.weightG == null} title={it?.weightG == null ? t('not weighed') : undefined}>{it?.weightG == null ? '—' : formatWeight(it.weightG * (e.qty || 1))}</span>
                       {#if !phone.matches}
-                        <button type="button" class="more ra" aria-expanded={openRow === e.itemId} aria-label={t('Amount for {name}', { name: nameOf(it) })} onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>⋯</button>
-                        <select class="sel mv ra" aria-label={t('Move {name} to', { name: nameOf(it) })} value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
-                          {#each targets as tg (tg.key)}<option value={tg.key}>{tg.key === e.slot ? t('Move') : (purposeOf(tg.key) ?? (tg.bag ? tg.bag.name : t(tg.zone.name)))}</option>{/each}
-                          {#if z.noBag}<option value={z.key}>{t('Move')}</option>{/if}
-                        </select>
-                        <button type="button" class="minus ra" aria-label={t('Take {name} out of {bag}', { name: nameOf(it), bag: zoneName(z) })} onclick={() => removeEntry(e.itemId)}>−</button>
+                        <button type="button" class="more" aria-expanded={openRow === e.itemId} aria-label={t('Amount, move or take out: {name}', { name: nameOf(it) })} title={t('Amount, move or take out')} onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>•••</button>
                       {/if}
                       {#if openRow === e.itemId}
                         {#if badges[e.itemId]}
@@ -902,13 +915,11 @@
                             <span class="num">{e.qty || 1}×</span>
                             <button type="button" aria-label={t('One more {name}', { name: nameOf(it) })} onclick={() => setQty(e.itemId, (e.qty || 1) + 1)}>+</button>
                           </span>
-                          {#if phone.matches}
-                            <select class="sel mv" aria-label={t('Move {name} to', { name: nameOf(it) })} value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
+                          <select class="sel mv" aria-label={t('Move {name} to', { name: nameOf(it) })} value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
                               {#each targets as tg (tg.key)}<option value={tg.key}>{purposeOf(tg.key) ?? (tg.bag ? tg.bag.name : t(tg.zone.name))}</option>{/each}
                               {#if z.noBag}<option value={z.key}>{t('{name} (no bag)', { name: t(z.zone.name) })}</option>{/if}
                             </select>
-                            <button type="button" class="btn sm out" aria-label={t('Take {name} out of {bag}', { name: nameOf(it), bag: zoneName(z) })} onclick={() => removeEntry(e.itemId)}>− {t('Take out')}</button>
-                          {/if}
+                          <button type="button" class="btn sm out" aria-label={t('Take {name} out of {bag}', { name: nameOf(it), bag: zoneName(z) })} onclick={() => removeEntry(e.itemId)}>− {t('Take out')}</button>
                         </span>
                       {/if}
                     </li>
@@ -983,10 +994,10 @@
     {/if}
     <section class="print" aria-hidden="true">
       <h1>{trip.title}</h1>
-      {#if bikeTrip}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {bike?.name ?? ''} · {t('system weight {kg}', { kg: kg(stats.systemG) })}</p>
-      {:else}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {t(domainName(domain))} · {t('total {kg}', { kg: kg(stats.gearG + stats.onMeG) })}</p>{/if}
+      {#if bikeTrip}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {bike?.name ?? ''} · {t('system weight {kg}', { kg: weightText(stats.systemG, stats.systemMissing, kg) })}</p>
+      {:else}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {t(domainName(domain))} · {t('total {kg}', { kg: weightText(stats.gearG + stats.onMeG, stats.unweighed, kg) })}</p>{/if}
       {#each stats.zones.filter((z) => z.entries.length) as z (z.key)}
-        <h2>{zoneName(z)} <small>{tn(z.entries.length, '{n} item', '{n} items')} · {formatWeight(z.grams)}</small></h2>
+        <h2>{zoneName(z)} <small>{tn(z.entries.length, '{n} item', '{n} items')} · {weightText(z.grams, z.unweighed)}</small></h2>
         <ul>
           {#each z.entries as e (e.itemId)}<li>☐ {itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId}{(e.qty || 1) > 1 ? ` × ${e.qty}` : ''}</li>{/each}
         </ul>
@@ -1046,6 +1057,19 @@
   .shop[open] > summary {
     margin-bottom: 6px;
   }
+  /* v0.22.0 (AP06): Bike care as its own named line, linked to the bike in Care. */
+  .shop .scope {
+    margin: 0 0 2px;
+    font-weight: 600;
+  }
+  .shop .scope a {
+    color: inherit;
+  }
+  .shop .nd {
+    margin: 2px 0 8px;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
   .prepg {
     margin: 0 0 6px;
   }
@@ -1067,7 +1091,7 @@
     gap: 12px 24px;
     margin: 0 0 16px;
     padding: 14px 16px;
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 10px;
     background: var(--paper);
   }
@@ -1094,7 +1118,7 @@
     height: 24px;
     border-radius: 50%;
     border: 2px solid currentColor;
-    font-size: 12px;
+    font-size: var(--fs-small);
   }
   .steps .done {
     color: var(--ink);
@@ -1127,7 +1151,7 @@
   }
   .go small {
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
     opacity: 0.92;
     white-space: normal;
   }
@@ -1137,7 +1161,7 @@
       padding: 12px;
     }
     .steps {
-      font-size: 12px;
+      font-size: var(--fs-small);
       gap: 4px 10px;
     }
   }
@@ -1155,8 +1179,8 @@
     font-size: 14px;
   }
   .big {
-    font-size: clamp(38px, 5vw, 56px);
-    line-height: 0.95;
+    font-size: var(--fs-page);
+    line-height: var(--lh-title);
   }
   .head {
     display: flex;
@@ -1190,7 +1214,7 @@
   .menu summary {
     list-style: none;
     padding: 4px 12px;
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--line-strong);
     border-radius: 6px;
     background: var(--paper);
     font: 700 20px/1 var(--font-body);
@@ -1218,7 +1242,7 @@
     overflow: auto;
     padding: 10px;
     background: var(--paper);
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--line-strong);
     border-radius: 6px;
     box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
     box-sizing: border-box;
@@ -1252,10 +1276,8 @@
   .tag {
     border: 1.5px solid var(--ink);
     padding: 1px 7px;
-    font-size: 12px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   /* Answer 1a: orange only for actions; the countdown is dark. */
   .tag.hi {
@@ -1326,10 +1348,10 @@
     align-items: baseline;
     gap: 2px 10px;
     padding-bottom: 6px;
-    border-bottom: 2px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
   }
   .bl-h .title {
-    font-size: 24px;
+    font-size: var(--fs-sub);
   }
   .bn {
     font-size: 14px;
@@ -1337,7 +1359,7 @@
   }
   .bl-h .m {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .bl-acts {
     display: flex;
@@ -1365,7 +1387,7 @@
   }
   .row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     align-items: center;
     gap: 8px;
     min-height: 34px;
@@ -1400,7 +1422,7 @@
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink-2);
-    font: 600 11px/1.5 var(--font-body);
+    font: 500 12px/1.5 var(--font-body);
   }
   .bdg.warn {
     border-color: #c98a55;
@@ -1411,7 +1433,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   /* N3 (answer 2a): ballast on this trip. */
@@ -1466,7 +1488,7 @@
   .row .mv {
     max-width: 150px;
     padding: 3px 6px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   @media (max-width: 719px) {
@@ -1479,12 +1501,11 @@
       flex: 1;
     }
   }
-  /* v0.21.0 (decision 5): on a desktop with a mouse the row actions show on hover, focus or when open. */
-  @media (hover: hover) and (min-width: 720px) {
-    .row:not(.open):not(:hover):not(:focus-within) .ra,
-    .bl:not(:hover):not(:focus-within) .bl-acts .ra {
-      opacity: 0;
-    }
+  /* v0.22.0 (concept: nothing only on hover): the row actions sit behind one "•••" that is always
+     in sight; "Name it" in the bag header is always there too, just quiet. */
+  .bl-acts .ra {
+    font-size: 13px;
+    color: var(--ink-3);
   }
   .row.ph {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -1530,7 +1551,7 @@
     align-items: baseline;
     gap: 6px 22px;
     padding: 8px 0;
-    border-top: 3px solid var(--ink);
+    border-top: 1px solid var(--line-strong);
     border-bottom: 1px solid var(--line);
     margin-bottom: 14px;
   }
@@ -1542,16 +1563,20 @@
   .w1 .lbl {
     margin: 0;
   }
-  .w1 b {
+  .w1 :global(b) {
     font-weight: 700;
   }
-  .w1:first-child b {
-    font: 900 28px/1 var(--font-title);
+  .w1:first-child :global(b) {
+    font: 900 var(--fs-section)/1.2 var(--font-title);
+  }
+  .w1 {
+    flex-wrap: wrap;
+    min-width: 0;
   }
   /* Design answer 8b: "not weighed" in grey, not orange. */
   .nw {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .sys-note {
     flex-basis: 100%;
@@ -1564,14 +1589,14 @@
   .tabs {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--line-strong);
     border-radius: 6px;
     overflow: hidden;
     margin-bottom: 12px;
   }
   .tabs button {
     border: 0;
-    border-right: 2px solid var(--ink);
+    border-right: 1px solid var(--line);
     background: var(--paper);
     padding: 8px 4px;
     font: 700 15px var(--font-body);
@@ -1589,11 +1614,11 @@
   }
   .tabs small {
     font-weight: 400;
-    font-size: 12px;
+    font-size: var(--fs-small);
   }
   .btn.sm {
     padding: 3px 10px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     margin-left: 6px;
   }
   .warnbox.soft {
@@ -1703,17 +1728,15 @@
     margin: 6px 0 0;
     padding-bottom: 2px;
     border-bottom: 1px solid var(--line);
-    font-size: 11px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   .lgd {
     margin: 4px 0 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 600;
-    color: #2f7a4f;
+    color: var(--ok);
   }
   .sugg li:first-child {
     border-top: 0;
@@ -1739,8 +1762,8 @@
     color: var(--ink-3);
   }
   .ok {
-    font-size: 13px;
-    color: #2f7a4f;
+    font-size: var(--fs-small);
+    color: var(--ok);
     font-weight: 700;
   }
   .print {
@@ -1790,7 +1813,7 @@
       display: none;
     }
   }
-  /* Mockup answer 1a: three columns. Not packed | bike and open bag | layers, night, ready check. */
+  /* Mockup answer 1a: three columns. Other gear | bike and open bag | layers, night, ready check. */
   .cols {
     display: grid;
     gap: 16px;
@@ -1841,20 +1864,19 @@
     padding: 10px;
   }
   .box-s .title {
-    font-size: 26px;
-    border-bottom: 3px solid var(--ink);
+    font-size: var(--fs-section);
+    border-bottom: 1px solid var(--line-strong);
     margin-bottom: 8px;
   }
   .box-s.setup summary {
     font-family: var(--font-title);
-    font-size: 22px;
-    text-transform: uppercase;
+    font-size: var(--fs-sub);
   }
   .target {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
     color: var(--ink-3);
   }
@@ -1902,14 +1924,12 @@
     padding: 0 6px;
     border: 1px solid var(--hi);
     border-radius: 999px;
-    font-size: 12px;
+    font-size: var(--fs-small);
     font-weight: 600;
   }
   .sub {
     margin: 12px 0 6px;
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .fill {
@@ -1917,7 +1937,7 @@
     align-items: center;
     gap: 10px;
     margin: 8px 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .fill .bar {
     position: relative;
@@ -1942,31 +1962,12 @@
     width: 2px;
     background: var(--hi);
   }
-  /* Noah, 4.10.2026: no tick boxes; one click on − takes the item out of the bag. */
-  .minus {
-    width: 26px;
-    height: 26px;
-    border: 1.5px solid var(--ink-3);
-    border-radius: 4px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 700 16px/1 var(--font-body);
-    cursor: pointer;
-  }
-  @media (hover: hover) {
-    .minus:hover {
-      border-color: #c0392b;
-      color: #c0392b;
-    }
-  }
   /* Answer 9a: a phone shows the open bag as one column of rows, with a title per category. */
   .cathead {
     padding: 6px 8px 4px;
     background: var(--paper-2, #e6ebe3);
-    font-size: 11px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   /* Mockup answer 8a: on a phone a fixed bar at the bottom says where "+" puts things. */
@@ -2051,9 +2052,17 @@
     width: 36px;
     height: 32px;
     border: 0;
+    border-radius: 4px;
     background: none;
-    font: 700 20px/1 var(--font-body);
-    color: var(--ink-2);
+    font: 700 13px/1 var(--font-body);
+    letter-spacing: 1px;
+    color: var(--ink-3);
+    cursor: pointer;
+  }
+  .more:hover,
+  .more[aria-expanded='true'] {
+    background: var(--paper-2);
+    color: var(--ink);
   }
   .qty button,
   .x {
@@ -2105,7 +2114,7 @@
     border-bottom: 1px solid var(--line);
   }
   .ready .title {
-    font-size: 26px;
+    font-size: var(--fs-section);
     border-bottom: 0;
     margin-bottom: 0;
   }
@@ -2118,7 +2127,7 @@
   }
   .fold summary .title {
     display: block;
-    font-size: 26px;
+    font-size: var(--fs-section);
   }
   .fold .fsum {
     display: block;
@@ -2140,7 +2149,7 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    border-bottom: 3px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
   }
   .ready li {
     display: flex;

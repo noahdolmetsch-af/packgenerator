@@ -163,7 +163,7 @@
     margin: 4px 0 12px;
   }
   .err {
-    color: #b42318;
+    color: var(--bad);
   }
   .list,
   .done {
@@ -205,7 +205,7 @@
   }
   .meta {
     margin: 2px 0 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .ctx {
@@ -213,7 +213,7 @@
     flex-wrap: wrap;
     gap: 6px 14px;
     margin: 8px 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .ctx label {
@@ -232,7 +232,7 @@
   }
   .where {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .more {
     position: relative;
@@ -269,7 +269,7 @@
     cursor: pointer;
   }
   .all .title {
-    font-size: 20px;
+    font-size: var(--fs-sub);
   }
   .done li {
     display: flex;
@@ -285,7 +285,7 @@
   }
   .done small {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .r {
     flex: none;

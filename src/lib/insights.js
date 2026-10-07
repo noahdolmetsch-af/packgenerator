@@ -62,6 +62,9 @@ export function tripRows(trips, debriefs, items) {
       packedG: entries.reduce((s, e) => s + g(byId[e.itemId], e.qty), 0),
       unusedG: unused.reduce((s, e) => s + g(byId[e.itemId], e.qty), 0),
       unusedN: unused.length,
+      // v0.22.0 (AP04): unknown is not zero: how many items each sum leaves out.
+      packedMissing: entries.filter((e) => byId[e.itemId].weightG == null).length,
+      unusedMissing: unused.filter((e) => byId[e.itemId].weightG == null).length,
       missingN: (d.missing ?? []).length,
       brokenN: entries.filter((e) => d.items?.[e.itemId] === 'broken').length,
     };

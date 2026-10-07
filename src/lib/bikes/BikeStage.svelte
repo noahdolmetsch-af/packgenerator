@@ -3,7 +3,7 @@
    * The bike drawing with a box per place (same drawing for every bike, decision 4a).
    * zones: [{ key, title, sub, box: {x, y, w, h}, empty, active, full }]
    * onpick(key) is called when a box is tapped.
-   * ondropitem(key, itemId): an item from "Not packed" was dragged onto a box (Pack page only).
+   * ondropitem(key, itemId): an item from "Other gear" was dragged onto a box (Pack page only).
    */
   import { t } from '../i18n.svelte.js';
 

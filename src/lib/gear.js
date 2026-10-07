@@ -65,6 +65,35 @@ export function formatWeight(g) {
 }
 
 /**
+ * v0.22.0 (AP04, honest weights): a sum where some weights may be unknown. Unknown is not zero:
+ * g adds up only the known weights, missing counts the unknown ones (null/undefined).
+ * sumKnown([450, null, 0]) → { g: 450, missing: 1, n: 3 }
+ */
+export function sumKnown(weights) {
+  let g = 0;
+  let missing = 0;
+  for (const w of weights) {
+    if (w == null) missing++;
+    else g += w;
+  }
+  return { g, missing, n: weights.length };
+}
+
+/**
+ * The text for a sum (AP04): the plain weight when every weight is known, "known: 2.69 kg" when
+ * some are missing. The count ("7 not weighed") is shown right next to it by the page.
+ * fmt: the formatter for the number (formatWeight, or a page's own "84.8 kg").
+ */
+export function knownWeight(g, missing, fmt = formatWeight) {
+  return missing ? t('known: {w}', { w: fmt(g) }) : fmt(g);
+}
+
+/** The same as one line of text, for labels, print and small cards: "known: 2.69 kg · 7 not weighed". */
+export function weightText(g, missing, fmt = formatWeight) {
+  return missing ? `${knownWeight(g, missing, fmt)} · ${t('{n} not weighed', { n: missing })}` : fmt(g);
+}
+
+/**
  * Totals for the overview: per category, top 10, inventory and wishlist.
  * total and top leave out consumables (food and water); consumablesG is their weight on its own.
  */
@@ -76,6 +105,9 @@ export function gearStats(items) {
   let total = 0;
   let consumablesG = 0;
   let unweighed = 0;
+  // v0.22.0 (AP04): unweighed items split like the sums: gear (total) and food and water (consumablesG).
+  let totalMissing = 0;
+  let consumablesMissing = 0;
   for (const item of items) {
     if (item.ownership === 'gone') {
       gone.push(item);
@@ -91,6 +123,8 @@ export function gearStats(items) {
     if (c) c.n++;
     if (w == null) {
       unweighed++;
+      if (isConsumable(item)) consumablesMissing++;
+      else totalMissing++;
       if (c) c.unweighed++;
     } else {
       if (isConsumable(item)) consumablesG += w;
@@ -102,7 +136,24 @@ export function gearStats(items) {
     .filter((i) => itemWeight(i) > 0 && !isConsumable(i))
     .sort((a, b) => itemWeight(b) - itemWeight(a) || a.name.localeCompare(b.name))
     .slice(0, 10);
-  return { cats: CATEGORIES.map((c) => cats[c.key]), total, consumablesG, unweighed, top, inventory, wishlist, gone };
+  return { cats: CATEGORIES.map((c) => cats[c.key]), total, totalMissing, consumablesG, consumablesMissing, unweighed, top, inventory, wishlist, gone };
+}
+
+/**
+ * v0.22.0 (AP05): favourites counted on the same bases as Gear's tabs, so every number says
+ * what it counts: { inventory (owned or unclear), wishlist (wishlist or to buy), gone, all }.
+ * Home and Gear show `inventory` as "favourites" and name the wishlist ones apart.
+ */
+export function favouriteCounts(items = []) {
+  const n = { inventory: 0, wishlist: 0, gone: 0, all: 0 };
+  for (const i of items) {
+    if (!i.favorite) continue;
+    n.all++;
+    if (i.ownership === 'gone') n.gone++;
+    else if (isInventory(i)) n.inventory++;
+    else n.wishlist++;
+  }
+  return n;
 }
 
 /** Does an item match the search text and filters? */

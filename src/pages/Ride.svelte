@@ -358,14 +358,12 @@
   }
   .head .lbl {
     font: 700 13px var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   .head h1 {
     margin: 2px 0 8px;
-    font-size: clamp(34px, 10vw, 56px);
-    line-height: 1;
+    font-size: var(--fs-page);
+    line-height: var(--lh-title);
     overflow-wrap: anywhere;
   }
   .sub {
@@ -402,9 +400,7 @@
   }
   .h {
     margin: 0 0 10px;
-    font: 800 26px var(--font-title);
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    font: 800 var(--fs-section) var(--font-title);
   }
   .inp.big {
     width: 100%;
@@ -433,8 +429,7 @@
     min-height: 40px;
     align-items: center;
     cursor: pointer;
-    font: 800 22px var(--font-title);
-    text-transform: uppercase;
+    font: 800 var(--fs-sub) var(--font-title);
   }
   .bag summary .num {
     color: var(--ink-3);
@@ -458,7 +453,7 @@
     flex-direction: column;
   }
   .nums b {
-    font: 900 40px/1 var(--font-title);
+    font: 900 var(--fs-page)/1.2 var(--font-title);
   }
   .nums span {
     color: var(--ink-3);
@@ -522,7 +517,7 @@
   }
   th {
     text-align: left;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     font-weight: 600;
   }
@@ -595,10 +590,8 @@
   }
   .bp dt {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     padding-top: 2px;
   }
   .bp dd {
@@ -688,6 +681,6 @@
   }
   .go small {
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
 </style>

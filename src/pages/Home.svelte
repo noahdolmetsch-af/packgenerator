@@ -13,11 +13,11 @@
   import DataPanel from '../lib/DataPanel.svelte';
   import { LAST_BACKUP, LAST_IMPORT, BACKUP_DAYS, backupDue, downloadBackup } from '../lib/backup.js';
   import { openTodos, backupAfterTrip } from '../lib/todos.js';
-  import { CATEGORY, formatWeight, gearStats, isConsumable } from '../lib/gear.js';
+  import { CATEGORY, formatWeight, knownWeight, weightText, gearStats, isConsumable, favouriteCounts } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
-  import { withVisits, tripPrep, prepGroups, tyreSetup, costByYear } from '../lib/workshop.js';
-  import { tripStats, daysUntil, readyDone, RAIN } from '../lib/trips.js';
-  import { checkState, serviceDue, needsWork, wear, taskBike, isPrep } from '../lib/care.js';
+  import { withVisits, costByYear } from '../lib/workshop.js';
+  import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine, packStatus, packLine } from '../lib/readiness.js';
+  import { tripStats, daysUntil, RAIN } from '../lib/trips.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
@@ -69,20 +69,12 @@
   const bike = $derived(next ? bikes.find((b) => b.id === next.bikeId) : null);
   const stats = $derived(next ? tripStats(next, items, $bagsQ ?? [], bike, $riderQ?.value) : null);
   const days = $derived(next ? daysUntil(next.startDate) : null);
-  const ready = $derived(next?.ready ?? []);
-  const readyN = $derived(ready.filter((r) => readyDone(r, next)).length);
   // v0.18.2 (answer 3a): the same list "Before the trip" as in Pack and Bike care.
-  const care = $derived(next && nextByBike ? (tripPrep(bike, next, tasks, bike ? tyreSetup(bike, visits) : undefined)?.rows ?? []) : []);
-  const late = $derived(care.filter((c) => c.late).length);
-  // v0.21.0 (decision 5, answer 2b): preparation and bike counted apart, as in Pack.
-  const careText = $derived.by(() => {
-    const g = prepGroups(care);
-    const v = (x) => ({ n: x.rows.length, late: x.late });
-    const prep = !g.prep.rows.length ? null : g.prep.late ? t('preparation {n} ({late} overdue)', v(g.prep)) : t('preparation {n}', v(g.prep));
-    const forBike = !g.bike.rows.length ? null : g.bike.late ? t('bike {n} ({late} overdue)', v(g.bike)) : t('bike {n}', v(g.bike));
-    const what = [prep, forBike].filter(Boolean).join(' · ');
-    return t('Before the trip: {what}', { what });
-  });
+  // v0.22.0 (AP06): three named scopes, the same statements as Pack and Bikes → Care
+  // (readiness.js): Bike care of the trip's bike, Event preparation and Packing status.
+  const care = $derived(next && nextByBike && bike ? bikeCare(bike, { tasks, visits, trip: next, today }) : null);
+  const prep = $derived(next && nextByBike ? eventPrep(next, tasks, today) : null);
+  const packing = $derived(next ? packStatus(next) : null);
   const extra = $derived(next ? ballast(next, items, trips, debriefs) : null);
   const debrief = $derived(toDebrief(trips, debriefs)[0] ?? null);
   const packedPct = $derived(stats?.count ? Math.round((stats.packed / stats.count) * 100) : 0);
@@ -103,7 +95,8 @@
 
   /* ---------- Gear: where the weight is, what is worth a look (answer 7a) ---------- */
   const gs = $derived(gearStats(items));
-  const favs = $derived(gs.inventory.filter((i) => i.favorite).length);
+  // v0.22.0 (AP05): the same basis as Gear's favourites button (the inventory); the wishlist ones apart.
+  const favN = $derived(favouriteCounts(items));
   const cats = $derived(gs.cats.filter((c) => c.g > 0 && !c.consumable).sort((a, b) => b.g - a.g).slice(0, 5));
   const heaviest = $derived(gs.top.find((i) => !isConsumable(i) && i.category !== 'bike') ?? null);
   const wishTop = $derived(
@@ -116,16 +109,15 @@
   /* ---------- Bikes ---------- */
   const totalKm = $derived(bikes.reduce((t, b) => t + (b.km ?? 0), 0));
   const year = $derived(costByYear(visits).find((y) => y.year === today.slice(0, 4)) ?? null);
-  // One line per bike: what is due, else its km and the last workshop visit.
+  // One line per bike (v0.22.0, AP06): Bike care in the same words as Bikes → Care and Pack:
+  // what is due (with its name), "no data" when nothing is recorded, else "nothing due".
+  // The Excel preparation of the next trip is not the bike's: it has its own line in the band.
   const bikeState = (b) => {
-    if (next?.bikeId === b.id && care.length) return { due: care.length, tag: t('{n} to do', { n: care.length }), text: `${b.km != null ? `${num(b.km)} km · ` : ''}${t('next trip')}` };
-    const parts = b.parts ?? [];
-    const due = checkState(b).due + serviceDue(b).length + parts.filter((p) => needsWork(p) || wear(p) === 'worn').length + tasks.filter((t) => !isPrep(t) && taskBike(t) === b.id && (t.status === 'open' || t.status === 'needed')).length;
+    const c = bikeCare(b, { tasks, visits, today });
+    const w = bikeCareWords(c);
     const lastVisit = visits.filter((v) => v.bikeId === b.id).sort((x, y) => y.date.localeCompare(x.date))[0];
-    const text = [b.km != null ? `${num(b.km)} km` : null, lastVisit ? t('serviced {date}', { date: fmt(lastVisit.date, { day: 'numeric', month: 'short' }) }) : null].filter(Boolean).join(' · ');
-    if (due) return { due, tag: t('{n} to do', { n: due }), text };
-    if (b.km == null) return { due: 0, tag: t('enter km'), text: text || t('km not entered') };
-    return { due: 0, tag: t('all fine'), text };
+    const facts = [b.km != null ? `${num(b.km)} km` : null, next?.bikeId === b.id ? t('next trip') : null, lastVisit ? t('serviced {date}', { date: fmt(lastVisit.date, { day: 'numeric', month: 'short' }) }) : null].filter(Boolean).join(' · ');
+    return { due: c.rows.length, tone: w.tone, tag: w.tag, text: [w.text, facts].filter(Boolean).join(' · '), href: c.status === 'ok' ? bikesHash({ bike: b.id }) : c.href };
   };
 
   /* ---------- Good to know (answer 6a): one line from each source ---------- */
@@ -230,7 +222,8 @@
         <h2 id="bk-h">{t('Time for a backup')}</h2>
         <p>{backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })} {t('Your data lives only in this browser: one file keeps it safe (every {n} days).', { n: BACKUP_DAYS })}</p>
       </div>
-      <button type="button" class="btn hi" disabled={backingUp} onclick={backupNow}>{t('Download backup')}</button>
+      <!-- v0.22.0 (AP03): only the trip's next step is orange; notices use a calm button. -->
+      <button type="button" class="btn" disabled={backingUp} onclick={backupNow}>{t('Download backup')}</button>
     </section>
   {/if}
 
@@ -242,7 +235,7 @@
         <h1 id="next-h" class="title">{next.title}</h1>
         <p class="facts">
           <span>{dateText(next)}</span>{#if !nextByBike}<span>{t(domainName(domainOf(next)))}</span>{:else if next.bike}<span>{next.bike}</span>{/if}{#if place?.name}<span>{place.name.split(',')[0]}</span>{/if}
-          <span class="num">{tn(stats.count, '{n} item', '{n} items')}</span>{#if stats.gearG}<span class="num">{t('{w} gear', { w: formatWeight(stats.gearG) })}</span>{/if}
+          <span class="num">{tn(stats.count, '{n} item', '{n} items')}</span>{#if stats.gearG}<span class="num">{t('{w} gear', { w: knownWeight(stats.gearG, stats.gearMissing) })}</span>{/if}{#if stats.gearMissing}<span class="num">{t('{n} not weighed', { n: stats.gearMissing })}</span>{/if}
         </p>
       </div>
       <div class="count" aria-label={days > 0 ? tn(days, '{n} day to go', '{n} days to go') : t('On the way')}>
@@ -261,11 +254,9 @@
           {#if nextByBike}<a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>{/if}
         {/if}
         <a class="btn ghost" href="#/pack?print" onclick={() => openTrip(next.id)}>{t('Print list')}</a>
-        {#if care.length}
-          <a class="pill" class:late href={bikesHash({ tab: 'care', bike: next.bikeId })}>{careText}</a>
-        {:else if nextByBike}
-          <span class="pill ok">{t('Before the trip: all done')}</span>
-        {/if}
+        <!-- v0.22.0 (AP06): one pill per scope, each to the right bike or trip. -->
+        {#if care}<a class="pill" class:late={care.status === 'due'} class:nd={care.status === 'nodata'} href={care.href}>{bikeCareLine(care)}</a>{/if}
+        {#if prep}<a class="pill" class:late={prep.overdue > 0} href={prep.href}>{eventPrepLine(prep)}</a>{/if}
       </div>
     </section>
   {:else if loaded}
@@ -285,7 +276,7 @@
         <h2 id="last-h">{t('Last trip: {title}', { title: debrief.title })}</h2>
         <p>{t('Two minutes: mark what you did not use, what broke and what you missed. The app turns it into tips for the next trip.')}</p>
       </div>
-      <a class="btn hi" href="#/debrief/{encodeURIComponent(debrief.id)}">{t('Start debrief')}</a>
+      <a class="btn" href="#/debrief/{encodeURIComponent(debrief.id)}">{t('Start debrief')}</a>
     </section>
   {/if}
 
@@ -301,13 +292,13 @@
   <div class="hubs">
     <section class="hub" aria-labelledby="pack-h">
       <header><h2 id="pack-h" class="title"><a href="#/pack">{t('Pack')}</a></h2>{@render ic('bag', 40)}</header>
-      <button type="button" class="btn hi big" onclick={() => openNew('list')}>{@render ic('plus')}{t('New packing list')}</button>
+      <button type="button" class="btn big" onclick={() => openNew('list')}>{@render ic('plus')}{t('New packing list')}</button>
       {#if next}
         <div class="sub">
-          <div class="line"><b>{next.title}</b><span class="num muted">{t('{packed} / {n} in the bags', { packed: stats.packed, n: stats.count })}</span></div>
+          <div class="line"><b>{next.title}</b><span class="num muted">{t('{packed} packed · {left} still to pack', { packed: stats.packed, left: stats.toPack })}</span></div>
           <div class="bar" role="img" aria-label={t('{n} % packed', { n: packedPct })}><i style:width="{Math.max(2, packedPct)}%"></i></div>
           <p class="small">
-            {t('Ready check {done} / {n}', { done: readyN, n: ready.length })}{#if extra?.rows.length} · {tn(extra.rows.length, 'Ballast {w} on {n} item you did not use last times.', 'Ballast {w} on {n} items you did not use last times.', { w: formatWeight(extra.totalG) })} <a href="#/pack" onclick={() => openTrip(next.id)}>{t('Leave at home')}</a>{/if}
+            <a href="#/pack" onclick={() => openTrip(next.id)}>{packLine(packing)}</a>{#if extra?.rows.length} · {tn(extra.rows.length, 'Ballast {w} on {n} item you did not use last times.', 'Ballast {w} on {n} items you did not use last times.', { w: weightText(extra.totalG, extra.unweighed) })} <a href="#/pack" onclick={() => openTrip(next.id)}>{t('Leave at home')}</a>{/if}
           </p>
         </div>
       {/if}
@@ -328,7 +319,7 @@
     <section class="hub" aria-labelledby="gear-h">
       <header><h2 id="gear-h" class="title"><a href="#/gear">{t('Gear')}</a></h2>{@render ic('star', 40)}</header>
       <div class="kpis">
-        {#if favs}<div><b class="title num">{favs}</b><span class="lbl">{t('favourites')}</span></div>{/if}
+        {#if favN.all}<a class="kpi" href="#/gear?fav=1"><b class="title num">{favN.inventory}</b><span class="lbl">{t('favourites owned')}</span>{#if favN.wishlist}<small class="muted">{tn(favN.wishlist, '+ {n} on the wishlist', '+ {n} on the wishlist')}</small>{/if}</a>{/if}
         <div><b class="title num">{gs.inventory.length}</b><span class="lbl">{t('items owned')}</span></div>
       </div>
       {#if cats.length}
@@ -337,8 +328,8 @@
           <div class="cats">
             {#each cats as c (c.key)}
               <a href="#/gear?cat={c.key}" class="cn">{t(c.name)}</a>
-              <div class="bar" role="img" aria-label="{formatWeight(c.g)}"><i style:width="{Math.round((c.g / cats[0].g) * 100)}%" style:background={CATEGORY[c.key]?.color}></i></div>
-              <span class="num">{formatWeight(c.g)}</span>
+              <div class="bar" role="img" aria-label={knownWeight(c.g, c.unweighed)}><i style:width="{Math.round((c.g / cats[0].g) * 100)}%" style:background={CATEGORY[c.key]?.color}></i></div>
+              <span class="num">{knownWeight(c.g, c.unweighed)}</span>
             {/each}
           </div>
         </div>
@@ -353,7 +344,7 @@
       </div>
       <div class="foot">
         <button type="button" class="btn sm" onclick={addItem}>{@render ic('plus', 16)}{t('Add item')}</button>
-        <a class="btn sm" href="#/gear">★ {t('Favourites')}</a>
+        <a class="btn sm" href="#/gear?fav=1">★ {t('Favourites')}</a>
         <a class="btn sm" href="#/gear?tab=wishlist">{t('Wishlist')}</a>
       </div>
     </section>
@@ -365,7 +356,7 @@
         <ul class="rows">
           {#each bikes as b (b.id)}
             {@const s = bikeState(b)}
-            <li><a href={s.due ? bikesHash({ tab: 'care', bike: b.id, open: true }) : bikesHash({ bike: b.id })}><span class="two"><b>{b.name}</b><small class="muted">{s.text}</small></span><span class="tag" class:due={s.due}>{s.tag}</span></a></li>
+            <li><a href={s.href}><span class="two"><b>{b.name}</b><small class="muted">{s.text}</small></span><span class="tag" class:due={s.due} class:nd={s.tone === 'nodata'}>{s.tag}</span></a></li>
           {/each}
         </ul>
         {#if year}<p class="small">{t('Workshop {year}:', { year: year.year })} <b class="num">{year.unknown === year.visits ? t('cost unknown') : `CHF ${num(Math.round(year.chf))}${year.unknown ? ` + ${t('unknown')}` : ''}`}</b> ({tn(year.visits, '{n} visit', '{n} visits')}).</p>{/if}
@@ -455,9 +446,7 @@
     margin: 0 auto;
   }
   .lbl {
-    font: 700 12px/1.2 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font: 600 var(--fs-small)/1.3 var(--font-body);
     color: var(--ink-3);
   }
   .muted {
@@ -485,7 +474,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 18px;
-    border: 2px solid var(--hi);
+    border: 1.5px solid var(--hi);
     border-radius: 12px;
     background: var(--hi-soft);
   }
@@ -509,8 +498,8 @@
     gap: 16px 32px;
     padding: 22px 26px;
     border-radius: 14px;
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--brand);
+    color: var(--brand-ink);
   }
   .band .lbl {
     color: #a9c2b6;
@@ -521,8 +510,8 @@
   }
   .band h1 {
     margin: 4px 0 0;
-    font-size: clamp(40px, 8vw, 64px);
-    line-height: 0.95;
+    font-size: var(--fs-page);
+    line-height: var(--lh-title);
     overflow-wrap: anywhere;
   }
   .facts {
@@ -538,12 +527,16 @@
     gap: 8px;
   }
   .count b {
+    /* v0.22.0 (AP03): the countdown stays a big condensed number, a deliberate accent. */
+    font-family: var(--font-brand);
+    font-weight: 800;
     font-size: clamp(64px, 14vw, 96px);
-    line-height: 0.8;
-    color: var(--hi);
+    line-height: 0.85;
+    /* on the dark band the bright orange reads (4.7:1), the darker action orange would not */
+    color: var(--hi-bright);
   }
   .count .now {
-    font-size: 40px;
+    font-size: var(--fs-page);
   }
   .acts {
     flex: 1 1 100%;
@@ -573,10 +566,14 @@
     background: var(--hi-soft);
     color: #8a2f00;
   }
-  .pill.ok {
+  .pill + .pill {
+    margin-left: 0;
+  }
+  /* v0.22.0 (AP06): no data is not fine: a dashed edge and the words "no data". */
+  .pill.nd {
     background: transparent;
-    color: #a9c2b6;
-    font-weight: 500;
+    color: var(--paper);
+    border: 1.5px dashed #a9c2b6;
   }
 
   /* Phone: quick create buttons */
@@ -604,7 +601,7 @@
       border: 0;
       background: none;
       color: var(--ink);
-      font: 600 12px var(--font-body);
+      font: 500 13px/1.25 var(--font-body);
       text-align: center;
       min-width: 0;
       hyphens: auto;
@@ -618,13 +615,11 @@
       width: 52px;
       height: 52px;
       border-radius: 50%;
-      border: 2px solid var(--ink);
+      border: 1px solid var(--line);
       background: var(--paper);
     }
     .ring.hi {
-      background: var(--hi);
-      border-color: var(--hi);
-      color: #fff;
+      border: 1.5px solid var(--ink);
     }
   }
 
@@ -640,7 +635,7 @@
     gap: 16px;
     min-width: 0;
     padding: 20px;
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 14px;
     background: var(--paper);
   }
@@ -652,8 +647,8 @@
   }
   .hub h2 {
     margin: 0;
-    font-size: clamp(40px, 6vw, 52px);
-    line-height: 1;
+    font-size: var(--fs-section);
+    line-height: var(--lh-title);
   }
   .hub h2 a {
     color: var(--ink);
@@ -735,12 +730,18 @@
     flex-direction: column;
   }
   .two small {
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .tag {
     flex: none;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
+  }
+  .tag.nd {
+    padding: 2px 9px;
+    border: 1.5px dashed var(--ink-3);
+    border-radius: 999px;
+    color: var(--ink-2);
   }
   .tag.due {
     padding: 3px 10px;
@@ -754,12 +755,30 @@
     flex-wrap: wrap;
     gap: 6px 24px;
   }
-  .kpis div {
+  .kpis div,
+  .kpis .kpi {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: 8px;
+    gap: 0 8px;
+  }
+  /* v0.22.0 (AP05): the favourites number opens Gear with the favourites filter on. */
+  .kpis .kpi {
+    color: inherit;
+    text-decoration: none;
+  }
+  .kpis .kpi small {
+    flex-basis: 100%;
+    font-size: 13px;
+  }
+  @media (hover: hover) {
+    .kpis .kpi:hover .lbl {
+      text-decoration: underline;
+    }
   }
   .kpis b {
+    font-family: var(--font-brand);
+    font-weight: 800;
     font-size: 44px;
     line-height: 1;
   }
@@ -791,7 +810,7 @@
   /* Good to know */
   .know h2 {
     margin: 0 0 12px;
-    font-size: 30px;
+    font-size: var(--fs-section);
   }
   .cards {
     display: grid;
@@ -832,7 +851,7 @@
   }
   .todo li span {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .todo .link {
     padding: 0;
@@ -844,7 +863,7 @@
   }
   .src {
     margin-top: auto;
-    font-size: 12px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .link {
@@ -871,7 +890,7 @@
     align-items: center;
     gap: 8px;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .dot {
     width: 8px;

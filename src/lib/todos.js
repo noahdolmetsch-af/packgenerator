@@ -3,9 +3,11 @@
  * weights and times guesses, each with the one place that fixes it. A row disappears once done.
  */
 import { isInventory } from './gear.js';
+import { bikeWeightKind } from './bikes.js';
 
 /** A bike weight is a guess when it is missing or still the Strava estimate. */
-export const bikeGuessed = (b) => b.weightG == null || /estimate/i.test(b.weightNote ?? '');
+// v0.22.0 (AP04): same rule as the weights on the Pack and Bikes pages.
+export const bikeGuessed = (b) => bikeWeightKind(b) !== 'measured';
 
 /**
  * rows: [{ key, n, href | action }]; the page writes the words.
