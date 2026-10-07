@@ -1,6 +1,18 @@
 # Decision Log
 
-Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
+Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten. Ältere Zeilen dokumentieren den damaligen Stand und bleiben erhalten.
+
+## Aktuelle Geltung (Abgleich 07.10.2026)
+
+- Aktive Gesamtplanung: [Roadmap AP01–AP26](roadmap.md); ältere Etappen A–D/„Paket 5“ sind historische Planung. Bereits ausgelieferte Reisearten werden erhalten.
+- Produktkern: Tourvorbereitungs-Assistent. Materialpflege ist Grundlage, Bikepflege Bereitschaftskontext; kein Ausbau zu einer Routen-/Trainingsplattform als Teil des Kernplans.
+- Pack-Planung: ausgewählte Entwürfe **2 und 3** ersetzen im Packbereich das Dreispalten-/Velo-Kartenlayout, dominante Gewichtsflächen und hoverabhängige Zeilenaktionen. Fotos und bestehende Funktionen bleiben erreichbar. Andere Screens werden separat bearbeitet.
+- Vorschlagsauswahl ist ein lokaler Entwurf bis Bestätigung; Einzelbearbeitung der fertigen Packliste speichert direkt mit Undo. Kein allgemeines gemeinsames Speichern aller Material-/Setupänderungen geliefert.
+- Schrift: Fira Sans für Inhalte, vorhandene Sofia Sans Extra Condensed fürs Logo; Aktionsorange aus dem gemeinsamen Token. Der frühere Figma-Brief mit Instrument Serif/DM Sans/grüner Primäraktion ist historisch, keine aktuelle Pack-Spezifikation.
+- Zielnavigation im Packbereich Heute/Touren/Material/Fahrräder; Sprache/Inbox/Rückblick im Profilmenü. Die alte Regel „DE/EN immer sichtbar oben auf jeder Seite“ gilt im neuen Packbereich nicht mehr in dieser Form; Sprachen bleiben verfügbar.
+- Eventvorbereitung ist live noch nicht an einen Eventmodus gebunden. Der beabsichtigte neue Vertrag befindet sich in **offener PR #31**. Dessen Paketversion 0.22.1 nicht als live ausweisen.
+- „Veröffentlicht“ benennt ausgelieferte Software; es ersetzt keine vollständige AP-/PF-Abnahme oder Zeitmessung. Private Daten bleiben ausserhalb des öffentlichen Repositorys.
+
 
 ## Aus dem Projekt "Bike Cockpit" übernommen
 
@@ -172,3 +184,18 @@ Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten.
 | 7.10.2026 | **AP02:** Nacht-Grundset „Base“ (inkl. Ladegerät und Kabel) nur bei Übernachtung draussen (2b, 8a); Tagestour-Set Teil für Teil festgelegt (28 immer, 8 nach Dauer, 9 nicht; Halterungen gehören zum Velo, nicht in die Packliste); Tourarten MTB, Alpin, Bikepacking, Ultracycling, Rennvelo/Gravel, Skitour, Wochenende, Weltreise (4a); unklarer Bestand wird mit Hinweis vorgeschlagen (5a); Gel 1 pro Stunde (6b); manuelle Wahl vor bestätigter Regel, Notizen/Learnings lösen nur Rückfragen aus (7a). Excel-Vorbereitung: Frage weggelassen, bleibt vorerst bei jeder Tour | Noah, Antworten 1b 2b 4a 5a 6b 7a 8a |
 | 7.10.2026 | **AP06:** zeitfällige Velo-Services erscheinen jetzt auch auf der Startseite (ersetzt 17b), weil die Bereitschaft überall gleich lauten muss; offene Reparaturen zählen zur Velopflege, Excel-Aufgaben nie | Konzept, Annahme |
 | 7.10.2026 | **M1-Antworten:** 1 Liste heisst „Weitere Dinge“; 2a „Leichtestes“ nur ohne fehlende Taschengewichte; 3a überfällig in Tagen/Wochen/Monaten statt Datum; 4b Excel-Eventvorbereitung schon jetzt nur bei Touren mit Häkchen „Event“ (ersetzt „3 weglassen“, nimmt AP16 teilweise vorweg) | Noah |
+
+
+## Ergänzungen aus dieser Umsetzung
+
+| Datum | Entscheid / Status | Grund / Nachweis |
+|---|---|---|
+| 07.10.2026 | **Entwürfe 2 und 3 gemeinsam umsetzen**, nicht als wählbare konkurrierende Layouts: Entscheidung → ruhige Packliste → bestehende Packkontrolle | Noah: „ich möchte 2 und 3 beide umsetzen“; PR #32 |
+| 07.10.2026 | Gründe, Alternativen und Mengen im Entwurf prüfen; Bestätigung speichert, Zurück verwirft | Kontrolle über Auswahl; Unit-/E2E-Nachweise |
+| 07.10.2026 | Keine automatische Freitext-Konflikterkennung behaupten; Regel und Notiz gemeinsam zur manuellen Klärung zeigen | Strukturierte Konfliktlogik AP14 noch offen |
+| 07.10.2026 | Einfache gemeinsame Phasennavigation und echte Regelzahl; keine künstliche Reduktion auf drei Mockup-Karten | Konsistenter Ablauf und tatsächliche Vorschläge; Design-QA |
+| 07.10.2026 | Bestehenden `main` v0.22.0 in neue Screens integrieren: ehrliche Gewichte, Schätzungen, Favoriten und gemeinsame Bereitschaft erhalten | PR #30 nicht überschreiben; Feature-Head 8944024 |
+| 07.10.2026 | **PR #32 durch Noah veröffentlicht**, anschliessend CI/Live-Einstiege geprüft | Merge be041f1; Actions 37663681916; Releasebeleg |
+| 07.10.2026 | **Dokumente konsolidieren und mit Roadmap abgleichen**; GitHub ist verbindlicher Stand, gespeicherter Ablaufplan datierte Fassung; historische Audits erhalten | Noahs Dokumentationsauftrag; docs/README.md, roadmap.md, verification.md |
+| 07.10.2026 | **PR #31 separat offen halten**: Konflikte und Eventmodus vor Merge mit neuer Packansicht abstimmen | GitHub meldet mergeable=false; diese Runde dokumentiert und implementiert keine neue Eventlogik |
+| 07.10.2026 | **PR #31 mit neuer Packansicht integriert:** Event-Häkchen und `isEvent` im Abschnitt „Vor der Tour“ von `CalmPack` (Snippet in `Pack.svelte`), kein Rückbau auf das Dreispaltenlayout; bereits abgehakte `trip.prep`-Aufgaben bleiben sichtbar (ältere Touren mit Haken gelten als Event) | Kommentar auf PR #31; Merge von `main` in den PR-Branch, Tests erneut auf integriertem Stand |

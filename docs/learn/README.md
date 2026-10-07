@@ -1,6 +1,6 @@
 # Lern-Seite: So funktioniert Pack Generator
 
-Diese Seite wächst mit jedem Pull Request. Sie erklärt in einfachen Worten, wie die App aufgebaut ist.
+Diese Seite wächst mit jedem Pull Request. Sie erklärt in einfachen Worten, wie die App aufgebaut ist. Stand: 07.10.2026 nach PR #32. [Dokumentationsindex](../README.md), [aktuelle Architektur](../architecture.md) und [Roadmap](../roadmap.md). Historische Beispiele sind entsprechend gekennzeichnet.
 
 ## 1. Die Bausteine
 
@@ -18,19 +18,19 @@ Diese Seite wächst mit jedem Pull Request. Sie erklärt in einfachen Worten, wi
 ```
 index.html              Einstiegsseite; lädt src/main.js
 src/main.js             Startet Svelte und hängt die App in die Seite
-src/App.svelte          Die Startseite der App (bisher eine Komponente)
+src/App.svelte          Router und gemeinsamer App-Rahmen
 src/app.css             Trail-Journal-Farben und Schriften für alles
 src/lib/                Datenbank, Backups und Bausteine (Komponenten)
 tests/                  Automatische Tests
 tools/import-excel/     Einmaliger Excel-Konverter
-public/                 Dateien, die unverändert mitkommen (Icons, Prototyp)
-public/cockpit/         Der Bike-Cockpit-Prototyp als eigene Offline-App
+public/                 Icons und Schriftlizenzen
+archive/cockpit/        Historischer, nicht mehr online geschalteter Prototyp
 vite.config.js          Einstellungen für Vite und die PWA (Manifest, Offline-Cache)
 .github/workflows/      Automatisches Bauen und Veröffentlichen
 docs/                   Entscheide, Projektstand und diese Lern-Seite
 ```
 
-## 3. Wichtige Begriffe aus `src/App.svelte`
+## 3. Svelte-Begriffe (auch historische Beispiele)
 
 - `let online = $state(navigator.onLine)`: `$state` macht eine Variable *reaktiv*. Wenn sich ihr Wert ändert, aktualisiert Svelte die Anzeige von selbst.
 - `$effect(() => { ... })`: Code, der läuft, sobald die Komponente auf dem Bildschirm ist. Hier hört er auf die Browser-Ereignisse `online` und `offline`. Die zurückgegebene Funktion räumt wieder auf.
@@ -85,20 +85,31 @@ Wichtig: Beide Speicher gehören zum *Browser auf diesem Gerät*. Darum gibt es 
 - **Drucken:** `@media print` in `Pack.svelte` blendet alles aus ausser der Liste pro Tasche. Im Druckdialog "Als PDF speichern" wählen.
 - **Schichten** (`src/lib/layers.js`): Ein Teil kann Felder wie `ride: 'daily'`, `coldBelow: 10` oder `rain: 'yes'` haben. `layerSuggest` liest die Tour (Fahrtart, Stunden, Wetter) und gibt eine Liste zurück: was dazukommt, warum, getragen oder eingepackt, wie viele Stück. Die Regeln stehen also in den Daten, nicht im Code. Darum kannst du sie in Gear selbst ändern.
 - **Ersetzen** (`src/lib/replace.js`): Wird ein Teil ersetzt, sucht `replaceEverywhere` alle Touren, Taschen und Halterungen mit der alten ID und setzt die neue ein. Das läuft in einer Transaktion, also ganz oder gar nicht.
-- **Neues Pack-Layout** (`src/lib/pack/NotPacked.svelte`): Drei Spalten. Die Liste "Not packed" gruppiert nach Kategorie, Gruppen sind zugeklappt. Jedes Teil kann man mit der Maus ziehen (`draggable`): `dataTransfer` trägt die Teil-ID, und die Tasche auf der Zeichnung oder die offene Tasche nimmt sie mit `ondrop` an. Mit `{#snippet}` wird ein Stück Oberfläche (z.B. die Schichten) einmal geschrieben und am Desktop in der rechten Spalte, am Phone im Add-Tab gezeigt.
+- **Historisches Pack-Layout:** Drei Spalten und Velo-Kästen waren die frühere Planungsansicht. PR #32 ersetzt diese Hauptansicht durch `CalmPack.svelte`; `NotPacked.svelte` bleibt als vorhandene Materialauswahl angebunden. Eine noch vorhandene Datei bedeutet nicht, dass das alte Layout die aktuelle Hauptansicht ist.
 - **Ready-Check** (`READY_DEFAULT`, `freshReady`, `alwaysEntries` in `src/lib/trips.js`): Eine neue Tour bekommt die gespeicherte Standardliste (Einstellung `readyStandard`) oder die vorgeschlagene. Teile mit `always: true` kommen in jede neue Tour, auch wenn sie eine Kopie der letzten ist.
 - **Templates** (`src/lib/templates.js`, `src/pages/Templates.svelte`): `templateFrom` macht aus einer Tour ein Template (ohne Wetter, Häkchen und Velo), `tripFromTemplate` macht daraus wieder eine Tour auf dem gewählten Velo. Gespeichert in der Tabelle `settings` unter `templates`, darum sind sie im Backup dabei, ohne neue Datenbank-Version.
 - **Aufräumen beim Start** (`src/lib/tidy.js`): Taschenliste anlegen, Velos ergänzen, alte Touren umstellen. Jeder Schritt ändert nur, was es noch braucht.
 
-## 9b. Bike care (`src/lib/care.js`, `src/pages/Care.svelte`)
+## 9b. Bike care (`src/lib/care.js`, `src/lib/care/CareTab.svelte`, `src/pages/Bikes.svelte`)
 
+- **Gemeinsame Bereitschaft** (`src/lib/readiness.js`): Home, Pack und Bikepflege verwenden dieselben Berechnungen. Bikepflege, Eventvorbereitung und Packstand sind getrennte Prüfbereiche. Expliziter Eventmodus ist erst in der offenen PR #31 geplant.
 - **Alles ist Verlauf:** Jedes Teil eines Velos hat eine Liste `history` mit Einträgen (Datum, km, Messwert, Aktion, Ergebnis). Was fällig ist, wird jedes Mal aus diesem Verlauf und dem km-Stand ausgerechnet, nichts davon wird extra gespeichert. Darum kann nichts "veralten".
 - **Fristen vor einer Tour:** `prepFor` nimmt das Startdatum und zieht pro Aufgabe den Vorlauf in Wochen ab. Die Ergebnisse stehen auf der Tour (`trip.prep`), jede Tour hat also ihre eigene Liste.
 - **Keine neue Tabelle:** Teile hängen am Velo, Vorbereitung an der Tour, Arbeiten in der schon importierten Tabelle `maintenance`. Darum braucht es keine neue Datenbank-Version, und das Backup enthält alles.
 
+## 9c. Warum die neuen Entscheidungen erst nach Bestätigung speichern
+
+`DecisionReview.svelte` hält eine Kopie deiner Auswahl im Arbeitsspeicher. Beim Antippen einer Alternative entsteht noch keine Datenbankänderung. „Zurück“ beendet diese Auswahl. Erst „Auswahl übernehmen“ lässt `preparation.js` die bestätigten Änderungen berechnen und `Pack.svelte` diese für die aktuelle Tour speichern.
+
+`CalmPack.svelte` zeigt die gespeicherte Packliste. Ihre Mengenknöpfe speichern direkt. Nach einer geänderten Menge oder Position muss das betreffende Material erneut als gepackt kontrolliert werden. Die Gruppierung nach Kategorie verändert nur die Ansicht, nicht die Tasche. Undo kann bis zu 20 vorherige Tourzustände dieser Sitzung zurückholen.
+
+Die alten Materialregeln bleiben in `layers.js`. Freitextnotizen sind keine automatisch ausgewerteten Regeln; die Oberfläche zeigt sie zur Prüfung. Fehlendes Gewicht wird offen dargestellt. Neue Schriften wurden nicht erfunden: die bestehenden Familien werden jetzt lokal geladen, damit sie ohne Google-Fonts-Abruf verfügbar sind. Das allein beweist noch keinen vollständigen Offline-Test.
+
 ## 10. Tests
 
 `npm test` startet **Vitest**. Die Tests liegen in `tests/` und laufen ohne Browser: `fake-indexeddb` spielt die Browser-Datenbank im Speicher nach. Getestet wird z.B., dass Export → Import genau dieselben Daten ergibt.
+
+Zusätzlich führt `npm run e2e` echte Browserabläufe aus und baut die App davor neu. `tests/e2e/preparation.spec.js` prüft Abbruch, Bestätigung, Menge und Packtag; `design-capture.spec.js` erstellt Vergleichsbilder. Service Worker sind dort blockiert, daher werden PWA-Updates und Offlineverhalten separat geprüft. Umfang und Grenzen im [Prüfregister](../verification.md).
 
 ## 11. Selbst ausprobieren
 
@@ -107,5 +118,6 @@ npm install       # einmal: Bausteine herunterladen
 npm run dev       # App lokal starten, Änderungen erscheinen sofort
 npm run build     # fertige App in dist/ bauen
 npm run preview   # gebaute App lokal ansehen (inkl. Offline-Funktion)
-npm test          # alle Tests laufen lassen
+TZ=UTC npm test   # Unit-Tests; UTC für vorhandenen Demo-Datumstest
+npm run e2e       # frischer Build + Browser-Teststrecke
 ```
