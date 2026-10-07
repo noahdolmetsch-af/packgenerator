@@ -1,6 +1,7 @@
 <script>
   /**
-   * "Not packed": everything you own that is not on the trip yet, grouped by category.
+   * "Other gear" (v0.22.0, AP04; was "Not packed"): everything you own that is not on this trip
+   * (or template) yet, grouped by category. "To pack" and "packed" only mean items on the list.
    * Mockup answers (4.10.2026): groups start folded (2b), hints as small labels (3a),
    * "+" puts an item into the chosen bag, or drag it onto a bag (4a).
    */
@@ -36,7 +37,7 @@
 <section class="np" aria-labelledby="np-h">
   <div class="np-top">
     <div class="np-h">
-      <h2 id="np-h" class="title">{t('Not packed')}</h2>
+      <h2 id="np-h" class="title">{t('Other gear')}</h2>
       <span class="m num">{tn(items.length, '{n} item', '{n} items')}</span>
     </div>
     <input class="inp" type="search" placeholder={t('Search your gear')} bind:value={q} aria-label={t('Search your gear')} />

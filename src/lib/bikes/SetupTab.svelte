@@ -2,8 +2,8 @@
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { SLOTS, SLOT, FIXED_ZONES, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash } from '../bikes.js';
-  import { formatWeight, parseGrams } from '../gear.js';
+  import { SLOTS, SLOT, FIXED_ZONES, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind } from '../bikes.js';
+  import { formatWeight, knownWeight, parseGrams } from '../gear.js';
   import BikeStage from './BikeStage.svelte';
   import BagDialog from './BagDialog.svelte';
   import BikeDialog from './BikeDialog.svelte';
@@ -32,6 +32,7 @@
   let { bikeId = null, onbike } = $props();
   const bike = $derived(bikes.find((b) => b.id === bikeId) ?? bikes[0]);
   const setup = $derived(bike ? bikeSetup(bike, bags, items) : null);
+  const bikeKind = $derived(bikeWeightKind(bike));
   // Design audit B4: the bike's bags are the standard; the next trip on it may use others.
   const tripOn = $derived(bike ? nextTrip(($tripsQ ?? []).filter((t) => t.bikeId === bike.id)) : null);
   const tripBag = (key) => (tripOn && (tripOn.setup?.[key] ?? null) !== (bike.setup?.[key] ?? null) ? bags.find((b) => b.id === tripOn.setup?.[key]) ?? { name: t('no bag'), none: true } : null);
@@ -197,7 +198,9 @@
         </div>
         <p class="kpi num">
           <span><span class="lbl">{t('Bags')}</span><b>{setup.bagCount} · {formatVolume(setup.volumeL)}</b></span>
-          <span><span class="lbl">{t('Bags weigh')}</span><b>{formatWeight(setup.bagsG)}</b>{#if setup.unweighed}<small class="nw">{t('+ {n} not weighed', { n: setup.unweighed })}</small>{/if}</span>
+          <span><span class="lbl">{t('Bags weigh')}</span><b>{setup.unweighed && setup.unweighed === setup.bagCount ? t('not weighed') : knownWeight(setup.bagsG, setup.unweighed)}</b>{#if setup.unweighed}<small class="nw">{t('{n} not weighed', { n: setup.unweighed })}</small>{/if}</span>
+          <!-- v0.22.0 (AP04): the bike weight says whether it was measured or is an estimate. -->
+          <span><span class="lbl">{t('Bike weighs')}</span><b>{bikeKind === 'missing' ? t('not weighed') : `${bikeKind === 'estimate' ? '~' : ''}${formatWeight(bike.weightG)}`}</b><small class="nw">{bikeKind === 'estimate' ? t('estimate') : bikeKind === 'measured' ? t('measured') : ''}</small></span>
         </p>
       </div>
 
@@ -232,7 +235,7 @@
       </div>
       {#if message}<p class="msg" role="status">{message}</p>{/if}
 
-      <Fold label={t('Bike details')} summary={`${bike.weightG ? formatWeight(bike.weightG) : t('not weighed')} · ${tn((bike.fixtures ?? []).length, '{n} thing always mounted', '{n} things always mounted')}`}>
+      <Fold label={t('Bike details')} summary={`${bikeKind === 'missing' ? t('not weighed') : `${bikeKind === 'estimate' ? '~' : ''}${formatWeight(bike.weightG)} (${bikeKind === 'estimate' ? t('estimate') : t('measured')})`} · ${tn((bike.fixtures ?? []).length, '{n} thing always mounted', '{n} things always mounted')}`}>
         <div class="details-in">
           <label class="wlabel">
             <span class="lbl">{t('Bike weight (g)')}</span>

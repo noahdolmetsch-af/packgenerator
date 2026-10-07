@@ -127,5 +127,6 @@ export function eventPrepLine(p) {
 export function packLine(s) {
   if (!s) return '';
   if (s.status === 'empty') return t('Packing status: nothing on the list yet');
-  return t('Packing status: {packed} of {count} packed · ready check {ready} of {total}', { packed: s.packed, count: s.count, ready: s.ready, total: s.readyTotal });
+  // v0.22.0 (AP04 words): packed / still to pack, checks checked / open
+  return t('Packing status: {packed} packed · {left} still to pack · ready check {ready} checked · {open} open', { packed: s.packed, left: s.count - s.packed, ready: s.ready, open: s.readyTotal - s.ready });
 }

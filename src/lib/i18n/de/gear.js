@@ -225,4 +225,14 @@ export default {
   'No favourites in your inventory yet. Tap the ☆ in front of an item to mark it.': 'Noch keine Favoriten im Inventar. Den ☆ vor einem Teil antippen, um es zu markieren.',
   'Show all items': 'Alle Teile zeigen',
   'No favourites on the wishlist.': 'Keine Favoriten auf der Wunschliste.',
+  // v0.22.0 (AP04): unknown weight is not zero.
+  'known: {w}': 'bekannt: {w}',
+  '{n} weight missing': '{n} Gewicht fehlt',
+  '{n} weights missing': '{n} Gewichte fehlen',
+  measured: 'gemessen',
+  estimate: 'Schätzung',
+  'bike weight estimated': 'Velogewicht geschätzt',
+  'bike weight measured': 'Velogewicht gemessen',
+  'Bike weighs': 'Velo wiegt',
+  '{n} not weighed (+ {f} food and water)': '{n} nicht gewogen (+ {f} Verpflegung und Wasser)',
 };

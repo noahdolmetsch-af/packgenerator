@@ -116,7 +116,6 @@ export default {
   "Create trip": "Tour erstellen",
   "Save": "Speichern",
   "Delete trip": "Tour löschen",
-  "Not packed": "Nicht gepackt",
   "{n} item": "{n} Teil",
   "{n} items": "{n} Teile",
   "Search your gear": "Ausrüstung durchsuchen",
@@ -365,7 +364,6 @@ export default {
   'Next: ride day': 'Weiter: Fahrtag',
   'Next: packing day': 'Weiter: Packtag',
   'Everything packed. Route, weather, what is where, and at the end "End trip and debrief".': 'Alles gepackt. Route, Wetter, was wo ist, und am Schluss «Tour beenden und Rückblick».',
-  'Pack bag by bag and tick off, then the ready check: {packed} of {count} packed, {ready} of {total} checks.': 'Tasche für Tasche packen und abhaken, dann der Startcheck: {packed} von {count} gepackt, {ready} von {total} Checks.',
   // v0.21.0 (decision 5): simpler Pack page
   'More: other trip, packing day, templates, print': 'Mehr: andere Tour, Packtag, Vorlagen, Drucken',
   'More': 'Mehr',
@@ -425,4 +423,15 @@ export default {
   'No items for {area} yet, so the list starts empty. Add items in Pack (search finds all your gear), or in Gear: open an item and tick {area} under Areas.': 'Noch keine Teile für {area}, die Liste startet leer. Füge Teile in Packen hinzu (die Suche findet deine ganze Ausrüstung) oder in Ausrüstung: Teil öffnen und {area} unter Reisearten anhaken.',
   'The last {area} trip, or the {area} items when there is none': 'Die letzte Tour {area}, oder die Teile für {area}, wenn es keine gibt',
   'Worn, standard and "On every trip", in {bags}': 'Getragen, Standard und «Auf jeder Tour», in {bags}',
+  // v0.22.0 (AP04): clear words for the states, honest weights, one "•••" per row.
+  'Other gear': 'Weitere Materialien',
+  '{n} bag not weighed': '{n} Tasche nicht gewogen',
+  '{n} bags not weighed': '{n} Taschen nicht gewogen',
+  'Pack bag by bag and tick off, then the ready check. {count} on the list: {packed} packed, {left} still to pack. Ready check: {ready} checked, {open} open.': 'Tasche für Tasche packen und abhaken, dann der Startcheck. {count} auf der Liste: {packed} gepackt, {left} noch einzupacken. Startcheck: {ready} geprüft, {open} offen.',
+  '{packed} packed · {left} still to pack': '{packed} gepackt · {left} noch einzupacken',
+  'Ready check: {done} checked · {open} open': 'Startcheck: {done} geprüft · {open} offen',
+  'Amount, move or take out: {name}': 'Menge, verschieben oder herausnehmen: {name}',
+  'Amount, move or take out': 'Menge, verschieben oder herausnehmen',
+  'estimate, {n} not weighed': 'Schätzung, {n} nicht gewogen',
+  'About {pct} % of the luggage is on the rear wheel (hint above {limit} %, estimate: not everything is weighed).': 'Etwa {pct} % des Gepäcks liegt auf dem Hinterrad (Hinweis ab {limit} %, Schätzung: nicht alles ist gewogen).',
 };

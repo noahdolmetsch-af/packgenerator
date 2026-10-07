@@ -4,7 +4,7 @@
  * before the start, what it costs per 1000 km and how often it was on a trip before.
  * Pure function; the Pack page shows it.
  */
-import { bikeSetup, ON_BIKE_SLOTS } from './bikes.js';
+import { bikeSetup, ON_BIKE_SLOTS, bikeWeightKind } from './bikes.js';
 import { costPer1000, visitsOf } from './workshop.js';
 import { bikeCare } from './readiness.js';
 
@@ -19,10 +19,12 @@ export function gearLitres(trip, items) {
 
 /**
  * views: the bikes from withVisits. Returns rows, one per bike:
- * { bike, weightG, bagsG, totalG, volumeL, gearL, full, due, late, care, per, trips, current, lightest, roomiest }.
+ * { bike, weightG, bagsG, totalG, missing, bikeKind, volumeL, gearL, full, due, late, care, per, trips, current, lightest, roomiest }.
  * v0.22.0 (AP06): due/late come from Bike care (readiness.js), the same rows as Home, Pack and Care:
  * due = due now + what becomes due before or on this trip, late = due now. tasks: for open repairs.
  * totalG is null when the bike is not weighed. full: the gear needs more than 80 % of the bags.
+ * v0.22.0 (AP04): missing = bags without a weight (totalG is then only the known part);
+ * bikeKind = 'measured' | 'estimate' | 'missing'. "lightest" only when no bag weight is missing.
  */
 export function bikeChoice(trip, views, { containers = [], items = [], visits = [], trips = [], tasks = [], today }) {
   const gearL = gearLitres(trip, items);
@@ -36,6 +38,8 @@ export function bikeChoice(trip, views, { containers = [], items = [], visits = 
       weightG: bike.weightG ?? null,
       bagsG: setup.bagsG,
       totalG: bike.weightG ? bike.weightG + setup.bagsG : null,
+      missing: setup.unweighed,
+      bikeKind: bikeWeightKind(bike),
       volumeL: setup.volumeL,
       gearL,
       full: gearL != null && setup.volumeL > 0 ? gearL > setup.volumeL * 0.8 : null,
@@ -47,7 +51,8 @@ export function bikeChoice(trip, views, { containers = [], items = [], visits = 
       current: trip.bikeId === bike.id,
     };
   });
-  const min = Math.min(...rows.filter((r) => r.totalG).map((r) => r.totalG));
+  const weighed = rows.filter((r) => r.totalG);
+  const min = weighed.some((r) => r.missing) ? null : Math.min(...weighed.map((r) => r.totalG));
   const max = Math.max(...rows.map((r) => r.volumeL));
   return rows.map((r) => ({ ...r, lightest: r.totalG === min, roomiest: max > 0 && r.volumeL === max }));
 }

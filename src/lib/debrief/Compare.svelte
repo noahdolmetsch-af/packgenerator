@@ -3,7 +3,7 @@
    * Your trips compared (v0.19.2, Noah 5a): per debriefed trip the gear you took, split into
    * used and not used, with the trend of the last trip against the ones before.
    */
-  import { formatWeight } from '../gear.js';
+  import { formatWeight, knownWeight, weightText } from '../gear.js';
   import { t, tn, locale } from '../i18n.svelte.js';
   import { tripRows, trend } from '../insights.js';
 
@@ -32,10 +32,10 @@
         {#each rows as r (r.id)}
           <li>
             <span class="t"><b>{r.title}</b> <small>{fmtDate(r.date)}{r.km ? ` · ${Math.round(r.km)} km` : ''}{r.missingN ? ` · ${t('{n} missing', { n: r.missingN })}` : ''}</small></span>
-            <span class="bar" role="img" aria-label={t('{gear} gear, {unused} not used', { gear: formatWeight(r.packedG), unused: formatWeight(r.unusedG) })}>
+            <span class="bar" role="img" aria-label={t('{gear} gear, {unused} not used', { gear: weightText(r.packedG, r.packedMissing), unused: knownWeight(r.unusedG, r.unusedMissing) })}>
               <i class="used" style:width={pct(r.packedG - r.unusedG)}></i><i class="un" style:width={pct(r.unusedG)}></i>
             </span>
-            <span class="v num">{formatWeight(r.packedG)}<small>{r.unusedG ? ` · ${t('{w} not used', { w: formatWeight(r.unusedG) })}` : ` · ${t('all used')}`}</small></span>
+            <span class="v num">{knownWeight(r.packedG, r.packedMissing)}<small>{r.packedMissing ? ` · ${t('{n} not weighed', { n: r.packedMissing })}` : ''}{r.unusedG || r.unusedN ? ` · ${t('{w} not used', { w: knownWeight(r.unusedG, r.unusedMissing) })}` : ` · ${t('all used')}`}</small></span>
           </li>
         {/each}
       </ul>

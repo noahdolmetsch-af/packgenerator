@@ -410,7 +410,7 @@ export default {
   'Event preparation: {n} open ({m} overdue)': 'Eventvorbereitung: {n} offen ({m} überfällig)',
   'Event preparation: {n} open': 'Eventvorbereitung: {n} offen',
   'Packing status: nothing on the list yet': 'Packstand: noch nichts auf der Liste',
-  'Packing status: {packed} of {count} packed · ready check {ready} of {total}': 'Packstand: {packed} von {count} gepackt · Startcheck {ready} von {total}',
+  'Packing status: {packed} packed · {left} still to pack · ready check {ready} checked · {open} open': 'Packstand: {packed} gepackt · {left} noch einzupacken · Startcheck {ready} geprüft · {open} offen',
   'Nothing due on the bikes with data.': 'Nichts fällig bei den Velos mit Daten.',
   'No data: {bikes}': 'Keine Daten: {bikes}',
   'enter km and record a check or service': 'km eintragen und einen Check oder Service erfassen',

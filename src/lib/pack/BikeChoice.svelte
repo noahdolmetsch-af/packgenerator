@@ -3,7 +3,7 @@
    * Which bike for this trip? (v0.19.3, N13): the bikes side by side. "Use for this trip" moves
    * the trip to that bike and its bags, like changing the bike under Edit.
    */
-  import { formatWeight } from '../gear.js';
+  import { formatWeight, knownWeight } from '../gear.js';
   import { formatVolume } from '../bikes.js';
   import { t, tn, num } from '../i18n.svelte.js';
   import { bikeCareWords } from '../readiness.js';
@@ -31,7 +31,8 @@
         <h3>{r.bike.name}{#if r.current}<span class="tag">{t('this trip')}</span>{/if}</h3>
         <dl>
           <dt>{t('Bike + bags')}</dt>
-          <dd class="num">{r.totalG ? formatWeight(r.totalG) : t('not weighed')}{#if r.lightest}<span class="good">{t('lightest')}</span>{/if}</dd>
+          <!-- v0.22.0 (AP04): known part with the missing bag weights, and whether the bike is measured. -->
+          <dd class="num">{r.totalG ? knownWeight(r.totalG, r.missing, (g) => `${r.bikeKind === 'estimate' ? '~' : ''}${formatWeight(g)}`) : t('not weighed')}{#if r.lightest}<span class="good">{t('lightest')}</span>{/if}{#if r.totalG && r.missing}<small>{tn(r.missing, '{n} bag not weighed', '{n} bags not weighed')}</small>{/if}{#if r.totalG}<small>{r.bikeKind === 'estimate' ? t('bike weight estimated') : t('bike weight measured')}</small>{/if}</dd>
           <dt>{t('Bags')}</dt>
           <dd class="num">
             {formatVolume(r.volumeL)}{#if r.roomiest}<span class="good">{t('most room')}</span>{/if}
