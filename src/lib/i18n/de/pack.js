@@ -167,6 +167,7 @@ export default {
   "Items go into the bags of this bike. Weather and ticks start empty.": "Die Teile kommen in die Taschen dieses Velos. Wetter und Häkchen starten leer.",
   "A copy of {title}. Nothing is ticked off yet.": "Eine Kopie von {title}. Noch nichts ist abgehakt.",
   "Your standard set: worn, standard pack, overnight base and the items \"On every trip\".": "Dein Standard-Set: Angezogenes, Standard-Packliste, Übernachtungs-Grundset und die Teile «Auf jeder Tour».",
+  "Your standard set for a day: worn, standard pack and the items \"On every trip\". The overnight base set comes with 2 days or more.": "Dein Standard-Set für einen Tag: Angezogenes, Standard-Packliste und die Teile «Auf jeder Tour». Das Übernachtungs-Grundset kommt ab 2 Tagen dazu.",
   "The trip takes the bags of the new bike. Items in a place without a bag move to the seat pack.": "Die Tour übernimmt die Taschen des neuen Velos. Teile an einem Platz ohne Tasche kommen in die Satteltasche.",
   "Create trip": "Tour erstellen",
   "Save": "Speichern",
@@ -195,6 +196,10 @@ export default {
   "Back": "Zurück",
   "Next: {step}": "Weiter: {step}",
   "Next: ready check": "Weiter: Startcheck",
+  // v0.24.0 (Noah, fewer clicks)
+  "Everything is packed": "Alles ist gepackt",
+  "All in, next: {step}": "Alles drin, weiter: {step}",
+  "All done, finish": "Alles erledigt, fertig",
   "Done": "Fertig",
   "empty": "leer",
   "no bag here": "hier keine Tasche",

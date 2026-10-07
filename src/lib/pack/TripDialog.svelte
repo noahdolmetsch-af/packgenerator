@@ -129,7 +129,9 @@
       <p class="note">
         {#if templates.some((x) => x.id === start)}{t('Items go into the bags of this bike. Weather and ticks start empty.')}
         {:else if start === 'last' && from}{t('A copy of {title}. Nothing is ticked off yet.', { title: from.title })}
-        {:else}{t('Your standard set: worn, standard pack, overnight base and the items "On every trip".')}{/if}
+        {:else if (Number(draft.days) || 1) > 1}{t('Your standard set: worn, standard pack, overnight base and the items "On every trip".')}
+        <!-- v0.24.0: a day ride leaves the overnight base set out. -->
+        {:else}{t('Your standard set for a day: worn, standard pack and the items "On every trip". The overnight base set comes with 2 days or more.')}{/if}
       </p>
     {:else if byBike && draft.bikeId !== trip.bikeId}
       <p class="note">{t('The trip takes the bags of the new bike. Items in a place without a bag move to the seat pack.')}</p>

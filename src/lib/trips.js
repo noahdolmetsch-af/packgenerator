@@ -54,11 +54,16 @@ export function slotFor(defaultBag, setup) {
   return any ? any.key : 'body';
 }
 
-/** The standard set: worn items on me, standard items and the overnight base set in their default bag. */
-export function standardEntries(items, setup) {
+/**
+ * The standard set: worn items on me, standard items and the overnight base set in their default bag.
+ * v0.24.0 (Noah, fewer clicks; AP02 answer 2b): the base set (towel, toothbrush, swim shorts …) only
+ * comes along when the trip has a night, i.e. more than one day. A day ride no longer starts with
+ * seven items to take out again.
+ */
+export function standardEntries(items, setup, { overnight = true } = {}) {
   return items
     // v0.21.0: only items of the bikepacking area (an item only for the weekend stays out)
-    .filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && (i.role === 'worn' || i.role === 'standard' || i.sets?.includes('base')))
+    .filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && (i.role === 'worn' || i.role === 'standard' || (overnight && i.sets?.includes('base'))))
     .map((i) => ({ itemId: i.id, slot: i.role === 'worn' ? 'body' : slotFor(i.defaultBag, setup), qty: 1, packed: false }));
 }
 
@@ -77,7 +82,7 @@ export function newTrip({ title, startDate, days, bike, readyStandard = null }, 
   const known = new Set(items.map((i) => i.id));
   const entries = from
     ? from.entries.filter((e) => known.has(e.itemId)).map((e) => ({ ...e, slot: e.slot === 'body' || e.slot === 'mounted' || setup[e.slot] ? e.slot : slotFor(e.slot, setup), packed: false }))
-    : standardEntries(items, setup);
+    : standardEntries(items, setup, { overnight: (Number(days) || 1) > 1 });
   entries.push(...alwaysEntries(items, entries, setup));
   return {
     id: `trip-${now.toString(36)}`,
@@ -416,11 +421,19 @@ export function packSteps(stats, purpose = {}) {
     .map((z, n) => ({ z, n }))
     .sort((a, b) => (LAST[a.z.key] ?? 0) - (LAST[b.z.key] ?? 0) || a.n - b.n)
     .map(({ z }) => {
-      const name = z.key === 'body' ? tr('Wear and carry') : z.key === 'mounted' ? tr('On the bike') : purpose[z.key] || zoneName(z);
-      const sub = purpose[z.key] ? zoneName(z) : z.bag && z.bag.name !== z.zone.name ? tr(z.zone.name) : '';
+      // v0.24.0: the same name as on the Pack page ("Frame bag" / "Rahmentasche"); the bag's own
+      // name (e.g. "Full frame bag") is the small line under it.
+      const name = z.key === 'body' ? tr('Wear and carry') : z.key === 'mounted' ? tr('On the bike') : purpose[z.key] || tr(z.zone.name);
+      const sub = z.key === 'body' || z.key === 'mounted' ? '' : purpose[z.key] ? zoneName(z) : z.bag && z.bag.name !== z.zone.name ? zoneName(z) : '';
       return { key: z.key, title: name, sub, entries: z.entries, done: z.entries.filter((e) => e.packed).length };
     });
 }
 
 /** Tick or untick one item as "in the bag" on the packing day. */
 export const togglePacked = (entries, itemId) => entries.map((e) => (e.itemId === itemId ? { ...e, packed: !e.packed } : e));
+
+/** v0.24.0 (Noah, "select all"): tick several items at once; null = every item of the trip. */
+export const packAll = (entries, itemIds = null) => {
+  const ids = itemIds && new Set(itemIds);
+  return entries.map((e) => (!ids || ids.has(e.itemId) ? { ...e, packed: true } : e));
+};

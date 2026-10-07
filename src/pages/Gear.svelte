@@ -97,7 +97,17 @@
   const open = (item) => (dialog = { item });
   // v0.19.6: "New → Gear item" from any page opens "Add item" here.
   $effect(() => {
-    const add = () => take('gear.add') && addItem();
+    const add = () => {
+      const v = take('gear.add');
+      if (!v) return;
+      let preset = {};
+      try {
+        if (v !== '1') preset = { name: String(JSON.parse(v).name ?? '') };
+      } catch {
+        /* an old wish without a name */
+      }
+      addItem(preset);
+    };
     add();
     window.addEventListener('pg:additem', add);
     return () => window.removeEventListener('pg:additem', add);

@@ -73,6 +73,13 @@
   <h2 id="order-h" class="title">{trip?.startDate ? t('Before {trip}', { trip: trip.title }) : t('Due now')}</h2>
   <p class="facts num"><b>{t('about CHF {chf}', { chf: sum.total })}</b>{#if sum.unknown}{` · ${t('{n} without a price', { n: sum.unknown })}`}{/if}{#if order.shop}{` · ${order.shop}`}{/if}</p>
 
+  <!-- v0.24.0 (Noah, "select all"): every job on or off in one tap. -->
+  {#if order.rows.length > 1}
+    <p class="alls">
+      <button type="button" class="link" disabled={!off.size} onclick={() => (off = new Set())}>{t('Select all')}</button>
+      <button type="button" class="link" disabled={off.size === order.rows.length} onclick={() => (off = new Set(order.rows.map((r) => r.key)))}>{t('Select none')}</button>
+    </p>
+  {/if}
   <ul class="jobs">
     {#each order.rows as r (r.key)}
       <li class:off={off.has(r.key)}>
@@ -174,6 +181,15 @@
     align-items: center;
     flex-wrap: wrap;
     margin: 12px 0 4px;
+  }
+  .alls {
+    display: flex;
+    gap: 16px;
+    margin: 0 0 6px;
+  }
+  .link:disabled {
+    color: var(--ink-3);
+    cursor: default;
   }
   .link {
     border: 0;

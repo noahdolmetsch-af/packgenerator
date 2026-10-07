@@ -204,6 +204,7 @@ export default {
   'Bike shop': 'Velomech',
   Done: 'Erledigt',
   'Checked, all OK': 'Geprüft, alles OK',
+  'All {n} open tasks done': 'Alle {n} offenen Aufgaben erledigt',
   'Work needed': 'Arbeit nötig',
   Open: 'Öffnen',
   '{n} point due, see the bike below': '{n} Punkt fällig, siehe Velo unten',

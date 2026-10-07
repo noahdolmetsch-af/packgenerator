@@ -240,7 +240,6 @@ export default {
   'Weight by category and the heaviest items': 'Gewicht nach Kategorie und die schwersten Teile',
   'Nothing found.': 'Nichts gefunden.',
   'No item matches "{q}".': 'Kein Teil passt zu «{q}».',
-  'Add "{q}" as a new item': '«{q}» als neues Material erfassen',
   required: 'Pflicht',
   optional: 'optional',
   'Choose a category': 'Kategorie wählen',

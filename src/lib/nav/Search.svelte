@@ -7,7 +7,7 @@
   import { db } from '../db.js';
   import { TEMPLATES_KEY } from '../templates.js';
   import { searchAll } from '../search.js';
-  import { openTrip } from '../nav.js';
+  import { openTrip, addItem } from '../nav.js';
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
 
@@ -28,6 +28,13 @@
     open = false;
     if (location.hash === row.href) window.dispatchEvent(new HashChangeEvent('hashchange'));
     else location.hash = row.href;
+  }
+  // v0.24.0 (Noah): what is not there yet can be added right from the search.
+  function addNew() {
+    const name = q.trim();
+    q = '';
+    open = false;
+    addItem(name);
   }
   function toggle() {
     open = !open;
@@ -63,6 +70,9 @@
       {:else}
         <p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>
       {/each}
+      {#if !groups.some((g) => g.kind === 'gear' && g.rows.some((r) => r.title.replace(/^★ /, '').toLowerCase() === q.trim().toLowerCase()))}
+        <button type="button" class="add" onclick={addNew}>+ {t('Add "{q}" as a new item', { q: q.trim() })}</button>
+      {/if}
     </div>
   {/if}
 </div>
@@ -183,5 +193,24 @@
   .none {
     margin: 6px;
     color: var(--ink-3);
+  }
+  .add {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 4px;
+    padding: 8px 10px;
+    border: 0;
+    border-top: 1px solid var(--line);
+    background: none;
+    color: var(--ink);
+    font: 600 15px var(--font-body);
+    text-align: left;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+  .add:hover,
+  .add:focus-visible {
+    background: var(--paper-2, #eef1ec);
   }
 </style>
