@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { stageCount, blocks, blockHours, addHours, dayIndex, onTripDay, pointAt, stage, addTime, dayGain, dayProfile, placeName, fetchHourly, rideHours, wxSummary, addRideNote } from '../src/lib/ride.js';
 import { parseGpx, routeStats, profileOf } from '../src/lib/route.js';
-import { beforeTrip, REMIND_DAYS, tripPrep } from '../src/lib/workshop.js';
+import { beforeTrip, REMIND_DAYS, tripPrep, prepGroups } from '../src/lib/workshop.js';
 
 const trip = { id: 't1', title: '303', startDate: '2026-10-15', days: 3, entries: [] };
 
@@ -201,6 +201,18 @@ describe('one list before the trip (v0.18.2)', () => {
     expect(r.rows.at(-1).when).toBe('during'); // things due on the way come last
     expect(r.rows[0].late).toBe(true);
     expect(r.rows.find((x) => x.kind === 'prep')).toMatchObject({ name: 'Charge lights', detail: 'by 11 Oct' });
+  });
+  it('v0.21.0: groups preparation apart from bike and repairs', () => {
+    const r = tripPrep(bike, t, tasks, undefined, '2026-10-04');
+    expect(r.rows.map((x) => x.group)).toEqual(['bike', 'prep', 'bike', 'bike']);
+    const g = prepGroups(r.rows);
+    expect(g.prep.rows.map((x) => x.name)).toEqual(['Charge lights']);
+    expect(g.prep.late).toBe(0);
+    expect(g.bike.rows).toHaveLength(3);
+    expect(g.bike.late).toBe(1);
+    // Rows from before v0.21.0 (no group) still sort by kind.
+    expect(prepGroups([{ kind: 'prep', late: true }, { kind: 'repair' }])).toMatchObject({ prep: { late: 1 }, bike: { late: 0 } });
+    expect(prepGroups().prep.rows).toEqual([]);
   });
   it('is empty without a dated trip and drops bike rows after the trip', () => {
     expect(tripPrep(bike, { id: 'n' }, tasks)).toBe(null);

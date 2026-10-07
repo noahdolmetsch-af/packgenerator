@@ -233,7 +233,23 @@ export function tripPrep(bike, trip, tasks = [], setup = { front: null, rear: nu
   }
   const rank = (r) => (r.late ? 0 : r.when === 'during' ? 2 : 1);
   rows.sort((a, b) => rank(a) - rank(b) || (a.due ?? '9').localeCompare(b.due ?? '9'));
+  // v0.21.0 (decision 5, answer 2b): group tells the preparation tasks (they stay on every trip)
+  // from what the bike needs (workshop and repairs). An extra field, kind stays as it was.
+  for (const r of rows) r.group = r.kind === 'prep' ? 'prep' : 'bike';
   return { rows, done: prep.filter((r) => r.finished).length, total: prep.length, rules: prepRules(trip, tasks).filter((r) => r.from <= today) };
+}
+
+/**
+ * v0.21.0: the rows of tripPrep in two groups, for one folded line "Preparation: n open (m overdue)"
+ * and the bike rows on their own. Rows without group (older callers) count by kind.
+ * Returns { prep: { rows, late }, bike: { rows, late } }.
+ */
+export function prepGroups(rows = []) {
+  const of = (g) => {
+    const list = rows.filter((r) => (r.group ?? (r.kind === 'prep' ? 'prep' : 'bike')) === g);
+    return { rows: list, late: list.filter((r) => r.late).length };
+  };
+  return { prep: of('prep'), bike: of('bike') };
 }
 
 /* ---------- workshop order (v0.19.3, N15, answer 8a) ---------- */

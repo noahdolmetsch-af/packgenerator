@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
-import { slotFor, standardEntries, newTrip, tripStats, readyDone, whenLabel, ensureTrips } from '../src/lib/trips.js';
+import { slotFor, standardEntries, newTrip, tripStats, readyDone, whenLabel, ensureTrips, heavyHigh } from '../src/lib/trips.js';
 
 const it_ = (id, extra) => ({ id, name: id, category: 'elec', weightG: 100, qty: 1, ownership: 'owned', role: null, sets: [], defaultBag: 'top', ...extra });
 const items = [
@@ -50,6 +50,44 @@ describe('trips', () => {
     expect(s.systemG).toBe(200 + 600 + 200 + 13000 + 64000);
     expect(s.unweighed).toBe(1);
     expect(s.zones.map((z) => z.key)).toEqual(['body', 'mounted', 'seat', 'top']);
+  });
+
+  it('v0.21.0: base, worn and food and water add up to gear plus on me', () => {
+    const more = [
+      ...items,
+      it_('FO01', { category: 'food', weightG: 300 }),
+      it_('FO02', { category: 'food', weightG: 50 }),
+      it_('BOT1', { category: 'bike', weightG: 800, waterL: 0.75 }),
+    ];
+    const trip = {
+      setup: bike.setup,
+      entries: [
+        { itemId: 'KL01', slot: 'body', qty: 1 },
+        { itemId: 'FO02', slot: 'body', qty: 2 }, // gels in the jersey pocket: food, not worn
+        { itemId: 'EL07', slot: 'mounted', qty: 1 },
+        { itemId: 'BOT1', slot: 'mounted', qty: 2 },
+        { itemId: 'SL01', slot: 'seat', qty: 1 },
+        { itemId: 'FO01', slot: 'seat', qty: 1 },
+        { itemId: 'EL13', slot: 'top', qty: 1 }, // not weighed
+      ],
+    };
+    const s = tripStats(trip, more, bags, bike, 64000);
+    expect(s.wornG).toBe(200);
+    expect(s.consumablesG).toBe(100 + 1600 + 300);
+    expect(s.baseG).toBe(100 + 500);
+    expect(s.baseG + s.wornG + s.consumablesG).toBe(s.gearG + s.onMeG);
+    expect(s.systemG).toBe(s.baseG + s.wornG + s.consumablesG + s.bagsG + s.bikeG + s.riderG);
+  });
+
+  it('v0.21.0: finds heavy items on the handlebar or seat post, not in the frame bag', () => {
+    const byId = { A: { weightG: 650 }, B: { weightG: 500 }, C: { weightG: null }, D: { weightG: 900 } };
+    const zone = (key, ids) => ({ key, entries: ids.map((itemId) => ({ itemId, qty: 1 })) });
+    expect(heavyHigh(zone('seat', ['A', 'B', 'C']), byId)).toEqual(['A']);
+    expect(heavyHigh(zone('bar', ['D']), byId)).toEqual(['D']);
+    expect(heavyHigh(zone('pouchL', ['B']), byId)).toEqual([]); // exactly 500 g is fine
+    expect(heavyHigh(zone('frame', ['A', 'D']), byId)).toEqual([]);
+    expect(heavyHigh(zone('body', ['D']), byId)).toEqual([]);
+    expect(heavyHigh(null, byId)).toEqual([]);
   });
 
   it('ticks "always with me" rows when the item is on the trip', () => {

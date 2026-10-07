@@ -1,11 +1,12 @@
 <script>
   import { liveQuery } from 'dexie';
+  import { untrack } from 'svelte';
   import { db } from '../lib/db.js';
   import { isOver, tipsByItem } from '../lib/debrief.js';
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, formatVolume, sortBikes } from '../lib/bikes.js';
   import { CATEGORY, CATEGORIES, formatWeight, isInventory, matches, weighQueue } from '../lib/gear.js';
-  import { tripStats, packSteps, togglePacked, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor, switchBike } from '../lib/trips.js';
+  import { tripStats, packSteps, togglePacked, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor, switchBike, heavyHigh } from '../lib/trips.js';
   import { RIDES, layerSuggest, layerDone, applyLayers, openRows, waterOn } from '../lib/layers.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import PackStage from '../lib/pack/PackStage.svelte';
@@ -20,7 +21,7 @@
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { bikePhotos, packPhoto } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
-  import { withVisits, tyreSetup, tripPrep } from '../lib/workshop.js';
+  import { withVisits, tyreSetup, tripPrep, prepGroups } from '../lib/workshop.js';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
@@ -106,8 +107,8 @@
     const view = bike ? withVisits(bike, $visitsQ ?? []) : null;
     return tripPrep(view, trip, $tasksQ ?? [], view ? tyreSetup(view, $visitsQ ?? []) : undefined, today);
   });
+  const beforeGroups = $derived(prepGroups(before?.rows ?? []));
   const SHOW = 4;
-  let beforeAll = $state(false);
   // Design audit P4: after the trip, Pack leads to the debrief.
   const over = $derived(trip ? isOver(trip) : false);
   // Start page "Print list": #/pack?print opens the print dialog once the trip is there.
@@ -140,6 +141,7 @@
   function useForecast() {
     change((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx } }));
     packDay = false;
+    condOpen = true;
     if (phone.matches) tab = 'add';
     setTimeout(() => {
       const box = document.querySelector('.ph-cond');
@@ -167,7 +169,19 @@
 
   let zoneKey = $state('seat'); // the bag that is open
   let tab = $state('pack'); // phone: pack | add | check
-  let allWeights = $state(false); // phone: show every weight (design audit P1)
+  let menuOpen = $state(false); // v0.21.0: the "•••" menu in the header
+  function closeMenu(event) {
+    menuOpen = false;
+    event.currentTarget.querySelector('summary')?.focus();
+  }
+  // A click anywhere else closes the menu.
+  $effect(() => {
+    if (!menuOpen) return;
+    const away = (e) => !e.target.closest?.('.head .menu') && (menuOpen = false);
+    document.addEventListener('click', away);
+    return () => document.removeEventListener('click', away);
+  });
+  let allWeights = $state(false); // every weight, not only the four main figures (design audit P1, v0.21.0)
   let dialog = $state(null); // { trip } or { trip: null, startFrom? }
   // "New trip from it" on the Templates page opens the new-trip dialog with that template.
   // v0.19.6: also "New → Packing list" from any page (nav.js newTrip), even when Pack is open.
@@ -206,6 +220,8 @@
         empty: !z.entries.length,
         active: z.key === zone?.key,
         noBag: z.noBag && z.entries.length > 0,
+        // v0.21.0 (stage D): a quiet hint, nothing moves by itself.
+        heavy: heavyHigh(z, itemsById).map((id) => (itemsById[id] ? nameOf(itemsById[id]) : id)),
       };
     }),
   );
@@ -409,6 +425,29 @@
   const pickLayer = (slot, value) => change((t) => ({ layerPick: { ...(t.layerPick ?? {}), [slot]: value === slot ? null : value } }));
   const addAllLayers = () => setEntries((es) => applyLayers(es, openLayers, slotOf));
 
+  // v0.21.0 (decision 5): "Ride and weather" and "Night" folded, one line says what is set.
+  const condLine = $derived.by(() => {
+    if (!trip) return '';
+    const wxText = wxSet ? `${t(RAIN[wx.rain ?? 'none'])} ${wx.min === wx.max ? wx.min : `${wx.min}–${wx.max}`} °C` : t('no weather');
+    const kindName = RIDES.find((r) => r.key === trip.ride)?.name;
+    const route = typeof trip.route?.km === 'number' ? `${num(Math.round(trip.route.km))} km` : t('no route');
+    return [wxText, route, kindName ? t(kindName.replace(' ride', '')) : null].filter(Boolean).join(' · ');
+  });
+  const nightLine = $derived(NIGHT_SETS.filter((ns) => setOn(ns.key)).map((ns) => t(ns.name)).join(' · ') || t('no overnight set'));
+  // Open when the trip needs it now: layers to add, the forecast differs, or a trip with nights
+  // and no overnight set yet. Decided once per trip, so a box does not close under the hand.
+  let condOpen = $state(false);
+  let nightOpen = $state(false);
+  let openedFor = null;
+  $effect(() => {
+    if (!trip || !$itemsQ || openedFor === trip.id) return;
+    openedFor = trip.id;
+    untrack(() => {
+      condOpen = !over && (openLayers.length > 0 || !!wxGap);
+      nightOpen = !over && (trip.days ?? 1) > 1 && !NIGHT_SETS.some((ns) => setOn(ns.key)) && NIGHT_SETS.some((ns) => setCount(ns.key) > 0);
+    });
+  });
+
 
   // Answer 9: luggage on the front and rear wheel.
   const axle = $derived(stats ? axleLoad(stats, itemsById) : null);
@@ -437,7 +476,10 @@
     <h1 class="title big">{t('Pack')}</h1>
     <p class="card">{t('No trips yet. Import your data on the')} <a href="#/">{t('start page')}</a>{t(', or')} <button type="button" class="btn hi" onclick={() => (dialog = { trip: null })}>{t('Create a trip')}</button></p>
   {:else if trip && stats}
-    <!-- Answer 1a: title, facts and buttons in one row. -->
+    <!-- Answer 1a: title, facts and buttons in one row.
+         v0.21.0 (decision 5, 8a): only title and tags stay in sight; the trip picker, the small
+         "Packing day" and "Ride day" buttons and every rare action sit in one "•••" menu, also on a
+         desktop. The big "Next" button below stays the main action. -->
     <header class="head">
       <h1 class="title big">{trip.title}</h1>
       <p class="tags">
@@ -445,43 +487,46 @@
         <span class="tag">{tn(trip.days, '{n} day', '{n} days')}</span>
         <span class="tag">{bike?.name ?? t('No bike')}</span>
         {#if trip.skipped}<span class="tag">{t('Not riding')}</span>{/if}
-        <button type="button" class="link" onclick={() => (dialog = { trip })}>{t('Edit')}</button>
-        {#if !over && bikes.length > 1}<button type="button" class="link" onclick={() => (choosing = true)}>{t('Compare bikes')}</button>{/if}
-        <!-- v0.19.2 (question 10): a trip you will not ride stays, but is no "next trip" and no reminder. -->
-        <button type="button" class="link" onclick={() => change(() => ({ skipped: !trip.skipped }))}>{trip.skipped ? t('Riding it after all') : t('Not riding')}</button>
       </p>
-      <!-- Answer 5a: the templates as buttons; one click starts a new trip from it. -->
-      {#if templates.length}
-        <p class="tpls" role="group" aria-label={t('Templates')}>
-          {#each templates as tp (tp.id)}
-            <button type="button" class="tpl" class:cur={tp.id === fromTemplate?.id} title={tp.id === fromTemplate?.id ? t('This trip comes from this template. Click for a new trip from it.') : t('New trip from this template')} onclick={() => (dialog = { trip: null, startFrom: tp.id })}>{tp.name}</button>
-          {/each}
-        </p>
-      {/if}
-      <div class="pick">
-        <select class="sel" aria-label={t('Open another trip')} value={trip.id} onchange={(e) => choose(e.currentTarget.value)}>
-          {#each trips as tr (tr.id)}<option value={tr.id}>{tr.title}{tr.startDate ? ` · ${tr.startDate}` : ''}</option>{/each}
-        </select>
-        <button type="button" class="btn hi" onclick={() => (packDay = true)}>{t('Packing day')}{#if stats.packed}<small class="num"> {stats.packed}/{stats.count}</small>{/if}</button>
-        <a class="btn" href="#/ride" onclick={() => choose(trip.id)}>{t('Ride day')}</a>
-        {#if !phone.matches && trip.startDate && trip.startDate <= new Date().toISOString().slice(0, 10) && step < 3}<a class="btn" href="#/debrief/{encodeURIComponent(trip.id)}">{t('Debrief')}</a>{/if}
-        {#snippet actions()}
+      <details class="menu" bind:open={menuOpen} onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}>
+        <summary aria-label={t('More: other trip, packing day, templates, print')} title={t('More')}>•••</summary>
+        <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+        <div class="menu-in" onclick={(e) => e.target.closest('button, a') && (menuOpen = false)}>
+          <label class="m-pick">
+            <span class="lbl">{t('Open another trip')}</span>
+            <select class="sel" value={trip.id} onchange={(e) => ((menuOpen = false), choose(e.currentTarget.value))}>
+              {#each trips as tr (tr.id)}<option value={tr.id}>{tr.title}{tr.startDate ? ` · ${tr.startDate}` : ''}</option>{/each}
+            </select>
+          </label>
+          <div class="m-row">
+            <button type="button" class="btn" onclick={() => (packDay = true)}>{t('Packing day')}{#if stats.packed}<small class="num"> {stats.packed}/{stats.count}</small>{/if}</button>
+            <a class="btn" href="#/ride" onclick={() => choose(trip.id)}>{t('Ride day')}</a>
+            {#if trip.startDate && trip.startDate <= new Date().toISOString().slice(0, 10) && step < 3}<a class="btn" href="#/debrief/{encodeURIComponent(trip.id)}">{t('Debrief')}</a>{/if}
+          </div>
+          <hr />
           <button type="button" class="btn" onclick={() => (dialog = { trip: null })}>{t('New trip')}</button>
+          <!-- Answer 5a: the templates as buttons; one click starts a new trip from it. -->
+          {#if templates.length}
+            <div class="tpls" role="group" aria-label={t('New trip from a template')}>
+              <span class="lbl">{t('New trip from a template')}</span>
+              {#each templates as tp (tp.id)}
+                <button type="button" class="tpl" class:cur={tp.id === fromTemplate?.id} title={tp.id === fromTemplate?.id ? t('This trip comes from this template. Click for a new trip from it.') : t('New trip from this template')} onclick={() => (dialog = { trip: null, startFrom: tp.id })}>{tp.name}</button>
+              {/each}
+            </div>
+          {/if}
           <button type="button" class="btn" onclick={() => (saveTpl = true)}>{t('Save as template')}</button>
           <a class="btn" href="#/pack/templates">{t('Templates')} <small>{templates.length}</small></a>
+          <hr />
           <button type="button" class="btn" onclick={() => window.print()} title={t('In the print dialog choose Save as PDF')}>{t('Print / PDF')}</button>
           <button type="button" class="btn" onclick={shareList}>{t('Share link')}</button>
           {#if stats.packed}<button type="button" class="btn" onclick={resetPacked}>{t('Untick packed items')}</button>{/if}
-        {/snippet}
-        {#if phone.matches}
-          <details class="menu">
-            <summary aria-label={t('More: new trip, templates, print')}>•••</summary>
-            <div class="menu-in">{@render actions()}</div>
-          </details>
-        {:else}
-          {@render actions()}
-        {/if}
-      </div>
+          <hr />
+          <button type="button" class="btn" onclick={() => (dialog = { trip })}>{t('Edit trip')}</button>
+          {#if !over && bikes.length > 1}<button type="button" class="btn" onclick={() => (choosing = true)}>{t('Compare bikes')}</button>{/if}
+          <!-- v0.19.2 (question 10): a trip you will not ride stays, but is no "next trip" and no reminder. -->
+          <button type="button" class="btn" onclick={() => change(() => ({ skipped: !trip.skipped }))}>{trip.skipped ? t('Riding it after all') : t('Not riding')}</button>
+        </div>
+      </details>
     </header>
 
     {#if tplNote}<p class="ok" role="status">{tplNote}</p>{/if}
@@ -503,15 +548,27 @@
         <button type="button" class="btn hi go" onclick={() => (packDay = true)}><b>{t('Next: packing day')}</b><small>{t('Pack bag by bag and tick off, then the ready check: {packed} of {count} packed, {ready} of {total} checks.', { packed: stats.packed, count: stats.count, ready: readyCount, total: readyTotal })}</small></button>
       {/if}
     </nav>
+    <!-- v0.21.0 (decision 5): "Before the trip" folded, its counts in the summary. Inside, the
+         preparation tasks (answer 2b: they stay on every trip) fold into one line; bike rows apart. -->
     {#if before?.rows.length}
-      <section class="shop" aria-labelledby="shop-h">
-        <h2 id="shop-h"><span class="lbl">{t('Before the trip')}</span> <small>{t('{n} to do', { n: before.rows.length })}{before.rows.some((r) => r.late) ? ` · ${t('{n} overdue', { n: before.rows.filter((r) => r.late).length })}` : ''}</small></h2>
-        <ul>
-          {#each beforeAll ? before.rows : before.rows.slice(0, SHOW) as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : ''}{r.detail}</small></li>{/each}
-          {#if !beforeAll && before.rows.length > SHOW}<li class="more-li"><button type="button" class="link" onclick={() => (beforeAll = true)}>{t('{n} more', { n: before.rows.length - SHOW })}</button></li>{/if}
-        </ul>
+      {@const late = before.rows.filter((r) => r.late).length}
+      <details class="shop">
+        <summary><span class="lbl">{t('Before the trip')}</span> <small>{t('{n} to do', { n: before.rows.length })}{late ? ` · ${t('{n} overdue', { n: late })}` : ''}</small></summary>
+        {#if beforeGroups.prep.rows.length}
+          <details class="prepg">
+            <summary>{beforeGroups.prep.late ? t('Preparation: {n} open ({late} overdue)', { n: beforeGroups.prep.rows.length, late: beforeGroups.prep.late }) : t('Preparation: {n} open', { n: beforeGroups.prep.rows.length })}</summary>
+            <ul>
+              {#each beforeGroups.prep.rows as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.detail}</small></li>{/each}
+            </ul>
+          </details>
+        {/if}
+        {#if beforeGroups.bike.rows.length}
+          <ul>
+            {#each beforeGroups.bike.rows as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : ''}{r.detail}</small></li>{/each}
+          </ul>
+        {/if}
         <a class="btn sm" href="#/care">{t('Bike care')}</a>
-      </section>
+      </details>
     {/if}
     {#if extra?.rows.length}
       <section class="ballast" aria-labelledby="ballast-h">
@@ -530,23 +587,29 @@
         {#if extra.rows.length > 1}<button type="button" class="btn sm" onclick={() => leave(extra.rows.map((r) => r.itemId))}>{t('Leave all {n} at home', { n: extra.rows.length })}{extra.totalG ? ` (−${formatWeight(extra.totalG)})` : ''}</button>{/if}
       </section>
     {/if}
-    <section class="sys" class:short={phone.matches && !allWeights} class:away={phone.matches && tab === 'add'} aria-label={t('Weights')}>
+    <!-- v0.21.0 (decision 5, 9a): four figures in sight, every other one under "More". -->
+    <section class="sys" class:away={phone.matches && tab === 'add'} aria-label={t('Weights')}>
       {#snippet ic(name)}<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d={ICONS[name]} /></svg>{/snippet}
       <div class="w1"><span class="lbl">{t('System')}</span><b class="num">{kg(stats.systemG)}</b></div>
-      <div class="w1">{@render ic('bag')}<span class="lbl">{t('Gear')}</span><b class="num">{formatWeight(stats.gearG)}</b></div>
-      <div class="w1 sec">{@render ic('me')}<span class="lbl">{t('On me')}</span><b class="num">{formatWeight(stats.onMeG)}</b></div>
-      <div class="w1 sec">{@render ic('bags')}<span class="lbl">{t('Bags')}</span><b class="num">{formatWeight(stats.bagsG)}</b></div>
-      <div class="w1 sec">{@render ic('bike')}<span class="lbl">{t('Bike')}</span>{#if stats.missing.bike}<a class="nw" href="#/bikes">{t('not weighed')}</a>{:else}<b class="num">{formatWeight(stats.bikeG)}</b>{/if}</div>
-      <div class="w1 sec">{@render ic('me')}<span class="lbl">{t('Rider')}</span>{#if stats.missing.rider}<a class="nw" href="#/bikes">{t('not set')}</a>{:else}<b class="num">{formatWeight(stats.riderG)}</b>{/if}</div>
-      {#if water}<div class="w1 sec">{@render ic('water')}<span class="lbl">{t('Water')}</span><b class="num">{num(Math.round(water * 10) / 10)} L</b></div>{/if}
-      <div class="w1 sec" title={t('Luggage on the front / rear wheel: {front} / {rear}', { front: formatWeight(axle.front), rear: formatWeight(axle.rear) })}>{@render ic('axle')}<span class="lbl">{t('Front / rear')}</span><b class="num" class:warn={rearPct > rearLimit}>{rearPct != null ? `${100 - rearPct} / ${rearPct} %` : '–'}</b></div>
-      <div class="w1">{@render ic('list')}<span class="lbl">{t('Items')}</span><b class="num">{stats.count}</b></div>
-      {#if stats.unweighed}
-        <span class="nw">{t('{n} not weighed', { n: stats.unweighed })}</span>
-        {#if toWeigh}<button type="button" class="btn sm" onclick={() => (weighing = true)}>{t('Weigh {n}', { n: toWeigh })}</button>{/if}
-      {/if}
-      {#if phone.matches}<button type="button" class="link morew" aria-expanded={allWeights} onclick={() => (allWeights = !allWeights)}>{allWeights ? t('Less') : t('More weights')}</button>{/if}
+      <div class="w1" title={t('Gear in the bags and on the bike, without what you wear and without food and water')}>{@render ic('bag')}<span class="lbl">{t('Base')}</span><b class="num">{formatWeight(stats.baseG)}</b></div>
+      <div class="w1" title={t('What you wear, without food in the pockets')}>{@render ic('me')}<span class="lbl">{t('On you')}</span><b class="num">{formatWeight(stats.wornG)}</b></div>
+      <div class="w1" title={t('Food and full bottles, wherever they are')}>{@render ic('water')}<span class="lbl">{t('Food and water')}</span><b class="num">{formatWeight(stats.consumablesG)}</b></div>
+      <button type="button" class="link morew" aria-expanded={allWeights} aria-controls="sys-more" onclick={() => (allWeights = !allWeights)}>{allWeights ? t('Less') : t('More')}</button>
       {#if canUndo}<button type="button" class="btn sm undo" onclick={undoLast} title={t('Put back the last change')}>↶ {t('Undo')}</button>{/if}
+      {#if allWeights}
+        <div class="more-w" id="sys-more">
+          <div class="w1">{@render ic('bags')}<span class="lbl">{t('Bags')}</span><b class="num">{formatWeight(stats.bagsG)}</b></div>
+          <div class="w1">{@render ic('bike')}<span class="lbl">{t('Bike')}</span>{#if stats.missing.bike}<a class="nw" href="#/bikes">{t('not weighed')}</a>{:else}<b class="num">{formatWeight(stats.bikeG)}</b>{/if}</div>
+          <div class="w1">{@render ic('me')}<span class="lbl">{t('Rider')}</span>{#if stats.missing.rider}<a class="nw" href="#/bikes">{t('not set')}</a>{:else}<b class="num">{formatWeight(stats.riderG)}</b>{/if}</div>
+          {#if water}<div class="w1">{@render ic('water')}<span class="lbl">{t('Water')}</span><b class="num">{num(Math.round(water * 10) / 10)} L</b></div>{/if}
+          <div class="w1" title={t('Luggage on the front / rear wheel: {front} / {rear}', { front: formatWeight(axle.front), rear: formatWeight(axle.rear) })}>{@render ic('axle')}<span class="lbl">{t('Front / rear')}</span><b class="num" class:warn={rearPct > rearLimit}>{rearPct != null ? `${100 - rearPct} / ${rearPct} %` : '–'}</b></div>
+          <div class="w1">{@render ic('list')}<span class="lbl">{t('Items')}</span><b class="num">{stats.count}</b></div>
+          {#if stats.unweighed}
+            <span class="nw">{t('{n} not weighed', { n: stats.unweighed })}</span>
+            {#if toWeigh}<button type="button" class="btn sm" onclick={() => (weighing = true)}>{t('Weigh {n}', { n: toWeigh })}</button>{/if}
+          {/if}
+        </div>
+      {/if}
       {#if rearPct > rearLimit}<p class="sys-note warn">{t('{pct} % of the luggage is on the rear wheel (hint above {limit} %).', { pct: rearPct, limit: rearLimit })}</p>{/if}
     </section>
 
@@ -742,7 +805,7 @@
                   <span class="bn">{purpose ? zoneName(z) : z.bag && z.bag.name !== z.zone.name ? z.bag.name : ''}</span>
                   <span class="m num">{tn(z.entries.length, '{n} item', '{n} items')} · {z.grams || !z.entries.length ? formatWeight(z.grams) : t('not weighed')}{#if z.bag?.volumeL}{` · ${formatVolume(z.bag.volumeL)}`}{/if}</span>
                   <span class="bl-acts">
-                    <button type="button" class="link" onclick={() => (editPurpose = editPurpose === z.key ? null : z.key)}>{purpose ? t('Rename') : t('Name it')}</button>
+                    <button type="button" class="link ra" onclick={() => (editPurpose = editPurpose === z.key ? null : z.key)}>{purpose ? t('Rename') : t('Name it')}</button>
                     {#if !phone.matches && !z.noBag}
                       <button type="button" class="btn sm" class:pressed={z.key === zone?.key} aria-pressed={z.key === zone?.key} onclick={() => (zoneKey = z.key)}>{z.key === zone?.key ? t('Adding here') : t('+ Add here')}</button>
                     {/if}
@@ -771,22 +834,33 @@
                     {#if big}<button type="button" class="btn sm" onclick={() => setBag(z.key, big.id)}>{t('Take {bag} ({vol})', { bag: big.name, vol: formatVolume(big.volumeL) })}</button>{/if}
                   </p>
                 {/if}
+                {#if phone.matches && heavyHigh(z, itemsById).length}
+                  <p class="hint heavy">{t('Heavy item high or far back: move to the frame bag?')} <small>{heavyHigh(z, itemsById).map((id) => nameOf(itemsById[id])).join(', ')}</small></p>
+                {/if}
                 {#if z.noBag}<p class="warnbox">{t('This trip has no bag here. Move these items or choose a bag in "Bags for this trip".')}</p>{/if}
                 <ul class="rows">
                   {#each rowsOf(z) as { e, head } (e.itemId)}
                     {@const it = itemsById[e.itemId]}
                     {#if head}<li class="cathead">{head}</li>{/if}
-                    <li class="row" class:open={openRow === e.itemId} draggable={!phone.matches} ondragstart={(ev) => (ev.dataTransfer.setData('text/plain', e.itemId), (ev.dataTransfer.effectAllowed = 'copyMove'))} style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>
-                      <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<small class="q"> × {e.qty}</small>{/if}{#if e.packed}<small class="in" title={t('In the bag (packing day)')}> ✓</small>{/if}{#if badges[e.itemId]}<span class="bdgs">{#each badges[e.itemId] as b (b.key)}<button type="button" class="bdg {b.tone}" title={b.text} aria-expanded={openRow === e.itemId} onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>{b.label}</button>{/each}</span>{/if}</span>
+                    <!-- v0.21.0 (decision 5): a desktop row shows name and weight; "•••", "Move" and "−"
+                         appear when the row is hovered, focused or open (keyboard: Tab reaches them).
+                         On a phone the whole row is one button that opens amount, bag and "Take out". -->
+                    <li class="row" class:open={openRow === e.itemId} class:ph={phone.matches} draggable={!phone.matches} ondragstart={(ev) => (ev.dataTransfer.setData('text/plain', e.itemId), (ev.dataTransfer.effectAllowed = 'copyMove'))} style:--c={CATEGORY[it?.category]?.color ?? 'var(--line)'}>
+                      {#snippet nm()}{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<small class="q"> × {e.qty}</small>{/if}{#if e.packed}<small class="in" title={t('In the bag (packing day)')}> ✓</small>{/if}{#if badges[e.itemId]}<span class="bdgs">{#each badges[e.itemId] as b (b.key)}<span class="bdg {b.tone}" title={b.text}>{b.label}</span>{/each}</span>{/if}{/snippet}
+                      {#if phone.matches}
+                        <button type="button" class="nm nmb" aria-expanded={openRow === e.itemId} onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>{@render nm()}</button>
+                      {:else}
+                        <span class="nm">{@render nm()}</span>
+                      {/if}
                       <span class="w num" class:nw={it?.weightG == null} title={it?.weightG == null ? t('not weighed') : undefined}>{it?.weightG == null ? '—' : formatWeight(it.weightG * (e.qty || 1))}</span>
-                      <button type="button" class="more" aria-expanded={openRow === e.itemId} aria-label={phone.matches ? t('Amount or other bag for {name}', { name: nameOf(it) }) : t('Amount for {name}', { name: nameOf(it) })} onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>⋯</button>
                       {#if !phone.matches}
-                        <select class="sel mv" aria-label={t('Move {name} to', { name: nameOf(it) })} value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
+                        <button type="button" class="more ra" aria-expanded={openRow === e.itemId} aria-label={t('Amount for {name}', { name: nameOf(it) })} onclick={() => (openRow = openRow === e.itemId ? null : e.itemId)}>⋯</button>
+                        <select class="sel mv ra" aria-label={t('Move {name} to', { name: nameOf(it) })} value={e.slot} onchange={(ev) => moveTo(e.itemId, ev.currentTarget.value)}>
                           {#each targets as tg (tg.key)}<option value={tg.key}>{tg.key === e.slot ? t('Move') : (purposeOf(tg.key) ?? (tg.bag ? tg.bag.name : t(tg.zone.name)))}</option>{/each}
                           {#if z.noBag}<option value={z.key}>{t('Move')}</option>{/if}
                         </select>
+                        <button type="button" class="minus ra" aria-label={t('Take {name} out of {bag}', { name: nameOf(it), bag: zoneName(z) })} onclick={() => removeEntry(e.itemId)}>−</button>
                       {/if}
-                      <button type="button" class="minus" aria-label={t('Take {name} out of {bag}', { name: nameOf(it), bag: zoneName(z) })} onclick={() => removeEntry(e.itemId)}>−</button>
                       {#if openRow === e.itemId}
                         {#if badges[e.itemId]}
                           <span class="why">{#each badges[e.itemId] as b (b.key)}<span><b>{b.key === 'tip' ? t('Learning') : b.label}:</b> {b.text}</span>{/each}</span>
@@ -802,6 +876,7 @@
                               {#each targets as tg (tg.key)}<option value={tg.key}>{purposeOf(tg.key) ?? (tg.bag ? tg.bag.name : t(tg.zone.name))}</option>{/each}
                               {#if z.noBag}<option value={z.key}>{t('{name} (no bag)', { name: t(z.zone.name) })}</option>{/if}
                             </select>
+                            <button type="button" class="btn sm out" aria-label={t('Take {name} out of {bag}', { name: nameOf(it), bag: zoneName(z) })} onclick={() => removeEntry(e.itemId)}>− {t('Take out')}</button>
                           {/if}
                         </span>
                       {/if}
@@ -825,14 +900,15 @@
 
       {#if !phone.matches}
         <aside class="c-side" aria-label={t('Ride and checks')}>
-          <section class="box-s" aria-labelledby="cond-h">
-            <h2 id="cond-h" class="title">{t('Ride and weather')}</h2>
+          <!-- v0.21.0 (decision 5): folded with a one-line summary, open when the trip needs it now. -->
+          <details class="box-s fold" bind:open={condOpen}>
+            <summary><span class="title">{t('Ride and weather')}</span><span class="fsum">{condLine}{#if openLayers.length}<small class="lab">{tn(openLayers.length, '{n} layer to add', '{n} layers to add')}</small>{/if}</span></summary>
             {@render layers()}
-          </section>
-          <section class="box-s" aria-labelledby="night-h">
-            <h2 id="night-h" class="title">{t('Night')}</h2>
+          </details>
+          <details class="box-s fold" bind:open={nightOpen}>
+            <summary><span class="title">{t('Night')}</span><span class="fsum">{nightLine}</span></summary>
             {@render night()}
-          </section>
+          </details>
           <!-- Noah, 4.10.2026: the ready check is always folded; a click opens the whole list. -->
           <details class="box-s ready fold">
             <summary class="ready-h">
@@ -893,37 +969,56 @@
 {/if}
 
 <style>
+  /* v0.21.0 (decision 5): "Before the trip" folded; the preparation tasks fold once more inside. */
   .shop {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 16px;
     margin: 0 0 12px;
-    padding: 10px 14px;
+    padding: 8px 14px;
     border: 1.5px solid var(--line);
     border-left: 5px solid var(--ink);
     border-radius: 8px;
     background: var(--paper);
   }
-  .shop h2 {
-    flex: 1 0 100%;
-    margin: 0;
-    font: inherit;
+  .shop summary {
+    cursor: pointer;
   }
-  .shop h2 .lbl {
+  .shop > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 10px;
+  }
+  .shop > summary::before {
+    content: '▸';
+  }
+  .shop[open] > summary::before {
+    content: '▾';
+  }
+  .shop > summary::-webkit-details-marker {
+    display: none;
+  }
+  .shop > summary .lbl {
+    margin: 0;
     font-weight: 700;
   }
-  .shop h2 small,
+  .shop > summary {
+    list-style: none;
+  }
+  .shop > summary small,
   .shop li small {
     color: var(--ink-3);
   }
-  .shop ul {
-    flex: 1 1 300px;
-    margin: 0;
-    padding-left: 18px;
+  .shop[open] > summary {
+    margin-bottom: 6px;
   }
-  .shop li.more-li {
-    list-style: none;
+  .prepg {
+    margin: 0 0 6px;
+  }
+  .prepg > summary {
+    font-weight: 600;
+  }
+  .shop ul {
+    margin: 4px 0 8px;
+    padding-left: 18px;
   }
   .shop li.now b {
     color: #a03a00;
@@ -1010,9 +1105,15 @@
       gap: 4px 10px;
     }
   }
-  .sys.short .sec,
   .sys.away {
     display: none;
+  }
+  .more-w {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 22px;
+    flex-basis: 100%;
   }
   .morew {
     font-size: 14px;
@@ -1028,6 +1129,17 @@
     gap: 8px 16px;
     margin-bottom: 10px;
   }
+  @media (max-width: 719px) {
+    .head .title {
+      flex: 1 1 0;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    .head .tags {
+      order: 3;
+      flex-basis: 100%;
+    }
+  }
   .tags {
     display: flex;
     flex-wrap: wrap;
@@ -1037,10 +1149,14 @@
   }
   .menu {
     position: relative;
+    margin-left: auto;
   }
   .menu summary {
     list-style: none;
-    padding: 4px 10px;
+    padding: 4px 12px;
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    background: var(--paper);
     font: 700 20px/1 var(--font-body);
     letter-spacing: 2px;
     cursor: pointer;
@@ -1048,18 +1164,54 @@
   .menu summary::-webkit-details-marker {
     display: none;
   }
+  .menu[open] summary {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  /* v0.21.0 (8a): one menu for the trip picker and every rare action. */
   .menu-in {
     position: absolute;
     right: 0;
-    top: 100%;
-    z-index: 5;
+    top: calc(100% + 4px);
+    z-index: 6;
     display: grid;
     gap: 6px;
-    min-width: 200px;
-    padding: 8px;
+    width: 300px;
+    max-width: calc(100vw - 2 * var(--gut, 16px));
+    max-height: 75vh;
+    overflow: auto;
+    padding: 10px;
     background: var(--paper);
     border: 2px solid var(--ink);
     border-radius: 6px;
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
+    box-sizing: border-box;
+  }
+  .menu-in hr {
+    width: 100%;
+    margin: 2px 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+  }
+  .menu-in .btn {
+    text-align: left;
+  }
+  .m-pick {
+    display: grid;
+    gap: 2px;
+  }
+  .m-pick .sel {
+    width: 100%;
+    min-width: 0;
+  }
+  .m-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .m-row .btn {
+    flex: 1;
+    text-align: center;
   }
   .tag {
     border: 1.5px solid var(--ink);
@@ -1075,47 +1227,14 @@
     border-color: var(--ink);
     color: var(--paper);
   }
-  .pick {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    margin-left: auto;
-  }
-  .pick .btn {
-    padding: 6px 10px;
-  }
-  @media (min-width: 720px) {
-    .pick {
-      flex-wrap: nowrap;
-      flex-shrink: 0;
-    }
-    .pick .btn {
-      white-space: nowrap;
-    }
-    .pick .sel {
-      max-width: 220px;
-    }
-  }
-  @media (max-width: 719px) {
-    .head .title {
-      flex: 1 1 100%;
-    }
-    .pick {
-      flex: 1;
-      flex-wrap: nowrap;
-    }
-    .pick .sel {
-      flex: 1;
-      min-width: 0;
-    }
-  }
   .tpls {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
     margin: 0;
+  }
+  .tpls .lbl {
+    flex-basis: 100%;
   }
   .tpl {
     border: 1.5px solid var(--line);
@@ -1213,8 +1332,8 @@
     grid-template-columns: minmax(0, 1fr) auto auto auto auto;
     align-items: center;
     gap: 8px;
-    min-height: 40px;
-    padding: 2px 0 2px 10px;
+    min-height: 34px;
+    padding: 1px 0 1px 10px;
     border-bottom: 1px solid var(--paper-2, #e6ebe3);
     border-left: 4px solid var(--c);
   }
@@ -1239,13 +1358,13 @@
     vertical-align: middle;
   }
   .bdg {
+    display: inline-block;
     padding: 1px 7px;
     border: 1px solid var(--line);
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink-2);
     font: 600 11px/1.5 var(--font-body);
-    cursor: pointer;
   }
   .bdg.warn {
     border-color: #c98a55;
@@ -1324,6 +1443,30 @@
       flex: 1;
     }
   }
+  /* v0.21.0 (decision 5): on a desktop with a mouse the row actions show on hover, focus or when open. */
+  @media (hover: hover) and (min-width: 720px) {
+    .row:not(.open):not(:hover):not(:focus-within) .ra,
+    .bl:not(:hover):not(:focus-within) .bl-acts .ra {
+      opacity: 0;
+    }
+  }
+  .row.ph {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-right: 4px;
+  }
+  .nmb {
+    min-height: 44px;
+    padding: 4px 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .hint.heavy small {
+    display: block;
+  }
   .row[draggable='true'] {
     cursor: grab;
   }
@@ -1334,9 +1477,6 @@
     border-radius: 6px;
     color: var(--ink-3);
     text-align: center;
-  }
-  .pick .sel {
-    max-width: 260px;
   }
   .link {
     border: 0;
@@ -1575,7 +1715,7 @@
   }
   @media print {
     :global(nav.top),
-    .head .pick,
+    .head .menu,
     .sys,
     .tabs,
     .cols,
@@ -1941,7 +2081,14 @@
     display: none;
   }
   .fold summary .title {
+    display: block;
     font-size: 26px;
+  }
+  .fold .fsum {
+    display: block;
+    margin-top: -4px;
+    font-size: 14px;
+    color: var(--ink-2);
   }
   .fold summary .title::before {
     content: '▸ ';
