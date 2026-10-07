@@ -1,4 +1,5 @@
 <script>
+  import { localDay } from '../lib/localday.js';
   /**
    * Ride day (v0.18.0, answers 1a-8a): the screen for the day on the bike. Big text, readable in
    * the sun. What is in which bag (answer 2b: the list of all bags, no search), the day's stage with
@@ -25,7 +26,7 @@
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
   const pace = $derived(paceOf($paceQ?.value));
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDay();
   const trips = $derived($tripsQ ?? []);
   // The trip open in Pack on this device, else the next one.
   const chosen = (() => {
@@ -61,7 +62,7 @@
   }
   // v0.20.1: end the trip now (also before its last day) and go straight to its debrief.
   async function finish() {
-    await change({ finished: new Date().toISOString().slice(0, 10) });
+    await change({ finished: localDay() });
     location.hash = `#/debrief/${encodeURIComponent(trip.id)}`;
   }
   function setStart(value) {

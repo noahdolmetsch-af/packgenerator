@@ -1,4 +1,5 @@
 <script>
+  import { localDay } from '../localday.js';
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -44,7 +45,7 @@
     if (!bike) return null;
     const visits = $visitsQ ?? [];
     const view = withVisits(bike, visits);
-    return bikeProfile(view, visits, tyreSetup(view, visits), new Date().toISOString().slice(0, 10));
+    return bikeProfile(view, visits, tyreSetup(view, visits), localDay());
   });
   const chf = (n) => `CHF ${Math.round(n).toLocaleString('de-CH')}`;
   const day = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });

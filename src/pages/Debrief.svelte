@@ -1,4 +1,5 @@
 <script>
+  import { localDay } from '../lib/localday.js';
   /**
    * Debrief (stage 1, 4.10.2026): after a trip, in about two minutes.
    * #/debrief            trips to debrief, finished debriefs, all learnings
@@ -202,7 +203,7 @@
     await db.transaction('rw', db.items, db.learnings, db.debriefs, db.trips, db.settings, db.bikes, async () => {
       if (out.items.length) await db.items.bulkPut(out.items);
       if (km) {
-        await db.bikes.update(bike.id, { km: km.km, kmDate: new Date().toISOString().slice(0, 10) });
+        await db.bikes.update(bike.id, { km: km.km, kmDate: localDay() });
         d.kmApplied = km.kmApplied;
       }
       if (out.learnings.length) await db.learnings.bulkPut(out.learnings);

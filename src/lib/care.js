@@ -20,6 +20,7 @@
  *   feels soft (answer 16b), so they have no interval.
  */
 import { t as tr } from './i18n.svelte.js';
+import { localDay } from './localday.js';
 
 export const PARTS = [
   { key: 'chain', name: 'Chain', unit: '%', warnAt: 0.4, limit: 0.5, everyKm: 150, service: 'Waxed', hint: 'Chain checker: 0.4 % warning, 0.5 % replace' },
@@ -195,7 +196,7 @@ export const isEvent = (trip) => trip?.event ?? Object.keys(trip?.prep ?? {}).le
  * The preparation tasks of one trip: due date = start date minus the lead time in weeks.
  * Results are stored on the trip (trip.prep[taskId]), so every trip has its own list.
  */
-export function prepFor(trip, tasks, today = iso(new Date())) {
+export function prepFor(trip, tasks, today = localDay()) {
   if (!trip.startDate || !isEvent(trip)) return [];
   const start = new Date(`${trip.startDate}T00:00:00Z`).getTime();
   return tasks
@@ -233,7 +234,7 @@ export function prepRules(trip, tasks) {
 }
 
 /** Trips that get preparation tasks: a date, not over yet. */
-export const upcomingTrips = (trips, today = iso(new Date())) =>
+export const upcomingTrips = (trips, today = localDay()) =>
   trips.filter((t) => !t.skipped && t.startDate && t.startDate >= today).sort((a, b) => a.startDate.localeCompare(b.startDate));
 
 /**

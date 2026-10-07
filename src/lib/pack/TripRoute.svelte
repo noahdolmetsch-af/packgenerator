@@ -1,4 +1,5 @@
 <script>
+  import { localDay } from '../localday.js';
   /**
    * Route and weather of a trip (Noah, 4.10.2026, answers 4a, 5a, 12b):
    * - a GPX route gives distance, climbing, a guess of the riding hours and the start place;
@@ -85,7 +86,7 @@
   /* ---------- forecast ---------- */
   let loading = $state(false);
   let wxMsg = $state('');
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDay();
   const days = $derived(forecastForTrip(trip));
   const from = $derived(forecastFrom(trip));
   const reachable = $derived(!!trip.startDate && from <= today && tripDays(trip).at(-1) >= today);

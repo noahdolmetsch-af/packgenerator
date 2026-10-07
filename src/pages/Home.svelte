@@ -1,4 +1,5 @@
 <script>
+  import { localDay } from '../lib/localday.js';
   /**
    * Start page (v0.19.6, Noah 5.10.2026, answers 1a-8a): three questions at a glance.
    * - What is next? A dark band with the next trip, its countdown and the main action.
@@ -70,7 +71,7 @@
   const learnings = $derived($learnQ ?? []);
   const templates = $derived($tplQ?.value ?? []);
   const loaded = $derived(!!$tripsQ && !!$itemsQ);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDay();
 
   /* ---------- the next trip ---------- */
   const next = $derived(nextTrip(trips));

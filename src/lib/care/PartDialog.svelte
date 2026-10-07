@@ -1,4 +1,5 @@
 <script>
+  import { localDay } from '../localday.js';
   import { partInfo, wear, replaceHint, kmSince, lastReplace, EXTRA } from '../care.js';
   import { t, num as fmtNum } from '../i18n.svelte.js';
 
@@ -35,7 +36,7 @@
     if (lim != null && !Number.isFinite(lim)) return (error = t('Replace at: type a number, e.g. 1.5'));
     const extras = Object.fromEntries((p.extra ?? []).map((k) => [k, num(extra[k])]).filter(([, x]) => x != null && Number.isFinite(x)));
     await onlog({
-      date: new Date().toISOString().slice(0, 10),
+      date: localDay(),
       km: typeof bike.km === 'number' ? bike.km : null,
       value: v,
       action,

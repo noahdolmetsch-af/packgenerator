@@ -69,10 +69,12 @@ test('Trips and Bikes tiles: four buttons and More, the menu by keyboard and tou
   await expect(bikes.locator(':scope > .btn')).toHaveText([T('Log a problem'), T('Log km'), T('Bike care'), T('Idea'), T('More')]);
   await noSideways(page);
 
-  // "Day ride" only sends its wish (another part of the app starts the ride).
-  await page.evaluate(() => window.addEventListener('pg:dayride', () => (window.__dayride = (window.__dayride ?? 0) + 1)));
+  // "Day ride" makes the trip in Pack (dayride.spec.js tests the trip itself); then back to Today.
   await trips.getByRole('button', { name: T('Day ride') }).click();
-  expect(await page.evaluate(() => window.__dayride)).toBe(1);
+  await expect(page).toHaveURL(/#\/pack$/);
+  await page.getByRole('button', { name: T('Undo') }).first().click();
+  await page.goto('./#/');
+  await tile(page, 'pack'); // on a phone the tile starts folded again
 
   // More by keyboard: Enter opens and focuses the first entry, arrows move, Escape closes back on More.
   const more = trips.getByRole('button', { name: T('More') });
@@ -96,6 +98,7 @@ test('Trips and Bikes tiles: four buttons and More, the menu by keyboard and tou
   await expect(menu).toBeHidden();
 
   // The Bikes "More": Choose a bike opens the comparison for the next trip.
+  await tile(page, 'bikes');
   await bikes.getByRole('button', { name: T('More') }).click();
   const bmenu = bikes.getByRole('menu');
   await expect(bmenu.getByRole('menuitem')).toHaveText([T('Note on a bike'), T('Log a workshop visit'), T('Workshop order'), T('Choose a bike for the trip')]);

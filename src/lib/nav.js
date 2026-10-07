@@ -24,6 +24,7 @@ export function take(key) {
 
 /** Open the "New" sheet: 'all' (everything) or 'list' (the ways to start a packing list). */
 export const openNew = (mode = 'all') => window.dispatchEvent(new CustomEvent('pg:new', { detail: mode }));
+
 /** A trip becomes the one Pack and Ride day show. */
 export const openTrip = (id) => keep('pack.currentTrip', id);
 

@@ -1,4 +1,5 @@
 <script>
+  import { localDay } from '../lib/localday.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { isOver, tipsByItem } from '../lib/debrief.js';
@@ -95,7 +96,7 @@
       /* private mode: fine, only this visit remembers it */
     }
   }
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDay();
   const trip = $derived(
     trips.find((t) => t.id === chosen) ??
       [...trips].filter((t) => !t.skipped && (t.startDate ?? '') >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ??
@@ -160,7 +161,7 @@
   // v0.21.0: a trip without a bike ends here (with a bike: "End trip and debrief" on the ride day).
   async function endTrip() {
     const id = trip.id;
-    await change(() => ({ finished: new Date().toISOString().slice(0, 10) }));
+    await change(() => ({ finished: localDay() }));
     location.hash = `#/debrief/${encodeURIComponent(id)}`;
   }
   const toggleIn = (itemId) => change((t) => ({ entries: togglePacked(t.entries, itemId) }));
