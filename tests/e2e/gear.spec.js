@@ -2,6 +2,8 @@
 // only name, category and status (weight may stay empty = not weighed); zero results offer to add
 // what was searched for. Changing the category of an item keeps its ID and every link to it, also
 // after a reload. Fictional data only (gear-fixture.json, test_data_gtp_…).
+// v0.23.1 (Noah 5b): the category change runs on the phone too (its read-only view has the category
+// next to the weight).
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -103,8 +105,7 @@ for (const lang of ['en', 'de']) {
   });
 }
 
-test('gear: change the category, links survive a reload', async ({ page, context }, info) => {
-  test.skip(info.project.name === 'phone', 'On the phone an item opens read-only (look up and weigh)');
+test('gear: change the category, links survive a reload', async ({ page, context }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await start(page, context, 'de');

@@ -97,13 +97,6 @@
     </nav>
   {/if}
   <div class="tools">
-    {#if !phone.matches}
-      <!-- v0.20.0: German or English, remembered on this device. -->
-      <div class="lang" role="group" aria-label={t('Language')}>
-        <button type="button" aria-pressed={lang.v === 'de'} onclick={() => setLang('de')} lang="de" title="Deutsch">DE</button>
-        <button type="button" aria-pressed={lang.v === 'en'} onclick={() => setLang('en')} lang="en" title="English">EN</button>
-      </div>
-    {/if}
     <Search />
     <a class="inbox" href="#/inbox" aria-current={page === 'inbox' ? 'page' : undefined} aria-label={$inboxQ ? t('Inbox, {n} to sort', { n: $inboxQ }) : t('Inbox')}>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 13l3-8h10l3 8v6H4z" /><path d="M4 13h5l1 2h4l1-2h5" /></svg>
@@ -117,12 +110,15 @@
     <details class="profile-menu" bind:open={menuOpen}>
       <summary aria-label={t('Profile and settings')}><UserRound size={24} /></summary>
       <div>
-        {#if phone.matches}
-          <div class="lang" role="group" aria-label={t('Language')}>
-            <button type="button" aria-pressed={lang.v === 'de'} onclick={() => setLang('de')} lang="de">DE</button>
-            <button type="button" aria-pressed={lang.v === 'en'} onclick={() => setLang('en')} lang="en">EN</button>
+        <!-- v0.20.0: German or English, remembered on this device.
+             v0.23.1 (Noah 1b): only here, also on a desktop (no longer in the top bar); one tap away. -->
+        <div class="lang-row">
+          <span id="lang-lbl">{t('Language')}</span>
+          <div class="lang" role="group" aria-labelledby="lang-lbl">
+            <button type="button" aria-pressed={lang.v === 'de'} onclick={() => setLang('de')} lang="de" title="Deutsch">DE</button>
+            <button type="button" aria-pressed={lang.v === 'en'} onclick={() => setLang('en')} lang="en" title="English">EN</button>
           </div>
-        {/if}
+        </div>
         <a href="#/inbox" onclick={() => (menuOpen = false)}>{t('Inbox')}{#if $inboxQ} ({$inboxQ}){/if}</a>
         {#if page !== 'share'}<button type="button" onclick={() => ((menuOpen = false), note(''))}>{t('Quick note')}</button>{/if}
         <a href="#/debrief" onclick={() => (menuOpen = false)}>{t('Debriefs and learnings')}</a>
@@ -182,7 +178,7 @@
   .profile-menu[open] > summary { background: rgba(255, 255, 255, 0.12); }
   .profile-menu > div { position: absolute; top: 48px; right: 0; z-index: 7; display: flex; flex-direction: column; width: min(240px, calc(100vw - 32px)); padding: 10px 18px; border-radius: 6px; background: var(--brand); box-shadow: 0 8px 20px #0f2e2726; }
   .profile-menu > div > a, .profile-menu > div > button { display: block; min-height: 44px; padding: 12px 0; border: 0; background: none; color: var(--brand-ink); font: 400 16px var(--font-body); text-align: left; text-decoration: none; cursor: pointer; }
-  .profile-menu > div > .lang { align-self: flex-start; margin: 8px 0; }
+  .profile-menu .lang-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 0; color: var(--brand-ink); font: 400 16px var(--font-body); }
   main.calm { padding: 0 6.9vw 80px; max-width: none; }
   main.calm:has(:global(.review-mode)) { padding-inline: 9.5vw; }
   @media (max-width: 719px) { main.calm, main.calm:has(:global(.review-mode)) { padding: 0 18px 106px; } }

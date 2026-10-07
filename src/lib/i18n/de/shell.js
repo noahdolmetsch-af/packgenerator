@@ -380,4 +380,14 @@ export default {
   'Start a new trip': 'Neue Tour starten',
   'Also to do': 'Ausserdem zu tun',
   'Add a bike': 'Velo erfassen',
+  // v0.23.1 (Noah 3b): the folded places on Today, phone
+  '{n} trip': '{n} Tour',
+  '{n} trips': '{n} Touren',
+  '{n} item owned': '{n} Teil im Besitz',
+  '{n} items owned': '{n} Teile im Besitz',
+  '{n} bike': '{n} Velo',
+  '{n} bikes': '{n} Velos',
+  '{n} hint': '{n} Hinweis',
+  '{n} hints': '{n} Hinweise',
+  '{n} still open': '{n} noch offen',
 };

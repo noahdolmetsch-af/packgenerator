@@ -100,3 +100,62 @@ for (const [soon, step] of [['2026-10-08', 'Start packing'], ['2026-10-14', 'Con
     expect(await page.evaluate(() => localStorage.getItem('pack.currentTrip'))).toBe('test_data_gtp_sooner');
   });
 }
+
+// v0.23.1 (Noah 1b): DE|EN sits only in the profile menu (phone and desktop), one tap once the menu
+// is open, keyboard reachable, and it shows which language is on.
+test('the language switch lives in the profile menu', async ({ page, context }) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.getItem('lang') || localStorage.setItem('lang', 'en'));
+  await page.goto('./');
+  const top = page.locator('header.top');
+  const menu = top.locator('details.profile-menu');
+  await expect(top.locator('button[lang="de"]').filter({ visible: true })).toHaveCount(0);
+  // keyboard: the profile icon opens the menu with Enter
+  await menu.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  const group = menu.getByRole('group', { name: 'Language' });
+  await expect(group).toBeVisible();
+  await expect(group.getByRole('button', { name: 'EN' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(group.getByRole('button', { name: 'DE' })).toHaveAttribute('aria-pressed', 'false');
+  await group.getByRole('button', { name: 'DE' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'de');
+  const gruppe = menu.getByRole('group', { name: 'Sprache' });
+  await expect(gruppe.getByRole('button', { name: 'DE' })).toHaveAttribute('aria-pressed', 'true');
+  await gruppe.getByRole('button', { name: 'EN' }).click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+});
+
+// v0.23.1 (Noah 3b): on the phone the three places and Good to know start folded, one line each,
+// and open by touch or keyboard; on a desktop they stay open as before.
+test('Today folds the places on the phone', async ({ page, context }, info) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.goto('./');
+  const T = tr('de');
+  const names = [T('Trips|place'), T('Gear|place'), T('Bikes|place'), T('Good to know')];
+  if (info.project.name !== 'phone') {
+    await expect(page.locator('main details.folded')).toHaveCount(0);
+    for (const n of names) await expect(page.getByRole('heading', { name: n, level: 2 })).toBeVisible();
+    return;
+  }
+  const folds = page.locator('main details.folded');
+  await expect(folds).toHaveCount(4);
+  for (let i = 0; i < 4; i++) {
+    await expect(folds.nth(i)).toHaveJSProperty('open', false);
+    await expect(folds.nth(i).locator('summary h2')).toHaveText(names[i]);
+    await expect(folds.nth(i).locator('summary .fsum')).not.toBeEmpty();
+  }
+  await expect(folds.nth(3).locator('summary .fsum')).toContainText(/\d+ Hinweise/);
+  // touch opens Trips, the keyboard opens Gear
+  await folds.nth(0).locator('summary').tap();
+  await expect(folds.nth(0)).toHaveJSProperty('open', true);
+  await expect(folds.nth(0).getByRole('button', { name: T('New packing list') })).toBeVisible();
+  await folds.nth(1).locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(folds.nth(1)).toHaveJSProperty('open', true);
+  // the main step and "Also to do" are never folded
+  await expect(page.locator('main section.band')).toBeVisible();
+  const sw = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
+});

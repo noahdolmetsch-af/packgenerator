@@ -35,6 +35,7 @@
   import { todayFocus } from '../lib/today.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
+  import { phone } from '../lib/media.svelte.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -165,7 +166,19 @@
     : r.key === 'check' ? t('Still have it, gone or replaced?')
     : r.key === 'favourites' ? t('Your data → Import backup → Apply favourites.')
     : t('Pack, ride day, end trip and debrief: only then can the app learn.');
+  /* ---------- v0.23.1 (Noah 3b): on a phone the three places and Good to know start folded ---------- */
+  // Closed, each is one line: its name and the number that matters. The desktop shows them open as before.
+  let folds = $state({ pack: false, gear: false, bikes: false, know: false });
+  const hubSum = $derived({
+    pack: next ? `${next.title} · ${t('{n} % packed', { n: packedPct })}` : tn(trips.length, '{n} trip', '{n} trips'),
+    gear: [tn(gs.inventory.length, '{n} item owned', '{n} items owned'), gs.unweighed ? t('{n} not weighed', { n: gs.unweighed }) : null].filter(Boolean).join(' · '),
+    bikes: bikes.length
+      ? [`${num(totalKm)} km`, tn(bikes.length, '{n} bike', '{n} bikes'), (() => { const n = bikes.filter((b) => bikeCare(b, { tasks, visits, today }).rows.length).length; return n ? t('{n} due', { n }) : null; })()].filter(Boolean).join(' · ')
+      : t('No bikes yet.'),
+  });
   const notes = $derived([...($notesQ ?? [])].sort((a, b) => (b.at ?? '').localeCompare(a.at ?? '')));
+  // the cards in Good to know: still open, weather (with a next trip), debriefs, pace, Inbox, your data
+  const knowN = $derived((todos.length ? 1 : 0) + (next ? 1 : 0) + 4);
 
   const demoQ = liveQuery(() => demoState(db));
   // No backup reminder while a demo runs (backups are off then).
@@ -228,6 +241,22 @@
 </script>
 
 {#snippet ic(name, size = 20)}<svg class="ic" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><path d={ICON[name]} /></svg>{/snippet}
+
+<!-- v0.23.1 (Noah 3b): one place. Desktop: a card with its heading as now. Phone: folded closed,
+     the closed line shows the name and its key number; tap or Enter/Space opens it. -->
+{#snippet hub(key, label, href, icon, body)}
+  {#if phone.matches}
+    <details class="hub folded" bind:open={folds[key]}>
+      <summary><h2 id="{key}-h" class="title">{label}</h2><span class="fsum">{hubSum[key]}</span></summary>
+      <div class="hub-in">{@render body()}</div>
+    </details>
+  {:else}
+    <section class="hub" aria-labelledby="{key}-h">
+      <header><h2 id="{key}-h" class="title"><a {href}>{label}</a></h2>{@render ic(icon, 40)}</header>
+      {@render body()}
+    </section>
+  {/if}
+{/snippet}
 
 <div class="home">
   <!-- What is next: the strongest contrast on the page, ONE main action (v0.23.0, AP07). -->
@@ -302,8 +331,7 @@
 
   <!-- Where to go (answers 5a, 7a, 8a): three equal places, number → create → open. -->
   <div class="hubs">
-    <section class="hub" aria-labelledby="pack-h">
-      <header><h2 id="pack-h" class="title"><a href="#/pack">{t('Trips|place')}</a></h2>{@render ic('bag', 40)}</header>
+    {#snippet packBody()}
       {#if next}
         <div class="sub">
           <div class="line"><b>{next.title}</b><span class="num muted">{t('{packed} packed · {left} still to pack', { packed: stats.packed, left: stats.toPack })}</span></div>
@@ -328,10 +356,10 @@
       <div class="foot">
         <button type="button" class="btn sm" onclick={() => openNew('list')}>{@render ic('plus', 16)}{t('New packing list')}</button>
       </div>
-    </section>
+    {/snippet}
+    {@render hub('pack', t('Trips|place'), '#/pack', 'bag', packBody)}
 
-    <section class="hub" aria-labelledby="gear-h">
-      <header><h2 id="gear-h" class="title"><a href="#/gear">{t('Gear|place')}</a></h2>{@render ic('star', 40)}</header>
+    {#snippet gearBody()}
       <div class="kpis">
         {#if favN.all}<a class="kpi" href="#/gear?fav=1"><b class="title num">{favN.inventory}</b><span class="lbl">{t('favourites owned')}</span>{#if favN.wishlist}<small class="muted">{tn(favN.wishlist, '+ {n} on the wishlist', '+ {n} on the wishlist')}</small>{/if}</a>{/if}
         <div><b class="title num">{gs.inventory.length}</b><span class="lbl">{t('items owned')}</span></div>
@@ -361,10 +389,10 @@
         <a class="btn sm" href="#/gear?fav=1">★ {t('Favourites')}</a>
         <a class="btn sm" href="#/gear?tab=wishlist">{t('Wishlist')}</a>
       </div>
-    </section>
+    {/snippet}
+    {@render hub('gear', t('Gear|place'), '#/gear', 'star', gearBody)}
 
-    <section class="hub" aria-labelledby="bikes-h">
-      <header><h2 id="bikes-h" class="title"><a href="#/bikes">{t('Bikes|place')}</a></h2>{@render ic('bike', 40)}</header>
+    {#snippet bikesBody()}
       {#if bikes.length}
         <div class="kpis"><div><b class="title num">{num(totalKm)}</b><span class="lbl">{tn(bikes.length, 'km on {n} bike', 'km on {n} bikes')}</span></div></div>
         <ul class="rows">
@@ -382,12 +410,12 @@
         <a class="btn sm" href="#/bikes?tab=care">{t('Bike care')}</a>
         <a class="btn sm" href="#/bikes?tab=care">{t('Workshop order')}</a>
       </div>
-    </section>
+    {/snippet}
+    {@render hub('bikes', t('Bikes|place'), '#/bikes', 'bike', bikesBody)}
   </div>
 
   <!-- Good to know (answer 6a): five sources, one line each, and where it comes from. -->
-  <section class="know" aria-labelledby="know-h">
-    <h2 id="know-h" class="title">{t('Good to know')}</h2>
+  {#snippet knowCards()}
     <div class="cards">
       {#if todos.length}
         <div class="sig todo">
@@ -438,7 +466,19 @@
         <span class="src"><button type="button" class="link" disabled={backingUp || !!$demoQ} onclick={backupNow}>{t('Download backup')}</button> · <button type="button" class="link" onclick={openData}>{t('Load a backup')}</button></span>
       </div>
     </div>
-  </section>
+  {/snippet}
+  {#if phone.matches}
+    <!-- v0.23.1 (Noah 3b): folded on a phone; closed it says how many hints wait inside. -->
+    <details class="know folded" bind:open={folds.know}>
+      <summary><h2 id="know-h" class="title">{t('Good to know')}</h2><span class="fsum">{tn(knowN, '{n} hint', '{n} hints')}{todos.length ? ` · ${tn(todos.length, '{n} still open', '{n} still open')}` : ''}</span></summary>
+      <div class="hub-in">{@render knowCards()}</div>
+    </details>
+  {:else}
+    <section class="know" aria-labelledby="know-h">
+      <h2 id="know-h" class="title">{t('Good to know')}</h2>
+      {@render knowCards()}
+    </section>
+  {/if}
 
   <details class="data" bind:this={dataEl} bind:open={dataOpen}>
     <summary><b>{t('Your data')}</b> <span class="muted">{t('backup, import, export, favourites')}</span></summary>
@@ -825,6 +865,70 @@
   }
   .foot .btn {
     gap: 6px;
+  }
+
+  /* v0.23.1 (Noah 3b): folded on a phone, one line closed (name + key number), open on touch or keyboard */
+  .folded {
+    padding: 0;
+    gap: 0;
+  }
+  details.know.folded {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--paper);
+  }
+  .folded > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 12px;
+    min-height: 52px;
+    padding: 12px 40px 12px 16px;
+    box-sizing: border-box;
+    position: relative;
+    list-style: none;
+    cursor: pointer;
+  }
+  .folded > summary::-webkit-details-marker {
+    display: none;
+  }
+  /* the chevron: down closed, up open (the state also reads from the summary itself) */
+  .folded > summary::after {
+    content: '';
+    position: absolute;
+    right: 18px;
+    top: 22px;
+    width: 9px;
+    height: 9px;
+    border-right: 2.2px solid var(--ink-2);
+    border-bottom: 2.2px solid var(--ink-2);
+    transform: rotate(45deg);
+  }
+  .folded[open] > summary::after {
+    top: 26px;
+    transform: rotate(-135deg);
+  }
+  .folded > summary:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -3px;
+    border-radius: 14px;
+  }
+  .folded > summary h2 {
+    margin: 0;
+    font-size: var(--fs-section);
+    line-height: var(--lh-title);
+  }
+  .fsum {
+    min-width: 0;
+    color: var(--ink-2);
+    font-size: 15px;
+    overflow-wrap: anywhere;
+  }
+  .hub-in {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 16px 16px;
   }
 
   /* Good to know */
