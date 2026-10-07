@@ -6,7 +6,7 @@
    */
   import MoreMenu from './MoreMenu.svelte';
   import { partInfo, wear, needsWork, lastValue, kmSince, lastReplace, CHECK_KM, bikeLog, EXTRA } from '../care.js';
-  import { visitTotal, costByYear, costByPart, costPer1000 } from '../workshop.js';
+  import { visitTotal, costByYear, costByPart, costPer1000, overdueDays } from '../workshop.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
   import { bikeCareWords } from '../readiness.js';
 
@@ -24,7 +24,7 @@
   const PRIO = { high: 'High', medium: 'Medium', low: 'Low' };
   const chf = (n) => `CHF ${n.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const day = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
-  const inDays = (d) => (d <= 0 ? (d === 0 ? t('due today') : tn(-d, '{n} day overdue', '{n} days overdue')) : d < 45 ? tn(d, 'in {n} day', 'in {n} days') : tn(Math.round(d / 30.4), 'in {n} month', 'in {n} months'));
+  const inDays = (d) => (d <= 0 ? overdueDays(-d) : d < 45 ? tn(d, 'in {n} day', 'in {n} days') : tn(Math.round(d / 30.4), 'in {n} month', 'in {n} months'));
 </script>
 
 <details class="bike" id="care-{bike.id}" {open} ontoggle={(e) => ontoggle?.(e.currentTarget.open)}>
@@ -87,7 +87,7 @@
           {#each c.time as s (s.key)}
             <li class:late={s.overdue}>
               <span>{s.name}<small>{s.every >= 365 ? t('every year') : t('every {n} months', { n: Math.round(s.every / 30.4) })}</small></span>
-              <span class="num m">{s.never ? t('not recorded') : `${s.next} · ${inDays(s.days)}`}</span>
+              <span class="num m">{s.never ? t('not recorded') : s.overdue ? inDays(s.days) : `${s.next} · ${inDays(s.days)}`}</span>
             </li>
           {/each}
         </ul>

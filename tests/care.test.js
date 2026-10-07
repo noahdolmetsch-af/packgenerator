@@ -106,7 +106,25 @@ describe('care before a trip', () => {
   });
 });
 
-import { isRule, prepRules } from '../src/lib/care.js';
+import { isRule, prepRules, isEvent } from '../src/lib/care.js';
+describe('event preparation only for events (Noah 4b, 2026-10-07)', () => {
+  const tasks = [
+    { id: 19, area: 'Preparation', task: "Do not change saddle height, cleats or shoes any more ('nothing new')", leadWeeks: 5 },
+    { id: 20, area: 'Preparation', task: 'Check chain wear', leadWeeks: 4 },
+  ];
+  it('a trip that is not an event has no tasks and no rules', () => {
+    const trip = { startDate: '2026-10-15', event: false };
+    expect(isEvent(trip)).toBe(false);
+    expect(prepFor(trip, tasks, '2026-10-04')).toEqual([]);
+    expect(prepRules(trip, tasks)).toEqual([]);
+  });
+  it('an older trip without the switch counts as an event once something was ticked', () => {
+    expect(isEvent({ startDate: '2026-10-15' })).toBe(false);
+    expect(isEvent({ startDate: '2026-10-15', prep: { 20: { result: 'done' } } })).toBe(true);
+    expect(isEvent({ startDate: '2026-10-15', prep: { 20: { result: 'done' } }, event: false })).toBe(false);
+  });
+});
+
 describe('rules among the preparation tasks', () => {
   it('shows rules as hints, not as tasks', () => {
     const tasks = [
@@ -115,7 +133,7 @@ describe('rules among the preparation tasks', () => {
     ];
     expect(isRule(tasks[0])).toBe(true);
     expect(isRule(tasks[1])).toBe(false);
-    const trip = { startDate: '2026-10-15' };
+    const trip = { startDate: '2026-10-15', event: true };
     expect(prepFor(trip, tasks, '2026-10-04').map((r) => r.task.id)).toEqual([20]);
     expect(prepRules(trip, tasks)).toEqual([{ task: tasks[0], from: '2026-09-10' }]);
   });

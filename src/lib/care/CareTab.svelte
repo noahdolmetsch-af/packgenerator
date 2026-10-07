@@ -239,7 +239,7 @@
     </section>
 
     {#snippet trip(x)}
-      <TripCare trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onundo={(r) => undoPrep(x.trip, r)} />
+      <TripCare trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onundo={(r) => undoPrep(x.trip, r)} onevent={(on) => db.trips.update(x.trip.id, { event: on })} />
     {/snippet}
     {#if next}{@render trip(next)}{/if}
     {#if later.length}

@@ -23,8 +23,8 @@
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { bikePhotos, packPhoto } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
-  import { withVisits } from '../lib/workshop.js';
-  import { prepFor } from '../lib/care.js';
+  import { withVisits, overdueFor } from '../lib/workshop.js';
+  import { prepFor, isEvent } from '../lib/care.js';
   import { bikeCare, bikeCareLine, eventPrep, eventPrepLine } from '../lib/readiness.js';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
@@ -116,7 +116,8 @@
     const care = view ? bikeCare(view, { tasks, visits: $visitsQ ?? [], trip, today }) : null;
     const prep = eventPrep(trip, tasks, today);
     const open = prepFor(trip, tasks, today).filter(r => !r.finished);
-    return care || prep.total ? { care, prep, open } : null;
+    // v0.22.1 (Noah 4b): shown on every bike trip, so the Event switch is always in reach.
+    return { care, prep, open, event: isEvent(trip) };
   });
   // Design audit P4: after the trip, Pack leads to the debrief.
   const over = $derived(trip ? isOver(trip) : false);
@@ -239,6 +240,8 @@
     return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], tasks: $tasksQ ?? [], today });
   });
   const useBike = (b) => change((t) => switchBike(t, b));
+  // v0.22.1 (Noah 4b): the Excel preparation only for events.
+  const setEvent = (on) => change((t) => ({ ...t, event: on }));
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.
   let undo = $state.raw([]); // raw: plain copies, IndexedDB cannot store proxies
   const canUndo = $derived(undo.length > 0 && undo.at(-1).id === trip?.id);
@@ -492,16 +495,17 @@
     {#snippet preparation()}
       {#if before}
         <details class="calm-extra">
-          <summary>{t('Before the trip')} · {before.care ? bikeCareLine(before.care) : eventPrepLine(before.prep)}</summary>
+          <summary>{t('Before the trip')} · {[before.care ? bikeCareLine(before.care) : null, before.prep.total ? eventPrepLine(before.prep) : null].filter(Boolean).join(' · ') || t('Event preparation: no tasks')}</summary>
           <div class="extra-inner">
             {#if before.care}
               <p><a href={before.care.href}>{bikeCareLine(before.care)}</a></p>
               {#if before.care.rows.length || before.care.soon.length}<ul>{#each [...before.care.rows, ...before.care.soon] as row (row.key)}<li><b>{row.name}</b> {row.detail}</li>{/each}</ul>
               {:else if before.care.status === 'nodata'}<p>{t('No data: enter km and record a check or service, then the app can tell.')}</p>{/if}
             {/if}
+            <label class="ev"><input type="checkbox" checked={before.event} onchange={(e) => setEvent(e.currentTarget.checked)} /> {t('Event (race or organised ride): show the event preparation')}</label>
             {#if before.prep.total}
               <p>{eventPrepLine(before.prep)}</p>
-              <ul>{#each before.open as row (row.task.id)}<li><b>{row.task.task}</b> {row.needed ? t('work needed') : t('by {date}', { date: row.due ?? '–' })}</li>{/each}</ul>
+              <ul>{#each before.open as row (row.task.id)}<li><b>{row.task.task}</b> {row.needed ? t('work needed') : row.overdue ? overdueFor(row.due, today) : t('by {date}', { date: row.due ?? '–' })}</li>{/each}</ul>
               <a href={before.prep.href}>{t('Tick off in Bike care')}</a>
             {/if}
           </div>

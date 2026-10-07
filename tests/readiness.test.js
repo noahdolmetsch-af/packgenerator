@@ -1,4 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
+import { overdueFor } from '../src/lib/workshop.js';
 import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine, packStatus, packLine } from '../src/lib/readiness.js';
 import { bikeChoice } from '../src/lib/choice.js';
 import { withVisits } from '../src/lib/workshop.js';
@@ -31,7 +32,7 @@ const prepTasks = [
   { id: 3, area: 'Preparation', task: 'Pack spare tube', leadWeeks: 0 },
 ];
 const repair = { id: 9, area: 'Repair', subject: 'Hardtail', bikeId: 'hard', task: 'Fix creaking bottom bracket', status: 'open' };
-const soonTrip = { id: 'event', title: 'Event', startDate: '2026-10-15', days: 3, bikeId: 'hard', entries: [{ itemId: 'a', packed: true }, { itemId: 'b', packed: false }], ready: [{ id: 'r1', done: true }, { id: 'r2', done: false }] };
+const soonTrip = { id: 'event', title: 'Event', startDate: '2026-10-15', event: true, days: 3, bikeId: 'hard', entries: [{ itemId: 'a', packed: true }, { itemId: 'b', packed: false }], ready: [{ id: 'r1', done: true }, { id: 'r2', done: false }] };
 const laterTrip = { id: 'later', title: 'Later', startDate: '2026-11-20', days: 1, bikeId: 'full', entries: [], ready: [] };
 
 describe('bike care: one statement per bike', () => {
@@ -41,7 +42,7 @@ describe('bike care: one statement per bike', () => {
     expect(c.rows.map((r) => r.kind)).toContain('time');
     const row = c.rows.find((r) => r.part === 'tyres');
     expect(row).toMatchObject({ name: 'Top up sealant', late: true });
-    expect(row.detail).toContain('2026-09-24');
+    expect(row.detail).toBe('overdue for 13 days');
     const w = bikeCareWords(c);
     expect(w.tag).toBe('1 due');
     expect(w.text).toContain('Top up sealant');
@@ -153,5 +154,14 @@ describe('favourites on one basis (AP05)', () => {
   it('the filter shows only favourites, also when there are none', () => {
     expect(items.filter((i) => matches(i, { fav: true })).map((i) => i.id)).toEqual(['a', 'b', 'c', 'd', 'e']);
     expect([{ id: 'x', ownership: 'owned' }].filter((i) => matches(i, { fav: true }))).toEqual([]);
+  });
+});
+
+describe('overdue in words (Noah 3a, 2026-10-07)', () => {
+  it('days, then weeks, then months', () => {
+    expect(overdueFor('2026-10-07', '2026-10-07')).toBe('due today');
+    expect(overdueFor('2026-10-06', '2026-10-07')).toBe('overdue for 1 day');
+    expect(overdueFor('2026-09-16', '2026-10-07')).toBe('overdue for 3 weeks');
+    expect(overdueFor('2026-07-01', '2026-10-07')).toBe('overdue for 3 months');
   });
 });

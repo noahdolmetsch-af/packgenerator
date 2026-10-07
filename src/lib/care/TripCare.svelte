@@ -5,13 +5,13 @@
    * the bike's own rows (workshop, repairs) stay as they are. The rules are hints inside that row.
    */
   import MoreMenu from './MoreMenu.svelte';
-  import { prepSummary } from '../care.js';
+  import { prepSummary, isEvent } from '../care.js';
   import { t, locale } from '../i18n.svelte.js';
   import { bikeCareLine, eventPrepLine } from '../readiness.js';
 
   // v0.22.0 (AP06): care = Bike care of the trip's bike (readiness.js), prep = Event preparation;
   // two named scopes with their own count. focus: opened from a link to this trip's preparation.
-  let { trip, rows, rules, care = null, prep = null, focus = false, bikeName, today, order = null, onorder, onresult, onundo } = $props();
+  let { trip, rows, rules, care = null, prep = null, focus = false, bikeName, today, order = null, onorder, onresult, onundo, onevent } = $props();
 
   const sum = $derived(prepSummary(rows));
   const bikeRows = $derived(care ? [...care.rows, ...care.soon] : []);
@@ -35,6 +35,8 @@
       {#if order?.rows.length}<button type="button" class="btn sm" onclick={onorder}>{t('Workshop order · about CHF {chf}', { chf: order.total })}</button>{/if}
     </div>
   {/if}
+  <!-- v0.22.0 (Noah 4b): the Excel preparation only for events. -->
+  <label class="ev"><input type="checkbox" checked={isEvent(trip)} onchange={(e) => onevent?.(e.currentTarget.checked)} /> {t('Event (race or organised ride): show the event preparation')}</label>
   {#if rows.length || rules.length}
     <details class="prep" class:late={sum.overdue || sum.needed} bind:open={prepOpen}>
       <summary>
@@ -67,6 +69,13 @@
 </section>
 
 <style>
+  .ev {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 0 0 8px;
+    font-size: 14px;
+  }
   .block {
     margin-bottom: 24px;
   }

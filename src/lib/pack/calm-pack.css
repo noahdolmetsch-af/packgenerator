@@ -125,6 +125,7 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-pack .calm-extra summary { cursor: pointer; }
 .calm-pack .extra-inner { padding: 16px 0; }
 .calm-pack .extra-inner ul { padding-left: 24px; }
+.calm-pack .extra-inner .ev { display: flex; gap: 8px; align-items: flex-start; margin: 0 0 10px; }
 @media (max-width: 1000px) {
   .calm-pack .context-line { gap: 12px; font-size: 14px; }
   .calm-pack .context-line > span + span { padding-left: 12px; }
