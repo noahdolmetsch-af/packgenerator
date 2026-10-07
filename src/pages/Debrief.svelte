@@ -112,6 +112,23 @@
     else d.items[itemId] = state;
     persist();
   }
+  // v0.24.0 (Noah, "select all"): a whole bag used or not used in one tap.
+  function markAll(rows, state) {
+    for (const { e } of rows) {
+      if (state === 'used') delete d.items[e.itemId];
+      else d.items[e.itemId] = state;
+    }
+    persist();
+  }
+  // v0.24.0 (Noah, fewer clicks): "All as planned" answers the three questions and goes straight to
+  // the summary, where the suggestions are still shown before anything is saved.
+  function allFine() {
+    d.weather = 'planned';
+    d.amount = 'right';
+    d.bags = 'fine';
+    persist();
+    step = 3;
+  }
 
   // Step 2: the packed items by bag, in the order of the trip.
   const groups = $derived.by(() => {
@@ -123,7 +140,8 @@
         const bag = ($bagsQ ?? []).find((c) => c.id === trip.setup?.[e.slot]);
         // v0.21.0: a trip without a bike names its own bags (trip.packs)
         const own = trip.packs?.find((p) => p.key === e.slot);
-        g = { slot: e.slot, name: trip.purpose?.[e.slot] || own?.name || bag?.name || ZONE[e.slot]?.name || e.slot, rows: [] };
+        // v0.24.0: the same bag names as on the Pack page (the zone, e.g. "Frame bag"), not the bag's own name.
+        g = { slot: e.slot, name: trip.purpose?.[e.slot] || own?.name || ZONE[e.slot]?.name || bag?.name || e.slot, rows: [] };
         out.push(g);
       }
       if (byId[e.itemId]) g.rows.push({ e, item: byId[e.itemId] });
@@ -243,6 +261,9 @@
       {/snippet}
       {#if step === 1}
         <h1 class="title">{t('How did it go?')}</h1>
+        {#if !d.weather && !d.amount && !d.bags}
+          <button type="button" class="btn fine" onclick={allFine}>{t('All as planned: weather, amount, bags')}<small>{t('Then only the summary is left; everything counts as used.')}</small></button>
+        {/if}
         <fieldset>
           <legend>{t('Weather, compared to what you packed for')}</legend>
           <div class="seg">{#each WEATHER as o (o.key)}<button type="button" aria-pressed={d.weather === o.key} onclick={() => set('weather', o.key)}>{t(o.name)}</button>{/each}</div>
@@ -285,7 +306,11 @@
         <div class="legend" aria-hidden="true"><span>✓ {t('used')}</span><span>– {t('not used')}</span><span>✕ {t('broken')}</span></div>
         {#each groups as g (g.slot)}
           <section class="bag">
-            <h2><span class="title">{t(g.name)}</span> <span class="lbl">{tn(g.rows.length, '{n} item', '{n} items')}</span></h2>
+            <h2><span class="title">{t(g.name)}</span> <span class="lbl">{tn(g.rows.length, '{n} item', '{n} items')}</span>
+              <span class="alls">
+                <button type="button" class="link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All ✓')}</button>
+                <button type="button" class="link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('All –')}</button>
+              </span></h2>
             <ul>
               {#each g.rows as { e, item } (e.itemId)}
                 {@const st = d.items[e.itemId] ?? 'used'}
@@ -629,6 +654,35 @@
     margin: 0 0 4px;
     border-bottom: 1px solid var(--line-strong);
     padding-bottom: 3px;
+  }
+  .alls {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+  }
+  .alls .link {
+    min-height: 32px;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 600 14px var(--font-body);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .fine {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    width: 100%;
+    margin: 4px 0 14px;
+    padding: 10px 14px;
+    text-align: left;
+  }
+  .fine small {
+    font-weight: 400;
+    color: var(--ink-2);
   }
   .bag h2 .title {
     font-size: var(--fs-sub);

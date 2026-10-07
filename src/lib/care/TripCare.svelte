@@ -11,7 +11,7 @@
 
   // v0.22.0 (AP06): care = Bike care of the trip's bike (readiness.js), prep = Event preparation;
   // two named scopes with their own count. focus: opened from a link to this trip's preparation.
-  let { trip, rows, rules, care = null, prep = null, focus = false, bikeName, today, order = null, onorder, onresult, onundo, onevent } = $props();
+  let { trip, rows, rules, care = null, prep = null, focus = false, bikeName, today, order = null, onorder, onresult, onundo, onevent, onall = null } = $props();
 
   const sum = $derived(prepSummary(rows));
   const bikeRows = $derived(care ? [...care.rows, ...care.soon] : []);
@@ -47,6 +47,9 @@
         {#each rules as r (r.task.id)}
           <p class="rule"><span class="lbl">{r.from <= today ? t('Rule now') : t('Rule from {date}', { date: dueLabel(r.from) })}</span>{r.task.task}</p>
         {/each}
+        {#if onall && rows.filter((r) => !r.finished).length > 1}
+          <p class="all"><button type="button" class="btn sm" onclick={onall}>{t('All {n} open tasks done', { n: rows.filter((r) => !r.finished).length })}</button></p>
+        {/if}
         <ul class="rows">
           {#each rows as r (r.task.id)}
             <li class:done={r.finished} class:late={r.overdue} class:need={r.needed}>
@@ -69,6 +72,9 @@
 </section>
 
 <style>
+  .all {
+    margin: 6px 0;
+  }
   .ev {
     display: flex;
     gap: 8px;

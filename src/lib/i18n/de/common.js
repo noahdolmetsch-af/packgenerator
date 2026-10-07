@@ -30,4 +30,9 @@ export default {
   Photos: 'Fotos',
   Notes: 'Notizen',
   'Gear item|short': 'Neues Teil',
+  // v0.24.0 (Noah, "select all" and "create from the search")
+  'Select all': 'Alle auswählen',
+  'Select none': 'Keine auswählen',
+  'Add "{q}" as a new item': '«{q}» als neues Material erfassen',
+  'Add "{q}" as a new item and pack it': '«{q}» als neues Material erfassen und einpacken',
 };

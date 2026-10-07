@@ -12,6 +12,8 @@
   const byId = $derived(Object.fromEntries(items.map(i => [i.id, i])));
   const count = $derived(rows.filter(r => r.selected).length);
   const update = (slot, patch) => choices = { ...choices, [slot]: { ...choices[slot], ...patch } };
+  // v0.24.0 (Noah, "select all"): every suggestion on or off in one tap.
+  const setAll = (on) => choices = Object.fromEntries(rows.map((r) => [r.slot, { ...choices[r.slot], selected: on }]));
   const iconOf = (item) => item?.perHours ? Utensils : item?.rain ? CloudRain : item?.coldBelow != null ? Shirt : Backpack;
   async function accept() {
     saving = true; error = '';
@@ -23,6 +25,12 @@
   <div class="review-intro">
     <h2 id="review-h">{t('Still to decide')}</h2>
     <p>{t('Suggestions based on your trip, weather and material rules. You decide what goes on the list.')}</p>
+    {#if rows.length > 1}
+      <p class="all-row">
+        <button class="text-button" disabled={count === rows.length} onclick={() => setAll(true)}>{t('Select all')}</button>
+        <button class="text-button" disabled={count === 0} onclick={() => setAll(false)}>{t('Select none')}</button>
+      </p>
+    {/if}
   </div>
   {#if !rows.length}
     <div class="review-empty"><Check size={24} /><div><h3>{t('No open material suggestions')}</h3><p>{t('Check your trip conditions or continue to your packing list.')}</p><button class="text-button" onclick={onconditions}>{t('Edit trip conditions')}</button></div></div>

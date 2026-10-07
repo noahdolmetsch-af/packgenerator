@@ -105,6 +105,13 @@ export default {
   'Step {n}': 'Schritt {n}',
   'Notes from the ride': 'Notizen von der Fahrt',
   'How did it go?': 'Wie ist es gelaufen?',
+  // v0.24.0 (Noah, fewer clicks)
+  'All as planned: weather, amount, bags': 'Alles wie geplant: Wetter, Menge, Taschen',
+  'Then only the summary is left; everything counts as used.': 'Danach bleibt nur die Zusammenfassung; alles zählt als gebraucht.',
+  'All used: {bag}': 'Alles gebraucht: {bag}',
+  'None used: {bag}': 'Nichts gebraucht: {bag}',
+  'All ✓': 'Alle ✓',
+  'All –': 'Alle –',
   'Weather, compared to what you packed for': 'Wetter, verglichen mit dem, wofür du gepackt hast',
   'How much did you take?': 'Wie viel hast du mitgenommen?',
   'Bags and bike': 'Taschen und Velo',

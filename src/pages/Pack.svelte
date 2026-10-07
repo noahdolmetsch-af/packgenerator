@@ -5,7 +5,7 @@
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, sortBikes, bikesHash } from '../lib/bikes.js';
   import { CATEGORIES, formatWeight, weightText, isInventory, matches, weighQueue } from '../lib/gear.js';
-  import { tripStats, packSteps, togglePacked, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike } from '../lib/trips.js';
+  import { tripStats, packSteps, togglePacked, packAll, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike } from '../lib/trips.js';
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import CalmPack from '../lib/pack/CalmPack.svelte';
@@ -16,6 +16,7 @@
   import NotPacked from '../lib/pack/NotPacked.svelte';
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
   import PackDay from '../lib/pack/PackDay.svelte';
+  import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import TripRoute from '../lib/pack/TripRoute.svelte';
   import BikeChoice from '../lib/pack/BikeChoice.svelte';
   import { bikeChoice } from '../lib/choice.js';
@@ -160,6 +161,8 @@
     location.hash = `#/debrief/${encodeURIComponent(id)}`;
   }
   const toggleIn = (itemId) => change((t) => ({ entries: togglePacked(t.entries, itemId) }));
+  // v0.24.0: a whole bag (or, with null, the whole trip) in one tap.
+  const packIn = (ids) => change((t) => ({ entries: packAll(t.entries, ids) }));
   // Answer 14: the list as a link (the list travels inside the address, nothing is uploaded).
   let shareNote = $state('');
   async function shareList() {
@@ -263,6 +266,20 @@
     // Design answer 4b: a tile dragged onto another bag moves there.
     if (onTrip(trip).has(itemId)) return moveTo(itemId, slot);
     return setEntries((es) => [...es, { itemId, slot, qty: 1, packed: false }]);
+  }
+  // v0.24.0 (Noah): "Add … as a new item and pack it" from the search in "Add material". An item
+  // you already own under that name is packed instead of making a second one.
+  let newItem = $state(null); // { name, key }
+  function createAndPack(name) {
+    const have = items.find((i) => isInventory(i) && i.name.toLowerCase() === name.toLowerCase());
+    if (have) return addTo(zone?.key, have.id);
+    newItem = { name, key: zone?.key };
+  }
+  function packNew(record) {
+    const z = stats.zones.find((x) => x.key === newItem.key);
+    const slot = !z || z.noBag ? 'body' : z.key;
+    q = '';
+    return setEntries((es) => (es.some((e) => e.itemId === record.id) ? es : [...es, { itemId: record.id, slot, qty: 1, packed: false }]));
   }
   const targetName = $derived(zone ? (zone.noBag ? t('On me') : zone.bag ? zone.bag.name : t(zone.zone.name)) : t('the trip'));
 
@@ -483,7 +500,7 @@
       {:else if mode === 'purposes'}{#each stats.zones as z}<label class="bag-purpose">{zoneName(z)}<input class="inp" value={trip.purpose?.[z.key] ?? ''} placeholder={t('What it is for, e.g. Quick access')} onchange={e => savePurpose(z.key, e.currentTarget.value)} /></label>{/each}
       {:else if mode === 'ready'}{@render readyFull()}{/if}
     {/snippet}
-    {#snippet picker(addItem)}<NotPacked items={candidates} {tagOf} target={targetName} onadd={addItem} drag={false} bind:q />{/snippet}
+    {#snippet picker(addItem)}<NotPacked items={candidates} {tagOf} target={targetName} onadd={addItem} drag={false} bind:q oncreate={createAndPack} />{/snippet}
     {#snippet moreWeights()}
       <div class="extra-inner">
         <p>{bikeTrip ? t('System') : t('Total')}: {bikeTrip ? `${stats.bikeKind === 'estimate' ? '~' : ''}${weightText(stats.systemG, stats.systemMissing, kg)}` : weightText(stats.gearG + stats.onMeG, stats.unweighed, kg)} · {t('Bags')}: {weightText(stats.bagsG, stats.bagsMissing)}{#if bikeTrip} · {t('Bike')}: {stats.missing.bike ? t('not weighed') : `${stats.bikeKind === 'estimate' ? '~' : ''}${formatWeight(stats.bikeG)} · ${stats.bikeKind === 'estimate' ? t('estimate') : t('measured')}`} · {t('Rider')}: {stats.missing.rider ? t('not set') : formatWeight(stats.riderG)}{/if}</p>
@@ -516,7 +533,8 @@
   </CalmPack>
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
-  {#if packDay}<PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onclose={() => packDay = false} />{/if}
+  {#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name, ...(trip?.domain && trip.domain !== 'bikepacking' ? { domains: [trip.domain] } : {}) }} onsaved={packNew} onclose={() => (newItem = null)} />{/if}
+  {#if packDay}<PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onclose={() => packDay = false} />{/if}
   {#if shownPhoto != null && gallery.length}<Lightbox list={gallery.map(p => ({ src: p.src, name: p.name, sub: bike?.name ?? '' }))} start={shownPhoto} onclose={() => shownPhoto = null} />{/if}
   {#if weighing}<WeighMode items={tripItems} onclose={() => weighing = false} />{/if}
     <section class="print" aria-hidden="true">

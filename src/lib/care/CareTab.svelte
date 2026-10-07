@@ -136,6 +136,27 @@
       if (svc) await checkParts(bikeById[trip.bikeId], [svc], 'service', t('Before {trip}', { trip: trip.title }));
     }
   }
+  // v0.24.0 (Noah, "select all"): every open task of a trip done in one tap, saved in one write.
+  async function prepAll(trip, rows) {
+    const open = rows.filter((r) => !r.finished);
+    if (!open.length) return;
+    const state = { result: 'done', date: today, by };
+    await db.trips.update(trip.id, { prep: { ...(trip.prep ?? {}), ...Object.fromEntries(open.map((r) => [r.task.id, state])) } });
+    // Both kinds of part entries in one write, read fresh, so the second does not overwrite the first.
+    const keys = [...new Set(open.flatMap((r) => prepParts(r.task)))];
+    const svc = [...new Set(open.map((r) => prepService(r.task)).filter(Boolean))];
+    if (!keys.length && !svc.length) return;
+    await db.transaction('rw', db.bikes, async () => {
+      const bike = await db.bikes.get(trip.bikeId);
+      if (!bike) return;
+      const note = t('Before {trip}', { trip: trip.title });
+      const at = { date: today, km: bike.km ?? null, value: null, by, model: null, note };
+      let parts = bike.parts;
+      for (const k of keys) parts = logPart(parts, k, { ...at, action: 'check', result: 'ok' });
+      for (const k of svc) parts = logPart(parts, k, { ...at, action: 'service', result: 'done' });
+      await db.bikes.update(bike.id, { parts });
+    });
+  }
   const undoPrep = (trip, row) => {
     const prep = { ...(trip.prep ?? {}) };
     delete prep[row.task.id];
@@ -239,7 +260,7 @@
     </section>
 
     {#snippet trip(x)}
-      <TripCare trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onundo={(r) => undoPrep(x.trip, r)} onevent={(on) => db.trips.update(x.trip.id, { event: on })} />
+      <TripCare trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onall={() => prepAll(x.trip, x.rows)} onundo={(r) => undoPrep(x.trip, r)} onevent={(on) => db.trips.update(x.trip.id, { event: on })} />
     {/snippet}
     {#if next}{@render trip(next)}{/if}
     {#if later.length}

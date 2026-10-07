@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
-import { slotFor, standardEntries, newTrip, tripStats, readyDone, whenLabel, ensureTrips, heavyHigh } from '../src/lib/trips.js';
+import { slotFor, standardEntries, newTrip, packAll, tripStats, readyDone, whenLabel, ensureTrips, heavyHigh } from '../src/lib/trips.js';
 
 const it_ = (id, extra) => ({ id, name: id, category: 'elec', weightG: 100, qty: 1, ownership: 'owned', role: null, sets: [], defaultBag: 'top', ...extra });
 const items = [
@@ -36,13 +36,25 @@ describe('trips', () => {
     expect(t).toMatchObject({ title: 'Next', bikeId: 'scott', copiedFrom: 'trip-a', days: 2 });
     expect(t.entries).toEqual([{ itemId: 'XX01', slot: 'top', qty: 2, packed: false }]);
     expect(t.ready.every((r) => !r.done)).toBe(true);
-    const fresh = newTrip({ title: 'First', startDate: '2026-11-01', days: 1, bike: { ...bike, id: 'fully' } }, [old], items);
+    const fresh = newTrip({ title: 'First', startDate: '2026-11-01', days: 2, bike: { ...bike, id: 'fully' } }, [old], items);
     expect(fresh.copiedFrom).toBe(null);
     expect(fresh.entries.length).toBe(4);
   });
 
+  it('v0.24.0: a day ride starts without the overnight base set', () => {
+    const day = newTrip({ title: 'Day', startDate: '2026-11-01', days: 1, bike: { ...bike, id: 'fully' } }, [], items);
+    expect(day.entries.map((e) => e.itemId)).toEqual(['KL01', 'EL07', 'EL13']);
+    expect(standardEntries(items, bike.setup, { overnight: false }).some((e) => e.itemId === 'SL01')).toBe(false);
+  });
+
+  it('v0.24.0: packAll ticks the given items, or all of them', () => {
+    const es = [{ itemId: 'A', packed: false }, { itemId: 'B', packed: false }, { itemId: 'C', packed: true }];
+    expect(packAll(es, ['A']).map((e) => e.packed)).toEqual([true, false, true]);
+    expect(packAll(es).every((e) => e.packed)).toBe(true);
+  });
+
   it('adds up gear, bags, bike and rider into the system weight', () => {
-    const trip = newTrip({ title: 'T', startDate: '2026-11-01', days: 1, bike }, [], items);
+    const trip = newTrip({ title: 'T', startDate: '2026-11-01', days: 2, bike }, [], items);
     const s = tripStats(trip, items, bags, bike, 64000);
     expect(s.onMeG).toBe(200);
     expect(s.gearG).toBe(100 + 500); // EL07 + SL01; EL13 not weighed

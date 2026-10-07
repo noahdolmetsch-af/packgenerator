@@ -55,6 +55,10 @@
   }
 </script>
 
+{#snippet movedNote()}
+  <p class="wide moved" role="status">{t('New category: {cat}. The ID {id} stays the same, so trips, templates, kits, bags and favourites keep this item.', { cat: t(CATEGORY[draft.category]?.name ?? draft.category), id: draft.id })}</p>
+{/snippet}
+
 <dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="item-h">
   <form onsubmit={save} novalidate>
     <p class="meta">
@@ -83,8 +87,18 @@
       </dl>
       {#if item.learning}<p class="note"><b>{t('Learning:')}</b> {item.learning}</p>{/if}
       {#if item.note}<p class="note">{item.note}</p>{/if}
-      <label class="lbl" for="i-g">{t('Weight of one piece (g)')}</label>
-      <input id="i-g" class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} />
+      <!-- v0.23.1 (Noah 5b): on the phone too the category can change, next to the weight; the ID stays. -->
+      <div class="grid pair">
+        <label>
+          <span class="lbl">{t('Category')}</span>
+          <select class="sel" bind:value={draft.category}>
+            {#if !CATEGORY[draft.category]}<option value={draft.category} disabled>{draft.category ? draft.category : t('Choose a category')}</option>{/if}
+            {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
+          </select>
+        </label>
+        <label><span class="lbl">{t('Weight of one piece (g)')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
+        {#if moved}{@render movedNote()}{/if}
+      </div>
     {:else}
       <!-- v0.23.0 (AP08): the four main fields first; the rest folds away under "More details". -->
       <div class="grid">
@@ -103,9 +117,7 @@
           </select>
         </label>
         <label class="wide"><span class="lbl">{t('Weight of one piece (g)')} <small class="req">{t('optional')}</small></span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
-        {#if moved}
-          <p class="wide moved" role="status">{t('New category: {cat}. The ID {id} stays the same, so trips, templates, kits, bags and favourites keep this item.', { cat: t(CATEGORY[draft.category]?.name ?? draft.category), id: draft.id })}</p>
-        {/if}
+        {#if moved}{@render movedNote()}{/if}
       </div>
       <details class="more" bind:open={more}>
         <summary>{t('More details')} <small>{t('brand, quantity, bag, role, areas, overnight sets, layers, note')}</small></summary>
@@ -216,6 +228,25 @@
   @media (max-width: 480px) {
     .grid {
       grid-template-columns: 1fr;
+    }
+  }
+  /* v0.23.1 (Noah 5b): category and weight side by side, also on a phone; stacked when very narrow */
+  .grid.pair {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .pair label {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+  .pair .sel {
+    width: 100%;
+    min-width: 0;
+  }
+  @media (max-width: 359px) {
+    .grid.pair {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
   .sets {

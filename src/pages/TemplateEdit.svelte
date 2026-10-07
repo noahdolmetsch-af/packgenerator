@@ -14,6 +14,7 @@
   import { RIDES } from '../lib/layers.js';
   import { phone } from '../lib/media.svelte.js';
   import NotPacked from '../lib/pack/NotPacked.svelte';
+  import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
 
   let { id } = $props();
@@ -66,6 +67,17 @@
     setEntries((es) => (es.some((e) => e.itemId === itemId) ? es.map((e) => (e.itemId === itemId ? { ...e, slot: key } : e)) : [...es, { itemId, slot: key, qty: 1 }]));
   }
   const add = (itemId) => addTo(targetPlace.key, itemId);
+  // v0.24.0 (Noah): an item that is not in your gear yet, added from the search into this template.
+  let newItem = $state(null); // { name, key }
+  function createAndAdd(name) {
+    const have = items.find((i) => isInventory(i) && i.name.toLowerCase() === name.toLowerCase());
+    if (have) return addTo(targetPlace.key, have.id);
+    newItem = { name, key: targetPlace.key };
+  }
+  const addNew = (record) => {
+    q = '';
+    return setEntries((es) => (es.some((e) => e.itemId === record.id) ? es : [...es, { itemId: record.id, slot: newItem.key, qty: 1 }]));
+  };
   const remove = (itemId) => setEntries((es) => es.filter((e) => e.itemId !== itemId));
   const setQty = (itemId, qty) => setEntries((es) => es.map((e) => (e.itemId === itemId ? { ...e, qty: Math.max(1, Math.min(20, qty)) } : e)));
   const moveTo = (itemId, slot) => setEntries((es) => es.map((e) => (e.itemId === itemId ? { ...e, slot } : e)));
@@ -116,7 +128,7 @@
 
     <div class="cols">
       <div class="c-np">
-        <NotPacked items={candidates} {tagOf} target={targetPlace?.name ?? ''} onadd={add} drag={!phone.matches} bind:q>
+        <NotPacked items={candidates} {tagOf} target={targetPlace?.name ?? ''} onadd={add} drag={!phone.matches} bind:q oncreate={createAndAdd}>
           <label class="target">
             <span>{t('Adding to')}</span>
             <select class="sel" bind:value={target} aria-label={t('Place that + adds to')}>
@@ -182,6 +194,8 @@
     </div>
   {/if}
 </div>
+
+{#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name }} onsaved={addNew} onclose={() => (newItem = null)} />{/if}
 
 <style>
   .back {

@@ -6,12 +6,15 @@
    * go to sleep or the page can close in between.
    *
    * steps: from packSteps(). ontoggle(itemId), onready(row): save. onclose(): back to Pack.
+   * v0.24.0 (Noah, fewer clicks): onpack(itemIds | null) ticks a whole bag (null: everything),
+   * onreadyall() ticks the whole ready check. "All in, next" ticks the bag and goes on in one tap;
+   * "Everything is packed" in the top bar ticks bags and ready check at once and closes.
    */
   import { formatWeight } from '../gear.js';
   import { readyDone, RAIN } from '../trips.js';
   import { t, nameOf } from '../i18n.svelte.js';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onclose, bike = true } = $props(); // bike: false for a trip without a bike (v0.21.0)
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onclose, bike = true } = $props(); // bike: false for a trip without a bike (v0.21.0)
   const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${t(RAIN[w.rain ?? 'none'])}`;
 
   // Start at the first bag that still has something to pack.
@@ -24,6 +27,21 @@
   const allIn = $derived(step ? step.done === step.entries.length : false);
   let openTip = $state(null);
 
+  const readyAll = $derived(readyN === ready.length);
+  // v0.24.0: one tap per bag ("All in, next"), one for the ready check, one for everything.
+  function bagIn() {
+    if (!allIn) onpack(step.entries.map((e) => e.itemId));
+    go(at + 1);
+  }
+  function readyIn() {
+    if (!readyAll) onreadyall();
+    onclose();
+  }
+  function everything() {
+    onpack(null);
+    onreadyall();
+    onclose();
+  }
   const go = (n) => {
     at = Math.min(last, Math.max(0, n));
     openTip = null;
@@ -61,7 +79,10 @@
       <b>{trip.title}</b>
       <span class="num">{at < last ? t('Bag {n} of {total}', { n: at + 1, total: steps.length }) : t('Ready check')} · {t('{n} of {total} packed', { n: packed, total })}</span>
     </span>
-    <button type="button" class="close" onclick={onclose}>{t('Close')}</button>
+    <span class="tops">
+      {#if packed < total || !readyAll}<button type="button" class="close all" onclick={everything}>{t('Everything is packed')}</button>{/if}
+      <button type="button" class="close" onclick={onclose}>{t('Close')}</button>
+    </span>
   </header>
   <div class="prog" role="img" aria-label={t('{n} of {total} items packed', { n: packed, total })}><i style:width="{total ? (packed / total) * 100 : 0}%"></i></div>
   <nav class="dots" aria-label={t('Bags')}>
@@ -125,9 +146,10 @@
   <footer class="foot">
     <button type="button" class="btn" disabled={at === 0} onclick={() => go(at - 1)}>{t('Back')}</button>
     {#if at < last}
-      <button type="button" class="btn hi" onclick={() => go(at + 1)}>{at + 1 < last ? t('Next: {step}', { step: steps[at + 1].title }) : t('Next: ready check')}</button>
+      {@const nextName = at + 1 < last ? steps[at + 1].title : t('Ready check')}
+      <button type="button" class="btn hi" onclick={bagIn}>{allIn ? t('Next: {step}', { step: nextName }) : t('All in, next: {step}', { step: nextName })}</button>
     {:else}
-      <button type="button" class="btn hi" onclick={onclose}>{t('Done')}</button>
+      <button type="button" class="btn hi" onclick={readyIn}>{readyAll ? t('Done') : t('All done, finish')}</button>
     {/if}
   </footer>
 </div>
@@ -177,6 +199,16 @@
     color: var(--ink);
     font: 700 15px var(--font-body);
     cursor: pointer;
+  }
+  .tops {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .close.all {
+    border-color: var(--ink-3);
+    font-weight: 600;
   }
   .prog {
     height: 6px;
@@ -349,11 +381,13 @@
     min-height: 52px;
     font-size: 17px;
   }
+  /* v0.24.0: "All in, next: <bag>" may take two lines on a narrow phone instead of being cut off. */
   .foot .btn.hi {
     flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
   }
   @media (min-width: 720px) {
     .foot {

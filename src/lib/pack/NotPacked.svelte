@@ -14,8 +14,10 @@
    * target: name of the bag "+" puts things into. onadd(itemId). drag: allow dragging (not on a phone).
    * children: optional extra controls under the search (the "Adding to" choice).
    * empty (v0.21.0): what to say when nothing is left and nothing is searched (an area without items).
+   * oncreate(name) (v0.24.0, Noah): what is not in your gear yet can be added from the search.
    */
-  let { items, tagOf, target, onadd, drag = true, q = $bindable(''), children, empty = '' } = $props();
+  let { items, tagOf, target, onadd, drag = true, q = $bindable(''), children, empty = '', oncreate = null } = $props();
+  const exact = $derived(!!q.trim() && items.some((i) => i.name.toLowerCase() === q.trim().toLowerCase() || nameOf(i).toLowerCase() === q.trim().toLowerCase()));
 
   const groups = $derived(
     CATEGORIES.map((c) => ({ ...c, items: items.filter((i) => i.category === c.key) }))
@@ -70,6 +72,9 @@
     {:else}
       <p class="empty">{q.trim() ? t('Nothing matches.') : empty || t('Everything you own is on this trip.')}</p>
     {/each}
+    {#if oncreate && q.trim() && !exact}
+      <button type="button" class="create" onclick={() => oncreate(q.trim())}>+ {t('Add "{q}" as a new item and pack it', { q: q.trim() })}</button>
+    {/if}
   </div>
 </section>
 
@@ -99,6 +104,21 @@
     flex: 1;
     color: var(--ink-3);
     font-size: 14px;
+  }
+  .create {
+    display: block;
+    width: calc(100% - 20px);
+    min-height: 44px;
+    margin: 8px 10px;
+    padding: 8px 12px;
+    border: 1.5px dashed var(--ink-3);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 15px var(--font-body);
+    text-align: left;
+    overflow-wrap: anywhere;
+    cursor: pointer;
   }
   .np-list {
     flex: 1;

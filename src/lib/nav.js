@@ -39,9 +39,12 @@ export function newTrip(startFrom, domain = null) {
   window.dispatchEvent(new Event('pg:newtrip'));
 }
 
-/** New gear item: Gear opens with the "Add item" dialog. */
-export function addItem() {
-  keep('gear.add', '1');
+/**
+ * New gear item: Gear opens with the "Add item" dialog.
+ * v0.24.0 (Noah): name = what was searched for, so "Add "Spork" as a new item" starts filled in.
+ */
+export function addItem(name = '') {
+  keep('gear.add', typeof name === 'string' && name.trim() ? JSON.stringify({ name: name.trim() }) : '1');
   location.hash = '#/gear';
   window.dispatchEvent(new Event('pg:additem'));
 }
