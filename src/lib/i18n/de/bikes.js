@@ -417,4 +417,11 @@ export default {
   'before the start': 'vor dem Start',
   'No data: enter km and record a check or service, then the app can tell.': 'Keine Daten: km eintragen und einen Check oder Service erfassen, dann kann die App es sagen.',
   'Tick off in Bike care': 'In der Velopflege abhaken',
+  'overdue for {n} day': 'überfällig seit {n} Tag',
+  'overdue for {n} days': 'überfällig seit {n} Tagen',
+  'overdue for {n} week': 'überfällig seit {n} Woche',
+  'overdue for {n} weeks': 'überfällig seit {n} Wochen',
+  'overdue for {n} month': 'überfällig seit {n} Monat',
+  'overdue for {n} months': 'überfällig seit {n} Monaten',
+  'Event (race or organised ride): show the event preparation': 'Event (Rennen oder organisierte Fahrt): Eventvorbereitung zeigen',
 };

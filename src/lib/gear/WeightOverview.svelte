@@ -71,6 +71,7 @@
 <style>
   .ov {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 4px;
     margin-bottom: 22px;
   }
@@ -156,7 +157,7 @@
     margin: 10px 0 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
     gap: 0 18px;
   }
   .legend button,
@@ -179,6 +180,8 @@
   }
   .legend .n {
     flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
   .legend .p {
     width: 3.2em;

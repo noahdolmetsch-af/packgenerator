@@ -22,8 +22,8 @@
   import { bikePhotos, packPhoto } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import Sum from '../lib/ui/Sum.svelte';
-  import { withVisits } from '../lib/workshop.js';
-  import { prepFor } from '../lib/care.js';
+  import { withVisits, overdueFor } from '../lib/workshop.js';
+  import { prepFor, isEvent } from '../lib/care.js';
   import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine } from '../lib/readiness.js';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
@@ -119,7 +119,8 @@
     const care = view ? bikeCare(view, { tasks, visits: $visitsQ ?? [], trip, today }) : null;
     const prep = eventPrep(trip, tasks, today);
     const open = prepFor(trip, tasks, today).filter((r) => !r.finished);
-    return care || prep.total ? { care, prep, open } : null;
+    // v0.22.0 (Noah 4b): shown on every bike trip, so the Event switch is always in reach.
+    return { care, prep, open, event: isEvent(trip) };
   });
   const SHOW = 4;
   // The short form in the folded line: "Bike care: 1 due".
@@ -292,6 +293,8 @@
     return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], tasks: $tasksQ ?? [], today });
   });
   const useBike = (b) => change((t) => switchBike(t, b));
+  // v0.22.0 (Noah 4b): the Excel preparation only for events.
+  const setEvent = (on) => change((t) => ({ ...t, event: on }));
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.
   let undo = $state.raw([]); // raw: plain copies, IndexedDB cannot store proxies
   const canUndo = $derived(undo.length > 0 && undo.at(-1).id === trip?.id);
@@ -593,7 +596,7 @@
          preparation tasks (answer 2b: they stay on every trip) fold into one line; bike rows apart. -->
     {#if before}
       <details class="shop">
-        <summary><span class="lbl">{t('Before the trip')}</span> <small>{[before.care ? bikeCareWordsShort(before.care) : null, eventPrepLine(before.prep)].filter(Boolean).join(' · ')}</small></summary>
+        <summary><span class="lbl">{t('Before the trip')}</span> <small>{[before.care ? bikeCareWordsShort(before.care) : null, before.prep.total ? eventPrepLine(before.prep) : null].filter(Boolean).join(' · ')}</small></summary>
         {#if before.care}
           {@const rows = [...before.care.rows, ...before.care.soon]}
           <p class="scope"><a href={before.care.href}>{bikeCareLine(before.care)}</a></p>
@@ -605,11 +608,12 @@
             <p class="nd">{t('No data: enter km and record a check or service, then the app can tell.')}</p>
           {/if}
         {/if}
+        <label class="ev"><input type="checkbox" checked={before.event} onchange={(e) => setEvent(e.currentTarget.checked)} /> {t('Event (race or organised ride): show the event preparation')}</label>
         {#if before.prep.total}
           <details class="prepg">
             <summary>{eventPrepLine(before.prep)}</summary>
             <ul>
-              {#each before.open as r (r.task.id)}<li class:now={r.overdue || r.needed}><b>{r.task.task}</b> <small>{r.needed ? t('work needed') : r.overdue ? t('was due {date}', { date: dayShort(r.due) }) : t('by {date}', { date: dayShort(r.due) })}</small></li>{/each}
+              {#each before.open as r (r.task.id)}<li class:now={r.overdue || r.needed}><b>{r.task.task}</b> <small>{r.needed ? t('work needed') : r.overdue ? overdueFor(r.due, today) : t('by {date}', { date: dayShort(r.due) })}</small></li>{/each}
             </ul>
             <a class="btn sm" href={before.prep.href}>{t('Tick off in Bike care')}</a>
           </details>
@@ -1072,6 +1076,13 @@
   }
   .prepg {
     margin: 0 0 6px;
+  }
+  .shop .ev {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 4px 0 8px;
+    font-size: 14px;
   }
   .prepg > summary {
     font-weight: 600;

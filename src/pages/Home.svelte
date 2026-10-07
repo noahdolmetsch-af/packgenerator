@@ -73,7 +73,11 @@
   // v0.22.0 (AP06): three named scopes, the same statements as Pack and Bikes → Care
   // (readiness.js): Bike care of the trip's bike, Event preparation and Packing status.
   const care = $derived(next && nextByBike && bike ? bikeCare(bike, { tasks, visits, trip: next, today }) : null);
-  const prep = $derived(next && nextByBike ? eventPrep(next, tasks, today) : null);
+  // v0.22.0 (Noah 4b): only for events; a trip without preparation tasks shows no line.
+  const prep = $derived.by(() => {
+    const p = next && nextByBike ? eventPrep(next, tasks, today) : null;
+    return p?.total ? p : null;
+  });
   const packing = $derived(next ? packStatus(next) : null);
   const extra = $derived(next ? ballast(next, items, trips, debriefs) : null);
   const debrief = $derived(toDebrief(trips, debriefs)[0] ?? null);

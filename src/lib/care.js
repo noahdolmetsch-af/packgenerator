@@ -185,11 +185,18 @@ const DAY = 86400000;
 const iso = (d) => d.toISOString().slice(0, 10);
 
 /**
+ * v0.22.0 (Noah 4b, 2026-10-07): the Excel preparation is for events only (race, organised ride).
+ * trip.event is set in Pack; older trips without the flag count as an event when they already
+ * have a preparation result, so nothing ticked before gets hidden.
+ */
+export const isEvent = (trip) => trip?.event ?? Object.keys(trip?.prep ?? {}).length > 0;
+
+/**
  * The preparation tasks of one trip: due date = start date minus the lead time in weeks.
  * Results are stored on the trip (trip.prep[taskId]), so every trip has its own list.
  */
 export function prepFor(trip, tasks, today = iso(new Date())) {
-  if (!trip.startDate) return [];
+  if (!trip.startDate || !isEvent(trip)) return [];
   const start = new Date(`${trip.startDate}T00:00:00Z`).getTime();
   return tasks
     .filter((t) => isPrep(t) && !isRule(t))
@@ -217,7 +224,7 @@ export function prepSummary(rows = []) {
  */
 export const isRule = (task) => /^(do not|don't|never)\b|nothing new|no more questions/i.test(task.task);
 export function prepRules(trip, tasks) {
-  if (!trip.startDate) return [];
+  if (!trip.startDate || !isEvent(trip)) return [];
   const start = new Date(`${trip.startDate}T00:00:00Z`).getTime();
   return tasks
     .filter((t) => isPrep(t) && isRule(t))

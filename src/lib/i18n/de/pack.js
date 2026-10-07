@@ -424,7 +424,7 @@ export default {
   'The last {area} trip, or the {area} items when there is none': 'Die letzte Tour {area}, oder die Teile für {area}, wenn es keine gibt',
   'Worn, standard and "On every trip", in {bags}': 'Getragen, Standard und «Auf jeder Tour», in {bags}',
   // v0.22.0 (AP04): clear words for the states, honest weights, one "•••" per row.
-  'Other gear': 'Weitere Materialien',
+  'Other gear': 'Weitere Dinge',
   '{n} bag not weighed': '{n} Tasche nicht gewogen',
   '{n} bags not weighed': '{n} Taschen nicht gewogen',
   'Pack bag by bag and tick off, then the ready check. {count} on the list: {packed} packed, {left} still to pack. Ready check: {ready} checked, {open} open.': 'Tasche für Tasche packen und abhaken, dann der Startcheck. {count} auf der Liste: {packed} gepackt, {left} noch einzupacken. Startcheck: {ready} geprüft, {open} offen.',

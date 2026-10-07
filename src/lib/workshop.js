@@ -171,6 +171,21 @@ export function beforeTrip(bike, trip, setup = { front: null, rear: null }, toda
   return early ? { ...res, rows: res.rows.filter((r) => r.when === 'now' && (r.late || r.worn)) } : res;
 }
 
+/**
+ * v0.22.0 (Noah 3a, 2026-10-07): how long something is overdue in words, not a raw date:
+ * "overdue for 5 days", "overdue for 3 weeks", "overdue for 2 months". date and today: YYYY-MM-DD.
+ */
+export function overdueFor(date, today) {
+  return overdueDays(Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${date}T00:00:00Z`)) / 86400000));
+}
+export function overdueDays(days) {
+  days = Math.max(0, days);
+  if (days === 0) return tr('due today');
+  if (days < 14) return tn(days, 'overdue for {n} day', 'overdue for {n} days');
+  if (days < 61) return tn(Math.round(days / 7), 'overdue for {n} week', 'overdue for {n} weeks');
+  return tn(Math.round(days / 30), 'overdue for {n} month', 'overdue for {n} months');
+}
+
 /** v0.22.0: exported for readiness.js (the same rules for Home, Pack and Care). */
 export function bikeDue(bike, trip, setup, today, end) {
   const tripKm = typeof trip.route?.km === 'number' ? trip.route.km : null;
@@ -179,7 +194,7 @@ export function bikeDue(bike, trip, setup, today, end) {
   for (const t of timeDue(bike, setup, today)) {
     if (t.never || t.next > end) continue;
     const now = t.next < trip.startDate;
-    rows.push({ key: t.key, name: t.name, when: now ? 'now' : 'during', late: t.overdue, detail: t.overdue ? tr('overdue since {date}', { date: t.next }) : now ? tr('due {date}, before the start', { date: t.next }) : tr('due {date}, on the trip', { date: t.next }) });
+    rows.push({ key: t.key, name: t.name, when: now ? 'now' : 'during', late: t.overdue, detail: t.overdue ? overdueFor(t.next, today) : now ? tr('due {date}, before the start', { date: t.next }) : tr('due {date}, on the trip', { date: t.next }) });
   }
   // By km: services with their own interval (wax the chain every 150 km).
   for (const p of (bike.parts ?? []).map(partInfo).filter((x) => x.everyKm)) {
@@ -222,7 +237,7 @@ export function tripPrep(bike, trip, tasks = [], setup = { front: null, rear: nu
     .filter((r) => !r.finished)
     .map((r) => ({
       key: `prep:${r.task.id}`, kind: 'prep', name: r.task.task, late: r.overdue || r.needed, when: 'now', due: r.due, prep: r,
-      detail: r.needed ? tr('work needed') : r.overdue ? tr('was due {date}', { date: short(r.due) }) : tr('by {date}', { date: short(r.due) }),
+      detail: r.needed ? tr('work needed') : r.overdue ? overdueFor(r.due, today) : tr('by {date}', { date: short(r.due) }),
     }));
   for (const b of beforeTrip(bike, trip, setup, today)?.rows ?? []) {
     rows.push({ key: `bike:${b.key}:${b.when}`, kind: 'bike', name: b.name, detail: b.detail, late: !!(b.late || b.worn), when: b.when, due: null });
