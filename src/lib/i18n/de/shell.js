@@ -358,4 +358,26 @@ export default {
   // v0.22.0 (AP05): the favourites on the start page, same basis as Gear
   'favourites owned': 'Favoriten im Inventar',
   '+ {n} on the wishlist': '+ {n} auf der Wunschliste',
+
+  /* ---------- v0.23.0 (AP07): one navigation, Today with one next step ---------- */
+  'Today|place': 'Heute',
+  'Trips|place': 'Touren',
+  'Gear|place': 'Material',
+  'Bikes|place': 'Velos',
+  'Profile and settings': 'Profil und Einstellungen',
+  'Debriefs and learnings': 'Rückblicke und Learnings',
+  'trip ended': 'Tour vorbei',
+  'Continue planning': 'Weiter planen',
+  'Start packing': 'Packen',
+  'Open the trip': 'Tour öffnen',
+  'Write debrief': 'Rückblick schreiben',
+  'Choose what comes along; the list stays editable.': 'Wähle, was mitkommt; die Liste bleibt änderbar.',
+  'Packing day: bag by bag, then the ready check.': 'Packtag: Tasche für Tasche, dann der Startcheck.',
+  'Route, weather and the list for the day.': 'Route, Wetter und die Liste für den Tag.',
+  'Your list for the way.': 'Deine Liste für unterwegs.',
+  'Two minutes: what you did not use, what broke, what you missed.': 'Zwei Minuten: was du nicht gebraucht hast, was kaputt ging, was gefehlt hat.',
+  'Show the list': 'Liste ansehen',
+  'Start a new trip': 'Neue Tour starten',
+  'Also to do': 'Ausserdem zu tun',
+  'Add a bike': 'Velo erfassen',
 };

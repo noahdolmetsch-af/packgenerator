@@ -48,3 +48,47 @@ export function addItem() {
 
 /** Quick note from anywhere (the App opens the dialog). prefill: text to start with. */
 export const openNote = (prefill = '') => window.dispatchEvent(new CustomEvent('pg:note', { detail: prefill }));
+
+/** New bike (v0.23.0, AP07): Bikes opens with the "Add bike" dialog (Today's "Add a bike" link). */
+export function wantBike() {
+  keep('bikes.add', '1');
+  window.dispatchEvent(new Event('pg:addbike'));
+}
+
+/**
+ * v0.23.0 (AP07): the page an address shows, e.g. '#/pack/templates' → 'templates'.
+ * #/care is the old address of Bikes → Care.
+ */
+export function pageOf(hash = '', careTab = false) {
+  const h = hash || '';
+  if (h.startsWith('#/gear')) return 'gear';
+  if (h.startsWith('#/favorites')) return 'favorites';
+  if (h.startsWith('#/bikes') || h.startsWith('#/care')) return careTab ? 'care' : 'bikes';
+  if (h.startsWith('#/pack/templates')) return 'templates';
+  if (h.startsWith('#/pack')) return 'pack';
+  if (h.startsWith('#/debrief')) return 'debrief';
+  if (h.startsWith('#/share/')) return 'share';
+  if (h.startsWith('#/ride')) return 'ride';
+  if (h.startsWith('#/inbox')) return 'inbox';
+  return 'home';
+}
+
+/**
+ * v0.23.0 (AP07): the four main places, the same on every page and in this order
+ * (top bar on a computer, bottom bar on a phone). Labels are English keys for t().
+ */
+export const PLACES = [
+  { key: 'today', href: '#/', label: 'Today|place' },
+  { key: 'trips', href: '#/pack', label: 'Trips|place' },
+  { key: 'gear', href: '#/gear', label: 'Gear|place' },
+  { key: 'bikes', href: '#/bikes', label: 'Bikes|place' },
+];
+
+/** Which main place a page belongs to (null: the Inbox, which has its own icon). */
+export function placeOf(page) {
+  if (page === 'home') return 'today';
+  if (['pack', 'templates', 'ride', 'debrief', 'share'].includes(page)) return 'trips';
+  if (page === 'gear' || page === 'favorites') return 'gear';
+  if (page === 'bikes' || page === 'care') return 'bikes';
+  return null;
+}

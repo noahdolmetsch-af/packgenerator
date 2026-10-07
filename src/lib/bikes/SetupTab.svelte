@@ -13,6 +13,7 @@
   import Fold from '../ui/Fold.svelte';
   import { withVisits, tyreSetup, bikeProfile } from '../workshop.js';
   import { t, tn, num, locale, nameOf } from '../i18n.svelte.js';
+  import { take } from '../nav.js';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -94,6 +95,13 @@
   let activeSlot = $state(null);
   let dialog = $state(null); // { bag } or { bag: null, slot }
   let bikeDialog = $state(null); // { bike } or { bike: null }
+  // v0.23.0 (AP07): Today's "Add a bike" opens the dialog right away.
+  if (take('bikes.add')) bikeDialog = { bike: null };
+  $effect(() => {
+    const add = () => take('bikes.add') && (bikeDialog = { bike: null });
+    window.addEventListener('pg:addbike', add);
+    return () => window.removeEventListener('pg:addbike', add);
+  });
   let message = $state('');
 
   // Boxes on the drawing: every place this bike has (in edit mode: all places).
@@ -179,7 +187,9 @@
      bag list fold away behind one summary line each. -->
 <div class="setup">
   {#if !bikes.length && $bikesQ}
-    <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a> {t('(Your data → Import backup).')}</p>
+    <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a> {t('(Your data → Import backup).')}
+      <!-- v0.23.0 (AP07): or add one right here -->
+      <button type="button" class="btn hi addfirst" onclick={() => (bikeDialog = { bike: null })}>{t('Add bike')}</button></p>
   {:else if bike}
     <div class="picker">
       <div class="tabs" role="tablist" aria-label={t('Bike')}>
@@ -562,6 +572,10 @@
   }
   .bike-card {
     margin-bottom: 18px;
+  }
+  .addfirst {
+    display: flex;
+    margin-top: 12px;
   }
   /* v0.21.0: bike picker and "Add bike" on one line. */
   .picker {
