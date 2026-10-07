@@ -245,6 +245,13 @@
     return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], tasks: $tasksQ ?? [], today });
   });
   const useBike = (b) => change((t) => switchBike(t, b));
+  // v0.25.1 (Noah 3a): Today's "Choose a bike for the trip" opens the comparison (#/pack?choose).
+  $effect(() => {
+    if (trip && location.hash.includes('choose')) {
+      history.replaceState(null, '', '#/pack');
+      choosing = true;
+    }
+  });
   // v0.22.1 (Noah 4b): the Excel preparation only for events.
   const setEvent = (on) => change((t) => ({ ...t, event: on }));
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.

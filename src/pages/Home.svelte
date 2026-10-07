@@ -27,6 +27,9 @@
   import { demoState } from '../lib/demo.js';
   import { nextTrip, tripEnd, learningsFor, quickDebrief, templateOffer, templateName } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
+  // v0.25.1 (Noah 1b, 2b, 3a): more buttons on the Trips and Bikes tiles, four visible, the rest under "More".
+  import TripsHubActions from '../lib/hubs/TripsHubActions.svelte';
+  import BikesHubActions from '../lib/hubs/BikesHubActions.svelte';
   import { wishReason } from '../lib/insights.js';
   import { ballast } from '../lib/packhints.js';
   import { sunTimes } from '../lib/blockplan.js';
@@ -413,12 +416,10 @@
           {#each templates.slice(0, 2) as tp (tp.id)}
             <li><button type="button" onclick={() => newTrip(tp.id)} title={t('New trip from this template')}><span>{tp.name}</span><span class="muted">{t('template')}</span></button></li>
           {/each}
-          <li><a href="#/pack/templates"><span>{t('All templates')}</span><span aria-hidden="true">→</span></a></li>
         </ul>
       </div>
-      <div class="foot">
-        <button type="button" class="btn sm" onclick={() => openNew('list')}>{@render ic('plus', 16)}{t('Plan a trip')}</button>
-      </div>
+      <!-- v0.25.1 (Noah 1b, 3a): New trip · Write debrief · Past trips · Setups, then More (All templates moved there). -->
+      <TripsHubActions {trips} {debriefs} {next} {bikes} />
     {/snippet}
     {@render hub('pack', t('Trips|place'), '#/pack', 'bag', packBody)}
 
@@ -470,11 +471,8 @@
       {:else}
         <p class="small">{t('No bikes yet.')} <a href="#/bikes" onclick={wantBike}>{t('Add a bike')}</a></p>
       {/if}
-      <div class="foot">
-        <button type="button" class="btn sm" onclick={() => openNew('km')}>{@render ic('plus', 16)}{t('Log km')}</button>
-        <a class="btn sm" href="#/bikes?tab=care">{t('Bike care')}</a>
-        <a class="btn sm" href="#/bikes?tab=care">{t('Workshop order')}</a>
-      </div>
+      <!-- v0.25.1 (Noah 2b, 3a): Log a problem · Log km · Bike care · Idea, then More. -->
+      <BikesHubActions {bikes} {next} />
     {/snippet}
     {@render hub('bikes', t('Bikes|place'), '#/bikes', 'bike', bikesBody)}
   </div>

@@ -13,7 +13,8 @@
   import { shrinkImage } from './photo.js';
   import { t } from './i18n.svelte.js';
 
-  let { page = 'home', open = $bindable(false), prefill = '' } = $props();
+  // v0.25.1 (Noah 3a): prefillBike = "Note on a bike" from Today, the bike already chosen.
+  let { page = 'home', open = $bindable(false), prefill = '', prefillBike = null } = $props();
 
   const openQ = liveQuery(() => db.notes.where('status').equals('open').count());
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -34,6 +35,7 @@
   $effect(() => {
     if (open && dialog && !dialog.open) {
       if (prefill) text = prefill;
+      if (prefillBike) bikeId = prefillBike;
       dialog.showModal();
     }
   });

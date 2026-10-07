@@ -11,6 +11,7 @@
   import { bikePhotos, shrinkImage } from '../photo.js';
   import Lightbox from '../ui/Lightbox.svelte';
   import Fold from '../ui/Fold.svelte';
+  import IdeasFold from './IdeasFold.svelte';
   import { withVisits, tyreSetup, bikeProfile } from '../workshop.js';
   import { t, tn, num, locale, nameOf } from '../i18n.svelte.js';
   import { take } from '../nav.js';
@@ -293,6 +294,9 @@
           {#if photoMsg}<p class="err" role="alert">{photoMsg}</p>{/if}
         </div>
       </Fold>
+
+      <!-- v0.25.1 (Noah 2b): "Was geil wäre", the bike's own ideas -->
+      {#key bike.id}<IdeasFold {bike} />{/key}
     </section>
   {/if}
 

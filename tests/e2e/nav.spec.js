@@ -150,7 +150,7 @@ test('Today folds the places on the phone', async ({ page, context }, info) => {
   // touch opens Trips, the keyboard opens Gear
   await folds.nth(0).locator('summary').tap();
   await expect(folds.nth(0)).toHaveJSProperty('open', true);
-  await expect(folds.nth(0).getByRole('button', { name: T('Plan a trip') })).toBeVisible();
+  await expect(folds.nth(0).getByRole('button', { name: T('New trip') })).toBeVisible();
   await folds.nth(1).locator('summary').focus();
   await page.keyboard.press('Enter');
   await expect(folds.nth(1)).toHaveJSProperty('open', true);

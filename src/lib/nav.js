@@ -25,6 +25,12 @@ export function take(key) {
 /** Open the "New" sheet: 'all' (everything) or 'list' (the ways to start a packing list). */
 export const openNew = (mode = 'all') => window.dispatchEvent(new CustomEvent('pg:new', { detail: mode }));
 
+/**
+ * v0.25.1 (Noah 1a): "Day ride" on Today's Trips tile. Only the wish is sent here (event 'pg:dayride');
+ * whoever listens starts the day ride.
+ */
+export const dayRide = () => window.dispatchEvent(new Event('pg:dayride'));
+
 /** A trip becomes the one Pack and Ride day show. */
 export const openTrip = (id) => keep('pack.currentTrip', id);
 
@@ -49,8 +55,11 @@ export function addItem(name = '') {
   window.dispatchEvent(new Event('pg:additem'));
 }
 
-/** Quick note from anywhere (the App opens the dialog). prefill: text to start with. */
-export const openNote = (prefill = '') => window.dispatchEvent(new CustomEvent('pg:note', { detail: prefill }));
+/**
+ * Quick note from anywhere (the App opens the dialog). prefill: text to start with.
+ * v0.25.1 (Noah 3a): bikeId = "Note on a bike" from Today, the bike already chosen.
+ */
+export const openNote = (prefill = '', bikeId = null) => window.dispatchEvent(new CustomEvent('pg:note', { detail: bikeId ? { text: prefill, bikeId } : prefill }));
 
 /** New bike (v0.23.0, AP07): Bikes opens with the "Add bike" dialog (Today's "Add a bike" link). */
 export function wantBike() {
@@ -68,6 +77,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/favorites')) return 'favorites';
   if (h.startsWith('#/bikes') || h.startsWith('#/care')) return careTab ? 'care' : 'bikes';
   if (h.startsWith('#/pack/templates')) return 'templates';
+  if (h.startsWith('#/pack/past')) return 'past'; // v0.25.1 (Noah 3a): Past trips
   if (h.startsWith('#/pack')) return 'pack';
   if (h.startsWith('#/debrief')) return 'debrief';
   if (h.startsWith('#/share/')) return 'share';
@@ -90,7 +100,7 @@ export const PLACES = [
 /** Which main place a page belongs to (null: the Inbox, which has its own icon). */
 export function placeOf(page) {
   if (page === 'home') return 'today';
-  if (['pack', 'templates', 'ride', 'debrief', 'share'].includes(page)) return 'trips';
+  if (['pack', 'templates', 'past', 'ride', 'debrief', 'share'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'favorites') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   return null;
