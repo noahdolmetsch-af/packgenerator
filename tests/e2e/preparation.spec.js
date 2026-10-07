@@ -31,11 +31,16 @@ test('review, apply, edit and pack a tour', async ({ page, context }) => {
   await page.getByRole('button', { name: 'Auswahl übernehmen' }).click();
   await expect(page.getByRole('heading', { name: 'Deine Packliste' })).toBeVisible();
   await expect(list.getByText('Midlayer Albion', { exact: true })).toBeVisible();
+  // v0.24.1 (Noah 1a): the amount sits behind a tap on the row; the row shows "× n" above 1.
+  await page.getByRole('button', { name: 'Menge, verschieben oder herausnehmen: Carb-Pulver' }).click();
   await page.getByRole('button', { name: 'Carb-Pulver: eins mehr' }).click();
   const carb = list.locator('.planning-row').filter({ hasText: 'Carb-Pulver' });
   await expect(carb.locator('.amount span')).toHaveText('3');
+  await expect(carb.locator('.item-qty')).toHaveText('× 3');
   await expect(carb.locator('.item-weight')).toHaveText('240 g');
   await page.reload();
+  await expect(page.locator('.planning-row').filter({ hasText: 'Carb-Pulver' }).locator('.item-qty')).toHaveText('× 3');
+  await page.getByRole('button', { name: 'Menge, verschieben oder herausnehmen: Carb-Pulver' }).click();
   await expect(page.locator('.planning-row').filter({ hasText: 'Carb-Pulver' }).locator('.amount span')).toHaveText('3');
   // Preserve v0.22.0's honest sums and shared readiness statements after integrating main.
   await list.locator('.weight-details > summary').click();
@@ -46,7 +51,9 @@ test('review, apply, edit and pack a tour', async ({ page, context }) => {
   await page.getByLabel('Packliste gruppieren').selectOption('category');
   await expect(list.getByText('Carb-Pulver', { exact: true })).toHaveCount(0); // categories start folded
   await expect(page.evaluate(() => document.documentElement.scrollWidth)).resolves.toBeLessThanOrEqual(page.viewportSize().width);
-  await page.getByRole('button', { name: 'Packkontrolle starten' }).click();
+  // v0.24.1 (Noah 2a): a day ride: the packing day is the link next to "Alles gepackt, los".
+  await expect(page.locator('.next .go')).toHaveText('Alles gepackt, los');
+  await page.getByRole('button', { name: 'Packkontrolle', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Packtag: Alpine Tagestour' })).toBeVisible();
   expect(errors).toEqual([]);
 });

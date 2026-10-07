@@ -15,8 +15,37 @@
    * children: optional extra controls under the search (the "Adding to" choice).
    * empty (v0.21.0): what to say when nothing is left and nothing is searched (an area without items).
    * oncreate(name) (v0.24.0, Noah): what is not in your gear yet can be added from the search.
+   * onaddmany(itemIds) (v0.24.1, Noah 6a): tick boxes per item, "Select all" per group and one
+   * button that adds every ticked item at once. Without it the list has only the "+" per row.
    */
-  let { items, tagOf, target, onadd, drag = true, q = $bindable(''), children, empty = '', oncreate = null } = $props();
+  let { items, tagOf, target, onadd, drag = true, q = $bindable(''), children, empty = '', oncreate = null, onaddmany = null } = $props();
+  const multi = $derived(!!onaddmany);
+  // The ticked items; they stay ticked while searching, so a search can add to them.
+  let picked = $state([]);
+  const isPicked = (id) => picked.includes(id);
+  const pick = (id, on) => (picked = on ? (picked.includes(id) ? picked : [...picked, id]) : picked.filter((x) => x !== id));
+  const allPicked = (g) => g.items.every((i) => picked.includes(i.id));
+  function pickGroup(g) {
+    const ids = g.items.map((i) => i.id);
+    picked = allPicked(g) ? picked.filter((x) => !ids.includes(x)) : [...picked, ...ids.filter((x) => !picked.includes(x))];
+  }
+  function addOne(id) {
+    pick(id, false);
+    onadd(id);
+  }
+  let busy = $state(false);
+  async function addPicked() {
+    if (!picked.length || busy) return;
+    busy = true;
+    try {
+      await onaddmany([...picked]);
+      picked = []; // the ticks clear after adding
+    } catch {
+      /* the page says it could not save; the ticks stay for another try */
+    } finally {
+      busy = false;
+    }
+  }
   const exact = $derived(!!q.trim() && items.some((i) => i.name.toLowerCase() === q.trim().toLowerCase() || nameOf(i).toLowerCase() === q.trim().toLowerCase()));
 
   const groups = $derived(
@@ -56,14 +85,19 @@
         </button>
         {#if isOpen(g.key)}
           <ul>
+            {#if multi}
+              <li class="all"><button type="button" class="pick-all" aria-label={allPicked(g) ? t('Select none: {group}', { group: t(g.name) }) : t('Select all: {group}', { group: t(g.name) })} onclick={() => pickGroup(g)}>{allPicked(g) ? t('Select none') : t('Select all')}</button></li>
+            {/if}
             {#each g.items as i (i.id)}
               {@const tag = tagOf(i)}
-              <li draggable={drag} ondragstart={(e) => start(e, i.id)} class:drag>
+              <li draggable={drag} ondragstart={(e) => start(e, i.id)} class:drag class:multi class:picked={multi && isPicked(i.id)}>
+                {#if multi}<input type="checkbox" class="pick" id="pick-{i.id}" aria-label={nameOf(i)} checked={isPicked(i.id)} onchange={(e) => pick(i.id, e.currentTarget.checked)} />{/if}
                 <!-- v0.22.0 (AP05): the star is a button here too, one tap marks or unmarks. -->
                 <FavStar item={i} size="sm" describedby="np-{i.id}" />
-                <span class="nm" id="np-{i.id}">{nameOf(i)}{#if tag}<small class="lab">{tag}</small>{/if}</span>
+                {#if multi}<label class="nm" id="np-{i.id}" for="pick-{i.id}">{nameOf(i)}{#if tag}<small class="lab">{tag}</small>{/if}</label>
+                {:else}<span class="nm" id="np-{i.id}">{nameOf(i)}{#if tag}<small class="lab">{tag}</small>{/if}</span>{/if}
                 <span class="w num">{i.weightG == null ? '–' : formatWeight(i.weightG)}</span>
-                <button type="button" class="plus" aria-label={t('Add {name} to {bag}', { name: nameOf(i), bag: target })} onclick={() => onadd(i.id)}>+</button>
+                <button type="button" class="plus" aria-label={t('Add {name} to {bag}', { name: nameOf(i), bag: target })} onclick={() => addOne(i.id)}>+</button>
               </li>
             {/each}
           </ul>
@@ -76,6 +110,13 @@
       <button type="button" class="create" onclick={() => oncreate(q.trim())}>+ {t('Add "{q}" as a new item and pack it', { q: q.trim() })}</button>
     {/if}
   </div>
+  {#if multi && picked.length}
+    <!-- v0.24.1 (Noah 6a): stays at the bottom while scrolling; one write for every ticked item. -->
+    <div class="pick-bar">
+      <button type="button" class="pick-add" disabled={busy} onclick={addPicked}>{tn(picked.length, 'Add {n} item to {bag}', 'Add {n} items to {bag}', { bag: target })}</button>
+      <button type="button" class="pick-clear" onclick={() => (picked = [])}>{t('Select none')}</button>
+    </div>
+  {/if}
 </section>
 
 <style>
@@ -183,6 +224,68 @@
   }
   li.drag {
     cursor: grab;
+  }
+  li.multi {
+    grid-template-columns: auto auto 1fr auto auto;
+  }
+  li.picked {
+    background: var(--paper-2);
+  }
+  li.all {
+    display: flex;
+    min-height: 36px;
+  }
+  .pick {
+    width: 22px;
+    height: 22px;
+    margin: 0 0 0 8px;
+    accent-color: var(--ink);
+    cursor: pointer;
+  }
+  label.nm {
+    cursor: pointer;
+    padding: 6px 0;
+  }
+  .pick-all,
+  .pick-clear {
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 400 14px var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    padding: 8px 10px;
+    cursor: pointer;
+  }
+  .pick-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    padding: 10px;
+    background: var(--paper);
+    border-top: 1px solid var(--line-strong);
+    box-shadow: 0 -6px 16px #14352e14;
+  }
+  .pick-add {
+    flex: 1 1 200px;
+    min-height: 44px;
+    padding: 8px 14px;
+    border: 1px solid var(--hi);
+    border-radius: 6px;
+    background: var(--hi);
+    color: #fff;
+    font: 600 15px var(--font-body);
+    text-align: center;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+  .pick-add:disabled {
+    opacity: 0.6;
+    cursor: default;
   }
   .nm {
     min-width: 0;

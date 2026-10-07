@@ -8,7 +8,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { TEMPLATES_KEY, updateTemplate } from '../lib/templates.js';
-  import { ZONE, NIGHT_SETS } from '../lib/trips.js';
+  import { ZONE, NIGHT_SETS, addEntries } from '../lib/trips.js';
   import { FIXED_ZONES, SLOTS } from '../lib/bikes.js';
   import { CATEGORY, CATEGORIES, formatWeight, knownWeight, weightText, sumKnown, isInventory, matches } from '../lib/gear.js';
   import { RIDES } from '../lib/layers.js';
@@ -67,6 +67,8 @@
     setEntries((es) => (es.some((e) => e.itemId === itemId) ? es.map((e) => (e.itemId === itemId ? { ...e, slot: key } : e)) : [...es, { itemId, slot: key, qty: 1 }]));
   }
   const add = (itemId) => addTo(targetPlace.key, itemId);
+  // v0.24.1 (Noah 6a): every ticked item into the chosen place, one write.
+  const addMany = (itemIds) => setEntries((es) => addEntries(es, itemIds.filter((i) => itemsById[i]), targetPlace.key));
   // v0.24.0 (Noah): an item that is not in your gear yet, added from the search into this template.
   let newItem = $state(null); // { name, key }
   function createAndAdd(name) {
@@ -128,7 +130,7 @@
 
     <div class="cols">
       <div class="c-np">
-        <NotPacked items={candidates} {tagOf} target={targetPlace?.name ?? ''} onadd={add} drag={!phone.matches} bind:q oncreate={createAndAdd}>
+        <NotPacked items={candidates} {tagOf} target={targetPlace?.name ?? ''} onadd={add} onaddmany={addMany} drag={!phone.matches} bind:q oncreate={createAndAdd}>
           <label class="target">
             <span>{t('Adding to')}</span>
             <select class="sel" bind:value={target} aria-label={t('Place that + adds to')}>

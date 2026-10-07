@@ -28,7 +28,11 @@ async function start(page, context, info, lang) {
   page.on('dialog', (d) => d.accept());
   await page.goto('./');
   const data = page.locator('details.data');
-  if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+  // v0.24.1: the start page can still be rendering; open "Your data" until it stays open (was flaky under load).
+  await expect(async () => {
+    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+    expect(await data.evaluate((d) => d.open)).toBe(true);
+  }).toPass();
   await data.getByLabel(tr(lang)('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: tr(lang)('Replace all data') }).press('Enter');
   await expect(data.getByText(/importiert|Imported/)).toBeVisible();
@@ -59,22 +63,22 @@ for (const lang of ['de', 'en']) {
     await expect(dlg).toBeHidden();
     await expect(page.getByText('test_data_gtp_ Zahnbürste')).toHaveCount(0);
 
-    // Packing day: one tap packs everything and ticks the ready check.
-    await click(page.locator('.next .go').filter({ visible: true }).first());
-    const day = page.getByRole('dialog', { name: T('Packing day: {title}', { title }) });
-    await expect(day.getByRole('button', { name: new RegExp(`^${T('All in, next: {step}', { step: '' })}`) })).toBeVisible();
-    await click(day.getByRole('button', { name: T('Everything is packed') }));
-    await expect(day).toBeHidden();
+    // v0.24.1 (Noah 2a): a day ride packs everything and ticks the ready check in one tap, then
+    // goes to the ride day; the packing day stays as the "Packing check" link.
     const go = page.locator('.next .go').filter({ visible: true }).first();
-    await expect(go).toContainText(T('Next: ride day'));
+    await expect(go).toContainText(T("All packed, let's go"));
+    await expect(page.locator('.next .day-check').filter({ visible: true })).toHaveText(T('Packing check'));
+    await click(go);
+    await expect(page).toHaveURL(/#\/ride/);
 
     // Ride day → End trip and debrief → "All as planned" → save.
-    await click(go);
     await click(page.getByRole('button', { name: T('End trip and debrief'), exact: true }));
     await click(page.getByRole('button', { name: new RegExp(T('All as planned: weather, amount, bags')) }));
     await click(page.getByRole('button', { name: T('Save debrief') }));
     await expect(page.getByRole('heading', { name: T('Saved') })).toBeVisible();
-    expect(clicks, 'a whole day ride in at most 10 clicks').toBeLessThanOrEqual(10);
+    // v0.24.1: 8 clicks (New, Plan a trip, Standard set, Create, All packed, End trip, All as planned, Save); was 10.
+    expect(clicks, 'a whole day ride in at most 8 clicks').toBeLessThanOrEqual(8);
+    info.annotations.push({ type: 'clicks', description: String(clicks) });
     expect(errors).toEqual([]);
   });
 }

@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
-import { slotFor, standardEntries, newTrip, packAll, tripStats, readyDone, whenLabel, ensureTrips, heavyHigh } from '../src/lib/trips.js';
+import { slotFor, standardEntries, newTrip, packAll, tickReady, packAndReady, isDayTrip, addEntries, tripStats, readyDone, whenLabel, ensureTrips, heavyHigh } from '../src/lib/trips.js';
 
 const it_ = (id, extra) => ({ id, name: id, category: 'elec', weightG: 100, qty: 1, ownership: 'owned', role: null, sets: [], defaultBag: 'top', ...extra });
 const items = [
@@ -51,6 +51,39 @@ describe('trips', () => {
     const es = [{ itemId: 'A', packed: false }, { itemId: 'B', packed: false }, { itemId: 'C', packed: true }];
     expect(packAll(es, ['A']).map((e) => e.packed)).toEqual([true, false, true]);
     expect(packAll(es).every((e) => e.packed)).toBe(true);
+  });
+
+  it('v0.24.1: tickReady ticks every check, "always with me" rows stay', () => {
+    const ready = [{ id: 'a', label: 'Tyres', done: false }, { id: 'b', label: 'Phone', itemId: 'EL07' }, { id: 'c', label: 'Lights', done: true }];
+    expect(tickReady(ready)).toEqual([{ id: 'a', label: 'Tyres', done: true }, { id: 'b', label: 'Phone', itemId: 'EL07' }, { id: 'c', label: 'Lights', done: true }]);
+    expect(tickReady()).toEqual([]);
+  });
+
+  it('v0.24.1: packAndReady packs every item and the whole ready check at once', () => {
+    const trip = { entries: [{ itemId: 'A', packed: false }, { itemId: 'B', packed: true }], ready: [{ id: 'r', label: 'Tyres', done: false }] };
+    const patch = packAndReady(trip);
+    expect(patch.entries.every((e) => e.packed)).toBe(true);
+    expect(patch.ready[0].done).toBe(true);
+    expect(trip.entries[0].packed).toBe(false); // the trip itself is not changed
+  });
+
+  it('v0.24.1: a day trip is 1 day or no days set', () => {
+    expect(isDayTrip({ days: 1 })).toBe(true);
+    expect(isDayTrip({})).toBe(true);
+    expect(isDayTrip({ days: 0 })).toBe(true);
+    expect(isDayTrip({ days: 2 })).toBe(false);
+  });
+
+  it('v0.24.1: addEntries adds several items in one go, never twice', () => {
+    const es = [{ itemId: 'A', slot: 'seat', qty: 2, packed: true }];
+    const out = addEntries(es, ['B', 'A', 'C', 'B', ''], 'frame', { packed: false });
+    expect(out).toEqual([
+      { itemId: 'A', slot: 'seat', qty: 2, packed: true },
+      { itemId: 'B', slot: 'frame', qty: 1, packed: false },
+      { itemId: 'C', slot: 'frame', qty: 1, packed: false },
+    ]);
+    expect(addEntries(es, ['A'], 'frame')).toBe(es); // nothing new: the same list
+    expect(addEntries([], ['X'], 'body')).toEqual([{ itemId: 'X', slot: 'body', qty: 1 }]); // a template has no "packed"
   });
 
   it('adds up gear, bags, bike and rider into the system weight', () => {
