@@ -11,7 +11,8 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import DataPanel from '../lib/DataPanel.svelte';
-  import { LAST_BACKUP, BACKUP_DAYS, backupDue, downloadBackup } from '../lib/backup.js';
+  import { LAST_BACKUP, LAST_IMPORT, BACKUP_DAYS, backupDue, downloadBackup } from '../lib/backup.js';
+  import { openTodos, backupAfterTrip } from '../lib/todos.js';
   import { CATEGORY, formatWeight, gearStats, isConsumable } from '../lib/gear.js';
   import { sortBikes } from '../lib/bikes.js';
   import { withVisits, tripPrep, tyreSetup, costByYear } from '../lib/workshop.js';
@@ -40,6 +41,7 @@
   const notesQ = liveQuery(() => db.notes.where('status').equals('open').toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
+  const importQ = liveQuery(() => db.meta.get(LAST_IMPORT));
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   // Answer 10a (stage 1): the newest of the downloaded backup file and the automatic folder backup.
   const lastQ = liveQuery(async () => {
@@ -121,11 +123,40 @@
   const clock = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
   const tips = $derived(learningsFor(next, learnings, 1));
   const pace = $derived(paceOf($paceQ?.value));
+  // v0.21.0 (gap 6): what still makes weights and times guesses, each with its place.
+  const todos = $derived(loaded ? openTodos({ bikes, items, pace, debriefs, trips }) : []);
+  let dataOpen = $state(false);
+  // Open "Your data" by itself while there is nothing in the app yet.
+  $effect(() => {
+    if (loaded && !trips.length) dataOpen = true;
+  });
+  let dataEl = $state();
+  function openData() {
+    dataOpen = true;
+    queueMicrotask(() => dataEl?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
+  const todoText = (r) =>
+    r.key === 'bikes' ? tn(r.n, 'Weigh {n} bike', 'Weigh {n} bikes')
+    : r.key === 'pace' ? t('Load a few GPX rides')
+    : r.key === 'check' ? tn(r.n, 'Check {n} item in the inventory', 'Check {n} items in the inventory')
+    : r.key === 'favourites' ? t('Apply the favourites file')
+    : t('Ride your first real trip with the app');
+  const todoWhy = (r) =>
+    r.key === 'bikes' ? t('Now Strava estimates: the system weight is a guess.')
+    : r.key === 'pace' ? t('Riding times use a standard guess of 16 km/h.')
+    : r.key === 'check' ? t('Still have it, gone or replaced?')
+    : r.key === 'favourites' ? t('Your data → Import backup → Apply favourites.')
+    : t('Pack, ride day, end trip and debrief: only then can the app learn.');
   const notes = $derived([...($notesQ ?? [])].sort((a, b) => (b.at ?? '').localeCompare(a.at ?? '')));
 
   const demoQ = liveQuery(() => demoState(db));
   // No backup reminder while a demo runs (backups are off then).
-  const backup = $derived($lastQ === undefined || !items.length || $demoQ ? { due: false, days: null } : backupDue($lastQ));
+  const backup = $derived.by(() => {
+    if ($lastQ === undefined || !items.length || $demoQ) return { due: false, days: null };
+    const b = backupDue($lastQ);
+    // v0.21.0 (answer 4a): after every saved debrief, so the desktop can take the phone's state.
+    return backupAfterTrip($lastQ, debriefs) ? { ...b, due: true, afterTrip: true } : b;
+  });
   let backingUp = $state(false);
   async function backupNow() {
     backingUp = true;
@@ -341,6 +372,22 @@
   <section class="know" aria-labelledby="know-h">
     <h2 id="know-h" class="title">{t('Good to know')}</h2>
     <div class="cards">
+      {#if todos.length}
+        <div class="sig todo">
+          <span class="lbl">{t('Still open')}</span>
+          <ul>
+            {#each todos as r (r.key)}
+              <li>
+                {#if r.href}<a href={r.href}><b>{todoText(r)}</b></a>
+                {:else if r.action === 'data'}<button type="button" class="link" onclick={openData}><b>{todoText(r)}</b></button>
+                {:else}<button type="button" class="link" onclick={() => openNew('list')}><b>{todoText(r)}</b></button>{/if}
+                <span>{todoWhy(r)}</span>
+              </li>
+            {/each}
+          </ul>
+          <span class="src">{t('Each line goes away once it is done.')}</span>
+        </div>
+      {/if}
       {#if next}
         <div class="sig">
           <span class="lbl">{t('Weather')}{place?.name ? ` · ${place.name.split(',')[0]}` : ''}</span>
@@ -370,13 +417,13 @@
       <div class="sig">
         <span class="lbl">{t('Your data')}</span>
         <b>{$demoQ ? t('Demo running') : backup.days == null ? t('No backup yet') : backup.days === 0 ? t('Backup today') : tn(backup.days, 'Backup {n} day old', 'Backup {n} days old')}</b>
-        <span>{t('Phone and desktop keep their own data; a backup file moves it.')}</span>
-        <span class="src"><button type="button" class="link" disabled={backingUp || !!$demoQ} onclick={backupNow}>{t('Download backup')}</button></span>
+        <span>{$importQ?.from ? t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($importQ.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) }) : backup.afterTrip ? t('New debrief since the last backup: save one, then load it on the desktop.') : t('Phone and desktop keep their own data; a backup file moves it.')}</span>
+        <span class="src"><button type="button" class="link" disabled={backingUp || !!$demoQ} onclick={backupNow}>{t('Download backup')}</button> · <button type="button" class="link" onclick={openData}>{t('Load a backup')}</button></span>
       </div>
     </div>
   </section>
 
-  <details class="data" open={loaded && !trips.length}>
+  <details class="data" bind:this={dataEl} bind:open={dataOpen}>
     <summary><b>{t('Your data')}</b> <span class="muted">{t('backup, import, export, favourites')}</span></summary>
     <DataPanel />
   </details>
@@ -752,6 +799,32 @@
   .sig b {
     font-size: 17px;
     overflow-wrap: anywhere;
+  }
+  /* v0.21.0: the open to-dos, one line each */
+  .todo {
+    border-color: var(--hi);
+  }
+  .todo ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .todo li {
+    display: grid;
+    gap: 2px;
+  }
+  .todo li b {
+    font-size: 15px;
+  }
+  .todo li span {
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .todo .link {
+    padding: 0;
+    text-align: left;
   }
   .sig > span:not(.lbl):not(.src) {
     font-size: 14px;

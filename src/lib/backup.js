@@ -65,7 +65,13 @@ export async function restoreBackup(db, data, mode = 'replace') {
       if (rows.length) await table.bulkPut(rows);
     }
   });
+  // v0.21.0 (answer 4a, the phone leads): remember where a full replace came from, so the desktop
+  // can say "data from the phone backup of …". Not exported.
+  if (mode === 'replace') await db.table('meta').put({ key: LAST_IMPORT, at: new Date().toISOString(), from: data.exportedAt ?? null });
 }
+
+/** Key in the "meta" table: the last "Replace all data" import (when, and the backup's date). */
+export const LAST_IMPORT = 'lastImport';
 
 /** File name for a backup, e.g. "pack-generator-2026-10-04.json". */
 export function backupFileName(date = new Date()) {
