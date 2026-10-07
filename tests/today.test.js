@@ -45,7 +45,8 @@ describe('Today: the trip and its one next step', () => {
     const done = trip('done', '2026-10-04');
     const later = trip('later', '2026-10-20');
     const f = todayFocus([done, later], [], TODAY);
-    expect(f).toMatchObject({ kind: 'debrief', label: 'Write debrief', href: `#/debrief/${done.id}` });
+    // v0.24.1 (Noah 3a): the card "How was …?": "All good" on Today, "In detail" opens the three steps.
+    expect(f).toMatchObject({ kind: 'debrief', ask: true, label: 'In detail', href: `#/debrief/${done.id}` });
     expect(f.trip.id).toBe(done.id);
     expect(f.next.id).toBe(later.id);
     expect(f.days).toBe(null);
@@ -55,6 +56,13 @@ describe('Today: the trip and its one next step', () => {
     expect(g.debrief.id).toBe(done.id);
     // a saved debrief: nothing waits any more
     expect(todayFocus([done], [{ tripId: done.id, status: 'done' }], TODAY)).toBe(null);
+    // a draft still waits; a trip ended on the ride day (finished) asks right away
+    expect(todayFocus([done], [{ tripId: done.id, status: 'draft' }], TODAY)).toMatchObject({ kind: 'debrief', ask: true });
+    const ended = trip('ended', TODAY, { finished: TODAY });
+    expect(todayFocus([ended, later], [], TODAY)).toMatchObject({ kind: 'debrief', ask: true });
+    expect(todayFocus([ended, later], [], TODAY).trip.id).toBe(ended.id);
+    // the other steps never ask
+    expect(todayFocus([later], [], TODAY).ask).toBe(false);
   });
 
   it('days between two dates', () => {

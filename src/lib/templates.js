@@ -38,6 +38,22 @@ export function templateFrom(trip, { id, name, now = new Date().toISOString() })
 export const upsert = (list, tpl) => (list.some((t) => t.id === tpl.id) ? list.map((t) => (t.id === tpl.id ? tpl : t)) : [...list, tpl]);
 
 /**
+ * Save a trip as a template (TemplateDialog and, v0.24.1 (Noah 4a), the offer after a day trip).
+ * id: the template to overwrite, or null for a new one. The trip then points to its template.
+ * Returns { id, name }, or { error: 'empty' | 'taken', name } and changes nothing.
+ */
+export async function saveTripAsTemplate(db, trip, name, id = null) {
+  const clean = `${name ?? ''}`.trim();
+  if (!clean) return { error: 'empty', name: clean };
+  const list = await loadTemplates(db);
+  const tplId = id ?? `tpl-${Date.now().toString(36)}`;
+  if (list.some((x) => x.id !== tplId && x.name.toLowerCase() === clean.toLowerCase())) return { error: 'taken', name: clean };
+  await saveTemplates(db, upsert(list, templateFrom(trip, { id: tplId, name: clean })));
+  await db.trips.update(trip.id, { templateId: tplId });
+  return { id: tplId, name: clean };
+}
+
+/**
  * A new trip from a template on the chosen bike. The template's bags replace the bike's
  * standard bags only on places this bike has; items whose place has no bag go where
  * slotFor puts them (their usual bag, else the seat pack).

@@ -12,10 +12,11 @@
   import { formatWeight, knownWeight, CATEGORY, isInventory } from '../lib/gear.js';
   import { ZONE } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
-  import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems } from '../lib/debrief.js';
+  import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
   import { parseActivitiesCsv, parseRideFile, ridesOnTrip } from '../lib/activities.js';
   import Pace from '../lib/debrief/Pace.svelte';
   import Compare from '../lib/debrief/Compare.svelte';
+  import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { domainOf, domainName } from '../lib/domains.js';
 
   let { param = '' } = $props();
@@ -97,6 +98,7 @@
     d = stored ? structuredClone($state.snapshot(stored)) : newDebrief(trip);
     step = stored?.status === 'done' ? 3 : 1;
     saved = stored?.status === 'done';
+    offer = null;
     ticks = {};
   });
   async function persist() {
@@ -185,8 +187,11 @@
   const ticked = (s) => ticks[s.id] ?? true;
 
   let busy = $state(false);
+  // v0.24.1 (Noah 4a): the template name offered right after saving a day trip's debrief, else null.
+  let offer = $state(null);
   async function finish() {
     busy = true;
+    offer = templateOffer(trip, templates, trips) ? templateName(trip, bike, templates) : null;
     const on = sugg.filter(ticked).map((s) => s.id);
     const stamp = Date.now().toString(36).toUpperCase();
     const out = applyDebrief($state.snapshot(d), trip, items, learnings, templates, on, { newItemId: (n) => `W${stamp}${n}` });
@@ -211,6 +216,7 @@
   async function reopen() {
     d.status = 'draft';
     saved = false;
+    offer = null;
     step = 1;
     await persist();
   }
@@ -356,6 +362,7 @@
         {#if saved}
           <p class="card ok">{t('Debrief saved')}{d.applied.length ? `, ${tn(d.applied.length, '{n} change made', '{n} changes made')}` : ''}{d.kmApplied ? `, ${bike?.name ? t('{km} km added to {bike}', { km: num(d.kmApplied), bike: bike.name }) : t('{km} km added to the bike', { km: num(d.kmApplied) })}` : ''}. {t('The learnings now show up on the start page and when you pack.')}</p>
           {#if sugg.length}<p class="hint">{tn(sugg.length, '{n} more suggestion is open. Change your answers to see it.', '{n} more suggestions are open. Change your answers to see them.')}</p>{/if}
+          {#if offer}<TemplateOffer {trip} name={offer} />{/if}
           <div class="foot two"><button type="button" class="btn" onclick={reopen}>{t('Change answers')}</button><a class="btn ink wide" href="#/">{t('Done')}</a></div>
         {:else}
           {#if !sugg.length}<p class="card">{t('Nothing to change. Everything you took was used and nothing was missing.')}</p>{/if}

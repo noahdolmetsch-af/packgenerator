@@ -4,7 +4,7 @@
    * When the trip came from a template, "Update" overwrites that template (answer 7a).
    */
   import { db } from '../db.js';
-  import { loadTemplates, saveTemplates, templateFrom, upsert } from '../templates.js';
+  import { saveTripAsTemplate } from '../templates.js';
   import { t } from '../i18n.svelte.js';
 
   let { trip, templates = [], onclose, onsaved } = $props();
@@ -20,15 +20,12 @@
     dialog.showModal();
   });
 
+  // v0.24.1: the saving itself lives in templates.js (shared with the offer after a day trip).
   async function store(asNew) {
-    const clean = name.trim();
-    if (!clean) return (error = t('Give the template a name.'));
-    const list = await loadTemplates(db);
-    const id = asNew || !source ? `tpl-${Date.now().toString(36)}` : source.id;
-    if (list.some((x) => x.id !== id && x.name.toLowerCase() === clean.toLowerCase())) return (error = t('There is already a template "{name}". Choose another name.', { name: clean }));
-    await saveTemplates(db, upsert(list, templateFrom(trip, { id, name: clean })));
-    await db.trips.update(trip.id, { templateId: id });
-    onsaved?.(clean);
+    const out = await saveTripAsTemplate(db, trip, name, asNew || !source ? null : source.id);
+    if (out.error === 'empty') return (error = t('Give the template a name.'));
+    if (out.error) return (error = t('There is already a template "{name}". Choose another name.', { name: out.name }));
+    onsaved?.(out.name);
     dialog.close();
   }
 </script>

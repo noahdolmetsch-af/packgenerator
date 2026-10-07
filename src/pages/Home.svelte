@@ -25,7 +25,8 @@
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
-  import { nextTrip, tripEnd, learningsFor } from '../lib/debrief.js';
+  import { nextTrip, tripEnd, learningsFor, quickDebrief, templateOffer, templateName } from '../lib/debrief.js';
+  import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { wishReason } from '../lib/insights.js';
   import { ballast } from '../lib/packhints.js';
   import { sunTimes } from '../lib/blockplan.js';
@@ -93,6 +94,42 @@
   const leadByBike = $derived(lead ? hasBike(lead) : true);
   const debrief = $derived(focus?.debrief ?? null);
   const packedPct = $derived(stats?.count ? Math.round((stats.packed / stats.count) * 100) : 0);
+
+  /* ---------- v0.24.1 (Noah 3a): "How was {trip}?" → "All good" saves the debrief right here ---------- */
+  // quick: { trip, prev, prevStatus, offer, undo } while "Saved. Undo" (and the template offer) shows.
+  let quick = $state(null);
+  let quickTimer;
+  const UNDO_MS = 8000;
+  async function allGood() {
+    const trip = $state.snapshot(lead);
+    const prev = debriefs.find((x) => x.tripId === trip.id) ?? null;
+    const record = quickDebrief(trip, prev ? structuredClone($state.snapshot(prev)) : null);
+    // Noah 4a: the template offer is decided before anything changes.
+    const offer = templateOffer(trip, templates, trips) ? templateName(trip, bikes.find((b) => b.id === trip.bikeId), templates) : null;
+    await db.transaction('rw', db.debriefs, db.trips, async () => {
+      await db.debriefs.put(record);
+      await db.trips.update(trip.id, { status: 'done' });
+    });
+    clearTimeout(quickTimer);
+    quick = { trip, prev, prevStatus: trip.status, offer, undo: true };
+    quickTimer = setTimeout(() => {
+      if (!quick) return;
+      quick.undo = false;
+      if (!quick.offer) quick = null;
+    }, UNDO_MS);
+  }
+  // Undo: the debrief goes (or the earlier draft comes back) and the trip is as it was.
+  async function undoQuick() {
+    const q = $state.snapshot(quick);
+    clearTimeout(quickTimer);
+    quick = null;
+    await db.transaction('rw', db.debriefs, db.trips, async () => {
+      if (q.prev) await db.debriefs.put(q.prev);
+      else await db.debriefs.delete(q.trip.id);
+      await db.trips.update(q.trip.id, { status: q.prevStatus });
+    });
+  }
+  $effect(() => () => clearTimeout(quickTimer));
 
   /* ---------- Pack: trips and templates to open ---------- */
   const tripList = $derived(
@@ -259,8 +296,33 @@
 {/snippet}
 
 <div class="home">
+  <!-- v0.24.1 (Noah 3a): after "All good": "Saved. Undo" for a few seconds; Noah 4a: the template offer. -->
+  {#if quick}
+    <section class="card quickdone" aria-label={t('Debrief')}>
+      <p class="saved" role="status"><span>{t('Saved: {trip}.', { trip: quick.trip.title })}</span>{#if quick.undo}<button type="button" class="btn sm" onclick={undoQuick}>{t('Undo')}</button>{/if}</p>
+      {#if quick.offer}<TemplateOffer trip={quick.trip} name={quick.offer} />{/if}
+    </section>
+  {/if}
+
   <!-- What is next: the strongest contrast on the page, ONE main action (v0.23.0, AP07). -->
-  {#if focus}
+  {#if focus?.ask}
+    <!-- v0.24.1 (Noah 3a): a trip that ended asks how it was: "All good" saves, "In detail" opens the steps. -->
+    <section class="band" aria-labelledby="next-h">
+      <div class="who">
+        <span class="lbl">{todayText} · {t('trip ended')}</span>
+        <h1 id="next-h" class="title">{t('How was {trip}?', { trip: lead.title })}</h1>
+        <p class="facts">
+          <span>{dateText(lead)}</span>{#if !leadByBike}<span>{t(domainName(domainOf(lead)))}</span>{:else if lead.bike}<span>{lead.bike}</span>{/if}
+          <span class="num">{tn(leadStats.count, '{n} item', '{n} items')}</span>
+        </p>
+      </div>
+      <div class="acts">
+        <button type="button" class="btn hi main" onclick={allGood}>{t('All good')}</button>
+        <a class="btn main second" href={focus.href} onclick={() => openTrip(lead.id)}>{t(focus.label)}</a>
+        <span class="why">{t(focus.why)}</span>
+      </div>
+    </section>
+  {:else if focus}
     <section class="band" aria-labelledby="next-h">
       <div class="who">
         <span class="lbl">{todayText} · {focus.kind === 'debrief' ? t('trip ended') : t('next trip')}</span>
@@ -582,6 +644,27 @@
     min-height: 52px;
     padding-inline: 26px;
     font-size: 18px;
+  }
+  /* v0.24.1 (Noah 3a): "In detail" beside "All good", quieter on the dark band. */
+  .btn.second {
+    background: transparent;
+    border-color: var(--brand-ink);
+    color: var(--brand-ink);
+  }
+  .btn.second:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .quickdone .saved {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    margin: 0;
+    font-weight: 600;
+  }
+  .quickdone .saved span {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
   .why {
     flex: 1 1 220px;
