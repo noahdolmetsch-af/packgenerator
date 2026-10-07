@@ -24,7 +24,7 @@ Stand: 7. Oktober 2026. Verbindliche Quelle: dieses Repository, aktueller Hauptz
 
 ## Fortschritt in GitHub
 
-[Issue #33](https://github.com/noahdolmetsch-af/packgenerator/issues/33) bündelt die nächsten überprüfbaren Schritte. Seine Checkliste verweist auf die genaue AP-Roadmap und das Prüfregister. PR #32 ist der abgeschlossene Software-Teilrelease; PR #31 ist die noch offene Integration.
+[Issue #33](https://github.com/noahdolmetsch-af/packgenerator/issues/33) bündelt die nächsten überprüfbaren Schritte. Seine Checkliste verweist auf die genaue AP-Roadmap und das Prüfregister. PR #32 ist der abgeschlossene Software-Teilrelease; PR #31 ist der inzwischen integrierte, noch offene Software-Release.
 
 ## Regel für jede weitere Änderung
 
@@ -34,4 +34,4 @@ Stand: 7. Oktober 2026. Verbindliche Quelle: dieses Repository, aktueller Hauptz
 4. Nach einem Release Status und Releasebeleg um Commit, CI und tatsächliche Live-Prüfung ergänzen. Die Paketversion allein identifiziert keinen Release.
 5. Gespeicherte Konzeptfassungen bei relevanten Meilensteinen abgleichen; datierte Analysen nicht nachträglich als neue Beobachtungen umschreiben.
 
-Offene PR #31 ist beim Abgleich nicht live und hat Merge-Konflikte. Ihre Eventlogik muss mit der neuen Packansicht zusammengeführt werden. Ein grüner Testlauf auf ihrem alten Branch ist kein Nachweis für die spätere Integration.
+Offene PR #31 ist nicht live. Nach den anfänglichen Softwarekonflikten integriert Commit `05a7f84` inzwischen die neue Packansicht samt Event-Schalter; CI 37667778399 ist erfolgreich. Die gemeinsame Dokumentation wird auch im Branch von PR #31 nachgeführt. Ein früherer grüner Lauf vor dieser Integration wäre kein Nachweis des heutigen Branchs.

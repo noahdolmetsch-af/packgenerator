@@ -47,7 +47,7 @@ Abgleich: `main` nach PR #32, Commit `be041f14fd35fd3caf98e8e7b7284bda9dcb98f9`,
 | AP02/AP12–AP15 | `trips.js`, `layers.js`, `preparation.js`, `pack/TripDialog.svelte`, `pack/DecisionReview.svelte`, `pack/TripRoute.svelte` | Kontext/Rangfolge/Regeländerung; PF01–PF06/PF10 |
 | AP03/AP07/AP08/AP21 | `app.css`, `App.svelte`, `pages/Home.svelte`, `pages/Gear.svelte`, `pack/calm-pack.css`, `nav/` | Suche/Navigation/Kurzdialog/Fokus/320–390 px |
 | AP05 | `favorites.js`, `readiness.js`, `pages/Gear.svelte`, `pages/Home.svelte` | Persistenter Stern und gefilterter Einstieg |
-| AP06/AP16 | `readiness.js`, `care.js`, `workshop.js`, `care/TripCare.svelte`, `pages/Pack.svelte` | PR #31 integrieren, Kurzfahrt vs. Event |
+| AP06/AP16 | `readiness.js`, `care.js`, `workshop.js`, `care/TripCare.svelte`, `pages/Pack.svelte` | Integrierten PR #31 fachlich abnehmen, Kurzfahrt vs. Event |
 | AP10/AP11/AP17/AP18 | `kits`/`items`/`containers`/`settings`, `bikes.js`, `templates.js`, `pack/TemplateDialog.svelte`, `pages/Templates.svelte` | Gruppen/Herkunft/Zuordnungen; keine automatische Touränderung |
 | AP19/AP20/AP25 | `pack/PackDay.svelte`, `pages/Ride.svelte`, `pages/Debrief.svelte`, `debrief.js`, `packhints.js`, `templates.js` | Tourkontrolle, Rückblick und begründetes Lernen |
 | AP23/AP24/AP26 | `tests/e2e/`, `playwright.config.js`, `.github/workflows/deploy.yml`, `backup.js` | Abnahme/Messung/Release; Sync erst nach eigener Entscheidung |

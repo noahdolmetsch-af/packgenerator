@@ -49,7 +49,7 @@ Pro AP erfassen: Status, Start/Ende, verantwortliche Person, tatsächlich betrof
 
 **Fortschrittsanzeige:** verifizierte Kernpakete / 24; dazu verifizierte Meilensteine / 6 und bestandene Prüffälle / 16. Paketanzahl misst Lieferfortschritt, nicht Arbeitsaufwand. Nicht pauschal „50 % Aufwand erledigt“ behaupten, wenn die Hälfte der Pakete verifiziert ist. AP25/AP26 separat als spätere Ausbaustufe führen.
 
-**Aktuell:** Zwei veröffentlichte Umsetzungsschritte (PR #30 und #32); AP03–AP06 ausgeliefert, neun weitere APs teilweise bearbeitet. Keine vollständige formale AP-/Meilensteinabnahme aus einem erfolgreichen CI-Lauf ableiten: 0/24 vollständig nach diesem Register verifiziert, 0/6 vollständig formal abgenommene Kernmeilensteine, 0/16 vollständig nach dem Gesamtplan protokollierte Prüffälle. Das sind offene Nachweise, kein Nullstand der Implementierung. Einzelne bestandene Teilkriterien sind im [Prüfregister](verification.md) belegt. 227 Unit-Tests und 12 Browser-Tests am veröffentlichten Stand bestanden; Zeitziele noch nicht gemessen.
+**Aktuell:** Zwei veröffentlichte Umsetzungsschritte (PR #30 und #32); AP03–AP06 ausgeliefert, weitere APs teilweise bearbeitet. Keine vollständige formale AP-/Meilensteinabnahme aus einem erfolgreichen CI-Lauf ableiten: 0/24 vollständig nach diesem Register verifiziert, 0/6 vollständig formal abgenommene Kernmeilensteine, 0/16 vollständig nach dem Gesamtplan protokollierte Prüffälle. Das sind offene Nachweise, kein Nullstand der Implementierung. Einzelne bestandene Teilkriterien sind im [Prüfregister](verification.md) belegt. 227 Unit-Tests und 12 Browser-Tests am veröffentlichten Stand bestanden; Zeitziele noch nicht gemessen.
 
 **Messprotokoll:** Vorher/Nachher gleiche Ausgangsdaten und Aufgaben verwenden. Zeitstart beim Öffnen der jeweiligen Startaktion, Zeitende bei sichtbarer prüfbarer Liste bzw. bestätigtem Materialeintrag. Eingaben vorab festlegen; Navigation und Entscheidungen gehören zur Zeit. Physisches Einpacken ist nicht Teil der 60-Sekunden-Messung. Pro Zeitaufgabe drei Versuche dokumentieren; Median und jeden Einzelwert berichten. Die erste Nutzung separat kennzeichnen; kein statistischer Erfolgsnachweis aus drei Versuchen ableiten.
 
@@ -75,14 +75,14 @@ Die AP-IDs, fachlichen Verträge und ursprünglichen Abhängigkeiten bleiben erh
 
 - PR #30 / v0.22.0: gemeinsame Typografie/Farbrollen, ehrliche Summen, Favoriten und Bereitschaft (AP03–AP06). Seine Änderungen wurden in PR #32 erhalten.
 - PR #32 / Merge `be041f14fd35fd3caf98e8e7b7284bda9dcb98f9`: Entscheidungsentwurf und ruhige Packliste, lokale Schriften, mobile Zeilen, bestehende Packkontrolle. Anzeigeversion weiterhin **0.22.0**; Commit und PR unterscheiden die beiden Lieferstände.
-- PR #31 / angekündigt v0.22.1: Eventmodus, relative Fälligkeitstexte, „Weitere Dinge“ und Gear-Korrektur. **Offen, nicht live, Merge-Konflikte** beim Abgleich am 07.10.2026. Zu AP04/AP06/AP16/AP21 zuordnen. Erst fachlich integrieren und auf dem neuen Pack-Screen erneut prüfen; keine Rückkehr zum alten Dreispaltenlayout.
+- PR #31 / angekündigt v0.22.1: Eventmodus, relative Fälligkeitstexte, „Weitere Dinge“ und Gear-Korrektur. **Offen und nicht live.** Beim ersten Abgleich bestanden Softwarekonflikte; inzwischen integriert Commit `05a7f841e1a8da5509eed88c27a0d9cb7fc40616` die Screens aus PR #32 samt Event-Schalter. CI-Lauf 37667778399 ist erfolgreich. Die danach entstandenen Dokumentkonflikte mit PR #34 werden in dieser Dokumentationsrunde gemeinsam nachgeführt. Zu AP04/AP06/AP16/AP21 zuordnen; fachliche Releaseabnahme und Veröffentlichung bleiben separat.
 - Alte Etappen A–D/Paket-5-Planung ist historische Planung. Bereits ausgelieferte Reisearten bleiben erhalten; offene Fragen daraus sind keine zweite aktive Roadmap. Die erste echte Arbeitsweg-Tour mit Rückblick ist ein Nutzungstest innerhalb AP23 und später AP25.
 
 | Reihenfolge ab jetzt | Konkretes Ergebnis | Erfolgskriterium / Nachweis | Abhängigkeit |
 |---|---|---|---|
 | 1. Abnahme der ausgelieferten Screens | Entscheidung und Packliste mit MTB/Alpin/Bikepacking prüfen | Bestätigung/Abbruch verständlich; Packkontrolle erreichbar; offene Punkte pro AP protokolliert | AP13–15/AP19; AP21/AP23 |
 | 2. Grundlagen nachziehen | AP01/AP02 technisch zugeordnet, Restore-Belege und Auswahlrangfolge vollständig | IDs/Mengen/Haken nach Rundlauf erhalten; jede Prioritätsregel mit Beispiel | Grundlage für die nächsten Softwareänderungen |
-| 3. Eventmodus integrieren | PR #31 gegen heutigen `main` zusammenführen, ohne alte Pack-Ansicht zurückzubringen | Kurzfahrt ohne Eventwarnlast; Eventfahrplan bleibt; vorhandene bestätigte Aufgaben sichtbar | AP06/AP12/AP16; erneute CI/Browserprüfung |
+| 3. Eventmodus abnehmen | Integrierten PR #31 nach Dokumentabgleich fachlich abnehmen; keine alte Pack-Ansicht zurückbringen | Kurzfahrt ohne Eventwarnlast; Eventfahrplan bleibt; vorhandene bestätigte Aufgaben sichtbar | AP06/AP12/AP16; erneute CI/Browserprüfung |
 | 4. Kontextstart und Mengenregeln | Übernachtung/Dauer/Kochen vor Auswahl; nachvollziehbare Revision | PF01–PF06; Tagestour-Median ≤60 s; keine stille Mengenüberschreibung | AP12–AP16; AP08/AP09 bleiben ursprüngliche Abhängigkeiten |
 | 5. Materialpflege und Gesamtabnahme | Suche/kurzer Dialog, Referenzen, danach Bausteine/Taschen/Vorlagen | Erfassung-Median ≤30 s; PF07–PF16 und vollständige Mobilprüfung | AP07–AP11/AP17–AP24 |
 
@@ -436,7 +436,7 @@ Bei jeder Arbeitsrunde die betroffenen Zeilen aktualisieren; eine Zeile „verif
 | AP13 | Kontextgerechte Auswahl | M3 | AP02, AP08, AP09, AP12 | Teilweise veröffentlicht | 07.10.2026: PR #32: Entwurf/Bestätigung/Abbruch/Alternative; Kontext/Herkunft offen |
 | AP14 | Mengenrevision | M3 | AP02, AP12, AP13 | Teilweise veröffentlicht | 07.10.2026: PR #32: Mengen/Notiz/Reset/Neuladen; Konflikte/Wasser/Bestand offen |
 | AP15 | Wetter und Alternativen | M3 | AP12, AP13, AP14 | Teilweise veröffentlicht | 07.10.2026: PR #32: vorhandene Wetterregeln/Alternativen; Kontextwechsel/Learnings offen |
-| AP16 | Anlassgerechte Vorbereitung | M3 | AP06, AP12 | Geplant; Vorarbeit offen | 07.10.2026: PR #31 nicht zusammengeführt, Merge-Konflikte; Integration/Prüfung nötig |
+| AP16 | Anlassgerechte Vorbereitung | M3 | AP06, AP12 | Teilweise im offenen PR implementiert | 07.10.2026: PR #31 / 05a7f84 integriert PR #32, CI erfolgreich; nicht live, fachliche Abnahme offen |
 | AP17 | Taschen und Packorte | M4 | AP04, AP12, AP13 | Geplant | – |
 | AP18 | Vorlagen wiederverwenden | M4 | AP13, AP17 | Geplant | – |
 | AP19 | Packtag und Bereitschaft | M4 | AP04, AP06, AP17, AP18 | Teilweise veröffentlicht | 07.10.2026: PR #32: Übergang zum bestehenden Packtag; Gesamtzustände weiter prüfen |
@@ -488,7 +488,7 @@ Bei jeder Arbeitsrunde die betroffenen Zeilen aktualisieren; eine Zeile „verif
 
 ## Nächster konkreter Schritt
 
-**Ausgelieferte Screens mit den Alltagstouren abnehmen, AP01/AP02-Nachweise schliessen und PR #31 auf den neuen Packablauf abstimmen.** Anschliessend AP07–AP09 und AP12–AP16 entlang der Abhängigkeiten abschliessen. Die Konzeptabnahme wird nicht erneut abgefragt. Jeder weitere Schritt ergänzt [Prüfregister](verification.md), [Status](status.md) und dieses Register im selben PR. Siehe die konkrete Lieferfolge oben.
+**Ausgelieferte Screens mit den Alltagstouren abnehmen, AP01/AP02-Nachweise schliessen und den integrierten PR #31 fachlich abnehmen.** Anschliessend AP07–AP09 und AP12–AP16 entlang der Abhängigkeiten abschliessen. Die Konzeptabnahme wird nicht erneut abgefragt. Jeder weitere Schritt ergänzt [Prüfregister](verification.md), [Status](status.md) und dieses Register im selben PR. Siehe die konkrete Lieferfolge oben.
 
 
 ## Änderungshistorie dieses Plans
@@ -496,6 +496,6 @@ Bei jeder Arbeitsrunde die betroffenen Zeilen aktualisieren; eine Zeile „verif
 | Version | Datum | Änderung |
 |---|---|---|
 | 1.0 | 07.10.2026 | Abgenommenes Konzept in AP01–AP26, PF01–PF16 und Meilensteine übersetzt; noch keine Umsetzung |
-| 1.1 | 07.10.2026 | Mit PR #30/#32 und Live abgeglichen; vorgezogene Screens, offene PR #31-Integration, Teilnachweise und Quellen verbindlich verknüpft |
+| 1.1 | 07.10.2026 | Mit PR #30/#32 und Live abgeglichen; vorgezogene Screens, offenen PR #31 und parallele Branchintegration, Teilnachweise und Quellen verbindlich verknüpft |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

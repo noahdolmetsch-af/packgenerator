@@ -10,7 +10,7 @@ Stand: 7. Oktober 2026
 
 ## Offen zur Integration / Abnahme
 
-- **PR #31, angekündigt v0.22.1:** Eventmodus nur für Events, relative Fälligkeitstexte, „Weitere Dinge“, Gear-Breite. Offen und beim Abgleich mit Merge-Konflikten; nicht Bestandteil des Live-Stands. AP04/AP06/AP16/AP21. Mit neuer Packansicht integrieren und erneut prüfen.
+- **PR #31, angekündigt v0.22.1:** Eventmodus nur für Events, relative Fälligkeitstexte, „Weitere Dinge“, Gear-Breite und „Leichtestes“ nur bei vollständigen Taschengewichten. Offen und nicht Bestandteil des Live-Stands. Der Branch wurde während dieses Abgleichs aktualisiert: `05a7f84` integriert PR #32 samt Event-Schalter, CI 37667778399 erfolgreich. Gemeinsame Dokumentation wird im Branch nachgeführt. AP04/AP06/AP16/AP21; fachliche Releaseabnahme und Veröffentlichung bleiben offen.
 - Beide neuen Screens mit den fünf Alltagsszenarien fachlich abnehmen. 60-/30-Sekunden-Ziele sind ungemessen.
 - AP01/AP02 abschliessen; Kontext/Übernachtung, Mengen-/Wasser-/Bestandskonflikte, Materialpflege/Kategorieänderung, Bausteine und 320-px-/Screenreaderprüfung bleiben offen. Ausführliche Teilstände in der Roadmap.
 
@@ -90,7 +90,7 @@ Aus bisherigen Aufgaben übernommen, in dieser Runde nicht neu geprüft. Keine S
 
 1. Neue Entscheidung/Packliste im Alltag abnehmen (AP13–15/AP19/AP21/AP23).
 2. Grundlagen- und Restore-Nachweise AP01/AP02 vervollständigen.
-3. PR #31 gegen heutigen `main` integrieren und Event/Kurzfahrt prüfen.
+3. Integrierten PR #31 nach Dokumentabgleich fachlich mit Event/Kurzfahrt abnehmen; Veröffentlichung separat.
 4. AP07–AP09 und AP12–AP16 entlang der Roadmap-Abhängigkeiten abschliessen; danach AP10–AP11/AP17–AP24.
 5. Erklärbares Lernen und Geräte-Sync separat als AP25/AP26. Erste echte Arbeitsweg-Tour liefert dafür Nutzungsbelege.
 

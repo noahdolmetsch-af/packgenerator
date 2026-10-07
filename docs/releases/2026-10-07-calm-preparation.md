@@ -48,7 +48,7 @@ Die Live-Kontrolle ist ein kurzer Desktop-Smoke-Test in englischer UI. Keine ern
 
 ## Offene Teile und Anschluss
 
-AP12-Kontextstart, Übernachtungslogik, vollständige Herkunft/Ersetzungsvorschau, Bedarfs-/Bestands-/Wasserlogik, AP09-Kategoriewechsel, neue Bausteinverwaltung, 320 px/Screenreader, Zeitmessungen und gesamte PF01–PF16-Abnahme sind offen. PR #31 zur Eventabgrenzung ist nicht live und muss vor Merge mit diesen Screens integriert werden. Siehe [Roadmap](../roadmap.md) und [Prüfregister](../verification.md).
+AP12-Kontextstart, Übernachtungslogik, vollständige Herkunft/Ersetzungsvorschau, Bedarfs-/Bestands-/Wasserlogik, AP09-Kategoriewechsel, neue Bausteinverwaltung, 320 px/Screenreader, Zeitmessungen und gesamte PF01–PF16-Abnahme sind offen. PR #31 zur Eventabgrenzung ist nicht live; `05a7f84` integriert inzwischen diese Screens samt Event-Schalter und besitzt einen erfolgreichen CI-Lauf. Dokumentabgleich/fachliche Abnahme gehen der separaten Veröffentlichung voraus. Siehe [Roadmap](../roadmap.md) und [Prüfregister](../verification.md).
 
 ## Rückkehr zur Vorversion (vorbereitet, nicht ausgeführt)
 
