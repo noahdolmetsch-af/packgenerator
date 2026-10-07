@@ -355,4 +355,7 @@ export default {
   'Data from the backup of {date}. Newer state on the phone? Load its backup here.': 'Daten aus dem Backup vom {date}. Neuerer Stand auf dem Phone? Lade sein Backup hier.',
   'New debrief since the last backup: save one, then load it on the desktop.': 'Neuer Rückblick seit dem letzten Backup: eins speichern und am Desktop laden.',
   'Load a backup': 'Backup laden',
+  // v0.22.0 (AP05): the favourites on the start page, same basis as Gear
+  'favourites owned': 'Favoriten im Inventar',
+  '+ {n} on the wishlist': '+ {n} auf der Wunschliste',
 };

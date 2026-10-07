@@ -8,6 +8,7 @@
   import { partInfo, wear, needsWork, lastValue, kmSince, lastReplace, CHECK_KM, bikeLog, EXTRA } from '../care.js';
   import { visitTotal, costByYear, costByPart, costPer1000 } from '../workshop.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
+  import { bikeCareWords } from '../readiness.js';
 
   let {
     c, tasks, repairs, wished = {}, kmMsg = '', open = false,
@@ -16,7 +17,8 @@
 
   const bike = $derived(c.bike);
   const log = $derived(open ? bikeLog(bike, tasks) : []);
-  const due = $derived(c.check.due + bike.parts.filter(needsWork).length + repairs.length + c.services.length + c.time.filter((s) => s.overdue).length);
+  // v0.22.0 (AP06): the same statement as Home's bike row and Pack (readiness.js bikeCare).
+  const words = $derived(bikeCareWords(c.care));
   const last = $derived(c.mine[0] ?? null);
 
   const PRIO = { high: 'High', medium: 'Medium', low: 'Low' };
@@ -30,7 +32,7 @@
     <h2 class="title">{bike.name}</h2>
     <span class="sum">
       <span class="num">{bike.km != null ? `${num(bike.km)} km` : t('km not set')}</span>
-      {#if due}<span class="pill red">{t('{n} due', { n: due })}</span>{:else}<span class="ok">{t('nothing due')}</span>{/if}
+      {#if c.care.status === 'due'}<span class="pill red">{words.tag}</span>{:else if c.care.status === 'nodata'}<span class="nodata">{words.tag}</span>{:else}<span class="ok">{words.tag}</span>{/if}{#if words.text && c.care.status !== 'due'}<small class="gap">{words.text}</small>{/if}
       <span>{last ? t('workshop {date}', { date: day(last.date) }) : t('no workshop visit yet')}</span>
     </span>
   </summary>
@@ -215,6 +217,14 @@
   }
   .ok {
     color: var(--ink-3);
+  }
+  /* v0.22.0 (AP06): no data is said in words, with a dashed edge, not as "fine". */
+  .nodata {
+    padding: 0 8px;
+    border: 1.5px dashed var(--ink-3);
+    border-radius: 999px;
+    color: var(--ink-2);
+    font-size: 13px;
   }
   small {
     font-size: var(--fs-small);

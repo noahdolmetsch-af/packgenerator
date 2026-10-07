@@ -13,12 +13,15 @@
   import PartDialog from './PartDialog.svelte';
   import VisitDialog from './VisitDialog.svelte';
   import OrderDialog from './OrderDialog.svelte';
-  import { withVisits, visitsOf, tyreSetup, timeDue, lastPrice, tripPrep, workshopOrder } from '../workshop.js';
+  import { withVisits, visitsOf, tyreSetup, timeDue, lastPrice, workshopOrder } from '../workshop.js';
+  import { hasBike } from '../domains.js';
   import { t, tn, num } from '../i18n.svelte.js';
+  import { bikeCare, bikeCareWords, eventPrep } from '../readiness.js';
 
   // v0.21.0 (answer 7a): Bike care is the Care tab of Bikes. bikeId: the bike chosen on the page;
   // open: open that bike's section (a link "Bike care for the …").
-  let { bikeId = null, open = false, onbike, onopened } = $props();
+  // tripId (v0.22.0, AP06): a link "Event preparation" opens that trip's preparation.
+  let { bikeId = null, open = false, tripId = null, onbike, onopened } = $props();
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -61,8 +64,9 @@
   const trips = $derived(
     upcomingTrips($tripsQ ?? [], today).map((t) => {
       const v = viewById[t.bikeId];
-      const list = tripPrep(v, t, tasks, v ? tyreSetup(v, visits) : undefined, today);
-      return { trip: t, rows: prepFor(t, tasks, today), rules: prepRules(t, tasks), list, bike: list.rows.filter((r) => r.kind !== 'prep') };
+      // v0.22.0 (AP06): the bike's part is Bike care (the same as on Home and in Pack), the tasks Event preparation.
+      const care = v && hasBike(t) ? bikeCare(v, { tasks, visits, trip: t, today }) : null;
+      return { trip: t, rows: prepFor(t, tasks, today), rules: prepRules(t, tasks), care, prep: eventPrep(t, tasks, today) };
     }),
   );
   const checks = $derived(
@@ -71,15 +75,15 @@
       // N15: one order for the shop, for this bike's next trip (or what is due today).
       const trip = upcomingTrips($tripsQ ?? [], today).find((t) => t.bikeId === b.id) ?? null;
       const order = workshopOrder(b, trip, tasks, visits, tyres, today);
-      return { bike: b, check: checkState(b), services: serviceDue(b), tyres, time: timeDue(b, tyres, today), mine: visitsOf(visits, b.id), order, orderTrip: trip };
+      const care = bikeCare(b, { tasks, visits, today });
+      return { bike: b, check: checkState(b), services: serviceDue(b), tyres, time: timeDue(b, tyres, today), mine: visitsOf(visits, b.id), order, orderTrip: trip, care };
     }),
   );
-  const overdue = $derived([
-    ...checks.filter((c) => c.check.due).map((c) => ({ kind: 'check', bike: c.bike, n: c.check.due })),
-    ...checks.flatMap((c) => c.services.map((s) => ({ kind: 'service', bike: c.bike, s }))),
-    // Answer 17b: services by time show here in Bike care only, not on the start page.
-    ...checks.flatMap((c) => c.time.filter((s) => s.overdue).map((s) => ({ kind: 'time', bike: c.bike, s }))),
-  ]);
+  // v0.22.0 (AP06): "Due now" is Bike care of every bike, the same rows as Home and Pack count
+  // (services by time and km, the 1000 km check, worn parts, open repairs). Answer 17b
+  // ("services by time only here") is replaced: Home said "all fine" next to an overdue sealant.
+  const overdue = $derived(checks.flatMap((c) => c.care.rows.map((r) => ({ ...r, bike: c.bike }))));
+  const blind = $derived(checks.filter((c) => c.care.status === 'nodata'));
 
   /* ---------- parts ---------- */
   let partOpen = $state(null); // { bike, part }
@@ -180,6 +184,15 @@
   };
   const next = $derived(trips[0] ?? null);
   const later = $derived(trips.slice(1));
+  // v0.22.0 (AP06): #/bikes?tab=care&trip=<id> (Home, Pack) goes to that trip's preparation.
+  let laterOpen = $state(false);
+  let wentTo = null;
+  $effect(() => {
+    if (!tripId || wentTo === tripId || !trips.some((x) => x.trip.id === tripId)) return;
+    wentTo = tripId;
+    if (later.some((x) => x.trip.id === tripId)) laterOpen = true;
+    tick().then(() => document.getElementById(`before-${tripId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  });
 </script>
 
 <!-- v0.21.0 (answer 7a): first what is due on all bikes, then the next trip, then one closed line per bike. -->
@@ -194,26 +207,26 @@
     <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
   {:else}
     <section class="due" class:calm={!overdue.length} aria-labelledby="due-h">
-      <h2 id="due-h" class="title">{t('Due now')} <small>{overdue.length || ''}</small></h2>
+      <h2 id="due-h" class="title">{t('Bike care: due now')} <small>{overdue.length || ''}</small></h2>
       {#if overdue.length}
         <ul>
-          {#each overdue as o, n (n)}
+          {#each overdue as o (`${o.bike.id}:${o.key}`)}
             <li>
-              {#if o.kind === 'check'}
-                <span><b>{o.bike.name}: {t('{km} km check', { km: num(CHECK_KM) })}</b><small>{tn(o.n, '{n} point due, see the bike below', '{n} points due, see the bike below')}</small></span>
-                <button type="button" class="btn sm" onclick={() => openBike(o.bike.id)}>{t('Open')}</button>
-              {:else if o.kind === 'time'}
-                <span><b>{o.bike.name}: {o.s.name}</b><small>{t('last {date}', { date: o.s.last })} · {inDays(o.s.days)}</small></span>
-                <button type="button" class="btn sm" onclick={() => checkParts(o.bike, [o.s.key], 'service', o.s.name)}>{t('Done|task')}</button>
+              <span><b>{o.bike.name}: {o.name}</b><small>{o.detail}</small></span>
+              {#if o.kind === 'time' || o.kind === 'km'}
+                <button type="button" class="btn sm" onclick={() => checkParts(o.bike, [o.part], 'service', o.kind === 'time' ? o.name : '')}>{t('Done|task')}</button>
               {:else}
-                <span><b>{o.bike.name}: {o.s.name}</b><small>{t('{since} km since the last time (every {every} km)', { since: o.s.since, every: o.s.every })}</small></span>
-                <button type="button" class="btn sm" onclick={() => checkParts(o.bike, [o.s.key], 'service')}>{t('Done|task')}</button>
+                <button type="button" class="btn sm" onclick={() => openBike(o.bike.id)}>{t('Open')}</button>
               {/if}
             </li>
           {/each}
         </ul>
       {:else}
-        <p class="none">{t('Nothing is due on your bikes right now.')}</p>
+        <p class="none">{blind.length ? t('Nothing due on the bikes with data.') : t('Nothing is due on your bikes right now.')}</p>
+      {/if}
+      {#if blind.length}
+        <!-- Missing data is not "fine" (AP06): say which bikes the app cannot judge. -->
+        <p class="none">{t('No data: {bikes}', { bikes: blind.map((c) => c.bike.name).join(', ') })} · {t('enter km and record a check or service')}</p>
       {/if}
       {#if checks.some((c) => c.order?.rows.length)}
         <p class="orders">
@@ -226,11 +239,11 @@
     </section>
 
     {#snippet trip(x)}
-      <TripCare trip={x.trip} rows={x.rows} rules={x.rules} list={x.list} bikeRows={x.bike} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onundo={(r) => undoPrep(x.trip, r)} />
+      <TripCare trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onundo={(r) => undoPrep(x.trip, r)} />
     {/snippet}
     {#if next}{@render trip(next)}{/if}
     {#if later.length}
-      <div class="folds"><Fold label={t('Later trips')} summary={later.map((x) => x.trip.title).join(' · ')}>{#each later as x (x.trip.id)}{@render trip(x)}{/each}</Fold></div>
+      <div class="folds"><Fold label={t('Later trips')} summary={later.map((x) => x.trip.title).join(' · ')} bind:open={laterOpen}>{#each later as x (x.trip.id)}{@render trip(x)}{/each}</Fold></div>
     {/if}
 
     {#if reviewing && reviewQueue.length}

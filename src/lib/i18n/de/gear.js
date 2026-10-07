@@ -214,4 +214,15 @@ export default {
   '{n} areas': '{n} Reisearten',
   'No favourites yet. In Gear open an item → Edit → tick ★ Favourite.': 'Noch keine Favoriten. In Ausrüstung ein Teil öffnen → Bearbeiten → ★ Favorit anhaken.',
   Pages: 'Seiten',
+  // v0.22.0 (AP05): the star as a button, favourites counted on one basis
+  'Mark as favourite': 'Als Favorit markieren',
+  'Remove from favourites': 'Aus den Favoriten entfernen',
+  'No favourites yet. In Gear tap the ☆ in front of an item.': 'Noch keine Favoriten. In Ausrüstung den ☆ vor einem Teil antippen.',
+  '{n} favourite in your inventory': '{n} Favorit im Inventar',
+  '{n} favourites in your inventory': '{n} Favoriten im Inventar',
+  '{n} on the wishlist': '{n} auf der Wunschliste',
+  '{n} gone': '{n} weg',
+  'No favourites in your inventory yet. Tap the ☆ in front of an item to mark it.': 'Noch keine Favoriten im Inventar. Den ☆ vor einem Teil antippen, um es zu markieren.',
+  'Show all items': 'Alle Teile zeigen',
+  'No favourites on the wishlist.': 'Keine Favoriten auf der Wunschliste.',
 };

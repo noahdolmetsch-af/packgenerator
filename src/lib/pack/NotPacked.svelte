@@ -6,6 +6,7 @@
    */
   import { CATEGORIES, formatWeight } from '../gear.js';
   import { t, tn, nameOf } from '../i18n.svelte.js';
+  import FavStar from '../gear/FavStar.svelte';
 
   /**
    * items: the candidates, already sorted. tagOf(item): a short label or ''.
@@ -55,7 +56,9 @@
             {#each g.items as i (i.id)}
               {@const tag = tagOf(i)}
               <li draggable={drag} ondragstart={(e) => start(e, i.id)} class:drag>
-                <span class="nm">{#if i.favorite}<span class="star" title={t('Favourite')}>★</span>{/if}{nameOf(i)}{#if tag}<small class="lab">{tag}</small>{/if}</span>
+                <!-- v0.22.0 (AP05): the star is a button here too, one tap marks or unmarks. -->
+                <FavStar item={i} size="sm" describedby="np-{i.id}" />
+                <span class="nm" id="np-{i.id}">{nameOf(i)}{#if tag}<small class="lab">{tag}</small>{/if}</span>
                 <span class="w num">{i.weightG == null ? '–' : formatWeight(i.weightG)}</span>
                 <button type="button" class="plus" aria-label={t('Add {name} to {bag}', { name: nameOf(i), bag: target })} onclick={() => onadd(i.id)}>+</button>
               </li>
@@ -150,11 +153,11 @@
   }
   li {
     display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 8px;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 4px 8px;
     align-items: center;
     min-height: 40px;
-    padding: 2px 10px;
+    padding: 2px 10px 2px 2px;
     border-bottom: 1px solid var(--line);
   }
   li.drag {

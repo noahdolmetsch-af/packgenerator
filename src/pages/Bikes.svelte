@@ -20,7 +20,7 @@
   });
   // Old links (#/care) and "open this bike" are written back as the plain address of the tab.
   $effect(() => {
-    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open });
+    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip });
     if (location.hash !== want && !route.open) history.replaceState(null, '', want);
   });
 
@@ -37,7 +37,7 @@
     <BikesNav current={route.tab} bike={route.bike} />
   </header>
   {#if route.tab === 'care'}
-    <CareTab bikeId={route.bike} open={route.open} onbike={pickBike} onopened={opened} />
+    <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
     <SetupTab bikeId={route.bike} onbike={pickBike} />
   {/if}
