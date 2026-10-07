@@ -24,13 +24,6 @@ export function take(key) {
 
 /** Open the "New" sheet: 'all' (everything) or 'list' (the ways to start a packing list). */
 export const openNew = (mode = 'all') => window.dispatchEvent(new CustomEvent('pg:new', { detail: mode }));
-
-/**
- * v0.25.1 (Noah 1a): "Day ride" on Today's Trips tile. Only the wish is sent here (event 'pg:dayride');
- * whoever listens starts the day ride.
- */
-export const dayRide = () => window.dispatchEvent(new Event('pg:dayride'));
-
 /** A trip becomes the one Pack and Ride day show. */
 export const openTrip = (id) => keep('pack.currentTrip', id);
 
@@ -43,6 +36,16 @@ export function newTrip(startFrom, domain = null) {
   if (domain) keep('pack.domain', domain);
   location.hash = '#/pack';
   window.dispatchEvent(new Event('pg:newtrip'));
+}
+
+/**
+ * v0.25.1 (Noah 1a): a day ride in one tap. Pack makes the trip without a dialog (dayride.js) and
+ * opens it with "Change" and "Undo". The App takes the wish to Pack when another page is open.
+ */
+export function dayRide() {
+  keep('pack.dayRide', '1');
+  location.hash = '#/pack';
+  window.dispatchEvent(new Event('pg:dayride'));
 }
 
 /**

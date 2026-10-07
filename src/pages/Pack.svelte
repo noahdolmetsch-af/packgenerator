@@ -31,9 +31,10 @@
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
+  import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, wxLabel } from '../lib/dayride.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
-  import { hasBike, domainOf, domainName, inDomain, itemDomains, readyKey, READY_BY_DOMAIN } from '../lib/domains.js';
+  import { hasBike, domainOf, domainName, inDomain, itemDomains, readyKey, READY_BY_DOMAIN, rememberDomain, BIKEPACKING } from '../lib/domains.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -200,6 +201,50 @@
     startNew();
     window.addEventListener('pg:newtrip', startNew);
     return () => window.removeEventListener('pg:newtrip', startNew);
+  });
+  // v0.25.1 (Noah 1a): "Day ride" (nav.js dayRide, event 'pg:dayride'): the trip without a dialog,
+  // like the last day ride (or 2 h, Chilly), weather from the home forecast when there is one.
+  // A bar says what was made, with "Change" (Edit trip) and "Undo" (deletes the new trip).
+  let dayMade = $state(null); // { id, before, bike, hours, wx, wxFrom }
+  let dayBusy = false;
+  async function makeDayRide() {
+    if (dayBusy) return;
+    dayBusy = true;
+    try {
+      const plan0 = dayRidePlan(trips, bikes);
+      // No bike yet: the dialog, so Noah sees why (it offers the areas without a bike too).
+      if (!plan0) return (dialog = { trip: null });
+      const home = (await db.settings.get('homePlace'))?.value;
+      const forecastWx = forecastPreset(await fetchHomeForecast(home), rideDate());
+      const plan = dayRidePlan(trips, bikes, { forecastWx });
+      const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
+      const fields = { hours: plan.hours, overnight: 'none', cook: false, wx: plan.wx, event: false, ...(plan.wxFrom ? { wxFrom: plan.wxFrom } : {}) };
+      const nt = buildBikeTrip({ draft: { title: plan.title, startDate: plan.startDate, days: 1 }, bike: $state.snapshot(plan.bike), start: 'last', templates, trips, items, readyStandard, fields });
+      await db.trips.put($state.snapshot(nt));
+      rememberDomain(BIKEPACKING);
+      dayMade = { id: nt.id, before: chosen, bike: plan.bike.name, hours: plan.hours, wx: plan.wx, wxFrom: plan.wxFrom };
+      choose(nt.id);
+    } finally {
+      dayBusy = false;
+    }
+  }
+  async function undoDayRide() {
+    const made = dayMade;
+    dayMade = null;
+    await db.trips.delete(made.id);
+    undo = undo.filter((u) => u.id !== made.id);
+    if (made.before && made.before !== made.id) choose(made.before);
+  }
+  $effect(() => {
+    if (!$tplQ || !$bikesQ || !$itemsQ || !$tripsQ) return; // as for "New trip": wait for the data
+    const run = () => take('pack.dayRide') && makeDayRide();
+    const onEvent = () => {
+      take('pack.dayRide');
+      makeDayRide();
+    };
+    run();
+    window.addEventListener('pg:dayride', onEvent);
+    return () => window.removeEventListener('pg:dayride', onEvent);
   });
   let q = $state('');
   let newCheck = $state('');
@@ -517,6 +562,16 @@
       {#if savedNote}<p class="ok" role="status">{savedNote}</p>{/if}
     {/snippet}
 
+  {#if dayMade && dayMade.id === trip.id}
+    <div class="dayride-bar" role="status">
+      <p>{t('Day ride created: {bike} · {hours} h · {weather}.', { bike: dayMade.bike, hours: num(dayMade.hours), weather: dayMade.wxFrom === 'forecast' ? t('{weather} (forecast)', { weather: wxLabel(dayMade.wx) }) : wxLabel(dayMade.wx) })}</p>
+      <div class="dayride-acts">
+        <button type="button" class="btn sm" onclick={() => (dialog = { trip })}>{t('Change')}</button>
+        <button type="button" class="btn sm" onclick={undoDayRide}>{t('Undo')}</button>
+        <button type="button" class="x" aria-label={t('Close')} onclick={() => (dayMade = null)}>×</button>
+      </div>
+    </div>
+  {/if}
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
@@ -595,6 +650,10 @@
 
 <style>
   .print { display: none; }
+  /* v0.25.1 (Noah 1a): what the day ride was made with, and the way back. */
+  .dayride-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; margin: 0 0 12px; padding: 8px 8px 8px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper-2, var(--paper)); }
+  .dayride-bar p { margin: 0; flex: 1 1 200px; min-width: 0; overflow-wrap: anywhere; }
+  .dayride-acts { display: flex; align-items: center; gap: 8px; }
   .bag-purpose { display: block; margin-bottom: 16px; font-size: 14px; }
   .bag-purpose input { margin-top: 8px; }
   .sets, .presets, .ready-acts { display: flex; gap: 8px; flex-wrap: wrap; }

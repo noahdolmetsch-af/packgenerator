@@ -62,14 +62,29 @@
     const open = (e) => (newMode = e.detail ?? 'all');
     // v0.25.1 (Noah 3a): "Note on a bike" on Today sends { text, bikeId }.
     const quick = (e) => (e.detail && typeof e.detail === 'object' ? note(e.detail.text ?? '', e.detail.bikeId ?? null) : note(e.detail ?? ''));
+    // v0.25.1 (Noah 1a): "Day ride" from any page: Pack makes the trip (it listens itself while open).
+    const day = () => {
+      if (pageOf(location.hash) === 'pack') return;
+      keepDayRide();
+      location.hash = '#/pack';
+    };
     window.addEventListener('pg:new', open);
     window.addEventListener('pg:note', quick);
+    window.addEventListener('pg:dayride', day);
     return () => {
       window.removeEventListener('pg:new', open);
       window.removeEventListener('pg:note', quick);
+      window.removeEventListener('pg:dayride', day);
     };
   });
   let noteBike = $state(null);
+  const keepDayRide = () => {
+    try {
+      localStorage.setItem('pack.dayRide', '1');
+    } catch {
+      /* private mode: Pack opens without the new day ride */
+    }
+  };
   const note = (prefill, bikeId = null) => {
     notePrefill = prefill;
     noteBike = bikeId;

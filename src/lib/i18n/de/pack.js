@@ -546,4 +546,15 @@ export default {
   'Together {n} items. You can change everything in Pack.': 'Zusammen {n} Teile. In Packen kannst du alles ändern.',
   '{n} h per day': '{n} h pro Tag',
   'Buy {name} on the way?': '{name} unterwegs nachkaufen?',
+  // v0.25.1 (Noah 1a, 2a, 3a): a day ride in one tap, a prefilled New trip, weather from the forecast.
+  'Ride|dayride': 'Velo',
+  '{bike} day ride {date}': '{bike} Tagestour {date}',
+  '{bike} {n} days {date}': '{bike} {n} Tage {date}',
+  'no weather set': 'kein Wetter gesetzt',
+  '{weather}, rain': '{weather}, Regen',
+  '{weather}, showers': '{weather}, Schauer',
+  'from forecast': 'aus Prognose',
+  'From the forecast for {place}': 'Aus der Wetterprognose für {place}',
+  'Day ride created: {bike} · {hours} h · {weather}.': 'Tagestour erstellt: {bike} · {hours} h · {weather}.',
+  '{weather} (forecast)': '{weather} (Prognose)',
 };
