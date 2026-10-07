@@ -11,6 +11,8 @@ export default defineConfig({
   base,
   // Replaces __APP_VERSION__ in the code with the version from package.json.
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
+  // v0.21.0: Vitest runs the unit tests only; the browser test in tests/e2e runs with `npm run e2e`.
+  test: { include: ['tests/*.test.js'] },
   plugins: [
     svelte(),
     VitePWA({

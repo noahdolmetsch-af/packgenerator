@@ -173,6 +173,10 @@
   // v0.19.6: also "New → Packing list" from any page (nav.js newTrip), even when Pack is open.
   $effect(() => {
     if (!$tplQ) return; // wait until the templates are loaded, so the choice can be shown
+    // v0.21.0 (found by the e2e test): also wait for bikes, items and trips. Opened before the bikes
+    // were loaded, the dialog had no bike chosen ("Choose a bike." with the one bike shown), and
+    // before the items it would make an empty standard set.
+    if (!$bikesQ || !$itemsQ || !$tripsQ) return;
     const startNew = () => {
       const id = take('pack.startFrom');
       if (id) dialog = { trip: null, startFrom: id };
@@ -1087,9 +1091,11 @@
     padding: 6px 10px;
   }
   @media (min-width: 720px) {
+    /* v0.21.0 (found by the e2e test): the buttons wrap instead of running past the right edge
+       (with "Untick packed items" and "Debrief" the row was 1530 px wide, 1640 px in German). */
     .pick {
-      flex-wrap: nowrap;
-      flex-shrink: 0;
+      flex-wrap: wrap;
+      min-width: 0;
     }
     .pick .btn {
       white-space: nowrap;

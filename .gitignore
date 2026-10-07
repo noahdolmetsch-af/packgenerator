@@ -4,3 +4,6 @@ dev-dist
 # Personal data never goes into this public repository.
 *.xlsx
 *backup*.json
+# Playwright (npm run e2e)
+test-results
+playwright-report
