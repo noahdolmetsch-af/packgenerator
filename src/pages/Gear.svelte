@@ -3,7 +3,8 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { phone } from '../lib/media.svelte.js';
-  import { gearStats, matches, groupByCategory, formatWeight, itemWeight, CATEGORIES, BAG, OWNERSHIP } from '../lib/gear.js';
+  import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, BAG, OWNERSHIP } from '../lib/gear.js';
+  import FavStar from '../lib/gear/FavStar.svelte';
   import WeightOverview from '../lib/gear/WeightOverview.svelte';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
@@ -11,6 +12,7 @@
   import { itemUsage, deadWeight, wishReason } from '../lib/insights.js';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
+  import Sum from '../lib/ui/Sum.svelte';
 
   // All items, kept up to date by the database (liveQuery re-runs on every change).
   const itemsQuery = liveQuery(() => db.items.toArray());
@@ -29,7 +31,24 @@
   // v0.19.6: the search in the top bar opens Gear with ?q=<name>.
   // ?cat=<key> (start page "Where the weight is") opens one category.
   const hashQ = new URLSearchParams(location.hash.split('?')[1] ?? '');
-  let filter = $state({ q: hashQ.get('q') ?? '', category: hashQ.get('cat') ?? '', role: '', fav: false, domain: hashQ.get('area') ?? '' });
+  // v0.22.0 (AP05): ?fav=1 (start page "Favourites") opens with the favourites filter on.
+  let filter = $state({ q: hashQ.get('q') ?? '', category: hashQ.get('cat') ?? '', role: '', fav: hashQ.get('fav') === '1', domain: hashQ.get('area') ?? '' });
+  // The favourites filter lives in the address too, so back, forward and a reload keep it.
+  function setFav(on) {
+    filter.fav = on;
+    const [path, query = ''] = location.hash.split('?');
+    const q = new URLSearchParams(query);
+    if (on) q.set('fav', '1');
+    else q.delete('fav');
+    const s = q.toString();
+    history.replaceState(history.state, '', `${path || '#/gear'}${s ? `?${s}` : ''}`);
+  }
+  const clearFilters = () => {
+    filter = { q: '', category: '', role: '', fav: false, domain: '' };
+    setFav(false);
+  };
+  // v0.22.0 (AP05): the same bases as the tabs; the button counts what the list below shows.
+  const favN = $derived(favouriteCounts(items));
   // v0.21.0 (package 5): the area filter shows once items belong to more than one area.
   const perArea = $derived(countByDomain(items));
   const areaKeys = $derived([...DOMAINS.map((d) => d.key), ...Object.keys(perArea).filter((k) => !DOMAINS.some((d) => d.key === k))].filter((k) => perArea[k]));
@@ -78,8 +97,11 @@
   // A new search from the top bar while Gear is open.
   $effect(() => {
     const read = () => {
-      const q = new URLSearchParams(location.hash.split('?')[1] ?? '').get('q');
+      if (!location.hash.startsWith('#/gear')) return;
+      const params = new URLSearchParams(location.hash.split('?')[1] ?? '');
+      const q = params.get('q');
       if (q != null) (filter.q = q), (tab = 'inventory');
+      filter.fav = params.get('fav') === '1';
     };
     window.addEventListener('hashchange', read);
     return () => window.removeEventListener('hashchange', read);
@@ -91,8 +113,8 @@
     <h1 class="title">{t('Gear')}</h1>
     <div class="kpis">
       <div><span class="lbl">{t('Items')}</span><b class="num">{stats.inventory.length}</b></div>
-      <div class="un"><span class="lbl">{t('Not weighed')}</span><b class="num">{stats.unweighed}</b></div>
-      <div class="tot"><span class="lbl">{t('Gear weight')}</span><b class="num">{formatWeight(stats.total)}</b></div>
+      <!-- v0.22.0 (AP04): unknown is not zero: the known sum with the missing weights right next to it. -->
+      <div class="tot"><span class="lbl">{t('Gear weight')}</span><Sum g={stats.total} missing={stats.totalMissing} miss={stats.consumablesMissing ? t('{n} not weighed (+ {f} food and water)', { n: stats.totalMissing, f: stats.consumablesMissing }) : ''} /></div>
       <div><span class="lbl">{t('Wishlist')}</span><b class="num">{stats.wishlist.length}</b></div>
     </div>
   </header>
@@ -153,7 +175,7 @@
           </select>
         </label>
       {/if}
-      <button type="button" class="toggle fav" aria-pressed={filter.fav} onclick={() => (filter.fav = !filter.fav)} title={t('Only my favourites')}>★ {t('Favourites')} <small>{items.filter((i) => i.favorite).length}</small></button>
+      <button type="button" class="toggle fav" aria-pressed={filter.fav} onclick={() => setFav(!filter.fav)} title={t('Only my favourites')}>★ {t('Favourites')} <small>{tab === 'wishlist' ? favN.wishlist : favN.inventory}</small></button>
       {#if !phone.matches}
         <label>
           <span class="lbl">{t('Role')}</span>
@@ -178,7 +200,7 @@
             <span class="lbl">{t('Categories')}</span>
             <ul>
               {#each groups as g (g.key)}
-                <li><button type="button" onclick={() => jump(g.key)}><span class="sw" style:background={g.color}></span><span class="n">{t(g.name)}</span><span class="num">{formatWeight(catStats[g.key].g)}</span></button></li>
+                <li><button type="button" onclick={() => jump(g.key)}><span class="sw" style:background={g.color}></span><span class="n">{t(g.name)}</span><span class="num">{knownWeight(catStats[g.key].g, catStats[g.key].unweighed)}</span></button></li>
               {/each}
             </ul>
           </nav>
@@ -190,6 +212,12 @@
             <!-- v0.21.0: every favourite by area, read-only and printable -->
             {#if filter.fav}<a class="favlink" href="#/favorites">{t('All my favourite things')} →</a>{/if}
           </p>
+          {#if filter.fav}
+            <!-- v0.22.0 (AP05): what the favourites number counts, and where the others are. -->
+            <p class="favbase">
+              {tn(favN.inventory, '{n} favourite in your inventory', '{n} favourites in your inventory')}{#if favN.wishlist}{' · '}<button type="button" class="link" onclick={() => (tab = 'wishlist')}>{tn(favN.wishlist, '{n} on the wishlist', '{n} on the wishlist')}</button>{/if}{#if favN.gone}{' · '}{tn(favN.gone, '{n} gone', '{n} gone')}{/if}
+            </p>
+          {/if}
           <div class="cats">
             {#each groups as g (g.key)}
               <section class="cat" aria-labelledby="gh-{g.key}">
@@ -197,7 +225,7 @@
                   <button type="button" aria-expanded={isOpen(g.key)} disabled={searching} onclick={() => toggle(g.key)}>
                     <span class="sw" style:background={g.color}></span>
                     <span class="title">{t(g.name)}</span>
-                    <b class="num k">{formatWeight(catStats[g.key].g)}</b>
+                    <b class="num k">{knownWeight(catStats[g.key].g, catStats[g.key].unweighed)}</b>
                     <span class="m">{tn(catStats[g.key].n, '{n} item', '{n} items')}{catStats[g.key].unweighed ? ` · ${t('{n} not weighed', { n: catStats[g.key].unweighed })}` : ''}{catStats[g.key].consumable ? ` · ${t('not in gear weight')}` : ''}</span>
                     {#if !searching}<span class="chev" aria-hidden="true">▾</span>{/if}
                   </button>
@@ -205,9 +233,10 @@
                 {#if isOpen(g.key)}
                   <ul class="rows">
                     {#each g.items as item (item.id)}
-                      <li>
+                      <li class="fr">
+                        <FavStar {item} describedby="gn-{item.id}" />
                         <button type="button" onclick={() => open(item)}>
-                          <span class="nm">{#if item.favorite}<span class="star" title={t('Favourite')}>★</span>{/if}{nameOf(item)}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
+                          <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
                           <span class="bg">{BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–'}</span>
                           <span class="w num" class:nw={item.weightG == null}>{formatWeight(itemWeight(item))}</span>
                         </button>
@@ -217,7 +246,9 @@
                 {/if}
               </section>
             {:else}
-              {#if items.length}<p class="card">{t('Nothing matches.')} <button type="button" class="btn" onclick={() => (filter = { q: '', category: '', role: '', fav: false, domain: '' })}>{t('Clear search and filters')}</button></p>{/if}
+              {#if items.length && filter.fav && !favN.inventory}
+                <p class="card">{t('No favourites in your inventory yet. Tap the ☆ in front of an item to mark it.')} <button type="button" class="btn" onclick={clearFilters}>{t('Show all items')}</button></p>
+              {:else if items.length}<p class="card">{t('Nothing matches.')} <button type="button" class="btn" onclick={clearFilters}>{t('Clear search and filters')}</button></p>{/if}
             {/each}
           </div>
         </div>
@@ -228,16 +259,17 @@
         <p class="sub">{t('Not owned yet. Not counted in the inventory or any total. Sorted by what helps most: missing on trips, needed on the bike, lighter.')}</p>
         <ul class="rows">
           {#each wishlist as { item, reasons } (item.id)}
-            <li>
+            <li class="fr">
+              <FavStar {item} describedby="gn-{item.id}" />
               <button type="button" onclick={() => open(item)}>
                 <span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>
-                <span class="nm">{#if item.favorite}<span class="star" title={t('Favourite')}>★</span>{/if}{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
+                <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
                 <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
                 <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
               </button>
             </li>
           {:else}
-            <li class="empty">{t('No wishlist items match.')}</li>
+            <li class="empty">{filter.fav ? t('No favourites on the wishlist.') : t('No wishlist items match.')}</li>
           {/each}
         </ul>
       </section>
@@ -268,11 +300,9 @@
     gap: 12px 24px;
     margin-bottom: 18px;
   }
+  /* v0.22.0 (AP03): page title from the type scale (was 56–88 px condensed capitals). */
   .head .title {
-    font-size: clamp(56px, 12vw, 88px);
-    /* v0.21.0: without the web font (offline) the German title was wider than a 390 px phone. */
     max-width: 100%;
-    overflow-wrap: anywhere;
   }
   .kpis {
     display: flex;
@@ -283,74 +313,100 @@
     display: flex;
     flex-direction: column;
   }
-  .kpis b {
-    font-family: var(--font-title);
+  /* The big numbers keep the condensed face: a small accent of the outdoor identity. */
+  .kpis b,
+  .kpis :global(.sum b) {
+    font-family: var(--font-brand);
     font-weight: 800;
-    font-size: 30px;
-    line-height: 1;
+    font-size: 32px;
+    line-height: 1.05;
   }
   @media (max-width: 719px) {
     .kpis {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       width: 100%;
       gap: 8px;
     }
-    .kpis b {
-      font-size: 22px;
+    .kpis div {
+      min-width: 0;
+    }
+    .kpis b,
+    .kpis :global(.sum b) {
+      font-size: 26px;
+    }
+    .kpis .tot {
+      grid-column: span 2;
     }
     .kpis .lbl {
-      font-size: 10px;
+      font-size: var(--fs-small);
+      line-height: 1.25;
+      hyphens: auto;
+      overflow-wrap: break-word;
     }
   }
-  /* Status stays grey; orange is only for actions (design audit G3). */
-  .kpis .un b {
-    color: var(--ink-2);
+  /* v0.22.0 (AP03): 14 px labels need two rows of numbers on the narrowest phones. */
+  @media (max-width: 379px) {
+    .kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   .tabs {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr)); /* v0.21.0: tabs may shrink below their label width */
-    border: 2px solid var(--ink);
-    border-radius: 6px;
+    gap: 1px;
+    background: var(--line);
+    border: 1.5px solid var(--line-strong);
+    border-radius: var(--radius);
     overflow: hidden;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
   @media (min-width: 720px) {
     .tabs {
       max-width: 780px;
     }
   }
+  /* v0.22.0 (AP03): words are never cut inside a tab; very narrow phones get 3 + 2 tabs. */
   @media (max-width: 520px) {
     .tabs button {
-      font-size: 13px;
-      line-height: 1.15;
+      font-size: 13.5px;
+      line-height: 1.2;
       text-align: center;
+      padding: 8px 2px;
+    }
+  }
+  @media (max-width: 379px) {
+    .tabs {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+    .tabs button {
+      grid-column: span 2;
+    }
+    .tabs button:nth-child(n + 4) {
+      grid-column: span 3;
     }
   }
   .tabs button {
     border: 0;
-    border-right: 2px solid var(--ink);
     background: var(--paper);
-    padding: 10px 4px;
-    font: 700 15px var(--font-body);
+    padding: 8px 4px;
+    font: 500 15px/1.3 var(--font-body);
     color: var(--ink);
     display: flex;
     flex-direction: column;
     align-items: center;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     hyphens: auto;
-  }
-  .tabs button:last-child {
-    border-right: 0;
   }
   .tabs button[aria-selected='true'] {
     background: var(--ink);
     color: var(--paper);
+    font-weight: 600;
   }
   .tabs small {
     font-weight: 400;
-    font-size: 12px;
+    font-size: var(--fs-small);
   }
   .toolbar {
     display: grid;
@@ -360,11 +416,12 @@
     margin-bottom: 8px;
   }
   .fav {
-    border: 1.5px solid var(--ink-3);
+    border: 1.5px solid var(--line-strong);
     background: var(--paper);
     border-radius: 999px;
     padding: 7px 12px;
-    font: 600 14px var(--font-body);
+    font: 500 var(--fs-label) var(--font-body);
+    min-height: 40px;
     color: var(--ink);
     cursor: pointer;
     justify-self: start;
@@ -381,6 +438,12 @@
   }
   .toolbar .q {
     grid-column: 1 / -1;
+  }
+  /* v0.22.0 (AP03): on the narrowest phones the category list gets the full width. */
+  @media (max-width: 379px) {
+    .toolbar {
+      grid-template-columns: 1fr;
+    }
   }
   /* The search stays at the top while you scroll (desktop). */
   @media (min-width: 720px) {
@@ -417,9 +480,10 @@
   .cat {
     margin-bottom: 20px;
   }
+  /* v0.22.0 (AP03): a thin line under the category instead of a 3 px bar. */
   .ch {
     margin: 0;
-    border-bottom: 3px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
   }
   .ch button {
     display: grid;
@@ -439,7 +503,8 @@
     cursor: default;
   }
   .ch .title {
-    font-size: 26px;
+    font-size: var(--fs-sub);
+    font-weight: 600;
     min-width: 0;
   }
   .ch .k {
@@ -449,7 +514,7 @@
     grid-column: 2 / 4;
     grid-row: 2;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 400;
   }
   .ch .chev {
@@ -486,6 +551,26 @@
     text-decoration: underline;
     cursor: pointer;
   }
+  /* v0.22.0 (AP05): the star button sits before the row's own button. */
+  .rows .fr {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+  }
+  .rows .fr > button {
+    flex: 1;
+    min-width: 0;
+    border-bottom: 0;
+  }
+  .rows .fr .nm {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .favbase {
+    margin: -4px 0 10px;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
   .rows {
     list-style: none;
     margin: 0;
@@ -494,7 +579,7 @@
   }
   .rows button {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 2px 12px;
     width: 100%;
     text-align: left;
@@ -511,10 +596,14 @@
       background: var(--paper-2);
     }
   }
+  .rows .nm {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
   .rows .bg {
     grid-column: 1;
     grid-row: 2;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .rows .w {
@@ -530,8 +619,8 @@
   }
   .rows .nw {
     color: var(--ink-3);
-    font-weight: 600;
-    font-size: 13px;
+    font-weight: 500;
+    font-size: var(--fs-small);
   }
   @media (min-width: 720px) {
     .rows button {
@@ -588,7 +677,7 @@
   }
   .side .num {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   @media (hover: hover) {
     .side button:hover {
@@ -615,17 +704,14 @@
   .why {
     display: block;
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .dead {
     max-width: 1000px;
   }
-  .dead .title {
-    font-size: 28px;
-  }
   .dead h3.title {
-    font-size: 22px;
+    font-size: var(--fs-sub);
     margin-top: 20px;
   }
   .dead .sub {
@@ -675,12 +761,10 @@
   .wish {
     margin-top: 8px;
     padding: 16px;
-    border: 2px dashed var(--ink-3);
-    border-radius: 6px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
     max-width: 1000px;
-  }
-  .wish .title {
-    font-size: 28px;
   }
   .wish .sub {
     color: var(--ink-3);
@@ -690,7 +774,7 @@
     background: transparent;
   }
   .wish .rows button {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
   }
   .wish .st {
     grid-row: 1 / span 2;
@@ -722,11 +806,9 @@
     }
   }
   .st {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    border: 1.5px solid var(--ink-3);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    border: 1px solid var(--ink-3);
     border-radius: 99px;
     padding: 1px 8px;
     color: var(--ink-3);

@@ -94,6 +94,14 @@
     color: var(--ink);
     font: 400 15px var(--font-body);
   }
+  /* v0.22.0 (AP03): the ring sits on the whole field (light on the dark bar, orange on a phone). */
+  .field:has(input:focus-visible) {
+    outline: 3px solid var(--focus-on-dark);
+    outline-offset: 2px;
+  }
+  .ph .field:has(input:focus-visible) {
+    outline-color: var(--focus);
+  }
   .icon {
     display: inline-flex;
     align-items: center;
@@ -113,7 +121,7 @@
     top: calc(56px + env(safe-area-inset-top));
     width: auto;
     height: 48px;
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--line-strong);
     z-index: 30;
   }
   .res {
@@ -124,7 +132,7 @@
     max-height: 70vh;
     overflow: auto;
     padding: 8px;
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--line-strong);
     border-radius: 10px;
     background: var(--paper);
     color: var(--ink);
@@ -141,9 +149,7 @@
   }
   .gh {
     margin: 8px 6px 2px;
-    font: 700 11px var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font: 600 13px var(--font-body);
     color: var(--ink-3);
   }
   ul {
@@ -172,7 +178,7 @@
   }
   li small {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .none {
     margin: 6px;

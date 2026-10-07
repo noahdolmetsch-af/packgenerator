@@ -1,11 +1,13 @@
 <script>
   /**
-   * "Not packed": everything you own that is not on the trip yet, grouped by category.
+   * "Other gear" (v0.22.0, AP04; was "Not packed"): everything you own that is not on this trip
+   * (or template) yet, grouped by category. "To pack" and "packed" only mean items on the list.
    * Mockup answers (4.10.2026): groups start folded (2b), hints as small labels (3a),
    * "+" puts an item into the chosen bag, or drag it onto a bag (4a).
    */
   import { CATEGORIES, formatWeight } from '../gear.js';
   import { t, tn, nameOf } from '../i18n.svelte.js';
+  import FavStar from '../gear/FavStar.svelte';
 
   /**
    * items: the candidates, already sorted. tagOf(item): a short label or ''.
@@ -35,7 +37,7 @@
 <section class="np" aria-labelledby="np-h">
   <div class="np-top">
     <div class="np-h">
-      <h2 id="np-h" class="title">{t('Not packed')}</h2>
+      <h2 id="np-h" class="title">{t('Other gear')}</h2>
       <span class="m num">{tn(items.length, '{n} item', '{n} items')}</span>
     </div>
     <input class="inp" type="search" placeholder={t('Search your gear')} bind:value={q} aria-label={t('Search your gear')} />
@@ -55,7 +57,9 @@
             {#each g.items as i (i.id)}
               {@const tag = tagOf(i)}
               <li draggable={drag} ondragstart={(e) => start(e, i.id)} class:drag>
-                <span class="nm">{#if i.favorite}<span class="star" title={t('Favourite')}>★</span>{/if}{nameOf(i)}{#if tag}<small class="lab">{tag}</small>{/if}</span>
+                <!-- v0.22.0 (AP05): the star is a button here too, one tap marks or unmarks. -->
+                <FavStar item={i} size="sm" describedby="np-{i.id}" />
+                <span class="nm" id="np-{i.id}">{nameOf(i)}{#if tag}<small class="lab">{tag}</small>{/if}</span>
                 <span class="w num">{i.weightG == null ? '–' : formatWeight(i.weightG)}</span>
                 <button type="button" class="plus" aria-label={t('Add {name} to {bag}', { name: nameOf(i), bag: target })} onclick={() => onadd(i.id)}>+</button>
               </li>
@@ -81,7 +85,7 @@
     display: grid;
     gap: 8px;
     padding: 10px;
-    border-bottom: 3px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
   }
   .np-h {
     display: flex;
@@ -89,7 +93,7 @@
     gap: 10px;
   }
   .np-h .title {
-    font-size: 28px;
+    font-size: var(--fs-section);
   }
   .m {
     flex: 1;
@@ -124,9 +128,7 @@
     border-bottom: 1px solid var(--line);
     background: var(--paper-2);
     color: var(--ink);
-    font: 700 12px var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font: 600 13px var(--font-body);
     text-align: left;
     cursor: pointer;
   }
@@ -152,11 +154,11 @@
   }
   li {
     display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 8px;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 4px 8px;
     align-items: center;
     min-height: 40px;
-    padding: 2px 10px;
+    padding: 2px 10px 2px 2px;
     border-bottom: 1px solid var(--line);
   }
   li.drag {
@@ -172,12 +174,12 @@
     padding: 0 6px;
     border: 1px solid var(--ink-3);
     border-radius: 999px;
-    font-size: 11px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
     white-space: nowrap;
   }
   .w {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   /* Small, so it sits with the text (Noah, 4.10.2026); the row is still easy to hit on a phone. */

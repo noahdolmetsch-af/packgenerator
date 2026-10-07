@@ -155,10 +155,10 @@ describe('pack extras', () => {
       { key: 'bar', grams: 1000, bag: null, zone: { box: { x: 540, w: 100 } } }, // centre 590 = front hub
       { key: 'mounted', grams: 400, bag: null, zone: { box: { x: 0, w: 10 } } },
     ];
-    expect(axleLoad({ zones }, {})).toEqual({ front: 1200, rear: 1200 });
+    expect(axleLoad({ zones }, {})).toEqual({ front: 1200, rear: 1200, missing: 0, estimate: false });
     // A bottle cage is weighed with the bike, so it adds nothing here.
     const cage = { key: 'cage1', grams: 0, bag: { slot: 'cage1', itemId: 'BK04', pieces: 1 }, zone: { box: { x: 100, w: 100 } } };
-    expect(axleLoad({ zones: [cage] }, { BK04: { weightG: 40 } })).toEqual({ front: 0, rear: 0 });
+    expect(axleLoad({ zones: [cage] }, { BK04: { weightG: 40 } })).toEqual({ front: 0, rear: 0, missing: 0, estimate: false });
   });
 });
 

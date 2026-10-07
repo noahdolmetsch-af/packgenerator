@@ -4,8 +4,8 @@
   import { isOver, tipsByItem } from '../lib/debrief.js';
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, sortBikes, bikesHash } from '../lib/bikes.js';
-  import { CATEGORIES, formatWeight, isInventory, matches, weighQueue } from '../lib/gear.js';
-  import { tripStats, packSteps, togglePacked, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, switchBike } from '../lib/trips.js';
+  import { CATEGORIES, formatWeight, weightText, isInventory, matches, weighQueue } from '../lib/gear.js';
+  import { tripStats, packSteps, togglePacked, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike } from '../lib/trips.js';
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import CalmPack from '../lib/pack/CalmPack.svelte';
@@ -23,7 +23,9 @@
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { bikePhotos, packPhoto } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
-  import { withVisits, tyreSetup, tripPrep } from '../lib/workshop.js';
+  import { withVisits } from '../lib/workshop.js';
+  import { prepFor } from '../lib/care.js';
+  import { bikeCare, bikeCareLine, eventPrep, eventPrepLine } from '../lib/readiness.js';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
@@ -110,7 +112,11 @@
     // v0.21.0: the preparation tasks and the bike's needs are bike things; a trip without a bike skips them.
     if (!trip || over || trip.skipped || !bikeTrip) return null;
     const view = bike ? withVisits(bike, $visitsQ ?? []) : null;
-    return tripPrep(view, trip, $tasksQ ?? [], view ? tyreSetup(view, $visitsQ ?? []) : undefined, today);
+    const tasks = $tasksQ ?? [];
+    const care = view ? bikeCare(view, { tasks, visits: $visitsQ ?? [], trip, today }) : null;
+    const prep = eventPrep(trip, tasks, today);
+    const open = prepFor(trip, tasks, today).filter(r => !r.finished);
+    return care || prep.total ? { care, prep, open } : null;
   });
   // Design audit P4: after the trip, Pack leads to the debrief.
   const over = $derived(trip ? isOver(trip) : false);
@@ -230,7 +236,7 @@
   const choiceRows = $derived.by(() => {
     if (!choosing || !trip) return [];
     const visits = $visitsQ ?? [];
-    return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], today });
+    return bikeChoice(trip, bikes.map((b) => withVisits(b, visits)), { containers: bags, items, visits, trips: $tripsQ ?? [], tasks: $tasksQ ?? [], today });
   });
   const useBike = (b) => change((t) => switchBike(t, b));
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.
@@ -350,7 +356,7 @@
   const tagOf = (i) => (!inDomain(i, domain) ? t(domainName(itemDomains(i)[0])) : '') || (suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (i.always ? t('every trip') : i.role === 'standard' || i.role === 'worn' ? t('standard') : ''));
   // Answer 9: luggage on the front and rear wheel.
   const axle = $derived(stats ? axleLoad(stats, itemsById) : null);
-  const rearPct = $derived(axle && axle.front + axle.rear ? Math.round((axle.rear / (axle.front + axle.rear)) * 100) : null);
+  const split = $derived(axleSplit(axle));
   const rearLimit = $derived($rearQ?.value ?? 60);
 
   // Answer 8: litres of water, already part of the system weight through the full bottles.
@@ -477,14 +483,32 @@
     {#snippet picker(addItem)}<NotPacked items={candidates} {tagOf} target={targetName} onadd={addItem} drag={false} bind:q />{/snippet}
     {#snippet moreWeights()}
       <div class="extra-inner">
-        <p>{bikeTrip ? t('System') : t('Total')}: {bikeTrip ? kg(stats.systemG) : kg(stats.gearG + stats.onMeG)} · {t('Bags')}: {formatWeight(stats.bagsG)}{#if bikeTrip} · {t('Bike')}: {stats.missing.bike ? t('not weighed') : formatWeight(stats.bikeG)} · {t('Rider')}: {stats.missing.rider ? t('not set') : formatWeight(stats.riderG)}{/if}</p>
+        <p>{bikeTrip ? t('System') : t('Total')}: {bikeTrip ? `${stats.bikeKind === 'estimate' ? '~' : ''}${weightText(stats.systemG, stats.systemMissing, kg)}` : weightText(stats.gearG + stats.onMeG, stats.unweighed, kg)} · {t('Bags')}: {weightText(stats.bagsG, stats.bagsMissing)}{#if bikeTrip} · {t('Bike')}: {stats.missing.bike ? t('not weighed') : `${stats.bikeKind === 'estimate' ? '~' : ''}${formatWeight(stats.bikeG)} · ${stats.bikeKind === 'estimate' ? t('estimate') : t('measured')}`} · {t('Rider')}: {stats.missing.rider ? t('not set') : formatWeight(stats.riderG)}{/if}</p>
         {#if water}<p>{t('Water')}: {num(water)} L</p>{/if}
-        {#if bikeTrip && rearPct != null}<p>{t('Front / rear')}: {100 - rearPct} / {rearPct} % {rearPct > rearLimit ? t('{pct} % of the luggage is on the rear wheel (hint above {limit} %).', { pct: rearPct, limit: rearLimit }) : ''}</p>{/if}
+        {#if bikeTrip && split}<p>{t('Front / rear')}: {split.estimate ? '~' : ''}{split.front} / {split.rear} % {#if split.estimate}· {t('estimate, {n} not weighed', { n: axle.missing })}{/if}{#if split.rear > rearLimit} · {split.estimate ? t('About {pct} % of the luggage is on the rear wheel (hint above {limit} %, estimate: not everything is weighed).', { pct: split.rear, limit: rearLimit }) : t('{pct} % of the luggage is on the rear wheel (hint above {limit} %).', { pct: split.rear, limit: rearLimit })}{/if}</p>{/if}
         {#if toWeigh}<button class="text-button" onclick={() => weighing = true}>{t('Weigh {n}', { n: toWeigh })}</button>{/if}
       </div>
     {/snippet}
-    {#snippet preparation()}{#if before?.rows.length}<details class="calm-extra"><summary>{t('Before the trip')} · {t('{n} to do', { n: before.rows.length })}</summary><div class="extra-inner"><ul>{#each before.rows as row}<li><b>{row.name}</b> {row.detail}</li>{/each}</ul><a href={bikesHash({ tab: 'care', bike: trip.bikeId })}>{t('Bike care')}</a></div></details>{/if}{/snippet}
-    {#snippet ballastContent()}{#if extra?.rows.length}<details class="calm-extra"><summary>{t('Ballast')} · {t('not used the last times')}</summary><div class="extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
+    {#snippet preparation()}
+      {#if before}
+        <details class="calm-extra">
+          <summary>{t('Before the trip')} · {before.care ? bikeCareLine(before.care) : eventPrepLine(before.prep)}</summary>
+          <div class="extra-inner">
+            {#if before.care}
+              <p><a href={before.care.href}>{bikeCareLine(before.care)}</a></p>
+              {#if before.care.rows.length || before.care.soon.length}<ul>{#each [...before.care.rows, ...before.care.soon] as row (row.key)}<li><b>{row.name}</b> {row.detail}</li>{/each}</ul>
+              {:else if before.care.status === 'nodata'}<p>{t('No data: enter km and record a check or service, then the app can tell.')}</p>{/if}
+            {/if}
+            {#if before.prep.total}
+              <p>{eventPrepLine(before.prep)}</p>
+              <ul>{#each before.open as row (row.task.id)}<li><b>{row.task.task}</b> {row.needed ? t('work needed') : t('by {date}', { date: row.due ?? '–' })}</li>{/each}</ul>
+              <a href={before.prep.href}>{t('Tick off in Bike care')}</a>
+            {/if}
+          </div>
+        </details>
+      {/if}
+    {/snippet}
+    {#snippet ballastContent()}{#if extra?.rows.length}<details class="calm-extra"><summary>{t('Ballast')} · {t('not used the last times')}</summary><div class="extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
   </CalmPack>
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
@@ -493,10 +517,10 @@
   {#if weighing}<WeighMode items={tripItems} onclose={() => weighing = false} />{/if}
     <section class="print" aria-hidden="true">
       <h1>{trip.title}</h1>
-      {#if bikeTrip}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {bike?.name ?? ''} · {t('system weight {kg}', { kg: kg(stats.systemG) })}</p>
-      {:else}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {t(domainName(domain))} · {t('total {kg}', { kg: kg(stats.gearG + stats.onMeG) })}</p>{/if}
+      {#if bikeTrip}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {bike?.name ?? ''} · {t('system weight {kg}', { kg: weightText(stats.systemG, stats.systemMissing, kg) })}</p>
+      {:else}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {t(domainName(domain))} · {t('total {kg}', { kg: weightText(stats.gearG + stats.onMeG, stats.unweighed, kg) })}</p>{/if}
       {#each stats.zones.filter((z) => z.entries.length) as z (z.key)}
-        <h2>{zoneName(z)} <small>{tn(z.entries.length, '{n} item', '{n} items')} · {formatWeight(z.grams)}</small></h2>
+        <h2>{zoneName(z)} <small>{tn(z.entries.length, '{n} item', '{n} items')} · {weightText(z.grams, z.unweighed)}</small></h2>
         <ul>
           {#each z.entries as e (e.itemId)}<li>☐ {itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId}{(e.qty || 1) > 1 ? ` × ${e.qty}` : ''}</li>{/each}
         </ul>

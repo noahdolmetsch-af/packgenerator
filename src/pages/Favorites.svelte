@@ -41,7 +41,7 @@
         </ul>
       </section>
     {:else}
-      <p class="card">{t('No favourites yet. In Gear open an item → Edit → tick ★ Favourite.')}</p>
+      <p class="card">{t('No favourites yet. In Gear tap the ☆ in front of an item.')}</p>
     {/each}
   {/if}
 </div>
@@ -53,8 +53,8 @@
   }
   h1 {
     margin: 2px 0 0;
-    font-size: clamp(36px, 8vw, 56px);
-    line-height: 1;
+    font-size: var(--fs-page);
+    line-height: var(--lh-title);
   }
   .meta {
     margin: 6px 0 12px;
@@ -66,8 +66,8 @@
   }
   h2 {
     margin: 0 0 6px;
-    font-size: 28px;
-    border-bottom: 2px solid var(--ink);
+    font-size: var(--fs-section);
+    border-bottom: 1px solid var(--line-strong);
     padding-bottom: 4px;
   }
   h2 small {
@@ -116,7 +116,7 @@
   .nw {
     color: var(--ink-3);
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   @media print {
     :global(header.top),

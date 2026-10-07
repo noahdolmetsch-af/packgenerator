@@ -1,6 +1,7 @@
 <script>
   import { CalendarDays, Bike, Clock3, CloudRain, CloudSun, UserRound, Backpack, Briefcase, ChevronRight, ChevronDown, PlusCircle, MoreHorizontal, Minus, Plus, Info, Weight, Pencil, ArrowRight, Undo2, GripVertical } from '@lucide/svelte';
   import DecisionReview from './DecisionReview.svelte';
+  import Sum from '../ui/Sum.svelte';
   import { planningGroups } from '../preparation.js';
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
   import { formatWeight } from '../gear.js';
@@ -100,7 +101,7 @@
       {/each}
     </div>
     {#if bikeTrip}<button class="detail-link" onclick={() => { review = true; window.scrollTo({ top: 0 }); }}><ChevronRight size={22} /><CloudSun size={28} /><strong>{t('Review weather suggestions')}</strong>{#if openLayers.length}<small>{tn(openLayers.length, '{n} open', '{n} open')}</small>{/if}<ChevronRight size={20} /></button>{/if}
-    <details class="weight-details"><summary><ChevronRight size={22} /><Weight size={28} /><strong>{t('View weight details')}</strong></summary><div class="weight-grid"><div><span>{t('Base')}</span><b>{formatWeight(stats.baseG)}</b></div><div><span>{t('On you')}</span><b>{formatWeight(stats.wornG)}</b></div><div><span>{t('Food and water')}</span><b>{formatWeight(stats.consumablesG)}</b></div><div><span>{t('Items')}</span><b>{stats.count}</b></div></div>{@render moreWeights?.()}</details>
+    <details class="weight-details"><summary><ChevronRight size={22} /><Weight size={28} /><strong>{t('View weight details')}</strong></summary><div class="weight-grid"><div><span>{t('Base')}</span><Sum g={stats.baseG} missing={stats.baseMissing} /></div><div><span>{t('On you')}</span><Sum g={stats.wornG} missing={stats.wornMissing} /></div><div><span>{t('Food and water')}</span><Sum g={stats.consumablesG} missing={stats.consumablesMissing} /></div><div><span>{t('Items')}</span><b>{stats.count}</b></div></div>{@render moreWeights?.()}</details>
     {@render preparation?.()}{@render ballastContent?.()}
     <footer class="list-footer next"><p class="weight-note"><Info size={22} />{stats.unweighed ? t('{n} weights missing · displayed weights are known values.', { n: stats.unweighed }) : t('All material weights are recorded.')}</p><div class="footer-actions"><a href="#/" class="text-button">{t('Back to trip overview')}</a>{#if step === debriefStep}<button class="primary go" onclick={over ? () => location.hash = `#/debrief/${encodeURIComponent(trip.id)}` : actions.end}>{t('Next: debrief')}<ArrowRight size={20} /></button>{:else if step === 2}<button class="primary go" onclick={actions.ride}>{t('Next: ride day')}<ArrowRight size={20} /></button>{:else}<button class="primary go" onclick={actions.pack}>{t('Start packing check')}<ArrowRight size={20} /></button>{/if}</div></footer>
   {/if}

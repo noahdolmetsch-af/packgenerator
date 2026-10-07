@@ -1,18 +1,61 @@
 /* Trail Journal design tokens. Calmer since 4.10.2026 (design answer 1a): lighter ground and lines,
-   orange only for actions and the current choice. */
+   orange only for actions and the current choice.
+   v0.22.0 (AP03): one set of reusable values for type, colour roles, spacing and focus.
+   Every text/background pair below was checked for at least 4.5:1 (WCAG formula). */
 :root {
   color-scheme: light;
+  /* Surfaces: calm neutral work areas, no pattern behind lists. */
   --ground: #eceee8;
   --paper: #fbfbf8;
   --paper-2: #eef1ec;
+  /* Text: ink 13:1, ink-2 7.5:1, ink-3 (quiet text) 5.0:1 on the ground. */
   --ink: #0f2e27;
   --ink-2: #3b4f46;
-  --ink-3: #6f8378;
+  --ink-3: #566a5f;
+  /* Lines: quiet dividers; --line-strong for inputs and controls (UI parts need 3:1). */
   --line: #c6cec4;
-  --hi: #ff5b14;
+  --line-strong: #566a5f;
+  /* Identity: dark green for navigation and the brand. */
+  --brand: #12372f;
+  --brand-ink: #fbfbf8;
+  --brand-ink-2: #a9c2b6;
+  /* Action orange: darker so white text on it reads (5.6:1); only the current main action uses it.
+     --hi-bright is the old signal orange, only for the logo and accents on the dark green. */
+  --hi: #b83e08;
+  --hi-ink: #ffffff;
+  --hi-bright: #ff5b14;
   --hi-soft: #ffe9dc;
-  --font-title: 'Sofia Sans Extra Condensed', 'Arial Narrow', sans-serif;
+  /* Status colours, always together with a word or a symbol. */
+  --ok: #276a43;
+  --ok-soft: #d9eedf;
+  --warn: #8a5a00;
+  --warn-soft: #fbefd2;
+  --bad: #b42318;
+  --bad-soft: #f6d5d0;
+  /* Focus: a clear ring on every control (keyboard), light on the dark bars. */
+  --focus: #b83e08;
+  --focus-on-dark: #ffb38f;
+  --focus-ring: 3px solid var(--focus);
+  /* Type: Fira Sans for content and controls; the condensed face only for the logo and a few big numbers. */
   --font-body: 'Fira Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-title: var(--font-body);
+  --font-brand: 'Sofia Sans Extra Condensed', 'Arial Narrow', sans-serif;
+  --fs-page: clamp(30px, 2.4vw + 20px, 40px);
+  --fs-section: 22px;
+  --fs-sub: 18px;
+  --fs-body: 16px;
+  --fs-label: 14px;
+  --fs-small: 14px;
+  --lh: 1.5;
+  --lh-title: 1.2;
+  /* Spacing steps. */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --radius: 8px;
   --gut: 16px;
 }
 
@@ -27,18 +70,24 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  /* v0.22.0 (AP03): plain calm ground; the topo lines stay in the logo and the photos. */
   background-color: var(--ground);
-  /* Topo lines: a repeating SVG drawn in the ink colour at low opacity. */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%230F2E27' stroke-opacity='.04' stroke-width='1.2'%3E%3Cpath d='M0 40c40-18 80 18 120 0s80-18 120 0'/%3E%3Cpath d='M0 100c40-22 80 22 120 0s80-22 120 0'/%3E%3Cpath d='M0 160c40-14 80 14 120 0s80-14 120 0'/%3E%3Cpath d='M0 220c40-20 80 20 120 0s80-20 120 0'/%3E%3C/g%3E%3C/svg%3E");
   color: var(--ink);
   font-family: var(--font-body);
-  line-height: 1.45;
+  font-size: var(--fs-body);
+  line-height: var(--lh);
 }
 
 @media (min-width: 720px) {
   :root {
     --gut: 32px;
   }
+}
+
+/* v0.22.0 (AP03): a visible focus ring on every control, for keyboard users. */
+:where(a, button, input, select, textarea, summary, [tabindex], [role='button']):focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
 }
 
 /* ---------- shared building blocks ---------- */
@@ -51,45 +100,71 @@ a {
 a:visited {
   color: var(--ink);
 }
+/* v0.22.0 (AP03): titles in Fira Sans, sentence case, no capitals shouting. Pages set the size with
+   --fs-page (h1), --fs-section or --fs-sub. */
 .title {
   font-family: var(--font-title);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
-  line-height: 0.95;
+  font-weight: 700;
+  font-size: var(--fs-section);
+  line-height: var(--lh-title);
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
   margin: 0;
 }
+h1.title {
+  font-size: var(--fs-page);
+  letter-spacing: -0.01em;
+}
+/* The condensed face for the logo and a few big numbers. */
+.brandfont {
+  font-family: var(--font-brand);
+  font-weight: 800;
+}
+/* v0.22.0 (AP03): cards are quiet surfaces with a thin line; not every section needs one. */
 .card {
   background: var(--paper);
-  border: 2px solid var(--ink);
-  border-radius: 6px;
-  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
 }
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  font: 600 15px var(--font-body);
-  padding: 9px 14px;
-  border-radius: 4px;
-  border: 2px solid var(--ink);
+  font: 500 15px/1.25 var(--font-body);
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1.5px solid var(--line-strong);
   background: var(--paper);
   color: var(--ink);
   cursor: pointer;
   text-decoration: none;
+  text-align: center;
 }
+.btn:hover {
+  background: var(--paper-2);
+}
+/* The one main action of a view. */
 .btn.hi {
   background: var(--hi);
   border-color: var(--hi);
-  color: #fff;
+  color: var(--hi-ink);
+  font-weight: 600;
+}
+.btn.hi:hover {
+  background: #a03605;
 }
 .btn.ink {
   background: var(--ink);
+  border-color: var(--ink);
   color: var(--paper);
 }
 .btn.sm {
-  font-size: 13px;
-  padding: 4px 9px;
+  font-size: var(--fs-small);
+  min-height: 32px;
+  padding: 4px 10px;
 }
 .btn:disabled {
   opacity: 0.5;
@@ -99,25 +174,26 @@ a:visited {
 .sel {
   font: 400 16px var(--font-body);
   padding: 8px 10px;
-  border: 2px solid var(--ink-3);
-  border-radius: 4px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 6px;
   background: #fff;
   color: var(--ink);
   width: 100%;
   min-width: 0;
 }
+.inp:focus-visible,
+.sel:focus-visible,
 .inp:focus,
 .sel:focus {
-  outline: 2px solid var(--hi);
+  outline: var(--focus-ring);
   outline-offset: 1px;
 }
+/* v0.22.0 (AP03): labels in sentence case, 14 px, no letter-spacing. */
 .lbl {
   display: block;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-3);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--ink-2);
   margin-bottom: 4px;
 }
 .num {
@@ -138,8 +214,9 @@ a:visited {
   clip: rect(0 0 0 0);
 }
 dialog.sheet {
-  border: 2px solid var(--ink);
-  border-radius: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(15, 46, 39, 0.25);
   background: var(--paper);
   color: var(--ink);
   padding: 18px;

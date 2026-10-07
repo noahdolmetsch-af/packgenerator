@@ -102,14 +102,12 @@
 <style>
   .meta {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   h2 {
-    font-size: 32px;
+    font-size: var(--fs-section);
     margin: 4px 0 6px;
   }
   h3 {
@@ -133,17 +131,17 @@
     padding: 1px 8px;
     border-radius: 999px;
     font-weight: 700;
-    font-size: 12px;
-    background: #d9eedf;
-    color: #2f7a4f;
+    font-size: var(--fs-small);
+    background: var(--ok-soft);
+    color: var(--ok);
   }
   .badge.warn {
     background: var(--hi-soft);
     color: var(--ink);
   }
   .badge.worn {
-    background: #f6d5d0;
-    color: #b42318;
+    background: var(--bad-soft);
+    color: var(--bad);
   }
   .grid {
     display: grid;
@@ -159,7 +157,7 @@
     }
   }
   .err {
-    color: #b42318;
+    color: var(--bad);
     min-height: 1.2em;
     font-size: 14px;
     margin: 4px 0;

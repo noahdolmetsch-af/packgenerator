@@ -2,8 +2,8 @@
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { SLOTS, SLOT, FIXED_ZONES, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash } from '../bikes.js';
-  import { formatWeight, parseGrams } from '../gear.js';
+  import { SLOTS, SLOT, FIXED_ZONES, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind } from '../bikes.js';
+  import { formatWeight, knownWeight, parseGrams } from '../gear.js';
   import BikeStage from './BikeStage.svelte';
   import BagDialog from './BagDialog.svelte';
   import BikeDialog from './BikeDialog.svelte';
@@ -32,6 +32,7 @@
   let { bikeId = null, onbike } = $props();
   const bike = $derived(bikes.find((b) => b.id === bikeId) ?? bikes[0]);
   const setup = $derived(bike ? bikeSetup(bike, bags, items) : null);
+  const bikeKind = $derived(bikeWeightKind(bike));
   // Design audit B4: the bike's bags are the standard; the next trip on it may use others.
   const tripOn = $derived(bike ? nextTrip(($tripsQ ?? []).filter((t) => t.bikeId === bike.id)) : null);
   const tripBag = (key) => (tripOn && (tripOn.setup?.[key] ?? null) !== (bike.setup?.[key] ?? null) ? bags.find((b) => b.id === tripOn.setup?.[key]) ?? { name: t('no bag'), none: true } : null);
@@ -197,7 +198,9 @@
         </div>
         <p class="kpi num">
           <span><span class="lbl">{t('Bags')}</span><b>{setup.bagCount} · {formatVolume(setup.volumeL)}</b></span>
-          <span><span class="lbl">{t('Bags weigh')}</span><b>{formatWeight(setup.bagsG)}</b>{#if setup.unweighed}<small class="nw">{t('+ {n} not weighed', { n: setup.unweighed })}</small>{/if}</span>
+          <span><span class="lbl">{t('Bags weigh')}</span><b>{setup.unweighed && setup.unweighed === setup.bagCount ? t('not weighed') : knownWeight(setup.bagsG, setup.unweighed)}</b>{#if setup.unweighed}<small class="nw">{t('{n} not weighed', { n: setup.unweighed })}</small>{/if}</span>
+          <!-- v0.22.0 (AP04): the bike weight says whether it was measured or is an estimate. -->
+          <span><span class="lbl">{t('Bike weighs')}</span><b>{bikeKind === 'missing' ? t('not weighed') : `${bikeKind === 'estimate' ? '~' : ''}${formatWeight(bike.weightG)}`}</b><small class="nw">{bikeKind === 'estimate' ? t('estimate') : bikeKind === 'measured' ? t('measured') : ''}</small></span>
         </p>
       </div>
 
@@ -232,7 +235,7 @@
       </div>
       {#if message}<p class="msg" role="status">{message}</p>{/if}
 
-      <Fold label={t('Bike details')} summary={`${bike.weightG ? formatWeight(bike.weightG) : t('not weighed')} · ${tn((bike.fixtures ?? []).length, '{n} thing always mounted', '{n} things always mounted')}`}>
+      <Fold label={t('Bike details')} summary={`${bikeKind === 'missing' ? t('not weighed') : `${bikeKind === 'estimate' ? '~' : ''}${formatWeight(bike.weightG)} (${bikeKind === 'estimate' ? t('estimate') : t('measured')})`} · ${tn((bike.fixtures ?? []).length, '{n} thing always mounted', '{n} things always mounted')}`}>
         <div class="details-in">
           <label class="wlabel">
             <span class="lbl">{t('Bike weight (g)')}</span>
@@ -384,7 +387,7 @@
     border-radius: 6px;
     background: var(--paper);
     color: var(--ink-2);
-    font: 600 12px var(--font-body);
+    font: 600 13px var(--font-body);
     text-align: left;
     cursor: pointer;
     overflow: hidden;
@@ -430,7 +433,7 @@
     flex: none;
     align-self: center;
     margin: 0;
-    color: #b42318;
+    color: var(--bad);
     font-size: 14px;
   }
   .rider .inp {
@@ -439,14 +442,14 @@
   .tabs {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--line-strong);
     border-radius: 6px;
     overflow: hidden;
     flex: 1 1 320px;
   }
   .tabs button {
     border: 0;
-    border-right: 2px solid var(--ink);
+    border-right: 1px solid var(--line);
     background: var(--paper);
     padding: 10px 4px;
     font: 700 15px var(--font-body);
@@ -468,7 +471,7 @@
       border-right: 0;
     }
     .tabs button:nth-child(-n + 2) {
-      border-bottom: 2px solid var(--ink);
+      border-bottom: 1px solid var(--line);
     }
   }
   .link {
@@ -496,7 +499,7 @@
     border: 1.5px solid var(--ink-3);
     border-radius: 999px;
     background: var(--paper);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .chip button {
     border: 0;
@@ -508,12 +511,12 @@
   .sel.mini {
     width: auto;
     padding: 2px 6px;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .hintw {
     display: block;
     color: var(--ink-3);
-    font-size: 12px;
+    font-size: var(--fs-small);
     max-width: 160px;
   }
   .profile {
@@ -529,13 +532,11 @@
     min-width: 0;
   }
   .profile .late {
-    box-shadow: inset 3px 0 0 #b42318;
+    box-shadow: inset 3px 0 0 var(--bad);
   }
   .profile dt {
-    font-size: 12px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   .profile dd {
@@ -552,7 +553,7 @@
   }
   .profile small {
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .to-care {
@@ -586,7 +587,7 @@
   .kpi b {
     font-family: var(--font-title);
     font-weight: 800;
-    font-size: 24px;
+    font-size: var(--fs-sub);
     line-height: 1.1;
   }
   .kpi .lbl {
@@ -624,7 +625,7 @@
     margin-bottom: 12px;
   }
   .bh .title {
-    font-size: 40px;
+    font-size: var(--fs-page);
   }
   .sub {
     margin: 2px 0 0;
@@ -680,7 +681,7 @@
     align-items: start;
     padding: 8px 10px;
     background: var(--paper);
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 6px;
   }
   .slots li .sel {
@@ -702,7 +703,7 @@
   }
   .slots small {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .slots .sel {
     width: 100%;
@@ -716,7 +717,7 @@
   .nw {
     color: var(--ink-3);
     font-weight: 600;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .set-in {
     display: flex;
@@ -732,7 +733,7 @@
   .trip-bag {
     grid-column: 1 / -1;
     margin: 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
     display: flex;
     flex-wrap: wrap;
@@ -760,9 +761,8 @@
   .slot-h {
     margin: 18px 0 0;
     padding-bottom: 4px;
-    border-bottom: 3px solid var(--ink);
-    font: 800 22px var(--font-title);
-    text-transform: uppercase;
+    border-bottom: 1px solid var(--line-strong);
+    font: 800 var(--fs-sub) var(--font-title);
   }
   .slot-h small {
     font: 400 13px var(--font-body);
@@ -798,7 +798,7 @@
   .rows .bg {
     grid-column: 1;
     grid-row: 2;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .rows .v {

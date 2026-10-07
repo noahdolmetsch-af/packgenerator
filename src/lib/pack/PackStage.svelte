@@ -4,7 +4,7 @@
    * how many items, the weight, the first items and how full it is. It replaces the small labels
    * of the bike drawing on the Pack page. On a phone the same boxes are a strip you swipe (answer 10a).
    *
-   * cards: [{ key, title, name, count, grams, names, more, fill, vol, empty, active, noBag, heavy? }]
+   * cards: [{ key, title, name, count, grams, unweighed, names, more, fill, vol, empty, active, noBag, heavy? }]
  * heavy (v0.21.0): names of heavy items high up or far back; the box shows a quiet hint.
    * onpick(key): open that bag. ondropitem(key, itemId): an item or tile was dropped on a box.
    * photo: the bike's setup photo, pale behind the boxes (answer 2a); onphoto(): open it big.
@@ -54,7 +54,9 @@
     if (id) ondropitem(key, id);
   }
   const facts = (c) => {
-    const what = c.empty ? t('empty') : `${tn(c.count, '{n} item', '{n} items')} · ${c.grams ? formatWeight(c.grams) : t('not weighed')}`;
+    // v0.22.0 (AP04): unknown is not zero. A small card shows the plain sum only when every item is
+    // weighed, else how many are not ("7 not weighed"); the bag list below has "known: …" next to it.
+    const what = c.empty ? t('empty') : `${tn(c.count, '{n} item', '{n} items')} · ${c.unweighed ? t('{n} not weighed', { n: c.unweighed }) : formatWeight(c.grams)}`;
     // Without item volumes there is no fill to show, only the size of the bag.
     return c.cap && c.fill == null ? `${what} · ${formatVolume(c.cap)}` : what;
   };
@@ -153,7 +155,7 @@
   .hv {
     display: block;
     margin-top: 4px;
-    font-size: 11px;
+    font-size: var(--fs-small);
     font-weight: 400;
     line-height: 1.3;
     font-style: italic;
@@ -277,7 +279,7 @@
     gap: 2px;
     min-width: 0;
     padding: 8px 10px;
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 6px;
     background: var(--paper);
     color: var(--ink);
@@ -286,13 +288,16 @@
     cursor: pointer;
     box-shadow: 0 2px 0 rgba(15, 46, 39, 0.12);
   }
+  /* v0.22.0 (AP03): the bag boxes on the photo are a map. Their names keep the condensed face
+     (one of the few accents), so long German words like "Oberrohrtasche" stay whole in a narrow box. */
   .n {
-    font: 900 20px/1 var(--font-title);
-    text-transform: uppercase;
+    font: 800 18px/1.1 var(--font-brand);
+    hyphens: auto;
+    letter-spacing: 0.01em;
     overflow-wrap: anywhere;
   }
   .small .n {
-    font-size: 16px;
+    font-size: 17px;
   }
   .f {
     font-size: 13px;
@@ -319,7 +324,7 @@
     align-items: center;
     gap: 6px;
     margin-top: 4px;
-    font-size: 11px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .bar {

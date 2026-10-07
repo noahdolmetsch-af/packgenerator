@@ -2,7 +2,16 @@
 
 Stand: 7. Oktober 2026
 
+## Zur Abnahme
+
+- **Entwürfe 2 und 3: Entscheidungsprüfung und ruhige Packliste** — Vorschau und [Entwurf PR #32](https://github.com/noahdolmetsch-af/packgenerator/pull/32), noch nicht veröffentlicht. Fortschritt und messbare Kriterien: `docs/calm-preparation.md`; Nachweise: `design-qa.md`. Version 0.22.0 mit Gewichts-/Bereitschaftsverbesserungen integriert. 227 Unit-Tests und 12 Browser-Tests bestanden.
+
 ## Fertig
+- **Optimierung M1: Sofortige Klarheit (v0.22.0)** — neues Projekt „Optimierung vom Packgenerator“ (Dokument: Projektordner `optimierung/`, Plan AP01–AP26):
+  - **Ruhigere Schrift und Farben (AP03):** Inhalte in Fira Sans (Titel 30–40 px, Text 16 px), keine Grossbuchstaben mehr, dünnere Rahmen, Aktionsorange #b83e08 (Kontrast 5.6:1 statt 3.1:1), nur die aktuelle Hauptaktion ist orange, sichtbarer Fokusrahmen.
+  - **Ehrliche Gewichte und klare Wörter (AP04):** Summen heissen „bekannt: …“ und zeigen daneben, wie viele Gewichte fehlen; Front/Heck ist bei Lücken eine Schätzung; Velogewicht gemessen oder geschätzt. „Not packed“ heisst „Weitere Materialien“; gepackt / noch einzupacken und Startcheck geprüft / offen getrennt gezählt. Packzeilen haben wieder ein sichtbares „•••“ statt Knöpfen nur beim Darüberfahren.
+  - **Favoriten (AP05):** Stern vor jedem Teil, ein Tipp genügt; der Favoriten-Link öffnet Ausrüstung gefiltert; eine Zählbasis (Inventar + Wunschliste getrennt).
+  - **Bereitschaft einheitlich (AP06):** Startseite, Pack und Velos → Pflege zeigen dasselbe, getrennt nach Velopflege, Eventvorbereitung und Packstand. Ursache des alten Widerspruchs: die Startseite liess zeitfällige Services (Dichtmilch, Gabel) weg. „alles gut“ ist weg; ohne Daten steht „keine Daten“.
 - **Echt benutzen, vereinfachen, Reisearten (v0.21.0):**
   - **Startseite "Still open":** was noch fehlt, damit die App für dich rechnen kann (Velos wägen, GPX laden, Inventar prüfen, Favoriten anwenden, erste echte Tour). Backup-Hinweis auch nach jedem neuen Rückblick. "Your data" zeigt, aus welchem Backup die Daten stammen (Phone ist das Hauptgerät, der Desktop holt den Stand per Backup-Datei).
   - **Velos und Velopflege auf einer Seite:** Velos mit den Tabs Setup | Pflege. Pflege zeigt oben "Jetzt fällig" für alle Velos, dann die nächste Tour; jedes Velo ist eine zugeklappte Zeile. Die Excel-Vorbereitung ist eine Zeile "Vorbereitung: n offen". Pflege von 159 auf 13 Bedienelemente, Setup am Phone von 5.9 auf 2.1 Bildschirme. Die alte Adresse #/care führt auf den Tab Pflege.

@@ -37,6 +37,12 @@ test('review, apply, edit and pack a tour', async ({ page, context }) => {
   await expect(carb.locator('.item-weight')).toHaveText('240 g');
   await page.reload();
   await expect(page.locator('.planning-row').filter({ hasText: 'Carb-Pulver' }).locator('.amount span')).toHaveText('3');
+  // Preserve v0.22.0's honest sums and shared readiness statements after integrating main.
+  await list.locator('.weight-details > summary').click();
+  await expect(list.locator('.weight-grid').getByText('bekannt:', { exact: true }).first()).toBeVisible();
+  await expect(list.locator('.weight-grid .miss').first()).toContainText('nicht gewogen');
+  await expect(list.locator('.calm-extra > summary').filter({hasText:'Velopflege'})).toContainText('keine Daten');
+  await list.locator('.weight-details > summary').click();
   await page.getByLabel('Packliste gruppieren').selectOption('category');
   await expect(list.getByText('Carb-Pulver', { exact: true })).toHaveCount(0); // categories start folded
   await expect(page.evaluate(() => document.documentElement.scrollWidth)).resolves.toBeLessThanOrEqual(page.viewportSize().width);

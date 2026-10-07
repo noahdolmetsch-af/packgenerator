@@ -13,6 +13,10 @@ test('capture preparation designs', async ({ page, context }, info) => {
   await page.goto('./#/pack');
   await expect(page.getByRole('heading', {name:'Deine Packliste'})).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
+  if (info.project.name === 'desktop') {
+    const button = await page.getByRole('button',{name:'Packkontrolle starten'}).boundingBox();
+    expect(button.y + button.height).toBeLessThanOrEqual(1058);
+  }
   await page.screenshot({path:`qa/pack-${info.project.name}.png`,fullPage:true});
   // Remove the jacket and reduce the food amount through the real controls to reopen decisions.
   await page.getByRole('button',{name:'Aktionen für Regenjacke Haglöfs'}).click();

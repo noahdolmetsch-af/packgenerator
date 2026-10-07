@@ -94,7 +94,7 @@
   }
   .nm small {
     color: #b8c2bc;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .n {
     color: #b8c2bc;

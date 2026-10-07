@@ -8,6 +8,7 @@
   import { partInfo, wear, needsWork, lastValue, kmSince, lastReplace, CHECK_KM, bikeLog, EXTRA } from '../care.js';
   import { visitTotal, costByYear, costByPart, costPer1000 } from '../workshop.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
+  import { bikeCareWords } from '../readiness.js';
 
   let {
     c, tasks, repairs, wished = {}, kmMsg = '', open = false,
@@ -16,7 +17,8 @@
 
   const bike = $derived(c.bike);
   const log = $derived(open ? bikeLog(bike, tasks) : []);
-  const due = $derived(c.check.due + bike.parts.filter(needsWork).length + repairs.length + c.services.length + c.time.filter((s) => s.overdue).length);
+  // v0.22.0 (AP06): the same statement as Home's bike row and Pack (readiness.js bikeCare).
+  const words = $derived(bikeCareWords(c.care));
   const last = $derived(c.mine[0] ?? null);
 
   const PRIO = { high: 'High', medium: 'Medium', low: 'Low' };
@@ -30,7 +32,7 @@
     <h2 class="title">{bike.name}</h2>
     <span class="sum">
       <span class="num">{bike.km != null ? `${num(bike.km)} km` : t('km not set')}</span>
-      {#if due}<span class="pill red">{t('{n} due', { n: due })}</span>{:else}<span class="ok">{t('nothing due')}</span>{/if}
+      {#if c.care.status === 'due'}<span class="pill red">{words.tag}</span>{:else if c.care.status === 'nodata'}<span class="nodata">{words.tag}</span>{:else}<span class="ok">{words.tag}</span>{/if}{#if words.text && c.care.status !== 'due'}<small class="gap">{words.text}</small>{/if}
       <span>{last ? t('workshop {date}', { date: day(last.date) }) : t('no workshop visit yet')}</span>
     </span>
   </summary>
@@ -106,7 +108,7 @@
       <div>
         <h3>{t('Workshop')} {#if c.mine.length}<small>{tn(c.mine.length, '{n} visit', '{n} visits')}</small>{/if}</h3>
         {#if c.order?.rows.length}
-          <p class="order"><button type="button" class="btn sm hi" onclick={onorder}>{t('Workshop order')}</button> <span>{tn(c.order.rows.length, '{n} job', '{n} jobs')} · {t('about CHF {chf}', { chf: c.order.total })}{c.order.unknown ? ` + ${t('unknown')}` : ''}</span></p>
+          <p class="order"><button type="button" class="btn sm" onclick={onorder}>{t('Workshop order')}</button> <span>{tn(c.order.rows.length, '{n} job', '{n} jobs')} · {t('about CHF {chf}', { chf: c.order.total })}{c.order.unknown ? ` + ${t('unknown')}` : ''}</span></p>
         {/if}
         {#if c.mine.length}
           <ul class="visits">
@@ -141,7 +143,7 @@
             <span class="when">{PRIO[rp.priority] ? t(PRIO[rp.priority]) : ''}</span>
             <span class="txt">{rp.task}{#if rp.note}<small>{rp.note}</small>{/if}</span>
             <span class="acts">
-              <button type="button" class="btn sm hi" onclick={() => onrepair(rp, 'done')}>{t('Done|task')}</button>
+              <button type="button" class="btn sm" onclick={() => onrepair(rp, 'done')}>{t('Done|task')}</button>
               <MoreMenu label={rp.task} actions={[{ name: t('Work needed'), run: () => onrepair(rp, 'needed') }, { name: t('Not needed any more'), run: () => onrepair(rp, 'gone') }]} />
             </span>
           </li>
@@ -188,11 +190,11 @@
     display: none;
   }
   .bike[open] > .bike-h {
-    border-bottom: 3px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
     margin-bottom: 10px;
   }
   .bike-h .title {
-    font-size: 26px;
+    font-size: var(--fs-section);
     margin: 0;
     display: flex;
     align-items: center;
@@ -216,8 +218,16 @@
   .ok {
     color: var(--ink-3);
   }
-  small {
+  /* v0.22.0 (AP06): no data is said in words, with a dashed edge, not as "fine". */
+  .nodata {
+    padding: 0 8px;
+    border: 1.5px dashed var(--ink-3);
+    border-radius: 999px;
+    color: var(--ink-2);
     font-size: 13px;
+  }
+  small {
+    font-size: var(--fs-small);
     color: var(--ink-3);
     font-weight: 400;
   }
@@ -275,13 +285,13 @@
   }
   .m {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .checks + .btn {
     margin-top: 8px;
   }
   .hint {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     margin: 6px 0 0;
   }
@@ -320,10 +330,10 @@
   .pill {
     padding: 1px 8px;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    background: #d9eedf;
-    color: #2f7a4f;
+    background: var(--ok-soft);
+    color: var(--ok);
   }
   .pill.warn,
   .pill.red {
@@ -332,8 +342,8 @@
   }
   /* Red stays for worn parts only: brakes, chain (safety). */
   .pill.worn {
-    background: #f6d5d0;
-    color: #b42318;
+    background: var(--bad-soft);
+    color: var(--bad);
   }
   .tyres {
     display: flex;
@@ -390,7 +400,7 @@
     padding-left: 6px;
   }
   .when {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .txt {
@@ -415,7 +425,7 @@
   }
   .btn.sm {
     padding: 3px 10px;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .link {
     border: 0;
@@ -428,7 +438,7 @@
     cursor: pointer;
   }
   .err {
-    color: #b42318;
+    color: var(--bad);
     font-size: 14px;
   }
   .log {

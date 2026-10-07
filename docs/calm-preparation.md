@@ -14,7 +14,7 @@ Stand: 7. Oktober 2026. Dieser Schritt setzt die beiden ausgewählten Ansichten 
 | 6. Packkontrolle anschliessen | Bestehender Packtag bleibt die Kontrollansicht | Hauptaktion öffnet Packkontrolle; bisherige Tourabläufe funktionieren in DE/EN auf Handy und Desktop | Vier bestehende Szenarien × zwei Bildschirmgrössen |
 | 7. Darstellung prüfen | Lokale Schriften, mobile Zeilen und Touch-Bedienung | Kein horizontaler Überlauf bei 390 px; korrekte Beschriftung «Touren»; Mengenknöpfe 44 px hoch | Browser-Tests und `design-qa.md` |
 
-Gesamtprüfung: **195 Unit-Tests und 12 Browser-Tests bestanden**. Der Browserlauf erstellt vorher einen frischen Produktionsbuild. Zwei der zwölf Tests erstellen zusätzlich die visuellen Nachweise. Es wurden künstliche Beispieldaten verwendet; der persönliche Datenexport ist nicht Teil des Repositorys.
+Gesamtprüfung: **227 Unit-Tests und 12 Browser-Tests bestanden**. Der Browserlauf erstellt vorher einen frischen Produktionsbuild. Zwei der zwölf Tests erstellen zusätzlich die visuellen Nachweise. Es wurden künstliche Beispieldaten verwendet; der persönliche Datenexport ist nicht Teil des Repositorys.
 
 ## Einordnung im freigegebenen Ablaufplan
 
@@ -26,6 +26,8 @@ Gesamtprüfung: **195 Unit-Tests und 12 Browser-Tests bestanden**. Der Browserla
 | AP15 – Wetter und Alternativen | Bestehende Wetterregeln in der neuen Entscheidungsansicht | Alle Fälle nach späteren Kontextänderungen und vollständige Konfliktbehandlung |
 | AP19 – Packtag und Bereitschaft | Ruhige Planung mit Übergang zur bestehenden Kontrolle | Vollständige Überarbeitung der Bereitschaftsbegriffe und aller Zustände |
 | AP21 – Mobile/Tastatur-Prüfung | 390-px-Prüfung und vorhandene automatisierte Tourabläufe | 320 px und Screenreader-Stichprobe |
+
+Die während der Umsetzung eingetroffene Version 0.22.0 ist integriert. Ihre ehrlichen Gewichtssummen, Schätzungen, Favoriten und gemeinsamen Bereitschaftsaussagen bleiben erhalten; die Browserprüfung kontrolliert ausdrücklich Summen mit Lücken und «keine Daten» bei fehlender Pflegehistorie.
 
 ## Nächster überprüfbarer Schritt
 

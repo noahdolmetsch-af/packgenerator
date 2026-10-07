@@ -193,22 +193,27 @@
     align-items: center;
     gap: 6px 22px;
     padding: calc(8px + env(safe-area-inset-top)) var(--gut) 8px;
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--brand);
+    color: var(--brand-ink);
   }
+  /* v0.22.0 (AP03): places in Fira Sans, sentence case; the condensed face stays for the logo. */
   .top a {
-    font-family: var(--font-title);
-    font-weight: 800;
-    font-size: 20px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--paper);
+    font: 500 16px var(--font-body);
+    color: var(--brand-ink);
     text-decoration: none;
   }
   .top .brand {
-    color: var(--hi);
-    font-size: 24px;
+    font-family: var(--font-brand);
+    color: var(--hi-bright);
+    font-size: 26px;
     font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  /* Focus on the dark bars: a light ring that shows against the green. */
+  .top :focus-visible,
+  .bottom :focus-visible {
+    outline-color: var(--focus-on-dark);
   }
   .places {
     display: flex;
@@ -217,11 +222,14 @@
   }
   .places a,
   .deb {
-    padding: 6px 0 3px;
+    padding: 8px 0 5px;
     border-bottom: 3px solid transparent;
+    color: var(--brand-ink-2);
   }
   .top a[aria-current='page'] {
-    border-bottom-color: var(--hi);
+    color: var(--brand-ink);
+    font-weight: 600;
+    border-bottom-color: var(--hi-bright);
   }
   .tools {
     margin-left: auto;
@@ -250,8 +258,8 @@
     height: 18px;
     padding: 0 4px;
     border-radius: 9px;
-    background: var(--hi);
-    color: #fff;
+    background: var(--hi-bright);
+    color: var(--ink);
     font: 700 11px/18px var(--font-body);
     text-align: center;
     box-sizing: border-box;
@@ -271,8 +279,8 @@
     padding: 0 6px;
     border: 0;
     background: none;
-    color: #a9c2b6;
-    font: 700 13px var(--font-body);
+    color: var(--brand-ink-2);
+    font: 600 14px var(--font-body);
     cursor: pointer;
   }
   .lang button[aria-pressed='true'] {
@@ -308,7 +316,7 @@
     display: flex;
     align-items: center;
     padding: 4px 6px calc(6px + env(safe-area-inset-bottom));
-    background: var(--ink);
+    background: var(--brand);
   }
   .bottom a {
     flex: 1;
@@ -318,14 +326,15 @@
     gap: 2px;
     min-height: 52px;
     justify-content: center;
-    color: #a9c2b6;
-    font: 700 11px var(--font-body);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    color: var(--brand-ink-2);
+    font: 500 13px var(--font-body);
     text-decoration: none;
   }
+  /* The current place: white label plus a short orange bar, not colour alone. */
   .bottom a[aria-current='page'] {
-    color: var(--paper);
+    color: var(--brand-ink);
+    font-weight: 600;
+    box-shadow: inset 0 3px 0 var(--hi-bright);
   }
   .bottom svg {
     width: 22px;
@@ -342,7 +351,7 @@
     border-radius: 50%;
     border: 4px solid var(--ground);
     background: var(--hi);
-    color: #fff;
+    color: var(--hi-ink);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -354,7 +363,8 @@
     stroke-width: 2.6;
   }
   .bottom .plus:focus-visible {
-    outline: 3px solid var(--paper);
+    outline: 3px solid var(--focus-on-dark);
+    outline-offset: 2px;
   }
   main {
     padding: var(--gut);

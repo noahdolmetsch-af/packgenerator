@@ -100,14 +100,12 @@
 <style>
   .meta {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   h2 {
-    font-size: 30px;
+    font-size: var(--fs-section);
     margin: 4px 0 4px;
   }
   h3 {
@@ -119,7 +117,7 @@
     font-size: 15px;
   }
   .hint {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     margin: 6px 0 0;
   }
@@ -159,7 +157,7 @@
   }
   .j small {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .c {
     flex: none;

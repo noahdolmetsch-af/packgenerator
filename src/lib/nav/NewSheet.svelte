@@ -196,7 +196,7 @@
   }
   .small {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
 </style>

@@ -18,11 +18,11 @@ Keine offenen P0/P1/P2-Befunde im umgesetzten Umfang. Die Ansichten und ihr Übe
 | Entwurf 2 | `qa/source-review.png` | `qa/review-desktop.png` | `qa/review-comparison-full.png` | `qa/review-comparison-detail.png` |
 | Entwurf 3 | `qa/source-pack.png` | `qa/pack-desktop.png` | `qa/pack-comparison-full.png` | `qa/pack-comparison-detail.png` |
 
-Quellen: jeweils 1487 × 1058 px. Desktop: CSS-Viewport 1487 × 1058, deviceScaleFactor 1. Packliste als Ganzseitenaufnahme 1487 × 1107 px; Prüfung 1487 × 1423 px. Für den Vollvergleich wird die Aufnahme auf die ersten 1058 px zugeschnitten, ohne Skalierung. Die ungekürzten Aufnahmen bleiben separat erhalten. Die Details verwenden identische Ausschnittkoordinaten beider Bilder; sie sind kein pixelgenauer Regressionstest.
+Quellen: jeweils 1487 × 1058 px. Desktop: CSS-Viewport 1487 × 1058, deviceScaleFactor 1. Packliste als Ganzseitenaufnahme 1487 × 1143 px; Prüfung 1487 × 1425 px. Für den Vollvergleich wird die Aufnahme auf die ersten 1058 px zugeschnitten, ohne Skalierung. Die ungekürzten Aufnahmen bleiben separat erhalten. Die Details verwenden identische Ausschnittkoordinaten beider Bilder; sie sind kein pixelgenauer Regressionstest.
 
 Zustand Packliste: Alpine Tagestour, Scott Spark, 6 Stunden, 4–12 °C/Schauer; Körper und Fahrrad geschlossen, Rahmentasche geöffnet, vier Zeilen, Carb-Pulver zweimal. Prüfzustand: Regenjacke entfernt und Pulver auf eins reduziert, dann Wettervorschläge geöffnet. Regelbedingt zusätzliche Kleidungsstücke sichtbar. Testzeit auf 7. Oktober fixiert.
 
-Mobil: CSS-Viewport 390 × 844, deviceScaleFactor 1, Touch. `qa/pack-phone.png` (390 × 1674) und `qa/review-phone.png` (390 × 1895) sind Ganzseitenaufnahmen. Die feste Navigation erscheint auf Höhe des Aufnahme-Viewports; beim tatsächlichen Scrollen bleibt sie am Bildschirmrand. Es gibt kein mobiles Quellbild: geprüft wurden die responsive Übertragung und Bedienbarkeit, keine behauptete Pixelübereinstimmung.
+Mobil: CSS-Viewport 390 × 844, deviceScaleFactor 1, Touch. `qa/pack-phone.png` (390 × 1747) und `qa/review-phone.png` (390 × 1907) sind Ganzseitenaufnahmen. Die feste Navigation erscheint auf Höhe des Aufnahme-Viewports; beim tatsächlichen Scrollen bleibt sie am Bildschirmrand. Es gibt kein mobiles Quellbild: geprüft wurden die responsive Übertragung und Bedienbarkeit, keine behauptete Pixelübereinstimmung.
 
 Zusätzlich wurde die laufende Vorschau im Cloud-Browser geprüft (1363 × 936 CSS px).
 
@@ -31,7 +31,9 @@ Zusätzlich wurde die laufende Vorschau im Cloud-Browser geprüft (1363 × 936 C
 1. Erste Gegenüberstellung: `qa/pack-comparison-initial.jpg`, `qa/review-comparison-initial.jpg`. P2: Mengenregler zu weit rechts, unpassende Seitenränder und ständig sichtbares Suchfeld. Korrektur: neue Grid-Spalten, separate Seitenränder für beide Ansichten und kompakte Suche. Diese frühen Aufnahmen hatten unterschiedliche Bildgrössen; sie dienen nur der Verlaufskontrolle.
 2. Normierter Vergleich: `qa/pack-comparison-before.png`, `qa/review-comparison-before.png`. P2: Schrift-Fallback veränderte Logo, Textbreiten und Hierarchie. Korrektur: vorhandene Fira Sans und Sofia Sans Extra Condensed lokal eingebunden, Aufnahme nach `document.fonts.ready`.
 3. Mobile Prüfung: P2: «Rückblick» im Kopf vermittelte den falschen Seitenkontext. Korrektur: «Touren» im Packbereich. Die umfassenden Tests fanden ausserdem eine zu breite deutsche Überschrift auf der Startseite; `min-width: 0` und Umbruch beheben den Überlauf. Drag-and-drop ist auf Touch-Geräten deaktiviert; Verschieben erfolgt über das Zeilenmenü.
-4. Schlussvergleich: die Voll- und Detailbilder in der Tabelle zeigen die korrigierten Ansichten. Kein verbleibender aktionsbedürftiger P0/P1/P2-Befund.
+4. Erster Schlussvergleich: die Voll- und Detailbilder in der Tabelle zeigen die korrigierten Ansichten. Kein verbleibender aktionsbedürftiger P0/P1/P2-Befund.
+
+5. Integration des inzwischen veröffentlichten Hauptzweigs v0.22.0: Gewichtslücken, Schätzungen und die gemeinsame Velopflege-/Eventvorbereitung bleiben erhalten. Die zusätzliche gefaltete Pflegezeile verschob die Primäraktion knapp unter den Desktop-Viewport (P2, `qa/pack-main-before-fix.png`). Korrektur: Toolbar und Fussbereich jeweils 8 px kompakter. Der neue Browsertest prüft, dass die gesamte Primäraktion innerhalb des 1058-px-Viewports liegt. Neue Voll-/Detailvergleiche und mobile Aufnahmen zeigen die integrierte Fassung. Aktionsfarbe übernimmt den vorhandenen Token `--hi`; die aktualisierte mobile Navigation bleibt erhalten. Keine offenen P0/P1/P2-Befunde.
 
 ## Fünf geprüfte Gestaltungsflächen
 
@@ -52,9 +54,9 @@ Zusätzlich wurde die laufende Vorschau im Cloud-Browser geprüft (1363 × 936 C
 - Bestehende Packkontrolle öffnen; bisherige Tourabläufe auf Desktop/Handy in DE und EN abschliessen.
 - Kompakte globale Suche öffnen, «Carb» finden und mit Escape schliessen; Profilmenü öffnen/schliessen.
 - Kein horizontaler Überlauf bei den geprüften 390-px-Ansichten. Beschriftete Mengen-/Aktionsknöpfe, native Dialoge, sichtbarer Fokus und mobile Mengenknöpfe mit 44 px Höhe.
-- `TZ=UTC npm test`: 195 Tests bestanden. UTC entspricht den Erwartungen des bestehenden Demo-Datumstests.
+- `TZ=UTC npm test`: 227 Tests bestanden. UTC entspricht den Erwartungen des bestehenden Demo-Datumstests.
 - `npm run e2e`: frischer Produktionsbuild und 12 Browser-Tests bestanden. Verbleibende Buildhinweise: vorhandene Initialwert-Warnung in PackDay und Bundle-Grössenhinweis.
-- Neue Browserstrecke: keine JavaScript-Seitenfehler. Im Cloud-Browser wurden nur Meldungen einer Browser-Erweiterung gefunden, keine App-Fehler in den geprüften Meldungen.
+- Neue Browserstrecke: keine JavaScript-Seitenfehler. Bekannte Summen und «keine Daten» bei fehlender Pflegehistorie sind zusätzlich im Browser-Test geprüft. Im Cloud-Browser wurden nur Meldungen einer Browser-Erweiterung gefunden, keine App-Fehler in den geprüften Meldungen.
 
 Prüfgrenzen: 320 px, vollständige Screenreaderprüfung und Fehler bei verweigerten Datenbankzugriffen sind noch offen. Der vorhandene Datenimport wurde in den automatisierten Tests per Tastatur bestätigt; die bestehende mobile Überdeckung des Importknopfs durch die feste Navigation gehört nicht zu diesen beiden Ansichten. Freitext-Konflikterkennung und neue Übernachtungslogik sind nicht implementiert.
 

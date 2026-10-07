@@ -102,7 +102,7 @@
     margin-bottom: 10px;
   }
   .head .title {
-    font-size: 30px;
+    font-size: var(--fs-section);
   }
   .head .num {
     color: var(--ink-3);
@@ -148,7 +148,7 @@
   }
   .tip {
     margin: 10px 0 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .up ol {
@@ -172,7 +172,7 @@
   }
   .more {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
     margin: 6px 0 0;
   }
   .cat {
@@ -180,17 +180,15 @@
     align-items: center;
     gap: 6px;
     margin: 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
     font-weight: 700;
   }
   .name {
     font-family: var(--font-title);
     font-weight: 800;
-    font-size: 34px;
-    line-height: 1;
+    font-size: var(--fs-section);
+    line-height: var(--lh-title);
     margin: 6px 0;
   }
   .sub {
@@ -215,7 +213,7 @@
     margin-top: 14px;
   }
   .err {
-    color: #b42318;
+    color: var(--bad);
     min-height: 1.2em;
     margin: 4px 0 8px;
     font-size: 14px;

@@ -230,8 +230,8 @@
   h1 {
     margin-top: 0;
     margin-bottom: 4px;
-    font-size: clamp(32px, 9vw, 52px);
-    line-height: 1;
+    font-size: var(--fs-page);
+    line-height: var(--lh-title);
     overflow-wrap: anywhere;
   }
   .sub {
@@ -269,7 +269,7 @@
     place-items: center;
     width: 34px;
     height: 34px;
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 6px;
     font-size: 22px;
   }
@@ -320,20 +320,17 @@
   }
   .tl {
     margin-right: 6px;
-    font-size: 11px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   .go {
-    font: 900 24px var(--font-title);
-    text-transform: uppercase;
+    font: 900 var(--fs-sub) var(--font-title);
   }
   .wxgap {
     margin-bottom: 16px;
     padding: 12px 14px;
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 8px;
     background: #e3eef8;
     font-size: 17px;
