@@ -1,0 +1,359 @@
+{
+  "app": "pack-generator",
+  "schemaVersion": 4,
+  "exportedAt": "2026-10-07T08:00:00.000Z",
+  "tables": {
+    "items": [
+      {
+        "id": "TA01",
+        "name": "Test seat pack 10 L",
+        "category": "bags",
+        "weightG": 380,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "defaultBag": null,
+        "ownership": "owned",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "TA02",
+        "name": "Test frame bag",
+        "category": "bags",
+        "weightG": 210,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "defaultBag": null,
+        "ownership": "owned",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "TA03",
+        "name": "Test top tube bag",
+        "category": "bags",
+        "weightG": 120,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "defaultBag": null,
+        "ownership": "owned",
+        "role": null,
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "EL01",
+        "name": "Bike computer",
+        "category": "elec",
+        "weightG": 130,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "bike",
+        "defaultBag": "mounted",
+        "ownership": "owned",
+        "role": "standard",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "EL02",
+        "name": "Power bank 10000 mAh",
+        "category": "elec",
+        "weightG": 180,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "defaultBag": "top",
+        "ownership": "owned",
+        "role": "standard",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "EL03",
+        "name": "USB-C cable",
+        "category": "elec",
+        "weightG": 25,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "defaultBag": "top",
+        "ownership": "owned",
+        "role": "standard",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "LI01",
+        "name": "Front light",
+        "category": "light",
+        "weightG": 160,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "bike",
+        "defaultBag": "mounted",
+        "ownership": "owned",
+        "role": "standard",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "LI02",
+        "name": "Rear light",
+        "category": "light",
+        "weightG": 40,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "bike",
+        "defaultBag": "mounted",
+        "ownership": "owned",
+        "role": "standard",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "ON01",
+        "name": "Bib shorts",
+        "category": "onbike",
+        "weightG": 190,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "body",
+        "defaultBag": "body",
+        "ownership": "owned",
+        "role": "worn",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "ON02",
+        "name": "Jersey",
+        "category": "onbike",
+        "weightG": 140,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "body",
+        "defaultBag": "body",
+        "ownership": "owned",
+        "role": "worn",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "RA01",
+        "name": "Rain jacket",
+        "category": "rain",
+        "weightG": 210,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "defaultBag": "seat",
+        "ownership": "owned",
+        "role": "standard",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "RA02",
+        "name": "Arm warmers",
+        "category": "rain",
+        "weightG": 70,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "defaultBag": "seat",
+        "ownership": "owned",
+        "role": "standard",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "TO01",
+        "name": "Multi tool",
+        "category": "tools",
+        "weightG": 150,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "defaultBag": "frame",
+        "ownership": "owned",
+        "role": "standard",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "TO02",
+        "name": "Spare tube",
+        "category": "tools",
+        "weightG": 110,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "defaultBag": "frame",
+        "ownership": "owned",
+        "role": "standard",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "TO03",
+        "name": "Mini pump",
+        "category": "tools",
+        "weightG": 95,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "defaultBag": "frame",
+        "ownership": "owned",
+        "role": "standard",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "SL01",
+        "name": "Sleeping bag",
+        "category": "sleep",
+        "weightG": 650,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "defaultBag": "seat",
+        "ownership": "owned",
+        "role": null,
+        "sets": [
+          "sleep"
+        ],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      },
+      {
+        "id": "HY01",
+        "name": "Sun cream",
+        "category": "hyg",
+        "weightG": 60,
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "defaultBag": "top",
+        "ownership": "owned",
+        "role": "optional",
+        "sets": [],
+        "kits": [],
+        "domains": [
+          "bikepacking"
+        ]
+      }
+    ],
+    "kits": [],
+    "trips": [],
+    "debriefs": [],
+    "learnings": [],
+    "events": [],
+    "maintenance": [],
+    "bikes": [
+      {
+        "id": "bike-test",
+        "name": "Test gravel bike",
+        "weightG": 9800,
+        "slots": [
+          "seat",
+          "frame",
+          "top",
+          "cage1",
+          "cage2"
+        ],
+        "setup": {
+          "seat": "bag-TA01",
+          "frame": "bag-TA02",
+          "top": "bag-TA03",
+          "cage1": null,
+          "cage2": null
+        },
+        "fixtures": []
+      }
+    ],
+    "containers": [
+      {
+        "id": "bag-TA01",
+        "name": "Test seat pack",
+        "slot": "seat",
+        "volumeL": 10,
+        "itemId": "TA01",
+        "pieces": 1
+      },
+      {
+        "id": "bag-TA02",
+        "name": "Test frame bag",
+        "slot": "frame",
+        "volumeL": 4,
+        "itemId": "TA02",
+        "pieces": 1
+      },
+      {
+        "id": "bag-TA03",
+        "name": "Test top tube bag",
+        "slot": "top",
+        "volumeL": 1,
+        "itemId": "TA03",
+        "pieces": 1
+      }
+    ],
+    "weightChecks": [],
+    "settings": [],
+    "visits": [],
+    "photos": [],
+    "notes": []
+  }
+}
