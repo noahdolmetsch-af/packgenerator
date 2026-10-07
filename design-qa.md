@@ -2,6 +2,10 @@
 
 Geprüft am 7. Oktober 2026. Umfang: ausgewählte Entwürfe 2 und 3 auf der bestehenden Svelte-Anwendung, Route `#/pack`. Die Aufnahmen enthalten ausschliesslich künstliche Testdaten.
 
+## Veröffentlichungsstand
+
+PR #32 wurde am 07.10.2026 durch Noah zusammengeführt und erfolgreich veröffentlicht. [Releasebeleg](docs/releases/2026-10-07-calm-preparation.md) beschreibt Commit, CI und die begrenzte Live-Kontrolle. Die hier folgenden Screenshots/Testresultate stammen aus der isolierten Vorschau mit künstlichen Daten. Vollständige Nutzer-/Gesamtplanabnahme bleibt offen; [Prüfregister](docs/verification.md).
+
 ## Ergebnis und offene Punkte
 
 Keine offenen P0/P1/P2-Befunde im umgesetzten Umfang. Die Ansichten und ihr Übergang sind funktional geprüft; dies ist keine vollständige Barrierefreiheitszertifizierung oder Abnahme des gesamten Produktplans.
@@ -66,6 +70,7 @@ Prüfgrenzen: 320 px, vollständige Screenreaderprüfung und Fehler bei verweige
 - [x] Vorherige visuelle P2-Befunde korrigiert und erneut verglichen.
 - [x] Reale Speicherung, Undo und Packkontrolle geprüft.
 - [x] Desktop-/Mobilaufnahmen und reproduzierbare Tests vorhanden.
-- [ ] Veröffentlichung und anschliessende Live-Abnahme.
+- [x] Teilrelease veröffentlicht, CI/Deploy erfolgreich und zentraler Live-Einstieg mit Review/Rückweg geprüft.
+- [ ] Vollständige Alltagstour-Abnahme und übrige AP21–AP24-Kriterien (siehe Prüfregister).
 
 final result: passed
