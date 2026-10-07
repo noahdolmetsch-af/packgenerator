@@ -3,7 +3,6 @@
   import Gear from './pages/Gear.svelte';
   import Bikes from './pages/Bikes.svelte';
   import Pack from './pages/Pack.svelte';
-  import Care from './pages/Care.svelte';
   import Templates from './pages/Templates.svelte';
   import Debrief from './pages/Debrief.svelte';
   import Share from './pages/Share.svelte';
@@ -13,6 +12,7 @@
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
   import Search from './lib/nav/Search.svelte';
+  import { parseBikesHash } from './lib/bikes.js';
   import { liveQuery } from 'dexie';
   import { db } from './lib/db.js';
   import { phone } from './lib/media.svelte.js';
@@ -29,7 +29,7 @@
     window.addEventListener('hashchange', update);
     return () => window.removeEventListener('hashchange', update);
   });
-  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/bikes') ? 'bikes' : hash.startsWith('#/care') ? 'care' : hash.startsWith('#/pack/templates') ? 'templates' : hash.startsWith('#/pack') ? 'pack' : hash.startsWith('#/debrief') ? 'debrief' : hash.startsWith('#/share/') ? 'share' : hash.startsWith('#/ride') ? 'ride' : hash.startsWith('#/inbox') ? 'inbox' : 'home');
+  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/bikes') || hash.startsWith('#/care') ? (parseBikesHash(hash).tab === 'care' ? 'care' : 'bikes') : hash.startsWith('#/pack/templates') ? 'templates' : hash.startsWith('#/pack') ? 'pack' : hash.startsWith('#/debrief') ? 'debrief' : hash.startsWith('#/share/') ? 'share' : hash.startsWith('#/ride') ? 'ride' : hash.startsWith('#/inbox') ? 'inbox' : 'home');
   // #/debrief/<trip id> opens one trip's debrief.
   const param = $derived(hash.split('/')[2] ?? '');
 
@@ -117,10 +117,9 @@
     <Gear />
   {:else if page === 'pack'}
     <Pack />
-  {:else if page === 'bikes'}
+  {:else if page === 'bikes' || page === 'care'}
+    <!-- v0.21.0 (Noah 6a): Setup and Care are tabs of one page; #/care lands on Care. -->
     <Bikes />
-  {:else if page === 'care'}
-    <Care />
   {:else if page === 'templates'}
     <Templates />
   {:else if page === 'ride'}

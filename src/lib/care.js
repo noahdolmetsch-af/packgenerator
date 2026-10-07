@@ -203,6 +203,15 @@ export function prepFor(trip, tasks, today = iso(new Date())) {
 }
 
 /**
+ * v0.21.0 (Noah 2b: the Excel tasks stay on every trip): Bike care shows them as one row
+ * "Preparation: n open (m overdue)". rows: from prepFor. Returns { open, overdue, needed, done, total }.
+ */
+export function prepSummary(rows = []) {
+  const left = rows.filter((r) => !r.finished);
+  return { open: left.length, overdue: left.filter((r) => r.overdue).length, needed: left.filter((r) => r.needed).length, done: rows.length - left.length, total: rows.length };
+}
+
+/**
  * Rules instead of tasks (design audit C3): "Do not change saddle height … any more" has nothing
  * to tick off. They show as a hint from their date on, without buttons.
  */

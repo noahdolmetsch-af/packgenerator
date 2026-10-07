@@ -6,7 +6,7 @@
  *
  * Pure functions only, so they are easy to test.
  */
-import { PART, PARTS, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM, prepFor, prepRules, isPrep, taskBike, serviceName } from './care.js';
+import { PART, PARTS, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM, prepFor, prepRules, prepSummary, isPrep, taskBike, serviceName } from './care.js';
 import { t as tr, tn, num, locale } from './i18n.svelte.js';
 
 const DAY = 864e5;
@@ -233,7 +233,8 @@ export function tripPrep(bike, trip, tasks = [], setup = { front: null, rear: nu
   }
   const rank = (r) => (r.late ? 0 : r.when === 'during' ? 2 : 1);
   rows.sort((a, b) => rank(a) - rank(b) || (a.due ?? '9').localeCompare(b.due ?? '9'));
-  return { rows, done: prep.filter((r) => r.finished).length, total: prep.length, rules: prepRules(trip, tasks).filter((r) => r.from <= today) };
+  // v0.21.0: rows of kind 'prep' come from the Excel preparation list; prep counts them for one grouped row.
+  return { rows, done: prep.filter((r) => r.finished).length, total: prep.length, prep: prepSummary(prep), rules: prepRules(trip, tasks).filter((r) => r.from <= today) };
 }
 
 /* ---------- workshop order (v0.19.3, N15, answer 8a) ---------- */

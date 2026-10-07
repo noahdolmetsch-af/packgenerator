@@ -41,7 +41,7 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
       .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))
       .map((tr) => ({ id: tr.id, title: tr.title, sub: [tr.startDate, tr.bike].filter(Boolean).join(' · '), href: '#/pack', tripId: tr.id })),
     template: sort(templates.filter((tp) => hit(tp.name)).map((tp) => ({ id: tp.id, title: tp.name, sub: tn(tp.entries?.length ?? 0, '{n} item', '{n} items'), href: '#/pack/templates' }))),
-    bike: sort(bikes.filter((b) => hit(b.name, b.model, b.kind)).map((b) => ({ id: b.id, title: b.name, sub: b.km != null ? `${num(b.km)} km` : '', href: '#/bikes' }))),
+    bike: sort(bikes.filter((b) => hit(b.name, b.model, b.kind)).map((b) => ({ id: b.id, title: b.name, sub: b.km != null ? `${num(b.km)} km` : '', href: `#/bikes?bike=${encodeURIComponent(b.id)}` }))),
     note: notes
       .filter((n) => hit(n.text))
       .sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''))
