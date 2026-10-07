@@ -46,7 +46,11 @@ for (const lang of ['en', 'de']) {
     page.on('dialog', (d) => d.accept());
     await page.goto('./');
     const data = page.locator('details.data');
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+    // the app opens this panel by itself on an empty start: make sure it ends up open
+    await expect(async () => {
+      if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+      expect(await data.evaluate((d) => d.open)).toBe(true);
+    }).toPass();
     await data.getByLabel(T('Import backup')).setInputFiles(file);
     await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
     await expect(data.getByText(/importiert|Imported/)).toBeVisible();
@@ -119,7 +123,11 @@ test('No thanks is not asked again, and the three steps offer the template too',
   page.on('dialog', (d) => d.accept());
   await page.goto('./');
   const data = page.locator('details.data');
-  if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+  // the app opens this panel by itself on an empty start: make sure it ends up open
+  await expect(async () => {
+    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+    expect(await data.evaluate((d) => d.open)).toBe(true);
+  }).toPass();
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
   await expect(data.getByText(/Imported/)).toBeVisible();

@@ -29,7 +29,11 @@ test('event preparation only for events', async ({ page, context }, info) => {
   page.on('dialog', (d) => d.accept());
   await page.goto('./');
   const data = page.locator('details.data');
-  if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+  // the app opens this panel by itself on an empty start: make sure it ends up open
+  await expect(async () => {
+    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+    expect(await data.evaluate((d) => d.open)).toBe(true);
+  }).toPass();
   await data.getByLabel('Backup importieren').setInputFiles(file);
   await data.getByRole('button', { name: 'Alle Daten ersetzen' }).press('Enter');
   await expect(data.getByText(/importiert.*alle Daten ersetzt/i)).toBeVisible();

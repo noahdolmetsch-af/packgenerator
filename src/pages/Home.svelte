@@ -177,9 +177,14 @@
   /* ---------- Good to know: v0.25.1 (Noah 1a) the cards live in know.js and GoodToKnow.svelte ---------- */
   const place = $derived(next ? (next.place ?? next.route?.start ?? null) : null);
   let dataOpen = $state(false);
-  // Open "Your data" by itself while there is nothing in the app yet.
+  // Open "Your data" by itself while there is nothing in the app yet, once: a later data
+  // update must not toggle it again under a tap (v0.26.1: the e2e import raced with it).
+  let autoOpened = false;
   $effect(() => {
-    if (loaded && !trips.length) dataOpen = true;
+    if (loaded && !trips.length && !autoOpened) {
+      autoOpened = true;
+      dataOpen = true;
+    }
   });
   let dataEl = $state();
   function openData() {
