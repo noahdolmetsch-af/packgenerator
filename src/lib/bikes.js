@@ -147,3 +147,26 @@ export const formatVolume = (l) => (l ? `${Math.round(l * 10) / 10} L` : '–');
 const BIKE_ORDER = ['scott-hardtail', 'fully', 'factor-ls', 'canyon-world-cup', 'gravel'];
 const bikeRank = (b) => (BIKE_ORDER.includes(b.id) ? BIKE_ORDER.indexOf(b.id) : 99);
 export const sortBikes = (bikes) => [...bikes].sort((a, b) => bikeRank(a) - bikeRank(b) || a.name.localeCompare(b.name));
+
+/* ---------- one page "Bikes" with the tabs Setup and Care (v0.21.0, Noah's answers 6a, 5) ---------- */
+
+/**
+ * Read the address of the Bikes page: #/bikes?tab=care&bike=<id>&open=1.
+ * The old address #/care still lands on the Care tab. open: open that bike's care section.
+ */
+export function parseBikesHash(hash = '') {
+  const [path, query = ''] = hash.replace(/^#/, '').split('?');
+  const q = new URLSearchParams(query);
+  const tab = path.startsWith('/care') || q.get('tab') === 'care' ? 'care' : 'setup';
+  return { tab, bike: q.get('bike') || null, open: q.get('open') === '1' };
+}
+
+/** The address for a tab (and bike): the canonical form of the Bikes page. */
+export function bikesHash({ tab = 'setup', bike = null, open = false } = {}) {
+  const q = new URLSearchParams();
+  if (tab === 'care') q.set('tab', 'care');
+  if (bike) q.set('bike', bike);
+  if (open && bike) q.set('open', '1');
+  const s = q.toString();
+  return `#/bikes${s ? `?${s}` : ''}`;
+}

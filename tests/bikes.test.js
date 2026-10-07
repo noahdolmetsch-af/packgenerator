@@ -51,3 +51,20 @@ describe('bikes and bags', () => {
     expect((await db.bikes.get('fully')).weightG).toBe(14500);
   });
 });
+
+import { parseBikesHash, bikesHash } from '../src/lib/bikes.js';
+
+describe('Bikes page address (v0.21.0)', () => {
+  it('reads the tab and the bike, the old #/care lands on Care', () => {
+    expect(parseBikesHash('#/bikes')).toEqual({ tab: 'setup', bike: null, open: false });
+    expect(parseBikesHash('#/care')).toEqual({ tab: 'care', bike: null, open: false });
+    expect(parseBikesHash('#/bikes?tab=care&bike=factor-ls&open=1')).toEqual({ tab: 'care', bike: 'factor-ls', open: true });
+    expect(parseBikesHash('#/bikes?bike=fully')).toEqual({ tab: 'setup', bike: 'fully', open: false });
+  });
+  it('writes the address back the same way', () => {
+    expect(bikesHash()).toBe('#/bikes');
+    expect(bikesHash({ tab: 'care' })).toBe('#/bikes?tab=care');
+    expect(bikesHash({ tab: 'care', bike: 'factor-ls', open: true })).toBe('#/bikes?tab=care&bike=factor-ls&open=1');
+    expect(parseBikesHash(bikesHash({ tab: 'care', bike: 'x y' })).bike).toBe('x y');
+  });
+});

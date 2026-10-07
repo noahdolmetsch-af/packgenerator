@@ -4,7 +4,7 @@
   import { db } from '../lib/db.js';
   import { isOver, tipsByItem } from '../lib/debrief.js';
   import { phone } from '../lib/media.svelte.js';
-  import { SLOTS, bagsFor, formatVolume, sortBikes } from '../lib/bikes.js';
+  import { SLOTS, bagsFor, formatVolume, sortBikes, bikesHash } from '../lib/bikes.js';
   import { CATEGORY, CATEGORIES, formatWeight, isInventory, matches, weighQueue } from '../lib/gear.js';
   import { tripStats, packSteps, togglePacked, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, biggerBag, tooFull, FILL_LIMIT, axleLoad, slotFor, switchBike, heavyHigh } from '../lib/trips.js';
   import { RIDES, layerSuggest, layerDone, applyLayers, openRows, waterOn } from '../lib/layers.js';
@@ -571,7 +571,7 @@
             {#each beforeGroups.bike.rows as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : ''}{r.detail}</small></li>{/each}
           </ul>
         {/if}
-        <a class="btn sm" href="#/care">{t('Bike care')}</a>
+        <a class="btn sm" href={bikesHash({ tab: 'care', bike: trip?.bikeId })}>{t('Bike care')}</a>
       </details>
     {/if}
     {#if extra?.rows.length}

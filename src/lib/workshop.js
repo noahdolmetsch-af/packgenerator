@@ -6,7 +6,7 @@
  *
  * Pure functions only, so they are easy to test.
  */
-import { PART, PARTS, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM, prepFor, prepRules, isPrep, taskBike, serviceName } from './care.js';
+import { PART, PARTS, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM, prepFor, prepRules, prepSummary, isPrep, taskBike, serviceName } from './care.js';
 import { t as tr, tn, num, locale } from './i18n.svelte.js';
 
 const DAY = 864e5;
@@ -236,7 +236,7 @@ export function tripPrep(bike, trip, tasks = [], setup = { front: null, rear: nu
   // v0.21.0 (decision 5, answer 2b): group tells the preparation tasks (they stay on every trip)
   // from what the bike needs (workshop and repairs). An extra field, kind stays as it was.
   for (const r of rows) r.group = r.kind === 'prep' ? 'prep' : 'bike';
-  return { rows, done: prep.filter((r) => r.finished).length, total: prep.length, rules: prepRules(trip, tasks).filter((r) => r.from <= today) };
+  return { rows, done: prep.filter((r) => r.finished).length, total: prep.length, prep: prepSummary(prep), rules: prepRules(trip, tasks).filter((r) => r.from <= today) };
 }
 
 /**

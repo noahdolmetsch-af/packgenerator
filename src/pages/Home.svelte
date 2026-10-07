@@ -14,7 +14,7 @@
   import { LAST_BACKUP, LAST_IMPORT, BACKUP_DAYS, backupDue, downloadBackup } from '../lib/backup.js';
   import { openTodos, backupAfterTrip } from '../lib/todos.js';
   import { CATEGORY, formatWeight, gearStats, isConsumable } from '../lib/gear.js';
-  import { sortBikes } from '../lib/bikes.js';
+  import { sortBikes, bikesHash } from '../lib/bikes.js';
   import { withVisits, tripPrep, prepGroups, tyreSetup, costByYear } from '../lib/workshop.js';
   import { tripStats, daysUntil, readyDone, RAIN } from '../lib/trips.js';
   import { checkState, serviceDue, needsWork, wear, taskBike, isPrep } from '../lib/care.js';
@@ -259,7 +259,7 @@
         {/if}
         <a class="btn ghost" href="#/pack?print" onclick={() => openTrip(next.id)}>{t('Print list')}</a>
         {#if care.length}
-          <a class="pill" class:late href="#/care">{careText}</a>
+          <a class="pill" class:late href={bikesHash({ tab: 'care', bike: next.bikeId })}>{careText}</a>
         {:else}
           <span class="pill ok">{t('Before the trip: all done')}</span>
         {/if}
@@ -362,7 +362,7 @@
         <ul class="rows">
           {#each bikes as b (b.id)}
             {@const s = bikeState(b)}
-            <li><a href={s.due ? '#/care' : '#/bikes'}><span class="two"><b>{b.name}</b><small class="muted">{s.text}</small></span><span class="tag" class:due={s.due}>{s.tag}</span></a></li>
+            <li><a href={s.due ? bikesHash({ tab: 'care', bike: b.id, open: true }) : bikesHash({ bike: b.id })}><span class="two"><b>{b.name}</b><small class="muted">{s.text}</small></span><span class="tag" class:due={s.due}>{s.tag}</span></a></li>
           {/each}
         </ul>
         {#if year}<p class="small">{t('Workshop {year}:', { year: year.year })} <b class="num">{year.unknown === year.visits ? t('cost unknown') : `CHF ${num(Math.round(year.chf))}${year.unknown ? ` + ${t('unknown')}` : ''}`}</b> ({tn(year.visits, '{n} visit', '{n} visits')}).</p>{/if}
@@ -371,8 +371,8 @@
       {/if}
       <div class="foot">
         <button type="button" class="btn sm" onclick={() => openNew('km')}>{@render ic('plus', 16)}{t('Log km')}</button>
-        <a class="btn sm" href="#/care">{t('Bike care')}</a>
-        <a class="btn sm" href="#/care">{t('Workshop order')}</a>
+        <a class="btn sm" href="#/bikes?tab=care">{t('Bike care')}</a>
+        <a class="btn sm" href="#/bikes?tab=care">{t('Workshop order')}</a>
       </div>
     </section>
   </div>
