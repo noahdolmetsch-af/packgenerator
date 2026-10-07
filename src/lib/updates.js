@@ -185,6 +185,7 @@ async function readyClean2026(db) {
     const always = (await db.items.bulkGet(ALWAYS)).filter((i) => i?.always && ['owned', 'unclear'].includes(i.ownership)).map((i) => i.id);
     for (const t of await db.trips.toArray()) {
       if (t.startDate && t.startDate < today) continue;
+      if (Array.isArray(t.packs)) continue; // v0.21.0: a trip without a bike keeps its own check
       const own = (t.ready ?? []).filter((r) => r.id.startsWith('own-')).map(({ group, ...r }) => r);
       const on = new Set((t.entries ?? []).map((e) => e.itemId));
       const add = always.filter((id) => !on.has(id)).map((id) => ({ itemId: id, slot: slotFor(ALWAYS_OLD[id], t.setup), qty: 1, packed: false }));

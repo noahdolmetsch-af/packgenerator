@@ -27,6 +27,7 @@
   import { take } from '../lib/nav.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
+  import { hasBike, domainOf, domainName, inDomain, itemDomains, readyKey, READY_BY_DOMAIN } from '../lib/domains.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -95,7 +96,10 @@
       [...trips].filter((t) => !t.skipped && (t.startDate ?? '') >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ??
       trips[0],
   );
-  const bike = $derived(trip ? bikes.find((b) => b.id === trip.bikeId) : null);
+  // v0.21.0 (package 5): ski touring, weekend and world trip have no bike, only their own bags.
+  const bikeTrip = $derived(trip ? hasBike(trip) : true);
+  const domain = $derived(domainOf(trip));
+  const bike = $derived(trip && bikeTrip ? bikes.find((b) => b.id === trip.bikeId) : null);
   // Setup photo behind the bags (answers 2a-4a): the trip's own photo, else the bike's main photo.
   const gallery = $derived(bikePhotos(bike, $photosQ ?? []));
   const shot = $derived(packPhoto(trip, bike, $photosQ ?? []));
@@ -103,7 +107,8 @@
   // Before the trip (v0.18.2, answer 3a): the same list as on Home and in Bike care: preparation
   // tasks, what the bike needs (workshop from 14 days before) and open repairs.
   const before = $derived.by(() => {
-    if (!trip || over || trip.skipped) return null;
+    // v0.21.0: the preparation tasks and the bike's needs are bike things; a trip without a bike skips them.
+    if (!trip || over || trip.skipped || !bikeTrip) return null;
     const view = bike ? withVisits(bike, $visitsQ ?? []) : null;
     return tripPrep(view, trip, $tasksQ ?? [], view ? tyreSetup(view, $visitsQ ?? []) : undefined, today);
   });
@@ -149,6 +154,12 @@
       document.querySelector('.sugg-h')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 300);
   }
+  // v0.21.0: a trip without a bike ends here (with a bike: "End trip and debrief" on the ride day).
+  async function endTrip() {
+    const id = trip.id;
+    await change(() => ({ finished: new Date().toISOString().slice(0, 10) }));
+    location.hash = `#/debrief/${encodeURIComponent(id)}`;
+  }
   const toggleIn = (itemId) => change((t) => ({ entries: togglePacked(t.entries, itemId) }));
   // Answer 14: the list as a link (the list travels inside the address, nothing is uploaded).
   let shareNote = $state('');
@@ -193,7 +204,8 @@
     if (!$bikesQ || !$itemsQ || !$tripsQ) return;
     const startNew = () => {
       const id = take('pack.startFrom');
-      if (id) dialog = { trip: null, startFrom: id };
+      const area = take('pack.domain'); // v0.21.0: the area chosen in "New → Packing list"
+      if (id) dialog = { trip: null, startFrom: id, domain: area };
     };
     startNew();
     window.addEventListener('pg:newtrip', startNew);
@@ -203,7 +215,7 @@
   let newCheck = $state('');
   let openRow = $state(null); // phone: the row whose actions (amount, move, remove) are shown
 
-  const zone = $derived(stats?.zones.find((z) => z.key === zoneKey) ?? stats?.zones.find((z) => z.key === 'seat') ?? stats?.zones[0]);
+  const zone = $derived(stats?.zones.find((z) => z.key === zoneKey) ?? stats?.zones.find((z) => z.key === (bikeTrip ? 'seat' : trip.packs[0]?.key)) ?? stats?.zones[0]);
 
   // Noah's sketch (4.10.2026): big boxes per bag with what is inside, instead of small labels.
   const cards = $derived(
@@ -239,7 +251,8 @@
     const on = onTrip(trip);
     const asBag = bagItemIds(bags); // bags go on the bike (Bags for this trip), not into a bag
     const fixed = new Set(bike?.fixtures ?? []); // always mounted, part of the bike
-    const list = items.filter((i) => isInventory(i) && !on.has(i.id) && !asBag.has(i.id) && !fixed.has(i.id) && matches(i, { q }));
+    // v0.21.0: the items of the trip's area; a search finds every item you own.
+    const list = items.filter((i) => isInventory(i) && !on.has(i.id) && !asBag.has(i.id) && !fixed.has(i.id) && (inDomain(i, domain) || q.trim()) && matches(i, { q }));
     const order = Object.fromEntries(CATEGORIES.map((c, n) => [c.key, n]));
     const rank = (i) => (i.role === 'standard' || i.role === 'worn' ? 0 : i.sets?.length ? 1 : i.role === 'optional' ? 2 : 3);
     return list.sort((a, b) => rank(a) - rank(b) || Number(!!b.favorite) - Number(!!a.favorite) || (order[a.category] ?? 99) - (order[b.category] ?? 99) || a.name.localeCompare(b.name));
@@ -338,14 +351,19 @@
   const setBag = (slotKey, bagId) => change((t) => ({ setup: { ...t.setup, [slotKey]: bagId || null } }));
 
   // Ready check (decision 7, mockup 6a, cleanup 4.10.2026): one short list, edits change only this trip.
-  const standardQ = liveQuery(() => db.settings.get('readyStandard'));
-  const standard = $derived($standardQ?.value ?? null);
+  // v0.21.0: every area keeps its own standard list (settings readyStandard, readyStandard.ski …).
+  const standardQ = liveQuery(() => db.settings.where('key').startsWith('readyStandard').toArray());
+  const standard = $derived(($standardQ ?? []).find((r) => r.key === readyKey(domain))?.value ?? null);
+  const readyFallback = $derived(bikeTrip ? undefined : READY_BY_DOMAIN[domain] ?? []);
   const ready = $derived(trip?.ready ?? []);
   const readyCount = $derived(ready.filter((r) => trip && readyDone(r, trip)).length);
   const readyTotal = $derived(ready.length);
   // v0.20.2: where the trip stands. 0 pack list, 1 packing day, 2 ride day, 3 debrief.
-  const STEPS = ['Packing list', 'Packing day', 'Ride day', 'Debrief'];
-  const step = $derived(!trip || !stats ? 0 : over ? 3 : stats.count && stats.packed >= stats.count && readyCount >= readyTotal ? 2 : 1);
+  // v0.21.0: a trip without a bike has no ride day; after the packing day comes the debrief.
+  const STEPS = $derived(bikeTrip ? ['Packing list', 'Packing day', 'Ride day', 'Debrief'] : ['Packing list', 'Packing day', 'Debrief']);
+  const allIn = $derived(!!stats?.count && stats.packed >= stats.count && readyCount >= readyTotal);
+  const step = $derived(!trip || !stats ? 0 : bikeTrip ? (over ? 3 : allIn ? 2 : 1) : over || allIn ? 2 : 1);
+  const DEBRIEF = $derived(STEPS.length - 1);
   function toggleReady(row) {
     if (row.itemId) {
       // Older trips: an "always with me" row adds its missing item to its usual place.
@@ -367,13 +385,13 @@
     newCheck = '';
     change((t) => ({ ready: [...t.ready, { id: `own-${Date.now().toString(36)}`, label, done: false }] }));
   }
-  const resetReady = () => confirm(t('Use your standard ready check again for this trip?')) && change(() => ({ ready: freshReady(standard) }));
-  const readyChanged = $derived(ready.map((r) => r.label).join('|') !== freshReady(standard).map((r) => r.label).join('|'));
+  const resetReady = () => confirm(t('Use your standard ready check again for this trip?')) && change(() => ({ ready: freshReady(standard, readyFallback) }));
+  const readyChanged = $derived(ready.map((r) => r.label).join('|') !== freshReady(standard, readyFallback).map((r) => r.label).join('|'));
   // Answer 4: save this trip's list as the standard for every new trip.
   let savedNote = $state('');
   async function saveStandard() {
     const list = ready.filter((r) => !r.itemId).map((r, n) => ({ id: r.id.startsWith('own-') ? `std-${n}-${Date.now().toString(36)}` : r.id, label: r.label }));
-    await db.settings.put({ key: 'readyStandard', value: list });
+    await db.settings.put({ key: readyKey(domain), value: list });
     savedNote = t('Saved. New trips start with this list.');
     setTimeout(() => (savedNote = ''), 4000);
   }
@@ -424,7 +442,8 @@
     return names.length ? t('Adds: {names}.', { names: names.join(', ') }) : t('No items set for this kind of ride yet (Gear → Edit → Layers).');
   });
   // Mockup answer 3a: a small label in "Not packed" says why an item is suggested.
-  const tagOf = (i) => suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (i.always ? t('every trip') : i.role === 'standard' || i.role === 'worn' ? t('standard') : '');
+  // v0.21.0: an item of another area (found by the search) is labelled with its area.
+  const tagOf = (i) => (!inDomain(i, domain) ? t(domainName(itemDomains(i)[0])) : '') || (suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (i.always ? t('every trip') : i.role === 'standard' || i.role === 'worn' ? t('standard') : ''));
   // Round D answer 5: take an alternative (mini lock) or nothing instead of the usual item.
   const pickLayer = (slot, value) => change((t) => ({ layerPick: { ...(t.layerPick ?? {}), [slot]: value === slot ? null : value } }));
   const addAllLayers = () => setEntries((es) => applyLayers(es, openLayers, slotOf));
@@ -447,8 +466,8 @@
     if (!trip || !$itemsQ || openedFor === trip.id) return;
     openedFor = trip.id;
     untrack(() => {
-      condOpen = !over && (openLayers.length > 0 || !!wxGap);
-      nightOpen = !over && (trip.days ?? 1) > 1 && !NIGHT_SETS.some((ns) => setOn(ns.key)) && NIGHT_SETS.some((ns) => setCount(ns.key) > 0);
+      condOpen = bikeTrip && !over && (openLayers.length > 0 || !!wxGap);
+      nightOpen = bikeTrip && !over && (trip.days ?? 1) > 1 && !NIGHT_SETS.some((ns) => setOn(ns.key)) && NIGHT_SETS.some((ns) => setCount(ns.key) > 0);
     });
   });
 
@@ -489,8 +508,8 @@
       <p class="tags">
         {#if whenLabel(trip.startDate)}<span class="tag hi">{whenLabel(trip.startDate)}</span>{/if}
         <span class="tag">{tn(trip.days, '{n} day', '{n} days')}</span>
-        <span class="tag">{bike?.name ?? t('No bike')}</span>
-        {#if trip.skipped}<span class="tag">{t('Not riding')}</span>{/if}
+        <span class="tag">{bikeTrip ? (bike?.name ?? t('No bike')) : t(domainName(domain))}</span>
+        {#if trip.skipped}<span class="tag">{bikeTrip ? t('Not riding') : t('Not going')}</span>{/if}
       </p>
       <details class="menu" bind:open={menuOpen} onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}>
         <summary aria-label={t('More: other trip, packing day, templates, print')} title={t('More')}>•••</summary>
@@ -504,13 +523,13 @@
           </label>
           <div class="m-row">
             <button type="button" class="btn" onclick={() => (packDay = true)}>{t('Packing day')}{#if stats.packed}<small class="num"> {stats.packed}/{stats.count}</small>{/if}</button>
-            <a class="btn" href="#/ride" onclick={() => choose(trip.id)}>{t('Ride day')}</a>
-            {#if trip.startDate && trip.startDate <= new Date().toISOString().slice(0, 10) && step < 3}<a class="btn" href="#/debrief/{encodeURIComponent(trip.id)}">{t('Debrief')}</a>{/if}
+            {#if bikeTrip}<a class="btn" href="#/ride" onclick={() => choose(trip.id)}>{t('Ride day')}</a>{/if}
+            {#if trip.startDate && trip.startDate <= new Date().toISOString().slice(0, 10) && step < DEBRIEF}<a class="btn" href="#/debrief/{encodeURIComponent(trip.id)}">{t('Debrief')}</a>{/if}
           </div>
           <hr />
           <button type="button" class="btn" onclick={() => (dialog = { trip: null })}>{t('New trip')}</button>
           <!-- Answer 5a: the templates as buttons; one click starts a new trip from it. -->
-          {#if templates.length}
+          {#if templates.length && bikeTrip}
             <div class="tpls" role="group" aria-label={t('New trip from a template')}>
               <span class="lbl">{t('New trip from a template')}</span>
               {#each templates as tp (tp.id)}
@@ -518,7 +537,7 @@
               {/each}
             </div>
           {/if}
-          <button type="button" class="btn" onclick={() => (saveTpl = true)}>{t('Save as template')}</button>
+          {#if bikeTrip}<button type="button" class="btn" onclick={() => (saveTpl = true)}>{t('Save as template')}</button>{/if}
           <a class="btn" href="#/pack/templates">{t('Templates')} <small>{templates.length}</small></a>
           <hr />
           <button type="button" class="btn" onclick={() => window.print()} title={t('In the print dialog choose Save as PDF')}>{t('Print / PDF')}</button>
@@ -526,9 +545,9 @@
           {#if stats.packed}<button type="button" class="btn" onclick={resetPacked}>{t('Untick packed items')}</button>{/if}
           <hr />
           <button type="button" class="btn" onclick={() => (dialog = { trip })}>{t('Edit trip')}</button>
-          {#if !over && bikes.length > 1}<button type="button" class="btn" onclick={() => (choosing = true)}>{t('Compare bikes')}</button>{/if}
+          {#if bikeTrip && !over && bikes.length > 1}<button type="button" class="btn" onclick={() => (choosing = true)}>{t('Compare bikes')}</button>{/if}
           <!-- v0.19.2 (question 10): a trip you will not ride stays, but is no "next trip" and no reminder. -->
-          <button type="button" class="btn" onclick={() => change(() => ({ skipped: !trip.skipped }))}>{trip.skipped ? t('Riding it after all') : t('Not riding')}</button>
+          <button type="button" class="btn" onclick={() => change(() => ({ skipped: !trip.skipped }))}>{bikeTrip ? (trip.skipped ? t('Riding it after all') : t('Not riding')) : trip.skipped ? t('Going after all') : t('Not going')}</button>
         </div>
       </details>
     </header>
@@ -544,8 +563,13 @@
       <ol class="steps">
         {#each STEPS as s, i (s)}<li class:done={i < step} class:cur={i === step}><span class="n">{i < step ? '✓' : i + 1}</span>{t(s)}</li>{/each}
       </ol>
-      {#if step === 3}
-        <a class="btn hi go" href="#/debrief/{encodeURIComponent(trip.id)}"><b>{t('Next: debrief')}</b><small>{t('Two minutes: what you used, missed or did not need.')}</small></a>
+      {#if step === DEBRIEF}
+        {#if over}
+          <a class="btn hi go" href="#/debrief/{encodeURIComponent(trip.id)}"><b>{t('Next: debrief')}</b><small>{t('Two minutes: what you used, missed or did not need.')}</small></a>
+        {:else}
+          <!-- v0.21.0: no ride day without a bike; this button ends the trip, as "End trip and debrief" does there. -->
+          <button type="button" class="btn hi go" onclick={endTrip}><b>{t('Next: debrief')}</b><small>{t('Everything packed. Back home? This ends the trip: two minutes on what you used, missed or did not need.')}</small></button>
+        {/if}
       {:else if step === 2}
         <a class="btn hi go" href="#/ride" onclick={() => choose(trip.id)}><b>{t('Next: ride day')}</b><small>{t('Everything packed. Route, weather, what is where, and at the end "End trip and debrief".')}</small></a>
       {:else}
@@ -571,7 +595,7 @@
             {#each beforeGroups.bike.rows as r (r.key)}<li class:now={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : ''}{r.detail}</small></li>{/each}
           </ul>
         {/if}
-        <a class="btn sm" href={bikesHash({ tab: 'care', bike: trip?.bikeId })}>{t('Bike care')}</a>
+        {#if bikeTrip}<a class="btn sm" href={bikesHash({ tab: 'care', bike: trip?.bikeId })}>{t('Bike care')}</a>{/if}
       </details>
     {/if}
     {#if extra?.rows.length}
@@ -594,19 +618,22 @@
     <!-- v0.21.0 (decision 5, 9a): four figures in sight, every other one under "More". -->
     <section class="sys" class:away={phone.matches && tab === 'add'} aria-label={t('Weights')}>
       {#snippet ic(name)}<svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d={ICONS[name]} /></svg>{/snippet}
-      <div class="w1"><span class="lbl">{t('System')}</span><b class="num">{kg(stats.systemG)}</b></div>
-      <div class="w1" title={t('Gear in the bags and on the bike, without what you wear and without food and water')}>{@render ic('bag')}<span class="lbl">{t('Base')}</span><b class="num">{formatWeight(stats.baseG)}</b></div>
+      {#if bikeTrip}<div class="w1"><span class="lbl">{t('System')}</span><b class="num">{kg(stats.systemG)}</b></div>
+      {:else}<div class="w1" title={t('Everything packed and worn')}><span class="lbl">{t('Total')}</span><b class="num">{kg(stats.gearG + stats.onMeG)}</b></div>{/if}
+      <div class="w1" title={bikeTrip ? t('Gear in the bags and on the bike, without what you wear and without food and water') : t('Gear in the bags, without what you wear and without food and water')}>{@render ic('bag')}<span class="lbl">{t('Base')}</span><b class="num">{formatWeight(stats.baseG)}</b></div>
       <div class="w1" title={t('What you wear, without food in the pockets')}>{@render ic('me')}<span class="lbl">{t('On you')}</span><b class="num">{formatWeight(stats.wornG)}</b></div>
       <div class="w1" title={t('Food and full bottles, wherever they are')}>{@render ic('water')}<span class="lbl">{t('Food and water')}</span><b class="num">{formatWeight(stats.consumablesG)}</b></div>
       <button type="button" class="link morew" aria-expanded={allWeights} aria-controls="sys-more" onclick={() => (allWeights = !allWeights)}>{allWeights ? t('Less') : t('More')}</button>
       {#if canUndo}<button type="button" class="btn sm undo" onclick={undoLast} title={t('Put back the last change')}>↶ {t('Undo')}</button>{/if}
       {#if allWeights}
         <div class="more-w" id="sys-more">
+          {#if bikeTrip}
           <div class="w1">{@render ic('bags')}<span class="lbl">{t('Bags')}</span><b class="num">{formatWeight(stats.bagsG)}</b></div>
           <div class="w1">{@render ic('bike')}<span class="lbl">{t('Bike')}</span>{#if stats.missing.bike}<a class="nw" href="#/bikes">{t('not weighed')}</a>{:else}<b class="num">{formatWeight(stats.bikeG)}</b>{/if}</div>
           <div class="w1">{@render ic('me')}<span class="lbl">{t('Rider')}</span>{#if stats.missing.rider}<a class="nw" href="#/bikes">{t('not set')}</a>{:else}<b class="num">{formatWeight(stats.riderG)}</b>{/if}</div>
+          {/if}
           {#if water}<div class="w1">{@render ic('water')}<span class="lbl">{t('Water')}</span><b class="num">{num(Math.round(water * 10) / 10)} L</b></div>{/if}
-          <div class="w1" title={t('Luggage on the front / rear wheel: {front} / {rear}', { front: formatWeight(axle.front), rear: formatWeight(axle.rear) })}>{@render ic('axle')}<span class="lbl">{t('Front / rear')}</span><b class="num" class:warn={rearPct > rearLimit}>{rearPct != null ? `${100 - rearPct} / ${rearPct} %` : '–'}</b></div>
+          {#if bikeTrip}<div class="w1" title={t('Luggage on the front / rear wheel: {front} / {rear}', { front: formatWeight(axle.front), rear: formatWeight(axle.rear) })}>{@render ic('axle')}<span class="lbl">{t('Front / rear')}</span><b class="num" class:warn={rearPct > rearLimit}>{rearPct != null ? `${100 - rearPct} / ${rearPct} %` : '–'}</b></div>{/if}
           <div class="w1">{@render ic('list')}<span class="lbl">{t('Items')}</span><b class="num">{stats.count}</b></div>
           {#if stats.unweighed}
             <span class="nw">{t('{n} not weighed', { n: stats.unweighed })}</span>
@@ -614,14 +641,14 @@
           {/if}
         </div>
       {/if}
-      {#if rearPct > rearLimit}<p class="sys-note warn">{t('{pct} % of the luggage is on the rear wheel (hint above {limit} %).', { pct: rearPct, limit: rearLimit })}</p>{/if}
+      {#if bikeTrip && rearPct > rearLimit}<p class="sys-note warn">{t('{pct} % of the luggage is on the rear wheel (hint above {limit} %).', { pct: rearPct, limit: rearLimit })}</p>{/if}
     </section>
 
     {#if choosing && choiceRows.length}
       <BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => (choosing = false)} />
     {/if}
     {#if packDay}
-      <PackDay {trip} {wxGap} onwx={useForecast} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onclose={() => (packDay = false)} />
+      <PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={useForecast} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onclose={() => (packDay = false)} />
     {/if}
     {#if shownPhoto != null && gallery.length}
       <Lightbox list={gallery.map((p) => ({ src: p.src, name: p.name, sub: bike?.name ?? '' }))} start={shownPhoto} onclose={() => (shownPhoto = null)} />
@@ -779,7 +806,7 @@
     <div class="cols">
       {#if !phone.matches || tab === 'add'}
         <div class="c-np">
-          {#if phone.matches}
+          {#if phone.matches && bikeTrip}
             <details class="ph-cond">
               <summary>{t('Ride, weather and night')}{#if openLayers.length}<small class="lab">{tn(openLayers.length, '{n} layer to add', '{n} layers to add')}</small>{/if}</summary>
               {@render layers()}
@@ -787,7 +814,7 @@
               {@render night()}
             </details>
           {/if}
-          <NotPacked items={candidates} {tagOf} target={targetName} onadd={add} drag={!phone.matches} bind:q>
+          <NotPacked items={candidates} {tagOf} target={targetName} onadd={add} drag={!phone.matches} bind:q empty={bikeTrip ? '' : items.some((i) => isInventory(i) && inDomain(i, domain)) ? t('Every {area} item is on this trip. Search above to find any other item you own.', { area: t(domainName(domain)) }) : t('No items for {area} yet. Search above to add any item you own, or in Gear open an item and tick {area} under Areas.', { area: t(domainName(domain)) })}>
             {#if !phone.matches}{@render target()}{/if}
           </NotPacked>
         </div>
@@ -795,7 +822,7 @@
 
       {#if !phone.matches || tab === 'pack'}
         <div class="c-bag">
-          <PackStage {cards} photo={shot?.src ?? null} photoName={shot?.name ?? ''} onphoto={() => (shownPhoto = Math.max(0, gallery.findIndex((p) => p.id === shot?.id)))} strip={phone.matches} onpick={pick} ondropitem={phone.matches ? null : addTo} label={bike?.name ? t('Bags on {bike}, tap one to open it', { bike: bike.name }) : t('Bags on the bike, tap one to open it')} />
+          <PackStage {cards} bike={bikeTrip} photo={bikeTrip ? (shot?.src ?? null) : null} photoName={shot?.name ?? ''} onphoto={() => (shownPhoto = Math.max(0, gallery.findIndex((p) => p.id === shot?.id)))} strip={phone.matches} onpick={pick} ondropitem={phone.matches ? null : addTo} label={!bikeTrip ? t('Bags of this trip, tap one to open it') : bike?.name ? t('Bags on {bike}, tap one to open it', { bike: bike.name }) : t('Bags on the bike, tap one to open it')} />
 
           <!-- Answer 3a (4.10.2026): under the boxes every bag as a list, items moved with "Move" or by dragging.
                On a phone only the bag chosen in the strip. -->
@@ -893,7 +920,7 @@
             {/each}
           </div>
 
-          {#if phone.matches}
+          {#if phone.matches && bikeTrip}
             <details class="setup">
               <summary>{t('Bags for this trip')}</summary>
               {@render bagChoice()}
@@ -903,8 +930,9 @@
       {/if}
 
       {#if !phone.matches}
-        <aside class="c-side" aria-label={t('Ride and checks')}>
+        <aside class="c-side" aria-label={bikeTrip ? t('Ride and checks') : t('Checks')}>
           <!-- v0.21.0 (decision 5): folded with a one-line summary, open when the trip needs it now. -->
+          {#if bikeTrip}
           <details class="box-s fold" bind:open={condOpen}>
             <summary><span class="title">{t('Ride and weather')}</span><span class="fsum">{condLine}{#if openLayers.length}<small class="lab">{tn(openLayers.length, '{n} layer to add', '{n} layers to add')}</small>{/if}</span></summary>
             {@render layers()}
@@ -913,6 +941,7 @@
             <summary><span class="title">{t('Night')}</span><span class="fsum">{nightLine}</span></summary>
             {@render night()}
           </details>
+          {/if}
           <!-- Noah, 4.10.2026: the ready check is always folded; a click opens the whole list. -->
           <details class="box-s ready fold">
             <summary class="ready-h">
@@ -921,10 +950,12 @@
             </summary>
             {@render readyFull()}
           </details>
-          <details class="box-s setup">
-            <summary>{t('Bags for this trip')}</summary>
-            {@render bagChoice()}
-          </details>
+          {#if bikeTrip}
+            <details class="box-s setup">
+              <summary>{t('Bags for this trip')}</summary>
+              {@render bagChoice()}
+            </details>
+          {/if}
         </aside>
       {/if}
 
@@ -952,7 +983,8 @@
     {/if}
     <section class="print" aria-hidden="true">
       <h1>{trip.title}</h1>
-      <p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {bike?.name ?? ''} · {t('system weight {kg}', { kg: kg(stats.systemG) })}</p>
+      {#if bikeTrip}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {bike?.name ?? ''} · {t('system weight {kg}', { kg: kg(stats.systemG) })}</p>
+      {:else}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {t(domainName(domain))} · {t('total {kg}', { kg: kg(stats.gearG + stats.onMeG) })}</p>{/if}
       {#each stats.zones.filter((z) => z.entries.length) as z (z.key)}
         <h2>{zoneName(z)} <small>{tn(z.entries.length, '{n} item', '{n} items')} · {formatWeight(z.grams)}</small></h2>
         <ul>
@@ -966,7 +998,7 @@
 </div>
 
 {#if dialog}
-  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {templates} startFrom={dialog.startFrom ?? 'last'} defaultBikeId={trip?.bikeId} onclose={() => (dialog = null)} oncreated={choose} />
+  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {templates} startFrom={dialog.startFrom ?? 'last'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onclose={() => (dialog = null)} oncreated={choose} />
 {/if}
 {#if saveTpl && trip}
   <TemplateDialog {trip} {templates} onclose={() => (saveTpl = false)} onsaved={(name) => ((tplNote = t('Saved as template "{name}".', { name })), setTimeout(() => (tplNote = ''), 4000))} />

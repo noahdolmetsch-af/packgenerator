@@ -3,6 +3,7 @@
   import { RIDES, RAIN_ITEM } from '../layers.js';
   import { CATEGORIES, CATEGORY, BAGS, BAG, OWNERSHIP, ROLES, SETS, formatWeight, itemWeight, nextId, parseGrams } from '../gear.js';
   import { t, nameOf } from '../i18n.svelte.js';
+  import { DOMAINS, itemDomains, domainName } from '../domains.js';
 
   /**
    * item: the item to show, or null for "Add item".
@@ -17,7 +18,7 @@
   // svelte-ignore state_referenced_locally
   let draft = $state(
     item
-      ? { ...item, role: item.role ?? '', model: item.model ?? '', grams: item.weightG ?? '', ...layerFields(item) }
+      ? { ...item, role: item.role ?? '', model: item.model ?? '', grams: item.weightG ?? '', domains: itemDomains(item), favNote: item.favNote ?? '', ...layerFields(item) }
       : { id: '', name: '', brand: '', model: '', category: 'elec', grams: '', qty: 1, defaultBag: 'top', ownership: 'owned', role: '', note: '', sets: [], kits: [], domains: ['bikepacking'], ...preset, ...layerFields(preset) },
   );
   // Layers (round C answer 2): kept as text while editing, numbers in the database.
@@ -49,6 +50,8 @@
       role: rest.role || null,
       always: rest.always ? true : null,
       favorite: rest.favorite ? true : null,
+      favNote: rest.favorite ? rest.favNote?.trim() || null : (item?.favNote ?? null),
+      domains: rest.domains?.length ? rest.domains : ['bikepacking'],
       ride: rest.ride || null,
       rain: rest.rain || null,
       coldBelow: numOrNull(rest.coldBelow),
@@ -90,6 +93,7 @@
         {#if item.role}<div><dt>{t('Role')}</dt><dd>{t(ROLES[item.role] ?? '')}</dd></div>{/if}
         {#if item.always}<div><dt>{t('Trips')}</dt><dd>{t('On every trip')}</dd></div>{/if}
         {#if item.favorite}<div><dt>{t('Favourite')}</dt><dd>★ {item.favNote || t('Tested, one of my best items')}</dd></div>{/if}
+        <div><dt>{t('Areas')}</dt><dd>{itemDomains(item).map((d) => t(domainName(d))).join(', ')}</dd></div>
         {#if item.ride}<div><dt>{t('Layer')}</dt><dd>{t(RIDES.find((r) => r.key === item.ride)?.name ?? '')}</dd></div>{/if}
         {#if item.coldBelow != null}<div><dt>{t('Add when colder than')}</dt><dd>{item.coldBelow} °C</dd></div>{/if}
         {#if item.rain}<div><dt>{t('Rain')}</dt><dd>{t(RAIN_ITEM[item.rain] ?? '')}</dd></div>{/if}
@@ -136,6 +140,17 @@
         </label>
         <label class="cb wide always"><input type="checkbox" bind:checked={draft.always} /> {t('On every trip (always with me: every new trip gets it)')}</label>
         <label class="cb wide always"><input type="checkbox" bind:checked={draft.favorite} /> ★ {t('Favourite (tested, one of my best items)')}</label>
+        {#if draft.favorite}
+          <label class="wide"><span class="lbl">{t('Why it is a favourite')}</span><input class="inp" bind:value={draft.favNote} placeholder={t('e.g. Warm, packs small, never let me down')} /></label>
+        {/if}
+        <!-- v0.21.0 (package 5): one inventory, an item can belong to several areas. -->
+        <fieldset class="wide sets">
+          <legend class="lbl">{t('Areas (new trips of an area suggest its items)')}</legend>
+          {#each DOMAINS as d (d.key)}
+            {@const on = draft.domains?.includes(d.key)}
+            <label class="cb"><input type="checkbox" checked={on} disabled={on && draft.domains.length === 1} onchange={(e) => (draft.domains = e.currentTarget.checked ? [...(draft.domains ?? []), d.key] : (draft.domains ?? []).filter((x) => x !== d.key))} /> {t(d.name)}</label>
+          {/each}
+        </fieldset>
         <fieldset class="wide sets">
           <legend class="lbl">{t('Overnight sets (Pack adds them with one switch)')}</legend>
           {#each Object.entries(SETS) as [k, v] (k)}

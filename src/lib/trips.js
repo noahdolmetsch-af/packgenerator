@@ -6,10 +6,12 @@
  *   bikeId, setup     which bike, and which bag sits where for this trip (copied from the bike)
  *   entries           [{ itemId, slot, qty, packed }]  slot = a bike place, "body" or "mounted"
  *   ready             [{ id, label, done }]  this trip's ready check (older trips may still have group/itemId)
+ *   domain, packs     v0.21.0: the area; a trip without a bike has its own bags in `packs` (see domains.js)
  */
 import { SLOT, SLOTS, FIXED_ZONES, addedWeight } from './bikes.js';
 import { isInventory, isConsumable } from './gear.js';
 import { t as tr } from './i18n.svelte.js';
+import { inDomain, BIKEPACKING } from './domains.js';
 
 /**
  * The ready check suggested for every new trip (decision 7: editable per trip).
@@ -30,13 +32,13 @@ export const READY_DEFAULT = [
 /** Where the old "Always with me" checks put a missing item (used once when trips are updated). */
 export const ALWAYS_OLD = { EL13: 'top', EL07: 'mounted', EL10: 'body', KL22: 'body', HY01: 'top', WZ23: 'frame' };
 /** A fresh ready check: the saved standard (if any) or the suggested list, nothing ticked. */
-export const freshReady = (standard = null) => (standard?.length ? standard : READY_DEFAULT).map((r) => ({ id: r.id, label: r.label, done: false }));
+export const freshReady = (standard = null, fallback = READY_DEFAULT) => (standard?.length ? standard : fallback).map((r) => ({ id: r.id, label: r.label, done: false }));
 
 /** Items marked "On every trip" that are not on these entries yet, in their usual place. */
 export function alwaysEntries(items, entries, setup) {
   const on = new Set(entries.map((e) => e.itemId));
   return items
-    .filter((i) => i.always && isInventory(i) && !on.has(i.id))
+    .filter((i) => i.always && isInventory(i) && !on.has(i.id) && inDomain(i, BIKEPACKING))
     .map((i) => ({ itemId: i.id, slot: slotFor(i.defaultBag, setup), qty: 1, packed: false }));
 }
 
@@ -55,7 +57,8 @@ export function slotFor(defaultBag, setup) {
 /** The standard set: worn items on me, standard items and the overnight base set in their default bag. */
 export function standardEntries(items, setup) {
   return items
-    .filter((i) => isInventory(i) && (i.role === 'worn' || i.role === 'standard' || i.sets?.includes('base')))
+    // v0.21.0: only items of the bikepacking area (an item only for the weekend stays out)
+    .filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && (i.role === 'worn' || i.role === 'standard' || i.sets?.includes('base')))
     .map((i) => ({ itemId: i.id, slot: i.role === 'worn' ? 'body' : slotFor(i.defaultBag, setup), qty: 1, packed: false }));
 }
 
@@ -124,17 +127,21 @@ export function tripStats(trip, items, containers, bike, riderG) {
     const it = itemsById[e.itemId];
     return it?.weightG == null ? null : it.weightG * (e.qty || 1);
   };
-  const keys = [...FIXED_ZONES.map((z) => z.key), ...SLOTS.filter((s) => trip.setup?.[s.key]).map((s) => s.key)];
+  // v0.21.0: a trip without a bike has "On me" and its own bags (trip.packs) instead of bike places.
+  const packs = Array.isArray(trip.packs) ? trip.packs : null;
+  const packOf = Object.fromEntries((packs ?? []).map((p) => [p.key, p]));
+  const keys = packs ? ['body', ...packs.map((p) => p.key)] : [...FIXED_ZONES.map((z) => z.key), ...SLOTS.filter((s) => trip.setup?.[s.key]).map((s) => s.key)];
   // Entries in a place without a bag still show up, marked as "no bag".
   for (const e of trip.entries) if (!keys.includes(e.slot)) keys.push(e.slot);
   const zones = keys.map((key) => {
     const entries = trip.entries.filter((e) => e.slot === key);
-    const bag = bagsById[trip.setup?.[key]] ?? null;
+    const own = packOf[key];
+    const bag = own ? { id: `pack-${key}`, name: tr(own.name), volumeL: own.volumeL ?? null, pack: true } : packs ? null : bagsById[trip.setup?.[key]] ?? null;
     const grams = entries.reduce((t, e) => t + (w(e) ?? 0), 0);
     const vol = entries.reduce((t, e) => t + (itemsById[e.itemId]?.volumeL || 0) * (e.qty || 1), 0);
     return {
       key,
-      zone: ZONE[key] ?? { key, name: key, box: null },
+      zone: own ? { key, name: bag.name, box: null } : ZONE[key] ?? { key, name: key, box: null },
       bag,
       noBag: !bag && key !== 'body' && key !== 'mounted',
       entries,
@@ -247,7 +254,8 @@ export async function ensureTrips(db) {
     const bagItems = bagItemIds(containers);
     const fixturesOf = (id) => bikes.find((b) => b.id === id)?.fixtures ?? [];
     const todo = (await db.trips.toArray()).filter(
-      (t) => !t.bikeId || !t.setup || !t.ready || t.entries?.some((e) => !e.slot || bagItems.has(e.itemId) || fixturesOf(t.bikeId).includes(e.itemId)),
+      // v0.21.0: trips without a bike (own bags in trip.packs) need none of this.
+      (t) => !Array.isArray(t.packs) && (!t.bikeId || !t.setup || !t.ready || t.entries?.some((e) => !e.slot || bagItems.has(e.itemId) || fixturesOf(t.bikeId).includes(e.itemId))),
     );
     for (const t of todo) {
       const bike = bikes.find((b) => b.id === t.bikeId) ?? bikes.find((b) => b.name === t.bike) ?? null;

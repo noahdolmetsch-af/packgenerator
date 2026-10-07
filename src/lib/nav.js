@@ -28,9 +28,13 @@ export const openNew = (mode = 'all') => window.dispatchEvent(new CustomEvent('p
 /** A trip becomes the one Pack and Ride day show. */
 export const openTrip = (id) => keep('pack.currentTrip', id);
 
-/** New packing list: from a template (its id), 'last' (copy the last trip on the bike) or 'standard'. */
-export function newTrip(startFrom) {
+/**
+ * New packing list: from a template (its id), 'last' (copy the last trip on the bike, or of the
+ * area) or 'standard'. domain (v0.21.0): the area chosen in the "New" sheet.
+ */
+export function newTrip(startFrom, domain = null) {
   keep('pack.startFrom', startFrom);
+  if (domain) keep('pack.domain', domain);
   location.hash = '#/pack';
   window.dispatchEvent(new Event('pg:newtrip'));
 }

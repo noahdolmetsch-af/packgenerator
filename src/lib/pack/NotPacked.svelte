@@ -11,8 +11,9 @@
    * items: the candidates, already sorted. tagOf(item): a short label or ''.
    * target: name of the bag "+" puts things into. onadd(itemId). drag: allow dragging (not on a phone).
    * children: optional extra controls under the search (the "Adding to" choice).
+   * empty (v0.21.0): what to say when nothing is left and nothing is searched (an area without items).
    */
-  let { items, tagOf, target, onadd, drag = true, q = $bindable(''), children } = $props();
+  let { items, tagOf, target, onadd, drag = true, q = $bindable(''), children, empty = '' } = $props();
 
   const groups = $derived(
     CATEGORIES.map((c) => ({ ...c, items: items.filter((i) => i.category === c.key) }))
@@ -63,7 +64,7 @@
         {/if}
       </div>
     {:else}
-      <p class="empty">{q.trim() ? t('Nothing matches.') : t('Everything you own is on this trip.')}</p>
+      <p class="empty">{q.trim() ? t('Nothing matches.') : empty || t('Everything you own is on this trip.')}</p>
     {/each}
   </div>
 </section>

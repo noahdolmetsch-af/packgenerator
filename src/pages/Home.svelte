@@ -29,6 +29,7 @@
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { openNew, openNote, openTrip, addItem, newTrip } from '../lib/nav.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
+  import { hasBike, domainOf, domainName } from '../lib/domains.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -63,13 +64,15 @@
 
   /* ---------- the next trip ---------- */
   const next = $derived(nextTrip(trips));
+  // v0.21.0: a trip without a bike (weekend, ski touring, world trip) has no ride day and no bike care.
+  const nextByBike = $derived(next ? hasBike(next) : true);
   const bike = $derived(next ? bikes.find((b) => b.id === next.bikeId) : null);
   const stats = $derived(next ? tripStats(next, items, $bagsQ ?? [], bike, $riderQ?.value) : null);
   const days = $derived(next ? daysUntil(next.startDate) : null);
   const ready = $derived(next?.ready ?? []);
   const readyN = $derived(ready.filter((r) => readyDone(r, next)).length);
   // v0.18.2 (answer 3a): the same list "Before the trip" as in Pack and Bike care.
-  const care = $derived(next ? (tripPrep(bike, next, tasks, bike ? tyreSetup(bike, visits) : undefined)?.rows ?? []) : []);
+  const care = $derived(next && nextByBike ? (tripPrep(bike, next, tasks, bike ? tyreSetup(bike, visits) : undefined)?.rows ?? []) : []);
   const late = $derived(care.filter((c) => c.late).length);
   // v0.21.0 (decision 5, answer 2b): preparation and bike counted apart, as in Pack.
   const careText = $derived.by(() => {
@@ -184,7 +187,7 @@
   const todayText = $derived(new Date().toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }));
 
   // Ride day (answer 1a): on the days of the trip the app opens the ride view, once a day.
-  const riding = $derived(next ? onTripDay(next, today) : false);
+  const riding = $derived(next && nextByBike ? onTripDay(next, today) : false);
   $effect(() => {
     if (!riding) return;
     const key = 'ride.autoOpened';
@@ -238,7 +241,7 @@
         <span class="lbl">{todayText} · {t('next trip')}</span>
         <h1 id="next-h" class="title">{next.title}</h1>
         <p class="facts">
-          <span>{dateText(next)}</span>{#if next.bike}<span>{next.bike}</span>{/if}{#if place?.name}<span>{place.name.split(',')[0]}</span>{/if}
+          <span>{dateText(next)}</span>{#if !nextByBike}<span>{t(domainName(domainOf(next)))}</span>{:else if next.bike}<span>{next.bike}</span>{/if}{#if place?.name}<span>{place.name.split(',')[0]}</span>{/if}
           <span class="num">{tn(stats.count, '{n} item', '{n} items')}</span>{#if stats.gearG}<span class="num">{t('{w} gear', { w: formatWeight(stats.gearG) })}</span>{/if}
         </p>
       </div>
@@ -252,15 +255,15 @@
         {:else if days <= 2}
           <a class="btn hi" href="#/pack?day" onclick={() => openTrip(next.id)}>{t('Packing day')}</a>
           <a class="btn ghost" href="#/pack" onclick={() => openTrip(next.id)}>{t('Continue packing')}</a>
-          <a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>
+          {#if nextByBike}<a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>{/if}
         {:else}
           <a class="btn hi" href="#/pack" onclick={() => openTrip(next.id)}>{t('Continue packing')}</a>
-          <a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>
+          {#if nextByBike}<a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>{/if}
         {/if}
         <a class="btn ghost" href="#/pack?print" onclick={() => openTrip(next.id)}>{t('Print list')}</a>
         {#if care.length}
           <a class="pill" class:late href={bikesHash({ tab: 'care', bike: next.bikeId })}>{careText}</a>
-        {:else}
+        {:else if nextByBike}
           <span class="pill ok">{t('Before the trip: all done')}</span>
         {/if}
       </div>

@@ -3,13 +3,17 @@
   import { newTrip, lastTripOn, switchBike } from '../trips.js';
   import { tripFromTemplate } from '../templates.js';
   import { t } from '../i18n.svelte.js';
+  import { DOMAINS, DOMAIN, BIKEPACKING, domainName, lastDomain, rememberDomain, newPackTrip, lastTripIn, readyKey, inDomain, hasBike } from '../domains.js';
+  import { isInventory } from '../gear.js';
 
   /**
    * trip: the trip to edit, or null for "New trip".
    * A new trip is a copy of the last trip with the same bike (decision 5a),
    * or starts from a template (4.10.2026) or from the standard set.
+   * v0.21.0 (package 5): a new trip asks the area first (domain; default the last one used on this
+   * device). Areas without a bike skip the bike and templates; their bags come with the area.
    */
-  let { trip, trips, bikes, items, templates = [], startFrom = 'last', defaultBikeId = null, onclose, oncreated } = $props();
+  let { trip, trips, bikes, items, templates = [], startFrom = 'last', domain = null, defaultBikeId = null, onclose, oncreated } = $props();
 
   // svelte-ignore state_referenced_locally
   const isNew = !trip;
@@ -21,6 +25,16 @@
   );
   // svelte-ignore state_referenced_locally
   let start = $state(startFrom);
+  // A template always makes a bikepacking trip.
+  // svelte-ignore state_referenced_locally
+  let area = $state(templates.some((x) => x.id === startFrom) ? BIKEPACKING : DOMAIN[domain] ? domain : lastDomain());
+  const byBike = $derived(isNew ? !!DOMAIN[area]?.bike : hasBike(trip));
+  const fromArea = $derived(isNew && !byBike ? lastTripIn(area, trips) : null);
+  const areaItems = $derived(items.filter((i) => isInventory(i) && inDomain(i, area)).length);
+  // A template does not fit an area without a bike: back to "last" (copy or the area's items).
+  $effect(() => {
+    if (!byBike && templates.some((x) => x.id === start)) start = 'last';
+  });
   let error = $state('');
   let dialog;
   const bike = $derived(bikes.find((b) => b.id === draft.bikeId));
@@ -33,19 +47,26 @@
   async function save(event) {
     event.preventDefault();
     if (!draft.title.trim()) return (error = t('Give the trip a name.'));
-    if (!bike) return (error = t('Choose a bike.'));
-    if (isNew) {
+    if (byBike && !bike) return (error = t('Choose a bike.'));
+    if (isNew && !byBike) {
+      const readyStandard = (await db.settings.get(readyKey(area)))?.value ?? null;
+      const nt = newPackTrip({ ...draft, domain: area, readyStandard }, start === 'standard' ? [] : trips, items);
+      await db.trips.put(nt);
+      rememberDomain(area);
+      oncreated?.(nt.id);
+    } else if (isNew) {
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       const tpl = templates.find((x) => x.id === start);
       const nt = tpl
         ? tripFromTemplate({ ...draft, bike }, tpl, items)
         : newTrip({ ...draft, bike, readyStandard }, start === 'standard' ? [] : trips, items);
       await db.trips.put(nt);
+      rememberDomain(BIKEPACKING);
       oncreated?.(nt.id);
     } else {
       const changes = { title: draft.title.trim(), startDate: draft.startDate, days: Math.max(1, Number(draft.days) || 1) };
       // Another bike brings its own bags; items in a place it has no bag for go to the seat pack.
-      if (draft.bikeId !== trip.bikeId) Object.assign(changes, switchBike(trip, bike));
+      if (byBike && draft.bikeId !== trip.bikeId) Object.assign(changes, switchBike(trip, bike));
       await db.trips.update(trip.id, changes);
     }
     dialog.close();
@@ -62,17 +83,42 @@
   <form onsubmit={save} novalidate>
     <h2 id="trip-h" class="title">{isNew ? t('New trip') : t('Trip details')}</h2>
     <div class="grid">
+      {#if isNew}
+        <!-- v0.21.0 (package 5): the area first; it decides bike or own bags. -->
+        <fieldset class="wide area">
+          <legend class="lbl">{t('Area')}</legend>
+          <div class="areas">
+            {#each DOMAINS as d (d.key)}<button type="button" class="toggle" aria-pressed={area === d.key} onclick={() => (area = d.key)}>{t(d.name)}</button>{/each}
+          </div>
+        </fieldset>
+      {/if}
       <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} placeholder={t('e.g. Jura weekend')} required /></label>
       <label><span class="lbl">{t('Start date')}</span><input class="inp" type="date" bind:value={draft.startDate} /></label>
       <label><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} /></label>
-      <label class="wide">
-        <span class="lbl">{t('Bike')}</span>
-        <select class="sel" bind:value={draft.bikeId}>
-          {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
-        </select>
-      </label>
+      {#if byBike}
+        <label class="wide">
+          <span class="lbl">{t('Bike')}</span>
+          <select class="sel" bind:value={draft.bikeId}>
+            {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
+          </select>
+        </label>
+      {/if}
     </div>
-    {#if isNew}
+    {#if isNew && !byBike}
+      {#if fromArea}
+        <label class="start"><span class="lbl">{t('Start from')}</span>
+          <select class="sel" bind:value={start}>
+            <option value="last">{t('Last {area} trip: {title}', { area: t(domainName(area)), title: fromArea.title })}</option>
+            <option value="standard">{t('Items of this area')}</option>
+          </select>
+        </label>
+      {/if}
+      <p class="note">
+        {#if fromArea && start !== 'standard'}{t('A copy of {title}. Nothing is ticked off yet.', { title: fromArea.title })}
+        {:else if areaItems}{t('Starts with the {area} items marked worn, standard or "On every trip". Bags: {bags}.', { area: t(domainName(area)), bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}
+        {:else}{t('No items for {area} yet, so the list starts empty. Add items in Pack (search finds all your gear), or in Gear: open an item and tick {area} under Areas.', { area: t(domainName(area)) })}{/if}
+      </p>
+    {:else if isNew}
       <label class="start"><span class="lbl">{t('Start from')}</span>
         <select class="sel" bind:value={start}>
           <option value="last">{from ? t('Last trip on this bike: {title}', { title: from.title }) : t('Last trip on this bike (none yet)')}</option>
@@ -85,7 +131,7 @@
         {:else if start === 'last' && from}{t('A copy of {title}. Nothing is ticked off yet.', { title: from.title })}
         {:else}{t('Your standard set: worn, standard pack, overnight base and the items "On every trip".')}{/if}
       </p>
-    {:else if draft.bikeId !== trip.bikeId}
+    {:else if byBike && draft.bikeId !== trip.bikeId}
       <p class="note">{t('The trip takes the bags of the new bike. Items in a place without a bag move to the seat pack.')}</p>
     {/if}
     <p class="err" role="alert">{error}</p>
@@ -98,6 +144,31 @@
 </dialog>
 
 <style>
+  .area {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .areas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .toggle {
+    min-height: 40px;
+    border: 1.5px solid var(--ink-3);
+    background: var(--paper);
+    border-radius: 999px;
+    padding: 5px 14px;
+    font: 600 15px var(--font-body);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .toggle[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
   .start {
     display: grid;
     gap: 4px;

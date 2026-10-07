@@ -106,8 +106,10 @@ export function gearStats(items) {
 }
 
 /** Does an item match the search text and filters? */
-export function matches(item, { q = '', category = '', role = '', fav = false } = {}) {
+export function matches(item, { q = '', category = '', role = '', fav = false, domain = '' } = {}) {
   if (fav && !item.favorite) return false;
+  // v0.21.0: the area (item.domains; none set = bikepacking)
+  if (domain && !(item.domains?.length ? item.domains : ['bikepacking']).includes(domain)) return false;
   if (category && item.category !== category) return false;
   if (role === 'none' && (item.role || item.sets?.length)) return false;
   if (role === 'night' && !item.sets?.length) return false;

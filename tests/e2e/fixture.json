@@ -188,7 +188,8 @@
         "sets": [],
         "kits": [],
         "domains": [
-          "bikepacking"
+          "bikepacking",
+          "weekend"
         ]
       },
       {
@@ -294,6 +295,59 @@
         "domains": [
           "bikepacking"
         ]
+      },
+      {
+        "id": "OF01",
+        "name": "Hoodie",
+        "category": "offbike",
+        "weightG": 420,
+        "defaultBag": "body",
+        "role": "worn",
+        "domains": [
+          "weekend"
+        ],
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "body",
+        "ownership": "owned",
+        "sets": [],
+        "kits": []
+      },
+      {
+        "id": "HY02",
+        "name": "Toiletry bag",
+        "category": "hyg",
+        "weightG": 310,
+        "defaultBag": "top",
+        "role": "standard",
+        "domains": [
+          "weekend"
+        ],
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "ownership": "owned",
+        "sets": [],
+        "kits": []
+      },
+      {
+        "id": "LX01",
+        "name": "Paperback book",
+        "category": "lux",
+        "weightG": 240,
+        "defaultBag": "top",
+        "role": "optional",
+        "domains": [
+          "weekend"
+        ],
+        "favorite": true,
+        "favNote": "Always one chapter before sleep",
+        "qty": 1,
+        "weightStatus": "measured",
+        "carry": "luggage",
+        "ownership": "owned",
+        "sets": [],
+        "kits": []
       }
     ],
     "kits": [],

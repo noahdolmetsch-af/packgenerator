@@ -9,12 +9,14 @@
    * onpick(key): open that bag. ondropitem(key, itemId): an item or tile was dropped on a box.
    * photo: the bike's setup photo, pale behind the boxes (answer 2a); onphoto(): open it big.
    * On a phone (strip) there is no room behind the boxes: only a small photo button (answer 3a).
+   * bike = false (v0.21.0, areas without a bike): "On me" and the trip's own bags side by side,
+   * no bike drawing.
    */
   import { formatWeight } from '../gear.js';
   import { formatVolume } from '../bikes.js';
   import { t, tn } from '../i18n.svelte.js';
 
-  let { cards, onpick, ondropitem = null, strip = false, label = null, photo = null, photoName = '', onphoto = null } = $props();
+  let { cards, onpick, ondropitem = null, strip = false, label = null, photo = null, photoName = '', onphoto = null, bike = true } = $props();
   let over = $state(null);
 
   // Where a place sits around the bike: the body places on the left, then the bike in three
@@ -105,6 +107,15 @@
     {#each ordered as c (c.key)}{@render card(c, true)}{/each}
   </div>
   </div>
+{:else if !bike}
+  <div class="stage" role="group" aria-label={label ?? t('Bags')}>
+    <div class="me">
+      {#each me as c (c.key)}{@render card(c)}{/each}
+    </div>
+    <div class="packs">
+      {#each other as c (c.key)}{@render card(c)}{/each}
+    </div>
+  </div>
 {:else}
   <div class="stage" role="group" aria-label={label ?? t('Bags')}>
     <div class="me">
@@ -157,6 +168,18 @@
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 6px;
+  }
+  /* v0.21.0: a trip without a bike, its bags in a row */
+  .packs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: stretch;
+    align-content: flex-start;
+  }
+  .packs > :global(.bx) {
+    flex: 1 1 180px;
+    min-height: 120px;
   }
   .me {
     display: grid;
