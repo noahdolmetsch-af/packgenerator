@@ -4,16 +4,19 @@
    * how many items, the weight, the first items and how full it is. It replaces the small labels
    * of the bike drawing on the Pack page. On a phone the same boxes are a strip you swipe (answer 10a).
    *
-   * cards: [{ key, title, name, count, grams, names, more, fill, vol, empty, active, noBag }]
+   * cards: [{ key, title, name, count, grams, names, more, fill, vol, empty, active, noBag, heavy? }]
+ * heavy (v0.21.0): names of heavy items high up or far back; the box shows a quiet hint.
    * onpick(key): open that bag. ondropitem(key, itemId): an item or tile was dropped on a box.
    * photo: the bike's setup photo, pale behind the boxes (answer 2a); onphoto(): open it big.
    * On a phone (strip) there is no room behind the boxes: only a small photo button (answer 3a).
+   * bike = false (v0.21.0, areas without a bike): "On me" and the trip's own bags side by side,
+   * no bike drawing.
    */
   import { formatWeight } from '../gear.js';
   import { formatVolume } from '../bikes.js';
   import { t, tn } from '../i18n.svelte.js';
 
-  let { cards, onpick, ondropitem = null, strip = false, label = null, photo = null, photoName = '', onphoto = null } = $props();
+  let { cards, onpick, ondropitem = null, strip = false, label = null, photo = null, photoName = '', onphoto = null, bike = true } = $props();
   let over = $state(null);
 
   // Where a place sits around the bike: the body places on the left, then the bike in three
@@ -67,7 +70,7 @@
     class:over={over === c.key}
     class:nobag={c.noBag}
     aria-pressed={c.active}
-    aria-label={`${c.name}, ${facts(c)}${c.noBag ? `, ${t('no bag here')}` : ''}`}
+    aria-label={`${c.name}, ${facts(c)}${c.noBag ? `, ${t('no bag here')}` : ''}${c.heavy?.length ? `. ${t('Heavy item high or far back: move to the frame bag?')}` : ''}`}
     title={c.name}
     onclick={() => onpick?.(c.key)}
     ondragover={(e) => dragover(e, c.key)}
@@ -81,6 +84,9 @@
         {#each c.names as nm, i (i)}<span class="it">{nm}</span>{/each}
         {#if c.more}<span class="it more">{t('+{n} more', { n: c.more })}</span>{/if}
       </span>
+    {/if}
+    {#if !small && !strip && c.heavy?.length}
+      <span class="hv" title={c.heavy.join(', ')}>{t('Heavy item high or far back: move to the frame bag?')}</span>
     {/if}
     {#if c.fill != null}
       <span class="vol num" aria-hidden="true"><span class="bar" class:warn={c.fill > 100}><i style:width="{Math.min(100, c.fill)}%"></i></span>{#if !small}{formatVolume(c.vol)} / {formatVolume(c.cap)}{/if}</span>
@@ -100,6 +106,15 @@
   <div class="strip" role="group" aria-label={label ?? t('Bags')}>
     {#each ordered as c (c.key)}{@render card(c, true)}{/each}
   </div>
+  </div>
+{:else if !bike}
+  <div class="stage" role="group" aria-label={label ?? t('Bags')}>
+    <div class="me">
+      {#each me as c (c.key)}{@render card(c)}{/each}
+    </div>
+    <div class="packs">
+      {#each other as c (c.key)}{@render card(c)}{/each}
+    </div>
   </div>
 {:else}
   <div class="stage" role="group" aria-label={label ?? t('Bags')}>
@@ -134,6 +149,17 @@
 {/if}
 
 <style>
+  /* v0.21.0 (stage D): a quiet hint, no warning colour. */
+  .hv {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.3;
+    font-style: italic;
+    opacity: 0.85;
+    white-space: normal;
+  }
   .stage {
     display: grid;
     grid-template-columns: minmax(130px, 200px) minmax(0, 1fr);
@@ -142,6 +168,18 @@
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 6px;
+  }
+  /* v0.21.0: a trip without a bike, its bags in a row */
+  .packs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: stretch;
+    align-content: flex-start;
+  }
+  .packs > :global(.bx) {
+    flex: 1 1 180px;
+    min-height: 120px;
   }
   .me {
     display: grid;

@@ -3,16 +3,17 @@
   import Gear from './pages/Gear.svelte';
   import Bikes from './pages/Bikes.svelte';
   import Pack from './pages/Pack.svelte';
-  import Care from './pages/Care.svelte';
   import Templates from './pages/Templates.svelte';
   import Debrief from './pages/Debrief.svelte';
   import Share from './pages/Share.svelte';
   import Ride from './pages/Ride.svelte';
   import Inbox from './pages/Inbox.svelte';
+  import Favorites from './pages/Favorites.svelte';
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
   import Search from './lib/nav/Search.svelte';
+  import { parseBikesHash } from './lib/bikes.js';
   import { liveQuery } from 'dexie';
   import { db } from './lib/db.js';
   import { phone } from './lib/media.svelte.js';
@@ -29,7 +30,7 @@
     window.addEventListener('hashchange', update);
     return () => window.removeEventListener('hashchange', update);
   });
-  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/bikes') ? 'bikes' : hash.startsWith('#/care') ? 'care' : hash.startsWith('#/pack/templates') ? 'templates' : hash.startsWith('#/pack') ? 'pack' : hash.startsWith('#/debrief') ? 'debrief' : hash.startsWith('#/share/') ? 'share' : hash.startsWith('#/ride') ? 'ride' : hash.startsWith('#/inbox') ? 'inbox' : 'home');
+  const page = $derived(hash.startsWith('#/gear') ? 'gear' : hash.startsWith('#/favorites') ? 'favorites' : hash.startsWith('#/bikes') || hash.startsWith('#/care') ? (parseBikesHash(hash).tab === 'care' ? 'care' : 'bikes') : hash.startsWith('#/pack/templates') ? 'templates' : hash.startsWith('#/pack') ? 'pack' : hash.startsWith('#/debrief') ? 'debrief' : hash.startsWith('#/share/') ? 'share' : hash.startsWith('#/ride') ? 'ride' : hash.startsWith('#/inbox') ? 'inbox' : 'home');
   // #/debrief/<trip id> opens one trip's debrief.
   const param = $derived(hash.split('/')[2] ?? '');
 
@@ -83,7 +84,7 @@
   {#if !phone.matches}
     <nav class="places" aria-label={t('Sections')}>
       <a href="#/" aria-current={page === 'home' ? 'page' : undefined}>{t('Home')}</a>
-      <a href="#/gear" aria-current={page === 'gear' ? 'page' : undefined}>{t('Gear')}</a>
+      <a href="#/gear" aria-current={page === 'gear' || page === 'favorites' ? 'page' : undefined}>{t('Gear')}</a>
       <a href="#/pack" aria-current={page === 'pack' || page === 'templates' || page === 'ride' ? 'page' : undefined}>{t('Pack')}</a>
       <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}>{t('Bikes')}</a>
       <a href="#/debrief" aria-current={page === 'debrief' ? 'page' : undefined}>{t('Debrief')}</a>
@@ -117,16 +118,18 @@
     <Gear />
   {:else if page === 'pack'}
     <Pack />
-  {:else if page === 'bikes'}
+  {:else if page === 'bikes' || page === 'care'}
+    <!-- v0.21.0 (Noah 6a): Setup and Care are tabs of one page; #/care lands on Care. -->
     <Bikes />
-  {:else if page === 'care'}
-    <Care />
   {:else if page === 'templates'}
     <Templates />
   {:else if page === 'ride'}
     <Ride />
   {:else if page === 'share'}
     {#key param}<Share code={param} />{/key}
+  {:else if page === 'favorites'}
+    <!-- v0.21.0 (package 5): all my favourite things, by area -->
+    <Favorites />
   {:else if page === 'inbox'}
     <Inbox onnew={() => (noteOpen = true)} />
   {:else if page === 'debrief'}
@@ -142,7 +145,7 @@
   {#if phone.matches}
     <nav class="bottom" aria-label={t('Sections')}>
       <a href="#/" aria-current={page === 'home' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z" /></svg>{t('Home')}</a>
-      <a href="#/gear" aria-current={page === 'gear' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.8 6.4.6-4.8 4.3 1.4 6.3L12 16.8 6.4 20l1.4-6.3L3 9.4l6.4-.6z" /></svg>{t('Gear')}</a>
+      <a href="#/gear" aria-current={page === 'gear' || page === 'favorites' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.8 6.4.6-4.8 4.3 1.4 6.3L12 16.8 6.4 20l1.4-6.3L3 9.4l6.4-.6z" /></svg>{t('Gear')}</a>
       <button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" onclick={() => (newMode = 'all')}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></button>
       <a href="#/pack" aria-current={page === 'pack' || page === 'templates' || page === 'ride' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l1.5 13h-15z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg>{t('Pack')}</a>
       <a href="#/bikes" aria-current={page === 'bikes' || page === 'care' ? 'page' : undefined}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="16" r="4" /><circle cx="18" cy="16" r="4" /><path d="M6 16l4-8h5l3 8M10 8l4 8" /></svg>{t('Bikes')}</a>

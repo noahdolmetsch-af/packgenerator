@@ -11,10 +11,11 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import DataPanel from '../lib/DataPanel.svelte';
-  import { LAST_BACKUP, BACKUP_DAYS, backupDue, downloadBackup } from '../lib/backup.js';
+  import { LAST_BACKUP, LAST_IMPORT, BACKUP_DAYS, backupDue, downloadBackup } from '../lib/backup.js';
+  import { openTodos, backupAfterTrip } from '../lib/todos.js';
   import { CATEGORY, formatWeight, gearStats, isConsumable } from '../lib/gear.js';
-  import { sortBikes } from '../lib/bikes.js';
-  import { withVisits, tripPrep, tyreSetup, costByYear } from '../lib/workshop.js';
+  import { sortBikes, bikesHash } from '../lib/bikes.js';
+  import { withVisits, tripPrep, prepGroups, tyreSetup, costByYear } from '../lib/workshop.js';
   import { tripStats, daysUntil, readyDone, RAIN } from '../lib/trips.js';
   import { checkState, serviceDue, needsWork, wear, taskBike, isPrep } from '../lib/care.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
@@ -28,6 +29,7 @@
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { openNew, openNote, openTrip, addItem, newTrip } from '../lib/nav.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
+  import { hasBike, domainOf, domainName } from '../lib/domains.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -40,6 +42,7 @@
   const notesQ = liveQuery(() => db.notes.where('status').equals('open').toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
+  const importQ = liveQuery(() => db.meta.get(LAST_IMPORT));
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   // Answer 10a (stage 1): the newest of the downloaded backup file and the automatic folder backup.
   const lastQ = liveQuery(async () => {
@@ -61,14 +64,25 @@
 
   /* ---------- the next trip ---------- */
   const next = $derived(nextTrip(trips));
+  // v0.21.0: a trip without a bike (weekend, ski touring, world trip) has no ride day and no bike care.
+  const nextByBike = $derived(next ? hasBike(next) : true);
   const bike = $derived(next ? bikes.find((b) => b.id === next.bikeId) : null);
   const stats = $derived(next ? tripStats(next, items, $bagsQ ?? [], bike, $riderQ?.value) : null);
   const days = $derived(next ? daysUntil(next.startDate) : null);
   const ready = $derived(next?.ready ?? []);
   const readyN = $derived(ready.filter((r) => readyDone(r, next)).length);
   // v0.18.2 (answer 3a): the same list "Before the trip" as in Pack and Bike care.
-  const care = $derived(next ? (tripPrep(bike, next, tasks, bike ? tyreSetup(bike, visits) : undefined)?.rows ?? []) : []);
+  const care = $derived(next && nextByBike ? (tripPrep(bike, next, tasks, bike ? tyreSetup(bike, visits) : undefined)?.rows ?? []) : []);
   const late = $derived(care.filter((c) => c.late).length);
+  // v0.21.0 (decision 5, answer 2b): preparation and bike counted apart, as in Pack.
+  const careText = $derived.by(() => {
+    const g = prepGroups(care);
+    const v = (x) => ({ n: x.rows.length, late: x.late });
+    const prep = !g.prep.rows.length ? null : g.prep.late ? t('preparation {n} ({late} overdue)', v(g.prep)) : t('preparation {n}', v(g.prep));
+    const forBike = !g.bike.rows.length ? null : g.bike.late ? t('bike {n} ({late} overdue)', v(g.bike)) : t('bike {n}', v(g.bike));
+    const what = [prep, forBike].filter(Boolean).join(' · ');
+    return t('Before the trip: {what}', { what });
+  });
   const extra = $derived(next ? ballast(next, items, trips, debriefs) : null);
   const debrief = $derived(toDebrief(trips, debriefs)[0] ?? null);
   const packedPct = $derived(stats?.count ? Math.round((stats.packed / stats.count) * 100) : 0);
@@ -121,11 +135,40 @@
   const clock = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
   const tips = $derived(learningsFor(next, learnings, 1));
   const pace = $derived(paceOf($paceQ?.value));
+  // v0.21.0 (gap 6): what still makes weights and times guesses, each with its place.
+  const todos = $derived(loaded ? openTodos({ bikes, items, pace, debriefs, trips }) : []);
+  let dataOpen = $state(false);
+  // Open "Your data" by itself while there is nothing in the app yet.
+  $effect(() => {
+    if (loaded && !trips.length) dataOpen = true;
+  });
+  let dataEl = $state();
+  function openData() {
+    dataOpen = true;
+    queueMicrotask(() => dataEl?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
+  const todoText = (r) =>
+    r.key === 'bikes' ? tn(r.n, 'Weigh {n} bike', 'Weigh {n} bikes')
+    : r.key === 'pace' ? t('Load a few GPX rides')
+    : r.key === 'check' ? tn(r.n, 'Check {n} item in the inventory', 'Check {n} items in the inventory')
+    : r.key === 'favourites' ? t('Apply the favourites file')
+    : t('Ride your first real trip with the app');
+  const todoWhy = (r) =>
+    r.key === 'bikes' ? t('Now Strava estimates: the system weight is a guess.')
+    : r.key === 'pace' ? t('Riding times use a standard guess of 16 km/h.')
+    : r.key === 'check' ? t('Still have it, gone or replaced?')
+    : r.key === 'favourites' ? t('Your data → Import backup → Apply favourites.')
+    : t('Pack, ride day, end trip and debrief: only then can the app learn.');
   const notes = $derived([...($notesQ ?? [])].sort((a, b) => (b.at ?? '').localeCompare(a.at ?? '')));
 
   const demoQ = liveQuery(() => demoState(db));
   // No backup reminder while a demo runs (backups are off then).
-  const backup = $derived($lastQ === undefined || !items.length || $demoQ ? { due: false, days: null } : backupDue($lastQ));
+  const backup = $derived.by(() => {
+    if ($lastQ === undefined || !items.length || $demoQ) return { due: false, days: null };
+    const b = backupDue($lastQ);
+    // v0.21.0 (answer 4a): after every saved debrief, so the desktop can take the phone's state.
+    return backupAfterTrip($lastQ, debriefs) ? { ...b, due: true, afterTrip: true } : b;
+  });
   let backingUp = $state(false);
   async function backupNow() {
     backingUp = true;
@@ -144,7 +187,7 @@
   const todayText = $derived(new Date().toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }));
 
   // Ride day (answer 1a): on the days of the trip the app opens the ride view, once a day.
-  const riding = $derived(next ? onTripDay(next, today) : false);
+  const riding = $derived(next && nextByBike ? onTripDay(next, today) : false);
   $effect(() => {
     if (!riding) return;
     const key = 'ride.autoOpened';
@@ -198,7 +241,7 @@
         <span class="lbl">{todayText} · {t('next trip')}</span>
         <h1 id="next-h" class="title">{next.title}</h1>
         <p class="facts">
-          <span>{dateText(next)}</span>{#if next.bike}<span>{next.bike}</span>{/if}{#if place?.name}<span>{place.name.split(',')[0]}</span>{/if}
+          <span>{dateText(next)}</span>{#if !nextByBike}<span>{t(domainName(domainOf(next)))}</span>{:else if next.bike}<span>{next.bike}</span>{/if}{#if place?.name}<span>{place.name.split(',')[0]}</span>{/if}
           <span class="num">{tn(stats.count, '{n} item', '{n} items')}</span>{#if stats.gearG}<span class="num">{t('{w} gear', { w: formatWeight(stats.gearG) })}</span>{/if}
         </p>
       </div>
@@ -212,15 +255,15 @@
         {:else if days <= 2}
           <a class="btn hi" href="#/pack?day" onclick={() => openTrip(next.id)}>{t('Packing day')}</a>
           <a class="btn ghost" href="#/pack" onclick={() => openTrip(next.id)}>{t('Continue packing')}</a>
-          <a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>
+          {#if nextByBike}<a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>{/if}
         {:else}
           <a class="btn hi" href="#/pack" onclick={() => openTrip(next.id)}>{t('Continue packing')}</a>
-          <a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>
+          {#if nextByBike}<a class="btn ghost" href="#/ride" onclick={() => openTrip(next.id)}>{t('Ride day')}</a>{/if}
         {/if}
         <a class="btn ghost" href="#/pack?print" onclick={() => openTrip(next.id)}>{t('Print list')}</a>
         {#if care.length}
-          <a class="pill" class:late href="#/care">{late ? t('Before the trip: {n} to do, {late} overdue', { n: care.length, late }) : t('Before the trip: {n} to do', { n: care.length })}</a>
-        {:else}
+          <a class="pill" class:late href={bikesHash({ tab: 'care', bike: next.bikeId })}>{careText}</a>
+        {:else if nextByBike}
           <span class="pill ok">{t('Before the trip: all done')}</span>
         {/if}
       </div>
@@ -322,7 +365,7 @@
         <ul class="rows">
           {#each bikes as b (b.id)}
             {@const s = bikeState(b)}
-            <li><a href={s.due ? '#/care' : '#/bikes'}><span class="two"><b>{b.name}</b><small class="muted">{s.text}</small></span><span class="tag" class:due={s.due}>{s.tag}</span></a></li>
+            <li><a href={s.due ? bikesHash({ tab: 'care', bike: b.id, open: true }) : bikesHash({ bike: b.id })}><span class="two"><b>{b.name}</b><small class="muted">{s.text}</small></span><span class="tag" class:due={s.due}>{s.tag}</span></a></li>
           {/each}
         </ul>
         {#if year}<p class="small">{t('Workshop {year}:', { year: year.year })} <b class="num">{year.unknown === year.visits ? t('cost unknown') : `CHF ${num(Math.round(year.chf))}${year.unknown ? ` + ${t('unknown')}` : ''}`}</b> ({tn(year.visits, '{n} visit', '{n} visits')}).</p>{/if}
@@ -331,8 +374,8 @@
       {/if}
       <div class="foot">
         <button type="button" class="btn sm" onclick={() => openNew('km')}>{@render ic('plus', 16)}{t('Log km')}</button>
-        <a class="btn sm" href="#/care">{t('Bike care')}</a>
-        <a class="btn sm" href="#/care">{t('Workshop order')}</a>
+        <a class="btn sm" href="#/bikes?tab=care">{t('Bike care')}</a>
+        <a class="btn sm" href="#/bikes?tab=care">{t('Workshop order')}</a>
       </div>
     </section>
   </div>
@@ -341,6 +384,22 @@
   <section class="know" aria-labelledby="know-h">
     <h2 id="know-h" class="title">{t('Good to know')}</h2>
     <div class="cards">
+      {#if todos.length}
+        <div class="sig todo">
+          <span class="lbl">{t('Still open')}</span>
+          <ul>
+            {#each todos as r (r.key)}
+              <li>
+                {#if r.href}<a href={r.href}><b>{todoText(r)}</b></a>
+                {:else if r.action === 'data'}<button type="button" class="link" onclick={openData}><b>{todoText(r)}</b></button>
+                {:else}<button type="button" class="link" onclick={() => openNew('list')}><b>{todoText(r)}</b></button>{/if}
+                <span>{todoWhy(r)}</span>
+              </li>
+            {/each}
+          </ul>
+          <span class="src">{t('Each line goes away once it is done.')}</span>
+        </div>
+      {/if}
       {#if next}
         <div class="sig">
           <span class="lbl">{t('Weather')}{place?.name ? ` · ${place.name.split(',')[0]}` : ''}</span>
@@ -370,13 +429,13 @@
       <div class="sig">
         <span class="lbl">{t('Your data')}</span>
         <b>{$demoQ ? t('Demo running') : backup.days == null ? t('No backup yet') : backup.days === 0 ? t('Backup today') : tn(backup.days, 'Backup {n} day old', 'Backup {n} days old')}</b>
-        <span>{t('Phone and desktop keep their own data; a backup file moves it.')}</span>
-        <span class="src"><button type="button" class="link" disabled={backingUp || !!$demoQ} onclick={backupNow}>{t('Download backup')}</button></span>
+        <span>{$importQ?.from ? t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($importQ.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) }) : backup.afterTrip ? t('New debrief since the last backup: save one, then load it on the desktop.') : t('Phone and desktop keep their own data; a backup file moves it.')}</span>
+        <span class="src"><button type="button" class="link" disabled={backingUp || !!$demoQ} onclick={backupNow}>{t('Download backup')}</button> · <button type="button" class="link" onclick={openData}>{t('Load a backup')}</button></span>
       </div>
     </div>
   </section>
 
-  <details class="data" open={loaded && !trips.length}>
+  <details class="data" bind:this={dataEl} bind:open={dataOpen}>
     <summary><b>{t('Your data')}</b> <span class="muted">{t('backup, import, export, favourites')}</span></summary>
     <DataPanel />
   </details>
@@ -752,6 +811,32 @@
   .sig b {
     font-size: 17px;
     overflow-wrap: anywhere;
+  }
+  /* v0.21.0: the open to-dos, one line each */
+  .todo {
+    border-color: var(--hi);
+  }
+  .todo ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .todo li {
+    display: grid;
+    gap: 2px;
+  }
+  .todo li b {
+    font-size: 15px;
+  }
+  .todo li span {
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .todo .link {
+    padding: 0;
+    text-align: left;
   }
   .sig > span:not(.lbl):not(.src) {
     font-size: 14px;

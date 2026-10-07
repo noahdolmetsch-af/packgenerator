@@ -14,7 +14,11 @@ export const KIND = {
   template: { name: 'Templates', max: 3 },
   bike: { name: 'Bikes', max: 4 },
   note: { name: 'Notes', max: 3 },
+  page: { name: 'Pages', max: 2 },
 };
+
+/** v0.21.0: pages the search finds by a word, e.g. "favourites" opens all my favourite things. */
+const PAGES = [{ id: 'favorites', title: 'All my favourite things', words: 'favourites favorites favourite favorite best things lieblingsstücke favoriten beste', href: '#/favorites' }];
 
 /**
  * Results grouped by kind, best first: [{ kind, name, rows: [{ id, title, sub, href, tripId? }] }].
@@ -41,11 +45,17 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
       .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))
       .map((tr) => ({ id: tr.id, title: tr.title, sub: [tr.startDate, tr.bike].filter(Boolean).join(' · '), href: '#/pack', tripId: tr.id })),
     template: sort(templates.filter((tp) => hit(tp.name)).map((tp) => ({ id: tp.id, title: tp.name, sub: tn(tp.entries?.length ?? 0, '{n} item', '{n} items'), href: '#/pack/templates' }))),
-    bike: sort(bikes.filter((b) => hit(b.name, b.model, b.kind)).map((b) => ({ id: b.id, title: b.name, sub: b.km != null ? `${num(b.km)} km` : '', href: '#/bikes' }))),
+    bike: sort(bikes.filter((b) => hit(b.name, b.model, b.kind)).map((b) => ({ id: b.id, title: b.name, sub: b.km != null ? `${num(b.km)} km` : '', href: `#/bikes?bike=${encodeURIComponent(b.id)}` }))),
     note: notes
       .filter((n) => hit(n.text))
       .sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''))
       .map((n) => ({ id: n.id, title: n.text.length > 60 ? `${n.text.slice(0, 57)}…` : n.text, sub: n.status === 'open' ? t('to sort') : t('sorted'), href: '#/inbox' })),
+    page: PAGES.filter((p) => hit(p.words, p.title, t(p.title))).map((p) => ({
+      id: p.id,
+      title: t(p.title),
+      sub: tn(items.filter((i) => i.favorite && i.ownership !== 'gone').length, '{n} item', '{n} items'),
+      href: p.href,
+    })),
   };
   return Object.entries(groups)
     .filter(([, rows]) => rows.length)

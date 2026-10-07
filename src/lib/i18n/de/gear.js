@@ -202,4 +202,16 @@ export default {
   'Missing {n}× ({trips})': '{n}× gefehlt ({trips})',
   'Needed on the bike': 'Am Velo gebraucht',
   '{g} g lighter than {name}': '{g} g leichter als {name}',
+
+  // v0.21.0 (package 5): areas and all my favourite things
+  'All areas': 'Alle Reisearten',
+  Areas: 'Reisearten',
+  'Areas (new trips of an area suggest its items)': 'Reisearten (neue Touren dieser Art schlagen ihre Teile vor)',
+  'All my favourite things': 'Alle meine Lieblingsstücke',
+  'Why it is a favourite': 'Warum es ein Favorit ist',
+  'e.g. Warm, packs small, never let me down': 'z. B. warm, klein verpackt, hat mich nie im Stich gelassen',
+  '{n} area': '{n} Reiseart',
+  '{n} areas': '{n} Reisearten',
+  'No favourites yet. In Gear open an item → Edit → tick ★ Favourite.': 'Noch keine Favoriten. In Ausrüstung ein Teil öffnen → Bearbeiten → ★ Favorit anhaken.',
+  Pages: 'Seiten',
 };

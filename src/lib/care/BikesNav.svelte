@@ -1,13 +1,15 @@
 <script>
   /** Switch between the bike setup and Bike care (both live under "Bikes"). */
+  // v0.21.0 (Noah 6a): one page #/bikes with the tabs Setup and Care; the chosen bike stays.
   import { t } from '../i18n.svelte.js';
+  import { bikesHash } from '../bikes.js';
 
-  let { current } = $props();
+  let { current, bike = null } = $props();
 </script>
 
 <nav class="subnav" aria-label={t('Bikes')}>
-  <a href="#/bikes" aria-current={current === 'setup' ? 'page' : undefined}>{t('Setup')}</a>
-  <a href="#/care" aria-current={current === 'care' ? 'page' : undefined}>{t('Care')}</a>
+  <a href={bikesHash({ tab: 'setup', bike })} aria-current={current === 'setup' ? 'page' : undefined}>{t('Setup')}</a>
+  <a href={bikesHash({ tab: 'care', bike })} aria-current={current === 'care' ? 'page' : undefined}>{t('Care')}</a>
 </nav>
 
 <style>

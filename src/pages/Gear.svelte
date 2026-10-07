@@ -10,6 +10,7 @@
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import { itemUsage, deadWeight, wishReason } from '../lib/insights.js';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
+  import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
 
   // All items, kept up to date by the database (liveQuery re-runs on every change).
   const itemsQuery = liveQuery(() => db.items.toArray());
@@ -28,7 +29,11 @@
   // v0.19.6: the search in the top bar opens Gear with ?q=<name>.
   // ?cat=<key> (start page "Where the weight is") opens one category.
   const hashQ = new URLSearchParams(location.hash.split('?')[1] ?? '');
-  let filter = $state({ q: hashQ.get('q') ?? '', category: hashQ.get('cat') ?? '', role: '', fav: false });
+  let filter = $state({ q: hashQ.get('q') ?? '', category: hashQ.get('cat') ?? '', role: '', fav: false, domain: hashQ.get('area') ?? '' });
+  // v0.21.0 (package 5): the area filter shows once items belong to more than one area.
+  const perArea = $derived(countByDomain(items));
+  const areaKeys = $derived([...DOMAINS.map((d) => d.key), ...Object.keys(perArea).filter((k) => !DOMAINS.some((d) => d.key === k))].filter((k) => perArea[k]));
+  const showAreas = $derived(areaKeys.length > 1 || !!filter.domain);
   // Tabs on every screen size (design audit G1, G2): the wishlist and weighing no longer hide
   // at the bottom of a long page. #/gear?tab=weigh opens a tab directly (from the start page).
   const TABS = ['inventory', 'wishlist', 'dead', 'weigh', 'check'];
@@ -50,7 +55,7 @@
   const groups = $derived(groupByCategory(inventory));
   const catStats = $derived(Object.fromEntries(stats.cats.map((c) => [c.key, c])));
   // While searching or filtering, every matching category is shown open.
-  const searching = $derived(!!(filter.q.trim() || filter.category || filter.role || filter.fav));
+  const searching = $derived(!!(filter.q.trim() || filter.category || filter.role || filter.fav || filter.domain));
   const isOpen = (key) => searching || !folded[key];
   const allOpen = $derived(groups.every((g) => !folded[g.key]));
   const toggle = (key) => (folded[key] = !folded[key]);
@@ -129,7 +134,7 @@
   {:else if tab === 'check'}
     <ReviewMode {items} />
   {:else}
-    <div class="toolbar">
+    <div class="toolbar" class:areas={showAreas}>
       <label class="q"><span class="lbl">{t('Search gear')}</span><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} bind:value={filter.q} /></label>
       <label>
         <span class="lbl">{t('Category')}</span>
@@ -139,6 +144,15 @@
         </select>
       </label>
       <!-- Noah, 4.10.2026: the favourites list is the base; ★ shows only those. -->
+      {#if showAreas}
+        <label>
+          <span class="lbl">{t('Area')}</span>
+          <select class="sel" bind:value={filter.domain} aria-label={t('Area')}>
+            <option value="">{t('All areas')}</option>
+            {#each areaKeys as k (k)}<option value={k}>{t(domainName(k))} ({perArea[k]})</option>{/each}
+          </select>
+        </label>
+      {/if}
       <button type="button" class="toggle fav" aria-pressed={filter.fav} onclick={() => (filter.fav = !filter.fav)} title={t('Only my favourites')}>★ {t('Favourites')} <small>{items.filter((i) => i.favorite).length}</small></button>
       {#if !phone.matches}
         <label>
@@ -173,6 +187,8 @@
           <p class="count num" aria-live="polite">
             {t('{a} of {b} items', { a: inventory.length, b: stats.inventory.length })}
             {#if !searching && groups.length}<button type="button" class="link" onclick={() => setAll(allOpen)}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}
+            <!-- v0.21.0: every favourite by area, read-only and printable -->
+            {#if filter.fav}<a class="favlink" href="#/favorites">{t('All my favourite things')} →</a>{/if}
           </p>
           <div class="cats">
             {#each groups as g (g.key)}
@@ -201,7 +217,7 @@
                 {/if}
               </section>
             {:else}
-              {#if items.length}<p class="card">{t('Nothing matches.')} <button type="button" class="btn" onclick={() => (filter = { q: '', category: '', role: '', fav: false })}>{t('Clear search and filters')}</button></p>{/if}
+              {#if items.length}<p class="card">{t('Nothing matches.')} <button type="button" class="btn" onclick={() => (filter = { q: '', category: '', role: '', fav: false, domain: '' })}>{t('Clear search and filters')}</button></p>{/if}
             {/each}
           </div>
         </div>
@@ -240,7 +256,7 @@
 </div>
 
 {#if dialog}
-  <ItemDialog item={dialog.item} {items} readOnly={phone.matches && !!dialog.item} onclose={() => (dialog = null)} />
+  <ItemDialog item={dialog.item} {items} preset={filter.domain ? { domains: [filter.domain] } : {}} readOnly={phone.matches && !!dialog.item} onclose={() => (dialog = null)} />
 {/if}
 
 <style>
@@ -254,6 +270,9 @@
   }
   .head .title {
     font-size: clamp(56px, 12vw, 88px);
+    /* v0.21.0: without the web font (offline) the German title was wider than a 390 px phone. */
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
   .kpis {
     display: flex;
@@ -290,7 +309,7 @@
   }
   .tabs {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr)); /* v0.21.0: tabs may shrink below their label width */
     border: 2px solid var(--ink);
     border-radius: 6px;
     overflow: hidden;
@@ -318,6 +337,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    hyphens: auto;
   }
   .tabs button:last-child {
     border-right: 0;
@@ -370,6 +392,9 @@
       padding: 6px 0;
       grid-template-columns: minmax(200px, 2fr) 1fr auto 1fr auto;
     }
+    .toolbar.areas {
+      grid-template-columns: minmax(200px, 2fr) 1fr 1fr auto 1fr auto;
+    }
     .toolbar .q {
       grid-column: auto;
     }
@@ -378,6 +403,11 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+  }
+  .favlink {
+    margin-left: 12px;
+    font-weight: 700;
+    color: var(--ink);
   }
   .count {
     color: var(--ink-3);

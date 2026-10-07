@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { defaultParts, wear, checkState, serviceDue, logPart, replaceHint, prepFor, prepParts, toReview, taskBike, wishFor } from '../src/lib/care.js';
+import { defaultParts, wear, checkState, serviceDue, logPart, replaceHint, prepFor, prepParts, prepSummary, toReview, taskBike, wishFor } from '../src/lib/care.js';
 
 const entry = (km, extra) => ({ date: '2026-10-01', km, value: null, action: 'check', result: 'ok', by: 'self', ...extra });
 
@@ -89,6 +89,20 @@ describe('care before a trip', () => {
     const rows = tripPrep(bike, trip, tasks, undefined, '2026-10-04').rows;
     expect(rows.map((r) => r.name)).toEqual(['Check chain wear', 'Fix shifting']);
     expect(tripPrep(bike, trip, tasks, undefined, '2026-10-10').rows[0]).toMatchObject({ name: 'Check chain wear', late: true });
+  });
+
+  it('counts the Excel preparation tasks for one grouped row (v0.21.0)', () => {
+    const tasks = [
+      { id: 1, area: 'Preparation', task: 'Check chain wear', leadWeeks: 2 },
+      { id: 2, area: 'Preparation', task: 'Pump tyres', leadWeeks: 0 },
+      { id: 3, area: 'Vorbereitung', task: 'Pack bags', leadWeeks: 1 },
+      { id: 4, area: 'Bike', subject: 'Hardtail', task: 'Fix shifting', status: 'open' },
+    ];
+    const trip = { startDate: '2026-10-15', prep: { 2: { result: 'ok' }, 3: { result: 'needed' } } };
+    expect(prepSummary(prepFor(trip, tasks, '2026-10-05'))).toEqual({ open: 2, overdue: 1, needed: 1, done: 1, total: 3 });
+    expect(prepSummary([])).toEqual({ open: 0, overdue: 0, needed: 0, done: 0, total: 0 });
+    const list = tripPrep({ id: 'scott-hardtail', parts: [] }, { ...trip, bikeId: 'scott-hardtail' }, tasks, undefined, '2026-10-10');
+    expect(list.rows.filter((r) => r.kind === 'prep').map((r) => r.name)).toEqual(['Check chain wear', 'Pack bags']);
   });
 });
 

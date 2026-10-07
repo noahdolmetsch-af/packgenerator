@@ -16,6 +16,7 @@
   import { parseActivitiesCsv, parseRideFile, ridesOnTrip } from '../lib/activities.js';
   import Pace from '../lib/debrief/Pace.svelte';
   import Compare from '../lib/debrief/Compare.svelte';
+  import { domainOf, domainName } from '../lib/domains.js';
 
   let { param = '' } = $props();
 
@@ -120,7 +121,9 @@
       let g = out.find((x) => x.slot === e.slot);
       if (!g) {
         const bag = ($bagsQ ?? []).find((c) => c.id === trip.setup?.[e.slot]);
-        g = { slot: e.slot, name: trip.purpose?.[e.slot] || bag?.name || ZONE[e.slot]?.name || e.slot, rows: [] };
+        // v0.21.0: a trip without a bike names its own bags (trip.packs)
+        const own = trip.packs?.find((p) => p.key === e.slot);
+        g = { slot: e.slot, name: trip.purpose?.[e.slot] || own?.name || bag?.name || ZONE[e.slot]?.name || e.slot, rows: [] };
         out.push(g);
       }
       if (byId[e.itemId]) g.rows.push({ e, item: byId[e.itemId] });
@@ -228,7 +231,7 @@
           {#each [1, 2, 3] as n (n)}<li class:on={step >= n} aria-current={step === n ? 'step' : undefined}><span class="sr">{t('Step {n}', { n })}</span></li>{/each}
         </ol>
       </div>
-      <p class="lbl trip">{trip.title} · {dateText(trip)} · {trip.bike ?? ''}</p>
+      <p class="lbl trip">{trip.title} · {dateText(trip)} · {Array.isArray(trip.packs) ? t(domainName(domainOf(trip))) : (trip.bike ?? '')}</p>
 
       {#snippet rideNotes()}
         {#if d.rideNotes?.length}
@@ -249,7 +252,7 @@
           <div class="seg">{#each AMOUNT as o (o.key)}<button type="button" aria-pressed={d.amount === o.key} onclick={() => set('amount', o.key)}>{t(o.name)}</button>{/each}</div>
         </fieldset>
         <fieldset>
-          <legend>{t('Bags and bike')}</legend>
+          <legend>{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</legend>
           <div class="seg">{#each BAGS_OK as o (o.key)}<button type="button" aria-pressed={d.bags === o.key} onclick={() => set('bags', o.key)}>{t(o.name)}</button>{/each}</div>
         </fieldset>
         {#if bike}

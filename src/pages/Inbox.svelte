@@ -72,7 +72,7 @@
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   // The stored label is English (data); show it in the current language.
   const labelOf = (to) => (to?.kind === 'repair' && to.label?.startsWith('Repair') ? t('Repair') + to.label.slice(6) : to?.label ? t(to.label) : '');
-  const LINK = { repair: '#/care', wish: '#/gear', learning: '#/debrief', trip: '#/debrief' };
+  const LINK = { repair: '#/bikes?tab=care', wish: '#/gear', learning: '#/debrief', trip: '#/debrief' };
 </script>
 
 <div class="inbox">

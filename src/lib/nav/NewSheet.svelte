@@ -11,6 +11,7 @@
   import { TEMPLATES_KEY } from '../templates.js';
   import { newTrip, addItem } from '../nav.js';
   import { t, tn, num } from '../i18n.svelte.js';
+  import { DOMAINS, DOMAIN, lastDomain, domainName } from '../domains.js';
 
   let { mode = $bindable(null), onnote } = $props();
 
@@ -25,6 +26,12 @@
     if (!mode && dialog?.open) dialog.close();
   });
   const close = () => (mode = null);
+  // v0.21.0 (package 5): the area first; areas without a bike have no templates.
+  let area = $state(lastDomain());
+  $effect(() => {
+    if (mode === 'list') area = lastDomain();
+  });
+  const byBike = $derived(!!DOMAIN[area]?.bike);
   const run = (fn) => {
     close();
     fn();
@@ -53,12 +60,20 @@
   </div>
 
   {#if mode === 'list'}
+    <div class="areas" role="group" aria-label={t('Area')}>
+      {#each DOMAINS as d (d.key)}<button type="button" class="chip" aria-pressed={area === d.key} onclick={() => (area = d.key)}>{t(d.name)}</button>{/each}
+    </div>
     <ul class="opts">
+      {#if !byBike}
+        <li><button type="button" class="opt" onclick={() => run(() => newTrip('last', area))}><b>{t('Copy the last trip')}</b><span>{t('The last {area} trip, or the {area} items when there is none', { area: t(domainName(area)) })}</span></button></li>
+        <li><button type="button" class="opt" onclick={() => run(() => newTrip('standard', area))}><b>{t('Items of this area')}</b><span>{t('Worn, standard and "On every trip", in {bags}', { bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}</span></button></li>
+      {:else}
       {#each templates as tp (tp.id)}
-        <li><button type="button" class="opt" onclick={() => run(() => newTrip(tp.id))}><b>{t('From template')}</b><span>{tp.name} · {tn(tp.entries?.length ?? 0, '{n} item', '{n} items')}</span></button></li>
+        <li><button type="button" class="opt" onclick={() => run(() => newTrip(tp.id, area))}><b>{t('From template')}</b><span>{tp.name} · {tn(tp.entries?.length ?? 0, '{n} item', '{n} items')}</span></button></li>
       {/each}
-      <li><button type="button" class="opt" onclick={() => run(() => newTrip('last'))}><b>{t('Copy the last trip')}</b><span>{t('The last trip on the bike you choose, with its bags and ready check')}</span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(() => newTrip('standard'))}><b>{t('Standard set')}</b><span>{t('Worn, standard pack and the items "On every trip"')}</span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(() => newTrip('last', area))}><b>{t('Copy the last trip')}</b><span>{t('The last trip on the bike you choose, with its bags and ready check')}</span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(() => newTrip('standard', area))}><b>{t('Standard set')}</b><span>{t('Worn, standard pack and the items "On every trip"')}</span></button></li>
+      {/if}
     </ul>
     <button type="button" class="link" onclick={() => (mode = 'all')}>{t('Something else to create')}</button>
   {:else if mode === 'km'}
@@ -101,6 +116,27 @@
   }
   .top h2 {
     margin: 0;
+  }
+  .areas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 12px;
+  }
+  .chip {
+    min-height: 40px;
+    padding: 5px 14px;
+    border: 1.5px solid var(--ink-3);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 15px var(--font-body);
+    cursor: pointer;
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
   }
   .opts {
     list-style: none;

@@ -11,7 +11,7 @@
   import { readyDone, RAIN } from '../trips.js';
   import { t, nameOf } from '../i18n.svelte.js';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onclose } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onclose, bike = true } = $props(); // bike: false for a trip without a bike (v0.21.0)
   const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${t(RAIN[w.rain ?? 'none'])}`;
 
   // Start at the first bag that still has something to pack.
@@ -118,7 +118,7 @@
           </li>
         {/each}
       </ul>
-      {#if packed === total && readyN === ready.length}<p class="go">{t('Everything is in. Have a good ride!')}</p>{/if}
+      {#if packed === total && readyN === ready.length}<p class="go">{bike ? t('Everything is in. Have a good ride!') : t('Everything is in. Have a good trip!')}</p>{/if}
     {/if}
   </div>
 
