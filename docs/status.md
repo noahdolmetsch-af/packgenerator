@@ -3,7 +3,7 @@
 Stand: 7. Oktober 2026
 
 ## Fertig
-- **Optimierung M1: Sofortige Klarheit (v0.22.0)** — neues Projekt „Optimierung vom Packgenerator“ (Dokument: Projektordner `optimierung/`, Plan AP01–AP26):
+- **Optimierung M1: Sofortige Klarheit (v0.22.0, Antworten in v0.22.1)** — neues Projekt „Optimierung vom Packgenerator“ (Dokument: Projektordner `optimierung/`, Plan AP01–AP26):
   - **Ruhigere Schrift und Farben (AP03):** Inhalte in Fira Sans (Titel 30–40 px, Text 16 px), keine Grossbuchstaben mehr, dünnere Rahmen, Aktionsorange #b83e08 (Kontrast 5.6:1 statt 3.1:1), nur die aktuelle Hauptaktion ist orange, sichtbarer Fokusrahmen.
   - **Ehrliche Gewichte und klare Wörter (AP04):** Summen heissen „bekannt: …“ und zeigen daneben, wie viele Gewichte fehlen; Front/Heck ist bei Lücken eine Schätzung; Velogewicht gemessen oder geschätzt. „Not packed“ heisst „Weitere Dinge“ (Noah 1); gepackt / noch einzupacken und Startcheck geprüft / offen getrennt gezählt. Packzeilen haben wieder ein sichtbares „•••“ statt Knöpfen nur beim Darüberfahren.
   - **Favoriten (AP05):** Stern vor jedem Teil, ein Tipp genügt; der Favoriten-Link öffnet Ausrüstung gefiltert; eine Zählbasis (Inventar + Wunschliste getrennt).
