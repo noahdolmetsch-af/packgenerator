@@ -85,7 +85,7 @@
         <label class="nm"><span class="lbl">{t('Name')}</span><input class="inp" value={tp.name} onchange={(e) => rename(tp, e.currentTarget.value)} /></label>
         <p class="facts">
           {tn(tp.entries.length, '{n} item', '{n} items')} · {tn(tp.ready.length, '{n} check', '{n} checks')}
-          {#if tp.ride}{' · '}{t(RIDES.find((r) => r.key === tp.ride)?.name ?? '')}{/if}{#if tp.hours}{' · '}{tp.hours} h{/if}
+          {#if tp.ride}{' · '}{t(RIDES.find((r) => r.key === tp.ride)?.name ?? '')}{/if}{#if tp.hours}{' · '}{tp.hours} h{/if}{#if tp.days > 1}{' · '}{tn(tp.days, '{n} day', '{n} days')}{/if}{#if tp.overnight === 'outdoor'}{' · '}{t('Outdoor')}{:else if tp.overnight === 'lodging'}{' · '}{t('Lodging')}{/if}
           {#if nights(tp).length}{' · '}{t('Night: {sets}', { sets: nights(tp).join(', ') })}{/if}
         </p>
         {#if bags(tp).length}<p class="facts">{t('Bags: {bags}', { bags: bags(tp).join(', ') })}</p>{/if}

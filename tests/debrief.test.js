@@ -110,7 +110,7 @@ describe('applying a debrief', () => {
     expect(tpl.entries.map((e) => e.itemId)).toEqual(['LAMP']);
   });
   it('changes nothing without ticks', () => {
-    expect(applyDebrief(filled(), trip, items, learnings, templates, [])).toEqual({ items: [], learnings: [], templates: null });
+    expect(applyDebrief(filled(), trip, items, learnings, templates, [])).toEqual({ items: [], learnings: [], templates: null, notes: [] });
   });
 });
 
@@ -119,5 +119,34 @@ describe('learnings for a trip', () => {
     const top = learningsFor(trip, learnings, 2);
     expect(top.map((l) => l.id)).toEqual([2, 1]);
     expect(learningsFor({ ...trip, startDate: '2026-07-01' }, learnings, 3).map((l) => l.id)).not.toContain(4);
+  });
+});
+
+// v0.26.1 (AP20, Noah 20a, 19b): what was missing becomes "Take … next time"; notes on the way become learnings.
+describe('missing items and notes on the way (v0.26.1)', () => {
+  it('suggests "Take … next time" per missing thing and saves it only when ticked', () => {
+    const d = filled();
+    const s = suggestions(d, trip, items, learnings, templates);
+    expect(s.filter((x) => x.id.startsWith('next:')).map((x) => [x.group, x.label])).toEqual([
+      ['learn', 'Take Chain lube next time'],
+      ['learn', 'Take Headlamp next time'],
+    ]);
+    expect(applyDebrief(d, trip, items, learnings, templates, []).learnings).toEqual([]);
+    const out = applyDebrief(d, trip, items, learnings, templates, ['next:m2'], { now: 'N' });
+    expect(out.learnings).toEqual([expect.objectContaining({ rule: 'Take Headlamp next time', itemIds: ['LAMP'], source: '303', topic: 'Debrief' })]);
+    const out2 = applyDebrief(d, trip, items, learnings, templates, ['next:m1', 'next:m2']);
+    expect(out2.learnings.map((l) => l.id)).toEqual([5, 6]);
+    expect(out2.learnings[0].itemIds).toEqual([]);
+  });
+  it('turns a note on the way into a learning and reports the Inbox note to sort', () => {
+    const d = { ...newDebrief(trip, 'x'), rideNotes: [
+      { key: 'ride:0', at: '2026-10-15T10:00:00Z', day: 0, text: 'Old ride note' },
+      { key: 'ride:note-a', at: '2026-10-16T09:00:00Z', day: 1, text: 'Gloves too thin', noteId: 'note-a' },
+    ] };
+    const ids = suggestions(d, trip, items, [], []).map((x) => x.id);
+    expect(ids).toEqual(expect.arrayContaining(['ride:0', 'ride:note-a']));
+    const out = applyDebrief(d, trip, items, [], [], ['ride:note-a']);
+    expect(out.learnings).toEqual([expect.objectContaining({ id: 1, rule: 'Gloves too thin', topic: 'Ride day', source: '303' })]);
+    expect(out.notes).toEqual([{ id: 'note-a', learningId: 1 }]);
   });
 });

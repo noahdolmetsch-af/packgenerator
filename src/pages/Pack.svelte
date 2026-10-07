@@ -6,7 +6,9 @@
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, sortBikes, bikesHash } from '../lib/bikes.js';
   import { CATEGORIES, formatWeight, weightText, isInventory, matches, weighQueue } from '../lib/gear.js';
-  import { tripStats, packSteps, togglePacked, packAll, tickReady, packAndReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike } from '../lib/trips.js';
+  import { tripStats, packSteps, togglePacked, packAll, tickReady, packAndReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike, setQty } from '../lib/trips.js';
+  import { suggestPlaces, applyPlaces, dismissPlace } from '../lib/bagsuggest.js';
+  import PlaceSuggest from '../lib/pack/PlaceSuggest.svelte';
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
   import { applyContext, hasContext, carryHint } from '../lib/context.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
@@ -310,6 +312,10 @@
     await db.trips.put(last.before);
   }
   const setEntries = (fn) => change((t) => ({ entries: fn(t.entries) }));
+  // v0.26.1 (AP17, Noah 14a): better places for sleep and cook items on an outdoor trip; one change() each (Undo).
+  const placeRows = $derived(trip && bikeTrip && !over ? suggestPlaces(trip, items, bags, bike) : []);
+  const applyRows = (rows) => change((t) => applyPlaces(t, rows));
+  const dismissRow = (itemId) => change((t) => dismissPlace(t, itemId));
 
   const moveTo = (itemId, slot) => setEntries((es) => es.map((e) => (e.itemId === itemId ? { ...e, slot, packed: false } : e)));
   const removeEntry = (itemId) => setEntries((es) => es.filter((e) => e.itemId !== itemId));
@@ -576,7 +582,8 @@
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
-      choose, addTo, addMany, qty: (id, qty) => setEntries(es => es.map(e => e.itemId === id ? { ...e, qty: Math.max(1, Math.min(20, qty)), qtyManual: true, packed: (e.qty || 1) === qty ? e.packed : false } : e)),
+      // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
+      choose, addTo, addMany, qty: (id, qty) => setEntries(es => setQty(es, id, qty)),
       move: moveTo, remove: removeEntry, undo: undoLast,
       apply: choices => change(cur => acceptReview(cur, items, choices)),
       edit: () => dialog = { trip }, newTrip: () => dialog = { trip: null },
@@ -584,6 +591,7 @@
       photo: () => shownPhoto = Math.max(0, gallery.findIndex(p => p.id === shot?.id)), compare: () => choosing = true, template: () => saveTpl = true, share: shareList, resetPacked,
       skip: () => change(() => ({ skipped: !trip.skipped })),
     }}>
+    {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{/snippet}
     {#snippet settings(mode)}
       {#if mode === 'conditions'}
         {#if bikeTrip}{@render layers()}<h3>{t('Night')}</h3>{@render night()}{:else}<TripRoute {trip} onchange={changeContext} />{/if}

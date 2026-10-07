@@ -557,4 +557,23 @@ export default {
   'From the forecast for {place}': 'Aus der Wetterprognose für {place}',
   'Day ride created: {bike} · {hours} h · {weather}.': 'Tagestour erstellt: {bike} · {hours} h · {weather}.',
   '{weather} (forecast)': '{weather} (Prognose)',
+  // v0.26.1 (AP17, Noah 14a/15b): suggested places on an outdoor trip, litres only when all are known.
+  'Suggested places': 'Vorgeschlagene Packorte',
+  'For a night outdoors: {n} sleep or cook item sits in a poor place. Nothing moves until you apply it.': 'Für eine Nacht draussen: {n} Schlaf- oder Kochteil liegt an einem ungünstigen Ort. Nichts wird verschoben, bis du es übernimmst.',
+  'For a night outdoors: {n} sleep or cook items sit in a poor place. Nothing moves until you apply them.': 'Für eine Nacht draussen: {n} Schlaf- oder Kochteile liegen an ungünstigen Orten. Nichts wird verschoben, bis du sie übernimmst.',
+  'on you': 'am Körper',
+  '{place} (no bag)': '{place} (keine Tasche)',
+  'now: {place}': 'jetzt: {place}',
+  'adds this bag for this trip only': 'fügt diese Tasche nur für diese Tour hinzu',
+  'Apply': 'Übernehmen',
+  'Apply: {name} to {bag}': 'Übernehmen: {name} in {bag}',
+  'Dismiss the suggestion for {name}': 'Vorschlag für {name} verwerfen',
+  'Apply all': 'Alle übernehmen',
+  '{used} of {cap} L': '{used} von {cap} L',
+  // v0.26.1 (AP18, Noah 16a/17b): update or new template; days, overnight stay and bike in a template.
+  'Saves the bags, every item with its place and amount, the ready check, the kind of ride, the days, the riding hours per day, the overnight stay and the bike. Not saved: the weather and what is ticked.': 'Speichert die Taschen, jedes Teil mit Platz und Anzahl, den Startcheck, die Art der Fahrt, die Tage, die Fahrstunden pro Tag, die Übernachtung und das Velo. Nicht gespeichert: das Wetter und was abgehakt ist.',
+  'Update replaces the items, places and amounts of «{name}» (and its days, hours, overnight stay and bike). Trips made from it before stay unchanged.': 'Aktualisieren ersetzt Teile, Plätze und Anzahl von «{name}» (und Tage, Stunden, Übernachtung und Velo). Touren, die schon daraus gemacht wurden, bleiben unverändert.',
+  'Update template «{name}»': 'Vorlage «{name}» aktualisieren',
+  'The bike you choose': 'Velo bei der neuen Tour wählen',
+  'A new trip from this template starts with these values; you can still change them there.': 'Eine neue Tour aus dieser Vorlage startet mit diesen Werten; dort kannst du sie noch ändern.',
 };

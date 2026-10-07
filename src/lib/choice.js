@@ -8,12 +8,16 @@ import { bikeSetup, ON_BIKE_SLOTS, bikeWeightKind } from './bikes.js';
 import { costPer1000, visitsOf } from './workshop.js';
 import { bikeCare } from './readiness.js';
 
-/** Litres of the packed gear that go into bags (not worn, not mounted), or null when no item has a volume. */
+/**
+ * Litres of the packed gear that go into bags (not worn, not mounted), or null when an item in a
+ * bag has no volume (v0.26.1, Noah 15b: no "tight" from a part of the gear; before, null only
+ * when no item had one).
+ */
 export function gearLitres(trip, items) {
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
   const inBags = trip.entries.filter((e) => e.slot !== 'body' && e.slot !== 'mounted' && !ON_BIKE_SLOTS.includes(e.slot));
   const known = inBags.filter((e) => byId[e.itemId]?.volumeL);
-  if (!known.length) return null;
+  if (!known.length || known.length < inBags.length) return null;
   return Math.round(known.reduce((t, e) => t + byId[e.itemId].volumeL * (e.qty || 1), 0) * 10) / 10;
 }
 

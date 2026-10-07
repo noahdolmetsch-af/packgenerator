@@ -2,8 +2,10 @@
  * Templates (Noah, 4.10.2026): a packing setup saved under a name, e.g. "Daily commute",
  * to start new trips from. A template keeps the bags per place, every item with its place
  * and amount, the ready check, the kind of ride, the riding hours and the night sets.
- * It does not keep the weather (answer 3b), what was ticked (4b) or the bike (5b):
- * a new trip uses the bike you choose, and items go into the matching bags.
+ * It does not keep the weather (answer 3b) or what was ticked (4b).
+ * v0.26.1 (AP18, Noah 17b): it also keeps the days, the overnight stay (with cooking) and the bike
+ * (bikeId). A new trip from it takes them as defaults in the New trip dialog (templateDefaults),
+ * still changeable; items go into the matching bags of the bike chosen there.
  * Templates live in the settings table (key "templates"), so backups include them.
  */
 import { slotFor, alwaysEntries, freshReady } from './trips.js';
@@ -29,6 +31,11 @@ export function templateFrom(trip, { id, name, now = new Date().toISOString() })
     hours: trip.hours ?? null,
     sets: { ...(trip.sets ?? {}) },
     purpose: { ...(trip.purpose ?? {}) },
+    // v0.26.1 (Noah 17b): days, overnight stay and bike, as defaults for the next trip.
+    days: Math.max(1, Number(trip.days) || 1),
+    overnight: trip.overnight ?? null,
+    cook: trip.overnight === 'outdoor' && !!trip.cook,
+    bikeId: trip.bikeId ?? null,
     fromTrip: trip.id,
     updatedAt: now,
   };
@@ -51,6 +58,24 @@ export async function saveTripAsTemplate(db, trip, name, id = null) {
   await saveTemplates(db, upsert(list, templateFrom(trip, { id: tplId, name: clean })));
   await db.trips.update(trip.id, { templateId: tplId });
   return { id: tplId, name: clean };
+}
+
+/**
+ * v0.26.1 (Noah 17b): what the New trip dialog takes from a template as its defaults (only what the
+ * template knows; an older template without them changes nothing). The bike only when it still exists.
+ * → { days?, hours?, overnight?, cook?, bikeId? }
+ */
+export function templateDefaults(tpl, bikes = []) {
+  if (!tpl) return {};
+  const out = {};
+  if (Number(tpl.days) >= 1) out.days = Number(tpl.days);
+  if (tpl.hours != null) out.hours = tpl.hours;
+  if (tpl.overnight) {
+    out.overnight = tpl.overnight;
+    out.cook = tpl.overnight === 'outdoor' && !!tpl.cook;
+  }
+  if (tpl.bikeId && bikes.some((b) => b.id === tpl.bikeId)) out.bikeId = tpl.bikeId;
+  return out;
 }
 
 /**
@@ -81,6 +106,8 @@ export function tripFromTemplate({ title, startDate, days, bike }, tpl, items, n
     hours: tpl.hours ?? null,
     sets: { ...(tpl.sets ?? {}) },
     purpose: { ...(tpl.purpose ?? {}) },
+    // v0.26.1 (Noah 17b): the template's overnight stay; the dialog's choice replaces it (buildBikeTrip fields).
+    ...(tpl.overnight ? { overnight: tpl.overnight, cook: tpl.overnight === 'outdoor' && !!tpl.cook } : {}),
     status: 'planned',
     copiedFrom: null,
     templateId: tpl.id,

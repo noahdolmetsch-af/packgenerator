@@ -446,6 +446,13 @@ export const tickReady = (ready = []) => ready.map((r) => (r.itemId ? r : { ...r
 /** v0.24.1 (Noah 2a): a day ride "All packed, let's go": every item packed and the whole ready check, in one write. */
 export const packAndReady = (trip) => ({ entries: packAll(trip.entries ?? []), ready: tickReady(trip.ready ?? []) });
 
+/**
+ * v0.26.1 (AP19, Noah 18b): a new amount for one entry (1–20). The entry keeps its packed state:
+ * raising the amount of a packed item keeps it packed, without an extra question. The amount
+ * counts as set by hand (qtyManual), so a later change of the trip's context leaves it alone.
+ */
+export const setQty = (entries, itemId, qty) => entries.map((e) => (e.itemId === itemId ? { ...e, qty: Math.max(1, Math.min(20, qty)), qtyManual: true } : e));
+
 /** v0.24.1 (Noah 1a/2a): a day ride (1 day or no days set). */
 export const isDayTrip = (trip) => !(Number(trip?.days) > 1);
 

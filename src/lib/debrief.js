@@ -209,9 +209,13 @@ export function suggestions(debrief, trip, items, learnings = [], templates = []
   for (const l of learnings.filter((x) => x.itemIds?.some((id) => touched.has(id))))
     out.push({ id: `confirm:${l.id}`, group: 'learn', label: t('Confirmed again: "{rule}"', { rule: short(l.rule) }), detail: l.confirmed ? t('Confirmed {n} times now.', { n: l.confirmed + 1 }) : t('First confirmation.') });
   if (debrief.note.trim()) out.push({ id: 'learn:note', group: 'learn', label: t('New: "{rule}"', { rule: short(debrief.note.trim()) }), detail: t('Saved as a learning from {trip}.', { trip: trip.title }) });
+  // v0.26.1 (AP20, Noah 20a): what was missing becomes "Take … next time" (only when ticked).
+  for (const m of debrief.missing)
+    if (m.name?.trim()) out.push({ id: `next:${m.id}`, group: 'learn', label: t('Take {name} next time', { name: missName(m, byId) }), detail: t('Saved as a learning from {trip}.', { trip: trip.title }) });
   // v0.19.2 (N10): the notes from the ride day can become learnings too.
+  // v0.26.1 (Noah 19b): rideNotes may come from notes.js tripNotes (key per note; older ones ride:<index>).
   (debrief.rideNotes ?? []).forEach((n, i) => {
-    if (n.text?.trim()) out.push({ id: `ride:${i}`, group: 'learn', label: t('From the ride: "{rule}"', { rule: short(n.text.trim()) }), detail: t('Saved as a learning from {trip}.', { trip: trip.title }) });
+    if (n.text?.trim()) out.push({ id: n.key ?? `ride:${i}`, group: 'learn', label: t('From the ride: "{rule}"', { rule: short(n.text.trim()) }), detail: t('Saved as a learning from {trip}.', { trip: trip.title }) });
   });
 
   // Template: the trip was started from a template that still exists.
@@ -223,10 +227,13 @@ export function suggestions(debrief, trip, items, learnings = [], templates = []
 }
 
 const short = (s, n = 70) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+/** A missing thing's name: the item's name when it is in the gear, else what was typed. */
+const missName = (m, byId) => (m.itemId && byId[m.itemId] ? nameOf(byId[m.itemId]) : m.name.trim());
 
 /**
- * Apply the ticked suggestions. Returns the records to write: { items, learnings, templates }
- * (items and learnings: changed or new records; templates: the whole new list or null).
+ * Apply the ticked suggestions. Returns the records to write: { items, learnings, templates, notes }
+ * (items and learnings: changed or new records; templates: the whole new list or null;
+ * notes (v0.26.1): [{ id, learningId }] Inbox notes on the way that became a learning).
  */
 export function applyDebrief(debrief, trip, items, learnings, templates, ticked, { now = new Date().toISOString(), newItemId = (n) => `WISH-${n}` } = {}) {
   const on = new Set(ticked);
@@ -257,8 +264,18 @@ export function applyDebrief(debrief, trip, items, learnings, templates, ticked,
   let next = Math.max(0, ...learnings.map((l) => (typeof l.id === 'number' ? l.id : 0))) + 1;
   const learn = (rule, topic) => learnOut.push({ id: next++, topic, rule, action: '', itemIds: [], source: trip.title, appliesTo: ['all'], priority: 'medium', confirmed: 0, createdAt: now });
   if (on.has('learn:note') && debrief.note.trim()) learn(debrief.note.trim(), 'Debrief');
+  // v0.26.1 (Noah 20a): "Take … next time", linked to the item when it is in the gear.
+  for (const m of debrief.missing)
+    if (on.has(`next:${m.id}`) && m.name?.trim()) {
+      learn(t('Take {name} next time', { name: missName(m, byId) }), 'Debrief');
+      if (m.itemId && byId[m.itemId]) learnOut.at(-1).itemIds = [m.itemId];
+    }
+  const notesOut = [];
   (debrief.rideNotes ?? []).forEach((n, i) => {
-    if (on.has(`ride:${i}`) && n.text?.trim()) learn(n.text.trim(), 'Ride day');
+    if (on.has(n.key ?? `ride:${i}`) && n.text?.trim()) {
+      learn(n.text.trim(), 'Ride day');
+      if (n.noteId) notesOut.push({ id: n.noteId, learningId: learnOut.at(-1).id });
+    }
   });
 
   let tplOut = null;
@@ -272,7 +289,7 @@ export function applyDebrief(debrief, trip, items, learnings, templates, ticked,
       return { ...t, entries: [...t.entries.filter((e) => !drop.has(e.itemId)), ...add], updatedAt: now };
     });
   }
-  return { items: [...Object.values(changed), ...newItems], learnings: learnOut, templates: tplOut };
+  return { items: [...Object.values(changed), ...newItems], learnings: learnOut, templates: tplOut, notes: notesOut };
 }
 
 /**
