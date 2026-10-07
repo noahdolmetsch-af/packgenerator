@@ -698,7 +698,7 @@
       </details>
       {#if suggestion.length}
         <div class="sugg">
-          <p class="sugg-h"><b>{t('Layers for this ride')}</b>{#if openLayers.length}<button type="button" class="btn sm hi" onclick={addAllLayers}>{t('Add all {n}', { n: openLayers.length })}</button>{:else}<span class="ok">{t('All set')}</span>{/if}</p>
+          <p class="sugg-h"><b>{t('Layers for this ride')}</b>{#if openLayers.length}<button type="button" class="btn sm" onclick={addAllLayers}>{t('Add all {n}', { n: openLayers.length })}</button>{:else}<span class="ok">{t('All set')}</span>{/if}</p>
           <!-- Answer 5a: one title per rule; rows already done fold into one line. -->
           {#each layerGroups as g, n (n)}
             <div class="lg">
@@ -782,7 +782,7 @@
         <button type="submit" class="btn">{t('Add')}</button>
       </form>
       <p class="ready-acts">
-        {#if readyCount < readyTotal}<button type="button" class="btn hi" onclick={tickAllReady}>{t('Tick all checks')}</button>{/if}
+        {#if readyCount < readyTotal}<button type="button" class="btn" onclick={tickAllReady}>{t('Tick all checks')}</button>{/if}
         {#if readyChanged}
           <button type="button" class="btn" onclick={saveStandard}>{t('Save as my standard')}</button>
           <button type="button" class="link" onclick={resetReady}>{t('Back to my standard list')}</button>
@@ -1067,7 +1067,7 @@
     gap: 12px 24px;
     margin: 0 0 16px;
     padding: 14px 16px;
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 10px;
     background: var(--paper);
   }
@@ -1094,7 +1094,7 @@
     height: 24px;
     border-radius: 50%;
     border: 2px solid currentColor;
-    font-size: 12px;
+    font-size: var(--fs-small);
   }
   .steps .done {
     color: var(--ink);
@@ -1127,7 +1127,7 @@
   }
   .go small {
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
     opacity: 0.92;
     white-space: normal;
   }
@@ -1137,7 +1137,7 @@
       padding: 12px;
     }
     .steps {
-      font-size: 12px;
+      font-size: var(--fs-small);
       gap: 4px 10px;
     }
   }
@@ -1155,8 +1155,8 @@
     font-size: 14px;
   }
   .big {
-    font-size: clamp(38px, 5vw, 56px);
-    line-height: 0.95;
+    font-size: var(--fs-page);
+    line-height: var(--lh-title);
   }
   .head {
     display: flex;
@@ -1190,7 +1190,7 @@
   .menu summary {
     list-style: none;
     padding: 4px 12px;
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--line-strong);
     border-radius: 6px;
     background: var(--paper);
     font: 700 20px/1 var(--font-body);
@@ -1218,7 +1218,7 @@
     overflow: auto;
     padding: 10px;
     background: var(--paper);
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--line-strong);
     border-radius: 6px;
     box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
     box-sizing: border-box;
@@ -1252,10 +1252,8 @@
   .tag {
     border: 1.5px solid var(--ink);
     padding: 1px 7px;
-    font-size: 12px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   /* Answer 1a: orange only for actions; the countdown is dark. */
   .tag.hi {
@@ -1326,10 +1324,10 @@
     align-items: baseline;
     gap: 2px 10px;
     padding-bottom: 6px;
-    border-bottom: 2px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
   }
   .bl-h .title {
-    font-size: 24px;
+    font-size: var(--fs-sub);
   }
   .bn {
     font-size: 14px;
@@ -1337,7 +1335,7 @@
   }
   .bl-h .m {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .bl-acts {
     display: flex;
@@ -1400,7 +1398,7 @@
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink-2);
-    font: 600 11px/1.5 var(--font-body);
+    font: 500 12px/1.5 var(--font-body);
   }
   .bdg.warn {
     border-color: #c98a55;
@@ -1411,7 +1409,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   /* N3 (answer 2a): ballast on this trip. */
@@ -1466,7 +1464,7 @@
   .row .mv {
     max-width: 150px;
     padding: 3px 6px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   @media (max-width: 719px) {
@@ -1530,7 +1528,7 @@
     align-items: baseline;
     gap: 6px 22px;
     padding: 8px 0;
-    border-top: 3px solid var(--ink);
+    border-top: 1px solid var(--line-strong);
     border-bottom: 1px solid var(--line);
     margin-bottom: 14px;
   }
@@ -1546,12 +1544,12 @@
     font-weight: 700;
   }
   .w1:first-child b {
-    font: 900 28px/1 var(--font-title);
+    font: 900 var(--fs-section)/1.2 var(--font-title);
   }
   /* Design answer 8b: "not weighed" in grey, not orange. */
   .nw {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .sys-note {
     flex-basis: 100%;
@@ -1564,14 +1562,14 @@
   .tabs {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--line-strong);
     border-radius: 6px;
     overflow: hidden;
     margin-bottom: 12px;
   }
   .tabs button {
     border: 0;
-    border-right: 2px solid var(--ink);
+    border-right: 1px solid var(--line);
     background: var(--paper);
     padding: 8px 4px;
     font: 700 15px var(--font-body);
@@ -1589,11 +1587,11 @@
   }
   .tabs small {
     font-weight: 400;
-    font-size: 12px;
+    font-size: var(--fs-small);
   }
   .btn.sm {
     padding: 3px 10px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     margin-left: 6px;
   }
   .warnbox.soft {
@@ -1703,17 +1701,15 @@
     margin: 6px 0 0;
     padding-bottom: 2px;
     border-bottom: 1px solid var(--line);
-    font-size: 11px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   .lgd {
     margin: 4px 0 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 600;
-    color: #2f7a4f;
+    color: var(--ok);
   }
   .sugg li:first-child {
     border-top: 0;
@@ -1739,8 +1735,8 @@
     color: var(--ink-3);
   }
   .ok {
-    font-size: 13px;
-    color: #2f7a4f;
+    font-size: var(--fs-small);
+    color: var(--ok);
     font-weight: 700;
   }
   .print {
@@ -1841,20 +1837,19 @@
     padding: 10px;
   }
   .box-s .title {
-    font-size: 26px;
-    border-bottom: 3px solid var(--ink);
+    font-size: var(--fs-section);
+    border-bottom: 1px solid var(--line-strong);
     margin-bottom: 8px;
   }
   .box-s.setup summary {
     font-family: var(--font-title);
-    font-size: 22px;
-    text-transform: uppercase;
+    font-size: var(--fs-sub);
   }
   .target {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
     color: var(--ink-3);
   }
@@ -1902,14 +1897,12 @@
     padding: 0 6px;
     border: 1px solid var(--hi);
     border-radius: 999px;
-    font-size: 12px;
+    font-size: var(--fs-small);
     font-weight: 600;
   }
   .sub {
     margin: 12px 0 6px;
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .fill {
@@ -1917,7 +1910,7 @@
     align-items: center;
     gap: 10px;
     margin: 8px 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .fill .bar {
     position: relative;
@@ -1963,10 +1956,8 @@
   .cathead {
     padding: 6px 8px 4px;
     background: var(--paper-2, #e6ebe3);
-    font-size: 11px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   /* Mockup answer 8a: on a phone a fixed bar at the bottom says where "+" puts things. */
@@ -2105,7 +2096,7 @@
     border-bottom: 1px solid var(--line);
   }
   .ready .title {
-    font-size: 26px;
+    font-size: var(--fs-section);
     border-bottom: 0;
     margin-bottom: 0;
   }
@@ -2118,7 +2109,7 @@
   }
   .fold summary .title {
     display: block;
-    font-size: 26px;
+    font-size: var(--fs-section);
   }
   .fold .fsum {
     display: block;
@@ -2140,7 +2131,7 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    border-bottom: 3px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
   }
   .ready li {
     display: flex;

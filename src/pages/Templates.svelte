@@ -122,8 +122,8 @@
 
 <style>
   .big {
-    font-size: clamp(48px, 10vw, 88px);
-    line-height: 0.9;
+    font-size: var(--fs-page);
+    line-height: var(--lh-title);
   }
   .back {
     margin: 0 0 6px;
@@ -133,7 +133,7 @@
     max-width: 60ch;
   }
   .err {
-    color: #b42318;
+    color: var(--bad);
   }
   .list {
     list-style: none;
@@ -188,7 +188,7 @@
   }
   .del {
     margin-left: auto;
-    border-color: #b42318;
-    color: #b42318;
+    border-color: var(--bad);
+    color: var(--bad);
   }
 </style>

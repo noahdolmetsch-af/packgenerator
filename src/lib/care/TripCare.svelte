@@ -60,9 +60,9 @@
     margin-bottom: 24px;
   }
   .title {
-    font-size: 28px;
+    font-size: var(--fs-section);
     margin: 0 0 8px;
-    border-bottom: 3px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
     padding-bottom: 4px;
   }
   .title small {
@@ -70,7 +70,7 @@
     font-size: 14px;
   }
   small {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     font-weight: 400;
   }
@@ -159,7 +159,7 @@
     padding-left: 6px;
   }
   .when {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .txt {
@@ -184,7 +184,7 @@
   }
   .btn.sm {
     padding: 3px 10px;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .link {
     border: 0;

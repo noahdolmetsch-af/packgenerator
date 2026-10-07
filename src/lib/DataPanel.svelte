@@ -197,7 +197,7 @@
 <style>
   .card {
     background: var(--paper);
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 6px;
     padding: 16px;
     margin-top: 28px;
@@ -206,12 +206,11 @@
   h3 {
     font-family: var(--font-title);
     font-weight: 800;
-    text-transform: uppercase;
     margin: 0 0 6px;
-    line-height: 0.95;
+    line-height: var(--lh-title);
   }
   h2 {
-    font-size: 30px;
+    font-size: var(--fs-section);
   }
   h3 {
     font-size: 22px;
@@ -247,7 +246,7 @@
     font: 600 15px var(--font-body);
     padding: 10px 14px;
     border-radius: 4px;
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--line-strong);
     background: var(--paper);
     color: var(--ink);
     cursor: pointer;

@@ -175,7 +175,7 @@
     margin-top: 12px;
   }
   h2 {
-    font-size: 32px;
+    font-size: var(--fs-section);
     margin: 0 0 14px;
   }
   .grid {
@@ -192,7 +192,7 @@
     margin: 12px 0 0;
   }
   .err {
-    color: #b42318;
+    color: var(--bad);
     min-height: 1.2em;
     font-size: 14px;
   }
@@ -203,7 +203,7 @@
   }
   .del {
     margin-left: auto;
-    border-color: #b42318;
-    color: #b42318;
+    border-color: var(--bad);
+    color: var(--bad);
   }
 </style>

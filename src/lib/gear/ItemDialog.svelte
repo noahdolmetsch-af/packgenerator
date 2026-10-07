@@ -208,14 +208,12 @@
     align-items: center;
     gap: 6px;
     margin: 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   h2 {
-    font-size: 32px;
+    font-size: var(--fs-section);
     margin: 4px 0 14px;
   }
   .grid {
@@ -284,7 +282,7 @@
     margin: 10px 0;
   }
   .err {
-    color: #b42318;
+    color: var(--bad);
     min-height: 1.2em;
     font-size: 14px;
   }
@@ -295,7 +293,7 @@
   }
   .del {
     margin-left: auto;
-    border-color: #b42318;
-    color: #b42318;
+    border-color: var(--bad);
+    color: var(--bad);
   }
 </style>

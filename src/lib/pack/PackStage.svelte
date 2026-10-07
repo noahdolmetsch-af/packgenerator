@@ -153,7 +153,7 @@
   .hv {
     display: block;
     margin-top: 4px;
-    font-size: 11px;
+    font-size: var(--fs-small);
     font-weight: 400;
     line-height: 1.3;
     font-style: italic;
@@ -277,7 +277,7 @@
     gap: 2px;
     min-width: 0;
     padding: 8px 10px;
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 6px;
     background: var(--paper);
     color: var(--ink);
@@ -286,13 +286,16 @@
     cursor: pointer;
     box-shadow: 0 2px 0 rgba(15, 46, 39, 0.12);
   }
+  /* v0.22.0 (AP03): the bag boxes on the photo are a map. Their names keep the condensed face
+     (one of the few accents), so long German words like "Oberrohrtasche" stay whole in a narrow box. */
   .n {
-    font: 900 20px/1 var(--font-title);
-    text-transform: uppercase;
+    font: 800 18px/1.1 var(--font-brand);
+    hyphens: auto;
+    letter-spacing: 0.01em;
     overflow-wrap: anywhere;
   }
   .small .n {
-    font-size: 16px;
+    font-size: 17px;
   }
   .f {
     font-size: 13px;
@@ -319,7 +322,7 @@
     align-items: center;
     gap: 6px;
     margin-top: 4px;
-    font-size: 11px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .bar {

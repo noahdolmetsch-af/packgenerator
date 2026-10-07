@@ -81,7 +81,7 @@
     display: grid;
     gap: 8px;
     padding: 10px;
-    border-bottom: 3px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
   }
   .np-h {
     display: flex;
@@ -89,7 +89,7 @@
     gap: 10px;
   }
   .np-h .title {
-    font-size: 28px;
+    font-size: var(--fs-section);
   }
   .m {
     flex: 1;
@@ -124,9 +124,7 @@
     border-bottom: 1px solid var(--line);
     background: var(--paper-2);
     color: var(--ink);
-    font: 700 12px var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font: 600 13px var(--font-body);
     text-align: left;
     cursor: pointer;
   }
@@ -172,12 +170,12 @@
     padding: 0 6px;
     border: 1px solid var(--ink-3);
     border-radius: 999px;
-    font-size: 11px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
     white-space: nowrap;
   }
   .w {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   /* Small, so it sits with the text (Noah, 4.10.2026); the row is still easy to hit on a phone. */

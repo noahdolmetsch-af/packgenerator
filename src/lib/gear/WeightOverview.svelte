@@ -88,15 +88,14 @@
   .h {
     font-family: var(--font-title);
     font-weight: 800;
-    text-transform: uppercase;
-    font-size: 22px;
+    font-size: var(--fs-sub);
     margin: 0 0 8px;
   }
   .h small {
     font-family: var(--font-body);
     font-weight: 400;
     text-transform: none;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     margin-left: 6px;
   }
@@ -104,7 +103,7 @@
   .bar {
     display: flex;
     height: 34px;
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 4px;
     overflow: hidden;
   }
@@ -130,7 +129,7 @@
     .fold > summary {
       margin-top: 10px;
       padding: 8px 0;
-      border-bottom: 2px solid var(--ink);
+      border-bottom: 1px solid var(--line-strong);
       font-weight: 700;
     }
     .fold > summary::after {
@@ -194,7 +193,7 @@
   .rk {
     font-family: var(--font-title);
     font-weight: 900;
-    font-size: 20px;
+    font-size: var(--fs-sub);
     color: var(--ink-3);
     width: 1.6em;
   }

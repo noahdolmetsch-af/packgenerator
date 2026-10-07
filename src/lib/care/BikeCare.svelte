@@ -106,7 +106,7 @@
       <div>
         <h3>{t('Workshop')} {#if c.mine.length}<small>{tn(c.mine.length, '{n} visit', '{n} visits')}</small>{/if}</h3>
         {#if c.order?.rows.length}
-          <p class="order"><button type="button" class="btn sm hi" onclick={onorder}>{t('Workshop order')}</button> <span>{tn(c.order.rows.length, '{n} job', '{n} jobs')} · {t('about CHF {chf}', { chf: c.order.total })}{c.order.unknown ? ` + ${t('unknown')}` : ''}</span></p>
+          <p class="order"><button type="button" class="btn sm" onclick={onorder}>{t('Workshop order')}</button> <span>{tn(c.order.rows.length, '{n} job', '{n} jobs')} · {t('about CHF {chf}', { chf: c.order.total })}{c.order.unknown ? ` + ${t('unknown')}` : ''}</span></p>
         {/if}
         {#if c.mine.length}
           <ul class="visits">
@@ -141,7 +141,7 @@
             <span class="when">{PRIO[rp.priority] ? t(PRIO[rp.priority]) : ''}</span>
             <span class="txt">{rp.task}{#if rp.note}<small>{rp.note}</small>{/if}</span>
             <span class="acts">
-              <button type="button" class="btn sm hi" onclick={() => onrepair(rp, 'done')}>{t('Done|task')}</button>
+              <button type="button" class="btn sm" onclick={() => onrepair(rp, 'done')}>{t('Done|task')}</button>
               <MoreMenu label={rp.task} actions={[{ name: t('Work needed'), run: () => onrepair(rp, 'needed') }, { name: t('Not needed any more'), run: () => onrepair(rp, 'gone') }]} />
             </span>
           </li>
@@ -188,11 +188,11 @@
     display: none;
   }
   .bike[open] > .bike-h {
-    border-bottom: 3px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
     margin-bottom: 10px;
   }
   .bike-h .title {
-    font-size: 26px;
+    font-size: var(--fs-section);
     margin: 0;
     display: flex;
     align-items: center;
@@ -217,7 +217,7 @@
     color: var(--ink-3);
   }
   small {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     font-weight: 400;
   }
@@ -275,13 +275,13 @@
   }
   .m {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .checks + .btn {
     margin-top: 8px;
   }
   .hint {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     margin: 6px 0 0;
   }
@@ -320,10 +320,10 @@
   .pill {
     padding: 1px 8px;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    background: #d9eedf;
-    color: #2f7a4f;
+    background: var(--ok-soft);
+    color: var(--ok);
   }
   .pill.warn,
   .pill.red {
@@ -332,8 +332,8 @@
   }
   /* Red stays for worn parts only: brakes, chain (safety). */
   .pill.worn {
-    background: #f6d5d0;
-    color: #b42318;
+    background: var(--bad-soft);
+    color: var(--bad);
   }
   .tyres {
     display: flex;
@@ -390,7 +390,7 @@
     padding-left: 6px;
   }
   .when {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .txt {
@@ -415,7 +415,7 @@
   }
   .btn.sm {
     padding: 3px 10px;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .link {
     border: 0;
@@ -428,7 +428,7 @@
     cursor: pointer;
   }
   .err {
-    color: #b42318;
+    color: var(--bad);
     font-size: 14px;
   }
   .log {

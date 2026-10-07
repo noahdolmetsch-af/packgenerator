@@ -52,8 +52,8 @@
     margin-bottom: 14px;
   }
   .head .title {
-    font-size: clamp(48px, 11vw, 88px);
-    line-height: 0.95;
+    font-size: var(--fs-page);
+    line-height: var(--lh-title);
     margin: 0;
   }
 </style>

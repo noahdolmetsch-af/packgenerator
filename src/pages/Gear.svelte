@@ -268,11 +268,9 @@
     gap: 12px 24px;
     margin-bottom: 18px;
   }
+  /* v0.22.0 (AP03): page title from the type scale (was 56–88 px condensed capitals). */
   .head .title {
-    font-size: clamp(56px, 12vw, 88px);
-    /* v0.21.0: without the web font (offline) the German title was wider than a 390 px phone. */
     max-width: 100%;
-    overflow-wrap: anywhere;
   }
   .kpis {
     display: flex;
@@ -283,24 +281,37 @@
     display: flex;
     flex-direction: column;
   }
+  /* The big numbers keep the condensed face: a small accent of the outdoor identity. */
   .kpis b {
-    font-family: var(--font-title);
+    font-family: var(--font-brand);
     font-weight: 800;
-    font-size: 30px;
-    line-height: 1;
+    font-size: 32px;
+    line-height: 1.05;
   }
   @media (max-width: 719px) {
     .kpis {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       width: 100%;
       gap: 8px;
     }
+    .kpis div {
+      min-width: 0;
+    }
     .kpis b {
-      font-size: 22px;
+      font-size: 26px;
     }
     .kpis .lbl {
-      font-size: 10px;
+      font-size: var(--fs-small);
+      line-height: 1.25;
+      hyphens: auto;
+      overflow-wrap: break-word;
+    }
+  }
+  /* v0.22.0 (AP03): 14 px labels need two rows of numbers on the narrowest phones. */
+  @media (max-width: 379px) {
+    .kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   /* Status stays grey; orange is only for actions (design audit G3). */
@@ -310,47 +321,59 @@
   .tabs {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr)); /* v0.21.0: tabs may shrink below their label width */
-    border: 2px solid var(--ink);
-    border-radius: 6px;
+    gap: 1px;
+    background: var(--line);
+    border: 1.5px solid var(--line-strong);
+    border-radius: var(--radius);
     overflow: hidden;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
   @media (min-width: 720px) {
     .tabs {
       max-width: 780px;
     }
   }
+  /* v0.22.0 (AP03): words are never cut inside a tab; very narrow phones get 3 + 2 tabs. */
   @media (max-width: 520px) {
     .tabs button {
-      font-size: 13px;
-      line-height: 1.15;
+      font-size: 13.5px;
+      line-height: 1.2;
       text-align: center;
+      padding: 8px 2px;
+    }
+  }
+  @media (max-width: 379px) {
+    .tabs {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+    .tabs button {
+      grid-column: span 2;
+    }
+    .tabs button:nth-child(n + 4) {
+      grid-column: span 3;
     }
   }
   .tabs button {
     border: 0;
-    border-right: 2px solid var(--ink);
     background: var(--paper);
-    padding: 10px 4px;
-    font: 700 15px var(--font-body);
+    padding: 8px 4px;
+    font: 500 15px/1.3 var(--font-body);
     color: var(--ink);
     display: flex;
     flex-direction: column;
     align-items: center;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     hyphens: auto;
-  }
-  .tabs button:last-child {
-    border-right: 0;
   }
   .tabs button[aria-selected='true'] {
     background: var(--ink);
     color: var(--paper);
+    font-weight: 600;
   }
   .tabs small {
     font-weight: 400;
-    font-size: 12px;
+    font-size: var(--fs-small);
   }
   .toolbar {
     display: grid;
@@ -360,11 +383,12 @@
     margin-bottom: 8px;
   }
   .fav {
-    border: 1.5px solid var(--ink-3);
+    border: 1.5px solid var(--line-strong);
     background: var(--paper);
     border-radius: 999px;
     padding: 7px 12px;
-    font: 600 14px var(--font-body);
+    font: 500 var(--fs-label) var(--font-body);
+    min-height: 40px;
     color: var(--ink);
     cursor: pointer;
     justify-self: start;
@@ -381,6 +405,12 @@
   }
   .toolbar .q {
     grid-column: 1 / -1;
+  }
+  /* v0.22.0 (AP03): on the narrowest phones the category list gets the full width. */
+  @media (max-width: 379px) {
+    .toolbar {
+      grid-template-columns: 1fr;
+    }
   }
   /* The search stays at the top while you scroll (desktop). */
   @media (min-width: 720px) {
@@ -417,9 +447,10 @@
   .cat {
     margin-bottom: 20px;
   }
+  /* v0.22.0 (AP03): a thin line under the category instead of a 3 px bar. */
   .ch {
     margin: 0;
-    border-bottom: 3px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
   }
   .ch button {
     display: grid;
@@ -439,7 +470,8 @@
     cursor: default;
   }
   .ch .title {
-    font-size: 26px;
+    font-size: var(--fs-sub);
+    font-weight: 600;
     min-width: 0;
   }
   .ch .k {
@@ -449,7 +481,7 @@
     grid-column: 2 / 4;
     grid-row: 2;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 400;
   }
   .ch .chev {
@@ -511,10 +543,14 @@
       background: var(--paper-2);
     }
   }
+  .rows .nm {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
   .rows .bg {
     grid-column: 1;
     grid-row: 2;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .rows .w {
@@ -530,8 +566,8 @@
   }
   .rows .nw {
     color: var(--ink-3);
-    font-weight: 600;
-    font-size: 13px;
+    font-weight: 500;
+    font-size: var(--fs-small);
   }
   @media (min-width: 720px) {
     .rows button {
@@ -588,7 +624,7 @@
   }
   .side .num {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   @media (hover: hover) {
     .side button:hover {
@@ -615,17 +651,14 @@
   .why {
     display: block;
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .dead {
     max-width: 1000px;
   }
-  .dead .title {
-    font-size: 28px;
-  }
   .dead h3.title {
-    font-size: 22px;
+    font-size: var(--fs-sub);
     margin-top: 20px;
   }
   .dead .sub {
@@ -675,12 +708,10 @@
   .wish {
     margin-top: 8px;
     padding: 16px;
-    border: 2px dashed var(--ink-3);
-    border-radius: 6px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
     max-width: 1000px;
-  }
-  .wish .title {
-    font-size: 28px;
   }
   .wish .sub {
     color: var(--ink-3);
@@ -722,11 +753,9 @@
     }
   }
   .st {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    border: 1.5px solid var(--ink-3);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    border: 1px solid var(--ink-3);
     border-radius: 99px;
     padding: 1px 8px;
     color: var(--ink-3);

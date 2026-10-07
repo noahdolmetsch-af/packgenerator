@@ -190,7 +190,7 @@
     flex-wrap: wrap;
     align-items: end;
     gap: 8px 20px;
-    border-bottom: 3px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
     padding-bottom: 8px;
     margin-bottom: 14px;
   }
@@ -201,8 +201,7 @@
     min-width: min(100%, 280px);
   }
   .big-inp {
-    font: 900 32px/1.1 var(--font-title);
-    text-transform: uppercase;
+    font: 900 var(--fs-section)/1.1 var(--font-title);
   }
   .meta {
     margin: 0;
@@ -210,7 +209,7 @@
     font-size: 14px;
   }
   .ok {
-    color: #2f7a4f;
+    color: var(--ok);
     font-weight: 700;
     margin-left: 8px;
   }
@@ -259,7 +258,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
     color: var(--ink-3);
   }
@@ -282,19 +281,19 @@
     align-items: baseline;
     gap: 8px;
     margin: 0 0 4px;
-    border-bottom: 2px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
   }
   .ph .title {
-    font-size: 22px;
+    font-size: var(--fs-sub);
   }
   .ph small {
     color: var(--ink-3);
-    font-size: 12px;
+    font-size: var(--fs-small);
     font-weight: 400;
   }
   .ph .m {
     margin-left: auto;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 400;
     color: var(--ink-3);
   }
@@ -334,7 +333,7 @@
     overflow-wrap: anywhere;
   }
   .w {
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
   }
   .nw {
@@ -363,11 +362,11 @@
   .qty .num {
     min-width: 24px;
     text-align: center;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .mv {
     padding: 2px 6px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     min-width: 0;
   }
   .box-s {
@@ -376,8 +375,8 @@
     padding: 10px;
   }
   .box-s .title {
-    font-size: 24px;
-    border-bottom: 3px solid var(--ink);
+    font-size: var(--fs-sub);
+    border-bottom: 1px solid var(--line-strong);
     margin: 0 0 8px;
   }
   .chips {

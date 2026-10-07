@@ -204,10 +204,10 @@
                 <button type="button" class="btn sm" onclick={() => openBike(o.bike.id)}>{t('Open')}</button>
               {:else if o.kind === 'time'}
                 <span><b>{o.bike.name}: {o.s.name}</b><small>{t('last {date}', { date: o.s.last })} · {inDays(o.s.days)}</small></span>
-                <button type="button" class="btn sm hi" onclick={() => checkParts(o.bike, [o.s.key], 'service', o.s.name)}>{t('Done|task')}</button>
+                <button type="button" class="btn sm" onclick={() => checkParts(o.bike, [o.s.key], 'service', o.s.name)}>{t('Done|task')}</button>
               {:else}
                 <span><b>{o.bike.name}: {o.s.name}</b><small>{t('{since} km since the last time (every {every} km)', { since: o.s.since, every: o.s.every })}</small></span>
-                <button type="button" class="btn sm hi" onclick={() => checkParts(o.bike, [o.s.key], 'service')}>{t('Done|task')}</button>
+                <button type="button" class="btn sm" onclick={() => checkParts(o.bike, [o.s.key], 'service')}>{t('Done|task')}</button>
               {/if}
             </li>
           {/each}
@@ -286,7 +286,7 @@
               <span class="when">{rp.subject}</span>
               <span class="txt">{rp.task}</span>
               <span class="acts">
-                <button type="button" class="btn sm hi" onclick={() => repairResult(rp, 'done')}>{t('Done|task')}</button>
+                <button type="button" class="btn sm" onclick={() => repairResult(rp, 'done')}>{t('Done|task')}</button>
                 <button type="button" class="x" aria-label={t('Not needed any more: {task}', { task: rp.task })} onclick={() => repairResult(rp, 'gone')}>×</button>
               </span>
             </li>
@@ -343,7 +343,7 @@
   }
   /* Design audit C1: calm card with an orange edge instead of a pink alarm. */
   .due {
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-left: 6px solid var(--hi);
     border-radius: 6px;
     background: var(--paper);
@@ -354,7 +354,7 @@
     border-left-width: 2px;
   }
   .due .title {
-    font-size: 24px;
+    font-size: var(--fs-sub);
     margin: 0 0 6px;
   }
   .due ul,
@@ -383,7 +383,7 @@
     color: var(--ink-2);
   }
   small {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     font-weight: 400;
   }
@@ -420,7 +420,7 @@
     padding-left: 6px;
   }
   .when {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .acts {
@@ -440,7 +440,7 @@
   }
   .btn.sm {
     padding: 3px 10px;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .link {
     border: 0;
@@ -471,15 +471,13 @@
     gap: 8px 14px;
   }
   .rev-head .title {
-    font-size: 24px;
+    font-size: var(--fs-sub);
     margin: 0;
   }
   .review .cat {
     margin: 10px 0 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   .review .name {

@@ -57,14 +57,12 @@
   }
   .meta {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   h2 {
-    font-size: 30px;
+    font-size: var(--fs-section);
     margin: 4px 0 10px;
   }
   .grid {
@@ -90,7 +88,7 @@
     flex-wrap: wrap;
   }
   .tag {
-    font-size: 12px;
+    font-size: var(--fs-small);
     font-weight: 700;
     background: var(--ink);
     color: var(--paper);
@@ -116,20 +114,20 @@
   }
   dd small {
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .good {
-    font-size: 12px;
+    font-size: var(--fs-small);
     font-weight: 700;
     color: #1f7a3d;
   }
   .warn,
   dd small.warn {
-    color: #b42318;
+    color: var(--bad);
   }
   .hint {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     margin: 8px 0 0;
   }

@@ -79,14 +79,12 @@
 <style>
   .meta {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   h2 {
-    font-size: 30px;
+    font-size: var(--fs-section);
     margin: 4px 0 4px;
   }
   h3 {
@@ -109,12 +107,12 @@
     width: 120px;
   }
   .hint {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     margin: 4px 0 0;
   }
   .err {
-    color: #b42318;
+    color: var(--bad);
     font-size: 14px;
     margin: 4px 0 0;
   }
@@ -131,7 +129,7 @@
     border: 1.5px solid var(--line);
     border-radius: 6px;
     background: var(--paper);
-    font: 600 12px var(--font-body);
+    font: 600 13px var(--font-body);
     color: var(--ink-2);
     cursor: pointer;
     overflow: hidden;
@@ -165,7 +163,7 @@
   }
   .j small {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .c {
     flex: none;

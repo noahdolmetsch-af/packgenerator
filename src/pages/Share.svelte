@@ -50,8 +50,8 @@
   }
   h1 {
     margin: 2px 0 0;
-    font-size: clamp(36px, 8vw, 56px);
-    line-height: 1;
+    font-size: var(--fs-page);
+    line-height: var(--lh-title);
   }
   .meta {
     margin-top: 4px;
@@ -80,7 +80,7 @@
   }
   .bag h2 {
     margin: 0 0 6px;
-    font-size: 22px;
+    font-size: var(--fs-sub);
   }
   .bag h2 small {
     font-size: 14px;

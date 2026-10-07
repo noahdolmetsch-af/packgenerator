@@ -361,7 +361,7 @@
       {#each open as tr (tr.id)}
         <div class="card trip-row">
           <div><b>{tr.title}</b><span class="muted">{dateText(tr)} · {tn(tr.entries.length, '{n} item', '{n} items')}</span></div>
-          <a class="btn hi" href="#/debrief/{encodeURIComponent(tr.id)}">{drafts.has(tr.id) ? t('Continue') : t('Start debrief')}</a>
+          <a class="btn" href="#/debrief/{encodeURIComponent(tr.id)}">{drafts.has(tr.id) ? t('Continue') : t('Start debrief')}</a>
         </div>
       {:else}
         <p class="muted">{t('No trip is waiting. A trip shows up here the day after it ends.')}</p>
@@ -437,8 +437,7 @@
     margin-bottom: 10px;
   }
   .bar b {
-    font: 900 22px var(--font-title);
-    text-transform: uppercase;
+    font: 900 var(--fs-sub) var(--font-title);
   }
   .back {
     color: var(--ink);
@@ -466,7 +465,7 @@
     margin: 0;
   }
   .flow .title {
-    font-size: 40px;
+    font-size: var(--fs-page);
     margin: 4px 0 12px;
   }
   fieldset {
@@ -481,7 +480,7 @@
   }
   .seg {
     display: flex;
-    border: 2px solid var(--ink);
+    border: 1.5px solid var(--line-strong);
     border-radius: 6px;
     overflow: hidden;
   }
@@ -616,7 +615,7 @@
   .legend {
     display: flex;
     gap: 14px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     margin-bottom: 4px;
   }
@@ -628,11 +627,11 @@
     align-items: baseline;
     gap: 8px;
     margin: 0 0 4px;
-    border-bottom: 2px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
     padding-bottom: 3px;
   }
   .bag h2 .title {
-    font-size: 20px;
+    font-size: var(--fs-sub);
     margin: 0;
   }
   .bag ul {
@@ -662,7 +661,7 @@
   .nm .sub {
     display: block;
     color: var(--ink-3);
-    font-size: 12px;
+    font-size: var(--fs-small);
   }
   .acts {
     display: flex;
@@ -715,7 +714,7 @@
     min-width: 0;
   }
   .kpi b {
-    font: 900 24px/1 var(--font-title);
+    font: 900 var(--fs-sub)/1.2 var(--font-title);
     white-space: nowrap;
   }
   @media (max-width: 479px) {
@@ -725,13 +724,13 @@
   }
   .sum {
     background: var(--paper);
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 6px;
     padding: 10px 12px;
     margin-top: 10px;
   }
   .sum .title {
-    font-size: 20px;
+    font-size: var(--fs-sub);
     margin: 0 0 4px;
   }
   .chk {
@@ -762,7 +761,7 @@
     margin: 0 auto;
   }
   .big {
-    font-size: clamp(52px, 12vw, 88px);
+    font-size: var(--fs-page);
   }
   .lead {
     color: var(--ink-2);
@@ -779,10 +778,8 @@
     margin: 8px 0 4px;
   }
   .ev dt {
-    font-size: 12px;
+    font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
     color: var(--ink-3);
     padding-top: 2px;
   }
@@ -828,7 +825,7 @@
     margin-bottom: 8px;
   }
   .topic {
-    border-bottom: 2px solid var(--ink);
+    border-bottom: 1px solid var(--line-strong);
     padding: 6px 0;
   }
   .topic summary {
@@ -838,7 +835,7 @@
     gap: 8px;
   }
   .topic summary .title {
-    font-size: 20px;
+    font-size: var(--fs-sub);
   }
   .topic ul {
     list-style: none;
@@ -854,7 +851,7 @@
   }
   .topic li small {
     display: block;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   .topic li small.muted {
@@ -862,10 +859,8 @@
   }
   .prio {
     flex: none;
-    width: 56px;
-    font: 700 10px var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    min-width: 56px;
+    font: 600 12px var(--font-body);
     color: var(--ink-3);
     border: 1px solid var(--line);
     border-radius: 3px;

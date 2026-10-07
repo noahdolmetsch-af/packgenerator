@@ -230,7 +230,8 @@
         <h2 id="bk-h">{t('Time for a backup')}</h2>
         <p>{backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })} {t('Your data lives only in this browser: one file keeps it safe (every {n} days).', { n: BACKUP_DAYS })}</p>
       </div>
-      <button type="button" class="btn hi" disabled={backingUp} onclick={backupNow}>{t('Download backup')}</button>
+      <!-- v0.22.0 (AP03): only the trip's next step is orange; notices use a calm button. -->
+      <button type="button" class="btn" disabled={backingUp} onclick={backupNow}>{t('Download backup')}</button>
     </section>
   {/if}
 
@@ -285,7 +286,7 @@
         <h2 id="last-h">{t('Last trip: {title}', { title: debrief.title })}</h2>
         <p>{t('Two minutes: mark what you did not use, what broke and what you missed. The app turns it into tips for the next trip.')}</p>
       </div>
-      <a class="btn hi" href="#/debrief/{encodeURIComponent(debrief.id)}">{t('Start debrief')}</a>
+      <a class="btn" href="#/debrief/{encodeURIComponent(debrief.id)}">{t('Start debrief')}</a>
     </section>
   {/if}
 
@@ -301,7 +302,7 @@
   <div class="hubs">
     <section class="hub" aria-labelledby="pack-h">
       <header><h2 id="pack-h" class="title"><a href="#/pack">{t('Pack')}</a></h2>{@render ic('bag', 40)}</header>
-      <button type="button" class="btn hi big" onclick={() => openNew('list')}>{@render ic('plus')}{t('New packing list')}</button>
+      <button type="button" class="btn big" onclick={() => openNew('list')}>{@render ic('plus')}{t('New packing list')}</button>
       {#if next}
         <div class="sub">
           <div class="line"><b>{next.title}</b><span class="num muted">{t('{packed} / {n} in the bags', { packed: stats.packed, n: stats.count })}</span></div>
@@ -455,9 +456,7 @@
     margin: 0 auto;
   }
   .lbl {
-    font: 700 12px/1.2 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font: 600 var(--fs-small)/1.3 var(--font-body);
     color: var(--ink-3);
   }
   .muted {
@@ -485,7 +484,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 18px;
-    border: 2px solid var(--hi);
+    border: 1.5px solid var(--hi);
     border-radius: 12px;
     background: var(--hi-soft);
   }
@@ -509,8 +508,8 @@
     gap: 16px 32px;
     padding: 22px 26px;
     border-radius: 14px;
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--brand);
+    color: var(--brand-ink);
   }
   .band .lbl {
     color: #a9c2b6;
@@ -521,8 +520,8 @@
   }
   .band h1 {
     margin: 4px 0 0;
-    font-size: clamp(40px, 8vw, 64px);
-    line-height: 0.95;
+    font-size: var(--fs-page);
+    line-height: var(--lh-title);
     overflow-wrap: anywhere;
   }
   .facts {
@@ -538,12 +537,16 @@
     gap: 8px;
   }
   .count b {
+    /* v0.22.0 (AP03): the countdown stays a big condensed number, a deliberate accent. */
+    font-family: var(--font-brand);
+    font-weight: 800;
     font-size: clamp(64px, 14vw, 96px);
-    line-height: 0.8;
-    color: var(--hi);
+    line-height: 0.85;
+    /* on the dark band the bright orange reads (4.7:1), the darker action orange would not */
+    color: var(--hi-bright);
   }
   .count .now {
-    font-size: 40px;
+    font-size: var(--fs-page);
   }
   .acts {
     flex: 1 1 100%;
@@ -604,7 +607,7 @@
       border: 0;
       background: none;
       color: var(--ink);
-      font: 600 12px var(--font-body);
+      font: 500 13px/1.25 var(--font-body);
       text-align: center;
       min-width: 0;
       hyphens: auto;
@@ -618,13 +621,11 @@
       width: 52px;
       height: 52px;
       border-radius: 50%;
-      border: 2px solid var(--ink);
+      border: 1px solid var(--line);
       background: var(--paper);
     }
     .ring.hi {
-      background: var(--hi);
-      border-color: var(--hi);
-      color: #fff;
+      border: 1.5px solid var(--ink);
     }
   }
 
@@ -640,7 +641,7 @@
     gap: 16px;
     min-width: 0;
     padding: 20px;
-    border: 2px solid var(--ink);
+    border: 1px solid var(--line);
     border-radius: 14px;
     background: var(--paper);
   }
@@ -652,8 +653,8 @@
   }
   .hub h2 {
     margin: 0;
-    font-size: clamp(40px, 6vw, 52px);
-    line-height: 1;
+    font-size: var(--fs-section);
+    line-height: var(--lh-title);
   }
   .hub h2 a {
     color: var(--ink);
@@ -735,11 +736,11 @@
     flex-direction: column;
   }
   .two small {
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .tag {
     flex: none;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .tag.due {
@@ -760,6 +761,8 @@
     gap: 8px;
   }
   .kpis b {
+    font-family: var(--font-brand);
+    font-weight: 800;
     font-size: 44px;
     line-height: 1;
   }
@@ -791,7 +794,7 @@
   /* Good to know */
   .know h2 {
     margin: 0 0 12px;
-    font-size: 30px;
+    font-size: var(--fs-section);
   }
   .cards {
     display: grid;
@@ -832,7 +835,7 @@
   }
   .todo li span {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .todo .link {
     padding: 0;
@@ -844,7 +847,7 @@
   }
   .src {
     margin-top: auto;
-    font-size: 12px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .link {
@@ -871,7 +874,7 @@
     align-items: center;
     gap: 8px;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .dot {
     width: 8px;

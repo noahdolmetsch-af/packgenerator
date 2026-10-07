@@ -216,11 +216,11 @@
     align-items: center;
   }
   .hint {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .warn {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink);
   }
   .ok {
