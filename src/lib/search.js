@@ -18,7 +18,10 @@ export const KIND = {
 };
 
 /** v0.21.0: pages the search finds by a word, e.g. "favourites" opens all my favourite things. */
-const PAGES = [{ id: 'favorites', title: 'All my favourite things', words: 'favourites favorites favourite favorite best things lieblingsstücke favoriten beste', href: '#/favorites' }];
+const PAGES = [{ id: 'favorites', title: 'All my favourite things', words: 'favourites favorites favourite favorite best things lieblingsstücke favoriten beste', href: '#/favorites' },
+  // v0.26.0 (Noah 2b): the building blocks page
+  { id: 'blocks', title: 'Building blocks', words: 'building blocks block bausteine baustein sets set', href: '#/blocks' },
+];
 
 /**
  * Results grouped by kind, best first: [{ kind, name, rows: [{ id, title, sub, href, tripId? }] }].

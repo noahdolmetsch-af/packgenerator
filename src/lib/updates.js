@@ -5,7 +5,10 @@
  */
 
 import { freshReady, slotFor, ALWAYS_OLD } from './trips.js';
-import { loadTemplates, saveTemplates, templateFrom } from './templates.js';
+import { loadTemplates, saveTemplates, templateFrom, TEMPLATES_KEY } from './templates.js';
+import { templateSlot } from './gear/assign.js';
+import { SETS_KEY, addSet, allSets } from './sets.js';
+import { isInventory } from './gear.js';
 
 const now = () => new Date().toISOString();
 
@@ -263,7 +266,73 @@ async function lodgingSet2026(db) {
   return true;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026];
+/**
+ * v0.26.0 (Noah 1a): the eight kits of the import become templates, once. Each kit without a
+ * template of the same name gets one: { id: 'tpl-kit-<id>', name, note: kit.use, entries: the
+ * owned or unclear items with that kit code, each in its usual bag (templateSlot: a template
+ * without bags keeps the bag key, tripFromTemplate puts it into the bike's matching bag) }.
+ * Coordinator default (7.10.2026): the rain kit ("Rain setup (add-on)") is an add-on to any
+ * kit, so it becomes an own item set "Rain setup" with its items (not gone ones) instead.
+ * The kits table and item.kits stay as they are (data is never lost).
+ */
+export const kitSetName = (kit) => String(kit.name ?? '').replace(/\s*\(add-on\)\s*$/i, '').trim();
+// Whole word: "Training ride" stays a template.
+export const isAddOnKit = (kit) => /\brain\b/i.test(kit.name ?? '');
+async function kitTemplates2026(db) {
+  if (await db.settings.get('update.kitTemplates2026')) return false;
+  if (!(await db.items.count())) return false; // nothing imported yet
+  await db.transaction('rw', db.items, db.kits, db.settings, async () => {
+    const kits = await db.kits.toArray();
+    const items = await db.items.toArray();
+    const tplRec = await db.settings.get(TEMPLATES_KEY);
+    const list0 = tplRec?.value ?? [];
+    let list = list0;
+    const setsRec = await db.settings.get(SETS_KEY);
+    const sets0 = setsRec?.value ?? [];
+    let sets = sets0;
+    const stamp = now();
+    for (const kit of kits) {
+      const withKit = items.filter((i) => i.kits?.includes(kit.id));
+      if (isAddOnKit(kit)) {
+        const name = kitSetName(kit) || kit.id;
+        let key = allSets(sets).find((s) => !s.builtIn && s.name.toLowerCase() === name.toLowerCase())?.key;
+        if (!key) {
+          const made = addSet(sets, name, kit.use ?? '');
+          if (made.error) continue;
+          ({ key } = made);
+          sets = made.value;
+        }
+        const todo = withKit.filter((i) => i.ownership !== 'gone' && !i.sets?.includes(key));
+        if (todo.length) await db.items.bulkPut(todo.map((i) => ({ ...i, sets: [...(i.sets ?? []), key], updatedAt: stamp })));
+        continue;
+      }
+      if (list.some((x) => x.name.toLowerCase() === String(kit.name ?? '').toLowerCase())) continue;
+      list = [
+        ...list,
+        {
+          id: `tpl-kit-${kit.id}`,
+          name: String(kit.name ?? kit.id),
+          note: kit.use ?? '',
+          setup: {},
+          entries: withKit.filter(isInventory).map((i) => ({ itemId: i.id, slot: templateSlot(i, {}), qty: 1 })),
+          ready: [],
+          ride: null,
+          hours: null,
+          sets: {},
+          purpose: {},
+          fromKit: kit.id,
+          updatedAt: stamp,
+        },
+      ];
+    }
+    if (list !== list0) await db.settings.put({ ...(tplRec ?? {}), key: TEMPLATES_KEY, value: list });
+    if (sets !== sets0) await db.settings.put({ key: SETS_KEY, value: sets });
+    await db.settings.put({ key: 'update.kitTemplates2026', value: stamp });
+  });
+  return true;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

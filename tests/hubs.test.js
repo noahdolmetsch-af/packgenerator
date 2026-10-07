@@ -103,6 +103,8 @@ describe('Past trips address', () => {
     expect(pageOf('#/pack/past')).toBe('past');
     expect(placeOf('past')).toBe('trips');
     expect(pageOf('#/pack/templates')).toBe('templates');
+    expect(pageOf('#/blocks')).toBe('blocks');
+    expect(placeOf('blocks')).toBe('gear');
     expect(pageOf('#/pack?choose')).toBe('pack');
   });
 });

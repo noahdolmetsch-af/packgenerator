@@ -83,6 +83,8 @@
     {#each templates as tp (tp.id)}
       <li class="card">
         <label class="nm"><span class="lbl">{t('Name')}</span><input class="inp" value={tp.name} onchange={(e) => rename(tp, e.currentTarget.value)} /></label>
+        <!-- v0.26.0 (Noah 1a): a template made from a kit keeps what the kit was for (read-only). -->
+        {#if tp.note}<p class="facts tnote">{tp.note}</p>{/if}
         <p class="facts">
           {tn(tp.entries.length, '{n} item', '{n} items')} · {tn(tp.ready.length, '{n} check', '{n} checks')}
           {#if tp.ride}{' · '}{t(RIDES.find((r) => r.key === tp.ride)?.name ?? '')}{/if}{#if tp.hours}{' · '}{tp.hours} h{/if}{#if tp.days > 1}{' · '}{tn(tp.days, '{n} day', '{n} days')}{/if}{#if tp.overnight === 'outdoor'}{' · '}{t('Outdoor')}{:else if tp.overnight === 'lodging'}{' · '}{t('Lodging')}{/if}
@@ -153,6 +155,11 @@
   }
   .muted {
     color: var(--ink-3);
+  }
+  .tnote {
+    color: var(--ink-2);
+    font-style: italic;
+    overflow-wrap: anywhere;
   }
   .acts {
     display: flex;

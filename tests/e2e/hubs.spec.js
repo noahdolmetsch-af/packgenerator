@@ -83,7 +83,7 @@ test('Trips and Bikes tiles: four buttons and More, the menu by keyboard and tou
   const menu = trips.getByRole('menu');
   await expect(menu).toBeVisible();
   await expect(more).toHaveAttribute('aria-expanded', 'true');
-  await expect(menu.getByRole('menuitem')).toHaveText([T('Setups'), T('Compare trips'), T('Learnings'), T('All templates')]);
+  await expect(menu.getByRole('menuitem')).toHaveText([T('Setups'), T('Compare trips'), T('Learnings'), T('All templates'), T('Building blocks')]);
   await expect(menu.getByRole('menuitem', { name: T('Setups') })).toBeFocused();
   await page.keyboard.press('ArrowDown');
   await expect(menu.getByRole('menuitem', { name: T('Compare trips') })).toBeFocused();

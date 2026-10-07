@@ -75,3 +75,39 @@ describe('chat updates', () => {
     expect((await db.items.get('HY08')).sets).toEqual([]);
   });
 });
+
+describe('v0.26.0 kits become templates (Noah 1a)', () => {
+  it('once, skips a template with the same name, ignores items not owned, rain kit becomes a set', async () => {
+    const db = createDb('kit-templates-test');
+    await db.kits.bulkPut([
+      { id: 'D', name: 'test_data_gtp_ Daily', use: 'test_data_gtp_ short rides', domain: 'bikepacking' },
+      { id: 'T', name: 'test_data_gtp_ Training', use: 'long rides', domain: 'bikepacking' },
+      { id: 'W', name: 'test_data_gtp_ Rain setup (add-on)', use: 'extra for rain', domain: 'bikepacking' },
+    ]);
+    await db.items.bulkPut([
+      { id: 'X1', name: 'a', ownership: 'owned', defaultBag: 'frame', kits: ['D', 'W'], sets: [] },
+      { id: 'X2', name: 'b', ownership: 'wishlist', defaultBag: 'top', kits: ['D', 'W'], sets: [] },
+      { id: 'X3', name: 'c', ownership: 'gone', defaultBag: 'top', kits: ['D', 'W'], sets: [] },
+      { id: 'X4', name: 'd', ownership: 'unclear', role: 'worn', defaultBag: 'body', kits: ['D'], sets: ['base'] },
+    ]);
+    await db.settings.put({ key: 'templates', value: [{ id: 'tpl-own', name: 'test_data_gtp_ training', setup: {}, entries: [], ready: [] }] });
+    await applyUpdates(db);
+    const tpls = (await db.settings.get('templates')).value;
+    expect(tpls.map((x) => x.id)).toEqual(['tpl-own', 'tpl-kit-D']);
+    expect(tpls[1]).toMatchObject({ name: 'test_data_gtp_ Daily', note: 'test_data_gtp_ short rides', setup: {}, ready: [], sets: {}, ride: null, hours: null });
+    expect(tpls[1].entries).toEqual([{ itemId: 'X1', slot: 'frame', qty: 1 }, { itemId: 'X4', slot: 'body', qty: 1 }]);
+    const sets = (await db.settings.get('sets')).value;
+    expect(sets).toEqual([{ key: 'u-test-data-gtp-rain-setup', name: 'test_data_gtp_ Rain setup', note: 'extra for rain' }]);
+    expect((await db.items.get('X1')).sets).toEqual(['u-test-data-gtp-rain-setup']);
+    expect((await db.items.get('X2')).sets).toEqual(['u-test-data-gtp-rain-setup']);
+    expect((await db.items.get('X3')).sets).toEqual([]);
+    // Kits and item.kits stay.
+    expect(await db.kits.count()).toBe(3);
+    expect((await db.items.get('X1')).kits).toEqual(['D', 'W']);
+    // Runs once: a deleted template is not made again.
+    await db.settings.put({ key: 'templates', value: [] });
+    await applyUpdates(db);
+    expect((await db.settings.get('templates')).value).toEqual([]);
+  });
+
+});

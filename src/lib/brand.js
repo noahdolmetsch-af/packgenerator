@@ -37,8 +37,12 @@ export function splitBrand(raw) {
  * so this is safe to run on every start.
  */
 export async function tidyBrands(db) {
-  const todo = await db.items.filter((i) => i.model === undefined).toArray();
-  if (!todo.length) return 0;
-  await db.items.bulkPut(todo.map((i) => ({ ...i, ...splitBrand(i.brand) })));
-  return todo.length;
+  // v0.26.0: read and write in one transaction, so a start-up run next to an import's run never
+  // writes back an older copy of an item (found by the building blocks e2e test).
+  return db.transaction('rw', db.items, async () => {
+    const todo = await db.items.filter((i) => i.model === undefined).toArray();
+    if (!todo.length) return 0;
+    await db.items.bulkPut(todo.map((i) => ({ ...i, ...splitBrand(i.brand) })));
+    return todo.length;
+  });
 }

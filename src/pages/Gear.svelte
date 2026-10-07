@@ -12,6 +12,9 @@
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
+  import AssignDialog from '../lib/gear/AssignDialog.svelte';
+  import { assignSet } from '../lib/gear/assign.js';
+  import { SETS_KEY, allSets } from '../lib/sets.js';
   import { itemUsage, deadWeight, wishReason } from '../lib/insights.js';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
@@ -92,7 +95,13 @@
   // Categories folded shut (10a). On the phone everything starts folded, on the desktop open.
   let folded = $state(phone.matches ? Object.fromEntries(CATEGORIES.map((c) => [c.key, true])) : {});
 
-  const inventory = $derived(stats.inventory.filter((i) => matches(i, filter) && (!unusedOnly || unusedIds.has(i.id))));
+  // v0.26.0 (Noah 2a): "+ Add items" on a building block opens Gear with ?fill=<key>: "Select" is on
+  // and the list shows only the items not in that block yet; one button puts the ticked ones in.
+  const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
+  const blocks = $derived(allSets($setsQ?.value));
+  let fillKey = $state(hashQ.get('fill') ?? '');
+  const fill = $derived(fillKey ? blocks.find((b) => b.key === fillKey) ?? null : null);
+  const inventory = $derived(stats.inventory.filter((i) => matches(i, filter) && (!unusedOnly || unusedIds.has(i.id)) && (!fillKey || !i.sets?.includes(fillKey))));
   // Wishlist sorted by how much it helps (Noah 7a): missing on trips, needed on the bike, lighter.
   const wishlist = $derived(
     stats.wishlist
@@ -154,6 +163,7 @@
       unusedOnly = params.get('unused') === '1';
       if (unusedOnly) tab = 'inventory';
       if (params.get('find') === '1') findFocus();
+      if (params.get('fill')) startFill(params.get('fill'));
     };
     window.addEventListener('hashchange', read);
     return () => window.removeEventListener('hashchange', read);
@@ -161,7 +171,7 @@
 
   // v0.24.1 (Noah 5a): select several items, then change their category, move them to the
   // wishlist or back, or delete them. A tap on a row ticks it instead of opening the item.
-  let selecting = $state(false);
+  let selecting = $state(!!hashQ.get('fill'));
   const picked = new SvelteSet();
   // What the list shows right now (search and filters included); only these count as selected,
   // so a hidden item is never changed by mistake.
@@ -176,6 +186,34 @@
   function setSelecting(on) {
     selecting = on;
     picked.clear();
+    if (!on && fillKey) endFill();
+  }
+  function startFill(key) {
+    fillKey = key;
+    tab = 'inventory';
+    selecting = true;
+    picked.clear();
+  }
+  function endFill() {
+    fillKey = '';
+    const [path, query = ''] = location.hash.split('?');
+    const q = new URLSearchParams(query);
+    q.delete('fill');
+    const str = q.toString();
+    history.replaceState(history.state, '', `${path || '#/gear'}${str ? `?${str}` : ''}`);
+  }
+  // Put the ticked items into the building block of ?fill=, then back to the building blocks.
+  const fillIn = () =>
+    run(async () => {
+      const res = await assignSet(db, chosen.map((i) => i.id), fill.key);
+      offerUndo(tn(res.n, 'Done: {n} item → {target}', 'Done: {n} items → {target}', { target: fill.name }), res.n ? res.snap : null);
+    });
+  // v0.26.0 (Noah 2a, AP11): "Into a building block…", "Onto a trip…" and the rest open the assign dialog.
+  let assign = $state(null); // the kind: 'into' | 'out' | 'bag' | 'template' | 'trip'
+  let moreEl = $state();
+  function openAssign(kind) {
+    if (moreEl) moreEl.open = false;
+    assign = kind;
   }
   // Another tab is another list: start again.
   $effect(() => {
@@ -187,7 +225,7 @@
   const allPicked = (list) => list.length > 0 && list.every((i) => picked.has(i.id));
   function offerUndo(text, snap) {
     clearTimeout(undoTimer);
-    undo = { text, snap };
+    undo = snap ? { text, snap } : { text };
     undoTimer = setTimeout(() => (undo = null), 10_000);
     picked.clear();
   }
@@ -233,14 +271,18 @@
     const { snap } = undo;
     clearTimeout(undoTimer);
     undo = null;
-    await undoBulk(db, snap);
+    if (snap) await undoBulk(db, snap);
   }
   $effect(() => () => clearTimeout(undoTimer));
 </script>
 
 <div class="gear">
   <header class="head">
-    <h1 class="title">{t('Gear')}</h1>
+    <div class="ht">
+      <h1 class="title">{t('Gear')}</h1>
+      <!-- v0.26.0 (Noah 2b): the building blocks page -->
+      <a class="btn sm blk" href="#/blocks">{t('Building blocks')} →</a>
+    </div>
     <div class="kpis">
       <div><span class="lbl">{t('Items')}</span><b class="num">{stats.inventory.length}</b></div>
       <!-- v0.22.0 (AP04): unknown is not zero: the known sum with the missing weights right next to it. -->
@@ -323,6 +365,9 @@
         <div class="acts"><button type="button" class="btn hi" onclick={() => addItem()}>{t('Add item')}</button></div>
       {/if}
     </div>
+    {#if fill && tab === 'inventory'}
+      <p class="unused-f fillbar"><span>{t('Add to "{block}": tick the items, then "Into {block}" below. Only items not in it are shown.', { block: fill.name })}</span> <a class="btn sm" href="#/blocks" onclick={() => endFill()}>{t('Back to building blocks')}</a></p>
+    {/if}
     {#if selecting}
       <div class="selrow">
         <b class="num" aria-live="polite">{tn(chosen.length, '{n} selected', '{n} selected')}</b>
@@ -473,27 +518,52 @@
   <div class="bulkpad" aria-hidden="true"></div>
   <div class="bulk" role="region" aria-label={t('Selected items')}>
     {#if undo}
-      <p class="undo" role="status"><span>{undo.text}</span> <button type="button" class="btn hi" onclick={doUndo}>{t('Undo')}</button></p>
+      <p class="undo" role="status"><span>{undo.text}</span> {#if undo.snap}<button type="button" class="btn hi" onclick={doUndo}>{t('Undo')}</button>{/if}</p>
     {/if}
     {#if selecting && (tab === 'inventory' || tab === 'wishlist')}
       <div class="bacts">
         <b class="num">{tn(chosen.length, '{n} selected', '{n} selected')}</b>
-        <span class="mv">
-          <select class="sel" bind:value={newCat} aria-label={t('New category')} disabled={!chosen.length || busy}>
-            <option value="">{t('Category …')}</option>
-            {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
-          </select>
-          <button type="button" class="btn" disabled={!chosen.length || !newCat || busy} onclick={moveTo}>{t('Change category')}</button>
-        </span>
-        {#if tab === 'wishlist'}
-          <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => own('owned')}>{t('To my gear')}</button>
+        {#if fill}
+          <!-- v0.26.0 (Noah 2a): "+ Add items" of a building block -->
+          <button type="button" class="btn hi" disabled={!chosen.length || busy} onclick={fillIn}>{t('Into {block}', { block: fill.name })}</button>
         {:else}
-          <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => own('wishlist')}>{t('To wishlist')}</button>
+          <span class="mv">
+            <select class="sel" bind:value={newCat} aria-label={t('New category')} disabled={!chosen.length || busy}>
+              <option value="">{t('Category …')}</option>
+              {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
+            </select>
+            <button type="button" class="btn" disabled={!chosen.length || !newCat || busy} onclick={moveTo}>{t('Change category')}</button>
+          </span>
+          <!-- v0.26.0 (Noah 2a, 6a): category, building block and trip in sight; on a phone the rest under "More". -->
+          <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('into')}>{t('Into a building block …')}</button>
+          <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('trip')}>{t('Onto a trip …')}</button>
+          {#snippet rest()}
+            <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('out')}>{t('Out of a building block …')}</button>
+            <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('bag')}>{t('Default bag …')}</button>
+            <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('template')}>{t('Into a template …')}</button>
+            {#if tab === 'wishlist'}
+              <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => own('owned')}>{t('To my gear')}</button>
+            {:else}
+              <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => own('wishlist')}>{t('To wishlist')}</button>
+            {/if}
+            <button type="button" class="btn danger" disabled={!chosen.length || busy} onclick={remove}>{t('Delete')}</button>
+          {/snippet}
+          {#if phone.matches}
+            <details class="more" bind:this={moreEl}>
+              <summary class="btn">{t('More')}</summary>
+              <div class="menu">{@render rest()}</div>
+            </details>
+          {:else}
+            {@render rest()}
+          {/if}
         {/if}
-        <button type="button" class="btn danger" disabled={!chosen.length || busy} onclick={remove}>{t('Delete')}</button>
       </div>
     {/if}
   </div>
+{/if}
+
+{#if assign}
+  <AssignDialog ids={chosen.map((i) => i.id)} kind={assign} ondone={({ text, snap }) => offerUndo(text, snap)} onclose={() => (assign = null)} />
 {/if}
 
 {#if dialog}
@@ -1139,7 +1209,7 @@
   }
   /* Room under the list so the bar never covers the last item. */
   .bulkpad {
-    height: 150px;
+    height: 210px;
   }
   .bulk {
     position: fixed;
@@ -1195,6 +1265,46 @@
   .bacts .btn {
     white-space: nowrap;
   }
+  /* v0.26.0 (Noah 2b, 6a): the building blocks link in the header, the "More" menu of the bar. */
+  .ht {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 14px;
+    min-width: 0;
+  }
+  .blk {
+    text-decoration: none;
+  }
+  .more {
+    position: relative;
+  }
+  .more summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .more summary::-webkit-details-marker {
+    display: none;
+  }
+  .more summary::after {
+    content: ' ▴';
+  }
+  .more[open] summary {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .more .menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 8px;
+  }
+  .more[open] {
+    flex-basis: 100%;
+  }
+  .fillbar {
+    margin-top: 4px;
+  }
   .btn.danger {
     border-color: var(--bad);
     color: var(--bad);
@@ -1206,7 +1316,8 @@
     .bacts .mv {
       flex-basis: 100%;
     }
-    .bacts > .btn {
+    .bacts > .btn,
+    .more .menu .btn {
       flex: 1 1 auto;
     }
   }

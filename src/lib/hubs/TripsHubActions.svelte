@@ -2,7 +2,7 @@
   /**
    * v0.25.1 (Noah 1b, 3a): the buttons of the Trips tile on Today, in order of priority.
    * Visible: Day ride (Noah 1a) · New trip · Write debrief (only while a finished trip waits for one) · Past trips · Setups.
-   * Under "More": Compare trips · Learnings · All templates.
+   * Under "More": Compare trips · Learnings · All templates · Building blocks (v0.26.0).
    * "Setups" (Noah 1b) = how the bags sit on the bike: the bag setup of the next trip's bike
    * (or the first bike) on Bikes → Setup.
    */
@@ -28,6 +28,8 @@
       { key: 'compare', label: t('Compare trips'), href: '#/debrief/compare' },
       { key: 'learnings', label: t('Learnings'), href: '#/debrief/learnings' },
       { key: 'templates', label: t('All templates'), href: '#/pack/templates' },
+      // v0.26.0 (Noah 2b): the building blocks (item sets), their own page
+      { key: 'blocks', label: t('Building blocks'), href: '#/blocks' },
     ].filter(Boolean),
   );
 </script>

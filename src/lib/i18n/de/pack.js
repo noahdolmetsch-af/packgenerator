@@ -576,4 +576,11 @@ export default {
   'Update template «{name}»': 'Vorlage «{name}» aktualisieren',
   'The bike you choose': 'Velo bei der neuen Tour wählen',
   'A new trip from this template starts with these values; you can still change them there.': 'Eine neue Tour aus dieser Vorlage startet mit diesen Werten; dort kannst du sie noch ändern.',
+
+  // v0.26.0 (Noah 3a): building block chips in "Add material"
+  '{block}: everything is on the trip': '{block}: alles ist auf der Tour',
+  '{n} item of {block} added.': '{n} Teil von {block} hinzugefügt.',
+  '{n} items of {block} added.': '{n} Teile von {block} hinzugefügt.',
+  'Add {block}: {n} item': '{block} hinzufügen: {n} Teil',
+  'Add {block}: {n} items': '{block} hinzufügen: {n} Teile',
 };
