@@ -17,30 +17,28 @@
   import { db } from '../lib/db.js';
   import DataPanel from '../lib/DataPanel.svelte';
   import { LAST_BACKUP, LAST_IMPORT, BACKUP_DAYS, backupDue, downloadBackup } from '../lib/backup.js';
-  import { openTodos, backupAfterTrip } from '../lib/todos.js';
+  import { backupAfterTrip } from '../lib/todos.js';
   import { CATEGORY, formatWeight, knownWeight, weightText, gearStats, isConsumable, favouriteCounts } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
   import { withVisits, costByYear } from '../lib/workshop.js';
   import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine, packStatus, packLine, isShortRide } from '../lib/readiness.js';
-  import { tripStats, daysUntil, RAIN } from '../lib/trips.js';
-  import { forecastForTrip, toWx } from '../lib/weather.js';
+  import { tripStats, daysUntil } from '../lib/trips.js';
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
-  import { nextTrip, tripEnd, learningsFor, quickDebrief, templateOffer, templateName } from '../lib/debrief.js';
+  import { nextTrip, tripEnd, quickDebrief, templateOffer, templateName } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   // v0.25.1 (Noah 1b, 2b, 3a): more buttons on the Trips and Bikes tiles, four visible, the rest under "More".
   import TripsHubActions from '../lib/hubs/TripsHubActions.svelte';
   import BikesHubActions from '../lib/hubs/BikesHubActions.svelte';
   import { wishReason } from '../lib/insights.js';
   import { ballast } from '../lib/packhints.js';
-  import { sunTimes } from '../lib/blockplan.js';
-  import { paceOf, PACE_KEY } from '../lib/pace.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { openNew, openNote, openTrip, addItem, newTrip, wantBike } from '../lib/nav.js';
   import { todayFocus } from '../lib/today.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
+  import GoodToKnow from '../lib/know/GoodToKnow.svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -52,7 +50,6 @@
   const learnQ = liveQuery(() => db.learnings.toArray());
   const notesQ = liveQuery(() => db.notes.where('status').equals('open').toArray());
   const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
-  const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
   const importQ = liveQuery(() => db.meta.get(LAST_IMPORT));
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   // Answer 10a (stage 1): the newest of the downloaded backup file and the automatic folder backup.
@@ -177,15 +174,8 @@
     return { due: c.rows.length, tone: w.tone, tag: w.tag, text: [w.text, facts].filter(Boolean).join(' · '), href: c.status === 'ok' ? bikesHash({ bike: b.id }) : c.href };
   };
 
-  /* ---------- Good to know (answer 6a): one line from each source ---------- */
-  const fc = $derived(next ? toWx(forecastForTrip(next)) : null);
+  /* ---------- Good to know: v0.25.1 (Noah 1a) the cards live in know.js and GoodToKnow.svelte ---------- */
   const place = $derived(next ? (next.place ?? next.route?.start ?? null) : null);
-  const sun = $derived(next?.startDate && place?.lat != null ? sunTimes(next.startDate, place.lat, place.lon) : null);
-  const clock = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
-  const tips = $derived(learningsFor(next, learnings, 1));
-  const pace = $derived(paceOf($paceQ?.value));
-  // v0.21.0 (gap 6): what still makes weights and times guesses, each with its place.
-  const todos = $derived(loaded ? openTodos({ bikes, items, pace, debriefs, trips }) : []);
   let dataOpen = $state(false);
   // Open "Your data" by itself while there is nothing in the app yet.
   $effect(() => {
@@ -196,21 +186,9 @@
     dataOpen = true;
     queueMicrotask(() => dataEl?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
-  const todoText = (r) =>
-    r.key === 'bikes' ? tn(r.n, 'Weigh {n} bike', 'Weigh {n} bikes')
-    : r.key === 'pace' ? t('Load a few GPX rides')
-    : r.key === 'check' ? tn(r.n, 'Check {n} item in the inventory', 'Check {n} items in the inventory')
-    : r.key === 'favourites' ? t('Apply the favourites file')
-    : t('Ride your first real trip with the app');
-  const todoWhy = (r) =>
-    r.key === 'bikes' ? t('Now Strava estimates: the system weight is a guess.')
-    : r.key === 'pace' ? t('Riding times use a standard guess of 16 km/h.')
-    : r.key === 'check' ? t('Still have it, gone or replaced?')
-    : r.key === 'favourites' ? t('Your data → Import backup → Apply favourites.')
-    : t('Pack, ride day, end trip and debrief: only then can the app learn.');
   /* ---------- v0.23.1 (Noah 3b): on a phone the three places and Good to know start folded ---------- */
   // Closed, each is one line: its name and the number that matters. The desktop shows them open as before.
-  let folds = $state({ pack: false, gear: false, bikes: false, know: false });
+  let folds = $state({ pack: false, gear: false, bikes: false });
   const hubSum = $derived({
     pack: next ? `${next.title} · ${t('{n} % packed', { n: packedPct })}` : tn(trips.length, '{n} trip', '{n} trips'),
     gear: [tn(gs.inventory.length, '{n} item owned', '{n} items owned'), gs.unweighed ? t('{n} not weighed', { n: gs.unweighed }) : null].filter(Boolean).join(' · '),
@@ -219,8 +197,6 @@
       : t('No bikes yet.'),
   });
   const notes = $derived([...($notesQ ?? [])].sort((a, b) => (b.at ?? '').localeCompare(a.at ?? '')));
-  // the cards in Good to know: still open, weather (with a next trip), debriefs, pace, Inbox, your data
-  const knowN = $derived((todos.length ? 1 : 0) + (next ? 1 : 0) + 4);
 
   const demoQ = liveQuery(() => demoState(db));
   // No backup reminder while a demo runs (backups are off then).
@@ -478,71 +454,8 @@
     {@render hub('bikes', t('Bikes|place'), '#/bikes', 'bike', bikesBody)}
   </div>
 
-  <!-- Good to know (answer 6a): five sources, one line each, and where it comes from. -->
-  {#snippet knowCards()}
-    <div class="cards">
-      {#if todos.length}
-        <div class="sig todo">
-          <span class="lbl">{t('Still open')}</span>
-          <ul>
-            {#each todos as r (r.key)}
-              <li>
-                {#if r.href}<a href={r.href}><b>{todoText(r)}</b></a>
-                {:else if r.action === 'data'}<button type="button" class="link" onclick={openData}><b>{todoText(r)}</b></button>
-                {:else}<button type="button" class="link" onclick={() => openNew('list')}><b>{todoText(r)}</b></button>{/if}
-                <span>{todoWhy(r)}</span>
-              </li>
-            {/each}
-          </ul>
-          <span class="src">{t('Each line goes away once it is done.')}</span>
-        </div>
-      {/if}
-      {#if next}
-        <div class="sig">
-          <span class="lbl">{t('Weather')}{place?.name ? ` · ${place.name.split(',')[0]}` : ''}</span>
-          <b>{fc ? t('{min} to {max} °C, {rain}', { min: fc.min, max: fc.max, rain: t(RAIN[fc.rain]) }) : place ? t('No forecast loaded yet') : t('No place set yet')}</b>
-          <span>{sun ? t('Sunrise {rise} · sunset {set}', { rise: clock(sun.rise), set: clock(sun.set) }) : next.wx?.min != null ? t('Packed for {min} to {max} °C', { min: next.wx.min, max: next.wx.max }) : t('Set the start place in Pack → Ride and weather.')}</span>
-          <span class="src">{fc ? 'Open-Meteo' : t('Forecast from 16 days before')}{sun ? ` · ${t('sun computed offline')}` : ''}</span>
-        </div>
-      {/if}
-      <div class="sig">
-        <span class="lbl">{t('From your debriefs')}</span>
-        {#if tips[0]}<b>{tips[0].rule}</b>{:else}<b>{t('No learnings yet')}</b>{/if}
-        <span>{tips[0] ? (tips[0].topic ?? '') : t('After a trip, the debrief turns what you did not use into tips.')}</span>
-        <span class="src">{tn(learnings.length, '{n} learning', '{n} learnings')} · <a href="#/debrief/learnings">{t('all')}</a></span>
-      </div>
-      <div class="sig">
-        <span class="lbl">{t('Your pace')}</span>
-        <b class="num">{pace.mine ? t('{kmh} km/h moving', { kmh: pace.kmh }) : t('Standard guess: 16 km/h')}</b>
-        <span>{t('+1 h per {m} m climbing', { m: num(pace.climbMh) })}{pace.stops ? t(', stops add {n} %', { n: Math.round((pace.stops - 1) * 100) }) : ''}</span>
-        <span class="src">{pace.mine ? tn(pace.n, '{n} GPX ride', '{n} GPX rides') : t('Load your rides')} · <a href="#/debrief/pace">{t('Your pace')}</a></span>
-      </div>
-      <div class="sig">
-        <span class="lbl">{t('Inbox')}</span>
-        <b>{notes.length ? tn(notes.length, '{n} note to sort', '{n} notes to sort') : t('Nothing to sort')}</b>
-        <span>{notes[0]?.text ?? t('Quick notes land here: tap New → Quick note.')}</span>
-        <span class="src">{t('Quick notes')} · <a href="#/inbox">{notes.length ? t('sort now') : t('all notes')}</a></span>
-      </div>
-      <div class="sig">
-        <span class="lbl">{t('Your data')}</span>
-        <b>{$demoQ ? t('Demo running') : backup.days == null ? t('No backup yet') : backup.days === 0 ? t('Backup today') : tn(backup.days, 'Backup {n} day old', 'Backup {n} days old')}</b>
-        <span>{$importQ?.from ? t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($importQ.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) }) : backup.afterTrip ? t('New debrief since the last backup: save one, then load it on the desktop.') : t('Phone and desktop keep their own data; a backup file moves it.')}</span>
-        <span class="src"><button type="button" class="link" disabled={backingUp || !!$demoQ} onclick={backupNow}>{t('Download backup')}</button> · <button type="button" class="link" onclick={openData}>{t('Load a backup')}</button></span>
-      </div>
-    </div>
-  {/snippet}
-  {#if phone.matches}
-    <!-- v0.23.1 (Noah 3b): folded on a phone; closed it says how many hints wait inside. -->
-    <details class="know folded" bind:open={folds.know}>
-      <summary><h2 id="know-h" class="title">{t('Good to know')}</h2><span class="fsum">{tn(knowN, '{n} hint', '{n} hints')}{todos.length ? ` · ${tn(todos.length, '{n} still open', '{n} still open')}` : ''}</span></summary>
-      <div class="hub-in">{@render knowCards()}</div>
-    </details>
-  {:else}
-    <section class="know" aria-labelledby="know-h">
-      <h2 id="know-h" class="title">{t('Good to know')}</h2>
-      {@render knowCards()}
-    </section>
-  {/if}
+  <!-- Good to know (v0.25.1, Noah 1a): only cards with content, the most urgent first, one button each. -->
+  <GoodToKnow {loaded} {today} {next} {place} {trips} {items} {bikes} {visits} {debriefs} {learnings} {notes} containers={$bagsQ ?? []} {backup} demo={$demoQ ?? null} importFrom={$importQ?.from ?? null} {backingUp} onBackup={backupNow} onData={openData} />
 
   <details class="data" bind:this={dataEl} bind:open={dataOpen}>
     <summary><b>{t('Your data')}</b> <span class="muted">{t('backup, import, export, favourites')}</span></summary>
@@ -957,11 +870,6 @@
     padding: 0;
     gap: 0;
   }
-  details.know.folded {
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    background: var(--paper);
-  }
   .folded > summary {
     display: flex;
     flex-wrap: wrap;
@@ -1016,65 +924,6 @@
     padding: 0 16px 16px;
   }
 
-  /* Good to know */
-  .know h2 {
-    margin: 0 0 12px;
-    font-size: var(--fs-section);
-  }
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 14px;
-  }
-  .sig {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 0;
-    padding: 16px;
-    border: 1.5px solid var(--line);
-    border-radius: 12px;
-    background: var(--paper);
-  }
-  .sig b {
-    font-size: 17px;
-    overflow-wrap: anywhere;
-  }
-  /* v0.21.0: the open to-dos, one line each */
-  .todo {
-    border-color: var(--hi);
-  }
-  .todo ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 10px;
-  }
-  .todo li {
-    display: grid;
-    gap: 2px;
-  }
-  .todo li b {
-    font-size: 15px;
-  }
-  .todo li span {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .todo .link {
-    padding: 0;
-    text-align: left;
-  }
-  .sig > span:not(.lbl):not(.src) {
-    font-size: 14px;
-    color: var(--ink-2);
-  }
-  .src {
-    margin-top: auto;
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-  }
   .link {
     padding: 0;
     border: 0;

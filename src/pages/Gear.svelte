@@ -13,9 +13,10 @@
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import { itemUsage, deadWeight, wishReason } from '../lib/insights.js';
-  import { t, tn, nameOf } from '../lib/i18n.svelte.js';
+  import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
   import Sum from '../lib/ui/Sum.svelte';
+  import { longUnused } from '../lib/know.js';
 
   // All items, kept up to date by the database (liveQuery re-runs on every change).
   const itemsQuery = liveQuery(() => db.items.toArray());
@@ -46,9 +47,26 @@
     const s = q.toString();
     history.replaceState(history.state, '', `${path || '#/gear'}${s ? `?${s}` : ''}`);
   }
+  // v0.25.1 (Noah 1a): ?unused=1 (Today "Long not used" → Look through) shows only the owned
+  // items that were on no trip for 12 months (the same list as the card, know.js).
+  const bikesQ = liveQuery(() => db.bikes.toArray());
+  const bagsQ = liveQuery(() => db.containers.toArray());
+  let unusedOnly = $state(hashQ.get('unused') === '1');
+  const unused = $derived(longUnused(items, $tripsQ ?? [], $bikesQ ?? [], $bagsQ ?? [], new Date().toISOString().slice(0, 10)));
+  const unusedIds = $derived(new Set((unused?.items ?? []).map((i) => i.id)));
+  function setUnused(on) {
+    unusedOnly = on;
+    const [path, query = ''] = location.hash.split('?');
+    const q = new URLSearchParams(query);
+    if (on) q.set('unused', '1');
+    else q.delete('unused');
+    const s = q.toString();
+    history.replaceState(history.state, '', `${path || '#/gear'}${s ? `?${s}` : ''}`);
+  }
   const clearFilters = () => {
     filter = { q: '', category: '', role: '', fav: false, domain: '' };
     setFav(false);
+    setUnused(false);
   };
   // v0.22.0 (AP05): the same bases as the tabs; the button counts what the list below shows.
   const favN = $derived(favouriteCounts(items));
@@ -74,7 +92,7 @@
   // Categories folded shut (10a). On the phone everything starts folded, on the desktop open.
   let folded = $state(phone.matches ? Object.fromEntries(CATEGORIES.map((c) => [c.key, true])) : {});
 
-  const inventory = $derived(stats.inventory.filter((i) => matches(i, filter)));
+  const inventory = $derived(stats.inventory.filter((i) => matches(i, filter) && (!unusedOnly || unusedIds.has(i.id))));
   // Wishlist sorted by how much it helps (Noah 7a): missing on trips, needed on the bike, lighter.
   const wishlist = $derived(
     stats.wishlist
@@ -85,7 +103,7 @@
   const groups = $derived(groupByCategory(inventory));
   const catStats = $derived(Object.fromEntries(stats.cats.map((c) => [c.key, c])));
   // While searching or filtering, every matching category is shown open.
-  const searching = $derived(!!(filter.q.trim() || filter.category || filter.role || filter.fav || filter.domain));
+  const searching = $derived(!!(filter.q.trim() || filter.category || filter.role || filter.fav || filter.domain || unusedOnly));
   const isOpen = (key) => searching || !folded[key];
   const allOpen = $derived(groups.every((g) => !folded[g.key]));
   const toggle = (key) => (folded[key] = !folded[key]);
@@ -133,6 +151,8 @@
       const q = params.get('q');
       if (q != null) (filter.q = q), (tab = 'inventory');
       filter.fav = params.get('fav') === '1';
+      unusedOnly = params.get('unused') === '1';
+      if (unusedOnly) tab = 'inventory';
       if (params.get('find') === '1') findFocus();
     };
     window.addEventListener('hashchange', read);
@@ -324,6 +344,10 @@
           </nav>
         {/if}
         <div class="list">
+          {#if unusedOnly}
+            <!-- v0.25.1 (Noah 1a): the filter says what it shows and goes away with one tap -->
+            <p class="unused-f"><span>{unused?.full === false ? t('Only items on no trip since {date}', { date: new Date(`${unused.since}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) }) : t('Only items on no trip for 12 months')}</span> <button type="button" class="btn sm" onclick={() => setUnused(false)}>{t('Show all items')}</button></p>
+          {/if}
           <p class="count num" aria-live="polite">
             {t('{a} of {b} items', { a: inventory.length, b: stats.inventory.length })}
             {#if !searching && groups.length}<button type="button" class="link" onclick={() => setAll(allOpen)}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}
@@ -936,6 +960,17 @@
     font-weight: 400;
     font-size: var(--fs-small);
     color: var(--ink-3);
+  }
+  .unused-f {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    margin: 0 0 8px;
+    padding: 8px 12px;
+    border-left: 3px solid var(--hi);
+    background: var(--paper);
+    overflow-wrap: anywhere;
   }
   .dead {
     max-width: 1000px;

@@ -6,7 +6,7 @@
    * #/debrief/<tripId>   the three steps for one trip (saved while you go)
    * #/debrief/learnings  the same overview, scrolled to the learnings
    * #/debrief/pace       the same overview, scrolled to "Your pace" (v0.19.0)
-   * #/debrief/compare    the same overview, scrolled to "Your trips compared" (v0.25.1, Today's Trips tile)
+   * #/debrief/compare    the same overview, scrolled to "Your trips compared" (v0.25.1, Today's Trips tile and weight trend)
    */
   import { liveQuery } from 'dexie';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
