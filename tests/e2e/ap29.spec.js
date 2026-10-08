@@ -229,6 +229,22 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   await expect(news.locator('details.older')).not.toHaveAttribute('open', '');
   await fits(page, info);
   await shot(page, info, 'whatsnew');
+  // The history back to 0.1: "Ältere Updates" holds calm version ranges, each folded again.
+  const older = news.locator('details.older');
+  await older.locator('> summary').click();
+  const ranges = older.locator('details.range');
+  await expect(ranges.first()).toBeVisible();
+  await expect(ranges.locator('details[open]')).toHaveCount(0);
+  const first = ranges.last();
+  await expect(first.locator('> summary')).toContainText(T('{from} to {to}|versions', { from: '0.1', to: '0.9' }));
+  expect((await first.locator('> summary').boundingBox()).height).toBeGreaterThanOrEqual(44);
+  await first.locator('> summary').click();
+  await expect(first.locator('.ver[data-version="0.1.0"]')).toBeVisible();
+  await expect(first.locator('.ver[data-version="0.1.0"] a')).toHaveCount(0); // no place left to try
+  await ranges.first().locator('> summary').click();
+  await fits(page, info);
+  await shot(page, info, 'whatsnew-older');
+  await older.locator('> summary').click();
   // "Try it" goes to the exact place.
   await news.locator('.ver').first().getByRole('link', { name: T('Try it') }).first().click();
   // v0.36.0: the first point of the newest version (was #/pack in 0.35.0).

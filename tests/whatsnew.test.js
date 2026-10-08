@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { WHATS_NEW, SHOWN, BEFORE, compareVersions, splitNews, newsHint, newerThan } from '../src/lib/whatsnew.js';
+import { readFileSync, readdirSync } from 'node:fs';
+import { WHATS_NEW, SHOWN, BEFORE, compareVersions, splitNews, groupOlder, shortVersion, newsHint, newerThan } from '../src/lib/whatsnew.js';
 import { pageOf } from '../src/lib/nav.js';
 import { t, lang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -17,20 +17,56 @@ describe('the list of what is new', () => {
     expect(new Set(versions).size).toBe(versions.length);
   });
 
-  it('each version: a date, 2 to 4 points, each with a real place and a German text', () => {
+  it('goes back to the very first version; versions strictly descending, dates never rising', () => {
+    expect(WHATS_NEW.at(-1).version).toBe('0.1.0');
+    expect(WHATS_NEW.length).toBeGreaterThanOrEqual(50);
+    for (let i = 1; i < WHATS_NEW.length; i++) {
+      const [a, b] = [WHATS_NEW[i - 1], WHATS_NEW[i]];
+      expect(compareVersions(a.version, b.version), `${a.version} > ${b.version}`).toBe(1);
+      expect(a.date >= b.date, `${a.version} ${a.date} / ${b.version} ${b.date}`).toBe(true);
+    }
+  });
+
+  it('each version: a version, a real date, 1 to 4 points, each with a German text', () => {
     for (const e of WHATS_NEW) {
-      expect(e.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(e.points.length).toBeGreaterThanOrEqual(2);
-      expect(e.points.length).toBeLessThanOrEqual(4);
+      expect(e.version, JSON.stringify(e)).toMatch(/^\d+\.\d+\.\d+$/);
+      expect(e.date, e.version).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(Number.isNaN(Date.parse(e.date)), e.version).toBe(false);
+      expect(e.points.length, e.version).toBeGreaterThanOrEqual(1);
+      expect(e.points.length, e.version).toBeLessThanOrEqual(4);
+      expect(new Set(e.points.map((p) => p.text)).size, e.version).toBe(e.points.length);
       for (const p of e.points) {
-        expect(p.href).toMatch(/^#\//);
-        expect(pageOf(p.href)).toBeTruthy();
         expect(DE[p.text], p.text).toBeTruthy();
+        expect(DE[p.text], p.text).not.toMatch(/[ß—]/);
+        expect(p.text, p.text).not.toMatch(/—/);
       }
     }
     lang.v = 'de';
     expect(t('New in the last updates')).toBe('Neu in den letzten Updates');
     expect(t('Try it')).toBe('Ausprobieren');
+    expect(t('Older updates')).toBe('Ältere Updates');
+    expect(t('{from} to {to}|versions', { from: '0.1', to: '0.9' })).toBe('0.1 bis 0.9');
+  });
+
+  it('every "Try it" goes to a place the app still has (or there is no link)', () => {
+    // All source files except this list: an address counts when the app itself uses it.
+    const src = new URL('../src/', import.meta.url);
+    const files = readdirSync(src, { recursive: true })
+      .filter((f) => /\.(js|svelte)$/.test(f) && !f.endsWith('whatsnew.js'))
+      .map((f) => readFileSync(new URL(f, src), 'utf8'))
+      .join('\n');
+    for (const e of WHATS_NEW) {
+      for (const p of e.points) {
+        if (p.href == null) {
+          expect(p.action, p.text).toBeUndefined();
+          continue;
+        }
+        expect(p.href, p.text).toMatch(/^#\//);
+        expect(files.includes(`'${p.href}'`), `${e.version}: ${p.href}`).toBe(true);
+        expect(pageOf(p.href) !== 'home' || p.href === '#/', p.href).toBe(true);
+        if (p.action) expect(p.action).toBe('data');
+      }
+    }
   });
 
   it('the last versions open, the older ones folded', () => {
@@ -39,6 +75,24 @@ describe('the list of what is new', () => {
     expect(recent.length).toBeGreaterThanOrEqual(3);
     expect([...recent, ...older]).toEqual(WHATS_NEW);
     expect(splitNews(WHATS_NEW, 2).older.length).toBe(WHATS_NEW.length - 2);
+  });
+
+  it('the older ones in calm groups by version range, nothing lost, newest first', () => {
+    const { older } = splitNews();
+    const groups = groupOlder(older);
+    expect(groups.flatMap((g) => g.entries)).toEqual(older);
+    expect(groups.length).toBeLessThanOrEqual(6);
+    expect(groups.at(-1)).toMatchObject({ key: '0.0', from: '0.1', to: '0.9' });
+    for (const g of groups) {
+      expect(g.entries.length).toBeGreaterThan(0);
+      expect(compareVersions(g.from, g.to)).toBeLessThanOrEqual(0);
+    }
+    expect(groupOlder([{ version: '0.29.2' }, { version: '0.20.0' }, { version: '0.19.6' }]).map((g) => [g.from, g.to])).toEqual([
+      ['0.20', '0.29'],
+      ['0.19', '0.19'],
+    ]);
+    expect(shortVersion('0.35.0')).toBe('0.35');
+    expect(shortVersion('0.30.2')).toBe('0.30.2');
   });
 
   it('compares versions by number, not by text', () => {
