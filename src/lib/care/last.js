@@ -198,6 +198,14 @@ export function yearSummary(bike, visits = [], tasks = [], year = localDay().sli
   for (const x of tasks) if (taskBike(x) === bike?.id && x.status === 'done' && x.by === 'self' && String(x.statusDate ?? '').startsWith(year)) jobs.add(`task:${x.id}`);
   const mine = visitsOf(visits, bike?.id).filter((v) => v.date.startsWith(year));
   const totals = mine.map(visitTotal);
+  // Entries marked "bike shop" without a workshop visit: one visit per day (its prices, if any).
+  const shopDays = {};
+  for (const p of bike?.parts ?? [])
+    for (const h of p.history ?? []) if (!h.visitId && h.by === 'shop' && h.result !== 'needed' && String(h.date ?? '').startsWith(year)) (shopDays[h.date] ??= []).push(h);
+  for (const list of Object.values(shopDays)) {
+    const priced = list.filter((h) => typeof h.chf === 'number');
+    totals.push(priced.length ? priced.reduce((s, h) => s + h.chf, 0) : null);
+  }
   const chf = Math.round(totals.reduce((s, x) => s + (x ?? 0), 0) * 100) / 100;
-  return { year, self: jobs.size, shop: mine.length, chf, unknown: totals.filter((x) => x == null).length, per: costPer1000(visitsOf(visits, bike?.id), bike ?? {}) };
+  return { year, self: jobs.size, shop: mine.length + Object.keys(shopDays).length, chf, unknown: totals.filter((x) => x == null).length, per: costPer1000(visitsOf(visits, bike?.id), bike ?? {}) };
 }

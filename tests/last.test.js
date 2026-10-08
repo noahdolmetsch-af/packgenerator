@@ -121,7 +121,7 @@ describe('the year on one bike', () => {
     const tasks = [{ id: 7, bikeId: 'test_data_gtp_spark', status: 'done', statusDate: '2026-05-01', by: 'self', task: 'x' }];
     const view = withVisits(bike({ parts }), visits);
     const y = yearSummary(view, visits, tasks, '2026');
-    expect(y).toMatchObject({ year: '2026', self: 3, shop: 3, chf: 197.5, unknown: 1 });
+    expect(y).toMatchObject({ year: '2026', self: 3, shop: 4, chf: 197.5, unknown: 2 }); // v0.31.0: the fork service marked "bike shop" without a visit counts as one more visit, price unknown
     expect(y.per).toMatchObject({ chf: 180, km: 1100 });
   });
 });

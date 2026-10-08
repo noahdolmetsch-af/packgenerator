@@ -9,5 +9,6 @@ import ride from './ride.js';
 import common from './common.js';
 import tips from './tips.js';
 import care from './care.js';
+import setup from './setup.js';
 
-export default { ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips };
+export default { ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup };
