@@ -4,19 +4,26 @@
  * t('{n} items', { n: 3 }) → "3 Teile". A text without a German entry stays English, so nothing
  * ever goes missing. The German texts live in i18n/de/*.js, one file per part of the app.
  *
- * The language is remembered per device (localStorage "lang"); English is the default.
+ * The language is remembered per device (localStorage "lang"). Without a choice yet (a first start)
+ * the browser's language decides: German when it starts with "de", else English (v0.30.2, L9).
  * Learnings, notes and names you typed stay as you wrote them. Gear items show their German
  * name (item.nameDe) when there is one: use nameOf(item).
  */
 import DE from './i18n/de/index.js';
 
 const KEY = 'lang';
+/** The browser's own language: German for de, de-CH, de-DE …, else English. */
+export const browserLang = (nav = typeof navigator === 'undefined' ? null : navigator) => (/^de\b/i.test(nav?.language ?? '') ? 'de' : 'en');
+/** The saved choice wins; without one the browser's language. */
+export const pickLang = (saved, nav) => (saved === 'de' || saved === 'en' ? saved : browserLang(nav));
 const read = () => {
+  let saved = null;
   try {
-    return localStorage.getItem(KEY) === 'de' ? 'de' : 'en';
+    saved = localStorage.getItem(KEY);
   } catch {
-    return 'en';
+    /* private mode: no saved choice */
   }
+  return pickLang(saved);
 };
 
 export const lang = $state({ v: typeof window === 'undefined' ? 'en' : read() });

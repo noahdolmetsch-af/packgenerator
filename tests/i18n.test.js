@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { t, tn, num, nameOf, lang, locale } from '../src/lib/i18n.svelte.js';
+import { t, tn, num, nameOf, lang, locale, browserLang, pickLang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 afterEach(() => (lang.v = 'en'));
@@ -35,5 +35,20 @@ describe('language', () => {
     const ph = (s) => (s.match(/\{\w+\}/g) ?? []).sort().join();
     const bad = Object.entries(DE).filter(([en, de]) => ph(en) !== ph(de) || /ß/.test(de));
     expect(bad).toEqual([]);
+  });
+});
+
+// v0.30.2 (L9): a first start speaks the browser's language; a choice made once still wins.
+describe('the language on a first start', () => {
+  it('German for a German browser, else English; the saved choice wins', () => {
+    expect(browserLang({ language: 'de-CH' })).toBe('de');
+    expect(browserLang({ language: 'de' })).toBe('de');
+    expect(browserLang({ language: 'en-GB' })).toBe('en');
+    expect(browserLang({ language: 'fr-CH' })).toBe('en');
+    expect(browserLang(null)).toBe('en');
+    expect(pickLang(null, { language: 'de-DE' })).toBe('de');
+    expect(pickLang('en', { language: 'de-DE' })).toBe('en');
+    expect(pickLang('de', { language: 'en-US' })).toBe('de');
+    expect(pickLang('xx', { language: 'en-US' })).toBe('en');
   });
 });

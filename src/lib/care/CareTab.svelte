@@ -6,9 +6,10 @@
   import { nextId } from '../gear.js';
   import { tick } from 'svelte';
   import {
-    ensureParts, checkState, serviceDue, logPart, parseKm, PART, taskBike, openRepairs, toReview, prepFor, prepRules, upcomingTrips, prepParts, prepService, wishFor, CHECK_KM,
+    ensureParts, checkState, serviceDue, logPart, parseKm, PART, taskBike, openRepairs, toReview, prepFor, prepRules, upcomingTrips, wishFor, CHECK_KM,
   } from '../care.js';
   import TripCare from './TripCare.svelte';
+  import { tickPrep, untickPrep } from './prep.js';
   import BikeCare from './BikeCare.svelte';
   import Fold from '../ui/Fold.svelte';
   import PartDialog from './PartDialog.svelte';
@@ -158,44 +159,13 @@
   }
 
   /* ---------- preparation tasks per trip ---------- */
-  async function prepResult(trip, row, result) {
-    const state = { result, date: today, by };
-    await db.trips.update(trip.id, { prep: { ...(trip.prep ?? {}), [row.task.id]: state } });
-    const bike = bikeById[trip.bikeId];
-    if (bike && (result === 'ok' || result === 'done')) {
-      // The check before the event also counts for the 1000 km check (answer 7).
-      const keys = prepParts(row.task);
-      if (keys.length) await checkParts(bikeById[trip.bikeId], keys, 'check', t('Before {trip}', { trip: trip.title }));
-      const svc = prepService(row.task);
-      if (svc) await checkParts(bikeById[trip.bikeId], [svc], 'service', t('Before {trip}', { trip: trip.title }));
-    }
-  }
+  // v0.30.2 (L5): the same saving as in the trip (Plan → Before the trip): care/prep.js.
+  // The check before the event also counts for the 1000 km check (answer 7).
+  const prepNote = (trip) => t('Before {trip}', { trip: trip.title });
+  const prepResult = (trip, row, result) => tickPrep(db, trip.id, [row], result, { today, by, note: prepNote(trip) });
   // v0.24.0 (Noah, "select all"): every open task of a trip done in one tap, saved in one write.
-  async function prepAll(trip, rows) {
-    const open = rows.filter((r) => !r.finished);
-    if (!open.length) return;
-    const state = { result: 'done', date: today, by };
-    await db.trips.update(trip.id, { prep: { ...(trip.prep ?? {}), ...Object.fromEntries(open.map((r) => [r.task.id, state])) } });
-    // Both kinds of part entries in one write, read fresh, so the second does not overwrite the first.
-    const keys = [...new Set(open.flatMap((r) => prepParts(r.task)))];
-    const svc = [...new Set(open.map((r) => prepService(r.task)).filter(Boolean))];
-    if (!keys.length && !svc.length) return;
-    await db.transaction('rw', db.bikes, async () => {
-      const bike = await db.bikes.get(trip.bikeId);
-      if (!bike) return;
-      const note = t('Before {trip}', { trip: trip.title });
-      const at = { date: today, km: bike.km ?? null, value: null, by, model: null, note };
-      let parts = bike.parts;
-      for (const k of keys) parts = logPart(parts, k, { ...at, action: 'check', result: 'ok' });
-      for (const k of svc) parts = logPart(parts, k, { ...at, action: 'service', result: 'done' });
-      await db.bikes.update(bike.id, { parts });
-    });
-  }
-  const undoPrep = (trip, row) => {
-    const prep = { ...(trip.prep ?? {}) };
-    delete prep[row.task.id];
-    return db.trips.update(trip.id, { prep });
-  };
+  const prepAll = (trip, rows) => tickPrep(db, trip.id, rows.filter((r) => !r.finished), 'done', { today, by, note: prepNote(trip) });
+  const undoPrep = (trip, row) => untickPrep(db, trip.id, row);
 
   /* ---------- repairs from the Excel (and the June walk-through) ---------- */
   const repairs = $derived(openRepairs(tasks));

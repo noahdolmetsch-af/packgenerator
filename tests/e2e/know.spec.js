@@ -126,9 +126,9 @@ for (const lang of ['en', 'de']) {
     await start(page, context, info, lang, knowFixture());
     await page.goto('./#/');
     const k = await know(page, T);
-    // the backup is due (never saved): Your data comes first, with its one button
-    await expect(k.locator('[data-card]').first()).toHaveAttribute('data-card', 'backup');
-    await expect(k.locator('[data-card="backup"]').getByRole('button', { name: T('Download backup') })).toBeVisible();
+    // the backup is due (never saved): v0.30.2 (L5) one line in Also to do with its button, no card here
+    await expect(k.locator('[data-card="backup"]')).toHaveCount(0);
+    await expect(page.getByRole('region', { name: T('Also to do') }).getByRole('button', { name: T('Download backup') })).toBeVisible();
     // v0.30.0 (Noah 1a): at most 3 important cards, then at most 1 further card, the rest tips:
     // the insights (weight trend, best upgrade, season, long not used) no longer all fill Today
     const keys = await tileKeys(k);
@@ -137,7 +137,7 @@ for (const lang of ['en', 'de']) {
     expect(cards.length).toBeLessThanOrEqual(3);
     expect(keys.length - cards.length).toBeGreaterThanOrEqual(3);
     expect(keys.findIndex((x) => x.startsWith('tip:'))).toBe(cards.length); // the tips come last
-    // the important cards come first: here the backup and the chain wax (Inbox and the rest wait)
+    // the important cards come first (the backup and the Inbox are lines in Also to do, v0.30.2)
     expect(cards.filter((x) => ['upgrade', 'trend', 'season', 'unused', 'weekend'].includes(x)).length).toBeLessThanOrEqual(1);
     // the overview lists everything; "Long not used" from there (Noah 3a)
     await k.getByRole('link', { name: new RegExp(T('What the app can do')) }).click();

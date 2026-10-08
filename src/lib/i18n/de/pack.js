@@ -748,4 +748,8 @@ export default {
   '{n} item packed': '{n} Teil gepackt',
   '{n} items packed': '{n} Teile gepackt',
   'Ready check done': 'Startcheck erledigt',
+  // v0.30.2 (L5): the event preparation ticked off in the trip (Before the trip).
+  'Done: {task}': 'Erledigt: {task}',
+  'Ticked off: {task}': 'Abgehakt: {task}',
+  'More options in Bike care': 'Weitere Möglichkeiten in der Velopflege',
 };
