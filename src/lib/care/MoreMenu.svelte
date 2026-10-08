@@ -23,6 +23,15 @@
     font-weight: 700;
     color: var(--ink-2);
   }
+  /* v0.31.0: 44 px for a thumb. */
+  @media (pointer: coarse) {
+    .more > summary {
+      display: grid;
+      place-items: center;
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
   .more > summary::-webkit-details-marker {
     display: none;
   }

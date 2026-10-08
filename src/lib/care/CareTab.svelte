@@ -10,6 +10,7 @@
   } from '../care.js';
   import TripCare from './TripCare.svelte';
   import { tickPrep, untickPrep } from './prep.js';
+  import { shopSkip } from './last.js';
   import BikeCare from './BikeCare.svelte';
   import Fold from '../ui/Fold.svelte';
   import PartDialog from './PartDialog.svelte';
@@ -18,7 +19,8 @@
   import { withVisits, visitsOf, tyreSetup, timeDue, lastPrice, workshopOrder } from '../workshop.js';
   import { hasBike } from '../domains.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
-  import { bikeCare, bikeCareWords, eventPrep } from '../readiness.js';
+  import { UserRound, Store } from '@lucide/svelte';
+  import { bikeCare, eventPrep } from '../readiness.js';
 
   // v0.21.0 (answer 7a): Bike care is the Care tab of Bikes. bikeId: the bike chosen on the page;
   // open: open that bike's section (a link "Bike care for the …").
@@ -43,6 +45,7 @@
   const now = () => new Date().toISOString();
 
   // Who did the work (Noah, 4.10.2026): remembered on this device, stored with every entry.
+  // v0.31.0 (answer 10a): chosen in the dialog "Record work" (me / bike shop), no longer at the top.
   let by = $state(readBy());
   function readBy() {
     try {
@@ -55,6 +58,26 @@
     by = v;
     try {
       localStorage.setItem('care.by', v);
+    } catch {
+      /* fine: only this visit remembers it */
+    }
+  }
+
+  /* ---------- filter (v0.31.0): all parts, only due, by me, by the bike shop; remembered here ---------- */
+  const FILTERS = [['all', 'All parts'], ['due', 'Only due'], ['self', 'by me'], ['shop', 'by the bike shop']];
+  let filter = $state(readFilter());
+  function readFilter() {
+    try {
+      const v = localStorage.getItem('care.filter');
+      return FILTERS.some(([k]) => k === v) ? v : 'all';
+    } catch {
+      return 'all';
+    }
+  }
+  function setFilter(v) {
+    filter = v;
+    try {
+      localStorage.setItem('care.filter', v);
     } catch {
       /* fine: only this visit remembers it */
     }
@@ -76,16 +99,12 @@
       const tyres = tyreSetup(b, visits);
       // N15: one order for the shop, for this bike's next trip (or what is due today).
       const trip = upcomingTrips($tripsQ ?? [], today).find((t) => t.bikeId === b.id) ?? null;
-      const order = workshopOrder(b, trip, tasks, visits, tyres, today);
+      // v0.31.0: only what I do not usually do myself (care/last.js shopSkip).
+      const order = workshopOrder(b, trip, tasks, visits, tyres, today, { skip: shopSkip(b) });
       const care = bikeCare(b, { tasks, visits, today });
       return { bike: b, check: checkState(b), services: serviceDue(b), tyres, time: timeDue(b, tyres, today), mine: visitsOf(visits, b.id), order, orderTrip: trip, care };
     }),
   );
-  // v0.22.0 (AP06): "Due now" is Bike care of every bike, the same rows as Home and Pack count
-  // (services by time and km, the 1000 km check, worn parts, open repairs). Answer 17b
-  // ("services by time only here") is replaced: Home said "all fine" next to an overdue sealant.
-  const overdue = $derived(checks.flatMap((c) => c.care.rows.map((r) => ({ ...r, bike: c.bike }))));
-  const blind = $derived(checks.filter((c) => c.care.status === 'nodata'));
 
   /* ---------- parts ---------- */
   let partOpen = $state(null); // { bike, part }
@@ -110,10 +129,10 @@
   }
 
   /** Several parts at once (a 1000 km check, or a preparation task that covers them). */
-  async function checkParts(view, keys, action = 'check', note = '') {
+  async function checkParts(view, keys, action = 'check', note = '', who = by) {
     const bike = bikeById[view.id];
     let parts = bike.parts;
-    const entry = { date: today, km: bike.km ?? null, value: null, action, result: action === 'check' ? 'ok' : 'done', by, model: null, note };
+    const entry = { date: today, km: bike.km ?? null, value: null, action, result: action === 'check' ? 'ok' : 'done', by: who, model: null, note };
     for (const k of keys) parts = logPart(parts, k, entry);
     await db.bikes.update(bike.id, { parts });
     return entry;
@@ -139,8 +158,8 @@
     if (timed) text += ` ${t('Next time {date}.', { date: dateOf(new Date(Date.parse(`${entry.date}T00:00:00Z`) + timed.every * 864e5).toISOString().slice(0, 10)) })}`;
     say(text);
   }
-  async function checkAndSay(view, keys, action, note) {
-    const entry = await checkParts(view, keys, action, note);
+  async function checkAndSay(view, keys, action, note, who = by) {
+    const entry = await checkParts(view, keys, action, note, who);
     saved(view, keys, entry);
   }
 
@@ -189,14 +208,13 @@
   let orderOpen = $state(null); // bike id
   const orderOf = $derived(Object.fromEntries(checks.map((c) => [c.bike.id, c])));
   const bikeNames = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
-  const inDays = (d) => (d <= 0 ? (d === 0 ? t('due today') : tn(-d, '{n} day overdue', '{n} days overdue')) : d < 45 ? tn(d, 'in {n} day', 'in {n} days') : tn(Math.round(d / 30.4), 'in {n} month', 'in {n} months'));
 
   const PRIO = { high: 'High', medium: 'Medium', low: 'Low' };
 
-  /* ---------- one section per bike, closed until opened (v0.21.0) ---------- */
-  let opened = $state({});
+  /* ---------- one bike open, the others closed (v0.31.0 accordion) ---------- */
+  let openId = $state(undefined); // undefined: not chosen yet; null: all closed
   async function openBike(id) {
-    opened = { ...opened, [id]: true };
+    openId = id;
     onbike?.(id);
     await tick();
     document.getElementById(`care-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -207,8 +225,12 @@
       onopened?.();
     }
   });
+  // At first the chosen bike (Setup and Care share it) or the first one is open.
+  $effect(() => {
+    if (openId === undefined && bikes.length) openId = bikes.some((b) => b.id === bikeId) ? bikeId : bikes[0].id;
+  });
   const toggled = (id, isOpen) => {
-    opened = { ...opened, [id]: isOpen };
+    openId = isOpen ? id : null;
     if (isOpen) onbike?.(id);
   };
   const next = $derived(trips[0] ?? null);
@@ -224,48 +246,19 @@
   });
 </script>
 
-<!-- v0.21.0 (answer 7a): first what is due on all bikes, then the next trip, then one closed line per bike. -->
+<!-- v0.31.0 (Velopflege redesign, mockup v3-pflege): a filter, the next trip as one folded row,
+     then one bike open and the others as one row each. -->
 <div class="care">
-  <div class="by" role="group" aria-label={t('Work done by')}>
-    <span class="lbl">{t('Work done by')}</span>
-    <button type="button" class="toggle" aria-pressed={by === 'self'} onclick={() => setBy('self')}>{t('Me')}</button>
-    <button type="button" class="toggle" aria-pressed={by === 'shop'} onclick={() => setBy('shop')}>{t('Bike shop')}</button>
-  </div>
-
   {#if !bikes.length && $bikesQ}
     <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
   {:else}
-    <section class="due" class:calm={!overdue.length} aria-labelledby="due-h">
-      <h2 id="due-h" class="title">{t('Bike care: due now')} <small>{overdue.length || ''}</small></h2>
-      {#if overdue.length}
-        <ul>
-          {#each overdue as o (`${o.bike.id}:${o.key}`)}
-            <li>
-              <span><b>{o.bike.name}: {o.name}</b><small>{o.detail}</small></span>
-              {#if o.kind === 'time' || o.kind === 'km'}
-                <button type="button" class="btn sm" onclick={() => checkAndSay(o.bike, [o.part], 'service', o.kind === 'time' ? o.name : '')}>{t('Done|task')}</button>
-              {:else}
-                <button type="button" class="btn sm" onclick={() => openBike(o.bike.id)}>{t('Open')}</button>
-              {/if}
-            </li>
-          {/each}
-        </ul>
-      {:else}
-        <p class="none">{blind.length ? t('Nothing due on the bikes with data.') : t('Nothing is due on your bikes right now.')}</p>
-      {/if}
-      {#if blind.length}
-        <!-- Missing data is not "fine" (AP06): say which bikes the app cannot judge. -->
-        <p class="none">{t('No data: {bikes}', { bikes: blind.map((c) => c.bike.name).join(', ') })} · {t('enter km and record a check or service')}</p>
-      {/if}
-      {#if checks.some((c) => c.order?.rows.length)}
-        <p class="orders">
-          <span class="lbl">{t('For the bike shop')}</span>
-          {#each checks.filter((c) => c.order?.rows.length) as c (c.bike.id)}
-            <button type="button" class="btn sm" onclick={() => (orderOpen = c.bike.id)}>{t('Workshop order {bike} · about CHF {chf}', { bike: c.bike.name, chf: c.order.total })}</button>
-          {/each}
-        </p>
-      {/if}
-    </section>
+    <div class="chips" role="group" aria-label={t('Show parts')}>
+      {#each FILTERS as [k, label] (k)}
+        <button type="button" class="chip" aria-pressed={filter === k} onclick={() => setFilter(k)}>
+          {#if k === 'self'}<UserRound size={15} aria-hidden="true" />{:else if k === 'shop'}<Store size={15} aria-hidden="true" />{/if}{t(label)}
+        </button>
+      {/each}
+    </div>
 
     {#snippet trip(x)}
       <TripCare trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onall={() => prepAll(x.trip, x.rows)} onundo={(r) => undoPrep(x.trip, r)} onevent={(on) => db.trips.update(x.trip.id, { event: on })} />
@@ -303,13 +296,16 @@
         <BikeCare
           {c}
           {tasks}
-          repairs={repairsFor(c.bike.id)}
+          {visits}
           {wished}
+          {filter}
+          {today}
           kmMsg={kmMsg?.bikeId === c.bike.id ? kmMsg : null}
-          open={!!opened[c.bike.id]}
+          open={openId === c.bike.id}
           ontoggle={(isOpen) => toggled(c.bike.id, isOpen)}
           onkm={(text) => saveKm(c.bike, text)}
           oncheck={(keys, action, note) => checkAndSay(c.bike, keys, action, note)}
+          ondone={(r) => checkAndSay(c.bike, [r.part], 'service', r.kind === 'time' ? r.name : '', 'self')}
           onpart={(key) => (partOpen = { bikeId: c.bike.id, key })}
           ontyre={(w, value) => setTyre(bikeById[c.bike.id], w, value)}
           onvisit={(id) => (visitOpen = id)}
@@ -347,7 +343,7 @@
   {@const b = viewById[partOpen.bikeId]}
   {@const part = b?.parts.find((p) => p.key === partOpen.key)}
   {#if b && part}
-    <PartDialog {part} bike={b} {by} onlog={(entry) => savePart(b, part.key, entry)} onclose={() => (partOpen = null)} />
+    <PartDialog {part} bike={b} {by} onby={setBy} onlog={(entry) => savePart(b, part.key, entry)} onclose={() => (partOpen = null)} />
   {/if}
 {/if}
 
@@ -386,90 +382,50 @@
       bottom: calc(84px + env(safe-area-inset-bottom));
     }
   }
-  .by {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin: -4px 0 12px;
-  }
-  .by .lbl {
-    margin: 0 4px 0 0;
-  }
-  /* v0.27.0 (AP21): 40 px high for a thumb (were 27 px). */
-  .toggle {
-    border: 1.5px solid var(--ink);
-    background: var(--paper);
-    border-radius: 999px;
-    min-height: 40px;
-    padding: 4px 14px;
-    font: 600 14px var(--font-body);
-    color: var(--ink);
-    cursor: pointer;
-  }
-  .toggle[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
-  }
-  /* Design audit C1: calm card with an orange edge instead of a pink alarm. */
-  .due {
-    border: 1px solid var(--line);
-    border-left: 6px solid var(--hi);
-    border-radius: 6px;
-    background: var(--paper);
-    padding: 10px 14px;
-    margin-bottom: 20px;
-  }
-  .due.calm {
-    border-left-width: 2px;
-  }
-  .due .title {
-    font-size: var(--fs-sub);
-    margin: 0 0 6px;
-  }
-  .due ul,
   .rows {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  .due li {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 6px 12px;
-    padding: 6px 0;
-    border-top: 1px solid var(--line);
-  }
-  .due li > span:first-child,
   .txt {
     display: flex;
     flex-direction: column;
     min-width: 0;
   }
-  .none {
-    margin: 0;
-    color: var(--ink-2);
-  }
-  small {
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-    font-weight: 400;
-  }
-  .orders {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    margin: 10px 0 0;
-  }
-  .orders .lbl {
-    width: 100%;
-  }
   .per-bike {
     margin: 8px 0 20px;
-    border-top: 1.5px solid var(--line);
+  }
+  /* v0.31.0: the filter as chips (aria-pressed), 44 px high. */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 12px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 5px 13px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    font: 500 14px var(--font-body);
+    color: var(--ink);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .chip :global(svg) {
+    color: var(--ink-3);
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .chip[aria-pressed='true'] :global(svg) {
+    color: var(--paper);
   }
   .folds {
     margin-bottom: 20px;
