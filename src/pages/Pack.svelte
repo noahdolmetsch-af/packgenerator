@@ -21,6 +21,7 @@
   import NotPacked from '../lib/pack/NotPacked.svelte';
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
   import PackDay from '../lib/pack/PackDay.svelte';
+  import ShopList from '../lib/pack/ShopList.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import TripRoute from '../lib/pack/TripRoute.svelte';
   import BikeChoice from '../lib/pack/BikeChoice.svelte';
@@ -33,10 +34,13 @@
   import { withVisits, overdueFor } from '../lib/workshop.js';
   import { prepFor, isEvent } from '../lib/care.js';
   import { bikeCare, bikeCareLine, bikeCareWords, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
-  import { Wrench, Package, ChevronRight } from '@lucide/svelte';
+  import { Wrench, Package, ChevronRight, BatteryCharging } from '@lucide/svelte';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
+  import ChargeSheet from '../lib/trip/ChargeSheet.svelte';
+  import ChargeList from '../lib/trip/ChargeList.svelte';
+  import { chargeList, chargeCount } from '../lib/charge.js';
   import { tickPrep, untickPrep } from '../lib/care/prep.js';
   import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, wxLabel, shortDate } from '../lib/dayride.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
@@ -184,6 +188,17 @@
     return () => window.removeEventListener('hashchange', on);
   });
   const packTab = $derived(/^#\/pack(\?day|\/day)/.test(hash));
+  // v0.34.0 (L4): the charge list. #/pack?charge (Home's schedule, the ready check "Devices charged")
+  // opens it as a sheet over Pack; the address goes back to #/pack, so Close leaves Pack as it was.
+  let chargeOpen = $state(false);
+  $effect(() => {
+    if (!/^#\/pack\?charge/.test(hash)) return;
+    chargeOpen = true;
+    history.replaceState(null, '', '#/pack');
+    hash = '#/pack';
+  });
+  const charge = $derived(trip ? chargeList(trip, items) : []);
+  const charged = $derived(trip ? chargeCount(trip, charge) : { done: 0, total: 0 });
   const daySteps = $derived(stats ? packSteps(stats, trip.purpose ?? {}) : []);
   // v0.18.1 (303 demo): the forecast says something else than what the trip is packed for.
   // The packing day says so first, so the layers get added before the bags are closed.
@@ -671,6 +686,7 @@
               <input type="checkbox" checked={done} disabled={!!r.itemId && done} onchange={() => toggleReady(r)} />
               <span>{t(r.label)}{#if r.itemId && !done}<small class="warn"> {t('not on this trip, tick to add it')}</small>{/if}</span>
             </label>
+            {#if r.id === 'charged' && charge.length}<button type="button" class="tp-link" onclick={() => (chargeOpen = true)}>{t('Charge list {done}/{n}', { done: charged.done, n: charged.total })}</button>{/if}
             <button type="button" class="x" aria-label={t("Remove {name} from this trip's check", { name: t(r.label) })} onclick={() => removeReady(r.id)}>×</button>
           </li>
         {/each}
@@ -705,7 +721,7 @@
     </div>
   {/if}{/snippet}
   {#if packTab}
-    <PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} />
+    <PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} />
   {:else}
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} made={!!(dayMade && dayMade.id === trip.id)} bind:q bind:zoneKey bind:review
     actions={{
@@ -769,11 +785,19 @@
           </div>
         </details>
       {/if}
+      {#if charge.length && !over}
+        <details class="tp-fold calm-extra charge-fold">
+          <summary><BatteryCharging size={20} aria-hidden="true" /><span>{t('Charge the evening before')}</span><span class="r"><i class="tp-badge num" class:ok={charged.done === charged.total}>{charged.done}/{charged.total}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <div class="in extra-inner"><ChargeList {trip} {items} /></div>
+        </details>
+      {/if}
     {/snippet}
-    {#snippet ballastContent()}{#if extra?.rows.length}<details class="tp-fold calm-extra"><summary><Package size={20} aria-hidden="true" /><span>{t('Ballast')}</span><span class="r"><i class="tp-badge warn">{tn(extra.rows.length, '{n} not used the last times', '{n} not used the last times')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary><div class="in extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
+    <!-- v0.34.0 A (L3): the shopping list, a row in the folds and its sheet (#/pack?shop opens it). -->
+    {#snippet ballastContent()}<ShopList {trip} {itemsById} />{#if extra?.rows.length}<details class="tp-fold calm-extra"><summary><Package size={20} aria-hidden="true" /><span>{t('Ballast')}</span><span class="r"><i class="tp-badge warn">{tn(extra.rows.length, '{n} not used the last times', '{n} not used the last times')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary><div class="in extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
   </CalmPack>
   {/if}
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
+  {#if chargeOpen}<ChargeSheet {trip} {items} onclose={() => (chargeOpen = false)} />{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
   {#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name, ...(trip?.domain && trip.domain !== 'bikepacking' ? { domains: [trip.domain] } : {}) }} onsaved={packNew} onclose={() => (newItem = null)} />{/if}
   {#if shownPhoto != null && gallery.length}<Lightbox list={gallery.map(p => ({ src: p.src, name: p.name, sub: bike?.name ?? '' }))} start={shownPhoto} onclose={() => shownPhoto = null} />{/if}

@@ -146,3 +146,37 @@ export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx =
   });
   return { rows: out, capL, rate: DRINK_L_PER_H, lights };
 }
+
+/**
+ * v0.34.0 (L8, Noah a): the evening on a trip of several days. Day 1 used to end after the last
+ * ride block; now every day except the last gets an evening block with four things, at one glance:
+ * - overnight: where you sleep (trip.overnight 'lodging' | 'outdoor', else null = not set);
+ * - charge: the devices to charge tonight (charge.js chargeList, ticks in trip.chargeNight[date]);
+ * - layOut: the clothes for the first block of tomorrow (the block plan of tomorrow's first block:
+ *   its layers, else the every-ride clothes), with the bag they are in;
+ * - morning: tomorrow's first block, its time and weather (hourly forecast, else the trip weather).
+ * No evening on the last day, on a nonstop ride (one stage) or on a day ride.
+ */
+export const hasEvening = (days, day) => days > 1 && day >= 0 && day < days - 1;
+
+/**
+ * days: the number of stages (ride.js stageCount); day: today's index (0-based);
+ * date: tonight's date; nextDate: tomorrow's date; overnight: trip.overnight;
+ * first: tomorrow's first block from blockPlan (or null); charge: chargeList(trip, items).
+ * Returns null when the day has no evening, else { date, nextDate, overnight, charge, layOut,
+ * everyRide, morning: { from, to, temp, wet, wxFrom } | null }.
+ */
+export function eveningPlan({ days, day, date = null, nextDate = null, overnight = null, first = null, charge = [] }) {
+  if (!hasEvening(days, day)) return null;
+  const layOut = first ? first.wear.map((w) => ({ id: w.id, name: w.name, place: w.place })) : [];
+  return {
+    date,
+    nextDate,
+    overnight: overnight === 'lodging' || overnight === 'outdoor' ? overnight : null,
+    charge,
+    layOut,
+    // Tomorrow is known but no layer is needed: the clothes of every ride (the weather says why).
+    everyRide: !!first && !layOut.length,
+    morning: first ? { from: first.from, to: first.to, temp: first.temp, wet: first.wet, wxFrom: first.wxFrom } : null,
+  };
+}

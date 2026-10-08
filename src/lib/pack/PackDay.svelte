@@ -10,7 +10,7 @@
    * steps: from packSteps(). ontoggle(itemId), onready(row), onpack(itemIds | null), onreadyall(): save.
    * onnext(): the next step (On the way, or the debrief for a trip without a bike). onundo(): the page's Undo.
    */
-  import { Check, ChevronDown, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks } from '@lucide/svelte';
+  import { Check, ChevronDown, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging } from '@lucide/svelte';
   import { tick as settle, untrack } from 'svelte';
   import TripBand from '../trip/TripBand.svelte';
   import { formatWeight } from '../gear.js';
@@ -19,7 +19,7 @@
   import { phone } from '../media.svelte.js';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, bike = true, lessons = [] } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, bike = true, lessons = [], oncharge = null } = $props();
   const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${t(RAIN[w.rain ?? 'none'])}`;
   const READY = '__ready';
 
@@ -314,6 +314,8 @@
                   <span class="box" aria-hidden="true">{#if ok}<Check size={20} />{/if}</span>
                   <span class="nm">{t(r.label)}</span>
                 </button>
+                <!-- v0.34.0 (L4): which devices, from the packing list -->
+                {#if r.id === 'charged' && oncharge}<button type="button" class="tp-link chg" onclick={oncharge}><BatteryCharging size={16} aria-hidden="true" />{t('Charge list')}</button>{/if}
               </li>
             {/each}
           </ul>
@@ -382,6 +384,9 @@
   .in .nm > :global(:not(small)), .in .nm { color: var(--ink-3); }
   .in .nm { text-decoration: line-through; text-decoration-thickness: 1px; }
   .in .nm small { text-decoration: none; }
+  li:has(> .chg) { display: flex; align-items: center; border-top: 1px solid var(--paper-2); }
+  li:has(> .chg) .it { border-top: 0; }
+  .chg { flex: none; padding: 0 14px; font-size: 14px; white-space: nowrap; }
   .bagfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 14px 6px; border-top: 1px solid var(--paper-2); }
   .all { margin: 12px 0 0; }
   .ask h2 { margin: 0 0 8px; font: 600 19px/1.3 var(--font-body); }

@@ -64,20 +64,23 @@ for (const lang of ['en', 'de']) {
 }
 
 /** Two upcoming fictional trips; the later one is the trip Pack had open last. */
-function fixture(path, soonDate) {
+function fixture(path, soonDate, wx) {
   const data = structuredClone(base);
   const entries = data.tables.items.slice(3, 7).map((i) => ({ itemId: i.id, slot: 'body', qty: 1, packed: false }));
-  const trip = (id, startDate) => ({ id: `test_data_gtp_${id}`, domain: 'bikepacking', title: `test_data_gtp_ ${id}`, startDate, days: 1, bikeId: 'bike-test', setup: {}, entries, ready: [], status: 'planned' });
+  const trip = (id, startDate) => ({ id: `test_data_gtp_${id}`, domain: 'bikepacking', title: `test_data_gtp_ ${id}`, startDate, days: 1, bikeId: 'bike-test', setup: {}, entries, ready: [], status: 'planned', wx });
   data.tables.trips = [trip('later', '2026-10-20'), trip('sooner', soonDate)];
   writeFileSync(path, JSON.stringify(data));
 }
 
 // v0.29.0: Today's buttons carry the names of the trip tabs (Pack, Plan).
-for (const [soon, step] of [['2026-10-08', 'Pack|stage'], ['2026-10-14', 'Plan|stage']]) {
+// v0.34.0 A (L1): Today shows the trip schedule's next step: tomorrow (weather set) "Pack"; in a week
+// without weather the weather step, whose button opens Plan (with the trip conditions).
+const WARM = { min: 16, max: 24, rain: 'none' };
+for (const [soon, button, step, wx] of [['2026-10-08', 'Pack|stage', 'Pack|stage', WARM], ['2026-10-14', 'Get the forecast', 'Plan|stage', null]]) {
   test(`Today opens the trip it shows: ${step}`, async ({ page, context }, info) => {
     const T = tr('en');
     const file = info.outputPath('nav-fixture.json');
-    fixture(file, soon);
+    fixture(file, soon, wx);
     await page.clock.setFixedTime(new Date('2026-10-07T10:00:00Z'));
     await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
     page.on('dialog', (d) => d.accept());
@@ -98,7 +101,7 @@ for (const [soon, step] of [['2026-10-08', 'Pack|stage'], ['2026-10-14', 'Plan|s
     await expect(band).toBeVisible();
     // exactly one strong button in the band
     await expect(band.locator('.btn')).toHaveCount(1);
-    await band.getByRole('link', { name: T(step), exact: true }).click();
+    await band.getByRole('link', { name: T(button), exact: true }).click();
     await expect(page.locator('.trip-band h1')).toHaveText('test_data_gtp_ sooner');
     // the band's tab of that step is the current one
     await expect(page.locator('.trip-band nav a[aria-current="page"]')).toContainText(T(step));

@@ -16,7 +16,9 @@ export const APP_ID = 'pack-generator';
 export async function buildBackup(db) {
   const tables = {};
   for (const name of DATA_TABLES) tables[name] = await db.table(name).toArray();
-  return { app: APP_ID, schemaVersion: SCHEMA_VERSION, exportedAt: new Date().toISOString(), tables };
+  // v0.34.0 (L10): when the data in this file last changed, so the other device can say "newer" or "older".
+  const lastChange = await lastChangeOf(db);
+  return { app: APP_ID, schemaVersion: SCHEMA_VERSION, exportedAt: new Date().toISOString(), ...(lastChange ? { lastChange } : {}), tables };
 }
 
 /**
@@ -120,13 +122,118 @@ export const BACKUP_DAYS = 14;
 /** Download the whole app as one file and remember when. */
 export async function downloadBackup(db) {
   const data = await buildBackup(db);
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  saveFile(JSON.stringify(data, null, 2));
+  await db.table('meta').put({ key: LAST_BACKUP, at: new Date().toISOString() });
+}
+
+function saveFile(text, name = backupFileName()) {
+  const blob = new Blob([text], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = backupFileName();
+  a.download = name;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ---------- v0.34.0 (L10, Noah a): computer and phone ---------- */
+
+/**
+ * The files a share can carry: the backup as .json, and the same text as .txt, because Android's
+ * share sheet does not take every file type (a JSON file is refused on some phones, plain text is
+ * not). Import reads both: the content is the same.
+ */
+export function shareFiles(text, name = backupFileName(), FileClass = globalThis.File) {
+  if (typeof FileClass !== 'function') return [];
+  return [new FileClass([text], name, { type: 'application/json' }), new FileClass([text], name.replace(/\.json$/, '.txt'), { type: 'text/plain' })];
+}
+
+/**
+ * "Send to phone": the backup file, offered to the share sheet when the device can share files
+ * (Android, also Chrome and Safari on many computers), else downloaded as before. No server, no account.
+ * Returns 'shared', 'downloaded' or 'cancelled' (the share sheet was closed: nothing is recorded).
+ */
+export async function shareBackup(db, nav = globalThis.navigator) {
+  const data = await buildBackup(db);
+  const text = JSON.stringify(data, null, 2);
+  const file = shareFiles(text).find((f) => nav?.canShare?.({ files: [f] }));
+  if (file) {
+    try {
+      await nav.share({ files: [file], title: file.name });
+      await db.table('meta').put({ key: LAST_BACKUP, at: new Date().toISOString() });
+      return 'shared';
+    } catch (err) {
+      if (err?.name === 'AbortError') return 'cancelled';
+      // Sharing failed for another reason: the download still gets the file out.
+    }
+  }
+  saveFile(text);
   await db.table('meta').put({ key: LAST_BACKUP, at: new Date().toISOString() });
+  return 'downloaded';
+}
+
+/** Key in the "meta" table: when the data on this device last changed ({ at }). Never exported as a record. */
+export const LAST_CHANGE = 'lastChange';
+const timers = new WeakMap(); // db → { timer, at } of a change not written yet
+
+/** The time of the last change on this device (ISO), with a change still waiting written first. */
+export async function lastChangeOf(db) {
+  await flushChanges(db);
+  return (await db.table('meta').get(LAST_CHANGE))?.at ?? null;
+}
+
+/** Write a waiting change mark now. */
+export async function flushChanges(db) {
+  const w = timers.get(db);
+  if (!w) return;
+  clearTimeout(w.timer);
+  timers.delete(db);
+  await db.table('meta').put({ key: LAST_CHANGE, at: w.at });
+}
+
+/**
+ * Remember the time of every save: Dexie calls the hooks on every create, update and delete in the
+ * data tables. The mark is written a moment later (once for a burst of saves), outside the save itself.
+ */
+export function trackChanges(db, wait = 300) {
+  const mark = () => {
+    const w = timers.get(db);
+    if (w) clearTimeout(w.timer);
+    const at = new Date().toISOString();
+    timers.set(db, { at, timer: setTimeout(() => flushChanges(db).catch(() => {}), wait) });
+  };
+  for (const name of DATA_TABLES) {
+    const table = db.table(name);
+    table.hook('creating', mark);
+    table.hook('updating', mark);
+    table.hook('deleting', mark);
+  }
+}
+
+/**
+ * After an import: "Replace all data" makes this device hold the file's state, so the device takes
+ * the file's change time (an older file without one: its export time). A merge is a new state: now.
+ * The tidy-up writes right after the import do not count as changes of their own.
+ */
+export async function markImported(db, data, mode, now = new Date()) {
+  const w = timers.get(db);
+  if (w) clearTimeout(w.timer);
+  timers.delete(db);
+  const at = mode === 'replace' ? data?.lastChange ?? data?.exportedAt ?? now.toISOString() : now.toISOString();
+  await db.table('meta').put({ key: LAST_CHANGE, at });
+}
+
+/**
+ * Is a backup file newer or older than the data on this device? fileAt: the file's lastChange
+ * (an older backup has none); localAt: this device's last change. Two seconds apart count as the same.
+ * Returns { kind: 'newer' | 'older' | 'same' | 'unknown', file, local, exported }.
+ */
+export function compareStates(fileAt, localAt, exportedAt = null) {
+  const out = { file: fileAt ?? null, local: localAt ?? null, exported: exportedAt ?? null };
+  const f = fileAt ? Date.parse(fileAt) : NaN;
+  const l = localAt ? Date.parse(localAt) : NaN;
+  if (Number.isNaN(f) || Number.isNaN(l)) return { kind: 'unknown', ...out };
+  if (Math.abs(f - l) < 2000) return { kind: 'same', ...out };
+  return { kind: f > l ? 'newer' : 'older', ...out };
 }
 
 /**

@@ -10,5 +10,7 @@ import common from './common.js';
 import tips from './tips.js';
 import care from './care.js';
 import setup from './setup.js';
+import evening from './evening.js';
+import schedule from './schedule.js';
 
-export default { ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup };
+export default { ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule };

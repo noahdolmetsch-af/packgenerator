@@ -82,7 +82,9 @@ for (const lang of ['de', 'en']) {
     page.on('pageerror', (e) => errors.push(e.message));
     await start(page, context, info, lang);
     const title = `test_data_gtp_ Tabs ${lang}`;
-    const trip = await newTrip(page, T, title, { date: day(1) }); // tomorrow: Today leads with "Pack"
+    // tomorrow: Today leads with "Pack". v0.34.0 A (L1): the schedule's weather step (5 days before)
+    // must be done first, so the weather is set (Warm: nothing for the cold, nothing left to decide).
+    const trip = await newTrip(page, T, title, { date: day(1), weather: 'Warm' });
     const NAMES = ['Plan|stage', 'Pack|stage', 'On the way', 'Debrief'];
     if (lang === 'de') expect(NAMES.map((k) => T(k))).toEqual(['Planen', 'Packen', 'Unterwegs', 'Rückblick']);
     // The old addresses stay: #/pack, #/pack?day, #/ride, #/debrief/<id>.
