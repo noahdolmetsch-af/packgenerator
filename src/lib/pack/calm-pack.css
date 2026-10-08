@@ -25,9 +25,11 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 @media (hover: hover) { .calm-pack .row-main:hover { background: #f3f6f3; } }
 .calm-pack .row-chevron { color: #849598; transition: transform .15s; }
 .calm-pack .planning-row.open .row-chevron { transform: rotate(180deg); }
-.calm-pack .item-name { min-width: 0; overflow-wrap: anywhere; }
+.calm-pack .item-name { min-width: 0; overflow-wrap: anywhere; font-family: var(--font-body); font-weight: 400; }
+/* v0.30.1 (Noah B1): the name, × n and the hint lines in the app's face; only size and colour step down. */
+.calm-pack .item-name > span, .calm-pack .item-name small { font-family: inherit; font-style: normal; }
 /* v0.25.0 (M3, Noah 8a): "Buy … on the way?" under a multi-day or capped amount. */
-.calm-pack .carry-hint { display: block; font-size: 13px; color: var(--calm-muted); }
+.calm-pack .carry-hint { display: block; font: 400 13px/1.35 var(--font-body); color: var(--calm-muted); }
 .calm-pack .item-qty { color: var(--calm-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .calm-pack .amount { display: flex; width: 126px; height: 38px; border: 1px solid var(--calm-line); border-radius: 4px; overflow: hidden; background: #fff; }
 .calm-pack .amount button { width: 38px; border: 0; background: #f4f6f4; display: flex; justify-content: center; align-items: center; }

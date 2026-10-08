@@ -115,7 +115,7 @@ for (const lang of ['en', 'de']) {
     const left = await page.locator('.pd').evaluate((el) => [...el.querySelectorAll('.pbag')].map((b) => `${b.className}: ${b.querySelector('.bagh')?.innerText.replace(/\s+/g, ' ')}`).join(' | '));
     expect(missed.length, `clicks that did not land: ${missed.slice(-3).join(' / ')}; bags: ${left}`).toBeLessThan(10);
     await fits('Pack');
-    await expect(page.locator('.pd .pbag.cur .bagfoot, .pd').getByText(T('Everything is in. Have a good ride!')), `bags after packing: ${left}; status: ${await page.locator('.pd .tp-status').innerText()}`).toBeVisible();
+    await expect(page.locator('.pd .pbag.cur .bagfoot, .pd').getByText(T('Everything is in. Have a good ride!')), `bags after packing: ${left}; status: ${await page.locator('.pd p[role=status]').first().innerText()}`).toBeVisible();
 
     // 6. The one orange button now leads to On the way.
     await expect(go).toContainText(T('Next: On the way'));

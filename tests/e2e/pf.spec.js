@@ -674,6 +674,8 @@ test('PF12: tick some, navigate and reload; save as template and start a new tri
     const row = pd.locator('ul.items button[aria-pressed="false"]').first();
     await rec.click(row);
     await expect(pd.locator('ul.items button[aria-pressed="true"]')).toHaveCount(n + 1);
+    // v0.30.1 (B4): a second tap on the same spot within 400 ms is a double tap and counts once
+    await page.waitForTimeout(450);
   }
   await rec.click(tab(page, 'Plan|stage'));
   const ticked = (await tripNamed(page, title)).entries.filter((e) => e.packed).map((e) => e.itemId).sort();

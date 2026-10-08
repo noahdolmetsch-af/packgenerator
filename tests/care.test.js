@@ -138,3 +138,21 @@ describe('rules among the preparation tasks', () => {
     expect(prepRules(trip, tasks)).toEqual([{ task: tasks[0], from: '2026-09-10' }]);
   });
 });
+
+// v0.30.1 (Noah's phone test, D1): "km kann nicht gespeichert werden". "2.287" used to be 2 km.
+describe('parseKm', () => {
+  it('reads km typed the Swiss or German way', async () => {
+    const { parseKm } = await import('../src/lib/care.js');
+    for (const s of ["2'287", '2’287', '2 287', '2 287', '2.287', '2,287', '2287', ' 2287 km', '2287,4', '2287.4']) expect(parseKm(s), s).toBe(2287);
+    expect(parseKm('2287,6')).toBe(2288);
+    expect(parseKm('1.234.567')).toBeNaN(); // over 500 000
+    expect(parseKm("12'400,5")).toBe(12401);
+    expect(parseKm('12.400,5')).toBe(12401);
+    expect(parseKm('12,400.5')).toBe(12401);
+    expect(parseKm('45,3')).toBe(45);
+    expect(parseKm('0')).toBe(0);
+    expect(parseKm('')).toBeNull();
+    expect(parseKm('  ')).toBeNull();
+    for (const s of ['abc', '-5', '12a', '600000']) expect(parseKm(s), s).toBeNaN();
+  });
+});

@@ -10,7 +10,7 @@
    * compact (On the way, phone): only the name and the tabs, so "Now" is on top.
    */
   import { liveQuery } from 'dexie';
-  import { CalendarDays, Bike, Backpack, CloudSun, ShoppingBag, Check } from '@lucide/svelte';
+  import { CalendarDays, Bike, Backpack, CloudSun, ShoppingBag, Check, Pencil } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, locale } from '../i18n.svelte.js';
   import { tripStats, RAIN } from '../trips.js';
@@ -20,7 +20,8 @@
   import { localDay } from '../localday.js';
   import { TAB_NAMES, tabsOf, tabHref, tabStatus, tripDates } from '../tabs.js';
 
-  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null } = $props();
+  // weighHint: false hides the "6 not weighed" badge (v0.30.1, Noah E4: not next to the green "Day ride created" card).
+  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true } = $props();
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -37,17 +38,43 @@
   const tabs = $derived(tabsOf(trip));
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
   const weight = $derived(stats ? stats.gearG + stats.onMeG : null);
+  // v0.30.1 (Noah N8): rename any trip at any time (also a past one): tap the name, type, Enter or
+  // leave the field saves; Escape keeps the old name. An empty name is not saved.
+  let naming = $state(false);
+  let nameDraft = $state('');
+  let nameEl = $state();
+  function startRename() {
+    nameDraft = trip.title ?? '';
+    naming = true;
+  }
+  $effect(() => {
+    if (naming && nameEl) nameEl.focus(), nameEl.select();
+  });
+  async function saveName() {
+    if (!naming) return;
+    naming = false;
+    const title = nameDraft.trim();
+    if (title && title !== trip.title) await db.trips.update(trip.id, { title });
+  }
+  function nameKey(e) {
+    if (e.key === 'Enter') (e.preventDefault(), saveName());
+    else if (e.key === 'Escape') (e.preventDefault(), (naming = false));
+  }
   const wx = $derived(trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C · ${t(RAIN[trip.wx.rain ?? 'none'])}` : '');
 </script>
 
 <section class="band trip-band" class:compact aria-label={t('Trip')}>
   <div class="who">
     {#if kicker}<p class="kick">{kicker}</p>{/if}
-    <h1>{trip.title}</h1>
+    {#if naming}
+      <input class="rename" bind:this={nameEl} bind:value={nameDraft} onkeydown={nameKey} onblur={saveName} aria-label={t('Trip name')} enterkeyhint="done" />
+    {:else}
+      <h1><button type="button" class="name" title={t('Rename trip')} onclick={startRename}>{trip.title}<Pencil class="pen" size={18} aria-hidden="true" /></button></h1>
+    {/if}
     <p class="meta">
       <span><CalendarDays size={16} aria-hidden="true" />{tripDates(trip)}</span>
       {#if byBike}<span><Bike size={16} aria-hidden="true" />{bike?.name ?? trip.bike ?? t('No bike')}</span>{:else}<span><Backpack size={16} aria-hidden="true" />{t(domainName(domainOf(trip)))}</span>{/if}
-      {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.unweighed}<i class="badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}</span>{/if}
+      {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.unweighed && weighHint}<i class="badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}</span>{/if}
       {#if wx}<span><CloudSun size={16} aria-hidden="true" />{wx}</span>{/if}
     </p>
   </div>
@@ -91,6 +118,39 @@
     font: 700 23px/1.15 var(--font-body);
     letter-spacing: -0.01em;
     overflow-wrap: anywhere;
+  }
+  h1 .name {
+    all: unset;
+    display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    min-height: 44px;
+    padding: 6px 0;
+    overflow-wrap: anywhere;
+  }
+  h1 .name:focus-visible {
+    outline: 2px solid var(--focus-on-dark, #fff);
+    outline-offset: 2px;
+  }
+  h1 :global(.pen) {
+    display: inline-block;
+    vertical-align: -2px;
+    margin-left: 8px;
+    opacity: 0.7;
+  }
+  .rename {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 44px;
+    margin: 2px 0 6px;
+    padding: 6px 10px;
+    font: 700 20px/1.2 var(--font-body);
+    color: var(--ink, #111);
+    background: #fff;
+    border: 0;
+    border-radius: 8px;
   }
   .meta {
     display: flex;
@@ -261,6 +321,57 @@
     .steps a small {
       font-size: 13px;
       margin: 0;
+    }
+  }
+  /* v0.30.1 (Noah D6): a phone turned sideways (844×390): the band was 212 of 390 px. Compact there:
+     smaller name, facts on one line, a smaller button, the four steps in one 44 px row. */
+  @media (max-height: 500px) {
+    .band {
+      column-gap: 16px;
+      padding: 8px 16px 0;
+      margin-bottom: 10px;
+      border-radius: 10px;
+    }
+    .kick {
+      display: none;
+    }
+    h1 {
+      margin: 0 0 2px;
+      font-size: 20px;
+    }
+    .meta {
+      gap: 2px 12px;
+      margin: 0;
+      font-size: 13px;
+    }
+    .act :global(.btn.hi) {
+      min-width: 0;
+      min-height: 44px;
+      padding: 6px 16px;
+      font-size: 15px;
+    }
+    .hint {
+      display: none;
+    }
+    .steps {
+      margin: 6px -16px 0;
+      padding: 0 4px;
+      grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    }
+    .steps a {
+      min-height: 44px;
+      padding: 2px 4px;
+      font-size: 15px;
+    }
+    .steps a small {
+      font-size: 12px;
+    }
+  }
+  /* A small phone sideways keeps the button at the bottom, on the lower bottom bar (App.svelte). */
+  @media (max-height: 500px) and (max-width: 719px) {
+    .act {
+      bottom: calc(48px + env(safe-area-inset-bottom));
+      padding: 4px max(var(--gut), env(safe-area-inset-right)) 4px max(var(--gut), env(safe-area-inset-left));
     }
   }
   @media print {

@@ -22,6 +22,7 @@
   import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START } from '../lib/ride.js';
   import { newNote, tripNotes, DEBRIEF_KINDS, noteToDebrief, dropNoteFromDebrief } from '../lib/notes.js';
   import { newDebrief } from '../lib/debrief.js';
+  import { homeOf } from '../lib/dayride.js';
   import { sunTimes } from '../lib/blockplan.js';
   import { isInventory } from '../lib/gear.js';
   import TripBand from '../lib/trip/TripBand.svelte';
@@ -58,7 +59,12 @@
 
   let day = $state(null); // null: the day of today
   const cur = $derived(Math.min(days - 1, day ?? (trip ? dayIndex(trip, today) : 0)));
-  const st = $derived(trip ? stage(trip, cur, pace) : null);
+  // v0.30.1 (Noah C1): a day without a start time starts at the hour the page was opened (today only).
+  const nowStart = `${String(new Date().getHours()).padStart(2, '0')}:00`;
+  const st = $derived(trip ? stage(trip, cur, pace, { today, nowStart }) : null);
+  // v0.30.1 (Noah C1): sunset and the light also without a route or start place: the home place.
+  const homeQ = liveQuery(() => db.settings.get('homePlace'));
+  const sunPlace = $derived(st?.from ?? trip?.place ?? homeOf($homeQ?.value) ?? null);
   const dayLabel = (n) => {
     if (!trip?.startDate) return t('Day {n}', { n: n + 1 });
     return t('Day {n} · {date}', { n: n + 1, date: dateOf(n) });
@@ -135,16 +141,17 @@
   });
   // v0.19.5 (answer 4b): blocks on every ride, not only nonstop. The time plan from the logbook
   // only counts for a nonstop ride; a day stage gets blocks of 3 hours.
-  const plan = $derived(st?.km && st.hours ? blocks(nonstop ? trip : { ...trip, plan: null }, st) : []);
+  // v0.30.1 (Noah C1): also without a route: blocks by time from the trip's riding hours.
+  const plan = $derived(st?.hours ? blocks(nonstop ? trip : { ...trip, plan: null }, st) : []);
   // The weather of a block: from the start place in the first half, from the finish after.
   const blockHrs = (b) => {
     const places = saved?.places ?? [];
-    const p = places.length > 1 && (b.kmFrom + b.kmTo) / 2 > st.km / 2 ? places[1] : places[0];
+    const p = places.length > 1 && st.km && (b.kmFrom + b.kmTo) / 2 > st.km / 2 ? places[1] : places[0];
     return p ? blockHours(p.hours, b) : [];
   };
   // Per block: clothing, food and drink, light (answer 4b).
   const onTrip = $derived(stats ? stats.zones.flatMap((z) => z.entries.filter((e) => itemsById[e.itemId]).map((e) => ({ item: itemsById[e.itemId], qty: e.qty || 1, place: placeName(trip, z) }))) : []);
-  const bp = $derived(plan.length ? blockPlan(plan, onTrip, { wxOf: blockHrs, place: st.from ?? trip.place ?? null, tripWx: trip.wx ?? null }) : null);
+  const bp = $derived(plan.length ? blockPlan(plan, onTrip, { wxOf: blockHrs, place: sunPlace, tripWx: trip.wx ?? null }) : null);
   const names = (list) => list.map((w) => `${w.name} (${w.place})`).join(', ');
   const setNonstop = (on) => change({ nonstop: on, rideStart: {} });
   const dayName = (t) => new Date(`${t.slice(0, 10)}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short' });
@@ -160,15 +167,18 @@
   async function saveNote(ev) {
     ev?.preventDefault();
     if (!note.trim()) return;
-    await writeNote(note);
-    note = '';
-    quick = null;
+    const text = note;
+    await once(async () => {
+      await writeNote(text);
+      note = '';
+      quick = null;
+    });
   }
   // v0.29.0 (Noah 8a): a note can carry an answer for the debrief ({ kind, itemId, name }); it goes
   // straight into the trip's debrief (a draft is made when there is none) and stays in the Inbox too.
   async function writeNote(text, debriefInfo = null) {
     const now = new Date().toISOString();
-    const n = newNote({ text, page: 'ride', tripId: trip.id, bikeId: trip.bikeId ?? null, day: cur }, { id: `note-${Date.now().toString(36)}`, now });
+    const n = newNote({ text, page: 'ride', tripId: trip.id, bikeId: trip.bikeId ?? null, day: cur }, { id: `note-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, now });
     if (debriefInfo) n.debrief = debriefInfo;
     await db.transaction('rw', db.notes, db.debriefs, async () => {
       await db.notes.put(n);
@@ -182,18 +192,44 @@
   let quick = $state(null); // 'missing' | 'unused' | 'broken' | 'text'
   let missName = $state('');
   const kindText = { missing: '{name} was missing', unused: '{name} not needed', broken: '{name} broken' };
-  async function quickItem(kind, item) {
-    quick = null;
-    await writeNote(t(kindText[kind], { name: nameOf(item) }), { kind, itemId: item.id, name: item.name });
+  // v0.30.1 (Noah C2): one tap = one note. A tap while a note is being saved does nothing, and the
+  // same answer for the same item on this trip is not written a second time.
+  let writing = false;
+  const flash = (msg) => {
+    noteMsg = msg;
+    setTimeout(() => (noteMsg = ''), 4000);
+  };
+  async function once(fn) {
+    if (writing) return;
+    writing = true;
+    try {
+      await fn();
+    } finally {
+      writing = false;
+    }
   }
-  async function quickMissing(ev) {
+  const noted = (kind, itemId, name = '') =>
+    ($notesQ ?? []).some((n) => n.tripId === trip.id && n.debrief?.kind === kind && (itemId ? n.debrief.itemId === itemId : !n.debrief.itemId && (n.debrief.name ?? '').toLowerCase() === name.toLowerCase()));
+  function quickItem(kind, item) {
+    quick = null;
+    return once(async () => {
+      const text = t(kindText[kind], { name: nameOf(item) });
+      if (noted(kind, item.id)) return flash(t('Already noted: {text}', { text }));
+      await writeNote(text, { kind, itemId: item.id, name: item.name });
+    });
+  }
+  function quickMissing(ev) {
     ev.preventDefault();
     const name = missName.trim();
     if (!name) return;
     const have = items.find((i) => isInventory(i) && (i.name.toLowerCase() === name.toLowerCase() || (i.nameDe ?? '').toLowerCase() === name.toLowerCase()));
     missName = '';
     quick = null;
-    await writeNote(t(kindText.missing, { name: have ? nameOf(have) : name }), { kind: 'missing', itemId: have?.id ?? null, name: have?.name ?? name });
+    return once(async () => {
+      const text = t(kindText.missing, { name: have ? nameOf(have) : name });
+      if (noted('missing', have?.id ?? null, have?.name ?? name)) return flash(t('Already noted: {text}', { text }));
+      await writeNote(text, { kind: 'missing', itemId: have?.id ?? null, name: have?.name ?? name });
+    });
   }
   const notOnTrip = $derived(trip ? items.filter((i) => isInventory(i) && !trip.entries.some((e) => e.itemId === i.id)) : []);
   async function dropNote(n) {
@@ -240,9 +276,12 @@
   const tempText = (b) => (b.temp ? (b.temp.lo === b.temp.hi ? `${b.temp.lo} °C` : `${b.temp.lo}–${b.temp.hi} °C`) : '');
   const wearText = (b, n) => (n === 0 ? (b.wear.length ? t('Start with {list}', { list: b.wear.map((w) => w.name).join(', ') }) : t('Every-ride clothes')) : [b.on.length ? t('On: {list}', { list: b.on.map((w) => w.name).join(', ') }) : '', b.off.length ? t('Off: {list}', { list: b.off.map((w) => w.name).join(', ') }) : ''].filter(Boolean).join(' · ') || t('No change'));
   const foodText = (b) => b.food.map((f) => `${f.n} × ${f.name}`).join(', ') || t('Nothing planned');
-  const lightText = (b) => (!b.light ? t('Not needed') : b.light.kind === 'on' ? t('On from about {time} (km {km})', { time: b.light.at, km: b.light.km }) : b.light.kind === 'off' ? t('On until about {time} (km {km})', { time: b.light.at, km: b.light.km }) : t('Dark the whole block'));
+  const lightText = (b) => (!b.light ? t('Not needed') : b.light.kind === 'on' ? (b.light.km == null ? t('On from about {time}', { time: b.light.at }) : t('On from about {time} (km {km})', { time: b.light.at, km: b.light.km })) : b.light.kind === 'off' ? (b.light.km == null ? t('On until about {time}', { time: b.light.at }) : t('On until about {time} (km {km})', { time: b.light.at, km: b.light.km })) : t('Dark the whole block'));
+  // v0.30.1 (Noah C1): where a block is: km on a route, else its hours.
+  const where = (b) => (b.kmFrom == null ? t('{n} h riding', { n: num(Math.round(((new Date(`${b.endAt}:00Z`) - new Date(`${b.startAt}:00Z`)) / 36e5) * 10) / 10) }) : `km ${b.kmFrom}–${b.kmTo}`);
+  const refillText = (b) => (b.refillKm.length ? t('Refill at km {list}', { list: b.refillKm.join(', ') }) : b.refillAt?.length ? t('Refill at about {list}', { list: b.refillAt.join(', ') }) : '');
   const sunset = $derived.by(() => {
-    const p = st?.from ?? trip?.place;
+    const p = sunPlace;
     if (!st?.date || !p) return '';
     const s = sunTimes(st.date, p.lat, p.lon);
     return s ? new Date(s.set).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : '';
@@ -301,7 +340,7 @@
             <div>
               <p class="tt">{isNow ? t('Now') : nowIdx === 0 ? t('First block') : t('Last block')} · {t('Block {n} of {total}', { n: nowIdx + 1, total: rows.length })}</p>
               <h2 id="now-h" class="num">{t('{span} h', { span: span(nowB) })}</h2>
-              <span class="tp-muted tp-small num">{nowB.rest ? t('stop at km {km}', { km: nowB.kmTo }) : `km ${nowB.kmFrom}–${nowB.kmTo}`}{nowB.name && !/^(Block|Etappe) \d/.test(nowB.name) ? ` · ${nowB.name}` : ''}</span>
+              <span class="tp-muted tp-small num">{nowB.rest ? t('stop at km {km}', { km: nowB.kmTo }) : where(nowB)}{nowB.name && !/^(Block|Etappe) \d/.test(nowB.name) ? ` · ${nowB.name}` : ''}</span>
             </div>
             {#if nowB.temp}<div class="wxp"><b class="num">{tempText(nowB)}</b>{nowB.wet ? t('rain likely') : t('dry')}{#if nowB.wxFrom === 'trip'}<small>{t('trip weather')}</small>{/if}</div>{/if}
           </div>
@@ -310,7 +349,7 @@
             <ul class="do">
               <li><span class="k"><Shirt size={20} aria-hidden="true" /></span><div><span class="lab">{t('Wear')}</span><span class="val">{wearText(nowB, nowIdx)}</span></div></li>
               <li><span class="k"><Utensils size={20} aria-hidden="true" /></span><div><span class="lab">{t('Eat')}</span><span class="val">{foodText(nowB)}</span>{#if nowB.food.some((f) => f.short)}<small class="warn">{t('Not enough on the bike: from here on, buy {list} on the way', { list: nowB.food.filter((f) => f.short).map((f) => `${f.short} × ${f.name}`).join(', ') })}</small>{/if}</div></li>
-              <li><span class="k"><Droplet size={20} aria-hidden="true" /></span><div><span class="lab">{t('Drink')}</span><span class="val num">{t('about {n} L to drink', { n: num(nowB.drinkL) })}{#if nowB.refillKm.length} <small>· {t('Refill at km {list}', { list: nowB.refillKm.join(', ') })}</small>{/if}</span></div></li>
+              <li><span class="k"><Droplet size={20} aria-hidden="true" /></span><div><span class="lab">{t('Drink')}</span><span class="val num">{t('about {n} L to drink', { n: num(nowB.drinkL) })}{#if refillText(nowB)} <small>· {refillText(nowB)}</small>{/if}</span></div></li>
               <li><span class="k"><Lightbulb size={20} aria-hidden="true" /></span><div><span class="lab">{t('Light')}</span><span class="val" class:warn={nowB.light && !bp.lights.length}>{lightText(nowB)}{#if !nowB.light && sunset} <small>· {t('Sunset {time}', { time: sunset })}</small>{:else if nowB.light && !bp.lights.length} <small>· {t('no light on this trip')}</small>{:else if nowB.light} <small>· {names(bp.lights)}</small>{/if}</span></div></li>
             </ul>
           {/if}
@@ -371,22 +410,23 @@
             {#each bp.rows as b, n (b.startAt)}
               <li class:cur={n === nowIdx} class:rest={b.rest} aria-current={n === nowIdx && isNow ? 'time' : undefined}>
                 <span class="num tm">{dayName(b.startAt)} {span(b)}</span>
-                <span><b class="num">{b.rest ? t('stop at km {km}', { km: b.kmTo }) : `km ${b.kmFrom}–${b.kmTo}`}</b>{#if b.temp} · <span class="num">{tempText(b)}</span>{b.wet ? ` · ${t('rain likely')}` : ''}{/if}{#if !b.rest} · {wearText(b, n)} · {foodText(b)} · {t('about {n} L to drink', { n: num(b.drinkL) })}{#if b.refillKm.length} · {t('Refill at km {list}', { list: b.refillKm.join(', ') })}{/if}{#if b.light} · {lightText(b)}{/if}{/if}{#if b.note}<small>{b.note}</small>{/if}</span>
+                <span><b class="num">{b.rest ? t('stop at km {km}', { km: b.kmTo }) : where(b)}</b>{#if b.temp} · <span class="num">{tempText(b)}</span>{b.wet ? ` · ${t('rain likely')}` : ''}{/if}{#if !b.rest} · {wearText(b, n)} · {foodText(b)} · {t('about {n} L to drink', { n: num(b.drinkL) })}{#if refillText(b)} · {refillText(b)}{/if}{#if b.light} · {lightText(b)}{/if}{/if}{#if b.note}<small>{b.note}</small>{/if}</span>
               </li>
             {/each}
           </ol>
           <details class="how">
             <summary>{t('How this is worked out')}</summary>
-            <p class="tp-muted tp-small">{nonstop && trip.plan?.schedule?.length ? t('Your time plan from the logbook.') : t('Blocks of 3 hours.')} {t('km at {kmh} km/h, the same guess as the riding time', { kmh: Math.round((st.km / st.hours) * 10) / 10 })}{pace.mine ? ` ${tn(pace.n, '(your pace from {n} ride)', '(your pace from {n} rides)')}` : ''}. {t('Drinking {l} L per hour ({hot} L from {c} °C) is a guess', { l: DRINK_L_PER_H, hot: DRINK_L_PER_H + HOT_EXTRA_L, c: HOT_C })}{bp.capL ? t('; your bottles hold {n} L', { n: Math.round(bp.capL * 10) / 10 }) : t('; no bottle on this trip')}. {t('Sunset and sunrise are computed for the start of the day.')}{saved ? '' : ` ${t('Load the forecast below for the weather per block.')}`}</p>
+            <p class="tp-muted tp-small">{nonstop && trip.plan?.schedule?.length ? t('Your time plan from the logbook.') : t('Blocks of 3 hours.')} {#if st.km}{t('km at {kmh} km/h, the same guess as the riding time', { kmh: Math.round((st.km / st.hours) * 10) / 10 })}{pace.mine ? ` ${tn(pace.n, '(your pace from {n} ride)', '(your pace from {n} rides)')}` : ''}.{:else}{st.hoursGuess ? t('No route and no riding hours: {n} h assumed from the start.', { n: st.hours }) : t('No route: {n} h riding from the start (riding hours of the trip).', { n: num(st.hours) })}{/if} {t('Drinking {l} L per hour ({hot} L from {c} °C) is a guess', { l: DRINK_L_PER_H, hot: DRINK_L_PER_H + HOT_EXTRA_L, c: HOT_C })}{bp.capL ? t('; your bottles hold {n} L', { n: Math.round(bp.capL * 10) / 10 }) : t('; no bottle on this trip')}. {t('Sunset and sunrise are computed for the start of the day.')}{saved ? '' : ` ${t('Load the forecast below for the weather per block.')}`}</p>
           </details>
           {#if nonstop && planHours(trip) > st.hours + 1}<p class="tp-small warn">{t('Your time plan has {plan} h of riding, the route about {route} h. The plan ends where the route ends; is the GPX the whole route?', { plan: Math.round(planHours(trip)), route: st.hours })}</p>{/if}
         </section>
       {/if}
 
       <!-- Answer 4a: the day's stage: start time, nonstop, profile. -->
-      {#if st.km}
+      <!-- v0.30.1 (Noah C1): also without a route, for the start time of the day. -->
+      {#if st.km || st.hours}
       <details class="tp-fold" use:openOnce={!bp}>
-        <summary><RouteIcon size={20} aria-hidden="true" /><span>{nonstop ? t('Nonstop') : days > 1 ? t('Stage {n}', { n: cur + 1 }) : t('Stage')}</span><span class="r num">{st.km ? `${t('Start')} ${st.start}` : ''}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+        <summary><RouteIcon size={20} aria-hidden="true" /><span>{nonstop ? t('Nonstop') : days > 1 ? t('Stage {n}', { n: cur + 1 }) : t('Stage')}</span><span class="r num">{st.hours ? `${t('Start')} ${st.start}` : ''}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
         <div class="in">
           {#if st.km}
             <label class="ns"><input type="checkbox" checked={nonstop} onchange={(e) => setNonstop(e.currentTarget.checked)} /> {t('Nonstop: one stage through the night')}</label>
@@ -404,6 +444,10 @@
             {:else}<p class="tp-muted tp-small">{t('Load the GPX again in Pack to see the elevation profile.')}</p>{/if}
             {#if days > 1 && !nonstop}<p class="tp-muted tp-small">{prof ? t('The route is shared out evenly over {n} days (dark: this stage).', { n: days }) : t('The route is shared out evenly over {n} days.', { n: days })}</p>{/if}
           {:else}
+            <div class="times">
+              <label>{t('Start')} <input class="inp" type="time" value={st.start} onchange={(e) => setStart(e.currentTarget.value)} /></label>
+              <p>{t('Back about')} <b class="num">{st.arrive}</b> <small>{st.hoursGuess ? t('{n} h assumed', { n: num(st.hours) }) : t('{n} h riding', { n: num(st.hours) })}</small></p>
+            </div>
             <p class="tp-muted">{t('No route yet. Load the GPX in')} <a href="#/pack">{t('Plan|stage')}</a> {t('under "Trip conditions" (••• menu).')}</p>
           {/if}
         </div>

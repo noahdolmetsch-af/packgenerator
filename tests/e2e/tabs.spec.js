@@ -129,6 +129,8 @@ test('Pack: a full bag jumps to the next one by itself', async ({ page, context 
     // packed rows slide down: wait for each tick before the next tap
     await cur.locator('ul.items button[aria-pressed="false"]').first().click();
     if (i < n - 1) await expect(cur.locator('ul.items button[aria-pressed="true"]')).toHaveCount(i + 1);
+    // v0.30.1 (B4): the next open row is now on the same spot; a tap there within 400 ms is a double tap
+    if (i < n - 1) await page.waitForTimeout(450);
   }
   // "{bag} is packed. Next: {next}" and the next bag opens without a tap.
   await expect(page.getByRole('status').filter({ hasText: T('{bag} is packed. Next: {next}', { bag: first, next: '' }).trim() })).toBeVisible();

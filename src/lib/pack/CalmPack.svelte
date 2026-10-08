@@ -17,8 +17,11 @@
   import { bagVolumes } from '../bagsuggest.js';
   import { phone } from '../media.svelte.js';
   import { hasContext } from '../context.js';
+  import { rainOf } from '../layers.js';
+  import { pastTrips } from '../hubs.js';
+  import { localDay } from '../localday.js';
   import '../trip/trip.css';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -63,7 +66,8 @@
   function closeMenu(event) { event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); }
   const menu = (fn) => () => { menuEl.open = false; fn(); };
   // v0.29.0 (Noah 4b): the rows the weather (the trip's context) brings, with their reason.
-  const wxRows = $derived(bikeTrip ? trip.entries.filter((e) => { const i = itemsById[e.itemId]; return i && (typeof i.coldBelow === 'number' || i.rain) && reasons[e.itemId]?.line; }) : []);
+  const wxRows = $derived(bikeTrip ? trip.entries.filter((e) => { const i = itemsById[e.itemId]; return i && (typeof i.coldBelow === 'number' || rainOf(i)) && reasons[e.itemId]?.line; }) : []);
+  const pastN = $derived(pastTrips(trips, [], localDay()).length);
   const ctxIds = $derived(Object.keys(ctxRows));
   const changedText = (id) => { const c = ctxRows[id]; return !c ? '' : c.kind === 'added' ? t('new for this trip') : t('{from} → {to}', { from: c.from, to: c.to }); };
   const primary = $derived(over ? 'debrief' : step === debriefStep ? 'end' : step === 2 ? 'ride' : dayRide ? 'go' : 'pack');
@@ -83,7 +87,7 @@
     <TripBand {trip} tab="plan" {kicker} action={null} />
     {#key trip.id}<DecisionReview {trip} {items} onapply={apply} oncancel={() => review = false} onconditions={() => show('conditions')} />{/key}
   {:else}
-    <TripBand {trip} tab="plan" {kicker} action={go} aside={plus} hint={primary === 'go' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : primary === 'pack' ? t('List ready? Then pack bag by bag.') : primary === 'ride' ? t('Everything is packed.') : ''} />
+    <TripBand {trip} tab="plan" {kicker} action={go} aside={plus} weighHint={!made} hint={primary === 'go' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : primary === 'pack' ? t('List ready? Then pack bag by bag.') : primary === 'ride' ? t('Everything is packed.') : ''} />
     {@render notice?.()}
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
     <div class="tp-grid2">
@@ -99,7 +103,7 @@
           <p class="cfoot tp-muted tp-small">{t('Tap a field to change it.')}</p>
         </section>
         <!-- Noah 4b: the weather changes the list by itself; here is what it brought, each with its reason. -->
-        {#if wxRows.length || changeNote}
+        {#if wxRows.length || changeNote || ctxChanged}
           <section class="tp-card wxcard" aria-labelledby="wx-h">
             <h2 id="wx-h"><CloudSun size={18} aria-hidden="true" />{t('Fitted to the weather')}<span class="r">{wxText}</span></h2>
             {#if wxRows.length}
@@ -112,6 +116,9 @@
             {#if changeNote}
               <!-- v0.27.0 (PF03): what the last change of the trip did to the list, one Undo for all of it. -->
               <div class="wxfoot"><p class="change-note tp-small" role="status">{t('Changed: {list}', { list: changeNote })}</p><button type="button" class="btn sm" onclick={actions.undoWx}><Undo2 size={16} aria-hidden="true" />{t('Undo the whole change')}</button></div>
+            {:else if ctxChanged}
+              <!-- v0.30.1 (Noah A2): a change that brings nothing says so (it used to look like a dead button). -->
+              <p class="tp-muted tp-small wxnote" role="status">{trip.wx?.rain === 'rain' || trip.wx?.rain === 'showers' ? t('Nothing on the list changes. Rain gear comes along by itself when it is set to "When it rains" in Gear, or is in a building block named Rain.') : t('Nothing on the list changes with this.')}</p>
             {:else}<p class="tp-muted tp-small wxnote">{t('Applied by itself. Undo is in the row after a change.')}</p>{/if}
           </section>
         {/if}
@@ -129,6 +136,8 @@
             <details class="list-menu" bind:this={menuEl} onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}><summary aria-label={t('More: other trip, edit trip, templates, print')}><MoreHorizontal size={24} aria-hidden="true" /></summary>
               <div class="list-menu-content">
                 <label>{t('Open another trip')}<select class="sel" value={trip.id} onchange={(e) => { changeTrip(e.currentTarget.value); menuEl.open = false; }}>{#each trips as tr}<option value={tr.id}>{tr.title}</option>{/each}</select></label>
+                <!-- v0.30.1 (Noah N9): the past trips, easy to find next to the trip chooser. -->
+                {#if pastN}<a href="#/pack/past">{t('Past trips ({n})', { n: pastN })}</a>{/if}
                 <button onclick={menu(actions.newTrip)}>{t('New trip')}</button>
                 <button onclick={menu(actions.edit)}>{t('Edit trip')}</button>
                 <button onclick={menu(() => show('conditions'))}>{t('Edit trip conditions')}</button>

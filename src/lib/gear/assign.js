@@ -90,7 +90,7 @@ export function currentTrip(trips, chosen, today) {
   const byDate = [...trips].sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''));
   return (
     byDate.find((t) => t.id === chosen) ??
-    byDate.filter((t) => !t.skipped && (t.startDate ?? '') >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ??
+    byDate.filter((t) => !t.skipped && !t.finished && (t.startDate ?? '') >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ??
     byDate[0] ??
     null
   );
