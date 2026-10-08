@@ -12,6 +12,8 @@
 
 **Stand:** Version 1.1 · 07.10.2026 · mit `main` nach PR #32 abgeglichen. PR #30 liefert AP03–AP06; PR #32 veröffentlicht die ausgewählten Entwürfe 2 und 3. Der Gesamtplan ist damit teilweise umgesetzt. [Releasebeleg](releases/2026-10-07-calm-preparation.md) und [Prüfregister](verification.md) unterscheiden Implementierung, Prüfung und fachliche Abnahme.
 
+**Nachtrag 08.10.2026 (Version 1.2):** Live ist v0.35.0. M1 bis M4 und AP25 sind als Software ausgeliefert, M5 teilweise; AP29 ist erledigt. Was pro Meilenstein mit welchem Release kam und die Reihenfolge nach 0.36 steht unten in [Stand und nächste Pakete (8.10.2026)](#stand-und-nächste-pakete-8102026). Die Abschnitte bis zum Fortschrittsregister beschreiben weiterhin den Plan und seine Kriterien.
+
 ## Global Constraints
 
 - Primärer Produktkern: Tourvorbereitungs-Assistent für MTB, alpine Touren, Bikepacking und Ultracycling. Materialverwaltung unterstützt diesen Kern; Fahrradpflege liefert Bereitschaftsinformationen.
@@ -421,32 +423,33 @@ Bei jeder Arbeitsrunde die betroffenen Zeilen aktualisieren; eine Zeile „verif
 
 | ID | Arbeitspaket | Meilenstein | Abhängigkeiten | Status | Verifiziert am / Beleg |
 |---|---|---|---|---|---|
-| AP01 | Ausgangsstand und technische Zuordnung | M0 | – | Teilweise bearbeitet | 07.10.2026: Stack, isolierte Fixtures/CI bekannt; Referenz-Restore und Ausgangsmessungen offen |
-| AP02 | Begriffe und Regelkonflikte | M0 | AP01 | Teilweise bearbeitet | 07.10.2026: Glossar/AP02-Entscheide vorhanden; vollständige Rangfolge/Kit-Abgleich offen |
+| AP01 | Ausgangsstand und technische Zuordnung | M0 | – | Teilweise bearbeitet | 07.10.2026: Stack, isolierte Fixtures/CI bekannt; Rundlauf mit Noahs Export ohne Abweichung (privat); Ausgangsmessungen offen |
+| AP02 | Begriffe und Regelkonflikte | M0 | AP01 | Teilweise bearbeitet | 07.10.2026: AP02-Entscheide (Tagesset, Grundset nur draussen); Begriffe seit 0.32 vereinheitlicht; vollständige Rangfolge offen |
 | AP03 | Typografie, Farben, Komponenten | M1 | AP02 | Veröffentlicht / Restprüfung | 07.10.2026: PR #30/#32; QA vorhanden; Zoom/allgemeine Kontrast- und Screenprüfung offen |
-| AP04 | Statusbegriffe und Gewichte | M1 | AP02 | Veröffentlicht / Restprüfung | 07.10.2026: PR #30; in #32 erhalten; weights/readiness/E2E; vollständiges PF14 offen |
+| AP04 | Statusbegriffe und Gewichte | M1 | AP02 | Veröffentlicht / Restprüfung | 07.10.2026: PR #30; „Weitere Dinge“ in 0.22.1 (PR #31); vollständiges PF14 offen |
 | AP05 | Favoritenaktion und Filter | M1 | AP02, AP03 | Veröffentlicht / Restprüfung | 07.10.2026: PR #30; favorites/readiness-Tests; gesamtes PF08 offen |
-| AP06 | Bereitschaft/Pflege konsistent | M1 | AP02, AP04 | Veröffentlicht / Restprüfung | 07.10.2026: PR #30; gemeinsame readiness-Logik und E2E; Eventabgrenzung separat PR #31 |
-| AP07 | Navigation und Heute | M2 | AP03, AP06 | Teilweise veröffentlicht | 07.10.2026: Zielnavigation nur im Packbereich; Heute/übrige Seiten offen |
-| AP08 | Materialliste und kurzer Dialog | M2 | AP03, AP05, AP07 | Geplant | – |
-| AP09 | Kategorie ohne Referenzverlust | M2 | AP01, AP02, AP08 | Geplant | – |
-| AP10 | Bausteine/Kits verwalten | M4 | AP02, AP09 | Geplant | – |
-| AP11 | Material zuordnen | M4 | AP08, AP09, AP10 | Geplant | – |
-| AP12 | Kontextstart | M3 | AP02, AP07 | Geplant | – |
-| AP13 | Kontextgerechte Auswahl | M3 | AP02, AP08, AP09, AP12 | Teilweise veröffentlicht | 07.10.2026: PR #32: Entwurf/Bestätigung/Abbruch/Alternative; Kontext/Herkunft offen |
-| AP14 | Mengenrevision | M3 | AP02, AP12, AP13 | Teilweise veröffentlicht | 07.10.2026: PR #32: Mengen/Notiz/Reset/Neuladen; Konflikte/Wasser/Bestand offen |
-| AP15 | Wetter und Alternativen | M3 | AP12, AP13, AP14 | Teilweise veröffentlicht | 07.10.2026: PR #32: vorhandene Wetterregeln/Alternativen; Kontextwechsel/Learnings offen |
-| AP16 | Anlassgerechte Vorbereitung | M3 | AP06, AP12 | Teilweise im offenen PR implementiert | 07.10.2026: PR #31 / 05a7f84 integriert PR #32, CI erfolgreich; nicht live, fachliche Abnahme offen |
-| AP17 | Taschen und Packorte | M4 | AP04, AP12, AP13 | Geplant | – |
-| AP18 | Vorlagen wiederverwenden | M4 | AP13, AP17 | Geplant | – |
-| AP19 | Packtag und Bereitschaft | M4 | AP04, AP06, AP17, AP18 | Teilweise veröffentlicht | 07.10.2026: PR #32: Übergang zum bestehenden Packtag; Gesamtzustände weiter prüfen |
-| AP20 | Unterwegs und Rückblick | M4 | AP07, AP19 | Geplant | – |
-| AP21 | Mobile/Tastatur-Prüfung | M5 | AP03; Abschluss AP07–AP20 | Teilweise geprüft | 07.10.2026: 390-px-E2E/1440 Desktop/1487 QA; 320/768 und Screenreader offen |
-| AP22 | Integrationen und Datenübergang | M5 | AP01, AP18, AP20 | Geplant | – |
-| AP23 | Alltagsszenarien messen | M5 | AP13–AP22 | Geplant | – |
-| AP24 | Release und Live-Nachweis | M5 | AP21, AP22, AP23 | Teilrelease veröffentlicht | 07.10.2026: PR #32 merged, CI/Deploy/Live-Einstiege; gesamtes M5 nicht abgeschlossen |
-| AP25 | Erklärbares Vorlagenlernen | M6 | M5, AP20 | Später | – |
-| AP26 | Geräteübergreifende Fortsetzung | M6 | M5, AP22 | Später | – |
+| AP06 | Bereitschaft/Pflege konsistent | M1 | AP02, AP04 | Veröffentlicht / Restprüfung | 07.10.2026: PR #30; Eventabgrenzung live in 0.22.1 (PR #31) |
+| AP07 | Navigation und Heute | M2 | AP03, AP06 | Veröffentlicht / Restprüfung | 07.10.2026: 0.23.0 (PR #35), Zeitplan auf Heute 0.34.0 (PR #56); Personenprüfung offen |
+| AP08 | Materialliste und kurzer Dialog | M2 | AP03, AP05, AP07 | Veröffentlicht / Restprüfung | 07.10.2026: 0.23.0 (PR #35); Noahs Messung neues Teil Median 13 s (Ziel 30 s); formales PF07-Protokoll offen |
+| AP09 | Kategorie ohne Referenzverlust | M2 | AP01, AP02, AP08 | Veröffentlicht / Restprüfung | 07.10.2026: 0.23.0 (PR #35), Phone 0.23.1 (PR #36); Unit-/E2E-Tests |
+| AP10 | Bausteine/Kits verwalten | M4 | AP02, AP09 | Veröffentlicht / Restprüfung | 08.10.2026: 0.26.0/0.26.1 (PR #40), Wörter 0.32.0 (PR #54), Daten 0.33.0 (PR #55) |
+| AP11 | Material zuordnen | M4 | AP08, AP09, AP10 | Veröffentlicht / Restprüfung | 08.10.2026: 0.24.1 (PR #37), 0.26.1 (PR #40); Mehrfachauswahl für Taschen offen (tief) |
+| AP12 | Kontextstart | M3 | AP02, AP07 | Veröffentlicht / Restprüfung | 07.10.2026: 0.25.0 (PR #38), Fenster „Neue Tour“ 0.30.0 (PR #49) |
+| AP13 | Kontextgerechte Auswahl | M3 | AP02, AP08, AP09, AP12 | Veröffentlicht / Restprüfung | 07.10.2026: PR #32, 0.25.0 (PR #38); Herkunft pro Zeile 0.27.0 (PR #41) |
+| AP14 | Mengenrevision | M3 | AP02, AP12, AP13 | Veröffentlicht / Restprüfung | 08.10.2026: PR #32, 0.25.0, 0.27.0 („Bedarf 6, du trägst 3“) |
+| AP15 | Wetter und Alternativen | M3 | AP12, AP13, AP14 | Veröffentlicht / Restprüfung | 08.10.2026: PR #32, 0.25.0, Wetter mit Grund und Undo pro Zeile 0.29.0 |
+| AP16 | Anlassgerechte Vorbereitung | M3 | AP06, AP12 | Veröffentlicht / Restprüfung | 07.10.2026: 0.22.1 (PR #31) Event-Häkchen; 0.25.0 keine Velopflege bei Kurzfahrt |
+| AP17 | Taschen und Packorte | M4 | AP04, AP12, AP13 | Veröffentlicht / Restprüfung | 08.10.2026: Platzvorschläge 0.26.1 (PR #40), Standardtaschen 0.31.0 (PR #53) |
+| AP18 | Vorlagen wiederverwenden | M4 | AP13, AP17 | Veröffentlicht / Restprüfung | 08.10.2026: 0.24.1, 0.26.1; Neugestaltung der Seite folgt als AP28 |
+| AP19 | Packtag und Bereitschaft | M4 | AP04, AP06, AP17, AP18 | Veröffentlicht / Restprüfung | 08.10.2026: 0.24.0, 0.29.0 bis 0.30.1 (zuverlässiges Packen) |
+| AP20 | Unterwegs und Rückblick | M4 | AP07, AP19 | Veröffentlicht / Restprüfung | 08.10.2026: 0.26.1 (Notizen zur Tour), 0.29.0 (Jetzt-Block, Rückblick eine Seite), 0.34.0 (Abendblock) |
+| AP21 | Mobile/Tastatur-Prüfung | M5 | AP03; Abschluss AP07–AP20 | Teilweise geprüft | 08.10.2026: 0.27.0 (PR #41) Fokus, 44-px-Tippflächen, 320/390 px ohne Querscrollen; Screenreader und Personenprüfung offen |
+| AP22 | Integrationen und Datenübergang | M5 | AP01, AP18, AP20 | Veröffentlicht / Restprüfung | 08.10.2026: 0.27.0 (PR #41) Import-Vorschau, Fehlermeldungen; Gerätewechsel-Hinweis 0.34.0 |
+| AP23 | Alltagsszenarien messen | M5 | AP13–AP22 | Teilweise geprüft | 08.10.2026: automatischer Test PF01–PF16 und fünf Szenarien (0.27.0); Zeitmessung mit Person offen |
+| AP24 | Release und Live-Nachweis | M5 | AP21, AP22, AP23 | Teilreleases veröffentlicht | 08.10.2026: jeder Release nur nach grünem CI live (PR #31 bis #57); formale M5-Abnahme offen |
+| AP25 | Erklärbares Vorlagenlernen | M6 | M5, AP20 | Veröffentlicht / Restprüfung | 08.10.2026: 0.28.0 (PR #42); Ballast-Regel angepasst 0.33.0 |
+| AP26 | Geräteübergreifende Fortsetzung | M6 | M5, AP22 | Teilweise veröffentlicht | 08.10.2026: 0.34.0 Backup ans andere Gerät senden, Hinweis neuer/älter; Sync-Entscheid offen |
+| AP29 | Entwürfe und „In Bearbeitung“ | Pflicht-Wunsch | AP07, AP19 | Veröffentlicht | 08.10.2026: 0.35.0 (PR #57) |
 
 ## Prüfergebnis-Vorlage für jede Arbeitsrunde
 
@@ -488,19 +491,58 @@ Bei jeder Arbeitsrunde die betroffenen Zeilen aktualisieren; eine Zeile „verif
 
 ## Nächster konkreter Schritt
 
-**Ausgelieferte Screens mit den Alltagstouren abnehmen, AP01/AP02-Nachweise schliessen und den integrierten PR #31 fachlich abnehmen.** Anschliessend AP07–AP09 und AP12–AP16 entlang der Abhängigkeiten abschliessen. Die Konzeptabnahme wird nicht erneut abgefragt. Jeder weitere Schritt ergänzt [Prüfregister](verification.md), [Status](status.md) und dieses Register im selben PR. Siehe die konkrete Lieferfolge oben.
+**Stand 08.10.2026:** v0.36.0 „Import prüfen“ fertigstellen, danach die Reihenfolge in [Stand und nächste Pakete (8.10.2026)](#stand-und-nächste-pakete-8102026). Jeder Release-PR ergänzt [Status](status.md), dieses Register (wenn ein Paket seinen Stand ändert), das [Entscheidungslog](decisions.md) und `src/lib/whatsnew.js`.
+
+Früherer Text (7.10.2026): Ausgelieferte Screens mit den Alltagstouren abnehmen, AP01/AP02-Nachweise schliessen und den integrierten PR #31 fachlich abnehmen. Anschliessend AP07–AP09 und AP12–AP16 entlang der Abhängigkeiten abschliessen.
 
 
 ## Pflicht-Wünsche von Noah (08.10.2026): AP27–AP30
 
-Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgelegt. Wie und wann sie eingebaut werden, wird noch mit ihm besprochen. Bis dahin gelten sie als offene Pflicht-APs.
+Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgelegt. Wie und wann sie eingebaut werden, wird noch mit ihm besprochen. Bis dahin gelten sie als offene Pflicht-APs. (Nachtrag 08.10.2026: Reihenfolge festgelegt, siehe „Stand und nächste Pakete“.)
 
 | AP | Wunsch | Was es heute schon gibt (Stand v0.30.2) | Was fehlt |
 |---|---|---|---|
 | AP27 | **GPX einer abgeschlossenen Aktivität hochladen und als Learning nutzen** | Rückblick → «Dein Tempo» lernt Geschwindigkeit und Höhenmeter pro Stunde aus GPX-Fahrten (`src/lib/pace.js`, `debrief/Pace.svelte`). Der Rückblick liest GPX/TCX/CSV für km und Fahrten (`src/lib/activities.js`). | Ein GPX wird noch nicht zu einem Learning (z. B. geplante vs. echte Zeit, Pausen, Wetter, Verpflegung). Kein Hochladen einer Fahrt ohne geplante Tour. |
 | AP28 | **Seite Vorlagen grundlegend überarbeiten**, in Design und Nutzen; neue Vorlagen direkt erstellen | Vorlagen entstehen nur aus einer Tour («Als Vorlage speichern») und werden in `TemplateEdit.svelte` bearbeitet. | Neue Vorlage von Grund auf (aus Bausteinen + Extra-Teilen), klare Anzeige «Standard + Regen + 2 Extra», Nutzen sichtbar (wann zuletzt benutzt, welche Touren). Baut auf 0.32–0.33 auf (Begriffe Bausteine/Vorlagen). |
-| AP29 | **Entwürfe beim Packen**: überall sichtbar «Entwurf gespeichert», jederzeit unterbrechen und später fortsetzen; mehrere Events/Fahrten gleichzeitig planen; unter **Touren** eine Liste aller Entwürfe bzw. Packvorgänge in Bearbeitung | Alles wird sofort gespeichert; mehrere Touren können parallel existieren. | Sichtbarer Hinweis «gespeichert, du kannst jederzeit aufhören» auf jeder Tour-Seite; Liste «In Bearbeitung» unter Touren mit Stand (z. B. «Packen 12/30») und «Fortsetzen». |
+| AP29 (erledigt in 0.35.0) | **Entwürfe beim Packen**: überall sichtbar «Entwurf gespeichert», jederzeit unterbrechen und später fortsetzen; mehrere Events/Fahrten gleichzeitig planen; unter **Touren** eine Liste aller Entwürfe bzw. Packvorgänge in Bearbeitung | Alles wird sofort gespeichert; mehrere Touren können parallel existieren. | Sichtbarer Hinweis «gespeichert, du kannst jederzeit aufhören» auf jeder Tour-Seite; Liste «In Bearbeitung» unter Touren mit Stand (z. B. «Packen 12/30») und «Fortsetzen». |
 | AP30 | **Material per Foto mit KI erfassen**: Foto → Gegenstand erkennen → Daten im Hintergrund recherchieren → Vorschlag ins Inventar | – | Braucht einen KI-Dienst mit Bildverständnis und einen kleinen Server für den geheimen Schlüssel (die App ist heute rein statisch). Vorschlag immer zur Bestätigung, nie still eintragen. Datenschutz: das Foto verlässt das Gerät. Aufwand: mittel bis gross (eigenes Release plus Einrichtung des Dienstes durch Noah). |
+
+**Stand 08.10.2026:** AP29 ist mit v0.35.0 (PR #57) erledigt (Design-Variante B). Die Reihenfolge der übrigen Pflicht-Wünsche steht im nächsten Abschnitt.
+
+## Stand und nächste Pakete (8.10.2026)
+
+Live ist **v0.35.0**. „Ausgeliefert“ heisst: als Software veröffentlicht, mit Unit- und Browser-Tests. Die formale Abnahme mit Zeitmessung durch eine Person ist bei den meisten Paketen noch offen (siehe Fortschrittsregister).
+
+### Was pro Meilenstein ausgeliefert ist
+
+| Meilenstein | Ausgeliefert mit | Noch offen |
+|---|---|---|
+| M0 Grundlage (AP01–AP02) | Entscheide vom 7.10.; Begriffe vereinheitlicht in 0.32.0 | Ausgangsmessungen, vollständige Regel-Rangfolge |
+| M1 Sofortige Klarheit (AP03–AP06) | 0.22.0 (PR #30), Entwürfe 2/3 (PR #32), 0.22.1 (PR #31, Event-Häkchen, „Weitere Dinge“) | Restprüfung Kontrast/Zoom, PF08/PF14 als Protokoll |
+| M2 Einfache Materialpflege (AP07–AP09) | 0.23.0 (PR #35), 0.23.1/0.24.0 (PR #36) | 30-s-Messung als formales Protokoll |
+| M3 Tour bestimmt Auswahl (AP12–AP16) | 0.24.1 (PR #37), 0.25.0 (PR #38), 0.25.1 (PR #39), 0.30.0 (PR #49) | 60-s-Messung als formales Protokoll |
+| M4 Vollständiger Tourablauf (AP10–AP11, AP17–AP20) | 0.26.1 (PR #40), 0.29.0 bis 0.30.2 (PR #43–#51), 0.31.0 (PR #53), 0.32.0/0.33.0 (PR #54, #55), 0.34.0 (PR #56) | Mehrfachauswahl für Bausteine und Taschen |
+| M5 Abnahme (AP21–AP24) | 0.27.0 (PR #41): Phone/Tastatur, Integrationen, automatischer Test PF01–PF16 | Screenreader, fünf Szenarien mit Person gemessen, formale Release-Abnahme |
+| M6 Später (AP25–AP26) | AP25 0.28.0 (PR #42); AP26 teilweise 0.34.0 (Backup ans andere Gerät) | Entscheid über echte Synchronisation |
+| Pflicht-Wünsche (AP27–AP30) | AP29 0.35.0 (PR #57) | AP27, AP28, AP30 |
+
+### In Arbeit: v0.36.0 „Import prüfen“
+
+Excel-Import Schritt 1: Noahs bereinigte Material-Excel (privat, nicht im Repo) mit Material und Learnings. Eine Prüfseite zeigt „Schon da“, „Neu“ und „Unsicher“; „Alle sicheren übernehmen“, Unsicheres einzeln. Vorher automatisches Backup, danach „Rückgängig“. Jedes Teil behält seine Excel-Nummer (`sourceId`), damit es keine Doppelten gibt. Vorhandene Teile werden nur ergänzt, nie überschrieben; App-Teile, die nicht in der Excel stehen, können archiviert werden. Learnings behalten ihr ursprüngliches Datum.
+
+### Reihenfolge nach 0.36
+
+0.36 Import prüfen, 0.37 Rucksäcke, 0.38 AP28 Vorlagen, 0.39 AP27 GPX → Learning, 0.40 Excel-Import Schritt 2 (Verlauf), danach AP30 Foto-KI, Mehrfachauswahl und die offenen Abnahmen. Die Versionsnummern sind geplant, nicht fix.
+
+| Nr. | Paket | Inhalt | Hinweis |
+|---|---|---|---|
+| 1 (0.37) | **Rucksäcke** | Echte getragene Taschen mit Litern und Gewicht. Am Velo gibt es zwei getragene Plätze „Rücken“ und „Hüfte“; ihr Gewicht zählt zu „Am Körper“, nicht zum Velo. Touren ohne Velo nutzen die echten Rucksäcke statt allgemeiner Namen, die App schlägt pro Reiseart passende vor. Warnung, wenn der Inhalt mehr Liter braucht, als die Tasche fasst. Eine Warnweste kann Kleidung und Tasche zugleich sein | Noah, 8.10.2026 |
+| 2 (0.38) | **AP28 Vorlagen-Seite neu** | Neues Design; neue Vorlage von Grund auf aus Bausteinen und einzelnen Teilen; sichtbar, wann und für welche Touren eine Vorlage benutzt wurde | Baut auf 0.32/0.33 auf |
+| 3 (0.39) | **AP27 GPX-Aktivität → Learning** | GPX einer gefahrenen Aktivität hochladen, auch ohne geplante Tour; daraus ein Learning (geplant gegen echt, Pausen, Wetter, Verpflegung) | Nutzt `pace.js` und `activities.js` |
+| 4 (0.40) | **Excel-Import Schritt 2: Verlauf lernen** | Alte Touren und Setups als Geschichte mit „nicht gebraucht“ und „fehlte“, damit Ballast und Vorschläge sofort wirken; Temperatur-Kits als Vorschläge, der Rückblick fragt „zu kalt / ok / zu warm“; Aufgaben; Werkstatt | Nach Schritt 1 (0.36) |
+| 5 | **AP30 Foto → KI erkennt Teil** | Foto, KI erkennt das Teil, sucht Daten, schlägt einen Eintrag zur Bestätigung vor | Braucht einen kleinen Server für den geheimen API-Schlüssel, kostet pro Foto, das Foto verlässt das Gerät. Günstiger erster Schritt: Barcode |
+| 6 | **Mehrfachauswahl auch für Bausteine und Taschen** | Noahs Wunsch vom 7.10.: viele Teile auf einmal in einen Baustein (Set) oder eine Tasche legen. Gear „Auswählen“ kann seit 0.26.1 schon Baustein, Tour, Standardtasche und Vorlage; vorher mit Noah klären, was noch fehlt (z. B. Tasche innerhalb einer Tour, Auswahl in Vorlagen und Tourlisten) | Tiefe Priorität |
+| 7 | **Offene Abnahmen** | AP21–AP24: Phone- und Barrierefreiheits-Prüfung mit Screenreader, fünf Alltagsszenarien mit Person gemessen, formale Release-Abnahme. AP26: Entscheid über Geräte-Synchronisation | Laufend, wenn Noah testet |
 
 ## Änderungshistorie dieses Plans
 
@@ -508,5 +550,6 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 |---|---|---|
 | 1.0 | 07.10.2026 | Abgenommenes Konzept in AP01–AP26, PF01–PF16 und Meilensteine übersetzt; noch keine Umsetzung |
 | 1.1 | 07.10.2026 | Mit PR #30/#32 und Live abgeglichen; vorgezogene Screens, offenen PR #31 und parallele Branchintegration, Teilnachweise und Quellen verbindlich verknüpft |
+| 1.2 | 08.10.2026 | Stand v0.35.0 nachgetragen: Fortschrittsregister pro Release, AP29 erledigt, Abschnitt „Stand und nächste Pakete“ mit Reihenfolge nach 0.36 (neu 0.37 Rucksäcke) |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

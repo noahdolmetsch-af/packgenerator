@@ -1,23 +1,50 @@
 # Projektstand
 
-Stand: 7. Oktober 2026
+Stand: 8. Oktober 2026
 
 ## Aktuell live
 
-- **Entwürfe 2 und 3 veröffentlicht:** [PR #32](https://github.com/noahdolmetsch-af/packgenerator/pull/32) ist zusammengeführt, Merge `be041f1`; Build, 12 Browser-Tests und Deployment erfolgreich. Entscheidungsentwurf mit Bestätigung/Abbruch und Übergang zum Packtag im isolierten Browser-Test geprüft; neue Packliste, Review-Leerzustand und Rückweg auf Live geöffnet. Paketversion weiterhin 0.22.0. [Releasebeleg](releases/2026-10-07-calm-preparation.md), [Screenablauf](calm-preparation.md), [Design-QA](../design-qa.md).
-- **PR #30 / M1 implementiert:** AP03–AP06 sind ausgeliefert und in #32 erhalten. Vollständige formale AP-/Meilensteinabnahme und Zeitmessungen sind offen. 227 Unit-Tests bestanden; [Prüfregister](verification.md) trennt Teilnachweise von Gesamtabnahme.
-- **Eine aktive Roadmap:** [AP01–AP26](roadmap.md), mit stabilen IDs, Abhängigkeiten und Kriterien. [Dokumentationsindex](README.md) ordnet alle Quellen ein.
+- **v0.35.0 „In Bearbeitung“ (AP29, [PR #57](https://github.com/noahdolmetsch-af/packgenerator/pull/57)):** Touren und Rückblicke in Arbeit über „{n} weitere ▾“ im Tourband wechseln, kurz „✓ Gespeichert“ nach jeder Änderung, nichts Getipptes geht verloren, und „Was die App alles kann“ zeigt oben die Neuerungen.
+- Seit 0.22.1 gab es 20 Releases (PR #31 bis #57). Jeder ging erst online, als Build, Unit-Tests und Browser-Tests (Phone und Desktop) auf GitHub grün waren. Stand 0.35.0: 785 Unit-Tests, 287 Browser-Tests bestanden.
+- Was sich pro Release geändert hat, steht unten in der Historie. Entscheidungen: [Entscheidungslog](decisions.md). Arbeitspakete und Reihenfolge: [Roadmap](roadmap.md#stand-und-nächste-pakete-8102026).
 
-## Offen zur Integration / Abnahme
+## In Arbeit
 
-- **PR #31, angekündigt v0.22.1:** Eventmodus nur für Events, relative Fälligkeitstexte, „Weitere Dinge“, Gear-Breite und „Leichtestes“ nur bei vollständigen Taschengewichten. Offen und nicht Bestandteil des Live-Stands. Der Branch wurde während dieses Abgleichs aktualisiert: `05a7f84` integriert PR #32 samt Event-Schalter, CI 37667778399 erfolgreich. Gemeinsame Dokumentation wird im Branch nachgeführt. AP04/AP06/AP16/AP21; fachliche Releaseabnahme und Veröffentlichung bleiben offen.
-- Beide neuen Screens mit den fünf Alltagsszenarien fachlich abnehmen. 60-/30-Sekunden-Ziele sind ungemessen.
-- AP01/AP02 abschliessen; Kontext/Übernachtung, Mengen-/Wasser-/Bestandskonflikte, Materialpflege/Kategorieänderung, Bausteine und 320-px-/Screenreaderprüfung bleiben offen. Ausführliche Teilstände in der Roadmap.
+- **v0.36.0 „Import prüfen“** (Excel-Import Schritt 1): Noahs bereinigte Material-Excel (privat, nicht im Repo) kommt über eine Prüfseite in die App, mit den Gruppen „Schon da“, „Neu“ und „Unsicher“.
+  - Vor dem Import macht die App automatisch ein Backup; „Rückgängig“ stellt den alten Stand wieder her.
+  - Jedes Teil behält seine Excel-Nummer (`sourceId`). Ein zweiter Import findet es wieder, es entstehen keine Doppelten.
+  - Teile, die schon in der App sind, werden nur ergänzt, nie überschrieben. App-Teile, die nicht in der Excel stehen, zeigt eine Liste; Noah kann sie archivieren (nicht löschen, alte Touren bleiben ganz).
+  - Learnings behalten ihr ursprüngliches Datum.
+
+## Offen zur Abnahme
+
+- AP21–AP24: Phone- und Barrierefreiheits-Prüfung mit einer Person, die fünf Alltagsszenarien mit Zeit messen (Ziele 60 s Tagestour, 30 s neues Teil), formale Abnahme pro AP. Die automatischen Browser-Tests (PF01–PF16, seit 0.27.0) ersetzen diese Messung nicht.
+- AP01/AP02 Restnachweise und AP26 (Geräte übergreifend). Details in der [Roadmap](roadmap.md).
 
 ## Historie veröffentlichter Funktionen
 
 Die folgenden Einträge beschreiben den jeweiligen damaligen Release. Spätere Entscheidungen haben einzelne Layouts, Navigation und Bezeichnungen ersetzt. Für das heutige Verhalten gelten die Abschnitte oben und das Entscheidungslog.
 
+- **In Bearbeitung und Gespeichert (v0.35.0, 8.10.2026, PR #57, AP29):** Im dunklen Tourband öffnet „{n} weitere ▾“ alle Touren und Rückblicke in Arbeit (am Phone von unten, am Desktop als kleines Fenster), mit Menü „Nicht fahren“, „Verwerfen“, „Tour beenden“, „Ohne Rückblick abschliessen“ und Undo; die Liste räumt sich selbst auf. Nach jeder Änderung kurz „✓ Gespeichert“. Neue Tour, neues Teil und Quick note sind gespeichert, sobald ein Name oder Text getippt ist. „Was die App alles kann“ beginnt mit „Neu in den letzten Updates“, Heute zeigt nach einem Update einmal „Neu seit deinem letzten Besuch“.
+- **Zeitplan, Einkaufen, Laden, Abend (v0.34.0, 8.10.2026, PR #56):** Die dunkle Karte auf Heute zeigt immer den einen nächsten Schritt nach Tagen bis zum Start (Velo-Service, Wetter, Einkaufen und Laden, Packen, Startcheck, Unterwegs, Rückblick), darunter eine kleine Zeitleiste. Pack hat eine Einkaufsliste (Essen mit Menge, als Text teilen) und eine Ladeliste (Elektronik und Licht der Tour). Unterwegs zeigt bei mehreren Tagen einen Abendblock. Das Backup lässt sich ans andere Gerät senden; der Import sagt, ob die Datei neuer oder älter ist. Rundgang-Lücken L1, L3, L4, L8, L10.
+- **Bausteine in den Daten (v0.33.0, 8.10.2026, PR #55):** Jede neue Tour bringt alles aus „Standard“ mit, auch aus einer Vorlage oder Kopie. „Zu Hause lassen“ nimmt ein Teil wirklich aus Standard. Eine einmalige Umstellung überträgt die alten Rollen; die alten Felder bleiben mitgeführt, damit ein Backup auch in 0.32 noch öffnet. Unbenutzte Standard-Teile können auf der Ballast-Karte erscheinen (Werkzeug und Getragenes nie).
+- **Gleiche Wörter überall (v0.32.0, 8.10.2026, PR #54):** Bausteine, Vorlagen, „Am Körper“ und „Standard“ statt Sets, Kits, Getragen und Immer dabei. Der Teil-Dialog hat zwei Schalter (Standard, Am Körper), Gear einen Filter „Kommt mit“, die Seite Bausteine drei Gruppen. Nur Wörter und Screens: ein Test beweist, dass alle Packlisten gleich bleiben.
+- **Velopflege und Setup neu (v0.31.0, 8.10.2026, PR #53):** Velopflege zeigt immer nur ein Velo offen, höchstens 3 Zeilen „Jetzt fällig“, Teile gruppiert mit letzter Arbeit (Datum, km, CHF, ich oder Velomech), Balken, nächster Fälligkeit und Status-Badge, dazu „Für den Velomech“ und „2026 an diesem Velo“. Setup (Variante A): dunkles Band mit den Velos als Tabs, grosse Zeichnung, Liste „Standardtaschen“, Karte „Wer schraubt“. Ich/Velomech wählt man jetzt im Dialog „Arbeit eintragen“.
+- **Rundgang-Lücken und Testfunde (v0.30.2, 8.10.2026, PR #51):** Ein Suchtreffer öffnet das Teil. Zeilen bleiben beim Packen am Platz, damit ein schneller Tipp nicht das falsche Teil trifft. Neue Learnings stehen zuerst auf Heute, der Packtag zeigt „Aus früheren Touren“. Taschennamen und Daten auf Deutsch. Lücken L2, L5, L6, L7, L9 geschlossen (offene Wettervorschläge sichtbar, kein Rückblick vor der Tour, Neue Tour auch ohne Velo, Hilfe für die ersten Schritte).
+- **Korrekturen aus Noahs Tests (v0.30.1, 8.10.2026, PR #50):** 19 Funde aus den Testprotokollen 0.29.2 und 0.30. Ein schneller Doppeltipp zählt einmal, Undo nach „ganze Tasche gepackt“ stellt die offene Tasche wieder her. + Regen, Jetzt-Karte, Schnellnotizen, vergangene Touren und km-Eingabe (2'287 oder 2.287) funktionieren. Querformat kompakt, Tour per Tipp auf den Namen umbenennen, Vorlagen lesen sich „Standard + Regen + 3 einzelne Teile“.
+- **Fenster „Neue Tour“ und Tipps (v0.30.0, 8.10.2026, PR #48, #49):** „Tour planen“ öffnet ein Fenster: wann, wie lange, Wetter, die Standard-Karte, Bausteine als Chips, Vorlagen oder letzte Tour zugeklappt. Standard + Regen in 4 Klicks. „Gut zu wissen“ zeigt bis 3 wichtige Datenkarten, dann Tipps „Wusstest du?“. Neue Seite „Was die App alles kann“ (#/features). Die Browser-Tests laufen für Phone und Desktop parallel, ein Check dauert etwa halb so lang.
+- **Neue Tour mit Standard-Set zuerst (v0.29.2, 8.10.2026, PR #47):** Das Standard-Set steht zuoberst, Vorlagen zugeklappt unter „Aus Vorlage starten“. „Tagestour“ packt Standard-Set plus Wetter auf dem Velo der letzten Tour. Jede neue Tour öffnet mit einer grünen Karte (Name, Velo, Datum, Anzahl Teile, wo sie zu finden ist, Ändern, Undo). Mit diesem Release kamen auch die Änderungen von 0.29.0 und 0.29.1 online.
+- **Packen zuverlässig (v0.29.1, 8.10.2026, PR #44 bis #46):** 0.29.0 ging nicht online, weil die Browser-Tests auf GitHub rot waren. Ursache: ein schneller zweiter Tipp auf dieselbe Zeile nahm das Teil wieder heraus, die Tasche galt trotzdem als gepackt. Jetzt wartet der zweite Tipp auf das Speichern, und eine Tasche springt nur weiter, wenn sie wirklich voll ist.
+- **Vier Tour-Tabs in einem Design (v0.29.0, 8.10.2026, PR #43):** Planen, Packen, Unterwegs und Rückblick teilen ein dunkles Band (Tour, Datum, Velo, Gewicht, Wetter) mit Tabs und Status und einen orangen Knopf zum nächsten Schritt. Planen zeigt Wetteränderungen mit Grund und Undo pro Zeile. Packen geht Tasche für Tasche. Unterwegs zeigt oben den Block „Jetzt“ mit Notizen per Tipp. Der Rückblick ist eine vorausgefüllte Seite, ohne Ausnahmen 1 Tipp.
+- **Vorlagen lernen nachvollziehbar (v0.28.0, 8.10.2026, PR #42, AP25):** Jeder Vorschlag ist eine Frage mit Quelle („3 von 3 Touren ungenutzt“ plus die Touren mit Tagen, Übernachtung, Wetter); „Jetzt nicht“ ruht bis 3 weitere Rückblicke, ein Verlauf zeigt frühere Entscheide. Regen- und Kälteteile zählen nur auf Touren mit diesem Wetter. Erste Hilfe ist ein eigener Baustein und kommt nur mit Übernachtung. Neue Touren starten mit dem Standard-Set.
+- **Phone, Barrierefreiheit, Prüffälle (v0.27.0, 8.10.2026, PR #41, M5 AP21–AP23):** Jede Packzeile nennt Grund und Herkunft („Unter 6 °C“, „Geändert: 1 → 2“). Dialoge halten den Tastaturfokus, Tippflächen am Touchscreen 44 px. Der Import zeigt vorher, was ersetzt oder überschrieben wird; klare Meldungen bei kaputten Fotos, leeren oder sehr grossen GPX-Dateien und langen Links. Ein Browser-Test prüft PF01–PF16 und fünf Alltagsszenarien mit fiktiven Daten.
+- **Bausteine, Zuordnen, Vorlagen (v0.26.1 mit v0.26.0, 8.10.2026, PR #40, M4):** Neue Seite „Bausteine“ (#/blocks), eigene Bausteine anlegen und umbenennen. Gear „Auswählen“ legt viele Teile in einen Baustein, eine Tour, eine Standardtasche oder eine Vorlage, mit Undo. „+ Baustein“-Chips beim Hinzufügen. 7 Excel-Kits wurden Vorlagen, das Regen-Kit ein Baustein. Vorlagen fragen „aktualisieren oder neu“ und merken Tage, Übernachtung und Velo; Notizen unterwegs gehören zur Tour und zum Tag.
+- **Tagestour mit einem Tipp (v0.25.1, 8.10.2026, PR #39):** „Tagestour“ auf Heute erstellt die Tour sofort (Name, Datum und Wetter vom Wohnort automatisch). Die Kacheln Touren und Velos haben 4 Knöpfe plus „Mehr“ (u. a. Problem melden, km eintragen, Ideenliste pro Velo, Werkstattbesuch). „Gut zu wissen“ zeigt nur Karten mit Inhalt, Dringendes zuerst, mit 6 neuen Karten. „Heute“ stimmt jetzt auch zwischen Mitternacht und 2 Uhr.
+- **Die Tour bestimmt die Packliste (v0.25.0, 7.10.2026, PR #38, M3):** „Neue Tour“ fragt Tage, Fahrstunden pro Tag, Übernachtung (keine, Unterkunft, draussen mit oder ohne Kochen), Wetter (5 Stufen + Regen) und Event. Eine Vorschau zeigt, was in die Liste kommt. Spätere Änderungen wirken sofort mit Undo, von Hand gesetzte Mengen bleiben. Kurze Fahrten ohne Event zeigen keine Velopflege vor dem Start.
+- **Ruhige Packliste, weniger Klicks (v0.24.1, 7.10.2026, PR #37):** Packzeilen zeigen nur Name, Anzahl und Gewicht; Tippen öffnet Menge, Verschieben, Herausnehmen. Tagestour „Alles gepackt, los“, Rückblick direkt von Heute („Alles gut“ mit Undo), Angebot „Als Vorlage speichern“ nach der ersten Tagestour. Mehrfachauswahl in Gear (Kategorie, Wunschliste, Löschen) und Material hinzufügen mit Häkchen. Tagestour von „Neu“ bis Rückblick: 8 Klicks statt 65.
+- **Alle auf einmal (v0.24.0 mit v0.23.1, 7.10.2026, PR #36):** „Alles rein, weiter“ pro Tasche und „Alles gepackt“ am Packtag, „Alles wie geplant“ im Rückblick, „Alle / keine“ bei Wettervorschlägen, Werkstattauftrag und Eventaufgaben. Ein neues Teil lässt sich direkt aus der Suche anlegen. Eintägige Touren starten ohne Übernachtungs-Grundset. 0.23.1: Sprache im Profilmenü, Heute am Phone zugeklappt, Kategorie auch am Phone änderbar.
+- **Navigation und einfache Materialpflege (v0.23.0, 7.10.2026, PR #35, M2 AP07–AP09):** Eine Navigation auf jeder Seite: Heute, Touren, Material, Velos; am Phone unten mit + in der Mitte. Heute zeigt die nächste Tour mit genau einer Hauptaktion. Gear zeigt zuerst Suche, Filter und Liste, Auswertungen zugeklappt. Ein neues Teil braucht nur Name, Kategorie und Status. Die Kategorie ist änderbar, ID und alle Verknüpfungen bleiben.
+- **Noahs M1-Antworten (v0.22.1, 7.10.2026, PR #31):** Die Liste heisst „Weitere Dinge“. Überfällig steht in Worten („seit 3 Wochen“) statt als Datum. Die Eventvorbereitung aus der Excel erscheint nur noch bei Touren mit Häkchen „Event“; ältere Touren mit abgehakter Aufgabe gelten als Event. Gear passt am Phone wieder in 390 px.
 - **Optimierung M1: Sofortige Klarheit (v0.22.0)** — neues Projekt „Optimierung vom Packgenerator“ (aktuelle Quelle: [Roadmap AP01–AP26](roadmap.md)):
   - **Ruhigere Schrift und Farben (AP03):** Inhalte in Fira Sans (Titel 30–40 px, Text 16 px), keine Grossbuchstaben mehr, dünnere Rahmen, Aktionsorange #b83e08 (Kontrast 5.6:1 statt 3.1:1), nur die aktuelle Hauptaktion ist orange, sichtbarer Fokusrahmen.
   - **Ehrliche Gewichte und klare Wörter (AP04):** Summen heissen „bekannt: …“ und zeigen daneben, wie viele Gewichte fehlen; Front/Heck ist bei Lücken eine Schätzung; Velogewicht gemessen oder geschätzt. „Not packed“ heisst „Weitere Materialien“; gepackt / noch einzupacken und Startcheck geprüft / offen getrennt gezählt. Packzeilen haben wieder ein sichtbares „•••“ statt Knöpfen nur beim Darüberfahren.
@@ -88,12 +115,14 @@ Aus bisherigen Aufgaben übernommen, in dieser Runde nicht neu geprüft. Keine S
 
 ## Nächste Schritte
 
-**Pflicht-Wünsche (Noah, 08.10.2026):** AP27 GPX → Learning, AP28 Vorlagen neu, AP29 Entwürfe und Liste «In Bearbeitung», AP30 Material per Foto mit KI. Details in der [Roadmap](roadmap.md#pflicht-wünsche-von-noah-08102026-ap27ap30); Zeitpunkt wird mit Noah besprochen.
+Reihenfolge nach 0.36 (Details in der [Roadmap](roadmap.md#stand-und-nächste-pakete-8102026); Versionsnummern geplant):
 
-1. Neue Entscheidung/Packliste im Alltag abnehmen (AP13–15/AP19/AP21/AP23).
-2. Grundlagen- und Restore-Nachweise AP01/AP02 vervollständigen.
-3. Integrierten PR #31 nach Dokumentabgleich fachlich mit Event/Kurzfahrt abnehmen; Veröffentlichung separat.
-4. AP07–AP09 und AP12–AP16 entlang der Roadmap-Abhängigkeiten abschliessen; danach AP10–AP11/AP17–AP24.
-5. Erklärbares Lernen und Geräte-Sync separat als AP25/AP26. Erste echte Arbeitsweg-Tour liefert dafür Nutzungsbelege.
+1. 0.37 Rucksäcke: echte getragene Taschen mit Litern und Gewicht; Plätze „Rücken“ und „Hüfte“ am Velo zählen zu „Am Körper“; Touren ohne Velo nutzen die echten Rucksäcke; Warnung, wenn der Inhalt mehr Liter braucht als die Tasche fasst.
+2. 0.38 AP28 Vorlagen-Seite neu: Design und neue Vorlage von Grund auf.
+3. 0.39 AP27 GPX einer Aktivität wird ein Learning.
+4. 0.40 Excel-Import Schritt 2: aus dem Verlauf lernen (alte Touren, Temperatur-Kits, Aufgaben, Werkstatt).
+5. AP30 Foto, KI erkennt das Teil (vorher klären: kleiner Server, Kosten, Datenschutz; günstiger Einstieg per Barcode).
+6. Mehrfachauswahl in Gear auch für Bausteine und Taschen (tiefe Priorität).
+7. Offene Abnahmen AP21–AP24 und AP26.
 
 Der frühere Plan „Ist-Analyse und Plan“, Etappen A–D und offene ★-Annahmen sind historische Quellen. Sie sind keine gleichzeitig laufende Roadmap. Bereits umgesetzte Reisearten und Funktionen bleiben; ungelöste Anforderungen werden mit AP-ID in die aktuelle Roadmap aufgenommen.
