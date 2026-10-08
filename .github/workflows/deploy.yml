@@ -48,6 +48,9 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run e2e
+      # The page as the failing test saw it, readable in the log (the artifact can't be opened everywhere).
+      - if: failure()
+        run: for f in test-results/*/error-context.md; do echo "::group::$f"; head -c 20000 "$f"; echo "::endgroup::"; done
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
