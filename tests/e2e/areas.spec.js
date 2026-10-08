@@ -86,6 +86,9 @@ for (const lang of ['en', 'de']) {
     await expect(go).toContainText(T('Next: Pack'));
     await go.click();
     await expect(page).toHaveURL(/#\/pack\?day/);
+    // wait for the bags: on a slow CI machine the loop below found no rows yet and stopped at once (8.10.2026)
+    await expect(page.locator('.pd .pbag').first()).toBeVisible();
+    await expect(page.locator('.pd ul.items button').first()).toBeVisible();
     const missed = [];
     // what the page shows as done: packed rows, ticked checks and the bag that is open
     const pressed = () => page.locator('.pd').evaluate((el) => `${el.querySelector('.pbag.cur .bagh')?.innerText} ${el.querySelectorAll('[aria-pressed="true"]').length}`);

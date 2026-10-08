@@ -168,9 +168,11 @@ describe('11a in the debrief and the ballast: Standard means also the old "On ev
     expect(inStandard(phone)).toBe(false);
   });
 
-  it('tools stay "never ballast"; Standard items too (alwaysKeep)', () => {
+  it('tools and worn items stay "never ballast"; Standard items can be ballast (Noah a)', () => {
     expect(alwaysKeep(item('T', { category: 'tools' }))).toBe(true);
-    expect(alwaysKeep(item('S', { sets: [STANDARD] }))).toBe(true);
+    expect(alwaysKeep(item('W', { role: 'worn' }))).toBe(true);
+    expect(alwaysKeep(item('S', { sets: [STANDARD] }))).toBe(false);
+    expect(alwaysKeep(item('A', { always: true }))).toBe(false);
     expect(alwaysKeep(item('P'))).toBe(false);
   });
 });

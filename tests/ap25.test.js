@@ -103,28 +103,30 @@ const unusedAll = Object.fromEntries(all.map((id) => [id, 'unused']));
 const deb = (n, its = unusedAll, missing = []) => ({ tripId: `t${n}`, status: 'done', items: its, missing });
 const three = [deb(1), deb(2), deb(3)];
 
-describe('tools and "On every trip" are never ballast nor taken out', () => {
+// v0.33.0 (Noah 8.10.2026, answer a): only tools stay "never ballast"; an unused item that is
+// "On every trip" (now: in Standard) is ballast like any other.
+describe('tools are never ballast nor taken out; Standard items can be', () => {
   it('alwaysKeep', () => {
     expect(alwaysKeep(items[1])).toBe(true);
-    expect(alwaysKeep(items[2])).toBe(true);
+    expect(alwaysKeep(items[2])).toBe(false);
     expect(alwaysKeep(items[0])).toBe(false);
   });
-  it('no out hint for the tube or the always light', () => {
+  it('no out hint for the tube; the always light gets one', () => {
     const h = templateHints(tpl, trips, three, items).map((x) => x.id);
     expect(h).toContain('out:JACKET');
     expect(h).not.toContain('out:TUBE');
-    expect(h).not.toContain('out:LIGHTX');
+    expect(h).toContain('out:LIGHTX');
   });
-  it('no ballast row and no "not used" badge', () => {
+  it('no ballast row and no "not used" badge for the tube; the always light is ballast', () => {
     const next = { id: 'nx', startDate: '2026-10-20', entries: all.map((itemId) => ({ itemId, slot: 'seat', qty: 1 })) };
     const rows = ballast(next, items, trips, three).rows.map((r) => r.itemId);
     expect(rows).toContain('JACKET');
     expect(rows).not.toContain('TUBE');
-    expect(rows).not.toContain('LIGHTX');
+    expect(rows).toContain('LIGHTX');
     const b = packBadges(next, trips, three, {}, items);
     expect(b.JACKET?.map((x) => x.key)).toEqual(['unused']);
     expect(b.TUBE).toBeUndefined();
-    expect(b.LIGHTX).toBeUndefined();
+    expect(b.LIGHTX?.map((x) => x.key)).toEqual(['unused']);
   });
 });
 

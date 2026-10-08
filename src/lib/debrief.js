@@ -403,7 +403,7 @@ export function hintResting(tpl, hintId, done) {
  * (all trips count, 3b). The newest trip wins (5b):
  * - out: an item of the template that was not used on its newest LEAVE_AFTER or more trips in a row
  *   (counting back from the newest trip; a use, or a newer trip where it was missing, ends it).
- *   Never for tools and items "On every trip" (learn.js alwaysKeep). An item for some weather only
+ *   Never for tools and worn items (learn.js alwaysKeep). An item for some weather only
  *   counts on trips with that weather (learn.js weatherCounts, 2a).
  * - in: an item you own that was missing on 2 trips or more and is not in the template, unless a
  *   trip newer than the last "missing" had it on and it was not used.
