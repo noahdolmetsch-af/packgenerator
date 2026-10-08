@@ -1,6 +1,5 @@
 /* Tour preparation: quiet surfaces, one action colour, details on demand. */
-body:has(main.calm) { background: #fafbf8; background-image: none; }
-main.calm .calm-pack { --calm-muted: #667780; --calm-line: #d5dddc; --calm-action: var(--hi); max-width: 1280px; margin: 0 auto; font-family: var(--font-body); }
+main.calm .calm-pack { --calm-muted: #566a5f; --calm-line: #d5dddc; --calm-action: var(--hi); max-width: 1240px; margin: 0 auto; font-family: var(--font-body); }
 main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-pack h1, .calm-pack h2, .calm-pack h3, .calm-sheet h2 { font-family: var(--font-body); text-transform: none; letter-spacing: -.025em; line-height: 1.2; }
 .calm-pack button, .calm-pack select, .calm-sheet button { font-family: inherit; color: inherit; cursor: pointer; }
@@ -11,33 +10,6 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-pack .text-button, .calm-sheet .text-button { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 0; border: 0; background: transparent; text-decoration: underline; text-underline-offset: 3px; font-size: 16px; font-weight: 400; }
 .calm-pack .primary, .calm-sheet .primary { display: inline-flex; align-items: center; justify-content: center; gap: 20px; min-height: 48px; border: 1px solid var(--hi); border-radius: 6px; background: var(--hi); color: #fff; padding: 12px 22px; font: 600 17px var(--font-body); }
 .calm-pack .primary:hover, .calm-sheet .primary:hover { background: #a32e00; }
-.calm-pack .phase-nav { border-bottom: 1px solid var(--calm-line); padding: 8px 0 0; margin: 0 0 36px; }
-.calm-pack .steps { display: flex; gap: 44px; margin: 0; padding: 0; list-style: none; }
-/* v0.27.0 (AP21): the phase tabs are 44 px high (were 32 px); the space comes from the bar above. */
-.calm-pack .steps button { font-size: 16px; min-height: 44px; padding: 12px 0; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--calm-muted); }
-.calm-pack .steps button.active { border-color: #cf4208; color: var(--ink); font-weight: 600; }
-.calm-pack .tour-context { border-bottom: 1px solid var(--calm-line); padding: 0 0 22px; }
-.calm-pack .tour-context h1 { font-size: 44px; margin: 0 0 8px; font-weight: 700; }
-.calm-pack .tour-context h2 { font-size: 28px; margin: 0 0 14px; font-weight: 600; }
-.calm-pack .context-line { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px; font-size: 16px; }
-.calm-pack .context-line > span { display: inline-flex; align-items: center; gap: 10px; }
-.calm-pack .context-line > span + span { border-left: 1px solid #879798; padding-left: 20px; }
-.calm-pack .edit-trip { order: 2; margin-left: auto; }
-.calm-pack .tpl-link { order: 3; }
-.calm-pack .context-line .weather { order: 1; }
-.calm-pack .context-weather { display: flex; gap: 18px; align-items: center; font-size: 24px; color: #516169; background: none; border: 0; padding: 20px 0 0; }
-.calm-pack.review-mode .tour-context { padding: 4px 24px 30px; }
-.calm-pack.review-mode .tour-context h1 { font-size: 58px; margin-bottom: 10px; }
-.calm-pack.review-mode .context-line { font-size: 20px; gap: 8px 16px; }
-.calm-pack.review-mode .context-line > span svg { display: none; }
-.calm-pack.review-mode .context-line > span + span { padding-left: 0; border-left: 0; }
-.calm-pack.review-mode .context-line > span + span::before { content: '·'; margin-right: 4px; }
-.calm-pack.review-mode .edit-trip { margin-left: 0; }
-.calm-pack .list-toolbar .undo-live { display: contents; } /* v0.27.0: live region around Undo, no box of its own */
-.calm-pack .list-toolbar { display: flex; align-items: center; gap: 28px; padding: 14px 0; border-bottom: 1px solid var(--calm-line); }
-.calm-pack .group-control { position: relative; display: inline-flex; align-items: center; }
-.calm-pack .group-control select { appearance: none; background: none; border: 0; font-size: 17px; font-weight: 500; min-height: 44px; padding: 10px 32px 10px 0; }
-.calm-pack .group-control svg { position: absolute; right: 0; pointer-events: none; }
 .calm-pack .list-menu { position: relative; margin-left: auto; }
 .calm-pack .list-menu > summary { list-style: none; display: flex; width: 44px; height: 44px; align-items: center; justify-content: center; cursor: pointer; }
 .calm-pack summary::-webkit-details-marker { display: none; }
@@ -45,16 +17,12 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-pack .list-menu-content button, .calm-pack .list-menu-content > a { display: block; min-height: 44px; padding: 10px 6px; background: none; border: 0; font-size: 15px; text-align: left; width: 100%; }
 .calm-pack .list-menu-content label { display: block; font-size: 14px; }
 .calm-pack .list-menu-content select { margin: 8px 0 12px; }
-.calm-pack .bag-group { border-bottom: 1px solid var(--calm-line); }
-.calm-pack .bag-heading { display: flex; align-items: center; gap: 26px; min-height: 62px; width: 100%; padding: 12px 10px; background: none; border: 0; text-align: left; font-size: 18px; }
-.calm-pack .bag-heading strong { font-weight: 500; }
-.calm-pack .bag-heading small { margin-left: auto; font-size: 14px; color: var(--calm-muted); padding-right: 44px; }
 .calm-pack .planning-rows { margin: 0; padding: 0; list-style: none; }
 /* v0.24.1 (Noah 1a): a calm row is one button (name, × n, weight); amount, move and take out open below it. */
-.calm-pack .planning-row { position: relative; display: block; padding: 0 0 0 66px; border-top: 1px solid #e0e5e4; font-size: 16px; }
+.calm-pack .planning-row { position: relative; display: block; padding: 0 0 0 24px; border-top: 1px solid var(--paper-2); font-size: 16px; }
 .calm-pack .planning-row.open { background: #f3f6f3; }
-.calm-pack .row-main { display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 20px; align-items: center; width: 100%; min-height: 54px; padding: 6px 10px; border: 0; background: none; text-align: left; font-size: 16px; }
-.calm-pack .row-main:hover { background: #f3f6f3; }
+.calm-pack .row-main { display: grid; grid-template-columns: minmax(0, 1fr) auto 18px; gap: 14px; align-items: center; width: 100%; min-height: 48px; padding: 4px 0 4px 8px; border: 0; background: none; text-align: left; font-size: 16px; }
+@media (hover: hover) { .calm-pack .row-main:hover { background: #f3f6f3; } }
 .calm-pack .row-chevron { color: #849598; transition: transform .15s; }
 .calm-pack .planning-row.open .row-chevron { transform: rotate(180deg); }
 .calm-pack .item-name { min-width: 0; overflow-wrap: anywhere; }
@@ -69,20 +37,6 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-pack .item-actions label { display: flex; gap: 10px; align-items: center; font-size: 14px; }
 .calm-pack .item-actions select { width: 240px; }
 .calm-pack .item-actions p { width: 100%; margin: 0; color: var(--calm-muted); }
-.calm-pack .empty-bag { padding: 10px 76px 20px; color: var(--calm-muted); }
-.calm-pack .empty-bag p { margin: 0; }
-.calm-pack .detail-link, .calm-pack .weight-details > summary { display: flex; gap: 26px; align-items: center; width: 100%; min-height: 62px; border: 0; border-bottom: 1px solid var(--calm-line); padding: 12px 10px; background: none; text-align: left; font-size: 18px; list-style: none; cursor: pointer; }
-.calm-pack .detail-link strong, .calm-pack .weight-details strong { font-weight: 500; }
-.calm-pack .detail-link small { margin-left: auto; font-size: 14px; color: var(--calm-muted); }
-.calm-pack .detail-link > svg:last-child { margin-left: auto; }
-.calm-pack .weight-details[open] > summary > svg:first-child { transform: rotate(90deg); }
-.calm-pack .weight-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 24px 20px 24px 76px; }
-.calm-pack .weight-grid div { display: flex; flex-direction: column; gap: 6px; }
-.calm-pack .weight-grid span { color: var(--calm-muted); font-size: 14px; }
-.calm-pack .weight-grid b { font-size: 22px; font-weight: 500; }
-.calm-pack .list-footer { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; justify-content: space-between; padding: 18px 0 8px; }
-.calm-pack .weight-note { display: flex; gap: 12px; align-items: flex-start; color: var(--calm-muted); font-size: 14px; margin: 2px 0; }
-.calm-pack .footer-actions { display: flex; gap: 36px; align-items: center; margin-left: auto; }
 .calm-pack .review-intro { padding: 34px 24px 10px; }
 .calm-pack .review-intro h2 { font-size: 30px; margin: 0 0 8px; }
 .calm-pack .review-intro p { margin: 0; color: var(--calm-muted); font-size: 17px; }
@@ -121,7 +75,7 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-pack .review-empty h3 { margin: 0; }
 .calm-pack .review-empty p { color: var(--calm-muted); }
 .calm-pack .calm-error { margin: 12px 20px; color: #9b3909; background: #fff3e1; padding: 12px; }
-.calm-pack .calm-muted { color: var(--calm-muted); font-size: 14px; padding: 0 20px; }
+.calm-pack .calm-muted { color: var(--calm-muted); font-size: 14px; margin: 4px 0; }
 .calm-pack .calm-status, .calm-sheet .calm-status { margin: 16px 0; padding: 12px 16px; background: #edf2ee; color: var(--ink); font-size: 14px; }
 .calm-sheet { max-width: 760px; width: calc(100vw - 32px); max-height: calc(100dvh - 40px); padding: 24px; background: #fafbf8; border: 1px solid #b9c8c5; border-radius: 8px; color: var(--ink); }
 .calm-sheet::backdrop { background: #0f2e2770; }
@@ -144,38 +98,16 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-sheet .np-list { overflow: visible; }
 .calm-sheet .np .pick-bar { bottom: -24px; padding-bottom: 16px; }
 @media (max-width: 719px) { .calm-sheet .np .pick-bar { bottom: -18px; } }
-.calm-pack .calm-extra { border-bottom: 1px solid var(--calm-line); padding: 14px 10px; font-size: 15px; }
-.calm-pack .calm-extra summary { cursor: pointer; }
-.calm-pack .extra-inner { padding: 16px 0; }
+.calm-pack .extra-inner { font-size: 15px; }
 .calm-pack .extra-inner ul { padding-left: 24px; }
 .calm-pack .extra-inner .ev { display: flex; gap: 8px; align-items: flex-start; margin: 0 0 10px; }
 @media (max-width: 1000px) {
-  .calm-pack .context-line { gap: 12px; font-size: 14px; }
-  .calm-pack .context-line > span + span { padding-left: 12px; }
   .calm-pack .decision { grid-template-columns: 44px minmax(0, 1fr); }
   .calm-pack .decision-choice, .calm-pack .quantity-review { grid-column: 2; }
   .calm-pack .decision-reason h3 { font-size: 18px; }
   .calm-pack .basic-link { font-size: 14px; }
 }
 @media (max-width: 719px) {
-  .calm-pack .phase-nav { padding-top: 4px; margin-bottom: 26px; }
-  .calm-pack .steps { justify-content: space-between; gap: 12px; }
-  .calm-pack .steps button { font-size: 14px; }
-  .calm-pack .tour-context h1, .calm-pack.review-mode .tour-context h1 { font-size: 34px; }
-  .calm-pack .tour-context h2 { font-size: 23px; margin-top: 8px; }
-  .calm-pack .tour-context, .calm-pack.review-mode .tour-context { padding: 0 0 22px; }
-  .calm-pack .context-line { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
-  .calm-pack .context-line > span + span { padding: 0; border: 0; }
-  .calm-pack.review-mode .context-line { font-size: 15px; }
-  .calm-pack.review-mode .context-line > span + span::before { display: none; }
-  .calm-pack .edit-trip { margin-left: 0; font-size: 14px; }
-  .calm-pack .context-weather { font-size: 20px; padding-top: 12px; }
-  .calm-pack .list-toolbar { flex-wrap: wrap; gap: 8px 18px; padding: 10px 0; }
-  .calm-pack .list-toolbar .text-button, .calm-pack .group-control select { font-size: 14px; }
-  .calm-pack .list-toolbar .undo { order: 3; }
-  .calm-pack .bag-heading { gap: 12px; min-height: 64px; padding-inline: 0; font-size: 16px; }
-  .calm-pack .bag-heading small { padding-right: 0; font-size: 12px; white-space: nowrap; }
-  .calm-pack .bag-heading > svg:nth-child(2) { width: 22px; }
   .calm-pack .planning-row { padding: 0 0 0 26px; }
   .calm-pack .row-main { gap: 10px; min-height: 52px; padding: 8px 0 8px 8px; }
   .calm-pack .item-name { font-size: 15px; }
@@ -185,11 +117,6 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
   .calm-pack .item-actions { padding: 4px 0 16px 8px; }
   .calm-pack .item-actions label { flex-direction: column; align-items: flex-start; width: 100%; }
   .calm-pack .item-actions select { width: 100%; }
-  .calm-pack .detail-link, .calm-pack .weight-details > summary { gap: 12px; padding-inline: 0; font-size: 16px; }
-  .calm-pack .detail-link > svg:nth-child(2), .calm-pack .weight-details > summary > svg:nth-child(2) { width: 22px; }
-  .calm-pack .weight-grid { grid-template-columns: repeat(2, 1fr); padding: 20px 0 20px 34px; }
-  .calm-pack .footer-actions { flex-direction: column-reverse; align-items: stretch; width: 100%; gap: 14px; }
-  .calm-pack .footer-actions > a { align-self: center; font-size: 14px; }
   .calm-pack .primary { min-height: 52px; }
   .calm-pack .review-intro { padding: 24px 0 10px; }
   .calm-pack .review-intro h2 { font-size: 24px; }
@@ -212,14 +139,23 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
   .calm-pack .review-footer { padding: 24px 0 0; flex-direction: column-reverse; }
   .calm-pack .review-footer > div { width: 100%; text-align: center; }
   .calm-pack .review-footer .primary { min-width: 0; width: 100%; }
-  .calm-pack .empty-bag { padding-left: 34px; }
-  .calm-pack .footer-actions .day-check { align-self: center; }
   .calm-sheet { max-height: calc(100dvh - 24px); padding: 18px; }
   .calm-sheet h2 { font-size: 23px; }
 }
 @media print { .calm-pack, .calm-sheet { display: none !important; } }
 
-.calm-pack .drag-handle { position: absolute; left: 20px; top: 17px; color: #849598; cursor: grab; }
 @media (max-width: 719px) { .calm-pack .drag-handle { display: none; } }
-/* v0.24.0 (Noah, fewer clicks): on a wide screen the next step stays in view below a long list. */
-@media (min-width: 720px) { .calm-pack .list-footer.next { position: sticky; bottom: 0; z-index: 4; background: var(--ground); border-top: 1px solid var(--calm-line); padding: 12px 0; } }
+
+.calm-pack .drag-handle { position: absolute; left: 0; top: 15px; color: #849598; cursor: grab; }
+@media (max-width: 719px) { .calm-pack .drag-handle { display: none; } .calm-pack .planning-row { padding-left: 0; } }
+.calm-pack .empty-bag { padding: 10px 8px; color: var(--calm-muted); }
+.calm-pack .empty-bag p { margin: 0; }
+.calm-pack .list-menu { position: relative; }
+.calm-pack .weight-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 8px 0 12px; }
+@media (max-width: 719px) { .calm-pack .weight-grid { grid-template-columns: repeat(2, 1fr); } }
+.calm-pack .weight-grid div { display: flex; flex-direction: column; gap: 6px; }
+.calm-pack .weight-grid span { color: var(--calm-muted); font-size: 14px; }
+.calm-pack .weight-grid b { font-size: 20px; font-weight: 500; }
+/* v0.29.0: focus on the dark trip band is light; the phone's next-step bar is light again. */
+.calm-pack .trip-band a:focus-visible, .calm-pack .trip-band button:focus-visible { outline: 3px solid var(--focus-on-dark); outline-offset: 2px; }
+@media (max-width: 719px) { .calm-pack .trip-band .act button:focus-visible { outline-color: var(--focus); } }

@@ -18,14 +18,14 @@ describe('Today: the trip and its one next step', () => {
     const f = todayFocus([later, sooner], [], TODAY);
     expect(f.trip.id).toBe(sooner.id);
     expect(f.kind).toBe('plan');
-    expect(f.label).toBe('Continue planning');
+    expect(f.label).toBe('Plan|stage');
     expect(f.href).toBe('#/pack');
     expect(f.days).toBe(8);
   });
 
   it('within two days: Start packing (packing day); everything packed: Ride day', () => {
     const t = trip('soon', '2026-10-09');
-    expect(todayFocus([t], [], TODAY)).toMatchObject({ kind: 'pack', href: '#/pack?day', label: 'Start packing' });
+    expect(todayFocus([t], [], TODAY)).toMatchObject({ kind: 'pack', href: '#/pack?day', label: 'Pack|stage' });
     const packed = { ...t, entries: [entry('a', true)] };
     expect(todayFocus([packed], [], TODAY)).toMatchObject({ kind: 'ride', href: '#/ride' });
     // a trip without a bike (packs) has no ride day
@@ -46,7 +46,7 @@ describe('Today: the trip and its one next step', () => {
     const later = trip('later', '2026-10-20');
     const f = todayFocus([done, later], [], TODAY);
     // v0.24.1 (Noah 3a): the card "How was …?": "All good" on Today, "In detail" opens the three steps.
-    expect(f).toMatchObject({ kind: 'debrief', ask: true, label: 'In detail', href: `#/debrief/${done.id}` });
+    expect(f).toMatchObject({ kind: 'debrief', ask: true, label: 'Debrief', href: `#/debrief/${done.id}` });
     expect(f.trip.id).toBe(done.id);
     expect(f.next.id).toBe(later.id);
     expect(f.days).toBe(null);

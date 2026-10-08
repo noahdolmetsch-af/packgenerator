@@ -130,7 +130,7 @@ const sizeOf = (page, src) => page.evaluate((src) => new Promise((ok) => { const
 
 async function openConditions(page, T) {
   await page.goto('./#/pack');
-  await page.getByLabel(T('More: other trip, packing day, templates, print')).click();
+  await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('Edit trip conditions') }).click();
   const sheet = page.locator('dialog[open]');
   await expect(sheet.getByRole('heading', { name: T('Edit trip conditions') })).toBeVisible();
@@ -237,7 +237,7 @@ test('print and share link: read-only list on a clean browser, only shareable fi
   });
   await start(page, context, info, 'de');
   await page.goto('./#/pack');
-  const menu = () => page.getByLabel(T('More: other trip, packing day, templates, print'));
+  const menu = () => page.getByLabel(T('More: other trip, edit trip, templates, print'));
   await menu().click();
   await page.getByRole('button', { name: T('Print / PDF') }).click();
   expect(await page.evaluate(() => window.__printed)).toBe(1);

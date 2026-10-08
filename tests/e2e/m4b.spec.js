@@ -95,7 +95,7 @@ for (const lang of ['en', 'de']) {
     let trip = (await table(page, 'trips')).find((x) => x.id === OUT);
     expect(slots(trip)).toEqual(['seat', 'frame', 'frame']);
 
-    await page.locator('.calm-pack').getByRole('button', { name: T('Undo') }).click();
+    await page.locator('.calm-pack').getByRole('button', { name: T('Undo'), exact: true }).click();
     await expect(page.getByRole('region', { name: T('Suggested places') })).toBeVisible();
     trip = (await table(page, 'trips')).find((x) => x.id === OUT);
     expect(slots(trip)).toEqual(['body', 'bar', 'frame']);
@@ -120,7 +120,7 @@ test('template from a trip: update or save as new, and the new trip takes days a
   await start(page, context, info, 'en', OUT);
   await page.goto('./#/pack');
   await expect(page.getByRole('heading', { name: 'test_data_gtp_ Bivvy weekend' })).toBeVisible();
-  await page.getByLabel(T('More: other trip, packing day, templates, print')).click();
+  await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('Save as template') }).click();
   const dlg = page.getByRole('dialog', { name: T('Template') });
   await expect(dlg.getByRole('button', { name: T('Update template «{name}»', { name: 'test_data_gtp_ Bivvy' }) })).toBeVisible();
@@ -137,7 +137,7 @@ test('template from a trip: update or save as new, and the new trip takes days a
   expect(list[0].entries.map((e) => e.itemId)).toEqual(expect.arrayContaining(['SL01', 'CO90', 'TO01']));
 
   // Save as new: a second template; the first stays.
-  await page.getByLabel(T('More: other trip, packing day, templates, print')).click();
+  await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('Save as template') }).click();
   await dlg.getByLabel(T('Name')).fill('test_data_gtp_ Bivvy 2');
   await dlg.getByRole('button', { name: T('Save as new template') }).click();
@@ -146,7 +146,7 @@ test('template from a trip: update or save as new, and the new trip takes days a
   expect(list.map((x) => x.name)).toEqual(['test_data_gtp_ Bivvy', 'test_data_gtp_ Bivvy 2']);
 
   // A new trip from the template: 3 days, Outdoor with cooking, 4 h per day as defaults (still changeable).
-  await page.getByLabel(T('More: other trip, packing day, templates, print')).click();
+  await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('New trip'), exact: true }).click();
   const nt = page.getByRole('dialog', { name: T('New trip') });
   await nt.getByLabel(T('Start from')).selectOption(TPL);
@@ -157,13 +157,15 @@ test('template from a trip: update or save as new, and the new trip takes days a
   await nt.getByRole('button', { name: T('Cancel') }).click();
 });
 
-test('ride-day note: in the Inbox and in the debrief; a missing item becomes a learning', async ({ page, context }, info) => {
+test('On the way note: in the Inbox and in the debrief; a missing item becomes a learning', async ({ page, context }, info) => {
   const T = tr('en');
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, info, 'en', RIDE);
   await page.goto('./#/ride');
   const box = page.getByRole('region', { name: T('Note for the debrief') });
+  // v0.29.0 (Noah 8a): next to the three quick answers, a free note.
+  await box.getByRole('button', { name: T('Free text') }).click();
   await box.getByRole('textbox').fill('test_data_gtp_ Gloves too thin');
   await box.getByRole('button', { name: T('Save note') }).click();
   await expect(box.getByText(T('Saved. It shows in the debrief and in the Inbox.'))).toBeVisible();
@@ -175,23 +177,29 @@ test('ride-day note: in the Inbox and in the debrief; a missing item becomes a l
   await expect(page.getByText('test_data_gtp_ Gloves too thin')).toBeVisible();
 
   await page.goto('./#/ride');
-  await page.getByRole('button', { name: T('End trip and debrief'), exact: true }).click();
+  await page.locator('.trip-band .go').click();
   await expect(page).toHaveURL(new RegExp(`#/debrief/${RIDE}`));
   const way = page.locator('.ridenotes');
   await expect(way.getByText(T('Notes on the way'))).toBeVisible();
   await expect(way.getByText('test_data_gtp_ Gloves too thin')).toBeVisible();
   await expect(way.getByText(T('Day {n}', { n: 1 }), { exact: false })).toBeVisible();
 
-  // Step 2: what was missing, from the search: "Add … as new".
-  await page.getByRole('button', { name: T('Next: go through the items') }).click();
+  // What was missing, from the search: "Add … as new" (v0.29.0: on the same page).
   await page.getByLabel(T('What you missed')).fill('test_data_gtp_ Head torch');
   await page.getByRole('button', { name: T('Add "{q}" as new (not in your gear)', { q: 'test_data_gtp_ Head torch' }) }).click();
-  await expect(page.locator('li.it').filter({ hasText: 'test_data_gtp_ Head torch' })).toBeVisible();
+  await expect(page.locator('ul.exc li').filter({ hasText: 'test_data_gtp_ Head torch' })).toBeVisible();
   await noSideScroll(page);
-  await page.getByRole('button', { name: T('Next: summary') }).click();
-  const take = page.getByLabel(T('Take {name} next time', { name: 'test_data_gtp_ Head torch' }));
-  await expect(take).toBeChecked();
-  await expect(page.getByLabel(new RegExp('From the ride: "test_data_gtp_ Gloves too thin"'))).toBeChecked();
+  // Both become suggestions, all ticked: one shown as "For next time", the others under "More suggestions".
+  const more = page.locator('details.tp-fold').filter({ hasText: T('More suggestions') });
+  if (await more.count()) await more.locator('summary').click();
+  for (const label of [T('Take {name} next time', { name: 'test_data_gtp_ Head torch' }), 'From the ride: "test_data_gtp_ Gloves too thin"']) {
+    const box = page.getByRole('checkbox', { name: new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) });
+    if (await box.count()) await expect(box).toBeChecked();
+    else {
+      await expect(page.locator('.learn')).toContainText(label);
+      await expect(page.locator('.learn').getByRole('button', { name: T('Yes, remember') })).toHaveAttribute('aria-pressed', 'true');
+    }
+  }
   await page.getByRole('button', { name: T('Save debrief') }).click();
   await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
   const learnings = await table(page, 'learnings');
@@ -206,28 +214,31 @@ test('packing day: packed and ready counted apart, kept after a reload; a raised
   const T = tr('en');
   await start(page, context, info, 'en', OUT);
   await page.goto('./#/pack?day');
-  const pd = page.getByRole('dialog', { name: T('Packing day: {title}', { title: 'test_data_gtp_ Bivvy weekend' }) });
-  await expect(pd).toBeVisible();
-  await pd.getByRole('navigation', { name: T('Bags') }).getByRole('button', { name: 'Frame bag' }).click();
+  // v0.29.0: Pack is a page (no dialog); the bags fold, a tap opens one.
+  const pd = page.locator('.pd');
+  await expect(pd).toHaveAttribute('aria-label', T('Packing day: {title}', { title: 'test_data_gtp_ Bivvy weekend' }));
+  const frame = pd.locator('.bagh').filter({ hasText: 'Frame bag' });
+  if ((await frame.getAttribute('aria-expanded')) !== 'true') await frame.click();
   const tool = pd.getByRole('button', { name: /Multi tool/ });
   await tool.click();
   await expect(tool).toHaveAttribute('aria-pressed', 'true');
   const stored = (await table(page, 'trips')).find((x) => x.id === OUT);
   const total = stored.entries.length;
   const checks = stored.ready.length;
-  await expect(pd.getByText(T('{n} of {total} packed', { n: 1, total }))).toBeVisible();
+  const ring = pd.getByRole('img', { name: T('{n} of {total} items packed', { n: 1, total }) });
+  await expect(ring.filter({ visible: true }).first()).toBeVisible();
   // The ready check is its own count: still none done.
-  await pd.getByRole('navigation', { name: T('Bags') }).getByRole('button', { name: T('Ready check') }).click();
-  await expect(pd.getByText(T('{n} of {total} done', { n: 0, total: checks }))).toBeVisible();
+  await expect(pd.locator('.bagh').filter({ hasText: T('Ready check') })).toContainText(`0/${checks}`);
 
-  await page.goto('./#/'); // the packing day opens from a link, not on a hash change inside Pack
+  await page.goto('./#/');
   await page.reload();
   await page.goto('./#/pack?day');
-  await expect(pd.getByText(T('{n} of {total} packed', { n: 1, total }))).toBeVisible();
-  await pd.getByRole('button', { name: T('Close') }).click();
+  await expect(ring.filter({ visible: true }).first()).toBeVisible();
+  await page.goto('./#/pack');
 
   // Noah 18b: one more Multi tool keeps it packed.
   const list = page.locator('.calm-pack');
+  await list.locator('section.bag-group').filter({ hasText: 'Multi tool' }).locator('button.bag-heading').click();
   await list.getByRole('button', { name: T('Amount, move or take out: {name}', { name: 'Multi tool' }) }).click();
   await list.getByRole('button', { name: T('One more {name}', { name: 'Multi tool' }) }).click();
   await expect(list.locator('.planning-row').filter({ hasText: 'Multi tool' }).getByText('× 2')).toBeVisible();

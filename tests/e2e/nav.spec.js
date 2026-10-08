@@ -72,7 +72,8 @@ function fixture(path, soonDate) {
   writeFileSync(path, JSON.stringify(data));
 }
 
-for (const [soon, step] of [['2026-10-08', 'Start packing'], ['2026-10-14', 'Continue planning']]) {
+// v0.29.0: Today's buttons carry the names of the trip tabs (Pack, Plan).
+for (const [soon, step] of [['2026-10-08', 'Pack|stage'], ['2026-10-14', 'Plan|stage']]) {
   test(`Today opens the trip it shows: ${step}`, async ({ page, context }, info) => {
     const T = tr('en');
     const file = info.outputPath('nav-fixture.json');
@@ -98,9 +99,11 @@ for (const [soon, step] of [['2026-10-08', 'Start packing'], ['2026-10-14', 'Con
     // exactly one strong button in the band
     await expect(band.locator('.btn')).toHaveCount(1);
     await band.getByRole('link', { name: T(step), exact: true }).click();
-    if (step === 'Start packing') await expect(page.getByRole('dialog', { name: T('Packing day: {title}', { title: 'test_data_gtp_ sooner' }) })).toBeVisible();
-    else await expect(page.locator('.tour-context h2')).toHaveText('test_data_gtp_ sooner');
-    await expect(page.locator('nav[aria-label] a[aria-current="page"]').filter({ visible: true })).toHaveText(T('Trips|place'));
+    await expect(page.locator('.trip-band h1')).toHaveText('test_data_gtp_ sooner');
+    // the band's tab of that step is the current one
+    await expect(page.locator('.trip-band nav a[aria-current="page"]')).toContainText(T(step));
+    if (step === 'Pack|stage') await expect(page.locator('.pd')).toHaveAttribute('aria-label', T('Packing day: {title}', { title: 'test_data_gtp_ sooner' }));
+    await expect(page.locator('nav[aria-label]:not(.steps) a[aria-current="page"]').filter({ visible: true })).toHaveText(T('Trips|place'));
     expect(await page.evaluate(() => localStorage.getItem('pack.currentTrip'))).toBe('test_data_gtp_sooner');
   });
 }

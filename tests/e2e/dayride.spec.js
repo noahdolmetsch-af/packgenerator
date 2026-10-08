@@ -90,7 +90,8 @@ for (const lang of ['de', 'en']) {
     await page.evaluate(() => window.dispatchEvent(new Event('pg:dayride')));
     const bar = page.locator('.dayride-bar');
     await expect(bar).toContainText(T('Day ride created: {bike} · {hours} h · {weather}.', { bike: 'Test gravel bike', hours: '2', weather: T('Chilly') }));
-    await expect(page.locator('.planning-row').filter({ hasText: 'test_data_gtp_ Gel' })).toContainText('× 2');
+    // v0.29.0 (Noah 5a): a folded bag shows its items in one line, amounts included.
+    await expect(page.locator('.calm-pack .bag-group .preview').filter({ hasText: 'test_data_gtp_ Gel' })).toContainText('test_data_gtp_ Gel × 2');
     const ms = Date.now() - t0;
     info.annotations.push({ type: 'clicks', description: '1' }, { type: 'seconds', description: (ms / 1000).toFixed(1) });
     console.log(`[dayride] ${info.project.name} ${lang}: 1 tap, ${(ms / 1000).toFixed(1)} s from Home to the list`);
@@ -150,7 +151,7 @@ test('New trip: Create without typing (name, date and bike are filled in)', asyn
   await dlg.getByRole('spinbutton', { name: T('Days') }).fill('1');
   await click(dlg.getByRole('button', { name: T('Create trip') }));
   await expect(dlg).toBeHidden();
-  await expect(page.locator('.planning-row').first()).toBeVisible();
+  await expect(page.locator('.calm-pack section.bag-group').first()).toBeVisible();
   const ms = Date.now() - t0;
   console.log(`[dayride] ${info.project.name} dialog: ${clicks} clicks, no typing (days changed and back for the name check), ${(ms / 1000).toFixed(1)} s from Home to the list`);
   expect(clicks).toBeLessThanOrEqual(4);

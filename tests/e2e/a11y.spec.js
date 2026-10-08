@@ -1,6 +1,6 @@
 // v0.27.0 (AP21, PF15): mobile use and basic accessibility, checked in a real (emulated) phone.
 // 1. No core view scrolls sideways at 320 and 390 px (touch phone), also with a 60-letter item name.
-// 2. Dialogs (New trip, Item, Assign, Packing day): focus moves in, Tab stays inside, Escape closes,
+// 2. Dialogs (New trip, Item, Assign, Pack's "Go anyway?"): focus moves in, Tab stays inside, Escape closes,
 //    focus goes back to the button that opened it.
 // 3. Every control on Today, Pack and Gear has a name a screen reader can read.
 // Fictional fixture plus test_data_gtp_ records; nothing outside the preview server.
@@ -123,7 +123,7 @@ test('no core view scrolls sideways at 320 and 390 px', async ({ page, context }
     await fits(page, 'Add material');
     await page.keyboard.press('Escape');
     // Trip conditions: "Close" stays inside the sheet (it was cut off at 320 px)
-    await page.getByLabel(T('More: other trip, packing day, templates, print')).click();
+    await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
     await page.getByRole('button', { name: T('Edit trip conditions') }).click();
     const cond = page.getByRole('dialog', { name: T('Edit trip conditions') });
     const sheet = await cond.boundingBox();
@@ -131,14 +131,17 @@ test('no core view scrolls sideways at 320 and 390 px', async ({ page, context }
     expect(close.x + close.width, '"Close" inside the sheet').toBeLessThanOrEqual(sheet.x + sheet.width);
     await fits(page, 'Edit trip conditions');
     await page.keyboard.press('Escape');
-    await page.getByRole('button', { name: T('Pack|stage'), exact: true }).first().click();
-    const day = page.getByRole('dialog', { name: T('Packing day: {title}', { title: 'test_data_gtp_ Jura Runde mit einem recht langen Tournamen' }) });
-    await expect(day).toBeVisible();
+    // v0.29.0: Pack is a normal page (the "Pack" tab in the band), no longer a full-screen dialog.
+    await page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${T('Pack|stage')}`) }).click();
+    const day = page.locator('.pd');
+    await expect(day).toHaveAttribute('aria-label', T('Packing day: {title}', { title: 'test_data_gtp_ Jura Runde mit einem recht langen Tournamen' }));
+    await expect(day.locator('ul.items button[aria-pressed]').first()).toBeVisible();
     await fits(page, 'packing day');
     // the packing rows are a thumb high (AP21: about 48 px)
     const row = await day.locator('ul.items button[aria-pressed]').first().boundingBox();
     expect(row.height).toBeGreaterThanOrEqual(44);
-    await page.keyboard.press('Escape');
+    // the four tabs in the band are a thumb high too
+    for (const tab of await page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link').all()) expect((await tab.boundingBox()).height).toBeGreaterThanOrEqual(44);
   }
 });
 
@@ -165,9 +168,9 @@ test('dialogs: focus in, Tab stays inside, Escape closes, focus back', async ({ 
   await page.getByRole('checkbox', { name: LONG }).check();
   await dialogKeys(page, page.getByRole('button', { name: T('Into a building block …') }), page.locator('dialog[open]'));
 
-  // Packing day (its own full-screen dialog)
-  await view(page, '#/pack');
-  await dialogKeys(page, page.getByRole('button', { name: T('Pack|stage'), exact: true }).first(), page.locator('.pd[role="dialog"]'));
+  // v0.29.0: Pack is a page now; its dialog is "{n} things are not ticked yet. Go anyway?" on the one orange button.
+  await view(page, '#/pack?day');
+  await dialogKeys(page, page.locator('.trip-band .go'), page.locator('dialog.ask'));
 });
 
 test('every control on Today, Pack and Gear has a name', async ({ page, context }, info) => {

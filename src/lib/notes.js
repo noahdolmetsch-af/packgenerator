@@ -12,7 +12,7 @@ import { tripEnd } from './debrief.js';
 import { dayIndex } from './ride.js';
 
 /** Where a note was written, for the Inbox. */
-export const PAGE_NAMES = { home: 'Start page', gear: 'Gear', pack: 'Pack', templates: 'Templates', ride: 'Ride day', bikes: 'Bikes', care: 'Bike care', debrief: 'Debrief', inbox: 'Inbox', share: 'Shared list' };
+export const PAGE_NAMES = { home: 'Start page', gear: 'Gear', pack: 'Pack', templates: 'Templates', ride: 'On the way', bikes: 'Bikes', care: 'Bike care', debrief: 'Debrief', inbox: 'Inbox', share: 'Shared list' };
 
 export const KINDS = [
   { key: 'repair', name: 'Repair on a bike', where: 'Bike care' },
@@ -53,7 +53,7 @@ export function tripNotes(debrief, notes, tripId) {
   const seen = new Set(old.map((n) => `${n.at}|${n.text}`));
   const fresh = notes
     .filter((n) => n.tripId === tripId && n.day != null && !seen.has(`${n.at}|${n.text}`))
-    .map((n) => ({ key: `ride:${n.id}`, at: n.at, day: n.day, text: n.text, noteId: n.id }));
+    .map((n) => ({ key: `ride:${n.id}`, at: n.at, day: n.day, text: n.text, noteId: n.id, ...(n.debrief?.kind ? { kind: n.debrief.kind, itemId: n.debrief.itemId ?? null } : {}) }));
   return [...old, ...fresh].sort((a, b) => (a.at ?? '').localeCompare(b.at ?? ''));
 }
 
@@ -103,3 +103,46 @@ export function sortNote(note, kind, { bikeId = null, tripId = null, ids = {}, n
 
 /** Next free number id in a table (maintenance and learnings use numbers). */
 export const nextNumber = (rows) => Math.max(0, ...rows.map((r) => (typeof r.id === 'number' ? r.id : 0))) + 1;
+
+/**
+ * v0.29.0 (Noah 8a): the quick notes on the way that go straight into the debrief:
+ * "Was missing" (debrief.missing), "Not needed" (items[id] = 'unused'), "Broken" (items[id] = 'broken').
+ * The note keeps { kind, itemId, name } in note.debrief and stays in the Inbox like every note.
+ */
+export const DEBRIEF_KINDS = [
+  { key: 'missing', name: 'Was missing' },
+  { key: 'unused', name: 'Not needed' },
+  { key: 'broken', name: 'Broken' },
+];
+
+/**
+ * The debrief with one quick note in it (a copy). A missing thing is added once (by the note's id);
+ * an item's answer is only set when the debrief has none yet (an answer given by hand wins), and the
+ * debrief remembers which note set it (itemNotes), so removing the note takes it out again.
+ */
+export function noteToDebrief(debrief, note) {
+  const d = structuredClone(debrief);
+  const k = note?.debrief;
+  if (!k?.kind) return d;
+  d.items ??= {};
+  d.missing ??= [];
+  if (k.kind === 'missing') {
+    if (!d.missing.some((m) => m.noteId === note.id)) d.missing.push({ id: `n-${note.id}`, name: k.name ?? note.text, itemId: k.itemId ?? null, noteId: note.id });
+  } else if (k.itemId && !d.items[k.itemId]) {
+    d.items[k.itemId] = k.kind;
+    d.itemNotes = { ...(d.itemNotes ?? {}), [k.itemId]: note.id };
+  }
+  return d;
+}
+
+/** The debrief without what one quick note put there (a copy); answers changed by hand stay. */
+export function dropNoteFromDebrief(debrief, note) {
+  const d = structuredClone(debrief);
+  d.missing = (d.missing ?? []).filter((m) => m.noteId !== note.id);
+  for (const [itemId, noteId] of Object.entries(d.itemNotes ?? {})) {
+    if (noteId !== note.id) continue;
+    if (d.items?.[itemId] === note.debrief?.kind) delete d.items[itemId];
+    delete d.itemNotes[itemId];
+  }
+  return d;
+}

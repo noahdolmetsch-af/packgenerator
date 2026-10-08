@@ -37,7 +37,7 @@ export default {
   Done: 'Fertig',
   Repair: 'Reparatur',
   'Bike care': 'Velopflege',
-  'Ride day': 'Fahrtag',
+  'Ride day': 'Unterwegs',
   'Packing day': 'Packtag',
   'Leave at home': 'Zu Hause lassen',
   'Quick note': 'Notiz',

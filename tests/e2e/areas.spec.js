@@ -64,12 +64,11 @@ for (const lang of ['en', 'de']) {
     await tripDlg.getByRole('button', { name: T('Create trip') }).click();
     await expect(tripDlg).toBeHidden();
 
-    // 4. Pack: no bike, no ride day; the weekend bags.
-    await expect(page.locator('.head .tags')).toContainText(T('Weekend'));
-    const steps = page.locator('.next .steps li');
+    // 4. Plan: no bike, no "On the way"; the weekend bags.
+    await expect(page.locator('.trip-band .meta')).toContainText(T('Weekend'));
+    const steps = page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link');
     await expect(steps).toHaveCount(3);
-    await expect(page.locator('.next .steps')).not.toContainText(T('Ride day'));
-    await expect(page.locator('.stage .bike')).toHaveCount(0);
+    await expect(page.getByRole('navigation', { name: T('Steps of this trip') })).not.toContainText(T('On the way'));
     await fits('Pack, weekend');
 
     // 5. Add an item of the area ("Paperback book" is optional, so not on the list yet).
@@ -84,46 +83,45 @@ for (const lang of ['en', 'de']) {
     await page.getByRole('button', { name: new RegExp(esc(T('Travel bag'))) }).click();
     await expect(page.locator('.blist').getByText('Paperback book')).toBeVisible();
 
-    // 6. Packing day: tick everything, then the ready check.
-    const go = page.locator('.next .go');
-    await expect(go).toContainText(T('Start packing check'));
+    // 6. Pack (v0.29.0, a normal page): tick everything bag by bag, then the ready check.
+    const go = page.locator('.trip-band .go');
+    await expect(go).toContainText(T('Next: Pack'));
     await go.click();
-    const day = page.getByRole('dialog', { name: T('Packing day: {title}', { title }) });
-    await expect(day).toBeVisible();
-    const next = new RegExp(`^${esc(T('Next: {step}', { step: '' }))}`);
-    for (let guard = 0; guard < 10; guard++) {
-      const rows = day.locator('ul.items button[aria-pressed]');
-      for (let i = 0, n = await rows.count(); i < n; i++) {
-        if ((await rows.nth(i).getAttribute('aria-pressed')) === 'true') continue;
-        await rows.nth(i).click();
-        await expect(rows.nth(i)).toHaveAttribute('aria-pressed', 'true');
+    await expect(page).toHaveURL(/#\/pack\?day/);
+    for (let guard = 0; guard < 80; guard++) {
+      const open = page.locator('.pd ul.items button[aria-pressed="false"]:not([disabled])');
+      if (await open.count()) {
+        await open.first().click({ timeout: 3000 }).catch(() => {}); // a full bag may just have closed
+        continue;
       }
-      await fits(`packing day, step ${guard + 1}`);
-      const fwd = day.getByRole('button', { name: next });
-      if (!(await fwd.count())) break;
-      await fwd.click();
+      const closed = page.locator('.pd .pbag:not(.done):not(.cur) .bagh');
+      if (await closed.count()) {
+        await closed.first().click({ timeout: 3000 }).catch(() => {});
+        continue;
+      }
+      break;
     }
-    await expect(day.getByText(T('Everything is in. Have a good trip!'))).toBeVisible();
-    await day.getByRole('button', { name: T('Done'), exact: true }).click();
-    await expect(day).toBeHidden();
+    await fits('Pack, weekend');
+    await expect(page.locator('.pd').getByText(T('Everything is in. Have a good trip!'))).toBeVisible();
 
-    // 7. No ride day: the big button goes straight to the debrief.
-    await expect(go).toContainText(T('Next: debrief'));
+    // 7. No "On the way": the one orange button goes straight to the debrief.
+    await expect(go).toContainText(T('Next: Debrief'));
     await fits('Pack, weekend packed');
     await go.click();
     await expect(page).toHaveURL(/#\/debrief\/./);
 
-    // 8. Debrief: three steps, then save.
-    await expect(page.getByRole('heading', { name: T('How did it go?') })).toBeVisible();
-    for (const q of ['Weather, compared to what you packed for', 'How much did you take?', 'Bags'])
-      await page.getByRole('group', { name: T(q), exact: true }).getByRole('button').first().click();
+    // 8. Debrief on one page: one exception, then save.
+    await expect(page.getByRole('heading', { name: T('What was different?') })).toBeVisible();
+    await expect(page.locator('.qa select')).toHaveCount(3); // no bike: no km
+    await expect(page.locator('.qa select').nth(2)).toHaveValue('fine');
     await fits('debrief, weekend');
-    await page.getByRole('button', { name: T('Next: go through the items') }).click();
-    await expect(page.getByRole('heading', { name: T('Travel bag') })).toBeVisible();
-    await page.getByRole('button', { name: T('Not used'), exact: true }).first().click();
-    await page.getByRole('button', { name: T('Next: summary') }).click();
+    const fold = page.locator('details.items-fold');
+    if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
+    await expect(fold.getByRole('region', { name: T('Travel bag') })).toBeVisible();
+    await fold.locator('button.state').first().click();
+    await expect(fold.locator('button.state.unused')).toHaveCount(1);
     await page.getByRole('button', { name: T('Save debrief') }).click();
-    await expect(page.getByText(T('Debrief saved'))).toBeVisible();
+    await expect(page.locator('.saved-card').getByText(T('Debrief saved'))).toBeVisible();
     await page.goto('./#/debrief');
     await expect(page.getByRole('region', { name: T('Done') }).getByText(title)).toBeVisible();
 

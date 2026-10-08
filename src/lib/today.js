@@ -17,14 +17,18 @@ import { hasBike } from './domains.js';
 /** Whole days from today to an ISO date (both YYYY-MM-DD). */
 export const daysFrom = (today, date) => Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 864e5);
 
-/** The step: its button text (English key for t()), address and short reason (English key). */
+/**
+ * The step: its button text (English key for t()), address and short reason (English key).
+ * v0.29.0: the button names are the names of the four trip tabs (Plan, Pack, On the way, Debrief),
+ * the same everywhere.
+ */
 export const STEP = {
-  plan: { label: 'Continue planning', href: () => '#/pack', why: 'Choose what comes along; the list stays editable.' },
-  pack: { label: 'Start packing', href: () => '#/pack?day', why: 'Packing day: bag by bag, then the ready check.' },
-  ride: { label: 'Ride day', href: () => '#/ride', why: 'Route, weather and the list for the day.' },
+  plan: { label: 'Plan|stage', href: () => '#/pack', why: 'Choose what comes along; the list stays editable.' },
+  pack: { label: 'Pack|stage', href: () => '#/pack?day', why: 'Packing day: bag by bag, then the ready check.' },
+  ride: { label: 'On the way', href: () => '#/ride', why: 'Route, weather and the list for the day.' },
   trip: { label: 'Open the trip', href: () => '#/pack', why: 'Your list for the way.' },
   // v0.24.1 (Noah 3a): the card "How was {trip}?"; "All good" is the quick save on Today itself.
-  debrief: { label: 'In detail', href: (trip) => `#/debrief/${encodeURIComponent(trip.id)}`, why: '"All good": every item counts as used and nothing else changes.', ask: true },
+  debrief: { label: 'Debrief', href: (trip) => `#/debrief/${encodeURIComponent(trip.id)}`, why: '"All good": every item counts as used and nothing else changes.', ask: true },
 };
 
 /**

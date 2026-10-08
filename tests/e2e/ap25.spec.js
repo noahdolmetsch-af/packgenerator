@@ -145,7 +145,7 @@ test('first aid: none on a day ride, with a 1-night lodging trip', async ({ page
   expect(day).not.toContain('AP03');
 
   // v0.28.0 (Noah 8.10.2026): a fresh "New trip" dialog starts with the standard set
-  await page.getByLabel(T('More: other trip, packing day, templates, print')).click();
+  await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('New trip'), exact: true }).click();
   const fresh = page.getByRole('dialog', { name: T('New trip') });
   await expect(fresh.getByLabel(T('Start from'))).toHaveValue('standard');

@@ -125,7 +125,7 @@ test('Past trips lists the finished trip and opens it', async ({ page, context }
   await noSideways(page);
   await rows.first().getByRole('link', { name: /test_data_gtp_ Jura/ }).click();
   await expect(page).toHaveURL(/#\/pack$/);
-  await expect(page.locator('.tour-context h2')).toHaveText('test_data_gtp_ Jura');
+  await expect(page.locator('.trip-band h1')).toHaveText('test_data_gtp_ Jura');
 });
 
 test('Log a problem lands in Bike care as an open repair', async ({ page, context }, info) => {

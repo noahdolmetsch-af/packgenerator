@@ -32,7 +32,8 @@
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { withVisits, overdueFor } from '../lib/workshop.js';
   import { prepFor, isEvent } from '../lib/care.js';
-  import { bikeCare, bikeCareLine, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
+  import { bikeCare, bikeCareLine, bikeCareWords, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
+  import { Wrench, Package, ChevronRight } from '@lucide/svelte';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
@@ -141,11 +142,15 @@
   });
   const stats = $derived(trip ? tripStats(trip, items, bags, bike, $riderQ?.value) : null);
 
-  // Packing day (answer 2a): full screen, bag by bag. #/pack?day (from the start page) opens it.
-  let packDay = $state(location.hash.includes('day'));
+  // v0.29.0 (Noah 2a): Pack is a tab of the trip (#/pack?day, the old address of the packing day),
+  // a normal page with the trip band; Plan is #/pack. Both are this page, so the hash decides.
+  let hash = $state(location.hash);
   $effect(() => {
-    if (packDay && location.hash.includes('day')) history.replaceState(null, '', '#/pack');
+    const on = () => (hash = location.hash);
+    window.addEventListener('hashchange', on);
+    return () => window.removeEventListener('hashchange', on);
   });
+  const packTab = $derived(/^#\/pack(\?day|\/day)/.test(hash));
   const daySteps = $derived(stats ? packSteps(stats, trip.purpose ?? {}) : []);
   // v0.18.1 (303 demo): the forecast says something else than what the trip is packed for.
   // The packing day says so first, so the layers get added before the bags are closed.
@@ -159,8 +164,7 @@
   });
   function useForecast() {
     changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx } }));
-    packDay = false;
-
+    location.hash = '#/pack';
   }
   // v0.21.0: a trip without a bike ends here (with a bike: "End trip and debrief" on the ride day).
   async function endTrip() {
@@ -297,6 +301,7 @@
       const cur = await db.trips.get(id);
       if (!cur) return;
       undo = [...undo.filter((u) => u.id === id).slice(-19), { id, before: structuredClone(cur), ...(ctx ? { ctx } : {}) }];
+      if (ctx) wxChange = { id, before: structuredClone(cur) };
       await db.trips.update(id, fn(structuredClone(cur)));
     });
   }
@@ -320,11 +325,27 @@
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.
   let undo = $state.raw([]); // raw: plain copies, IndexedDB cannot store proxies
   const canUndo = $derived(undo.length > 0 && undo.at(-1).id === trip?.id);
+  // v0.29.0 (Noah 4b): the last change of the trip's context (weather, hours, days) is applied by itself;
+  // the rows it changed show it with an Undo of their own, and one Undo takes back the whole change.
+  let wxChange = $state.raw(null); // { id, before: the trip before the change }
+  const ctxDiff = $derived(wxChange && trip && wxChange.id === trip.id ? listDiff(wxChange.before.entries, trip.entries) : null);
+  const ctxRows = $derived(ctxDiff ? Object.fromEntries([...ctxDiff.added.map((id) => [id, { kind: 'added' }]), ...ctxDiff.amounts.map((a) => [a.id, { kind: 'amount', from: a.from, to: a.to }])]) : {});
+  /** One row back to how it was before the weather change (added: out again; amount: the old amount). */
+  const undoRow = (itemId) => change((cur) => {
+    const was = wxChange?.before.entries.find((e) => e.itemId === itemId);
+    return { entries: was ? cur.entries.map((e) => (e.itemId === itemId ? { ...e, qty: was.qty, slot: was.slot } : e)) : cur.entries.filter((e) => e.itemId !== itemId) };
+  });
+  /** The whole weather change back: the trip as it was (its weather too). */
+  async function undoWx() {
+    const was = wxChange;
+    if (!was) return;
+    wxChange = null;
+    await change(() => structuredClone(was.before));
+  }
   // v0.27.0 (Noah 1a, PF03): "Gel: 1 → 2 · + Rain jacket · − Down jacket" after a context change, up to 4 changes.
   const changeNote = $derived.by(() => {
-    const last = canUndo ? undo.at(-1) : null;
-    if (!last?.ctx) return '';
-    const d = listDiff(last.before.entries, trip.entries);
+    if (!ctxDiff) return '';
+    const d = ctxDiff;
     const label = (id) => (itemsById[id] ? nameOf(itemsById[id]) : id);
     const parts = [...d.amounts.map((a) => `${label(a.id)}: ${a.from} → ${a.to}`), ...d.added.map((id) => `+ ${label(id)}`), ...d.removed.map((id) => `− ${label(id)}`)];
     if (!parts.length) return '';
@@ -334,6 +355,7 @@
     const last = undo.at(-1);
     if (!last) return;
     undo = undo.slice(0, -1);
+    if (last.ctx) wxChange = null;
     await db.trips.put(last.before);
   }
   const setEntries = (fn) => change((t) => ({ entries: fn(t.entries) }));
@@ -455,6 +477,7 @@
     choose(trip.id);
     location.hash = '#/ride';
   }
+  const goPack = () => (location.hash = '#/pack?day');
   const removeReady = (id) => change((t) => ({ ready: t.ready.filter((r) => r.id !== id) }));
   function addReady(event) {
     event.preventDefault();
@@ -631,7 +654,7 @@
       {#if savedNote}<p class="ok" role="status">{savedNote}</p>{/if}
     {/snippet}
 
-  {#if dayMade && dayMade.id === trip.id}
+  {#snippet notice()}{#if dayMade && dayMade.id === trip.id}
     <div class="dayride-bar" role="status">
       <p>{t('Day ride created: {bike} · {hours} h · {weather}.', { bike: dayMade.bike, hours: num(dayMade.hours), weather: dayMade.wxFrom === 'forecast' ? t('{weather} (forecast)', { weather: wxLabel(dayMade.wx) }) : wxLabel(dayMade.wx) })}</p>
       <div class="dayride-acts">
@@ -640,16 +663,19 @@
         <button type="button" class="x" aria-label={t('Close')} onclick={() => (dayMade = null)}>×</button>
       </div>
     </div>
-  {/if}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {changeNote} {reasons} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} bind:q bind:zoneKey bind:review
+  {/if}{/snippet}
+  {#if packTab}
+    <PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} />
+  {:else}
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {changeNote} {ctxRows} {reasons} {notice} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
       choose, addTo, addMany, qty: (id, qty) => setEntries(es => setQty(es, id, qty)),
-      move: moveTo, remove: removeEntry, undo: undoLast, swap: swapAlt,
+      move: moveTo, remove: removeEntry, undo: undoLast, swap: swapAlt, undoRow, undoWx,
       apply: choices => change(cur => acceptReview(cur, items, choices)),
       edit: () => dialog = { trip }, newTrip: () => dialog = { trip: null },
-      pack: () => packDay = true, ride: goRide, packAndGo, end: endTrip,
+      pack: goPack, ride: goRide, packAndGo, end: endTrip,
       photo: () => shownPhoto = Math.max(0, gallery.findIndex(p => p.id === shot?.id)), compare: () => choosing = true, template: () => saveTpl = true, share: shareList, resetPacked,
       skip: () => change(() => ({ skipped: !trip.skipped })),
     }}>
@@ -682,10 +708,11 @@
     {/snippet}
     {#snippet preparation()}
       {#if before}
-        <details class="calm-extra">
-          <!-- v0.25.0 (Noah 10): a short ride has no bike care line; then the ready check says where it stands. -->
-          <summary>{t('Before the trip')} · {[before.care ? bikeCareLine(before.care) : null, before.prep.total ? eventPrepLine(before.prep) : null].filter(Boolean).join(' · ') || (before.care || before.event ? t('Event preparation: no tasks') : t('Ready check {done} / {n}', { done: readyCount, n: readyTotal }))}</summary>
-          <div class="extra-inner">
+        <details class="tp-fold calm-extra">
+          <!-- v0.25.0 (Noah 10): a short ride has no bike care line; then the ready check says where it stands.
+               v0.29.0 (Noah 1a): one row with badges; the sentences inside. -->
+          <summary><Wrench size={20} aria-hidden="true" /><span>{t('Before the trip')}</span><span class="r">{#if before.care}{@const w = bikeCareWords(before.care)}<i class="tp-badge" class:warn={w.tone === 'due' || w.tone === 'late'}>{t('Bike care {state}', { state: w.tag })}</i>{/if}{#if before.prep.total}<i class="tp-badge" class:warn={before.prep.open > 0}>{eventPrepLine(before.prep)}</i>{/if}{#if !before.care && !before.prep.total}<i class="tp-badge">{t('Ready check {done} / {n}', { done: readyCount, n: readyTotal })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <div class="in extra-inner">
             {#if before.care}
               <p><a href={before.care.href}>{bikeCareLine(before.care)}</a></p>
               {#if before.care.rows.length || before.care.soon.length}<ul>{#each [...before.care.rows, ...before.care.soon] as row (row.key)}<li><b>{row.name}</b> {row.detail}</li>{/each}</ul>
@@ -701,12 +728,12 @@
         </details>
       {/if}
     {/snippet}
-    {#snippet ballastContent()}{#if extra?.rows.length}<details class="calm-extra"><summary>{t('Ballast')} · {t('not used the last times')}</summary><div class="extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
+    {#snippet ballastContent()}{#if extra?.rows.length}<details class="tp-fold calm-extra"><summary><Package size={20} aria-hidden="true" /><span>{t('Ballast')}</span><span class="r"><i class="tp-badge warn">{tn(extra.rows.length, '{n} not used the last times', '{n} not used the last times')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary><div class="in extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
   </CalmPack>
+  {/if}
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
   {#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name, ...(trip?.domain && trip.domain !== 'bikepacking' ? { domains: [trip.domain] } : {}) }} onsaved={packNew} onclose={() => (newItem = null)} />{/if}
-  {#if packDay}<PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onclose={() => packDay = false} />{/if}
   {#if shownPhoto != null && gallery.length}<Lightbox list={gallery.map(p => ({ src: p.src, name: p.name, sub: bike?.name ?? '' }))} start={shownPhoto} onclose={() => shownPhoto = null} />{/if}
   {#if weighing}<WeighMode items={tripItems} onclose={() => weighing = false} />{/if}
     <section class="print" aria-hidden="true">
