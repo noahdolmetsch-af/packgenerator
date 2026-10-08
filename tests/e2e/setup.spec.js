@@ -171,7 +171,8 @@ test('Wer schraubt: ich and Velomech this year, the last jobs, next for the Velo
   await page.goto(`./#/bikes?tab=setup&bike=${SPARK}`);
   const card = page.locator('section.who');
   await expect(card.getByRole('heading', { name: T('Who works on it') })).toBeVisible();
-  await expect(card).toContainText(T('me: {n} jobs', { n: 2 }));
+  // v0.31.0: an entry without "who" is not counted as mine (the same rule as Bike care).
+  await expect(card).toContainText(T('me: {n} job', { n: 1 }));
   await expect(card).toContainText(`${T('bike shop: {n} visit', { n: 1 })} · CHF 185.50`);
   // The last jobs with their badge.
   const rows = card.locator('li');
