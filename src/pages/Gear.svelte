@@ -361,14 +361,15 @@
       <button type="button" class="toggle fav pick" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
       {#if !phone.matches}
         <label>
-          <span class="lbl">{t('Role')}</span>
+          <!-- v0.32.0 (finding 5, stage 1): "Comes along" instead of "Role". -->
+          <span class="lbl">{t('Comes along')}</span>
           <select class="sel" bind:value={filter.role}>
-            <option value="">{t('All roles')}</option>
-            <option value="worn">{t('Worn')}</option>
-            <option value="standard">{t('Standard pack')}</option>
-            <option value="optional">{t('Optional')}</option>
-            <option value="night">{t('Overnight sets')}</option>
-            <option value="none">{t('No role')}</option>
+            <option value="">{t('All items')}</option>
+            <option value="standard">{t('Standard|block')}</option>
+            <option value="worn">{t('On me')}</option>
+            <option value="night">{t('In a building block')}</option>
+            <option value="optional">{t('Stays at home')}</option>
+            <option value="none">{t('Nothing set')}</option>
           </select>
         </label>
         <div class="acts"><button type="button" class="btn hi" onclick={() => addItem()}>{t('Add item')}</button></div>

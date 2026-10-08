@@ -23,7 +23,7 @@
   let folder = $state({ state: 'off' });
 
   const LABELS = {
-    items: 'Gear + wishlist', kits: 'Kits', trips: 'Trips', debriefs: 'Debriefs', learnings: 'Learnings',
+    items: 'Gear + wishlist', kits: 'Old kits (now templates)', trips: 'Trips', debriefs: 'Debriefs', learnings: 'Learnings',
     events: 'Events', maintenance: 'Maintenance tasks', bikes: 'Bikes', containers: 'Bags', weightChecks: 'Weight checks', settings: 'Settings',
     visits: 'Workshop visits', photos: 'Photos', notes: 'Notes',
   };

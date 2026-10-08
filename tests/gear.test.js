@@ -27,6 +27,14 @@ describe('gear', () => {
     expect(matches(a, { role: 'standard' })).toBe(true);
     expect(matches(a, { role: 'none' })).toBe(false);
     expect(matches(it_('X', { sets: ['base'] }), { role: 'night' })).toBe(true);
+    // v0.32.0 (finding 5, stage 1): "Comes along": Standard = worn, standard pack or "On every trip".
+    expect(matches(it_('W', { role: 'worn' }), { role: 'standard' })).toBe(true);
+    expect(matches(it_('A', { always: true }), { role: 'standard' })).toBe(true);
+    expect(matches(it_('A', { always: true }), { role: 'none' })).toBe(false);
+    expect(matches(it_('W', { role: 'worn' }), { role: 'worn' })).toBe(true);
+    expect(matches(a, { role: 'worn' })).toBe(false);
+    expect(matches(it_('O', { role: 'optional' }), { role: 'optional' })).toBe(true);
+    expect(matches(it_('N', {}), { role: 'none' })).toBe(true);
   });
 
   it('lists only owned, unweighed items to weigh, in category order when priority is equal', () => {

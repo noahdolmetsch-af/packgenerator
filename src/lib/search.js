@@ -20,7 +20,9 @@ export const KIND = {
 /** v0.21.0: pages the search finds by a word, e.g. "favourites" opens all my favourite things. */
 const PAGES = [{ id: 'favorites', title: 'All my favourite things', words: 'favourites favorites favourite favorite best things lieblingsstücke favoriten beste', href: '#/favorites' },
   // v0.26.0 (Noah 2b): the building blocks page
-  { id: 'blocks', title: 'Building blocks', words: 'building blocks block bausteine baustein sets set', href: '#/blocks' },
+  // v0.32.0 (finding 5, stage 1): the old words (role, worn, every trip, kits) find the new places.
+  { id: 'blocks', title: 'Building blocks', words: 'building blocks block bausteine baustein sets set standard always with you immer dabei with the night mit nacht to add dazunehmen role rolle every trip jeder tour', href: '#/blocks' },
+  { id: 'templates', title: 'Templates', words: 'templates template vorlagen vorlage kits kit', href: '#/pack/templates' },
 ];
 
 /**
@@ -56,7 +58,8 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
     page: PAGES.filter((p) => hit(p.words, p.title, t(p.title))).map((p) => ({
       id: p.id,
       title: t(p.title),
-      sub: tn(items.filter((i) => i.favorite && i.ownership !== 'gone').length, '{n} item', '{n} items'),
+      // v0.32.0: each page says what it holds (was: the favourites count for every page).
+      sub: p.id === 'blocks' ? t('Standard, with the night, to add') : p.id === 'templates' ? tn(templates.length, '{n} template', '{n} templates') : tn(items.filter((i) => i.favorite && i.ownership !== 'gone').length, '{n} item', '{n} items'),
       href: p.href,
     })),
   };
