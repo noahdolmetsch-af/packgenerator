@@ -201,11 +201,11 @@
     gap: 8px;
   }
   .bike-h .title::before {
-    content: '▸';
+    content: '▸' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
     font-size: 18px;
   }
   .bike[open] > .bike-h .title::before {
-    content: '▾';
+    content: '▾' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
   }
   .sum {
     display: flex;
@@ -359,11 +359,13 @@
   .tw .lbl {
     margin: 0 4px 0 0;
   }
+  /* v0.27.0 (AP21): 40 px high for a thumb (were 27 px). */
   .toggle {
     border: 1.5px solid var(--ink);
     background: var(--paper);
     border-radius: 999px;
-    padding: 4px 12px;
+    min-height: 40px;
+    padding: 4px 14px;
     font: 600 14px var(--font-body);
     color: var(--ink);
     cursor: pointer;

@@ -395,7 +395,7 @@
           {/if}
           <p class="count num" aria-live="polite">
             {t('{a} of {b} items', { a: inventory.length, b: stats.inventory.length })}
-            {#if !searching && groups.length}<button type="button" class="link" onclick={() => setAll(allOpen)}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}
+            {#if !searching && groups.length}<button type="button" class="link tap" onclick={() => setAll(allOpen)}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}
             <!-- v0.21.0: every favourite by area, read-only and printable -->
             {#if filter.fav}<a class="favlink" href="#/favorites">{t('All my favourite things')} →</a>{/if}
           </p>
@@ -654,7 +654,8 @@
       padding: 8px 2px;
     }
   }
-  @media (max-width: 379px) {
+  /* v0.27.0 (AP21): 3 + 2 tabs up to 459 px; at 390 px "Wunschliste" was cut in five columns. */
+  @media (max-width: 459px) {
     .tabs {
       grid-template-columns: repeat(6, minmax(0, 1fr));
     }
@@ -938,7 +939,7 @@
     display: none;
   }
   .analysis summary::before {
-    content: '▸';
+    content: '▸' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
     margin-right: 2px;
     transition: transform 0.15s;
   }
@@ -1287,7 +1288,7 @@
     display: none;
   }
   .more summary::after {
-    content: ' ▴';
+    content: ' ▴' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
   }
   .more[open] summary {
     background: var(--ink);

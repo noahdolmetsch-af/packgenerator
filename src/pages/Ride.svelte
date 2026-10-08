@@ -686,7 +686,7 @@
     font-size: 18px;
   }
   .go b::after {
-    content: ' →';
+    content: ' →' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
   }
   .go small {
     font-weight: 400;

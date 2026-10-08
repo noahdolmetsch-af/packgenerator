@@ -95,6 +95,27 @@
   $effect(() => {
     document.documentElement.lang = lang.v;
   });
+  // v0.27.0 (AP21): Tab stays inside an open dialog (the native ones and the packing day): after the
+  // last control it goes back to the first, never to the page behind or the browser's address bar.
+  $effect(() => {
+    const SEL = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
+    const trap = (e) => {
+      if (e.key !== 'Tab' || e.defaultPrevented) return;
+      const box = [...document.querySelectorAll('dialog[open]')].filter((d) => d.matches(':modal')).at(-1) ?? document.querySelector('[role="dialog"][aria-modal="true"]');
+      if (!box) return;
+      const els = [...box.querySelectorAll(SEL)].filter((el) => el.getClientRects().length && !el.closest('[inert]'));
+      if (!els.length) return;
+      const first = els[0];
+      const last = els.at(-1);
+      const at = document.activeElement;
+      if (!box.contains(at) || (e.shiftKey && at === first) || (!e.shiftKey && at === last)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      }
+    };
+    document.addEventListener('keydown', trap);
+    return () => document.removeEventListener('keydown', trap);
+  });
   const inboxQ = liveQuery(() => db.notes.where('status').equals('open').count());
   $effect(() => {
     if (hash === '#/inbox/new') {
@@ -230,7 +251,11 @@
     color: var(--brand-ink);
     text-decoration: none;
   }
+  /* v0.27.0 (AP21): the logo link is 44 px high (was 31 px). */
   .top .brand {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     font-family: var(--font-brand);
     color: var(--hi-bright);
     font-size: 26px;

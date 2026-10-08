@@ -203,14 +203,14 @@
           <button type="button" role="tab" aria-selected={b.id === bike.id} onclick={() => (onbike?.(b.id), (activeSlot = null), (emptyOpen = false))}>{b.name}</button>
         {/each}
       </div>
-      <button type="button" class="link addbike" onclick={() => (bikeDialog = { bike: null })}>{t('Add bike')}</button>
+      <button type="button" class="link addbike tap" onclick={() => (bikeDialog = { bike: null })}>{t('Add bike')}</button>
     </div>
 
     <section class="bike-card" aria-labelledby="bike-h">
       <div class="bh">
         <div>
           <h2 id="bike-h" class="title">{bike.name}</h2>
-          <p class="sub">{bike.type ?? ''}{bike.use ? ` · ${bike.use}` : ''} <button type="button" class="link" onclick={() => (bikeDialog = { bike })}>{t('Edit')}</button></p>
+          <p class="sub">{bike.type ?? ''}{bike.use ? ` · ${bike.use}` : ''} <button type="button" class="link tap" onclick={() => (bikeDialog = { bike })}>{t('Edit')}</button></p>
         </div>
         <p class="kpi num">
           <span><span class="lbl">{t('Bags')}</span><b>{setup.bagCount} · {formatVolume(setup.volumeL)}</b></span>

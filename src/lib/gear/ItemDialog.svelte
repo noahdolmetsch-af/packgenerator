@@ -357,7 +357,7 @@
     display: none;
   }
   .more summary::before {
-    content: '▸';
+    content: '▸' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
     transition: transform 0.15s;
   }
   .more[open] summary::before {

@@ -75,12 +75,21 @@
   .all {
     margin: 6px 0;
   }
+  /* v0.27.0 (AP21): the whole line is the tap area (44 px), the box is bigger. */
   .ev {
     display: flex;
-    gap: 8px;
-    align-items: flex-start;
+    gap: 10px;
+    align-items: center;
+    min-height: 44px;
     margin: 0 0 8px;
     font-size: 14px;
+    cursor: pointer;
+  }
+  .ev input {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin: 0;
   }
   .block {
     margin-bottom: 24px;

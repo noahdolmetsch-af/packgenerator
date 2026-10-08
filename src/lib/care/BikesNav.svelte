@@ -19,7 +19,11 @@
     border-radius: 6px;
     overflow: hidden;
   }
+  /* v0.27.0 (AP21): 44 px high for a thumb (were 30 px). */
   a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     padding: 6px 16px;
     font: 700 15px var(--font-body);
     color: var(--ink);

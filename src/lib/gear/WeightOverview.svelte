@@ -134,10 +134,10 @@
       font-weight: 700;
     }
     .fold > summary::after {
-      content: ' ▾';
+      content: ' ▾' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
     }
     .fold[open] > summary::after {
-      content: ' ▴';
+      content: ' ▴' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
     }
     .fold > summary .h {
       display: inline;

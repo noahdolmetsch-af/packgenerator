@@ -720,6 +720,12 @@
   .bag-purpose { display: block; margin-bottom: 16px; font-size: 14px; }
   .bag-purpose input { margin-top: 8px; }
   .sets, .presets, .ready-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+  /* v0.27.0 (AP21): the kind of ride, weather presets and overnight sets lost their look with the calm
+     Pack (PR #32): browser-grey 22 px buttons and no visible "chosen". Again 40 px pills, the chosen one dark. */
+  .toggle { min-height: 40px; padding: 5px 14px; border: 1.5px solid var(--ink-3); border-radius: 999px; background: var(--paper); color: var(--ink); font: 600 15px var(--font-body); cursor: pointer; }
+  .toggle[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .toggle:disabled { opacity: 0.5; cursor: default; }
+  .wxbox > summary { padding: 10px 0; cursor: pointer; }
   .wxin { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 12px; margin-top: 16px; }
   .hours { display: block; margin-top: 20px; }
   .hours input { max-width: 120px; }

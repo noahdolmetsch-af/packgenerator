@@ -227,6 +227,39 @@ dialog.sheet::backdrop {
   background: rgba(15, 46, 39, 0.45);
 }
 
+/* v0.27.0 (AP21): on a touch screen every button is at least 44 px high (small ones 40 px), and the
+   quiet text links ("← Gear", "Expand all", …) get an invisible 44 px tap area that does not move
+   the layout. Mouse and keyboard keep the compact look. */
+@media (pointer: coarse) {
+  .btn {
+    min-height: 44px;
+  }
+  .btn.sm {
+    min-height: 40px;
+  }
+  .inp,
+  .sel {
+    min-height: 44px;
+  }
+  .tap,
+  .back a,
+  a.back {
+    position: relative;
+  }
+  .tap::after,
+  .back a::after,
+  a.back::after {
+    content: '';
+    position: absolute;
+    left: -8px;
+    right: -8px;
+    top: 50%;
+    height: 44px;
+    min-width: 44px;
+    transform: translateY(-50%);
+  }
+}
+
 /* Favourites (Noah, 4.10.2026): a star before the name of every tested best item. */
 .star {
   color: var(--hi);

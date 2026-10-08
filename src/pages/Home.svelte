@@ -329,8 +329,8 @@
         <!-- Quiet links, never a second button: the list itself and printing. -->
         {#if focus.kind !== 'debrief'}
           <span class="also-links">
-            {#if focus.href !== '#/pack'}<a href="#/pack" onclick={() => openTrip(lead.id)}>{t('Show the list')}</a>{/if}
-            <a href="#/pack?print" onclick={() => openTrip(lead.id)}>{t('Print list')}</a>
+            {#if focus.href !== '#/pack'}<a class="tap" href="#/pack" onclick={() => openTrip(lead.id)}>{t('Show the list')}</a>{/if}
+            <a class="tap" href="#/pack?print" onclick={() => openTrip(lead.id)}>{t('Print list')}</a>
           </span>
         {/if}
       </div>
@@ -856,6 +856,12 @@
   .cats .cn {
     color: var(--ink);
     text-decoration: none;
+  }
+  /* v0.27.0 (AP21): the category links are taller on a touch screen (were 21 px). */
+  @media (pointer: coarse) {
+    .cats .cn {
+      padding: 10px 0;
+    }
   }
   .cats .num {
     text-align: right;
