@@ -410,7 +410,7 @@ export default {
   'Still have it, gone or replaced?': 'Noch da, weg oder ersetzt?',
   'Your data → Import backup → Apply favourites.': 'Deine Daten → Backup importieren → Favoriten anwenden.',
   'Pack, ride day, end trip and debrief: only then can the app learn.': 'Packen, Fahrtag, Tour beenden und Rückblick: erst dann kann die App lernen.',
-  'Data from the backup of {date}. Newer state on the phone? Load its backup here.': 'Daten aus dem Backup vom {date}. Neuerer Stand auf dem Phone? Lade sein Backup hier.',
+  'Data from the backup of {date}. Newer state on the phone? Load its backup here.': 'Daten aus dem Backup vom {date}. Neuerer Stand auf dem Handy? Lade sein Backup hier.',
   'New debrief since the last backup: save one, then load it on the desktop.': 'Neuer Rückblick seit dem letzten Backup: eins speichern und am Desktop laden.',
   'Load a backup': 'Backup laden',
   // v0.22.0 (AP05): the favourites on the start page, same basis as Gear
@@ -486,6 +486,14 @@ export default {
   'Search': 'Suchen',
   'Also to do': 'Ausserdem zu tun',
   'Add a bike': 'Velo erfassen',
+  // v0.30.2 (L5, L6, L9): each thing once on Today, an old debrief in Also to do, First steps.
+  'Tick off in the trip': 'In der Tour abhaken',
+  'Debrief still open: {title}': 'Rückblick offen: {title}',
+  'First steps': 'Erste Schritte',
+  'Three steps, then Today shows your next trip.': 'Drei Schritte, dann zeigt Heute deine nächste Tour.',
+  'Add your bike': 'Velo erfassen',
+  'Gear: import a backup or enter your first items': 'Material: Backup importieren oder erste Teile eintragen',
+  'Plan your first trip': 'Erste Tour planen',
   // v0.23.1 (Noah 3b): the folded places on Today, phone
   '{n} trip': '{n} Tour',
   '{n} trips': '{n} Touren',

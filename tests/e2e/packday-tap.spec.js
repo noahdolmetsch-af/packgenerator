@@ -1,6 +1,6 @@
 // v0.30.1 (Noah's phone test of 0.29.2, B1 B3 B4 B6 B7 B10 E4): the Pack tab with real touch taps
 // (the phone project has hasTouch and isMobile). Mouse clicks passed before while the phone failed:
-// a double tap there is two clicks, and the ticked row slides down between them.
+// a double tap there is two clicks. Since v0.30.2 the rows keep their order while the bag is open.
 // Fictional fixture plus test_data_gtp_ items; nothing leaves the preview server.
 import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -71,7 +71,7 @@ test.describe('Pack tab on a phone', () => {
     const [x, y] = await spot(row(page, 'Rain jacket'));
     await page.touchscreen.tap(x, y);
     await page.waitForTimeout(120);
-    await page.touchscreen.tap(x, y); // the same spot: Rain jacket has slid down, Arm warmers is here now
+    await page.touchscreen.tap(x, y); // the same spot: v0.30.2 rows stay put while the bag is open, so this is Rain jacket again
     await page.waitForTimeout(500);
     expect(await packedOf(page, 'RA01')).toBe(true);
     expect(await packedOf(page, 'RA02')).toBe(false);

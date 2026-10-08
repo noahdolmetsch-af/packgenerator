@@ -6,9 +6,10 @@
   import { nextId } from '../gear.js';
   import { tick } from 'svelte';
   import {
-    ensureParts, checkState, serviceDue, logPart, parseKm, PART, taskBike, openRepairs, toReview, prepFor, prepRules, upcomingTrips, prepParts, prepService, wishFor, CHECK_KM,
+    ensureParts, checkState, serviceDue, logPart, parseKm, PART, taskBike, openRepairs, toReview, prepFor, prepRules, upcomingTrips, wishFor, CHECK_KM,
   } from '../care.js';
   import TripCare from './TripCare.svelte';
+  import { tickPrep, untickPrep } from './prep.js';
   import BikeCare from './BikeCare.svelte';
   import Fold from '../ui/Fold.svelte';
   import PartDialog from './PartDialog.svelte';
@@ -16,7 +17,7 @@
   import OrderDialog from './OrderDialog.svelte';
   import { withVisits, visitsOf, tyreSetup, timeDue, lastPrice, workshopOrder } from '../workshop.js';
   import { hasBike } from '../domains.js';
-  import { t, tn, num } from '../i18n.svelte.js';
+  import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { bikeCare, bikeCareWords, eventPrep } from '../readiness.js';
 
   // v0.21.0 (answer 7a): Bike care is the Care tab of Bikes. bikeId: the bike chosen on the page;
@@ -128,14 +129,14 @@
   }
   const WHAT = (entry, key) =>
     entry.result === 'needed' ? t('work needed') : entry.action === 'check' ? t('checked, OK') : entry.action === 'service' ? t('serviced') : PART[key]?.unit ? t('replaced') : t('done');
-  /** "Saved: Tyres + sealant, done, 2026-10-08 · 3'200 km. Next time 2027-01-06." */
+  /** "Saved: Tyres + sealant, done, 8 Oct 2026 · 3'200 km. Next time 6 Jan 2027." */
   function saved(view, keys, entry) {
     const parts = keys.map((k) => (PART[k] ? t(PART[k].name) : k)).join(', ');
-    const vars = { part: parts, what: WHAT(entry, keys[0]), date: entry.date, km: num(entry.km) };
+    const vars = { part: parts, what: WHAT(entry, keys[0]), date: dateOf(entry.date), km: num(entry.km) };
     let text = entry.km != null ? t('Saved: {part}, {what}, {date} · {km} km.', vars) : t('Saved: {part}, {what}, {date}.', vars);
     // A service by time: say when it is due next (sealant every 90 days, fork once a year).
     const timed = keys.length === 1 && entry.result === 'done' && entry.action !== 'check' ? checks.find((c) => c.bike.id === view.id)?.time.find((s) => s.key === keys[0]) : null;
-    if (timed) text += ` ${t('Next time {date}.', { date: new Date(Date.parse(`${entry.date}T00:00:00Z`) + timed.every * 864e5).toISOString().slice(0, 10) })}`;
+    if (timed) text += ` ${t('Next time {date}.', { date: dateOf(new Date(Date.parse(`${entry.date}T00:00:00Z`) + timed.every * 864e5).toISOString().slice(0, 10)) })}`;
     say(text);
   }
   async function checkAndSay(view, keys, action, note) {
@@ -147,7 +148,11 @@
   let kmMsg = $state(null); // { bikeId, text, error }
   async function saveKm(bike, text) {
     const n = parseKm(text);
-    if (n === null) return null; // an empty field keeps the km: nothing is lost by clearing it by mistake
+    if (n === null) {
+      // an empty field keeps the km: nothing is lost by clearing it by mistake (v0.30.2, V9.10: the old error goes)
+      if (kmMsg?.bikeId === bike.id && kmMsg.error) kmMsg = null;
+      return null;
+    }
     if (Number.isNaN(n)) {
       kmMsg = { bikeId: bike.id, text: t('Type the km as a whole number, e.g. 12400.'), error: true };
       return null;
@@ -158,44 +163,13 @@
   }
 
   /* ---------- preparation tasks per trip ---------- */
-  async function prepResult(trip, row, result) {
-    const state = { result, date: today, by };
-    await db.trips.update(trip.id, { prep: { ...(trip.prep ?? {}), [row.task.id]: state } });
-    const bike = bikeById[trip.bikeId];
-    if (bike && (result === 'ok' || result === 'done')) {
-      // The check before the event also counts for the 1000 km check (answer 7).
-      const keys = prepParts(row.task);
-      if (keys.length) await checkParts(bikeById[trip.bikeId], keys, 'check', t('Before {trip}', { trip: trip.title }));
-      const svc = prepService(row.task);
-      if (svc) await checkParts(bikeById[trip.bikeId], [svc], 'service', t('Before {trip}', { trip: trip.title }));
-    }
-  }
+  // v0.30.2 (L5): the same saving as in the trip (Plan → Before the trip): care/prep.js.
+  // The check before the event also counts for the 1000 km check (answer 7).
+  const prepNote = (trip) => t('Before {trip}', { trip: trip.title });
+  const prepResult = (trip, row, result) => tickPrep(db, trip.id, [row], result, { today, by, note: prepNote(trip) });
   // v0.24.0 (Noah, "select all"): every open task of a trip done in one tap, saved in one write.
-  async function prepAll(trip, rows) {
-    const open = rows.filter((r) => !r.finished);
-    if (!open.length) return;
-    const state = { result: 'done', date: today, by };
-    await db.trips.update(trip.id, { prep: { ...(trip.prep ?? {}), ...Object.fromEntries(open.map((r) => [r.task.id, state])) } });
-    // Both kinds of part entries in one write, read fresh, so the second does not overwrite the first.
-    const keys = [...new Set(open.flatMap((r) => prepParts(r.task)))];
-    const svc = [...new Set(open.map((r) => prepService(r.task)).filter(Boolean))];
-    if (!keys.length && !svc.length) return;
-    await db.transaction('rw', db.bikes, async () => {
-      const bike = await db.bikes.get(trip.bikeId);
-      if (!bike) return;
-      const note = t('Before {trip}', { trip: trip.title });
-      const at = { date: today, km: bike.km ?? null, value: null, by, model: null, note };
-      let parts = bike.parts;
-      for (const k of keys) parts = logPart(parts, k, { ...at, action: 'check', result: 'ok' });
-      for (const k of svc) parts = logPart(parts, k, { ...at, action: 'service', result: 'done' });
-      await db.bikes.update(bike.id, { parts });
-    });
-  }
-  const undoPrep = (trip, row) => {
-    const prep = { ...(trip.prep ?? {}) };
-    delete prep[row.task.id];
-    return db.trips.update(trip.id, { prep });
-  };
+  const prepAll = (trip, rows) => tickPrep(db, trip.id, rows.filter((r) => !r.finished), 'done', { today, by, note: prepNote(trip) });
+  const undoPrep = (trip, row) => untickPrep(db, trip.id, row);
 
   /* ---------- repairs from the Excel (and the June walk-through) ---------- */
   const repairs = $derived(openRepairs(tasks));

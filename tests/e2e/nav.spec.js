@@ -165,8 +165,8 @@ test('Today folds the places on the phone', async ({ page, context }, info) => {
   await folds.nth(1).locator('summary').focus();
   await page.keyboard.press('Enter');
   await expect(folds.nth(1)).toHaveJSProperty('open', true);
-  // the main step and "Also to do" are never folded
-  await expect(page.locator('main section.band')).toBeVisible();
+  // the main step and "Also to do" are never folded; v0.30.2 (L9): an empty app shows First steps there
+  await expect(page.getByRole('region', { name: T('First steps') })).toBeVisible();
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
 });

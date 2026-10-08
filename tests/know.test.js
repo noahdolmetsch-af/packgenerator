@@ -26,11 +26,11 @@ describe('which cards show', () => {
     expect(cards.map((c) => c.key)).toEqual(['home']);
   });
 
-  it('a due backup comes first, a demo only without a due backup', () => {
+  // v0.30.2 (L5): the backup and the Inbox are lines in "Also to do" on Today, never a card here too.
+  it('no backup and no Inbox card (Also to do has them); a running demo shows', () => {
     const cards = knowCards({ today: TODAY, backup: { due: true, days: 20 }, notes: [{ id: 'n' }], todos: [{ key: 'pace' }] });
-    expect(cards.map((c) => c.key)).toEqual(['backup', 'todo', 'inbox', 'home']);
+    expect(cards.map((c) => c.key)).toEqual(['todo', 'home']);
     expect(knowCards({ today: TODAY, demo: { name: 'x' } }).map((c) => c.key)).toEqual(['demo', 'home']);
-    expect(knowCards({ today: TODAY, backup: { due: false, days: 2 } }).some((c) => c.key === 'backup')).toBe(false);
   });
 
   it('Still open with a late row is urgent', () => {
@@ -116,6 +116,16 @@ describe('wear forecast', () => {
     const rows = wearForecast([check, bike({ km: 2040 })], [], [], TODAY);
     expect(rows.map((r) => [r.bikeId, r.kind, r.left, r.prio])).toEqual([['b1', 'service', 10, 2], ['b2', 'check', 800, 5]]);
     expect(wearWhat(rows[1])).toBe('{km} km check');
+  });
+
+  // v0.30.2 (L5): what is due now is Bike care's line in "Also to do"; the card only looks ahead.
+  it('the card leaves out what is due now and goes when nothing else is left', () => {
+    const later = bike({ id: 'b2', name: 'B', km: 2040 }); // 10 km left
+    const cards = knowCards({ today: TODAY, bikes: [bike({ km: 2100 }), later] });
+    const wear = cards.find((c) => c.key === 'wear');
+    expect(wear.data.rows.map((r) => [r.bikeId, r.left])).toEqual([['b2', 10]]);
+    expect(wear.prio).toBe(2);
+    expect(knowCards({ today: TODAY, bikes: [bike({ km: 2100 })] }).some((c) => c.key === 'wear')).toBe(false);
   });
 
   it('more than 20 trips away is not said', () => {

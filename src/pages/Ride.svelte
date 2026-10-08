@@ -26,8 +26,9 @@
   import { sunTimes } from '../lib/blockplan.js';
   import { isInventory } from '../lib/gear.js';
   import TripBand from '../lib/trip/TripBand.svelte';
+  import { openTrip } from '../lib/nav.js';
   import '../lib/trip/trip.css';
-  import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic } from '@lucide/svelte';
+  import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -287,6 +288,8 @@
     return s ? new Date(s.set).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : '';
   });
   const tripStarted = $derived(trip?.startDate ? trip.startDate <= today : false);
+  // L7: before the start there is nothing to end yet: the next step leads back to Pack (the debrief opens from the last day on).
+  const ahead = $derived(!!trip?.startDate && !tripStarted && !trip.finished);
   const kicker = $derived(!trip ? '' : tripStarted ? (days > 1 ? t('On the way · day {n} of {total}', { n: cur + 1, total: days }) : t('On the way|step')) : t('On the way · from {date}', { date: dateOf(0) }));
   // Opened once when shown; afterwards it stays as you leave it.
   const openOnce = (node, open) => { node.open = open; };
@@ -312,14 +315,14 @@
   });
 </script>
 
-{#snippet go()}<button type="button" class="btn hi go" onclick={finish}>{trip.finished ? t('Open the debrief') : t('Next: Debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/snippet}
+{#snippet go()}{#if ahead}<a class="btn hi go" href="#/pack?day" onclick={() => openTrip(trip.id)}><ArrowLeft size={20} aria-hidden="true" />{t('Back to packing')}</a>{:else}<button type="button" class="btn hi go" onclick={finish}>{trip.finished ? t('Open the debrief') : t('Next: Debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
 {#snippet pen()}<button type="button" class="tp-icon-btn" aria-label={t('Note for the debrief')} onclick={goNote}><Pencil size={22} aria-hidden="true" /></button>{/snippet}
 
 {#if !trip}
   {#if $tripsQ}<p class="card">{t('No trip yet. Create one in')} <a href="#/pack">{t('Plan|stage')}</a>.</p>{/if}
 {:else}
 <div class="ride trip-page">
-  <TripBand {trip} tab="ride" {kicker} compact action={go} aside={pen} hint={t('End the trip when you are back home.')} />
+  <TripBand {trip} tab="ride" {kicker} compact action={go} aside={pen} hint={ahead ? '' : t('End the trip when you are back home.')} />
   <div class="tp-grid2 r">
     <div class="col">
       <!-- Noah 7a: the days, then the block of now, on top. -->

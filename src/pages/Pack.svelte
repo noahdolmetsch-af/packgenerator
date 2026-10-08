@@ -2,7 +2,7 @@
   import { localDay } from '../lib/localday.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { isOver, tipsByItem } from '../lib/debrief.js';
+  import { isOver, tipsByItem, learningsFor } from '../lib/debrief.js';
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, sortBikes, bikesHash } from '../lib/bikes.js';
   import { CATEGORIES, formatWeight, weightText, isInventory, matches, weighQueue } from '../lib/gear.js';
@@ -37,9 +37,10 @@
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
-  import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, wxLabel, bikeShort, shortDate } from '../lib/dayride.js';
+  import { tickPrep, untickPrep } from '../lib/care/prep.js';
+  import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, wxLabel, shortDate } from '../lib/dayride.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
-  import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
+  import { t, tn, num, locale, nameOf, bagName, dateOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName, inDomain, itemDomains, readyKey, READY_BY_DOMAIN, rememberDomain, BIKEPACKING } from '../lib/domains.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -130,6 +131,35 @@
     // v0.22.1 (Noah 4b): shown on every bike trip, so the Event switch is always in reach.
     return { care, prep, open, event: isEvent(trip) };
   });
+  // v0.30.2 (L5): the event preparation is the trip's: ticked off right here, the same way as in
+  // Bikes → Care (care/prep.js). Today's line "Tick off in the trip" opens this fold (nav.js openPrep).
+  let beforeOpen = $state(false);
+  let beforeEl = $state();
+  let wantBefore = take('pack.before'); // once: a later change of the trip must not open it again
+  $effect(() => {
+    if (!wantBefore || !before || !beforeEl || trip?.id !== wantBefore) return;
+    wantBefore = null;
+    beforeOpen = true;
+    queueMicrotask(() => beforeEl?.scrollIntoView({ block: 'start' }));
+  });
+  const prepBy = () => {
+    try {
+      return localStorage.getItem('care.by') ?? 'self';
+    } catch {
+      return 'self';
+    }
+  };
+  let prepTicked = $state(null); // { tripId, row } while "Ticked off … Undo" shows
+  async function tickRow(row) {
+    const id = trip.id;
+    await tickPrep(db, id, [$state.snapshot(row)], 'done', { today, by: prepBy(), note: t('Before {trip}', { trip: trip.title }) });
+    prepTicked = { tripId: id, row: $state.snapshot(row) };
+  }
+  async function untickRow() {
+    const x = prepTicked;
+    prepTicked = null;
+    if (x) await untickPrep(db, x.tripId, x.row);
+  }
   // Design audit P4: after the trip, Pack leads to the debrief.
   const over = $derived(trip ? isOver(trip) : false);
   // Start page "Print list": #/pack?print opens the print dialog once the trip is there.
@@ -170,7 +200,8 @@
   // v0.21.0: a trip without a bike ends here (with a bike: "End trip and debrief" on the ride day).
   async function endTrip() {
     const id = trip.id;
-    await change(() => ({ finished: localDay() }));
+    // L7: before its start a trip is not ended (the debrief shows "Debrief from …" until the last day).
+    if (!(trip.startDate && trip.startDate > localDay())) await change(() => ({ finished: localDay() }));
     location.hash = `#/debrief/${encodeURIComponent(id)}`;
   }
   const toggleIn = (itemId) => change((t) => ({ entries: togglePacked(t.entries, itemId) }));
@@ -432,7 +463,7 @@
     blockNote = '';
     await undoLast();
   }
-  const targetName = $derived(zone ? (zone.noBag ? t('On me') : zone.bag ? zone.bag.name : t(zone.zone.name)) : t('the trip'));
+  const targetName = $derived(zone ? (zone.noBag ? t('On me') : zone.bag ? bagName(zone.bag.name) : t(zone.zone.name)) : t('the trip'));
 
   // Answer 4a: a bag can get a name for what it is for ("Quick access"); stored on the trip.
   function savePurpose(key, value) {
@@ -658,7 +689,7 @@
 
   {#snippet notice()}{#if dayMade && dayMade.id === trip.id}
     {@const when = trip.startDate === localDay() ? t('today') : trip.startDate === localDay(new Date(Date.now() + 864e5)) ? t('tomorrow') : shortDate(trip.startDate)}
-    {@const what = [bike ? bikeShort(bike.name) : null, when, tn(trip.entries.length, '{n} item', '{n} items')].filter(Boolean).join(' · ')}
+    {@const what = [bike?.name ?? null, when, tn(trip.entries.length, '{n} item', '{n} items')].filter(Boolean).join(' · ')}
     <div class="made-card" role="status">
       <p class="made-t"><b>{dayMade.day ? t('Day ride created') : t('Trip created')}</b> · {what}</p>
       {#if dayMade.day}<p class="made-s">{t('{hours} h · {weather}', { hours: num(dayMade.hours), weather: dayMade.wxFrom === 'forecast' ? t('{weather} (forecast)', { weather: wxLabel(dayMade.wx) }) : wxLabel(dayMade.wx) })}</p>{/if}
@@ -672,7 +703,7 @@
     </div>
   {/if}{/snippet}
   {#if packTab}
-    <PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} />
+    <PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} />
   {:else}
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} made={!!(dayMade && dayMade.id === trip.id)} bind:q bind:zoneKey bind:review
     actions={{
@@ -694,7 +725,7 @@
       {:else if mode === 'purposes'}{#each stats.zones as z}<label class="bag-purpose">{zoneName(z)}<input class="inp" value={trip.purpose?.[z.key] ?? ''} placeholder={t('What it is for, e.g. Quick access')} onchange={e => savePurpose(z.key, e.currentTarget.value)} /></label>{/each}
       {:else if mode === 'ready'}{@render readyFull()}{/if}
     {/snippet}
-    {#snippet picker(addItem, addItems)}<NotPacked items={candidates} {tagOf} target={targetName} onadd={addItem} onaddmany={addItems} drag={false} bind:q oncreate={createAndPack}>
+    {#snippet picker(addItem, addItems)}<NotPacked items={candidates} {tagOf} target={targetName} onadd={addItem} onaddmany={addItems} drag={false} bind:q oncreate={createAndPack} empty={items.some(isInventory) ? '' : t('No gear yet. Type the name of your first item in the search above.')}>
       {#if chips.length}
         <div class="blockchips" role="group" aria-labelledby="blockchips-h">
           <span class="lbl" id="blockchips-h">{t('Building blocks')}</span>
@@ -715,7 +746,7 @@
     {/snippet}
     {#snippet preparation()}
       {#if before}
-        <details class="tp-fold calm-extra">
+        <details class="tp-fold calm-extra" bind:open={beforeOpen} bind:this={beforeEl}>
           <!-- v0.25.0 (Noah 10): a short ride has no bike care line; then the ready check says where it stands.
                v0.29.0 (Noah 1a): one row with badges; the sentences inside. -->
           <summary><Wrench size={20} aria-hidden="true" /><span>{t('Before the trip')}</span><span class="r">{#if before.care}{@const w = bikeCareWords(before.care)}<i class="tp-badge" class:warn={w.tone === 'due' || w.tone === 'late'}>{t('Bike care {state}', { state: w.tag })}</i>{/if}{#if before.prep.total}<i class="tp-badge" class:warn={before.prep.open > 0}>{eventPrepLine(before.prep)}</i>{/if}{#if !before.care && !before.prep.total}<i class="tp-badge">{t('Ready check {done} / {n}', { done: readyCount, n: readyTotal })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
@@ -728,8 +759,10 @@
             <label class="ev"><input type="checkbox" checked={before.event} onchange={(e) => setEvent(e.currentTarget.checked)} /> {t('Event (race or organised ride): show the event preparation')}</label>
             {#if before.prep.total}
               <p>{eventPrepLine(before.prep)}</p>
-              <ul>{#each before.open as row (row.task.id)}<li><b>{row.task.task}</b> {row.needed ? t('work needed') : row.overdue ? overdueFor(row.due, today) : t('by {date}', { date: row.due ?? '–' })}</li>{/each}</ul>
-              <a href={before.prep.href}>{t('Tick off in Bike care')}</a>
+              <!-- v0.30.2 (L5): each task is ticked off here; "Checked, all OK" and "Work needed" stay in Bike care. -->
+              <ul class="prep-rows">{#each before.open as row (row.task.id)}<li><span><b>{row.task.task}</b> {row.needed ? t('work needed') : row.overdue ? overdueFor(row.due, today) : t('by {date}', { date: row.due ?? '–' })}</span><button type="button" class="btn sm" onclick={() => tickRow(row)} aria-label={t('Done: {task}', { task: row.task.task })}>{t('Done|task')}</button></li>{/each}</ul>
+              {#if prepTicked?.tripId === trip.id}<p class="prep-note" role="status"><span>{t('Ticked off: {task}', { task: prepTicked.row.task.task })}</span> <button type="button" class="text-button" onclick={untickRow}>{t('Undo')}</button></p>{/if}
+              <a href={before.prep.href}>{t('More options in Bike care')}</a>
             {/if}
           </div>
         </details>
@@ -745,8 +778,8 @@
   {#if weighing}<WeighMode items={tripItems} onclose={() => weighing = false} />{/if}
     <section class="print" aria-hidden="true">
       <h1>{trip.title}</h1>
-      {#if bikeTrip}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {bike?.name ?? ''} · {t('system weight {kg}', { kg: weightText(stats.systemG, stats.systemMissing, kg) })}</p>
-      {:else}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {t(domainName(domain))} · {t('total {kg}', { kg: weightText(stats.gearG + stats.onMeG, stats.unweighed, kg) })}</p>{/if}
+      {#if bikeTrip}<p>{dateOf(trip.startDate)} · {tn(trip.days, '{n} day', '{n} days')} · {bike?.name ?? ''} · {t('system weight {kg}', { kg: weightText(stats.systemG, stats.systemMissing, kg) })}</p>
+      {:else}<p>{dateOf(trip.startDate)} · {tn(trip.days, '{n} day', '{n} days')} · {t(domainName(domain))} · {t('total {kg}', { kg: weightText(stats.gearG + stats.onMeG, stats.unweighed, kg) })}</p>{/if}
       {#each stats.zones.filter((z) => z.entries.length) as z (z.key)}
         <h2>{zoneName(z)} <small>{tn(z.entries.length, '{n} item', '{n} items')} · {weightText(z.grams, z.unweighed)}</small></h2>
         <ul>
@@ -765,6 +798,13 @@
 
 <style>
   .print { display: none; }
+  /* v0.30.2 (L5): event preparation ticked off in the trip; the button a full 44 px target. */
+  .prep-rows { list-style: none; padding: 0; }
+  .prep-rows li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+  .prep-rows li > span { flex: 1 1 12em; min-width: 0; overflow-wrap: anywhere; }
+  .prep-rows .btn { min-height: 44px; }
+  .prep-note { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+  .prep-note .text-button { min-height: 44px; }
   /* v0.26.0 (Noah 3a): building block chips in "Add material". */
   .blockchips { display: grid; gap: 6px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -793,6 +833,6 @@
   .slots li { display: grid; grid-template-columns: 1fr 1.5fr; gap: 16px; align-items: center; padding: 8px 0; }
   .addcheck { display: flex; gap: 10px; }
   .ck { display: inline-flex; gap: 10px; }
-  .x { background: none; border: 0; padding: 12px; }
+  .x { background: none; border: 0; padding: 8px; min-width: 44px; min-height: 44px; font-size: 22px; line-height: 1; cursor: pointer; } /* v0.30.2 (N2.10): a full tap target */
   @media print { .print { display: block; } }
 </style>

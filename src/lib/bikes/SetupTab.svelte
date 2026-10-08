@@ -14,7 +14,7 @@
   import Fold from '../ui/Fold.svelte';
   import IdeasFold from './IdeasFold.svelte';
   import { withVisits, tyreSetup, bikeProfile } from '../workshop.js';
-  import { t, tn, num, locale, nameOf } from '../i18n.svelte.js';
+  import { t, tn, num, locale, nameOf, bagName } from '../i18n.svelte.js';
   import { take } from '../nav.js';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
@@ -119,7 +119,7 @@
       const bag = bags.find((b) => b.id === bike.setup?.[s.key]);
       return {
         key: s.key,
-        title: has ? (bag ? bag.name : `+ ${t(s.name)}`) : t('{slot} (no mount)', { slot: t(s.name) }),
+        title: has ? (bag ? bagName(bag.name) : `+ ${t(s.name)}`) : t('{slot} (no mount)', { slot: t(s.name) }),
         sub: has && bag ? formatVolume(bag.volumeL) : '',
         box: s.box,
         empty: !has || !bag,
@@ -356,7 +356,7 @@
       {#each options as o (o.id)}<option value={o.id}>{o.name}{o.volumeL ? ` · ${formatVolume(o.volumeL)}` : ''}</option>{/each}
     </select>
     {#if other}
-      <p class="trip-bag">{tripOn.title}: {other.none ? t('no bag here') : `${other.name}${other.volumeL ? ` ${formatVolume(other.volumeL)}` : ''}`}{#if !other.none}<button type="button" class="link" onclick={() => setBag(s.key, other.id)}>{t('Use as standard')}</button>{/if}</p>
+      <p class="trip-bag">{tripOn.title}: {other.none ? t('no bag here') : `${bagName(other.name)}${other.volumeL ? ` ${formatVolume(other.volumeL)}` : ''}`}{#if !other.none}<button type="button" class="link" onclick={() => setBag(s.key, other.id)}>{t('Use as standard')}</button>{/if}</p>
     {/if}
   </li>
 {/snippet}

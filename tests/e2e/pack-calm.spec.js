@@ -178,7 +178,7 @@ test('Add material with tick boxes adds 3 items in one go', async ({ page, conte
   // A tick in another group keeps the first ones (only one group is open at a time).
   await sheet.locator('.gh', { hasText: T('Sleep') }).click();
   await sheet.getByRole('checkbox', { name: 'Sleeping bag' }).check();
-  const add = sheet.getByRole('button', { name: T('Add {n} items to {bag}', { n: 3, bag: 'Test frame bag' }) });
+  const add = sheet.getByRole('button', { name: T('Add {n} items to {bag}', { n: 3, bag: 'Test Rahmentasche' }) });
   await expect(add).toBeVisible();
   await add.click();
   await expect(sheet.locator('.pick-bar')).toHaveCount(0); // the ticks clear after adding
@@ -212,7 +212,7 @@ test('a template takes several ticked items in one write', async ({ page, contex
   await page.getByRole('button', { name: T('Select all: {group}', { group: T('Cooking') }) }).click();
   await page.locator('.np .gh', { hasText: T('Sleep') }).click();
   await page.getByRole('checkbox', { name: 'Sleeping bag' }).check();
-  await page.getByRole('button', { name: T('Add {n} items to {bag}', { n: 3, bag: 'Test seat pack' }) }).click();
+  await page.getByRole('button', { name: T('Add {n} items to {bag}', { n: 3, bag: 'Test Satteltasche' }) }).click();
   await expect(page.locator('.np .pick-bar')).toHaveCount(0);
   const tpl = async () => page.evaluate(() => new Promise((ok) => {
     const r = indexedDB.open('pack-generator');

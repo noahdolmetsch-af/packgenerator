@@ -321,7 +321,9 @@ export function learningsFor(trip, learnings, n = 3, today = new Date()) {
       (PRIO[l.priority] ?? 1) * 2 +
       ((cold ? COLD : HOT).test(text) ? 2 : 0) +
       (l.itemIds?.some((id) => on.has(id)) ? 1 : 0) +
-      Math.min(2, l.confirmed ?? 0)
+      Math.min(2, l.confirmed ?? 0) +
+      // v0.30.2 (test R6.6): a learning from the last 30 days comes first, so a new one shows up.
+      (l.createdAt && today - new Date(l.createdAt) < 30 * 864e5 ? 100 : 0)
     );
   };
   return learnings

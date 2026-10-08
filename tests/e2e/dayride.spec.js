@@ -91,7 +91,7 @@ for (const lang of ['de', 'en']) {
     // v0.29.2 (Noah 4a): a green card says what was made and where it is.
     const bar = page.locator('.made-card');
     const when = day === (await page.evaluate(() => new Date().toLocaleDateString('sv-SE'))) ? T('today') : T('tomorrow');
-    await expect(bar).toContainText(`${T('Day ride created')} · Test gravel · ${when}`);
+    await expect(bar).toContainText(`${T('Day ride created')} · Test gravel bike · ${when}`);
     await expect(bar).toContainText(T('{hours} h · {weather}', { hours: '2', weather: T('Chilly') }));
     await expect(bar).toContainText(T('You find it under Trips and at the top of Today.'));
     // v0.29.0 (Noah 5a): a folded bag shows its items in one line, amounts included.
@@ -144,9 +144,10 @@ test('New trip: Create without typing (name, date and bike are filled in)', asyn
   const t0 = Date.now();
   await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
   await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
-  // v0.30.0: "Copy the last trip" is a row in the New trip window (the same number of clicks).
+  // v0.30.0: "Copy the last trip" is a row in the New trip window; L9: only offered when there is a last trip.
   const dlg = page.getByRole('dialog', { name: T('New trip') });
-  await click(dlg.getByRole('button', { name: T('Copy the last trip') }));
+  await expect(dlg.getByRole('button', { name: T('Create trip') })).toBeVisible();
+  await expect(dlg.getByRole('button', { name: T('Copy the last trip') })).toHaveCount(0);
   const name = dlg.getByLabel(T('Name'));
   await expect(name).toHaveValue(T('{bike} day ride {date}', { bike: 'Test gravel', date: dM(day) }));
   await expect(dlg.getByLabel(T('Start date'))).toHaveValue(day);

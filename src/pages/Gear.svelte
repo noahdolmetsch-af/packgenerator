@@ -125,6 +125,14 @@
     queueMicrotask(() => document.getElementById(`gh-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
   const open = (item) => (dialog = { item });
+  // v0.30.2 (test H1.11): a hit from the top bar search opens that item (?item=<id>).
+  let wantItem = $state(hashQ.get('item') ?? '');
+  $effect(() => {
+    if (!wantItem || !$itemsQuery) return;
+    const it = items.find((i) => String(i.id) === wantItem);
+    wantItem = '';
+    if (it) open(it);
+  });
   // v0.19.6: "New → Gear item" from any page opens "Add item" here.
   $effect(() => {
     const add = () => {
@@ -164,6 +172,7 @@
       if (unusedOnly) tab = 'inventory';
       if (params.get('find') === '1') findFocus();
       if (params.get('fill')) startFill(params.get('fill'));
+      if (params.get('item')) wantItem = params.get('item');
     };
     window.addEventListener('hashchange', read);
     return () => window.removeEventListener('hashchange', read);

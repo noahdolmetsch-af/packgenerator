@@ -10,6 +10,10 @@
    * the overview of everything (#/features) with how much of it is used. On a phone the section is
    * no longer folded shut: the important cards and a tip show, the rest behind "Show {n} more".
    *
+   * v0.30.2 (L5): Today says each thing once: the backup, bike care due now and the Inbox are lines
+   * in "Also to do" (Home.svelte), so no card here repeats them (know.js). L9: a tip whose button
+   * needs data (a trip, items, a bike) waits until there is some (tips.js tipPossible).
+   *
    * The weekend weather needs the home place (setting "homePlace", answer 1a: entered once with the
    * place search of the trip weather). Its forecast is saved in "meta" (never exported), fetched at
    * most every 3 hours; offline or failed the card shows a saved one up to 12 hours old, else nothing.
@@ -17,7 +21,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { knowCards, wearWhat, sparkPath, needsFetch, HOME_PLACE, HOME_FORECAST } from '../know.js';
-  import { TIP, TIPS_KEY, usedTips, fittingTips, pickTips, todayTiles, phoneSplit, markShown, knowTip, updateTips, overview } from '../tips.js';
+  import { TIP, TIPS, TIPS_KEY, tipPossible, usedTips, fittingTips, pickTips, todayTiles, phoneSplit, markShown, knowTip, updateTips, overview } from '../tips.js';
   import { openTodos } from '../todos.js';
   import { formatWeight, weightText } from '../gear.js';
   import { RAIN } from '../trips.js';
@@ -50,13 +54,8 @@
     visits = [],
     debriefs = [],
     learnings = [],
-    notes = [],
     containers = [],
-    backup = { due: false },
     demo = null,
-    importFrom = null,
-    backingUp = false,
-    onBackup,
     onData,
   } = $props();
 
@@ -74,7 +73,7 @@
   const tips = $derived(learningsFor(next, learnings, 1));
   const cards = $derived(
     loaded
-      ? knowCards({ today, todos, backup, demo, next, fc, sun, tips, pace, notes, bikes, trips, debriefs, visits, items, containers, templates: $tplQ ?? [], homePlace: $placeQ, homeForecast: $fcQ, placeLoading: $placeQ === undefined || $fcQ === undefined })
+      ? knowCards({ today, todos, demo, next, fc, sun, tips, pace, bikes, trips, debriefs, visits, items, containers, templates: $tplQ ?? [], homePlace: $placeQ, homeForecast: $fcQ, placeLoading: $placeQ === undefined || $fcQ === undefined })
       : [],
   );
 
@@ -110,7 +109,9 @@
     usedTips({ trips, items, bikes, visits, debriefs, templates: $tplQ ?? [], sets: $setsQ ?? [], notesN: $notesN ?? 0, homePlace: $placeQ, pace, lastBackup: $backupQ, demo, langSet, standalone: standalone() }),
   );
   const fit = $derived(fittingTips({ trips, items, bikes, debriefs }, today));
-  const tiles = $derived(ready ? todayTiles(cards, (n) => pickTips({ state: $tipsQ, used, fit, today, n }), today) : []);
+  // v0.30.2 (L9): only tips whose data is there (a new user sees no "a ride like your last one").
+  const pool = $derived(TIPS.filter((x) => tipPossible(x, { trips, items, bikes }, today)));
+  const tiles = $derived(ready ? todayTiles(cards, (n) => pickTips({ state: $tipsQ, used, fit, today, n, pool }), today) : []);
   const tipIds = $derived(tiles.filter((x) => x.kind === 'tip').map((x) => x.id));
   // Remember today's tips and count the days each one showed (a tip shown 3 days without a tap rests).
   $effect(() => {
@@ -163,13 +164,7 @@
       {@const Icon = CARD_ICON[c.key]}
       <div class="sig" class:late={c.prio === 1} data-card={c.key}>
         {#if Icon}<span class="ico" aria-hidden="true"><Icon size={22} strokeWidth={2} /></span>{/if}
-        {#if c.key === 'backup'}
-          <span class="lbl">{t('Your data')}</span>
-          <b>{t('Time for a backup')}</b>
-          <span>{d.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: d.days })} {importFrom ? t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date(importFrom).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) }) : d.afterTrip ? t('New debrief since the last backup: save one, then load it on the desktop.') : ''}</span>
-          <span class="src">{t('Phone and desktop keep their own data; a backup file moves it.')}</span>
-          <button type="button" class="btn sm go" disabled={backingUp} onclick={onBackup}>{t('Download backup')}</button>
-        {:else if c.key === 'demo'}
+        {#if c.key === 'demo'}
           <span class="lbl">{t('Your data')}</span>
           <b>{t('Demo running')}</b>
           <span>{t('No backups while the demo runs; your own data waits until you end it.')}</span>
@@ -200,11 +195,6 @@
           {#if d.sun}<span>{t('Sunrise {rise} · sunset {set}', { rise: clock(d.sun.rise), set: clock(d.sun.set) })}</span>{/if}
           <span class="src">{d.fc ? 'Open-Meteo' : t('sun computed offline')} · {next.title}</span>
           {@render go(t('Open the trip'), '#/pack', () => openTrip(next.id))}
-        {:else if c.key === 'inbox'}
-          <span class="lbl">{t('Inbox')}</span>
-          <b>{tn(d.notes.length, '{n} note to sort', '{n} notes to sort')}</b>
-          <span class="clip">{d.notes[0].text}</span>
-          {@render go(t('Sort now'), '#/inbox')}
         {:else if c.key === 'templates'}
           <span class="lbl">{t('Templates')}</span>
           <b>{tn(d.n, '{n} suggestion for your templates', '{n} suggestions for your templates')}</b>

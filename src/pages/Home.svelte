@@ -12,6 +12,11 @@
    * v0.23.0 (AP07): Today leads with ONE trip and ONE next step that fits it (today.js): Continue
    * planning, Start packing, Ride day or Write debrief; the step opens exactly that trip. Bike care,
    * event preparation, the backup, a waiting debrief and the Inbox follow as short lines below.
+   *
+   * v0.30.2 (L5, L6, L9): each thing is said once: what is to do is a line in "Also to do", Good to
+   * know does not repeat it; event preparation opens the trip (Before the trip), not Bike care. A trip
+   * within 14 days leads; an open debrief older than 7 days waits in "Also to do" with "All good".
+   * A new user (no bike, no gear, no trip) gets "First steps" until all three have data.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -33,8 +38,8 @@
   import { wishReason } from '../lib/insights.js';
   import { ballast } from '../lib/packhints.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
-  import { openNew, openNote, openTrip, addItem, newTrip, wantBike, take } from '../lib/nav.js';
-  import { todayFocus } from '../lib/today.js';
+  import { openNew, openNote, openTrip, openPrep, addItem, newTrip, wantBike, take } from '../lib/nav.js';
+  import { todayFocus, openDebrief } from '../lib/today.js';
   import { pastTrips } from '../lib/hubs.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
@@ -95,7 +100,8 @@
   const lead = $derived(focus?.trip ?? null);
   const leadStats = $derived(lead ? (lead === next ? stats : tripStats(lead, items, $bagsQ ?? [], bikes.find((b) => b.id === lead.bikeId), $riderQ?.value)) : null);
   const leadByBike = $derived(lead ? hasBike(lead) : true);
-  const debrief = $derived(focus?.debrief ?? null);
+  // v0.30.2 (L6): the open debrief that does not lead (also with no trip to lead with): Also to do.
+  const debrief = $derived(loaded ? openDebrief(focus, trips, debriefs, today) : null);
   const packedPct = $derived(stats?.count ? Math.round((stats.packed / stats.count) * 100) : 0);
 
   /* ---------- v0.24.1 (Noah 3a): "How was {trip}?" → "All good" saves the debrief right here ---------- */
@@ -103,8 +109,9 @@
   let quick = $state(null);
   let quickTimer;
   const UNDO_MS = 8000;
-  async function allGood() {
-    const trip = $state.snapshot(lead);
+  // v0.30.2 (L6): also from the line "Debrief still open" in Also to do (trip: that one).
+  async function allGood(of = lead) {
+    const trip = $state.snapshot(of);
     const prev = debriefs.find((x) => x.tripId === trip.id) ?? null;
     const record = quickDebrief(trip, prev ? structuredClone($state.snapshot(prev)) : null);
     // Noah 4a: the template offer is decided before anything changes.
@@ -133,6 +140,36 @@
     });
   }
   $effect(() => () => clearTimeout(quickTimer));
+
+  /* ---------- v0.30.2 (L9): First steps for a new user ---------- */
+  // Shown once the app was seen empty (no bike, no gear, no trip) and until all three have data;
+  // remembered per device, so a bike added first does not end it. Without storage: only while empty.
+  const FIRST = 'home.firstSteps';
+  const steps = $derived({ bike: bikes.length > 0, gear: items.length > 0, trip: trips.length > 0 });
+  const stepsAll = $derived(steps.bike && steps.gear && steps.trip);
+  let firstOn = $state(
+    (() => {
+      try {
+        return localStorage.getItem(FIRST) === '1';
+      } catch {
+        return false;
+      }
+    })(),
+  );
+  $effect(() => {
+    if (!loaded || !$bikesQ) return;
+    const empty = !steps.bike && !steps.gear && !steps.trip;
+    if (empty && !firstOn) firstOn = true;
+    else if (stepsAll && firstOn) firstOn = false;
+    else return;
+    try {
+      if (firstOn) localStorage.setItem(FIRST, '1');
+      else localStorage.removeItem(FIRST);
+    } catch {
+      /* private mode: only while the app is empty */
+    }
+  });
+  const showFirst = $derived(loaded && !!$bikesQ && firstOn && !stepsAll);
 
   /* ---------- Pack: trips and templates to open ---------- */
   // v0.30.1 (Noah E6, C5): every trip still ahead (also several day rides on one day), soonest
@@ -278,6 +315,7 @@
   };
 </script>
 
+{#snippet mark(done, n)}{#if done}<span class="mark ok" role="img" aria-label={t('Done|task')}>✓</span>{:else}<span class="mark" aria-hidden="true">{n}</span>{/if}{/snippet}
 {#snippet ic(name, size = 20)}<svg class="ic" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><path d={ICON[name]} /></svg>{/snippet}
 
 <!-- v0.23.1 (Noah 3b): one place. Desktop: a card with its heading as now. Phone: folded closed,
@@ -305,6 +343,29 @@
     </section>
   {/if}
 
+  <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data; in place of "No trip planned". -->
+  {#if showFirst}
+    <section class="card first" aria-labelledby="first-h">
+      <h2 id="first-h" class="title">{t('First steps')}</h2>
+      <p class="muted">{t('Three steps, then Today shows your next trip.')}</p>
+      <ol>
+        <li class:done={steps.bike}>
+          {@render mark(steps.bike, 1)}
+          {#if steps.bike}<span class="txt">{t('Add your bike')}</span>{:else}<a class="btn sm step" href="#/bikes" onclick={wantBike}>{t('Add your bike')}</a>{/if}
+        </li>
+        <li class:done={steps.gear}>
+          {@render mark(steps.gear, 2)}
+          <span class="txt">{t('Gear: import a backup or enter your first items')}</span>
+          {#if !steps.gear}<span class="step-acts"><button type="button" class="btn sm step" onclick={openData}>{t('Import backup')}</button><button type="button" class="btn sm step" onclick={() => addItem()}>{t('Add item')}</button></span>{/if}
+        </li>
+        <li class:done={steps.trip}>
+          {@render mark(steps.trip, 3)}
+          {#if steps.trip}<span class="txt">{t('Plan your first trip')}</span>{:else}<button type="button" class="btn sm step" onclick={() => openNew('list')}>{t('Plan your first trip')}</button>{/if}
+        </li>
+      </ol>
+    </section>
+  {/if}
+
   <!-- What is next: the strongest contrast on the page, ONE main action (v0.23.0, AP07). -->
   {#if focus?.ask}
     <!-- v0.24.1 (Noah 3a): a trip that ended asks how it was: "All good" saves, "In detail" opens the steps. -->
@@ -318,7 +379,7 @@
         </p>
       </div>
       <div class="acts">
-        <button type="button" class="btn hi main" onclick={allGood}>{t('All good')}</button>
+        <button type="button" class="btn hi main" onclick={() => allGood()}>{t('All good')}</button>
         <a class="btn main second" href={focus.href} onclick={() => openTrip(lead.id)}>{t(focus.label)}</a>
         <span class="why">{t(focus.why)}</span>
       </div>
@@ -350,7 +411,7 @@
         {/if}
       </div>
     </section>
-  {:else if loaded}
+  {:else if loaded && !showFirst}
     <section class="band" aria-labelledby="next-h">
       <div class="who">
         <span class="lbl">{todayText}</span>
@@ -362,7 +423,7 @@
   {/if}
 
   <!-- v0.23.0 (AP07): everything else that wants attention, one short line each, below the main step. -->
-  {#if loaded && ((care && care.status !== 'ok') || prep || debrief || backup.due || notes.length || !bikes.length || (focus?.kind === 'debrief' && next) || alsoToday.length)}
+  {#if loaded && ((care && care.status !== 'ok') || prep || debrief || backup.due || notes.length || (!bikes.length && !showFirst) || (focus?.kind === 'debrief' && next) || alsoToday.length)}
     <section class="also" aria-labelledby="also-h">
       <h2 id="also-h" class="lbl">{t('Also to do')}</h2>
       <ul>
@@ -372,17 +433,20 @@
         {#each alsoToday as tr (tr.id)}
           <li><span>{t('Also today: {title}', { title: tr.title })}{tr.bike ? ` · ${tr.bike}` : ''}</span><a href="#/pack" onclick={() => openTrip(tr.id)}>{t('Open the trip')}</a></li>
         {/each}
+        <!-- v0.30.2 (L6): an open debrief that does not lead: the same one-tap "All good" as the band. -->
         {#if debrief}
-          <li><span>{t('Last trip: {title}', { title: debrief.title })}</span><a href="#/debrief/{encodeURIComponent(debrief.id)}" onclick={() => openTrip(debrief.id)}>{t('Write debrief')}</a></li>
+          <li><span>{t('Debrief still open: {title}', { title: debrief.title })}</span><span class="two-acts"><button type="button" class="btn sm" onclick={() => allGood(debrief)}>{t('All good')}</button><a href="#/debrief/{encodeURIComponent(debrief.id)}" onclick={() => openTrip(debrief.id)}>{t('Debrief')}</a></span></li>
         {/if}
         <!-- v0.22.0 (AP06): one line per scope, each to the right bike or trip. -->
         {#if care && care.status !== 'ok'}<li class:late={care.status === 'due'}><span>{bikeCareLine(care)}</span><a href={care.href}>{t('Bike care')}</a></li>{/if}
-        {#if prep}<li class:late={prep.overdue > 0}><span>{eventPrepLine(prep)}</span><a href={prep.href}>{t('Tick off in Bike care')}</a></li>{/if}
+        <!-- v0.30.2 (L5): the preparation is the trip's: the trip opens with "Before the trip" open. -->
+        {#if prep}<li class:late={prep.overdue > 0}><span>{eventPrepLine(prep)}</span><a href="#/pack" onclick={() => openPrep(next.id)}>{t('Tick off in the trip')}</a></li>{/if}
         {#if backup.due}
-          <li class="late"><span>{t('Time for a backup')}: {backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}</span><button type="button" class="link" disabled={backingUp} onclick={backupNow}>{t('Download backup')}</button></li>
+          <!-- v0.30.2 (L5): the one place of the backup reminder (Good to know has no card for it any more). -->
+          <li class="late"><span>{t('Time for a backup')}: {backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}{#if $importQ?.from} {t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($importQ.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}{:else if backup.afterTrip} {t('New debrief since the last backup: save one, then load it on the desktop.')}{/if}</span><button type="button" class="link" disabled={backingUp} onclick={backupNow}>{t('Download backup')}</button></li>
         {/if}
         {#if notes.length}<li><span>{tn(notes.length, '{n} note to sort', '{n} notes to sort')}</span><a href="#/inbox">{t('Inbox')}</a></li>{/if}
-        {#if !bikes.length}<li><span>{t('No bikes yet.')}</span><a href="#/bikes" onclick={wantBike}>{t('Add a bike')}</a></li>{/if}
+        {#if !bikes.length && !showFirst}<li><span>{t('No bikes yet.')}</span><a href="#/bikes" onclick={wantBike}>{t('Add a bike')}</a></li>{/if}
       </ul>
     </section>
   {/if}
@@ -481,7 +545,7 @@
 
   <!-- Good to know (v0.25.1, Noah 1a): only cards with content, the most urgent first, one button each.
        v0.30.0 (Noah 1a): 6 tiles with tips; it waits for every table it reads (a tip must not look unused). -->
-  <GoodToKnow loaded={loaded && !!$bikesQ && !!$debriefsQ && !!$visitsQ && !!$learnQ && !!$bagsQ} {today} {next} {place} {trips} {items} {bikes} {visits} {debriefs} {learnings} {notes} containers={$bagsQ ?? []} {backup} demo={$demoQ ?? null} importFrom={$importQ?.from ?? null} {backingUp} onBackup={backupNow} onData={openData} />
+  <GoodToKnow loaded={loaded && !!$bikesQ && !!$debriefsQ && !!$visitsQ && !!$learnQ && !!$bagsQ} {today} {next} {place} {trips} {items} {bikes} {visits} {debriefs} {learnings} containers={$bagsQ ?? []} demo={$demoQ ?? null} onData={openData} />
 
   <details class="data" bind:this={dataEl} bind:open={dataOpen}>
     <summary><b>{t('Your data')}</b> <span class="muted">{t('backup, import, export, favourites')}</span></summary>
@@ -666,6 +730,86 @@
     min-height: 44px;
     display: inline-flex;
     align-items: center;
+  }
+
+  /* v0.30.2 (L6): "All good" and "Debrief" side by side on the line of an open debrief. */
+  .also .two-acts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 16px;
+  }
+  .also .two-acts .btn {
+    min-height: 44px;
+  }
+  .also .two-acts a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  /* v0.30.2 (L9): First steps, three numbered rows; a done one shows ✓ and loses its buttons. */
+  .first h2 {
+    margin: 0;
+    font-size: var(--fs-section);
+  }
+  .first > p {
+    margin: 4px 0 8px;
+  }
+  .first ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .first li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    min-height: 44px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .first li:last-child {
+    border-bottom: 0;
+  }
+  .first .txt {
+    flex: 1 1 200px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .first li.done .txt {
+    color: var(--ink-3);
+    text-decoration: line-through;
+  }
+  .mark {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid var(--ink-3);
+    border-radius: 50%;
+    font-weight: 700;
+  }
+  .mark.ok {
+    border-color: var(--ok);
+    background: var(--ok);
+    color: var(--paper);
+  }
+  .first .step {
+    min-height: 44px;
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+  }
+  .step-acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-left: 40px;
   }
 
   /* Phone: quick create buttons */
