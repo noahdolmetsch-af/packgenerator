@@ -91,7 +91,7 @@ for (const lang of ['de', 'en']) {
     // v0.29.2 (Noah 4a): a green card says what was made and where it is.
     const bar = page.locator('.made-card');
     const when = day === (await page.evaluate(() => new Date().toLocaleDateString('sv-SE'))) ? T('today') : T('tomorrow');
-    await expect(bar).toContainText(`${T('Day ride created')} · Test gravel · ${when}`);
+    await expect(bar).toContainText(`${T('Day ride created')} · Test gravel bike · ${when}`);
     await expect(bar).toContainText(T('{hours} h · {weather}', { hours: '2', weather: T('Chilly') }));
     await expect(bar).toContainText(T('You find it under Trips and at the top of Today.'));
     // v0.29.0 (Noah 5a): a folded bag shows its items in one line, amounts included.
