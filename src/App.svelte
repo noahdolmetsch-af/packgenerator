@@ -365,6 +365,42 @@
       gap: 2px;
     }
   }
+  /* v0.30.1 (Noah D6): a phone turned sideways (844×390) is wider than 720 px and gets the big-screen
+     bar, which took 102 of 390 px (logo and places on two lines). Low there: one line, 48 px. */
+  @media (max-height: 500px) and (min-width: 720px) {
+    .top {
+      min-height: 48px;
+      gap: 4px 16px;
+      padding: calc(2px + env(safe-area-inset-top)) max(var(--gut), env(safe-area-inset-right)) 2px max(var(--gut), env(safe-area-inset-left));
+    }
+    .top .long {
+      display: none;
+    }
+    .top .short {
+      display: inline;
+    }
+    .places {
+      flex-wrap: nowrap;
+      gap: 4px 20px;
+      margin-left: 0;
+    }
+    .places a {
+      font-size: 16px;
+      white-space: nowrap;
+    }
+    .tools {
+      min-width: 0;
+      gap: 6px;
+    }
+  }
+  /* A small phone sideways (667×375) keeps the phone layout: low bars there too. */
+  @media (max-height: 500px) and (max-width: 719px) {
+    .top {
+      min-height: 48px;
+      padding-top: calc(2px + env(safe-area-inset-top));
+      padding-bottom: 2px;
+    }
+  }
   /* Phone (answer 3a): the places at the bottom, in reach of the thumb, + in the middle. */
   .bottom {
     position: fixed;
@@ -425,6 +461,23 @@
     outline: 3px solid var(--focus-on-dark);
     outline-offset: 2px;
   }
+  /* v0.30.1 (D6): sideways, the bottom bar is one 44 px row: icon next to the label, a smaller +. */
+  @media (max-height: 500px) {
+    .bottom {
+      padding: 2px max(6px, env(safe-area-inset-right)) calc(2px + env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+    }
+    .bottom a {
+      flex-direction: row;
+      gap: 6px;
+      min-height: 44px;
+    }
+    .bottom .plus {
+      width: 44px;
+      height: 44px;
+      margin: 0 4px;
+      border-width: 0;
+    }
+  }
   main {
     padding: var(--gut);
     max-width: 1200px;
@@ -438,6 +491,15 @@
   @media (max-width: 719px) {
     main {
       padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+  }
+  /* v0.30.1 (D6): sideways, less room above the page, and clear of a notch at the side. */
+  @media (max-height: 500px) {
+    main,
+    main.calm {
+      padding-top: 10px;
+      padding-left: max(var(--gut), env(safe-area-inset-left));
+      padding-right: max(var(--gut), env(safe-area-inset-right));
     }
   }
   /* v0.23.0 (AP07): the bars never print (a shared list, Print list). */

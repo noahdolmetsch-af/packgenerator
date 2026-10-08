@@ -22,6 +22,30 @@
 import { t as tr } from './i18n.svelte.js';
 import { localDay } from './localday.js';
 
+/**
+ * v0.30.1 (Noah's phone test, D1): km as typed on a phone, in Swiss or German style:
+ * "2'287", "2’287", "2 287", "2.287" and "2,287" are 2287; "2287,4" and "2287.6" are rounded;
+ * "2287 km" is fine. Returns a whole number, null for an empty field, or NaN for anything else
+ * (negative, above 500 000, letters).
+ */
+export function parseKm(text) {
+  let s = String(text ?? '').trim().replace(/\s*km$/i, '').replace(/[\s'’ʼ`´]/g, '');
+  if (s === '') return null;
+  const dots = (s.match(/\./g) ?? []).length;
+  const commas = (s.match(/,/g) ?? []).length;
+  if (dots && commas) {
+    // Both: the last one is the decimal mark, the other groups thousands.
+    const dec = s.lastIndexOf('.') > s.lastIndexOf(',') ? '.' : ',';
+    s = s.replaceAll(dec === '.' ? ',' : '.', '').replace(dec, '.');
+  } else if (dots + commas > 1 || /^\d{1,3}[.,]\d{3}$/.test(s)) {
+    // "2.287", "2,287" or "1.234.567": thousands.
+    s = s.replace(/[.,]/g, '');
+  } else s = s.replace(',', '.');
+  if (!/^\d+(\.\d+)?$/.test(s)) return NaN;
+  const n = Math.round(Number(s));
+  return n <= 500000 ? n : NaN;
+}
+
 export const PARTS = [
   { key: 'chain', name: 'Chain', unit: '%', warnAt: 0.4, limit: 0.5, everyKm: 150, service: 'Waxed', hint: 'Chain checker: 0.4 % warning, 0.5 % replace' },
   { key: 'chainring', name: 'Chainring', unit: '' },

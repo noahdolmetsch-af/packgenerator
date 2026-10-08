@@ -11,7 +11,7 @@
   import { bikeCareWords } from '../readiness.js';
 
   let {
-    c, tasks, repairs, wished = {}, kmMsg = '', open = false,
+    c, tasks, repairs, wished = {}, kmMsg = null, open = false,
     ontoggle, onkm, oncheck, onpart, ontyre, onvisit, onorder, onwish, onrepair,
   } = $props();
 
@@ -24,6 +24,13 @@
   const PRIO = { high: 'High', medium: 'Medium', low: 'Low' };
   const chf = (n) => `CHF ${n.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const day = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  // v0.30.1 (D1): km save on Enter, on leaving the field and with the button; the field then shows
+  // the number as stored ("2.287" becomes 2287). An empty field goes back to the stored km.
+  async function km(input) {
+    const n = await onkm(input.value);
+    if (n != null) input.value = n;
+    else if (input.value.trim() === '') input.value = bike.km ?? '';
+  }
   const inDays = (d) => (d <= 0 ? overdueDays(-d) : d < 45 ? tn(d, 'in {n} day', 'in {n} days') : tn(Math.round(d / 30.4), 'in {n} month', 'in {n} months'));
 </script>
 
@@ -38,12 +45,15 @@
   </summary>
 
   {#if open}
-    <label class="km">
-      <span class="lbl">{t('km now')}</span>
-      <input class="inp num" type="text" inputmode="numeric" value={bike.km ?? ''} placeholder={t('not set')} onchange={(e) => onkm(e.currentTarget.value)} />
+    <form class="km" onsubmit={(e) => (e.preventDefault(), km(e.currentTarget.elements.km))}>
+      <label>
+        <span class="lbl">{t('km now')}</span>
+        <input class="inp num" name="km" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" value={bike.km ?? ''} placeholder={t('not set')} onchange={(e) => km(e.currentTarget)} />
+      </label>
+      <button type="submit" class="btn sm">{t('Save km')}</button>
       {#if bike.kmDate}<small>{t('set {date}', { date: bike.kmDate })}</small>{/if}
-    </label>
-    {#if kmMsg}<p class="err">{kmMsg}</p>{/if}
+    </form>
+    {#if kmMsg?.error}<p class="err" role="alert">{kmMsg.text}</p>{:else if kmMsg}<p class="saved" role="status">{kmMsg.text}</p>{/if}
 
     <div class="cols">
       <div>
@@ -71,7 +81,7 @@
                   {#if needsWork(part)}<span class="pill red">{t('work needed')}</span>{/if}
                   {#if w}<span class="pill {w}">{v.value} {info.unit}</span>{:else if v}{v.value} {info.unit}{/if}
                   {#if since != null && info.unit}<small>{num(since)} km</small>{/if}
-                  {#if !part.history?.length}<small class="m">–</small>{/if}
+                  {#if !part.history?.length}<small class="m">–</small>{:else if since == null || !info.unit}<small>{part.history.at(-1).date}{part.history.at(-1).km != null && !info.unit ? ` · ${num(part.history.at(-1).km)} km` : ''}</small>{/if}
                 </span>
               </button>
             </li>
@@ -237,11 +247,29 @@
     gap: 6px;
     margin-bottom: 6px;
   }
+  .km {
+    flex-wrap: wrap;
+  }
+  .km label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
   .km .lbl {
     margin: 0;
   }
   .km .inp {
     width: 110px;
+    min-height: 44px;
+  }
+  .km .btn {
+    min-height: 44px;
+  }
+  .saved {
+    margin: 0 0 6px;
+    font-size: 14px;
+    color: var(--ok);
+    font-weight: 700;
   }
   .cols {
     display: grid;

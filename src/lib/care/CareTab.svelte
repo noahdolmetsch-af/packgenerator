@@ -6,7 +6,7 @@
   import { nextId } from '../gear.js';
   import { tick } from 'svelte';
   import {
-    ensureParts, checkState, serviceDue, logPart, taskBike, openRepairs, toReview, prepFor, prepRules, upcomingTrips, prepParts, prepService, wishFor, CHECK_KM,
+    ensureParts, checkState, serviceDue, logPart, parseKm, PART, taskBike, openRepairs, toReview, prepFor, prepRules, upcomingTrips, prepParts, prepService, wishFor, CHECK_KM,
   } from '../care.js';
   import TripCare from './TripCare.svelte';
   import BikeCare from './BikeCare.svelte';
@@ -92,6 +92,7 @@
   async function savePart(view, key, entry) {
     const bike = bikeById[view.id];
     await db.bikes.update(bike.id, { parts: logPart(bike.parts, key, entry) });
+    saved(view, [key], entry);
     // "Replace needed" puts the part on the wishlist (answer 6), with the last price paid (answer 19a).
     if (entry.result === 'needed') await wish(view, key, entry.model);
   }
@@ -114,14 +115,46 @@
     const entry = { date: today, km: bike.km ?? null, value: null, action, result: action === 'check' ? 'ok' : 'done', by, model: null, note };
     for (const k of keys) parts = logPart(parts, k, entry);
     await db.bikes.update(bike.id, { parts });
+    return entry;
   }
 
-  let kmMsg = $state('');
+  /* ---------- what was just saved (v0.30.1, D1 + D2: Noah did not see that it worked) ---------- */
+  let notice = $state(null); // { id, text }
+  let noticeTimer;
+  function say(text) {
+    clearTimeout(noticeTimer);
+    notice = { id: Date.now(), text };
+    noticeTimer = setTimeout(() => (notice = null), 6000);
+  }
+  const WHAT = (entry, key) =>
+    entry.result === 'needed' ? t('work needed') : entry.action === 'check' ? t('checked, OK') : entry.action === 'service' ? t('serviced') : PART[key]?.unit ? t('replaced') : t('done');
+  /** "Saved: Tyres + sealant, done, 2026-10-08 · 3'200 km. Next time 2027-01-06." */
+  function saved(view, keys, entry) {
+    const parts = keys.map((k) => (PART[k] ? t(PART[k].name) : k)).join(', ');
+    const vars = { part: parts, what: WHAT(entry, keys[0]), date: entry.date, km: num(entry.km) };
+    let text = entry.km != null ? t('Saved: {part}, {what}, {date} · {km} km.', vars) : t('Saved: {part}, {what}, {date}.', vars);
+    // A service by time: say when it is due next (sealant every 90 days, fork once a year).
+    const timed = keys.length === 1 && entry.result === 'done' && entry.action !== 'check' ? checks.find((c) => c.bike.id === view.id)?.time.find((s) => s.key === keys[0]) : null;
+    if (timed) text += ` ${t('Next time {date}.', { date: new Date(Date.parse(`${entry.date}T00:00:00Z`) + timed.every * 864e5).toISOString().slice(0, 10) })}`;
+    say(text);
+  }
+  async function checkAndSay(view, keys, action, note) {
+    const entry = await checkParts(view, keys, action, note);
+    saved(view, keys, entry);
+  }
+
+  // v0.30.1 (D1): km typed the Swiss or German way ("2'287", "2.287", "2 287") are saved and said.
+  let kmMsg = $state(null); // { bikeId, text, error }
   async function saveKm(bike, text) {
-    const n = text.trim() === '' ? null : Math.round(Number(text.replace(/['’,\s]/g, '')));
-    if (n !== null && !(n >= 0 && n <= 500000)) return (kmMsg = t('Type the km as a whole number, e.g. 12400.'));
-    kmMsg = '';
+    const n = parseKm(text);
+    if (n === null) return null; // an empty field keeps the km: nothing is lost by clearing it by mistake
+    if (Number.isNaN(n)) {
+      kmMsg = { bikeId: bike.id, text: t('Type the km as a whole number, e.g. 12400.'), error: true };
+      return null;
+    }
     await db.bikes.update(bike.id, { km: n, kmDate: today });
+    kmMsg = { bikeId: bike.id, text: t('{km} km saved.', { km: num(n) }), error: false };
+    return n;
   }
 
   /* ---------- preparation tasks per trip ---------- */
@@ -236,7 +269,7 @@
             <li>
               <span><b>{o.bike.name}: {o.name}</b><small>{o.detail}</small></span>
               {#if o.kind === 'time' || o.kind === 'km'}
-                <button type="button" class="btn sm" onclick={() => checkParts(o.bike, [o.part], 'service', o.kind === 'time' ? o.name : '')}>{t('Done|task')}</button>
+                <button type="button" class="btn sm" onclick={() => checkAndSay(o.bike, [o.part], 'service', o.kind === 'time' ? o.name : '')}>{t('Done|task')}</button>
               {:else}
                 <button type="button" class="btn sm" onclick={() => openBike(o.bike.id)}>{t('Open')}</button>
               {/if}
@@ -298,11 +331,11 @@
           {tasks}
           repairs={repairsFor(c.bike.id)}
           {wished}
-          {kmMsg}
+          kmMsg={kmMsg?.bikeId === c.bike.id ? kmMsg : null}
           open={!!opened[c.bike.id]}
           ontoggle={(isOpen) => toggled(c.bike.id, isOpen)}
           onkm={(text) => saveKm(c.bike, text)}
-          oncheck={(keys, action, note) => checkParts(c.bike, keys, action, note)}
+          oncheck={(keys, action, note) => checkAndSay(c.bike, keys, action, note)}
           onpart={(key) => (partOpen = { bikeId: c.bike.id, key })}
           ontyre={(w, value) => setTyre(bikeById[c.bike.id], w, value)}
           onvisit={(id) => (visitOpen = id)}
@@ -332,6 +365,10 @@
   {/if}
 </div>
 
+{#if notice}
+  {#key notice.id}<p class="notice" role="status">{notice.text}</p>{/key}
+{/if}
+
 {#if partOpen}
   {@const b = viewById[partOpen.bikeId]}
   {@const part = b?.parts.find((p) => p.key === partOpen.key)}
@@ -353,6 +390,28 @@
 {/if}
 
 <style>
+  /* v0.30.1 (D2): a short line after a save, above the bottom bar, so it is seen wherever the page is scrolled. */
+  .notice {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    z-index: 30;
+    width: max-content;
+    max-width: min(560px, calc(100vw - 32px));
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 15px;
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.25);
+  }
+  @media (max-width: 719px) {
+    .notice {
+      bottom: calc(84px + env(safe-area-inset-bottom));
+    }
+  }
   .by {
     display: flex;
     align-items: center;

@@ -441,4 +441,9 @@ export default {
   '{n} other photo was saved.': '{n} anderes Foto wurde gespeichert.',
   '{n} other photos were saved.': '{n} andere Fotos wurden gespeichert.',
   'No photo was saved.': 'Kein Foto wurde gespeichert.',
+  // v0.30.1 (Noah's phone test, D1 + D2): say what was saved.
+  '{km} km saved.': '{km} km gespeichert.',
+  'Saved: {part}, {what}, {date} · {km} km.': 'Gespeichert: {part}, {what}, {date} · {km} km.',
+  'Saved: {part}, {what}, {date}.': 'Gespeichert: {part}, {what}, {date}.',
+  'Next time {date}.': 'Nächstes Mal {date}.',
 };
