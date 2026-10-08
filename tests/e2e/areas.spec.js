@@ -88,21 +88,25 @@ for (const lang of ['en', 'de']) {
     await expect(go).toContainText(T('Next: Pack'));
     await go.click();
     await expect(page).toHaveURL(/#\/pack\?day/);
+    const missed = [];
     for (let guard = 0; guard < 80; guard++) {
       const open = page.locator('.pd ul.items button[aria-pressed="false"]:not([disabled])');
       if (await open.count()) {
-        await open.first().click({ timeout: 3000 }).catch(() => {}); // a full bag may just have closed
+        // a full bag may just have closed: note why a click did not land, so a failure says it
+        await open.first().click({ timeout: 3000 }).catch((e) => missed.push(e.message.split('\n')[0]));
         continue;
       }
       const closed = page.locator('.pd .pbag:not(.done):not(.cur) .bagh');
       if (await closed.count()) {
-        await closed.first().click({ timeout: 3000 }).catch(() => {});
+        await closed.first().click({ timeout: 3000 }).catch((e) => missed.push(e.message.split('\n')[0]));
         continue;
       }
       break;
     }
+    const left = await page.locator('.pd').evaluate((el) => [...el.querySelectorAll('.pbag')].map((b) => `${b.className}: ${b.querySelector('.bagh')?.innerText.replace(/\s+/g, ' ')}`).join(' | '));
+    expect(missed.length, `clicks that did not land: ${missed.slice(-3).join(' / ')}; bags: ${left}`).toBeLessThan(10);
     await fits('Pack, weekend');
-    await expect(page.locator('.pd').getByText(T('Everything is in. Have a good trip!'))).toBeVisible();
+    await expect(page.locator('.pd').getByText(T('Everything is in. Have a good trip!')), `bags after packing: ${left}; status: ${await page.locator('.pd .tp-status').innerText()}`).toBeVisible();
 
     // 7. No "On the way": the one orange button goes straight to the debrief.
     await expect(go).toContainText(T('Next: Debrief'));
