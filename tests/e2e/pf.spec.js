@@ -44,25 +44,8 @@ const nightOnly = (i) => i.sets?.length && i.sets.every((s) => NIGHT_SETS.includ
  * Key: "PFxx: check label". Remove a line once the run reports it as passing.
  */
 // v0.27.0 (AP23): gaps found on 2026-10-08, see design/v0270/pf/protokoll.md. App code is not changed in AP23.
-const KNOWN_GAPS = new Set([
-  // Pack rows do not say why a weather layer is on the list.
-  'PF02: the list says why an added layer is there (e.g. "Below 6 °C" at the winter gloves)',
-  'PF02: two jerseys on the list: the long sleeve one says why ("Below 10 °C")',
-  // The review hides rows that are already done, so after the automatic apply the alternative cannot be chosen.
-  'PF02: the alternative (light gilet for the wind vest) is visible',
-  // After a context change only "Undo" is shown, not "1 → 2".
-  'PF03: the change 1 → 2 is said on the screen (not only the new number)',
-  // The capped row counts as done, so the review says "No open material suggestions".
-  // The bar row shows "× 3" and the buy hint, but not the need of 6.
-  'PF04: the full need (6 for 6 h) stays visible',
-  'PF04: the conflict rule vs note is pointed out ("Check amount rule and material note")',
-  // The gel row shows "× 4" and the buy hint, no "per day" or total.
-  'PF05: amounts are explained per day and in total (e.g. "per day")',
-  // The Buff row shows only name and weight.
-  'PF10: Pack shows where the Buff comes from (Warm, Rain block, below 8 °C)',
-  // The ride page still says «Fahrt und Wetter»; Pack calls it «Tourbedingungen bearbeiten».
-  'S1: ride day: no hint to a Pack place that does not exist ("Ride and weather")',
-]);
+// v0.27.0 (pffix): PF02, PF03, PF04, PF05, PF10 and S1 are fixed and guarded again.
+const KNOWN_GAPS = new Set([]);
 
 /* ---------- start, mocks, records ---------- */
 
@@ -282,13 +265,14 @@ test('PF02: alpine, 6 h, 4 to 12 C, showers, Scott Spark: reasoned suggestions, 
   await rec.click(sheet.locator('details.wxbox > summary'));
   await rec.fill(sheet.getByLabel('Min °C'), '4');
   await sheet.getByLabel('Min °C').press('Tab');
-  // The weather box folds shut as soon as min and max are set; a human has to open it again for the rain.
+  // v0.27.0 (pffix): the weather box stays open while typing (it folded shut before; then a human had to open it again).
   const wxBox = sheet.locator('details.wxbox');
   rec.r.counts.weatherBoxReopened = 0;
   if (!(await wxBox.evaluate((d) => d.open))) {
     await rec.click(wxBox.locator('summary'));
     rec.r.counts.weatherBoxReopened = 1;
   }
+  await rec.check('the weather box stays open after Min °C (no extra tap for the rain)', () => expect(rec.r.counts.weatherBoxReopened).toBe(0));
   await rec.select(sheet.locator('.wxin select'), 'showers');
   await expect.poll(async () => (await tripNamed(page, title))?.wx).toEqual({ min: 4, max: 12, rain: 'showers' });
   await rec.click(sheet.getByRole('button', { name: T('Done') }));
@@ -305,13 +289,27 @@ test('PF02: alpine, 6 h, 4 to 12 C, showers, Scott Spark: reasoned suggestions, 
   await rec.check('two jerseys on the list: the long sleeve one says why ("Below 10 °C")', async () => {
     if (on.has(id('KL01')) && on.has(id('KL03'))) await expect(planningRow(page, 'KL03')).toContainText(T('Below {n} °C', { n: 10 }), { timeout: 2000 });
   });
-  // Review weather suggestions: what is still open, with its reason and the alternative.
+  await planningRow(page, 'KL09').scrollIntoViewIfNeeded();
+  await rec.shot('rows');
+  // v0.27.0 (pffix): the alternative is in the wind vest row's menu (the review only shows what is still open).
+  await rec.check('the alternative (light gilet for the wind vest) is visible', async () => {
+    await rowButton(page, 'KL07').click();
+    await expect(page.getByRole('button', { name: T('Swap for {name}', { name: nm('KL08') }) })).toBeVisible({ timeout: 2000 });
+  });
+  await rec.check('swap for the gilet keeps the reason; Undo brings the wind vest back', async () => {
+    await page.getByRole('button', { name: T('Swap for {name}', { name: nm('KL08') }) }).click();
+    await expect(planningRow(page, 'KL08')).toContainText(T('Below {n} °C', { n: 12 }), { timeout: 2000 });
+    await expect(planningRow(page, 'KL07')).toHaveCount(0);
+    await page.locator('.list-toolbar .undo').click();
+    await expect(planningRow(page, 'KL07')).toBeVisible({ timeout: 2000 });
+    await expect(planningRow(page, 'KL08')).toHaveCount(0);
+  });
+  // Review weather suggestions: what is still open, with its reason.
   await rec.click(page.getByRole('button', { name: new RegExp(esc(T('Review weather suggestions'))) }));
   const review = page.locator('section.review');
   await expect(review.getByRole('heading', { name: T('Still to decide') })).toBeVisible();
   await rec.shot();
   await rec.check('the optional rain trousers are offered with a reason ("Rain, optional")', () => expect(review.locator('.decision').filter({ hasText: nm('KL06') })).toContainText(T('Rain, optional'), { timeout: 2000 }));
-  await rec.check('the alternative (light gilet for the wind vest) is visible', () => expect(review.getByLabel(T('Alternative for {name}', { name: nm('KL07') }))).toBeVisible({ timeout: 2000 }));
   await rec.check('no sideways scroll', async () => expect(await wide(page)).toBe(0));
   rec.done(errors);
 });
@@ -964,8 +962,8 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
 /* night items taken out by hand, duplicate suggestions, lost references/ticks, status texts */
 /* that contradict each other.                                                               */
 
-/** Today's words for a fully packed trip: "100 % packed" (phone) or "N packed · 0 still to pack" (desktop). */
-const allPacked = () => new RegExp(`${esc(T('{n} % packed', { n: 100 }))}|${esc(T('{packed} packed · {left} still to pack', { packed: '@@', left: 0 })).replace('@@', '\\d+')}`);
+/** Today's words for a fully packed trip: "100 % packed" (v0.27.0: the same on phone and desktop, desktop adds "N of N"). */
+const allPacked = () => new RegExp(esc(T('{n} % packed', { n: 100 })));
 
 /** Today's tile (on a phone it starts folded). key: 'pack' | 'gear' | 'bikes'. */
 async function tile(page, key) {

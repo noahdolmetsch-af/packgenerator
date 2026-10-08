@@ -1,6 +1,7 @@
 <script>
   import { Shirt, CloudRain, Utensils, Backpack, Check, ChevronDown, CircleAlert } from '@lucide/svelte';
   import { reviewRows } from '../preparation.js';
+  import { amountChecks } from '../reasons.js';
   import { formatWeight } from '../gear.js';
   import { nameOf, t, tn } from '../i18n.svelte.js';
   let { trip, items, onapply, oncancel, onconditions } = $props();
@@ -11,6 +12,9 @@
   const rows = $derived(reviewRows(trip, items, choices));
   const byId = $derived(Object.fromEntries(items.map(i => [i.id, i])));
   const count = $derived(rows.filter(r => r.selected).length);
+  // v0.27.0 (Noah 1a, PF04): an amount capped by its maximum, or a rule next to a material note, stays
+  // visible here as an info row, also when nothing is left to choose.
+  const checks = $derived(amountChecks(trip, items, new Set(rows.map(r => r.id))));
   const update = (slot, patch) => choices = { ...choices, [slot]: { ...choices[slot], ...patch } };
   // v0.24.0 (Noah, "select all"): every suggestion on or off in one tap.
   const setAll = (on) => choices = Object.fromEntries(rows.map((r) => [r.slot, { ...choices[r.slot], selected: on }]));
@@ -32,7 +36,7 @@
       </p>
     {/if}
   </div>
-  {#if !rows.length}
+  {#if !rows.length && !checks.length}
     <div class="review-empty"><Check size={24} /><div><h3>{t('No open material suggestions')}</h3><p>{t('Check your trip conditions or continue to your packing list.')}</p><button class="text-button" onclick={onconditions}>{t('Edit trip conditions')}</button></div></div>
   {/if}
   <div class="decision-list">
@@ -60,6 +64,17 @@
             {#if inspected === row.slot}<div class="quantity-note"><p>{t('Rule: one piece per {hours} h. Suggested for this trip: {qty}.', { hours: item.perHours, qty: row.qty })}</p><p><strong>{t('Material note')}:</strong> {item.note}</p><p>{t('The app does not interpret free text. Confirm the amount above.')}</p></div>{/if}
           </div>
         {/if}
+      </div>
+    {/each}
+    {#each checks as c (c.id)}
+      {@const item = byId[c.id]}
+      <div class="decision info">
+        <CircleAlert size={38} strokeWidth={1.6} />
+        <div class="decision-reason"><h3>{nameOf(item)}</h3><p>{c.amount.text}</p></div>
+        <div class="quantity-review">
+          <CircleAlert size={20} /><span>{c.note ? t('Check amount rule and material note') : t('Check the amount: the maximum is below the need')}</span><button class="text-button" aria-expanded={inspected === c.id} onclick={() => inspected = inspected === c.id ? null : c.id}>{t('Check|review')}</button>
+          {#if inspected === c.id}<div class="quantity-note"><p>{t('Rule: one piece per {hours} h. Need for this trip: {need}. On your list: {qty}.', { hours: item.perHours, need: c.amount.need, qty: c.amount.qty })}</p>{#if c.note}<p><strong>{t('Material note')}:</strong> {c.note}</p>{/if}<p>{t('Change the amount in the packing list (tap the row).')}</p></div>{/if}
+        </div>
       </div>
     {/each}
     <details class="basic-equipment">

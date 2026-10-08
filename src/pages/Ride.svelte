@@ -230,7 +230,7 @@
         {:else}<p class="muted small">{t('Load the GPX again in Pack to see the elevation profile.')}</p>{/if}
         {#if days > 1 && !nonstop}<p class="muted small">{prof ? t('The route is shared out evenly over {n} days (dark: this stage).', { n: days }) : t('The route is shared out evenly over {n} days.', { n: days })}</p>{/if}
       {:else}
-        <p class="muted">{t('No route yet. Load the GPX in')} <a href="#/pack">{t('Pack')}</a> {t('under "Ride and weather".')}</p>
+        <p class="muted">{t('No route yet. Load the GPX in')} <a href="#/pack">{t('Pack')}</a> {t('under "Trip conditions" (••• menu).')}</p>
       {/if}
     </section>
 

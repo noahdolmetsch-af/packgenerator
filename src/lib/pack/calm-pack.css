@@ -32,6 +32,7 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-pack.review-mode .context-line > span + span { padding-left: 0; border-left: 0; }
 .calm-pack.review-mode .context-line > span + span::before { content: '·'; margin-right: 4px; }
 .calm-pack.review-mode .edit-trip { margin-left: 0; }
+.calm-pack .list-toolbar .undo-live { display: contents; } /* v0.27.0: live region around Undo, no box of its own */
 .calm-pack .list-toolbar { display: flex; align-items: center; gap: 28px; padding: 14px 0; border-bottom: 1px solid var(--calm-line); }
 .calm-pack .group-control { position: relative; display: inline-flex; align-items: center; }
 .calm-pack .group-control select { appearance: none; background: none; border: 0; font-size: 17px; font-weight: 500; min-height: 44px; padding: 10px 32px 10px 0; }

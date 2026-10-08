@@ -99,6 +99,8 @@ export function weightText(g, missing, fmt = formatWeight) {
  */
 export function gearStats(items) {
   const cats = Object.fromEntries(CATEGORIES.map((c) => [c.key, { ...c, g: 0, n: 0, unweighed: 0, consumable: CONSUMABLE_CATEGORIES.includes(c.key) }]));
+  // v0.27.0: the sums of the items with an unknown category (shown as their own group in Gear).
+  const other = { ...UNKNOWN_CATEGORY, g: 0, n: 0, unweighed: 0, consumable: false };
   const inventory = [];
   const wishlist = [];
   const gone = [];
@@ -118,7 +120,7 @@ export function gearStats(items) {
       continue;
     }
     inventory.push(item);
-    const c = cats[item.category];
+    const c = cats[item.category] ?? other;
     const w = itemWeight(item);
     if (c) c.n++;
     if (w == null) {
@@ -136,7 +138,7 @@ export function gearStats(items) {
     .filter((i) => itemWeight(i) > 0 && !isConsumable(i))
     .sort((a, b) => itemWeight(b) - itemWeight(a) || a.name.localeCompare(b.name))
     .slice(0, 10);
-  return { cats: CATEGORIES.map((c) => cats[c.key]), total, totalMissing, consumablesG, consumablesMissing, unweighed, top, inventory, wishlist, gone };
+  return { cats: CATEGORIES.map((c) => cats[c.key]), other, total, totalMissing, consumablesG, consumablesMissing, unweighed, top, inventory, wishlist, gone };
 }
 
 /**
@@ -176,9 +178,16 @@ export function matches(item, { q = '', category = '', role = '', fav = false, d
   return hay.includes(text);
 }
 
-/** Items grouped by category, in category order; empty categories left out. */
+/**
+ * v0.27.0 (Noah 1a): items whose category the app does not know (e.g. "clothing" from someone else's
+ * import) are collected at the end, so nothing is invisible.
+ */
+export const UNKNOWN_CATEGORY = { key: 'other', name: 'Other / unknown category', color: '#8a9399', unknown: true };
+
+/** Items grouped by category, in category order; empty categories left out; unknown ones last. */
 export function groupByCategory(items) {
-  return CATEGORIES.map((c) => ({ ...c, items: items.filter((i) => i.category === c.key) })).filter((g) => g.items.length);
+  const rest = items.filter((i) => !CATEGORY[i.category]);
+  return [...CATEGORIES.map((c) => ({ ...c, items: items.filter((i) => i.category === c.key) })), { ...UNKNOWN_CATEGORY, items: rest }].filter((g) => g.items.length);
 }
 
 /** How soon an item should be weighed: what goes on every ride first, then overnight sets, then optional, then the rest. */

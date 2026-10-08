@@ -14,6 +14,7 @@
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import CalmPack from '../lib/pack/CalmPack.svelte';
   import { acceptReview } from '../lib/preparation.js';
+  import { rowReasons, listDiff } from '../lib/reasons.js';
   import '../lib/pack/calm-pack.css';
   let review = $state(false);
   import TripDialog from '../lib/pack/TripDialog.svelte';
@@ -288,12 +289,14 @@
    * The copy is read inside the write (v0.18.1): quick taps on the packing day came in before the
    * page had the last change back and overwrote it, so ticks got lost.
    */
-  async function change(fn) {
+  // v0.27.0 (Noah 1a, PF03): { ctx: true } marks a change of the trip's context (hours, days, weather):
+  // the line next to Undo then says what it did to the list ("Gel: 1 → 2").
+  async function change(fn, { ctx = false } = {}) {
     const id = trip.id;
     await db.transaction('rw', db.trips, async () => {
       const cur = await db.trips.get(id);
       if (!cur) return;
-      undo = [...undo.filter((u) => u.id === id).slice(-19), { id, before: structuredClone(cur) }];
+      undo = [...undo.filter((u) => u.id === id).slice(-19), { id, before: structuredClone(cur), ...(ctx ? { ctx } : {}) }];
       await db.trips.update(id, fn(structuredClone(cur)));
     });
   }
@@ -317,6 +320,16 @@
   // Answer 9a: every change is saved at once; "Undo" puts the trip back one step.
   let undo = $state.raw([]); // raw: plain copies, IndexedDB cannot store proxies
   const canUndo = $derived(undo.length > 0 && undo.at(-1).id === trip?.id);
+  // v0.27.0 (Noah 1a, PF03): "Gel: 1 → 2 · + Rain jacket · − Down jacket" after a context change, up to 4 changes.
+  const changeNote = $derived.by(() => {
+    const last = canUndo ? undo.at(-1) : null;
+    if (!last?.ctx) return '';
+    const d = listDiff(last.before.entries, trip.entries);
+    const label = (id) => (itemsById[id] ? nameOf(itemsById[id]) : id);
+    const parts = [...d.amounts.map((a) => `${label(a.id)}: ${a.from} → ${a.to}`), ...d.added.map((id) => `+ ${label(id)}`), ...d.removed.map((id) => `− ${label(id)}`)];
+    if (!parts.length) return '';
+    return parts.length > 4 ? `${parts.slice(0, 4).join(' · ')} · ${t('{n} more', { n: parts.length - 4 })}` : parts.join(' · ');
+  });
   async function undoLast() {
     const last = undo.at(-1);
     if (!last) return;
@@ -372,6 +385,14 @@
     return allSets($setsQ?.value)
       .map((s) => ({ ...s, label: s.builtIn ? s.name.replace(/^(Night|Nacht): /, '') : s.name, n: addSetEntries(trip, items, s, { skip: blockSkip, slotOf: () => 'body' }).added.length, has: items.some((i) => isInventory(i) && i.sets?.includes(s.key)) }))
       .filter((s) => s.has);
+  });
+  // v0.27.0 (Noah 1a, PF02/PF05/PF10): why each row is on the list (reasons.js), shown small under its name.
+  const reasons = $derived(trip ? rowReasons(trip, items, $setsQ?.value) : {});
+  // v0.27.0 (Noah 1a, PF02): "Swap for light gilet" in the row's menu; the pick is kept for the slot (layerPick), one Undo.
+  const swapAlt = (slot, from, to) => change((cur) => {
+    const has = cur.entries.some((e) => e.itemId === to);
+    const entries = has ? cur.entries.filter((e) => e.itemId !== from) : cur.entries.map((e) => (e.itemId === from ? { ...e, itemId: to, packed: false } : e));
+    return { entries, layerPick: { ...(cur.layerPick ?? {}), [slot]: to === slot ? null : to } };
   });
   let blockNote = $state('');
   async function addBlock(block) {
@@ -474,8 +495,10 @@
     const patch = fn(cur);
     const next = { ...cur, ...patch };
     return hasContext(next) ? { ...patch, ...applyContext(next, items, cur) } : patch;
-  });
+  }, { ctx: true });
   const setWx = (patch) => changeContext((t) => ({ wx: { min: t.wx?.min ?? null, max: t.wx?.max ?? null, rain: t.wx?.rain ?? 'none', ...patch } }));
+  // v0.27.0 (Noah 1a): sets <details open> once when it is shown; later changes of the weather leave it as Noah has it.
+  const openOnce = (node, open) => { node.open = open; };
   function typedTemp(field, value) {
     const n = value.trim() === '' ? null : Math.round(Number(value));
     if (n === null || (n >= -30 && n <= 45)) setWx({ [field]: n });
@@ -526,8 +549,9 @@
       <TripRoute {trip} onchange={changeContext} />
       <label class="hours"><span class="lbl">{stageCount(trip) > 1 ? t('Riding hours a day') : t('Riding hours')}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder={t('e.g. 6')} /></label>
       <p class="hint hrs">{t('Bottles and food come in amounts per hour (e.g. 1 bottle per 3 h).')}</p>
-      <!-- Design answer 6a: the weather folds away once it is set. -->
-      <details class="wxbox" open={!wxSet}>
+      <!-- Design answer 6a: the weather folds away once it is set. v0.27.0 (Noah 1a): decided once when
+           the sheet opens (an action without update), so it does not fold shut while Min °C, Max °C and rain are typed. -->
+      <details class="wxbox" use:openOnce={!wxSet}>
         <summary>{wxSet ? t('Weather: {min}–{max} °C, {rain}', { min: wx.min, max: wx.max, rain: t(RAIN[wx.rain ?? 'none']) }) : t('Weather')}<span class="chg">{wxSet ? t('Change') : ''}</span></summary>
         <div class="presets" role="group" aria-label={t('Weather presets')}>
           {#each WX_PRESETS as p (p.name)}
@@ -617,12 +641,12 @@
       </div>
     </div>
   {/if}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {changeNote} {reasons} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
       choose, addTo, addMany, qty: (id, qty) => setEntries(es => setQty(es, id, qty)),
-      move: moveTo, remove: removeEntry, undo: undoLast,
+      move: moveTo, remove: removeEntry, undo: undoLast, swap: swapAlt,
       apply: choices => change(cur => acceptReview(cur, items, choices)),
       edit: () => dialog = { trip }, newTrip: () => dialog = { trip: null },
       pack: () => packDay = true, ride: goRide, packAndGo, end: endTrip,
@@ -699,7 +723,7 @@
       <ul>{#each ready as r (r.id)}<li>☐ {t(r.label)}</li>{/each}</ul>
     </section>{/if}
 {#if dialog}
-  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {templates} startFrom={dialog.startFrom ?? 'last'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? change : null} onclose={() => (dialog = null)} oncreated={choose} />
+  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {templates} startFrom={dialog.startFrom ?? 'last'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={choose} />
 {/if}
 {#if saveTpl && trip}
   <TemplateDialog {trip} {templates} onclose={() => (saveTpl = false)} onsaved={(name) => ((tplNote = t('Saved as template "{name}".', { name })), setTimeout(() => (tplNote = ''), 4000))} />

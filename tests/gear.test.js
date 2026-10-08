@@ -73,3 +73,15 @@ describe('gear', () => {
     expect(groupByCategory([it_('SL01', { category: 'sleep' }), it_('EL01')]).map((g) => g.key)).toEqual(['elec', 'sleep']);
   });
 });
+
+// v0.27.0 (Noah 1a): an item with an unknown category (e.g. from someone else's import) is not invisible.
+describe('unknown category', () => {
+  it('gets its own group at the end and its own sums', () => {
+    const items = [it_('SL01', { category: 'sleep' }), it_('test_data_gtp_X1', { category: 'clothing' }), it_('test_data_gtp_X2', { category: undefined })];
+    const groups = groupByCategory(items);
+    expect(groups.map((g) => g.key)).toEqual(['sleep', 'other']);
+    expect(groups[1]).toMatchObject({ name: 'Other / unknown category', unknown: true });
+    expect(groups[1].items.map((i) => i.id)).toEqual(['test_data_gtp_X1', 'test_data_gtp_X2']);
+    expect(gearStats(items).other.n).toBe(2);
+  });
+});

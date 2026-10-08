@@ -382,7 +382,8 @@
     {#snippet packBody()}
       {#if next}
         <div class="sub">
-          <div class="line"><b>{next.title}</b><span class="num muted">{t('{packed} packed · {left} still to pack', { packed: stats.packed, left: stats.toPack })}</span></div>
+          <!-- v0.27.0 (Noah 1a): the same words as the folded phone line ("{n} % packed"), plus the count. -->
+          <div class="line"><b>{next.title}</b><span class="num muted">{t('{n} % packed', { n: packedPct })} · {t('{packed} of {count}|packed', { packed: stats.packed, count: stats.count })}</span></div>
           <div class="bar" role="img" aria-label={t('{n} % packed', { n: packedPct })}><i style:width="{Math.max(2, packedPct)}%"></i></div>
           <p class="small">
             <a href="#/pack" onclick={() => openTrip(next.id)}>{packLine(packing)}</a>{#if extra?.rows.length} · {tn(extra.rows.length, 'Ballast {w} on {n} item you did not use last times.', 'Ballast {w} on {n} items you did not use last times.', { w: weightText(extra.totalG, extra.unweighed) })} <a href="#/pack" onclick={() => openTrip(next.id)}>{t('Leave at home')}</a>{/if}

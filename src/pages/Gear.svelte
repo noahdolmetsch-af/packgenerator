@@ -5,7 +5,7 @@
   import { phone } from '../lib/media.svelte.js';
   import { untrack } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
-  import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, BAG, OWNERSHIP, bulkCategory, bulkOwnership, namesList } from '../lib/gear.js';
+  import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, UNKNOWN_CATEGORY, BAG, OWNERSHIP, bulkCategory, bulkOwnership, namesList } from '../lib/gear.js';
   import { saveItems, deletePlan, deleteItems, undoBulk } from '../lib/gear/bulk.js';
   import FavStar from '../lib/gear/FavStar.svelte';
   import WeightOverview from '../lib/gear/WeightOverview.svelte';
@@ -110,13 +110,13 @@
       .sort((a, b) => b.score - a.score || a.item.name.localeCompare(b.item.name)),
   );
   const groups = $derived(groupByCategory(inventory));
-  const catStats = $derived(Object.fromEntries(stats.cats.map((c) => [c.key, c])));
+  const catStats = $derived(Object.fromEntries([...stats.cats, stats.other].map((c) => [c.key, c])));
   // While searching or filtering, every matching category is shown open.
   const searching = $derived(!!(filter.q.trim() || filter.category || filter.role || filter.fav || filter.domain || unusedOnly));
   const isOpen = (key) => searching || !folded[key];
   const allOpen = $derived(groups.every((g) => !folded[g.key]));
   const toggle = (key) => (folded[key] = !folded[key]);
-  const setAll = (shut) => (folded = Object.fromEntries(CATEGORIES.map((c) => [c.key, shut])));
+  const setAll = (shut) => (folded = Object.fromEntries([...CATEGORIES, UNKNOWN_CATEGORY].map((c) => [c.key, shut])));
 
   const pickCategory = (key) => (filter.category = filter.category === key ? '' : key);
   // Side column: jump to a category (and open it).
@@ -423,6 +423,7 @@
                   <button type="button" class="link gpick" aria-label={all ? t('Select none: {cat}', { cat: t(g.name) }) : t('Select all: {cat}', { cat: t(g.name) })} onclick={() => pickAll(g.items, !all)}>{all ? t('Select none') : t('Select all')}</button>
                 {/if}
                 {#if isOpen(g.key)}
+                  {#if g.unknown}<p class="unknown-cat">{t('The app does not know the category of these items. Open one and pick a category.')}</p>{/if}
                   <ul class="rows">
                     {#each g.items as item (item.id)}
                       <li class="fr">
@@ -893,6 +894,12 @@
     align-self: center;
     font-weight: 700;
     text-align: right;
+  }
+  /* v0.27.0 (Noah 1a): hint in the group of unknown categories */
+  .unknown-cat {
+    margin: 4px 0 8px;
+    font-size: 14px;
+    color: var(--ink-3);
   }
   .rows .muted {
     color: var(--ink-3);
