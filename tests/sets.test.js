@@ -1,6 +1,6 @@
 // v0.26.0 (Noah 2a, AP10): own sets next to the built-in ones, delete plan, "+ Set" in Pack.
 import { describe, it, expect, afterEach } from 'vitest';
-import { allSets, addSet, renameSet, deleteSetPlan, setQty, qtyOf, setView, addSetEntries, setAddable, setKey, setUse, isBuiltIn } from '../src/lib/sets.js';
+import { allSets, addSet, renameSet, deleteSetPlan, setQty, qtyOf, setView, addSetEntries, setAddable, setKey, setUse, isBuiltIn, entriesWeight, isBlockTip, startBlocks } from '../src/lib/sets.js';
 import { lang } from '../src/lib/i18n.svelte.js';
 
 afterEach(() => (lang.v = 'en'));
@@ -102,5 +102,37 @@ describe('+ Set in Pack', () => {
   });
   it('skips bags and fixtures', () => {
     expect(addSetEntries(trip, items, { key: 'u-regen' }, { skip: new Set(['B']) }).added).toEqual(['D', 'E']);
+  });
+});
+
+// v0.30.0 (Noah, finding 2): the "New trip" window shows blocks with weight, tips and templates in words.
+describe('New trip: blocks and templates in words', () => {
+  const items = [
+    item('S1', { role: 'standard' }),
+    item('S2', { role: 'worn', weightG: null }),
+    item('R1', { sets: ['u-regen'], weightG: 260 }),
+    item('R2', { sets: ['u-regen'], weightG: 70 }),
+    item('R3', { sets: ['u-regen'], ownership: 'gone' }),
+    item('W1', { sets: ['warm'] }),
+  ];
+  const sets = [{ key: 'warm', name: 'Night: Warm' }, { key: 'u-regen', name: 'test_data_gtp_ Regen' }];
+  it('weighs new entries honestly, with their amount', () => {
+    expect(entriesWeight([{ itemId: 'R1', qty: 1 }, { itemId: 'R2', qty: 2 }], items)).toMatchObject({ g: 400, missing: 0 });
+    expect(entriesWeight([{ itemId: 'S2', qty: 1 }, { itemId: 'R1' }], items)).toMatchObject({ g: 260, missing: 1 });
+  });
+  it('tips: rain with rain, warm when cold, light with a night', () => {
+    expect(isBlockTip(sets[1], { wet: true })).toBe(true);
+    expect(isBlockTip(sets[1], { wet: false })).toBe(false);
+    expect(isBlockTip(sets[0], { max: 8 })).toBe(true);
+    expect(isBlockTip(sets[0], { max: 18 })).toBe(false);
+    expect(isBlockTip({ key: 'light' }, { night: 'outdoor' })).toBe(true);
+    expect(isBlockTip({ key: 'light' }, { night: 'none' })).toBe(false);
+  });
+  it('a template is "Standard + blocks" only when it is exactly that', () => {
+    expect(startBlocks(['S1', 'S2', 'R1', 'R2'], ['S1', 'S2'], sets, items).map((s) => s.key)).toEqual(['u-regen']);
+    expect(startBlocks(['S1', 'S2'], ['S1', 'S2'], sets, items)).toEqual([]);
+    expect(startBlocks(['S1', 'S2', 'R1'], ['S1', 'S2'], sets, items)).toBeNull(); // only half the block
+    expect(startBlocks(['S1', 'R1', 'R2'], ['S1', 'S2'], sets, items)).toBeNull(); // not the whole standard set
+    expect(startBlocks(['S1', 'S2', 'R1', 'R2', 'W1'], ['S1', 'S2'], sets, items).map((s) => s.key)).toEqual(['warm', 'u-regen']);
   });
 });

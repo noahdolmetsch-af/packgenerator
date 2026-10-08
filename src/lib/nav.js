@@ -22,8 +22,11 @@ export function take(key) {
   }
 }
 
-/** Open the "New" sheet: 'all' (everything) or 'list' (the ways to start a packing list). */
-export const openNew = (mode = 'all') => window.dispatchEvent(new CustomEvent('pg:new', { detail: mode }));
+/**
+ * Open the "New" sheet: 'all' (everything) or 'km'. 'list' (plan a trip) opens the "New trip"
+ * window straight away (v0.30.0, Noah finding 2: area, start and building blocks are all in it).
+ */
+export const openNew = (mode = 'all') => (mode === 'list' ? newTrip('standard') : window.dispatchEvent(new CustomEvent('pg:new', { detail: mode })));
 
 /** A trip becomes the one Pack and Ride day show. */
 export const openTrip = (id) => keep('pack.currentTrip', id);

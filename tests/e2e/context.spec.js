@@ -63,11 +63,10 @@ const stored = (page, title) =>
   }), title);
 const ids = async (page, title) => ((await stored(page, title))?.entries ?? []).map((e) => e.itemId);
 
-/** New → Plan a trip → Standard set; returns the open "New trip" dialog. */
+/** New → Plan a trip (v0.30.0: starts with the standard set); returns the open "New trip" dialog. */
 async function openNew(page, T, click) {
   await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
   await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
-  await click(page.getByRole('dialog', { name: T('Plan a new trip') }).getByRole('button', { name: T('Standard set') }));
   return page.getByRole('dialog', { name: T('New trip') });
 }
 
@@ -87,8 +86,8 @@ for (const lang of ['de', 'en']) {
     const dlg = await openNew(page, T, click);
     await dlg.getByLabel(T('Name')).fill(title);
     await dlg.getByLabel(T('Riding hours per day')).fill('2');
-    // 1 day: "None" is already chosen.
-    await expect(dlg.getByRole('button', { name: T('None|overnight') })).toHaveAttribute('aria-pressed', 'true');
+    // 1 day: no night (v0.30.0: the question only comes from 2 days on; overnight 'none' is checked below).
+    await expect(dlg.getByRole('button', { name: T('None|overnight'), exact: true })).toHaveCount(0);
     await click(dlg.getByRole('button', { name: new RegExp(`^${T('Chilly')}`) }));
     // The live box says what the list will be.
     const box = dlg.getByRole('region', { name: T('Your packing list|preview') });
@@ -135,10 +134,10 @@ test('lodging for 2 days, then outdoor in Edit trip, and Undo', async ({ page, c
   // 2 days: outdoor until something is chosen; "None" with 2 days gives a gentle hint.
   await expect(dlg.getByRole('button', { name: T('Outdoor (tent, bivvy)') })).toHaveAttribute('aria-pressed', 'true');
   await expect(dlg.getByRole('checkbox', { name: T('Cooking') })).toBeVisible();
-  await dlg.getByRole('button', { name: T('None|overnight') }).click();
+  await dlg.getByRole('button', { name: T('None|overnight'), exact: true }).click(); // exact: "Copy the last trip" says "none yet" (v0.30.0)
   await expect(dlg).toContainText(T('More than one day without a night? Choose where you sleep.'));
   await expect(dlg.getByRole('checkbox', { name: T('Cooking') })).toHaveCount(0);
-  await dlg.getByRole('button', { name: T('Lodging') }).click();
+  await dlg.getByRole('button', { name: T('Lodging'), exact: true }).click();
   await dlg.getByLabel(T('Riding hours per day')).fill('3');
   await dlg.getByRole('button', { name: T('Create trip') }).click();
   await expect(dlg).toBeHidden();

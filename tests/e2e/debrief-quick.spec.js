@@ -93,6 +93,7 @@ for (const lang of ['en', 'de']) {
     await expect(page.getByRole('region', { name: T('Done') }).getByText(title)).toBeVisible();
 
     // 5. The next day ride: New → Plan a trip → Start from a template → the template → Create (5 clicks, plus the name).
+    // v0.30.0: the folded templates are in the New trip window.
     await page.goto('./#/');
     let clicks = 0;
     const click = async (loc) => {
@@ -102,10 +103,9 @@ for (const lang of ['en', 'de']) {
     await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
     await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
     // v0.29.2 (Noah 7a): the templates are folded under "Start from a template" (one click more).
-    const sheet = page.getByRole('dialog', { name: T('Plan a new trip') });
-    await click(sheet.getByText(T('Start from a template')));
-    await click(sheet.getByRole('button', { name: new RegExp(`^${name}`) }));
     const dlg = page.getByRole('dialog', { name: T('New trip') });
+    await click(dlg.getByText(T('Start from a template')));
+    await click(dlg.getByRole('button', { name: new RegExp(`^${name}`) }));
     await dlg.getByLabel(T('Name')).fill(`test_data_gtp_ next ${lang}`);
     await click(dlg.getByRole('button', { name: T('Create trip') }));
     await expect(dlg).toBeHidden();
