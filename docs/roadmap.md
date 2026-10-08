@@ -491,6 +491,17 @@ Bei jeder Arbeitsrunde die betroffenen Zeilen aktualisieren; eine Zeile „verif
 **Ausgelieferte Screens mit den Alltagstouren abnehmen, AP01/AP02-Nachweise schliessen und den integrierten PR #31 fachlich abnehmen.** Anschliessend AP07–AP09 und AP12–AP16 entlang der Abhängigkeiten abschliessen. Die Konzeptabnahme wird nicht erneut abgefragt. Jeder weitere Schritt ergänzt [Prüfregister](verification.md), [Status](status.md) und dieses Register im selben PR. Siehe die konkrete Lieferfolge oben.
 
 
+## Pflicht-Wünsche von Noah (08.10.2026): AP27–AP30
+
+Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgelegt. Wie und wann sie eingebaut werden, wird noch mit ihm besprochen. Bis dahin gelten sie als offene Pflicht-APs.
+
+| AP | Wunsch | Was es heute schon gibt (Stand v0.30.2) | Was fehlt |
+|---|---|---|---|
+| AP27 | **GPX einer abgeschlossenen Aktivität hochladen und als Learning nutzen** | Rückblick → «Dein Tempo» lernt Geschwindigkeit und Höhenmeter pro Stunde aus GPX-Fahrten (`src/lib/pace.js`, `debrief/Pace.svelte`). Der Rückblick liest GPX/TCX/CSV für km und Fahrten (`src/lib/activities.js`). | Ein GPX wird noch nicht zu einem Learning (z. B. geplante vs. echte Zeit, Pausen, Wetter, Verpflegung). Kein Hochladen einer Fahrt ohne geplante Tour. |
+| AP28 | **Seite Vorlagen grundlegend überarbeiten**, in Design und Nutzen; neue Vorlagen direkt erstellen | Vorlagen entstehen nur aus einer Tour («Als Vorlage speichern») und werden in `TemplateEdit.svelte` bearbeitet. | Neue Vorlage von Grund auf (aus Bausteinen + Extra-Teilen), klare Anzeige «Standard + Regen + 2 Extra», Nutzen sichtbar (wann zuletzt benutzt, welche Touren). Baut auf 0.32–0.33 auf (Begriffe Bausteine/Vorlagen). |
+| AP29 | **Entwürfe beim Packen**: überall sichtbar «Entwurf gespeichert», jederzeit unterbrechen und später fortsetzen; mehrere Events/Fahrten gleichzeitig planen; unter **Touren** eine Liste aller Entwürfe bzw. Packvorgänge in Bearbeitung | Alles wird sofort gespeichert; mehrere Touren können parallel existieren. | Sichtbarer Hinweis «gespeichert, du kannst jederzeit aufhören» auf jeder Tour-Seite; Liste «In Bearbeitung» unter Touren mit Stand (z. B. «Packen 12/30») und «Fortsetzen». |
+| AP30 | **Material per Foto mit KI erfassen**: Foto → Gegenstand erkennen → Daten im Hintergrund recherchieren → Vorschlag ins Inventar | – | Braucht einen KI-Dienst mit Bildverständnis und einen kleinen Server für den geheimen Schlüssel (die App ist heute rein statisch). Vorschlag immer zur Bestätigung, nie still eintragen. Datenschutz: das Foto verlässt das Gerät. Aufwand: mittel bis gross (eigenes Release plus Einrichtung des Dienstes durch Noah). |
+
 ## Änderungshistorie dieses Plans
 
 | Version | Datum | Änderung |
