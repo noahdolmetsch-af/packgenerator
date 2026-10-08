@@ -3,6 +3,7 @@
    * What the app can do (v0.30.0, Noah 3a, #/features): every tip of Good to know by area, with ✓
    * for what is used (seen in the data, its button tapped, or "I know it") and how much of it that
    * is. Each row has the same ONE button as its tile on Today. Tips hidden with "I know it" stay here.
+   * v0.35.0 (Noah): "New in the last updates" on top (know/WhatsNew.svelte, whatsnew.js).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -20,6 +21,7 @@
   import { Check } from '@lucide/svelte';
   import { TIP_ICON } from '../lib/know/icons.js';
   import TipButton from '../lib/know/TipButton.svelte';
+  import WhatsNew from '../lib/know/WhatsNew.svelte';
 
   const dataQ = liveQuery(async () => {
     const [trips, items, bikes, visits, debriefs, notesN, setting, file, folder, demo] = await Promise.all([
@@ -53,6 +55,8 @@
 <div class="feat">
   <p class="back"><a href="#/">← {t('Today|place')}</a></p>
   <h1 class="title big">{t('What the app can do')}</h1>
+  <!-- v0.35.0 (Noah): what is new in the last versions comes first. -->
+  <WhatsNew />
   {#if all}
     <div class="prog">
       <p><b class="num">{t('{n} of {total} used', { n: all.used, total: all.total })}</b> · {t('✓ = seen in your data, tapped, or "I know it".')}</p>

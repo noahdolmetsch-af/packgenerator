@@ -6,7 +6,7 @@
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, sortBikes, bikesHash } from '../lib/bikes.js';
   import { CATEGORIES, formatWeight, weightText, isInventory, matches, weighQueue } from '../lib/gear.js';
-  import { tripStats, packSteps, togglePacked, packAll, tickReady, packAndReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike, setQty } from '../lib/trips.js';
+  import { tripStats, packSteps, togglePacked, packAll, tickReady, packAndReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike, setQty, touched } from '../lib/trips.js';
   import { suggestPlaces, applyPlaces, dismissPlace } from '../lib/bagsuggest.js';
   import PlaceSuggest from '../lib/pack/PlaceSuggest.svelte';
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
@@ -352,7 +352,7 @@
       if (!cur) return;
       undo = [...undo.filter((u) => u.id === id).slice(-19), { id, before: structuredClone(cur), ...(ctx ? { ctx } : {}) }];
       if (ctx) wxChange = { id, before: structuredClone(cur) };
-      await db.trips.update(id, fn(structuredClone(cur)));
+      await db.trips.update(id, touched(fn(structuredClone(cur))));
     });
   }
   // N13: the bikes side by side for this trip.
@@ -406,7 +406,7 @@
     if (!last) return;
     undo = undo.slice(0, -1);
     if (last.ctx) wxChange = null;
-    await db.trips.put(last.before);
+    await db.trips.put(touched(last.before));
   }
   const setEntries = (fn) => change((t) => ({ entries: fn(t.entries) }));
   // v0.26.1 (AP17, Noah 14a): better places for sleep and cook items on an outdoor trip; one change() each (Undo).
@@ -799,7 +799,7 @@
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
   {#if chargeOpen}<ChargeSheet {trip} {items} onclose={() => (chargeOpen = false)} />{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
-  {#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name, ...(trip?.domain && trip.domain !== 'bikepacking' ? { domains: [trip.domain] } : {}) }} onsaved={packNew} onclose={() => (newItem = null)} />{/if}
+  {#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name, ...(trip?.domain && trip.domain !== 'bikepacking' ? { domains: [trip.domain] } : {}) }} onsaved={packNew} onkept={packNew} onclose={() => (newItem = null)} />{/if}
   {#if shownPhoto != null && gallery.length}<Lightbox list={gallery.map(p => ({ src: p.src, name: p.name, sub: bike?.name ?? '' }))} start={shownPhoto} onclose={() => shownPhoto = null} />{/if}
   {#if weighing}<WeighMode items={tripItems} onclose={() => weighing = false} />{/if}
     <section class="print" aria-hidden="true">

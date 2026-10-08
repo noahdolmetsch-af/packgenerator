@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { inProgress, tripRow, templateRow, savedLabel, keepDialog, freshDialogs, dialogRow, TEMPLATE_HOURS, DIALOG_DAYS } from '../src/lib/drafts.js';
+import { inProgress, tripRow, rowActions, actionChanges, hasWork, autoKeep, leaveWindow } from '../src/lib/drafts.js';
+import { itemRecord, itemDraft } from '../src/lib/gear.js';
+import { toDebrief } from '../src/lib/debrief.js';
 
-// AP29 (Noah): the list "In progress" and the line "Saved 2 min ago". Fictional data only.
+// AP29 (Noah, v0.35.0): the list "In progress" behind the band's "{n} more". Fictional data only.
 const TODAY = '2026-10-08';
-const NOW = Date.parse('2026-10-08T12:00:00');
 const entry = (id, packed = false) => ({ itemId: id, slot: 'seat', qty: 1, packed });
 const trip = (id, startDate, extra = {}) => ({
   id: `test_data_gtp_${id}`,
@@ -15,7 +16,6 @@ const trip = (id, startDate, extra = {}) => ({
   createdAt: '2026-10-01T08:00:00.000Z',
   ...extra,
 });
-const tpl = (id, updatedAt) => ({ id: `test_data_gtp_tpl_${id}`, name: `test_data_gtp_ template ${id}`, entries: [], updatedAt });
 
 describe('one trip: state and next step', () => {
   it('far away, nothing ticked: planning, next Plan', () => {
@@ -54,7 +54,7 @@ describe('one trip: state and next step', () => {
 
   it('under way: day n, next On the way', () => {
     const r = tripRow(trip('now', '2026-10-07', { days: 3 }), null, TODAY);
-    expect(r.state).toMatchObject({ key: 'ride', day: 2 });
+    expect(r).toMatchObject({ kind: 'ride', state: { key: 'ride', day: 2 } });
     expect(r.next.step).toBe('ride');
   });
 
@@ -78,8 +78,8 @@ describe('one trip: state and next step', () => {
   });
 });
 
-describe('the list: most urgent first', () => {
-  it('ride, soon, fresh debrief, dialog, upcoming, template, old debrief', () => {
+describe('the list: most urgent first (only trips and debriefs, Noah 3b)', () => {
+  it('ride, soon, fresh debrief, upcoming, old debrief (older than 7 days at the bottom, 2a)', () => {
     const rows = inProgress(
       [
         trip('later', '2026-10-25'),
@@ -91,68 +91,92 @@ describe('the list: most urgent first', () => {
         trip('saved', '2026-10-02'),
       ],
       [{ tripId: 'test_data_gtp_saved', status: 'done' }],
-      [tpl('recent', '2026-10-08T09:00:00.000Z'), tpl('stale', '2026-09-01T09:00:00.000Z')],
       TODAY,
-      { now: NOW, dialogs: [{ id: 'draft-newTrip', kind: 'newTrip', data: { title: 'test_data_gtp_ half' }, savedAt: '2026-10-08T11:58:00.000Z' }] },
     );
-    expect(rows.map((r) => r.id)).toEqual([
-      'test_data_gtp_now',
-      'test_data_gtp_soon',
-      'test_data_gtp_fresh',
-      'draft-newTrip',
-      'test_data_gtp_next',
-      'test_data_gtp_later',
-      'test_data_gtp_tpl_recent',
-      'test_data_gtp_old',
-    ]);
+    expect(rows.map((r) => r.id)).toEqual(['test_data_gtp_now', 'test_data_gtp_soon', 'test_data_gtp_fresh', 'test_data_gtp_next', 'test_data_gtp_later', 'test_data_gtp_old']);
+  });
+
+  it('a packed trip stays until it is over, next On the way (7a); then it becomes its debrief', () => {
+    const packed = trip('packed', '2026-10-12', { entries: [entry('a', true)], ready: [{ id: 'r1', done: true }] });
+    expect(inProgress([packed], [], TODAY)[0]).toMatchObject({ state: { key: 'packed' }, next: { step: 'ride' } });
+    expect(inProgress([packed], [], '2026-10-13')[0]).toMatchObject({ kind: 'debrief' });
+  });
+
+  it('cleans itself up (8a+b): skipped, finished without debrief, saved debrief drop out', () => {
+    const rows = inProgress(
+      [trip('skip', '2026-10-20', { skipped: true }), trip('nodeb', '2026-10-05', { noDebrief: true, status: 'done' }), trip('saved', '2026-10-05'), trip('keep', '2026-10-20')],
+      [{ tripId: 'test_data_gtp_saved', status: 'done' }],
+      TODAY,
+    );
+    expect(rows.map((r) => r.id)).toEqual(['test_data_gtp_keep']);
   });
 
   it('two open debriefs of the same age group: the newest first', () => {
-    const rows = inProgress([trip('a', '2026-10-03'), trip('b', '2026-10-06')], [], [], TODAY, { now: NOW });
+    const rows = inProgress([trip('a', '2026-10-03'), trip('b', '2026-10-06')], [], TODAY);
     expect(rows.map((r) => r.id)).toEqual(['test_data_gtp_b', 'test_data_gtp_a']);
   });
 
-  it('same date: the latest change first; nothing at all: empty', () => {
+  it('same date: the latest change (updatedAt) first; nothing at all: empty', () => {
     const a = trip('a', '2026-10-20', { updatedAt: '2026-10-08T08:00:00.000Z' });
     const b = trip('b', '2026-10-20', { updatedAt: '2026-10-08T10:00:00.000Z' });
-    expect(inProgress([a, b], [], [], TODAY, { now: NOW }).map((r) => r.id)).toEqual(['test_data_gtp_b', 'test_data_gtp_a']);
+    expect(inProgress([a, b], [], TODAY).map((r) => r.id)).toEqual(['test_data_gtp_b', 'test_data_gtp_a']);
     expect(inProgress()).toEqual([]);
   });
 });
 
-describe('templates and half-filled dialogs', () => {
-  it('a template counts while it was changed in the last 24 h', () => {
-    expect(templateRow(tpl('x', new Date(NOW - (TEMPLATE_HOURS - 1) * 36e5).toISOString()), NOW)).toMatchObject({ kind: 'template', next: { href: '#/pack/templates/test_data_gtp_tpl_x', label: 'Edit' } });
-    expect(templateRow(tpl('x', new Date(NOW - (TEMPLATE_HOURS + 1) * 36e5).toISOString()), NOW)).toBe(null);
-    expect(templateRow(tpl('x', undefined), NOW)).toBe(null);
+describe('the ••• actions: safe first, never delete a past trip', () => {
+  it('upcoming: Not riding + Discard; under way: End; debrief: Finish without debrief', () => {
+    expect(rowActions(tripRow(trip('far', '2026-10-20'), null, TODAY))).toEqual(['skip', 'discard']);
+    expect(rowActions(tripRow(trip('now', '2026-10-07', { days: 3 }), null, TODAY))).toEqual(['end']);
+    expect(rowActions(tripRow(trip('over', '2026-10-05'), null, TODAY))).toEqual(['noDebrief']);
+    expect(rowActions(null)).toEqual([]);
+    expect(rowActions(tripRow(trip('far', '2026-10-20'), null, TODAY), { current: 'test_data_gtp_far' })).toEqual(['skip']);
   });
 
-  it('an untouched dialog leaves nothing; a typed one is kept', () => {
-    const start = { title: '', startDate: '2026-10-08', days: 1, bikeId: 'test_data_gtp_bike' };
-    expect(keepDialog('newTrip', { ...start }, start)).toBe(null);
-    expect(keepDialog('newTrip', { ...start, title: '   ' }, start)).toBe(null);
-    const kept = keepDialog('newTrip', { ...start, title: 'test_data_gtp_ Jura' }, start, '2026-10-08T11:00:00.000Z');
-    expect(kept).toMatchObject({ id: 'draft-newTrip', kind: 'newTrip', savedAt: '2026-10-08T11:00:00.000Z', data: { title: 'test_data_gtp_ Jura' } });
-    expect(keepDialog('newTrip', { ...start, days: 3 }, start)).not.toBe(null);
-    expect(dialogRow(kept)).toMatchObject({ kind: 'dialog', title: 'test_data_gtp_ Jura', next: { href: '#/pack', resume: 'draft-newTrip' } });
-    expect(dialogRow({ kind: 'newItem' })).toBe(null);
+  it('the changes: skipped, finished today, finished without a debrief (gone from toDebrief too)', () => {
+    expect(actionChanges('skip', TODAY)).toEqual({ skipped: true });
+    expect(actionChanges('end', TODAY)).toEqual({ finished: TODAY });
+    expect(actionChanges('discard', TODAY)).toBe(null);
+    const over = { ...trip('over', '2026-10-05'), ...actionChanges('noDebrief', TODAY) };
+    expect(tripRow(over, null, TODAY)).toBe(null);
+    expect(toDebrief([over, trip('open', '2026-10-05')], [], TODAY).map((x) => x.id)).toEqual(['test_data_gtp_open']);
   });
 
-  it('kept dialogs older than 7 days are forgotten', () => {
-    const fresh = { id: 'a', kind: 'newTrip', savedAt: new Date(NOW - 36e5).toISOString() };
-    const old = { id: 'b', kind: 'newTrip', savedAt: new Date(NOW - (DIALOG_DAYS + 1) * 864e5).toISOString() };
-    expect(freshDialogs([old, fresh, null], NOW).map((d) => d.id)).toEqual(['a']);
+  it('work on a trip: a tick, a done check, a route', () => {
+    expect(hasWork(trip('plain', '2026-10-20'))).toBe(false);
+    expect(hasWork(trip('tick', '2026-10-20', { entries: [entry('a', true)] }))).toBe(true);
+    expect(hasWork(trip('check', '2026-10-20', { ready: [{ id: 'r', done: true }] }))).toBe(true);
+    expect(hasWork(trip('route', '2026-10-20', { route: { km: 40 } }))).toBe(true);
   });
 });
 
-describe('saved label', () => {
-  it('just now, minutes, hours, a date', () => {
-    expect(savedLabel(new Date(NOW - 20e3).toISOString(), NOW)).toEqual({ label: 'Saved just now' });
-    expect(savedLabel(new Date(NOW + 30e3).toISOString(), NOW)).toEqual({ label: 'Saved just now' });
-    expect(savedLabel(new Date(NOW - 2 * 60e3).toISOString(), NOW)).toEqual({ label: 'Saved {n} min ago', n: 2 });
-    expect(savedLabel(new Date(NOW - 3 * 36e5 - 1).toISOString(), NOW)).toEqual({ label: 'Saved {n} h ago', n: 3 });
-    expect(savedLabel('2026-10-01T12:00:00', NOW)).toEqual({ label: 'Saved on {date}', date: '2026-10-01' });
-    expect(savedLabel(null, NOW)).toBe(null);
-    expect(savedLabel('not a date', NOW)).toBe(null);
+describe('nothing typed is lost (Noah 4b + 5a): new trip, new item, quick note', () => {
+  it('saves only a new thing with a name typed in this window, not after it ended', () => {
+    expect(autoKeep({ name: 'test_data_gtp_ Jura' })).toBe(true);
+    expect(autoKeep({ name: '   ' })).toBe(false);
+    expect(autoKeep({ name: 'test_data_gtp_ Jura', changed: false })).toBe(false); // the app's own name, or one from the search
+    expect(autoKeep({ name: 'test_data_gtp_ Jura', ended: true })).toBe(false); // after Create / Save / Discard
+    expect(autoKeep({ name: 'test_data_gtp_ Jura', isNew: false })).toBe(false); // editing an existing trip saves on Save, as before
+    expect(autoKeep()).toBe(false);
+  });
+
+  it('closing keeps it; Discard removes only what this window made; Save is the full save', () => {
+    expect(leaveWindow('close', { made: true })).toBe('keep');
+    expect(leaveWindow('close', { made: false, typed: true })).toBe('keep'); // typed just before closing
+    expect(leaveWindow('close', { made: false, typed: false })).toBe('nothing');
+    expect(leaveWindow('discard', { made: true })).toBe('delete');
+    expect(leaveWindow('discard', { made: false, typed: true })).toBe('nothing');
+    expect(leaveWindow('save', { made: true })).toBe('save');
+  });
+
+  it('a new item saved while typing keeps its id on the next save; another category gives the next free id of it', () => {
+    const items = [{ id: 'EL01', category: 'elec', name: 'test_data_gtp_ lamp' }];
+    const draft = { ...itemDraft(null), name: 'test_data_gtp_ charger', category: 'elec' };
+    const first = itemRecord(draft, { items });
+    expect(first.id).toBe('EL02');
+    // the window leaves its own item out when it counts, so the same item keeps EL02
+    const others = [...items, first].filter((i) => i.id !== first.id);
+    expect(itemRecord({ ...draft, note: 'test_data_gtp_ more' }, { items: others }).id).toBe('EL02');
+    expect(itemRecord({ ...draft, category: 'light' }, { items: others }).id).not.toBe('EL02');
   });
 });

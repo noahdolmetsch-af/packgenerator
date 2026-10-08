@@ -8,6 +8,7 @@
    */
   import { ShoppingCart, ChevronRight, Share2 } from '@lucide/svelte';
   import { db } from '../db.js';
+  import { touched } from '../trips.js';
   import { t, tn } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
   import { shopList, shopCount, toggleShop, shopText, shopLine } from '../shop.js';
@@ -36,7 +37,7 @@
     const id = trip.id;
     await db.transaction('rw', db.trips, async () => {
       const cur = await db.trips.get(id);
-      if (cur) await db.trips.update(id, { shop: toggleShop(cur.shop, itemId) });
+      if (cur) await db.trips.update(id, touched({ shop: toggleShop(cur.shop, itemId) }));
     });
   }
 

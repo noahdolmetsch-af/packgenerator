@@ -8,6 +8,9 @@
    * and stays at the bottom of a phone screen, above the bottom bar (one element, CSS moves it).
    * `aside`: a small extra next to it on the phone (+ add, the packing ring, the note pencil).
    * compact (On the way, phone): only the name and the tabs, so "Now" is on top.
+   * v0.35.0 (AP29, Noah variant B): the pill "{n} more" on the kicker line opens the other trips in
+   * progress (InProgress.svelte); after each change of the trip (or of its debrief) a quiet
+   * "Saved ✓" shows at the end of the meta line for about 2 seconds (Noah 6b).
    */
   import { liveQuery } from 'dexie';
   import { CalendarDays, Bike, Backpack, CloudSun, ShoppingBag, Check, Pencil } from '@lucide/svelte';
@@ -19,6 +22,7 @@
   import { openTrip } from '../nav.js';
   import { localDay } from '../localday.js';
   import { TAB_NAMES, tabsOf, tabHref, tabStatus, tripDates } from '../tabs.js';
+  import InProgress from './InProgress.svelte';
 
   // weighHint: false hides the "6 not weighed" badge (v0.30.1, Noah E4: not next to the green "Day ride created" card).
   let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true } = $props();
@@ -54,18 +58,38 @@
     if (!naming) return;
     naming = false;
     const title = nameDraft.trim();
-    if (title && title !== trip.title) await db.trips.update(trip.id, { title });
+    if (title && title !== trip.title) await db.trips.update(trip.id, { title, updatedAt: new Date().toISOString() });
   }
   function nameKey(e) {
     if (e.key === 'Enter') (e.preventDefault(), saveName());
     else if (e.key === 'Escape') (e.preventDefault(), (naming = false));
   }
+  // v0.35.0 (Noah 6b): "Saved ✓" after a change: the trip's or its debrief's updatedAt moved while
+  // this trip is shown (not when another trip opens, not on the first look).
+  let saved = $state(false);
+  let shown = $state(false); // the text stays a moment longer, so it can fade out
+  let seen = { id: null, at: null };
+  let savedTimer;
+  const changedAt = $derived([trip.updatedAt ?? '', debrief?.updatedAt ?? ''].join('|'));
+  $effect(() => {
+    const at = changedAt;
+    if (seen.id === trip.id && seen.at !== null && seen.at !== at && $debriefQ) {
+      saved = shown = true;
+      clearTimeout(savedTimer);
+      savedTimer = setTimeout(() => ((saved = false), (savedTimer = setTimeout(() => (shown = false), 450))), 2000);
+    }
+    if ($debriefQ) seen = { id: trip.id, at };
+  });
+  $effect(() => () => clearTimeout(savedTimer));
   const wx = $derived(trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C · ${t(RAIN[trip.wx.rain ?? 'none'])}` : '');
 </script>
 
 <section class="band trip-band" class:compact aria-label={t('Trip')}>
   <div class="who">
-    {#if kicker}<p class="kick">{kicker}</p>{/if}
+    <div class="kline">
+      {#if kicker}<p class="kick">{kicker}</p>{/if}
+      <InProgress current={trip.id} />
+    </div>
     {#if naming}
       <input class="rename" bind:this={nameEl} bind:value={nameDraft} onkeydown={nameKey} onblur={saveName} aria-label={t('Trip name')} enterkeyhint="done" />
     {:else}
@@ -76,6 +100,7 @@
       {#if byBike}<span><Bike size={16} aria-hidden="true" />{bike?.name ?? trip.bike ?? t('No bike')}</span>{:else}<span><Backpack size={16} aria-hidden="true" />{t(domainName(domainOf(trip)))}</span>{/if}
       {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.unweighed && weighHint}<i class="badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}</span>{/if}
       {#if wx}<span><CloudSun size={16} aria-hidden="true" />{wx}</span>{/if}
+      <span class="saved" class:on={saved} role="status">{#if shown}<Check size={14} aria-hidden="true" />{t('Saved')}{/if}</span>
     </p>
   </div>
   <!-- L7: no button (the debrief before the last day): no empty bar at the bottom of a phone. -->
@@ -110,8 +135,23 @@
   .who {
     min-width: 0;
   }
+  /* The kicker left, the "{n} more" pill right; on a narrow phone the pill may sit above the name. */
+  .kline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+  }
+  .kline:empty {
+    display: none;
+  }
+  .kline :global(.ipw) {
+    margin-left: auto;
+  }
   .kick {
     margin: 0;
+    min-width: 0;
     font-size: 13px;
     font-weight: 600;
     color: var(--brand-ink-2);
@@ -173,6 +213,30 @@
   .meta b {
     color: var(--brand-ink);
     font-weight: 600;
+  }
+  /* Noah 6b: small and quiet, gone after about 2 seconds (no time, nothing that stays). */
+  .meta .saved {
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--brand-ink);
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 99px;
+    padding: 1px 8px 1px 6px;
+    opacity: 0;
+    transition: opacity 0.4s;
+    white-space: nowrap;
+  }
+  .meta .saved:empty {
+    padding: 0;
+  }
+  .meta .saved.on {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .meta .saved {
+      transition: none;
+    }
   }
   .badge {
     font-style: normal;
@@ -286,8 +350,9 @@
     .act :global(:focus-visible) {
       outline-color: var(--focus);
     }
-    /* Noah 7a: On the way, only the name and the tabs. */
-    .compact .meta {
+    /* Noah 7a: On the way, only the name and the tabs (and "Saved ✓" for a moment, v0.35.0). */
+    .compact .meta > :not(.saved),
+    .compact .meta:has(.saved:empty) {
       display: none;
     }
   }
@@ -344,9 +409,28 @@
     .kick {
       display: none;
     }
+    /* v0.35.0: the "{n} more" pill sits next to the name (no line of its own). */
+    .who {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      column-gap: 12px;
+    }
+    .kline {
+      order: 2;
+    }
     h1 {
+      flex: 1 1 0;
+      min-width: 0;
       margin: 0 0 2px;
       font-size: 20px;
+    }
+    .rename {
+      flex: 1 1 0;
+    }
+    .meta {
+      order: 3;
+      flex-basis: 100%;
     }
     .meta {
       gap: 2px 12px;

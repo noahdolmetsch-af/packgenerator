@@ -5,6 +5,7 @@
    * The ticks are saved on the trip right away; the items never change (charge.js).
    */
   import { db } from '../db.js';
+  import { touched } from '../trips.js';
   import { t } from '../i18n.svelte.js';
   import { chargeList, chargeCount, isCharged, toggleCharge, chargeAll } from '../charge.js';
   import { Check } from '@lucide/svelte';
@@ -19,7 +20,7 @@
   const save = (fn) =>
     db.transaction('rw', db.trips, async () => {
       const cur = await db.trips.get(trip.id);
-      if (cur) await db.trips.update(trip.id, fn(cur));
+      if (cur) await db.trips.update(trip.id, touched(fn(cur)));
     });
   const tick = (itemId) => save((cur) => toggleCharge(cur, itemId, night));
   const tickAll = () => save((cur) => chargeAll(cur, list, night));

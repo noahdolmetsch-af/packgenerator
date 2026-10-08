@@ -80,6 +80,13 @@
     };
   });
   let noteBike = $state(null);
+  // v0.35.0 (AP29): another trip from the band's "In progress" list: the page opens afresh (nav.js switchTrip).
+  let switchN = $state(0);
+  $effect(() => {
+    const bump = () => (switchN++, window.scrollTo(0, 0));
+    window.addEventListener('pg:switchtrip', bump);
+    return () => window.removeEventListener('pg:switchtrip', bump);
+  });
   const keepDayRide = () => {
     try {
       localStorage.setItem('pack.dayRide', '1');
@@ -177,6 +184,7 @@
 <DemoBar />
 
 <main class:calm={page === 'pack'} class:wide={page === 'pack' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features'}>
+  {#key switchN}
   {#if page === 'gear'}
     <Gear />
   {:else if page === 'pack'}
@@ -209,6 +217,7 @@
   {:else}
     <Home />
   {/if}
+  {/key}
 </main>
 
 {#if page !== 'share'}

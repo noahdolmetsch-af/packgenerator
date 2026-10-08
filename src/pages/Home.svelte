@@ -52,6 +52,8 @@
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
   import GoodToKnow from '../lib/know/GoodToKnow.svelte';
+  import { newsHint, SEEN_KEY, WHATS_NEW } from '../lib/whatsnew.js';
+  import { Sparkles } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -81,6 +83,27 @@
   const learnings = $derived($learnQ ?? []);
   const templates = $derived($tplQ?.value ?? []);
   const loaded = $derived(!!$tripsQ && !!$itemsQ);
+  // v0.35.0 (Noah): once after an update a quiet line "New since your last visit" (not on a first
+  // install). The version is stored at once, so the line shows this one visit only.
+  let newsLine = $state(false);
+  let newsChecked = false;
+  $effect(() => {
+    if (newsChecked || !loaded || !$bikesQ) return;
+    newsChecked = true;
+    let seen = null;
+    try {
+      seen = localStorage.getItem(SEEN_KEY);
+    } catch {
+      return; // private mode: no line, nothing stored
+    }
+    const h = newsHint(seen, !!(trips.length || items.length || $bikesQ.length));
+    try {
+      if (h.mark) localStorage.setItem(SEEN_KEY, h.mark);
+    } catch {
+      /* private mode */
+    }
+    newsLine = h.show;
+  });
   const today = localDay();
 
   /* ---------- the next trip ---------- */
@@ -377,6 +400,10 @@
     </section>
   {/if}
 
+  {#if newsLine}
+    <p class="newsline"><Sparkles size={16} aria-hidden="true" /><a href="#/features">{t('New since your last visit')}</a><span class="num">{t('Version {v}', { v: WHATS_NEW[0].version.replace(/\.0$/, '') })}</span></p>
+  {/if}
+
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data; in place of "No trip planned". -->
   {#if showFirst}
     <section class="card first" aria-labelledby="first-h">
@@ -623,6 +650,23 @@
 </div>
 
 <style>
+  /* v0.35.0: quiet, one line, once after an update. */
+  .newsline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin: 0 0 12px;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .newsline a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ink);
+    font-weight: 600;
+  }
   .home {
     display: flex;
     flex-direction: column;

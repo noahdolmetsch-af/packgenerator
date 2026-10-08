@@ -12,5 +12,6 @@ import care from './care.js';
 import setup from './setup.js';
 import evening from './evening.js';
 import schedule from './schedule.js';
+import drafts from './drafts.js';
 
-export default { ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule };
+export default { ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts };
