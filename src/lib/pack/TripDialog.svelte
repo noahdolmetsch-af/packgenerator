@@ -4,6 +4,7 @@
   import { Check, ChevronRight } from '@lucide/svelte';
   import { db } from '../db.js';
   import { newTrip, lastTripOn, switchBike, WX_PRESETS, bagItemIds } from '../trips.js';
+  import { newBikeRecord } from '../bikes.js';
   import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly } from '../context.js';
   import { isEvent } from '../care.js';
   import { tripFromTemplate, templateDefaults } from '../templates.js';
@@ -104,6 +105,10 @@
   let dialog;
   const bike = $derived(bikes.find((b) => b.id === draft.bikeId));
   const from = $derived(isNew && bike ? lastTripOn(bike.id, trips) : null);
+  // L9: "Copy the last trip" is only offered with a last trip; without one the start is the standard set.
+  $effect(() => {
+    if (isNew && byBike && start === 'last' && !from) start = 'standard';
+  });
   $effect(() => {
     if (autoName) draft.title = rideName({ bike: byBike ? bike?.name : '', label: byBike ? '' : t(domainName(area)), date: draft.startDate, days });
   });
@@ -212,10 +217,37 @@
     tplOpen = false;
   }
 
+  // L9: "+ Add a bike" inside the dialog when there is no bike (it was a dead end: "Choose a bike." without a choice).
+  let addingBike = $state(false);
+  let bikeName = $state('');
+  let bikeBusy = $state(false);
+  let bikeInput = $state();
+  $effect(() => {
+    if (addingBike && bikeInput) bikeInput.focus();
+  });
+  async function saveBike() {
+    const name = bikeName.trim();
+    if (!name) return (error = t('Give the bike a name.'));
+    if (bikeBusy) return;
+    bikeBusy = true;
+    try {
+      const rec = newBikeRecord(name, bikes, $state.snapshot(bags));
+      await db.bikes.put(rec);
+      draft.bikeId = rec.id;
+      addingBike = false;
+      bikeName = '';
+      error = '';
+    } catch {
+      error = t('Could not save. Please try again.');
+    } finally {
+      bikeBusy = false;
+    }
+  }
+
   async function save(event) {
     event.preventDefault();
     if (!draft.title.trim()) return (error = t('Give the trip a name.'));
-    if (byBike && !bike) return (error = t('Choose a bike.'));
+    if (byBike && !bike) return bikes.length ? (error = t('Choose a bike.')) : ((addingBike = true), (error = t('Add a bike first.')));
     if (byBike && !hoursOk) return (error = t('Riding hours per day: between 0.5 and 24, or leave it empty.'));
     if (isNew && !byBike) {
       const readyStandard = (await db.settings.get(readyKey(area)))?.value ?? null;
@@ -310,6 +342,20 @@
             {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => (draft.bikeId = b.id)}>{b.name}</button>{/each}
           </div>
         </fieldset>
+      {:else}
+        <!-- L9: no bike yet: add one right here (only its name), it is chosen at once. -->
+        <fieldset class="ctx nobike">
+          <legend class="lbl">{t('Bike')}</legend>
+          {#if addingBike}
+            <div class="bikeadd">
+              <input class="inp" bind:this={bikeInput} bind:value={bikeName} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), saveBike())} placeholder={t('e.g. Gravel bike')} aria-label={t('Name of the bike')} enterkeyhint="done" />
+              <button type="button" class="btn" disabled={bikeBusy} onclick={saveBike}>{t('Save')}</button>
+            </div>
+          {:else}
+            <p class="note">{t('No bike added yet.')}</p>
+            <button type="button" class="btn" onclick={() => ((addingBike = true), (error = ''))}>+ {t('Add a bike')}</button>
+          {/if}
+        </fieldset>
       {/if}
       <fieldset class="ctx">
         <legend class="lbl">{t('When?')}</legend>
@@ -332,10 +378,11 @@
       </fieldset>
       {#if days > 1}{@render overnight()}{/if}
       {@render weather()}
-      <div class="starts">
+      <!-- L9: only real choices: no last trip, no "Copy the last trip"; nothing to choose, no "Start from". -->
+      {#if from || templates.length}<div class="starts">
         <span class="lbl">{t('Start from')}</span>
         <!-- v0.30.1 (Noah N11): "Copy the last trip" visible at once, with the trip's name, first in "Start from". -->
-        <button type="button" class="tp-fold row" aria-pressed={start === 'last'} onclick={() => (start = 'last')}><span class="rt"><b>{from ? t('Copy the last trip: {title}', { title: from.title }) : t('Copy the last trip')}</b>{#if !from}<small>{t('No trip on this bike yet: starts with the standard set')}</small>{/if}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
+        {#if from}<button type="button" class="tp-fold row" aria-pressed={start === 'last'} onclick={() => (start = 'last')}><span class="rt"><b>{t('Copy the last trip: {title}', { title: from.title })}</b></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>{/if}
         {#if templates.length}
           <details class="tp-fold" bind:open={tplOpen}>
             <summary><span>{t('Start from a template')}</span><span class="r"><span class="num">{templates.length}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
@@ -344,7 +391,7 @@
             </ul>
           </details>
         {/if}
-      </div>
+      </div>{/if}
       {#if preview}
         <section class="plan" aria-label={t('Your packing list|preview')} aria-live="polite">
           <div class="tp-card std">
@@ -632,8 +679,7 @@
   .opt[aria-pressed='true'] {
     border-color: var(--ink);
   }
-  .opt span,
-  .row small {
+  .opt span {
     color: var(--ink-3);
     font-size: 14px;
   }
@@ -691,6 +737,20 @@
     font-size: 14px;
     color: var(--ink-2);
     margin: 12px 0 0;
+  }
+  /* L9: a bike added inside the dialog. */
+  .nobike .note {
+    margin: 0 0 8px;
+  }
+  .bikeadd {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .bikeadd .inp {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
   }
   .err {
     color: var(--bad);

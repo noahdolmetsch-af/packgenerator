@@ -89,6 +89,19 @@ export function completeBike(bike, containers, settings = {}) {
 }
 
 /**
+ * L9: a new bike record from just a name (the New trip dialog without any bike): the same fields as
+ * the Bikes page's "Add bike", the id made from the name (unique among `bikes`), and the default bags
+ * that exist (as completeBike gives an imported bike).
+ */
+export function newBikeRecord(name, bikes = [], containers = []) {
+  const base = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'bike';
+  let id = base;
+  for (let n = 2; bikes.some((b) => b.id === id); n++) id = `${base}-${n}`;
+  const bike = { id, name, type: '', use: '', gearing: [], openPoints: '', weightG: null, photo: null };
+  return { ...completeBike(bike, containers), fixtures: [] };
+}
+
+/**
  * Run on every start and after an import: creates the bag list once (when it is empty
  * and gear exists) and completes bikes that have no setup yet. Changes nothing otherwise.
  */

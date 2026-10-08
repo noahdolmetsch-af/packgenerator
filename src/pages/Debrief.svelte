@@ -16,8 +16,9 @@
   import { isOver } from '../lib/debrief.js';
   import { parseKm } from '../lib/care.js';
   import TripBand from '../lib/trip/TripBand.svelte';
+  import { openTrip } from '../lib/nav.js';
   import '../lib/trip/trip.css';
-  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, Briefcase, Upload } from '@lucide/svelte';
+  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload } from '@lucide/svelte';
   import { ZONE } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
@@ -25,7 +26,7 @@
   import Pace from '../lib/debrief/Pace.svelte';
   import Compare from '../lib/debrief/Compare.svelte';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
-  import { domainOf, domainName } from '../lib/domains.js';
+  import { domainOf, domainName, hasBike } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
 
   let { param = '' } = $props();
@@ -63,6 +64,12 @@
       .sort((a, b) => b.t.startDate.localeCompare(a.t.startDate)),
   );
   const bike = $derived(trip ? ($bikesQ ?? []).find((b) => b.id === trip.bikeId) ?? null : null);
+  // L7: the debrief opens on the trip's last day (local date); before it, a placeholder with "Trip is off"
+  // (the same skipped switch as Plan's "Not riding"). Ended early (finished) or over: the whole debrief.
+  const early = $derived(!!trip && !isOver(trip) && !!tripEnd(trip) && localDay() < tripEnd(trip));
+  const byBike = $derived(trip ? hasBike(trip) : true);
+  const longDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'long' });
+  const toggleSkip = () => db.trips.update(trip.id, { skipped: !trip.skipped });
   // Answer 8b: how often each item was not used before (other trips), shown in step 2.
   const before = $derived(trip ? unusedTimes(debriefs, trip.id) : {});
   // Answer 6: rides from a Strava or Garmin export fill in the km (file import, no login).
@@ -327,6 +334,19 @@
     <p class="muted">{t('Loading…')}</p>
   {:else if !trip}
     <p class="card">{t('This trip does not exist any more.')} <a href="#/debrief">{t('Back to Debrief')}</a></p>
+  {:else if early}
+    <!-- L7: before the last day there is nothing to look back on yet: a calm placeholder, no save.
+         A trip ended early (finished) or over keeps the whole debrief. -->
+    <!-- The page's one orange button leads back to where the trip stands: On the way once it has started, else Pack. -->
+    {#snippet back()}{#if byBike && trip.startDate <= localDay()}<a class="btn hi go" href="#/ride" onclick={() => openTrip(trip.id)}><ArrowLeft size={20} aria-hidden="true" />{t('Back to On the way')}</a>{:else}<a class="btn hi go" href="#/pack?day" onclick={() => openTrip(trip.id)}><ArrowLeft size={20} aria-hidden="true" />{t('Back to packing')}</a>{/if}{/snippet}
+    <div class="flow trip-page">
+      <TripBand {trip} tab="debrief" kicker={t('Debrief')} action={back} />
+      <section class="tp-card early" aria-labelledby="early-h">
+        <h2 id="early-h">{t('Debrief from {date}', { date: longDate(tripEnd(trip)) })}</h2>
+        {#if trip.skipped}<p class="tp-status">{byBike ? t('Not riding') : t('Not going')}</p>{:else}<p class="tp-muted">{t('Notes you write on the way will wait here.')}</p>{/if}
+        <p><button type="button" class="btn" onclick={toggleSkip}>{trip.skipped ? (byBike ? t('Riding it after all') : t('Going after all')) : t('Trip is off')}</button></p>
+      </section>
+    </div>
   {:else if d}
     {#snippet go()}{#if saved}<a class="btn hi go" href="#/">{t('Done')}<ArrowRight size={20} aria-hidden="true" /></a>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish}>{t('Save debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
     {@const end = tripEnd(trip)}

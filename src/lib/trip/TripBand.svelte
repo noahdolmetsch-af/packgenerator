@@ -78,11 +78,14 @@
       {#if wx}<span><CloudSun size={16} aria-hidden="true" />{wx}</span>{/if}
     </p>
   </div>
-  <div class="act">
-    {#if aside}<span class="aside">{@render aside()}</span>{/if}
-    {@render action?.()}
-    {#if hint}<small class="hint">{hint}</small>{/if}
-  </div>
+  <!-- L7: no button (the debrief before the last day): no empty bar at the bottom of a phone. -->
+  {#if action || aside || hint}
+    <div class="act">
+      {#if aside}<span class="aside">{@render aside()}</span>{/if}
+      {@render action?.()}
+      {#if hint}<small class="hint">{hint}</small>{/if}
+    </div>
+  {/if}
   <nav class="steps" aria-label={t('Steps of this trip')} style:--n={tabs.length}>
     {#each tabs as key (key)}
       {@const s = status[key]}

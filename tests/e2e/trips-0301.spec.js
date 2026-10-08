@@ -163,9 +163,15 @@ test('C1, C2: On the way shows the Now card without a route; one tap is one note
 test('C3, C5: "Yes, remember" saves the suggestion; a debrief saved early makes the trip past', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  // Made after 14:00 for tomorrow, ridden and debriefed today.
-  await start(page, context, info, { trips: [trip('gtp-c5', 'Morgen', { startDate: day(1), entries: [{ itemId: 'TO01', slot: 'frame', qty: 1, packed: true }, { itemId: 'TO02', slot: 'frame', qty: 1, packed: true }] })] });
+  // A two-day trip that started today, ended early on the way and debriefed today (L7: the debrief
+  // itself opens only from the last day; "Next: Debrief" on the way ends the trip and opens it).
+  await start(page, context, info, { trips: [trip('gtp-c5', 'Morgen', { startDate: day(0), days: 2, entries: [{ itemId: 'TO01', slot: 'frame', qty: 1, packed: true }, { itemId: 'TO02', slot: 'frame', qty: 1, packed: true }] })] });
   await page.goto('./#/debrief/gtp-c5');
+  await expect(page.locator('section.early')).toBeVisible();
+  await page.evaluate(() => localStorage.setItem('pack.currentTrip', 'gtp-c5'));
+  await page.goto('./#/ride');
+  await page.locator('.trip-band .act .go').click();
+  await expect(page).toHaveURL(/#\/debrief\/gtp-c5/);
   await page.getByPlaceholder(T('What you missed, e.g. Headlamp')).fill('test_data_gtp_ Kettenöl');
   await page.getByRole('button', { name: T('Add'), exact: true }).click();
   const learn = page.locator('section.learn');
