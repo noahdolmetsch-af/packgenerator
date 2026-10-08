@@ -476,3 +476,6 @@ export function addEntries(entries, itemIds, slot, fresh = {}) {
   }
   return added.length ? [...entries, ...added] : entries;
 }
+
+/** v0.35.0 (AP29): a change of a trip with its time, so "In progress" sorts by it and the band says "Saved". */
+export const touched = (changes, now = new Date().toISOString()) => ({ ...changes, updatedAt: now });

@@ -9,6 +9,7 @@
   import { db } from './db.js';
   import { newNote, guessBike, PAGE_NAMES, rideContext } from './notes.js';
   import { localDay } from './localday.js';
+  import { autoKeep, leaveWindow } from './drafts.js';
   import { nextTrip } from './debrief.js';
   import { sortBikes } from './bikes.js';
   import { shrinkImage } from './photo.js';
@@ -59,17 +60,79 @@
     }
   }
 
+  /*
+   * v0.35.0 (AP29, Noah 4b + 5a): nothing typed is lost. The note is saved as soon as it has text
+   * (or a photo) and every further key updates it; closing keeps it. "Discard" takes it back.
+   */
+  let autoId = $state(null);
+  let autoAt = null;
+  let ended = false;
+  let autoTimer;
+  let autoBusy = Promise.resolve();
+  /** The note as it is now; its id and time are fixed by the first save. */
+  function record() {
+    autoId ??= `note-${Date.now().toString(36)}`;
+    autoAt ??= new Date().toISOString();
+    return newNote({ text: text.trim() || t('Photo'), photo: $state.snapshot(photo), page, tripId: trip?.id ?? null, bikeId: bike, day: riding?.day ?? null }, { id: autoId, now: autoAt });
+  }
+  const typed = () => autoKeep({ name: text.trim() || (photo ? 'photo' : '') });
+  /** Saves r (default: the note now) after the saves before it. */
+  function autoSave(r = null) {
+    if (!r && (ended || !typed())) return autoBusy;
+    const rec = r ?? record();
+    autoBusy = autoBusy.then(() => db.notes.put(rec));
+    return autoBusy;
+  }
+  $effect(() => {
+    if (!open) return;
+    void [text, photo, bikeId];
+    if (!typed()) return;
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(() => autoSave(), 400);
+    return () => clearTimeout(autoTimer);
+  });
+  const savedText = () => (riding ? t('Saved in the Inbox and on {trip}.', { trip: trip?.title ?? '' }) : t('Saved in the Inbox.'));
+  function showSaved(text = savedText()) {
+    saved = text;
+    setTimeout(() => (saved = ''), 3000);
+  }
+
   async function save(event) {
     event.preventDefault();
     if (!text.trim() && !photo) return (msg = t('Write a few words or add a photo.'));
-    const id = `note-${Date.now().toString(36)}`;
-    await db.notes.put(newNote({ text: text.trim() || t('Photo'), photo, page, tripId: trip?.id ?? null, bikeId: bike, day: riding?.day ?? null }, { id, now: new Date().toISOString() }));
-    saved = riding ? t('Saved in the Inbox and on {trip}.', { trip: trip?.title ?? '' }) : t('Saved in the Inbox.');
-    setTimeout(() => (saved = ''), 3000);
+    clearTimeout(autoTimer);
+    const r = record();
+    ended = true;
+    await autoSave(r);
+    showSaved();
+    dialog.close();
+  }
+  async function discard() {
+    ended = true;
+    clearTimeout(autoTimer);
+    const id = autoId;
+    await autoBusy;
+    if (id) await db.notes.delete(id);
     dialog.close();
   }
 
+  // Closing (Escape, the Inbox link) keeps what was typed.
   function closed() {
+    clearTimeout(autoTimer);
+    if (!ended && leaveWindow('close', { made: !!autoId, typed: typed() }) === 'keep') {
+      if (typed()) {
+        const r = record();
+        const note = savedText();
+        autoSave(r).then(() => showSaved(note));
+      } else {
+        // everything erased again: the note made here goes too
+        const id = autoId;
+        autoBusy = autoBusy.then(() => db.notes.delete(id));
+      }
+    }
+    ended = false;
+    autoId = null;
+    autoAt = null;
     open = false;
     text = '';
     photo = null;
@@ -103,7 +166,7 @@
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     <div class="foot">
       <button type="submit" class="btn hi">{t('Save')}</button>
-      <button type="button" class="link" onclick={() => dialog.close()}>{t('Cancel')}</button>
+      <button type="button" class="link" onclick={discard}>{autoId ? t('Discard') : t('Cancel')}</button>{#if autoId}<span class="kept" role="status">✓ {t('Saved')}</span>{/if}
       <a class="link inb" href="#/inbox" onclick={() => dialog.close()}>{t('Inbox')}{$openQ ? ` (${$openQ})` : ''}</a>
     </div>
   </form>
@@ -186,6 +249,10 @@
   }
   .inb {
     margin-left: auto;
+  }
+  .kept {
+    font-size: 13px;
+    color: var(--ink-3);
   }
   @media print {
     .saved {

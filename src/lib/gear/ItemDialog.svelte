@@ -7,6 +7,7 @@
   import { TEMPLATES_KEY } from '../templates.js';
   import { assignmentOf, currentTrip } from './assign.js';
   import { localDay } from '../localday.js';
+  import { autoKeep, leaveWindow } from '../drafts.js';
   import AssignDialog from './AssignDialog.svelte';
   import { t, tn, nameOf } from '../i18n.svelte.js';
   import { DOMAINS, itemDomains, domainName } from '../domains.js';
@@ -19,11 +20,22 @@
    * readOnly: on the phone the inventory is for looking things up and weighing only,
    * so there the dialog shows the details plus a weight field.
    */
-  let { item, items, readOnly = false, preset = {}, onsaved = null, onclose } = $props();
+  // onkept (v0.35.0): called with the new item when the window closes without "Save" after it was
+  // saved while typing (Pack puts it on the trip, a template takes it, like after "Save").
+  let { item, items: allItems, readOnly = false, preset = {}, onsaved = null, onkept = null, onclose } = $props();
 
   // svelte-ignore state_referenced_locally
   const isNew = !item;
-  // A copy to edit; nothing is saved until "Save".
+  /*
+   * v0.35.0 (AP29, Noah 4b + 5a): nothing typed is lost. A new item is saved as soon as it has a
+   * name (autoId) and every further field updates it; closing keeps it. "Discard" takes it back
+   * (it was made in this window, nothing points to it yet). Until the window closes its ID follows
+   * the category (the next free number of that category), as "Save" would give it.
+   */
+  let autoId = $state(null);
+  let ended = false;
+  const items = $derived(allItems.filter((i) => i.id !== autoId));
+  // An existing item: a copy to edit; nothing is saved until "Save".
   // svelte-ignore state_referenced_locally
   let draft = $state(itemDraft(item, preset));
   let error = $state('');
@@ -91,8 +103,56 @@
     }
     // v0.23.0 (AP09): the record is built in gear.js (itemRecord), tested there; the ID never changes.
     const record = itemRecord($state.snapshot(draft), { item, items, weightG });
+    ended = true;
+    clearTimeout(autoTimer);
+    await autoBusy;
+    if (autoId && autoId !== record.id) await db.items.delete(autoId);
     await db.items.put(record);
     await onsaved?.(record);
+    dialog.close();
+  }
+
+  /* ---------- v0.35.0 (AP29): a new item is saved while it is typed ---------- */
+  let autoTimer;
+  let autoBusy = Promise.resolve();
+  let kept = null; // the last record saved this way
+  function autoSave() {
+    autoBusy = autoBusy.then(async () => {
+      if (readOnly || !autoKeep({ isNew, ended, name: draft.name })) return;
+      const grams = String(draft.grams ?? '').trim();
+      const record = itemRecord($state.snapshot(draft), { item: null, items, weightG: grams ? parseGrams(grams) : null });
+      if (autoId && autoId !== record.id) await db.items.delete(autoId);
+      await db.items.put(record);
+      autoId = record.id;
+      kept = record;
+    });
+    return autoBusy;
+  }
+  // svelte-ignore state_referenced_locally
+  const startText = JSON.stringify(draft); // as the window opened (a name from the search counts only once changed)
+  $effect(() => {
+    if (!isNew || readOnly) return;
+    const now = JSON.stringify(draft); // every field of the new item
+    if (!autoKeep({ isNew, name: draft.name, changed: now !== startText || !!autoId })) return;
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(autoSave, 300);
+    return () => clearTimeout(autoTimer);
+  });
+  async function closed() {
+    const typed = autoKeep({ isNew, ended, name: draft.name, changed: JSON.stringify($state.snapshot(draft)) !== startText });
+    if (!readOnly && !ended && leaveWindow('close', { made: !!autoId, typed }) === 'keep') {
+      clearTimeout(autoTimer);
+      await autoSave();
+      ended = true;
+      if (kept) await onkept?.(kept);
+    }
+    onclose?.();
+  }
+  async function discard() {
+    ended = true;
+    clearTimeout(autoTimer);
+    await autoBusy;
+    if (autoId) await db.items.delete(autoId);
     dialog.close();
   }
 
@@ -222,7 +282,7 @@
   </details>
 {/snippet}
 
-<dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="item-h">
+<dialog class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="item-h">
   <form onsubmit={save} novalidate>
     <p class="meta">
       <span class="sw" style:background={CATEGORY[draft.category]?.color}></span>
@@ -297,7 +357,8 @@
     <p class="err" role="alert">{error}</p>
     <div class="foot">
       <button type="submit" class="btn hi">{t('Save')}</button>
-      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+      {#if isNew && autoId}<button type="button" class="btn" onclick={discard}>{t('Discard')}</button><span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span>
+      {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
       {#if !isNew && !readOnly}<button type="button" class="btn del" onclick={remove}>{t('Delete')}</button>{/if}
     </div>
   </form>
@@ -626,6 +687,13 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+  }
+  .kept {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--ink-3);
   }
   .del {
     margin-left: auto;

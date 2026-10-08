@@ -72,7 +72,7 @@ export const isOver = (trip, today = localDay()) => {
 /** Trips that still want a debrief (answer 1a: only trips packed in the app), newest first. */
 export function toDebrief(trips, debriefs, today = localDay()) {
   const done = new Set(debriefs.filter((d) => d.status === 'done').map((d) => d.tripId));
-  return trips.filter((t) => !t.skipped && isOver(t, today) && !done.has(t.id) && t.entries?.length).sort((a, b) => b.startDate.localeCompare(a.startDate));
+  return trips.filter((t) => !t.skipped && !t.noDebrief && isOver(t, today) && !done.has(t.id) && t.entries?.length).sort((a, b) => b.startDate.localeCompare(a.startDate));
 }
 
 /** The next trip: the first one that has not ended yet. A trip marked "Not riding" (skipped) does not count. */

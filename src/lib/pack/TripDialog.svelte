@@ -3,7 +3,7 @@
   import { liveQuery } from 'dexie';
   import { Check, ChevronRight } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { newTrip, lastTripOn, switchBike, WX_PRESETS, bagItemIds } from '../trips.js';
+  import { newTrip, lastTripOn, switchBike, WX_PRESETS, bagItemIds, touched } from '../trips.js';
   import { newBikeRecord } from '../bikes.js';
   import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly } from '../context.js';
   import { isEvent } from '../care.js';
@@ -13,6 +13,7 @@
   import { isInventory, knownWeight, formatWeight } from '../gear.js';
   import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks, blocksLine } from '../sets.js';
   import { localDay } from '../localday.js';
+  import { autoKeep, leaveWindow } from '../drafts.js';
   import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf } from '../dayride.js';
 
   /**
@@ -31,10 +32,20 @@
    * and "Create trip · n items". Standard + Rain = 4 clicks (+, Plan a trip, Rain, Create).
    * bags: the containers (Pack's), so a block skips the bags themselves like Pack's block chips.
    */
-  let { trip, trips, bikes, items, bags = [], templates = [], startFrom = 'standard', domain = null, defaultBikeId = null, onclose, oncreated, onchange = null } = $props();
+  let { trip, trips: allTrips, bikes, items, bags = [], templates = [], startFrom = 'standard', domain = null, defaultBikeId = null, onclose, oncreated, onchange = null } = $props();
 
   // svelte-ignore state_referenced_locally
   const isNew = !trip;
+  /*
+   * v0.35.0 (AP29, Noah 4b + 5a): nothing typed is lost. As soon as a name is typed, the new trip is
+   * saved (autoId) and every further choice here updates it; closing the window keeps it (Pack then
+   * opens it, with Undo). Only "Discard" takes back the trip this window made (it has nothing else yet).
+   * The dialog's own trip is left out of `trips`, so "Copy the last trip" never copies itself.
+   */
+  let autoId = $state(null);
+  let autoNow = null; // the trip's id and creation time, fixed at the first save
+  let ended = false; // "Create trip" or "Discard": closing does nothing more
+  const trips = $derived(allTrips.filter((x) => x.id !== autoId));
   // svelte-ignore state_referenced_locally
   let draft = $state(
     trip
@@ -249,17 +260,21 @@
     if (byBike && !hoursOk) return (error = t('Riding hours per day: between 0.5 and 24, or leave it empty.'));
     if (isNew && !byBike) {
       const readyStandard = (await db.settings.get(readyKey(area)))?.value ?? null;
-      const nt = newPackTrip({ ...draft, domain: area, readyStandard }, start === 'standard' ? [] : trips, items);
-      await db.trips.put(nt);
+      const nt = newPackTrip({ ...draft, domain: area, readyStandard }, start === 'standard' ? [] : trips, items, autoNow ?? Date.now());
+      ended = true;
+      clearTimeout(autoTimer);
+      await db.trips.put(touched(nt));
       rememberDomain(area);
       oncreated?.(nt.id);
     } else if (isNew) {
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       // v0.25.1: the same path as the day ride (dayride.js buildBikeTrip); wxFrom says the weather came from the forecast.
       const fields = { ...ctxFields(), ...(fromForecast ? { wxFrom: 'forecast' } : {}) };
-      const nt = buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips, items, readyStandard, fields });
+      const nt = buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips, items, readyStandard, fields }, autoNow ?? Date.now());
+      ended = true;
+      clearTimeout(autoTimer);
       // v0.30.0 (Noah, finding 2): the building blocks chosen in the window, like Pack's block chips.
-      await db.trips.put($state.snapshot(withBlocks(nt)));
+      await db.trips.put(touched($state.snapshot(withBlocks(nt))));
       rememberDomain(BIKEPACKING);
       oncreated?.(nt.id);
     } else {
@@ -282,8 +297,65 @@
         return hasContext(next) ? { ...out, ...applyContext(next, items, cur) } : out;
       };
       if (onchange) await onchange(fn);
-      else await db.trips.update(trip.id, fn(await db.trips.get(trip.id)));
+      else await db.trips.update(trip.id, touched(fn(await db.trips.get(trip.id))));
     }
+    dialog.close();
+  }
+
+  /* ---------- v0.35.0 (AP29): the new trip is saved while it is typed ---------- */
+  /** The new trip as the window would make it now, or null while it cannot be made (no name typed, no bike, hours wrong). */
+  async function autoRecord() {
+    if (!autoKeep({ isNew, name: draft.title, changed: !autoName })) return null;
+    if (!byBike) {
+      const readyStandard = (await db.settings.get(readyKey(area)))?.value ?? null;
+      return newPackTrip({ ...$state.snapshot(draft), domain: area, readyStandard }, start === 'standard' ? [] : trips, items, autoNow);
+    }
+    if (!bike || !hoursOk) return null;
+    const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
+    const fields = { ...ctxFields(), ...(fromForecast ? { wxFrom: 'forecast' } : {}) };
+    return $state.snapshot(withBlocks(buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips, items, readyStandard, fields }, autoNow)));
+  }
+  let autoTimer;
+  let autoBusy = Promise.resolve();
+  function autoSave() {
+    autoBusy = autoBusy.then(async () => {
+      if (ended) return;
+      autoNow ??= Date.now();
+      const nt = await autoRecord();
+      if (!nt || ended) return;
+      await db.trips.put(touched(nt));
+      autoId = nt.id;
+    });
+    return autoBusy;
+  }
+  // Every change of a field (after a name was typed) saves again, a moment after the last key.
+  $effect(() => {
+    if (!isNew) return;
+    JSON.stringify([draft, ctx, start, picked, area, autoName]); // what the trip is made of
+    if (!autoKeep({ isNew, name: draft.title, changed: !autoName })) return;
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(autoSave, 300);
+    return () => clearTimeout(autoTimer);
+  });
+  /** Closing (Escape, outside, Close) keeps what was typed: the last change is saved, Pack opens the trip. */
+  async function closed() {
+    if (isNew && !ended && leaveWindow('close', { made: !!autoId, typed: autoKeep({ isNew, name: draft.title, changed: !autoName }) }) === 'keep') {
+      clearTimeout(autoTimer);
+      await autoSave();
+      if (autoId && !ended) {
+        ended = true;
+        rememberDomain(area);
+        oncreated?.(autoId);
+      }
+    }
+    onclose?.();
+  }
+  /** "Discard": the trip this window made goes again (it was made here and has nothing else). */
+  async function discard() {
+    ended = true;
+    clearTimeout(autoTimer);
+    await autoBusy;
+    if (autoId) await db.trips.delete(autoId);
     dialog.close();
   }
 
@@ -318,7 +390,7 @@
   </fieldset>
 {/snippet}
 
-<dialog class="sheet trip-dlg" bind:this={dialog} {onclose} aria-labelledby="trip-h">
+<dialog class="sheet trip-dlg" bind:this={dialog} onclose={closed} aria-labelledby="trip-h">
   <form onsubmit={save} novalidate>
     <!-- v0.30.0 (Noah, finding 2): the dark band of the trip pages on top. -->
     <div class="band"><h2 id="trip-h" class="title">{isNew ? t('New trip') : t('Trip details')}</h2></div>
@@ -473,7 +545,8 @@
     <div class="foot">
       <!-- v0.30.0 (Noah, finding 2): the live item count on the one orange button. -->
       <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}{#if total}<span class="cnt">{` · ${tn(total, '{n} item', '{n} items')}`}</span>{/if}</button>
-      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+      {#if isNew && autoId}<button type="button" class="btn" onclick={discard}>{t('Discard')}</button><span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span>
+      {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete trip')}</button>{/if}
     </div>
   </form>
@@ -759,6 +832,13 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+  }
+  .kept {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--ink-3);
   }
   .del {
     margin-left: auto;

@@ -14,7 +14,7 @@
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { db } from '../lib/db.js';
   import { nextTrip } from '../lib/debrief.js';
-  import { tripStats } from '../lib/trips.js';
+  import { tripStats, touched } from '../lib/trips.js';
   import { ageText, FORECAST_DAYS } from '../lib/weather.js';
   import Profile from '../lib/ui/Profile.svelte';
   import { paceOf, PACE_KEY } from '../lib/pace.js';
@@ -79,7 +79,7 @@
   };
 
   async function change(fields) {
-    await db.trips.update(trip.id, fields);
+    await db.trips.update(trip.id, touched(fields));
   }
   // v0.20.1: end the trip now (also before its last day) and go straight to its debrief.
   async function finish() {

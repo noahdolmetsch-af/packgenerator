@@ -19,7 +19,7 @@
   import { openTrip } from '../lib/nav.js';
   import '../lib/trip/trip.css';
   import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload } from '@lucide/svelte';
-  import { ZONE } from '../lib/trips.js';
+  import { ZONE, touched } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
   import { parseActivitiesCsv, parseRideFile, ridesOnTrip } from '../lib/activities.js';
@@ -69,7 +69,7 @@
   const early = $derived(!!trip && !isOver(trip) && !!tripEnd(trip) && localDay() < tripEnd(trip));
   const byBike = $derived(trip ? hasBike(trip) : true);
   const longDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'long' });
-  const toggleSkip = () => db.trips.update(trip.id, { skipped: !trip.skipped });
+  const toggleSkip = () => db.trips.update(trip.id, touched({ skipped: !trip.skipped }));
   // Answer 8b: how often each item was not used before (other trips), shown in step 2.
   const before = $derived(trip ? unusedTimes(debriefs, trip.id) : {});
   // Answer 6: rides from a Strava or Garmin export fill in the km (file import, no login).

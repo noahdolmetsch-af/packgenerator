@@ -32,6 +32,17 @@ export const openNew = (mode = 'all') => (mode === 'list' ? newTrip('standard') 
 export const openTrip = (id) => keep('pack.currentTrip', id);
 
 /**
+ * v0.35.0 (AP29): open another trip at one of its pages (the "In progress" list in the trip band).
+ * The trip pages read the chosen trip when they open, so the App opens the page afresh
+ * (event 'pg:switchtrip'), also when the address stays the same (#/pack → #/pack).
+ */
+export function switchTrip(id, href) {
+  openTrip(id);
+  if (location.hash !== href) location.hash = href;
+  window.dispatchEvent(new Event('pg:switchtrip'));
+}
+
+/**
  * v0.30.2 (L5): the event preparation is the trip's: Today's line opens the trip (Plan, #/pack)
  * with "Before the trip" open, where the tasks are ticked off.
  */

@@ -229,7 +229,7 @@
   {/if}
 </div>
 
-{#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name }} onsaved={addNew} onclose={() => (newItem = null)} />{/if}
+{#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name }} onsaved={addNew} onkept={addNew} onclose={() => (newItem = null)} />{/if}
 
 <style>
   .back {
