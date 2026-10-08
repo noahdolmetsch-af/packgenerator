@@ -1,0 +1,16 @@
+{
+  "kind": "gear-import",
+  "version": 1,
+  "created": "2026-10-08",
+  "items": [
+    { "sourceId": "T0001", "mergedIds": [], "category": "rain", "name": "test_data_gtp_Rain jacket", "qty": 1, "areas": ["Velo", "Wandern"], "zone": "torso", "layer": "outer", "tempMin": 0, "tempMax": 15, "tempClass": "mittel", "owned": true, "optional": false, "rule": "", "notes": "test_data_gtp_ Kapuze passt über den Helm", "weightG": 999 },
+    { "sourceId": "T0002", "mergedIds": ["LI01"], "category": "light", "name": "test_data_gtp_Lampe vorne", "qty": 1, "areas": ["Velo"], "zone": "", "layer": "", "tempMin": null, "tempMax": null, "tempClass": "", "owned": true, "optional": false, "rule": "nur wenn test_data_gtp_ Halter montiert", "notes": "", "weightG": null },
+    { "sourceId": "T0003", "mergedIds": [], "category": "hyg", "name": "test_data_gtp_Sun cream mineral", "qty": 1, "areas": ["Alltag"], "owned": true, "optional": false, "notes": "", "weightG": 60 },
+    { "sourceId": "T0004", "mergedIds": [], "category": "tools", "name": "test_data_gtp_Kompass", "qty": 1, "areas": ["Wandern"], "owned": true, "optional": false, "notes": "", "weightG": 35 },
+    { "sourceId": "T0005", "mergedIds": [], "category": "lux", "name": "test_data_gtp_Packraft", "qty": 1, "areas": ["Reisen"], "owned": false, "optional": true, "notes": "", "weightG": 2400 }
+  ],
+  "learnings": [
+    { "sourceId": "L01", "date": "2021-06-12", "topic": "test_data_gtp_ Kleidung", "text": "test_data_gtp_ Bei Regen zuerst die Hände schützen", "condition": "unter 10 °C", "recommendation": "Überhandschuhe", "exceptions": "", "reason": "kalte Finger" },
+    { "sourceId": "L02", "date": "", "topic": "test_data_gtp_ Schlafen", "text": "test_data_gtp_ Matte vor der Tour testen", "condition": "", "recommendation": "", "exceptions": "", "reason": "" }
+  ]
+}

@@ -33,11 +33,19 @@ export const DOMAINS = [
       { key: 'day', name: 'Daypack', volumeL: null },
     ],
   },
+  // v0.36.0 (gear import): the areas of Noah's reviewed list. Velo is by bike: its items come along
+  // on every bike trip (inDomain). Velo and Everyday are areas of items only, no trip area of their own
+  // (trip: false, not offered in "New trip"); Hiking packs a backpack like ski touring.
+  { key: 'velo', name: 'Cycling', bike: true, trip: false },
+  { key: 'hiking', name: 'Hiking', packs: [{ key: 'pack', name: 'Backpack 30 L', volumeL: 30 }] },
+  { key: 'everyday', name: 'Everyday', trip: false },
 ];
+/** v0.36.0: the areas a new trip can be of (Velo and Everyday are areas of items only). */
+export const TRIP_DOMAINS = DOMAINS.filter((d) => d.trip !== false);
 export const DOMAIN = Object.fromEntries(DOMAINS.map((d) => [d.key, d]));
 
 /** The area of a trip (older trips have none: bikepacking). */
-export const domainOf = (trip) => (trip?.domain && DOMAIN[trip.domain] ? trip.domain : BIKEPACKING);
+export const domainOf = (trip) => (trip?.domain && DOMAIN[trip.domain] && DOMAIN[trip.domain].trip !== false ? trip.domain : BIKEPACKING);
 /** Does this trip go by bike? Trips with their own bags (trip.packs) do not. */
 export const hasBike = (trip) => !Array.isArray(trip?.packs);
 /** The name of an area (English; show it with t()). */
@@ -45,7 +53,9 @@ export const domainName = (key) => DOMAIN[key]?.name ?? key;
 
 /** The areas of an item; none set means bikepacking. */
 export const itemDomains = (item) => (item?.domains?.length ? item.domains : [BIKEPACKING]);
-export const inDomain = (item, key) => !key || itemDomains(item).includes(key);
+/** v0.36.0: a bike trip (bikepacking) also takes the items of the area Velo. */
+export const VELO = 'velo';
+export const inDomain = (item, key) => !key || itemDomains(item).includes(key) || (key === BIKEPACKING && itemDomains(item).includes(VELO));
 
 /** How many items (not gone) are in each area: { bikepacking: 120, weekend: 3 }. */
 export function countByDomain(items) {
@@ -63,7 +73,7 @@ const LAST = 'pack.lastDomain';
 export function lastDomain() {
   try {
     const v = localStorage.getItem(LAST);
-    return DOMAIN[v] ? v : BIKEPACKING;
+    return DOMAIN[v] && DOMAIN[v].trip !== false ? v : BIKEPACKING;
   } catch {
     return BIKEPACKING;
   }

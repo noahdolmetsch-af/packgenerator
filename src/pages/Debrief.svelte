@@ -548,7 +548,7 @@
             {#each g.ls as l (l.id)}
               <li>
                 <span class="prio p-{l.priority}">{l.priority ? t(l.priority) : '–'}</span>
-                <span>{l.rule}{#if l.action}<small>→ {l.action}</small>{/if}<small class="muted">{l.source ?? ''}{l.confirmed ? ` · ${t('confirmed {n}×', { n: l.confirmed })}` : ''}</small></span>
+                <span>{l.rule}{#if l.action}<small>→ {l.action}</small>{/if}<small class="muted">{l.source === 'import' ? [t('From the import'), l.date].filter(Boolean).join(' · ') : (l.source ?? '')}{l.confirmed ? ` · ${t('confirmed {n}×', { n: l.confirmed })}` : ''}</small></span>
               </li>
             {/each}
           </ul>

@@ -19,8 +19,9 @@ const items = [
 
 describe('areas (package 5)', () => {
   it('has bikepacking plus three areas without a bike', () => {
-    expect(DOMAINS.map((d) => d.key)).toEqual(['bikepacking', 'ski', 'weekend', 'travel']);
-    expect(DOMAINS.filter((d) => d.bike).map((d) => d.key)).toEqual(['bikepacking']);
+    // v0.36.0 (gear import): plus Velo (by bike, items only), Hiking and Everyday (items only).
+    expect(DOMAINS.map((d) => d.key)).toEqual(['bikepacking', 'ski', 'weekend', 'travel', 'velo', 'hiking', 'everyday']);
+    expect(DOMAINS.filter((d) => d.bike).map((d) => d.key)).toEqual(['bikepacking', 'velo']);
   });
 
   it('items without areas count as bikepacking; an item can be in several', () => {

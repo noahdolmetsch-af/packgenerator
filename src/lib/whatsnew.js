@@ -9,6 +9,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.36.0',
+    date: '2026-10-08',
+    points: [
+      { text: '"Check import": your reviewed gear list waits on its own page; nothing goes into Gear before you check it.', href: '#/gear/import' },
+      { text: 'One button takes the safe ones; unsure items are decided with one tap. A backup comes first, "Undo" puts it back.', href: '#/gear/import' },
+      { text: 'Items the list does not name can be archived: they move to Gone, past trips stay complete.', href: '#/gear/import' },
+      { text: 'New areas for your items: Cycling, Hiking and Everyday.', href: '#/gear' },
+    ],
+  },
+  {
     version: '0.35.0',
     date: '2026-10-08',
     points: [
