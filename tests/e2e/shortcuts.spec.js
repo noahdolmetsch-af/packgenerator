@@ -55,10 +55,9 @@ for (const lang of ['de', 'en']) {
       clicks++;
     };
 
-    // New → Plan a trip → Standard set; a day ride says the base set stays at home.
+    // New → Plan a trip (v0.30.0: the window starts with the standard set); a day ride says the base set stays at home.
     await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
     await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
-    await click(page.getByRole('dialog', { name: T('Plan a new trip') }).getByRole('button', { name: T('Standard set') }));
     const dlg = page.getByRole('dialog', { name: T('New trip') });
     await dlg.getByLabel(T('Name')).fill(title);
     await dlg.getByLabel(T('Start date')).fill(today());
@@ -81,8 +80,8 @@ for (const lang of ['de', 'en']) {
     await expect(page).toHaveURL(/#\/debrief\//);
     await click(page.getByRole('button', { name: T('Save debrief') }));
     await expect(page.getByRole('heading', { name: T('Saved') })).toBeVisible();
-    // v0.24.1: 8 clicks; v0.29.0: 7 (New, Plan a trip, Standard set, Create, All packed, Next: Debrief, Save).
-    expect(clicks, 'a whole day ride in at most 7 clicks').toBeLessThanOrEqual(7);
+    // v0.24.1: 8 clicks; v0.29.0: 7; v0.30.0: 6 (New, Plan a trip, Create, All packed, Next: Debrief, Save).
+    expect(clicks, 'a whole day ride in at most 6 clicks').toBeLessThanOrEqual(6);
     info.annotations.push({ type: 'clicks', description: String(clicks) });
     expect(errors).toEqual([]);
   });
@@ -94,7 +93,6 @@ test('Pack bag by bag with Whole bag packed, and select all in the debrief', asy
   const title = 'test_data_gtp_ Taschen';
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  await page.getByRole('dialog', { name: T('Plan a new trip') }).getByRole('button', { name: T('Standard set') }).click();
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await dlg.getByLabel(T('Name')).fill(title);
   await dlg.getByLabel(T('Start date')).fill(today());
@@ -163,7 +161,6 @@ test('create what the search does not find', async ({ page, context }, info) => 
   // A trip, then "Add material" → search → "Add … as a new item and pack it".
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  await page.getByRole('dialog', { name: T('Plan a new trip') }).getByRole('button', { name: T('Standard set') }).click();
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await dlg.getByLabel(T('Name')).fill('test_data_gtp_ Suche');
   await dlg.getByLabel(T('Start date')).fill(today());

@@ -66,8 +66,7 @@ for (const lang of ['en', 'de']) {
     else expect(box.y, '"New" sits in the top bar').toBeLessThan(100);
     await newBtn.click();
     const sheet = page.getByRole('dialog', { name: T('New') });
-    await sheet.getByRole('button', { name: T('Plan a trip') }).click();
-    await page.getByRole('dialog', { name: T('Plan a new trip') }).getByRole('button', { name: T('Standard set') }).click();
+    await sheet.getByRole('button', { name: T('Plan a trip') }).click(); // v0.30.0: the window starts with the standard set
 
     // 3. The trip dialog: name + today's date → Create trip.
     const tripDlg = page.getByRole('dialog', { name: T('New trip') });

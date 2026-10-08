@@ -133,27 +133,31 @@ test('the language switch lives in the profile menu', async ({ page, context }) 
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 });
 
-// v0.23.1 (Noah 3b): on the phone the three places and Good to know start folded, one line each,
-// and open by touch or keyboard; on a desktop they stay open as before.
+// v0.23.1 (Noah 3b): on the phone the three places start folded, one line each, and open by touch
+// or keyboard; on a desktop they stay open as before.
+// v0.30.0 (Noah 1a): Good to know is no longer folded: its tiles show (the rest behind "Show {n} more").
 test('Today folds the places on the phone', async ({ page, context }, info) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.goto('./');
   const T = tr('de');
-  const names = [T('Trips|place'), T('Gear|place'), T('Bikes|place'), T('Good to know')];
+  const names = [T('Trips|place'), T('Gear|place'), T('Bikes|place')];
+  const know = page.locator('main section.know');
+  await expect(know.getByRole('heading', { name: T('Good to know'), level: 2 })).toBeVisible();
+  await expect(know.locator('[data-tip]').first()).toBeVisible();
   if (info.project.name !== 'phone') {
     await expect(page.locator('main details.folded')).toHaveCount(0);
     for (const n of names) await expect(page.getByRole('heading', { name: n, level: 2 })).toBeVisible();
     return;
   }
   const folds = page.locator('main details.folded');
-  await expect(folds).toHaveCount(4);
-  for (let i = 0; i < 4; i++) {
+  await expect(folds).toHaveCount(3);
+  for (let i = 0; i < 3; i++) {
     await expect(folds.nth(i)).toHaveJSProperty('open', false);
     await expect(folds.nth(i).locator('summary h2')).toHaveText(names[i]);
     await expect(folds.nth(i).locator('summary .fsum')).not.toBeEmpty();
   }
-  await expect(folds.nth(3).locator('summary .fsum')).toContainText(/\d+ Hinweise/);
+  await expect(know.locator('.morebtn')).toContainText(/\d+ weitere zeigen/);
   // touch opens Trips, the keyboard opens Gear
   await folds.nth(0).locator('summary').tap();
   await expect(folds.nth(0)).toHaveJSProperty('open', true);
@@ -185,5 +189,8 @@ test('Gear card search and + plans a trip', async ({ page, context }) => {
   await page.goto('./#/');
   await page.getByRole('button', { name: T('New'), exact: true }).first().click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  await expect(page.getByRole('dialog', { name: T('Plan a new trip') })).toContainText(T('Choose how the packing list starts. Next you set the name, date, days and bike.'));
+  // v0.30.0 (Noah, finding 2): straight into the New trip window (empty data: no bike yet, so no list preview).
+  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  await expect(dlg).toBeVisible();
+  await expect(dlg.getByRole('group', { name: T('When?') })).toBeVisible();
 });

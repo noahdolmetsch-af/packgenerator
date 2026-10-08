@@ -167,16 +167,15 @@ function record(caseId, info, page) {
 async function openNewTrip(page, rec, start = 'standard') {
   await rec.click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
   await rec.click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
-  const plan = page.getByRole('dialog', { name: T('Plan a new trip') });
-  if (start === 'standard') await rec.click(plan.getByRole('button', { name: T('Standard set') }));
-  else if (start === 'last') await rec.click(plan.getByRole('button', { name: T('Copy the last trip') }));
-  else {
-    // v0.29.2 (Noah 7a): the templates are folded under "Start from a template".
-    await rec.click(plan.getByText(T('Start from a template')));
-    await rec.click(plan.getByRole('button', { name: new RegExp(esc(start)) }));
-  }
+  // v0.30.0 (Noah, finding 2): the window starts with the standard set; last trip and templates are folded in it.
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await expect(dlg).toBeVisible();
+  if (start === 'last') await rec.click(dlg.getByRole('button', { name: T('Copy the last trip') }));
+  else if (start !== 'standard') {
+    // v0.29.2 (Noah 7a): the templates are folded under "Start from a template".
+    await rec.click(dlg.getByText(T('Start from a template')));
+    await rec.click(dlg.getByRole('button', { name: new RegExp(esc(start)) }));
+  }
   return dlg;
 }
 
@@ -188,8 +187,14 @@ async function fillTrip(dlg, rec, o) {
   if (o.title) await rec.fill(dlg.getByLabel(T('Name')), o.title);
   if (o.date) await rec.fill(dlg.getByLabel(T('Start date')), o.date);
   if (o.bike) {
-    const sel = dlg.locator('label').filter({ has: dlg.page().locator('select'), hasText: new RegExp(`^${esc(T('Bike'))}`) }).locator('select');
-    if ((await sel.inputValue()) !== o.bike) await rec.select(sel, o.bike);
+    // v0.30.0: the bike is a chip in a new trip, a select in Edit trip.
+    const chip = dlg.getByRole('group', { name: T('Bike') }).getByRole('button', { name: FIX.tables.bikes.find((b) => b.id === o.bike).name, exact: true });
+    if (await chip.count()) {
+      if ((await chip.getAttribute('aria-pressed')) !== 'true') await rec.click(chip);
+    } else {
+      const sel = dlg.locator('label').filter({ has: dlg.page().locator('select'), hasText: new RegExp(`^${esc(T('Bike'))}`) }).locator('select');
+      if ((await sel.inputValue()) !== o.bike) await rec.select(sel, o.bike);
+    }
   }
   if (o.days) await rec.fill(dlg.getByLabel(T('Days')).first(), String(o.days));
   if (o.hours) await rec.fill(dlg.getByLabel(T('Riding hours per day')), String(o.hours));
@@ -240,7 +245,8 @@ test('PF01: MTB, 2 h, 1 day, no overnight stay, Scott Scale: a list to check wit
   const title = `${P} PF01 ${info.project.name}`;
   const dlg = await openNewTrip(page, rec);
   await fillTrip(dlg, rec, { title, bike: BIKE.scale, hours: 2 });
-  await rec.check('1 day: "None" is chosen without a tap', () => expect(dlg.getByRole('button', { name: T('None|overnight'), exact: true })).toHaveAttribute('aria-pressed', 'true', { timeout: 2000 }));
+  // v0.30.0 (Noah, finding 2): the night is asked only from 2 days on; one day has none without a tap.
+  await rec.check('1 day: no night without a tap', () => expect(dlg.getByRole('button', { name: T('None|overnight'), exact: true })).toHaveCount(0, { timeout: 2000 }));
   await rec.check('the live box says night gear stays at home', () => expect(dlg.getByRole('region', { name: T('Your packing list|preview') })).toContainText(T('Not included: overnight gear, event preparation'), { timeout: 2000 }));
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
   await openAllBags(page); // v0.29.0 (Noah 5a): the bags start folded
@@ -796,11 +802,10 @@ test('PF14: missing weights and litres; empty search, no bike, no weather: hones
   // A trip without a bike (area Weekend): the dialog works without a bike.
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  const plan = page.getByRole('dialog', { name: T('Plan a new trip') });
-  await plan.locator('.areas button').nth(2).click();
-  await plan.locator('.opts button').first().click();
+  // v0.30.0: the area is chosen in the New trip window.
   const wd = page.getByRole('dialog', { name: T('New trip') });
   await expect(wd).toBeVisible();
+  await wd.locator('.areas button').nth(2).click();
   await rec.check('no bike: the New trip dialog asks no bike and says what the list starts with', async () => {
     await expect(wd.locator(`select:has(option[value="${BIKE.scale}"])`)).toHaveCount(0, { timeout: 2000 });
     await expect(wd.locator('p.note').last()).not.toBeEmpty();
@@ -965,8 +970,21 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'pf16-export.json' }))).toBeVisible();
+  // v0.30.0 (Noah 1a): Today keeps the tips it shows in the setting "tips" and adds to it as it
+  // shows them (the export itself ends the backup reminder, so one more tip shows): that record is
+  // compared with the exported file, by what Noah decided (known, tapped), not with the snapshot.
+  const tipsOf = (rows) => rows.find((r) => r.key === 'tips')?.value ?? null;
+  const exported = JSON.parse(readFileSync(file, 'utf8'));
   await rec.check('backup: every record comes back the same (items, trips, debriefs, notes, photos, bikes, bags, learnings, settings)', async () => {
-    for (const name of Object.keys(snapshot)) expect(await table(page, name), name).toEqual(snapshot[name]);
+    for (const name of Object.keys(snapshot)) {
+      const now = await table(page, name);
+      if (name !== 'settings') expect(now, name).toEqual(snapshot[name]);
+      else expect(now.filter((r) => r.key !== 'tips'), name).toEqual(snapshot[name].filter((r) => r.key !== 'tips'));
+    }
+    const was = tipsOf(exported.tables.settings);
+    const back = tipsOf(await table(page, 'settings'));
+    expect(was).not.toBeNull();
+    expect({ known: back.known, tapped: back.tapped }).toEqual({ known: was.known, tapped: was.tapped });
   });
   // Offline: the tests block the service worker (it would cache old builds), so offline use cannot be shown here.
   rec.r.open = ['offline use: not testable here (service worker blocked in the tests); Noah checks it on the phone in flight mode'];
@@ -1187,7 +1205,8 @@ test('Scenario 5: adapt an existing list: from the template, change it, update t
   const dlg = await openNewTrip(page, rec, tplName);
   await rec.check('the template brings its bike (Scale), 2 h and no night', async () => {
     await expect(dlg.getByLabel(T('Riding hours per day'))).toHaveValue('2', { timeout: 2000 });
-    await expect(dlg.getByRole('button', { name: T('None|overnight'), exact: true })).toHaveAttribute('aria-pressed', 'true', { timeout: 2000 });
+    // v0.30.0: one day asks no night (the question comes from 2 days on).
+    await expect(dlg.getByRole('button', { name: T('None|overnight'), exact: true })).toHaveCount(0, { timeout: 2000 });
   });
   await fillTrip(dlg, rec, { title });
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));

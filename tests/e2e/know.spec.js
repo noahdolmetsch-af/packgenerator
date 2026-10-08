@@ -76,49 +76,50 @@ async function start(page, context, info, lang, data) {
   await expect(panel.getByText(/importiert|Imported/)).toBeVisible();
 }
 
-/** Good to know, opened on the phone (folded there). */
+/**
+ * Good to know. v0.30.0 (Noah 1a): no longer folded on the phone; there the further card and some
+ * tips wait behind "Show {n} more", opened here so every tile can be looked at.
+ */
 async function know(page, T) {
-  const fold = page.locator('main details.know');
-  if (await fold.count()) {
-    await expect(async () => {
-      if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
-      expect(await fold.evaluate((d) => d.open)).toBe(true);
-    }).toPass();
-    return fold;
-  }
   const sec = page.locator('main section.know');
   await expect(sec.getByRole('heading', { name: T('Good to know') })).toBeVisible();
+  await expect(sec.locator('.cards > *')).not.toHaveCount(0);
+  const more = sec.locator('.morebtn');
+  if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
   return sec;
 }
+const tileKeys = (k) => k.locator('[data-card], [data-tip]').evaluateAll((els) => els.map((e) => e.dataset.card ?? `tip:${e.dataset.tip}`));
 
-test('empty cards are hidden; the home place card is the way to set it up', async ({ page, context }, info) => {
+test('empty cards are hidden; 6 tiles, the rest are tips', async ({ page, context }, info) => {
   const T = tr('de');
   await start(page, context, info, 'de', null);
-  // the start-up may still be adding its items (the section can render again): wait for the
-  // set-up card and the to-dos, opening the fold again if needed
+  // the start-up may still be adding its items (the section can render again): wait for the to-dos
   let k;
   await expect(async () => {
     k = await know(page, T);
-    await expect(k.locator('[data-card="home"]')).toBeVisible({ timeout: 2000 });
     await expect(k.locator('[data-card="todo"]')).toBeVisible({ timeout: 2000 });
   }).toPass();
-  const keys = await k.locator('[data-card]').evaluateAll((els) => els.map((e) => e.dataset.card));
-  // a fresh app (the start-up adds a few layer items, so a backup is already due): nothing else
-  expect(keys).toEqual(expect.arrayContaining(['todo', 'home']));
-  expect(keys.filter((x) => !['backup', 'todo', 'home'].includes(x))).toEqual([]);
+  const keys = await tileKeys(k);
+  // v0.30.0 (Noah 1a): a fresh app: perhaps the backup (once the start-up added items), "Still open"
+  // as the one further card, the rest tips; the home place set-up is a tip now
+  expect(keys).toHaveLength(6);
+  const cards = keys.filter((x) => !x.startsWith('tip:'));
+  expect(cards.filter((x) => x !== 'backup')).toEqual(['todo']);
+  expect(keys.slice(cards.length).every((x) => x.startsWith('tip:'))).toBe(true);
   for (const gone of ['No learnings yet', 'Nothing to sort', 'No forecast loaded yet', 'Standard guess: 16 km/h', 'No backup yet'])
     await expect(k.getByText(T(gone))).toHaveCount(0);
-  // every card has its one button
+  // every card has its one button, every tip its one button and "I know it"
   await expect(k.locator('[data-card="todo"] .go')).toHaveCount(1);
-  await expect(k.locator('[data-card="home"]').getByRole('textbox', { name: T('Your home place') })).toBeVisible();
-  if (info.project.name === 'phone') await expect(page.locator('main details.know summary .fsum')).toContainText(tn2(T, keys.length));
+  for (const tip of await k.locator('[data-tip]').all()) {
+    await expect(tip.locator('.go')).toHaveCount(1);
+    await expect(tip.getByRole('button', { name: new RegExp(`^${T('I know it')}`) })).toBeVisible();
+  }
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
 });
-const tn2 = (T, n) => T(n === 1 ? '{n} hint' : '{n} hints', { n });
 
 for (const lang of ['en', 'de']) {
-  test(`a due backup leads, weekend weather from the home place, the unused list in Gear, ${lang}`, async ({ page, context }, info) => {
+  test(`a due backup leads, at most 3 data cards, the unused list from the overview, ${lang}`, async ({ page, context }, info) => {
     const T = tr(lang);
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
@@ -128,33 +129,28 @@ for (const lang of ['en', 'de']) {
     // the backup is due (never saved): Your data comes first, with its one button
     await expect(k.locator('[data-card]').first()).toHaveAttribute('data-card', 'backup');
     await expect(k.locator('[data-card="backup"]').getByRole('button', { name: T('Download backup') })).toBeVisible();
-    // weekend weather at the home place (mocked): Saturday 18 °C dry, Sunday 12 °C rain
-    const wk = k.locator('[data-card="weekend"]');
-    await expect(wk).toContainText('test_data_gtp_ Heimort');
-    if (new Date(`${today()}T00:00:00Z`).getUTCDay() !== 0) await expect(wk.locator('b')).toContainText(`18 °C ${T('dry')}`);
-    await expect(wk.locator('b')).toContainText(`12 °C ${T('rain')}`);
-    await expect(wk.getByRole('button', { name: T('Plan a trip') })).toBeVisible();
-    // the insight cards with their numbers
-    await expect(k.locator('[data-card="upgrade"]')).toContainText(T('{name}: {g} g lighter for CHF {chf} ({x} g per 100 CHF)', { name: 'test_data_gtp_ Leichter Schlafsack', g: '200', chf: '200', x: '100' }));
-    await expect(k.locator('[data-card="trend"] svg path')).toHaveCount(1);
-    await expect(k.locator('[data-card="season"]')).toContainText(/Test gravel bike [\d’',.]+ km/);
-    await expect(k.locator('[data-card="wear"]')).toContainText('Test gravel bike');
-    // most urgent first: priorities never go up again down the list
-    const keys = await k.locator('[data-card]').evaluateAll((els) => els.map((e) => e.dataset.card));
-    expect(keys).toEqual(expect.arrayContaining(['backup', 'wear', 'inbox', 'weekend', 'season', 'trend', 'upgrade', 'unused']));
-    expect(keys.indexOf('inbox')).toBeLessThan(keys.indexOf('season'));
+    // v0.30.0 (Noah 1a): at most 3 important cards, then at most 1 further card, the rest tips:
+    // the insights (weight trend, best upgrade, season, long not used) no longer all fill Today
+    const keys = await tileKeys(k);
+    expect(keys).toHaveLength(6);
+    const cards = keys.filter((x) => !x.startsWith('tip:'));
+    expect(cards.length).toBeLessThanOrEqual(3);
+    expect(keys.length - cards.length).toBeGreaterThanOrEqual(3);
+    expect(keys.findIndex((x) => x.startsWith('tip:'))).toBe(cards.length); // the tips come last
+    // the important cards come first: here the backup and the chain wax (Inbox and the rest wait)
+    expect(cards.filter((x) => ['upgrade', 'trend', 'season', 'unused', 'weekend'].includes(x)).length).toBeLessThanOrEqual(1);
+    // the overview lists everything; "Long not used" from there (Noah 3a)
+    await k.getByRole('link', { name: new RegExp(T('What the app can do')) }).click();
+    await expect(page).toHaveURL(/#\/features$/);
     // Long not used → Look through: Gear shows exactly those items
-    const un = k.locator('[data-card="unused"]');
-    // the sleeping bag (last on a trip 400 days ago) is one of them; standard items are not
-    await expect(un.locator('b')).toContainText(/^\d+ /);
-    const n = Number((await un.locator('b').textContent()).match(/^\d+/)[0]);
-    await expect(un).toContainText('Sleeping bag');
-    await un.getByRole('link', { name: T('Look through') }).click();
+    await page.locator('[data-feature="unused"]').getByRole('link', { name: T('Look through') }).click();
     await expect(page).toHaveURL(/#\/gear\?unused=1/);
     await expect(page.getByText(T('Only items on no trip for 12 months'))).toBeVisible();
+    // the sleeping bag (last on a trip 400 days ago) is one of them; standard items are not
     const list = page.locator('.list');
     await expect(list.getByText('Sleeping bag', { exact: true })).toBeVisible();
-    await expect(list.locator('.count')).toHaveText(new RegExp(`^\\s*${n}\\s`));
+    await expect(list.locator('.count')).toHaveText(/^\s*\d+\s/);
+    const n = Number((await list.locator('.count').textContent()).match(/\d+/)[0]);
     await expect(list.getByText('Multi tool', { exact: true })).toHaveCount(0);
     await page.getByRole('button', { name: T('Show all items') }).first().click();
     // all items again (on the phone the categories fold shut again, so count instead of looking)

@@ -174,6 +174,51 @@ test('"+ block" in Add material adds the block once, with its amount, Undo takes
   expect(errors).toEqual([]);
 });
 
+// v0.30.0 (Noah, finding 2): a new trip with Standard + Rain in 4 clicks (+, Plan a trip, the Rain chip, Create).
+test('New trip window: Standard + a building block in 4 clicks, the live count on the button', async ({ page, context }, info) => {
+  const T = tr('de');
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, info, 'de', { block: true });
+  let clicks = 0;
+  const click = async (loc) => {
+    await loc.click();
+    clicks++;
+  };
+  await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
+  await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
+  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  await expect(dlg.getByRole('region', { name: T('Your packing list|preview') })).toContainText(T('always with you'));
+  const create = dlg.getByRole('button', { name: T('Create trip') });
+  const count = async () => Number((await create.textContent()).match(/(\d+)/)?.[1] ?? 0);
+  await expect(create).toContainText('·');
+  const before = await count();
+  // RG94 is gone: the chip offers 3 items; Regenhandschuhe twice (the block's amount).
+  const chip = dlg.getByRole('button', { name: /^\+ test_data_gtp_ Regen/ });
+  await expect(chip).toContainText('3 ·');
+  await click(chip);
+  await expect(chip).toHaveAttribute('aria-pressed', 'true');
+  await expect(dlg).toContainText('test_data_gtp_ Regen: test_data_gtp_ Regenhose');
+  await expect.poll(count).toBe(before + 3);
+  if (info.project.name === 'phone') {
+    for (const width of [320, 390]) {
+      await page.setViewportSize({ width, height: 740 });
+      expect(await wide(page)).toBe(0);
+      for (const b of await dlg.locator('.tp-chip, .toggle').all()) if (await b.isVisible()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    }
+  }
+  await click(create);
+  await expect(dlg).toBeHidden();
+  expect(clicks, 'Standard + Rain in 4 clicks').toBe(4);
+  const made = (await table(page, 'trips')).find((t) => t.id !== 'trip-test_data_gtp_1');
+  expect(made.entries).toHaveLength(before + 3);
+  for (const id of ['RG91', 'RG92']) expect(made.entries.find((e) => e.itemId === id)).toMatchObject({ qty: 1, packed: false, src: 'set' });
+  expect(made.entries.find((e) => e.itemId === 'RG93')).toMatchObject({ qty: 2, src: 'set' });
+  expect(made.entries.find((e) => e.itemId === 'RG94')).toBeUndefined();
+  expect(made.entries.find((e) => e.itemId === 'RG91').slot).not.toBe('body');
+  expect(errors).toEqual([]);
+});
+
 test('building blocks page on a 320 px phone: gone item greyed, amount, rename built-in, delete own with undo', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'phone', 'phone only');
   const T = tr('de');

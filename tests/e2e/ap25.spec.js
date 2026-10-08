@@ -60,17 +60,16 @@ async function start(page, context, info, data) {
   await expect(panel.getByText(/importiert|Imported/)).toBeVisible();
 }
 
-/** Good to know, opened on the phone (folded there). */
+/**
+ * Good to know. v0.30.0 (Noah 1a): not folded on the phone any more; there the further card (here
+ * the template suggestions) waits behind "Show {n} more".
+ */
 async function know(page) {
-  const fold = page.locator('main details.know');
-  if (await fold.count()) {
-    await expect(async () => {
-      if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
-      expect(await fold.evaluate((d) => d.open)).toBe(true);
-    }).toPass();
-    return fold;
-  }
-  return page.locator('main section.know');
+  const sec = page.locator('main section.know');
+  await expect(sec.locator('.cards > *').first()).toBeVisible();
+  const more = sec.locator('.morebtn');
+  if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
+  return sec;
 }
 
 const noSideScroll = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
@@ -124,7 +123,7 @@ test('a template hint with its source, "Not now" into the History, the Home card
   // Home: no more card
   await page.goto('./#/');
   k = await know(page);
-  await expect(k.locator('[data-card]').first()).toBeVisible();
+  await expect(k.locator('[data-card], [data-tip]').first()).toBeVisible();
   await expect(k.locator('[data-card="templates"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
@@ -148,7 +147,8 @@ test('first aid: none on a day ride, with a 1-night lodging trip', async ({ page
   await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('New trip'), exact: true }).click();
   const fresh = page.getByRole('dialog', { name: T('New trip') });
-  await expect(fresh.getByLabel(T('Start from'))).toHaveValue('standard');
+  // v0.30.0 (Noah, finding 2): the start is the "Standard" card; template and last trip are folded.
+  await expect(fresh.getByRole('region', { name: T('Your packing list|preview') })).toContainText(T('always with you'));
   await fresh.getByRole('button', { name: T('Cancel') }).click();
   await expect(fresh).toBeHidden();
 
@@ -156,12 +156,11 @@ test('first aid: none on a day ride, with a 1-night lodging trip', async ({ page
   const title = 'test_data_gtp_ Hotelnacht';
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  await page.getByRole('dialog', { name: T('Plan a new trip') }).getByRole('button', { name: T('Standard set') }).click();
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await dlg.getByLabel(T('Name')).fill(title);
   await dlg.getByLabel(T('Start date')).fill(today());
   await dlg.getByRole('spinbutton', { name: T('Days') }).fill('2');
-  await dlg.getByRole('button', { name: T('Lodging') }).click();
+  await dlg.getByRole('button', { name: T('Lodging'), exact: true }).click();
   await dlg.getByRole('button', { name: T('Create trip') }).click();
   await expect(dlg).toBeHidden();
   await expect.poll(async () => (await allTrips(page)).find((x) => x.title === title)?.entries.map((e) => e.itemId) ?? []).toEqual(expect.arrayContaining(['AP02', 'AP03']));

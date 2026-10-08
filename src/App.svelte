@@ -11,6 +11,7 @@
   import Favorites from './pages/Favorites.svelte';
   import PastTrips from './pages/PastTrips.svelte';
   import Blocks from './pages/Blocks.svelte';
+  import Features from './pages/Features.svelte';
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
@@ -166,6 +167,8 @@
         <a href="#/pack/templates" onclick={() => (menuOpen = false)}>{t('Templates')}</a>
         <!-- v0.26.0 (Noah 2b): building blocks next to the templates -->
         <a href="#/blocks" onclick={() => (menuOpen = false)}>{t('Building blocks')}</a>
+        <!-- v0.30.0 (Noah 3a): everything the app can do -->
+        <a href="#/features" onclick={() => (menuOpen = false)}>{t('What the app can do')}</a>
       </div>
     </details>
   </div>
@@ -173,7 +176,7 @@
 
 <DemoBar />
 
-<main class:calm={page === 'pack'} class:wide={page === 'pack' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home'}>
+<main class:calm={page === 'pack'} class:wide={page === 'pack' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features'}>
   {#if page === 'gear'}
     <Gear />
   {:else if page === 'pack'}
@@ -193,6 +196,9 @@
   {:else if page === 'blocks'}
     <!-- v0.26.0 (Noah 2a/2b): building blocks (item sets) you can see and make -->
     <Blocks />
+  {:else if page === 'features'}
+    <!-- v0.30.0 (Noah 3a): everything the app can do, with ✓ and how much is used -->
+    <Features />
   {:else if page === 'favorites'}
     <!-- v0.21.0 (package 5): all my favourite things, by area -->
     <Favorites />

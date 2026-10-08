@@ -33,7 +33,7 @@
   import { wishReason } from '../lib/insights.js';
   import { ballast } from '../lib/packhints.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
-  import { openNew, openNote, openTrip, addItem, newTrip, wantBike } from '../lib/nav.js';
+  import { openNew, openNote, openTrip, addItem, newTrip, wantBike, take } from '../lib/nav.js';
   import { todayFocus } from '../lib/today.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
@@ -191,6 +191,13 @@
     dataOpen = true;
     queueMicrotask(() => dataEl?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
+  // v0.30.0 (Noah 1a): the tip "Try a demo" (nav.js openData) opens Your data, also from the overview.
+  $effect(() => {
+    if (dataEl && take('home.data')) openData();
+    const on = () => take('home.data') && openData();
+    window.addEventListener('pg:data', on);
+    return () => window.removeEventListener('pg:data', on);
+  });
   /* ---------- v0.23.1 (Noah 3b): on a phone the three places and Good to know start folded ---------- */
   // Closed, each is one line: its name and the number that matters. The desktop shows them open as before.
   let folds = $state({ pack: false, gear: false, bikes: false });
@@ -462,8 +469,9 @@
     {@render hub('bikes', t('Bikes|place'), '#/bikes', 'bike', bikesBody)}
   </div>
 
-  <!-- Good to know (v0.25.1, Noah 1a): only cards with content, the most urgent first, one button each. -->
-  <GoodToKnow {loaded} {today} {next} {place} {trips} {items} {bikes} {visits} {debriefs} {learnings} {notes} containers={$bagsQ ?? []} {backup} demo={$demoQ ?? null} importFrom={$importQ?.from ?? null} {backingUp} onBackup={backupNow} onData={openData} />
+  <!-- Good to know (v0.25.1, Noah 1a): only cards with content, the most urgent first, one button each.
+       v0.30.0 (Noah 1a): 6 tiles with tips; it waits for every table it reads (a tip must not look unused). -->
+  <GoodToKnow loaded={loaded && !!$bikesQ && !!$debriefsQ && !!$visitsQ && !!$learnQ && !!$bagsQ} {today} {next} {place} {trips} {items} {bikes} {visits} {debriefs} {learnings} {notes} containers={$bagsQ ?? []} {backup} demo={$demoQ ?? null} importFrom={$importQ?.from ?? null} {backingUp} onBackup={backupNow} onData={openData} />
 
   <details class="data" bind:this={dataEl} bind:open={dataOpen}>
     <summary><b>{t('Your data')}</b> <span class="muted">{t('backup, import, export, favourites')}</span></summary>
