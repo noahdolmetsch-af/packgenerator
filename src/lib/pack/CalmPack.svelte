@@ -54,6 +54,8 @@
       <span><CalendarDays size={22} />{date}</span><span>{#if bikeTrip}<Bike size={24} />{bike?.name ?? t('No bike')}{:else}<Backpack size={22} />{domainLabel}{/if}</span>
       <span><Clock3 size={22} />{durationText}</span>
       <button class="text-button edit-trip" onclick={actions.edit}><Pencil size={18} />{t('Edit trip')}</button>
+      <!-- v0.27.0 (Noah): the templates visible on the Trips page itself, not only in the ••• menu -->
+      <a class="text-button tpl-link" href="#/pack/templates">{t('Templates')}</a>
       {#if !review}<span class="weather"><CloudRain size={24} />{wxText}</span>{/if}
     </div>
     {#if review}<button class="context-weather" onclick={() => show('conditions')}><CloudRain size={38} strokeWidth={1.7} />{wxText}</button>{/if}

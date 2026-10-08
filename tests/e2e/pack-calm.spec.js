@@ -77,6 +77,8 @@ for (const lang of ['en', 'de']) {
     await start(page, context, info, lang);
     await newTrip(page, T, `test_data_gtp_ Ruhig ${lang}`);
     const list = page.locator('.calm-pack');
+    // v0.27.0 (Noah): the templates are visible on the Trips page itself
+    await expect(list.locator('.tour-context').getByRole('link', { name: T('Templates') })).toHaveAttribute('href', '#/pack/templates');
 
     // Calm: no stepper and no "•••" on the rows until one is opened.
     await expect(list.locator('.planning-row').first()).toBeVisible();

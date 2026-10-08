@@ -23,6 +23,7 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-pack .context-line > span { display: inline-flex; align-items: center; gap: 10px; }
 .calm-pack .context-line > span + span { border-left: 1px solid #879798; padding-left: 20px; }
 .calm-pack .edit-trip { order: 2; margin-left: auto; }
+.calm-pack .tpl-link { order: 3; }
 .calm-pack .context-line .weather { order: 1; }
 .calm-pack .context-weather { display: flex; gap: 18px; align-items: center; font-size: 24px; color: #516169; background: none; border: 0; padding: 20px 0 0; }
 .calm-pack.review-mode .tour-context { padding: 4px 24px 30px; }
