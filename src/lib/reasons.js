@@ -6,6 +6,7 @@
  *   - an amount by the hour: "1 per 3 h · 2 per day × 2 days = 4", and when the maximum (or a hand-set
  *     amount) differs from the need: "Need 6, you carry 3 (maximum)"
  *   - an entry that a building block or the overnight stay brought (src 'set' / 'context'): "from Sleep, Light"
+ *   - v0.28.0 (AP25): a first aid item the night brought: "First aid from 1 night"
  * An item Noah added himself without any rule gets no line (no clutter).
  * Pure functions (no database), tested in tests/reasons.test.js.
  */
@@ -76,7 +77,11 @@ export function rowReasons(trip, items, setsValue = []) {
     if (amount) parts.push(amount.text);
     if (e.src === 'context' || e.src === 'set') {
       const keys = (item.sets ?? []).filter((k) => (e.src === 'context' ? night.includes(k) : true));
-      if (keys.length) parts.push(t('from {blocks}', { blocks: keys.map((k) => blockLabel(sets, k)).join(', ') }));
+      // v0.28.0 (AP25): first aid comes with the night, and the line says so.
+      const aid = e.src === 'context' && keys.includes('firstaid');
+      const rest = aid ? keys.filter((k) => k !== 'firstaid') : keys;
+      if (aid) parts.push(t('First aid from 1 night'));
+      if (rest.length) parts.push(t('from {blocks}', { blocks: rest.map((k) => blockLabel(sets, k)).join(', ') }));
     }
     out[e.itemId] = {
       line: parts.join(' · '),

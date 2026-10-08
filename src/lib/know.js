@@ -8,7 +8,7 @@
  * Priority (lower = higher up):
  *   1  backup due, wear part due now, Still open with a late row
  *   2  weather of the next trip within 3 days, wear part due soon
- *   3  Inbox notes, Still open, a running demo
+ *   3  Inbox notes, Still open, a running demo, suggestions for your templates (v0.28.0, AP25 6a)
  *   4  weekend ride weather (Thursday to Sunday)
  *   5  insights: wear forecast, season, weight trend, best upgrade, long not used, learnings, pace,
  *      the weekend weather from Monday to Wednesday
@@ -17,7 +17,7 @@
 import { isInventory, isConsumable } from './gear.js';
 import { CHECK_KM, CHECK_PARTS, kmSince, partInfo, PART } from './care.js';
 import { costByYear } from './workshop.js';
-import { isOver, tripEnd } from './debrief.js';
+import { isOver, tripEnd, templateHints } from './debrief.js';
 import { tripStats } from './trips.js';
 import { toWx } from './weather.js';
 
@@ -34,7 +34,7 @@ export const FETCH_EVERY_H = 3;
 export const SHOW_FOR_H = 12;
 
 /** A card's order within the same priority. */
-export const ORDER = ['backup', 'wear', 'todo', 'weather', 'inbox', 'demo', 'weekend', 'season', 'trend', 'upgrade', 'unused', 'learnings', 'pace', 'home'];
+export const ORDER = ['backup', 'wear', 'todo', 'weather', 'inbox', 'templates', 'demo', 'weekend', 'season', 'trend', 'upgrade', 'unused', 'learnings', 'pace', 'home'];
 
 /* ---------- trips that happened ---------- */
 
@@ -257,6 +257,13 @@ export function longUnused(items = [], trips = [], bikes = [], containers = [], 
   };
 }
 
+/* ---------- 7. suggestions for the templates (v0.28.0, AP25 6a) ---------- */
+
+/** How many hints the templates show now (turned-down ones that still rest do not count). */
+export function templateHintCount(templates = [], trips = [], debriefs = [], items = []) {
+  return templates.reduce((n, tpl) => n + templateHints(tpl, trips, debriefs, items).length, 0);
+}
+
 /* ---------- all cards ---------- */
 
 /**
@@ -266,6 +273,7 @@ export function longUnused(items = [], trips = [], bikes = [], containers = [], 
  * tips: learningsFor(); pace: paceOf(); notes: open Inbox notes;
  * homePlace / homeForecast: the setting and the saved forecast; placeLoading: the setting is not
  * read yet (neither the weekend card nor the set-up card then); now: ms (for the 12-hour rule).
+ * templates: the saved templates (v0.28.0: a card when they have suggestions).
  */
 export function knowCards({
   today,
@@ -285,6 +293,7 @@ export function knowCards({
   visits = [],
   items = [],
   containers = [],
+  templates = [],
   homePlace = null,
   homeForecast = null,
   placeLoading = false,
@@ -304,6 +313,8 @@ export function knowCards({
     add('weather', days != null && days <= 3 ? 2 : 5, { trip: next, fc, sun, days });
   }
   if (notes.length) add('inbox', 3, { notes });
+  const hintN = templateHintCount(templates, trips, debriefs, items);
+  if (hintN > 0) add('templates', 3, { n: hintN });
 
   if (placeLoading) {
     /* nothing yet */

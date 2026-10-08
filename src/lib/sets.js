@@ -1,7 +1,7 @@
 /**
  * v0.26.0 (Noah 2a, AP10): item sets you can see and make.
  *
- * The built-in sets (gear.js SETS: base, warm, sleep, cook, light, lodging) stay as they are:
+ * The built-in sets (gear.js SETS: base, warm, sleep, cook, light, lodging, firstaid) stay as they are:
  * context.js and the night switches in Pack use their keys. Own sets live in the settings
  * record "sets" as [{ key: 'u-<slug>', name, note? }]; the name is saved as Noah wrote it and
  * never translated. Membership stays on the item (item.sets = ['sleep', 'u-rain', …]).
@@ -164,6 +164,8 @@ export function setUse(key) {
       return t('Switch "Light" under Night in Pack');
     case 'lodging':
       return t('Comes with Lodging');
+    case 'firstaid':
+      return t('Comes with every night (Lodging or Outdoor); never on a trip without a night');
     default:
       return t('Add it in Pack: Add material → Building blocks');
   }

@@ -33,9 +33,9 @@ describe('context sets', () => {
   it('none brings nothing, lodging its set, outdoor base, sleep, warm and cook only when cooking', () => {
     expect(contextSets({ overnight: 'none' })).toEqual([]);
     expect(contextSets({})).toEqual([]);
-    expect(contextSets({ overnight: 'lodging' })).toEqual(['lodging']);
-    expect(contextSets({ overnight: 'outdoor' })).toEqual(['base', 'sleep', 'warm']);
-    expect(contextSets({ overnight: 'outdoor', cook: true })).toEqual(['base', 'sleep', 'warm', 'cook']);
+    expect(contextSets({ overnight: 'lodging' })).toEqual(['lodging', 'firstaid']); // v0.28.0: first aid with every night
+    expect(contextSets({ overnight: 'outdoor' })).toEqual(['base', 'sleep', 'warm', 'firstaid']);
+    expect(contextSets({ overnight: 'outdoor', cook: true })).toEqual(['base', 'sleep', 'warm', 'cook', 'firstaid']);
     expect(hasContext({ overnight: 'none' })).toBe(true);
     expect(hasContext({})).toBe(false);
   });
@@ -161,7 +161,7 @@ describe('"Your packing list" summary', () => {
     expect(s.sets).toEqual([]);
     expect(s.left).toEqual(['overnight', 'event']);
     const o = contextSummary(start, { ...trip, days: 2, overnight: 'outdoor', cook: true, event: true }, items);
-    expect(o.sets).toEqual([{ key: 'base', n: 2 }, { key: 'sleep', n: 1 }, { key: 'warm', n: 1 }, { key: 'cook', n: 1 }]);
+    expect(o.sets).toEqual([{ key: 'base', n: 2 }, { key: 'sleep', n: 1 }, { key: 'warm', n: 1 }, { key: 'cook', n: 1 }, { key: 'firstaid', n: 0 }]);
     expect(o.left).toEqual([]);
   });
 });

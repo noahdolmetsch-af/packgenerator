@@ -57,7 +57,7 @@
   const tips = $derived(tipsByItem($learnQ ?? []));
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
   // v0.19.5 (F4, answer 3a): short badges per item, the sentence behind them on tap.
-  const badges = $derived(trip ? packBadges(trip, $tripsQ ?? [], $debriefsQ ?? [], tips) : {});
+  const badges = $derived(trip ? packBadges(trip, $tripsQ ?? [], $debriefsQ ?? [], tips, items) : {});
   // N3 (answer 2a): what was not used the last times, with grams and "Leave at home".
   const extra = $derived(trip && !over ? ballast(trip, items, $tripsQ ?? [], $debriefsQ ?? []) : null);
   const leave = (ids) => change((t) => leaveAtHome(t, ids));
@@ -723,7 +723,7 @@
       <ul>{#each ready as r (r.id)}<li>☐ {t(r.label)}</li>{/each}</ul>
     </section>{/if}
 {#if dialog}
-  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {templates} startFrom={dialog.startFrom ?? 'last'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={choose} />
+  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {templates} startFrom={dialog.startFrom ?? 'standard'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={choose} />
 {/if}
 {#if saveTpl && trip}
   <TemplateDialog {trip} {templates} onclose={() => (saveTpl = false)} onsaved={(name) => ((tplNote = t('Saved as template "{name}".', { name })), setTimeout(() => (tplNote = ''), 4000))} />
