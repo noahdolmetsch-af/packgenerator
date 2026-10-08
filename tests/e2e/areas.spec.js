@@ -89,11 +89,17 @@ for (const lang of ['en', 'de']) {
     await go.click();
     await expect(page).toHaveURL(/#\/pack\?day/);
     const missed = [];
+    // what the page shows as done: packed rows, ticked checks and the bag that is open
+    const pressed = () => page.locator('.pd').evaluate((el) => `${el.querySelector('.pbag.cur .bagh')?.innerText} ${el.querySelectorAll('[aria-pressed="true"]').length}`);
     for (let guard = 0; guard < 80; guard++) {
       const open = page.locator('.pd ul.items button[aria-pressed="false"]:not([disabled])');
       if (await open.count()) {
         // a full bag may just have closed: note why a click did not land, so a failure says it
+        // wait until the tap shows before the next one: a second tap on a row that still looks open
+        // would take the item out again (a slow CI machine did exactly that, 8.10.2026)
+        const before = await pressed();
         await open.first().click({ timeout: 3000 }).catch((e) => missed.push(e.message.split('\n')[0]));
+        await expect.poll(pressed, { timeout: 3000 }).not.toBe(before).catch(() => {});
         continue;
       }
       const closed = page.locator('.pd .pbag:not(.done):not(.cur) .bagh');

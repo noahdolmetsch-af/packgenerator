@@ -52,12 +52,23 @@
       return;
     }
     timer = setTimeout(() => {
-      if (cur === from) cur = to;
+      // only if the bag is still full (a second tap may have taken the last item out again)
+      const s = steps.find((x) => x.key === from);
+      if (cur === from && (!s || full(s))) cur = to;
     }, delay);
   }
+  // A tap is saved before the next one on the same row counts, so a quick double tap can't
+  // pack and unpack the item again behind the user's back (seen on a slow machine, 8.10.2026).
+  const busy = new Set();
   async function tick(step, e) {
+    if (busy.has(e.itemId)) return;
+    busy.add(e.itemId);
     const willFill = !e.packed && step.done + 1 === step.entries.length;
-    await ontoggle(e.itemId);
+    try {
+      await ontoggle(e.itemId);
+    } finally {
+      busy.delete(e.itemId);
+    }
     if (willFill) advance(step.key);
   }
   async function wholeBag(step) {
@@ -65,7 +76,14 @@
     advance(step.key, 0);
   }
   async function readyTick(r) {
-    await onready(r);
+    const key = `ready:${r.id ?? r.itemId}`;
+    if (busy.has(key)) return;
+    busy.add(key);
+    try {
+      await onready(r);
+    } finally {
+      busy.delete(key);
+    }
   }
   function everything() {
     onpack(null);
