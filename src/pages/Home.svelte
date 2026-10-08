@@ -17,6 +17,10 @@
    * know does not repeat it; event preparation opens the trip (Before the trip), not Bike care. A trip
    * within 14 days leads; an open debrief older than 7 days waits in "Also to do" with "All good".
    * A new user (no bike, no gear, no trip) gets "First steps" until all three have data.
+   *
+   * v0.34.0 A (L1, Noah 1a): the band of the next trip is its schedule (schedule.js): ONE next step
+   * (bike service 14 days before, weather 5, shopping and charging 2, pack 1, the ready check on the
+   * start day, then the debrief) with its button, and below it the small timeline, done / open per step.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -25,7 +29,10 @@
   import { backupAfterTrip } from '../lib/todos.js';
   import { CATEGORY, formatWeight, knownWeight, weightText, gearStats, isConsumable, favouriteCounts } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
-  import { withVisits, costByYear } from '../lib/workshop.js';
+  import { withVisits, costByYear, tripPrep, tyreSetup } from '../lib/workshop.js';
+  import { tripSchedule, stepWords, stepHref, STEP_NAME, shortDay, weatherKnown } from '../lib/schedule.js';
+  import { shopList, shopCount } from '../lib/shop.js';
+  import { layerSuggest, openRows } from '../lib/layers.js';
   import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine, packStatus, packLine, isShortRide } from '../lib/readiness.js';
   import { tripStats, daysUntil } from '../lib/trips.js';
   import { onTripDay } from '../lib/ride.js';
@@ -103,6 +110,31 @@
   // v0.30.2 (L6): the open debrief that does not lead (also with no trip to lead with): Also to do.
   const debrief = $derived(loaded ? openDebrief(focus, trips, debriefs, today) : null);
   const packedPct = $derived(stats?.count ? Math.round((stats.packed / stats.count) * 100) : 0);
+
+  /* ---------- v0.34.0 A (L1): the schedule of the trip Today leads with ---------- */
+  // The facts the schedule needs (schedule.js is pure): what the bike needs before the trip (the list
+  // "Before the trip", tripPrep), the weather and its open suggestions, the shopping list, the debrief.
+  // Not for "How was {trip}?" (focus.ask): that card stays as it is.
+  const itemsById = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
+  const schedCtx = $derived.by(() => {
+    if (!lead || !focus || focus.ask || lead !== next) return null;
+    const byBike = hasBike(lead);
+    const b = byBike ? bikes.find((x) => x.id === lead.bikeId) : null;
+    let service = null;
+    if (b && !isShortRide(lead)) {
+      const rows = (tripPrep(b, lead, tasks, tyreSetup(b, visits), today)?.rows ?? []).filter((r) => r.group === 'bike');
+      service = { n: rows.length, late: rows.some((r) => r.late), href: bikesHash({ tab: 'care', bike: b.id, open: true }) };
+    }
+    return {
+      service,
+      weather: { known: weatherKnown(lead), open: byBike ? openRows(layerSuggest(lead, items), lead).length : 0 },
+      shop: shopCount(shopList(lead, itemsById)),
+      charge: null, // part B (charge list) tells this once it is merged
+      debriefDone: debriefs.some((d) => d.tripId === lead.id && d.status === 'done'),
+    };
+  });
+  const sched = $derived(schedCtx ? tripSchedule(lead, schedCtx, today) : null);
+  const stepNow = $derived(sched?.next ? stepWords(sched.next, lead, schedCtx, today) : null);
 
   /* ---------- v0.24.1 (Noah 3a): "How was {trip}?" → "All good" saves the debrief right here ---------- */
   // quick: { trip, prev, prevStatus, offer, undo } while "Saved. Undo" (and the template offer) shows.
@@ -399,17 +431,47 @@
           {#if focus.days > 0}<b class="title num">{focus.days}</b><span class="lbl">{focus.days === 1 ? t('day') : t('days')}<br />{t('to go')}</span>{:else}<b class="title now">{t('On the way')}</b>{/if}
         </div>
       {/if}
-      <div class="acts">
-        <a class="btn hi main" href={focus.href} onclick={() => openTrip(lead.id)}>{t(focus.label)}</a>
-        <span class="why">{t(focus.why)}</span>
-        <!-- Quiet links, never a second button: the list itself and printing. -->
-        {#if focus.kind !== 'debrief'}
+      {#if stepNow}
+        <!-- v0.34.0 A (L1): ONE next step of the schedule, its one button; quiet links beside it. -->
+        <div class="acts">
+          <div class="step-now">
+            <span class="lbl">{t('Next step')}{#if stepNow.when}{' · '}<span class:late={sched.next.late}>{stepNow.when}</span>{/if}</span>
+            <h2 class="step-t">{stepNow.title}</h2>
+            <span class="why">{stepNow.why}</span>
+          </div>
+          <a class="btn hi main" href={stepNow.href} onclick={() => openTrip(lead.id)}>{stepNow.button}</a>
           <span class="also-links">
-            {#if focus.href !== '#/pack'}<a class="tap" href="#/pack" onclick={() => openTrip(lead.id)}>{t('Show the list')}</a>{/if}
+            {#each stepNow.links as l (l.href)}<a class="tap" href={l.href} onclick={() => openTrip(lead.id)}>{l.label}</a>{/each}
+            {#if stepNow.href !== '#/pack'}<a class="tap" href="#/pack" onclick={() => openTrip(lead.id)}>{t('Show the list')}</a>{/if}
             <a class="tap" href="#/pack?print" onclick={() => openTrip(lead.id)}>{t('Print list')}</a>
           </span>
-        {/if}
-      </div>
+        </div>
+        <!-- The timeline: each step with its day and done / open; a tap opens its place. -->
+        <ol class="sched" aria-label={t('Trip schedule')}>
+          {#each sched.steps as s (s.key)}
+            {@const cur = s.key === sched.next.key}
+            <li class:done={s.state === 'done'} class:skip={s.state === 'skip'} class:cur class:late={s.late}>
+              <a href={stepHref(s, lead, schedCtx, today)} onclick={() => openTrip(lead.id)} aria-current={cur ? 'step' : undefined}>
+                <span class="d num">{shortDay(s.day)}</span>
+                <span class="n">{t(STEP_NAME[s.key])}</span>
+                <span class="st">{#if s.state === 'done'}✓ {t('done|step')}{:else if s.state === 'skip'}{t('not needed')}{:else if s.late}{t('open|debrief')}{:else if cur}{t('next|step')}{/if}</span>
+              </a>
+            </li>
+          {/each}
+        </ol>
+      {:else}
+        <div class="acts">
+          <a class="btn hi main" href={focus.href} onclick={() => openTrip(lead.id)}>{t(focus.label)}</a>
+          <span class="why">{t(focus.why)}</span>
+          <!-- Quiet links, never a second button: the list itself and printing. -->
+          {#if focus.kind !== 'debrief'}
+            <span class="also-links">
+              {#if focus.href !== '#/pack'}<a class="tap" href="#/pack" onclick={() => openTrip(lead.id)}>{t('Show the list')}</a>{/if}
+              <a class="tap" href="#/pack?print" onclick={() => openTrip(lead.id)}>{t('Print list')}</a>
+            </span>
+          {/if}
+        </div>
+      {/if}
     </section>
   {:else if loaded && !showFirst}
     <section class="band" aria-labelledby="next-h">
@@ -423,7 +485,7 @@
   {/if}
 
   <!-- v0.23.0 (AP07): everything else that wants attention, one short line each, below the main step. -->
-  {#if loaded && ((care && care.status !== 'ok') || prep || debrief || backup.due || notes.length || (!bikes.length && !showFirst) || (focus?.kind === 'debrief' && next) || alsoToday.length)}
+  {#if loaded && ((care && care.status !== 'ok' && sched?.next?.key !== 'service') || prep || debrief || backup.due || notes.length || (!bikes.length && !showFirst) || (focus?.kind === 'debrief' && next) || alsoToday.length)}
     <section class="also" aria-labelledby="also-h">
       <h2 id="also-h" class="lbl">{t('Also to do')}</h2>
       <ul>
@@ -438,7 +500,7 @@
           <li><span>{t('Debrief still open: {title}', { title: debrief.title })}</span><span class="two-acts"><button type="button" class="btn sm" onclick={() => allGood(debrief)}>{t('All good')}</button><a href="#/debrief/{encodeURIComponent(debrief.id)}" onclick={() => openTrip(debrief.id)}>{t('Debrief')}</a></span></li>
         {/if}
         <!-- v0.22.0 (AP06): one line per scope, each to the right bike or trip. -->
-        {#if care && care.status !== 'ok'}<li class:late={care.status === 'due'}><span>{bikeCareLine(care)}</span><a href={care.href}>{t('Bike care')}</a></li>{/if}
+        {#if care && care.status !== 'ok' && sched?.next?.key !== 'service'}<li class:late={care.status === 'due'}><span>{bikeCareLine(care)}</span><a href={care.href}>{t('Bike care')}</a></li>{/if}
         <!-- v0.30.2 (L5): the preparation is the trip's: the trip opens with "Before the trip" open. -->
         {#if prep}<li class:late={prep.overdue > 0}><span>{eventPrepLine(prep)}</span><a href="#/pack" onclick={() => openPrep(next.id)}>{t('Tick off in the trip')}</a></li>{/if}
         {#if backup.due}
@@ -673,6 +735,89 @@
     flex: 1 1 220px;
     color: #d6e2db;
     font-size: 15px;
+  }
+  /* v0.34.0 A (L1): the next step of the schedule (what, when, why) beside its one button. */
+  .step-now {
+    flex: 1 1 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .step-now .late {
+    color: var(--focus-on-dark);
+  }
+  .step-t {
+    margin: 0;
+    font: 700 var(--fs-sub) / var(--lh-title) var(--font-body);
+    overflow-wrap: anywhere;
+  }
+  .step-now .why {
+    flex: none;
+  }
+  /* The timeline: one quiet cell per step, the current one marked; never a second button. */
+  .sched {
+    flex: 1 1 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(112px, 100%), 1fr));
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .sched a {
+    display: flex;
+    flex-direction: column;
+    min-height: 44px;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 6px 10px 8px;
+    border-top: 3px solid rgba(255, 255, 255, 0.22);
+    border-radius: 2px;
+    color: var(--brand-ink);
+    text-decoration: none;
+    min-width: 0;
+  }
+  .sched a:hover {
+    background: rgba(255, 255, 255, 0.07);
+  }
+  .sched a:focus-visible {
+    outline: 2px solid var(--focus-on-dark);
+    outline-offset: 2px;
+  }
+  .sched .d {
+    font-size: 13px;
+    color: var(--brand-ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .sched .n {
+    font-weight: 600;
+    font-size: 15px;
+    overflow-wrap: anywhere;
+  }
+  .sched .st {
+    font-size: 13px;
+    color: var(--brand-ink-2);
+  }
+  .sched .done a {
+    border-top-color: #7fc79b;
+  }
+  .sched .done .n,
+  .sched .skip .n {
+    color: #c7d6cd;
+    font-weight: 500;
+  }
+  .sched .late .st {
+    color: var(--focus-on-dark);
+    font-weight: 600;
+  }
+  .sched .cur a {
+    border-top-color: var(--hi-bright);
+    background: rgba(255, 255, 255, 0.09);
+  }
+  .sched .cur .st {
+    color: var(--brand-ink);
+    font-weight: 600;
   }
   .also-links {
     display: flex;

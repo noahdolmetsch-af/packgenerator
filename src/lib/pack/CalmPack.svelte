@@ -91,6 +91,15 @@
   $effect(() => { if (openAsk && askEl && !askEl.open) askEl.showModal(); });
   function decideNow() { askEl.close(); review = true; window.scrollTo({ top: 0 }); }
   function packWithout() { askEl.close(); actions.pack(); }
+  // v0.34.0 A (L1): Today's schedule step "Weather": #/pack?weather opens the trip conditions (the
+  // forecast loads there), #/pack?decide the open weather suggestions; once, then plain #/pack again.
+  $effect(() => {
+    const m = /^#\/pack\?(?:.*&)?(weather|decide)\b/.exec(location.hash);
+    if (!m) return;
+    history.replaceState(null, '', '#/pack');
+    if (m[1] === 'decide' && bikeTrip) review = true;
+    else show('conditions');
+  });
   const primary = $derived(over ? 'debrief' : step === debriefStep ? 'end' : step === 2 ? 'ride' : dayRide ? 'go' : 'pack');
 </script>
 
