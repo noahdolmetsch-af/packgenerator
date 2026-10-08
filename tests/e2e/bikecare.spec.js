@@ -68,6 +68,8 @@ test('D1: km in Bike care save with Swiss and German separators, Enter, leaving 
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${BIKE}&open=1`);
   const care = page.locator(`#care-${BIKE}`);
+  // v0.31.0: the km field opens from "km ändern" in the bike's header.
+  await care.getByRole('button', { name: 'km ändern' }).click();
   const km = care.getByLabel('km jetzt');
   await expect(km).toBeVisible();
 
@@ -76,7 +78,7 @@ test('D1: km in Bike care save with Swiss and German separators, Enter, leaving 
   await km.press('Enter');
   await expect(care.getByRole('status')).toContainText('gespeichert');
   await expect.poll(async () => (await stored(page, BIKE)).km).toBe(3287);
-  await expect(care.locator('summary.bike-h')).toContainText('3’287 km');
+  await expect(care.locator('.ah')).toContainText('3’287 km');
 
   // Leaving the field (tap somewhere else).
   await km.fill('3 400');
@@ -111,6 +113,7 @@ test('D1: km in Bike care save with Swiss and German separators, Enter, leaving 
   // After a reload it is still there.
   await page.goto('./#/');
   await page.goto(`./#/bikes?tab=care&bike=${BIKE}&open=1`);
+  await page.locator(`#care-${BIKE}`).getByRole('button', { name: 'km ändern' }).click();
   await expect(page.locator(`#care-${BIKE}`).getByLabel('km jetzt')).toHaveValue('3600');
   expect(errors).toEqual([]);
 });
@@ -118,9 +121,9 @@ test('D1: km in Bike care save with Swiss and German separators, Enter, leaving 
 test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no longer due', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${BIKE}&open=1`);
-  const due = page.locator('section.due');
-  await expect(due).toContainText('Dichtmilch nachfüllen');
   const care = page.locator(`#care-${BIKE}`);
+  // v0.31.0: what is due is listed in the open bike ("Jetzt fällig").
+  await expect(care.locator('ul.due')).toContainText('Dichtmilch nachfüllen');
   await care.getByRole('button', { name: /^Reifen \+ Dichtmilch/ }).click();
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Reifen + Dichtmilch' }) });
   await expect(dlg).toBeVisible();
@@ -131,22 +134,24 @@ test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no l
   await expect.poll(async () => (await stored(page, BIKE)).parts.find((p) => p.key === 'tyres').history.at(-1)).toMatchObject({ date: day(0), km: 3200, action: 'replace', result: 'done' });
   // Seen: a short confirmation, no longer due, the next date in 90 days.
   await expect(page.getByRole('status').filter({ hasText: 'Reifen + Dichtmilch' })).toContainText(`Gespeichert: Reifen + Dichtmilch, erledigt, ${shown(day(0))} · 3’200 km. Nächstes Mal ${shown(day(90))}.`);
-  await expect(due.locator('li').filter({ hasText: 'Scott Scale 940: Dichtmilch nachfüllen' })).toHaveCount(0);
-  const row = care.locator('.checks li').filter({ hasText: 'Dichtmilch nachfüllen' });
-  await expect(row).toContainText(day(90));
-  await expect(care.getByRole('button', { name: /^Reifen \+ Dichtmilch/ })).toContainText(day(0));
+  await expect(care.locator('ul.due li').filter({ hasText: 'Dichtmilch nachfüllen' })).toHaveCount(0);
+  const row = care.locator('li.pt').filter({ has: page.getByRole('button', { name: /^Reifen \+ Dichtmilch/ }) });
+  await expect(row).toContainText(shown(day(90)));
+  await expect(row).toContainText(`erledigt ${shown(day(0))}`);
   if (process.env.BIKECARE_SHOTS) await page.screenshot({ path: `${process.env.BIKECARE_SHOTS}/bikecare-sealant-saved-${info.project.name}.png` });
 
-  // The same from the "due now" list: "Erledigt" on the Gravel's sealant.
-  const gravel = due.locator('li').filter({ hasText: 'Gravel Grinder: Dichtmilch nachfüllen' });
+  // The same from "Jetzt fällig" of the Gravel: "Erledigt" on its sealant.
+  const gravelCare = page.locator(`#care-${GRAVEL}`);
+  await gravelCare.getByRole('button', { name: 'test_data_gtp_ Gravel Grinder', exact: true }).click();
+  const gravel = gravelCare.locator('ul.due li').filter({ hasText: 'Dichtmilch nachfüllen' });
   await gravel.getByRole('button', { name: 'Erledigt' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Gespeichert' })).toContainText(`Reifen + Dichtmilch, gewartet, ${shown(day(0))} · 8’000 km. Nächstes Mal ${shown(day(90))}.`);
   await expect(gravel).toHaveCount(0);
-  await expect.poll(async () => (await stored(page, GRAVEL)).parts.find((p) => p.key === 'tyres').history.at(-1)).toMatchObject({ date: day(0), km: 8000, action: 'service', result: 'done' });
+  await expect.poll(async () => (await stored(page, GRAVEL)).parts.find((p) => p.key === 'tyres').history.at(-1)).toMatchObject({ date: day(0), km: 8000, action: 'service', result: 'done', by: 'self' });
 
   // After a reload nothing comes back.
   await page.reload();
-  await expect(page.locator('section.due')).toBeVisible();
-  await expect(page.locator('section.due')).not.toContainText('Dichtmilch nachfüllen');
+  await expect(page.locator(`#care-${GRAVEL} li.pt`).first()).toBeVisible();
+  await expect(page.locator('ul.due li').filter({ hasText: 'Dichtmilch nachfüllen' })).toHaveCount(0);
   expect(errors).toEqual([]);
 });

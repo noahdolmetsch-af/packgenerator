@@ -4,6 +4,7 @@
    * preparation list stay on every trip but fold into one row "Preparation: n open (m overdue)";
    * the bike's own rows (workshop, repairs) stay as they are. The rules are hints inside that row.
    */
+  import { Flag, ChevronRight } from '@lucide/svelte';
   import MoreMenu from './MoreMenu.svelte';
   import { prepSummary, isEvent } from '../care.js';
   import { t, locale, dateOf } from '../i18n.svelte.js';
@@ -16,14 +17,24 @@
   const sum = $derived(prepSummary(rows));
   const bikeRows = $derived(care ? [...care.rows, ...care.soon] : []);
   let prepOpen = $state(false); // the rows are only drawn when the row is opened
+  let open = $state(false); // v0.31.0: the whole trip is one folded row
   $effect(() => {
-    if (focus) prepOpen = true;
+    if (focus) open = prepOpen = true;
   });
+  // What the row counts: the bike's rows (due now, before and on the trip) and the open preparation tasks.
+  const count = $derived(bikeRows.length + (isEvent(trip) ? sum.open : 0));
   const dueLabel = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
 </script>
 
-<section class="block" aria-labelledby="trip-{trip.id}" id="before-{trip.id}">
-  <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} <small>{dateOf(trip.startDate)} · {bikeName ?? t('no bike')}</small></h2>
+<!-- v0.31.0 (Velopflege redesign): one folded row "Before Jura event · 18 Oct 2026 · 5 due ›". -->
+<details class="block" id="before-{trip.id}" bind:open>
+  <summary>
+    <Flag size={18} aria-hidden="true" />
+    <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} · <span class="num">{dateOf(trip.startDate)}</span> <small>{bikeName ?? t('no bike')}</small></h2>
+    <span class="r">{#if count}<span class="badge">{t('{n} due', { n: count })}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span>
+  </summary>
+  {#if open}
+  <div class="in">
   {#if care}
     <div class="shop">
       <span class="lbl">{bikeCareLine(care)}</span>
@@ -54,7 +65,7 @@
           {#each rows as r (r.task.id)}
             <li class:done={r.finished} class:late={r.overdue} class:need={r.needed}>
               <span class="when num">{dueLabel(r.due)}</span>
-              <span class="txt">{r.task.task}{#if r.state}<small>{r.needed ? t('Work needed') : r.state.result === 'ok' ? t('OK') : t('Done|task')} · {r.state.date}{r.state.by === 'shop' ? ` · ${t('bike shop')}` : ''}</small>{/if}</span>
+              <span class="txt">{r.task.task}{#if r.state}<small>{r.needed ? t('Work needed') : r.state.result === 'ok' ? t('OK') : t('Done|task')} · {dateOf(r.state.date)}{r.state.by === 'shop' ? ` · ${t('bike shop')}` : ''}</small>{/if}</span>
               <span class="acts">
                 {#if r.finished}
                   <button type="button" class="link" onclick={() => onundo(r)}>{t('Undo')}</button>
@@ -69,7 +80,9 @@
       {/if}
     </details>
   {/if}
-</section>
+  </div>
+  {/if}
+</details>
 
 <style>
   .all {
@@ -92,17 +105,59 @@
     margin: 0;
   }
   .block {
-    margin-bottom: 24px;
+    margin-bottom: 10px;
+    border: 1px solid #e6c9b8;
+    background: #fffaf6;
+    border-radius: 12px;
+  }
+  .block > summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 6px 14px;
+    list-style: none;
+    cursor: pointer;
+  }
+  .block > summary::-webkit-details-marker {
+    display: none;
+  }
+  .block > summary > :global(svg) {
+    color: var(--ink-3);
+    flex: none;
+  }
+  .block[open] > summary .r :global(svg) {
+    transform: rotate(90deg);
   }
   .title {
-    font-size: var(--fs-section);
-    margin: 0 0 8px;
-    border-bottom: 1px solid var(--line-strong);
-    padding-bottom: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    min-width: 0;
   }
   .title small {
     font-family: var(--font-body);
-    font-size: 14px;
+    font-size: 13px;
+  }
+  .r {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-3);
+    flex: none;
+  }
+  .badge {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--warn-soft);
+    color: var(--warn);
+    white-space: nowrap;
+  }
+  .in {
+    padding: 0 14px 12px;
   }
   small {
     font-size: var(--fs-small);

@@ -62,7 +62,9 @@ test('event preparation only for events', async ({ page, context }, info) => {
   // An older trip with a ticked task counts as an event; its tick stays visible in Bike care.
   await page.goto('./#/bikes?tab=care');
   await page.getByText('Spätere Touren', { exact: true }).click();
-  const old = page.locator('section.block').filter({ hasText: 'test_data_gtp_ Altes Event' });
+  // v0.31.0: each trip is one folded row.
+  const old = page.locator('details.block').filter({ hasText: 'test_data_gtp_ Altes Event' });
+  await old.locator('summary').click();
   await expect(old.getByLabel(/Event \(Rennen oder organisierte Fahrt\)/)).toBeChecked();
   await expect(old).toContainText('1 von 2 erledigt');
   await expect(page.evaluate(() => document.documentElement.scrollWidth)).resolves.toBeLessThanOrEqual(page.viewportSize().width);

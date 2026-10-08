@@ -140,8 +140,9 @@ test('Log a problem lands in Bike care as an open repair', async ({ page, contex
   const saved = page.getByRole('status').filter({ hasText: T('Saved in Bike care.') });
   await saved.getByRole('link', { name: T('Open') }).click();
   await expect(page).toHaveURL(/tab=care/);
-  // in the bike's repairs (and in the "before the trip" list of the next trip on it)
-  await expect(page.getByLabel(T('Each bike')).getByText('test_data_gtp_ Kette knackt')).toBeVisible();
+  // in the bike's repairs (and in the "before the trip" list of the next trip on it);
+  // v0.31.0: also named in the bike's card "For the bike shop"
+  await expect(page.getByLabel(T('Each bike')).getByText('test_data_gtp_ Kette knackt', { exact: true }).first()).toBeVisible();
   // the note stays in the Inbox as sorted ("All notes"), not as one to sort
   await page.goto('./#/inbox');
   await expect(page.getByText('test_data_gtp_ Kette knackt').first()).toBeAttached(); // folded under "All notes"
