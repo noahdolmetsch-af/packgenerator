@@ -22,6 +22,8 @@ const addDays = (date, n) => {
 
 /** Start time when none is set. */
 export const DEFAULT_START = '08:00';
+/** v0.30.1 (Noah C1): riding hours assumed for a day without a route and without riding hours (one block). */
+export const NO_ROUTE_HOURS = 3;
 
 /** The day of the trip (0-based) for a date; before the trip 0, after it the last day. */
 export function dayIndex(trip, date) {
@@ -78,15 +80,22 @@ export function addHours(at, hours) {
  * start: the start time ("HH:MM", trip.rideStart[day] or 08:00); arrive: start + riding hours.
  * startAt / endAt: "YYYY-MM-DDTHH:MM" (local time at the place), for the weather hours.
  */
-export function stage(trip, day = 0, pace = null) {
+export function stage(trip, day = 0, pace = null, { today = null, nowStart = null } = {}) {
   const days = stageCount(trip);
   if (day >= days) day = days - 1;
   const date = trip?.startDate ? addDays(trip.startDate, day) : null;
   const planStart = isNonstop(trip) ? (trip.plan?.schedule ?? []).find((b) => b.from)?.from : null;
-  const start = trip?.rideStart?.[day] || planStart || DEFAULT_START;
+  // v0.30.1 (Noah C1): no start time set and the day is today: the ride starts now (nowStart).
+  const start = trip?.rideStart?.[day] || planStart || (date && today && date === today && nowStart) || DEFAULT_START;
   const startAt = date ? `${date}T${start.padStart(5, '0')}` : null;
   const r = trip?.route;
-  if (!r?.km) return { day, date, km: null, gainM: null, hours: null, from: trip?.place ?? null, to: null, start, arrive: null, startAt, endAt: null };
+  if (!r?.km) {
+    // v0.30.1 (Noah C1): without a route the riding hours of the trip (per day) give the stage its
+    // time, so On the way still has blocks and the "Now" card (no km then). hoursGuess: not set, assumed.
+    const set = Number(trip?.hours) > 0 ? Number(trip.hours) : null;
+    const hours = trip?.startDate ? set ?? NO_ROUTE_HOURS : null;
+    return { day, date, km: null, gainM: null, hours, hoursGuess: hours != null && set == null, from: trip?.place ?? null, to: null, start, arrive: addTime(start, hours), startAt, endAt: startAt && hours != null ? addHours(startAt, hours) : null };
+  }
   const share = { km: Math.round((r.km / days) * 10) / 10, gainM: dayGain(r, day, days) };
   const hours = ridingHours({ km: share.km, gainM: share.gainM ?? 0 }, 1, pace);
   const from = day === 0 ? (r.start ?? pointAt(r.line, 0)) : pointAt(r.line, day / days);
@@ -101,7 +110,19 @@ export function stage(trip, day = 0, pace = null) {
  */
 export const REST = /break|nap|pause|sleep|schlaf/i;
 export function blocks(trip, st) {
-  if (!st?.startAt || !st.km || !st.hours) return [];
+  if (!st?.startAt || !st.hours) return [];
+  // v0.30.1 (Noah C1): without a route (no km) the blocks go by time only; km stay null.
+  if (!st.km) {
+    const rows = [];
+    const end = addHours(st.startAt, st.hours);
+    for (let at = st.startAt, n = 1; at < end; n++) {
+      const next = addHours(at, 3);
+      const endAt = next < end ? next : end;
+      rows.push({ name: t('Block {n}', { n }), from: at.slice(11), to: endAt.slice(11), startAt: at, endAt, kmFrom: null, kmTo: null, rest: false, note: '' });
+      at = endAt;
+    }
+    return rows;
+  }
   const speed = st.km / st.hours;
   const plan = (trip.plan?.schedule ?? []).filter((b) => b.from && b.to);
   const rows = [];

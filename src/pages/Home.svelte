@@ -25,7 +25,7 @@
   import { tripStats, daysUntil } from '../lib/trips.js';
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
-  import { nextTrip, tripEnd, quickDebrief, templateOffer, templateName } from '../lib/debrief.js';
+  import { nextTrip, tripEnd, quickDebrief, templateOffer, templateName, isOver } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   // v0.25.1 (Noah 1b, 2b, 3a): more buttons on the Trips and Bikes tiles, four visible, the rest under "More".
   import TripsHubActions from '../lib/hubs/TripsHubActions.svelte';
@@ -134,18 +134,21 @@
   $effect(() => () => clearTimeout(quickTimer));
 
   /* ---------- Pack: trips and templates to open ---------- */
-  const tripList = $derived(
-    [...trips]
-      .filter((t) => !t.id.startsWith('demo') || t.id === next?.id)
-      .sort((a, b) => {
-        // Upcoming first (soonest first), then the past ones (newest first).
-        const ua = (a.startDate ?? '') >= today;
-        const ub = (b.startDate ?? '') >= today;
-        if (ua !== ub) return ua ? -1 : 1;
-        return ua ? (a.startDate ?? '').localeCompare(b.startDate ?? '') : (b.startDate ?? '').localeCompare(a.startDate ?? '');
-      })
-      .slice(0, 3),
-  );
+  // v0.30.1 (Noah E6, C5): every trip still ahead (also several day rides on one day), soonest
+  // first, then the past ones (newest first) up to three rows. A trip ended early (finished) or
+  // over by date is past, also when its start date is today or later.
+  const tripList = $derived.by(() => {
+    const list = trips.filter((t) => !t.id.startsWith('demo') || t.id === next?.id);
+    const ahead = list
+      .filter((t) => !t.skipped && !isOver(t, today))
+      .sort((a, b) => (a.startDate ?? '').localeCompare(b.startDate ?? '') || (a.createdAt ?? '').localeCompare(b.createdAt ?? ''));
+    const past = list
+      .filter((t) => !ahead.includes(t))
+      .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '') || (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
+    return [...ahead, ...past.slice(0, Math.max(0, 3 - ahead.length))];
+  });
+  // v0.30.1 (Noah E6): other trips on the way today besides the one Today leads with.
+  const alsoToday = $derived(trips.filter((t) => t !== lead && !t.skipped && !t.finished && !t.id.startsWith('demo') && onTripDay(t, today)));
 
   /* ---------- Gear: where the weight is, what is worth a look (answer 7a) ---------- */
   const gs = $derived(gearStats(items));
@@ -356,13 +359,16 @@
   {/if}
 
   <!-- v0.23.0 (AP07): everything else that wants attention, one short line each, below the main step. -->
-  {#if loaded && ((care && care.status !== 'ok') || prep || debrief || backup.due || notes.length || !bikes.length || (focus?.kind === 'debrief' && next))}
+  {#if loaded && ((care && care.status !== 'ok') || prep || debrief || backup.due || notes.length || !bikes.length || (focus?.kind === 'debrief' && next) || alsoToday.length)}
     <section class="also" aria-labelledby="also-h">
       <h2 id="also-h" class="lbl">{t('Also to do')}</h2>
       <ul>
         {#if focus?.kind === 'debrief' && next}
           <li><span>{t('Next trip: {title}', { title: next.title })} · {dateText(next)}</span><a href="#/pack" onclick={() => openTrip(next.id)}>{t('Open the trip')}</a></li>
         {/if}
+        {#each alsoToday as tr (tr.id)}
+          <li><span>{t('Also today: {title}', { title: tr.title })}{tr.bike ? ` · ${tr.bike}` : ''}</span><a href="#/pack" onclick={() => openTrip(tr.id)}>{t('Open the trip')}</a></li>
+        {/each}
         {#if debrief}
           <li><span>{t('Last trip: {title}', { title: debrief.title })}</span><a href="#/debrief/{encodeURIComponent(debrief.id)}" onclick={() => openTrip(debrief.id)}>{t('Write debrief')}</a></li>
         {/if}

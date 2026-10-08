@@ -255,6 +255,7 @@ export default {
   'Photo of the note': 'Foto der Notiz',
   'Remove photo': 'Foto entfernen',
   'Next trip: {title}': 'Nächste Tour: {title}',
+  'Also today: {title}': 'Auch heute: {title}', // v0.30.1 (Noah E6)
 
   /* ---------- shared list ---------- */
   'Opening the list…': 'Liste wird geöffnet…',

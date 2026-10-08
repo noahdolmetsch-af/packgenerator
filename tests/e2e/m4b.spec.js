@@ -199,7 +199,8 @@ test('On the way note: in the Inbox and in the debrief; a missing item becomes a
     if (await box.count()) await expect(box).toBeChecked();
     else {
       await expect(page.locator('.learn')).toContainText(label);
-      await expect(page.locator('.learn').getByRole('button', { name: T('Yes, remember') })).toHaveAttribute('aria-pressed', 'true');
+      // v0.30.1 (Noah C3): "Yes, remember" saves it at once; untouched, "Save debrief" applies it too.
+      await expect(page.locator('.learn').getByRole('button', { name: T('Yes, remember') })).toBeVisible();
     }
   }
   await page.getByRole('button', { name: T('Save debrief') }).click();
