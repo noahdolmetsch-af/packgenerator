@@ -1,6 +1,6 @@
 // v0.26.0 (Noah 2a, AP10): own sets next to the built-in ones, delete plan, "+ Set" in Pack.
 import { describe, it, expect, afterEach } from 'vitest';
-import { allSets, addSet, renameSet, deleteSetPlan, setQty, qtyOf, setView, addSetEntries, setAddable, setKey, setUse, isBuiltIn, entriesWeight, isBlockTip, startBlocks } from '../src/lib/sets.js';
+import { allSets, addSet, renameSet, deleteSetPlan, setQty, qtyOf, setView, addSetEntries, setAddable, setKey, setUse, isBuiltIn, entriesWeight, isBlockTip, startBlocks, templateBlocks } from '../src/lib/sets.js';
 import { lang } from '../src/lib/i18n.svelte.js';
 
 afterEach(() => (lang.v = 'en'));
@@ -134,5 +134,15 @@ describe('New trip: blocks and templates in words', () => {
     expect(startBlocks(['S1', 'S2', 'R1'], ['S1', 'S2'], sets, items)).toBeNull(); // only half the block
     expect(startBlocks(['S1', 'R1', 'R2'], ['S1', 'S2'], sets, items)).toBeNull(); // not the whole standard set
     expect(startBlocks(['S1', 'S2', 'R1', 'R2', 'W1'], ['S1', 'S2'], sets, items).map((s) => s.key)).toEqual(['warm', 'u-regen']);
+  });
+  it('v0.30.1 (Noah N10): a template always in blocks, the rest as single items', () => {
+    const words = (ids) => {
+      const r = templateBlocks(ids, ['S1', 'S2'], sets, items);
+      return { standard: r.standard, blocks: r.blocks.map((s) => s.key), single: r.single };
+    };
+    expect(words(['S1', 'S2', 'R1', 'R2'])).toEqual({ standard: true, blocks: ['u-regen'], single: 0 });
+    expect(words(['S1', 'S2', 'R1'])).toEqual({ standard: true, blocks: [], single: 1 }); // half a block: a single item
+    expect(words(['S1', 'R1', 'R2'])).toEqual({ standard: false, blocks: ['u-regen'], single: 1 }); // not the whole standard set
+    expect(words(['S1', 'S2', 'R1', 'R2', 'W1', 'X9'])).toEqual({ standard: true, blocks: ['warm', 'u-regen'], single: 1 });
   });
 });

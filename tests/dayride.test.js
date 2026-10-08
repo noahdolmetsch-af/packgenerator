@@ -1,7 +1,7 @@
 // v0.25.1 (Noah 1a, 2a, 3a): a day ride in one tap, the prefilled New trip, weather from the forecast.
 // Fictional bikes, trips and items only (test_data_gtp_).
 import { describe, it, expect, afterEach } from 'vitest';
-import { rideDate, rideName, bikeShort, shortDate, isDayRide, daySource, lastBikeId, presetFor, forecastPreset, dayRidePlan, buildBikeTrip, fetchHomeForecast, wxLabel } from '../src/lib/dayride.js';
+import { rideDate, rideName, bikeShort, shortDate, isDayRide, daySource, lastBikeId, freeTitle, presetFor, forecastPreset, dayRidePlan, buildBikeTrip, fetchHomeForecast, wxLabel } from '../src/lib/dayride.js';
 import { lang } from '../src/lib/i18n.svelte.js';
 import { newTrip } from '../src/lib/trips.js';
 import { contextTrip } from '../src/lib/context.js';
@@ -67,6 +67,35 @@ describe('which trip a day ride starts from', () => {
     expect(lastBikeId([], [])).toBeNull();
   });
 
+  it('v0.30.1 (Noah E6): a second day ride on the same day gets its own name', () => {
+    expect(freeTitle('A day ride 8.10.', [])).toBe('A day ride 8.10.');
+    expect(freeTitle('A day ride 8.10.', [{ title: 'A day ride 8.10.' }])).toBe('A day ride 8.10. (2)');
+    expect(freeTitle('A day ride 8.10.', [{ title: 'A day ride 8.10.' }, { title: 'A day ride 8.10. (2)' }])).toBe('A day ride 8.10. (3)');
+    const now = new Date(2026, 9, 11, 9, 0);
+    const first = dayRidePlan([], bikes, { now });
+    expect(dayRidePlan([trip('x', { title: first.title, startDate: '2026-10-11', bikeId: 'b1' })], bikes, { now }).title).toBe(`${first.title} (2)`);
+  });
+
+  it('v0.30.1 (Noah E5): the last bike is the one of the trip ridden or made last, not of the latest start date', () => {
+    const today = '2026-10-08';
+    // A trip planned weeks ahead on b1 (made long ago) does not beat yesterday's ride on b2.
+    const planned = trip('planned', { bikeId: 'b1', startDate: '2026-11-20', days: 3, createdAt: '2026-09-01T10:00:00.000Z' });
+    const rode = trip('rode', { bikeId: 'b2', startDate: '2026-10-07', createdAt: '2026-10-06T10:00:00.000Z' });
+    expect(lastBikeId([planned, rode], bikes, today)).toBe('b2');
+    // Made after that ride: the newly made trip counts (its bike was just chosen).
+    const fresh = trip('fresh', { bikeId: 'b1', startDate: '2026-11-20', createdAt: '2026-10-08T09:00:00.000Z' });
+    expect(lastBikeId([planned, rode, fresh], bikes, today)).toBe('b1');
+    // Two day rides on the same day: the one made last.
+    const r1 = trip('r1', { bikeId: 'b1', startDate: today, createdAt: '2026-10-08T07:00:00.000Z' });
+    const r2 = trip('r2', { bikeId: 'b2', startDate: today, createdAt: '2026-10-08T07:05:00.000Z' });
+    expect(lastBikeId([r2, r1], bikes, today)).toBe('b2');
+    expect(lastBikeId([r1, r2], bikes, today)).toBe('b2');
+    // A skipped trip does not count.
+    expect(lastBikeId([rode, { ...fresh, skipped: true }], bikes, today)).toBe('b2');
+    // The day ride takes it too.
+    expect(dayRidePlan([planned, rode], bikes, { now: new Date(2026, 9, 8, 9, 0) }).bike.id).toBe('b2');
+  });
+
   it('plan: from the last day ride, else bike of the last trip, 2 h, Chilly; forecast wins', () => {
     const now = new Date(2026, 9, 11, 9, 0);
     const p0 = dayRidePlan([trip('w', { bikeId: 'b2', days: 3, overnight: 'outdoor' })], bikes, { now });
@@ -80,7 +109,8 @@ describe('which trip a day ride starts from', () => {
     expect(p2).toMatchObject({ wx: { min: -2, max: 4, rain: 'rain' }, wxFrom: 'forecast' });
     expect(dayRidePlan([], [])).toBeNull();
     // v0.29.2 (Noah 5a): a newer trip on another bike wins over the bike of the last day ride.
-    const later = trip('w2', { bikeId: 'b2', days: 3, overnight: 'outdoor', startDate: '2026-12-01' });
+    // v0.30.1 (Noah E5): "newer" = made later (a start date far ahead alone does not count).
+    const later = trip('w2', { bikeId: 'b2', days: 3, overnight: 'outdoor', startDate: '2026-12-01', createdAt: '2026-10-10T08:00:00.000Z' });
     const p3 = dayRidePlan([src, later], bikes, { now });
     expect(p3.bike.id).toBe('b2');
     expect(p3.hours).toBe(3); // hours and weather still from the last day ride

@@ -25,6 +25,16 @@ export const RIDES = [
 const RIDE_RANK = { every: 0, daily: 1, training: 2 };
 export const RAIN_ITEM = { yes: 'Rain', optional: 'Rain, optional' };
 
+/** v0.30.1 (Noah A2): an own building block for rain ("Regen", "Rain gear" → key u-regen, u-rain-gear). */
+const RAIN_BLOCK = /^u-(.*-)?(rain|regen)/i;
+export const isRainBlock = (key) => RAIN_BLOCK.test(key ?? '');
+/**
+ * When an item comes along for rain: its own setting (item.rain), else 'yes' for an item in a rain
+ * building block. v0.30.1 (Noah A2): "+ Rain" on a trip changed nothing when the rain gear was only
+ * in Noah's own "Regen" block and not marked "When it rains" one by one.
+ */
+export const rainOf = (item) => item?.rain || (item?.sets?.some(isRainBlock) ? 'yes' : null);
+
 /** v0.25.0 (Noah 2a/8a): riding hours of the whole trip = hours per day × days (0 when not set). */
 export const rideHours = (trip) => (Number(trip?.hours) || 0) * Math.max(1, Number(trip?.days) || 1);
 
@@ -55,9 +65,10 @@ export function layerSuggest(trip, items) {
     } else if (typeof i.coldBelow === 'number' && hasTemps(wx) && wx.min < i.coldBelow) {
       rows.push({ id: i.id, why: t('Below {n} °C', { n: i.coldBelow }), place: wx.max < i.coldBelow ? 'wear' : 'pack', qty, optional: false });
       rankOf.set(rows.at(-1), 3 + (40 - i.coldBelow) / 100);
-    } else if (i.rain && wet(wx)) {
-      rows.push({ id: i.id, why: t(RAIN_ITEM[i.rain] ?? 'Rain'), place: 'pack', qty, optional: i.rain === 'optional' });
-      rankOf.set(rows.at(-1), 4 + (i.rain === 'optional' ? 0.5 : 0));
+    } else if (rainOf(i) && wet(wx)) {
+      const rain = rainOf(i);
+      rows.push({ id: i.id, why: t(RAIN_ITEM[rain] ?? 'Rain'), place: 'pack', qty, optional: rain === 'optional' });
+      rankOf.set(rows.at(-1), 4 + (rain === 'optional' ? 0.5 : 0));
     } else if (qty > 1 && (i.role === 'worn' || i.role === 'standard')) {
       // Every-ride food and drink: more pieces on a longer ride.
       rows.push({ id: i.id, why: t('1 per {n} h', { n: i.perHours }), place: i.defaultBag === 'body' ? 'wear' : 'pack', qty, optional: false });

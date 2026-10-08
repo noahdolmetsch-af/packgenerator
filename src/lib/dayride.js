@@ -17,6 +17,7 @@ import { contextTrip } from './context.js';
 import { hasBike } from './domains.js';
 import { fetchForecast, toWx } from './weather.js';
 import { t } from './i18n.svelte.js';
+import { localDay } from './localday.js';
 
 /** Hours of a day ride when no earlier day ride says otherwise. */
 export const DAY_HOURS = 2;
@@ -58,6 +59,18 @@ export function rideName({ bike = '', label = '', date = '', days = 1 } = {}) {
   return text.trim();
 }
 
+/**
+ * v0.30.1 (Noah E6): a name no other trip has: a second day ride on the same day and bike is
+ * "… day ride 11.10. (2)", so every one can be told apart in the lists.
+ */
+export function freeTitle(title, trips = []) {
+  const taken = new Set(trips.map((x) => (x.title ?? '').trim().toLowerCase()));
+  if (!taken.has(title.toLowerCase())) return title;
+  let n = 2;
+  while (taken.has(`${title} (${n})`.toLowerCase())) n++;
+  return `${title} (${n})`;
+}
+
 /** Is this trip a day ride? One day, no night (or an older trip without that), not skipped, by bike. */
 export const isDayRide = (trip) =>
   !!trip && !trip.skipped && hasBike(trip) && !(Number(trip.days) > 1) && (trip.overnight == null || trip.overnight === 'none');
@@ -67,10 +80,27 @@ const newest = (a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '') ||
 /** The newest day ride (by start date), or null: a new day ride starts like it. */
 export const daySource = (trips = []) => [...trips].filter(isDayRide).sort(newest)[0] ?? null;
 
-/** The bike of the newest trip by bike that still exists, else the first bike (bikes sorted as shown). */
-export function lastBikeId(trips = [], bikes = []) {
+/**
+ * When a trip was last "used": the later of when it was made (createdAt) and its start day once
+ * that day has come. A trip planned for later counts from when it was made, not from its start date.
+ */
+const usedAt = (trip, today) => {
+  const made = trip.createdAt ?? '';
+  const ridden = trip.startDate && trip.startDate <= today ? `${trip.startDate}T23:59:59` : '';
+  return made > ridden ? made : ridden;
+};
+
+/**
+ * The bike of the last trip by bike that still exists, else the first bike (bikes sorted as shown).
+ * v0.30.1 (Noah E5): "last" is the trip used last (usedAt): the one ridden or made most recently.
+ * It was the trip with the latest start date, so a trip planned weeks ahead on another bike won.
+ */
+export function lastBikeId(trips = [], bikes = [], today = localDay()) {
   const known = new Set(bikes.map((b) => b.id));
-  return [...trips].filter((x) => hasBike(x) && known.has(x.bikeId)).sort(newest)[0]?.bikeId ?? bikes[0]?.id ?? null;
+  const last = [...trips]
+    .filter((x) => hasBike(x) && !x.skipped && known.has(x.bikeId))
+    .sort((a, b) => usedAt(b, today).localeCompare(usedAt(a, today)) || (b.createdAt ?? '').localeCompare(a.createdAt ?? ''))[0];
+  return last?.bikeId ?? bikes[0]?.id ?? null;
 }
 
 /**
@@ -126,14 +156,14 @@ export async function fetchHomeForecast(place, { fetcher = globalThis.fetch?.bin
 export function dayRidePlan(trips = [], bikes = [], { now = new Date(), forecastWx = null } = {}) {
   const source = daySource(trips);
   // v0.29.2 (Noah 5a): the bike of the last trip by bike (was: of the last day ride)
-  const bike = bikes.find((b) => b.id === lastBikeId(trips, bikes)) ?? null;
+  const bike = bikes.find((b) => b.id === lastBikeId(trips, bikes, iso(now))) ?? null;
   if (!bike) return null;
   const hours = Number(source?.hours) > 0 ? Number(source.hours) : DAY_HOURS;
   const chilly = WX_PRESETS.find((p) => p.name === DAY_WX);
   const old = source?.wx?.min != null && source?.wx?.max != null ? { min: source.wx.min, max: source.wx.max, rain: source.wx.rain ?? 'none' } : null;
   const wx = forecastWx ?? old ?? { min: chilly.min, max: chilly.max, rain: 'none' };
   const startDate = rideDate(now);
-  return { bike, hours, wx, wxFrom: forecastWx ? 'forecast' : null, startDate, title: rideName({ bike: bike.name, date: startDate }), source };
+  return { bike, hours, wx, wxFrom: forecastWx ? 'forecast' : null, startDate, title: freeTitle(rideName({ bike: bike.name, date: startDate }), trips), source };
 }
 
 /**

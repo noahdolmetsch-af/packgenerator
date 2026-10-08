@@ -208,7 +208,8 @@
   const sugg = $derived(d && trip ? suggestions({ ...d, rideNotes: freeNotes }, trip, items, learnings, templates, debriefs).filter((s) => !d.applied.includes(s.id)) : []);
   // The one suggestion for next time, with its reason: leave at home first, then the learnings.
   const RANK = { home: 0, learn: 1, wish: 2, template: 3 };
-  const top = $derived([...sugg].sort((a, b) => RANK[a.group] - RANK[b.group])[0] ?? null);
+  // v0.30.1 (Noah C3): a suggestion answered "No" makes room for the next one (it stays unticked under "More").
+  const top = $derived([...sugg].filter((s) => ticks[s.id] !== false).sort((a, b) => RANK[a.group] - RANK[b.group])[0] ?? null);
   const more = $derived(sugg.filter((x) => x !== top));
   // The exceptions: what was not used or broke, and what was missing.
   const exceptions = $derived(d && trip ? trip.entries.filter((e) => d.items[e.itemId] && byId[e.itemId]) : []);
@@ -225,6 +226,36 @@
   const ticked = (s) => ticks[s.id] ?? true;
   // Open on a big screen when shown; afterwards it stays as you leave it (an attribute would shut it on every change).
   const openOnce = (node, open) => { node.open = open; };
+
+  // v0.30.1 (Noah C3): "Yes, remember" saved nothing (the suggestion was ticked already, so the tap
+  // changed nothing). Now it applies this one suggestion at once, the way "Save debrief" applies the
+  // ticked ones, and the next suggestion takes its place. A quick second tap does nothing.
+  let rememberMsg = $state('');
+  let remembering = $state(false);
+  async function remember(s) {
+    if (remembering || !s || d.applied.includes(s.id)) return;
+    remembering = true;
+    try {
+      const stamp = Date.now().toString(36).toUpperCase();
+      const out = applyDebrief({ ...$state.snapshot(d), rideNotes: $state.snapshot(freeNotes) }, trip, items, learnings, templates, [s.id], { newItemId: (n) => `W${stamp}${n}` });
+      const now = new Date().toISOString();
+      await db.transaction('rw', [db.items, db.learnings, db.debriefs, db.settings, db.notes], async () => {
+        for (const n of out.notes) await db.notes.update(n.id, { status: 'sorted', to: { kind: 'learning', label: 'Learning', ref: n.learningId }, sortedAt: now });
+        if (out.items.length) await db.items.bulkPut(out.items);
+        if (out.learnings.length) await db.learnings.bulkPut(out.learnings);
+        if (out.templates) await saveTemplates(db, out.templates);
+        d.applied = [...d.applied, s.id];
+        d.updatedAt = now;
+        await db.debriefs.put($state.snapshot(d));
+      });
+      rememberMsg = t('Remembered: {label}', { label: s.label });
+    } catch {
+      rememberMsg = t('Could not save. Please try again.');
+    } finally {
+      // The next suggestion takes this place: a second tap of a double tap must not answer it.
+      setTimeout(() => (remembering = false), 700);
+    }
+  }
 
   let busy = $state(false);
   // v0.24.1 (Noah 4a): the template name offered right after saving a day trip's debrief, else null.
@@ -375,14 +406,15 @@
           </section>
         </div>
         <div class="col">
+          {#if rememberMsg}<p class="card ok remembered" role="status">{rememberMsg}</p>{/if}
           {#if top}
             <!-- Noah 9a: one suggestion for next time, with its reason. -->
             <section class="tp-card learn" aria-labelledby="learn-h1">
               <h2 id="learn-h1"><Star size={18} aria-hidden="true" />{t('For next time')}</h2>
               <p><b>{top.label}</b><br />{top.detail}</p>
               <div class="tp-chips" role="group" aria-label={top.label}>
-                <button type="button" class="btn" class:on={ticked(top)} aria-pressed={ticked(top)} onclick={() => (ticks[top.id] = true)}>{t('Yes, remember')}</button>
-                <button type="button" class="btn" class:on={!ticked(top)} aria-pressed={!ticked(top)} onclick={() => (ticks[top.id] = false)}>{t('No')}</button>
+                <button type="button" class="btn yes" disabled={remembering} onclick={() => remember(top)}>{t('Yes, remember')}</button>
+                <button type="button" class="btn" disabled={remembering} onclick={() => ((ticks[top.id] = false), (rememberMsg = ''))}>{t('No')}</button>
               </div>
             </section>
           {/if}
@@ -736,7 +768,7 @@
     border-color: rgba(255, 255, 255, 0.35);
     color: var(--brand-ink);
   }
-  .learn .btn.on {
+  .learn .btn.yes {
     background: var(--brand-ink);
     border-color: var(--brand-ink);
     color: var(--brand);

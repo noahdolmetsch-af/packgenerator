@@ -8,6 +8,7 @@
  * Pure functions, easy to test.
  */
 import { addHours } from './ride.js';
+import { rainOf } from './layers.js';
 import { nameOf } from './i18n.svelte.js';
 
 /** Assumption, not measured: half a litre per riding hour, a quarter more from 25 °C. */
@@ -60,7 +61,7 @@ export function darkTimes(startAt, endAt, place, offsetOf = offsetFor) {
 }
 
 /** Where on the block a time is, in km. */
-const kmAt = (b, at) => Math.round(b.kmFrom + ((b.kmTo - b.kmFrom) * hoursBetween(b.startAt, at)) / Math.max(1e-6, hoursBetween(b.startAt, b.endAt)));
+const kmAt = (b, at) => b.kmFrom == null || b.kmTo == null ? null : Math.round(b.kmFrom + ((b.kmTo - b.kmFrom) * hoursBetween(b.startAt, at)) / Math.max(1e-6, hoursBetween(b.startAt, b.endAt)));
 
 /**
  * The plan per block. rows: the blocks (ride.js blocks()); items: the trip's items as
@@ -69,7 +70,7 @@ const kmAt = (b, at) => Math.round(b.kmFrom + ((b.kmTo - b.kmFrom) * hoursBetwee
  * Returns { rows: [block plan], capL, rate, lights: [{ name, place }] }.
  */
 export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx = null, offsetOf = offsetFor } = {}) {
-  const layers = items.filter(({ item }) => typeof item.coldBelow === 'number' || item.rain);
+  const layers = items.filter(({ item }) => typeof item.coldBelow === 'number' || rainOf(item));
   const food = items.filter(({ item }) => item.perHours && !item.waterL);
   const capL = items.reduce((t, { item, qty }) => t + (item.waterL || 0) * (qty || 1), 0);
   const lights = items.filter(({ item }) => item.category === 'light').map(({ item, place: p }) => ({ name: nameOf(item), place: p }));
@@ -87,11 +88,11 @@ export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx =
     const fromTrip = !temps.length && typeof tripWx?.min === 'number';
     const temp = temps.length ? { lo: Math.round(Math.min(...temps)), hi: Math.round(Math.max(...temps)) } : fromTrip ? { lo: tripWx.min, hi: tripWx.max ?? tripWx.min } : null;
     const wet = hrs.length ? hrs.some((x) => (x.rainMm ?? 0) >= 0.5 || (x.rainPct ?? 0) >= 50) : tripWx?.rain === 'rain' || tripWx?.rain === 'showers';
-    const plan = { ...b, temp, wet, wxFrom: temps.length ? 'hours' : fromTrip ? 'trip' : null, wear: [], on: [], off: [], food: [], drinkL: 0, refillKm: [], light: null };
+    const plan = { ...b, temp, wet, wxFrom: temps.length ? 'hours' : fromTrip ? 'trip' : null, wear: [], on: [], off: [], food: [], drinkL: 0, refillKm: [], refillAt: [], light: null };
 
     // Clothing: a layer is worn when the block gets colder than its limit, a rain layer when it is wet.
     if (temp || hrs.length || tripWx) {
-      const now = layers.filter(({ item }) => (typeof item.coldBelow === 'number' && temp && temp.lo < item.coldBelow) || (item.rain === 'yes' && wet));
+      const now = layers.filter(({ item }) => (typeof item.coldBelow === 'number' && temp && temp.lo < item.coldBelow) || (rainOf(item) === 'yes' && wet));
       const ids = new Set(now.map(({ item }) => item.id));
       plan.wear = now.map(({ item, place: p }) => ({ id: item.id, name: nameOf(item), place: p }));
       if (!b.rest) {
@@ -121,7 +122,11 @@ export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx =
         while (need > tank + 1e-9) {
           at += tank / rate;
           need -= tank;
-          plan.refillKm.push(kmAt(b, addHours(b.startAt, at)));
+          // v0.30.1: without a route (no km) the refill is said in time: refillAt ("HH:MM").
+          const when = addHours(b.startAt, at);
+          const km = kmAt(b, when);
+          if (km == null) plan.refillAt.push(when.slice(11));
+          else plan.refillKm.push(km);
           tank = capL;
         }
         tank -= need;

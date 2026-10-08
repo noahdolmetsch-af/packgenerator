@@ -235,7 +235,7 @@ export function prepRules(trip, tasks) {
 
 /** Trips that get preparation tasks: a date, not over yet. */
 export const upcomingTrips = (trips, today = localDay()) =>
-  trips.filter((t) => !t.skipped && t.startDate && t.startDate >= today).sort((a, b) => a.startDate.localeCompare(b.startDate));
+  trips.filter((t) => !t.skipped && !t.finished && t.startDate && t.startDate >= today).sort((a, b) => a.startDate.localeCompare(b.startDate));
 
 /**
  * A wishlist item for a part that has to be replaced, unless one is already there.

@@ -10,7 +10,7 @@
  * An item Noah added himself without any rule gets no line (no clutter).
  * Pure functions (no database), tested in tests/reasons.test.js.
  */
-import { layerSuggest } from './layers.js';
+import { layerSuggest, rainOf } from './layers.js';
 import { contextSets } from './context.js';
 import { allSets } from './sets.js';
 import { t, num } from './i18n.svelte.js';
@@ -71,7 +71,7 @@ export function rowReasons(trip, items, setsValue = []) {
     const parts = [];
     const row = rowOf.get(e.itemId);
     // The amount branch of layerSuggest only says "1 per n h": amountReason says it better.
-    const amountOnly = item.perHours && !item.ride && typeof item.coldBelow !== 'number' && !item.rain;
+    const amountOnly = item.perHours && !item.ride && typeof item.coldBelow !== 'number' && !rainOf(item);
     if (row && !amountOnly) parts.push(row.why);
     const amount = amountReason(item, trip, e.qty || 1);
     if (amount) parts.push(amount.text);
