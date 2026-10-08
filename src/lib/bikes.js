@@ -22,9 +22,24 @@ export const SLOTS = [
   { key: 'bar', name: 'Front roll', where: 'Handlebar, front', box: { x: 596, y: 100, w: 118, h: 44 } },
   { key: 'pouchL', name: 'Pouch left', where: 'Handlebar, left', box: { x: 560, y: 24, w: 76, h: 46 } },
   { key: 'pouchR', name: 'Pouch right', where: 'Handlebar, right', box: { x: 642, y: 24, w: 76, h: 46 } },
-  { key: 'carry', name: 'On my back', where: 'Hip bag or vest, worn by the rider', box: { x: 16, y: 62, w: 100, h: 40 } },
+  // v0.37.0 (Noah 2a): two worn places. The key 'carry' stays (old trips and bikes use it), only its
+  // name changes ("On my back" → "Back"); 'hip' is new. What sits there counts to "On me", not to the bike.
+  { key: 'carry', name: 'Back|worn', where: 'Backpack or vest', box: { x: 16, y: 62, w: 100, h: 40 }, worn: true },
+  { key: 'hip', name: 'Hip|worn', where: 'Hip bag', box: { x: 16, y: 108, w: 100, h: 40 }, worn: true },
 ];
 export const SLOT = Object.fromEntries(SLOTS.map((s) => [s.key, s]));
+
+/**
+ * v0.37.0 (Noah 2a): the worn places. They are on the rider, not mounts of the bike: every bike has
+ * them (no need to switch a mount on), their bags and contents count to "On me" (not to the bike
+ * weight, the bags weight or the load per wheel).
+ */
+export const WORN_SLOTS = SLOTS.filter((s) => s.worn).map((s) => s.key);
+export const isWornSlot = (key) => WORN_SLOTS.includes(key);
+/** A worn bag (backpack, hip bag, vest): a bag of the bag list whose place is a worn place. */
+export const isWornBag = (bag) => !!bag && isWornSlot(bag.slot);
+/** The places of a bike: its mounts plus the worn places, in the order of SLOTS. */
+export const placesOf = (bike) => SLOTS.filter((s) => s.worn || bike?.slots?.includes(s.key));
 
 /** Zones that are always there and hold no bag: worn things and things mounted on the bike. */
 export const FIXED_ZONES = [
@@ -122,7 +137,9 @@ export async function ensureBikeSetup(db) {
 /** Weight of a bag from its gear item (per piece × pieces); null when not weighed or not linked. */
 export function containerWeight(container, itemsById) {
   const item = container.itemId ? itemsById[container.itemId] : null;
-  return item?.weightG == null ? null : item.weightG * (container.pieces || 1);
+  if (item) return item.weightG == null ? null : item.weightG * (container.pieces || 1);
+  // v0.37.0: a bag without a gear item can have its own weight (a backpack added in the bag list).
+  return container.weightG == null ? null : Number(container.weightG);
 }
 
 /**
@@ -136,17 +153,21 @@ export const addedWeight = (container, itemsById) => (ON_BIKE_SLOTS.includes(con
 export function bikeSetup(bike, containers, items) {
   const byId = Object.fromEntries(containers.map((c) => [c.id, c]));
   const itemsById = Object.fromEntries(items.map((i) => [i.id, i]));
-  const rows = SLOTS.filter((s) => bike.slots?.includes(s.key)).map((slot) => {
+  const rows = placesOf(bike).map((slot) => {
     const bag = byId[bike.setup?.[slot.key]] ?? null;
     return { slot, bag, weightG: bag ? addedWeight(bag, itemsById) : null };
   });
-  const used = rows.filter((r) => r.bag);
+  // v0.37.0: worn bags (Back, Hip) are on the rider: not in the bike's bags, litres or weight.
+  const used = rows.filter((r) => r.bag && !r.slot.worn);
+  const worn = rows.filter((r) => r.bag && r.slot.worn);
   return {
     rows,
     bagCount: used.length,
     volumeL: used.reduce((t, r) => t + (r.bag.volumeL || 0), 0),
     bagsG: used.reduce((t, r) => t + (r.weightG || 0), 0),
     unweighed: used.filter((r) => r.weightG == null).length,
+    wornCount: worn.length,
+    wornG: worn.reduce((t, r) => t + (r.weightG || 0), 0),
   };
 }
 
@@ -157,7 +178,11 @@ export function bikeSetup(bike, containers, items) {
 export const bikeWeightKind = (bike) => (bike?.weightG == null ? 'missing' : /estimate/i.test(bike.weightNote ?? '') ? 'estimate' : 'measured');
 
 /** Bags that fit a slot, for the "which bag goes here" choice. */
-export const bagsFor = (slotKey, containers) => containers.filter((c) => c.slot === slotKey);
+// v0.37.0: a worn place takes every worn bag (a vest on the back, a small pack on the hip), its own place's bags first.
+export const bagsFor = (slotKey, containers) =>
+  isWornSlot(slotKey)
+    ? containers.filter(isWornBag).sort((a, b) => Number(b.slot === slotKey) - Number(a.slot === slotKey))
+    : containers.filter((c) => c.slot === slotKey);
 
 /** "16.5 L", or "–" when unknown */
 export const formatVolume = (l) => (l ? `${Math.round(l * 10) / 10} L` : '–');

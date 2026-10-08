@@ -8,7 +8,7 @@
  *   ready             [{ id, label, done }]  this trip's ready check (older trips may still have group/itemId)
  *   domain, packs     v0.21.0: the area; a trip without a bike has its own bags in `packs` (see domains.js)
  */
-import { SLOT, SLOTS, FIXED_ZONES, addedWeight, bikeWeightKind } from './bikes.js';
+import { SLOT, SLOTS, FIXED_ZONES, addedWeight, bikeWeightKind, isWornSlot } from './bikes.js';
 import { isInventory, isConsumable } from './gear.js';
 import { t as tr, bagName } from './i18n.svelte.js';
 import { inDomain, BIKEPACKING } from './domains.js';
@@ -55,7 +55,7 @@ export function slotFor(defaultBag, setup) {
   if (defaultBag === 'body' || defaultBag === 'mounted') return defaultBag;
   if (setup?.[defaultBag]) return defaultBag;
   if (setup?.seat) return 'seat';
-  const any = SLOTS.find((s) => setup?.[s.key] && s.key !== 'carry');
+  const any = SLOTS.find((s) => setup?.[s.key] && !isWornSlot(s.key));
   return any ? any.key : 'body';
 }
 
@@ -113,7 +113,9 @@ export function newTrip({ title, startDate, days, bike, readyStandard = null, ov
  * go to the seat pack. Returns the changes to store.
  */
 export function switchBike(trip, bike) {
-  const setup = { ...(bike.setup ?? {}) };
+  // v0.37.0: the worn bags (Back, Hip) are on the rider; they stay when the bike changes.
+  const worn = Object.fromEntries(Object.entries(trip.setup ?? {}).filter(([k, v]) => isWornSlot(k) && v));
+  const setup = { ...(bike.setup ?? {}), ...worn };
   return {
     bikeId: bike.id,
     bike: bike.name,
@@ -148,10 +150,26 @@ export function tripStats(trip, items, containers, bike, riderG) {
   const keys = packs ? ['body', ...packs.map((p) => p.key)] : [...FIXED_ZONES.map((z) => z.key), ...SLOTS.filter((s) => trip.setup?.[s.key]).map((s) => s.key)];
   // Entries in a place without a bag still show up, marked as "no bag".
   for (const e of trip.entries) if (!keys.includes(e.slot)) keys.push(e.slot);
+  // v0.37.0 (Noah 3a): a bag of a trip without a bike can be a real bag of the bag list (pack.bagId);
+  // without one (or when that bag was deleted) it stays the generic bag with its name and litres.
+  const realOf = (own) => (own?.bagId ? bagsById[own.bagId] ?? null : null);
+  const onTripIds = new Set(trip.entries.map((e) => e.itemId));
+  // v0.37.0 (Noah 4a): a vest that is clothing and a bag: when the vest is on the list as an item, its
+  // weight is already counted there; the bag adds nothing on top.
+  const bagG = (bag) => (bag.alsoItem && bag.itemId && onTripIds.has(bag.itemId) ? 0 : addedWeight(bag, itemsById));
+  // v0.37.0 (Noah 2a): the worn places (Back, Hip) of a bike trip count to "On me".
+  const worn = (key) => !packs && isWornSlot(key);
   const zones = keys.map((key) => {
     const entries = trip.entries.filter((e) => e.slot === key);
     const own = packOf[key];
-    const bag = own ? { id: `pack-${key}`, name: tr(own.name), volumeL: own.volumeL ?? null, pack: true } : packs ? null : bagsById[trip.setup?.[key]] ?? null;
+    const real = realOf(own);
+    const bag = own
+      ? real
+        ? { ...real, name: real.name, volumeL: real.volumeL ?? null, pack: true, real: true }
+        : { id: `pack-${key}`, name: tr(own.name), volumeL: own.volumeL ?? null, pack: true }
+      : packs
+        ? null
+        : bagsById[trip.setup?.[key]] ?? null;
     const grams = entries.reduce((t, e) => t + (w(e) ?? 0), 0);
     const vol = entries.reduce((t, e) => t + (itemsById[e.itemId]?.volumeL || 0) * (e.qty || 1), 0);
     return {
@@ -159,6 +177,7 @@ export function tripStats(trip, items, containers, bike, riderG) {
       zone: own ? { key, name: bag.name, box: null } : ZONE[key] ?? { key, name: key, box: null },
       bag,
       noBag: !bag && key !== 'body' && key !== 'mounted',
+      worn: worn(key),
       entries,
       grams,
       vol,
@@ -166,27 +185,36 @@ export function tripStats(trip, items, containers, bike, riderG) {
       packed: entries.filter((e) => e.packed).length,
     };
   });
-  const bagWeights = SLOTS.map((s) => bagsById[trip.setup?.[s.key]]).filter(Boolean).map((bag) => addedWeight(bag, itemsById));
+  const tripBags = packs
+    ? packs.map(realOf).filter(Boolean).map((bag) => ({ bag, worn: false }))
+    : SLOTS.map((s) => ({ bag: bagsById[trip.setup?.[s.key]], worn: !!s.worn })).filter((x) => x.bag);
+  const bagWeights = tripBags.filter((x) => !x.worn).map((x) => bagG(x.bag));
+  const wornBagWeights = tripBags.filter((x) => x.worn).map((x) => bagG(x.bag));
   const bagsG = bagWeights.reduce((t, g) => t + (g ?? 0), 0);
   const bagsMissing = bagWeights.filter((g) => g == null).length;
-  const onMeG = zones.filter((z) => z.key === 'body').reduce((t, z) => t + z.grams, 0);
-  const gearG = zones.filter((z) => z.key !== 'body').reduce((t, z) => t + z.grams, 0);
+  const wornBagsG = wornBagWeights.reduce((t, g) => t + (g ?? 0), 0);
+  const wornBagsMissing = wornBagWeights.filter((g) => g == null).length;
+  const onMe = (z) => z.key === 'body' || z.worn;
+  const onMeG = zones.filter(onMe).reduce((t, z) => t + z.grams, 0) + wornBagsG;
+  const gearG = zones.filter((z) => !onMe(z)).reduce((t, z) => t + z.grams, 0);
   const bikeG = bike?.weightG ?? 0;
   // v0.21.0 (decision 5, 9a): four figures. Food and water (food items and anything that holds
   // water, e.g. full bottles) count on their own, wherever they are, also in a jersey pocket.
   // Base = gear in the bags and on the bike without food and water; worn = on me without food.
   // base + worn + consumables = gear + on me, so nothing is counted twice.
+  // v0.37.0: on me = the body plus the worn places (Back, Hip) with their bags.
   const eats = (e) => {
     const it = itemsById[e.itemId];
     return !!it && (isConsumable(it) || it.waterL > 0);
   };
   const sumOf = (list) => list.reduce((t, e) => t + (w(e) ?? 0), 0);
   const missOf = (list) => list.filter((e) => w(e) == null).length;
+  const onMeEntry = (e) => e.slot === 'body' || worn(e.slot);
   const eatList = trip.entries.filter(eats);
-  const wornList = trip.entries.filter((e) => e.slot === 'body' && !eats(e));
-  const baseList = trip.entries.filter((e) => e.slot !== 'body' && !eats(e));
+  const wornList = trip.entries.filter((e) => onMeEntry(e) && !eats(e));
+  const baseList = trip.entries.filter((e) => !onMeEntry(e) && !eats(e));
   const consumablesG = sumOf(eatList);
-  const wornG = sumOf(wornList);
+  const wornG = sumOf(wornList) + wornBagsG;
   const baseG = sumOf(baseList);
   const unweighed = missOf(trip.entries);
   const bikeKind = bikeWeightKind(bike);
@@ -198,18 +226,20 @@ export function tripStats(trip, items, containers, bike, riderG) {
     wornG,
     consumablesG,
     bagsG,
+    wornBagsG,
     bikeG,
     riderG: riderG ?? 0,
     systemG: gearG + onMeG + bagsG + bikeG + (riderG ?? 0),
     unweighed,
-    gearMissing: zones.filter((z) => z.key !== 'body').reduce((t, z) => t + z.unweighed, 0),
-    onMeMissing: zones.filter((z) => z.key === 'body').reduce((t, z) => t + z.unweighed, 0),
+    gearMissing: zones.filter((z) => !onMe(z)).reduce((t, z) => t + z.unweighed, 0),
+    onMeMissing: zones.filter(onMe).reduce((t, z) => t + z.unweighed, 0) + wornBagsMissing,
     baseMissing: missOf(baseList),
-    wornMissing: missOf(wornList),
+    wornMissing: missOf(wornList) + wornBagsMissing,
     consumablesMissing: missOf(eatList),
     bagsMissing,
+    wornBagsMissing,
     // Items, bags, the bike and the rider without a weight: what the system weight leaves out.
-    systemMissing: unweighed + bagsMissing + (bike?.weightG ? 0 : 1) + (riderG ? 0 : 1),
+    systemMissing: unweighed + bagsMissing + wornBagsMissing + (bike?.weightG ? 0 : 1) + (riderG ? 0 : 1),
     // 'measured' | 'estimate' | 'missing': an estimated bike weight makes the system weight an estimate.
     bikeKind,
     count: trip.entries.length,
@@ -256,7 +286,8 @@ export function whenLabel(iso, today) {
  */
 export function absorbBags(trip, containers, fixtures = []) {
   const byItem = {};
-  for (const c of containers) if (c.itemId && !byItem[c.itemId]) byItem[c.itemId] = c;
+  // v0.37.0 (Noah 4a): a vest that is also clothing (alsoItem) stays a normal item on the list.
+  for (const c of containers) if (c.itemId && !c.alsoItem && !byItem[c.itemId]) byItem[c.itemId] = c;
   const setup = { ...(trip.setup ?? {}) };
   const entries = [];
   for (const e of trip.entries ?? []) {
@@ -272,7 +303,8 @@ export function absorbBags(trip, containers, fixtures = []) {
 }
 
 /** Items that are bags in the bag list (they go on the bike, not into a bag). */
-export const bagItemIds = (containers) => new Set(containers.map((c) => c.itemId).filter(Boolean));
+// v0.37.0 (Noah 4a): except a bag that is also an item (a vest with pockets): it stays in the lists.
+export const bagItemIds = (containers) => new Set(containers.filter((c) => !c.alsoItem).map((c) => c.itemId).filter(Boolean));
 
 /**
  * Start-up step: trips from the Excel import get a bike, a bag setup and a ready check,
@@ -389,7 +421,8 @@ export function axleLoad(stats, itemsById) {
   // v0.22.0 (AP04): items or bags on the bike without a weight make the split an estimate.
   let missing = 0;
   for (const z of stats.zones) {
-    if (z.key === 'body') continue;
+    // v0.37.0: what the rider wears (body, Back, Hip) is not on a wheel.
+    if (z.key === 'body' || z.worn || isWornSlot(z.key)) continue;
     const box = z.zone.box;
     const share = z.key === 'mounted' || !box ? 0.5 : Math.min(1, Math.max(0, (box.x + box.w / 2 - REAR_X) / (FRONT_X - REAR_X)));
     const bagW = z.bag && !z.bag.pack ? addedWeight(z.bag, itemsById) : 0;

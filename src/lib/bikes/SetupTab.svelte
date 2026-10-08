@@ -12,7 +12,7 @@
   import { localDay } from '../localday.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind } from '../bikes.js';
+  import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf } from '../bikes.js';
   import { formatWeight, parseGrams } from '../gear.js';
   import { Briefcase, Plus, ChevronRight, Scale, Bike, Gauge, Camera, User } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
@@ -142,14 +142,17 @@
   // Places on the drawing: the bike's places (while editing the mounts: every place).
   const places = $derived.by(() => {
     if (!bike) return [];
-    return SLOTS.filter((s) => editMounts || bike.slots.includes(s.key)).map((s) => {
-      const on = bike.slots.includes(s.key);
+    // v0.37.0: the worn places (Back, Hip) are always there; they are no mounts to switch.
+    return (editMounts ? MOUNTS : placesOf(bike)).map((s) => {
+      const on = s.worn || bike.slots.includes(s.key);
       const bag = on ? bags.find((b) => b.id === bike.setup?.[s.key]) : null;
       return { key: s.key, name: t(s.name), box: s.box, on, bag: bag ? { name: bagName(bag.name), sub: bagSub(bag) } : null };
     });
   });
   // The rows of "Standard bags": every place the bike has (while editing the mounts: every place).
-  const rows = $derived(bike ? SLOTS.filter((s) => editMounts || bike.slots.includes(s.key)) : []);
+  const MOUNTS = SLOTS.filter((s) => !s.worn);
+  const rows = $derived(bike ? (editMounts ? MOUNTS : placesOf(bike).filter((s) => !s.worn)) : []);
+  const wornRows = $derived(bike && !editMounts ? placesOf(bike).filter((s) => s.worn) : []);
 
   function pick(key) {
     if (!SLOT[key]) return;
@@ -200,7 +203,7 @@
   }
 
   const onBikes = (bagId) => bikes.filter((b) => Object.values(b.setup ?? {}).includes(bagId)).map((b) => b.name);
-  const bagsBySlot = $derived(SLOTS.map((s) => ({ slot: s, list: bagsFor(s.key, bags) })).filter((g) => g.list.length));
+  const bagsBySlot = $derived(SLOTS.map((s) => ({ slot: s, list: bags.filter((b) => b.slot === s.key) })).filter((g) => g.list.length));
   const sheetOptions = $derived(
     sheet
       ? bagsFor(sheet, bags).map((b) => ({
@@ -243,7 +246,7 @@
         </section>
 
         <section class="card std" aria-labelledby="std-h">
-          <h2 id="std-h">{editMounts ? t('Mounts') : t('Standard bags')}<span class="r">{editMounts ? t('{n} of {all} places', { n: bike.slots.length, all: SLOTS.length }) : t('every new trip')}</span></h2>
+          <h2 id="std-h">{editMounts ? t('Mounts') : t('Standard bags')}<span class="r">{editMounts ? t('{n} of {all} places', { n: bike.slots.filter((k) => MOUNTS.some((m) => m.key === k)).length, all: MOUNTS.length }) : t('every new trip')}</span></h2>
           <ul class="slots">
             {#each rows as s (s.key)}
               {@const on = bike.slots.includes(s.key)}
@@ -257,21 +260,24 @@
                     <button type="button" class="switch" role="switch" aria-checked={on} aria-label={t('Mount: {place}', { place: t(s.name) })} onclick={() => toggleMount(s.key)}><span class="knob"></span></button>
                   </div>
                 {:else}
-                  <button type="button" class="row" id="slot-{s.key}" onclick={() => pick(s.key)}>
-                    <span class="ibox" class:empty={!bag}>{#if bag}<Briefcase size={18} aria-hidden="true" />{:else}<Plus size={18} aria-hidden="true" />{/if}</span>
-                    <span class="nm"><small>{t(s.name)} · {t(s.where)}</small>{#if bag}<b>{bagName(bag.name)}</b>{:else}<b class="quiet">{t('empty · choose a bag')}</b>{/if}{#if bag}<small class="wsm num">{bagSub(bag)}{#if bagWeight(bag) == null}{bagSub(bag) ? ' · ' : ''}{t('not weighed')}{/if}</small>{/if}</span>
-                    {#if bag}<span class="w num">{[bag.volumeL ? formatVolume(bag.volumeL) : '', bagWeight(bag) != null ? formatWeight(bagWeight(bag)) : ''].filter(Boolean).join(' · ')}{#if bagWeight(bag) == null}<span class="nw" title={t('not weighed')}><Scale size={14} aria-hidden="true" /><span class="sr">{t('not weighed')}</span></span>{/if}</span>{/if}
-                    <ChevronRight class="chev" size={18} aria-hidden="true" />
-                  </button>
-                  {#if other}
-                    <p class="trip-bag">{tripOn.title}: {other.none ? t('no bag here') : `${bagName(other.name)}${other.volumeL ? ` ${formatVolume(other.volumeL)}` : ''}`}{#if !other.none}<button type="button" class="link" onclick={() => setBag(s.key, other.id)}>{t('Use as standard')}</button>{/if}</p>
-                  {/if}
+                  {@render slotRow(s, bag, other)}
                 {/if}
               </li>
             {:else}
               <li class="quiet none">{t('No mounts on this bike yet. Tap "Edit mounts".')}</li>
             {/each}
           </ul>
+          {#if wornRows.length}
+            <!-- v0.37.0 (Noah 2a): the worn places, a light header; their weight counts to On me. -->
+            <h3 class="worn-h">{t('On me')}<span class="r">{t('not part of the bike weight')}</span></h3>
+            <ul class="slots">
+              {#each wornRows as s (s.key)}
+                {@const bag = bags.find((b) => b.id === bike.setup?.[s.key])}
+                {@const other = tripBag(s.key)}
+                <li class:active={activeSlot === s.key}>{@render slotRow(s, bag, other)}</li>
+              {/each}
+            </ul>
+          {/if}
           {#if !editMounts}<p class="note">{t('Pack starts every new trip on this bike with them; a trip can change its own.')}</p>{/if}
         </section>
       </div>
@@ -342,6 +348,19 @@
   {#if !bike}{@render rest()}{/if}
 </div>
 
+
+{#snippet slotRow(s, bag, other)}
+                  <button type="button" class="row" id="slot-{s.key}" onclick={() => pick(s.key)}>
+                    <span class="ibox" class:empty={!bag}>{#if bag}<Briefcase size={18} aria-hidden="true" />{:else}<Plus size={18} aria-hidden="true" />{/if}</span>
+                    <span class="nm"><small>{t(s.name)} · {t(s.where)}</small>{#if bag}<b>{bagName(bag.name)}</b>{:else}<b class="quiet">{t('empty · choose a bag')}</b>{/if}{#if bag}<small class="wsm num">{bagSub(bag)}{#if bagWeight(bag) == null}{bagSub(bag) ? ' · ' : ''}{t('not weighed')}{/if}</small>{/if}</span>
+                    {#if bag}<span class="w num">{[bag.volumeL ? formatVolume(bag.volumeL) : '', bagWeight(bag) != null ? formatWeight(bagWeight(bag)) : ''].filter(Boolean).join(' · ')}{#if bagWeight(bag) == null}<span class="nw" title={t('not weighed')}><Scale size={14} aria-hidden="true" /><span class="sr">{t('not weighed')}</span></span>{/if}</span>{/if}
+                    <ChevronRight class="chev" size={18} aria-hidden="true" />
+                  </button>
+                  {#if other}
+                    <p class="trip-bag">{tripOn.title}: {other.none ? t('no bag here') : `${bagName(other.name)}${other.volumeL ? ` ${formatVolume(other.volumeL)}` : ''}`}{#if !other.none}<button type="button" class="link" onclick={() => setBag(s.key, other.id)}>{t('Use as standard')}</button>{/if}</p>
+                  {/if}
+{/snippet}
+
 <!-- Settings and the bag list are there also without a bike. -->
 {#snippet rest()}
   <SetupFold icon={User} label={t('Settings')} summary={t('Rider {weight} · rear wheel hint over {pct} %', { weight: $riderQ?.value ? formatWeight($riderQ.value) : t('not set'), pct: $rearQ?.value ?? 60 })}>
@@ -360,7 +379,7 @@
 
   <SetupFold icon={Briefcase} label={t('Your bags')} summary={tn(bags.length, '{n} bag or cage', '{n} bags and cages')}>
     <div class="bl-h">
-      <p class="note">{t('Every bag and cage that can go on a bike. The weight comes from the linked gear item.')}</p>
+      <p class="note">{t('Every bag, cage and backpack. The weight comes from the linked gear item or from the bag itself.')}</p>
       <button type="button" class="btn hi" onclick={() => (dialog = { bag: null })}>{t('Add bag')}</button>
     </div>
     {#each bagsBySlot as g (g.slot.key)}
@@ -460,6 +479,21 @@
   }
   .std {
     margin-bottom: 12px;
+  }
+  .worn-h {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 14px 0 2px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .worn-h .r {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink-3);
   }
   .std h2,
   .slot-h {

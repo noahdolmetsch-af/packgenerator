@@ -16,7 +16,7 @@
  * "{used} of {cap} L" per bag only when every bag in use AND every item in those bags has litres.
  * Pure functions, tested in tests/bagsuggest.test.js.
  */
-import { SLOTS } from './bikes.js';
+import { SLOTS, isWornSlot } from './bikes.js';
 import { isWorn } from './blocks2026.js';
 
 /** The item sets that get a place suggestion. */
@@ -40,7 +40,7 @@ export function poorPlace(entry, item, trip) {
 function bestPlace(item, trip, bike, containers) {
   const order = item.sets?.includes('sleep') ? SLEEP_PLACES : COOK_PLACES;
   const setup = trip.setup ?? {};
-  if (item.defaultBag && setup[item.defaultBag] && item.defaultBag !== 'carry') return { slot: item.defaultBag, bagId: setup[item.defaultBag], addBag: false };
+  if (item.defaultBag && setup[item.defaultBag] && !isWornSlot(item.defaultBag)) return { slot: item.defaultBag, bagId: setup[item.defaultBag], addBag: false };
   const own = order.find((s) => setup[s]);
   if (own) return { slot: own, bagId: setup[own], addBag: false };
   // No bag of the trip fits: a free place of the bike with a bag in the bag list, for this trip only.

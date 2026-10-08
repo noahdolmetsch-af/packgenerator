@@ -21,7 +21,7 @@
 
   // Where a place sits around the bike: the body places on the left, then the bike in three
   // columns (rear, frame, front) and three rows. Bottle cages sit low in the frame, where they are.
-  const ME = ['body', 'carry', 'mounted'];
+  const ME = ['body', 'carry', 'hip', 'mounted']; // v0.37.0: Hip next to Back
   const CELLS = [
     ['r1', ['seat']],
     ['m1', ['ttrear', 'top']],

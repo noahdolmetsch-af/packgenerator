@@ -4,12 +4,12 @@ Stand: 8. Oktober 2026
 
 ## Aktuell live
 
-- **v0.36.0 „Import prüfen“ (Excel-Import Schritt 1, PR #59):** Noahs bereinigte Material-Excel (privat, nicht im Repo) kommt als Datei über Deine Daten in die App und wartet auf der Seite „Import prüfen“ (auch über Material „•••“). Gruppen „Schon da“ (nur ergänzen, nie überschreiben), „Neu“, „Unsicher“ (ein Tipp: dasselbe Teil oder neu) und „Nicht im Import“ (archivieren statt löschen). Ein Knopf „Alle sicheren übernehmen“, vorher automatisches Backup, danach „Rückgängig“. Jedes Teil behält seine Excel-Nummer, ein zweiter Import legt nichts doppelt an. Learnings behalten ihr Datum. Neue Bereiche Velo, Wandern, Alltag.
+- **v0.37.0 „Rucksäcke“:** Rucksäcke, Hüfttaschen und Westen sind echte Taschen unter „Deine Taschen“, mit Litern, Gewicht (vom Ausrüstungsteil oder direkt an der Tasche) und Bereichen. Jedes Velo hat zwei getragene Plätze „Rücken“ (früher „Auf dem Rücken“, gleicher interner Schlüssel) und „Hüfte“; was dort sitzt, zählt zu „Am Körper“, nicht zu Velo, Taschengewicht oder Last pro Rad. Touren ohne Velo wählen ihren echten Rucksack, die App schlägt nach Litern und Bereich vor (Wandern 12–15 L, Weekend und Reisen 2 × 20 L, Ultra-Rennen die Weste auf Rücken); alte Touren behalten den allgemeinen Rucksack und zeigen leise „Echten Rucksack wählen“. Eine Weste kann Kleidung und Tasche zugleich sein. Leiser Hinweis „über {n} L“, wenn die Teile mit bekannten Litern mehr brauchen, als die Tasche fasst; nie bei unbekannten Daten.
 - Was sich pro Release geändert hat, steht unten in der Historie. Entscheidungen: [Entscheidungslog](decisions.md). Arbeitspakete und Reihenfolge: [Roadmap](roadmap.md#stand-und-nächste-pakete-8102026).
 
 ## In Arbeit
 
-- **0.37 Rucksäcke** und der Entwurf für **0.38 „Heute und Menü“** (schnelle Knöpfe, Sprünge, Saison in Zahlen, Bereit-Ampel, neues Menü, kompaktere Listen).
+- **0.38 „Heute und Menü“** (schnelle Knöpfe, Sprünge, Saison in Zahlen, Bereit-Ampel, neues Menü, kompaktere Listen).
 
 ## Offen zur Abnahme
 
@@ -20,6 +20,7 @@ Stand: 8. Oktober 2026
 
 Die folgenden Einträge beschreiben den jeweiligen damaligen Release. Spätere Entscheidungen haben einzelne Layouts, Navigation und Bezeichnungen ersetzt. Für das heutige Verhalten gelten die Abschnitte oben und das Entscheidungslog.
 
+- **Rucksäcke (v0.37.0, 8.10.2026):** Rucksäcke, Hüfttaschen und Westen als echte getragene Taschen mit Litern, Gewicht und Bereichen. Plätze „Rücken“ (Schlüssel `carry` bleibt) und „Hüfte“ (neu) an jedem Velo, gezählt zu „Am Körper“, nicht zu Velo und Achslast. Touren ohne Velo wählen echte Rucksäcke mit Vorschlag nach Litern und Bereich; alte Touren behalten den allgemeinen Rucksack. Weste als Kleidung und Tasche. Liter-Hinweis nur aus bekannten Litern.
 - **Import prüfen (v0.36.0, 8.10.2026, PR #59, Excel-Import Schritt 1):** Material-Liste als Datei laden, auf „Import prüfen“ vergleichen (Schon da / Neu / Unsicher / Nicht im Import), „Alle sicheren übernehmen“ mit Backup und Rückgängig. Bestehende Teile werden nur ergänzt (Bereiche, Körperzone, Schicht, Temperatur, Regel, Notiz, Excel-Nummer). Archivieren statt löschen. Importierte Learnings mit Originaldatum. Neue Bereiche Velo, Wandern, Alltag.
 - **In Bearbeitung und Gespeichert (v0.35.0, 8.10.2026, PR #57, AP29):** Im dunklen Tourband öffnet „{n} weitere ▾“ alle Touren und Rückblicke in Arbeit (am Phone von unten, am Desktop als kleines Fenster), mit Menü „Nicht fahren“, „Verwerfen“, „Tour beenden“, „Ohne Rückblick abschliessen“ und Undo; die Liste räumt sich selbst auf. Nach jeder Änderung kurz „✓ Gespeichert“. Neue Tour, neues Teil und Quick note sind gespeichert, sobald ein Name oder Text getippt ist. „Was die App alles kann“ beginnt mit „Neu in den letzten Updates“, Heute zeigt nach einem Update einmal „Neu seit deinem letzten Besuch“.
 - **Zeitplan, Einkaufen, Laden, Abend (v0.34.0, 8.10.2026, PR #56):** Die dunkle Karte auf Heute zeigt immer den einen nächsten Schritt nach Tagen bis zum Start (Velo-Service, Wetter, Einkaufen und Laden, Packen, Startcheck, Unterwegs, Rückblick), darunter eine kleine Zeitleiste. Pack hat eine Einkaufsliste (Essen mit Menge, als Text teilen) und eine Ladeliste (Elektronik und Licht der Tour). Unterwegs zeigt bei mehreren Tagen einen Abendblock. Das Backup lässt sich ans andere Gerät senden; der Import sagt, ob die Datei neuer oder älter ist. Rundgang-Lücken L1, L3, L4, L8, L10.
