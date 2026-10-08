@@ -4,18 +4,30 @@
  *
  * Order:
  * 1. A trip under way (between its first and last day): bike trip → Ride day, else open the trip.
- * 2. A trip that ended and still wants its debrief, unless the next trip starts within two days.
+ * 2. A trip that ended and still wants its debrief, unless the next trip starts within 14 days.
  *    v0.24.1 (Noah 3a): Today asks "How was {trip}?" with "All good" (saves at once) and
  *    "In detail" (the three steps); the step's label and address are the "In detail" ones.
+ *    v0.30.2 (L6): only a fresh one (ended at most 7 days ago) asks here; an older open debrief
+ *    never pushes the next trip away: it waits in "Also to do" (debrief) with "All good" there.
  * 3. The next trip: within two days → Pack (packing day); all packed → Ride day (bike) / the trip;
  *    nothing on the list yet or later than two days → Continue planning.
  */
-import { nextTrip, toDebrief } from './debrief.js';
+import { nextTrip, toDebrief, tripEnd } from './debrief.js';
 import { packStatus } from './readiness.js';
 import { hasBike } from './domains.js';
 
 /** Whole days from today to an ISO date (both YYYY-MM-DD). */
 export const daysFrom = (today, date) => Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 864e5);
+
+/** v0.30.2 (L6): a trip starting within this many days leads; a debrief this many days old still asks. */
+export const SOON_DAYS = 14;
+export const FRESH_DAYS = 7;
+
+/** The day a trip ended: the day it was ended early (finished), else its last day. */
+export const endedOn = (trip) => {
+  const end = tripEnd(trip);
+  return trip?.finished && (!end || trip.finished < end) ? trip.finished : end;
+};
 
 /**
  * The step: its button text (English key for t()), address and short reason (English key).
@@ -36,6 +48,7 @@ export const STEP = {
  * trip: the trip shown and opened (the action always opens exactly this one);
  * next: the next upcoming trip (may be another one when the debrief leads); debrief: a trip
  * still waiting for its debrief that is not the lead.
+ * Without a trip to lead with it is null; an older open debrief then is openDebrief()'s.
  */
 export function todayFocus(trips, debriefs, today) {
   const next = nextTrip(trips, today);
@@ -44,8 +57,9 @@ export function todayFocus(trips, debriefs, today) {
   const bike = next ? hasBike(next) : false;
   let trip = next;
   let kind = null;
+  const fresh = !!waiting && daysFrom(endedOn(waiting), today) <= FRESH_DAYS;
   if (next && days <= 0) kind = bike ? 'ride' : 'trip';
-  else if (waiting && (!next || days > 2)) (trip = waiting), (kind = 'debrief');
+  else if (fresh && (!next || days > SOON_DAYS)) (trip = waiting), (kind = 'debrief');
   else if (next) {
     const s = packStatus(next);
     if (days > 2 || s.status === 'empty') kind = 'plan';
@@ -66,3 +80,9 @@ export function todayFocus(trips, debriefs, today) {
     debrief: kind === 'debrief' ? null : waiting,
   };
 }
+
+/**
+ * v0.30.2 (L6): the open debrief for "Also to do" (a trip, or null): the one waiting beside the
+ * trip Today leads with, or, with nothing to lead with, the newest waiting one.
+ */
+export const openDebrief = (focus, trips, debriefs, today) => (focus ? focus.debrief : (toDebrief(trips, debriefs, today)[0] ?? null));

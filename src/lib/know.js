@@ -5,10 +5,14 @@
  * Pure functions (no database, no screen): Home gathers the records, knowCards() decides which
  * cards show, in which order and with what numbers; GoodToKnow.svelte only writes the words.
  *
+ * v0.30.2 (L5): Today says each thing once. What is to do (the backup, bike care due now, event
+ * preparation, the Inbox) is a line in "Also to do"; Good to know no longer repeats it: no backup
+ * and no Inbox card, and the wear forecast keeps only what is not due yet ("due in about N km").
+ *
  * Priority (lower = higher up):
- *   1  backup due, wear part due now, Still open with a late row
+ *   1  Still open with a late row
  *   2  weather of the next trip within 3 days, wear part due soon
- *   3  Inbox notes, Still open, a running demo, suggestions for your templates (v0.28.0, AP25 6a)
+ *   3  Still open, a running demo, suggestions for your templates (v0.28.0, AP25 6a)
  *   4  weekend ride weather (Thursday to Sunday)
  *   5  insights: wear forecast, season, weight trend, best upgrade, long not used, learnings, pace,
  *      the weekend weather from Monday to Wednesday
@@ -268,9 +272,9 @@ export function templateHintCount(templates = [], trips = [], debriefs = [], ite
 
 /**
  * The cards to show, most urgent first: [{ key, prio, data }]. Every input is optional.
- * todos: openTodos() rows; backup: { due, days, afterTrip }; demo: the running demo or null;
+ * todos: openTodos() rows; demo: the running demo or null;
  * next: the next trip; fc: its forecast weather (toWx) or null; sun: { rise, set } or null;
- * tips: learningsFor(); pace: paceOf(); notes: open Inbox notes;
+ * tips: learningsFor(); pace: paceOf();
  * homePlace / homeForecast: the setting and the saved forecast; placeLoading: the setting is not
  * read yet (neither the weekend card nor the set-up card then); now: ms (for the 12-hour rule).
  * templates: the saved templates (v0.28.0: a card when they have suggestions).
@@ -279,14 +283,12 @@ export function knowCards({
   today,
   now = Date.now(),
   todos = [],
-  backup = { due: false },
   demo = null,
   next = null,
   fc = null,
   sun = null,
   tips = [],
   pace = null,
-  notes = [],
   bikes = [],
   trips = [],
   debriefs = [],
@@ -301,18 +303,19 @@ export function knowCards({
   const cards = [];
   const add = (key, prio, data = {}) => cards.push({ key, prio, data });
 
-  if (backup?.due) add('backup', 1, backup);
-  else if (demo) add('demo', 3, demo);
+  // v0.30.2 (L5): the backup reminder is a line in "Also to do" (no card here); the demo card stays.
+  if (demo) add('demo', 3, demo);
   if (todos.length) add('todo', todos.some((r) => r.late) ? 1 : 3, { rows: todos });
 
-  const wear = wearForecast(bikes, trips, debriefs, today);
+  // v0.30.2 (L5): what is due now is Bike care's (Also to do, the Bikes place); the forecast only looks ahead.
+  const wear = wearForecast(bikes, trips, debriefs, today).filter((r) => r.left > 0);
   if (wear.length) add('wear', wear[0].prio, { rows: wear });
 
   if (next && (fc || sun)) {
     const days = next.startDate ? Math.round((ms(next.startDate) - ms(today)) / DAY) : null;
     add('weather', days != null && days <= 3 ? 2 : 5, { trip: next, fc, sun, days });
   }
-  if (notes.length) add('inbox', 3, { notes });
+  // v0.30.2 (L5): the Inbox has its line in "Also to do" ("{n} notes to sort"), no card here.
   const hintN = templateHintCount(templates, trips, debriefs, items);
   if (hintN > 0) add('templates', 3, { n: hintN });
 

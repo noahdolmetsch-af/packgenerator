@@ -2,7 +2,7 @@
 // further one, at least 3 tips; which tips, the same all day, "I know it", the 30-day rest, used.
 import { describe, it, expect } from 'vitest';
 import {
-  TIPS, TIP, GROUPS, TILES, usedTips, fittingTips, pickTips, markShown, tapTip, knowTip, isPaused, todayTiles, phoneSplit, overview, tipState, isImportant, seed,
+  TIPS, TIP, GROUPS, TILES, tipPossible, usedTips, fittingTips, pickTips, markShown, tapTip, knowTip, isPaused, todayTiles, phoneSplit, overview, tipState, isImportant, seed,
 } from '../src/lib/tips.js';
 import { knowCards } from '../src/lib/know.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -198,5 +198,25 @@ describe('on a phone', () => {
     expect(r.shown.map((x) => x.id ?? x.card.key)).toEqual(['backup', 'a', 'b']);
     expect(r.more.map((x) => x.id ?? x.card.key)).toEqual(['inbox', 'c', 'd']);
     expect(phoneSplit([t('a'), t('b'), t('c'), t('d')]).shown).toHaveLength(3);
+  });
+});
+
+// v0.30.2 (L9): a tip whose sentence or button needs data waits until there is some.
+describe('tips that need data', () => {
+  const ids = (data) => TIPS.filter((x) => tipPossible(x, data, TODAY)).map((x) => x.id);
+  it('an empty app: only the tips that work without data', () => {
+    expect(ids({})).toEqual(['homeweather', 'note', 'pace', 'install', 'lang', 'demo']);
+    expect(pickTips({ today: TODAY, n: 6, pool: TIPS.filter((x) => tipPossible(x, {}, TODAY)) })).not.toContain('dayride');
+  });
+  it('a ride like your last one needs a past trip; long not used needs items and a trip; ride day a trip', () => {
+    const planned = [{ id: 'test_data_gtp_a', startDate: '2026-10-20' }];
+    expect(ids({ trips: planned })).toEqual(expect.arrayContaining(['ride', 'gpx', 'share']));
+    expect(ids({ trips: planned })).not.toContain('dayride');
+    expect(ids({ trips: [{ id: 'test_data_gtp_b', startDate: '2026-09-20' }] })).toContain('dayride');
+    expect(ids({ items: [{ id: 'test_data_gtp_i', ownership: 'owned' }] })).not.toContain('unused');
+    expect(ids({ items: [{ id: 'test_data_gtp_i', ownership: 'owned' }], trips: planned })).toContain('unused');
+    expect(ids({ bikes: [{ id: 'test_data_gtp_bike' }] })).toEqual(expect.arrayContaining(['care', 'km', 'setup', 'backup']));
+    // a skipped trip alone is no trip
+    expect(ids({ trips: [{ ...planned[0], skipped: true }] })).not.toContain('ride');
   });
 });

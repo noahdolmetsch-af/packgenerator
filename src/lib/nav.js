@@ -32,6 +32,15 @@ export const openNew = (mode = 'all') => (mode === 'list' ? newTrip('standard') 
 export const openTrip = (id) => keep('pack.currentTrip', id);
 
 /**
+ * v0.30.2 (L5): the event preparation is the trip's: Today's line opens the trip (Plan, #/pack)
+ * with "Before the trip" open, where the tasks are ticked off.
+ */
+export function openPrep(id) {
+  openTrip(id);
+  keep('pack.before', id);
+}
+
+/**
  * New packing list: from a template (its id), 'last' (copy the last trip on the bike, or of the
  * area) or 'standard'. domain (v0.21.0): the area chosen in the "New" sheet.
  */

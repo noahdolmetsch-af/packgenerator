@@ -37,6 +37,7 @@
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
+  import { tickPrep, untickPrep } from '../lib/care/prep.js';
   import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, wxLabel, bikeShort, shortDate } from '../lib/dayride.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
@@ -130,6 +131,35 @@
     // v0.22.1 (Noah 4b): shown on every bike trip, so the Event switch is always in reach.
     return { care, prep, open, event: isEvent(trip) };
   });
+  // v0.30.2 (L5): the event preparation is the trip's: ticked off right here, the same way as in
+  // Bikes → Care (care/prep.js). Today's line "Tick off in the trip" opens this fold (nav.js openPrep).
+  let beforeOpen = $state(false);
+  let beforeEl = $state();
+  let wantBefore = take('pack.before'); // once: a later change of the trip must not open it again
+  $effect(() => {
+    if (!wantBefore || !before || !beforeEl || trip?.id !== wantBefore) return;
+    wantBefore = null;
+    beforeOpen = true;
+    queueMicrotask(() => beforeEl?.scrollIntoView({ block: 'start' }));
+  });
+  const prepBy = () => {
+    try {
+      return localStorage.getItem('care.by') ?? 'self';
+    } catch {
+      return 'self';
+    }
+  };
+  let prepTicked = $state(null); // { tripId, row } while "Ticked off … Undo" shows
+  async function tickRow(row) {
+    const id = trip.id;
+    await tickPrep(db, id, [$state.snapshot(row)], 'done', { today, by: prepBy(), note: t('Before {trip}', { trip: trip.title }) });
+    prepTicked = { tripId: id, row: $state.snapshot(row) };
+  }
+  async function untickRow() {
+    const x = prepTicked;
+    prepTicked = null;
+    if (x) await untickPrep(db, x.tripId, x.row);
+  }
   // Design audit P4: after the trip, Pack leads to the debrief.
   const over = $derived(trip ? isOver(trip) : false);
   // Start page "Print list": #/pack?print opens the print dialog once the trip is there.
@@ -715,7 +745,7 @@
     {/snippet}
     {#snippet preparation()}
       {#if before}
-        <details class="tp-fold calm-extra">
+        <details class="tp-fold calm-extra" bind:open={beforeOpen} bind:this={beforeEl}>
           <!-- v0.25.0 (Noah 10): a short ride has no bike care line; then the ready check says where it stands.
                v0.29.0 (Noah 1a): one row with badges; the sentences inside. -->
           <summary><Wrench size={20} aria-hidden="true" /><span>{t('Before the trip')}</span><span class="r">{#if before.care}{@const w = bikeCareWords(before.care)}<i class="tp-badge" class:warn={w.tone === 'due' || w.tone === 'late'}>{t('Bike care {state}', { state: w.tag })}</i>{/if}{#if before.prep.total}<i class="tp-badge" class:warn={before.prep.open > 0}>{eventPrepLine(before.prep)}</i>{/if}{#if !before.care && !before.prep.total}<i class="tp-badge">{t('Ready check {done} / {n}', { done: readyCount, n: readyTotal })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
@@ -728,8 +758,10 @@
             <label class="ev"><input type="checkbox" checked={before.event} onchange={(e) => setEvent(e.currentTarget.checked)} /> {t('Event (race or organised ride): show the event preparation')}</label>
             {#if before.prep.total}
               <p>{eventPrepLine(before.prep)}</p>
-              <ul>{#each before.open as row (row.task.id)}<li><b>{row.task.task}</b> {row.needed ? t('work needed') : row.overdue ? overdueFor(row.due, today) : t('by {date}', { date: row.due ?? '–' })}</li>{/each}</ul>
-              <a href={before.prep.href}>{t('Tick off in Bike care')}</a>
+              <!-- v0.30.2 (L5): each task is ticked off here; "Checked, all OK" and "Work needed" stay in Bike care. -->
+              <ul class="prep-rows">{#each before.open as row (row.task.id)}<li><span><b>{row.task.task}</b> {row.needed ? t('work needed') : row.overdue ? overdueFor(row.due, today) : t('by {date}', { date: row.due ?? '–' })}</span><button type="button" class="btn sm" onclick={() => tickRow(row)} aria-label={t('Done: {task}', { task: row.task.task })}>{t('Done|task')}</button></li>{/each}</ul>
+              {#if prepTicked?.tripId === trip.id}<p class="prep-note" role="status"><span>{t('Ticked off: {task}', { task: prepTicked.row.task.task })}</span> <button type="button" class="text-button" onclick={untickRow}>{t('Undo')}</button></p>{/if}
+              <a href={before.prep.href}>{t('More options in Bike care')}</a>
             {/if}
           </div>
         </details>
@@ -765,6 +797,13 @@
 
 <style>
   .print { display: none; }
+  /* v0.30.2 (L5): event preparation ticked off in the trip; the button a full 44 px target. */
+  .prep-rows { list-style: none; padding: 0; }
+  .prep-rows li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+  .prep-rows li > span { flex: 1 1 12em; min-width: 0; overflow-wrap: anywhere; }
+  .prep-rows .btn { min-height: 44px; }
+  .prep-note { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+  .prep-note .text-button { min-height: 44px; }
   /* v0.26.0 (Noah 3a): building block chips in "Add material". */
   .blockchips { display: grid; gap: 6px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }

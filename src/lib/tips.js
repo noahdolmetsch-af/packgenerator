@@ -47,44 +47,64 @@ export const GROUPS = [
  * The tips (English keys for t()). icon: a name in the icon map of the screens.
  * go: what the button does: { href } opens a page, { run } names an action the screen carries out
  * (dayRide, newTrip, note, receipt, km, backup, data, homePlace, install, lang).
+ * needs (v0.30.2, L9): the data the tip's sentence and button need, one or a list of 'trip' (any
+ * trip), 'pastTrip' (one that started already), 'items', 'bikes', 'any' (anything at all); none: always.
  */
 export const TIPS = [
   // Plan
-  { id: 'dayride', group: 'plan', icon: 'zap', title: 'Day ride in 1 tap', text: 'One tap plans a short ride like your last one, with the weather.', button: 'Plan a day ride', go: { run: 'dayRide' } },
-  { id: 'blocks', group: 'plan', icon: 'blocks', title: 'New trip with building blocks', text: 'Building blocks such as sleep, cook or rain bring their items into a new trip.', button: 'Show building blocks', go: { href: '#/blocks' } },
-  { id: 'templates', group: 'plan', icon: 'copy', title: 'Templates', text: 'Save a good trip as a template and start the next one from it.', button: 'Open templates', go: { href: '#/pack/templates' } },
-  { id: 'gpx', group: 'plan', icon: 'route', title: 'Load a route (GPX)', text: 'Load a GPX route into a trip: km, climbing and riding time come from it.', button: 'Open the trip', go: { href: '#/pack' } },
+  { id: 'dayride', group: 'plan', icon: 'zap', title: 'Day ride in 1 tap', text: 'One tap plans a short ride like your last one, with the weather.', button: 'Plan a day ride', go: { run: 'dayRide' }, needs: 'pastTrip' },
+  { id: 'blocks', group: 'plan', icon: 'blocks', title: 'New trip with building blocks', text: 'Building blocks such as sleep, cook or rain bring their items into a new trip.', button: 'Show building blocks', go: { href: '#/blocks' }, needs: 'items' },
+  { id: 'templates', group: 'plan', icon: 'copy', title: 'Templates', text: 'Save a good trip as a template and start the next one from it.', button: 'Open templates', go: { href: '#/pack/templates' }, needs: 'trip' },
+  { id: 'gpx', group: 'plan', icon: 'route', title: 'Load a route (GPX)', text: 'Load a GPX route into a trip: km, climbing and riding time come from it.', button: 'Open the trip', go: { href: '#/pack' }, needs: 'trip' },
   { id: 'homeweather', group: 'plan', icon: 'home', title: 'Weather at your home place', text: 'Set your home place and see here what the weekend brings for a ride.', button: 'Set home place', go: { run: 'homePlace' } },
-  { id: 'wxsuggest', group: 'plan', icon: 'cloud', title: 'Weather suggestions', text: 'The weather suggestions of a trip add the layers that fit the forecast.', button: 'Open the trip', go: { href: '#/pack' } },
+  { id: 'wxsuggest', group: 'plan', icon: 'cloud', title: 'Weather suggestions', text: 'The weather suggestions of a trip add the layers that fit the forecast.', button: 'Open the trip', go: { href: '#/pack' }, needs: 'trip' },
   // Packing & on the way
-  { id: 'bags', group: 'pack', icon: 'backpack', title: 'Pack bag by bag', text: 'Pack bag by bag and tick each item as it goes in.', button: 'Start packing|tips', go: { href: '#/pack?day' } },
-  { id: 'share', group: 'pack', icon: 'printer', title: 'Share or print a list (PDF)', text: 'Share a packing list as a link, or print it or save it as PDF.', button: 'Print / PDF', go: { href: '#/pack?print' } },
-  { id: 'ride', group: 'pack', icon: 'navigation', title: 'The Now card on the way', text: 'On the way, the Now card shows the next stage, the weather and where each thing is.', button: 'Open Ride day', go: { href: '#/ride' } },
+  { id: 'bags', group: 'pack', icon: 'backpack', title: 'Pack bag by bag', text: 'Pack bag by bag and tick each item as it goes in.', button: 'Start packing|tips', go: { href: '#/pack?day' }, needs: 'trip' },
+  { id: 'share', group: 'pack', icon: 'printer', title: 'Share or print a list (PDF)', text: 'Share a packing list as a link, or print it or save it as PDF.', button: 'Print / PDF', go: { href: '#/pack?print' }, needs: 'trip' },
+  { id: 'ride', group: 'pack', icon: 'navigation', title: 'The Now card on the way', text: 'On the way, the Now card shows the next stage, the weather and where each thing is.', button: 'Open Ride day', go: { href: '#/ride' }, needs: 'trip' },
   { id: 'note', group: 'pack', icon: 'note', title: 'Quick note|tips', text: 'A quick note catches an idea or a photo in two taps; you sort it later.', button: 'Write a note', go: { run: 'note' } },
-  { id: 'event', group: 'pack', icon: 'flag', title: 'Event preparation', text: 'For an event, preparation tasks count down to the start with their lead times.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' } },
+  { id: 'event', group: 'pack', icon: 'flag', title: 'Event preparation', text: 'For an event, preparation tasks count down to the start with their lead times.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' }, needs: 'trip' },
   // Looking back
-  { id: 'debrief', group: 'back', icon: 'message', title: 'Debrief in 1 minute', text: 'A debrief takes a minute and tells the app what you really used.', button: 'Open debriefs', go: { href: '#/debrief' } },
-  { id: 'learn', group: 'back', icon: 'sparkles', title: 'Templates that learn (after 3 debriefs)', text: 'After 3 debriefs your templates suggest what to take out or add.', button: 'Open templates', go: { href: '#/pack/templates' } },
+  { id: 'debrief', group: 'back', icon: 'message', title: 'Debrief in 1 minute', text: 'A debrief takes a minute and tells the app what you really used.', button: 'Open debriefs', go: { href: '#/debrief' }, needs: 'trip' },
+  { id: 'learn', group: 'back', icon: 'sparkles', title: 'Templates that learn (after 3 debriefs)', text: 'After 3 debriefs your templates suggest what to take out or add.', button: 'Open templates', go: { href: '#/pack/templates' }, needs: 'trip' },
   { id: 'pace', group: 'back', icon: 'gauge', title: 'Your pace', text: 'Load a few GPX rides and riding times use your own pace.', button: 'Show your pace', go: { href: '#/debrief/pace' } },
-  { id: 'trend', group: 'back', icon: 'trend', title: 'Weight trend', text: 'Compare trips and see how your base weight changes trip by trip.', button: 'Compare trips', go: { href: '#/debrief/compare' } },
+  { id: 'trend', group: 'back', icon: 'trend', title: 'Weight trend', text: 'Compare trips and see how your base weight changes trip by trip.', button: 'Compare trips', go: { href: '#/debrief/compare' }, needs: 'trip' },
   // Gear
-  { id: 'weigh', group: 'gear', icon: 'scale', title: 'Weigh items', text: 'Weigh your items one after the other: then every total is exact.', button: 'Start weighing', go: { href: '#/gear?tab=weigh' } },
-  { id: 'fav', group: 'gear', icon: 'star', title: 'Favourites ★', text: 'Mark your favourite things with ★ and find them all on one page.', button: 'Show favourites', go: { href: '#/favorites' } },
-  { id: 'wish', group: 'gear', icon: 'gift', title: 'Wishlist & best upgrade', text: 'The wishlist shows which buy saves the most grams per franc.', button: 'Open wishlist', go: { href: '#/gear?tab=wishlist' } },
-  { id: 'unused', group: 'gear', icon: 'archive', title: 'Long not used', text: 'See which items were on no trip for 12 months.', button: 'Look through', go: { href: '#/gear?unused=1' } },
+  { id: 'weigh', group: 'gear', icon: 'scale', title: 'Weigh items', text: 'Weigh your items one after the other: then every total is exact.', button: 'Start weighing', go: { href: '#/gear?tab=weigh' }, needs: 'items' },
+  { id: 'fav', group: 'gear', icon: 'star', title: 'Favourites ★', text: 'Mark your favourite things with ★ and find them all on one page.', button: 'Show favourites', go: { href: '#/favorites' }, needs: 'items' },
+  { id: 'wish', group: 'gear', icon: 'gift', title: 'Wishlist & best upgrade', text: 'The wishlist shows which buy saves the most grams per franc.', button: 'Open wishlist', go: { href: '#/gear?tab=wishlist' }, needs: 'items' },
+  { id: 'unused', group: 'gear', icon: 'archive', title: 'Long not used', text: 'See which items were on no trip for 12 months.', button: 'Look through', go: { href: '#/gear?unused=1' }, needs: ['items', 'trip'] },
   // Bikes
-  { id: 'setup', group: 'bikes', icon: 'bike', title: 'Bike setup', text: 'The bike setup shows which bag sits where, with its weight.', button: 'Open setup', go: { href: '#/bikes' } },
-  { id: 'care', group: 'bikes', icon: 'wrench', title: 'Bike care', text: 'Bike care tells you when the chain, pads and tyres are due.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' } },
-  { id: 'order', group: 'bikes', icon: 'clipboard', title: 'Workshop order', text: 'A workshop order lists what the shop should do, ready to print.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' } },
-  { id: 'receipt', group: 'bikes', icon: 'camera', title: 'Photograph a receipt', text: 'Take a photo of the workshop receipt; it waits in the Inbox.', button: 'Photo of a receipt', go: { run: 'receipt' } },
-  { id: 'km', group: 'bikes', icon: 'counter', title: 'Log km', text: 'Type the km on the counter, and Bike care knows what is due.', button: 'Log km', go: { run: 'km' } },
+  { id: 'setup', group: 'bikes', icon: 'bike', title: 'Bike setup', text: 'The bike setup shows which bag sits where, with its weight.', button: 'Open setup', go: { href: '#/bikes' }, needs: 'bikes' },
+  { id: 'care', group: 'bikes', icon: 'wrench', title: 'Bike care', text: 'Bike care tells you when the chain, pads and tyres are due.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' }, needs: 'bikes' },
+  { id: 'order', group: 'bikes', icon: 'clipboard', title: 'Workshop order', text: 'A workshop order lists what the shop should do, ready to print.', button: 'Open Bike care', go: { href: '#/bikes?tab=care' }, needs: 'bikes' },
+  { id: 'receipt', group: 'bikes', icon: 'camera', title: 'Photograph a receipt', text: 'Take a photo of the workshop receipt; it waits in the Inbox.', button: 'Photo of a receipt', go: { run: 'receipt' }, needs: 'bikes' },
+  { id: 'km', group: 'bikes', icon: 'counter', title: 'Log km', text: 'Type the km on the counter, and Bike care knows what is due.', button: 'Log km', go: { run: 'km' }, needs: 'bikes' },
   // Your data
-  { id: 'backup', group: 'data', icon: 'save', title: 'Backup', text: 'A backup file keeps your data safe and moves it to another device.', button: 'Download backup', go: { run: 'backup' } },
+  { id: 'backup', group: 'data', icon: 'save', title: 'Backup', text: 'A backup file keeps your data safe and moves it to another device.', button: 'Download backup', go: { run: 'backup' }, needs: 'any' },
   { id: 'install', group: 'data', icon: 'phone', title: 'Use it offline (home screen)', text: 'Add the app to your home screen: it opens like an app and works offline.', button: 'Add to home screen', go: { run: 'install' } },
   { id: 'lang', group: 'data', icon: 'languages', title: 'Deutsch / English', text: 'The app speaks German and English; switch whenever you like.', button: 'Switch language', go: { run: 'lang' } },
   { id: 'demo', group: 'data', icon: 'play', title: 'Try a demo', text: 'Try a demo file: your own data waits aside until you end it.', button: 'Open your data', go: { run: 'data' } },
 ];
 export const TIP = Object.fromEntries(TIPS.map((x) => [x.id, x]));
+
+/* ---------- possible: the data a tip needs is there (v0.30.2, L9) ---------- */
+
+/**
+ * Can the tip show with this data? A new user with an empty app sees no "a ride like your last one"
+ * and no "items not on any trip for 12 months". Demo trips count: they are data on the screen too.
+ */
+export function tipPossible(tip, { trips = [], items = [], bikes = [] } = {}, today) {
+  const real = trips.filter((t) => !t.skipped);
+  const have = {
+    trip: real.length > 0,
+    pastTrip: real.some((t) => t.startDate && t.startDate <= today),
+    items: items.some(isInventory),
+    bikes: bikes.length > 0,
+    any: trips.length > 0 || items.length > 0 || bikes.length > 0,
+  };
+  return [tip?.needs ?? []].flat().every((k) => have[k]);
+}
 
 /* ---------- used: seen in the data ---------- */
 
