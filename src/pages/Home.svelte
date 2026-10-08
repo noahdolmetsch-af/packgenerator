@@ -32,7 +32,6 @@
   import { withVisits, costByYear, tripPrep, tyreSetup } from '../lib/workshop.js';
   import { tripSchedule, stepWords, stepHref, STEP_NAME, shortDay, weatherKnown } from '../lib/schedule.js';
   import { shopList, shopCount } from '../lib/shop.js';
-  import { chargeList, chargeCount } from '../lib/charge.js';
   import { layerSuggest, openRows } from '../lib/layers.js';
   import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine, packStatus, packLine, isShortRide } from '../lib/readiness.js';
   import { tripStats, daysUntil } from '../lib/trips.js';
@@ -130,7 +129,9 @@
       service,
       weather: { known: weatherKnown(lead), open: byBike ? openRows(layerSuggest(lead, items), lead).length : 0 },
       shop: shopCount(shopList(lead, itemsById)),
-      charge: chargeCount(lead, chargeList(lead, items)),
+      // the charge list (charge.js) stays a link in this step: charging is done the evening before
+      // packing, so unticked devices must not hold back the step "Pack"
+      charge: null,
       debriefDone: debriefs.some((d) => d.tripId === lead.id && d.status === 'done'),
     };
   });
