@@ -62,5 +62,22 @@ export const locale = () => (lang.v === 'de' ? 'de-CH' : 'en-GB');
 /** A number with thousands separators in the current language (1’460 or 1,460). */
 export const num = (n) => (n == null ? '' : Number(n).toLocaleString(lang.v === 'de' ? 'de-CH' : 'en'));
 
+/**
+ * v0.30.2 (test P4.1/PL3.12): a bag's own name (stored as typed, often English like "Seat pack 14 L")
+ * with its common words in German when German is on: "Satteltasche 14 L".
+ */
+const BAG_WORDS = [['Seat pack', 'Satteltasche'], ['Saddle bag', 'Satteltasche'], ['Frame bag', 'Rahmentasche'], ['Top tube bag', 'Oberrohrtasche'], ['Handlebar roll', 'Lenkerrolle'], ['Handlebar bag', 'Lenkertasche'], ['Stem bag', 'Vorbautasche'], ['Feed bag', 'Vorbautasche'], ['Fork cage', 'Gabelhalter'], ['Fork bag', 'Gabeltasche'], ['Downtube bag', 'Unterrohrtasche'], ['Backpack', 'Rucksack'], ['large', 'gross'], ['small', 'klein'], ['medium', 'mittel']];
+export function bagName(name) {
+  const s = String(name ?? '');
+  if (lang.v !== 'de') return s;
+  return BAG_WORDS.reduce((out, [en, de]) => out.replace(new RegExp(`\\b${en}\\b`, 'gi'), de), s);
+}
+
+/** v0.30.2 (test V9.8/V9.12): a stored day ("2026-10-08") as people read it: "8. Okt. 2026" / "8 Oct 2026". */
+export const dateOf = (iso) => {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return iso ?? '';
+  return new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+};
+
 /** A gear item's name: the German one when German is on and there is one. */
 export const nameOf = (item) => (item ? (lang.v === 'de' && item.nameDe ? item.nameDe : item.name) : '');

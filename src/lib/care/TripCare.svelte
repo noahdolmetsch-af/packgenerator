@@ -6,7 +6,7 @@
    */
   import MoreMenu from './MoreMenu.svelte';
   import { prepSummary, isEvent } from '../care.js';
-  import { t, locale } from '../i18n.svelte.js';
+  import { t, locale, dateOf } from '../i18n.svelte.js';
   import { bikeCareLine, eventPrepLine } from '../readiness.js';
 
   // v0.22.0 (AP06): care = Bike care of the trip's bike (readiness.js), prep = Event preparation;
@@ -23,7 +23,7 @@
 </script>
 
 <section class="block" aria-labelledby="trip-{trip.id}" id="before-{trip.id}">
-  <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} <small>{trip.startDate} · {bikeName ?? t('no bike')}</small></h2>
+  <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} <small>{dateOf(trip.startDate)} · {bikeName ?? t('no bike')}</small></h2>
   {#if care}
     <div class="shop">
       <span class="lbl">{bikeCareLine(care)}</span>

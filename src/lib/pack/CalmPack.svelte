@@ -11,7 +11,7 @@
   import TripBand from '../trip/TripBand.svelte';
   import Sum from '../ui/Sum.svelte';
   import { planningGroups } from '../preparation.js';
-  import { t, tn, nameOf, num, locale } from '../i18n.svelte.js';
+  import { t, tn, nameOf, num, locale, bagName } from '../i18n.svelte.js';
   import { formatWeight } from '../gear.js';
   import { RAIN, heavyHigh, isDayTrip, daysUntil } from '../trips.js';
   import { bagVolumes } from '../bagsuggest.js';
@@ -223,7 +223,7 @@
   <dialog class="calm-sheet" bind:this={sheetEl} onclose={() => { sheet = null; note = ''; }} aria-labelledby="calm-sheet-h">
     <header><h2 id="calm-sheet-h">{sheet === 'add' ? t('Add material') : sheet === 'conditions' ? t('Edit trip conditions') : sheet === 'bags' ? t('Bags for this trip') : sheet === 'purposes' ? t('Name your bags') : t('Ready check')}</h2><button class="text-button" onclick={() => sheetEl.close()}>{t('Close')}</button></header>
     {#if sheet === 'add'}
-      <label class="add-target">{t('Adding to')}<select class="sel" aria-label={t('Adding to')} bind:value={zoneKey}>{#each targets as tg}<option value={tg.key}>{trip.purpose?.[tg.key] || (tg.bag ? tg.bag.name : t(tg.zone.name))}</option>{/each}</select></label>
+      <label class="add-target">{t('Adding to')}<select class="sel" aria-label={t('Adding to')} bind:value={zoneKey}>{#each targets as tg}<option value={tg.key}>{trip.purpose?.[tg.key] || (tg.bag ? bagName(tg.bag.name) : t(tg.zone.name))}</option>{/each}</select></label>
       {@render picker(add, addMany)}
       <!-- v0.24.1 (Noah 6a): what was added is said inside the sheet (the page behind it is inert). -->
       {#if note}<p class="calm-status" role="status">{note}</p>{/if}

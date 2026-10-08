@@ -410,7 +410,7 @@ export default {
   'Still have it, gone or replaced?': 'Noch da, weg oder ersetzt?',
   'Your data → Import backup → Apply favourites.': 'Deine Daten → Backup importieren → Favoriten anwenden.',
   'Pack, ride day, end trip and debrief: only then can the app learn.': 'Packen, Fahrtag, Tour beenden und Rückblick: erst dann kann die App lernen.',
-  'Data from the backup of {date}. Newer state on the phone? Load its backup here.': 'Daten aus dem Backup vom {date}. Neuerer Stand auf dem Phone? Lade sein Backup hier.',
+  'Data from the backup of {date}. Newer state on the phone? Load its backup here.': 'Daten aus dem Backup vom {date}. Neuerer Stand auf dem Handy? Lade sein Backup hier.',
   'New debrief since the last backup: save one, then load it on the desktop.': 'Neuer Rückblick seit dem letzten Backup: eins speichern und am Desktop laden.',
   'Load a backup': 'Backup laden',
   // v0.22.0 (AP05): the favourites on the start page, same basis as Gear

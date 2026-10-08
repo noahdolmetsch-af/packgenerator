@@ -19,7 +19,7 @@
   import { phone } from '../media.svelte.js';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, bike = true } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, bike = true, lessons = [] } = $props();
   const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${t(RAIN[w.rain ?? 'none'])}`;
   const READY = '__ready';
 
@@ -146,8 +146,23 @@
     }
     onundo();
   }
-  // Open items on top, packed ones slide down.
-  const ordered = (s) => [...s.entries.filter((e) => !e.packed), ...s.entries.filter((e) => e.packed)];
+  // Open items on top, packed ones at the bottom. v0.30.2 (test P4.7): the order is fixed when
+  // a bag opens, so a ticked row stays under the finger and a quick second tap hits the next item.
+  const sorted = (s) => [...s.entries.filter((e) => !e.packed), ...s.entries.filter((e) => e.packed)];
+  let order = $state.raw({ key: '', ids: [] });
+  $effect(() => {
+    const key = cur;
+    const s = untrack(() => steps.find((x) => x.key === key));
+    order = { key, ids: s ? sorted(s).map((e) => e.itemId) : [] };
+  });
+  const ordered = (s) => {
+    if (order.key !== s.key) return sorted(s);
+    const at = (e) => {
+      const i = order.ids.indexOf(e.itemId);
+      return i < 0 ? order.ids.length + (e.packed ? 1 : 0) : i;
+    };
+    return [...s.entries].sort((a, b) => at(a) - at(b));
+  };
   const names = (s) => s.entries.filter((e) => !e.packed).map((e) => (itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId) + ((e.qty || 1) > 1 ? ` × ${e.qty}` : '')).join(' · ');
   const iconOf = (key) => (key === 'body' ? UserRound : key === 'mounted' ? Bike : Briefcase);
   const hintOf = (id) => (badges[id] ?? []).map((b) => (b.key === 'tip' ? b.text : b.label)).join(' · ');
@@ -215,6 +230,14 @@
     </div>
   {/if}
 
+  <!-- v0.30.2 (test R6.6): what earlier debriefs taught, before the first bag. -->
+  {#if lessons.length}
+    <div class="tp-card lessons" role="note">
+      <p class="tp-small"><b>{t('From earlier trips')}</b></p>
+      <ul>{#each lessons as l (l.id)}<li>{l.rule}</li>{/each}</ul>
+    </div>
+  {/if}
+
   {#if !phone.matches}
     <div class="tp-card prog">
       {@render ring(72)}
@@ -254,7 +277,7 @@
               <li class:in={e.packed}>
                 <button type="button" class="it" aria-pressed={!!e.packed} onclick={(ev) => tick(s, e, ev)}>
                   <span class="box" aria-hidden="true">{#if e.packed}<Check size={20} />{/if}</span>
-                  <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q"> × {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{/if}</span>
+                  <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q">{' '}× {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{/if}</span>
                   <span class="w num">{it?.weightG != null ? formatWeight(it.weightG * (e.qty || 1)) : t('not weighed')}</span>
                 </button>
               </li>
@@ -331,6 +354,9 @@
   .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--ink); }
   .wxgap { background: #e3eef8; }
   .wxgap p { margin: 0 0 10px; }
+  .lessons p { margin: 0 0 4px; }
+  .lessons ul { margin: 0; padding-left: 20px; }
+  .lessons li { overflow-wrap: anywhere; }
   .pgrid { display: grid; gap: 10px; }
   .pbag { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; min-width: 0; }
   .pbag.cur { border: 2px solid var(--ink); }

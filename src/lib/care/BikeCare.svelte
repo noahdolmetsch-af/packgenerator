@@ -7,7 +7,7 @@
   import MoreMenu from './MoreMenu.svelte';
   import { partInfo, wear, needsWork, lastValue, kmSince, lastReplace, CHECK_KM, bikeLog, EXTRA } from '../care.js';
   import { visitTotal, costByYear, costByPart, costPer1000, overdueDays } from '../workshop.js';
-  import { t, tn, num, locale } from '../i18n.svelte.js';
+  import { t, tn, num, locale, dateOf } from '../i18n.svelte.js';
   import { bikeCareWords } from '../readiness.js';
 
   let {
@@ -51,7 +51,7 @@
         <input class="inp num" name="km" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" value={bike.km ?? ''} placeholder={t('not set')} onchange={(e) => km(e.currentTarget)} />
       </label>
       <button type="submit" class="btn sm">{t('Save km')}</button>
-      {#if bike.kmDate}<small>{t('set {date}', { date: bike.kmDate })}</small>{/if}
+      {#if bike.kmDate}<small>{t('set {date}', { date: dateOf(bike.kmDate) })}</small>{/if}
     </form>
     {#if kmMsg?.error}<p class="err" role="alert">{kmMsg.text}</p>{:else if kmMsg}<p class="saved" role="status">{kmMsg.text}</p>{/if}
 

@@ -17,7 +17,7 @@
   import OrderDialog from './OrderDialog.svelte';
   import { withVisits, visitsOf, tyreSetup, timeDue, lastPrice, workshopOrder } from '../workshop.js';
   import { hasBike } from '../domains.js';
-  import { t, tn, num } from '../i18n.svelte.js';
+  import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { bikeCare, bikeCareWords, eventPrep } from '../readiness.js';
 
   // v0.21.0 (answer 7a): Bike care is the Care tab of Bikes. bikeId: the bike chosen on the page;
@@ -129,14 +129,14 @@
   }
   const WHAT = (entry, key) =>
     entry.result === 'needed' ? t('work needed') : entry.action === 'check' ? t('checked, OK') : entry.action === 'service' ? t('serviced') : PART[key]?.unit ? t('replaced') : t('done');
-  /** "Saved: Tyres + sealant, done, 2026-10-08 · 3'200 km. Next time 2027-01-06." */
+  /** "Saved: Tyres + sealant, done, 8 Oct 2026 · 3'200 km. Next time 6 Jan 2027." */
   function saved(view, keys, entry) {
     const parts = keys.map((k) => (PART[k] ? t(PART[k].name) : k)).join(', ');
-    const vars = { part: parts, what: WHAT(entry, keys[0]), date: entry.date, km: num(entry.km) };
+    const vars = { part: parts, what: WHAT(entry, keys[0]), date: dateOf(entry.date), km: num(entry.km) };
     let text = entry.km != null ? t('Saved: {part}, {what}, {date} · {km} km.', vars) : t('Saved: {part}, {what}, {date}.', vars);
     // A service by time: say when it is due next (sealant every 90 days, fork once a year).
     const timed = keys.length === 1 && entry.result === 'done' && entry.action !== 'check' ? checks.find((c) => c.bike.id === view.id)?.time.find((s) => s.key === keys[0]) : null;
-    if (timed) text += ` ${t('Next time {date}.', { date: new Date(Date.parse(`${entry.date}T00:00:00Z`) + timed.every * 864e5).toISOString().slice(0, 10) })}`;
+    if (timed) text += ` ${t('Next time {date}.', { date: dateOf(new Date(Date.parse(`${entry.date}T00:00:00Z`) + timed.every * 864e5).toISOString().slice(0, 10)) })}`;
     say(text);
   }
   async function checkAndSay(view, keys, action, note) {
@@ -148,7 +148,11 @@
   let kmMsg = $state(null); // { bikeId, text, error }
   async function saveKm(bike, text) {
     const n = parseKm(text);
-    if (n === null) return null; // an empty field keeps the km: nothing is lost by clearing it by mistake
+    if (n === null) {
+      // an empty field keeps the km: nothing is lost by clearing it by mistake (v0.30.2, V9.10: the old error goes)
+      if (kmMsg?.bikeId === bike.id && kmMsg.error) kmMsg = null;
+      return null;
+    }
     if (Number.isNaN(n)) {
       kmMsg = { bikeId: bike.id, text: t('Type the km as a whole number, e.g. 12400.'), error: true };
       return null;

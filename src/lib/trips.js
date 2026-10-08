@@ -10,7 +10,7 @@
  */
 import { SLOT, SLOTS, FIXED_ZONES, addedWeight, bikeWeightKind } from './bikes.js';
 import { isInventory, isConsumable } from './gear.js';
-import { t as tr } from './i18n.svelte.js';
+import { t as tr, bagName } from './i18n.svelte.js';
 import { inDomain, BIKEPACKING } from './domains.js';
 
 /**
@@ -304,7 +304,7 @@ export const onTrip = (trip) => new Set(trip.entries.map((e) => e.itemId));
 
 /** Label for a zone: the bag's name, or the place name. */
 export const zoneName = (z) => {
-  const name = z.bag ? z.bag.name : tr(z.zone.name);
+  const name = z.bag ? bagName(z.bag.name) : tr(z.zone.name);
   return z.noBag ? tr('{name} (no bag)', { name }) : name;
 };
 

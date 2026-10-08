@@ -41,7 +41,7 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
     gear: sort(
       items
         .filter((i) => i.ownership !== 'gone' && hit(i.name, i.nameDe, i.brand, i.model, i.note, i.favNote))
-        .map((i) => ({ id: i.id, title: `${i.favorite ? '★ ' : ''}${nameOf(i)}`, sub: [i.brand, i.weightG != null ? `${num(i.weightG)} g` : t('not weighed'), i.ownership === 'wishlist' || i.ownership === 'to-buy' ? t('wishlist') : ''].filter(Boolean).join(' · '), href: `#/gear?q=${encodeURIComponent(i.name)}` })),
+        .map((i) => ({ id: i.id, title: `${i.favorite ? '★ ' : ''}${nameOf(i)}`, sub: [i.brand, i.weightG != null ? `${num(i.weightG)} g` : t('not weighed'), i.ownership === 'wishlist' || i.ownership === 'to-buy' ? t('wishlist') : ''].filter(Boolean).join(' · '), href: `#/gear?q=${encodeURIComponent(nameOf(i))}&item=${encodeURIComponent(i.id)}` })),
     ),
     trip: trips
       .filter((tr) => hit(tr.title, tr.place?.name, tr.bike))

@@ -26,7 +26,7 @@ describe('search everything', () => {
   it('every word has to match, across kinds', () => {
     const r = searchAll('rain jacket', data);
     expect(r.map((g) => g.kind)).toEqual(['gear', 'note']);
-    expect(r[0].rows[0]).toMatchObject({ title: '★ Rain jacket', sub: 'Haglöfs · 180 g', href: '#/gear?q=Rain%20jacket' });
+    expect(r[0].rows[0]).toMatchObject({ title: '★ Rain jacket', sub: 'Haglöfs · 180 g', href: '#/gear?q=Rain%20jacket&item=RG01' });
   });
 
   it('finds trips, bikes and templates', () => {

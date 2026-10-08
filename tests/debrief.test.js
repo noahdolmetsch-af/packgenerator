@@ -120,6 +120,11 @@ describe('learnings for a trip', () => {
     expect(top.map((l) => l.id)).toEqual([2, 1]);
     expect(learningsFor({ ...trip, startDate: '2026-07-01' }, learnings, 3).map((l) => l.id)).not.toContain(4);
   });
+  it('a learning from the last 30 days comes first (v0.30.2, R6.6)', () => {
+    const fresh = { id: 9, topic: 'Ride day', rule: 'Eat every hour', priority: 'medium', confirmed: 0, createdAt: '2026-10-01T10:00:00Z' };
+    expect(learningsFor(trip, [...learnings, fresh], 1, new Date('2026-10-08'))[0].id).toBe(9);
+    expect(learningsFor(trip, [...learnings, fresh], 1, new Date('2027-01-08'))[0].id).not.toBe(9);
+  });
 });
 
 // v0.26.1 (AP20, Noah 20a, 19b): what was missing becomes "Take … next time"; notes on the way become learnings.

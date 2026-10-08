@@ -2,7 +2,7 @@
   import { localDay } from '../lib/localday.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { isOver, tipsByItem } from '../lib/debrief.js';
+  import { isOver, tipsByItem, learningsFor } from '../lib/debrief.js';
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, sortBikes, bikesHash } from '../lib/bikes.js';
   import { CATEGORIES, formatWeight, weightText, isInventory, matches, weighQueue } from '../lib/gear.js';
@@ -38,9 +38,9 @@
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
   import { tickPrep, untickPrep } from '../lib/care/prep.js';
-  import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, wxLabel, bikeShort, shortDate } from '../lib/dayride.js';
+  import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, wxLabel, shortDate } from '../lib/dayride.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
-  import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
+  import { t, tn, num, locale, nameOf, bagName, dateOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName, inDomain, itemDomains, readyKey, READY_BY_DOMAIN, rememberDomain, BIKEPACKING } from '../lib/domains.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -462,7 +462,7 @@
     blockNote = '';
     await undoLast();
   }
-  const targetName = $derived(zone ? (zone.noBag ? t('On me') : zone.bag ? zone.bag.name : t(zone.zone.name)) : t('the trip'));
+  const targetName = $derived(zone ? (zone.noBag ? t('On me') : zone.bag ? bagName(zone.bag.name) : t(zone.zone.name)) : t('the trip'));
 
   // Answer 4a: a bag can get a name for what it is for ("Quick access"); stored on the trip.
   function savePurpose(key, value) {
@@ -688,7 +688,7 @@
 
   {#snippet notice()}{#if dayMade && dayMade.id === trip.id}
     {@const when = trip.startDate === localDay() ? t('today') : trip.startDate === localDay(new Date(Date.now() + 864e5)) ? t('tomorrow') : shortDate(trip.startDate)}
-    {@const what = [bike ? bikeShort(bike.name) : null, when, tn(trip.entries.length, '{n} item', '{n} items')].filter(Boolean).join(' · ')}
+    {@const what = [bike?.name ?? null, when, tn(trip.entries.length, '{n} item', '{n} items')].filter(Boolean).join(' · ')}
     <div class="made-card" role="status">
       <p class="made-t"><b>{dayMade.day ? t('Day ride created') : t('Trip created')}</b> · {what}</p>
       {#if dayMade.day}<p class="made-s">{t('{hours} h · {weather}', { hours: num(dayMade.hours), weather: dayMade.wxFrom === 'forecast' ? t('{weather} (forecast)', { weather: wxLabel(dayMade.wx) }) : wxLabel(dayMade.wx) })}</p>{/if}
@@ -702,7 +702,7 @@
     </div>
   {/if}{/snippet}
   {#if packTab}
-    <PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} />
+    <PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} />
   {:else}
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} made={!!(dayMade && dayMade.id === trip.id)} bind:q bind:zoneKey bind:review
     actions={{
@@ -777,8 +777,8 @@
   {#if weighing}<WeighMode items={tripItems} onclose={() => weighing = false} />{/if}
     <section class="print" aria-hidden="true">
       <h1>{trip.title}</h1>
-      {#if bikeTrip}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {bike?.name ?? ''} · {t('system weight {kg}', { kg: weightText(stats.systemG, stats.systemMissing, kg) })}</p>
-      {:else}<p>{trip.startDate ?? ''} · {tn(trip.days, '{n} day', '{n} days')} · {t(domainName(domain))} · {t('total {kg}', { kg: weightText(stats.gearG + stats.onMeG, stats.unweighed, kg) })}</p>{/if}
+      {#if bikeTrip}<p>{dateOf(trip.startDate)} · {tn(trip.days, '{n} day', '{n} days')} · {bike?.name ?? ''} · {t('system weight {kg}', { kg: weightText(stats.systemG, stats.systemMissing, kg) })}</p>
+      {:else}<p>{dateOf(trip.startDate)} · {tn(trip.days, '{n} day', '{n} days')} · {t(domainName(domain))} · {t('total {kg}', { kg: weightText(stats.gearG + stats.onMeG, stats.unweighed, kg) })}</p>{/if}
       {#each stats.zones.filter((z) => z.entries.length) as z (z.key)}
         <h2>{zoneName(z)} <small>{tn(z.entries.length, '{n} item', '{n} items')} · {weightText(z.grams, z.unweighed)}</small></h2>
         <ul>
@@ -832,6 +832,6 @@
   .slots li { display: grid; grid-template-columns: 1fr 1.5fr; gap: 16px; align-items: center; padding: 8px 0; }
   .addcheck { display: flex; gap: 10px; }
   .ck { display: inline-flex; gap: 10px; }
-  .x { background: none; border: 0; padding: 12px; }
+  .x { background: none; border: 0; padding: 8px; min-width: 44px; min-height: 44px; font-size: 22px; line-height: 1; cursor: pointer; } /* v0.30.2 (N2.10): a full tap target */
   @media print { .print { display: block; } }
 </style>

@@ -12,6 +12,8 @@ import { fileURLToPath } from 'node:url';
 const P = 'test_data_gtp_';
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
 const day = (n = 0) => new Date(Date.now() + n * 864e5).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+// v0.30.2: messages show the day as people read it ("8. Okt. 2026").
+const shown = (iso) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('de-CH', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 const BIKE = `${P}scale`;
 const GRAVEL = `${P}gravel`;
 
@@ -128,7 +130,7 @@ test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no l
   // Stored: date and km.
   await expect.poll(async () => (await stored(page, BIKE)).parts.find((p) => p.key === 'tyres').history.at(-1)).toMatchObject({ date: day(0), km: 3200, action: 'replace', result: 'done' });
   // Seen: a short confirmation, no longer due, the next date in 90 days.
-  await expect(page.getByRole('status').filter({ hasText: 'Reifen + Dichtmilch' })).toContainText(`Gespeichert: Reifen + Dichtmilch, erledigt, ${day(0)} · 3’200 km. Nächstes Mal ${day(90)}.`);
+  await expect(page.getByRole('status').filter({ hasText: 'Reifen + Dichtmilch' })).toContainText(`Gespeichert: Reifen + Dichtmilch, erledigt, ${shown(day(0))} · 3’200 km. Nächstes Mal ${shown(day(90))}.`);
   await expect(due.locator('li').filter({ hasText: 'Scott Scale 940: Dichtmilch nachfüllen' })).toHaveCount(0);
   const row = care.locator('.checks li').filter({ hasText: 'Dichtmilch nachfüllen' });
   await expect(row).toContainText(day(90));
@@ -138,7 +140,7 @@ test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no l
   // The same from the "due now" list: "Erledigt" on the Gravel's sealant.
   const gravel = due.locator('li').filter({ hasText: 'Gravel Grinder: Dichtmilch nachfüllen' });
   await gravel.getByRole('button', { name: 'Erledigt' }).click();
-  await expect(page.getByRole('status').filter({ hasText: 'Gespeichert' })).toContainText(`Reifen + Dichtmilch, gewartet, ${day(0)} · 8’000 km. Nächstes Mal ${day(90)}.`);
+  await expect(page.getByRole('status').filter({ hasText: 'Gespeichert' })).toContainText(`Reifen + Dichtmilch, gewartet, ${shown(day(0))} · 8’000 km. Nächstes Mal ${shown(day(90))}.`);
   await expect(gravel).toHaveCount(0);
   await expect.poll(async () => (await stored(page, GRAVEL)).parts.find((p) => p.key === 'tyres').history.at(-1)).toMatchObject({ date: day(0), km: 8000, action: 'service', result: 'done' });
 

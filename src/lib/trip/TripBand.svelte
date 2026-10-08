@@ -199,7 +199,13 @@
     text-decoration: none;
     font: 500 15px/1.15 var(--font-body);
     text-align: center;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+  }
+  /* v0.30.2 (test HD12.4): on a 320 px phone "Unterwegs" broke inside the word. */
+  @media (max-width: 360px) {
+    .steps a {
+      font-size: 13px;
+    }
   }
   .steps a small {
     display: inline-flex;

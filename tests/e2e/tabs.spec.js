@@ -126,7 +126,7 @@ test('Pack: a full bag jumps to the next one by itself', async ({ page, context 
   const first = await cur.locator('.bagh b').textContent();
   const n = await cur.locator('ul.items button').count();
   for (let i = 0; i < n; i++) {
-    // packed rows slide down: wait for each tick before the next tap
+    // wait for each tick before the next tap
     await cur.locator('ul.items button[aria-pressed="false"]').first().click();
     if (i < n - 1) await expect(cur.locator('ul.items button[aria-pressed="true"]')).toHaveCount(i + 1);
     // v0.30.1 (B4): the next open row is now on the same spot; a tap there within 400 ms is a double tap

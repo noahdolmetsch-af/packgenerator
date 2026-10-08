@@ -15,7 +15,7 @@
   import { phone } from '../lib/media.svelte.js';
   import NotPacked from '../lib/pack/NotPacked.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
-  import { t, tn, nameOf } from '../lib/i18n.svelte.js';
+  import { t, tn, nameOf, bagName } from '../lib/i18n.svelte.js';
 
   let { id } = $props();
 
@@ -49,7 +49,7 @@
       const entries = tpl.entries.filter((e) => e.slot === key);
       // v0.22.0 (AP04): unknown is not zero: known grams and the count of items without a weight.
       const { g: grams, missing } = sumKnown(entries.map((e) => (itemsById[e.itemId]?.weightG == null ? null : itemsById[e.itemId].weightG * (e.qty || 1))));
-      return { key, name: bag ? bag.name : ZONE[key] ? t(ZONE[key].name) : key, place: ZONE[key] ? t(ZONE[key].name) : key, entries, grams, missing };
+      return { key, name: bag ? bagName(bag.name) : ZONE[key] ? t(ZONE[key].name) : key, place: ZONE[key] ? t(ZONE[key].name) : key, entries, grams, missing };
     });
   });
   let target = $state('seat');

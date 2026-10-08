@@ -304,6 +304,11 @@
 
   /* ---------- learnings ---------- */
   let lq = $state('');
+  // v0.30.2 (test R6.12): topics typed in small letters ("gear") are shown like the others.
+  const topicName = (topic) => {
+    const s = String(topic ?? '');
+    return t(s) !== s ? t(s) : t(s.charAt(0).toUpperCase() + s.slice(1));
+  };
   const topics = $derived.by(() => {
     const q = lq.trim().toLowerCase();
     const list = learnings.filter((l) => !q || `${l.topic} ${l.rule} ${l.action ?? ''} ${l.source ?? ''}`.toLowerCase().includes(q));
@@ -449,7 +454,7 @@
                   <ul class="exc">
                     {#each g.rows as { e, item } (e.itemId)}
                       {@const st = d.items[e.itemId] ?? 'used'}
-                      <li><span class="nm">{nameOf(item)}{#if e.qty > 1}<small class="q"> × {e.qty}</small>{/if}{#if before[e.itemId]}<small>{tn(before[e.itemId], 'not used on {n} trip before', 'not used on {n} trips before')}</small>{/if}</span>
+                      <li><span class="nm">{nameOf(item)}{#if e.qty > 1}<small class="q">{' '}× {e.qty}</small>{/if}{#if before[e.itemId]}<small>{tn(before[e.itemId], 'not used on {n} trip before', 'not used on {n} trips before')}</small>{/if}</span>
                         <button type="button" class="state {st}" aria-label={t('{name}: {state}. Tap to change.', { name: nameOf(item), state: t(STATE[st]) })} onclick={() => cycle(e.itemId)}>{#if st === 'used'}<Check size={16} aria-hidden="true" />{:else if st === 'unused'}<Minus size={16} aria-hidden="true" />{:else}<X size={16} aria-hidden="true" />{/if}{t(STATE[st])}</button></li>
                     {/each}
                   </ul>
@@ -518,7 +523,7 @@
       <input class="inp q" type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} />
       {#each topics as g (g.topic)}
         <details class="topic" open={!!lq.trim()}>
-          <summary><span class="title">{t(g.topic)}</span> <span class="muted">{g.ls.length}</span></summary>
+          <summary><span class="title">{topicName(g.topic)}</span> <span class="muted">{g.ls.length}</span></summary>
           <ul>
             {#each g.ls as l (l.id)}
               <li>
