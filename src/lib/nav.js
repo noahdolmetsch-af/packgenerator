@@ -75,6 +75,16 @@ export function wantBike() {
 }
 
 /**
+ * v0.30.0 (Noah 1a): "Your data" on Today from anywhere (the tip "Try a demo"): Today opens the
+ * fold and brings it into view.
+ */
+export function openData() {
+  keep('home.data', '1');
+  location.hash = '#/';
+  window.dispatchEvent(new Event('pg:data'));
+}
+
+/**
  * v0.23.0 (AP07): the page an address shows, e.g. '#/pack/templates' → 'templates'.
  * #/care is the old address of Bikes → Care.
  */
@@ -91,6 +101,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/share/')) return 'share';
   if (h.startsWith('#/ride')) return 'ride';
   if (h.startsWith('#/inbox')) return 'inbox';
+  if (h.startsWith('#/features')) return 'features'; // v0.30.0 (Noah 3a): what the app can do
   return 'home';
 }
 
@@ -107,7 +118,7 @@ export const PLACES = [
 
 /** Which main place a page belongs to (null: the Inbox, which has its own icon). */
 export function placeOf(page) {
-  if (page === 'home') return 'today';
+  if (page === 'home' || page === 'features') return 'today';
   if (['pack', 'templates', 'past', 'ride', 'debrief', 'share'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'favorites' || page === 'blocks') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';

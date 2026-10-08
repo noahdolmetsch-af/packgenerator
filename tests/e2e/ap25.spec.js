@@ -60,17 +60,16 @@ async function start(page, context, info, data) {
   await expect(panel.getByText(/importiert|Imported/)).toBeVisible();
 }
 
-/** Good to know, opened on the phone (folded there). */
+/**
+ * Good to know. v0.30.0 (Noah 1a): not folded on the phone any more; there the further card (here
+ * the template suggestions) waits behind "Show {n} more".
+ */
 async function know(page) {
-  const fold = page.locator('main details.know');
-  if (await fold.count()) {
-    await expect(async () => {
-      if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
-      expect(await fold.evaluate((d) => d.open)).toBe(true);
-    }).toPass();
-    return fold;
-  }
-  return page.locator('main section.know');
+  const sec = page.locator('main section.know');
+  await expect(sec.locator('.cards > *').first()).toBeVisible();
+  const more = sec.locator('.morebtn');
+  if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
+  return sec;
 }
 
 const noSideScroll = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
@@ -124,7 +123,7 @@ test('a template hint with its source, "Not now" into the History, the Home card
   // Home: no more card
   await page.goto('./#/');
   k = await know(page);
-  await expect(k.locator('[data-card]').first()).toBeVisible();
+  await expect(k.locator('[data-card], [data-tip]').first()).toBeVisible();
   await expect(k.locator('[data-card="templates"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

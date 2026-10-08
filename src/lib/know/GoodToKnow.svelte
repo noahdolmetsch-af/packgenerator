@@ -2,8 +2,13 @@
   /**
    * Good to know on Today (v0.25.1, Noah 1a): only cards with something to say, the most urgent
    * first, each with ONE button that does the thing. Which cards and in which order: know.js
-   * (tested); this file only writes the words. On a phone the section starts folded as before
-   * (v0.23.1, Noah 3b), the closed line counts the cards shown.
+   * (tested); this file only writes the words.
+   *
+   * v0.30.0 (Noah 1a, 2a, 3a): always 6 tiles (tips.js, tested): at most 3 important data cards,
+   * at most 1 further one, the rest tips "Did you know?" about what the app can do, each with an
+   * icon, one sentence, ONE button and "I know it" (hides the tip for good). At the foot the way to
+   * the overview of everything (#/features) with how much of it is used. On a phone the section is
+   * no longer folded shut: the important cards and a tip show, the rest behind "Show {n} more".
    *
    * The weekend weather needs the home place (setting "homePlace", answer 1a: entered once with the
    * place search of the trip weather). Its forecast is saved in "meta" (never exported), fetched at
@@ -12,19 +17,27 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { knowCards, wearWhat, sparkPath, needsFetch, HOME_PLACE, HOME_FORECAST } from '../know.js';
+  import { TIP, TIPS_KEY, usedTips, fittingTips, pickTips, todayTiles, phoneSplit, markShown, knowTip, updateTips, overview } from '../tips.js';
   import { openTodos } from '../todos.js';
   import { formatWeight, weightText } from '../gear.js';
   import { RAIN } from '../trips.js';
-  import { forecastForTrip, toWx, searchPlace } from '../weather.js';
+  import { forecastForTrip, toWx } from '../weather.js';
   import { homeForecast } from '../home-weather.js';
   import { sunTimes } from '../blockplan.js';
   import { paceOf, PACE_KEY } from '../pace.js';
   import { learningsFor } from '../debrief.js';
   import { bikesHash } from '../bikes.js';
   import { openNew, openTrip } from '../nav.js';
+  import { LAST_BACKUP } from '../backup.js';
+  import { SETS_KEY } from '../sets.js';
+  import { standalone } from '../install.js';
   import { t, tn, num, locale, nameOf } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
   import { TEMPLATES_KEY } from '../templates.js';
+  import { ChevronRight } from '@lucide/svelte';
+  import { TIP_ICON, CARD_ICON } from './icons.js';
+  import HomePlaceForm from './HomePlaceForm.svelte';
+  import TipButton from './TipButton.svelte';
 
   let {
     loaded = false,
@@ -47,7 +60,7 @@
     onData,
   } = $props();
 
-  const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
+  const paceQ = liveQuery(async () => (await db.settings.get(PACE_KEY)) ?? null);
   // null = no home place yet, undefined = still reading
   const placeQ = liveQuery(async () => (await db.settings.get(HOME_PLACE))?.value ?? null);
   const fcQ = liveQuery(async () => (await db.meta.get(HOME_FORECAST)) ?? null);
@@ -74,36 +87,47 @@
     tried = true;
     homeForecast(db); // saves into meta; the card follows the saved forecast (fcQ)
   });
-  let q = $state('');
-  let found = $state([]);
-  let searching = $state(false);
-  let placeMsg = $state('');
   let editPlace = $state(false);
-  async function search(event) {
-    event.preventDefault();
-    searching = true;
-    placeMsg = '';
+
+  /* ---------- v0.30.0 (Noah 1a): the 6 tiles, tips with what is used ---------- */
+  const tipsQ = liveQuery(async () => (await db.settings.get(TIPS_KEY))?.value ?? null);
+  const setsQ = liveQuery(async () => (await db.settings.get(SETS_KEY))?.value ?? []);
+  const notesN = liveQuery(() => db.notes.count());
+  const backupQ = liveQuery(async () => {
+    const [file, folder] = await Promise.all([db.meta.get(LAST_BACKUP), db.meta.get('backupFolder')]);
+    return file?.at ?? folder?.lastWrite ?? null;
+  });
+  const langSet = (() => {
     try {
-      found = await searchPlace(q);
-      if (!found.length) placeMsg = t('No place found. Try another spelling.');
+      return localStorage.getItem('lang') != null;
     } catch {
-      placeMsg = t('No connection. Place search needs the internet.');
-    } finally {
-      searching = false;
+      return false;
     }
-  }
-  async function choose(p) {
-    const homePlace = { name: p.detail ? `${p.name}, ${p.detail}` : p.name, lat: p.lat, lon: p.lon };
-    found = [];
-    q = '';
-    editPlace = false;
-    await db.settings.put({ key: HOME_PLACE, value: homePlace });
-    tried = true;
-    await homeForecast(db);
-  }
+  })();
+  // Every source read: before that a tip could look unused and stay chosen for the whole day.
+  const ready = $derived(loaded && $tipsQ !== undefined && $placeQ !== undefined && $setsQ !== undefined && $notesN !== undefined && $backupQ !== undefined && $tplQ !== undefined && $paceQ !== undefined);
+  const used = $derived(
+    usedTips({ trips, items, bikes, visits, debriefs, templates: $tplQ ?? [], sets: $setsQ ?? [], notesN: $notesN ?? 0, homePlace: $placeQ, pace, lastBackup: $backupQ, demo, langSet, standalone: standalone() }),
+  );
+  const fit = $derived(fittingTips({ trips, items, bikes, debriefs }, today));
+  const tiles = $derived(ready ? todayTiles(cards, (n) => pickTips({ state: $tipsQ, used, fit, today, n }), today) : []);
+  const tipIds = $derived(tiles.filter((x) => x.kind === 'tip').map((x) => x.id));
+  // Remember today's tips and count the days each one showed (a tip shown 3 days without a tap rests).
+  $effect(() => {
+    if (!ready || !markShown($tipsQ, tipIds, today).changed) return;
+    const ids = [...tipIds];
+    updateTips(db, (s) => {
+      const r = markShown(s, ids, today);
+      return r.changed ? r.state : null;
+    });
+  });
+  const know = (id) => updateTips(db, (s) => knowTip(s, id, today));
+  const split = $derived(phone.matches ? phoneSplit(tiles) : { shown: tiles, more: [] });
+  let showMore = $state(false);
+  const visible = $derived(showMore ? tiles : split.shown);
+  const progress = $derived(overview($tipsQ, used));
 
   /* ---------- words ---------- */
-  let open = $state(false);
   const clock = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
   const weekday = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { weekday: 'short' });
   const short = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' });
@@ -134,11 +158,11 @@
   {#if href}<a class="btn sm go" {href} {onclick}>{label}</a>{:else}<button type="button" class="btn sm go" {onclick}>{label}</button>{/if}
 {/snippet}
 
-{#snippet body()}
-  <div class="cards">
-    {#each cards as c (c.key)}
+{#snippet card(c)}
       {@const d = c.data}
+      {@const Icon = CARD_ICON[c.key]}
       <div class="sig" class:late={c.prio === 1} data-card={c.key}>
+        {#if Icon}<span class="ico" aria-hidden="true"><Icon size={22} strokeWidth={2} /></span>{/if}
         {#if c.key === 'backup'}
           <span class="lbl">{t('Your data')}</span>
           <b>{t('Time for a backup')}</b>
@@ -189,14 +213,9 @@
         {:else if c.key === 'weekend'}
           <span class="lbl">{t('Weekend ride weather')} · {d.place.name.split(',')[0]}</span>
           <b>{d.days.map((x) => t('{day} {max} °C {rain}', { day: weekday(x.date), max: x.max, rain: t(RAIN[x.rain]) })).join(' · ')}</b>
-          {#if editPlace}{@render placeForm()}{/if}
+          {#if editPlace}<HomePlaceForm onchosen={() => (editPlace = false)} />{/if}
           <span class="src">Open-Meteo · <button type="button" class="link" onclick={() => (editPlace = !editPlace)} aria-expanded={editPlace}>{t('Change place')}</button></span>
           {@render go(t('Plan a trip'), null, () => openNew('list'))}
-        {:else if c.key === 'home'}
-          <span class="lbl">{t('Weekend ride weather')}</span>
-          <b>{t('Set your home place')}</b>
-          <span>{t('Once set, you see here what Saturday and Sunday bring.')}</span>
-          {@render placeForm()}
         {:else if c.key === 'season'}
           <span class="lbl">{t('Season {year} in numbers', { year: d.year })}</span>
           <b>{tn(d.trips, '{n} trip finished', '{n} trips finished')}</b>
@@ -239,107 +258,58 @@
           {@render go(t('Show your pace'), '#/debrief/pace')}
         {/if}
       </div>
-    {/each}
+{/snippet}
+
+<!-- v0.30.0 (Noah 1a, 2a): a tip: icon, one sentence, ONE button, and "I know it" (gone for good). -->
+{#snippet tip(id)}
+  {@const x = TIP[id]}
+  {@const Icon = TIP_ICON[x.icon]}
+  <div class="sig tip" data-tip={id}>
+    <span class="ico" aria-hidden="true"><Icon size={22} strokeWidth={2} /></span>
+    <span class="lbl">{t('Did you know?')}</span>
+    <p class="say">{t(x.text)}</p>
+    <div class="acts">
+      <TipButton {id} {next} />
+      <button type="button" class="knew" onclick={() => know(id)} aria-label={t('I know it: {title}', { title: t(x.title) })}>{t('I know it')}</button>
+    </div>
   </div>
 {/snippet}
 
-{#snippet placeForm()}
-  <form class="find" onsubmit={search}>
-    <input class="inp" bind:value={q} placeholder={t('Home place, e.g. Aarau')} aria-label={t('Your home place')} />
-    <button type="submit" class="btn sm go" disabled={searching || q.trim().length < 2}>{t('Find')}</button>
-  </form>
-  {#if found.length}
-    <ul class="found">
-      {#each found as p (`${p.lat},${p.lon}`)}<li><button type="button" class="link" onclick={() => choose(p)}>{p.name}</button> <small>{p.detail}</small></li>{/each}
-    </ul>
-  {/if}
-  {#if placeMsg}<p class="warn" role="alert">{placeMsg}</p>{/if}
-{/snippet}
-
-{#if cards.length}
-  {#if phone.matches}
-    <details class="know folded" bind:open>
-      <summary><h2 id="know-h" class="title">{t('Good to know')}</h2><span class="fsum">{tn(cards.length, '{n} hint', '{n} hints')}{todos.length ? ` · ${tn(todos.length, '{n} still open', '{n} still open')}` : ''}</span></summary>
-      <div class="in">{@render body()}</div>
-    </details>
-  {:else}
-    <section class="know" aria-labelledby="know-h">
-      <h2 id="know-h" class="title">{t('Good to know')}</h2>
-      {@render body()}
-    </section>
-  {/if}
+{#if tiles.length}
+  <section class="know" aria-labelledby="know-h">
+    <h2 id="know-h" class="title">{t('Good to know')}</h2>
+    <div class="cards">
+      {#each visible as x (x.kind === 'tip' ? `tip:${x.id}` : x.card.key)}
+        {#if x.kind === 'tip'}{@render tip(x.id)}{:else}{@render card(x.card)}{/if}
+      {/each}
+    </div>
+    {#if split.more.length}
+      <button type="button" class="btn sm morebtn" aria-expanded={showMore} onclick={() => (showMore = !showMore)}>{showMore ? t('Show less') : tn(split.more.length, 'Show {n} more', 'Show {n} more')}</button>
+    {/if}
+    <!-- v0.30.0 (Noah 3a): everything the app can do, with ✓ and how much is used -->
+    <a class="all" href="#/features"><span class="row"><span>{t('What the app can do')}</span><span class="cnt">{t('{n} of {total} used', { n: progress.used, total: progress.total })}</span></span><ChevronRight size={20} aria-hidden="true" /></a>
+  </section>
 {/if}
 
 <style>
   .lbl {
     font: 600 var(--fs-small)/1.3 var(--font-body);
     color: var(--ink-3);
+    margin: 0;
+    padding-right: 34px;
   }
   .know h2 {
     margin: 0 0 12px;
     font-size: var(--fs-section);
   }
-  /* v0.23.1 (Noah 3b): folded on a phone, one line closed, open on touch or keyboard */
-  details.know.folded {
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    background: var(--paper);
-  }
-  .folded > summary {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 2px 12px;
-    min-height: 52px;
-    padding: 12px 40px 12px 16px;
-    box-sizing: border-box;
-    position: relative;
-    list-style: none;
-    cursor: pointer;
-  }
-  .folded > summary::-webkit-details-marker {
-    display: none;
-  }
-  .folded > summary::after {
-    content: '';
-    position: absolute;
-    right: 18px;
-    top: 22px;
-    width: 9px;
-    height: 9px;
-    border-right: 2.2px solid var(--ink-2);
-    border-bottom: 2.2px solid var(--ink-2);
-    transform: rotate(45deg);
-  }
-  .folded[open] > summary::after {
-    top: 26px;
-    transform: rotate(-135deg);
-  }
-  .folded > summary:focus-visible {
-    outline: var(--focus-ring);
-    outline-offset: -3px;
-    border-radius: 14px;
-  }
-  .folded > summary h2 {
-    margin: 0;
-    font-size: var(--fs-section);
-    line-height: var(--lh-title);
-  }
-  .fsum {
-    min-width: 0;
-    color: var(--ink-2);
-    font-size: 15px;
-    overflow-wrap: anywhere;
-  }
-  .in {
-    padding: 0 16px 16px;
-  }
+  /* v0.30.0 (Noah 1a): 6 tiles, a grid on the desktop (3 across at 1440 px), one column on a phone */
   .cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
     gap: 14px;
   }
   .sig {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -353,13 +323,32 @@
   .sig.late {
     border-color: var(--hi);
   }
+  /* the icon of the tile, top right; it says nothing the words do not */
+  .ico {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: inline-flex;
+    color: var(--ink-3);
+  }
+  .sig.tip {
+    background: var(--paper-2);
+    border-color: transparent;
+  }
   .sig b {
     font-size: 17px;
     overflow-wrap: anywhere;
   }
-  .sig > span:not(.lbl):not(.src) {
+  .sig > span:not(.lbl):not(.src):not(.ico) {
     font-size: 14px;
     color: var(--ink-2);
+    overflow-wrap: anywhere;
+  }
+  .say {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--ink);
     overflow-wrap: anywhere;
   }
   .clip {
@@ -379,6 +368,67 @@
     align-self: flex-start;
     margin-top: 4px;
     min-height: 44px;
+  }
+  .acts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin-top: auto;
+    padding-top: 4px;
+  }
+  .acts > :global(.go) {
+    margin-top: 0;
+  }
+  /* "I know it": quiet, but a full 44 px target */
+  .knew {
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: 400 var(--fs-small) var(--font-body);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .morebtn {
+    margin-top: 12px;
+    min-height: 44px;
+    width: 100%;
+  }
+  /* the row to the overview */
+  .all {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    margin-top: 12px;
+    padding: 10px 14px 10px 16px;
+    box-sizing: border-box;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .all:hover {
+    background: var(--paper-2);
+  }
+  .all .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 10px;
+    flex: 1;
+    min-width: 0;
+  }
+  .all .cnt {
+    font-weight: 400;
+    color: var(--ink-2);
+  }
+  .all :global(svg) {
+    flex: none;
   }
   .more {
     list-style: none;
@@ -421,36 +471,5 @@
     text-align: left;
     text-decoration: underline;
     cursor: pointer;
-  }
-  .find {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    width: 100%;
-  }
-  .find .inp {
-    flex: 1;
-    min-width: 0;
-  }
-  .find .go {
-    margin-top: 0;
-  }
-  .found {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 4px;
-  }
-  .found li {
-    min-height: 32px;
-  }
-  .found small {
-    color: var(--ink-3);
-  }
-  .warn {
-    margin: 0;
-    font-size: 14px;
-    color: var(--ink);
   }
 </style>

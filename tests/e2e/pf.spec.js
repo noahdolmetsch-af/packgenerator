@@ -970,8 +970,21 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'pf16-export.json' }))).toBeVisible();
+  // v0.30.0 (Noah 1a): Today keeps the tips it shows in the setting "tips" and adds to it as it
+  // shows them (the export itself ends the backup reminder, so one more tip shows): that record is
+  // compared with the exported file, by what Noah decided (known, tapped), not with the snapshot.
+  const tipsOf = (rows) => rows.find((r) => r.key === 'tips')?.value ?? null;
+  const exported = JSON.parse(readFileSync(file, 'utf8'));
   await rec.check('backup: every record comes back the same (items, trips, debriefs, notes, photos, bikes, bags, learnings, settings)', async () => {
-    for (const name of Object.keys(snapshot)) expect(await table(page, name), name).toEqual(snapshot[name]);
+    for (const name of Object.keys(snapshot)) {
+      const now = await table(page, name);
+      if (name !== 'settings') expect(now, name).toEqual(snapshot[name]);
+      else expect(now.filter((r) => r.key !== 'tips'), name).toEqual(snapshot[name].filter((r) => r.key !== 'tips'));
+    }
+    const was = tipsOf(exported.tables.settings);
+    const back = tipsOf(await table(page, 'settings'));
+    expect(was).not.toBeNull();
+    expect({ known: back.known, tapped: back.tapped }).toEqual({ known: was.known, tapped: was.tapped });
   });
   // Offline: the tests block the service worker (it would cache old builds), so offline use cannot be shown here.
   rec.r.open = ['offline use: not testable here (service worker blocked in the tests); Noah checks it on the phone in flight mode'];
