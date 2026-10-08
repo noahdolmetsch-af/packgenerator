@@ -1,3 +1,8 @@
+<script module>
+  // L2: the trips whose open suggestions were already asked about on "Next: Pack" (once per visit of the app).
+  const asked = new Set();
+</script>
+
 <script>
   /**
    * Plan (v0.29.0, Noah 1a, 4b, 5a): "Is my list right for this trip?"
@@ -70,6 +75,22 @@
   const pastN = $derived(pastTrips(trips, [], localDay()).length);
   const ctxIds = $derived(Object.keys(ctxRows));
   const changedText = (id) => { const c = ctxRows[id]; return !c ? '' : c.kind === 'added' ? t('new for this trip') : t('{from} → {to}', { from: c.from, to: c.to }); };
+  // L2: "Next: Pack" with weather suggestions still open asks once, in the page (no confirm()):
+  // "Decide now" opens Still to decide, "Pack without them" goes on to Pack. The Pack tab itself never asks.
+  let openAsk = $state(false);
+  let askEl = $state();
+  const openNames = $derived(openLayers.slice(0, 3).map((r) => { const i = itemsById[r.slot] ?? itemsById[r.id]; return i ? nameOf(i) : r.id; }).join(', ') + (openLayers.length > 3 ? ' …' : ''));
+  function toPack() {
+    if (bikeTrip && openLayers.length && !asked.has(trip.id)) {
+      asked.add(trip.id);
+      openAsk = true;
+      return;
+    }
+    actions.pack();
+  }
+  $effect(() => { if (openAsk && askEl && !askEl.open) askEl.showModal(); });
+  function decideNow() { askEl.close(); review = true; window.scrollTo({ top: 0 }); }
+  function packWithout() { askEl.close(); actions.pack(); }
   const primary = $derived(over ? 'debrief' : step === debriefStep ? 'end' : step === 2 ? 'ride' : dayRide ? 'go' : 'pack');
 </script>
 
@@ -78,7 +99,7 @@
   {:else if primary === 'end'}<button class="btn hi go" onclick={actions.end}>{t('Next: Debrief')}<ArrowRight size={20} aria-hidden="true" /></button>
   {:else if primary === 'ride'}<button class="btn hi go" onclick={actions.ride}>{t('Next: On the way')}<ArrowRight size={20} aria-hidden="true" /></button>
   {:else if primary === 'go'}<button class="btn hi go" onclick={actions.packAndGo}>{t("All packed, let's go")}<ArrowRight size={20} aria-hidden="true" /></button>
-  {:else}<button class="btn hi go" onclick={actions.pack}>{t('Next: Pack')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}
+  {:else}<button class="btn hi go" onclick={toPack}>{t('Next: Pack')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}
 {/snippet}
 {#snippet plus()}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')}><Plus size={22} aria-hidden="true" /></button>{/snippet}
 
@@ -102,6 +123,8 @@
           </div>
           <p class="cfoot tp-muted tp-small">{t('Tap a field to change it.')}</p>
         </section>
+        <!-- L2: the open suggestions on top, marked as open work (below the whole list they got lost). -->
+        {#if bikeTrip}<button type="button" class="tp-fold fold-btn detail-link" class:open-work={openLayers.length > 0} onclick={() => { review = true; window.scrollTo({ top: 0 }); }}><CloudSun size={20} aria-hidden="true" /><span>{t('Review weather suggestions')}</span><span class="r">{#if openLayers.length}<i class="tp-badge hi">{tn(openLayers.length, '{n} open', '{n} open')}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></button>{/if}
         <!-- Noah 4b: the weather changes the list by itself; here is what it brought, each with its reason. -->
         {#if wxRows.length || changeNote || ctxChanged}
           <section class="tp-card wxcard" aria-labelledby="wx-h">
@@ -153,6 +176,14 @@
             </details>
           </div>
         </section>
+        <!-- L9: a trip made without any gear lands here: say so kindly and lead to adding the first item. -->
+        {#if !trip.entries.length}
+          <section class="tp-card empty-list" aria-labelledby="empty-list-h">
+            <h3 id="empty-list-h">{t('Your packing list is still empty.')}</h3>
+            <p class="tp-muted tp-small">{items.length ? t('Pick what you take along from your gear.') : t('Add your first item here; it goes into your gear for every next trip.')}</p>
+            <button type="button" class="btn" onclick={() => show('add')}><Plus size={18} aria-hidden="true" />{t('Add gear')}</button>
+          </section>
+        {/if}
         <div class="bag-groups blist" class:cols={!phone.matches}>
           {#each groups as group (group.key)}
             {@const Icon = icon(group.key)}
@@ -207,7 +238,6 @@
           {/each}
         </div>
         <div class="folds">
-          {#if bikeTrip}<button type="button" class="tp-fold fold-btn detail-link" onclick={() => { review = true; window.scrollTo({ top: 0 }); }}><CloudSun size={20} aria-hidden="true" /><span>{t('Review weather suggestions')}</span><span class="r">{#if openLayers.length}<i class="tp-badge hi">{tn(openLayers.length, '{n} open', '{n} open')}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></button>{/if}
           <details class="tp-fold weight-details"><summary><Weight size={20} aria-hidden="true" /><span>{t('Weight')}</span><span class="r num">{t('Base')} {stats.baseMissing ? '~' : ''}{kg(stats.baseG)}{#if stats.unweighed}<i class="tp-badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
             <div class="in"><div class="weight-grid"><div><span>{t('Base')}</span><Sum g={stats.baseG} missing={stats.baseMissing} /></div><div><span>{t('On you')}</span><Sum g={stats.wornG} missing={stats.wornMissing} /></div><div><span>{t('Food and water')}</span><Sum g={stats.consumablesG} missing={stats.consumablesMissing} /></div><div><span>{t('Items')}</span><b>{stats.count}</b></div></div>{@render moreWeights?.()}<p class="tp-muted tp-small">{stats.unweighed ? t('{n} weights missing · displayed weights are known values.', { n: stats.unweighed }) : t('All material weights are recorded.')}</p></div>
           </details>
@@ -218,6 +248,14 @@
   {/if}
   {#if note && sheet !== 'add'}<p class="calm-status" role="status">{note}</p>{/if}
 </div>
+
+{#if openAsk}
+  <dialog class="calm-sheet ask-sheet" bind:this={askEl} onclose={() => (openAsk = false)} aria-labelledby="calm-ask-h">
+    <header><h2 id="calm-ask-h">{tn(openLayers.length, '{n} suggestion still open', '{n} suggestions still open')}</h2></header>
+    <p>{tn(openLayers.length, '{names} is not on the list yet.', '{names} are not on the list yet.', { names: openNames })}</p>
+    <footer><button class="primary" onclick={decideNow}>{t('Decide now')}</button><button class="text-button" onclick={packWithout}>{tn(openLayers.length, 'Pack without it', 'Pack without them')}</button></footer>
+  </dialog>
+{/if}
 
 {#if sheet}
   <dialog class="calm-sheet" bind:this={sheetEl} onclose={() => { sheet = null; note = ''; }} aria-labelledby="calm-sheet-h">
@@ -273,6 +311,14 @@
   .fold-btn { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 16px; color: var(--ink); font: 500 16px var(--font-body); text-align: left; cursor: pointer; }
   .fold-btn :global(svg:first-child) { color: var(--ink-3); flex: none; }
   .fold-btn .r { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--ink-3); }
+  .left > .fold-btn { margin-top: 10px; }
+  .fold-btn.open-work { border-color: var(--hi); border-left-width: 4px; }
+  .empty-list { margin: 0 0 10px; }
+  .empty-list h3 { margin: 0 0 4px; font-size: 17px; }
+  .empty-list p { margin: 0 0 12px; }
+  .ask-sheet { max-width: 520px; }
+  .ask-sheet > header { margin-bottom: 12px; }
+  .ask-sheet > p { margin: 0; overflow-wrap: anywhere; }
   @media (max-width: 719px) {
     .cell { font-size: 14px; padding: 8px 6px; gap: 8px; }
     .list-toolbar .add-mat { display: none; }

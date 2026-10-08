@@ -748,4 +748,28 @@ export default {
   '{n} item packed': '{n} Teil gepackt',
   '{n} items packed': '{n} Teile gepackt',
   'Ready check done': 'Startcheck erledigt',
+  // L2: open weather suggestions before "Next: Pack".
+  '{n} suggestion still open': '{n} Vorschlag noch offen',
+  '{n} suggestions still open': '{n} Vorschläge noch offen',
+  '{names} is not on the list yet.': '{names} ist noch nicht auf der Liste.',
+  '{names} are not on the list yet.': '{names} sind noch nicht auf der Liste.',
+  'Decide now': 'Jetzt entscheiden',
+  'Pack without it': 'Ohne den Vorschlag packen',
+  'Pack without them': 'Ohne sie packen',
+  // L7: the debrief before the last day, and On the way before the start.
+  'Debrief from {date}': 'Rückblick ab {date}',
+  'Notes you write on the way will wait here.': 'Notizen von unterwegs warten hier auf dich.',
+  'Trip is off': 'Tour fällt aus',
+  'Back to packing': 'Zurück zum Packen',
+  'Back to On the way': 'Zurück zu Unterwegs',
+  // L9: New trip without a bike, a trip without gear.
+  'No bike added yet.': 'Noch kein Velo erfasst.',
+  'Add a bike first.': 'Erfasse zuerst ein Velo.',
+  'Name of the bike': 'Name des Velos',
+  'e.g. Gravel bike': 'z. B. Gravelbike',
+  'Your packing list is still empty.': 'Deine Packliste ist noch leer.',
+  'Pick what you take along from your gear.': 'Wähle aus deiner Ausrüstung, was mitkommt.',
+  'Add your first item here; it goes into your gear for every next trip.': 'Erfasse hier dein erstes Teil; es kommt in deine Ausrüstung für jede nächste Tour.',
+  'Add gear': 'Ausrüstung ergänzen',
+  'No gear yet. Type the name of your first item in the search above.': 'Noch keine Ausrüstung. Tippe oben in die Suche den Namen deines ersten Teils.',
 };

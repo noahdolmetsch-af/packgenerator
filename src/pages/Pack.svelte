@@ -170,7 +170,8 @@
   // v0.21.0: a trip without a bike ends here (with a bike: "End trip and debrief" on the ride day).
   async function endTrip() {
     const id = trip.id;
-    await change(() => ({ finished: localDay() }));
+    // L7: before its start a trip is not ended (the debrief shows "Debrief from …" until the last day).
+    if (!(trip.startDate && trip.startDate > localDay())) await change(() => ({ finished: localDay() }));
     location.hash = `#/debrief/${encodeURIComponent(id)}`;
   }
   const toggleIn = (itemId) => change((t) => ({ entries: togglePacked(t.entries, itemId) }));
@@ -694,7 +695,7 @@
       {:else if mode === 'purposes'}{#each stats.zones as z}<label class="bag-purpose">{zoneName(z)}<input class="inp" value={trip.purpose?.[z.key] ?? ''} placeholder={t('What it is for, e.g. Quick access')} onchange={e => savePurpose(z.key, e.currentTarget.value)} /></label>{/each}
       {:else if mode === 'ready'}{@render readyFull()}{/if}
     {/snippet}
-    {#snippet picker(addItem, addItems)}<NotPacked items={candidates} {tagOf} target={targetName} onadd={addItem} onaddmany={addItems} drag={false} bind:q oncreate={createAndPack}>
+    {#snippet picker(addItem, addItems)}<NotPacked items={candidates} {tagOf} target={targetName} onadd={addItem} onaddmany={addItems} drag={false} bind:q oncreate={createAndPack} empty={items.some(isInventory) ? '' : t('No gear yet. Type the name of your first item in the search above.')}>
       {#if chips.length}
         <div class="blockchips" role="group" aria-labelledby="blockchips-h">
           <span class="lbl" id="blockchips-h">{t('Building blocks')}</span>

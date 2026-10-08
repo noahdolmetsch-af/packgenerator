@@ -1034,7 +1034,8 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   // The day ride copies the last day ride (gravel, 3 h): change it to the Scale and 2 h.
   await rec.click(bar.getByRole('button', { name: T('Change') }));
   const edit = page.getByRole('dialog', { name: T('Trip details') });
-  await fillTrip(edit, rec, { bike: BIKE.scale, hours: 2 });
+  // L7: ridden today (after 14:00 the day ride is made for tomorrow, and before its day there is no debrief yet).
+  await fillTrip(edit, rec, { bike: BIKE.scale, hours: 2, date: day(0) });
   await rec.click(edit.getByRole('button', { name: T('Save') }));
   await expect(edit).toBeHidden();
   const trip0 = (await table(page, 'trips')).find((x) => x.bikeId === BIKE.scale);
