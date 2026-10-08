@@ -11,6 +11,7 @@
   import { t, tn, nameOf } from '../i18n.svelte.js';
   import { DOMAINS, itemDomains, domainName } from '../domains.js';
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
+  import { inStandard, isWorn } from '../blocks2026.js';
   import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight } from '@lucide/svelte';
 
   /**
@@ -62,8 +63,8 @@
     const a = assignmentOf($liveQ ?? item, $tplQ?.value ?? [], trip);
     return { templates: a.templates, trip: a.trip ? trip : null };
   });
-  // v0.32.0 (finding 5, stage 1): "Where it goes" and "Comes along · Building blocks". The buttons
-  // write the old fields (role, always, sets) through comes.js, so every packing list stays the same.
+  // v0.32.0 (finding 5, stage 1): "Where it goes" and "Comes along · Building blocks". v0.33.0: the
+  // buttons write the new fields (sets 'standard', leaveHome) and the old ones in step (comes.js).
   const comes = $derived(comesOf(draft));
   const blockLabel = (b) => (b.builtIn ? b.name.replace(/^(Night|Nacht): /, '') : b.name);
   const inBlock = (key) => !!draft.sets?.includes(key);
@@ -186,7 +187,7 @@
       <label><span class="lbl">{t('On me, instead of')}</span>
         <select class="sel" bind:value={draft.replaces}>
           <option value="">–</option>
-          {#each items.filter((i) => (i.role === 'worn' || i.role === 'standard') && i.id !== draft.id) as i (i.id)}<option value={i.id}>{nameOf(i)}</option>{/each}
+          {#each items.filter((i) => (isWorn(i) || inStandard(i)) && i.id !== draft.id) as i (i.id)}<option value={i.id}>{nameOf(i)}</option>{/each}
         </select>
       </label>
       <label><span class="lbl">{t('Can be taken instead of')}</span>

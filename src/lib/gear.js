@@ -3,6 +3,7 @@
  * Pure functions only (no database, no screen), so they are easy to test.
  */
 import { t } from './i18n.svelte.js';
+import { inStandard, isWorn, leaveHome, blockKeys } from './blocks2026.js';
 
 /** Categories in display order, with the Trail Journal colour of each. */
 export const CATEGORIES = [
@@ -164,13 +165,16 @@ export function matches(item, { q = '', category = '', role = '', fav = false, d
   // v0.21.0: the area (item.domains; none set = bikepacking)
   if (domain && !(item.domains?.length ? item.domains : ['bikepacking']).includes(domain)) return false;
   if (category && item.category !== category) return false;
-  // v0.32.0 (finding 5, stage 1): the filter "Comes along": Standard (worn, standard pack or "On
-  // every trip"), On me (worn), in a building block, stays at home (optional), nothing set.
-  const std = item.role === 'worn' || item.role === 'standard' || !!item.always;
-  if (role === 'none' && (std || item.role || item.sets?.length)) return false;
-  if (role === 'night' && !item.sets?.length) return false;
+  // v0.32.0 (finding 5, stage 1): the filter "Comes along": Standard (with On me), On me, in a
+  // building block, stays at home, nothing set. v0.33.0: read through blocks2026.js (the key
+  // 'standard' is not "a building block" here).
+  const std = isWorn(item) || inStandard(item);
+  if (role === 'none' && (std || item.role || blockKeys(item).length || leaveHome(item))) return false;
+  if (role === 'night' && !blockKeys(item).length) return false;
   if (role === 'standard' && !std) return false;
-  if (role && !['none', 'night', 'standard'].includes(role) && item.role !== role) return false;
+  if (role === 'worn' && !isWorn(item)) return false;
+  if (role === 'optional' && !leaveHome(item)) return false;
+  if (role && !['none', 'night', 'standard', 'worn', 'optional'].includes(role) && item.role !== role) return false;
   const text = q.trim().toLowerCase();
   if (!text) return true;
   const cat = CATEGORY[item.category]?.name;
@@ -196,9 +200,9 @@ export function groupByCategory(items) {
 
 /** How soon an item should be weighed: what goes on every ride first, then overnight sets, then optional, then the rest. */
 export function weighPriority(item) {
-  if (item.role === 'worn' || item.role === 'standard') return 0;
-  if (item.sets?.length) return 1;
-  if (item.role === 'optional') return 2;
+  if (isWorn(item) || inStandard(item)) return 0;
+  if (blockKeys(item).length) return 1;
+  if (leaveHome(item)) return 2;
   return 3;
 }
 
@@ -259,7 +263,7 @@ export function itemRecord(draft, { item = null, items = [], weightG = null, now
     name: rest.name.trim(),
     qty: Math.max(1, Number(rest.qty) || 1),
     role: rest.role || null,
-    always: rest.always ? true : null,
+    always: rest.always ? true : rest.always === false ? false : null,
     favorite: rest.favorite ? true : null,
     favNote: rest.favorite ? rest.favNote?.trim() || null : (item?.favNote ?? null),
     domains: rest.domains?.length ? rest.domains : ['bikepacking'],

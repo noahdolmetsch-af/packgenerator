@@ -17,6 +17,7 @@ import { isInventory } from './gear.js';
 import { inDomain, BIKEPACKING } from './domains.js';
 import { layerSuggest, applyLayers, rideHours } from './layers.js';
 import { slotFor } from './trips.js';
+import { inStandard, isWorn, blockKeys } from './blocks2026.js';
 
 export const OVERNIGHT = ['none', 'lodging', 'outdoor'];
 /** The item sets a context can bring. */
@@ -79,7 +80,7 @@ export function contextEntries(trip, items, { slotOf = null } = {}) {
   const sets = contextSets(trip);
   for (const i of items) {
     if (!sets.length || have.has(i.id) || !isInventory(i) || !inDomain(i, BIKEPACKING) || !i.sets?.some((s) => sets.includes(s))) continue;
-    out.push({ itemId: i.id, slot: i.role === 'worn' ? 'body' : slot(i.id), qty: 1, packed: false, src: 'context' });
+    out.push({ itemId: i.id, slot: isWorn(i) ? 'body' : slot(i.id), qty: 1, packed: false, src: 'context' });
     have.add(i.id);
   }
   return applyLayers(out, contextRows(trip, items), slot).map((e) => (have.has(e.itemId) ? e : { ...e, src: 'context' }));
@@ -146,8 +147,8 @@ export function startEntries(trip, items) {
   const sets = contextSets(trip);
   return (trip.entries ?? []).filter((e) => {
     const i = byId.get(e.itemId);
-    if (e.src === 'context' || !i || i.role === 'worn' || i.role === 'standard' || i.always || !i.sets?.length) return true;
-    return !i.sets.every((s) => CONTEXT_SETS.includes(s) && !sets.includes(s));
+    if (e.src === 'context' || !i || isWorn(i) || inStandard(i) || !blockKeys(i).length) return true;
+    return !blockKeys(i).every((s) => CONTEXT_SETS.includes(s) && !sets.includes(s));
   });
 }
 

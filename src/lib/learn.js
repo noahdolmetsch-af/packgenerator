@@ -11,9 +11,14 @@
  *   nor ends a streak.
  */
 import { t, tn } from './i18n.svelte.js';
+import { isWorn } from './blocks2026.js';
 
-/** Noah: tools and the spare tube always come along; the app never calls them ballast. */
-export const alwaysKeep = (item) => !!item && (!!item.always || item.category === 'tools');
+/**
+ * Noah: tools and the spare tube always come along; the app never calls them ballast.
+ * v0.33.0 (Noah 8.10.2026, answer a): items in Standard CAN be ballast (unused Standard items are
+ * the ballast he wants to see); only tools, and what is worn ("Am Körper"), never are.
+ */
+export const alwaysKeep = (item) => !!item && (item.category === 'tools' || isWorn(item));
 
 const isRainItem = (item) => item?.category === 'rain' || !!item?.rain;
 const isColdItem = (item) => typeof item?.coldBelow === 'number';

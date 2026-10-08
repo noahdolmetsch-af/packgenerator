@@ -17,6 +17,8 @@ import { t, nameOf } from './i18n.svelte.js';
 import { domainOf, hasBike } from './domains.js';
 import { localDay } from './localday.js';
 import { alwaysKeep, weatherCounts, tripSource } from './learn.js';
+import { inStandard, isWorn } from './blocks2026.js';
+import { leaveHomeFields } from './gear/comes.js';
 
 export const WEATHER = [
   { key: 'colder', name: 'Colder' },
@@ -191,12 +193,14 @@ export function suggestions(debrief, trip, items, learnings = [], templates = []
 
   // Leave at home: warm-weather clothing gets a cold limit, standard items become optional.
   if (debrief.weather === 'warmer') {
-    for (const i of unused.filter((x) => CLOTHING.includes(x.category) && typeof x.coldBelow !== 'number' && x.role !== 'worn'))
+    for (const i of unused.filter((x) => CLOTHING.includes(x.category) && typeof x.coldBelow !== 'number' && !isWorn(x)))
       out.push({ id: `cold:${i.id}`, group: 'home', label: t('{name}: only below {n} °C', { name: nameOf(i), n: WARM_LIMIT }), detail: t('Added by the layers when it gets cold, otherwise it stays at home.') });
   }
   // Answer 8b: only after the third trip without using it (this one counts).
   const before = unusedTimes(history, trip.id);
-  for (const i of unused.filter((x) => x.role === 'standard' && !out.some((s) => s.id === `cold:${x.id}`) && (before[x.id] ?? 0) + 1 >= LEAVE_AFTER))
+  // v0.33.0 (11a): every item in Standard (also the old "On every trip"); never tools (Noah: tools
+  // always come along) and never On me (worn keeps its own logic).
+  for (const i of unused.filter((x) => inStandard(x) && x.category !== 'tools' && !isWorn(x) && !out.some((s) => s.id === `cold:${x.id}`) && (before[x.id] ?? 0) + 1 >= LEAVE_AFTER))
     out.push({ id: `optional:${i.id}`, group: 'home', label: t('{name}: leave at home', { name: nameOf(i) }), detail: t('Not used on {n} trips. Takes it out of Standard and marks it "Stays at home".', { n: (before[i.id] ?? 0) + 1 }) });
 
   // Wishlist: what was missing and is not in the gear yet, and what broke.
@@ -252,7 +256,7 @@ export function applyDebrief(debrief, trip, items, learnings, templates, ticked,
   for (const id of on) {
     const [kind, key] = id.split(/:(.*)/s);
     if (kind === 'cold' && byId[key]) edit(key, { coldBelow: WARM_LIMIT });
-    if (kind === 'optional' && byId[key]) edit(key, { role: 'optional' });
+    if (kind === 'optional' && byId[key]) edit(key, leaveHomeFields(byId[key]));
     if (kind === 'wish') {
       const m = debrief.missing.find((x) => x.id === key);
       if (m) wish(m.name, `Missing on ${trip.title} (debrief).`);
@@ -399,7 +403,7 @@ export function hintResting(tpl, hintId, done) {
  * (all trips count, 3b). The newest trip wins (5b):
  * - out: an item of the template that was not used on its newest LEAVE_AFTER or more trips in a row
  *   (counting back from the newest trip; a use, or a newer trip where it was missing, ends it).
- *   Never for tools and items "On every trip" (learn.js alwaysKeep). An item for some weather only
+ *   Never for tools and worn items (learn.js alwaysKeep). An item for some weather only
  *   counts on trips with that weather (learn.js weatherCounts, 2a).
  * - in: an item you own that was missing on 2 trips or more and is not in the template, unless a
  *   trip newer than the last "missing" had it on and it was not used.

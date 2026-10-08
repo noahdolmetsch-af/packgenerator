@@ -20,6 +20,8 @@
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
   import Sum from '../lib/ui/Sum.svelte';
   import { longUnused } from '../lib/know.js';
+  import { leaveHome } from '../lib/blocks2026.js';
+  import { leaveHomeFields } from '../lib/gear/comes.js';
 
   // All items, kept up to date by the database (liveQuery re-runs on every change).
   const itemsQuery = liveQuery(() => db.items.toArray());
@@ -31,8 +33,9 @@
   const usage = $derived(itemUsage($tripsQ ?? [], $debriefsQ ?? []));
   const dead = $derived(deadWeight(items, usage));
   const debriefN = $derived(($debriefsQ ?? []).filter((d) => d.status === 'done').length);
-  async function leaveHome(item) {
-    await db.items.update(item.id, { role: 'optional', updatedAt: new Date().toISOString() });
+  // v0.33.0 (finding 5, stage 2): the mark item.leaveHome, out of Standard; role / always in step (comes.js).
+  async function markHome(item) {
+    await db.items.update(item.id, { ...leaveHomeFields(item), updatedAt: new Date().toISOString() });
   }
 
   // v0.19.6: the search in the top bar opens Gear with ?q=<name>.
@@ -321,7 +324,7 @@
         <li>
           <button type="button" class="nmb" onclick={() => open(r.item)}><span class="nm">{nameOf(r.item)}</span><small>{t('taken {a}×, used {b}×', { a: r.u.taken, b: r.u.used })} · {r.u.trips.slice(-3).join(', ')}</small></button>
           <span class="w num" class:nw={r.item.weightG == null}>{formatWeight(itemWeight(r.item))}</span>
-          {#if r.item.role === 'optional'}<span class="ok small">{t('Stays at home')}</span>{:else}<button type="button" class="btn sm" onclick={() => leaveHome(r.item)}>{t('Leave at home')}</button>{/if}
+          {#if leaveHome(r.item)}<span class="ok small">{t('Stays at home')}</span>{:else}<button type="button" class="btn sm" onclick={() => markHome(r.item)}>{t('Leave at home')}</button>{/if}
         </li>
       {/snippet}
       {#if dead.dead.length}<ul class="drows">{#each dead.dead as r (r.item.id)}{@render row(r)}{/each}</ul>{:else if debriefN >= 2}<p class="card">{t('Nothing: everything you took got used at least once.')}</p>{/if}

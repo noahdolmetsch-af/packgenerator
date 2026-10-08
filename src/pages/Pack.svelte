@@ -41,7 +41,8 @@
   import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, wxLabel, shortDate } from '../lib/dayride.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
   import { t, tn, num, locale, nameOf, bagName, dateOf } from '../lib/i18n.svelte.js';
-  import { inStandard } from '../lib/gear/comes.js';
+  import { comesOf } from '../lib/gear/comes.js';
+  import { inStandard, isWorn, leaveHome, blockKeys } from '../lib/blocks2026.js';
   import { hasBike, domainOf, domainName, inDomain, itemDomains, readyKey, READY_BY_DOMAIN, rememberDomain, BIKEPACKING } from '../lib/domains.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -318,7 +319,7 @@
     // v0.21.0: the items of the trip's area; a search finds every item you own.
     const list = items.filter((i) => isInventory(i) && !on.has(i.id) && !asBag.has(i.id) && !fixed.has(i.id) && (inDomain(i, domain) || q.trim()) && matches(i, { q }));
     const order = Object.fromEntries(CATEGORIES.map((c, n) => [c.key, n]));
-    const rank = (i) => (i.role === 'standard' || i.role === 'worn' ? 0 : i.sets?.length ? 1 : i.role === 'optional' ? 2 : 3);
+    const rank = (i) => (isWorn(i) || inStandard(i) ? 0 : blockKeys(i).length ? 1 : leaveHome(i) ? 2 : 3);
     return list.sort((a, b) => rank(a) - rank(b) || Number(!!b.favorite) - Number(!!a.favorite) || (order[a.category] ?? 99) - (order[b.category] ?? 99) || a.name.localeCompare(b.name));
   });
 
@@ -577,7 +578,7 @@
   });
   // Mockup answer 3a: a small label in "Not packed" says why an item is suggested.
   // v0.21.0: an item of another area (found by the search) is labelled with its area.
-  const tagOf = (i) => (!inDomain(i, domain) ? t(domainName(itemDomains(i)[0])) : '') || (suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (inStandard(i) ? t('Standard|block') : ''));
+  const tagOf = (i) => (!inDomain(i, domain) ? t(domainName(itemDomains(i)[0])) : '') || (suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (comesOf(i).standard ? t('Standard|block') : ''));
   // Answer 9: luggage on the front and rear wheel.
   const axle = $derived(stats ? axleLoad(stats, itemsById) : null);
   const split = $derived(axleSplit(axle));

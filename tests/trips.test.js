@@ -34,7 +34,9 @@ describe('trips', () => {
     const other = { id: 'trip-b', bikeId: 'gravel', startDate: '2026-09-20', entries: [] };
     const t = newTrip({ title: ' Next ', startDate: '2026-11-01', days: 2, bike }, [old, other], items, 1000);
     expect(t).toMatchObject({ title: 'Next', bikeId: 'scott', copiedFrom: 'trip-a', days: 2 });
-    expect(t.entries).toEqual([{ itemId: 'XX01', slot: 'top', qty: 2, packed: false }]);
+    // v0.33.0 (Noah 11a): Standard comes into every new trip, also a copy: EL07 and EL13 (role
+    // standard) join in their usual place; the worn KL01 does not (worn keeps its own logic).
+    expect(t.entries).toEqual([{ itemId: 'XX01', slot: 'top', qty: 2, packed: false }, { itemId: 'EL07', slot: 'mounted', qty: 1, packed: false }, { itemId: 'EL13', slot: 'top', qty: 1, packed: false }]);
     expect(t.ready.every((r) => !r.done)).toBe(true);
     const fresh = newTrip({ title: 'First', startDate: '2026-11-01', days: 2, bike: { ...bike, id: 'fully' } }, [old], items);
     expect(fresh.copiedFrom).toBe(null);

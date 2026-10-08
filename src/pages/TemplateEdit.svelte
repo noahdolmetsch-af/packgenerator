@@ -16,7 +16,7 @@
   import NotPacked from '../lib/pack/NotPacked.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import { t, tn, nameOf, bagName } from '../lib/i18n.svelte.js';
-  import { inStandard } from '../lib/gear/comes.js';
+  import { comesOf } from '../lib/gear/comes.js';
 
   let { id } = $props();
 
@@ -130,7 +130,7 @@
     event.preventDefault();
     over = key;
   }
-  const tagOf = (i) => (inStandard(i) ? t('Standard|block') : ''); // v0.32.0 (finding 5): one word, the block Standard
+  const tagOf = (i) => (comesOf(i).standard ? t('Standard|block') : ''); // v0.32.0 (finding 5): one word, the block Standard
   const totalG = $derived(places.reduce((s, p) => s + p.grams, 0));
   const totalMissing = $derived(places.reduce((s, p) => s + p.missing, 0));
 </script>

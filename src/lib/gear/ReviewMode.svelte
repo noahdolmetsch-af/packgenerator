@@ -40,7 +40,7 @@
     dialog = {
       item: null,
       preset: {
-        category: old.category, defaultBag: old.defaultBag, role: old.role ?? '', sets: old.sets ?? [], note: `Replaces ${old.name} (${old.id})`, reviewedAt: now(),
+        category: old.category, defaultBag: old.defaultBag, role: old.role ?? '', always: old.always ?? null, leaveHome: old.leaveHome ?? null, sets: [...(old.sets ?? [])], note: `Replaces ${old.name} (${old.id})`, reviewedAt: now(),
         ...Object.fromEntries(['ride', 'coldBelow', 'rain', 'perHours', 'waterL'].filter((k) => old[k] != null).map((k) => [k, old[k]])),
       },
       onsaved: async (r) => {

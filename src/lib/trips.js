@@ -12,6 +12,7 @@ import { SLOT, SLOTS, FIXED_ZONES, addedWeight, bikeWeightKind } from './bikes.j
 import { isInventory, isConsumable } from './gear.js';
 import { t as tr, bagName } from './i18n.svelte.js';
 import { inDomain, BIKEPACKING } from './domains.js';
+import { inStandard, isWorn, blockKeys } from './blocks2026.js';
 
 /**
  * The ready check suggested for every new trip (decision 7: editable per trip).
@@ -34,11 +35,15 @@ export const ALWAYS_OLD = { EL13: 'top', EL07: 'mounted', EL10: 'body', KL22: 'b
 /** A fresh ready check: the saved standard (if any) or the suggested list, nothing ticked. */
 export const freshReady = (standard = null, fallback = READY_DEFAULT) => (standard?.length ? standard : fallback).map((r) => ({ id: r.id, label: r.label, done: false }));
 
-/** Items marked "On every trip" that are not on these entries yet, in their usual place. */
+/**
+ * Items in the block Standard that are not on these entries yet, in their usual place.
+ * v0.33.0 (Noah 11a): Standard comes into EVERY new trip, also a copy and a template start (before:
+ * only items "On every trip"; role standard items came only with the start "Standard").
+ */
 export function alwaysEntries(items, entries, setup) {
   const on = new Set(entries.map((e) => e.itemId));
   return items
-    .filter((i) => i.always && isInventory(i) && !on.has(i.id) && inDomain(i, BIKEPACKING))
+    .filter((i) => inStandard(i) && isInventory(i) && !on.has(i.id) && inDomain(i, BIKEPACKING))
     .map((i) => ({ itemId: i.id, slot: slotFor(i.defaultBag, setup), qty: 1, packed: false }));
 }
 
@@ -63,8 +68,8 @@ export function slotFor(defaultBag, setup) {
 export function standardEntries(items, setup, { overnight = true } = {}) {
   return items
     // v0.21.0: only items of the bikepacking area (an item only for the weekend stays out)
-    .filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && (i.role === 'worn' || i.role === 'standard' || (overnight && i.sets?.includes('base'))))
-    .map((i) => ({ itemId: i.id, slot: i.role === 'worn' ? 'body' : slotFor(i.defaultBag, setup), qty: 1, packed: false }));
+    .filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && (isWorn(i) || inStandard(i) || (overnight && i.sets?.includes('base'))))
+    .map((i) => ({ itemId: i.id, slot: isWorn(i) ? 'body' : slotFor(i.defaultBag, setup), qty: 1, packed: false }));
 }
 
 /** Last trip on this bike (by start date), or null. */
@@ -333,7 +338,7 @@ export function toggleSet(trip, items, key, on) {
     entries = [...entries, ...inSet.filter((i) => !have.has(i.id)).map((i) => ({ itemId: i.id, slot: slotFor(i.defaultBag, trip.setup), qty: 1, packed: false }))];
   } else {
     const byId = Object.fromEntries(items.map((i) => [i.id, i]));
-    const keep = (i) => i.role === 'standard' || i.role === 'worn' || i.sets?.some((s) => s !== key && (s === 'base' || sets[s]));
+    const keep = (i) => inStandard(i) || isWorn(i) || blockKeys(i).some((s) => s !== key && (s === 'base' || sets[s]));
     const drop = new Set(inSet.filter((i) => !keep(i)).map((i) => i.id));
     entries = entries.filter((e) => !drop.has(e.itemId) || !byId[e.itemId]);
   }

@@ -9,6 +9,7 @@
  * Pure functions, easy to test.
  */
 import { isInventory, CATEGORIES } from './gear.js';
+import { inStandard, isWorn } from './blocks2026.js';
 
 export const BIKEPACKING = 'bikepacking';
 
@@ -106,14 +107,14 @@ export const packsFor = (domain) => (DOMAIN[domain]?.packs ?? []).map((p) => ({ 
 
 /** Where an item lands on a trip without a bike: worn items on me, everything else in the first bag. */
 export function packSlot(item, packs) {
-  if (item?.role === 'worn' || item?.defaultBag === 'body') return 'body';
+  if (isWorn(item) || item?.defaultBag === 'body') return 'body';
   return packs[0]?.key ?? 'body';
 }
 
 /** The start of a trip of an area: its items marked worn, standard or "On every trip". */
 export function domainEntries(items, domain, packs) {
   return items
-    .filter((i) => isInventory(i) && inDomain(i, domain) && (i.role === 'worn' || i.role === 'standard' || i.always))
+    .filter((i) => isInventory(i) && inDomain(i, domain) && (isWorn(i) || inStandard(i)))
     .map((i) => ({ itemId: i.id, slot: packSlot(i, packs), qty: 1, packed: false }));
 }
 

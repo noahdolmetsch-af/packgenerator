@@ -15,6 +15,7 @@
 import { SETS, isInventory, itemWeight, sumKnown } from './gear.js';
 import { slotFor } from './trips.js';
 import { t, tn } from './i18n.svelte.js';
+import { STANDARD, isWorn } from './blocks2026.js';
 
 export const SETS_KEY = 'sets';
 export const BUILT_IN = Object.keys(SETS);
@@ -33,8 +34,11 @@ export function allSets(value) {
   return [...builtIn, ...own];
 }
 
-/** The name of one set key (an unknown key shows as it is, so nothing disappears). */
-export const setName = (sets, key) => sets.find((s) => s.key === key)?.name ?? key;
+/**
+ * The name of one set key (an unknown key shows as it is, so nothing disappears). v0.33.0: the key
+ * 'standard' (blocks2026.js) is the built-in block Standard, shown by its word.
+ */
+export const setName = (sets, key) => sets.find((s) => s.key === key)?.name ?? (key === STANDARD ? t('Standard|block') : key);
 
 /** The amount of one item in a set (1 when none is set). */
 export const qtyOf = (set, itemId) => Math.max(1, Number(set?.qty?.[itemId]) || 1);
@@ -122,7 +126,7 @@ export function setView(set, items) {
 }
 
 /** Where a set item goes on a trip: worn on me, else its usual bag (slotFor). */
-export const tripSlot = (item, setup) => (item.role === 'worn' ? 'body' : slotFor(item.defaultBag, setup));
+export const tripSlot = (item, setup) => (isWorn(item) ? 'body' : slotFor(item.defaultBag, setup));
 
 /**
  * "+ Set" in Pack (Noah 3a): the inventory items of a set that are not on the trip yet, as new
@@ -208,6 +212,7 @@ export function startBlocks(ids, stdIds, sets, items) {
   const used = [];
   const covered = new Set();
   for (const s of sets) {
+    if (s.key === STANDARD) continue; // Standard is the stdIds comparison, never a block next to it
     const its = items.filter((i) => isInventory(i) && i.sets?.includes(s.key)).map((i) => i.id);
     if (!its.length || !its.every((id) => have.has(id)) || !its.some((id) => !std.has(id) && !covered.has(id))) continue;
     used.push(s);
@@ -228,6 +233,7 @@ export function templateBlocks(ids, stdIds, sets, items) {
   const covered = new Set(standard ? std : []);
   const blocks = [];
   for (const s of sets) {
+    if (s.key === STANDARD) continue; // Standard is the `standard` answer, never a block next to it
     const its = items.filter((i) => isInventory(i) && i.sets?.includes(s.key)).map((i) => i.id);
     if (!its.length || !its.every((id) => have.has(id)) || !its.some((id) => !covered.has(id))) continue;
     blocks.push(s);

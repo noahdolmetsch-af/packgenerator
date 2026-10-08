@@ -1,5 +1,6 @@
 <script>
   import { tidyData } from './tidy.js';
+  import { blocksAfterImport } from './updates.js';
   import { liveQuery } from 'dexie';
   import { db, DATA_TABLES } from './db.js';
   import { restoreBackup, validateBackup, countRows, downloadBackup, importImpact } from './backup.js';
@@ -104,6 +105,7 @@
   async function applyImport(mode) {
     try {
       await restoreBackup(db, pending.data, mode);
+      await blocksAfterImport(db, pending.data, mode); // v0.33.0: old data in the file gets the building blocks too
       await tidyData(db);
       message = mode === 'replace' ? t('Imported {name} (replaced all data).', { name: pending.name }) : t('Imported {name} (merged).', { name: pending.name });
       pending = null;

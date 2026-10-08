@@ -12,6 +12,7 @@
  * the debrief now). The offset is kept in localStorage and applied in main.js before the app starts.
  */
 import { buildBackup, restoreBackup, validateBackup } from './backup.js';
+import { blocksAfterImport } from './updates.js';
 import { t } from './i18n.svelte.js';
 
 export const DEMO_KEY = 'demo';
@@ -37,6 +38,7 @@ export async function startDemo(db, data, now = new Date()) {
   await db.table('meta').put({ key: DEMO_KEY, name: data.demo.name ?? 'Demo', note: data.demo.note ?? '', days: data.demo.days ?? [], startedAt: now.toISOString(), snapshot });
   try {
     await restoreBackup(db, data, 'merge');
+    await blocksAfterImport(db, data, 'merge'); // v0.33.0: old demo data gets the building blocks (tidyData)
   } catch (err) {
     await db.table('meta').delete(DEMO_KEY);
     throw err;
@@ -48,6 +50,7 @@ export async function endDemo(db) {
   const rec = await db.table('meta').get(DEMO_KEY);
   if (!rec) return false;
   await restoreBackup(db, rec.snapshot, 'replace');
+  await blocksAfterImport(db, rec.snapshot, 'replace'); // a copy from before v0.33.0: updated on the next start
   await db.table('meta').delete(DEMO_KEY);
   setClock(null);
   return true;

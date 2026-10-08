@@ -17,6 +17,7 @@
  * Pure functions, tested in tests/bagsuggest.test.js.
  */
 import { SLOTS } from './bikes.js';
+import { isWorn } from './blocks2026.js';
 
 /** The item sets that get a place suggestion. */
 export const PLACE_SETS = ['sleep', 'cook'];
@@ -30,7 +31,7 @@ const isOutdoor = (trip) => trip?.overnight === 'outdoor';
 /** Is this entry's place poor for the item? On the body without being worn, or no bag at its place. */
 export function poorPlace(entry, item, trip) {
   if (entry.slot === 'mounted') return false;
-  if (entry.slot === 'body') return item?.role !== 'worn';
+  if (entry.slot === 'body') return !isWorn(item);
   if (Array.isArray(trip.packs)) return false; // a trip without a bike has its own bags
   return !trip.setup?.[entry.slot];
 }
