@@ -314,6 +314,9 @@ const PRIO = { high: 3, medium: 2, low: 1 };
 const COLD = /autumn|cold|winter|night|glove|down|warm|buff|dark|light/i;
 const HOT = /heat|hot|sun|summer|water|drink/i;
 
+/** When a learning was made: an imported one by its original date (source 'import'), else createdAt. */
+const recentAt = (l) => (l.source === 'import' ? (l.date ? `${l.date}T12:00:00.000Z` : null) : l.createdAt);
+
 /** The learnings that matter most for a trip (answer 9a: the 3 most important for the season). */
 export function learningsFor(trip, learnings, n = 3, today = new Date()) {
   const month = trip?.startDate ? Number(trip.startDate.slice(5, 7)) : today.getMonth() + 1;
@@ -327,7 +330,8 @@ export function learningsFor(trip, learnings, n = 3, today = new Date()) {
       (l.itemIds?.some((id) => on.has(id)) ? 1 : 0) +
       Math.min(2, l.confirmed ?? 0) +
       // v0.30.2 (test R6.6): a learning from the last 30 days comes first, so a new one shows up.
-      (l.createdAt && today - new Date(l.createdAt) < 30 * 864e5 ? 100 : 0)
+      // v0.36.0 (gear import): an imported learning counts by its ORIGINAL date (none: never new).
+      (recentAt(l) && today - new Date(recentAt(l)) < 30 * 864e5 ? 100 : 0)
     );
   };
   return learnings

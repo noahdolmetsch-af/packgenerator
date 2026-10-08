@@ -231,7 +231,8 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   await shot(page, info, 'whatsnew');
   // "Try it" goes to the exact place.
   await news.locator('.ver').first().getByRole('link', { name: T('Try it') }).first().click();
-  await expect(page).toHaveURL(/#\/pack$/);
+  // v0.36.0: the first point of the newest version (was #/pack in 0.35.0).
+  await expect(page).toHaveURL(new RegExp(`${WHATS_NEW[0].points[0].href.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}$`));
 
   // Today: an update from 0.34 shows the line once.
   await page.evaluate(() => localStorage.setItem('whatsnew.seen', '0.34.0'));

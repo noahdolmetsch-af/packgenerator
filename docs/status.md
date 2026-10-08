@@ -4,17 +4,12 @@ Stand: 8. Oktober 2026
 
 ## Aktuell live
 
-- **v0.35.0 „In Bearbeitung“ (AP29, [PR #57](https://github.com/noahdolmetsch-af/packgenerator/pull/57)):** Touren und Rückblicke in Arbeit über „{n} weitere ▾“ im Tourband wechseln, kurz „✓ Gespeichert“ nach jeder Änderung, nichts Getipptes geht verloren, und „Was die App alles kann“ zeigt oben die Neuerungen.
-- Seit 0.22.1 gab es 20 Releases (PR #31 bis #57). Jeder ging erst online, als Build, Unit-Tests und Browser-Tests (Phone und Desktop) auf GitHub grün waren. Stand 0.35.0: 785 Unit-Tests, 287 Browser-Tests bestanden.
+- **v0.36.0 „Import prüfen“ (Excel-Import Schritt 1, PR #59):** Noahs bereinigte Material-Excel (privat, nicht im Repo) kommt als Datei über Deine Daten in die App und wartet auf der Seite „Import prüfen“ (auch über Material „•••“). Gruppen „Schon da“ (nur ergänzen, nie überschreiben), „Neu“, „Unsicher“ (ein Tipp: dasselbe Teil oder neu) und „Nicht im Import“ (archivieren statt löschen). Ein Knopf „Alle sicheren übernehmen“, vorher automatisches Backup, danach „Rückgängig“. Jedes Teil behält seine Excel-Nummer, ein zweiter Import legt nichts doppelt an. Learnings behalten ihr Datum. Neue Bereiche Velo, Wandern, Alltag.
 - Was sich pro Release geändert hat, steht unten in der Historie. Entscheidungen: [Entscheidungslog](decisions.md). Arbeitspakete und Reihenfolge: [Roadmap](roadmap.md#stand-und-nächste-pakete-8102026).
 
 ## In Arbeit
 
-- **v0.36.0 „Import prüfen“** (Excel-Import Schritt 1): Noahs bereinigte Material-Excel (privat, nicht im Repo) kommt über eine Prüfseite in die App, mit den Gruppen „Schon da“, „Neu“ und „Unsicher“.
-  - Vor dem Import macht die App automatisch ein Backup; „Rückgängig“ stellt den alten Stand wieder her.
-  - Jedes Teil behält seine Excel-Nummer (`sourceId`). Ein zweiter Import findet es wieder, es entstehen keine Doppelten.
-  - Teile, die schon in der App sind, werden nur ergänzt, nie überschrieben. App-Teile, die nicht in der Excel stehen, zeigt eine Liste; Noah kann sie archivieren (nicht löschen, alte Touren bleiben ganz).
-  - Learnings behalten ihr ursprüngliches Datum.
+- **0.37 Rucksäcke** und der Entwurf für **0.38 „Heute und Menü“** (schnelle Knöpfe, Sprünge, Saison in Zahlen, Bereit-Ampel, neues Menü, kompaktere Listen).
 
 ## Offen zur Abnahme
 
@@ -25,6 +20,7 @@ Stand: 8. Oktober 2026
 
 Die folgenden Einträge beschreiben den jeweiligen damaligen Release. Spätere Entscheidungen haben einzelne Layouts, Navigation und Bezeichnungen ersetzt. Für das heutige Verhalten gelten die Abschnitte oben und das Entscheidungslog.
 
+- **Import prüfen (v0.36.0, 8.10.2026, PR #59, Excel-Import Schritt 1):** Material-Liste als Datei laden, auf „Import prüfen“ vergleichen (Schon da / Neu / Unsicher / Nicht im Import), „Alle sicheren übernehmen“ mit Backup und Rückgängig. Bestehende Teile werden nur ergänzt (Bereiche, Körperzone, Schicht, Temperatur, Regel, Notiz, Excel-Nummer). Archivieren statt löschen. Importierte Learnings mit Originaldatum. Neue Bereiche Velo, Wandern, Alltag.
 - **In Bearbeitung und Gespeichert (v0.35.0, 8.10.2026, PR #57, AP29):** Im dunklen Tourband öffnet „{n} weitere ▾“ alle Touren und Rückblicke in Arbeit (am Phone von unten, am Desktop als kleines Fenster), mit Menü „Nicht fahren“, „Verwerfen“, „Tour beenden“, „Ohne Rückblick abschliessen“ und Undo; die Liste räumt sich selbst auf. Nach jeder Änderung kurz „✓ Gespeichert“. Neue Tour, neues Teil und Quick note sind gespeichert, sobald ein Name oder Text getippt ist. „Was die App alles kann“ beginnt mit „Neu in den letzten Updates“, Heute zeigt nach einem Update einmal „Neu seit deinem letzten Besuch“.
 - **Zeitplan, Einkaufen, Laden, Abend (v0.34.0, 8.10.2026, PR #56):** Die dunkle Karte auf Heute zeigt immer den einen nächsten Schritt nach Tagen bis zum Start (Velo-Service, Wetter, Einkaufen und Laden, Packen, Startcheck, Unterwegs, Rückblick), darunter eine kleine Zeitleiste. Pack hat eine Einkaufsliste (Essen mit Menge, als Text teilen) und eine Ladeliste (Elektronik und Licht der Tour). Unterwegs zeigt bei mehreren Tagen einen Abendblock. Das Backup lässt sich ans andere Gerät senden; der Import sagt, ob die Datei neuer oder älter ist. Rundgang-Lücken L1, L3, L4, L8, L10.
 - **Bausteine in den Daten (v0.33.0, 8.10.2026, PR #55):** Jede neue Tour bringt alles aus „Standard“ mit, auch aus einer Vorlage oder Kopie. „Zu Hause lassen“ nimmt ein Teil wirklich aus Standard. Eine einmalige Umstellung überträgt die alten Rollen; die alten Felder bleiben mitgeführt, damit ein Backup auch in 0.32 noch öffnet. Unbenutzte Standard-Teile können auf der Ballast-Karte erscheinen (Werkzeug und Getragenes nie).
@@ -115,14 +111,15 @@ Aus bisherigen Aufgaben übernommen, in dieser Runde nicht neu geprüft. Keine S
 
 ## Nächste Schritte
 
-Reihenfolge nach 0.36 (Details in der [Roadmap](roadmap.md#stand-und-nächste-pakete-8102026); Versionsnummern geplant):
+Reihenfolge (Details in der [Roadmap](roadmap.md#stand-und-nächste-pakete-8102026); Versionsnummern geplant):
 
 1. 0.37 Rucksäcke: echte getragene Taschen mit Litern und Gewicht; Plätze „Rücken“ und „Hüfte“ am Velo zählen zu „Am Körper“; Touren ohne Velo nutzen die echten Rucksäcke; Warnung, wenn der Inhalt mehr Liter braucht als die Tasche fasst.
-2. 0.38 AP28 Vorlagen-Seite neu: Design und neue Vorlage von Grund auf.
-3. 0.39 AP27 GPX einer Aktivität wird ein Learning.
-4. 0.40 Excel-Import Schritt 2: aus dem Verlauf lernen (alte Touren, Temperatur-Kits, Aufgaben, Werkstatt).
-5. AP30 Foto, KI erkennt das Teil (vorher klären: kleiner Server, Kosten, Datenschutz; günstiger Einstieg per Barcode).
-6. Mehrfachauswahl in Gear auch für Bausteine und Taschen (tiefe Priorität).
-7. Offene Abnahmen AP21–AP24 und AP26.
+2. 0.38 Heute und Menü: schnelle Knöpfe (Kette geölt, Verschleiss, geputzt, Dichtmilch, Reifendruck, km, Tagestour, Quick note), Sprünge (fällig, Totes Gewicht, Vor einem Jahr, Wochenend-Wetter, Neu in der App), Saison in Zahlen, Bereit-Ampel pro Velo, Menü Heute/Touren/Material/Velos mit + und „Mehr“, Suche findet Seiten; dazu Wischen im Material, Taschen-Hinweis nur bei Bedarf, Velopflege als dichte Liste, ganze Update-Geschichte.
+3. 0.39 AP28 Vorlagen-Seite neu: Design und neue Vorlage von Grund auf.
+4. 0.40 AP27 GPX einer Aktivität wird ein Learning.
+5. 0.41 Excel-Import Schritt 2: aus dem Verlauf lernen (alte Touren, Temperatur-Kits, Aufgaben, Werkstatt).
+6. AP30 Foto, KI erkennt das Teil (vorher klären: kleiner Server, Kosten, Datenschutz; günstiger Einstieg per Barcode).
+7. Mehrfachauswahl in Gear auch für Bausteine und Taschen (tiefe Priorität).
+8. Offene Abnahmen AP21–AP24 und AP26.
 
 Der frühere Plan „Ist-Analyse und Plan“, Etappen A–D und offene ★-Annahmen sind historische Quellen. Sie sind keine gleichzeitig laufende Roadmap. Bereits umgesetzte Reisearten und Funktionen bleiben; ungelöste Anforderungen werden mit AP-ID in die aktuelle Roadmap aufgenommen.

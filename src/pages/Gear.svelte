@@ -7,6 +7,7 @@
   import { SvelteSet } from 'svelte/reactivity';
   import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, UNKNOWN_CATEGORY, BAG, OWNERSHIP, bulkCategory, bulkOwnership, namesList } from '../lib/gear.js';
   import { saveItems, deletePlan, deleteItems, undoBulk } from '../lib/gear/bulk.js';
+  import { STAGED } from '../lib/gear/importdb.js';
   import FavStar from '../lib/gear/FavStar.svelte';
   import WeightOverview from '../lib/gear/WeightOverview.svelte';
   import WeighMode from '../lib/gear/WeighMode.svelte';
@@ -23,6 +24,14 @@
   import { leaveHome } from '../lib/blocks2026.js';
   import { leaveHomeFields } from '../lib/gear/comes.js';
 
+  // v0.36.0: a gear list waiting on "Check import" (#/gear/import), counted in the ••• menu.
+  const stagedQ = liveQuery(() => db.table('meta').get(STAGED));
+  let gmoreEl = $state();
+  function closeGmore(e) {
+    e.stopPropagation();
+    gmoreEl.open = false;
+    gmoreEl.querySelector('summary')?.focus();
+  }
   // All items, kept up to date by the database (liveQuery re-runs on every change).
   const itemsQuery = liveQuery(() => db.items.toArray());
   const items = $derived($itemsQuery ?? []);
@@ -294,6 +303,14 @@
       <h1 class="title">{t('Gear')}</h1>
       <!-- v0.26.0 (Noah 2b): the building blocks page -->
       <a class="btn sm blk" href="#/blocks">{t('Building blocks')} →</a>
+      <!-- v0.36.0 (Noah 1a): the quiet page actions; "Check import" opens the staged gear list. -->
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+      <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeGmore(e)}>
+        <summary class="btn sm" aria-label={t('More for Gear')}>•••</summary>
+        <div class="gmenu">
+          <a href="#/gear/import">{t('Check import')}{#if $stagedQ}<i class="badge num">{$stagedQ.data?.items?.length ?? 0}</i>{/if}</a>
+        </div>
+      </details>
     </div>
     <div class="kpis">
       <div><span class="lbl">{t('Items')}</span><b class="num">{stats.inventory.length}</b></div>
@@ -1286,8 +1303,60 @@
   .bacts .btn {
     white-space: nowrap;
   }
+  /* v0.36.0: the ••• of the page header (Check import). */
+  .gmore {
+    position: relative;
+    display: inline-block;
+  }
+  .gmore > summary {
+    list-style: none;
+    min-width: 44px;
+    letter-spacing: 1px;
+  }
+  .gmore > summary::-webkit-details-marker {
+    display: none;
+  }
+  .gmenu {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 200px;
+    max-width: calc(100vw - 32px);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(15, 46, 39, 0.16);
+    padding: 4px;
+  }
+  .gmenu a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .gmenu a:hover {
+    background: var(--paper-2);
+  }
+  .gmenu .badge {
+    font-style: normal;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 1px 8px;
+    border-radius: 99px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
   /* v0.26.0 (Noah 2b, 6a): the building blocks link in the header, the "More" menu of the bar. */
   .ht {
+    /* v0.36.0: the ••• menu opens over the numbers next to it. */
+    position: relative;
+    z-index: 5;
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
