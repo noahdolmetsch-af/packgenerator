@@ -740,4 +740,8 @@ export default {
   "{name} was missing": "{name} hat gefehlt",
   "{name} not needed": "{name} nicht gebraucht",
   "{name} broken": "{name} kaputt",
+  // v0.30.1 (Noah B10): the all-done card on the Pack tab.
+  '{n} item packed': '{n} Teil gepackt',
+  '{n} items packed': '{n} Teile gepackt',
+  'Ready check done': 'Startcheck erledigt',
 };
