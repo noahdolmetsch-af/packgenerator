@@ -24,6 +24,7 @@
   import { openNew, openTrip } from '../nav.js';
   import { t, tn, num, locale, nameOf } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
+  import { TEMPLATES_KEY } from '../templates.js';
 
   let {
     loaded = false,
@@ -50,6 +51,8 @@
   // null = no home place yet, undefined = still reading
   const placeQ = liveQuery(async () => (await db.settings.get(HOME_PLACE))?.value ?? null);
   const fcQ = liveQuery(async () => (await db.meta.get(HOME_FORECAST)) ?? null);
+  // v0.28.0 (AP25 6a): the templates, for the card "{n} suggestions for your templates".
+  const tplQ = liveQuery(async () => (await db.settings.get(TEMPLATES_KEY))?.value ?? []);
 
   const pace = $derived(paceOf($paceQ?.value));
   const todos = $derived(loaded ? openTodos({ bikes, items, pace, debriefs, trips }) : []);
@@ -58,7 +61,7 @@
   const tips = $derived(learningsFor(next, learnings, 1));
   const cards = $derived(
     loaded
-      ? knowCards({ today, todos, backup, demo, next, fc, sun, tips, pace, notes, bikes, trips, debriefs, visits, items, containers, homePlace: $placeQ, homeForecast: $fcQ, placeLoading: $placeQ === undefined || $fcQ === undefined })
+      ? knowCards({ today, todos, backup, demo, next, fc, sun, tips, pace, notes, bikes, trips, debriefs, visits, items, containers, templates: $tplQ ?? [], homePlace: $placeQ, homeForecast: $fcQ, placeLoading: $placeQ === undefined || $fcQ === undefined })
       : [],
   );
 
@@ -178,6 +181,11 @@
           <b>{tn(d.notes.length, '{n} note to sort', '{n} notes to sort')}</b>
           <span class="clip">{d.notes[0].text}</span>
           {@render go(t('Sort now'), '#/inbox')}
+        {:else if c.key === 'templates'}
+          <span class="lbl">{t('Templates')}</span>
+          <b>{tn(d.n, '{n} suggestion for your templates', '{n} suggestions for your templates')}</b>
+          <span>{t('From your debriefs. You decide; nothing changes on its own.')}</span>
+          {@render go(t('Look at them'), '#/pack/templates')}
         {:else if c.key === 'weekend'}
           <span class="lbl">{t('Weekend ride weather')} · {d.place.name.split(',')[0]}</span>
           <b>{d.days.map((x) => t('{day} {max} °C {rain}', { day: weekday(x.date), max: x.max, rain: t(RAIN[x.rain]) })).join(' · ')}</b>

@@ -20,7 +20,21 @@ import { slotFor } from './trips.js';
 
 export const OVERNIGHT = ['none', 'lodging', 'outdoor'];
 /** The item sets a context can bring. */
-export const CONTEXT_SETS = ['lodging', 'base', 'sleep', 'warm', 'cook'];
+export const CONTEXT_SETS = ['lodging', 'base', 'sleep', 'warm', 'cook', 'firstaid'];
+/**
+ * v0.28.0 (AP25, Noah: "Erste Hilfe komplett raus ausser bei 1 Nacht oder mehr"): the first aid
+ * set comes with every night (lodging and outdoor). A new trip without a night carries none of
+ * its items, also when one is standard, "On every trip" or in the template.
+ */
+export const NIGHT_ONLY = ['firstaid'];
+const nightOnly = (item) => !!item?.sets?.some((s) => NIGHT_ONLY.includes(s));
+
+/** Without a night (overnight 'none'): the entries without the first aid items. Other trips keep all. */
+export function dropNightOnly(entries, trip, items) {
+  if (trip?.overnight !== 'none') return entries;
+  const byId = new Map(items.map((i) => [i.id, i]));
+  return entries.filter((e) => !nightOnly(byId.get(e.itemId)));
+}
 /** Night switches in Pack (trips.js NIGHT_SETS) that follow the overnight stay. */
 const SWITCHED = ['sleep', 'warm', 'cook'];
 
@@ -29,8 +43,8 @@ export const hasContext = (trip) => OVERNIGHT.includes(trip?.overnight);
 
 /** v0.25.0 (Noah 4): the item sets the overnight stay brings. */
 export function contextSets(trip) {
-  if (trip?.overnight === 'lodging') return ['lodging'];
-  if (trip?.overnight === 'outdoor') return ['base', 'sleep', 'warm', ...(trip.cook ? ['cook'] : [])];
+  if (trip?.overnight === 'lodging') return ['lodging', 'firstaid'];
+  if (trip?.overnight === 'outdoor') return ['base', 'sleep', 'warm', ...(trip.cook ? ['cook'] : []), 'firstaid'];
   return [];
 }
 
@@ -116,12 +130,14 @@ export function applyContext(trip, items, before = null, { fresh = false } = {})
  * A new trip with its context (Pack / TripDialog "Create trip"). fromCopy: the start is a copy of
  * the last trip; items of that trip that only belong to overnight sets this trip does not bring
  * stay at home (a day ride after a bivvy weekend starts without the sleeping bag). Worn, standard
- * and "On every trip" items always stay.
+ * and "On every trip" items always stay, except the first aid set on a trip without a night
+ * (v0.28.0, dropNightOnly).
  */
 export function contextTrip(trip, items, { fromCopy = false } = {}) {
   if (!hasContext(trip)) return trip;
-  const entries = fromCopy ? startEntries(trip, items) : trip.entries ?? [];
-  return { ...trip, ...applyContext({ ...trip, entries }, items, null, { fresh: true }) };
+  const entries = dropNightOnly(fromCopy ? startEntries(trip, items) : trip.entries ?? [], trip, items);
+  const out = { ...trip, ...applyContext({ ...trip, entries }, items, null, { fresh: true }) };
+  return { ...out, entries: dropNightOnly(out.entries ?? [], trip, items) };
 }
 
 /** The entries a copy of the last trip starts with: without overnight-set items this trip does not bring. */
@@ -153,7 +169,8 @@ export function carryHint(trip, items, entries = trip?.entries ?? []) {
  * start: the entries of the start (standard set, template or last trip).
  * → { start, total, amounts: [{ item, qty }], weather: [item], sets: [{ key, n }], left: ['overnight', 'event'] }
  */
-export function contextSummary(start, trip, items) {
+export function contextSummary(start0, trip, items) {
+  const start = dropNightOnly(start0, trip, items); // v0.28.0: no first aid without a night
   const byId = new Map(items.map((i) => [i.id, i]));
   const startIds = new Set(start.map((e) => e.itemId));
   const full = contextEntries({ ...trip, entries: start }, items);

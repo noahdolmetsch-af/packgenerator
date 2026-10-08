@@ -26,9 +26,10 @@ const now = trips.at(-1);
 describe('ballast card', () => {
   it('lists what was not used the last times, heaviest first, without bags', () => {
     const b = ballast(now, items, trips, debriefs);
-    expect(b.rows.map((r) => [r.itemId, r.n])).toEqual([['OB01', 3], ['LX01', 2], ['WZ19', 3]]);
+    // v0.28.0 (AP25): the brake pads are tools: never ballast.
+    expect(b.rows.map((r) => [r.itemId, r.n])).toEqual([['OB01', 3], ['LX01', 2]]);
     expect(b.totalG).toBe(360);
-    expect(b.unweighed).toBe(1);
+    expect(b.unweighed).toBe(0);
     expect(b.rows[0].titles).toEqual(['Trip C', 'Trip B', 'Trip A']);
   });
 
@@ -40,7 +41,7 @@ describe('ballast card', () => {
   it('Leave at home takes the items off, Keep stops asking', () => {
     expect(leaveAtHome(now, ['OB01', 'LX01']).entries.map((e) => e.itemId)).toEqual(['KL15', 'TA01', 'WZ19']);
     const kept = { ...now, ...keepOnTrip(now, 'OB01') };
-    expect(ballast(kept, items, trips, debriefs).rows.map((r) => r.itemId)).toEqual(['LX01', 'WZ19']);
+    expect(ballast(kept, items, trips, debriefs).rows.map((r) => r.itemId)).toEqual(['LX01']);
   });
 
   it('nothing without debriefs', () => {

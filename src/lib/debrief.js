@@ -16,6 +16,7 @@ import { isInventory } from './gear.js';
 import { t, nameOf } from './i18n.svelte.js';
 import { domainOf, hasBike } from './domains.js';
 import { localDay } from './localday.js';
+import { alwaysKeep, weatherCounts, tripSource } from './learn.js';
 
 export const WEATHER = [
   { key: 'colder', name: 'Colder' },
@@ -377,12 +378,36 @@ export function similarItems(name, items, n = 4) {
 export const TEMPLATE_AFTER = 3;
 
 /**
- * What your debriefs say about a template, once there are TEMPLATE_AFTER finished debriefs:
- * - out: an item of the template that was not used on its last 3 trips (any trip it went on);
- * - in:  an item you own that was missing on 2 trips or more and is not in the template.
- * Returns [{ id, kind: 'out' | 'in', itemId, name, why }], 'out' first. Nothing changes here.
+ * v0.28.0 (AP25, Noah 4a): "Not now" hides a hint until this many more debriefs are done than
+ * when it was turned down.
  */
-export function templateHints(tpl, trips, debriefs, items) {
+export const REJECT_FOR = 3;
+
+/** Number of finished debriefs (what the hint log remembers as doneCount). */
+export const doneCount = (debriefs) => debriefs.filter((d) => d.status === 'done').length;
+
+/** Is a hint turned down and still resting? The newest decision for that hint counts. */
+export function hintResting(tpl, hintId, done) {
+  const last = [...(tpl?.hintLog ?? [])].reverse().find((x) => x.hintId === hintId);
+  return !!last && last.decision === 'rejected' && done < (Number(last.doneCount) || 0) + REJECT_FOR;
+}
+
+/**
+ * What your debriefs say about a template, once there are TEMPLATE_AFTER finished debriefs
+ * (all trips count, 3b). The newest trip wins (5b):
+ * - out: an item of the template that was not used on its newest LEAVE_AFTER or more trips in a row
+ *   (counting back from the newest trip; a use, or a newer trip where it was missing, ends it).
+ *   Never for tools and items "On every trip" (learn.js alwaysKeep). An item for some weather only
+ *   counts on trips with that weather (learn.js weatherCounts, 2a).
+ * - in: an item you own that was missing on 2 trips or more and is not in the template, unless a
+ *   trip newer than the last "missing" had it on and it was not used.
+ * Each hint is traceable (AP25): { id, kind: 'out' | 'in', itemId, name, why, count, of, trips }
+ * count of of: "3 of 3 trips not used" / "missing on 2 of 4 trips"; trips: [{ id, title, startDate, ctx }]
+ * (learn.js tripSource), the trips the hint comes from, newest first.
+ * Hints turned down with "Not now" (tpl.hintLog) stay hidden until REJECT_FOR more debriefs are
+ * done; all: true lists them too. 'out' first. Nothing changes here.
+ */
+export function templateHints(tpl, trips, debriefs, items, { all = false } = {}) {
   const done = debriefs.filter((d) => d.status === 'done');
   if (!tpl || done.length < TEMPLATE_AFTER) return [];
   const tripById = Object.fromEntries(trips.map((t) => [t.id, t]));
@@ -391,23 +416,70 @@ export function templateHints(tpl, trips, debriefs, items) {
     .map((d) => ({ d, t: tripById[d.tripId] }))
     .filter((x) => x.t)
     .sort((a, b) => (b.t.startDate ?? '').localeCompare(a.t.startDate ?? ''));
+  const onTrip = (tr, itemId) => (tr.entries ?? []).some((e) => e.itemId === itemId);
+  const missed = (d, itemId) => (d.missing ?? []).some((m) => m.itemId === itemId);
   const out = [];
-  const have = new Set(tpl.entries.map((e) => e.itemId));
+  const have = new Set((tpl.entries ?? []).map((e) => e.itemId));
   for (const itemId of have) {
-    const on = rows.filter(({ t }) => t.entries.some((e) => e.itemId === itemId)).slice(0, LEAVE_AFTER);
-    if (on.length >= LEAVE_AFTER && on.every(({ d }) => d.items?.[itemId] === 'unused') && byId[itemId])
-      out.push({ id: `out:${itemId}`, kind: 'out', itemId, name: nameOf(byId[itemId]), why: t('Not used on {trips}.', { trips: on.map((x) => x.t.title).join(', ') }) });
+    const item = byId[itemId];
+    if (!item || alwaysKeep(item)) continue;
+    const counted = rows.filter(({ t: tr }) => onTrip(tr, itemId) && weatherCounts(item, tr));
+    const streak = [];
+    for (const { d, t: tr } of rows) {
+      if (missed(d, itemId)) break; // missing on a newer trip: it was needed
+      if (!onTrip(tr, itemId) || !weatherCounts(item, tr)) continue; // skipped, not counted
+      if (d.items?.[itemId] !== 'unused') break;
+      streak.push(tr);
+    }
+    if (streak.length >= LEAVE_AFTER)
+      out.push({
+        id: `out:${itemId}`, kind: 'out', itemId, name: nameOf(item),
+        why: t('Not used on {trips}.', { trips: streak.map((x) => x.title).join(', ') }),
+        count: streak.length, of: counted.length, trips: streak.map(tripSource),
+      });
   }
   const missing = {};
-  for (const { d, t: tr } of rows) for (const m of d.missing ?? []) if (m.itemId && !have.has(m.itemId)) (missing[m.itemId] ??= []).push(tr.title);
-  for (const [itemId, titles] of Object.entries(missing))
-    if (titles.length >= 2 && byId[itemId] && byId[itemId].ownership !== 'gone') out.push({ id: `in:${itemId}`, kind: 'in', itemId, name: nameOf(byId[itemId]), why: t('Missing on {trips}.', { trips: titles.join(', ') }) });
-  return out;
+  for (const { d, t: tr } of rows) for (const m of d.missing ?? []) if (m.itemId && !have.has(m.itemId) && !(missing[m.itemId] ?? []).includes(tr)) (missing[m.itemId] ??= []).push(tr);
+  for (const [itemId, list] of Object.entries(missing)) {
+    const item = byId[itemId];
+    if (list.length < 2 || !item || item.ownership === 'gone') continue;
+    // 5b: a newer trip that had it on without using it wins over the older "missing".
+    const newest = list[0].startDate ?? '';
+    const newer = rows.some(({ d, t: tr }) => (tr.startDate ?? '') > newest && onTrip(tr, itemId) && weatherCounts(item, tr) && d.items?.[itemId] === 'unused');
+    if (newer) continue;
+    const of = rows.filter(({ d, t: tr }) => missed(d, itemId) || weatherCounts(item, tr)).length;
+    out.push({ id: `in:${itemId}`, kind: 'in', itemId, name: nameOf(item), why: t('Missing on {trips}.', { trips: list.map((x) => x.title).join(', ') }), count: list.length, of, trips: list.map(tripSource) });
+  }
+  if (all) return out;
+  const n = done.length;
+  return out.filter((h) => !hintResting(tpl, h.id, n));
 }
 
-/** Apply one hint to a template: take the item out, or put it in its usual bag. */
-export function applyTemplateHint(tpl, hint, items, now = new Date().toISOString()) {
-  if (hint.kind === 'out') return { ...tpl, entries: tpl.entries.filter((e) => e.itemId !== hint.itemId), updatedAt: now };
+/** One decision for the template's history (AP25): applied or turned down, with the trips behind it. */
+export function hintEntry(hint, decision, done, now = new Date().toISOString()) {
+  return {
+    hintId: hint.id,
+    kind: hint.kind,
+    itemId: hint.itemId,
+    name: hint.name,
+    decision,
+    at: now,
+    doneCount: done,
+    trips: (hint.trips ?? []).map((x) => x.id),
+    tripTitles: (hint.trips ?? []).map((x) => x.title),
+  };
+}
+
+/** "Not now" (Noah 4a): the template only remembers the decision; its items stay as they are. */
+export const rejectTemplateHint = (tpl, hint, done, now = new Date().toISOString()) => ({ ...tpl, hintLog: [...(tpl.hintLog ?? []), hintEntry(hint, 'rejected', done, now)] });
+
+/**
+ * Apply one hint to a template: take the item out, or put it in its usual bag.
+ * v0.28.0 (AP25): with done (the number of finished debriefs) the decision goes into tpl.hintLog.
+ */
+export function applyTemplateHint(tpl, hint, items, now = new Date().toISOString(), done = null) {
+  const log = done == null ? {} : { hintLog: [...(tpl.hintLog ?? []), hintEntry(hint, 'applied', done, now)] };
+  if (hint.kind === 'out') return { ...tpl, entries: tpl.entries.filter((e) => e.itemId !== hint.itemId), ...log, updatedAt: now };
   const item = items.find((i) => i.id === hint.itemId);
-  return { ...tpl, entries: [...tpl.entries, { itemId: hint.itemId, slot: item?.defaultBag ?? 'seat', qty: 1 }], updatedAt: now };
+  return { ...tpl, entries: [...tpl.entries, { itemId: hint.itemId, slot: item?.defaultBag ?? 'seat', qty: 1 }], ...log, updatedAt: now };
 }

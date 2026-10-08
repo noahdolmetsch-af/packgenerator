@@ -10,9 +10,9 @@
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { NIGHT_SETS } from '../lib/trips.js';
   import { RIDES } from '../lib/layers.js';
-  import { templateHints, applyTemplateHint, TEMPLATE_AFTER } from '../lib/debrief.js';
+  import { templateHints, applyTemplateHint, rejectTemplateHint, TEMPLATE_AFTER, REJECT_FOR } from '../lib/debrief.js';
   import TemplateEdit from './TemplateEdit.svelte';
-  import { t, tn } from '../lib/i18n.svelte.js';
+  import { t, tn, locale } from '../lib/i18n.svelte.js';
 
   // #/pack/templates/<id> opens the editor for one template (answer 7b).
   let hash = $state(location.hash);
@@ -32,9 +32,18 @@
   const itemsQ = liveQuery(() => db.items.toArray());
   const doneN = $derived(($debriefsQ ?? []).filter((d) => d.status === 'done').length);
   const hintsFor = (tp) => templateHints(tp, $tripsQ ?? [], $debriefsQ ?? [], $itemsQ ?? []);
+  // v0.28.0 (AP25): every decision goes into the template's history (tpl.hintLog) with the trips behind it.
   async function applyHint(tp, h) {
-    await saveTemplates(db, templates.map((x) => (x.id === tp.id ? applyTemplateHint(x, h, $itemsQ ?? []) : x)));
+    await saveTemplates(db, templates.map((x) => (x.id === tp.id ? applyTemplateHint(x, h, $itemsQ ?? [], new Date().toISOString(), doneN) : x)));
   }
+  // Noah 4a: "Not now" hides the hint until 3 more debriefs are done; the template stays as it is.
+  async function rejectHint(tp, h) {
+    await saveTemplates(db, templates.map((x) => (x.id === tp.id ? rejectTemplateHint(x, h, doneN) : x)));
+  }
+  const tripTitle = $derived(Object.fromEntries(($tripsQ ?? []).map((x) => [x.id, x.title])));
+  const day = (iso) => (iso ? new Date(iso.length > 10 ? iso : `${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) : '');
+  const history = (tp) => [...(tp.hintLog ?? [])].reverse();
+  const logTrips = (x) => (x.trips ?? []).map((id, n) => tripTitle[id] ?? x.tripTitles?.[n] ?? id).join(', ');
   const bagName = $derived(Object.fromEntries(($bagsQ ?? []).map((b) => [b.id, b.name])));
 
   let error = $state('');
@@ -95,15 +104,40 @@
         {#if hintsFor(tp).length}
           <div class="hints">
             <span class="lbl">{t('From your debriefs')}</span>
+            <p class="note">{t('Not used does not mean not needed: you decide.')}</p>
             <ul>
               {#each hintsFor(tp) as h (h.id)}
-                <li>
-                  <span><b>{h.kind === 'out' ? t('Take out: {name}', { name: h.name }) : t('Put in: {name}', { name: h.name })}</b><small>{h.why}</small></span>
-                  <button type="button" class="btn sm" onclick={() => applyHint(tp, h)}>{h.kind === 'out' ? t('Take out') : t('Put in')}</button>
+                <li class="hint-row" data-hint={h.id}>
+                  <b>{h.kind === 'out' ? t('Take {name} out of the template?', { name: h.name }) : t('Put {name} into the template?', { name: h.name })}</b>
+                  <details class="src">
+                    <summary>{h.kind === 'out' ? t('{count} of {of} trips not used', { count: h.count, of: h.of }) : t('Missing on {count} of {of} trips', { count: h.count, of: h.of })}</summary>
+                    <span class="lbl">{h.kind === 'out' ? t('Not needed on:') : t('Missing on:')}</span>
+                    <ul class="trips">
+                      {#each h.trips as tr (tr.id)}<li><span class="tt">{tr.title}</span> <small>{[day(tr.startDate), tr.ctx].filter(Boolean).join(' · ')}</small></li>{/each}
+                    </ul>
+                  </details>
+                  <div class="hacts">
+                    <button type="button" class="btn sm" onclick={() => applyHint(tp, h)}>{h.kind === 'out' ? t('Take out') : t('Put in')}</button>
+                    <button type="button" class="btn sm" onclick={() => rejectHint(tp, h)}>{t('Not now')}</button>
+                  </div>
                 </li>
               {/each}
             </ul>
+            <p class="note">{t('"Not now" asks again after {n} more debriefs.', { n: REJECT_FOR })}</p>
           </div>
+        {/if}
+        {#if tp.hintLog?.length}
+          <details class="hist">
+            <summary>{t('History')} ({tp.hintLog.length})</summary>
+            <ul>
+              {#each history(tp) as x, n (n)}
+                <li>
+                  <b>{x.decision === 'applied' ? t('Applied') : t('Not now')}</b>: {x.kind === 'out' ? t('Take out: {name}', { name: x.name ?? x.itemId }) : t('Put in: {name}', { name: x.name ?? x.itemId })}
+                  <small>{day(x.at)}{#if x.trips?.length}{' · '}{t('from {trips}', { trips: logTrips(x) })}{/if}</small>
+                </li>
+              {/each}
+            </ul>
+          </details>
         {/if}
         <div class="acts">
           <button type="button" class="btn hi" onclick={() => start(tp)}>{t('New trip from it')}</button>
@@ -179,19 +213,71 @@
     margin: 4px 0 0;
     padding: 0;
   }
-  .hints li {
+  .hint-row {
+    display: grid;
+    gap: 6px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .hint-row:first-child {
+    border-top: 0;
+  }
+  .note {
+    margin: 4px 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .src summary,
+  .hist summary {
+    cursor: pointer;
+    min-height: 32px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 6px 0;
+    font-size: 14px;
   }
-  .hints li span {
+  @media (pointer: coarse) {
+    .src summary,
+    .hist summary {
+      min-height: 44px;
+    }
+    .hacts .btn {
+      min-height: 44px;
+    }
+  }
+  .trips {
+    margin: 2px 0 4px;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 4px;
+  }
+  .trips li,
+  .hist li {
+    font-size: 14px;
     min-width: 0;
+    overflow-wrap: anywhere;
   }
-  .hints small {
+  .trips small,
+  .hist small {
     display: block;
     color: var(--ink-3);
+  }
+  .hacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .hist {
+    margin-top: 10px;
+  }
+  .hist ul {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
   }
   .del {
     margin-left: auto;

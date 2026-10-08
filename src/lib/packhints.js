@@ -8,6 +8,7 @@
 import { debriefedTrips } from './insights.js';
 import { isInventory } from './gear.js';
 import { t } from './i18n.svelte.js';
+import { alwaysKeep, weatherCounts } from './learn.js';
 
 /** Not used this many times in a row (the last times it came along) makes an item ballast. */
 export const BALLAST_AFTER = 2;
@@ -22,9 +23,12 @@ function history(trip, trips, debriefs) {
     .reverse();
 }
 
-/** How often an item was not used in a row, counting back from its last trip: { n, titles }. */
-function unusedStreak(itemId, hist) {
-  const on = hist.filter(({ t }) => (t.entries ?? []).some((e) => e.itemId === itemId)).slice(0, LOOK_BACK);
+/**
+ * How often an item was not used in a row, counting back from its last trip: { n, titles }.
+ * v0.28.0 (AP25, 2a): with the item, trips without its weather (rain, cold) are skipped (learn.js).
+ */
+export function unusedStreak(itemId, hist, item = null) {
+  const on = hist.filter(({ t }) => (t.entries ?? []).some((e) => e.itemId === itemId) && weatherCounts(item, t)).slice(0, LOOK_BACK);
   const titles = [];
   for (const { d, t } of on) {
     if (d.items?.[itemId] !== 'unused') break;
@@ -38,13 +42,15 @@ function unusedStreak(itemId, hist) {
  * key: 'unused' | 'missed' | 'broke' | 'tip'; tone: 'warn' for the ones that ask for something.
  * tips: the learning per item (tipsByItem).
  */
-export function packBadges(trip, trips, debriefs, tips = {}) {
+export function packBadges(trip, trips, debriefs, tips = {}, items = []) {
   const hist = history(trip, trips, debriefs);
+  const byId = Object.fromEntries(items.map((i) => [i.id, i]));
   const last = hist[0];
   const out = {};
   const add = (id, b) => (out[id] ??= []).push(b);
   for (const id of new Set((trip?.entries ?? []).map((e) => e.itemId))) {
-    const s = unusedStreak(id, hist);
+    // v0.28.0 (AP25): tools and "On every trip" never get the "not used" badge.
+    const s = alwaysKeep(byId[id]) ? { n: 0, titles: [] } : unusedStreak(id, hist, byId[id] ?? null);
     if (s.n >= BALLAST_AFTER) add(id, { key: 'unused', label: t('{n}× not used', { n: s.n }), text: t('Not used on {trips}.', { trips: s.titles.join(', ') }), tone: 'warn' });
     if (last && (last.d.missing ?? []).some((m) => m.itemId === id)) add(id, { key: 'missed', label: t('Missed last time'), text: t('You missed it on {trip}. Good that it is on.', { trip: last.t.title }), tone: '' });
     const lastOn = hist.find(({ t }) => (t.entries ?? []).some((e) => e.itemId === id));
@@ -57,7 +63,8 @@ export function packBadges(trip, trips, debriefs, tips = {}) {
 /**
  * The ballast on this trip (N3): items not used the last BALLAST_AFTER or more times they came
  * along, heaviest first. Bags, bike parts and food stay out, and so do items kept on purpose
- * (trip.keep). Returns { rows: [{ itemId, name, g, n, titles }], totalG, unweighed }.
+ * (trip.keep). v0.28.0 (AP25): tools and "On every trip" never; weather items only count on trips
+ * with their weather. Returns { rows: [{ itemId, name, g, n, titles }], totalG, unweighed }.
  */
 export function ballast(trip, items, trips, debriefs) {
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
@@ -66,8 +73,8 @@ export function ballast(trip, items, trips, debriefs) {
   const rows = [];
   for (const e of trip?.entries ?? []) {
     const item = byId[e.itemId];
-    if (!item || !isInventory(item) || NOT_BALLAST.includes(item.category) || keep.has(e.itemId)) continue;
-    const s = unusedStreak(e.itemId, hist);
+    if (!item || !isInventory(item) || NOT_BALLAST.includes(item.category) || keep.has(e.itemId) || alwaysKeep(item)) continue;
+    const s = unusedStreak(e.itemId, hist, item);
     if (s.n < BALLAST_AFTER) continue;
     rows.push({ itemId: e.itemId, name: item.name, g: item.weightG == null ? null : item.weightG * (e.qty || 1), n: s.n, titles: s.titles });
   }

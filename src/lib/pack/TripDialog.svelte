@@ -20,7 +20,7 @@
    * (context.js). Editing a trip applies a changed context at once through onchange (Pack's
    * change(), so Undo works, 9b).
    */
-  let { trip, trips, bikes, items, templates = [], startFrom = 'last', domain = null, defaultBikeId = null, onclose, oncreated, onchange = null } = $props();
+  let { trip, trips, bikes, items, templates = [], startFrom = 'standard', domain = null, defaultBikeId = null, onclose, oncreated, onchange = null } = $props();
 
   // svelte-ignore state_referenced_locally
   const isNew = !trip;
@@ -84,9 +84,10 @@
   const byBike = $derived(isNew ? !!DOMAIN[area]?.bike : hasBike(trip));
   const fromArea = $derived(isNew && !byBike ? lastTripIn(area, trips) : null);
   const areaItems = $derived(items.filter((i) => isInventory(i) && inDomain(i, area)).length);
-  // A template does not fit an area without a bike: back to "last" (copy or the area's items).
+  // A template does not fit an area without a bike: back to the standard (the area's items).
+  // v0.28.0 (Noah 8.10.2026): a new trip starts with the standard set; templates are optional.
   $effect(() => {
-    if (!byBike && templates.some((x) => x.id === start)) start = 'last';
+    if (!byBike && templates.some((x) => x.id === start)) start = 'standard';
   });
   let error = $state('');
   let dialog;
@@ -136,7 +137,7 @@
     const from = tpl ? t('your template {name}', { name: tpl.name }) : fromCopy ? t('your last trip {title}', { title: trips.find((x) => x.id === base.copiedFrom)?.title ?? '' }) : t('your standard set');
     return { from, ...contextSummary(start, trip, items) };
   });
-  const setName = (key) => (key === 'lodging' ? t('Lodging') : key === 'base' ? t('Base') : key === 'sleep' ? t('Sleep') : key === 'warm' ? t('Warm') : t('Cook'));
+  const setName = (key) => (key === 'lodging' ? t('Lodging') : key === 'base' ? t('Base') : key === 'sleep' ? t('Sleep') : key === 'warm' ? t('Warm') : key === 'firstaid' ? t('First aid') : t('Cook'));
 
   async function save(event) {
     event.preventDefault();
@@ -263,9 +264,10 @@
     {:else if isNew}
       <label class="start"><span class="lbl">{t('Start from')}</span>
         <select class="sel" bind:value={start} onchange={(e) => useTemplate(e.currentTarget.value)}>
+          <!-- v0.28.0 (Noah 8.10.2026): the standard set first and by default; a copy or a template is a choice. -->
+          <option value="standard">{t('Standard set')}</option>
           <option value="last">{from ? t('Last trip on this bike: {title}', { title: from.title }) : t('Last trip on this bike (none yet)')}</option>
           {#each templates as tp (tp.id)}<option value={tp.id}>{t('Template: {name}', { name: tp.name })}</option>{/each}
-          <option value="standard">{t('Standard set')}</option>
         </select>
       </label>
       <!-- v0.25.0 (M3): live, from the same functions as "Create trip" (context.js). -->
@@ -276,8 +278,8 @@
             <li>{tn(preview.start, '{n} item from {from}', '{n} items from {from}', { from: preview.from })}{#if start === 'last' && from}{' '}<span class="muted">{t('(a copy, nothing ticked off)')}</span>{/if}</li>
             {#if preview.amounts.length}<li>{t('By duration')}: {#each preview.amounts as a, n (a.item.id)}{n ? ', ' : ''}{nameOf(a.item)} <b>{a.qty}</b>{/each}</li>{/if}
             {#if preview.weather.length}<li>{t('For the weather')}: {preview.weather.map((i) => nameOf(i)).join(', ')}</li>{/if}
-            {#if night === 'lodging'}<li>{t('Overnight: lodging set, {n} more', { n: preview.sets[0]?.n ?? 0 })}</li>
-            {:else if night === 'outdoor'}<li>{t('Overnight outdoors: {sets}', { sets: preview.sets.map((x) => `${setName(x.key)} ${x.n}`).join(', ') })}</li>{/if}
+            {#if night === 'lodging'}<li>{t('Overnight: lodging set, {n} more', { n: preview.sets.reduce((s, x) => s + x.n, 0) })}</li>
+            {:else if night === 'outdoor'}<li>{t('Overnight outdoors: {sets}', { sets: preview.sets.filter((x) => x.n || x.key !== 'firstaid').map((x) => `${setName(x.key)} ${x.n}`).join(', ') })}</li>{/if}
             {#if preview.left.length}<li class="muted">{preview.left.includes('overnight') && preview.left.includes('event') ? t('Not included: overnight gear, event preparation') : preview.left.includes('overnight') ? t('Not included: overnight gear') : t('Not included: event preparation')}</li>{/if}
           </ul>
           <p class="muted small">{tn(preview.total, 'Together {n} item. You can change everything in Pack.', 'Together {n} items. You can change everything in Pack.')}</p>

@@ -344,7 +344,52 @@ async function kitTemplates2026(db) {
   return true;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026];
+/**
+ * v0.28.0 (AP25, Noah 8.10.2026: "Erste Hilfe komplett raus ausser bei 1 Nacht oder mehr"): items
+ * named first aid get the built-in set "firstaid", which comes with every night (context.js).
+ * By name, so it works on any data; other sets and fields stay; an item that has it is not touched.
+ * Returns the IDs it changed.
+ */
+export const FIRST_AID = /erste[\s-]?hilfe|first[\s-]?aid/i;
+export async function firstAid2026(db) {
+  if (await db.settings.get('update.firstAid2026')) return [];
+  if (!(await db.items.count())) return []; // nothing imported yet
+  const changed = [];
+  await db.transaction('rw', db.items, db.settings, async () => {
+    for (const item of await db.items.toArray()) {
+      if (!FIRST_AID.test(`${item.name ?? ''} ${item.nameDe ?? ''}`) || item.sets?.includes('firstaid')) continue;
+      await db.items.update(item.id, { sets: [...(item.sets ?? []), 'firstaid'] });
+      changed.push(item.id);
+    }
+    await db.settings.put({ key: 'update.firstAid2026', value: now() });
+  });
+  return changed;
+}
+
+/**
+ * v0.28.0 (AP25, Noah: "werkzeug und ersatzschlauch immer"): the spare tube, tyre levers, patches
+ * and the multitool become "On every trip". Only owned or unclear items of Tools & repair or Bike
+ * parts whose name says so, and only when "On every trip" was never set (always == null): an item
+ * switched off in the app stays off. Returns the IDs it changed.
+ */
+export const TOOLS_ALWAYS = /ersatzschlauch|spare\s?tube|schlauch|\btube\b|multi-?tool|flickzeug|patch|reifenheber|tyre lever|tire lever/i;
+export async function toolsAlways2026(db) {
+  if (await db.settings.get('update.toolsAlways2026')) return [];
+  if (!(await db.items.count())) return []; // nothing imported yet
+  const changed = [];
+  await db.transaction('rw', db.items, db.settings, async () => {
+    for (const item of await db.items.toArray()) {
+      if (!['tools', 'bike'].includes(item.category) || !isInventory(item) || item.always != null) continue;
+      if (!TOOLS_ALWAYS.test(`${item.name ?? ''} ${item.nameDe ?? ''}`)) continue;
+      await db.items.update(item.id, { always: true });
+      changed.push(item.id);
+    }
+    await db.settings.put({ key: 'update.toolsAlways2026', value: now() });
+  });
+  return changed;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

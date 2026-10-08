@@ -11,13 +11,13 @@ describe('allSets', () => {
   it('lists the built-in sets first (translated), then own sets as written', () => {
     const own = [{ key: 'u-regen', name: 'test_data_gtp_ Regen' }, { key: 'sleep', qty: { SL01: 2 } }];
     const list = allSets(own);
-    expect(list.map((s) => s.key)).toEqual(['base', 'warm', 'sleep', 'cook', 'light', 'lodging', 'u-regen']);
+    expect(list.map((s) => s.key)).toEqual(['base', 'warm', 'sleep', 'cook', 'light', 'lodging', 'firstaid', 'u-regen']);
     expect(list.find((s) => s.key === 'u-regen')).toMatchObject({ name: 'test_data_gtp_ Regen', builtIn: false });
     expect(list.find((s) => s.key === 'sleep')).toMatchObject({ name: 'Night: Sleep', builtIn: true, qty: { SL01: 2 } });
     lang.v = 'de';
     expect(allSets(own).find((s) => s.key === 'sleep').name).toBe('Nacht: Schlafen');
     expect(allSets(own).find((s) => s.key === 'u-regen').name).toBe('test_data_gtp_ Regen');
-    expect(allSets(undefined)).toHaveLength(6);
+    expect(allSets(undefined)).toHaveLength(7); // v0.28.0: + first aid
   });
 
   it('makes, renames and refuses names that are empty or taken', () => {
