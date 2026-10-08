@@ -18,6 +18,8 @@
   import { phone } from '../media.svelte.js';
   import { hasContext } from '../context.js';
   import { rainOf } from '../layers.js';
+  import { pastTrips } from '../hubs.js';
+  import { localDay } from '../localday.js';
   import '../trip/trip.css';
   let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null } = $props();
   let grouping = $state('bags');
@@ -65,6 +67,7 @@
   const menu = (fn) => () => { menuEl.open = false; fn(); };
   // v0.29.0 (Noah 4b): the rows the weather (the trip's context) brings, with their reason.
   const wxRows = $derived(bikeTrip ? trip.entries.filter((e) => { const i = itemsById[e.itemId]; return i && (typeof i.coldBelow === 'number' || rainOf(i)) && reasons[e.itemId]?.line; }) : []);
+  const pastN = $derived(pastTrips(trips, [], localDay()).length);
   const ctxIds = $derived(Object.keys(ctxRows));
   const changedText = (id) => { const c = ctxRows[id]; return !c ? '' : c.kind === 'added' ? t('new for this trip') : t('{from} → {to}', { from: c.from, to: c.to }); };
   const primary = $derived(over ? 'debrief' : step === debriefStep ? 'end' : step === 2 ? 'ride' : dayRide ? 'go' : 'pack');
@@ -133,6 +136,8 @@
             <details class="list-menu" bind:this={menuEl} onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}><summary aria-label={t('More: other trip, edit trip, templates, print')}><MoreHorizontal size={24} aria-hidden="true" /></summary>
               <div class="list-menu-content">
                 <label>{t('Open another trip')}<select class="sel" value={trip.id} onchange={(e) => { changeTrip(e.currentTarget.value); menuEl.open = false; }}>{#each trips as tr}<option value={tr.id}>{tr.title}</option>{/each}</select></label>
+                <!-- v0.30.1 (Noah N9): the past trips, easy to find next to the trip chooser. -->
+                {#if pastN}<a href="#/pack/past">{t('Past trips ({n})', { n: pastN })}</a>{/if}
                 <button onclick={menu(actions.newTrip)}>{t('New trip')}</button>
                 <button onclick={menu(actions.edit)}>{t('Edit trip')}</button>
                 <button onclick={menu(() => show('conditions'))}>{t('Edit trip conditions')}</button>

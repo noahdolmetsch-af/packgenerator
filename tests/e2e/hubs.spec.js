@@ -66,7 +66,7 @@ test('Trips and Bikes tiles: four buttons and More, the menu by keyboard and tou
   const trips = (await tile(page, 'pack')).getByRole('group', { name: T('Trips|place') });
   const shown = trips.locator(':scope > .btn');
   await expect(shown).toHaveCount(5);
-  await expect(shown).toHaveText([T('Day ride'), T('New trip'), T('Write debrief'), T('Past trips'), T('More')]);
+  await expect(shown).toHaveText([T('Day ride'), T('New trip'), T('Write debrief'), T('Past trips ({n})', { n: 1 }), T('More')]); // v0.30.1 (Noah N9): with the count
   await expect(trips.getByRole('link', { name: T('Write debrief') })).toHaveAttribute('href', `#/debrief/${PAST}`);
 
   const bikes = (await tile(page, 'bikes')).getByRole('group', { name: T('Bikes|place') });
@@ -113,7 +113,7 @@ test('Trips and Bikes tiles: four buttons and More, the menu by keyboard and tou
 
 test('Past trips lists the finished trip and opens it', async ({ page, context }, info) => {
   await load(page, context, info);
-  await (await tile(page, 'pack')).getByRole('link', { name: T('Past trips') }).click();
+  await (await tile(page, 'pack')).getByRole('group', { name: T('Trips|place') }).getByRole('link', { name: T('Past trips ({n})', { n: 1 }) }).click();
   await expect(page).toHaveURL(/#\/pack\/past/);
   await expect(page.getByRole('heading', { name: T('Past trips'), level: 1 })).toBeVisible();
   const rows = page.locator('.past li.card');

@@ -20,11 +20,12 @@ const item = (id, name, f) => ({ id, name: `test_data_gtp_ ${name}`, category: '
 const BIKE_B = { id: 'bike-gtp-b', name: 'test_data_gtp_ Rennvelo Zwei', weightG: 8200, slots: ['seat', 'frame', 'top'], setup: { seat: 'bag-TA01', frame: 'bag-TA02', top: 'bag-TA03' }, fixtures: [] };
 const trip = (id, title, f) => ({ id, domain: 'bikepacking', title: `test_data_gtp_ ${title}`, days: 1, bikeId: 'bike-test', bike: 'Test gravel bike', setup: {}, entries: [{ itemId: 'TO01', slot: 'frame', qty: 1, packed: true }], ready: [], status: 'planned', hours: 2, overnight: 'none', ...f });
 
-function fixture(path, { trips = [], bikes = [] } = {}) {
+function fixture(path, { trips = [], bikes = [], settings = [] } = {}) {
   const data = structuredClone(base);
   data.tables.items.push(item('GTP1', 'Regenjacke', { sets: ['u-regen'] }));
   data.tables.bikes.push(...bikes);
   data.tables.trips.push(...trips);
+  data.tables.settings.push(...settings);
   writeFileSync(path, JSON.stringify(data));
 }
 
@@ -190,5 +191,82 @@ test('C3, C5: "Yes, remember" saves the suggestion; a debrief saved early makes 
   await expect(page.locator('.past .card').filter({ hasText: 'test_data_gtp_ Morgen' })).toContainText(T('Debrief done'));
   await page.goto('./#/');
   await expect(page.locator('#next-h')).toHaveText(T('No trip planned'));
+  expect(errors).toEqual([]);
+});
+
+test('N8, N9: rename a past trip in its band; past trips are easy to find', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, info, { trips: [trip('gtp-old', 'Alt', { startDate: day(-4), finished: day(-4) }), trip('gtp-next', 'Bald', { startDate: day(5) })] });
+  // Today: the Trips tile names the past trips with their count, as a row and as a button.
+  const tile = page.locator('.hub').filter({ has: page.getByRole('heading', { name: T('Trips|place') }) });
+  if (await page.locator('details.hub').count()) await tile.locator('summary').click();
+  await expect(tile.locator('ul.rows a').filter({ hasText: T('Past trips ({n})', { n: 1 }) })).toHaveAttribute('href', '#/pack/past');
+  await expect(tile.getByRole('group', { name: T('Trips|place') }).getByRole('link', { name: T('Past trips ({n})', { n: 1 }) })).toBeVisible();
+  // Pack: next to the trip chooser.
+  await page.goto('./#/pack');
+  await page.locator('.list-menu summary').click();
+  await page.locator('.list-menu-content').getByRole('link', { name: T('Past trips ({n})', { n: 1 }) }).click();
+  await expect(page).toHaveURL(/#\/pack\/past/);
+
+  // Open the past trip and rename it: tap the name, type, Enter.
+  await page.locator('.past .card a.open').filter({ hasText: 'test_data_gtp_ Alt' }).click();
+  const band = page.locator('.trip-band');
+  await band.getByRole('button', { name: 'test_data_gtp_ Alt' }).click();
+  const field = band.getByRole('textbox', { name: T('Trip name') });
+  await field.fill('test_data_gtp_ Seerunde');
+  await field.press('Enter');
+  await expect(band.getByRole('heading', { name: 'test_data_gtp_ Seerunde' })).toBeVisible();
+  await expect.poll(async () => (await table(page, 'trips')).find((x) => x.id === 'gtp-old').title).toBe('test_data_gtp_ Seerunde');
+  // Escape keeps the name; an empty name is not saved; leaving the field saves.
+  await band.getByRole('button', { name: 'test_data_gtp_ Seerunde' }).click();
+  await field.fill('');
+  await field.press('Escape');
+  await band.getByRole('button', { name: 'test_data_gtp_ Seerunde' }).click();
+  await field.fill('');
+  await field.blur();
+  await expect(band.getByRole('heading', { name: 'test_data_gtp_ Seerunde' })).toBeVisible();
+  expect((await table(page, 'trips')).find((x) => x.id === 'gtp-old').title).toBe('test_data_gtp_ Seerunde');
+  const box = await band.getByRole('button', { name: 'test_data_gtp_ Seerunde' }).boundingBox();
+  expect(box.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
+  expect(errors).toEqual([]);
+});
+
+test('N10, N11: New trip shows "Copy the last trip: name" at once; templates in building blocks', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const std = ['EL01', 'EL02', 'EL03', 'LI01', 'LI02', 'ON01', 'ON02', 'OF01', 'RA01', 'RA02', 'TO01', 'TO02', 'TO03', 'HY02'];
+  const tpl = { id: 'tpl-gtp', name: 'test_data_gtp_ Regenrunde', days: 1, hours: 2, setup: {}, entries: [...std, 'GTP1', 'LX01'].map((itemId) => ({ itemId, slot: 'seat', qty: 1 })), ready: [], sets: {}, purpose: {}, updatedAt: '2026-10-01T08:00:00.000Z' };
+  await start(page, context, info, {
+    trips: [trip('gtp-last', 'Letzte', { startDate: day(-2), createdAt: `${day(-3)}T08:00:00.000Z` })],
+    settings: [{ key: 'templates', value: [tpl] }, { key: 'sets', value: [{ key: 'u-regen', name: 'test_data_gtp_ Regen' }] }],
+  });
+  // The standard set as the app has it after its own updates of the fixture (they run on start, e.g.
+  // the light set): write the template with it.
+  await page.reload();
+  await expect.poll(async () => (await table(page, 'items')).find((i) => i.id === 'LI01')?.lightSetDone).toBe(true);
+  const all = await table(page, 'items');
+  const stdNow = all.filter((i) => ['owned', 'unclear'].includes(i.ownership) && (['standard', 'worn'].includes(i.role) || i.always) && (!i.domains?.length || i.domains.includes('bikepacking')) && !i.sets?.includes('firstaid')).map((i) => i.id);
+  const value = [{ ...tpl, entries: [...stdNow, 'GTP1', 'LX01'].map((itemId) => ({ itemId, slot: 'seat', qty: 1 })) }];
+  await page.evaluate((v) => new Promise((ok) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => {
+      const tx = r.result.transaction('settings', 'readwrite');
+      tx.objectStore('settings').put({ key: 'templates', value: v });
+      tx.oncomplete = () => { r.result.close(); ok(); };
+    };
+  }), value);
+  await page.evaluate(() => { localStorage.setItem('pack.startFrom', 'standard'); location.hash = '#/pack'; window.dispatchEvent(new Event('pg:newtrip')); });
+  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const copy = dlg.getByRole('button', { name: T('Copy the last trip: {title}', { title: 'test_data_gtp_ Letzte' }) });
+  await expect(copy).toBeVisible();
+  await copy.click();
+  await expect(copy).toHaveAttribute('aria-pressed', 'true');
+  // Templates stay folded; open, the row says what is in it in building blocks.
+  await dlg.locator('details summary').filter({ hasText: T('Start from a template') }).click();
+  await expect(dlg.locator('.opt').filter({ hasText: 'test_data_gtp_ Regenrunde' })).toContainText(/Standard \+ test_data_gtp_ Regen \+ 1 einzelnes Teil$/);
+  await expect(dlg.locator('.opt').filter({ hasText: 'test_data_gtp_ Regenrunde' })).toContainText(`${T('{n} day', { n: 1 })} · ${T('{n} h', { n: '2' })}`);
+  await page.screenshot({ path: info.outputPath('new-trip.png') });
   expect(errors).toEqual([]);
 });

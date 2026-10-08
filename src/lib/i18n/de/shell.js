@@ -256,6 +256,10 @@ export default {
   'Remove photo': 'Foto entfernen',
   'Next trip: {title}': 'Nächste Tour: {title}',
   'Also today: {title}': 'Auch heute: {title}', // v0.30.1 (Noah E6)
+  // v0.30.1 (Noah N8, N9): rename a trip in its band; past trips easy to find
+  'Trip name': 'Name der Tour',
+  'Rename trip': 'Tour umbenennen',
+  'Past trips ({n})': 'Vergangene Touren ({n})',
 
   /* ---------- shared list ---------- */
   'Opening the list…': 'Liste wird geöffnet…',
@@ -349,6 +353,10 @@ export default {
   'From template': 'Aus Vorlage',
   'Start from a template': 'Aus Vorlage starten',
   'Copy the last trip': 'Letzte Tour kopieren',
+  // v0.30.1 (Noah N10, N11)
+  'Copy the last trip: {title}': 'Letzte Tour kopieren: {title}',
+  '{n} single item': '{n} einzelnes Teil',
+  '{n} single items': '{n} einzelne Teile',
   'The last trip on the bike you choose, with its bags and ready check':
     'Die letzte Tour mit dem gewählten Velo, mit Taschen und Startcheck',
   'Standard set': 'Standardset',

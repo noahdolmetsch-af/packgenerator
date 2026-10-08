@@ -10,7 +10,7 @@
   import { t, tn, num, nameOf } from '../i18n.svelte.js';
   import { DOMAINS, DOMAIN, BIKEPACKING, domainName, lastDomain, rememberDomain, newPackTrip, lastTripIn, readyKey, inDomain, hasBike } from '../domains.js';
   import { isInventory, knownWeight, formatWeight } from '../gear.js';
-  import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, startBlocks } from '../sets.js';
+  import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks } from '../sets.js';
   import { localDay } from '../localday.js';
   import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf } from '../dayride.js';
 
@@ -198,8 +198,11 @@
     const d = templateDefaults(tp, bikes);
     const parts = [tn(d.days ?? 1, '{n} day', '{n} days')];
     if (d.hours != null) parts.push(t('{n} h', { n: num(d.hours) }));
-    const from = startBlocks((tp.entries ?? []).map((e) => e.itemId), stdIds, sets, items);
-    parts.push(from ? [t('Standard'), ...from.map((s) => s.label)].join(' + ') : tn(tp.entries?.length ?? 0, '{n} item', '{n} items'));
+    // v0.30.1 (Noah N10): always in blocks ("Standard + Rain + Light"), the rest as "+ 3 single items".
+    const { standard, blocks: used, single } = templateBlocks((tp.entries ?? []).map((e) => e.itemId), stdIds, sets, items);
+    const names = [...(standard ? [t('Standard')] : []), ...used.map((s) => s.label)];
+    const rest = single ? tn(single, '{n} single item', '{n} single items') : '';
+    parts.push(names.length ? [names.join(' + '), rest].filter(Boolean).join(' + ') : rest || tn(0, '{n} item', '{n} items'));
     return parts.join(' · ');
   }
   let tplOpen = $state(false);
@@ -329,6 +332,19 @@
       </fieldset>
       {#if days > 1}{@render overnight()}{/if}
       {@render weather()}
+      <div class="starts">
+        <span class="lbl">{t('Start from')}</span>
+        <!-- v0.30.1 (Noah N11): "Copy the last trip" visible at once, with the trip's name, first in "Start from". -->
+        <button type="button" class="tp-fold row" aria-pressed={start === 'last'} onclick={() => (start = 'last')}><span class="rt"><b>{from ? t('Copy the last trip: {title}', { title: from.title }) : t('Copy the last trip')}</b>{#if !from}<small>{t('No trip on this bike yet: starts with the standard set')}</small>{/if}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
+        {#if templates.length}
+          <details class="tp-fold" bind:open={tplOpen}>
+            <summary><span>{t('Start from a template')}</span><span class="r"><span class="num">{templates.length}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+            <ul class="in opts">
+              {#each templates as tp (tp.id)}<li><button type="button" class="opt" aria-pressed={start === tp.id} onclick={() => pickStart(tp.id)}><b>{tp.name}</b><span>{tplLine(tp)}</span></button></li>{/each}
+            </ul>
+          </details>
+        {/if}
+      </div>
       {#if preview}
         <section class="plan" aria-label={t('Your packing list|preview')} aria-live="polite">
           <div class="tp-card std">
@@ -359,17 +375,6 @@
           <p class="note small" aria-live="polite">{#if chosen.length}{chosen.map((b) => `${b.label}: ${b.names.join(', ')}`).join(' · ')}{:else}{t('Tap a block to take it along.')}{/if}</p>
         </section>
       {/if}
-      <div class="starts">
-        {#if templates.length}
-          <details class="tp-fold" bind:open={tplOpen}>
-            <summary><span>{t('Start from a template')}</span><span class="r"><span class="num">{templates.length}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-            <ul class="in opts">
-              {#each templates as tp (tp.id)}<li><button type="button" class="opt" aria-pressed={start === tp.id} onclick={() => pickStart(tp.id)}><b>{tp.name}</b><span>{tplLine(tp)}</span></button></li>{/each}
-            </ul>
-          </details>
-        {/if}
-        <button type="button" class="tp-fold row" aria-pressed={start === 'last'} onclick={() => (start = 'last')}><span class="rt"><b>{t('Copy the last trip')}</b><small>{from ? from.title : t('No trip on this bike yet: starts with the standard set')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
-      </div>
       <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
       <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
     {:else}

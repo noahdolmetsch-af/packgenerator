@@ -215,3 +215,23 @@ export function startBlocks(ids, stdIds, sets, items) {
   }
   return rest.every((id) => covered.has(id)) ? used : null;
 }
+
+/**
+ * v0.30.1 (Noah N10): a template in words, always: whether it holds the whole standard set, the
+ * building blocks it holds completely (each one adding something), and how many items are left
+ * over ("+ 3 single items"). → { standard, blocks: [set], single }
+ */
+export function templateBlocks(ids, stdIds, sets, items) {
+  const have = new Set(ids);
+  const std = new Set(stdIds);
+  const standard = std.size > 0 && [...std].every((id) => have.has(id));
+  const covered = new Set(standard ? std : []);
+  const blocks = [];
+  for (const s of sets) {
+    const its = items.filter((i) => isInventory(i) && i.sets?.includes(s.key)).map((i) => i.id);
+    if (!its.length || !its.every((id) => have.has(id)) || !its.some((id) => !covered.has(id))) continue;
+    blocks.push(s);
+    for (const id of its) covered.add(id);
+  }
+  return { standard, blocks, single: [...have].filter((id) => !covered.has(id)).length };
+}

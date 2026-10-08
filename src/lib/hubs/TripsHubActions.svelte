@@ -10,20 +10,23 @@
   import { openNew, openTrip, dayRide } from '../nav.js';
   import { toDebrief } from '../debrief.js';
   import { bikesHash } from '../bikes.js';
-  import { hubBike } from '../hubs.js';
+  import { hubBike, pastTrips } from '../hubs.js';
+  import { localDay } from '../localday.js';
   import { t } from '../i18n.svelte.js';
 
   let { trips = [], debriefs = [], next = null, bikes = [] } = $props();
 
   const waiting = $derived(toDebrief(trips, debriefs)[0] ?? null);
   const setupBike = $derived(hubBike(next, bikes));
+  const pastN = $derived(pastTrips(trips, debriefs, localDay()).length);
   const actions = $derived(
     [
       // v0.25.1 (Noah 1a): the day ride first (what happens on 'pg:dayride' lives elsewhere).
       { key: 'day', label: t('Day ride'), plus: true, run: dayRide },
       { key: 'new', label: t('New trip'), plus: true, run: () => openNew('list') },
       waiting ? { key: 'debrief', label: t('Write debrief'), href: `#/debrief/${encodeURIComponent(waiting.id)}`, run: () => openTrip(waiting.id) } : null,
-      { key: 'past', label: t('Past trips'), href: '#/pack/past' },
+      // v0.30.1 (Noah N9): with the count, so past trips are easy to find.
+      { key: 'past', label: pastN ? t('Past trips ({n})', { n: pastN }) : t('Past trips'), href: '#/pack/past' },
       { key: 'setups', label: t('Setups'), href: bikesHash({ bike: setupBike }) },
       { key: 'compare', label: t('Compare trips'), href: '#/debrief/compare' },
       { key: 'learnings', label: t('Learnings'), href: '#/debrief/learnings' },

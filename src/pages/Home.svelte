@@ -35,6 +35,7 @@
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { openNew, openNote, openTrip, addItem, newTrip, wantBike, take } from '../lib/nav.js';
   import { todayFocus } from '../lib/today.js';
+  import { pastTrips } from '../lib/hubs.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
@@ -147,6 +148,8 @@
       .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '') || (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
     return [...ahead, ...past.slice(0, Math.max(0, 3 - ahead.length))];
   });
+  // v0.30.1 (Noah N9): the past trips, one row with their count (#/pack/past).
+  const pastN = $derived(pastTrips(trips, debriefs, today).length);
   // v0.30.1 (Noah E6): other trips on the way today besides the one Today leads with.
   const alsoToday = $derived(trips.filter((t) => t !== lead && !t.skipped && !t.finished && !t.id.startsWith('demo') && onTripDay(t, today)));
 
@@ -411,6 +414,7 @@
           {#each tripList as tr (tr.id)}
             <li><a href="#/pack" onclick={() => openTrip(tr.id)}><span>{tr.title}</span><span class="num muted">{tr.startDate ? fmt(tr.startDate, { day: 'numeric', month: 'short' }) : ''}{tr.bike ? ` · ${tr.bike}` : ''}</span></a></li>
           {/each}
+          {#if pastN}<li><a href="#/pack/past"><span>{t('Past trips ({n})', { n: pastN })}</span><span class="muted">→</span></a></li>{/if}
           {#each templates.slice(0, 2) as tp (tp.id)}
             <li><button type="button" onclick={() => newTrip(tp.id)} title={t('New trip from this template')}><span>{tp.name}</span><span class="muted">{t('template')}</span></button></li>
           {/each}

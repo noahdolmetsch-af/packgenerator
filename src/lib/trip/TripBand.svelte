@@ -10,7 +10,7 @@
    * compact (On the way, phone): only the name and the tabs, so "Now" is on top.
    */
   import { liveQuery } from 'dexie';
-  import { CalendarDays, Bike, Backpack, CloudSun, ShoppingBag, Check } from '@lucide/svelte';
+  import { CalendarDays, Bike, Backpack, CloudSun, ShoppingBag, Check, Pencil } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, locale } from '../i18n.svelte.js';
   import { tripStats, RAIN } from '../trips.js';
@@ -37,13 +37,39 @@
   const tabs = $derived(tabsOf(trip));
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
   const weight = $derived(stats ? stats.gearG + stats.onMeG : null);
+  // v0.30.1 (Noah N8): rename any trip at any time (also a past one): tap the name, type, Enter or
+  // leave the field saves; Escape keeps the old name. An empty name is not saved.
+  let naming = $state(false);
+  let nameDraft = $state('');
+  let nameEl = $state();
+  function startRename() {
+    nameDraft = trip.title ?? '';
+    naming = true;
+  }
+  $effect(() => {
+    if (naming && nameEl) nameEl.focus(), nameEl.select();
+  });
+  async function saveName() {
+    if (!naming) return;
+    naming = false;
+    const title = nameDraft.trim();
+    if (title && title !== trip.title) await db.trips.update(trip.id, { title });
+  }
+  function nameKey(e) {
+    if (e.key === 'Enter') (e.preventDefault(), saveName());
+    else if (e.key === 'Escape') (e.preventDefault(), (naming = false));
+  }
   const wx = $derived(trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C · ${t(RAIN[trip.wx.rain ?? 'none'])}` : '');
 </script>
 
 <section class="band trip-band" class:compact aria-label={t('Trip')}>
   <div class="who">
     {#if kicker}<p class="kick">{kicker}</p>{/if}
-    <h1>{trip.title}</h1>
+    {#if naming}
+      <input class="rename" bind:this={nameEl} bind:value={nameDraft} onkeydown={nameKey} onblur={saveName} aria-label={t('Trip name')} enterkeyhint="done" />
+    {:else}
+      <h1><button type="button" class="name" title={t('Rename trip')} onclick={startRename}>{trip.title}<Pencil class="pen" size={18} aria-hidden="true" /></button></h1>
+    {/if}
     <p class="meta">
       <span><CalendarDays size={16} aria-hidden="true" />{tripDates(trip)}</span>
       {#if byBike}<span><Bike size={16} aria-hidden="true" />{bike?.name ?? trip.bike ?? t('No bike')}</span>{:else}<span><Backpack size={16} aria-hidden="true" />{t(domainName(domainOf(trip)))}</span>{/if}
@@ -91,6 +117,39 @@
     font: 700 23px/1.15 var(--font-body);
     letter-spacing: -0.01em;
     overflow-wrap: anywhere;
+  }
+  h1 .name {
+    all: unset;
+    display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    min-height: 44px;
+    padding: 6px 0;
+    overflow-wrap: anywhere;
+  }
+  h1 .name:focus-visible {
+    outline: 2px solid var(--focus-on-dark, #fff);
+    outline-offset: 2px;
+  }
+  h1 :global(.pen) {
+    display: inline-block;
+    vertical-align: -2px;
+    margin-left: 8px;
+    opacity: 0.7;
+  }
+  .rename {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 44px;
+    margin: 2px 0 6px;
+    padding: 6px 10px;
+    font: 700 20px/1.2 var(--font-body);
+    color: var(--ink, #111);
+    background: #fff;
+    border: 0;
+    border-radius: 8px;
   }
   .meta {
     display: flex;
