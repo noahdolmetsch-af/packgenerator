@@ -88,6 +88,8 @@ Aus bisherigen Aufgaben übernommen, in dieser Runde nicht neu geprüft. Keine S
 
 ## Nächste Schritte
 
+**Pflicht-Wünsche (Noah, 08.10.2026):** AP27 GPX → Learning, AP28 Vorlagen neu, AP29 Entwürfe und Liste «In Bearbeitung», AP30 Material per Foto mit KI. Details in der [Roadmap](roadmap.md#pflicht-wünsche-von-noah-08102026-ap27ap30); Zeitpunkt wird mit Noah besprochen.
+
 1. Neue Entscheidung/Packliste im Alltag abnehmen (AP13–15/AP19/AP21/AP23).
 2. Grundlagen- und Restore-Nachweise AP01/AP02 vervollständigen.
 3. Integrierten PR #31 nach Dokumentabgleich fachlich mit Event/Kurzfahrt abnehmen; Veröffentlichung separat.
