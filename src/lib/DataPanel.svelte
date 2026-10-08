@@ -3,7 +3,9 @@
   import { blocksAfterImport } from './updates.js';
   import { liveQuery } from 'dexie';
   import { db, DATA_TABLES } from './db.js';
-  import { restoreBackup, validateBackup, countRows, downloadBackup, importImpact } from './backup.js';
+  import { restoreBackup, validateBackup, countRows, downloadBackup, importImpact, shareBackup, lastChangeOf, markImported, compareStates, LAST_CHANGE } from './backup.js';
+  import { phone } from './media.svelte.js';
+  import { Send } from '@lucide/svelte';
   import { isDemoFile, startDemo, demoState } from './demo.js';
   import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
   import { TEMPLATES_KEY, upsert } from './templates.js';
@@ -42,6 +44,24 @@
     message = t('Backup file downloaded.');
   }
 
+  // v0.34.0 (L10, Noah a): plan on the computer, pack on the phone. One button makes the backup file
+  // and hands it to the share sheet (Android: mail, chat, nearby share), else downloads it as before.
+  let sending = $state(false);
+  async function sendFile() {
+    sending = true;
+    try {
+      const how = await shareBackup(db);
+      if (how !== 'cancelled') message = how === 'shared' ? t('Backup file sent. On the other device: Import backup.') : t('Backup file downloaded. Send it to the other device and import it there.');
+    } catch (err) {
+      message = `${t('The backup file could not be made.')} ${err.message}`;
+    } finally {
+      sending = false;
+    }
+  }
+  // When the data on this device last changed (shown small, and compared with a file on import).
+  const changeQ = liveQuery(() => db.meta.get(LAST_CHANGE));
+  const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
   async function pickFile(event) {
     const file = event.target.files[0];
     event.target.value = '';
@@ -63,7 +83,9 @@
       // v0.27.0 (Noah 1a, AP22): what Replace and Merge would do, compared with this device, before anything runs.
       const existing = {};
       for (const k of DATA_TABLES) existing[k] = await db.table(k).toCollection().primaryKeys();
-      pending = { data, name: file.name, counts: countRows(data), impact: importImpact(data, existing) };
+      // v0.34.0 (L10): newer or older than the data on this device, said before anything is replaced.
+      const state = compareStates(data.lastChange ?? null, await lastChangeOf(db), data.exportedAt ?? null);
+      pending = { data, name: file.name, counts: countRows(data), impact: importImpact(data, existing), state };
       message = '';
     } catch {
       pending = null;
@@ -107,6 +129,7 @@
       await restoreBackup(db, pending.data, mode);
       await blocksAfterImport(db, pending.data, mode); // v0.33.0: old data in the file gets the building blocks too
       await tidyData(db);
+      await markImported(db, pending.data, mode); // v0.34.0 (L10): the device now holds the file's state
       message = mode === 'replace' ? t('Imported {name} (replaced all data).', { name: pending.name }) : t('Imported {name} (merged).', { name: pending.name });
       pending = null;
     } catch (err) {
@@ -139,8 +162,10 @@
 
   <div class="row">
     <button type="button" class="hi" onclick={exportFile} disabled={!!$demoQ} title={$demoQ ? t('Off while the demo runs') : undefined}>{t('Export backup')}</button>
-    <label class="btn">{t('Import backup')}<input type="file" accept="application/json,.json" onchange={pickFile} hidden /></label>
+    <label class="btn">{t('Import backup')}<input type="file" accept="application/json,.json,text/plain,.txt" onchange={pickFile} hidden /></label>
+    <button type="button" class="send" onclick={sendFile} disabled={!!$demoQ || sending} title={$demoQ ? t('Off while the demo runs') : undefined}><Send size={16} aria-hidden="true" />{phone.matches ? t('Send to computer') : t('Send to phone')}</button>
   </div>
+  <p class="small quiet">{t('Send: the backup file goes to the share sheet (mail, chat, nearby), or is downloaded. On the other device: Import backup.')}{#if $changeQ?.at}{' '}{t('Last change on this device: {when}.', { when: when($changeQ.at) })}{/if}</p>
 
   {#if $demoQ}<p class="small">{t('A demo is running: backups are off until you end it (yellow bar on top).')}</p>{/if}
 
@@ -169,6 +194,13 @@
       <p>
         <strong>{pending.name}</strong> {t('contains {items} gear items, {trips} trips and {learnings} learnings.', { items: pending.counts.items, trips: pending.counts.trips, learnings: pending.counts.learnings })}
       </p>
+      <!-- v0.34.0 (L10): is the file newer or older than this device? -->
+      {#if pending.state.kind !== 'unknown'}
+        <p class="state"><i class="badge {pending.state.kind}">{pending.state.kind === 'newer' ? t('Newer') : pending.state.kind === 'older' ? t('Older') : t('Same state')}</i>
+          {pending.state.kind === 'newer' ? t('This file is newer than the data on this device (file {file}, this device {local}).', { file: when(pending.state.file), local: when(pending.state.local) }) : pending.state.kind === 'older' ? t('This file is older than the data on this device (file {file}, this device {local}). Replace would put the older state here.', { file: when(pending.state.file), local: when(pending.state.local) }) : t('This file has the same state as this device ({file}).', { file: when(pending.state.file) })}</p>
+      {:else if pending.state.exported}
+        <p class="state"><i class="badge">{t('Date unknown')}</i> {t('The file was saved {date} by an older version; the app cannot tell if it is newer than the data on this device.', { date: when(pending.state.exported) })}</p>
+      {/if}
       <!-- v0.27.0 (Noah 1a, AP22): the scope and what gets overwritten, before the button. -->
       <ul class="impact">
         <li>{t('Replace all data: deletes everything on this device ({now} records, trips: {trips}) and puts the file in its place ({file} records).', { now: pending.impact.now, trips: pending.impact.nowTrips, file: pending.impact.file })}{#if pending.impact.lost}{' '}<strong>{t('Only on this device, so lost with Replace: {lost} records (trips: {lostTrips}).', { lost: pending.impact.lost, lostTrips: pending.impact.lostTrips })}</strong>{/if}</li>
@@ -287,6 +319,42 @@
   .small {
     font-size: 14px;
     margin: 10px 0 0;
+  }
+  .send {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .quiet {
+    color: var(--ink-3);
+  }
+  .state {
+    color: var(--ink);
+  }
+  .badge {
+    display: inline-block;
+    font-style: normal;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 99px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    margin-right: 4px;
+  }
+  .badge.newer {
+    background: var(--ok-soft);
+    color: var(--ok);
+  }
+  .badge.older {
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  @media (pointer: coarse) {
+    button,
+    .btn {
+      min-height: 44px;
+    }
   }
   .msg {
     margin-top: 12px;

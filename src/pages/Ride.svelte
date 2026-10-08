@@ -18,7 +18,9 @@
   import { ageText, FORECAST_DAYS } from '../lib/weather.js';
   import Profile from '../lib/ui/Profile.svelte';
   import { paceOf, PACE_KEY } from '../lib/pace.js';
-  import { blockPlan, DRINK_L_PER_H, HOT_C, HOT_EXTRA_L } from '../lib/blockplan.js';
+  import { blockPlan, eveningPlan, DRINK_L_PER_H, HOT_C, HOT_EXTRA_L } from '../lib/blockplan.js';
+  import { chargeList, chargeCount } from '../lib/charge.js';
+  import ChargeList from '../lib/trip/ChargeList.svelte';
   import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START } from '../lib/ride.js';
   import { newNote, tripNotes, DEBRIEF_KINDS, noteToDebrief, dropNoteFromDebrief } from '../lib/notes.js';
   import { newDebrief } from '../lib/debrief.js';
@@ -28,7 +30,7 @@
   import TripBand from '../lib/trip/TripBand.svelte';
   import { openTrip } from '../lib/nav.js';
   import '../lib/trip/trip.css';
-  import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic } from '@lucide/svelte';
+  import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, BatteryCharging } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -154,6 +156,37 @@
   const onTrip = $derived(stats ? stats.zones.flatMap((z) => z.entries.filter((e) => itemsById[e.itemId]).map((e) => ({ item: itemsById[e.itemId], qty: e.qty || 1, place: placeName(trip, z) }))) : []);
   const bp = $derived(plan.length ? blockPlan(plan, onTrip, { wxOf: blockHrs, place: sunPlace, tripWx: trip.wx ?? null }) : null);
   const names = (list) => list.map((w) => `${w.name} (${w.place})`).join(', ');
+
+  /* ---------- v0.34.0 (L8, Noah a): the evening on a trip of several days ---------- */
+  // Every day except the last: where you sleep, what to charge, what to lay out for tomorrow's first
+  // block, and tomorrow morning's weather (its hourly forecast when loaded, else the trip weather).
+  const nextSt = $derived(trip && !nonstop && cur < days - 1 ? stage(trip, cur + 1, pace, { today, nowStart }) : null);
+  const nextSaved = $derived(nextSt?.date ? trip?.rideWx?.[nextSt.date] ?? null : null);
+  const nextFirst = $derived.by(() => {
+    if (!nextSt?.hours) return null;
+    const first = blocks({ ...trip, plan: null }, nextSt).slice(0, 1);
+    const p = nextSaved?.places?.[0];
+    return first.length ? blockPlan(first, onTrip, { wxOf: (b) => (p ? blockHours(p.hours, b) : []), place: nextSt.from ?? sunPlace, tripWx: trip.wx ?? null }).rows[0] : null;
+  });
+  const eve = $derived(trip ? eveningPlan({ days: nonstop ? 1 : days, day: cur, date: st?.date ?? null, nextDate: nextSt?.date ?? null, overnight: trip.overnight, first: nextFirst, charge: chargeList(trip, items) }) : null);
+  const eveCharged = $derived(eve ? chargeCount(trip, eve.charge, eve.date) : null);
+  const nextTooEarly = $derived(nextSt?.date ? (new Date(`${nextSt.date}T00:00:00`) - new Date(`${today}T00:00:00`)) / 864e5 >= FORECAST_DAYS : true);
+  let nextBusy = $state(false);
+  let nextMsg = $state('');
+  async function loadNextWx() {
+    const from = nextSt.from ?? trip.place;
+    if (!from) return;
+    nextBusy = true;
+    nextMsg = '';
+    try {
+      const wx = await fetchHourly([{ name: 'Start of the day', lat: from.lat, lon: from.lon }], nextSt.date, fetch, new Date());
+      const cur0 = (await db.trips.get(trip.id))?.rideWx ?? {};
+      await change({ rideWx: { ...cur0, [nextSt.date]: wx } });
+    } catch {
+      nextMsg = online ? t('The forecast could not be loaded. Try again later.') : t('No connection. The weather needs the internet; the last saved one stays.');
+    }
+    nextBusy = false;
+  }
   const setNonstop = (on) => change({ nonstop: on, rideStart: {} });
   const dayName = (t) => new Date(`${t.slice(0, 10)}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short' });
   const dir = (pct) => (pct == null ? '' : `${Math.round(pct)} %`);
@@ -362,6 +395,24 @@
         {/if}
       {:else if !st.km}
         <p class="tp-card tp-muted">{t('No route yet. Load the GPX in')} <a href="#/pack">{t('Plan|stage')}</a> {t('under "Trip conditions" (••• menu).')}</p>
+      {/if}
+
+      {#if eve}
+        <!-- v0.34.0 (L8): the evening, folded; it opens by itself once the day's riding is over. -->
+        <details class="tp-fold eve" use:openOnce={!!st.endAt && clock >= st.endAt}>
+          <summary><Moon size={20} aria-hidden="true" /><span id="eve-h">{t('Evening')}</span><span class="r">{#if eve.overnight}<i class="tp-badge">{eve.overnight === 'lodging' ? t('Lodging') : t('Outdoor')}</i>{/if}{#if eve.charge.length}<i class="tp-badge num" class:ok={eveCharged.done === eveCharged.total}>{t('Charge {done}/{n}', { done: eveCharged.done, n: eveCharged.total })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <ul class="do">
+            <li><span class="k"><BedDouble size={20} aria-hidden="true" /></span><div><span class="lab">{t('Night')}</span><span class="val">{#if eve.overnight === 'lodging'}{t('Lodging')}{:else if eve.overnight === 'outdoor'}{t('Outdoor')}{:else}<span class="tp-muted">{t('Not set')}</span>{' '}<small>· <a href="#/pack" onclick={() => openTrip(trip.id)}>{t('Set it in Plan')}</a></small>{/if}</span></div></li>
+            <li><span class="k"><BatteryCharging size={20} aria-hidden="true" /></span><div><span class="lab">{t('Charge tonight')}</span><ChargeList {trip} {items} night={eve.date} /></div></li>
+            <li><span class="k"><Shirt size={20} aria-hidden="true" /></span><div><span class="lab">{t('Lay out for tomorrow')}</span><span class="val">{eve.layOut.length ? names(eve.layOut) : eve.everyRide ? t('Every-ride clothes') : t('Not known yet')}</span></div></li>
+            <li><span class="k"><CloudSun size={20} aria-hidden="true" /></span><div><span class="lab">{t('Tomorrow morning')}</span>
+              {#if eve.morning}<span class="val num">{t('{span} h', { span: span(eve.morning) })}{#if eve.morning.temp}{` · ${tempText(eve.morning)} · ${eve.morning.wet ? t('rain likely') : t('dry')}`}{/if}{#if eve.morning.wxFrom === 'trip'}{' '}<small>· {t('trip weather')}</small>{:else if !eve.morning.temp}{' '}<small>· {t('no weather yet')}</small>{/if}</span>
+              {:else}<span class="val tp-muted">{t('Not known yet')}</span>{/if}
+              {#if nextSt?.date && !nextSaved && !nextTooEarly && (nextSt.from ?? trip.place)}<button type="button" class="tp-link" disabled={nextBusy || !online} onclick={loadNextWx}>{nextBusy ? t('Loading …') : t("Load tomorrow's forecast")}</button>{/if}
+              {#if nextMsg}<small class="warn" role="status">{nextMsg}</small>{/if}
+            </div></li>
+          </ul>
+        </details>
       {/if}
     </div>
 
@@ -583,4 +634,8 @@
   .bag { min-width: 0; }
   .bag ul { margin: 4px 0 0; padding-left: 20px; overflow-wrap: anywhere; }
   .warn { color: #a03a00; }
+  /* v0.34.0 (L8): the evening is quiet: smaller values than the block of now. */
+  .eve .do li:first-child { border-top: 1px solid var(--paper-2); }
+  .eve .val { font-size: 16px; font-weight: 500; }
+  .eve .do small a { color: inherit; }
 </style>

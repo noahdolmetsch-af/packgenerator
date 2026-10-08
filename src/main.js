@@ -16,9 +16,13 @@ import App from './App.svelte';
 import { db } from './lib/db.js';
 import { tidyData } from './lib/tidy.js';
 import { applyClock } from './lib/demo.js';
+import { trackChanges } from './lib/backup.js';
 
 // Demo day: the app acts as if it were another day (only while a demo runs).
 applyClock();
+
+// v0.34.0 (L10): remember when the data last changed, so a backup file can say newer or older.
+trackChanges(db);
 
 // Svelte renders the App component into <div id="app"> in index.html.
 mount(App, { target: document.getElementById('app') });
