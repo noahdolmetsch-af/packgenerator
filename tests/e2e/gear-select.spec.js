@@ -39,7 +39,11 @@ async function start(page, context, info, lang, viewport) {
   page.on('dialog', (d) => d.accept());
   await page.goto('./');
   const data = page.locator('details.data');
-  if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+  // the app opens this panel by itself on an empty start: make sure it ends up open
+  await expect(async () => {
+    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+    expect(await data.evaluate((d) => d.open)).toBe(true);
+  }).toPass();
   await data.getByLabel(tr(lang)('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: tr(lang)('Replace all data') }).press('Enter');
   await expect(data.getByText(/importiert|Imported/)).toBeVisible();
@@ -97,10 +101,13 @@ for (const lang of ['de', 'en']) {
     await page.getByLabel(T('Search gear')).fill('test_data_gtp_');
     await click(page.getByRole('button', { name: T('Select'), exact: true }));
     await click(page.locator('.selrow').getByRole('button', { name: T('Select all'), exact: true }));
+    // v0.26.0 (Noah 6a): on a phone, Delete sits under "More" in the bar.
+    const phone = info.project.name === 'phone';
+    if (phone) await click(page.getByRole('region', { name: T('Selected items') }).getByText(T('More'), { exact: true }));
     await click(page.getByRole('region', { name: T('Selected items') }).getByRole('button', { name: T('Delete'), exact: true }));
     clicks++; // the OK in the confirm (accepted by the test)
     await expect(page.getByText(T('{n} items deleted.', { n: 3 }))).toBeVisible();
-    expect(clicks, 'search, then 4 clicks').toBe(4);
+    expect(clicks, 'search, then 4 clicks (5 on a phone)').toBe(phone ? 5 : 4);
     expect(confirms[0]).toContain(T('Delete {n} items from your gear?', { n: 3 }));
     expect(confirms[0]).toContain('test_data_gtp_ Seife');
     expect(confirms[0]).toContain(T('{n} of them are on a trip or template; they disappear from there too.', { n: 2 }));
@@ -146,6 +153,7 @@ test('selecting on a 320 px phone: no sideways scroll, the bar sits above the bo
   await page.getByRole('button', { name: T('Select all: {cat}', { cat: T('Lights') }) }).click();
   const lights = (await table(page, 'items')).filter((i) => i.category === 'light' && i.ownership === 'owned');
   await expect(bar).toContainText(T('{n} selected', { n: lights.length }));
+  await bar.getByText(T('More'), { exact: true }).click();
   await bar.getByRole('button', { name: T('To wishlist') }).click();
   await expect(bar.getByRole('status')).toBeVisible();
   expect(await wide()).toBe(0);

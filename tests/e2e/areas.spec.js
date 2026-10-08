@@ -36,7 +36,11 @@ for (const lang of ['en', 'de']) {
     // 1. Import the fictional data.
     await page.goto('./');
     const data = page.locator('details.data');
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+    // the app opens this panel by itself on an empty start: make sure it ends up open
+    await expect(async () => {
+      if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+      expect(await data.evaluate((d) => d.open)).toBe(true);
+    }).toPass();
     await data.getByLabel(T('Import backup')).setInputFiles(FIXTURE);
     await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
     await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'fixture.json' }))).toBeVisible();

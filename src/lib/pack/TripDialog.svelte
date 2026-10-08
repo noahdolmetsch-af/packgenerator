@@ -3,7 +3,7 @@
   import { newTrip, lastTripOn, switchBike, WX_PRESETS } from '../trips.js';
   import { contextSummary, startEntries, applyContext, hasContext } from '../context.js';
   import { isEvent } from '../care.js';
-  import { tripFromTemplate } from '../templates.js';
+  import { tripFromTemplate, templateDefaults } from '../templates.js';
   import { t, tn, nameOf } from '../i18n.svelte.js';
   import { DOMAINS, DOMAIN, BIKEPACKING, domainName, lastDomain, rememberDomain, newPackTrip, lastTripIn, readyKey, inDomain, hasBike } from '../domains.js';
   import { isInventory } from '../gear.js';
@@ -67,6 +67,17 @@
   ];
   // svelte-ignore state_referenced_locally
   let start = $state(startFrom);
+  // v0.26.1 (AP18, Noah 17b): a template brings its days, riding hours, overnight stay (+ cooking) and
+  // bike as the dialog's defaults; everything stays changeable here.
+  function useTemplate(id) {
+    const d = templateDefaults(templates.find((x) => x.id === id), bikes);
+    if (d.days) draft.days = d.days;
+    if (d.bikeId) draft.bikeId = d.bikeId;
+    if (d.hours != null) ctx.hours = String(d.hours);
+    if (d.overnight) (ctx.overnight = d.overnight), (ctx.cook = d.cook);
+  }
+  // svelte-ignore state_referenced_locally
+  if (isNew) useTemplate(startFrom);
   // A template always makes a bikepacking trip.
   // svelte-ignore state_referenced_locally
   let area = $state(templates.some((x) => x.id === startFrom) ? BIKEPACKING : DOMAIN[domain] ? domain : lastDomain());
@@ -251,7 +262,7 @@
       </p>
     {:else if isNew}
       <label class="start"><span class="lbl">{t('Start from')}</span>
-        <select class="sel" bind:value={start}>
+        <select class="sel" bind:value={start} onchange={(e) => useTemplate(e.currentTarget.value)}>
           <option value="last">{from ? t('Last trip on this bike: {title}', { title: from.title }) : t('Last trip on this bike (none yet)')}</option>
           {#each templates as tp (tp.id)}<option value={tp.id}>{t('Template: {name}', { name: tp.name })}</option>{/each}
           <option value="standard">{t('Standard set')}</option>

@@ -9,7 +9,7 @@
   import { db } from '../lib/db.js';
   import { TEMPLATES_KEY, updateTemplate } from '../lib/templates.js';
   import { ZONE, NIGHT_SETS, addEntries } from '../lib/trips.js';
-  import { FIXED_ZONES, SLOTS } from '../lib/bikes.js';
+  import { FIXED_ZONES, SLOTS, sortBikes } from '../lib/bikes.js';
   import { CATEGORY, CATEGORIES, formatWeight, knownWeight, weightText, sumKnown, isInventory, matches } from '../lib/gear.js';
   import { RIDES } from '../lib/layers.js';
   import { phone } from '../lib/media.svelte.js';
@@ -22,6 +22,18 @@
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const itemsQ = liveQuery(() => db.items.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
+  // v0.26.1 (AP18, Noah 17b): a template keeps days, overnight stay and bike, shown and changed here.
+  const bikesQ = liveQuery(() => db.bikes.toArray());
+  const bikes = $derived(sortBikes($bikesQ ?? []));
+  const NIGHTS = [
+    { key: 'none', name: 'None|overnight' },
+    { key: 'lodging', name: 'Lodging' },
+    { key: 'outdoor', name: 'Outdoor (tent, bivvy)' },
+  ];
+  function typedDays(value) {
+    const n = Math.round(Number(value));
+    if (n >= 1 && n <= 60) edit((x) => ({ ...x, days: n }));
+  }
   const tpl = $derived(($tplQ?.value ?? []).find((t) => t.id === id) ?? null);
   const items = $derived($itemsQ ?? []);
   const itemsById = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
@@ -180,7 +192,22 @@
               <button type="button" class="toggle" aria-pressed={tpl.ride === r.key} onclick={() => edit((x) => ({ ...x, ride: x.ride === r.key ? null : r.key }))}>{t(r.name.replace(' ride', ''))}</button>
             {/each}
           </div>
-          <label class="hours"><span class="lbl">{t('Riding hours')}</span><input class="inp num" type="text" inputmode="decimal" value={tpl.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder={t('e.g. 6')} /></label>
+          <label class="hours"><span class="lbl">{t('Riding hours per day')}</span><input class="inp num" type="text" inputmode="decimal" value={tpl.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder={t('e.g. 6')} /></label>
+          <label class="hours"><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" value={tpl.days ?? 1} onchange={(e) => typedDays(e.currentTarget.value)} /></label>
+          <div class="chips night" role="group" aria-label={t('Overnight')}>
+            <span class="lbl">{t('Overnight')}</span>
+            {#each NIGHTS as o (o.key)}
+              <button type="button" class="toggle" aria-pressed={tpl.overnight === o.key} onclick={() => edit((x) => ({ ...x, overnight: x.overnight === o.key ? null : o.key, cook: o.key === 'outdoor' ? !!x.cook : false }))}>{t(o.name)}</button>
+            {/each}
+          </div>
+          {#if tpl.overnight === 'outdoor'}<label class="ck"><input type="checkbox" checked={!!tpl.cook} onchange={(e) => edit((x) => ({ ...x, cook: e.currentTarget.checked }))} /> {t('Cooking')}</label>{/if}
+          <label class="hours bikesel"><span class="lbl">{t('Bike')}</span>
+            <select class="sel" value={tpl.bikeId ?? ''} onchange={(e) => edit((x) => ({ ...x, bikeId: e.currentTarget.value || null }))}>
+              <option value="">{t('The bike you choose')}</option>
+              {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
+            </select>
+          </label>
+          <p class="hint">{t('A new trip from this template starts with these values; you can still change them there.')}</p>
           {#if NIGHT_SETS.some((n) => tpl.sets?.[n.key])}<p class="hint">{t('Night: {sets} (their items are in the list)', { sets: NIGHT_SETS.filter((n) => tpl.sets?.[n.key]).map((n) => t(n.name)).join(', ') })}</p>{/if}
         </section>
         <section class="box-s">
@@ -426,6 +453,27 @@
     grid-template-columns: auto 90px;
     align-items: center;
     gap: 10px;
+  }
+  /* v0.26.1 (Noah 17b): days, overnight stay and bike of the template. */
+  .hours + .hours {
+    margin-top: 8px;
+  }
+  .bikesel {
+    grid-template-columns: auto minmax(0, 1fr);
+    margin-top: 8px;
+  }
+  .night {
+    margin-top: 10px;
+    align-items: center;
+  }
+  .night .lbl {
+    flex-basis: 100%;
+  }
+  .ck {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
   }
   .hint {
     color: var(--ink-3);

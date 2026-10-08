@@ -47,7 +47,11 @@ async function start(page, context, info, lang, opts = {}) {
   await page.goto('./');
   const data = page.locator('details.data');
   await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+    // the app opens this panel by itself on an empty start: make sure it ends up open
+    await expect(async () => {
+      if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+      expect(await data.evaluate((d) => d.open)).toBe(true);
+    }).toPass();
     expect(await data.evaluate((d) => d.open)).toBe(true);
   }).toPass();
   await data.getByLabel(tr(lang)('Import backup')).setInputFiles(file);

@@ -36,7 +36,11 @@ async function load(page, context, info) {
   page.on('dialog', (d) => d.accept());
   await page.goto('./');
   const data = page.locator('details.data');
-  if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+  // the app opens this panel by itself on an empty start: make sure it ends up open
+  await expect(async () => {
+    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+    expect(await data.evaluate((d) => d.open)).toBe(true);
+  }).toPass();
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
   await expect(data.getByText(/importiert/)).toBeVisible();
@@ -83,7 +87,7 @@ test('Trips and Bikes tiles: four buttons and More, the menu by keyboard and tou
   const menu = trips.getByRole('menu');
   await expect(menu).toBeVisible();
   await expect(more).toHaveAttribute('aria-expanded', 'true');
-  await expect(menu.getByRole('menuitem')).toHaveText([T('Setups'), T('Compare trips'), T('Learnings'), T('All templates')]);
+  await expect(menu.getByRole('menuitem')).toHaveText([T('Setups'), T('Compare trips'), T('Learnings'), T('All templates'), T('Building blocks')]);
   await expect(menu.getByRole('menuitem', { name: T('Setups') })).toBeFocused();
   await page.keyboard.press('ArrowDown');
   await expect(menu.getByRole('menuitem', { name: T('Compare trips') })).toBeFocused();

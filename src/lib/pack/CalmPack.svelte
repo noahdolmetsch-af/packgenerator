@@ -3,12 +3,13 @@
   import DecisionReview from './DecisionReview.svelte';
   import Sum from '../ui/Sum.svelte';
   import { planningGroups } from '../preparation.js';
-  import { t, tn, nameOf, locale } from '../i18n.svelte.js';
+  import { t, tn, nameOf, locale, num } from '../i18n.svelte.js';
   import { formatWeight } from '../gear.js';
-  import { RAIN, tooFull, heavyHigh, isDayTrip } from '../trips.js';
+  import { RAIN, heavyHigh, isDayTrip } from '../trips.js';
+  import { bagVolumes } from '../bagsuggest.js';
   import { phone } from '../media.svelte.js';
   import { hasContext } from '../context.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null } = $props();
   let grouping = $state('bags');
   let opened = $state({ frame: true });
   let itemMenu = $state(null);
@@ -17,6 +18,8 @@
   let menuEl = $state();
   let note = $state('');
   const groups = $derived(planningGroups(stats, items, grouping));
+  // v0.26.1 (Noah 15b): litres only when every bag in use and every item in them has litres; else nothing.
+  const volumes = $derived(bagVolumes(stats, itemsById));
   const date = $derived(trip.startDate ? new Date(`${trip.startDate}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' }) : t('No date set'));
   const wxText = $derived(trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C · ${t(RAIN[trip.wx.rain ?? 'none'])}` : t('No weather set'));
   // v0.25.0 (M3): "2 h per day · 1 day · no overnight stay" for a trip with its context; older trips as before.
@@ -69,7 +72,7 @@
           <label>{t('Open another trip')}<select class="sel" value={trip.id} onchange={(e) => { changeTrip(e.currentTarget.value); menuEl.open = false; }}>{#each trips as tr}<option value={tr.id}>{tr.title}</option>{/each}</select></label>
           <button onclick={() => { menuEl.open = false; actions.newTrip(); }}>{t('New trip')}</button>
           <button onclick={() => { menuEl.open = false; show('conditions'); }}>{t('Edit trip conditions')}</button>
-          {#if bikeTrip}<button onclick={() => { menuEl.open = false; show('bags'); }}>{t('Bags for this trip')}</button><button onclick={actions.compare}>{t('Compare bikes')}</button><button onclick={actions.template}>{t('Save as template')}</button>{/if}
+          {#if bikeTrip}<button onclick={() => { menuEl.open = false; show('bags'); }}>{t('Bags for this trip')}</button><button onclick={actions.compare}>{t('Compare bikes')}</button><button onclick={() => { menuEl.open = false; actions.template(); }}>{t('Save as template')}</button>{/if}
           <button onclick={() => { menuEl.open = false; show('purposes'); }}>{t('Name your bags')}</button>
           {#if hasPhoto}<button onclick={() => { menuEl.open = false; actions.photo(); }}>{t('Setup photo')}</button>{/if}
           <a href="#/pack/templates">{t('Templates')}</a>
@@ -80,6 +83,7 @@
         </div>
       </details>
     </div>
+    {@render suggest?.()}
     <div class="bag-groups blist">
       {#each groups as group (group.key)}
         {@const Icon = icon(group.key)}
@@ -89,7 +93,7 @@
           {#if opened[group.key]}
             <div id={`calm-bag-${group.key}`}>
               {#if grouping === 'bags' && group.noBag}<p class="calm-error">{t('This trip has no bag here. Move these items or choose a bag in "Bags for this trip".')}</p>{/if}
-              {#if grouping === 'bags' && tooFull(group)}<p class="calm-error">{t('Probably too full: about {vol} for {cap}.', { vol: `${group.vol} L`, cap: `${group.bag.volumeL} L` })}</p>{/if}
+              {#if grouping === 'bags' && volumes?.[group.key]}<p class="calm-muted">{t('{used} of {cap} L', { used: num(volumes[group.key].used), cap: num(volumes[group.key].cap) })}</p>{/if}
               {#if grouping === 'bags' && heavyHigh(group, itemsById).length}<p class="calm-muted">{t('Heavy item high or far back: move to the frame bag?')}</p>{/if}
               <ul class="planning-rows">
                 {#each group.entries as entry (entry.itemId)}

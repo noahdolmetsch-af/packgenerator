@@ -6,7 +6,9 @@
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, sortBikes, bikesHash } from '../lib/bikes.js';
   import { CATEGORIES, formatWeight, weightText, isInventory, matches, weighQueue } from '../lib/gear.js';
-  import { tripStats, packSteps, togglePacked, packAll, tickReady, packAndReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike } from '../lib/trips.js';
+  import { tripStats, packSteps, togglePacked, packAll, tickReady, packAndReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike, setQty } from '../lib/trips.js';
+  import { suggestPlaces, applyPlaces, dismissPlace } from '../lib/bagsuggest.js';
+  import PlaceSuggest from '../lib/pack/PlaceSuggest.svelte';
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
   import { applyContext, hasContext, carryHint } from '../lib/context.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
@@ -24,6 +26,7 @@
   import { bikeChoice } from '../lib/choice.js';
   import { sharePayload, shareLink } from '../lib/share.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
+  import { SETS_KEY, allSets, addSetEntries, tripSlot } from '../lib/sets.js';
   import { bikePhotos, packPhoto } from '../lib/photo.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { withVisits, overdueFor } from '../lib/workshop.js';
@@ -310,6 +313,10 @@
     await db.trips.put(last.before);
   }
   const setEntries = (fn) => change((t) => ({ entries: fn(t.entries) }));
+  // v0.26.1 (AP17, Noah 14a): better places for sleep and cook items on an outdoor trip; one change() each (Undo).
+  const placeRows = $derived(trip && bikeTrip && !over ? suggestPlaces(trip, items, bags, bike) : []);
+  const applyRows = (rows) => change((t) => applyPlaces(t, rows));
+  const dismissRow = (itemId) => change((t) => dismissPlace(t, itemId));
 
   const moveTo = (itemId, slot) => setEntries((es) => es.map((e) => (e.itemId === itemId ? { ...e, slot, packed: false } : e)));
   const removeEntry = (itemId) => setEntries((es) => es.filter((e) => e.itemId !== itemId));
@@ -342,6 +349,32 @@
     const slot = !z || z.noBag ? 'body' : z.key;
     q = '';
     return setEntries((es) => (es.some((e) => e.itemId === record.id) ? es : [...es, { itemId: record.id, slot, qty: 1, packed: false }]));
+  }
+  // v0.26.0 (Noah 3a): "+ {block}" chips in "Add material": one tap adds every owned item of a
+  // building block that is not on the trip yet, into its usual bag (a trip without a bike: the
+  // chosen bag), with the block's amount, src 'set'. Entries already on the trip stay as they are.
+  const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
+  const blockSkip = $derived(new Set([...bagItemIds(bags), ...(bike?.fixtures ?? [])]));
+  const blockSlot = (cur) => (i) => (bikeTrip ? tripSlot(i, cur.setup) : zone?.noBag || !zone ? 'body' : zone.key);
+  const chips = $derived.by(() => {
+    if (!trip) return [];
+    return allSets($setsQ?.value)
+      .map((s) => ({ ...s, label: s.builtIn ? s.name.replace(/^(Night|Nacht): /, '') : s.name, n: addSetEntries(trip, items, s, { skip: blockSkip, slotOf: () => 'body' }).added.length, has: items.some((i) => isInventory(i) && i.sets?.includes(s.key)) }))
+      .filter((s) => s.has);
+  });
+  let blockNote = $state('');
+  async function addBlock(block) {
+    let n = 0;
+    await change((cur) => {
+      const r = addSetEntries(cur, items, block, { skip: blockSkip, slotOf: blockSlot(cur) });
+      n = r.added.length;
+      return { entries: r.entries };
+    });
+    blockNote = tn(n, '{n} item of {block} added.', '{n} items of {block} added.', { block: block.label });
+  }
+  async function undoBlock() {
+    blockNote = '';
+    await undoLast();
   }
   const targetName = $derived(zone ? (zone.noBag ? t('On me') : zone.bag ? zone.bag.name : t(zone.zone.name)) : t('the trip'));
 
@@ -576,7 +609,8 @@
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} {openLayers} {canUndo} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
-      choose, addTo, addMany, qty: (id, qty) => setEntries(es => es.map(e => e.itemId === id ? { ...e, qty: Math.max(1, Math.min(20, qty)), qtyManual: true, packed: (e.qty || 1) === qty ? e.packed : false } : e)),
+      // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
+      choose, addTo, addMany, qty: (id, qty) => setEntries(es => setQty(es, id, qty)),
       move: moveTo, remove: removeEntry, undo: undoLast,
       apply: choices => change(cur => acceptReview(cur, items, choices)),
       edit: () => dialog = { trip }, newTrip: () => dialog = { trip: null },
@@ -584,6 +618,7 @@
       photo: () => shownPhoto = Math.max(0, gallery.findIndex(p => p.id === shot?.id)), compare: () => choosing = true, template: () => saveTpl = true, share: shareList, resetPacked,
       skip: () => change(() => ({ skipped: !trip.skipped })),
     }}>
+    {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{/snippet}
     {#snippet settings(mode)}
       {#if mode === 'conditions'}
         {#if bikeTrip}{@render layers()}<h3>{t('Night')}</h3>{@render night()}{:else}<TripRoute {trip} onchange={changeContext} />{/if}
@@ -591,7 +626,17 @@
       {:else if mode === 'purposes'}{#each stats.zones as z}<label class="bag-purpose">{zoneName(z)}<input class="inp" value={trip.purpose?.[z.key] ?? ''} placeholder={t('What it is for, e.g. Quick access')} onchange={e => savePurpose(z.key, e.currentTarget.value)} /></label>{/each}
       {:else if mode === 'ready'}{@render readyFull()}{/if}
     {/snippet}
-    {#snippet picker(addItem, addItems)}<NotPacked items={candidates} {tagOf} target={targetName} onadd={addItem} onaddmany={addItems} drag={false} bind:q oncreate={createAndPack} />{/snippet}
+    {#snippet picker(addItem, addItems)}<NotPacked items={candidates} {tagOf} target={targetName} onadd={addItem} onaddmany={addItems} drag={false} bind:q oncreate={createAndPack}>
+      {#if chips.length}
+        <div class="blockchips" role="group" aria-labelledby="blockchips-h">
+          <span class="lbl" id="blockchips-h">{t('Building blocks')}</span>
+          <div class="chips">
+            {#each chips as c (c.key)}<button type="button" class="chip" disabled={!c.n} aria-label={c.n ? tn(c.n, 'Add {block}: {n} item', 'Add {block}: {n} items', { block: c.label }) : t('{block}: everything is on the trip', { block: c.label })} onclick={() => addBlock(c)}>+ {c.label} ({c.n})</button>{/each}
+          </div>
+          {#if blockNote}<p class="blocknote" role="status"><span>{blockNote}</span> {#if canUndo}<button type="button" class="text-button" onclick={undoBlock}>{t('Undo')}</button>{/if}</p>{/if}
+        </div>
+      {/if}
+    </NotPacked>{/snippet}
     {#snippet moreWeights()}
       <div class="extra-inner">
         <p>{bikeTrip ? t('System') : t('Total')}: {bikeTrip ? `${stats.bikeKind === 'estimate' ? '~' : ''}${weightText(stats.systemG, stats.systemMissing, kg)}` : weightText(stats.gearG + stats.onMeG, stats.unweighed, kg)} · {t('Bags')}: {weightText(stats.bagsG, stats.bagsMissing)}{#if bikeTrip} · {t('Bike')}: {stats.missing.bike ? t('not weighed') : `${stats.bikeKind === 'estimate' ? '~' : ''}${formatWeight(stats.bikeG)} · ${stats.bikeKind === 'estimate' ? t('estimate') : t('measured')}`} · {t('Rider')}: {stats.missing.rider ? t('not set') : formatWeight(stats.riderG)}{/if}</p>
@@ -651,6 +696,12 @@
 
 <style>
   .print { display: none; }
+  /* v0.26.0 (Noah 3a): building block chips in "Add material". */
+  .blockchips { display: grid; gap: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { min-height: 40px; padding: 6px 12px; border: 1.5px solid var(--line-strong); border-radius: 999px; background: var(--paper); color: var(--ink); font: 500 15px var(--font-body); cursor: pointer; overflow-wrap: anywhere; text-align: left; }
+  .chip:disabled { opacity: 0.5; cursor: default; }
+  .blocknote { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 14px; }
   /* v0.25.1 (Noah 1a): what the day ride was made with, and the way back. */
   .dayride-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; margin: 0 0 12px; padding: 8px 8px 8px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper-2, var(--paper)); }
   .dayride-bar p { margin: 0; flex: 1 1 200px; min-width: 0; overflow-wrap: anywhere; }

@@ -324,4 +324,13 @@ export default {
   'Open the debrief': 'Rückblick öffnen',
   'Next: end trip and debrief': 'Weiter: Tour beenden und Rückblick',
   'When you are back home.': 'Wenn du wieder zu Hause bist.',
+  // v0.26.1 (AP20, Noah 19/20a): notes on the way belong to the trip and its day; missing becomes a learning.
+  'Notes on the way': 'Notizen unterwegs',
+  'Saved. It shows in the debrief and in the Inbox.': 'Gespeichert. Sie erscheint im Rückblick und in der Inbox.',
+  'Delete this note?': 'Diese Notiz löschen?',
+  'Saved in the Inbox and on {trip}.': 'In der Inbox und bei {trip} gespeichert.',
+  'On the way: {title}, day {n}': 'Unterwegs: {title}, Tag {n}',
+  'Take {name} next time': '{name} nächstes Mal mitnehmen',
+  'Add "{q}" as new (not in your gear)': '«{q}» neu hinzufügen (nicht in deiner Ausrüstung)',
+  'in your gear': 'in deiner Ausrüstung',
 };

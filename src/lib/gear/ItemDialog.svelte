@@ -1,7 +1,13 @@
 <script>
   import { db } from '../db.js';
   import { RIDES, RAIN_ITEM } from '../layers.js';
-  import { CATEGORIES, CATEGORY, BAGS, BAG, OWNERSHIP, ROLES, SETS, formatWeight, itemWeight, itemDraft, itemRecord, parseGrams } from '../gear.js';
+  import { CATEGORIES, CATEGORY, BAGS, BAG, OWNERSHIP, ROLES, formatWeight, itemWeight, itemDraft, itemRecord, parseGrams } from '../gear.js';
+  import { liveQuery } from 'dexie';
+  import { SETS_KEY, allSets, setName } from '../sets.js';
+  import { TEMPLATES_KEY } from '../templates.js';
+  import { assignmentOf, currentTrip } from './assign.js';
+  import { localDay } from '../localday.js';
+  import AssignDialog from './AssignDialog.svelte';
   import { t, nameOf } from '../i18n.svelte.js';
   import { DOMAINS, itemDomains, domainName } from '../domains.js';
 
@@ -31,6 +37,35 @@
   $effect(() => {
     dialog.showModal();
   });
+
+  // v0.26.0 (Noah 2a, 9a): every building block (built-in and own) and the line "In: …" with the
+  // item's building blocks, templates and the current trip; "Assign …" changes them.
+  const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
+  const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
+  const tripsQ = liveQuery(() => db.trips.toArray());
+  const liveQ = liveQuery(() => (item ? db.items.get(item.id) : null));
+  const blocks = $derived(allSets($setsQ?.value));
+  const chosenTrip = (() => {
+    try {
+      return localStorage.getItem('pack.currentTrip');
+    } catch {
+      return null;
+    }
+  })();
+  const inLine = $derived.by(() => {
+    if (!item) return '';
+    const trip = currentTrip($tripsQ ?? [], chosenTrip, localDay());
+    const a = assignmentOf($liveQ ?? item, $tplQ?.value ?? [], trip);
+    const parts = [...a.sets.map((k) => setName(blocks, k)), ...a.templates.map((n) => t('Template "{name}"', { name: n })), ...(a.trip ? [t('Trip "{name}"', { name: trip.title })] : [])];
+    return parts.length ? parts.join(' · ') : t('nothing yet');
+  });
+  let assigning = $state(false);
+  // What "Assign …" wrote (building blocks, default bag) comes into the open form, so "Save" keeps it.
+  async function assigned() {
+    assigning = false;
+    const live = await db.items.get(item.id);
+    if (live) Object.assign(draft, { sets: [...(live.sets ?? [])], defaultBag: live.defaultBag });
+  }
 
   async function save(event) {
     event.preventDefault();
@@ -66,6 +101,10 @@
       {t(CATEGORY[draft.category]?.name ?? '')}{draft.id ? ` · ${draft.id}` : ''}
     </p>
     <h2 id="item-h" class="title">{isNew ? t('Add item') : nameOf(item)}</h2>
+    {#if !isNew}
+      <!-- v0.26.0 (Noah 9a, AP11): where the item is now, and "Assign …" to change it. -->
+      <p class="inline"><span><span class="lbl">{t('In:')}</span> {inLine}</span> <button type="button" class="btn sm" onclick={() => (assigning = true)}>{t('Assign …')}</button></p>
+    {/if}
 
     {#if readOnly}
       <dl class="facts">
@@ -82,7 +121,7 @@
         {#if item.rain}<div><dt>{t('Rain')}</dt><dd>{t(RAIN_ITEM[item.rain] ?? '')}</dd></div>{/if}
         {#if item.perHours}<div><dt>{t('Amount')}</dt><dd>{t('1 per {n} h', { n: item.perHours })}{item.maxQty ? `, ${t('at most {n}', { n: item.maxQty })}` : ''}</dd></div>{/if}
         {#if item.replaces}<div><dt>{t('When worn, instead of')}</dt><dd>{nameOf(items.find((i) => i.id === item.replaces)) || item.replaces}</dd></div>{/if}
-        {#if item.sets?.length}<div><dt>{t('Overnight set')}</dt><dd>{item.sets.map((s) => (SETS[s] ? t(SETS[s]) : s)).join(', ')}</dd></div>{/if}
+
         {#if item.qty > 1}<div><dt>{t('Quantity')}</dt><dd>{item.qty} × {formatWeight(item.weightG)} = {formatWeight(itemWeight(item))}</dd></div>{/if}
       </dl>
       {#if item.learning}<p class="note"><b>{t('Learning:')}</b> {item.learning}</p>{/if}
@@ -152,9 +191,9 @@
           {/each}
         </fieldset>
         <fieldset class="wide sets">
-          <legend class="lbl">{t('Overnight sets (Pack adds them with one switch)')}</legend>
-          {#each Object.entries(SETS) as [k, v] (k)}
-            <label class="cb"><input type="checkbox" checked={draft.sets?.includes(k)} onchange={(e) => (draft.sets = e.currentTarget.checked ? [...(draft.sets ?? []), k] : (draft.sets ?? []).filter((x) => x !== k))} /> {t(v).replace(/^(Night|Nacht): /, '')}</label>
+          <legend class="lbl">{t('Building blocks (Pack adds a whole block with one tap)')}</legend>
+          {#each blocks as b (b.key)}
+            <label class="cb"><input type="checkbox" checked={draft.sets?.includes(b.key)} onchange={(e) => (draft.sets = e.currentTarget.checked ? [...(draft.sets ?? []), b.key] : (draft.sets ?? []).filter((x) => x !== b.key))} /> {b.builtIn ? b.name.replace(/^(Night|Nacht): /, '') : b.name}</label>
           {/each}
         </fieldset>
         <fieldset class="wide layers">
@@ -203,7 +242,22 @@
   </form>
 </dialog>
 
+{#if assigning}<AssignDialog ids={[item.id]} {item} onclose={assigned} />{/if}
+
 <style>
+  .inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin: -8px 0 12px;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+  .inline > span {
+    flex: 1 1 180px;
+    min-width: 0;
+  }
   .meta {
     display: flex;
     align-items: center;

@@ -10,6 +10,7 @@
   import Inbox from './pages/Inbox.svelte';
   import Favorites from './pages/Favorites.svelte';
   import PastTrips from './pages/PastTrips.svelte';
+  import Blocks from './pages/Blocks.svelte';
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
@@ -142,6 +143,8 @@
         {#if page !== 'share'}<button type="button" onclick={() => ((menuOpen = false), note(''))}>{t('Quick note')}</button>{/if}
         <a href="#/debrief" onclick={() => (menuOpen = false)}>{t('Debriefs and learnings')}</a>
         <a href="#/pack/templates" onclick={() => (menuOpen = false)}>{t('Templates')}</a>
+        <!-- v0.26.0 (Noah 2b): building blocks next to the templates -->
+        <a href="#/blocks" onclick={() => (menuOpen = false)}>{t('Building blocks')}</a>
       </div>
     </details>
   </div>
@@ -149,7 +152,7 @@
 
 <DemoBar />
 
-<main class:calm={page === 'pack'} class:wide={page === 'pack' || page === 'templates' || page === 'gear' || page === 'home'}>
+<main class:calm={page === 'pack'} class:wide={page === 'pack' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home'}>
   {#if page === 'gear'}
     <Gear />
   {:else if page === 'pack'}
@@ -166,6 +169,9 @@
     <Ride />
   {:else if page === 'share'}
     {#key param}<Share code={param} />{/key}
+  {:else if page === 'blocks'}
+    <!-- v0.26.0 (Noah 2a/2b): building blocks (item sets) you can see and make -->
+    <Blocks />
   {:else if page === 'favorites'}
     <!-- v0.21.0 (package 5): all my favourite things, by area -->
     <Favorites />

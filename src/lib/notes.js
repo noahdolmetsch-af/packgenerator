@@ -4,7 +4,12 @@
  *   note = { id, at, text, photo, page, tripId, bikeId, status: 'open' | 'sorted', to, sortedAt }
  *   to   = { kind: 'repair' | 'wish' | 'learning' | 'trip' | 'done', label, ref }
  * Sorted notes stay as a list "All notes" (5b). Pure functions; the page writes the records.
+ * v0.26.1 (AP20, Noah 19 a+b): a note written while a trip is running (QuickNote, or "Note for the
+ * debrief" on the Ride day page) also gets note.day (0-based day of the trip) next to note.tripId.
+ * It stays in the Inbox, and the debrief shows it under "Notes on the way" (tripNotes).
  */
+import { tripEnd } from './debrief.js';
+import { dayIndex } from './ride.js';
 
 /** Where a note was written, for the Inbox. */
 export const PAGE_NAMES = { home: 'Start page', gear: 'Gear', pack: 'Pack', templates: 'Templates', ride: 'Ride day', bikes: 'Bikes', care: 'Bike care', debrief: 'Debrief', inbox: 'Inbox', share: 'Shared list' };
@@ -22,8 +27,34 @@ const WISH = /\b(buy|kaufen|kauf|bestellen|order|need|brauche|braucht|wishlist|w
 const LEARN = /\b(next time|nächstes mal|naechstes mal|immer|always|never|nie|lesson|lektion|lernen|learned|merken|tipp|tip)\b/i;
 
 /** A new note with what the app knows about the moment (answer: date, page, next trip, bike). */
-export function newNote({ text, photo = null, page = '', tripId = null, bikeId = null }, { id, now = new Date().toISOString() } = {}) {
-  return { id, at: now, text: text.trim(), photo, page, tripId, bikeId, status: 'open', to: null, sortedAt: null };
+export function newNote({ text, photo = null, page = '', tripId = null, bikeId = null, day = null }, { id, now = new Date().toISOString() } = {}) {
+  return { id, at: now, text: text.trim(), photo, page, tripId, bikeId, ...(day != null ? { day } : {}), status: 'open', to: null, sortedAt: null };
+}
+
+/** v0.26.1 (Noah 19a): the trip running today (start ≤ today ≤ last day, not ended, not skipped), or null. */
+export function runningTrip(trips, today) {
+  return [...trips].filter((t) => !t.skipped && !t.finished && t.startDate && t.startDate <= today && tripEnd(t) >= today).sort((a, b) => b.startDate.localeCompare(a.startDate))[0] ?? null;
+}
+
+/** v0.26.1 (Noah 19a): trip and day for a note written now: { tripId, day } while a trip runs, else null. */
+export function rideContext(trips, today) {
+  const trip = runningTrip(trips, today);
+  return trip ? { tripId: trip.id, day: dayIndex(trip, today) } : null;
+}
+
+/**
+ * v0.26.1 (Noah 19b): the notes on the way of one trip, for the Ride day page and the debrief:
+ * the older notes stored in the debrief (debrief.rideNotes) and the notes with this trip and a
+ * day (notes table). A note sorted from the Inbox onto the trip is in both: shown once.
+ * → [{ key, at, day, text, noteId? }] oldest first; key is the suggestion id ("ride:…").
+ */
+export function tripNotes(debrief, notes, tripId) {
+  const old = (debrief?.rideNotes ?? []).map((n, i) => ({ key: `ride:${i}`, at: n.at, day: n.day ?? 0, text: n.text }));
+  const seen = new Set(old.map((n) => `${n.at}|${n.text}`));
+  const fresh = notes
+    .filter((n) => n.tripId === tripId && n.day != null && !seen.has(`${n.at}|${n.text}`))
+    .map((n) => ({ key: `ride:${n.id}`, at: n.at, day: n.day, text: n.text, noteId: n.id }));
+  return [...old, ...fresh].sort((a, b) => (a.at ?? '').localeCompare(b.at ?? ''));
 }
 
 /** The bike a note talks about: a bike name or kind in the text, else the note's own bike. */

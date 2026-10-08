@@ -435,4 +435,6 @@ export default {
   'overdue for {n} month': 'überfällig seit {n} Monat',
   'overdue for {n} months': 'überfällig seit {n} Monaten',
   'Event (race or organised ride): show the event preparation': 'Event (Rennen oder organisierte Fahrt): Eventvorbereitung zeigen',
+  // v0.26.1 (Noah 15b): litres are optional.
+  'Litres are optional. Pack shows "used of litres" only when every bag in use and every item in it has litres.': 'Liter sind freiwillig. Packen zeigt «belegt von Liter» nur, wenn jede benutzte Tasche und jedes Teil darin Liter hat.',
 };

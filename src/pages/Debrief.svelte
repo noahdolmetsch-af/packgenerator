@@ -11,7 +11,8 @@
   import { liveQuery } from 'dexie';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { db } from '../lib/db.js';
-  import { formatWeight, knownWeight, CATEGORY, isInventory } from '../lib/gear.js';
+  import { formatWeight, knownWeight, CATEGORY, isInventory, matches } from '../lib/gear.js';
+  import { tripNotes } from '../lib/notes.js';
   import { ZONE } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
@@ -31,6 +32,8 @@
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const eventsQ = liveQuery(() => db.events.toArray());
+  // v0.26.1 (AP20, Noah 19b): notes written on the way (QuickNote or Ride day) with this trip and a day.
+  const notesQ = liveQuery(() => db.notes.toArray());
   // Answer 9a: the trips before the app (Hope, Alpenbrevet …) as a logbook to read, newest first.
   const events = $derived([...($eventsQ ?? [])].sort((a, b) => (b.sortDate ?? '').localeCompare(a.sortDate ?? '')));
 
@@ -158,7 +161,18 @@
   let missName = $state('');
   const notOnTrip = $derived(trip ? items.filter((i) => isInventory(i) && !trip.entries.some((e) => e.itemId === i.id)) : []);
   // v0.18.1: gear that may be what you mean, before it goes to the wishlist as something new.
-  const similar = $derived(missName.trim().length >= 4 && !notOnTrip.some((i) => i.name.toLowerCase() === missName.trim().toLowerCase()) ? similarItems(missName, notOnTrip) : []);
+  // v0.26.1 (Noah 20a): the search of v0.24.0: gear that matches what you type (name, brand, German
+  // name), then similar things; "Add … as new" when it is not in your gear.
+  const missQ = $derived(missName.trim());
+  const exactMiss = $derived(notOnTrip.find((i) => i.name.toLowerCase() === missQ.toLowerCase() || (i.nameDe ?? '').toLowerCase() === missQ.toLowerCase()) ?? null);
+  const similar = $derived.by(() => {
+    if (missQ.length < 2) return [];
+    const hit = notOnTrip.filter((i) => !d?.missing.some((m) => m.itemId === i.id) && matches(i, { q: missQ }));
+    const more = missQ.length >= 4 ? similarItems(missQ, notOnTrip).filter((i) => !hit.includes(i)) : [];
+    return [...hit, ...more].slice(0, 6);
+  });
+  // v0.26.1 (Noah 19b): the notes on the way, from the debrief and from the Inbox (notes.js).
+  const wayNotes = $derived(trip && d ? tripNotes(d, $notesQ ?? [], trip.id) : []);
   function addItem(item) {
     d.missing.push({ id: `m${Date.now().toString(36)}`, name: item.name, itemId: item.id });
     missName = '';
@@ -168,7 +182,7 @@
     event.preventDefault();
     const name = missName.trim();
     if (!name) return;
-    const match = notOnTrip.find((i) => i.name.toLowerCase() === name.toLowerCase());
+    const match = exactMiss;
     d.missing.push({ id: `m${Date.now().toString(36)}`, name: match?.name ?? name, itemId: match?.id ?? null });
     missName = '';
     persist();
@@ -181,7 +195,7 @@
 
   // Step 3: suggestions, all ticked to start with; ones applied in an earlier save are left out.
   const counts = $derived(d && trip ? debriefCounts(d, trip, items) : null);
-  const sugg = $derived(d && trip ? suggestions(d, trip, items, learnings, templates, debriefs).filter((s) => !d.applied.includes(s.id)) : []);
+  const sugg = $derived(d && trip ? suggestions({ ...d, rideNotes: wayNotes }, trip, items, learnings, templates, debriefs).filter((s) => !d.applied.includes(s.id)) : []);
   const GROUPS = [
     { key: 'home', name: 'Leave at home?' },
     { key: 'wish', name: 'Wishlist' },
@@ -198,9 +212,12 @@
     offer = templateOffer(trip, templates, trips) ? templateName(trip, bike, templates) : null;
     const on = sugg.filter(ticked).map((s) => s.id);
     const stamp = Date.now().toString(36).toUpperCase();
-    const out = applyDebrief($state.snapshot(d), trip, items, learnings, templates, on, { newItemId: (n) => `W${stamp}${n}` });
+    const out = applyDebrief({ ...$state.snapshot(d), rideNotes: $state.snapshot(wayNotes) }, trip, items, learnings, templates, on, { newItemId: (n) => `W${stamp}${n}` });
     const km = kmUpdate(bike, d);
-    await db.transaction('rw', db.items, db.learnings, db.debriefs, db.trips, db.settings, db.bikes, async () => {
+    const sortedAt = new Date().toISOString();
+    await db.transaction('rw', [db.items, db.learnings, db.debriefs, db.trips, db.settings, db.bikes, db.notes], async () => {
+      // v0.26.1 (Noah 19b): an Inbox note that became a learning here is sorted there too (no second learning later).
+      for (const n of out.notes) await db.notes.update(n.id, { status: 'sorted', to: { kind: 'learning', label: 'Learning', ref: n.learningId }, sortedAt });
       if (out.items.length) await db.items.bulkPut(out.items);
       if (km) {
         await db.bikes.update(bike.id, { km: km.km, kmDate: localDay() });
@@ -262,10 +279,11 @@
       <p class="lbl trip">{trip.title} · {dateText(trip)} · {Array.isArray(trip.packs) ? t(domainName(domainOf(trip))) : (trip.bike ?? '')}</p>
 
       {#snippet rideNotes()}
-        {#if d.rideNotes?.length}
+        <!-- v0.26.1 (AP20, Noah 19b): "Notes on the way": from the Ride day page and from quick notes during the trip. -->
+        {#if wayNotes.length}
           <div class="ridenotes">
-            <span class="lbl">{t('Notes from the ride')}</span>
-            <ul>{#each d.rideNotes as n (n.at)}<li><small class="num">{noteWhen(n.at)}</small> {n.text}</li>{/each}</ul>
+            <span class="lbl">{t('Notes on the way')}</span>
+            <ul>{#each wayNotes as n (n.key)}<li><small class="num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</small> {n.text}</li>{/each}</ul>
           </div>
         {/if}
       {/snippet}
@@ -345,11 +363,12 @@
           {#if similar.length}
             <p class="similar"><span>{t('In your gear:')}</span>{#each similar as i (i.id)}<button type="button" class="btn sm" onclick={() => addItem(i)}>{nameOf(i)}</button>{/each}</p>
           {/if}
+          {#if missQ && !exactMiss}<p class="similar"><button type="button" class="btn sm" onclick={addMissing}>+ {t('Add "{q}" as new (not in your gear)', { q: missQ })}</button></p>{/if}
           <datalist id="gear-names">{#each notOnTrip as i (i.id)}<option value={i.name}></option>{/each}</datalist>
           {#if d.missing.length}
             <ul>
               {#each d.missing as m (m.id)}
-                <li class="it"><span class="nm">{m.name}<small class="sub">{m.itemId ? t('in your gear · goes into the template') : t('not in your gear · goes to the wishlist')}</small></span><button type="button" class="c"  aria-label={t('Remove {name}', { name: m.name })} onclick={() => dropMissing(m.id)}>×</button></li>
+                <li class="it"><span class="nm">{m.name}<small class="sub">{m.itemId ? (trip.templateId ? t('in your gear · goes into the template') : t('in your gear')) : t('not in your gear · goes to the wishlist')}</small></span><button type="button" class="c"  aria-label={t('Remove {name}', { name: m.name })} onclick={() => dropMissing(m.id)}>×</button></li>
               {/each}
             </ul>
           {/if}

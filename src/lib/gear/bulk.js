@@ -5,6 +5,7 @@
  */
 import { bulkDelete } from '../gear.js';
 import { TEMPLATES_KEY } from '../templates.js';
+import { SETS_KEY } from '../sets.js';
 
 /** Save changed item records (category or ownership). Returns the undo snapshot. */
 export async function saveItems(db, changed) {
@@ -61,6 +62,11 @@ export async function undoBulk(db, snap) {
     if ('templates' in snap) {
       if (snap.templates) await db.settings.put(snap.templates);
       else await db.settings.delete(TEMPLATES_KEY);
+    }
+    // v0.26.0 (Noah 2a): own sets and set amounts (settings "sets"), null = there was none.
+    if ('sets' in snap) {
+      if (snap.sets) await db.settings.put(snap.sets);
+      else await db.settings.delete(SETS_KEY);
     }
   });
 }

@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
-import { slotFor, standardEntries, newTrip, packAll, tickReady, packAndReady, isDayTrip, addEntries, tripStats, readyDone, whenLabel, ensureTrips, heavyHigh } from '../src/lib/trips.js';
+import { slotFor, standardEntries, newTrip, packAll, tickReady, packAndReady, isDayTrip, addEntries, tripStats, readyDone, whenLabel, ensureTrips, heavyHigh, setQty, togglePacked } from '../src/lib/trips.js';
 
 const it_ = (id, extra) => ({ id, name: id, category: 'elec', weightG: 100, qty: 1, ownership: 'owned', role: null, sets: [], defaultBag: 'top', ...extra });
 const items = [
@@ -223,5 +223,41 @@ describe('packing day (answer 2a)', () => {
     expect(steps[0]).toMatchObject({ title: 'Sleep', sub: 'Tailfin', done: 1 });
     expect(steps[2].title).toBe('Wear and carry');
     expect(togglePacked(stats.zones[2].entries, 'D').map((e) => e.packed)).toEqual([true, true]);
+  });
+});
+
+// v0.26.1 (AP19, Noah 18b): packing day checks.
+describe('packed and ready (v0.26.1)', () => {
+  const items = [{ id: 'A', weightG: 100 }, { id: 'B', weightG: 50 }, { id: 'C', weightG: null }];
+  const trip = () => ({
+    id: 'test_data_gtp_ap19', setup: { seat: 'bag-seat' },
+    entries: [{ itemId: 'A', slot: 'seat', qty: 1, packed: true }, { itemId: 'B', slot: 'seat', qty: 1, packed: false }],
+    ready: [{ id: 'kit', label: 'Helmet', done: false }, { id: 'route', label: 'Route', done: true }],
+  });
+  it('a raised amount stays packed, without a question; a lowered one too', () => {
+    const up = setQty(trip().entries, 'A', 3);
+    expect(up[0]).toEqual({ itemId: 'A', slot: 'seat', qty: 3, packed: true, qtyManual: true });
+    expect(setQty(up, 'A', 2)[0].packed).toBe(true);
+    expect(setQty(up, 'A', 99)[0].qty).toBe(20);
+    expect(setQty(up, 'A', 0)[0].qty).toBe(1);
+    expect(setQty(up, 'A', 3)[1]).toBe(up[1]); // other entries stay as they are
+  });
+  it('counts packed items and the ready check separately', () => {
+    const t = trip();
+    const stats = tripStats(t, items, [], null, null);
+    expect([stats.packed, stats.count, stats.toPack]).toEqual([1, 2, 1]);
+    expect(t.ready.filter((r) => readyDone(r, t)).length).toBe(1);
+    // Every item packed does not tick the ready check.
+    const all = { ...t, entries: packAll(t.entries) };
+    expect(tripStats(all, items, [], null, null).toPack).toBe(0);
+    expect(all.ready.filter((r) => readyDone(r, all)).length).toBe(1);
+    // A tick on one item changes only that item.
+    expect(togglePacked(t.entries, 'B').map((e) => e.packed)).toEqual([true, true]);
+  });
+  it('an item added after packing is open', () => {
+    const t = { ...trip(), entries: packAll(trip().entries) };
+    const next = addEntries(t.entries, ['C'], 'seat', { packed: false });
+    expect(next.find((e) => e.itemId === 'C').packed).toBe(false);
+    expect(tripStats({ ...t, entries: next }, items, [], null, null).toPack).toBe(1);
   });
 });

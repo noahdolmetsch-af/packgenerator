@@ -2,6 +2,8 @@
   /**
    * Save the open trip as a template (Noah, 4.10.2026). The name can be changed right away.
    * When the trip came from a template, "Update" overwrites that template (answer 7a).
+   * v0.26.1 (AP18, Noah 16a): the dialog then asks "Update template «X»" or "Save as new template"
+   * and says in one line what an update changes and that older trips stay as they are.
    */
   import { db } from '../db.js';
   import { saveTripAsTemplate } from '../templates.js';
@@ -34,11 +36,12 @@
   <form onsubmit={(e) => (e.preventDefault(), store(!source))} novalidate>
     <h2 id="tpl-h" class="title">{source ? t('Template') : t('Save as template')}</h2>
     <label class="field"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={name} placeholder={t('e.g. Daily commute')} /></label>
-    <p class="note">{t('Saves the bags, every item with its place and amount, the ready check, the kind of ride, the riding hours and the night sets. Not saved: the weather, what is ticked and the bike.')}</p>
+    <p class="note">{t('Saves the bags, every item with its place and amount, the ready check, the kind of ride, the days, the riding hours per day, the overnight stay and the bike. Not saved: the weather and what is ticked.')}</p>
+    {#if source}<p class="note upd">{t('Update replaces the items, places and amounts of «{name}» (and its days, hours, overnight stay and bike). Trips made from it before stay unchanged.', { name: source.name })}</p>{/if}
     <p class="err" role="alert">{error}</p>
     <div class="foot">
       {#if source}
-        <button type="button" class="btn hi" onclick={() => store(false)}>{t('Update "{name}"', { name: source.name })}</button>
+        <button type="button" class="btn hi" onclick={() => store(false)}>{t('Update template «{name}»', { name: source.name })}</button>
         <button type="button" class="btn" onclick={() => store(true)}>{t('Save as new template')}</button>
       {:else}
         <button type="submit" class="btn hi">{t('Save template')}</button>
@@ -61,6 +64,9 @@
     font-size: 14px;
     color: var(--ink-2);
     margin: 12px 0 0;
+  }
+  .upd {
+    color: var(--ink);
   }
   .err {
     color: var(--bad);

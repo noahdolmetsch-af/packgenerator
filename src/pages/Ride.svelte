@@ -15,13 +15,15 @@
   import Profile from '../lib/ui/Profile.svelte';
   import { paceOf, PACE_KEY } from '../lib/pace.js';
   import { blockPlan, DRINK_L_PER_H, HOT_C, HOT_EXTRA_L } from '../lib/blockplan.js';
-  import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, addRideNote, DEFAULT_START } from '../lib/ride.js';
+  import { dayIndex, addTime, planHours, stage, stageCount, isNonstop, blocks, blockHours, dayProfile, placeName, fetchHourly, rideHours, wxSummary, DEFAULT_START } from '../lib/ride.js';
+  import { newNote, tripNotes } from '../lib/notes.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
+  const notesQ = liveQuery(() => db.notes.toArray());
   // v0.19.0: your pace from your rides (Debrief → Your pace), else the standard guess.
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
   const pace = $derived(paceOf($paceQ?.value));
@@ -140,20 +142,26 @@
 
   /* ---------- notes for the debrief ---------- */
   const debrief = $derived(trip ? ($debriefsQ ?? []).find((d) => d.tripId === trip.id) ?? null : null);
-  const notes = $derived(debrief?.rideNotes ?? []);
+  // v0.26.1 (AP20, Noah 19 a+b): a note here is a quick note with this trip and day: it stays in the
+  // Inbox and the debrief shows it under "Notes on the way". Older notes in the debrief still show.
+  const notes = $derived(trip ? tripNotes(debrief, $notesQ ?? [], trip.id) : []);
   let note = $state('');
   let noteMsg = $state('');
   async function saveNote(ev) {
     ev.preventDefault();
     if (!note.trim()) return;
-    await db.debriefs.put(addRideNote(debrief ? $state.snapshot(debrief) : null, $state.snapshot(trip), note, cur));
+    const now = new Date().toISOString();
+    await db.notes.put(newNote({ text: note, page: 'ride', tripId: trip.id, bikeId: trip.bikeId ?? null, day: cur }, { id: `note-${Date.now().toString(36)}`, now }));
     note = '';
-    noteMsg = t('Saved. It shows in the debrief.');
+    noteMsg = t('Saved. It shows in the debrief and in the Inbox.');
     setTimeout(() => (noteMsg = ''), 4000);
   }
   async function dropNote(n) {
+    if (!confirm(t('Delete this note?'))) return;
+    if (n.noteId) return db.notes.delete(n.noteId);
     const d = $state.snapshot(debrief);
-    d.rideNotes = d.rideNotes.filter((_, i) => i !== n);
+    const i = Number(n.key.slice(5));
+    d.rideNotes = d.rideNotes.filter((_, k) => k !== i);
     await db.debriefs.put(d);
   }
   const time = (iso) => new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
@@ -319,8 +327,8 @@
       {#if noteMsg}<p class="ok" role="status">{noteMsg}</p>{/if}
       {#if notes.length}
         <ul class="notes">
-          {#each notes as n, i (n.at)}
-            <li><small class="num">{days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{time(n.at)}</small><span>{n.text}</span><button type="button" class="link" onclick={() => dropNote(i)} aria-label={t('Remove this note')}>{t('Remove')}</button></li>
+          {#each notes as n (n.key)}
+            <li><small class="num">{days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{time(n.at)}</small><span>{n.text}</span><button type="button" class="link" onclick={() => dropNote(n)} aria-label={t('Remove this note')}>{t('Remove')}</button></li>
           {/each}
         </ul>
       {/if}

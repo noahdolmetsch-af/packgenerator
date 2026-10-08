@@ -58,7 +58,7 @@
         const trip = await db.trips.get(tripId);
         if (!trip) throw new Error(t('This trip is gone.'));
         const debrief = await db.debriefs.get(tripId);
-        await db.debriefs.put(addRideNote(debrief ?? null, trip, note.text, 0, note.at));
+        await db.debriefs.put(addRideNote(debrief ?? null, trip, note.text, note.day ?? 0, note.at)); // v0.26.1: keeps the day of a note on the way
       }
       await db.notes.put(out.note);
     });
@@ -96,7 +96,7 @@
           {#if n.photo}<button type="button" class="th" onclick={() => (shown = n.photo)} aria-label={t('Open photo')}><img src={n.photo} alt="" /></button>{/if}
           <div class="txt">
             <p class="t">{n.text}</p>
-            <p class="meta">{when(n.at)} · {PAGE_NAMES[n.page] ? t(PAGE_NAMES[n.page]) : n.page}{n.tripId ? ` · ${tripTitle(n.tripId)}` : ''}</p>
+            <p class="meta">{when(n.at)} · {PAGE_NAMES[n.page] ? t(PAGE_NAMES[n.page]) : n.page}{n.tripId ? ` · ${tripTitle(n.tripId)}` : ''}{n.day != null ? ` · ${t('Day {n}', { n: n.day + 1 })}` : ''}</p>
           </div>
         </div>
         <div class="ctx">

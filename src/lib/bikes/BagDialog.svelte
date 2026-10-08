@@ -93,6 +93,8 @@
       <label><span class="lbl">{t('Pieces of that item')}</span><input class="inp num" type="number" min="1" bind:value={draft.pieces} /></label>
       <label class="wide"><span class="lbl">{t('Note')}</span><input class="inp" bind:value={draft.note} /></label>
     </div>
+    <!-- v0.26.1 (Noah 15b): litres are optional; Pack only talks about volume when everything has litres. -->
+    <p class="note">{t('Litres are optional. Pack shows "used of litres" only when every bag in use and every item in it has litres.')}</p>
     <p class="note">
       {t('Weight:')} <b>{linked ? (linked.weightG == null ? t('not weighed yet (weigh it in Gear)') : formatWeight(linked.weightG * (Number(draft.pieces) || 1))) : t('no gear item linked')}</b>
     </p>

@@ -7,7 +7,8 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from './db.js';
-  import { newNote, guessBike, PAGE_NAMES } from './notes.js';
+  import { newNote, guessBike, PAGE_NAMES, rideContext } from './notes.js';
+  import { localDay } from './localday.js';
   import { nextTrip } from './debrief.js';
   import { sortBikes } from './bikes.js';
   import { shrinkImage } from './photo.js';
@@ -20,7 +21,10 @@
   const tripsQ = liveQuery(() => db.trips.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bikes = $derived(sortBikes($bikesQ ?? []));
-  const trip = $derived(nextTrip($tripsQ ?? []));
+  // v0.26.1 (AP20, Noah 19a): while a trip runs, the note belongs to that trip and its day (and
+  // stays in the Inbox); the debrief shows it under "Notes on the way".
+  const riding = $derived(rideContext($tripsQ ?? [], localDay()));
+  const trip = $derived(($tripsQ ?? []).find((x) => x.id === riding?.tripId) ?? nextTrip($tripsQ ?? []));
 
   let dialog = $state();
   let text = $state('');
@@ -59,8 +63,8 @@
     event.preventDefault();
     if (!text.trim() && !photo) return (msg = t('Write a few words or add a photo.'));
     const id = `note-${Date.now().toString(36)}`;
-    await db.notes.put(newNote({ text: text.trim() || t('Photo'), photo, page, tripId: trip?.id ?? null, bikeId: bike }, { id, now: new Date().toISOString() }));
-    saved = t('Saved in the Inbox.');
+    await db.notes.put(newNote({ text: text.trim() || t('Photo'), photo, page, tripId: trip?.id ?? null, bikeId: bike, day: riding?.day ?? null }, { id, now: new Date().toISOString() }));
+    saved = riding ? t('Saved in the Inbox and on {trip}.', { trip: trip?.title ?? '' }) : t('Saved in the Inbox.');
     setTimeout(() => (saved = ''), 3000);
     dialog.close();
   }
@@ -87,7 +91,8 @@
     </div>
     <p class="ctx">
       <span>{PAGE_NAMES[page] ? t(PAGE_NAMES[page]) : page}</span>
-      {#if trip}<span>{t('Next trip: {title}', { title: trip.title })}</span>{/if}
+      {#if riding && trip}<span>{t('On the way: {title}, day {n}', { title: trip.title, n: riding.day + 1 })}</span>
+      {:else if trip}<span>{t('Next trip: {title}', { title: trip.title })}</span>{/if}
       <label>{t('Bike')}
         <select class="sel mini" value={bike ?? ''} onchange={(e) => (bikeId = e.currentTarget.value || null)}>
           <option value="">{t('none')}</option>
