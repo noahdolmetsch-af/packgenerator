@@ -1,0 +1,1340 @@
+{
+  "fixture": {
+    "changedItems": [
+      "EL01",
+      "EL02",
+      "EL03",
+      "LI01",
+      "LI02",
+      "RA01",
+      "RA02",
+      "TO01",
+      "TO02",
+      "TO03",
+      "HY01",
+      "HY02",
+      "LX01"
+    ],
+    "templateBlocks": {
+      "tpl-gtp-made": [
+        "standard",
+        "sleep"
+      ]
+    },
+    "lists": {
+      "standard": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "standard2days": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "dayRide": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "outdoor": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "SL01@seatx1:context",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "lodging": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "template": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "SL01@seatx1",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "templateOutdoor": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "SL01@seatx1",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "copyDayRide": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "copyOutdoor": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "SL01@seatx1:context",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "copyNoContext": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "SL01@seatx1:context",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "outdoorSwitches": [
+        "cook",
+        "sleep",
+        "warm"
+      ],
+      "outdoorSleepOff": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "outdoorWarmOff": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "SL01@seatx1:context",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "layersOutdoor": [],
+      "layersDay": [],
+      "startEntriesDay": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "SL01@seatx1:context",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "summaryOutdoor": {
+        "start": 12,
+        "total": 13,
+        "sets": [
+          "base:0",
+          "sleep:1",
+          "warm:0",
+          "cook:0",
+          "firstaid:0"
+        ]
+      },
+      "standardEntriesRaw": [
+        "EL01@mountedx1",
+        "EL02@topx1",
+        "EL03@topx1",
+        "LI01@mountedx1",
+        "LI02@mountedx1",
+        "ON01@bodyx1",
+        "ON02@bodyx1",
+        "RA01@seatx1",
+        "RA02@seatx1",
+        "TO01@framex1",
+        "TO02@framex1",
+        "TO03@framex1"
+      ],
+      "alwaysEntriesRaw": [],
+      "area_ski": [],
+      "areaEntries_ski": [],
+      "area_weekend": [
+        "HY02@bagx1",
+        "OF01@bodyx1",
+        "RA01@bagx1"
+      ],
+      "areaEntries_weekend": [
+        "HY02@bagx1",
+        "OF01@bodyx1",
+        "RA01@bagx1"
+      ],
+      "area_travel": [],
+      "areaEntries_travel": []
+    },
+    "sideEffects": {
+      "EL01": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "EL02": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "EL03": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "LI01": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "LI02": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "RA01": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "RA02": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "TO01": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "TO02": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "TO03": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "HY02": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      }
+    },
+    "gain11a": {
+      "template": [],
+      "copyDayRide": [],
+      "copyNoContext": []
+    }
+  },
+  "pf": {
+    "changedItems": [
+      "test_data_gtp_WZ01",
+      "test_data_gtp_WZ02",
+      "test_data_gtp_WZ03",
+      "test_data_gtp_EL01",
+      "test_data_gtp_DO01",
+      "test_data_gtp_FD01",
+      "test_data_gtp_FD02",
+      "test_data_gtp_FD03",
+      "test_data_gtp_LI02",
+      "test_data_gtp_HY05"
+    ],
+    "templateBlocks": {
+      "tpl-gtp-evening": []
+    },
+    "lists": {
+      "standard": [
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_EL01@topx1",
+        "test_data_gtp_FD01@framex1",
+        "test_data_gtp_FD02@mountedx1",
+        "test_data_gtp_FD03@framex1",
+        "test_data_gtp_KL01@bodyx1",
+        "test_data_gtp_KL02@bodyx1",
+        "test_data_gtp_KL11@bodyx1",
+        "test_data_gtp_LI02@mountedx1",
+        "test_data_gtp_WZ01@topx1",
+        "test_data_gtp_WZ02@seatx1",
+        "test_data_gtp_WZ03@framex1"
+      ],
+      "standard2days": [
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_EL01@topx1",
+        "test_data_gtp_FD01@framex1",
+        "test_data_gtp_FD02@mountedx1",
+        "test_data_gtp_FD03@framex1",
+        "test_data_gtp_HY01@seatx1",
+        "test_data_gtp_HY02@seatx1",
+        "test_data_gtp_KL01@bodyx1",
+        "test_data_gtp_KL02@bodyx1",
+        "test_data_gtp_KL11@bodyx1",
+        "test_data_gtp_LI02@mountedx1",
+        "test_data_gtp_WZ01@topx1",
+        "test_data_gtp_WZ02@seatx1",
+        "test_data_gtp_WZ03@framex1"
+      ],
+      "dayRide": [
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_EL01@topx1",
+        "test_data_gtp_FD01@framex1",
+        "test_data_gtp_FD02@mountedx1",
+        "test_data_gtp_FD03@framex2",
+        "test_data_gtp_KL01@bodyx1",
+        "test_data_gtp_KL02@bodyx1",
+        "test_data_gtp_KL03@seatx1:context",
+        "test_data_gtp_KL04@bodyx1:context",
+        "test_data_gtp_KL07@seatx1:context",
+        "test_data_gtp_KL10@topx1:context",
+        "test_data_gtp_KL11@bodyx1",
+        "test_data_gtp_LI02@mountedx1",
+        "test_data_gtp_WZ01@topx1",
+        "test_data_gtp_WZ02@seatx1",
+        "test_data_gtp_WZ03@framex1"
+      ],
+      "outdoor": [
+        "test_data_gtp_CO01@framex1:context",
+        "test_data_gtp_CO02@framex1:context",
+        "test_data_gtp_CO03@framex1:context",
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_EL01@topx1",
+        "test_data_gtp_FD01@framex4",
+        "test_data_gtp_FD02@mountedx2",
+        "test_data_gtp_FD03@framex3",
+        "test_data_gtp_HY01@seatx1:context",
+        "test_data_gtp_HY02@seatx1:context",
+        "test_data_gtp_KL02@bodyx1",
+        "test_data_gtp_KL03@bodyx1:context",
+        "test_data_gtp_KL04@bodyx1:context",
+        "test_data_gtp_KL05@seatx1:context",
+        "test_data_gtp_KL07@bodyx1:context",
+        "test_data_gtp_KL09@bodyx1:context",
+        "test_data_gtp_KL10@bodyx1:context",
+        "test_data_gtp_KL11@bodyx1",
+        "test_data_gtp_KL12@seatx1:context",
+        "test_data_gtp_LI02@mountedx1",
+        "test_data_gtp_SL01@seatx1:context",
+        "test_data_gtp_SL02@seatx1:context",
+        "test_data_gtp_SL03@seatx1:context",
+        "test_data_gtp_SL04@seatx1:context",
+        "test_data_gtp_WZ01@topx1",
+        "test_data_gtp_WZ02@seatx1",
+        "test_data_gtp_WZ03@framex1"
+      ],
+      "lodging": [
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_EL01@topx1",
+        "test_data_gtp_FD01@framex3",
+        "test_data_gtp_FD02@mountedx2",
+        "test_data_gtp_FD03@framex3",
+        "test_data_gtp_HY01@seatx1:context",
+        "test_data_gtp_HY04@seatx1:context",
+        "test_data_gtp_KL01@bodyx1",
+        "test_data_gtp_KL02@bodyx1",
+        "test_data_gtp_KL04@topx1:context",
+        "test_data_gtp_KL05@seatx1:context",
+        "test_data_gtp_KL07@seatx1:context",
+        "test_data_gtp_KL10@topx1:context",
+        "test_data_gtp_KL11@bodyx1",
+        "test_data_gtp_KL12@seatx1:context",
+        "test_data_gtp_LI02@mountedx1",
+        "test_data_gtp_OF01@seatx1:context",
+        "test_data_gtp_WZ01@topx1",
+        "test_data_gtp_WZ02@seatx1",
+        "test_data_gtp_WZ03@framex1"
+      ],
+      "template": [
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_FD01@framex1",
+        "test_data_gtp_FD03@framex2:context",
+        "test_data_gtp_KL01@bodyx1",
+        "test_data_gtp_KL02@bodyx1",
+        "test_data_gtp_KL05@seatx1",
+        "test_data_gtp_WZ01@topx1"
+      ],
+      "templateOutdoor": [
+        "test_data_gtp_CO01@framex1:context",
+        "test_data_gtp_CO02@framex1:context",
+        "test_data_gtp_CO03@framex1:context",
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_FD01@framex4",
+        "test_data_gtp_FD02@mountedx2:context",
+        "test_data_gtp_FD03@framex3:context",
+        "test_data_gtp_HY01@seatx1:context",
+        "test_data_gtp_HY02@seatx1:context",
+        "test_data_gtp_KL02@bodyx1",
+        "test_data_gtp_KL03@bodyx1:context",
+        "test_data_gtp_KL04@bodyx1:context",
+        "test_data_gtp_KL05@seatx1",
+        "test_data_gtp_KL07@bodyx1:context",
+        "test_data_gtp_KL09@bodyx1:context",
+        "test_data_gtp_KL10@bodyx1:context",
+        "test_data_gtp_KL12@seatx1:context",
+        "test_data_gtp_SL01@seatx1:context",
+        "test_data_gtp_SL02@seatx1:context",
+        "test_data_gtp_SL03@seatx1:context",
+        "test_data_gtp_SL04@seatx1:context",
+        "test_data_gtp_WZ01@topx1"
+      ],
+      "copyDayRide": [
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_FD01@framex1",
+        "test_data_gtp_FD03@framex2:context",
+        "test_data_gtp_KL01@bodyx1",
+        "test_data_gtp_KL03@seatx1:context",
+        "test_data_gtp_KL04@bodyx1:context",
+        "test_data_gtp_KL05@seatx1",
+        "test_data_gtp_KL07@seatx1:context",
+        "test_data_gtp_KL10@topx1:context",
+        "test_data_gtp_KL11@bodyx1",
+        "test_data_gtp_WZ01@topx1"
+      ],
+      "copyOutdoor": [
+        "test_data_gtp_CO01@framex1:context",
+        "test_data_gtp_CO02@framex1:context",
+        "test_data_gtp_CO03@framex1:context",
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_FD01@framex4",
+        "test_data_gtp_FD02@mountedx2:context",
+        "test_data_gtp_FD03@framex3:context",
+        "test_data_gtp_HY01@seatx1",
+        "test_data_gtp_HY02@seatx1:context",
+        "test_data_gtp_KL03@bodyx1:context",
+        "test_data_gtp_KL04@bodyx1:context",
+        "test_data_gtp_KL05@seatx1",
+        "test_data_gtp_KL07@bodyx1:context",
+        "test_data_gtp_KL09@bodyx1:context",
+        "test_data_gtp_KL10@bodyx1:context",
+        "test_data_gtp_KL11@bodyx1",
+        "test_data_gtp_KL12@seatx1:context",
+        "test_data_gtp_SL01@seatx1:context",
+        "test_data_gtp_SL02@seatx1:context",
+        "test_data_gtp_SL03@seatx1:context",
+        "test_data_gtp_SL04@seatx1:context",
+        "test_data_gtp_WZ01@topx1"
+      ],
+      "copyNoContext": [
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_FD01@framex3",
+        "test_data_gtp_HY01@seatx1",
+        "test_data_gtp_HY04@seatx1",
+        "test_data_gtp_KL01@bodyx1",
+        "test_data_gtp_KL05@seatx1",
+        "test_data_gtp_KL11@bodyx1",
+        "test_data_gtp_WZ01@topx1"
+      ],
+      "outdoorSwitches": [
+        "cook",
+        "sleep",
+        "warm"
+      ],
+      "outdoorSleepOff": [
+        "test_data_gtp_CO01@framex1:context",
+        "test_data_gtp_CO02@framex1:context",
+        "test_data_gtp_CO03@framex1:context",
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_EL01@topx1",
+        "test_data_gtp_FD01@framex4",
+        "test_data_gtp_FD02@mountedx2",
+        "test_data_gtp_FD03@framex3",
+        "test_data_gtp_HY01@seatx1:context",
+        "test_data_gtp_HY02@seatx1:context",
+        "test_data_gtp_KL02@bodyx1",
+        "test_data_gtp_KL03@bodyx1:context",
+        "test_data_gtp_KL04@bodyx1:context",
+        "test_data_gtp_KL05@seatx1:context",
+        "test_data_gtp_KL07@bodyx1:context",
+        "test_data_gtp_KL09@bodyx1:context",
+        "test_data_gtp_KL10@bodyx1:context",
+        "test_data_gtp_KL11@bodyx1",
+        "test_data_gtp_KL12@seatx1:context",
+        "test_data_gtp_LI02@mountedx1",
+        "test_data_gtp_SL04@seatx1:context",
+        "test_data_gtp_WZ01@topx1",
+        "test_data_gtp_WZ02@seatx1",
+        "test_data_gtp_WZ03@framex1"
+      ],
+      "outdoorWarmOff": [
+        "test_data_gtp_CO01@framex1:context",
+        "test_data_gtp_CO02@framex1:context",
+        "test_data_gtp_CO03@framex1:context",
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_EL01@topx1",
+        "test_data_gtp_FD01@framex4",
+        "test_data_gtp_FD02@mountedx2",
+        "test_data_gtp_FD03@framex3",
+        "test_data_gtp_HY01@seatx1:context",
+        "test_data_gtp_HY02@seatx1:context",
+        "test_data_gtp_KL02@bodyx1",
+        "test_data_gtp_KL03@bodyx1:context",
+        "test_data_gtp_KL04@bodyx1:context",
+        "test_data_gtp_KL05@seatx1:context",
+        "test_data_gtp_KL07@bodyx1:context",
+        "test_data_gtp_KL09@bodyx1:context",
+        "test_data_gtp_KL11@bodyx1",
+        "test_data_gtp_KL12@seatx1:context",
+        "test_data_gtp_LI02@mountedx1",
+        "test_data_gtp_SL01@seatx1:context",
+        "test_data_gtp_SL02@seatx1:context",
+        "test_data_gtp_SL03@seatx1:context",
+        "test_data_gtp_WZ01@topx1",
+        "test_data_gtp_WZ02@seatx1",
+        "test_data_gtp_WZ03@framex1"
+      ],
+      "layersOutdoor": [
+        "test_data_gtp_FD01:packx4",
+        "test_data_gtp_FD02:packx2",
+        "test_data_gtp_FD03:packx3",
+        "test_data_gtp_KL04:wearx1",
+        "test_data_gtp_KL07:wearx1",
+        "test_data_gtp_KL03:wearx1>test_data_gtp_KL01",
+        "test_data_gtp_KL10:wearx1",
+        "test_data_gtp_KL09:wearx1",
+        "test_data_gtp_KL05:packx1",
+        "test_data_gtp_KL12:packx1",
+        "test_data_gtp_KL06:packx1?"
+      ],
+      "layersDay": [
+        "test_data_gtp_FD03:packx2",
+        "test_data_gtp_KL04:wearx1",
+        "test_data_gtp_KL07:packx1",
+        "test_data_gtp_KL03:packx1",
+        "test_data_gtp_KL10:packx1"
+      ],
+      "startEntriesDay": [
+        "test_data_gtp_CO01@framex1:context",
+        "test_data_gtp_CO02@framex1:context",
+        "test_data_gtp_CO03@framex1:context",
+        "test_data_gtp_DO01@topx1",
+        "test_data_gtp_EL01@topx1",
+        "test_data_gtp_FD01@framex4",
+        "test_data_gtp_FD02@mountedx2",
+        "test_data_gtp_FD03@framex3",
+        "test_data_gtp_HY01@seatx1:context",
+        "test_data_gtp_HY02@seatx1:context",
+        "test_data_gtp_KL02@bodyx1",
+        "test_data_gtp_KL03@bodyx1:context",
+        "test_data_gtp_KL04@bodyx1:context",
+        "test_data_gtp_KL05@seatx1:context",
+        "test_data_gtp_KL07@bodyx1:context",
+        "test_data_gtp_KL09@bodyx1:context",
+        "test_data_gtp_KL10@bodyx1:context",
+        "test_data_gtp_KL11@bodyx1",
+        "test_data_gtp_KL12@seatx1:context",
+        "test_data_gtp_LI02@mountedx1",
+        "test_data_gtp_SL01@seatx1:context",
+        "test_data_gtp_SL02@seatx1:context",
+        "test_data_gtp_SL03@seatx1:context",
+        "test_data_gtp_SL04@seatx1:context",
+        "test_data_gtp_WZ01@topx1",
+        "test_data_gtp_WZ02@seatx1",
+        "test_data_gtp_WZ03@framex1"
+      ],
+      "summaryOutdoor": {
+        "start": 12,
+        "total": 27,
+        "sets": [
+          "base:2",
+          "sleep:3",
+          "warm:2",
+          "cook:3",
+          "firstaid:0"
+        ]
+      },
+      "standardEntriesRaw": [
+        "test_data_gtp_EL01@topx1",
+        "test_data_gtp_FD01@framex1",
+        "test_data_gtp_FD02@mountedx1",
+        "test_data_gtp_FD03@framex1",
+        "test_data_gtp_HY01@seatx1",
+        "test_data_gtp_HY02@seatx1",
+        "test_data_gtp_KL01@bodyx1",
+        "test_data_gtp_KL02@bodyx1",
+        "test_data_gtp_KL11@bodyx1",
+        "test_data_gtp_LI02@mountedx1",
+        "test_data_gtp_WZ01@topx1",
+        "test_data_gtp_WZ02@seatx1",
+        "test_data_gtp_WZ03@framex1"
+      ],
+      "alwaysEntriesRaw": [
+        "test_data_gtp_DO01@topx1"
+      ],
+      "area_ski": [],
+      "areaEntries_ski": [],
+      "area_weekend": [],
+      "areaEntries_weekend": [],
+      "area_travel": [],
+      "areaEntries_travel": []
+    },
+    "sideEffects": {
+      "test_data_gtp_WZ01": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "test_data_gtp_WZ02": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "test_data_gtp_WZ03": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "test_data_gtp_EL01": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "test_data_gtp_DO01": {
+        "filter": [
+          [
+            "none"
+          ],
+          [
+            "night"
+          ]
+        ],
+        "weighPriority": [
+          3,
+          1
+        ],
+        "layerRank": [
+          6,
+          5
+        ]
+      },
+      "test_data_gtp_FD01": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "test_data_gtp_FD02": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "test_data_gtp_FD03": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "test_data_gtp_LI02": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      }
+    },
+    "gain11a": {
+      "template": [
+        "test_data_gtp_EL01",
+        "test_data_gtp_FD02",
+        "test_data_gtp_LI02",
+        "test_data_gtp_WZ02",
+        "test_data_gtp_WZ03"
+      ],
+      "copyDayRide": [
+        "test_data_gtp_EL01",
+        "test_data_gtp_FD02",
+        "test_data_gtp_LI02",
+        "test_data_gtp_WZ02",
+        "test_data_gtp_WZ03"
+      ],
+      "copyNoContext": [
+        "test_data_gtp_EL01",
+        "test_data_gtp_FD02",
+        "test_data_gtp_FD03",
+        "test_data_gtp_LI02",
+        "test_data_gtp_WZ02",
+        "test_data_gtp_WZ03"
+      ]
+    }
+  },
+  "edge": {
+    "changedItems": [
+      "test_data_gtp_EHELMET",
+      "test_data_gtp_ETUBE",
+      "test_data_gtp_EPHONE",
+      "test_data_gtp_EAID",
+      "test_data_gtp_EGEL",
+      "test_data_gtp_EBOTTLE",
+      "test_data_gtp_EBRUSH",
+      "test_data_gtp_EWARMJ",
+      "test_data_gtp_ERAINALW",
+      "test_data_gtp_ESPARE",
+      "test_data_gtp_EWISH",
+      "test_data_gtp_ESKISTD",
+      "test_data_gtp_ESKIALW",
+      "test_data_gtp_EWEEKEND"
+    ],
+    "templateBlocks": {
+      "tpl-gtp-made": [
+        "standard",
+        "base",
+        "warm",
+        "sleep",
+        "cook",
+        "firstaid"
+      ]
+    },
+    "lists": {
+      "standard": [
+        "test_data_gtp_EAID@seatx1",
+        "test_data_gtp_EBOTTLE@framex1",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_EGEL@topx1",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EJERSEY@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "standard2days": [
+        "test_data_gtp_EAID@seatx1",
+        "test_data_gtp_EBOTTLE@framex1",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_EGEL@topx1",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EJERSEY@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ETOWEL@seatx1",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "dayRide": [
+        "test_data_gtp_EBOTTLE@framex1",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_ECOLDJ@bodyx1:context",
+        "test_data_gtp_EGEL@topx2",
+        "test_data_gtp_EGILET@bodyx1:context",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EJERSEY@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "outdoor": [
+        "test_data_gtp_EAID@seatx1",
+        "test_data_gtp_EBOTTLE@framex2",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_ECOLDJ@bodyx1:context",
+        "test_data_gtp_EGEL@topx6",
+        "test_data_gtp_EGILET@bodyx1:context",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ERAINJ@topx1:context",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ESLEEPBAG@seatx1:context",
+        "test_data_gtp_ESTOVE@seatx1:context",
+        "test_data_gtp_ETOWEL@seatx1:context",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "lodging": [
+        "test_data_gtp_EAID@seatx1",
+        "test_data_gtp_EBOTTLE@framex2",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_EGEL@topx6",
+        "test_data_gtp_EGILET@topx1:context",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EJERSEY@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ERAINJ@topx1:context",
+        "test_data_gtp_ESHOWER@seatx1:context",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "template": [
+        "test_data_gtp_EAID@seatx1",
+        "test_data_gtp_EBOTTLE@framex2",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_ECOLDJ@bodyx1",
+        "test_data_gtp_EGEL@topx6",
+        "test_data_gtp_EGILET@bodyx1",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EJERSEY@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ESLEEPBAG@seatx1",
+        "test_data_gtp_ESTOVE@seatx1",
+        "test_data_gtp_ETOWEL@seatx1",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "templateOutdoor": [
+        "test_data_gtp_EAID@seatx1",
+        "test_data_gtp_EBOTTLE@framex2",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_ECOLDJ@bodyx1",
+        "test_data_gtp_EGEL@topx6",
+        "test_data_gtp_EGILET@bodyx1",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ERAINJ@topx1:context",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ESLEEPBAG@seatx1",
+        "test_data_gtp_ESTOVE@seatx1",
+        "test_data_gtp_ETOWEL@seatx1",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "copyDayRide": [
+        "test_data_gtp_EBOTTLE@framex1",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_ECOLDJ@bodyx1:context",
+        "test_data_gtp_EGEL@topx2",
+        "test_data_gtp_EGILET@bodyx1:context",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EJERSEY@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "copyOutdoor": [
+        "test_data_gtp_EAID@seatx1",
+        "test_data_gtp_EBOTTLE@framex2",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_ECOLDJ@bodyx1:context",
+        "test_data_gtp_EGEL@topx6",
+        "test_data_gtp_EGILET@bodyx1:context",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ERAINJ@topx1:context",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ESLEEPBAG@seatx1:context",
+        "test_data_gtp_ESTOVE@seatx1:context",
+        "test_data_gtp_ETOWEL@seatx1:context",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "copyNoContext": [
+        "test_data_gtp_EAID@seatx1",
+        "test_data_gtp_EBOTTLE@framex2",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_ECOLDJ@bodyx1:context",
+        "test_data_gtp_EGEL@topx6",
+        "test_data_gtp_EGILET@bodyx1:context",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EJERSEY@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ESLEEPBAG@seatx1:context",
+        "test_data_gtp_ESTOVE@seatx1:context",
+        "test_data_gtp_ETOWEL@seatx1:context",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "outdoorSwitches": [
+        "cook",
+        "sleep",
+        "warm"
+      ],
+      "outdoorSleepOff": [
+        "test_data_gtp_EAID@seatx1",
+        "test_data_gtp_EBOTTLE@framex2",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_ECOLDJ@bodyx1:context",
+        "test_data_gtp_EGEL@topx6",
+        "test_data_gtp_EGILET@bodyx1:context",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ERAINJ@topx1:context",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ESTOVE@seatx1:context",
+        "test_data_gtp_ETOWEL@seatx1:context",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "outdoorWarmOff": [
+        "test_data_gtp_EAID@seatx1",
+        "test_data_gtp_EBOTTLE@framex2",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_ECOLDJ@bodyx1:context",
+        "test_data_gtp_EGEL@topx6",
+        "test_data_gtp_EGILET@bodyx1:context",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ERAINJ@topx1:context",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ESLEEPBAG@seatx1:context",
+        "test_data_gtp_ESTOVE@seatx1:context",
+        "test_data_gtp_ETOWEL@seatx1:context",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "layersOutdoor": [
+        "test_data_gtp_EGEL:packx6",
+        "test_data_gtp_EBOTTLE:packx2",
+        "test_data_gtp_EGILET:wearx1",
+        "test_data_gtp_ECOLDJ:wearx1>test_data_gtp_EJERSEY",
+        "test_data_gtp_ERAINJ:packx1",
+        "test_data_gtp_ERAINALW:packx1"
+      ],
+      "layersDay": [
+        "test_data_gtp_EGEL:packx2",
+        "test_data_gtp_EGILET:wearx1",
+        "test_data_gtp_ECOLDJ:packx1"
+      ],
+      "startEntriesDay": [
+        "test_data_gtp_EAID@seatx1",
+        "test_data_gtp_EBOTTLE@framex2",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_ECOLDJ@bodyx1:context",
+        "test_data_gtp_EGEL@topx6",
+        "test_data_gtp_EGILET@bodyx1:context",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ERAINJ@topx1:context",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ESLEEPBAG@seatx1:context",
+        "test_data_gtp_ESTOVE@seatx1:context",
+        "test_data_gtp_ETOWEL@seatx1:context",
+        "test_data_gtp_ETUBE@framex1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "summaryOutdoor": {
+        "start": 13,
+        "total": 18,
+        "sets": [
+          "base:1",
+          "sleep:1",
+          "warm:0",
+          "cook:1",
+          "firstaid:0"
+        ]
+      },
+      "standardEntriesRaw": [
+        "test_data_gtp_EBOTTLE@framex1",
+        "test_data_gtp_EBRUSH@topx1",
+        "test_data_gtp_EGEL@topx1",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EJERSEY@bodyx1",
+        "test_data_gtp_ESKISTD@seatx1",
+        "test_data_gtp_ETOWEL@seatx1",
+        "test_data_gtp_EWARMJ@topx1",
+        "test_data_gtp_EWORNNOBAG@bodyx1",
+        "test_data_gtp_EWORNTOP@bodyx1"
+      ],
+      "alwaysEntriesRaw": [
+        "test_data_gtp_EAID@seatx1",
+        "test_data_gtp_EHELMET@bodyx1",
+        "test_data_gtp_EPHONE@topx1",
+        "test_data_gtp_ERAINALW@seatx1",
+        "test_data_gtp_ETUBE@framex1"
+      ],
+      "area_ski": [
+        "test_data_gtp_ESKIALW@packx1",
+        "test_data_gtp_ESKISTD@packx1",
+        "test_data_gtp_ESKIWORN@bodyx1"
+      ],
+      "areaEntries_ski": [
+        "test_data_gtp_ESKIALW@packx1",
+        "test_data_gtp_ESKISTD@packx1",
+        "test_data_gtp_ESKIWORN@bodyx1"
+      ],
+      "area_weekend": [
+        "test_data_gtp_EWEEKEND@bagx1"
+      ],
+      "areaEntries_weekend": [
+        "test_data_gtp_EWEEKEND@bagx1"
+      ],
+      "area_travel": [],
+      "areaEntries_travel": []
+    },
+    "sideEffects": {
+      "test_data_gtp_EHELMET": {
+        "filter": [
+          [
+            "worn"
+          ],
+          [
+            "night",
+            "worn"
+          ]
+        ]
+      },
+      "test_data_gtp_ETUBE": {
+        "filter": [
+          [
+            "none"
+          ],
+          [
+            "night"
+          ]
+        ],
+        "weighPriority": [
+          3,
+          1
+        ],
+        "layerRank": [
+          6,
+          5
+        ]
+      },
+      "test_data_gtp_EPHONE": {
+        "filter": [
+          [
+            "none"
+          ],
+          [
+            "night"
+          ]
+        ],
+        "weighPriority": [
+          3,
+          1
+        ],
+        "layerRank": [
+          6,
+          5
+        ]
+      },
+      "test_data_gtp_EGEL": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "test_data_gtp_EBOTTLE": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "test_data_gtp_ERAINALW": {
+        "filter": [
+          [
+            "none"
+          ],
+          [
+            "night"
+          ]
+        ],
+        "weighPriority": [
+          3,
+          1
+        ]
+      },
+      "test_data_gtp_EWISH": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "test_data_gtp_ESKISTD": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      },
+      "test_data_gtp_ESKIALW": {
+        "filter": [
+          [
+            "none"
+          ],
+          [
+            "night"
+          ]
+        ],
+        "weighPriority": [
+          3,
+          1
+        ],
+        "layerRank": [
+          6,
+          5
+        ]
+      },
+      "test_data_gtp_EWEEKEND": {
+        "filter": [
+          [
+            "standard"
+          ],
+          [
+            "night",
+            "standard"
+          ]
+        ]
+      }
+    },
+    "gain11a": {
+      "template": [],
+      "copyDayRide": [],
+      "copyNoContext": []
+    }
+  }
+}
