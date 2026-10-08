@@ -97,6 +97,8 @@ for (const lang of ['de', 'en']) {
     await expect(box).toContainText(T('Not included: overnight gear, event preparation'));
     await click(dlg.getByRole('button', { name: T('Create trip') }));
     await expect(dlg).toBeHidden();
+    // v0.29.0 (Noah 5a): the bags are folded; the gel's bag opens with a tap.
+    await page.locator('section.bag-group').filter({ hasText: 'test_data_gtp_ Gel' }).locator('button.bag-heading').click();
     const gel = page.locator('.planning-row').filter({ hasText: 'test_data_gtp_ Gel' });
     await expect(gel).toContainText('× 2');
     const ms = Date.now() - t0;
@@ -110,8 +112,10 @@ for (const lang of ['de', 'en']) {
     const trip = await stored(page, title);
     expect(trip).toMatchObject({ hours: 2, overnight: 'none', wx: { min: 6, max: 12, rain: 'none' }, event: false });
     // Header: hours per day, days and the overnight stay; nothing left "still to decide" (6b).
-    await expect(page.locator('.context-line')).toContainText(`${T('{n} h per day', { n: 2 })} · ${T('{n} day', { n: 1 })} · ${T('no overnight stay')}`);
-    await expect(page.locator('.detail-link small')).toHaveCount(0);
+    // v0.29.0: in the conditions card (Duration, Per day).
+    await expect(page.locator('.cond')).toContainText(`${T('{n} day', { n: 1 })} · ${T('no overnight stay')}`);
+    await expect(page.locator('.cond')).toContainText(T('{n} h per day', { n: 2 }));
+    await expect(page.locator('.detail-link .tp-badge')).toHaveCount(0);
     // Answer 10: a short ride shows no bike care before the trip.
     await expect(page.locator('.calm-extra summary').filter({ hasText: T('Before the trip') })).not.toContainText(T('Bike care'));
     expect(errors).toEqual([]);
@@ -143,13 +147,15 @@ test('lodging for 2 days, then outdoor in Edit trip, and Undo', async ({ page, c
   expect(on).toContain('CX02');
   for (const id of NIGHT) expect(on).not.toContain(id);
   // 8a: 3 h × 2 days = 6 gels, the most you carry: "buy on the way?".
+  await page.locator('section.bag-group').filter({ hasText: 'test_data_gtp_ Gel' }).locator('button.bag-heading').click();
   const gel = page.locator('.planning-row').filter({ hasText: 'test_data_gtp_ Gel' });
   await expect(gel).toContainText('× 6');
   await expect(gel).toContainText(T('Buy {name} on the way?', { name: 'test_data_gtp_ Gel' }));
-  await expect(page.locator('.context-line')).toContainText(`${T('{n} days', { n: 2 })} · ${T('Lodging')}`);
+  await expect(page.locator('.cond')).toContainText(`${T('{n} days', { n: 2 })} · ${T('Lodging')}`);
 
   // 9b: Edit trip → Outdoor with cooking: night items come, lodging-only items go, at once.
-  await page.getByRole('button', { name: T('Edit trip') }).click();
+  // v0.29.0: "Edit trip" is the Duration field of the conditions card (and in the ••• menu).
+  await page.locator('.cond').getByRole('button', { name: new RegExp(T('Duration')) }).click();
   const edit = page.getByRole('dialog', { name: T('Trip details') });
   await expect(edit.getByRole('button', { name: T('Lodging') })).toHaveAttribute('aria-pressed', 'true');
   await edit.getByRole('button', { name: T('Outdoor (tent, bivvy)') }).click();
@@ -161,7 +167,7 @@ test('lodging for 2 days, then outdoor in Edit trip, and Undo', async ({ page, c
   for (const id of [...NIGHT, 'CX02']) expect(on).toContain(id);
   expect(on).not.toContain('CX06');
   // Two days: bike care is a step before the trip again (no data on the test bike).
-  await expect(page.locator('.calm-extra summary').filter({ hasText: T('Before the trip') })).toContainText(T('Bike care · {bike}: {state}', { bike: 'Test gravel bike', state: T('no data') }));
+  await expect(page.locator('.calm-extra summary').filter({ hasText: T('Before the trip') })).toContainText(T('Bike care {state}', { state: T('no data') }));
 
   // Undo puts the lodging list back.
   await page.locator('.list-toolbar .undo').click();

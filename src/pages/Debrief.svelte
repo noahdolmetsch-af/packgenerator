@@ -3,7 +3,7 @@
   /**
    * Debrief (stage 1, 4.10.2026): after a trip, in about two minutes.
    * #/debrief            trips to debrief, finished debriefs, all learnings
-   * #/debrief/<tripId>   the three steps for one trip (saved while you go)
+   * #/debrief/<tripId>   one trip's debrief on one page (v0.29.0, Noah 9a; was three steps), saved while you go
    * #/debrief/learnings  the same overview, scrolled to the learnings
    * #/debrief/pace       the same overview, scrolled to "Your pace" (v0.19.0)
    * #/debrief/compare    the same overview, scrolled to "Your trips compared" (v0.25.1, Today's Trips tile and weight trend)
@@ -12,7 +12,11 @@
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { db } from '../lib/db.js';
   import { formatWeight, knownWeight, CATEGORY, isInventory, matches } from '../lib/gear.js';
-  import { tripNotes } from '../lib/notes.js';
+  import { tripNotes, noteToDebrief } from '../lib/notes.js';
+  import { isOver } from '../lib/debrief.js';
+  import TripBand from '../lib/trip/TripBand.svelte';
+  import '../lib/trip/trip.css';
+  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, Briefcase, Upload } from '@lucide/svelte';
   import { ZONE } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
@@ -21,6 +25,7 @@
   import Compare from '../lib/debrief/Compare.svelte';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { domainOf, domainName } from '../lib/domains.js';
+  import { phone } from '../lib/media.svelte.js';
 
   let { param = '' } = $props();
 
@@ -94,16 +99,22 @@
 
   /* ---------- one debrief: kept here while you work, saved on every change (autosave) ---------- */
   let d = $state(null);
-  let step = $state(1);
   let ticks = $state({});
   let saved = $state(false);
   let loadedFor = null;
+  // v0.29.0 (Noah 9a): one page, everything filled in: weather as planned, amount right, bags fine,
+  // the km from the route, every item used; the quick notes on the way are already the exceptions.
   $effect(() => {
-    if (!trip || !$debriefsQ || loadedFor === trip.id) return;
+    if (!trip || !$debriefsQ || !$notesQ || !$bikesQ || loadedFor === trip.id) return;
     loadedFor = trip.id;
     const stored = debriefs.find((x) => x.tripId === trip.id);
-    d = stored ? structuredClone($state.snapshot(stored)) : newDebrief(trip);
-    step = stored?.status === 'done' ? 3 : 1;
+    let x = stored ? structuredClone($state.snapshot(stored)) : newDebrief(trip);
+    if (!stored) for (const n of $notesQ.filter((n) => n.tripId === trip.id && n.debrief?.kind)) x = noteToDebrief(x, n);
+    x.weather ??= 'planned';
+    x.amount ??= 'right';
+    x.bags ??= 'fine';
+    if (x.km == null && bike && trip.route?.km) x.km = Math.round(trip.route.km);
+    d = x;
     saved = stored?.status === 'done';
     offer = null;
     ticks = {};
@@ -113,11 +124,17 @@
     await db.debriefs.put($state.snapshot(d));
   }
   const set = (field, value) => {
-    d[field] = d[field] === value ? null : value;
+    d[field] = value;
     persist();
   };
+  // v0.29.0 (Noah 9a): one tap per exception: used → not used → broken → used.
+  const NEXT = { used: 'unused', unused: 'broken', broken: 'used' };
+  function cycle(itemId) {
+    const now = d.items[itemId] ?? 'used';
+    mark(itemId, NEXT[now]);
+  }
   function mark(itemId, state) {
-    if (state === 'used' || d.items[itemId] === state) delete d.items[itemId];
+    if (state === 'used') delete d.items[itemId];
     else d.items[itemId] = state;
     persist();
   }
@@ -128,15 +145,6 @@
       else d.items[e.itemId] = state;
     }
     persist();
-  }
-  // v0.24.0 (Noah, fewer clicks): "All as planned" answers the three questions and goes straight to
-  // the summary, where the suggestions are still shown before anything is saved.
-  function allFine() {
-    d.weather = 'planned';
-    d.amount = 'right';
-    d.bags = 'fine';
-    persist();
-    step = 3;
   }
 
   // Step 2: the packed items by bag, in the order of the trip.
@@ -195,7 +203,19 @@
 
   // Step 3: suggestions, all ticked to start with; ones applied in an earlier save are left out.
   const counts = $derived(d && trip ? debriefCounts(d, trip, items) : null);
-  const sugg = $derived(d && trip ? suggestions({ ...d, rideNotes: wayNotes }, trip, items, learnings, templates, debriefs).filter((s) => !d.applied.includes(s.id)) : []);
+  // v0.29.0 (Noah 8a): a quick note that is already an answer ("not needed", "was missing") is not a learning of its own.
+  const freeNotes = $derived(wayNotes.filter((n) => !n.kind));
+  const sugg = $derived(d && trip ? suggestions({ ...d, rideNotes: freeNotes }, trip, items, learnings, templates, debriefs).filter((s) => !d.applied.includes(s.id)) : []);
+  // The one suggestion for next time, with its reason: leave at home first, then the learnings.
+  const RANK = { home: 0, learn: 1, wish: 2, template: 3 };
+  const top = $derived([...sugg].sort((a, b) => RANK[a.group] - RANK[b.group])[0] ?? null);
+  const more = $derived(sugg.filter((x) => x !== top));
+  // The exceptions: what was not used or broke, and what was missing.
+  const exceptions = $derived(d && trip ? trip.entries.filter((e) => d.items[e.itemId] && byId[e.itemId]) : []);
+  const used = $derived(d && trip ? trip.entries.filter((e) => byId[e.itemId] && !d.items[e.itemId]).length : 0);
+  const fromNote = (id) => wayNotes.find((n) => n.noteId === id) ?? null;
+  const zoneOf = (slot) => groups.find((g) => g.slot === slot)?.name ?? slot;
+  const STATE = { used: 'Used', unused: 'Not used', broken: 'Broken' };
   const GROUPS = [
     { key: 'home', name: 'Leave at home?' },
     { key: 'wish', name: 'Wishlist' },
@@ -203,6 +223,8 @@
     { key: 'template', name: 'Template' },
   ];
   const ticked = (s) => ticks[s.id] ?? true;
+  // Open on a big screen when shown; afterwards it stays as you leave it (an attribute would shut it on every change).
+  const openOnce = (node, open) => { node.open = open; };
 
   let busy = $state(false);
   // v0.24.1 (Noah 4a): the template name offered right after saving a day trip's debrief, else null.
@@ -212,7 +234,7 @@
     offer = templateOffer(trip, templates, trips) ? templateName(trip, bike, templates) : null;
     const on = sugg.filter(ticked).map((s) => s.id);
     const stamp = Date.now().toString(36).toUpperCase();
-    const out = applyDebrief({ ...$state.snapshot(d), rideNotes: $state.snapshot(wayNotes) }, trip, items, learnings, templates, on, { newItemId: (n) => `W${stamp}${n}` });
+    const out = applyDebrief({ ...$state.snapshot(d), rideNotes: $state.snapshot(freeNotes) }, trip, items, learnings, templates, on, { newItemId: (n) => `W${stamp}${n}` });
     const km = kmUpdate(bike, d);
     const sortedAt = new Date().toISOString();
     await db.transaction('rw', [db.items, db.learnings, db.debriefs, db.trips, db.settings, db.bikes, db.notes], async () => {
@@ -229,7 +251,8 @@
       d.status = 'done';
       d.doneAt = new Date().toISOString();
       await db.debriefs.put($state.snapshot(d));
-      await db.trips.update(trip.id, { status: 'done' });
+      // v0.29.0: a debrief saved before the last day ends the trip (as "Next: Debrief" on the way does).
+      await db.trips.update(trip.id, isOver(trip) ? { status: 'done' } : { status: 'done', finished: localDay() });
     });
     busy = false;
     saved = true;
@@ -238,7 +261,6 @@
     d.status = 'draft';
     saved = false;
     offer = null;
-    step = 1;
     await persist();
   }
 
@@ -263,149 +285,149 @@
 </script>
 
 {#if tripId}
-  <div class="flow">
-    {#if !$tripsQ}
-      <p class="muted">{t('Loading…')}</p>
-    {:else if !trip}
-      <p class="card">{t('This trip does not exist any more.')} <a href="#/debrief">{t('Back to Debrief')}</a></p>
-    {:else if d}
-      <div class="bar">
-        <a class="back" href="#/debrief" aria-label={t('Back to Debrief')}>←</a>
-        <b>{t('Debrief')}</b>
-        <ol class="steps" aria-label={t('Steps')}>
-          {#each [1, 2, 3] as n (n)}<li class:on={step >= n} aria-current={step === n ? 'step' : undefined}><span class="sr">{t('Step {n}', { n })}</span></li>{/each}
-        </ol>
-      </div>
-      <p class="lbl trip">{trip.title} · {dateText(trip)} · {Array.isArray(trip.packs) ? t(domainName(domainOf(trip))) : (trip.bike ?? '')}</p>
-
-      {#snippet rideNotes()}
-        <!-- v0.26.1 (AP20, Noah 19b): "Notes on the way": from the Ride day page and from quick notes during the trip. -->
-        {#if wayNotes.length}
-          <div class="ridenotes">
-            <span class="lbl">{t('Notes on the way')}</span>
-            <ul>{#each wayNotes as n (n.key)}<li><small class="num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</small> {n.text}</li>{/each}</ul>
+  {#if !$tripsQ}
+    <p class="muted">{t('Loading…')}</p>
+  {:else if !trip}
+    <p class="card">{t('This trip does not exist any more.')} <a href="#/debrief">{t('Back to Debrief')}</a></p>
+  {:else if d}
+    {#snippet go()}{#if saved}<a class="btn hi go" href="#/">{t('Done')}<ArrowRight size={20} aria-hidden="true" /></a>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish}>{t('Save debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
+    {@const end = tripEnd(trip)}
+    {@const back = end ? Math.round((Date.parse(`${localDay()}T00:00:00Z`) - Date.parse(`${end}T00:00:00Z`)) / 864e5) : null}
+    <div class="flow trip-page">
+      <TripBand {trip} tab="debrief" kicker={[t('Debrief'), back === 1 ? t('back yesterday') : back > 1 ? t('back {n} days ago', { n: back }) : ''].filter(Boolean).join(' · ')} action={go} hint={saved ? '' : t('Everything else counts as used.')} />
+      {#if saved}
+        <section class="tp-card saved-card" aria-labelledby="saved-h">
+          <h2 id="saved-h" class="title">{t('Saved')}</h2>
+          <div class="kpi">
+            <div><b class="num">{counts.unused}</b><span class="lbl">{t('not used')}</span></div>
+            <div><b class="num">{counts.unusedG ? knownWeight(counts.unusedG, counts.unusedUnweighed, (g) => `−${formatWeight(g)}`) : '–'}</b><span class="lbl">{t('possible')}{#if counts.unusedUnweighed}{' · '}{t('{n} not weighed', { n: counts.unusedUnweighed })}{/if}</span></div>
+            <div><b class="num">{counts.missing}</b><span class="lbl">{t('missing')}</span></div>
+            <div><b class="num">{counts.broken}</b><span class="lbl">{t('broken')}</span></div>
           </div>
-        {/if}
-      {/snippet}
-      {#if step === 1}
-        <h1 class="title">{t('How did it go?')}</h1>
-        {#if !d.weather && !d.amount && !d.bags}
-          <button type="button" class="btn fine" onclick={allFine}>{t('All as planned: weather, amount, bags')}<small>{t('Then only the summary is left; everything counts as used.')}</small></button>
-        {/if}
-        <fieldset>
-          <legend>{t('Weather, compared to what you packed for')}</legend>
-          <div class="seg">{#each WEATHER as o (o.key)}<button type="button" aria-pressed={d.weather === o.key} onclick={() => set('weather', o.key)}>{t(o.name)}</button>{/each}</div>
-        </fieldset>
-        <fieldset>
-          <legend>{t('How much did you take?')}</legend>
-          <div class="seg">{#each AMOUNT as o (o.key)}<button type="button" aria-pressed={d.amount === o.key} onclick={() => set('amount', o.key)}>{t(o.name)}</button>{/each}</div>
-        </fieldset>
-        <fieldset>
-          <legend>{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</legend>
-          <div class="seg">{#each BAGS_OK as o (o.key)}<button type="button" aria-pressed={d.bags === o.key} onclick={() => set('bags', o.key)}>{t(o.name)}</button>{/each}</div>
-        </fieldset>
-        {#if bike}
-          <label class="km">
-            <span>{t('km of this trip')} <small>({bike.km != null ? t('goes onto {bike}, now {km} km', { bike: bike.name, km: num(bike.km) }) : t('goes onto {bike}', { bike: bike.name })})</small></span>
-            <span class="kmrow">
-              <input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder={t('e.g. 303')} />
-              <span class="or">{t('or')}</span>
-              <span class="btn sm imp">{t('Import from Strava or Garmin')}<input type="file" accept=".csv,.gpx,.tcx,text/csv,application/gpx+xml" multiple onchange={importRides} /></span>
-            </span>
-          </label>
-          {#if rideMsg}<p class="hint ride" role="status">{rideMsg}</p>{/if}
-          <details class="howto">
-            <summary>{t('How to get the file')}</summary>
-            <p><b>Strava:</b> {t('on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).')}</p>
-            <p><b>Garmin Connect:</b> {t('on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).')}</p>
-            <p>{t('Several files at once are fine (one per day). Only rides on the days of this trip count.')}</p>
-          </details>
-        {/if}
-        {@render rideNotes()}
-        <label class="note">
-          <span>{t('One sentence for next time')} <small>({t('optional')})</small></span>
-          <textarea class="inp" rows="3" bind:value={d.note} oninput={persist} placeholder={t('e.g. Heatwave, the rain gear was never used')}></textarea>
-        </label>
-        <div class="foot"><button type="button" class="btn hi wide" onclick={() => (step = 2)}>{t('Next: go through the items')}</button></div>
-      {:else if step === 2}
-        <h1 class="title">{t('What did you use?')}</h1>
-        {@render rideNotes()}
-        <p class="hint">{t('Everything counts as used. Tap only what you did not use or what broke.')} <span class="num">{t('{n} of {total} marked.', { n: counts.looked, total: trip.entries.length })}</span></p>
-        <div class="legend" aria-hidden="true"><span>✓ {t('used')}</span><span>– {t('not used')}</span><span>✕ {t('broken')}</span></div>
-        {#each groups as g (g.slot)}
-          <section class="bag">
-            <h2><span class="title">{t(g.name)}</span> <span class="lbl">{tn(g.rows.length, '{n} item', '{n} items')}</span>
-              <span class="alls">
-                <button type="button" class="link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All ✓')}</button>
-                <button type="button" class="link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('All –')}</button>
-              </span></h2>
-            <ul>
-              {#each g.rows as { e, item } (e.itemId)}
-                {@const st = d.items[e.itemId] ?? 'used'}
-                <li class="it" class:unused={st === 'unused'} class:broken={st === 'broken'}>
-                  <span class="nm">{nameOf(item)}{#if e.qty > 1}<small> × {e.qty}</small>{/if}<small class="sub">{CATEGORY[item.category]?.name ? t(CATEGORY[item.category].name) : ''}{item.weightG != null ? ` · ${formatWeight(item.weightG * (e.qty || 1))}` : ''}{#if before[e.itemId]}<span class="before"> · {tn(before[e.itemId], 'not used on {n} trip before', 'not used on {n} trips before')}</span>{/if}</small></span>
-                  <span class="acts" role="group" aria-label={nameOf(item)}>
-                    <button type="button" class="c" aria-pressed={st === 'used'} aria-label={t('Used')} onclick={() => mark(e.itemId, 'used')}>✓</button>
-                    <button type="button" class="c no" aria-pressed={st === 'unused'} aria-label={t('Not used')} onclick={() => mark(e.itemId, 'unused')}>–</button>
-                    <button type="button" class="c br" aria-pressed={st === 'broken'} aria-label={t('Broken')} onclick={() => mark(e.itemId, 'broken')}>✕</button>
-                  </span>
-                </li>
-              {/each}
-            </ul>
-          </section>
-        {/each}
-        <section class="bag">
-          <h2><span class="title">{t('Missing something?')}</span></h2>
-          <form class="miss" onsubmit={addMissing}>
-            <input class="inp" list="gear-names" placeholder={t('What you missed, e.g. Headlamp')} bind:value={missName} aria-label={t('What you missed')} />
-            <button type="submit" class="btn">{t('Add')}</button>
-          </form>
-          {#if similar.length}
-            <p class="similar"><span>{t('In your gear:')}</span>{#each similar as i (i.id)}<button type="button" class="btn sm" onclick={() => addItem(i)}>{nameOf(i)}</button>{/each}</p>
-          {/if}
-          {#if missQ && !exactMiss}<p class="similar"><button type="button" class="btn sm" onclick={addMissing}>+ {t('Add "{q}" as new (not in your gear)', { q: missQ })}</button></p>{/if}
-          <datalist id="gear-names">{#each notOnTrip as i (i.id)}<option value={i.name}></option>{/each}</datalist>
-          {#if d.missing.length}
-            <ul>
-              {#each d.missing as m (m.id)}
-                <li class="it"><span class="nm">{m.name}<small class="sub">{m.itemId ? (trip.templateId ? t('in your gear · goes into the template') : t('in your gear')) : t('not in your gear · goes to the wishlist')}</small></span><button type="button" class="c"  aria-label={t('Remove {name}', { name: m.name })} onclick={() => dropMissing(m.id)}>×</button></li>
-              {/each}
-            </ul>
-          {/if}
-        </section>
-        <div class="foot two"><button type="button" class="btn" onclick={() => (step = 1)}>{t('Back')}</button><button type="button" class="btn hi wide" onclick={() => (step = 3)}>{t('Next: summary')}</button></div>
-      {:else}
-        <h1 class="title">{saved ? t('Saved') : t('Next time')}</h1>
-        <div class="kpi">
-          <div><b class="num">{counts.unused}</b><span class="lbl">{t('not used')}</span></div>
-          <div><b class="num">{counts.unusedG ? knownWeight(counts.unusedG, counts.unusedUnweighed, (g) => `−${formatWeight(g)}`) : '–'}</b><span class="lbl">{t('possible')}{#if counts.unusedUnweighed}{' · '}{t('{n} not weighed', { n: counts.unusedUnweighed })}{/if}</span></div>
-          <div><b class="num">{counts.missing}</b><span class="lbl">{t('missing')}</span></div>
-          <div><b class="num">{counts.broken}</b><span class="lbl">{t('broken')}</span></div>
-        </div>
-        {#if saved}
           <p class="card ok">{t('Debrief saved')}{d.applied.length ? `, ${tn(d.applied.length, '{n} change made', '{n} changes made')}` : ''}{d.kmApplied ? `, ${bike?.name ? t('{km} km added to {bike}', { km: num(d.kmApplied), bike: bike.name }) : t('{km} km added to the bike', { km: num(d.kmApplied) })}` : ''}. {t('The learnings now show up on the start page and when you pack.')}</p>
           {#if sugg.length}<p class="hint">{tn(sugg.length, '{n} more suggestion is open. Change your answers to see it.', '{n} more suggestions are open. Change your answers to see them.')}</p>{/if}
           {#if offer}<TemplateOffer {trip} name={offer} />{/if}
-          <div class="foot two"><button type="button" class="btn" onclick={reopen}>{t('Change answers')}</button><a class="btn ink wide" href="#/">{t('Done')}</a></div>
-        {:else}
-          {#if !sugg.length}<p class="card">{t('Nothing to change. Everything you took was used and nothing was missing.')}</p>{/if}
-          {#each GROUPS as grp (grp.key)}
-            {@const list = sugg.filter((s) => s.group === grp.key)}
-            {#if list.length}
-              <section class="sum">
-                <h2 class="title">{t(grp.name)}</h2>
-                {#each list as s (s.id)}
-                  <label class="chk"><input type="checkbox" checked={ticked(s)} onchange={(ev) => (ticks[s.id] = ev.currentTarget.checked)} /><span>{s.label}<small>{s.detail}</small></span></label>
+          <p><button type="button" class="btn" onclick={reopen}>{t('Change answers')}</button></p>
+        </section>
+      {:else}
+      <div class="tp-grid2 r">
+        <div class="col">
+          <!-- Noah 9a: only what was different; everything else counts as used. -->
+          <section class="tp-card" aria-labelledby="diff-h">
+            <h2 id="diff-h">{t('What was different?')}<span class="r">{t('tap only the exceptions')}</span></h2>
+            {#if exceptions.length || d.missing.length}
+              <ul class="exc">
+                {#each exceptions as e (e.itemId)}
+                  {@const st = d.items[e.itemId]}
+                  {@const n = fromNote(d.itemNotes?.[e.itemId])}
+                  <li><span class="nm">{nameOf(byId[e.itemId])}<small>{n ? t('from your note on the way, {time}', { time: noteWhen(n.at) }) : `${t(zoneOf(e.slot))}${byId[e.itemId].weightG != null ? ` · ${formatWeight(byId[e.itemId].weightG * (e.qty || 1))}` : ''}`}</small></span>
+                    <button type="button" class="state {st}" aria-label={t('{name}: {state}. Tap to change.', { name: nameOf(byId[e.itemId]), state: t(STATE[st]) })} onclick={() => cycle(e.itemId)}>{#if st === 'unused'}<Minus size={16} aria-hidden="true" />{:else}<X size={16} aria-hidden="true" />{/if}{t(STATE[st])}</button></li>
                 {/each}
-              </section>
+                {#each d.missing as m (m.id)}
+                  {@const n = m.noteId ? fromNote(m.noteId) : null}
+                  <li><span class="nm">{m.name}<small>{n ? t('from your note on the way, {time}', { time: noteWhen(n.at) }) : m.itemId ? (trip.templateId ? t('in your gear · goes into the template') : t('in your gear')) : t('not in your gear · goes to the wishlist')}</small></span>
+                    <span class="state miss"><Plus size={16} aria-hidden="true" />{t('Was missing')}</span>
+                    <button type="button" class="x" aria-label={t('Remove {name}', { name: m.name })} onclick={() => dropMissing(m.id)}><X size={18} aria-hidden="true" /></button></li>
+                {/each}
+              </ul>
+            {:else}<p class="tp-muted tp-small">{t('Nothing yet. Tap an item below when you did not use it or it broke.')}</p>{/if}
+            <form class="miss" onsubmit={addMissing}>
+              <input class="inp" list="gear-names" placeholder={t('What you missed, e.g. Headlamp')} bind:value={missName} aria-label={t('What you missed')} />
+              <button type="submit" class="btn">{t('Add')}</button>
+            </form>
+            {#if similar.length}<p class="similar"><span>{t('In your gear:')}</span>{#each similar as i (i.id)}<button type="button" class="btn sm" onclick={() => addItem(i)}>{nameOf(i)}</button>{/each}</p>{/if}
+            {#if missQ && !exactMiss}<p class="similar"><button type="button" class="btn sm" onclick={addMissing}>+ {t('Add "{q}" as new (not in your gear)', { q: missQ })}</button></p>{/if}
+            <datalist id="gear-names">{#each notOnTrip as i (i.id)}<option value={i.name}></option>{/each}</datalist>
+            {#if freeNotes.length}
+              <div class="ridenotes">
+                <span class="lbl">{t('Notes on the way')}</span>
+                <ul>{#each freeNotes as n (n.key)}<li><small class="num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</small> {n.text}</li>{/each}</ul>
+              </div>
             {/if}
-          {/each}
-          {#if sugg.length}<p class="hint">{t('Nothing changes without a tick.')}</p>{/if}
-          <div class="foot two"><button type="button" class="btn" onclick={() => (step = 2)}>{t('Back')}</button><button type="button" class="btn hi wide" disabled={busy} onclick={finish}>{t('Save debrief')}</button></div>
-        {/if}
+          </section>
+
+          <!-- Noah 9a: filled in; change only what was not so. -->
+          <section class="tp-card" aria-labelledby="how-h">
+            <h2 id="how-h">{t("How it was")}<span class="r">{t('filled in')}</span></h2>
+            <div class="qa">
+              <label><span>{t('Weather')}</span><select class="sel pill" value={d.weather} onchange={(e) => set('weather', e.currentTarget.value)}>{#each WEATHER as o (o.key)}<option value={o.key}>{t(o.name)}</option>{/each}</select></label>
+              <label><span>{t('Amount')}</span><select class="sel pill" value={d.amount} onchange={(e) => set('amount', e.currentTarget.value)}>{#each AMOUNT as o (o.key)}<option value={o.key}>{t(o.name)}</option>{/each}</select></label>
+              <label><span>{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><select class="sel pill" value={d.bags} onchange={(e) => set('bags', e.currentTarget.value)}>{#each BAGS_OK as o (o.key)}<option value={o.key}>{t(o.name)}</option>{/each}</select></label>
+              {#if bike}
+                <label><span>{t('km for {bike}', { bike: bike.name })} <small>{bike.km != null ? t('now {km} km', { km: num(bike.km) }) : ''}</small></span><span class="kmin"><input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder={t('e.g. 303')} aria-label={t('km of this trip')} /> km</span></label>
+              {/if}
+            </div>
+            {#if bike}
+              <p class="tp-muted tp-small kmsrc">{trip.route?.km && d.km === Math.round(trip.route.km) ? t('km from the route.') : ''}</p>
+              {#if rideMsg}<p class="hint ride" role="status">{rideMsg}</p>{/if}
+              <details class="howto">
+                <summary>{t('Import from Strava or Garmin')}</summary>
+                <span class="btn sm imp"><Upload size={16} aria-hidden="true" />{t('Choose files')}<input type="file" accept=".csv,.gpx,.tcx,text/csv,application/gpx+xml" multiple onchange={importRides} aria-label={t('Import from Strava or Garmin')} /></span>
+                <p><b>Strava:</b> {t('on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).')}</p>
+                <p><b>Garmin Connect:</b> {t('on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).')}</p>
+                <p>{t('Several files at once are fine (one per day). Only rides on the days of this trip count.')}</p>
+              </details>
+            {/if}
+            <label class="note">
+              <span>{t('One sentence for next time')} <small>({t('optional')})</small></span>
+              <textarea class="inp" rows="2" bind:value={d.note} oninput={persist} placeholder={t('e.g. Heatwave, the rain gear was never used')}></textarea>
+            </label>
+          </section>
+        </div>
+        <div class="col">
+          {#if top}
+            <!-- Noah 9a: one suggestion for next time, with its reason. -->
+            <section class="tp-card learn" aria-labelledby="learn-h1">
+              <h2 id="learn-h1"><Star size={18} aria-hidden="true" />{t('For next time')}</h2>
+              <p><b>{top.label}</b><br />{top.detail}</p>
+              <div class="tp-chips" role="group" aria-label={top.label}>
+                <button type="button" class="btn" class:on={ticked(top)} aria-pressed={ticked(top)} onclick={() => (ticks[top.id] = true)}>{t('Yes, remember')}</button>
+                <button type="button" class="btn" class:on={!ticked(top)} aria-pressed={!ticked(top)} onclick={() => (ticks[top.id] = false)}>{t('No')}</button>
+              </div>
+            </section>
+          {/if}
+          {#if more.length}
+            <details class="tp-fold">
+              <summary><Star size={20} aria-hidden="true" /><span>{t('More suggestions')}</span><span class="r"><i class="tp-badge">{tn(more.filter(ticked).length, '{n} ticked', '{n} ticked')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+              <div class="in">
+                {#each GROUPS as grp (grp.key)}
+                  {@const list = more.filter((x) => x.group === grp.key)}
+                  {#if list.length}
+                    <p class="lbl">{t(grp.name)}</p>
+                    {#each list as x (x.id)}<label class="chk"><input type="checkbox" checked={ticked(x)} onchange={(ev) => (ticks[x.id] = ev.currentTarget.checked)} /><span>{x.label}<small>{x.detail}</small></span></label>{/each}
+                  {/if}
+                {/each}
+                <p class="hint tp-small">{t('Nothing changes without a tick.')}</p>
+              </div>
+            </details>
+          {/if}
+          <!-- Noah 9a: every item counts as used; a tap on an item changes it: used → not used → broken. -->
+          <details class="tp-fold items-fold" use:openOnce={!phone.matches}>
+            <summary><span class="tp-okdot"><Check size={16} aria-hidden="true" /></span><span class="two"><b>{tn(used, '{n} item used', '{n} items used')}</b><small>{t('Tap an item to change it: used → not used → broken')}</small></span><span class="r"><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+            <div class="in">
+              {#each groups as g (g.slot)}
+                <section class="bag" aria-label={t(g.name)}>
+                  <h3><Briefcase size={16} aria-hidden="true" />{t(g.name)} <span class="tp-muted">{tn(g.rows.length, '{n} item', '{n} items')}</span>
+                    <span class="alls">
+                      <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All ✓')}</button>
+                      <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('All –')}</button>
+                    </span></h3>
+                  <ul class="exc">
+                    {#each g.rows as { e, item } (e.itemId)}
+                      {@const st = d.items[e.itemId] ?? 'used'}
+                      <li><span class="nm">{nameOf(item)}{#if e.qty > 1}<small class="q"> × {e.qty}</small>{/if}{#if before[e.itemId]}<small>{tn(before[e.itemId], 'not used on {n} trip before', 'not used on {n} trips before')}</small>{/if}</span>
+                        <button type="button" class="state {st}" aria-label={t('{name}: {state}. Tap to change.', { name: nameOf(item), state: t(STATE[st]) })} onclick={() => cycle(e.itemId)}>{#if st === 'used'}<Check size={16} aria-hidden="true" />{:else if st === 'unused'}<Minus size={16} aria-hidden="true" />{:else}<X size={16} aria-hidden="true" />{/if}{t(STATE[st])}</button></li>
+                    {/each}
+                  </ul>
+                </section>
+              {/each}
+            </div>
+          </details>
+        </div>
+      </div>
       {/if}
-    {/if}
-  </div>
+    </div>
+  {/if}
 {:else}
   <div class="over">
     <h1 class="title big">{t('Debrief')}</h1>
@@ -480,109 +502,149 @@
 {/if}
 
 <style>
-  .flow {
-    max-width: 640px;
-    margin: 0 auto;
-    padding-bottom: 90px;
-  }
-  .bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .flow .tp-card > h2 {
     margin-bottom: 10px;
   }
-  .bar b {
-    font: 900 var(--fs-sub) var(--font-title);
+  .flow .tp-card > h2 .r {
+    white-space: normal;
+    text-align: right;
   }
-  .back {
-    color: var(--ink);
-    text-decoration: none;
-    font-size: 22px;
-    line-height: 1;
-  }
-  .steps {
-    display: flex;
-    gap: 4px;
+  .exc {
     list-style: none;
-    margin: 0 0 0 auto;
-    padding: 0;
-  }
-  .steps li {
-    width: 26px;
-    height: 6px;
-    border-radius: 3px;
-    background: var(--line);
-  }
-  .steps li.on {
-    background: var(--hi);
-  }
-  .trip {
     margin: 0;
-  }
-  .flow .title {
-    font-size: var(--fs-page);
-    margin: 4px 0 12px;
-  }
-  fieldset {
-    border: 0;
-    padding: 0;
-    margin: 0 0 16px;
-  }
-  legend {
-    font-weight: 600;
-    margin-bottom: 6px;
     padding: 0;
   }
-  .seg {
+  .exc li {
     display: flex;
-    border: 1.5px solid var(--line-strong);
-    border-radius: 6px;
-    overflow: hidden;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 4px 0;
+    border-top: 1px solid var(--line);
   }
-  .seg button {
+  .exc li:first-child {
+    border-top: 0;
+  }
+  .nm {
     flex: 1;
-    padding: 11px 4px;
-    border: 0;
-    border-left: 1.5px solid var(--ink);
+    min-width: 0;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+  .nm small {
+    display: block;
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .nm small.q {
+    display: inline;
+  }
+  .state {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 44px;
+    padding: 6px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
     background: var(--paper);
-    color: var(--ink);
-    font: 600 14px var(--font-body);
+    color: var(--ink-2);
+    font: 500 14px var(--font-body);
+    white-space: nowrap;
+    cursor: pointer;
+    flex: none;
+  }
+  .state.used {
+    background: var(--ok-soft);
+    border-color: transparent;
+    color: var(--ok);
+  }
+  .state.unused {
+    background: var(--warn-soft);
+    border-color: transparent;
+    color: var(--warn);
+  }
+  .state.broken {
+    background: #fbe3df;
+    border-color: transparent;
+    color: #a3301f;
+  }
+  .state.miss {
+    background: var(--hi-soft);
+    border-color: transparent;
+    color: var(--hi);
+    cursor: default;
+  }
+  .x {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    border: 0;
+    background: none;
+    color: var(--ink-3);
     cursor: pointer;
   }
-  .seg button:first-child {
-    border-left: 0;
-  }
-  .seg button[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .km {
-    display: grid;
-    gap: 6px;
-    margin: 0 0 16px;
-    font-weight: 700;
-  }
-  .km small {
-    font-weight: 400;
-    color: var(--ink-3);
-  }
-  .km .inp {
-    max-width: 160px;
-    font-size: 18px;
-  }
-  .kmrow {
+  .miss {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    font-weight: 400;
+    gap: 6px;
+    margin-top: 10px;
   }
-  .kmrow .or {
+  .miss .inp {
+    flex: 1;
+    min-width: 0;
+  }
+  .qa {
+    display: grid;
+    gap: 0;
+  }
+  .qa label {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px 12px;
+    min-height: 52px;
+    padding: 4px 0;
+    border-top: 1px solid var(--line);
+  }
+  .qa label:first-child {
+    border-top: 0;
+  }
+  .qa label > span:first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .qa small {
     color: var(--ink-3);
+  }
+  .pill {
+    min-height: 44px;
+    width: auto;
+    max-width: 52vw;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 6px 12px;
+  }
+  .kmin {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .kmin .inp {
+    width: 110px;
+    text-align: right;
+  }
+  .kmsrc:empty {
+    display: none;
+  }
+  .kmsrc {
+    margin: 2px 0 0;
   }
   .imp {
     position: relative;
     overflow: hidden;
+    min-height: 44px;
   }
   .imp input {
     position: absolute;
@@ -591,14 +653,13 @@
     cursor: pointer;
   }
   .ride {
-    margin: -8px 0 10px;
+    margin: 6px 0;
   }
   .howto {
-    margin: -6px 0 16px;
+    margin: 0 0 8px;
     font-size: 14px;
     color: var(--ink-2);
   }
-  /* v0.27.0 (AP21): 44 px tap area (was 21 px). */
   .howto summary {
     cursor: pointer;
     text-decoration: underline;
@@ -606,9 +667,6 @@
   }
   .howto p {
     margin: 6px 0;
-  }
-  .before {
-    color: var(--ink);
   }
   .similar {
     display: flex;
@@ -622,7 +680,7 @@
     font-size: 14px;
   }
   .ridenotes {
-    margin: 12px 0;
+    margin: 12px 0 0;
     padding: 8px 12px;
     border-radius: 6px;
     background: var(--paper-2);
@@ -637,6 +695,7 @@
   .note {
     display: grid;
     gap: 6px;
+    margin-top: 8px;
     font-weight: 600;
   }
   .note small {
@@ -649,141 +708,75 @@
     font-weight: 400;
     resize: vertical;
   }
-  .foot {
-    position: sticky;
-    bottom: 0;
-    display: flex;
-    gap: 8px;
-    padding: 14px 0 calc(14px + env(safe-area-inset-bottom));
-    background: linear-gradient(transparent, var(--ground) 30%);
-    margin-top: 16px;
-  }
-  .wide {
-    flex: 1;
-    justify-content: center;
-    text-align: center;
-    padding: 12px;
-    font-size: 15px;
-  }
   .hint {
     color: var(--ink-2);
     margin: 0 0 8px;
   }
-  .legend {
+  .learn {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--brand-ink);
+  }
+  .learn h2 {
+    color: var(--brand-ink);
+  }
+  .learn h2 :global(svg) {
+    color: var(--hi-bright);
+  }
+  .learn p {
+    margin: 10px 0 12px;
+    color: var(--brand-ink-2);
+  }
+  .learn p b {
+    color: var(--brand-ink);
+  }
+  .learn .btn {
+    min-height: 44px;
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.35);
+    color: var(--brand-ink);
+  }
+  .learn .btn.on {
+    background: var(--brand-ink);
+    border-color: var(--brand-ink);
+    color: var(--brand);
+  }
+  .learn :global(:focus-visible) {
+    outline-color: var(--focus-on-dark);
+  }
+  .items-fold .two {
     display: flex;
-    gap: 14px;
-    font-size: var(--fs-small);
+    flex-direction: column;
+    min-width: 0;
+  }
+  .items-fold .two small {
+    font-size: 13px;
+    font-weight: 400;
     color: var(--ink-3);
-    margin-bottom: 4px;
   }
   .bag {
-    margin-top: 14px;
+    margin-top: 10px;
   }
-  .bag h2 {
+  .bag h3 {
     display: flex;
-    align-items: baseline;
-    gap: 8px;
-    margin: 0 0 4px;
-    border-bottom: 1px solid var(--line-strong);
-    padding-bottom: 3px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .bag h3 .tp-muted {
+    font-weight: 400;
+    font-size: 13px;
   }
   .alls {
     margin-left: auto;
     display: flex;
-    gap: 10px;
+    gap: 14px;
   }
-  .alls .link {
-    min-height: 32px;
-    padding: 0 2px;
-    border: 0;
-    background: none;
-    color: var(--ink);
-    font: 600 14px var(--font-body);
-    text-decoration: underline;
-    cursor: pointer;
-  }
-  .fine {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-    width: 100%;
-    margin: 4px 0 14px;
-    padding: 10px 14px;
-    text-align: left;
-  }
-  .fine small {
-    font-weight: 400;
-    color: var(--ink-2);
-  }
-  .bag h2 .title {
-    font-size: var(--fs-sub);
-    margin: 0;
-  }
-  .bag ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .it {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--paper);
-    border: 1.5px solid var(--line);
-    border-radius: 6px;
-    padding: 6px 8px;
-    margin-top: 5px;
-  }
-  .it.unused .nm {
-    color: var(--ink-3);
-    text-decoration: line-through;
-  }
-  .nm {
-    flex: 1;
-    min-width: 0;
-    line-height: 1.25;
-  }
-  .nm .sub {
-    display: block;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .acts {
-    display: flex;
-    gap: 4px;
-  }
-  .c {
-    width: 38px;
-    height: 34px;
-    border: 1.5px solid var(--line);
-    border-radius: 5px;
-    background: var(--paper);
-    color: var(--ink-3);
-    font-size: 15px;
-    cursor: pointer;
-  }
-  .c[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
-  }
-  .c.no[aria-pressed='true'] {
-    background: #8a6a00;
-    border-color: #8a6a00;
-  }
-  .c.br[aria-pressed='true'] {
-    background: #b03a2e;
-    border-color: #b03a2e;
-  }
-  .miss {
-    display: flex;
-    gap: 6px;
-    margin-top: 6px;
-  }
-  .miss .inp {
-    flex: 1;
-    min-width: 0;
+  .saved-card .title {
+    margin: 0 0 10px;
   }
   .kpi {
     display: grid;
@@ -791,16 +784,15 @@
     gap: 6px;
   }
   .kpi div {
-    background: var(--paper);
-    border: 1.5px solid var(--line);
-    border-radius: 6px;
+    background: var(--paper-2);
+    border-radius: 8px;
     padding: 8px;
     display: flex;
     flex-direction: column;
     min-width: 0;
   }
   .kpi b {
-    font: 900 var(--fs-sub)/1.2 var(--font-title);
+    font: 700 20px/1.2 var(--font-body);
     white-space: nowrap;
   }
   @media (max-width: 479px) {
@@ -808,21 +800,11 @@
       grid-template-columns: repeat(2, 1fr);
     }
   }
-  .sum {
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 10px 12px;
-    margin-top: 10px;
-  }
-  .sum .title {
-    font-size: var(--fs-sub);
-    margin: 0 0 4px;
-  }
   .chk {
     display: flex;
     gap: 8px;
     align-items: flex-start;
+    min-height: 44px;
     margin-top: 6px;
     cursor: pointer;
   }

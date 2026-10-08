@@ -228,9 +228,9 @@
   .profile-menu > div { position: absolute; top: 48px; right: 0; z-index: 7; display: flex; flex-direction: column; width: min(240px, calc(100vw - 32px)); padding: 10px 18px; border-radius: 6px; background: var(--brand); box-shadow: 0 8px 20px #0f2e2726; }
   .profile-menu > div > a, .profile-menu > div > button { display: block; min-height: 44px; padding: 12px 0; border: 0; background: none; color: var(--brand-ink); font: 400 16px var(--font-body); text-align: left; text-decoration: none; cursor: pointer; }
   .profile-menu .lang-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 0; color: var(--brand-ink); font: 400 16px var(--font-body); }
-  main.calm { padding: 0 6.9vw 80px; max-width: none; }
-  main.calm:has(:global(.review-mode)) { padding-inline: 9.5vw; }
-  @media (max-width: 719px) { main.calm, main.calm:has(:global(.review-mode)) { padding: 0 18px 106px; } }
+  /* v0.29.0: the trip steps use the same gutter as every page (16 px on a phone). */
+  main.calm { padding: var(--gut) var(--gut) 80px; max-width: none; }
+  @media (max-width: 719px) { main.calm { padding: 12px var(--gut) calc(106px + env(safe-area-inset-bottom)); } }
 
   .top {
     position: sticky;

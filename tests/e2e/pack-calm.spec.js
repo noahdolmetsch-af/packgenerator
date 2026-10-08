@@ -78,7 +78,14 @@ for (const lang of ['en', 'de']) {
     await newTrip(page, T, `test_data_gtp_ Ruhig ${lang}`);
     const list = page.locator('.calm-pack');
     // v0.27.0 (Noah): the templates are visible on the Trips page itself
-    await expect(list.locator('.tour-context').getByRole('link', { name: T('Templates') })).toHaveAttribute('href', '#/pack/templates');
+    // v0.29.0: in the conditions card ("Start with … · Templates").
+    await expect(list.locator('.cond').getByRole('link', { name: new RegExp(T('Templates')) })).toHaveAttribute('href', '#/pack/templates');
+
+    // v0.29.0 (Noah 5a): the bags are folded, with their item names in one line; a tap opens one.
+    const bag = list.locator('section.bag-group').filter({ hasText: 'Multi tool' });
+    await expect(bag.locator('.preview')).toContainText('Multi tool');
+    await bag.locator('button.bag-heading').click();
+    await expect(bag.locator('button.bag-heading')).toHaveAttribute('aria-expanded', 'true');
 
     // Calm: no stepper and no "•••" on the rows until one is opened.
     await expect(list.locator('.planning-row').first()).toBeVisible();
@@ -113,14 +120,15 @@ for (const lang of ['en', 'de']) {
   });
 }
 
-test("a day ride: All packed, let's go lands on the ride day with everything packed", async ({ page, context }, info) => {
+test("a day ride: All packed, let's go lands on On the way with everything packed", async ({ page, context }, info) => {
   const T = tr('de');
   await start(page, context, info, 'de');
   const title = 'test_data_gtp_ Los';
   await newTrip(page, T, title);
-  const go = page.locator('.next .go').filter({ visible: true });
+  const go = page.locator('.trip-band .go');
   await expect(go).toHaveText(T("All packed, let's go"));
-  await expect(page.locator('.next .day-check')).toHaveText(T('Packing check'));
+  // v0.29.0: packing bag by bag is the "Pack" tab in the band.
+  await expect(page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${T('Pack|stage')}`) })).toHaveAttribute('href', '#/pack?day');
   const before = await stored(page, title);
   expect(before.entries.some((e) => !e.packed)).toBe(true);
   expect(before.ready.some((r) => !r.itemId && !r.done)).toBe(true);
@@ -135,17 +143,18 @@ test("a day ride: All packed, let's go lands on the ride day with everything pac
 
   // Back on Pack the next step is the ride day.
   await page.goto('./#/pack');
-  await expect(page.locator('.next .go').filter({ visible: true })).toContainText(T('Next: ride day'));
+  await expect(page.locator('.trip-band .go')).toContainText(T('Next: On the way'));
 });
 
 test('a trip of 2 days keeps the packing check', async ({ page, context }, info) => {
   const T = tr('de');
   await start(page, context, info, 'de');
   await newTrip(page, T, 'test_data_gtp_ Zwei Tage', 2);
-  await expect(page.locator('.next .go').filter({ visible: true })).toContainText(T('Start packing check'));
-  await expect(page.locator('.next .day-check')).toHaveCount(0);
-  await page.locator('.next .go').filter({ visible: true }).click();
-  await expect(page.getByRole('dialog', { name: T('Packing day: {title}', { title: 'test_data_gtp_ Zwei Tage' }) })).toBeVisible();
+  await expect(page.locator('.trip-band .go')).toContainText(T('Next: Pack'));
+  await page.locator('.trip-band .go').click();
+  await expect(page).toHaveURL(/#\/pack\?day/);
+  await expect(page.locator('.pd')).toHaveAttribute('aria-label', T('Packing day: {title}', { title: 'test_data_gtp_ Zwei Tage' }));
+  await expect(page.locator('.pd .pbag.cur ul.items button').first()).toBeVisible();
 });
 
 test('Add material with tick boxes adds 3 items in one go', async ({ page, context }, info) => {
@@ -186,11 +195,11 @@ test('Add material with tick boxes adds 3 items in one go', async ({ page, conte
   await sheet.getByRole('button', { name: T('Done') }).click();
 
   // One write each: two Undo steps take all four back out.
-  await page.getByRole('button', { name: T('Undo') }).filter({ visible: true }).click();
+  await page.getByRole('button', { name: T('Undo'), exact: true }).filter({ visible: true }).click();
   await expect.poll(async () => (await stored(page, title)).entries.length).toBe(before + 3);
-  await page.getByRole('button', { name: T('Undo') }).filter({ visible: true }).click();
+  await page.getByRole('button', { name: T('Undo'), exact: true }).filter({ visible: true }).click();
   await expect.poll(async () => (await stored(page, title)).entries.length).toBe(before);
-  await expect(page.getByRole('button', { name: T('Undo') }).filter({ visible: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: T('Undo'), exact: true }).filter({ visible: true })).toHaveCount(0);
   await expect(page.evaluate(() => document.documentElement.scrollWidth)).resolves.toBeLessThanOrEqual(page.viewportSize().width);
 });
 

@@ -8,7 +8,7 @@ export default {
   'Saved. It shows in the debrief.': 'Gespeichert. Sie erscheint im Rückblick.',
   'No trip yet. Create one in': 'Noch keine Tour. Erstelle eine unter',
   Pack: 'Packen',
-  'Ride day': 'Fahrtag',
+  'Ride day': 'Unterwegs',
   Days: 'Tage',
   Nonstop: 'Nonstop',
   'Stage {n}': 'Etappe {n}',

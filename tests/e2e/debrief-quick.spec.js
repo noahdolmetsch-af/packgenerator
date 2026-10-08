@@ -56,10 +56,10 @@ for (const lang of ['en', 'de']) {
     await expect(data.getByText(/importiert|Imported/)).toBeVisible();
     await page.goto('./#/');
 
-    // 1. Today asks how the trip was: "All good" and "In detail" (the three steps of exactly this trip).
+    // 1. Today asks how the trip was: "All good" and "Debrief" (v0.29.0: the tab's name; the one-page debrief of exactly this trip).
     const card = page.getByRole('region', { name: T('How was {trip}?', { trip: title }) });
     await expect(card).toBeVisible();
-    await expect(card.getByRole('link', { name: T('In detail') })).toHaveAttribute('href', `#/debrief/${TRIP}`);
+    await expect(card.getByRole('link', { name: T('Debrief'), exact: true })).toHaveAttribute('href', `#/debrief/${TRIP}`);
     const sw = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(sw, 'no sideways scroll').toBeLessThanOrEqual(page.viewportSize().width);
 
@@ -107,13 +107,13 @@ for (const lang of ['en', 'de']) {
     await dlg.getByLabel(T('Name')).fill(`test_data_gtp_ next ${lang}`);
     await click(dlg.getByRole('button', { name: T('Create trip') }));
     await expect(dlg).toBeHidden();
-    await expect(page.locator('.tour-context h2')).toHaveText(`test_data_gtp_ next ${lang}`);
+    await expect(page.locator('.trip-band h1')).toHaveText(`test_data_gtp_ next ${lang}`);
     expect(clicks).toBe(4);
     expect(errors).toEqual([]);
   });
 }
 
-test('No thanks is not asked again, and the three steps offer the template too', async ({ page, context }, info) => {
+test('No thanks is not asked again, and the one-page debrief offers the template too', async ({ page, context }, info) => {
   const T = tr('en');
   const title = 'test_data_gtp_ Runde';
   const file = info.outputPath('debrief-quick-fixture.json');
@@ -132,9 +132,8 @@ test('No thanks is not asked again, and the three steps offer the template too',
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
   await expect(data.getByText(/Imported/)).toBeVisible();
 
-  // The three steps: "All as planned" → save → the Saved screen offers the template.
+  // v0.29.0 (Noah 9a): one page, everything filled in → one tap on Save → the Saved screen offers the template.
   await page.goto(`./#/debrief/${TRIP}`);
-  await page.getByRole('button', { name: new RegExp(T('All as planned: weather, amount, bags')) }).click();
   await page.getByRole('button', { name: T('Save debrief') }).click();
   await expect(page.getByRole('heading', { name: T('Saved') })).toBeVisible();
   const name = T('{kind} day ride', { kind: 'MTB' });
@@ -144,8 +143,6 @@ test('No thanks is not asked again, and the three steps offer the template too',
   await expect(offer).toBeHidden();
   // Saving again (after "Change answers") does not ask again for this trip.
   await page.getByRole('button', { name: T('Change answers') }).click();
-  await page.getByRole('button', { name: T('Next: go through the items') }).click();
-  await page.getByRole('button', { name: T('Next: summary') }).click();
   await page.getByRole('button', { name: T('Save debrief') }).click();
   await expect(page.getByRole('heading', { name: T('Saved') })).toBeVisible();
   await expect(page.getByRole('form', { name: /template/i })).toHaveCount(0);

@@ -22,18 +22,25 @@ test('review, apply, edit and pack a tour', async ({ page, context }) => {
   await data.getByRole('button', { name: 'Alle Daten ersetzen' }).press('Enter');
   await expect(data.getByText(/importiert.*alle Daten ersetzt/i)).toBeVisible();
   await page.goto('./#/pack');
-  await expect(page.getByRole('heading', { name: 'Deine Packliste' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Packliste', exact: true })).toBeVisible();
   const list = page.locator('.calm-pack');
+  // v0.29.0 (Noah 5a): the bags start folded; open them all.
+  const openAll = async () => {
+    const heads = list.locator('button.bag-heading[aria-expanded="false"]');
+    for (let n = await heads.count(); n > 0; n--) await heads.first().click();
+  };
   await expect(list.locator('.planning-rows input[type=checkbox]')).toHaveCount(0);
   await page.getByRole('button', { name: 'Wettervorschläge prüfen' }).click();
   await expect(page.getByRole('heading', { name: 'Noch zu entscheiden' })).toBeVisible();
   await page.getByLabel('Alternative für Warme Schicht').selectOption('albion');
   await page.getByRole('button', { name: 'Zurück', exact: true }).click();
+  await openAll();
   await expect(list.getByText('Midlayer Albion', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Wettervorschläge prüfen' }).click();
   await page.getByLabel('Alternative für Warme Schicht').selectOption('albion');
   await page.getByRole('button', { name: 'Auswahl übernehmen' }).click();
-  await expect(page.getByRole('heading', { name: 'Deine Packliste' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Packliste', exact: true })).toBeVisible();
+  await openAll();
   await expect(list.getByText('Midlayer Albion', { exact: true })).toBeVisible();
   // v0.24.1 (Noah 1a): the amount sits behind a tap on the row; the row shows "× n" above 1.
   await page.getByRole('button', { name: 'Menge, verschieben oder herausnehmen: Carb-Pulver' }).click();
@@ -43,6 +50,7 @@ test('review, apply, edit and pack a tour', async ({ page, context }) => {
   await expect(carb.locator('.item-qty')).toHaveText('× 3');
   await expect(carb.locator('.item-weight')).toHaveText('240 g');
   await page.reload();
+  await openAll();
   await expect(page.locator('.planning-row').filter({ hasText: 'Carb-Pulver' }).locator('.item-qty')).toHaveText('× 3');
   await page.getByRole('button', { name: 'Menge, verschieben oder herausnehmen: Carb-Pulver' }).click();
   await expect(page.locator('.planning-row').filter({ hasText: 'Carb-Pulver' }).locator('.amount span')).toHaveText('3');
@@ -57,9 +65,9 @@ test('review, apply, edit and pack a tour', async ({ page, context }) => {
   await page.getByLabel('Packliste gruppieren').selectOption('category');
   await expect(list.getByText('Carb-Pulver', { exact: true })).toHaveCount(0); // categories start folded
   await expect(page.evaluate(() => document.documentElement.scrollWidth)).resolves.toBeLessThanOrEqual(page.viewportSize().width);
-  // v0.24.1 (Noah 2a): a day ride: the packing day is the link next to "Alles gepackt, los".
-  await expect(page.locator('.next .go')).toHaveText('Alles gepackt, los');
-  await page.getByRole('button', { name: 'Packkontrolle', exact: true }).click();
-  await expect(page.getByRole('dialog', { name: 'Packtag: Alpine Tagestour' })).toBeVisible();
+  // v0.24.1 (Noah 2a): a day ride: "Alles gepackt, los"; v0.29.0: bag by bag is the "Packen" tab in the band.
+  await expect(page.locator('.trip-band .go')).toHaveText('Alles gepackt, los');
+  await page.getByRole('navigation', { name: 'Schritte dieser Tour' }).getByRole('link', { name: /^Packen/ }).click();
+  await expect(page.locator('.pd')).toHaveAttribute('aria-label', 'Packtag: Alpine Tagestour');
   expect(errors).toEqual([]);
 });

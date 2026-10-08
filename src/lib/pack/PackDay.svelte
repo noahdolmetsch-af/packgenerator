@@ -1,52 +1,89 @@
 <script>
   /**
-   * Packing day (Noah, 4.10.2026, answer 2a): the whole screen, one bag at a time, big text.
-   * Tap an item when it is in the bag. Learnings that name an item show as a small hint under it
-   * (answer 3a). The last step is the ready check. Everything is saved at once, so the phone can
-   * go to sleep or the page can close in between.
+   * Pack (v0.29.0, Noah 2a, 6a): a normal page with the trip band and its tabs (was a full screen
+   * of its own). The bags one under the other: the packed ones closed with a green ✓, the current one
+   * open with big rows; the whole row is the tap area. Open items on top, packed ones slide down.
+   * A full bag jumps to the next one by itself; "Whole bag packed" for the hurried, Undo in the card.
+   * The ready check is the last "bag". "Next: On the way" also works with something missing (it asks).
+   * Everything is saved at once, so the phone can sleep or the page close in between.
    *
-   * steps: from packSteps(). ontoggle(itemId), onready(row): save. onclose(): back to Pack.
-   * v0.24.0 (Noah, fewer clicks): onpack(itemIds | null) ticks a whole bag (null: everything),
-   * onreadyall() ticks the whole ready check. "All in, next" ticks the bag and goes on in one tap;
-   * "Everything is packed" in the top bar ticks bags and ready check at once and closes.
+   * steps: from packSteps(). ontoggle(itemId), onready(row), onpack(itemIds | null), onreadyall(): save.
+   * onnext(): the next step (On the way, or the debrief for a trip without a bike). onundo(): the page's Undo.
    */
+  import { Check, ChevronDown, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks } from '@lucide/svelte';
+  import TripBand from '../trip/TripBand.svelte';
   import { formatWeight } from '../gear.js';
   import { readyDone, RAIN } from '../trips.js';
-  import { t, nameOf } from '../i18n.svelte.js';
+  import { t, tn, nameOf } from '../i18n.svelte.js';
+  import { phone } from '../media.svelte.js';
+  import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onclose, bike = true } = $props(); // bike: false for a trip without a bike (v0.21.0)
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, bike = true } = $props();
   const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${t(RAIN[w.rain ?? 'none'])}`;
+  const READY = '__ready';
 
-  // Start at the first bag that still has something to pack.
-  let at = $state(Math.max(0, steps.findIndex((s) => s.done < s.entries.length)));
-  const last = $derived(steps.length); // the ready check comes after the bags
-  const step = $derived(steps[at] ?? null);
-  const total = $derived(steps.reduce((t, s) => t + s.entries.length, 0));
-  const packed = $derived(steps.reduce((t, s) => t + s.done, 0));
+  const total = $derived(steps.reduce((s, x) => s + x.entries.length, 0));
+  const packed = $derived(steps.reduce((s, x) => s + x.done, 0));
   const readyN = $derived(ready.filter((r) => readyDone(r, trip)).length);
-  const allIn = $derived(step ? step.done === step.entries.length : false);
-  let openTip = $state(null);
-
   const readyAll = $derived(readyN === ready.length);
-  // v0.24.0: one tap per bag ("All in, next"), one for the ready check, one for everything.
-  function bagIn() {
-    if (!allIn) onpack(step.entries.map((e) => e.itemId));
-    go(at + 1);
+  const full = (s) => s.done === s.entries.length;
+  const bagsLeft = $derived(steps.filter((s) => !full(s)).length);
+  const firstOpen = () => steps.find((s) => !full(s))?.key ?? READY;
+  // The open bag: the first one that still has something to pack (a tap on another opens that one).
+  let cur = $state(firstOpen());
+  let msg = $state('');
+  let timer = null;
+  const nextAfter = (key) => {
+    const i = steps.findIndex((s) => s.key === key);
+    return [...steps.slice(i + 1), ...steps.slice(0, Math.max(0, i))].find((s) => !full(s))?.key ?? READY;
+  };
+  const titleOf = (key) => (key === READY ? t('Ready check') : steps.find((s) => s.key === key)?.title ?? '');
+  // Noah 6a: a full bag jumps to the next one by itself (a moment later, so the last tick is seen).
+  function advance(from, delay = 450) {
+    clearTimeout(timer);
+    const to = nextAfter(from);
+    msg = t('{bag} is packed. Next: {next}', { bag: titleOf(from), next: titleOf(to) });
+    timer = setTimeout(() => {
+      if (cur === from) cur = to;
+    }, delay);
   }
-  function readyIn() {
-    if (!readyAll) onreadyall();
-    onclose();
+  async function tick(step, e) {
+    const willFill = !e.packed && step.done + 1 === step.entries.length;
+    await ontoggle(e.itemId);
+    if (willFill) advance(step.key);
+  }
+  async function wholeBag(step) {
+    await onpack(step.entries.map((e) => e.itemId));
+    advance(step.key, 0);
+  }
+  async function readyTick(r) {
+    await onready(r);
   }
   function everything() {
     onpack(null);
     onreadyall();
-    onclose();
+    msg = bike ? t('Everything is in. Have a good ride!') : t('Everything is in. Have a good trip!');
+    cur = READY;
   }
-  const go = (n) => {
-    at = Math.min(last, Math.max(0, n));
-    openTip = null;
-    document.querySelector('.pd .body')?.scrollTo(0, 0);
-  };
+  function undo() {
+    clearTimeout(timer);
+    msg = '';
+    onundo();
+  }
+  // Open items on top, packed ones slide down.
+  const ordered = (s) => [...s.entries.filter((e) => !e.packed), ...s.entries.filter((e) => e.packed)];
+  const names = (s) => s.entries.filter((e) => !e.packed).map((e) => (itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId) + ((e.qty || 1) > 1 ? ` × ${e.qty}` : '')).join(' · ');
+  const iconOf = (key) => (key === 'body' ? UserRound : key === 'mounted' ? Bike : Briefcase);
+  const hintOf = (id) => (badges[id] ?? []).map((b) => (b.key === 'tip' ? b.text : b.label)).join(' · ');
+  const kicker = $derived(packed < total ? `${t('Packing day')} · ${tn(total - packed, '{n} item left', '{n} items left')} ${tn(bagsLeft, 'in {n} bag', 'in {n} bags')}` : `${t('Packing day')} · ${t('everything packed')}`);
+
+  // "Next: On the way" with something missing asks first (Noah: also works when something is missing).
+  let askEl = $state();
+  const missing = $derived(total - packed + (ready.length - readyN));
+  function next() {
+    if (missing) askEl?.showModal();
+    else onnext();
+  }
 
   // Keep the screen on while packing (where the browser allows it).
   $effect(() => {
@@ -61,356 +98,162 @@
     get();
     const again = () => document.visibilityState === 'visible' && get();
     document.addEventListener('visibilitychange', again);
-    const esc = (e) => e.key === 'Escape' && onclose();
-    window.addEventListener('keydown', esc);
-    document.body.classList.add('pd-open');
-    // v0.27.0 (AP21): like the other dialogs, the keyboard focus moves in (first item still to pack)
-    // and goes back to the button that opened the packing day when it closes. Tab stays inside (App).
-    const opener = document.activeElement;
-    const box = document.querySelector('.pd');
-    (box?.querySelector('.items .it[aria-pressed="false"]') ?? box?.querySelector('.foot .btn.hi'))?.focus({ preventScroll: true });
     return () => {
       lock?.release?.();
+      clearTimeout(timer);
       document.removeEventListener('visibilitychange', again);
-      window.removeEventListener('keydown', esc);
-      document.body.classList.remove('pd-open');
-      if (opener instanceof HTMLElement && opener.isConnected) opener.focus({ preventScroll: true });
     };
   });
+  const pct = $derived(total ? packed / total : 0);
 </script>
 
-<div class="pd" role="dialog" aria-modal="true" aria-label={t('Packing day: {title}', { title: trip.title })}>
-  <header class="top">
-    <span class="where">
-      <b>{trip.title}</b>
-      <span class="num">{at < last ? t('Bag {n} of {total}', { n: at + 1, total: steps.length }) : t('Ready check')} · {t('{n} of {total} packed', { n: packed, total })}</span>
-    </span>
-    <span class="tops">
-      {#if packed < total || !readyAll}<button type="button" class="close all" onclick={everything}>{t('Everything is packed')}</button>{/if}
-      <button type="button" class="close" onclick={onclose}>{t('Close')}</button>
-    </span>
-  </header>
-  <div class="prog" role="img" aria-label={t('{n} of {total} items packed', { n: packed, total })}><i style:width="{total ? (packed / total) * 100 : 0}%"></i></div>
-  <nav class="dots" aria-label={t('Bags')}>
-    {#each steps as s, n (s.key)}
-      <button type="button" class:cur={n === at} class:full={s.done === s.entries.length} aria-current={n === at ? 'step' : undefined} onclick={() => go(n)}>{s.title}</button>
-    {/each}
-    <button type="button" class:cur={at === last} class:full={ready.length && readyN === ready.length} aria-current={at === last ? 'step' : undefined} onclick={() => go(last)}>{t('Ready check')}</button>
-  </nav>
+{#snippet ring(size)}
+  {@const r = size / 2 - 5}
+  {@const c = 2 * Math.PI * r}
+  <span class="ring" style:width="{size}px" style:height="{size}px" role="img" aria-label={t('{n} of {total} items packed', { n: packed, total })}>
+    <svg width={size} height={size} viewBox="0 0 {size} {size}" aria-hidden="true"><circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--paper-2)" stroke-width="6" /><circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--ok)" stroke-width="6" stroke-linecap="round" stroke-dasharray={c} stroke-dashoffset={c * (1 - pct)} /></svg>
+    <b class="num">{packed}/{total}</b>
+  </span>
+{/snippet}
+{#snippet go()}<button type="button" class="btn hi go" onclick={next}>{bike ? t('Next: On the way') : t('Next: Debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/snippet}
+{#snippet aside()}{@render ring(52)}{/snippet}
 
-  <div class="body">
-    {#if wxGap && at === 0}
-      <div class="wxgap" role="note">
-        <p><b>{t('The forecast is {wx}.', { wx: wxText(wxGap.fc) })}</b> {t('This trip is packed for {wx}.', { wx: wxText(wxGap.have) })}</p>
-        <button type="button" class="btn hi" onclick={onwx}>{t('Pack for the forecast first')}</button>
-      </div>
-    {/if}
-    {#if step}
-      <h1 class="title">{step.title}</h1>
-      <p class="sub num">{step.sub ? `${step.sub} · ` : ''}{t('{n} of {total} in', { n: step.done, total: step.entries.length })}{allIn ? ` · ${t('all in')}` : ''}</p>
-      <ul class="items">
-        {#each step.entries as e (e.itemId)}
-          {@const it = itemsById[e.itemId]}
-          {@const bs = badges[e.itemId]}
-          <li class:in={e.packed}>
-            <button type="button" class="it" aria-pressed={!!e.packed} onclick={() => ontoggle(e.itemId)}>
-              <span class="box" aria-hidden="true">{e.packed ? '✓' : ''}</span>
-              <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q"> × {e.qty}</b>{/if}</span>
-              {#if it?.weightG != null}<span class="w num">{formatWeight(it.weightG * (e.qty || 1))}</span>{/if}
-            </button>
-            {#if bs}
-              <!-- v0.19.5 (answer 3a): short badges, the sentences on tap. -->
-              <button type="button" class="tip" class:open={openTip === e.itemId} aria-expanded={openTip === e.itemId} onclick={() => (openTip = openTip === e.itemId ? null : e.itemId)}>
-                {#if openTip === e.itemId}
-                  {#each bs as b (b.key)}<span class="tx"><span class="tl">{b.key === 'tip' ? t('Learning') : b.label}</span>{b.text}</span>{/each}
-                {:else}
-                  {#each bs as b (b.key)}<span class="bdg {b.tone}">{b.label}</span>{/each}
-                {/if}
-              </button>
-            {/if}
-          </li>
-        {/each}
-      </ul>
-    {:else}
-      <h1 class="title">{t('Ready check')}</h1>
-      <p class="sub num">{t('{n} of {total} done', { n: readyN, total: ready.length })}</p>
-      <ul class="items">
-        {#each ready as r (r.id)}
-          {@const done = readyDone(r, trip)}
-          <li class:in={done}>
-            <button type="button" class="it" aria-pressed={done} disabled={!!r.itemId && done} onclick={() => onready(r)}>
-              <span class="box" aria-hidden="true">{done ? '✓' : ''}</span>
-              <span class="nm">{t(r.label)}</span>
-            </button>
-          </li>
-        {/each}
-      </ul>
-      {#if packed === total && readyN === ready.length}<p class="go">{bike ? t('Everything is in. Have a good ride!') : t('Everything is in. Have a good trip!')}</p>{/if}
+<div class="pd trip-page" aria-label={t('Packing day: {title}', { title: trip.title })}>
+  <TripBand {trip} tab="pack" {kicker} action={go} {aside} hint={missing ? tn(missing, '{n} still missing', '{n} still missing') : t('Everything is in.')} />
+
+  {#if wxGap}
+    <div class="tp-card wxgap" role="note">
+      <p><b>{t('The forecast is {wx}.', { wx: wxText(wxGap.fc) })}</b> {t('This trip is packed for {wx}.', { wx: wxText(wxGap.have) })}</p>
+      <button type="button" class="btn" onclick={onwx}>{t('Pack for the forecast first')}</button>
+    </div>
+  {/if}
+
+  {#if !phone.matches}
+    <div class="tp-card prog">
+      {@render ring(72)}
+      <div><p class="pt">{packed < total ? tn(total - packed, '{n} item left', '{n} items left') + ' ' + tn(bagsLeft, 'in {n} bag', 'in {n} bags') : t('Everything is in.')}</p><p class="tp-muted tp-small">{t('Tap the whole row. A full bag jumps to the next one.')}</p></div>
+    </div>
+  {/if}
+  <p class="tp-status" role="status">{msg}</p>
+
+  <div class="pgrid">
+    {#each steps as s (s.key)}
+      {@const Icon = iconOf(s.key)}
+      {@const done = full(s)}
+      {#if s.key === cur}
+        <section class="pbag cur" aria-labelledby="pb-{s.key}" style:--span={steps.length + 1}>
+          <button type="button" class="bagh" aria-expanded="true" onclick={() => (cur = '')}>
+            <Icon size={20} aria-hidden="true" /><span class="bt"><b id="pb-{s.key}">{s.title}</b>{#if s.sub}<small>{s.sub}</small>{/if}</span>
+            <span class="r"><span class="mini" aria-hidden="true"><i style:width="{(s.done / s.entries.length) * 100}%"></i></span><span class="num">{s.done}/{s.entries.length}</span><ChevronDown size={18} aria-hidden="true" /></span>
+          </button>
+          <ul class="items">
+            {#each ordered(s) as e (e.itemId)}
+              {@const it = itemsById[e.itemId]}
+              {@const hint = hintOf(e.itemId)}
+              <li class:in={e.packed}>
+                <button type="button" class="it" aria-pressed={!!e.packed} onclick={() => tick(s, e)}>
+                  <span class="box" aria-hidden="true">{#if e.packed}<Check size={20} />{/if}</span>
+                  <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q"> × {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{/if}</span>
+                  <span class="w num">{it?.weightG != null ? formatWeight(it.weightG * (e.qty || 1)) : t('not weighed')}</span>
+                </button>
+              </li>
+            {/each}
+          </ul>
+          <div class="bagfoot">
+            {#if !done}<button type="button" class="tp-link" onclick={() => wholeBag(s)}>{t('Whole bag packed')}</button>{:else}<span class="tp-muted tp-small">{t('all in')}</span>{/if}
+            {#if canUndo}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
+          </div>
+        </section>
+      {:else}
+        <section class="pbag" class:done aria-labelledby="pb-{s.key}">
+          <button type="button" class="bagh" aria-expanded="false" onclick={() => (cur = s.key)}>
+            <Icon size={20} aria-hidden="true" /><span class="bt"><b id="pb-{s.key}">{s.title}</b></span>
+            <span class="r">{#if done}<span class="num">{s.done}/{s.entries.length}</span><span class="tp-okdot" aria-label={t('all in')}><Check size={16} aria-hidden="true" /></span>{:else}<span class="mini" aria-hidden="true"><i style:width="{(s.done / s.entries.length) * 100}%"></i></span><span class="num">{s.done}/{s.entries.length}</span><ChevronRight size={18} aria-hidden="true" />{/if}</span>
+          </button>
+          {#if !done}<p class="preview">{names(s)}</p>{/if}
+        </section>
+      {/if}
+    {/each}
+    {#if ready.length}
+      {@const done = readyAll}
+      <section class="pbag" class:cur={cur === READY} class:done={done && cur !== READY} aria-labelledby="pb-ready" style:--span={steps.length + 1}>
+        <button type="button" class="bagh" aria-expanded={cur === READY} onclick={() => (cur = cur === READY ? '' : READY)}>
+          <ListChecks size={20} aria-hidden="true" /><span class="bt"><b id="pb-ready">{t('Ready check')}</b></span>
+          <span class="r"><span class="num">{readyN}/{ready.length}</span>{#if done && cur !== READY}<span class="tp-okdot"><Check size={16} aria-hidden="true" /></span>{:else if cur === READY}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}</span>
+        </button>
+        {#if cur === READY}
+          <ul class="items">
+            {#each ready as r (r.id)}
+              {@const ok = readyDone(r, trip)}
+              <li class:in={ok}>
+                <button type="button" class="it" aria-pressed={ok} disabled={!!r.itemId && ok} onclick={() => readyTick(r)}>
+                  <span class="box" aria-hidden="true">{#if ok}<Check size={20} />{/if}</span>
+                  <span class="nm">{t(r.label)}</span>
+                </button>
+              </li>
+            {/each}
+          </ul>
+          <div class="bagfoot">
+            {#if !done}<button type="button" class="tp-link" onclick={onreadyall}>{t('Tick all checks')}</button>{:else}<span class="tp-muted tp-small">{packed === total ? (bike ? t('Everything is in. Have a good ride!') : t('Everything is in. Have a good trip!')) : t('all in')}</span>{/if}
+            {#if canUndo}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
+          </div>
+        {:else if !done}<p class="preview">{ready.filter((r) => !readyDone(r, trip)).map((r) => t(r.label)).join(' · ')}</p>{/if}
+      </section>
     {/if}
   </div>
-
-  <footer class="foot">
-    <button type="button" class="btn" disabled={at === 0} onclick={() => go(at - 1)}>{t('Back')}</button>
-    {#if at < last}
-      {@const nextName = at + 1 < last ? steps[at + 1].title : t('Ready check')}
-      <button type="button" class="btn hi" onclick={bagIn}>{allIn ? t('Next: {step}', { step: nextName }) : t('All in, next: {step}', { step: nextName })}</button>
-    {:else}
-      <button type="button" class="btn hi" onclick={readyIn}>{readyAll ? t('Done') : t('All done, finish')}</button>
-    {/if}
-  </footer>
+  {#if packed < total || !readyAll}<p class="all"><button type="button" class="tp-link" onclick={everything}>{t('Everything is packed')}</button></p>{/if}
 </div>
 
+<dialog class="sheet ask" bind:this={askEl} aria-labelledby="ask-h">
+  <h2 id="ask-h">{tn(missing, '{n} thing is not ticked yet. Go anyway?', '{n} things are not ticked yet. Go anyway?')}</h2>
+  <p class="tp-muted">{t('Nothing is lost: you can come back to Pack any time.')}</p>
+  <div class="askacts">
+    <button type="button" class="btn ink" onclick={() => { askEl.close(); onnext(); }}>{t('Go anyway')}</button>
+    <button type="button" class="btn" onclick={() => askEl.close()}>{t('Keep packing')}</button>
+  </div>
+</dialog>
+
 <style>
-  :global(body.pd-open) {
-    overflow: hidden;
-  }
-  .pd {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    background: var(--paper);
-    color: var(--ink);
-  }
-  .top {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--line);
-  }
-  .where {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    font-size: 14px;
-  }
-  /* v0.27.0 (AP21): a long trip name gets two lines instead of being cut after a few letters (320 px). */
-  .where {
-    flex: 1;
-    min-width: 120px;
-  }
-  .where b {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    overflow: hidden;
-    overflow-wrap: anywhere;
-  }
-  .where .num {
-    color: var(--ink-3);
-  }
-  .close {
-    flex: none;
-    min-height: 44px;
-    padding: 0 14px;
-    border: 1.5px solid var(--ink);
-    border-radius: 6px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 700 15px var(--font-body);
-    cursor: pointer;
-  }
-  .tops {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 6px;
-  }
-  .close.all {
-    border-color: var(--ink-3);
-    font-weight: 600;
-  }
-  .prog {
-    height: 6px;
-    background: var(--paper-2, #e6ebe3);
-  }
-  .prog i {
-    display: block;
-    height: 100%;
-    background: var(--ink);
-    transition: width 0.2s;
-  }
-  .dots {
-    display: flex;
-    gap: 6px;
-    padding: 10px 16px;
-    overflow-x: auto;
-    border-bottom: 1px solid var(--line);
-  }
-  /* v0.27.0 (AP21): the bag tabs are 44 px high for a thumb (were 29 px). */
-  .dots button {
-    flex: none;
-    min-height: 44px;
-    padding: 6px 12px;
-    border: 1.5px solid var(--line);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--ink-2);
-    font: 600 13px var(--font-body);
-    white-space: nowrap;
-    cursor: pointer;
-  }
-  .dots button.full {
-    border-color: var(--ink-3);
-    color: var(--ink-3);
-    text-decoration: line-through;
-  }
-  .dots button.cur {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
-    text-decoration: none;
-  }
-  .body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 18px 16px 24px;
-  }
-  .body > * {
-    max-width: 720px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  h1 {
-    margin-top: 0;
-    margin-bottom: 4px;
-    font-size: var(--fs-page);
-    line-height: var(--lh-title);
-    overflow-wrap: anywhere;
-  }
-  .sub {
-    margin-top: 0;
-    margin-bottom: 14px;
-    font-size: 16px;
-    color: var(--ink-2);
-  }
-  .items {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    /* minmax(0, …): a long learning hint (one line, cut with …) must not widen the items past the screen */
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
-  }
-  .it {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    width: 100%;
-    min-height: 64px;
-    padding: 10px 14px;
-    border: 1.5px solid var(--line);
-    border-radius: 8px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 600 21px/1.25 var(--font-body);
-    text-align: left;
-    cursor: pointer;
-  }
-  .box {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 34px;
-    height: 34px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    font-size: 22px;
-  }
-  .nm {
-    flex: 1;
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-  .q {
-    font-weight: 900;
-  }
-  .w {
-    flex: none;
-    font-size: 15px;
-    font-weight: 400;
-    color: var(--ink-3);
-  }
-  .in .it {
-    background: var(--paper-2, #e6ebe3);
-    border-color: transparent;
-    color: var(--ink-3);
-  }
-  .in .nm {
-    text-decoration: line-through;
-  }
-  .in .box {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .tip {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 100%;
-    margin-top: 4px;
-    padding: 4px 14px 4px 62px;
-    border: 0;
-    background: none;
-    color: var(--ink-2);
-    font: 400 15px/1.4 var(--font-body);
-    text-align: left;
-    cursor: pointer;
-  }
-  .tip.open {
-    white-space: normal;
-  }
-  .tl {
-    margin-right: 6px;
-    font-size: var(--fs-small);
-    font-weight: 700;
-    color: var(--ink-3);
-  }
-  .go {
-    font: 900 var(--fs-sub) var(--font-title);
-  }
-  .wxgap {
-    margin-bottom: 16px;
-    padding: 12px 14px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: #e3eef8;
-    font-size: 17px;
-  }
-  .wxgap p {
-    margin: 0 0 10px;
-  }
-  .foot {
-    display: flex;
-    gap: 10px;
-    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--line);
-    background: var(--paper);
-  }
-  .foot .btn {
-    min-height: 52px;
-    font-size: 17px;
-  }
-  /* v0.24.0: "All in, next: <bag>" may take two lines on a narrow phone instead of being cut off. */
-  .foot .btn.hi {
-    flex: 1;
-    min-width: 0;
-    white-space: normal;
-    line-height: 1.2;
-    overflow-wrap: anywhere;
-  }
-  @media (min-width: 720px) {
-    .foot {
-      justify-content: center;
-    }
-    .foot .btn.hi {
-      flex: 0 1 480px;
-    }
+  .prog { display: flex; align-items: center; gap: 16px; }
+  .prog p { margin: 0; }
+  .prog .pt { font-weight: 600; font-size: 17px; }
+  .ring { position: relative; display: inline-block; flex: none; }
+  .ring svg { transform: rotate(-90deg); display: block; }
+  .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--ink); }
+  .wxgap { background: #e3eef8; }
+  .wxgap p { margin: 0 0 10px; }
+  .pgrid { display: grid; gap: 10px; }
+  .pbag { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; min-width: 0; }
+  .pbag.cur { border: 2px solid var(--ink); }
+  .bagh { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 14px; border: 0; background: none; color: var(--ink); font: 600 16px var(--font-body); text-align: left; cursor: pointer; }
+  .bagh :global(svg) { color: var(--ink-3); flex: none; }
+  .bt { min-width: 0; overflow-wrap: anywhere; }
+  .bt small { display: block; font-size: 13px; font-weight: 400; color: var(--ink-3); }
+  .pbag.done .bt b { color: var(--ink-3); }
+  .r { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 400; color: var(--ink-3); white-space: nowrap; }
+  .mini { width: 120px; height: 6px; border-radius: 9px; background: var(--paper-2); overflow: hidden; display: none; }
+  .mini i { display: block; height: 100%; background: var(--ok); }
+  .preview { margin: -6px 14px 10px 46px; font-size: 14px; color: var(--ink-2); line-height: 1.5; overflow-wrap: anywhere; }
+  .items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
+  .it { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 60px; padding: 6px 14px; border: 0; border-top: 1px solid var(--paper-2); background: none; color: var(--ink); font: 400 17px/1.25 var(--font-body); text-align: left; cursor: pointer; }
+  .box { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--line-strong); background: #fff; }
+  .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .nm small { display: block; font-size: 13px; color: var(--ink-3); }
+  .q { font-weight: 700; }
+  .w { flex: none; font-size: 14px; color: var(--ink-3); white-space: nowrap; }
+  .in .box { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .in .nm > :global(:not(small)), .in .nm { color: var(--ink-3); }
+  .in .nm { text-decoration: line-through; text-decoration-thickness: 1px; }
+  .in .nm small { text-decoration: none; }
+  .bagfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 14px 6px; border-top: 1px solid var(--paper-2); }
+  .all { margin: 12px 0 0; }
+  .ask h2 { margin: 0 0 8px; font: 600 19px/1.3 var(--font-body); }
+  .askacts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  @media (min-width: 900px) {
+    .pgrid { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 10px 20px; align-items: start; }
+    .pgrid .pbag { grid-column: 1; }
+    .pgrid .pbag.cur { grid-column: 2; grid-row: 1 / span var(--span, 8); }
+    .pgrid .pbag.cur .it { min-height: 64px; font-size: 18px; }
+    .mini { display: block; }
   }
 </style>

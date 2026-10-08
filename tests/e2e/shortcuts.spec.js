@@ -69,26 +69,26 @@ for (const lang of ['de', 'en']) {
     await expect(page.getByText('test_data_gtp_ Zahnbürste')).toHaveCount(0);
 
     // v0.24.1 (Noah 2a): a day ride packs everything and ticks the ready check in one tap, then
-    // goes to the ride day; the packing day stays as the "Packing check" link.
-    const go = page.locator('.next .go').filter({ visible: true }).first();
+    // goes to On the way; packing bag by bag stays as the "Pack" tab (v0.29.0).
+    const go = page.locator('.trip-band .go');
     await expect(go).toContainText(T("All packed, let's go"));
-    await expect(page.locator('.next .day-check').filter({ visible: true })).toHaveText(T('Packing check'));
+    await expect(page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link', { name: new RegExp(`^${T('Pack|stage')}`) })).toBeVisible();
     await click(go);
     await expect(page).toHaveURL(/#\/ride/);
 
-    // Ride day → End trip and debrief → "All as planned" → save.
-    await click(page.getByRole('button', { name: T('End trip and debrief'), exact: true }));
-    await click(page.getByRole('button', { name: new RegExp(T('All as planned: weather, amount, bags')) }));
+    // On the way → Next: Debrief → one page, everything filled in → Save (v0.29.0, Noah 9a).
+    await click(go);
+    await expect(page).toHaveURL(/#\/debrief\//);
     await click(page.getByRole('button', { name: T('Save debrief') }));
     await expect(page.getByRole('heading', { name: T('Saved') })).toBeVisible();
-    // v0.24.1: 8 clicks (New, Plan a trip, Standard set, Create, All packed, End trip, All as planned, Save); was 10.
-    expect(clicks, 'a whole day ride in at most 8 clicks').toBeLessThanOrEqual(8);
+    // v0.24.1: 8 clicks; v0.29.0: 7 (New, Plan a trip, Standard set, Create, All packed, Next: Debrief, Save).
+    expect(clicks, 'a whole day ride in at most 7 clicks').toBeLessThanOrEqual(7);
     info.annotations.push({ type: 'clicks', description: String(clicks) });
     expect(errors).toEqual([]);
   });
 }
 
-test('packing day bag by bag and select all in the debrief', async ({ page, context }, info) => {
+test('Pack bag by bag with Whole bag packed, and select all in the debrief', async ({ page, context }, info) => {
   const T = tr('de');
   await start(page, context, info, 'de');
   const title = 'test_data_gtp_ Taschen';
@@ -109,27 +109,37 @@ test('packing day bag by bag and select all in the debrief', async ({ page, cont
     };
   }), title)).toBe(true);
 
-  await page.locator('.next .go').filter({ visible: true }).first().click();
-  const day = page.getByRole('dialog', { name: T('Packing day: {title}', { title }) });
-  const allIn = new RegExp(`^${T('All in, next: {step}', { step: '' })}`);
-  for (let guard = 0; guard < 15 && (await day.getByRole('button', { name: allIn }).count()); guard++) {
-    await day.getByRole('button', { name: allIn }).click();
+  // v0.29.0 (Noah 6a): Pack is a page; "Whole bag packed" fills a bag and the next one opens by itself.
+  const go = page.locator('.trip-band .go');
+  await expect(go).toContainText(T('Next: Pack'));
+  await go.click();
+  await expect(page).toHaveURL(/#\/pack\?day/);
+  const whole = page.locator('.pd .pbag.cur').getByRole('button', { name: T('Whole bag packed') });
+  for (let guard = 0; guard < 15 && (await whole.count()); guard++) {
+    const bag = await page.locator('.pd .pbag.cur .bagh b').textContent();
+    await whole.click();
+    await expect(page.locator('.pd .pbag.cur .bagh b')).not.toHaveText(bag);
   }
-  await expect(day.getByRole('heading', { name: T('Ready check') })).toBeVisible();
-  await expect(day.locator('ul.items button[aria-pressed="false"]')).not.toHaveCount(0);
-  await day.getByRole('button', { name: T('All done, finish') }).click();
-  await expect(day).toBeHidden();
-  await expect(page.locator('.next .go').filter({ visible: true }).first()).toContainText(T('Next: ride day'));
+  await expect(page.locator('.pd .pbag.cur')).toContainText(T('Ready check'));
+  await expect(page.locator('.pd ul.items button[aria-pressed="false"]')).not.toHaveCount(0);
+  // Not everything ticked: the one orange button asks first.
+  await expect(go).toContainText(T('Next: On the way'));
+  await go.click();
+  const ask = page.locator('dialog.ask');
+  await expect(ask).toBeVisible();
+  await ask.getByRole('button', { name: T('Go anyway') }).click();
+  await expect(page).toHaveURL(/#\/ride/);
 
-  await page.locator('.next .go').filter({ visible: true }).first().click();
-  await page.getByRole('button', { name: T('End trip and debrief'), exact: true }).click();
-  await page.getByRole('button', { name: T('Next: go through the items') }).click();
-  const first = page.locator('section.bag').first();
+  await go.click();
+  await expect(page).toHaveURL(/#\/debrief\//);
+  const fold = page.locator('details.items-fold');
+  if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
+  const first = fold.locator('section.bag').first();
   await first.getByRole('button', { name: new RegExp(`^${T('None used: {bag}', { bag: '' })}`) }).click();
-  const n = await first.locator('li.it').count();
-  await expect(first.locator('li.it.unused')).toHaveCount(n);
+  const n = await first.locator('li').count();
+  await expect(first.locator('button.state.unused')).toHaveCount(n);
   await first.getByRole('button', { name: new RegExp(`^${T('All used: {bag}', { bag: '' })}`) }).click();
-  await expect(first.locator('li.it.unused')).toHaveCount(0);
+  await expect(first.locator('button.state.unused')).toHaveCount(0);
 });
 
 test('create what the search does not find', async ({ page, context }, info) => {

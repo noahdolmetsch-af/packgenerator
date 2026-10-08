@@ -1,7 +1,7 @@
 // v0.21.0 (Noah's decision 7a): the whole trip loop in a real browser, on phone and desktop, in
 // English and German. Runs on every pull request (npm run e2e), so a broken step can't be merged.
 // start page → import the fictional fixture → New → Packing list → Standard set → Create trip
-// → packing day (everything ticked, ready check done) → ride day → End trip and debrief → saved.
+// → Pack (everything ticked bag by bag, ready check done) → On the way → Next: Debrief → saved on one page.
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -78,61 +78,56 @@ for (const lang of ['en', 'de']) {
     await tripDlg.getByRole('button', { name: T('Create trip') }).click();
     await expect(tripDlg).toBeHidden();
 
-    // 4. Pack: a day ride's big button packs everything at once (v0.24.1, Noah 2a); this test
-    // goes through the packing day by the "Packing check" link next to it.
+    // 4. Plan (v0.29.0): the band with the four tabs; a day ride's one orange button packs everything
+    // at once (v0.24.1, Noah 2a); this test goes through Pack bag by bag (the "Pack" tab in the band).
     await expect(page).toHaveURL(/#\/pack/);
-    const go = page.locator('.next .go');
+    const steps = page.getByRole('navigation', { name: T('Steps of this trip') });
+    await expect(steps.getByRole('link')).toHaveText([T('Plan|stage'), T('Pack|stage'), T('On the way'), T('Debrief')].map((n) => new RegExp(`^${esc(n)}`)));
+    const go = page.locator('.trip-band .go');
     await expect(go).toContainText(T("All packed, let's go"));
-    await fits('Pack');
-    await page.locator('.next .day-check').click();
+    await fits('Plan');
+    await steps.getByRole('link', { name: new RegExp(`^${esc(T('Pack|stage'))}`) }).click();
 
-    // 5. Packing day: tick every item bag by bag, then the whole ready check.
-    const day = page.getByRole('dialog', { name: T('Packing day: {title}', { title }) });
-    await expect(day).toBeVisible();
-    const next = new RegExp(`^${esc(T('Next: {step}', { step: '' }))}`);
-    for (let guard = 0; guard < 20; guard++) {
-      // every item (and on the last step every check) that is not ticked yet; wait for each tick
-      const rows = day.locator('ul.items button[aria-pressed]');
-      for (let i = 0, n = await rows.count(); i < n; i++) {
-        if ((await rows.nth(i).getAttribute('aria-pressed')) === 'true') continue;
-        await rows.nth(i).click();
-        await expect(rows.nth(i)).toHaveAttribute('aria-pressed', 'true');
+    // 5. Pack: a normal page (Noah 2a). Tick every item; a full bag jumps to the next one by itself,
+    // the ready check is the last "bag".
+    await expect(page).toHaveURL(/#\/pack\?day/);
+    await expect(steps.locator('[aria-current="page"]')).toContainText(T('Pack|stage'));
+    for (let guard = 0; guard < 60; guard++) {
+      const open = page.locator('.pd ul.items button[aria-pressed="false"]:not([disabled])');
+      if (await open.count()) {
+        await open.first().click({ timeout: 3000 }).catch(() => {}); // a full bag may just have closed
+        continue;
       }
-      await fits(`packing day, step ${guard + 1}`);
-      const fwd = day.getByRole('button', { name: next });
-      if (!(await fwd.count())) break;
-      await fwd.click();
+      const closed = page.locator('.pd .pbag:not(.done):not(.cur) .bagh');
+      if (await closed.count()) {
+        await closed.first().click({ timeout: 3000 }).catch(() => {});
+        continue;
+      }
+      break;
     }
-    await expect(day.getByRole('heading', { name: T('Ready check') })).toBeVisible();
-    await expect(day.getByText(T('Everything is in. Have a good ride!'))).toBeVisible();
-    await day.getByRole('button', { name: T('Done'), exact: true }).click();
-    await expect(day).toBeHidden();
+    await fits('Pack');
+    await expect(page.locator('.pd .pbag.cur .bagfoot, .pd').getByText(T('Everything is in. Have a good ride!'))).toBeVisible();
 
-    // 6. Back in Pack the big button now leads to the ride day.
-    await expect(go).toContainText(T('Next: ride day'));
-    await fits('Pack, after the packing day');
+    // 6. The one orange button now leads to On the way.
+    await expect(go).toContainText(T('Next: On the way'));
     await go.click();
     await expect(page).toHaveURL(/#\/ride/);
     await expect(page.getByText(title).first()).toBeVisible();
-    await fits('ride day');
+    await fits('On the way');
 
-    // 7. Ride day → End trip and debrief.
-    await page.getByRole('button', { name: T('End trip and debrief'), exact: true }).click();
+    // 7. On the way → Next: Debrief (ends the trip).
+    await go.click();
     await expect(page).toHaveURL(/#\/debrief\/./);
 
-    // 8. Debrief: three steps, then save.
-    await expect(page.getByRole('heading', { name: T('How did it go?') })).toBeVisible();
-    for (const q of ['Weather, compared to what you packed for', 'How much did you take?', 'Bags and bike'])
-      await page.getByRole('group', { name: T(q) }).getByRole('button').first().click();
-    await fits('debrief, step 1');
-    await page.getByRole('button', { name: T('Next: go through the items') }).click();
-    await expect(page.getByRole('heading', { name: T('What did you use?') })).toBeVisible();
-    await page.getByRole('button', { name: T('Not used'), exact: true }).first().click();
-    await fits('debrief, step 2');
-    await page.getByRole('button', { name: T('Next: summary') }).click();
-    await fits('debrief, step 3');
+    // 8. Debrief on one page (Noah 9a): everything filled in; one tap per exception, then save.
+    await expect(page.getByRole('heading', { name: T('What was different?') })).toBeVisible();
+    const fold = page.locator('details.items-fold');
+    if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
+    await fold.getByRole('button', { name: new RegExp(esc(T('{name}: {state}. Tap to change.', { name: '', state: T('Used') }).trim())) }).first().click();
+    await expect(page.locator('ul.exc').first().getByRole('button', { name: new RegExp(esc(T('Not used'))) })).toHaveCount(1);
+    await fits('debrief');
     await page.getByRole('button', { name: T('Save debrief') }).click();
-    await expect(page.getByText(T('Debrief saved'))).toBeVisible();
+    await expect(page.locator('.saved-card').getByText(T('Debrief saved'))).toBeVisible();
     await expect(page.getByRole('heading', { name: T('Saved') })).toBeVisible();
 
     // 9. The trip no longer waits for a debrief; it is listed as done.

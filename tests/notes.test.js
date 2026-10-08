@@ -96,3 +96,54 @@ describe('notes on the way (v0.26.1)', () => {
     expect(tripNotes(null, notes, 'test_data_gtp_next').map((n) => n.text)).toEqual(['Other trip']);
   });
 });
+
+// v0.29.0 (Noah 8a): "Was missing / Not needed / Broken" on the way go straight into the debrief.
+import { noteToDebrief, dropNoteFromDebrief, DEBRIEF_KINDS } from '../src/lib/notes.js';
+import { newDebrief } from '../src/lib/debrief.js';
+
+describe('quick notes on the way → debrief', () => {
+  const trip = { id: 'test_data_gtp_jura', title: 'test_data_gtp_ Jura', startDate: '2026-10-06', days: 2, entries: [{ itemId: 'test_data_gtp_down', slot: 'saddle' }] };
+  const n = (id, kind, extra = {}) => ({ id, at: '2026-10-06T10:20:00.000Z', text: extra.text ?? 'x', tripId: trip.id, day: 0, status: 'open', debrief: { kind, ...extra } });
+
+  it('three kinds: was missing, not needed, broken', () => {
+    expect(DEBRIEF_KINDS.map((k) => k.key)).toEqual(['missing', 'unused', 'broken']);
+  });
+
+  it('missing → debrief.missing (once), not needed → items[id] = unused, broken → items[id] = broken', () => {
+    let d = newDebrief(trip);
+    d = noteToDebrief(d, n('test_data_gtp_n1', 'missing', { name: 'test_data_gtp_ Chamois cream' }));
+    d = noteToDebrief(d, n('test_data_gtp_n1', 'missing', { name: 'test_data_gtp_ Chamois cream' }));
+    d = noteToDebrief(d, n('test_data_gtp_n2', 'unused', { itemId: 'test_data_gtp_down' }));
+    expect(d.missing).toEqual([{ id: 'n-test_data_gtp_n1', name: 'test_data_gtp_ Chamois cream', itemId: null, noteId: 'test_data_gtp_n1' }]);
+    expect(d.items).toEqual({ test_data_gtp_down: 'unused' });
+    expect(d.itemNotes).toEqual({ test_data_gtp_down: 'test_data_gtp_n2' });
+    const b = noteToDebrief(newDebrief(trip), n('test_data_gtp_n3', 'broken', { itemId: 'test_data_gtp_down' }));
+    expect(b.items).toEqual({ test_data_gtp_down: 'broken' });
+  });
+
+  it('an answer given by hand wins; a note without a kind changes nothing', () => {
+    const d = { ...newDebrief(trip), items: { test_data_gtp_down: 'broken' } };
+    expect(noteToDebrief(d, n('test_data_gtp_n2', 'unused', { itemId: 'test_data_gtp_down' })).items).toEqual({ test_data_gtp_down: 'broken' });
+    expect(noteToDebrief(d, { id: 'test_data_gtp_n4', text: 'Nice view' })).toEqual(d);
+  });
+
+  it('removing the note takes out what it put there, and only that', () => {
+    const miss = n('test_data_gtp_n1', 'missing', { name: 'test_data_gtp_ Chamois cream' });
+    const unused = n('test_data_gtp_n2', 'unused', { itemId: 'test_data_gtp_down' });
+    const d = noteToDebrief(noteToDebrief(newDebrief(trip), miss), unused);
+    expect(dropNoteFromDebrief(d, miss).missing).toEqual([]);
+    expect(dropNoteFromDebrief(d, miss).items).toEqual({ test_data_gtp_down: 'unused' });
+    const back = dropNoteFromDebrief(d, unused);
+    expect(back.items).toEqual({});
+    expect(back.itemNotes).toEqual({});
+    // changed by hand afterwards: stays
+    expect(dropNoteFromDebrief({ ...d, items: { test_data_gtp_down: 'broken' } }, unused).items).toEqual({ test_data_gtp_down: 'broken' });
+  });
+
+  it('the trip notes carry the kind, so the debrief does not count them twice', () => {
+    const notes = [n('test_data_gtp_n2', 'unused', { itemId: 'test_data_gtp_down' }), { id: 'test_data_gtp_n5', at: '2026-10-06T11:00:00.000Z', text: 'Cold hands', tripId: trip.id, day: 0 }];
+    const out = tripNotes(null, notes, trip.id);
+    expect(out[0]).toMatchObject({ noteId: 'test_data_gtp_n2', kind: 'unused', itemId: 'test_data_gtp_down' });
+    expect(out[1].kind).toBeUndefined();
+  });
+});
