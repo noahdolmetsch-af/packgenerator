@@ -1,0 +1,1396 @@
+{
+ "app": "pack-generator",
+ "schemaVersion": 4,
+ "exportedAt": "2026-10-08T08:00:00.000Z",
+ "tables": {
+  "items": [
+   {
+    "id": "test_data_gtp_TA01",
+    "name": "test_data_gtp_ Seat pack 6 L",
+    "nameDe": "test_data_gtp_ Satteltasche 6 L",
+    "category": "bags",
+    "weightG": 290,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": null,
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_TA02",
+    "name": "test_data_gtp_ Seat pack 14 L",
+    "nameDe": "test_data_gtp_ Satteltasche 14 L",
+    "category": "bags",
+    "weightG": 480,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": null,
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_TA03",
+    "name": "test_data_gtp_ Seat pack 10 L tour",
+    "nameDe": "test_data_gtp_ Satteltasche 10 L Tour",
+    "category": "bags",
+    "weightG": 350,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": null,
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_TA04",
+    "name": "test_data_gtp_ Frame bag small",
+    "nameDe": "test_data_gtp_ Rahmentasche klein",
+    "category": "bags",
+    "weightG": 180,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": null,
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_TA05",
+    "name": "test_data_gtp_ Frame bag large",
+    "nameDe": "test_data_gtp_ Rahmentasche gross",
+    "category": "bags",
+    "weightG": 260,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": null,
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_TA06",
+    "name": "test_data_gtp_ Top tube bag",
+    "nameDe": "test_data_gtp_ Oberrohrtasche",
+    "category": "bags",
+    "weightG": 110,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": null,
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_TA07",
+    "name": "test_data_gtp_ Front roll 9 L",
+    "nameDe": "test_data_gtp_ Lenkerrolle 9 L",
+    "category": "bags",
+    "weightG": 330,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": null,
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_TA08",
+    "name": "test_data_gtp_ Fork cage",
+    "nameDe": "test_data_gtp_ Gabelhalter",
+    "category": "bags",
+    "weightG": null,
+    "qty": 1,
+    "weightStatus": "missing",
+    "carry": "luggage",
+    "defaultBag": null,
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "TA14",
+    "name": "test_data_gtp_ Full frame bag",
+    "nameDe": "test_data_gtp_ Rahmentasche voll",
+    "category": "bags",
+    "weightG": null,
+    "qty": 1,
+    "weightStatus": "missing",
+    "carry": "luggage",
+    "defaultBag": null,
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_KL01",
+    "name": "test_data_gtp_ Jersey short",
+    "nameDe": "test_data_gtp_ Trikot kurz",
+    "category": "onbike",
+    "weightG": 140,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "body",
+    "ownership": "owned",
+    "role": "worn",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_KL02",
+    "name": "test_data_gtp_ Bib shorts",
+    "nameDe": "test_data_gtp_ Trägerhose",
+    "category": "onbike",
+    "weightG": 190,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "body",
+    "ownership": "owned",
+    "role": "worn",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_KL11",
+    "name": "test_data_gtp_ Helmet",
+    "nameDe": "test_data_gtp_ Helm",
+    "category": "onbike",
+    "weightG": 280,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "body",
+    "ownership": "owned",
+    "role": "worn",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_WZ01",
+    "name": "test_data_gtp_ Multitool",
+    "nameDe": "test_data_gtp_ Multitool",
+    "category": "tools",
+    "weightG": 120,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "top",
+    "ownership": "owned",
+    "role": "standard",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_WZ02",
+    "name": "test_data_gtp_ Spare tube",
+    "nameDe": "test_data_gtp_ Ersatzschlauch",
+    "category": "tools",
+    "weightG": 110,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": "standard",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_WZ03",
+    "name": "test_data_gtp_ Mini pump",
+    "nameDe": "test_data_gtp_ Minipumpe",
+    "category": "tools",
+    "weightG": 90,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "frame",
+    "ownership": "owned",
+    "role": "standard",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_EL01",
+    "name": "test_data_gtp_ Phone",
+    "nameDe": "test_data_gtp_ Handy",
+    "category": "elec",
+    "weightG": 200,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "top",
+    "ownership": "owned",
+    "role": "standard",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_DO01",
+    "name": "test_data_gtp_ Wallet",
+    "nameDe": "test_data_gtp_ Portemonnaie",
+    "category": "docs",
+    "weightG": 60,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "top",
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "always": true
+   },
+   {
+    "id": "test_data_gtp_FD01",
+    "name": "test_data_gtp_ Gel",
+    "nameDe": "test_data_gtp_ Gel",
+    "category": "food",
+    "weightG": 40,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "frame",
+    "ownership": "owned",
+    "role": "standard",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "perHours": 3,
+    "maxQty": 4
+   },
+   {
+    "id": "test_data_gtp_FD02",
+    "name": "test_data_gtp_ Bottle",
+    "nameDe": "test_data_gtp_ Flasche",
+    "category": "food",
+    "weightG": 80,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "mounted",
+    "ownership": "owned",
+    "role": "standard",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "perHours": 2,
+    "maxQty": 2,
+    "waterL": 0.75
+   },
+   {
+    "id": "test_data_gtp_FD03",
+    "name": "test_data_gtp_ Bar",
+    "nameDe": "test_data_gtp_ Riegel",
+    "category": "food",
+    "weightG": 55,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "frame",
+    "ownership": "owned",
+    "role": "standard",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "perHours": 1,
+    "maxQty": 3,
+    "note": "test_data_gtp_ Note: never more than 2 bars, my stomach"
+   },
+   {
+    "id": "test_data_gtp_LI02",
+    "name": "test_data_gtp_ Rear light",
+    "nameDe": "test_data_gtp_ Rücklicht",
+    "category": "light",
+    "weightG": 30,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "mounted",
+    "ownership": "owned",
+    "role": "standard",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_KL03",
+    "name": "test_data_gtp_ Long sleeve jersey",
+    "nameDe": "test_data_gtp_ Langarmtrikot",
+    "category": "onbike",
+    "weightG": 230,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "coldBelow": 10,
+    "replaces": "test_data_gtp_KL01"
+   },
+   {
+    "id": "test_data_gtp_KL04",
+    "name": "test_data_gtp_ Arm warmers",
+    "nameDe": "test_data_gtp_ Armlinge",
+    "category": "onbike",
+    "weightG": 60,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "top",
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "coldBelow": 14
+   },
+   {
+    "id": "test_data_gtp_KL07",
+    "name": "test_data_gtp_ Wind vest",
+    "nameDe": "test_data_gtp_ Windweste",
+    "category": "rain",
+    "weightG": 90,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "coldBelow": 12
+   },
+   {
+    "id": "test_data_gtp_KL08",
+    "name": "test_data_gtp_ Light gilet",
+    "nameDe": "test_data_gtp_ Leichtes Gilet",
+    "category": "rain",
+    "weightG": 70,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "altFor": "test_data_gtp_KL07"
+   },
+   {
+    "id": "test_data_gtp_KL05",
+    "name": "test_data_gtp_ Rain jacket",
+    "nameDe": "test_data_gtp_ Regenjacke",
+    "category": "rain",
+    "weightG": 260,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "u-test-data-gtp-regen"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "rain": "yes",
+    "favorite": true
+   },
+   {
+    "id": "test_data_gtp_KL06",
+    "name": "test_data_gtp_ Rain trousers",
+    "nameDe": "test_data_gtp_ Regenhose",
+    "category": "rain",
+    "weightG": 180,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "u-test-data-gtp-regen"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "rain": "optional"
+   },
+   {
+    "id": "test_data_gtp_KL09",
+    "name": "test_data_gtp_ Winter gloves",
+    "nameDe": "test_data_gtp_ Winterhandschuhe",
+    "category": "rain",
+    "weightG": 110,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "coldBelow": 6
+   },
+   {
+    "id": "test_data_gtp_KL10",
+    "name": "test_data_gtp_ Buff",
+    "nameDe": "test_data_gtp_ Buff",
+    "category": "rain",
+    "weightG": 35,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "top",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "warm",
+     "u-test-data-gtp-regen"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "coldBelow": 8
+   },
+   {
+    "id": "test_data_gtp_SL01",
+    "name": "test_data_gtp_ Tent",
+    "nameDe": "test_data_gtp_ Zelt",
+    "category": "sleep",
+    "weightG": 1100,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "sleep"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_SL02",
+    "name": "test_data_gtp_ Sleeping mat",
+    "nameDe": "test_data_gtp_ Schlafmatte",
+    "category": "sleep",
+    "weightG": 420,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "bar",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "sleep"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_SL03",
+    "name": "test_data_gtp_ Sleeping bag",
+    "nameDe": "test_data_gtp_ Schlafsack",
+    "category": "sleep",
+    "weightG": 700,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "bar",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "sleep"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ],
+    "favorite": true
+   },
+   {
+    "id": "test_data_gtp_SL04",
+    "name": "test_data_gtp_ Down jacket",
+    "nameDe": "test_data_gtp_ Daunenjacke",
+    "category": "offbike",
+    "weightG": 300,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "warm"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_CO01",
+    "name": "test_data_gtp_ Stove",
+    "nameDe": "test_data_gtp_ Kocher",
+    "category": "cook",
+    "weightG": 85,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "frame",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "cook"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_CO02",
+    "name": "test_data_gtp_ Pot",
+    "nameDe": "test_data_gtp_ Topf",
+    "category": "cook",
+    "weightG": 120,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "frame",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "cook"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_CO03",
+    "name": "test_data_gtp_ Gas cartridge",
+    "nameDe": "test_data_gtp_ Gaskartusche",
+    "category": "cook",
+    "weightG": 200,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "frame",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "cook"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_HY01",
+    "name": "test_data_gtp_ Toothbrush",
+    "nameDe": "test_data_gtp_ Zahnbürste",
+    "category": "hyg",
+    "weightG": 15,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "base",
+     "lodging"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_HY02",
+    "name": "test_data_gtp_ Towel",
+    "nameDe": "test_data_gtp_ Badetuch",
+    "category": "hyg",
+    "weightG": 150,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "base"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_HY04",
+    "name": "test_data_gtp_ Shower gel",
+    "nameDe": "test_data_gtp_ Duschgel",
+    "category": "hyg",
+    "weightG": 60,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "lodging"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_OF01",
+    "name": "test_data_gtp_ Flip-flops",
+    "nameDe": "test_data_gtp_ Flipflops",
+    "category": "offbike",
+    "weightG": 180,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "lodging"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_LI03",
+    "name": "test_data_gtp_ Head torch",
+    "nameDe": "test_data_gtp_ Stirnlampe",
+    "category": "light",
+    "weightG": null,
+    "qty": 1,
+    "weightStatus": "missing",
+    "carry": "luggage",
+    "defaultBag": "top",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "light"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_EL02",
+    "name": "test_data_gtp_ Power bank",
+    "nameDe": "test_data_gtp_ Powerbank",
+    "category": "elec",
+    "weightG": null,
+    "qty": 1,
+    "weightStatus": "missing",
+    "carry": "luggage",
+    "defaultBag": "top",
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_EL03",
+    "name": "test_data_gtp_ USB cable",
+    "nameDe": "test_data_gtp_ USB-Kabel",
+    "category": "elec",
+    "weightG": 20,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "top",
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_HY05",
+    "name": "test_data_gtp_ First aid kit",
+    "nameDe": "test_data_gtp_ Erste-Hilfe-Set",
+    "category": "hyg",
+    "weightG": null,
+    "qty": 1,
+    "weightStatus": "missing",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": "optional",
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_KL12",
+    "name": "test_data_gtp_ Rain gloves",
+    "nameDe": "test_data_gtp_ Regenhandschuhe",
+    "category": "rain",
+    "weightG": 70,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "owned",
+    "role": null,
+    "sets": [
+     "u-test-data-gtp-regen"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_WZ04",
+    "name": "test_data_gtp_ Chain lube",
+    "nameDe": "test_data_gtp_ Kettenöl",
+    "category": "tools",
+    "weightG": 50,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "top",
+    "ownership": "owned",
+    "role": null,
+    "sets": [],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_SL05",
+    "name": "test_data_gtp_ Ultralight tent",
+    "nameDe": "test_data_gtp_ Ultraleichtzelt",
+    "category": "sleep",
+    "weightG": 700,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "wishlist",
+    "role": null,
+    "sets": [
+     "sleep"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   },
+   {
+    "id": "test_data_gtp_KL13",
+    "name": "test_data_gtp_ Old rain jacket",
+    "nameDe": "test_data_gtp_ Alte Regenjacke",
+    "category": "rain",
+    "weightG": 450,
+    "qty": 1,
+    "weightStatus": "measured",
+    "carry": "luggage",
+    "defaultBag": "seat",
+    "ownership": "gone",
+    "role": null,
+    "sets": [
+     "u-test-data-gtp-regen"
+    ],
+    "kits": [],
+    "domains": [
+     "bikepacking"
+    ]
+   }
+  ],
+  "kits": [],
+  "trips": [
+   {
+    "id": "test_data_gtp_event",
+    "domain": "bikepacking",
+    "title": "test_data_gtp_ Jura event",
+    "startDate": "@+10",
+    "days": 2,
+    "bikeId": "test_data_gtp_spark",
+    "bike": "test_data_gtp_ Scott Spark 960",
+    "setup": {
+     "seat": "bag-gtp-seat6",
+     "frame": "bag-gtp-frameS",
+     "top": "bag-gtp-top",
+     "cage1": null
+    },
+    "entries": [
+     {
+      "itemId": "test_data_gtp_KL01",
+      "slot": "body",
+      "qty": 1,
+      "packed": false
+     },
+     {
+      "itemId": "test_data_gtp_KL11",
+      "slot": "body",
+      "qty": 1,
+      "packed": false
+     },
+     {
+      "itemId": "test_data_gtp_WZ01",
+      "slot": "top",
+      "qty": 1,
+      "packed": true
+     },
+     {
+      "itemId": "test_data_gtp_KL05",
+      "slot": "seat",
+      "qty": 1,
+      "packed": true
+     },
+     {
+      "itemId": "test_data_gtp_FD01",
+      "slot": "frame",
+      "qty": 3,
+      "packed": true
+     },
+     {
+      "itemId": "test_data_gtp_HY01",
+      "slot": "seat",
+      "qty": 1,
+      "packed": false
+     },
+     {
+      "itemId": "test_data_gtp_HY04",
+      "slot": "seat",
+      "qty": 1,
+      "packed": false
+     }
+    ],
+    "ready": [
+     {
+      "id": "kit",
+      "label": "Helmet, shoes, gloves",
+      "done": false
+     },
+     {
+      "id": "wallet",
+      "label": "Phone, wallet, keys",
+      "done": false
+     }
+    ],
+    "hours": 5,
+    "overnight": "lodging",
+    "cook": false,
+    "wx": {
+     "min": 8,
+     "max": 16,
+     "rain": "none"
+    },
+    "event": true,
+    "status": "planned",
+    "createdAt": "2026-10-01T08:00:00.000Z"
+   },
+   {
+    "id": "test_data_gtp_past",
+    "domain": "bikepacking",
+    "title": "test_data_gtp_ Autumn loop",
+    "startDate": "@-20",
+    "days": 1,
+    "bikeId": "test_data_gtp_gravel",
+    "bike": "test_data_gtp_ Gravel Grinder",
+    "setup": {
+     "seat": "bag-gtp-seat14",
+     "frame": "bag-gtp-frameL",
+     "top": "bag-gtp-top",
+     "bar": "bag-gtp-bar",
+     "fork": "bag-gtp-fork",
+     "cage1": null,
+     "cage2": null
+    },
+    "entries": [
+     {
+      "itemId": "test_data_gtp_KL01",
+      "slot": "body",
+      "qty": 1,
+      "packed": true
+     },
+     {
+      "itemId": "test_data_gtp_WZ01",
+      "slot": "top",
+      "qty": 1,
+      "packed": true
+     },
+     {
+      "itemId": "test_data_gtp_FD01",
+      "slot": "frame",
+      "qty": 1,
+      "packed": true
+     }
+    ],
+    "ready": [],
+    "hours": 3,
+    "overnight": "none",
+    "cook": false,
+    "wx": {
+     "min": 10,
+     "max": 18,
+     "rain": "none"
+    },
+    "event": false,
+    "status": "planned",
+    "finished": "@-20",
+    "createdAt": "2026-09-01T08:00:00.000Z"
+   }
+  ],
+  "debriefs": [],
+  "learnings": [
+   {
+    "id": "test_data_gtp_L1",
+    "topic": "gear",
+    "rule": "test_data_gtp_ Rain jacket on top of the seat pack",
+    "itemIds": [
+     "test_data_gtp_KL05"
+    ],
+    "source": "test_data_gtp_ Autumn loop"
+   }
+  ],
+  "events": [],
+  "maintenance": [
+   {
+    "id": 9101,
+    "subject": "test_data_gtp_ setup",
+    "area": "Preparation",
+    "task": "test_data_gtp_ Check brake pads",
+    "leadWeeks": 1,
+    "status": "open"
+   },
+   {
+    "id": 9102,
+    "subject": "test_data_gtp_ setup",
+    "area": "Preparation",
+    "task": "test_data_gtp_ Charge the lights",
+    "leadWeeks": 0,
+    "status": "open"
+   }
+  ],
+  "bikes": [
+   {
+    "id": "test_data_gtp_scale",
+    "name": "test_data_gtp_ Scott Scale 940",
+    "type": "hardtail",
+    "weightG": 11200,
+    "slots": [
+     "seat",
+     "frame",
+     "top",
+     "cage1",
+     "cage2"
+    ],
+    "setup": {
+     "seat": "bag-gtp-seat6",
+     "frame": "bag-gtp-frameS",
+     "top": "bag-gtp-top",
+     "cage1": null,
+     "cage2": null
+    },
+    "fixtures": [],
+    "km": 3200,
+    "kmDate": "@-2",
+    "parts": [
+     {
+      "key": "chain",
+      "model": "",
+      "history": [
+       {
+        "date": "@-30",
+        "km": 3150,
+        "action": "service",
+        "result": "done"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "test_data_gtp_spark",
+    "name": "test_data_gtp_ Scott Spark 960",
+    "type": "full",
+    "weightG": 12400,
+    "slots": [
+     "seat",
+     "frame",
+     "top",
+     "cage1"
+    ],
+    "setup": {
+     "seat": "bag-gtp-seat6",
+     "frame": "bag-gtp-frameS",
+     "top": "bag-gtp-top",
+     "cage1": null
+    },
+    "fixtures": [],
+    "km": 5000,
+    "kmDate": "@-2",
+    "parts": [
+     {
+      "key": "chain",
+      "model": "",
+      "history": [
+       {
+        "date": "@-30",
+        "km": 4700,
+        "action": "service",
+        "result": "done"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "test_data_gtp_gravel",
+    "name": "test_data_gtp_ Gravel Grinder",
+    "type": "gravel",
+    "weightG": 9800,
+    "slots": [
+     "seat",
+     "frame",
+     "top",
+     "bar",
+     "fork",
+     "cage1",
+     "cage2"
+    ],
+    "setup": {
+     "seat": "bag-gtp-seat14",
+     "frame": "bag-gtp-frameL",
+     "top": "bag-gtp-top",
+     "bar": "bag-gtp-bar",
+     "fork": "bag-gtp-fork",
+     "cage1": null,
+     "cage2": null
+    },
+    "fixtures": [],
+    "km": 8000,
+    "kmDate": "@-2",
+    "parts": [
+     {
+      "key": "chain",
+      "model": "",
+      "history": [
+       {
+        "date": "@-30",
+        "km": 7980,
+        "action": "service",
+        "result": "done"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "containers": [
+   {
+    "id": "bag-gtp-seat6",
+    "name": "test_data_gtp_ Seat pack 6 L",
+    "slot": "seat",
+    "volumeL": 6,
+    "itemId": "test_data_gtp_TA01",
+    "pieces": 1
+   },
+   {
+    "id": "bag-gtp-seat14",
+    "name": "test_data_gtp_ Seat pack 14 L",
+    "slot": "seat",
+    "volumeL": 14,
+    "itemId": "test_data_gtp_TA02",
+    "pieces": 1
+   },
+   {
+    "id": "bag-gtp-seat10",
+    "name": "test_data_gtp_ Seat pack 10 L tour",
+    "slot": "seat",
+    "volumeL": 10,
+    "itemId": "test_data_gtp_TA03",
+    "pieces": 1
+   },
+   {
+    "id": "bag-gtp-frameS",
+    "name": "test_data_gtp_ Frame bag small",
+    "slot": "frame",
+    "volumeL": null,
+    "itemId": "test_data_gtp_TA04",
+    "pieces": 1
+   },
+   {
+    "id": "bag-gtp-frameL",
+    "name": "test_data_gtp_ Frame bag large",
+    "slot": "frame",
+    "volumeL": null,
+    "itemId": "test_data_gtp_TA05",
+    "pieces": 1
+   },
+   {
+    "id": "bag-gtp-top",
+    "name": "test_data_gtp_ Top tube bag",
+    "slot": "top",
+    "volumeL": 1,
+    "itemId": "test_data_gtp_TA06",
+    "pieces": 1
+   },
+   {
+    "id": "bag-gtp-bar",
+    "name": "test_data_gtp_ Front roll 9 L",
+    "slot": "bar",
+    "volumeL": 9,
+    "itemId": "test_data_gtp_TA07",
+    "pieces": 1
+   },
+   {
+    "id": "bag-gtp-fork",
+    "name": "test_data_gtp_ Fork cage",
+    "slot": "fork",
+    "volumeL": null,
+    "itemId": "test_data_gtp_TA08",
+    "pieces": 1
+   },
+   {
+    "id": "bag-TA14",
+    "name": "test_data_gtp_ Full frame bag",
+    "slot": "frame",
+    "volumeL": null,
+    "itemId": "TA14",
+    "pieces": 1
+   }
+  ],
+  "weightChecks": [],
+  "settings": [
+   {
+    "key": "sets",
+    "value": [
+     {
+      "key": "u-test-data-gtp-regen",
+      "name": "test_data_gtp_ Rain",
+      "qty": {
+       "test_data_gtp_KL12": 2
+      }
+     }
+    ]
+   },
+   {
+    "key": "templates",
+    "value": [
+     {
+      "id": "tpl-gtp-evening",
+      "name": "test_data_gtp_ Evening loop",
+      "setup": {
+       "seat": "bag-gtp-seat6",
+       "frame": "bag-gtp-frameS",
+       "top": "bag-gtp-top",
+       "cage1": null,
+       "cage2": null
+      },
+      "entries": [
+       {
+        "itemId": "test_data_gtp_KL01",
+        "slot": "body",
+        "qty": 1
+       },
+       {
+        "itemId": "test_data_gtp_KL02",
+        "slot": "body",
+        "qty": 1
+       },
+       {
+        "itemId": "test_data_gtp_WZ01",
+        "slot": "top",
+        "qty": 1
+       },
+       {
+        "itemId": "test_data_gtp_FD01",
+        "slot": "frame",
+        "qty": 1
+       },
+       {
+        "itemId": "test_data_gtp_KL05",
+        "slot": "seat",
+        "qty": 1
+       }
+      ],
+      "ready": [
+       {
+        "id": "kit",
+        "label": "Helmet, shoes, gloves"
+       }
+      ],
+      "ride": null,
+      "hours": 2,
+      "sets": {},
+      "purpose": {},
+      "days": 1,
+      "overnight": "none",
+      "cook": false,
+      "bikeId": "test_data_gtp_scale",
+      "fromTrip": null,
+      "updatedAt": "2026-10-01T10:00:00.000Z"
+     }
+    ]
+   },
+   {
+    "key": "homePlace",
+    "value": {
+     "name": "test_data_gtp_ Home",
+     "lat": 47.39,
+     "lon": 8.04
+    }
+   },
+   {
+    "key": "update.layers2026",
+    "value": "2026-10-01T08:00:00.000Z"
+   },
+   {
+    "key": "update.readyClean2026",
+    "value": "2026-10-01T08:00:00.000Z"
+   },
+   {
+    "key": "update.dailyCommuteTemplate",
+    "value": "2026-10-01T08:00:00.000Z"
+   },
+   {
+    "key": "update.stravaKm2026",
+    "value": "2026-10-01T08:00:00.000Z"
+   },
+   {
+    "key": "update.lodgingSet2026",
+    "value": "2026-10-01T08:00:00.000Z"
+   },
+   {
+    "key": "update.kitTemplates2026",
+    "value": "2026-10-01T08:00:00.000Z"
+   }
+  ],
+  "visits": [],
+  "photos": [],
+  "notes": []
+ }
+}
