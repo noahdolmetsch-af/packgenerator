@@ -1,9 +1,9 @@
 // v0.31.0 (Velopflege redesign): the last work per part, its state and the year on one bike.
 // Fictional data only.
 import { describe, it, expect, afterEach } from 'vitest';
-import { lastWork, lastWorkByPart, lastLine, usualBy, partStatus, isDueState, yearSummary, groupOf, GROUPS, workWords } from '../src/lib/care/last.js';
+import { shopSkip, lastWork, lastWorkByPart, lastLine, usualBy, partStatus, isDueState, yearSummary, groupOf, GROUPS, workWords } from '../src/lib/care/last.js';
 import { ensureParts, logPart, PARTS } from '../src/lib/care.js';
-import { withVisits, timeDue } from '../src/lib/workshop.js';
+import { withVisits, timeDue, workshopOrder } from '../src/lib/workshop.js';
 import { lang } from '../src/lib/i18n.svelte.js';
 
 afterEach(() => (lang.v = 'en'));
@@ -123,5 +123,35 @@ describe('the year on one bike', () => {
     const y = yearSummary(view, visits, tasks, '2026');
     expect(y).toMatchObject({ year: '2026', self: 3, shop: 3, chf: 197.5, unknown: 1 });
     expect(y.per).toMatchObject({ chf: 180, km: 1100 });
+  });
+});
+
+describe('the workshop order takes only what I do not usually do myself', () => {
+  const today = '2026-10-08';
+  let parts = ensureParts(bike());
+  parts = logPart(parts, 'fork', e('2025-09-04', { action: 'service', result: 'done', by: 'shop' }));
+  parts = logPart(parts, 'tyres', e('2026-06-01', { action: 'service', result: 'done', km: 4000 }));
+  parts = logPart(parts, 'padsF', e('2026-09-29', { value: 45, km: 3900 }));
+  const b = bike({ parts, tyreSetup: { front: 'tubeless', rear: 'tubeless' } });
+  const tasks = [{ id: 7, area: 'Bike', bikeId: 'test_data_gtp_spark', task: 'test_data_gtp_ creak', status: 'open' }];
+  const setup = { front: 'tubeless', rear: 'tubeless' };
+
+  it('skips my own parts and the check, keeps the shop parts, parts without work and repairs', () => {
+    const skip = shopSkip(b);
+    expect(skip('fork')).toBe(false); // the shop does it
+    expect(skip('tyres')).toBe(true); // I top up the sealant
+    expect(skip('padsF')).toBe(false); // only measured, never replaced: stays in
+    expect(skip('check')).toBe(true); // I do the 1000 km check
+    const all = workshopOrder(b, null, tasks, [], setup, today);
+    const mine = workshopOrder(b, null, tasks, [], setup, today, { skip });
+    expect(all.rows.map((r) => r.key)).toEqual(expect.arrayContaining(['fork:now', 'tyres:now', 'check:now', 'padsF:now', 'repair:7']));
+    expect(mine.rows.map((r) => r.key).sort()).toEqual(['fork:now', 'padsF:now', 'repair:7', 'shock:now'].filter((k) => all.rows.some((r) => r.key === k)).sort());
+  });
+
+  it('keeps the 1000 km check when the bike shop did most checks', () => {
+    let p2 = parts;
+    for (const k of ['padsR', 'chain', 'bolts']) p2 = logPart(p2, k, e('2025-01-01', { km: 1000, by: 'shop' }));
+    expect(shopSkip(bike({ parts: p2 }))('check')).toBe(false);
+    expect(shopSkip(bike())('check')).toBe(true);
   });
 });

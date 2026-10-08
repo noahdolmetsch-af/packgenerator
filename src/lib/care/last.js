@@ -6,7 +6,7 @@
  * bike: from withVisits (workshop.js), so the jobs of the workshop visits count as history too.
  * Pure functions (the words follow the language), easy to test.
  */
-import { PART, partInfo, wear, needsWork, lastValue, kmSince, taskBike, serviceName } from '../care.js';
+import { PART, CHECK_PARTS, partInfo, wear, needsWork, lastValue, kmSince, taskBike, serviceName } from '../care.js';
 import { visitsOf, visitTotal, costPer1000, overdueDays } from '../workshop.js';
 import { t, tn, num, dateOf } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
@@ -60,6 +60,24 @@ export function usualBy(part) {
   const self = work.filter((h) => h.by === 'self').length;
   if (shop !== self) return shop > self ? 'shop' : 'self';
   return work.at(-1)?.by === 'shop' ? 'shop' : 'self';
+}
+
+/**
+ * v0.31.0 (proposal 3/4: "For the bike shop" takes only what I do not do myself): the skip
+ * option of workshopOrder for one bike. A part with services or replacements on record that I
+ * usually do is skipped; a part without any is kept. The 1000 km check ('check') is skipped
+ * unless most of its checks on record were done by the bike shop.
+ */
+export function shopSkip(bike) {
+  const parts = Object.fromEntries((bike?.parts ?? []).map((p) => [p.key, p]));
+  const checks = (bike?.parts ?? []).filter((p) => CHECK_PARTS.includes(p.key)).flatMap((p) => (p.history ?? []).filter((h) => h.action === 'check'));
+  const checkByShop = checks.filter((h) => h.by === 'shop').length > checks.filter((h) => h.by !== 'shop').length;
+  return (key) => {
+    if (key === 'check') return !checkByShop;
+    const part = parts[key];
+    if (!part || !(part.history ?? []).some(isWork)) return false;
+    return usualBy(part) === 'self';
+  };
 }
 
 /** One history entry in words: "replaced", "waxed", "measured 0.4 %", "checked", "«skips in 3rd»". */

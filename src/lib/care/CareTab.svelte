@@ -10,6 +10,7 @@
   } from '../care.js';
   import TripCare from './TripCare.svelte';
   import { tickPrep, untickPrep } from './prep.js';
+  import { shopSkip } from './last.js';
   import BikeCare from './BikeCare.svelte';
   import Fold from '../ui/Fold.svelte';
   import PartDialog from './PartDialog.svelte';
@@ -98,7 +99,8 @@
       const tyres = tyreSetup(b, visits);
       // N15: one order for the shop, for this bike's next trip (or what is due today).
       const trip = upcomingTrips($tripsQ ?? [], today).find((t) => t.bikeId === b.id) ?? null;
-      const order = workshopOrder(b, trip, tasks, visits, tyres, today);
+      // v0.31.0: only what I do not usually do myself (care/last.js shopSkip).
+      const order = workshopOrder(b, trip, tasks, visits, tyres, today, { skip: shopSkip(b) });
       const care = bikeCare(b, { tasks, visits, today });
       return { bike: b, check: checkState(b), services: serviceDue(b), tyres, time: timeDue(b, tyres, today), mine: visitsOf(visits, b.id), order, orderTrip: trip, care };
     }),
