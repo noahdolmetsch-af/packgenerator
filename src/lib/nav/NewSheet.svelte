@@ -71,13 +71,21 @@
         <li><button type="button" class="opt" onclick={() => run(() => newTrip('last', area))}><b>{t('Copy the last trip')}</b><span>{t('The last {area} trip, or the {area} items when there is none', { area: t(domainName(area)) })}</span></button></li>
         <li><button type="button" class="opt" onclick={() => run(() => newTrip('standard', area))}><b>{t('Items of this area')}</b><span>{t('Worn, standard and "On every trip", in {bags}', { bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}</span></button></li>
       {:else}
-      {#each templates as tp (tp.id)}
-        <li><button type="button" class="opt" onclick={() => run(() => newTrip(tp.id, area))}><b>{t('From template')}</b><span>{tp.name} · {tn(tp.entries?.length ?? 0, '{n} item', '{n} items')}</span></button></li>
-      {/each}
+      <!-- v0.29.2 (Noah 7a): the standard set first; the templates folded away below. -->
+      <li><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard', area))}><b>{t('Standard set')}</b><span>{t('Worn, standard pack and the items "On every trip"')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => run(() => newTrip('last', area))}><b>{t('Copy the last trip')}</b><span>{t('The last trip on the bike you choose, with its bags and ready check')}</span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(() => newTrip('standard', area))}><b>{t('Standard set')}</b><span>{t('Worn, standard pack and the items "On every trip"')}</span></button></li>
       {/if}
     </ul>
+    {#if byBike && templates.length}
+      <details class="tpls">
+        <summary>{t('Start from a template')} <span class="small">({templates.length})</span></summary>
+        <ul class="opts">
+          {#each templates as tp (tp.id)}
+            <li><button type="button" class="opt" onclick={() => run(() => newTrip(tp.id, area))}><b>{tp.name}</b><span>{tn(tp.entries?.length ?? 0, '{n} item', '{n} items')}</span></button></li>
+          {/each}
+        </ul>
+      </details>
+    {/if}
     <button type="button" class="link" onclick={() => (mode = 'all')}>{t('Something else to create')}</button>
   {:else if mode === 'km'}
     <form class="km" onsubmit={saveKm}>
@@ -202,4 +210,6 @@
     font-size: var(--fs-small);
     color: var(--ink-3);
   }
+  .tpls { margin: 4px 0 12px; }
+  .tpls summary { min-height: 44px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600; }
 </style>

@@ -115,6 +115,7 @@ test('Pack bag by bag with Whole bag packed, and select all in the debrief', asy
   await go.click();
   await expect(page).toHaveURL(/#\/pack\?day/);
   const whole = page.locator('.pd .pbag.cur').getByRole('button', { name: T('Whole bag packed') });
+  await expect(whole).toBeVisible(); // the page is drawn (CI once started the loop before it was)
   for (let guard = 0; guard < 15 && (await whole.count()); guard++) {
     const bag = await page.locator('.pd .pbag.cur .bagh b').textContent();
     await whole.click();

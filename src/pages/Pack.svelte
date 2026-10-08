@@ -37,7 +37,7 @@
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
-  import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, wxLabel } from '../lib/dayride.js';
+  import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, wxLabel, bikeShort, shortDate } from '../lib/dayride.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName, inDomain, itemDomains, readyKey, READY_BY_DOMAIN, rememberDomain, BIKEPACKING } from '../lib/domains.js';
@@ -225,7 +225,8 @@
   // v0.25.1 (Noah 1a): "Day ride" (nav.js dayRide, event 'pg:dayride'): the trip without a dialog,
   // like the last day ride (or 2 h, Chilly), weather from the home forecast when there is one.
   // A bar says what was made, with "Change" (Edit trip) and "Undo" (deletes the new trip).
-  let dayMade = $state(null); // { id, before, bike, hours, wx, wxFrom }
+  // v0.29.2 (Noah 4a, 5a): the same green card after "Create trip", and it says where the trip is.
+  let dayMade = $state(null); // { id, before, day, hours?, wx?, wxFrom? }
   let dayBusy = false;
   async function makeDayRide() {
     if (dayBusy) return;
@@ -239,10 +240,10 @@
       const plan = dayRidePlan(trips, bikes, { forecastWx });
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       const fields = { hours: plan.hours, overnight: 'none', cook: false, wx: plan.wx, event: false, ...(plan.wxFrom ? { wxFrom: plan.wxFrom } : {}) };
-      const nt = buildBikeTrip({ draft: { title: plan.title, startDate: plan.startDate, days: 1 }, bike: $state.snapshot(plan.bike), start: 'last', templates, trips, items, readyStandard, fields });
+      const nt = buildBikeTrip({ draft: { title: plan.title, startDate: plan.startDate, days: 1 }, bike: $state.snapshot(plan.bike), start: 'standard', templates, trips, items, readyStandard, fields });
       await db.trips.put($state.snapshot(nt));
       rememberDomain(BIKEPACKING);
-      dayMade = { id: nt.id, before: chosen, bike: plan.bike.name, hours: plan.hours, wx: plan.wx, wxFrom: plan.wxFrom };
+      dayMade = { id: nt.id, before: chosen, day: true, hours: plan.hours, wx: plan.wx, wxFrom: plan.wxFrom };
       choose(nt.id);
     } finally {
       dayBusy = false;
@@ -655,11 +656,16 @@
     {/snippet}
 
   {#snippet notice()}{#if dayMade && dayMade.id === trip.id}
-    <div class="dayride-bar" role="status">
-      <p>{t('Day ride created: {bike} · {hours} h · {weather}.', { bike: dayMade.bike, hours: num(dayMade.hours), weather: dayMade.wxFrom === 'forecast' ? t('{weather} (forecast)', { weather: wxLabel(dayMade.wx) }) : wxLabel(dayMade.wx) })}</p>
+    {@const when = trip.startDate === localDay() ? t('today') : trip.startDate === localDay(new Date(Date.now() + 864e5)) ? t('tomorrow') : shortDate(trip.startDate)}
+    {@const what = [bike ? bikeShort(bike.name) : null, when, tn(trip.entries.length, '{n} item', '{n} items')].filter(Boolean).join(' · ')}
+    <div class="made-card" role="status">
+      <p class="made-t"><b>{dayMade.day ? t('Day ride created') : t('Trip created')}</b> · {what}</p>
+      {#if dayMade.day}<p class="made-s">{t('{hours} h · {weather}', { hours: num(dayMade.hours), weather: dayMade.wxFrom === 'forecast' ? t('{weather} (forecast)', { weather: wxLabel(dayMade.wx) }) : wxLabel(dayMade.wx) })}</p>{/if}
+      <p class="made-s">{t('You find it under Trips and at the top of Today.')}</p>
       <div class="dayride-acts">
         <button type="button" class="btn sm" onclick={() => (dialog = { trip })}>{t('Change')}</button>
-        <button type="button" class="btn sm" onclick={undoDayRide}>{t('Undo')}</button>
+        <!-- not the page's Undo (that one undoes the last change in the list): this one deletes the new trip -->
+        <button type="button" class="btn sm" aria-label={t('Undo: delete this new trip')} onclick={undoDayRide}>{t('Undo')}</button>
         <button type="button" class="x" aria-label={t('Close')} onclick={() => (dayMade = null)}>×</button>
       </div>
     </div>
@@ -750,7 +756,7 @@
       <ul>{#each ready as r (r.id)}<li>☐ {t(r.label)}</li>{/each}</ul>
     </section>{/if}
 {#if dialog}
-  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {templates} startFrom={dialog.startFrom ?? 'standard'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={choose} />
+  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {templates} startFrom={dialog.startFrom ?? 'standard'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={(id) => { dayMade = { id, before: chosen, day: false }; choose(id); }} />
 {/if}
 {#if saveTpl && trip}
   <TemplateDialog {trip} {templates} onclose={() => (saveTpl = false)} onsaved={(name) => ((tplNote = t('Saved as template "{name}".', { name })), setTimeout(() => (tplNote = ''), 4000))} />
@@ -765,9 +771,10 @@
   .chip:disabled { opacity: 0.5; cursor: default; }
   .blocknote { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 14px; }
   /* v0.25.1 (Noah 1a): what the day ride was made with, and the way back. */
-  .dayride-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; margin: 0 0 12px; padding: 8px 8px 8px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper-2, var(--paper)); }
-  .dayride-bar p { margin: 0; flex: 1 1 200px; min-width: 0; overflow-wrap: anywhere; }
-  .dayride-acts { display: flex; align-items: center; gap: 8px; }
+  .made-card { margin: 0 0 12px; padding: 10px 10px 10px 14px; border: 2px solid var(--ok); border-radius: 10px; background: color-mix(in srgb, var(--ok) 10%, var(--paper)); }
+  .made-card p { margin: 0 0 4px; min-width: 0; overflow-wrap: anywhere; }
+  .made-s { color: var(--ink-2, var(--ink)); font-size: 14px; }
+  .dayride-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
   .bag-purpose { display: block; margin-bottom: 16px; font-size: 14px; }
   .bag-purpose input { margin-top: 8px; }
   .sets, .presets, .ready-acts { display: flex; gap: 8px; flex-wrap: wrap; }

@@ -136,7 +136,7 @@ test('first aid: none on a day ride, with a 1-night lodging trip', async ({ page
   await page.goto('./#/');
   // the day ride in one tap (the Home button sends this event)
   await page.evaluate(() => window.dispatchEvent(new Event('pg:dayride')));
-  await expect(page.locator('.dayride-bar')).toBeVisible();
+  await expect(page.locator('.made-card')).toBeVisible();
   let list = await allTrips(page);
   expect(list).toHaveLength(1);
   const day = list[0].entries.map((e) => e.itemId);

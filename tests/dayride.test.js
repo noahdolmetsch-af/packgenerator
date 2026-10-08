@@ -79,6 +79,11 @@ describe('which trip a day ride starts from', () => {
     const p2 = dayRidePlan([src], bikes, { now, forecastWx: { min: -2, max: 4, rain: 'rain' } });
     expect(p2).toMatchObject({ wx: { min: -2, max: 4, rain: 'rain' }, wxFrom: 'forecast' });
     expect(dayRidePlan([], [])).toBeNull();
+    // v0.29.2 (Noah 5a): a newer trip on another bike wins over the bike of the last day ride.
+    const later = trip('w2', { bikeId: 'b2', days: 3, overnight: 'outdoor', startDate: '2026-12-01' });
+    const p3 = dayRidePlan([src, later], bikes, { now });
+    expect(p3.bike.id).toBe('b2');
+    expect(p3.hours).toBe(3); // hours and weather still from the last day ride
   });
 });
 

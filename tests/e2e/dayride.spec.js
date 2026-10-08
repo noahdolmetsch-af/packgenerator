@@ -88,8 +88,12 @@ for (const lang of ['de', 'en']) {
     // One tap on Home (the "Day ride" button sends this event).
     const t0 = Date.now();
     await page.evaluate(() => window.dispatchEvent(new Event('pg:dayride')));
-    const bar = page.locator('.dayride-bar');
-    await expect(bar).toContainText(T('Day ride created: {bike} · {hours} h · {weather}.', { bike: 'Test gravel bike', hours: '2', weather: T('Chilly') }));
+    // v0.29.2 (Noah 4a): a green card says what was made and where it is.
+    const bar = page.locator('.made-card');
+    const when = day === (await page.evaluate(() => new Date().toLocaleDateString('sv-SE'))) ? T('today') : T('tomorrow');
+    await expect(bar).toContainText(`${T('Day ride created')} · Test gravel · ${when}`);
+    await expect(bar).toContainText(T('{hours} h · {weather}', { hours: '2', weather: T('Chilly') }));
+    await expect(bar).toContainText(T('You find it under Trips and at the top of Today.'));
     // v0.29.0 (Noah 5a): a folded bag shows its items in one line, amounts included.
     await expect(page.locator('.calm-pack .bag-group .preview').filter({ hasText: 'test_data_gtp_ Gel' })).toContainText('test_data_gtp_ Gel × 2');
     const ms = Date.now() - t0;
@@ -196,9 +200,15 @@ test('home place: the forecast chooses the weather in the dialog and for the day
 
   // The day ride takes the forecast too, and says so.
   await page.evaluate(() => window.dispatchEvent(new Event('pg:dayride')));
-  await expect(page.locator('.dayride-bar')).toContainText(T('{weather} (forecast)', { weather: T('Warm') }));
+  await expect(page.locator('.made-card')).toContainText(T('{weather} (forecast)', { weather: T('Warm') }));
   await expect.poll(async () => (await allTrips(page)).length).toBe(2);
   const ride = (await allTrips(page)).find((x) => x.id !== made.id);
   expect(ride).toMatchObject({ wx: { min: 16, max: 24, rain: 'none' }, wxFrom: 'forecast', hours: 2 });
+
+  // v0.29.2 (Noah 6a): Today stays Today on the day the trip was made (no jump to On the way).
+  await page.goto('./#/');
+  await expect(page.locator('.trip-band, .band').first()).toBeVisible();
+  await page.waitForTimeout(500);
+  expect(page.url()).not.toMatch(/#\/ride/);
   expect(errors).toEqual([]);
 });

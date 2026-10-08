@@ -229,7 +229,9 @@
   const todayText = $derived(new Date().toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }));
 
   // Ride day (answer 1a): on the days of the trip the app opens the ride view, once a day.
-  const riding = $derived(next && nextByBike ? onTripDay(next, today) : false);
+  // v0.29.2 (Noah 6a): not on the day the trip was made: then Noah is still planning or packing.
+  const madeToday = (tr) => !!tr?.createdAt && localDay(new Date(tr.createdAt)) === today;
+  const riding = $derived(next && nextByBike && !madeToday(next) ? onTripDay(next, today) : false);
   $effect(() => {
     if (!riding) return;
     const key = 'ride.autoOpened';

@@ -346,6 +346,7 @@ export default {
   '{bike}: {km} km saved.': '{bike}: {km} km gespeichert.',
   'km for a bike': 'km für ein Velo',
   'From template': 'Aus Vorlage',
+  'Start from a template': 'Aus Vorlage starten',
   'Copy the last trip': 'Letzte Tour kopieren',
   'The last trip on the bike you choose, with its bags and ready check':
     'Die letzte Tour mit dem gewählten Velo, mit Taschen und Startcheck',
