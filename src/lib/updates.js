@@ -12,6 +12,7 @@ import { loadTemplates, saveTemplates, templateFrom, TEMPLATES_KEY } from './tem
 import { templateSlot } from './gear/assign.js';
 import { SETS_KEY, addSet, allSets } from './sets.js';
 import { isInventory } from './gear.js';
+import { migrateAll, blocksRerunAfterImport, BLOCKS_MARKER } from './blocks2026.js';
 
 const now = () => new Date().toISOString();
 
@@ -389,7 +390,44 @@ export async function toolsAlways2026(db) {
   return changed;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026];
+/**
+ * v0.33.0 (finding 5, stage 2; Noah 11a): the data onto building blocks (blocks2026.js migrateAll).
+ * role 'standard' and "On every trip" → the block Standard (item.sets has 'standard'); role
+ * 'optional' → item.leaveHome; role 'worn' stays as it is. Templates get tpl.blocks. role and always
+ * stay on the item, so a backup still opens in an older version. Runs after toolsAlways2026 (which
+ * still writes always). Only changed records are written; a second run changes nothing.
+ * Returns { items, templates } (the changed IDs).
+ */
+export async function blocks2026(db) {
+  if (await db.settings.get(BLOCKS_MARKER)) return { items: [], templates: [] };
+  if (!(await db.items.count())) return { items: [], templates: [] }; // nothing imported yet
+  let res = { items: [], templates: [] };
+  await db.transaction('rw', db.items, db.settings, async () => {
+    const items = await db.items.toArray();
+    const templates = await loadTemplates(db);
+    const sets = (await db.settings.get(SETS_KEY))?.value ?? [];
+    const up = migrateAll({ items, templates, settings: { sets } }, { now: now() });
+    const changed = new Set(up.changedItems);
+    if (changed.size) await db.items.bulkPut(up.items.filter((i) => changed.has(i.id)));
+    if (up.changedTemplates.length) await saveTemplates(db, up.templates);
+    await db.settings.put(up.marker);
+    res = { items: up.changedItems, templates: up.changedTemplates };
+  });
+  return res;
+}
+
+/**
+ * v0.33.0: after a backup import (or a demo start / end), before tidyData: when the file holds data
+ * from before the update (or a "replace" brought no marker), the marker goes, so applyUpdates runs
+ * blocks2026 again on the imported data. Returns true when the marker was deleted.
+ */
+export async function blocksAfterImport(db, data, mode = 'replace') {
+  if (!blocksRerunAfterImport(data, mode).rerun) return false;
+  await db.settings.delete(BLOCKS_MARKER);
+  return true;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, blocks2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

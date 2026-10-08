@@ -8,6 +8,7 @@
  * setting or the trip.
  */
 import { isInventory } from '../gear.js';
+import { isWorn } from '../blocks2026.js';
 import { slotFor, addEntries } from '../trips.js';
 import { TEMPLATES_KEY } from '../templates.js';
 import { SETS_KEY, addSet, deleteSetPlan, renameSet, setQty } from '../sets.js';
@@ -38,7 +39,7 @@ export function withBag(items, ids, bag, now = new Date().toISOString()) {
  * tripFromTemplate later puts into the bike's matching bag (or slotFor's choice).
  */
 export function templateSlot(item, setup) {
-  if (item.role === 'worn') return 'body';
+  if (isWorn(item)) return 'body';
   const hasBags = Object.values(setup ?? {}).some(Boolean);
   return hasBags ? slotFor(item.defaultBag, setup) : item.defaultBag || 'seat';
 }
@@ -69,7 +70,7 @@ export function intoTemplate(templates, tplId, items, ids) {
 export function ontoTrip(trip, items, ids, slotOf = null, skip = new Set()) {
   const pick = pickOf(ids);
   // A trip without a bike (v0.21.0, trip.packs) puts them into its first bag.
-  const slot = slotOf ?? ((i) => (Array.isArray(trip.packs) ? trip.packs[0]?.key ?? 'body' : i.role === 'worn' ? 'body' : slotFor(i.defaultBag, trip.setup)));
+  const slot = slotOf ?? ((i) => (Array.isArray(trip.packs) ? trip.packs[0]?.key ?? 'body' : isWorn(i) ? 'body' : slotFor(i.defaultBag, trip.setup)));
   const have = new Set((trip.entries ?? []).map((e) => e.itemId));
   let entries = trip.entries ?? [];
   const added = [];

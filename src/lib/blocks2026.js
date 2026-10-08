@@ -12,8 +12,8 @@
  * older version. The helpers inStandard, isWorn and leaveHome read the old AND the new fields, so
  * they answer the same before and after the update (tests/blocks2026.test.js).
  *
- * Pure functions only: no database. Nothing in the app uses this module yet (stage 2 wires the
- * one-time update into updates.js and switches the call sites listed in design/v033/stellen.md).
+ * Pure functions only: no database. v0.33.0 (stage 2): the one-time update runs from updates.js
+ * (blocks2026, after toolsAlways2026), and every place that read role / always uses the helpers.
  */
 import { SETS, isInventory } from './gear.js';
 import { inDomain, BIKEPACKING } from './domains.js';
@@ -31,6 +31,13 @@ export const BLOCKS_MARKER = 'update.blocks2026';
  * "worn or standard" reads become isWorn(i) || inStandard(i) only where `always` is already read too.
  */
 export const inStandard = (item) => !!item && (!!item.sets?.includes(STANDARD) || item.role === 'standard' || !!item.always);
+
+/**
+ * The building blocks of an item WITHOUT Standard (the night blocks, Light, own blocks). Every
+ * place that asks "is it in a block?" (item.sets.length) uses this, so the key 'standard' never
+ * counts as an overnight set, a filter hit or a sort rank of its own.
+ */
+export const blockKeys = (item) => (Array.isArray(item?.sets) ? item.sets.filter((k) => k !== STANDARD) : []);
 
 /** Worn ("Am Körper" on screen): role 'worn', exactly as today. */
 export const isWorn = (item) => !!item && item.role === 'worn';

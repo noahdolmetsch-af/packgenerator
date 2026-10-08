@@ -13,6 +13,7 @@
 import { layerSuggest, rainOf } from './layers.js';
 import { contextSets } from './context.js';
 import { allSets } from './sets.js';
+import { blockKeys } from './blocks2026.js';
 import { t, num } from './i18n.svelte.js';
 
 /** Riding hours per day and days of a trip. */
@@ -76,7 +77,7 @@ export function rowReasons(trip, items, setsValue = []) {
     const amount = amountReason(item, trip, e.qty || 1);
     if (amount) parts.push(amount.text);
     if (e.src === 'context' || e.src === 'set') {
-      const keys = (item.sets ?? []).filter((k) => (e.src === 'context' ? night.includes(k) : true));
+      const keys = blockKeys(item).filter((k) => (e.src === 'context' ? night.includes(k) : true));
       // v0.28.0 (AP25): first aid comes with the night, and the line says so.
       const aid = e.src === 'context' && keys.includes('firstaid');
       const rest = aid ? keys.filter((k) => k !== 'firstaid') : keys;

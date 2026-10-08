@@ -4,9 +4,9 @@
 // edge set, the packing list of a new trip is computed with today's functions (dayride.js
 // buildBikeTrip = trips.js newTrip/standardEntries/alwaysEntries + templates.js tripFromTemplate +
 // context.js contextTrip/applyContext + layers.js), once on the data as it is and once after
-// migrateAll. They must be equal. The lists are also kept as a snapshot
-// (tests/golden/blocks2026.lists.json): stage 2 switches the call sites to the helpers
-// (inStandard, isWorn, leaveHome) and this test proves the lists stay the same.
+// migrateAll. They must be equal. The lists of v0.32.0 are kept as a FROZEN snapshot
+// (tests/golden/blocks2026.lists.json, no longer written): stage 2 switched the call sites to the helpers
+// (inStandard, isWorn, leaveHome) and this test proves the lists stay the same, 11a apart (see below).
 //
 // Item-level answers that depend on item.sets (not on role/always) are compared too: there the
 // new 'standard' key DOES change answers today; those differences are kept as a snapshot
@@ -65,7 +65,7 @@ import { templateFrom, templateDefaults } from '../src/lib/templates.js';
 import { startEntries, contextSummary, NIGHT_ONLY } from '../src/lib/context.js';
 import { layerSuggest, layerOf } from '../src/lib/layers.js';
 import { DOMAINS, BIKEPACKING, newPackTrip, domainEntries, packsFor, packSlot } from '../src/lib/domains.js';
-import { matches, weighPriority } from '../src/lib/gear.js';
+import { matches, weighPriority, isInventory } from '../src/lib/gear.js';
 import { alwaysKeep } from '../src/lib/learn.js';
 import { tripSlot } from '../src/lib/sets.js';
 import { templateSlot } from '../src/lib/gear/assign.js';
@@ -260,27 +260,103 @@ describe('golden: the same packing lists before and after blocks2026', () => {
   }
 });
 
-describe('golden snapshot for stage 2', () => {
-  it('lists, template blocks and the known side effects of sets: standard', async () => {
-    const snap = Object.fromEntries(Object.entries(RESULTS).map(([name, r]) => [name, {
-      changedItems: r.up.changedItems,
-      templateBlocks: Object.fromEntries(r.up.templates.map((t) => [t.id, t.blocks])),
-      lists: r.listsBefore,
-      // where today's code reads item.sets and the new 'standard' key changes the answer:
-      // stage 2 must make these sites ignore 'standard' (or switch them to the helpers)
-      sideEffects: diffAnswers(r.answersBefore, r.answersAfter),
-      // 11a: "Standard comes into every new trip". Today role 'standard' items only come with
-      // the start "Standard". What a template / copy start would gain when stage 2 uses
-      // inStandard in alwaysEntries (an intended change, not checked above):
-      gain11a: (() => {
-        const std = r.before.items.filter((i) => inStandard(i) && i.ownership !== 'wishlist' && (i.domains ?? ['bikepacking']).includes('bikepacking') && ['owned', 'unclear'].includes(i.ownership)).map((i) => i.id);
-        const has = (list) => new Set(list.map((s) => s.split('@')[0]));
-        // a trip without a night never carries first aid (context.js NIGHT_ONLY), also from Standard
-        const night = (id) => r.before.items.find((i) => i.id === id)?.sets?.some((s) => NIGHT_ONLY.includes(s));
-        const missing = (key, noNight = false) => std.filter((id) => !has(r.listsBefore[key]).has(id) && !(noNight && night(id))).sort();
-        return { template: missing('template'), copyDayRide: missing('copyDayRide', true), copyNoContext: missing('copyNoContext') };
-      })(),
-    }]));
-    await expect(JSON.stringify(snap, null, 2) + '\n').toMatchFileSnapshot('./golden/blocks2026.lists.json');
+/*
+ * v0.33.0 (stage 2): the snapshot tests/golden/blocks2026.lists.json is now FROZEN: it holds the
+ * lists of v0.32.0 (written by the preparation from today's functions before stage 2). Stage 2 must
+ * give the same lists, except where Noah's 11a ("Standard comes into every new trip") changes them on
+ * purpose: a template or copy start gains the Standard items it lacked (gain11a), and a Standard
+ * item that the night brought before now comes as Standard (same place, same amount, without the
+ * mark src 'context'). Those 11a lists have their own test below (blocks2026 11a).
+ */
+const REF = JSON.parse(readFileSync(new URL('./golden/blocks2026.lists.json', import.meta.url), 'utf8'));
+/** The lists that start from a template or a copy, or that read alwaysEntries alone: 11a changes them. */
+// standardEntriesRaw: trips.js standardEntries now holds all of Standard (also the old "On every
+// trip"); only newTrip calls it, right before alwaysEntries, so the whole new-trip lists stay the same.
+const KEYS_11A = ['template', 'templateOutdoor', 'copyDayRide', 'copyOutdoor', 'copyNoContext', 'alwaysEntriesRaw', 'standardEntriesRaw'];
+const idOf = (s) => s.split('@')[0];
+const noSrc = (s) => s.replace(/:context$/, '');
+
+/**
+ * What 11a changed in one list: { added (item IDs), fromStandard (IDs that lost the mark
+ * 'context'), other (any other difference: must be empty) }.
+ */
+function diff11a(ref, now) {
+  const refIds = new Set(ref.map(idOf));
+  const added = now.filter((s) => !refIds.has(idOf(s)));
+  const kept = now.filter((s) => refIds.has(idOf(s)));
+  const fromStandard = ref.filter((s) => s.endsWith(':context') && kept.includes(noSrc(s))).map(idOf);
+  const refNorm = ref.map((s) => (fromStandard.includes(idOf(s)) ? noSrc(s) : s)).sort();
+  const other = JSON.stringify(refNorm) === JSON.stringify([...kept].sort()) ? [] : [refNorm, kept];
+  return { added: added.map(idOf).sort(), addedRows: added, fromStandard, other };
+}
+
+describe('stage 2: every packing list as in v0.32.0 (frozen snapshot), 11a apart', () => {
+  for (const [name, r] of Object.entries(RESULTS)) {
+    describe(name, () => {
+      for (const key of Object.keys(REF[name].lists).filter((k) => !KEYS_11A.includes(k))) {
+        it(`${key}: as in v0.32.0`, () => {
+          expect(r.listsAfter[key]).toEqual(REF[name].lists[key]);
+          expect(r.listsBefore[key]).toEqual(REF[name].lists[key]);
+        });
+      }
+
+      it('the update changes the same items and gives the same template blocks', () => {
+        expect(r.up.changedItems).toEqual(REF[name].changedItems);
+        expect(Object.fromEntries(r.up.templates.map((t) => [t.id, t.blocks]))).toEqual(REF[name].templateBlocks);
+      });
+
+      it('the key standard on item.sets moves nothing any more (gear filters, weighPriority, layerOf, …)', () => {
+        // In the preparation these answers moved (REF sideEffects); stage 2 reads blockKeys / the helpers.
+        expect(Object.keys(REF[name].sideEffects).length).toBeGreaterThan(0);
+        expect(diffAnswers(r.answersBefore, r.answersAfter)).toEqual({});
+      });
+    });
+  }
+});
+
+describe('blocks2026 11a: Standard comes into every new trip (an intended change)', () => {
+  for (const [name, r] of Object.entries(RESULTS)) {
+    describe(name, () => {
+      const stdIds = new Set(r.after.items.filter((i) => inStandard(i)).map((i) => i.id));
+      const byId = new Map(r.after.items.map((i) => [i.id, i]));
+
+      for (const key of KEYS_11A) {
+        it(`${key}: only Standard items are added, nothing else changes`, () => {
+          const d = diff11a(REF[name].lists[key], r.listsAfter[key]);
+          expect(d.other).toEqual([]);
+          for (const id of [...d.added, ...d.fromStandard]) expect([id, stdIds.has(id)]).toEqual([id, true]);
+          // an added Standard item goes to its usual place, once
+          for (const row of d.addedRows) expect(row).toMatch(/x1$/);
+          expect(r.listsBefore[key]).toEqual(r.listsAfter[key]);
+        });
+      }
+
+      it('template and copy starts gain exactly the Standard items of the snapshot (gain11a)', () => {
+        const gain = (key) => diff11a(REF[name].lists[key], r.listsAfter[key]).added;
+        expect(gain('template')).toEqual(REF[name].gain11a.template);
+        expect(gain('copyDayRide')).toEqual(REF[name].gain11a.copyDayRide);
+        expect(gain('copyNoContext')).toEqual(REF[name].gain11a.copyNoContext);
+      });
+
+      it('every Standard item of the area is on every template and copy start now', () => {
+        const ok = (i) => isInventory(i) && (i.domains ?? ['bikepacking']).includes('bikepacking');
+        for (const key of ['template', 'templateOutdoor', 'copyOutdoor', 'copyNoContext']) {
+          const has = new Set(r.listsAfter[key].map(idOf));
+          const lacking = [...stdIds].filter((id) => ok(byId.get(id)) && !has.has(id));
+          expect([key, lacking]).toEqual([key, []]);
+        }
+      });
+    });
+  }
+
+  it('the expected difference in numbers: pf-fixture gains, fixture.json and the edge set do not', () => {
+    const n = (name, key) => diff11a(REF[name].lists[key], RESULTS[name].listsAfter[key]).added.length;
+    expect(n('pf', 'template')).toBe(5);
+    expect([n('pf', 'copyDayRide'), n('pf', 'copyNoContext')]).toEqual([REF.pf.gain11a.copyDayRide.length, REF.pf.gain11a.copyNoContext.length]);
+    expect(REF.pf.gain11a.copyDayRide.length + REF.pf.gain11a.copyNoContext.length).toBeGreaterThan(0);
+    for (const key of ['template', 'copyDayRide', 'copyNoContext']) {
+      expect(n('fixture', key)).toBe(0);
+      expect(n('edge', key)).toBe(0);
+    }
   });
 });

@@ -3,8 +3,8 @@
    * v0.26.0 (Noah 2a/2b, AP10): building blocks (code: item sets) on their own page, #/blocks.
    * v0.32.0 (finding 5, stage 1): the blocks in 3 groups, each card with "when it comes" and the
    * names of its items:
-   *   - Always with you: the block "Standard" (in stage 1 still the items with the old role worn or
-   *     standard pack, or "On every trip"; changed in the item dialog under "Comes along");
+   *   - Always with you: the block "Standard" (v0.33.0: item.sets has 'standard', or the old role /
+   *     "On every trip", plus the items On me; changed in the item dialog under "Comes along");
    *   - With the night: the blocks the overnight stay brings by itself (context.js CONTEXT_SETS);
    *   - To add: Light and your own blocks, one tap in "New trip" or in Pack's "Add material".
    * The rows and the changes (amount, remove, add items, rename, delete) fold away under "Change".
@@ -34,7 +34,7 @@
   const nightCards = $derived(CONTEXT_SETS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
   const addCards = $derived(cards.filter((c) => c.kind === 'add'));
   const tplCount = $derived(($tplQ?.value ?? []).length);
-  // The block "Standard" (stage 1: read from the old fields, nothing is stored for it).
+  // The block "Standard" (v0.33.0: the key 'standard' on item.sets, read with the old fields; On me shows in it).
   const standard = $derived.by(() => {
     const its = items.filter((i) => isInventory(i) && comesOf(i).standard);
     const { g, missing } = sumKnown(its.map(itemWeight));

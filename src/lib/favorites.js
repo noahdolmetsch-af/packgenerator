@@ -11,6 +11,7 @@
  * Pure functions; the Data panel writes the result.
  */
 import { nextId } from './gear.js';
+import { isWorn } from './blocks2026.js';
 
 export const FAVORITES = 'favorites-tested-bikepacking-gear';
 
@@ -78,6 +79,6 @@ export function planFavorites(data, items, now = new Date().toISOString()) {
 export function favoritesTemplate(items, { id = FAVORITES, name = FAVORITES, now = new Date().toISOString() } = {}) {
   const entries = items
     .filter((i) => i.favorite && i.ownership !== 'wishlist' && i.ownership !== 'to-buy' && i.ownership !== 'gone' && i.category !== 'bags')
-    .map((i) => ({ itemId: i.id, slot: i.role === 'worn' || i.defaultBag === 'body' ? 'body' : i.category === 'bike' ? 'mounted' : i.defaultBag || 'seat', qty: i.qty || 1 }));
+    .map((i) => ({ itemId: i.id, slot: isWorn(i) || i.defaultBag === 'body' ? 'body' : i.category === 'bike' ? 'mounted' : i.defaultBag || 'seat', qty: i.qty || 1 }));
   return { id, name, setup: {}, entries, ready: [], ride: null, hours: null, sets: {}, purpose: {}, fromTrip: null, updatedAt: now };
 }

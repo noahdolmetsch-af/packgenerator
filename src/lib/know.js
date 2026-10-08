@@ -19,6 +19,7 @@
  *   9  "Set your home place" (the one card without data: the way to set it up)
  */
 import { isInventory, isConsumable } from './gear.js';
+import { inStandard, isWorn } from './blocks2026.js';
 import { CHECK_KM, CHECK_PARTS, kmSince, partInfo, PART } from './care.js';
 import { costByYear } from './workshop.js';
 import { isOver, tripEnd, templateHints } from './debrief.js';
@@ -250,7 +251,7 @@ export function longUnused(items = [], trips = [], bikes = [], containers = [], 
   const fixtures = new Set(bikes.flatMap((b) => b.fixtures ?? []));
   const bags = new Set(containers.map((c) => c.itemId).filter(Boolean));
   const list = items
-    .filter((i) => isInventory(i) && !isConsumable(i) && i.category !== 'bike' && i.role !== 'worn' && i.role !== 'standard' && !i.always && !fixtures.has(i.id) && !bags.has(i.id) && !used.has(i.id))
+    .filter((i) => isInventory(i) && !isConsumable(i) && i.category !== 'bike' && !isWorn(i) && !inStandard(i) && !fixtures.has(i.id) && !bags.has(i.id) && !used.has(i.id))
     .sort((a, b) => (b.weightG ?? 0) * (b.qty || 1) - (a.weightG ?? 0) * (a.qty || 1) || a.name.localeCompare(b.name));
   return {
     items: list,

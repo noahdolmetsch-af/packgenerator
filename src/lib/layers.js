@@ -16,6 +16,7 @@
  */
 import { isInventory } from './gear.js';
 import { t } from './i18n.svelte.js';
+import { inStandard, isWorn, blockKeys } from './blocks2026.js';
 
 export const RIDES = [
   { key: 'every', name: 'Every ride' },
@@ -69,7 +70,7 @@ export function layerSuggest(trip, items) {
       const rain = rainOf(i);
       rows.push({ id: i.id, why: t(RAIN_ITEM[rain] ?? 'Rain'), place: 'pack', qty, optional: rain === 'optional' });
       rankOf.set(rows.at(-1), 4 + (rain === 'optional' ? 0.5 : 0));
-    } else if (qty > 1 && (i.role === 'worn' || i.role === 'standard')) {
+    } else if (qty > 1 && (isWorn(i) || inStandard(i))) {
       // Every-ride food and drink: more pieces on a longer ride.
       rows.push({ id: i.id, why: t('1 per {n} h', { n: i.perHours }), place: i.defaultBag === 'body' ? 'wear' : 'pack', qty, optional: false });
       rankOf.set(rows.at(-1), 2.5);
@@ -125,12 +126,12 @@ export function applyLayers(entries, rows, slotOf) {
 
 /** The layer an item belongs to, for the inventory check order and its heading. */
 export function layerOf(item) {
-  if (item.role === 'worn' || item.role === 'standard') return { rank: 0, name: t('Every ride') };
+  if (isWorn(item) || inStandard(item)) return { rank: 0, name: t('Every ride') };
   if (item.ride === 'daily') return { rank: 1, name: t('Daily ride') };
   if (item.ride === 'training') return { rank: 2, name: t('Training ride') };
   if (typeof item.coldBelow === 'number') return { rank: 3 + (40 - item.coldBelow) / 100, name: t('Below {n} °C', { n: item.coldBelow }) };
   if (item.rain) return { rank: 4, name: t('Rain') };
-  if (item.sets?.length) return { rank: 5, name: t('Building blocks with the night') };
+  if (blockKeys(item).length) return { rank: 5, name: t('Building blocks with the night') };
   return { rank: 6, name: t('Everything else') };
 }
 
