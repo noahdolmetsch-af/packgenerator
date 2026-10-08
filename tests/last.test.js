@@ -4,7 +4,7 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { shopSkip, lastWork, lastWorkByPart, lastLine, usualBy, partStatus, isDueState, yearSummary, groupOf, GROUPS, workWords } from '../src/lib/care/last.js';
 import { ensureParts, logPart, PARTS } from '../src/lib/care.js';
 import { withVisits, timeDue, workshopOrder } from '../src/lib/workshop.js';
-import { lang } from '../src/lib/i18n.svelte.js';
+import { lang, num } from '../src/lib/i18n.svelte.js';
 
 afterEach(() => (lang.v = 'en'));
 
@@ -45,7 +45,7 @@ describe('last work per part', () => {
     expect(workWords('wheels', e('2026-06-10', { action: 'replace', result: 'done' }))).toBe('done');
     lang.v = 'de';
     const chain = part('chain', [e('2026-09-08', { action: 'service', result: 'done', km: 4700 }), e('2026-09-29', { value: 0.4 })]);
-    expect(lastLine('chain', lastWork(chain))).toEqual(['gewachst 8. Sept. 2026', '4’700 km', 'gemessen 0.4 % am 29. Sept. 2026']);
+    expect(lastLine('chain', lastWork(chain))).toEqual(['gewachst 8. Sept. 2026', `${num(4700)} km`, 'gemessen 0.4 % am 29. Sept. 2026']);
   });
 
   it('knows who usually does the work', () => {
