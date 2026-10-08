@@ -1,13 +1,23 @@
 <script>
   import { localDay } from '../localday.js';
   import { partInfo, wear, replaceHint, kmSince, lastReplace, EXTRA } from '../care.js';
-  import { t, num as fmtNum } from '../i18n.svelte.js';
+  import { t, num as fmtNum, dateOf } from '../i18n.svelte.js';
+  import { UserRound, Store } from '@lucide/svelte';
 
   /**
    * One part of a bike: measure it, say how it is, see everything that was done to it.
    * onlog(entry) stores a new history entry; the page decides the rest (wishlist, km).
    */
-  let { part, bike, by, onlog, onclose } = $props();
+  let { part, bike, by = 'self', onby, onlog, onclose } = $props();
+
+  // v0.31.0 (answer 10a): who did the work is chosen here (me / bike shop), not at the top of the
+  // page; the last choice is preselected and remembered (onby).
+  // svelte-ignore state_referenced_locally
+  let who = $state(by === 'shop' ? 'shop' : 'self');
+  function pick(v) {
+    who = v;
+    onby?.(v);
+  }
 
   // svelte-ignore state_referenced_locally
   const p = partInfo(part);
@@ -41,7 +51,7 @@
       value: v,
       action,
       result,
-      by,
+      by: who,
       model: model.trim() || null,
       note: note.trim(),
       ...extras,
@@ -76,20 +86,26 @@
   </div>
   <p class="err" role="alert">{error}</p>
   {#if hint}<p class="warnbox soft">{hint}</p>{/if}
+  <div class="who" role="group" aria-labelledby="who-l">
+    <span class="lbl" id="who-l">{t('Done by')}</span>
+    <span class="seg">
+      <button type="button" aria-pressed={who === 'self'} onclick={() => pick('self')}><UserRound size={16} aria-hidden="true" />{t('me|by')}</button>
+      <button type="button" aria-pressed={who === 'shop'} onclick={() => pick('shop')}><Store size={16} aria-hidden="true" />{t('bike shop|by')}</button>
+    </span>
+  </div>
   <div class="foot">
     <button type="button" class="btn" onclick={() => log('check', 'ok')}>{t('OK')}</button>
     <button type="button" class="btn" onclick={() => log('check', 'needed')}>{t('Replace or work needed')}</button>
     <button type="button" class="btn hi" onclick={() => log('replace', 'done')}>{t('Replaced or done')}</button>
     {#if p.service}<button type="button" class="btn" onclick={() => log('service', 'done')}>{t(p.service)}</button>{/if}
   </div>
-  <p class="by">{by === 'shop' ? t('Done by the bike shop (change at the top of Bike care)') : t('Done by me (change at the top of Bike care)')}</p>
 
   <h3>{t('History')}</h3>
   {#if part.history?.length}
     <ol class="hist">
       {#each [...part.history].reverse() as h, n (n)}
         <li>
-          <span class="num">{h.date}{h.km != null ? ` · ${fmtNum(h.km)} km` : ''}</span>
+          <span class="num">{dateOf(h.date)}{h.km != null ? ` · ${fmtNum(h.km)} km` : ''}</span>
           <b>{t(h.action === 'check' ? RESULT[h.result] : h.action === 'replace' && !p.unit ? 'Done' : ACTION[h.action])}{h.value != null ? ` · ${h.value} ${p.unit}` : ''}</b>
           <span class="m">{[h.model, ...Object.keys(EXTRA).filter((k) => h[k] != null).map((k) => `${t(EXTRA[k].name.toLowerCase())} ${h[k]} ${EXTRA[k].unit}`), h.by === 'shop' ? t('bike shop') : h.by === 'self' ? t('me') : '', h.note, h.chf ? `CHF ${h.chf.toFixed(2)}` : ''].filter(Boolean).join(' · ')}</span>
         </li>
@@ -116,8 +132,7 @@
     margin: 18px 0 6px;
     font-size: 16px;
   }
-  .hint,
-  .by {
+  .hint {
     font-size: 14px;
     color: var(--ink-3);
     margin: 0 0 8px;
@@ -169,6 +184,41 @@
     background: var(--hi-soft);
     padding: 8px 10px;
     font-size: 14px;
+  }
+  .who {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    margin: 4px 0;
+  }
+  .who .lbl {
+    margin: 0;
+  }
+  .seg {
+    display: inline-flex;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .seg button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 6px 16px;
+    border: 0;
+    background: var(--paper);
+    font: 600 15px var(--font-body);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .seg button + button {
+    border-left: 1px solid var(--line);
+  }
+  .seg button[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
   }
   .foot {
     display: flex;

@@ -306,15 +306,18 @@ export function priceFor(visits, bikeId, key, action = 'service') {
  * trip, what is due today), with a price from the receipts where one is known.
  * bike: from withVisits. Returns { rows, total, unknown, shop } with
  * rows: [{ key, name, de, detail, when, chf, from }]. Open repairs of the bike come last, without a price.
- * Waxing the chain is left out: that is done at home.
+ * Waxing the chain is left out: that is done at home. Option skip(key): true leaves that job out
+ * (v0.31.0: what the owner usually does himself, see care/last.js shopSkip).
  */
-export function workshopOrder(bike, trip, tasks = [], visits = [], setup = { front: null, rear: null }, today = localDay()) {
+export function workshopOrder(bike, trip, tasks = [], visits = [], setup = { front: null, rear: null }, today = localDay(), { skip = null } = {}) {
   if (!bike) return null;
   const due = trip?.startDate && today <= addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1)
     ? bikeDue(bike, trip, setup, today, addDays(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1))
     : bikeDue(bike, { startDate: today, days: 1 }, setup, today, today);
   // Waxing the chain every 150 km is done at home, not in the shop.
-  const rows = due.rows.filter((r) => !(r.key === 'chain' && !r.worn)).map((r) => {
+  // v0.31.0 (proposal 3/4): skip(key) leaves out the jobs the owner usually does himself
+  // (part keys, 'check' for the 1000 km check); open repairs always stay.
+  const rows = due.rows.filter((r) => !(r.key === 'chain' && !r.worn) && !skip?.(r.key)).map((r) => {
     const action = r.worn ? 'replace' : r.key === 'check' ? 'check' : 'service';
     const price = priceFor(visits, bike.id, r.key, action);
     const de = r.worn ? `${DE[r.key] ?? r.key} prüfen, wenn nötig ersetzen` : r.key === 'chain' ? 'Kette wachsen' : DE[r.key] ?? r.name;
