@@ -34,7 +34,7 @@
           <h2 class="title">{bag} <small>{its.length}</small></h2>
           <ul>
             {#each its as [name, qty, g], i (i)}
-              <li><span class="box" aria-hidden="true"></span><span class="nm">{name}{#if qty > 1}<b> × {qty}</b>{/if}</span><span class="w num">{g == null ? '' : formatWeight(g)}</span></li>
+              <li><span class="box" aria-hidden="true"></span><span class="nm">{name}{#if qty > 1}<b>{` × ${qty}`}</b>{/if}</span><span class="w num">{g == null ? '' : formatWeight(g)}</span></li>
             {/each}
           </ul>
         </section>

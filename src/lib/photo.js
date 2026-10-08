@@ -17,7 +17,14 @@ export function fitSize(w, h, max = PHOTO_MAX) {
 /** Read an image file, shrink it and return a JPEG data URL. Needs a browser. */
 export async function shrinkImage(file, max = PHOTO_MAX, quality = 0.82) {
   if (!file.type.startsWith('image/')) throw new Error(t('Please choose a photo (JPG, PNG or HEIC as JPG).'));
-  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  // v0.27.0 (Noah 1a, AP22): a broken or unreadable image (or a format this browser cannot open)
+  // gives a plain message instead of the browser's English error text.
+  let bitmap;
+  try {
+    bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch {
+    throw new Error(t('This photo could not be read. Please choose a JPG or PNG.'));
+  }
   const { w, h } = fitSize(bitmap.width, bitmap.height, max);
   const canvas = document.createElement('canvas');
   canvas.width = w;

@@ -44,6 +44,38 @@ export function countRows(data) {
   return Object.fromEntries(DATA_TABLES.map((t) => [t, data.tables?.[t]?.length ?? 0]));
 }
 
+/** The field that identifies a record in each table (see db.js); "id" when not listed. */
+export const KEY_OF = { debriefs: 'tripId', settings: 'key' };
+
+/**
+ * v0.27.0 (Noah 1a, AP22): what an import would do, shown BEFORE it runs.
+ * existing: { table: [keys of the records on this device] }.
+ * Returns {
+ *   now:  records on this device, file: records in the file,
+ *   lost: records only on this device ("Replace all data" deletes them),
+ *   same: records with an ID in both (the file's version wins in both modes),
+ *   added: records only in the file,
+ *   nowTrips, lostTrips: the same for trips, the records that matter most.
+ * }
+ */
+export function importImpact(data, existing) {
+  const out = { now: 0, file: 0, lost: 0, same: 0, added: 0, nowTrips: 0, lostTrips: 0 };
+  for (const name of DATA_TABLES) {
+    const mine = new Set(existing?.[name] ?? []);
+    const key = KEY_OF[name] ?? 'id';
+    const theirs = new Set((data?.tables?.[name] ?? []).map((r) => r?.[key]));
+    let same = 0;
+    for (const k of theirs) if (mine.has(k)) same++;
+    out.now += mine.size;
+    out.file += theirs.size;
+    out.same += same;
+    out.added += theirs.size - same;
+    out.lost += mine.size - same;
+    if (name === 'trips') (out.nowTrips = mine.size), (out.lostTrips = mine.size - same);
+  }
+  return out;
+}
+
 /**
  * Write a backup into the database.
  *

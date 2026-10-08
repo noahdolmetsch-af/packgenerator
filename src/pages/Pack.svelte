@@ -24,7 +24,7 @@
   import TripRoute from '../lib/pack/TripRoute.svelte';
   import BikeChoice from '../lib/pack/BikeChoice.svelte';
   import { bikeChoice } from '../lib/choice.js';
-  import { sharePayload, shareLink } from '../lib/share.js';
+  import { sharePayload, shareLink, SHARE_LONG } from '../lib/share.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { SETS_KEY, allSets, addSetEntries, tripSlot } from '../lib/sets.js';
   import { bikePhotos, packPhoto } from '../lib/photo.js';
@@ -173,15 +173,26 @@
   // Answer 14: the list as a link (the list travels inside the address, nothing is uploaded).
   let shareNote = $state('');
   async function shareList() {
-    const url = await shareLink(sharePayload($state.snapshot(trip), stats, itemsById));
+    // v0.27.0 (Noah 1a, AP22): a link that cannot be made says so; a very long one gets a hint.
+    let url;
     try {
-      if (navigator.share && phone.matches) await navigator.share({ title: t('Packing list: {title}', { title: trip.title }), url });
-      else {
+      url = await shareLink(sharePayload($state.snapshot(trip), stats, itemsById));
+    } catch {
+      shareNote = t('The link could not be made in this browser. Use Print / PDF instead.');
+      setTimeout(() => (shareNote = ''), 8000);
+      return;
+    }
+    const long = url.length > SHARE_LONG ? ` ${t('The list is long ({n} characters); some apps cut long links. Print / PDF is safer.', { n: url.length })}` : '';
+    try {
+      if (navigator.share && phone.matches) {
+        await navigator.share({ title: t('Packing list: {title}', { title: trip.title }), url });
+        shareNote = long.trim();
+      } else {
         await navigator.clipboard.writeText(url);
-        shareNote = t('Link copied. Paste it into a message; it opens a read-only list.');
+        shareNote = t('Link copied. Paste it into a message; it opens a read-only list.') + long;
       }
     } catch (err) {
-      if (err?.name !== 'AbortError') shareNote = t('Copy this link: {url}', { url });
+      if (err?.name !== 'AbortError') shareNote = t('Copy this link: {url}', { url }) + long;
     }
     setTimeout(() => (shareNote = ''), 8000);
   }

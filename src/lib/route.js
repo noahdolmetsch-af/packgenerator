@@ -29,6 +29,19 @@ export function parseGpx(text) {
 
 const decode = (s) => s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'");
 
+/**
+ * v0.27.0 (Noah 1a, AP22): a GPX file from the file picker → the numbers to store, or an Error
+ * with a plain message. A file over GPX_MAX_MB is refused before it is read (a phone would hang),
+ * an empty or wrong file says why. Nothing is stored here; the caller stores only on success.
+ */
+export const GPX_MAX_MB = 25;
+export async function readGpxFile(file) {
+  if (!file) return null;
+  if (file.size > GPX_MAX_MB * 1024 * 1024) throw new Error(t('This file is too big for a GPX route (more than {mb} MB).', { mb: GPX_MAX_MB }));
+  if (!file.size) throw new Error(t('This file is empty.'));
+  return routeStats(parseGpx(await file.text()), file.name);
+}
+
 /** Distance between two points in km (haversine). */
 export function distKm(a, b) {
   const R = 6371;

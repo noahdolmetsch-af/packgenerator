@@ -333,4 +333,7 @@ export default {
   'Take {name} next time': '{name} nächstes Mal mitnehmen',
   'Add "{q}" as new (not in your gear)': '«{q}» neu hinzufügen (nicht in deiner Ausrüstung)',
   'in your gear': 'in deiner Ausrüstung',
+  // v0.27.0 (Noah 1a, AP22): GPX errors.
+  "This file is too big for a GPX route (more than {mb} MB).": "Diese Datei ist zu gross für eine GPX-Route (mehr als {mb} MB).",
+  "This file is empty.": "Diese Datei ist leer.",
 };

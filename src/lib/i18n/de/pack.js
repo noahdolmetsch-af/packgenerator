@@ -583,4 +583,8 @@ export default {
   '{n} items of {block} added.': '{n} Teile von {block} hinzugefügt.',
   'Add {block}: {n} item': '{block} hinzufügen: {n} Teil',
   'Add {block}: {n} items': '{block} hinzufügen: {n} Teile',
+  // v0.27.0 (Noah 1a, AP22): place search down, share link.
+  "The place search is not answering. Try again later.": "Die Ortssuche antwortet nicht. Versuch es später nochmals.",
+  "The link could not be made in this browser. Use Print / PDF instead.": "Der Link konnte in diesem Browser nicht erstellt werden. Nimm stattdessen Drucken / PDF.",
+  "The list is long ({n} characters); some apps cut long links. Print / PDF is safer.": "Die Liste ist lang ({n} Zeichen); manche Apps kürzen lange Links. Drucken / PDF ist sicherer.",
 };

@@ -54,6 +54,12 @@ export async function decodeShare(text) {
   }
 }
 
+/**
+ * v0.27.0 (Noah 1a, AP22): above this many characters a link is "long": it still works in the
+ * browser, but some chat apps and mail programs cut it, so Pack adds a hint to use Print / PDF.
+ */
+export const SHARE_LONG = 4000;
+
 /** The whole link for a list. */
 export async function shareLink(obj, base = `${location.origin}${location.pathname}`) {
   return `${base}#/share/${await encodeShare(obj)}`;

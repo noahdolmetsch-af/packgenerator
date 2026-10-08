@@ -485,4 +485,9 @@ export default {
   '{n} hint': '{n} Hinweis',
   '{n} hints': '{n} Hinweise',
   '{n} still open': '{n} noch offen',
+  // v0.27.0 (Noah 1a, AP22): photo errors, import preview.
+  "This photo could not be read. Please choose a JPG or PNG.": "Dieses Foto konnte nicht gelesen werden. Bitte wähle ein JPG oder PNG.",
+  "Replace all data: deletes everything on this device ({now} records, trips: {trips}) and puts the file in its place ({file} records).": "Alle Daten ersetzen: löscht alles auf diesem Gerät ({now} Einträge, davon Touren: {trips}) und setzt die Datei an seine Stelle ({file} Einträge).",
+  "Only on this device, so lost with Replace: {lost} records (trips: {lostTrips}).": "Nur auf diesem Gerät, also mit Ersetzen verloren: {lost} Einträge (davon Touren: {lostTrips}).",
+  "Merge: new from the file: {added}; same ID, overwritten by the file: {same}; nothing is deleted.": "Zusammenführen: neu aus der Datei: {added}; gleiche ID, von der Datei überschrieben: {same}; nichts wird gelöscht.",
 };
