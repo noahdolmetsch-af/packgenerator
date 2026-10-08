@@ -119,13 +119,14 @@ export async function fetchHomeForecast(place, { fetcher = globalThis.fetch?.bin
 
 /**
  * Everything a day ride needs, without a dialog (Noah 1a):
- * the newest day ride gives bike, hours and weather; else the bike of the last trip (or the first
- * bike), 2 h and "Chilly". forecastWx (from forecastPreset) wins over the old weather.
+ * the bike of the last trip by bike (or the first bike); the newest day ride gives hours and
+ * weather, else 2 h and "Chilly". The list is the standard set plus the weather (v0.29.2, Noah 5a). forecastWx (from forecastPreset) wins over the old weather.
  * → { bike, hours, wx, wxFrom, startDate, title, source } or null without a bike.
  */
 export function dayRidePlan(trips = [], bikes = [], { now = new Date(), forecastWx = null } = {}) {
   const source = daySource(trips);
-  const bike = bikes.find((b) => b.id === source?.bikeId) ?? bikes.find((b) => b.id === lastBikeId(trips, bikes)) ?? null;
+  // v0.29.2 (Noah 5a): the bike of the last trip by bike (was: of the last day ride)
+  const bike = bikes.find((b) => b.id === lastBikeId(trips, bikes)) ?? null;
   if (!bike) return null;
   const hours = Number(source?.hours) > 0 ? Number(source.hours) : DAY_HOURS;
   const chilly = WX_PRESETS.find((p) => p.name === DAY_WX);

@@ -26,6 +26,8 @@ test('review, apply, edit and pack a tour', async ({ page, context }) => {
   const list = page.locator('.calm-pack');
   // v0.29.0 (Noah 5a): the bags start folded; open them all.
   const openAll = async () => {
+    // after a reload the bags may not be drawn yet: wait for them first (CI was faster than the page)
+    await expect(list.locator('button.bag-heading').first()).toBeVisible();
     const heads = list.locator('button.bag-heading[aria-expanded="false"]');
     for (let n = await heads.count(); n > 0; n--) await heads.first().click();
   };

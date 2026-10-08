@@ -568,7 +568,12 @@ export default {
   '{weather}, showers': '{weather}, Schauer',
   'from forecast': 'aus Prognose',
   'From the forecast for {place}': 'Aus der Wetterprognose für {place}',
-  'Day ride created: {bike} · {hours} h · {weather}.': 'Tagestour erstellt: {bike} · {hours} h · {weather}.',
+  // v0.29.2 (Noah 4a): the green card after a new trip says what was made and where it is.
+  'Day ride created': 'Tagestour erstellt',
+  'Trip created': 'Tour erstellt',
+  '{hours} h · {weather}': '{hours} h · {weather}',
+  'You find it under Trips and at the top of Today.': 'Du findest sie unter Touren und oben auf Heute.',
+  'Undo: delete this new trip': 'Rückgängig: diese neue Tour löschen',
   '{weather} (forecast)': '{weather} (Prognose)',
   // v0.26.1 (AP17, Noah 14a/15b): suggested places on an outdoor trip, litres only when all are known.
   'Suggested places': 'Vorgeschlagene Packorte',

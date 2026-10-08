@@ -170,7 +170,11 @@ async function openNewTrip(page, rec, start = 'standard') {
   const plan = page.getByRole('dialog', { name: T('Plan a new trip') });
   if (start === 'standard') await rec.click(plan.getByRole('button', { name: T('Standard set') }));
   else if (start === 'last') await rec.click(plan.getByRole('button', { name: T('Copy the last trip') }));
-  else await rec.click(plan.getByRole('button', { name: new RegExp(esc(start)) }));
+  else {
+    // v0.29.2 (Noah 7a): the templates are folded under "Start from a template".
+    await rec.click(plan.getByText(T('Start from a template')));
+    await rec.click(plan.getByRole('button', { name: new RegExp(esc(start)) }));
+  }
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await expect(dlg).toBeVisible();
   return dlg;
@@ -1005,7 +1009,7 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   await page.goto('./#/');
   const trips = (await tile(page, 'pack')).getByRole('group', { name: T('Trips|place') });
   await rec.click(trips.getByRole('button', { name: T('Day ride') }));
-  const bar = page.locator('.dayride-bar');
+  const bar = page.locator('.made-card');
   await expect(bar).toBeVisible();
   // The day ride copies the last day ride (gravel, 3 h): change it to the Scale and 2 h.
   await rec.click(bar.getByRole('button', { name: T('Change') }));
