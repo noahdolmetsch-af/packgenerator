@@ -4,14 +4,14 @@
   import { formatWeight } from '../gear.js';
   import { t, nameOf } from '../i18n.svelte.js';
 
-  /** bag: the bag to edit, or null for "Add bag". Weight comes from the linked gear item. */
-  let { bag, items, bags, bikes, onclose } = $props();
+  /** bag: the bag to edit, or null for "Add bag" (slot: the place it is for, v0.31.0). Weight comes from the linked gear item. */
+  let { bag, slot = null, items, bags, bikes, onclose } = $props();
 
   // The dialog edits a copy of the bag as it was when it opened, so reading `bag` once is intended.
   // svelte-ignore state_referenced_locally
   const isNew = !bag;
   // svelte-ignore state_referenced_locally
-  let draft = $state(bag ? { ...bag, volumeL: bag.volumeL ?? '', itemId: bag.itemId ?? '' } : { id: '', name: '', slot: 'seat', volumeL: '', itemId: '', pieces: 1, note: '' });
+  let draft = $state(bag ? { ...bag, volumeL: bag.volumeL ?? '', itemId: bag.itemId ?? '' } : { id: '', name: '', slot: slot && SLOT[slot] ? slot : 'seat', volumeL: '', itemId: '', pieces: 1, note: '' });
   let error = $state('');
   let dialog;
 

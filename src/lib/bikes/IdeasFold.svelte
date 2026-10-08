@@ -6,7 +6,8 @@
    */
   import { tick } from 'svelte';
   import { db } from '../db.js';
-  import Fold from '../ui/Fold.svelte';
+  import { Sparkles } from '@lucide/svelte';
+  import SetupFold from './SetupFold.svelte';
   import { addIdea, toggleIdea, removeIdea, sortIdeas, openIdeas, IDEAS_KEY } from '../hubs.js';
   import { t, tn, locale } from '../i18n.svelte.js';
 
@@ -47,7 +48,7 @@
 </script>
 
 <div class="ideas-wrap" bind:this={el}>
-  <Fold label={t('Ideas|bike')} summary={list.length ? `${tn(open, '{n} open idea', '{n} open ideas')}${list.length > open ? ` · ${t('{n} done', { n: list.length - open })}` : ''}` : t('none yet')} bind:open={shown}>
+  <SetupFold icon={Sparkles} label={t('Ideas|bike')} summary={list.length ? `${tn(open, '{n} open idea', '{n} open ideas')}${list.length > open ? ` · ${t('{n} done', { n: list.length - open })}` : ''}` : t('none yet')} bind:open={shown}>
     <p class="hint">{t('What would be great: your own list of ideas for this bike, not the Gear wishlist.')}</p>
     {#if list.length}
       <ul class="ideas" aria-label={t('Ideas for the {bike}', { bike: bike.name })}>
@@ -66,7 +67,7 @@
       <input class="inp" type="text" bind:value={text} placeholder={t('e.g. Dropper post, lighter wheels')} aria-label={t('New idea for the {bike}', { bike: bike.name })} />
       <button type="submit" class="btn sm" disabled={!text.trim()}>{t('Add idea')}</button>
     </form>
-  </Fold>
+  </SetupFold>
 </div>
 
 <style>
