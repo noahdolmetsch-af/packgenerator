@@ -11,6 +11,7 @@
   import { sortBikes } from '../bikes.js';
   import { newTrip, addItem } from '../nav.js';
   import { t, num } from '../i18n.svelte.js';
+  import { parseKm } from '../care.js';
 
   let { mode = $bindable(null), onnote } = $props();
 
@@ -35,8 +36,8 @@
   const kmBike = $derived(bikes.find((b) => b.id === bikeId) ?? bikes[0] ?? null);
   async function saveKm(event) {
     event.preventDefault();
-    const n = Math.round(Number(String(km).replace(/['’,\s]/g, '')));
-    if (!kmBike || !(n >= 0 && n <= 500000) || km === '') return (kmMsg = t('Type the km as a whole number, e.g. 12400.'));
+    const n = parseKm(km); // v0.30.1 (D1): "2'287", "2.287", "2 287"
+    if (!kmBike || n == null || Number.isNaN(n)) return (kmMsg = t('Type the km as a whole number, e.g. 12400.'));
     await db.bikes.update(kmBike.id, { km: n, kmDate: localDay() });
     kmMsg = t('{bike}: {km} km saved.', { bike: kmBike.name, km: num(n) });
     km = '';
@@ -59,7 +60,7 @@
       </label>
       <label><span class="lbl">{t('km on the counter')}</span>
         <!-- svelte-ignore a11y_autofocus -->
-        <input class="inp num" type="text" inputmode="numeric" bind:value={km} placeholder={kmBike?.km != null ? String(kmBike.km) : t('e.g. 2400')} autofocus />
+        <input class="inp num" type="text" inputmode="decimal" enterkeyhint="done" bind:value={km} placeholder={kmBike?.km != null ? String(kmBike.km) : t('e.g. 2400')} autofocus />
       </label>
       <button type="submit" class="btn hi">{t('Save km')}</button>
       {#if kmMsg}<p class="msg" role="status">{kmMsg}</p>{/if}

@@ -14,6 +14,7 @@
   import { formatWeight, knownWeight, CATEGORY, isInventory, matches } from '../lib/gear.js';
   import { tripNotes, noteToDebrief } from '../lib/notes.js';
   import { isOver } from '../lib/debrief.js';
+  import { parseKm } from '../lib/care.js';
   import TripBand from '../lib/trip/TripBand.svelte';
   import '../lib/trip/trip.css';
   import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, Briefcase, Upload } from '@lucide/svelte';
@@ -91,8 +92,9 @@
     }
   }
   function setKm(value) {
-    const n = Math.round(Number(String(value).replace(/[^0-9.]/g, '')));
-    d.km = value === '' || !Number.isFinite(n) ? null : n;
+    // v0.30.1 (D1): "45,3" is 45 km, not 453; "1'204" and "1.204" are 1204.
+    const n = parseKm(value);
+    d.km = n == null || Number.isNaN(n) ? null : n;
     persist();
   }
   const drafts = $derived(new Set(debriefs.filter((d) => d.status === 'draft').map((d) => d.tripId)));

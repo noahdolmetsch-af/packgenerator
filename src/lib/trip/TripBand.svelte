@@ -263,6 +263,57 @@
       margin: 0;
     }
   }
+  /* v0.30.1 (Noah D6): a phone turned sideways (844×390): the band was 212 of 390 px. Compact there:
+     smaller name, facts on one line, a smaller button, the four steps in one 44 px row. */
+  @media (max-height: 500px) {
+    .band {
+      column-gap: 16px;
+      padding: 8px 16px 0;
+      margin-bottom: 10px;
+      border-radius: 10px;
+    }
+    .kick {
+      display: none;
+    }
+    h1 {
+      margin: 0 0 2px;
+      font-size: 20px;
+    }
+    .meta {
+      gap: 2px 12px;
+      margin: 0;
+      font-size: 13px;
+    }
+    .act :global(.btn.hi) {
+      min-width: 0;
+      min-height: 44px;
+      padding: 6px 16px;
+      font-size: 15px;
+    }
+    .hint {
+      display: none;
+    }
+    .steps {
+      margin: 6px -16px 0;
+      padding: 0 4px;
+      grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    }
+    .steps a {
+      min-height: 44px;
+      padding: 2px 4px;
+      font-size: 15px;
+    }
+    .steps a small {
+      font-size: 12px;
+    }
+  }
+  /* A small phone sideways keeps the button at the bottom, on the lower bottom bar (App.svelte). */
+  @media (max-height: 500px) and (max-width: 719px) {
+    .act {
+      bottom: calc(48px + env(safe-area-inset-bottom));
+      padding: 4px max(var(--gut), env(safe-area-inset-right)) 4px max(var(--gut), env(safe-area-inset-left));
+    }
+  }
   @media print {
     .band {
       display: none;

@@ -5,7 +5,7 @@
    * with them the app can say what the bike costs per 1000 km.
    */
   import { db } from '../db.js';
-  import { PART } from '../care.js';
+  import { PART, parseKm } from '../care.js';
   import { visitTotal } from '../workshop.js';
   import Lightbox from '../ui/Lightbox.svelte';
   import { t } from '../i18n.svelte.js';
@@ -24,8 +24,8 @@
   const lines = $derived([...(visit.parts ?? [])].sort((a, b) => (b.chf ?? 0) - (a.chf ?? 0)));
 
   async function saveKm(text) {
-    const n = text.trim() === '' ? null : Math.round(Number(text.replace(/['’,\s]/g, '')));
-    if (n !== null && !(n >= 0 && n <= 500000)) return (kmMsg = t('Type the km as a whole number, e.g. 8200.'));
+    const n = parseKm(text); // v0.30.1 (D1): "8'200", "8.200", "8 200"
+    if (Number.isNaN(n)) return (kmMsg = t('Type the km as a whole number, e.g. 8200.'));
     kmMsg = '';
     await db.visits.update(visit.id, { km: n });
   }
