@@ -464,7 +464,7 @@
             {#each bp.rows as b, n (b.startAt)}
               <li class:cur={n === nowIdx} class:rest={b.rest} aria-current={n === nowIdx && isNow ? 'time' : undefined}>
                 <span class="num tm">{dayName(b.startAt)} {span(b)}</span>
-                <span><b class="num">{b.rest ? t('stop at km {km}', { km: b.kmTo }) : where(b)}</b>{#if b.temp} · <span class="num">{tempText(b)}</span>{b.wet ? ` · ${t('rain likely')}` : ''}{/if}{#if !b.rest} · {wearText(b, n)} · {foodText(b)} · {t('about {n} L to drink', { n: num(b.drinkL) })}{#if refillText(b)} · {refillText(b)}{/if}{#if b.light} · {lightText(b)}{/if}{/if}{#if b.note}<small>{b.note}</small>{/if}</span>
+                <span><b class="num">{b.rest ? t('stop at km {km}', { km: b.kmTo }) : where(b)}</b>{#if b.temp}{' · '}<span class="num">{tempText(b)}</span>{b.wet ? ` · ${t('rain likely')}` : ''}{/if}{#if !b.rest}{' · '}{wearText(b, n)} · {foodText(b)} · {t('about {n} L to drink', { n: num(b.drinkL) })}{#if refillText(b)}{' · '}{refillText(b)}{/if}{#if b.light}{' · '}{lightText(b)}{/if}{/if}{#if b.note}<small>{b.note}</small>{/if}</span>
               </li>
             {/each}
           </ol>
