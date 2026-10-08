@@ -271,7 +271,7 @@ test('N10, N11: New trip shows "Copy the last trip: name" at once; templates in 
   await expect(copy).toHaveAttribute('aria-pressed', 'true');
   // Templates stay folded; open, the row says what is in it in building blocks.
   await dlg.locator('details summary').filter({ hasText: T('Start from a template') }).click();
-  await expect(dlg.locator('.opt').filter({ hasText: 'test_data_gtp_ Regenrunde' })).toContainText(/Standard \+ test_data_gtp_ Regen \+ 1 einzelnes Teil$/);
+  await expect(dlg.locator('.opt').filter({ hasText: 'test_data_gtp_ Regenrunde' })).toContainText(/Standard \+ test_data_gtp_ Regen \+ 1 Extra$/);
   await expect(dlg.locator('.opt').filter({ hasText: 'test_data_gtp_ Regenrunde' })).toContainText(`${T('{n} day', { n: 1 })} · ${T('{n} h', { n: '2' })}`);
   await page.screenshot({ path: info.outputPath('new-trip.png') });
   expect(errors).toEqual([]);

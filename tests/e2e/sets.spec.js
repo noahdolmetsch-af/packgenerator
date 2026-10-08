@@ -225,14 +225,19 @@ test('building blocks page on a 320 px phone: gone item greyed, amount, rename b
   await start(page, context, info, 'de', { block: true }, { width: 320, height: 640 });
   await page.goto('./#/blocks');
   const card = page.getByRole('listitem', { name: 'test_data_gtp_ Regen' });
+  // v0.32.0 (finding 5): the card shows the names; rows and changes fold away under "Change".
+  await expect(card).toContainText('test_data_gtp_ Handschuhe × 2');
+  await card.locator('details.edit > summary').click();
   await expect(card).toContainText(`${T('Gone')} · ${T('never packed')}`);
   await expect(card).toContainText('test_data_gtp_ Handschuhe × 2');
   await card.getByRole('button', { name: T('More: {name}', { name: 'test_data_gtp_ Handschuhe' }) }).click();
   await expect(card).toContainText('test_data_gtp_ Handschuhe × 3');
   expect(await wide(page)).toBe(0);
   // A built-in block can be renamed (Noah 5b); its key stays.
-  const cook = page.getByRole('listitem', { name: T('Night: Cook') });
-  await cook.getByRole('button', { name: T('Rename {name}', { name: T('Night: Cook') }) }).click();
+  // v0.32.0 (finding 5): in the group "With the night" a built-in block shows without "Night: ".
+  const cook = page.getByRole('listitem', { name: T('Night: Cook').replace(/^[^:]+: /, ''), exact: true });
+  await cook.locator('details.edit > summary').click();
+  await cook.getByRole('button', { name: T('Rename {name}', { name: T('Night: Cook').replace(/^[^:]+: /, '') }) }).click();
   await cook.getByLabel(T('New name')).fill('test_data_gtp_ Küche');
   await cook.getByRole('button', { name: T('Save') }).click();
   await expect(page.getByRole('listitem', { name: 'test_data_gtp_ Küche' })).toBeVisible();
@@ -273,8 +278,15 @@ test('Assign in the item dialog shows where the item is and puts it into a templ
   await page.getByLabel(T('Search gear')).fill('Regenhose');
   await page.getByRole('button', { name: /test_data_gtp_ Regenhose/ }).click();
   const item = page.getByRole('dialog', { name: 'test_data_gtp_ Regenhose' });
-  await expect(item).toContainText(`${T('In:')} test_data_gtp_ Regen · test_data_gtp_ Rain setup · ${T('Trip "{name}"', { name: 'test_data_gtp_ Tour' })}`);
-  await item.getByRole('button', { name: T('Assign …') }).click();
+  // v0.32.0 (finding 5): its building blocks as pressed buttons, templates and the trip folded away.
+  const blocks = item.getByRole('group', { name: `${T('Comes along')} · ${T('Building blocks')}` });
+  for (const name of ['test_data_gtp_ Regen', 'test_data_gtp_ Rain setup']) await expect(blocks.getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(blocks.getByRole('button', { name: new RegExp(`^${T('Standard|block')}`) })).toHaveAttribute('aria-pressed', 'false');
+  const fold = item.locator('details.fold').filter({ hasText: T('In templates') });
+  await expect(fold.locator('summary')).toContainText(`0 · ${T('on the current trip')}`);
+  await fold.locator('summary').click();
+  await expect(fold).toContainText(T('Trip "{name}"', { name: 'test_data_gtp_ Tour' }));
+  await fold.getByRole('button', { name: T('Assign …') }).click();
   const dlg = page.getByRole('dialog', { name: T('Assign "{name}"', { name: 'test_data_gtp_ Regenhose' }) });
   await dlg.getByLabel(T('Into a template')).check();
   await dlg.getByLabel(T('Template'), { exact: true }).selectOption({ label: 'test_data_gtp_ Daily ride' });

@@ -416,7 +416,7 @@
       <div class="who">
         <span class="lbl">{todayText}</span>
         <h1 id="next-h" class="title">{t('No trip planned')}</h1>
-        <p class="facts"><span>{t('Start a packing list from a template, from your last trip or from the standard set.')}</span></p>
+        <p class="facts"><span>{t('Start a packing list from a template, from your last trip or from Standard.')}</span></p>
       </div>
       <div class="acts"><button type="button" class="btn hi main" onclick={() => openNew('list')}>{t('Start a new trip')}</button></div>
     </section>

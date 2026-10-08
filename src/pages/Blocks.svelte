@@ -1,26 +1,46 @@
 <script>
   /**
    * v0.26.0 (Noah 2a/2b, AP10): building blocks (code: item sets) on their own page, #/blocks.
-   * One card per block: name, item count, honest weight, the items, what the block does.
+   * v0.32.0 (finding 5, stage 1): the blocks in 3 groups, each card with "when it comes" and the
+   * names of its items:
+   *   - Always with you: the block "Standard" (in stage 1 still the items with the old role worn or
+   *     standard pack, or "On every trip"; changed in the item dialog under "Comes along");
+   *   - With the night: the blocks the overnight stay brings by itself (context.js CONTEXT_SETS);
+   *   - To add: Light and your own blocks, one tap in "New trip" or in Pack's "Add material".
+   * The rows and the changes (amount, remove, add items, rename, delete) fold away under "Change".
    * Built-in blocks (gear.js SETS) can be renamed but not deleted; own blocks can be renamed and
-   * deleted. "+ Add items" opens Gear in "Select" with only the items not in the block yet.
-   * Amount per item (coordinator default 2): a small stepper; "+ {block}" in Pack uses it.
-   * Every change can be undone for a few seconds.
+   * deleted. Every change can be undone for a few seconds. No data changes because of the groups.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { formatWeight, itemWeight, OWNERSHIP } from '../lib/gear.js';
-  import { SETS_KEY, allSets, setView, setUse, qtyOf, addSet } from '../lib/sets.js';
+  import { formatWeight, itemWeight, OWNERSHIP, isInventory, sumKnown } from '../lib/gear.js';
+  import { SETS_KEY, allSets, setView, setUse, qtyOf, addSet, blockLabel } from '../lib/sets.js';
+  import { TEMPLATES_KEY } from '../lib/templates.js';
+  import { CONTEXT_SETS } from '../lib/context.js';
+  import { blockKind, comesOf } from '../lib/gear/comes.js';
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet } from '../lib/gear/assign.js';
   import { undoBulk } from '../lib/gear/bulk.js';
   import Sum from '../lib/ui/Sum.svelte';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
+  import { Check, Moon, Plus, X, Minus, Layers, ChevronRight, UserRound } from '@lucide/svelte';
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
+  const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const items = $derived($itemsQ ?? []);
   const sets = $derived(allSets($setsQ?.value));
-  const cards = $derived(sets.map((s) => ({ ...s, ...setView(s, items) })));
+  const cards = $derived(sets.map((s) => ({ ...s, ...setView(s, items), kind: blockKind(s.key) })));
+  // With the night in the order the overnight stay brings them; to add: Light first, then your own.
+  const nightCards = $derived(CONTEXT_SETS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
+  const addCards = $derived(cards.filter((c) => c.kind === 'add'));
+  const tplCount = $derived(($tplQ?.value ?? []).length);
+  // The block "Standard" (stage 1: read from the old fields, nothing is stored for it).
+  const standard = $derived.by(() => {
+    const its = items.filter((i) => isInventory(i) && comesOf(i).standard);
+    const { g, missing } = sumKnown(its.map(itemWeight));
+    return { items: its, g, missing };
+  });
+  const NAMES_SHOWN = 8;
 
   let error = $state('');
   let undo = $state.raw(null); // { text, snap }
@@ -81,76 +101,138 @@
   }
   // "+ Add items": Gear in "Select", only the items not in this block yet (Gear reads ?fill=).
   const fillHref = (s) => `#/gear?fill=${encodeURIComponent(s.key)}`;
+  /** "Tent · Mat · Gloves × 2 · +4": the names of the items that get packed. */
+  const namesOf = (list, s = null) => {
+    const shown = list.slice(0, NAMES_SHOWN).map((i) => {
+      const n = s ? qtyOf(s, i.id) : 1;
+      return n !== 1 ? `${nameOf(i)} × ${n}` : nameOf(i);
+    });
+    return list.length > NAMES_SHOWN ? [...shown, `+${list.length - NAMES_SHOWN}`] : shown;
+  };
 </script>
+
+{#snippet head(icon, name, id, use, list, sum, s = null)}
+  <div class="head">
+    <span class="ico ico-{icon}" aria-hidden="true">
+      {#if icon === 'always'}<Check size={20} />{:else if icon === 'night'}<Moon size={20} />{:else}<Plus size={20} />{/if}
+    </span>
+    <div class="htext">
+      <div class="hrow">
+        <h3 class="nm" {id}>{name}</h3>
+        <span class="count"><span class="num">{tn(list.length, '{n} item', '{n} items')}</span> · <Sum g={sum.g} missing={sum.missing} /></span>
+      </div>
+      <p class="use">{use}</p>
+      {#if list.length}<p class="names">{namesOf(list, s).join(' · ')}</p>{:else}<p class="names empty">{t('No items in this building block yet.')}</p>{/if}
+    </div>
+  </div>
+{/snippet}
+
+{#snippet blockCard(s)}
+  <li class="card blk" aria-labelledby="blk-{s.key}">
+    {@render head(s.kind, blockLabel(s), `blk-${s.key}`, setUse(s.builtIn ? s.key : null), s.inventory, s, s)}
+    {#if s.note}<p class="note">{s.note}</p>{/if}
+    <details class="edit">
+      <summary>{t('Change|block')} <small>{s.builtIn ? t('Built-in') : t('Own')}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+      {#if renaming === s.key}
+        <form class="newset" onsubmit={(e) => { e.preventDefault(); rename(s, renameTo); }}>
+          <label><span class="lbl">{t('New name')}</span><input class="inp" bind:value={renameTo} placeholder={s.builtIn ? builtInName(s.key) : ''} /></label>
+          <button type="submit" class="btn hi">{t('Save')}</button>
+          <button type="button" class="btn" onclick={() => (renaming = null)}>{t('Cancel')}</button>
+        </form>
+        {#if s.builtIn}<p class="note">{t('Empty: back to "{name}".', { name: builtInName(s.key) })}</p>{/if}
+      {/if}
+      {#if s.items.length}
+        <!-- One header for the columns, quiet icon buttons in the rows (no "Remove" on every row). -->
+        <p class="cols" aria-hidden="true"><span>{t('Item')}</span><span>{t('Amount')}</span></p>
+        <ul class="rows">
+          {#each s.items as item (item.id)}
+            {@const inv = isInventory(item)}
+            {@const n = qtyOf(s, item.id)}
+            <li class:off={!inv}>
+              <span class="in">
+                <span class="iname">{nameOf(item)}{#if n !== 1}{' '}<b class="num">× {n}</b>{/if}</span>
+                <small>{#if inv}<span class="num">{formatWeight(itemWeight(item))}</span>{:else}{t(OWNERSHIP[item.ownership] ?? item.ownership)} · {t('never packed')}{/if}</small>
+              </span>
+              <span class="racts">
+                {#if inv}
+                  <span class="step" role="group" aria-label={t('Amount of {name}', { name: nameOf(item) })}>
+                    <button type="button" class="sq" disabled={n <= 1} aria-label={t('Fewer: {name}', { name: nameOf(item) })} onclick={() => amount(s, item, n - 1)}><Minus size={16} aria-hidden="true" /></button>
+                    <button type="button" class="sq" disabled={n >= 20} aria-label={t('More: {name}', { name: nameOf(item) })} onclick={() => amount(s, item, n + 1)}><Plus size={16} aria-hidden="true" /></button>
+                  </span>
+                {/if}
+                <button type="button" class="sq quietx" aria-label={t('Remove {name} from {block}', { name: nameOf(item), block: s.name })} title={t('Remove')} onclick={() => takeOut(s, item)}><X size={16} aria-hidden="true" /></button>
+              </span>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+      <div class="acts">
+        <a class="btn" href={fillHref(s)} aria-label={t('Add items to {block}', { block: s.name })}>+ {t('Add items')}</a>
+        <button type="button" class="btn" aria-label={t('Rename {name}', { name: blockLabel(s) })} onclick={() => ((renaming = s.key), (renameTo = s.name))}>{t('Rename')}</button>
+        {#if !s.builtIn}<button type="button" class="btn del" onclick={() => remove(s)}>{t('Delete')}</button>{/if}
+      </div>
+    </details>
+  </li>
+{/snippet}
 
 <div class="blocks">
   <p class="back"><a href="#/gear">← {t('Gear')}</a></p>
   <h1 class="title big">{t('Building blocks')}</h1>
-  <p class="hint">{t('A building block is a group of items you pack together, e.g. everything for rain. In Pack, "Add material" adds a whole block with one tap; an item in two blocks is packed once. Changing a block does not change trips you already made.')}</p>
+  <p class="hint">{t('A building block is a group of items that comes along together. There are three kinds: always with you, with the night, and to add. Changing a block does not change trips you already made.')}</p>
   {#if error}<p class="err" role="alert">{error}</p>{/if}
-  <div class="top">
-    {#if adding}
-      <form class="newset" onsubmit={create}>
-        <label><span class="lbl">{t('Name of the new building block')}</span><input class="inp" bind:value={newName} placeholder={t('e.g. Rain')} /></label>
-        <button type="submit" class="btn hi">{t('Create')}</button>
-        <button type="button" class="btn" onclick={() => ((adding = false), (error = ''))}>{t('Cancel')}</button>
-      </form>
-    {:else}
-      <button type="button" class="btn hi" onclick={() => (adding = true)}>+ {t('New building block')}</button>
-    {/if}
-  </div>
 
-  <ul class="list">
-    {#each cards as s (s.key)}
-      <li class="card" aria-labelledby="blk-{s.key}">
-        <div class="head">
-          <h2 class="nm" id="blk-{s.key}">{s.name}</h2>
-          {#if renaming === s.key}
-            <form class="newset" onsubmit={(e) => { e.preventDefault(); rename(s, renameTo); }}>
-              <label><span class="lbl">{t('New name')}</span><input class="inp" bind:value={renameTo} placeholder={s.builtIn ? builtInName(s.key) : ''} /></label>
-              <button type="submit" class="btn hi">{t('Save')}</button>
-              <button type="button" class="btn" onclick={() => (renaming = null)}>{t('Cancel')}</button>
-            </form>
-            {#if s.builtIn}<p class="note">{t('Empty: back to "{name}".', { name: builtInName(s.key) })}</p>{/if}
-          {/if}
-          <p class="facts">
-            <span class="tag">{s.builtIn ? t('Built-in') : t('Own')}</span>
-            {tn(s.inventory.length, '{n} item', '{n} items')} · <Sum g={s.g} missing={s.missing} />
-          </p>
-          <p class="use">{setUse(s.builtIn ? s.key : null)}</p>
-          {#if s.note}<p class="note">{s.note}</p>{/if}
-        </div>
-        {#if s.items.length}
-          <ul class="rows">
-            {#each s.items as item (item.id)}
-              {@const inv = item.ownership === 'owned' || item.ownership === 'unclear'}
-              {@const n = qtyOf(s, item.id)}
-              <li class:off={!inv}>
-                <span class="in">
-                  <span class="iname">{nameOf(item)}{#if n !== 1}{' '}<b class="num">× {n}</b>{/if}</span>
-                  <small>{#if inv}{formatWeight(itemWeight(item))}{:else}{t(OWNERSHIP[item.ownership] ?? item.ownership)} · {t('never packed')}{/if}</small>
-                </span>
-                {#if inv}
-                  <span class="step" role="group" aria-label={t('Amount of {name}', { name: nameOf(item) })}>
-                    <button type="button" class="sq" disabled={n <= 1} aria-label={t('Fewer: {name}', { name: nameOf(item) })} onclick={() => amount(s, item, n - 1)}>−</button>
-                    <button type="button" class="sq" disabled={n >= 20} aria-label={t('More: {name}', { name: nameOf(item) })} onclick={() => amount(s, item, n + 1)}>+</button>
-                  </span>
-                {/if}
-                <button type="button" class="btn sm" aria-label={t('Remove {name} from {block}', { name: nameOf(item), block: s.name })} onclick={() => takeOut(s, item)}>{t('Remove')}</button>
-              </li>
-            {/each}
-          </ul>
+  <div class="groups">
+    <section class="grp" aria-labelledby="g-always">
+      <h2 class="gh" id="g-always">{t('Always with you')} <small>{t('every new trip')}</small></h2>
+      <ul class="list">
+        <li class="card blk std" aria-labelledby="blk-standard">
+          {@render head('always', t('Standard|block'), 'blk-standard', t('Comes into every new trip'), standard.items, standard)}
+          <details class="edit">
+            <summary>{t('Items')} <small>{t('change in the item: Comes along')}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+            {#if standard.items.length}
+              <p class="cols" aria-hidden="true"><span>{t('Item')}</span><span>{t('Weight')}</span></p>
+              <ul class="rows">
+                {#each standard.items as item (item.id)}
+                  <li>
+                    <span class="in"><span class="iname">{nameOf(item)}{#if comesOf(item).body}{' '}<small class="where"><UserRound size={14} aria-hidden="true" /> {t('On me')}</small>{/if}</span></span>
+                    <small class="num w">{formatWeight(itemWeight(item))}</small>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+            <p class="note">{t('To change: open the item in Gear, then "Comes along" → Standard.')}</p>
+          </details>
+        </li>
+      </ul>
+      <p class="note side">{t('Tools are never called "not needed" in the debrief.')}</p>
+    </section>
+
+    <section class="grp" aria-labelledby="g-night">
+      <h2 class="gh" id="g-night">{t('With the night')} <small>{t('come by themselves')}</small></h2>
+      <ul class="list">
+        {#each nightCards as s (s.key)}{@render blockCard(s)}{/each}
+      </ul>
+    </section>
+
+    <section class="grp" aria-labelledby="g-add">
+      <h2 class="gh" id="g-add">{t('To add')} <small>{t('one tap when you make a trip')}</small></h2>
+      <ul class="list">
+        {#each addCards as s (s.key)}{@render blockCard(s)}{/each}
+      </ul>
+      <div class="top">
+        {#if adding}
+          <form class="newset" onsubmit={create}>
+            <label><span class="lbl">{t('Name of the new building block')}</span><input class="inp" bind:value={newName} placeholder={t('e.g. Rain')} /></label>
+            <button type="submit" class="btn hi">{t('Create')}</button>
+            <button type="button" class="btn" onclick={() => ((adding = false), (error = ''))}>{t('Cancel')}</button>
+          </form>
         {:else}
-          <p class="empty">{t('No items in this building block yet.')}</p>
+          <button type="button" class="btn" onclick={() => (adding = true)}><Plus size={18} aria-hidden="true" /> {t('New building block')}</button>
         {/if}
-        <div class="acts">
-          <a class="btn" href={fillHref(s)} aria-label={t('Add items to {block}', { block: s.name })}>+ {t('Add items')}</a>
-          <button type="button" class="btn" aria-label={t('Rename {name}', { name: s.name })} onclick={() => ((renaming = s.key), (renameTo = s.name))}>{t('Rename')}</button>
-          {#if !s.builtIn}<button type="button" class="btn del" onclick={() => remove(s)}>{t('Delete')}</button>{/if}
-        </div>
-      </li>
-    {/each}
-  </ul>
+      </div>
+      <a class="card tpl" href="#/pack/templates"><Layers size={20} aria-hidden="true" /><span class="tt">{t('Templates = building blocks + extras')}</span><span class="num tc">{tplCount}</span><ChevronRight size={18} aria-hidden="true" /></a>
+    </section>
+  </div>
 </div>
 
 {#if undo}
@@ -169,14 +251,43 @@
     margin: 0 0 8px;
   }
   .hint {
-    color: var(--ink-3);
+    color: var(--ink-2);
     max-width: 760px;
   }
   .err {
     color: var(--bad);
   }
+  .groups {
+    display: grid;
+    gap: 24px;
+    margin-top: 16px;
+  }
+  @media (min-width: 1000px) {
+    .groups {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: start;
+    }
+  }
+  .grp {
+    min-width: 0;
+  }
+  /* Light section headers: the group name, its rule quiet next to it. */
+  .gh {
+    font-size: var(--fs-sub);
+    font-weight: 700;
+    margin: 0 0 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+  }
+  .gh small {
+    font-size: var(--fs-small);
+    font-weight: 400;
+    color: var(--ink-3);
+  }
   .top {
-    margin: 12px 0 16px;
+    margin: 12px 0;
   }
   .newset {
     display: flex;
@@ -187,7 +298,7 @@
   .newset label {
     display: grid;
     gap: 4px;
-    flex: 1 1 220px;
+    flex: 1 1 200px;
     min-width: 0;
   }
   .list {
@@ -195,105 +306,237 @@
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 14px;
+    gap: 10px;
   }
-  @media (min-width: 900px) {
-    .list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  .card {
+  .blk {
     min-width: 0;
+    padding: 12px 14px;
+  }
+  .std {
+    border: 1.5px solid var(--ink);
+  }
+  .head {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .ico {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius);
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .ico-always {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .htext {
+    flex: 1;
+    min-width: 0;
+  }
+  .hrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px 10px;
   }
   .nm {
     font-size: var(--fs-sub);
     font-weight: 700;
-    margin: 0 0 6px;
+    margin: 0;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .count {
+    margin-left: auto;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .use {
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .names {
+    margin: 4px 0 0;
+    font-size: 15px;
+    color: var(--ink-2);
     overflow-wrap: anywhere;
   }
-  .facts {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 4px 8px;
-    margin: 8px 0 2px;
+  .names.empty {
+    color: var(--ink-3);
   }
-  .tag {
+  .note {
+    margin: 6px 0 0;
     font-size: var(--fs-small);
-    border: 1px solid var(--ink-3);
-    border-radius: 99px;
-    padding: 0 8px;
+    color: var(--ink-3);
+  }
+  .note.side {
+    margin-top: 8px;
+  }
+  /* Progressive disclosure: the rows and the changes fold away. */
+  .edit {
+    margin-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .edit summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
     color: var(--ink-2);
   }
-  .use,
-  .note {
-    margin: 2px 0;
-    font-size: 14px;
-    color: var(--ink-2);
+  .edit summary::-webkit-details-marker {
+    display: none;
   }
-  .note {
+  .edit summary small {
+    font-weight: 400;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .edit :global(.chev) {
+    margin-left: auto;
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 0.15s;
+  }
+  .edit[open] :global(.chev) {
+    transform: rotate(90deg);
+  }
+  .cols {
+    display: flex;
+    justify-content: space-between;
+    margin: 4px 0 0;
+    font-size: 13px;
+    font-weight: 600;
     color: var(--ink-3);
   }
   .rows {
     list-style: none;
-    margin: 10px 0;
+    margin: 4px 0 10px;
     padding: 0;
   }
   .rows li {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-    padding: 6px 0;
+    gap: 8px;
+    padding: 4px 0;
     border-top: 1px solid var(--line);
+    min-height: 48px;
   }
   .rows li.off {
     color: var(--ink-3);
   }
   .in {
-    flex: 1 1 170px;
+    flex: 1 1 auto;
     min-width: 0;
     display: grid;
   }
   .iname {
     overflow-wrap: anywhere;
   }
-  .in small {
+  .in small,
+  .w {
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .w {
+    margin-left: auto;
+    text-align: right;
+  }
+  .where {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .racts {
+    flex: none;
+    display: flex;
+    gap: 4px;
+    align-items: center;
   }
   .step {
     display: flex;
     gap: 4px;
   }
   .sq {
-    width: 36px;
-    height: 36px;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
     border: 1.5px solid var(--line-strong);
     border-radius: 6px;
     background: var(--paper);
     color: var(--ink);
-    font: 700 18px/1 var(--font-body);
     cursor: pointer;
   }
   .sq:disabled {
     opacity: 0.35;
     cursor: default;
   }
-  .empty {
+  .quietx {
+    border-color: transparent;
     color: var(--ink-3);
-    margin: 10px 0;
+  }
+  /* Row actions: quiet on a desktop, full on hover and on focus, always full on a phone. */
+  @media (hover: hover) and (pointer: fine) {
+    .racts {
+      opacity: 0.45;
+      transition: opacity 0.12s;
+    }
+    .rows li:hover .racts,
+    .rows li:focus-within .racts {
+      opacity: 1;
+    }
+    .sq {
+      width: 36px;
+      height: 36px;
+    }
   }
   .acts {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-bottom: 4px;
   }
   .del {
     margin-left: auto;
     border-color: var(--bad);
     color: var(--bad);
+  }
+  .tpl {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 10px 14px;
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .tpl:visited {
+    color: var(--ink);
+  }
+  .tpl .tt {
+    flex: 1;
+    min-width: 0;
+  }
+  .tc {
+    color: var(--ink-3);
+    font-weight: 400;
   }
   .undopad {
     height: 80px;

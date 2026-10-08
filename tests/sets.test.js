@@ -1,6 +1,6 @@
 // v0.26.0 (Noah 2a, AP10): own sets next to the built-in ones, delete plan, "+ Set" in Pack.
 import { describe, it, expect, afterEach } from 'vitest';
-import { allSets, addSet, renameSet, deleteSetPlan, setQty, qtyOf, setView, addSetEntries, setAddable, setKey, setUse, isBuiltIn, entriesWeight, isBlockTip, startBlocks, templateBlocks } from '../src/lib/sets.js';
+import { allSets, addSet, renameSet, deleteSetPlan, setQty, qtyOf, setView, addSetEntries, setAddable, setKey, setUse, isBuiltIn, entriesWeight, isBlockTip, startBlocks, templateBlocks, blocksLine, blockLabel } from '../src/lib/sets.js';
 import { lang } from '../src/lib/i18n.svelte.js';
 
 afterEach(() => (lang.v = 'en'));
@@ -144,5 +144,19 @@ describe('New trip: blocks and templates in words', () => {
     expect(words(['S1', 'S2', 'R1'])).toEqual({ standard: true, blocks: [], single: 1 }); // half a block: a single item
     expect(words(['S1', 'R1', 'R2'])).toEqual({ standard: false, blocks: ['u-regen'], single: 1 }); // not the whole standard set
     expect(words(['S1', 'S2', 'R1', 'R2', 'W1', 'X9'])).toEqual({ standard: true, blocks: ['warm', 'u-regen'], single: 1 });
+  });
+});
+
+// v0.32.0 (finding 5, stage 1): a template in the two words of the app.
+describe('blocksLine', () => {
+  it('"Standard + Rain + 2 extra", German «Standard + Regen + 2 Extra»', () => {
+    const rain = { key: 'u-regen', name: 'Regen', builtIn: false };
+    expect(blocksLine({ standard: true, blocks: [rain], single: 2 })).toBe('Standard + Regen + 2 extra');
+    expect(blocksLine({ standard: false, blocks: [], single: 1 })).toBe('1 extra');
+    expect(blocksLine({ standard: false, blocks: [], single: 0 })).toBe('0 items');
+    lang.v = 'de';
+    expect(blocksLine({ standard: true, blocks: [rain], single: 2 })).toBe('Standard + Regen + 2 Extra');
+    expect(blockLabel({ builtIn: true, name: 'Nacht: Kochen' })).toBe('Kochen');
+    expect(blockLabel({ builtIn: false, name: 'Nacht: eigen' })).toBe('Nacht: eigen');
   });
 });

@@ -130,7 +130,7 @@ export function layerOf(item) {
   if (item.ride === 'training') return { rank: 2, name: t('Training ride') };
   if (typeof item.coldBelow === 'number') return { rank: 3 + (40 - item.coldBelow) / 100, name: t('Below {n} °C', { n: item.coldBelow }) };
   if (item.rain) return { rank: 4, name: t('Rain') };
-  if (item.sets?.length) return { rank: 5, name: t('Overnight sets') };
+  if (item.sets?.length) return { rank: 5, name: t('Building blocks with the night') };
   return { rank: 6, name: t('Everything else') };
 }
 

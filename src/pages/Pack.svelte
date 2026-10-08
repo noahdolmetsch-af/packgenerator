@@ -41,6 +41,7 @@
   import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, wxLabel, shortDate } from '../lib/dayride.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
   import { t, tn, num, locale, nameOf, bagName, dateOf } from '../lib/i18n.svelte.js';
+  import { inStandard } from '../lib/gear/comes.js';
   import { hasBike, domainOf, domainName, inDomain, itemDomains, readyKey, READY_BY_DOMAIN, rememberDomain, BIKEPACKING } from '../lib/domains.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -576,7 +577,7 @@
   });
   // Mockup answer 3a: a small label in "Not packed" says why an item is suggested.
   // v0.21.0: an item of another area (found by the search) is labelled with its area.
-  const tagOf = (i) => (!inDomain(i, domain) ? t(domainName(itemDomains(i)[0])) : '') || (suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (i.always ? t('every trip') : i.role === 'standard' || i.role === 'worn' ? t('standard') : ''));
+  const tagOf = (i) => (!inDomain(i, domain) ? t(domainName(itemDomains(i)[0])) : '') || (suggestion.find((r) => r.id === i.id && !r.skipped)?.why ?? (inStandard(i) ? t('Standard|block') : ''));
   // Answer 9: luggage on the front and rear wheel.
   const axle = $derived(stats ? axleLoad(stats, itemsById) : null);
   const split = $derived(axleSplit(axle));
@@ -627,9 +628,9 @@
     {/snippet}
 
     {#snippet night()}
-      <div class="sets" role="group" aria-label={t('Overnight sets')}>
+      <div class="sets" role="group" aria-label={t('Building blocks with the night')}>
         {#each NIGHT_SETS as ns (ns.key)}
-          <button type="button" class="toggle" aria-pressed={setOn(ns.key)} onclick={() => switchSet(ns.key)} disabled={!setCount(ns.key)} title={setCount(ns.key) ? '' : t('No items in this set yet. Tag them in Gear.')}>
+          <button type="button" class="toggle" aria-pressed={setOn(ns.key)} onclick={() => switchSet(ns.key)} disabled={!setCount(ns.key)} title={setCount(ns.key) ? '' : t('No items in this building block yet. Add them in Gear.')}>
             {t(ns.name)} <small>{setCount(ns.key)}</small>
           </button>
         {/each}
