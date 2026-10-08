@@ -59,6 +59,9 @@ export default {
   'Rain, optional': 'Regen, optional',
   'Below {n} °C': 'Unter {n} °C',
   '1 per {n} h': '1 pro {n} h',
+  // v0.27.0 (Noah 1a): items with a category the app does not know.
+  'Other / unknown category': 'Ohne Kategorie',
+  'The app does not know the category of these items. Open one and pick a category.': 'Die App kennt die Kategorie dieser Teile nicht. Öffne eines und wähle eine Kategorie.',
   'Overnight sets': 'Übernachtungssets',
   'Everything else': 'Alles andere',
 

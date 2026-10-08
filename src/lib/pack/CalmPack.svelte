@@ -9,7 +9,7 @@
   import { bagVolumes } from '../bagsuggest.js';
   import { phone } from '../media.svelte.js';
   import { hasContext } from '../context.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null } = $props();
   let grouping = $state('bags');
   let opened = $state({ frame: true });
   let itemMenu = $state(null);
@@ -54,6 +54,8 @@
       <span><CalendarDays size={22} />{date}</span><span>{#if bikeTrip}<Bike size={24} />{bike?.name ?? t('No bike')}{:else}<Backpack size={22} />{domainLabel}{/if}</span>
       <span><Clock3 size={22} />{durationText}</span>
       <button class="text-button edit-trip" onclick={actions.edit}><Pencil size={18} />{t('Edit trip')}</button>
+      <!-- v0.27.0 (Noah): the templates visible on the Trips page itself, not only in the ••• menu -->
+      <a class="text-button tpl-link" href="#/pack/templates">{t('Templates')}</a>
       {#if !review}<span class="weather"><CloudRain size={24} />{wxText}</span>{/if}
     </div>
     {#if review}<button class="context-weather" onclick={() => show('conditions')}><CloudRain size={38} strokeWidth={1.7} />{wxText}</button>{/if}
@@ -65,7 +67,8 @@
     <div class="list-toolbar">
       <label class="group-control"><select aria-label={t('Group packing list')} bind:value={grouping}><option value="bags">{t('By bags')}</option><option value="category">{t('By category')}</option></select><ChevronDown size={18} /></label>
       <button class="text-button" onclick={() => show('add')}><PlusCircle size={22} />{t('Add material')}</button>
-      {#if canUndo}<button class="text-button undo" onclick={actions.undo}><Undo2 size={18} />{t('Undo')}</button>{/if}
+      <!-- v0.27.0 (Noah 1a): Undo is announced when it appears (a live region, like the day ride bar). -->
+      <span class="undo-live" role="status" aria-live="polite">{#if canUndo}<button class="text-button undo" onclick={actions.undo}><Undo2 size={18} />{t('Undo')}</button>{/if}</span>
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <details class="list-menu" bind:this={menuEl} onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}><summary aria-label={t('More: other trip, packing day, templates, print')}><MoreHorizontal size={24} /></summary>
         <div class="list-menu-content">
@@ -83,6 +86,8 @@
         </div>
       </details>
     </div>
+    <!-- v0.27.0 (Noah 1a, PF03): what the last change of the trip did to the list, with Undo above. -->
+    {#if changeNote}<p class="calm-muted change-note" role="status">{t('Changed: {list}', { list: changeNote })}</p>{/if}
     {@render suggest?.()}
     <div class="bag-groups blist">
       {#each groups as group (group.key)}
@@ -101,11 +106,12 @@
                   {@const name = item ? nameOf(item) : entry.itemId}
                   {@const qty = entry.qty || 1}
                   {@const open = itemMenu === entry.itemId}
+                  {@const why = reasons[entry.itemId]}
                   <!-- v0.24.1 (Noah 1a): a calm row, name (× n above 1) and weight; a tap opens amount, move and take out. -->
                   <li class="planning-row" class:open draggable={grouping === 'bags' && !phone.matches} ondragstart={(e) => { e.dataTransfer.setData('text/plain', entry.itemId); e.dataTransfer.effectAllowed = 'copyMove'; }}>
                     <GripVertical class="drag-handle" size={20} />
-                    <button class="row-main" aria-label={t('Amount, move or take out: {name}', { name })} aria-describedby={`calm-w-${entry.itemId}`} aria-expanded={open} aria-controls={`calm-act-${entry.itemId}`} onclick={() => itemMenu = open ? null : entry.itemId}>
-                      <span class="item-name"><span>{name}</span>{#if qty > 1}<span class="item-qty"> × {qty}</span>{/if}{#if carry.has(entry.itemId)}<small class="carry-hint">{t('Buy {name} on the way?', { name })}</small>{/if}</span>
+                    <button class="row-main" aria-label={t('Amount, move or take out: {name}', { name })} aria-describedby={why?.line || why?.note ? `calm-r-${entry.itemId} calm-w-${entry.itemId}` : `calm-w-${entry.itemId}`} aria-expanded={open} aria-controls={`calm-act-${entry.itemId}`} onclick={() => itemMenu = open ? null : entry.itemId}>
+                      <span class="item-name"><span>{name}</span>{#if qty > 1}{' '}<span class="item-qty">× {qty}</span>{/if}{#if why?.line || why?.note}<small class="carry-hint row-reason" id={`calm-r-${entry.itemId}`}>{why.line}{#if why.note}{#if why.line}<br />{/if}{t('Note: {text}', { text: why.note })}{/if}</small>{/if}{#if carry.has(entry.itemId)}<small class="carry-hint">{t('Buy {name} on the way?', { name })}</small>{/if}</span>
                       <span class="item-weight" id={`calm-w-${entry.itemId}`}>{item?.weightG == null ? t('not weighed') : formatWeight(item.weightG * qty)}</span>
                       <ChevronDown class="row-chevron" size={20} aria-hidden="true" />
                     </button>
@@ -113,7 +119,9 @@
                       <div class="amount" role="group" aria-label={t('Amount for {name}', { name })}><button aria-label={t('One less {name}', { name })} disabled={qty <= 1} onclick={() => actions.qty(entry.itemId, qty - 1)}><Minus size={16} /></button><span>{qty}</span><button aria-label={t('One more {name}', { name })} disabled={qty >= 20} onclick={() => actions.qty(entry.itemId, qty + 1)}><Plus size={16} /></button></div>
                       <label>{t('Move to')}<select class="sel" aria-label={t('Move {name} to', { name })} value={entry.slot} onchange={(e) => actions.move(entry.itemId, e.currentTarget.value)}>{#each targets as tg}<option value={tg.key}>{trip.purpose?.[tg.key] || t(tg.zone.name)}</option>{/each}{#if !targets.some(t => t.key === entry.slot)}<option value={entry.slot}>{entry.slot}</option>{/if}</select></label>
                       <button class="text-button" onclick={() => { actions.remove(entry.itemId); itemMenu = null; }}>{t('Take out')}</button>
-                      {#if item?.note}<p>{item.note}</p>{/if}
+                      <!-- v0.27.0 (Noah 1a, PF02): the alternative stays reachable after the automatic apply. -->
+                      {#each why?.alts ?? [] as alt (alt)}<button class="text-button" onclick={() => { actions.swap(why.slot, entry.itemId, alt); itemMenu = null; note = t('{old} swapped for {new}. Undo is at the top of the list.', { old: name, new: nameOf(itemsById[alt]) }); }}>{t('Swap for {name}', { name: nameOf(itemsById[alt]) })}</button>{/each}
+                      {#if item?.note && !why?.note}<p>{item.note}</p>{/if}
                     </div>{/if}
                   </li>
                 {:else}<li class="empty-bag"><p>{t('This bag is still empty.')}</p><button class="text-button" onclick={() => { zoneKey = grouping === 'bags' ? group.key : targets[0]?.key; show('add'); }}>{t('Add material')}</button></li>{/each}

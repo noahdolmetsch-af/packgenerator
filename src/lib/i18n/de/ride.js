@@ -27,7 +27,8 @@ export default {
   'The route is shared out evenly over {n} days (dark: this stage).': 'Die Route ist gleichmässig auf {n} Tage verteilt (dunkel: diese Etappe).',
   'The route is shared out evenly over {n} days.': 'Die Route ist gleichmässig auf {n} Tage verteilt.',
   'No route yet. Load the GPX in': 'Noch keine Route. Lade das GPX in',
-  'under "Ride and weather".': 'unter «Fahrt und Wetter».',
+  // v0.27.0 (Noah 1a): the same word as in Pack («Tourbedingungen bearbeiten»).
+  'under "Trip conditions" (••• menu).': 'unter «Tourbedingungen» (Menü •••).',
   'Block by block': 'Block für Block',
   'Block {n}': 'Block {n}',
   'stop at km {km}': 'Stopp bei km {km}',
@@ -333,4 +334,7 @@ export default {
   'Take {name} next time': '{name} nächstes Mal mitnehmen',
   'Add "{q}" as new (not in your gear)': '«{q}» neu hinzufügen (nicht in deiner Ausrüstung)',
   'in your gear': 'in deiner Ausrüstung',
+  // v0.27.0 (Noah 1a, AP22): GPX errors.
+  "This file is too big for a GPX route (more than {mb} MB).": "Diese Datei ist zu gross für eine GPX-Route (mehr als {mb} MB).",
+  "This file is empty.": "Diese Datei ist leer.",
 };

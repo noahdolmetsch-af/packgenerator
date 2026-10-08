@@ -40,8 +40,12 @@ export function contextSwitches(trip) {
   return { ...(trip?.sets ?? {}), ...Object.fromEntries(SWITCHED.map((k) => [k, on.has(k)])) };
 }
 
-/** The layer rows the context applies: weather and amounts, default choices, nothing optional. */
-export const contextRows = (trip, items) => layerSuggest({ ...trip, layerPick: {} }, items).filter((r) => !r.optional);
+/**
+ * The layer rows the context applies: weather and amounts, nothing optional. Default choices,
+ * except an alternative Noah picked (v0.27.0, Noah 1a: "Swap for light gilet" stays when the
+ * weather changes later); a skipped row ("none") is still applied, as before.
+ */
+export const contextRows = (trip, items) => layerSuggest({ ...trip, layerPick: Object.fromEntries(Object.entries(trip?.layerPick ?? {}).filter(([, v]) => v && v !== 'none')) }, items).filter((r) => !r.optional);
 
 const slotOfTrip = (trip, items) => {
   const byId = new Map(items.map((i) => [i.id, i]));

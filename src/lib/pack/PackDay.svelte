@@ -64,11 +64,17 @@
     const esc = (e) => e.key === 'Escape' && onclose();
     window.addEventListener('keydown', esc);
     document.body.classList.add('pd-open');
+    // v0.27.0 (AP21): like the other dialogs, the keyboard focus moves in (first item still to pack)
+    // and goes back to the button that opened the packing day when it closes. Tab stays inside (App).
+    const opener = document.activeElement;
+    const box = document.querySelector('.pd');
+    (box?.querySelector('.items .it[aria-pressed="false"]') ?? box?.querySelector('.foot .btn.hi'))?.focus({ preventScroll: true });
     return () => {
       lock?.release?.();
       document.removeEventListener('visibilitychange', again);
       window.removeEventListener('keydown', esc);
       document.body.classList.remove('pd-open');
+      if (opener instanceof HTMLElement && opener.isConnected) opener.focus({ preventScroll: true });
     };
   });
 </script>
@@ -181,10 +187,18 @@
     min-width: 0;
     font-size: 14px;
   }
+  /* v0.27.0 (AP21): a long trip name gets two lines instead of being cut after a few letters (320 px). */
+  .where {
+    flex: 1;
+    min-width: 120px;
+  }
   .where b {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
   }
   .where .num {
     color: var(--ink-3);
@@ -227,9 +241,11 @@
     overflow-x: auto;
     border-bottom: 1px solid var(--line);
   }
+  /* v0.27.0 (AP21): the bag tabs are 44 px high for a thumb (were 29 px). */
   .dots button {
     flex: none;
-    padding: 6px 10px;
+    min-height: 44px;
+    padding: 6px 12px;
     border: 1.5px solid var(--line);
     border-radius: 999px;
     background: var(--paper);

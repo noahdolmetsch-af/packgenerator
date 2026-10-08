@@ -6,6 +6,8 @@
 // next to the weight).
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { basename } from 'node:path';
 import DE from '../../src/lib/i18n/de/index.js';
 
 const FIXTURE = fileURLToPath(new URL('./gear-fixture.json', import.meta.url));
@@ -34,7 +36,7 @@ const table = (page, name) =>
     name,
   );
 
-async function start(page, context, lang) {
+async function start(page, context, lang, fixture = FIXTURE) {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript((l) => localStorage.setItem('lang', l), lang);
   page.on('dialog', (d) => d.accept());
@@ -46,9 +48,9 @@ async function start(page, context, lang) {
     if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
     expect(await data.evaluate((d) => d.open)).toBe(true);
   }).toPass();
-  await data.getByLabel(T('Import backup')).setInputFiles(FIXTURE);
+  await data.getByLabel(T('Import backup')).setInputFiles(fixture);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
-  await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'gear-fixture.json' }))).toBeVisible();
+  await expect(data.getByText(T('Imported {name} (replaced all data).', { name: basename(fixture) }))).toBeVisible();
   return T;
 }
 
@@ -175,3 +177,20 @@ test('gear: change the category, links survive a reload', async ({ page, context
   expect((await table(page, 'containers')).find((c) => c.id === 'bag-test_data_gtp_roll').itemId).toBe(BAG);
   expect(errors).toEqual([]);
 });
+
+// v0.27.0 (pffix 9): an item whose category the app does not know (someone else's import) is not invisible.
+test('an item with an unknown category shows in "Other / unknown category" with a hint', async ({ page, context }, info) => {
+  const data = JSON.parse(readFileSync(FIXTURE, 'utf8'));
+  data.tables.items.push({ id: 'test_data_gtp_XX90', name: 'test_data_gtp_ Foreign jacket', category: 'clothing', weightG: 300, qty: 1, weightStatus: 'measured', defaultBag: 'seat', ownership: 'owned', role: null, sets: [], kits: [], domains: ['bikepacking'] });
+  const file = info.outputPath('gear-unknown-fixture.json');
+  writeFileSync(file, JSON.stringify(data));
+  const T = await start(page, context, 'de', file);
+  await page.goto('./#/gear');
+  const group = page.locator('section.cat').filter({ has: page.locator('#gh-other') });
+  await expect(group.locator('h2')).toContainText(T('Other / unknown category'));
+  if ((await group.locator('h2 button').getAttribute('aria-expanded')) === 'false') await group.locator('h2 button').click();
+  await expect(group).toContainText('test_data_gtp_ Foreign jacket');
+  await expect(group).toContainText(T('The app does not know the category of these items. Open one and pick a category.'));
+  await fits(page, 'Gear with an unknown category');
+});
+

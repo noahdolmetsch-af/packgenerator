@@ -47,7 +47,8 @@
       ...extras,
       ...(lim != null && lim !== p.limit ? { limit: lim } : {}),
     });
-    dialog.close();
+    // v0.27.0 (Noah 1a): Escape during the save already closed (and unmounted) the dialog.
+    if (dialog?.open) dialog.close();
   }
 
   const hint = $derived(replaceHint(part));
@@ -97,7 +98,7 @@
   {:else}
     <p class="hint">{t('Nothing recorded yet.')}</p>
   {/if}
-  <div class="foot"><button type="button" class="btn" onclick={() => dialog.close()}>{t('Close')}</button></div>
+  <div class="foot"><button type="button" class="btn" onclick={() => dialog?.close()}>{t('Close')}</button></div>
 </dialog>
 
 <style>

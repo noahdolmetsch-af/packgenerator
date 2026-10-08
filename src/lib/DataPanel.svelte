@@ -2,7 +2,7 @@
   import { tidyData } from './tidy.js';
   import { liveQuery } from 'dexie';
   import { db, DATA_TABLES } from './db.js';
-  import { restoreBackup, validateBackup, countRows, downloadBackup } from './backup.js';
+  import { restoreBackup, validateBackup, countRows, downloadBackup, importImpact } from './backup.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
   import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
   import { TEMPLATES_KEY, upsert } from './templates.js';
@@ -55,13 +55,18 @@
       }
       const problems = validateBackup(data);
       if (problems.length) {
-        message = problems.join(' ');
+        pending = null;
+        message = `${problems.join(' ')} ${t('Nothing was changed.')}`;
         return;
       }
-      pending = { data, name: file.name, counts: countRows(data) };
+      // v0.27.0 (Noah 1a, AP22): what Replace and Merge would do, compared with this device, before anything runs.
+      const existing = {};
+      for (const k of DATA_TABLES) existing[k] = await db.table(k).toCollection().primaryKeys();
+      pending = { data, name: file.name, counts: countRows(data), impact: importImpact(data, existing) };
       message = '';
     } catch {
-      message = t('This file could not be read.');
+      pending = null;
+      message = `${file.size ? t('This file could not be read.') : t('This file is empty.')} ${t('Nothing was changed.')}`;
     }
   }
 
@@ -162,6 +167,11 @@
       <p>
         <strong>{pending.name}</strong> {t('contains {items} gear items, {trips} trips and {learnings} learnings.', { items: pending.counts.items, trips: pending.counts.trips, learnings: pending.counts.learnings })}
       </p>
+      <!-- v0.27.0 (Noah 1a, AP22): the scope and what gets overwritten, before the button. -->
+      <ul class="impact">
+        <li>{t('Replace all data: deletes everything on this device ({now} records, trips: {trips}) and puts the file in its place ({file} records).', { now: pending.impact.now, trips: pending.impact.nowTrips, file: pending.impact.file })}{#if pending.impact.lost}{' '}<strong>{t('Only on this device, so lost with Replace: {lost} records (trips: {lostTrips}).', { lost: pending.impact.lost, lostTrips: pending.impact.lostTrips })}</strong>{/if}</li>
+        <li>{t('Merge: new from the file: {added}; same ID, overwritten by the file: {same}; nothing is deleted.', { added: pending.impact.added, same: pending.impact.same })}</li>
+      </ul>
       <div class="row">
         <button type="button" class="hi" onclick={() => applyImport('replace')}>{t('Replace all data')}</button>
         <button type="button" onclick={() => applyImport('merge')}>{t('Merge')}</button>
@@ -262,6 +272,15 @@
     border: 2px dashed var(--hi);
     border-radius: 6px;
     background: var(--hi-soft);
+  }
+  .impact {
+    margin: 0 0 12px;
+    padding-left: 20px;
+    color: var(--ink-2);
+    font-size: 15px;
+  }
+  .impact li + li {
+    margin-top: 4px;
   }
   .small {
     font-size: 14px;

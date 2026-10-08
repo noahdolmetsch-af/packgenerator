@@ -598,9 +598,11 @@
     font-size: 14px;
     color: var(--ink-2);
   }
+  /* v0.27.0 (AP21): 44 px tap area (was 21 px). */
   .howto summary {
     cursor: pointer;
     text-decoration: underline;
+    padding: 11px 0;
   }
   .howto p {
     margin: 6px 0;

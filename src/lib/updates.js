@@ -2,6 +2,9 @@
  * Data updates Noah asked for in the chat, applied once on every device.
  * Each update checks the data itself before it changes anything, and only touches
  * the fields it names, so weights or notes you entered in the app stay as they are.
+ * v0.27.0 (Noah 1a, AP23 finding 4): an update that creates records only runs when the records it
+ * belongs to are already there (Noah's bikes and items by their IDs). A fresh install or someone
+ * else's data never gets Noah's own items, bags or ready check.
  */
 
 import { freshReady, slotFor, ALWAYS_OLD } from './trips.js';
@@ -100,9 +103,10 @@ async function lightSet2026(db) {
  * Rain: rain trousers, rain jacket, rain socks, clear glasses, overshoes (optional).
  * Bottles carry their litres of water. Only empty fields are filled, once.
  */
+// needs: the items of Noah's list this one belongs with (v0.27.0: without them it is not his list).
 const NEW_ITEMS = [
-  { key: 'trousers', name: 'Trainerhose lang chillig', category: 'onbike', defaultBag: 'body', carry: 'body', coldBelow: 5, replaces: 'KL03' },
-  { key: 'gilet', name: 'Gilet Fleece kuschelig', category: 'onbike', defaultBag: 'seat', carry: 'body', coldBelow: 10 },
+  { key: 'trousers', needs: ['KL03'], name: 'Trainerhose lang chillig', category: 'onbike', defaultBag: 'body', carry: 'body', coldBelow: 5, replaces: 'KL03' },
+  { key: 'gilet', needs: ['KL15', 'KL18'], name: 'Gilet Fleece kuschelig', category: 'onbike', defaultBag: 'seat', carry: 'body', coldBelow: 10 },
 ];
 const LAYERS = {
   RG14: { ride: 'daily' }, KL26: { ride: 'daily' }, WZ24: { ride: 'daily' }, WZ23: { altFor: 'WZ24' },
@@ -115,11 +119,14 @@ const LAYERS = {
 };
 async function layers2026(db) {
   if (await db.settings.get('update.layers2026')) return false;
+  // v0.27.0: none of the items it changes is there (fresh install, someone else's data): nothing to do yet.
+  if (!(await db.items.bulkGet(Object.keys(LAYERS))).some(Boolean)) return false;
   await db.transaction('rw', db.items, db.settings, async () => {
     const all = await db.items.toArray();
     for (const n of NEW_ITEMS) {
       if (all.some((i) => i.name === n.name)) continue;
-      const { key, ...fields } = n;
+      if (!n.needs.every((id) => all.some((i) => i.id === id))) continue;
+      const { key, needs, ...fields } = n;
       const used = all.filter((i) => i.id.startsWith('KL')).map((i) => parseInt(i.id.slice(2), 10) || 0);
       const id = 'KL' + String(Math.max(0, ...used) + 1).padStart(2, '0');
       const item = {
@@ -148,6 +155,9 @@ async function layers2026(db) {
  */
 async function fullFrameBag(db) {
   if (!(await db.items.count())) return false; // nothing imported yet
+  // v0.27.0: only for Noah's Scotts (by ID) or a bike whose setup already names this bag.
+  const bikes = await db.bikes.toArray();
+  if (!bikes.some((b) => ['scott-hardtail', 'fully'].includes(b.id) || Object.values(b.setup ?? {}).includes('bag-TA14'))) return false;
   let changed = false;
   await db.transaction('rw', db.items, db.containers, async () => {
     if (!(await db.items.get('TA14'))) {
@@ -178,6 +188,8 @@ const ALWAYS = ['EL13', 'EL07', 'EL10', 'KL22', 'HY01'];
 async function readyClean2026(db) {
   if (await db.settings.get('update.readyClean2026')) return false;
   if (!(await db.items.count())) return false; // nothing imported yet
+  // v0.27.0: none of Noah's "always" items there: not his list, its ready checks stay as they are.
+  if (!(await db.items.bulkGet(ALWAYS)).some(Boolean)) return false;
   const today = now().slice(0, 10);
   await db.transaction('rw', db.items, db.trips, db.settings, async () => {
     for (const id of ALWAYS) {

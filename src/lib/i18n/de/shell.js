@@ -107,6 +107,7 @@ export default {
   'Log km': 'km eintragen',
   '{packed} / {n} in the bags': '{packed} / {n} in den Taschen',
   '{n} % packed': '{n} % gepackt',
+  '{packed} of {count}|packed': '{packed} von {count}',
   'Ready check {done} / {n}': 'Startcheck {done} / {n}',
   'Ballast {w} on {n} item you did not use last times.': 'Ballast {w} bei {n} Teil, das du die letzten Male nicht gebraucht hast.',
   'Ballast {w} on {n} items you did not use last times.': 'Ballast {w} bei {n} Teilen, die du die letzten Male nicht gebraucht hast.',
@@ -140,7 +141,7 @@ export default {
   'No place set yet': 'Noch kein Ort gesetzt',
   'Sunrise {rise} · sunset {set}': 'Sonnenaufgang {rise} · Sonnenuntergang {set}',
   'Packed for {min} to {max} °C': 'Gepackt für {min} bis {max} °C',
-  'Set the start place in Pack → Ride and weather.': 'Setze den Startort in Packen → Fahrt und Wetter.',
+  'Set the start place in Pack → Trip conditions.': 'Setze den Startort in Packen → Tourbedingungen.',
   'Forecast from 16 days before': 'Vorhersage ab 16 Tagen vorher',
   'sun computed offline': 'Sonne offline berechnet',
   'From your debriefs': 'Aus deinen Rückblicken',
@@ -485,4 +486,9 @@ export default {
   '{n} hint': '{n} Hinweis',
   '{n} hints': '{n} Hinweise',
   '{n} still open': '{n} noch offen',
+  // v0.27.0 (Noah 1a, AP22): photo errors, import preview.
+  "This photo could not be read. Please choose a JPG or PNG.": "Dieses Foto konnte nicht gelesen werden. Bitte wähle ein JPG oder PNG.",
+  "Replace all data: deletes everything on this device ({now} records, trips: {trips}) and puts the file in its place ({file} records).": "Alle Daten ersetzen: löscht alles auf diesem Gerät ({now} Einträge, davon Touren: {trips}) und setzt die Datei an seine Stelle ({file} Einträge).",
+  "Only on this device, so lost with Replace: {lost} records (trips: {lostTrips}).": "Nur auf diesem Gerät, also mit Ersetzen verloren: {lost} Einträge (davon Touren: {lostTrips}).",
+  "Merge: new from the file: {added}; same ID, overwritten by the file: {same}; nothing is deleted.": "Zusammenführen: neu aus der Datei: {added}; gleiche ID, von der Datei überschrieben: {same}; nichts wird gelöscht.",
 };

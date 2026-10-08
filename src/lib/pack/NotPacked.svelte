@@ -184,6 +184,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    min-height: 44px; /* v0.27.0 (AP21): a thumb high (was 35 px) */
     padding: 9px 10px;
     border: 0;
     border-bottom: 1px solid var(--line);

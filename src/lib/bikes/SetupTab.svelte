@@ -62,17 +62,21 @@
     event.currentTarget.value = '';
     adding = true;
     photoMsg = '';
-    try {
-      for (const [n, file] of files.entries()) {
+    // v0.27.0 (Noah 1a, AP22): each file on its own; a bad one is named and the good ones are still saved.
+    const failed = [];
+    let saved = 0;
+    for (const [n, file] of files.entries()) {
+      try {
         const data = await shrinkImage(file);
         const id = `photo-${Date.now().toString(36)}-${n}`;
-        await db.photos.put({ id, bikeId: bike.id, name: file.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Setup', tripId: null, main: !gallery.length && n === 0, data, addedAt: new Date().toISOString() });
+        await db.photos.put({ id, bikeId: bike.id, name: file.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Setup', tripId: null, main: !gallery.length && saved === 0, data, addedAt: new Date().toISOString() });
+        saved++;
+      } catch (err) {
+        failed.push(`${file.name}: ${err.message || t('This photo could not be read.')}`);
       }
-    } catch (err) {
-      photoMsg = err.message || t('This photo could not be read.');
-    } finally {
-      adding = false;
     }
+    if (failed.length) photoMsg = [...failed, saved ? tn(saved, '{n} other photo was saved.', '{n} other photos were saved.') : t('No photo was saved.')].join(' ');
+    adding = false;
   }
   /** The photo shown pale behind the bags in Pack. The old bike photo is main when no other one is. */
   async function setMain(p) {
@@ -199,14 +203,14 @@
           <button type="button" role="tab" aria-selected={b.id === bike.id} onclick={() => (onbike?.(b.id), (activeSlot = null), (emptyOpen = false))}>{b.name}</button>
         {/each}
       </div>
-      <button type="button" class="link addbike" onclick={() => (bikeDialog = { bike: null })}>{t('Add bike')}</button>
+      <button type="button" class="link addbike tap" onclick={() => (bikeDialog = { bike: null })}>{t('Add bike')}</button>
     </div>
 
     <section class="bike-card" aria-labelledby="bike-h">
       <div class="bh">
         <div>
           <h2 id="bike-h" class="title">{bike.name}</h2>
-          <p class="sub">{bike.type ?? ''}{bike.use ? ` · ${bike.use}` : ''} <button type="button" class="link" onclick={() => (bikeDialog = { bike })}>{t('Edit')}</button></p>
+          <p class="sub">{bike.type ?? ''}{bike.use ? ` · ${bike.use}` : ''} <button type="button" class="link tap" onclick={() => (bikeDialog = { bike })}>{t('Edit')}</button></p>
         </div>
         <p class="kpi num">
           <span><span class="lbl">{t('Bags')}</span><b>{setup.bagCount} · {formatVolume(setup.volumeL)}</b></span>
@@ -292,8 +296,9 @@
             </button>
           {/each}
           <label class="th add">{adding ? t('Reading…') : t('+ Photo')}<input type="file" accept="image/*" multiple onchange={addPhotos} hidden disabled={adding} /></label>
-          {#if photoMsg}<p class="err" role="alert">{photoMsg}</p>{/if}
         </div>
+        <!-- v0.27.0 (AP22): below the gallery, so a long message wraps instead of scrolling sideways. -->
+        {#if photoMsg}<p class="photo-err" role="alert">{photoMsg}</p>{/if}
       </Fold>
 
       <!-- v0.25.1 (Noah 2b): "Was geil wäre", the bike's own ideas -->
@@ -444,10 +449,9 @@
   .lsel option {
     color: var(--ink);
   }
-  .gal .err {
-    flex: none;
-    align-self: center;
-    margin: 0;
+  .photo-err {
+    margin: 0 0 10px;
+    overflow-wrap: anywhere;
     color: var(--bad);
     font-size: 14px;
   }

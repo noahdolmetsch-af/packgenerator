@@ -9,7 +9,7 @@
    *
    * onchange(fn): fn gets a plain copy of the trip and returns the fields to store.
    */
-  import { parseGpx, routeStats, ridingHours, SPEED_KMH, CLIMB_MH } from '../route.js';
+  import { readGpxFile, ridingHours, SPEED_KMH, CLIMB_MH } from '../route.js';
   import { searchPlace, fetchForecast, forecastForTrip, toWx, forecastFrom, ageText, tripDays } from '../weather.js';
   import { RAIN } from '../trips.js';
   import Profile from '../ui/Profile.svelte';
@@ -45,12 +45,13 @@
     event.currentTarget.value = '';
     if (!file) return;
     try {
-      const route = routeStats(parseGpx(await file.text()), file.name);
+      // v0.27.0 (Noah 1a, AP22): size and empty file checked before reading; on error nothing is stored.
+      const route = await readGpxFile(file);
       routeMsg = '';
       // The route start becomes the weather place when there is none yet.
       onchange((tr) => ({ route, ...(tr.place ? {} : { place: { name: route.name ? t('Start of {name}', { name: route.name }) : t('Route start'), ...route.start } }) }));
     } catch (err) {
-      routeMsg = err.message ? t(err.message) : t('This file could not be read.');
+      routeMsg = err?.message || t('This file could not be read.');
     }
   }
   const dropRoute = () => confirm(t('Remove the route from this trip?')) && onchange(() => ({ route: null }));
@@ -69,7 +70,8 @@
       found = await searchPlace(q);
       if (!found.length) placeMsg = t('No place found. Try another spelling.');
     } catch {
-      placeMsg = t('No connection. Place search needs the internet.');
+      // v0.27.0 (Noah 1a, AP22): offline and "service down" are told apart.
+      placeMsg = navigator.onLine ? t('The place search is not answering. Try again later.') : t('No connection. Place search needs the internet.');
     } finally {
       searching = false;
     }

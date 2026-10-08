@@ -16,8 +16,9 @@ const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Z
 function fixture(path) {
   const data = structuredClone(base);
   // Two items of one category, so "Select all" of a group has something to select.
-  for (const [id, name] of [['CK90', 'test_data_gtp_ Löffel'], ['CK91', 'test_data_gtp_ Tasse']])
-    data.tables.items.push({ id, name, category: 'cook', weightG: 20, qty: 1, weightStatus: 'measured', defaultBag: 'top', ownership: 'owned', role: null, sets: [], kits: [], domains: ['bikepacking'] });
+  // v0.27.0 (pffix): plus one in another category for the single "+" (before, the start-up update added Noah's full frame bag).
+  for (const [id, name, category = 'cook'] of [['CK90', 'test_data_gtp_ Löffel'], ['CK91', 'test_data_gtp_ Tasse'], ['LX90', 'test_data_gtp_ Kissen', 'lux']])
+    data.tables.items.push({ id, name, category, weightG: 20, qty: 1, weightStatus: 'measured', defaultBag: 'top', ownership: 'owned', role: null, sets: [], kits: [], domains: ['bikepacking'] });
   // A template to edit (TemplateEdit uses the same tick boxes).
   data.tables.settings.push({ key: 'templates', value: [{ id: 'tpl-gtp', name: 'test_data_gtp_ Vorlage', setup: { seat: 'bag-TA01', frame: 'bag-TA02', top: 'bag-TA03' }, entries: [{ itemId: 'TO01', slot: 'frame', qty: 1 }], ready: [], ride: null, hours: null, sets: {}, purpose: {}, fromTrip: null, updatedAt: '2026-10-01T10:00:00.000Z' }] });
   writeFileSync(path, JSON.stringify(data));
@@ -76,6 +77,8 @@ for (const lang of ['en', 'de']) {
     await start(page, context, info, lang);
     await newTrip(page, T, `test_data_gtp_ Ruhig ${lang}`);
     const list = page.locator('.calm-pack');
+    // v0.27.0 (Noah): the templates are visible on the Trips page itself
+    await expect(list.locator('.tour-context').getByRole('link', { name: T('Templates') })).toHaveAttribute('href', '#/pack/templates');
 
     // Calm: no stepper and no "•••" on the rows until one is opened.
     await expect(list.locator('.planning-row').first()).toBeVisible();
