@@ -1,8 +1,9 @@
 /**
  * v0.35.0 (Noah, from now on every release): "New in the last updates" at the top of "What the app
  * can do" (#/features), and once after an update a quiet line on Today. Each release adds an entry
- * at the top: version, date, 2-4 points in plain words (English keys for t(), German in
- * i18n/de/whatsnew.js), each with the address of the exact place ("Try it").
+ * at the top: version, date, 1-4 points in plain words (English keys for t(), German in
+ * i18n/de/whatsnew.js), each with the address of the exact place ("Try it"), or no address when
+ * the place no longer exists (older versions). The list goes back to the first version (0.1.0).
  * action 'data': the place is "Your data" on Today (nav.js openData) instead of an address.
  * Pure, tested in tests/whatsnew.test.js.
  */
@@ -47,6 +48,484 @@ export const WHATS_NEW = [
       { text: 'The building blocks page in three groups.', href: '#/blocks' },
     ],
   },
+  // Below: the history back to the first version (docs/status.md, git log). Words of today where
+  // a place was renamed; no "Try it" where the place no longer exists.
+  {
+    version: '0.31.0',
+    date: '2026-10-08',
+    points: [
+      { text: 'Bike care shows one bike at a time, with at most three lines "Due now".', href: '#/care' },
+      { text: 'Each part shows its last job (date, km, cost, who did it) and when it is due next.', href: '#/care' },
+      { text: 'Setup: your bikes as tabs in the dark band, a large drawing and your standard bags.', href: '#/bikes' },
+      { text: 'Whether you or the bike shop did the work, you choose when you log it.', href: '#/care' },
+    ],
+  },
+  {
+    version: '0.30.2',
+    date: '2026-10-08',
+    points: [
+      { text: 'A search result opens the item straight away.', href: '#/gear' },
+      { text: 'While packing, rows stay in place, so a quick tap never hits the wrong item.', href: '#/pack?day' },
+      { text: 'New learnings come first on Today; the packing day shows "From earlier trips".', href: '#/' },
+      { text: 'Plan a new trip also without a bike, with help for the first steps.', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.30.1',
+    date: '2026-10-08',
+    points: [
+      { text: 'A quick double tap counts once; Undo after "Whole bag packed" opens the bag again.', href: '#/pack?day' },
+      { text: 'Rename a trip by tapping its name.', href: '#/pack' },
+      { text: 'Kilometres can be typed with an apostrophe or a point between the thousands.', href: '#/bikes' },
+      { text: 'Templates read like "Standard + Rain + 3 single items".', href: '#/pack/templates' },
+    ],
+  },
+  {
+    version: '0.30.0',
+    date: '2026-10-08',
+    points: [
+      { text: '"Plan a trip" opens one window: when, how long, weather, the Standard card and building blocks as chips.', href: '#/pack' },
+      { text: 'Standard plus rain gear in four taps.', href: '#/pack' },
+      { text: '"Good to know" shows up to three important cards, then tips "Did you know?".', href: '#/' },
+      { text: 'A new page: what the app can do.', href: '#/features' },
+    ],
+  },
+  {
+    version: '0.29.2',
+    date: '2026-10-08',
+    points: [
+      { text: 'A new trip starts with the standard set; templates sit folded under "Start from a template".', href: '#/pack' },
+      { text: '"Day ride" packs the standard set plus the weather on the bike of your last trip.', href: '#/' },
+      { text: 'A green card shows the new trip: name, bike, date, number of items and where to find it, with Change and Undo.' },
+    ],
+  },
+  {
+    version: '0.29.1',
+    date: '2026-10-08',
+    points: [
+      { text: 'Packing is reliable: a quick second tap no longer takes the item out again.', href: '#/pack?day' },
+      { text: 'A bag moves on only when it is really full.', href: '#/pack?day' },
+    ],
+  },
+  {
+    version: '0.29.0',
+    date: '2026-10-08',
+    points: [
+      { text: 'Plan, Pack, On the way and Debrief share one dark band with tabs and an orange button to the next step.', href: '#/pack' },
+      { text: 'Plan shows weather changes with a reason and Undo on each line.', href: '#/pack' },
+      { text: 'On the way starts with "Now", notes in one tap.', href: '#/ride' },
+      { text: 'The debrief comes filled in: one tap when all went as planned.', href: '#/debrief' },
+    ],
+  },
+  {
+    version: '0.28.0',
+    date: '2026-10-08',
+    points: [
+      { text: 'Template suggestions are questions with their source, such as "unused on 3 of 3 trips".', href: '#/pack/templates' },
+      { text: '"Not now" rests until three more debriefs; a history shows earlier decisions.', href: '#/pack/templates' },
+      { text: 'Rain and cold items only count on trips with that weather.' },
+      { text: 'First aid is its own building block and comes along only with a night out.', href: '#/blocks' },
+    ],
+  },
+  {
+    version: '0.27.0',
+    date: '2026-10-08',
+    points: [
+      { text: 'Each packing line names its reason, such as "Below 6 °C".', href: '#/pack' },
+      { text: 'Windows keep the keyboard focus; tap areas on a touch screen are at least 44 px.' },
+      { text: 'Before an import you see what will be replaced.', href: '#/', action: 'data' },
+      { text: 'Clear messages for broken photos, empty or very large GPX files and long links.' },
+    ],
+  },
+  {
+    version: '0.26.1',
+    date: '2026-10-08',
+    points: [
+      { text: '"Your data" opens by itself only once.', href: '#/', action: 'data' },
+      { text: 'A building block for the light at night.', href: '#/blocks' },
+    ],
+  },
+  {
+    version: '0.26.0',
+    date: '2026-10-08',
+    points: [
+      { text: 'A new page Building blocks: make your own and rename them.', href: '#/blocks' },
+      { text: 'In Gear, "Select" puts many items at once into a building block, a trip or a template, with Undo.', href: '#/gear' },
+      { text: 'Templates ask "update or new" and remember days, night and bike.', href: '#/pack/templates' },
+      { text: 'Notes on the way belong to the trip and the day.', href: '#/ride' },
+    ],
+  },
+  {
+    version: '0.25.1',
+    date: '2026-10-08',
+    points: [
+      { text: '"Day ride" on Today makes the trip at once, with name, date and weather filled in.', href: '#/' },
+      { text: 'The Trips and Bikes tiles have four buttons plus "More", such as entering km or a workshop visit.', href: '#/' },
+      { text: '"Good to know" shows only cards with content, urgent ones first.', href: '#/' },
+      { text: '"Today" is right between midnight and 2 am too.' },
+    ],
+  },
+  {
+    version: '0.25.0',
+    date: '2026-10-07',
+    points: [
+      { text: 'A new trip asks for days, riding hours, night, weather and event, with a preview of what goes on the list.', href: '#/pack' },
+      { text: 'Later changes apply at once with Undo; amounts you set by hand stay.', href: '#/pack' },
+      { text: 'Short rides without an event show no bike care before the start.' },
+    ],
+  },
+  {
+    version: '0.24.1',
+    date: '2026-10-07',
+    points: [
+      { text: 'Packing lines show only name, count and weight; a tap opens the rest.', href: '#/pack' },
+      { text: 'Debrief right from Today: "All good" with Undo.', href: '#/' },
+      { text: 'Select many items in Gear to change the category, move them to the wishlist or delete them.', href: '#/gear' },
+      { text: 'A day ride from "New" to debrief: 8 clicks instead of 65.' },
+    ],
+  },
+  {
+    version: '0.24.0',
+    date: '2026-10-07',
+    points: [
+      { text: '"All in, next" for each bag and "Everything packed" on the packing day.', href: '#/pack?day' },
+      { text: '"All as planned" in the debrief and "All / none" for weather suggestions.', href: '#/debrief' },
+      { text: 'Make a new item straight from the search.', href: '#/gear' },
+      { text: 'One-day trips start without the overnight basics.' },
+    ],
+  },
+  {
+    version: '0.23.1',
+    date: '2026-10-07',
+    points: [
+      { text: 'The language is in the profile menu.' },
+      { text: 'Today folds on the phone; the category of an item can be changed on the phone too.', href: '#/' },
+    ],
+  },
+  {
+    version: '0.23.0',
+    date: '2026-10-07',
+    points: [
+      { text: 'One navigation on every page: Today, Trips, Gear, Bikes; on the phone at the bottom with + in the middle.', href: '#/' },
+      { text: 'Today shows the next trip with exactly one main action.', href: '#/' },
+      { text: 'Gear starts with search, filter and list; a new item needs only name, category and status.', href: '#/gear' },
+      { text: 'The category of an item can be changed; all its links stay.', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.22.1',
+    date: '2026-10-07',
+    points: [
+      { text: 'Overdue is said in words, such as "for 3 weeks".' },
+      { text: 'The event preparation shows only on trips marked "Event".', href: '#/pack' },
+      { text: 'Gear fits a 390 px phone screen again.' },
+    ],
+  },
+  {
+    version: '0.22.0',
+    date: '2026-10-07',
+    points: [
+      { text: 'Calmer type and colours; only the current main action is orange, with a visible focus ring.' },
+      { text: 'Honest weights: sums say "known" and how many weights are missing.', href: '#/pack' },
+      { text: 'A star before every item marks a favourite in one tap.', href: '#/gear' },
+      { text: 'Today, Pack and Bike care show the same readiness.' },
+    ],
+  },
+  {
+    version: '0.21.0',
+    date: '2026-10-07',
+    points: [
+      { text: 'Today lists what is still missing so the app can calculate for you, such as weighing bikes or loading a GPX.', href: '#/' },
+      { text: 'Bikes and bike care on one page, with the tabs Setup and Care.', href: '#/bikes' },
+      { text: 'Kinds of travel besides bikepacking: ski touring, weekend and long journeys, each with its own bags.', href: '#/pack' },
+      { text: 'A page with all your favourite things, by kind of travel and ready to print.', href: '#/favorites' },
+    ],
+  },
+  {
+    version: '0.20.2',
+    date: '2026-10-05',
+    points: [
+      { text: 'A big orange button takes you to the next step of the trip: packing day, on the way, debrief.', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.20.1',
+    date: '2026-10-05',
+    points: [
+      { text: 'A whole trip plays through: new list, pack, on the way, end the trip, debrief.', href: '#/pack' },
+      { text: '"End trip and debrief" ends the trip at once, not only the next day.', href: '#/ride' },
+    ],
+  },
+  {
+    version: '0.20.0',
+    date: '2026-10-05',
+    points: [
+      { text: 'German and English: you choose the language for each device.' },
+      { text: 'Buttons, dates and numbers switch with the language; what you wrote yourself stays as it is.' },
+    ],
+  },
+  {
+    version: '0.19.6',
+    date: '2026-10-05',
+    points: [
+      { text: 'A new start page: the next trip in a dark band with a countdown, below it trips, gear and bikes.' },
+      { text: 'Search across everything and a "New" button on every page.' },
+      { text: '"Good to know": weather and sun times, a learning, your pace and the backup.', href: '#/' },
+    ],
+  },
+  {
+    version: '0.19.5',
+    date: '2026-10-05',
+    points: [
+      { text: 'The ballast card: what came along but was not needed the last times, with "Leave at home" and "Keep".', href: '#/pack' },
+      { text: 'Short marks at an item, such as "3× not used" or "Missed last time".', href: '#/pack' },
+      { text: 'On the way goes block by block: what to put on and take off, what to eat and drink, when you need light.', href: '#/ride' },
+    ],
+  },
+  {
+    version: '0.19.4',
+    date: '2026-10-05',
+    points: [
+      { text: 'Load your favourites from a file: every favourite gets a star.', href: '#/', action: 'data' },
+      { text: 'Gear has a "Favourites" button; favourites come first when you add items.', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.19.3',
+    date: '2026-10-05',
+    points: [
+      { text: 'Workshop order: everything due before the next trip as one order, to send as a message or print.', href: '#/care' },
+      { text: 'A profile for each bike: km, workshop costs this year and what is due next.', href: '#/bikes' },
+      { text: 'Compare your bikes side by side for a trip and switch with one tap.', href: '#/pack' },
+      { text: 'A quick note from any page, with an optional photo; sort the notes later in the Inbox.', href: '#/inbox' },
+    ],
+  },
+  {
+    version: '0.19.2',
+    date: '2026-10-05',
+    points: [
+      { text: 'Your trips compared: luggage per trip, used and not used, with a trend.', href: '#/debrief/compare' },
+      { text: 'Gear shows dead weight: taken along but never used.', href: '#/gear' },
+      { text: 'The wishlist with a reason, sorted by benefit.', href: '#/gear' },
+      { text: 'Mark a trip "Not riding": it stays, but no longer counts as the next trip.', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.19.0',
+    date: '2026-10-05',
+    points: [
+      { text: 'Load GPX rides and the app works out your pace, with climbing and breaks.', href: '#/debrief/pace' },
+      { text: 'Pack and On the way estimate riding time and arrival with your pace.', href: '#/ride' },
+      { text: 'After three debriefs, templates suggest what can go and what should come along.', href: '#/pack/templates' },
+    ],
+  },
+  {
+    version: '0.18.2',
+    date: '2026-10-05',
+    points: [
+      { text: 'One list "Before the trip" with the same count on Today, Pack and Bike care.', href: '#/pack' },
+      { text: 'Overdue comes first and in red.' },
+    ],
+  },
+  {
+    version: '0.18.1',
+    date: '2026-10-05',
+    points: [
+      { text: 'The packing day warns when the forecast is colder or wetter than what you packed.', href: '#/pack?day' },
+      { text: 'In the debrief, "missed" suggests similar items from your gear.', href: '#/debrief' },
+      { text: 'The packing day fits the phone without sideways scrolling.' },
+    ],
+  },
+  {
+    version: '0.18.0',
+    date: '2026-10-05',
+    points: [
+      { text: 'On the way: all bags, the stage with km, climbing, riding time and an elevation profile.', href: '#/ride' },
+      { text: 'Hour by hour weather at the start and at the finish, still visible offline.', href: '#/ride' },
+      { text: 'From 14 days before a trip you see what the workshop still has to do.', href: '#/care' },
+      { text: 'A demo file starts a demo mode; "End demo" resets everything.', href: '#/', action: 'data' },
+    ],
+  },
+  {
+    version: '0.17.1',
+    date: '2026-10-04',
+    points: [
+      { text: 'A workshop visit without prices says "cost unknown" instead of CHF 0.', href: '#/care' },
+      { text: 'The cost per 1000 km counts only once there is enough data.' },
+    ],
+  },
+  {
+    version: '0.17.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'Workshop visits for each bike: amount, work done, photos of the receipts and km.', href: '#/care' },
+      { text: 'Coming up: services such as the yearly fork service and sealant every three months.', href: '#/care' },
+      { text: 'Costs per year and per 1000 km.', href: '#/care' },
+      { text: 'A photo gallery for each bike.', href: '#/bikes' },
+    ],
+  },
+  {
+    version: '0.16.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'A logbook of your past trips.', href: '#/debrief' },
+      { text: 'Import rides from Strava or Garmin as a file; the km add up.', href: '#/debrief' },
+      { text: 'Share a read-only link to the packing list, or save it as a PDF.', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.15.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'Load a GPX route: distance, climbing and estimated riding hours.', href: '#/pack' },
+      { text: 'A weather forecast for each day of the trip; one click packs for it.', href: '#/pack' },
+      { text: 'The last forecast stays visible offline.' },
+      { text: 'A photo of your bike behind the bags.', href: '#/bikes' },
+    ],
+  },
+  {
+    version: '0.14.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'Packing day: full screen, bag by bag, in large type; the screen stays on.', href: '#/pack?day' },
+      { text: 'Learnings show as a small hint at the matching item.', href: '#/pack' },
+      { text: 'The debrief asks for the km and adds them to the bike.', href: '#/debrief' },
+      { text: 'A reminder when the last backup is older than 14 days.', href: '#/', action: 'data' },
+    ],
+  },
+  {
+    version: '0.13.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'The debrief in three steps: how it was, go through the items, a summary with suggestions.' },
+      { text: 'All learnings in one place, with a search.', href: '#/debrief/learnings' },
+      { text: 'The start page shows the next trip with a countdown and what is still open.' },
+    ],
+  },
+  {
+    version: '0.12.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'Bags show their contents right on the bike.' },
+      { text: 'Move items between bags, with Undo.' },
+      { text: 'Calmer colours and a calmer header.' },
+    ],
+  },
+  {
+    version: '0.11.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'Weights in one line; the weather folds away.' },
+      { text: 'Drag items between bags; short names in the drawing.' },
+      { text: 'Edit templates directly.', href: '#/pack/templates' },
+    ],
+  },
+  {
+    version: '0.10.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'Templates: save a packing setup, update it and start new trips from it.', href: '#/pack/templates' },
+      { text: 'A page with all your templates.', href: '#/pack/templates' },
+    ],
+  },
+  {
+    version: '0.9.1',
+    date: '2026-10-04',
+    points: [
+      { text: 'Smaller + buttons and only one category open at a time.' },
+      { text: 'The kind of ride as buttons that show what they add.' },
+    ],
+  },
+  {
+    version: '0.9.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'The ready check is one short list, with "Tick all checks" and "Save as my standard".', href: '#/pack?day' },
+      { text: 'Items can be marked "On every trip".' },
+    ],
+  },
+  {
+    version: '0.8.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'A new Pack layout in three columns; the items not packed yet are folded by category.' },
+      { text: 'Add with + or by dragging onto a bag; bag tiles with a fill bar.' },
+      { text: 'On the phone a fixed bar shows which bag you are adding to.' },
+    ],
+  },
+  {
+    version: '0.7.1',
+    date: '2026-10-04',
+    points: [
+      { text: 'Tyre pressure and sealant for each bike.', href: '#/care' },
+      { text: 'A list of what was done when.', href: '#/care' },
+      { text: 'The wear limit of the brake rotors for each bike.' },
+    ],
+  },
+  {
+    version: '0.7.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'Bike care: the parts of each bike with their history.', href: '#/care' },
+      { text: 'Reminders by distance, such as a check every 1000 km or chain wax every 150 km.', href: '#/care' },
+      { text: 'Preparation tasks for each trip.', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.6.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'Weather with a clothing suggestion, for cold and rain too.' },
+      { text: 'A warning when a bag is too full, with a suggestion for another bag.' },
+      { text: 'Weigh and print right from Pack; the load on the front and rear wheel.' },
+      { text: 'An inventory check of your gear.', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.5.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'Bikes: your own bag list, bike setups with a drawing, bike and rider weight.', href: '#/bikes' },
+      { text: 'Pack: pick a trip or start a new one, choose a bag on the drawing and add items.', href: '#/pack' },
+      { text: 'Tick items off bag by bag, with a ready check and the system weight.', href: '#/pack?day' },
+    ],
+  },
+  {
+    version: '0.4.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'Gear categories fold open and shut.' },
+      { text: 'The gear weight leaves out food and water; brand and model are separate.', href: '#/gear' },
+      { text: 'Weighing starts with the items for every trip.' },
+    ],
+  },
+  {
+    version: '0.3.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'The Gear page: key figures, weight by category, the heaviest items, search and filter.', href: '#/gear' },
+      { text: 'Add, edit and delete items; the wishlist kept apart.', href: '#/gear' },
+      { text: 'Weigh mode: one item after the other, type the grams, save and next.', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.2.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'Your data stays on your device, in a local database.' },
+      { text: '"Your data": export and import a backup, replace or merge.', href: '#/', action: 'data' },
+      { text: 'An automatic backup into a folder on the computer.' },
+      { text: 'Your packing spreadsheet can be converted for the app.' },
+    ],
+  },
+  {
+    version: '0.1.0',
+    date: '2026-10-04',
+    points: [
+      { text: 'The app starts: install it on your phone and use it offline.' },
+      { text: 'Open it in the browser, on any device.' },
+    ],
+  },
 ];
 
 /** How many versions show open; the older ones fold away. */
@@ -70,6 +549,26 @@ export function compareVersions(a = '0', b = '0') {
 /** The entries to show open (the newest SHOWN) and the older ones (folded). */
 export function splitNews(list = WHATS_NEW, shown = SHOWN) {
   return { recent: list.slice(0, shown), older: list.slice(shown) };
+}
+
+/** "0.35.0" → "0.35", "0.30.2" stays. */
+export const shortVersion = (v) => String(v).replace(/\.0$/, '');
+
+/**
+ * The folded versions in calm groups by version range (0.30 to 0.39, 0.20 to 0.29, ...; 0.1 to
+ * 0.9 the first), newest first: { key, from, to, entries } with from/to like "0.20" and "0.29".
+ */
+export function groupOlder(older = splitNews().older) {
+  const groups = [];
+  for (const e of older) {
+    const [major = 0, minor = 0] = String(e.version).split('.').map((x) => Number(x) || 0);
+    const key = `${major}.${Math.floor(minor / 10)}`;
+    let g = groups.at(-1);
+    if (!g || g.key !== key) groups.push((g = { key, entries: [] }));
+    g.entries.push(e);
+  }
+  const minorOf = (e) => e.version.split('.').slice(0, 2).join('.');
+  return groups.map(({ key, entries }) => ({ key, from: minorOf(entries.at(-1)), to: minorOf(entries[0]), entries }));
 }
 
 /**
