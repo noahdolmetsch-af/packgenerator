@@ -33,6 +33,10 @@
   let cur = $state(firstOpen());
   let msg = $state('');
   let timer = null;
+  // Everything packed and checked: say so in the status line, whichever bag is open (not only in
+  // the ready check), so the end of packing is always seen.
+  const finished = $derived(total > 0 && packed === total && readyAll);
+  const status = $derived(finished ? (bike ? t('Everything is in. Have a good ride!') : t('Everything is in. Have a good trip!')) : msg);
   const nextAfter = (key) => {
     const i = steps.findIndex((s) => s.key === key);
     return [...steps.slice(i + 1), ...steps.slice(0, Math.max(0, i))].find((s) => !full(s))?.key ?? READY;
@@ -43,6 +47,10 @@
     clearTimeout(timer);
     const to = nextAfter(from);
     msg = t('{bag} is packed. Next: {next}', { bag: titleOf(from), next: titleOf(to) });
+    if (!delay) {
+      if (cur === from) cur = to; // "Whole bag packed": no tick to show, move on at once
+      return;
+    }
     timer = setTimeout(() => {
       if (cur === from) cur = to;
     }, delay);
@@ -134,7 +142,7 @@
       <div><p class="pt">{packed < total ? tn(total - packed, '{n} item left', '{n} items left') + ' ' + tn(bagsLeft, 'in {n} bag', 'in {n} bags') : t('Everything is in.')}</p><p class="tp-muted tp-small">{t('Tap the whole row. A full bag jumps to the next one.')}</p></div>
     </div>
   {/if}
-  <p class="tp-status" role="status">{msg}</p>
+  <p class="tp-status" role="status">{status}</p>
 
   <div class="pgrid">
     {#each steps as s (s.key)}
@@ -194,7 +202,7 @@
             {/each}
           </ul>
           <div class="bagfoot">
-            {#if !done}<button type="button" class="tp-link" onclick={onreadyall}>{t('Tick all checks')}</button>{:else}<span class="tp-muted tp-small">{packed === total ? (bike ? t('Everything is in. Have a good ride!') : t('Everything is in. Have a good trip!')) : t('all in')}</span>{/if}
+            {#if !done}<button type="button" class="tp-link" onclick={onreadyall}>{t('Tick all checks')}</button>{:else}<span class="tp-muted tp-small">{t('all in')}</span>{/if}
             {#if canUndo}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
           </div>
         {:else if !done}<p class="preview">{ready.filter((r) => !readyDone(r, trip)).map((r) => t(r.label)).join(' · ')}</p>{/if}
