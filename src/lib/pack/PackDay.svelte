@@ -11,6 +11,7 @@
    * onnext(): the next step (On the way, or the debrief for a trip without a bike). onundo(): the page's Undo.
    */
   import { Check, ChevronDown, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks } from '@lucide/svelte';
+  import { tick as settle, untrack } from 'svelte';
   import TripBand from '../trip/TripBand.svelte';
   import { formatWeight } from '../gear.js';
   import { readyDone, RAIN } from '../trips.js';
@@ -31,47 +32,85 @@
   const firstOpen = () => steps.find((s) => !full(s))?.key ?? READY;
   // The open bag: the first one that still has something to pack (a tap on another opens that one).
   let cur = $state(firstOpen());
-  let msg = $state('');
+  // "{bag} is packed. Next: …": shown while that bag is still full (an untick takes it away again).
+  let note = $state(null); // { from, to }
   let timer = null;
-  // Everything packed and checked: say so in the status line, whichever bag is open (not only in
-  // the ready check), so the end of packing is always seen.
+  // Everything packed and checked: a card of its own at the top (v0.30.1, Noah B10: the status line
+  // alone was too quiet), whichever bag is open.
   const finished = $derived(total > 0 && packed === total && readyAll);
-  const status = $derived(finished ? (bike ? t('Everything is in. Have a good ride!') : t('Everything is in. Have a good trip!')) : msg);
+  const doneText = $derived(bike ? t('Everything is in. Have a good ride!') : t('Everything is in. Have a good trip!'));
+  const stepOf = (key) => steps.find((x) => x.key === key);
+  const status = $derived(finished ? '' : note && stepOf(note.from) && full(stepOf(note.from)) ? t('{bag} is packed. Next: {next}', { bag: titleOf(note.from), next: titleOf(note.to) }) : '');
   const nextAfter = (key) => {
     const i = steps.findIndex((s) => s.key === key);
     return [...steps.slice(i + 1), ...steps.slice(0, Math.max(0, i))].find((s) => !full(s))?.key ?? READY;
   };
   const titleOf = (key) => (key === READY ? t('Ready check') : steps.find((s) => s.key === key)?.title ?? '');
-  // Noah 6a: a full bag jumps to the next one by itself (a moment later, so the last tick is seen).
-  function advance(from, delay = 450) {
+
+  // v0.30.1 (Noah B4, B6, phone test of 0.29.2): on a phone a quick double tap is two clicks, and
+  // after the first one the ticked row slides down, so the second lands on another row (or on the same
+  // one again). A second tap within TAP_MS on the same spot of the screen (or, from the keyboard, on
+  // the same item) counts as the first one. Quick taps on two different rows both count, and a
+  // deliberate later tap still unticks (B3).
+  const TAP_MS = 400;
+  const SAME_SPOT = 40; // px: rows are 60 px high
+  // Noah 6a: a full bag jumps to the next one by itself, a moment later so the last tick is seen.
+  // The jump waits JUMP_MS and is called off when the bag is not full any more, or when the finger
+  // touches the bag again in between (B6: "tick the last item and tap it again" keeps the bag open).
+  const JUMP_MS = 700;
+  let lastTap = { at: -Infinity, y: null, id: null };
+  let downAt = -Infinity; // the last pointerdown inside the open bag
+  const now = () => performance.now();
+  function cancelJump() {
     clearTimeout(timer);
+    timer = null;
+  }
+  function touchBag() {
+    downAt = now();
+    cancelJump();
+  }
+  function advance(from, delay = JUMP_MS, at = now()) {
+    cancelJump();
     const to = nextAfter(from);
-    msg = t('{bag} is packed. Next: {next}', { bag: titleOf(from), next: titleOf(to) });
+    note = { from, to };
     if (!delay) {
       if (cur === from) cur = to; // "Whole bag packed": no tick to show, move on at once
       return;
     }
+    if (downAt > at) return; // touched again while the tick was saved
     timer = setTimeout(() => {
-      // only if the bag is still full (a second tap may have taken the last item out again)
-      const s = steps.find((x) => x.key === from);
-      if (cur === from && (!s || full(s))) cur = to;
+      timer = null;
+      const s = stepOf(from);
+      if (cur === from && (!s || full(s)) && downAt <= at) cur = to;
     }, delay);
   }
-  // A tap is saved before the next one on the same row counts, so a quick double tap can't
-  // pack and unpack the item again behind the user's back (seen on a slow machine, 8.10.2026).
+  // v0.30.1 (Noah B7): Undo puts back the open bag too (a whole bag or a full bag had moved on).
+  // One entry per change made here, in step with the page's Undo list.
+  let back = [];
+  const remember = () => (back = [...back.slice(-19), cur]);
+  // A tap is saved before the next one on the same row counts (seen on a slow machine, 8.10.2026).
   const busy = new Set();
-  async function tick(step, e) {
+  async function tick(step, e, ev) {
+    const at = now();
+    const y = ev?.detail ? ev.clientY : null; // detail 0: Enter or Space
+    const same = y != null && lastTap.y != null ? Math.abs(y - lastTap.y) < SAME_SPOT : lastTap.id === e.itemId;
+    if (at - lastTap.at < TAP_MS && same) return;
+    lastTap = { at, y, id: e.itemId };
     if (busy.has(e.itemId)) return;
     busy.add(e.itemId);
     const willFill = !e.packed && step.done + 1 === step.entries.length;
     try {
+      remember();
       await ontoggle(e.itemId);
     } finally {
       busy.delete(e.itemId);
     }
-    if (willFill) advance(step.key);
+    if (willFill) advance(step.key, JUMP_MS, at);
+    else if (timer) cancelJump();
   }
   async function wholeBag(step) {
+    cancelJump();
+    remember();
     await onpack(step.entries.map((e) => e.itemId));
     advance(step.key, 0);
   }
@@ -80,20 +119,31 @@
     if (busy.has(key)) return;
     busy.add(key);
     try {
+      remember();
       await onready(r);
     } finally {
       busy.delete(key);
     }
   }
-  function everything() {
-    onpack(null);
+  function readyAllTick() {
+    remember();
     onreadyall();
-    msg = bike ? t('Everything is in. Have a good ride!') : t('Everything is in. Have a good trip!');
-    cur = READY;
+  }
+  async function everything() {
+    cancelJump();
+    remember();
+    await onpack(null);
+    remember();
+    await onreadyall();
+    note = null; // the all-done card takes over (all bags fold, see below)
   }
   function undo() {
-    clearTimeout(timer);
-    msg = '';
+    cancelJump();
+    note = null;
+    if (back.length) {
+      cur = back.at(-1);
+      back = back.slice(0, -1);
+    }
     onundo();
   }
   // Open items on top, packed ones slide down.
@@ -131,6 +181,17 @@
     };
   });
   const pct = $derived(total ? packed / total : 0);
+  // The card comes into view when packing ends here (not when the page opens already finished).
+  let doneEl = $state();
+  let wasDone = untrack(() => finished);
+  $effect(() => {
+    const f = finished;
+    if (f && !wasDone) {
+      cur = '';
+      settle().then(() => doneEl?.scrollIntoView?.({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
+    }
+    wasDone = f;
+  });
 </script>
 
 {#snippet ring(size)}
@@ -160,15 +221,29 @@
       <div><p class="pt">{packed < total ? tn(total - packed, '{n} item left', '{n} items left') + ' ' + tn(bagsLeft, 'in {n} bag', 'in {n} bags') : t('Everything is in.')}</p><p class="tp-muted tp-small">{t('Tap the whole row. A full bag jumps to the next one.')}</p></div>
     </div>
   {/if}
-  <p class="tp-status" role="status">{status}</p>
+  <!-- v0.30.1 (B6): read out here, shown in the bag's foot: a line appearing above the bags pushed the
+       open bag down under the finger, so a quick second tap closed it. -->
+  <p class="sr" role="status">{status}</p>
+  {#if finished}
+    <!-- v0.30.1 (Noah B10): the end of packing is a card of its own at the top, with the next step. -->
+    <section class="alldone" bind:this={doneEl} role="status" aria-labelledby="alldone-h" tabindex="-1">
+      <span class="okbig" aria-hidden="true"><Check size={28} strokeWidth={2.5} /></span>
+      <div class="adtext">
+        <h2 id="alldone-h">{doneText}</h2>
+        <p>{tn(total, '{n} item packed', '{n} items packed')}{#if ready.length}{' · '}{t('Ready check done')}{/if}</p>
+      </div>
+      <!-- dark, not orange: the one orange button of the page stays in the band (at the thumb on a phone) -->
+      <button type="button" class="btn ink adgo" onclick={onnext}>{bike ? t('Next: On the way') : t('Next: Debrief')}<ArrowRight size={20} aria-hidden="true" /></button>
+    </section>
+  {/if}
 
   <div class="pgrid">
     {#each steps as s (s.key)}
       {@const Icon = iconOf(s.key)}
       {@const done = full(s)}
       {#if s.key === cur}
-        <section class="pbag cur" aria-labelledby="pb-{s.key}" style:--span={steps.length + 1}>
-          <button type="button" class="bagh" aria-expanded="true" onclick={() => (cur = '')}>
+        <section class="pbag cur" aria-labelledby="pb-{s.key}" style:--span={steps.length + 1} onpointerdown={touchBag}>
+          <button type="button" class="bagh" aria-expanded="true" onclick={() => { if (now() - lastTap.at >= TAP_MS) cur = ''; }}>
             <Icon size={20} aria-hidden="true" /><span class="bt"><b id="pb-{s.key}">{s.title}</b>{#if s.sub}<small>{s.sub}</small>{/if}</span>
             <span class="r"><span class="mini" aria-hidden="true"><i style:width="{(s.done / s.entries.length) * 100}%"></i></span><span class="num">{s.done}/{s.entries.length}</span><ChevronDown size={18} aria-hidden="true" /></span>
           </button>
@@ -177,7 +252,7 @@
               {@const it = itemsById[e.itemId]}
               {@const hint = hintOf(e.itemId)}
               <li class:in={e.packed}>
-                <button type="button" class="it" aria-pressed={!!e.packed} onclick={() => tick(s, e)}>
+                <button type="button" class="it" aria-pressed={!!e.packed} onclick={(ev) => tick(s, e, ev)}>
                   <span class="box" aria-hidden="true">{#if e.packed}<Check size={20} />{/if}</span>
                   <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q"> × {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{/if}</span>
                   <span class="w num">{it?.weightG != null ? formatWeight(it.weightG * (e.qty || 1)) : t('not weighed')}</span>
@@ -186,7 +261,7 @@
             {/each}
           </ul>
           <div class="bagfoot">
-            {#if !done}<button type="button" class="tp-link" onclick={() => wholeBag(s)}>{t('Whole bag packed')}</button>{:else}<span class="tp-muted tp-small">{t('all in')}</span>{/if}
+            {#if !done}<button type="button" class="tp-link" onclick={() => wholeBag(s)}>{t('Whole bag packed')}</button>{:else}<span class="tp-muted tp-small packed-note" aria-hidden={status && note?.from === s.key ? 'true' : undefined}>{status && note?.from === s.key ? status : t('all in')}</span>{/if}
             {#if canUndo}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
           </div>
         </section>
@@ -220,7 +295,7 @@
             {/each}
           </ul>
           <div class="bagfoot">
-            {#if !done}<button type="button" class="tp-link" onclick={onreadyall}>{t('Tick all checks')}</button>{:else}<span class="tp-muted tp-small">{t('all in')}</span>{/if}
+            {#if !done}<button type="button" class="tp-link" onclick={readyAllTick}>{t('Tick all checks')}</button>{:else}<span class="tp-muted tp-small">{t('all in')}</span>{/if}
             {#if canUndo}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
           </div>
         {:else if !done}<p class="preview">{ready.filter((r) => !readyDone(r, trip)).map((r) => t(r.label)).join(' · ')}</p>{/if}
@@ -240,6 +315,14 @@
 </dialog>
 
 <style>
+  /* v0.30.1 (Noah B10): all done, calm and clear: green for the state; orange stays on the band's button. */
+  .alldone { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px 14px; margin: 0 0 12px; padding: 18px 16px; border: 2px solid var(--ok); border-radius: 12px; background: var(--ok-soft); scroll-margin-top: 72px; }
+  .alldone:focus { outline: none; }
+  .okbig { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--ok); color: #fff; }
+  .alldone h2 { margin: 0; font: 700 21px/1.25 var(--font-body); color: var(--ink); overflow-wrap: anywhere; }
+  .alldone p { margin: 2px 0 0; font-size: 15px; color: var(--ink-2); }
+  .adgo { grid-column: 1 / -1; min-height: 48px; font-size: 16px; }
+  @media (min-width: 720px) { .alldone { grid-template-columns: auto minmax(0, 1fr) auto; } .adgo { grid-column: auto; } }
   .prog { display: flex; align-items: center; gap: 16px; }
   .prog p { margin: 0; }
   .prog .pt { font-weight: 600; font-size: 17px; }
@@ -263,9 +346,11 @@
   .items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
   .it { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 60px; padding: 6px 14px; border: 0; border-top: 1px solid var(--paper-2); background: none; color: var(--ink); font: 400 17px/1.25 var(--font-body); text-align: left; cursor: pointer; }
   .box { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--line-strong); background: #fff; }
-  .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-  .nm small { display: block; font-size: 13px; color: var(--ink-3); }
-  .q { font-weight: 700; }
+  /* v0.30.1 (Noah B1): every item name in the same face, size and weight; × n and the hint line
+     only quieter in colour (before: × n bold, so rows with an amount looked like another font). */
+  .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; font: inherit; }
+  .nm small { display: block; font: 400 14px/1.35 var(--font-body); color: var(--ink-3); }
+  .q { font: inherit; color: var(--ink-3); white-space: nowrap; }
   .w { flex: none; font-size: 14px; color: var(--ink-3); white-space: nowrap; }
   .in .box { background: var(--ink); border-color: var(--ink); color: #fff; }
   .in .nm > :global(:not(small)), .in .nm { color: var(--ink-3); }

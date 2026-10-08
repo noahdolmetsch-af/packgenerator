@@ -20,7 +20,8 @@
   import { localDay } from '../localday.js';
   import { TAB_NAMES, tabsOf, tabHref, tabStatus, tripDates } from '../tabs.js';
 
-  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null } = $props();
+  // weighHint: false hides the "6 not weighed" badge (v0.30.1, Noah E4: not next to the green "Day ride created" card).
+  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true } = $props();
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -47,7 +48,7 @@
     <p class="meta">
       <span><CalendarDays size={16} aria-hidden="true" />{tripDates(trip)}</span>
       {#if byBike}<span><Bike size={16} aria-hidden="true" />{bike?.name ?? trip.bike ?? t('No bike')}</span>{:else}<span><Backpack size={16} aria-hidden="true" />{t(domainName(domainOf(trip)))}</span>{/if}
-      {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.unweighed}<i class="badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}</span>{/if}
+      {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.unweighed && weighHint}<i class="badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}</span>{/if}
       {#if wx}<span><CloudSun size={16} aria-hidden="true" />{wx}</span>{/if}
     </p>
   </div>
