@@ -1,5 +1,5 @@
 // v0.21.0 (package 5): a trip without a bike, on phone and desktop, in English and German.
-// start page → import the fictional fixture → New → Packing list → area Weekend → Items of this area
+// start page → import the fictional fixture → New → Plan a trip → area Weekend (in the New trip window)
 // → Create trip → add an item → packing day → Next: debrief (ends the trip) → saved.
 // Then Gear filtered by area and the page "All my favourite things".
 import { test, expect } from '@playwright/test';
@@ -45,17 +45,15 @@ for (const lang of ['en', 'de']) {
     await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
     await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'fixture.json' }))).toBeVisible();
 
-    // 2. New → Packing list → the area first: Weekend → Items of this area.
+    // 2. New → Plan a trip → the area: Weekend (v0.30.0: in the New trip window; it starts with the area's items).
     await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
     await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-    const list = page.getByRole('dialog', { name: T('Plan a new trip') });
-    await list.getByRole('group', { name: T('Area') }).getByRole('button', { name: T('Weekend'), exact: true }).click();
-    await fits('New packing list, weekend');
-    await list.getByRole('button', { name: T('Items of this area') }).click();
-
-    // 3. The trip dialog keeps Weekend and asks no bike.
     const tripDlg = page.getByRole('dialog', { name: T('New trip') });
     await expect(tripDlg).toBeVisible();
+    await tripDlg.getByRole('group', { name: T('Area') }).getByRole('button', { name: T('Weekend'), exact: true }).click();
+    await fits('New packing list, weekend');
+
+    // 3. The trip dialog keeps Weekend and asks no bike.
     await expect(tripDlg.getByRole('button', { name: T('Weekend'), exact: true })).toHaveAttribute('aria-pressed', 'true');
     await expect(tripDlg.getByLabel(T('Bike'))).toHaveCount(0);
     await tripDlg.getByLabel(T('Name')).fill(title);

@@ -170,3 +170,48 @@ export function setUse(key) {
       return t('Add it in Pack: Add material → Building blocks');
   }
 }
+
+/**
+ * v0.30.0 (Noah, finding 2): the weight of new entries (a block chip in "New trip": "Rain 3 · 400 g").
+ * Honest like sumKnown: { g, missing }.
+ */
+export function entriesWeight(entries, items) {
+  const byId = new Map(items.map((i) => [i.id, i]));
+  return sumKnown(entries.map((e) => {
+    const w = itemWeight(byId.get(e.itemId) ?? {});
+    return w == null ? null : w * Math.max(1, Number(e.qty) || 1);
+  }));
+}
+
+/**
+ * v0.30.0 (Noah, finding 2): a block worth a look for this trip ("Tip" on its chip in "New trip"):
+ * a rain block (key or name with rain/Regen) when rain is in the weather, Warm when it is cold
+ * (max 10 °C or less), Light with a night. ctx: { wet, max, night }.
+ */
+export function isBlockTip(set, { wet = false, max = null, night = 'none' } = {}) {
+  if (wet && /rain|regen/i.test(`${set.key} ${set.name ?? ''}`)) return true;
+  if (set.key === 'warm') return max != null && max <= 10;
+  if (set.key === 'light') return !!night && night !== 'none';
+  return false;
+}
+
+/**
+ * v0.30.0 (Noah, finding 2): a template in words. ids: the item IDs of the template; stdIds: the
+ * standard set's IDs. When the template is the whole standard set plus whole building blocks,
+ * → those blocks ([] = only the standard set), else null (then the row shows its item count).
+ */
+export function startBlocks(ids, stdIds, sets, items) {
+  const have = new Set(ids);
+  const std = new Set(stdIds);
+  if (!std.size || ![...std].every((id) => have.has(id))) return null;
+  const rest = [...have].filter((id) => !std.has(id));
+  const used = [];
+  const covered = new Set();
+  for (const s of sets) {
+    const its = items.filter((i) => isInventory(i) && i.sets?.includes(s.key)).map((i) => i.id);
+    if (!its.length || !its.every((id) => have.has(id)) || !its.some((id) => !std.has(id) && !covered.has(id))) continue;
+    used.push(s);
+    for (const id of its) covered.add(id);
+  }
+  return rest.every((id) => covered.has(id)) ? used : null;
+}

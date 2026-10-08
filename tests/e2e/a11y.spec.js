@@ -147,14 +147,12 @@ test('no core view scrolls sideways at 320 and 390 px', async ({ page, context }
 
 test('dialogs: focus in, Tab stays inside, Escape closes, focus back', async ({ page, context }, info) => {
   await start(page, context, info);
-  // New → Plan a trip → Standard set → New trip
+  // New → Plan a trip → New trip (v0.30.0: the window opens straight away)
   await view(page, '#/');
   const newBtn = page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true });
   await newBtn.focus();
   await page.keyboard.press('Enter');
-  await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).press('Enter');
-  const plan = page.getByRole('dialog', { name: T('Plan a new trip') });
-  await dialogKeys(page, plan.getByRole('button', { name: T('Standard set') }), page.getByRole('dialog', { name: T('New trip') }), newBtn);
+  await dialogKeys(page, page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }), page.getByRole('dialog', { name: T('New trip') }), newBtn);
 
   // Item dialog from the gear list
   await view(page, '#/gear');

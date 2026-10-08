@@ -185,5 +185,8 @@ test('Gear card search and + plans a trip', async ({ page, context }) => {
   await page.goto('./#/');
   await page.getByRole('button', { name: T('New'), exact: true }).first().click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  await expect(page.getByRole('dialog', { name: T('Plan a new trip') })).toContainText(T('Choose how the packing list starts. Next you set the name, date, days and bike.'));
+  // v0.30.0 (Noah, finding 2): straight into the New trip window (empty data: no bike yet, so no list preview).
+  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  await expect(dlg).toBeVisible();
+  await expect(dlg.getByRole('group', { name: T('When?') })).toBeVisible();
 });

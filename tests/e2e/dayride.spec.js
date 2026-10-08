@@ -144,8 +144,9 @@ test('New trip: Create without typing (name, date and bike are filled in)', asyn
   const t0 = Date.now();
   await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
   await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
-  await click(page.getByRole('dialog', { name: T('Plan a new trip') }).getByRole('button', { name: T('Copy the last trip') }));
+  // v0.30.0: "Copy the last trip" is a row in the New trip window (the same number of clicks).
   const dlg = page.getByRole('dialog', { name: T('New trip') });
+  await click(dlg.getByRole('button', { name: T('Copy the last trip') }));
   const name = dlg.getByLabel(T('Name'));
   await expect(name).toHaveValue(T('{bike} day ride {date}', { bike: 'Test gravel', date: dM(day) }));
   await expect(dlg.getByLabel(T('Start date'))).toHaveValue(day);
@@ -165,7 +166,6 @@ test('New trip: Create without typing (name, date and bike are filled in)', asyn
   // Typed in: the name stays as written.
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  await page.getByRole('dialog', { name: T('Plan a new trip') }).getByRole('button', { name: T('Standard set') }).click();
   await name.fill('test_data_gtp_ Mein Name');
   await dlg.getByRole('spinbutton', { name: T('Days') }).fill('2');
   await expect(name).toHaveValue('test_data_gtp_ Mein Name');
@@ -180,7 +180,6 @@ test('home place: the forecast chooses the weather in the dialog and for the day
   await start(page, context, info, 'de', { home: true });
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  await page.getByRole('dialog', { name: T('Plan a new trip') }).getByRole('button', { name: T('Standard set') }).click();
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   const warm = dlg.getByRole('button', { name: new RegExp(`^${T('Warm')}`) });
   await expect(warm).toHaveAttribute('aria-pressed', 'true');

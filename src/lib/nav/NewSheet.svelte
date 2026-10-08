@@ -3,22 +3,18 @@
   /**
    * "New" (v0.19.6, start page answers 4a and 8a): every way to create something, in one place.
    * Desktop: the orange "New" in the top bar; phone: the + in the middle of the bottom bar.
-   * A packing list asks first how to start: from a template, a copy of the last trip, or the
-   * standard set.
+   * v0.30.0 (Noah, finding 2): "Plan a trip" opens the "New trip" window straight away with the
+   * standard set; the area, a template or a copy of the last trip are chosen in that window.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { sortBikes } from '../bikes.js';
-  import { TEMPLATES_KEY } from '../templates.js';
   import { newTrip, addItem } from '../nav.js';
-  import { t, tn, num } from '../i18n.svelte.js';
-  import { DOMAINS, DOMAIN, lastDomain, domainName } from '../domains.js';
+  import { t, num } from '../i18n.svelte.js';
 
   let { mode = $bindable(null), onnote } = $props();
 
-  const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const bikesQ = liveQuery(() => db.bikes.toArray());
-  const templates = $derived($tplQ?.value ?? []);
   const bikes = $derived(sortBikes($bikesQ ?? []));
 
   let dialog = $state();
@@ -27,12 +23,6 @@
     if (!mode && dialog?.open) dialog.close();
   });
   const close = () => (mode = null);
-  // v0.21.0 (package 5): the area first; areas without a bike have no templates.
-  let area = $state(lastDomain());
-  $effect(() => {
-    if (mode === 'list') area = lastDomain();
-  });
-  const byBike = $derived(!!DOMAIN[area]?.bike);
   const run = (fn) => {
     close();
     fn();
@@ -56,38 +46,11 @@
 
 <dialog class="sheet new" bind:this={dialog} onclose={() => ((mode = null), (kmMsg = ''))} aria-labelledby="new-h">
   <div class="top">
-    <h2 id="new-h" class="title">{mode === 'list' ? t('Plan a new trip') : mode === 'km' ? t('km for a bike') : t('New')}</h2>
+    <h2 id="new-h" class="title">{mode === 'km' ? t('km for a bike') : t('New')}</h2>
     <button type="button" class="btn sm" onclick={close}>{t('Close')}</button>
   </div>
 
-  {#if mode === 'list'}
-    <div class="areas" role="group" aria-label={t('Area')}>
-      {#each DOMAINS as d (d.key)}<button type="button" class="chip" aria-pressed={area === d.key} onclick={() => (area = d.key)}>{t(d.name)}</button>{/each}
-    </div>
-    <!-- v0.23.1 (Noah): "+" plans a trip; say what comes after the start choice. -->
-    <p class="small">{t('Choose how the packing list starts. Next you set the name, date, days and bike.')}</p>
-    <ul class="opts">
-      {#if !byBike}
-        <li><button type="button" class="opt" onclick={() => run(() => newTrip('last', area))}><b>{t('Copy the last trip')}</b><span>{t('The last {area} trip, or the {area} items when there is none', { area: t(domainName(area)) })}</span></button></li>
-        <li><button type="button" class="opt" onclick={() => run(() => newTrip('standard', area))}><b>{t('Items of this area')}</b><span>{t('Worn, standard and "On every trip", in {bags}', { bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}</span></button></li>
-      {:else}
-      <!-- v0.29.2 (Noah 7a): the standard set first; the templates folded away below. -->
-      <li><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard', area))}><b>{t('Standard set')}</b><span>{t('Worn, standard pack and the items "On every trip"')}</span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(() => newTrip('last', area))}><b>{t('Copy the last trip')}</b><span>{t('The last trip on the bike you choose, with its bags and ready check')}</span></button></li>
-      {/if}
-    </ul>
-    {#if byBike && templates.length}
-      <details class="tpls">
-        <summary>{t('Start from a template')} <span class="small">({templates.length})</span></summary>
-        <ul class="opts">
-          {#each templates as tp (tp.id)}
-            <li><button type="button" class="opt" onclick={() => run(() => newTrip(tp.id, area))}><b>{tp.name}</b><span>{tn(tp.entries?.length ?? 0, '{n} item', '{n} items')}</span></button></li>
-          {/each}
-        </ul>
-      </details>
-    {/if}
-    <button type="button" class="link" onclick={() => (mode = 'all')}>{t('Something else to create')}</button>
-  {:else if mode === 'km'}
+  {#if mode === 'km'}
     <form class="km" onsubmit={saveKm}>
       <label><span class="lbl">{t('Bike')}</span>
         <select class="sel" value={kmBike?.id ?? ''} onchange={(e) => (bikeId = e.currentTarget.value)}>
@@ -104,7 +67,7 @@
     </form>
   {:else}
     <ul class="opts grid">
-      <li><button type="button" class="opt hi" onclick={() => (mode = 'list')}><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></button></li>
+      <li><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard'))}><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => run(addItem)}><b>{t('Gear item')}</b><span>{t('Name, weight, bag')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><b>{t('Quick note')}</b><span>{t('Text or photo, sorted later')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => (mode = 'km')}><b>{t('km for a bike')}</b><span>{t('What the counter says')}</span></button></li>
@@ -127,27 +90,6 @@
   }
   .top h2 {
     margin: 0;
-  }
-  .areas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 0 0 12px;
-  }
-  .chip {
-    min-height: 40px;
-    padding: 5px 14px;
-    border: 1.5px solid var(--ink-3);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 600 15px var(--font-body);
-    cursor: pointer;
-  }
-  .chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
   }
   .opts {
     list-style: none;
@@ -210,6 +152,4 @@
     font-size: var(--fs-small);
     color: var(--ink-3);
   }
-  .tpls { margin: 4px 0 12px; }
-  .tpls summary { min-height: 44px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600; }
 </style>
