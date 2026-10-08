@@ -14,7 +14,7 @@
  */
 import { SETS, isInventory, itemWeight, sumKnown } from './gear.js';
 import { slotFor } from './trips.js';
-import { t } from './i18n.svelte.js';
+import { t, tn } from './i18n.svelte.js';
 
 export const SETS_KEY = 'sets';
 export const BUILT_IN = Object.keys(SETS);
@@ -235,3 +235,16 @@ export function templateBlocks(ids, stdIds, sets, items) {
   }
   return { standard, blocks, single: [...have].filter((id) => !covered.has(id)).length };
 }
+
+/**
+ * v0.32.0 (finding 5, stage 1): a template in the two words of the app, "Standard + Rain + 2 extra"
+ * («Standard + Regen + 2 Extra»), from templateBlocks. label(set): the name shown for a block.
+ */
+export function blocksLine({ standard, blocks, single }, label = (s) => s.name) {
+  const names = [...(standard ? [t('Standard|block')] : []), ...blocks.map(label)];
+  const rest = single ? tn(single, '{n} extra', '{n} extra|plural') : '';
+  return names.length ? [names.join(' + '), rest].filter(Boolean).join(' + ') : rest || tn(0, '{n} item', '{n} items');
+}
+
+/** The block label for lines and chips: a built-in night block without "Night: " in front. */
+export const blockLabel = (s) => (s.builtIn ? s.name.replace(/^(Night|Nacht): /, '') : s.name);

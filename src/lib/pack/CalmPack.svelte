@@ -49,7 +49,7 @@
     return trip.hours ? t('{n} h per day', { n: num(trip.hours) }) : t('Duration not set');
   });
   const tpl = $derived(templates.find((x) => x.id === trip.templateId) ?? null);
-  const startText = $derived(tpl ? tpl.name : trip.copiedFrom ? t('Last trip') : t('Standard set'));
+  const startText = $derived(tpl ? tpl.name : trip.copiedFrom ? t('Last trip') : t('Standard|block'));
   const until = $derived(trip.startDate ? daysUntil(trip.startDate) : null);
   const whenText = $derived(until == null ? '' : until > 1 ? tn(until, 'in {n} day', 'in {n} days') : until === 1 ? t('tomorrow') : until === 0 ? t('today') : '');
   const kicker = $derived([bikeTrip ? t('Trip') : domainLabel, whenText, startText].filter(Boolean).join(' · '));

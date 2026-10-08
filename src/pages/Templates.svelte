@@ -8,7 +8,8 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
-  import { NIGHT_SETS } from '../lib/trips.js';
+  import { NIGHT_SETS, newTrip } from '../lib/trips.js';
+  import { SETS_KEY, allSets, templateBlocks, blocksLine, blockLabel } from '../lib/sets.js';
   import { RIDES } from '../lib/layers.js';
   import { templateHints, applyTemplateHint, rejectTemplateHint, TEMPLATE_AFTER, REJECT_FOR } from '../lib/debrief.js';
   import TemplateEdit from './TemplateEdit.svelte';
@@ -75,6 +76,12 @@
     }
     location.hash = '#/pack';
   }
+  // v0.32.0 (finding 5, stage 1): a template in the app's two words, "Standard + Rain + 2 extra"
+  // (the same line as in "New trip"; the standard set of a day ride without a night, like there).
+  const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
+  const blockSets = $derived(allSets($setsQ?.value));
+  const stdIds = $derived(newTrip({ title: '', startDate: '', days: 1, bike: { id: '', setup: {} }, overnight: 'none' }, [], $itemsQ ?? [], 0).entries.map((e) => e.itemId));
+  const blocksOf = (tp) => blocksLine(templateBlocks((tp.entries ?? []).map((e) => e.itemId), stdIds, blockSets, $itemsQ ?? []), blockLabel);
   const bags = (tp) => Object.values(tp.setup ?? {}).filter(Boolean).map((id) => bagName[id] ?? id);
   const nights = (tp) => NIGHT_SETS.filter((n) => tp.sets?.[n.key]).map((n) => t(n.name));
 </script>
@@ -94,6 +101,7 @@
         <label class="nm"><span class="lbl">{t('Name')}</span><input class="inp" value={tp.name} onchange={(e) => rename(tp, e.currentTarget.value)} /></label>
         <!-- v0.26.0 (Noah 1a): a template made from a kit keeps what the kit was for (read-only). -->
         {#if tp.note}<p class="facts tnote">{tp.note}</p>{/if}
+        <p class="blocksline">{blocksOf(tp)}</p>
         <p class="facts">
           {tn(tp.entries.length, '{n} item', '{n} items')} · {tn(tp.ready.length, '{n} check', '{n} checks')}
           {#if tp.ride}{' · '}{t(RIDES.find((r) => r.key === tp.ride)?.name ?? '')}{/if}{#if tp.hours}{' · '}{tp.hours} h{/if}{#if tp.days > 1}{' · '}{tn(tp.days, '{n} day', '{n} days')}{/if}{#if tp.overnight === 'outdoor'}{' · '}{t('Outdoor')}{:else if tp.overnight === 'lodging'}{' · '}{t('Lodging')}{/if}
@@ -182,6 +190,12 @@
   .nm {
     display: grid;
     gap: 4px;
+  }
+  /* v0.32.0: what is in the template, in building blocks ("Standard + Rain + 2 extra"). */
+  .blocksline {
+    margin: 8px 0 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
   }
   .facts {
     margin: 8px 0 0;

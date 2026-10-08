@@ -11,7 +11,7 @@
   import { t, tn, num, nameOf } from '../i18n.svelte.js';
   import { DOMAINS, DOMAIN, BIKEPACKING, domainName, lastDomain, rememberDomain, newPackTrip, lastTripIn, readyKey, inDomain, hasBike } from '../domains.js';
   import { isInventory, knownWeight, formatWeight } from '../gear.js';
-  import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks } from '../sets.js';
+  import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks, blocksLine } from '../sets.js';
   import { localDay } from '../localday.js';
   import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf } from '../dayride.js';
 
@@ -203,11 +203,9 @@
     const d = templateDefaults(tp, bikes);
     const parts = [tn(d.days ?? 1, '{n} day', '{n} days')];
     if (d.hours != null) parts.push(t('{n} h', { n: num(d.hours) }));
-    // v0.30.1 (Noah N10): always in blocks ("Standard + Rain + Light"), the rest as "+ 3 single items".
-    const { standard, blocks: used, single } = templateBlocks((tp.entries ?? []).map((e) => e.itemId), stdIds, sets, items);
-    const names = [...(standard ? [t('Standard')] : []), ...used.map((s) => s.label)];
-    const rest = single ? tn(single, '{n} single item', '{n} single items') : '';
-    parts.push(names.length ? [names.join(' + '), rest].filter(Boolean).join(' + ') : rest || tn(0, '{n} item', '{n} items'));
+    // v0.30.1 (Noah N10): always in blocks ("Standard + Rain + Light"), the rest as "+ 3 extra".
+    // v0.32.0 (finding 5): "Standard + Rain + 2 extra" (blocksLine, the same words as the Templates page).
+    parts.push(blocksLine(templateBlocks((tp.entries ?? []).map((e) => e.itemId), stdIds, sets, items), (s) => s.label));
     return parts.join(' · ');
   }
   let tplOpen = $state(false);
@@ -402,7 +400,7 @@
               <span class="r num">{tn(preview.start, '{n} item', '{n} items')} · {knownWeight(preview.w.g, preview.w.missing)}</span>
             </h3>
             {#if preview.names.length}<button type="button" class="names" class:open={namesOpen} aria-expanded={namesOpen} onclick={() => (namesOpen = !namesOpen)}>{preview.names.join(' · ')}</button>{/if}
-            {#if start !== 'standard'}<button type="button" class="tp-link" onclick={() => (start = 'standard')}>{t('Back to the standard set')}</button>{/if}
+            {#if start !== 'standard'}<button type="button" class="tp-link" onclick={() => (start = 'standard')}>{t('Back to Standard')}</button>{/if}
           </div>
           <ul class="auto">
             <li>{#if preview.weather.length}{t('For the weather, comes by itself')}: {preview.weather.map((i) => nameOf(i)).join(' · ')}{:else}{t('For the weather: nothing extra')}{/if}</li>
@@ -464,7 +462,7 @@
         {/if}
         <p class="note">
           {#if fromArea && start !== 'standard'}{t('A copy of {title}. Nothing is ticked off yet.', { title: fromArea.title })}
-          {:else if areaItems}{t('Starts with the {area} items marked worn, standard or "On every trip". Bags: {bags}.', { area: t(domainName(area)), bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}
+          {:else if areaItems}{t('Starts with the {area} items in Standard. Bags: {bags}.', { area: t(domainName(area)), bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}
           {:else}{t('No items for {area} yet, so the list starts empty. Add items in Pack (search finds all your gear), or in Gear: open an item and tick {area} under Areas.', { area: t(domainName(area)) })}{/if}
         </p>
       {:else if byBike && draft.bikeId !== trip.bikeId}

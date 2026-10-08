@@ -164,9 +164,13 @@ export function matches(item, { q = '', category = '', role = '', fav = false, d
   // v0.21.0: the area (item.domains; none set = bikepacking)
   if (domain && !(item.domains?.length ? item.domains : ['bikepacking']).includes(domain)) return false;
   if (category && item.category !== category) return false;
-  if (role === 'none' && (item.role || item.sets?.length)) return false;
+  // v0.32.0 (finding 5, stage 1): the filter "Comes along": Standard (worn, standard pack or "On
+  // every trip"), On me (worn), in a building block, stays at home (optional), nothing set.
+  const std = item.role === 'worn' || item.role === 'standard' || !!item.always;
+  if (role === 'none' && (std || item.role || item.sets?.length)) return false;
   if (role === 'night' && !item.sets?.length) return false;
-  if (role && role !== 'none' && role !== 'night' && item.role !== role) return false;
+  if (role === 'standard' && !std) return false;
+  if (role && !['none', 'night', 'standard'].includes(role) && item.role !== role) return false;
   const text = q.trim().toLowerCase();
   if (!text) return true;
   const cat = CATEGORY[item.category]?.name;

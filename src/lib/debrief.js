@@ -197,7 +197,7 @@ export function suggestions(debrief, trip, items, learnings = [], templates = []
   // Answer 8b: only after the third trip without using it (this one counts).
   const before = unusedTimes(history, trip.id);
   for (const i of unused.filter((x) => x.role === 'standard' && !out.some((s) => s.id === `cold:${x.id}`) && (before[x.id] ?? 0) + 1 >= LEAVE_AFTER))
-    out.push({ id: `optional:${i.id}`, group: 'home', label: t('{name}: leave at home', { name: nameOf(i) }), detail: t('Not used on {n} trips. Changes "Standard pack" to "Optional".', { n: (before[i.id] ?? 0) + 1 }) });
+    out.push({ id: `optional:${i.id}`, group: 'home', label: t('{name}: leave at home', { name: nameOf(i) }), detail: t('Not used on {n} trips. Takes it out of Standard and marks it "Stays at home".', { n: (before[i.id] ?? 0) + 1 }) });
 
   // Wishlist: what was missing and is not in the gear yet, and what broke.
   for (const m of debrief.missing.filter((x) => !x.itemId))
