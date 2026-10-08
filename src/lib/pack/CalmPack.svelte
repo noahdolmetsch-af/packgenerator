@@ -11,7 +11,7 @@
    * packing list by bags: each bag shows the names of its items in one line, a tap opens it.
    * Rarely needed things (weight in detail, before the trip, ballast, weather suggestions) fold into rows with ›.
    */
-  import { Bike, Clock3, CloudSun, UserRound, Briefcase, ChevronRight, ChevronDown, Plus, Minus, MoreHorizontal, Mountain, Layers, Weight, ArrowRight, Undo2, GripVertical, Wrench, Package } from '@lucide/svelte';
+  import { Bike, Backpack, Clock3, CloudSun, UserRound, Briefcase, ChevronRight, ChevronDown, Plus, Minus, MoreHorizontal, Mountain, Layers, Weight, ArrowRight, Undo2, GripVertical, Wrench, Package } from '@lucide/svelte';
   import DecisionReview from './DecisionReview.svelte';
   import TripBand from '../trip/TripBand.svelte';
   import Sum from '../ui/Sum.svelte';
@@ -20,6 +20,7 @@
   import { formatWeight } from '../gear.js';
   import { RAIN, heavyHigh, isDayTrip, daysUntil } from '../trips.js';
   import { bagVolumes } from '../bagsuggest.js';
+  import { litreWarning } from '../backpacks.js';
   import { phone } from '../media.svelte.js';
   import { hasContext } from '../context.js';
   import { rainOf } from '../layers.js';
@@ -54,7 +55,9 @@
   const whenText = $derived(until == null ? '' : until > 1 ? tn(until, 'in {n} day', 'in {n} days') : until === 1 ? t('tomorrow') : until === 0 ? t('today') : '');
   const kicker = $derived([bikeTrip ? t('Trip') : domainLabel, whenText, startText].filter(Boolean).join(' · '));
   const zoneTitle = (g) => grouping === 'category' ? t(g.zone.name) : (trip.purpose?.[g.key] || t(g.key === 'mounted' ? 'On the bike|zone' : g.zone.name));
-  const icon = (key) => key === 'body' ? UserRound : key === 'mounted' ? Bike : Briefcase;
+  const icon = (g) => g.key === 'body' ? UserRound : g.key === 'mounted' ? Bike : g.worn || g.bag?.pack ? Backpack : Briefcase;
+  // v0.37.0 (Noah 5a): a quiet litre note, only from known litres (litreWarning never guesses).
+  const litresOver = (g) => (grouping === 'bags' ? litreWarning(g, itemsById) : null);
   const flip = (key) => opened = { ...opened, [key]: !opened[key] };
   const groupG = (g) => g.entries.reduce((s, e) => s + (itemsById[e.itemId]?.weightG ?? 0) * (e.qty || 1), 0);
   const groupMissing = (g) => g.entries.filter((e) => itemsById[e.itemId]?.weightG == null).length;
@@ -173,7 +176,7 @@
                 <button onclick={menu(actions.newTrip)}>{t('New trip')}</button>
                 <button onclick={menu(actions.edit)}>{t('Edit trip')}</button>
                 <button onclick={menu(() => show('conditions'))}>{t('Edit trip conditions')}</button>
-                {#if bikeTrip}<button onclick={menu(() => show('bags'))}>{t('Bags for this trip')}</button><button onclick={menu(actions.compare)}>{t('Compare bikes')}</button><button onclick={menu(actions.template)}>{t('Save as template')}</button>{/if}
+                <button onclick={menu(() => show('bags'))}>{t('Bags for this trip')}</button>{#if bikeTrip}<button onclick={menu(actions.compare)}>{t('Compare bikes')}</button><button onclick={menu(actions.template)}>{t('Save as template')}</button>{/if}
                 <button onclick={menu(() => show('purposes'))}>{t('Name your bags')}</button>
                 {#if hasPhoto}<button onclick={menu(actions.photo)}>{t('Setup photo')}</button>{/if}
                 <a href="#/pack/templates">{t('Templates')}</a>
@@ -195,7 +198,8 @@
         {/if}
         <div class="bag-groups blist" class:cols={!phone.matches}>
           {#each groups as group (group.key)}
-            {@const Icon = icon(group.key)}
+            {@const Icon = icon(group)}
+            {@const full = litresOver(group)}
             {@const isOpen = !!opened[group.key]}
             {@const g = groupG(group)}
             {@const miss = groupMissing(group)}
@@ -203,13 +207,16 @@
             <section class="bag-group" class:open={isOpen} aria-label={zoneTitle(group)} ondragover={(e) => { if (grouping === 'bags') e.preventDefault(); }} ondrop={(e) => { if (grouping !== 'bags') return; e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); if (id) actions.addTo(group.key, id); }}>
               <button class="bag-heading" aria-expanded={isOpen} aria-controls={`calm-bag-${group.key}`} onclick={() => flip(group.key)}>
                 <Icon size={20} strokeWidth={1.8} aria-hidden="true" /><strong>{zoneTitle(group)}</strong>
-                <small class="num">{tn(group.entries.length, '{n} item', '{n} items')}{group.entries.length ? ` · ${miss === group.entries.length ? t('not weighed') : (miss ? '~' : '') + formatWeight(g)}` : ''}</small>
+                <small class="num">{#if full}<i class="tp-badge">{t('over {cap} L', { cap: num(full.cap) })}</i> {/if}{tn(group.entries.length, '{n} item', '{n} items')}{group.entries.length ? ` · ${miss === group.entries.length ? t('not weighed') : (miss ? '~' : '') + formatWeight(g)}` : ''}</small>
                 {#if isOpen}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
               </button>
               {#if !isOpen && group.entries.length}<p class="preview">{preview(group)}</p>{/if}
+              <!-- v0.37.0 (Noah 3a): a trip without a bike still on a general bag: a quiet way to the real one. -->
+              {#if grouping === 'bags' && group.bag?.pack && !group.bag.real}<p class="real-pack"><button type="button" class="tp-link quiet-link" onclick={() => show('bags')}>{t('Choose a real backpack')}</button></p>{/if}
               {#if isOpen}
                 <div id={`calm-bag-${group.key}`}>
                   {#if grouping === 'bags' && group.noBag}<p class="calm-error">{t('This trip has no bag here. Move these items or choose a bag in "Bags for this trip".')}</p>{/if}
+                  {#if full}<p class="calm-muted">{t('The items with known litres need {need} L; the bag holds {cap} L.', { need: num(full.need), cap: num(full.cap) })}</p>{/if}
                   {#if grouping === 'bags' && volumes?.[group.key]}<p class="calm-muted">{t('{used} of {cap} L', { used: num(volumes[group.key].used), cap: num(volumes[group.key].cap) })}</p>{/if}
                   {#if grouping === 'bags' && heavyHigh(group, itemsById).length}<p class="calm-muted">{t('Heavy item high or far back: move to the frame bag?')}</p>{/if}
                   <ul class="planning-rows">
@@ -248,7 +255,7 @@
         </div>
         <div class="folds">
           <details class="tp-fold weight-details"><summary><Weight size={20} aria-hidden="true" /><span>{t('Weight')}</span><span class="r num">{t('Base')} {stats.baseMissing ? '~' : ''}{kg(stats.baseG)}{#if stats.unweighed}<i class="tp-badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-            <div class="in"><div class="weight-grid"><div><span>{t('Base')}</span><Sum g={stats.baseG} missing={stats.baseMissing} /></div><div><span>{t('On you')}</span><Sum g={stats.wornG} missing={stats.wornMissing} /></div><div><span>{t('Food and water')}</span><Sum g={stats.consumablesG} missing={stats.consumablesMissing} /></div><div><span>{t('Items')}</span><b>{stats.count}</b></div></div>{@render moreWeights?.()}<p class="tp-muted tp-small">{stats.unweighed ? t('{n} weights missing · displayed weights are known values.', { n: stats.unweighed }) : t('All material weights are recorded.')}</p></div>
+            <div class="in"><div class="weight-grid"><div><span>{t('Base')}</span><Sum g={stats.baseG} missing={stats.baseMissing} /></div><div><span>{t('On you')}</span><Sum g={stats.wornG} missing={stats.wornMissing} /></div><div><span>{t('Food and water')}</span><Sum g={stats.consumablesG} missing={stats.consumablesMissing} /></div><div><span>{t('Items')}</span><b>{stats.count}</b></div></div>{@render moreWeights?.()}{#if bikeTrip && stats.zones.some((z) => z.worn)}<p class="tp-muted tp-small">{t('Back and Hip count to On you, not to the bike or the wheels.')}</p>{/if}<p class="tp-muted tp-small">{stats.unweighed ? t('{n} weights missing · displayed weights are known values.', { n: stats.unweighed }) : t('All material weights are recorded.')}</p></div>
           </details>
           {@render preparation?.()}{@render ballastContent?.()}
         </div>
@@ -315,6 +322,8 @@
   .bag-heading small { margin-left: auto; font-size: 14px; font-weight: 400; color: var(--ink-3); white-space: nowrap; }
   .preview { margin: 0 0 4px 32px; font-size: 14px; line-height: 1.5; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
   .addrow { margin: 4px 0 0 32px; }
+  .real-pack { margin: 0 0 4px 32px; }
+  .quiet-link { font-size: 14px; color: var(--ink-2); min-height: 44px; }
   .row-ctx { display: flex; align-items: center; gap: 10px; margin: -6px 0 6px 8px; }
   .folds { margin-top: 10px; }
   .fold-btn { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 16px; color: var(--ink); font: 500 16px var(--font-body); text-align: left; cursor: pointer; }

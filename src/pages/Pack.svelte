@@ -4,7 +4,8 @@
   import { db } from '../lib/db.js';
   import { isOver, tipsByItem, learningsFor } from '../lib/debrief.js';
   import { phone } from '../lib/media.svelte.js';
-  import { SLOTS, bagsFor, sortBikes, bikesHash } from '../lib/bikes.js';
+  import { SLOTS, bagsFor, sortBikes, bikesHash, placesOf, isWornBag, formatVolume, containerWeight } from '../lib/bikes.js';
+  import { suggestPacks, suggestBack, choosePack, rankBags, wantFor } from '../lib/backpacks.js';
   import { CATEGORIES, formatWeight, weightText, isInventory, matches, weighQueue } from '../lib/gear.js';
   import { tripStats, packSteps, togglePacked, packAll, tickReady, packAndReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike, setQty, touched } from '../lib/trips.js';
   import { suggestPlaces, applyPlaces, dismissPlace } from '../lib/bagsuggest.js';
@@ -489,6 +490,12 @@
   }
 
   const setBag = (slotKey, bagId) => change((t) => ({ setup: { ...t.setup, [slotKey]: bagId || null } }));
+  // v0.37.0 (Noah 3a): real backpacks. A pack of a trip without a bike points to a bag of the bag list
+  // (or back to the general one); a suggestion is only shown, taking it is one tap (Undo).
+  const setPack = (key, bagId) => change((t) => choosePack(t, key, bagId || null));
+  const packTips = $derived(trip && !bikeTrip ? suggestPacks({ ...trip, packs: trip.packs.map(({ bagId, ...p }) => p) }, bags, itemsById).map((r) => r.bagId) : []);
+  const backTip = $derived(trip && bikeTrip ? suggestBack(trip, bags, itemsById) : null);
+  const bagLabel = (b) => [bagName(b.name), b.volumeL ? formatVolume(b.volumeL) : '', containerWeight(b, itemsById) != null ? formatWeight(containerWeight(b, itemsById)) : ''].filter(Boolean).join(' · ');
 
   // Ready check (decision 7, mockup 6a, cleanup 4.10.2026): one short list, edits change only this trip.
   // v0.21.0: every area keeps its own standard list (settings readyStandard, readyStandard.ski …).
@@ -663,18 +670,47 @@
     {/snippet}
 
     {#snippet bagChoice()}
-      <ul class="slots">
-        {#each SLOTS.filter((s) => !bike || bike.slots?.includes(s.key)) as s (s.key)}
-          <li>
-            <label for="ts-{s.key}">{t(s.name)}</label>
-            <select id="ts-{s.key}" class="sel" value={trip.setup?.[s.key] ?? ''} onchange={(ev) => setBag(s.key, ev.currentTarget.value)}>
-              <option value="">{t('No bag')}</option>
-              {#each bagsFor(s.key, bags) as o (o.id)}<option value={o.id}>{o.name}</option>{/each}
-            </select>
-          </li>
-        {/each}
-      </ul>
-      <p class="hint">{t('Starts with the bags set on {bike} (Bikes page). Changes here only count for this trip.', { bike: bike?.name ?? t('the bike') })}</p>
+      {#if bikeTrip}
+        {@const all = bike ? placesOf(bike) : SLOTS}
+        <ul class="slots">
+          {#each all.filter((s) => !s.worn) as s (s.key)}{@render slotPick(s)}{/each}
+        </ul>
+        <!-- v0.37.0 (Noah 2a): the worn places; what sits there counts to On me, not to the bike. -->
+        <h3 class="worn-h">{t('On me')}<small>{t('not part of the bike weight')}</small></h3>
+        <ul class="slots">
+          {#each all.filter((s) => s.worn) as s (s.key)}{@render slotPick(s)}{/each}
+        </ul>
+        {#if backTip}<p class="tip">{t('Suggested for an ultra race: {name}', { name: bagName(backTip.name) })}<button type="button" class="tp-link" onclick={() => setBag('carry', backTip.id)}>{t('Use')}</button></p>{/if}
+        <p class="hint">{t('Starts with the bags set on {bike} (Bikes page). Changes here only count for this trip.', { bike: bike?.name ?? t('the bike') })}</p>
+      {:else}
+        <!-- v0.37.0 (Noah 3a): a trip without a bike takes real backpacks from the bag list. -->
+        <ul class="slots">
+          {#each trip.packs as p, n (p.key)}
+            {@const tip = packTips[n]}
+            {@const ranked = rankBags(bags, wantFor(trip.domain, n, p), trip.domain, { itemsById })}
+            {@const rest = bags.filter((b) => isWornBag(b) && !ranked.some((r) => r.bag.id === b.id))}
+            <li>
+              <label for="tp-{p.key}">{t(p.name)}</label>
+              <select id="tp-{p.key}" class="sel" value={p.bagId ?? ''} onchange={(ev) => setPack(p.key, ev.currentTarget.value)}>
+                <option value="">{t('{name} (general)', { name: t(p.name) })}</option>
+                {#each ranked as r (r.bag.id)}<option value={r.bag.id}>{bagLabel(r.bag)}{r.bag.id === tip ? ` · ${t('suggested')}` : ''}</option>{/each}
+                {#each rest as b (b.id)}<option value={b.id}>{bagLabel(b)}</option>{/each}
+              </select>
+            </li>
+          {/each}
+        </ul>
+        {#if !bags.some(isWornBag)}<p class="hint">{t('No backpack in your bags yet. Add one under Bikes → Your bags (place Back or Hip).')}</p>
+        {:else}<p class="hint">{t('Suggestions by litres and areas. Changes here only count for this trip.')}</p>{/if}
+      {/if}
+    {/snippet}
+    {#snippet slotPick(s)}
+      <li>
+        <label for="ts-{s.key}">{t(s.name)}</label>
+        <select id="ts-{s.key}" class="sel" value={trip.setup?.[s.key] ?? ''} onchange={(ev) => setBag(s.key, ev.currentTarget.value)}>
+          <option value="">{t('No bag')}</option>
+          {#each bagsFor(s.key, bags) as o (o.id)}<option value={o.id}>{s.worn ? bagLabel(o) : o.name}</option>{/each}
+        </select>
+      </li>
     {/snippet}
 
     {#snippet readyFull()}
@@ -856,7 +892,12 @@
   .hours input { max-width: 120px; }
   .hint { font-size: 14px; color: var(--ink-3); }
   .slots { list-style: none; padding: 0; }
-  .slots li { display: grid; grid-template-columns: 1fr 1.5fr; gap: 16px; align-items: center; padding: 8px 0; }
+  .slots li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 16px; align-items: center; padding: 8px 0; }
+  .slots .sel { width: 100%; min-width: 0; min-height: 44px; }
+  /* v0.37.0: a light header for the worn places, and the quiet ultra suggestion. */
+  .worn-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 12px 0 0; font-size: 15px; font-weight: 600; color: var(--ink-2); }
+  .worn-h small { font-size: 13px; font-weight: 400; color: var(--ink-3); }
+  .tip { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 4px 0; font-size: 14px; color: var(--ink-2); overflow-wrap: anywhere; }
   .addcheck { display: flex; gap: 10px; }
   .ck { display: inline-flex; gap: 10px; }
   .x { background: none; border: 0; padding: 8px; min-width: 44px; min-height: 44px; font-size: 22px; line-height: 1; cursor: pointer; } /* v0.30.2 (N2.10): a full tap target */

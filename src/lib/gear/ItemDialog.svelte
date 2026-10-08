@@ -13,6 +13,7 @@
   import { DOMAINS, itemDomains, domainName } from '../domains.js';
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
+  import { alsoBagOf, setAlsoBag } from '../backpacks.js';
   import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight } from '@lucide/svelte';
 
   /**
@@ -84,6 +85,19 @@
   const bagChoices = $derived(BAGS.filter((b) => b.key !== 'body' || draft.defaultBag === 'body'));
   const layerCount = $derived(['ride', 'coldBelow', 'rain', 'perHours', 'maxQty', 'replaces', 'altFor', 'waterL'].filter((k) => String(draft[k] ?? '').trim() !== '').length);
   const detailLine = $derived([draft.brand, draft.model].filter((x) => String(x ?? '').trim()).join(' · '));
+  // v0.37.0 (Noah 4a): clothing that is also a worn bag (a vest with pockets). The switch makes a bag
+  // record on Back (backpacks.js); the item stays here as clothing. Saved with "Save".
+  const bagsQ = liveQuery(() => db.containers.toArray());
+  const alsoBag = $derived(item && $bagsQ ? alsoBagOf(item.id, $bagsQ) : null);
+  let alsoTouched = $state(false);
+  let alsoOn = $state(false);
+  let alsoL = $state('');
+  $effect(() => {
+    if (alsoTouched || !$bagsQ) return;
+    alsoOn = !!alsoBag;
+    alsoL = alsoBag?.volumeL ?? '';
+  });
+  const canBeBag = $derived(!isNew && !readOnly && draft.category !== 'bags');
   let assigning = $state(false);
   // What "Assign …" wrote (building blocks, default bag) comes into the open form, so "Save" keeps it.
   async function assigned() {
@@ -103,11 +117,17 @@
     }
     // v0.23.0 (AP09): the record is built in gear.js (itemRecord), tested there; the ID never changes.
     const record = itemRecord($state.snapshot(draft), { item, items, weightG });
+    let litres = null;
+    if (alsoTouched && alsoOn && String(alsoL).trim() !== '') {
+      litres = Number(String(alsoL).replace(',', '.'));
+      if (!(litres > 0 && litres <= 100)) return (error = t('Volume: litres from 0.1 to 100, or leave it empty.'));
+    }
     ended = true;
     clearTimeout(autoTimer);
     await autoBusy;
     if (autoId && autoId !== record.id) await db.items.delete(autoId);
     await db.items.put(record);
+    if (alsoTouched && canBeBag && (alsoOn || alsoBag)) await setAlsoBag(db, record, alsoOn, litres);
     await onsaved?.(record);
     dialog.close();
   }
@@ -186,6 +206,13 @@
       <p class="quiet">{t('Usual bag')}: {t(BAG[draft.defaultBag])}</p>
     {/if}
     <p class="quiet">{t('"On me" replaces the old word "Worn". On me is always part of Standard.')}</p>
+    {#if canBeBag}
+      <div class="alsobag">
+        <label class="cb"><input type="checkbox" checked={alsoOn} onchange={(e) => { alsoTouched = true; alsoOn = e.currentTarget.checked; }} /> {t('Also a bag on my back (e.g. a vest with pockets)')}</label>
+        {#if alsoOn}<label class="alsol"><span class="lbl">{t('Litres')}</span><input class="inp num" type="text" inputmode="decimal" value={alsoL} oninput={(e) => { alsoTouched = true; alsoL = e.currentTarget.value; }} placeholder={t('unknown')} /></label>
+          <p class="quiet">{t('It stays in your clothing and can be chosen as the bag on Back.')}</p>{/if}
+      </div>
+    {/if}
   </section>
   <section class="ca" aria-labelledby="blocks-h">
     <h3 class="sh" id="blocks-h">{t('Comes along')} · {t('Building blocks')}</h3>
@@ -376,6 +403,19 @@
 {#if assigning}<AssignDialog ids={[item.id]} {item} onclose={assigned} />{/if}
 
 <style>
+  .alsobag {
+    margin-top: 8px;
+  }
+  .alsobag .cb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+  }
+  .alsol {
+    display: block;
+    max-width: 160px;
+  }
   .meta {
     display: flex;
     align-items: center;

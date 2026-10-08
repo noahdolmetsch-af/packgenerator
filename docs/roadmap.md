@@ -532,11 +532,11 @@ Excel-Import Schritt 1: Noahs bereinigte Material-Excel (privat, nicht im Repo) 
 
 ### Reihenfolge nach 0.36
 
-0.36 Import prüfen (veröffentlicht), 0.37 Rucksäcke, 0.38 Heute und Menü, 0.39 AP28 Vorlagen, 0.40 AP27 GPX → Learning, 0.41 Excel-Import Schritt 2 (Verlauf), danach AP30 Foto-KI, Mehrfachauswahl und die offenen Abnahmen. Die Versionsnummern sind geplant, nicht fix.
+0.36 Import prüfen (veröffentlicht), 0.37 Rucksäcke (erledigt), 0.38 Heute und Menü, 0.39 AP28 Vorlagen, 0.40 AP27 GPX → Learning, 0.41 Excel-Import Schritt 2 (Verlauf), danach AP30 Foto-KI, Mehrfachauswahl und die offenen Abnahmen. Die Versionsnummern sind geplant, nicht fix.
 
 | Nr. | Paket | Inhalt | Hinweis |
 |---|---|---|---|
-| 1 (0.37) | **Rucksäcke** | Echte getragene Taschen mit Litern und Gewicht. Am Velo gibt es zwei getragene Plätze „Rücken“ und „Hüfte“; ihr Gewicht zählt zu „Am Körper“, nicht zum Velo. Touren ohne Velo nutzen die echten Rucksäcke statt allgemeiner Namen, die App schlägt pro Reiseart passende vor. Warnung, wenn der Inhalt mehr Liter braucht, als die Tasche fasst. Eine Warnweste kann Kleidung und Tasche zugleich sein | Noah, 8.10.2026 |
+| 1 (0.37, erledigt) | **Rucksäcke** (erledigt in 0.37.0) | Echte getragene Taschen mit Litern und Gewicht. Am Velo gibt es zwei getragene Plätze „Rücken“ und „Hüfte“; ihr Gewicht zählt zu „Am Körper“, nicht zum Velo. Touren ohne Velo nutzen die echten Rucksäcke statt allgemeiner Namen, die App schlägt pro Reiseart passende vor. Warnung, wenn der Inhalt mehr Liter braucht, als die Tasche fasst. Eine Warnweste kann Kleidung und Tasche zugleich sein | Noah, 8.10.2026 |
 | 2 (0.38) | **Heute und Menü** | Schnelle Knöpfe mit Rückgängig (Kette geölt, Verschleiss, geputzt, Dichtmilch, Reifendruck, km, Tagestour, Quick note), Sprünge (fällig, Totes Gewicht, Vor einem Jahr, Wochenend-Wetter, Neu in der App), Saison in Zahlen, Bereit-Ampel pro Velo; Menü Heute/Touren/Material/Velos mit + und „Mehr“, Suche findet Seiten; Wischen im Material, Taschen-Hinweis nur bei Bedarf, Velopflege als dichte Liste; ganze Update-Geschichte | Noah, 8.10.2026; Entwurf mit Bildern zuerst |
 | 3 (0.39) | **AP28 Vorlagen-Seite neu** | Neues Design; neue Vorlage von Grund auf aus Bausteinen und einzelnen Teilen; sichtbar, wann und für welche Touren eine Vorlage benutzt wurde | Baut auf 0.32/0.33 auf |
 | 4 (0.40) | **AP27 GPX-Aktivität → Learning** | GPX einer gefahrenen Aktivität hochladen, auch ohne geplante Tour; daraus ein Learning (geplant gegen echt, Pausen, Wetter, Verpflegung) | Nutzt `pace.js` und `activities.js` |

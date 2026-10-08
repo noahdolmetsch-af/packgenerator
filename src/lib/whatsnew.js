@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.37.0',
+    date: '2026-10-08',
+    points: [
+      { text: 'Backpacks, hip bags and vests are real bags with litres and weight, in Your bags.', href: '#/bikes' },
+      { text: 'On the bike there are two worn places, Back and Hip; their weight counts to On me, not to the bike.', href: '#/bikes' },
+      { text: 'A trip without a bike takes your real backpack; the app suggests one by litres and area.', href: '#/pack' },
+      { text: 'A quiet note when the items need more litres than the bag holds.', href: '#/pack' },
+    ],
+  },
+  {
     version: '0.36.0',
     date: '2026-10-08',
     points: [

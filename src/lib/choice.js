@@ -4,7 +4,7 @@
  * before the start, what it costs per 1000 km and how often it was on a trip before.
  * Pure function; the Pack page shows it.
  */
-import { bikeSetup, ON_BIKE_SLOTS, bikeWeightKind } from './bikes.js';
+import { bikeSetup, ON_BIKE_SLOTS, bikeWeightKind, isWornSlot } from './bikes.js';
 import { costPer1000, visitsOf } from './workshop.js';
 import { bikeCare } from './readiness.js';
 
@@ -15,7 +15,7 @@ import { bikeCare } from './readiness.js';
  */
 export function gearLitres(trip, items) {
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
-  const inBags = trip.entries.filter((e) => e.slot !== 'body' && e.slot !== 'mounted' && !ON_BIKE_SLOTS.includes(e.slot));
+  const inBags = trip.entries.filter((e) => e.slot !== 'body' && e.slot !== 'mounted' && !ON_BIKE_SLOTS.includes(e.slot) && !isWornSlot(e.slot)); // v0.37.0: Back and Hip are on the rider
   const known = inBags.filter((e) => byId[e.itemId]?.volumeL);
   if (!known.length || known.length < inBags.length) return null;
   return Math.round(known.reduce((t, e) => t + byId[e.itemId].volumeL * (e.qty || 1), 0) * 10) / 10;

@@ -1,7 +1,8 @@
 <script>
   import { db } from '../db.js';
-  import { SLOTS, SLOT } from '../bikes.js';
-  import { formatWeight } from '../gear.js';
+  import { SLOTS, SLOT, isWornSlot } from '../bikes.js';
+  import { formatWeight, parseGrams } from '../gear.js';
+  import { TRIP_DOMAINS } from '../domains.js';
   import { t, nameOf } from '../i18n.svelte.js';
 
   /** bag: the bag to edit, or null for "Add bag" (slot: the place it is for, v0.31.0). Weight comes from the linked gear item. */
@@ -11,7 +12,11 @@
   // svelte-ignore state_referenced_locally
   const isNew = !bag;
   // svelte-ignore state_referenced_locally
-  let draft = $state(bag ? { ...bag, volumeL: bag.volumeL ?? '', itemId: bag.itemId ?? '' } : { id: '', name: '', slot: slot && SLOT[slot] ? slot : 'seat', volumeL: '', itemId: '', pieces: 1, note: '' });
+  let draft = $state(bag ? { ...bag, volumeL: bag.volumeL ?? '', itemId: bag.itemId ?? '', grams: bag.weightG ?? '', domains: [...(bag.domains ?? [])] } : { id: '', name: '', slot: slot && SLOT[slot] ? slot : 'seat', volumeL: '', itemId: '', pieces: 1, note: '', grams: '', domains: [] });
+  // v0.37.0 (Noah 1a): a worn bag (Back, Hip) has its areas and, without a gear item, its own weight.
+  const worn = $derived(isWornSlot(draft.slot));
+  const bikePlaces = SLOTS.filter((s) => !s.worn);
+  const wornPlaces = SLOTS.filter((s) => s.worn);
   let error = $state('');
   let dialog;
 
@@ -41,7 +46,12 @@
     if (!draft.name.trim()) return (error = t('Give the bag a name.'));
     const vol = String(draft.volumeL).trim() === '' ? null : Number(String(draft.volumeL).replace(',', '.'));
     if (vol != null && !(vol > 0 && vol <= 100)) return (error = t('Volume: litres from 0.1 to 100, or leave it empty.'));
-    const d = $state.snapshot(draft);
+    let weightG = null;
+    if (!draft.itemId && String(draft.grams ?? '').trim() !== '') {
+      weightG = parseGrams(String(draft.grams));
+      if (weightG == null) return (error = t('Weight: whole grams from 1 to 30,000, or leave it empty.'));
+    }
+    const { grams, ...d } = $state.snapshot(draft);
     const record = {
       ...d,
       id: isNew ? newId(d.name) : d.id,
@@ -49,11 +59,16 @@
       volumeL: vol,
       itemId: d.itemId || null,
       pieces: Math.max(1, Number(d.pieces) || 1),
+      weightG: d.itemId ? (bag?.weightG ?? null) : weightG,
+      domains: isWornSlot(d.slot) ? d.domains ?? [] : bag?.domains ?? [],
     };
+    if (record.weightG == null) delete record.weightG;
+    if (!record.domains.length) delete record.domains;
     await db.transaction('rw', db.containers, db.bikes, async () => {
       await db.containers.put(record);
       // A bag that moves to another place leaves the bikes where it sat at the old place.
-      if (!isNew && bag.slot !== record.slot) {
+      // v0.37.0: Back and Hip take every worn bag, so a move between them leaves it where it is.
+      if (!isNew && bag.slot !== record.slot && !(isWornSlot(bag.slot) && isWornSlot(record.slot))) {
         for (const b of bikes) if (b.setup?.[bag.slot] === bag.id) await db.bikes.update(b.id, { [`setup.${bag.slot}`]: null });
       }
     });
@@ -64,7 +79,8 @@
     if (!confirm(t('Delete the bag "{name}"? It is taken off every bike. The gear item stays.', { name: bag.name }))) return;
     await db.transaction('rw', db.containers, db.bikes, async () => {
       await db.containers.delete(bag.id);
-      for (const b of bikes) if (b.setup?.[bag.slot] === bag.id) await db.bikes.update(b.id, { [`setup.${bag.slot}`]: null });
+      // Off every place of every bike (a worn bag can sit on Back or Hip).
+      for (const b of bikes) for (const [k, v] of Object.entries(b.setup ?? {})) if (v === bag.id) await db.bikes.update(b.id, { [`setup.${k}`]: null });
     });
     dialog.close();
   }
@@ -77,9 +93,10 @@
     <div class="grid">
       <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required /></label>
       <label>
-        <span class="lbl">{t('Place on the bike')}</span>
+        <span class="lbl">{t('Place')}</span>
         <select class="sel" bind:value={draft.slot}>
-          {#each SLOTS as s (s.key)}<option value={s.key}>{t(s.name)} ({t(s.where)})</option>{/each}
+          <optgroup label={t('On the bike|places')}>{#each bikePlaces as s (s.key)}<option value={s.key}>{t(s.name)} ({t(s.where)})</option>{/each}</optgroup>
+          <optgroup label={t('On me')}>{#each wornPlaces as s (s.key)}<option value={s.key}>{t(s.name)} ({t(s.where)})</option>{/each}</optgroup>
         </select>
       </label>
       <label><span class="lbl">{t('Volume (L)')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.volumeL} placeholder={t('unknown')} /></label>
@@ -90,13 +107,25 @@
           {#each linkable as i (i.id)}<option value={i.id}>{nameOf(i)} · {i.id}</option>{/each}
         </select>
       </label>
-      <label><span class="lbl">{t('Pieces of that item')}</span><input class="inp num" type="number" min="1" bind:value={draft.pieces} /></label>
+      {#if draft.itemId}<label><span class="lbl">{t('Pieces of that item')}</span><input class="inp num" type="number" min="1" bind:value={draft.pieces} /></label>
+      {:else}<label><span class="lbl">{t('Weight (g)')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>{/if}
+      {#if worn}
+        <!-- v0.37.0 (Noah 3a): the areas a worn bag is made for; trips of that area suggest it. -->
+        <fieldset class="wide areas">
+          <legend class="lbl">{t('For these areas')}</legend>
+          {#each TRIP_DOMAINS as d (d.key)}
+            {@const on = draft.domains.includes(d.key)}
+            <label class="cb"><input type="checkbox" checked={on} onchange={(e) => (draft.domains = e.currentTarget.checked ? [...draft.domains, d.key] : draft.domains.filter((x) => x !== d.key))} /> {t(d.name)}</label>
+          {/each}
+        </fieldset>
+      {/if}
       <label class="wide"><span class="lbl">{t('Note')}</span><input class="inp" bind:value={draft.note} /></label>
     </div>
     <!-- v0.26.1 (Noah 15b): litres are optional; Pack only talks about volume when everything has litres. -->
     <p class="note">{t('Litres are optional. Pack shows "used of litres" only when every bag in use and every item in it has litres.')}</p>
     <p class="note">
-      {t('Weight:')} <b>{linked ? (linked.weightG == null ? t('not weighed yet (weigh it in Gear)') : formatWeight(linked.weightG * (Number(draft.pieces) || 1))) : t('no gear item linked')}</b>
+      {t('Weight:')} <b>{linked ? (linked.weightG == null ? t('not weighed yet (weigh it in Gear)') : formatWeight(linked.weightG * (Number(draft.pieces) || 1))) : String(draft.grams ?? '').trim() ? formatWeight(parseGrams(String(draft.grams))) : t('no gear item linked')}</b>
+      {#if worn}<br /><span class="quiet">{t('Worn bags count to On me, not to the bike.')}</span>{/if}
     </p>
     <p class="err" role="alert">{error}</p>
     <div class="foot">
@@ -145,6 +174,26 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+  }
+  .areas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .areas legend {
+    margin-bottom: 4px;
+  }
+  .cb {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+  }
+  .quiet {
+    color: var(--ink-3);
   }
   .del {
     margin-left: auto;
