@@ -9,7 +9,7 @@
   import { isEvent } from '../care.js';
   import { tripFromTemplate, templateDefaults } from '../templates.js';
   import { t, tn, num, nameOf } from '../i18n.svelte.js';
-  import { DOMAINS, DOMAIN, BIKEPACKING, domainName, lastDomain, rememberDomain, newPackTrip, lastTripIn, readyKey, inDomain, hasBike } from '../domains.js';
+  import { TRIP_DOMAINS, DOMAIN, BIKEPACKING, domainName, lastDomain, rememberDomain, newPackTrip, lastTripIn, readyKey, inDomain, hasBike } from '../domains.js';
   import { isInventory, knownWeight, formatWeight } from '../gear.js';
   import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks, blocksLine } from '../sets.js';
   import { localDay } from '../localday.js';
@@ -103,7 +103,7 @@
   if (isNew) useTemplate(startFrom);
   // A template always makes a bikepacking trip.
   // svelte-ignore state_referenced_locally
-  let area = $state(templates.some((x) => x.id === startFrom) ? BIKEPACKING : DOMAIN[domain] ? domain : lastDomain());
+  let area = $state(templates.some((x) => x.id === startFrom) ? BIKEPACKING : DOMAIN[domain] && DOMAIN[domain].trip !== false ? domain : lastDomain());
   const byBike = $derived(isNew ? !!DOMAIN[area]?.bike : hasBike(trip));
   const fromArea = $derived(isNew && !byBike ? lastTripIn(area, trips) : null);
   const areaItems = $derived(items.filter((i) => isInventory(i) && inDomain(i, area)).length);
@@ -399,7 +399,7 @@
       <fieldset class="area">
         <legend class="lbl">{t('Area')}</legend>
         <div class="areas">
-          {#each DOMAINS as d (d.key)}<button type="button" class="toggle" aria-pressed={area === d.key} onclick={() => (area = d.key)}>{t(d.name)}</button>{/each}
+          {#each TRIP_DOMAINS as d (d.key)}<button type="button" class="toggle" aria-pressed={area === d.key} onclick={() => (area = d.key)}>{t(d.name)}</button>{/each}
         </div>
       </fieldset>
     {/if}

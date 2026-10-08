@@ -278,6 +278,10 @@
         {/each}
       </fieldset>
       <label class="wide"><span class="lbl">{t('Note')}</span><textarea class="inp" rows="2" bind:value={draft.note}></textarea></label>
+      <!-- v0.36.0: from the reviewed gear list (gear import); kept as they are when saving. -->
+      {#if draft.sourceId || draft.rule || draft.zone || draft.layer || draft.tempClass}
+        <p class="note wide">{[draft.sourceId && `${t('Source ID')}: ${draft.sourceId}`, (draft.zone || draft.layer) && `${t('Body zone')}: ${[draft.zone, draft.layer].filter(Boolean).join(' · ')}`, draft.tempClass && `${t('Temperature')}: ${draft.tempClass}`, draft.rule && `${t('Rule')}: ${draft.rule}`].filter(Boolean).join(' · ')}</p>
+      {/if}
     </div>
   </details>
 {/snippet}
@@ -302,6 +306,11 @@
         {#if item.rain}<div><dt>{t('Rain')}</dt><dd>{t(RAIN_ITEM[item.rain] ?? '')}</dd></div>{/if}
         {#if item.perHours}<div><dt>{t('Amount')}</dt><dd>{t('1 per {n} h', { n: item.perHours })}{item.maxQty ? `, ${t('at most {n}', { n: item.maxQty })}` : ''}</dd></div>{/if}
         {#if item.replaces}<div><dt>{t('On me, instead of')}</dt><dd>{nameOf(items.find((i) => i.id === item.replaces)) || item.replaces}</dd></div>{/if}
+        <!-- v0.36.0: the fields of the reviewed gear list (gear import), read only. -->
+        {#if item.zone || item.layer}<div><dt>{t('Body zone')}</dt><dd>{[item.zone, item.layer].filter(Boolean).join(' · ')}</dd></div>{/if}
+        {#if item.tempMin != null || item.tempMax != null || item.tempClass}<div><dt>{t('Temperature')}</dt><dd>{[item.tempMin != null || item.tempMax != null ? `${item.tempMin ?? '…'} – ${item.tempMax ?? '…'} °C` : '', item.tempClass].filter(Boolean).join(' · ')}</dd></div>{/if}
+        {#if item.rule}<div><dt>{t('Rule')}</dt><dd>{item.rule}</dd></div>{/if}
+        {#if item.sourceId}<div><dt>{t('Source ID')}</dt><dd>{item.sourceId}</dd></div>{/if}
 
         {#if item.qty > 1}<div><dt>{t('Quantity')}</dt><dd>{item.qty} × {formatWeight(item.weightG)} = {formatWeight(itemWeight(item))}</dd></div>{/if}
       </dl>

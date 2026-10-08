@@ -220,7 +220,7 @@ export function weighQueue(items) {
 }
 
 /** Next free ID for a category, e.g. "EL20" after "EL19". */
-const PREFIX = { elec: 'EL', light: 'LI', onbike: 'KL', rain: 'RG', offbike: 'OB', shoes: 'SH', tools: 'WZ', food: 'FD', cook: 'KO', sleep: 'SL', hyg: 'HY', docs: 'DK', bags: 'TA', bike: 'BK', lux: 'LX' };
+export const PREFIX = { elec: 'EL', light: 'LI', onbike: 'KL', rain: 'RG', offbike: 'OB', shoes: 'SH', tools: 'WZ', food: 'FD', cook: 'KO', sleep: 'SL', hyg: 'HY', docs: 'DK', bags: 'TA', bike: 'BK', lux: 'LX' };
 export function nextId(items, category) {
   const p = PREFIX[category] ?? 'XX';
   const used = items.map((i) => i.id).filter((id) => id.startsWith(p)).map((id) => parseInt(id.slice(p.length), 10) || 0);

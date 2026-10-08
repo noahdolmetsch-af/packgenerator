@@ -12,6 +12,7 @@
   import PastTrips from './pages/PastTrips.svelte';
   import Blocks from './pages/Blocks.svelte';
   import Features from './pages/Features.svelte';
+  import GearImport from './pages/GearImport.svelte';
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
@@ -187,6 +188,9 @@
   {#key switchN}
   {#if page === 'gear'}
     <Gear />
+  {:else if page === 'gearimport'}
+    <!-- v0.36.0 (Noah 1a): the reviewed gear list waits here before it goes into Gear -->
+    <GearImport />
   {:else if page === 'pack'}
     <Pack />
   {:else if page === 'bikes' || page === 'care'}

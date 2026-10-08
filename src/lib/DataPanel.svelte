@@ -8,6 +8,8 @@
   import { Send } from '@lucide/svelte';
   import { isDemoFile, startDemo, demoState } from './demo.js';
   import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
+  import { isGearImportFile } from './gearimport.js';
+  import { stageImport } from './gear/importdb.js';
   import { TEMPLATES_KEY, upsert } from './templates.js';
   import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, watchForChanges } from './folderBackup.js';
   import { t, tn, locale } from './i18n.svelte.js';
@@ -68,6 +70,19 @@
     if (!file) return;
     try {
       const data = JSON.parse(await file.text());
+      // v0.36.0 (Noah 1a): the reviewed gear list is no backup either. It waits on "Import prüfen"
+      // (#/gear/import); nothing goes into the gear before it is checked there.
+      if (isGearImportFile(data)) {
+        const problems = await stageImport(db, data, file.name);
+        if (problems.length) {
+          pending = null;
+          message = `${problems.map((p) => t(p)).join(' ')} ${t('Nothing was changed.')}`;
+          return;
+        }
+        pending = { data, name: file.name, gear: { items: data.items.length, learnings: data.learnings?.length ?? 0 } };
+        message = '';
+        return;
+      }
       // The favourites list (Noah, 4.10.2026) is no backup: it only adds stars and new items.
       if (isFavoritesFile(data)) {
         pending = { data, name: file.name, fav: planFavorites(data, await db.items.toArray()) };
@@ -169,7 +184,17 @@
 
   {#if $demoQ}<p class="small">{t('A demo is running: backups are off until you end it (yellow bar on top).')}</p>{/if}
 
-  {#if pending?.fav}
+  {#if pending?.gear}
+    <!-- v0.36.0 (Noah 1a): the gear list goes to the staging page first. -->
+    <div class="confirm" role="dialog" aria-label={t('Check import')}>
+      <p><strong>{pending.name}</strong>: {t('a gear list with {items} items and {learnings} learnings. Nothing is changed yet: check it first.', { items: pending.gear.items, learnings: pending.gear.learnings })}</p>
+      <div class="row">
+        <a class="btn hi" href="#/gear/import" onclick={() => (pending = null)}>{t('Check import')}</a>
+        <button type="button" onclick={() => (pending = null)}>{t('Later')}</button>
+      </div>
+      <p class="small">{t('The list waits under Gear → ••• → Check import.')}</p>
+    </div>
+  {:else if pending?.fav}
     <div class="confirm" role="dialog" aria-label={t('Apply favourites')}>
       <p><strong>{pending.data.list?.name}</strong>: {t('{stars} items in your gear get a ★, {adds} new items are added, and a template with all favourites is saved.', { stars: pending.fav.updates.length, adds: pending.fav.adds.length })}</p>
       <p class="small">{t('Weights, bags and everything else you typed in stay as they are. Nothing is deleted.')}</p>
@@ -294,6 +319,15 @@
     background: var(--paper);
     color: var(--ink);
     cursor: pointer;
+  }
+  a.btn {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+  }
+  a.btn.hi,
+  a.btn.hi:visited {
+    color: #fff;
   }
   .hi {
     background: var(--hi);
