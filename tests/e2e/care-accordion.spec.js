@@ -102,31 +102,23 @@ test('accordion: one bike open, the others one row; last work per part with me /
   await expect(due.first().locator('.st')).toHaveText(/Arbeit nötig|überfällig/);
   await expect(row('Gabel').locator('.act .who.mech')).toHaveText('Velomech');
   await expect(row('Kette').getByRole('button', { name: 'Erledigt' })).toBeVisible();
-  // Parts that are fine are folded as "n ok" with their names (6a).
-  const ok = spark.locator('.okfold');
-  await expect(ok).toHaveText(/\d+ ok/);
-  await expect(ok).toContainText('Kassette');
-  await ok.click();
-
-  // One row per part: what, when, km, CHF; the shop sign only on the bike shop's work; a state badge and what comes next.
-  await expect(row('Kassette')).toContainText(`ersetzt ${shown(day(-200))} · CHF 129`);
-  await expect(row('Kassette').locator('.kmv')).toHaveText('3’900');
-  await expect(row('Kassette').locator('.who')).toHaveText('Velomech');
-  await expect(row('Kassette')).toContainText('1’100 km alt');
-  await expect(row('Kette')).toContainText(`gewachst ${shown(day(-30))}`);
-  await expect(row('Kette')).toContainText(`gemessen 0.4 % am ${shown(day(-9))}`);
-  await expect(row('Kette').locator('.who')).toHaveCount(0); // "me" is not on every row any more
-  await expect(row('Kette').locator('.st')).toHaveText('fällig');
-  await expect(row('Gabel').locator('.st')).toHaveText('überfällig');
-  await expect(row('Schaltung').locator('.st')).toHaveText('Arbeit nötig');
-  await expect(row('Bremsbeläge vorne').locator('.st')).toHaveText('bald');
-  await expect(row('Bremsbeläge vorne')).toContainText('unter 50 % ersetzen');
-  // Tube or tubeless as a switch per wheel inside the opened tyre row (7a).
-  await expect(row('Reifen').getByRole('group', { name: 'Vorne: Schlauch oder tubeless' })).toHaveCount(0);
-  await spark.getByRole('button', { name: /^Reifen/ }).click();
-  await expect(row('Reifen').getByRole('group', { name: 'Vorne: Schlauch oder tubeless' }).getByRole('button', { name: 'Tubeless' })).toHaveAttribute('aria-pressed', 'true');
-  // Folded: parts without data, the 1000 km check, the log.
-  await expect(spark.locator('summary').filter({ hasText: 'Ohne Daten' })).toContainText('Teile');
+  // v0.48.0 «Teile pro Velo»: below the due cards every part in ONE table by area (no «n ok» fold
+  // any more): the last work with its date, km since, the wear bar and what comes next.
+  const prow = (name) => spark.locator('button.prow').filter({ has: page.locator('.nm').getByText(name, { exact: true }) });
+  await expect(spark.locator('.ptable')).toBeVisible();
+  await expect(prow('Kassette')).toContainText(`ersetzt ${shown(day(-200))}`);
+  await expect(prow('Kassette')).toContainText('1’100 km');
+  await expect(prow('Bremsbeläge vorne').locator('.pill')).toHaveText('bald');
+  // The fork sits under «More» (its travel is a key value on top).
+  await spark.locator('.morebtn').click();
+  await expect(prow('Gabel').locator('.pill')).toHaveText('überfällig');
+  // Tube or tubeless per wheel inside the opened tyre part (7a, now in its dialog).
+  await prow('Reifen + Dichtmilch').click();
+  const tyre = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: /^Reifen/ }) });
+  await expect(tyre.getByRole('group', { name: 'Vorne: Schlauch oder tubeless' }).getByRole('button', { name: 'Tubeless' })).toHaveAttribute('aria-pressed', 'true');
+  await page.keyboard.press('Escape');
+  await expect(tyre).toBeHidden();
+  // Folded: the 1000 km check, the log.
   await expect(spark.locator('summary').filter({ hasText: '1’000-km-Check' })).toBeVisible();
   await expect(spark.locator('summary').filter({ hasText: 'Logbuch' })).toBeVisible();
   // For the bike shop and the year: one folded row "Velomech & 2026".
@@ -156,28 +148,29 @@ test('filter: all parts, only due, by me, by the bike shop; remembered', async (
   await page.goto(`./#/bikes?tab=care&bike=${SPARK}`);
   const spark = page.locator(`#care-${SPARK}`);
   const chips = page.getByRole('group', { name: 'Teile zeigen' });
+  // v0.48.0: «Alle» is the part table; the other filters keep the short list of rows.
   const names = () => spark.locator('li.pt .part-btn').allTextContents();
+  const unfold = async () => {
+    if (await spark.locator('.okfold[aria-expanded=false]').count()) await spark.locator('.okfold').click();
+  };
   await expect(chips.getByRole('button', { name: 'Alle', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await spark.locator('.okfold').click();
-  const all = await names();
-  expect(all.length).toBeGreaterThanOrEqual(8);
+  expect(await spark.locator('button.prow').count()).toBeGreaterThanOrEqual(8);
 
   await chips.getByRole('button', { name: 'Velomech', exact: true }).click();
-  await expect.poll(names).not.toEqual(all);
-  if (await spark.locator('.okfold[aria-expanded=false]').count()) await spark.locator('.okfold').click();
+  await expect(spark.locator('.ptable')).toHaveCount(0);
+  await unfold();
   const shop = await names();
   expect(shop.some((n) => n.startsWith('Kassette'))).toBe(true);
   expect(shop.some((n) => n.startsWith('Gabel'))).toBe(true);
   expect(shop.some((n) => n.startsWith('Kette'))).toBe(false);
 
   await chips.getByRole('button', { name: 'von mir' }).click();
-  if (await spark.locator('.okfold[aria-expanded=false]').count()) await spark.locator('.okfold').click();
+  await unfold();
   await expect.poll(async () => (await names()).some((n) => n.startsWith('Kette'))).toBe(true);
   expect((await names()).some((n) => n.startsWith('Kassette'))).toBe(false);
 
   await chips.getByRole('button', { name: 'Fällig', exact: true }).click();
   await expect(spark.locator('.okfold')).toHaveCount(0);
-  await expect.poll(async () => (await names()).length).toBeLessThan(all.length);
   for (const st of await spark.locator('li.pt .st').allTextContents()) expect(['fällig', 'überfällig', 'Arbeit nötig']).toContain(st.trim());
   await noSideways(page);
   await shot(page, info, 'care-filter-due');
@@ -210,7 +203,7 @@ test('"Done by: me / bike shop" is chosen in the dialog, the last choice presele
   await page.goto(`./#/bikes?tab=care&bike=${SPARK}`);
   const spark = page.locator(`#care-${SPARK}`);
   // v0.38.0: a tap on the part opens its row; "Record …" opens the dialog.
-  await spark.getByRole('button', { name: /^Kette/ }).first().click();
+  await spark.locator('li.pt').getByRole('button', { name: /^Kette/ }).first().click();
   await spark.locator('li.pt.x').getByRole('button', { name: 'Erfassen …' }).click();
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Kette' }) });
   const who = dlg.getByRole('group', { name: 'Gemacht von' });
@@ -223,17 +216,14 @@ test('"Done by: me / bike shop" is chosen in the dialog, the last choice presele
   await dlg.getByRole('button', { name: 'Gewachst' }).click();
   await expect(dlg).toBeHidden();
   await expect.poll(async () => (await stored(page, SPARK)).parts.find((p) => p.key === 'chain').history.at(-1)).toMatchObject({ date: day(0), km: 5000, action: 'service', result: 'done', by: 'shop' });
-  // The row says it at once: waxed today, bike shop (now fine, so in the "ok" fold).
-  if (await spark.locator('.okfold[aria-expanded=false]').count()) await spark.locator('.okfold').click();
-  const chain = spark.locator('li.pt').filter({ has: page.getByRole('button', { name: /^Kette/ }) });
+  // The row of the part table says it at once: waxed today.
+  const chain = spark.locator('button.prow').filter({ has: page.locator('.nm').getByText('Kette', { exact: true }) });
   await expect(chain).toContainText(`gewachst ${shown(day(0))}`);
-  await expect(chain.locator('.who')).toHaveText('Velomech');
   expect(await page.evaluate(() => localStorage.getItem('care.by'))).toBe('shop');
 
   // After a reload the next dialog starts with the last choice.
   await page.reload();
-  await page.locator(`#care-${SPARK}`).getByRole('button', { name: /^Bremsbeläge vorne/ }).click();
-  await page.locator(`#care-${SPARK} li.pt.x`).getByRole('button', { name: 'Erfassen …' }).click();
+  await page.locator(`#care-${SPARK} button.prow`).filter({ has: page.locator('.nm').getByText('Bremsbeläge vorne', { exact: true }) }).click();
   const pads = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Bremsbeläge vorne' }) });
   await expect(pads.getByRole('group', { name: 'Gemacht von' }).getByRole('button', { name: 'Velomech' })).toHaveAttribute('aria-pressed', 'true');
   await pads.getByRole('group', { name: 'Gemacht von' }).getByRole('button', { name: 'ich' }).click();
@@ -250,13 +240,13 @@ test('no sideways scroll at 320 and 390 px with a bike open', async ({ page, con
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto(`./#/bikes?tab=care&bike=${SPARK}`);
-    await expect(page.locator(`#care-${SPARK} li.pt`).first()).toBeVisible();
+    await expect(page.locator(`#care-${SPARK} button.prow`).first()).toBeVisible();
     await page.locator(`#care-${SPARK} summary`).filter({ hasText: 'Logbuch' }).click();
     await page.locator(`#care-${SPARK} summary`).filter({ hasText: 'Check' }).click();
     await page.locator('details.block summary').first().click();
     await noSideways(page);
     // Tap targets: the filter chips, the bike rows and the part names are 44 px high.
-    for (const el of [page.getByRole('group', { name: 'Teile zeigen' }).getByRole('button').first(), page.locator(`#care-${SPARK} .part-btn`).first(), page.locator(`#care-${SCALE} .ah`)]) {
+    for (const el of [page.getByRole('group', { name: 'Teile zeigen' }).getByRole('button').first(), page.locator(`#care-${SPARK} button.prow`).first(), page.locator(`#care-${SCALE} .ah`)]) {
       expect((await el.boundingBox()).height).toBeGreaterThanOrEqual(44);
     }
     if (width === 320) await shot(page, info, 'care-320', true);
