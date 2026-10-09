@@ -21,6 +21,7 @@ export const KIND = {
   template: { name: 'Templates', max: 3 },
   bike: { name: 'Bikes', max: 4 },
   note: { name: 'Notes', max: 3 },
+  log: { name: 'Logbook', max: 3 }, // v0.42.0 (Noah 9): the old trips of the Excel and the logbook
   page: { name: 'Pages', max: 4 },
   action: { name: 'Actions', max: 3 },
 };
@@ -34,7 +35,7 @@ const PAGES = MORE_ROWS;
  * Results grouped by kind, best first: [{ kind, name, rows: [{ id, title, sub, href, tripId? }] }].
  * Empty groups are left out; fewer than 2 letters find nothing.
  */
-export function searchAll(q, { items = [], trips = [], templates = [], bikes = [], notes = [] } = {}) {
+export function searchAll(q, { items = [], trips = [], templates = [], bikes = [], notes = [], events = [] } = {}) {
   const words = norm(q).trim().split(/\s+/).filter(Boolean);
   if (!words.length || norm(q).trim().length < 2) return [];
   const hit = (...fields) => {
@@ -60,6 +61,10 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
       .filter((n) => hit(n.text))
       .sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''))
       .map((n) => ({ id: n.id, title: n.text.length > 60 ? `${n.text.slice(0, 57)}…` : n.text, sub: n.status === 'open' ? t('to sort') : t('sorted'), href: '#/inbox' })),
+    log: events
+      .filter((e) => hit(e.name, e.note, e.date, e.dateText, e.result, e.learnings))
+      .sort((a, b) => (b.sortDate ?? '').localeCompare(a.sortDate ?? ''))
+      .map((e) => ({ id: e.id, title: e.name, sub: [e.date ?? e.dateText ?? '', e.source === 'excel' ? t('from Excel') : ''].filter(Boolean).join(' · '), href: '#/debrief/logbook' })),
     page: PAGES.filter((p) => hit(p.words, p.title, t(p.title))).map((p) => ({
       id: p.id,
       title: t(p.title),

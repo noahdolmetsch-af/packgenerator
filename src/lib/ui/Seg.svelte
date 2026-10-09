@@ -4,12 +4,14 @@
    * choice in sight. options: [{ key, name }] (name already translated); value: the chosen key.
    * The group is labelled (label or labelledby); each button tells its state with aria-pressed.
    */
-  let { options = [], value = null, onchange, label = '', labelledby = null, full = true } = $props();
+  // v0.42.0 (Noah 1): suggest outlines a guessed choice (not chosen yet, one tap sets it); small: a
+  // compact row (the wardrobe's layer and zone).
+  let { options = [], value = null, onchange, label = '', labelledby = null, full = true, suggest = null, small = false } = $props();
 </script>
 
-<div class="seg" class:full role="group" aria-label={labelledby ? undefined : label} aria-labelledby={labelledby}>
+<div class="seg" class:full class:small role="group" aria-label={labelledby ? undefined : label} aria-labelledby={labelledby}>
   {#each options as o (o.key)}
-    <button type="button" data-key={o.key} aria-pressed={value === o.key} onclick={() => value !== o.key && onchange?.(o.key)}>{o.name}</button>
+    <button type="button" data-key={o.key} class:sug={value !== o.key && suggest === o.key} aria-pressed={value === o.key} aria-description={value !== o.key && suggest === o.key ? o.hint : undefined} onclick={() => value !== o.key && onchange?.(o.key)}>{o.name}</button>
   {/each}
 </div>
 
@@ -50,6 +52,26 @@
     background: var(--brand);
     color: var(--brand-ink);
     font-weight: 600;
+  }
+  /* The guess: outlined, not filled. */
+  button.sug {
+    box-shadow: inset 0 0 0 2px var(--ink-2);
+    background: var(--paper-2);
+    font-weight: 600;
+  }
+  .small button {
+    min-height: 44px;
+    padding: 4px 6px;
+    font-size: 13px;
+    hyphens: auto;
+  }
+  /* Not full width: each button as wide as its word (v0.42.0). */
+  .seg:not(.full) button {
+    flex: 0 1 auto;
+    padding-inline: 14px;
+  }
+  .seg.small:not(.full) button {
+    padding-inline: 8px;
   }
   button:focus-visible {
     outline: var(--focus-ring);

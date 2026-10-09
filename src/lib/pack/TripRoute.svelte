@@ -10,6 +10,7 @@
    * onchange(fn): fn gets a plain copy of the trip and returns the fields to store.
    */
   import { readGpxFile, ridingHours, SPEED_KMH, CLIMB_MH } from '../route.js';
+  import { withRainPct, pctOf } from '../wardrobe.js';
   import { searchPlace, fetchForecast, forecastForTrip, toWx, forecastFrom, ageText, tripDays } from '../weather.js';
   import { RAIN } from '../trips.js';
   import Profile from '../ui/Profile.svelte';
@@ -100,7 +101,8 @@
     wxMsg = '';
     try {
       const forecast = await fetchForecast(place);
-      onchange(() => ({ forecast }));
+      // v0.42.0 (Noah 12): the rain chance over the riding hours is stored on the forecast.
+      onchange((tr) => ({ forecast: withRainPct(forecast, tr) }));
     } catch {
       wxMsg = online ? t('The forecast could not be loaded. Try again later.') : t('Offline: showing the last saved forecast.');
     } finally {
@@ -115,7 +117,7 @@
     const age = trip.forecast?.fetchedAt ? Date.now() - new Date(trip.forecast.fetchedAt) : Infinity;
     if (age > 3 * 36e5) load();
   });
-  const useWx = () => onchange((tr) => ({ wx: { ...(tr.wx ?? {}), ...suggested } }));
+  const useWx = () => onchange((tr) => ({ wx: { ...(tr.wx ?? {}), ...suggested, ...pctOf(tr) } }));
 
   const day = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric' });
   const longDay = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });

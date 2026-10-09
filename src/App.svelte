@@ -14,6 +14,7 @@
   import Features from './pages/Features.svelte';
   import GearImport from './pages/GearImport.svelte';
   import Rides from './pages/Rides.svelte';
+  import Wardrobe from './pages/Wardrobe.svelte';
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
@@ -178,7 +179,7 @@
 
 <DemoBar />
 
-<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features'}>
+<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features'}>
   {#key switchN}
   {#if page === 'gear'}
     <Gear />
@@ -208,6 +209,9 @@
   {:else if page === 'favorites'}
     <!-- v0.21.0 (package 5): all my favourite things, by area -->
     <Favorites />
+  {:else if page === 'wardrobe'}
+    <!-- v0.42.0 (Noah 1): the wardrobe, by layer and body zone -->
+    <Wardrobe />
   {:else if page === 'inbox'}
     <Inbox onnew={() => (noteOpen = true)} />
   {:else if page === 'rides'}

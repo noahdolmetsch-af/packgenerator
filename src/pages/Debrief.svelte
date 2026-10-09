@@ -29,6 +29,8 @@
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
   import Seg from '../lib/ui/Seg.svelte';
+  import { CLOTHING, CLOTHING_OFFSET, clothingOffset, chooseKit, tempKits, coldest, tempRange } from '../lib/wardrobe.js';
+  import { SETS_KEY } from '../lib/sets.js';
 
   let { param = '' } = $props();
 
@@ -44,9 +46,25 @@
   const notesQ = liveQuery(() => db.notes.toArray());
   // v0.41.0 (Noah 1): uploaded rides (GPX), for the row "Upload ride" and a trip's "Planned vs real".
   const ridesQ = liveQuery(() => db.rides.toArray());
+  // v0.42.0 (Noah 6): the clothing row names the kit of this trip; its answers shift the kit borders.
+  const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
+  const offsetQ = liveQuery(() => db.settings.get(CLOTHING_OFFSET));
   const tripRides = $derived(trip ? ($ridesQ ?? []).filter((r) => r.tripId === trip.id) : []);
   // Answer 9a: the trips before the app (Hope, Alpenbrevet …) as a logbook to read, newest first.
   const events = $derived([...($eventsQ ?? [])].sort((a, b) => (b.sortDate ?? '').localeCompare(a.sortDate ?? '')));
+  // v0.42.0 (Noah 9, 11): the logbook with a search; 5 rows, then "n more".
+  const LOG_SHOWN = 5;
+  let logQ = $state('');
+  let logAll = $state(false);
+  const excelN = $derived(events.filter((e) => e.source === 'excel').length);
+  const logFound = $derived.by(() => {
+    const q = logQ.trim().toLowerCase();
+    if (!q) return events;
+    return events.filter((e) => [e.name, e.note, e.date, e.dateText, e.type, e.result, e.learnings, e.bike, e.bags].filter(Boolean).join(' ').toLowerCase().includes(q));
+  });
+  const logShown = $derived(logAll || logQ.trim() ? logFound : logFound.slice(0, LOG_SHOWN));
+  /** A year shows as it is ("2025"), a full date as month and year; no date: –. */
+  const logDate = (ev) => (!ev.date ? '–' : /^\d{4}$/.test(ev.date) ? ev.date : /^\d{4}-\d{2}-\d{2}/.test(ev.date) ? new Date(`${ev.date.slice(0, 10)}T12:00:00`).toLocaleDateString(locale(), { month: 'short', year: 'numeric' }) : ev.date);
 
   const trips = $derived($tripsQ ?? []);
   const items = $derived($itemsQ ?? []);
@@ -56,7 +74,7 @@
   const byId = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
 
   // v0.25.1 (Noah 3a): 'compare' scrolls to "Your trips compared".
-  const SPOTS = ['learnings', 'pace', 'compare'];
+  const SPOTS = ['learnings', 'pace', 'compare', 'logbook'];
   const tripId = $derived(param && !SPOTS.includes(param) ? decodeURIComponent(param) : null);
   const trip = $derived(tripId ? trips.find((t) => t.id === tripId) : null);
   const open = $derived(toDebrief(trips, debriefs));
@@ -108,6 +126,10 @@
     d.km = n == null || Number.isNaN(n) ? null : n;
     persist();
   }
+  const tripKit = $derived.by(() => {
+    const c = trip ? coldest(trip) : null;
+    return c ? chooseKit(tempKits($setsQ?.value ?? []), c.c, Number($offsetQ?.value) || 0) : null;
+  });
   const drafts = $derived(new Set(debriefs.filter((d) => d.status === 'draft').map((d) => d.tripId)));
 
   /* ---------- one debrief: kept here while you work, saved on every change (autosave) ---------- */
@@ -296,6 +318,8 @@
       d.status = 'done';
       d.doneAt = new Date().toISOString();
       await db.debriefs.put($state.snapshot(d));
+      // v0.42.0 (Noah 6): the clothing answers of all saved debriefs shift the kit borders (±3 °C at most).
+      await db.settings.put({ key: CLOTHING_OFFSET, value: clothingOffset(await db.debriefs.toArray()), at: d.doneAt });
       // v0.29.0: a debrief saved before the last day ends the trip (as "Next: Debrief" on the way does).
       await db.trips.update(trip.id, isOver(trip) ? { status: 'done' } : { status: 'done', finished: localDay() });
     });
@@ -415,6 +439,9 @@
             <!-- v0.40.0 (Noah 4a): segmented toggles instead of drop-downs: one tap, the answer in sight. -->
             <div class="qa">
               <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={WEATHER.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('weather', v)} /></div>
+              <!-- v0.42.0 (Noah 6): how the clothing was; it slowly shifts the borders of the temperature kits. -->
+              <div class="segq"><span class="lbl" id="q-cloth">{t('Clothing')}</span><Seg labelledby="q-cloth" value={d.clothing ?? null} options={CLOTHING.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('clothing', v)} />
+                <p class="tp-muted tp-small clothhint">{tripKit ? t('Slowly shifts the borders of your temperature kits (here kit {range}).', { range: tempRange(tripKit.minC, tripKit.maxC, t) }) : t('Slowly shifts the borders of your temperature kits.')}</p></div>
               <div class="segq"><span class="lbl" id="q-amount">{t('Amount of food and drink')}</span><Seg labelledby="q-amount" value={d.amount} options={AMOUNT.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('amount', v)} /></div>
               <div class="segq"><span class="lbl" id="q-bags">{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><Seg labelledby="q-bags" value={d.bags} options={BAGS_OK.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('bags', v)} /></div>
               {#if bike}
@@ -535,23 +562,37 @@
     <Pace />
 
     {#if events.length}
+      <!-- v0.42.0 (Noah 9, 11): one Logbook; the old trips of the Excel are read-only notes in it,
+           quietly marked "from Excel", with a search. -->
       <section id="logbook" aria-labelledby="log-h">
-        <details class="fold-sec">
-          <summary class="sec-head"><span id="log-h">{t('Logbook')}</span><span class="n">{tn(events.length, '{n} earlier trip', '{n} earlier trips')} ›</span></summary>
-          <div class="box">
-            {#each events as ev (ev.id)}
-              <details class="topic ev">
-                <summary><span class="tname">{ev.name}</span> <span class="muted">{ev.dateText ?? ev.sortDate ?? ''}{ev.type ? ` · ${ev.type}` : ''}</span></summary>
-                <dl>
-                  {#if ev.bike && ev.bike !== '–'}<dt>{t('Bike')}</dt><dd>{ev.bike}</dd>{/if}
-                  {#if ev.bags && ev.bags !== '–'}<dt>{t('Bags')}</dt><dd>{ev.bags}</dd>{/if}
-                  {#if ev.result}<dt>{t('What worked')}</dt><dd>{ev.result}</dd>{/if}
-                  {#if ev.learnings}<dt>{t('Learnings')}</dt><dd>{ev.learnings}</dd>{/if}
-                </dl>
-              </details>
+        <h2 class="sec-head"><span id="log-h">{t('Logbook')}</span><span class="n num">{events.length}{excelN ? ` · ${t('read only')}` : ''}</span></h2>
+        <div class="box">
+          {#if events.length > LOG_SHOWN}<input class="inp q" type="search" placeholder={t('Search the logbook')} bind:value={logQ} aria-label={t('Search the logbook')} />{/if}
+          <ul class="log">
+            {#each logShown as ev (ev.id)}
+              <li>
+                {#if ev.source === 'excel'}
+                  <p class="lt"><b>{ev.name}</b><span class="ld num">{logDate(ev)}</span></p>
+                  {#if ev.note}<p class="ln">{ev.note}</p>{/if}
+                  <p class="lsrc">{t('from Excel')}</p>
+                {:else}
+                  <details class="topic ev">
+                    <summary><span class="tname">{ev.name}</span> <span class="muted">{ev.dateText ?? ev.sortDate ?? ''}{ev.type ? ` · ${ev.type}` : ''}</span></summary>
+                    <dl>
+                      {#if ev.bike && ev.bike !== '–'}<dt>{t('Bike')}</dt><dd>{ev.bike}</dd>{/if}
+                      {#if ev.bags && ev.bags !== '–'}<dt>{t('Bags')}</dt><dd>{ev.bags}</dd>{/if}
+                      {#if ev.result}<dt>{t('What worked')}</dt><dd>{ev.result}</dd>{/if}
+                      {#if ev.learnings}<dt>{t('Learnings')}</dt><dd>{ev.learnings}</dd>{/if}
+                    </dl>
+                  </details>
+                {/if}
+              </li>
+            {:else}
+              <li><p class="muted">{t('Nothing matches.')}</p></li>
             {/each}
-          </div>
-        </details>
+          </ul>
+          {#if logFound.length > logShown.length}<p class="logmore"><button type="button" class="tp-link" onclick={() => (logAll = true)}>{tn(logFound.length - logShown.length, '{n} more', '{n} more')}</button></p>{/if}
+        </div>
       </section>
     {/if}
 
@@ -703,6 +744,51 @@
     display: grid;
     gap: 4px;
     padding: 8px 0 6px;
+  }
+  .log {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .log > li {
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+  }
+  .log > li:first-child {
+    border-top: 0;
+  }
+  .lt {
+    display: flex;
+    gap: 12px;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .ld {
+    margin-left: auto;
+    flex: none;
+    color: var(--ink-3);
+    font-size: 14px;
+  }
+  .ln {
+    margin: 2px 0 0;
+    color: var(--ink-2);
+    font-size: 14px;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+  .lsrc {
+    margin: 2px 0 0;
+    color: var(--ink-3);
+    font-size: 12px;
+  }
+  .logmore {
+    margin: 4px 0 0;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  .clothhint {
+    margin: 2px 0 0;
   }
   .segq .lbl {
     margin: 0;
@@ -949,17 +1035,6 @@
     border-top: 0;
     border-radius: 0 0 8px 8px;
     background: var(--paper);
-  }
-  .fold-sec > summary {
-    cursor: pointer;
-    list-style: none;
-  }
-  .fold-sec > summary::-webkit-details-marker {
-    display: none;
-  }
-  .fold-sec:not([open]) > summary {
-    border-bottom: 1px solid var(--line);
-    border-radius: 8px;
   }
   .ev summary .muted {
     font-size: 14px;

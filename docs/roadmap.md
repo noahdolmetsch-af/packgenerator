@@ -532,7 +532,7 @@ Excel-Import Schritt 1: Noahs bereinigte Material-Excel (privat, nicht im Repo) 
 
 ### Reihenfolge nach 0.36
 
-0.36 Import prüfen (veröffentlicht), 0.37 Rucksäcke (erledigt), 0.37.1 Zusammenlegen (erledigt), 0.38 Heute und Menü (erledigt), 0.39 AP28 Vorlagen (erledigt), 0.40 Ruhige Nebenseiten (erledigt in 0.40.0; Design-Prüfung 9.10.: Inbox, Rückblick, Vergangene Touren, Bausteine, Was die App kann, Planen am Computer, Unterwegs), 0.41 AP27 GPX → Learning (erledigt in 0.41.0), 0.42 Excel-Import Schritt 2 (alte Touren nur als Notiz, Temperatur-Kits als Vorschlag, Aufgaben nur vor Events und Bikepacking über 4 Nächte) mit Kleiderschrank (nach Schicht, dann Zone) und Zwiebel-Check, 0.43 Wiege-Modus und Mehrfachauswahl (Kategorie, Tasche, Baustein, Bereich, Archivieren), danach Abnahme-Bericht AP21–24 und Jahresrückblick im Dezember. AP30 Foto-KI ist gestrichen (nur noch Idee), AP26: Geräte bleiben beim Backup von Hand. Die Versionsnummern sind geplant, nicht fix.
+0.36 Import prüfen (veröffentlicht), 0.37 Rucksäcke (erledigt), 0.37.1 Zusammenlegen (erledigt), 0.38 Heute und Menü (erledigt), 0.39 AP28 Vorlagen (erledigt), 0.40 Ruhige Nebenseiten (erledigt in 0.40.0; Design-Prüfung 9.10.: Inbox, Rückblick, Vergangene Touren, Bausteine, Was die App kann, Planen am Computer, Unterwegs), 0.41 AP27 GPX → Learning (erledigt in 0.41.0), 0.42 Excel-Import Schritt 2 (alte Touren nur als Notiz, Temperatur-Kits als Vorschlag, Aufgaben nur vor Events und Bikepacking über 4 Nächte) mit Kleiderschrank (nach Schicht, dann Zone) und Zwiebel-Check (erledigt in 0.42.0; die echte Datei erzeugt Noah selbst), 0.43 Wiege-Modus und Mehrfachauswahl (Kategorie, Tasche, Baustein, Bereich, Archivieren), danach Abnahme-Bericht AP21–24 und Jahresrückblick im Dezember. AP30 Foto-KI ist gestrichen (nur noch Idee), AP26: Geräte bleiben beim Backup von Hand. Die Versionsnummern sind geplant, nicht fix.
 
 | Nr. | Paket | Inhalt | Hinweis |
 |---|---|---|---|
@@ -558,5 +558,6 @@ Excel-Import Schritt 1: Noahs bereinigte Material-Excel (privat, nicht im Repo) 
 | 1.5 | 09.10.2026 | 0.39.0 AP28 Vorlagen neu gebaut (Vorlagen verbunden mit Bausteinen) |
 | 1.6 | 09.10.2026 | 0.40.0 Ruhige Nebenseiten erledigt; in Arbeit 0.41 AP27 GPX → Learning |
 | 1.7 | 09.10.2026 | 0.41.0 AP27 GPX → Learning erledigt |
+| 1.8 | 09.10.2026 | 0.42 „Excel Schritt 2 und Kleiderschrank“ erledigt: Kleiderschrank, Zwiebel-Check, Temperatur-Kits als Bausteine, Kleidung im Rückblick, Import Schritt 2 (Kits, Bausteine, Aufgaben, alte Touren) |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

@@ -30,7 +30,9 @@ export function allSets(value) {
   const rec = (key) => list.find((s) => s.key === key);
   // v0.26.0 (Noah 5b): a built-in block can get its own name (saved on its record, as written).
   const builtIn = BUILT_IN.map((key) => ({ key, name: rec(key)?.name || t(SETS[key]), note: '', builtIn: true, renamed: !!rec(key)?.name, qty: { ...(rec(key)?.qty ?? {}) } }));
-  const own = list.filter((s) => s?.key && !isBuiltIn(s.key)).map((s) => ({ key: s.key, name: s.name ?? s.key, note: s.note ?? '', builtIn: false, qty: { ...(s.qty ?? {}) } }));
+  // v0.42.0: a temperature kit keeps its range (minC / maxC) and the Excel id it came from (sourceId).
+  const extra = (s) => Object.fromEntries(['minC', 'maxC', 'sourceId', 'mergedIds'].filter((k) => s[k] !== undefined).map((k) => [k, s[k]]));
+  const own = list.filter((s) => s?.key && !isBuiltIn(s.key)).map((s) => ({ key: s.key, name: s.name ?? s.key, note: s.note ?? '', builtIn: false, qty: { ...(s.qty ?? {}) }, ...extra(s) }));
   return [...builtIn, ...own];
 }
 

@@ -4,7 +4,10 @@
  *
  * The place is typed in by hand (trip.place = { name, lat, lon }) or comes from a GPX route.
  * The forecast is stored on the trip:
- *   trip.forecast = { fetchedAt, place, days: [{ date, min, max, rainMm, rainPct }] }
+ *   trip.forecast = { fetchedAt, place, days: [{ date, min, max, rainMm, rainPct, hourly? }], rainPct? }
+ * v0.42.0 (Noah 5, 12): hourly = { t: [24 °C], p: [24 %] } per day, for the coldest riding hour and
+ * the rain chance over the riding hours (wardrobe.js); forecast.rainPct is that max %, stored when
+ * the forecast is loaded for a trip (wardrobe.js withRainPct).
  * "Use forecast" turns it into the packing weather trip.wx = { min, max, rain }.
  */
 import { t, tn } from './i18n.svelte.js';
@@ -33,18 +36,34 @@ const round = (n, d = 4) => Math.round(n * 10 ** d) / 10 ** d;
 
 /** Fetch the daily forecast for a place. Returns the object to store as trip.forecast. */
 export async function fetchForecast(place, fetcher = fetch, now = new Date()) {
-  const url = `${API}?latitude=${place.lat}&longitude=${place.lon}&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,precipitation_probability_max&timezone=auto&forecast_days=${FORECAST_DAYS}`;
+  const url = `${API}?latitude=${place.lat}&longitude=${place.lon}&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,precipitation_probability_max&hourly=temperature_2m,precipitation_probability&timezone=auto&forecast_days=${FORECAST_DAYS}`;
   const res = await fetcher(url);
   if (!res.ok) throw new Error(t('Forecast failed ({status})', { status: res.status }));
-  const { daily = {} } = await res.json();
+  const { daily = {}, hourly = null } = await res.json();
+  const hours = hourlyByDate(hourly);
   const days = (daily.time ?? []).map((date, n) => ({
     date,
     min: num(daily.temperature_2m_min?.[n]),
     max: num(daily.temperature_2m_max?.[n]),
     rainMm: num(daily.precipitation_sum?.[n]),
     rainPct: num(daily.precipitation_probability_max?.[n]),
+    ...(hours.has(date) ? { hourly: hours.get(date) } : {}),
   }));
   return { fetchedAt: now.toISOString(), place: { name: place.name, lat: place.lat, lon: place.lon }, days };
+}
+
+/** v0.42.0: Open-Meteo's hourly lists ("2026-10-15T08:00") → Map(date → { t: [24], p: [24] }). */
+function hourlyByDate(h) {
+  const out = new Map();
+  for (const [n, stamp] of (h?.time ?? []).entries()) {
+    const [date, time] = String(stamp).split('T');
+    const hour = Number(String(time ?? '').slice(0, 2));
+    if (!date || !Number.isInteger(hour) || hour < 0 || hour > 23) continue;
+    if (!out.has(date)) out.set(date, { t: Array(24).fill(null), p: Array(24).fill(null) });
+    out.get(date).t[hour] = num(h.temperature_2m?.[n]);
+    out.get(date).p[hour] = num(h.precipitation_probability?.[n]);
+  }
+  return out;
 }
 
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? Math.round(v * 10) / 10 : null);

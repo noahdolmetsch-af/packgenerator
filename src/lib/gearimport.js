@@ -28,6 +28,7 @@
  */
 import { CATEGORIES, CATEGORY, nextId, PREFIX } from './gear.js';
 import { itemDomains } from './domains.js';
+import { validateStep2 } from './importstep2.js';
 import DE from './i18n/de/index.js';
 import GEAR_DE from './i18n/de/gear.js';
 
@@ -48,6 +49,8 @@ export function validateGearImport(data) {
   if (typeof data.version !== 'number') problems.push('The file has no version.');
   else if (data.version > VERSION) problems.push('The file comes from a newer version of the app. Update the app first.');
   if (data.learnings != null && !Array.isArray(data.learnings)) problems.push('The learnings in the file are not a list.');
+  // v0.42.0: the optional lists of step 2 (kits, blocks, tasks, oldTrips), see importstep2.js.
+  problems.push(...validateStep2(data));
   return problems;
 }
 

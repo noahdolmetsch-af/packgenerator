@@ -21,5 +21,6 @@ import today from './today.js';
 import templates from './templates.js';
 import calm from './calm.js';
 import gpx from './gpx.js';
+import wardrobe from './wardrobe.js';
 
-export default { ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx };
+export default { ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe };

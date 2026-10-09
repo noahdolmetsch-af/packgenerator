@@ -33,7 +33,11 @@ export const MORE_GROUPS = [
   {
     key: 'gear',
     name: 'Gear|place',
-    rows: [{ id: 'favorites', title: 'Favourites', short: 'Favourites', href: '#/favorites', icon: 'star', words: 'favourites favorites favourite favorite best things lieblingsstücke favoriten beste' }],
+    rows: [
+      { id: 'favorites', title: 'Favourites', short: 'Favourites', href: '#/favorites', icon: 'star', words: 'favourites favorites favourite favorite best things lieblingsstücke favoriten beste' },
+      // v0.42.0 (Noah 1): the clothing by layer and body zone.
+      { id: 'wardrobe', title: 'Wardrobe', href: '#/wardrobe', icon: 'shirt', words: 'wardrobe clothing clothes layers onion kleiderschrank kleider kleidung schicht schichten zwiebel' },
+    ],
   },
   {
     key: 'app',
