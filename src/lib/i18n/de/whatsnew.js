@@ -8,6 +8,10 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.46.2
+  '"Customise the start page" shows each section name readable on its line again (on the phone the names stood letter by letter in a narrow column).':
+    '«Startseite anpassen» zeigt jeden Abschnitt wieder lesbar in seiner Zeile (am Handy standen die Namen Buchstabe für Buchstabe in einer schmalen Spalte).',
+
   // 0.46.1
   'Problem with a bike: several problems in one line, separated by commas or "and", become single repairs, each ticked off on its own. Under the field you see what will be saved.':
     'Problem am Velo: Mehrere Probleme in einer Zeile, mit Komma oder «und» getrennt, werden einzelne Reparaturen, die du einzeln abhakst. Unter dem Feld siehst du, was gespeichert wird.',
