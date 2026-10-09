@@ -13,8 +13,8 @@ export default {
     'Tastatur: Escape in der Suche am Handy gibt den Fokus an die Lupe zurück, und Escape schliesst eine offene Zeile in der Packliste.',
   'Bigger tap areas on the phone: the gear category heads, "PG" at the top, "All ✓" and "All –" in the debrief and the bike care link in Plan.':
     'Grössere Tippflächen am Handy: die Kategorie-Köpfe im Material, «PG» oben, «Alle ✓» und «Alle –» im Rückblick und der Link zur Velopflege im Planen.',
-  'Import backup says "1 trip" and "1 learning" in the singular.':
-    'Backup importieren sagt «1 Tour» und «1 Learning» in der Einzahl.',
+  'Clearer words: Import backup says "1 trip" and "1 learning", and an empty ride file is called empty.':
+    'Klarere Worte: Backup importieren sagt «1 Tour» und «1 Learning», und eine leere Fahrt-Datei heisst leer.',
   'Offline the app keeps its own font (it fell back to the system font before).':
     'Offline behält die App ihre eigene Schrift (vorher kam die Systemschrift).',
 

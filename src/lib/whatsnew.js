@@ -15,7 +15,7 @@ export const WHATS_NEW = [
     points: [
       { text: 'Keyboard: Escape in the phone search gives the focus back to the magnifier, and Escape closes an open row in the packing list.', href: '#/pack' },
       { text: 'Bigger tap areas on the phone: the gear category heads, "PG" at the top, "All ✓" and "All –" in the debrief and the bike care link in Plan.', href: '#/gear' },
-      { text: 'Import backup says "1 trip" and "1 learning" in the singular.', href: '#/', action: 'data' },
+      { text: 'Clearer words: Import backup says "1 trip" and "1 learning", and an empty ride file is called empty.', href: '#/', action: 'data' },
       { text: 'Offline the app keeps its own font (it fell back to the system font before).', href: '#/' },
     ],
   },
