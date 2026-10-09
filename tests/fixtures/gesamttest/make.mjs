@@ -3,7 +3,7 @@
 //   node tests/fixtures/gesamttest/make.mjs [--today YYYY-MM-DD]
 //
 // writes, next to this file:
-//   backup.json   a backup file ("Backup importieren" / Import backup → Replace all data)
+//   test_data_gtp_daten.json   a backup file ("Backup importieren" / Import backup → Replace all data)
 //   step1.json    a gear import file, step 1 (items + learnings): duplicates, unsure and broken rows
 //   step2.json    a gear import file, step 2 (kits, blocks, tasks, old trips) plus a few items again
 //   ride-s2.gpx   a recorded 3-day ride (day 1) for the GPX debrief in scenario S2
@@ -913,7 +913,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const today = i > 0 ? process.argv[i + 1] : DEFAULT_TODAY;
   const dir = new URL('./', import.meta.url);
   const { data, summary } = build(today);
-  writeFileSync(new URL('backup.json', dir), `${JSON.stringify(data, null, 1)}\n`);
+  writeFileSync(new URL('test_data_gtp_daten.json', dir), `${JSON.stringify(data, null, 1)}\n`);
   writeFileSync(new URL('step1.json', dir), `${JSON.stringify(step1(), null, 1)}\n`);
   writeFileSync(new URL('step2.json', dir), `${JSON.stringify(step2(), null, 1)}\n`);
   const s2 = build(today).data.tables.trips.find((t) => t.id === summary.tripIds.tent);

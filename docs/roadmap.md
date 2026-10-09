@@ -491,7 +491,9 @@ Bei jeder Arbeitsrunde die betroffenen Zeilen aktualisieren; eine Zeile „verif
 
 ## Nächster konkreter Schritt
 
-**Stand 08.10.2026:** v0.36.0 „Import prüfen“ fertigstellen, danach die Reihenfolge in [Stand und nächste Pakete (8.10.2026)](#stand-und-nächste-pakete-8102026). Jeder Release-PR ergänzt [Status](status.md), dieses Register (wenn ein Paket seinen Stand ändert), das [Entscheidungslog](decisions.md) und `src/lib/whatsnew.js`.
+**Stand 09.10.2026:** die Reihenfolge in [Als Nächstes (Stand 9.10.2026, nach 0.45)](#als-nächstes-stand-9102026-nach-045).
+
+Früher (08.10.2026): v0.36.0 „Import prüfen“ fertigstellen, danach die Reihenfolge in [Stand und nächste Pakete (8.10.2026)](#stand-und-nächste-pakete-8102026). Jeder Release-PR ergänzt [Status](status.md), dieses Register (wenn ein Paket seinen Stand ändert), das [Entscheidungslog](decisions.md) und `src/lib/whatsnew.js`.
 
 Früherer Text (7.10.2026): Ausgelieferte Screens mit den Alltagstouren abnehmen, AP01/AP02-Nachweise schliessen und den integrierten PR #31 fachlich abnehmen. Anschliessend AP07–AP09 und AP12–AP16 entlang der Abhängigkeiten abschliessen.
 
@@ -547,6 +549,33 @@ Excel-Import Schritt 1: Noahs bereinigte Material-Excel (privat, nicht im Repo) 
 | 7a (0.44, erledigt) | **Rückblick 12 Monate** (erledigt in 0.44.0) | Immer die letzten 12 Monate (rollend, nach Startdatum der Tour): Fahren, Packen, Gelernt, Velos mit Unterschied zu den 12 Monaten davor; Karte auf Heute statt „Saison in Zahlen“, eigene Seite `#/review` | Ersetzt den Jahresrückblick im Dezember (Noah 9.10.2026) |
 | 8 | **Offene Abnahmen** | AP21–AP24: Phone- und Barrierefreiheits-Prüfung mit Screenreader, fünf Alltagsszenarien mit Person gemessen, formale Release-Abnahme. AP26: Entscheid über Geräte-Synchronisation (Handy und Desktop), nach dem Import mit Noah besprechen. Offen bei Noah: Testprotokoll A–Z (u. a. D10.7 Ordner-Sicherung am Desktop), Taschen und Velos wägen | Laufend, wenn Noah testet |
 
+## Als Nächstes (Stand 9.10.2026, nach 0.45)
+
+Diese Reihenfolge gilt ab jetzt und ersetzt die offenen Punkte der Tabelle oben (Noah, 9.10.2026).
+
+| Nr. | Paket | Inhalt | Hinweis |
+|---|---|---|---|
+| 1 | **0.45.1 Gesamttest Runde 1: Fehler behoben** (dieser PR) | Doppelte Zeilen im Material-Import, feste Velo-Teile in vergangenen Touren, Wörter mitten im Wort umbrochen, Material am Computer schneller; dazu die drei Ideen: Velopflege bei kurzen Tagestouren als eine ruhige Zeile, Zusammenlegen auch am Handy, kein Tipp-Speicher im Backup | Befunde G001–G015 aus dem Gesamttest |
+| 2 | **0.46 Neue Startseite** | Mischung aus Cockpit und Tagesblatt; Farbpalette «Gletscher» als Standard, «Sandstein» und «Klassisch» wählbar; dunkler Modus automatisch und im Menü; Suche als Befehlszeile | In Arbeit in einem parallelen Branch; behebt auch G003, G010, G011 |
+| 3 | **Gesamttest Runde 2** | Derselbe grosse erfundene Datensatz und dieselben Abläufe nach 0.46 | |
+| 4 | **0.47 Einkaufen, Lebenslauf, Werkstatt** | Eine Einkaufsliste für alles (eigene Läden, Monatsbudget); Lebenslauf pro Teil (Preis und Laden freiwillig, Kosten pro Einsatz, Archiv); Werkstatt-Anleitungen (allgemeine Drehmomente, Notfallkarten offline) | |
+| 5 | **0.48 Design und Bedienung aus der Strategierunde 2** | Umsetzung der Antworten | Wartet auf Noahs Antworten 62–119 |
+| 6 | **Später** | TalkBack-Test (tiefe Priorität), Zeitmessung | |
+
+### Im Flow (Gewohnheiten und Sport)
+
+Ganz geplant, gebaut erst nach allem oben.
+
+1. Bildentwürfe.
+2. Grundlage: Sportarten, rollende Ziele «X in N Tagen», Saisons pro Sportart, Stoppuhr, Meditation mit Klangschale, Material pro Sportart.
+3. Bausteine pro Sportart und Tennisstunden (Protokoll, Schülerinnen und Schüler, 20 Start-Bausteine, Abrechnung).
+4. Rituale, täglicher Check, Erholung, Fitbit zuerst von Hand.
+5. Lieblingstermine, Wochenplaner, Wetterfenster, `.ics`, Sporttaschen-Check.
+6. Belohnungen aus der Wunschliste, Wetter-Abzeichen (auch am Material), Rekordwand, Balance-Ring, Saisonkarte auf dem Knopf.
+7. Neuland: Vorschläge, Wunschliste, Gipfelbuch, Schweizer Karte, Bingo, Tour-Postkarte auf einer OSM-Karte.
+8. Server auf Vercel: Strava, dann Fitbit, dann Push; TrainingPeaks-iCal und intervals.icu prüfen.
+9. Personen, Ausleihen und Jahrbuch als PDF.
+
 ## Änderungshistorie dieses Plans
 
 | Version | Datum | Änderung |
@@ -562,5 +591,6 @@ Excel-Import Schritt 1: Noahs bereinigte Material-Excel (privat, nicht im Repo) 
 | 1.8 | 09.10.2026 | 0.42 „Excel Schritt 2 und Kleiderschrank“ erledigt: Kleiderschrank, Zwiebel-Check, Temperatur-Kits als Bausteine, Kleidung im Rückblick, Import Schritt 2 (Kits, Bausteine, Aufgaben, alte Touren) |
 | 1.9 | 09.10.2026 | 0.43 „Wiege-Modus und Mehrfachauswahl“ erledigt |
 | 2.0 | 09.10.2026 | 0.44 „Rückblick 12 Monate“ erledigt (rollend statt Jahresrückblick im Dezember) |
+| 2.1 | 09.10.2026 | 0.45.1 Gesamttest Runde 1; neue Reihenfolge 0.46 Startseite, Gesamttest Runde 2, 0.47, 0.48, später; Abschnitt «Im Flow» (Schritte 1–9) |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

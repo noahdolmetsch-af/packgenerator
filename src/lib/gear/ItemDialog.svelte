@@ -24,7 +24,7 @@
   /**
    * item: the item to show, or null for "Add item".
    * readOnly: on the phone the inventory is for looking things up and weighing only,
-   * so there the dialog shows the details plus a weight field.
+   * so there the dialog shows the details plus a weight field (and, v0.45.1, "Merge with …").
    */
   // onkept (v0.35.0): called with the new item when the window closes without "Save" after it was
   // saved while typing (Pack puts it on the trip, a template takes it, like after "Save").
@@ -188,7 +188,8 @@
   /* ---------- v0.37.1 "Zusammenlegen mit …": a double goes into its counterpart ---------- */
   let mergeOpen = $state(false);
   let mergedInto = $state.raw(null); // { snap, names } after a merge: the form gives way to "Merged · Undo"
-  const canMerge = $derived(!isNew && !readOnly && item?.ownership !== 'gone');
+  // v0.45.1 (G014a): on the phone too (read-only card): merging a double is tidying up, not editing.
+  const canMerge = $derived(!isNew && item?.ownership !== 'gone');
   const mergedDone = (snap, targets) => (mergedInto = { snap, names: targets.map((x) => nameOf(x)).join(', ') });
   async function unmerge() {
     if (!mergedInto) return;
@@ -798,7 +799,7 @@
     font-size: 15px;
   }
   .wl li {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   /* v0.23.0 (AP08) */
   .req {

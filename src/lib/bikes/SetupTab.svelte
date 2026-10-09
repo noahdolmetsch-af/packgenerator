@@ -626,6 +626,20 @@
       gap: 10px;
     }
   }
+  /* v0.45.1 (G009): under 360 px litres and weight go under the bag's name when both do not fit,
+     so "Rahmentasche" never breaks in the middle of the word. */
+  @media (max-width: 359px) {
+    .row {
+      flex-wrap: wrap;
+      row-gap: 0;
+    }
+    .row .nm {
+      flex: 1 1 9em;
+    }
+    .row .w {
+      margin-left: auto;
+    }
+  }
   .nm small {
     font-size: 13px;
     color: var(--ink-3);
@@ -665,7 +679,7 @@
     margin: 0 0 8px 56px;
     font-size: 13px;
     color: var(--ink-2);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .none {
     padding: 12px 0;
@@ -781,7 +795,7 @@
     border-radius: 999px;
     background: var(--paper);
     font-size: 14px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .chip button {
     min-width: 36px;
@@ -824,7 +838,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .profile dd span {
     display: flex;
@@ -886,7 +900,7 @@
   }
   .photo-err {
     margin: 8px 0 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     color: var(--bad);
     font-size: 14px;
   }
@@ -966,14 +980,14 @@
   }
   .rows .nm {
     display: block;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .rows .bg {
     grid-column: 1;
     grid-row: 2;
     font-size: 13px;
     color: var(--ink-3);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .rows .v {
     grid-row: 1 / span 2;
@@ -994,6 +1008,26 @@
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
       gap: 20px;
       align-items: start;
+    }
+  }
+  /* v0.45.1 (G009): under 360 px the bag list puts litres and weight on a line below the name. */
+  @media (max-width: 359px) {
+    .rows button {
+      grid-template-columns: auto auto minmax(0, 1fr);
+    }
+    .rows .nm,
+    .rows .bg {
+      grid-column: 1 / -1;
+    }
+    .rows .v {
+      grid-row: 3;
+      grid-column: 1;
+      text-align: left;
+    }
+    .rows .w {
+      grid-row: 3;
+      grid-column: 2;
+      justify-content: flex-start;
     }
   }
 </style>

@@ -231,7 +231,7 @@
     font-size: 30px;
     line-height: var(--lh-title);
     margin: 6px 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .sub {
     margin: 0 0 4px;
@@ -292,7 +292,7 @@
   .up .nm {
     flex: 1;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .up small {
     color: var(--ink-3);
@@ -323,7 +323,7 @@
     background: var(--ink);
     color: var(--paper);
     font-weight: 600;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .toast span {
     flex: 1;

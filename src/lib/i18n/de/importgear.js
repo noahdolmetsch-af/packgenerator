@@ -29,6 +29,7 @@ export default {
   '{a} of {b} decided': '{a} von {b} entschieden',
   'Maybe already in your gear. Tap the item it is, or "New item".': 'Vielleicht schon in deiner Ausrüstung. Tippe auf das Teil, das es ist, oder auf «Neues Teil».',
   'two lines point to the same item': 'zwei Zeilen zeigen auf dasselbe Teil',
+  'is twice in the file': 'steht zweimal in der Datei',
   'What is {name}?': 'Was ist {name}?',
   'Same as {name}': 'Dasselbe Teil: {name}',
   'New item': 'Neues Teil',

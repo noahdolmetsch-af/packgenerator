@@ -210,6 +210,9 @@ export const brokenWords = (page) =>
         const el = n.parentElement;
         // text for screen readers only (visually hidden) is not read on the screen
         if (!el || el.closest('.sr, .sr-only, .visually-hidden, [aria-hidden="true"]')) continue;
+        // v0.45.1: a deliberate syllable break (hyphens: auto, the page has a lang) is no broken word:
+        // used only where one long word cannot fit its column (the bag names on the bike drawing)
+        if (getComputedStyle(el).hyphens === 'auto' && document.documentElement.lang) continue;
         const r = el.getBoundingClientRect();
         if (r.width <= 2 || r.height <= 2) continue;
         const text = n.textContent;

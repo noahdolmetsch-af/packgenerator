@@ -181,7 +181,7 @@
   .legend .n {
     flex: 1;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .legend .p {
     width: 3.2em;

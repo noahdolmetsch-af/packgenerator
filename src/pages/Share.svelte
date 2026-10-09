@@ -111,7 +111,7 @@
   .nm {
     flex: 1;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .w {
     color: var(--ink-3);

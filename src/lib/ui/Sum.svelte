@@ -46,7 +46,7 @@
     font-weight: 400;
     color: var(--ink-3);
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .miss::before {
     content: '· ';

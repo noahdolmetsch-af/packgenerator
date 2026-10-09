@@ -133,7 +133,7 @@
   h2 {
     font-size: var(--fs-section);
     margin: 2px 0 4px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .lead,
   .none,

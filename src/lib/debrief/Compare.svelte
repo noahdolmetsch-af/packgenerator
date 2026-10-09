@@ -87,7 +87,7 @@
   .cmp tbody th {
     font-weight: 500;
     width: 100%;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .tt {
     display: block;

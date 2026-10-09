@@ -412,7 +412,7 @@
     color: var(--ink);
     text-align: left;
     cursor: pointer;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .ah-btn::after {
     content: '';
@@ -603,7 +603,7 @@
     min-width: 0;
     font-size: 14px;
     color: var(--ink-2);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .last .kmv::before {
     content: ' · ';
@@ -616,7 +616,7 @@
     min-width: 0;
     font-size: 13px;
     color: var(--ink-3);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .next.late {
     color: var(--warn);
@@ -646,7 +646,7 @@
   }
   .rn {
     font-size: 16px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .part-btn {
     display: inline-flex;
@@ -665,7 +665,7 @@
     text-decoration: underline;
     text-decoration-color: var(--line-strong);
     text-underline-offset: 3px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .part-btn:hover {
     text-decoration-color: var(--ink);
@@ -947,7 +947,7 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .visit > .num {
     text-align: right;

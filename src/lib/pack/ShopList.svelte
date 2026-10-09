@@ -98,7 +98,7 @@
 <style>
   .shop-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 16px; color: var(--ink); font: 500 16px var(--font-body); text-align: left; cursor: pointer; }
   .shop-row > :global(svg:first-child) { color: var(--ink-3); flex: none; }
-  .shop-row > span:not(.r) { min-width: 0; overflow-wrap: anywhere; }
+  .shop-row > span:not(.r) { min-width: 0; overflow-wrap: break-word; }
   .shop-row .r { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--ink-3); }
   .shop-sheet { max-width: 520px; }
   .shop-sheet > footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-top: 16px; }
@@ -108,7 +108,7 @@
   .shop li:last-child { border-bottom: 0; }
   .shop label { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 4px 0; cursor: pointer; }
   .shop input { width: 22px; height: 22px; flex: none; accent-color: var(--ok); }
-  .shop .nm { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+  .shop .nm { flex: 1 1 auto; min-width: 0; overflow-wrap: break-word; }
   .shop .qty { flex: none; min-width: 3ch; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); font-weight: 600; }
   .shop li.done .nm { color: var(--ink-3); text-decoration: line-through; }
   .copy { display: grid; gap: 6px; margin-top: 12px; font-size: 14px; }

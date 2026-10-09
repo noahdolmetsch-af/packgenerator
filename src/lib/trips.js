@@ -13,6 +13,8 @@ import { isInventory, isConsumable } from './gear.js';
 import { t as tr, bagName } from './i18n.svelte.js';
 import { inDomain, BIKEPACKING } from './domains.js';
 import { inStandard, isWorn, blockKeys } from './blocks2026.js';
+import { isOver } from './debrief.js';
+import { localDay } from './localday.js';
 
 /**
  * The ready check suggested for every new trip (decision 7: editable per trip).
@@ -311,8 +313,10 @@ export const bagItemIds = (containers) => new Set(containers.filter((c) => !c.al
  * Start-up step: trips from the Excel import get a bike, a bag setup and a ready check,
  * their entries use `slot` instead of `container`, and bags packed as items move to the setup.
  * Trips that already have all this stay as they are.
+ * v0.45.1 (G002): a past or finished trip is history. Its list stays exactly as it was packed: bags
+ * and mounts (fixtures) on it are not moved or removed, only the old format (slot) is updated.
  */
-export async function ensureTrips(db) {
+export async function ensureTrips(db, today = localDay()) {
   return db.transaction('rw', db.trips, db.bikes, db.containers, async () => {
     const bikes = await db.bikes.toArray();
     const containers = await db.containers.toArray();
@@ -320,7 +324,7 @@ export async function ensureTrips(db) {
     const fixturesOf = (id) => bikes.find((b) => b.id === id)?.fixtures ?? [];
     const todo = (await db.trips.toArray()).filter(
       // v0.21.0: trips without a bike (own bags in trip.packs) need none of this.
-      (t) => !Array.isArray(t.packs) && (!t.bikeId || !t.setup || !t.ready || t.entries?.some((e) => !e.slot || bagItems.has(e.itemId) || fixturesOf(t.bikeId).includes(e.itemId))),
+      (t) => !Array.isArray(t.packs) && (!t.bikeId || !t.setup || !t.ready || t.entries?.some((e) => !e.slot || (!isOver(t, today) && (bagItems.has(e.itemId) || fixturesOf(t.bikeId).includes(e.itemId))))),
     );
     for (const t of todo) {
       const bike = bikes.find((b) => b.id === t.bikeId) ?? bikes.find((b) => b.name === t.bike) ?? null;
@@ -331,7 +335,7 @@ export async function ensureTrips(db) {
         ready: t.ready ?? freshReady(),
         entries: (t.entries ?? []).map(({ container: c, ...e }) => ({ ...e, slot: e.slot ?? c ?? 'seat', packed: !!e.packed })),
       };
-      await db.trips.put(absorbBags(trip, containers, fixturesOf(trip.bikeId)));
+      await db.trips.put(isOver(trip, today) ? trip : absorbBags(trip, containers, fixturesOf(trip.bikeId)));
     }
     return todo.length;
   });

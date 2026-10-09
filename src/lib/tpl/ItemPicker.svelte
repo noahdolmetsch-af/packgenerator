@@ -103,7 +103,7 @@
     padding-left: 26px;
   }
   .addrow .t {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .addrow .w {
     color: var(--ink-2);

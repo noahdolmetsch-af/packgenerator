@@ -300,7 +300,7 @@
   .left, .right { min-width: 0; }
   .cond { padding: 6px; }
   .cgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px; }
-  .cell { display: flex; gap: 10px; align-items: center; min-height: 56px; padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: var(--ink); font: 500 15px/1.25 var(--font-body); text-align: left; text-decoration: none; cursor: pointer; min-width: 0; overflow-wrap: anywhere; }
+  .cell { display: flex; gap: 10px; align-items: center; min-height: 56px; padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: var(--ink); font: 500 15px/1.25 var(--font-body); text-align: left; text-decoration: none; cursor: pointer; min-width: 0; overflow-wrap: break-word; }
   .cell:nth-child(-n + 2) { border-bottom: 1px solid var(--line); border-radius: 8px 8px 0 0; }
   .cell :global(svg) { color: var(--ink-3); flex: none; }
   .cell small { display: block; font-size: 12px; font-weight: 400; color: var(--ink-3); }
@@ -309,11 +309,11 @@
   .wxrows { list-style: none; margin: 8px 0 0; padding: 0; }
   .wxrows li { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 6px 0; border-top: 1px solid var(--paper-2); }
   .wxrows li:first-child { border-top: 0; }
-  .wxrows .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .wxrows .nm { flex: 1; min-width: 0; overflow-wrap: break-word; }
   .wxrows b { font-weight: 600; }
   .wxrows small { display: block; color: var(--ink-3); font-size: 14px; }
   .wxfoot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--paper-2); }
-  .wxfoot p { margin: 0; flex: 1 1 200px; overflow-wrap: anywhere; }
+  .wxfoot p { margin: 0; flex: 1 1 200px; overflow-wrap: break-word; }
   .wxnote { margin: 8px 0 0; }
   .list-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
   .list-head h2 { flex: 1 1 auto; }
@@ -328,9 +328,14 @@
   .blist.cols .bag-group.open { grid-column: 1 / -1; }
   .bag-heading { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 4px 0; border: 0; background: none; color: var(--ink); text-align: left; font: 600 16px var(--font-body); cursor: pointer; }
   .bag-heading :global(svg) { color: var(--ink-3); flex: none; }
-  .bag-heading strong { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+  .bag-heading strong { font-weight: 600; min-width: 0; overflow-wrap: break-word; }
   .bag-heading small { margin-left: auto; font-size: 14px; font-weight: 400; color: var(--ink-3); white-space: nowrap; }
-  .preview { margin: 0 0 4px 32px; font-size: 14px; line-height: 1.5; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  /* v0.45.1 (G004): under 360 px "14 items · 1.87 kg" goes under the bag's name when both do not fit */
+  @media (max-width: 359px) {
+    .bag-heading { flex-wrap: wrap; row-gap: 0; }
+    .bag-heading strong { flex: 1 1 auto; }
+  }
+  .preview { margin: 0 0 4px 32px; font-size: 14px; line-height: 1.5; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: break-word; }
   .addrow { margin: 4px 0 0 32px; }
   .real-pack { margin: 0 0 4px 32px; }
   .quiet-link { font-size: 14px; color: var(--ink-2); min-height: 44px; }
@@ -347,7 +352,7 @@
   .empty-list p { margin: 0 0 12px; }
   .ask-sheet { max-width: 520px; }
   .ask-sheet > header { margin-bottom: 12px; }
-  .ask-sheet > p { margin: 0; overflow-wrap: anywhere; }
+  .ask-sheet > p { margin: 0; overflow-wrap: break-word; }
   @media (max-width: 719px) {
     .cell { font-size: 14px; padding: 8px 6px; gap: 8px; }
     .list-toolbar .add-mat { display: none; }

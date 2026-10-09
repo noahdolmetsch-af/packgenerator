@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto'; // an in-memory IndexedDB, so tests run without a browser
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createDb, DATA_TABLES } from '../src/lib/db.js';
-import { buildBackup, restoreBackup, validateBackup, countRows } from '../src/lib/backup.js';
+import { buildBackup, restoreBackup, validateBackup, countRows, importImpact } from '../src/lib/backup.js';
 
 let n = 0;
 let db;
@@ -50,6 +50,20 @@ describe('backup', () => {
     expect(validateBackup({ app: 'pack-generator', schemaVersion: 99, tables: {} })).not.toEqual([]);
     expect(validateBackup({ app: 'pack-generator', schemaVersion: 1, tables: { nope: [] } })).not.toEqual([]);
     expect(validateBackup({ app: 'pack-generator', schemaVersion: 1, tables: { items: [] } })).toEqual([]);
+  });
+
+  it('v0.45.1 (G015a): the tips memory is never exported; an old file with it imports, the device keeps its own', async () => {
+    await db.settings.bulkPut([{ key: 'tips', value: { known: { a: '2026-10-01' } } }, { key: 'riderWeightG', value: 64000 }]);
+    const one = await buildBackup(db);
+    expect(one.tables.settings.map((r) => r.key)).toEqual(['riderWeightG']);
+    await db.settings.put({ key: 'tips', value: { known: { a: '2026-10-01', b: '2026-10-09' } } });
+    expect((await buildBackup(db)).tables).toEqual(one.tables); // two backups without a change are the same
+    const old = { app: 'pack-generator', schemaVersion: 1, tables: { settings: [{ key: 'tips', value: { known: { z: '2025-01-01' } } }, { key: 'riderWeightG', value: 70000 }] } };
+    await restoreBackup(db, old, 'replace');
+    expect(await db.settings.get('riderWeightG')).toMatchObject({ value: 70000 });
+    expect((await db.settings.get('tips')).value.known).toHaveProperty('b');
+    // the import preview neither counts it as lost nor as coming from the file
+    expect(importImpact(old, { settings: ['tips', 'riderWeightG'] })).toMatchObject({ now: 1, file: 1, lost: 0, same: 1, added: 0 });
   });
 
   it('never exports app-internal data', async () => {

@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.45.1',
+    date: '2026-10-09',
+    points: [
+      { text: 'Check import: a line that is twice in the file waits under "Unsure" (is twice in the file) instead of becoming a second item. "Merge with …" now works on the phone too.', href: '#/gear/import' },
+      { text: 'Plan of a short day ride: when something is due at the bike, one quiet line with the number and a link to its bike care.', href: '#/pack' },
+      { text: 'Backups hold only your data: two backups without a change are the same (the tips of the day stay on the device). Past and finished trips keep their list exactly as packed.', href: '#/', action: 'data' },
+      { text: 'Small phones: words no longer break in the middle, the wishlist shows long names without the extra tag. Gear on the computer opens faster: each category first shows 12 items, then "Show all".', href: '#/gear' },
+    ],
+  },
+  {
     version: '0.45.0',
     date: '2026-10-09',
     points: [

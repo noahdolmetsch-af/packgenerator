@@ -107,7 +107,7 @@
   }
   .nm {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .nm b {
     font-weight: 700;

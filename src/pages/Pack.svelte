@@ -134,12 +134,16 @@
     if (!trip || over || trip.skipped || !bikeTrip) return null;
     const view = bike ? withVisits(bike, $visitsQ ?? []) : null;
     const tasks = $tasksQ ?? [];
-    // v0.25.0 (Noah 10): a short ride (1 day, no event) shows no bike care here (it stays in Bikes).
-    const care = view && !isShortRide(trip) ? bikeCare(view, { tasks, visits: $visitsQ ?? [], trip, today }) : null;
+    // v0.25.0 (Noah 10): a short ride (1 day, no event) shows no bike care list here (it stays in Bikes).
+    // v0.45.1 (G013a): when something is due, a short ride shows ONE quiet line: the count and a link.
+    const short = isShortRide(trip);
+    const all = view ? bikeCare(view, { tasks, visits: $visitsQ ?? [], trip, today }) : null;
+    const care = short ? null : all;
+    const shortCare = short && all?.status === 'due' ? all : null;
     const prep = eventPrep(trip, tasks, today);
     const open = prepFor(trip, tasks, today).filter(r => !r.finished);
     // v0.22.1 (Noah 4b): shown on every bike trip, so the Event switch is always in reach.
-    return { care, prep, open, event: isEvent(trip) };
+    return { care, shortCare, prep, open, event: isEvent(trip) };
   });
   // v0.30.2 (L5): the event preparation is the trip's: ticked off right here, the same way as in
   // Bikes → Care (care/prep.js). Today's line "Tick off in the trip" opens this fold (nav.js openPrep).
@@ -858,8 +862,9 @@
         <details class="tp-fold calm-extra" bind:open={beforeOpen} bind:this={beforeEl}>
           <!-- v0.25.0 (Noah 10): a short ride has no bike care line; then the ready check says where it stands.
                v0.29.0 (Noah 1a): one row with badges; the sentences inside. -->
-          <summary><Wrench size={20} aria-hidden="true" /><span>{t('Before the trip')}</span><span class="r">{#if before.care}{@const w = bikeCareWords(before.care)}<i class="tp-badge" class:warn={w.tone === 'due' || w.tone === 'late'}>{t('Bike care {state}', { state: w.tag })}</i>{/if}{#if before.prep.total}<i class="tp-badge" class:warn={before.prep.open > 0}>{eventPrepLine(before.prep)}</i>{/if}{#if !before.care && !before.prep.total}<i class="tp-badge">{t('Ready check {done} / {n}', { done: readyCount, n: readyTotal })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <summary><Wrench size={20} aria-hidden="true" /><span>{t('Before the trip')}</span><span class="r">{#if before.care}{@const w = bikeCareWords(before.care)}<i class="tp-badge" class:warn={w.tone === 'due' || w.tone === 'late'}>{t('Bike care {state}', { state: w.tag })}</i>{/if}{#if before.prep.total}<i class="tp-badge" class:warn={before.prep.open > 0}>{eventPrepLine(before.prep)}</i>{/if}{#if before.shortCare}<i class="tp-badge">{t('Bike care {state}', { state: bikeCareWords(before.shortCare).tag })}</i>{/if}{#if !before.care && !before.prep.total}<i class="tp-badge">{t('Ready check {done} / {n}', { done: readyCount, n: readyTotal })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
           <div class="in extra-inner">
+            {#if before.shortCare}<p><a class="care-more" href={before.shortCare.href}>{bikeCareLine({ ...before.shortCare, soon: [] })}</a></p>{/if}
             {#if before.care}
               <p><a href={before.care.href}>{bikeCareLine(before.care)}</a></p>
               {#if before.care.rows.length || before.care.soon.length}<ul>{#each [...before.care.rows, ...before.care.soon] as row (row.key)}<li><b>{row.name}</b> {row.detail}</li>{/each}</ul>
@@ -919,7 +924,7 @@
 <style>
   .print { display: none; }
   /* v0.42.0 (Noah 3, 4): what the onion added, with Undo, above the bottom bar. */
-  .onion-toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 50; display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100vw - 32px); padding: 6px 8px 6px 16px; border-radius: 10px; background: var(--ink); color: var(--paper); box-shadow: 0 8px 24px rgba(15, 46, 39, 0.3); font-weight: 600; overflow-wrap: anywhere; }
+  .onion-toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 50; display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100vw - 32px); padding: 6px 8px 6px 16px; border-radius: 10px; background: var(--ink); color: var(--paper); box-shadow: 0 8px 24px rgba(15, 46, 39, 0.3); font-weight: 600; overflow-wrap: break-word; }
   .onion-toast .btn { flex: none; min-height: 44px; background: none; border-color: transparent; color: var(--paper); text-decoration: underline; }
   @media (max-width: 719px) { .onion-toast { bottom: calc(150px + env(safe-area-inset-bottom)); } }
   /* v0.30.2 (L5): event preparation ticked off in the trip; the button a full 44 px target. */
@@ -927,19 +932,19 @@
   .prep-rows li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; padding: 4px 0; border-bottom: 1px solid var(--line); }
   /* v0.44.1 (AP21): the link to Bike care is a 44 px target, also when it wraps at 320 px */
   .care-more { display: inline-flex; align-items: center; min-height: 44px; }
-  .prep-rows li > span { flex: 1 1 12em; min-width: 0; overflow-wrap: anywhere; }
+  .prep-rows li > span { flex: 1 1 12em; min-width: 0; overflow-wrap: break-word; }
   .prep-rows .btn { min-height: 44px; }
   .prep-note { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
   .prep-note .text-button { min-height: 44px; }
   /* v0.26.0 (Noah 3a): building block chips in "Add material". */
   .blockchips { display: grid; gap: 6px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip { min-height: 40px; padding: 6px 12px; border: 1.5px solid var(--line-strong); border-radius: 999px; background: var(--paper); color: var(--ink); font: 500 15px var(--font-body); cursor: pointer; overflow-wrap: anywhere; text-align: left; }
+  .chip { min-height: 40px; padding: 6px 12px; border: 1.5px solid var(--line-strong); border-radius: 999px; background: var(--paper); color: var(--ink); font: 500 15px var(--font-body); cursor: pointer; overflow-wrap: break-word; text-align: left; }
   .chip:disabled { opacity: 0.5; cursor: default; }
   .blocknote { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 14px; }
   /* v0.25.1 (Noah 1a): what the day ride was made with, and the way back. */
   .made-card { margin: 0 0 12px; padding: 10px 10px 10px 14px; border: 2px solid var(--ok); border-radius: 10px; background: color-mix(in srgb, var(--ok) 10%, var(--paper)); }
-  .made-card p { margin: 0 0 4px; min-width: 0; overflow-wrap: anywhere; }
+  .made-card p { margin: 0 0 4px; min-width: 0; overflow-wrap: break-word; }
   .made-s { color: var(--ink-2, var(--ink)); font-size: 14px; }
   .dayride-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
   .bag-purpose { display: block; margin-bottom: 16px; font-size: 14px; }
@@ -961,7 +966,7 @@
   /* v0.37.0: a light header for the worn places, and the quiet ultra suggestion. */
   .worn-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 12px 0 0; font-size: 15px; font-weight: 600; color: var(--ink-2); }
   .worn-h small { font-size: 13px; font-weight: 400; color: var(--ink-3); }
-  .tip { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 4px 0; font-size: 14px; color: var(--ink-2); overflow-wrap: anywhere; }
+  .tip { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 4px 0; font-size: 14px; color: var(--ink-2); overflow-wrap: break-word; }
   .addcheck { display: flex; gap: 10px; }
   .ck { display: inline-flex; gap: 10px; }
   .x { background: none; border: 0; padding: 8px; min-width: 44px; min-height: 44px; font-size: 22px; line-height: 1; cursor: pointer; } /* v0.30.2 (N2.10): a full tap target */

@@ -16,8 +16,11 @@
 </div>
 
 <style>
+  /* v0.45.1 (G006): a word never breaks in the middle: a button is at least as wide as its longest
+     word; when the row is too narrow (five zones at 320 px) the buttons wrap to a second row. */
   .seg {
     display: inline-flex;
+    flex-wrap: wrap;
     max-width: 100%;
     border: 1.5px solid var(--line-strong);
     border-radius: 8px;
@@ -30,19 +33,18 @@
   }
   button {
     flex: 1 1 0;
-    min-width: 0;
-    min-height: 44px;
+    min-width: min-content;
+    min-height: calc(44px + 1.5px);
+    margin: -1.5px 0 0 -1.5px; /* the left and top lines of the outer buttons hide under the frame */
     padding: 4px 10px;
     border: 0;
     border-left: 1.5px solid var(--line-strong);
+    border-top: 1.5px solid var(--line-strong);
     background: var(--paper);
     color: var(--ink);
     font: 500 15px/1.2 var(--font-body);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     cursor: pointer;
-  }
-  button:first-child {
-    border-left: 0;
   }
   button:hover {
     background: var(--paper-2);
@@ -60,10 +62,8 @@
     font-weight: 600;
   }
   .small button {
-    min-height: 44px;
     padding: 4px 6px;
     font-size: 13px;
-    hyphens: auto;
   }
   /* Not full width: each button as wide as its word (v0.42.0). */
   .seg:not(.full) button {

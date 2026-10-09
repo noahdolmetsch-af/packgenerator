@@ -87,7 +87,7 @@
   }
   .name span {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .edit {
     flex: none;
@@ -119,7 +119,7 @@
     align-items: center;
     gap: 6px;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .meta b {
     color: var(--brand-ink);

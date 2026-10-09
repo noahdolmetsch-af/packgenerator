@@ -161,7 +161,7 @@
     margin: 2px 0 6px;
     font: 700 23px/1.15 var(--font-body);
     letter-spacing: -0.01em;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   h1 .name {
     all: unset;
@@ -171,7 +171,7 @@
     cursor: pointer;
     min-height: 44px;
     padding: 6px 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   h1 .name:focus-visible {
     outline: 2px solid var(--focus-on-dark, #fff);
@@ -209,7 +209,7 @@
     align-items: center;
     gap: 6px;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .meta b {
     color: var(--brand-ink);

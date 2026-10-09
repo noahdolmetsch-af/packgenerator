@@ -68,7 +68,7 @@
     font-size: 13px;
     font-weight: 600;
     color: var(--ink-3);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   h2 {
     font-size: var(--fs-section);
@@ -110,7 +110,7 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .nm b {
     font-weight: 600;

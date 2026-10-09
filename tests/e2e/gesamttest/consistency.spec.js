@@ -54,10 +54,18 @@ test('due counts: Today, Plan, Bike care and the bar agree', async ({ page, cont
     const text = (await line.textContent()).replace(/\s+/g, ' ');
     const m = text.match(new RegExp(`${esc(T('Bike care'))}[^·]*?(\\d+) ${esc(T('{n} due', { n: '' }).trim())}`)) ?? text.match(/Velopflege[^·]*?(\d+)\s*fällig/);
     const plan = m ? Number(m[1]) : /nichts fällig|nothing due/.test(text) ? 0 : null;
-    // v0.25.0: a short ride (1 day, no event) shows no bike care in the Plan on purpose (it stays in Bikes)
+    // v0.25.0: a short ride (1 day, no event) shows no bike care list in the Plan (it stays in Bikes);
+    // v0.45.1 (G013a): but when something is due, one quiet line with the same count and a link.
     const short = !(Number(trip.days) > 1) && !trip.event;
-    if (short) expect.soft(text, `Plan of short ride ${trip.title} shows no bike care`).not.toMatch(/Velopflege|Bike care/);
-    else expect.soft(plan, `Plan of ${trip.title}: "${text}" vs Bike care ${care[nameOf[trip.bikeId]]}`).toBe(care[nameOf[trip.bikeId]]);
+    const want = care[nameOf[trip.bikeId]];
+    if (short && !want) expect.soft(text, `Plan of short ride ${trip.title} shows no bike care`).not.toMatch(/Velopflege|Bike care/);
+    else expect.soft(plan, `Plan of ${trip.title}: "${text}" vs Bike care ${want}`).toBe(want);
+    if (short && want) {
+      await line.click();
+      const link = page.locator('details[open] a.care-more').filter({ hasText: T('Bike care') }).first();
+      await expect(link).toHaveAttribute('href', /#\/bikes\?.*tab=care/);
+      await expect(page.locator('details[open] .in ul:not(.prep-rows) li')).toHaveCount(0);
+    }
   }
   expect(errors).toEqual([]);
 });

@@ -1,4 +1,4 @@
-import { buildBackup, backupFileName } from './backup.js';
+import { buildBackup, backupFileName, DEVICE_SETTINGS } from './backup.js';
 import { DATA_TABLES } from './db.js';
 
 /**
@@ -94,8 +94,16 @@ export function watchForChanges(db, onWritten = () => {}) {
   };
   for (const name of DATA_TABLES) {
     const table = db.table(name);
-    table.hook('creating', schedule);
-    table.hook('updating', schedule);
-    table.hook('deleting', schedule);
+    // v0.45.1 (G015a): the tips shown on Today are not in the backup, so they write none
+    const skip = (key) => name === 'settings' && DEVICE_SETTINGS.includes(key);
+    table.hook('creating', (key) => {
+      if (!skip(key)) schedule();
+    });
+    table.hook('updating', (mods, key) => {
+      if (!skip(key)) schedule();
+    });
+    table.hook('deleting', (key) => {
+      if (!skip(key)) schedule();
+    });
   }
 }

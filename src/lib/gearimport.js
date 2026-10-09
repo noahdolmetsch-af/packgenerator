@@ -265,6 +265,40 @@ export function match(importItems, items, applied = []) {
     delete r.item;
     delete r.via;
   }
+  // 4. v0.45.1 (G001): the same item twice in ONE file. A row that is (nearly) the same as an earlier
+  // row of the file, or as an item an earlier apply of this file made, is never a second new item:
+  // it is "unsure" (reason 'file') with that earlier line first, so Noah decides.
+  const norm = rows.map((r) => (r.kind === 'skip' ? null : { n: normalizeName(r.imp.name), cat: resolveCategory(r.imp.category) }));
+  const took = new Set(applied);
+  const earlierApplied = live.filter((it) => took.has(it.id));
+  const byWord = new Map(); // word → earlier lines (index) with it
+  rows.forEach((r, i) => {
+    if (r.kind === 'skip') return;
+    if (r.kind !== 'fresh' && r.kind !== 'unsure') {
+      for (const w of new Set(norm[i].n.words)) byWord.set(w, [...(byWord.get(w) ?? []), i]);
+      return;
+    }
+    let hit = null;
+    // ≥ SAME_AT needs a word in common (the score is the mean of word and letter-pair overlap):
+    // only the earlier lines that share a word are compared, so a file of 800 lines stays quick.
+    const earlier = [...new Set(norm[i].n.words.flatMap((w) => byWord.get(w) ?? []))].sort((a, b) => a - b);
+    for (const j of earlier) {
+      const s = alike(norm[i], norm[j]);
+      if (s) {
+        hit = { item: rows[j].kind === 'same' ? rows[j].item : lineItem(rows[j]), score: s };
+        break;
+      }
+    }
+    for (const w of new Set(norm[i].n.words)) byWord.set(w, [...(byWord.get(w) ?? []), i]);
+    for (const it of earlierApplied) {
+      if (hit) break;
+      const s = score(r.imp, it);
+      if (s.exact || s.score >= SAME_AT) hit = { item: it, score: s.score };
+    }
+    if (!hit) return;
+    const others = (r.candidates ?? []).filter((c) => c.item.id !== hit.item.id);
+    Object.assign(r, { kind: 'unsure', reason: 'file', candidates: [cand(hit), ...others].slice(0, 3) });
+  });
   // v0.37.1: the app items an earlier apply of this file already took (the staged rest only holds the
   // unsure lines) are not "Nicht im Import".
   const touched = new Set(applied);
@@ -276,6 +310,16 @@ export function match(importItems, items, applied = []) {
   return { rows, notIn };
 }
 const cand = (x) => ({ item: x.item, score: x.score });
+/** Two lines of one file: their score when they are the same item (exact or ≥ SAME_AT, same category and size), else 0. */
+function alike(a, b) {
+  if (a.cat && b.cat && a.cat !== b.cat) return 0;
+  if (!sameSizes(a.n.sizes, b.n.sizes)) return 0;
+  const s = nameSimilarity(a.n, b.n);
+  return s >= SAME_AT ? Math.round(s * 1000) / 1000 : 0;
+}
+/** An earlier line of the same file as a candidate (G001): its ID is LINE + the line's key. */
+export const LINE = 'line:';
+const lineItem = (row) => ({ id: `${LINE}${row.key}`, name: row.imp.name, category: resolveCategory(row.imp.category), line: row.key });
 
 /* ---------- what an import item adds ---------- */
 
@@ -495,24 +539,31 @@ export function buildWrites(data, items, learnings = [], decisions = {}, now = n
     const item = newItem(imp, all, now);
     all.push(item);
     added.push(item);
+    byId.set(item.id, item);
     counts.added++;
     if (item.ownership === 'wishlist') counts.wishlist++;
+    return item.id;
   };
+  // G001: the app item each applied line went to, so a later line can be "the same as line …".
+  const lineTo = new Map();
   const took = [];
   for (const r of plan.same) {
     took.push(r.item.id);
+    lineTo.set(r.key, r.item.id);
     if (into(r.item.id, r.imp)) counts.enriched++;
     else counts.unchanged++;
     done.push(r.key);
   }
   for (const r of plan.fresh) {
-    fresh(r.imp);
+    lineTo.set(r.key, fresh(r.imp));
     done.push(r.key);
   }
   for (const r of plan.unsure) {
-    const d = decisions[r.key];
-    if (d === 'new') fresh(r.imp);
+    let d = decisions[r.key];
+    if (typeof d === 'string' && d.startsWith(LINE)) d = lineTo.get(d.slice(LINE.length)) ?? null;
+    if (d === 'new') lineTo.set(r.key, fresh(r.imp));
     else if (d && byId.has(d)) {
+      lineTo.set(r.key, d);
       took.push(d);
       into(d, r.imp);
       counts.merged++;
@@ -522,8 +573,9 @@ export function buildWrites(data, items, learnings = [], decisions = {}, now = n
     }
     done.push(r.key);
   }
+  const addedIds = new Set(added.map((i) => i.id));
   return {
-    items: [...[...changed].map((id) => byId.get(id)), ...added],
+    items: [...[...changed].filter((id) => !addedIds.has(id)).map((id) => byId.get(id)), ...added.map((i) => byId.get(i.id))],
     learnings: plan.learnings,
     done,
     took: [...took, ...added.map((i) => i.id)],

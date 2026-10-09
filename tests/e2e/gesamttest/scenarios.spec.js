@@ -304,7 +304,6 @@ test('S4 new item, weigh, wardrobe, block, trip', async ({ page, context }, info
 });
 
 test('S5 empty app, gear import step 1, merge, step 2, first trip', async ({ page, context }, info) => {
-  test.fail(true, 'G001: rows that are the same item twice in one import file become two items');
   const errors = await prepare(page, context, LANG);
   await page.goto('./');
   const panel = await openData(page);
@@ -313,6 +312,8 @@ test('S5 empty app, gear import step 1, merge, step 2, first trip', async ({ pag
   await panel.getByRole('dialog', { name: T('Check import') }).getByRole('link', { name: T('Check import') }).click();
   await expect(page).toHaveURL(/#\/gear\/import$/);
   await shot(page, 's5-step1');
+  // G001 (fixed in 0.45.1): the second line of the same item waits under "Unsure", never a second item
+  await expect(page.locator('ul.rows.unsure li').filter({ hasText: T('is twice in the file') })).toHaveCount(3);
   await page.getByRole('button', { name: T('Apply all safe ones') }).click();
   await expect(page.getByRole('button', { name: T('Undo') }).first()).toBeVisible();
   const items = await table(page, 'items');
@@ -333,9 +334,8 @@ test('S5 empty app, gear import step 1, merge, step 2, first trip', async ({ pag
   for (const i of items) expect(Array.isArray(i.domains), `${i.name}: areas`).toBe(true);
   expect((await table(page, 'learnings')).filter((l) => l.sourceId === 'GTP-L01').length, 'a learning twice in the file is stored once').toBe(1);
 
-  // merge the duplicates in Gear (item → Merge with …)
-  // (on the phone the item card is read-only by design, so merging is a desktop job)
-  const twice = info.project.name === 'phone' ? [] : [...new Set(dups)];
+  // merge the duplicates in Gear (item → Merge with …); v0.45.1 (G014a) on the phone too
+  const twice = [...new Set(dups)];
   for (const n of twice) {
     const both = (await table(page, 'items')).filter((i) => norm(i.name) === n && i.ownership !== 'gone');
     if (both.length < 2) continue;
@@ -381,9 +381,14 @@ test('S5 empty app, gear import step 1, merge, step 2, first trip', async ({ pag
     await addBike.click();
     await dlg.getByLabel(T('Name of the bike')).fill(`${P} S5 Velo`);
     await dlg.getByRole('button', { name: T('Save'), exact: true }).click();
+    // the new bike is chosen before the trip is made (under load the save can take a moment)
+    await expect(dlg.getByRole('button', { name: `${P} S5 Velo` })).toHaveAttribute('aria-pressed', 'true');
   }
-  await dlg.getByRole('button', { name: new RegExp(`^${esc(T('Create trip'))}`) }).click();
-  await expect(dlg).toBeHidden();
+  // a click that lands while the dialog still settles is tried again (stable under CI load)
+  await expect(async () => {
+    if ((await dlg.isVisible()) && !(await table(page, 'trips')).length) await dlg.getByRole('button', { name: new RegExp(`^${esc(T('Create trip'))}`) }).click({ timeout: 3000 });
+    await expect(dlg).toBeHidden({ timeout: 3000 });
+  }).toPass({ timeout: 20_000 });
   const trips = await table(page, 'trips');
   expect(trips.length).toBe(1);
   expect(trips[0].entries.length, 'the first trip has items from the import').toBeGreaterThan(0);
@@ -411,7 +416,6 @@ function changes(before, after) {
 }
 
 test('S6a import keeps the records as they are in the file', async ({ page, context }, info) => {
-  test.fail(true, 'G002: the start-up tidy removes bike fixtures (mounts) from past trips');
   const errors = await start(page, context, info, { lang: LANG });
   const fix = fixture().data.tables;
   const db1 = await snapshot(page);
@@ -421,7 +425,8 @@ test('S6a import keeps the records as they are in the file', async ({ page, cont
   expect(errors).toEqual([]);
 });
 
-// 'tips' is the app's own "tip of the day" memory, rewritten whenever Today is shown: not user data
+// 'tips' is the app's own "tip of the day" memory, rewritten whenever Today is shown: not user data.
+// v0.45.1 (G015a): it is no longer in a backup; the stored data is compared without it.
 const noTips = (db) => ({ ...db, settings: db.settings.filter((r) => r.key !== 'tips') });
 
 test('S6 backup round trip: export, replace, export again, merge', async ({ page, context }, info) => {
@@ -433,7 +438,8 @@ test('S6 backup round trip: export, replace, export again, merge', async ({ page
   await dl.saveAs(path);
   const exp1 = JSON.parse(readFileSync(path, 'utf8'));
   expect(Object.keys(exp1.tables).sort()).toEqual(Object.keys(db1).sort());
-  expect(comparable(noTips(exp1.tables)), 'export = stored data').toEqual(comparable(noTips(db1)));
+  expect(exp1.tables.settings.map((r) => r.key), 'G015a: the backup holds no tips memory').not.toContain('tips');
+  expect(comparable(exp1.tables), 'export = stored data').toEqual(comparable(noTips(db1)));
 
   await importBackup(page, info, exp1, { lang: LANG, name: 'export1.json' });
   await page.waitForTimeout(800);
@@ -441,6 +447,17 @@ test('S6 backup round trip: export, replace, export again, merge', async ({ page
   expect(comparable(noTips(db2)), 'export → replace → the same data').toEqual(comparable(noTips(db1)));
   expect(ticks(db2)).toEqual(ticks(db1));
   await noProblems(page, 'S6');
+
+  // G015a: Today shown again (the tips memory is written), a second export is the same as the first
+  await page.goto('./#/');
+  await page.reload();
+  await page.waitForTimeout(800);
+  const panel2 = await openData(page);
+  const [dl2] = await Promise.all([page.waitForEvent('download'), panel2.getByRole('button', { name: T('Export backup') }).click()]);
+  const path2 = info.outputPath('export2.json');
+  await dl2.saveAs(path2);
+  const exp2 = JSON.parse(readFileSync(path2, 'utf8'));
+  expect(comparable(exp2.tables), 'G015a: two backups without a change are the same').toEqual(comparable(exp1.tables));
 
   // merge the same file again: nothing doubles, nothing changes
   await importBackup(page, info, exp1, { lang: LANG, name: 'export1.json', mode: 'merge' });

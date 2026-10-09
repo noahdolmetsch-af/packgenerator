@@ -17,8 +17,9 @@ import { fixture, prepare, importBackup, view, sideways, cutOff, brokenWords, un
 const { summary } = fixture();
 const TRIP = summary.tripIds;
 
-/** Ready-time budget per page (ms, fresh load with 700 items). */
-const BUDGET = 4000;
+/** Ready-time budget per page (ms, fresh load with 700 items). In CI (shared, slower runners) a
+ * generous budget, so load never flips the check; it still catches a page that takes many seconds. */
+const BUDGET = process.env.CI ? 10_000 : 4000;
 
 const tap = async (loc) => {
   await loc.first().click();
@@ -86,16 +87,10 @@ const KNOWN = {};
 const known = (gid, project, langs, ids) => {
   for (const id of ids) for (const l of langs) KNOWN[`${id}/${l}/${project}`] = gid;
 };
+// G004–G009 fixed in 0.45.1 (break-word instead of anywhere); G003 (Today) comes with the new start page in 0.46.
 const TODAY_CASES = ['today', 'today-new-sheet', 'today-more-sheet', 'today-search', 'today-data'];
 known('G003: Today, bike care buttons break words in the middle', 'desktop', ['de', 'en'], TODAY_CASES);
 known('G003: Today, "km nachtragen" breaks in the middle at 390 px', 'phone', ['de'], TODAY_CASES);
-known('G004: Plan at 320 px, bag headings break in the middle', 'phone', ['de'], ['plan-event', 'plan-event-before', 'plan-world']);
-known('G004: Plan at 320 px, "Before the trip" breaks in the middle', 'phone', ['en'], ['plan-event', 'plan-event-before']);
-known('G005: On the way at 320 px, "Evening" breaks in the middle', 'phone', ['de', 'en'], ['ride-running']);
-known('G006: Wardrobe at 320 px, zone buttons break in the middle', 'phone', ['de', 'en'], ['wardrobe']);
-known('G007: Wishlist on the phone, long names break in the middle', 'phone', ['de', 'en'], ['gear-wishlist']);
-known('G008: Blocks at 320 px, item lists break in the middle', 'phone', ['de'], ['blocks']);
-known('G009: Bikes at 320 px, bag lists break in the middle', 'phone', ['de'], ['bikes', 'bike-gravel']);
 
 /* ---------- one import per worker, kept as the browser state ---------- */
 
@@ -111,7 +106,9 @@ const HASH = createHash('sha1').update(JSON.stringify(fixture().data)).digest('h
 test.beforeAll(async ({ browser }, info) => {
   const dir = `${tmpdir()}/gesamttest-state/`;
   mkdirSync(dir, { recursive: true });
-  statePath = `${dir}state-${info.project.name}-${HASH}.json`;
+  // the stored IndexedDB belongs to one origin: the port is part of the name (several checkouts run at once)
+  const port = new URL(info.project.use.baseURL).port;
+  statePath = `${dir}state-${info.project.name}-${port}-${HASH}.json`;
   if (existsSync(statePath) && Date.now() - statSync(statePath).mtimeMs < 30 * 60_000) return;
   const ctx = await browser.newContext(ctxOpts(info));
   const page = await ctx.newPage();
