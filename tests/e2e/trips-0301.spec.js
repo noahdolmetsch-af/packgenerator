@@ -191,8 +191,9 @@ test('C3, C5: "Yes, remember" saves the suggestion; a debrief saved early makes 
 
   await page.goto('./#/pack/past');
   // v0.40.0: done = under "Done", without a badge, the km right.
-  const doneRow = page.getByRole('list', { name: new RegExp(`^${T('Done|past')}`) }).locator('li').filter({ hasText: 'test_data_gtp_ Morgen' });
-  await expect(doneRow).toContainText('42 km');
+  // v0.49.0 R1: one table; km in its own column.
+  const doneRow = page.locator('table.tt tbody tr').filter({ hasText: 'test_data_gtp_ Morgen' });
+  await expect(doneRow).toContainText('42');
   await expect(doneRow.locator('.nbadge')).toHaveCount(0);
   await page.goto('./#/');
   await expect(page.locator('#next-h')).toHaveText(T('No trip planned'));
@@ -216,7 +217,7 @@ test('N8, N9: rename a past trip in its band; past trips are easy to find', asyn
 
   // Open the past trip and rename it: tap the name, type, Enter.
   // v0.40.0: a row per past trip; its band opens from the debrief page.
-  await page.locator('.past a.lrow').filter({ hasText: 'test_data_gtp_ Alt' }).click();
+  await page.locator('table.tt tbody tr').filter({ hasText: 'test_data_gtp_ Alt' }).getByRole('link').first().click();
   const band = page.locator('.trip-band');
   await band.getByRole('button', { name: 'test_data_gtp_ Alt' }).click();
   const field = band.getByRole('textbox', { name: T('Trip name') });

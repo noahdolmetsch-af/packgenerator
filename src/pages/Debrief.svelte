@@ -11,20 +11,21 @@
   import { liveQuery } from 'dexie';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { db } from '../lib/db.js';
-  import { formatWeight, knownWeight, CATEGORY, isInventory, matches } from '../lib/gear.js';
+  import { formatWeight, CATEGORY, isInventory, matches } from '../lib/gear.js';
   import { tripNotes, noteToDebrief } from '../lib/notes.js';
   import { isOver } from '../lib/debrief.js';
   import { parseKm } from '../lib/care.js';
   import TripBand from '../lib/trip/TripBand.svelte';
   import { openTrip } from '../lib/nav.js';
   import '../lib/trip/trip.css';
-  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, CalendarCheck, Route, ChartColumn } from '@lucide/svelte';
+  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, Route } from '@lucide/svelte';
   import { ZONE, touched } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
   import { parseActivitiesCsv, parseRideFile, ridesOnTrip } from '../lib/activities.js';
   import Pace from '../lib/debrief/Pace.svelte';
-  import Compare from '../lib/debrief/Compare.svelte';
+  import Hub from '../lib/review/Hub.svelte';
+  import TripSaved from '../lib/review/TripSaved.svelte';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
@@ -32,7 +33,7 @@
   import { CLOTHING, CLOTHING_OFFSET, offsetRecord, chooseKit, tempKits, coldest, tempRange } from '../lib/wardrobe.js';
   import { SETS_KEY } from '../lib/sets.js';
 
-  let { param = '' } = $props();
+  let { param = '', spot = '' } = $props();
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -74,7 +75,9 @@
   const byId = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
 
   // v0.25.1 (Noah 3a): 'compare' scrolls to "Your trips compared".
+  // v0.49.0 R1: pace, learnings and logbook are pages one level below the Rückblick; compare is its section.
   const SPOTS = ['learnings', 'pace', 'compare', 'logbook'];
+  const SUBS = ['pace', 'learnings', 'logbook'];
   const tripId = $derived(param && !SPOTS.includes(param) ? decodeURIComponent(param) : null);
   const trip = $derived(tripId ? trips.find((t) => t.id === tripId) : null);
   const open = $derived(toDebrief(trips, debriefs));
@@ -354,9 +357,6 @@
     const rank = { high: 0, medium: 1, low: 2 };
     return [...map].map(([topic, ls]) => ({ topic, ls: ls.sort((a, b) => (rank[a.priority] ?? 3) - (rank[b.priority] ?? 3)) })).sort((a, b) => b.ls.length - a.ls.length);
   });
-  $effect(() => {
-    if (SPOTS.includes(param) && $learnQ && $tripsQ && $debriefsQ && $itemsQ) queueMicrotask(() => document.getElementById(param)?.scrollIntoView());
-  });
 </script>
 
 {#if tripId}
@@ -384,19 +384,8 @@
     <div class="flow trip-page">
       <TripBand {trip} tab="debrief" kicker={[t('Debrief'), back === 1 ? t('back yesterday') : back > 1 ? t('back {n} days ago', { n: back }) : ''].filter(Boolean).join(' · ')} action={go} hint={saved ? '' : t('Everything else counts as used.')} />
       {#if saved}
-        <section class="tp-card saved-card" aria-labelledby="saved-h">
-          <h2 id="saved-h" class="title">{t('Saved')}</h2>
-          <div class="kpi">
-            <div><b class="num">{counts.unused}</b><span class="lbl">{t('not used')}</span></div>
-            <div><b class="num">{counts.unusedG ? knownWeight(counts.unusedG, counts.unusedUnweighed, (g) => `−${formatWeight(g)}`) : '–'}</b><span class="lbl">{t('possible')}{#if counts.unusedUnweighed}{' · '}{t('{n} not weighed', { n: counts.unusedUnweighed })}{/if}</span></div>
-            <div><b class="num">{counts.missing}</b><span class="lbl">{t('missing')}</span></div>
-            <div><b class="num">{counts.broken}</b><span class="lbl">{t('broken')}</span></div>
-          </div>
-          <p class="card ok">{t('Debrief saved')}{d.applied?.length ? `, ${tn(d.applied.length, '{n} change made', '{n} changes made')}` : ''}{d.kmApplied ? `, ${bike?.name ? t('{km} km added to {bike}', { km: num(d.kmApplied), bike: bike.name }) : t('{km} km added to the bike', { km: num(d.kmApplied) })}` : ''}. {t('The learnings now show up on the start page and when you pack.')}</p>
-          {#if sugg.length}<p class="hint">{tn(sugg.length, '{n} more suggestion is open. Change your answers to see it.', '{n} more suggestions are open. Change your answers to see them.')}</p>{/if}
-          {#if offer}<TemplateOffer {trip} name={offer} />{/if}
-          <p><button type="button" class="btn" onclick={reopen}>{t('Change answers')}</button></p>
-        </section>
+        <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
+        <TripSaved {trip} {d} {bike} {trips} {debriefs} rides={$ridesQ ?? []} {learnings} {items} containers={$bagsQ ?? []} bikes={$bikesQ ?? []} {counts} {sugg} {offer} onreopen={reopen} />
       {:else}
       <div class="tp-grid2 r">
         <div class="col">
@@ -531,46 +520,15 @@
       {/if}
     </div>
   {/if}
-{:else}
-  <!-- v0.40.0 (Noah 3a): one list of past trips with the debrief state lives on "Past trips"; this
-       page keeps the learnings, the comparison and the pace. One line instead of the explanation. -->
+{:else if SUBS.includes(param)}
+  <!-- v0.49.0 R1 (Noah 4a): Dein Tempo, Logbuch and Gelernt are one level below the Rückblick, each
+       its own page as it was (R2 rebuilds them). -->
   <div class="over">
-    <h1 class="title">{t('Debrief')}</h1>
-    <p class="page-sub">{[done.length ? tn(done.length, '{n} done', '{n} done') : '', open.length ? tn(open.length, '{n} open', '{n} open') : ''].filter(Boolean).join(' · ') || t('No trip is waiting. A trip shows up here the day after it ends.')}</p>
-
-    <ul class="rowlist">
-      <li>
-        <a class="lrow" href="#/pack/past">
-          <span class="ic"><CalendarCheck size={18} aria-hidden="true" /></span>
-          <span class="m"><span class="t">{t('Past trips')}</span>{#if open[0]}<span class="s">{open[0].title}{open.length > 1 ? ` · ${tn(open.length - 1, '+{n} more', '+{n} more')}` : ''}</span>{/if}</span>
-          {#if open.length}<span class="nbadge"><span class="udot" aria-hidden="true"></span>{tn(open.length, '{n} open', '{n} open')}</span>{/if}
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </a>
-      </li>
-      <li>
-        <!-- v0.41.0 (Noah 1): a recorded ride: pauses, planned vs real, learnings -->
-        <a class="lrow" href="#/debrief/ride">
-          <span class="ic"><Upload size={18} aria-hidden="true" /></span>
-          <span class="m"><span class="t">{t('Upload ride')}</span><span class="s">{t('GPX: pauses, planned vs real, learnings')}</span></span>
-          {#if $ridesQ?.length}<span class="v num">{tn($ridesQ.length, '{n} ride', '{n} rides')}</span>{/if}
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </a>
-      </li>
-      <li>
-        <!-- v0.44.0: the last 12 months, rolling: riding, packing, learned, bikes -->
-        <a class="lrow" href="#/review">
-          <span class="ic"><ChartColumn size={18} aria-hidden="true" /></span>
-          <span class="m"><span class="t">{t('Last 12 months')}</span><span class="s">{t('Riding, packing, learned, bikes')}</span></span>
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </a>
-      </li>
-    </ul>
-
-    <Compare {trips} {debriefs} {items} />
-
-    <Pace />
-
-    {#if events.length}
+    <nav class="crumb" aria-label={t('Path')}><a href="#/trips">{t('Trips|place')}</a><ChevronRight size={14} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={14} aria-hidden="true" /></nav>
+    <h1 class="title">{param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : t('Learnings')}</h1>
+    {#if param === 'pace'}
+      <Pace />
+    {:else if param === 'logbook'}
       <!-- v0.42.0 (Noah 9, 11): one Logbook; the old trips of the Excel are read-only notes in it,
            quietly marked "from Excel", with a search. -->
       <section id="logbook" aria-labelledby="log-h">
@@ -597,36 +555,39 @@
                 {/if}
               </li>
             {:else}
-              <li><p class="muted">{t('Nothing matches.')}</p></li>
+              <li><p class="muted">{events.length ? t('Nothing matches.') : t('No entries yet.')}</p></li>
             {/each}
           </ul>
           {#if logFound.length > logShown.length}<p class="logmore"><button type="button" class="tp-link" onclick={() => (logAll = true)}>{tn(logFound.length - logShown.length, '{n} more', '{n} more')}</button></p>{/if}
         </div>
       </section>
+    {:else}
+      <section id="learnings" aria-labelledby="learn-h">
+        <h2 id="learn-h" class="sec-head"><span>{t('Learnings')}</span><span class="n">{learnings.length}</span></h2>
+        <div class="box">
+          <input class="inp q" type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} />
+          {#each topics as g (g.topic)}
+            <details class="topic" open={!!lq.trim()}>
+              <summary><span class="tname">{topicName(g.topic)}</span> <span class="muted num">{g.ls.length}</span></summary>
+              <ul>
+                {#each g.ls as l (l.id)}
+                  <li>
+                    <span class="prio p-{l.priority}">{l.priority ? t(l.priority) : '–'}</span>
+                    <span>{l.rule}{#if l.action}<small>→ {l.action}</small>{/if}<small class="muted">{l.source === 'import' ? [t('From the import'), l.date].filter(Boolean).join(' · ') : (l.source ?? '')}{l.confirmed ? ` · ${t('confirmed {n}×', { n: l.confirmed })}` : ''}</small></span>
+                  </li>
+                {/each}
+              </ul>
+            </details>
+          {:else}
+            <p class="muted">{learnings.length ? t('Nothing matches.') : t('No learnings yet. They come from your Excel import and from every debrief.')}</p>
+          {/each}
+        </div>
+      </section>
     {/if}
-
-    <section id="learnings" aria-labelledby="learn-h">
-      <h2 id="learn-h" class="sec-head"><span>{t('Learnings')}</span><span class="n">{learnings.length}</span></h2>
-      <div class="box">
-        <input class="inp q" type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} />
-        {#each topics as g (g.topic)}
-          <details class="topic" open={!!lq.trim()}>
-            <summary><span class="tname">{topicName(g.topic)}</span> <span class="muted num">{g.ls.length}</span></summary>
-            <ul>
-              {#each g.ls as l (l.id)}
-                <li>
-                  <span class="prio p-{l.priority}">{l.priority ? t(l.priority) : '–'}</span>
-                  <span>{l.rule}{#if l.action}<small>→ {l.action}</small>{/if}<small class="muted">{l.source === 'import' ? [t('From the import'), l.date].filter(Boolean).join(' · ') : (l.source ?? '')}{l.confirmed ? ` · ${t('confirmed {n}×', { n: l.confirmed })}` : ''}</small></span>
-                </li>
-              {/each}
-            </ul>
-          </details>
-        {:else}
-          <p class="muted">{learnings.length ? t('Nothing matches.') : t('No learnings yet. They come from your Excel import and from every debrief.')}</p>
-        {/each}
-      </div>
-    </section>
   </div>
+{:else}
+  <!-- v0.49.0 R1 (Noah 4a): one page «Rückblick»: the last ride, the 12 months, trips compared. -->
+  <Hub {spot} />
 {/if}
 
 <style>
@@ -984,31 +945,6 @@
     min-width: 44px;
     justify-content: center;
   }
-  .saved-card .title {
-    margin: 0 0 10px;
-  }
-  .kpi {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-  }
-  .kpi div {
-    background: var(--paper-2);
-    border-radius: 8px;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-  .kpi b {
-    font: 700 20px/1.2 var(--font-body);
-    white-space: nowrap;
-  }
-  @media (max-width: 479px) {
-    .kpi {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
   .chk {
     display: flex;
     gap: 8px;
@@ -1038,10 +974,20 @@
     margin: 0 auto;
   }
   .over :global(.sec-head) {
-    margin-top: 20px;
+    margin-top: 16px;
   }
-  .over .rowlist {
-    margin-top: 4px;
+  .crumb {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .crumb a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--accent);
   }
   .box {
     padding: 8px 12px 12px;

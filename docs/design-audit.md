@@ -72,8 +72,11 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.47: Velo mit Taschen oben, Gewichtskarte) | 3 |
 | Touren | Tour-Dialog, Vorlagen-Dialog, Lade-Blatt | – | – |
 | Touren | Unterwegs | – | – |
-| Touren | Rückblick, Vergleich, Tempo, Logbuch | – | – |
-| Touren | Vergangene Touren, Fahrten, Jahresrückblick, Teilen | – | – |
+| Touren | Rückblick (eine Seite: letzte Fahrt, 12 Monate, Vergleich) | 9.10.2026 (0.49 R1 nach Mockup «Rückblick-Hub») | 4 |
+| Touren | Tempo, Logbuch, Gelernt (eine Ebene unter Rückblick) | – (R2) | – |
+| Touren | Gespeicherter Rückblick einer Tour | 9.10.2026 (0.49 R1 nach drei «A») | 4 |
+| Touren | Vergangene Touren (Tabelle) | 9.10.2026 (0.49 R1 nach Mockup) | 4 |
+| Touren | Fahrten, Teilen | – | – |
 | Touren | Vorlagen, Vorlage neu/bearbeiten, Bausteine | – | – |
 | Material | Materialliste, Teil-Dialog, Zuordnen, Zusammenlegen | 9.10.2026 (0.47: Reiter, Karten, Punkte) | 3 |
 | Material | Kleiderschrank | 9.10.2026 (0.47 neu gebaut nach Mockup) | 4 |
@@ -95,9 +98,11 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Packtag (PackStage) mit derselben Velozeichnung und Gewichtskarte wie Planen. Ziel 0.48.
 - Velos/Setup: nur das Kopfband ist angeglichen; Zeichnung, Taschen-Blatt und Dialoge folgen. Velopflege-Dialoge (Teil, Werkstattbesuch, Bestellung). Ziel 0.48.
 - Material → Wiegen und Import prüfen «Unsicher»: bleiben bewusst (siehe decisions.md), Optik auf Karten-Token. Ziel 0.48.
-- Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
+- Tempo, Logbuch, Gelernt: noch der alte Stil (Kopf, Kästen); R2 baut sie nach den Mockups «Tempo», «Logbuch», «Learnings». Ziel R2.
+- Heute, Touren-Übersicht, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
 
 - 9.10.2026: Regel eingeführt. Erste Runde gestartet: Neuentwurf Kleiderschrank, Material, Tour und Velos sowie erste Mockups für Im Flow und 0.47.
 - 9.10.2026, 0.47 «Aufpimpen» (D1): Kleiderschrank nach Mockup neu (Note 2 → 4); Tour/Packen mit Velo und Gewichtskarte, Material mit Reitern und Karten, Velopflege mit einer Schriftordnung und «Jetzt fällig» als Karten, Setup-Kopfband angeglichen, Inbox und Prüfen leeren sich selbst. Neue Regel «Eine Abarbeitungsliste leert sich selbst». Bilder vorher/nachher: `design/audit-0.47/` (Velopflege: `care-*`). Offenes unter «Offen: Angleichen».
+- 9.10.2026, 0.49.0 R1 «Rückblick ruhig»: Rückblick als eine Seite, Vergangene Touren als Tabelle (am Handy mit stehender Namensspalte), gespeicherter Tour-Rückblick nach drei «A». Mitgezogen: Breadcrumbs auf Rückblick, Vergangene Touren und den Unterseiten Tempo/Gelernt/Logbuch; «Mehr › Rückblick», Heute (Rückblick-Knopf, 12-Monate-Zeile), Tipps. Wächter-Grundlinie: Stil nur gesunken (Compare/Review gelöscht, Debrief/PastTrips weniger), Konsistenz-Test prüft statt `#/review` jetzt `#/debrief/learnings` und `#/debrief/pace`. Bilder: `design/v0490/vorher` und `nachher`.

@@ -12,7 +12,8 @@ const ELSEWHERE = {
   share: 'a shared link only',
   gearimport: 'Gear → Import (the import flow)',
 };
-const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'debrief', 'gearimport', 'wardrobe', 'review'];
+const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'debrief', 'gearimport', 'wardrobe'];
+// v0.49.0 R1: #/review is part of the one Rückblick page (#/debrief) now; nav.js redirectOf leads there.
 
 describe('the menu "More"', () => {
   it('has the four groups Noah chose (v0.46.3: the packing-list group of 0.46.1 is gone again)', () => {
@@ -51,8 +52,9 @@ describe('the search finds pages and actions', () => {
   });
 
   it('a page row opens its page, an action row runs its action', () => {
+    // v0.49.0 R1: «Touren vergleichen» is a part of the Rückblick page
     const page = searchAll('compare', {}).find((g) => g.kind === 'page').rows[0];
-    expect(page.href).toBe('#/debrief/compare');
+    expect(page.href).toBe('#/debrief');
     const act = searchAll('tagestour', {}).find((g) => g.kind === 'action').rows[0];
     expect(act.action).toBe('dayride');
   });

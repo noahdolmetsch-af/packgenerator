@@ -18,12 +18,12 @@ const EXPECTED = {
   wardrobe: { url: /#\/wardrobe$/ },
   templates: { url: /#\/pack\/templates$/ },
   wish: { url: /#\/gear\?tab=wishlist$/ },
-  review: { url: /#\/review$/ },
+  review: { url: /#\/debrief$/ }, // v0.49.0 R1: the one Rückblick page
   note: { url: /#\/inbox$/ }, // the fixture has open notes: the Inbox (without notes: the quick note)
   km: { dialog: 'dialog.new[open]' },
   blocks: { url: /#\/blocks$/ },
   favorites: { url: /#\/favorites$/ },
-  debriefs: { url: /#\/debrief$/ },
+  debriefs: { url: /#\/pack\/past$/ }, // v0.49.0 R1: past trips, an open debrief marked in its row
 };
 
 test('all 16 functions: two taps from Today at most, each page opens without an error', async ({ page, context }, info) => {

@@ -126,8 +126,10 @@ for (const lang of ['en', 'de']) {
     expect(settings.find((s) => s.key === 'pace').value.rides.length).toBe(1);
     await page.goto(`./#/debrief/${TRIP}`);
     await expect(page.getByRole('link', { name: new RegExp(T('Planned vs real')) })).toBeVisible();
+    // v0.49.0 R1: the one Rückblick page; uploading is a quiet link, the pace card one level below.
     await page.goto('./#/debrief');
-    await expect(page.getByRole('link', { name: new RegExp(T('Upload ride')) })).toContainText(T('{n} ride', { n: 1 }));
+    await expect(page.getByRole('link', { name: T('Upload ride') }).first()).toHaveAttribute('href', '#/debrief/ride');
+    await expect(page.locator('.below')).toBeVisible();
 
     // 6. At 320 px nothing scrolls sideways either
     await page.setViewportSize({ width: 320, height: 720 });
@@ -158,8 +160,11 @@ test('a ride without a trip: saved on its own, then made a past trip', async ({ 
   await expect(page.getByText(T('Past trip made from this ride'))).toBeVisible();
   const trips = await stored(page, 'trips');
   expect(trips.find((x) => x.fromRide)).toMatchObject({ title: 'test_data_gtp_ solo', startDate: day(-3), days: 1, entries: [] });
+  // v0.49.0 R1: one table; km in its own column.
   await page.goto('./#/pack/past');
-  await expect(page.getByRole('link', { name: /test_data_gtp_ solo/ })).toContainText('25 km');
+  const row = page.locator('table.tt tbody tr').filter({ hasText: 'test_data_gtp_ solo' });
+  await expect(row).toHaveCount(1);
+  await expect(row.locator('td').first()).toHaveText('25');
 });
 
 test.describe('Android share target (service worker)', () => {

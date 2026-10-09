@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.49.0
+  'One page "Look back" instead of five: your last ride, the last 12 months with the year before, average and best, and your trips compared in 7 small charts and a table.':
+    'Eine Seite «Rückblick» statt fünf: deine letzte Fahrt, die letzten 12 Monate mit Vorjahr, Durchschnitt und Bestwert, und deine Touren im Vergleich in 7 kleinen Diagrammen und einer Tabelle.',
+  'Past trips is one table, on the phone too: km, Hm, time, rain, temperature, bike and one learning per trip. The name stays put while the other columns scroll; period, "Kind" and a search that finds learnings.':
+    '«Vergangene Touren» ist eine Tabelle, auch auf dem Handy: km, Hm, Zeit, Regen, Temperatur, Velo und ein Learning pro Tour. Der Name bleibt stehen, die anderen Spalten scrollen; Zeitraum, «Art» und eine Suche, die auch Learnings findet.',
+  "A trip's saved debrief now tells what the trip was: numbers and weather per day, plan against real, what you can leave at home, learnings and what it means for the next trip.":
+    'Der gespeicherte Rückblick einer Tour erzählt jetzt, wie die Tour war: Zahlen und Wetter pro Tag, Plan gegen Wirklichkeit, was zuhause bleiben kann, Learnings und was das für die nächste Tour heisst.',
   // 0.47.1
   'The top card of a trip shows the ride time. Tap date, duration, weather or bike to change it right there; the list follows, Undo takes it back. A day ride no longer shows "1 day, no overnight stay".':
     'Die oberste Karte einer Tour zeigt die Fahrzeit. Tippe auf Datum, Dauer, Wetter oder Velo, um es gleich dort zu ändern; die Liste zieht mit, «Rückgängig» nimmt es zurück. Eine Tagestour zeigt nicht mehr «1 Tag, keine Übernachtung».',

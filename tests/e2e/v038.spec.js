@@ -84,9 +84,10 @@ test('More: top right with the Inbox count, grouped, language; the search finds 
   await page.keyboard.press('Escape');
 
   // The search finds pages and actions ("vorl" → Templates).
-  const field = page.getByRole('searchbox');
+  // v0.49.0: Past trips has its own search; this is the app search.
+  const field = page.getByRole('searchbox', { name: /^What do you want to do/ });
   if (!(await field.isVisible())) await page.getByRole('button', { name: 'Search everything' }).click();
-  await page.getByRole('searchbox').fill('templ');
+  await field.fill('templ');
   const res = page.getByRole('region', { name: 'Search results' });
   await expect(res.getByRole('button', { name: /^Templates/ })).toBeVisible();
   await res.getByRole('button', { name: /^Templates/ }).click();
