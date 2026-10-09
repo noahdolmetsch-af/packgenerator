@@ -15,7 +15,7 @@
   import { db } from '../lib/db.js';
   import { formatWeight, itemWeight, OWNERSHIP, isInventory, sumKnown } from '../lib/gear.js';
   import { SETS_KEY, allSets, setView, setUse, qtyOf, addSet, blockLabel } from '../lib/sets.js';
-  import { TEMPLATES_KEY } from '../lib/templates.js';
+  import { TEMPLATES_KEY, templatesWith } from '../lib/templates.js';
   import { CONTEXT_SETS } from '../lib/context.js';
   import { blockKind, comesOf } from '../lib/gear/comes.js';
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet } from '../lib/gear/assign.js';
@@ -34,6 +34,8 @@
   const nightCards = $derived(CONTEXT_SETS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
   const addCards = $derived(cards.filter((c) => c.kind === 'add'));
   const tplCount = $derived(($tplQ?.value ?? []).length);
+  // v0.39.0 (AP28, Noah 3a): templates are linked to their blocks; a quiet line says how many a change reaches.
+  const inTemplates = (key) => templatesWith($tplQ?.value ?? [], key).length;
   // The block "Standard" (v0.33.0: the key 'standard' on item.sets, read with the old fields; On me shows in it).
   const standard = $derived.by(() => {
     const its = items.filter((i) => isInventory(i) && comesOf(i).standard);
@@ -86,7 +88,8 @@
   }
   async function remove(s) {
     const n = s.items.length;
-    if (!confirm([t('Delete the building block "{name}"?', { name: s.name }), tn(n, 'Its {n} item stays in your gear; only the building block goes.', 'Its {n} items stay in your gear; only the building block goes.'), t('You can undo this for a few seconds.')].join('\n\n'))) return;
+    const tn2 = inTemplates(s.key);
+    if (!confirm([t('Delete the building block "{name}"?', { name: s.name }), tn(n, 'Its {n} item stays in your gear; only the building block goes.', 'Its {n} items stay in your gear; only the building block goes.'), ...(tn2 ? [tn(tn2, 'The template that holds it keeps its items as extras.', 'The {n} templates that hold it keep its items as extras.')] : []), t('You can undo this for a few seconds.')].join('\n\n'))) return;
     const res = await deleteSet(db, s.key);
     if (res.error) return;
     offer(t('Building block "{name}" deleted.', { name: s.name }), res.snap);
@@ -133,6 +136,7 @@
     {#if s.note}<p class="note">{s.note}</p>{/if}
     <details class="edit">
       <summary>{t('Change|block')} <small>{s.builtIn ? t('Built-in') : t('Own')}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+      {#if inTemplates(s.key)}<p class="note intpl">{tn(inTemplates(s.key), 'In {n} template: it changes with this block.', 'In {n} templates: they change with this block.')}</p>{/if}
       {#if renaming === s.key}
         <form class="newset" onsubmit={(e) => { e.preventDefault(); rename(s, renameTo); }}>
           <label><span class="lbl">{t('New name')}</span><input class="inp" bind:value={renameTo} placeholder={s.builtIn ? builtInName(s.key) : ''} /></label>
@@ -189,6 +193,7 @@
           {@render head('always', t('Standard|block'), 'blk-standard', t('Comes into every new trip'), standard.items, standard)}
           <details class="edit">
             <summary>{t('Items')} <small>{t('change in the item: Comes along')}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+            {#if inTemplates('standard')}<p class="note intpl">{tn(inTemplates('standard'), 'In {n} template: it changes with this block.', 'In {n} templates: they change with this block.')}</p>{/if}
             {#if standard.items.length}
               <p class="cols" aria-hidden="true"><span>{t('Item')}</span><span>{t('Weight')}</span></p>
               <ul class="rows">

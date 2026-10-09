@@ -4,7 +4,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
-import { applyUpdates, blocks2026, blocksAfterImport, UPDATES, toolsAlways2026 } from '../src/lib/updates.js';
+import { applyUpdates, blocks2026, blocksAfterImport, UPDATES, toolsAlways2026, templatesLinked2026 } from '../src/lib/updates.js';
 import { BLOCKS_MARKER, STANDARD, inStandard, leaveHome, blockKeys } from '../src/lib/blocks2026.js';
 import { TEMPLATES_KEY } from '../src/lib/templates.js';
 import { matches, weighPriority } from '../src/lib/gear.js';
@@ -27,8 +27,9 @@ async function freshDb(items, settings = []) {
 }
 
 describe('the one-time update blocks2026 in updates.js', () => {
-  it('runs last, after toolsAlways2026', () => {
-    expect(UPDATES.at(-1)).toBe(blocks2026);
+  it('runs after toolsAlways2026, only the linked templates of v0.39.0 come after it', () => {
+    expect(UPDATES.at(-2)).toBe(blocks2026);
+    expect(UPDATES.at(-1)).toBe(templatesLinked2026);
     expect(UPDATES.indexOf(toolsAlways2026)).toBeLessThan(UPDATES.indexOf(blocks2026));
   });
 
