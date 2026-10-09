@@ -528,8 +528,10 @@ test('PF08: star an item, open the favourites on Today, reload: one tap, kept, r
   await rec.check('Today: All functions → Favourites opens the favourites', () => expect(page).toHaveURL(/#\/favorites/, { timeout: 2000 }));
   await page.goto('./#/gear?fav=1');
   const check = async (when) => {
-    await rec.check(`${when}: the favourites filter is on`, () => expect(page.getByRole('button', { name: new RegExp(`★ ${esc(T('Favourites'))}`) })).toHaveAttribute('aria-pressed', 'true', { timeout: 3000 }));
-    await rec.check(`${when}: the number is explained ("3 favourites in your inventory")`, () => expect(page.locator('.favbase')).toContainText(T('{n} favourites in your inventory', { n: favs.length }), { timeout: 3000 }));
+    // v0.47.2: the favourites are the view "Favourite things"; its button carries the number
+    const fav = page.getByRole('group', { name: T('Views') }).locator('[data-view="fav"]');
+    await rec.check(`${when}: the favourites filter is on`, () => expect(fav).toHaveAttribute('aria-pressed', 'true', { timeout: 3000 }));
+    await rec.check(`${when}: the number is explained (the view "Favourite things" with its count)`, () => expect(fav).toHaveText(new RegExp(`${esc(T('Favourite things'))}\\s*${favs.length}$`), { timeout: 3000 }));
     await rec.check(`${when}: exactly the favourites are listed`, async () => {
       for (const i of favs) await expect(page.locator('main').getByText(LANG === 'de' ? i.nameDe : i.name).first()).toBeVisible({ timeout: 3000 });
       await expect(page.locator('main').getByText(nm('WZ02'))).toHaveCount(0);

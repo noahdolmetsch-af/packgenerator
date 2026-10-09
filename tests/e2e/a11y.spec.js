@@ -156,13 +156,16 @@ test('dialogs: focus in, Tab stays inside, Escape closes, focus back', async ({ 
 
   // Item dialog from the gear list
   await view(page, '#/gear');
+  // v0.47.2: on the computer a card first fills the detail column; the list opens the window directly
+  await page.getByRole('group', { name: T('Show as') }).getByRole('button', { name: T('List') }).click();
   await expandAll(page);
   await dialogKeys(page, page.getByRole('button', { name: new RegExp(LONG) }), page.locator('dialog[open]'));
 
   // Assign dialog from the Select bar
   await view(page, '#/gear');
-  await expandAll(page);
   await page.getByRole('button', { name: T('Select'), exact: true }).click();
+  // v0.47.2: "Select" shows the list (the rows have the boxes); open its categories
+  await expandAll(page);
   await page.getByRole('checkbox', { name: LONG }).check();
   await dialogKeys(page, page.getByRole('button', { name: T('Into a building block …') }), page.locator('dialog[open]'));
 
