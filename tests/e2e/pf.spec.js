@@ -33,7 +33,7 @@ const id = (key) => P + key;
 const BIKE = { scale: `${P}scale`, spark: `${P}spark`, gravel: `${P}gravel` };
 
 /** YYYY-MM-DD in Zurich, n days from today. */
-const day = (n = 0) => new Date(Date.now() + n * 864e5).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 
 /** Items that only belong to night sets: on a day ride each of them is one to take out by hand. */
 const NIGHT_SETS = ['base', 'sleep', 'warm', 'cook', 'lodging'];
