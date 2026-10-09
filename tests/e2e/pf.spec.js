@@ -1184,8 +1184,8 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   await rec.check('Bike care: the Spark shows the same "1 due" as Today', () => expect(care).toContainText(due, { timeout: 3000 }));
   // v0.38.0 (Noah 5a): the bike shop and the year are one folded row "Bike shop & 2026".
   await care.locator('summary').filter({ hasText: /Velomech & \d{4}/ }).click();
-  const visitShown = await care.textContent();
-  await rec.check('Bike care: the workshop visit is listed for the Spark', () => expect(visitShown).toContain(`${P} Velo shop`));
+  // The fold renders its rows after the click, so wait for them instead of reading the text once.
+  await rec.check('Bike care: the workshop visit is listed for the Spark', () => expect(care).toContainText(`${P} Velo shop`, { timeout: 3000 }));
   // v0.38.0: a tap on the part opens its row, "Record …" the dialog.
   await rec.click(each.getByRole('button', { name: new RegExp(`^${esc(T('Chain'))}`) }).first());
   await rec.click(each.locator('li.pt.x').getByRole('button', { name: T('Record …') }));
