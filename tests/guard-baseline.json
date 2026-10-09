@@ -6,7 +6,7 @@
       "fontsize": 8
     },
     "src/app.css": {
-      "fontsize": 7
+      "fontsize": 10
     },
     "src/lib/DataPanel.svelte": {
       "fontsize": 5,
@@ -33,7 +33,7 @@
     },
     "src/lib/bikes/SetupBand.svelte": {
       "colour": 10,
-      "fontsize": 9
+      "fontsize": 11
     },
     "src/lib/bikes/SetupDrawing.svelte": {
       "fontsize": 6
@@ -52,7 +52,7 @@
     },
     "src/lib/care/BikeCare.svelte": {
       "colour": 2,
-      "fontsize": 27
+      "fontsize": 36
     },
     "src/lib/care/BikesNav.svelte": {
       "fontsize": 1
@@ -69,8 +69,8 @@
       "fontsize": 7
     },
     "src/lib/care/TripCare.svelte": {
-      "fontsize": 7,
-      "global": 1
+      "fontsize": 10,
+      "global": 2
     },
     "src/lib/care/VisitDialog.svelte": {
       "fontsize": 6
@@ -183,6 +183,9 @@
     "src/lib/pack/TemplateDialog.svelte": {
       "fontsize": 2
     },
+    "src/lib/pack/TripBike.svelte": {
+      "fontsize": 9
+    },
     "src/lib/pack/TripDialog.svelte": {
       "fontsize": 15
     },
@@ -222,7 +225,8 @@
     },
     "src/lib/trip/InProgress.svelte": {
       "colour": 2,
-      "fontsize": 4
+      "fontsize": 4,
+      "global": 1
     },
     "src/lib/trip/ProgressRows.svelte": {
       "fontsize": 3
@@ -235,7 +239,7 @@
       "fontsize": 9
     },
     "src/lib/ui/Fold.svelte": {
-      "fontsize": 2
+      "fontsize": 3
     },
     "src/lib/ui/Help.svelte": {
       "fontsize": 2
@@ -248,7 +252,7 @@
       "fontsize": 1
     },
     "src/lib/ui/Seg.svelte": {
-      "fontsize": 2
+      "fontsize": 3
     },
     "src/lib/ui/Sum.svelte": {
       "fontsize": 2
@@ -270,7 +274,7 @@
       "fontsize": 1
     },
     "src/pages/Gear.svelte": {
-      "fontsize": 14
+      "fontsize": 20
     },
     "src/pages/GearImport.svelte": {
       "fontsize": 4,
@@ -315,8 +319,8 @@
       "fontsize": 1
     },
     "src/pages/Wardrobe.svelte": {
-      "fontsize": 11,
-      "global": 1
+      "fontsize": 25,
+      "global": 3
     }
   },
   "layout": {
@@ -471,14 +475,14 @@
       "h1": 0,
       "hscroll": 0,
       "primary": 0,
-      "target": 1,
+      "target": 4,
       "wordbreak": 0
     },
     "#/pack@390": {
       "h1": 0,
       "hscroll": 0,
       "primary": 0,
-      "target": 1,
+      "target": 4,
       "wordbreak": 0
     },
     "#/ride@320": {
