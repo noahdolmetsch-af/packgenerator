@@ -18,6 +18,7 @@ Stand: 9. Oktober 2026
 ## In Arbeit
 
 - Nichts. 0.44 „Rückblick 12 Monate“ wartet auf die Übernahme (nach 0.43).
+- **v0.44.1 Abnahme AP21–AP24 (9.10.2026, automatisch im Browser, Bericht für Noah):** PF01–PF16: 13 bestanden, 3 teilweise (PF01 Zeitmessung mit Person, PF15 Screenreader, PF16 echter Druckdialog und Teilen-Menü am Handy); fünf Szenarien bestanden (0 Nachtteile zum Entfernen, 0 Doppel, 0 verlorene Haken oder Verweise, 0 widersprüchliche Meldungen). Behoben: Escape in der Handy-Suche und in einer offenen Packlisten-Zeile gibt den Fokus richtig zurück; 44-px-Tippflächen für Kategorie-Köpfe im Material, «PG», «Alle ✓ / Alle –» im Rückblick und den Link zur Velopflege; Import-Vorschau sagt «1 Tour», «1 Learning»; eine leere Fahrt-Datei heisst «Diese Datei ist leer.» Offline lädt die App ihre Schrift aus dem Speicher (die lateinischen Schriftdateien, rund 350 KB, sind jetzt im Offline-Paket). Browser-Test `tests/e2e/abnahme044.spec.js`. Wartet mit 0.44 auf die Übernahme.
 
 ## Offen bei Noah
 
@@ -27,7 +28,7 @@ Stand: 9. Oktober 2026
 
 ## Offen zur Abnahme
 
-- AP21–AP24: Phone- und Barrierefreiheits-Prüfung mit einer Person, die fünf Alltagsszenarien mit Zeit messen (Ziele 60 s Tagestour, 30 s neues Teil), formale Abnahme pro AP. Die automatischen Browser-Tests (PF01–PF16, seit 0.27.0) ersetzen diese Messung nicht.
+- AP21–AP24 nach dem Abnahme-Bericht 0.44.1: Screenreader-Stichprobe (VoiceOver/TalkBack) und echtes Handy, die fünf Alltagsszenarien mit Noah und Zeit messen (Ziel 60 s Tagestour), echter Druckdialog/PDF und Teilen-Menü, nach der Veröffentlichung die Live-Prüfung. Die automatischen Browser-Tests ersetzen diese Messung nicht.
 - AP01/AP02 Restnachweise und AP26 (Geräte übergreifend). Details in der [Roadmap](roadmap.md).
 
 ## Historie veröffentlichter Funktionen

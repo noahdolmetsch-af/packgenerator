@@ -281,6 +281,7 @@
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+    min-width: 44px; /* v0.44.1 (AP21): "PG" on a phone is a 44 px target too */
     font-family: var(--font-brand);
     color: var(--hi-bright);
     font-size: 26px;

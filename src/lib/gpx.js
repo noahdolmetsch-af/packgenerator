@@ -52,6 +52,8 @@ export const rideKind = (text) => (/<TrainingCenterDatabase/i.test(text) ? 'tcx'
  * <LatitudeDegrees>, <LongitudeDegrees>, <AltitudeMeters>. Points without a position are left out.
  */
 export function ridePoints(text) {
+  // v0.44.1 (AP22): an empty file is called empty, like the route in Pack (not "not a GPX file").
+  if (!String(text ?? '').trim()) throw new Error(t('This file is empty.'));
   const kind = rideKind(text);
   if (!kind) throw new Error(t('This is not a GPX file.'));
   const out = [];

@@ -912,6 +912,13 @@
     text-align: left;
     cursor: pointer;
   }
+  /* v0.44.1 (AP21): on a touch screen the category head is a 44 px target (it was 28 px) */
+  @media (pointer: coarse) {
+    .ch button {
+      min-height: 44px;
+      align-content: end;
+    }
+  }
   .ch button:disabled {
     cursor: default;
   }

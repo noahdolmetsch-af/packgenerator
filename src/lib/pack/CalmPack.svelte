@@ -235,8 +235,10 @@
                       {@const open = itemMenu === entry.itemId}
                       {@const why = reasons[entry.itemId]}
                       {@const ctx = ctxRows[entry.itemId]}
-                      <!-- v0.24.1 (Noah 1a): a calm row, name (× n above 1) and weight; a tap opens amount, move and take out. -->
-                      <li class="planning-row" class:open class:changed={!!ctx} draggable={grouping === 'bags' && !phone.matches} ondragstart={(e) => { e.dataTransfer.setData('text/plain', entry.itemId); e.dataTransfer.effectAllowed = 'copyMove'; }}>
+                      <!-- v0.24.1 (Noah 1a): a calm row, name (× n above 1) and weight; a tap opens amount, move and take out.
+                           v0.44.1 (AP21): Escape closes the open row and the focus goes back to its button. -->
+                      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                      <li class="planning-row" class:open class:changed={!!ctx} draggable={grouping === 'bags' && !phone.matches} ondragstart={(e) => { e.dataTransfer.setData('text/plain', entry.itemId); e.dataTransfer.effectAllowed = 'copyMove'; }} onkeydown={(e) => { if (e.key === 'Escape' && open) { e.preventDefault(); itemMenu = null; e.currentTarget.querySelector('.row-main')?.focus(); } }}>
                         <GripVertical class="drag-handle" size={18} aria-hidden="true" />
                         <button class="row-main" aria-label={t('Amount, move or take out: {name}', { name })} aria-describedby={why?.line || why?.note ? `calm-r-${entry.itemId} calm-w-${entry.itemId}` : `calm-w-${entry.itemId}`} aria-expanded={open} aria-controls={`calm-act-${entry.itemId}`} onclick={() => itemMenu = open ? null : entry.itemId}>
                           <span class="item-name"><span>{name}</span>{#if qty > 1}{' '}<span class="item-qty">× {qty}</span>{/if}{#if why?.line || why?.note}<small class="carry-hint row-reason" id={`calm-r-${entry.itemId}`}>{why.line}{#if why.note}{#if why.line}<br />{/if}{t('Note: {text}', { text: why.note })}{/if}</small>{/if}{#if carry.has(entry.itemId)}<small class="carry-hint">{t('Buy {name} on the way?', { name })}</small>{/if}</span>

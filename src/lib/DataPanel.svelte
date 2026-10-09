@@ -229,7 +229,7 @@
   {:else if pending}
     <div class="confirm" role="dialog" aria-label={t('Import backup')}>
       <p>
-        <strong>{pending.name}</strong> {t('contains {items} gear items, {trips} trips and {learnings} learnings.', { items: pending.counts.items, trips: pending.counts.trips, learnings: pending.counts.learnings })}
+        <strong>{pending.name}</strong> {t('contains {items}, {trips} and {learnings}.', { items: tn(pending.counts.items, '{n} gear item', '{n} gear items'), trips: tn(pending.counts.trips, '{n} trip', '{n} trips'), learnings: tn(pending.counts.learnings, '{n} learning', '{n} learnings') })}
       </p>
       <!-- v0.34.0 (L10): is the file newer or older than this device? -->
       {#if pending.state.kind !== 'unknown'}
