@@ -742,9 +742,7 @@ test('PF13: short ride tomorrow vs event; bike care due: Today, Pack and Bike ca
   });
   // Today.
   await page.goto('./#/');
-  const fold = page.locator('details.hub').filter({ has: page.locator('#bikes-h') });
-  if ((await fold.count()) && !(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
-  const bikesTile = page.locator('.hub').filter({ has: page.locator('#bikes-h') });
+  const bikesTile = await tile(page, 'bikes'); // v0.38.0: "Bikes ready?"
   const sparkLine = bikesTile.locator('li').filter({ hasText: bikeName }).first();
   texts.today = ((await sparkLine.textContent({ timeout: 3000 }).catch(() => '')) ?? '').trim();
   await rec.check('Today, Bikes: the Spark shows "1 due"', () => expect(sparkLine).toContainText(tag, { timeout: 2000 }));
@@ -1003,6 +1001,7 @@ const allPacked = () => new RegExp(esc(T('{n} % packed', { n: 100 })));
 
 /** Today's tile (on a phone it starts folded). key: 'pack' | 'gear' | 'bikes'. */
 async function tile(page, key) {
+  if (key === 'bikes') return page.locator('section.ready'); // v0.38.0 (Noah 8a): "Bikes ready?"
   const fold = page.locator('details.hub').filter({ has: page.locator(`#${key}-h`) });
   if ((await fold.count()) && !(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
   return page.locator('.hub').filter({ has: page.locator(`#${key}-h`) });
@@ -1027,8 +1026,8 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   const errors = await start(page, context, info);
   const rec = record('S1', info, page);
   await page.goto('./#/');
-  const trips = (await tile(page, 'pack')).getByRole('group', { name: T('Trips|place') });
-  await rec.click(trips.getByRole('button', { name: T('Day ride') }));
+  // v0.38.0 (Noah 8a): "Day ride now" in the quick row under the bikes on Today.
+  await rec.click(page.locator('section.ready').getByRole('button', { name: T('Day ride now') }));
   const bar = page.locator('.made-card');
   await expect(bar).toBeVisible();
   // The day ride copies the last day ride (gravel, 3 h): change it to the Scale and 2 h.
@@ -1146,21 +1145,24 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   const bikeName = FIX.tables.bikes.find((b) => b.id === BIKE.spark).name;
   const due = T('{n} due', { n: 1 });
   await page.goto('./#/');
-  let bikes = (await tile(page, 'bikes')).getByRole('group', { name: T('Bikes|place') });
-  await rec.click(bikes.getByRole('button', { name: T('Log km') }));
-  const km = page.getByRole('dialog', { name: T('km for a bike') });
-  await rec.select(km.locator('select'), BIKE.spark);
-  await rec.fill(km.getByLabel(T('km on the counter')), '5100');
-  await rec.click(km.getByRole('button', { name: T('Save km') }));
+  // v0.38.0 (Noah 8a): the km are a quick button of the bike on Today.
+  const ready = await tile(page, 'bikes');
+  const head = ready.locator('li.br').filter({ hasText: bikeName }).locator('button.bh');
+  if ((await head.getAttribute('aria-expanded')) !== 'true') await rec.click(head);
+  await rec.click(ready.locator('li.br').filter({ hasText: bikeName }).locator('[data-q=km]'));
+  const km = page.getByRole('dialog', { name: T('Add km') });
+  await rec.fill(km.getByLabel(T('km ridden (+42) or the new counter')), '5100');
+  await rec.click(km.getByRole('button', { name: T('Save') }));
   await rec.check('km saved for the Spark', async () => expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === BIKE.spark).km, { timeout: 3000 }).toBe(5100));
   await expect(km).toBeHidden();
   const line = (await tile(page, 'bikes')).locator('li').filter({ hasText: bikeName }).first();
-  await rec.check('Today: the Spark shows the chain due after 400 km', async () => {
+  // v0.38.0: the chain button says how far past the interval it is (5100 − 4850 = 250 km over).
+  await rec.check('Today: the Spark shows the chain due, past its interval', async () => {
     await expect(line).toContainText(due, { timeout: 3000 });
-    await expect(line).toContainText('400', { timeout: 3000 });
+    await expect(line).toContainText(T('{km} km over', { km: 250 }), { timeout: 3000 });
   });
   // A workshop visit (Today → Bikes → More → Log a workshop visit).
-  bikes = (await tile(page, 'bikes')).getByRole('group', { name: T('Bikes|place') });
+  const bikes = (await tile(page, 'bikes')).getByRole('group', { name: T('Bikes|place') });
   await rec.click(bikes.getByRole('button', { name: T('More') }));
   await rec.click(bikes.getByRole('menuitem', { name: T('Log a workshop visit') }));
   const visit = page.getByRole('dialog', { name: T('Log a workshop visit') });
@@ -1174,9 +1176,13 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   const each = page.getByLabel(T('Each bike'));
   const care = each.locator('details, section, article, li').filter({ hasText: bikeName }).first();
   await rec.check('Bike care: the Spark shows the same "1 due" as Today', () => expect(care).toContainText(due, { timeout: 3000 }));
+  // v0.38.0 (Noah 5a): the bike shop and the year are one folded row "Bike shop & 2026".
+  await care.locator('summary').filter({ hasText: /Velomech & \d{4}/ }).click();
   const visitShown = await care.textContent();
   await rec.check('Bike care: the workshop visit is listed for the Spark', () => expect(visitShown).toContain(`${P} Velo shop`));
+  // v0.38.0: a tap on the part opens its row, "Record …" the dialog.
   await rec.click(each.getByRole('button', { name: new RegExp(`^${esc(T('Chain'))}`) }).first());
+  await rec.click(each.locator('li.pt.x').getByRole('button', { name: T('Record …') }));
   const part = page.getByRole('dialog').filter({ has: page.getByRole('button', { name: T('Waxed') }) });
   await rec.click(part.getByRole('button', { name: T('Waxed') }));
   await expect(part).toBeHidden();

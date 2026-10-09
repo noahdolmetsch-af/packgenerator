@@ -82,7 +82,7 @@ test('D1: km in Bike care save with Swiss and German separators, Enter, leaving 
 
   // Leaving the field (tap somewhere else).
   await km.fill('3 400');
-  await care.locator('h3').first().click();
+  await page.locator('main h1').first().click(); // v0.38.0: the open bike has no h3 above the list any more
   await expect.poll(async () => (await stored(page, BIKE)).km).toBe(3400);
 
   // German thousands dot, then the Save button.
@@ -122,9 +122,11 @@ test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no l
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${BIKE}&open=1`);
   const care = page.locator(`#care-${BIKE}`);
-  // v0.31.0: what is due is listed in the open bike ("Jetzt fällig").
-  await expect(care.locator('ul.due')).toContainText('Dichtmilch nachfüllen');
+  // v0.38.0: what is due comes first in the one list; a tap on the part opens its row, "Erfassen …" the dialog.
+  const sealantDue = (bike) => bike.locator('li.pt.due').filter({ has: page.getByRole('button', { name: /^Reifen \+ Dichtmilch/ }) });
+  await expect(sealantDue(care)).toHaveCount(1);
   await care.getByRole('button', { name: /^Reifen \+ Dichtmilch/ }).click();
+  await care.locator('li.pt.x').getByRole('button', { name: 'Erfassen …' }).click();
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Reifen + Dichtmilch' }) });
   await expect(dlg).toBeVisible();
   await dlg.getByRole('button', { name: 'Ersetzt oder erledigt' }).click();
@@ -134,16 +136,17 @@ test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no l
   await expect.poll(async () => (await stored(page, BIKE)).parts.find((p) => p.key === 'tyres').history.at(-1)).toMatchObject({ date: day(0), km: 3200, action: 'replace', result: 'done' });
   // Seen: a short confirmation, no longer due, the next date in 90 days.
   await expect(page.getByRole('status').filter({ hasText: 'Reifen + Dichtmilch' })).toContainText(`Gespeichert: Reifen + Dichtmilch, erledigt, ${shown(day(0))} · 3’200 km. Nächstes Mal ${shown(day(90))}.`);
-  await expect(care.locator('ul.due li').filter({ hasText: 'Dichtmilch nachfüllen' })).toHaveCount(0);
+  await expect(sealantDue(care)).toHaveCount(0);
+  if (await care.locator('.okfold[aria-expanded=false]').count()) await care.locator('.okfold').click();
   const row = care.locator('li.pt').filter({ has: page.getByRole('button', { name: /^Reifen \+ Dichtmilch/ }) });
   await expect(row).toContainText(shown(day(90)));
   await expect(row).toContainText(`erledigt ${shown(day(0))}`);
   if (process.env.BIKECARE_SHOTS) await page.screenshot({ path: `${process.env.BIKECARE_SHOTS}/bikecare-sealant-saved-${info.project.name}.png` });
 
-  // The same from "Jetzt fällig" of the Gravel: "Erledigt" on its sealant.
+  // The same from the Gravel's due row: "Erledigt" on its sealant.
   const gravelCare = page.locator(`#care-${GRAVEL}`);
   await gravelCare.getByRole('button', { name: 'test_data_gtp_ Gravel Grinder', exact: true }).click();
-  const gravel = gravelCare.locator('ul.due li').filter({ hasText: 'Dichtmilch nachfüllen' });
+  const gravel = sealantDue(gravelCare);
   await gravel.getByRole('button', { name: 'Erledigt' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Gespeichert' })).toContainText(`Reifen + Dichtmilch, gewartet, ${shown(day(0))} · 8’000 km. Nächstes Mal ${shown(day(90))}.`);
   await expect(gravel).toHaveCount(0);
@@ -151,7 +154,7 @@ test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no l
 
   // After a reload nothing comes back.
   await page.reload();
-  await expect(page.locator(`#care-${GRAVEL} li.pt`).first()).toBeVisible();
-  await expect(page.locator('ul.due li').filter({ hasText: 'Dichtmilch nachfüllen' })).toHaveCount(0);
+  await expect(page.locator(`#care-${GRAVEL}`).locator('li.pt, .okfold').first()).toBeVisible();
+  await expect(page.locator('li.pt.due').filter({ has: page.getByRole('button', { name: /^Reifen \+ Dichtmilch/ }) })).toHaveCount(0);
   expect(errors).toEqual([]);
 });

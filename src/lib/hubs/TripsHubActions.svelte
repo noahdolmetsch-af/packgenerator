@@ -7,32 +7,23 @@
    * (or the first bike) on Bikes → Setup.
    */
   import HubActions from './HubActions.svelte';
-  import { openNew, openTrip, dayRide } from '../nav.js';
+  import { openTrip } from '../nav.js';
   import { toDebrief } from '../debrief.js';
   import { bikesHash } from '../bikes.js';
-  import { hubBike, pastTrips } from '../hubs.js';
-  import { localDay } from '../localday.js';
+  import { hubBike } from '../hubs.js';
   import { t } from '../i18n.svelte.js';
 
   let { trips = [], debriefs = [], next = null, bikes = [] } = $props();
 
   const waiting = $derived(toDebrief(trips, debriefs)[0] ?? null);
   const setupBike = $derived(hubBike(next, bikes));
-  const pastN = $derived(pastTrips(trips, debriefs, localDay()).length);
   const actions = $derived(
     [
-      // v0.25.1 (Noah 1a): the day ride first (what happens on 'pg:dayride' lives elsewhere).
-      { key: 'day', label: t('Day ride'), plus: true, run: dayRide },
-      { key: 'new', label: t('New trip'), plus: true, run: () => openNew('list') },
+      // v0.38.0 (Noah 13a): one place per target. Day ride, New trip, Past trips, Compare trips,
+      // Learnings, All templates and Building blocks are in "New" and "More" (and Day ride in the quick
+      // row of Today); here stays what only this tile knows.
       waiting ? { key: 'debrief', label: t('Write debrief'), href: `#/debrief/${encodeURIComponent(waiting.id)}`, run: () => openTrip(waiting.id) } : null,
-      // v0.30.1 (Noah N9): with the count, so past trips are easy to find.
-      { key: 'past', label: pastN ? t('Past trips ({n})', { n: pastN }) : t('Past trips'), href: '#/pack/past' },
       { key: 'setups', label: t('Setups'), href: bikesHash({ bike: setupBike }) },
-      { key: 'compare', label: t('Compare trips'), href: '#/debrief/compare' },
-      { key: 'learnings', label: t('Learnings'), href: '#/debrief/learnings' },
-      { key: 'templates', label: t('All templates'), href: '#/pack/templates' },
-      // v0.26.0 (Noah 2b): the building blocks (item sets), their own page
-      { key: 'blocks', label: t('Building blocks'), href: '#/blocks' },
     ].filter(Boolean),
   );
 </script>

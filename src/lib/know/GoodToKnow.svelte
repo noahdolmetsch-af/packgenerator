@@ -57,6 +57,8 @@
     containers = [],
     demo = null,
     onData,
+    // v0.38.0 (Noah 9a): cards Today shows elsewhere (the season and the weekend are in "Jump to").
+    omit = [],
   } = $props();
 
   const paceQ = liveQuery(async () => (await db.settings.get(PACE_KEY)) ?? null);
@@ -73,7 +75,7 @@
   const tips = $derived(learningsFor(next, learnings, 1));
   const cards = $derived(
     loaded
-      ? knowCards({ today, todos, demo, next, fc, sun, tips, pace, bikes, trips, debriefs, visits, items, containers, templates: $tplQ ?? [], homePlace: $placeQ, homeForecast: $fcQ, placeLoading: $placeQ === undefined || $fcQ === undefined })
+      ? knowCards({ today, todos, demo, next, fc, sun, tips, pace, bikes, trips, debriefs, visits, items, containers, templates: $tplQ ?? [], homePlace: $placeQ, homeForecast: $fcQ, placeLoading: $placeQ === undefined || $fcQ === undefined }).filter((c) => !omit.includes(c.key))
       : [],
   );
 

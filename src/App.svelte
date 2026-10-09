@@ -21,9 +21,14 @@
   import { liveQuery } from 'dexie';
   import { db } from './lib/db.js';
   import { phone } from './lib/media.svelte.js';
-  import { UserRound, Sun, Route, Backpack, Bike } from '@lucide/svelte';
+  import { Menu, Sun, Route, Backpack, Bike } from '@lucide/svelte';
+  import MoreSheet from './lib/nav/MoreSheet.svelte';
+  import { sortBikes } from './lib/bikes.js';
+  import { withVisits } from './lib/workshop.js';
+  import { bikeCare } from './lib/readiness.js';
+  import { localDay } from './lib/localday.js';
   import { PLACES, pageOf, placeOf } from './lib/nav.js';
-  import { t, lang, setLang } from './lib/i18n.svelte.js';
+  import { t, lang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
   // e.g. …/packgenerator/#/gear. It works offline and needs no server setup.
@@ -126,6 +131,12 @@
     return () => document.removeEventListener('keydown', trap);
   });
   const inboxQ = liveQuery(() => db.notes.where('status').equals('open').count());
+  // v0.38.0 (Noah E): a number only where something waits: how many bikes have something due (Bikes place).
+  const dueQ = liveQuery(async () => {
+    const [bikes, tasks, visits] = await Promise.all([db.bikes.toArray(), db.maintenance.toArray(), db.visits.toArray()]);
+    const today = localDay();
+    return sortBikes(bikes).filter((b) => bikeCare(withVisits(b, visits), { tasks, visits, today })?.status === 'due').length;
+  });
   $effect(() => {
     if (hash === '#/inbox/new') {
       history.replaceState(null, '', '#/inbox');
@@ -143,42 +154,22 @@
   <a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="long">Pack Generator</span><span class="short" aria-hidden="true">PG</span></a>
   {#if !phone.matches}
     <nav class="places" aria-label={t('Sections')}>
-      {#each places as p (p.key)}<a href={p.href} aria-current={place === p.key ? 'page' : undefined}>{t(p.label)}</a>{/each}
+      {#each places as p (p.key)}<a href={p.href} aria-current={place === p.key ? 'page' : undefined}>{t(p.label)}{#if p.key === 'bikes' && $dueQ}<span class="due num"><span class="sr">, {t('{n} due', { n: $dueQ })}</span><span aria-hidden="true">{$dueQ}</span></span>{/if}</a>{/each}
     </nav>
   {/if}
   <div class="tools">
     <Search />
-    <a class="inbox" href="#/inbox" aria-current={page === 'inbox' ? 'page' : undefined} aria-label={$inboxQ ? t('Inbox, {n} to sort', { n: $inboxQ }) : t('Inbox')}>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 13l3-8h10l3 8v6H4z" /><path d="M4 13h5l1 2h4l1-2h5" /></svg>
-      {#if $inboxQ}<span class="n num">{$inboxQ}</span>{/if}
-    </a>
     {#if !phone.matches && page !== 'share'}
       <button type="button" class="btn hi new" onclick={() => (newMode = 'all')} aria-haspopup="dialog">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>{t('New')}
       </button>
     {/if}
-    <details class="profile-menu" bind:open={menuOpen}>
-      <summary aria-label={t('Profile and settings')}><UserRound size={24} /></summary>
-      <div>
-        <!-- v0.20.0: German or English, remembered on this device.
-             v0.23.1 (Noah 1b): only here, also on a desktop (no longer in the top bar); one tap away. -->
-        <div class="lang-row">
-          <span id="lang-lbl">{t('Language')}</span>
-          <div class="lang" role="group" aria-labelledby="lang-lbl">
-            <button type="button" aria-pressed={lang.v === 'de'} onclick={() => setLang('de')} lang="de" title="Deutsch">DE</button>
-            <button type="button" aria-pressed={lang.v === 'en'} onclick={() => setLang('en')} lang="en" title="English">EN</button>
-          </div>
-        </div>
-        <a href="#/inbox" onclick={() => (menuOpen = false)}>{t('Inbox')}{#if $inboxQ} ({$inboxQ}){/if}</a>
-        {#if page !== 'share'}<button type="button" onclick={() => ((menuOpen = false), note(''))}>{t('Quick note')}</button>{/if}
-        <a href="#/debrief" onclick={() => (menuOpen = false)}>{t('Debriefs and learnings')}</a>
-        <a href="#/pack/templates" onclick={() => (menuOpen = false)}>{t('Templates')}</a>
-        <!-- v0.26.0 (Noah 2b): building blocks next to the templates -->
-        <a href="#/blocks" onclick={() => (menuOpen = false)}>{t('Building blocks')}</a>
-        <!-- v0.30.0 (Noah 3a): everything the app can do -->
-        <a href="#/features" onclick={() => (menuOpen = false)}>{t('What the app can do')}</a>
-      </div>
-    </details>
+    <!-- v0.38.0 (Noah 11a, 12a): "More" took the place of the profile icon and the Inbox icon;
+         the Inbox count shows on it. -->
+    <button type="button" class="more-btn" aria-haspopup="dialog" aria-expanded={menuOpen} aria-label={$inboxQ ? t('More, Inbox: {n} to sort', { n: $inboxQ }) : t('More')} onclick={() => (menuOpen = true)}>
+      <Menu size={24} aria-hidden="true" />{#if !phone.matches}<span class="ml">{t('More')}</span>{/if}
+      {#if $inboxQ}<span class="n num" aria-hidden="true">{$inboxQ}</span>{/if}
+    </button>
   </div>
 </header>
 
@@ -228,25 +219,26 @@
   <QuickNote {page} bind:open={noteOpen} prefill={notePrefill} prefillBike={noteBike} />
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
+<MoreSheet bind:open={menuOpen} inbox={$inboxQ ?? 0} current={hash} />
 {#if phone.matches}
   <!-- v0.23.0 (AP07): the same four places on every page, also under a shared list (there without +). -->
   <nav class="bottom" aria-label={t('Sections')}>
     {#each places as p, i (p.key)}
       {#if i === 2 && page !== 'share'}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" onclick={() => (newMode = 'all')}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></button>{/if}
-      <a href={p.href} aria-current={place === p.key ? 'page' : undefined}><p.icon size={22} strokeWidth={2} aria-hidden="true" />{t(p.label)}</a>
+      <a href={p.href} aria-current={place === p.key ? 'page' : undefined}><span class="pi"><p.icon size={22} strokeWidth={2} aria-hidden="true" />{#if p.key === 'bikes' && $dueQ}<span class="due num" aria-hidden="true">{$dueQ}</span>{/if}</span>{t(p.label)}{#if p.key === 'bikes' && $dueQ}<span class="sr">, {t('{n} due', { n: $dueQ })}</span>{/if}</a>
     {/each}
   </nav>
 {/if}
 
 <style>
-  /* v0.23.0 (AP07): the menu behind the profile icon (from the calm Pack, PR #32), now on every page. */
-  .profile-menu { position: relative; }
-  .profile-menu > summary { list-style: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 8px; cursor: pointer; }
-  .profile-menu > summary::-webkit-details-marker { display: none; }
-  .profile-menu[open] > summary { background: rgba(255, 255, 255, 0.12); }
-  .profile-menu > div { position: absolute; top: 48px; right: 0; z-index: 7; display: flex; flex-direction: column; width: min(240px, calc(100vw - 32px)); padding: 10px 18px; border-radius: 6px; background: var(--brand); box-shadow: 0 8px 20px #0f2e2726; }
-  .profile-menu > div > a, .profile-menu > div > button { display: block; min-height: 44px; padding: 12px 0; border: 0; background: none; color: var(--brand-ink); font: 400 16px var(--font-body); text-align: left; text-decoration: none; cursor: pointer; }
-  .profile-menu .lang-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 0; color: var(--brand-ink); font: 400 16px var(--font-body); }
+  /* v0.38.0 (Noah 11a, 12a): "More" top right; the Inbox count on it, small and orange like before. */
+  .more-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; height: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: rgba(255, 255, 255, 0.08); color: var(--brand-ink); font: 500 16px var(--font-body); cursor: pointer; }
+  .more-btn:hover, .more-btn[aria-expanded='true'] { background: rgba(255, 255, 255, 0.16); }
+  @media (max-width: 719px) { .more-btn { background: none; padding: 0; } }
+  /* the count of something waiting on the Bikes place (bikes with something due), small and neutral */
+  .top .due, .bottom .due { display: inline-block; min-width: 20px; height: 20px; margin-left: 6px; padding: 0 5px; border-radius: 10px; background: rgba(255, 255, 255, 0.18); color: var(--brand-ink); font: 600 12px/20px var(--font-body); text-align: center; vertical-align: 2px; box-sizing: border-box; }
+  .bottom .pi { position: relative; display: inline-flex; }
+  .bottom .due { position: absolute; top: -6px; left: 16px; margin: 0; }
   /* v0.29.0: the trip steps use the same gutter as every page (16 px on a phone). */
   main.calm { padding: var(--gut) var(--gut) 80px; max-width: none; }
   @media (max-width: 719px) { main.calm { padding: 12px var(--gut) calc(106px + env(safe-area-inset-bottom)); } }
@@ -310,20 +302,7 @@
     align-items: center;
     gap: 10px;
   }
-  .inbox {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
-  }
-  .top .inbox[aria-current='page'] {
-    border-bottom: 0;
-    background: rgba(255, 255, 255, 0.12);
-  }
-  .inbox .n {
+  .more-btn .n {
     position: absolute;
     top: 2px;
     right: 0;
@@ -339,26 +318,6 @@
   }
   .new {
     gap: 6px;
-  }
-  .lang {
-    display: flex;
-    border: 1.5px solid #3b5a50;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .lang button {
-    min-width: 36px;
-    height: 36px;
-    padding: 0 6px;
-    border: 0;
-    background: none;
-    color: var(--brand-ink-2);
-    font: 600 14px var(--font-body);
-    cursor: pointer;
-  }
-  .lang button[aria-pressed='true'] {
-    background: var(--paper);
-    color: var(--ink);
   }
   .top .short {
     display: none;

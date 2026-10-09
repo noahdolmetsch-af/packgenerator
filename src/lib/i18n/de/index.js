@@ -16,5 +16,6 @@ import drafts from './drafts.js';
 import importgear from './importgear.js';
 import whatsnew from './whatsnew.js';
 import backpacks from './backpacks.js';
+import today from './today.js';
 
-export default { ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks };
+export default { ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks };

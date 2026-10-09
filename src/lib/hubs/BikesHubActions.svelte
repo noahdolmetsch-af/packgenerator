@@ -1,19 +1,19 @@
 <script>
   /**
    * v0.25.1 (Noah 2b, 3a): the buttons of the Bikes tile on Today, in order of priority.
-   * Visible: Log a problem · Log km · Bike care · Idea. Under "More": Note on a bike · Log a workshop
-   * visit · Workshop order · Choose a bike (only with a next bike trip).
+   * v0.38.0: under "Bikes ready?". Visible: Log a problem · Idea. Under "More": Log a workshop visit ·
+   * Workshop order · Choose a bike (only with a next bike trip).
    * The open ideas ("Was geil wäre") per bike show as one line above the buttons.
    */
   import HubActions from './HubActions.svelte';
   import BikeQuickDialog from './BikeQuickDialog.svelte';
-  import { openNew, openNote, openTrip } from '../nav.js';
+  import { openTrip } from '../nav.js';
   import { bikesHash } from '../bikes.js';
   import { hubBike, openIdeas, IDEAS_KEY } from '../hubs.js';
   import { hasBike } from '../domains.js';
   import { t, tn } from '../i18n.svelte.js';
 
-  let { bikes = [], next = null } = $props();
+  let { bikes = [], next = null, shown = 2 } = $props();
 
   const first = $derived(hubBike(next, bikes));
   const canChoose = $derived(!!next && hasBike(next) && bikes.length > 0);
@@ -24,10 +24,9 @@
   const actions = $derived(
     [
       { key: 'problem', label: t('Log a problem'), plus: true, run: need('problem') },
-      { key: 'km', label: t('Log km'), run: () => openNew('km') },
-      { key: 'care', label: t('Bike care'), href: '#/bikes?tab=care' },
       { key: 'idea', label: t('Idea'), run: need('idea') },
-      { key: 'note', label: t('Note on a bike'), run: () => openNote('', first) },
+      // v0.38.0 (Noah 13a): Log km, Bike care and Note on a bike left this list: they are the quick
+      // buttons and the "Bike care" link right above it, and "Note + photo" (one place each).
       { key: 'visit', label: t('Log a workshop visit'), run: need('visit') },
       { key: 'order', label: t('Workshop order'), href: '#/bikes?tab=care' },
       canChoose ? { key: 'choose', label: t('Choose a bike for the trip'), href: '#/pack?choose', run: () => openTrip(next.id) } : null,
@@ -58,7 +57,7 @@
     {#each ideas as x, i (x.bike.id)}{#if i}<span aria-hidden="true"> · </span>{/if}<a href={bikesHash({ bike: x.bike.id })} onclick={wantIdeas}>{x.bike.name}: {tn(x.n, '{n} idea', '{n} ideas')}</a>{/each}
   </p>
 {/if}
-<HubActions {actions} label={t('Bikes|place')} />
+<HubActions {actions} {shown} label={t('Bikes|place')} />
 {#if saved}
   <p class="saved" role="status">{t(savedText[saved.kind])} <a href={savedHref(saved)} onclick={() => saved.kind === 'idea' && wantIdeas()}>{t('Open')}</a></p>
 {/if}

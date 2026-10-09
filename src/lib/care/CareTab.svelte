@@ -19,7 +19,6 @@
   import { withVisits, visitsOf, tyreSetup, timeDue, lastPrice, workshopOrder } from '../workshop.js';
   import { hasBike } from '../domains.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
-  import { UserRound, Store } from '@lucide/svelte';
   import { bikeCare, eventPrep } from '../readiness.js';
 
   // v0.21.0 (answer 7a): Bike care is the Care tab of Bikes. bikeId: the bike chosen on the page;
@@ -64,7 +63,8 @@
   }
 
   /* ---------- filter (v0.31.0): all parts, only due, by me, by the bike shop; remembered here ---------- */
-  const FILTERS = [['all', 'All parts'], ['due', 'Only due'], ['self', 'by me'], ['shop', 'by the bike shop']];
+  // v0.38.0 (Noah 5a): one segmented toggle "All | Due | by me | Bike shop".
+  const FILTERS = [['all', 'All|parts'], ['due', 'Due|filter'], ['self', 'by me'], ['shop', 'bike shop|filter']];
   let filter = $state(readFilter());
   function readFilter() {
     try {
@@ -254,9 +254,7 @@
   {:else}
     <div class="chips" role="group" aria-label={t('Show parts')}>
       {#each FILTERS as [k, label] (k)}
-        <button type="button" class="chip" aria-pressed={filter === k} onclick={() => setFilter(k)}>
-          {#if k === 'self'}<UserRound size={15} aria-hidden="true" />{:else if k === 'shop'}<Store size={15} aria-hidden="true" />{/if}{t(label)}
-        </button>
+        <button type="button" class="chip" aria-pressed={filter === k} onclick={() => setFilter(k)}>{t(label)}</button>
       {/each}
     </div>
 
@@ -396,36 +394,44 @@
     margin: 8px 0 20px;
   }
   /* v0.31.0: the filter as chips (aria-pressed), 44 px high. */
+  /* v0.38.0 (Noah 5a): a segmented toggle in one line. */
   .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    width: max-content;
+    max-width: 100%;
     margin: 0 0 12px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 8px;
+    overflow: hidden;
   }
   .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
     min-height: 44px;
-    padding: 5px 13px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
+    min-width: 0;
+    padding: 4px 12px;
+    border: 0;
     background: var(--paper);
-    font: 500 14px var(--font-body);
+    font: 600 14px var(--font-body);
     color: var(--ink);
     white-space: nowrap;
     cursor: pointer;
   }
-  .chip :global(svg) {
-    color: var(--ink-3);
+  .chip + .chip {
+    border-left: 1.5px solid var(--line-strong);
   }
   .chip[aria-pressed='true'] {
     background: var(--ink);
-    border-color: var(--ink);
     color: var(--paper);
   }
-  .chip[aria-pressed='true'] :global(svg) {
-    color: var(--paper);
+  @media (max-width: 400px) {
+    .chips {
+      width: 100%;
+      grid-template-columns: repeat(4, minmax(0, auto));
+    }
+    .chip {
+      padding: 4px 8px;
+      font-size: 13px;
+    }
   }
   .folds {
     margin-bottom: 20px;

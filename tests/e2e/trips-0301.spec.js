@@ -56,16 +56,11 @@ const table = (page, name) =>
     };
   }), name);
 
-/** A day ride from the Trips tile on Today (phone: the tile is folded). */
+/** A day ride from Today. v0.38.0 (Noah 13a): "Day ride now" is in "New" (+), once. */
 async function dayRideFromToday(page) {
   await page.goto('./#/');
-  const tile = page.locator('details.hub').filter({ has: page.getByRole('heading', { name: T('Trips|place') }) });
-  if (await tile.count()) {
-    if (!(await tile.evaluate((d) => d.open))) await tile.locator('summary').click();
-    await tile.getByRole('button', { name: T('Day ride'), exact: true }).click();
-  } else {
-    await page.locator('section.hub').getByRole('button', { name: T('Day ride'), exact: true }).click();
-  }
+  await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).first().click();
+  await page.getByRole('dialog').getByRole('button', { name: new RegExp(`^${T('Day ride now')}`) }).click();
   await expect(page.locator('.made-card')).toBeVisible();
 }
 
@@ -204,11 +199,14 @@ test('N8, N9: rename a past trip in its band; past trips are easy to find', asyn
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, info, { trips: [trip('gtp-old', 'Alt', { startDate: day(-4), finished: day(-4) }), trip('gtp-next', 'Bald', { startDate: day(5) })] });
-  // Today: the Trips tile names the past trips with their count, as a row and as a button.
+  // Today: the Trips tile names the past trips with their count as a row; "More" has the page.
   const tile = page.locator('.hub').filter({ has: page.getByRole('heading', { name: T('Trips|place') }) });
   if (await page.locator('details.hub').count()) await tile.locator('summary').click();
   await expect(tile.locator('ul.rows a').filter({ hasText: T('Past trips ({n})', { n: 1 }) })).toHaveAttribute('href', '#/pack/past');
-  await expect(tile.getByRole('group', { name: T('Trips|place') }).getByRole('link', { name: T('Past trips ({n})', { n: 1 }) })).toBeVisible();
+  // v0.38.0 (Noah 13a): the button moved into "More" › Look back (one place per target).
+  await page.locator('.more-btn').click();
+  await expect(page.locator('dialog.more').getByRole('link', { name: T('Past trips') })).toHaveAttribute('href', '#/pack/past');
+  await page.keyboard.press('Escape');
   // Pack: next to the trip chooser.
   await page.goto('./#/pack');
   await page.locator('.list-menu summary').click();

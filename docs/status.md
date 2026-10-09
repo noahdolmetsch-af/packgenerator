@@ -1,15 +1,15 @@
 # Projektstand
 
-Stand: 8. Oktober 2026
+Stand: 9. Oktober 2026
 
 ## Aktuell live
 
-- **v0.37.0 „Rucksäcke“:** Rucksäcke, Hüfttaschen und Westen sind echte Taschen unter „Deine Taschen“, mit Litern, Gewicht (vom Ausrüstungsteil oder direkt an der Tasche) und Bereichen. Jedes Velo hat zwei getragene Plätze „Rücken“ (früher „Auf dem Rücken“, gleicher interner Schlüssel) und „Hüfte“; was dort sitzt, zählt zu „Am Körper“, nicht zu Velo, Taschengewicht oder Last pro Rad. Touren ohne Velo wählen ihren echten Rucksack, die App schlägt nach Litern und Bereich vor (Wandern 12–15 L, Weekend und Reisen 2 × 20 L, Ultra-Rennen die Weste auf Rücken); alte Touren behalten den allgemeinen Rucksack und zeigen leise „Echten Rucksack wählen“. Eine Weste kann Kleidung und Tasche zugleich sein. Leiser Hinweis „über {n} L“, wenn die Teile mit bekannten Litern mehr brauchen, als die Tasche fasst; nie bei unbekannten Daten.
+- **v0.38.0 „Heute und Menü“:** Heute zeigt pro Velo eine Bereit-Ampel (kleiner Punkt, immer mit Wort: Bereit, Bald fällig, Fällig) und darunter sechs Schnellknöpfe (Kette geölt, Verschleiss gemessen, geputzt, Dichtmilch, Reifendruck, km), jeder mit Rückgängig; Tagestour und Notiz + Foto in eigener Zeile. „Springen zu“ mit Zahlen (fällig, Totes Gewicht, Vor einem Jahr, Wochenende, Neu in der App) und „Saison in Zahlen“, nur mit Inhalt. Menü: unten die 4 Orte mit + in der Mitte, oben rechts „Mehr“ (Planen, Rückblick, Material, App mit Inbox, Deine Daten, Sprache), die Inbox-Zahl am Mehr-Knopf; die Suche findet auch Seiten und Aktionen. Material: einzeilige Zeilen, Tasche nur mit „Kompakt | Mit Tasche“, nicht Gewogenes als „–“; am Handy wischen (rechts Favorit und Zuordnen, links Löschen oder bei benutzten Teilen Archivieren, lang wischen mit Rückgängig), ••• überall. Velopflege: eine Liste, Fälliges zuerst, Rest als „4 ok“ zugeklappt, Reifen-Schalter in der geöffneten Zeile, am Computer als Tabelle.
 - Was sich pro Release geändert hat, steht unten in der Historie. Entscheidungen: [Entscheidungslog](decisions.md). Arbeitspakete und Reihenfolge: [Roadmap](roadmap.md#stand-und-nächste-pakete-8102026).
 
 ## In Arbeit
 
-- **0.38 „Heute und Menü“** (schnelle Knöpfe, Sprünge, Saison in Zahlen, Bereit-Ampel, neues Menü, kompaktere Listen).
+- **0.39 AP28 Vorlagen** (nächstes Paket laut Roadmap).
 
 ## Offen zur Abnahme
 
@@ -20,6 +20,7 @@ Stand: 8. Oktober 2026
 
 Die folgenden Einträge beschreiben den jeweiligen damaligen Release. Spätere Entscheidungen haben einzelne Layouts, Navigation und Bezeichnungen ersetzt. Für das heutige Verhalten gelten die Abschnitte oben und das Entscheidungslog.
 
+- **Heute und Menü (v0.38.0, 9.10.2026, Noahs Antworten 1a–13a):** Bereit-Ampel und Schnellknöpfe pro Velo auf Heute (schreiben wie die Velopflege ins Logbuch des Teils, „geputzt“ neu in `bike.washes`), „Springen zu“ und „Saison in Zahlen“. Menü „Mehr“ statt Profil-Menü, Inbox darin, Suche findet Seiten. Doppelte Einträge entfernt (Velos-Kachel durch „Velos bereit?“ ersetzt, runde Knöpfe auf Heute weg, „Tagestour jetzt“ im Neu-Fenster). Material kompakt mit Wischen, Velopflege als eine Liste.
 - **Rucksäcke (v0.37.0, 8.10.2026):** Rucksäcke, Hüfttaschen und Westen als echte getragene Taschen mit Litern, Gewicht und Bereichen. Plätze „Rücken“ (Schlüssel `carry` bleibt) und „Hüfte“ (neu) an jedem Velo, gezählt zu „Am Körper“, nicht zu Velo und Achslast. Touren ohne Velo wählen echte Rucksäcke mit Vorschlag nach Litern und Bereich; alte Touren behalten den allgemeinen Rucksack. Weste als Kleidung und Tasche. Liter-Hinweis nur aus bekannten Litern.
 - **Import prüfen (v0.36.0, 8.10.2026, PR #59, Excel-Import Schritt 1):** Material-Liste als Datei laden, auf „Import prüfen“ vergleichen (Schon da / Neu / Unsicher / Nicht im Import), „Alle sicheren übernehmen“ mit Backup und Rückgängig. Bestehende Teile werden nur ergänzt (Bereiche, Körperzone, Schicht, Temperatur, Regel, Notiz, Excel-Nummer). Archivieren statt löschen. Importierte Learnings mit Originaldatum. Neue Bereiche Velo, Wandern, Alltag.
 - **In Bearbeitung und Gespeichert (v0.35.0, 8.10.2026, PR #57, AP29):** Im dunklen Tourband öffnet „{n} weitere ▾“ alle Touren und Rückblicke in Arbeit (am Phone von unten, am Desktop als kleines Fenster), mit Menü „Nicht fahren“, „Verwerfen“, „Tour beenden“, „Ohne Rückblick abschliessen“ und Undo; die Liste räumt sich selbst auf. Nach jeder Änderung kurz „✓ Gespeichert“. Neue Tour, neues Teil und Quick note sind gespeichert, sobald ein Name oder Text getippt ist. „Was die App alles kann“ beginnt mit „Neu in den letzten Updates“, Heute zeigt nach einem Update einmal „Neu seit deinem letzten Besuch“.

@@ -211,7 +211,7 @@ test('nothing typed is lost: new trip, new item and quick note stay after closin
 
   // A quick note: typed, closed: it is in the Inbox.
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('pg:note', { detail: '' })));
-  const note = page.getByRole('dialog', { name: T('Quick note') });
+  const note = page.getByRole('dialog', { name: T('Note + photo') });
   await note.getByRole('textbox', { name: T('Note') }).fill('test_data_gtp_ kept note');
   await expect(note.getByRole('button', { name: T('Discard') })).toBeVisible();
   await page.keyboard.press('Escape');
@@ -252,9 +252,13 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
 
   // Today: an update from 0.34 shows the line once.
   await page.evaluate(() => localStorage.setItem('whatsnew.seen', '0.34.0'));
+  // v0.38.0: "Try it" of the newest point is Today itself; open Today afresh from another page.
+  await page.goto('./#/features');
   await page.goto('./#/');
-  const line = page.locator('.newsline');
-  await expect(line.getByRole('link', { name: T('New since your last visit') })).toBeVisible();
+  // v0.38.0 (Noah 9a): the line became the row "New in the app" in "Jump to", with the count.
+  const line = page.locator('section.jumps [data-jump=news]');
+  await expect(line.getByRole('link', { name: new RegExp(T('New in the app')) })).toBeVisible();
+  await expect(line.getByRole('link')).toHaveAttribute('href', '#/features');
   await shot(page, info, 'today-hint');
   expect(await page.evaluate(() => localStorage.getItem('whatsnew.seen'))).toBe(WHATS_NEW[0].version);
   await page.reload();
