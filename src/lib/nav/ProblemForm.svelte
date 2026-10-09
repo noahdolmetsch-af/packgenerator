@@ -1,7 +1,8 @@
 <script>
   /**
    * v0.45.2 (Noah on the bike): "Problem with a bike" in the + menu. Big bike buttons, one problem
-   * per line (or quick buttons), an optional photo; each line becomes an open repair in Bike care.
+   * per line (or quick buttons), an optional photo; each problem becomes an open repair in Bike care.
+   * v0.46.1: a line is also split at commas and «und»; the list under the field shows the split.
    * After saving a calm "3 problems saved for Factor LS ✓" with Undo. Pure part in problems.js.
    */
   import { liveQuery } from 'dexie';
@@ -153,10 +154,17 @@
     </fieldset>
 
     <label class="field">
-      <span class="lbl">{t('What is wrong? One problem per line')}</span>
+      <span class="lbl">{t('What is wrong? One problem per line or separated by commas')}</span>
       <!-- svelte-ignore a11y_autofocus -->
-      <textarea class="inp" bind:this={area} bind:value={text} rows="4" placeholder={`${t('e.g. Too little air in the tyres')}\n${t('Saddle too low')}`} autofocus></textarea>
+      <textarea class="inp" bind:this={area} bind:value={text} rows="4" placeholder={`${t('e.g. Too little air in the tyres')}\n${t('Saddle too low')}`} aria-describedby="pf-split" autofocus></textarea>
     </label>
+    <!-- v0.46.1 (Noah: "für jedes Problem ein einzelner Eintrag"): what will be saved, before saving. -->
+    <div class="split" id="pf-split" aria-live="polite">
+      {#if lines.length}
+        <p class="small">{tn(lines.length, 'Saved as 1 problem:', 'Saved as {n} problems:')}</p>
+        <ol>{#each lines as l, n (n)}<li>{l}</li>{/each}</ol>
+      {/if}
+    </div>
 
     <div class="quick" aria-label={t('Quick')}>
       {#each QUICK_PROBLEMS as q (q)}
@@ -190,7 +198,7 @@
       <button type="submit" class="btn hi" disabled={busy || reading || !bike} aria-describedby={priority ? undefined : 'pf-need'}>
         {lines.length > 1 ? t('Save {n} problems', { n: lines.length }) : t('Save problem')}
       </button>
-      <span class="small" id="pf-need">{priority ? t('Each line becomes an open repair in Bike care.') : t('Choose a priority first.')}</span>
+      <span class="small" id="pf-need">{priority ? t('Each problem becomes its own open repair in Bike care.') : t('Choose a priority first.')}</span>
     </div>
   </form>
 {/if}
@@ -289,6 +297,20 @@
   .field {
     display: grid;
     min-width: 0;
+  }
+  .split {
+    margin-top: -4px;
+  }
+  .split:empty {
+    display: none;
+  }
+  .split ol {
+    margin: 4px 0 0;
+    padding-left: 22px;
+    display: grid;
+    gap: 2px;
+    font-size: 15px;
+    overflow-wrap: anywhere;
   }
   textarea {
     width: 100%;

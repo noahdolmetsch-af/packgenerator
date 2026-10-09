@@ -150,7 +150,7 @@ export async function fetchHomeForecast(place, { fetcher = globalThis.fetch?.bin
 /**
  * Everything a day ride needs, without a dialog (Noah 1a):
  * the bike of the last trip by bike (or the first bike); the newest day ride gives hours and
- * weather, else 2 h and "Chilly". The list is the standard set plus the weather (v0.29.2, Noah 5a). forecastWx (from forecastPreset) wins over the old weather.
+ * temperatures (never its rain), else 2 h and "Chilly". The list is the standard set plus the weather (v0.29.2, Noah 5a). forecastWx (from forecastPreset) wins over the old weather.
  * → { bike, hours, wx, wxFrom, startDate, title, source } or null without a bike.
  */
 export function dayRidePlan(trips = [], bikes = [], { now = new Date(), forecastWx = null, bikeId = null } = {}) {
@@ -161,7 +161,9 @@ export function dayRidePlan(trips = [], bikes = [], { now = new Date(), forecast
   if (!bike) return null;
   const hours = Number(source?.hours) > 0 ? Number(source.hours) : DAY_HOURS;
   const chilly = WX_PRESETS.find((p) => p.name === DAY_WX);
-  const old = source?.wx?.min != null && source?.wx?.max != null ? { min: source.wx.min, max: source.wx.max, rain: source.wx.rain ?? 'none' } : null;
+  // v0.46.1 (Noah: rain socks on a dry day ride): the temperatures of the last day ride carry over,
+  // its rain does not; rain comes only from the forecast or when chosen on the trip.
+  const old = source?.wx?.min != null && source?.wx?.max != null ? { min: source.wx.min, max: source.wx.max, rain: 'none' } : null;
   const wx = forecastWx ?? old ?? { min: chilly.min, max: chilly.max, rain: 'none' };
   const startDate = rideDate(now);
   return { bike, hours, wx, wxFrom: forecastWx ? 'forecast' : null, startDate, title: freeTitle(rideName({ bike: bike.name, date: startDate }), trips), source };

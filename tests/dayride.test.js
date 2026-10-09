@@ -103,7 +103,8 @@ describe('which trip a day ride starts from', () => {
     expect(p0.bike.id).toBe('b2');
     const src = trip('d', { bikeId: 'b1', hours: 3, wx: { min: 16, max: 24, rain: 'showers' } });
     const p1 = dayRidePlan([src], bikes, { now });
-    expect(p1).toMatchObject({ hours: 3, wx: { min: 16, max: 24, rain: 'showers' }, source: src });
+    // v0.46.1 (Noah: rain socks on a dry day ride): the temperatures carry over, the rain does not.
+    expect(p1).toMatchObject({ hours: 3, wx: { min: 16, max: 24, rain: 'none' }, source: src });
     expect(p1.bike.id).toBe('b1');
     const p2 = dayRidePlan([src], bikes, { now, forecastWx: { min: -2, max: 4, rain: 'rain' } });
     expect(p2).toMatchObject({ wx: { min: -2, max: 4, rain: 'rain' }, wxFrom: 'forecast' });

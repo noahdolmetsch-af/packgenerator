@@ -78,3 +78,22 @@ describe('ride day per block', () => {
     expect(p.rows[0].light).toBeNull();
   });
 });
+
+// v0.46.1 (Noah): a cold, dry day ride in daylight: no rain gear, no night glasses; the dark brings the glasses.
+describe('rain gear and night glasses on the ride page (v0.46.1)', () => {
+  const item = (id, fields) => ({ item: { id, name: id, category: 'onbike', ...fields }, qty: 1, place: 'Seat pack' });
+  const items = [
+    item('socks', { name: 'Regensocken wasserdicht', rain: 'yes', coldBelow: 5 }),
+    item('latex', { name: 'Latex-Handschuhe', rain: 'yes', coldBelow: 5 }),
+    item('night', { name: 'Nachtbrille gelb', coldBelow: 5 }),
+    item('tights', { name: 'Tights', coldBelow: 5 }),
+  ];
+  const wear = (startAt, hours, rainMm = 0) => {
+    const rows = blocks({}, { startAt, km: hours * 20, hours });
+    const plan = blockPlan(rows, items, { wxOf: (b) => [{ t: b.startAt, temp: 2, rainMm }], place: LUCERNE, offsetOf: () => 120 });
+    return [...new Set(plan.rows.flatMap((b) => b.wear.map((w) => w.id)))].sort();
+  };
+  it('dry, cold, in daylight: only the tights', () => expect(wear('2026-10-15T10:00', 3)).toEqual(['tights']));
+  it('wet: the rain gear too', () => expect(wear('2026-10-15T10:00', 3, 2)).toEqual(['latex', 'socks', 'tights']));
+  it('into the dark: the night glasses', () => expect(wear('2026-10-15T16:00', 5)).toEqual(['night', 'tights']));
+});

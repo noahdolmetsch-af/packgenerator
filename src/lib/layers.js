@@ -36,6 +36,24 @@ export const isRainBlock = (key) => RAIN_BLOCK.test(key ?? '');
  */
 export const rainOf = (item) => item?.rain || (item?.sets?.some(isRainBlock) ? 'yes' : null);
 
+/**
+ * v0.46.1 (Noah, day ride: «Nachtbrille gelb, Latex-Handschuhe, Regensocken wasserdicht, obwohl nicht
+ * nötig»): glasses for the dark (clear, yellow, night lenses). They are never a cold layer: they come
+ * with rain (when they are a rain item) or, on the ride page, when the ride runs into the dark.
+ */
+const EYEWEAR = /brille|glasses|goggles|lens|gläser|glaeser/i;
+const DARK_WORDS = /nacht|night|klar|clear|gelb|yellow|dark|dunkel/i;
+export const isNightEyewear = (item) => {
+  const name = `${item?.name ?? ''} ${item?.nameDe ?? ''}`;
+  return EYEWEAR.test(name) && DARK_WORDS.test(name);
+};
+/**
+ * v0.46.1: does an item come along because it is cold? Not an item marked "When it rains" (item.rain:
+ * rain gear comes only with rain, also when it has a cold limit) and not glasses for the dark.
+ * An item that is only in a rain building block (a buff in "Regen") keeps its cold limit.
+ */
+export const coldLayer = (item) => typeof item?.coldBelow === 'number' && !item.rain && !isNightEyewear(item);
+
 /** v0.25.0 (Noah 2a/8a): riding hours of the whole trip = hours per day × days (0 when not set). */
 export const rideHours = (trip) => (Number(trip?.hours) || 0) * Math.max(1, Number(trip?.days) || 1);
 
@@ -63,7 +81,7 @@ export function layerSuggest(trip, items) {
     if (i.ride && RIDE_RANK[i.ride] <= level) {
       rows.push({ id: i.id, why: t(RIDES.find((r) => r.key === i.ride).name), place: i.defaultBag === 'body' ? 'wear' : 'pack', qty, optional: false });
       rankOf.set(rows.at(-1), i.ride === 'daily' ? 1 : i.ride === 'training' ? 2 : 2.5);
-    } else if (typeof i.coldBelow === 'number' && hasTemps(wx) && wx.min < i.coldBelow) {
+    } else if (coldLayer(i) && hasTemps(wx) && wx.min < i.coldBelow) {
       rows.push({ id: i.id, why: t('Below {n} °C', { n: i.coldBelow }), place: wx.max < i.coldBelow ? 'wear' : 'pack', qty, optional: false });
       rankOf.set(rows.at(-1), 3 + (40 - i.coldBelow) / 100);
     } else if (rainOf(i) && wet(wx)) {

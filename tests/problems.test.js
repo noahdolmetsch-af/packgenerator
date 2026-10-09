@@ -12,6 +12,24 @@ describe('problems with a bike', () => {
     expect(splitProblems('  ')).toEqual([]);
   });
 
+  // v0.46.1 (Noah: "für jedes Problem ein einzelner Eintrag, nicht bündeln").
+  it('splits one dictated line at commas and "und"/"and" into single problems', () => {
+    expect(splitProblems('zu wenig Luft, Sattel zu tief, Schaltung vorne aufladen')).toEqual(['zu wenig Luft', 'Sattel zu tief', 'Schaltung vorne aufladen']);
+    expect(splitProblems('Zu wenig Luft und Sattel zu tief und Kette trocken')).toEqual(['Zu wenig Luft', 'Sattel zu tief', 'Kette trocken']);
+    expect(splitProblems('Brake squeaks and saddle too low')).toEqual(['Brake squeaks', 'saddle too low']);
+    expect(splitProblems('Sattel zu tief, Rahmen fühlt sich komisch an')).toEqual(['Sattel zu tief', 'Rahmen fühlt sich komisch an']);
+  });
+
+  it('a short piece without a topic stays with the problem before it', () => {
+    expect(splitProblems('Kette kaputt, ersetzen')).toEqual(['Kette kaputt, ersetzen']);
+    expect(splitProblems('Bremse hinten quietscht und schleift')).toEqual(['Bremse hinten quietscht und schleift']);
+    expect(splitProblems('zu wenig Luft, Kette kaputt, sofort ersetzen\nSattel')).toEqual(['zu wenig Luft', 'Kette kaputt, sofort ersetzen', 'Sattel']);
+  });
+
+  it('a comma in a number does not split', () => {
+    expect(splitProblems('Reifen auf 2,5 bar pumpen, Sattel zu tief')).toEqual(['Reifen auf 2,5 bar pumpen', 'Sattel zu tief']);
+  });
+
   it('a quick button adds its own line once', () => {
     expect(addLine('', 'Saddle too low')).toBe('Saddle too low');
     expect(addLine('Air\n', 'Saddle too low')).toBe('Air\nSaddle too low');

@@ -79,7 +79,7 @@ test('three problems for one bike in one go, sorted, changed with one tap, undon
   await expect(dlg.getByRole('button', { name: 'Test gravel bike' })).toHaveAttribute('aria-pressed', 'true');
   await dlg.getByRole('button', { name: `+ ${T('Too little air in the tyres')}` }).click();
   await dlg.getByRole('button', { name: `+ ${T('Saddle too low')}` }).click();
-  const box = dlg.getByLabel(T('What is wrong? One problem per line'));
+  const box = dlg.getByLabel(T('What is wrong? One problem per line or separated by commas'));
   await box.press('End');
   await box.pressSequentially('\nSchaltung vorne aufladen');
   // Priority is required: without it nothing is saved.

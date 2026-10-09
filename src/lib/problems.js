@@ -109,16 +109,41 @@ export function problemWish(repair, bike, items, id, now = new Date().toISOStrin
   };
 }
 
-/** "- a\n2. b\n\n• c" → ['a', 'b', 'c']: one problem per line, list marks and blank lines dropped, doubles once. */
+/**
+ * "- a\n2. b\n\n• c" → ['a', 'b', 'c']: one problem per line, list marks and blank lines dropped, doubles once.
+ * v0.46.1 (Noah: "für jedes Problem ein einzelner Eintrag, nicht bündeln"): one line may hold several
+ * problems, dictated as «zu wenig Luft, Sattel zu tief und Schaltung vorne aufladen». A line is also
+ * split at commas (not in "2,5 bar") and at " und " / " and ". A piece without a topic of its own and
+ * of one or two words («Kette kaputt, ersetzen», «Bremse quietscht und schleift») stays with the
+ * piece before it.
+ */
+const JOIN = /(\s*(?<!\d),(?!\d)\s*|\s+(?:und|and)\s+)/i;
+const short = (s) => s.split(/\s+/).filter(Boolean).length <= 2;
+function splitLine(line) {
+  const parts = line.split(JOIN);
+  const out = [];
+  for (let n = 0; n < parts.length; n += 2) {
+    const piece = parts[n].trim();
+    if (!piece) continue;
+    if (out.length && short(piece) && !classify(piece).topic) {
+      const sep = /,/.test(parts[n - 1]) ? ', ' : ` ${parts[n - 1].trim()} `;
+      out[out.length - 1] += sep + piece;
+    } else out.push(piece);
+  }
+  return out;
+}
+
 export function splitProblems(text) {
   const seen = new Set();
   const out = [];
   for (const raw of String(text ?? '').split(/\r?\n|;/)) {
     const line = raw.replace(/^\s*(?:[-–•*·]|\d{1,2}[.)])\s*/, '').trim();
-    const key = line.toLowerCase();
-    if (!line || seen.has(key)) continue;
-    seen.add(key);
-    out.push(line);
+    for (const piece of splitLine(line)) {
+      const key = piece.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(piece);
+    }
   }
   return out;
 }

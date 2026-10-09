@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.46.1
+  'Problem with a bike: several problems in one line, separated by commas or "and", become single repairs, each ticked off on its own. Under the field you see what will be saved.':
+    'Problem am Velo: Mehrere Probleme in einer Zeile, mit Komma oder «und» getrennt, werden einzelne Reparaturen, die du einzeln abhakst. Unter dem Feld siehst du, was gespeichert wird.',
+  'Bike care shows the newest problems on top. The priority is a button in the row: tap it, then High, Medium or Low. The ••• menu opens upwards when there is no room below.':
+    'Die Velopflege zeigt die neuesten Probleme zuoberst. Die Priorität ist ein Knopf in der Zeile: antippen, dann Hoch, Mittel oder Tief. Das •••-Menü öffnet sich nach oben, wenn unten kein Platz ist.',
+  'A dry day ride no longer brings rain gear (rain socks, latex gloves) because it is cold, and glasses for the dark only come in the rain or when the ride runs into the dark. A new day ride takes the temperatures of the last one, never its rain.':
+    'Eine trockene Tagestour bringt keine Regensachen (Regensocken, Latex-Handschuhe) mehr, nur weil es kalt ist, und die Brille für die Dunkelheit kommt nur bei Regen oder wenn die Fahrt in die Dunkelheit geht. Eine neue Tagestour übernimmt die Temperaturen der letzten, nie ihren Regen.',
+  '"Trips" opens an overview of all trips by state (soon on the way, in planning, debrief open, ridden), each with one button to its next step. More → Packing lists has the lists, templates and past trips. The search on the phone opens as a clean page under the top bar.':
+    '«Touren» öffnet eine Übersicht aller Touren nach Stand (Bald unterwegs, In Planung, Rückblick offen, Gefahren), jede mit einem Knopf zum nächsten Schritt. Mehr → Packlisten zeigt die Listen, Vorlagen und vergangene Touren. Die Suche auf dem Handy öffnet sich als ruhige Seite unter der oberen Leiste.',
+
   // 0.46.0
   'Today is new: a greeting with the weather and an idea for a day ride, the next trip in one compact card, and "What do you want to do?" with the functions you use most in front.':
     'Heute ist neu: ein Gruss mit dem Wetter und ein Vorschlag für eine Tagestour, die nächste Tour in einer kompakten Karte und «Was willst du tun?» mit deinen meistgenutzten Funktionen vorne.',

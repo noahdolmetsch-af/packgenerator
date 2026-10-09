@@ -6,16 +6,18 @@ import { searchAll } from '../src/lib/search.js';
 
 // Pages reached on purpose without a menu entry of their own, with where they are reached.
 const ELSEWHERE = {
+  pack: 'a trip from Trips (#/trips, v0.46.1), Today or More → Packing lists',
   care: 'Bikes → Care (a tab of the Bikes place)',
   ride: 'the trip band on a ride day',
   share: 'a shared link only',
   gearimport: 'Gear → Import (the import flow)',
 };
-const PAGES = ['home', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'debrief', 'gearimport', 'wardrobe', 'review'];
+const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'debrief', 'gearimport', 'wardrobe', 'review'];
 
 describe('the menu "More"', () => {
-  it('has the four groups Noah chose', () => {
-    expect(MORE_GROUPS.map((g) => g.key)).toEqual(['plan', 'back', 'gear', 'app']);
+  it('has the four groups Noah chose, with "Packing lists" first (v0.46.1)', () => {
+    expect(MORE_GROUPS.map((g) => g.key)).toEqual(['lists', 'plan', 'back', 'gear', 'app']);
+    expect(MORE_GROUPS[0].rows.map((r) => r.id)).toEqual(['templates', 'past']);
     expect(MORE_GROUPS.find((g) => g.key === 'app').rows.map((r) => r.id)).toEqual(['inbox', 'data', 'features']);
   });
 
@@ -42,7 +44,7 @@ describe('the search finds pages and actions', () => {
   });
 
   it('finds the rarer pages by English or German words', () => {
-    for (const [q, id] of [['vergangene', 'past'], ['tempo', 'pace'], ['backup', 'data'], ['inbox', 'inbox'], ['favoriten', 'favorites'], ['bausteine', 'blocks']]) {
+    for (const [q, id] of [['packlisten', 'templates'], ['vergangene', 'past'], ['tempo', 'pace'], ['backup', 'data'], ['inbox', 'inbox'], ['favoriten', 'favorites'], ['bausteine', 'blocks']]) {
       const rows = searchAll(q, {}).flatMap((g) => g.rows);
       expect(rows.map((x) => x.id), q).toContain(id);
     }
