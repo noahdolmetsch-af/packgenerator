@@ -18,6 +18,7 @@ import {
   outfitFor,
   kitFromOutfit,
   rangeAround,
+  rideWindow,
   chooseKit,
   tempKits,
   CLOTHING_OFFSET,
@@ -166,6 +167,11 @@ describe('what do I wear today (decision 9)', () => {
     expect(wet.rows.find((r) => r.key === 'outer').item?.id).toBe('KL06');
     expect(outfitFor(fc(16), KIT, { date: '2026-10-10' })).toBeNull();
     expect(outfitFor(null, KIT, { date: '2026-10-09' })).toBeNull();
+  });
+  it('the ride window: today from the coming hour, from 14:00 tomorrow at 08:00', () => {
+    expect(rideWindow(new Date(2026, 9, 9, 6, 30))).toEqual({ date: '2026-10-09', start: 8, hours: 2, tomorrow: false });
+    expect(rideWindow(new Date(2026, 9, 9, 11, 10), { hours: 3 })).toEqual({ date: '2026-10-09', start: 11, hours: 3, tomorrow: false });
+    expect(rideWindow(new Date(2026, 9, 31, 15, 0))).toEqual({ date: '2026-11-01', start: 8, hours: 2, tomorrow: true });
   });
   it('without hourly values the minimum of the day', () => {
     const o = outfitFor({ days: [{ date: '2026-10-09', min: 9, max: 15 }] }, KIT, { date: '2026-10-09' });

@@ -497,6 +497,20 @@ export function outfitFor(forecast, items = [], { date, start = 8, hours = 2, of
 }
 
 /**
+ * The ride "What do I wear today?" is for (decision 9), as the Day ride button picks its day
+ * (dayride.js: from 14:00 on it is tomorrow's ride): { date, start, hours, tomorrow }. Today it
+ * starts at the coming hour (not before 08:00), tomorrow at 08:00. hours: of the last day ride, else 2.
+ */
+export function rideWindow(now = new Date(), { late = 14, hours = 2 } = {}) {
+  const d = new Date(now);
+  const tomorrow = d.getHours() >= late;
+  if (tomorrow) d.setDate(d.getDate() + 1);
+  const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const len = Math.max(1, Math.min(12, Math.round(Number(hours) || 2)));
+  return { date, start: tomorrow ? 8 : Math.max(8, new Date(now).getHours()), hours: len, tomorrow };
+}
+
+/**
  * Save an outfit as a temperature kit (Noah, decision 5): a building block with a range, exactly
  * like the kits of the import (settings "sets": { key, name, minC, maxC }; the pieces carry its key
  * in item.sets), so Pack suggests it (chooseKit). value: the settings value "sets".
