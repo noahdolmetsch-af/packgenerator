@@ -10,6 +10,13 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.46.3',
+    date: '2026-10-09',
+    points: [
+      { text: '"More" is calm again: the packing lists of your trips no longer stand on top as single rows. You find them under "Trips"; templates are under Plan, past trips under Look back.', href: '#/trips' },
+    ],
+  },
+  {
     version: '0.46.2',
     date: '2026-10-09',
     points: [

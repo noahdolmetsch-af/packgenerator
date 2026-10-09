@@ -1,7 +1,7 @@
 <script>
   /**
    * v0.38.0 (Noah 11a, 12a, 13a): "More", top right on every page (it took the place of the profile
-   * icon). The rarer pages in four light groups: Plan, Look back, Gear, App (v0.46.1: "Packing lists" first). The Inbox lives here,
+   * icon). The rarer pages in four light groups: Plan, Look back, Gear, App. The Inbox lives here,
    * its count shows on the "More" button. Numbers only where something waits: the Inbox and "Backup
    * due". On a phone a sheet from below, on a computer a panel under the bar in four columns.
    * Each page of the app is in exactly one menu (nav/menu.js); the search finds them too.
@@ -10,15 +10,13 @@
   import { db } from '../db.js';
   import { LAST_BACKUP, backupDue } from '../backup.js';
   import { demoState } from '../demo.js';
-  import { openData, switchTrip, openNew } from '../nav.js';
-  import { inProgress } from '../drafts.js';
-  import { localDay } from '../localday.js';
+  import { openData } from '../nav.js';
   import { MORE_GROUPS } from './menu.js';
   import { phone } from '../media.svelte.js';
-  import { t, lang, setLang, locale } from '../i18n.svelte.js';
+  import { t, lang, setLang } from '../i18n.svelte.js';
   import Seg from '../ui/Seg.svelte';
   import { theme, PALETTES, MODES, setPalette, setMode } from '../theme.svelte.js';
-  import { FileText, ListChecks, Plus, Layers, CalendarCheck, BookOpen, GitCompareArrows, Gauge, Star, Inbox, HardDriveDownload, Sparkles, Shirt, ChartColumn } from '@lucide/svelte';
+  import { FileText, Layers, CalendarCheck, BookOpen, GitCompareArrows, Gauge, Star, Inbox, HardDriveDownload, Sparkles, Shirt, ChartColumn } from '@lucide/svelte';
 
   let { open = $bindable(false), inbox = 0, current = '' } = $props();
 
@@ -30,21 +28,6 @@
     const last = [file?.at, folder?.lastWrite].filter(Boolean).sort().at(-1) ?? null;
     return n && !demo ? backupDue(last).due : false;
   });
-
-  // v0.46.1 (Noah: "Wo finde ich die Packlisten?"): the packing lists of the trips in progress, each opens its list.
-  const listsQ = liveQuery(async () => {
-    const [trips, debriefs] = await Promise.all([db.trips.toArray(), db.debriefs.toArray()]);
-    return inProgress(trips, debriefs, localDay()).filter((r) => r.kind !== 'debrief').slice(0, 4);
-  });
-  const day = (iso) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' }) : '');
-  function openList(row) {
-    close();
-    switchTrip(row.tripId ?? row.id, '#/pack');
-  }
-  function newList() {
-    close();
-    openNew('list');
-  }
 
   let dialog = $state();
   $effect(() => {
@@ -70,12 +53,6 @@
       <section class="grp" aria-labelledby="more-g-{g.key}">
         <h3 id="more-g-{g.key}" class="gh">{t(g.name)}</h3>
         <ul>
-          {#if g.key === 'lists'}
-            {#each $listsQ ?? [] as row (row.id)}
-              <li><button type="button" class="row" onclick={() => openList(row)}><ListChecks size={20} aria-hidden="true" /><span class="nm">{row.title}<small>{[day(row.date), t(row.state.label, row.state)].filter(Boolean).join(' · ')}</small></span></button></li>
-            {/each}
-            <li><button type="button" class="row" onclick={newList}><Plus size={20} aria-hidden="true" /><span class="nm">{t('New packing list')}</span></button></li>
-          {/if}
           {#each g.rows as r (r.id)}
             {@const Icon = ICON[r.icon]}
             <li>
@@ -182,11 +159,6 @@
     flex: 1;
     min-width: 0;
     overflow-wrap: break-word;
-  }
-  .nm small {
-    display: block;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
   /* Small and neutral: something waits here. */
   .badge {
