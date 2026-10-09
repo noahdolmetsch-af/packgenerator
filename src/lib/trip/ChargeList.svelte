@@ -58,7 +58,7 @@
   .box { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; border: 2px solid var(--line-strong); background: var(--paper); }
   .on .box { background: var(--ink); border-color: var(--ink); color: var(--paper); }
   .on .nm { color: var(--ink-3); }
-  .nm { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+  .nm { flex: 1 1 auto; min-width: 0; overflow-wrap: break-word; }
   .q { flex: none; margin-left: auto; color: var(--ink-3); font-variant-numeric: tabular-nums; text-align: right; }
   .foot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 6px 0 0; }
   .num { font-variant-numeric: tabular-nums; }

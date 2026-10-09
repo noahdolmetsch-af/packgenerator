@@ -1,5 +1,5 @@
 /**
- * v0.45.1 (Noah on the bike: "zu wenig Luft, Sattel zu tief, Schaltung vorne laden"): several
+ * v0.45.2 (Noah on the bike: "zu wenig Luft, Sattel zu tief, Schaltung vorne laden"): several
  * problems with one bike at once, from the + menu. One line = one problem = one open repair in
  * Bike care, written as the Inbox does when a note is sorted as "Repair" (notes.js sortNote).
  * Noah 1a 2b 3b: the app sorts each problem itself into a way to fix it (one tap to change),

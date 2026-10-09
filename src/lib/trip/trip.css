@@ -20,7 +20,7 @@
 .tp-badge.warn::before { background: var(--warn); }
 
 .tp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.tp-chip { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 8px 13px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--paper); color: var(--ink); font: 500 15px var(--font-body); cursor: pointer; text-align: left; overflow-wrap: anywhere; }
+.tp-chip { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 8px 13px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--paper); color: var(--ink); font: 500 15px var(--font-body); cursor: pointer; text-align: left; overflow-wrap: break-word; }
 .tp-chip.quiet { border-style: dashed; color: var(--ink-2); font-weight: 400; }
 .tp-chip[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 .tp-chip:disabled { opacity: 0.5; cursor: default; }
@@ -33,11 +33,17 @@
 .tp-fold > summary { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 6px 16px; list-style: none; cursor: pointer; font-size: 16px; font-weight: 500; }
 .tp-fold > summary::-webkit-details-marker { display: none; }
 .tp-fold > summary > svg:first-child { color: var(--ink-3); flex: none; }
-.tp-fold > summary > span:not(.r) { min-width: 0; overflow-wrap: anywhere; }
+.tp-fold > summary > span:not(.r) { min-width: 0; overflow-wrap: break-word; }
 .tp-fold > summary .r { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; min-width: 0; align-items: center; gap: 4px 8px; font-size: 14px; font-weight: 400; color: var(--ink-3); text-align: right; }
 .tp-fold > summary .chev { flex: none; transition: transform 0.15s; color: var(--ink-3); }
 .tp-fold[open] > summary .chev { transform: rotate(90deg); }
 .tp-fold > .in { padding: 0 16px 14px; }
+/* v0.45.1 (G004, G005): on a very small phone the badges go under the title when both do not fit,
+   so a title like "Abend" or "Before the trip" never breaks in the middle of a word. */
+@media (max-width: 359px) {
+  .tp-fold > summary { flex-wrap: wrap; row-gap: 2px; }
+  .tp-fold > summary > span:not(.r) { flex: 1 1 auto; }
+}
 
 .tp-grid2 { display: grid; gap: 0 20px; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 900px) {

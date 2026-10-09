@@ -58,7 +58,7 @@ describe('ready check cleanup (4.10.2026)', () => {
   });
 });
 
-// v0.45.1 (Noah): the new base check before every ride, his six things first.
+// v0.45.2 (Noah): the new base check before every ride, his six things first.
 import 'fake-indexeddb/auto';
 import Dexie from 'dexie';
 import { basicCheck2026 } from '../src/lib/updates.js';

@@ -229,7 +229,7 @@
               <span class="act">
                 <button type="button" class="btn sm" onclick={() => onrepair(task, 'done')}><Check size={16} aria-hidden="true" />{t('Done|task')}</button>
                 <MoreMenu label={task.task} actions={[
-                  // v0.45.1 (Noah 1a): the app's way to fix it, changed with one tap
+                  // v0.45.2 (Noah 1a): the app's way to fix it, changed with one tap
                   ...Object.keys(FIXES).filter((f) => f !== (task.fix ?? '')).map((f) => ({ name: t('Fix: {how}', { how: t(FIXES[f]) }), run: () => setFix(task, f, bike) })),
                   { name: t('Work needed'), run: () => onrepair(task, 'needed') }, { name: t('Not needed any more'), run: () => onrepair(task, 'gone') }]} />
               </span>
@@ -421,7 +421,7 @@
     color: var(--ink);
     text-align: left;
     cursor: pointer;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .ah-btn::after {
     content: '';
@@ -612,7 +612,7 @@
     min-width: 0;
     font-size: 14px;
     color: var(--ink-2);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .last .kmv::before {
     content: ' · ';
@@ -625,7 +625,7 @@
     min-width: 0;
     font-size: 13px;
     color: var(--ink-3);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .next.late {
     color: var(--warn);
@@ -655,7 +655,7 @@
   }
   .rn {
     font-size: 16px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .part-btn {
     display: inline-flex;
@@ -674,7 +674,7 @@
     text-decoration: underline;
     text-decoration-color: var(--line-strong);
     text-underline-offset: 3px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .part-btn:hover {
     text-decoration-color: var(--ink);
@@ -956,7 +956,7 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .visit > .num {
     text-align: right;

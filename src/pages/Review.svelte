@@ -275,7 +275,7 @@
   .k {
     flex: 1 1 140px;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .v {
     flex: 0 1 auto;
@@ -288,7 +288,7 @@
     color: var(--ink);
     font-variant-numeric: tabular-nums;
     text-align: right;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .rowlist :global(.lrow .v) {
     white-space: normal;
@@ -312,7 +312,7 @@
   }
   .sub li span:first-child {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .sub li .num {
     flex: none;

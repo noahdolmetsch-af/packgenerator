@@ -827,7 +827,7 @@
   .row .rt {
     display: grid;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .row b {
     font-weight: 500;

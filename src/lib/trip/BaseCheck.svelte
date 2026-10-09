@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.45.1 (Noah: "vor jedem Ride einen kurzen Reminder"): the base check on the ride page.
+   * v0.45.2 (Noah: "vor jedem Ride einen kurzen Reminder"): the base check on the ride page.
    * The trip's ready check (trips.js READY_DEFAULT: lock, mini backpack, bottle, sunglasses, cap,
    * wind jacket …) as big tap buttons until everything is ticked, then one quiet line.
    */

@@ -72,7 +72,7 @@
   {:else}
     <ul class="opts grid">
       <li><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard'))}><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></button></li>
-      <!-- v0.45.1 (Noah on the bike): several problems with one bike at once, into Bike care -->
+      <!-- v0.45.2 (Noah on the bike): several problems with one bike at once, into Bike care -->
       {#if bikes.length}<li><button type="button" class="opt" onclick={() => (mode = 'problem')}><b>{t('Problem with a bike')}</b><span>{t('Air, saddle, battery: one per line')}</span></button></li>{/if}
       <!-- v0.38.0 (Noah 8a, E): the day ride and "Note + photo" here too; Plan a trip stays the one orange row. -->
       <li><button type="button" class="opt" onclick={() => run(dayRide)}><b>{t('Day ride now')}</b><span>{t('One tap, with Undo')}</span></button></li>

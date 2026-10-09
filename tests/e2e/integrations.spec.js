@@ -303,9 +303,10 @@ for (const lang of ['de', 'en']) {
     await download.saveAs(exported);
     const file = JSON.parse(readFileSync(exported, 'utf8'));
     expect(file.app).toBe('pack-generator');
+    // v0.45.1 (G015a): the tips memory ("tips") stays on the device, never in the file
     for (const [name, keys] of Object.entries(before)) {
       const key = name === 'settings' ? 'key' : name === 'debriefs' ? 'tripId' : 'id';
-      expect(file.tables[name].map((r) => String(r[key])).sort(), name).toEqual(keys);
+      expect(file.tables[name].map((r) => String(r[key])).sort(), name).toEqual(name === 'settings' ? keys.filter((k) => k !== 'tips') : keys);
     }
 
     // Wrong files: not JSON, JSON of another app, an empty file. Each: a message, nothing changed.
@@ -332,7 +333,8 @@ for (const lang of ['de', 'en']) {
     writeFileSync(changedFile, JSON.stringify(changed));
     await data.getByLabel(T('Import backup')).setInputFiles(changedFile);
     const confirm = data.getByRole('dialog', { name: T('Import backup') });
-    const now = Object.values(withLocal).reduce((s, k) => s + k.length, 0);
+    // v0.45.1 (G015a): the device's tips memory is neither lost nor replaced, so it is not counted
+    const now = Object.entries(withLocal).reduce((s, [name, k]) => s + (name === 'settings' ? k.filter((x) => x !== 'tips') : k).length, 0);
     const inFile = Object.values(changed.tables).reduce((s, r) => s + r.length, 0);
     await expect(confirm).toContainText(T('Replace all data: deletes everything on this device ({now} records, trips: {trips}) and puts the file in its place ({file} records).', { now, trips: 2, file: inFile }));
     await expect(confirm).toContainText(T('Only on this device, so lost with Replace: {lost} records (trips: {lostTrips}).', { lost: 1, lostTrips: 1 }));

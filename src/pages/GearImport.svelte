@@ -377,7 +377,7 @@
       <ul class="rows unsure">
         {#each plan.unsure as r (r.key)}
           <li>
-            <span class="nm">{r.imp.name}<small class="q">{catText(r.imp.category)}{r.reason === 'twice' ? ` · ${t('two lines point to the same item')}` : ''}</small></span>
+            <span class="nm">{r.imp.name}<small class="q">{catText(r.imp.category)}{r.reason === 'twice' ? ` · ${t('two lines point to the same item')}` : r.reason === 'file' ? ` · ${t('is twice in the file')}` : ''}</small></span>
             <div class="pick" role="group" aria-label={t('What is {name}?', { name: r.imp.name })}>
               {#each r.candidates as c (c.item.id)}
                 <button type="button" class="opt" aria-pressed={decisions[r.key] === c.item.id} onclick={() => choose(r.key, c.item.id)}>
@@ -452,7 +452,7 @@
     margin: 0 0 16px;
     color: var(--ink-3);
     font-size: var(--fs-small);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .main {
     margin: 0 0 20px;
@@ -584,7 +584,7 @@
   .nm {
     flex: 1 1 12em;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .q {
     display: block;
@@ -596,7 +596,7 @@
     min-width: 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .w {
     margin-left: auto;
@@ -651,7 +651,7 @@
     background: var(--paper);
     color: var(--ink);
     cursor: pointer;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .opt small {
     color: var(--ink-3);

@@ -109,7 +109,7 @@
     min-width: 0;
   }
   .txt {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .done .txt {
     text-decoration: line-through;

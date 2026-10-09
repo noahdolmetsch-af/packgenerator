@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { QUICK_PROBLEMS, FIXES, TOPICS, splitProblems, addLine, startBike, buildProblems, classify, stepFor, repeats, problemWish } from '../src/lib/problems.js';
 import DE from '../src/lib/i18n/de/index.js';
 
-// v0.45.1 (Noah on the bike): several problems with one bike at once, from the + menu.
+// v0.45.2 (Noah on the bike): several problems with one bike at once, from the + menu.
 const bikes = [{ id: 'scale', name: 'Scott Scale' }, { id: 'factor', name: 'Factor LS' }];
 
 describe('problems with a bike', () => {

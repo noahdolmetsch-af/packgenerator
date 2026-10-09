@@ -67,9 +67,9 @@ export default {
   'Something not OK? Open the part and tap "Replace or work needed".': 'Etwas nicht OK? Öffne das Teil und tippe auf «Ersetzen oder Arbeit nötig».',
   'Close {bike}': '{bike} schliessen',
   'Open {bike}': '{bike} öffnen',
-  // v0.45.1 problems with a bike: ways to fix, first steps, lasting fixes
-  'Myself, quick': 'Selber, schnell',
-  'Myself, with a guide': 'Selber, mit Anleitung',
+  // v0.45.2 problems with a bike: ways to fix, first steps, lasting fixes
+  'Myself, quick': 'Selber',
+  'Myself, with a guide': 'Mit Anleitung',
   'Part needed': 'Teil nötig',
   'Fix: {how}': 'Lösung: {how}',
   'How to fix: {task}': 'Lösungsweg: {task}',

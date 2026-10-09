@@ -30,7 +30,7 @@
   .toast span {
     flex: 1;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     font-size: 15px;
   }
   .toast .btn {

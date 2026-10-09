@@ -323,7 +323,7 @@ export function workshopOrder(bike, trip, tasks = [], visits = [], setup = { fro
     const de = r.worn ? `${DE[r.key] ?? r.key} prüfen, wenn nötig ersetzen` : r.key === 'chain' ? 'Kette wachsen' : DE[r.key] ?? r.name;
     return { key: `${r.key}:${r.when}`, name: r.name, de, detail: r.detail, when: r.when, chf: price?.chf ?? null, from: price };
   });
-  // v0.45.1: a problem I fix myself (fix 'self' or 'guide') stays out of the order for the shop.
+  // v0.45.2: a problem I fix myself (fix 'self' or 'guide') stays out of the order for the shop.
   for (const t of tasks.filter((x) => !isPrep(x) && taskBike(x) === bike.id && (x.status === 'open' || x.status === 'needed') && !['self', 'guide'].includes(x.fix))) {
     rows.push({ key: `repair:${t.id}`, name: t.task, de: t.task, detail: t.status === 'needed' ? tr('work needed') : tr('open repair'), when: 'now', chf: null, from: null });
   }

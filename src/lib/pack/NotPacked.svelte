@@ -158,7 +158,7 @@
     color: var(--ink);
     font: 600 15px var(--font-body);
     text-align: left;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     cursor: pointer;
   }
   .np-list {
@@ -281,7 +281,7 @@
     color: #fff;
     font: 600 15px var(--font-body);
     text-align: center;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     cursor: pointer;
   }
   .pick-add:disabled {
@@ -290,7 +290,7 @@
   }
   .nm {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .lab {
     display: inline-block;

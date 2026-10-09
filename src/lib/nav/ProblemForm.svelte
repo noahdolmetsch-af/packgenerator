@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.45.1 (Noah on the bike): "Problem with a bike" in the + menu. Big bike buttons, one problem
+   * v0.45.2 (Noah on the bike): "Problem with a bike" in the + menu. Big bike buttons, one problem
    * per line (or quick buttons), an optional photo; each line becomes an open repair in Bike care.
    * After saving a calm "3 problems saved for Factor LS ✓" with Undo. Pure part in problems.js.
    */
@@ -37,7 +37,7 @@
   const repairsQ = liveQuery(() => db.maintenance.toArray());
   const savedRows = $derived(saved ? ($repairsQ ?? []).filter((r) => saved.repairIds.includes(r.id)) : []);
   const again = $derived(saved ? repeats(($repairsQ ?? []).filter((r) => r.status !== 'gone' || saved.repairIds.includes(r.id)), saved.bikeId, today) : []);
-  let area;
+  let area = $state();
 
   const lines = $derived(splitProblems(text));
 

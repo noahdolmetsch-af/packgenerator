@@ -511,7 +511,7 @@ export default {
   "Replace all data: deletes everything on this device ({now} records, trips: {trips}) and puts the file in its place ({file} records).": "Alle Daten ersetzen: löscht alles auf diesem Gerät ({now} Einträge, davon Touren: {trips}) und setzt die Datei an seine Stelle ({file} Einträge).",
   "Only on this device, so lost with Replace: {lost} records (trips: {lostTrips}).": "Nur auf diesem Gerät, also mit Ersetzen verloren: {lost} Einträge (davon Touren: {lostTrips}).",
   "Merge: new from the file: {added}; same ID, overwritten by the file: {same}; nothing is deleted.": "Zusammenführen: neu aus der Datei: {added}; gleiche ID, von der Datei überschrieben: {same}; nichts wird gelöscht.",
-  /* ---------- v0.45.1 problem with a bike (+ menu) ---------- */
+  /* ---------- v0.45.2 problem with a bike (+ menu) ---------- */
   'Problem with a bike': 'Problem am Velo',
   'Air, saddle, battery: one per line': 'Luft, Sattel, Akku: eins pro Zeile',
   'Which bike?': 'Welches Velo?',

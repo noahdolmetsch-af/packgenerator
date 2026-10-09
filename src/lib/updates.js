@@ -457,7 +457,7 @@ export async function templatesLinked2026(db) {
 }
 
 /**
- * v0.45.1 (Noah 9.10.2026): the new base check before every ride (trips.js READY_DEFAULT) replaces
+ * v0.45.2 (Noah 9.10.2026): the new base check before every ride (trips.js READY_DEFAULT) replaces
  * the old suggested rows. A saved standard keeps its own rows after the new ones; coming trips
  * without a tick get the new check (their own rows stay). Past trips and trips without a bike stay.
  */

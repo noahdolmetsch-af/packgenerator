@@ -12,10 +12,18 @@ import { t } from './i18n.svelte.js';
 
 export const APP_ID = 'pack-generator';
 
+/**
+ * v0.45.1 (G015a): settings records that are the app's own memory on this device, not the user's data
+ * ("tip of the day" shown and tapped). They never go into a backup, so two backups without a change
+ * are the same; an older backup that still has them imports fine and the device keeps its own.
+ */
+export const DEVICE_SETTINGS = ['tips'];
+const deviceOnly = (name, row) => name === 'settings' && DEVICE_SETTINGS.includes(row?.key);
+
 /** Read every data table and build the backup object. */
 export async function buildBackup(db) {
   const tables = {};
-  for (const name of DATA_TABLES) tables[name] = await db.table(name).toArray();
+  for (const name of DATA_TABLES) tables[name] = (await db.table(name).toArray()).filter((r) => !deviceOnly(name, r));
   // v0.34.0 (L10): when the data in this file last changed, so the other device can say "newer" or "older".
   const lastChange = await lastChangeOf(db);
   return { app: APP_ID, schemaVersion: SCHEMA_VERSION, exportedAt: new Date().toISOString(), ...(lastChange ? { lastChange } : {}), tables };
@@ -63,9 +71,11 @@ export const KEY_OF = { debriefs: 'tripId', settings: 'key' };
 export function importImpact(data, existing) {
   const out = { now: 0, file: 0, lost: 0, same: 0, added: 0, nowTrips: 0, lostTrips: 0 };
   for (const name of DATA_TABLES) {
-    const mine = new Set(existing?.[name] ?? []);
+    // G015a: the device's own memory is neither lost nor taken over by an import
+    const own = (k) => name === 'settings' && DEVICE_SETTINGS.includes(k);
+    const mine = new Set((existing?.[name] ?? []).filter((k) => !own(k)));
     const key = KEY_OF[name] ?? 'id';
-    const theirs = new Set((data?.tables?.[name] ?? []).map((r) => r?.[key]));
+    const theirs = new Set((data?.tables?.[name] ?? []).map((r) => r?.[key]).filter((k) => !own(k)));
     let same = 0;
     for (const k of theirs) if (mine.has(k)) same++;
     out.now += mine.size;
@@ -94,8 +104,13 @@ export async function restoreBackup(db, data, mode = 'replace') {
   await db.transaction('rw', tables, async () => {
     for (const name of DATA_TABLES) {
       const table = db.table(name);
-      if (mode === 'replace') await table.clear();
-      const rows = data.tables[name] ?? [];
+      if (mode === 'replace') {
+        // G015a: the device's own memory stays, whatever the file holds
+        const keep = name === 'settings' ? (await table.toArray()).filter((r) => deviceOnly(name, r)) : [];
+        await table.clear();
+        if (keep.length) await table.bulkPut(keep);
+      }
+      const rows = (data.tables[name] ?? []).filter((r) => !deviceOnly(name, r));
       if (rows.length) await table.bulkPut(rows);
     }
   });
@@ -203,9 +218,18 @@ export function trackChanges(db, wait = 300) {
   };
   for (const name of DATA_TABLES) {
     const table = db.table(name);
-    table.hook('creating', mark);
-    table.hook('updating', mark);
-    table.hook('deleting', mark);
+    // G015a: the device's own memory (the tips shown) is no change of the data (hooks return nothing:
+    // Dexie takes a creating hook's return value as the key)
+    const skip = (key) => name === 'settings' && DEVICE_SETTINGS.includes(key);
+    table.hook('creating', (key) => {
+      if (!skip(key)) mark();
+    });
+    table.hook('updating', (mods, key) => {
+      if (!skip(key)) mark();
+    });
+    table.hook('deleting', (key) => {
+      if (!skip(key)) mark();
+    });
   }
 }
 

@@ -140,7 +140,7 @@ test("a day ride: All packed, let's go lands on On the way with everything packe
   const after = await stored(page, title);
   expect(after.entries.length).toBe(before.entries.length);
   expect(after.entries.every((e) => e.packed)).toBe(true);
-  // v0.45.1 (Noah): the base check is not ticked by "let's go": it waits on the ride page.
+  // v0.45.2 (Noah): the base check is not ticked by "let's go": it waits on the ride page.
   expect(after.ready.filter((r) => !r.itemId).some((r) => !r.done)).toBe(true);
   const check = page.getByRole('region', { name: T('Base check') });
   await expect(check.getByRole('button', { name: T('Lock') })).toBeVisible();

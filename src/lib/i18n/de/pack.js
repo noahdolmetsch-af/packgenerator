@@ -116,7 +116,7 @@ export default {
   "It broke on {trip}. Repaired or replaced?": "Auf {trip} ging es kaputt. Repariert oder ersetzt?",
   "Tip": "Tipp",
   "Helmet, shoes, gloves": "Helm, Schuhe, Handschuhe",
-  // v0.45.1 base check
+  // v0.45.2 base check
   Lock: 'Schloss',
   'Mini backpack': 'Mini-Rucksack',
   'Bottle filled': 'Flasche gefüllt',

@@ -10,12 +10,22 @@
 
 export const WHATS_NEW = [
   {
-    version: '0.45.1',
+    version: '0.45.2',
     date: '2026-10-09',
     points: [
       { text: 'Problem with a bike from the + menu: choose the bike with one tap, one problem per line (or quick buttons like "Saddle too low"), an optional photo. Each line becomes its own open repair in Bike care, with Undo.', href: '#/bikes?tab=care' },
       { text: 'The app sorts each problem: myself (with the first step, e.g. "Pump to your pressure"), with a guide, bike shop (into the order for the shop) or part needed (onto the wishlist). One tap changes it; the same problem twice in 30 days brings a lasting fix.', href: '#/bikes?tab=care' },
       { text: 'Base check before every ride: lock, mini backpack, bottle, sunglasses, cap, wind jacket, plus helmet, charged devices, tyre pressure, phone and keys. It waits on the ride page until everything is with you.', href: '#/ride' },
+    ],
+  },
+  {
+    version: '0.45.1',
+    date: '2026-10-09',
+    points: [
+      { text: 'Check import: a line that is twice in the file waits under "Unsure" (is twice in the file) instead of becoming a second item. "Merge with …" now works on the phone too.', href: '#/gear/import' },
+      { text: 'Plan of a short day ride: when something is due at the bike, one quiet line with the number and a link to its bike care.', href: '#/pack' },
+      { text: 'Backups hold only your data: two backups without a change are the same (the tips of the day stay on the device). Past and finished trips keep their list exactly as packed.', href: '#/', action: 'data' },
+      { text: 'Small phones: words no longer break in the middle, the wishlist shows long names without the extra tag. Gear on the computer opens faster: each category first shows 12 items, then "Show all".', href: '#/gear' },
     ],
   },
   {

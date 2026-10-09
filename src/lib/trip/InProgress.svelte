@@ -186,7 +186,7 @@
     padding: 4px 16px 10px;
     font-size: 14px;
     color: var(--ink-2);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .undo .link {
     min-height: 44px;

@@ -404,7 +404,7 @@
     margin: 0;
     color: var(--ink-2);
     font-size: 15px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .dmeta b {
     color: var(--ink);
@@ -426,7 +426,7 @@
     margin: 0;
     color: var(--ink-2);
     font-style: italic;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .badge {
     display: inline-block;
@@ -532,7 +532,7 @@
   }
   .t {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .t small {
     display: block;
@@ -658,7 +658,7 @@
   }
   .irow > span:first-child {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .v {
     color: var(--ink-2);
@@ -683,7 +683,7 @@
     gap: 6px;
     padding: 8px 0;
     border-top: 1px solid var(--line);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .src summary,
   .hist summary {
@@ -696,7 +696,7 @@
   .trips li,
   .hist li {
     font-size: 14px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .trips small,
   .hist small {

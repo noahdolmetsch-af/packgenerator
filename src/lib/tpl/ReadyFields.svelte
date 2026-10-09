@@ -47,7 +47,7 @@
   li span {
     flex: 1;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .x {
     width: 44px;

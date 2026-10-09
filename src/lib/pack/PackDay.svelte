@@ -347,7 +347,7 @@
   .alldone { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px 14px; margin: 0 0 12px; padding: 18px 16px; border: 2px solid var(--ok); border-radius: 12px; background: var(--ok-soft); scroll-margin-top: 72px; }
   .alldone:focus { outline: none; }
   .okbig { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--ok); color: #fff; }
-  .alldone h2 { margin: 0; font: 700 21px/1.25 var(--font-body); color: var(--ink); overflow-wrap: anywhere; }
+  .alldone h2 { margin: 0; font: 700 21px/1.25 var(--font-body); color: var(--ink); overflow-wrap: break-word; }
   .alldone p { margin: 2px 0 0; font-size: 15px; color: var(--ink-2); }
   .adgo { grid-column: 1 / -1; min-height: 48px; font-size: 16px; }
   @media (min-width: 720px) { .alldone { grid-template-columns: auto minmax(0, 1fr) auto; } .adgo { grid-column: auto; } }
@@ -361,25 +361,25 @@
   .wxgap p { margin: 0 0 10px; }
   .lessons p { margin: 0 0 4px; }
   .lessons ul { margin: 0; padding-left: 20px; }
-  .lessons li { overflow-wrap: anywhere; }
+  .lessons li { overflow-wrap: break-word; }
   .pgrid { display: grid; gap: 10px; }
   .pbag { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; min-width: 0; }
   .pbag.cur { border: 2px solid var(--ink); }
   .bagh { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 14px; border: 0; background: none; color: var(--ink); font: 600 16px var(--font-body); text-align: left; cursor: pointer; }
   .bagh :global(svg) { color: var(--ink-3); flex: none; }
-  .bt { min-width: 0; overflow-wrap: anywhere; }
+  .bt { min-width: 0; overflow-wrap: break-word; }
   .bt small { display: block; font-size: 13px; font-weight: 400; color: var(--ink-3); }
   .pbag.done .bt b { color: var(--ink-3); }
   .r { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 400; color: var(--ink-3); white-space: nowrap; }
   .mini { width: 120px; height: 6px; border-radius: 9px; background: var(--paper-2); overflow: hidden; display: none; }
   .mini i { display: block; height: 100%; background: var(--ok); }
-  .preview { margin: -6px 14px 10px 46px; font-size: 14px; color: var(--ink-2); line-height: 1.5; overflow-wrap: anywhere; }
+  .preview { margin: -6px 14px 10px 46px; font-size: 14px; color: var(--ink-2); line-height: 1.5; overflow-wrap: break-word; }
   .items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
   .it { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 60px; padding: 6px 14px; border: 0; border-top: 1px solid var(--paper-2); background: none; color: var(--ink); font: 400 17px/1.25 var(--font-body); text-align: left; cursor: pointer; }
   .box { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--line-strong); background: #fff; }
   /* v0.30.1 (Noah B1): every item name in the same face, size and weight; × n and the hint line
      only quieter in colour (before: × n bold, so rows with an amount looked like another font). */
-  .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; font: inherit; }
+  .nm { flex: 1; min-width: 0; overflow-wrap: break-word; font: inherit; }
   .nm small { display: block; font: 400 14px/1.35 var(--font-body); color: var(--ink-3); }
   .q { font: inherit; color: var(--ink-3); white-space: nowrap; }
   .w { flex: none; font-size: 14px; color: var(--ink-3); white-space: nowrap; }

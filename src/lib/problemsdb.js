@@ -1,5 +1,5 @@
 /**
- * v0.45.1: the database side of problems with a bike (problems.js is the pure part).
+ * v0.45.2: the database side of problems with a bike (problems.js is the pure part).
  * Changing the way to fix a problem: "Part needed" puts it on the wishlist (the shopping list),
  * leaving "Part needed" takes the wishlist entry away again if it is still only a wish.
  */

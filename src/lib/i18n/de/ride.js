@@ -346,7 +346,7 @@ export default {
   // v0.27.0 (Noah 1a, AP22): GPX errors.
   "This file is too big for a GPX route (more than {mb} MB).": "Diese Datei ist zu gross für eine GPX-Route (mehr als {mb} MB).",
   "This file is empty.": "Diese Datei ist leer.",
-  // v0.45.1 base check
+  // v0.45.2 base check
   'Base check': 'Basischeck',
   'All with me': 'Alles dabei',
   Hide: 'Ausblenden',

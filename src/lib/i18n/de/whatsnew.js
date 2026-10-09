@@ -17,6 +17,15 @@ export default {
   'Base check before every ride: lock, mini backpack, bottle, sunglasses, cap, wind jacket, plus helmet, charged devices, tyre pressure, phone and keys. It waits on the ride page until everything is with you.':
     'Basischeck vor jeder Fahrt: Schloss, Mini-Rucksack, Flasche, Sonnenbrille, Cap, Windjacke, dazu Helm, geladene Geräte, Reifendruck, Handy und Schlüssel. Er wartet auf der Seite Unterwegs, bis alles dabei ist.',
 
+  'Check import: a line that is twice in the file waits under "Unsure" (is twice in the file) instead of becoming a second item. "Merge with …" now works on the phone too.':
+    'Import prüfen: eine Zeile, die zweimal in der Datei steht, wartet unter «Unsicher» (steht zweimal in der Datei), statt ein zweites Teil zu werden. «Zusammenlegen mit …» geht jetzt auch am Handy.',
+  'Plan of a short day ride: when something is due at the bike, one quiet line with the number and a link to its bike care.':
+    'Planen einer kurzen Tagestour: ist am Velo etwas fällig, steht eine ruhige Zeile mit der Zahl und einem Link zur Velopflege.',
+  'Backups hold only your data: two backups without a change are the same (the tips of the day stay on the device). Past and finished trips keep their list exactly as packed.':
+    'Backups enthalten nur deine Daten: zwei Backups ohne Änderung sind gleich (die Tipps des Tages bleiben auf dem Gerät). Vergangene und abgeschlossene Touren behalten ihre Liste genau wie gepackt.',
+  'Small phones: words no longer break in the middle, the wishlist shows long names without the extra tag. Gear on the computer opens faster: each category first shows 12 items, then "Show all".':
+    'Kleine Handys: Wörter brechen nicht mehr mitten im Wort, die Wunschliste zeigt lange Namen ohne das zusätzliche Schild. Material am Computer öffnet schneller: jede Kategorie zeigt zuerst 12 Teile, dann «Alle zeigen».',
+
   // 0.45.0
   'Wardrobe: warm to cold within a zone, quiet gaps like "No gloves below 5 °C" with "Add to wishlist", a photo per piece and "Save as kit …" for an outfit that Plan then suggests. Everyday-only clothes show only under Everyday; what the debriefs taught ("You run cold: +2 °C") is in the header with Reset.':
     'Kleiderschrank: in jeder Zone von warm nach kalt, ruhige Lücken wie «Keine Handschuhe unter 5 °C» mit «Auf die Wunschliste», ein Foto pro Teil und «Als Kit speichern …» für ein Outfit, das Planen dann vorschlägt. Reine Alltagskleider stehen nur unter Alltag; was die Rückblicke gelernt haben («Du frierst eher: +2 °C»), steht oben mit Zurücksetzen.',

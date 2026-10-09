@@ -92,7 +92,7 @@
   .foot .btn {
     gap: 6px;
     max-width: 100%;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .ic {
     fill: none;
@@ -143,7 +143,7 @@
     text-align: left;
     text-decoration: none;
     cursor: pointer;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .menu a:hover,
   .menu button:hover,
