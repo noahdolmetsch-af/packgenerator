@@ -410,6 +410,8 @@
   <fieldset class="ctx">
     <legend class="lbl">{t('Weather')}</legend>
     <div class="chips">
+      <!-- v0.47.1 (Noah d): the forecast's own range, when it is not one of the presets (it used to be rounded to one). -->
+      {#if fcWx && !WX_PRESETS.some((p) => p.min === fcWx.min && p.max === fcWx.max)}<button type="button" class="toggle" aria-pressed={ctx.min === fcWx.min && ctx.max === fcWx.max} onclick={() => pickWx(fcWx)}>{fcWx.min}–{fcWx.max}° <small class="fcmark">{t('from forecast')}</small></button>{/if}
       {#each WX_PRESETS as p (p.name)}<button type="button" class="toggle" aria-pressed={ctx.min === p.min && ctx.max === p.max} onclick={() => pickWx(p)}>{t(p.name)} <small>{p.min}–{p.max}°</small>{#if fromForecast && ctx.min === p.min && ctx.max === p.max}<small class="fcmark">{t('from forecast')}</small>{/if}</button>{/each}
       <button type="button" class="toggle" aria-pressed={wet} onclick={() => ((wxTouched = true), (ctx.rain = wet ? 'none' : 'rain'))}>+ {t('Rain')}</button>
     </div>

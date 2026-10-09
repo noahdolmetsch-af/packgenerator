@@ -264,7 +264,11 @@ test('PF01: MTB, 2 h, 1 day, no overnight stay, Scott Scale: a list to check wit
   await rec.check('no night item on the list (nothing to take out by hand)', () => expect(nightOn(trip)).toEqual([]));
   await rec.check('no item twice on the list', () => expect(dupes(trip)).toEqual([]));
   await rec.check('trip stored as 2 h, 1 day, no overnight stay, on the Scale', () => expect(trip).toMatchObject({ hours: 2, days: 1, overnight: 'none', bikeId: BIKE.scale }));
-  await rec.check('header: 2 h per day · 1 day · no overnight stay', () => expect(page.locator('.cond')).toContainText(new RegExp(`${esc(T('{n} day', { n: 1 }))} · ${esc(T('no overnight stay'))}.*${esc(T('{n} h per day', { n: 2 }))}`), { timeout: 2000 }));
+  // v0.47.1 (Noah b): a one-day ride shows its hours in the top card, no «1 day · no overnight stay» field.
+  await rec.check('header: 2 h in the top card, no duration field', async () => {
+    await expect(page.locator('.trip-band [data-fact="duration"]')).toHaveText(T('{n} h', { n: 2 }), { timeout: 2000 });
+    await expect(page.locator('.cond')).not.toContainText(T('no overnight stay'));
+  });
   await rec.check('gel by the hour: 1 piece for 2 h (no "× n")', () => expect(planningRow(page, 'FD01').locator('.item-qty')).toHaveCount(0, { timeout: 2000 }));
   await rec.check('nothing left to decide in "Review weather suggestions"', () => expect(page.locator('.detail-link .tp-badge')).toHaveCount(0, { timeout: 2000 }));
   await rec.check('within 60 s (machine time; human time see protocol)', () => expect(rec.r.seconds).toBeLessThanOrEqual(60));
@@ -346,10 +350,12 @@ test('PF03: confirmed rule 1 gel per 3 h; duration 2 → 6 h: visible 1 → 2; a
   await expect(planningRow(page, 'FD01')).toBeVisible();
   await expect(planningRow(page, 'FD01').locator('.item-qty')).toHaveCount(0);
   // Edit trip: 2 → 6 h.
-  await rec.click(page.locator('.cond').getByRole('button', { name: new RegExp(esc(T('Duration'))) }));
-  const edit = page.getByRole('dialog', { name: T('Trip details') });
-  await rec.fill(edit.getByLabel(T('Riding hours per day')), '6');
-  await rec.click(edit.getByRole('button', { name: T('Save') }));
+  // v0.47.1 (Noah a): a one-day ride changes its hours on the duration chip of the top card.
+  await rec.click(page.locator('.trip-band [data-fact="duration"]'));
+  const edit = page.getByRole('dialog', { name: T('Change duration') });
+  await rec.fill(edit.getByRole('textbox', { name: T('Riding hours'), exact: true }), '6');
+  await edit.getByRole('textbox', { name: T('Riding hours'), exact: true }).press('Enter');
+  await rec.click(edit.getByRole('button', { name: T('Done') }));
   await expect(edit).toBeHidden();
   await rec.check('gel shows × 2 after 2 → 6 h', () => expect(planningRow(page, 'FD01').locator('.item-qty')).toHaveText('× 2', { timeout: 3000 }));
   await rec.check('stored amount 2', async () => expect((await tripNamed(page, title)).entries.find((e) => e.itemId === id('FD01')).qty).toBe(2));
@@ -359,9 +365,10 @@ test('PF03: confirmed rule 1 gel per 3 h; duration 2 → 6 h: visible 1 → 2; a
   await rec.click(rowButton(page, 'FD01'));
   await rec.click(page.getByRole('button', { name: T('One more {name}', { name: nm('FD01') }) }));
   await expect(planningRow(page, 'FD01').locator('.item-qty')).toHaveText('× 3');
-  await rec.click(page.locator('.cond').getByRole('button', { name: new RegExp(esc(T('Duration'))) }));
-  await rec.fill(edit.getByLabel(T('Riding hours per day')), '12');
-  await rec.click(edit.getByRole('button', { name: T('Save') }));
+  await rec.click(page.locator('.trip-band [data-fact="duration"]'));
+  await rec.fill(edit.getByRole('textbox', { name: T('Riding hours'), exact: true }), '12');
+  await edit.getByRole('textbox', { name: T('Riding hours'), exact: true }).press('Enter');
+  await rec.click(edit.getByRole('button', { name: T('Done') }));
   await expect(edit).toBeHidden();
   await rec.check('the hand-set 3 stays after 6 → 12 h', async () => expect.poll(async () => (await tripNamed(page, title)).entries.find((e) => e.itemId === id('FD01')).qty, { timeout: 3000 }).toBe(3));
   await rec.click(page.getByRole('button', { name: new RegExp(esc(T('Review weather suggestions'))) }));

@@ -1,7 +1,7 @@
 // v0.25.1 (Noah 1a, 2a, 3a): a day ride in one tap, the prefilled New trip, weather from the forecast.
 // Fictional bikes, trips and items only (test_data_gtp_).
 import { describe, it, expect, afterEach } from 'vitest';
-import { rideDate, rideName, bikeShort, shortDate, isDayRide, daySource, lastBikeId, freeTitle, presetFor, forecastPreset, dayRidePlan, buildBikeTrip, fetchHomeForecast, wxLabel } from '../src/lib/dayride.js';
+import { rideDate, rideName, bikeShort, shortDate, isDayRide, daySource, lastBikeId, freeTitle, presetFor, forecastPreset, dayRidePlan, buildBikeTrip, fetchHomeForecast, wxLabel, wxSource } from '../src/lib/dayride.js';
 import { lang } from '../src/lib/i18n.svelte.js';
 import { newTrip } from '../src/lib/trips.js';
 import { contextTrip } from '../src/lib/context.js';
@@ -104,7 +104,7 @@ describe('which trip a day ride starts from', () => {
     const src = trip('d', { bikeId: 'b1', hours: 3, wx: { min: 16, max: 24, rain: 'showers' } });
     const p1 = dayRidePlan([src], bikes, { now });
     // v0.46.1 (Noah: rain socks on a dry day ride): the temperatures carry over, the rain does not.
-    expect(p1).toMatchObject({ hours: 3, wx: { min: 16, max: 24, rain: 'none' }, source: src });
+    expect(p1).toMatchObject({ hours: 3, wx: { min: 16, max: 24, rain: 'none' }, wxFrom: 'last', source: src });
     expect(p1.bike.id).toBe('b1');
     const p2 = dayRidePlan([src], bikes, { now, forecastWx: { min: -2, max: 4, rain: 'rain' } });
     expect(p2).toMatchObject({ wx: { min: -2, max: 4, rain: 'rain' }, wxFrom: 'forecast' });
@@ -133,12 +133,23 @@ describe('weather from the forecast', () => {
     { date: '2026-10-12', min: 9, max: 17, rainMm: 7, rainPct: 90 },
     { date: '2026-10-13', min: 9, max: 17, rainMm: 1.5, rainPct: 40 },
   ] };
-  it('forecastPreset: the preset for that day, rain by the weather.js rules', () => {
-    expect(forecastPreset(fc, '2026-10-11')).toEqual({ min: 6, max: 12, rain: 'none' });
-    expect(forecastPreset(fc, '2026-10-12')).toEqual({ min: 10, max: 18, rain: 'rain' });
-    expect(forecastPreset(fc, '2026-10-13')).toEqual({ min: 10, max: 18, rain: 'showers' });
+  // v0.47.1 (Noah d): the forecast's own range, no longer rounded to a preset (10–16 became «Mild» 10–18).
+  it('forecastPreset: the forecast range for that day, rain by the weather.js rules', () => {
+    expect(forecastPreset(fc, '2026-10-11')).toEqual({ min: 4, max: 12, rain: 'none' });
+    expect(forecastPreset(fc, '2026-10-12')).toEqual({ min: 9, max: 17, rain: 'rain' });
+    expect(forecastPreset(fc, '2026-10-13')).toEqual({ min: 9, max: 17, rain: 'showers' });
+    expect(forecastPreset({ days: [{ date: '2026-10-14', min: 10.2, max: 15.8, rainMm: 0, rainPct: 5 }] }, '2026-10-14')).toEqual({ min: 10, max: 16, rain: 'none' });
     expect(forecastPreset(fc, '2026-11-01')).toBeNull();
     expect(forecastPreset(null, '2026-10-11')).toBeNull();
+  });
+
+  it('wxSource: where the range of a trip comes from', () => {
+    expect(wxSource({ wx: { min: 10, max: 16, rain: 'none' }, wxFrom: 'forecast' })).toBe('From the forecast');
+    expect(wxSource({ wx: { min: 10, max: 18, rain: 'none' }, wxFrom: 'last' })).toBe('Like your last day ride');
+    expect(wxSource({ wx: { min: 10, max: 18, rain: 'none' } })).toBe('Preset: Mild');
+    expect(wxSource({ wx: { min: 10, max: 16, rain: 'none' } })).toBe('Set by you');
+    expect(wxSource({ wx: { min: null, max: null } })).toBe('');
+    expect(wxSource({})).toBe('');
   });
 
   const place = { name: 'test_data_gtp_ Home', lat: 47.1, lon: 8.5 };

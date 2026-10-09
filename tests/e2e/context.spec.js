@@ -112,8 +112,9 @@ for (const lang of ['de', 'en']) {
     expect(trip).toMatchObject({ hours: 2, overnight: 'none', wx: { min: 6, max: 12, rain: 'none' }, event: false });
     // Header: hours per day, days and the overnight stay; nothing left "still to decide" (6b).
     // v0.29.0: in the conditions card (Duration, Per day).
-    await expect(page.locator('.cond')).toContainText(`${T('{n} day', { n: 1 })} · ${T('no overnight stay')}`);
-    await expect(page.locator('.cond')).toContainText(T('{n} h per day', { n: 2 }));
+    // v0.47.1 (Noah b): a one-day ride without a night: no duration field; the hours are in the top card.
+    await expect(page.locator('.cond')).not.toContainText(T('no overnight stay'));
+    await expect(page.locator('.trip-band [data-fact="duration"]')).toHaveText(T('{n} h', { n: 2 }));
     await expect(page.locator('.detail-link .tp-badge')).toHaveCount(0);
     // Answer 10: a short ride shows no bike care before the trip.
     await expect(page.locator('.calm-extra summary').filter({ hasText: T('Before the trip') })).not.toContainText(T('Bike care'));

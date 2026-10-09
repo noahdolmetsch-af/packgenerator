@@ -4,6 +4,8 @@
    * place the app guesses as its first button; the others are behind •••. A sorted note writes a
    * repair (Bike care), a wishlist item (Gear), a learning, or a note in the trip's debrief, and
    * stays in "All notes" with where it went.
+   * v0.47.1 (Noah): one list, newest first (open and sorted notes together, by when they were written);
+   * a sorted note is a row that opens what it became (the repair in Bike care, the wish in Gear, …).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -13,19 +15,19 @@
   import { addRideNote } from '../lib/ride.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
-  import { slide } from 'svelte/transition';
   import { flip } from 'svelte/animate';
-  import { Check, Undo2 } from '@lucide/svelte';
+  import { Check, Undo2, ChevronRight } from '@lucide/svelte';
 
   let { onnew } = $props();
 
   const notesQ = liveQuery(() => db.notes.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const tripsQ = liveQuery(() => db.trips.toArray());
+  const tasksQ = liveQuery(() => db.maintenance.toArray());
+  const itemsQ = liveQuery(() => db.items.toArray());
 
   const notes = $derived([...($notesQ ?? [])].sort((a, b) => b.at.localeCompare(a.at)));
   const open = $derived(notes.filter((n) => n.status === 'open'));
-  const sorted = $derived(notes.filter((n) => n.status !== 'open'));
   const bikes = $derived(sortBikes($bikesQ ?? []));
   const bikeName = (id) => bikes.find((b) => b.id === id)?.name ?? '';
   const trips = $derived([...($tripsQ ?? [])].sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '')));
@@ -116,7 +118,21 @@
   const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   // The stored label is English (data); show it in the current language.
   const labelOf = (to) => (to?.kind === 'repair' && to.label?.startsWith('Repair') ? t('Repair') + to.label.slice(6) : to?.label ? t(to.label) : '');
-  const LINK = { repair: '#/bikes?tab=care', wish: '#/gear', learning: '#/debrief', trip: '#/debrief' };
+  // v0.47.1 (Noah): where a sorted note lives now; null when it went nowhere (Done) or is gone.
+  const enc = encodeURIComponent;
+  function target(n) {
+    const to = n.to;
+    if (!to) return null;
+    if (to.kind === 'repair') {
+      const rec = ($tasksQ ?? []).find((x) => x.id === to.ref);
+      if (!rec) return null;
+      return rec.bikeId ? `#/bikes?tab=care&bike=${enc(rec.bikeId)}&open=1` : '#/bikes?tab=care';
+    }
+    if (to.kind === 'wish') return ($itemsQ ?? []).some((i) => i.id === to.ref) ? `#/gear?item=${enc(to.ref)}` : null;
+    if (to.kind === 'learning') return '#/debrief/learnings';
+    if (to.kind === 'trip') return trips.some((tr) => tr.id === to.ref) ? `#/debrief/${enc(to.ref)}` : null;
+    return null;
+  }
 </script>
 
 <div class="inbox">
@@ -135,75 +151,71 @@
     <p class="card empty">{t('No notes yet. Tap + at the bottom right on any page when something comes up.')}</p>
   {/if}
 
-  {#if open.length}
-    <!-- v0.40.0 (Noah 5a): one light button per note, the app's guess; the other places, bike or trip
-         and Delete behind •••. A bike or trip that is set shows as a small neutral badge. -->
-    <ul class="rowlist list" aria-label={t('Notes to sort')}>
-      {#each open as n (n.id)}
-        {@const kind = guessKind(n)}
-        {@const others = KINDS.filter((k) => k.key !== kind)}
-        {@const bk = pick[n.id]?.bikeId !== undefined ? pick[n.id].bikeId : n.bikeId}
-        {@const tr = pick[n.id]?.tripId !== undefined ? pick[n.id].tripId : n.tripId}
-        <li class="note" data-note-id={n.id} out:slide={{ duration: MOVE }} animate:flip={{ duration: MOVE }}>
-          <div class="lrow">
-            {#if n.photo}<button type="button" class="th" onclick={() => (shown = n.photo)} aria-label={t('Open photo')}><img src={n.photo} alt="" /></button>{/if}
-            <div class="m">
-              <span class="t">{n.text}</span>
-              <span class="s">{when(n.at)}{PAGE_NAMES[n.page] && n.page !== 'inbox' ? ` · ${t(PAGE_NAMES[n.page])}` : ''}{n.day != null ? ` · ${t('Day {n}', { n: n.day + 1 })}` : ''}{#if bk}{' '}<i class="nbadge">{t('Bike: {name}', { name: bikeName(bk) })}</i>{/if}{#if tr}{' '}<i class="nbadge">{t('Trip: {name}', { name: tripTitle(tr) })}</i>{/if}</span>
-            </div>
-            <span class="row-acts acts">
-              <button type="button" class="btn sm" onclick={() => file(n, kind)}>{t(KIND[kind].name)}</button>
-              <details class="more">
-                <summary aria-label={t('More for this note: other places, bike or trip, delete')}>•••</summary>
-                <div class="more-in">
-                  {#each others as k (k.key)}<button type="button" class="btn sm" onclick={(ev) => ((ev.currentTarget.closest('details').open = false), file(n, k.key))}>{t(k.name)}</button>{/each}
-                  <button type="button" class="btn sm" aria-expanded={assigning === n.id} onclick={(ev) => ((ev.currentTarget.closest('details').open = false), (assigning = assigning === n.id ? null : n.id))}>{t('Bike or trip')}</button>
-                  <button type="button" class="btn sm" onclick={() => remove(n)}>{t('Delete')}</button>
-                </div>
-              </details>
-            </span>
-          </div>
-          {#if assigning === n.id}
-            <div class="ctx" role="group" aria-label={t('Bike or trip for this note')}>
-              <label>{t('Bike')}
-                <select class="sel mini" value={bikeOf(n) ?? ''} onchange={(e) => setPick(n, 'bikeId', e.currentTarget.value)}>
-                  <option value="">{t('none')}</option>
-                  {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
-                </select>
-              </label>
-              <label>{t('Trip')}
-                <select class="sel mini" value={tripOf(n) ?? ''} onchange={(e) => setPick(n, 'tripId', e.currentTarget.value)}>
-                  <option value="">{t('none')}</option>
-                  {#each trips as tr2 (tr2.id)}<option value={tr2.id}>{tr2.title}</option>{/each}
-                </select>
-              </label>
-              <button type="button" class="btn sm" onclick={() => (assigning = null)}>{t('Done')}</button>
-            </div>
-          {/if}
-        </li>
-      {/each}
-    </ul>
-  {/if}
-
   {#if $notesQ && !open.length && notes.length}
     <p class="card alldone" id="inbox-done" tabindex="-1"><Check size={18} aria-hidden="true" /><span>{t('All notes are sorted.')}</span><button type="button" class="btn sm" onclick={onnew}>+ {t('Quick note')}</button></p>
   {/if}
 
-  {#if sorted.length}
-    <details class="all">
-      <summary class="sec-head"><span>{t('All notes')}</span><span class="n">{sorted.length}</span></summary>
-      <ul class="rowlist done">
-        {#each sorted as n (n.id)}
-          <li class="lrow">
-            <span class="m"><span class="t">{n.text}</span><span class="s">{when(n.at)} · {labelOf(n.to)}{n.to?.kind === 'trip' && n.to.ref ? ` · ${tripTitle(n.to.ref)}` : ''}</span></span>
-            <span class="r">
-              {#if LINK[n.to?.kind]}<a class="link" href={LINK[n.to.kind]}>{t('Open')}</a>{/if}
-              {#if n.to?.kind === 'done'}<button type="button" class="link" onclick={() => reopen(n)}>{t('Back to inbox')}</button>{/if}
-            </span>
-          </li>
-        {/each}
-      </ul>
-    </details>
+  {#if notes.length}
+    <!-- v0.40.0 (Noah 5a): one light button per open note, the app's guess; the other places, bike or trip
+         and Delete behind •••. A bike or trip that is set shows as a small neutral badge.
+         v0.47.1 (Noah): open and sorted notes in one list, newest first. -->
+    <ul class="rowlist list" aria-label={t('Notes, newest first')}>
+      {#each notes as n (n.id)}
+        <li class:note={n.status === 'open'} class:sorted={n.status !== 'open'} data-note-id={n.id} animate:flip={{ duration: MOVE }}>
+          {#if n.status === 'open'}
+            {@const kind = guessKind(n)}
+            {@const others = KINDS.filter((k) => k.key !== kind)}
+            {@const bk = pick[n.id]?.bikeId !== undefined ? pick[n.id].bikeId : n.bikeId}
+            {@const tr = pick[n.id]?.tripId !== undefined ? pick[n.id].tripId : n.tripId}
+            <div class="lrow">
+              {#if n.photo}<button type="button" class="th" onclick={() => (shown = n.photo)} aria-label={t('Open photo')}><img src={n.photo} alt="" /></button>{/if}
+              <div class="m">
+                <span class="t">{n.text}</span>
+                <span class="s">{when(n.at)}{PAGE_NAMES[n.page] && n.page !== 'inbox' ? ` · ${t(PAGE_NAMES[n.page])}` : ''}{n.day != null ? ` · ${t('Day {n}', { n: n.day + 1 })}` : ''}{#if bk}{' '}<i class="nbadge">{t('Bike: {name}', { name: bikeName(bk) })}</i>{/if}{#if tr}{' '}<i class="nbadge">{t('Trip: {name}', { name: tripTitle(tr) })}</i>{/if}</span>
+              </div>
+              <span class="row-acts acts">
+                <button type="button" class="btn sm" onclick={() => file(n, kind)}>{t(KIND[kind].name)}</button>
+                <details class="more">
+                  <summary aria-label={t('More for this note: other places, bike or trip, delete')}>•••</summary>
+                  <div class="more-in">
+                    {#each others as k (k.key)}<button type="button" class="btn sm" onclick={(ev) => ((ev.currentTarget.closest('details').open = false), file(n, k.key))}>{t(k.name)}</button>{/each}
+                    <button type="button" class="btn sm" aria-expanded={assigning === n.id} onclick={(ev) => ((ev.currentTarget.closest('details').open = false), (assigning = assigning === n.id ? null : n.id))}>{t('Bike or trip')}</button>
+                    <button type="button" class="btn sm" onclick={() => remove(n)}>{t('Delete')}</button>
+                  </div>
+                </details>
+              </span>
+            </div>
+            {#if assigning === n.id}
+              <div class="ctx" role="group" aria-label={t('Bike or trip for this note')}>
+                <label>{t('Bike')}
+                  <select class="sel mini" value={bikeOf(n) ?? ''} onchange={(e) => setPick(n, 'bikeId', e.currentTarget.value)}>
+                    <option value="">{t('none')}</option>
+                    {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
+                  </select>
+                </label>
+                <label>{t('Trip')}
+                  <select class="sel mini" value={tripOf(n) ?? ''} onchange={(e) => setPick(n, 'tripId', e.currentTarget.value)}>
+                    <option value="">{t('none')}</option>
+                    {#each trips as tr2 (tr2.id)}<option value={tr2.id}>{tr2.title}</option>{/each}
+                  </select>
+                </label>
+                <button type="button" class="btn sm" onclick={() => (assigning = null)}>{t('Done')}</button>
+              </div>
+            {/if}
+          {:else}
+            {@const href = target(n)}
+            {@const sub = `${when(n.at)} · ${labelOf(n.to)}${n.to?.kind === 'trip' && n.to.ref ? ` · ${tripTitle(n.to.ref)}` : ''}`}
+            {#if href}
+              <a class="lrow" {href}><span class="m"><span class="t">{n.text}</span><span class="s">{sub}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+            {:else}
+              <div class="lrow"><span class="m"><span class="t">{n.text}</span><span class="s">{sub}</span></span>
+                {#if n.to?.kind === 'done'}<span class="r"><button type="button" class="link" onclick={() => reopen(n)}>{t('Back to inbox')}</button></span>{/if}
+              </div>
+            {/if}
+          {/if}
+        </li>
+      {/each}
+    </ul>
   {/if}
 </div>
 
@@ -365,19 +377,14 @@
   .list {
     overflow: visible;
   }
-  .all {
-    margin-top: 8px;
+  /* v0.47.1 (Noah): a sorted note stays in its place, quieter, and opens what it became. */
+  .sorted .t {
+    font-weight: 400;
+    color: var(--ink-2);
   }
-  .all summary {
-    cursor: pointer;
-    list-style: none;
-  }
-  .all summary::-webkit-details-marker {
-    display: none;
-  }
-  .all:not([open]) summary {
-    border-bottom: 1px solid var(--line);
-    border-radius: 8px;
+  .sorted :global(.chev) {
+    flex: none;
+    color: var(--ink-3);
   }
   .r {
     flex: none;

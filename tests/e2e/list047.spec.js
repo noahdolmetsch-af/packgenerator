@@ -35,7 +35,7 @@ const count = async (page) => {
 test('Inbox: a sorted note leaves, the next is first and focused, Undo restores it; the last one leaves a line with an action', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/inbox');
-  const list = page.getByRole('list', { name: T('Notes to sort') });
+  const list = page.getByRole('list', { name: T('Notes, newest first') });
   const notes = list.locator('li.note');
   await expect(notes).toHaveCount(2);
   const ids = await notes.evaluateAll((li) => li.map((l) => l.dataset.noteId));

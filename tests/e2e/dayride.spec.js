@@ -91,8 +91,14 @@ for (const lang of ['de', 'en']) {
     // v0.29.2 (Noah 4a): a green card says what was made and where it is.
     const bar = page.locator('.made-card');
     const when = day === (await page.evaluate(() => new Date().toLocaleDateString('sv-SE'))) ? T('today') : T('tomorrow');
-    await expect(bar).toContainText(`${T('Day ride created')} · Test gravel bike · ${when}`);
-    await expect(bar).toContainText(T('{hours} h · {weather}', { hours: '2', weather: T('Chilly') }));
+    // v0.47.1 (Noah b): bike, date, hours and weather are in the top card; the green card does not repeat them.
+    await expect(bar).toContainText(T('Day ride created'));
+    await expect(bar).not.toContainText('Test gravel bike');
+    const facts = page.locator('.trip-band .meta');
+    await expect(facts).toContainText('Test gravel bike');
+    await expect(facts).toContainText(T('{n} h', { n: 2 }));
+    await expect(facts).toContainText(`6–12 °C · ${T('dry')}`);
+    void when;
     await expect(bar).toContainText(T('You find it under Trips and at the top of Today.'));
     // v0.29.0 (Noah 5a): a folded bag shows its items in one line, amounts included.
     await expect(page.locator('.calm-pack .bag-group .preview').filter({ hasText: 'test_data_gtp_ Gel' })).toContainText('test_data_gtp_ Gel × 2');
@@ -183,28 +189,32 @@ test('home place: the forecast chooses the weather in the dialog and for the day
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
   const dlg = page.getByRole('dialog', { name: T('New trip') });
-  const warm = dlg.getByRole('button', { name: new RegExp(`^${T('Warm')}`) });
+  // v0.47.1 (Noah d): the forecast's own range (17–25), no longer rounded to «Warm» 16–24.
+  const warm = dlg.getByRole('button', { name: /^17–25°/ });
   await expect(warm).toHaveAttribute('aria-pressed', 'true');
   await expect(warm).toContainText(T('from forecast'));
+  await expect(dlg.getByRole('button', { name: new RegExp(`^${T('Warm')}`) })).toHaveAttribute('aria-pressed', 'false');
   await expect(dlg).toContainText(T('From the forecast for {place}', { place: HOME.name }));
   // Noah can change it: then the mark goes.
   await dlg.getByRole('button', { name: new RegExp(`^${T('Mild')}`) }).click();
-  await expect(dlg.getByText(T('from forecast'))).toHaveCount(0);
-  await warm.click(); // back to Warm by hand: the same values as the forecast
+  await expect(warm).toHaveAttribute('aria-pressed', 'false'); // v0.47.1: the forecast chip stays, no longer chosen
+  await warm.click(); // back to the forecast range by hand: the same values as the forecast
   await expect(warm).toHaveAttribute('aria-pressed', 'true');
   await dlg.getByRole('button', { name: T('Create trip') }).click();
   await expect(dlg).toBeHidden();
   await expect.poll(async () => (await allTrips(page)).length).toBe(1);
   const [made] = await allTrips(page);
-  expect(made.wx).toEqual({ min: 16, max: 24, rain: 'none' });
+  expect(made.wx).toEqual({ min: 17, max: 25, rain: 'none' });
   expect(made.wxFrom).toBe('forecast'); // the same values as the forecast: still from it
 
   // The day ride takes the forecast too, and says so.
   await page.evaluate(() => window.dispatchEvent(new Event('pg:dayride')));
-  await expect(page.locator('.made-card')).toContainText(T('{weather} (forecast)', { weather: T('Warm') }));
+  await expect(page.locator('.made-card')).toBeVisible();
+  await expect(page.locator('.trip-band .meta')).toContainText(`17–25 °C · ${T('dry')}`);
+  await expect(page.locator('.wxcard [data-wx-source]')).toHaveText(T('From the forecast'));
   await expect.poll(async () => (await allTrips(page)).length).toBe(2);
   const ride = (await allTrips(page)).find((x) => x.id !== made.id);
-  expect(ride).toMatchObject({ wx: { min: 16, max: 24, rain: 'none' }, wxFrom: 'forecast', hours: 2 });
+  expect(ride).toMatchObject({ wx: { min: 17, max: 25, rain: 'none' }, wxFrom: 'forecast', hours: 2 });
 
   // v0.29.2 (Noah 6a): Today stays Today on the day the trip was made (no jump to On the way).
   await page.goto('./#/');

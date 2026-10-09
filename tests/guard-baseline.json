@@ -3,7 +3,7 @@
   "style": {
     "src/App.svelte": {
       "colour": 3,
-      "fontsize": 8
+      "fontsize": 7
     },
     "src/app.css": {
       "fontsize": 10
@@ -52,7 +52,7 @@
     },
     "src/lib/care/BikeCare.svelte": {
       "colour": 2,
-      "fontsize": 36
+      "fontsize": 33
     },
     "src/lib/care/BikesNav.svelte": {
       "fontsize": 1

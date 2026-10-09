@@ -86,13 +86,14 @@ test('1: one dictated line becomes single problems, shown before saving', async 
 test('2 + 3: newest problems on top; the priority changes in two taps, also through the menu', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${BIKE}&open=1`);
-  const care = page.locator(`#care-${BIKE}`);
-  const names = care.locator('li.pt.due .rn');
+  // v0.47.1 (Noah): the problems of all bikes stand in one flat list above the bikes.
+  const care = page.locator('section.problems');
+  const names = care.locator('li.prob .rn');
   await expect(names).toHaveText([`${P}Kette trocken`, `${P}Zu wenig Luft`, `${P}Sattel zu tief`]);
   await shot(page, info, 'care-after');
 
   // In the row: "Priorität: Mittel" → Hoch.
-  const row = care.locator('li.pt.due').filter({ hasText: `${P}Zu wenig Luft` });
+  const row = care.locator('li.prob').filter({ hasText: `${P}Zu wenig Luft` });
   await tap(row.getByRole('button', { name: 'Priorität: Mittel' }), info);
   const group = row.getByRole('group', { name: `Priorität: ${P}Zu wenig Luft` });
   await expect(group.getByRole('button', { name: 'Mittel' })).toHaveAttribute('aria-pressed', 'true');
@@ -103,7 +104,7 @@ test('2 + 3: newest problems on top; the priority changes in two taps, also thro
   await expect(row.getByRole('button', { name: 'Priorität: Hoch' })).toBeVisible();
 
   // Through ••• on the last problem, scrolled to just above the bottom bar: every answer can be tapped.
-  const last = care.locator('li.pt.due').filter({ hasText: `${P}Sattel zu tief` });
+  const last = care.locator('li.prob').filter({ hasText: `${P}Sattel zu tief` });
   const summary = last.locator('details.more summary');
   await summary.evaluate((el) => {
     const bar = document.querySelector('nav.bottom')?.getBoundingClientRect();

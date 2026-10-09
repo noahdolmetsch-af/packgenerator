@@ -41,7 +41,7 @@ Bildsprache: «Gletscher» (gewählt 9.10.2026), hell und dunkel. Die Farbwerte 
 
 ## Regel: Eine Abarbeitungsliste leert sich selbst
 
-Noah, 9.10.2026 (0.47): Eine Liste, die man abarbeitet, leert sich selbst: Eine eingeordnete Zeile geht weg (ruhig, etwa 150 ms), die nächste rückt nach und bekommt den Fokus, ein Hinweis «✓ Name → Ziel · Rückgängig» bietet die Rücknahme an; «Rückgängig» stellt die Zeile an ihrem Platz wieder her. Eine leere Liste zeigt eine ruhige Zeile mit einer Aktion. Gilt nicht für Listen, deren Zeilen sichtbar bleiben sollen (Packliste, Material, Entscheide, die bis zum Übernehmen änderbar sind). Umgesetzt in 0.47: Kleiderschrank «Noch einordnen», Inbox, Material → Prüfen. Begründung pro Ort in `docs/decisions.md`.
+Noah, 9.10.2026 (0.47): Eine Liste, die man abarbeitet, leert sich selbst: Eine eingeordnete Zeile geht weg (ruhig, etwa 150 ms), die nächste rückt nach und bekommt den Fokus, ein Hinweis «✓ Name → Ziel · Rückgängig» bietet die Rücknahme an; «Rückgängig» stellt die Zeile an ihrem Platz wieder her. Eine leere Liste zeigt eine ruhige Zeile mit einer Aktion. Gilt nicht für Listen, deren Zeilen sichtbar bleiben sollen (Packliste, Material, Entscheide, die bis zum Übernehmen änderbar sind). Umgesetzt in 0.47: Kleiderschrank «Noch einordnen», Inbox, Material → Prüfen. Ab 0.47.1 ist die Inbox eine Liste neueste zuerst; eine eingeordnete Notiz bleibt als Link an ihrem Platz (Noah). Begründung pro Ort in `docs/decisions.md`.
 
 ## Wächter
 
