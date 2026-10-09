@@ -72,8 +72,12 @@ test('select two items and change their category, the IDs stay', async ({ page, 
   await expect(page.getByRole('checkbox', { name: 'USB-C cable' })).toBeChecked();
   const bar = page.getByRole('region', { name: T('Selected items') });
   await expect(bar).toContainText(T('{n} selected', { n: 2 }));
-  await bar.getByLabel(T('New category')).selectOption('tools');
-  await bar.getByRole('button', { name: T('Change category') }).click();
+  // v0.43.0: Category … is under ••• and opens the assign window.
+  await bar.getByLabel(T('More actions')).click();
+  await bar.getByRole('button', { name: T('Category …') }).click();
+  const dlg = page.getByRole('dialog', { name: T('Category') });
+  await dlg.getByLabel(T('Category'), { exact: true }).selectOption('tools');
+  await dlg.getByRole('button', { name: T('Assign'), exact: true }).click();
   await expect(bar.getByRole('status')).toContainText(T('{n} items moved to {cat}. The IDs stay the same.', { n: 2, cat: T('Tools & repair') }));
   const items = await table(page, 'items');
   const cat = (id) => items.find((i) => i.id === id)?.category;
@@ -101,13 +105,12 @@ for (const lang of ['de', 'en']) {
     await page.getByLabel(T('Search gear')).fill('test_data_gtp_');
     await click(page.getByRole('button', { name: T('Select'), exact: true }));
     await click(page.locator('.selrow').getByRole('button', { name: T('Select all'), exact: true }));
-    // v0.26.0 (Noah 6a): on a phone, Delete sits under "More" in the bar.
-    const phone = info.project.name === 'phone';
-    if (phone) await click(page.getByRole('region', { name: T('Selected items') }).getByText(T('More'), { exact: true }));
+    // v0.43.0: Delete sits under ••• in the bar, on every screen.
+    await click(page.getByRole('region', { name: T('Selected items') }).getByLabel(T('More actions')));
     await click(page.getByRole('region', { name: T('Selected items') }).getByRole('button', { name: T('Delete'), exact: true }));
     clicks++; // the OK in the confirm (accepted by the test)
     await expect(page.getByText(T('{n} items deleted.', { n: 3 }))).toBeVisible();
-    expect(clicks, 'search, then 4 clicks (5 on a phone)').toBe(phone ? 5 : 4);
+    expect(clicks, 'search, then 5 clicks').toBe(5);
     expect(confirms[0]).toContain(T('Delete {n} items from your gear?', { n: 3 }));
     expect(confirms[0]).toContain('test_data_gtp_ Seife');
     expect(confirms[0]).toContain(T('{n} of them are on a trip or template; they disappear from there too.', { n: 2 }));
@@ -153,7 +156,7 @@ test('selecting on a 320 px phone: no sideways scroll, the bar sits above the bo
   await page.getByRole('button', { name: T('Select all: {cat}', { cat: T('Lights') }) }).click();
   const lights = (await table(page, 'items')).filter((i) => i.category === 'light' && i.ownership === 'owned');
   await expect(bar).toContainText(T('{n} selected', { n: lights.length }));
-  await bar.getByText(T('More'), { exact: true }).click();
+  await bar.getByLabel(T('More actions')).click();
   await bar.getByRole('button', { name: T('To wishlist') }).click();
   await expect(bar.getByRole('status')).toBeVisible();
   expect(await wide()).toBe(0);

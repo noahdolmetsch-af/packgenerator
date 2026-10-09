@@ -6,7 +6,8 @@
   import { phone } from '../lib/media.svelte.js';
   import { SLOTS, bagsFor, sortBikes, bikesHash, placesOf, isWornBag, formatVolume, containerWeight } from '../lib/bikes.js';
   import { suggestPacks, suggestBack, choosePack, rankBags, wantFor } from '../lib/backpacks.js';
-  import { CATEGORIES, formatWeight, weightText, isInventory, matches, weighQueue } from '../lib/gear.js';
+  import { CATEGORIES, formatWeight, weightText, isInventory, matches } from '../lib/gear.js';
+  import { weighQueue } from '../lib/weigh.js';
   import { tripStats, packSteps, togglePacked, packAll, tickReady, packAndReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike, setQty, touched } from '../lib/trips.js';
   import { suggestPlaces, applyPlaces, dismissPlace } from '../lib/bagsuggest.js';
   import PlaceSuggest from '../lib/pack/PlaceSuggest.svelte';
@@ -602,7 +603,7 @@
   // Answer 7: weigh what is on this trip, right here.
   let weighing = $state(false);
   const tripItems = $derived(trip ? items.filter((i) => onTrip(trip).has(i.id)) : []);
-  const toWeigh = $derived(weighQueue(tripItems).length);
+  const toWeigh = $derived(weighQueue({ items: tripItems }).length);
 
   // Answer 4: overnight sets as switches.
   const setOn = (key) => !!trip?.sets?.[key];

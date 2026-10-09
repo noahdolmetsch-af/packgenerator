@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.43.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'Record weights (Gear → •••, or the quiet line "… without weight · weigh"): one thing per screen with a big grams field, "Save & next", "Skip" and Undo. Bikes and bags come first.', href: '#/gear?tab=weigh' },
+      { text: 'The order of weighing: bags, sleep, outer and mid layers, then the rest; in each group what you take most often first.', href: '#/gear?tab=weigh' },
+      { text: 'Select in Gear: the most used actions in the bar, the rest under •••. New: area and archive for many items at once, each with Undo.', href: '#/gear' },
+      { text: 'Select in the wardrobe (layer and zone for many pieces) and in an open building block (remove many at once).', href: '#/wardrobe' },
+    ],
+  },
+  {
     version: '0.42.0',
     date: '2026-10-09',
     points: [
