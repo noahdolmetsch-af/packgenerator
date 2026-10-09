@@ -606,5 +606,6 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.3 | 09.10.2026 | 0.47.1 «Tagestour antippen» erledigt (Noahs Test einer Tagestour, Inbox, Velopflege) |
 | 2.4 | 09.10.2026 | 0.47.2 «Material-Ansichten» erledigt |
 | 2.5 | 09.10.2026 | 0.47.3 Wetter-Chips im Fenster «Neue Tour» und •••-Menüs im Bild erledigt |
+| 2.6 | 09.10.2026 | 0.56.0 R1 «Rückblick ruhig» erledigt (eine Rückblick-Seite, Vergangene Touren als Tabelle, Tour-Rückblick nach drei «A»); als Nächstes R2 Tempo und Logbuch |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

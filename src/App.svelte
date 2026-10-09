@@ -16,7 +16,6 @@
   import GearImport from './pages/GearImport.svelte';
   import Rides from './pages/Rides.svelte';
   import Wardrobe from './pages/Wardrobe.svelte';
-  import Review from './pages/Review.svelte';
   import Flow from './pages/Flow.svelte';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
   import DemoBar from './lib/DemoBar.svelte';
@@ -33,15 +32,26 @@
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
-  import { PLACES, pageOf, placeOf } from './lib/nav.js';
+  import { PLACES, pageOf, placeOf, redirectOf } from './lib/nav.js';
   import { t, lang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
   // e.g. …/packgenerator/#/gear. It works offline and needs no server setup.
-  let hash = $state(location.hash);
+  // v0.49.0 R1: an old address of a page that became part of another (#/review, #/debrief/compare)
+  // is replaced by the new one, so a bookmark or an old link still lands on the right page.
+  let spot = $state('');
+  const follow = (h) => {
+    const r = redirectOf(h);
+    if (!r) return h;
+    history.replaceState(null, '', `${location.pathname}${location.search}${r.hash}`);
+    spot = r.spot;
+    return r.hash;
+  };
+  let hash = $state(follow(location.hash));
   $effect(() => {
     const update = () => {
-      hash = location.hash;
+      spot = '';
+      hash = follow(location.hash);
       menuOpen = false;
       window.scrollTo(0, 0);
     };
@@ -185,7 +195,7 @@
 
 <DemoBar />
 
-<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'}>
+<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'}>
   {#key switchN}
   {#if page === 'gear'}
     <Gear />
@@ -224,16 +234,13 @@
   {:else if page === 'flow'}
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <Flow sub={hash.split('/').slice(2).join('/')} />
-  {:else if page === 'review'}
-    <!-- v0.44.0: the last 12 months (rolling) -->
-    <Review />
   {:else if page === 'inbox'}
     <Inbox onnew={() => (noteOpen = true)} />
   {:else if page === 'rides'}
     <!-- v0.41.0 (Noah 1-4): upload a ride; #/debrief/ride/<id> one ride, #/debrief/ride/shared a shared file -->
     {#key sub}<Rides {sub} />{/key}
   {:else if page === 'debrief'}
-    {#key param}<Debrief {param} />{/key}
+    {#key param}<Debrief {param} {spot} />{/key}
   {:else}
     <Home />
   {/if}

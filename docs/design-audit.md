@@ -72,8 +72,11 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.47: Velo mit Taschen oben, Gewichtskarte) | 3 |
 | Touren | Tour-Dialog, Vorlagen-Dialog, Lade-Blatt | 9.10.2026 (0.47.3: Wetter-Chips wie auf der Tourseite, Trocken/Regen) | 3 |
 | Touren | Unterwegs | – | – |
-| Touren | Rückblick, Vergleich, Tempo, Logbuch | – | – |
-| Touren | Vergangene Touren, Fahrten, Jahresrückblick, Teilen | – | – |
+| Touren | Rückblick (eine Seite: letzte Fahrt, 12 Monate, Vergleich) | 9.10.2026 (0.49 R1 nach Mockup «Rückblick-Hub») | 4 |
+| Touren | Tempo, Logbuch, Gelernt (eine Ebene unter Rückblick) | – (R2) | – |
+| Touren | Gespeicherter Rückblick einer Tour | 9.10.2026 (0.49 R1 nach drei «A») | 4 |
+| Touren | Vergangene Touren (Tabelle) | 9.10.2026 (0.49 R1 nach Mockup) | 4 |
+| Touren | Fahrten, Teilen | – | – |
 | Touren | Vorlagen, Vorlage neu/bearbeiten, Bausteine | – | – |
 | Material | Materialliste, Teil-Dialog, Zuordnen, Zusammenlegen | 9.10.2026 (0.47.2: sieben Ansichten, Karten mit Punkten pro Tour, Detailspalte, Filterblatt, Teil mit «Sein Jahr auf Tour»; Zuordnen und Zusammenlegen noch alt) | 4 |
 | Material | Kleiderschrank | 9.10.2026 (0.47 neu gebaut nach Mockup) | 4 |
@@ -96,7 +99,8 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Packtag (PackStage) mit derselben Velozeichnung und Gewichtskarte wie Planen. Ziel 0.48.
 - Velos/Setup: nur das Kopfband ist angeglichen; Zeichnung, Taschen-Blatt und Dialoge folgen. Velopflege-Dialoge (Teil, Werkstattbesuch, Bestellung). Ziel 0.48.
 - Material → Wiegen und Import prüfen «Unsicher»: bleiben bewusst (siehe decisions.md), Optik auf Karten-Token. Ziel 0.48.
-- Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
+- Tempo, Logbuch, Gelernt: noch der alte Stil (Kopf, Kästen); R2 baut sie nach den Mockups «Tempo», «Logbuch», «Learnings». Ziel R2.
+- Heute, Touren-Übersicht, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
 
@@ -105,3 +109,4 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 9.10.2026, 0.47.2 «Material-Ansichten»: Reiter durch sieben Ansichten mit Zahl ersetzt, «Totes Gewicht» heisst «Nie gebraucht» mit einem Satz pro Teil, Karten mit Punkten pro Tour (gebraucht, dabei nicht gebraucht, zuhause), Detailspalte am Computer, Sortieren und Filtern in einem Blatt, Teil mit «Sein Jahr auf Tour», gelernter Regel, letzten Touren, Gewicht gegen Alternativen, Alter und Kosten nur mit Daten. Materialliste Note 3 → 4. Bilder vorher/nachher (390 und 1440, hell und dunkel): `design/v0472/vorher/`, `design/v0472/nachher/`.
 - 9.10.2026, 0.47.3: Tour-Dialog: Wetter-Chips setzen statt umschalten, Trocken/Regen als zwei Chips wie auf der Tourseite (Note 3). Packliste: das ••• bleibt rechts in seiner Zeile, wenn «Rückgängig» erscheint; alle •••-Menüs bleiben bei 320 und 390 px im Bild (`ui/inview.js`). Bilder: `design/v0473/vorher`, `nachher`.
 - 9.10.2026, 0.51 «Im Flow – kleiner Start»: Übersicht, Heute-Karte, Abhaken-Blatt, Stoppuhr (Blatt und schwebend), Tagescheck und Bearbeiten nach den freigegebenen Mockups ImFlow-* gebaut, hell und dunkel, 320/390/1440 (Note 4: unter 360 px fallen die Symbole der Abhaken-Knöpfe weg, lange Namen brechen in Ziele × Tage auf zwei Zeilen). Bilder: `design/v0510/`.
+- 9.10.2026, 0.56.0 R1 «Rückblick ruhig»: Rückblick als eine Seite, Vergangene Touren als Tabelle (am Handy mit stehender Namensspalte), gespeicherter Tour-Rückblick nach drei «A». Mitgezogen: Breadcrumbs auf Rückblick, Vergangene Touren und den Unterseiten Tempo/Gelernt/Logbuch; «Mehr › Rückblick», Heute (Rückblick-Knopf, 12-Monate-Zeile), Tipps. Wächter-Grundlinie: Stil nur gesunken (Compare/Review gelöscht, Debrief/PastTrips weniger), Konsistenz-Test prüft statt `#/review` jetzt `#/debrief/learnings` und `#/debrief/pace`. Bilder: `design/v0490/vorher` und `nachher`.

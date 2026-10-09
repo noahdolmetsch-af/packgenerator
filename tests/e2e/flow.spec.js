@@ -142,11 +142,13 @@ for (const lang of ['en', 'de']) {
     // 9. The trip no longer waits for a debrief; it is listed as done.
     // v0.40.0 (Noah 3a): one list of past trips with the debrief state; the Debrief page links to it.
     await page.goto('./#/debrief');
-    await expect(page.getByRole('heading', { name: T('Debrief'), level: 1 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: T('Look back|page'), level: 1 })).toBeVisible();
     await fits('Debrief overview');
     await page.goto('./#/pack/past');
-    await expect(page.getByRole('list', { name: new RegExp(`^${esc(T('Debrief open'))}`) }).getByText(title)).toHaveCount(0);
-    await expect(page.getByRole('list', { name: new RegExp(`^${esc(T('Done|past'))}`) }).getByText(title)).toBeVisible();
+    // v0.49.0 R1: one table; a done trip has no «Debrief open» badge.
+    const pastRow = page.locator('table.tt tbody tr').filter({ hasText: title });
+    await expect(pastRow).toBeVisible();
+    await expect(pastRow.locator('.nbadge')).toHaveCount(0);
     await fits('Past trips');
 
     expect(errors, 'no page errors').toEqual([]);
