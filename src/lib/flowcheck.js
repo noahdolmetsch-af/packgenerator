@@ -10,7 +10,7 @@ import { addDays, lastDays, daysBetween } from './flow.js';
 export const QUESTIONS_KEY = 'flowQuestions';
 export const FIXED = [
   { key: 'sleep', text: 'How well did you sleep?', lo: 'badly', hi: 'deep and long', short: 'Sleep|flow' },
-  { key: 'energy', text: 'How much energy do you have?', lo: 'empty', hi: 'full', short: 'Energy' },
+  { key: 'energy', text: 'How much energy do you have?', lo: 'empty|energy', hi: 'full of energy', short: 'Energy' },
   { key: 'mood', text: 'How is your mood?', lo: 'low|mood', hi: 'radiant', short: 'Mood' },
 ];
 
