@@ -12,6 +12,8 @@ export default {
   'Light|block': 'Licht',
   'Race|block': 'Rennen',
   'Food|block': 'Verpflegung',
+  // v0.64.0: «Food» is now a known UI word (block label), so a learning topic «food» needs its German name too.
+  Food: 'Essen',
   'Hygiene|block': 'Hygiene',
   'Comfort|block': 'Komfort',
   'Bivouac + tent': 'Biwak + Zelt',
