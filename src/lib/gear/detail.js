@@ -1,5 +1,5 @@
 /**
- * v0.60.0 «Material-Detail ruhig» (Noah 1a): the item window and the computer's detail column show
+ * v0.63.0 «Material-Detail ruhig» (Noah 1a): the item window and the computer's detail column show
  * at the top only the name, the weight with its status and ONE line on how the item comes along
  * («Kommt mit: Standard · unter 10 °C · Satteltasche»). Everything else folds away row by row, each
  * row with a short summary, and only one row is open at a time (the last one opened is remembered

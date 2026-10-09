@@ -102,7 +102,7 @@
   const detailLine = $derived([draft.brand, draft.model].filter((x) => String(x ?? '').trim()).join(' · '));
 
   /*
-   * v0.60.0 «Material-Detail ruhig» (Noah 1a): at the top only the name, the weight with its status
+   * v0.63.0 «Material-Detail ruhig» (Noah 1a): at the top only the name, the weight with its status
    * and one line on how it comes along; every other part folds away as a row with a short summary,
    * one row open at a time. The row opened last stays open for the session (detail.js). Building
    * blocks start folded like the rest. Every field is still here, only one tap further.
@@ -269,7 +269,7 @@
   <p class="wide moved" role="status">{t('New category: {cat}. The ID {id} stays the same, so trips, templates, bags and favourites keep this item.', { cat: t(CATEGORY[draft.category]?.name ?? draft.category), id: draft.id })}</p>
 {/snippet}
 
-<!-- v0.60.0 (Noah 1a): one row that folds away; only one is open at a time (onFold). -->
+<!-- v0.63.0 (Noah 1a): one row that folds away; only one is open at a time (onFold). -->
 {#snippet fold(key, Icon, title, value, body)}
   <details class="fold" data-fold={key} open={openFold === key} ontoggle={(e) => onFold(key, e.currentTarget.open)}>
     <summary><Icon size={18} aria-hidden="true" /><span class="ft">{title}</span><span class="fv">{value}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
@@ -278,7 +278,7 @@
 {/snippet}
 
 <!-- v0.32.0 (finding 5, stage 1): one question, "Does it come along?", in two words: the place
-     "On me" and building blocks. v0.60.0: each its own row that folds away. -->
+     "On me" and building blocks. v0.63.0: each its own row that folds away. -->
 {#snippet whereBody()}
   <div class="seg" role="group" aria-label={t('Where it goes')}>
     <button type="button" class="segb" aria-pressed={comes.body} onclick={() => Object.assign(draft, setPlace(draft, 'body'))}><UserRound size={18} aria-hidden="true" /> {t('On me')}</button>
@@ -389,7 +389,7 @@
   {/if}
 {/snippet}
 
-<!-- v0.60.0: name, category and status of an existing item sit here with brand, model, note and areas. -->
+<!-- v0.63.0: name, category and status of an existing item sit here with brand, model, note and areas. -->
 {#snippet detailsBody()}
   {#if readOnly}
     <!-- v0.23.1 (Noah 5b): on the phone too the category can change; the ID stays. -->
@@ -524,7 +524,7 @@
         {@render rows()}
       </details>
     {:else}
-      <!-- v0.60.0 (Noah 1a): the weight with its status and one summary line, then the rows. -->
+      <!-- v0.63.0 (Noah 1a): the weight with its status and one summary line, then the rows. -->
       <div class="top">
         <label class="wrow">
           <span class="lbl">{t('Weight of one piece (g)')}</span>
@@ -649,7 +649,7 @@
   .sets legend {
     margin-bottom: 4px;
   }
-  /* v0.60.0 (Noah 1a): the top: the weight with its status and one summary line, then the rows. */
+  /* v0.63.0 (Noah 1a): the top: the weight with its status and one summary line, then the rows. */
   .top {
     display: grid;
     gap: 8px;

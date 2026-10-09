@@ -566,7 +566,7 @@ Diese Reihenfolge gilt ab jetzt und ersetzt die offenen Punkte der Tabelle oben 
 | 2g | **0.47.3 Wetter-Chips und •••-Menüs** (erledigt) | «Kühl + Regen» bringt Kälte- und Regensachen (Chips setzen statt umschalten), •••-Menüs bleiben bei 320 und 390 px im Bild | |
 | 2g | **0.57.0 Pflege-Übersicht + Teile pro Velo + Eingang/Notizen** (erledigt) | Pflege-Übersicht C, Teiletabelle, geführtes Ersetzen/Warten, Startwerte; eine Teilevorlage mit Datenblatt und Geometrie, Import bikeSpecs, Velos vergleichen; Eingang mit «Ablegen als …» (7 Ziele, Rechnungsbeleg → Werkstattbesuch); Werkstatt & Belege; Notizen | Offen: Texterkennung aus Belegfoto, Bedienungsanleitungen unter Werkstatt, gemeinsamer Chip-Baustein |
 | 2h | **0.59.0 Tauschen (OP2a)** (erledigt) | Kleider am Körper als erste Karte «Am Körper», ein Tipp öffnet «Tauschen» mit Teilen derselben Zone und Schicht nach Wetter und letzter Wahl, ein Tipp tauscht mit «Rückgängig», Wahl wird gemerkt; Kleiderschrank mit Tourband und ausgeblendeten unpassenden Doppelten | «Outfit speichern» und Outfits lernen mit D5; Schicht dazu/weg (OP2b) |
-| 2h | **0.60.0 Material-Detail ruhig** (erledigt) | Teil-Fenster und Detailspalte: oben nur Name, Gewicht mit Status und eine Zeile «Kommt mit: …», alles andere als Klappzeilen mit Kurzinhalt (eine offen, Bausteine zu); leichtere Alternativen automatisch vorgeschlagen («Vorschlag», «Passt nicht» mit Rückgängig); leeres «Nie gebraucht» erklärt die Regel und zeigt «Auf dem Weg dahin» | |
+| 2h | **0.63.0 Material-Detail ruhig** (erledigt) | Teil-Fenster und Detailspalte: oben nur Name, Gewicht mit Status und eine Zeile «Kommt mit: …», alles andere als Klappzeilen mit Kurzinhalt (eine offen, Bausteine zu); leichtere Alternativen automatisch vorgeschlagen («Vorschlag», «Passt nicht» mit Rückgängig); leeres «Nie gebraucht» erklärt die Regel und zeigt «Auf dem Weg dahin» | |
 | 3 | **Gesamttest Runde 2** | Derselbe grosse erfundene Datensatz und dieselben Abläufe nach 0.46 | |
 | 4 | **0.47 Einkaufen, Lebenslauf, Werkstatt** | Eine Einkaufsliste für alles (eigene Läden, Monatsbudget); Lebenslauf pro Teil (Preis und Laden freiwillig, Kosten pro Einsatz, Archiv); Werkstatt-Anleitungen (allgemeine Drehmomente, Notfallkarten offline) | |
 | 5 | **0.48 Design und Bedienung aus der Strategierunde 2** | Umsetzung der Antworten | Wartet auf Noahs Antworten 62–119 |
@@ -611,6 +611,8 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.5 | 09.10.2026 | 0.47.3 Wetter-Chips im Fenster «Neue Tour» und •••-Menüs im Bild erledigt |
 | 2.6 | 09.10.2026 | 0.56.0 R1 «Rückblick ruhig» erledigt (eine Rückblick-Seite, Vergangene Touren als Tabelle, Tour-Rückblick nach drei «A»); als Nächstes R2 Tempo und Logbuch |
 | 2.5 | 09.10.2026 | 0.57.0 «Pflege-Übersicht + Teile pro Velo + Eingang/Notizen» erledigt |
-| 2.6 | 09.10.2026 | 0.60.0 «Material-Detail ruhig» erledigt (Klappzeilen, Alternativen-Vorschläge, «Auf dem Weg dahin») |
+| 2.6 | 09.10.2026 | 0.49.0 R1 «Rückblick ruhig» erledigt (eine Rückblick-Seite, Vergangene Touren als Tabelle, Tour-Rückblick nach drei «A»); als Nächstes R2 Tempo und Logbuch |
+| 2.7 | 09.10.2026 | 0.61.0 R2 «Tempo + Logbuch» erledigt (Regel in einem Satz, eigene Regel ab 5 Fahrten mit Rückweg, Logbuch als Tagebuch aller Touren, Gelernt flach); Strava und Fotos bleiben geparkt |
+| 2.6 | 09.10.2026 | 0.63.0 «Material-Detail ruhig» erledigt (Klappzeilen, Alternativen-Vorschläge, «Auf dem Weg dahin») |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

@@ -1,4 +1,4 @@
-// v0.60.0 «Material-Detail ruhig»: before/after screenshots and the height of the item window.
+// v0.63.0 «Material-Detail ruhig»: before/after screenshots and the height of the item window.
 // Runs only with SHOTS_0540=<folder> (and SHOTS_MODES=light,dark); a normal run skips it.
 import { test } from '@playwright/test';
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';

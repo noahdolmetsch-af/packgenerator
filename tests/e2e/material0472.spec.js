@@ -67,7 +67,7 @@ test('sort and filter in one sheet', async ({ page, context }, info) => {
 test('the item: its year on tour, the learned rule, the last trips, the lighter alternative, age and cost', async ({ page, context }, info) => {
   await openGear(page, context, info, '#/gear?item=RA01');
   const dlg = page.locator('dialog[open]');
-  // v0.60.0: the item's history is a row that folds away («Lebenslauf»); it stays open for the session
+  // v0.63.0: the item's history is a row that folds away («Lebenslauf»); it stays open for the session
   await dlg.locator('details.fold[data-fold="life"] > summary').click();
   await expect(dlg.getByRole('heading', { name: 'Sein Jahr auf Tour' })).toBeVisible();
   await expect(dlg.getByRole('img', { name: /Letzte 12 Monate: auf 4 Touren gebraucht, auf 4 dabei/ })).toBeVisible();

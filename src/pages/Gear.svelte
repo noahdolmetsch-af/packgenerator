@@ -280,7 +280,7 @@
   const sorted = $derived(sortItems(viewList, sort, mstats));
   const reasonsOf = $derived(Object.fromEntries(wishlist.map((w) => [w.item.id, w.reasons])));
   const summary = $derived(viewSummary(viewList, mstats));
-  // v0.60.0 (Noah 3a): under an empty «Never used»: taken 1–2 times and never used.
+  // v0.63.0 (Noah 3a): under an empty «Never used»: taken 1–2 times and never used.
   const onWay = $derived(view === 'never' ? onTheWay(stats.inventory, mstats) : []);
   const altOf = (item) => (item.ownership === 'owned' || item.ownership === 'unclear' ? lighterAlt(item, items) : null);
   const proven = (item) => inView('proven', item, usageOf(mstats, item.id), mstats.n);
@@ -749,7 +749,7 @@
             <FavStar item={selItem} describedby="det-h" />
           </div>
           <p class="dsub">{[selItem.brand, t(CATEGORY[selItem.category]?.name ?? ''), BAG[selItem.defaultBag] ? t(BAG[selItem.defaultBag]) : ''].filter(Boolean).join(' · ')}</p>
-          <!-- v0.60.0 (Noah 1a): the numbers, one line on how it comes along, then rows that fold away -->
+          <!-- v0.63.0 (Noah 1a): the numbers, one line on how it comes along, then rows that fold away -->
           <ItemLife item={selItem} {items} stats={mstats} log={mlog} {today} compact folds line={comesLine(selItem, blocks)} />
         </aside>
       {/if}
@@ -776,7 +776,7 @@
   {#if filter.q.trim() || filter.category || filter.bag || filter.domain || filter.role || unusedOnly}
     {@render nothing()}
   {:else if view === 'never'}
-    <!-- v0.60.0 (Noah 3a): an empty «Never used» says its rule in one sentence and shows what is on the way there. -->
+    <!-- v0.63.0 (Noah 3a): an empty «Never used» says its rule in one sentence and shows what is on the way there. -->
     <div class="card none never0">
       {#if debriefN === 0}
         <p>{t('This view fills after your first trip reviews: then it shows what you took along {n} times or more and never used.', { n: NEVER_AFTER })}</p>
@@ -1293,7 +1293,7 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  /* v0.60.0 (Noah 3a): «On the way there» under an empty «Never used» */
+  /* v0.63.0 (Noah 3a): «On the way there» under an empty «Never used» */
   .onway {
     margin: 12px 0 0;
     text-align: left;
