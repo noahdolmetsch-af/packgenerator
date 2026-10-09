@@ -39,6 +39,24 @@ Regel (Noah, 9.10.2026): Ein schönes Design ist genau so wichtig wie die Funkti
 
 Bildsprache: «Gletscher» (gewählt 9.10.2026), hell und dunkel. Die Farbwerte stehen in `src/app.css`.
 
+## Wächter
+
+Automatische Prüfungen bei jedem PR (Skill «packgenerator-einheitlich»), damit alte und neue Seiten gleich aussehen und sich gleich bedienen lassen. Sie fangen Fehler wie die Beschriftung mit der globalen Klasse `.sw` (ein Buchstabe pro Zeile) oder die Pflege-Chips «Di ch tm ilc h».
+
+1. **Stil-Prüfung** (`scripts/style-lint.mjs`, läuft mit `npx vitest run` in `tests/style-lint.test.js`), pro Datei in `src/`:
+   - `colour`: keine Farbwerte (hex, `rgb()`, `hsl()`) ausserhalb von `src/app.css`, nur `var(--…)`, `transparent`, `currentColor`, `inherit`;
+   - `breakword`: kein `overflow-wrap: anywhere` und kein `word-break: break-all`;
+   - `global`: eine Komponente definiert keine eigene Regel `.x { … }` für eine Klasse, die `src/app.css` schon global gestaltet (`.sw`, `.btn`, `.card`, `.lbl`, `.num` …);
+   - `fontsize`: Schriftgrössen nur über die Stufen `var(--fs-page|section|sub|body|label|small)`, auch in `font: …`.
+2. **Konsistenz-Test** (`tests/e2e/guard.spec.js`, Playwright): 20 Hauptseiten (Heute, Touren, Packen, Vorlagen, Vergangene Touren, Unterwegs, Rückblick, Fahrt hochladen, 12 Monate, Material, Wiegen, Wunschliste, Import prüfen, Favoriten, Bausteine, Kleiderschrank, Velos Setup und Pflege, Inbox, Funktionen) am Handy mit 320 und 390 px und am Computer mit 1440 px, mit den künstlichen Daten aus `tests/e2e/home0460-fixture.js`. Gezählt: `hscroll` (seitliches Scrollen), `wordbreak` (ein Wort steht auf zwei Zeilen), `target` (Handy: Knopf oder Link kleiner als 44 × 44 px; Links mitten in einem Satz sind erlaubt), `h1` (nicht genau ein Seitentitel), `primary` (mehr als ein Hauptknopf `.btn.hi`, nur gemeldet, nie rot).
+3. **Noch alles da?** (`tests/e2e/functions.spec.js`): jede der 16 Funktionen aus «Alle 16 Funktionen» ist von Heute aus mit höchstens zwei Tipps erreichbar und öffnet ihre Seite oder ihr Fenster ohne Konsolenfehler. Fehlt eine, wird der Test rot.
+
+**Grundlinie** `tests/guard-baseline.json`: die Verstösse, die es beim Einführen schon gab (`style`: Datei → Regel → Anzahl; `layout`: Seite@Breite → Regel → Anzahl). Rot wird nur, wer mehr Verstösse hat als dort steht, oder eine neue Datei mit Verstössen. Die Meldung nennt jede Stelle (Datei:Zeile oder Element und Wort).
+
+- **Die Grundlinie darf nur kleiner werden.** Ein PR, der eine Zahl erhöht, erklärt in der Beschreibung warum. Wer Verstösse behebt, senkt die Zahl im selben PR.
+- Stil neu schreiben: `node scripts/style-lint.mjs --update` (ohne `--update` druckt es die Übersicht und was kleiner werden kann).
+- Seiten neu schreiben: `GUARD_UPDATE=1 npx playwright test tests/e2e/guard.spec.js`, dann `node scripts/style-lint.mjs --merge-e2e` (druckt die Übersicht der Seiten; im Update-Lauf listet der Test jeden Befund, das ist die Aufräumliste).
+
 ## Screen-Inventar
 
 Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
