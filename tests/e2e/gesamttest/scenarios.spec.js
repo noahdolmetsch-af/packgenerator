@@ -56,7 +56,8 @@ test('S1 day ride: one tap, pack, ride, debrief', async ({ page, context }, info
   const errors = await start(page, context, info, { lang: LANG });
   const before = await table(page, 'trips');
   await page.goto('./#/');
-  await page.getByRole('button', { name: T('Day ride now') }).click();
+  // v0.46.0: "Day ride" is the first button of "What do you want to do?" (the quick row is gone)
+  await page.locator('[data-section="actions"] .grid [data-fn="dayride"]').click();
   await expect(page).toHaveURL(/#\/pack/);
   await expect(page.locator('.made-card')).toContainText(T('Day ride created'));
   await expect.poll(async () => (await table(page, 'trips')).length).toBe(before.length + 1);
@@ -80,6 +81,11 @@ test('S1 day ride: one tap, pack, ride, debrief', async ({ page, context }, info
   await page.goto('./#/ride');
   await page.reload();
   if (stored.startDate === day()) {
+    // v0.45.2: the base check waits on the ride page as a reminder; one tap ticks it all
+    const check = page.getByRole('region', { name: T('Base check') });
+    await check.getByRole('button', { name: T('All with me') }).click();
+    await expect(check.getByRole('button', { name: T('All with me') })).toBeHidden();
+    await expect.poll(async () => (await table(page, 'trips')).find((t) => t.id === trip.id).ready.every((r) => r.done || r.itemId)).toBe(true);
     await expect(go(page)).toHaveText(T('Next: Debrief'));
     await go(page).click();
     await expect(page).toHaveURL(new RegExp(`#/debrief/${esc(trip.id)}`));

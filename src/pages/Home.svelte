@@ -402,13 +402,26 @@
   const tests = $derived(testTrips(allTrips));
   const milestones = $derived(milestonesNow(S[MILESTONE_KEY], today));
   // Milestones: the levels of now against the stored ones (first time: stored, nothing celebrated).
+  // v0.46.0 (Gesamttest S6): read in ONE transaction, not from the live queries: right after an import
+  // they change one by one (the new trips with the old, empty bikes), so the levels were stored half
+  // (bikes {}, or 0 trips) and written again a moment later; with 0 trips stored first, the import
+  // itself could later be celebrated as "Your 10th trip".
+  async function stepMilestones(day) {
+    await db.transaction('rw', db.trips, db.bikes, db.debriefs, db.settings, async () => {
+      const [all, bikeRows, drs, stored] = await Promise.all([db.trips.toArray(), db.bikes.toArray(), db.debriefs.toArray(), db.settings.get(MILESTONE_KEY)]);
+      if (!all.length && !bikeRows.length) return; // nothing to count yet
+      const home = homeTrips(all);
+      const done = home.filter((x) => tripDone(x, drs, day));
+      const nights = yearReview({ today: day, trips: home, debriefs: drs, rides: [] }).ride.nights + 0;
+      const cur = milestoneLevels({ tripsDone: done.length, bikes: bikeRows, nights: done.some((x) => Number(x.days) > 1 && x.overnight !== 'lodging' && x.overnight !== 'none') ? Math.max(1, nights) : 0 });
+      const r = milestoneStep(stored?.value ?? null, cur, day);
+      if (r.changed) await db.settings.put({ key: MILESTONE_KEY, value: r.state });
+    });
+  }
   $effect(() => {
     if (!ready || !$ridesQ || (!allTrips.length && !($bikesQ ?? []).length)) return; // nothing to count yet
-    const done = trips.filter((x) => tripDone(x, debriefs, today));
-    const nights = yearReview({ today, trips, debriefs, rides: [] }).ride.nights + 0;
-    const cur = milestoneLevels({ tripsDone: done.length, bikes: $bikesQ ?? [], nights: done.some((x) => Number(x.days) > 1 && x.overnight !== 'lodging' && x.overnight !== 'none') ? Math.max(1, nights) : 0 });
-    const r = milestoneStep(S[MILESTONE_KEY], cur, today);
-    if (r.changed) db.settings.put({ key: MILESTONE_KEY, value: r.state });
+    void [allTrips, debriefs, $bikesQ, S[MILESTONE_KEY]]; // run again when one of them changes
+    stepMilestones(today).catch(() => {});
   });
   const SOON_KM = 60;
   const careRows = $derived.by(() => {

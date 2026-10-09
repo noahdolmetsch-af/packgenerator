@@ -1,9 +1,12 @@
 // Gesamttest round 1, part 3: the same number in every place. With the big fictional data set:
-// - things due per bike: Today ("Bikes ready?"), Bike care, the trip's Plan ("Before the trip") and
-//   the count on the Bikes place in the bar,
-// - open notes: the "More" button, the Inbox page and the stored notes,
-// - inventory and wishlist: Today's Gear tile and the Gear page,
-// - past trips: Today's Trips tile and the Past trips page.
+// - things due per bike: Today (the bike cards "N due" and the rows of "Important today"; v0.46.0
+//   replaced "Bikes ready?"), Bike care, the trip's Plan ("Before the trip") and the count on the
+//   Bikes place in the bar,
+// - open notes: the "More" button, Today's "N notes to sort", the Inbox page and the stored notes,
+// - inventory and wishlist: Today's "Your data" and "Weigh" counts and the Gear page (v0.46.0 has no
+//   Gear tile any more),
+// - trips: Today's "Last 12 months" and the Review page; open debriefs on Past trips and Debrief
+//   (v0.46.0 has no Trips tile with "Past trips (n)" any more).
 import { test, expect } from '@playwright/test';
 import { start, table, fixture, tr, esc } from './lib.js';
 
@@ -19,13 +22,33 @@ test('due counts: Today, Plan, Bike care and the bar agree', async ({ page, cont
   const bikes = await table(page, 'bikes');
   const nameOf = Object.fromEntries(bikes.map((b) => [b.id, b.name]));
 
-  // Today: "Bikes ready?"
+  // Today (v0.46.0): one card per bike, "12'800 km · 5 due" when something is due
   await page.goto('./#/');
   await page.reload();
   const today = {};
-  const rows = page.locator('ul.bikes li.br');
-  await expect(rows.first()).toBeVisible();
-  for (const row of await rows.all()) today[(await row.locator('.nm b').textContent()).trim()] = num(await row.locator('.lw').textContent());
+  const cards = page.locator('[data-section="bikes"] a.bk[data-bike]');
+  await expect(cards).toHaveCount(summary.bikeIds.length);
+  const dueWord = esc(T('{n} due', { n: '' }).trim());
+  for (const card of await cards.all()) {
+    const id = await card.getAttribute('data-bike');
+    const line = (await card.locator('.ln').textContent()).trim();
+    const m = line.match(new RegExp(`(\\d+) ${dueWord}$`));
+    today[nameOf[id]] = (await card.getAttribute('data-tone')) === 'due' && m ? Number(m[1]) : 0;
+  }
+  // … and "Important today" names each bike with something due (the same number, or one job
+  // "lube the chain" / "top up the sealant" with its own button)
+  const more = page.locator('[data-section="today"] button.more');
+  if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
+  const careRows = page.locator('[data-section="today"] li[data-row="care"]');
+  const fromRows = {};
+  for (const row of await careRows.all()) {
+    const text = (await row.locator('.tx').textContent()).trim();
+    const name = Object.values(nameOf).find((n) => text.startsWith(`${n}:`));
+    expect(name, `Important today row "${text}" names a bike`).toBeTruthy();
+    const m = text.slice(name.length).match(/(\d+)/);
+    fromRows[name] = m ? Number(m[1]) : 1;
+  }
+  expect(fromRows, 'Important today = the bike cards (bikes with something due)').toEqual(Object.fromEntries(Object.entries(today).filter(([, n]) => n > 0)));
 
   // Bike care
   await page.goto('./#/bikes?tab=care');
@@ -78,29 +101,56 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   await page.reload();
   // "More, Inbox: n to sort"
   await expect(page.locator('.more-btn')).toHaveAttribute('aria-label', T('More, Inbox: {n} to sort', { n: open }));
-  // Today: n notes to sort
-  await expect(page.locator('main')).toContainText(T('{n} notes to sort', { n: open }).replace(/^\s+|\s+$/g, ''));
+  // Today, "Important today": n notes to sort (v0.46.0: a row, maybe below "Show all")
+  const more = page.locator('[data-section="today"] button.more');
+  if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
+  await expect(page.locator('[data-section="today"] li[data-row="inbox"] .tx')).toHaveText(T('{n} notes to sort', { n: open }).trim());
 
-  // Gear tile on Today vs Gear
+  // Today's "Your data" and "Weigh" (what waits to be weighed) vs the stored data and the Gear page
   const items = await table(page, 'items');
+  const trips = await table(page, 'trips');
   const owned = items.filter((i) => i.ownership === 'owned' || i.ownership === 'unclear').length;
   const wish = items.filter((i) => i.ownership === 'wishlist' || i.ownership === 'to-buy').length;
-  await expect(page.locator('main')).toContainText(String(owned));
-  const pastLink = page.locator('main a, main button').filter({ hasText: new RegExp(`${esc(T('Past trips'))} \\(\\d+\\)`) }).first();
-  const pastN = num(await pastLink.textContent());
+  const data = page.locator('details.data');
+  await data.locator('summary').click();
+  await expect(data.locator('.csum')).toContainText(T('{n} items', { n: items.length }));
+  await expect(data.locator('.csum')).toContainText(T('{n} trips', { n: trips.length }));
+  const weighToday = num(await page.locator('[data-section="actions"] .grid [data-fn="weigh"] .badge').textContent());
   await page.goto('./#/gear');
   await page.reload();
-  const tabs = page.locator('main');
-  await expect(tabs).toContainText(String(owned));
-  await expect(tabs).toContainText(String(wish));
+  const tabs = page.locator('main [role="tablist"] [role="tab"]');
+  await expect(tabs.nth(0).locator('small')).toHaveText(String(owned));
+  await expect(tabs.nth(1).locator('small')).toHaveText(String(wish));
+  const weighGear = num(await tabs.nth(3).locator('small').textContent());
+  expect(weighToday, `Today "Weigh" (${weighToday}) vs Gear "Weigh" tab (${weighGear})`).toBe(weighGear);
 
-  // Past trips page: as many rows as Today says
+  // Today's "Last 12 months" vs the Review page: the same number of trips and km
+  await page.goto('./#/');
+  await page.reload();
+  const year = page.locator('[data-year-row] dl > div');
+  await expect(year.first()).toBeVisible();
+  const yTrips = num(await year.nth(0).locator('dd').textContent());
+  const yKm = num((await year.nth(1).locator('dd').textContent()).replace(/[’'\s]/g, ''));
+  await page.goto('./#/review');
+  await page.reload();
+  const rv = page.locator('main li.r');
+  await expect(rv.first()).toBeVisible();
+  const rvVal = async (label) => num((await rv.filter({ has: page.locator('.k', { hasText: new RegExp(`^${esc(label)}$`) }) }).first().locator('.v').textContent()).replace(/[’'\s]/g, ''));
+  expect(await rvVal(T('trips|count')), 'Today "Last 12 months" trips = Review').toBe(yTrips);
+  expect(await rvVal(T('Distance')), 'Today "Last 12 months" km = Review').toBe(yKm);
+
+  // Past trips: the open debriefs on the page = "n open" on Debrief
   await page.goto('./#/pack/past');
   await page.reload();
-  const trips = await table(page, 'trips');
-  const listed = await page.locator('main li a, main li button').filter({ hasText: 'test_data_gtp_' }).count();
-  expect(listed, `Past trips page (${listed}) vs Today "(${pastN})"`).toBe(pastN);
-  info.annotations.push({ type: 'past', description: `today ${pastN}, page ${listed}, stored past ${trips.filter((t) => t.startDate < new Date().toISOString().slice(0, 10)).length}` });
+  await expect(page.locator('main li a').filter({ hasText: 'test_data_gtp_' }).first()).toBeVisible();
+  // the rows with an open (or started) debrief: the badge with a dot ("Trips compared" has a plain one)
+  const openPast = await page.locator('main li a .nbadge .udot').count();
+  await page.goto('./#/debrief');
+  await page.reload();
+  const sub = (await page.locator('main .page-sub').first().textContent()) ?? '';
+  const om = sub.match(new RegExp(`(\\d+) ${esc(T('{n} open', { n: '' }).trim())}`));
+  expect(om ? Number(om[1]) : 0, `Past trips (${openPast} open) vs Debrief "${sub}"`).toBe(openPast);
+  info.annotations.push({ type: 'past', description: `year ${yTrips} trips ${yKm} km, ${openPast} open debriefs, weigh ${weighToday}` });
 
   // Inbox page
   await page.goto('./#/inbox');

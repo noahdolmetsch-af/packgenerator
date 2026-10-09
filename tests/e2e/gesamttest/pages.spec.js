@@ -34,7 +34,8 @@ const CASES = [
     id: 'today-search',
     hash: '#/',
     act: async (page, T) => {
-      const box = page.getByRole('searchbox', { name: T('Search everything') });
+      // v0.46.0: the search is the "What do you want to do?" command line (search or say an action)
+      const box = page.getByRole('searchbox', { name: T('What do you want to do? Search or say an action') });
       if (!(await box.isVisible())) await tap(page.getByRole('button', { name: T('Search everything') }));
       await box.fill('jacke');
       await page.waitForTimeout(400);
@@ -87,10 +88,7 @@ const KNOWN = {};
 const known = (gid, project, langs, ids) => {
   for (const id of ids) for (const l of langs) KNOWN[`${id}/${l}/${project}`] = gid;
 };
-// G004–G009 fixed in 0.45.1 (break-word instead of anywhere); G003 (Today) comes with the new start page in 0.46.
-const TODAY_CASES = ['today', 'today-new-sheet', 'today-more-sheet', 'today-search', 'today-data'];
-known('G003: Today, bike care buttons break words in the middle', 'desktop', ['de', 'en'], TODAY_CASES);
-known('G003: Today, "km nachtragen" breaks in the middle at 390 px', 'phone', ['de'], TODAY_CASES);
+// G004–G009 fixed in 0.45.1 (break-word instead of anywhere); G003 (Today) fixed by the new start page in 0.46.0.
 
 /* ---------- one import per worker, kept as the browser state ---------- */
 
