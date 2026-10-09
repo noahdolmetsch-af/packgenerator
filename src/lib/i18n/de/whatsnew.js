@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.52.0
+  'The packing list shows what you wear as the first card "On me", head to feet. A tap on a piece opens "Swap": the pieces of the same zone and layer, those that fit the weather first. One tap swaps, Undo takes it back.':
+    'Die Packliste zeigt, was du trägst, als erste Karte «Am Körper», von Kopf bis Füsse. Ein Tipp auf ein Teil öffnet «Tauschen»: die Teile derselben Zone und Schicht, zuerst die, die zum Wetter passen. Ein Tipp tauscht, «Rückgängig» nimmt es zurück.',
+  'The app remembers what you picked, so it comes first next time. Pieces without a °C range get their bar from warm, medium or cold.':
+    'Die App merkt sich, was du gewählt hast, und zeigt es beim nächsten Mal zuerst. Teile ohne °C-Bereich bekommen ihren Balken aus warm, mittel oder kalt.',
+  '"Open in the wardrobe" shows the wardrobe for the trip: its temperature, dry, rain or any, and pieces that do not fit hidden when a fitting one is there.':
+    '«Im Kleiderschrank öffnen» zeigt den Kleiderschrank für die Tour: ihre Temperatur, trocken, Regen oder egal, und blendet unpassende Teile aus, wenn ein passendes da ist.',
   // 0.47.1
   'The top card of a trip shows the ride time. Tap date, duration, weather or bike to change it right there; the list follows, Undo takes it back. A day ride no longer shows "1 day, no overnight stay".':
     'Die oberste Karte einer Tour zeigt die Fahrzeit. Tippe auf Datum, Dauer, Wetter oder Velo, um es gleich dort zu ändern; die Liste zieht mit, «Rückgängig» nimmt es zurück. Eine Tagestour zeigt nicht mehr «1 Tag, keine Übernachtung».',

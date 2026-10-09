@@ -346,3 +346,16 @@ Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0
 - **Querformat:** Die Fakten-Chips sind im Querformat (Höhe unter 500 px) eine ruhige, unterstrichene Zeile mit 26 px Höhe und ohne Gewicht (steht in der Velokarte); das Band auf Planen darf dort 165 statt 150 px hoch sein (zwei kurze Zeilen Fakten). Der Hochformat-Handy-Wert bleibt 44 px.
 - **Wächter:** Grundlinie nach dem Merge auf 0.47.0 neu gemessen (sie stammte von 0.46.2); 0.47.1 hebt keine Zahl, `src/App.svelte` fontsize 8 → 7.
 
+## 09.10.2026 – 0.52.0 «Tauschen» (OP2a)
+
+Noahs Antworten (alle a) zu den Bildern `design/optimierenPacken2/OP2-*`, nur Teil OP2a:
+
+- **Kleider am Körper als erste Karte «Am Körper»:** Teile mit Platz «am Körper», die Kleidung sind (`isClothing`), nach Zone Kopf, Oberkörper, Beine, Hände, Füsse und darin Basis, Mitte, Aussen, Zubehör (`src/lib/swap.js` `wornClothes`). Sie stehen nur dort, nicht noch einmal in der Gruppe «Am Körper» der Taschen (die bleibt für Helmlampe, Rucksack usw. und fällt weg, wenn sie leer ist).
+- **Ein Tipp auf ein Teil öffnet «Tauschen»** (`SwapSheet.svelte`), ein Tipp auf eine Alternative tauscht: zwei Tipps statt etwa sechs (herausnehmen, suchen, hinzufügen).
+- **Reihenfolge:** zuerst «passt zum Wetter der Tour» (Bereich `trip.wx`, sonst die kälteste Fahrstunde; 2 °C Spielraum an beiden Grenzen wie bei `warmEnough`; Regenzeug passt weniger an einem trockenen Tag, eine Aussenschicht ohne Regenschutz weniger an einem nassen), dann öfter und zuletzt gewählt, dann der nächste Bereich. «Passt weniger» bleibt antippbar (Vorschläge sind nie erzwungen).
+- **Ohne °C-Bereich** zählt die Klasse warm (ab 15 °C), mittel (5–15 °C), kalt (bis 5 °C), auch für den Balken (`tempKey`).
+- **Jede Wahl wird gemerkt** in der Einstellung `swap.memory` ({ Teil: { n, at, c } }); «Rückgängig» nimmt den Tausch und die gemerkte Wahl zurück. Kein Feld an der Tour; der Eintrag merkt sich nur `swappedFrom` für «statt …».
+- **Kleiderschrank mit Tourband** (`#/wardrobe/trip/<id>`): Bereich der Tour, Trocken/Regen/Egal (nur Ansicht, das Wetter der Tour bleibt), «Passt zu …» blendet ein unpassendes Teil nur aus, wenn am selben Platz (Zone und Schicht) ein passendes da ist; sonst bleibt alles sichtbar.
+- **Nicht in 0.52.0:** «Outfit speichern» und Outfits lernen (D5).
+- **Selbst entschieden (Schnellmodus):** Basis/Mitte/Aussen-Reiter im Tauschen-Blatt weggelassen (getauscht wird nur in derselben Schicht; Schicht dazu kommt mit OP2b); Teile, die schon auf der Tour sind, werden nicht angeboten; «Lieber einpacken in» im Blatt ersetzt «Verschieben nach» der alten Zeile; Zeilen am Körper zeigen ihren Grund («Unter 10 °C»); Kleiderschrank-Zeilen mit Tour zeigen «auf der Tour», ohne Tausch-Knöpfe pro Zeile (Tauschen bleibt in der Packliste).
+

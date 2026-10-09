@@ -69,14 +69,14 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 |---|---|---|---|
 | Heute | Startseite | Neubau 0.46 | – |
 | Heute | Neu-Blatt, Mehr-Menü, Suche | – | – |
-| Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.47: Velo mit Taschen oben, Gewichtskarte) | 3 |
+| Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.52: Karte «Am Körper», Blatt «Tauschen») | 4 |
 | Touren | Tour-Dialog, Vorlagen-Dialog, Lade-Blatt | – | – |
 | Touren | Unterwegs | – | – |
 | Touren | Rückblick, Vergleich, Tempo, Logbuch | – | – |
 | Touren | Vergangene Touren, Fahrten, Jahresrückblick, Teilen | – | – |
 | Touren | Vorlagen, Vorlage neu/bearbeiten, Bausteine | – | – |
 | Material | Materialliste, Teil-Dialog, Zuordnen, Zusammenlegen | 9.10.2026 (0.47: Reiter, Karten, Punkte) | 3 |
-| Material | Kleiderschrank | 9.10.2026 (0.47 neu gebaut nach Mockup) | 4 |
+| Material | Kleiderschrank | 9.10.2026 (0.52: Tourband, unpassende Doppelte ausgeblendet) | 4 |
 | Material | Import prüfen, Favoriten, Wunschliste | – | – |
 | Velos | Setup, Velo-Dialog, Taschen-Dialog/-Blatt | 9.10.2026 (0.47: nur Kopfband in der Gletscher-Schrift) | 3 |
 | Velos | Velopflege, Teil-, Werkstattbesuch- und Bestell-Dialog | 9.10.2026 (0.47: Schrift vereinheitlicht, «Jetzt fällig» als Karten; Dialoge noch alt) | 3 |
@@ -101,3 +101,4 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 
 - 9.10.2026: Regel eingeführt. Erste Runde gestartet: Neuentwurf Kleiderschrank, Material, Tour und Velos sowie erste Mockups für Im Flow und 0.47.
 - 9.10.2026, 0.47 «Aufpimpen» (D1): Kleiderschrank nach Mockup neu (Note 2 → 4); Tour/Packen mit Velo und Gewichtskarte, Material mit Reitern und Karten, Velopflege mit einer Schriftordnung und «Jetzt fällig» als Karten, Setup-Kopfband angeglichen, Inbox und Prüfen leeren sich selbst. Neue Regel «Eine Abarbeitungsliste leert sich selbst». Bilder vorher/nachher: `design/audit-0.47/` (Velopflege: `care-*`). Offenes unter «Offen: Angleichen».
+- 9.10.2026, 0.52.0 «Tauschen» (OP2a): Packliste mit der Karte «Am Körper» (Zone, Schicht, Temperaturbalken mit Tour-Rahmen), Blatt «Tauschen» (am Handy von unten, 44-px-Ziele), Kleiderschrank mit Tourband. Neuer Baukasten-Teil `src/lib/ui/TempBar.svelte` (der Balken des Kleiderschranks, mit Rahmen für den Bereich der Tour). Tour/Packen 3 → 4. Bilder vorher/nachher: `design/v0520-tausch/`.
