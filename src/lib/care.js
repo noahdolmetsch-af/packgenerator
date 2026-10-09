@@ -219,14 +219,24 @@ const iso = (d) => d.toISOString().slice(0, 10);
 export const isEvent = (trip) => trip?.event ?? Object.keys(trip?.prep ?? {}).length > 0;
 
 /**
+ * v0.42.0 (Noah 8): the imported "Vorbereitungsliste" (tasks with list 'prep-list', importstep2.js)
+ * shows for events AND for bikepacking trips of more than 4 nights. The older Excel tasks stay
+ * for events only.
+ */
+export const PREP_LIST = 'prep-list';
+export const nightsOf = (trip) => (trip?.overnight === 'none' ? 0 : Math.max(0, (Number(trip?.days) || 1) - 1));
+export const isLongTour = (trip) => !!trip && !Array.isArray(trip.packs) && (!trip.domain || trip.domain === 'bikepacking') && nightsOf(trip) > 4;
+export const prepShows = (task, trip) => (task.list === PREP_LIST ? isEvent(trip) || isLongTour(trip) : isEvent(trip));
+
+/**
  * The preparation tasks of one trip: due date = start date minus the lead time in weeks.
  * Results are stored on the trip (trip.prep[taskId]), so every trip has its own list.
  */
 export function prepFor(trip, tasks, today = localDay()) {
-  if (!trip.startDate || !isEvent(trip)) return [];
+  if (!trip.startDate || !(isEvent(trip) || isLongTour(trip))) return [];
   const start = new Date(`${trip.startDate}T00:00:00Z`).getTime();
   return tasks
-    .filter((t) => isPrep(t) && !isRule(t))
+    .filter((t) => isPrep(t) && !isRule(t) && prepShows(t, trip))
     .map((t) => {
       const due = iso(new Date(start - Math.round((t.leadWeeks ?? 0) * 7) * DAY));
       const state = trip.prep?.[t.id] ?? null;
@@ -251,10 +261,10 @@ export function prepSummary(rows = []) {
  */
 export const isRule = (task) => /^(do not|don't|never)\b|nothing new|no more questions/i.test(task.task);
 export function prepRules(trip, tasks) {
-  if (!trip.startDate || !isEvent(trip)) return [];
+  if (!trip.startDate || !(isEvent(trip) || isLongTour(trip))) return [];
   const start = new Date(`${trip.startDate}T00:00:00Z`).getTime();
   return tasks
-    .filter((t) => isPrep(t) && isRule(t))
+    .filter((t) => isPrep(t) && isRule(t) && prepShows(t, trip))
     .map((t) => ({ task: t, from: iso(new Date(start - Math.round((t.leadWeeks ?? 0) * 7) * DAY)) }))
     .sort((a, b) => a.from.localeCompare(b.from));
 }

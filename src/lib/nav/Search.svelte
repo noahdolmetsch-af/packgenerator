@@ -16,8 +16,8 @@
   let open = $state(false); // phone: the field is shown
   let input = $state();
   const all = liveQuery(async () => {
-    const [items, trips, bikes, notes, tpl] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY)]);
-    return { items, trips, bikes, notes, templates: tpl?.value ?? [] };
+    const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
+    return { items, trips, bikes, notes, templates: tpl?.value ?? [], events };
   });
   const groups = $derived(q.trim().length >= 2 && $all ? searchAll(q, $all) : []);
   const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));

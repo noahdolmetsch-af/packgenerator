@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.42.0',
+    date: '2026-10-09',
+    points: [
+      { text: "The wardrobe (More → Gear, or Gear → Wardrobe): your clothing by layer and body zone, °C on the right; new clothing waits in \"To sort\" with a guess from the name.", href: '#/wardrobe' },
+      { text: "In Plan, one quiet line under the weather checks the onion: each layer and zone ✓ or a gap, with \"+ … in\" for your best item. From 30 % rain, rain protection belongs in it.", href: '#/pack' },
+      { text: "Temperature kits from your Excel are building blocks: Plan suggests the kit for the coldest riding hour and adds its missing items with one tap, with Undo. The debrief asks \"Too cold | Fitted | Too warm\" and slowly shifts the kit borders.", href: '#/pack' },
+      { text: "Check import, step 2: kits, building blocks (merge from 70 % of the same items), tasks as one preparation list (only before events and bikepacking of more than 4 nights) and old trips as notes in the Logbook.", href: '#/gear/import' },
+    ],
+  },
+  {
     version: '0.41.0',
     date: '2026-10-09',
     points: [

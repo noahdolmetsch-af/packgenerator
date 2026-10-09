@@ -1,0 +1,412 @@
+<script>
+  /**
+   * v0.42.0 (Noah, picture draft A, answer 1): the wardrobe (#/wardrobe), reached by More → Gear →
+   * Wardrobe and by "Wardrobe →" on the Gear page. Every piece of clothing by LAYER (base, mid, outer,
+   * accessories), then by body zone; °C small on the right (no range: the class). A segmented filter
+   * Cycling | Everyday | All. Clothes without a layer or zone wait in "To sort" at the top: one tap
+   * sets the layer, one the zone; the guess from the name is outlined, not filled. Rules: wardrobe.js.
+   */
+  import { liveQuery } from 'dexie';
+  import { db } from '../lib/db.js';
+  import { wardrobe, USES, LAYERS, ZONES, tempRange, CLOTHING_OFFSET } from '../lib/wardrobe.js';
+  import { formatWeight, itemWeight } from '../lib/gear.js';
+  import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
+  import Seg from '../lib/ui/Seg.svelte';
+  import ItemDialog from '../lib/gear/ItemDialog.svelte';
+  import { ChevronDown, MoreHorizontal, Undo2 } from '@lucide/svelte';
+
+  const itemsQ = liveQuery(() => db.items.toArray());
+  const offsetQ = liveQuery(() => db.settings.get(CLOTHING_OFFSET));
+
+  const KEY = 'wardrobe.use';
+  const read = () => {
+    try {
+      const v = localStorage.getItem(KEY);
+      return USES.some((u) => u.key === v) ? v : 'velo';
+    } catch {
+      return 'velo';
+    }
+  };
+  let use = $state(read());
+  function setUse(v) {
+    use = v;
+    try {
+      localStorage.setItem(KEY, v);
+    } catch {
+      /* private mode: only this visit */
+    }
+  }
+
+  const items = $derived($itemsQ ?? []);
+  const w = $derived(wardrobe(items, use));
+  const offset = $derived(Number($offsetQ?.value) || 0);
+  const kg = (g) => `${(g / 1000).toLocaleString(locale(), { maximumFractionDigits: 1 })} kg`;
+  const tr = (s, v) => t(s, v);
+  // The class of the import is stored in German (warm, mittel, kalt).
+  const CLASS = { warm: 'warm|temp', mittel: 'medium|temp', kalt: 'cold|temp' };
+  const temp = (i) => tempRange(i.tempMin, i.tempMax, tr) || (i.tempClass ? t(CLASS[i.tempClass] ?? i.tempClass) : '');
+  const weight = (i) => (i.weightG == null ? '–' : formatWeight(itemWeight(i)));
+  const layerOpts = $derived(LAYERS.map((l) => ({ key: l.key, name: t(l.name), hint: t('Suggested from the name') })));
+  const zoneOpts = $derived(ZONES.map((z) => ({ key: z.key, name: t(z.name), hint: t('Suggested from the name') })));
+  const layerName = (key) => t(LAYERS.find((l) => l.key === key)?.name ?? key);
+  const layerSub = (key) => t(LAYERS.find((l) => l.key === key)?.sub ?? '');
+  const zoneName = (key) => t(ZONES.find((z) => z.key === key)?.name ?? key);
+
+  /* ---------- To sort ---------- */
+  let sortOpen = $state(true);
+  let showAll = $state(false);
+  const SHOWN = 3;
+  const shown = $derived(showAll ? w.unsorted : w.unsorted.slice(0, SHOWN));
+
+  // The last change, for "Undo" (a classification is never lost).
+  let last = $state.raw(null); // { id, name, before: { layer, zone } }
+  let timer;
+  async function setField(item, patch) {
+    const before = { layer: item.layer ?? null, zone: item.zone ?? null };
+    await db.items.update(item.id, { ...patch, updatedAt: new Date().toISOString() });
+    last = { id: item.id, name: nameOf(item), before };
+    clearTimeout(timer);
+    timer = setTimeout(() => (last = null), 10000);
+  }
+  const setLayer = (item, key) => setField(item, { layer: key });
+  const setZone = (item, key) => setField(item, { zone: ZONES.find((z) => z.key === key).set });
+  async function undo() {
+    if (!last) return;
+    const { id, before } = last;
+    last = null;
+    await db.items.update(id, before);
+  }
+
+  /* ---------- a row's own menu ---------- */
+  let openRow = $state(null);
+  let editing = $state(null);
+  const flip = (id) => (openRow = openRow === id ? null : id);
+  const zoneOf = (item) => ZONES.find((z) => z.of.includes(String(item.zone ?? '').toLowerCase()))?.key ?? null;
+</script>
+
+<div class="ward">
+  <p class="back"><a href="#/gear">← {t('Gear|place')}</a></p>
+  <h1 class="title">{t('Wardrobe')}</h1>
+  <p class="page-sub">{tn(w.n, '{n} piece of clothing', '{n} pieces of clothing')} · <span class="num">{kg(w.g)}</span> · {t('the onion from the inside out')}</p>
+
+  <div class="bar">
+    <Seg label={t('Use|wardrobe')} full={false} value={use} options={USES.map((u) => ({ key: u.key, name: t(u.name) }))} onchange={setUse} />
+    <span class="n num">{use === 'all' ? tn(w.n, '{n} piece', '{n} pieces') : t('{n} for {use}', { n: w.n, use: t(USES.find((u) => u.key === use).name) })}</span>
+  </div>
+
+  {#if $itemsQ && !w.n}
+    <p class="card empty">{t('No clothing here yet. Clothing is every item of the categories On-bike clothing, Rain & cold, Off-bike clothing and Shoes, and every item with a layer or a body zone.')}</p>
+  {/if}
+
+  {#if w.unsorted.length}
+    <section class="sort" aria-labelledby="sort-h">
+      <button type="button" class="sort-h" aria-expanded={sortOpen} aria-controls="sort-list" onclick={() => (sortOpen = !sortOpen)}>
+        <span id="sort-h">{t('To sort')}</span><span class="r num">{w.unsorted.length}<ChevronDown class={sortOpen ? 'chev up' : 'chev'} size={18} aria-hidden="true" /></span>
+      </button>
+      {#if sortOpen}
+        <div id="sort-list">
+          <p class="hint">{t('The guess from the name is outlined. One tap sets the layer or the zone; a row with both moves down into its group.')}</p>
+          <ul class="srows">
+            {#each shown as u (u.item.id)}
+              <li>
+                <p class="sname"><span>{nameOf(u.item)}</span><span class="w num">{weight(u.item)}</span></p>
+                <div class="segs">
+                  <Seg small full={false} label={t('Layer of {name}', { name: nameOf(u.item) })} value={u.layer} suggest={u.guessLayer} options={layerOpts} onchange={(k) => setLayer(u.item, k)} />
+                  <Seg small full={false} label={t('Body zone of {name}', { name: nameOf(u.item) })} value={u.zone} suggest={u.guessZone} options={zoneOpts} onchange={(k) => setZone(u.item, k)} />
+                </div>
+              </li>
+            {/each}
+          </ul>
+          {#if w.unsorted.length > SHOWN && !showAll}<p class="more"><button type="button" class="linkbtn" onclick={() => (showAll = true)}>{tn(w.unsorted.length - SHOWN, '{n} more to sort', '{n} more to sort')}</button></p>{/if}
+        </div>
+      {/if}
+    </section>
+  {/if}
+
+  {#each w.layers as l (l.key)}
+    <section class="layer" aria-labelledby="l-{l.key}">
+      <h2 class="lh" id="l-{l.key}"><span><b>{layerName(l.key)}</b> <small>{layerSub(l.key)}</small></span><span class="r num">{l.n} · {formatWeight(l.g)}</span></h2>
+      {#each l.zones as z (z.key)}
+        <h3 class="zh">{zoneName(z.key)}</h3>
+        <ul class="rows">
+          {#each z.items as i (i.id)}
+            {@const open = openRow === i.id}
+            <li class:open>
+              <div class="row">
+                <span class="nm">{nameOf(i)}{#if i.ownership === 'wishlist' || i.ownership === 'to-buy'}<i class="badge">{t('Wishlist')}</i>{/if}</span>
+                <span class="tc num">{temp(i)}</span>
+                <span class="w num">{weight(i)}</span>
+                <button type="button" class="dots" aria-expanded={open} aria-label={t('Layer, zone or edit: {name}', { name: nameOf(i) })} onclick={() => flip(i.id)}><MoreHorizontal size={20} aria-hidden="true" /></button>
+              </div>
+              {#if open}
+                <div class="segs inrow">
+                  <Seg small full={false} label={t('Layer of {name}', { name: nameOf(i) })} value={l.key} options={layerOpts} onchange={(k) => setLayer(i, k)} />
+                  <Seg small full={false} label={t('Body zone of {name}', { name: nameOf(i) })} value={zoneOf(i)} options={zoneOpts} onchange={(k) => setZone(i, k)} />
+                  <button type="button" class="btn sm" onclick={() => ((editing = i), (openRow = null))}>{t('Edit item')}</button>
+                </div>
+              {/if}
+            </li>
+          {/each}
+        </ul>
+      {/each}
+    </section>
+  {/each}
+
+  {#if w.n}
+    <p class="foot">{t('°C: what the item is made for. Without a range the class shows (warm, medium, cold).')}{#if offset}{' '}{t('Your kit borders are shifted by {n} °C from your debriefs.', { n: offset > 0 ? `+${offset}` : `${offset}` })}{/if}</p>
+  {/if}
+</div>
+
+{#if last}
+  <div class="toast" role="status">
+    <span>{t('{name} sorted', { name: last.name })}</span>
+    <button type="button" class="btn sm" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>
+  </div>
+{/if}
+
+{#if editing}<ItemDialog item={editing} {items} onclose={() => (editing = null)} />{/if}
+
+<style>
+  .ward {
+    max-width: 800px;
+    margin: 0 auto;
+    min-width: 0;
+  }
+  .back {
+    margin: 0 0 4px;
+    font-size: var(--fs-small);
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    margin: 0 0 16px;
+  }
+  .bar .n {
+    margin-left: auto;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  .empty {
+    color: var(--ink-2);
+  }
+  /* To sort: a dashed card, open work but no alarm. */
+  .sort {
+    border: 1.5px dashed var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--paper);
+    padding: 4px 12px 8px;
+    margin: 0 0 16px;
+  }
+  .sort-h {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 600 16px var(--font-body);
+    text-align: left;
+    cursor: pointer;
+  }
+  .sort-h .r,
+  .lh .r {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .sort-h :global(.chev) {
+    color: var(--ink-3);
+    transition: transform 0.15s;
+  }
+  .sort-h :global(.chev.up) {
+    transform: rotate(180deg);
+  }
+  .hint {
+    margin: 0 0 6px;
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .srows,
+  .rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .srows li {
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+  }
+  .sname {
+    display: flex;
+    gap: 12px;
+    margin: 0 0 6px;
+    overflow-wrap: anywhere;
+  }
+  .sname .w {
+    margin-left: auto;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    white-space: nowrap;
+  }
+  .segs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+  }
+  .segs.inrow {
+    padding: 0 0 10px;
+  }
+  .more {
+    margin: 0;
+    border-top: 1px solid var(--line);
+  }
+  .linkbtn {
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: 400 var(--fs-small) var(--font-body);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  /* A layer: a light header, the zones as small labels, rows with tabular numbers on the right. */
+  .layer {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin: 0 0 16px;
+    overflow: hidden;
+  }
+  .lh {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0;
+    padding: 10px 12px;
+    background: var(--paper-2);
+    border-bottom: 1px solid var(--line);
+    font-size: 15px;
+    font-weight: 400;
+  }
+  .lh small {
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .zh {
+    margin: 0;
+    padding: 10px 12px 4px;
+    color: var(--ink-3);
+    font-size: 12px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--line);
+  }
+  .rows li {
+    padding: 0 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .rows li:last-child {
+    border-bottom: 0;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+  }
+  .nm {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .badge {
+    font-style: normal;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 6px;
+    padding: 1px 8px;
+    border-radius: 99px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    border: 1px solid var(--line);
+  }
+  .tc {
+    color: var(--ink-3);
+    font-size: 13px;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .w {
+    min-width: 4.2em;
+    text-align: right;
+    white-space: nowrap;
+    color: var(--ink-2);
+  }
+  .dots {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-right: -8px;
+    flex: none;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--ink-3);
+    cursor: pointer;
+  }
+  .dots:hover,
+  .open .dots {
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+  .foot {
+    margin: 0 0 24px;
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: calc(100vw - 32px);
+    padding: 6px 8px 6px 16px;
+    border-radius: 10px;
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: 0 8px 24px rgba(15, 46, 39, 0.3);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .toast .btn {
+    flex: none;
+    min-height: 44px;
+    background: none;
+    border-color: transparent;
+    color: var(--paper);
+    text-decoration: underline;
+  }
+  @media (max-width: 719px) {
+    .toast {
+      bottom: calc(76px + env(safe-area-inset-bottom));
+    }
+    .tc {
+      font-size: 12px;
+    }
+  }
+</style>

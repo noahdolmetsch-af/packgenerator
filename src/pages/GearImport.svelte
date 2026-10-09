@@ -7,12 +7,20 @@
    * src/lib/gear/importdb.js.
    * v0.37.1 "Zusammenlegen": a "Nicht im Import" row can also be merged into its imported
    * counterpart (MergeSheet, mergeitems.js); "Merged · Undo" comes as a toast.
+   * v0.42.0 (Noah 7-11) "Schritt 2": a second tab "Kits, building blocks, tasks" reads the same file:
+   * temperature kits become building blocks, a similar favourite kit or Excel block gets Merge | New |
+   * Leave out, the tasks become one preparation list, old trips go into the Logbook. One main button
+   * "Apply"; a backup comes first and "Undo" puts it back. Rules: importstep2.js.
    */
   import { liveQuery } from 'dexie';
   import { SvelteSet } from 'svelte/reactivity';
   import { db } from '../lib/db.js';
   import { planGearImport, FIELD_NAMES, categoryName, isGearImportFile } from '../lib/gearimport.js';
-  import { stageImport, decide, dropStaged, applyImport, undoImport, changedSince, lastApplied, keepImport, archiveItems, STAGED, UNDO } from '../lib/gear/importdb.js';
+  import { stageImport, decide, dropStaged, applyImport, undoImport, changedSince, lastApplied, keepImport, archiveItems, STAGED, UNDO, UNDO2, applyStep2, undoStep2, lastApplied2, keepStep2, choose2 } from '../lib/gear/importdb.js';
+  import { hasStep2, planStep2, defaultChoice } from '../lib/importstep2.js';
+  import { tempRange } from '../lib/wardrobe.js';
+  import { SETS_KEY } from '../lib/sets.js';
+  import Seg from '../lib/ui/Seg.svelte';
   import { undoBulk } from '../lib/gear/bulk.js';
   import MergeSheet from '../lib/gear/MergeSheet.svelte';
   import { demoState } from '../lib/demo.js';
@@ -25,6 +33,11 @@
   const itemsQ = liveQuery(() => db.items.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
   const demoQ = liveQuery(() => demoState(db));
+  // v0.42.0: step 2 works on the building blocks, the tasks and the logbook.
+  const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
+  const tasksQ = liveQuery(() => db.maintenance.toArray());
+  const eventsQ = liveQuery(() => db.events.toArray());
+  const undo2Q = liveQuery(async () => ((await db.table('meta').get(UNDO2)) ? lastApplied2(db) : null));
 
   const ready = $derived($stagedQ !== undefined || $itemsQ !== undefined);
   const staged = $derived($stagedQ ?? null);
@@ -36,6 +49,40 @@
   const safeN = $derived(plan ? plan.same.length + plan.fresh.length : 0);
   const sameWith = $derived(plan ? plan.same.filter((r) => r.adds.length) : []);
   const sameNone = $derived(plan ? plan.same.filter((r) => !r.adds.length) : []);
+
+  /* ---------- v0.42.0 step 2 ---------- */
+  const two = $derived(!!data && hasStep2(data));
+  const step1Done = $derived(!!data && !(data.items ?? []).length);
+  let tab = $state(null);
+  const shownTab = $derived(tab ?? (two && step1Done ? 'step2' : 'material'));
+  const plan2 = $derived(two && $itemsQ && $tasksQ && $eventsQ && $setsQ !== undefined ? planStep2(data, { items: $itemsQ, sets: $setsQ?.value ?? [], tasks: $tasksQ, events: $eventsQ }) : null);
+  const choices2 = $derived(staged?.choices2 ?? {});
+  const choiceOf = (b) => choices2[b.id] ?? defaultChoice(b);
+  const similar = $derived(plan2 ? plan2.blocks.filter((b) => b.status === 'similar') : []);
+  const plainBlocks = $derived(plan2 ? plan2.blocks.filter((b) => b.status !== 'similar') : []);
+  const counts2 = $derived.by(() => {
+    if (!plan2) return null;
+    const newKits = plan2.kits.filter((k) => k.status === 'new').length;
+    const merge = similar.filter((b) => choiceOf(b) === 'merge').length;
+    const newBlocks = plan2.blocks.filter((b) => b.status === 'new' || (b.status === 'similar' && choiceOf(b) === 'new')).length;
+    return { newKits, merge, newBlocks, tasks: plan2.tasks.add.length, trips: plan2.oldTrips.add.length };
+  });
+  const tr = (s, v) => t(s, v);
+  const kitRange = (k) => tempRange(k.minC, k.maxC, tr) || '–';
+  const CHOICES = $derived([{ key: 'merge', name: t('Merge|blocks') }, { key: 'new', name: t('New|block') }, { key: 'skip', name: t('Leave out') }]);
+  const apply2 = () =>
+    run(async () => {
+      await applyStep2(db);
+      message = '';
+      window.scrollTo(0, 0);
+    });
+  const undo2 = () =>
+    run(async () => {
+      if ((await changedSince(db)) && !confirm(t('Changes made after the import are undone too. Undo anyway?'))) return;
+      await undoStep2(db);
+      tab = 'step2';
+      message = t('Undone: everything is as before the import. The list waits here again.');
+    });
 
   let message = $state('');
   let busy = $state(false);
@@ -158,6 +205,20 @@
     </div>
   {/if}
 
+  {#if $undo2Q}
+    <div class="done card" role="status">
+      <p>
+        <b>{t('Kits, building blocks and tasks applied {when}.', { when: when($undo2Q.at) })}</b>
+        {t('{kits} kits and {blocks} building blocks made, {merged} merged, {tasks} tasks, {trips} old trips. A backup was made first.', { kits: $undo2Q.counts.kits, blocks: $undo2Q.counts.blocks, merged: $undo2Q.counts.merged, tasks: $undo2Q.counts.tasks, trips: $undo2Q.counts.oldTrips })}
+      </p>
+      <div class="acts">
+        <button type="button" class="btn" disabled={busy} onclick={undo2}>{t('Undo')}</button>
+        <a class="btn" href="#/blocks">{t('To the building blocks')}</a>
+        <button type="button" class="btn link" disabled={busy} onclick={() => keepStep2(db)}>{t('Keep, forget the backup')}</button>
+      </div>
+    </div>
+  {/if}
+
   {#if message}<p class="msg" role="status">{message}</p>{/if}
 
   {#if ready && !data}
@@ -171,8 +232,86 @@
     <p class="meta">
       <span>{staged.name || t('Gear list')}</span>
       <span>{t('chosen {when}', { when: when(staged.at) })}</span>
-      <span>{t('nothing applied yet')}</span>
+      <span>{step1Done ? t('Step 1 applied') : t('nothing applied yet')}</span>
     </p>
+
+    {#if two}
+      <div class="tabs"><Seg label={t('Part of the import')} full={false} value={shownTab} options={[{ key: 'material', name: step1Done ? `${t('Gear|place')} ✓` : t('Gear|place') }, { key: 'step2', name: t('Kits, building blocks, tasks') }]} onchange={(v) => (tab = v)} /></div>
+    {/if}
+
+    {#if shownTab === 'step2' && plan2}
+      <div class="main">
+        <button type="button" class="btn hi" disabled={busy || !!$demoQ || plan2.empty} onclick={apply2}>{t('Apply|step2')}</button>
+        <p class="hint">
+          {t('Makes {kits} kits and {blocks} building blocks, merges {merge}, {tasks} tasks go into the preparation list, {trips} old trips into the logbook.', { kits: counts2.newKits, blocks: counts2.newBlocks, merge: counts2.merge, tasks: counts2.tasks, trips: counts2.trips })}
+          {t('A backup comes first; you can undo it.')}
+        </p>
+        {#if $demoQ}<p class="hint">{t('End the running demo first.')}</p>{/if}
+      </div>
+
+      {#if plan2.kits.length}
+        <details class="sec" open>
+          <summary><span class="h">{t('Temperature kits')}</span><span class="s">{t('become building blocks')}</span><span class="n num">{plan2.kits.length}</span></summary>
+          <p class="note">{t('Pack suggests the kit that fits the forecast.')}</p>
+          <ul class="rows">
+            {#each plan2.kits as k (k.id)}
+              <li>
+                <span class="nm">{k.id} {k.name}{#if k.notFound.length}<small class="q">{tn(k.notFound.length, '{n} not found', '{n} not found')}: {k.notFound.join(', ')}</small>{/if}</span>
+                <span class="w num rng">{kitRange(k)}</span>
+                <span class="w num">{tn(k.itemIds.length, '{n} item', '{n} items')}</span>
+                <i class="badge">{k.status === 'same' ? t('already there') : t('new')}</i>
+              </li>
+            {/each}
+          </ul>
+        </details>
+      {/if}
+
+      {#if plan2.blocks.length}
+        <details class="sec" open>
+          <summary><span class="h">{t('Favourite kits and Excel building blocks')}</span><span class="n num">{plan2.blocks.length}</span></summary>
+          <p class="note">{t('"Merge" is suggested from 70 % of the same items on.')}</p>
+          <ul class="rows sim">
+            {#each similar as b (b.id)}
+              <li>
+                <span class="nm">{b.name}<small class="q">{t('like the building block "{name}": {both} of {of} items the same', { name: b.similar.name, both: b.similar.both, of: b.similar.of })}{#if b.notFound.length}{' · '}{tn(b.notFound.length, '{n} not found', '{n} not found')}{/if}</small></span>
+                <span class="w num">{tn(b.itemIds.length, '{n} item', '{n} items')}</span>
+                <div class="pick"><Seg small full={false} label={t('What happens with {name}', { name: b.name })} value={choiceOf(b)} options={CHOICES} onchange={(v) => choose2(db, b.id, v)} /></div>
+              </li>
+            {/each}
+          </ul>
+          {#if plainBlocks.length}
+            <details class="sub">
+              <summary>{tn(plainBlocks.filter((b) => b.status === 'new').length, '{n} without a similar one, made new', '{n} without similarity, made new')}{plainBlocks.some((b) => b.status === 'same') ? ` · ${tn(plainBlocks.filter((b) => b.status === 'same').length, '{n} already there', '{n} already there')}` : ''} ›</summary>
+              <ul class="rows">
+                {#each plainBlocks as b (b.id)}
+                  <li><span class="nm">{b.name}{#if b.notFound.length}<small class="q">{tn(b.notFound.length, '{n} not found', '{n} not found')}: {b.notFound.join(', ')}</small>{/if}</span><span class="w num">{tn(b.itemIds.length, '{n} item', '{n} items')}</span><i class="badge">{b.status === 'same' ? t('already there') : t('new')}</i></li>
+                {/each}
+              </ul>
+            </details>
+          {/if}
+        </details>
+      {/if}
+
+      {#if plan2.tasks.total}
+        <details class="sec" open>
+          <summary><span class="h">{t('Tasks')}</span><span class="n num">{plan2.tasks.total}</span></summary>
+          <div class="card tasks">
+            <p><b>{tn(plan2.tasks.total, '{n} task', '{n} tasks')}</b> → {t('Preparation list. It shows only before events and bikepacking trips of more than 4 nights.')}</p>
+            <p class="q">{t('e.g. {list}', { list: plan2.tasks.sample.join(' · ') })}{plan2.tasks.same ? ` · ${t('{n} already there', { n: plan2.tasks.same })}` : ''}</p>
+          </div>
+        </details>
+      {/if}
+
+      {#if plan2.oldTrips.total}
+        <div class="sec flat">
+          <p class="row1"><span class="h">{t('Old trips')}</span><span class="s">{t('as notes in the Logbook, read only')}</span><span class="n num">{plan2.oldTrips.total}</span></p>
+        </div>
+      {/if}
+
+      {#if plan2.notFound.length}
+        <p class="note nf">{tn(plan2.notFound.length, '{n} item id not found (left out): {list}', '{n} item ids not found (left out): {list}', { list: plan2.notFound.slice(0, 12).join(', ') + (plan2.notFound.length > 12 ? ' …' : '') })}</p>
+      {/if}
+    {:else}
 
     <div class="main">
       <button type="button" class="btn hi" disabled={busy || !!$demoQ || !(safeN + decided)} onclick={applySafe}>{t('Apply all safe ones')}</button>
@@ -274,6 +413,8 @@
       {#if archived}<p class="msg" role="status">{archived.text} <button type="button" class="btn sm" onclick={unarchive}>{t('Undo')}</button></p>{/if}
     </details>
 
+    {/if}
+
     <p class="foot"><button type="button" class="btn link" disabled={busy} onclick={discard}>{t('Discard import')}</button></p>
   {/if}
 </div>
@@ -310,6 +451,41 @@
   }
   .main {
     margin: 0 0 20px;
+  }
+  .tabs {
+    margin: 0 0 16px;
+  }
+  .rng {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .sim .pick {
+    padding-top: 2px;
+  }
+  .tasks {
+    margin: 0 0 12px;
+    padding: 12px;
+  }
+  .tasks p {
+    margin: 0;
+  }
+  .tasks .q {
+    margin-top: 4px;
+  }
+  .flat {
+    padding: 4px 0;
+  }
+  .row1 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    min-height: 44px;
+    margin: 0;
+    padding-top: 8px;
+  }
+  .nf {
+    margin-top: 12px;
   }
   .main .btn.hi {
     min-height: 44px;

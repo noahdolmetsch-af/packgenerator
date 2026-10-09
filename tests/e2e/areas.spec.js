@@ -128,8 +128,8 @@ for (const lang of ['en', 'de']) {
     // 8. Debrief on one page: one exception, then save.
     await expect(page.getByRole('heading', { name: T('What was different?') })).toBeVisible();
     // v0.40.0 (Noah 4a): segments instead of drop-downs.
-    await expect(page.locator('.qa [role=group]')).toHaveCount(3); // no bike: no km
-    await expect(page.locator('.qa [role=group]').nth(2).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'fine');
+    await expect(page.locator('.qa [role=group]')).toHaveCount(4); // no bike: no km; v0.42.0: + clothing
+    await expect(page.locator('.qa [role=group]').nth(3).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'fine');
     await fits('debrief, weekend');
     const fold = page.locator('details.items-fold');
     if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();

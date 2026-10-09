@@ -113,6 +113,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/gear/import')) return 'gearimport'; // v0.36.0: "Import prüfen", the staged gear import
   if (h.startsWith('#/gear')) return 'gear';
   if (h.startsWith('#/favorites')) return 'favorites';
+  if (h.startsWith('#/wardrobe')) return 'wardrobe'; // v0.42.0: the wardrobe (layers and zones)
   if (h.startsWith('#/blocks')) return 'blocks'; // v0.26.0 (Noah 2b): building blocks, own page
   if (h.startsWith('#/bikes') || h.startsWith('#/care')) return careTab ? 'care' : 'bikes';
   if (h.startsWith('#/pack/templates')) return 'templates';
@@ -142,7 +143,7 @@ export const PLACES = [
 export function placeOf(page) {
   if (page === 'home' || page === 'features') return 'today';
   if (['pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share'].includes(page)) return 'trips';
-  if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks') return 'gear';
+  if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   return null;
 }

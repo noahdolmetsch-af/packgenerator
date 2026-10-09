@@ -352,12 +352,14 @@
       <h1 class="title">{t('Gear')}</h1>
       <!-- v0.26.0 (Noah 2b): the building blocks page -->
       <a class="btn sm blk" href="#/blocks">{t('Building blocks')} →</a>
+      <!-- v0.42.0 (Noah 1): the wardrobe, clothing by layer and body zone -->
+      <a class="btn sm blk" href="#/wardrobe">{t('Wardrobe')} →</a>
       <!-- v0.36.0 (Noah 1a): the quiet page actions; "Check import" opens the staged gear list. -->
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeGmore(e)}>
         <summary class="btn sm" aria-label={t('More for Gear')}>•••</summary>
         <div class="gmenu">
-          <a href="#/gear/import">{t('Check import')}{#if $stagedQ}<i class="badge num">{$stagedQ.data?.items?.length ?? 0}</i>{/if}</a>
+          <a href="#/gear/import">{t('Check import')}{#if $stagedQ}<i class="badge num">{$stagedQ.data?.items?.length || t('Step 2')}</i>{/if}</a>
         </div>
       </details>
     </div>

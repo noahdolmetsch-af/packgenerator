@@ -24,10 +24,11 @@
   import { phone } from '../media.svelte.js';
   import { hasContext } from '../context.js';
   import { rainOf } from '../layers.js';
+  import { rainChance } from '../wardrobe.js';
   import { pastTrips } from '../hubs.js';
   import { localDay } from '../localday.js';
   import '../trip/trip.css';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -39,7 +40,9 @@
   // v0.26.1 (Noah 15b): litres only when every bag in use and every item in them has litres; else nothing.
   const volumes = $derived(bagVolumes(stats, itemsById));
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
-  const wxText = $derived(trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C · ${t(RAIN[trip.wx.rain ?? 'none'])}` : t('No weather set'));
+  // v0.42.0 (Noah 12): the rain chance over the riding hours, when the forecast knows it.
+  const pct = $derived(rainChance(trip));
+  const wxText = $derived(trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C · ${t(RAIN[trip.wx.rain ?? 'none'])}${pct != null ? ` ${pct} %` : ''}` : t('No weather set'));
   // v0.25.0 (M3): days and the night for a trip with its context; older trips their hours.
   const NIGHT = { none: 'no overnight stay', lodging: 'Lodging', outdoor: 'Outdoor' };
   const days = $derived(Math.max(1, Number(trip.days) || 1));
@@ -133,6 +136,8 @@
             <button type="button" class="cell" onclick={() => show('conditions')}><CloudSun size={18} aria-hidden="true" /><span><small>{t('Weather')}</small>{wxText}</span></button>
             <a class="cell" href="#/pack/templates"><Layers size={18} aria-hidden="true" /><span><small>{t('Start with')}</small>{startText}</span><span class="sr"> · {t('Templates')}</span></a>
           </div>
+          <!-- v0.42.0 (Noah 2): the onion check, one quiet line under the weather -->
+          {@render onion?.()}
         </section>
         <!-- L2: the open suggestions on top, marked as open work (below the whole list they got lost). -->
         <!-- v0.40.0 (design check): the weather in ONE place: the open suggestions are the first row

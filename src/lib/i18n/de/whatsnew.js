@@ -8,6 +8,15 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.42.0
+  "The wardrobe (More → Gear, or Gear → Wardrobe): your clothing by layer and body zone, °C on the right; new clothing waits in \"To sort\" with a guess from the name.":
+    "Der Kleiderschrank (Mehr → Material, oder Material → Kleiderschrank): deine Kleider nach Schicht und Körperzone, °C rechts; neue Kleider warten unter «Noch einordnen» mit einem Vorschlag aus dem Namen.",
+  "In Plan, one quiet line under the weather checks the onion: each layer and zone ✓ or a gap, with \"+ … in\" for your best item. From 30 % rain, rain protection belongs in it.":
+    "Im Planen prüft eine leise Zeile unter dem Wetter die Zwiebel: jede Schicht und Zone ✓ oder eine Lücke, mit «+ … dazu» für dein bestes Teil. Ab 30 % Regen gehört Regenschutz dazu.",
+  "Temperature kits from your Excel are building blocks: Plan suggests the kit for the coldest riding hour and adds its missing items with one tap, with Undo. The debrief asks \"Too cold | Fitted | Too warm\" and slowly shifts the kit borders.":
+    "Temperatur-Kits aus deiner Excel sind Bausteine: Planen schlägt das Kit zur kältesten Fahrstunde vor und fügt die fehlenden Teile mit einem Tippen ein, mit Rückgängig. Der Rückblick fragt «Zu kalt | Passte | Zu warm» und verschiebt die Kit-Grenzen langsam.",
+  "Check import, step 2: kits, building blocks (merge from 70 % of the same items), tasks as one preparation list (only before events and bikepacking of more than 4 nights) and old trips as notes in the Logbook.":
+    "Import prüfen, Schritt 2: Kits, Bausteine (zusammenlegen ab 70 % gleichen Teilen), Aufgaben als eine Vorbereitungsliste (nur vor Events und Bikepacking über 4 Nächte) und alte Touren als Notizen im Logbuch.",
   // 0.41.0
   'Upload a ride (GPX) from New or from Debrief: distance, climbing, moving time and every pause of 5 minutes or more.':
     'Eine Fahrt hochladen (GPX), über Neu oder im Rückblick: Distanz, Höhenmeter, Fahrzeit und jede Pause ab 5 Minuten.',

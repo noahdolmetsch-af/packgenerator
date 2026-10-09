@@ -11,10 +11,13 @@
  */
 import { buildBackup, restoreBackup, LAST_IMPORT, LAST_CHANGE } from '../backup.js';
 import { buildWrites, remaining, validateGearImport } from '../gearimport.js';
+import { hasStep2, buildStep2, withoutStep2 } from '../importstep2.js';
+import { SETS_KEY } from '../sets.js';
 import { saveItems } from './bulk.js';
 
 export const STAGED = 'gearImport';
 export const UNDO = 'gearImportUndo';
+export const UNDO2 = 'gearImportUndo2';
 
 /** Keep a chosen file for the staging page. Returns the problems (empty: staged). */
 export async function stageImport(db, data, name = '', now = new Date().toISOString()) {
@@ -64,7 +67,8 @@ export async function applyImport(db, now = new Date().toISOString()) {
     if (w.learnings.add.length) await db.learnings.bulkPut(w.learnings.add);
     for (const u of w.learnings.update) await db.learnings.update(u.id, u.changes);
     const rest = remaining(staged.data, w.done, w.took);
-    if (rest.items.length) await db.table('meta').put({ ...staged, data: rest, decisions: {} });
+    // v0.42.0: the kits, blocks, tasks and old trips (step 2) keep the file staged too.
+    if (rest.items.length || hasStep2(rest)) await db.table('meta').put({ ...staged, data: rest, decisions: {}, ...(rest.items.length ? {} : { step1At: now }) });
     else await db.table('meta').delete(STAGED);
     const lastImport = (await db.table('meta').get(LAST_IMPORT)) ?? null;
     await db.table('meta').put({ key: UNDO, at: now, name: staged.name, counts: w.counts, backup, staged, lastImport });
@@ -104,3 +108,64 @@ export async function archiveItems(db, ids, now = new Date().toISOString()) {
   const items = (await db.items.bulkGet(ids)).filter((i) => i && i.ownership !== 'gone');
   return saveItems(db, items.map((i) => ({ ...i, ownership: 'gone', archivedFrom: i.ownership ?? 'owned', archivedAt: now, archivedBy: 'import', updatedAt: now })));
 }
+
+/* ---------- v0.42.0 step 2: kits, building blocks, tasks, old trips ---------- */
+
+/** Remember a choice for a similar block ('merge' | 'new' | 'skip'). */
+export async function choose2(db, id, choice) {
+  const rec = await getStaged(db);
+  if (!rec) return;
+  await db.table('meta').put({ ...rec, choices2: { ...(rec.choices2 ?? {}), [id]: choice } });
+}
+
+/** What step 2 works on, read from the database. */
+export async function step2Data(db) {
+  const [items, setsRec, tasks, events] = await Promise.all([db.items.toArray(), db.settings.get(SETS_KEY), db.maintenance.toArray(), db.events.toArray()]);
+  return { items, sets: setsRec?.value ?? [], tasks, events };
+}
+
+/**
+ * "Übernehmen" of step 2: a backup first, then the building blocks (settings 'sets'), the items'
+ * block keys, the preparation list and the old trips in one transaction. The step-2 lists leave the
+ * staged file; a file with nothing left goes. Returns the counts.
+ */
+export async function applyStep2(db, now = new Date().toISOString()) {
+  const staged = await getStaged(db);
+  if (!staged || !hasStep2(staged.data)) throw new Error('Nothing to apply.');
+  const backup = await buildBackup(db);
+  return db.transaction('rw', [db.items, db.settings, db.maintenance, db.events, db.table('meta')], async () => {
+    const w = buildStep2(staged.data, await step2Data(db), staged.choices2 ?? {}, now);
+    if (w.items.length) await db.items.bulkPut(w.items);
+    await db.settings.put({ key: SETS_KEY, value: w.sets });
+    if (w.tasks.length) await db.maintenance.bulkPut(w.tasks);
+    if (w.events.length) await db.events.bulkPut(w.events);
+    const rest = withoutStep2(staged.data, now);
+    if ((rest.items ?? []).length) await db.table('meta').put({ ...staged, data: rest, choices2: {} });
+    else await db.table('meta').delete(STAGED);
+    const lastImport = (await db.table('meta').get(LAST_IMPORT)) ?? null;
+    await db.table('meta').put({ key: UNDO2, at: now, name: staged.name, counts: w.counts, backup, staged, lastImport });
+    return w.counts;
+  });
+}
+
+/** The last step-2 apply that can be undone: { at, counts, name } or null. */
+export async function lastApplied2(db) {
+  const rec = await db.table('meta').get(UNDO2);
+  if (!rec) return null;
+  const { backup, staged, ...rest } = rec;
+  return rest;
+}
+
+/** "Rückgängig" for step 2: everything as before, and the file staged again. */
+export async function undoStep2(db) {
+  const rec = await db.table('meta').get(UNDO2);
+  if (!rec) throw new Error('Nothing to undo.');
+  await restoreBackup(db, rec.backup, 'replace');
+  if (rec.lastImport) await db.table('meta').put(rec.lastImport);
+  else await db.table('meta').delete(LAST_IMPORT);
+  await db.table('meta').put({ ...rec.staged, key: STAGED });
+  await db.table('meta').delete(UNDO2);
+}
+
+/** Forget the step-2 undo backup. */
+export const keepStep2 = (db) => db.table('meta').delete(UNDO2);

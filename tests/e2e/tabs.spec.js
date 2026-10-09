@@ -234,10 +234,12 @@ test('the debrief is one page: nothing different = one tap', async ({ page, cont
   // Filled in: weather as planned, amount right, bags fine; every item counts as used.
   // v0.40.0 (Noah 4a): segments instead of drop-downs.
   const segs = page.locator('.qa [role=group]');
-  await expect(segs).toHaveCount(3);
+  // v0.42.0: the clothing row (second) starts unanswered and shifts nothing.
+  await expect(segs).toHaveCount(4);
   await expect(segs.nth(0).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'planned');
-  await expect(segs.nth(1).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'right');
-  await expect(segs.nth(2).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'fine');
+  await expect(segs.nth(1).locator('[aria-pressed=true]')).toHaveCount(0);
+  await expect(segs.nth(2).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'right');
+  await expect(segs.nth(3).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'fine');
   await expect(page.locator('details.items-fold summary')).toContainText(T('{n} items used', { n: trip.entries.length }));
   await noSideScroll(page);
   let clicks = 0;

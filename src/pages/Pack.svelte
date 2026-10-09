@@ -14,6 +14,8 @@
   import { applyContext, hasContext, carryHint } from '../lib/context.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import CalmPack from '../lib/pack/CalmPack.svelte';
+  import Onion from '../lib/pack/Onion.svelte';
+  import { onionCheck, coldest, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET } from '../lib/wardrobe.js';
   import { acceptReview } from '../lib/preparation.js';
   import { rowReasons, listDiff } from '../lib/reasons.js';
   import '../lib/pack/calm-pack.css';
@@ -35,7 +37,7 @@
   import { withVisits, overdueFor } from '../lib/workshop.js';
   import { prepFor, isEvent } from '../lib/care.js';
   import { bikeCare, bikeCareLine, bikeCareWords, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
-  import { Wrench, Package, ChevronRight, BatteryCharging } from '@lucide/svelte';
+  import { Wrench, Package, ChevronRight, BatteryCharging, Undo2 } from '@lucide/svelte';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
@@ -212,7 +214,7 @@
     return colder || wetter ? { fc: fcWx, have } : null;
   });
   function useForecast() {
-    changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx } }));
+    changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx, ...pctOf(t) } }));
     location.hash = '#/pack';
   }
   // v0.21.0: a trip without a bike ends here (with a bike: "End trip and debrief" on the ride day).
@@ -476,6 +478,49 @@
       return { entries: r.entries };
     });
     blockNote = tn(n, '{n} item of {block} added.', '{n} items of {block} added.', { block: block.label });
+  }
+  // v0.42.0 (Noah 2-5): the onion check and the temperature kit for the coldest riding hour.
+  const offsetQ = liveQuery(() => db.settings.get(CLOTHING_OFFSET));
+  const offset = $derived(Number($offsetQ?.value) || 0);
+  const onionCk = $derived(trip && !over ? onionCheck(trip, items, offset) : null);
+  const kit = $derived.by(() => {
+    const cold = onionCk ? coldest(trip) : null;
+    return cold ? chooseKit(tempKits($setsQ?.value ?? []), cold.c, offset) : null;
+  });
+  const kitP = $derived(kit && trip ? kitPlan(kit, trip, items) : null);
+  // What the onion added last (the "new" marks and the toast with Undo).
+  let onionAdd = $state.raw(null); // { tripId, ids, label, key? }
+  let onionTimer;
+  function onionDone(ids, label, key = null) {
+    onionAdd = { tripId: trip.id, ids, label, key };
+    clearTimeout(onionTimer);
+    onionTimer = setTimeout(() => (onionAdd = onionAdd ? { ...onionAdd, label: '' } : null), 10000);
+  }
+  async function onionItems(ids, label) {
+    let got = [];
+    await change((cur) => {
+      const slot = blockSlot(cur);
+      const have = new Set(cur.entries.map((e) => e.itemId));
+      const add = ids.filter((id) => itemsById[id] && !have.has(id));
+      got = add;
+      return { entries: [...cur.entries, ...add.map((id) => ({ itemId: id, slot: slot(itemsById[id]), qty: 1, packed: false }))] };
+    });
+    if (got.length) onionDone(got, t('{name} added', { name: label }));
+  }
+  async function onionKit(k) {
+    let got = [];
+    await change((cur) => {
+      const r = addSetEntries(cur, items, k, { skip: blockSkip, slotOf: blockSlot(cur) });
+      got = r.added;
+      return { entries: r.entries };
+    });
+    if (got.length) onionDone(got, tn(got.length, 'Kit {range} added: {n} item', 'Kit {range} added: {n} items', { range: kitRange(k) }), k.key);
+  }
+  const kitRange = (k) => (k.minC != null && k.maxC != null ? `${k.minC}–${k.maxC} °C` : k.maxC != null ? t('below {n} °C', { n: k.maxC }) : t('above {n} °C', { n: k.minC }));
+  async function onionUndo() {
+    onionAdd = null;
+    clearTimeout(onionTimer);
+    await undoLast();
   }
   async function undoBlock() {
     blockNote = '';
@@ -771,6 +816,7 @@
       photo: () => shownPhoto = Math.max(0, gallery.findIndex(p => p.id === shot?.id)), compare: () => choosing = true, template: () => saveTpl = true, share: shareList, resetPacked,
       skip: () => change(() => ({ skipped: !trip.skipped })),
     }}>
+    {#snippet onion()}{#if onionCk}<Onion check={onionCk} {kit} plan={kitP} {offset} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} />{/if}{/snippet}
     {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{/snippet}
     {#snippet settings(mode)}
       {#if mode === 'conditions'}
@@ -832,6 +878,9 @@
     {#snippet ballastContent()}<ShopList {trip} {itemsById} />{#if extra?.rows.length}<details class="tp-fold calm-extra"><summary><Package size={20} aria-hidden="true" /><span>{t('Ballast')}</span><span class="r"><i class="tp-badge">{tn(extra.rows.length, '{n} not used the last times', '{n} not used the last times')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary><div class="in extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
   </CalmPack>
   {/if}
+  {#if onionAdd?.label && onionAdd.tripId === trip?.id}
+    <div class="onion-toast" role="status"><span>{onionAdd.label}</span>{#if canUndo}<button type="button" class="btn sm" onclick={onionUndo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</div>
+  {/if}
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
   {#if chargeOpen}<ChargeSheet {trip} {items} onclose={() => (chargeOpen = false)} />{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
@@ -860,6 +909,10 @@
 
 <style>
   .print { display: none; }
+  /* v0.42.0 (Noah 3, 4): what the onion added, with Undo, above the bottom bar. */
+  .onion-toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 50; display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100vw - 32px); padding: 6px 8px 6px 16px; border-radius: 10px; background: var(--ink); color: var(--paper); box-shadow: 0 8px 24px rgba(15, 46, 39, 0.3); font-weight: 600; overflow-wrap: anywhere; }
+  .onion-toast .btn { flex: none; min-height: 44px; background: none; border-color: transparent; color: var(--paper); text-decoration: underline; }
+  @media (max-width: 719px) { .onion-toast { bottom: calc(150px + env(safe-area-inset-bottom)); } }
   /* v0.30.2 (L5): event preparation ticked off in the trip; the button a full 44 px target. */
   .prep-rows { list-style: none; padding: 0; }
   .prep-rows li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; padding: 4px 0; border-bottom: 1px solid var(--line); }

@@ -16,6 +16,7 @@
   import { formatWeight, itemWeight, OWNERSHIP, isInventory, sumKnown } from '../lib/gear.js';
   import { SETS_KEY, allSets, setView, setUse, qtyOf, addSet, blockLabel } from '../lib/sets.js';
   import { TEMPLATES_KEY, templatesWith } from '../lib/templates.js';
+  import { tempRange } from '../lib/wardrobe.js';
   import { CONTEXT_SETS } from '../lib/context.js';
   import { blockKind, comesOf } from '../lib/gear/comes.js';
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet } from '../lib/gear/assign.js';
@@ -122,7 +123,7 @@
       {#if icon === 'always'}<Check size={18} />{:else if icon === 'night'}<Moon size={18} />{:else}<Plus size={18} />{/if}
     </span>
     <span class="m">
-      <span class="t"><span class="nm" {id}>{name}</span>{#if s && OUTDOOR.includes(s.key)}{' '}<small class="quiet">{t('outdoor|block')}</small>{/if}{#if s && !s.builtIn}{' '}<i class="nbadge">{t('own|block')}</i>{/if}</span>
+      <span class="t"><span class="nm" {id}>{name}</span>{#if s && (typeof s.minC === 'number' || typeof s.maxC === 'number')}{' '}<small class="quiet num">{tempRange(s.minC, s.maxC, t)}</small>{/if}{#if s && OUTDOOR.includes(s.key)}{' '}<small class="quiet">{t('outdoor|block')}</small>{/if}{#if s && !s.builtIn}{' '}<i class="nbadge">{t('own|block')}</i>{/if}</span>
       <span class="s">{#if list.length}{namesOf(list, s).join(' · ')}{:else}{t('No items in this building block yet.')}{/if}</span>
     </span>
     <!-- Count and weight right in one column; an unknown weight is the scale, never 0 g. -->
