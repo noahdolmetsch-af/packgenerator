@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.44.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'Last 12 months: always the 12 months up to today, not a calendar year. Riding, packing, learned and bikes on one page, with small differences to the 12 months before.', href: '#/review' },
+      { text: 'On Today a calm card with trips, km, nights outside and the base weight change, and the most interesting fact. It shows once a trip or a ride is in the 12 months.', href: '#/' },
+      { text: 'Two small charts drawn to scale: km per month and the base weight per trip. Reached from Today, from Debrief and from More → Look back.', href: '#/review' },
+    ],
+  },
+  {
     version: '0.43.0',
     date: '2026-10-09',
     points: [
