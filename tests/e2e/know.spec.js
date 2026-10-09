@@ -77,43 +77,31 @@ async function start(page, context, info, lang, data) {
 }
 
 /**
- * Good to know. v0.30.0 (Noah 1a): no longer folded on the phone; there the further card and some
- * tips wait behind "Show {n} more", opened here so every tile can be looked at.
+ * v0.46.0 (Noah 34b): "Good to know" became rows of "Important today" (at most 3, the rest behind
+ * "Show all {n}") beside "Tried it yet?" (one function never used, with one button).
  */
 async function know(page, T) {
-  const sec = page.locator('main section.know');
-  await expect(sec.getByRole('heading', { name: T('Good to know') })).toBeVisible();
-  await expect(sec.locator('.cards > *')).not.toHaveCount(0);
-  const more = sec.locator('.morebtn');
+  const sec = page.getByRole('region', { name: T('Important today') });
+  await expect(sec.locator('li').first()).toBeVisible();
+  const more = sec.locator('button.more');
   if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
   return sec;
 }
-const tileKeys = (k) => k.locator('[data-card], [data-tip]').evaluateAll((els) => els.map((e) => e.dataset.card ?? `tip:${e.dataset.tip}`));
 
-test('empty cards are hidden; 6 tiles, the rest are tips', async ({ page, context }, info) => {
+test('a fresh app: what is still open is a row of Important today, Tried it yet? offers one function', async ({ page, context }, info) => {
   const T = tr('de');
   await start(page, context, info, 'de', null);
-  // the start-up may still be adding its items (the section can render again): wait for the to-dos
+  // the start-up may still be adding its items: wait for the to-do row
   let k;
   await expect(async () => {
     k = await know(page, T);
-    await expect(k.locator('[data-card="todo"]')).toBeVisible({ timeout: 2000 });
+    await expect(k.locator('[data-row="todo"]')).toBeVisible({ timeout: 2000 });
   }).toPass();
-  const keys = await tileKeys(k);
-  // v0.30.0 (Noah 1a): a fresh app: perhaps the backup (once the start-up added items), "Still open"
-  // as the one further card, the rest tips; the home place set-up is a tip now
-  expect(keys).toHaveLength(6);
-  const cards = keys.filter((x) => !x.startsWith('tip:'));
-  expect(cards.filter((x) => x !== 'backup')).toEqual(['todo']);
-  expect(keys.slice(cards.length).every((x) => x.startsWith('tip:'))).toBe(true);
+  await expect(k.locator('[data-row="todo"]').getByRole('link', { name: T('Do it now') })).toHaveCount(1);
   for (const gone of ['No learnings yet', 'Nothing to sort', 'No forecast loaded yet', 'Standard guess: 16 km/h', 'No backup yet'])
-    await expect(k.getByText(T(gone))).toHaveCount(0);
-  // every card has its one button, every tip its one button and "I know it"
-  await expect(k.locator('[data-card="todo"] .go')).toHaveCount(1);
-  for (const tip of await k.locator('[data-tip]').all()) {
-    await expect(tip.locator('.go')).toHaveCount(1);
-    await expect(tip.getByRole('button', { name: new RegExp(`^${T('I know it')}`) })).toBeVisible();
-  }
+    await expect(page.getByText(T(gone))).toHaveCount(0);
+  const tryCard = page.getByRole('region', { name: T('Tried it yet?') });
+  await expect(tryCard.locator('.tryb')).toHaveCount(1);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
 });
@@ -126,22 +114,15 @@ for (const lang of ['en', 'de']) {
     await start(page, context, info, lang, knowFixture());
     await page.goto('./#/');
     const k = await know(page, T);
-    // the backup is due (never saved): v0.30.2 (L5) one line in Also to do with its button, no card here
-    await expect(k.locator('[data-card="backup"]')).toHaveCount(0);
-    await expect(page.getByRole('region', { name: T('Also to do') }).getByRole('button', { name: T('Download backup') })).toBeVisible();
-    // v0.30.0 (Noah 1a): at most 3 important cards, then at most 1 further card, the rest tips:
-    // the insights (weight trend, best upgrade, season, long not used) no longer all fill Today
-    const keys = await tileKeys(k);
-    expect(keys).toHaveLength(6);
-    const cards = keys.filter((x) => !x.startsWith('tip:'));
-    expect(cards.length).toBeLessThanOrEqual(3);
-    expect(keys.length - cards.length).toBeGreaterThanOrEqual(3);
-    expect(keys.findIndex((x) => x.startsWith('tip:'))).toBe(cards.length); // the tips come last
-    // the important cards come first (the backup and the Inbox are lines in Also to do, v0.30.2)
-    expect(cards.filter((x) => ['upgrade', 'trend', 'season', 'unused', 'weekend'].includes(x)).length).toBeLessThanOrEqual(1);
+    // the backup is due (never saved): a row with its button, among the first ones
+    await expect(k.locator('[data-row="backup"]').getByRole('button', { name: T('Download backup') })).toBeVisible();
+    // the insights (best upgrade, long not used …) are quiet rows after the urgent ones
+    const keys = await k.locator('li').evaluateAll((els) => els.map((e) => e.dataset.row));
+    expect(keys.indexOf('backup')).toBeLessThan(3);
+    expect(keys).toContain('unused');
+    expect(keys.indexOf('unused')).toBeGreaterThan(keys.indexOf('backup'));
     // the overview lists everything; "Long not used" from there (Noah 3a)
-    await k.getByRole('link', { name: new RegExp(T('What the app can do')) }).click();
-    await expect(page).toHaveURL(/#\/features$/);
+    await page.goto('./#/features');
     // Long not used → Look through: Gear shows exactly those items
     // v0.40.0 (Noah 9a): the whole row starts it; it may wait behind "+ n more" or in its folded area.
     const unusedRow = page.locator('[data-feature="unused"]');

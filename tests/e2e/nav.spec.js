@@ -137,59 +137,29 @@ test('the language switch lives in the menu "More"', async ({ page, context }) =
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 });
 
-// v0.23.1 (Noah 3b): on the phone the three places start folded, one line each, and open by touch
-// or keyboard; on a desktop they stay open as before.
-// v0.30.0 (Noah 1a): Good to know is no longer folded: its tiles show (the rest behind "Show {n} more").
-test('Today folds the places on the phone', async ({ page, context }, info) => {
+// v0.23.1 (Noah 3b): on the phone the places of Today started folded.
+// v0.46.0 «Startseite neu»: the places are gone; nothing on Today folds. An empty app shows First
+// steps and "What do you want to do?" with 8 buttons on a phone, 12 on a computer.
+test('Today folds nothing; First steps and the buttons of What do you want to do?', async ({ page, context }, info) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.goto('./');
   const T = tr('de');
-  // v0.38.0 (Noah 8a): the Bikes place became "Bikes ready?" (only with a bike), so two places fold.
-  const names = [T('Trips|place'), T('Gear|place')];
-  const know = page.locator('main section.know');
-  await expect(know.getByRole('heading', { name: T('Good to know'), level: 2 })).toBeVisible();
-  await expect(know.locator('[data-tip]').first()).toBeVisible();
-  if (info.project.name !== 'phone') {
-    await expect(page.locator('main details.folded')).toHaveCount(0);
-    for (const n of names) await expect(page.getByRole('heading', { name: n, level: 2 })).toBeVisible();
-    return;
-  }
-  const folds = page.locator('main details.folded');
-  await expect(folds).toHaveCount(2);
-  for (let i = 0; i < 2; i++) {
-    await expect(folds.nth(i)).toHaveJSProperty('open', false);
-    await expect(folds.nth(i).locator('summary h2')).toHaveText(names[i]);
-    await expect(folds.nth(i).locator('summary .fsum')).not.toBeEmpty();
-  }
-  await expect(know.locator('.morebtn')).toContainText(/\d+ weitere zeigen/);
-  // touch opens Trips, the keyboard opens Gear
-  await folds.nth(0).locator('summary').tap();
-  await expect(folds.nth(0)).toHaveJSProperty('open', true);
-  await expect(folds.nth(0).locator('.hub-in')).toBeVisible();
-  await folds.nth(1).locator('summary').focus();
-  await page.keyboard.press('Enter');
-  await expect(folds.nth(1)).toHaveJSProperty('open', true);
-  // the main step and "Also to do" are never folded; v0.30.2 (L9): an empty app shows First steps there
   await expect(page.getByRole('region', { name: T('First steps') })).toBeVisible();
+  await expect(page.locator('main details.folded')).toHaveCount(0);
+  const grid = page.getByRole('region', { name: T('What do you want to do?') });
+  await expect(grid.locator('.grid > *')).toHaveCount(info.project.name === 'phone' ? 8 : 12);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
 });
 
 // v0.23.1 (Noah): "Search" on the Gear card puts the cursor in Gear's search field, and "+" says
-// it plans a trip. Empty database.
+// it plans a trip. Empty database. v0.46.0: the Gear card left Today; #/gear?find=1 stays.
 test('Gear card search and + plans a trip', async ({ page, context }) => {
   const T = tr('de');
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.goto('./#/gear?find=1');
-  await expect(page.getByRole('searchbox', { name: T('Search gear') })).toBeFocused();
-  await page.goto('./#/');
-  // On the phone the Gear card is folded: open it first.
-  const gearFold = page.locator('details.hub').filter({ has: page.locator('#gear-h') });
-  if (await gearFold.count()) await gearFold.locator('summary').click();
-  await page.locator('.hub').filter({ has: page.locator('#gear-h') }).getByRole('link', { name: T('Search'), exact: true }).click();
-  await expect(page).toHaveURL(/#\/gear\?find=1/);
   await expect(page.getByRole('searchbox', { name: T('Search gear') })).toBeFocused();
   await page.goto('./#/');
   await page.getByRole('button', { name: T('New'), exact: true }).first().click();

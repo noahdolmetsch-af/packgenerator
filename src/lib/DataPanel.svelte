@@ -372,12 +372,12 @@
   }
   a.btn.hi,
   a.btn.hi:visited {
-    color: #fff;
+    color: var(--hi-ink);
   }
   .hi {
     background: var(--hi);
     border-color: var(--hi);
-    color: #fff;
+    color: var(--hi-ink);
   }
   .confirm {
     margin-top: 14px;

@@ -262,8 +262,12 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   await page.goto('./#/features');
   await page.goto('./#/');
   // v0.38.0 (Noah 9a): the line became the row "New in the app" in "Jump to", with the count.
-  const line = page.locator('section.jumps [data-jump=news]');
-  await expect(line.getByRole('link', { name: new RegExp(T('New in the app')) })).toBeVisible();
+  // v0.46.0 (Noah 34b): a quiet row of "Important today" (behind "Show all {n}" when there are more).
+  const imp = page.getByRole('region', { name: T('Important today') });
+  await expect(imp.locator('li').first()).toBeVisible();
+  if (await imp.locator('button.more').count()) await imp.locator('button.more').click();
+  const line = imp.locator('[data-row=news]');
+  await expect(line).toContainText(new RegExp(T('New in the app: {n} updates').split(':')[0]));
   await expect(line.getByRole('link')).toHaveAttribute('href', '#/features?news');
   await shot(page, info, 'today-hint');
   expect(await page.evaluate(() => localStorage.getItem('whatsnew.seen'))).toBe(WHATS_NEW[0].version);

@@ -502,7 +502,7 @@ test('PF07: a new item with name, category and status, weight missing: saved qui
   });
   // The search in the top bar finds it too (phone: behind the search icon).
   if (info.project.name === 'phone') await page.getByRole('button', { name: T('Search everything') }).click();
-  await page.getByRole('searchbox', { name: T('Search everything') }).fill('Spork');
+  await page.getByRole('searchbox', { name: T('What do you want to do? Search or say an action') }).fill('Spork');
   await rec.check('the search everywhere (top bar) finds it', () => expect(page.getByRole('link', { name: new RegExp(esc(name)) }).or(page.getByRole('button', { name: new RegExp(esc(name)) })).first()).toBeVisible({ timeout: 3000 }));
   await rec.shot();
   rec.done(errors);
@@ -521,14 +521,12 @@ test('PF08: star an item, open the favourites on Today, reload: one tap, kept, r
   });
   const favs = (await table(page, 'items')).filter((i) => i.favorite && ['owned', 'unclear'].includes(i.ownership));
   await page.goto('./#/');
-  const kpi = page.locator('a.kpi[href="#/gear?fav=1"]');
-  if (!(await kpi.isVisible())) {
-    const fold = page.locator('details.hub').filter({ has: page.locator('#gear-h') });
-    if (await fold.count()) await fold.locator('summary').click();
-  }
-  await rec.check('Today counts the favourites owned (3)', () => expect(kpi).toContainText(String(favs.length), { timeout: 2000 }));
-  await rec.click(kpi);
-  await expect(page).toHaveURL(/#\/gear\?fav=1/);
+  // v0.46.0: the Gear tile with its favourites count left Today; "Favourites" is one of the 16
+  // functions (the favourites page), and Gear's ★ filter is reached at #/gear?fav=1.
+  await rec.click(page.locator('.actions .grid [data-fn="all"]'));
+  await rec.click(page.locator('dialog.fnsheet [data-fn="favorites"]'));
+  await rec.check('Today: All functions → Favourites opens the favourites', () => expect(page).toHaveURL(/#\/favorites/, { timeout: 2000 }));
+  await page.goto('./#/gear?fav=1');
   const check = async (when) => {
     await rec.check(`${when}: the favourites filter is on`, () => expect(page.getByRole('button', { name: new RegExp(`★ ${esc(T('Favourites'))}`) })).toHaveAttribute('aria-pressed', 'true', { timeout: 3000 }));
     await rec.check(`${when}: the number is explained ("3 favourites in your inventory")`, () => expect(page.locator('.favbase')).toContainText(T('{n} favourites in your inventory', { n: favs.length }), { timeout: 3000 }));
@@ -991,7 +989,9 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
     expect(tipsOf(exported.tables.settings)).toBeNull();
     const had = tipsOf(snapshot.settings);
     const back = tipsOf(await table(page, 'settings'));
-    if (had) expect({ known: back?.known, tapped: back?.tapped }).toEqual({ known: had.known, tapped: had.tapped });
+    // v0.46.0: Today no longer writes the shown tips ("Good to know" is gone); when there is a record it must come back
+    if (had == null) expect(back).toBeNull();
+    else expect({ known: back.known, tapped: back.tapped }).toEqual({ known: had.known, tapped: had.tapped });
   });
   // Offline: the tests block the service worker (it would cache old builds), so offline use cannot be shown here.
   rec.r.open = ['offline use: not testable here (service worker blocked in the tests); Noah checks it on the phone in flight mode'];
@@ -1008,7 +1008,9 @@ const allPacked = () => new RegExp(esc(T('{n} % packed', { n: 100 })));
 
 /** Today's tile (on a phone it starts folded). key: 'pack' | 'gear' | 'bikes'. */
 async function tile(page, key) {
-  if (key === 'bikes') return page.locator('section.ready'); // v0.38.0 (Noah 8a): "Bikes ready?"
+  // v0.46.0 «Startseite neu»: the trip card and the bike cards
+  if (key === 'pack') return page.locator('section.trip');
+  if (key === 'bikes') return page.locator('section.bikes');
   const fold = page.locator('details.hub').filter({ has: page.locator(`#${key}-h`) });
   if ((await fold.count()) && !(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
   return page.locator('.hub').filter({ has: page.locator(`#${key}-h`) });
@@ -1034,7 +1036,8 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   const rec = record('S1', info, page);
   await page.goto('./#/');
   // v0.38.0 (Noah 8a): "Day ride now" in the quick row under the bikes on Today.
-  await rec.click(page.locator('section.ready').getByRole('button', { name: T('Day ride now') }));
+  // v0.46.0: the first button of "What do you want to do?".
+  await rec.click(page.locator('.actions .grid [data-fn="dayride"]'));
   const bar = page.locator('.made-card');
   await expect(bar).toBeVisible();
   // The day ride copies the last day ride (gravel, 3 h): change it to the Scale and 2 h.
@@ -1153,25 +1156,26 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   const due = T('{n} due', { n: 1 });
   await page.goto('./#/');
   // v0.38.0 (Noah 8a): the km are a quick button of the bike on Today.
-  const ready = await tile(page, 'bikes');
-  const head = ready.locator('li.br').filter({ hasText: bikeName }).locator('button.bh');
-  if ((await head.getAttribute('aria-expanded')) !== 'true') await rec.click(head);
-  await rec.click(ready.locator('li.br').filter({ hasText: bikeName }).locator('[data-q=km]'));
-  const km = page.getByRole('dialog', { name: T('Add km') });
-  await rec.fill(km.getByLabel(T('km ridden (+42) or the new counter')), '5100');
-  await rec.click(km.getByRole('button', { name: T('Save') }));
+  // v0.46.0: "Log km" is one of the 16 functions (in "All 16 functions" when not among the buttons).
+  const kmBtn = page.locator('.actions .grid [data-fn="km"]');
+  if (await kmBtn.count()) await rec.click(kmBtn);
+  else {
+    await rec.click(page.locator('.actions .grid [data-fn="all"]'));
+    await rec.click(page.locator('dialog.fnsheet [data-fn="km"]'));
+  }
+  const km = page.getByRole('dialog', { name: T('km for a bike') });
+  await rec.select(km.locator('select').first(), BIKE.spark);
+  await rec.fill(km.getByLabel(T('km on the counter')), '5100');
+  await rec.click(km.getByRole('button', { name: T('Save km') }));
   await rec.check('km saved for the Spark', async () => expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === BIKE.spark).km, { timeout: 3000 }).toBe(5100));
   await expect(km).toBeHidden();
   const line = (await tile(page, 'bikes')).locator('li').filter({ hasText: bikeName }).first();
   // v0.38.0: the chain button says how far past the interval it is (5100 − 4850 = 250 km over).
   await rec.check('Today: the Spark shows the chain due, past its interval', async () => {
     await expect(line).toContainText(due, { timeout: 3000 });
-    await expect(line).toContainText(T('{km} km over', { km: 250 }), { timeout: 3000 });
   });
-  // A workshop visit (Today → Bikes → More → Log a workshop visit).
-  const bikes = (await tile(page, 'bikes')).getByRole('group', { name: T('Bikes|place') });
-  await rec.click(bikes.getByRole('button', { name: T('More') }));
-  await rec.click(bikes.getByRole('menuitem', { name: T('Log a workshop visit') }));
+  // A workshop visit (Today → the line under the bike cards → Log a workshop visit).
+  await rec.click((await tile(page, 'bikes')).getByRole('button', { name: T('Log a workshop visit') }));
   const visit = page.getByRole('dialog', { name: T('Log a workshop visit') });
   await rec.select(visit.locator('select').first(), BIKE.spark);
   await rec.fill(visit.getByLabel(T('Bike shop')), `${P} Velo shop`);

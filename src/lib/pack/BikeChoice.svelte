@@ -123,7 +123,7 @@
   .good {
     font-size: var(--fs-small);
     font-weight: 700;
-    color: #1f7a3d;
+    color: var(--ok);
   }
   .warn,
   dd small.warn {

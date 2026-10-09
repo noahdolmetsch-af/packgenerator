@@ -66,8 +66,9 @@ export function newTrip(startFrom, domain = null) {
  * v0.25.1 (Noah 1a): a day ride in one tap. Pack makes the trip without a dialog (dayride.js) and
  * opens it with "Change" and "Undo". The App takes the wish to Pack when another page is open.
  */
-export function dayRide() {
-  keep('pack.dayRide', '1');
+export function dayRide(bikeId = null) {
+  // v0.46.0 (Noah 14a, 19a): "tagestour factor" and "Other bike" on Today: the ride on that bike.
+  keep('pack.dayRide', typeof bikeId === 'string' && bikeId ? bikeId : '1');
   location.hash = '#/pack';
   window.dispatchEvent(new Event('pg:dayride'));
 }
@@ -92,6 +93,16 @@ export const openNote = (prefill = '', bikeId = null) => window.dispatchEvent(ne
 export function wantBike() {
   keep('bikes.add', '1');
   window.dispatchEvent(new Event('pg:addbike'));
+}
+
+/**
+ * v0.46.0 (Noah 12a, 14a): "What do I wear?" on Today from anywhere (the search command "anziehen"):
+ * Today opens its small window with today's clothes.
+ */
+export function openWear() {
+  keep('home.wear', '1');
+  if (location.hash !== '#/' && location.hash !== '') location.hash = '#/';
+  window.dispatchEvent(new Event('pg:wear'));
 }
 
 /**

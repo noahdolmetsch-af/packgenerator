@@ -70,7 +70,7 @@
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(15, 46, 39, 0.15);
+    box-shadow: 0 8px 24px var(--shadow);
     min-width: 200px;
     max-width: calc(100vw - 32px);
     padding: 4px 0;

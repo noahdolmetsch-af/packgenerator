@@ -1,3 +1,4 @@
+// v0.46.0: the tiles are gone; the bike jobs are a quiet line under the bike cards of Today.
 // v0.25.1 (Noah 1a, 1b, 2b, 3a): more buttons on the Trips and Bikes tiles of Today: four visible,
 // the rest under "More" (keyboard and touch). Past trips, Log a problem → Bike care, an idea on the
 // bike ("Was geil wäre"). Fictional fixture plus test_data_gtp_ trips; nothing leaves the preview.
@@ -47,59 +48,27 @@ async function load(page, context, info) {
   await page.goto('./#/');
 }
 
-/** The tile (opened on a phone, where it starts folded). v0.38.0: the Bikes tile is "Bikes ready?". */
-async function tile(page, key) {
-  if (key === 'bikes') return page.locator('section.ready');
-  const fold = page.locator('details.hub').filter({ has: page.locator(`#${key}-h`) });
-  if (await fold.count()) {
-    if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
-  }
-  return page.locator('.hub').filter({ has: page.locator(`#${key}-h`) });
-}
+/** v0.46.0: the bike cards of Today with their quiet line of bike jobs. */
+const bikeRow = (page) => page.locator('section.bikes');
 
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 
-test('Trips tile and "Bikes ready?": only what no menu has, the More menu by keyboard and touch', async ({ page, context }, info) => {
+// v0.46.0 «Startseite neu»: the Trips and Bikes tiles are gone. The waiting debrief is a row of
+// "Important today"; the bike jobs (problem, idea, workshop visit, workshop order) are one quiet line
+// under the bike cards. "Choose a bike for the trip" lives in Plan (the bike choice), Setups on Bikes.
+test('Today: the waiting debrief in Important today, the bike jobs under the bike cards', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await load(page, context, info);
-
-  // v0.38.0 (Noah 13a): every target once. Day ride, New trip, Past trips, Compare trips, Learnings,
-  // templates and building blocks are in "New" and "More"; the Trips tile keeps what only it knows.
-  const trips = (await tile(page, 'pack')).getByRole('group', { name: T('Trips|place') });
-  await expect(trips.locator(':scope > .btn')).toHaveText([T('Write debrief'), T('Setups')]);
-  await expect(trips.getByRole('link', { name: T('Write debrief') })).toHaveAttribute('href', `#/debrief/${PAST}`);
-
-  // The Bikes tile became "Bikes ready?" (Noah 8a): a problem and an idea, the rest under More.
-  const bikes = (await tile(page, 'bikes')).getByRole('group', { name: T('Bikes|place') });
-  await expect(bikes.locator(':scope > .btn')).toHaveText([T('Log a problem'), T('Idea'), T('More')]);
+  await expect(page.getByRole('region', { name: T('Important today') })).toContainText('test_data_gtp_ Jura');
+  const jobs = bikeRow(page).locator('.jobs');
+  await expect(jobs.locator('.lk').first()).toHaveText(T('Log a problem'));
+  await expect(jobs.getByRole('button', { name: T('Idea') })).toBeVisible();
+  await expect(jobs.getByRole('button', { name: T('Log a workshop visit') })).toBeVisible();
+  await expect(jobs.getByRole('link', { name: T('Workshop order') })).toHaveAttribute('href', '#/bikes?tab=care');
   await noSideways(page);
-
-  // More by keyboard: Enter opens and focuses the first entry, arrows move, Escape closes back on More.
-  const more = bikes.getByRole('button', { name: T('More') });
-  await more.focus();
-  await page.keyboard.press('Enter');
-  const menu = bikes.getByRole('menu');
-  await expect(menu).toBeVisible();
-  await expect(more).toHaveAttribute('aria-expanded', 'true');
-  await expect(menu.getByRole('menuitem')).toHaveText([T('Log a workshop visit'), T('Workshop order'), T('Choose a bike for the trip')]);
-  await expect(menu.getByRole('menuitem', { name: T('Log a workshop visit') })).toBeFocused();
-  await page.keyboard.press('ArrowDown');
-  await expect(menu.getByRole('menuitem', { name: T('Workshop order') })).toBeFocused();
-  await noSideways(page);
-  await page.keyboard.press('Escape');
-  await expect(menu).toBeHidden();
-  await expect(more).toBeFocused();
-  // a tap outside closes it too
-  await more.click();
-  await expect(menu).toBeVisible();
-  await page.locator('main h1').first().click();
-  await expect(menu).toBeHidden();
-
-  // Choose a bike opens the comparison for the next trip.
-  await more.click();
-  await menu.getByRole('menuitem', { name: T('Choose a bike for the trip') }).click();
-  await expect(page.getByRole('dialog', { name: T('Which bike?') })).toBeVisible();
+  await jobs.getByRole('button', { name: T('Log a workshop visit') }).click();
+  await expect(page.getByRole('dialog', { name: T('Log a workshop visit') })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -127,7 +96,7 @@ test('Past trips lists the finished trip and opens it', async ({ page, context }
 
 test('Log a problem lands in Bike care as an open repair', async ({ page, context }, info) => {
   await load(page, context, info);
-  await (await tile(page, 'bikes')).getByRole('button', { name: T('Log a problem') }).click();
+  await bikeRow(page).getByRole('button', { name: T('Log a problem') }).click();
   const dlg = page.getByRole('dialog', { name: T('Log a problem') });
   await expect(dlg.getByLabel(T('Bike'))).toHaveValue('bike-test');
   await dlg.getByLabel(T('What is wrong?')).fill('test_data_gtp_ Kette knackt');
@@ -147,7 +116,7 @@ test('Log a problem lands in Bike care as an open repair', async ({ page, contex
 
 test('An idea for the bike shows on Bikes and can be ticked', async ({ page, context }, info) => {
   await load(page, context, info);
-  await (await tile(page, 'bikes')).getByRole('button', { name: T('Idea') }).click();
+  await bikeRow(page).getByRole('button', { name: T('Idea') }).click();
   const dlg = page.getByRole('dialog', { name: T('Idea for a bike') });
   await dlg.getByLabel(T('What would be great?')).fill('test_data_gtp_ Dropper');
   await dlg.getByRole('button', { name: T('Save') }).click();

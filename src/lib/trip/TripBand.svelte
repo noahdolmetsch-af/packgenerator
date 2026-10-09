@@ -174,7 +174,7 @@
     overflow-wrap: break-word;
   }
   h1 .name:focus-visible {
-    outline: 2px solid var(--focus-on-dark, #fff);
+    outline: 2px solid var(--focus-on-dark);
     outline-offset: 2px;
   }
   h1 :global(.pen) {
@@ -191,8 +191,8 @@
     margin: 2px 0 6px;
     padding: 6px 10px;
     font: 700 20px/1.2 var(--font-body);
-    color: var(--ink, #111);
-    background: #fff;
+    color: var(--ink);
+    background: var(--input);
     border: 0;
     border-radius: 8px;
   }
@@ -285,10 +285,10 @@
     color: var(--brand-ink-2);
   }
   .steps a.done small {
-    color: #9fd3b2;
+    color: var(--brand-ink-2);
   }
   .steps a[aria-current='page'] {
-    color: #fff;
+    color: var(--brand-ink);
     font-weight: 600;
   }
   .steps a[aria-current='page']::after {
@@ -332,7 +332,7 @@
       gap: 10px;
       align-items: center;
       padding: 10px var(--gut);
-      background: rgba(236, 238, 232, 0.97);
+      background: color-mix(in srgb, var(--ground) 97%, transparent);
       border-top: 1px solid var(--line);
       color: var(--ink);
     }

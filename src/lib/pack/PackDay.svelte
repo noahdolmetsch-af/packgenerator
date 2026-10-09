@@ -346,7 +346,7 @@
   /* v0.30.1 (Noah B10): all done, calm and clear: green for the state; orange stays on the band's button. */
   .alldone { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px 14px; margin: 0 0 12px; padding: 18px 16px; border: 2px solid var(--ok); border-radius: 12px; background: var(--ok-soft); scroll-margin-top: 72px; }
   .alldone:focus { outline: none; }
-  .okbig { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--ok); color: #fff; }
+  .okbig { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--ok); color: var(--paper); }
   .alldone h2 { margin: 0; font: 700 21px/1.25 var(--font-body); color: var(--ink); overflow-wrap: break-word; }
   .alldone p { margin: 2px 0 0; font-size: 15px; color: var(--ink-2); }
   .adgo { grid-column: 1 / -1; min-height: 48px; font-size: 16px; }
@@ -357,7 +357,7 @@
   .ring { position: relative; display: inline-block; flex: none; }
   .ring svg { transform: rotate(-90deg); display: block; }
   .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--ink); }
-  .wxgap { background: #e3eef8; }
+  .wxgap { background: var(--info-soft); }
   .wxgap p { margin: 0 0 10px; }
   .lessons p { margin: 0 0 4px; }
   .lessons ul { margin: 0; padding-left: 20px; }
@@ -376,14 +376,14 @@
   .preview { margin: -6px 14px 10px 46px; font-size: 14px; color: var(--ink-2); line-height: 1.5; overflow-wrap: break-word; }
   .items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
   .it { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 60px; padding: 6px 14px; border: 0; border-top: 1px solid var(--paper-2); background: none; color: var(--ink); font: 400 17px/1.25 var(--font-body); text-align: left; cursor: pointer; }
-  .box { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--line-strong); background: #fff; }
+  .box { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--line-strong); background: var(--input); }
   /* v0.30.1 (Noah B1): every item name in the same face, size and weight; × n and the hint line
      only quieter in colour (before: × n bold, so rows with an amount looked like another font). */
   .nm { flex: 1; min-width: 0; overflow-wrap: break-word; font: inherit; }
   .nm small { display: block; font: 400 14px/1.35 var(--font-body); color: var(--ink-3); }
   .q { font: inherit; color: var(--ink-3); white-space: nowrap; }
   .w { flex: none; font-size: 14px; color: var(--ink-3); white-space: nowrap; }
-  .in .box { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .in .box { background: var(--ink); border-color: var(--ink); color: var(--paper); }
   .in .nm > :global(:not(small)), .in .nm { color: var(--ink-3); }
   .in .nm { text-decoration: line-through; text-decoration-thickness: 1px; }
   .in .nm small { text-decoration: none; }

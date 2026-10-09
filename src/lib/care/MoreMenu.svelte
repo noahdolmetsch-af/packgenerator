@@ -47,7 +47,7 @@
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 6px;
-    box-shadow: 0 6px 18px rgba(15, 46, 39, 0.18);
+    box-shadow: 0 6px 18px var(--shadow);
   }
   .btn.sm {
     padding: 3px 10px;

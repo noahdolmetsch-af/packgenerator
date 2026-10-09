@@ -263,7 +263,7 @@
     grid-template-columns: 64px auto 1fr;
     gap: 10px;
     padding: 3px 0;
-    border-bottom: 1px solid var(--paper-2, #e6ebe3);
+    border-bottom: 1px solid var(--paper-2);
     font-size: 14px;
   }
   .days .rain {

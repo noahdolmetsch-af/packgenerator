@@ -57,6 +57,207 @@
   --sp-6: 32px;
   --radius: 8px;
   --gut: 16px;
+  /* v0.46.0 (Noah 4b, 5a): tokens of the new start page, also set by every palette below. */
+  --hi-hover: #a03605;
+  --input: #ffffff;
+  --accent: #276a43; /* the calm accent: done steps, a bike that is ready, the series */
+  --accent-soft: #d9eedf;
+  --head: #276a43; /* the weather sentence of the greeting */
+  --badge: #ffe9dc; /* the small count on an action button */
+  --badge-ink: #8a2f00;
+  --bar: #c6cec4; /* the mini bars of the last 12 months */
+  --shadow: rgba(15, 46, 39, 0.25);
+  --scrim: rgba(15, 46, 39, 0.45);
+  --info-soft: #e3eef8; /* a wet hour, a weather gap */
+}
+
+/* ---------- v0.46.0 «Startseite neu» (Noah 4b, 5a + menu): three colour worlds, light and dark ----------
+   theme.js sets data-palette (gletscher | sandstein | klassisch) and data-theme (light | dark; "System"
+   follows prefers-color-scheme) on <html>. Each set fills the same tokens, so every page follows.
+   Values of Gletscher and Sandstein from the approved mockup (Mix-Desktop, renderVals); every
+   text/background pair checked for 4.5:1 (controls and the logo 3:1). */
+:root[data-palette='klassisch'][data-theme='dark'] {
+  color-scheme: dark;
+  --ground: #0f1a17;
+  --paper: #17241f;
+  --paper-2: #1f2f29;
+  --ink: #e7efe9;
+  --ink-2: #a9c2b6;
+  --ink-3: #93ab9f;
+  --line: #2c3d36;
+  --line-strong: #6e877b;
+  --brand: #0a1411;
+  --brand-ink: #e7efe9;
+  --brand-ink-2: #93ab9f;
+  --hi: #ff7a3d;
+  --hi-ink: #10201b;
+  --hi-bright: #ff7a3d;
+  --hi-soft: #3a2416;
+  --hi-hover: #ff9363;
+  --ok: #6fcf97;
+  --ok-soft: #183526;
+  --warn: #e8b25f;
+  --warn-soft: #3a2d14;
+  --bad: #ff7b70;
+  --bad-soft: #3d1d1a;
+  --focus: #ff9363;
+  --focus-on-dark: #ffb38f;
+  --input: #0f1a17;
+  --accent: #6fcf97;
+  --accent-soft: #183526;
+  --head: #6fcf97;
+  --badge: #3a2416;
+  --badge-ink: #ffb38f;
+  --bar: #2f443b;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.6);
+  --info-soft: #1b2c35;
+}
+:root[data-palette='gletscher'] {
+  --ground: #eef2f4;
+  --paper: #ffffff;
+  --paper-2: #e3eaee;
+  --ink: #14232d;
+  --ink-2: #4a5b66;
+  --ink-3: #56656f;
+  --line: #d3dce1;
+  --line-strong: #6b7b85;
+  --brand: #14232d;
+  --brand-ink: #f4f8fa;
+  --brand-ink-2: #9fb3bf;
+  --hi: #c2441b;
+  --hi-ink: #ffffff;
+  --hi-bright: #ff8a5c;
+  --hi-soft: #fbe3d8;
+  --hi-hover: #a93c18;
+  --ok: #0b6f6b;
+  --ok-soft: #d5ecea;
+  --warn: #9a5600;
+  --warn-soft: #fbefd2;
+  --bad: #c0352b;
+  --bad-soft: #fbe6e3;
+  --focus: #c2441b;
+  --focus-on-dark: #ffb08f;
+  --input: #ffffff;
+  --accent: #0b6f6b;
+  --accent-soft: #d5ecea;
+  --head: #0b6f6b;
+  --badge: #fbe3d8;
+  --badge-ink: #8a2f10;
+  --bar: #c4d0d6;
+  --shadow: rgba(20, 35, 45, 0.22);
+  --scrim: rgba(20, 35, 45, 0.45);
+  --info-soft: #e2eef6; /* a wet hour, a weather gap */
+}
+:root[data-palette='gletscher'][data-theme='dark'] {
+  color-scheme: dark;
+  --ground: #0e171d;
+  --paper: #16232b;
+  --paper-2: #1d2d36;
+  --ink: #e8eff2;
+  --ink-2: #9fb3bf;
+  --ink-3: #8ea4b1;
+  --line: #2a3a44;
+  --line-strong: #6f8794;
+  --brand: #0a1217;
+  --brand-ink: #e8eff2;
+  --brand-ink-2: #8ea4b1;
+  --hi: #ff7a4d;
+  --hi-ink: #14232d;
+  --hi-bright: #ff8a5c;
+  --hi-soft: #3a2419;
+  --hi-hover: #ff936d;
+  --ok: #4fc3bd;
+  --ok-soft: #173533;
+  --warn: #f0b05a;
+  --warn-soft: #3a2c12;
+  --bad: #ff7b70;
+  --bad-soft: #3d1d1a;
+  --focus: #ff8a5c;
+  --focus-on-dark: #ffb08f;
+  --input: #0e171d;
+  --accent: #4fc3bd;
+  --accent-soft: #173533;
+  --head: #4fc3bd;
+  --badge: #3a2419;
+  --badge-ink: #ffb08f;
+  --bar: #2f4350;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.6);
+  --info-soft: #17303d;
+}
+:root[data-palette='sandstein'] {
+  --ground: #f4efe6;
+  --paper: #fffcf6;
+  --paper-2: #ece4d6;
+  --ink: #2b2420;
+  --ink-2: #5f544b;
+  --ink-3: #685c52;
+  --line: #e2d8c9;
+  --line-strong: #8a7c6e;
+  --brand: #2b2420;
+  --brand-ink: #fbf6ee;
+  --brand-ink-2: #c2b5a5;
+  --hi: #b5461c;
+  --hi-ink: #ffffff;
+  --hi-bright: #f08a5b;
+  --hi-soft: #f6dccd;
+  --hi-hover: #993b17;
+  --ok: #4f6b2e;
+  --ok-soft: #e3ead6;
+  --warn: #8f5a00;
+  --warn-soft: #f6ecd2;
+  --bad: #b3261e;
+  --bad-soft: #f5d8d3;
+  --focus: #b5461c;
+  --focus-on-dark: #f7b893;
+  --input: #fffcf6;
+  --accent: #4f6b2e;
+  --accent-soft: #e3ead6;
+  --head: #4f6b2e;
+  --badge: #f6dccd;
+  --badge-ink: #7c2d0e;
+  --bar: #d9ccb8;
+  --shadow: rgba(43, 36, 32, 0.22);
+  --scrim: rgba(43, 36, 32, 0.45);
+  --info-soft: #e6eef3; /* a wet hour, a weather gap */
+}
+:root[data-palette='sandstein'][data-theme='dark'] {
+  color-scheme: dark;
+  --ground: #171310;
+  --paper: #221c18;
+  --paper-2: #2e2722;
+  --ink: #f2ebe1;
+  --ink-2: #bfb2a2;
+  --ink-3: #ab9d8c;
+  --line: #3a312a;
+  --line-strong: #85776a;
+  --brand: #100d0b;
+  --brand-ink: #f2ebe1;
+  --brand-ink-2: #ab9d8c;
+  --hi: #f08a5b;
+  --hi-ink: #2b2420;
+  --hi-bright: #f08a5b;
+  --hi-soft: #3d2619;
+  --hi-hover: #f4a07a;
+  --ok: #a6c27a;
+  --ok-soft: #2a3320;
+  --warn: #e8b25f;
+  --warn-soft: #3a2d14;
+  --bad: #ff8a80;
+  --bad-soft: #3d1e1b;
+  --focus: #f08a5b;
+  --focus-on-dark: #f7b893;
+  --input: #171310;
+  --accent: #a6c27a;
+  --accent-soft: #2a3320;
+  --head: #a6c27a;
+  --badge: #3d2619;
+  --badge-ink: #f7b893;
+  --bar: #43392f;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.6);
+  --info-soft: #2a2a2c;
 }
 
 * {
@@ -154,7 +355,7 @@ h1.title {
   font-weight: 600;
 }
 .btn.hi:hover {
-  background: #a03605;
+  background: var(--hi-hover);
 }
 .btn.ink {
   background: var(--ink);
@@ -176,7 +377,7 @@ h1.title {
   padding: 8px 10px;
   border: 1.5px solid var(--line-strong);
   border-radius: 6px;
-  background: #fff;
+  background: var(--input);
   color: var(--ink);
   width: 100%;
   min-width: 0;
@@ -216,7 +417,7 @@ h1.title {
 dialog.sheet {
   border: 1px solid var(--line);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(15, 46, 39, 0.25);
+  box-shadow: 0 12px 40px var(--shadow);
   background: var(--paper);
   color: var(--ink);
   padding: 18px;
@@ -224,7 +425,7 @@ dialog.sheet {
   max-height: calc(100vh - 24px);
 }
 dialog.sheet::backdrop {
-  background: rgba(15, 46, 39, 0.45);
+  background: var(--scrim);
 }
 
 /* v0.27.0 (AP21): on a touch screen every button is at least 44 px high (small ones 40 px until v0.45.0, now 44 px too), and the

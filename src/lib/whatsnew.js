@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.46.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'Today is new: a greeting with the weather and an idea for a day ride, the next trip in one compact card, and "What do you want to do?" with the functions you use most in front.', href: '#/' },
+      { text: '"Important today" shows at most three things, with "Lubed ✓" right in the row; next to it "Tried it yet?" shows a function you have not used yet. Test trips no longer count as the next trip.', href: '#/' },
+      { text: 'The search at the top also does things: type "weigh", "day ride factor" or "chain lubed spark" and press Enter.', href: '#/' },
+      { text: 'Three colour worlds, Glacier, Sandstone and Classic, each light or dark: More → Colours.', href: '#/' },
+    ],
+  },
+  {
     version: '0.45.2',
     date: '2026-10-09',
     points: [
