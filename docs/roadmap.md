@@ -610,5 +610,7 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.5 | 09.10.2026 | 0.47.3 Wetter-Chips im Fenster «Neue Tour» und •••-Menüs im Bild erledigt |
 | 2.6 | 09.10.2026 | 0.56.0 R1 «Rückblick ruhig» erledigt (eine Rückblick-Seite, Vergangene Touren als Tabelle, Tour-Rückblick nach drei «A»); als Nächstes R2 Tempo und Logbuch |
 | 2.5 | 09.10.2026 | 0.57.0 «Pflege-Übersicht + Teile pro Velo + Eingang/Notizen» erledigt |
+| 2.6 | 09.10.2026 | 0.49.0 R1 «Rückblick ruhig» erledigt (eine Rückblick-Seite, Vergangene Touren als Tabelle, Tour-Rückblick nach drei «A»); als Nächstes R2 Tempo und Logbuch |
+| 2.7 | 09.10.2026 | 0.61.0 R2 «Tempo + Logbuch» erledigt (Regel in einem Satz, eigene Regel ab 5 Fahrten mit Rückweg, Logbuch als Tagebuch aller Touren, Gelernt flach); Strava und Fotos bleiben geparkt |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

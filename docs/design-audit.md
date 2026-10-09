@@ -73,7 +73,7 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Touren | Tour-Dialog, Vorlagen-Dialog, Lade-Blatt | 9.10.2026 (0.47.3: Wetter-Chips wie auf der Tourseite, Trocken/Regen) | 3 |
 | Touren | Unterwegs | – | – |
 | Touren | Rückblick (eine Seite: letzte Fahrt, 12 Monate, Vergleich) | 9.10.2026 (0.49 R1 nach Mockup «Rückblick-Hub») | 4 |
-| Touren | Tempo, Logbuch, Gelernt (eine Ebene unter Rückblick) | – (R2) | – |
+| Touren | Tempo, Logbuch, Gelernt (eine Ebene unter Rückblick) | 9.10.2026 (0.53 R2) | 4 |
 | Touren | Gespeicherter Rückblick einer Tour | 9.10.2026 (0.49 R1 nach drei «A») | 4 |
 | Touren | Vergangene Touren (Tabelle) | 9.10.2026 (0.49 R1 nach Mockup) | 4 |
 | Touren | Fahrten, Teilen | – | – |
@@ -103,7 +103,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Packtag (PackStage) mit derselben Velozeichnung und Gewichtskarte wie Planen. Ziel 0.48.
 - Velos/Setup: nur das Kopfband ist angeglichen; Zeichnung, Taschen-Blatt und Dialoge folgen. Velopflege-Dialoge (Teil, Werkstattbesuch, Bestellung). Ziel 0.48.
 - Material → Wiegen und Import prüfen «Unsicher»: bleiben bewusst (siehe decisions.md), Optik auf Karten-Token. Ziel 0.48.
-- Tempo, Logbuch, Gelernt: noch der alte Stil (Kopf, Kästen); R2 baut sie nach den Mockups «Tempo», «Logbuch», «Learnings». Ziel R2.
+- Tempo, Logbuch, Gelernt: in R2 (0.61.0) umgebaut: Karten, ein Satz oben, kleine Diagramme aus R1 (MiniBars), flache Listen.
 - Heute, Touren-Übersicht, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 - Auswahl-Chips (`.chip`, aria-pressed) aus 0.48 als gemeinsamer Baustein in `app.css`: heute lokal in FileSheet, NoteSheet, PartFlow, CareTab, ShopTab, Inbox. Ziel 0.49.
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
@@ -119,3 +119,5 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 9.10.2026, 0.48 «Pflege-Übersicht + Teile pro Velo + Eingang/Notizen»: Velopflege mit Übersicht C (Ringe, höchstens 3 Fällig-Karten, flache Probleme), Teiletabelle nach Bereich mit «Mehr», geführtes Ersetzen/Warten; Velos vergleichen (fixe erste Spalte, Tabelle scrollt in sich); Eingang nach Tagen mit Ablegen-Blatt (7 Ziele); Werkstatt & Belege; neue Seite Notizen. Mitgezogen: Velos-Reiter (dritter Reiter Werkstatt), Mehr-Menü (Notizen), Heute (eine Zeile für angeheftete Notiz). Offen: Chips (`.chip`) sind in FileSheet, NoteSheet, PartFlow und CareTab je lokal gestylt; als gemeinsamer Baustein in `app.css` Ziel 0.49. Werkstattbesuch- und Bestell-Dialog noch im alten Stil, Ziel 0.49.
 
 - 9.10.2026, 0.59.0 «Tauschen» (OP2a): Packliste mit der Karte «Am Körper» (Zone, Schicht, Temperaturbalken mit Tour-Rahmen), Blatt «Tauschen» (am Handy von unten, 44-px-Ziele), Kleiderschrank mit Tourband. Neuer Baukasten-Teil `src/lib/ui/TempBar.svelte` (der Balken des Kleiderschranks, mit Rahmen für den Bereich der Tour). Tour/Packen 3 → 4. Bilder vorher/nachher: `design/v0520-tausch/`.
+- 9.10.2026, 0.61.0 R2 «Tempo + Logbuch»: Tempo (Regel in einem Satz, Rückweg zur Standardregel, drei MiniBars), Logbuch (flache Tagebuchliste mit Filter Jahr/Reiseart), Gelernt (flach nach Thema). Mitgezogen: Rückblick-Karten Tempo und Logbuch, Hinweis in der Route (Packen). Wächter: Stil nur gesunken (Debrief.svelte 13 → 8, Pace.svelte 1 → 0); Konsistenz-Test prüft zusätzlich `#/debrief/logbook` (0 Befunde). Bilder: `design/v0530/vorher` und `nachher`.
+- 9.10.2026, 0.49.0 R1 «Rückblick ruhig»: Rückblick als eine Seite, Vergangene Touren als Tabelle (am Handy mit stehender Namensspalte), gespeicherter Tour-Rückblick nach drei «A». Mitgezogen: Breadcrumbs auf Rückblick, Vergangene Touren und den Unterseiten Tempo/Gelernt/Logbuch; «Mehr › Rückblick», Heute (Rückblick-Knopf, 12-Monate-Zeile), Tipps. Wächter-Grundlinie: Stil nur gesunken (Compare/Review gelöscht, Debrief/PastTrips weniger), Konsistenz-Test prüft statt `#/review` jetzt `#/debrief/learnings` und `#/debrief/pace`. Bilder: `design/v0490/vorher` und `nachher`.

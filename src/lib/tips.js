@@ -128,7 +128,7 @@ export function usedTips({ trips = [], items = [], bikes = [], visits = [], debr
   on('event', trips.some((t) => isEvent(t)));
   on('debrief', debriefs.some((d) => d.status === 'done'));
   on('learn', templates.some((tp) => tp.hintLog?.length));
-  on('pace', !!pace?.mine);
+  on('pace', !!pace?.mine || !!pace?.standard);
   on('weigh', items.some((i) => i.weightStatus === 'measured'));
   on('fav', items.some((i) => i.favorite));
   on('wish', items.some((i) => i.ownership === 'wishlist' || i.ownership === 'to-buy'));
