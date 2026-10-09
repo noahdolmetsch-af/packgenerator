@@ -95,19 +95,31 @@ test('6 tiles with tips, "I know it" for good, the overview with ticks and progr
   await row.click();
   await expect(page).toHaveURL(/#\/features$/);
   await expect(page.getByRole('heading', { name: T('What the app can do'), level: 1 })).toBeVisible();
-  await expect(page.locator('main section.grp h2')).toHaveText(GROUPS.map((g) => T(g.label)));
+  // v0.40.0 (Noah 9a): "Not used yet" as rows, "Already used" folded by area (the areas as before).
+  const heads = [...(n < TIPS.length ? [T('Not used yet')] : []), ...(n ? [T('Already used')] : [])];
+  await expect(page.locator('main section.grp h2 > span:first-child')).toHaveText(heads);
+  if (n) await expect(page.locator('details.area > summary .t').first()).toBeAttached();
+  for (const label of await page.locator('details.area > summary .t').allTextContents()) expect(GROUPS.map((g) => T(g.label))).toContain(label);
   await expect(page.locator('[data-feature]')).toHaveCount(TIPS.length);
   await expect(page.locator('[data-feature].used')).toHaveCount(n);
-  await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', String(n));
+  await expect(page.locator('.page-sub')).toHaveText(T('{n} of {total} used', { n, total: TIPS.length }));
   // the known tip is listed, with ✓ "You know it"
   await expect(page.locator(`[data-feature="${first}"]`)).toContainText(T('You know it'));
   // the home place is set in the fixture: its tip counts as used
   await expect(page.locator('[data-feature="homeweather"]')).toContainText(T('Used|tips'));
   await noSideScroll(page);
 
-  // each row has its one button that starts the thing: the weigh tab of Gear, marked as used
+  // v0.40.0 (Noah 9a): a tip is a row; beyond the first six unused ones it waits behind "+ n more",
+  // a used one inside its folded area.
+  const reveal = async (row) => {
+    if (!(await row.isVisible()) && (await page.locator('.morerow').count())) await page.locator('.morerow').click();
+    if (!(await row.isVisible())) await page.locator('details.area').filter({ has: row }).locator('> summary').click();
+    await expect(row).toBeVisible();
+  };
+  // each row starts the thing (the whole row): the weigh tab of Gear, marked as used
   const weigh = page.locator('[data-feature="weigh"]');
-  await weigh.getByRole('link', { name: T('Start weighing') }).click();
+  await reveal(weigh);
+  await weigh.getByRole('link').click();
   await expect(page).toHaveURL(/#\/gear\?tab=weigh$/);
   await expect.poll(async () => (await tipsState(page))?.tapped?.weigh ?? null).not.toBeNull();
   expect(errors).toEqual([]);

@@ -214,7 +214,6 @@ export default {
   'All areas': 'Alle Reisearten',
   Areas: 'Reisearten',
   'Areas (new trips of an area suggest its items)': 'Reisearten (neue Touren dieser Art schlagen ihre Teile vor)',
-  'All my favourite things': 'Alle meine Lieblingsstücke',
   'Why it is a favourite': 'Warum es ein Favorit ist',
   'e.g. Warm, packs small, never let me down': 'z. B. warm, klein verpackt, hat mich nie im Stich gelassen',
   '{n} area': '{n} Reiseart',

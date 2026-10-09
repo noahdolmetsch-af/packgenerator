@@ -110,15 +110,18 @@ test('Past trips lists the finished trip and opens it', async ({ page, context }
   await page.locator('dialog.more').getByRole('link', { name: T('Past trips') }).click();
   await expect(page).toHaveURL(/#\/pack\/past/);
   await expect(page.getByRole('heading', { name: T('Past trips'), level: 1 })).toBeVisible();
-  const rows = page.locator('.past li.card');
+  // v0.40.0 (Noah 3a): one row per trip; an open debrief is a small neutral badge, the row opens it.
+  const open = page.getByRole('list', { name: new RegExp(`^${T('Debrief open')}`) });
+  const rows = page.locator('.past ul[aria-labelledby] > li');
   await expect(rows).toHaveCount(1); // the next trip is not past
+  await expect(open.locator('li')).toHaveCount(1);
   await expect(rows.first()).toContainText('test_data_gtp_ Jura');
-  await expect(rows.first()).toContainText(T('{n} days', { n: 3 }));
-  await expect(rows.first()).toContainText(T('km unknown'));
-  await expect(rows.first().getByRole('link', { name: T('Write debrief') })).toHaveAttribute('href', `#/debrief/${PAST}`);
+  await expect(rows.first().locator('.nbadge')).toHaveText(T('open|debrief'));
+  await expect(rows.first().getByRole('link')).toHaveAttribute('href', `#/debrief/${PAST}`);
+  await expect(page.locator('.page-sub')).toContainText(T('{n} debrief open', { n: 1 }));
   await noSideways(page);
   await rows.first().getByRole('link', { name: /test_data_gtp_ Jura/ }).click();
-  await expect(page).toHaveURL(/#\/pack$/);
+  await expect(page).toHaveURL(new RegExp(`#/debrief/${PAST}$`));
   await expect(page.locator('.trip-band h1')).toHaveText('test_data_gtp_ Jura');
 });
 

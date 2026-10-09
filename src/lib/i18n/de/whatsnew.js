@@ -3,13 +3,20 @@
  * from v0.35.0 back to the first version. Keys are the English texts. Swiss spelling (ss).
  */
 export default {
-  'New in the last updates': 'Neu in den letzten Updates',
   'Older updates': 'Ältere Updates',
   'Version {v}': 'Version {v}',
   '{from} to {to}|versions': '{from} bis {to}',
-  'Try it': 'Ausprobieren',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.40.0
+  'Calmer side pages: Inbox, Past trips, Debrief, Building blocks and What the app can do as short rows; explanations behind a small "?".':
+    'Ruhigere Nebenseiten: Inbox, Vergangene Touren, Rückblick, Bausteine und Was die App kann als kurze Zeilen; Erklärungen hinter einem kleinen «?».',
+  'Past trips is one list with the debrief state and the km on the right; Debrief keeps learnings, comparison and pace.':
+    'Vergangene Touren ist eine Liste mit dem Stand des Rückblicks und den km rechts; der Rückblick behält Learnings, Vergleich und Tempo.',
+  'Chain wear at the replace limit (Today or Bike care) marks the chain as work needed and puts it on the wishlist, with Undo.':
+    'Kettenverschleiss an der Ersetzen-Grenze (Heute oder Velopflege) markiert die Kette als Arbeit nötig und setzt sie auf die Wunschliste, mit Rückgängig.',
+  'New trip: the area and the other starts are folded, the standard comes first; Plan and the ride use the full width on a computer.':
+    'Neue Tour: Reiseart und die anderen Starts sind zugeklappt, der Standard kommt zuerst; Planen und Unterwegs nutzen am Computer die ganze Breite.',
   // 0.39.0
   'Templates are linked to your building blocks: change a building block and every template with it changes too.':
     'Vorlagen sind mit deinen Bausteinen verbunden: Änderst du einen Baustein, ändert sich jede Vorlage mit ihm.',

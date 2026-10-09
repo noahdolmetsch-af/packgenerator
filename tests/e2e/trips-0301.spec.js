@@ -189,7 +189,10 @@ test('C3, C5: "Yes, remember" saves the suggestion; a debrief saved early makes 
   expect((await table(page, 'bikes'))[0].km).toBe(42);
 
   await page.goto('./#/pack/past');
-  await expect(page.locator('.past .card').filter({ hasText: 'test_data_gtp_ Morgen' })).toContainText(T('Debrief done'));
+  // v0.40.0: done = under "Done", without a badge, the km right.
+  const doneRow = page.getByRole('list', { name: new RegExp(`^${T('Done|past')}`) }).locator('li').filter({ hasText: 'test_data_gtp_ Morgen' });
+  await expect(doneRow).toContainText('42 km');
+  await expect(doneRow.locator('.nbadge')).toHaveCount(0);
   await page.goto('./#/');
   await expect(page.locator('#next-h')).toHaveText(T('No trip planned'));
   expect(errors).toEqual([]);
@@ -214,7 +217,8 @@ test('N8, N9: rename a past trip in its band; past trips are easy to find', asyn
   await expect(page).toHaveURL(/#\/pack\/past/);
 
   // Open the past trip and rename it: tap the name, type, Enter.
-  await page.locator('.past .card a.open').filter({ hasText: 'test_data_gtp_ Alt' }).click();
+  // v0.40.0: a row per past trip; its band opens from the debrief page.
+  await page.locator('.past a.lrow').filter({ hasText: 'test_data_gtp_ Alt' }).click();
   const band = page.locator('.trip-band');
   await band.getByRole('button', { name: 'test_data_gtp_ Alt' }).click();
   const field = band.getByRole('textbox', { name: T('Trip name') });
@@ -237,7 +241,7 @@ test('N8, N9: rename a past trip in its band; past trips are easy to find', asyn
   expect(errors).toEqual([]);
 });
 
-test('N10, N11: New trip shows "Copy the last trip: name" at once; templates in building blocks', async ({ page, context }, info) => {
+test('N10, N11, v0.40.0: New trip has "Copy the last trip: name" under "Start differently"; templates in building blocks', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const std = ['EL01', 'EL02', 'EL03', 'LI01', 'LI02', 'ON01', 'ON02', 'OF01', 'RA01', 'RA02', 'TO01', 'TO02', 'TO03', 'HY02'];
@@ -263,11 +267,20 @@ test('N10, N11: New trip shows "Copy the last trip: name" at once; templates in 
   }), value);
   await page.evaluate(() => { localStorage.setItem('pack.startFrom', 'standard'); location.hash = '#/pack'; window.dispatchEvent(new Event('pg:newtrip')); });
   const dlg = page.getByRole('dialog', { name: T('New trip') });
+  // v0.40.0 (Noah 10a, Funde 7a): the standard first; the other starts folded below it as one row.
+  const other = dlg.locator('details.starts > summary');
+  await expect(other).toContainText(T('Start differently'));
+  await expect(dlg.locator('.plan')).toContainText(T('Standard'));
   const copy = dlg.getByRole('button', { name: T('Copy the last trip: {title}', { title: 'test_data_gtp_ Letzte' }) });
+  await expect(copy).toBeHidden();
+  await other.click();
   await expect(copy).toBeVisible();
   await copy.click();
-  await expect(copy).toHaveAttribute('aria-pressed', 'true');
+  await expect(other).toContainText(T('Copy|start'));
+  await expect(dlg.locator('.plan')).toContainText(T('Copy: {title}', { title: 'test_data_gtp_ Letzte' }));
   // Templates stay folded; open, the row says what is in it in building blocks.
+  await other.click();
+  await expect(copy).toHaveAttribute('aria-pressed', 'true');
   await dlg.locator('details summary').filter({ hasText: T('Start from a template') }).click();
   await expect(dlg.locator('.opt').filter({ hasText: 'test_data_gtp_ Regenrunde' })).toContainText(/Standard \+ test_data_gtp_ Regen \+ 1 Extra$/);
   await expect(dlg.locator('.opt').filter({ hasText: 'test_data_gtp_ Regenrunde' })).toContainText(`${T('{n} day', { n: 1 })} · ${T('{n} h', { n: '2' })}`);

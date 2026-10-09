@@ -96,7 +96,7 @@ test('Pack bag by bag with Whole bag packed, and select all in the debrief', asy
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await dlg.getByLabel(T('Name')).fill(title);
   await dlg.getByLabel(T('Start date')).fill(today());
-  await dlg.getByLabel(T('Days')).fill('2');
+  await dlg.getByRole('button', { name: T('2 days'), exact: true }).click(); // v0.40.0: the days field only after "More"
   await dlg.getByRole('button', { name: T('Create trip') }).click();
   // Two days: the base set comes along (read from the stored trip; the bags start folded).
   await expect.poll(() => page.evaluate((t) => new Promise((ok) => {

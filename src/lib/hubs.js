@@ -39,6 +39,33 @@ export function pastTrips(trips = [], debriefs = [], today) {
     });
 }
 
+/**
+ * v0.40.0 (Noah 3a): ONE list of past trips with the debrief state (the debrief page keeps
+ * Learnings, the comparison and the pace). Two groups:
+ *   open: trips that can still get a debrief (packed in the app, not closed "without a debrief"),
+ *         a started draft included, newest first;
+ *   done: the rest, newest first: debriefed, closed without a debrief, or nothing packed in the app.
+ * Each row is a pastTrips row plus { state: 'open' | 'draft' | 'done' | 'none', unused, missing }
+ * (unused, missing: counts from a saved debrief, else 0). km: the sum of the known km of the done
+ * trips (unknown is left out, never counted as 0); kmKnown: how many of them had km.
+ * → { open, done, km, kmKnown, total }
+ */
+export function pastTripList(trips = [], debriefs = [], today) {
+  const byTrip = Object.fromEntries(debriefs.map((d) => [d.tripId, d]));
+  const rows = pastTrips(trips, debriefs, today).map((r) => {
+    const d = byTrip[r.trip.id] ?? null;
+    const entries = r.trip.entries ?? [];
+    const unused = d?.status === 'done' ? entries.filter((e) => d.items?.[e.itemId] === 'unused').length : 0;
+    const missing = d?.status === 'done' ? (d.missing ?? []).length : 0;
+    const state = r.debrief === 'done' ? 'done' : !r.canDebrief || r.trip.noDebrief ? 'none' : r.debrief === 'draft' ? 'draft' : 'open';
+    return { ...r, state, unused, missing };
+  });
+  const open = rows.filter((r) => r.state === 'open' || r.state === 'draft');
+  const done = rows.filter((r) => r.state === 'done' || r.state === 'none');
+  const withKm = done.filter((r) => typeof r.km === 'number');
+  return { open, done, km: withKm.reduce((s, r) => s + r.km, 0), kmKnown: withKm.length, total: rows.length };
+}
+
 /** The bike a quick action starts with: the next trip's bike, else the first bike (bikes sorted). */
 export function hubBike(next, bikes = []) {
   const own = next?.bikeId ? bikes.find((b) => b.id === next.bikeId) : null;

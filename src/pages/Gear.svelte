@@ -478,7 +478,7 @@
               {t('{a} of {b} items', { a: inventory.length, b: stats.inventory.length })}
               {#if !searching && groups.length}<button type="button" class="link tap" onclick={() => setAll(allOpen)}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}
               <!-- v0.21.0: every favourite by area, read-only and printable -->
-              {#if filter.fav}<a class="favlink" href="#/favorites">{t('All my favourite things')} →</a>{/if}
+              {#if filter.fav}<a class="favlink" href="#/favorites">{t('All favourites')} →</a>{/if}
             </p>
             <span class="seg" role="group" aria-label={t('Show the bag')}>
               <button type="button" aria-pressed={!showBag} onclick={() => setShowBag(false)}>{t('Compact')}</button>

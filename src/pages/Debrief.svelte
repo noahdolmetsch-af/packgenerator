@@ -18,7 +18,7 @@
   import TripBand from '../lib/trip/TripBand.svelte';
   import { openTrip } from '../lib/nav.js';
   import '../lib/trip/trip.css';
-  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload } from '@lucide/svelte';
+  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, CalendarCheck } from '@lucide/svelte';
   import { ZONE, touched } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
@@ -28,6 +28,7 @@
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
+  import Seg from '../lib/ui/Seg.svelte';
 
   let { param = '' } = $props();
 
@@ -122,6 +123,7 @@
     x.weather ??= 'planned';
     x.amount ??= 'right';
     x.bags ??= 'fine';
+    x.applied ??= []; // v0.40.0: an imported debrief may come without it
     if (x.km == null && bike && trip.route?.km) x.km = Math.round(trip.route.km);
     d = x;
     saved = stored?.status === 'done';
@@ -362,7 +364,7 @@
             <div><b class="num">{counts.missing}</b><span class="lbl">{t('missing')}</span></div>
             <div><b class="num">{counts.broken}</b><span class="lbl">{t('broken')}</span></div>
           </div>
-          <p class="card ok">{t('Debrief saved')}{d.applied.length ? `, ${tn(d.applied.length, '{n} change made', '{n} changes made')}` : ''}{d.kmApplied ? `, ${bike?.name ? t('{km} km added to {bike}', { km: num(d.kmApplied), bike: bike.name }) : t('{km} km added to the bike', { km: num(d.kmApplied) })}` : ''}. {t('The learnings now show up on the start page and when you pack.')}</p>
+          <p class="card ok">{t('Debrief saved')}{d.applied?.length ? `, ${tn(d.applied.length, '{n} change made', '{n} changes made')}` : ''}{d.kmApplied ? `, ${bike?.name ? t('{km} km added to {bike}', { km: num(d.kmApplied), bike: bike.name }) : t('{km} km added to the bike', { km: num(d.kmApplied) })}` : ''}. {t('The learnings now show up on the start page and when you pack.')}</p>
           {#if sugg.length}<p class="hint">{tn(sugg.length, '{n} more suggestion is open. Change your answers to see it.', '{n} more suggestions are open. Change your answers to see them.')}</p>{/if}
           {#if offer}<TemplateOffer {trip} name={offer} />{/if}
           <p><button type="button" class="btn" onclick={reopen}>{t('Change answers')}</button></p>
@@ -372,7 +374,7 @@
         <div class="col">
           <!-- Noah 9a: only what was different; everything else counts as used. -->
           <section class="tp-card" aria-labelledby="diff-h">
-            <h2 id="diff-h">{t('What was different?')}<span class="r">{t('tap only the exceptions')}</span></h2>
+            <h2 id="diff-h">{t('What was different?')}</h2>
             {#if exceptions.length || d.missing.length}
               <ul class="exc">
                 {#each exceptions as e (e.itemId)}
@@ -388,7 +390,7 @@
                     <button type="button" class="x" aria-label={t('Remove {name}', { name: m.name })} onclick={() => dropMissing(m.id)}><X size={18} aria-hidden="true" /></button></li>
                 {/each}
               </ul>
-            {:else}<p class="tp-muted tp-small">{t('Nothing yet. Tap an item below when you did not use it or it broke.')}</p>{/if}
+            {/if}
             <form class="miss" onsubmit={addMissing}>
               <input class="inp" list="gear-names" placeholder={t('What you missed, e.g. Headlamp')} bind:value={missName} aria-label={t('What you missed')} />
               <button type="submit" class="btn">{t('Add')}</button>
@@ -406,11 +408,12 @@
 
           <!-- Noah 9a: filled in; change only what was not so. -->
           <section class="tp-card" aria-labelledby="how-h">
-            <h2 id="how-h">{t("How it was")}<span class="r">{t('filled in')}</span></h2>
+            <h2 id="how-h">{t("How it was")}</h2>
+            <!-- v0.40.0 (Noah 4a): segmented toggles instead of drop-downs: one tap, the answer in sight. -->
             <div class="qa">
-              <label><span>{t('Weather')}</span><select class="sel pill" value={d.weather} onchange={(e) => set('weather', e.currentTarget.value)}>{#each WEATHER as o (o.key)}<option value={o.key}>{t(o.name)}</option>{/each}</select></label>
-              <label><span>{t('Amount')}</span><select class="sel pill" value={d.amount} onchange={(e) => set('amount', e.currentTarget.value)}>{#each AMOUNT as o (o.key)}<option value={o.key}>{t(o.name)}</option>{/each}</select></label>
-              <label><span>{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><select class="sel pill" value={d.bags} onchange={(e) => set('bags', e.currentTarget.value)}>{#each BAGS_OK as o (o.key)}<option value={o.key}>{t(o.name)}</option>{/each}</select></label>
+              <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={WEATHER.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('weather', v)} /></div>
+              <div class="segq"><span class="lbl" id="q-amount">{t('Amount of food and drink')}</span><Seg labelledby="q-amount" value={d.amount} options={AMOUNT.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('amount', v)} /></div>
+              <div class="segq"><span class="lbl" id="q-bags">{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><Seg labelledby="q-bags" value={d.bags} options={BAGS_OK.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('bags', v)} /></div>
               {#if bike}
                 <label><span>{t('km for {bike}', { bike: bike.name })} <small>{bike.km != null ? t('now {km} km', { km: num(bike.km) }) : ''}</small></span><span class="kmin"><input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder={t('e.g. 303')} aria-label={t('km of this trip')} /> km</span></label>
               {/if}
@@ -426,10 +429,11 @@
                 <p>{t('Several files at once are fine (one per day). Only rides on the days of this trip count.')}</p>
               </details>
             {/if}
-            <label class="note">
-              <span>{t('One sentence for next time')} <small>({t('optional')})</small></span>
-              <textarea class="inp" rows="2" bind:value={d.note} oninput={persist} placeholder={t('e.g. Heatwave, the rain gear was never used')}></textarea>
-            </label>
+            <!-- v0.40.0 (design check R1): folded as a row; open when there is a sentence already. -->
+            <details class="note-fold" use:openOnce={!!d.note}>
+              <summary><span>{t('One sentence for next time')}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+              <textarea class="inp" rows="2" bind:value={d.note} oninput={persist} placeholder={t('e.g. Heatwave, the rain gear was never used')} aria-label={t('One sentence for next time')}></textarea>
+            </details>
           </section>
         </div>
         <div class="col">
@@ -462,8 +466,9 @@
           {/if}
           <!-- Noah 9a: every item counts as used; a tap on an item changes it: used → not used → broken. -->
           <details class="tp-fold items-fold" use:openOnce={!phone.matches}>
-            <summary><span class="tp-okdot"><Check size={16} aria-hidden="true" /></span><span class="two"><b>{tn(used, '{n} item used', '{n} items used')}</b><small>{t('Tap an item to change it: used → not used → broken')}</small></span><span class="r"><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+            <summary><span class="tp-okdot"><Check size={16} aria-hidden="true" /></span><span class="two"><b>{tn(used, '{n} item used', '{n} items used')}</b></span><span class="r"><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
             <div class="in">
+              <p class="tp-muted tp-small cyc">{t('used → not used → broken')}</p>
               {#each groups as g (g.slot)}
                 <section class="bag" aria-label={t(g.name)}>
                   <h3><Briefcase size={16} aria-hidden="true" />{t(g.name)} <span class="tp-muted">{tn(g.rows.length, '{n} item', '{n} items')}</span>
@@ -488,34 +493,22 @@
     </div>
   {/if}
 {:else}
+  <!-- v0.40.0 (Noah 3a): one list of past trips with the debrief state lives on "Past trips"; this
+       page keeps the learnings, the comparison and the pace. One line instead of the explanation. -->
   <div class="over">
-    <h1 class="title big">{t('Debrief')}</h1>
-    <p class="lead">{t('After a trip: two minutes on what you used, missed or did not need. The app turns it into tips for the next trip.')}</p>
+    <h1 class="title">{t('Debrief')}</h1>
+    <p class="page-sub">{[done.length ? tn(done.length, '{n} done', '{n} done') : '', open.length ? tn(open.length, '{n} open', '{n} open') : ''].filter(Boolean).join(' · ') || t('No trip is waiting. A trip shows up here the day after it ends.')}</p>
 
-    <section aria-labelledby="todo-h">
-      <h2 id="todo-h" class="title h">{t('To debrief')}</h2>
-      {#each open as tr (tr.id)}
-        <div class="card trip-row">
-          <div><b>{tr.title}</b><span class="muted">{dateText(tr)} · {tn(tr.entries.length, '{n} item', '{n} items')}</span></div>
-          <a class="btn" href="#/debrief/{encodeURIComponent(tr.id)}">{drafts.has(tr.id) ? t('Continue') : t('Start debrief')}</a>
-        </div>
-      {:else}
-        <p class="muted">{t('No trip is waiting. A trip shows up here the day after it ends.')}</p>
-      {/each}
-    </section>
-
-    {#if done.length}
-      <section aria-labelledby="done-h">
-        <h2 id="done-h" class="title h">{t('Done')}</h2>
-        {#each done as { d: x, t: tr } (tr.id)}
-          {@const c = debriefCounts(x, tr, items)}
-          <a class="card trip-row link" href="#/debrief/{encodeURIComponent(tr.id)}">
-            <div><b>{tr.title}</b><span class="muted">{dateText(tr)} · {t('{n} not used', { n: c.unused })} · {t('{n} missing', { n: c.missing })}</span></div>
-            <span aria-hidden="true">→</span>
-          </a>
-        {/each}
-      </section>
-    {/if}
+    <ul class="rowlist">
+      <li>
+        <a class="lrow" href="#/pack/past">
+          <span class="ic"><CalendarCheck size={18} aria-hidden="true" /></span>
+          <span class="m"><span class="t">{t('Past trips')}</span>{#if open[0]}<span class="s">{open[0].title}{open.length > 1 ? ` · ${tn(open.length - 1, '+{n} more', '+{n} more')}` : ''}</span>{/if}</span>
+          {#if open.length}<span class="nbadge"><span class="udot" aria-hidden="true"></span>{tn(open.length, '{n} open', '{n} open')}</span>{/if}
+          <ChevronRight class="chev" size={18} aria-hidden="true" />
+        </a>
+      </li>
+    </ul>
 
     <Compare {trips} {debriefs} {items} />
 
@@ -523,39 +516,45 @@
 
     {#if events.length}
       <section id="logbook" aria-labelledby="log-h">
-        <h2 id="log-h" class="title h">{t('Logbook')} <small class="muted">{tn(events.length, '{n} earlier trip', '{n} earlier trips')}</small></h2>
-        {#each events as ev (ev.id)}
-          <details class="topic ev">
-            <summary><span class="title">{ev.name}</span> <span class="muted">{ev.dateText ?? ev.sortDate ?? ''}{ev.type ? ` · ${ev.type}` : ''}</span></summary>
-            <dl>
-              {#if ev.bike && ev.bike !== '–'}<dt>{t('Bike')}</dt><dd>{ev.bike}</dd>{/if}
-              {#if ev.bags && ev.bags !== '–'}<dt>{t('Bags')}</dt><dd>{ev.bags}</dd>{/if}
-              {#if ev.result}<dt>{t('What worked')}</dt><dd>{ev.result}</dd>{/if}
-              {#if ev.learnings}<dt>{t('Learnings')}</dt><dd>{ev.learnings}</dd>{/if}
-            </dl>
-          </details>
-        {/each}
+        <details class="fold-sec">
+          <summary class="sec-head"><span id="log-h">{t('Logbook')}</span><span class="n">{tn(events.length, '{n} earlier trip', '{n} earlier trips')} ›</span></summary>
+          <div class="box">
+            {#each events as ev (ev.id)}
+              <details class="topic ev">
+                <summary><span class="tname">{ev.name}</span> <span class="muted">{ev.dateText ?? ev.sortDate ?? ''}{ev.type ? ` · ${ev.type}` : ''}</span></summary>
+                <dl>
+                  {#if ev.bike && ev.bike !== '–'}<dt>{t('Bike')}</dt><dd>{ev.bike}</dd>{/if}
+                  {#if ev.bags && ev.bags !== '–'}<dt>{t('Bags')}</dt><dd>{ev.bags}</dd>{/if}
+                  {#if ev.result}<dt>{t('What worked')}</dt><dd>{ev.result}</dd>{/if}
+                  {#if ev.learnings}<dt>{t('Learnings')}</dt><dd>{ev.learnings}</dd>{/if}
+                </dl>
+              </details>
+            {/each}
+          </div>
+        </details>
       </section>
     {/if}
 
     <section id="learnings" aria-labelledby="learn-h">
-      <h2 id="learn-h" class="title h">{t('Learnings')} <small class="muted">{learnings.length}</small></h2>
-      <input class="inp q" type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} />
-      {#each topics as g (g.topic)}
-        <details class="topic" open={!!lq.trim()}>
-          <summary><span class="title">{topicName(g.topic)}</span> <span class="muted">{g.ls.length}</span></summary>
-          <ul>
-            {#each g.ls as l (l.id)}
-              <li>
-                <span class="prio p-{l.priority}">{l.priority ? t(l.priority) : '–'}</span>
-                <span>{l.rule}{#if l.action}<small>→ {l.action}</small>{/if}<small class="muted">{l.source === 'import' ? [t('From the import'), l.date].filter(Boolean).join(' · ') : (l.source ?? '')}{l.confirmed ? ` · ${t('confirmed {n}×', { n: l.confirmed })}` : ''}</small></span>
-              </li>
-            {/each}
-          </ul>
-        </details>
-      {:else}
-        <p class="muted">{learnings.length ? t('Nothing matches.') : t('No learnings yet. They come from your Excel import and from every debrief.')}</p>
-      {/each}
+      <h2 id="learn-h" class="sec-head"><span>{t('Learnings')}</span><span class="n">{learnings.length}</span></h2>
+      <div class="box">
+        <input class="inp q" type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} />
+        {#each topics as g (g.topic)}
+          <details class="topic" open={!!lq.trim()}>
+            <summary><span class="tname">{topicName(g.topic)}</span> <span class="muted num">{g.ls.length}</span></summary>
+            <ul>
+              {#each g.ls as l (l.id)}
+                <li>
+                  <span class="prio p-{l.priority}">{l.priority ? t(l.priority) : '–'}</span>
+                  <span>{l.rule}{#if l.action}<small>→ {l.action}</small>{/if}<small class="muted">{l.source === 'import' ? [t('From the import'), l.date].filter(Boolean).join(' · ') : (l.source ?? '')}{l.confirmed ? ` · ${t('confirmed {n}×', { n: l.confirmed })}` : ''}</small></span>
+                </li>
+              {/each}
+            </ul>
+          </details>
+        {:else}
+          <p class="muted">{learnings.length ? t('Nothing matches.') : t('No learnings yet. They come from your Excel import and from every debrief.')}</p>
+        {/each}
+      </div>
     </section>
   </div>
 {/if}
@@ -677,13 +676,41 @@
   .qa small {
     color: var(--ink-3);
   }
-  .pill {
-    min-height: 44px;
-    width: auto;
-    max-width: 52vw;
-    font-weight: 600;
-    border-radius: 999px;
-    padding: 6px 12px;
+  .segq {
+    display: grid;
+    gap: 4px;
+    padding: 8px 0 6px;
+  }
+  .segq .lbl {
+    margin: 0;
+    font-weight: 500;
+    color: var(--ink-3);
+  }
+  .note-fold {
+    margin-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .note-fold summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    list-style: none;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .note-fold summary::-webkit-details-marker {
+    display: none;
+  }
+  .note-fold :global(.chev) {
+    color: var(--ink-3);
+    transition: transform 0.15s;
+  }
+  .note-fold[open] :global(.chev) {
+    transform: rotate(90deg);
+  }
+  .cyc {
+    margin: 0 0 4px;
   }
   .kmin {
     display: inline-flex;
@@ -887,13 +914,29 @@
     max-width: 880px;
     margin: 0 auto;
   }
-  .big {
-    font-size: var(--fs-page);
+  .over :global(.sec-head) {
+    margin-top: 20px;
   }
-  .lead {
-    color: var(--ink-2);
-    margin: 4px 0 20px;
-    font-size: 17px;
+  .over .rowlist {
+    margin-top: 4px;
+  }
+  .box {
+    padding: 8px 12px 12px;
+    border: 1px solid var(--line);
+    border-top: 0;
+    border-radius: 0 0 8px 8px;
+    background: var(--paper);
+  }
+  .fold-sec > summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .fold-sec > summary::-webkit-details-marker {
+    display: none;
+  }
+  .fold-sec:not([open]) > summary {
+    border-bottom: 1px solid var(--line);
+    border-radius: 8px;
   }
   .ev summary .muted {
     font-size: 14px;
@@ -922,28 +965,6 @@
       margin-bottom: 8px;
     }
   }
-  .h {
-    font-size: 26px;
-    margin: 22px 0 8px;
-  }
-  .h small {
-    font: 400 15px var(--font-body);
-  }
-  .trip-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
-  }
-  .trip-row div {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  .trip-row.link {
-    color: inherit;
-    text-decoration: none;
-  }
   .muted {
     color: var(--ink-3);
   }
@@ -952,17 +973,21 @@
     margin-bottom: 8px;
   }
   .topic {
-    border-bottom: 1px solid var(--line-strong);
+    border-bottom: 1px solid var(--line);
     padding: 6px 0;
+  }
+  .topic:last-child {
+    border-bottom: 0;
   }
   .topic summary {
     cursor: pointer;
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 8px;
+    min-height: 44px;
   }
-  .topic summary .title {
-    font-size: var(--fs-sub);
+  .topic summary .tname {
+    font-weight: 600;
   }
   .topic ul {
     list-style: none;

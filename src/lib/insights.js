@@ -123,7 +123,8 @@ export function wishReason(item, items, trips, debriefs) {
     reasons.push(item.note.replace(/ \(debrief\): replace\.$/, ''));
     score += 8;
   }
-  if (/^From Bike care/.test(item.note ?? '')) {
+  // v0.40.0: also a chain put there by its wear (from: 'care'), whatever language the note is in.
+  if (item.from === 'care' || /^From Bike care/.test(item.note ?? '')) {
     reasons.push(t('Needed on the bike'));
     score += 9;
   }

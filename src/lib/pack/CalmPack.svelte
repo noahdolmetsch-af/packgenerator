@@ -133,14 +133,17 @@
             <button type="button" class="cell" onclick={() => show('conditions')}><CloudSun size={18} aria-hidden="true" /><span><small>{t('Weather')}</small>{wxText}</span></button>
             <a class="cell" href="#/pack/templates"><Layers size={18} aria-hidden="true" /><span><small>{t('Start with')}</small>{startText}</span><span class="sr"> · {t('Templates')}</span></a>
           </div>
-          <p class="cfoot tp-muted tp-small">{t('Tap a field to change it.')}</p>
         </section>
         <!-- L2: the open suggestions on top, marked as open work (below the whole list they got lost). -->
-        {#if bikeTrip}<button type="button" class="tp-fold fold-btn detail-link" class:open-work={openLayers.length > 0} onclick={() => { review = true; window.scrollTo({ top: 0 }); }}><CloudSun size={20} aria-hidden="true" /><span>{t('Review weather suggestions')}</span><span class="r">{#if openLayers.length}<i class="tp-badge hi">{tn(openLayers.length, '{n} open', '{n} open')}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></button>{/if}
+        <!-- v0.40.0 (design check): the weather in ONE place: the open suggestions are the first row
+             of the card that shows what the weather brought (alone when it brought nothing yet). -->
+        {#snippet reviewRow()}<button type="button" class="tp-fold fold-btn detail-link" class:open-work={openLayers.length > 0} onclick={() => { review = true; window.scrollTo({ top: 0 }); }}><CloudSun size={20} aria-hidden="true" /><span>{t('Review weather suggestions')}</span><span class="r">{#if openLayers.length}<i class="tp-badge hi">{tn(openLayers.length, '{n} open', '{n} open')}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></button>{/snippet}
+        {#if bikeTrip && !(wxRows.length || changeNote || ctxChanged)}{@render reviewRow()}{/if}
         <!-- Noah 4b: the weather changes the list by itself; here is what it brought, each with its reason. -->
         {#if wxRows.length || changeNote || ctxChanged}
           <section class="tp-card wxcard" aria-labelledby="wx-h">
             <h2 id="wx-h"><CloudSun size={18} aria-hidden="true" />{t('Fitted to the weather')}<span class="r">{wxText}</span></h2>
+            {#if bikeTrip}{@render reviewRow()}{/if}
             {#if wxRows.length}
               <ul class="wxrows">
                 {#each wxRows as e (e.itemId)}
@@ -154,7 +157,7 @@
             {:else if ctxChanged}
               <!-- v0.30.1 (Noah A2): a change that brings nothing says so (it used to look like a dead button). -->
               <p class="tp-muted tp-small wxnote" role="status">{trip.wx?.rain === 'rain' || trip.wx?.rain === 'showers' ? t('Nothing on the list changes. Rain gear comes along by itself when it is set to "When it rains" in Gear, or is in a building block named Rain.') : t('Nothing on the list changes with this.')}</p>
-            {:else}<p class="tp-muted tp-small wxnote">{t('Applied by itself. Undo is in the row after a change.')}</p>{/if}
+            {/if}
           </section>
         {/if}
         {@render suggest?.()}
@@ -235,7 +238,7 @@
                           <span class="item-weight" id={`calm-w-${entry.itemId}`}>{#if item?.weightG == null}<i class="tp-badge">{t('not weighed')}</i>{:else}{formatWeight(item.weightG * qty)}{/if}</span>
                           <ChevronDown class="row-chevron" size={18} aria-hidden="true" />
                         </button>
-                        {#if ctx}<p class="row-ctx"><i class="tp-badge hi">{changedText(entry.itemId)}</i><button type="button" class="tp-link" aria-label={t('Undo for {name}', { name })} onclick={() => actions.undoRow(entry.itemId)}><Undo2 size={15} aria-hidden="true" />{t('Undo')}</button></p>{/if}
+                        {#if ctx}<p class="row-ctx"><i class="tp-badge">{changedText(entry.itemId)}</i><button type="button" class="tp-link" aria-label={t('Undo for {name}', { name })} onclick={() => actions.undoRow(entry.itemId)}><Undo2 size={15} aria-hidden="true" />{t('Undo')}</button></p>{/if}
                         {#if open}<div class="item-actions" id={`calm-act-${entry.itemId}`}>
                           <div class="amount" role="group" aria-label={t('Amount for {name}', { name })}><button aria-label={t('One less {name}', { name })} disabled={qty <= 1} onclick={() => actions.qty(entry.itemId, qty - 1)}><Minus size={16} /></button><span>{qty}</span><button aria-label={t('One more {name}', { name })} disabled={qty >= 20} onclick={() => actions.qty(entry.itemId, qty + 1)}><Plus size={16} /></button></div>
                           <label>{t('Move to')}<select class="sel" aria-label={t('Move {name} to', { name })} value={entry.slot} onchange={(e) => actions.move(entry.itemId, e.currentTarget.value)}>{#each targets as tg}<option value={tg.key}>{trip.purpose?.[tg.key] || t(tg.zone.name)}</option>{/each}{#if !targets.some(t => t.key === entry.slot)}<option value={entry.slot}>{entry.slot}</option>{/if}</select></label>
@@ -330,7 +333,8 @@
   .fold-btn :global(svg:first-child) { color: var(--ink-3); flex: none; }
   .fold-btn .r { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--ink-3); }
   .left > .fold-btn { margin-top: 10px; }
-  .fold-btn.open-work { border-color: var(--hi); border-left-width: 4px; }
+  /* v0.40.0 (Noah 6a): open work shows as the badge's small dot, not an orange frame. */
+  .wxcard .fold-btn { margin: 10px 0 2px; border-radius: 8px; min-height: 48px; padding: 4px 12px; }
   .empty-list { margin: 0 0 10px; }
   .empty-list h3 { margin: 0 0 4px; font-size: 17px; }
   .empty-list p { margin: 0 0 12px; }

@@ -265,3 +265,175 @@ dialog.sheet::backdrop {
   color: var(--hi);
   margin-right: 4px;
 }
+
+/* ---------- v0.40.0 "Ruhige Nebenseiten" (design check 9.10.2026, Noah 4a, 6a, 7a) ----------
+   One calm vocabulary for the side pages: small NEUTRAL badges (an urgent one gets a small coloured
+   dot, never a coloured pill), light section heads with the count right, rows instead of cards,
+   segmented toggles instead of short drop-downs, and row actions that are quiet on a computer. */
+.nbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  font: 500 12.5px/1.5 var(--font-body);
+  font-style: normal;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+/* Only for what is urgent (overdue, open, due): a small dot, the word stays grey. */
+.udot {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--hi);
+}
+.udot.warn {
+  background: var(--warn);
+}
+.udot.ok {
+  background: var(--ok);
+}
+/* A light section head over a list: the name left, a count or rule right (tabular). */
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin: 18px 0 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: var(--paper-2);
+  font: 600 15px/1.3 var(--font-body);
+}
+.sec-head .n {
+  font-weight: 500;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+/* A list of rows on paper; after a .sec-head it joins it. */
+.rowlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.sec-head + .rowlist {
+  border-radius: 0 0 8px 8px;
+}
+.rowlist > li {
+  border-top: 1px solid var(--line);
+}
+.rowlist > li:first-child {
+  border-top: 0;
+}
+/* One row: an optional icon, the text (title + quiet line), a value right, a chevron. */
+.lrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 8px 12px;
+  color: var(--ink);
+  text-decoration: none;
+  box-sizing: border-box;
+}
+a.lrow,
+a.lrow:visited,
+button.lrow {
+  color: var(--ink);
+}
+button.lrow {
+  width: 100%;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+a.lrow:hover,
+button.lrow:hover,
+summary.lrow:hover {
+  background: var(--paper-2);
+}
+summary.lrow {
+  list-style: none;
+  cursor: pointer;
+}
+summary.lrow::-webkit-details-marker {
+  display: none;
+}
+.lrow .m {
+  flex: 1;
+  min-width: 0;
+}
+.lrow .t {
+  display: block;
+  font-weight: 500;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.lrow .s {
+  display: block;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+.lrow .v {
+  flex: none;
+  min-width: 56px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+  font-size: 15px;
+  white-space: nowrap;
+}
+.lrow .ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--paper-2);
+  color: var(--ink-2);
+}
+.lrow .chev {
+  flex: none;
+  color: var(--ink-3);
+  transition: transform 0.15s;
+}
+details[open] > summary.lrow .chev {
+  transform: rotate(90deg);
+}
+/* Noah's rule 5: row buttons quiet on a computer, full on hover AND on keyboard focus,
+   always full on a phone (touch). */
+@media (hover: hover) and (pointer: fine) {
+  .row-acts {
+    opacity: 0.4;
+    transition: opacity 0.12s;
+  }
+  :is(li, .lrow, tr):hover > .row-acts,
+  :is(li, .lrow, tr):hover .row-acts,
+  :is(li, .lrow, tr):focus-within .row-acts {
+    opacity: 1;
+  }
+}
+/* A one-line subtitle under a page title ("3 to sort", "5 trips · 2 debriefs open"). */
+.page-sub {
+  margin: 2px 0 12px;
+  color: var(--ink-3);
+  font-size: 15px;
+}

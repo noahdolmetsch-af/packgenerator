@@ -161,7 +161,8 @@ test('drawing and bag sheet: long names are never cut off, a bag is chosen from 
   await bar.click();
   await expect.poll(async () => (await stored(page, GRAVEL)).slots.includes('bar')).toBe(true);
   await page.getByRole('button', { name: T('Done with mounts') }).click();
-  await expect(page.locator('#slot-bar')).toBeVisible();
+  // v0.40.0: an empty place waits in the one row "n places empty".
+  await expect(page.locator('#slot-bar')).toBeAttached();
   await noSideScroll(page);
   expect(errors).toEqual([]);
 });

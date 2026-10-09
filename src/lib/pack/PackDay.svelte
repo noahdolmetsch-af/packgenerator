@@ -165,6 +165,8 @@
   };
   const names = (s) => s.entries.filter((e) => !e.packed).map((e) => (itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId) + ((e.qty || 1) > 1 ? ` × ${e.qty}` : '')).join(' · ');
   const iconOf = (key) => (key === 'body' ? UserRound : key === 'mounted' ? Bike : Briefcase);
+  const shownTips = $derived(new Set(Object.values(badges).flat().filter((b) => b.key === 'tip').map((b) => b.text)));
+  const newLessons = $derived(lessons.filter((l) => !shownTips.has(l.rule)));
   const hintOf = (id) => (badges[id] ?? []).map((b) => (b.key === 'tip' ? b.text : b.label)).join(' · ');
   const kicker = $derived(packed < total ? `${t('Packing day')} · ${tn(total - packed, '{n} item left', '{n} items left')} ${tn(bagsLeft, 'in {n} bag', 'in {n} bags')}` : `${t('Packing day')} · ${t('everything packed')}`);
 
@@ -231,10 +233,11 @@
   {/if}
 
   <!-- v0.30.2 (test R6.6): what earlier debriefs taught, before the first bag. -->
-  {#if lessons.length}
+  <!-- v0.40.0 (design check R2): a learning that already stands under its item is not repeated here. -->
+  {#if newLessons.length}
     <div class="tp-card lessons" role="note">
       <p class="tp-small"><b>{t('From earlier trips')}</b></p>
-      <ul>{#each lessons as l (l.id)}<li>{l.rule}</li>{/each}</ul>
+      <ul>{#each newLessons as l (l.id)}<li>{l.rule}</li>{/each}</ul>
     </div>
   {/if}
 

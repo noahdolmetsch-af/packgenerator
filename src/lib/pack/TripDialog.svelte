@@ -1,5 +1,6 @@
 <script>
   import '../trip/trip.css';
+  import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
   import { Check, ChevronRight } from '@lucide/svelte';
   import { db } from '../db.js';
@@ -8,7 +9,7 @@
   import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly } from '../context.js';
   import { isEvent } from '../care.js';
   import { tripFromTemplate, templateDefaults, tplDomain, templateParts } from '../templates.js';
-  import { t, tn, num, nameOf } from '../i18n.svelte.js';
+  import { t, tn, num, nameOf, locale } from '../i18n.svelte.js';
   import { TRIP_DOMAINS, DOMAIN, BIKEPACKING, domainName, lastDomain, rememberDomain, newPackTrip, lastTripIn, readyKey, inDomain, hasBike } from '../domains.js';
   import { isInventory, knownWeight, formatWeight } from '../gear.js';
   import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks, blocksLine, blockLabel } from '../sets.js';
@@ -211,10 +212,20 @@
   const tomorrow = localDay(new Date(Date.now() + 864e5));
   let daysInput = $state();
   const LENGTHS = [{ n: 1, name: 'Day ride' }, { n: 2, name: '2 days' }, { n: 3, name: 'More' }];
-  function pickLength(n) {
+  // "More" chosen (the field stays while typing 2 or 1), or 3 and more days (also from a template).
+  let moreWanted = $state(false);
+  const moreDays = $derived(moreWanted || days >= 3);
+  async function pickLength(n) {
     draft.days = n < 3 ? n : Math.max(3, days);
-    if (n === 3) daysInput?.focus();
+    moreWanted = n === 3;
+    if (n === 3) {
+      await tick();
+      daysInput?.focus();
+    }
   }
+  // v0.40.0 (Noah 10a): the area and the other starts are folded.
+  let areaOpen = $state(false);
+  let startsOpen = $state(false);
   // Templates in words: "1 day · 2 h · Standard + Rain", else their item count.
   const stdIds = $derived(bike ? newTrip({ title: '', startDate: '', days: 1, bike, overnight: 'none' }, [], items, 0).entries.map((e) => e.itemId) : []);
   function tplLine(tp) {
@@ -233,6 +244,7 @@
     start = id;
     useTemplate(id);
     tplOpen = false;
+    startsOpen = false;
   }
 
   // L9: "+ Add a bike" inside the dialog when there is no bike (it was a dead end: "Choose a bike." without a choice).
@@ -411,13 +423,17 @@
     <!-- v0.30.0 (Noah, finding 2): the dark band of the trip pages on top. -->
     <div class="band"><h2 id="trip-h" class="title">{isNew ? t('New trip') : t('Trip details')}</h2></div>
     {#if isNew}
-      <!-- v0.21.0 (package 5): the area first; it decides bike or own bags. -->
-      <fieldset class="area">
-        <legend class="lbl">{t('Area')}</legend>
-        <div class="areas">
-          {#each TRIP_DOMAINS as d (d.key)}<button type="button" class="toggle" aria-pressed={area === d.key} onclick={() => (area = d.key)}>{t(d.name)}</button>{/each}
-        </div>
-      </fieldset>
+      <!-- v0.21.0 (package 5): the area first; it decides bike or own bags.
+           v0.40.0 (Noah 10a): folded as one row "Area · Bikepacking ›", the last chosen area preselected. -->
+      <details class="tp-fold area-fold" bind:open={areaOpen}>
+        <summary><span>{t('Area')}</span><span class="r"><b class="cur">{t(domainName(area))}</b></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+        <fieldset class="area in">
+          <legend class="sr">{t('Area')}</legend>
+          <div class="areas">
+            {#each TRIP_DOMAINS as d (d.key)}<button type="button" class="toggle" aria-pressed={area === d.key} onclick={() => ((area = d.key), (areaOpen = false))}>{t(d.name)}</button>{/each}
+          </div>
+        </fieldset>
+      </details>
     {/if}
     {#if isNew && byBike}
       <!-- v0.30.0 (Noah, finding 2): the whole new bike trip in one window. -->
@@ -448,36 +464,23 @@
         <div class="tp-chips">
           <button type="button" class="tp-chip" aria-pressed={draft.startDate === today} onclick={() => (draft.startDate = today)}>{t('Today')}</button>
           <button type="button" class="tp-chip" aria-pressed={draft.startDate === tomorrow} onclick={() => (draft.startDate = tomorrow)}>{t('Tomorrow')}</button>
-          <input class="inp date" type="date" bind:value={draft.startDate} aria-label={t('Start date')} />
+          <input class="inp date" type="date" lang={locale()} bind:value={draft.startDate} aria-label={t('Start date')} />
         </div>
       </fieldset>
       <fieldset class="ctx">
         <legend class="lbl">{t('How long?')}</legend>
         <div class="tp-chips">
-          {#each LENGTHS as l (l.n)}<button type="button" class="tp-chip" aria-pressed={l.n < 3 ? days === l.n : days >= 3} onclick={() => pickLength(l.n)}>{t(l.name)}</button>{/each}
+          {#each LENGTHS as l (l.n)}<button type="button" class="tp-chip" aria-pressed={l.n < 3 ? days === l.n && !moreDays : moreDays} onclick={() => pickLength(l.n)}>{t(l.name)}</button>{/each}
         </div>
         <div class="grid two">
-          <label><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} bind:this={daysInput} aria-label={t('Days')} /><span class="sub">{t('Days')}</span></label>
+          <!-- v0.40.0 (design check): the field for the days only with "More"; 1 and 2 days are the chips. -->
+          {#if moreDays}<label><input class="inp num" type="number" min="1" max="60" bind:value={draft.days} bind:this={daysInput} aria-label={t('Days')} /><span class="sub">{t('Days')}</span></label>{/if}
           <label><input class="inp num" type="text" inputmode="decimal" bind:value={ctx.hours} placeholder={t('e.g. 2')} aria-label={t('Riding hours per day')} aria-invalid={!hoursOk} /><span class="sub">{t('Riding hours per day')}</span></label>
         </div>
         {#if !hoursOk}<p class="warn">{t('Riding hours per day: between 0.5 and 24, or leave it empty.')}</p>{/if}
       </fieldset>
       {#if days > 1}{@render overnight()}{/if}
       {@render weather()}
-      <!-- L9: only real choices: no last trip, no "Copy the last trip"; nothing to choose, no "Start from". -->
-      {#if from || areaTemplates.length}<div class="starts">
-        <span class="lbl">{t('Start from')}</span>
-        <!-- v0.30.1 (Noah N11): "Copy the last trip" visible at once, with the trip's name, first in "Start from". -->
-        {#if from}<button type="button" class="tp-fold row" aria-pressed={start === 'last'} onclick={() => (start = 'last')}><span class="rt"><b>{t('Copy the last trip: {title}', { title: from.title })}</b></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>{/if}
-        {#if areaTemplates.length}
-          <details class="tp-fold" bind:open={tplOpen}>
-            <summary><span>{t('Start from a template')}</span><span class="r"><span class="num">{areaTemplates.length}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-            <ul class="in opts">
-              {#each areaTemplates as tp (tp.id)}<li><button type="button" class="opt" aria-pressed={start === tp.id} onclick={() => pickStart(tp.id)}><b>{tp.name}</b><span>{tplLine(tp)}</span></button></li>{/each}
-            </ul>
-          </details>
-        {/if}
-      </div>{/if}
       {#if preview}
         <section class="plan" aria-label={t('Your packing list|preview')} aria-live="polite">
           <div class="tp-card std">
@@ -499,13 +502,32 @@
           </ul>
         </section>
       {/if}
+      <!-- L9: only real choices: no last trip, no "Copy the last trip"; nothing to choose, no "Start from".
+           v0.40.0 (Noah 10a, Funde 7a): the standard first; the last trip and the templates folded below
+           it as one row "Start differently ›". -->
+      {#if from || areaTemplates.length}
+        <details class="tp-fold starts" bind:open={startsOpen}>
+          <summary><span>{t('Start differently')}</span><span class="r">{#if start !== 'standard'}<b>{chosenTpl ? chosenTpl.name : t('Copy|start')}</b>{/if}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+          <div class="in">
+            {#if from}<button type="button" class="opt" aria-pressed={start === 'last'} onclick={() => ((start = 'last'), (startsOpen = false))}><b>{t('Copy the last trip: {title}', { title: from.title })}</b></button>{/if}
+            {#if areaTemplates.length}
+              <details class="tp-fold tpls" bind:open={tplOpen}>
+                <summary><span>{t('Start from a template')}</span><span class="r"><span class="num">{areaTemplates.length}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+                <ul class="in opts">
+                  {#each areaTemplates as tp (tp.id)}<li><button type="button" class="opt" aria-pressed={start === tp.id} onclick={() => pickStart(tp.id)}><b>{tp.name}</b><span>{tplLine(tp)}</span></button></li>{/each}
+                </ul>
+              </details>
+            {/if}
+          </div>
+        </details>
+      {/if}
       {#if blocks.length}
         <section class="blocks" aria-labelledby="blocks-h">
           <h3 id="blocks-h">{t('Add building blocks')}{#if tips}<span class="tp-muted">{` · ${tn(tips, '{n} tip', '{n} tips')}`}</span>{/if}</h3>
           <div class="tp-chips">
-            {#each blocks as b (b.key)}<button type="button" class="tp-chip blk" aria-pressed={picked.includes(b.key)} onclick={() => pick(b.key)}><span class="bn">+ {b.label}</span> <small class="num">{b.n} · {b.weight}</small>{#if b.tip}<i class="tp-badge hi">{t('Tip')}</i>{/if}</button>{/each}
+            {#each blocks as b (b.key)}<button type="button" class="tp-chip blk" aria-pressed={picked.includes(b.key)} onclick={() => pick(b.key)}><span class="bn">+ {b.label}</span> <small class="num">{b.n} · {b.weight}</small>{#if b.tip}<i class="tp-badge">{t('Tip')}</i>{/if}</button>{/each}
           </div>
-          <p class="note small" aria-live="polite">{#if chosen.length}{chosen.map((b) => `${b.label}: ${b.names.join(', ')}`).join(' · ')}{:else}{t('Tap a block to take it along.')}{/if}</p>
+          <p class="note small" aria-live="polite">{#if chosen.length}{chosen.map((b) => `${b.label}: ${b.names.join(', ')}`).join(' · ')}{/if}</p>
         </section>
       {/if}
       <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
@@ -513,7 +535,7 @@
     {:else}
       <div class="grid">
         <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
-        <label><span class="lbl">{t('Start date')}</span><input class="inp" type="date" bind:value={draft.startDate} /></label>
+        <label><span class="lbl">{t('Start date')}</span><input class="inp" type="date" lang={locale()} bind:value={draft.startDate} /></label>
         {#if byBike}
           <label>
             <span class="lbl">{t('Bike')}</span>
@@ -743,7 +765,21 @@
     opacity: 0.85;
   }
   .starts {
-    margin-top: 16px;
+    margin-top: 12px;
+  }
+  .starts > .in {
+    display: grid;
+    gap: 8px;
+  }
+  .starts .tpls {
+    margin: 0;
+  }
+  .area-fold {
+    margin-bottom: 4px;
+  }
+  .area-fold .cur {
+    color: var(--ink);
+    font-weight: 600;
   }
   .starts .opts {
     list-style: none;

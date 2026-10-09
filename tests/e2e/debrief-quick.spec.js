@@ -6,6 +6,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 
+const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
@@ -87,10 +88,10 @@ for (const lang of ['en', 'de']) {
     await expect(done).toBeVisible();
     await expect(done.getByRole('link', { name: T('Show templates') })).toHaveAttribute('href', '#/pack/templates');
 
-    // 4. Debrief lists the trip under "Done", no longer under "To debrief".
-    await page.goto('./#/debrief');
-    await expect(page.getByRole('region', { name: T('To debrief') }).getByText(title)).toHaveCount(0);
-    await expect(page.getByRole('region', { name: T('Done') }).getByText(title)).toBeVisible();
+    // 4. Past trips lists the trip under "Done", no longer under "Debrief open" (v0.40.0: one list of past trips).
+    await page.goto('./#/pack/past');
+    await expect(page.getByRole('list', { name: new RegExp(`^${esc(T('Debrief open'))}`) }).getByText(title)).toHaveCount(0);
+    await expect(page.getByRole('list', { name: new RegExp(`^${esc(T('Done|past'))}`) }).getByText(title)).toBeVisible();
 
     // 5. The next day ride: New → Plan a trip → Start from a template → the template → Create (5 clicks, plus the name).
     // v0.30.0: the folded templates are in the New trip window.
@@ -104,13 +105,15 @@ for (const lang of ['en', 'de']) {
     await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
     // v0.29.2 (Noah 7a): the templates are folded under "Start from a template" (one click more).
     const dlg = page.getByRole('dialog', { name: T('New trip') });
+    // v0.40.0 (Noah 10a): "Start differently" below the standard holds the templates (one click more).
+    await click(dlg.getByText(T('Start differently')));
     await click(dlg.getByText(T('Start from a template')));
     await click(dlg.getByRole('button', { name: new RegExp(`^${name}`) }));
     await dlg.getByLabel(T('Name')).fill(`test_data_gtp_ next ${lang}`);
     await click(dlg.getByRole('button', { name: T('Create trip') }));
     await expect(dlg).toBeHidden();
     await expect(page.locator('.trip-band h1')).toHaveText(`test_data_gtp_ next ${lang}`);
-    expect(clicks).toBe(5);
+    expect(clicks).toBe(6);
     expect(errors).toEqual([]);
   });
 }

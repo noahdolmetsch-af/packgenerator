@@ -38,6 +38,15 @@
     window.addEventListener('hashchange', close);
     return () => window.removeEventListener('hashchange', close);
   });
+  // v0.40.0 (design check): a tap anywhere else (a place in the bottom bar, +) closes it too.
+  let root = $state();
+  $effect(() => {
+    const away = (e) => {
+      if (root && !root.contains(e.target) && (open || q)) (q = ''), (open = false);
+    };
+    document.addEventListener('pointerdown', away, true);
+    return () => document.removeEventListener('pointerdown', away, true);
+  });
   // v0.24.0 (Noah): what is not there yet can be added right from the search.
   function addNew() {
     const name = q.trim();
@@ -55,7 +64,7 @@
   };
 </script>
 
-<div class="search" class:ph={phone.matches || compact} class:open>
+<div class="search" bind:this={root} class:ph={phone.matches || compact} class:open>
   {#if phone.matches || compact}
     <button type="button" class="icon" aria-label={open ? t('Close search') : t('Search everything')} aria-expanded={open} onclick={toggle}>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
@@ -73,7 +82,7 @@
         <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
         <ul>
           {#each g.rows as r (r.id)}
-            <li><button type="button" onclick={() => go(r)}><b>{r.title}</b>{#if r.sub}<small>{r.sub}</small>{/if}</button></li>
+            <li><button type="button" onclick={() => go(r)}><span class="m"><b>{r.title}</b>{#if r.sub}<small>{r.sub}</small>{/if}</span>{#if r.v}<span class="v num">{r.v}</span>{/if}</button></li>
           {/each}
         </ul>
       {:else}
@@ -176,10 +185,11 @@
     margin: 0;
     padding: 0;
   }
+  /* v0.40.0 (design check R3): the weight in a right column. */
   li button {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    gap: 12px;
     width: 100%;
     min-height: 44px;
     padding: 6px 8px;
@@ -194,6 +204,19 @@
   li button:hover,
   li button:focus-visible {
     background: var(--paper-2);
+  }
+  .m {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .v {
+    flex: none;
+    color: var(--ink-2);
+    font-size: 14px;
+    font-weight: 400;
   }
   li small {
     color: var(--ink-3);

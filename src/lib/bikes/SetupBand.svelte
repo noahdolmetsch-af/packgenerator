@@ -20,6 +20,15 @@
     bike.id;
     tick().then(() => strip?.querySelector('[aria-selected="true"]')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }));
   });
+  // v0.40.0: more tabs to the right than fit: the row fades out there.
+  let more = $state(false);
+  const measure = () => (more = !!strip && strip.scrollLeft + strip.clientWidth < strip.scrollWidth - 2);
+  $effect(() => {
+    bikes.length;
+    tick().then(measure);
+    addEventListener('resize', measure);
+    return () => removeEventListener('resize', measure);
+  });
   function keys(e) {
     const i = bikes.findIndex((b) => b.id === bike.id);
     const to = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : null;
@@ -43,9 +52,9 @@
     {#if due}<a class="badge due" href={careHref}>{tn(due, '{n} care due', '{n} care due')}</a>{/if}
   </p>
   <div class="tabsrow">
-    <div class="strip" bind:this={strip} role="tablist" aria-label={t('Bike')} tabindex="-1" onkeydown={keys}>
+    <div class="strip" class:more bind:this={strip} onscroll={measure} role="tablist" aria-label={t('Bike')} tabindex="-1" onkeydown={keys}>
       {#each bikes as b (b.id)}
-        <button type="button" role="tab" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} onclick={() => onbike?.(b.id)}>{b.name}</button>
+        <button type="button" role="tab" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} title={b.name} onclick={() => onbike?.(b.id)}><span class="bn">{b.name}</span></button>
       {/each}
     </div>
     <button type="button" class="add" onclick={() => onadd?.()} aria-label={t('Add bike')} title={t('Add bike')}><Plus size={16} aria-hidden="true" /><span class="addt">{t('Bike')}</span></button>
@@ -162,6 +171,17 @@
   }
   .strip::-webkit-scrollbar {
     display: none;
+  }
+  /* v0.40.0 (design check): a long name is shortened with "…" (the full name as title); a row
+     wider than the band fades out at the right, so it shows there is more to swipe. */
+  .strip .bn {
+    max-width: 16ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .strip.more {
+    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
   }
   .strip button,
   .add {
