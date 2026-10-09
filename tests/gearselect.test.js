@@ -31,7 +31,8 @@ describe('bulk changes (pure)', () => {
 
   it('moves to the wishlist or back, only what changes', () => {
     expect(bulkOwnership(items, ['EL01', 'EL03'], 'wishlist', 'NOW').map((i) => i.id)).toEqual(['EL01']);
-    expect(bulkOwnership(items, ['EL01', 'EL03'], 'owned', 'NOW')).toEqual([{ ...items[2], ownership: 'owned', updatedAt: 'NOW' }]);
+    // v0.44.0: a wish that becomes owned keeps the day it was bought (the review of 12 months).
+    expect(bulkOwnership(items, ['EL01', 'EL03'], 'owned', 'NOW')).toEqual([{ ...items[2], ownership: 'owned', boughtAt: 'NOW', updatedAt: 'NOW' }]);
   });
 
   it('knows which items are on a trip or a template', () => {

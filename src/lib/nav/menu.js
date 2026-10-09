@@ -25,6 +25,8 @@ export const MORE_GROUPS = [
     name: 'Look back',
     rows: [
       { id: 'past', title: 'Past trips', href: '#/pack/past', icon: 'calendar', words: 'past trips vergangene touren finished vorbei archiv' },
+      // v0.44.0: the last 12 months, rolling (yearreview.js).
+      { id: 'review', title: 'Last 12 months', href: '#/review', icon: 'chart', words: 'last 12 months letzte 12 monate review rückblick jahr year jahresrückblick statistik statistics numbers zahlen' },
       { id: 'debriefs', title: 'Debriefs and learnings', href: '#/debrief', icon: 'book', words: 'debriefs debrief learnings learning rückblick rückblicke lernen gelernt' },
       { id: 'compare', title: 'Compare trips', href: '#/debrief/compare', icon: 'compare', words: 'compare vergleichen vergleich trend base weight basisgewicht' },
       { id: 'pace', title: 'Your pace', href: '#/debrief/pace', icon: 'gauge', words: 'pace tempo speed geschwindigkeit gpx riding time fahrzeit' },

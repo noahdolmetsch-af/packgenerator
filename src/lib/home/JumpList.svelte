@@ -2,18 +2,20 @@
   /**
    * v0.38.0 "Heute und Menü" (Noah 9a): "Jump to", a short list with the number on the right:
    * what is due, dead weight, a year ago, the weekend weather and what is new in the app. A row shows
-   * only when it has something to say. Below it "Season {year} in numbers" (only with content).
+   * only when it has something to say. Below it (v0.44.0) the last 12 months (ReviewCard), in place
+   * of "Season {year} in numbers": the rolling review says the same and more, so Today says it once.
    * Desktop: beside the bike buttons; phone: below them.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { dueAll, yearAgo, seasonNumbers } from '../quickcare.js';
+  import { dueAll, yearAgo } from '../quickcare.js';
+  import ReviewCard from './ReviewCard.svelte';
   import { itemUsage, deadWeight } from '../insights.js';
   import { HOME_PLACE, HOME_FORECAST, usable, weekendWeather } from '../know.js';
   import { RAIN } from '../trips.js';
   import { formatWeight } from '../gear.js';
   import HomePlaceForm from '../know/HomePlaceForm.svelte';
-  import { t, tn, num, locale } from '../i18n.svelte.js';
+  import { t, tn, locale } from '../i18n.svelte.js';
   import { ListChecks, ShoppingBag, CalendarHeart, CloudSun, Sparkles, ChevronRight, ChevronDown } from '@lucide/svelte';
 
   let { bikes = [], trips = [], items = [], debriefs = [], learnings = [], visits = [], tasks = [], today, news = 0 } = $props();
@@ -25,7 +27,6 @@
   const dead = $derived(deadWeight(items, itemUsage(trips, debriefs)));
   const ago = $derived(yearAgo(trips, debriefs, learnings, today));
   const weekend = $derived($placeQ && $fcQ && usable($placeQ, $fcQ) ? weekendWeather($fcQ, today) : null);
-  const season = $derived(seasonNumbers(bikes, trips, debriefs, visits, tasks, today));
   let wkOpen = $state(false);
   let editPlace = $state(false);
 
@@ -46,8 +47,7 @@
   );
 </script>
 
-{#if rows.length || season}
-  <div class="jumps-col">
+<div class="jumps-col">
     {#if rows.length}
       <section class="jumps" aria-labelledby="jump-h">
         <h2 id="jump-h" class="lbl">{t('Jump to')}</h2>
@@ -68,20 +68,9 @@
         </ul>
       </section>
     {/if}
-    {#if season}
-      <section class="season" aria-labelledby="season-h">
-        <h2 id="season-h" class="lbl">{t('Season {year} in numbers', { year: season.year })}</h2>
-        <dl>
-          {#if season.km}<div><dt>{season.kmBikes > 1 ? tn(season.kmBikes, 'km, {n} bike', 'km, {n} bikes') : t('km')}</dt><dd class="num">{num(season.km)}</dd></div>{/if}
-          <div><dt>{tn(season.trips, 'trip|count', 'trips|count')}</dt><dd class="num">{season.trips}</dd></div>
-          <div><dt>{tn(season.days, 'trip day', 'trip days')}</dt><dd class="num">{season.days}</dd></div>
-          <div><dt>{tn(season.jobs, 'care job', 'care jobs')}</dt><dd class="num">{season.jobs}</dd></div>
-        </dl>
-        {#if season.cost}<p class="cost">{t('Workshop {year}:', { year: season.year })} <b class="num">{season.cost.unknown === season.cost.visits ? t('cost unknown') : `CHF ${num(Math.round(season.cost.chf))}${season.cost.unknown ? ` + ${t('unknown')}` : ''}`}</b> ({tn(season.cost.visits, '{n} visit', '{n} visits')})</p>{/if}
-      </section>
-    {/if}
-  </div>
-{/if}
+    <!-- v0.44.0: the last 12 months (rolling) in place of the calendar season: each thing said once. -->
+    <ReviewCard {today} />
+</div>
 
 <style>
   .jumps-col {
@@ -152,30 +141,5 @@
     font: inherit;
     text-decoration: underline;
     cursor: pointer;
-  }
-  .cost {
-    margin: 10px 0 0;
-    font-size: var(--fs-small);
-    color: var(--ink-2);
-  }
-  dl {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
-    margin: 10px 0 0;
-  }
-  dl div {
-    display: flex;
-    flex-direction: column-reverse;
-    min-width: 0;
-  }
-  dd {
-    margin: 0;
-    font: 800 30px/1.05 var(--font-brand);
-  }
-  dt {
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-    overflow-wrap: anywhere;
   }
 </style>

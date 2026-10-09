@@ -14,11 +14,11 @@
   import { MORE_GROUPS } from './menu.js';
   import { phone } from '../media.svelte.js';
   import { t, lang, setLang } from '../i18n.svelte.js';
-  import { FileText, Layers, CalendarCheck, BookOpen, GitCompareArrows, Gauge, Star, Inbox, HardDriveDownload, Sparkles, Shirt } from '@lucide/svelte';
+  import { FileText, Layers, CalendarCheck, BookOpen, GitCompareArrows, Gauge, Star, Inbox, HardDriveDownload, Sparkles, Shirt, ChartColumn } from '@lucide/svelte';
 
   let { open = $bindable(false), inbox = 0, current = '' } = $props();
 
-  const ICON = { file: FileText, layers: Layers, calendar: CalendarCheck, book: BookOpen, compare: GitCompareArrows, gauge: Gauge, star: Star, shirt: Shirt, inbox: Inbox, data: HardDriveDownload, sparkles: Sparkles };
+  const ICON = { file: FileText, layers: Layers, calendar: CalendarCheck, book: BookOpen, compare: GitCompareArrows, gauge: Gauge, star: Star, shirt: Shirt, inbox: Inbox, data: HardDriveDownload, sparkles: Sparkles, chart: ChartColumn };
 
   // "Backup due" (the same rule as Today's line): only with items and no demo running.
   const backupQ = liveQuery(async () => {

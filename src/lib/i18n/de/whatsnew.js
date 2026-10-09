@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.44.0
+  'Last 12 months: always the 12 months up to today, not a calendar year. Riding, packing, learned and bikes on one page, with small differences to the 12 months before.':
+    'Letzte 12 Monate: immer die 12 Monate bis heute, kein Kalenderjahr. Fahren, Packen, Gelernt und Velos auf einer Seite, mit kleinen Unterschieden zu den 12 Monaten davor.',
+  'On Today a calm card with trips, km, nights outside and the base weight change, and the most interesting fact. It shows once a trip or a ride is in the 12 months.':
+    'Auf Heute eine ruhige Karte mit Touren, km, Nächten draussen und der Änderung beim Basisgewicht, dazu die spannendste Zahl. Sie erscheint, sobald eine Tour oder Fahrt in den 12 Monaten liegt.',
+  'Two small charts drawn to scale: km per month and the base weight per trip. Reached from Today, from Debrief and from More → Look back.':
+    'Zwei kleine Diagramme im richtigen Massstab: km pro Monat und Basisgewicht pro Tour. Erreichbar von Heute, vom Rückblick und über Mehr → Rückblick.',
+
   // 0.43.0
   'Record weights (Gear → •••, or the quiet line "… without weight · weigh"): one thing per screen with a big grams field, "Save & next", "Skip" and Undo. Bikes and bags come first.':
     'Gewichte erfassen (Material → •••, oder die leise Zeile «… ohne Gewicht · wiegen»): ein Teil pro Bildschirm mit grossem Grammfeld, «Speichern & weiter», «Überspringen» und Rückgängig. Velos und Taschen kommen zuerst.',
