@@ -4,12 +4,17 @@ import { defaultParts, wear, checkState, serviceDue, logPart, replaceHint, prepF
 const entry = (km, extra) => ({ date: '2026-10-01', km, value: null, action: 'check', result: 'ok', by: 'self', ...extra });
 
 describe('bike care', () => {
-  it('gives suspension parts only to bikes with suspension', () => {
+  // v0.48.0 (Noah): every bike gets the full spec template; the rear linkage (care only) needs a full suspension,
+  // and the service by time of fork and shock only counts where they have suspension.
+  it('gives every bike the full template, the rear linkage only to a full suspension', () => {
     const keys = (type) => defaultParts({ type }).map((p) => p.key);
     expect(keys('Hardtail')).toContain('fork');
-    expect(keys('Hardtail')).not.toContain('shock');
-    expect(keys('Full suspension')).toContain('shock');
-    expect(keys('Road / gravel')).not.toContain('fork');
+    expect(keys('Hardtail')).toContain('shock');
+    expect(keys('Hardtail')).not.toContain('linkage');
+    expect(keys('Full suspension')).toContain('linkage');
+    expect(keys('Road / gravel')).toContain('fork');
+    expect(keys('Road / gravel')).toContain('rotorF');
+    expect(keys('Road / gravel')).not.toContain('wheels');
   });
 
   it('reads chain wear and pad wear the right way round', () => {

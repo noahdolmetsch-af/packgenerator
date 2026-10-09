@@ -280,9 +280,6 @@
     "src/pages/Home.svelte": {
       "fontsize": 23
     },
-    "src/pages/Inbox.svelte": {
-      "fontsize": 1
-    },
     "src/pages/Pack.svelte": {
       "fontsize": 10
     },

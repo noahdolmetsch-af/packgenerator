@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.57.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'Bike care starts with an overview: a ring per bike, at most three cards for what is due, all problems in one list. Replacing or servicing a part is a short guided flow.', href: '#/bikes?tab=care' },
+      { text: 'Every bike has the same part list with a spec sheet and its geometry. "Compare bikes" puts them side by side; an empty cell is filled with one tap.', href: '#/bikes' },
+      { text: 'The Inbox is now "Eingang": grouped by day, one button "File" with seven targets. A receipt photo becomes a workshop visit, found under Bikes → Workshop.', href: '#/inbox' },
+      { text: 'New page Notes: write, dictate, add a photo, a link or a checklist; topics, pinned notes and "Turn the note into …" a trip idea, a wish or a problem.', href: '#/notes' },
+    ],
+  },
+  {
     version: '0.56.0',
     date: '2026-10-09',
     points: [
