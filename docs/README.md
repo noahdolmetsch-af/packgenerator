@@ -12,6 +12,7 @@ Stand: 8. Oktober 2026 (live v0.35.0). Verbindliche Quelle: dieses Repository, a
 | Was änderte ein Release genau? | [Releases](releases/) und die [Historie im Projektstand](status.md#historie-veröffentlichter-funktionen) | Ausführlicher Beleg bisher für [07.10.2026 / PR #32](releases/2026-10-07-calm-preparation.md); spätere Releases: Kurzeintrag im Status und Pull Request auf GitHub |
 | Was ist neu für Noah, in einfachen Worten? | `src/lib/whatsnew.js`, in der App unter „Was die App alles kann“ | Die letzten Releases mit Knopf „Ausprobieren“ |
 | Wie funktionieren die zwei neuen Screens? | [Entwürfe 2 und 3](calm-preparation.md) | Konkreter Ablauf und erfüllte Teilkriterien |
+| Welche Pakete folgen aus der Strategie (119 Fragen)? | [Strategie-Pakete](strategie-pakete.md) | Design D1–D6, Im Flow, Server S1–S5, Neuland N1 |
 | Wie prüfen wir das Design regelmässig, Screen für Screen? | [Design-Audits](design-audit.md) | Regel: vor jeder neuen Funktion ein Audit; Screen-Inventar mit Noten |
 | Wie sehen sie aus, welche Abweichungen sind bewusst? | [Design-QA](../design-qa.md) und [Bilder](../qa/) | Synthetische Beispiele; Herkunft/Vergleich/Prüfgrenzen |
 | Wie kann ich den Code verstehen? | [Lern-Seite](learn/README.md) | Einfache technische Erklärung |
