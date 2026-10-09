@@ -133,7 +133,7 @@ export function tempKey(item) {
   return CLASS_RANGE[item?.tempClass] ?? null;
 }
 /**
- * v0.47.0 (Noah 2b), shared in v0.52.0: the temperature bar on the scale −10 … 35 °C. The style of the
+ * v0.47.0 (Noah 2b), shared in v0.59.0: the temperature bar on the scale −10 … 35 °C. The style of the
  * coloured part for a range { lo, hi } (an open border runs to the end of the scale), or '' without one.
  * The gradient is sized to the whole scale, so a colour always means the same temperature.
  */

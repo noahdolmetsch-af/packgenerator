@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.52.0 «Tauschen» (OP2a, Noah a): the clothing I wear on the trip as the first card of the packing
+   * v0.59.0 «Tauschen» (OP2a, Noah a): the clothing I wear on the trip as the first card of the packing
    * list, «On me», by zone from head to feet, inside a zone by layer from the skin outwards (swap.js
    * wornClothes). Each piece is one row; a tap opens «Swap» for it (SwapSheet). A swapped piece says
    * what it stands for. The way to the wardrobe with the trip band is at the bottom of the card.

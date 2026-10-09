@@ -29,7 +29,7 @@ test('review, apply, edit and pack a tour', async ({ page, context }) => {
     // after a reload the bags may not be drawn yet: wait for them first (CI was faster than the page)
     await expect(list.locator('button.bag-heading').first()).toBeVisible();
     const heads = list.locator('button.bag-heading[aria-expanded="false"]');
-    // v0.52.0: count again after each tap (the card «On me» takes the worn clothing out of its group)
+    // v0.59.0: count again after each tap (the card «On me» takes the worn clothing out of its group)
     while (await heads.count()) await heads.first().click();
   };
   await expect(list.locator('.planning-rows input[type=checkbox]')).toHaveCount(0);

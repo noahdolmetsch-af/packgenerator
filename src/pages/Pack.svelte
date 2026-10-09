@@ -538,10 +538,10 @@
     onionAdd = null;
     clearTimeout(onionTimer);
     await undoLast();
-    // v0.52.0: an undone swap is no pick: the memory goes back as it was.
+    // v0.59.0: an undone swap is no pick: the memory goes back as it was.
     if (was?.key === 'swap') await (was.memory ? db.settings.put(was.memory) : db.settings.delete(SWAP_MEMORY));
   }
-  // v0.52.0 «Tauschen» (OP2a, Noah a): one tap in «Swap» puts the other piece in the same place (one
+  // v0.59.0 «Tauschen» (OP2a, Noah a): one tap in «Swap» puts the other piece in the same place (one
   // change, so one Undo), remembers the pick (it ranks higher next time) and says so with Undo.
   const swapQ = liveQuery(() => db.settings.get(SWAP_MEMORY));
   async function swapWear(from, to) {
@@ -709,7 +709,7 @@
 
 {#if !trips.length && $tripsQ}
   <h1 class="title big">{t('Pack')}</h1><p>{t('No trips yet. Import your data on the')} <a href="#/">{t('start page')}</a>{t(', or')} <button class="btn hi" onclick={() => dialog = { trip: null }}>{t('Create a trip')}</button></p>
-<!-- v0.52.0: the list waits for the gear too. Without it a worn jersey is not known as clothing for a
+<!-- v0.59.0: the list waits for the gear too. Without it a worn jersey is not known as clothing for a
      moment: the bag «On me» flashed up and went again when the card «On me» took the clothes (CI abnahme044). -->
 {:else if trip && stats && $itemsQ}
     {#snippet layers()}

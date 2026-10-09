@@ -1,5 +1,5 @@
 /**
- * v0.52.0 «Tauschen» (OP2a, Noah: all answers a): one piece of clothing on the packing list swapped
+ * v0.59.0 «Tauschen» (OP2a, Noah: all answers a): one piece of clothing on the packing list swapped
  * for a situational alternative in two taps (a tap on the piece opens «Swap», a tap on the other
  * piece swaps and closes; Undo in the message).
  *

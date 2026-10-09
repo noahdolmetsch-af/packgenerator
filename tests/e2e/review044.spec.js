@@ -85,31 +85,24 @@ test('Today: the row of the last 12 months opens the review', async ({ page, con
   const view = row.getByRole('link', { name: 'Rückblick ›' });
   expect((await view.boundingBox()).height).toBeGreaterThanOrEqual(44);
   await view.click();
-  await expect(page).toHaveURL(/#\/review$/);
-  await expect(page.getByRole('heading', { level: 1, name: 'Letzte 12 Monate' })).toBeVisible();
+  // v0.49.0 R1: the 12 months are a part of the one Rückblick page
+  await expect(page).toHaveURL(/#\/debrief$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Rückblick' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Letzte 12 Monate' })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
-test('Review page: four sections, deltas, charts, no sideways scroll', async ({ page, context }, info) => {
+// v0.49.0 R1 (Noah 4a, 5a): the page «Letzte 12 Monate» became the part «Letzte 12 Monate» of the
+// Rückblick: the old address leads there; numbers with Vorjahr, Durchschnitt and Bestwert.
+test('Review: the old address leads to the 12 months on the look back page, no sideways scroll', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/review');
-  for (const h of ['Fahren', 'Packen', 'Gelernt', 'Velos']) await expect(page.getByRole('heading', { level: 2, name: h, exact: true })).toBeVisible();
-  const ride = page.locator('section', { has: page.getByRole('heading', { name: 'Fahren', exact: true }) });
-  await expect(ride.locator('li', { hasText: 'Nächte draussen' })).toContainText('2');
-  await expect(ride.locator('li', { hasText: 'Höhenmeter' })).toContainText('840 m');
-  // More trips than in the 12 months before: a neutral "+n" badge in the trips row.
-  await expect(ride.locator('li', { hasText: 'Touren' }).locator('.nbadge')).toHaveText(/^\+\d+/);
-  await expect(page.getByRole('img', { name: 'km pro Monat' })).toBeVisible();
-  await expect(page.getByRole('img', { name: 'Basisgewicht pro Tour' })).toBeVisible();
-  const learned = page.locator('section', { has: page.getByRole('heading', { name: 'Gelernt', exact: true }) });
-  await expect(learned).toContainText(`${P} Gloves within reach`);
-  await expect(learned).toContainText('Zu kalt 1');
-  const pack = page.locator('section', { has: page.getByRole('heading', { name: 'Packen', exact: true }) });
-  await expect(pack.getByText('Von der Wunschliste gekauft')).toBeVisible();
-  const bikes = page.locator('section', { has: page.getByRole('heading', { name: 'Velos', exact: true }) });
-  await expect(bikes).toContainText('CHF 129');
-  await bikes.getByText('Teile ersetzt').click();
-  await expect(bikes).toContainText('Kassette');
+  await expect(page).toHaveURL(/#\/debrief$/);
+  const card = page.locator('section.period');
+  await expect(card.getByRole('heading', { level: 2, name: 'Letzte 12 Monate' })).toBeVisible();
+  await expect(card.getByRole('row', { name: /Touren/ }).first()).toBeVisible();
+  await expect(card.getByRole('rowheader', { name: 'Distanz' })).toBeVisible();
+  await expect(card.getByRole('img', { name: 'km pro Monat' })).toBeVisible();
   await noSideways(page);
   await shot(page, info, 'seite', true);
   if (info.project.name === 'phone') {
@@ -120,17 +113,14 @@ test('Review page: four sections, deltas, charts, no sideways scroll', async ({ 
   expect(errors).toEqual([]);
 });
 
-test('More and Debrief lead to the review', async ({ page, context }, info) => {
+test('More leads to the look back page', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
-  await page.goto('./#/debrief');
-  await page.getByRole('link', { name: /Letzte 12 Monate/ }).click();
-  await expect(page).toHaveURL(/#\/review$/);
   await page.goto('./#/');
   await page.locator('.more-btn').click();
   const sheet = page.locator('dialog.more');
   await expect(sheet).toBeVisible();
-  await sheet.getByRole('link', { name: 'Letzte 12 Monate' }).click();
-  await expect(page).toHaveURL(/#\/review$/);
+  await sheet.getByRole('link', { name: 'Rückblick' }).click();
+  await expect(page).toHaveURL(/#\/debrief$/);
   await expect(sheet).toBeHidden();
   expect(errors).toEqual([]);
 });
@@ -144,8 +134,7 @@ test('Empty: no card on Today, one sentence on the review page', async ({ page, 
   await expect(page.getByRole('heading', { name: 'Erste Schritte' })).toBeVisible();
   await expect(page.locator('[data-year-row]')).toHaveCount(0);
   await page.goto('./#/review');
-  await expect(page.getByText(/Das füllt sich nach den ersten Touren/)).toBeVisible();
-  await expect(page.locator('h2.sec-head')).toHaveCount(0);
+  await expect(page.getByText('Noch nichts für den Rückblick.')).toBeVisible();
   await noSideways(page);
   await shot(page, info, 'leer');
   expect(errors).toEqual([]);

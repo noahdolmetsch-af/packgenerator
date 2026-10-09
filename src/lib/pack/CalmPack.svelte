@@ -42,7 +42,7 @@
   let sheetEl = $state();
   let menuEl = $state();
   let note = $state('');
-  // v0.52.0 «Tauschen» (OP2a, Noah a): the worn clothing is the first card «On me» (a tap swaps); the
+  // v0.59.0 «Tauschen» (OP2a, Noah a): the worn clothing is the first card «On me» (a tap swaps); the
   // groups below leave it out, so a piece stands in one place. «On me» without other things goes away.
   const worn = $derived(wornClothes(trip, itemsById));
   const groups = $derived(planningGroups(stats, items, grouping).map((g) => (worn.n ? { ...g, entries: g.entries.filter((e) => !worn.ids.has(e.itemId)) } : g)).filter((g) => !worn.n || g.entries.length || (grouping === 'bags' && g.key !== 'body')));

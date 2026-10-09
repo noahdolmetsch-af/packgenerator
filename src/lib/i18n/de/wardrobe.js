@@ -218,7 +218,7 @@ export default {
   'Set your home place: then Today says what to wear for a ride.': 'Setz deinen Wohnort: dann sagt Heute, was du für eine Tagestour anziehst.',
   'No forecast for {place} right now. It loads when you are online.': 'Gerade keine Vorhersage für {place}. Sie lädt, sobald du online bist.',
 
-  // v0.52.0 «Tauschen» (OP2a): the card «Am Körper», the sheet «Tauschen», the wardrobe for a trip
+  // v0.59.0 «Tauschen» (OP2a): the card «Am Körper», the sheet «Tauschen», the wardrobe for a trip
   'More clothing': 'Weitere Kleider',
   'a tap swaps': 'Tippen tauscht',
   '{n} swapped': '{n} getauscht',

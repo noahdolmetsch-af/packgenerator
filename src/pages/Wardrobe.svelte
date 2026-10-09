@@ -57,7 +57,7 @@
 
   const items = $derived($itemsQ ?? []);
 
-  /* ---------- v0.52.0 «Tauschen» (OP2a, Noah a): the wardrobe for a trip (#/wardrobe/trip/<id>) ---------- */
+  /* ---------- v0.59.0 «Tauschen» (OP2a, Noah a): the wardrobe for a trip (#/wardrobe/trip/<id>) ---------- */
   // From the packing list («Open in the wardrobe»): a band with the trip's range and dry / rain / any;
   // «Fits the trip» hides a piece that does not fit when its place has one that does (a hint says how
   // many, «All» shows them). Only a view: the trip's weather stays as it is.
@@ -295,7 +295,7 @@
   </header>
 
   {#if trip}
-    <!-- v0.52.0 (OP2a, Noah a): the trip this wardrobe is open for, its range and dry / rain / any -->
+    <!-- v0.59.0 (OP2a, Noah a): the trip this wardrobe is open for, its range and dry / rain / any -->
     <section class="tband" aria-labelledby="tband-h">
       <p class="tk">{t('For your trip')}</p>
       <h2 class="tt" id="tband-h">{trip.title}</h2>
@@ -1435,7 +1435,7 @@
     color: var(--ink-3);
     font-size: 13px;
   }
-  /* v0.52.0 (OP2a): the trip band, the one dark card of the page in trip mode (like today's suggestion) */
+  /* v0.59.0 (OP2a): the trip band, the one dark card of the page in trip mode (like today's suggestion) */
   .tband {
     margin: 0 0 14px;
     padding: 16px 18px;

@@ -1,4 +1,4 @@
-// v0.52.0 «Tauschen»: a fictional day ride (test_data_gtp_), 10–16 °C and dry, 2 h, tomorrow, with
+// v0.59.0 «Tauschen»: a fictional day ride (test_data_gtp_), 10–16 °C and dry, 2 h, tomorrow, with
 // the clothing on me and a small wardrobe of alternatives. Built on pf-fixture.json (bikes, bags);
 // its own clothes are set to "gone", so only the pieces here count.
 import { readFileSync } from 'node:fs';

@@ -8,13 +8,20 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.52.0
+  // 0.59.0
   'The packing list shows what you wear as the first card "On me", head to feet. A tap on a piece opens "Swap": the pieces of the same zone and layer, those that fit the weather first. One tap swaps, Undo takes it back.':
     'Die Packliste zeigt, was du trägst, als erste Karte «Am Körper», von Kopf bis Füsse. Ein Tipp auf ein Teil öffnet «Tauschen»: die Teile derselben Zone und Schicht, zuerst die, die zum Wetter passen. Ein Tipp tauscht, «Rückgängig» nimmt es zurück.',
   'The app remembers what you picked, so it comes first next time. Pieces without a °C range get their bar from warm, medium or cold.':
     'Die App merkt sich, was du gewählt hast, und zeigt es beim nächsten Mal zuerst. Teile ohne °C-Bereich bekommen ihren Balken aus warm, mittel oder kalt.',
   '"Open in the wardrobe" shows the wardrobe for the trip: its temperature, dry, rain or any, and pieces that do not fit hidden when a fitting one is there.':
     '«Im Kleiderschrank öffnen» zeigt den Kleiderschrank für die Tour: ihre Temperatur, trocken, Regen oder egal, und blendet unpassende Teile aus, wenn ein passendes da ist.',
+  // 0.49.0
+  'One page "Look back" instead of five: your last ride, the last 12 months with the year before, average and best, and your trips compared in 7 small charts and a table.':
+    'Eine Seite «Rückblick» statt fünf: deine letzte Fahrt, die letzten 12 Monate mit Vorjahr, Durchschnitt und Bestwert, und deine Touren im Vergleich in 7 kleinen Diagrammen und einer Tabelle.',
+  'Past trips is one table, on the phone too: km, Hm, time, rain, temperature, bike and one learning per trip. The name stays put while the other columns scroll; period, "Kind" and a search that finds learnings.':
+    '«Vergangene Touren» ist eine Tabelle, auch auf dem Handy: km, Hm, Zeit, Regen, Temperatur, Velo und ein Learning pro Tour. Der Name bleibt stehen, die anderen Spalten scrollen; Zeitraum, «Art» und eine Suche, die auch Learnings findet.',
+  "A trip's saved debrief now tells what the trip was: numbers and weather per day, plan against real, what you can leave at home, learnings and what it means for the next trip.":
+    'Der gespeicherte Rückblick einer Tour erzählt jetzt, wie die Tour war: Zahlen und Wetter pro Tag, Plan gegen Wirklichkeit, was zuhause bleiben kann, Learnings und was das für die nächste Tour heisst.',
   // 0.51.0
   "Tap a button on Today or on In the flow to tick an activity: one tap with Undo, tap again to take it back. A long press picks the place (Yoga studio or at home), the amount or the duration.":
     "Ein Tipp auf Heute oder in Im Flow hakt eine Aktivität ab, mit Rückgängig; nochmals tippen nimmt es zurück. Lange drücken wählt Ort (Yoga Studio oder Zuhause), Menge oder Dauer.",

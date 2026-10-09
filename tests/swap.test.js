@@ -1,4 +1,4 @@
-// v0.52.0 «Tauschen» (OP2a): alternatives of the same zone and layer, ordered by the trip's weather,
+// v0.59.0 «Tauschen» (OP2a): alternatives of the same zone and layer, ordered by the trip's weather,
 // then by the last picks; the memory, the swap of an entry, the card «On me». Fictional data only.
 import { describe, it, expect } from 'vitest';
 import { swapChoices, fitOf, rememberSwap, swapEntries, wornClothes, tripRange, unfitDuplicates } from '../src/lib/swap.js';

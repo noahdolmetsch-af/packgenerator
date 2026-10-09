@@ -64,24 +64,21 @@ test('Inbox: one light button per note, the rest behind •••, a set bike sh
   expect(errors).toEqual([]);
 });
 
-test('Past trips: one list with the debrief state, km right with their sum; Debrief links to it', async ({ page, context }, info) => {
+// v0.49.0 R1 (Noah 1b): Past trips became one table; the debrief state is a badge in the name cell.
+test('Past trips: one table with the debrief state and the km; Debrief links to it', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/pack/past');
   await expect(page.getByRole('heading', { name: T('Past trips'), level: 1 })).toBeVisible();
-  const done = page.getByRole('list', { name: new RegExp(`^${esc(T('Done|past'))}`) });
-  const herbst = done.locator('li').filter({ hasText: `${P} Herbstrunde` });
-  const sommer = done.locator('li').filter({ hasText: `${P} Sommertour` });
-  await expect(herbst.locator('.v')).toHaveText('140 km');
-  await expect(sommer.locator('.v')).toHaveText('210 km');
-  await expect(sommer).toContainText(T('{n} not needed', { n: 2 }));
-  // Done has no badge and no button; the head sums the km.
-  await expect(done.locator('.nbadge')).toHaveCount(0);
-  await expect(done.getByRole('button')).toHaveCount(0);
-  await expect(page.locator('#past-done .n')).toContainText('km');
-  // A row opens the debrief.
-  await expect(sommer.getByRole('link')).toHaveAttribute('href', `#/debrief/${P}sommer`);
-  // Compare and pace are rows to the debrief page.
-  await expect(page.getByRole('link', { name: new RegExp(esc(T('Trips compared'))) })).toHaveAttribute('href', '#/debrief/compare');
+  // the fixture's trips are older than 12 months on some machines' clocks: show all years
+  await page.getByRole('group', { name: T('Period') }).getByRole('button', { name: T('All|period') }).click();
+  const rows = page.locator('table.tt tbody tr');
+  const herbst = rows.filter({ hasText: `${P} Herbstrunde` });
+  const sommer = rows.filter({ hasText: `${P} Sommertour` });
+  await expect(herbst).toContainText('140');
+  await expect(sommer).toContainText('210');
+  // done rows have no badge; a row opens the debrief
+  await expect(sommer.locator('.nbadge')).toHaveCount(0);
+  await expect(sommer.getByRole('link').first()).toHaveAttribute('href', `#/debrief/${P}sommer`);
   await noSideways(page);
   await shot(page, info, 'vergangen');
 

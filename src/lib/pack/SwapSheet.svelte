@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.52.0 «Tauschen» (OP2a, Noah a): the sheet a tap on a worn piece opens. The alternatives of the
+   * v0.59.0 «Tauschen» (OP2a, Noah a): the sheet a tap on a worn piece opens. The alternatives of the
    * same zone and layer from the wardrobe: first those that fit the trip's weather (the best one with
    * a star), then the ones picked before, «Fits less» quieter below but still one tap (a suggestion is
    * never forced). One tap swaps and closes; the message has Undo. «Take off» leaves the piece out.

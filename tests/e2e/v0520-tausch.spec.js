@@ -1,4 +1,4 @@
-// v0.52.0 «Tauschen» (OP2a, Noah a): fictional day ride (test_data_gtp_, v0520-fixture.js), 10–16 °C, dry.
+// v0.59.0 «Tauschen» (OP2a, Noah a): fictional day ride (test_data_gtp_, v0520-fixture.js), 10–16 °C, dry.
 // - The worn clothing is the first card «Am Körper»; a tap on a piece opens «Tauschen», a tap on an
 //   alternative swaps it: two taps. The message has «Rückgängig», which also forgets the pick.
 // - The alternatives are ordered by the trip's weather, then by the last picks (swap.memory).
