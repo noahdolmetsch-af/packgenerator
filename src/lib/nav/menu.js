@@ -45,7 +45,9 @@ export const MORE_GROUPS = [
     key: 'app',
     name: 'App|more',
     rows: [
-      { id: 'inbox', title: 'Inbox', href: '#/inbox', icon: 'inbox', words: 'inbox eingang einordnen to sort zettel' },
+      { id: 'inbox', title: 'Inbox', href: '#/inbox', icon: 'inbox', words: 'inbox eingang einordnen ablegen abgelegt to sort file zettel beleg' },
+      // v0.48.0 (Noah 12a-17a): the Notes page (notes kept, topics, pinned, checklists).
+      { id: 'notes', title: 'Notes', href: '#/notes', icon: 'notes', words: 'notes notizen notiz merken checkliste checklist thema topics pinned angeheftet' },
       { id: 'data', title: 'Your data', action: 'data', icon: 'data', words: 'your data deine daten backup sicherung import export restore wiederherstellen' },
       { id: 'features', title: 'What the app can do', href: '#/features', icon: 'sparkles', words: 'what the app can do was die app kann features funktionen tips tipps updates neuerungen' },
     ],

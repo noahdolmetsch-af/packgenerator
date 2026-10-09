@@ -136,6 +136,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/share/')) return 'share';
   if (h.startsWith('#/ride')) return 'ride';
   if (h.startsWith('#/inbox')) return 'inbox';
+  if (h.startsWith('#/notes')) return 'notes'; // v0.48.0: the Notes page
   if (h.startsWith('#/review')) return 'review'; // v0.44.0: the last 12 months
   if (h.startsWith('#/features')) return 'features'; // v0.30.0 (Noah 3a): what the app can do
   return 'home';

@@ -20,6 +20,7 @@
    * with "All good" (v0.24.1), the ride day opening by itself (v0.20), "Your data" and the footer.
    * The rules are pure and tested: lib/home/heute.js, lib/home/functions.js, today.js, schedule.js.
    */
+  import { todayNotes } from '../lib/notebook.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { localDay } from '../lib/localday.js';
@@ -499,6 +500,8 @@
     for (const x of alsoToday) rows.push({ key: `also:${x.id}`, tone: 'info', text: `${t('Also today: {title}', { title: x.title })}${x.bike ? ` · ${x.bike}` : ''}`, act: { label: t('Open the trip'), href: '#/pack', trip: x.id } });
     if (focus?.kind === 'debrief' && next) rows.push({ key: 'next', tone: 'info', text: t('Next trip: {title}', { title: next.title }), act: { label: t('Open the trip'), href: '#/pack', trip: next.id } });
     if (notes.length) rows.push({ key: 'inbox', tone: 'info', text: tn(notes.length, '{n} note to sort', '{n} notes to sort'), act: { label: t('Inbox'), href: '#/inbox' } });
+    // v0.48.0 (Noah 17a): one line only for a pinned note with an open checklist.
+    for (const x of todayNotes($notesQ ?? [], 1)) rows.push({ key: `note:${x.id}`, tone: 'info', text: tn(x.open, 'Note «{title}»: {n} point open', 'Note «{title}»: {n} points open', { title: x.title }), act: { label: t('Notes'), href: '#/notes' } });
     if (!bikes.length && !showFirst) rows.push({ key: 'nobike', tone: 'info', text: t('No bikes yet.'), act: { label: t('Add a bike'), href: '#/bikes', run: wantBike } });
     rows.push(...knowRows);
     if (newsN) rows.push({ key: 'news', tone: 'quiet', text: tn(newsN, 'New in the app: {n} update', 'New in the app: {n} updates'), act: { label: t('Show'), href: '#/features?news' } });

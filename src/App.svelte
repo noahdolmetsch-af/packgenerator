@@ -8,6 +8,7 @@
   import Share from './pages/Share.svelte';
   import Ride from './pages/Ride.svelte';
   import Inbox from './pages/Inbox.svelte';
+  import Notes from './pages/Notes.svelte';
   import Favorites from './pages/Favorites.svelte';
   import PastTrips from './pages/PastTrips.svelte';
   import Trips from './pages/Trips.svelte';
@@ -224,6 +225,9 @@
     <Review />
   {:else if page === 'inbox'}
     <Inbox onnew={() => (noteOpen = true)} />
+  {:else if page === 'notes'}
+    <!-- v0.48.0: Notes (kept notes) and the inbox side by side -->
+    <Notes />
   {:else if page === 'rides'}
     <!-- v0.41.0 (Noah 1-4): upload a ride; #/debrief/ride/<id> one ride, #/debrief/ride/shared a shared file -->
     {#key sub}<Rides {sub} />{/key}
