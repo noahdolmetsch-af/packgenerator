@@ -39,26 +39,20 @@ const shot = async (page, info, name, fullPage = false) => {
   if (process.env.V040_SHOTS) await page.screenshot({ path: `${process.env.V040_SHOTS}/${name}-${info.project.name}.png`, fullPage });
 };
 
-test('Inbox: one light button per note, the rest behind •••, a set bike shows as a neutral badge', async ({ page, context }, info) => {
+// v0.48.0: the Inbox is the «Eingang»: one light button «Ablegen» per entry, the app's suggestion
+// under the text, Delete behind •••; the targets are in the sheet (tests/e2e/v048.spec.js).
+test('Inbox: one light button per note, the rest behind •••, the suggestion under the text', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/inbox');
   await expect(page.getByRole('heading', { name: T('Inbox'), level: 1 })).toBeVisible();
-  await expect(page.locator('.page-sub')).toHaveText(T('{n} to sort', { n: 2 }));
-  const list = page.getByRole('list', { name: T('Notes, newest first') });
-  const note = list.locator('li.note').filter({ hasText: `${P} Bell rattles` });
-  // No badge until a bike or trip is set; one light button, no orange.
-  await expect(note.locator('.nbadge')).toHaveCount(0);
-  await expect(note.locator('.row-acts > .btn')).toHaveCount(1);
+  await expect(page.locator('.page-sub')).toContainText(T('{n} open', { n: 2 }));
+  const note = page.locator('li[data-note-id]').filter({ hasText: `${P} Bell rattles` });
+  await expect(note.locator('.acts > .btn')).toHaveCount(1);
+  await expect(note.locator('.acts > .btn')).toHaveText(T('File'));
   await expect(note.locator('.btn.hi')).toHaveCount(0);
-  // ••• → Bike or trip → the bike → a badge "Bike: …", stored on the note.
-  await note.getByLabel(T('More for this note: other places, bike or trip, delete')).click();
-  await note.getByRole('button', { name: T('Bike or trip'), exact: true }).click();
-  const ctx = note.getByRole('group', { name: T('Bike or trip for this note') });
-  await ctx.locator('select').first().selectOption(SPARK);
-  await expect(note.locator('.nbadge')).toHaveText(T('Bike: {name}', { name: SPARK_NAME }));
-  await expect.poll(async () => (await table(page, 'notes')).find((n) => n.id === `${P}n1`)?.bikeId).toBe(SPARK);
-  // The other note stays without a badge.
-  await expect(list.locator('li.note').filter({ hasText: `${P} New bottle cage?` }).locator('.nbadge')).toHaveCount(0);
+  await expect(note.locator('.sug')).toContainText(T('Suggestion: {what}', { what: T('Problem on a bike') }));
+  await note.getByLabel(T('More for this note')).click();
+  await expect(note.getByRole('button', { name: T('Delete'), exact: true })).toBeVisible();
   await noSideways(page);
   await shot(page, info, 'inbox');
   expect(errors).toEqual([]);
@@ -179,9 +173,8 @@ test('Chain wear at the limit in Bike care: work needed, on the wishlist, Undo i
   const errors = await v038Start(page, context, info, expect);
   await page.goto(`./#/bikes?tab=care&bike=${SPARK}`);
   const spark = page.locator(`#care-${SPARK}`);
-  if (await spark.locator('.okfold[aria-expanded=false]').count()) await spark.locator('.okfold').click();
-  await spark.getByRole('button', { name: /^Kette/ }).first().click();
-  await spark.locator('li.pt.x').getByRole('button', { name: 'Erfassen …' }).click();
+  // v0.48.0: a row of the part table opens the part.
+  await spark.locator('button.prow').filter({ has: page.locator('.nm').getByText(T('Chain'), { exact: true }) }).click();
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Kette' }) });
   await dlg.getByLabel(new RegExp(`^${esc(T('Measured'))}`)).fill('0.6');
   await dlg.getByRole('button', { name: T('OK'), exact: true }).click();

@@ -46,52 +46,120 @@ export function parseKm(text) {
   return n <= 500000 ? n : NaN;
 }
 
+/**
+ * v0.48.0 (Noah, «Teile pro Velo»): ONE part list for every bike. It is the standard spec template
+ * (areas Frame, Drivetrain, Brakes, Wheels, Cockpit, Accessories) and the care list at the same time:
+ * a part keeps its spec fields (model, weightG, material, attrs, notes) and its care history together
+ * on bike.parts. spec: the part is a row of the spec template (the comparison table, the bikeSpecs
+ * import). attrs: the typed attributes of this part ({ key, name, unit?, num? }), all optional.
+ * Parts without spec are care only (chainring, pads, rear linkage) or check points (bolts, bearings).
+ */
+const A = (key, name, unit = '', num = !!unit) => ({ key, name, unit, num });
+const AXLE = A('axle', 'Axle standard');
+const BLEED = 'Bleed when the lever feels soft';
+const ROTOR = { unit: 'mm', warnAt: 1.6, limit: 1.5, lowIsWorn: true, hint: 'Thickness in mm (check the minimum printed on the rotor)', attrs: [A('dia', 'Diameter', 'mm')] };
+const WHEEL = { hint: 'True, spoke tension, freehub', attrs: [AXLE, A('mount', 'Brake mount'), A('inner', 'Inner rim width', 'mm'), A('size', 'Wheel size')] };
+/*
+ * v0.48.0 (Noah's refinement): front and rear are separate parts for brakes, rotors and wheels;
+ * the tyres stay one part with front and rear values (as tube or tubeless per wheel, tyreSetup).
+ * more: the part sits under «More» (frame, suspension details, clamp, battery, axles, saddle,
+ * cockpit, charger, own parts); the others show by default.
+ * legacy: the parts before v0.48.0 that are now split (brakes, wheels); they show only with a history.
+ */
 export const PARTS = [
-  { key: 'chain', name: 'Chain', unit: '%', warnAt: 0.4, limit: 0.5, everyKm: 150, service: 'Waxed', hint: 'Chain checker: 0.4 % warning, 0.5 % replace' },
-  { key: 'chainring', name: 'Chainring', unit: '' },
-  { key: 'cassette', name: 'Cassette', unit: '' },
-  { key: 'padsF', name: 'Brake pads front', unit: '%', warnAt: 60, limit: 50, lowIsWorn: true, hint: 'Pad left in %: below 50 % replace' },
-  { key: 'padsR', name: 'Brake pads rear', unit: '%', warnAt: 60, limit: 50, lowIsWorn: true, hint: 'Pad left in %: below 50 % replace' },
-  { key: 'rotorF', name: 'Brake rotor front', unit: 'mm', warnAt: 1.6, limit: 1.5, lowIsWorn: true, hint: 'Thickness in mm (check the minimum printed on the rotor)' },
-  { key: 'rotorR', name: 'Brake rotor rear', unit: 'mm', warnAt: 1.6, limit: 1.5, lowIsWorn: true, hint: 'Thickness in mm (check the minimum printed on the rotor)' },
-  { key: 'fork', name: 'Fork', unit: '', suspension: 'fork', everyDays: 365, due: 'Fork service', hint: 'Lockout, sag, service once a year' },
-  { key: 'shock', name: 'Rear shock', unit: '', suspension: 'full', everyDays: 365, due: 'Shock service', hint: 'Lockout, sag, service once a year' },
-  { key: 'linkage', name: 'Rear linkage', unit: '', suspension: 'full', hint: 'Pivot bolts: clean, grease, check for play' },
-  { key: 'saddle', name: 'Saddle height', unit: 'mm', hint: 'Centre of the bottom bracket to the top of the saddle' },
-  { key: 'shifting', name: 'Shifting', unit: '', hint: 'Cable, housing, indexing' },
-  { key: 'tyres', name: 'Tyres + sealant', unit: '', extra: ['pressureF', 'pressureR', 'sealantMl'], everyDays: 90, due: 'Top up sealant', tubeless: true, hint: 'Tread, pressure, sealant every 3 months (tubeless only)' },
-  { key: 'brakes', name: 'Brakes (bleed, hoses)', unit: '', hint: 'Bleed when the lever feels soft' },
-  { key: 'wheels', name: 'Wheels', unit: '', hint: 'True, spoke tension, freehub' },
-  { key: 'cockpit', name: 'Cockpit', unit: '', hint: 'Grips or bar tape, lever covers' },
-  { key: 'bolts', name: 'Bolts (torque)', unit: '', hint: 'Saddle, thru axles, levers, cages, mounts' },
-  { key: 'bearings', name: 'Bearings', unit: '', hint: 'Headset, hubs, bottom bracket: check for play' },
+  // Frame
+  { key: 'frame', name: 'Frame', area: 'frame', spec: true, more: true, unit: '', attrs: [AXLE, A('clearance', 'Tyre clearance')] },
+  { key: 'fork', name: 'Fork', area: 'frame', spec: true, more: true, unit: '', suspension: 'fork', everyDays: 365, due: 'Fork service', hint: 'Lockout, sag, service once a year', attrs: [A('travel', 'Travel', 'mm'), AXLE, A('stanchion', 'Stanchions', 'mm'), A('steerer', 'Steerer'), A('offset', 'Offset', 'mm')] },
+  { key: 'shock', name: 'Rear shock', area: 'frame', spec: true, more: true, unit: '', suspension: 'full', everyDays: 365, due: 'Shock service', hint: 'Lockout, sag, service once a year', attrs: [A('travel', 'Travel', 'mm'), A('eye', 'Eye-to-eye length')] },
+  { key: 'linkage', name: 'Rear linkage', area: 'frame', unit: '', suspension: 'full', hint: 'Pivot bolts: clean, grease, check for play' },
+  { key: 'seatclamp', name: 'Seatpost clamp', area: 'frame', spec: true, more: true, unit: '' },
+  // Drivetrain
+  { key: 'cassette', name: 'Cassette', area: 'drive', spec: true, unit: '', attrs: [A('cogs', 'Cogs'), A('range', 'Gear range')] },
+  { key: 'shifting', name: 'Rear derailleur', area: 'drive', spec: true, unit: '', hint: 'Cable, housing, indexing', attrs: [A('cage', 'Cage length')] },
+  { key: 'shifter', name: 'Shifter', area: 'drive', spec: true, unit: '' },
+  { key: 'crank', name: 'Crankset', area: 'drive', spec: true, unit: '', attrs: [A('rings', 'Chainrings'), A('ring', 'Chainring size'), A('length', 'Crank length', 'mm')] },
+  { key: 'chainring', name: 'Chainring', area: 'drive', unit: '' },
+  { key: 'bb', name: 'Bottom bracket', area: 'drive', spec: true, unit: '', attrs: [A('standard', 'Standard')] },
+  { key: 'chain', name: 'Chain', area: 'drive', spec: true, unit: '%', warnAt: 0.4, limit: 0.5, everyKm: 150, service: 'Waxed', hint: 'Chain checker: 0.4 % warning, 0.5 % replace' },
+  { key: 'battery', name: 'Battery', area: 'drive', spec: true, more: true, unit: '', hint: 'Electronic shifting or e-bike: charge before a trip' },
+  // Brakes
+  { key: 'brakeF', name: 'Disc brake front', area: 'brakes', spec: true, unit: '', hint: BLEED, attrs: [A('pistons', 'Pistons')] },
+  { key: 'brakeR', name: 'Disc brake rear', area: 'brakes', spec: true, unit: '', hint: BLEED, attrs: [A('pistons', 'Pistons')] },
+  { key: 'rotorF', name: 'Brake rotor front', area: 'brakes', spec: true, ...ROTOR },
+  { key: 'rotorR', name: 'Brake rotor rear', area: 'brakes', spec: true, ...ROTOR },
+  { key: 'padsF', name: 'Brake pads front', area: 'brakes', unit: '%', warnAt: 60, limit: 50, lowIsWorn: true, hint: 'Pad left in %: below 50 % replace' },
+  { key: 'padsR', name: 'Brake pads rear', area: 'brakes', unit: '%', warnAt: 60, limit: 50, lowIsWorn: true, hint: 'Pad left in %: below 50 % replace' },
+  { key: 'brakes', name: 'Brakes (bleed, hoses)', area: 'brakes', legacy: true, unit: '', hint: 'Bleed when the lever feels soft' },
+  // Wheels
+  { key: 'wheelF', name: 'Front wheel', area: 'wheels', spec: true, unit: '', ...WHEEL },
+  { key: 'wheelR', name: 'Rear wheel', area: 'wheels', spec: true, unit: '', ...WHEEL },
+  { key: 'tyres', name: 'Tyres + sealant', area: 'wheels', spec: true, unit: '', extra: ['pressureF', 'pressureR', 'sealantMl'], everyDays: 90, due: 'Top up sealant', tubeless: true, hint: 'Tread, pressure, sealant every 3 months (tubeless only)', attrs: [A('widthF', 'Width front'), A('widthR', 'Width rear'), A('modelR', 'Rear tyre, when different')] },
+  { key: 'axles', name: 'Thru axles', area: 'wheels', spec: true, more: true, unit: '', attrs: [AXLE] },
+  { key: 'wheels', name: 'Wheels', area: 'wheels', legacy: true, unit: '', hint: 'True, spoke tension, freehub' },
+  // Cockpit
+  { key: 'grips', name: 'Grips', area: 'cockpit', spec: true, unit: '' },
+  { key: 'seatpost', name: 'Seatpost', area: 'cockpit', spec: true, unit: '', attrs: [A('travel', 'Drop', 'mm'), A('dia', 'Clamp diameter', 'mm'), A('length', 'Length', 'mm'), A('insertMin', 'Insertion min', 'mm'), A('insertMax', 'Insertion max', 'mm')] },
+  { key: 'cockpit', name: 'Cockpit', area: 'cockpit', spec: true, more: true, unit: '', hint: 'Bar and stem; grips or bar tape, lever covers', attrs: [A('dims', 'Sizes')] },
+  { key: 'saddle', name: 'Saddle', area: 'cockpit', spec: true, more: true, unit: 'mm', hint: 'Saddle height: centre of the bottom bracket to the top of the saddle' },
+  // Accessories
+  { key: 'charger', name: 'Charger', area: 'extras', spec: true, more: true, unit: '' },
+  // Check points (the 1000 km check), no spec
+  { key: 'bolts', name: 'Bolts (torque)', area: 'checks', more: true, unit: '', hint: 'Saddle, thru axles, levers, cages, mounts' },
+  { key: 'bearings', name: 'Bearings', area: 'checks', more: true, unit: '', hint: 'Headset, hubs, bottom bracket: check for play' },
 ];
 export const PART = Object.fromEntries(PARTS.map((p) => [p.key, p]));
+
+/** v0.48.0: the areas of the part list, in this order (the spec template plus the check points). */
+export const AREAS = [
+  { key: 'frame', name: 'Frame' },
+  { key: 'drive', name: 'Drivetrain' },
+  { key: 'brakes', name: 'Brakes' },
+  { key: 'wheels', name: 'Wheels' },
+  { key: 'cockpit', name: 'Cockpit' },
+  { key: 'extras', name: 'Accessories' },
+  { key: 'checks', name: 'Check points' },
+];
+/** The area of a part (own parts carry their own area). */
+export const areaOf = (part) => PART[part?.key]?.area ?? part?.area ?? 'extras';
+/** The name of a part in the current language: the template name, or the name an own part was given. */
+export const partName = (part) => (PART[part?.key] ? tr(PART[part.key].name) : part?.name || part?.key || '');
+/** Is this part under «More» (own parts too)? */
+export const isMore = (part) => (PART[part?.key] ? !!PART[part.key].more : true);
+/** The typed attributes of a part (own parts have none). */
+export const attrsOf = (key) => PART[key]?.attrs ?? [];
 
 /** What the 1000 km check covers (Noah, 4.10.2026). */
 export const CHECK_KM = 1000;
 export const CHECK_PARTS = ['padsF', 'padsR', 'chain', 'tyres', 'bolts', 'shifting', 'fork', 'shock', 'bearings'];
 
-/** Does this bike have this kind of part? Suspension parts only where the bike has suspension. */
-function fits(bike, p) {
+/** Does this bike have suspension of this kind (full: shock and linkage, fork: suspension fork)? */
+export function fits(bike, p) {
   const type = `${bike.type ?? ''} ${bike.id ?? ''}`.toLowerCase();
   const full = /full|fully/.test(type);
   const fork = full || type.includes('hardtail');
   return !p.suspension || (p.suspension === 'fork' && fork) || (p.suspension === 'full' && full);
 }
 
-/** The parts of a new bike. */
-export const defaultParts = (bike) => PARTS.filter((p) => fits(bike, p)).map((p) => ({ key: p.key, model: '', history: [] }));
+/**
+ * v0.48.0 (Noah: every bike gets the full template): every spec part on every bike, missing values
+ * stay empty. Care-only parts (rear linkage) only where they fit; the old brakes and wheels only with a history.
+ */
+const onBike = (bike, p) => !p.legacy && (p.spec || fits(bike, p));
+const blank = (key) => ({ key, model: '', history: [] });
 
-/** The stored parts plus the parts added since (brakes, wheels, rear linkage, cockpit), in the list order. */
+/** The parts of a new bike. */
+export const defaultParts = (bike) => PARTS.filter((p) => onBike(bike, p)).map((p) => blank(p.key));
+
+/** The stored parts plus the template parts added since, in the template order (own parts at the end of their area). */
 export function ensureParts(bike) {
-  const stored = bike.parts ?? [];
+  const stored = (bike.parts ?? []).filter((p) => !(PART[p.key]?.legacy && !p.history?.length && !p.model));
   if (!stored.length) return defaultParts(bike);
   const have = new Set(stored.map((p) => p.key));
-  const added = PARTS.filter((p) => !have.has(p.key) && fits(bike, p)).map((p) => ({ key: p.key, model: '', history: [] }));
-  if (!added.length) return stored;
-  const order = (k) => PARTS.findIndex((p) => p.key === k);
-  return [...stored, ...added].sort((a, b) => order(a.key) - order(b.key));
+  const added = PARTS.filter((p) => !have.has(p.key) && onBike(bike, p)).map((p) => blank(p.key));
+  if (!added.length && stored.length === (bike.parts ?? []).length) return stored;
+  const areaRank = (p) => AREAS.findIndex((a) => a.key === areaOf(p));
+  const order = (p) => (PART[p.key] ? PARTS.indexOf(PART[p.key]) : PARTS.length);
+  return [...stored, ...added].map((p, n) => [p, n]).sort(([a, i], [b, j]) => areaRank(a) - areaRank(b) || order(a) - order(b) || i - j).map(([p]) => p);
 }
 
 /** The part's definition merged with what the bike stores (model, history). */
@@ -125,7 +193,7 @@ export const needsWork = (part) => part.history?.at(-1)?.result === 'needed';
 /** 1000 km check: per part, km since it was last looked at; due when 1000 or more (km must be known). */
 export function checkState(bike) {
   const rows = (bike.parts ?? [])
-    .filter((p) => CHECK_PARTS.includes(p.key))
+    .filter((p) => CHECK_PARTS.includes(p.key) && fits(bike, PART[p.key]))
     .map((p) => {
       const since = kmSince(bike, lastLook(p));
       return { key: p.key, name: p.key === 'fork' || p.key === 'shock' ? tr('{part} lockout', { part: tr(PART[p.key].name) }) : tr(PART[p.key].name), since, due: since != null && since >= CHECK_KM, unknown: since == null };
@@ -166,7 +234,7 @@ export const EXTRA = { pressureF: { name: 'Pressure front', unit: 'bar' }, press
  * all part entries plus the repairs finished in the app.
  */
 export function bikeLog(bike, tasks = []) {
-  const parts = (bike.parts ?? []).flatMap((p) => (p.history ?? []).map((h) => ({ ...h, what: PART[p.key] ? tr(PART[p.key].name) : p.key, unit: PART[p.key]?.unit ?? '' })));
+  const parts = (bike.parts ?? []).flatMap((p) => (p.history ?? []).map((h) => ({ ...h, what: partName(p), unit: PART[p.key]?.unit ?? '' })));
   const repairs = tasks
     .filter((t) => taskBike(t) === bike.id && t.status === 'done' && t.statusDate)
     .map((t) => ({ date: t.statusDate, km: null, action: 'repair', result: 'done', by: t.by ?? null, what: t.task, note: '' }));

@@ -10,6 +10,8 @@
 <nav class="subnav" aria-label={t('Bikes')}>
   <a href={bikesHash({ tab: 'setup', bike })} aria-current={current === 'setup' ? 'page' : undefined}>{t('Setup')}</a>
   <a href={bikesHash({ tab: 'care', bike })} aria-current={current === 'care' ? 'page' : undefined}>{t('Care')}</a>
+  <!-- v0.48.0 (Noah 9a): «Werkstatt & Belege» under Bikes: orders, visits, receipts. -->
+  <a href={bikesHash({ tab: 'shop', bike })} aria-current={current === 'shop' ? 'page' : undefined}>{t('Workshop|tab')}</a>
 </nav>
 
 <style>

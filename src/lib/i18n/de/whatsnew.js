@@ -18,6 +18,15 @@ export default {
   '"Learned" lists every learning by topic, nothing folded away.':
     '«Gelernt» listet alle Learnings nach Thema, nichts mehr zugeklappt.',
 
+  // 0.48.0
+  'Bike care starts with an overview: a ring per bike, at most three cards for what is due, all problems in one list. Replacing or servicing a part is a short guided flow.':
+    'Die Velopflege beginnt mit einer Übersicht: ein Ring pro Velo, höchstens drei Karten für Fälliges, alle Probleme in einer Liste. Ein Teil ersetzen oder warten ist ein kurzer geführter Ablauf.',
+  'Every bike has the same part list with a spec sheet and its geometry. "Compare bikes" puts them side by side; an empty cell is filled with one tap.':
+    'Jedes Velo hat dieselbe Teileliste mit Datenblatt und Geometrie. «Velos vergleichen» stellt sie nebeneinander; ein leeres Feld füllst du mit einem Tipp.',
+  'The Inbox is now "Eingang": grouped by day, one button "File" with seven targets. A receipt photo becomes a workshop visit, found under Bikes → Workshop.':
+    'Die Inbox heisst jetzt «Eingang»: nach Tagen gruppiert, ein Knopf «Ablegen» mit sieben Zielen. Ein Foto einer Rechnung wird ein Werkstattbesuch, zu finden unter Velos → Werkstatt.',
+  'New page Notes: write, dictate, add a photo, a link or a checklist; topics, pinned notes and "Turn the note into …" a trip idea, a wish or a problem.':
+    'Neue Seite Notizen: schreiben, diktieren, Foto, Link oder Checkliste anhängen; Themen, angeheftete Notizen und «Aus Notiz wird …» eine Tour-Idee, ein Wunsch oder ein Problem.',
   // 0.49.0
   'One page "Look back" instead of five: your last ride, the last 12 months with the year before, average and best, and your trips compared in 7 small charts and a table.':
     'Eine Seite «Rückblick» statt fünf: deine letzte Fahrt, die letzten 12 Monate mit Vorjahr, Durchschnitt und Bestwert, und deine Touren im Vergleich in 7 kleinen Diagrammen und einer Tabelle.',

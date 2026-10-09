@@ -13,7 +13,11 @@
   import { tickPrep, untickPrep } from './prep.js';
   import { shopSkip } from './last.js';
   import BikeCare from './BikeCare.svelte';
-  import ProblemList from './ProblemList.svelte';
+  import CareOverview from './CareOverview.svelte';
+  import StartValues from './StartValues.svelte';
+  import { setSpec } from '../bikespecs.js';
+  import { nextNumber } from '../notes.js';
+  import { isMore, partName as nameOfPart } from '../care.js';
   import Fold from '../ui/Fold.svelte';
   import PartDialog from './PartDialog.svelte';
   import VisitDialog from './VisitDialog.svelte';
@@ -109,7 +113,43 @@
   );
 
   /* ---------- parts ---------- */
-  let partOpen = $state(null); // { bike, part }
+  let partOpen = $state(null); // { bikeId, key, start: null | 'replace' | 'service' }
+  let startOpen = $state(null); // the bike id of the start-values wizard
+  let workOpen = $state(false); // «Record work»: pick a bike and a part
+  let workBike = $state(null);
+  let workDialog = $state();
+  $effect(() => {
+    if (workOpen && workDialog && !workDialog.open) workDialog.showModal();
+  });
+  /** The shop names of the earlier visits, newest first (who did a replacement). */
+  const shops = $derived([...new Set([...visits].sort((a, b) => b.date.localeCompare(a.date)).map((v) => v.shop).filter(Boolean))].slice(0, 4));
+
+  /** v0.48.0 (Noah 11a): a guided replacement or service: all entries at once, follow-up questions as problems. */
+  async function saveFlow(view, { entries, problems = [] }) {
+    const bike = bikeById[view.id];
+    const prev = bike.parts;
+    let parts = bike.parts;
+    for (const { key, entry } of entries) parts = logPart(parts, key, entry);
+    const taskIds = [];
+    await db.transaction('rw', db.bikes, db.maintenance, async () => {
+      await db.bikes.update(bike.id, { parts });
+      let id = nextNumber(await db.maintenance.toArray());
+      for (const text of problems) {
+        await db.maintenance.put({ id, area: 'Bike', bikeId: bike.id, subject: bike.name, task: text, category: 'Repair', source: 'Care', logDate: today, leadWeeks: null, priority: 'medium', status: 'open', note: '', fix: 'self', beforeRide: true, done: false });
+        taskIds.push(id++);
+      }
+    });
+    if (entries.length) saved(view, [...new Set(entries.map((e) => e.key))], entries.at(-1).entry, { bikeId: bike.id, prev, itemId: null, taskIds });
+  }
+  /** v0.48.0 «Teile pro Velo»: one value of a part's spec sheet. */
+  async function saveSpec(bikeId, key, field, value) {
+    const bike = await db.bikes.get(bikeId);
+    if (bike) await db.bikes.update(bikeId, setSpec(bike, key, field, value));
+  }
+  async function saveStart(bikeId, values) {
+    await db.bikes.update(bikeId, values);
+    say(t('Start values saved.'));
+  }
 
   async function savePart(view, key, entry) {
     const bike = bikeById[view.id];
@@ -134,9 +174,10 @@
     clearTimeout(noticeTimer);
     notice = null;
     if (!u) return;
-    await db.transaction('rw', db.bikes, db.items, async () => {
+    await db.transaction('rw', db.bikes, db.items, db.maintenance, async () => {
       await db.bikes.update(u.bikeId, { parts: u.prev });
       if (u.itemId) await db.items.delete(u.itemId);
+      for (const id of u.taskIds ?? []) await db.maintenance.delete(id);
     });
   }
   async function wish(view, key, model = null) {
@@ -225,6 +266,8 @@
   const otherRepairs = $derived(repairs.filter((t) => !taskBike(t) && t.status !== 'check'));
   // v0.47.1 (Noah): the problems of all bikes in one flat list, newest on top (was: in each bike's «Due now»).
   const bikeProblems = $derived(tasks.filter((x) => !isPrep(x) && (x.status === 'open' || x.status === 'needed') && bikes.some((b) => b.id === taskBike(x))));
+  // v0.48.0 (Pflege C): the overview's list can also show the problems solved lately («All»).
+  const allBikeProblems = $derived(tasks.filter((x) => !isPrep(x) && x.status !== 'check' && x.status !== 'gone' && bikes.some((b) => b.id === taskBike(x))));
 
   /* ---------- tube or tubeless per wheel (answer 12a) ---------- */
   const setTyre = (bike, wheel, value) => db.bikes.update(bike.id, { tyreSetup: { ...tyreSetup(bike, visits), ...(bike.tyreSetup ?? {}), [wheel]: value } });
@@ -253,7 +296,8 @@
   });
   // At first the chosen bike (Setup and Care share it) or the first one is open.
   $effect(() => {
-    if (openId === undefined && bikes.length) openId = bikes.some((b) => b.id === bikeId) ? bikeId : bikes[0].id;
+    // v0.48.0 (Pflege C): the overview is on top; a bike is open only when it was chosen.
+    if (openId === undefined && bikes.length) openId = bikes.some((b) => b.id === bikeId) ? bikeId : null;
   });
   const toggled = (id, isOpen) => {
     openId = isOpen ? id : null;
@@ -278,11 +322,20 @@
   {#if !bikes.length && $bikesQ}
     <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
   {:else}
-    <div class="chips" role="group" aria-label={t('Show parts')}>
-      {#each FILTERS as [k, label] (k)}
-        <button type="button" class="chip" aria-pressed={filter === k} onclick={() => setFilter(k)}>{t(label)}</button>
-      {/each}
-    </div>
+    <CareOverview
+      {checks}
+      problems={allBikeProblems}
+      {tasks}
+      {visits}
+      {today}
+      bikeIdOf={taskBike}
+      onopen={(id) => openBike(id)}
+      ondone={(id, r) => checkAndSay(viewById[id], [r.part], 'service', r.kind === 'time' ? r.name : '', 'self')}
+      onflow={(id, key, mode) => (partOpen = { bikeId: id, key, start: mode })}
+      onorder={(id) => (orderOpen = id)}
+      onrepair={repairResult}
+      onwork={() => ((workBike = openId ?? bikes[0]?.id ?? null), (workOpen = true))}
+    />
 
     {#snippet trip(x)}
       <TripCare trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onall={() => prepAll(x.trip, x.rows)} onundo={(r) => undoPrep(x.trip, r)} onevent={(on) => db.trips.update(x.trip.id, { event: on })} />
@@ -315,7 +368,14 @@
       <p class="rev-cta">{tn(review.length, '{n} task from the Excel (June) is not checked yet.', '{n} tasks from the Excel (June) are not checked yet.')} <button type="button" class="btn sm" onclick={() => (reviewing = true)}>{t('Go through them')}</button></p>
     {/if}
 
-    {#if filter !== 'shop'}<ProblemList repairs={bikeProblems} {bikes} {today} bikeIdOf={taskBike} onrepair={repairResult} />{/if}
+    <div class="bhead">
+      <h2 class="zlabel">{t('Each bike')}</h2>
+      <div class="chips" role="group" aria-label={t('Show parts')}>
+        {#each FILTERS as [k, label] (k)}
+          <button type="button" class="chip" aria-pressed={filter === k} onclick={() => setFilter(k)}>{t(label)}</button>
+        {/each}
+      </div>
+    </div>
     <section class="per-bike" aria-label={t('Each bike')}>
       {#each checks as c (c.bike.id)}
         <BikeCare
@@ -337,6 +397,7 @@
           onorder={() => (orderOpen = c.bike.id)}
           onwish={(s) => wishTime(c.bike, s)}
           onrepair={repairResult}
+          onstart={() => (startOpen = c.bike.id)}
         />
       {/each}
     </section>
@@ -368,8 +429,32 @@
   {@const b = viewById[partOpen.bikeId]}
   {@const part = b?.parts.find((p) => p.key === partOpen.key)}
   {#if b && part}
-    <PartDialog {part} bike={b} {by} onby={setBy} onlog={(entry) => savePart(b, part.key, entry)} onclose={() => (partOpen = null)} />
+    <PartDialog {part} bike={b} {by} onby={setBy} onlog={(entry) => savePart(b, part.key, entry)} onclose={() => (partOpen = null)}
+      onflow={(x) => saveFlow(b, x)} onspec={(f, v) => saveSpec(b.id, part.key, f, v)} {shops} tyres={orderOf[b.id]?.tyres} ontyre={(w, v) => setTyre(bikeById[b.id], w, v)} start={partOpen.start ?? null} />
   {/if}
+{/if}
+
+{#if startOpen && viewById[startOpen]}
+  <StartValues bike={bikeById[startOpen]} onsave={(v) => saveStart(startOpen, v)} onclose={() => (startOpen = null)} />
+{/if}
+
+{#if workOpen}
+  {@const wb = viewById[workBike] ?? views[0]}
+  <!-- v0.48.0 (Pflege C): «Record work»: pick the bike and the part; the part then offers Replace and Service. -->
+  <dialog class="sheet" bind:this={workDialog} onclose={() => (workOpen = false)} aria-labelledby="work-h">
+    <h2 id="work-h" class="title">{t('Record work')}</h2>
+    {#if views.length > 1}
+      <p class="lbl">{t('Bike')}</p>
+      <div class="wchips" role="group" aria-label={t('Bike')}>
+        {#each views as v (v.id)}<button type="button" class="wchip" aria-pressed={wb?.id === v.id} onclick={() => (workBike = v.id)}>{v.name}</button>{/each}
+      </div>
+    {/if}
+    <p class="lbl">{t('Part')}</p>
+    <div class="wchips" role="group" aria-label={t('Part')}>
+      {#each (wb?.parts ?? []).filter((p) => !isMore(p)) as p (p.key)}<button type="button" class="wchip" onclick={() => ((partOpen = { bikeId: wb.id, key: p.key, start: null }), workDialog.close())}>{nameOfPart(p)}</button>{/each}
+    </div>
+    <div class="wfoot"><button type="button" class="btn" onclick={() => workDialog.close()}>{t('Cancel')}</button></div>
+  </dialog>
 {/if}
 
 {#if visitOpen}
@@ -430,6 +515,44 @@
   }
   .per-bike {
     margin: 8px 0 20px;
+  }
+  .bhead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    margin: 18px 0 4px;
+  }
+  .bhead .zlabel {
+    flex: 1 1 200px;
+    margin: 0;
+  }
+  .bhead .chips {
+    margin: 0;
+  }
+  .wchips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+  .wchip {
+    min-height: 44px;
+    padding: 6px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+    font: 500 var(--fs-small) var(--font-body);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .wchip[aria-pressed='true'] {
+    border-color: var(--hi);
+    background: var(--hi-soft);
+  }
+  .wfoot {
+    display: flex;
+    justify-content: flex-end;
   }
   /* v0.31.0: the filter as chips (aria-pressed), 44 px high. */
   /* v0.38.0 (Noah 5a): a segmented toggle in one line. */

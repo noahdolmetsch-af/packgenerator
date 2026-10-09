@@ -1,6 +1,9 @@
 <script>
   import { localDay } from '../localday.js';
-  import { partInfo, wear, replaceHint, kmSince, lastReplace, EXTRA } from '../care.js';
+  import { partInfo, wear, replaceHint, kmSince, lastReplace, EXTRA, partName, attrsOf, PART } from '../care.js';
+  import { readValue } from '../bikespecs.js';
+  import PartFlow from './PartFlow.svelte';
+  import { ArrowLeftRight, Wrench, ChevronRight } from '@lucide/svelte';
   import { t, num as fmtNum, dateOf } from '../i18n.svelte.js';
   import { historyNewest } from './last.js';
   import { UserRound, Store } from '@lucide/svelte';
@@ -9,7 +12,25 @@
    * One part of a bike: measure it, say how it is, see everything that was done to it.
    * onlog(entry) stores a new history entry; the page decides the rest (wishlist, km).
    */
-  let { part, bike, by = 'self', onby, onlog, onclose } = $props();
+  // v0.48.0: onflow({ entries, problems }) saves a guided replacement or service (PartFlow);
+  // onspec(field, value) saves one value of the part's spec sheet; tyres / ontyre: tube or tubeless.
+  let { part, bike, by = 'self', onby, onlog, onclose, onflow = null, onspec = null, shops = [], tyres = null, ontyre = null, start = null } = $props();
+  // svelte-ignore state_referenced_locally
+  let flow = $state(start); // null | 'replace' | 'service'
+  let specOpen = $state(false);
+  const specFields = $derived([
+    { key: 'model', name: 'Model' },
+    { key: 'weightG', name: 'Weight', unit: 'g', num: true },
+    { key: 'material', name: 'Material' },
+    ...attrsOf(part.key).map((a) => ({ key: `attrs.${a.key}`, name: a.name, unit: a.unit, num: a.num })),
+    { key: 'notes', name: 'Notes', wide: true },
+  ]);
+  const specOf = (f) => (f.key.startsWith('attrs.') ? part.attrs?.[f.key.slice(6)] : part[f.key]) ?? '';
+  const specFilled = $derived(specFields.filter((f) => String(specOf(f)).trim() !== '').length);
+  async function flowSave(x) {
+    await onflow?.(x);
+    if (x.entries.length && flow === 'service' && dialog?.open) dialog.close();
+  }
 
   // v0.31.0 (answer 10a): who did the work is chosen here (me / bike shop), not at the top of the
   // page; the last choice is preselected and remembered (onby).
@@ -67,15 +88,39 @@
   const state = $derived(wear(part));
 </script>
 
-<dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="part-h">
+<dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby={flow ? 'flow-h' : 'part-h'}>
+  {#if flow}
+    <PartFlow {part} {bike} mode={flow} {shops} {by} onsave={flowSave} oncancel={() => (start ? dialog?.close() : (flow = null))} />
+  {:else}
   <p class="meta">{bike.name}</p>
-  <h2 id="part-h" class="title">{t(p.name)}</h2>
+  <h2 id="part-h" class="title">{partName(part)}</h2>
+  {#if part.model}<p class="model">{part.model}</p>{/if}
   {#if p.hint}<p class="hint">{t(p.hint)}</p>{/if}
   <p class="facts num">
     {#if state}<span class="badge {state}">{state === 'ok' ? t('OK') : state === 'warn' ? t('Soon') : t('Worn|part')}</span>{/if}
     {#if sinceNew != null}{t('{km} km since it was new', { km: fmtNum(sinceNew) })}{:else if bike.km == null}{t("Set the bike's km to count km per part")}{/if}
   </p>
 
+  {#if onflow}
+    <!-- v0.48.0 (Noah 11a): replace and service are guided. -->
+    <div class="tiles">
+      <button type="button" class="tile hi" onclick={() => (flow = 'replace')}><ArrowLeftRight size={20} aria-hidden="true" /><b>{t('Replace|part')}</b><small>{p.unit ? t('measure, decide, new part, km') : t('new part, km, who')}</small></button>
+      <button type="button" class="tile" onclick={() => (flow = 'service')}><Wrench size={20} aria-hidden="true" /><b>{t('Service|part')}</b><small>{t('what, when, km')}</small></button>
+    </div>
+  {/if}
+  {#if part.key === 'tyres' && tyres && ontyre}
+    <div class="tyres" role="group" aria-label={t('Tube or tubeless')}>
+      {#each [['front', 'Front'], ['rear', 'Rear']] as [w, label] (w)}
+        <span class="tw"><span class="lbl">{t(label)}</span>
+          <span class="seg" role="group" aria-label="{t(label)}: {t('Tube or tubeless')}">
+            <button type="button" aria-pressed={tyres[w] === 'tubeless'} onclick={() => ontyre(w, 'tubeless')}>{t('Tubeless')}</button>
+            <button type="button" aria-pressed={tyres[w] === 'tube'} onclick={() => ontyre(w, 'tube')}>{t('Tube')}</button>
+          </span>
+        </span>
+      {/each}
+    </div>
+  {/if}
+  <h3 class="qh">{t('Quick entry')}</h3>
   <div class="grid">
     <label><span class="lbl">{t('Model')}</span><input class="inp" bind:value={model} placeholder={t('e.g. SRAM GX Eagle 12-speed')} /></label>
     <label><span class="lbl">{t('Measured')}{p.unit ? ` (${p.unit})` : ''}</span><input class="inp num" type="text" inputmode="decimal" bind:value={value} placeholder={p.unit ? t('optional') : t('no measurement')} disabled={!p.unit} /></label>
@@ -101,6 +146,20 @@
     {#if p.service}<button type="button" class="btn" onclick={() => log('service', 'done')}>{t(p.service)}</button>{/if}
   </div>
 
+  {#if onspec && (PART[part.key]?.spec || part.key.startsWith('own-'))}
+    <!-- v0.48.0 «Teile pro Velo»: the spec sheet of this part (model, weight, material, its values). -->
+    <details class="spec" bind:open={specOpen}>
+      <summary><span>{t('Spec sheet')}</span><span class="n">{t('{n} of {all} filled', { n: specFilled, all: specFields.length })}</span><ChevronRight size={18} aria-hidden="true" /></summary>
+      {#if specOpen}
+        <div class="grid">
+          {#each specFields as f (f.key)}
+            <label class:wide={f.wide}><span class="lbl">{t(f.name)}{f.unit ? ` (${f.unit})` : ''}</span><input class="inp" class:num={f.num} type="text" inputmode={f.num ? 'decimal' : 'text'} value={specOf(f)} placeholder="–" onchange={(e) => onspec(f.key, readValue(e.currentTarget.value, f.num))} /></label>
+          {/each}
+        </div>
+      {/if}
+    </details>
+  {/if}
+
   <h3>{t('History')}</h3>
   {#if part.history?.length}
     <ol class="hist">
@@ -116,9 +175,90 @@
     <p class="hint">{t('Nothing recorded yet.')}</p>
   {/if}
   <div class="foot"><button type="button" class="btn" onclick={() => dialog?.close()}>{t('Close')}</button></div>
+  {/if}
 </dialog>
 
 <style>
+  .model {
+    margin: -2px 0 8px;
+    color: var(--ink-2);
+  }
+  .tiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 6px 0 12px;
+  }
+  .tile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-height: 76px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    font: inherit;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+  }
+  .tile small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .tile.hi {
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
+  }
+  .tile.hi small {
+    color: var(--hi-ink);
+  }
+  .qh {
+    margin-top: 6px;
+  }
+  .tyres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin: 0 0 10px;
+  }
+  .tw {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tw .lbl {
+    margin: 0;
+  }
+  .spec {
+    margin: 14px 0 0;
+    border-top: 1px solid var(--line);
+  }
+  .spec summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  .spec summary::-webkit-details-marker {
+    display: none;
+  }
+  .spec summary .n {
+    flex: 1;
+    text-align: right;
+    font-weight: 400;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .spec[open] summary :global(svg) {
+    transform: rotate(90deg);
+  }
   .meta {
     margin: 0;
     font-size: var(--fs-small);
