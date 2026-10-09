@@ -8,6 +8,15 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.41.0
+  'Upload a ride (GPX) from New or from Debrief: distance, climbing, moving time and every pause of 5 minutes or more.':
+    'Eine Fahrt hochladen (GPX), über Neu oder im Rückblick: Distanz, Höhenmeter, Fahrzeit und jede Pause ab 5 Minuten.',
+  'Planned vs real: with the trip of that day, the app compares distance, climbing, moving time and speed with the plan.':
+    'Geplant gegen echt: Mit der Tour dieses Tages vergleicht die App Distanz, Höhenmeter, Fahrzeit und Tempo mit dem Plan.',
+  'Up to 3 learnings per ride, like "You ride faster than planned"; each is kept with one tap, nothing without one.':
+    'Bis zu 3 Learnings pro Fahrt, etwa «Du fährst schneller als geplant»; jedes wird mit einem Tippen gemerkt, nichts ohne.',
+  'On Android, share a GPX file to Pack Generator and it opens the upload. Without a trip the ride is saved on its own or becomes a past trip.':
+    'Auf Android eine GPX-Datei an Pack Generator teilen öffnet das Hochladen. Ohne Tour wird die Fahrt für sich gespeichert oder zur vergangenen Tour.',
   // 0.40.0
   'Calmer side pages: Inbox, Past trips, Debrief, Building blocks and What the app can do as short rows; explanations behind a small "?".':
     'Ruhigere Nebenseiten: Inbox, Vergangene Touren, Rückblick, Bausteine und Was die App kann als kurze Zeilen; Erklärungen hinter einem kleinen «?».',

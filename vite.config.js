@@ -36,11 +36,27 @@ export default defineConfig({
         // Quick note (v0.19.3, answer 3a): long-press the app icon → "New note"; and Pack Generator
         // in the Android share sheet (text and links; a photo is added in the note itself).
         shortcuts: [{ name: 'New note', short_name: 'Note', url: `${base}#/inbox/new`, icons: [{ src: 'icons/app-192.png', sizes: '192x192' }] }],
-        share_target: { action: base, method: 'GET', params: { title: 'title', text: 'text', url: 'url' } },
+        // v0.41.0 (Noah 5): a GPX file shared from another app ("Teilen an Pack Generator") opens the
+        // ride upload. A file needs POST with multipart/form-data; the service worker answers that POST
+        // (public/share-target.js): a file goes to #/debrief/ride/shared, text and links still go to
+        // the Inbox quick note as ?title=…&text=…&url=… (the GET of v0.19.3).
+        share_target: {
+          action: `${base}share-target`,
+          method: 'POST',
+          enctype: 'multipart/form-data',
+          params: {
+            title: 'title',
+            text: 'text',
+            url: 'url',
+            files: [{ name: 'ride', accept: ['.gpx', '.tcx', 'application/gpx+xml', 'application/vnd.garmin.tcx+xml', 'application/xml', 'text/xml'] }],
+          },
+        },
       },
       workbox: {
         // Everything the app needs is stored on the device at install time.
         globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        // v0.41.0: the small handler for the shared file (POST), loaded before Workbox's own routes.
+        importScripts: ['share-target.js'],
         runtimeCaching: [
           {
             // Trail Journal fonts: cached after the first online visit.
