@@ -13,6 +13,7 @@
   import Blocks from './pages/Blocks.svelte';
   import Features from './pages/Features.svelte';
   import GearImport from './pages/GearImport.svelte';
+  import Rides from './pages/Rides.svelte';
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
@@ -50,6 +51,8 @@
   let menuOpen = $state(false);
   // #/debrief/<trip id> opens one trip's debrief.
   const param = $derived(hash.split('/')[2] ?? '');
+  // v0.41.0: #/debrief/ride/<ride id>
+  const sub = $derived(decodeURIComponent(hash.split('/').slice(3).join('/')));
 
   // Quick note (v0.19.3): the + button, the app shortcut "New note" (#/inbox/new) and text shared
   // from another app (Android share sheet opens the app with ?title=…&text=…&url=…).
@@ -175,7 +178,7 @@
 
 <DemoBar />
 
-<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features'}>
+<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features'}>
   {#key switchN}
   {#if page === 'gear'}
     <Gear />
@@ -207,6 +210,9 @@
     <Favorites />
   {:else if page === 'inbox'}
     <Inbox onnew={() => (noteOpen = true)} />
+  {:else if page === 'rides'}
+    <!-- v0.41.0 (Noah 1-4): upload a ride; #/debrief/ride/<id> one ride, #/debrief/ride/shared a shared file -->
+    {#key sub}<Rides {sub} />{/key}
   {:else if page === 'debrief'}
     {#key param}<Debrief {param} />{/key}
   {:else}

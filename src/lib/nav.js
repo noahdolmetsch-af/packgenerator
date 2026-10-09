@@ -118,6 +118,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/pack/templates')) return 'templates';
   if (h.startsWith('#/pack/past')) return 'past'; // v0.25.1 (Noah 3a): Past trips
   if (h.startsWith('#/pack')) return 'pack';
+  if (h.startsWith('#/debrief/ride')) return 'rides'; // v0.41.0 (Noah 1): upload a ride, planned vs real
   if (h.startsWith('#/debrief')) return 'debrief';
   if (h.startsWith('#/share/')) return 'share';
   if (h.startsWith('#/ride')) return 'ride';
@@ -140,7 +141,7 @@ export const PLACES = [
 /** Which main place a page belongs to (null: the Inbox, which has its own icon). */
 export function placeOf(page) {
   if (page === 'home' || page === 'features') return 'today';
-  if (['pack', 'templates', 'past', 'ride', 'debrief', 'share'].includes(page)) return 'trips';
+  if (['pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   return null;

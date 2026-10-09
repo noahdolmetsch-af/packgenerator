@@ -18,7 +18,7 @@
   import TripBand from '../lib/trip/TripBand.svelte';
   import { openTrip } from '../lib/nav.js';
   import '../lib/trip/trip.css';
-  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, CalendarCheck } from '@lucide/svelte';
+  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, CalendarCheck, Route } from '@lucide/svelte';
   import { ZONE, touched } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
@@ -42,6 +42,9 @@
   const eventsQ = liveQuery(() => db.events.toArray());
   // v0.26.1 (AP20, Noah 19b): notes written on the way (QuickNote or Ride day) with this trip and a day.
   const notesQ = liveQuery(() => db.notes.toArray());
+  // v0.41.0 (Noah 1): uploaded rides (GPX), for the row "Upload ride" and a trip's "Planned vs real".
+  const ridesQ = liveQuery(() => db.rides.toArray());
+  const tripRides = $derived(trip ? ($ridesQ ?? []).filter((r) => r.tripId === trip.id) : []);
   // Answer 9a: the trips before the app (Hope, Alpenbrevet …) as a logbook to read, newest first.
   const events = $derived([...($eventsQ ?? [])].sort((a, b) => (b.sortDate ?? '').localeCompare(a.sortDate ?? '')));
 
@@ -437,6 +440,14 @@
           </section>
         </div>
         <div class="col">
+          <!-- v0.41.0 (Noah 1, 3): the recorded ride of this trip: planned vs real and its learnings -->
+          <ul class="rowlist ridelink">
+            {#each tripRides as r (r.id)}
+              <li><a class="lrow" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}><span class="ic"><Route size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Planned vs real')}</span><span class="s">{r.name}</span></span><span class="v num">{num(r.km)} km</span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+            {:else}
+              <li><a class="lrow" href="#/debrief/ride"><span class="ic"><Upload size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Upload ride')}</span><span class="s">{t('GPX: pauses, planned vs real, learnings')}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+            {/each}
+          </ul>
           {#if rememberMsg}<p class="card ok remembered" role="status">{rememberMsg}</p>{/if}
           {#if top}
             <!-- Noah 9a: one suggestion for next time, with its reason. -->
@@ -508,6 +519,15 @@
           <ChevronRight class="chev" size={18} aria-hidden="true" />
         </a>
       </li>
+      <li>
+        <!-- v0.41.0 (Noah 1): a recorded ride: pauses, planned vs real, learnings -->
+        <a class="lrow" href="#/debrief/ride">
+          <span class="ic"><Upload size={18} aria-hidden="true" /></span>
+          <span class="m"><span class="t">{t('Upload ride')}</span><span class="s">{t('GPX: pauses, planned vs real, learnings')}</span></span>
+          {#if $ridesQ?.length}<span class="v num">{tn($ridesQ.length, '{n} ride', '{n} rides')}</span>{/if}
+          <ChevronRight class="chev" size={18} aria-hidden="true" />
+        </a>
+      </li>
     </ul>
 
     <Compare {trips} {debriefs} {items} />
@@ -560,6 +580,9 @@
 {/if}
 
 <style>
+  .ridelink {
+    margin-bottom: 12px;
+  }
   .flow .tp-card > h2 {
     margin-bottom: 10px;
   }

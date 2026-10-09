@@ -59,5 +59,7 @@ export const ACTIONS = [
   { id: 'note', title: 'Note + photo', action: 'note', words: 'note photo notiz foto quick note zettel kaputt fehlte' },
   { id: 'item', title: 'Gear item', action: 'item', words: 'new gear item add item neues teil ausrüstungsteil hinzufügen' },
   { id: 'km', title: 'km for a bike', action: 'km', words: 'km kilometer counter zähler nachtragen' },
+  // v0.41.0 (Noah 1): a recorded ride (GPX) → pauses, planned vs real, learnings.
+  { id: 'ride', title: 'Upload ride', href: '#/debrief/ride', words: 'upload ride fahrt hochladen gpx tcx strava garmin komoot wahoo pause pausen geplant planned real track' },
   { id: 'template', title: 'New template from the open trip', href: '#/pack/templates', words: 'new template neue vorlage' },
 ];

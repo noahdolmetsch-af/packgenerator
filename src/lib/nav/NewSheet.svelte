@@ -73,6 +73,8 @@
       <li><button type="button" class="opt" onclick={() => run(dayRide)}><b>{t('Day ride now')}</b><span>{t('One tap, with Undo')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => run(addItem)}><b>{t('Gear item')}</b><span>{t('Name, weight, bag')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><b>{t('Note + photo')}</b><span>{t('"What was missing", "This is broken"')}</span></button></li>
+      <!-- v0.41.0 (Noah 1): a recorded ride (GPX): pauses, planned vs real, learnings -->
+      <li><a class="opt" href="#/debrief/ride" onclick={close}><b>{t('Upload ride')}</b><span>{t('GPX: pauses, planned vs real, learnings')}</span></a></li>
       <li><button type="button" class="opt" onclick={() => (mode = 'km')}><b>{t('km for a bike')}</b><span>{t('What the counter says')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => run(() => onnote(t('Workshop receipt: ')))}><b>{t('Workshop visit')}</b><span>{t('Photo of the receipt into the Inbox')}</span></button></li>
       <li><a class="opt" href="#/pack/templates" onclick={close}><b>{t('Template')}</b><span>{t('From the open trip, in Templates')}</span></a></li>

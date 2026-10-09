@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.41.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'Upload a ride (GPX) from New or from Debrief: distance, climbing, moving time and every pause of 5 minutes or more.', href: '#/debrief/ride' },
+      { text: 'Planned vs real: with the trip of that day, the app compares distance, climbing, moving time and speed with the plan.', href: '#/debrief/ride' },
+      { text: 'Up to 3 learnings per ride, like "You ride faster than planned"; each is kept with one tap, nothing without one.', href: '#/debrief/ride' },
+      { text: 'On Android, share a GPX file to Pack Generator and it opens the upload. Without a trip the ride is saved on its own or becomes a past trip.', href: '#/debrief/ride' },
+    ],
+  },
+  {
     version: '0.40.0',
     date: '2026-10-09',
     points: [
