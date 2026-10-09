@@ -88,14 +88,13 @@ test('E5, E6: the day ride takes the bike of the last trip; every day ride is li
   expect(made).toHaveLength(2);
   expect(made.map((x) => x.title).sort()).toEqual([title, `${title} (2)`]);
 
-  // Today lists both (and the trip ahead), each opens its own list.
+  // Today lists both: v0.46.0 the trip card with its "+N more trips" list (In progress).
   await page.goto('./#/');
-  const tile = page.locator('.hub').filter({ has: page.getByRole('heading', { name: T('Trips|place') }) });
-  if (await page.locator('details.hub').count()) await tile.locator('summary').click();
-  const rows = tile.locator('ul.rows a');
-  await expect(rows.filter({ hasText: `${title} (2)` })).toHaveCount(1);
-  await expect(rows.filter({ hasText: title })).toHaveCount(2);
-  await expect(rows.filter({ hasText: 'test_data_gtp_ Später' })).toHaveCount(1);
+  await page.locator('section.trip button.pill').click();
+  const list = page.getByRole('dialog', { name: new RegExp(T('In progress')) });
+  await expect(list).toContainText(`${title} (2)`);
+  expect(((await list.textContent()) ?? '').split(title).length - 1).toBeGreaterThanOrEqual(2);
+  await page.keyboard.press('Escape');
   // In Pack's trip chooser too.
   await page.goto('./#/pack');
   const names = await page.locator('.list-menu select option').allTextContents();
@@ -202,10 +201,7 @@ test('N8, N9: rename a past trip in its band; past trips are easy to find', asyn
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, info, { trips: [trip('gtp-old', 'Alt', { startDate: day(-4), finished: day(-4) }), trip('gtp-next', 'Bald', { startDate: day(5) })] });
-  // Today: the Trips tile names the past trips with their count as a row; "More" has the page.
-  const tile = page.locator('.hub').filter({ has: page.getByRole('heading', { name: T('Trips|place') }) });
-  if (await page.locator('details.hub').count()) await tile.locator('summary').click();
-  await expect(tile.locator('ul.rows a').filter({ hasText: T('Past trips ({n})', { n: 1 }) })).toHaveAttribute('href', '#/pack/past');
+  // Today: "More" has the page (v0.46.0: the Trips tile with its row left Today).
   // v0.38.0 (Noah 13a): the button moved into "More" › Look back (one place per target).
   await page.locator('.more-btn').click();
   await expect(page.locator('dialog.more').getByRole('link', { name: T('Past trips') })).toHaveAttribute('href', '#/pack/past');
@@ -256,6 +252,8 @@ test('N10, N11, v0.40.0: New trip has "Copy the last trip: name" under "Start di
   // lightSet2026 updates LI01, LI02 and LI03 one after the other: wait for all of them, not only the
   // first (reading the items between two updates put "Licht" into the template line now and then).
   await expect.poll(async () => (await table(page, 'items')).filter((i) => ['LI01', 'LI02', 'LI03'].includes(i.id)).every((i) => i.lightSetDone)).toBe(true);
+  // v0.46.0: and wait for the last start-up update (its marker), so no update runs while the items are read.
+  await expect.poll(async () => (await table(page, 'settings')).some((r) => r.key === 'update.templatesLinked2026')).toBe(true);
   const all = await table(page, 'items');
   const stdNow = all.filter((i) => ['owned', 'unclear'].includes(i.ownership) && (['standard', 'worn'].includes(i.role) || i.always) && (!i.domains?.length || i.domains.includes('bikepacking')) && !i.sets?.includes('firstaid')).map((i) => i.id);
   const value = [{ ...tpl, entries: [...stdNow, 'GTP1', 'LX01'].map((itemId) => ({ itemId, slot: 'seat', qty: 1 })) }];

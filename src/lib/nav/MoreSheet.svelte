@@ -14,6 +14,8 @@
   import { MORE_GROUPS } from './menu.js';
   import { phone } from '../media.svelte.js';
   import { t, lang, setLang } from '../i18n.svelte.js';
+  import Seg from '../ui/Seg.svelte';
+  import { theme, PALETTES, MODES, setPalette, setMode } from '../theme.svelte.js';
   import { FileText, Layers, CalendarCheck, BookOpen, GitCompareArrows, Gauge, Star, Inbox, HardDriveDownload, Sparkles, Shirt, ChartColumn } from '@lucide/svelte';
 
   let { open = $bindable(false), inbox = 0, current = '' } = $props();
@@ -72,6 +74,15 @@
                 <button type="button" aria-pressed={lang.v === 'de'} onclick={() => setLang('de')} lang="de" title="Deutsch">DE</button>
                 <button type="button" aria-pressed={lang.v === 'en'} onclick={() => setLang('en')} lang="en" title="English">EN</button>
               </span>
+            </li>
+            <!-- v0.46.0 (Noah 4b, 5a + menu): the colour world and light or dark, remembered on this device. -->
+            <li class="theme-row">
+              <span id="pal-lbl">{t('Colours')}</span>
+              <Seg labelledby="pal-lbl" value={theme.palette} options={PALETTES.map((p) => ({ key: p.key, name: t(p.name) }))} onchange={setPalette} />
+            </li>
+            <li class="theme-row">
+              <span id="mode-lbl">{t('Light or dark')}</span>
+              <Seg labelledby="mode-lbl" value={theme.mode} options={MODES.map((m) => ({ key: m.key, name: t(m.name) }))} onchange={setMode} />
             </li>
           {/if}
         </ul>
@@ -165,6 +176,14 @@
     justify-content: space-between;
     gap: 12px;
     min-height: 52px;
+    border-bottom: 0;
+    font-size: 16px;
+  }
+  .theme-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 0 10px;
     border-bottom: 0;
     font-size: 16px;
   }

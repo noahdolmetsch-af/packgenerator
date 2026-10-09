@@ -285,16 +285,18 @@
     gap: 2px;
     width: 88px;
     border: 0;
-    color: #fff;
+    color: var(--paper);
     font: 600 13px/1.2 var(--font-body);
     text-align: center;
     cursor: pointer;
   }
   .sa.fav {
     background: var(--hi);
+    color: var(--hi-ink);
   }
   .sa.asg {
     background: var(--brand);
+    color: var(--brand-ink);
   }
   .sa.arc {
     background: var(--ink-2);

@@ -16,7 +16,8 @@
   import { inProgress, actionChanges } from '../drafts.js';
   import ProgressRows from './ProgressRows.svelte';
 
-  let { current = null } = $props();
+  // v0.46.0 (Noah 7a): on Today's light trip card the pill is light ("+2 more trips ▾").
+  let { current = null, light = false, label = null } = $props();
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
@@ -89,8 +90,8 @@
 
 {#if others > 0 || open || undo}
   <span class="ipw">
-    <button type="button" class="pill" bind:this={pill} aria-haspopup="dialog" aria-expanded={open} onclick={() => (open = !open)}>
-      <span class="num">{t('{n} more|progress', { n: others })}</span><ChevronDown size={16} aria-hidden="true" />
+    <button type="button" class="pill" class:light bind:this={pill} aria-haspopup="dialog" aria-expanded={open} onclick={() => (open = !open)}>
+      <span class="num">{label ? label(others) : t('{n} more|progress', { n: others })}</span><ChevronDown size={16} aria-hidden="true" />
     </button>
     {#if open && !phone.matches}
       <div class="pop" bind:this={pop} role="dialog" aria-labelledby="ip-h">{@render body()}</div>
@@ -122,6 +123,23 @@
     cursor: pointer;
     white-space: nowrap;
   }
+  .pill.light {
+    min-height: 36px;
+    padding: 4px 12px 4px 14px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    font-weight: 500;
+    font-size: 14px;
+  }
+  .pill.light:hover,
+  .pill.light[aria-expanded='true'] {
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+  .pill.light:focus-visible {
+    outline: var(--focus-ring);
+  }
   .pill::after {
     content: '';
     position: absolute;
@@ -148,7 +166,7 @@
     color: var(--ink);
     border: 1px solid var(--line);
     border-radius: 12px;
-    box-shadow: 0 12px 40px rgba(15, 46, 39, 0.25);
+    box-shadow: 0 12px 40px var(--shadow);
     text-align: left;
   }
   .head {
@@ -206,7 +224,7 @@
     border-radius: 18px 18px 0 0;
     background: var(--paper);
     color: var(--ink);
-    box-shadow: 0 -8px 30px rgba(15, 46, 39, 0.2);
+    box-shadow: 0 -8px 30px var(--shadow);
   }
   .ip-sheet::before {
     content: '';
@@ -218,7 +236,7 @@
     background: var(--line);
   }
   .ip-sheet::backdrop {
-    background: rgba(15, 46, 39, 0.45);
+    background: var(--scrim);
   }
   .ip-sheet:not([open]) {
     display: none;

@@ -118,7 +118,7 @@
     background: var(--ok);
   }
   .un {
-    background: #9aa79f;
+    background: var(--line-strong);
   }
   .key {
     margin: 10px 0 0;

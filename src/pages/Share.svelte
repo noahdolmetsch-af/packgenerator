@@ -96,7 +96,7 @@
     gap: 10px;
     align-items: center;
     padding: 5px 0;
-    border-bottom: 1px solid var(--paper-2, #e6ebe3);
+    border-bottom: 1px solid var(--paper-2);
   }
   li:last-child {
     border-bottom: 0;

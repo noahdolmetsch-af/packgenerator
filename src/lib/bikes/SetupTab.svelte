@@ -710,8 +710,8 @@
     height: 20px;
     transform: translateY(-50%);
     border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    background: var(--input);
+    box-shadow: 0 1px 2px var(--shadow);
     transition: left 0.15s;
   }
   .switch[aria-checked='true']::before {

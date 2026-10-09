@@ -202,7 +202,7 @@
     inset: 4% 0 0;
     width: 100%;
     height: 96%;
-    stroke: #cdd4cb;
+    stroke: var(--line);
     stroke-width: 6;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -286,7 +286,7 @@
     font: inherit;
     text-align: left;
     cursor: pointer;
-    box-shadow: 0 2px 0 rgba(15, 46, 39, 0.12);
+    box-shadow: 0 2px 0 var(--shadow);
   }
   /* v0.22.0 (AP03): the bag boxes on the photo are a map. Their names keep the condensed face
      (one of the few accents), so long German words like "Oberrohrtasche" stay whole in a narrow box. */
@@ -332,7 +332,7 @@
     min-width: 30px;
     height: 5px;
     border-radius: 3px;
-    background: var(--paper-2, #e6ebe3);
+    background: var(--paper-2);
     overflow: hidden;
   }
   .bar i {
@@ -363,16 +363,16 @@
   .bx.on .f,
   .bx.on .its,
   .bx.on .vol {
-    color: #c9d4cc;
+    color: color-mix(in srgb, var(--paper) 80%, transparent);
   }
   .bx.on .bar {
-    background: #3b4f46;
+    background: var(--ink-2);
   }
   .bx.on .bar i {
     background: var(--hi);
   }
   .bx.nobag {
-    border-color: #c0392b;
+    border-color: var(--bad);
   }
   /* While dragging: the bag under the pointer lights up orange. */
   .bx.over {
@@ -381,7 +381,7 @@
   }
   @media (hover: hover) {
     .bx:hover {
-      outline: 3px solid rgba(255, 91, 20, 0.35);
+      outline: 3px solid color-mix(in srgb, var(--hi) 35%, transparent);
       outline-offset: 1px;
     }
   }

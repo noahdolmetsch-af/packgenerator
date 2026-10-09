@@ -407,7 +407,7 @@
     background: var(--ink);
     color: var(--paper);
     font-size: 15px;
-    box-shadow: 0 4px 16px rgb(0 0 0 / 0.25);
+    box-shadow: 0 4px 16px var(--shadow);
   }
   @media (max-width: 719px) {
     .notice {

@@ -569,7 +569,7 @@
     gap: 8px;
     background: var(--paper);
     border-top: 1.5px solid var(--line-strong);
-    box-shadow: 0 -4px 14px rgb(0 0 0 / 0.08);
+    box-shadow: 0 -4px 14px var(--shadow);
     padding: 8px max(12px, calc((100vw - 1560px) / 2)) calc(8px + env(safe-area-inset-bottom));
   }
   .undo span {

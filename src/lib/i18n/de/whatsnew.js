@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.46.0
+  'Today is new: a greeting with the weather and an idea for a day ride, the next trip in one compact card, and "What do you want to do?" with the functions you use most in front.':
+    'Heute ist neu: ein Gruss mit dem Wetter und ein Vorschlag für eine Tagestour, die nächste Tour in einer kompakten Karte und «Was willst du tun?» mit deinen meistgenutzten Funktionen vorne.',
+  '"Important today" shows at most three things, with "Lubed ✓" right in the row; next to it "Tried it yet?" shows a function you have not used yet. Test trips no longer count as the next trip.':
+    '«Heute wichtig» zeigt höchstens drei Dinge, mit «Geölt ✓» direkt in der Zeile; daneben zeigt «Schon probiert?» eine Funktion, die du noch nicht genutzt hast. Testtouren zählen nicht mehr als nächste Tour.',
+  'The search at the top also does things: type "weigh", "day ride factor" or "chain lubed spark" and press Enter.':
+    'Die Suche oben macht auch Dinge: tippe «wiegen», «tagestour factor» oder «kette geölt spark» und drücke Enter.',
+  'Three colour worlds, Glacier, Sandstone and Classic, each light or dark: More → Colours.':
+    'Drei Farbwelten, Gletscher, Sandstein und Klassisch, je hell oder dunkel: Mehr → Farbwelt.',
+
   // 0.45.0
   'Wardrobe: warm to cold within a zone, quiet gaps like "No gloves below 5 °C" with "Add to wishlist", a photo per piece and "Save as kit …" for an outfit that Plan then suggests. Everyday-only clothes show only under Everyday; what the debriefs taught ("You run cold: +2 °C") is in the header with Reset.':
     'Kleiderschrank: in jeder Zone von warm nach kalt, ruhige Lücken wie «Keine Handschuhe unter 5 °C» mit «Auf die Wunschliste», ein Foto pro Teil und «Als Kit speichern …» für ein Outfit, das Planen dann vorschlägt. Reine Alltagskleider stehen nur unter Alltag; was die Rückblicke gelernt haben («Du frierst eher: +2 °C»), steht oben mit Zurücksetzen.',

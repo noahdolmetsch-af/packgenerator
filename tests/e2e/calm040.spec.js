@@ -175,41 +175,8 @@ test('New trip: the area folded with the last one, the days field with "More", o
   expect(errors).toEqual([]);
 });
 
-test('Chain wear at the limit on Today: work needed and the chain on the wishlist once; Undo takes both back', async ({ page, context }, info) => {
-  const errors = await v038Start(page, context, info, expect);
-  await page.goto('./#/');
-  const ready = page.locator('section.ready');
-  const head = ready.getByRole('button', { name: new RegExp(esc(SPARK_NAME)) });
-  if ((await head.getAttribute('aria-expanded')) !== 'true') await head.click();
-  const quick = ready.getByRole('group', { name: `Schnellknöpfe: ${SPARK_NAME}` });
-  const measure = async (value) => {
-    await quick.locator('[data-q=wear]').click();
-    const ask = page.getByRole('dialog', { name: T('Chain wear measured') });
-    await ask.getByLabel(T('Chain wear in %')).fill(value);
-    await ask.getByRole('button', { name: T('Save') }).click();
-    await expect(ask).toBeHidden();
-  };
-  await measure('0.8');
-  await expect.poll(async () => (await chainLast(page))?.result).toBe('needed');
-  await expect.poll(async () => (await chainWishes(page)).length).toBe(1);
-  const [w] = await chainWishes(page);
-  expect(w.ownership).toBe('wishlist');
-  expect(w.note).toContain('0.8');
-  const notice = page.getByRole('status').filter({ hasText: T('Time for a new chain: it is on the wishlist.') });
-  await expect(notice).toBeVisible();
-  await shot(page, info, 'kette-wunschliste');
-  // Undo: the entry and the wish are gone.
-  await notice.getByRole('button', { name: T('Undo') }).click();
-  await expect.poll(async () => (await chainWishes(page)).length).toBe(0);
-  await expect.poll(async () => (await chainLast(page))?.value).toBe(0.3);
-  // Twice at the limit: still one wish.
-  await measure('0.8');
-  await expect.poll(async () => (await chainWishes(page)).length).toBe(1);
-  await measure('0.9');
-  await expect.poll(async () => (await chainLast(page))?.value).toBe(0.9);
-  expect((await chainWishes(page)).length).toBe(1);
-  expect(errors).toEqual([]);
-});
+// v0.46.0 (Noah 24a, 25a): Today has no quick buttons per bike any more (the bike cards open Bike
+// care); measuring the chain wear at the limit is covered in Bike care below.
 
 test('Chain wear at the limit in Bike care: work needed, on the wishlist, Undo in the notice', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);

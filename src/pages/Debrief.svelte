@@ -696,9 +696,9 @@
     color: var(--warn);
   }
   .state.broken {
-    background: #fbe3df;
+    background: var(--bad-soft);
     border-color: transparent;
-    color: #a3301f;
+    color: var(--bad);
   }
   .state.miss {
     background: var(--hi-soft);
@@ -1030,7 +1030,7 @@
     font-size: 12.5px;
   }
   .card.ok {
-    border-color: #2e8b57;
+    border-color: var(--ok);
     margin-top: 12px;
   }
   .over {

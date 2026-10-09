@@ -122,8 +122,10 @@ test('Kleiderschrank 2: order, gap to wishlist, offset reset, Alltag only, photo
   await writeForecast(page);
 
   // 9. Today: "Was ziehe ich heute an?" with one owned piece per row and one button.
+  // v0.46.0: the card opens from the button "What do I wear?" of "What do you want to do?".
   await page.goto('./');
   await page.reload();
+  await page.locator('.actions .grid [data-fn="wear"]').click();
   const card = page.locator('[data-wear-card]');
   await expect(card.getByRole('heading')).toHaveText(new RegExp(`${T('What do I wear today?')}|${T('What do I wear tomorrow?')}`));
   // 6 °C, felt 4 °C (you run cold: +2 °C)
@@ -220,6 +222,7 @@ test('Today without a home place: a short hint with the place search', async ({ 
   const errors = await start(page, context, info, { home: false });
   await page.goto('./');
   await page.reload();
+  await page.locator('.actions .grid [data-fn="wear"]').click();
   const card = page.locator('[data-wear-card]');
   await expect(card).toContainText(T('Set your home place: then Today says what to wear for a ride.'));
   await expect(card.locator('li')).toHaveCount(0);

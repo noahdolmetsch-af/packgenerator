@@ -61,13 +61,13 @@ async function start(page, context, info, data) {
 }
 
 /**
- * Good to know. v0.30.0 (Noah 1a): not folded on the phone any more; there the further card (here
- * the template suggestions) waits behind "Show {n} more".
+ * v0.46.0 (Noah 34b): "Good to know" became rows of "Important today" (at most 3 shown, the rest
+ * behind "Show all {n}").
  */
 async function know(page) {
-  const sec = page.locator('main section.know');
-  await expect(sec.locator('.cards > *').first()).toBeVisible();
-  const more = sec.locator('.morebtn');
+  const sec = page.getByRole('region', { name: T('Important today') });
+  await expect(sec.locator('li').first()).toBeVisible();
+  const more = sec.locator('button.more');
   if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
   return sec;
 }
@@ -90,7 +90,7 @@ test('a template hint with its source, "Not now" into the History, the Home card
   await page.goto('./#/');
   // Home: one suggestion (the multi tool is a tool: never "take out")
   let k = await know(page);
-  const card = k.locator('[data-card="templates"]');
+  const card = k.locator('[data-row="templates"]');
   await expect(card).toContainText(T('{n} suggestion for your templates', { n: 1 }));
   await card.getByRole('link', { name: T('Look at them') }).click();
   await expect(page).toHaveURL(/#\/pack\/templates$/);
@@ -127,8 +127,7 @@ test('a template hint with its source, "Not now" into the History, the Home card
   // Home: no more card
   await page.goto('./#/');
   k = await know(page);
-  await expect(k.locator('[data-card], [data-tip]').first()).toBeVisible();
-  await expect(k.locator('[data-card="templates"]')).toHaveCount(0);
+  await expect(k.locator('[data-row="templates"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

@@ -1505,7 +1505,7 @@
     z-index: 5;
     background: var(--paper);
     border-top: 1.5px solid var(--line-strong);
-    box-shadow: 0 -4px 14px rgb(0 0 0 / 0.08);
+    box-shadow: 0 -4px 14px var(--shadow);
     padding: 8px max(12px, calc((100vw - 1560px) / 2)) calc(8px + env(safe-area-inset-bottom));
   }
   /* Phone: above the bottom bar with its raised + button. */
@@ -1564,7 +1564,7 @@
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(15, 46, 39, 0.16);
+    box-shadow: 0 8px 24px var(--shadow);
     padding: 4px;
   }
   .gmenu a {
@@ -1634,7 +1634,7 @@
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(15, 46, 39, 0.16);
+    box-shadow: 0 8px 24px var(--shadow);
   }
   .more .menu button,
   .gmenu button {

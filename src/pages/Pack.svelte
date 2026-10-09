@@ -289,16 +289,18 @@
     setTimeout(() => document.querySelector('[data-trip-title]')?.focus(), 0);
   });
   let dayBusy = false;
-  async function makeDayRide() {
+  async function makeDayRide(wish = '1') {
     if (dayBusy) return;
     dayBusy = true;
+    // v0.46.0 (Noah 14a, 19a): a bike chosen on Today or in the search ("tagestour factor")
+    const bikeId = wish && wish !== '1' ? wish : null;
     try {
-      const plan0 = dayRidePlan(trips, bikes);
+      const plan0 = dayRidePlan(trips, bikes, { bikeId });
       // No bike yet: the dialog, so Noah sees why (it offers the areas without a bike too).
       if (!plan0) return (dialog = { trip: null });
       const home = (await db.settings.get('homePlace'))?.value;
       const forecastWx = forecastPreset(await fetchHomeForecast(home), rideDate());
-      const plan = dayRidePlan(trips, bikes, { forecastWx });
+      const plan = dayRidePlan(trips, bikes, { forecastWx, bikeId });
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       const fields = { hours: plan.hours, overnight: 'none', cook: false, wx: plan.wx, event: false, ...(plan.wxFrom ? { wxFrom: plan.wxFrom } : {}) };
       const nt = buildBikeTrip({ draft: { title: plan.title, startDate: plan.startDate, days: 1 }, bike: $state.snapshot(plan.bike), start: 'standard', templates, trips, items, readyStandard, fields });
@@ -319,11 +321,11 @@
   }
   $effect(() => {
     if (!$tplQ || !$bikesQ || !$itemsQ || !$tripsQ) return; // as for "New trip": wait for the data
-    const run = () => take('pack.dayRide') && makeDayRide();
-    const onEvent = () => {
-      take('pack.dayRide');
-      makeDayRide();
+    const run = () => {
+      const wish = take('pack.dayRide');
+      if (wish) makeDayRide(wish);
     };
+    const onEvent = () => makeDayRide(take('pack.dayRide') ?? '1');
     run();
     window.addEventListener('pg:dayride', onEvent);
     return () => window.removeEventListener('pg:dayride', onEvent);
@@ -919,7 +921,7 @@
 <style>
   .print { display: none; }
   /* v0.42.0 (Noah 3, 4): what the onion added, with Undo, above the bottom bar. */
-  .onion-toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 50; display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100vw - 32px); padding: 6px 8px 6px 16px; border-radius: 10px; background: var(--ink); color: var(--paper); box-shadow: 0 8px 24px rgba(15, 46, 39, 0.3); font-weight: 600; overflow-wrap: anywhere; }
+  .onion-toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 50; display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100vw - 32px); padding: 6px 8px 6px 16px; border-radius: 10px; background: var(--ink); color: var(--paper); box-shadow: 0 8px 24px var(--shadow); font-weight: 600; overflow-wrap: anywhere; }
   .onion-toast .btn { flex: none; min-height: 44px; background: none; border-color: transparent; color: var(--paper); text-decoration: underline; }
   @media (max-width: 719px) { .onion-toast { bottom: calc(150px + env(safe-area-inset-bottom)); } }
   /* v0.30.2 (L5): event preparation ticked off in the trip; the button a full 44 px target. */

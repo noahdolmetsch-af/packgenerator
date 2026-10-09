@@ -37,56 +37,22 @@ async function swipe(page, locator, dx, dy = 0) {
   await cdp.detach();
 }
 
-test('Today: a ready light with a word per bike, quick buttons with Undo, wear and km asked', async ({ page, context }, info) => {
+// v0.46.0 «Startseite neu» (Noah 24a, 25a): "Bikes ready?" with its quick buttons became small
+// bike cards (a dot and always a word, one line, a tap opens Bike care); the quick jobs are
+// "Lubed ✓" in "Important today" and the command line (tests/e2e/home-0460.spec.js); "Jump to" is gone.
+test('Today: a bike card per bike with a dot and a word; a tap opens its Bike care', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/');
-  const ready = page.locator('section.ready');
-  await expect(ready.getByRole('heading', { name: 'Velos bereit?' })).toBeVisible();
+  const cards = page.locator('section.bikes a.bk');
+  await expect(cards.first()).toBeVisible();
   // Every bike: a dot and always a word (never colour alone).
-  for (const w of await ready.locator('.lw').allTextContents()) expect(w.trim()).toMatch(/^(Bereit|Bald fällig|Fällig|\d+ fällig|Keine Daten)$/);
-  const head = ready.getByRole('button', { name: new RegExp(`${P} Scott Spark 960`) });
-  if ((await head.getAttribute('aria-expanded')) !== 'true') await head.click();
-  const quick = ready.getByRole('group', { name: `Schnellknöpfe: ${P} Scott Spark 960` });
-  for (const name of ['Kette geölt', 'Verschleiss', 'Geputzt', 'Dichtmilch', 'Reifendruck', 'km']) await expect(quick.getByRole('button', { name: new RegExp(`^${name}`) })).toBeVisible();
-  // Tagestour and Notiz have their own row.
-  await expect(ready.getByRole('button', { name: 'Tagestour jetzt' })).toBeVisible();
-  await expect(ready.getByRole('button', { name: 'Notiz + Foto' })).toBeVisible();
+  for (const w of await cards.locator('.nm .sr').allTextContents()) expect(w.replace(/^,\s*/, '').trim()).toMatch(/^(Bereit|Bald fällig|Fällig|\d+ fällig|Keine Daten)$/);
+  const spark = cards.filter({ hasText: `${P} Scott Spark 960` });
+  await expect(spark).toHaveAttribute('href', new RegExp(`tab=care.*bike=${SPARK}`));
   await noSideways(page);
   await shot(page, info, 'heute', true);
-
-  // Chain lubed: one tap, stored like Bike care does it, then Undo.
-  const before = (await chain(page)).length;
-  await quick.locator('[data-q=chain]').click();
-  const notice = page.getByRole('status').filter({ hasText: 'Kette geölt' });
-  await expect(notice).toBeVisible();
-  await expect.poll(async () => (await chain(page)).at(-1)).toMatchObject({ date: day(0), km: 5000, action: 'service', result: 'done', by: 'self' });
-  await shot(page, info, 'heute-kette-undo');
-  await notice.getByRole('button', { name: 'Rückgängig' }).click();
-  await expect.poll(async () => (await chain(page)).length).toBe(before);
-
-  // Chain wear: asks for the value in %, with − and +.
-  await quick.locator('[data-q=wear]').click();
-  const ask = page.getByRole('dialog', { name: 'Verschleiss gemessen' });
-  await expect(ask).toBeVisible();
-  await expect(ask).toContainText('Letztes Mal 0.3 %');
-  await ask.getByRole('button', { name: 'Mehr' }).click();
-  await expect(ask.getByLabel('Kettenverschleiss in %')).toHaveValue('0.35');
-  await shot(page, info, 'heute-verschleiss');
-  await ask.getByRole('button', { name: 'Speichern' }).click();
-  await expect.poll(async () => (await chain(page)).at(-1)).toMatchObject({ action: 'check', value: 0.35, result: 'ok' });
-
-  // km: the ridden difference.
-  await quick.locator('[data-q=km]').click();
-  const km = page.getByRole('dialog', { name: 'km nachtragen' });
-  await km.getByLabel('Gefahrene km (+42) oder der neue Stand').fill('+42');
-  await km.getByLabel('Gefahrene km (+42) oder der neue Stand').press('Enter');
-  await expect.poll(async () => (await db(page, 'bikes', SPARK)).km).toBe(5042);
-
-  // Jump to: what is due, dead weight and a year ago with their numbers.
-  const jumps = page.locator('section.jumps');
-  await expect(jumps.locator('[data-jump=due]')).toContainText(/\d+ Punkt/);
-  await expect(jumps.locator('[data-jump=dead]')).toBeVisible();
-  await expect(jumps.locator('[data-jump=ago]')).toContainText('Herbstrunde');
+  await spark.click();
+  await expect(page).toHaveURL(/#\/bikes\?tab=care/);
   expect(errors).toEqual([]);
 });
 

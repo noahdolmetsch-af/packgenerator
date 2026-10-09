@@ -208,7 +208,7 @@ test('home place: the forecast chooses the weather in the dialog and for the day
 
   // v0.29.2 (Noah 6a): Today stays Today on the day the trip was made (no jump to On the way).
   await page.goto('./#/');
-  await expect(page.locator('.trip-band, .band').first()).toBeVisible();
+  await expect(page.locator('#hello-h')).toBeVisible();
   await page.waitForTimeout(500);
   expect(page.url()).not.toMatch(/#\/ride/);
   expect(errors).toEqual([]);

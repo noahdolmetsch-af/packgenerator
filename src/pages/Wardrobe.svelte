@@ -563,7 +563,7 @@
     border-radius: 10px;
     background: var(--ink);
     color: var(--paper);
-    box-shadow: 0 8px 24px rgba(15, 46, 39, 0.3);
+    box-shadow: 0 8px 24px var(--shadow);
     font-weight: 600;
     overflow-wrap: anywhere;
   }
@@ -608,7 +608,7 @@
     z-index: 30;
     background: var(--paper);
     border-top: 1.5px solid var(--line-strong);
-    box-shadow: 0 -4px 14px rgb(0 0 0 / 0.08);
+    box-shadow: 0 -4px 14px var(--shadow);
     padding: 8px max(16px, calc((100vw - 800px) / 2)) calc(8px + env(safe-area-inset-bottom));
   }
   .selbar .undo {
@@ -647,7 +647,7 @@
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(15, 46, 39, 0.16);
+    box-shadow: 0 8px 24px var(--shadow);
   }
   .mwrap .menu button {
     min-height: 44px;

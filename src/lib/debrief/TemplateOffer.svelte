@@ -86,6 +86,6 @@
   }
   .ok {
     display: block;
-    border-color: #2e8b57;
+    border-color: var(--ok);
   }
 </style>
