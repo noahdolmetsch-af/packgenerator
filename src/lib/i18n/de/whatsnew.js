@@ -13,6 +13,8 @@ export default {
     'Bei einer neuen Tour bleiben «Kühl» und «Regen» gewählt, wenn du sie antippst, auch wenn die Wettervorhersage sie schon gewählt hat; die Liste bekommt die Sachen für Kälte und Regen. Trocken oder Regen sind zwei Chips, wie auf der Tourseite.',
   'The ••• menus (packing list, templates, trips in progress, bike care) stay fully on the screen on a phone: they move aside or open upwards.':
     'Die •••-Menüs (Packliste, Vorlagen, Touren in Bearbeitung, Velopflege) bleiben am Handy ganz im Bild: Sie rücken zur Seite oder öffnen nach oben.',
+  '"No weather" takes the weather off again, in a new trip and on the trip page, also when the forecast chose it.':
+    '«Ohne Wetter» nimmt das Wetter wieder weg, bei einer neuen Tour und auf der Tourseite, auch wenn die Wettervorhersage es gewählt hat.',
 
   // 0.47.2
   'Gear has seven views, each with its count: All, Most used, Proven, Favourite things, Never used, Unweighed and Wishlist.':

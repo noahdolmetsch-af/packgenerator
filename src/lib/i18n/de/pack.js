@@ -801,6 +801,7 @@ export default {
   'Min °C': 'Min °C',
   'Max °C': 'Max °C',
   'Dry|weather': 'Trocken',
+  'No weather|chip': 'Ohne Wetter',
   'Quick weather': 'Wetter schnell wählen',
   'From the forecast': 'Aus der Wettervorhersage',
   'Like your last day ride': 'Wie deine letzte Tagestour',

@@ -3,7 +3,7 @@
 // the taps on «Kühl» and «+ Regen» took both off again, so nothing came for the weather.
 // Fictional items only (test_data_gtp_).
 import { describe, it, expect } from 'vitest';
-import { pickWxChip } from '../src/lib/dayride.js';
+import { pickWxChip, noWx } from '../src/lib/dayride.js';
 import { contextSummary } from '../src/lib/context.js';
 import { layerSuggest } from '../src/lib/layers.js';
 import { WX_PRESETS } from '../src/lib/trips.js';
@@ -48,6 +48,21 @@ describe('«Kühl + Regen» in the New trip window (the bug)', () => {
     expect(pickWxChip({ ...chilly, rain: 'showers' }, { rain: 'rain' })).toEqual({ ...chilly, rain: 'showers' });
     expect(pickWxChip({ ...chilly, rain: 'showers' }, preset('Cold'))).toEqual({ min: -2, max: 4, rain: 'showers' });
     expect(pickWxChip(null, null)).toEqual({ min: null, max: null, rain: 'none' });
+  });
+});
+
+describe('«Ohne Wetter»: the weather can always be taken off (Noah: never binding, always removable)', () => {
+  it('clears range and rain, also what the forecast chose; then nothing comes for the weather', () => {
+    const wx = pickWxChip({ min: 6, max: 12, rain: 'rain' }, { none: true });
+    expect(wx).toEqual({ min: null, max: null, rain: 'none' });
+    expect(noWx(wx)).toBe(true);
+    expect(extras(wx)).toEqual([]);
+    expect(noWx({ min: 6, max: 12, rain: 'none' })).toBe(false);
+    expect(noWx({ min: null, max: null, rain: 'showers' })).toBe(false);
+    expect(noWx(null)).toBe(true);
+  });
+  it('a chip after «Ohne Wetter» sets again', () => {
+    expect(pickWxChip(pickWxChip({ min: 6, max: 12, rain: 'rain' }, { none: true }), preset('Chilly'))).toEqual({ min: 6, max: 12, rain: 'none' });
   });
 });
 

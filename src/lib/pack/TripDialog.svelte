@@ -15,7 +15,7 @@
   import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks, blocksLine, blockLabel } from '../sets.js';
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
-  import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip } from '../dayride.js';
+  import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -416,8 +416,10 @@
     </div>
     <!-- v0.47.3: dry or rain as two chips, the same as on the trip page (it was a «+ Rain» toggle). -->
     <div class="chips" role="group" aria-label={t('Rain')}>
-      <button type="button" class="toggle" aria-pressed={!wet} onclick={() => pickWx({ rain: 'none' })}>{t('Dry|weather')}</button>
+      <button type="button" class="toggle" aria-pressed={!wet && !noWx(ctx)} onclick={() => pickWx({ rain: 'none' })}>{t('Dry|weather')}</button>
       <button type="button" class="toggle" aria-pressed={wet} onclick={() => pickWx({ rain: 'rain' })}>{t('Rain')}</button>
+      <!-- v0.47.3 (Noah: never binding, always removable): the whole weather off, also the forecast's. -->
+      <button type="button" class="toggle" aria-pressed={noWx(ctx)} onclick={() => pickWx({ none: true })}>{t('No weather|chip')}</button>
     </div>
     {#if fromForecast}<p class="note small fc">{t('From the forecast for {place}', { place: forecast.place?.name ?? '' })}</p>
     {:else}<p class="note small">{t('or get the forecast later in Pack (Edit trip conditions)')}</p>{/if}

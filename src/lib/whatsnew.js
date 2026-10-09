@@ -15,6 +15,7 @@ export const WHATS_NEW = [
     points: [
       { text: 'In a new trip, "Chilly" and "Rain" stay chosen when you tap them, also when the forecast chose them already, so the list gets the cold and the rain items. Dry or rain are two chips, as on the trip page.', href: '#/pack' },
       { text: 'The ••• menus (packing list, templates, trips in progress, bike care) stay fully on the screen on a phone: they move aside or open upwards.', href: '#/pack' },
+      { text: '"No weather" takes the weather off again, in a new trip and on the trip page, also when the forecast chose it.', href: '#/pack' },
     ],
   },
   {

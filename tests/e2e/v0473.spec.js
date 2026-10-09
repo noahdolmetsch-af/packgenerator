@@ -88,7 +88,15 @@ for (const forecast of [true, false]) {
     await tap(wx.getByRole('button', { name: 'Trocken', exact: true }), info);
     await expect(box).not.toContainText('test_data_gtp_ Regenjacke');
     await expect(box).toContainText('test_data_gtp_ Langarmtrikot');
+    // «Ohne Wetter» takes the whole weather off (also the forecast's); a chip sets it again.
+    const none = wx.getByRole('button', { name: 'Ohne Wetter', exact: true });
+    await tap(none, info);
+    await expect(none).toHaveAttribute('aria-pressed', 'true');
+    await expect(chilly).toHaveAttribute('aria-pressed', 'false');
+    await expect(box).toContainText('Fürs Wetter: nichts zusätzlich');
+    await tap(chilly, info);
     await tap(rain, info);
+    await expect(none).toHaveAttribute('aria-pressed', 'false');
     await tap(dlg.getByRole('button', { name: /^Tour erstellen/ }), info);
     await expect(dlg).toBeHidden();
     await expect.poll(async () => (await allTrips(page)).length).toBe(3);
@@ -96,6 +104,13 @@ for (const forecast of [true, false]) {
     expect(made.wx).toEqual({ min: 6, max: 12, rain: 'rain' });
     const ids = made.entries.map((e) => e.itemId);
     for (const id of ['KL03', 'KL04', 'KL07', 'KL10', 'KL05', 'KL12']) expect(ids).toContain(`test_data_gtp_${id}`);
+    // The trip page: «Ohne Wetter» in «Ans Wetter angepasst» takes the weather off, Undo brings it back.
+    await page.goto('./#/pack');
+    const quick = page.locator('.wxq');
+    await tap(quick.getByRole('button', { name: 'Ohne Wetter', exact: true }), info);
+    await expect(quick.getByRole('button', { name: 'Ohne Wetter', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect.poll(async () => (await allTrips(page)).find((x) => x.id === made.id).wx).toEqual({ min: null, max: null, rain: 'none' });
+    await expect.poll(async () => (await allTrips(page)).find((x) => x.id === made.id).entries.map((e) => e.itemId)).not.toContain('test_data_gtp_KL05');
     expect(errors).toEqual([]);
   });
 }

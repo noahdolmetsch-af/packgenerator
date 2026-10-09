@@ -20,7 +20,7 @@
   import { t, tn, nameOf, num, locale, bagName } from '../i18n.svelte.js';
   import { formatWeight } from '../gear.js';
   import { RAIN, heavyHigh, isDayTrip, daysUntil, WX_PRESETS } from '../trips.js';
-  import { wxSource } from '../dayride.js';
+  import { wxSource, noWx } from '../dayride.js';
   import { bagVolumes } from '../bagsuggest.js';
   import { litreWarning } from '../backpacks.js';
   import { phone } from '../media.svelte.js';
@@ -172,8 +172,9 @@
               <!-- v0.47.1 (Noah c): one tap switches the range (the weather presets) or dry/rain; Undo as for every change. -->
               <div class="tp-chips wxq" role="group" aria-label={t('Quick weather')}>
                 {#each WX_PRESETS as p (p.name)}<button type="button" class="tp-chip" aria-pressed={trip.wx?.min === p.min && trip.wx?.max === p.max} onclick={() => edit.wx({ min: p.min, max: p.max })}>{t(p.name)} <small class="num">{p.min}–{p.max}°</small></button>{/each}
-                <button type="button" class="tp-chip" aria-pressed={!wet} onclick={() => edit.wx({ rain: 'none' })}>{t('Dry|weather')}</button>
+                <button type="button" class="tp-chip" aria-pressed={!wet && !noWx(trip.wx)} onclick={() => edit.wx({ rain: 'none' })}>{t('Dry|weather')}</button>
                 <button type="button" class="tp-chip" aria-pressed={wet} onclick={() => edit.wx({ rain: 'rain' })}>{t('Rain')}</button>
+                <button type="button" class="tp-chip" aria-pressed={noWx(trip.wx)} onclick={() => edit.wx({ min: null, max: null, rain: 'none' })}>{t('No weather|chip')}</button>
               </div>
             {/if}
             {#if bikeTrip}{@render reviewRow()}{/if}

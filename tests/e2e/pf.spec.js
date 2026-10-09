@@ -778,11 +778,11 @@ test('PF14: missing weights and litres; empty search, no bike, no weather: hones
   const errors = await start(page, context, info);
   const rec = record('PF14', info, page);
   const title = `${P} PF14 ${info.project.name}`;
-  // No weather: no forecast for this trip (offline). v0.47.3: a weather chip only sets, so the preset
-  // the forecast chose can no longer be tapped off (that toggle made «Kühl + Regen» bring nothing).
-  await page.unroute(/api\.open-meteo\.com\/v1\/forecast/);
   const dlg = await openNewTrip(page, rec);
   await fillTrip(dlg, rec, { title, bike: BIKE.gravel, hours: 3 });
+  // No weather: v0.47.3 «No weather» takes off what the forecast chose (a preset chip only sets now;
+  // tapping it off made «Kühl + Regen» bring nothing).
+  await rec.click(dlg.getByRole('button', { name: T('No weather|chip'), exact: true }));
   await expect(dlg.locator('.chips button[aria-pressed="true"]').filter({ hasText: '°' })).toHaveCount(0);
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
   await expect(page.locator('.trip-band h1')).toHaveText(title);
