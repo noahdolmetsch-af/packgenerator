@@ -14,6 +14,7 @@
  */
 import { debriefedTrips } from '../insights.js';
 import { isInventory, isWish } from '../gear.js';
+import { isClothing } from '../wardrobe.js';
 import { t, tn } from '../i18n.svelte.js';
 
 export const VIEWS = ['all', 'most', 'proven', 'fav', 'never', 'unweighed', 'wish'];
@@ -175,10 +176,67 @@ export function alternatives(item, items = []) {
     .sort((a, b) => a.g - b.g || byName(a.item, b.item));
 }
 
-/** The lightest alternative that is lighter than the item, or null. */
+/** The lightest alternative that is lighter than the item, or null (only the ones you linked). */
 export function lighterAlt(item, items = []) {
   const first = alternatives(item, items)[0];
   return first && first.diffG != null && first.diffG < 0 ? first : null;
+}
+
+/**
+ * v0.63.0 (Noah 2a): the setting with the suggestions you turned down: { [itemId]: [otherId, …] }.
+ * «Passt nicht» adds one, Undo takes it out again.
+ */
+export const ALT_DISMISSED_KEY = 'altDismissed';
+/** At most this many automatic suggestions per item. */
+export const AUTO_ALTS = 2;
+/**
+ * A suggestion weighs at least this share of the item: a much lighter thing of the same category is
+ * mostly another kind of thing (a cable is no lighter bike computer).
+ */
+export const AUTO_MIN_SHARE = 0.4;
+
+/** The same kind of thing: clothing of the same zone (and layer, when both have one), else the same category. */
+function sameKind(a, b) {
+  if (a.category !== b.category) return false;
+  if (!isClothing(a)) return true;
+  if (!a.zone) return false; // clothing without a zone: no guess (a glove is no lighter jacket)
+  if (String(b.zone ?? '').toLowerCase() !== String(a.zone).toLowerCase()) return false;
+  return !a.layer || !b.layer || String(a.layer).toLowerCase() === String(b.layer).toLowerCase();
+}
+
+/**
+ * v0.63.0 (Noah 2a): the lighter alternatives of an item. First the ones you linked («can be taken
+ * instead of», manual: true), then at most AUTO_ALTS suggestions (auto: true): owned and weighed,
+ * of the same category (clothing: the same zone and layer), lighter but at least AUTO_MIN_SHARE of
+ * its weight, not turned down for this item (dismissed: the ids). The suggestions closest in weight first: they are most often the same
+ * kind of thing. Nothing is ever chosen for you; a suggestion is only shown.
+ * Returns [{ item, g, diffG, manual?, auto? }].
+ */
+export function lighterAlts(item, items = [], dismissed = []) {
+  if (!item || item.weightG == null) return [];
+  const mine = w(item);
+  const manual = alternatives(item, items).filter((a) => a.diffG != null && a.diffG < 0).map((a) => ({ ...a, manual: true }));
+  const taken = new Set([item.id, ...manual.map((a) => a.item.id), ...dismissed]);
+  const auto = items
+    .filter((i) => i.ownership === 'owned' && i.weightG != null && !taken.has(i.id) && w(i) < mine && w(i) >= mine * AUTO_MIN_SHARE && sameKind(item, i))
+    .map((i) => ({ item: i, g: w(i), diffG: w(i) - mine, auto: true }))
+    .sort((a, b) => b.g - a.g || byName(a.item, b.item))
+    .slice(0, AUTO_ALTS);
+  return [...manual, ...auto];
+}
+
+/**
+ * v0.63.0 (Noah 3a): «Auf dem Weg dahin» under an empty «Nie gebraucht»: owned items taken 1 or 2
+ * times (fewer than NEVER_AFTER) on reviewed trips and never used, most often along first.
+ * Returns [{ item, taken }].
+ */
+export function onTheWay(items = [], stats) {
+  return items
+    .filter(isInventory)
+    .map((item) => ({ item, u: usageOf(stats, item.id) }))
+    .filter(({ u }) => u.taken >= 1 && u.taken < NEVER_AFTER && u.used === 0)
+    .sort((a, b) => b.u.taken - a.u.taken || byName(a.item, b.item))
+    .map(({ item, u }) => ({ item, taken: u.taken }));
 }
 
 /** Age since the day it was bought (item.boughtAt), or null: { years, months }. */

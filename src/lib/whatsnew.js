@@ -20,6 +20,15 @@ export const WHATS_NEW = [
     ],
   },
   {
+    version: '0.63.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'An item opens short: its name, its weight and one line on how it comes along. Everything else is a row that opens with one tap, one at a time.', href: '#/gear' },
+      { text: 'Lighter alternatives from your own gear: the one you linked first, then up to two suggestions. "Doesn\'t fit" hides one, with Undo.', href: '#/gear' },
+      { text: '"Never used" explains its rule when it is empty and shows what is on the way there: taken once or twice and never used.', href: '#/gear?view=never' },
+    ],
+  },
+  {
     version: '0.61.0',
     date: '2026-10-09',
     points: [

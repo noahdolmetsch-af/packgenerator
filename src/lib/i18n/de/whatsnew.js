@@ -18,6 +18,13 @@ export default {
   'Warm is no block any more: its items come with the weather (below 10 °C unless they had their own temperature). Check them first in Check building blocks.':
     'Warm ist kein Baustein mehr: Seine Sachen kommen mit dem Wetter (unter 10 °C, ausser sie hatten schon eine eigene Temperatur). Prüfe sie zuerst in Bausteine prüfen.',
 
+  // 0.63.0
+  'An item opens short: its name, its weight and one line on how it comes along. Everything else is a row that opens with one tap, one at a time.':
+    'Ein Teil öffnet kurz: Name, Gewicht und eine Zeile, wie es mitkommt. Alles andere ist eine Zeile, die sich mit einem Tipp öffnet, immer nur eine.',
+  'Lighter alternatives from your own gear: the one you linked first, then up to two suggestions. "Doesn\'t fit" hides one, with Undo.':
+    'Leichtere Alternativen aus deinem Material: zuerst die verknüpfte, dann bis zu zwei Vorschläge. «Passt nicht» blendet einen aus, mit Rückgängig.',
+  '"Never used" explains its rule when it is empty and shows what is on the way there: taken once or twice and never used.':
+    '«Nie gebraucht» erklärt leer seine Regel und zeigt, was auf dem Weg dahin ist: ein- oder zweimal dabei und nie gebraucht.',
   // 0.61.0
   '"Your pace" says your rule in one sentence. From 5 rides it guesses the riding time everywhere by itself, and "Back to the standard rule" undoes that with one tap.':
     '«Dein Tempo» sagt deine Regel in einem Satz. Ab 5 Fahrten schätzt sie die Fahrzeit überall von selbst, und «Zurück zur Standardregel» macht das mit einem Tipp rückgängig.',

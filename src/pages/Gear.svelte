@@ -21,7 +21,8 @@
   import { SETS_KEY, allSets } from '../lib/sets.js';
   import { wishReason } from '../lib/insights.js';
   // v0.47.2 «Material-Ansichten» (Noah 6a-9a): seven fixed views, cards with the trips as dots.
-  import { materialStats, tripLog, usageOf, inView, viewCounts, sortItems, lighterAlt, viewSummary, VIEWS, NEVER_AFTER, PROVEN_AFTER } from '../lib/gear/material.js';
+  import { materialStats, tripLog, usageOf, inView, viewCounts, sortItems, lighterAlt, viewSummary, onTheWay, neverText, VIEWS, NEVER_AFTER, PROVEN_AFTER } from '../lib/gear/material.js';
+  import { comesLine } from '../lib/gear/detail.js';
   import MatCard from '../lib/gear/MatCard.svelte';
   import DotsLegend from '../lib/gear/DotsLegend.svelte';
   import ItemLife from '../lib/gear/ItemLife.svelte';
@@ -279,6 +280,8 @@
   const sorted = $derived(sortItems(viewList, sort, mstats));
   const reasonsOf = $derived(Object.fromEntries(wishlist.map((w) => [w.item.id, w.reasons])));
   const summary = $derived(viewSummary(viewList, mstats));
+  // v0.63.0 (Noah 3a): under an empty «Never used»: taken 1–2 times and never used.
+  const onWay = $derived(view === 'never' ? onTheWay(stats.inventory, mstats) : []);
   const altOf = (item) => (item.ownership === 'owned' || item.ownership === 'unclear' ? lighterAlt(item, items) : null);
   const proven = (item) => inView('proven', item, usageOf(mstats, item.id), mstats.n);
   // Selecting works on the list (the rows have the boxes); the cards come back afterwards.
@@ -620,7 +623,6 @@
             {#if summary.usedShare != null}<div><dt>{t('used')}</dt><dd class="num">{summary.usedShare} %</dd></div>{/if}
           </dl>
         </section>
-        {#if view === 'never' && debriefN < NEVER_AFTER}<p class="card note">{t('Shows up after {a} debriefs. You have {n}.', { a: NEVER_AFTER, n: debriefN })}</p>{/if}
         {#if view === 'never' && sorted.length}<p class="vs small">{t('"Leave at home" makes it optional: new trips no longer pack it on their own.')}</p>{/if}
         {#if view === 'unweighed' && toWeigh}<p class="weighrow"><button type="button" class="btn" onclick={startWeigh}><Scale size={18} aria-hidden="true" />{t('Weigh one after the other')}</button></p>{/if}
 
@@ -749,7 +751,8 @@
             <FavStar item={selItem} describedby="det-h" />
           </div>
           <p class="dsub">{[selItem.brand, t(CATEGORY[selItem.category]?.name ?? ''), BAG[selItem.defaultBag] ? t(BAG[selItem.defaultBag]) : ''].filter(Boolean).join(' · ')}</p>
-          <ItemLife item={selItem} {items} stats={mstats} log={mlog} {today} compact />
+          <!-- v0.63.0 (Noah 1a): the numbers, one line on how it comes along, then rows that fold away -->
+          <ItemLife item={selItem} {items} stats={mstats} log={mlog} {today} compact folds line={comesLine(selItem, blocks)} />
         </aside>
       {/if}
     </div>
@@ -774,11 +777,30 @@
 {#snippet emptyView()}
   {#if filter.q.trim() || filter.category || filter.bag || filter.domain || filter.role || unusedOnly}
     {@render nothing()}
+  {:else if view === 'never'}
+    <!-- v0.63.0 (Noah 3a): an empty «Never used» says its rule in one sentence and shows what is on the way there. -->
+    <div class="card none never0">
+      {#if debriefN === 0}
+        <p>{t('This view fills after your first trip reviews: then it shows what you took along {n} times or more and never used.', { n: NEVER_AFTER })}</p>
+      {:else}
+        <p>{t('Here go the things you took along {n} times or more and never used.', { n: NEVER_AFTER })}{' '}{debriefN >= NEVER_AFTER ? t('Nothing: everything you took got used at least once.') : tn(debriefN, 'You have reviewed {n} trip so far.', 'You have reviewed {n} trips so far.')}</p>
+      {/if}
+      {#if onWay.length}
+        <section class="onway" aria-labelledby="onway-h">
+          <h3 id="onway-h" class="owh">{t('On the way there')} <small class="num">{onWay.length}</small></h3>
+          <ul>
+            {#each onWay as w (w.item.id)}
+              <li><button type="button" class="owb" onclick={() => open(w.item)}><span class="nm">{nameOf(w.item)}</span><span class="owc num">{neverText({ taken: w.taken })}</span></button></li>
+            {/each}
+          </ul>
+        </section>
+      {/if}
+      <div class="acts"><button type="button" class="btn" onclick={() => setView('all')}>{t('Show all items')}</button></div>
+    </div>
   {:else}
     <div class="card none">
       <p>
-        {#if view === 'never'}{debriefN >= NEVER_AFTER ? t('Nothing: everything you took got used at least once.') : ''}
-        {:else if view === 'fav'}{t('No favourites in your inventory yet. Tap the ☆ in front of an item to mark it.')}
+        {#if view === 'fav'}{t('No favourites in your inventory yet. Tap the ☆ in front of an item to mark it.')}
         {:else if view === 'unweighed'}{t('Everything is weighed.')}
         {:else if view === 'wish'}{t('No wishlist items match.')}
         {:else if view === 'most' || view === 'proven'}{t('Shows up once your debriefs say what you used.')}
@@ -1270,6 +1292,53 @@
     font-weight: 600;
   }
   .analysis summary small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  /* v0.63.0 (Noah 3a): «On the way there» under an empty «Never used» */
+  .onway {
+    margin: 12px 0 0;
+    text-align: left;
+  }
+  .owh {
+    margin: 0 0 4px;
+    font: 600 var(--fs-sub) / 1.3 var(--font-body);
+  }
+  .owh small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    font-weight: 500;
+  }
+  .onway ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .onway li + li {
+    border-top: 1px solid var(--line);
+  }
+  .owb {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2px 12px;
+    width: 100%;
+    min-height: 44px;
+    padding: 6px 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .owb .nm {
+    font-weight: 600;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .owc {
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
