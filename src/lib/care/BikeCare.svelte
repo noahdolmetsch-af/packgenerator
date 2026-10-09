@@ -12,7 +12,8 @@
    */
   import { Check, ChevronDown, ChevronRight, Store, Info, ListChecks, BookOpen } from '@lucide/svelte';
   import MoreMenu from './MoreMenu.svelte';
-  import { FIXES, stepFor } from '../problems.js';
+  import { FIXES, stepFor, PRIORITIES, PRIORITY_NAME, isLate } from '../problems.js';
+  import { db } from '../db.js';
   import { setFix } from '../problemsdb.js';
   import { CHECK_KM, bikeLog, EXTRA, needsWork, PART } from '../care.js';
   import { visitTotal, costByYear, costByPart } from '../workshop.js';
@@ -222,14 +223,15 @@
             {@const task = x.d.task}
             <li class="pt due">
               <span class="pn"><b class="rn">{x.d.name}</b></span>
-              <span class="st">{@render badge(task.status === 'needed' ? 'work' : 'due')}</span>
+              <span class="st">{@render badge(task.status === 'needed' || isLate(task, today) ? 'work' : 'due')}</span>
               <span class="last"><span class="lt">{#if task.fix}<b class="fix">{t(FIXES[task.fix])}</b>{#if stepFor(task)} · {t(stepFor(task))}{/if}{:else}{x.d.detail}{/if}{#if task.note} · {task.note}{/if}</span></span>
-              <span class="next">{#if task.priority}{t({ high: 'High', medium: 'Medium', low: 'Low' }[task.priority] ?? task.priority)}{:else}–{/if}</span>
+              <span class="next" class:late={isLate(task, today)}>{#if task.priority}{t({ high: 'High', medium: 'Medium', low: 'Low' }[task.priority] ?? task.priority)}{:else}–{/if}{#if task.dueDate} · {t('by {date}', { date: dateOf(task.dueDate) })}{:else if task.beforeRide} · {t('Before the next ride')}{/if}</span>
               <span class="wear"></span>
               <span class="act">
                 <button type="button" class="btn sm" onclick={() => onrepair(task, 'done')}><Check size={16} aria-hidden="true" />{t('Done|task')}</button>
                 <MoreMenu label={task.task} actions={[
                   // v0.45.2 (Noah 1a): the app's way to fix it, changed with one tap
+                  ...PRIORITIES.filter((p) => p !== task.priority).map((p) => ({ name: t('Priority: {p}', { p: t(PRIORITY_NAME[p]) }), run: () => db.maintenance.update(task.id, { priority: p }) })),
                   ...Object.keys(FIXES).filter((f) => f !== (task.fix ?? '')).map((f) => ({ name: t('Fix: {how}', { how: t(FIXES[f]) }), run: () => setFix(task, f, bike) })),
                   { name: t('Work needed'), run: () => onrepair(task, 'needed') }, { name: t('Not needed any more'), run: () => onrepair(task, 'gone') }]} />
               </span>

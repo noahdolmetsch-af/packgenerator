@@ -296,4 +296,5 @@ Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0
 
 - Mehrere Probleme aufs Mal aus dem Plus-Menü, einem Velo zugeordnet; eine Zeile = eine offene Reparatur (gleiche Form wie eine als „Reparatur“ eingeordnete Notiz). Foto nur beim ersten Problem. Vorgewähltes Velo: laufende Tour, sonst zuletzt gewählt (nur auf dem Gerät).
 - Noah 1a 2b 3b: Die App ordnet ein (selber schnell / mit Anleitung / Werkstatt / Teil nötig), ein Tipp ändert; alles sofort gebaut ausser den Anleitungs-Links (kommen mit D2); Wiederholung ab 2× in 30 Tagen.
+- Priorität ist beim Erfassen Pflicht (Noah 11:29), eine Deadline freiwillig: Keine, Vor der nächsten Fahrt oder ein Datum. Eine Priorität gilt für alle Zeilen des Formulars, danach pro Problem in der Velopflege änderbar.
 - Basischeck vor jeder Fahrt (Noah: seine Liste gilt primär): Schloss, Mini-Rucksack, Flasche, Sonnenbrille, Cap, Windjacke; vom alten Check bleiben Helm/Schuhe/Handschuhe, Geräte geladen, Reifendruck, Handy/Portemonnaie/Schlüssel. Bei Tagestouren wartet er auf Unterwegs statt beim Packen abgehakt zu werden.

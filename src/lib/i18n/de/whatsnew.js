@@ -9,8 +9,8 @@ export default {
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
   // 0.45.1
-  'Problem with a bike from the + menu: choose the bike with one tap, one problem per line (or quick buttons like "Saddle too low"), an optional photo. Each line becomes its own open repair in Bike care, with Undo.':
-    'Problem am Velo im Plus-Menü: Velo mit einem Tipp wählen, ein Problem pro Zeile (oder Schnellknöpfe wie «Sattel zu tief»), freiwillig ein Foto. Jede Zeile wird eine eigene offene Reparatur in der Velopflege, mit Rückgängig.',
+  'Problem with a bike from the + menu: choose the bike with one tap, one problem per line (or quick buttons like "Saddle too low"), a priority (required), a deadline if you like, an optional photo. Each line becomes its own open repair in Bike care, with Undo.':
+    'Problem am Velo im Plus-Menü: Velo mit einem Tipp wählen, ein Problem pro Zeile (oder Schnellknöpfe wie «Sattel zu tief»), eine Priorität (Pflicht), auf Wunsch eine Deadline, freiwillig ein Foto. Jede Zeile wird eine eigene offene Reparatur in der Velopflege, mit Rückgängig.',
 
   'The app sorts each problem: myself (with the first step, e.g. "Pump to your pressure"), with a guide, bike shop (into the order for the shop) or part needed (onto the wishlist). One tap changes it; the same problem twice in 30 days brings a lasting fix.':
     'Die App ordnet jedes Problem ein: selber (mit dem ersten Schritt, z. B. «Auf deinen Druck pumpen»), mit Anleitung, Werkstatt (in den Auftrag für die Werkstatt) oder Teil nötig (auf die Wunschliste). Ein Tipp ändert das; dasselbe Problem zweimal in 30 Tagen bringt eine dauerhafte Lösung.',

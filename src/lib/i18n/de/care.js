@@ -72,6 +72,7 @@ export default {
   'Myself, with a guide': 'Mit Anleitung',
   'Part needed': 'Teil nötig',
   'Fix: {how}': 'Lösung: {how}',
+  'Priority: {p}': 'Priorität: {p}',
   'How to fix: {task}': 'Lösungsweg: {task}',
   '{n}× in 30 days.': '{n}× in 30 Tagen.',
   'They are open repairs in Bike care now. The app sorted them; one tap changes it.': 'Sie stehen jetzt als offene Reparaturen in der Velopflege. Die App hat sie eingeordnet; ein Tipp ändert das.',

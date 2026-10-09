@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { QUICK_PROBLEMS, FIXES, TOPICS, splitProblems, addLine, startBike, buildProblems, classify, stepFor, repeats, problemWish } from '../src/lib/problems.js';
+import { QUICK_PROBLEMS, PRIORITIES, PRIORITY_NAME, deadlineOf, isLate, FIXES, TOPICS, splitProblems, addLine, startBike, buildProblems, classify, stepFor, repeats, problemWish } from '../src/lib/problems.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 // v0.45.2 (Noah on the bike): several problems with one bike at once, from the + menu.
@@ -87,5 +87,16 @@ describe('problems with a bike', () => {
     }
     expect(DE[stepFor({ fix: 'shop' })]).toBeTruthy();
     expect(DE[stepFor({ fix: 'part' })]).toBeTruthy();
+  });
+
+  it('priority (required in the form) and deadline go into every repair (Noah)', () => {
+    const { repairs } = buildProblems(['a', 'b'], { bike: bikes[0], priority: 'high', dueDate: '2026-10-12', stamp: 's' });
+    expect(repairs.map((r) => [r.priority, r.dueDate, r.beforeRide])).toEqual([['high', '2026-10-12', false], ['high', '2026-10-12', false]]);
+    const ride = buildProblems(['a'], { bike: bikes[0], priority: 'low', beforeRide: true, stamp: 's' }).repairs[0];
+    expect(deadlineOf(ride, '2026-10-11')).toBe('2026-10-11');
+    expect(deadlineOf(ride)).toBe(null);
+    expect(isLate(repairs[0], '2026-10-13')).toBe(true);
+    expect(isLate(repairs[0], '2026-10-12')).toBe(false);
+    for (const p of PRIORITIES) expect(DE[PRIORITY_NAME[p]]).toBeTruthy();
   });
 });

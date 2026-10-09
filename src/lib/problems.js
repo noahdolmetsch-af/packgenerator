@@ -12,6 +12,22 @@ import { newNote, sortNote, nextNumber } from './notes.js';
 /** The quick buttons: the English text is the key for t(), it is also the stored text. */
 export const QUICK_PROBLEMS = ['Too little air in the tyres', 'Saddle too low', 'Charge the shifting battery', 'Brake rubs or squeaks', 'Chain dry or noisy', 'Creaks or rattles'];
 
+/** Noah (9.10.2026): every problem has a priority (required) and may have a deadline. */
+export const PRIORITIES = ['high', 'medium', 'low'];
+export const PRIORITY_NAME = { high: 'High', medium: 'Medium', low: 'Low' };
+
+/** The deadline of a repair as a date: its own date, else the start of the next ride when "before the next ride". */
+export function deadlineOf(repair, nextRideDate = null) {
+  if (repair.dueDate) return repair.dueDate;
+  return repair.beforeRide ? nextRideDate : null;
+}
+
+/** Late: the deadline is before today. */
+export const isLate = (repair, today, nextRideDate = null) => {
+  const d = deadlineOf(repair, nextRideDate);
+  return !!d && d < today;
+};
+
 /** The ways to fix a problem. 'guide' links to a workshop guide once D2 has them. */
 export const FIXES = {
   self: 'Myself, quick',
@@ -128,7 +144,7 @@ export function startBike(bikes, { last = null, trip = null } = {}) {
  * problem only. ctx = { tripId, day } while a trip runs (notes.rideContext), else null.
  * → { notes, repairs }
  */
-export function buildProblems(lines, { bike, photo = null, ctx = null, rows = [], now = new Date().toISOString(), stamp = Date.now().toString(36) }) {
+export function buildProblems(lines, { bike, photo = null, ctx = null, priority = 'medium', dueDate = null, beforeRide = false, rows = [], now = new Date().toISOString(), stamp = Date.now().toString(36) }) {
   let next = nextNumber(rows);
   const notes = [];
   const repairs = [];
@@ -137,7 +153,7 @@ export function buildProblems(lines, { bike, photo = null, ctx = null, rows = []
     const out = sortNote(note, 'repair', { bikeId: bike.id, ids: { task: next++ }, now, bikeName: bike.name ?? '' });
     const c = classify(text);
     notes.push(out.note);
-    repairs.push({ ...out.repair, source: 'Problem', topic: c.topic, fix: c.fix, part: c.part });
+    repairs.push({ ...out.repair, source: 'Problem', topic: c.topic, fix: c.fix, part: c.part, priority, dueDate, beforeRide });
   });
   return { notes, repairs };
 }

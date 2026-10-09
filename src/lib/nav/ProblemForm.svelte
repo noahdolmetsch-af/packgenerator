@@ -9,9 +9,9 @@
   import { rideContext, runningTrip } from '../notes.js';
   import { localDay } from '../localday.js';
   import { shrinkImage } from '../photo.js';
-  import { QUICK_PROBLEMS, FIXES, splitProblems, addLine, startBike, buildProblems, stepFor, repeats } from '../problems.js';
+  import { QUICK_PROBLEMS, FIXES, PRIORITIES, PRIORITY_NAME, splitProblems, addLine, startBike, buildProblems, stepFor, repeats } from '../problems.js';
   import { wishForProblem, setFix } from '../problemsdb.js';
-  import { t, tn } from '../i18n.svelte.js';
+  import { t, tn, dateOf } from '../i18n.svelte.js';
 
   let { bikes = [], ondone } = $props();
 
@@ -33,6 +33,10 @@
   let reading = $state(false);
   let busy = $state(false);
   let msg = $state('');
+  // Noah: a priority is required, a deadline is optional ('none' | 'ride' | 'date').
+  let priority = $state(null);
+  let when = $state('none');
+  let dueDate = $state('');
   let saved = $state(null); // { count, name, bikeId, noteIds, repairIds }
   const repairsQ = liveQuery(() => db.maintenance.toArray());
   const savedRows = $derived(saved ? ($repairsQ ?? []).filter((r) => saved.repairIds.includes(r.id)) : []);
@@ -66,13 +70,15 @@
     if (!bike) return (msg = t('Choose a bike.'));
     const list = lines.length ? lines : photo ? [t('Photo')] : [];
     if (!list.length) return (msg = t('Write a few words or add a photo.'));
+    if (!priority) return (msg = t('Choose a priority.'));
+    if (when === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return (msg = t('Choose the date of the deadline.'));
     busy = true;
     msg = '';
     try {
       const ctx = rideContext($tripsQ ?? [], today);
       let out;
       await db.transaction('rw', db.notes, db.maintenance, db.items, async () => {
-        out = buildProblems(list, { bike, photo, ctx, rows: await db.maintenance.toArray() });
+        out = buildProblems(list, { bike, photo, ctx, priority, dueDate: when === 'date' ? dueDate : null, beforeRide: when === 'ride', rows: await db.maintenance.toArray() });
         // "Part needed" goes on the wishlist straight away (the shopping list).
         for (const r of out.repairs) if (r.fix === 'part') r.wishId = await wishForProblem(r, bike);
         await db.maintenance.bulkPut(out.repairs);
@@ -86,6 +92,9 @@
       saved = { count: list.length, name: bike.name, bike: $state.snapshot(bike), bikeId: bike.id, noteIds: out.notes.map((n) => n.id), repairIds: out.repairs.map((r) => r.id) };
       text = '';
       photo = null;
+      priority = null;
+      when = 'none';
+      dueDate = '';
     } catch (err) {
       msg = err.message || t('This could not be saved.');
     } finally {
@@ -119,6 +128,7 @@
             {/each}
           </div>
           {#if stepFor(r)}<small>{t(stepFor(r))}</small>{/if}
+          <small>{t('Priority')}: {t(PRIORITY_NAME[r.priority] ?? 'Medium')}{#if r.dueDate} · {t('by {date}', { date: dateOf(r.dueDate) })}{:else if r.beforeRide} · {t('Before the next ride')}{/if}</small>
         </li>
       {/each}
     </ul>
@@ -154,6 +164,22 @@
       {/each}
     </div>
 
+    <fieldset class="bikes">
+      <legend class="lbl">{t('Priority')} <span class="req">({t('required')})</span></legend>
+      <div class="seg">
+        {#each PRIORITIES as p (p)}<button type="button" aria-pressed={priority === p} onclick={() => ((priority = p), (msg = ''))}>{t(PRIORITY_NAME[p])}</button>{/each}
+      </div>
+    </fieldset>
+    <fieldset class="bikes">
+      <legend class="lbl">{t('Deadline')}</legend>
+      <div class="seg">
+        <button type="button" aria-pressed={when === 'none'} onclick={() => (when = 'none')}>{t('None|deadline')}</button>
+        <button type="button" aria-pressed={when === 'ride'} onclick={() => (when = 'ride')}>{t('Before the next ride')}</button>
+        <button type="button" aria-pressed={when === 'date'} onclick={() => (when = 'date')}>{t('Date')}</button>
+      </div>
+      {#if when === 'date'}<input class="inp due" type="date" min={today} bind:value={dueDate} aria-label={t('Deadline')} />{/if}
+    </fieldset>
+
     <div class="row">
       <label class="btn sm">{reading ? t('Reading…') : photo ? t('Other photo') : `+ ${t('Photo')}`}<input type="file" accept="image/*" onchange={addPhoto} hidden disabled={reading} /></label>
       {#if photo}<img class="th" src={photo} alt={t('Photo of the problem')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
@@ -161,10 +187,10 @@
 
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     <div class="foot">
-      <button type="submit" class="btn hi" disabled={busy || reading || !bike}>
+      <button type="submit" class="btn hi" disabled={busy || reading || !bike} aria-describedby={priority ? undefined : 'pf-need'}>
         {lines.length > 1 ? t('Save {n} problems', { n: lines.length }) : t('Save problem')}
       </button>
-      <span class="small">{t('Each line becomes an open repair in Bike care.')}</span>
+      <span class="small" id="pf-need">{priority ? t('Each line becomes an open repair in Bike care.') : t('Choose a priority first.')}</span>
     </div>
   </form>
 {/if}
@@ -211,6 +237,13 @@
     background: var(--ink);
     color: var(--paper);
     font-weight: 600;
+  }
+  .req {
+    font-weight: 400;
+  }
+  .due {
+    margin-top: 8px;
+    max-width: 220px;
   }
   .again {
     margin: 0;

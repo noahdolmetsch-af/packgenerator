@@ -82,10 +82,16 @@ test('three problems for one bike in one go, sorted, changed with one tap, undon
   const box = dlg.getByLabel(T('What is wrong? One problem per line'));
   await box.press('End');
   await box.pressSequentially('\nSchaltung vorne aufladen');
-  if (shots) await page.screenshot({ path: `${shots}/problem-${info.project.name}-1.png` });
+  // Priority is required: without it nothing is saved.
+  await dlg.getByRole('button', { name: T('Save {n} problems', { n: 3 }) }).click();
+  await expect(dlg.getByRole('alert')).toHaveText(T('Choose a priority.'));
+  await dlg.getByRole('button', { name: T('High'), exact: true }).click();
+  await dlg.getByRole('button', { name: T('Before the next ride') }).click();
+  if (shots) await page.screenshot({ path: `${shots}/problem-${info.project.name}-1.png`, fullPage: true });
   await dlg.getByRole('button', { name: T('Save {n} problems', { n: 3 }) }).click();
   await expect(dlg.getByText(T('{n} problems saved for {bike}', { n: 3, bike: 'Test gravel bike' }))).toBeVisible();
   let rows = await repairs(page);
+  expect(rows.every((r) => r.priority === 'high' && r.beforeRide === true)).toBe(true);
   expect(rows.map((r) => [r.task, r.topic, r.fix, r.bikeId])).toEqual([
     [T('Too little air in the tyres'), 'air', 'self', 'bike-test'],
     [T('Saddle too low'), 'saddle', 'self', 'bike-test'],

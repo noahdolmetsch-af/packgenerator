@@ -532,4 +532,12 @@ export default {
   'They are open repairs in Bike care now.': 'Sie stehen jetzt als offene Reparaturen in der Velopflege.',
   'One more': 'Noch eins',
   'Undone.': 'Rückgängig gemacht.',
+  Priority: 'Priorität',
+  required: 'Pflicht',
+  Deadline: 'Deadline',
+  'None|deadline': 'Keine',
+  'Before the next ride': 'Vor der nächsten Fahrt',
+  'Choose a priority.': 'Wähle eine Priorität.',
+  'Choose a priority first.': 'Zuerst eine Priorität wählen.',
+  'Choose the date of the deadline.': 'Wähle das Datum der Deadline.',
 };

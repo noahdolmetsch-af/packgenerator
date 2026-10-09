@@ -1057,10 +1057,10 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   await rec.click(goBtn(page));
   await expect(page).toHaveURL(/#\/ride/);
   const packed = (await table(page, 'trips')).find((x) => x.id === trip0.id);
-  await rec.check('"All packed, let\'s go" ticks every item and the ready check', () => {
-    expect(packed.entries.every((e) => e.packed)).toBe(true);
-    expect(packed.ready.every((r) => r.done || r.itemId)).toBe(true);
-  });
+  await rec.check('"All packed, let\'s go" ticks every item', () => expect(packed.entries.every((e) => e.packed)).toBe(true));
+  // v0.45.2 (Noah): the base check waits on the ride page as a reminder; one tap ticks it all.
+  await rec.click(page.getByRole('region', { name: T('Base check') }).getByRole('button', { name: T('All with me') }));
+  await expect.poll(async () => (await table(page, 'trips')).find((x) => x.id === trip0.id).ready.every((r) => r.done || r.itemId)).toBe(true);
   await rec.check('ride day: no hint to a Pack place that does not exist ("Ride and weather")', () => expect(page.getByText(T('under "Ride and weather".'))).toHaveCount(0, { timeout: 2000 }));
   await rec.click(goBtn(page));
   await rec.click(page.getByRole('button', { name: T('Save debrief') }));
