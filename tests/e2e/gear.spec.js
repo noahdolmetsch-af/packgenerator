@@ -135,6 +135,10 @@ test('gear: change the category, links survive a reload', async ({ page, context
     await search.fill(q);
     await page.getByRole('button', { name }).click();
     dlg = page.getByRole('dialog', { name });
+    // v0.63.0: the category sits in the row «Name, brand, note», which folds away; the last row
+    // opened stays open for the session
+    const details = dlg.locator('details.fold[data-fold="details"]');
+    if (!(await details.evaluate((d) => d.open))) await details.locator(':scope > summary').click();
     await dlg.getByLabel(T('Category')).selectOption(to);
     await expect(dlg.getByRole('status')).toContainText(id);
     await dlg.getByRole('button', { name: T('Save') }).click();
