@@ -9,6 +9,7 @@
    * question below for 'discard'); trips: the records (for "Not riding" vs "Not going" and the question).
    */
   import { ChevronRight, Check, Ellipsis } from '@lucide/svelte';
+  import { inView } from '../ui/inview.js';
   import { t, locale } from '../i18n.svelte.js';
   import { rowActions, hasWork } from '../drafts.js';
 
@@ -65,7 +66,7 @@
         <div class="mw">
           <button type="button" class="more" aria-label={t('More for {title}', { title: row.title })} aria-haspopup="menu" aria-expanded={menu === row.id} onkeydown={menuKey} onclick={() => (menu = menu === row.id ? null : row.id)}><Ellipsis size={20} aria-hidden="true" /></button>
           {#if menu === row.id}
-            <div class="menu" role="menu">
+            <div class="menu" role="menu" use:inView>
               {#each rowActions(row, { current }) as a (a)}<button type="button" role="menuitem" class:del={a === 'discard'} onkeydown={menuKey} onclick={() => pick(row, a)}>{label(a, row)}</button>{/each}
             </div>
           {/if}

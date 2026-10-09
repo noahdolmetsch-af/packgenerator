@@ -211,7 +211,8 @@ async function fillTrip(dlg, rec, o) {
     const b = dlg.getByRole('button', { name: new RegExp(`^${esc(T(o.weather))} `) });
     if ((await b.getAttribute('aria-pressed')) !== 'true') await rec.click(b);
   }
-  if (o.rain) await rec.click(dlg.getByRole('button', { name: `+ ${T('Rain')}` }));
+  // v0.47.3: dry or rain are two chips (it was a «+ Rain» toggle); a chip only sets.
+  if (o.rain) await rec.click(dlg.getByRole('group', { name: T('Rain'), exact: true }).getByRole('button', { name: T('Rain'), exact: true }));
 }
 
 /** Open every folded bag in the packing list (to look at all rows). */
@@ -536,8 +537,10 @@ test('PF08: star an item, open the favourites on Today, reload: one tap, kept, r
   await rec.check('Today: All functions → Favourites opens the favourites', () => expect(page).toHaveURL(/#\/favorites/, { timeout: 2000 }));
   await page.goto('./#/gear?fav=1');
   const check = async (when) => {
-    await rec.check(`${when}: the favourites filter is on`, () => expect(page.getByRole('button', { name: new RegExp(`★ ${esc(T('Favourites'))}`) })).toHaveAttribute('aria-pressed', 'true', { timeout: 3000 }));
-    await rec.check(`${when}: the number is explained ("3 favourites in your inventory")`, () => expect(page.locator('.favbase')).toContainText(T('{n} favourites in your inventory', { n: favs.length }), { timeout: 3000 }));
+    // v0.47.2: the favourites are the view "Favourite things"; its button carries the number
+    const fav = page.getByRole('group', { name: T('Views') }).locator('[data-view="fav"]');
+    await rec.check(`${when}: the favourites filter is on`, () => expect(fav).toHaveAttribute('aria-pressed', 'true', { timeout: 3000 }));
+    await rec.check(`${when}: the number is explained (the view "Favourite things" with its count)`, () => expect(fav).toHaveText(new RegExp(`${esc(T('Favourite things'))}\\s*${favs.length}$`), { timeout: 3000 }));
     await rec.check(`${when}: exactly the favourites are listed`, async () => {
       for (const i of favs) await expect(page.locator('main').getByText(LANG === 'de' ? i.nameDe : i.name).first()).toBeVisible({ timeout: 3000 });
       await expect(page.locator('main').getByText(nm('WZ02'))).toHaveCount(0);
@@ -778,9 +781,10 @@ test('PF14: missing weights and litres; empty search, no bike, no weather: hones
   const title = `${P} PF14 ${info.project.name}`;
   const dlg = await openNewTrip(page, rec);
   await fillTrip(dlg, rec, { title, bike: BIKE.gravel, hours: 3 });
-  // No weather: switch off the preset the forecast chose.
-  const pressed = dlg.locator('.chips button[aria-pressed="true"]').filter({ hasText: '°' });
-  if (await pressed.count()) await rec.click(pressed.first());
+  // No weather: v0.47.3 «No weather» takes off what the forecast chose (a preset chip only sets now;
+  // tapping it off made «Kühl + Regen» bring nothing).
+  await rec.click(dlg.getByRole('button', { name: T('No weather|chip'), exact: true }));
+  await expect(dlg.locator('.chips button[aria-pressed="true"]').filter({ hasText: '°' })).toHaveCount(0);
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
   await expect(page.locator('.trip-band h1')).toHaveText(title);
   // The power bank (no weight) goes onto the trip through Add material.

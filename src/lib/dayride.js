@@ -139,6 +139,29 @@ export function wxSource(trip) {
   return p ? t('Preset: {name}', { name: t(p.name) }) : t('Set by you');
 }
 
+/**
+ * v0.47.3 (Noah: «Kühl + Regen» showed «Fürs Wetter: nichts zusätzlich»): a tap on a weather chip in
+ * the New trip window. A preset (Cold … Hot) always sets its range and a rain chip ('none' = dry,
+ * 'rain') always sets the rain, the same as the chips on the trip page (FactSheet, «Fitted to the
+ * weather»). The window used to toggle: when the forecast had already chosen «Chilly» and rain, the
+ * taps on «Chilly» and «+ Rain» took both off again, so the list got nothing for the weather.
+ * { none: true } («No weather») takes the whole weather off: no range, no rain.
+ * → the new { min, max, rain }.
+ */
+export function pickWxChip(wx, choice) {
+  // «No weather» (Noah: a suggestion is never binding and can always be taken off): no range, dry.
+  if (choice?.none) return { min: null, max: null, rain: 'none' };
+  const cur = { min: wx?.min ?? null, max: wx?.max ?? null, rain: wx?.rain ?? 'none' };
+  const range = choice?.min != null && choice?.max != null ? { min: choice.min, max: choice.max } : {};
+  // «Rain» on a day with showers already chosen (the forecast) keeps the showers: the chip is on anyway.
+  const wet = cur.rain === 'rain' || cur.rain === 'showers';
+  const rain = !choice?.rain ? {} : choice.rain === 'none' ? { rain: 'none' } : { rain: wet && choice.rain === 'rain' ? cur.rain : choice.rain === 'showers' ? 'showers' : 'rain' };
+  return { ...cur, ...range, ...rain };
+}
+
+/** Is no weather set (no range and dry)? The «No weather» chip is on then. */
+export const noWx = (wx) => wx?.min == null && wx?.max == null && (wx?.rain ?? 'none') === 'none';
+
 /** A usable home place (settings 'homePlace'), or null. */
 export const homeOf = (value) => (value && Number.isFinite(Number(value.lat)) && Number.isFinite(Number(value.lon)) ? value : null);
 

@@ -19,6 +19,25 @@ export const WHATS_NEW = [
     ],
   },
   {
+    version: '0.47.3',
+    date: '2026-10-09',
+    points: [
+      { text: 'In a new trip, "Chilly" and "Rain" stay chosen when you tap them, also when the forecast chose them already, so the list gets the cold and the rain items. Dry or rain are two chips, as on the trip page.', href: '#/pack' },
+      { text: 'The ••• menus (packing list, templates, trips in progress, bike care) stay fully on the screen on a phone: they move aside or open upwards.', href: '#/pack' },
+      { text: '"No weather" takes the weather off again, in a new trip and on the trip page, also when the forecast chose it.', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.47.2',
+    date: '2026-10-09',
+    points: [
+      { text: 'Gear has seven views, each with its count: All, Most used, Proven, Favourite things, Never used, Unweighed and Wishlist.', href: '#/gear' },
+      { text: '"Dead weight" is now called "Never used", with one plain sentence per item: "Taken 4 times, never used".', href: '#/gear?view=never' },
+      { text: 'Every item shows its trips as dots: used, along but not used, at home. On the computer the chosen card opens on the right; sorting and filters are in one sheet.', href: '#/gear' },
+      { text: 'An item tells its year on tour, a rule learnt from your debriefs (like "Below 9 °C always used"), its last trips and a lighter alternative from your own gear.', href: '#/gear' },
+    ],
+  },
+  {
     version: '0.47.1',
     date: '2026-10-09',
     points: [
@@ -175,7 +194,7 @@ export const WHATS_NEW = [
     date: '2026-10-09',
     points: [
       { text: 'Today: a ready light per bike and quick buttons: chain lubed, wear measured, washed, sealant, tyre pressure, km. Each with Undo.', href: '#/' },
-      { text: '"Jump to" on Today: what is due, dead weight, a year ago, the weekend and what is new.', href: '#/' },
+      { text: '"Jump to" on Today: what is due, never used items, a year ago, the weekend and what is new.', href: '#/' },
       { text: 'The menu "More" at the top right holds the rarer pages and the Inbox; the search also finds pages.', href: '#/' },
       { text: 'Compact rows in Gear (the bag on wish) with swipe on a phone, and Bike care as one list: due first, the rest folded.', href: '#/gear' },
     ],
@@ -506,7 +525,7 @@ export const WHATS_NEW = [
     date: '2026-10-05',
     points: [
       { text: 'Your trips compared: luggage per trip, used and not used, with a trend.', href: '#/debrief/compare' },
-      { text: 'Gear shows dead weight: taken along but never used.', href: '#/gear' },
+      { text: 'Gear shows what you never used: taken along, never needed.', href: '#/gear' },
       { text: 'The wishlist with a reason, sorted by benefit.', href: '#/gear' },
       { text: 'Mark a trip "Not riding": it stays, but no longer counts as the next trip.', href: '#/pack' },
     ],

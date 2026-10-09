@@ -64,7 +64,10 @@ test('select two items and change their category, the IDs stay', async ({ page, 
   const T = tr('de');
   await start(page, context, info, 'de');
   const n0 = (await table(page, 'items')).length;
-  await page.locator('.toolbar').getByLabel(T('Category')).selectOption('elec');
+  // v0.47.2: the category is in the sheet "Sort and filter"
+  await page.locator('.fbtn').click();
+  await page.getByRole('dialog', { name: T('Sort and filter') }).getByRole('group', { name: T('Category') }).getByRole('button', { name: new RegExp(`^${T('Electronics')}`) }).click();
+  await page.keyboard.press('Escape');
   await page.getByRole('button', { name: T('Select'), exact: true }).click();
   await page.getByRole('checkbox', { name: 'Bike computer' }).check();
   // A tap on the row (not the box) ticks it too.
