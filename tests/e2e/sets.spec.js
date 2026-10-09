@@ -112,6 +112,7 @@ for (const lang of ['de', 'en']) {
     const before = await tripOf(page);
     await page.getByRole('button', { name: T('Select'), exact: true }).click();
     await page.locator('.selrow').getByRole('button', { name: T('Select all'), exact: true }).click();
+    await bar.getByLabel(T('More actions')).click(); // v0.43.0: under •••
     await bar.getByRole('button', { name: T('Onto a trip …') }).click();
     const tdlg = page.getByRole('dialog', { name: T('Onto a trip') });
     await expect(tdlg.getByLabel(T('Trip'), { exact: true })).toHaveValue('trip-test_data_gtp_1');
@@ -134,6 +135,7 @@ for (const lang of ['de', 'en']) {
     // Twice: the second time adds nothing.
     for (const n of [1, 2]) {
       await page.locator('.selrow').getByRole('button', { name: T('Select all'), exact: true }).click();
+      await bar.getByLabel(T('More actions')).click(); // v0.43.0: under •••
       await bar.getByRole('button', { name: T('Onto a trip …') }).click();
       await page.getByRole('dialog', { name: T('Onto a trip') }).getByRole('button', { name: T('Assign'), exact: true }).click();
       if (n === 2) await expect(bar.getByRole('status')).toContainText(T('Nothing to change: already like that ({target}).', { target: 'test_data_gtp_ Tour' }));

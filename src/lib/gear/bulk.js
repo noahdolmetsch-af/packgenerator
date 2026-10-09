@@ -3,7 +3,7 @@
  * Every change is one Dexie transaction and returns a snapshot of the exact records before it,
  * which `undoBulk` writes back ("Undo"). The new records come from the pure helpers in gear.js.
  */
-import { bulkDelete } from '../gear.js';
+import { bulkDelete, bulkCategory } from '../gear.js';
 import { TEMPLATES_KEY, saveTemplates } from '../templates.js';
 import { SETS_KEY } from '../sets.js';
 
@@ -73,3 +73,56 @@ export async function undoBulk(db, snap) {
     }
   });
 }
+
+/*
+ * v0.43.0 "Mehrfachauswahl" (Noah): more changes for the selected items. The pure helpers return
+ * only the records that really change; changeItems writes them in one transaction (one Undo).
+ */
+
+/**
+ * The selected items into an area (item.domains). only: the area replaces the others ("Only this
+ * area"); else it is added ("Also this area"). An item without areas counts as bikepacking.
+ */
+export function bulkArea(items, ids, key, { only = false, now = new Date().toISOString() } = {}) {
+  const pick = new Set(ids);
+  const same = (a, b) => a.length === b.length && a.every((x) => b.includes(x));
+  return items
+    .filter((i) => pick.has(i.id))
+    .map((i) => {
+      const had = i.domains?.length ? i.domains : ['bikepacking'];
+      const domains = only ? [key] : had.includes(key) ? had : [...had, key];
+      return same(had, domains) && i.domains?.length ? null : { ...i, domains, updatedAt: now };
+    })
+    .filter(Boolean);
+}
+
+/** v0.43.0: the selected items archived (ownership 'gone'), the same as "Archive" on one row. */
+export function bulkArchive(items, ids, now = new Date().toISOString()) {
+  const pick = new Set(ids);
+  return items.filter((i) => pick.has(i.id) && i.ownership !== 'gone').map((i) => ({ ...i, ownership: 'gone', updatedAt: now }));
+}
+
+/**
+ * v0.43.0: the wardrobe's layer or body zone for many pieces at once. patch: { layer } or { zone }
+ * (the stored zone value, e.g. 'torso'). Only the items that change.
+ */
+export function bulkWear(items, ids, patch, now = new Date().toISOString()) {
+  const pick = new Set(ids);
+  const keys = Object.keys(patch);
+  return items.filter((i) => pick.has(i.id) && keys.some((k) => (i[k] ?? null) !== patch[k])).map((i) => ({ ...i, ...patch, updatedAt: now }));
+}
+
+/** Read the selected items fresh, change them with fn(items) and save in one transaction. Returns { snap, n }. */
+export async function changeItems(db, ids, fn) {
+  return db.transaction('rw', db.items, async () => {
+    const items = (await db.items.bulkGet(ids)).filter(Boolean);
+    const changed = fn(items);
+    if (!changed.length) return { snap: null, n: 0 };
+    await db.items.bulkPut(changed);
+    return { snap: { items: items.filter((i) => changed.some((c) => c.id === i.id)) }, n: changed.length };
+  });
+}
+export const archiveItems = (db, ids) => changeItems(db, ids, (items) => bulkArchive(items, ids));
+export const areaItems = (db, ids, key, only = false) => changeItems(db, ids, (items) => bulkArea(items, ids, key, { only }));
+export const categoryItems = (db, ids, category) => changeItems(db, ids, (items) => bulkCategory(items, ids, category));
+export const wearItems = (db, ids, patch) => changeItems(db, ids, (items) => bulkWear(items, ids, patch));

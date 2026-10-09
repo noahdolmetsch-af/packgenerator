@@ -24,6 +24,7 @@
     import { t, tn, nameOf } from '../lib/i18n.svelte.js';
   import { Check, Moon, Plus, X, Minus, Layers, ChevronRight, UserRound, Scale } from '@lucide/svelte';
   import Help from '../lib/ui/Help.svelte';
+  import { SvelteSet } from 'svelte/reactivity';
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
@@ -105,6 +106,24 @@
     const res = await setQtyIn(db, s.key, item.id, n);
     if (!res.error) offer(t('{name}: {n} in {block}.', { name: nameOf(item), n: Math.max(1, n), block: s.name }), res.snap);
   }
+  // v0.43.0 (Mehrfachauswahl): "Select" in an open block, then "Remove" takes many out at once (one Undo).
+  let selKey = $state(null);
+  const picked = new SvelteSet();
+  const selBlock = $derived(selKey ? cards.find((c) => c.key === selKey) ?? null : null);
+  const chosen = $derived(selBlock ? selBlock.items.filter((i) => picked.has(i.id)) : []);
+  function selectIn(key) {
+    selKey = selKey === key ? null : key;
+    picked.clear();
+  }
+  const flipPick = (id) => (picked.has(id) ? picked.delete(id) : picked.add(id));
+  async function takeOutMany() {
+    const s = selBlock;
+    const ids = chosen.map((i) => i.id);
+    if (!s || !ids.length) return;
+    const res = await assignSet(db, ids, s.key, { out: true });
+    offer(tn(res.n, '{n} item taken out of {block}.', '{n} items taken out of {block}.', { block: blockLabel(s) }), res.n ? res.snap : null);
+    picked.clear();
+  }
   // "+ Add items": Gear in "Select", only the items not in this block yet (Gear reads ?fill=).
   const fillHref = (s) => `#/gear?fill=${encodeURIComponent(s.key)}`;
   /** "Tent · Mat · Gloves × 2 · +4": the names of the items that get packed. */
@@ -151,11 +170,20 @@
         {/if}
         {#if s.items.length}
           <!-- One header for the columns, quiet icon buttons in the rows (no "Remove" on every row). -->
-          <p class="cols" aria-hidden="true"><span>{t('Item')}</span><span>{t('Amount')}</span></p>
+          <div class="cols"><span aria-hidden="true">{t('Item')}</span>{#if s.items.length > 1}<button type="button" class="selb" aria-pressed={selKey === s.key} onclick={() => selectIn(s.key)}>{selKey === s.key ? t('Done') : t('Select')}</button>{/if}<span aria-hidden="true">{selKey === s.key ? '' : t('Amount')}</span></div>
           <ul class="rows">
             {#each s.items as item (item.id)}
               {@const inv = isInventory(item)}
               {@const n = qtyOf(s, item.id)}
+              {#if selKey === s.key}
+                <li class:off={!inv} class="pickli">
+                  <label class="pick" class:on={picked.has(item.id)}>
+                    <input type="checkbox" checked={picked.has(item.id)} onchange={() => flipPick(item.id)} aria-label={nameOf(item)} />
+                    <span class="iname">{nameOf(item)}{#if n !== 1}{' '}<b class="num">× {n}</b>{/if}</span>
+                    <small class="num w">{inv ? formatWeight(itemWeight(item)) : t(OWNERSHIP[item.ownership] ?? item.ownership)}</small>
+                  </label>
+                </li>
+              {:else}
               <li class:off={!inv}>
                 <span class="in">
                   <span class="iname">{nameOf(item)}{#if n !== 1}{' '}<b class="num">× {n}</b>{/if}</span>
@@ -171,6 +199,7 @@
                   <button type="button" class="sq quietx" aria-label={t('Remove {name} from {block}', { name: nameOf(item), block: s.name })} title={t('Remove')} onclick={() => takeOut(s, item)}><X size={16} aria-hidden="true" /></button>
                 </span>
               </li>
+              {/if}
             {/each}
           </ul>
         {/if}
@@ -251,7 +280,19 @@
   </div>
 </div>
 
-{#if undo}
+{#if selBlock}
+  <!-- v0.43.0 (Mehrfachauswahl): the bar of a block's selection, with the Undo of the last change. -->
+  <div class="undopad sel" aria-hidden="true"></div>
+  <div class="undo selbar" role="region" aria-label={t('Selected items')}>
+    {#if undo}<p class="ul" role="status"><span>{undo.text}</span>{#if undo.snap}<button type="button" class="btn hi" onclick={doUndo}>{t('Undo')}</button>{/if}</p>{/if}
+    <div class="bacts">
+      <b class="num" aria-live="polite">{tn(chosen.length, '{n} selected', '{n} selected')}</b>
+      <button type="button" class="btn" disabled={chosen.length === selBlock.items.length} onclick={() => selBlock.items.forEach((i) => picked.add(i.id))}>{t('Select all')}</button>
+      <button type="button" class="btn" disabled={!chosen.length} onclick={takeOutMany}>{t('Remove')}</button>
+      <button type="button" class="btn" onclick={() => selectIn(null)}>{t('Done')}</button>
+    </div>
+  </div>
+{:else if undo}
   <div class="undopad" aria-hidden="true"></div>
   <div class="undo" role="status">
     <span>{undo.text}</span>
@@ -446,6 +487,75 @@
   }
   .undopad {
     height: 80px;
+  }
+  /* v0.43.0 (Mehrfachauswahl): "Select" in the column header, rows with a box, the bar. */
+  .cols {
+    align-items: center;
+  }
+  .selb {
+    min-height: 44px;
+    margin: -8px 0;
+    padding: 0 8px;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: 600 13px var(--font-body);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .rows li.pickli {
+    padding: 0;
+  }
+  .pick {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 48px;
+    cursor: pointer;
+  }
+  .pick.on {
+    background: var(--paper-2);
+  }
+  .pick input {
+    width: 22px;
+    height: 22px;
+    margin: 0 0 0 2px;
+    flex: none;
+    accent-color: var(--ink);
+  }
+  .pick .iname {
+    flex: 1;
+    min-width: 0;
+  }
+  .undopad.sel {
+    height: 150px;
+  }
+  .selbar {
+    display: block;
+  }
+  .selbar .ul {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin: 0 0 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  .selbar .ul span {
+    flex: 1 1 160px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .bacts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .bacts b {
+    margin-right: auto;
   }
   .undo {
     position: fixed;

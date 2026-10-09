@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.43.0
+  'Record weights (Gear → •••, or the quiet line "… without weight · weigh"): one thing per screen with a big grams field, "Save & next", "Skip" and Undo. Bikes and bags come first.':
+    'Gewichte erfassen (Material → •••, oder die leise Zeile «… ohne Gewicht · wiegen»): ein Teil pro Bildschirm mit grossem Grammfeld, «Speichern & weiter», «Überspringen» und Rückgängig. Velos und Taschen kommen zuerst.',
+  'The order of weighing: bags, sleep, outer and mid layers, then the rest; in each group what you take most often first.':
+    'Die Reihenfolge beim Wiegen: Taschen, Schlafen, Aussen- und Mittelschicht, dann der Rest; in jeder Gruppe zuerst, was du am häufigsten mitnimmst.',
+  'Select in Gear: the most used actions in the bar, the rest under •••. New: area and archive for many items at once, each with Undo.':
+    'Auswählen in Material: die häufigsten Aktionen in der Leiste, der Rest unter •••. Neu: Reiseart und Archivieren für viele Teile auf einmal, jedes mit Rückgängig.',
+  'Select in the wardrobe (layer and zone for many pieces) and in an open building block (remove many at once).':
+    'Auswählen im Kleiderschrank (Schicht und Zone für viele Stücke) und in einem offenen Baustein (viele auf einmal entfernen).',
+
   // 0.42.0
   "The wardrobe (More → Gear, or Gear → Wardrobe): your clothing by layer and body zone, °C on the right; new clothing waits in \"To sort\" with a guess from the name.":
     "Der Kleiderschrank (Mehr → Material, oder Material → Kleiderschrank): deine Kleider nach Schicht und Körperzone, °C rechts; neue Kleider warten unter «Noch einordnen» mit einem Vorschlag aus dem Namen.",

@@ -5,8 +5,9 @@
   import { phone } from '../lib/media.svelte.js';
   import { untrack } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
-  import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, UNKNOWN_CATEGORY, BAG, OWNERSHIP, bulkCategory, bulkOwnership, namesList } from '../lib/gear.js';
-  import { saveItems, deletePlan, deleteItems, undoBulk } from '../lib/gear/bulk.js';
+  import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, UNKNOWN_CATEGORY, BAG, OWNERSHIP, bulkOwnership, namesList } from '../lib/gear.js';
+  import { saveItems, deletePlan, deleteItems, undoBulk, archiveItems } from '../lib/gear/bulk.js';
+  import { weighQueue } from '../lib/weigh.js';
   import { STAGED } from '../lib/gear/importdb.js';
   import FavStar from '../lib/gear/FavStar.svelte';
   import GearRow from '../lib/gear/GearRow.svelte';
@@ -116,6 +117,13 @@
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
   let unusedOnly = $state(hashQ.get('unused') === '1');
+  // v0.43.0 (Wiege-Modus): what still needs the scale: bikes and bags first, then the items (weigh.js).
+  const toWeigh = $derived(weighQueue({ items, bikes: $bikesQ ?? [], containers: $bagsQ ?? [], extras: true }).length);
+  function startWeigh() {
+    if (gmoreEl) gmoreEl.open = false;
+    tab = 'weigh';
+    scrollTo({ top: 0 });
+  }
   const unused = $derived(longUnused(items, $tripsQ ?? [], $bikesQ ?? [], $bagsQ ?? [], new Date().toISOString().slice(0, 10)));
   const unusedIds = $derived(new Set((unused?.items ?? []).map((i) => i.id)));
   function setUnused(on) {
@@ -247,7 +255,6 @@
   // so a hidden item is never changed by mistake.
   const shown = $derived(tab === 'wishlist' ? wishlist.map((w) => w.item) : inventory);
   const chosen = $derived(shown.filter((i) => picked.has(i.id)));
-  let newCat = $state('');
   let busy = $state(false);
   // The last bulk change, kept in memory for ~10 s: { text, snap }. Raw: the snapshot goes back
   // into the database as it is (a $state proxy cannot be stored).
@@ -281,8 +288,11 @@
   // v0.26.0 (Noah 2a, AP11): "Into a building block…", "Onto a trip…" and the rest open the assign dialog.
   let assign = $state(null); // the kind: 'into' | 'out' | 'bag' | 'template' | 'trip'
   let moreEl = $state();
-  function openAssign(kind) {
+  function closeMore() {
     if (moreEl) moreEl.open = false;
+  }
+  function openAssign(kind) {
+    closeMore();
     assign = kind;
   }
   // Another tab is another list: start again.
@@ -308,22 +318,23 @@
       busy = false;
     }
   }
-  const moveTo = () =>
+  // v0.43.0 (Mehrfachauswahl): archive many at once, the same as "Archive" on one row (status Gone).
+  const archiveSel = () =>
     run(async () => {
-      const changed = bulkCategory(chosen, chosen.map((i) => i.id), newCat);
-      const n = chosen.length;
-      const cat = t(CATEGORY[newCat]?.name ?? newCat);
-      offerUndo(tn(n, '{n} item moved to {cat}. The IDs stay the same.', '{n} items moved to {cat}. The IDs stay the same.', { cat }), await saveItems(db, changed));
-      newCat = '';
+      closeMore();
+      const res = await archiveItems(db, chosen.map((i) => i.id));
+      offerUndo(tn(res.n, '{n} item archived. It stays in the look back.', '{n} items archived. They stay in the look back.'), res.snap);
     });
   const own = (ownership) =>
     run(async () => {
+      closeMore();
       const n = chosen.length;
       const snap = await saveItems(db, bulkOwnership(chosen, chosen.map((i) => i.id), ownership));
       offerUndo(ownership === 'wishlist' ? tn(n, '{n} item moved to the wishlist.', '{n} items moved to the wishlist.') : tn(n, '{n} item moved to my gear.', '{n} items moved to my gear.'), snap);
     });
   const remove = () =>
     run(async () => {
+      closeMore();
       const list = chosen;
       const ids = list.map((i) => i.id);
       const plan = await deletePlan(db, ids);
@@ -359,6 +370,8 @@
       <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeGmore(e)}>
         <summary class="btn sm" aria-label={t('More for Gear')}>•••</summary>
         <div class="gmenu">
+          <!-- v0.43.0 (Wiege-Modus): weigh one thing after the other -->
+          <button type="button" onclick={startWeigh}>{t('Record weights')}{#if toWeigh}<i class="badge num">{toWeigh}</i>{/if}</button>
           <a href="#/gear/import">{t('Check import')}{#if $stagedQ}<i class="badge num">{$stagedQ.data?.items?.length || t('Step 2')}</i>{/if}</a>
         </div>
       </details>
@@ -379,7 +392,7 @@
     <button type="button" role="tab" aria-selected={tab === 'inventory'} onclick={() => (tab = 'inventory')}>{t('Inventory')} <small>{stats.inventory.length}</small></button>
     <button type="button" role="tab" aria-selected={tab === 'wishlist'} onclick={() => (tab = 'wishlist')}>{t('Wishlist')} <small>{stats.wishlist.length}</small></button>
     <button type="button" role="tab" aria-selected={tab === 'dead'} onclick={() => (tab = 'dead')}>{t('Dead weight')} <small>{dead.dead.length}</small></button>
-    <button type="button" role="tab" aria-selected={tab === 'weigh'} onclick={() => (tab = 'weigh')}>{t('Weigh')} <small>{stats.unweighed}</small></button>
+    <button type="button" role="tab" aria-selected={tab === 'weigh'} onclick={() => (tab = 'weigh')}>{t('Weigh')} <small>{toWeigh}</small></button>
     <button type="button" role="tab" aria-selected={tab === 'check'} onclick={() => (tab = 'check')}>{t('Check')} <small>{toReview}</small></button>
   </div>
 
@@ -404,7 +417,7 @@
       <p class="sub small">{t('"Leave at home" makes it optional: new trips no longer pack it on their own.')}</p>
     </section>
   {:else if tab === 'weigh'}
-    <WeighMode {items} />
+    <WeighMode {items} extras onclose={() => (tab = 'inventory')} />
   {:else if tab === 'check'}
     <ReviewMode {items} />
   {:else}
@@ -487,6 +500,10 @@
               <button type="button" aria-pressed={showBag} onclick={() => setShowBag(true)}>{t('With bag')}</button>
             </span>
           </div>
+          {#if toWeigh && !selecting && !searching}
+            <!-- v0.43.0 (Wiege-Modus): one quiet row, no alarm -->
+            <p class="weighrow"><button type="button" class="link tap" onclick={startWeigh}>{t('{n} without weight · weigh', { n: toWeigh })}</button></p>
+          {/if}
           {#if filter.fav}
             <!-- v0.22.0 (AP05): what the favourites number counts, and where the others are. -->
             <p class="favbase">
@@ -613,35 +630,31 @@
           <!-- v0.26.0 (Noah 2a): "+ Add items" of a building block -->
           <button type="button" class="btn hi" disabled={!chosen.length || busy} onclick={fillIn}>{t('Into {block}', { block: fill.name })}</button>
         {:else}
-          <span class="mv">
-            <select class="sel" bind:value={newCat} aria-label={t('New category')} disabled={!chosen.length || busy}>
-              <option value="">{t('Category …')}</option>
-              {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
-            </select>
-            <button type="button" class="btn" disabled={!chosen.length || !newCat || busy} onclick={moveTo}>{t('Change category')}</button>
-          </span>
-          <!-- v0.26.0 (Noah 2a, 6a): category, building block and trip in sight; on a phone the rest under "More". -->
+          <!-- v0.43.0 (Mehrfachauswahl): the most used actions in sight, the rest under •••. -->
           <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('into')}>{t('Into a building block …')}</button>
-          <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('trip')}>{t('Onto a trip …')}</button>
-          {#snippet rest()}
-            <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('out')}>{t('Out of a building block …')}</button>
+          {#if !phone.matches}
             <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('bag')}>{t('Default bag …')}</button>
-            <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('template')}>{t('Into a template …')}</button>
-            {#if tab === 'wishlist'}
-              <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => own('owned')}>{t('To my gear')}</button>
-            {:else}
-              <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => own('wishlist')}>{t('To wishlist')}</button>
-            {/if}
-            <button type="button" class="btn danger" disabled={!chosen.length || busy} onclick={remove}>{t('Delete')}</button>
-          {/snippet}
-          {#if phone.matches}
-            <details class="more" bind:this={moreEl}>
-              <summary class="btn">{t('More')}</summary>
-              <div class="menu">{@render rest()}</div>
-            </details>
-          {:else}
-            {@render rest()}
+            <button type="button" class="btn" disabled={!chosen.length || busy} onclick={archiveSel}>{t('Archive')}</button>
           {/if}
+          <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+          <details class="more" bind:this={moreEl} onkeydown={(e) => e.key === 'Escape' && (closeMore(), moreEl.querySelector('summary')?.focus())}>
+            <summary class="btn" aria-label={t('More actions')}>•••</summary>
+            <div class="menu">
+              <button type="button" disabled={!chosen.length || busy} onclick={() => openAssign('out')}>{t('Out of a building block …')}</button>
+              {#if phone.matches}<button type="button" disabled={!chosen.length || busy} onclick={() => openAssign('bag')}>{t('Default bag …')}</button>{/if}
+              <button type="button" disabled={!chosen.length || busy} onclick={() => openAssign('area')}>{t('Area …')}</button>
+              <button type="button" disabled={!chosen.length || busy} onclick={() => openAssign('category')}>{t('Category …')}</button>
+              <button type="button" disabled={!chosen.length || busy} onclick={() => openAssign('trip')}>{t('Onto a trip …')}</button>
+              <button type="button" disabled={!chosen.length || busy} onclick={() => openAssign('template')}>{t('Into a template …')}</button>
+              {#if tab === 'wishlist'}
+                <button type="button" disabled={!chosen.length || busy} onclick={() => own('owned')}>{t('To my gear')}</button>
+              {:else}
+                <button type="button" disabled={!chosen.length || busy} onclick={() => own('wishlist')}>{t('To wishlist')}</button>
+              {/if}
+              {#if phone.matches}<button type="button" disabled={!chosen.length || busy} onclick={archiveSel}>{t('Archive')}</button>{/if}
+              <button type="button" class="del" disabled={!chosen.length || busy} onclick={remove}>{t('Delete')}</button>
+            </div>
+          </details>
         {/if}
       </div>
     {/if}
@@ -675,6 +688,9 @@
     <div class="rmf"><button type="button" class="btn" onclick={() => (rowMenu = null)}>{t('Close')}</button></div>
   {/if}
 </dialog>
+
+<!-- v0.43.0: a tap outside closes the ••• menus -->
+<svelte:window onclick={(e) => { if (moreEl?.open && !moreEl.contains(e.target)) moreEl.open = false; if (gmoreEl?.open && !gmoreEl.contains(e.target)) gmoreEl.open = false; }} />
 
 {#if dialog}
   <ItemDialog item={dialog.item} {items} preset={dialog.preset ?? {}} readOnly={phone.matches && !!dialog.item} onclose={() => (dialog = null)} />
@@ -1483,16 +1499,6 @@
   .bacts b {
     margin-right: auto;
   }
-  .bacts .mv {
-    display: flex;
-    gap: 6px;
-    flex: 0 1 460px;
-    min-width: 0;
-  }
-  .bacts .mv .sel {
-    flex: 1;
-    min-height: 40px;
-  }
   .bacts .btn {
     white-space: nowrap;
   }
@@ -1559,31 +1565,77 @@
   .blk {
     text-decoration: none;
   }
+  /* v0.43.0 (Mehrfachauswahl): ••• in the bar opens a short list upwards, over the page. */
   .more {
     position: relative;
   }
   .more summary {
     list-style: none;
     cursor: pointer;
+    min-width: 44px;
+    letter-spacing: 1px;
   }
   .more summary::-webkit-details-marker {
     display: none;
   }
-  .more summary::after {
-    content: ' ▴' / ''; /* v0.27.0 (AP21): only a picture, screen readers skip it */
-  }
   .more[open] summary {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--paper-2);
   }
   .more .menu {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding-top: 8px;
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 6px);
+    z-index: 6;
+    display: grid;
+    min-width: 230px;
+    max-width: calc(100vw - 24px);
+    max-height: min(70vh, 480px);
+    overflow-y: auto;
+    padding: 4px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(15, 46, 39, 0.16);
   }
-  .more[open] {
-    flex-basis: 100%;
+  .more .menu button,
+  .gmenu button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .gmenu button {
+    width: 100%;
+  }
+  .more .menu button:hover:not(:disabled),
+  .gmenu button:hover {
+    background: var(--paper-2);
+  }
+  .more .menu button:disabled {
+    color: var(--ink-3);
+    cursor: default;
+  }
+  .more .menu button.del {
+    color: var(--bad);
+    border-top: 1px solid var(--line);
+    border-radius: 0 0 6px 6px;
+  }
+  .weighrow {
+    margin: -4px 0 8px;
+    font-size: var(--fs-small);
+  }
+  .weighrow .link {
+    color: var(--ink-2);
   }
   .fillbar {
     margin-top: 4px;
@@ -1596,11 +1648,7 @@
     .bacts b {
       flex: 1 0 100%;
     }
-    .bacts .mv {
-      flex-basis: 100%;
-    }
-    .bacts > .btn,
-    .more .menu .btn {
+    .bacts > .btn {
       flex: 1 1 auto;
     }
   }

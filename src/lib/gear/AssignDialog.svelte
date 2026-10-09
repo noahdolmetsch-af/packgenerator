@@ -11,11 +11,13 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { BAGS, BAG } from '../gear.js';
+  import { BAGS, BAG, CATEGORIES, CATEGORY } from '../gear.js';
+  import { DOMAINS, domainName } from '../domains.js';
+  import Seg from '../ui/Seg.svelte';
   import { TEMPLATES_KEY } from '../templates.js';
   import { SETS_KEY, allSets, setName } from '../sets.js';
   import { assignSet, assignBag, assignTemplate, assignTrip, assignmentOf, currentTrip, upcomingTrips } from './assign.js';
-  import { undoBulk } from './bulk.js';
+  import { undoBulk, areaItems, categoryItems } from './bulk.js';
   import { localDay } from '../localday.js';
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
 
@@ -44,6 +46,7 @@
   let kind = $state(kind0 ?? 'into');
   let target = $state('');
   let newName = $state('');
+  let areaOnly = $state('add'); // v0.43.0: 'add' (also this area) or 'only' (only this area)
   let error = $state('');
   let done = $state.raw(null); // { text, snap } when the dialog stays open
   let busy = $state(false);
@@ -56,7 +59,12 @@
     { key: 'template', label: 'Into a template' },
     { key: 'trip', label: 'Onto a trip' },
   ];
-  const title = $derived(item ? t('Assign "{name}"', { name: nameOf(item) }) : t(KINDS.find((k) => k.key === kind)?.label ?? ''));
+  // v0.43.0 (Mehrfachauswahl): two more kinds for "Select" in Gear only (the item dialog has its own fields).
+  const BULK_KINDS = [
+    { key: 'area', label: 'Area' },
+    { key: 'category', label: 'Category' },
+  ];
+  const title = $derived(item ? t('Assign "{name}"', { name: nameOf(item) }) : t([...KINDS, ...BULK_KINDS].find((k) => k.key === kind)?.label ?? ''));
   // Out of a building block: only the blocks one of the items is in.
   const inSets = $derived(sets.filter((s) => picked.some((i) => i.sets?.includes(s.key))));
   const options = $derived(
@@ -64,6 +72,8 @@
     : kind === 'out' ? inSets.map((s) => ({ key: s.key, name: s.name }))
     : kind === 'bag' ? BAGS.map((b) => ({ key: b.key, name: t(b.name) }))
     : kind === 'template' ? templates.map((x) => ({ key: x.id, name: x.name }))
+    : kind === 'area' ? DOMAINS.map((d) => ({ key: d.key, name: t(d.name) }))
+    : kind === 'category' ? CATEGORIES.map((c) => ({ key: c.key, name: t(c.name) }))
     : trips.map((x) => ({ key: x.id, name: tripLabel(x) })),
   );
   function tripLabel(trip) {
@@ -121,6 +131,12 @@
       } else if (kind === 'template') {
         res = await assignTemplate(db, list, target);
         name = optionName(target);
+      } else if (kind === 'area') {
+        res = await areaItems(db, list, target, areaOnly === 'only');
+        name = t(domainName(target));
+      } else if (kind === 'category') {
+        res = await categoryItems(db, list, target);
+        name = t(CATEGORY[target]?.name ?? target);
       } else {
         res = await assignTrip(db, list, target);
         name = (trips.find((x) => x.id === target) ?? {}).title ?? '';
@@ -129,10 +145,10 @@
       busy = false;
     }
     const target2 = kind === 'out' ? t('out of {name}', { name }) : name;
-    const text = res.n ? tn(res.n, 'Done: {n} item → {target}', 'Done: {n} items → {target}', { target: target2 }) : t('Nothing to change: already like that ({target}).', { target: target2 });
+    const text = kind === 'category' && res.n ? tn(res.n, '{n} item moved to {cat}. The IDs stay the same.', '{n} items moved to {cat}. The IDs stay the same.', { cat: name }) : res.n ? tn(res.n, 'Done: {n} item → {target}', 'Done: {n} items → {target}', { target: target2 }) : t('Nothing to change: already like that ({target}).', { target: target2 });
     newName = '';
     // A new building block is a change even when its items were all in it already.
-    const snap = res.n || 'sets' in (res.snap ?? {}) ? res.snap : null;
+    const snap = res.n || 'sets' in (res.snap ?? {}) ? res.snap ?? null : null;
     if (ondone) {
       ondone({ text, snap });
       dialog.close();
@@ -168,7 +184,7 @@
       <p class="empty">{t('No templates yet. Save a trip as a template in Pack.')}</p>
     {:else}
       <div class="pick">
-        <label class="lbl" for="assign-target">{kind === 'bag' ? t('Default bag') : kind === 'template' ? t('Template') : kind === 'trip' ? t('Trip') : t('Building block')}</label>
+        <label class="lbl" for="assign-target">{kind === 'bag' ? t('Default bag') : kind === 'template' ? t('Template') : kind === 'trip' ? t('Trip') : kind === 'area' ? t('Area') : kind === 'category' ? t('Category') : t('Building block')}</label>
         <select id="assign-target" class="sel" bind:value={target}>
           {#each options as o (o.key)}<option value={o.key}>{o.name}</option>{/each}
           {#if kind === 'into'}<option value="__new">{t('New building block …')}</option>{/if}
@@ -177,8 +193,13 @@
       {#if kind === 'into' && target === '__new'}
         <div class="pick"><label class="lbl" for="assign-new">{t('Name of the new building block')}</label><input id="assign-new" class="inp" bind:value={newName} placeholder={t('e.g. Rain')} /></div>
       {/if}
+      {#if kind === 'area'}
+        <div class="pick"><Seg label={t('How|area')} value={areaOnly} options={[{ key: 'add', name: t('Also this area') }, { key: 'only', name: t('Only this area') }]} onchange={(k) => (areaOnly = k)} /></div>
+      {/if}
       <p class="what">
-        {#if kind === 'bag'}{t('Where the item goes on new trips. On a trip you can still move it.')}
+        {#if kind === 'area'}{areaOnly === 'only' ? t('The items belong only to this area; their other areas go.') : t('The items keep their areas and get this one too.')}
+        {:else if kind === 'category'}{t('The IDs stay the same, so trips, templates and bags keep them.')}
+        {:else if kind === 'bag'}{t('Where the item goes on new trips. On a trip you can still move it.')}
         {:else if kind === 'template'}{t('Missing items go in, each in its usual bag. Nothing is added twice.')}
         {:else if kind === 'trip'}{t('Missing items go onto the trip in their usual bag. What is packed stays packed.')}
         {:else if kind === 'out'}{t('Only the building block changes; trips stay as they are.')}

@@ -13,6 +13,8 @@
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import Seg from '../lib/ui/Seg.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
+  import { wearItems, undoBulk } from '../lib/gear/bulk.js';
+  import { SvelteSet } from 'svelte/reactivity';
   import { ChevronDown, MoreHorizontal, Undo2 } from '@lucide/svelte';
 
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -58,23 +60,50 @@
   const SHOWN = 3;
   const shown = $derived(showAll ? w.unsorted : w.unsorted.slice(0, SHOWN));
 
-  // The last change, for "Undo" (a classification is never lost).
-  let last = $state.raw(null); // { id, name, before: { layer, zone } }
+  // The last change, for "Undo" (a classification is never lost). v0.43.0: one snapshot (bulk.js),
+  // the same for one piece and for many.
+  let last = $state.raw(null); // { text, snap }
   let timer;
-  async function setField(item, patch) {
-    const before = { layer: item.layer ?? null, zone: item.zone ?? null };
-    await db.items.update(item.id, { ...patch, updatedAt: new Date().toISOString() });
-    last = { id: item.id, name: nameOf(item), before };
+  function offer(text, snap) {
     clearTimeout(timer);
+    last = { text, snap };
     timer = setTimeout(() => (last = null), 10000);
+  }
+  async function setField(item, patch) {
+    const res = await wearItems(db, [item.id], patch);
+    if (res.n) offer(t('{name} sorted', { name: nameOf(item) }), res.snap);
   }
   const setLayer = (item, key) => setField(item, { layer: key });
   const setZone = (item, key) => setField(item, { zone: ZONES.find((z) => z.key === key).set });
   async function undo() {
     if (!last) return;
-    const { id, before } = last;
+    const { snap } = last;
+    clearTimeout(timer);
     last = null;
-    await db.items.update(id, before);
+    if (snap) await undoBulk(db, snap);
+  }
+  $effect(() => () => clearTimeout(timer));
+
+  /* ---------- v0.43.0 (Mehrfachauswahl): layer and zone for many pieces at once ---------- */
+  let selecting = $state(false);
+  const picked = new SvelteSet();
+  const chosen = $derived(w.all.filter((i) => picked.has(i.id)));
+  let menu = $state(null); // 'layer' | 'zone' while its list is open
+  function setSelecting(on) {
+    selecting = on;
+    picked.clear();
+    menu = null;
+    openRow = null;
+  }
+  const flipPick = (id) => (picked.has(id) ? picked.delete(id) : picked.add(id));
+  async function bulkSet(kind, key) {
+    menu = null;
+    const ids = chosen.map((i) => i.id);
+    const patch = kind === 'layer' ? { layer: key } : { zone: ZONES.find((z) => z.key === key).set };
+    const res = await wearItems(db, ids, patch);
+    const name = kind === 'layer' ? layerName(key) : zoneName(key);
+    offer(res.n ? tn(res.n, '{n} piece → {name}', '{n} pieces → {name}', { name }) : t('Nothing to change: already like that ({target}).', { target: name }), res.snap);
+    picked.clear();
   }
 
   /* ---------- a row's own menu ---------- */
@@ -92,6 +121,10 @@
   <div class="bar">
     <Seg label={t('Use|wardrobe')} full={false} value={use} options={USES.map((u) => ({ key: u.key, name: t(u.name) }))} onchange={setUse} />
     <span class="n num">{use === 'all' ? tn(w.n, '{n} piece', '{n} pieces') : t('{n} for {use}', { n: w.n, use: t(USES.find((u) => u.key === use).name) })}</span>
+    {#if w.n}
+      {#if selecting}<button type="button" class="btn sm" disabled={chosen.length === w.all.length} onclick={() => w.all.forEach((i) => picked.add(i.id))}>{t('Select all')}</button>{/if}
+      <button type="button" class="btn sm" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
+    {/if}
   </div>
 
   {#if $itemsQ && !w.n}
@@ -109,11 +142,15 @@
           <ul class="srows">
             {#each shown as u (u.item.id)}
               <li>
+                {#if selecting}
+                  {@render pickRow(u.item)}
+                {:else}
                 <p class="sname"><span>{nameOf(u.item)}</span><span class="w num">{weight(u.item)}</span></p>
                 <div class="segs">
                   <Seg small full={false} label={t('Layer of {name}', { name: nameOf(u.item) })} value={u.layer} suggest={u.guessLayer} options={layerOpts} onchange={(k) => setLayer(u.item, k)} />
                   <Seg small full={false} label={t('Body zone of {name}', { name: nameOf(u.item) })} value={u.zone} suggest={u.guessZone} options={zoneOpts} onchange={(k) => setZone(u.item, k)} />
                 </div>
+                {/if}
               </li>
             {/each}
           </ul>
@@ -132,6 +169,9 @@
           {#each z.items as i (i.id)}
             {@const open = openRow === i.id}
             <li class:open>
+              {#if selecting}
+                {@render pickRow(i, temp(i))}
+              {:else}
               <div class="row">
                 <span class="nm">{nameOf(i)}{#if i.ownership === 'wishlist' || i.ownership === 'to-buy'}<i class="badge">{t('Wishlist')}</i>{/if}</span>
                 <span class="tc num">{temp(i)}</span>
@@ -145,6 +185,7 @@
                   <button type="button" class="btn sm" onclick={() => ((editing = i), (openRow = null))}>{t('Edit item')}</button>
                 </div>
               {/if}
+              {/if}
             </li>
           {/each}
         </ul>
@@ -157,10 +198,42 @@
   {/if}
 </div>
 
-{#if last}
+{#snippet pickRow(item, tc = '')}
+  <!-- v0.43.0: in "Select" a tap anywhere on the row ticks its box. -->
+  <label class="row pick" class:on={picked.has(item.id)}>
+    <input type="checkbox" checked={picked.has(item.id)} onchange={() => flipPick(item.id)} aria-label={nameOf(item)} />
+    <span class="nm">{nameOf(item)}</span>
+    {#if tc}<span class="tc num">{tc}</span>{/if}
+    <span class="w num">{weight(item)}</span>
+  </label>
+{/snippet}
+
+<svelte:window onclick={(e) => menu && !e.target.closest?.('.mwrap') && (menu = null)} onkeydown={(e) => e.key === 'Escape' && menu && (menu = null)} />
+
+{#if selecting}
+  <div class="selpad" aria-hidden="true"></div>
+  <div class="selbar" role="region" aria-label={t('Selected clothing')}>
+    {#if last}
+      <p class="undo" role="status"><span>{last.text}</span>{#if last.snap}<button type="button" class="btn sm" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</p>
+    {/if}
+    <div class="bacts">
+      <b class="num" aria-live="polite">{tn(chosen.length, '{n} selected', '{n} selected')}</b>
+      {#each [['layer', t('Layer …'), layerOpts], ['zone', t('Zone …'), zoneOpts]] as [k, name, opts] (k)}
+        <span class="mwrap">
+          <button type="button" class="btn" aria-expanded={menu === k} disabled={!chosen.length} onclick={() => (menu = menu === k ? null : k)}>{name}</button>
+          {#if menu === k && chosen.length}
+            <span class="menu" role="group" aria-label={name}>
+              {#each opts as o (o.key)}<button type="button" onclick={() => bulkSet(k, o.key)}>{o.name}</button>{/each}
+            </span>
+          {/if}
+        </span>
+      {/each}
+    </div>
+  </div>
+{:else if last}
   <div class="toast" role="status">
-    <span>{t('{name} sorted', { name: last.name })}</span>
-    <button type="button" class="btn sm" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>
+    <span>{last.text}</span>
+    {#if last.snap}<button type="button" class="btn sm" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
   </div>
 {/if}
 
@@ -401,7 +474,99 @@
     color: var(--paper);
     text-decoration: underline;
   }
+  /* v0.43.0 (Mehrfachauswahl): the rows with a box and the bar at the bottom. */
+  .row.pick {
+    cursor: pointer;
+    margin: 0 -12px;
+    padding: 0 12px;
+  }
+  .srows .row.pick {
+    margin: -8px -12px;
+  }
+  .row.pick.on {
+    background: var(--paper-2);
+  }
+  .row.pick input {
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    flex: none;
+    accent-color: var(--ink);
+  }
+  .bar .btn[aria-pressed='true'] {
+    background: var(--paper-2);
+  }
+  .selpad {
+    height: 140px;
+  }
+  .selbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    background: var(--paper);
+    border-top: 1.5px solid var(--line-strong);
+    box-shadow: 0 -4px 14px rgb(0 0 0 / 0.08);
+    padding: 8px max(16px, calc((100vw - 800px) / 2)) calc(8px + env(safe-area-inset-bottom));
+  }
+  .selbar .undo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin: 0 0 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  .selbar .undo span {
+    flex: 1 1 160px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .bacts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .bacts b {
+    margin-right: auto;
+  }
+  .mwrap {
+    position: relative;
+  }
+  .mwrap .menu {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 6px);
+    display: grid;
+    min-width: 170px;
+    padding: 4px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(15, 46, 39, 0.16);
+  }
+  .mwrap .menu button {
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .mwrap .menu button:hover {
+    background: var(--paper-2);
+  }
   @media (max-width: 719px) {
+    .selbar {
+      bottom: calc(76px + env(safe-area-inset-bottom));
+      padding-bottom: 8px;
+    }
     .toast {
       bottom: calc(76px + env(safe-area-inset-bottom));
     }
