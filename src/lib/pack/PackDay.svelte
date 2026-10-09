@@ -20,7 +20,7 @@
   import '../trip/trip.css';
 
   let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, bike = true, lessons = [], oncharge = null, pressure = '' } = $props();
-  // v0.62.0 «Velo-Masse»: pressure: the trip bike's target pressure («1.6 / 1.7 bar»), named in the tyre row.
+  // v0.65.0 «Velo-Masse»: pressure: the trip bike's target pressure («1.6 / 1.7 bar»), named in the tyre row.
   const readyLabel = (r) => (r.id === 'tyres' && pressure ? `${t(r.label)} · ${t('Target')} ${pressure}` : t(r.label));
   const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${t(RAIN[w.rain ?? 'none'])}`;
   const READY = '__ready';

@@ -1,4 +1,4 @@
-/** v0.62.0 «Velo-Masse»: the fit and setup block of every bike (bikespecs.js FIT, bikes/FitCard.svelte). */
+/** v0.65.0 «Velo-Masse»: the fit and setup block of every bike (bikespecs.js FIT, bikes/FitCard.svelte). */
 export default {
   'Fit and setup': 'Masse',
   'Saddle height': 'Sitzhöhe',

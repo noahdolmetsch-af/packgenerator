@@ -1,4 +1,4 @@
-// v0.62.0 «Velo-Masse»: the fit and setup block on the bike page, first in «Compare bikes», the
+// v0.65.0 «Velo-Masse»: the fit and setup block on the bike page, first in «Compare bikes», the
 // target pressure in the tyre service and the base check, and the bikeSpecs import with fit.
 // Fictional data only (v0620 fixture, all names start with test_data_gtp_).
 import { test, expect } from '@playwright/test';

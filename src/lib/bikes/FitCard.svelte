@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.62.0 «Velo-Masse» (Noah: «zwingend die Sitzhöhe, der gewünschte Reifendruck, die Lenkerbreite
+   * v0.65.0 «Velo-Masse» (Noah: «zwingend die Sitzhöhe, der gewünschte Reifendruck, die Lenkerbreite
    * … sowie weitere angezeigt»): the bike's fit and setup numbers at the top of its page, always open.
    * A grid of label + value (two columns on a phone, four on a wide screen), Noah's three first
    * (bikespecs.js FIT). An empty value is a calm «–»; a tap edits it in place (number keyboard, the

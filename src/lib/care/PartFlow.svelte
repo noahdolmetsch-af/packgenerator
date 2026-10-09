@@ -52,7 +52,7 @@
   let did = $state([]);
   const toggleDid = (k) => (did = did.includes(k) ? did.filter((x) => x !== k) : [...did, k]);
   let sealant = $state('');
-  // v0.62.0 «Velo-Masse»: «Pressure checked» asks for the pressure, prefilled with the bike's target
+  // v0.65.0 «Velo-Masse»: «Pressure checked» asks for the pressure, prefilled with the bike's target
   // (bike.fit pressureF / pressureR), and shows the target beside the last measured value.
   // svelte-ignore state_referenced_locally
   const target = p.key === 'tyres' ? targetPressure(bike) : null;

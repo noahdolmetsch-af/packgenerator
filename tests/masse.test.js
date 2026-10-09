@@ -1,4 +1,4 @@
-// v0.62.0 «Velo-Masse»: the fit and setup block (bikespecs.js FIT), the move of the old
+// v0.65.0 «Velo-Masse»: the fit and setup block (bikespecs.js FIT), the move of the old
 // geometry.seatHeight, the import with fit, the comparison rows and the target pressure.
 // Fictional bikes only (test_data_gtp_).
 import 'fake-indexeddb/auto';

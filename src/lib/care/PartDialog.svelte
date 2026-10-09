@@ -84,7 +84,7 @@
   }
 
   const hint = $derived(replaceHint(part));
-  // v0.62.0: the bike's target pressure beside the pressure fields («Soll 1.6»).
+  // v0.65.0: the bike's target pressure beside the pressure fields («Soll 1.6»).
   const target = $derived(part.key === 'tyres' ? targetPressure(bike) : null);
   const targetOf = (k) => (k === 'pressureF' ? target?.f : k === 'pressureR' ? target?.r : null);
   const sinceNew = $derived(kmSince(bike, lastReplace(part)));

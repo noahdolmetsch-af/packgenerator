@@ -237,7 +237,7 @@
   {:else if bike}
     <SetupBand {bikes} {bike} {setup} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} />
 
-    <!-- v0.62.0 «Velo-Masse» (Noah): the fit and setup numbers, always open, at the top of the bike. -->
+    <!-- v0.65.0 «Velo-Masse» (Noah): the fit and setup numbers, always open, at the top of the bike. -->
     {#key bike.id}<FitCard {bike} />{/key}
 
     <div class="cols">

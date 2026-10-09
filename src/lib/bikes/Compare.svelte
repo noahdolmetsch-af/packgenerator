@@ -5,7 +5,7 @@
    * (travel, stack, reach, wheel size), then the parts shown by default per area, the geometry, the
    * rest under «More», and the weight per area at the bottom. An empty cell is a calm «–»; a tap on
    * any cell opens a small sheet to type the value. Values that differ get a soft background.
-   * v0.62.0 «Velo-Masse»: the fit and setup rows (saddle height, target pressure, bar width …) come
+   * v0.65.0 «Velo-Masse»: the fit and setup rows (saddle height, target pressure, bar width …) come
    * first of all and are always shown, never under «More».
    * Phone: the first column stays, the bike columns scroll inside the table, never the page.
    */

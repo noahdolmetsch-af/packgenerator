@@ -11,7 +11,7 @@
   import { Check } from '@lucide/svelte';
 
   let { trip, bike = null } = $props();
-  // v0.62.0 «Velo-Masse»: the tyre pressure row names the bike's target pressure when it is set.
+  // v0.65.0 «Velo-Masse»: the tyre pressure row names the bike's target pressure when it is set.
   const target = $derived(pressureText(targetPressure(bike), num));
   const label = (r) => (r.id === 'tyres' && target ? `${t(r.label)} · ${t('Target')} ${target}` : t(r.label));
 

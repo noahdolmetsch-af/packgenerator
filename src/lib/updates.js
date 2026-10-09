@@ -485,7 +485,7 @@ export async function basicCheck2026(db) {
 export const flowSeed2026 = (db) => ensureSeed(db);
 
 /**
- * v0.62.0 «Velo-Masse»: the saddle height moved from the geometry to the fit block. Every bike with
+ * v0.65.0 «Velo-Masse»: the saddle height moved from the geometry to the fit block. Every bike with
  * geometry.seatHeight gets it as fit.seatHeight (a value typed in fit stays) and loses the old field.
  * Idempotent: it checks the data itself, so it runs on every start and after an import.
  */

@@ -8,12 +8,19 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.62.0
+  // 0.65.0
   'Every bike shows its fit and setup at the top: saddle height, target tyre pressure, bar width and more. Tap a value to change it.':
     'Jedes Velo zeigt oben seine Masse: Sitzhöhe, Solldruck der Reifen, Lenkerbreite und mehr. Tippe auf einen Wert, um ihn zu ändern.',
   '"Compare bikes" starts with these numbers for all bikes.': '«Velos vergleichen» beginnt mit diesen Werten für alle Velos.',
   'Checking the tyre pressure shows the target beside the last value and fills it in; the base check names it too.':
     'Beim Reifendruck-Prüfen steht der Solldruck neben dem letzten Wert und ist schon eingetragen; auch der Basischeck nennt ihn.',
+  // 0.63.0
+  'An item opens short: its name, its weight and one line on how it comes along. Everything else is a row that opens with one tap, one at a time.':
+    'Ein Teil öffnet kurz: Name, Gewicht und eine Zeile, wie es mitkommt. Alles andere ist eine Zeile, die sich mit einem Tipp öffnet, immer nur eine.',
+  'Lighter alternatives from your own gear: the one you linked first, then up to two suggestions. "Doesn\'t fit" hides one, with Undo.':
+    'Leichtere Alternativen aus deinem Material: zuerst die verknüpfte, dann bis zu zwei Vorschläge. «Passt nicht» blendet einen aus, mit Rückgängig.',
+  '"Never used" explains its rule when it is empty and shows what is on the way there: taken once or twice and never used.':
+    '«Nie gebraucht» erklärt leer seine Regel und zeigt, was auf dem Weg dahin ist: ein- oder zweimal dabei und nie gebraucht.',
   // 0.61.0
   '"Your pace" says your rule in one sentence. From 5 rides it guesses the riding time everywhere by itself, and "Back to the standard rule" undoes that with one tap.':
     '«Dein Tempo» sagt deine Regel in einem Satz. Ab 5 Fahrten schätzt sie die Fahrzeit überall von selbst, und «Zurück zur Standardregel» macht das mit einem Tipp rückgängig.',

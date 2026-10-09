@@ -10,12 +10,21 @@
 
 export const WHATS_NEW = [
   {
-    version: '0.62.0',
+    version: '0.65.0',
     date: '2026-10-09',
     points: [
       { text: 'Every bike shows its fit and setup at the top: saddle height, target tyre pressure, bar width and more. Tap a value to change it.', href: '#/bikes' },
       { text: '"Compare bikes" starts with these numbers for all bikes.', href: '#/bikes' },
       { text: 'Checking the tyre pressure shows the target beside the last value and fills it in; the base check names it too.', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
+    version: '0.63.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'An item opens short: its name, its weight and one line on how it comes along. Everything else is a row that opens with one tap, one at a time.', href: '#/gear' },
+      { text: 'Lighter alternatives from your own gear: the one you linked first, then up to two suggestions. "Doesn\'t fit" hides one, with Undo.', href: '#/gear' },
+      { text: '"Never used" explains its rule when it is empty and shows what is on the way there: taken once or twice and never used.', href: '#/gear?view=never' },
     ],
   },
   {

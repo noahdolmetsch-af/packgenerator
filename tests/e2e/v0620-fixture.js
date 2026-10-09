@@ -1,4 +1,4 @@
-// v0.62.0 «Velo-Masse»: the fictional v048 data set (all names start with test_data_gtp_) plus fit
+// v0.65.0 «Velo-Masse»: the fictional v048 data set (all names start with test_data_gtp_) plus fit
 // values: the Spark with saddle height, target pressures, bar width and a measured pressure; the
 // Scale with an old geometry.seatHeight (moved to fit on import); a planned ride on the Spark today.
 import { writeFileSync } from 'node:fs';

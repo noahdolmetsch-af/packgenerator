@@ -562,6 +562,8 @@ test('PF09: category of an item linked to a trip, a template, a block and a lear
   await page.getByRole('searchbox', { name: T('Search gear') }).fill(nm('KL05'));
   await rec.click(page.getByRole('button', { name: new RegExp(esc(nm('KL05'))) }).first());
   const dlg = page.getByRole('dialog', { name: new RegExp(esc(nm('KL05'))) });
+  // v0.63.0: the category sits in the row «Name, brand, note», which folds away (one tap more)
+  await rec.click(dlg.locator('details.fold[data-fold="details"] > summary'));
   await rec.select(dlg.getByLabel(new RegExp(`^${esc(T('Category'))}`)), 'onbike');
   await rec.click(dlg.getByRole('button', { name: T('Save') }));
   await expect(dlg).toBeHidden();

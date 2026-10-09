@@ -18,7 +18,7 @@ import DE from './i18n/de/index.js';
 export const SPECS_KIND = 'bikeSpecs';
 
 /** The geometry block of a bike: key, English name (German via t()), unit. */
-// v0.62.0: the saddle height moved to FIT; an old geometry.seatHeight is still read (fitValue) and
+// v0.65.0: the saddle height moved to FIT; an old geometry.seatHeight is still read (fitValue) and
 // moved once by updates.js fitMove2026.
 export const GEOMETRY = [
   { key: 'seatTube', name: 'Seat tube', unit: 'mm' },
@@ -35,7 +35,7 @@ export const GEOMETRY = [
 ];
 
 /**
- * v0.62.0 «Velo-Masse» (Noah: «zwingend die Sitzhöhe, der gewünschte Reifendruck, die Lenkerbreite»):
+ * v0.65.0 «Velo-Masse» (Noah: «zwingend die Sitzhöhe, der gewünschte Reifendruck, die Lenkerbreite»):
  * the fit and setup numbers of a bike, always shown on the bike page and first in «Compare bikes».
  * Stored on bike.fit (key → value). Noah's three come first. Two kinds of rows live on a part
  * already (one value, one place): the crank length (crank attrs.length) and the tyre widths (tyres
@@ -294,7 +294,7 @@ const slug = (s) => low(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a
 export const isSpecsFile = (data) => !!data && typeof data === 'object' && data.kind === SPECS_KIND && (typeof data.bike === 'string' || Array.isArray(data.bikes));
 
 const obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
-/** The entries of a spec file: [{ bike, parts, geometry, fit }] (v0.62.0: fit, also «masse»). */
+/** The entries of a spec file: [{ bike, parts, geometry, fit }] (v0.65.0: fit, also «masse»). */
 export const specEntries = (data) => (Array.isArray(data.bikes) ? data.bikes : [data]).map((e) => ({ bike: e.bike ?? '', parts: Array.isArray(e.parts) ? e.parts : [], geometry: obj(e.geometry), fit: { ...obj(e.masse), ...obj(e.fit) } }));
 
 /** The bike whose name matches (ignoring case and spaces); else the one bike whose name contains it. */
@@ -373,7 +373,7 @@ export function planSpecs(bike, entry) {
       }
     });
   }
-  // v0.62.0: a fit value in the geometry block (the old «Sitzhöhe») goes to fit.
+  // v0.65.0: a fit value in the geometry block (the old «Sitzhöhe») goes to fit.
   const fitLine = (k, v) => {
     const fk = fitKey(k);
     if (!fk) return false;
@@ -407,7 +407,7 @@ export function applySpecs(bike, plan, allow = new Set()) {
     else if (c.target === 'fit') fit[c.key] = c.value;
     else parts = parts.map((p) => (p.key === c.key ? write(p, c.field, c.value) : p));
   }
-  if (fit.seatHeight != null) delete geometry.seatHeight; // moved to fit (v0.62.0)
+  if (fit.seatHeight != null) delete geometry.seatHeight; // moved to fit (v0.65.0)
   return { parts, geometry, fit };
 }
 
@@ -446,7 +446,7 @@ export function hasSpecs(bike) {
  * wheel size), then per area the parts shown by default, the geometry, and under «More» the other
  * parts (also own parts of any bike, by key). Each part has a row per field and attribute; every
  * row has the value of each bike and whether the filled values differ.
- * v0.62.0: the fit rows («Fit and setup», FIT) come first of all, always shown (suspension rows only
+ * v0.65.0: the fit rows («Fit and setup», FIT) come first of all, always shown (suspension rows only
  * when one of the bikes has that suspension or a value).
  * Returns { fit: group, top, main: [group], geo: group, more: [group] } with group = { area, name, rows } and
  * row = { id, key, field, part, first, label, unit, num, values: [v|null], differ }.

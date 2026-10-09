@@ -17,11 +17,12 @@
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
-  import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight } from '@lucide/svelte';
+  import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock } from '@lucide/svelte';
   import { isClothing } from '../wardrobe.js';
   import { shrinkImage } from '../photo.js';
   import ItemLife from './ItemLife.svelte';
-  import { materialStats, tripLog } from './material.js';
+  import { materialStats, tripLog, usageOf, lighterAlts, ALT_DISMISSED_KEY } from './material.js';
+  import { comesLine, blockNames, ruleNames, placeName, weightState, lifeLine, lastFold, keepFold, nextFold, blockLabel } from './detail.js';
 
   /**
    * item: the item to show, or null for "Add item".
@@ -94,12 +95,31 @@
   // v0.32.0 (finding 5, stage 1): "Where it goes" and "Comes along · Building blocks". v0.33.0: the
   // buttons write the new fields (sets 'standard', leaveHome) and the old ones in step (comes.js).
   const comes = $derived(comesOf(draft));
-  const blockLabel = (b) => (b.builtIn ? b.name.replace(/^(Night|Nacht): /, '') : b.name);
   const inBlock = (key) => !!draft.sets?.includes(key);
   const toggleBlock = (key) => (draft.sets = inBlock(key) ? draft.sets.filter((x) => x !== key) : [...(draft.sets ?? []), key]);
   const bagChoices = $derived(BAGS.filter((b) => b.key !== 'body' || draft.defaultBag === 'body'));
   const layerCount = $derived(['ride', 'coldBelow', 'rain', 'perHours', 'maxQty', 'replaces', 'altFor', 'waterL'].filter((k) => String(draft[k] ?? '').trim() !== '').length);
   const detailLine = $derived([draft.brand, draft.model].filter((x) => String(x ?? '').trim()).join(' · '));
+
+  /*
+   * v0.63.0 «Material-Detail ruhig» (Noah 1a): at the top only the name, the weight with its status
+   * and one line on how it comes along; every other part folds away as a row with a short summary,
+   * one row open at a time. The row opened last stays open for the session (detail.js). Building
+   * blocks start folded like the rest. Every field is still here, only one tap further.
+   */
+  let openFold = $state(lastFold('item'));
+  function onFold(key, open) {
+    const next = nextFold(openFold, key, open);
+    if (next === openFold) return;
+    openFold = next;
+    keepFold('item', next);
+  }
+  const summary = $derived(comesLine(draft, blocks));
+  const gramsNow = $derived(String(draft.grams ?? '').trim());
+  const wState = $derived(gramsNow === '' ? t('not weighed') : item && parseGrams(gramsNow) === item.weightG ? weightState(item) : t('weighed'));
+  const ruleLine = $derived(ruleNames(draft).join(' · ') || (layerCount ? tn(layerCount, '{n} rule', '{n} rules') : t('not set')));
+  const dismissedQ = liveQuery(() => db.settings.get(ALT_DISMISSED_KEY));
+  const lifeSum = $derived(life && item ? lifeLine(usageOf(life.stats, item.id), lighterAlts($liveQ ?? item, allItems, $dismissedQ?.value?.[item.id] ?? []).length) : '');
   // v0.37.0 (Noah 4a): clothing that is also a worn bag (a vest with pockets). The switch makes a bag
   // record on Back (backpacks.js); the item stays here as clothing. Saved with "Save".
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -249,57 +269,63 @@
   <p class="wide moved" role="status">{t('New category: {cat}. The ID {id} stays the same, so trips, templates, bags and favourites keep this item.', { cat: t(CATEGORY[draft.category]?.name ?? draft.category), id: draft.id })}</p>
 {/snippet}
 
+<!-- v0.63.0 (Noah 1a): one row that folds away; only one is open at a time (onFold). -->
+{#snippet fold(key, Icon, title, value, body)}
+  <details class="fold" data-fold={key} open={openFold === key} ontoggle={(e) => onFold(key, e.currentTarget.open)}>
+    <summary><Icon size={18} aria-hidden="true" /><span class="ft">{title}</span><span class="fv">{value}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+    <div class="fbody">{@render body()}</div>
+  </details>
+{/snippet}
+
 <!-- v0.32.0 (finding 5, stage 1): one question, "Does it come along?", in two words: the place
-     "On me" and building blocks. The role field and the tick "On every trip" are gone from view. -->
-{#snippet comesAlong()}
-  <section class="ca" aria-labelledby="where-h">
-    <h3 class="sh" id="where-h">{t('Where it goes')}</h3>
-    <div class="seg" role="group" aria-labelledby="where-h">
-      <button type="button" class="segb" aria-pressed={comes.body} onclick={() => Object.assign(draft, setPlace(draft, 'body'))}><UserRound size={18} aria-hidden="true" /> {t('On me')}</button>
-      <button type="button" class="segb" aria-pressed={!comes.body} onclick={() => Object.assign(draft, setPlace(draft, 'bag'))}><Briefcase size={18} aria-hidden="true" /> {t('In a bag')}</button>
+     "On me" and building blocks. v0.63.0: each its own row that folds away. -->
+{#snippet whereBody()}
+  <div class="seg" role="group" aria-label={t('Where it goes')}>
+    <button type="button" class="segb" aria-pressed={comes.body} onclick={() => Object.assign(draft, setPlace(draft, 'body'))}><UserRound size={18} aria-hidden="true" /> {t('On me')}</button>
+    <button type="button" class="segb" aria-pressed={!comes.body} onclick={() => Object.assign(draft, setPlace(draft, 'bag'))}><Briefcase size={18} aria-hidden="true" /> {t('In a bag')}</button>
+  </div>
+  {#if !comes.body && !readOnly}
+    <label class="bagsel"><span class="lbl">{t('Usual bag')}</span>
+      <select class="sel" bind:value={draft.defaultBag}>
+        {#each bagChoices as b (b.key)}<option value={b.key}>{t(b.name)}</option>{/each}
+      </select>
+    </label>
+  {:else if !comes.body && BAG[draft.defaultBag]}
+    <p class="quiet">{t('Usual bag')}: {t(BAG[draft.defaultBag])}</p>
+  {/if}
+  {#if canBeBag}
+    <div class="alsobag">
+      <label class="cb"><input type="checkbox" checked={alsoOn} onchange={(e) => { alsoTouched = true; alsoOn = e.currentTarget.checked; }} /> {t('Also a bag on my back (e.g. a vest with pockets)')}</label>
+      {#if alsoOn}<label class="alsol"><span class="lbl">{t('Litres')}</span><input class="inp num" type="text" inputmode="decimal" value={alsoL} oninput={(e) => { alsoTouched = true; alsoL = e.currentTarget.value; }} placeholder={t('unknown')} /></label>
+        <p class="quiet">{t('It stays in your clothing and can be chosen as the bag on Back.')}</p>{/if}
     </div>
-    {#if !comes.body && !readOnly}
-      <label class="bagsel"><span class="lbl">{t('Usual bag')}</span>
-        <select class="sel" bind:value={draft.defaultBag}>
-          {#each bagChoices as b (b.key)}<option value={b.key}>{t(b.name)}</option>{/each}
-        </select>
-      </label>
-    {:else if !comes.body && BAG[draft.defaultBag]}
-      <p class="quiet">{t('Usual bag')}: {t(BAG[draft.defaultBag])}</p>
-    {/if}
-    {#if canBeBag}
-      <div class="alsobag">
-        <label class="cb"><input type="checkbox" checked={alsoOn} onchange={(e) => { alsoTouched = true; alsoOn = e.currentTarget.checked; }} /> {t('Also a bag on my back (e.g. a vest with pockets)')}</label>
-        {#if alsoOn}<label class="alsol"><span class="lbl">{t('Litres')}</span><input class="inp num" type="text" inputmode="decimal" value={alsoL} oninput={(e) => { alsoTouched = true; alsoL = e.currentTarget.value; }} placeholder={t('unknown')} /></label>
-          <p class="quiet">{t('It stays in your clothing and can be chosen as the bag on Back.')}</p>{/if}
-      </div>
-    {/if}
-  </section>
-  <section class="ca" aria-labelledby="blocks-h">
-    <h3 class="sh" id="blocks-h">{t('Comes along')} · {t('Building blocks')}</h3>
-    <div class="chips" role="group" aria-labelledby="blocks-h">
-      <button type="button" class="chip" aria-pressed={comes.standard} onclick={() => Object.assign(draft, setStandard(draft, !comes.standard))}>
-        {#if comes.standard}<Check size={16} aria-hidden="true" />{:else}<Plus size={16} aria-hidden="true" />{/if}
-        {t('Standard|block')} <small>{t('every trip')}</small>
-      </button>
-      {#each blocks.filter((b) => blockKind(b.key) !== 'night') as b (b.key)}{@render blockChip(b)}{/each}
+  {/if}
+{/snippet}
+
+<!-- The chips read every block from allSets() as before, so new blocks show up here by themselves. -->
+{#snippet blocksBody()}
+  <div class="chips" role="group" aria-label={`${t('Comes along')} · ${t('Building blocks')}`}>
+    <button type="button" class="chip" aria-pressed={comes.standard} onclick={() => Object.assign(draft, setStandard(draft, !comes.standard))}>
+      {#if comes.standard}<Check size={16} aria-hidden="true" />{:else}<Plus size={16} aria-hidden="true" />{/if}
+      {t('Standard|block')} <small>{t('every trip')}</small>
+    </button>
+    {#each blocks.filter((b) => blockKind(b.key) !== 'night') as b (b.key)}{@render blockChip(b)}{/each}
+  </div>
+  <!-- v0.40.0 (design check R2): "with a night" once as a light subheading, not on every chip. -->
+  {#if blocks.some((b) => blockKind(b.key) === 'night')}
+    <h4 class="subh" id="night-h">{t('Come with the overnight stay')}</h4>
+    <div class="chips" role="group" aria-labelledby="night-h">
+      {#each blocks.filter((b) => blockKind(b.key) === 'night') as b (b.key)}{@render blockChip(b)}{/each}
     </div>
-    <!-- v0.40.0 (design check R2): "with a night" once as a light subheading, not on every chip. -->
-    {#if blocks.some((b) => blockKind(b.key) === 'night')}
-      <h4 class="subh" id="night-h">{t('Come with the overnight stay')}</h4>
-      <div class="chips" role="group" aria-labelledby="night-h">
-        {#each blocks.filter((b) => blockKind(b.key) === 'night') as b (b.key)}{@render blockChip(b)}{/each}
-      </div>
-    {/if}
-    {#if comes.optional}
-      <p class="mark"><span class="badge">{t('Stays at home')}</span> <span class="quiet">{t('Marked in a debrief.')}</span> <button type="button" class="btn sm" onclick={() => Object.assign(draft, clearOptional(draft))}>{t('Take it along again')}</button></p>
-    {/if}
-    <!-- v0.40.0 (design check R1): the explanation folded as "What is a building block? ›". -->
-    <details class="whatis">
-      <summary><Info size={16} aria-hidden="true" /><span>{t('What is a building block?')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
-      <p class="info">{t('A building block is a group of items that comes along together. Standard is on every new trip. The blocks "with a night" come by themselves when the trip has a night; the others you add with one tap when you make a trip.')}</p>
-    </details>
-  </section>
+  {/if}
+  {#if comes.optional}
+    <p class="mark"><span class="badge">{t('Stays at home')}</span> <span class="quiet">{t('Marked in a debrief.')}</span> <button type="button" class="btn sm" onclick={() => Object.assign(draft, clearOptional(draft))}>{t('Take it along again')}</button></p>
+  {/if}
+  <!-- v0.40.0 (design check R1): the explanation folded as "What is a building block? ›". -->
+  <details class="whatis">
+    <summary><Info size={16} aria-hidden="true" /><span>{t('What is a building block?')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+    <p class="info">{t('A building block is a group of items that comes along together. Standard is on every new trip. The blocks "with a night" come by themselves when the trip has a night; the others you add with one tap when you make a trip.')}</p>
+  </details>
 {/snippet}
 
 {#snippet blockChip(b)}
@@ -309,27 +335,28 @@
   </button>
 {/snippet}
 
-<!-- v0.32.0: the rest folds away (progressive disclosure), each row says what is inside. -->
-{#snippet inTemplates()}
-  <details class="fold">
-    <summary><Layers size={18} aria-hidden="true" /><span class="ft">{t('In templates')}</span><span class="fv num">{where.templates.length}{#if where.trip}{' · '}{t('on the current trip')}{/if}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
-    <div class="fbody">
-      {#if where.templates.length || where.trip}
-        <ul class="wl">
-          {#each where.templates as n (n)}<li>{t('Template "{name}"', { name: n })}</li>{/each}
-          {#if where.trip}<li>{t('Trip "{name}"', { name: where.trip.title })}</li>{/if}
-        </ul>
-      {:else}<p class="quiet">{t('In no template and not on the current trip.')}</p>{/if}
-      <button type="button" class="btn sm" onclick={() => (assigning = true)}>{t('Assign …')}</button>
-    </div>
-  </details>
+{#snippet templatesBody()}
+  {#if where.templates.length || where.trip}
+    <ul class="wl">
+      {#each where.templates as n (n)}<li>{t('Template "{name}"', { name: n })}</li>{/each}
+      {#if where.trip}<li>{t('Trip "{name}"', { name: where.trip.title })}</li>{/if}
+    </ul>
+  {:else}<p class="quiet">{t('In no template and not on the current trip.')}</p>{/if}
+  <button type="button" class="btn sm" onclick={() => (assigning = true)}>{t('Assign …')}</button>
 {/snippet}
 
-{#snippet folds()}
-  {#if !isNew}{@render inTemplates()}{/if}
-  <details class="fold">
-    <summary><Route size={18} aria-hidden="true" /><span class="ft">{t('For weather and riding time')}</span><span class="fv">{layerCount ? tn(layerCount, '{n} rule', '{n} rules') : t('not set')}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
-    <div class="fbody layers">
+{#snippet rulesBody()}
+  {#if readOnly}
+    <dl class="facts">
+      {#if item.ride}<div><dt>{t('Layer')}</dt><dd>{t(RIDES.find((r) => r.key === item.ride)?.name ?? '')}</dd></div>{/if}
+      {#if item.coldBelow != null}<div><dt>{t('Add when colder than')}</dt><dd>{item.coldBelow} °C</dd></div>{/if}
+      {#if item.rain}<div><dt>{t('Rain')}</dt><dd>{t(RAIN_ITEM[item.rain] ?? '')}</dd></div>{/if}
+      {#if item.perHours}<div><dt>{t('Amount')}</dt><dd>{t('1 per {n} h', { n: item.perHours })}{item.maxQty ? `, ${t('at most {n}', { n: item.maxQty })}` : ''}</dd></div>{/if}
+      {#if item.replaces}<div><dt>{t('On me, instead of')}</dt><dd>{nameOf(items.find((i) => i.id === item.replaces)) || item.replaces}</dd></div>{/if}
+    </dl>
+    {#if !item.ride && item.coldBelow == null && !item.rain && !item.perHours && !item.replaces}<p class="quiet">{t('not set')}</p>{/if}
+  {:else}
+    <div class="layers">
       <label><span class="lbl">{t('From this ride on')}</span>
         <select class="sel" bind:value={draft.ride}>
           <option value="">–</option>
@@ -359,10 +386,48 @@
       </label>
       <label><span class="lbl">{t('Water in it (L)')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.waterL} placeholder={t('e.g. {x}', { x: '0.75' })} /></label>
     </div>
-  </details>
-  <details class="fold">
-    <summary><FileText size={18} aria-hidden="true" /><span class="ft">{t('Brand, model, note')}</span><span class="fv">{detailLine}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
-    <div class="fbody grid">
+  {/if}
+{/snippet}
+
+<!-- v0.63.0: name, category and status of an existing item sit here with brand, model, note and areas. -->
+{#snippet detailsBody()}
+  {#if readOnly}
+    <!-- v0.23.1 (Noah 5b): on the phone too the category can change; the ID stays. -->
+    <div class="grid pair">
+      <label class="wide">
+        <span class="lbl">{t('Category')}</span>
+        <select class="sel" bind:value={draft.category}>
+          {#if !CATEGORY[draft.category]}<option value={draft.category} disabled>{draft.category ? draft.category : t('Choose a category')}</option>{/if}
+          {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
+        </select>
+      </label>
+      {@render photoRow()}
+      {#if moved}{@render movedNote()}{/if}
+    </div>
+    <dl class="facts">
+      {#if item.brand}<div><dt>{t('Brand')}</dt><dd>{item.brand}</dd></div>{/if}
+      {#if item.model}<div><dt>{t('Model')}</dt><dd>{item.model}</dd></div>{/if}
+      <div><dt>{t('Status')}</dt><dd>{t(OWNERSHIP[item.ownership] ?? '')}</dd></div>
+      {#if item.favorite}<div><dt>{t('Favourite')}</dt><dd>★ {item.favNote || t('Tested, one of my best items')}</dd></div>{/if}
+      <div><dt>{t('Areas')}</dt><dd>{itemDomains(item).map((d) => t(domainName(d))).join(', ')}</dd></div>
+      <!-- v0.36.0: the fields of the reviewed gear list (gear import), read only. -->
+      {#if item.zone || item.layer}<div><dt>{t('Body zone')}</dt><dd>{[item.zone, item.layer].filter(Boolean).join(' · ')}</dd></div>{/if}
+      {#if item.tempMin != null || item.tempMax != null || item.tempClass}<div><dt>{t('Temperature')}</dt><dd>{[item.tempMin != null || item.tempMax != null ? `${item.tempMin ?? '…'} – ${item.tempMax ?? '…'} °C` : '', item.tempClass].filter(Boolean).join(' · ')}</dd></div>{/if}
+      {#if item.rule}<div><dt>{t('Rule')}</dt><dd>{item.rule}</dd></div>{/if}
+      {#if item.sourceId}<div><dt>{t('Source ID')}</dt><dd>{item.sourceId}</dd></div>{/if}
+      {#if item.qty > 1}<div><dt>{t('Quantity')}</dt><dd>{item.qty} × {formatWeight(item.weightG)} = {formatWeight(itemWeight(item))}</dd></div>{/if}
+    </dl>
+    {#if item.learning}<p class="note"><b>{t('Learning:')}</b> {item.learning}</p>{/if}
+    {#if item.note}<p class="note">{item.note}</p>{/if}
+  {:else}
+    <div class="grid">
+      {#if !isNew}
+        <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} required /></label>
+        {@render categoryField()}
+        {@render statusField()}
+        {@render photoRow()}
+        {#if moved}{@render movedNote()}{/if}
+      {/if}
       <label><span class="lbl">{t('Brand')}</span><input class="inp" bind:value={draft.brand} placeholder={t('e.g. {x}', { x: 'Garmin' })} /></label>
       <label><span class="lbl">{t('Model / colour')}</span><input class="inp" bind:value={draft.model} placeholder={t('e.g. {x}', { x: 'Edge 1040 Solar' })} /></label>
       <label><span class="lbl">{t('Quantity')}</span><input class="inp num" type="number" min="1" bind:value={draft.qty} /></label>
@@ -383,8 +448,48 @@
       {#if draft.sourceId || draft.rule || draft.zone || draft.layer || draft.tempClass}
         <p class="note wide">{[draft.sourceId && `${t('Source ID')}: ${draft.sourceId}`, (draft.zone || draft.layer) && `${t('Body zone')}: ${[draft.zone, draft.layer].filter(Boolean).join(' · ')}`, draft.tempClass && `${t('Temperature')}: ${draft.tempClass}`, draft.rule && `${t('Rule')}: ${draft.rule}`].filter(Boolean).join(' · ')}</p>
       {/if}
+      {#if item?.learning}<p class="note wide"><b>{t('Learning:')}</b> {item.learning}</p>{/if}
     </div>
-  </details>
+  {/if}
+{/snippet}
+
+{#snippet categoryField()}
+  <label>
+    <span class="lbl">{t('Category')} <small class="req">{t('required')}</small></span>
+    <select class="sel" bind:value={draft.category} required>
+      {#if !CATEGORY[draft.category]}<option value={draft.category} disabled>{draft.category ? draft.category : t('Choose a category')}</option>{/if}
+      {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
+    </select>
+  </label>
+{/snippet}
+
+<!-- v0.40.0 (design check R4): the status as a segment "Owned · Wishlist · Gone"; the two rarer
+     ones (Unclear, To buy) one tap further, never lost. -->
+{#snippet statusField()}
+  <div class="wide status">
+    <span class="lbl" id="status-h">{t('Status')} <small class="req">{t('required')}</small></span>
+    <Seg labelledby="status-h" options={statusSeg} value={draft.ownership} onchange={(k) => (draft.ownership = k)} />
+    {#if statusMore.length}
+      <details class="moreStat" open={statusMore.some((k) => k === draft.ownership)}>
+        <summary>{t('Other status')}</summary>
+        <Seg label={t('Other status')} full={false} options={statusMore.map((k) => ({ key: k, name: t(OWNERSHIP[k]) }))} value={draft.ownership} onchange={(k) => (draft.ownership = k)} />
+      </details>
+    {/if}
+  </div>
+{/snippet}
+
+{#snippet lifeBody()}
+  <ItemLife item={$liveQ ?? item} items={allItems} stats={life.stats} log={life.log} {today} />
+{/snippet}
+
+<!-- The rows in Noah's order: where, blocks, weather, brand …, templates, its history. -->
+{#snippet rows()}
+  {@render fold('where', MapPin, t('Where it goes'), placeName(draft), whereBody)}
+  {@render fold('blocks', Package, t('Building blocks'), blockNames(draft, blocks).join(' · ') || t('no block'), blocksBody)}
+  {@render fold('rules', Route, t('For weather and riding time'), ruleLine, rulesBody)}
+  {@render fold('details', FileText, isNew ? t('Brand, model, note') : t('Name, brand, note'), detailLine || t(CATEGORY[draft.category]?.name ?? ''), detailsBody)}
+  {#if !isNew}{@render fold('templates', Layers, t('In templates'), `${where.templates.length}${where.trip ? ` · ${t('on the current trip')}` : ''}`, templatesBody)}{/if}
+  {#if !isNew && life}{@render fold('life', CalendarClock, t('History|item'), lifeSum, lifeBody)}{/if}
 {/snippet}
 
 <dialog class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="item-h">
@@ -403,83 +508,31 @@
       {t(CATEGORY[draft.category]?.name ?? '')}{draft.id ? ` · ${draft.id}` : ''}
     </p>
     <h2 id="item-h" class="title">{isNew ? t('Add item') : nameOf(item)}</h2>
-    {#if !isNew && life}<ItemLife item={$liveQ ?? item} items={allItems} stats={life.stats} log={life.log} {today} />{/if}
 
-    {#if readOnly}
-      <dl class="facts">
-        {#if item.brand}<div><dt>{t('Brand')}</dt><dd>{item.brand}</dd></div>{/if}
-        {#if item.model}<div><dt>{t('Model')}</dt><dd>{item.model}</dd></div>{/if}
-        <div><dt>{t('Status')}</dt><dd>{t(OWNERSHIP[item.ownership] ?? '')}</dd></div>
-        {#if item.favorite}<div><dt>{t('Favourite')}</dt><dd>★ {item.favNote || t('Tested, one of my best items')}</dd></div>{/if}
-        <div><dt>{t('Areas')}</dt><dd>{itemDomains(item).map((d) => t(domainName(d))).join(', ')}</dd></div>
-        {#if item.ride}<div><dt>{t('Layer')}</dt><dd>{t(RIDES.find((r) => r.key === item.ride)?.name ?? '')}</dd></div>{/if}
-        {#if item.coldBelow != null}<div><dt>{t('Add when colder than')}</dt><dd>{item.coldBelow} °C</dd></div>{/if}
-        {#if item.rain}<div><dt>{t('Rain')}</dt><dd>{t(RAIN_ITEM[item.rain] ?? '')}</dd></div>{/if}
-        {#if item.perHours}<div><dt>{t('Amount')}</dt><dd>{t('1 per {n} h', { n: item.perHours })}{item.maxQty ? `, ${t('at most {n}', { n: item.maxQty })}` : ''}</dd></div>{/if}
-        {#if item.replaces}<div><dt>{t('On me, instead of')}</dt><dd>{nameOf(items.find((i) => i.id === item.replaces)) || item.replaces}</dd></div>{/if}
-        <!-- v0.36.0: the fields of the reviewed gear list (gear import), read only. -->
-        {#if item.zone || item.layer}<div><dt>{t('Body zone')}</dt><dd>{[item.zone, item.layer].filter(Boolean).join(' · ')}</dd></div>{/if}
-        {#if item.tempMin != null || item.tempMax != null || item.tempClass}<div><dt>{t('Temperature')}</dt><dd>{[item.tempMin != null || item.tempMax != null ? `${item.tempMin ?? '…'} – ${item.tempMax ?? '…'} °C` : '', item.tempClass].filter(Boolean).join(' · ')}</dd></div>{/if}
-        {#if item.rule}<div><dt>{t('Rule')}</dt><dd>{item.rule}</dd></div>{/if}
-        {#if item.sourceId}<div><dt>{t('Source ID')}</dt><dd>{item.sourceId}</dd></div>{/if}
-
-        {#if item.qty > 1}<div><dt>{t('Quantity')}</dt><dd>{item.qty} × {formatWeight(item.weightG)} = {formatWeight(itemWeight(item))}</dd></div>{/if}
-      </dl>
-      {#if item.learning}<p class="note"><b>{t('Learning:')}</b> {item.learning}</p>{/if}
-      {#if item.note}<p class="note">{item.note}</p>{/if}
-      <!-- v0.23.1 (Noah 5b): on the phone too the category can change, next to the weight; the ID stays. -->
-      <div class="grid pair">
-        <label>
-          <span class="lbl">{t('Category')}</span>
-          <select class="sel" bind:value={draft.category}>
-            {#if !CATEGORY[draft.category]}<option value={draft.category} disabled>{draft.category ? draft.category : t('Choose a category')}</option>{/if}
-            {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
-          </select>
-        </label>
-        <label><span class="lbl">{t('Weight of one piece (g)')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
-        {@render photoRow()}
-        {#if moved}{@render movedNote()}{/if}
-      </div>
-      {@render comesAlong()}
-      {@render inTemplates()}
-    {:else}
-      <!-- v0.23.0 (AP08): the four main fields first; for a new item the rest folds away under "More details". -->
+    {#if isNew}
+      <!-- v0.23.0 (AP08): the four main fields first; the rest folds away under "More details". -->
       <div class="grid">
         <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} required /></label>
-        <label>
-          <span class="lbl">{t('Category')} <small class="req">{t('required')}</small></span>
-          <select class="sel" bind:value={draft.category} required>
-            {#if !CATEGORY[draft.category]}<option value={draft.category} disabled>{draft.category ? draft.category : t('Choose a category')}</option>{/if}
-            {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
-          </select>
-        </label>
-        <!-- v0.40.0 (design check R4): the status as a segment "Owned · Wishlist · Gone"; the two
-             rarer ones (Unclear, To buy) one tap further, never lost. -->
-        <div class="wide status">
-          <span class="lbl" id="status-h">{t('Status')} <small class="req">{t('required')}</small></span>
-          <Seg labelledby="status-h" options={statusSeg} value={draft.ownership} onchange={(k) => (draft.ownership = k)} />
-          {#if statusMore.length}
-            <details class="moreStat" open={statusMore.some((k) => k === draft.ownership)}>
-              <summary>{t('Other status')}</summary>
-              <Seg label={t('Other status')} full={false} options={statusMore.map((k) => ({ key: k, name: t(OWNERSHIP[k]) }))} value={draft.ownership} onchange={(k) => (draft.ownership = k)} />
-            </details>
-          {/if}
-        </div>
+        {@render categoryField()}
+        {@render statusField()}
         <label class="wide"><span class="lbl">{t('Weight of one piece (g)')} <small class="req">{t('optional')}</small></span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
         {@render photoRow()}
         {#if moved}{@render movedNote()}{/if}
       </div>
-      {#if isNew}
-        <details class="more" bind:open={more}>
-          <summary>{t('More details')} <small>{t('where it goes, building blocks, weather, brand, note')}</small></summary>
-          {@render comesAlong()}
-          {@render folds()}
-        </details>
-      {:else}
-        {@render comesAlong()}
-        {@render folds()}
-      {/if}
-      {#if item?.learning}<p class="note"><b>{t('Learning:')}</b> {item.learning}</p>{/if}
+      <details class="more" bind:open={more}>
+        <summary>{t('More details')} <small>{t('where it goes, building blocks, weather, brand, note')}</small></summary>
+        {@render rows()}
+      </details>
+    {:else}
+      <!-- v0.63.0 (Noah 1a): the weight with its status and one summary line, then the rows. -->
+      <div class="top">
+        <label class="wrow">
+          <span class="lbl">{t('Weight of one piece (g)')}</span>
+          <span class="wfield"><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /><span class="wst">{wState}{#if item.ownership !== 'owned'}{' · '}<b>{t(OWNERSHIP[item.ownership] ?? '')}</b>{/if}</span></span>
+        </label>
+        <p class="sumline" data-testid="comes-line">{summary}</p>
+      </div>
+      <div class="rows">{@render rows()}</div>
     {/if}
 
     <p class="err" role="alert">{error}</p>
@@ -596,17 +649,53 @@
   .sets legend {
     margin-bottom: 4px;
   }
-  /* v0.32.0 (finding 5, stage 1): "Where it goes" and "Comes along · Building blocks".
-     Light section headers, a segmented toggle for the place, chips for the blocks. */
-  .ca {
-    margin-top: 16px;
+  /* v0.63.0 (Noah 1a): the top: the weight with its status and one summary line, then the rows. */
+  .top {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 14px;
   }
-  .sh {
-    font-size: var(--fs-label);
-    font-weight: 600;
+  .wrow {
+    display: grid;
+    gap: 4px;
+  }
+  .wfield {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+  }
+  .wfield .inp {
+    width: 9ch;
+    min-width: 0;
+  }
+  .wst {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .wst b {
     color: var(--ink-2);
-    margin: 0 0 6px;
+    font-weight: 600;
   }
+  .sumline {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .rows {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .rows .fold {
+    margin-top: 0;
+    min-width: 0;
+  }
+  .fbody .grid.pair {
+    margin-bottom: 10px;
+  }
+  /* v0.32.0 (finding 5, stage 1): a segmented toggle for the place, chips for the blocks. */
   .seg {
     display: inline-flex;
     max-width: 100%;
@@ -755,10 +844,6 @@
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: var(--paper);
-  }
-  .ca + .fold,
-  .ca + :global(.fold) {
-    margin-top: 16px;
   }
   .fold summary {
     list-style: none;
