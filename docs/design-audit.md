@@ -75,7 +75,7 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Touren | Rückblick, Vergleich, Tempo, Logbuch | – | – |
 | Touren | Vergangene Touren, Fahrten, Jahresrückblick, Teilen | – | – |
 | Touren | Vorlagen, Vorlage neu/bearbeiten, Bausteine | – | – |
-| Material | Materialliste, Teil-Dialog, Zuordnen, Zusammenlegen | 9.10.2026 (0.47: Reiter, Karten, Punkte) | 3 |
+| Material | Materialliste, Teil-Dialog, Zuordnen, Zusammenlegen | 9.10.2026 (0.47.2: sieben Ansichten, Karten mit Punkten pro Tour, Detailspalte, Filterblatt, Teil mit «Sein Jahr auf Tour»; Zuordnen und Zusammenlegen noch alt) | 4 |
 | Material | Kleiderschrank | 9.10.2026 (0.47 neu gebaut nach Mockup) | 4 |
 | Material | Import prüfen, Favoriten, Wunschliste | – | – |
 | Velos | Setup, Velo-Dialog, Taschen-Dialog/-Blatt | 9.10.2026 (0.47: nur Kopfband in der Gletscher-Schrift) | 3 |
@@ -91,7 +91,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Baukasten in `src/lib/ui/` (PageHead, SectionHead, Card, Row, Badge, Button, Stat, Empty, Toast) als echte Komponenten; 0.47 nutzt gemeinsame Klassen in `app.css` (`.surf`, `.zlabel`, `.bignum`, `.tbar`, `.pill`). Ziel 0.48.
 - Wächter-Tests (Stil-Lint, Konsistenz-Test pro Route bei 320/390/1440 hell und dunkel, Bild-Vergleich). Ziel 0.48.
 - Ein gemeinsamer Toast mit «Rückgängig»: Kleiderschrank, Inbox und Prüfen haben je einen eigenen. Ziel 0.48.
-- Material: Seitenspalte «Wo das Gewicht steckt» als Gewichtskarte wie auf der Tour; Teil-Dialog. Ziel 0.48.
+- Material: «Sparpotenzial» pro Kategorie (Mockup) statt der zugeklappten Auswertung; Teil-Dialog unterhalb von «Sein Jahr auf Tour» (Felder) und Zuordnen/Zusammenlegen auf Karten-Token; Tabelle (D4) als dritte Wahl in «Karten · Liste». Ziel 0.48.
 - Packtag (PackStage) mit derselben Velozeichnung und Gewichtskarte wie Planen. Ziel 0.48.
 - Velos/Setup: nur das Kopfband ist angeglichen; Zeichnung, Taschen-Blatt und Dialoge folgen. Velopflege-Dialoge (Teil, Werkstattbesuch, Bestellung). Ziel 0.48.
 - Material → Wiegen und Import prüfen «Unsicher»: bleiben bewusst (siehe decisions.md), Optik auf Karten-Token. Ziel 0.48.
@@ -101,3 +101,4 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 
 - 9.10.2026: Regel eingeführt. Erste Runde gestartet: Neuentwurf Kleiderschrank, Material, Tour und Velos sowie erste Mockups für Im Flow und 0.47.
 - 9.10.2026, 0.47 «Aufpimpen» (D1): Kleiderschrank nach Mockup neu (Note 2 → 4); Tour/Packen mit Velo und Gewichtskarte, Material mit Reitern und Karten, Velopflege mit einer Schriftordnung und «Jetzt fällig» als Karten, Setup-Kopfband angeglichen, Inbox und Prüfen leeren sich selbst. Neue Regel «Eine Abarbeitungsliste leert sich selbst». Bilder vorher/nachher: `design/audit-0.47/` (Velopflege: `care-*`). Offenes unter «Offen: Angleichen».
+- 9.10.2026, 0.47.2 «Material-Ansichten»: Reiter durch sieben Ansichten mit Zahl ersetzt, «Totes Gewicht» heisst «Nie gebraucht» mit einem Satz pro Teil, Karten mit Punkten pro Tour (gebraucht, dabei nicht gebraucht, zuhause), Detailspalte am Computer, Sortieren und Filtern in einem Blatt, Teil mit «Sein Jahr auf Tour», gelernter Regel, letzten Touren, Gewicht gegen Alternativen, Alter und Kosten nur mit Daten. Materialliste Note 3 → 4. Bilder vorher/nachher (390 und 1440, hell und dunkel): `design/v0472/vorher/`, `design/v0472/nachher/`.

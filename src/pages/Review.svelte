@@ -176,6 +176,8 @@
                   <summary class="lrow"><span class="m"><span class="t">{t('Never used')}</span></span><span class="v num">{tn(r.pack.dead.length, '{n} item', '{n} items')}{r.pack.deadG ? ` · ${formatWeight(r.pack.deadG)}` : ''}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
                   <ul class="sub">
                     {#each r.pack.dead as d (d.item.id)}<li><span>{nameOf(d.item)}</span><span class="num">{t('{n}× along', { n: d.taken })}</span></li>{/each}
+                    <!-- v0.47.2 «Material-Ansichten»: the same items as the view «Nie gebraucht» in Gear -->
+                    <li><a class="tap" href="#/gear?view=never">{t('All never used items in Gear')}</a></li>
                   </ul>
                 </details>
               </li>

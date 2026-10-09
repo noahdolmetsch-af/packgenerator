@@ -20,6 +20,8 @@
   import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight } from '@lucide/svelte';
   import { isClothing } from '../wardrobe.js';
   import { shrinkImage } from '../photo.js';
+  import ItemLife from './ItemLife.svelte';
+  import { materialStats, tripLog } from './material.js';
 
   /**
    * item: the item to show, or null for "Add item".
@@ -69,6 +71,10 @@
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const tripsQ = liveQuery(() => db.trips.toArray());
   const liveQ = liveQuery(() => (item ? db.items.get(item.id) : null));
+  // v0.47.2 «Material-Ansichten»: what the trips and their debriefs say about this item (ItemLife).
+  const debriefsQ = liveQuery(() => db.debriefs.toArray());
+  const today = localDay();
+  const life = $derived(item && $tripsQ && $debriefsQ ? { stats: materialStats([item], $tripsQ, $debriefsQ, today), log: tripLog($tripsQ, $debriefsQ) } : null);
   // v0.32.0 (finding 5): the blocks you add by hand first (Light, your own), then the ones of the night.
   const blocks = $derived(allSets($setsQ?.value).sort((a, b) => (blockKind(a.key) === 'night') - (blockKind(b.key) === 'night')));
   const chosenTrip = (() => {
@@ -397,6 +403,7 @@
       {t(CATEGORY[draft.category]?.name ?? '')}{draft.id ? ` · ${draft.id}` : ''}
     </p>
     <h2 id="item-h" class="title">{isNew ? t('Add item') : nameOf(item)}</h2>
+    {#if !isNew && life}<ItemLife item={$liveQ ?? item} items={allItems} stats={life.stats} log={life.log} {today} />{/if}
 
     {#if readOnly}
       <dl class="facts">

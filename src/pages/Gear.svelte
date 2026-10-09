@@ -4,8 +4,8 @@
   import { db } from '../lib/db.js';
   import { phone } from '../lib/media.svelte.js';
   import { untrack } from 'svelte';
-  import { SvelteSet } from 'svelte/reactivity';
-  import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, UNKNOWN_CATEGORY, BAG, OWNERSHIP, bulkOwnership, namesList } from '../lib/gear.js';
+  import { SvelteSet, MediaQuery } from 'svelte/reactivity';
+  import { gearStats, matches, groupByCategory, formatWeight, knownWeight, itemWeight, favouriteCounts, CATEGORIES, CATEGORY, UNKNOWN_CATEGORY, BAG, BAGS, OWNERSHIP, bulkOwnership, namesList } from '../lib/gear.js';
   import { saveItems, deletePlan, deleteItems, undoBulk, archiveItems } from '../lib/gear/bulk.js';
   import { weighQueue } from '../lib/weigh.js';
   import { STAGED } from '../lib/gear/importdb.js';
@@ -19,7 +19,17 @@
   import AssignDialog from '../lib/gear/AssignDialog.svelte';
   import { assignSet } from '../lib/gear/assign.js';
   import { SETS_KEY, allSets } from '../lib/sets.js';
-  import { itemUsage, deadWeight, wishReason } from '../lib/insights.js';
+  import { wishReason } from '../lib/insights.js';
+  // v0.47.2 «Material-Ansichten» (Noah 6a-9a): seven fixed views, cards with the trips as dots.
+  import { materialStats, tripLog, usageOf, inView, viewCounts, sortItems, lighterAlt, viewSummary, VIEWS, NEVER_AFTER, PROVEN_AFTER } from '../lib/gear/material.js';
+  import MatCard from '../lib/gear/MatCard.svelte';
+  import DotsLegend from '../lib/gear/DotsLegend.svelte';
+  import ItemLife from '../lib/gear/ItemLife.svelte';
+  import FilterSheet from '../lib/gear/FilterSheet.svelte';
+  import Seg from '../lib/ui/Seg.svelte';
+  import { catIcon, catColor } from '../lib/gear/caticon.js';
+  import { localDay } from '../lib/localday.js';
+  import { List, TrendingUp, Trophy, Star, PackageX, Scale, Heart, SlidersHorizontal, Plus, ChevronRight } from '@lucide/svelte';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
   import Sum from '../lib/ui/Sum.svelte';
@@ -42,9 +52,11 @@
   // v0.19.2 (Noah 6a, 7a): what the debriefs say about each item.
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
-  const usage = $derived(itemUsage($tripsQ ?? [], $debriefsQ ?? []));
-  const dead = $derived(deadWeight(items, usage));
-  const debriefN = $derived(($debriefsQ ?? []).filter((d) => d.status === 'done').length);
+  const today = localDay();
+  const mstats = $derived(materialStats(items, $tripsQ ?? [], $debriefsQ ?? [], today));
+  const mlog = $derived(tripLog($tripsQ ?? [], $debriefsQ ?? []));
+  const counts = $derived(viewCounts(items, mstats));
+  const debriefN = $derived(mstats.n);
   // v0.38.0 (Noah 1a): "Compact | With bag" above the list; the bag is hidden unless chosen, remembered here.
   const BAGCOL = 'gear.bagColumn';
   let showBag = $state(
@@ -101,17 +113,94 @@
   // ?cat=<key> (start page "Where the weight is") opens one category.
   const hashQ = new URLSearchParams(location.hash.split('?')[1] ?? '');
   // v0.22.0 (AP05): ?fav=1 (start page "Favourites") opens with the favourites filter on.
-  let filter = $state({ q: hashQ.get('q') ?? '', category: hashQ.get('cat') ?? '', role: '', fav: hashQ.get('fav') === '1', domain: hashQ.get('area') ?? '' });
-  // The favourites filter lives in the address too, so back, forward and a reload keep it.
-  function setFav(on) {
-    filter.fav = on;
+  let filter = $state({ q: hashQ.get('q') ?? '', category: hashQ.get('cat') ?? '', role: '', fav: false, domain: hashQ.get('area') ?? '', bag: '' });
+  // v0.47.2: the favourites are the view «Lieblingssachen» now (?fav=1 still opens it).
+  filter.fav = false;
+  /*
+   * v0.47.2 «Material-Ansichten» (Noah 6a): seven fixed views instead of the tabs. The view lives in
+   * the address (?view=), so back, forward and a reload keep it; the old ?tab=wishlist, ?tab=dead
+   * and ?fav=1 open the matching view. Weighing and checking are modes (?tab=weigh, ?tab=check),
+   * opened from the page header and its ••• menu.
+   */
+  const VIEW_ICON = { all: List, most: TrendingUp, proven: Trophy, fav: Star, never: PackageX, unweighed: Scale, wish: Heart };
+  const VIcon = $derived(VIEW_ICON[view]);
+  const VIEW_NAME = { all: 'All', most: 'Most used', proven: 'Proven', fav: 'Favourite things', never: 'Never used', unweighed: 'Unweighed', wish: 'Wishlist' };
+  function viewFrom(params) {
+    const v = params.get('view');
+    if (VIEWS.includes(v)) return v;
+    if (params.get('tab') === 'wishlist') return 'wish';
+    if (params.get('tab') === 'dead') return 'never';
+    if (params.get('fav') === '1') return 'fav';
+    return 'all';
+  }
+  let view = $state(viewFrom(hashQ));
+  let mode = $state(['weigh', 'check'].includes(hashQ.get('tab')) ? hashQ.get('tab') : '');
+  function writeHash(edit) {
     const [path, query = ''] = location.hash.split('?');
     const q = new URLSearchParams(query);
-    if (on) q.set('fav', '1');
-    else q.delete('fav');
+    edit(q);
     const s = q.toString();
     history.replaceState(history.state, '', `${path || '#/gear'}${s ? `?${s}` : ''}`);
   }
+  function setView(v) {
+    view = v;
+    mode = '';
+    limit = PAGE;
+    writeHash((q) => {
+      ['tab', 'fav'].forEach((k) => q.delete(k));
+      if (v === 'all') q.delete('view');
+      else q.set('view', v);
+    });
+  }
+  function setMode(m) {
+    mode = m;
+    writeHash((q) => (m ? q.set('tab', m) : q.delete('tab')));
+    scrollTo({ top: 0 });
+  }
+  // v0.47.2 (Noah 8a): "Cards · List" (the table of D4 comes later as a third choice), remembered here.
+  const DISPLAY = 'gear.display';
+  let display = $state(
+    (() => {
+      try {
+        return localStorage.getItem(DISPLAY) === 'list' ? 'list' : 'cards';
+      } catch {
+        return 'cards';
+      }
+    })(),
+  );
+  function setDisplay(d) {
+    display = d;
+    try {
+      localStorage.setItem(DISPLAY, d);
+    } catch {
+      /* private mode: only this visit */
+    }
+  }
+  // The order of the cards (sort sheet), remembered like the display.
+  const SORT = 'gear.sort';
+  let sort = $state(
+    (() => {
+      try {
+        return ['taken', 'weight', 'last', 'name'].includes(localStorage.getItem(SORT)) ? localStorage.getItem(SORT) : 'taken';
+      } catch {
+        return 'taken';
+      }
+    })(),
+  );
+  function setSort(v) {
+    sort = v;
+    try {
+      localStorage.setItem(SORT, v);
+    } catch {
+      /* private mode */
+    }
+  }
+  const PAGE = 24;
+  let limit = $state(PAGE);
+  let sheet = $state(false);
+  // v0.47.2 (Noah 8a): on a wide computer the chosen card shows on the right (the detail column).
+  const wideQ = new MediaQuery('min-width: 1200px');
+  let picked1 = $state(null);
   // v0.25.1 (Noah 1a): ?unused=1 (Today "Long not used" → Look through) shows only the owned
   // items that were on no trip for 12 months (the same list as the card, know.js).
   const bikesQ = liveQuery(() => db.bikes.toArray());
@@ -121,8 +210,11 @@
   const toWeigh = $derived(weighQueue({ items, bikes: $bikesQ ?? [], containers: $bagsQ ?? [], extras: true }).length);
   function startWeigh() {
     if (gmoreEl) gmoreEl.open = false;
-    tab = 'weigh';
-    scrollTo({ top: 0 });
+    setMode('weigh');
+  }
+  function startCheck() {
+    if (gmoreEl) gmoreEl.open = false;
+    setMode('check');
   }
   const unused = $derived(longUnused(items, $tripsQ ?? [], $bikesQ ?? [], $bagsQ ?? [], new Date().toISOString().slice(0, 10)));
   const unusedIds = $derived(new Set((unused?.items ?? []).map((i) => i.id)));
@@ -136,8 +228,7 @@
     history.replaceState(history.state, '', `${path || '#/gear'}${s ? `?${s}` : ''}`);
   }
   const clearFilters = () => {
-    filter = { q: '', category: '', role: '', fav: false, domain: '' };
-    setFav(false);
+    filter = { q: '', category: '', role: '', fav: false, domain: '', bag: '' };
     setUnused(false);
   };
   // v0.22.0 (AP05): the same bases as the tabs; the button counts what the list below shows.
@@ -148,9 +239,8 @@
   const showAreas = $derived(areaKeys.length > 1 || !!filter.domain);
   // Tabs on every screen size (design audit G1, G2): the wishlist and weighing no longer hide
   // at the bottom of a long page. #/gear?tab=weigh opens a tab directly (from the start page).
-  const TABS = ['inventory', 'wishlist', 'dead', 'weigh', 'check'];
-  const fromHash = new URLSearchParams(location.hash.split('?')[1] ?? '').get('tab');
-  let tab = $state(TABS.includes(fromHash) ? fromHash : 'inventory');
+  // v0.47.2: what used to be the tab: a mode, else the wishlist or the inventory (the view decides).
+  const tab = $derived(mode || (view === 'wish' ? 'wishlist' : 'inventory'));
   const toReview = $derived(stats.inventory.filter((i) => !i.reviewedAt).length);
   let dialog = $state(null); // { item } or { item: null, preset? } for "Add item"
   // v0.23.0 (AP08): the weight analyses sit below the list, folded shut until opened.
@@ -170,18 +260,65 @@
   const blocks = $derived(allSets($setsQ?.value));
   let fillKey = $state(hashQ.get('fill') ?? '');
   const fill = $derived(fillKey ? blocks.find((b) => b.key === fillKey) ?? null : null);
-  const inventory = $derived(stats.inventory.filter((i) => matches(i, filter) && (!unusedOnly || unusedIds.has(i.id)) && (!fillKey || !i.sets?.includes(fillKey))));
+  // v0.47.2: a bag ('bag:<key>') or a building block ('set:<key>') from the side column or the sheet.
+  const bagOk = (i) => !filter.bag || (filter.bag.startsWith('bag:') ? i.defaultBag === filter.bag.slice(4) : !!i.sets?.includes(filter.bag.slice(4)));
+  const inventory = $derived(stats.inventory.filter((i) => matches(i, filter) && bagOk(i) && inView(view, i, usageOf(mstats, i.id), mstats.n) && (!unusedOnly || unusedIds.has(i.id)) && (!fillKey || !i.sets?.includes(fillKey))));
   // Wishlist sorted by how much it helps (Noah 7a): missing on trips, needed on the bike, lighter.
   const wishlist = $derived(
     stats.wishlist
-      .filter((i) => matches(i, filter))
+      .filter((i) => matches(i, filter) && bagOk(i))
       .map((item) => ({ item, ...wishReason(item, items, $tripsQ ?? [], $debriefsQ ?? []) }))
       .sort((a, b) => b.score - a.score || a.item.name.localeCompare(b.item.name)),
   );
   const groups = $derived(groupByCategory(inventory));
   const catStats = $derived(Object.fromEntries([...stats.cats, stats.other].map((c) => [c.key, c])));
   // While searching or filtering, every matching category is shown open.
-  const searching = $derived(!!(filter.q.trim() || filter.category || filter.role || filter.fav || filter.domain || unusedOnly));
+  const searching = $derived(!!(filter.q.trim() || filter.category || filter.role || filter.domain || filter.bag || view !== 'all' || unusedOnly));
+  // v0.47.2: the cards of the view in the chosen order, a page at a time.
+  const viewList = $derived(view === 'wish' ? wishlist.map((w) => w.item) : inventory);
+  const sorted = $derived(sortItems(viewList, sort, mstats));
+  const reasonsOf = $derived(Object.fromEntries(wishlist.map((w) => [w.item.id, w.reasons])));
+  const summary = $derived(viewSummary(viewList, mstats));
+  const altOf = (item) => (item.ownership === 'owned' || item.ownership === 'unclear' ? lighterAlt(item, items) : null);
+  const proven = (item) => inView('proven', item, usageOf(mstats, item.id), mstats.n);
+  // Selecting works on the list (the rows have the boxes); the cards come back afterwards.
+  const shownAs = $derived(selecting ? 'list' : display);
+  const showPanel = $derived(wideQ.current && shownAs === 'cards' && !mode);
+  const selItem = $derived(showPanel ? (sorted.find((i) => i.id === picked1) ?? sorted[0] ?? null) : null);
+  function pickCard(item) {
+    if (showPanel && picked1 !== item.id && selItem?.id !== item.id) return (picked1 = item.id);
+    open(item);
+  }
+  async function leaveAtHome(item) {
+    await markHome(item);
+  }
+  // The side column and the sheet: categories, bags and building blocks with their counts.
+  const base = $derived(view === 'wish' ? stats.wishlist : stats.inventory);
+  const catOpts = $derived(CATEGORIES.map((c) => ({ key: c.key, name: t(c.name), color: c.color, n: base.filter((i) => i.category === c.key).length })).filter((c) => c.n));
+  const bagOpts = $derived([
+    ...BAGS.map((b) => ({ key: `bag:${b.key}`, name: t(b.name), n: base.filter((i) => i.defaultBag === b.key).length, set: false })),
+    ...blocks.map((b) => ({ key: `set:${b.key}`, name: t('Set "{name}"', { name: b.builtIn ? t(b.name) : b.name }), n: base.filter((i) => i.sets?.includes(b.key)).length, set: true })),
+  ].filter((b) => b.n));
+  const areaOpts = $derived(areaKeys.map((k) => ({ key: k, name: t(domainName(k)), n: perArea[k] })));
+  let moreCats = $state(false);
+  const activeN = $derived([filter.category, filter.bag, filter.domain, filter.role].filter(Boolean).length);
+  const SORT_NAME = { taken: 'Most along', weight: 'Weight', last: 'Last along', name: 'Name' };
+  const catName = $derived(filter.category ? t(CATEGORY[filter.category]?.name ?? '') : t('all'));
+  const bagName = $derived(filter.bag ? (bagOpts.find((b) => b.key === filter.bag)?.name ?? '') : t('all'));
+  const VIEW_TEXT = $derived({
+    all: t('Everything you own. One dot per trip of the last 12 months.'),
+    most: tn(mstats.n, 'Used on at least half of your {n} debriefed trip.', 'Used on at least half of your {n} debriefed trips.'),
+    proven: t('Taken {n} times or more and used at least 4 times in 5.', { n: PROVEN_AFTER }),
+    fav: t('Marked with a star: tested, your best items.'),
+    never: t('Taken {n} times or more and never used. Formerly "Dead weight".', { n: NEVER_AFTER }),
+    unweighed: t('No weight yet. Weigh them and your totals are complete.'),
+    wish: t('Not owned yet and in no total. Sorted by what helps most: missing on trips, needed on the bike, lighter.'),
+  });
+  // A new view or filter starts at the first page again.
+  $effect(() => {
+    void [view, filter.q, filter.category, filter.bag, filter.domain, filter.role, sort];
+    untrack(() => (limit = PAGE));
+  });
   const isOpen = (key) => searching || !folded[key];
   const allOpen = $derived(groups.every((g) => !folded[g.key]));
   const toggle = (key) => (folded[key] = !folded[key]);
@@ -229,7 +366,7 @@
   // tab with the cursor in the search field.
   let searchEl = $state();
   function findFocus() {
-    tab = 'inventory';
+    mode = '';
     requestAnimationFrame(() => searchEl?.focus());
   }
   $effect(() => {
@@ -241,10 +378,11 @@
       if (!location.hash.startsWith('#/gear')) return;
       const params = new URLSearchParams(location.hash.split('?')[1] ?? '');
       const q = params.get('q');
-      if (q != null) (filter.q = q), (tab = 'inventory');
-      filter.fav = params.get('fav') === '1';
+      if (q != null) (filter.q = q), (mode = ''), (view = 'all');
+      if (params.has('view') || params.has('fav') || ['wishlist', 'dead'].includes(params.get('tab'))) view = viewFrom(params);
+      if (['weigh', 'check'].includes(params.get('tab'))) mode = params.get('tab');
       unusedOnly = params.get('unused') === '1';
-      if (unusedOnly) tab = 'inventory';
+      if (unusedOnly) (mode = ''), (view = 'all');
       if (params.get('find') === '1') findFocus();
       if (params.get('fill')) startFill(params.get('fill'));
       if (params.get('item')) wantItem = params.get('item');
@@ -273,7 +411,8 @@
   }
   function startFill(key) {
     fillKey = key;
-    tab = 'inventory';
+    mode = '';
+    view = 'all';
     selecting = true;
     picked.clear();
   }
@@ -366,27 +505,31 @@
 <div class="gear">
   <header class="head">
     <div class="ht">
-      <h1 class="title">{t('Gear')}</h1>
-      <!-- v0.26.0 (Noah 2b): the building blocks page -->
-      <a class="btn sm blk" href="#/blocks">{t('Building blocks')} →</a>
-      <!-- v0.42.0 (Noah 1): the wardrobe, clothing by layer and body zone -->
-      <a class="btn sm blk" href="#/wardrobe">{t('Wardrobe')} →</a>
-      <!-- v0.36.0 (Noah 1a): the quiet page actions; "Check import" opens the staged gear list. -->
-      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-      <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeGmore(e)}>
-        <summary class="btn sm" aria-label={t('More for Gear')}>•••</summary>
-        <div class="gmenu">
-          <!-- v0.43.0 (Wiege-Modus): weigh one thing after the other -->
-          <button type="button" onclick={startWeigh}>{t('Record weights')}{#if toWeigh}<i class="badge num">{toWeigh}</i>{/if}</button>
-          <a href="#/gear/import">{t('Check import')}{#if $stagedQ}<i class="badge num">{$stagedQ.data?.items?.length || t('Step 2')}</i>{/if}</a>
-        </div>
-      </details>
+      <h1 class="title">{t('Gear|page')}</h1>
+      <!-- v0.26.0 (Noah 2b): the building blocks page; v0.42.0: the wardrobe; v0.36.0: the quiet page actions -->
+      <span class="hlinks">
+        <a class="btn sm blk" href="#/blocks">{t('Building blocks')} →</a>
+        <a class="btn sm blk" href="#/wardrobe">{t('Wardrobe')} →</a>
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+        <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeGmore(e)}>
+          <summary class="btn sm" aria-label={t('More for Gear')}>•••</summary>
+          <div class="gmenu">
+            <!-- v0.43.0 (Wiege-Modus): weigh one thing after the other -->
+            <button type="button" onclick={startWeigh}>{t('Record weights')}{#if toWeigh}<i class="badge num">{toWeigh}</i>{/if}</button>
+            <!-- v0.47.2: "Check" was a tab; now a mode, one tap from here -->
+            <button type="button" onclick={startCheck}>{t('Check items')}{#if toReview}<i class="badge num">{toReview}</i>{/if}</button>
+            <a href="#/gear/import">{t('Check import')}{#if $stagedQ}<i class="badge num">{$stagedQ.data?.items?.length || t('Step 2')}</i>{/if}</a>
+          </div>
+        </details>
+      </span>
+      <!-- v0.47.2 (Noah 6a): one line instead of three numbers: items, known weight, not weighed, debriefs -->
+      <p class="page-sub num">
+        {[tn(stats.inventory.length, '{n} item', '{n} items'), t('{w} weighed', { w: formatWeight(stats.total) }), stats.totalMissing ? t('{n} not weighed', { n: stats.totalMissing }) : '', debriefN ? tn(debriefN, 'learnt from {n} debrief', 'learnt from {n} debriefs') : ''].filter(Boolean).join(' · ')}
+      </p>
     </div>
-    <div class="kpis">
-      <div><span class="lbl">{t('Items')}</span><b class="num">{stats.inventory.length}</b></div>
-      <!-- v0.22.0 (AP04): unknown is not zero: the known sum with the missing weights right next to it. -->
-      <div class="tot"><span class="lbl">{t('Gear weight')}</span><Sum g={stats.total} missing={stats.totalMissing} miss={stats.consumablesMissing ? t('{n} not weighed (+ {f} food and water)', { n: stats.totalMissing, f: stats.consumablesMissing }) : ''} /></div>
-      <div><span class="lbl">{t('Wishlist')}</span><b class="num">{stats.wishlist.length}</b></div>
+    <div class="hacts">
+      {#if !phone.matches}<button type="button" class="btn" onclick={startWeigh}><Scale size={18} aria-hidden="true" />{t('Weigh')}</button>{/if}
+      <button type="button" class="btn hi" onclick={() => addItem()}><Plus size={18} aria-hidden="true" />{t('Add item')}</button>
     </div>
   </header>
 
@@ -394,128 +537,122 @@
     <p class="card">{t('No gear yet. Import your data on the')} <a href="#/">{t('start page')}</a> {t('(Your data → Import backup), or add an item.')}</p>
   {/if}
 
-  <div class="tabs" role="tablist" aria-label={t('Show')}>
-    <button type="button" role="tab" aria-selected={tab === 'inventory'} onclick={() => (tab = 'inventory')}>{t('Inventory')} <small>{stats.inventory.length}</small></button>
-    <button type="button" role="tab" aria-selected={tab === 'wishlist'} onclick={() => (tab = 'wishlist')}>{t('Wishlist')} <small>{stats.wishlist.length}</small></button>
-    <button type="button" role="tab" aria-selected={tab === 'dead'} onclick={() => (tab = 'dead')}>{t('Dead weight')} <small>{dead.dead.length}</small></button>
-    <button type="button" role="tab" aria-selected={tab === 'weigh'} onclick={() => (tab = 'weigh')}>{t('Weigh')} <small>{toWeigh}</small></button>
-    <button type="button" role="tab" aria-selected={tab === 'check'} onclick={() => (tab = 'check')}>{t('Check')} <small>{toReview}</small></button>
-  </div>
-
-  {#if tab === 'dead'}
-    <section class="dead" aria-labelledby="dead-h">
-      <h2 id="dead-h" class="title">{t('Dead weight')} {#if dead.deadG}<small class="num">{formatWeight(dead.deadG)}</small>{/if}</h2>
-      <p class="sub">{tn(debriefN, 'Taken on 2 trips or more and never used, from your {n} debrief. Heaviest first.', 'Taken on 2 trips or more and never used, from your {n} debriefs. Heaviest first.')}</p>
-      {#if debriefN < 2}<p class="card">{t('Shows up after 2 debriefs. You have {n}.', { n: debriefN })}</p>{/if}
-      {#snippet row(r)}
-        <li>
-          <button type="button" class="nmb" onclick={() => open(r.item)}><span class="nm">{nameOf(r.item)}</span><small>{t('taken {a}×, used {b}×', { a: r.u.taken, b: r.u.used })} · {r.u.trips.slice(-3).join(', ')}</small></button>
-          <span class="w num" class:nw={r.item.weightG == null}>{formatWeight(itemWeight(r.item))}</span>
-          {#if leaveHome(r.item)}<span class="ok small">{t('Stays at home')}</span>{:else}<button type="button" class="btn sm" onclick={() => markHome(r.item)}>{t('Leave at home')}</button>{/if}
-        </li>
-      {/snippet}
-      {#if dead.dead.length}<ul class="drows">{#each dead.dead as r (r.item.id)}{@render row(r)}{/each}</ul>{:else if debriefN >= 2}<p class="card">{t('Nothing: everything you took got used at least once.')}</p>{/if}
-      {#if dead.rare.length}
-        <h3 class="title">{t('Rarely used')}</h3>
-        <p class="sub">{t('Used on a third of the trips or less.')}</p>
-        <ul class="drows">{#each dead.rare as r (r.item.id)}{@render row(r)}{/each}</ul>
-      {/if}
-      <p class="sub small">{t('"Leave at home" makes it optional: new trips no longer pack it on their own.')}</p>
-    </section>
-  {:else if tab === 'weigh'}
-    <WeighMode {items} extras onclose={() => (tab = 'inventory')} />
-  {:else if tab === 'check'}
-    <ReviewMode {items} />
+  {#if mode}
+    <p class="modeback"><button type="button" class="btn sm" onclick={() => setMode('')}>← {t('Back to all items')}</button></p>
+    {#if mode === 'weigh'}
+      <WeighMode {items} extras onclose={() => setMode('')} />
+    {:else}
+      <ReviewMode {items} />
+    {/if}
   {:else}
-    <div class="toolbar" class:areas={showAreas}>
-      <label class="q"><span class="lbl">{t('Search gear')}</span><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} bind:value={filter.q} bind:this={searchEl} /></label>
-      <label>
-        <span class="lbl">{t('Category')}</span>
-        <select class="sel" bind:value={filter.category}>
-          <option value="">{t('All categories')}</option>
-          {#each stats.cats as c (c.key)}<option value={c.key}>{t(c.name)} ({c.n})</option>{/each}
-        </select>
-      </label>
-      <!-- Noah, 4.10.2026: the favourites list is the base; ★ shows only those. -->
-      {#if showAreas}
-        <label>
-          <span class="lbl">{t('Area')}</span>
-          <select class="sel" bind:value={filter.domain} aria-label={t('Area')}>
-            <option value="">{t('All areas')}</option>
-            {#each areaKeys as k (k)}<option value={k}>{t(domainName(k))} ({perArea[k]})</option>{/each}
-          </select>
-        </label>
-      {/if}
-      <button type="button" class="toggle fav" aria-pressed={filter.fav} onclick={() => setFav(!filter.fav)} title={t('Only my favourites')}>★ {t('Favourites')} <small>{tab === 'wishlist' ? favN.wishlist : favN.inventory}</small></button>
-      <!-- v0.24.1 (Noah 5a): select several items for one change -->
-      <button type="button" class="toggle fav pick" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
+    <div class="mat" class:panel={showPanel}>
       {#if !phone.matches}
-        <label>
-          <!-- v0.32.0 (finding 5, stage 1): "Comes along" instead of "Role". -->
-          <span class="lbl">{t('Comes along')}</span>
-          <select class="sel" bind:value={filter.role}>
-            <option value="">{t('All items')}</option>
-            <option value="standard">{t('Standard|block')}</option>
-            <option value="worn">{t('On me')}</option>
-            <option value="night">{t('In a building block')}</option>
-            <option value="optional">{t('Stays at home')}</option>
-            <option value="none">{t('Nothing set')}</option>
-          </select>
-        </label>
-        <div class="acts"><button type="button" class="btn hi" onclick={() => addItem()}>{t('Add item')}</button></div>
-      {/if}
-    </div>
-    {#if fill && tab === 'inventory'}
-      <p class="unused-f fillbar"><span>{t('Add to "{block}": tick the items, then "Into {block}" below. Only items not in it are shown.', { block: fill.name })}</span> <a class="btn sm" href="#/blocks" onclick={() => endFill()}>{t('Back to building blocks')}</a></p>
-    {/if}
-    {#if selecting}
-      <div class="selrow">
-        <b class="num" aria-live="polite">{tn(chosen.length, '{n} selected', '{n} selected')}</b>
-        <button type="button" class="btn" disabled={!shown.length || allPicked(shown)} onclick={() => pickAll(shown, true)}>{t('Select all')}</button>
-        <button type="button" class="btn" disabled={!chosen.length} onclick={() => pickAll(shown, false)}>{t('Select none')}</button>
-      </div>
-    {/if}
-
-    {#if tab === 'inventory'}
-      <div class="inv">
-        {#if !phone.matches}
-          <nav class="side" aria-label={t('Jump to a category')}>
-            <span class="lbl">{t('Categories')}</span>
-            <ul>
-              {#each groups as g (g.key)}
-                <li><button type="button" onclick={() => jump(g.key)}><span class="sw" style:background={g.color}></span><span class="n">{t(g.name)}</span><span class="num">{knownWeight(catStats[g.key].g, catStats[g.key].unweighed)}</span></button></li>
+        <!-- v0.47.2 (Noah 6a, 8a): the side column: views, categories, bags and building blocks -->
+        <nav class="side" aria-label={t('Views and filters')}>
+          <span class="zl" id="side-views">{t('Views')}</span>
+          {@render viewButtons('side')}
+          {#if catOpts.length}
+            <span class="zl" id="side-cats">{t('Category')}</span>
+            <div class="slist" role="group" aria-labelledby="side-cats">
+              {#each moreCats ? catOpts : catOpts.slice(0, 7) as c (c.key)}
+                <button type="button" aria-pressed={filter.category === c.key} onclick={() => pickCategory(c.key)}><span class="sw" style:background={c.color}></span><span class="n">{c.name}</span><small class="num">{c.n}</small></button>
               {/each}
-            </ul>
-          </nav>
-        {/if}
-        <div class="list">
-          {#if unusedOnly}
-            <!-- v0.25.1 (Noah 1a): the filter says what it shows and goes away with one tap -->
-            <p class="unused-f"><span>{unused?.full === false ? t('Only items on no trip since {date}', { date: new Date(`${unused.since}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) }) : t('Only items on no trip for 12 months')}</span> <button type="button" class="btn sm" onclick={() => setUnused(false)}>{t('Show all items')}</button></p>
+              {#if catOpts.length > 7}<button type="button" class="more1" aria-expanded={moreCats} onclick={() => (moreCats = !moreCats)}>{moreCats ? t('Fewer') : t('+ {n} more', { n: catOpts.length - 7 })}</button>{/if}
+            </div>
           {/if}
-          <!-- v0.38.0: the count and "Compact | With bag" share one line (one header row less). -->
+          {#if bagOpts.length}
+            <span class="zl" id="side-bags">{t('Bag · set')}</span>
+            <div class="slist" role="group" aria-labelledby="side-bags">
+              {#each bagOpts as b (b.key)}
+                <button type="button" aria-pressed={filter.bag === b.key} onclick={() => (filter.bag = filter.bag === b.key ? '' : b.key)}><span class="n">{b.name}</span><small class="num">{b.n}</small></button>
+              {/each}
+            </div>
+          {/if}
+        </nav>
+      {/if}
+
+      <div class="center">
+        <div class="toolbar">
+          <label class="q"><span class="sr">{t('Search gear')}</span><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} bind:value={filter.q} bind:this={searchEl} /></label>
+          <button type="button" class="btn fbtn" onclick={() => (sheet = true)} aria-label={phone.matches ? t('Sort and filter') : undefined}>
+            <SlidersHorizontal size={18} aria-hidden="true" />{#if !phone.matches}{t('Sorted: {s}', { s: t(SORT_NAME[sort]) })}{/if}{#if activeN}<i class="badge num">{activeN}</i>{/if}
+          </button>
+          {#if !phone.matches}{@render showAs()}{/if}
+        </div>
+
+        {#if phone.matches}
+          {@render viewButtons('chips')}
+          <div class="quick">
+            <button type="button" class="btn sm" onclick={() => (sheet = true)}>{t('Category')}: {catName}</button>
+            {#if bagOpts.length}<button type="button" class="btn sm" onclick={() => (sheet = true)}>{t('Bag')}: {bagName}</button>{/if}
+            {@render showAs()}
+          </div>
+        {/if}
+
+        {#if fill}
+          <p class="unused-f fillbar"><span>{t('Add to "{block}": tick the items, then "Into {block}" below. Only items not in it are shown.', { block: fill.name })}</span> <a class="btn sm" href="#/blocks" onclick={() => endFill()}>{t('Back to building blocks')}</a></p>
+        {/if}
+        {#if unusedOnly}
+          <!-- v0.25.1 (Noah 1a): the filter says what it shows and goes away with one tap -->
+          <p class="unused-f"><span>{unused?.full === false ? t('Only items on no trip since {date}', { date: new Date(`${unused.since}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) }) : t('Only items on no trip for 12 months')}</span> <button type="button" class="btn sm" onclick={() => setUnused(false)}>{t('Show all items')}</button></p>
+        {/if}
+        {#if selecting}
+          <div class="selrow">
+            <b class="num" aria-live="polite">{tn(chosen.length, '{n} selected', '{n} selected')}</b>
+            <button type="button" class="btn" disabled={!shown.length || allPicked(shown)} onclick={() => pickAll(shown, true)}>{t('Select all')}</button>
+            <button type="button" class="btn" disabled={!chosen.length} onclick={() => pickAll(shown, false)}>{t('Select none')}</button>
+          </div>
+        {/if}
+
+        <!-- v0.47.2 (Noah 6a): every view says in one sentence what it shows -->
+        <section class="vhead" aria-labelledby="vh-h">
+          <span class="vic" aria-hidden="true"><VIcon size={20} /></span>
+          <div class="vt">
+            <h2 id="vh-h" class="title">{t(VIEW_NAME[view])}</h2>
+            <p class="vs">{VIEW_TEXT[view]}</p>
+          </div>
+          <dl class="vstats">
+            <div><dt>{t('Items')}</dt><dd class="num">{summary.n}</dd></div>
+            <div><dt>{t('together')}</dt><dd class="num">{knownWeight(summary.g, summary.missing)}</dd></div>
+            {#if summary.avgTaken != null}<div><dt>{t('Ø along')}</dt><dd class="num">{summary.avgTaken}×</dd></div>{/if}
+            {#if summary.usedShare != null}<div><dt>{t('used')}</dt><dd class="num">{summary.usedShare} %</dd></div>{/if}
+          </dl>
+        </section>
+        {#if view === 'never' && debriefN < NEVER_AFTER}<p class="card note">{t('Shows up after {a} debriefs. You have {n}.', { a: NEVER_AFTER, n: debriefN })}</p>{/if}
+        {#if view === 'never' && sorted.length}<p class="vs small">{t('"Leave at home" makes it optional: new trips no longer pack it on their own.')}</p>{/if}
+        {#if view === 'unweighed' && toWeigh}<p class="weighrow"><button type="button" class="btn" onclick={startWeigh}><Scale size={18} aria-hidden="true" />{t('Weigh one after the other')}</button></p>{/if}
+
+        {#if toWeigh && !selecting && !searching}
+          <!-- v0.43.0 (Wiege-Modus): one quiet row, no alarm -->
+          <p class="weighrow"><button type="button" class="link tap" onclick={startWeigh}>{t('{n} without weight · weigh', { n: toWeigh })}</button></p>
+        {/if}
+        {#if shownAs === 'cards'}
+          {#if sorted.length}
+            <div class="cards">
+              {#each sorted.slice(0, limit) as item (item.id)}
+                <MatCard {item} u={usageOf(mstats, item.id)} alt={altOf(item)} proven={proven(item)} {view} selected={selItem?.id === item.id} reasons={reasonsOf[item.id] ?? []} onopen={pickCard} onhome={leaveAtHome} />
+              {/each}
+            </div>
+            <div class="cfoot">
+              {#if mstats.months && view !== 'wish'}<DotsLegend />{/if}
+              {#if sorted.length > limit}<button type="button" class="btn" onclick={() => (limit += PAGE)}>{t('{n} more', { n: sorted.length - limit })}</button>{/if}
+            </div>
+          {:else if items.length}
+            {@render emptyView()}
+          {/if}
+        {:else if tab === 'inventory'}
+          <!-- The list (v0.38.0): the categories with their rows, swipe and ••• as before. -->
           <div class="viewbar">
             <p class="count num" aria-live="polite">
               {t('{a} of {b} items', { a: inventory.length, b: stats.inventory.length })}
               {#if !searching && groups.length}<button type="button" class="link tap" onclick={() => setAll(allOpen)}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}
-              <!-- v0.21.0: every favourite by area, read-only and printable -->
-              {#if filter.fav}<a class="favlink" href="#/favorites">{t('All favourites')} →</a>{/if}
+              {#if view === 'fav'}<a class="favlink" href="#/favorites">{t('All favourites')} →</a>{/if}
             </p>
             <span class="seg" role="group" aria-label={t('Show the bag')}>
               <button type="button" aria-pressed={!showBag} onclick={() => setShowBag(false)}>{t('Compact')}</button>
               <button type="button" aria-pressed={showBag} onclick={() => setShowBag(true)}>{t('With bag')}</button>
             </span>
           </div>
-          {#if toWeigh && !selecting && !searching}
-            <!-- v0.43.0 (Wiege-Modus): one quiet row, no alarm -->
-            <p class="weighrow"><button type="button" class="link tap" onclick={startWeigh}>{t('{n} without weight · weigh', { n: toWeigh })}</button></p>
-          {/if}
-          {#if filter.fav}
-            <!-- v0.22.0 (AP05): what the favourites number counts, and where the others are. -->
-            <p class="favbase">
-              {tn(favN.inventory, '{n} favourite in your inventory', '{n} favourites in your inventory')}{#if favN.wishlist}{' · '}<button type="button" class="link" onclick={() => (tab = 'wishlist')}>{tn(favN.wishlist, '{n} on the wishlist', '{n} on the wishlist')}</button>{/if}{#if favN.gone}{' · '}{tn(favN.gone, '{n} gone', '{n} gone')}{/if}
-            </p>
-          {/if}
           <div class="cats">
             {#each groups as g (g.key)}
               <section class="cat" aria-labelledby="gh-{g.key}">
@@ -541,11 +678,7 @@
                       {#if !selecting}
                         <GearRow {item} {showBag} {touch} {swiped} used={(usedN[item.id] ?? 0) > 0} onswipe={(id) => (swiped = id)} onopen={open} onmenu={(it) => (rowMenu = it)} onassign={assignOne} onarchive={archiveOne} ondelete={deleteOne} />
                       {:else}
-                      <li class="fr">
-                        {#if selecting}
-                          {@render pickRow(item, BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–')}
-                        {/if}
-                      </li>
+                        <li class="fr">{@render pickRow(item, BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–')}</li>
                       {/if}
                     {/each}
                   </ul>
@@ -555,55 +688,108 @@
                 {/if}
               </section>
             {:else}
-              {#if items.length && filter.fav && !favN.inventory}
-                <p class="card">{t('No favourites in your inventory yet. Tap the ☆ in front of an item to mark it.')} <button type="button" class="btn" onclick={clearFilters}>{t('Show all items')}</button></p>
-              {:else if items.length}{@render nothing()}{/if}
+              {#if items.length}{@render emptyView()}{/if}
             {/each}
           </div>
-        </div>
-      </div>
-      <!-- v0.23.0 (AP08): the analyses come after the list, in one fold that starts closed. -->
-      <details class="analysis" bind:open={analysis}>
-        <summary><span class="title">{t('Analysis')}</span> <small>{t('Weight by category and the heaviest items')}</small></summary>
-        {#if analysis}<WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />{/if}
-      </details>
-    {:else}
-      <section class="wish" aria-labelledby="wish-h">
-        <h2 id="wish-h" class="title">{t('Wishlist & to buy')}</h2>
-        <p class="sub">{t('Not owned yet. Not counted in the inventory or any total. Sorted by what helps most: missing on trips, needed on the bike, lighter.')}</p>
-        <ul class="rows">
-          {#each wishlist as { item, reasons } (item.id)}
-            <li class="fr">
-              {#if selecting}
-                {@render pickRow(item, `${t(OWNERSHIP[item.ownership] ?? '')} · ${t(CATEGORY[item.category]?.name ?? '')}`)}
+        {:else}
+          <section class="wish" aria-labelledby="wish-h">
+            <h2 id="wish-h" class="title">{t('Wishlist & to buy')}</h2>
+            <p class="sub">{t('Not owned yet. Not counted in the inventory or any total. Sorted by what helps most: missing on trips, needed on the bike, lighter.')}</p>
+            <ul class="rows">
+              {#each wishlist as { item, reasons } (item.id)}
+                <li class="fr">
+                  {#if selecting}
+                    {@render pickRow(item, `${t(OWNERSHIP[item.ownership] ?? '')} · ${t(CATEGORY[item.category]?.name ?? '')}`)}
+                  {:else}
+                    <FavStar {item} describedby="gn-{item.id}" />
+                    <button type="button" class:wl={item.ownership === 'wishlist'} onclick={() => open(item)}>
+                      <span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>
+                      <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
+                      <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
+                      <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
+                    </button>
+                  {/if}
+                </li>
               {:else}
-                <FavStar {item} describedby="gn-{item.id}" />
-                <button type="button" class:wl={item.ownership === 'wishlist'} onclick={() => open(item)}>
-                  <span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>
-                  <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
-                  <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
-                  <span class="w num" class:muted={item.weightG == null}>{item.weightG == null ? '–' : formatWeight(itemWeight(item))}</span>
-                </button>
-              {/if}
-            </li>
-          {:else}
-            <li class="empty">{filter.fav ? t('No favourites on the wishlist.') : t('No wishlist items match.')}{#if filter.q.trim() && !filter.fav}{' '}<button type="button" class="btn sm" onclick={() => addItem({ name: filter.q.trim() })}>{t('Add "{q}" as a new item', { q: filter.q.trim() })}</button>{/if}</li>
-          {/each}
-        </ul>
-      </section>
-      {#if stats.gone.length}
-        <details class="gone">
-          <summary>{t('Gone')} ({stats.gone.length}) <small>{t('kept for the record, not in any list or total')}</small></summary>
-          <ul class="rows">
-            {#each stats.gone as item (item.id)}
-              <li><button type="button" onclick={() => open(item)}><span class="nm">{nameOf(item)}</span><span class="bg">{item.note ?? ''}</span><span class="w num muted">–</span></button></li>
-            {/each}
-          </ul>
-        </details>
+                <li class="empty">{t('No wishlist items match.')}{#if filter.q.trim()}{' '}<button type="button" class="btn sm" onclick={() => addItem({ name: filter.q.trim() })}>{t('Add "{q}" as a new item', { q: filter.q.trim() })}</button>{/if}</li>
+              {/each}
+            </ul>
+          </section>
+        {/if}
+
+        {#if view === 'wish' && stats.gone.length}
+          <details class="gone">
+            <summary>{t('Gone')} ({stats.gone.length}) <small>{t('kept for the record, not in any list or total')}</small></summary>
+            <ul class="rows">
+              {#each stats.gone as item (item.id)}
+                <li><button type="button" onclick={() => open(item)}><span class="nm">{nameOf(item)}</span><span class="bg">{item.note ?? ''}</span><span class="w num muted">–</span></button></li>
+              {/each}
+            </ul>
+          </details>
+        {/if}
+        {#if view === 'all'}
+          <!-- v0.23.0 (AP08): the analyses come after the list, in one fold that starts closed. -->
+          <details class="analysis" bind:open={analysis}>
+            <summary><span class="title">{t('Analysis')}</span> <small>{t('Weight by category and the heaviest items')}</small></summary>
+            {#if analysis}<WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />{/if}
+          </details>
+        {/if}
+      </div>
+
+      {#if showPanel && selItem}
+        <!-- v0.47.2 (Noah 8a): the chosen card in detail; "Open" opens the item window -->
+        {@const DIcon = catIcon(selItem.category)}
+        <aside class="detail" aria-labelledby="det-h">
+          <div class="dh"><span class="zl">{t('Selected')}</span><button type="button" class="btn sm" onclick={() => open(selItem)}>{t('Open')}<ChevronRight size={16} aria-hidden="true" /></button></div>
+          <div class="dband" style:--c={catColor(selItem.category)} aria-hidden="true"><DIcon size={30} /></div>
+          <div class="dtitle">
+            <h2 id="det-h" class="title">{nameOf(selItem)}</h2>
+            <FavStar item={selItem} describedby="det-h" />
+          </div>
+          <p class="dsub">{[selItem.brand, t(CATEGORY[selItem.category]?.name ?? ''), BAG[selItem.defaultBag] ? t(BAG[selItem.defaultBag]) : ''].filter(Boolean).join(' · ')}</p>
+          <ItemLife item={selItem} {items} stats={mstats} log={mlog} {today} compact />
+        </aside>
       {/if}
-    {/if}
+    </div>
   {/if}
 </div>
+
+{#snippet showAs()}
+  <span class="disp"><Seg label={t('Show as')} full={false} options={[{ key: 'cards', name: t('Cards') }, { key: 'list', name: t('List') }]} value={display} onchange={setDisplay} /></span>
+  <!-- D4 «Material als Tabelle» adds a third choice here: Cards · List · Table -->
+  <button type="button" class="btn selbtn" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
+{/snippet}
+
+{#snippet viewButtons(kind)}
+  <div class="views {kind}" role="group" aria-label={t('Views')}>
+    {#each VIEWS as v (v)}
+      {@const I = VIEW_ICON[v]}
+      <button type="button" class="vbtn" data-view={v} aria-pressed={view === v} onclick={() => setView(v)}><I size={16} aria-hidden="true" /><span class="vn">{t(VIEW_NAME[v])}</span> <small class="num">{counts[v]}</small></button>
+    {/each}
+  </div>
+{/snippet}
+
+{#snippet emptyView()}
+  {#if filter.q.trim() || filter.category || filter.bag || filter.domain || filter.role || unusedOnly}
+    {@render nothing()}
+  {:else}
+    <div class="card none">
+      <p>
+        {#if view === 'never'}{debriefN >= NEVER_AFTER ? t('Nothing: everything you took got used at least once.') : ''}
+        {:else if view === 'fav'}{t('No favourites in your inventory yet. Tap the ☆ in front of an item to mark it.')}
+        {:else if view === 'unweighed'}{t('Everything is weighed.')}
+        {:else if view === 'wish'}{t('No wishlist items match.')}
+        {:else if view === 'most' || view === 'proven'}{t('Shows up once your debriefs say what you used.')}
+        {:else}{t('Nothing found.')}{/if}
+      </p>
+      {#if view !== 'all'}<div class="acts"><button type="button" class="btn" onclick={() => setView('all')}>{t('Show all items')}</button></div>{/if}
+    </div>
+  {/if}
+{/snippet}
+
+{#if sheet}
+  <FilterSheet value={{ sort, category: filter.category, bag: filter.bag, domain: filter.domain, role: filter.role }} count={viewList.length} cats={catOpts} bags={bagOpts} areas={areaOpts} onchange={(p) => { if (p.sort) setSort(p.sort); for (const k of ['category', 'bag', 'domain', 'role']) if (k in p) filter[k] = p[k]; }} onclose={() => (sheet = false)} />
+{/if}
 
 {#snippet nothing()}
   <!-- v0.23.0 (AP08): zero results offer to add what was searched for. -->
@@ -716,195 +902,31 @@
     margin-bottom: 18px;
   }
   /* v0.22.0 (AP03): page title from the type scale (was 56–88 px condensed capitals). */
-  .head .title {
-    max-width: 100%;
-  }
-  .kpis {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 22px;
-  }
-  .kpis div {
-    display: flex;
-    flex-direction: column;
-  }
+
   /* The big numbers keep the condensed face: a small accent of the outdoor identity. */
-  .kpis b,
-  .kpis :global(.sum b) {
-    font-family: var(--font-brand);
-    font-weight: 800;
-    font-size: 32px;
-    line-height: 1.05;
-  }
-  @media (max-width: 719px) {
-    .kpis {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      width: 100%;
-      gap: 8px;
-    }
-    .kpis div {
-      min-width: 0;
-    }
-    .kpis b,
-    .kpis :global(.sum b) {
-      font-size: 26px;
-    }
-    .kpis .tot {
-      grid-column: span 2;
-    }
-    .kpis .lbl {
-      font-size: var(--fs-small);
-      line-height: 1.25;
-      hyphens: auto;
-      overflow-wrap: break-word;
-    }
-  }
+
   /* v0.22.0 (AP03): 14 px labels need two rows of numbers on the narrowest phones. */
-  @media (max-width: 379px) {
-    .kpis {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  .tabs {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr)); /* v0.21.0: tabs may shrink below their label width */
-    gap: 1px;
-    background: var(--line);
-    border: 1.5px solid var(--line-strong);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 16px;
-  }
-  @media (min-width: 720px) {
-    .tabs {
-      max-width: 780px;
-    }
-  }
+
   /* v0.22.0 (AP03): words are never cut inside a tab; very narrow phones get 3 + 2 tabs. */
-  @media (max-width: 520px) {
-    .tabs button {
-      font-size: 13.5px;
-      line-height: 1.2;
-      text-align: center;
-      padding: 8px 2px;
-    }
-  }
+  
   /* v0.27.0 (AP21): 3 + 2 tabs up to 459 px; at 390 px "Wunschliste" was cut in five columns. */
-  @media (max-width: 459px) {
-    .tabs {
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-    }
-    .tabs button {
-      grid-column: span 2;
-    }
-    .tabs button:nth-child(n + 4) {
-      grid-column: span 3;
-    }
-  }
-  .tabs button {
-    border: 0;
-    background: var(--paper);
-    padding: 8px 4px;
-    font: 500 15px/1.3 var(--font-body);
-    color: var(--ink);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 0;
-    overflow-wrap: break-word;
-    hyphens: auto;
-  }
-  .tabs button[aria-selected='true'] {
-    background: var(--ink);
-    color: var(--paper);
-    font-weight: 600;
-  }
-  .tabs small {
-    font-weight: 400;
-    font-size: var(--fs-small);
-  }
-  .toolbar {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    align-items: end;
-    margin-bottom: 8px;
-  }
-  .fav {
-    border: 1.5px solid var(--line-strong);
-    background: var(--paper);
-    border-radius: 999px;
-    padding: 7px 12px;
-    font: 500 var(--fs-label) var(--font-body);
-    min-height: 40px;
-    color: var(--ink);
-    cursor: pointer;
-    justify-self: start;
-    white-space: nowrap;
-  }
+  
   /* v0.45.0 (acceptance follow-up 3): 44 px on touch ("Select", favourites, the toggles). */
   @media (pointer: coarse) {
-    .fav,
     .seg button {
       min-height: 44px;
     }
   }
-  .fav[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
-  }
-  .fav small {
-    font-weight: 400;
-    opacity: 0.8;
-  }
   /* v0.38.0: search and category on one line (one header row less); the toggles below. */
-  .toolbar {
-    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  }
-  .toolbar.areas .q {
-    grid-column: 1 / -1;
-  }
+
   /* v0.22.0 (AP03): on the narrowest phones the category list gets the full width. */
-  @media (max-width: 339px) {
-    .toolbar {
-      grid-template-columns: 1fr;
-    }
-  }
+  
   /* The search stays at the top while you scroll (desktop). */
-  @media (min-width: 720px) {
-    .toolbar {
-      position: sticky;
-      top: 46px;
-      z-index: 2;
-      background: var(--ground);
-      padding: 6px 0;
-      /* v0.24.1 (Noah 5a): one more auto column for "Select" */
-      grid-template-columns: minmax(200px, 2fr) 1fr auto auto 1fr auto;
-    }
-    .toolbar.areas {
-      grid-template-columns: minmax(200px, 2fr) 1fr 1fr auto auto 1fr auto;
-    }
-    .toolbar .q,
-    .toolbar.areas .q {
-      grid-column: auto;
-    }
-  }
-  .acts {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
+  
   .favlink {
     margin-left: 12px;
     font-weight: 700;
     color: var(--ink);
-  }
-  .count {
-    color: var(--ink-3);
-    font-size: 14px;
-    margin: 6px 0 12px;
   }
   .cat {
     margin-bottom: 20px;
@@ -1041,11 +1063,6 @@
   .rows .fr .nm {
     min-width: 0;
     overflow-wrap: break-word;
-  }
-  .favbase {
-    margin: -4px 0 10px;
-    font-size: 14px;
-    color: var(--ink-2);
   }
   .rows {
     list-style: none;
@@ -1265,50 +1282,7 @@
     text-align: left;
   }
   /* Desktop: a side column to jump between categories, categories in two columns (G1). */
-  @media (min-width: 720px) {
-    .inv {
-      display: grid;
-      grid-template-columns: 220px minmax(0, 1fr);
-      gap: 28px;
-      align-items: start;
-    }
-  }
-  .side {
-    position: sticky;
-    top: 130px;
-  }
-  .side ul {
-    list-style: none;
-    margin: 6px 0 0;
-    padding: 0;
-  }
-  .side button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    border: 0;
-    border-bottom: 1px solid var(--line);
-    background: none;
-    padding: 6px 2px;
-    font: inherit;
-    font-size: 14px;
-    color: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-  .side .n {
-    flex: 1;
-  }
-  .side .num {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  @media (hover: hover) {
-    .side button:hover {
-      background: var(--paper-2);
-    }
-  }
+
   @media (min-width: 1200px) {
     .cats {
       columns: 2;
@@ -1343,57 +1317,7 @@
     background: var(--paper);
     overflow-wrap: break-word;
   }
-  .dead {
-    max-width: 1000px;
-  }
-  .dead h3.title {
-    font-size: var(--fs-sub);
-    margin-top: 20px;
-  }
-  .dead .sub {
-    color: var(--ink-3);
-    margin: 4px 0 10px;
-  }
-  .drows {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .drows li {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: center;
-    gap: 4px 12px;
-    padding: 8px 0;
-    border-top: 1px solid var(--line);
-  }
-  .nmb {
-    border: 0;
-    background: none;
-    padding: 0;
-    text-align: left;
-    font: inherit;
-    color: inherit;
-    cursor: pointer;
-    min-width: 0;
-  }
-  .nmb small {
-    display: block;
-    color: var(--ink-3);
-  }
-  .ok {
-    color: var(--ink-3);
-  }
-  @media (max-width: 520px) {
-    .drows li {
-      grid-template-columns: minmax(0, 1fr) auto;
-    }
-    .drows li .btn,
-    .drows li .ok {
-      grid-column: 1 / -1;
-      justify-self: start;
-    }
-  }
+  
   .wish {
     margin-top: 8px;
     padding: 16px;
@@ -1727,85 +1651,7 @@
   /* ---------- v0.47.0 «Aufpimpen» (design release D1, Noah 7b, 11a; style sheet «Gletscher») ----------
      A slim tab bar with small counts, the filter labels only for screen readers, the categories as
      calm white cards with a small colour dot, the numbers quiet and right-aligned. */
-  .kpis .lbl {
-    color: var(--ink-3);
-    font-weight: 500;
-  }
-  .tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 26px;
-    max-width: none;
-    background: none;
-    border: 0;
-    border-bottom: 1px solid var(--line);
-    border-radius: 0;
-    overflow: visible;
-    margin-bottom: 18px;
-  }
-  .tabs button,
-  .tabs button:nth-child(n) {
-    grid-column: auto;
-    flex-direction: row;
-    align-items: baseline;
-    gap: 6px;
-    min-height: 44px;
-    margin-bottom: -1px;
-    padding: 10px 0 8px;
-    border-bottom: 2.5px solid transparent;
-    background: none;
-    color: var(--ink-2);
-    font: 500 15.5px/1.3 var(--font-body);
-    text-align: left;
-    cursor: pointer;
-    hyphens: manual;
-  }
-  .tabs button:hover {
-    color: var(--ink);
-  }
-  .tabs button[aria-selected='true'] {
-    background: none;
-    color: var(--ink);
-    font-weight: 600;
-    border-bottom-color: var(--hi);
-  }
-  .tabs small {
-    padding: 0 7px;
-    border-radius: 999px;
-    background: var(--paper-2);
-    color: var(--ink-3);
-    font-size: 12.5px;
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
-  }
-  @media (max-width: 459px) {
-    .tabs {
-      gap: 0 18px;
-    }
-    .tabs button,
-    .tabs button:nth-child(n) {
-      font-size: 14.5px;
-    }
-  }
-  .toolbar label:not(.q) .lbl,
-  .toolbar .q .lbl {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-  }
-  .toolbar .inp,
-  .toolbar .sel {
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: var(--paper);
-    min-height: 44px;
-  }
-  .fav {
-    border: 1px solid var(--line);
-    min-height: 44px;
-  }
+
   .cat {
     margin-bottom: 18px;
     padding: 4px 16px 6px;
@@ -1854,52 +1700,17 @@
   .cat :global(.gr:last-child) {
     border-bottom: 0;
   }
-  .side {
-    padding: 14px 10px 10px;
-    background: var(--paper);
-    border: 1px solid var(--card-line);
-    border-radius: var(--radius-card);
-    box-shadow: var(--card-shadow);
-  }
-  .side .lbl {
-    padding: 0 6px;
-    color: var(--ink-3);
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .side button {
-    min-height: 40px;
-    padding: 6px;
-    border-bottom: 0;
-    border-radius: 8px;
-  }
-  .side .sw {
-    width: 8px;
-    height: 8px;
-  }
   @media (min-width: 720px) {
-    .inv {
-      grid-template-columns: 220px minmax(0, 1fr);
-      gap: 20px;
-    }
     .cat {
       padding-left: 12px;
       padding-right: 12px;
     }
   }
   @media (min-width: 1440px) {
-    .inv {
-      grid-template-columns: 250px minmax(0, 1fr);
-      gap: 28px;
-    }
     .cat {
       padding-left: 16px;
       padding-right: 16px;
     }
-  }
-  .side .num {
-    white-space: nowrap;
   }
   @media (max-width: 719px) {
     .ht .title {
@@ -1923,5 +1734,375 @@
     background: var(--paper);
     color: var(--ink);
     box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  /* ---------- v0.47.2 «Material-Ansichten» (Noah 6a-9a): views, cards, detail column ---------- */
+  .acts {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .count {
+    color: var(--ink-3);
+    font-size: 14px;
+    margin: 6px 0 12px;
+  }
+  .favlink {
+    margin-left: 12px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .head {
+    align-items: flex-end;
+  }
+  .ht {
+    flex: 1 1 320px;
+    align-items: center;
+  }
+  .ht .page-sub {
+    flex-basis: 100%;
+    margin: 0;
+  }
+  .hlinks {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+  }
+  .hacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .modeback {
+    margin: 0 0 12px;
+  }
+  .mat {
+    display: grid;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (min-width: 720px) {
+    .mat {
+      grid-template-columns: 220px minmax(0, 1fr);
+    }
+  }
+  @media (min-width: 1200px) {
+    .mat.panel {
+      grid-template-columns: 230px minmax(0, 1fr) 330px;
+    }
+  }
+  .center {
+    min-width: 0;
+  }
+  .zl {
+    display: block;
+    margin: 14px 0 6px;
+    padding: 0 8px;
+    color: var(--ink-3);
+    font: 600 12px/1.3 var(--font-body);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .side .zl:first-child {
+    margin-top: 0;
+  }
+  .views.side,
+  .slist {
+    display: grid;
+    gap: 2px;
+  }
+  .vbtn,
+  .slist button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 44px;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--ink);
+    font: 500 15px/1.25 var(--font-body);
+    text-align: left;
+    cursor: pointer;
+  }
+  .vbtn .vn,
+  .slist .n {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .vbtn small,
+  .slist small {
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .vbtn :global(svg) {
+    flex: none;
+    color: var(--ink-3);
+  }
+  @media (hover: hover) {
+    .vbtn:hover,
+    .slist button:hover {
+      background: var(--paper-2);
+    }
+  }
+  .vbtn[aria-pressed='true'],
+  .slist button[aria-pressed='true'] {
+    background: var(--paper);
+    box-shadow: var(--card-shadow), 0 0 0 1px var(--card-line);
+    font-weight: 600;
+  }
+  .vbtn[aria-pressed='true'] :global(svg) {
+    color: var(--hi);
+  }
+  .slist .more1 {
+    color: var(--ink-3);
+    font-size: 14px;
+  }
+  /* The phone: the views as chips that wrap. */
+  .views.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0;
+  }
+  .chips .vbtn {
+    width: auto;
+    gap: 6px;
+    padding: 4px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+  }
+  .chips .vbtn .vn {
+    flex: none;
+  }
+  .chips .vbtn[aria-pressed='true'] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: none;
+  }
+  .chips .vbtn[aria-pressed='true'] small,
+  .chips .vbtn[aria-pressed='true'] :global(svg) {
+    color: var(--paper);
+  }
+  .quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 12px;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .toolbar .q {
+    flex: 1 1 220px;
+    min-width: 0;
+  }
+  .toolbar .inp {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    min-height: 44px;
+  }
+  .fbtn,
+  .selbtn {
+    min-height: 44px;
+    border-color: var(--line);
+    border-radius: 12px;
+  }
+  .selbtn[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .badge {
+    font-style: normal;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 99px;
+    background: var(--badge);
+    color: var(--badge-ink);
+  }
+  @media (max-width: 719px) {
+    .toolbar .q {
+      flex: 1 1 calc(100% - 64px);
+    }
+    .quick {
+      align-items: center;
+    }
+  }
+  .vhead {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 4px 12px;
+    align-items: start;
+    margin: 6px 0 12px;
+  }
+  .vic {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--hi-soft);
+    color: var(--hi);
+  }
+  .vt .title {
+    font-size: var(--fs-section);
+    font-weight: 500;
+  }
+  .vs {
+    margin: 2px 0 0;
+    color: var(--ink-2);
+    font-size: 14.5px;
+  }
+  .vs.small {
+    margin: -4px 0 10px;
+    color: var(--ink-3);
+  }
+  .vstats {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0 0;
+  }
+  .vstats div {
+    display: flex;
+    flex-direction: column-reverse;
+    padding: 6px 12px;
+    border-radius: 10px;
+    background: var(--paper);
+    border: 1px solid var(--card-line);
+  }
+  .vstats dt {
+    color: var(--ink-3);
+    font-size: 12.5px;
+  }
+  .vstats dd {
+    margin: 0;
+    font: 800 20px/1.1 var(--font-brand);
+  }
+  @media (min-width: 1000px) {
+    .vhead {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+    .vstats {
+      grid-column: 3;
+      margin: 0;
+    }
+  }
+  .note {
+    margin: 0 0 12px;
+  }
+  .cards {
+    display: grid;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: var(--paper);
+  }
+  .cards :global(.mcard:last-child) {
+    border-bottom: 0;
+  }
+  @media (min-width: 720px) {
+    .cards {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      border: 0;
+      border-radius: 0;
+      overflow: visible;
+      background: none;
+    }
+  }
+  .cfoot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin: 10px 0 0;
+  }
+  .detail {
+    position: sticky;
+    top: 70px;
+    max-height: calc(100vh - 86px);
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--paper);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--card-shadow);
+  }
+  .dh {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .dh .zl {
+    margin: 0;
+    padding: 0;
+  }
+  .dband {
+    display: grid;
+    place-items: center;
+    height: 96px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--c) 16%, var(--paper));
+    color: color-mix(in srgb, var(--c) 80%, var(--ink));
+  }
+  .dtitle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .dtitle .title {
+    font: 800 30px/1 var(--font-brand);
+  }
+  .dsub {
+    margin: 2px 0 12px;
+    color: var(--ink-3);
+    font-size: 14px;
+  }
+  /* The phone: title and "Add item" on one line, the numbers of a view are in the head line already. */
+  @media (max-width: 719px) {
+    .head {
+      align-items: center;
+      gap: 8px 12px;
+    }
+    .ht {
+      display: contents;
+    }
+    .ht .title {
+      flex: 1 1 auto;
+      flex-basis: auto;
+    }
+    .hacts {
+      order: 1;
+    }
+    .hlinks {
+      order: 2;
+      flex-basis: 100%;
+    }
+    .ht .page-sub {
+      order: 3;
+    }
+    .vstats {
+      display: none;
+    }
   }
 </style>
