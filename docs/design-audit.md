@@ -79,8 +79,10 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Material | Kleiderschrank | 9.10.2026 (0.47 neu gebaut nach Mockup) | 4 |
 | Material | Import prüfen, Favoriten, Wunschliste | – | – |
 | Velos | Setup, Velo-Dialog, Taschen-Dialog/-Blatt | 9.10.2026 (0.47: nur Kopfband in der Gletscher-Schrift) | 3 |
-| Velos | Velopflege, Teil-, Werkstattbesuch- und Bestell-Dialog | 9.10.2026 (0.47: Schrift vereinheitlicht, «Jetzt fällig» als Karten; Dialoge noch alt) | 3 |
-| Weiteres | Inbox/Notiz, Funktionen-Seite | 9.10.2026 (0.47: Inbox leert sich selbst) | 3 |
+| Velos | Velopflege, Teil-, Werkstattbesuch- und Bestell-Dialog | 9.10.2026 (0.48: Übersicht C nach Mockup, Teiletabelle, geführtes Ersetzen/Warten, Startwerte; Werkstattbesuch- und Bestell-Dialog noch alt) | 3 |
+| Velos | Velos vergleichen, Werkstatt & Belege | 9.10.2026 (0.48 neu) | 3 |
+| Weiteres | Eingang, Ablegen-Blatt, Notizen, Notiz-Blatt | 9.10.2026 (0.48 neu nach Mockup) | 3 |
+| Weiteres | Funktionen-Seite | – | – |
 
 Geplante Screens (zuerst Mockup): Im Flow (Übersicht, Tagescheck, Woche, Tennis, Neuland), Einkaufszettel, Lebenslauf eines Teils, Werkstatt-Anleitungen.
 
@@ -95,9 +97,12 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Packtag (PackStage) mit derselben Velozeichnung und Gewichtskarte wie Planen. Ziel 0.48.
 - Velos/Setup: nur das Kopfband ist angeglichen; Zeichnung, Taschen-Blatt und Dialoge folgen. Velopflege-Dialoge (Teil, Werkstattbesuch, Bestellung). Ziel 0.48.
 - Material → Wiegen und Import prüfen «Unsicher»: bleiben bewusst (siehe decisions.md), Optik auf Karten-Token. Ziel 0.48.
+- Auswahl-Chips (`.chip`, aria-pressed) aus 0.48 als gemeinsamer Baustein in `app.css`: heute lokal in FileSheet, NoteSheet, PartFlow, CareTab, ShopTab, Inbox. Ziel 0.49.
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
 
 - 9.10.2026: Regel eingeführt. Erste Runde gestartet: Neuentwurf Kleiderschrank, Material, Tour und Velos sowie erste Mockups für Im Flow und 0.47.
 - 9.10.2026, 0.47 «Aufpimpen» (D1): Kleiderschrank nach Mockup neu (Note 2 → 4); Tour/Packen mit Velo und Gewichtskarte, Material mit Reitern und Karten, Velopflege mit einer Schriftordnung und «Jetzt fällig» als Karten, Setup-Kopfband angeglichen, Inbox und Prüfen leeren sich selbst. Neue Regel «Eine Abarbeitungsliste leert sich selbst». Bilder vorher/nachher: `design/audit-0.47/` (Velopflege: `care-*`). Offenes unter «Offen: Angleichen».
+- 9.10.2026, 0.48 «Pflege-Übersicht + Teile pro Velo + Eingang/Notizen»: Velopflege mit Übersicht C (Ringe, höchstens 3 Fällig-Karten, flache Probleme), Teiletabelle nach Bereich mit «Mehr», geführtes Ersetzen/Warten; Velos vergleichen (fixe erste Spalte, Tabelle scrollt in sich); Eingang nach Tagen mit Ablegen-Blatt (7 Ziele); Werkstatt & Belege; neue Seite Notizen. Mitgezogen: Velos-Reiter (dritter Reiter Werkstatt), Mehr-Menü (Notizen), Heute (eine Zeile für angeheftete Notiz). Offen: Chips (`.chip`) sind in FileSheet, NoteSheet, PartFlow und CareTab je lokal gestylt; als gemeinsamer Baustein in `app.css` Ziel 0.49. Werkstattbesuch- und Bestell-Dialog noch im alten Stil, Ziel 0.49.
+

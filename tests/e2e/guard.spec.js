@@ -34,7 +34,10 @@ const ROUTES = [
   ['#/wardrobe', 'Kleiderschrank'],
   ['#/bikes', 'Velos Setup'],
   ['#/bikes?tab=care', 'Velos Pflege'],
-  ['#/inbox', 'Inbox'],
+  ['#/bikes?tab=compare', 'Velos vergleichen'], // v0.48.0
+  ['#/bikes?tab=shop', 'Werkstatt & Belege'], // v0.48.0
+  ['#/inbox', 'Eingang'],
+  ['#/notes', 'Notizen'], // v0.48.0
   ['#/features', 'Funktionen'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
