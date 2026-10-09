@@ -65,7 +65,7 @@ describe('who works on the bike', () => {
       ['2026-06-10', 'shop'],
     ]);
     expect(rows[0].what).toBe('Chain waxed');
-    expect(rows[3]).toMatchObject({ what: 'Brake pads rear, Shifting, Wheels', shop: 'test_data_gtp_ Velo shop', chf: 185.5, km: 4200 });
+    expect(rows[3]).toMatchObject({ what: 'Brake pads rear, Rear derailleur, Wheels', shop: 'test_data_gtp_ Velo shop', chf: 185.5, km: 4200 });
     expect(recentWork(view, visits).length).toBe(3);
   });
 
