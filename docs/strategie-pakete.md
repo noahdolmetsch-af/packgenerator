@@ -48,6 +48,7 @@ Noah: «zuerst einfach, dann mehr integrieren, ungefähr mit der Strava-Integrie
 - **Stufe 2 «Mehr» (zusammen mit S1 Strava und Server):** Verbindungen direkt in der App (offene Fahrplan-Daten, z. B. transport.opendata.ch); GPX-Route auf einer Karte (swisstopo- oder OSM-Kacheln); Import von Google-My-Maps-Exporten (KML/KMZ); Komoot/Ride with GPS.
 - Kein Google-Maps-Einbau mit API-Schlüssel (braucht ein Abrechnungskonto); Google Maps nur als Link.
 - Wie jedes Paket: zuerst Mockups und a/b-Fragen ([Arbeitsweise](arbeitsweise.md)).
+- Reihenfolge (Noah, 9.10.2026): zuerst der KI-Helfer (aus S4, jetzt mit Mockups planen), danach Stufe 1 «Links».
 
 ## Neuland
 
