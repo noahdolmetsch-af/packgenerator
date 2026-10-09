@@ -323,6 +323,7 @@ Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0
   - Inbox: angewendet. Eine eingeordnete Notiz ist erledigt; «Rückgängig» löscht, was sie angelegt hat (Reparatur, Teil, Learning, Rückblick-Notiz) und öffnet sie wieder.
   - Material → Prüfen («Hast du es noch?»): angewendet. Zeigte schon ein Teil nach dem anderen; neu kann jede Antwort zurückgenommen werden, der Fokus bleibt auf «Hab ich noch».
   - Nicht angewendet: Import prüfen «Unsicher» (Entscheide bleiben bis «Übernehmen» sichtbar und änderbar), Rückblick-Ausnahmen (Zustände wechseln im Kreis), Wiegen (geht schon weiter und hat Rückgängig), Velopflege «Ohne Daten» (Nachschlagen, nicht Abarbeiten), Packlisten und Materialliste (Zeilen sollen sichtbar bleiben, Abhaken ist ein Zustand).
+
 ## 9.10.2026: «Startseite anpassen» lesbar (0.46.2)
 
 - **Fehler (Noah am Handy):** Die Namen der Abschnitte standen Buchstabe für Buchstabe senkrecht, die Liste wirkte leer. Ursache: Das Etikett in `src/lib/home/Customize.svelte` nutzte die Klasse `sw`, die `app.css` global als 10 × 10 px Farbfeld festlegt; die Breite von 10 px galt auch für das Etikett. Jetzt `tg`. Ein Browsertest prüft, dass jeder Name lesbar in seiner Zeile steht.
