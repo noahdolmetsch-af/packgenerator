@@ -990,8 +990,8 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
     const had = tipsOf(snapshot.settings);
     const back = tipsOf(await table(page, 'settings'));
     // v0.46.0: Today no longer writes the shown tips ("Good to know" is gone); when there is a record it must come back
-    if (was == null) expect(back).toBeNull();
-    else expect({ known: back.known, tapped: back.tapped }).toEqual({ known: was.known, tapped: was.tapped });
+    if (had == null) expect(back).toBeNull();
+    else expect({ known: back.known, tapped: back.tapped }).toEqual({ known: had.known, tapped: had.tapped });
   });
   // Offline: the tests block the service worker (it would cache old builds), so offline use cannot be shown here.
   rec.r.open = ['offline use: not testable here (service worker blocked in the tests); Noah checks it on the phone in flight mode'];
