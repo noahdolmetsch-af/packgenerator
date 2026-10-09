@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.62.0
+  'Every bike shows its fit and setup at the top: saddle height, target tyre pressure, bar width and more. Tap a value to change it.':
+    'Jedes Velo zeigt oben seine Masse: Sitzhöhe, Solldruck der Reifen, Lenkerbreite und mehr. Tippe auf einen Wert, um ihn zu ändern.',
+  '"Compare bikes" starts with these numbers for all bikes.': '«Velos vergleichen» beginnt mit diesen Werten für alle Velos.',
+  'Checking the tyre pressure shows the target beside the last value and fills it in; the base check names it too.':
+    'Beim Reifendruck-Prüfen steht der Solldruck neben dem letzten Wert und ist schon eingetragen; auch der Basischeck nennt ihn.',
+
   // 0.48.0
   'Bike care starts with an overview: a ring per bike, at most three cards for what is due, all problems in one list. Replacing or servicing a part is a short guided flow.':
     'Die Velopflege beginnt mit einer Übersicht: ein Ring pro Velo, höchstens drei Karten für Fälliges, alle Probleme in einer Liste. Ein Teil ersetzen oder warten ist ein kurzer geführter Ablauf.',

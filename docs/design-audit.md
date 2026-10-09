@@ -86,7 +86,8 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Im Flow | Übersicht, Heute-Karte, Abhaken-Blatt, Stoppuhr, Tagescheck, Ziele/Bearbeiten | 9.10.2026 (0.51 neu nach Mockup ImFlow-*) | 4 |
 | Weiteres | Inbox/Notiz, Funktionen-Seite | 9.10.2026 (0.47: Inbox leert sich selbst) | 3 |
 | Velos | Velopflege, Teil-, Werkstattbesuch- und Bestell-Dialog | 9.10.2026 (0.48: Übersicht C nach Mockup, Teiletabelle, geführtes Ersetzen/Warten, Startwerte; Werkstattbesuch- und Bestell-Dialog noch alt) | 3 |
-| Velos | Velos vergleichen, Werkstatt & Belege | 9.10.2026 (0.48 neu) | 3 |
+| Velos | Velos vergleichen, Werkstatt & Belege | 9.10.2026 (0.48 neu; 0.62: Masse zuerst) | 3 |
+| Velos | Setup: Block «Masse» | 9.10.2026 (0.62 neu: Karte immer offen, 2/4 Spalten, Bearbeiten an Ort, Rückgängig) | 4 |
 | Weiteres | Eingang, Ablegen-Blatt, Notizen, Notiz-Blatt | 9.10.2026 (0.48 neu nach Mockup) | 3 |
 | Weiteres | Funktionen-Seite | – | – |
 
@@ -117,4 +118,4 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 9.10.2026, 0.51 «Im Flow – kleiner Start»: Übersicht, Heute-Karte, Abhaken-Blatt, Stoppuhr (Blatt und schwebend), Tagescheck und Bearbeiten nach den freigegebenen Mockups ImFlow-* gebaut, hell und dunkel, 320/390/1440 (Note 4: unter 360 px fallen die Symbole der Abhaken-Knöpfe weg, lange Namen brechen in Ziele × Tage auf zwei Zeilen). Bilder: `design/v0510/`.
 - 9.10.2026, 0.56.0 R1 «Rückblick ruhig»: Rückblick als eine Seite, Vergangene Touren als Tabelle (am Handy mit stehender Namensspalte), gespeicherter Tour-Rückblick nach drei «A». Mitgezogen: Breadcrumbs auf Rückblick, Vergangene Touren und den Unterseiten Tempo/Gelernt/Logbuch; «Mehr › Rückblick», Heute (Rückblick-Knopf, 12-Monate-Zeile), Tipps. Wächter-Grundlinie: Stil nur gesunken (Compare/Review gelöscht, Debrief/PastTrips weniger), Konsistenz-Test prüft statt `#/review` jetzt `#/debrief/learnings` und `#/debrief/pace`. Bilder: `design/v0490/vorher` und `nachher`.
 - 9.10.2026, 0.48 «Pflege-Übersicht + Teile pro Velo + Eingang/Notizen»: Velopflege mit Übersicht C (Ringe, höchstens 3 Fällig-Karten, flache Probleme), Teiletabelle nach Bereich mit «Mehr», geführtes Ersetzen/Warten; Velos vergleichen (fixe erste Spalte, Tabelle scrollt in sich); Eingang nach Tagen mit Ablegen-Blatt (7 Ziele); Werkstatt & Belege; neue Seite Notizen. Mitgezogen: Velos-Reiter (dritter Reiter Werkstatt), Mehr-Menü (Notizen), Heute (eine Zeile für angeheftete Notiz). Offen: Chips (`.chip`) sind in FileSheet, NoteSheet, PartFlow und CareTab je lokal gestylt; als gemeinsamer Baustein in `app.css` Ziel 0.49. Werkstattbesuch- und Bestell-Dialog noch im alten Stil, Ziel 0.49.
-
+- 9.10.2026, 0.62.0 «Velo-Masse»: neue Karte «Masse» oben auf jedem Velo (Baukasten: `.card`, Typo-Tokens, keine neuen Farben; Wert-Knöpfe 44 px; kein seitliches Scrollen bei 320/390). Velos vergleichen: Gruppe «Masse» zuerst. «Druck geprüft» zeigt Soll und zuletzt gemessen. Bilder: `design/v0620/vorher` und `nachher` (1440 + 390, hell + dunkel). Wächter unverändert grün (Note 4).

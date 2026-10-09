@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.62.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'Every bike shows its fit and setup at the top: saddle height, target tyre pressure, bar width and more. Tap a value to change it.', href: '#/bikes' },
+      { text: '"Compare bikes" starts with these numbers for all bikes.', href: '#/bikes' },
+      { text: 'Checking the tyre pressure shows the target beside the last value and fills it in; the base check names it too.', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
     version: '0.57.0',
     date: '2026-10-09',
     points: [

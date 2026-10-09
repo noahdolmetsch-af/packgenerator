@@ -20,6 +20,7 @@
   import SetupFold from './SetupFold.svelte';
   import BagSheet from './BagSheet.svelte';
   import WhoCard from './WhoCard.svelte';
+  import FitCard from './FitCard.svelte';
   import Help from '../ui/Help.svelte';
   import BagDialog from './BagDialog.svelte';
   import BikeDialog from './BikeDialog.svelte';
@@ -236,6 +237,9 @@
   {:else if bike}
     <SetupBand {bikes} {bike} {setup} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} />
 
+    <!-- v0.62.0 «Velo-Masse» (Noah): the fit and setup numbers, always open, at the top of the bike. -->
+    {#key bike.id}<FitCard {bike} />{/key}
+
     <div class="cols">
       <div class="main">
         <section class="card draw" aria-label={t('{bike} with its bags', { bike: bike.name })}>
@@ -295,7 +299,7 @@
         <WhoCard bike={view} {visits} {tasks} year={today.slice(0, 4)} per={profile?.per} next={forShop} onorder={() => (orderOpen = true)} />
 
         <!-- v0.48.0 (Noah): all bikes' parts, values and geometry side by side, two taps from Bikes. -->
-        <a class="cmplink" href={bikesHash({ tab: 'compare' })}><Columns3 class="ic" size={20} aria-hidden="true" /><span class="cl">{t('Compare bikes')}</span><span class="sum">{t('Parts, values, geometry')}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+        <a class="cmplink" href={bikesHash({ tab: 'compare' })}><Columns3 class="ic" size={20} aria-hidden="true" /><span class="cl">{t('Compare bikes')}</span><span class="sum">{t('Fit, parts, values, geometry')}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
 
         <SetupFold icon={Bike} label={t('Bike details')} summary={`${weightWords} · ${tn((bike.fixtures ?? []).length, '{n} thing always mounted', '{n} things always mounted')}`}>
           <div class="details-in">

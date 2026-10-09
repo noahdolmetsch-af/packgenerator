@@ -136,7 +136,7 @@ describe('compare bikes', () => {
     const drive = c.main.find((g) => g.area === 'drive');
     expect(drive.rows.find((r) => r.id === 'chain:model')).toMatchObject({ values: ['Kettenwerk K11', 'Kettenwerk K12'], differ: true });
     expect(drive.rows.find((r) => r.id === 'cassette:model').values).toEqual(['Zahnkranz 10-50', null]);
-    expect(c.geo.rows).toHaveLength(12);
+    expect(c.geo.rows).toHaveLength(11); // v0.62.0: the saddle height moved to the fit rows
     expect(c.more.find((g) => g.area === 'extras').rows.some((r) => r.key === 'own-klingel')).toBe(true);
     expect(areaWeight(a, 'brakes')).toMatchObject({ g: 500, known: 2 });
     expect(hasSpecs(b)).toBe(true);

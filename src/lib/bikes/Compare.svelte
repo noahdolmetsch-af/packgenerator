@@ -5,6 +5,8 @@
    * (travel, stack, reach, wheel size), then the parts shown by default per area, the geometry, the
    * rest under «More», and the weight per area at the bottom. An empty cell is a calm «–»; a tap on
    * any cell opens a small sheet to type the value. Values that differ get a soft background.
+   * v0.62.0 «Velo-Masse»: the fit and setup rows (saddle height, target pressure, bar width …) come
+   * first of all and are always shown, never under «More».
    * Phone: the first column stays, the bike columns scroll inside the table, never the page.
    */
   import { liveQuery } from 'dexie';
@@ -50,7 +52,7 @@
 <div class="cmp">
   <p class="back"><a href={bikesHash({ tab: 'setup' })}><ChevronLeft size={18} aria-hidden="true" />{t('Bikes')}</a></p>
   <h2 class="title">{t('Compare bikes')}</h2>
-  <p class="page-sub">{t('Parts, values and geometry of every bike side by side. Tap a cell to fill it in.')}</p>
+  <p class="page-sub">{t('Fit, parts, values and geometry of every bike side by side. Tap a cell to fill it in.')}</p>
 
   {#if !bikes.length && $bikesQ}
     <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
@@ -80,6 +82,7 @@
           </tr>
         </thead>
         <tbody>
+          {@render group(table.fit)}
           <tr class="gh"><th scope="rowgroup" colspan={bikes.length + 1}><span class="zl">{t('Key values')}</span></th></tr>
           {@render rows(table.top)}
           {#each table.main as g (g.area)}{@render group(g)}{/each}

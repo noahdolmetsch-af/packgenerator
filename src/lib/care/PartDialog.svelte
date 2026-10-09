@@ -1,7 +1,7 @@
 <script>
   import { localDay } from '../localday.js';
   import { partInfo, wear, replaceHint, kmSince, lastReplace, EXTRA, partName, attrsOf, PART } from '../care.js';
-  import { readValue } from '../bikespecs.js';
+  import { readValue, targetPressure } from '../bikespecs.js';
   import PartFlow from './PartFlow.svelte';
   import { ArrowLeftRight, Wrench, ChevronRight } from '@lucide/svelte';
   import { t, num as fmtNum, dateOf } from '../i18n.svelte.js';
@@ -84,6 +84,9 @@
   }
 
   const hint = $derived(replaceHint(part));
+  // v0.62.0: the bike's target pressure beside the pressure fields («Soll 1.6»).
+  const target = $derived(part.key === 'tyres' ? targetPressure(bike) : null);
+  const targetOf = (k) => (k === 'pressureF' ? target?.f : k === 'pressureR' ? target?.r : null);
   const sinceNew = $derived(kmSince(bike, lastReplace(part)));
   const state = $derived(wear(part));
 </script>
@@ -126,7 +129,7 @@
     <label><span class="lbl">{t('Measured')}{p.unit ? ` (${p.unit})` : ''}</span><input class="inp num" type="text" inputmode="decimal" bind:value={value} placeholder={p.unit ? t('optional') : t('no measurement')} disabled={!p.unit} /></label>
     {#if p.limit != null}<label><span class="lbl">{p.lowIsWorn ? t('Replace below ({unit}) on this bike', { unit: p.unit }) : t('Replace at ({unit}) on this bike', { unit: p.unit })}</span><input class="inp num" type="text" inputmode="decimal" bind:value={limit} /></label>{/if}
     {#each p.extra ?? [] as k (k)}
-      <label><span class="lbl">{t(EXTRA[k].name)} ({EXTRA[k].unit})</span><input class="inp num" type="text" inputmode="decimal" bind:value={extra[k]} placeholder={t('optional')} /></label>
+      <label><span class="lbl">{t(EXTRA[k].name)} ({EXTRA[k].unit})</span><input class="inp num" type="text" inputmode="decimal" bind:value={extra[k]} placeholder={targetOf(k) != null ? `${t('Target')} ${fmtNum(targetOf(k))}` : t('optional')} /></label>
     {/each}
     <label class="wide"><span class="lbl">{t('Note')}</span><input class="inp" bind:value={note} placeholder={t('optional')} /></label>
   </div>

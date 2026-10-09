@@ -446,3 +446,12 @@ Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0
   - Heute zeigt eine Zeile nur für eine angeheftete Notiz mit offener Checkliste.
 - **TODO Texterkennung:** Eine Texterkennung auf dem Gerät (Betrag, Laden und Datum aus dem Belegfoto) ist im Browser nicht günstig zu haben. Tesseract.js wiegt mehrere MB und ist langsam am Handy, die Shape Detection API kann keinen Text in Chrome/Android stabil. Darum ist sie nicht gebaut; die Felder werden von Hand ausgefüllt. Wieder prüfen, wenn `TextDetector` breit verfügbar ist.
 - **Bedienungsanleitungen** unter Werkstatt & Belege sind noch nicht gebaut (Roadmap).
+
+## 9.10.2026: Velo-Masse (0.62.0)
+
+Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reifendruck, die Lenkerbreite … sowie weitere angezeigt werden».
+- Jedes Velo hat einen Block **Masse** (EN «Fit and setup», `bike.fit`), auf der Velo-Seite oben, immer offen, nie unter «Mehr». Sitzhöhe, Solldruck vorne/hinten und Lenkerbreite stehen immer zuerst.
+- Die Sitzhöhe wandert aus der Geometrie in die Masse; ein altes `geometry.seatHeight` wird weiter gelesen und von `updates.js fitMove2026` einmal verschoben (idempotent, ein schon getippter Wert in `fit` gewinnt).
+- Solldruck = der gewünschte Druck (bar), nicht der gemessene. Der gemessene bleibt im Verlauf des Reifens. Beim «Druck geprüft» steht «Soll» neben «Zuletzt gemessen», die Felder sind mit dem Soll vorausgefüllt; der Basischeck nennt den Soll pro Velo.
+- Selbst entschieden (Schnellmodus): zusätzliche Felder Rahmengrösse, Sattelversatz, Sattelüberhöhung, Vorbaulänge/-winkel, Kurbellänge, Reifenbreite v/h, Gabeldruck/-Sag, Dämpferdruck/-Sag; Federung in psi, Sag in %; Kurbellänge und Reifenbreiten leben weiter am Teil (Kurbel, Reifen) und werden nur gezeigt (ein Wert, ein Ort); Gabel- bzw. Dämpferzeilen nur bei Velos mit dieser Federung oder mit einem Wert; am Handy 2 Spalten, ab 900 px 4.
+- Import `bikeSpecs`: `fit: {…}` (auch `masse`) mit englischen Schlüsseln oder deutschen Namen; unbekannte Schlüssel werden genannt und ausgelassen; ein anderer vorhandener Wert nur mit Häkchen.

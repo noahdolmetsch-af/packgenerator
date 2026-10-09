@@ -14,6 +14,7 @@ import { SETS_KEY, addSet, allSets } from './sets.js';
 import { isInventory } from './gear.js';
 import { migrateAll, blocksRerunAfterImport, BLOCKS_MARKER } from './blocks2026.js';
 import { ensureSeed } from './flowdb.js';
+import { moveSeatHeight } from './bikespecs.js';
 
 const now = () => new Date().toISOString();
 
@@ -483,7 +484,26 @@ export async function basicCheck2026(db) {
  */
 export const flowSeed2026 = (db) => ensureSeed(db);
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, blocks2026, templatesLinked2026];
+/**
+ * v0.62.0 «Velo-Masse»: the saddle height moved from the geometry to the fit block. Every bike with
+ * geometry.seatHeight gets it as fit.seatHeight (a value typed in fit stays) and loses the old field.
+ * Idempotent: it checks the data itself, so it runs on every start and after an import.
+ */
+export async function fitMove2026(db) {
+  let n = 0;
+  await db.transaction('rw', db.bikes, async () => {
+    for (const bike of await db.bikes.toArray()) {
+      const changes = moveSeatHeight(bike);
+      if (changes) {
+        await db.bikes.update(bike.id, changes);
+        n++;
+      }
+    }
+  });
+  return n > 0;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, fitMove2026, blocks2026, templatesLinked2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);
