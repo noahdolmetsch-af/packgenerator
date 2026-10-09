@@ -16,7 +16,7 @@
     gap: 4px 14px;
     margin: 8px 0 0;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   span {
     display: inline-flex;

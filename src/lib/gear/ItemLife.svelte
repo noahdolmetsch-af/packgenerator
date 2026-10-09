@@ -118,18 +118,18 @@
     min-width: 0;
   }
   .st b {
-    font: 800 26px/1.05 var(--font-brand);
+    font: 800 var(--fs-section)/1.05 var(--font-brand);
     white-space: nowrap;
   }
   .st span {
     color: var(--ink-2);
-    font-size: 13.5px;
+    font-size: var(--fs-small);
     line-height: 1.3;
   }
   .st small {
     display: block;
     color: var(--ink-3);
-    font-size: 12.5px;
+    font-size: var(--fs-small);
   }
   .sec {
     padding: 14px;
@@ -147,7 +147,7 @@
   }
   .sh small {
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
     font-weight: 500;
   }
   .ends {
@@ -155,7 +155,7 @@
     justify-content: space-between;
     margin: 4px 0 0;
     color: var(--ink-3);
-    font-size: 12.5px;
+    font-size: var(--fs-small);
   }
   .rule,
   .alt {
@@ -167,7 +167,7 @@
     border-radius: 10px;
     background: var(--accent-soft);
     color: var(--ink);
-    font-size: 14.5px;
+    font-size: var(--fs-small);
   }
   .alt {
     background: var(--warn-soft);
@@ -207,7 +207,7 @@
     display: block;
     color: var(--ink-3);
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .bars {
     list-style: none;
@@ -221,7 +221,7 @@
     grid-template-columns: minmax(0, 1.2fr) minmax(60px, 1fr) auto;
     align-items: center;
     gap: 10px;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .bn {
     min-width: 0;
@@ -230,7 +230,7 @@
   .bn small {
     display: block;
     color: var(--ink-3);
-    font-size: 12px;
+    font-size: var(--fs-small);
   }
   .track {
     height: 8px;
@@ -260,10 +260,10 @@
     background: none;
   }
   .compact .sh {
-    font-size: 15px;
+    font-size: var(--fs-body);
     margin-bottom: 6px;
   }
   .compact .st b {
-    font-size: 22px;
+    font-size: var(--fs-section);
   }
 </style>

@@ -28,7 +28,7 @@
   );
 </script>
 
-<article class="mcard" class:sel={selected} data-id={item.id} style:--c={catColor(item.category)}>
+<article class="mcard" class:picked={selected} data-id={item.id} style:--c={catColor(item.category)}>
   <button type="button" class="mopen" aria-current={selected ? 'true' : undefined} onclick={() => onopen?.(item)}>
     <span class="tile" aria-hidden="true"><Icon size={22} /></span>
     <span class="body">
@@ -47,7 +47,7 @@
     </span>
   </button>
   {#if proven}<span class="pill ok tag">{t('Proven')}</span>{/if}
-  <span class="star"><FavStar {item} describedby="mc-{item.id}" /></span>
+  <span class="fstar"><FavStar {item} describedby="mc-{item.id}" /></span>
   {#if view === 'never' && onhome}
     <div class="acts">
       {#if leaveHome(item)}<span class="home">{t('Stays at home')}</span>{:else}<button type="button" class="btn sm" onclick={() => onhome(item)}>{t('Leave at home')}</button>{/if}
@@ -123,7 +123,7 @@
   .wt.nw {
     color: var(--ink-3);
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .use,
   .dw,
@@ -132,14 +132,14 @@
   }
   .use {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .use.never {
     color: var(--ink-2);
   }
   .hint {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
     overflow-wrap: break-word;
   }
   .hint.alt {
@@ -151,7 +151,7 @@
     bottom: 6px;
     display: none;
   }
-  .star :global(.fav) {
+  .fstar :global(.fav) {
     width: 44px;
     min-height: 44px;
   }
@@ -163,7 +163,7 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  .sel {
+  .picked {
     box-shadow: inset 3px 0 0 var(--hi);
   }
 
@@ -178,7 +178,7 @@
       box-shadow: var(--card-shadow);
       overflow: hidden;
     }
-    .sel {
+    .picked {
       box-shadow: 0 0 0 2px var(--hi);
       border-color: var(--hi);
     }
@@ -202,31 +202,31 @@
     }
     .nm {
       grid-column: 1 / -1;
-      font-size: 16px;
+      font-size: var(--fs-body);
       font-weight: 500;
     }
     .br {
       display: block;
       grid-column: 1 / -1;
       color: var(--ink-3);
-      font-size: 12.5px;
+      font-size: var(--fs-small);
     }
     .wt {
       grid-column: 1;
       grid-row: auto;
-      font: 800 24px/1.1 var(--font-brand);
+      font: 800 var(--fs-section)/1.1 var(--font-brand);
       text-align: left;
       margin-top: 4px;
     }
     .wt.nw {
-      font: 400 13px var(--font-body);
+      font: 400 var(--fs-small) var(--font-body);
       align-self: end;
     }
     .use {
       grid-column: 2;
       align-self: end;
       text-align: right;
-      font-size: 12.5px;
+      font-size: var(--fs-small);
     }
     .use.never {
       grid-column: 1 / -1;
@@ -236,7 +236,7 @@
       margin-top: 4px;
     }
     .hint {
-      font-size: 12.5px;
+      font-size: var(--fs-small);
       margin-top: 2px;
     }
     .tag {
@@ -245,7 +245,7 @@
       left: 10px;
       bottom: auto;
     }
-    .star {
+    .fstar {
       position: absolute;
       top: 0;
       right: 0;

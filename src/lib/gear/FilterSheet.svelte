@@ -124,12 +124,12 @@
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink);
-    font: 500 15px var(--font-body);
+    font: 500 var(--fs-body) var(--font-body);
     cursor: pointer;
   }
   .fchip small {
     color: var(--ink-3);
-    font-size: 12.5px;
+    font-size: var(--fs-small);
   }
   .fchip[aria-pressed='true'] {
     border-color: var(--hi);
