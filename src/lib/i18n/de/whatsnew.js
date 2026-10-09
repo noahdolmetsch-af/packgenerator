@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.54.0
+  'An item opens short: its name, its weight and one line on how it comes along. Everything else is a row that opens with one tap, one at a time.':
+    'Ein Teil öffnet kurz: Name, Gewicht und eine Zeile, wie es mitkommt. Alles andere ist eine Zeile, die sich mit einem Tipp öffnet, immer nur eine.',
+  'Lighter alternatives from your own gear: the one you linked first, then up to two suggestions. "Doesn\'t fit" hides one, with Undo.':
+    'Leichtere Alternativen aus deinem Material: zuerst die verknüpfte, dann bis zu zwei Vorschläge. «Passt nicht» blendet einen aus, mit Rückgängig.',
+  '"Never used" explains its rule when it is empty and shows what is on the way there: taken once or twice and never used.':
+    '«Nie gebraucht» erklärt leer seine Regel und zeigt, was auf dem Weg dahin ist: ein- oder zweimal dabei und nie gebraucht.',
+
   // 0.51.0
   "Tap a button on Today or on In the flow to tick an activity: one tap with Undo, tap again to take it back. A long press picks the place (Yoga studio or at home), the amount or the duration.":
     "Ein Tipp auf Heute oder in Im Flow hakt eine Aktivität ab, mit Rückgängig; nochmals tippen nimmt es zurück. Lange drücken wählt Ort (Yoga Studio oder Zuhause), Menge oder Dauer.",
