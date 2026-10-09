@@ -201,20 +201,24 @@ export const sortBikes = (bikes) => [...bikes].sort((a, b) => bikeRank(a) - bike
 export function parseBikesHash(hash = '') {
   const [path, query = ''] = hash.replace(/^#/, '').split('?');
   const q = new URLSearchParams(query);
-  const tab = path.startsWith('/care') || q.get('tab') === 'care' ? 'care' : 'setup';
+  // v0.48.0: tab=compare is «Compare bikes» (reached from Setup); tab=shop is «Workshop & receipts»
+  // (&visit=<id> opens one visit).
+  const tab = path.startsWith('/care') || q.get('tab') === 'care' ? 'care' : ['compare', 'shop'].includes(q.get('tab')) ? q.get('tab') : 'setup';
   const out = { tab, bike: q.get('bike') || null, open: q.get('open') === '1' };
+  if (tab === 'shop' && q.get('visit')) out.visit = q.get('visit');
   // v0.22.0 (AP06): &trip=<id> on Care opens that trip's event preparation.
   if (tab === 'care' && q.get('trip')) out.trip = q.get('trip');
   return out;
 }
 
 /** The address for a tab (and bike): the canonical form of the Bikes page. */
-export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null } = {}) {
+export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null } = {}) {
   const q = new URLSearchParams();
-  if (tab === 'care') q.set('tab', 'care');
+  if (tab === 'care' || tab === 'compare' || tab === 'shop') q.set('tab', tab);
   if (bike) q.set('bike', bike);
   if (open && bike) q.set('open', '1');
   if (trip && tab === 'care') q.set('trip', trip);
+  if (visit && tab === 'shop') q.set('visit', visit);
   const s = q.toString();
   return `#/bikes${s ? `?${s}` : ''}`;
 }

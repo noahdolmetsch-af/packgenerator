@@ -6,21 +6,15 @@
  * bike: from withVisits (workshop.js), so the jobs of the workshop visits count as history too.
  * Pure functions (the words follow the language), easy to test.
  */
-import { PART, CHECK_PARTS, partInfo, wear, needsWork, lastValue, kmSince, taskBike, serviceName } from '../care.js';
+import { PART, PARTS, AREAS, CHECK_PARTS, partInfo, wear, needsWork, lastValue, kmSince, taskBike, serviceName } from '../care.js';
 import { visitsOf, visitTotal, costPer1000, overdueDays } from '../workshop.js';
 import { t, tn, num, dateOf } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
 
-/** The groups of parts on the page, in this order (the mockup v3-pflege). */
-export const GROUPS = [
-  { key: 'drive', name: 'Drivetrain', parts: ['chain', 'chainring', 'cassette'] },
-  { key: 'brakes', name: 'Brakes', parts: ['padsF', 'padsR', 'rotorF', 'rotorR', 'brakes'] },
-  { key: 'suspension', name: 'Suspension', parts: ['fork', 'shock', 'linkage'] },
-  { key: 'wheels', name: 'Tyres, wheels, shifting', parts: ['tyres', 'wheels', 'shifting'] },
-  { key: 'other', name: 'Cockpit and more', parts: ['saddle', 'cockpit', 'bolts', 'bearings'] },
-];
-/** The group of a part key; unknown keys go to the last group. */
-export const groupOf = (key) => (GROUPS.find((g) => g.parts.includes(key)) ?? GROUPS.at(-1)).key;
+/** The groups of parts on the page, in this order: v0.48.0 the areas of the one part list (care.js AREAS). */
+export const GROUPS = AREAS.map((a) => ({ ...a, parts: PARTS.filter((p) => p.area === a.key).map((p) => p.key) }));
+/** The group of a part key; unknown keys (own parts without an area) go to Accessories. */
+export const groupOf = (key, part = null) => PART[key]?.area ?? part?.area ?? 'extras';
 
 /** Parts that wear out and get swapped: "Replaced or done" on them means replaced. */
 const WEARS = new Set(['chain', 'chainring', 'cassette', 'padsF', 'padsR', 'rotorF', 'rotorR']);
@@ -94,6 +88,8 @@ export function workWords(key, h) {
   const p = PART[key] ?? { unit: '' };
   const value = typeof h.value === 'number' ? `${num(h.value)} ${p.unit}`.trim() : '';
   if (h.result === 'needed') return h.note ? `«${h.note}»` : t('work needed');
+  // v0.48.0: the start values (the wizard): «since purchase».
+  if (h.start) return t('since purchase');
   if (h.action === 'replace') {
     if (typeof h.sealantMl === 'number') return t('{ml} ml sealant added', { ml: num(h.sealantMl) });
     return WEARS.has(key) || h.visitId ? t('replaced') : t('done');
@@ -121,7 +117,7 @@ export function lastLine(key, last) {
 }
 
 const clamp = (x) => Math.max(0, Math.min(1, x));
-const RANK = { none: 0, ok: 1, soon: 2, due: 3, overdue: 4, work: 5 };
+export const RANK = { none: 0, ok: 1, soon: 2, due: 3, overdue: 4, work: 5 };
 const inDays = (d) => (d < 45 ? tn(d, 'in {n} day', 'in {n} days') : tn(Math.round(d / 30.4), 'in {n} month', 'in {n} months'));
 const every = (days) => (days >= 365 ? t('yearly') : t('every {n} months', { n: Math.round(days / 30.4) }));
 
@@ -182,7 +178,7 @@ export function partStatus(bike, part, time = [], today = localDay()) {
   if (found.length) return found.reduce((a, b) => (RANK[b.state] > RANK[a.state] ? b : a));
   if (!part.history?.length) return { state: 'none', fill: null, tone: null, next: '' };
   const age = kmSince(bike, [...part.history].reverse().find((h) => h.action === 'replace'));
-  const next = part.key === 'brakes' ? t('bleed when the lever feels soft') : age != null && age >= 0 ? t('{km} km old', { km: num(age) }) : '';
+  const next = ['brakes', 'brakeF', 'brakeR'].includes(part.key) ? t('bleed when the lever feels soft') : age != null && age >= 0 ? t('{km} km old', { km: num(age) }) : '';
   return { state: 'ok', fill: null, tone: 'ok', next };
 }
 

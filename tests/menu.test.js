@@ -12,14 +12,14 @@ const ELSEWHERE = {
   share: 'a shared link only',
   gearimport: 'Gear → Import (the import flow)',
 };
-const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'debrief', 'gearimport', 'wardrobe'];
+const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'notes', 'debrief', 'gearimport', 'wardrobe'];
 // v0.49.0 R1: #/review is part of the one Rückblick page (#/debrief) now; nav.js redirectOf leads there.
 
 describe('the menu "More"', () => {
   it('has the four groups Noah chose (v0.46.3: the packing-list group of 0.46.1 is gone again)', () => {
     expect(MORE_GROUPS.map((g) => g.key)).toEqual(['plan', 'back', 'gear', 'app']);
     expect(MORE_GROUPS.find((g) => g.key === 'plan').rows.map((r) => r.id)).toEqual(['templates', 'blocks']);
-    expect(MORE_GROUPS.find((g) => g.key === 'app').rows.map((r) => r.id)).toEqual(['flow', 'inbox', 'data', 'features']);
+    expect(MORE_GROUPS.find((g) => g.key === 'app').rows.map((r) => r.id)).toEqual(['flow', 'inbox', 'notes', 'data', 'features']);
   });
 
   it('lists every page exactly once across the places and "More"', () => {

@@ -250,22 +250,26 @@ test('extras: «Mehr» shows a dot, the Inbox is newest first and a sorted note 
   const errors = await start(page, context, info, { file: extrasFile(info) });
   await page.goto('./#/');
   const more = page.locator('.more-btn');
-  await expect(more).toHaveAttribute('aria-label', 'Mehr, Inbox: 2 zum Einordnen');
+  await expect(more).toHaveAttribute('aria-label', 'Mehr, Eingang: 2 zum Ablegen');
   await expect(more.locator('.mdot')).toBeVisible();
   expect(await more.innerText()).not.toMatch(/\d/);
 
+  // v0.48.0 «Eingang»: the note filed today stays in the list, faint, its chip links to the repair;
+  // «Abgelegt» lists everything filed, a row opens where it lives, one that went nowhere does not.
   await page.goto('./#/inbox');
-  const rows = page.getByRole('list', { name: 'Notizen, neueste zuerst' }).locator(':scope > li');
-  await expect(rows).toHaveCount(5);
-  expect(await rows.evaluateAll((li) => li.map((l) => l.dataset.noteId))).toEqual([`${P}n3`, `${P}n2`, `${P}n1`, `${P}n4`, `${P}n5`]);
-  // A sorted note is a link to where it lives; one that went nowhere is not.
-  await expect(rows.nth(3).getByRole('link')).toHaveAttribute('href', `#/gear?item=${encodeURIComponent(`${P}KL13`)}`);
-  await expect(rows.nth(4).getByRole('link')).toHaveCount(0);
-  const repair = rows.nth(0).getByRole('link');
+  const filedToday = page.locator(`li.filed[data-note-id="${P}n3"]`);
+  const repair = filedToday.locator('a.tchip');
   await expect(repair).toHaveAttribute('href', `#/bikes?tab=care&bike=${encodeURIComponent(SPARK)}&open=1`);
   if (info.project.name === 'phone') expect((await repair.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  await expect(page.locator(`li[data-note-id="${P}n4"]`)).toHaveCount(0);
+  await page.getByRole('group', { name: 'Anzeigen' }).getByRole('button', { name: /Abgelegt/ }).click();
+  const rows = page.locator('.frow');
+  await expect(rows).toHaveCount(3);
+  await expect(rows.filter({ hasText: `${P} Neue Handschuhe` })).toHaveAttribute('href', `#/gear?item=${encodeURIComponent(`${P}KL13`)}`);
+  await expect(page.locator('div.frow').filter({ hasText: `${P} Erledigt schon` })).toHaveCount(1);
   expect(await noSideScroll(page)).toBe(true);
-  await tap(repair, info);
+  await page.getByRole('group', { name: 'Anzeigen' }).getByRole('button', { name: /Offen/ }).click();
+  await tap(page.locator(`li.filed[data-note-id="${P}n3"] a.tchip`), info);
   await expect(page).toHaveURL(/#\/bikes\?tab=care/);
   await expect(page.locator('section.problems')).toContainText(`${P} Bremse quietscht`);
   expect(errors).toEqual([]);
@@ -275,10 +279,8 @@ test('extras: Bike care shows a part\'s history with the newest action first', a
   const errors = await start(page, context, info, { file: extrasFile(info) });
   await page.goto(`./#/bikes?tab=care&bike=${SPARK}&open=1`);
   const care = page.locator(`#care-${SPARK}`);
-  const okfold = care.locator('button.okfold');
-  if (await okfold.count()) await okfold.click();
-  await care.getByRole('button', { name: /^Kette/ }).first().click();
-  await care.getByRole('button', { name: /^Erfassen/ }).first().click();
+  // v0.48.0: a row of the part table opens the part.
+  await care.locator('button.prow').filter({ has: page.locator('.nm').getByText('Kette', { exact: true }) }).click();
   const dlg = page.getByRole('dialog', { name: 'Kette' });
   const hist = dlg.locator('ol.hist > li');
   await expect(hist).toHaveCount(2);
