@@ -25,6 +25,8 @@
   import { parseActivitiesCsv, parseRideFile, ridesOnTrip } from '../lib/activities.js';
   import Pace from '../lib/debrief/Pace.svelte';
   import Hub from '../lib/review/Hub.svelte';
+  import Logbook from '../lib/review/Logbook.svelte';
+  import Learned from '../lib/review/Learned.svelte';
   import TripSaved from '../lib/review/TripSaved.svelte';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
@@ -42,7 +44,6 @@
   const bagsQ = liveQuery(() => db.containers.toArray());
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const bikesQ = liveQuery(() => db.bikes.toArray());
-  const eventsQ = liveQuery(() => db.events.toArray());
   // v0.26.1 (AP20, Noah 19b): notes written on the way (QuickNote or Ride day) with this trip and a day.
   const notesQ = liveQuery(() => db.notes.toArray());
   // v0.41.0 (Noah 1): uploaded rides (GPX), for the row "Upload ride" and a trip's "Planned vs real".
@@ -51,22 +52,6 @@
   const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
   const offsetQ = liveQuery(() => db.settings.get(CLOTHING_OFFSET));
   const tripRides = $derived(trip ? ($ridesQ ?? []).filter((r) => r.tripId === trip.id) : []);
-  // Answer 9a: the trips before the app (Hope, Alpenbrevet …) as a logbook to read, newest first.
-  const events = $derived([...($eventsQ ?? [])].sort((a, b) => (b.sortDate ?? '').localeCompare(a.sortDate ?? '')));
-  // v0.42.0 (Noah 9, 11): the logbook with a search; 5 rows, then "n more".
-  const LOG_SHOWN = 5;
-  let logQ = $state('');
-  let logAll = $state(false);
-  const excelN = $derived(events.filter((e) => e.source === 'excel').length);
-  const logFound = $derived.by(() => {
-    const q = logQ.trim().toLowerCase();
-    if (!q) return events;
-    return events.filter((e) => [e.name, e.note, e.date, e.dateText, e.type, e.result, e.learnings, e.bike, e.bags].filter(Boolean).join(' ').toLowerCase().includes(q));
-  });
-  const logShown = $derived(logAll || logQ.trim() ? logFound : logFound.slice(0, LOG_SHOWN));
-  /** A year shows as it is ("2025"), a full date as month and year; no date: –. */
-  const logDate = (ev) => (!ev.date ? '–' : /^\d{4}$/.test(ev.date) ? ev.date : /^\d{4}-\d{2}-\d{2}/.test(ev.date) ? new Date(`${ev.date.slice(0, 10)}T12:00:00`).toLocaleDateString(locale(), { month: 'short', year: 'numeric' }) : ev.date);
-
   const trips = $derived($tripsQ ?? []);
   const items = $derived($itemsQ ?? []);
   const debriefs = $derived($debriefsQ ?? []);
@@ -342,21 +327,6 @@
     return t.days > 1 ? `${f(t.startDate)} – ${f(tripEnd(t))}` : f(t.startDate);
   };
 
-  /* ---------- learnings ---------- */
-  let lq = $state('');
-  // v0.30.2 (test R6.12): topics typed in small letters ("gear") are shown like the others.
-  const topicName = (topic) => {
-    const s = String(topic ?? '');
-    return t(s) !== s ? t(s) : t(s.charAt(0).toUpperCase() + s.slice(1));
-  };
-  const topics = $derived.by(() => {
-    const q = lq.trim().toLowerCase();
-    const list = learnings.filter((l) => !q || `${l.topic} ${l.rule} ${l.action ?? ''} ${l.source ?? ''}`.toLowerCase().includes(q));
-    const map = new Map();
-    for (const l of list) map.set(l.topic, [...(map.get(l.topic) ?? []), l]);
-    const rank = { high: 0, medium: 1, low: 2 };
-    return [...map].map(([topic, ls]) => ({ topic, ls: ls.sort((a, b) => (rank[a.priority] ?? 3) - (rank[b.priority] ?? 3)) })).sort((a, b) => b.ls.length - a.ls.length);
-  });
 </script>
 
 {#if tripId}
@@ -522,67 +492,18 @@
   {/if}
 {:else if SUBS.includes(param)}
   <!-- v0.49.0 R1 (Noah 4a): Dein Tempo, Logbuch and Gelernt are one level below the Rückblick, each
-       its own page as it was (R2 rebuilds them). -->
+       its own page; v0.53.0 R2 rebuilt all three. -->
   <div class="over">
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips">{t('Trips|place')}</a><ChevronRight size={14} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={14} aria-hidden="true" /></nav>
-    <h1 class="title">{param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : t('Learnings')}</h1>
+    <h1 class="title">{param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : t('Learned|review')}</h1>
     {#if param === 'pace'}
       <Pace />
     {:else if param === 'logbook'}
-      <!-- v0.42.0 (Noah 9, 11): one Logbook; the old trips of the Excel are read-only notes in it,
-           quietly marked "from Excel", with a search. -->
-      <section id="logbook" aria-labelledby="log-h">
-        <h2 class="sec-head"><span id="log-h">{t('Logbook')}</span><span class="n num">{events.length}{excelN ? ` · ${t('read only')}` : ''}</span></h2>
-        <div class="box">
-          {#if events.length > LOG_SHOWN}<input class="inp q" type="search" placeholder={t('Search the logbook')} bind:value={logQ} aria-label={t('Search the logbook')} />{/if}
-          <ul class="log">
-            {#each logShown as ev (ev.id)}
-              <li>
-                {#if ev.source === 'excel'}
-                  <p class="lt"><b>{ev.name}</b><span class="ld num">{logDate(ev)}</span></p>
-                  {#if ev.note}<p class="ln">{ev.note}</p>{/if}
-                  <p class="lsrc">{t('from Excel')}</p>
-                {:else}
-                  <details class="topic ev">
-                    <summary><span class="tname">{ev.name}</span> <span class="muted">{ev.dateText ?? ev.sortDate ?? ''}{ev.type ? ` · ${ev.type}` : ''}</span></summary>
-                    <dl>
-                      {#if ev.bike && ev.bike !== '–'}<dt>{t('Bike')}</dt><dd>{ev.bike}</dd>{/if}
-                      {#if ev.bags && ev.bags !== '–'}<dt>{t('Bags')}</dt><dd>{ev.bags}</dd>{/if}
-                      {#if ev.result}<dt>{t('What worked')}</dt><dd>{ev.result}</dd>{/if}
-                      {#if ev.learnings}<dt>{t('Learnings')}</dt><dd>{ev.learnings}</dd>{/if}
-                    </dl>
-                  </details>
-                {/if}
-              </li>
-            {:else}
-              <li><p class="muted">{events.length ? t('Nothing matches.') : t('No entries yet.')}</p></li>
-            {/each}
-          </ul>
-          {#if logFound.length > logShown.length}<p class="logmore"><button type="button" class="tp-link" onclick={() => (logAll = true)}>{tn(logFound.length - logShown.length, '{n} more', '{n} more')}</button></p>{/if}
-        </div>
-      </section>
+      <!-- v0.53.0 R2 (Noah ★a): a diary of all trips, newest first; filter by year and area. -->
+      <Logbook />
     {:else}
-      <section id="learnings" aria-labelledby="learn-h">
-        <h2 id="learn-h" class="sec-head"><span>{t('Learnings')}</span><span class="n">{learnings.length}</span></h2>
-        <div class="box">
-          <input class="inp q" type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} />
-          {#each topics as g (g.topic)}
-            <details class="topic" open={!!lq.trim()}>
-              <summary><span class="tname">{topicName(g.topic)}</span> <span class="muted num">{g.ls.length}</span></summary>
-              <ul>
-                {#each g.ls as l (l.id)}
-                  <li>
-                    <span class="prio p-{l.priority}">{l.priority ? t(l.priority) : '–'}</span>
-                    <span>{l.rule}{#if l.action}<small>→ {l.action}</small>{/if}<small class="muted">{l.source === 'import' ? [t('From the import'), l.date].filter(Boolean).join(' · ') : (l.source ?? '')}{l.confirmed ? ` · ${t('confirmed {n}×', { n: l.confirmed })}` : ''}</small></span>
-                  </li>
-                {/each}
-              </ul>
-            </details>
-          {:else}
-            <p class="muted">{learnings.length ? t('Nothing matches.') : t('No learnings yet. They come from your Excel import and from every debrief.')}</p>
-          {/each}
-        </div>
-      </section>
+      <!-- v0.53.0 R2 (Noah ★a): every learning flat by topic. -->
+      <Learned />
     {/if}
   </div>
 {:else}
@@ -714,45 +635,6 @@
     display: grid;
     gap: 4px;
     padding: 8px 0 6px;
-  }
-  .log {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .log > li {
-    padding: 8px 0;
-    border-top: 1px solid var(--line);
-  }
-  .log > li:first-child {
-    border-top: 0;
-  }
-  .lt {
-    display: flex;
-    gap: 12px;
-    margin: 0;
-    overflow-wrap: break-word;
-  }
-  .ld {
-    margin-left: auto;
-    flex: none;
-    color: var(--ink-3);
-    font-size: 14px;
-  }
-  .ln {
-    margin: 2px 0 0;
-    color: var(--ink-2);
-    font-size: 14px;
-    white-space: pre-line;
-    overflow-wrap: break-word;
-  }
-  .lsrc {
-    margin: 2px 0 0;
-    color: var(--ink-3);
-    font-size: 12px;
-  }
-  .logmore {
-    margin: 4px 0 0;
   }
   .num {
     font-variant-numeric: tabular-nums;
@@ -990,96 +872,7 @@
     min-width: 44px;
     color: var(--accent);
   }
-  .box {
-    padding: 8px 12px 12px;
-    border: 1px solid var(--line);
-    border-top: 0;
-    border-radius: 0 0 8px 8px;
-    background: var(--paper);
-  }
-  .ev summary .muted {
-    font-size: 14px;
-  }
-  .ev dl {
-    display: grid;
-    grid-template-columns: 110px 1fr;
-    gap: 6px 12px;
-    margin: 8px 0 4px;
-  }
-  .ev dt {
-    font-size: var(--fs-small);
-    font-weight: 700;
-    color: var(--ink-3);
-    padding-top: 2px;
-  }
-  .ev dd {
-    margin: 0;
-  }
-  @media (max-width: 519px) {
-    .ev dl {
-      grid-template-columns: 1fr;
-      gap: 2px;
-    }
-    .ev dd {
-      margin-bottom: 8px;
-    }
-  }
   .muted {
     color: var(--ink-3);
-  }
-  .q {
-    width: 100%;
-    margin-bottom: 8px;
-  }
-  .topic {
-    border-bottom: 1px solid var(--line);
-    padding: 6px 0;
-  }
-  .topic:last-child {
-    border-bottom: 0;
-  }
-  .topic summary {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 44px;
-  }
-  .topic summary .tname {
-    font-weight: 600;
-  }
-  .topic ul {
-    list-style: none;
-    margin: 6px 0 4px;
-    padding: 0;
-  }
-  .topic li {
-    display: flex;
-    gap: 10px;
-    align-items: baseline;
-    padding: 6px 0;
-    border-top: 1px solid var(--line);
-  }
-  .topic li small {
-    display: block;
-    font-size: var(--fs-small);
-    color: var(--ink-2);
-  }
-  .topic li small.muted {
-    color: var(--ink-3);
-  }
-  .prio {
-    flex: none;
-    min-width: 56px;
-    font: 600 12px var(--font-body);
-    color: var(--ink-3);
-    border: 1px solid var(--line);
-    border-radius: 3px;
-    padding: 1px 4px;
-    text-align: center;
-  }
-  .p-high {
-    color: var(--ink);
-    border-color: var(--ink);
   }
 </style>

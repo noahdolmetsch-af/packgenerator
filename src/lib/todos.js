@@ -17,7 +17,8 @@ export function openTodos({ bikes = [], items = [], pace = null, debriefs = [], 
   const rows = [];
   const weigh = bikes.filter(bikeGuessed).length;
   if (weigh) rows.push({ key: 'bikes', n: weigh, href: '#/bikes' });
-  if (!pace?.mine) rows.push({ key: 'pace', n: 0, href: '#/debrief/pace' });
+  // v0.53.0: the standard rule chosen on purpose is no to-do.
+  if (!pace?.mine && !pace?.standard) rows.push({ key: 'pace', n: 0, href: '#/debrief/pace' });
   const inv = items.filter(isInventory);
   const check = inv.filter((i) => !i.reviewedAt).length;
   if (check) rows.push({ key: 'check', n: check, href: '#/gear?tab=check' });

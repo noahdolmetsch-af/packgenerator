@@ -78,9 +78,43 @@ export function learnPace(rides) {
 }
 const round1 = (v) => Math.round(v * 10) / 10;
 
-/** The pace to guess with: yours when learned, else the standard (16 km/h, 600 m per hour). */
+/**
+ * v0.53.0 R2 «Dein Tempo» (Noah ★a): your own rule takes over the riding-time guess by itself from
+ * PACE_MIN rides that count; below that the standard (16 km/h, 600 m per hour) stays. It is a visible
+ * suggestion: «Zurück zur Standardregel» keeps the standard (setting.standard = true), «Meine Regel
+ * nutzen» takes it back. The flag lives in the same setting and survives adding or removing rides.
+ */
+export const PACE_MIN = 5;
+
+/**
+ * The pace to guess with: { kmh, climbMh, stops, mine, n, need, learned, standard }.
+ * mine: your rule is used now. n: rides that count. need: rides still missing for your rule.
+ * learned: your rule ({ kmh, climbMh }) even while it is not used (below PACE_MIN, or standard chosen).
+ */
 export function paceOf(setting) {
-  return setting?.kmh ? { kmh: setting.kmh, climbMh: setting.climbMh || CLIMB_MH, stops: setting.stops ?? null, mine: true, n: setting.n ?? 0 } : { kmh: SPEED_KMH, climbMh: CLIMB_MH, stops: null, mine: false, n: 0 };
+  const n = setting?.kmh ? setting.n ?? 0 : (setting?.rides ?? []).filter((r) => r.use !== false && r.km >= 20 && r.movingH > 0.5).length;
+  const learned = setting?.kmh ? { kmh: setting.kmh, climbMh: setting.climbMh || CLIMB_MH } : null;
+  const standard = setting?.standard === true;
+  const need = Math.max(0, PACE_MIN - n);
+  if (learned && !need && !standard) return { ...learned, stops: setting.stops ?? null, mine: true, n, need, learned, standard };
+  return { kmh: SPEED_KMH, climbMh: CLIMB_MH, stops: null, mine: false, n, need, learned, standard };
+}
+
+/** The setting with your rule switched off (standard = true) or on again. */
+export const withStandard = (setting, standard) => ({ ...(setting ?? { kmh: null, climbMh: null, rides: [] }), standard: !!standard, updatedAt: new Date().toISOString() });
+
+/** The rule in round numbers for the one sentence: km/h to 0.5, metres per hour to 50. */
+export const ruleOf = (p) => (p ? { kmh: Math.round(p.kmh * 2) / 2, climbMh: Math.round(p.climbMh / 50) * 50 } : null);
+
+/**
+ * The rides of the small charts, oldest first: [{ id, date, name, kmh, hmPerKm, climbMh }] of the
+ * rides that count, from `from` (an ISO day, null = all). kmh: moving speed; hmPerKm: climbing per km.
+ */
+export function paceSeries(rides = [], from = null) {
+  return rides
+    .filter((r) => r.use !== false && r.km >= 20 && r.movingH > 0.5 && (!from || (r.date ?? '') >= from))
+    .sort((a, b) => (a.date ?? '').localeCompare(b.date ?? ''))
+    .map((r) => ({ id: r.id, date: r.date, name: r.name, km: r.km, kmh: round1(r.km / r.movingH), hmPerKm: Math.round(((r.gainM ?? 0) / r.km) * 10) / 10 }));
 }
 
 /** How far off the guess is for one ride (riding hours guessed minus real), for the list. */

@@ -27,6 +27,7 @@ const ROUTES = [
   // v0.49.0 R1: #/review is part of the Rückblick now; its pages one level below are checked instead
   ['#/debrief/learnings', 'Gelernt'],
   ['#/debrief/pace', 'Tempo'],
+  ['#/debrief/logbook', 'Logbuch'], // v0.53.0 R2
   ['#/gear', 'Material'],
   ['#/gear?tab=weigh', 'Material wiegen'],
   ['#/gear?tab=wishlist', 'Wunschliste'],

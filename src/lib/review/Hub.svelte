@@ -7,7 +7,7 @@
    *    Durchschnitt and Bestwert per number.
    * 3. «Touren im Vergleich»: 7 small charts and a compact table; base the last 10 trips, the 12
    *    months or the same kind (Art) as the newest one.
-   * 4. One level below: Dein Tempo, Gelernt, Logbuch (their own pages, as they are until R2).
+   * 4. One level below: Dein Tempo, Gelernt, Logbuch (their own pages; v0.53.0 R2 rebuilt them).
    * «Fahrt hochladen» is a quiet button in the head. #/review and #/debrief/compare land here.
    * Numbers: review/rueckblick.js (tested); unknown is a calm «–».
    */
@@ -17,7 +17,8 @@
   import { tripFacts, periodStats, compareSet, planVsReal, ARTS } from './rueckblick.js';
   import { homeTrips } from '../home/heute.js';
   import { n0, n1, hours, temps, kg, dates, monthShort, monthLong, dayLong, rainText, DASH } from './fmt.js';
-  import { paceOf } from '../pace.js';
+  import { paceOf, ruleOf } from '../pace.js';
+  import { logEntries } from './logbook.js';
   import { openTrip } from '../nav.js';
   import { localDay } from '../localday.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
@@ -29,7 +30,7 @@
   let { spot = '' } = $props();
 
   const today = localDay();
-  const dataQ = liveQuery(async () => ({ ...(await loadReview(db)), events: await db.events.count(), lastEvents: (await db.events.toArray()).sort((a, b) => (b.sortDate ?? '').localeCompare(a.sortDate ?? '')).slice(0, 3) }));
+  const dataQ = liveQuery(async () => ({ ...(await loadReview(db)), events: await db.events.toArray() }));
   const data = $derived($dataQ ?? null);
   // the same trips as Today's «Letzte 12 Monate»: no archived and no test trips (home/heute.js)
   const facts = $derived(data ? tripFacts({ ...data, trips: homeTrips(data.trips), today }) : []);
@@ -59,6 +60,8 @@
   const last = $derived(facts[0] ?? null);
   const lastPlan = $derived(last ? planVsReal(last).find((x) => x.key === 'movingH') ?? null : null);
   const pace = $derived(paceOf(data?.pace ?? null));
+  const rule = $derived(ruleOf(pace.learned));
+  const log = $derived(data ? logEntries({ facts, events: data.events }) : []);
   const open = $derived(facts.filter((r) => r.debrief === 'open' || r.debrief === 'draft').length);
   const year = today.slice(0, 4);
   const newest = $derived([...(data?.learnings ?? [])].sort((a, b) => String(b.createdAt ?? b.date ?? '').localeCompare(String(a.createdAt ?? a.date ?? ''))).slice(0, 3));
@@ -318,7 +321,8 @@
     <div class="below">
       <section class="card sub" aria-labelledby="pace-h">
         <h2 id="pace-h" class="ch"><span><Gauge size={18} aria-hidden="true" />{t('Your pace')}</span></h2>
-        <p>{pace.mine ? tn(pace.n, 'Your rule: {kmh} km/h plus 1 h per {m} m climbing, from {n} ride.', 'Your rule: {kmh} km/h plus 1 h per {m} m climbing, from {n} rides.', { kmh: n1(pace.kmh), m: num(pace.climbMh) }) : t('Still the standard guess: {kmh} km/h plus 1 h per {m} m climbing.', { kmh: num(pace.kmh), m: num(pace.climbMh) })}</p>
+        <p>{rule ? t('You ride {kmh} km/h on average and need 1 h per {m} m of climbing.', { kmh: num(rule.kmh), m: num(rule.climbMh) }) : t('The riding time is guessed with {kmh} km/h and 1 h per {m} m of climbing.', { kmh: num(pace.kmh), m: num(pace.climbMh) })}</p>
+        <p class="muted small">{pace.mine ? tn(pace.n, 'The riding time uses your rule (from {n} ride).', 'The riding time uses your rule (from {n} rides).') : pace.need ? tn(pace.need, '{n} more ride and your rule takes over the riding time.', '{n} more rides and your rule takes over the riding time.') : t('The riding time uses the standard rule, as you chose.')}</p>
         <a class="lnk" href="#/debrief/pace">{t('Your pace')}<ChevronRight size={16} aria-hidden="true" /></a>
       </section>
       <section class="card sub" aria-labelledby="learn-h">
@@ -331,9 +335,9 @@
         <a class="lnk" href="#/debrief/learnings">{t('All learnings')}<ChevronRight size={16} aria-hidden="true" /></a>
       </section>
       <section class="card sub" aria-labelledby="log-h">
-        <h2 id="log-h" class="ch"><span><Notebook size={18} aria-hidden="true" />{t('Logbook')}</span><span class="r num">{num(data.events)}</span></h2>
-        {#if data.lastEvents.length}
-          <ul class="sl">{#each data.lastEvents as e (e.id)}<li><span class="st">{e.name}</span><small>{[e.date ?? e.dateText, e.source === 'excel' ? t('from Excel') : ''].filter(Boolean).join(' · ')}</small></li>{/each}</ul>
+        <h2 id="log-h" class="ch"><span><Notebook size={18} aria-hidden="true" />{t('Logbook')}</span><span class="r num">{num(log.length)}</span></h2>
+        {#if log.length}
+          <ul class="sl">{#each log.slice(0, 3) as e (e.id)}<li><span class="st">{e.title}</span><small>{[e.kind === 'event' ? (e.ev.dateText ?? e.year) : dates(e.date, e.end), e.km != null ? `${n0(e.km)} km` : '', e.ev?.source === 'excel' ? t('from Excel') : ''].filter(Boolean).join(' · ')}</small></li>{/each}</ul>
         {:else}
           <p class="muted">{t('No entries yet.')}</p>
         {/if}
@@ -863,6 +867,9 @@
   }
   .sub p {
     margin: 0;
+  }
+  .small {
+    font-size: var(--fs-small);
   }
   .sub .lnk {
     margin-top: auto;

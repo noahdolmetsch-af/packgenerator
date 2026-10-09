@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.53.0
+  '"Your pace" says your rule in one sentence. From 5 rides it guesses the riding time everywhere by itself, and "Back to the standard rule" undoes that with one tap.':
+    '«Dein Tempo» sagt deine Regel in einem Satz. Ab 5 Fahrten schätzt sie die Fahrzeit überall von selbst, und «Zurück zur Standardregel» macht das mit einem Tipp rückgängig.',
+  'Under the sentence, three small charts: your speed per ride, from flat to hilly, and the climbing per km, for 12 months or all.':
+    'Unter dem Satz drei kleine Diagramme: dein Tempo pro Fahrt, von flach bis hügelig, und die Höhenmeter pro km, für 12 Monate oder alle.',
+  'The logbook is a diary of all your trips, newest first: km, Hm, time, weather and your notes, with a filter by year and kind of trip. A tap opens the trip.':
+    'Das Logbuch ist ein Tagebuch aller deiner Touren, neueste zuerst: km, Hm, Zeit, Wetter und deine Notizen, mit Filter nach Jahr und Reiseart. Antippen öffnet die Tour.',
+  '"Learned" lists every learning by topic, nothing folded away.':
+    '«Gelernt» listet alle Learnings nach Thema, nichts mehr zugeklappt.',
+
   // 0.49.0
   'One page "Look back" instead of five: your last ride, the last 12 months with the year before, average and best, and your trips compared in 7 small charts and a table.':
     'Eine Seite «Rückblick» statt fünf: deine letzte Fahrt, die letzten 12 Monate mit Vorjahr, Durchschnitt und Bestwert, und deine Touren im Vergleich in 7 kleinen Diagrammen und einer Tabelle.',
