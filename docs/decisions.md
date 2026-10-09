@@ -361,6 +361,7 @@ Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0
 - **Probleme flach (Noah):** Offene Probleme und Reparaturen aller Velos stehen als eine Liste über den Velos (`src/lib/care/ProblemList.svelte`), neueste zuoberst (Erfassungsdatum, dann Nummer), mit Chips für Velo und Lösungsweg und dem Abzeichen «Arbeit nötig», wenn fällig. Sie stehen nicht mehr im «Jetzt fällig» des einzelnen Velos (keine Doppelung); Priorität, Erledigt und ••• wie bisher. Beim Filter «Velomech» ausgeblendet (Probleme sind eigene Arbeit, wie vorher). Einen Gruppierungs-Umschalter gab es nicht.
 - **Querformat:** Die Fakten-Chips sind im Querformat (Höhe unter 500 px) eine ruhige, unterstrichene Zeile mit 26 px Höhe und ohne Gewicht (steht in der Velokarte); das Band auf Planen darf dort 165 statt 150 px hoch sein (zwei kurze Zeilen Fakten). Der Hochformat-Handy-Wert bleibt 44 px.
 - **Wächter:** Grundlinie nach dem Merge auf 0.47.0 neu gemessen (sie stammte von 0.46.2); 0.47.1 hebt keine Zahl, `src/App.svelte` fontsize 8 → 7.
+
 ## 9.10.2026: Material-Ansichten (0.47.2)
 
 - **Ansichten statt Reiter (Noah 6a):** Sieben feste Ansichten mit Zahl. Die Zahlen gelten für das ganze Material (nicht für Suche und Filter), damit sie sich beim Tippen nicht verschieben. Meist genutzt = auf mindestens der Hälfte der Touren mit Rückblick *gebraucht* (Noahs Wortlaut «used on most trips»), mindestens 2 Mal. Bewährt = ab 5× dabei und mindestens 80 % gebraucht. Nie gebraucht = ab 3× dabei, nie gebraucht (so im genehmigten Mockup; der Rückblick 12 Monate zählt in seinem Fenster weiter ab 2×, weil er nur ein Jahr sieht). Kategorie und Tasche/Set bleiben Filter (Handy: Knöpfe ins Blatt, Computer: Seitenspalte). Sortieren und alle Filter in einem Blatt.
@@ -446,6 +447,19 @@ Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0
   - Heute zeigt eine Zeile nur für eine angeheftete Notiz mit offener Checkliste.
 - **TODO Texterkennung:** Eine Texterkennung auf dem Gerät (Betrag, Laden und Datum aus dem Belegfoto) ist im Browser nicht günstig zu haben. Tesseract.js wiegt mehrere MB und ist langsam am Handy, die Shape Detection API kann keinen Text in Chrome/Android stabil. Darum ist sie nicht gebaut; die Felder werden von Hand ausgefüllt. Wieder prüfen, wenn `TextDetector` breit verfügbar ist.
 - **Bedienungsanleitungen** unter Werkstatt & Belege sind noch nicht gebaut (Roadmap).
+## 09.10.2026 – 0.59.0 «Tauschen» (OP2a)
+
+Noahs Antworten (alle a) zu den Bildern `design/optimierenPacken2/OP2-*`, nur Teil OP2a:
+
+- **Kleider am Körper als erste Karte «Am Körper»:** Teile mit Platz «am Körper», die Kleidung sind (`isClothing`), nach Zone Kopf, Oberkörper, Beine, Hände, Füsse und darin Basis, Mitte, Aussen, Zubehör (`src/lib/swap.js` `wornClothes`). Sie stehen nur dort, nicht noch einmal in der Gruppe «Am Körper» der Taschen (die bleibt für Helmlampe, Rucksack usw. und fällt weg, wenn sie leer ist).
+- **Ein Tipp auf ein Teil öffnet «Tauschen»** (`SwapSheet.svelte`), ein Tipp auf eine Alternative tauscht: zwei Tipps statt etwa sechs (herausnehmen, suchen, hinzufügen).
+- **Reihenfolge:** zuerst «passt zum Wetter der Tour» (Bereich `trip.wx`, sonst die kälteste Fahrstunde; 2 °C Spielraum an beiden Grenzen wie bei `warmEnough`; Regenzeug passt weniger an einem trockenen Tag, eine Aussenschicht ohne Regenschutz weniger an einem nassen), dann öfter und zuletzt gewählt, dann der nächste Bereich. «Passt weniger» bleibt antippbar (Vorschläge sind nie erzwungen).
+- **Ohne °C-Bereich** zählt die Klasse warm (ab 15 °C), mittel (5–15 °C), kalt (bis 5 °C), auch für den Balken (`tempKey`).
+- **Jede Wahl wird gemerkt** in der Einstellung `swap.memory` ({ Teil: { n, at, c } }); «Rückgängig» nimmt den Tausch und die gemerkte Wahl zurück. Kein Feld an der Tour; der Eintrag merkt sich nur `swappedFrom` für «statt …».
+- **Kleiderschrank mit Tourband** (`#/wardrobe/trip/<id>`): Bereich der Tour, Trocken/Regen/Egal (nur Ansicht, das Wetter der Tour bleibt), «Passt zu …» blendet ein unpassendes Teil nur aus, wenn am selben Platz (Zone und Schicht) ein passendes da ist; sonst bleibt alles sichtbar.
+- **Nicht in 0.59.0:** «Outfit speichern» und Outfits lernen (D5).
+- **Selbst entschieden (Schnellmodus):** Basis/Mitte/Aussen-Reiter im Tauschen-Blatt weggelassen (getauscht wird nur in derselben Schicht; Schicht dazu kommt mit OP2b); Teile, die schon auf der Tour sind, werden nicht angeboten; «Lieber einpacken in» im Blatt ersetzt «Verschieben nach» der alten Zeile; Zeilen am Körper zeigen ihren Grund («Unter 10 °C»); Kleiderschrank-Zeilen mit Tour zeigen «auf der Tour», ohne Tausch-Knöpfe pro Zeile (Tauschen bleibt in der Packliste).
+
 
 ## 9.10.2026: Velo-Masse (0.62.0)
 

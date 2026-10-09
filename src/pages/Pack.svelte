@@ -18,6 +18,7 @@
   import Onion from '../lib/pack/Onion.svelte';
   import { onionCheck, coldest, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET } from '../lib/wardrobe.js';
   import { acceptReview } from '../lib/preparation.js';
+  import { SWAP_MEMORY, swapEntries, rememberSwap, tripRange } from '../lib/swap.js';
   import { rowReasons, listDiff } from '../lib/reasons.js';
   import '../lib/pack/calm-pack.css';
   let review = $state(false);
@@ -534,9 +535,27 @@
   }
   const kitRange = (k) => (k.minC != null && k.maxC != null ? `${k.minC}–${k.maxC} °C` : k.maxC != null ? t('below {n} °C', { n: k.maxC }) : t('above {n} °C', { n: k.minC }));
   async function onionUndo() {
+    const was = onionAdd;
     onionAdd = null;
     clearTimeout(onionTimer);
     await undoLast();
+    // v0.59.0: an undone swap is no pick: the memory goes back as it was.
+    if (was?.key === 'swap') await (was.memory ? db.settings.put(was.memory) : db.settings.delete(SWAP_MEMORY));
+  }
+  // v0.59.0 «Tauschen» (OP2a, Noah a): one tap in «Swap» puts the other piece in the same place (one
+  // change, so one Undo), remembers the pick (it ranks higher next time) and says so with Undo.
+  const swapQ = liveQuery(() => db.settings.get(SWAP_MEMORY));
+  async function swapWear(from, to) {
+    const prev = (await db.settings.get(SWAP_MEMORY)) ?? null;
+    await change((cur) => ({ entries: swapEntries(cur.entries, from, to) }));
+    await db.settings.put({ key: SWAP_MEMORY, value: rememberSwap(prev?.value, to, tripRange(trip)?.min ?? null) });
+    const name = (id) => (itemsById[id] ? nameOf(itemsById[id]) : id);
+    onionDone([], t('{new} instead of {old}', { new: name(to), old: name(from) }), 'swap');
+    onionAdd = { ...onionAdd, memory: prev };
+  }
+  async function takeOff(id) {
+    await removeEntry(id);
+    onionDone([], t('{name} left off. It stays in the wardrobe.', { name: itemsById[id] ? nameOf(itemsById[id]) : id }));
   }
   async function undoBlock() {
     blockNote = '';
@@ -691,7 +710,9 @@
 
 {#if !trips.length && $tripsQ}
   <h1 class="title big">{t('Pack')}</h1><p>{t('No trips yet. Import your data on the')} <a href="#/">{t('start page')}</a>{t(', or')} <button class="btn hi" onclick={() => dialog = { trip: null }}>{t('Create a trip')}</button></p>
-{:else if trip && stats}
+<!-- v0.59.0: the list waits for the gear too. Without it a worn jersey is not known as clothing for a
+     moment: the bag «On me» flashed up and went again when the card «On me» took the clothes (CI abnahme044). -->
+{:else if trip && stats && $itemsQ}
     {#snippet layers()}
       <p class="hint">{t('Review suggestions before adding them to your packing list.')}</p>
       <div class="ride" role="group" aria-label={t('Kind of ride')}>
@@ -835,12 +856,12 @@
   {#if packTab}
     <PackDay {trip} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} />
   {:else}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={over ? null : factEdit} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} made={!!(dayMade && dayMade.id === trip.id)} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={over ? null : factEdit} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
       choose, addTo, addMany, qty: (id, qty) => setEntries(es => setQty(es, id, qty)),
-      move: moveTo, remove: removeEntry, undo: undoLast, swap: swapAlt, undoRow, undoWx,
+      move: moveTo, remove: removeEntry, undo: undoLast, swap: swapAlt, undoRow, undoWx, swapWear, takeOff,
       apply: choices => change(cur => acceptReview(cur, items, choices)),
       edit: () => dialog = { trip }, newTrip: () => dialog = { trip: null },
       pack: goPack, ride: goRide, packAndGo, end: endTrip,
