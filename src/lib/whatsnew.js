@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.45.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'Wardrobe: warm to cold within a zone, quiet gaps like "No gloves below 5 °C" with "Add to wishlist", a photo per piece and "Save as kit …" for an outfit that Plan then suggests. Everyday-only clothes show only under Everyday; what the debriefs taught ("You run cold: +2 °C") is in the header with Reset.', href: '#/wardrobe' },
+      { text: 'On Today "What do I wear today?": for a day ride at your home place, one piece per layer and zone from your own clothes; a tap opens the wardrobe.', href: '#/' },
+      { text: 'Check import: after "Apply all safe ones" the line under the file says when it was applied, and an apply that adds nothing says so in words.', href: '#/gear/import' },
+      { text: 'Phone and keyboard: small buttons and the places on the bike drawing have 44 px tap areas, gear category heads stay on two lines at 320 px, and after "Create trip" the focus goes to the new trip\'s name.', href: '#/gear' },
+    ],
+  },
+  {
     version: '0.44.1',
     date: '2026-10-09',
     points: [

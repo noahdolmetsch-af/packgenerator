@@ -227,15 +227,16 @@ dialog.sheet::backdrop {
   background: rgba(15, 46, 39, 0.45);
 }
 
-/* v0.27.0 (AP21): on a touch screen every button is at least 44 px high (small ones 40 px), and the
+/* v0.27.0 (AP21): on a touch screen every button is at least 44 px high (small ones 40 px until v0.45.0, now 44 px too), and the
    quiet text links ("← Gear", "Expand all", …) get an invisible 44 px tap area that does not move
    the layout. Mouse and keyboard keep the compact look. */
 @media (pointer: coarse) {
   .btn {
     min-height: 44px;
   }
+  /* v0.45.0 (acceptance follow-up 3, Noah): small buttons get the full 44 px on touch too. */
   .btn.sm {
-    min-height: 40px;
+    min-height: 44px;
   }
   .inp,
   .sel {

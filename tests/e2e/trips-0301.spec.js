@@ -253,7 +253,9 @@ test('N10, N11, v0.40.0: New trip has "Copy the last trip: name" under "Start di
   // The standard set as the app has it after its own updates of the fixture (they run on start, e.g.
   // the light set): write the template with it.
   await page.reload();
-  await expect.poll(async () => (await table(page, 'items')).find((i) => i.id === 'LI01')?.lightSetDone).toBe(true);
+  // lightSet2026 updates LI01, LI02 and LI03 one after the other: wait for all of them, not only the
+  // first (reading the items between two updates put "Licht" into the template line now and then).
+  await expect.poll(async () => (await table(page, 'items')).filter((i) => ['LI01', 'LI02', 'LI03'].includes(i.id)).every((i) => i.lightSetDone)).toBe(true);
   const all = await table(page, 'items');
   const stdNow = all.filter((i) => ['owned', 'unclear'].includes(i.ownership) && (['standard', 'worn'].includes(i.role) || i.always) && (!i.domains?.length || i.domains.includes('bikepacking')) && !i.sets?.includes('firstaid')).map((i) => i.id);
   const value = [{ ...tpl, entries: [...stdNow, 'GTP1', 'LX01'].map((itemId) => ({ itemId, slot: 'seat', qty: 1 })) }];

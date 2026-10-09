@@ -833,6 +833,13 @@
     justify-self: start;
     white-space: nowrap;
   }
+  /* v0.45.0 (acceptance follow-up 3): 44 px on touch ("Select", favourites, the toggles). */
+  @media (pointer: coarse) {
+    .fav,
+    .seg button {
+      min-height: 44px;
+    }
+  }
   .fav[aria-pressed='true'] {
     background: var(--ink);
     border-color: var(--ink);
@@ -954,6 +961,31 @@
   }
   .ch button[aria-expanded='false'] .chev {
     transform: rotate(-90deg);
+  }
+  /* v0.45.0 (acceptance follow-up 6): on a narrow phone the count line goes under the name and the
+     weight stays on the right, so the head is two lines instead of four. */
+  @media (max-width: 479px) {
+    .ch button {
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      gap: 0 8px;
+    }
+    .ch .title {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .ch .k {
+      grid-column: 3;
+      grid-row: 1;
+      white-space: nowrap;
+    }
+    .ch .chev {
+      grid-column: 4;
+      grid-row: 1;
+    }
+    .ch .m {
+      grid-column: 2 / 4;
+      grid-row: 2;
+    }
   }
   @media (min-width: 720px) {
     .ch button {

@@ -42,7 +42,8 @@ describe('the wardrobe (#/wardrobe)', () => {
     const acc = w.layers.find((l) => l.key === 'accessory');
     expect(acc.zones.map((z) => z.key)).toEqual(['hands', 'head']); // neck → head
     expect(zoneGroup('arms')).toBe('upper');
-    expect(w.unsorted.map((u) => u.item.id).sort()).toEqual(['C10', 'C11']);
+    // v0.45.0 (decision 10): C10 is everyday only, so not under Alle any more.
+    expect(w.unsorted.map((u) => u.item.id).sort()).toEqual(['C11']);
   });
 
   it('guesses layer and zone from the name (the guess is only preselected)', () => {
@@ -56,7 +57,7 @@ describe('the wardrobe (#/wardrobe)', () => {
   it('filters by use: Velo, Alltag, Alle', () => {
     expect(wardrobe(ITEMS, 'velo').all.some((i) => i.id === 'C10')).toBe(false);
     expect(wardrobe(ITEMS, 'everyday').all.map((i) => i.id)).toEqual(['C10']);
-    expect(wardrobe(ITEMS, 'all').n).toBe(11);
+    expect(wardrobe(ITEMS, 'all').n).toBe(10); // v0.45.0 (decision 10): without the everyday-only C10
   });
 
   it('shows a range, or below / above for an open end', () => {

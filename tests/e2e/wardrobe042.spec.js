@@ -269,8 +269,8 @@ test('Rueckblick (debrief): the clothing row shifts the kit borders', async ({ p
   await page.getByRole('button', { name: T('Save debrief') }).first().click();
   await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'clothing.offset')?.value).toBe(1);
   expect((await table(page, 'debriefs')).find((d) => d.tripId === 'gtp-past').clothing).toBe('cold');
-  // The wardrobe says it quietly.
+  // The wardrobe says it (v0.45.0, decision 8: in the header, with Reset).
   await page.goto('./#/wardrobe');
-  await expect(page.locator('.ward p.foot')).toContainText(T('Your kit borders are shifted by {n} °C from your debriefs.', { n: '+1' }));
+  await expect(page.locator('.ward p.offset')).toContainText(T('You run cold: {n} °C', { n: '+1' }));
   expect(errors).toEqual([]);
 });

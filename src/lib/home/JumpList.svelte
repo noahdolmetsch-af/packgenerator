@@ -10,6 +10,7 @@
   import { db } from '../db.js';
   import { dueAll, yearAgo } from '../quickcare.js';
   import ReviewCard from './ReviewCard.svelte';
+  import WearToday from './WearToday.svelte';
   import { itemUsage, deadWeight } from '../insights.js';
   import { HOME_PLACE, HOME_FORECAST, usable, weekendWeather } from '../know.js';
   import { RAIN } from '../trips.js';
@@ -48,6 +49,8 @@
 </script>
 
 <div class="jumps-col">
+    <!-- v0.45.0 (Noah, decision 9): what to wear for a day ride at the home place. -->
+    <WearToday {items} {trips} />
     {#if rows.length}
       <section class="jumps" aria-labelledby="jump-h">
         <h2 id="jump-h" class="lbl">{t('Jump to')}</h2>

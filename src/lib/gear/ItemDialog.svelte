@@ -18,6 +18,8 @@
   import { inStandard, isWorn } from '../blocks2026.js';
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
   import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight } from '@lucide/svelte';
+  import { isClothing } from '../wardrobe.js';
+  import { shrinkImage } from '../photo.js';
 
   /**
    * item: the item to show, or null for "Add item".
@@ -195,12 +197,46 @@
     dialog.close();
   }
 
+  /* ---------- v0.45.0 (Noah, decision 6): an optional photo of a piece of clothing ---------- */
+  // Shrunk on the device (photo.js: JPEG, longest side 1400 px) and kept on the item (item.photo,
+  // like bike.photo); saved with "Save", removable. Shown small in the wardrobe.
+  const clothing = $derived(isClothing(draft));
+  let reading = $state(false);
+  let photoErr = $state('');
+  async function pickPhoto(event) {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = '';
+    if (!file) return;
+    reading = true;
+    photoErr = '';
+    try {
+      draft.photo = await shrinkImage(file);
+    } catch (err) {
+      photoErr = err.message;
+    } finally {
+      reading = false;
+    }
+  }
+
   async function remove() {
     if (!confirm(t('Delete "{name}" from your gear? A backup file can bring it back.', { name: nameOf(item) }))) return;
     await db.items.delete(item.id);
     dialog.close();
   }
 </script>
+
+{#snippet photoRow()}
+  {#if clothing}
+    <div class="wide iphoto">
+      {#if draft.photo}<img src={draft.photo} alt={t('Photo of {name}', { name: draft.name })} />{/if}
+      <span class="pacts">
+        <label class="btn sm">{reading ? t('Reading…') : draft.photo ? t('Other photo') : t('Add photo')}<input type="file" accept="image/*" onchange={pickPhoto} hidden /></label>
+        {#if draft.photo}<button type="button" class="btn sm" onclick={() => (draft.photo = null)}>{t('Remove photo')}</button>{/if}
+      </span>
+      {#if photoErr}<p class="err" role="alert">{photoErr}</p>{/if}
+    </div>
+  {/if}
+{/snippet}
 
 {#snippet movedNote()}
   <p class="wide moved" role="status">{t('New category: {cat}. The ID {id} stays the same, so trips, templates, bags and favourites keep this item.', { cat: t(CATEGORY[draft.category]?.name ?? draft.category), id: draft.id })}</p>
@@ -393,6 +429,7 @@
           </select>
         </label>
         <label><span class="lbl">{t('Weight of one piece (g)')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
+        {@render photoRow()}
         {#if moved}{@render movedNote()}{/if}
       </div>
       {@render comesAlong()}
@@ -421,6 +458,7 @@
           {/if}
         </div>
         <label class="wide"><span class="lbl">{t('Weight of one piece (g)')} <small class="req">{t('optional')}</small></span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
+        {@render photoRow()}
         {#if moved}{@render movedNote()}{/if}
       </div>
       {#if isNew}
@@ -453,6 +491,28 @@
 {#if assigning}<AssignDialog ids={[item.id]} {item} onclose={assigned} />{/if}
 
 <style>
+  /* v0.45.0 (decision 6): the photo of a piece of clothing, small, with its two buttons. */
+  .iphoto {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+  }
+  .iphoto img {
+    width: 88px;
+    height: 88px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+  }
+  .iphoto .pacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .iphoto .btn {
+    min-height: 44px;
+  }
   .alsobag {
     margin-top: 8px;
   }

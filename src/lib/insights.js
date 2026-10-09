@@ -128,6 +128,11 @@ export function wishReason(item, items, trips, debriefs) {
     reasons.push(t('Needed on the bike'));
     score += 9;
   }
+  // v0.45.0 (Noah, decision 2): a wish made from a gap in the wardrobe ("No gloves below 5 °C").
+  if (item.from === 'wardrobe') {
+    reasons.push(item.note || t('Gap in the wardrobe'));
+    score += 6;
+  }
   const old = item.replaces ? items.find((i) => i.id === item.replaces) : null;
   if (old?.weightG != null && item.weightG != null && old.weightG > item.weightG) {
     reasons.push(t('{g} g lighter than {name}', { g: old.weightG - item.weightG, name: nameOf(old) }));
