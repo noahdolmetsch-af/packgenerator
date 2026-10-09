@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.45.0
+  'Wardrobe: warm to cold within a zone, quiet gaps like "No gloves below 5 °C" with "Add to wishlist", a photo per piece and "Save as kit …" for an outfit that Plan then suggests. Everyday-only clothes show only under Everyday; what the debriefs taught ("You run cold: +2 °C") is in the header with Reset.':
+    'Kleiderschrank: in jeder Zone von warm nach kalt, ruhige Lücken wie «Keine Handschuhe unter 5 °C» mit «Auf die Wunschliste», ein Foto pro Teil und «Als Kit speichern …» für ein Outfit, das Planen dann vorschlägt. Reine Alltagskleider stehen nur unter Alltag; was die Rückblicke gelernt haben («Du frierst eher: +2 °C»), steht oben mit Zurücksetzen.',
+  'On Today "What do I wear today?": for a day ride at your home place, one piece per layer and zone from your own clothes; a tap opens the wardrobe.':
+    'Auf Heute «Was ziehe ich heute an?»: für eine Tagestour am Wohnort ein Teil pro Schicht und Zone aus deinen eigenen Kleidern; ein Tipp öffnet den Kleiderschrank.',
+  'Check import: after "Apply all safe ones" the line under the file says when it was applied, and an apply that adds nothing says so in words.':
+    'Import prüfen: nach «Alle sicheren übernehmen» sagt die Zeile unter der Datei, wann übernommen wurde, und eine Übernahme ohne Neues sagt das in Worten.',
+  "Phone and keyboard: small buttons and the places on the bike drawing have 44 px tap areas, gear category heads stay on two lines at 320 px, and after \"Create trip\" the focus goes to the new trip's name.":
+    'Handy und Tastatur: kleine Knöpfe und die Plätze auf der Velo-Zeichnung haben 44 px Tippflächen, die Kategorie-Köpfe im Material bleiben bei 320 px zweizeilig, und nach «Tour erstellen» geht der Fokus auf den Namen der neuen Tour.',
+
   // 0.44.1
   'Keyboard: Escape in the phone search gives the focus back to the magnifier, and Escape closes an open row in the packing list.':
     'Tastatur: Escape in der Suche am Handy gibt den Fokus an die Lupe zurück, und Escape schliesst eine offene Zeile in der Packliste.',
