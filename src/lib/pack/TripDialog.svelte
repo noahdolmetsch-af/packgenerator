@@ -15,7 +15,7 @@
   import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks, blocksLine, blockLabel } from '../sets.js';
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
-  import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf } from '../dayride.js';
+  import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip } from '../dayride.js';
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -77,10 +77,10 @@
   const hoursOk = $derived(hoursNum === null || (hoursNum >= 0.5 && hoursNum <= 24));
   const wet = $derived(ctx.rain === 'showers' || ctx.rain === 'rain');
   const wxOut = $derived(ctx.min != null || ctx.max != null || ctx.rain !== 'none' ? { min: ctx.min, max: ctx.max, rain: ctx.rain } : null);
-  function pickWx(p) {
+  // v0.47.3 (Noah: «Kühl + Regen» brought nothing): a chip sets, it never takes off (dayride.js pickWxChip).
+  function pickWx(choice) {
     wxTouched = true; // v0.25.1: Noah's own choice; the forecast leaves it alone
-    if (ctx.min === p.min && ctx.max === p.max) (ctx.min = null), (ctx.max = null);
-    else (ctx.min = p.min), (ctx.max = p.max);
+    Object.assign(ctx, pickWxChip(ctx, choice));
   }
   /** The context fields to store (only for bike trips). */
   const ctxFields = () => ({ hours: hoursOk ? hoursNum : null, overnight: night, cook: night === 'outdoor' && ctx.cook, wx: wxOut, event: ctx.event });
@@ -411,9 +411,13 @@
     <legend class="lbl">{t('Weather')}</legend>
     <div class="chips">
       <!-- v0.47.1 (Noah d): the forecast's own range, when it is not one of the presets (it used to be rounded to one). -->
-      {#if fcWx && !WX_PRESETS.some((p) => p.min === fcWx.min && p.max === fcWx.max)}<button type="button" class="toggle" aria-pressed={ctx.min === fcWx.min && ctx.max === fcWx.max} onclick={() => pickWx(fcWx)}>{fcWx.min}–{fcWx.max}° <small class="fcmark">{t('from forecast')}</small></button>{/if}
+      {#if fcWx && !WX_PRESETS.some((p) => p.min === fcWx.min && p.max === fcWx.max)}<button type="button" class="toggle" aria-pressed={ctx.min === fcWx.min && ctx.max === fcWx.max} onclick={() => pickWx({ min: fcWx.min, max: fcWx.max })}>{fcWx.min}–{fcWx.max}° <small class="fcmark">{t('from forecast')}</small></button>{/if}
       {#each WX_PRESETS as p (p.name)}<button type="button" class="toggle" aria-pressed={ctx.min === p.min && ctx.max === p.max} onclick={() => pickWx(p)}>{t(p.name)} <small>{p.min}–{p.max}°</small>{#if fromForecast && ctx.min === p.min && ctx.max === p.max}<small class="fcmark">{t('from forecast')}</small>{/if}</button>{/each}
-      <button type="button" class="toggle" aria-pressed={wet} onclick={() => ((wxTouched = true), (ctx.rain = wet ? 'none' : 'rain'))}>+ {t('Rain')}</button>
+    </div>
+    <!-- v0.47.3: dry or rain as two chips, the same as on the trip page (it was a «+ Rain» toggle). -->
+    <div class="chips" role="group" aria-label={t('Rain')}>
+      <button type="button" class="toggle" aria-pressed={!wet} onclick={() => pickWx({ rain: 'none' })}>{t('Dry|weather')}</button>
+      <button type="button" class="toggle" aria-pressed={wet} onclick={() => pickWx({ rain: 'rain' })}>{t('Rain')}</button>
     </div>
     {#if fromForecast}<p class="note small fc">{t('From the forecast for {place}', { place: forecast.place?.name ?? '' })}</p>
     {:else}<p class="note small">{t('or get the forecast later in Pack (Edit trip conditions)')}</p>{/if}
@@ -647,6 +651,10 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+  }
+  /* v0.47.3: dry or rain on a row of its own under the ranges. */
+  .chips + .chips {
+    margin-top: 6px;
   }
   .ck {
     display: flex !important;

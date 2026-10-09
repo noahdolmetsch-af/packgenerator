@@ -346,3 +346,7 @@ Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0
 - **Querformat:** Die Fakten-Chips sind im Querformat (Höhe unter 500 px) eine ruhige, unterstrichene Zeile mit 26 px Höhe und ohne Gewicht (steht in der Velokarte); das Band auf Planen darf dort 165 statt 150 px hoch sein (zwei kurze Zeilen Fakten). Der Hochformat-Handy-Wert bleibt 44 px.
 - **Wächter:** Grundlinie nach dem Merge auf 0.47.0 neu gemessen (sie stammte von 0.46.2); 0.47.1 hebt keine Zahl, `src/App.svelte` fontsize 8 → 7.
 
+## 9.10.2026: Wetter-Chips setzen, •••-Menüs bleiben im Bild (0.47.3)
+
+- **«Kühl + Regen» brachte nichts (Ursache):** Im Fenster «Neue Tour» schalteten die Wetter-Chips um. Hatte die Wettervorhersage schon «Kühl» und Regen gewählt, nahmen die Tipps auf «Kühl» und «+ Regen» beides wieder weg, und die Vorschau zeigte «Fürs Wetter: nichts zusätzlich». Die Logik in `layers.js`/`context.js` war richtig. Entscheid: Ein Wetter-Chip **setzt** nur (`dayride.js pickWxChip`), wie auf der Tourseite; Trocken und Regen sind zwei Chips statt eines «+ Regen»-Schalters. Ein Wetter ganz entfernen geht im Fenster nicht mehr (die Tourseite konnte das nie).
+- **•••-Menüs im Bild:** Ein Menü neben seinem ••• wird verschoben (seitlich) oder nach oben geklappt (unten kein Platz), nie verkleinert (`src/lib/ui/inview.js`, Baukasten). Gilt für Packliste, Vorlagen, «In Bearbeitung» und Velopflege (deren eigenes «nach oben» aus 0.46.1 ersetzt). Ein Menü, das auch oben keinen Platz hat, bleibt unten (die Seite scrollt), damit es sein ••• nie verdeckt.

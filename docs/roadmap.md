@@ -562,6 +562,7 @@ Diese Reihenfolge gilt ab jetzt und ersetzt die offenen Punkte der Tabelle oben 
 | 2c | **0.46.3 «Mehr» wieder ruhig** (erledigt) | Touren-Einträge aus «Mehr» entfernt, Gruppen wie in 0.46.0 | Ganzes Menü neu: Mockup mit Fragen, Bau mit Übergänge Teil 1 |
 | 2d | **0.47.0 Aufpimpen (Design-Release D1)** (erledigt) | Kleiderschrank nach Mockup, Velo mit Taschen und Gewichtskarte auf der Tour, Material-Reiter und Karten, Velopflege-Schrift vereinheitlicht, «Jetzt fällig» als Karten, Inbox und Prüfen leeren sich selbst | Antworten 12–20 und «Offen: Angleichen» (design-audit.md) folgen in 0.48 / D2–D5 |
 | 2e | **0.47.1 Tagestour antippen** (erledigt) | Dauer, Datum, Wetter und Velo in der Tourkarte antippbar, keine «1 Tag · keine Übernachtung»-Doppelung, Wetter-Schnellwahl, Vorhersage ohne Rundung auf Vorgaben mit Quelle; «Mehr» mit Punkt, Inbox neueste zuerst und verlinkt, Velopflege: Probleme als eine flache Liste und neueste Arbeit zuerst; Wächter-Prüfungen | Menü als Ganzes weiter mit Übergänge Teil 1 |
+| 2f | **0.47.3 Wetter-Chips und •••-Menüs** (erledigt) | «Kühl + Regen» bringt Kälte- und Regensachen (Chips setzen statt umschalten), •••-Menüs bleiben bei 320 und 390 px im Bild | |
 | 3 | **Gesamttest Runde 2** | Derselbe grosse erfundene Datensatz und dieselben Abläufe nach 0.46 | |
 | 4 | **0.47 Einkaufen, Lebenslauf, Werkstatt** | Eine Einkaufsliste für alles (eigene Läden, Monatsbudget); Lebenslauf pro Teil (Preis und Laden freiwillig, Kosten pro Einsatz, Archiv); Werkstatt-Anleitungen (allgemeine Drehmomente, Notfallkarten offline) | |
 | 5 | **0.48 Design und Bedienung aus der Strategierunde 2** | Umsetzung der Antworten | Wartet auf Noahs Antworten 62–119 |
@@ -599,5 +600,6 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.1 | 09.10.2026 | 0.45.1 Gesamttest Runde 1; neue Reihenfolge 0.46 Startseite, Gesamttest Runde 2, 0.47, 0.48, später; Abschnitt «Im Flow» (Schritte 1–9) |
 | 2.2 | 09.10.2026 | 0.47.0 «Aufpimpen» (Design-Release D1) erledigt |
 | 2.3 | 09.10.2026 | 0.47.1 «Tagestour antippen» erledigt (Noahs Test einer Tagestour, Inbox, Velopflege) |
+| 2.4 | 09.10.2026 | 0.47.3 Wetter-Chips im Fenster «Neue Tour» und •••-Menüs im Bild erledigt |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

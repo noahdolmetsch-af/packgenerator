@@ -112,7 +112,8 @@ test('A2: "+ Rain" in the trip brings the rain gear with its reason and Undo', a
   await page.locator('.list-menu > summary').click();
   await page.locator('.list-menu-content').getByRole('button', { name: T('Edit trip'), exact: true }).click();
   const dlg = page.getByRole('dialog', { name: T('Trip details') });
-  const rain = dlg.getByRole('button', { name: `+ ${T('Rain')}` });
+  // v0.47.3: dry or rain are two chips (it was a «+ Rain» toggle).
+  const rain = dlg.getByRole('group', { name: T('Rain'), exact: true }).getByRole('button', { name: T('Rain'), exact: true });
   await rain.click();
   await expect(rain).toHaveAttribute('aria-pressed', 'true');
   await dlg.getByRole('button', { name: T('Save') }).click();

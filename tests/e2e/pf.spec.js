@@ -211,7 +211,8 @@ async function fillTrip(dlg, rec, o) {
     const b = dlg.getByRole('button', { name: new RegExp(`^${esc(T(o.weather))} `) });
     if ((await b.getAttribute('aria-pressed')) !== 'true') await rec.click(b);
   }
-  if (o.rain) await rec.click(dlg.getByRole('button', { name: `+ ${T('Rain')}` }));
+  // v0.47.3: dry or rain are two chips (it was a «+ Rain» toggle); a chip only sets.
+  if (o.rain) await rec.click(dlg.getByRole('group', { name: T('Rain'), exact: true }).getByRole('button', { name: T('Rain'), exact: true }));
 }
 
 /** Open every folded bag in the packing list (to look at all rows). */

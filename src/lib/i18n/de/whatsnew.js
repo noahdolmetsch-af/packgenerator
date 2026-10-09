@@ -8,6 +8,12 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.47.3
+  'In a new trip, "Chilly" and "Rain" stay chosen when you tap them, also when the forecast chose them already, so the list gets the cold and the rain items. Dry or rain are two chips, as on the trip page.':
+    'Bei einer neuen Tour bleiben «Kühl» und «Regen» gewählt, wenn du sie antippst, auch wenn die Wettervorhersage sie schon gewählt hat; die Liste bekommt die Sachen für Kälte und Regen. Trocken oder Regen sind zwei Chips, wie auf der Tourseite.',
+  'The ••• menus (packing list, templates, trips in progress, bike care) stay fully on the screen on a phone: they move aside or open upwards.':
+    'Die •••-Menüs (Packliste, Vorlagen, Touren in Bearbeitung, Velopflege) bleiben am Handy ganz im Bild: Sie rücken zur Seite oder öffnen nach oben.',
+
   // 0.47.1
   'The top card of a trip shows the ride time. Tap date, duration, weather or bike to change it right there; the list follows, Undo takes it back. A day ride no longer shows "1 day, no overnight stay".':
     'Die oberste Karte einer Tour zeigt die Fahrzeit. Tippe auf Datum, Dauer, Wetter oder Velo, um es gleich dort zu ändern; die Liste zieht mit, «Rückgängig» nimmt es zurück. Eine Tagestour zeigt nicht mehr «1 Tag, keine Übernachtung».',

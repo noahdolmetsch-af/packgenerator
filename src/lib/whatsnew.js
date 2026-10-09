@@ -10,6 +10,14 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.47.3',
+    date: '2026-10-09',
+    points: [
+      { text: 'In a new trip, "Chilly" and "Rain" stay chosen when you tap them, also when the forecast chose them already, so the list gets the cold and the rain items. Dry or rain are two chips, as on the trip page.', href: '#/pack' },
+      { text: 'The ••• menus (packing list, templates, trips in progress, bike care) stay fully on the screen on a phone: they move aside or open upwards.', href: '#/pack' },
+    ],
+  },
+  {
     version: '0.47.1',
     date: '2026-10-09',
     points: [

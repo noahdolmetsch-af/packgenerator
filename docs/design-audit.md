@@ -70,7 +70,7 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Heute | Startseite | Neubau 0.46 | – |
 | Heute | Neu-Blatt, Mehr-Menü, Suche | – | – |
 | Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.47: Velo mit Taschen oben, Gewichtskarte) | 3 |
-| Touren | Tour-Dialog, Vorlagen-Dialog, Lade-Blatt | – | – |
+| Touren | Tour-Dialog, Vorlagen-Dialog, Lade-Blatt | 9.10.2026 (0.47.3: Wetter-Chips wie auf der Tourseite, Trocken/Regen) | 3 |
 | Touren | Unterwegs | – | – |
 | Touren | Rückblick, Vergleich, Tempo, Logbuch | – | – |
 | Touren | Vergangene Touren, Fahrten, Jahresrückblick, Teilen | – | – |
@@ -101,3 +101,4 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 
 - 9.10.2026: Regel eingeführt. Erste Runde gestartet: Neuentwurf Kleiderschrank, Material, Tour und Velos sowie erste Mockups für Im Flow und 0.47.
 - 9.10.2026, 0.47 «Aufpimpen» (D1): Kleiderschrank nach Mockup neu (Note 2 → 4); Tour/Packen mit Velo und Gewichtskarte, Material mit Reitern und Karten, Velopflege mit einer Schriftordnung und «Jetzt fällig» als Karten, Setup-Kopfband angeglichen, Inbox und Prüfen leeren sich selbst. Neue Regel «Eine Abarbeitungsliste leert sich selbst». Bilder vorher/nachher: `design/audit-0.47/` (Velopflege: `care-*`). Offenes unter «Offen: Angleichen».
+- 9.10.2026, 0.47.3: Tour-Dialog: Wetter-Chips setzen statt umschalten, Trocken/Regen als zwei Chips wie auf der Tourseite (Note 3). Packliste: das ••• bleibt rechts in seiner Zeile, wenn «Rückgängig» erscheint; alle •••-Menüs bleiben bei 320 und 390 px im Bild (`ui/inview.js`). Bilder: `design/v0473/vorher`, `nachher`.
