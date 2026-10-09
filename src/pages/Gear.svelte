@@ -1723,4 +1723,205 @@
       flex: 1 1 auto;
     }
   }
+
+  /* ---------- v0.47.0 «Aufpimpen» (design release D1, Noah 7b, 11a; style sheet «Gletscher») ----------
+     A slim tab bar with small counts, the filter labels only for screen readers, the categories as
+     calm white cards with a small colour dot, the numbers quiet and right-aligned. */
+  .kpis .lbl {
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 26px;
+    max-width: none;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    overflow: visible;
+    margin-bottom: 18px;
+  }
+  .tabs button,
+  .tabs button:nth-child(n) {
+    grid-column: auto;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+    min-height: 44px;
+    margin-bottom: -1px;
+    padding: 10px 0 8px;
+    border-bottom: 2.5px solid transparent;
+    background: none;
+    color: var(--ink-2);
+    font: 500 15.5px/1.3 var(--font-body);
+    text-align: left;
+    cursor: pointer;
+    hyphens: manual;
+  }
+  .tabs button:hover {
+    color: var(--ink);
+  }
+  .tabs button[aria-selected='true'] {
+    background: none;
+    color: var(--ink);
+    font-weight: 600;
+    border-bottom-color: var(--hi);
+  }
+  .tabs small {
+    padding: 0 7px;
+    border-radius: 999px;
+    background: var(--paper-2);
+    color: var(--ink-3);
+    font-size: 12.5px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 459px) {
+    .tabs {
+      gap: 0 18px;
+    }
+    .tabs button,
+    .tabs button:nth-child(n) {
+      font-size: 14.5px;
+    }
+  }
+  .toolbar label:not(.q) .lbl,
+  .toolbar .q .lbl {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .toolbar .inp,
+  .toolbar .sel {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    min-height: 44px;
+  }
+  .fav {
+    border: 1px solid var(--line);
+    min-height: 44px;
+  }
+  .cat {
+    margin-bottom: 18px;
+    padding: 4px 16px 6px;
+    background: var(--paper);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--card-shadow);
+  }
+  .ch {
+    border-bottom: 0;
+  }
+  .ch button {
+    min-height: 52px;
+    align-content: center;
+    align-items: center;
+    padding: 6px 0;
+  }
+  .ch .title {
+    font-size: 18px;
+    font-weight: 500;
+  }
+  @media (max-width: 420px) {
+    /* a long category name on a small phone stays at two calm lines */
+    .cat {
+      padding: 2px 12px 4px;
+    }
+    .ch .title {
+      font-size: 16px;
+      line-height: 1.2;
+    }
+    .ch button {
+      padding: 2px 0;
+    }
+  }
+  .ch .k {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .ch .sw {
+    width: 9px;
+    height: 9px;
+  }
+  .rows {
+    border-top: 1px solid var(--line);
+  }
+  .cat :global(.gr:last-child) {
+    border-bottom: 0;
+  }
+  .side {
+    padding: 14px 10px 10px;
+    background: var(--paper);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--card-shadow);
+  }
+  .side .lbl {
+    padding: 0 6px;
+    color: var(--ink-3);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .side button {
+    min-height: 40px;
+    padding: 6px;
+    border-bottom: 0;
+    border-radius: 8px;
+  }
+  .side .sw {
+    width: 8px;
+    height: 8px;
+  }
+  @media (min-width: 720px) {
+    .inv {
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 20px;
+    }
+    .cat {
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+  }
+  @media (min-width: 1440px) {
+    .inv {
+      grid-template-columns: 250px minmax(0, 1fr);
+      gap: 28px;
+    }
+    .cat {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
+  .side .num {
+    white-space: nowrap;
+  }
+  @media (max-width: 719px) {
+    .ht .title {
+      flex-basis: 100%;
+    }
+  }
+  .viewbar .seg {
+    border: 0;
+    padding: 3px;
+    border-radius: 12px;
+    background: var(--paper-2);
+  }
+  .viewbar .seg button,
+  .viewbar .seg button + button {
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--ink-2);
+  }
+  .viewbar .seg button[aria-pressed='true'] {
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 1px 3px var(--shadow);
+  }
 </style>

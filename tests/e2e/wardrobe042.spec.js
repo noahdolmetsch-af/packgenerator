@@ -157,24 +157,41 @@ test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page
   const acc = page.locator('section.layer', { has: page.locator('h2', { hasText: T('Accessories|layer') }) });
   await expect(acc.locator('h3.zh', { hasText: T('Head') })).toBeVisible();
   await expect(page.locator('li', { hasText: 'Regenjacke leicht' }).locator('.tc')).toHaveText(T('medium|temp'));
-  await expect(page.locator('li', { hasText: 'Merino Langarm' }).locator('.tc')).toHaveText('4–15 °C');
+  // v0.47.0 (Noah 2b): the temperature bar plus the short text «4–15°».
+  await expect(page.locator('li', { hasText: 'Merino Langarm' }).locator('.tc')).toHaveText('4–15°');
 
-  // To sort: the guess is outlined; two taps put the undershirt into Base / Upper body.
+  // To sort (v0.47.0, Noah 3b): a compact list, one suggestion chip per row; "Other …" opens layer and zone.
   const sort = page.locator('section.sort');
   const n0 = Number(await sort.locator('.sort-h .r').innerText());
-  await sort.getByRole('button', { name: T('{n} more to sort', { n: n0 - 3 }) }).click();
+  if (n0 > 5) await sort.getByRole('button', { name: T('{n} more to sort', { n: n0 - 5 }) }).click();
   const row = sort.locator('li', { hasText: 'Unterhemd ärmellos' });
+  await row.getByRole('button', { name: T('Other layer or zone: {name}', { name: `${P} Unterhemd ärmellos` }) }).click();
   await expect(row.locator('button.sug', { hasText: T('Base|layer') })).toBeVisible();
   await shot(page, info, 'kleiderschrank');
   await row.getByRole('button', { name: T('Base|layer'), exact: true }).click();
-  await expect(page.getByRole('status').filter({ hasText: T('{name} sorted', { name: `${P} Unterhemd ärmellos` }) })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: T('{name} → {where}', { name: `${P} Unterhemd ärmellos`, where: T('Base|layer') }) })).toBeVisible();
   await row.getByRole('button', { name: T('Upper body'), exact: true }).click();
   await expect(sort.locator('.sort-h .r')).toHaveText(String(n0 - 1));
+  // "A to-do list empties itself": the sorted row leaves at once.
+  await expect(sort.locator('li', { hasText: 'Unterhemd ärmellos' })).toHaveCount(0);
   const baseLayer = page.locator('section.layer', { has: page.locator('h2', { hasText: T('Base|layer') }) });
   await expect(baseLayer.getByText('Unterhemd ärmellos')).toBeVisible();
   // Undo puts the zone back: the row is to sort again.
   await page.getByRole('status').getByRole('button', { name: T('Undo') }).click();
   await expect(sort.locator('.sort-h .r')).toHaveText(String(n0));
+  await expect(sort.locator('li', { hasText: 'Unterhemd ärmellos' })).toHaveCount(1);
+  // One tap on the chip: the first row leaves, the next one moves up and has the focus; Undo brings it back first.
+  const names = () => sort.locator('.srows > li .snm').allInnerTexts();
+  const before = await names();
+  const first = sort.locator('.srows > li').first();
+  const chip = first.locator('button.chip');
+  if (await chip.count()) {
+    await chip.click();
+    await expect.poll(names).toEqual(before.slice(1));
+    await expect.poll(() => page.evaluate(() => document.activeElement?.closest('li')?.querySelector('.snm')?.textContent ?? null)).toBe(before[1] ?? null);
+    await page.getByRole('status').getByRole('button', { name: T('Undo') }).click();
+    await expect.poll(names).toEqual(before);
+  }
   // The filter: Alltag shows only the everyday clothing.
   await page.getByRole('group', { name: T('Use|wardrobe') }).getByRole('button', { name: T('Everyday|use') }).click();
   await expect(page.locator('.page-sub')).toContainText(T('{n} piece of clothing', { n: 1 }));

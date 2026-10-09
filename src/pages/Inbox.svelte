@@ -13,6 +13,9 @@
   import { addRideNote } from '../lib/ride.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
+  import { slide } from 'svelte/transition';
+  import { flip } from 'svelte/animate';
+  import { Check, Undo2 } from '@lucide/svelte';
 
   let { onnew } = $props();
 
@@ -43,8 +46,29 @@
   let assigning = $state(null); // the note whose bike and trip are open (••• → Bike or trip)
   let shown = $state(null); // photo src
 
+  // v0.47.0 (Noah: "a to-do list empties itself"): a sorted note leaves the list at once with a short
+  // calm exit, the next note moves up and gets the focus, and a toast offers Undo (everything the
+  // note wrote is taken back, the note is open again at its place).
+  const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MOVE = reduced ? 0 : 150;
+  let last = $state.raw(null); // { text, back: async fn }
+  let timer;
+  $effect(() => () => clearTimeout(timer));
+  async function undoLast() {
+    const back = last?.back;
+    clearTimeout(timer);
+    last = null;
+    if (back) await back();
+  }
+  function focusAfter(id) {
+    const list = open.map((n) => n.id);
+    const at = list.indexOf(id);
+    const next = list[at + 1] ?? list[at - 1] ?? null;
+    setTimeout(() => (next ? document.querySelector(`[data-note-id="${next}"] .acts > .btn`) : document.getElementById('inbox-done'))?.focus(), MOVE + 120);
+  }
   async function file(note, kind) {
     msg = '';
+    const before = { note: $state.snapshot(note), debrief: null, made: [] };
     const bikeId = bikeOf(note);
     const tripId = tripOf(note);
     if (kind === 'trip' && !tripId) return (msg = t('There is no trip to put this note on.'));
@@ -59,17 +83,32 @@
       if (out.repair) await db.maintenance.put(out.repair);
       if (out.item) await db.items.put(out.item);
       if (out.learning) await db.learnings.put(out.learning);
+      before.made = [out.repair && ['maintenance', out.repair.id], out.item && ['items', out.item.id], out.learning && ['learnings', out.learning.id]].filter(Boolean);
       if (out.tripNote) {
         const trip = await db.trips.get(tripId);
         if (!trip) throw new Error(t('This trip is gone.'));
         const debrief = await db.debriefs.get(tripId);
+        before.debrief = { tripId, rec: debrief ?? null };
         await db.debriefs.put(addRideNote(debrief ?? null, trip, note.text, note.day ?? 0, note.at)); // v0.26.1: keeps the day of a note on the way
       }
       await db.notes.put(out.note);
     });
     } catch (err) {
       msg = err.message || t('This note could not be sorted.');
+      return;
     }
+    focusAfter(note.id);
+    clearTimeout(timer);
+    last = {
+      text: t('{text} → {where}', { text: note.text.length > 40 ? `${note.text.slice(0, 40)}…` : note.text, where: t(KIND[kind].name) }),
+      back: () =>
+        db.transaction('rw', db.notes, db.maintenance, db.items, db.learnings, db.debriefs, async () => {
+          for (const [table, id] of before.made) await db.table(table).delete(id);
+          if (before.debrief) before.debrief.rec ? await db.debriefs.put(before.debrief.rec) : await db.debriefs.delete(before.debrief.tripId);
+          await db.notes.put(before.note);
+        }),
+    };
+    timer = setTimeout(() => (last = null), 10000);
   }
   const remove = (n) => confirm(t('Delete the note "{text}"?', { text: n.text.slice(0, 40) })) && db.notes.delete(n.id);
   const reopen = (n) => db.notes.update(n.id, { status: 'open', to: null, sortedAt: null });
@@ -86,7 +125,7 @@
   <header class="head">
     <div>
       <h1 class="title">{t('Inbox')}</h1>
-      {#if $notesQ}<p class="page-sub">{open.length ? tn(open.length, '{n} to sort', '{n} to sort') : notes.length ? t('All notes are sorted.') : ''}</p>{/if}
+      {#if $notesQ && open.length}<p class="page-sub">{tn(open.length, '{n} to sort', '{n} to sort')}</p>{/if}
     </div>
     <button type="button" class="btn" onclick={onnew}>+ {t('Quick note')}</button>
   </header>
@@ -105,7 +144,7 @@
         {@const others = KINDS.filter((k) => k.key !== kind)}
         {@const bk = pick[n.id]?.bikeId !== undefined ? pick[n.id].bikeId : n.bikeId}
         {@const tr = pick[n.id]?.tripId !== undefined ? pick[n.id].tripId : n.tripId}
-        <li class="note">
+        <li class="note" data-note-id={n.id} out:slide={{ duration: MOVE }} animate:flip={{ duration: MOVE }}>
           <div class="lrow">
             {#if n.photo}<button type="button" class="th" onclick={() => (shown = n.photo)} aria-label={t('Open photo')}><img src={n.photo} alt="" /></button>{/if}
             <div class="m">
@@ -146,6 +185,10 @@
     </ul>
   {/if}
 
+  {#if $notesQ && !open.length && notes.length}
+    <p class="card alldone" id="inbox-done" tabindex="-1"><Check size={18} aria-hidden="true" /><span>{t('All notes are sorted.')}</span><button type="button" class="btn sm" onclick={onnew}>+ {t('Quick note')}</button></p>
+  {/if}
+
   {#if sorted.length}
     <details class="all">
       <summary class="sec-head"><span>{t('All notes')}</span><span class="n">{sorted.length}</span></summary>
@@ -164,11 +207,64 @@
   {/if}
 </div>
 
+{#if last}
+  <div class="toast" role="status">
+    <Check size={18} aria-hidden="true" /><span>{last.text}</span>
+    <button type="button" class="btn sm" onclick={undoLast}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>
+  </div>
+{/if}
+
 {#if shown}
   <Lightbox list={[{ src: shown, name: t('Quick note'), sub: '' }]} start={0} onclose={() => (shown = null)} />
 {/if}
 
 <style>
+  .alldone {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    color: var(--ink-2);
+  }
+  .alldone :global(svg) {
+    color: var(--accent);
+  }
+  .alldone span {
+    flex: 1;
+  }
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: min(520px, calc(100vw - 32px));
+    padding: 6px 8px 6px 14px;
+    border-radius: 12px;
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: 0 8px 24px var(--shadow);
+  }
+  .toast span {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .toast .btn {
+    flex: none;
+    background: none;
+    border-color: transparent;
+    color: var(--paper);
+    text-decoration: underline;
+  }
+  @media (max-width: 719px) {
+    .toast {
+      bottom: calc(84px + env(safe-area-inset-bottom));
+    }
+  }
   .inbox {
     max-width: 880px;
     margin: 0 auto;

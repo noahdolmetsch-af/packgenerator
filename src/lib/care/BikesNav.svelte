@@ -13,11 +13,13 @@
 </nav>
 
 <style>
+  /* v0.47.0 (style sheet «Gletscher»): the same soft segmented control as every toggle (ui/Seg). */
   .subnav {
     display: inline-flex;
-    border: 1.5px solid var(--line-strong);
-    border-radius: 6px;
-    overflow: hidden;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 12px;
+    background: var(--paper-2);
   }
   /* v0.27.0 (AP21): 44 px high for a thumb (were 30 px). */
   a {
@@ -25,16 +27,18 @@
     align-items: center;
     min-height: 44px;
     padding: 6px 16px;
-    font: 700 15px var(--font-body);
-    color: var(--ink);
+    border-radius: 9px;
+    font: 500 15px var(--font-body);
+    color: var(--ink-2);
     text-decoration: none;
-    background: var(--paper);
   }
-  a + a {
-    border-left: 1px solid var(--line);
+  a:visited {
+    color: var(--ink-2);
   }
   a[aria-current='page'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--paper);
+    color: var(--ink);
+    font-weight: 600;
+    box-shadow: 0 1px 3px var(--shadow);
   }
 </style>

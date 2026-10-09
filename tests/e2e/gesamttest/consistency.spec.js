@@ -147,9 +147,15 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   const openPast = await page.locator('main li a .nbadge .udot').count();
   await page.goto('./#/debrief');
   await page.reload();
-  const sub = (await page.locator('main .page-sub').first().textContent()) ?? '';
-  const om = sub.match(new RegExp(`(\\d+) ${esc(T('{n} open', { n: '' }).trim())}`));
-  expect(om ? Number(om[1]) : 0, `Past trips (${openPast} open) vs Debrief "${sub}"`).toBe(openPast);
+  // v0.47.0: read the line once the live data is in (it can show an earlier count for a moment)
+  let sub = '';
+  await expect
+    .poll(async () => {
+      sub = (await page.locator('main .page-sub').first().textContent()) ?? '';
+      const om = sub.match(new RegExp(`(\\d+) ${esc(T('{n} open', { n: '' }).trim())}`));
+      return om ? Number(om[1]) : 0;
+    }, { message: `Past trips (${openPast} open) vs Debrief` })
+    .toBe(openPast);
   info.annotations.push({ type: 'past', description: `year ${yTrips} trips ${yKm} km, ${openPast} open debriefs, weigh ${weighToday}` });
 
   // Inbox page

@@ -217,8 +217,11 @@
       {#if kmMsg?.error}<p class="err" role="alert">{kmMsg.text}</p>{:else if kmMsg}<p class="saved" role="status">{kmMsg.text}</p>{/if}
       {#if words.text && c.care.status !== 'due'}<p class="quiet">{words.text}</p>{/if}
 
-      <div class="th" aria-hidden="true"><span>{t('Part')}</span><span>{t('Last done')}</span><span class="r-al">km</span><span>{t('Next|care')}</span><span>{t('Wear|column')}</span><span>{t('Status')}</span><span></span></div>
-      <ul class="parts">
+      <!-- v0.47.0 (Noah 10a): "Due now" as cards above the wear list -->
+      {#if due.length}
+        <p class="zlabel nowh">{t('Due now')} <span class="pill act num">{due.length}</span></p>
+      {/if}
+      <ul class="parts duecards">
         {#each due as x (x.d?.key ?? x.r.part.key)}
           {#if x.r}
             {@render partRow(x.r, x)}
@@ -261,6 +264,12 @@
             </li>
           {/if}
         {/each}
+      </ul>
+      {#if soon.length || ok.length}
+        <p class="zlabel">{t('Wear|list')}</p>
+        {#if soon.length || okOpen}<div class="th" aria-hidden="true"><span>{t('Part')}</span><span>{t('Last done')}</span><span class="r-al">km</span><span>{t('Next|care')}</span><span>{t('Wear|column')}</span><span>{t('Status')}</span><span></span></div>{/if}
+      {/if}
+      <ul class="parts">
         {#each soon as r (r.part.key)}
           {@render partRow(r, null)}
         {/each}
@@ -426,7 +435,7 @@
     padding: 8px 0;
   }
   .acc.open .ah {
-    border-bottom: 1.5px solid var(--ink);
+    border-bottom: 1px solid var(--line); /* v0.47.0: a quiet rule, no black line */
   }
   .grow {
     flex: 1;
@@ -1097,5 +1106,183 @@
       grid-column: 1 / -1;
       grid-row: 2;
     }
+  }
+  /* ---------- v0.47.0 (Noah 10a): "Due now" as calm cards, the wear list below ---------- */
+  .nowh {
+    margin-top: 6px;
+  }
+  .nowh .pill,
+  .zlabel .pill {
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .duecards {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  @media (min-width: 900px) {
+    .duecards {
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
+  }
+  .duecards .pt,
+  .duecards .pt.due {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'pn act'
+      'st act'
+      'last last'
+      'next wear';
+    gap: 2px 10px;
+    min-height: 0;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--paper-2);
+  }
+  .duecards .st {
+    justify-self: start;
+  }
+  .duecards .last {
+    display: block;
+    font-size: 14px;
+  }
+  .duecards .lt,
+  .duecards .last .kmv,
+  .duecards .next {
+    font-size: 14px;
+  }
+  .duecards .last .kmv::before {
+    content: ' · ';
+  }
+  .duecards .last .kmv::after {
+    content: ' km';
+  }
+  .duecards .wear,
+  .duecards .wear:empty {
+    justify-self: end;
+    width: 64px;
+  }
+  .duecards .wear:empty {
+    display: none;
+  }
+  .duecards .extra {
+    grid-column: 1 / -1;
+  }
+
+  /* ---------- v0.47.0 (Noah 9.10.: "Velopflege: Schriftlayout vereinheitlichen") ----------
+     One type scale for the whole care tab (style sheet «Gletscher»): the bike head 18 px medium with
+     one quiet sub line; part names 16 px medium, never underlined; quiet text links in the accent
+     colour without underline; one badge style (small pill: neutral, warn, bad, no data); no bold
+     lists; numbers tabular. Only the look changes. */
+  .ah-btn {
+    font: 500 18px/1.25 var(--font-body);
+  }
+  .sub,
+  .last,
+  .next,
+  .hint,
+  .legend {
+    color: var(--ink-3);
+    font-weight: 400;
+  }
+  .lnk,
+  .prio,
+  .part-btn {
+    text-decoration: none;
+  }
+  .lnk,
+  .prio {
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .lnk:hover,
+  .prio:hover,
+  .part-btn:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .part-btn,
+  .part-btn.row,
+  .rn {
+    font: 500 16px/1.3 var(--font-body);
+    color: var(--ink);
+  }
+  .part-btn small {
+    margin-left: 6px;
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .fix,
+  .prio.hi,
+  .late,
+  .next.late,
+  .saved,
+  .okfold b,
+  .gh h3 {
+    font-weight: 500;
+  }
+  .next.late {
+    color: var(--warn);
+  }
+  .okfold {
+    font: 400 15px var(--font-body);
+  }
+  .okfold .names {
+    color: var(--ink-3);
+    font-weight: 400;
+  }
+  .fold > summary,
+  .fold.small > summary {
+    font: 500 15.5px/1.3 var(--font-body);
+  }
+  .badge,
+  .badge.n,
+  .badge.warn,
+  .badge.bad,
+  .badge.nodata {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 1px 9px;
+    border: 0;
+    border-radius: 999px;
+    font: 500 12.5px/1.6 var(--font-body);
+    white-space: nowrap;
+  }
+  .badge,
+  .badge.n,
+  .badge.nodata {
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .badge.warn {
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  .badge.bad {
+    background: var(--bad-soft);
+    color: var(--bad);
+  }
+  .badge.warn::before,
+  .badge.bad::before {
+    display: none;
+  }
+  .badge.nodata {
+    color: var(--ink-3);
+  }
+  .bar.warn i {
+    background: var(--warn);
+  }
+  .split .mech {
+    background: var(--l3);
+  }
+  .th {
+    color: var(--ink-3);
+    font: 500 12px/1.3 var(--font-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 </style>

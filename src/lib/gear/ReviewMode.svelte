@@ -5,6 +5,7 @@
   import { layerOf } from '../layers.js';
   import ItemDialog from './ItemDialog.svelte';
   import { t, nameOf } from '../i18n.svelte.js';
+  import { Undo2 } from '@lucide/svelte';
 
   /**
    * Inventory check (to-do from 4.10.2026): go through everything you own once and say
@@ -30,8 +31,27 @@
   const checked = $derived(items.filter((i) => i.reviewedAt).length);
   const now = () => new Date().toISOString();
 
-  const keep = () => db.items.update(current.id, { reviewedAt: now() });
-  const gone = () => db.items.update(current.id, { ownership: 'gone', reviewedAt: now(), updatedAt: now() });
+  // v0.47.0 (Noah: "a to-do list empties itself"): the next item comes up at once, and the last
+  // answer can be taken back (Undo puts the item back in front with its old record).
+  let last = $state.raw(null); // { text, rec }
+  let timer;
+  $effect(() => () => clearTimeout(timer));
+  async function answer(patch, text) {
+    const rec = $state.snapshot(current);
+    await db.items.update(rec.id, patch);
+    clearTimeout(timer);
+    last = { text: t(text, { name: nameOf(rec) }), rec };
+    timer = setTimeout(() => (last = null), 10000);
+    setTimeout(() => document.querySelector('.review .btn.hi')?.focus(), 50);
+  }
+  async function undoLast() {
+    const rec = last?.rec;
+    clearTimeout(timer);
+    last = null;
+    if (rec) await db.items.put(rec);
+  }
+  const keep = () => answer({ reviewedAt: now() }, '{name}: still there');
+  const gone = () => answer({ ownership: 'gone', reviewedAt: now(), updatedAt: now() }, '{name}: gone');
   function skip() {
     skipped = [...skipped.filter((id) => id !== current.id), current.id];
   }
@@ -82,6 +102,9 @@
   {:else}
     <p class="card">{t('Everything you own is checked.')} 🎉</p>
   {/if}
+  {#if last}
+    <p class="undo" role="status"><span>{last.text}</span><button type="button" class="btn sm" onclick={undoLast}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button></p>
+  {/if}
   <p class="more">{t('Something missing from the list?')} <button type="button" class="btn" onclick={addNew}>{t('Add item')}</button></p>
 </section>
 
@@ -90,6 +113,16 @@
 {/if}
 
 <style>
+  .undo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    max-width: 520px;
+    margin: 10px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .layer {
     margin: 0 0 8px;
     font: 800 14px var(--font-body);

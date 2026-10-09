@@ -69,6 +69,21 @@
   --shadow: rgba(15, 46, 39, 0.25);
   --scrim: rgba(15, 46, 39, 0.45);
   --info-soft: #e3eef8; /* a wet hour, a weather gap */
+  /* v0.47.0 «Aufpimpen» (style sheet Gletscher): cards, the four layer colours, the temperature scale.
+     Every palette may override them; these are the defaults (Klassisch). */
+  --card-line: var(--line);
+  --card-shadow: none;
+  --radius-card: 12px;
+  --l1: #2f8f7f; /* base layer */
+  --l2: #c98a1e; /* mid layer */
+  --l3: #3f7fbf; /* outer layer */
+  --l4: #8c6bb8; /* accessories */
+  --l1-soft: #dcefeb;
+  --l2-soft: #f7ead2;
+  --l3-soft: #dde9f5;
+  --l4-soft: #ebe3f4;
+  --temp-scale: linear-gradient(90deg, #3f7fbf 0%, #2f9e8f 35%, #e3a43c 70%, #c7471d 100%);
+  --fs-display: clamp(38px, 2.6vw + 26px, 64px);
 }
 
 /* ---------- v0.46.0 «Startseite neu» (Noah 4b, 5a + menu): three colour worlds, light and dark ----------
@@ -112,6 +127,15 @@
   --shadow: rgba(0, 0, 0, 0.5);
   --scrim: rgba(0, 0, 0, 0.6);
   --info-soft: #1b2c35;
+  --l1: #4fc3b0;
+  --l2: #f0b860;
+  --l3: #6fa8e0;
+  --l4: #b398dc;
+  --l1-soft: #173533;
+  --l2-soft: #3a2c12;
+  --l3-soft: #17303d;
+  --l4-soft: #2a2238;
+  --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
 }
 :root[data-palette='gletscher'] {
   --ground: #eef2f4;
@@ -148,6 +172,18 @@
   --shadow: rgba(20, 35, 45, 0.22);
   --scrim: rgba(20, 35, 45, 0.45);
   --info-soft: #e2eef6; /* a wet hour, a weather gap */
+  /* v0.47.0: white cards with a soft shadow and no frame (style sheet «Gletscher»). */
+  --card-line: transparent;
+  --card-shadow: 0 1px 2px rgba(20, 35, 45, 0.05), 0 6px 20px rgba(20, 35, 45, 0.06);
+  --radius-card: 18px;
+  --l1: #2f9e8f;
+  --l2: #e3a43c;
+  --l3: #3f7fbf;
+  --l4: #8c6bb8;
+  --l1-soft: #d8efec;
+  --l2-soft: #fbefd9;
+  --l3-soft: #dfeaf5;
+  --l4-soft: #ece5f5;
 }
 :root[data-palette='gletscher'][data-theme='dark'] {
   color-scheme: dark;
@@ -185,6 +221,18 @@
   --shadow: rgba(0, 0, 0, 0.5);
   --scrim: rgba(0, 0, 0, 0.6);
   --info-soft: #17303d;
+  --card-line: transparent;
+  --card-shadow: none;
+  --radius-card: 18px;
+  --l1: #4fc3b0;
+  --l2: #f0b860;
+  --l3: #6fa8e0;
+  --l4: #b398dc;
+  --l1-soft: #173533;
+  --l2-soft: #3a2c12;
+  --l3-soft: #17303d;
+  --l4-soft: #2a2238;
+  --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
 }
 :root[data-palette='sandstein'] {
   --ground: #f4efe6;
@@ -258,6 +306,15 @@
   --shadow: rgba(0, 0, 0, 0.5);
   --scrim: rgba(0, 0, 0, 0.6);
   --info-soft: #2a2a2c;
+  --l1: #4fc3b0;
+  --l2: #f0b860;
+  --l3: #6fa8e0;
+  --l4: #b398dc;
+  --l1-soft: #173533;
+  --l2-soft: #3a2c12;
+  --l3-soft: #17303d;
+  --l4-soft: #2a2238;
+  --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
 }
 
 * {
@@ -312,9 +369,13 @@ a:visited {
   overflow-wrap: break-word;
   margin: 0;
 }
+/* v0.47.0 (style sheet «Gletscher»): the page title in the condensed display face, big and calm. */
 h1.title {
-  font-size: var(--fs-page);
-  letter-spacing: -0.01em;
+  font-family: var(--font-brand);
+  font-weight: 800;
+  font-size: var(--fs-display);
+  line-height: 0.98;
+  letter-spacing: 0;
 }
 /* The condensed face for the logo and a few big numbers. */
 .brandfont {
@@ -324,8 +385,9 @@ h1.title {
 /* v0.22.0 (AP03): cards are quiet surfaces with a thin line; not every section needs one. */
 .card {
   background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
   padding: var(--sp-4);
 }
 .btn {
@@ -404,7 +466,7 @@ h1.title {
   display: inline-block;
   width: 10px;
   height: 10px;
-  border-radius: 2px;
+  border-radius: 50%; /* v0.47.0 (Noah 11a): the category colour as a small dot */
   flex: none;
 }
 .sr {
@@ -652,4 +714,81 @@ details[open] > summary.lrow .chev {
   margin: 2px 0 12px;
   color: var(--ink-3);
   font-size: 15px;
+}
+
+/* ---------- v0.47.0 «Aufpimpen» (design release D1, style sheet «Gletscher») ----------
+   Shared pieces of the new Wardrobe, Gear, Trip and Bikes pages. */
+/* A soft surface: a white card with a soft shadow, no frame (dark: the paper on the ground). */
+.surf {
+  background: var(--paper);
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+}
+/* A section label in small capitals with a quiet rule after it ("OBERKÖRPER ———"). */
+.zlabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 4px;
+  color: var(--ink-3);
+  font: 600 12px/1.3 var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.zlabel::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+/* A big condensed number ("21", "6,8 kg"). */
+.bignum {
+  font: 800 34px/1 var(--font-brand);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+/* The temperature bar (Noah 2b): the scale −10 … 35 °C, the item's range in colour, the °C small beside. */
+.tbar {
+  position: relative;
+  display: inline-block;
+  width: 72px;
+  height: 6px;
+  flex: none;
+  border-radius: 3px;
+  background: var(--paper-2);
+  overflow: hidden;
+  vertical-align: middle;
+}
+.tbar > i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 3px;
+  background: var(--temp-scale);
+  background-size: 72px 100%;
+}
+/* Small soft badges ("17 offen", "neu", "3 fällig"). */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  font: 500 12.5px/1.6 var(--font-body);
+  white-space: nowrap;
+}
+.pill.act {
+  background: var(--hi-soft);
+  color: var(--badge-ink);
+}
+.pill.ok {
+  background: var(--accent-soft);
+  color: var(--ok);
+}
+.pill.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
 }

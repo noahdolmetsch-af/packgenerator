@@ -56,3 +56,5 @@
 /* The quiet button inside a phone bar next to the orange one (+, pencil). */
 .tp-icon-btn { display: inline-grid; place-items: center; width: 52px; min-height: 52px; flex: none; padding: 0; border: 1.5px solid var(--line-strong); border-radius: 8px; background: var(--paper); color: var(--ink); cursor: pointer; }
 @media print { .trip-page .tp-card, .trip-page .tp-fold { display: none; } }
+/* v0.47.0 «Aufpimpen» (style sheet «Gletscher»): the trip pages' cards and folds as soft surfaces. */
+.tp-card, .tp-fold { border-color: var(--card-line); border-radius: var(--radius-card); box-shadow: var(--card-shadow); }

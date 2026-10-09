@@ -278,6 +278,8 @@ test('S4 new item, weigh, wardrobe, block, trip', async ({ page, context }, info
   await page.getByRole('button', { name: T('All|use') }).click().catch(() => {});
   const row = page.locator('li, .row, div').filter({ hasText: NAME }).last();
   await expect(row).toBeVisible();
+  // v0.47.0 (Noah 3b): a compact row with a suggestion chip; "anders …" opens layer and zone
+  await row.getByRole('button', { name: /^(Andere Schicht oder Zone|Other layer or zone): / }).click();
   await row.getByRole('button', { name: T('Outer|short') }).or(row.getByRole('button', { name: /^Aussen$|^Outer$/ })).first().click();
   await row.getByRole('button', { name: /^Oberkörper$|^Upper body$/ }).first().click();
   await expect.poll(async () => (await table(page, 'items')).find((i) => i.id === item.id)).toMatchObject({ layer: 'outer', zone: 'torso' });

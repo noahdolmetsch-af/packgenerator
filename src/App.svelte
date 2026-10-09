@@ -182,7 +182,7 @@
 
 <DemoBar />
 
-<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features'}>
+<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features' || page === 'wardrobe'}>
   {#key switchN}
   {#if page === 'gear'}
     <Gear />

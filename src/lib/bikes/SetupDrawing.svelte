@@ -13,7 +13,9 @@
   import { t } from '../i18n.svelte.js';
   import { tapAreas } from './tap.js';
 
-  let { places, mounts = false, active = null, label = '', onpick } = $props();
+  let { places, mounts = false, active = null, label = '', onpick, tapText = null } = $props();
+  // v0.47.0: the trip page's drawing opens the bag in the list (tapText(place) says so).
+  const say = (p) => (tapText ? tapText(p) : t('{place}: {bag}, choose a bag', { place: p.name, bag: p.bag.name }));
 
   const W = 720;
   const H = 420;
@@ -46,7 +48,7 @@
   {#if list.length}
     <div class="labels {where}" style:--n={list.length}>
       {#each list as p (p.key)}
-        <button type="button" class="lab" class:active={active === p.key} onclick={() => onpick?.(p.key)} aria-label={t('{place}: {bag}, choose a bag', { place: p.name, bag: p.bag.name })}>
+        <button type="button" class="lab" class:active={active === p.key} onclick={() => onpick?.(p.key)} aria-label={say(p)}>
           <small>{p.name}</small>
           <b>{p.bag.name}</b>
           {#if p.bag.sub}<span class="num">{p.bag.sub}</span>{/if}
@@ -82,7 +84,7 @@
         class:off={mounts && !p.on}
         class:active={active === p.key}
         style={pos(p.box) + tap(i)}
-        aria-label={mounts ? (p.on ? t('{place}: mount on, tap to switch off', { place: p.name }) : t('{place}: no mount, tap to switch on', { place: p.name })) : p.bag ? t('{place}: {bag}, choose a bag', { place: p.name, bag: p.bag.name }) : t('{place}: empty, choose a bag', { place: p.name })}
+        aria-label={mounts ? (p.on ? t('{place}: mount on, tap to switch off', { place: p.name }) : t('{place}: no mount, tap to switch on', { place: p.name })) : p.bag ? say(p) : t('{place}: empty, choose a bag', { place: p.name })}
         title={p.name}
         onclick={() => onpick?.(p.key)}
       >{#if !p.bag && !mounts}<span aria-hidden="true">+</span>{/if}</button>

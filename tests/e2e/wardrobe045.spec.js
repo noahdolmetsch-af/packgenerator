@@ -195,7 +195,8 @@ test('Kleiderschrank 2: order, gap to wishlist, offset reset, Alltag only, photo
   await expect(row.locator('img.thumb')).toHaveCount(0);
 
   // 5. Today's suggestion as a temperature kit (a building block with minC / maxC), with Undo.
-  await page.getByRole('button', { name: T('Save as kit …') }).click();
+  // v0.47.0: the today card in the side column has its own "Save as kit …"; this is the one in the bar
+  await page.locator('.wmain .bar').getByRole('button', { name: T('Save as kit …') }).click();
   const form = page.getByRole('form', { name: T('Save as kit') });
   await form.getByRole('button', { name: T("Today's suggestion ({c} °C)", { c: 4 }) }).click();
   await expect(page.locator('.selbar b.num')).toHaveText(T('{n} selected', { n: 7 }));
