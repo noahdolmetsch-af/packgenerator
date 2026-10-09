@@ -17,6 +17,10 @@ import { db } from './lib/db.js';
 import { tidyData } from './lib/tidy.js';
 import { applyClock } from './lib/demo.js';
 import { trackChanges } from './lib/backup.js';
+import { initTheme } from './lib/theme.svelte.js';
+
+// v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
+initTheme();
 
 // Demo day: the app acts as if it were another day (only while a demo runs).
 applyClock();

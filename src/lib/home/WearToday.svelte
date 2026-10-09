@@ -70,7 +70,7 @@
     margin: 8px 0 4px;
     font-size: var(--fs-small);
     color: var(--ink-2);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .num {
     font-variant-numeric: tabular-nums;
@@ -93,7 +93,7 @@
   }
   .v {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .gap {
     color: var(--ink-3);

@@ -100,7 +100,8 @@
   });
   const keepDayRide = () => {
     try {
-      localStorage.setItem('pack.dayRide', '1');
+      // v0.46.0: a bike chosen for the ride (nav.js dayRide) stays chosen
+      if (!localStorage.getItem('pack.dayRide')) localStorage.setItem('pack.dayRide', '1');
     } catch {
       /* private mode: Pack opens without the new day ride */
     }

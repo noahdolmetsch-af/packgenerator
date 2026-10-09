@@ -173,7 +173,7 @@
     bottom: 0;
     display: block;
     height: 28px;
-    background: linear-gradient(rgba(251, 251, 248, 0), var(--paper));
+    background: linear-gradient(transparent, var(--paper));
     pointer-events: none;
   }
   .gh {
@@ -269,7 +269,7 @@
     padding: 10px;
     background: var(--paper);
     border-top: 1px solid var(--line-strong);
-    box-shadow: 0 -6px 16px #14352e14;
+    box-shadow: 0 -6px 16px var(--shadow);
   }
   .pick-add {
     flex: 1 1 200px;
@@ -278,7 +278,7 @@
     border: 1px solid var(--hi);
     border-radius: 6px;
     background: var(--hi);
-    color: #fff;
+    color: var(--hi-ink);
     font: 600 15px var(--font-body);
     text-align: center;
     overflow-wrap: break-word;

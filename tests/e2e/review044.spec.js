@@ -65,22 +65,24 @@ async function start(page, context, info, fix = data()) {
   return errors;
 }
 
-test('Today: the card of the last 12 months opens the review', async ({ page, context }, info) => {
+// v0.46.0 «Startseite neu» (Noah 29a): the card became one row: trips and km, 12 mini bars, the
+// series and "Look back ›".
+test('Today: the row of the last 12 months opens the review', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/');
-  const card = page.locator('[data-review-card]');
-  await expect(card).toBeVisible();
-  await expect(card.getByRole('heading', { name: 'Letzte 12 Monate' })).toBeVisible();
-  await expect(card.locator('[data-k=trips] dt')).toHaveText('Touren');
-  await expect(card.locator('[data-k=km] dd')).toHaveText(/^\d/);
-  await expect(card.locator('[data-k=nights] dd')).toHaveText(/^\d+$/);
-  await expect(card.locator('.fact')).not.toBeEmpty();
-  // Calm: no orange action button in the card.
-  await expect(card.locator('.btn')).toHaveCount(0);
-  await card.scrollIntoViewIfNeeded();
+  const row = page.locator('[data-year-row]');
+  await expect(row).toBeVisible();
+  await expect(row.getByRole('heading', { name: 'Letzte 12 Monate' })).toBeAttached();
+  await expect(row.locator('dt').first()).toHaveText('Touren');
+  await expect(row.locator('dd').nth(1)).toHaveText(/^\d/);
+  await expect(row.locator('.bars > span')).toHaveCount(12);
+  await expect(row.locator('.streak')).toContainText('Serie');
+  // Calm: no orange action button in the row.
+  await expect(row.locator('.btn')).toHaveCount(0);
+  await row.scrollIntoViewIfNeeded();
   await noSideways(page);
   await shot(page, info, 'heute-karte');
-  const view = card.getByRole('link', { name: 'Ansehen →' });
+  const view = row.getByRole('link', { name: 'Rückblick ›' });
   expect((await view.boundingBox()).height).toBeGreaterThanOrEqual(44);
   await view.click();
   await expect(page).toHaveURL(/#\/review$/);
@@ -140,7 +142,7 @@ test('Empty: no card on Today, one sentence on the review page', async ({ page, 
   page.on('pageerror', (err) => errors.push(err.message));
   await page.goto('./');
   await expect(page.getByRole('heading', { name: 'Erste Schritte' })).toBeVisible();
-  await expect(page.locator('[data-review-card]')).toHaveCount(0);
+  await expect(page.locator('[data-year-row]')).toHaveCount(0);
   await page.goto('./#/review');
   await expect(page.getByText(/Das füllt sich nach den ersten Touren/)).toBeVisible();
   await expect(page.locator('h2.sec-head')).toHaveCount(0);

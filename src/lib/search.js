@@ -80,3 +80,95 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
     .filter(([, rows]) => rows.length)
     .map(([kind, rows]) => ({ kind, name: KIND[kind].name, rows: rows.slice(0, KIND[kind].max), more: Math.max(0, rows.length - KIND[kind].max) }));
 }
+
+/* ---------- v0.46.0 «Startseite neu» (Noah 14a): the search becomes "What do you want to do?" ----------
+ * Besides the results it offers actions by keyword: "wiegen" → weigh, "tagestour factor" → a day ride
+ * on the Factor, "kette geölt spark" → chain lubed on the Spark, "notiz Sattel knarzt" → a quick note.
+ * The first word(s) name the action (German or English, umlauts as typed or as ae/oe/ue, the start of
+ * a one-word action with 3 letters is enough: "wieg"); the rest is the bike (a word of its name) or the
+ * note's text. Pure: Search.svelte carries out the command ({ kind, bikeId?, text? }).
+ */
+
+/** Lower case, umlauts as ae/oe/ue, ß as ss: "Geölt" and "geoelt" are the same. */
+export const fold = (s) => norm(s).replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+
+/**
+ * The commands. say: the phrases (one to four words); bike: 'none' | 'optional' | 'required'
+ * (required: without a bike word one row per bike); text: the rest is free text (a note).
+ */
+export const COMMANDS = [
+  { kind: 'weigh', say: ['wiegen', 'waegen', 'weigh', 'waage'], bike: 'none' },
+  { kind: 'dayride', say: ['tagestour', 'day ride', 'dayride', 'ausfahrt'], bike: 'optional' },
+  { kind: 'chain', say: ['kette geoelt', 'kette gewachst', 'kette geschmiert', 'geoelt', 'gewachst', 'chain lubed', 'chain waxed', 'chain oiled', 'lubed', 'oiled', 'waxed'], bike: 'required' },
+  { kind: 'sealant', say: ['dichtmilch', 'sealant'], bike: 'required' },
+  { kind: 'wash', say: ['velo gewaschen', 'gewaschen', 'bike washed', 'washed'], bike: 'required' },
+  { kind: 'km', say: ['km nachtragen', 'log km', 'kilometer'], bike: 'none' },
+  { kind: 'note', say: ['notiz', 'note', 'zettel'], text: true },
+  { kind: 'wear', say: ['was ziehe ich an', 'what do i wear', 'anziehen', 'outfit'], bike: 'none' },
+  { kind: 'trip', say: ['tour planen', 'neue tour', 'plan a trip', 'new trip'], bike: 'none' },
+];
+
+/** Do the words say the phrase? Each word in full; a one-word phrase may be said by its start (3+ letters). */
+function says(words, phrase) {
+  const p = phrase.split(' ');
+  if (words.length < p.length) return false;
+  if (p.length === 1) return words[0] === p[0] || (words.length === 1 && words[0].length >= 3 && p[0].startsWith(words[0]));
+  return p.every((w, i) => words[i] === w);
+}
+
+/** The bikes the words name: every word starts a word of the bike's name or model (3+ letters). */
+function bikesNamed(words, bikes) {
+  if (!words.length) return [];
+  return bikes.filter((b) => {
+    const name = fold(`${b.name ?? ''} ${b.model ?? ''}`).split(/[\s-]+/);
+    return words.every((w) => w.length >= 3 && name.some((n) => n.startsWith(w)));
+  });
+}
+
+const CMD_TITLE = {
+  weigh: () => t('Start weighing'),
+  dayride: (b) => (b ? t('Day ride with the {bike}', { bike: b.name }) : t('Day ride now')),
+  chain: (b) => t('{bike}: chain lubed', { bike: b.name }),
+  sealant: (b) => t('{bike}: sealant topped up', { bike: b.name }),
+  wash: (b) => t('{bike}: washed|command', { bike: b.name }),
+  km: () => t('Log km'),
+  note: (b, text) => (text ? t('Note: "{text}"', { text }) : t('Write a note')),
+  wear: () => t('What do I wear today?'),
+  trip: () => t('Plan a trip'),
+};
+const SAVED = 'Saved with today’s date, with Undo';
+const CMD_SUB = { chain: SAVED, sealant: SAVED, wash: SAVED, note: 'Into the Inbox', dayride: 'One tap, with Undo' };
+
+/**
+ * The commands a search says: [{ id, kind, title, sub, cmd: { kind, bikeId?, text? } }], at most 4.
+ * bikes: the bikes as shown (sorted). Nothing for fewer than 3 letters.
+ */
+export function commandActions(q, { bikes = [] } = {}) {
+  const raw = String(q ?? '').trim();
+  const words = fold(raw).split(/\s+/).filter(Boolean);
+  if (raw.length < 3 || !words.length) return [];
+  const out = [];
+  for (const c of COMMANDS) {
+    // the longest phrase first ("kette geoelt" before "geoelt")
+    const phrase = [...c.say].sort((a, b) => b.split(' ').length - a.split(' ').length).find((p) => says(words, p));
+    if (!phrase) continue;
+    const n = phrase.split(' ').length;
+    const rest = words.slice(n);
+    const sub = CMD_SUB[c.kind] ? t(CMD_SUB[c.kind]) : '';
+    if (c.text) {
+      const text = raw.split(/\s+/).slice(n).join(' ');
+      out.push({ id: `cmd-${c.kind}`, kind: c.kind, title: CMD_TITLE[c.kind](null, text), sub, cmd: { kind: c.kind, text } });
+      continue;
+    }
+    if (c.bike === 'none') {
+      if (rest.length) continue; // "wiegen jacke" is a search, not the command
+      out.push({ id: `cmd-${c.kind}`, kind: c.kind, title: CMD_TITLE[c.kind](), sub, cmd: { kind: c.kind } });
+      continue;
+    }
+    const named = bikesNamed(rest, bikes);
+    if (rest.length && !named.length) continue; // "tagestour xyz": no bike of that name
+    const list = named.length ? named : c.bike === 'required' ? bikes : [null];
+    for (const b of list.slice(0, 4)) out.push({ id: `cmd-${c.kind}-${b?.id ?? 'any'}`, kind: c.kind, title: CMD_TITLE[c.kind](b), sub, cmd: { kind: c.kind, ...(b ? { bikeId: b.id } : {}) } });
+  }
+  return out.slice(0, 4);
+}

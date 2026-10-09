@@ -61,7 +61,8 @@ describe('the list of what is new', () => {
           continue;
         }
         expect(p.href, p.text).toMatch(/^#\//);
-        expect(files.includes(`'${p.href}'`), `${e.version}: ${p.href}`).toBe(true);
+        // in JS ('#/x') or in markup (href="#/x"): v0.46.0 removed the last quoted use of #/debrief/learnings
+        expect(files.includes(`'${p.href}'`) || files.includes(`"${p.href}"`), `${e.version}: ${p.href}`).toBe(true);
         expect(pageOf(p.href) !== 'home' || p.href === '#/', p.href).toBe(true);
         if (p.action) expect(p.action).toBe('data');
       }
@@ -94,11 +95,23 @@ describe('the list of what is new', () => {
     expect(shortVersion('0.30.2')).toBe('0.30.2');
   });
 
+  it('0.46.0 «Startseite neu»: Today, the command search and the colour worlds, each with Try it', () => {
+    const e = WHATS_NEW.find((x) => x.version === '0.46.0');
+    expect(e.points.length).toBeGreaterThanOrEqual(3);
+    expect(e.points.length).toBeLessThanOrEqual(4);
+    for (const p of e.points) {
+      expect(p.href).toBe('#/');
+      expect(DE[p.text], p.text).toBeTruthy();
+    }
+    lang.v = 'de';
+    expect(t(e.points[3].text)).toContain('Gletscher, Sandstein und Klassisch');
+  });
+
   it('compares versions by number, not by text', () => {
     expect(compareVersions('0.35.0', '0.34.0')).toBe(1);
     expect(compareVersions('0.9.0', '0.10.0')).toBe(-1);
     expect(compareVersions('0.35', '0.35.0')).toBe(0);
-    expect(newerThan('0.33.0').map((e) => e.version)).toEqual(['0.45.2', '0.45.1', '0.45.0', '0.44.1', '0.44.0', '0.43.0', '0.42.0', '0.41.0', '0.40.0', '0.39.0', '0.38.0', '0.37.1', '0.37.0', '0.36.0', '0.35.0', '0.34.0']);
+    expect(newerThan('0.33.0').map((e) => e.version)).toEqual(['0.46.0', '0.45.2', '0.45.1', '0.45.0', '0.44.1', '0.44.0', '0.43.0', '0.42.0', '0.41.0', '0.40.0', '0.39.0', '0.38.0', '0.37.1', '0.37.0', '0.36.0', '0.35.0', '0.34.0']);
   });
 });
 

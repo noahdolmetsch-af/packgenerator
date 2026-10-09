@@ -1,4 +1,5 @@
 // v0.30.2 (Rundgang L5, L6, L9): the walk through Today.
+// v0.46.0 (Noah 34b): "Also to do" and "Good to know" became "Important today".
 // L5: each thing once: the backup, the Inbox and bike care due now are lines in "Also to do", Good to
 //     know does not repeat them; event preparation opens the trip and is ticked off there.
 // L6: a trip within 14 days leads; an open debrief older than 7 days waits in "Also to do" with "All good".
@@ -71,12 +72,11 @@ async function narrow(page, info, what) {
   await page.setViewportSize(vp);
 }
 
-/** Good to know with every tile shown (the phone keeps some behind "Show {n} more"). */
-async function know(page, T) {
-  const sec = page.locator('main section.know');
-  await expect(sec.getByRole('heading', { name: T('Good to know') })).toBeVisible();
-  await expect(sec.locator('.cards > *').first()).toBeVisible();
-  const more = sec.locator('.morebtn');
+/** v0.46.0 (Noah 34b): "Also to do" and "Good to know" are rows of "Important today" (all shown). */
+async function imp(page, T) {
+  const sec = page.getByRole('region', { name: T('Important today') });
+  await expect(sec.locator('li').first()).toBeVisible();
+  const more = sec.locator('button.more');
   if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
   return sec;
 }
@@ -104,8 +104,8 @@ for (const lang of ['en', 'de']) {
     page.on('pageerror', (e) => errors.push(e.message));
     await start(page, context, info, { lang, data: l5Fixture() });
 
-    // Also to do: the backup (none saved yet), the Inbox and the event preparation, each once.
-    const also = page.getByRole('region', { name: T('Also to do') });
+    // Important today: the backup (none saved yet), the Inbox and the event preparation, each once.
+    const also = await imp(page, T);
     await expect(also).toContainText(T('Time for a backup'));
     await expect(also).toContainText(T('{n} note to sort', { n: 1 }));
     await expect(also).toContainText(T('Event preparation: {n} open', { n: 1 }));
@@ -113,13 +113,10 @@ for (const lang of ['en', 'de']) {
     await expect(prep).toHaveAttribute('href', '#/pack');
     await expect(also.getByRole('link', { name: T('Tick off in Bike care') })).toHaveCount(0);
 
-    // Good to know repeats none of it: no backup card, no Inbox card, nothing that is due now.
-    const k = await know(page, T);
-    await expect(k.locator('[data-card="backup"]')).toHaveCount(0);
-    await expect(k.locator('[data-card="inbox"]')).toHaveCount(0);
-    await expect(k).not.toContainText('test_data_gtp_ Faellig');
-    await expect(k).not.toContainText(T('Time for a backup'));
-    await expect(page.getByText(T('Time for a backup'))).toHaveCount(1);
+    // each thing once
+    await expect(also.locator('[data-row="backup"]')).toHaveCount(1);
+    await expect(also.locator('[data-row="inbox"]')).toHaveCount(1);
+    await expect(also.locator('[data-row="prep"]')).toHaveCount(1);
     await narrow(page, info, 'Today');
 
     // The link opens the trip's Plan with "Before the trip" open; the task is ticked off right there.
@@ -151,14 +148,14 @@ for (const lang of ['en', 'de']) {
     await before.getByRole('button', { name: T('Done: {task}', { task: TASK }) }).click();
     await expect(note).toBeVisible();
     await page.goto('./#/');
-    await expect(page.getByRole('region', { name: T('Also to do') })).not.toContainText(T('Event preparation: {n} open', { n: 1 }));
+    await expect(await imp(page, T)).not.toContainText(T('Event preparation: {n} open', { n: 1 }));
     expect(errors).toEqual([]);
   });
 }
 
 /* ---------- L6: an old open debrief does not push the next trip away ---------- */
 
-test('L6: a trip within 14 days leads; an old open debrief waits in Also to do with All good', async ({ page, context }, info) => {
+test('L6: a trip within 14 days leads; an old open debrief waits in Important today with All good', async ({ page, context }, info) => {
   const T = tr('de');
   const data = structuredClone(base);
   data.tables.trips = [trip('Alt', day(-20), { days: 2 }), trip('Bald', day(10))];
@@ -167,10 +164,9 @@ test('L6: a trip within 14 days leads; an old open debrief waits in Also to do w
   // the hero is the trip in 10 days, not "How was …?"
   await expect(page.locator('#next-h')).toHaveText('test_data_gtp_ Bald');
   await expect(page.getByRole('region', { name: T('How was {trip}?', { trip: 'test_data_gtp_ Alt' }) })).toHaveCount(0);
-  const also = page.getByRole('region', { name: T('Also to do') });
+  const also = await imp(page, T);
   const row = also.getByRole('listitem').filter({ hasText: T('Debrief still open: {title}', { title: 'test_data_gtp_ Alt' }) });
   await expect(row).toBeVisible();
-  await expect(row.getByRole('link', { name: T('Debrief'), exact: true })).toHaveAttribute('href', '#/debrief/test_data_gtp_Alt');
   const good = row.getByRole('button', { name: T('All good') });
   expect((await good.boundingBox()).height, 'All good is a 44 px target').toBeGreaterThanOrEqual(44);
   await narrow(page, info, 'Today with an open debrief');
@@ -187,13 +183,13 @@ test('L6: a trip within 14 days leads; an old open debrief waits in Also to do w
   expect(await stored(page, 'debriefs', 'test_data_gtp_Alt')).toBe(null);
 });
 
-test('L6: nothing planned and an old debrief: no hero question, the line in Also to do', async ({ page, context }, info) => {
+test('L6: nothing planned and an old debrief: no hero question, the line in Important today', async ({ page, context }, info) => {
   const T = tr('en');
   const data = structuredClone(base);
   data.tables.trips = [trip('Herbst', day(-12))];
   await start(page, context, info, { lang: 'en', data });
   await expect(page.locator('#next-h')).toHaveText(T('No trip planned'));
-  await expect(page.getByRole('region', { name: T('Also to do') }).getByText(T('Debrief still open: {title}', { title: 'test_data_gtp_ Herbst' }))).toBeVisible();
+  await expect((await imp(page, T)).getByText(T('Debrief still open: {title}', { title: 'test_data_gtp_ Herbst' }))).toBeVisible();
 });
 
 test('L6: a fresh debrief and no trip within 14 days still asks in the hero', async ({ page, context }, info) => {
@@ -202,7 +198,7 @@ test('L6: a fresh debrief and no trip within 14 days still asks in the hero', as
   data.tables.trips = [trip('Gestern', day(-2)), trip('Spaeter', day(20))];
   await start(page, context, info, { lang: 'en', data });
   await expect(page.getByRole('region', { name: T('How was {trip}?', { trip: 'test_data_gtp_ Gestern' }) })).toBeVisible();
-  const also = page.getByRole('region', { name: T('Also to do') });
+  const also = await imp(page, T);
   await expect(also).toContainText(T('Next trip: {title}', { title: 'test_data_gtp_ Spaeter' }));
   await expect(also.getByText(/Debrief still open/)).toHaveCount(0);
 });
@@ -228,14 +224,11 @@ test.describe('L9: first start on a German browser', () => {
     for (const b of await first.locator('.step').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
     // in place of "No trip planned"; no "No bikes yet" line besides step 1
     await expect(page.locator('#next-h')).toHaveCount(0);
-    await expect(page.getByRole('region', { name: T('Also to do') })).toHaveCount(0);
+    await expect(page.locator('[data-row="nobike"]')).toHaveCount(0);
     await narrow(page, info, 'First steps');
 
-    // Good to know: no tip that needs a trip, items or a bike.
-    const k = await know(page, T);
-    const tips = await k.locator('[data-tip]').evaluateAll((els) => els.map((e) => e.dataset.tip));
-    expect(tips.length).toBeGreaterThan(0);
-    for (const id of tips) expect(['homeweather', 'note', 'pace', 'install', 'lang', 'demo'], `tip ${id} needs no data`).toContain(id);
+    // v0.46.0: "Tried it yet?" offers a first function with one button.
+    await expect(page.getByRole('region', { name: T('Tried it yet?') }).locator('.tryb')).toHaveCount(1);
 
     // Plan your first trip opens the New trip window.
     await first.getByRole('button', { name: T('Plan your first trip') }).click();

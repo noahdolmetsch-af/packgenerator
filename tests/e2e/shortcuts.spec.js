@@ -149,7 +149,7 @@ test('create what the search does not find', async ({ page, context }, info) => 
   // Top bar search → "Add … as a new item" → the item dialog starts with that name.
   const phone = info.project.name === 'phone';
   if (phone) await page.getByRole('button', { name: T('Search everything') }).click();
-  await page.getByRole('searchbox', { name: T('Search everything') }).fill(name);
+  await page.getByRole('searchbox', { name: T('What do you want to do? Search or say an action') }).fill(name);
   await page.getByRole('button', { name: `+ ${T('Add "{q}" as a new item', { q: name })}` }).click();
   await expect(page).toHaveURL(/#\/gear/);
   const item = page.getByRole('dialog').filter({ has: page.getByLabel(T('Name')) }).first();

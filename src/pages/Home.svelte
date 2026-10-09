@@ -1,61 +1,78 @@
 <script>
-  import { localDay } from '../lib/localday.js';
   /**
-   * Start page (v0.19.6, Noah 5.10.2026, answers 1a-8a): three questions at a glance.
-   * - What is next? A dark band with the next trip, its countdown and the main action.
-   * - Where do I go? Pack, Gear and Bikes as three equal places, each with a number that helps,
-   *   a way to create something new and the things to open.
-   * - What else is good to know? One line each from more sources: weather and sun, the debriefs,
-   *   your pace, the Inbox and the backup.
-   * Creating is one tap away: "New packing list" here, "New" in the top bar (phone: the +).
+   * Today (Heute). v0.46.0 «Startseite neu» (Noah, 9.10.2026, answers 1a 2b 3a 4b 5a+menu 6-33a 34b):
+   * a calm cockpit instead of many big tiles, top to bottom (a phone stacks it in the same order):
    *
-   * v0.23.0 (AP07): Today leads with ONE trip and ONE next step that fits it (today.js): Continue
-   * planning, Start packing, Ride day or Write debrief; the step opens exactly that trip. Bike care,
-   * event preparation, the backup, a waiting debrief and the Inbox follow as short lines below.
+   *  1. Greeting band: "Good morning, Noah." and the weather in one sentence (home forecast); beside it
+   *     the suggestion of the day (a day ride when it stays dry, "Other bike").
+   *  2. The next trip as a compact card: countdown, name, bike · items · weight · km, the steps as thin
+   *     bars, ONE button for the current step, a quiet setup photo; several trips: "+2 more trips ▾"
+   *     (the 0.35 switcher) and a swipe on a phone. Test trips ("test" in the name) never lead here.
+   *  3. "What do you want to do?": 12 buttons (phone 8), the last "All 16 functions" (lib/home/functions.js).
+   *  4. "Important today" (at most 3 rows, urgent first, one action each; a bike job can be done right
+   *     here) beside "Tried it yet?" (one function never used, "Next ›", "You use 9 of 16 · Level 2").
+   *  5. The bikes as four small cards; 6. the last 12 months in one row with the series.
+   *  Evening (from 18:00): "Review today" and "Charge batteries" come first in Important today.
+   *  A milestone (10th trip, 1000 km on a bike, the first night out) is a quiet row for a day.
+   *  "Customise the start page" switches sections on and off and moves them (settings "homeLayout").
    *
-   * v0.30.2 (L5, L6, L9): each thing is said once: what is to do is a line in "Also to do", Good to
-   * know does not repeat it; event preparation opens the trip (Before the trip), not Bike care. A trip
-   * within 14 days leads; an open debrief older than 7 days waits in "Also to do" with "All good".
-   * A new user (no bike, no gear, no trip) gets "First steps" until all three have data.
-   *
-   * v0.34.0 A (L1, Noah 1a): the band of the next trip is its schedule (schedule.js): ONE next step
-   * (bike service 14 days before, weather 5, shopping and charging 2, pack 1, the ready check on the
-   * start day, then the debrief) with its button, and below it the small timeline, done / open per step.
+   * Kept from before: First steps for a new user (until its three steps are done), "How was {trip}?"
+   * with "All good" (v0.24.1), the ride day opening by itself (v0.20), "Your data" and the footer.
+   * The rules are pure and tested: lib/home/heute.js, lib/home/functions.js, today.js, schedule.js.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
+  import { localDay } from '../lib/localday.js';
   import DataPanel from '../lib/DataPanel.svelte';
-  import { LAST_BACKUP, LAST_IMPORT, BACKUP_DAYS, backupDue, downloadBackup } from '../lib/backup.js';
+  import { LAST_BACKUP, LAST_IMPORT, backupDue, downloadBackup } from '../lib/backup.js';
   import { backupAfterTrip } from '../lib/todos.js';
-  import { CATEGORY, formatWeight, knownWeight, weightText, gearStats, isConsumable, favouriteCounts } from '../lib/gear.js';
+  import { knownWeight, isInventory } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
   import { withVisits, tripPrep, tyreSetup } from '../lib/workshop.js';
-  import { tripSchedule, stepWords, stepHref, STEP_NAME, shortDay, weatherKnown } from '../lib/schedule.js';
+  import { tripSchedule, stepWords, STEP_NAME, weatherKnown } from '../lib/schedule.js';
   import { shopList, shopCount } from '../lib/shop.js';
   import { layerSuggest, openRows } from '../lib/layers.js';
-  import { bikeCare, bikeCareWords, bikeCareLine, eventPrep, eventPrepLine, packStatus, packLine, isShortRide } from '../lib/readiness.js';
-  import { tripStats, daysUntil } from '../lib/trips.js';
+  import { bikeCare, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
+  import { tripStats } from '../lib/trips.js';
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
-  import { nextTrip, tripEnd, quickDebrief, templateOffer, templateName, isOver } from '../lib/debrief.js';
+  import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
-  // v0.25.1 (Noah 1b, 2b, 3a): more buttons on the Trips and Bikes tiles, four visible, the rest under "More".
-  import TripsHubActions from '../lib/hubs/TripsHubActions.svelte';
-  // v0.38.0 (Noah 8a, 9a): the bikes with their ready light and quick buttons, and "Jump to".
-  import ReadyBikes from '../lib/home/ReadyBikes.svelte';
-  import JumpList from '../lib/home/JumpList.svelte';
-  import { wishReason } from '../lib/insights.js';
-  import { ballast } from '../lib/packhints.js';
-  import { TEMPLATES_KEY } from '../lib/templates.js';
-  import { openNew, openNote, openTrip, openPrep, addItem, newTrip, wantBike, take } from '../lib/nav.js';
-  import { todayFocus, openDebrief } from '../lib/today.js';
-  import { pastTrips } from '../lib/hubs.js';
-  import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
+  import { openNew, openNote, openTrip, openPrep, addItem, wantBike, take, dayRide } from '../lib/nav.js';
+  import { todayFocus, openDebrief, endedOn } from '../lib/today.js';
+  import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
-  import GoodToKnow from '../lib/know/GoodToKnow.svelte';
   import { newsHint, newerThan, SEEN_KEY, BEFORE } from '../lib/whatsnew.js';
+  import { HOME_PLACE, HOME_FORECAST, usable, needsFetch, knowCards, wearWhat } from '../lib/know.js';
+  import { openTodos } from '../lib/todos.js';
+  import { weightText } from '../lib/gear.js';
+  import { homeForecast } from '../lib/home-weather.js';
+  import { toWx } from '../lib/weather.js';
+  import { dayRidePlan, daySource, rideDate, lastBikeId } from '../lib/dayride.js';
+  import { readyLight, quickHints, dueAll } from '../lib/quickcare.js';
+  import { chargeList, chargeCount } from '../lib/charge.js';
+  import { TIPS, TIPS_KEY, tipPossible, usedTips, isUsed, tapTip, updateTips } from '../lib/tips.js';
+  import { PACE_KEY, paceOf } from '../lib/pace.js';
+  import { SETS_KEY } from '../lib/sets.js';
+  import { TEMPLATES_KEY } from '../lib/templates.js';
+  import { standalone } from '../lib/install.js';
+  import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, MILESTONE_KEY, LAYOUT_KEY, layoutOf } from '../lib/home/heute.js';
+  import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
+  import { countUse } from '../lib/home/usage.js';
+  import { recordCare, undoCare } from '../lib/home/care-tap.js';
+  import { yearReview, tripDone } from '../lib/yearreview.js';
+  import InProgress from '../lib/trip/InProgress.svelte';
+  import ActionGrid from '../lib/home/ActionGrid.svelte';
+  import TryCard from '../lib/home/TryCard.svelte';
+  import BikeCards from '../lib/home/BikeCards.svelte';
+  import YearRow from '../lib/home/YearRow.svelte';
+  import Customize from '../lib/home/Customize.svelte';
+  import WearToday from '../lib/home/WearToday.svelte';
+  import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
+  import { PartyPopper } from '@lucide/svelte';
 
+  /* ---------- the records ---------- */
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
@@ -63,30 +80,47 @@
   const bagsQ = liveQuery(() => db.containers.toArray());
   const tasksQ = liveQuery(() => db.maintenance.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
+  const notesQ = liveQuery(() => db.notes.toArray());
+  const ridesQ = liveQuery(() => db.rides.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
-  const notesQ = liveQuery(() => db.notes.where('status').equals('open').toArray());
-  const riderQ = liveQuery(() => db.settings.get('riderWeightG'));
-  const importQ = liveQuery(() => db.meta.get(LAST_IMPORT));
-  const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
-  // Answer 10a (stage 1): the newest of the downloaded backup file and the automatic folder backup.
-  const lastQ = liveQuery(async () => {
-    const [file, folder] = await Promise.all([db.meta.get(LAST_BACKUP), db.meta.get('backupFolder')]);
-    return [file?.at, folder?.lastWrite].filter(Boolean).sort().at(-1) ?? null;
+  // the setup photos Today may show: a trip's own, else the bike's main photo (Noah 11a)
+  const photosQ = liveQuery(() => db.photos.filter((p) => !!p.main || !!p.tripId).toArray());
+  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, 'userName', MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY];
+  const setQ = liveQuery(async () => {
+    const rows = await db.settings.bulkGet(SKEYS);
+    return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
   });
+  const metaQ = liveQuery(async () => {
+    const [file, folder, imp, fc] = await Promise.all([db.meta.get(LAST_BACKUP), db.meta.get('backupFolder'), db.meta.get(LAST_IMPORT), db.meta.get(HOME_FORECAST)]);
+    return { last: [file?.at, folder?.lastWrite].filter(Boolean).sort().at(-1) ?? null, imp: imp ?? null, fc: fc ?? null };
+  });
+  const demoQ = liveQuery(() => demoState(db));
 
-  const trips = $derived($tripsQ ?? []);
+  const allTrips = $derived($tripsQ ?? []);
+  // Noah 10a: test trips and archived ones never lead on Today
+  const trips = $derived(homeTrips(allTrips));
   const items = $derived($itemsQ ?? []);
   const visits = $derived($visitsQ ?? []);
   const debriefs = $derived($debriefsQ ?? []);
-  // Workshop jobs count as part history here too (services by time stay in Bike care, answer 17b).
   const bikes = $derived(sortBikes($bikesQ ?? []).map((b) => withVisits(b, visits)));
   const tasks = $derived($tasksQ ?? []);
-  const learnings = $derived($learnQ ?? []);
-  const templates = $derived($tplQ?.value ?? []);
+  const S = $derived($setQ ?? {});
+  const templates = $derived(S[TEMPLATES_KEY] ?? []);
+  const notes = $derived(($notesQ ?? []).filter((n) => n.status === 'open'));
   const loaded = $derived(!!$tripsQ && !!$itemsQ);
-  // v0.35.0 (Noah): once after an update a quiet line "New since your last visit" (not on a first
-  // install). The version is stored at once, so the line shows this one visit only.
-  // v0.38.0 (Noah 9a): it is the row "New in the app" in "Jump to", with how many points are new.
+  const ready = $derived(loaded && !!$bikesQ && !!$visitsQ && !!$tasksQ && !!$debriefsQ && !!$setQ && !!$metaQ && !!$notesQ && !!$ridesQ);
+  const itemsById = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
+
+  /* ---------- the clock: greeting, evening rows ---------- */
+  let now = $state(new Date());
+  $effect(() => {
+    const id = setInterval(() => (now = new Date()), 60_000);
+    return () => clearInterval(id);
+  });
+  const today = $derived(localDay(now));
+  const evening = $derived(dayPart(now.getHours()) === 'evening' && now.getHours() >= 18);
+
+  /* ---------- v0.35.0: "New in the app" once after an update ---------- */
   let newsN = $state(0);
   let newsChecked = false;
   $effect(() => {
@@ -98,7 +132,7 @@
     } catch {
       return; // private mode: no line, nothing stored
     }
-    const h = newsHint(seen, !!(trips.length || items.length || $bikesQ.length));
+    const h = newsHint(seen, !!(allTrips.length || items.length || $bikesQ.length));
     try {
       if (h.mark) localStorage.setItem(SEEN_KEY, h.mark);
     } catch {
@@ -106,74 +140,133 @@
     }
     newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + e.points.length, 0) : 0;
   });
-  const today = localDay();
 
-  /* ---------- the next trip ---------- */
-  const next = $derived(nextTrip(trips));
-  // v0.21.0: a trip without a bike (weekend, ski touring, world trip) has no ride day and no bike care.
-  const nextByBike = $derived(next ? hasBike(next) : true);
-  const bike = $derived(next ? bikes.find((b) => b.id === next.bikeId) : null);
-  const stats = $derived(next ? tripStats(next, items, $bagsQ ?? [], bike, $riderQ?.value) : null);
-  const days = $derived(next ? daysUntil(next.startDate) : null);
-  // v0.18.2 (answer 3a): the same list "Before the trip" as in Pack and Bike care.
-  // v0.22.0 (AP06): three named scopes, the same statements as Pack and Bikes → Care
-  // (readiness.js): Bike care of the trip's bike, Event preparation and Packing status.
-  // v0.25.0 (Noah 10): a short ride (1 day, no event) has no bike care step here; it stays in Bikes.
-  const care = $derived(next && nextByBike && bike && !isShortRide(next) ? bikeCare(bike, { tasks, visits, trip: next, today }) : null);
-  // v0.22.0 (Noah 4b): only for events; a trip without preparation tasks shows no line.
-  const prep = $derived.by(() => {
-    const p = next && nextByBike ? eventPrep(next, tasks, today) : null;
-    return p?.total ? p : null;
+  /* ---------- 1. greeting and weather (Noah 18a, 19a, 20a) ---------- */
+  const place = $derived(S[HOME_PLACE] ?? null);
+  const fc = $derived.by(() => {
+    const raw = $metaQ?.fc;
+    if (!place || !raw || !usable(place, raw, now.getTime())) return null;
+    return { ...raw, days: (raw.days ?? []).map((d) => ({ ...d, rain: toWx([d])?.rain ?? null })) };
   });
-  const packing = $derived(next ? packStatus(next) : null);
-  const extra = $derived(next ? ballast(next, items, trips, debriefs) : null);
-  // v0.23.0 (AP07): the trip Today leads with and its one next step.
+  let fetched = false;
+  $effect(() => {
+    if (fetched || !$setQ || !$metaQ || !place || !navigator.onLine || !needsFetch(place, $metaQ.fc)) return;
+    fetched = true;
+    homeForecast(db); // saves into meta; the greeting follows the saved forecast
+  });
+  const hello = $derived(greeting(now.getHours(), S.userName ?? ''));
+  const wx = $derived(fc ? weatherLine(fc, now) : null);
+  const dateLine = $derived([now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }), place?.name?.split(',')[0]].filter(Boolean).join(' · '));
+  let placeOpen = $state(false);
+
+  // The suggestion of the day: a day ride when the day of the ride stays dry (before 14:00 today, else
+  // tomorrow), on the bike of the last ride or the best ready one; "Other bike" goes round the bikes.
+  let otherBike = $state(null);
+  const rideDay = $derived(rideDate(now));
+  const tripOnRideDay = $derived(trips.some((x) => !x.skipped && !x.finished && x.startDate && onTripDay(x, rideDay)));
+  const suggestBikeId = $derived.by(() => {
+    if (otherBike && bikes.some((b) => b.id === otherBike)) return otherBike;
+    const last = lastBikeId(trips, bikes, today);
+    const tone = (b) => readyLight(b, { tasks, visits, today }).tone;
+    const lastBike = bikes.find((b) => b.id === last);
+    if (lastBike && tone(lastBike) !== 'due') return last;
+    return bikes.find((b) => ['ok', 'soon'].includes(tone(b)))?.id ?? last;
+  });
+  const suggestion = $derived.by(() => {
+    if (!ready || !bikes.length || tripOnRideDay || !fc) return null;
+    if (!dayDry(fc, rideDay, rideDay === today ? now.getHours() : 9)) return null;
+    const plan = dayRidePlan(trips, bikes, { now, bikeId: suggestBikeId });
+    if (!plan) return null;
+    const src = daySource(trips);
+    return { bike: plan.bike, hours: plan.hours, n: src?.entries?.length ?? 0, fromLast: !!src, tomorrow: rideDay !== today };
+  });
+  function startDayRide() {
+    countUse('dayride');
+    dayRide(suggestion?.bike?.id ?? null);
+  }
+  function nextBike() {
+    const i = bikes.findIndex((b) => b.id === suggestion?.bike?.id);
+    otherBike = bikes[(i + 1) % bikes.length]?.id ?? null;
+  }
+
+  /* ---------- 2. the trip card ---------- */
   const focus = $derived(loaded ? todayFocus(trips, debriefs, today) : null);
   const lead = $derived(focus?.trip ?? null);
-  const leadStats = $derived(lead ? (lead === next ? stats : tripStats(lead, items, $bagsQ ?? [], bikes.find((b) => b.id === lead.bikeId), $riderQ?.value)) : null);
-  const leadByBike = $derived(lead ? hasBike(lead) : true);
-  // v0.30.2 (L6): the open debrief that does not lead (also with no trip to lead with): Also to do.
-  const debrief = $derived(loaded ? openDebrief(focus, trips, debriefs, today) : null);
-  const packedPct = $derived(stats?.count ? Math.round((stats.packed / stats.count) * 100) : 0);
-
-  /* ---------- v0.34.0 A (L1): the schedule of the trip Today leads with ---------- */
-  // The facts the schedule needs (schedule.js is pure): what the bike needs before the trip (the list
-  // "Before the trip", tripPrep), the weather and its open suggestions, the shopping list, the debrief.
-  // Not for "How was {trip}?" (focus.ask): that card stays as it is.
-  const itemsById = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
-  const schedCtx = $derived.by(() => {
-    if (!lead || !focus || focus.ask || lead !== next) return null;
-    const byBike = hasBike(lead);
-    const b = byBike ? bikes.find((x) => x.id === lead.bikeId) : null;
+  const next = $derived(nextTrip(trips, today));
+  // Noah 7a, 31a: the trip Today leads with, then the other trips still to come (swipe, "1 / 3 ›")
+  const cardTrips = $derived.by(() => {
+    const soon = soonTrips(trips, today);
+    return lead ? [lead, ...soon.filter((x) => x.id !== lead.id)] : soon;
+  });
+  let cardIdx = $state(0);
+  const shown = $derived(cardTrips.length ? cardTrips[Math.min(cardIdx, cardTrips.length - 1)] : null);
+  const isLead = $derived(!!shown && !!lead && shown.id === lead.id);
+  const ask = $derived(isLead && !!focus?.ask);
+  const shownBike = $derived(shown ? bikes.find((b) => b.id === shown.bikeId) ?? null : null);
+  const stats = $derived(shown ? tripStats(shown, items, $bagsQ ?? [], shownBike, S.riderWeightG) : null);
+  // The facts the schedule needs (schedule.js is pure), as in v0.34.0, for the trip shown.
+  function ctxFor(tr) {
+    const b = hasBike(tr) ? bikes.find((x) => x.id === tr.bikeId) : null;
     let service = null;
-    if (b && !isShortRide(lead)) {
-      const rows = (tripPrep(b, lead, tasks, tyreSetup(b, visits), today)?.rows ?? []).filter((r) => r.group === 'bike');
+    if (b && !isShortRide(tr)) {
+      const rows = (tripPrep(b, tr, tasks, tyreSetup(b, visits), today)?.rows ?? []).filter((r) => r.group === 'bike');
       service = { n: rows.length, late: rows.some((r) => r.late), href: bikesHash({ tab: 'care', bike: b.id, open: true }) };
     }
     return {
       service,
-      weather: { known: weatherKnown(lead), open: byBike ? openRows(layerSuggest(lead, items), lead).length : 0 },
-      shop: shopCount(shopList(lead, itemsById)),
-      // the charge list (charge.js) stays a link in this step: charging is done the evening before
-      // packing, so unticked devices must not hold back the step "Pack"
+      weather: { known: weatherKnown(tr), open: hasBike(tr) ? openRows(layerSuggest(tr, items), tr).length : 0 },
+      shop: shopCount(shopList(tr, itemsById)),
       charge: null,
-      debriefDone: debriefs.some((d) => d.tripId === lead.id && d.status === 'done'),
+      debriefDone: debriefs.some((d) => d.tripId === tr.id && d.status === 'done'),
     };
+  }
+  const ctx = $derived(shown && !ask ? ctxFor(shown) : null);
+  const sched = $derived(ctx ? tripSchedule(shown, ctx, today) : null);
+  const stepNow = $derived(sched?.next ? stepWords(sched.next, shown, ctx, today) : null);
+  const bars = $derived(sched ? sched.steps.filter((s) => s.key !== 'plan' && s.key !== 'debrief') : []);
+  const cd = $derived(shown ? countdown(shown, now) : null);
+  const photo = $derived.by(() => {
+    if (!shown) return null;
+    const ps = $photosQ ?? [];
+    return (ps.find((p) => p.tripId === shown.id) ?? (shown.bikeId ? ps.find((p) => p.bikeId === shown.bikeId && p.main) : null))?.data ?? null;
   });
-  const sched = $derived(schedCtx ? tripSchedule(lead, schedCtx, today) : null);
-  const stepNow = $derived(sched?.next ? stepWords(sched.next, lead, schedCtx, today) : null);
+  const meta = $derived.by(() => {
+    if (!shown || !stats) return '';
+    const who = hasBike(shown) ? shown.bike : t(domainName(domainOf(shown)));
+    const w = stats.gearG ? knownWeight(stats.gearG, stats.gearMissing) : null;
+    const km = shown.route?.km ? `${num(Math.round(shown.route.km))} km` : null;
+    // once packing has started, how far it is (the same words as Pack)
+    const es = shown.entries ?? [];
+    const pk = es.filter((e) => e.packed).length;
+    const pct = pk ? t('{n} % packed', { n: Math.round((pk / es.length) * 100) }) : null;
+    return [who, tn(stats.count, '{n} item', '{n} items'), w, km, pct].filter(Boolean).join(' · ');
+  });
+  const startLine = $derived(shown?.startDate ? new Date(`${shown.startDate}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'long' }) : '');
+  function go(dir) {
+    if (cardTrips.length < 2) return;
+    cardIdx = (Math.min(cardIdx, cardTrips.length - 1) + dir + cardTrips.length) % cardTrips.length;
+  }
+  // Noah 31a: a swipe sideways on the card (touch); a short tap stays a tap.
+  let sx = null;
+  const pdown = (e) => {
+    if (e.pointerType === 'touch' || e.pointerType === 'pen') sx = { x: e.clientX, y: e.clientY };
+  };
+  const pup = (e) => {
+    if (!sx) return;
+    const dx = e.clientX - sx.x;
+    const dy = e.clientY - sx.y;
+    sx = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+  };
 
   /* ---------- v0.24.1 (Noah 3a): "How was {trip}?" → "All good" saves the debrief right here ---------- */
-  // quick: { trip, prev, prevStatus, offer, undo } while "Saved. Undo" (and the template offer) shows.
   let quick = $state(null);
   let quickTimer;
   const UNDO_MS = 8000;
-  // v0.30.2 (L6): also from the line "Debrief still open" in Also to do (trip: that one).
   async function allGood(of = lead) {
     const trip = $state.snapshot(of);
     const prev = debriefs.find((x) => x.tripId === trip.id) ?? null;
     const record = quickDebrief(trip, prev ? structuredClone($state.snapshot(prev)) : null);
-    // Noah 4a: the template offer is decided before anything changes.
     const offer = templateOffer(trip, templates, trips) ? templateName(trip, bikes.find((b) => b.id === trip.bikeId), templates) : null;
     await db.transaction('rw', db.debriefs, db.trips, async () => {
       await db.debriefs.put(record);
@@ -187,7 +280,6 @@
       if (!quick.offer) quick = null;
     }, UNDO_MS);
   }
-  // Undo: the debrief goes (or the earlier draft comes back) and the trip is as it was.
   async function undoQuick() {
     const q = $state.snapshot(quick);
     clearTimeout(quickTimer);
@@ -200,11 +292,9 @@
   }
   $effect(() => () => clearTimeout(quickTimer));
 
-  /* ---------- v0.30.2 (L9): First steps for a new user ---------- */
-  // Shown once the app was seen empty (no bike, no gear, no trip) and until all three have data;
-  // remembered per device, so a bike added first does not end it. Without storage: only while empty.
+  /* ---------- v0.30.2 (L9): First steps for a new user, until its three steps are done ---------- */
   const FIRST = 'home.firstSteps';
-  const steps = $derived({ bike: bikes.length > 0, gear: items.length > 0, trip: trips.length > 0 });
+  const steps = $derived({ bike: bikes.length > 0, gear: items.length > 0, trip: allTrips.length > 0 });
   const stepsAll = $derived(steps.bike && steps.gear && steps.trip);
   let firstOn = $state(
     (() => {
@@ -230,80 +320,69 @@
   });
   const showFirst = $derived(loaded && !!$bikesQ && firstOn && !stepsAll);
 
-  /* ---------- Pack: trips and templates to open ---------- */
-  // v0.30.1 (Noah E6, C5): every trip still ahead (also several day rides on one day), soonest
-  // first, then the past ones (newest first) up to three rows. A trip ended early (finished) or
-  // over by date is past, also when its start date is today or later.
-  const tripList = $derived.by(() => {
-    const list = trips.filter((t) => !t.id.startsWith('demo') || t.id === next?.id);
-    const ahead = list
-      .filter((t) => !t.skipped && !isOver(t, today))
-      .sort((a, b) => (a.startDate ?? '').localeCompare(b.startDate ?? '') || (a.createdAt ?? '').localeCompare(b.createdAt ?? ''));
-    const past = list
-      .filter((t) => !ahead.includes(t))
-      .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '') || (b.createdAt ?? '').localeCompare(a.createdAt ?? ''));
-    return [...ahead, ...past.slice(0, Math.max(0, 3 - ahead.length))];
-  });
-  // v0.30.1 (Noah N9): the past trips, one row with their count (#/pack/past).
-  const pastN = $derived(pastTrips(trips, debriefs, today).length);
-  // v0.30.1 (Noah E6): other trips on the way today besides the one Today leads with.
-  const alsoToday = $derived(trips.filter((t) => t !== lead && !t.skipped && !t.finished && !t.id.startsWith('demo') && onTripDay(t, today)));
-
-  /* ---------- Gear: where the weight is, what is worth a look (answer 7a) ---------- */
-  const gs = $derived(gearStats(items));
-  // v0.22.0 (AP05): the same basis as Gear's favourites button (the inventory); the wishlist ones apart.
-  const favN = $derived(favouriteCounts(items));
-  const cats = $derived(gs.cats.filter((c) => c.g > 0 && !c.consumable).sort((a, b) => b.g - a.g).slice(0, 5));
-  const heaviest = $derived(gs.top.find((i) => !isConsumable(i) && i.category !== 'bike') ?? null);
-  const wishTop = $derived(
-    gs.wishlist
-      .map((item) => ({ item, ...wishReason(item, items, trips, debriefs) }))
-      .sort((a, b) => b.score - a.score || a.item.name.localeCompare(b.item.name))[0] ?? null,
-  );
-  const weighedPct = $derived(gs.inventory.length ? Math.round(((gs.inventory.length - gs.unweighed) / gs.inventory.length) * 100) : 0);
-
-  /* ---------- Bikes: v0.38.0 (Noah 8a) in lib/home/ReadyBikes.svelte ---------- */
-
-  /* ---------- Good to know: v0.25.1 (Noah 1a) the cards live in know.js and GoodToKnow.svelte ---------- */
-  const place = $derived(next ? (next.place ?? next.route?.start ?? null) : null);
-  let dataOpen = $state(false);
-  // Open "Your data" by itself while there is nothing in the app yet, once: a later data
-  // update must not toggle it again under a tap (v0.26.1: the e2e import raced with it).
-  let autoOpened = false;
+  /* ---------- 3. the 16 functions (Noah 12a, 13a, 15a) ---------- */
+  const usage = $derived(usageOf(S[USAGE_KEY]));
+  const unweighed = $derived(items.filter((i) => isInventory(i) && i.weightG == null).length);
+  const due = $derived(dueAll(bikes, { tasks, visits, today }));
+  const badges = $derived({ weigh: unweighed, care: due.points, note: notes.length });
+  const used = $derived(usedFunctions(usage, dataUsed({ trips: allTrips, items, bikes: $bikesQ ?? [], debriefs, templates, rides: $ridesQ ?? [], notesN: ($notesQ ?? []).length, sets: S[SETS_KEY] ?? [] })));
+  let wearOpen = $state(false);
+  let wearDlg = $state();
   $effect(() => {
-    if (loaded && !trips.length && !autoOpened) {
-      autoOpened = true;
-      dataOpen = true;
+    if (wearOpen && wearDlg && !wearDlg.open) wearDlg.showModal();
+    if (!wearOpen && wearDlg?.open) wearDlg.close();
+  });
+  $effect(() => {
+    if (take('home.wear')) wearOpen = true;
+    const on = () => take('home.wear') && (wearOpen = true);
+    window.addEventListener('pg:wear', on);
+    return () => window.removeEventListener('pg:wear', on);
+  });
+  /** One of the 16 functions: counted (the order and "Tried it yet?"), then done. */
+  function runFn(f) {
+    countUse(f.id);
+    if (f.go.href) {
+      if (location.hash === f.go.href) window.dispatchEvent(new HashChangeEvent('hashchange'));
+      else location.hash = f.go.href;
+      return;
     }
-  });
-  let dataEl = $state();
-  function openData() {
-    dataOpen = true;
-    queueMicrotask(() => dataEl?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    const what = f.go.run;
+    if (what === 'dayride') dayRide(suggestion?.bike?.id ?? null);
+    else if (what === 'trip') openNew('list');
+    else if (what === 'wear') wearOpen = true;
+    else if (what === 'note') notes.length ? (location.hash = '#/inbox') : openNote('');
+    else if (what === 'km') openNew('km');
   }
-  // v0.30.0 (Noah 1a): the tip "Try a demo" (nav.js openData) opens Your data, also from the overview.
-  $effect(() => {
-    if (dataEl && take('home.data')) openData();
-    const on = () => take('home.data') && openData();
-    window.addEventListener('pg:data', on);
-    return () => window.removeEventListener('pg:data', on);
-  });
-  /* ---------- v0.23.1 (Noah 3b): on a phone the three places and Good to know start folded ---------- */
-  // Closed, each is one line: its name and the number that matters. The desktop shows them open as before.
-  let folds = $state({ pack: false, gear: false });
-  const hubSum = $derived({
-    pack: next ? `${next.title} · ${t('{n} % packed', { n: packedPct })}` : tn(trips.length, '{n} trip', '{n} trips'),
-    gear: [tn(gs.inventory.length, '{n} item owned', '{n} items owned'), gs.unweighed ? t('{n} not weighed', { n: gs.unweighed }) : null].filter(Boolean).join(' · '),
-  });
-  const notes = $derived([...($notesQ ?? [])].sort((a, b) => (b.at ?? '').localeCompare(a.at ?? '')));
 
-  const demoQ = liveQuery(() => demoState(db));
-  // No backup reminder while a demo runs (backups are off then).
+  /* ---------- 4b. "Tried it yet?" (Noah 16a, 17a, 28a) ---------- */
+  const tipUsed = $derived(
+    usedTips({ trips: allTrips, items, bikes: $bikesQ ?? [], visits, debriefs, templates, sets: S[SETS_KEY] ?? [], notesN: ($notesQ ?? []).length, homePlace: place, pace: paceOf(S[PACE_KEY]), lastBackup: $metaQ?.last ?? null, demo: $demoQ ?? null, langSet: (() => { try { return localStorage.getItem('lang') != null; } catch { return false; } })(), standalone: standalone() }),
+  );
+  function runTip(x) {
+    updateTips(db, (s) => tapTip(s, x.id, today));
+    if (x.go.href) return (location.hash = x.go.href);
+    const what = x.go.run;
+    if (what === 'dayRide') dayRide();
+    else if (what === 'note') openNote('');
+    else if (what === 'receipt') openNote(t('Workshop receipt: '));
+    else if (what === 'km') openNew('km');
+    else if (what === 'data') openData();
+    else if (what === 'lang') setLang(lang.v === 'de' ? 'en' : 'de');
+    else if (what === 'homePlace') placeOpen = true;
+    else if (what === 'backup') downloadBackup(db);
+  }
+  const tryList = $derived.by(() => {
+    if (!ready) return [];
+    const fns = untried(used).map((f) => ({ id: f.id, text: t(f.pitch), button: t('Try it'), run: () => runFn(f) }));
+    const tips = TIPS.filter((x) => x.go.run !== 'install' && tipPossible(x, { trips: allTrips, items, bikes: $bikesQ ?? [] }, today) && !isUsed(S[TIPS_KEY], x.id, tipUsed) && !fns.some((f) => f.id === x.id)).map((x) => ({ id: `tip-${x.id}`, text: t(x.text), button: x.id === 'lang' ? (lang.v === 'de' ? t('Switch to English') : t('Switch to German')) : t(x.button), run: () => runTip(x) }));
+    return [...fns, ...tips];
+  });
+
+  /* ---------- 4a. Important today (Noah 26a, 27a, 32a, 10a, 21a) ---------- */
   const backup = $derived.by(() => {
-    if ($lastQ === undefined || !items.length || $demoQ) return { due: false, days: null };
-    const b = backupDue($lastQ);
-    // v0.21.0 (answer 4a): after every saved debrief, so the desktop can take the phone's state.
-    return backupAfterTrip($lastQ, debriefs) ? { ...b, due: true, afterTrip: true } : b;
+    if (!$metaQ || !items.length || $demoQ) return { due: false, days: null };
+    const b = backupDue($metaQ.last);
+    return backupAfterTrip($metaQ.last, debriefs) ? { ...b, due: true, afterTrip: true } : b;
   });
   let backingUp = $state(false);
   async function backupNow() {
@@ -314,18 +393,184 @@
       backingUp = false;
     }
   }
-
-  function fmt(iso, opts) {
-    return new Date(`${iso}T00:00:00`).toLocaleDateString(locale(), opts);
+  const debrief = $derived(loaded ? openDebrief(focus, trips, debriefs, today) : null);
+  const alsoToday = $derived(trips.filter((x) => x !== lead && !x.skipped && !x.finished && !x.id.startsWith('demo') && onTripDay(x, today)));
+  const prep = $derived.by(() => {
+    const p = next && hasBike(next) ? eventPrep(next, tasks, today) : null;
+    return p?.total && p.status === 'open' ? p : null;
+  });
+  const tests = $derived(testTrips(allTrips));
+  const milestones = $derived(milestonesNow(S[MILESTONE_KEY], today));
+  // Milestones: the levels of now against the stored ones (first time: stored, nothing celebrated).
+  $effect(() => {
+    if (!ready || !$ridesQ || (!allTrips.length && !($bikesQ ?? []).length)) return; // nothing to count yet
+    const done = trips.filter((x) => tripDone(x, debriefs, today));
+    const nights = yearReview({ today, trips, debriefs, rides: [] }).ride.nights + 0;
+    const cur = milestoneLevels({ tripsDone: done.length, bikes: $bikesQ ?? [], nights: done.some((x) => Number(x.days) > 1 && x.overnight !== 'lodging' && x.overnight !== 'none') ? Math.max(1, nights) : 0 });
+    const r = milestoneStep(S[MILESTONE_KEY], cur, today);
+    if (r.changed) db.settings.put({ key: MILESTONE_KEY, value: r.state });
+  });
+  const SOON_KM = 60;
+  const careRows = $derived.by(() => {
+    const out = [];
+    for (const b of bikes) {
+      const c = bikeCare(b, { tasks, visits, today });
+      if (c?.status === 'due') {
+        const one = c.rows.length === 1 ? c.rows[0] : null;
+        const kind = one?.part === 'chain' && one.kind === 'km' ? 'chain' : one?.part === 'tyres' && one.kind === 'time' ? 'sealant' : null;
+        const text = kind === 'chain' ? t('{bike}: lube the chain', { bike: b.name }) : kind === 'sealant' ? t('{bike}: top up the sealant', { bike: b.name }) : tn(c.rows.length, '{bike}: {n} point due', '{bike}: {n} points due', { bike: b.name });
+        out.push({ key: `care:${b.id}`, tone: 'bad', text, act: kind ? { label: kind === 'chain' ? t('Lubed ✓') : t('Done ✓'), care: { bikeId: b.id, kind } } : { label: t('View|care'), href: c.href } });
+        continue;
+      }
+      const h = quickHints(b, { visits, today });
+      if (h.chain && h.chain.left > 0 && h.chain.left <= SOON_KM) out.push({ key: `chain:${b.id}`, tone: 'warn', text: t('{bike}: lube the chain in {km} km', { bike: b.name, km: num(h.chain.left) }), act: { label: t('Lubed ✓'), care: { bikeId: b.id, kind: 'chain' } } });
+    }
+    return out;
+  });
+  /* Noah 34b: what "Good to know" had to do (know.js knowCards) is a row here now: the demo, what is
+     still open, the wear forecast, template suggestions, the best upgrade, long unused items and a
+     learning for the next trip. The weather, weekend, season, trend and pace cards are not repeated
+     (the greeting, the trip card and the last 12 months say it). */
+  const todoText = (r) =>
+    r.key === 'bikes' ? tn(r.n, 'Weigh {n} bike', 'Weigh {n} bikes')
+    : r.key === 'pace' ? t('Load a few GPX rides')
+    : r.key === 'check' ? tn(r.n, 'Check {n} item in the inventory', 'Check {n} items in the inventory')
+    : r.key === 'favourites' ? t('Apply the favourites file')
+    : t('Ride your first real trip with the app');
+  const wearLine = (r) => {
+    const what = t(wearWhat(r), { km: num(r.every) });
+    return t('{what} {bike}: due in about {km} km', { what, bike: r.bike, km: num(r.left) });
+  };
+  const knowRows = $derived.by(() => {
+    if (!ready || !$learnQ) return [];
+    const pace = paceOf(S[PACE_KEY]);
+    const todos = openTodos({ bikes, items, pace, debriefs, trips }).filter((x) => !(x.key === 'trip' && showFirst));
+    const tips = learningsFor(next, $learnQ, 1);
+    const cards = knowCards({ today, todos, demo: $demoQ ?? null, next, tips, pace, bikes, trips, debriefs, visits, items, containers: $bagsQ ?? [], templates, placeLoading: true });
+    const out = [];
+    for (const c of cards) {
+      const d = c.data;
+      if (c.key === 'demo') out.push({ key: 'demo', tone: 'info', text: `${t('Demo running')}: ${t('No backups while the demo runs; your own data waits until you end it.')}`, act: { label: t('Open your data'), run: openData } });
+      else if (c.key === 'todo') {
+        const f = d.rows[0];
+        const run = f.action === 'data' ? openData : () => openNew('list');
+        out.push({ key: 'todo', tone: c.prio === 1 ? 'warn' : 'quiet', text: todoText(f), act: f.href ? { label: t('Do it now'), href: f.href } : { label: t('Do it now'), run } });
+      } else if (c.key === 'wear') out.push({ key: 'wear', tone: 'quiet', text: wearLine(d.rows[0]), act: { label: t('Plan in Bike care'), href: bikesHash({ tab: 'care', bike: d.rows[0].bikeId, open: true }) } });
+      else if (c.key === 'templates') out.push({ key: 'templates', tone: 'info', text: tn(d.n, '{n} suggestion for your templates', '{n} suggestions for your templates'), act: { label: t('Look at them'), href: '#/pack/templates' } });
+      else if (c.key === 'upgrade') out.push({ key: 'upgrade', tone: 'quiet', text: t('{name}: {g} g lighter for CHF {chf} ({x} g per 100 CHF)', { name: nameOf(d.item), g: num(d.savedG), chf: num(d.chf), x: num(d.gPer100) }), act: { label: t('Open wishlist'), href: '#/gear?tab=wishlist' } });
+      else if (c.key === 'unused') out.push({ key: 'unused', tone: 'quiet', text: `${d.full ? tn(d.items.length, '{n} item not on any trip for 12 months', '{n} items not on any trip for 12 months') : tn(d.items.length, '{n} item not on any trip since {date}', '{n} items not on any trip since {date}', { date: new Date(`${d.since}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) })} · ${t('{w} in total', { w: weightText(d.g, d.missing) })}`, act: { label: t('Look through'), href: '#/gear?unused=1' } });
+      else if (c.key === 'learnings') out.push({ key: 'learnings', tone: 'quiet', text: d.tip.rule, act: { label: t('All learnings'), href: '#/debrief/learnings' } });
+    }
+    return out;
+  });
+  const important = $derived.by(() => {
+    if (!ready) return [];
+    const rows = [];
+    for (const m of milestones) rows.push({ key: `ms:${m.key}:${m.bikeId ?? ''}:${m.day}`, tone: 'party', text: milestoneText(m) });
+    if (evening) {
+      // Noah 32a: in the evening the day's review and charging come first
+      const endedToday = trips.filter((x) => !x.skipped && x.entries?.length && endedOn(x) === today && !debriefs.some((d) => d.tripId === x.id && d.status === 'done'));
+      for (const x of endedToday) rows.push({ key: `eve:${x.id}`, tone: 'eve', text: t('Review today: {trip}', { trip: x.title }), act: { label: t('Debrief'), href: `#/debrief/${encodeURIComponent(x.id)}`, trip: x.id } });
+      const soon = soonTrips(trips, today).find((x) => x.startDate > today && x.startDate <= rideDateTomorrow(today)) ?? null;
+      if (soon) {
+        const list = chargeList(soon, items);
+        const c = chargeCount(soon, list);
+        if (c.total > c.done) rows.push({ key: 'charge', tone: 'eve', text: tn(c.total - c.done, 'Charge batteries: {n} device for {trip}', 'Charge batteries: {n} devices for {trip}', { trip: soon.title }), act: { label: t('Charge list'), href: '#/pack?charge', trip: soon.id } });
+      }
+    }
+    if (debrief) rows.push({ key: 'debrief', tone: 'warn', text: t('Debrief still open: {title}', { title: debrief.title }), act: { label: t('All good'), run: () => allGood(debrief) } });
+    if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true } });
+    rows.push(...careRows.filter((r) => r.tone === 'bad'));
+    if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
+    rows.push(...careRows.filter((r) => r.tone !== 'bad'));
+    for (const x of alsoToday) rows.push({ key: `also:${x.id}`, tone: 'info', text: `${t('Also today: {title}', { title: x.title })}${x.bike ? ` · ${x.bike}` : ''}`, act: { label: t('Open the trip'), href: '#/pack', trip: x.id } });
+    if (focus?.kind === 'debrief' && next) rows.push({ key: 'next', tone: 'info', text: t('Next trip: {title}', { title: next.title }), act: { label: t('Open the trip'), href: '#/pack', trip: next.id } });
+    if (notes.length) rows.push({ key: 'inbox', tone: 'info', text: tn(notes.length, '{n} note to sort', '{n} notes to sort'), act: { label: t('Inbox'), href: '#/inbox' } });
+    if (!bikes.length && !showFirst) rows.push({ key: 'nobike', tone: 'info', text: t('No bikes yet.'), act: { label: t('Add a bike'), href: '#/bikes', run: wantBike } });
+    rows.push(...knowRows);
+    if (newsN) rows.push({ key: 'news', tone: 'quiet', text: tn(newsN, 'New in the app: {n} update', 'New in the app: {n} updates'), act: { label: t('Show'), href: '#/features?news' } });
+    if (tests.length) rows.push({ key: 'tests', tone: 'quiet', text: tn(tests.length, 'Clean up {n} test trip', 'Clean up {n} test trips'), act: { label: t('Clean up'), run: () => (cleanAsk = true) } });
+    // milestones and the evening rows first, then the urgent ones (bad, warn), then the rest
+    const rank = { party: 0, eve: 1, bad: 2, warn: 3, info: 4, quiet: 5 };
+    return rows.map((r, i) => ({ r, i })).sort((a, b) => rank[a.r.tone] - rank[b.r.tone] || a.i - b.i).map((x) => x.r);
+  });
+  function rideDateTomorrow(day) {
+    const d = new Date(`${day}T12:00:00`);
+    d.setDate(d.getDate() + 1);
+    return localDay(d);
   }
-  const dateText = (tr) =>
-    tr.days > 1 ? `${fmt(tr.startDate, { weekday: 'short', day: 'numeric' })} – ${fmt(tripEnd(tr), { weekday: 'short', day: 'numeric', month: 'short' })} · ${tn(tr.days, '{n} day', '{n} days')}` : fmt(tr.startDate, { weekday: 'short', day: 'numeric', month: 'short' });
-  const todayText = $derived(new Date().toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }));
+  let allRows = $state(false);
+  const rowsShown = $derived(allRows ? important : important.slice(0, 3));
+  let notice = $state(null); // { text, undo() } for a few seconds
+  let noticeTimer;
+  function say(text, undo) {
+    clearTimeout(noticeTimer);
+    notice = { text, undo };
+    noticeTimer = setTimeout(() => (notice = null), 10000);
+  }
+  $effect(() => () => clearTimeout(noticeTimer));
+  async function act(row) {
+    const a = row.act;
+    if (a.care) {
+      countUse('care');
+      const r = await recordCare(a.care.bikeId, a.care.kind, today);
+      if (r) say(r.text, () => undoCare(r.undo));
+      return;
+    }
+    if (a.prep) openPrep(a.prep);
+    else if (a.trip) openTrip(a.trip);
+    a.run?.();
+  }
+  // Noah 10a: clean up the test trips: asked here on the page (no browser question), archived, Undo.
+  let cleanAsk = $state(false);
+  async function cleanTests() {
+    const before = $state.snapshot(tests);
+    const ch = archiveChanges();
+    await db.transaction('rw', db.trips, async () => {
+      for (const x of before) await db.trips.update(x.id, ch);
+    });
+    cleanAsk = false;
+    say(tn(before.length, '{n} test trip archived.', '{n} test trips archived.'), () => db.transaction('rw', db.trips, async () => {
+      for (const x of before) await db.trips.put(x);
+    }));
+  }
+  async function undoNotice() {
+    const n = notice;
+    clearTimeout(noticeTimer);
+    notice = null;
+    await n?.undo?.();
+  }
+
+  /* ---------- Customise (Noah 33a) ---------- */
+  const layout = $derived(layoutOf(S[LAYOUT_KEY]));
+  let customOpen = $state(false);
+  const on = (key) => !layout.off.includes(key);
+
+  /* ---------- Your data (v0.30.0: openData from anywhere opens it here) ---------- */
+  let dataOpen = $state(false);
+  let autoOpened = false;
+  $effect(() => {
+    if (loaded && !allTrips.length && !autoOpened) {
+      autoOpened = true;
+      dataOpen = true;
+    }
+  });
+  let dataEl = $state();
+  function openData() {
+    dataOpen = true;
+    queueMicrotask(() => dataEl?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
+  $effect(() => {
+    if (dataEl && take('home.data')) openData();
+    const onData = () => take('home.data') && openData();
+    window.addEventListener('pg:data', onData);
+    return () => window.removeEventListener('pg:data', onData);
+  });
 
   // Ride day (answer 1a): on the days of the trip the app opens the ride view, once a day.
   // v0.29.2 (Noah 6a): not on the day the trip was made: then Noah is still planning or packing.
   const madeToday = (tr) => !!tr?.createdAt && localDay(new Date(tr.createdAt)) === today;
-  const riding = $derived(next && nextByBike && !madeToday(next) ? onTripDay(next, today) : false);
+  const riding = $derived(next && hasBike(next) && !madeToday(next) ? onTripDay(next, today) : false);
   $effect(() => {
     if (!riding) return;
     const key = 'ride.autoOpened';
@@ -349,46 +594,137 @@
       window.removeEventListener('offline', update);
     };
   });
-
-  const ICON = {
-    plus: 'M12 5v14M5 12h14',
-    note: 'M5 4h14v12l-4 4H5zM15 20v-4h4M8 9h8M8 13h5',
-    star: 'M12 3l2.6 5.8 6.4.6-4.8 4.3 1.4 6.3L12 16.8 6.4 20l1.4-6.3L3 9.4l6.4-.6z',
-    bike: 'M6 16m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0M18 16m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0M6 16l4-8h5l3 8M10 8l4 8',
-    bag: 'M6 8h12l1.5 13h-15zM9 8V6a3 3 0 0 1 6 0v2',
-  };
 </script>
 
 {#snippet mark(done, n)}{#if done}<span class="mark ok" role="img" aria-label={t('Done|task')}>✓</span>{:else}<span class="mark" aria-hidden="true">{n}</span>{/if}{/snippet}
-{#snippet ic(name, size = 20)}<svg class="ic" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true"><path d={ICON[name]} /></svg>{/snippet}
 
-<!-- v0.23.1 (Noah 3b): one place. Desktop: a card with its heading as now. Phone: folded closed,
-     the closed line shows the name and its key number; tap or Enter/Space opens it. -->
-{#snippet hub(key, label, href, icon, body)}
-  {#if phone.matches}
-    <details class="hub folded" bind:open={folds[key]}>
-      <summary><h2 id="{key}-h" class="title">{label}</h2><span class="fsum">{hubSum[key]}</span></summary>
-      <div class="hub-in">{@render body()}</div>
-    </details>
-  {:else}
-    <section class="hub" aria-labelledby="{key}-h">
-      <header><h2 id="{key}-h" class="title"><a {href}>{label}</a></h2>{@render ic(icon, 40)}</header>
-      {@render body()}
+<!-- 1. greeting and weather, the suggestion of the day -->
+{#snippet greetingS()}
+  <section class="greet" class:solo={!suggestion} aria-labelledby="hello-h" data-section="greeting">
+    <div class="hi-text">
+      {#if !phone.matches}<span class="dl">{dateLine}</span>{/if}
+      <h1 id="hello-h" class="hello">{hello}{#if wx}<br /><span class="wx" data-weather>{wx.text}</span>{/if}</h1>
+      {#if !wx && ready}
+        {#if !place}
+          <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
+        {/if}
+      {/if}
+      {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
+    </div>
+    {#if suggestion}
+      <div class="sugg" data-suggestion>
+        <span class="kick">{suggestion.tomorrow ? t('Idea for tomorrow') : t('Idea for today')}</span>
+        <span class="sq">{t('{h} h ride with the {bike}?', { h: num(suggestion.hours), bike: suggestion.bike.name })}</span>
+        {#if !phone.matches}<span class="ss">{suggestion.fromLast ? tn(suggestion.n, 'List from your last day ride · {n} item · the weather fits', 'List from your last day ride · {n} items · the weather fits') : t('Standard list · the weather fits')}</span>{/if}
+        <span class="sa">
+          <button type="button" class="btn hi" onclick={startDayRide}>{t('Start day ride')}</button>
+          {#if bikes.length > 1}<button type="button" class="linkq" onclick={nextBike}>{t('Other bike')}</button>{/if}
+        </span>
+      </div>
+    {/if}
+  </section>
+{/snippet}
+
+<!-- 2. the next trip -->
+{#snippet tripS()}
+  {#if focus || shown}
+    <section class="trip" class:has-photo={!!photo && !phone.matches} aria-labelledby="next-h" data-section="trip" data-trip={shown?.id} onpointerdown={pdown} onpointerup={pup} onpointercancel={() => (sx = null)}>
+      <div class="tc">
+        <div class="kl">
+          {#if ask}
+            <span class="cdn">{t('trip ended')}</span>
+          {:else if cd}
+            <span class="cdn" class:near={cd.near} data-countdown>{cd.text}</span>
+            {#if !phone.matches && startLine && !cd.under}<span class="sub">{isLead ? t('Next trip') : t('Later trip')} · {startLine}</span>{/if}
+          {/if}
+          <span class="kr">
+            {#if cardTrips.length > 1}
+              <button type="button" class="pos num" onclick={() => go(1)} aria-label={t('Trip {i} of {n}, show the next', { i: Math.min(cardIdx, cardTrips.length - 1) + 1, n: cardTrips.length })}>{Math.min(cardIdx, cardTrips.length - 1) + 1} / {cardTrips.length} ›</button>
+            {/if}
+            {#if !phone.matches}<InProgress current={shown?.id} light label={(n) => tn(n, '+{n} more trip', '+{n} more trips')} />{/if}
+          </span>
+        </div>
+        <div>
+          <h2 id="next-h" class="tt">{ask ? t('How was {trip}?', { trip: shown.title }) : shown.title}</h2>
+          <p class="meta num">{meta}</p>
+        </div>
+        {#if bars.length}
+          <ol class="steps" aria-label={t('Trip schedule')}>
+            {#each bars as s (s.key)}
+              {@const cur = s.key === sched.next?.key}
+              <li class:done={s.state === 'done'} class:skip={s.state === 'skip'} class:cur class:late={s.late} aria-current={cur ? 'step' : undefined}>
+                <span>{#if s.state === 'done'}✓ {/if}{t(STEP_NAME[s.key])}</span>
+              </li>
+            {/each}
+          </ol>
+        {/if}
+        <div class="acts">
+          {#if ask}
+            <button type="button" class="btn hi main" onclick={() => allGood()}>{t('All good')}</button>
+            <a class="lk" href={focus.href} onclick={() => openTrip(shown.id)}>{t(focus.label)}</a>
+          {:else if stepNow}
+            <a class="btn hi main" href={stepNow.href} onclick={() => openTrip(shown.id)} data-step={sched.next.key}>{stepNow.button}</a>
+            {#each stepNow.links.slice(0, 1) as l (l.href)}<a class="lk" href={l.href} onclick={() => openTrip(shown.id)}>{l.label}</a>{/each}
+            {#if stepNow.href !== '#/pack'}<a class="lk" href="#/pack" onclick={() => openTrip(shown.id)}>{t('Open the trip')}</a>{/if}
+          {:else if focus && isLead}
+            <a class="btn hi main" href={focus.href} onclick={() => openTrip(shown.id)}>{t(focus.label)}</a>
+          {/if}
+          {#if phone.matches}<InProgress current={shown?.id} light label={(n) => tn(n, '+{n} more trip', '+{n} more trips')} />{/if}
+        </div>
+      </div>
+      {#if photo && !phone.matches}<div class="ph" aria-hidden="true"><img src={photo} alt="" /></div>{/if}
+    </section>
+  {:else if loaded && !showFirst}
+    <section class="trip none" aria-labelledby="next-h" data-section="trip">
+      <div class="tc">
+        <h2 id="next-h" class="tt">{t('No trip planned')}</h2>
+        <p class="meta">{t('Start a packing list from a template, from your last trip or from Standard.')}</p>
+        <div class="acts"><button type="button" class="btn hi main" onclick={() => (countUse('trip'), openNew('list'))}>{t('Start a new trip')}</button></div>
+      </div>
     </section>
   {/if}
 {/snippet}
 
-<div class="home">
-  <!-- v0.24.1 (Noah 3a): after "All good": "Saved. Undo" for a few seconds; Noah 4a: the template offer. -->
-  {#if quick}
-    <section class="card quickdone" aria-label={t('Debrief')}>
-      <p class="saved" role="status"><span>{t('Saved: {trip}.', { trip: quick.trip.title })}</span>{#if quick.undo}<button type="button" class="btn sm" onclick={undoQuick}>{t('Undo')}</button>{/if}</p>
-      {#if quick.offer}<TemplateOffer trip={quick.trip} name={quick.offer} />{/if}
+<!-- 4. Important today and Tried it yet? -->
+{#snippet todayS()}
+  <div class="two" data-section="today">
+    <section class="imp" aria-labelledby="imp-h">
+      <h2 id="imp-h" class="kick">{t('Important today')}</h2>
+      {#if notice}<p class="notice" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="btn sm" onclick={undoNotice}>{t('Undo')}</button>{/if}</p>{/if}
+      {#if quick}
+        <div class="notice" role="status"><span>{t('Saved: {trip}.', { trip: quick.trip.title })}</span>{#if quick.undo}<button type="button" class="btn sm" onclick={undoQuick}>{t('Undo')}</button>{/if}</div>
+        {#if quick.offer}<TemplateOffer trip={quick.trip} name={quick.offer} />{/if}
+      {/if}
+      {#if important.length}
+        <ul>
+          {#each rowsShown as r (r.key)}
+            <li class="row {r.tone}" data-row={r.key.split(':')[0]}>
+              {#if r.tone === 'party'}<PartyPopper size={18} aria-hidden="true" />{:else}<span class="dot" aria-hidden="true"></span>{/if}
+              {#if r.key === 'tests' && cleanAsk}
+                <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
+                <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
+              {:else}
+                <span class="tx">{r.text}</span>
+                {#if r.act}
+                  {#if r.act.href}<a class="lk" href={r.act.href} onclick={() => act(r)}>{r.act.label}</a>
+                  {:else if r.act.care}<button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button>
+                  {:else}<button type="button" class="btn sm" disabled={r.act.busy && backingUp} onclick={() => act(r)}>{r.act.label}</button>{/if}
+                {/if}
+              {/if}
+            </li>
+          {/each}
+        </ul>
+        {#if important.length > 3}<button type="button" class="lkb more" aria-expanded={allRows} onclick={() => (allRows = !allRows)}>{allRows ? t('Show fewer') : t('Show all {n}', { n: important.length })}</button>{/if}
+      {:else if ready}
+        <p class="calm">{t('Nothing urgent. Enjoy the day.')}</p>
+      {/if}
     </section>
-  {/if}
+    <TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />
+  </div>
+{/snippet}
 
-
-  <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data; in place of "No trip planned". -->
+<div class="home">
+  <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->
   {#if showFirst}
     <section class="card first" aria-labelledby="first-h">
       <h2 id="first-h" class="title">{t('First steps')}</h2>
@@ -411,200 +747,28 @@
     </section>
   {/if}
 
-  <!-- What is next: the strongest contrast on the page, ONE main action (v0.23.0, AP07). -->
-  {#if focus?.ask}
-    <!-- v0.24.1 (Noah 3a): a trip that ended asks how it was: "All good" saves, "In detail" opens the steps. -->
-    <section class="band" aria-labelledby="next-h">
-      <div class="who">
-        <span class="lbl">{todayText} · {t('trip ended')}</span>
-        <h1 id="next-h" class="title">{t('How was {trip}?', { trip: lead.title })}</h1>
-        <p class="facts">
-          <span>{dateText(lead)}</span>{#if !leadByBike}<span>{t(domainName(domainOf(lead)))}</span>{:else if lead.bike}<span>{lead.bike}</span>{/if}
-          <span class="num">{tn(leadStats.count, '{n} item', '{n} items')}</span>
-        </p>
-      </div>
-      <div class="acts">
-        <button type="button" class="btn hi main" onclick={() => allGood()}>{t('All good')}</button>
-        <a class="btn main second" href={focus.href} onclick={() => openTrip(lead.id)}>{t(focus.label)}</a>
-        <span class="why">{t(focus.why)}</span>
-      </div>
-    </section>
-  {:else if focus}
-    <section class="band" aria-labelledby="next-h">
-      <div class="who">
-        <span class="lbl">{todayText} · {focus.kind === 'debrief' ? t('trip ended') : t('next trip')}</span>
-        <h1 id="next-h" class="title">{lead.title}</h1>
-        <p class="facts">
-          <span>{dateText(lead)}</span>{#if !leadByBike}<span>{t(domainName(domainOf(lead)))}</span>{:else if lead.bike}<span>{lead.bike}</span>{/if}{#if lead === next && place?.name}<span>{place.name.split(',')[0]}</span>{/if}
-          <span class="num">{tn(leadStats.count, '{n} item', '{n} items')}</span>{#if leadStats.gearG}<span class="num">{t('{w} gear', { w: knownWeight(leadStats.gearG, leadStats.gearMissing) })}</span>{/if}{#if leadStats.gearMissing}<span class="num">{t('{n} not weighed', { n: leadStats.gearMissing })}</span>{/if}
-        </p>
-      </div>
-      {#if focus.days != null}
-        <div class="count" aria-label={focus.days > 0 ? tn(focus.days, '{n} day to go', '{n} days to go') : t('On the way')}>
-          {#if focus.days > 0}<b class="title num">{focus.days}</b><span class="lbl">{focus.days === 1 ? t('day') : t('days')}<br />{t('to go')}</span>{:else}<b class="title now">{t('On the way')}</b>{/if}
-        </div>
+  {#each layout.order as key (key)}
+    {#if on(key)}
+      {#if key === 'greeting'}{@render greetingS()}
+      {:else if key === 'trip'}{@render tripS()}
+      {:else if key === 'actions'}
+        <div data-section="actions"><ActionGrid {usage} {badges} {used} onrun={runFn} /></div>
+      {:else if key === 'today'}{@render todayS()}
+      {:else if key === 'bikes' && ready}
+        <div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>
+      {:else if key === 'year'}
+        <div data-section="year"><YearRow {today} /></div>
       {/if}
-      {#if stepNow}
-        <!-- v0.34.0 A (L1): ONE next step of the schedule, its one button; quiet links beside it. -->
-        <div class="acts">
-          <div class="step-now">
-            <span class="lbl">{t('Next step')}{#if stepNow.when}{' · '}<span class:late={sched.next.late}>{stepNow.when}</span>{/if}</span>
-            <h2 class="step-t">{stepNow.title}</h2>
-            <span class="why">{stepNow.why}</span>
-          </div>
-          <a class="btn hi main" href={stepNow.href} onclick={() => openTrip(lead.id)}>{stepNow.button}</a>
-          <span class="also-links">
-            {#each stepNow.links as l (l.href)}<a class="tap" href={l.href} onclick={() => openTrip(lead.id)}>{l.label}</a>{/each}
-            {#if stepNow.href !== '#/pack'}<a class="tap" href="#/pack" onclick={() => openTrip(lead.id)}>{t('Show the list')}</a>{/if}
-            <a class="tap" href="#/pack?print" onclick={() => openTrip(lead.id)}>{t('Print list')}</a>
-          </span>
-        </div>
-        <!-- The timeline: each step with its day and done / open; a tap opens its place. -->
-        <ol class="sched" aria-label={t('Trip schedule')}>
-          {#each sched.steps as s (s.key)}
-            {@const cur = s.key === sched.next.key}
-            <li class:done={s.state === 'done'} class:skip={s.state === 'skip'} class:cur class:late={s.late}>
-              <a href={stepHref(s, lead, schedCtx, today)} onclick={() => openTrip(lead.id)} aria-current={cur ? 'step' : undefined}>
-                <span class="d num">{shortDay(s.day)}</span>
-                <span class="n">{t(STEP_NAME[s.key])}</span>
-                <span class="st">{#if s.state === 'done'}✓ {t('done|step')}{:else if s.state === 'skip'}{t('not needed')}{:else if s.late}{t('open|debrief')}{:else if cur}{t('next|step')}{/if}</span>
-              </a>
-            </li>
-          {/each}
-        </ol>
-      {:else}
-        <div class="acts">
-          <a class="btn hi main" href={focus.href} onclick={() => openTrip(lead.id)}>{t(focus.label)}</a>
-          <span class="why">{t(focus.why)}</span>
-          <!-- Quiet links, never a second button: the list itself and printing. -->
-          {#if focus.kind !== 'debrief'}
-            <span class="also-links">
-              {#if focus.href !== '#/pack'}<a class="tap" href="#/pack" onclick={() => openTrip(lead.id)}>{t('Show the list')}</a>{/if}
-              <a class="tap" href="#/pack?print" onclick={() => openTrip(lead.id)}>{t('Print list')}</a>
-            </span>
-          {/if}
-        </div>
-      {/if}
-    </section>
-  {:else if loaded && !showFirst}
-    <section class="band" aria-labelledby="next-h">
-      <div class="who">
-        <span class="lbl">{todayText}</span>
-        <h1 id="next-h" class="title">{t('No trip planned')}</h1>
-        <p class="facts"><span>{t('Start a packing list from a template, from your last trip or from Standard.')}</span></p>
-      </div>
-      <div class="acts"><button type="button" class="btn hi main" onclick={() => openNew('list')}>{t('Start a new trip')}</button></div>
-    </section>
-  {/if}
+    {/if}
+  {/each}
 
-  <!-- v0.23.0 (AP07): everything else that wants attention, one short line each, below the main step. -->
-  {#if loaded && ((care && care.status !== 'ok' && sched?.next?.key !== 'service') || prep || debrief || backup.due || notes.length || (!bikes.length && !showFirst) || (focus?.kind === 'debrief' && next) || alsoToday.length)}
-    <section class="also" aria-labelledby="also-h">
-      <h2 id="also-h" class="lbl">{t('Also to do')}</h2>
-      <ul>
-        {#if focus?.kind === 'debrief' && next}
-          <li><span>{t('Next trip: {title}', { title: next.title })} · {dateText(next)}</span><a href="#/pack" onclick={() => openTrip(next.id)}>{t('Open the trip')}</a></li>
-        {/if}
-        {#each alsoToday as tr (tr.id)}
-          <li><span>{t('Also today: {title}', { title: tr.title })}{tr.bike ? ` · ${tr.bike}` : ''}</span><a href="#/pack" onclick={() => openTrip(tr.id)}>{t('Open the trip')}</a></li>
-        {/each}
-        <!-- v0.30.2 (L6): an open debrief that does not lead: the same one-tap "All good" as the band. -->
-        {#if debrief}
-          <li><span>{t('Debrief still open: {title}', { title: debrief.title })}</span><span class="two-acts"><button type="button" class="btn sm" onclick={() => allGood(debrief)}>{t('All good')}</button><a href="#/debrief/{encodeURIComponent(debrief.id)}" onclick={() => openTrip(debrief.id)}>{t('Debrief')}</a></span></li>
-        {/if}
-        <!-- v0.22.0 (AP06): one line per scope, each to the right bike or trip. -->
-        {#if care && care.status !== 'ok' && sched?.next?.key !== 'service'}<li class:late={care.status === 'due'}><span>{bikeCareLine(care)}</span><a href={care.href}>{t('Bike care')}</a></li>{/if}
-        <!-- v0.30.2 (L5): the preparation is the trip's: the trip opens with "Before the trip" open. -->
-        {#if prep}<li class:late={prep.overdue > 0}><span>{eventPrepLine(prep)}</span><a href="#/pack" onclick={() => openPrep(next.id)}>{t('Tick off in the trip')}</a></li>{/if}
-        {#if backup.due}
-          <!-- v0.30.2 (L5): the one place of the backup reminder (Good to know has no card for it any more). -->
-          <li class="late"><span>{t('Time for a backup')}: {backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}{#if $importQ?.from} {t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($importQ.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}{:else if backup.afterTrip} {t('New debrief since the last backup: save one, then load it on the desktop.')}{/if}</span><button type="button" class="link" disabled={backingUp} onclick={backupNow}>{t('Download backup')}</button></li>
-        {/if}
-        {#if notes.length}<li><span>{tn(notes.length, '{n} note to sort', '{n} notes to sort')}</span><a href="#/inbox">{t('Inbox')}</a></li>{/if}
-        {#if !bikes.length && !showFirst}<li><span>{t('No bikes yet.')}</span><a href="#/bikes" onclick={wantBike}>{t('Add a bike')}</a></li>{/if}
-      </ul>
-    </section>
-  {/if}
-
-  <!-- v0.38.0 (Noah 8a, 9a): the bikes with their ready light and six quick buttons, Day ride and
-       Note + photo; beside them (desktop) or below (phone) "Jump to" and the season in numbers.
-       The four round buttons of before (plan a trip, note, item, km) are all in "New". -->
-  {#if loaded && $bikesQ && $visitsQ && $tasksQ}
-    <div class="today2" class:solo={!bikes.length}>
-      {#if bikes.length}<ReadyBikes {bikes} {trips} {tasks} {visits} {next} {today} />{/if}
-      <JumpList {bikes} {trips} {items} {debriefs} {learnings} {visits} {tasks} {today} news={newsN} />
-    </div>
-  {/if}
-
-
-  <!-- Where to go (answers 5a, 7a, 8a): three equal places, number → create → open. -->
-  <div class="hubs">
-    {#snippet packBody()}
-      {#if next}
-        <div class="sub">
-          <!-- v0.27.0 (Noah 1a): the same words as the folded phone line ("{n} % packed"), plus the count. -->
-          <div class="line"><b>{next.title}</b><span class="num muted">{t('{n} % packed', { n: packedPct })} · {t('{packed} of {count}|packed', { packed: stats.packed, count: stats.count })}</span></div>
-          <div class="bar" role="img" aria-label={t('{n} % packed', { n: packedPct })}><i style:width="{Math.max(2, packedPct)}%"></i></div>
-          <p class="small">
-            <a href="#/pack" onclick={() => openTrip(next.id)}>{packLine(packing)}</a>{#if extra?.rows.length} · {tn(extra.rows.length, 'Ballast {w} on {n} item you did not use last times.', 'Ballast {w} on {n} items you did not use last times.', { w: weightText(extra.totalG, extra.unweighed) })} <a href="#/pack" onclick={() => openTrip(next.id)}>{t('Leave at home')}</a>{/if}
-          </p>
-        </div>
-      {/if}
-      <div>
-        <span class="lbl">{t('Open a list')}</span>
-        <ul class="rows">
-          {#each tripList as tr (tr.id)}
-            <li><a href="#/pack" onclick={() => openTrip(tr.id)}><span>{tr.title}</span><span class="num muted">{tr.startDate ? fmt(tr.startDate, { day: 'numeric', month: 'short' }) : ''}{tr.bike ? ` · ${tr.bike}` : ''}</span></a></li>
-          {/each}
-          {#if pastN}<li><a href="#/pack/past"><span>{t('Past trips ({n})', { n: pastN })}</span><span class="muted">→</span></a></li>{/if}
-          {#each templates.slice(0, 2) as tp (tp.id)}
-            <li><button type="button" onclick={() => newTrip(tp.id)} title={t('New trip from this template')}><span>{tp.name}</span><span class="muted">{t('template')}</span></button></li>
-          {/each}
-        </ul>
-      </div>
-      <!-- v0.25.1 (Noah 1b, 3a): New trip · Write debrief · Past trips · Setups, then More (All templates moved there). -->
-      <TripsHubActions {trips} {debriefs} {next} {bikes} />
-    {/snippet}
-    {@render hub('pack', t('Trips|place'), '#/pack', 'bag', packBody)}
-
-    {#snippet gearBody()}
-      <div class="kpis">
-        {#if favN.all}<a class="kpi" href="#/gear?fav=1"><b class="title num">{favN.inventory}</b><span class="lbl">{t('favourites owned')}</span>{#if favN.wishlist}<small class="muted">{tn(favN.wishlist, '+ {n} on the wishlist', '+ {n} on the wishlist')}</small>{/if}</a>{/if}
-        <div><b class="title num">{gs.inventory.length}</b><span class="lbl">{t('items owned')}</span></div>
-      </div>
-      {#if cats.length}
-        <div>
-          <span class="lbl">{t('Where the weight is')}</span>
-          <div class="cats">
-            {#each cats as c (c.key)}
-              <a href="#/gear?cat={c.key}" class="cn">{t(c.name)}</a>
-              <div class="bar" role="img" aria-label={knownWeight(c.g, c.unweighed)}><i style:width="{Math.round((c.g / cats[0].g) * 100)}%" style:background={CATEGORY[c.key]?.color}></i></div>
-              <span class="num">{knownWeight(c.g, c.unweighed)}</span>
-            {/each}
-          </div>
-        </div>
-      {/if}
-      <div>
-        <span class="lbl">{t('Worth a look')}</span>
-        <ul class="rows">
-          {#if heaviest}<li><a href="#/gear?q={encodeURIComponent(heaviest.name)}"><span>{t('Heaviest: {name}', { name: nameOf(heaviest) })}</span><span class="num muted">{formatWeight(heaviest.weightG)}</span></a></li>{/if}
-          {#if wishTop}<li><a href="#/gear?tab=wishlist"><span>{t('Wishlist top: {name}', { name: nameOf(wishTop.item) })}</span><span class="muted">{tn(gs.wishlist.length, '{n} wish', '{n} wishes')}</span></a></li>{/if}
-          {#if gs.unweighed}<li><a href="#/gear?tab=weigh"><span>{tn(gs.unweighed, 'Weigh next: {n} item', 'Weigh next: {n} items')}</span><span class="num muted">{t('{n} % done', { n: weighedPct })}</span></a></li>{/if}
-        </ul>
-      </div>
-      <div class="foot">
-        <!-- v0.23.1 (Noah): search right from the card, the cursor waits in Gear's search field. -->
-        <a class="btn sm" href="#/gear?find=1">{t('Search')}</a>
-        <a class="btn sm" href="#/gear?tab=wishlist">{t('Wishlist')}</a>
-      </div>
-    {/snippet}
-    {@render hub('gear', t('Gear|place'), '#/gear', 'star', gearBody)}
-
+  <div class="custom">
+    {#if customOpen}
+      <Customize layout={S[LAYOUT_KEY]} name={S.userName ?? ''} onclose={() => (customOpen = false)} />
+    {:else}
+      <button type="button" class="lkb" onclick={() => (customOpen = true)} aria-expanded={customOpen}>{t('Customise the start page')}</button>
+    {/if}
   </div>
-
-  <!-- Good to know (v0.25.1, Noah 1a): only cards with content, the most urgent first, one button each.
-       v0.30.0 (Noah 1a): 6 tiles with tips; it waits for every table it reads (a tip must not look unused). -->
-  <GoodToKnow omit={['season', 'weekend']} loaded={loaded && !!$bikesQ && !!$debriefsQ && !!$visitsQ && !!$learnQ && !!$bagsQ} {today} {next} {place} {trips} {items} {bikes} {visits} {debriefs} {learnings} containers={$bagsQ ?? []} demo={$demoQ ?? null} onData={openData} />
 
   <details class="data" bind:this={dataEl} bind:open={dataOpen}>
     <summary><b>{t('Your data')}</b> <span class="muted">{t('backup, import, export, favourites')}</span></summary>
@@ -612,302 +776,474 @@
   </details>
 
   <footer>
-    <span class="dot" class:off={!online}></span>
+    <span class="odot" class:off={!online}></span>
     {online ? t('Online') : t('Offline')} · v{__APP_VERSION__}
   </footer>
 </div>
 
+<dialog class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
+  <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
+  {#if wearOpen}
+    <WearToday {items} {trips} />
+    <p class="muted wnote">{t('Your clothes for the coldest hour of a ride at your home place, from the wardrobe.')} <a href="#/wardrobe" onclick={() => (wearOpen = false)}>{t('Open the wardrobe')}</a></p>
+  {/if}
+</dialog>
+
 <style>
-  /* v0.35.0: quiet, one line, once after an update. */
-  .newsline {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 8px;
-    margin: 0 0 12px;
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-  }
-  .newsline a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    color: var(--ink);
-    font-weight: 600;
-  }
   .home {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    max-width: 1360px;
+    max-width: 1328px;
     margin: 0 auto;
   }
-  .lbl {
-    font: 600 var(--fs-small)/1.3 var(--font-body);
-    color: var(--ink-3);
+  @media (max-width: 719px) {
+    .home {
+      gap: 14px;
+    }
   }
   .muted {
     color: var(--ink-3);
   }
-  .small {
+  .kick {
     margin: 0;
-    font-size: 14px;
+    font: 600 13px/1.3 var(--font-body);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
     color: var(--ink-2);
   }
-  .ic {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2.2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    flex: none;
+  .lk,
+  .lkb {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 500 15px var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1.5px;
+    cursor: pointer;
+  }
+  .linkq {
+    min-height: 44px;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 500 15px var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    text-align: left;
   }
 
-  /* The band: the next trip */
-  .band {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 16px 32px;
-    padding: 22px 26px;
-    border-radius: 14px;
-    background: var(--brand);
-    color: var(--brand-ink);
-  }
-  .band .lbl {
-    color: #a9c2b6;
-  }
-  .who {
-    flex: 1 1 420px;
-    min-width: 0;
-  }
-  .band h1 {
-    margin: 4px 0 0;
-    font-size: var(--fs-page);
-    line-height: var(--lh-title);
-    overflow-wrap: anywhere;
-  }
-  .facts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px 14px;
-    margin: 8px 0 0;
-    color: #d6e2db;
-  }
-  .count {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-  }
-  .count b {
-    /* v0.22.0 (AP03): the countdown stays a big condensed number, a deliberate accent. */
-    font-family: var(--font-brand);
-    font-weight: 800;
-    font-size: clamp(64px, 14vw, 96px);
-    line-height: 0.85;
-    /* on the dark band the bright orange reads (4.7:1), the darker action orange would not */
-    color: var(--hi-bright);
-  }
-  .count .now {
-    font-size: var(--fs-page);
-  }
-  .acts {
-    flex: 1 1 100%;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-  }
-  /* v0.23.0 (AP07): one main step; the reason beside it and two quiet links, no second button. */
-  .btn.main {
-    min-height: 52px;
-    padding-inline: 26px;
-    font-size: 18px;
-  }
-  /* v0.24.1 (Noah 3a): "In detail" beside "All good", quieter on the dark band. */
-  .btn.second {
-    background: transparent;
-    border-color: var(--brand-ink);
-    color: var(--brand-ink);
-  }
-  .btn.second:hover {
-    background: rgba(255, 255, 255, 0.08);
-  }
-  .quickdone .saved {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 14px;
-    margin: 0;
-    font-weight: 600;
-  }
-  .quickdone .saved span {
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-  .why {
-    flex: 1 1 220px;
-    color: #d6e2db;
-    font-size: 15px;
-  }
-  /* v0.34.0 A (L1): the next step of the schedule (what, when, why) beside its one button. */
-  .step-now {
-    flex: 1 1 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-  }
-  .step-now .late {
-    color: var(--focus-on-dark);
-  }
-  .step-t {
-    margin: 0;
-    font: 700 var(--fs-sub) / var(--lh-title) var(--font-body);
-    overflow-wrap: anywhere;
-  }
-  .step-now .why {
-    flex: none;
-  }
-  /* The timeline: one quiet cell per step, the current one marked; never a second button. */
-  .sched {
-    flex: 1 1 100%;
+  /* 1. greeting */
+  .greet {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(112px, 100%), 1fr));
-    gap: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    align-items: end;
   }
-  .sched a {
+  @media (min-width: 900px) {
+    .greet {
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 480px);
+      gap: 32px;
+    }
+    .greet.solo {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .hi-text {
     display: flex;
     flex-direction: column;
-    min-height: 44px;
-    height: 100%;
-    box-sizing: border-box;
-    padding: 6px 10px 8px;
-    border-top: 3px solid rgba(255, 255, 255, 0.22);
-    border-radius: 2px;
-    color: var(--brand-ink);
-    text-decoration: none;
+    gap: 4px;
     min-width: 0;
   }
-  .sched a:hover {
-    background: rgba(255, 255, 255, 0.07);
+  .dl {
+    color: var(--ink-2);
   }
-  .sched a:focus-visible {
-    outline: 2px solid var(--focus-on-dark);
-    outline-offset: 2px;
+  .hello {
+    margin: 0;
+    font: 800 clamp(26px, 3vw + 14px, 60px) / 0.98 var(--font-brand);
+    letter-spacing: 0.005em;
+    overflow-wrap: break-word;
   }
-  .sched .d {
-    font-size: 13px;
-    color: var(--brand-ink-2);
-    font-variant-numeric: tabular-nums;
+  .wx {
+    color: var(--head);
   }
-  .sched .n {
-    font-weight: 600;
-    font-size: 15px;
-    overflow-wrap: anywhere;
+  @media (max-width: 719px) {
+    .hello {
+      font: 600 21px/1.25 var(--font-body);
+    }
+    .wx {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink-2);
+    }
   }
-  .sched .st {
-    font-size: 13px;
-    color: var(--brand-ink-2);
+  .pf {
+    max-width: 520px;
   }
-  .sched .done a {
-    border-top-color: #7fc79b;
-  }
-  .sched .done .n,
-  .sched .skip .n {
-    color: #c7d6cd;
-    font-weight: 500;
-  }
-  .sched .late .st {
-    color: var(--focus-on-dark);
-    font-weight: 600;
-  }
-  .sched .cur a {
-    border-top-color: var(--hi-bright);
-    background: rgba(255, 255, 255, 0.09);
-  }
-  .sched .cur .st {
-    color: var(--brand-ink);
-    font-weight: 600;
-  }
-  .also-links {
+  .sugg {
     display: flex;
-    flex-wrap: wrap;
-    gap: 4px 18px;
-  }
-  .also-links a {
-    color: var(--brand-ink);
-    font-size: 15px;
-  }
-  /* Also to do: short lines, each with its link (not cards, not orange buttons). */
-  .also {
-    padding: 4px 18px 8px;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 18px;
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: 18px;
     background: var(--paper);
   }
-  .also h2 {
-    margin: 10px 0 2px;
+  .sugg .kick {
+    font-size: 12.5px;
   }
-  .also ul {
+  .sq {
+    font: 600 19px/1.25 var(--font-body);
+  }
+  .ss {
+    font-size: 15px;
+    color: var(--ink-2);
+  }
+  .sa {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+  }
+  .sa .btn {
+    min-height: 44px;
+    padding-inline: 18px;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+  @media (max-width: 719px) {
+    .sugg {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px 10px;
+      padding: 8px 12px;
+      border-radius: 14px;
+    }
+    .sugg .kick {
+      display: none;
+    }
+    .sq {
+      flex: 1 1 140px;
+      font-size: 15px;
+    }
+    .sa .btn {
+      min-height: 44px;
+      padding-inline: 12px;
+      font-size: 15px;
+    }
+  }
+
+  /* 2. the trip card */
+  .trip {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: var(--paper);
+    touch-action: pan-y;
+  }
+  .trip.has-photo {
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 340px);
+  }
+  .tc {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    padding: 22px 28px;
+  }
+  @media (max-width: 719px) {
+    .trip {
+      border-radius: 16px;
+    }
+    .tc {
+      gap: 8px;
+      padding: 12px 14px;
+    }
+  }
+  .kl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    font-size: 15px;
+  }
+  .cdn {
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .cdn.near {
+    color: var(--hi);
+  }
+  .sub {
+    color: var(--ink-2);
+  }
+  .kr {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .pos {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 6px;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: 500 14px var(--font-body);
+    cursor: pointer;
+  }
+  .tt {
+    margin: 0;
+    font: 600 clamp(21px, 1.6vw + 12px, 34px) / 1.12 var(--font-body);
+    overflow-wrap: break-word;
+  }
+  .meta {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+    overflow-wrap: break-word;
+  }
+  @media (max-width: 719px) {
+    .meta {
+      margin: 2px 0 0;
+      font-size: 14px;
+    }
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 15px;
+  }
+  .steps li {
+    min-width: 0;
+    padding-top: 7px;
+    border-top: 4px solid var(--bar);
+    color: var(--ink-2);
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  .steps li.done {
+    border-top-color: var(--accent);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .steps li.skip {
+    color: var(--ink-3);
+  }
+  .steps li.cur {
+    border-top-color: var(--hi);
+    color: var(--hi);
+    font-weight: 600;
+  }
+  @media (max-width: 719px) {
+    .steps {
+      gap: 4px;
+      font-size: 12.5px;
+      line-height: 1.25;
+    }
+    /* a phone: five words in 60 px columns break mid-word, so only the current step is named, in one line under the bars */
+    .steps {
+      position: relative;
+      padding-bottom: 22px;
+    }
+    .steps li {
+      padding-top: 0;
+    }
+    .steps li span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+    .steps li.cur span {
+      left: 0;
+      bottom: 0;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip: auto;
+    }
+  }
+  .acts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+  }
+  .btn.main {
+    min-height: 48px;
+    padding-inline: 22px;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+  @media (max-width: 719px) {
+    .btn.main {
+      flex: 1 1 100%;
+    }
+  }
+  .ph {
+    position: relative;
+    background: var(--paper-2);
+  }
+  .ph img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.55;
+  }
+  .trip.none .tc {
+    gap: 10px;
+  }
+
+  /* 4. Important today + Tried it yet? */
+  .two {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  @media (min-width: 900px) {
+    .two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+  }
+  .imp {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 16px 20px 10px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--paper);
+  }
+  .imp .kick {
+    margin-bottom: 4px;
+  }
+  .imp ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  .also li {
+  .row {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
     align-items: center;
-    gap: 2px 16px;
-    min-height: 44px;
-    padding: 6px 0;
-    border-bottom: 1px solid #dfe4dc;
+    gap: 4px 12px;
+    min-height: 52px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--line);
   }
-  .also li:last-child {
+  .row:last-child {
     border-bottom: 0;
   }
-  .also li > span {
-    flex: 1 1 240px;
+  .row .tx {
+    flex: 1 1 200px;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+  }
+  .row .dot {
+    flex: none;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--ink-3);
+  }
+  .row.bad .dot {
+    background: var(--bad);
+  }
+  .row.warn .dot {
+    background: var(--warn);
+  }
+  .row.eve .dot {
+    background: var(--accent);
+  }
+  .row.quiet {
     color: var(--ink-2);
+    font-size: 15px;
   }
-  /* due or overdue: a marker and the words of the line, not colour alone */
-  .also li.late > span {
-    padding-left: 10px;
-    border-left: 3px solid var(--hi);
-    color: var(--ink);
+  .row.quiet .dot {
+    background: transparent;
+    border: 1.5px solid var(--line-strong);
   }
-  .also li > a,
-  .also li > .link {
-    color: var(--ink);
-    font-weight: 600;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
+  .row.party {
+    margin: 4px 0;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--accent-soft);
   }
-
-  /* v0.30.2 (L6): "All good" and "Debrief" side by side on the line of an open debrief. */
-  .also .two-acts {
+  .row.party :global(svg) {
+    color: var(--accent);
+    flex: none;
+  }
+  .ra {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 4px 16px;
+    gap: 4px 12px;
   }
-  .also .two-acts .btn {
+  .row .btn.sm {
     min-height: 44px;
+    border-radius: 22px;
+    padding-inline: 14px;
   }
-  .also .two-acts a {
-    display: inline-flex;
+  .more {
+    align-self: flex-start;
+    color: var(--ink-2);
+    font-size: 14px;
+  }
+  .notice {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    min-height: 44px;
-    color: var(--ink);
-    font-weight: 600;
+    justify-content: space-between;
+    gap: 6px 12px;
+    margin: 4px 0 6px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    font-weight: 500;
   }
+  .notice span {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .calm {
+    margin: 8px 0;
+    color: var(--ink-2);
+  }
+
+  .custom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .custom > :global(section) {
+    align-self: stretch;
+  }
+  .custom .lkb {
+    color: var(--ink-2);
+    font-size: 14px;
+  }
+
   /* v0.30.2 (L9): First steps, three numbered rows; a done one shows ✓ and loses its buttons. */
   .first h2 {
     margin: 0;
@@ -936,7 +1272,7 @@
   .first .txt {
     flex: 1 1 200px;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .first li.done .txt {
     color: var(--ink-3);
@@ -971,281 +1307,15 @@
     padding-left: 40px;
   }
 
-  @media (max-width: 719px) {
-    .band {
-      padding: 18px;
-    }
+  .wear {
+    width: min(560px, calc(100vw - 24px));
   }
-  /* v0.38.0 (Noah 8a, 9a): the bikes and their buttons, beside them Jump to and the season. */
-  .today2 {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 24px 48px;
-    align-items: start;
-  }
-  .today2.solo {
-    grid-template-columns: minmax(0, 1fr);
-    max-width: 760px;
-  }
-  @media (max-width: 899px) {
-    .today2 {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-
-  /* The places (v0.38.0: Trips and Gear; the bikes are above) */
-  /* The three places */
-  .hubs {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 22px;
-  }
-  .hub {
+  .wh {
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-    min-width: 0;
-    padding: 20px;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    background: var(--paper);
+    justify-content: flex-end;
   }
-  .hub header h2 { min-width: 0; overflow-wrap: anywhere; }
-  .hub header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-  }
-  .hub h2 {
-    margin: 0;
-    font-size: var(--fs-section);
-    line-height: var(--lh-title);
-  }
-  .hub h2 a {
-    color: var(--ink);
-    text-decoration: none;
-  }
-  .hub h2 a:hover {
-    color: var(--hi);
-  }
-  .sub {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 14px;
-    border-radius: 10px;
-    background: var(--paper-2);
-  }
-  .line {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 4px 12px;
-  }
-  .bar {
-    height: 8px;
-    border-radius: 4px;
-    background: #dfe4dc;
-    overflow: hidden;
-  }
-  .bar i {
-    display: block;
-    height: 100%;
-    border-radius: 4px;
-    background: var(--ink);
-  }
-  .rows {
-    list-style: none;
-    margin: 4px 0 0;
-    padding: 0;
-  }
-  .rows li a,
-  .rows li button {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    min-height: 44px;
-    padding: 6px 4px;
-    border: 0;
-    border-bottom: 1px solid #dfe4dc;
-    background: none;
-    color: var(--ink);
-    font: inherit;
-    text-align: left;
-    text-decoration: none;
-    cursor: pointer;
-    box-sizing: border-box;
-  }
-  .rows li:last-child a,
-  .rows li:last-child button {
-    border-bottom: 0;
-  }
-  .rows li a:hover,
-  .rows li button:hover {
-    background: var(--paper-2);
-  }
-  .rows span:first-child {
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-  .two {
-    display: flex;
-    flex-direction: column;
-  }
-  .two small {
-    font-size: var(--fs-small);
-  }
-  .tag {
-    flex: none;
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-  }
-  .tag.nd {
-    padding: 2px 9px;
-    border: 1.5px dashed var(--ink-3);
-    border-radius: 999px;
-    color: var(--ink-2);
-  }
-  .tag.due {
-    padding: 3px 10px;
-    border-radius: 999px;
-    background: var(--hi-soft);
-    color: #8a2f00;
-    font-weight: 600;
-  }
-  .kpis {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 24px;
-  }
-  .kpis div,
-  .kpis .kpi {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0 8px;
-  }
-  /* v0.22.0 (AP05): the favourites number opens Gear with the favourites filter on. */
-  .kpis .kpi {
-    color: inherit;
-    text-decoration: none;
-  }
-  .kpis .kpi small {
-    flex-basis: 100%;
-    font-size: 13px;
-  }
-  @media (hover: hover) {
-    .kpis .kpi:hover .lbl {
-      text-decoration: underline;
-    }
-  }
-  .kpis b {
-    font-family: var(--font-brand);
-    font-weight: 800;
-    font-size: 44px;
-    line-height: 1;
-  }
-  .cats {
-    display: grid;
-    grid-template-columns: minmax(80px, auto) minmax(0, 1fr) auto;
-    gap: 6px 10px;
-    align-items: center;
-    margin-top: 6px;
+  .wnote {
     font-size: 14px;
-  }
-  .cats .cn {
-    color: var(--ink);
-    text-decoration: none;
-  }
-  /* v0.27.0 (AP21): the category links are taller on a touch screen (were 21 px). */
-  @media (pointer: coarse) {
-    .cats .cn {
-      padding: 10px 0;
-    }
-  }
-  .cats .num {
-    text-align: right;
-  }
-  .foot {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: auto;
-  }
-  .foot .btn {
-    gap: 6px;
-  }
-
-  /* v0.23.1 (Noah 3b): folded on a phone, one line closed (name + key number), open on touch or keyboard */
-  .folded {
-    padding: 0;
-    gap: 0;
-  }
-  .folded > summary {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 2px 12px;
-    min-height: 52px;
-    padding: 12px 40px 12px 16px;
-    box-sizing: border-box;
-    position: relative;
-    list-style: none;
-    cursor: pointer;
-  }
-  .folded > summary::-webkit-details-marker {
-    display: none;
-  }
-  /* the chevron: down closed, up open (the state also reads from the summary itself) */
-  .folded > summary::after {
-    content: '';
-    position: absolute;
-    right: 18px;
-    top: 22px;
-    width: 9px;
-    height: 9px;
-    border-right: 2.2px solid var(--ink-2);
-    border-bottom: 2.2px solid var(--ink-2);
-    transform: rotate(45deg);
-  }
-  .folded[open] > summary::after {
-    top: 26px;
-    transform: rotate(-135deg);
-  }
-  .folded > summary:focus-visible {
-    outline: var(--focus-ring);
-    outline-offset: -3px;
-    border-radius: 14px;
-  }
-  .folded > summary h2 {
-    margin: 0;
-    font-size: var(--fs-section);
-    line-height: var(--lh-title);
-  }
-  .fsum {
-    min-width: 0;
-    color: var(--ink-2);
-    font-size: 15px;
-    overflow-wrap: anywhere;
-  }
-  .hub-in {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 0 16px 16px;
-  }
-
-  .link {
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--ink);
-    font: inherit;
-    text-decoration: underline;
-    cursor: pointer;
   }
 
   .data {
@@ -1264,13 +1334,13 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  .dot {
+  .odot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #2f8f5b;
+    background: var(--ok);
   }
-  .dot.off {
+  .odot.off {
     background: var(--ink-3);
   }
 </style>

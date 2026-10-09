@@ -95,23 +95,21 @@ test('Today: two days before, shopping and charging; the list ticks and shares a
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, info, trip());
 
+  // v0.46.0 «Startseite neu»: the compact trip card: ONE main button for the step now, step bars.
   const band = page.getByRole('region', { name: 'test_data_gtp_ Vorab' });
-  await expect(band.getByRole('heading', { name: T('Shopping and charging') })).toBeVisible();
-  await expect(band).toContainText(T('{open} of {total} still to buy.', { open: 2, total: 2 }));
+  const main = band.locator('a.main');
+  await expect(main).toHaveAttribute('data-step', 'shop');
+  await expect(main).toHaveText(T('Shopping list'));
   // one strong button, the charge list as a quiet link (part B makes #/pack?charge work)
   await expect(band.locator('.btn')).toHaveCount(1);
   await expect(band.getByRole('link', { name: T('Charge devices') })).toHaveAttribute('href', '#/pack?charge');
-  const main = band.getByRole('link', { name: T('Shopping list'), exact: true });
   expect((await main.boundingBox()).height).toBeGreaterThanOrEqual(44);
 
-  // the timeline: every step with done / open; the weather (set by hand, nothing open) is done
+  // the step bars: the service is not needed (skipped), the weather (set by hand) is done
   const line = band.getByRole('list', { name: T('Trip schedule') });
-  await expect(line.getByRole('listitem')).toHaveCount(6);
-  await expect(line.getByRole('listitem').nth(0)).toContainText(T('Bike service'));
-  await expect(line.getByRole('listitem').nth(0)).toContainText(T('not needed'));
-  await expect(line.getByRole('listitem').nth(1)).toContainText(T('done|step'));
-  await expect(line.locator('a[aria-current="step"]')).toContainText(T('Shop & charge'));
-  for (const a of await line.getByRole('link').all()) expect((await a.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  await expect(line.getByRole('listitem').nth(0)).toHaveClass(/skip/);
+  await expect(line.getByRole('listitem').nth(1)).toHaveClass(/done/);
+  await expect(line.locator('li[aria-current="step"]')).toContainText(T('Shop & charge'));
   await noSideScroll(page, info, 'Today with the schedule');
   await shot(page, info, 'today-shop');
 
@@ -148,21 +146,20 @@ test('Today: two days before, shopping and charging; the list ticks and shares a
   // the row in Plan says it, too
   await expect(page.getByRole('button', { name: new RegExp(`${T('Shopping list')}.*${T('all bought')}`) })).toBeVisible();
   await page.goto('./#/');
-  await expect(band.getByRole('heading', { name: T('Pack the bags') })).toBeVisible();
-  await expect(band.getByRole('link', { name: T('Pack|stage'), exact: true })).toHaveAttribute('href', '#/pack?day');
-  await expect(line.getByRole('listitem').nth(2)).toContainText(T('done|step'));
+  await expect(main).toHaveAttribute('data-step', 'pack');
+  await expect(main).toHaveAttribute('href', '#/pack?day');
+  await expect(line.getByRole('listitem').nth(2)).toHaveClass(/done/);
   expect(errors).toEqual([]);
 });
 
 test('Today: five days before, the weather; its button opens the trip conditions', async ({ page, context }, info) => {
   await start(page, context, info, trip({ startDate: '2026-10-12', wx: null }));
   const band = page.getByRole('region', { name: 'test_data_gtp_ Vorab' });
-  await expect(band.getByRole('heading', { name: T('Weather and suggestions') })).toBeVisible();
-  await expect(band).toContainText(T('Set a place for the forecast, or the weather by hand.'));
-  await expect(band.getByRole('list', { name: T('Trip schedule') }).locator('a[aria-current="step"]')).toContainText(T('Weather'));
+  await expect(band.locator('a.main')).toHaveAttribute('data-step', 'weather');
+  await expect(band.getByRole('list', { name: T('Trip schedule') }).locator('li[aria-current="step"]')).toContainText(T('Weather'));
   await noSideScroll(page, info, 'Today, weather step');
   await shot(page, info, 'today-weather');
-  await band.getByRole('link', { name: T('Get the forecast'), exact: true }).click();
+  await band.locator('a.main').click();
   await expect(page.getByRole('dialog', { name: T('Edit trip conditions') })).toBeVisible();
   await expect(page).toHaveURL(/#\/pack$/);
 });
@@ -175,6 +172,6 @@ test('Today: start day, all packed: the ready check, then On the way', async ({ 
   await context.addInitScript(() => localStorage.setItem('ride.autoOpened', 'test_data_gtp_Vorab:2026-10-07'));
   await start(page, context, info, t0);
   const band = page.getByRole('region', { name: 'test_data_gtp_ Vorab' });
-  await expect(band.getByRole('heading', { name: T('Ready check') })).toBeVisible();
-  await expect(band.getByRole('link', { name: T('Ready check'), exact: true })).toHaveAttribute('href', '#/pack?day');
+  await expect(band.locator('a.main')).toHaveAttribute('data-step', 'check');
+  await expect(band.locator('a.main')).toHaveAttribute('href', '#/pack?day');
 });

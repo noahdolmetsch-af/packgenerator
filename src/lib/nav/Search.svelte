@@ -6,8 +6,11 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { TEMPLATES_KEY } from '../templates.js';
-  import { searchAll } from '../search.js';
-  import { openTrip, addItem, openNew, openNote, dayRide, openData } from '../nav.js';
+  import { searchAll, commandActions } from '../search.js';
+  import { openTrip, addItem, openNew, openNote, dayRide, openData, openWear } from '../nav.js';
+  import { sortBikes } from '../bikes.js';
+  import { recordCare, undoCare } from '../home/care-tap.js';
+  import { countUse } from '../home/usage.js';
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
 
@@ -22,6 +25,38 @@
   });
   const groups = $derived(q.trim().length >= 2 && $all ? searchAll(q, $all) : []);
   const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
+  // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
+  const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes) }) : []);
+  let done = $state(null); // { text, undo } after a bike job saved from here
+  let doneTimer;
+  const USE = { weigh: 'weigh', dayride: 'dayride', chain: 'care', sealant: 'care', wash: 'care', km: 'km', note: 'note', wear: 'wear', trip: 'trip' };
+  async function run(c) {
+    const cmd = c.cmd;
+    countUse(USE[cmd.kind]);
+    if (['chain', 'sealant', 'wash'].includes(cmd.kind)) {
+      const r = await recordCare(cmd.bikeId, cmd.kind);
+      q = '';
+      clearTimeout(doneTimer);
+      done = r;
+      doneTimer = setTimeout(() => (done = null), 8000);
+      return;
+    }
+    q = '';
+    open = false;
+    if (cmd.kind === 'weigh') location.hash = '#/gear?tab=weigh';
+    else if (cmd.kind === 'dayride') dayRide(cmd.bikeId ?? null);
+    else if (cmd.kind === 'km') openNew('km');
+    else if (cmd.kind === 'note') openNote(cmd.text ?? '');
+    else if (cmd.kind === 'wear') openWear();
+    else if (cmd.kind === 'trip') openNew('list');
+  }
+  async function undoDone() {
+    const u = $state.snapshot(done?.undo); // a plain copy: IndexedDB cannot store Svelte proxies
+    clearTimeout(doneTimer);
+    done = null;
+    await undoCare(u);
+  }
+  $effect(() => () => clearTimeout(doneTimer));
 
   // v0.38.0 (Noah 13a): pages of "More" and the things of "New" are found too; an action does it.
   const RUN = { trip: () => openNew('list'), dayride: dayRide, note: () => openNote(''), item: () => addItem(), km: () => openNew('km'), data: openData };
@@ -43,7 +78,7 @@
   let root = $state();
   $effect(() => {
     const away = (e) => {
-      if (root && !root.contains(e.target) && (open || q)) (q = ''), (open = false);
+      if (root && !root.contains(e.target) && (open || q || done)) (q = ''), (open = false), (done = null);
     };
     document.addEventListener('pointerdown', away, true);
     return () => document.removeEventListener('pointerdown', away, true);
@@ -65,7 +100,8 @@
       // v0.44.1 (AP21): on a phone the field closes, so the focus goes back to the magnifier (not to the page top).
       if (open) (open = false), queueMicrotask(() => btn?.focus());
     }
-    if (e.key === 'Enter' && count) go(groups[0].rows[0]);
+    if (e.key === 'Enter' && cmds.length) run(cmds[0]);
+    else if (e.key === 'Enter' && count) go(groups[0].rows[0]);
   };
 </script>
 
@@ -78,11 +114,24 @@
   {#if (!phone.matches && !compact) || open}
     <label class="field">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
-      <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder={t('Search: gear, trips, bikes, pages')} aria-label={t('Search everything')} autocomplete="off" />
+      <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder={t('What do you want to do? "weigh", "day ride factor"')} aria-label={t('What do you want to do? Search or say an action')} autocomplete="off" />
     </label>
+  {/if}
+  {#if done && !q.trim()}
+    <div class="res" role="region" aria-label={t('Search results')}>
+      <p class="done" role="status"><span>{done.text}</span><button type="button" class="btn sm" onclick={undoDone}>{t('Undo')}</button></p>
+    </div>
   {/if}
   {#if q.trim().length >= 2}
     <div class="res" role="region" aria-label={t('Search results')} aria-live="polite">
+      {#if cmds.length}
+        <p class="gh">{t('Do it now')}</p>
+        <ul class="cmds">
+          {#each cmds as c (c.id)}
+            <li><button type="button" data-cmd={c.kind} onclick={() => run(c)}><span class="m"><b>{c.title}</b>{#if c.sub}<small>{c.sub}</small>{/if}</span><span class="go" aria-hidden="true">↵</span></button></li>
+          {/each}
+        </ul>
+      {/if}
       {#each groups as g (g.kind)}
         <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
         <ul>
@@ -91,7 +140,7 @@
           {/each}
         </ul>
       {:else}
-        <p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>
+        {#if !cmds.length}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
       {/each}
       {#if !groups.some((g) => g.kind === 'gear' && g.rows.some((r) => r.title.replace(/^★ /, '').toLowerCase() === q.trim().toLowerCase()))}
         <button type="button" class="add" onclick={addNew}>+ {t('Add "{q}" as a new item', { q: q.trim() })}</button>
@@ -110,7 +159,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    width: min(320px, 32vw);
+    width: min(460px, 32vw);
     height: 40px;
     padding: 0 12px;
     border-radius: 8px;
@@ -143,7 +192,7 @@
     height: 44px;
     border: 0;
     background: none;
-    color: var(--paper);
+    color: var(--brand-ink);
     cursor: pointer;
   }
   /* Phone: the field sits under the bar, full width. */
@@ -169,7 +218,7 @@
     border-radius: 10px;
     background: var(--paper);
     color: var(--ink);
-    box-shadow: 0 10px 30px rgba(15, 46, 39, 0.25);
+    box-shadow: 0 10px 30px var(--shadow);
     z-index: 30;
     box-sizing: border-box;
   }
@@ -227,6 +276,28 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
+  /* v0.46.0: the actions first, each with a quiet ↵ (Enter does the first one). */
+  .cmds li button {
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+  }
+  .go {
+    flex: none;
+    color: var(--ink-3);
+  }
+  .done {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 12px;
+    margin: 4px 6px;
+    font-weight: 600;
+  }
+  .done span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
   .none {
     margin: 6px;
     color: var(--ink-3);
@@ -248,6 +319,6 @@
   }
   .add:hover,
   .add:focus-visible {
-    background: var(--paper-2, #eef1ec);
+    background: var(--paper-2);
   }
 </style>

@@ -111,7 +111,7 @@
     overflow: visible;
   }
   .frame {
-    stroke: #97a69b;
+    stroke: var(--line-strong);
     stroke-width: 7;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -123,7 +123,7 @@
     stroke-dasharray: 2 6;
   }
   .hub {
-    fill: #97a69b;
+    fill: var(--line-strong);
   }
   .leaders line {
     stroke: var(--ink-3);
@@ -135,9 +135,9 @@
     display: grid;
     place-items: center;
     padding: 0;
-    border: 2px solid #2f6b55;
+    border: 2px solid var(--accent);
     border-radius: 6px;
-    background: rgba(47, 107, 85, 0.18);
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
     color: var(--ink-3);
     font: 600 14px/1 var(--font-body);
     cursor: pointer;
@@ -156,7 +156,7 @@
   .spot.empty {
     border-style: dashed;
     border-color: var(--ink-3);
-    background: rgba(251, 251, 248, 0.6);
+    background: color-mix(in srgb, var(--paper) 60%, transparent);
   }
   .spot.off {
     border: 1.5px dashed var(--line);
@@ -169,7 +169,7 @@
   @media (hover: hover) {
     .spot:hover,
     .lab:hover {
-      box-shadow: 0 0 0 3px rgba(184, 62, 8, 0.25);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--hi) 25%, transparent);
     }
   }
   .labels {

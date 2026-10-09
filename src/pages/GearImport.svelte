@@ -710,7 +710,7 @@
     border-radius: 10px;
     background: var(--ink);
     color: var(--paper);
-    box-shadow: 0 8px 24px rgba(15, 46, 39, 0.3);
+    box-shadow: 0 8px 24px var(--shadow);
     font-weight: 600;
   }
   /* A phone: above the bottom bar. */

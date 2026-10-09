@@ -61,10 +61,10 @@ test('phone search: Escape closes the field and gives the focus back to the magn
   const open = page.getByRole('button', { name: T('Search everything') });
   await open.focus();
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('searchbox', { name: T('Search everything') })).toBeFocused();
+  await expect(page.getByRole('searchbox', { name: T('What do you want to do? Search or say an action') })).toBeFocused();
   await page.keyboard.type('Multi');
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('searchbox', { name: T('Search everything') })).toHaveCount(0);
+  await expect(page.getByRole('searchbox', { name: T('What do you want to do? Search or say an action') })).toHaveCount(0);
   await expect(open).toBeFocused();
 });
 

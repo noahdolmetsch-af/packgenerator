@@ -106,8 +106,8 @@
   }
   .block {
     margin-bottom: 10px;
-    border: 1px solid #e6c9b8;
-    background: #fffaf6;
+    border: 1px solid var(--line);
+    background: var(--paper);
     border-radius: 12px;
   }
   .block > summary {
@@ -181,7 +181,7 @@
     padding-left: 18px;
   }
   .shop li.late b {
-    color: #a03a00;
+    color: var(--warn);
   }
   .shop .btn {
     margin-top: 6px;

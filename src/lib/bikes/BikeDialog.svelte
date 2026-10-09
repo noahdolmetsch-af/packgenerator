@@ -112,7 +112,7 @@
     max-height: 220px;
     object-fit: contain;
     border-radius: 6px;
-    background: var(--paper-2, #e6ebe3);
+    background: var(--paper-2);
   }
   .pacts {
     display: flex;

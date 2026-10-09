@@ -641,7 +641,7 @@
   table { width: 100%; border-collapse: collapse; font-size: 15px; }
   th { text-align: left; font-size: 13px; color: var(--ink-3); font-weight: 600; }
   td, th { padding: 3px 4px; border-bottom: 1px solid var(--paper-2); }
-  tr.wet td { background: #e3eef8; }
+  tr.wet td { background: var(--info-soft); }
   tr.newday td { border-top: 2px solid var(--ink-3); }
   td small { color: var(--ink-3); }
   .wxbar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; margin: 10px 0 0; }
@@ -649,7 +649,7 @@
   @media (min-width: 640px) { .bags { grid-template-columns: 1fr 1fr; } }
   .bag { min-width: 0; }
   .bag ul { margin: 4px 0 0; padding-left: 20px; overflow-wrap: break-word; }
-  .warn { color: #a03a00; }
+  .warn { color: var(--warn); }
   /* v0.34.0 (L8): the evening is quiet: smaller values than the block of now. */
   .eve .do li:first-child { border-top: 1px solid var(--paper-2); }
   .eve .val { font-size: 16px; font-weight: 500; }
