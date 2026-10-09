@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.44.1
+  'Keyboard: Escape in the phone search gives the focus back to the magnifier, and Escape closes an open row in the packing list.':
+    'Tastatur: Escape in der Suche am Handy gibt den Fokus an die Lupe zurück, und Escape schliesst eine offene Zeile in der Packliste.',
+  'Bigger tap areas on the phone: the gear category heads, "PG" at the top, "All ✓" and "All –" in the debrief and the bike care link in Plan.':
+    'Grössere Tippflächen am Handy: die Kategorie-Köpfe im Material, «PG» oben, «Alle ✓» und «Alle –» im Rückblick und der Link zur Velopflege im Planen.',
+  'Import backup says "1 trip" and "1 learning" in the singular.':
+    'Backup importieren sagt «1 Tour» und «1 Learning» in der Einzahl.',
+  'Offline the app keeps its own font (it fell back to the system font before).':
+    'Offline behält die App ihre eigene Schrift (vorher kam die Systemschrift).',
+
   // 0.44.0
   'Last 12 months: always the 12 months up to today, not a calendar year. Riding, packing, learned and bikes on one page, with small differences to the 12 months before.':
     'Letzte 12 Monate: immer die 12 Monate bis heute, kein Kalenderjahr. Fahren, Packen, Gelernt und Velos auf einer Seite, mit kleinen Unterschieden zu den 12 Monaten davor.',
