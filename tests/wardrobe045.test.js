@@ -26,6 +26,7 @@ import {
 import { allSets } from '../src/lib/sets.js';
 import { stagedStatus, appliedNothing } from '../src/lib/gearimport.js';
 import { wishReason } from '../src/lib/insights.js';
+import { tapAreas } from '../src/lib/bikes/tap.js';
 
 const P = 'test_data_gtp_';
 const item = (id, name, f = {}) => ({ id, name: `${P}${name}`, category: 'onbike', weightG: 100, qty: 1, ownership: 'owned', sets: [], domains: ['bikepacking'], ...f });
@@ -213,5 +214,33 @@ describe('import page fixes (0.45)', () => {
     expect(appliedNothing({ enriched: 0, merged: 0, added: 0, learningsAdded: 0, learningsUpdated: 0, unchanged: 9 })).toBe(true);
     expect(appliedNothing({ enriched: 1 })).toBe(false);
     expect(appliedNothing({ learningsUpdated: 1 })).toBe(false);
+  });
+});
+
+describe('bike drawing tap areas (acceptance follow-up 4)', () => {
+  const overlap = (a, b) => Math.min(a.x2, b.x2) > Math.max(a.x1, b.x1) && Math.min(a.y2, b.y2) > Math.max(a.y1, b.y1);
+  const rects = (boxes, s, ext) => boxes.map((b, i) => ({ x1: b.x * s - ext[i].l, y1: b.y * s - ext[i].t, x2: (b.x + b.w) * s + ext[i].r, y2: (b.y + b.h) * s + ext[i].b }));
+  it('a lone small place grows to 44 px around its centre', () => {
+    expect(tapAreas([{ x: 100, y: 100, w: 20, h: 40 }], 0.5)).toEqual([{ l: 17, t: 12, r: 17, b: 12 }]);
+    expect(tapAreas([{ x: 0, y: 0, w: 200, h: 200 }], 0.5)).toEqual([{ l: 0, t: 0, r: 0, b: 0 }]);
+  });
+  it('two close places share the space between them in the middle, never overlapping', () => {
+    const boxes = [{ x: 100, y: 100, w: 30, h: 30 }, { x: 140, y: 100, w: 30, h: 30 }];
+    const ext = tapAreas(boxes, 0.5);
+    const r = rects(boxes, 0.5, ext);
+    expect(overlap(r[0], r[1])).toBe(false);
+    expect(r[0].x2).toBeCloseTo(67.5, 1);
+    expect(r[1].x1).toBeCloseTo(67.5, 1);
+    expect(ext[0].t).toBeGreaterThan(0); // up and down they still grow
+  });
+  it('a crowd of places: no tap area overlaps another', () => {
+    const boxes = [{ x: 300, y: 150, w: 40, h: 40 }, { x: 330, y: 180, w: 30, h: 40 }, { x: 380, y: 150, w: 20, h: 20 }, { x: 290, y: 230, w: 60, h: 20 }];
+    const r = rects(boxes, 0.45, tapAreas(boxes, 0.45));
+    for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) {
+      const a = boxes[i];
+      const b = boxes[j];
+      const placesOverlap = overlap({ x1: a.x, y1: a.y, x2: a.x + a.w, y2: a.y + a.h }, { x1: b.x, y1: b.y, x2: b.x + b.w, y2: b.y + b.h });
+      if (!placesOverlap) expect(overlap(r[i], r[j]), `${i}/${j}`).toBe(false);
+    }
   });
 });

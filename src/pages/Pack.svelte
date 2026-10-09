@@ -280,6 +280,14 @@
   // A bar says what was made, with "Change" (Edit trip) and "Undo" (deletes the new trip).
   // v0.29.2 (Noah 4a, 5a): the same green card after "Create trip", and it says where the trip is.
   let dayMade = $state(null); // { id, before, day, hours?, wx?, wxFrom? }
+  // v0.45.0 (acceptance follow-up 5): after "Create trip" the focus goes to the new trip's name
+  // (once the window is closed and gave the focus back), so a screen reader says where you are.
+  let focusNew = $state(null);
+  $effect(() => {
+    if (!focusNew || dialog || trip?.id !== focusNew) return;
+    focusNew = null;
+    setTimeout(() => document.querySelector('[data-trip-title]')?.focus(), 0);
+  });
   let dayBusy = false;
   async function makeDayRide() {
     if (dayBusy) return;
@@ -902,7 +910,7 @@
       <ul>{#each ready as r (r.id)}<li>☐ {t(r.label)}</li>{/each}</ul>
     </section>{/if}
 {#if dialog}
-  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {bags} {templates} startFrom={dialog.startFrom ?? 'standard'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={(id) => { dayMade = { id, before: chosen, day: false }; choose(id); }} />
+  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {bags} {templates} startFrom={dialog.startFrom ?? 'standard'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={(id) => { dayMade = { id, before: chosen, day: false }; focusNew = id; choose(id); }} />
 {/if}
 {#if saveTpl && trip}
   <TemplateDialog {trip} {templates} onclose={() => (saveTpl = false)} onsaved={(name) => ((tplNote = t('Saved as template "{name}".', { name })), setTimeout(() => (tplNote = ''), 4000))} />
