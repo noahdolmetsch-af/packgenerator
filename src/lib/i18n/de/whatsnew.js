@@ -15,6 +15,15 @@ export default {
     '«Vergangene Touren» ist eine Tabelle, auch auf dem Handy: km, Hm, Zeit, Regen, Temperatur, Velo und ein Learning pro Tour. Der Name bleibt stehen, die anderen Spalten scrollen; Zeitraum, «Art» und eine Suche, die auch Learnings findet.',
   "A trip's saved debrief now tells what the trip was: numbers and weather per day, plan against real, what you can leave at home, learnings and what it means for the next trip.":
     'Der gespeicherte Rückblick einer Tour erzählt jetzt, wie die Tour war: Zahlen und Wetter pro Tag, Plan gegen Wirklichkeit, was zuhause bleiben kann, Learnings und was das für die nächste Tour heisst.',
+
+  // 0.47.3
+  'In a new trip, "Chilly" and "Rain" stay chosen when you tap them, also when the forecast chose them already, so the list gets the cold and the rain items. Dry or rain are two chips, as on the trip page.':
+    'Bei einer neuen Tour bleiben «Kühl» und «Regen» gewählt, wenn du sie antippst, auch wenn die Wettervorhersage sie schon gewählt hat; die Liste bekommt die Sachen für Kälte und Regen. Trocken oder Regen sind zwei Chips, wie auf der Tourseite.',
+  'The ••• menus (packing list, templates, trips in progress, bike care) stay fully on the screen on a phone: they move aside or open upwards.':
+    'Die •••-Menüs (Packliste, Vorlagen, Touren in Bearbeitung, Velopflege) bleiben am Handy ganz im Bild: Sie rücken zur Seite oder öffnen nach oben.',
+  '"No weather" takes the weather off again, in a new trip and on the trip page, also when the forecast chose it.':
+    '«Ohne Wetter» nimmt das Wetter wieder weg, bei einer neuen Tour und auf der Tourseite, auch wenn die Wettervorhersage es gewählt hat.',
+
   // 0.47.2
   'Gear has seven views, each with its count: All, Most used, Proven, Favourite things, Never used, Unweighed and Wishlist.':
     'Material hat sieben Ansichten, jede mit ihrer Zahl: Alle, Meist genutzt, Bewährt, Lieblingssachen, Nie gebraucht, Ungewogen und Wunschliste.',

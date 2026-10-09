@@ -8,7 +8,7 @@
   import { Undo2 } from '@lucide/svelte';
   import { t, tn, num } from '../i18n.svelte.js';
   import { WX_PRESETS } from '../trips.js';
-  import { wxSource } from '../dayride.js';
+  import { wxSource, noWx } from '../dayride.js';
   import { localDay } from '../localday.js';
   import './trip.css';
 
@@ -66,8 +66,10 @@
       {#each WX_PRESETS as p (p.name)}<button type="button" class="tp-chip" aria-pressed={wx.min === p.min && wx.max === p.max} onclick={() => edit.wx({ min: p.min, max: p.max })}>{t(p.name)} <small>{p.min}–{p.max}°</small></button>{/each}
     </div>
     <div class="tp-chips rain" role="group" aria-label={t('Rain')}>
-      <button type="button" class="tp-chip" aria-pressed={!wet} onclick={() => edit.wx({ rain: 'none' })}>{t('Dry|weather')}</button>
+      <button type="button" class="tp-chip" aria-pressed={!wet && !noWx(wx)} onclick={() => edit.wx({ rain: 'none' })}>{t('Dry|weather')}</button>
       <button type="button" class="tp-chip" aria-pressed={wet} onclick={() => edit.wx({ rain: 'rain' })}>{t('Rain')}</button>
+      <!-- v0.47.3 (Noah: never binding, always removable): the whole weather off. -->
+      <button type="button" class="tp-chip" aria-pressed={noWx(wx)} onclick={() => edit.wx({ min: null, max: null, rain: 'none' })}>{t('No weather|chip')}</button>
     </div>
     <div class="temps">
       <label class="field"><span class="lbl">{t('Min °C')}</span><input class="inp num" type="text" inputmode="numeric" value={wx.min ?? ''} onchange={(e) => typedTemp('min', e.currentTarget.value)} /></label>
