@@ -458,27 +458,17 @@ export async function templatesLinked2026(db) {
 
 /**
  * v0.45.2 (Noah 9.10.2026): the new base check before every ride (trips.js READY_DEFAULT) replaces
- * the old suggested rows. A saved standard keeps its own rows after the new ones; coming trips
- * without a tick get the new check (their own rows stay). Past trips and trips without a bike stay.
+ * the old suggested rows of a saved standard; its own rows stay after the new ones. Trips keep the
+ * check they have (an import keeps the records exactly as in the file); new trips get the new one.
  */
 export async function basicCheck2026(db) {
   if (await db.settings.get('update.basicCheck2026')) return false;
-  const today = now().slice(0, 10);
-  const merge = (rows) => {
-    const labels = new Set(READY_DEFAULT.map((r) => r.label.toLowerCase()));
-    const keep = (rows ?? []).filter((r) => !r.itemId && !READY_OLD_IDS.includes(r.id) && !READY_DEFAULT.some((d) => d.id === r.id) && !labels.has(String(r.label).toLowerCase()));
-    return [...READY_DEFAULT.map((r) => ({ ...r })), ...keep];
-  };
-  await db.transaction('rw', db.trips, db.settings, async () => {
+  const labels = new Set(READY_DEFAULT.map((r) => r.label.toLowerCase()));
+  await db.transaction('rw', db.settings, async () => {
     const std = await db.settings.get('readyStandard');
-    const standard = std?.value?.length ? merge(std.value).map(({ done, ...r }) => r) : null;
-    if (standard) await db.settings.put({ key: 'readyStandard', value: standard });
-    for (const t of await db.trips.toArray()) {
-      if (t.startDate && t.startDate < today) continue;
-      if (Array.isArray(t.packs) || t.finished) continue;
-      if ((t.ready ?? []).some((r) => r.done)) continue;
-      const own = (t.ready ?? []).filter((r) => r.id?.startsWith('own-'));
-      await db.trips.update(t.id, { ready: [...freshReady(standard), ...own.filter((o) => !(standard ?? []).some((r) => r.id === o.id))] });
+    if (std?.value?.length) {
+      const keep = std.value.filter((r) => !r.itemId && !READY_OLD_IDS.includes(r.id) && !READY_DEFAULT.some((d) => d.id === r.id) && !labels.has(String(r.label).toLowerCase()));
+      await db.settings.put({ key: 'readyStandard', value: [...READY_DEFAULT.map((r) => ({ ...r })), ...keep.map(({ done, ...r }) => r)] });
     }
     await db.settings.put({ key: 'update.basicCheck2026', value: now() });
   });

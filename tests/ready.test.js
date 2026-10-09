@@ -70,23 +70,16 @@ describe('base check 2026', () => {
     expect(READY_DEFAULT.map((r) => r.id)).not.toContain('route');
   });
 
-  it('replaces the old rows of the saved standard and of coming trips without ticks; own rows stay', async () => {
+  it('replaces the old rows of the saved standard; own rows stay; trips keep their check', async () => {
     const db = new Dexie(`bc-${Math.random()}`);
     db.version(1).stores({ trips: 'id', settings: 'key' });
     const old = READY_OLD_IDS.map((id) => ({ id, label: id }));
     await db.settings.put({ key: 'readyStandard', value: [...old, { id: 'std-1', label: 'Buy gas' }] });
-    await db.trips.bulkPut([
-      { id: 'next', startDate: '2999-01-01', ready: [...old.map((r) => ({ ...r, done: false })), { id: 'own-x', label: 'Mine', done: false }] },
-      { id: 'ticked', startDate: '2999-01-01', ready: [{ id: 'kit', label: 'kit', done: true }] },
-      { id: 'past', startDate: '2000-01-01', ready: [{ id: 'kit', label: 'kit', done: false }] },
-    ]);
+    await db.trips.put({ id: 'next', startDate: '2999-01-01', ready: old.map((r) => ({ ...r, done: false })) });
     expect(await basicCheck2026(db)).toBe(true);
     const std = (await db.settings.get('readyStandard')).value;
     expect(std.map((r) => r.id)).toEqual([...READY_DEFAULT.map((r) => r.id), 'std-1']);
-    const next = await db.trips.get('next');
-    expect(next.ready.map((r) => r.id)).toEqual([...READY_DEFAULT.map((r) => r.id), 'std-1', 'own-x']);
-    expect((await db.trips.get('ticked')).ready).toHaveLength(1);
-    expect((await db.trips.get('past')).ready).toHaveLength(1);
+    expect((await db.trips.get('next')).ready.map((r) => r.id)).toEqual(READY_OLD_IDS);
     expect(await basicCheck2026(db)).toBe(false);
   });
 });
