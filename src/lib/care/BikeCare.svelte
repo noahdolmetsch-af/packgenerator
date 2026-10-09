@@ -15,12 +15,14 @@
   import { visitTotal, costByYear, costByPart } from '../workshop.js';
   import { GROUPS, groupOf, lastWork, lastLine, partStatus, usualBy, isDueState, yearSummary, newestFirst } from './last.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
+  import { bikesHash } from '../bikes.js';
   import { bikeCareWords } from '../readiness.js';
 
   let {
     c, tasks = [], visits = [], wished = {}, kmMsg = null, open = false, filter = 'all', today,
-    ontoggle, onkm, oncheck, ondone, onpart, ontyre, onvisit, onorder, onwish, onrepair,
+    ontoggle, onkm, oncheck, ondone, onpart, ontyre, onvisit, onorder, onwish, onrepair, onstart = null,
   } = $props();
+  import PartsTable from './PartsTable.svelte';
 
   const bike = $derived(c.bike);
   const words = $derived(bikeCareWords(c.care));
@@ -224,52 +226,49 @@
           {/if}
         {/each}
       </ul>
-      {#if soon.length || ok.length}
-        <p class="zlabel">{t('Wear|list')}</p>
-        {#if soon.length || okOpen}<div class="th" aria-hidden="true"><span>{t('Part')}</span><span>{t('Last done')}</span><span class="r-al">km</span><span>{t('Next|care')}</span><span>{t('Wear|column')}</span><span>{t('Status')}</span><span></span></div>{/if}
+      {#if nothingYet && onstart}
+        <!-- v0.48.0 (Noah 9a): a bike without part data gets its start values in three steps. -->
+        <div class="startcta surf">
+          <div><p class="sh">{t('No part data yet')}</p><p class="quiet">{t('Start values in two minutes: the purchase date as the mounting date, the km today, what is new since then.')}</p></div>
+          <button type="button" class="btn hi" onclick={onstart}>{t('Enter start values')}</button>
+        </div>
       {/if}
-      <ul class="parts">
-        {#each soon as r (r.part.key)}
-          {@render partRow(r, null)}
-        {/each}
-        {#if ok.length}
-          <li class="okrow">
-            <button type="button" class="okfold" aria-expanded={okOpen} aria-controls="ok-{bike.id}" onclick={() => (okOpen = !okOpen)}>
-              <span class="chev" aria-hidden="true">{#if okOpen}<ChevronDown size={18} />{:else}<ChevronRight size={18} />{/if}</span>
-              <b>{t('{n} ok', { n: ok.length })}</b>
-              <span class="names">{ok.map(partName).join(', ')}</span>
-            </button>
-          </li>
-          {#if okOpen}
-            {#each okGroups as g (g.key)}
-              <li class="gh" id={g === okGroups[0] ? `ok-${bike.id}` : undefined}><h3>{t(g.name)}</h3></li>
-              {#each g.rows as r (r.part.key)}
-                {@render partRow(r, null)}
-              {/each}
-            {/each}
-          {/if}
+      {#if filter === 'all'}
+        <!-- v0.48.0 «Teile pro Velo»: all parts of the one list by area, the rest under «More». -->
+        <PartsTable {bike} time={c.time} {today} onpart={onpart} />
+      {:else}
+      {#if soon.length || ok.length}
+          <p class="zlabel">{t('Wear|list')}</p>
+          {#if soon.length || okOpen}<div class="th" aria-hidden="true"><span>{t('Part')}</span><span>{t('Last done')}</span><span class="r-al">km</span><span>{t('Next|care')}</span><span>{t('Wear|column')}</span><span>{t('Status')}</span><span></span></div>{/if}
         {/if}
-        {#if !due.length && !soon.length && !ok.length}
-          <li class="none"><p class="quiet">{filter === 'due' ? t('Nothing due on this bike.') : t('No part fits this filter.')}</p></li>
-        {/if}
-      </ul>
-
-      <div class="folds">
-        {#if blind.length && filter === 'all'}
-          <details class="fold" bind:open={blindOpen}>
-            <summary><Info size={18} aria-hidden="true" /><span class="fl">{t('No data')}</span><span class="r">{tn(blind.length, '{n} part', '{n} parts')}<ChevronRight size={18} aria-hidden="true" /></span></summary>
-            {#if blindOpen}
-              <ul class="plain">
-                {#each blind as r (r.part.key)}
-                  <li>
-                    <button type="button" class="part-btn row" onclick={() => onpart(r.part.key)}>{t(PART[r.part.key]?.name ?? r.part.key)}{#if r.part.model}<small>{r.part.model}</small>{/if}</button>
-                    {#if r.part.key === 'tyres'}{@render tyres()}{/if}
-                  </li>
+        <ul class="parts">
+          {#each soon as r (r.part.key)}
+            {@render partRow(r, null)}
+          {/each}
+          {#if ok.length}
+            <li class="okrow">
+              <button type="button" class="okfold" aria-expanded={okOpen} aria-controls="ok-{bike.id}" onclick={() => (okOpen = !okOpen)}>
+                <span class="chev" aria-hidden="true">{#if okOpen}<ChevronDown size={18} />{:else}<ChevronRight size={18} />{/if}</span>
+                <b>{t('{n} ok', { n: ok.length })}</b>
+                <span class="names">{ok.map(partName).join(', ')}</span>
+              </button>
+            </li>
+            {#if okOpen}
+              {#each okGroups as g (g.key)}
+                <li class="gh" id={g === okGroups[0] ? `ok-${bike.id}` : undefined}><h3>{t(g.name)}</h3></li>
+                {#each g.rows as r (r.part.key)}
+                  {@render partRow(r, null)}
                 {/each}
-              </ul>
+              {/each}
             {/if}
-          </details>
-        {/if}
+          {/if}
+          {#if !due.length && !soon.length && !ok.length}
+            <li class="none"><p class="quiet">{filter === 'due' ? t('Nothing due on this bike.') : t('No part fits this filter.')}</p></li>
+          {/if}
+        </ul>
+
+      {/if}
+      <div class="folds">
         <details class="fold" id="check-{bike.id}" bind:open={checkOpen}>
           <summary><ListChecks size={18} aria-hidden="true" /><span class="fl">{t('{km} km check', { km: num(CHECK_KM) })}</span><span class="r">{#if c.check.due}<span class="badge warn">{t('{n} open', { n: c.check.due })}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span></summary>
           {#if checkOpen}
@@ -350,6 +349,8 @@
               {:else}
                 <p class="hint">{t('No workshop visits yet. Send Claude a photo of the receipt; it comes back as a file to import.')}</p>
               {/if}
+              <!-- v0.48.0 (Noah 9a): the bike's «Workshop & receipts» page (orders, visits, receipts). -->
+              <a class="shoplink" href={bikesHash({ tab: 'shop', bike: bike.id })}>{t('Workshop & receipts')}<ChevronRight size={16} aria-hidden="true" /></a>
             </section>
           {/if}
         </details>
@@ -377,6 +378,22 @@
 {/snippet}
 
 <style>
+  .startcta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    margin: 10px 0;
+    padding: 14px 16px;
+  }
+  .startcta .sh {
+    margin: 0 0 2px;
+    font-weight: 600;
+  }
+  .startcta .quiet {
+    margin: 0;
+  }
   /* One bike: a light head on a rule, no box (v0.38.0). */
   .acc {
     border-bottom: 1px solid var(--line);
@@ -898,6 +915,14 @@
   }
   .last-lbl {
     margin: 10px 0 2px;
+  }
+  .shoplink {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    color: var(--ink);
+    font-weight: 500;
   }
   .visit {
     width: 100%;

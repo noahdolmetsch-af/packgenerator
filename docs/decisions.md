@@ -374,8 +374,80 @@ Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0
 
 - **«Kühl + Regen» brachte nichts (Ursache):** Im Fenster «Neue Tour» schalteten die Wetter-Chips um. Hatte die Wettervorhersage schon «Kühl» und Regen gewählt, nahmen die Tipps auf «Kühl» und «+ Regen» beides wieder weg, und die Vorschau zeigte «Fürs Wetter: nichts zusätzlich». Die Logik in `layers.js`/`context.js` war richtig. Entscheid: Ein Wetter-Chip **setzt** nur (`dayride.js pickWxChip`), wie auf der Tourseite; Trocken und Regen sind zwei Chips statt eines «+ Regen»-Schalters. Damit das Wetter trotzdem immer abwählbar bleibt (Noahs Regel: Vorschläge sind nie zwingend und immer änderbar), gibt es den Chip **«Ohne Wetter»** im Fenster «Neue Tour» und auf der Tourseite («Ans Wetter angepasst» und das Wetter-Blatt der Tourkarte): Er nimmt Bereich und Regen weg, auch was die Wettervorhersage gewählt hat; ein anderer Chip setzt wieder. «Trocken» ist nur gedrückt, wenn ein Wetter gesetzt ist.
 - **•••-Menüs im Bild:** Ein Menü neben seinem ••• wird verschoben (seitlich) oder nach oben geklappt (unten kein Platz), nie verkleinert (`src/lib/ui/inview.js`, Baukasten). Gilt für Packliste, Vorlagen, «In Bearbeitung» und Velopflege (deren eigenes «nach oben» aus 0.46.1 ersetzt). Ein Menü, das auch oben keinen Platz hat, bleibt unten (die Seite scrollt), damit es sein ••• nie verdeckt.
+## 9.10.2026: R1 «Rückblick ruhig» (0.56.0)
 
-## 9.10.2026: Material-Detail ruhig (0.54.0, Noahs Antworten 1a 2a 3a)
+- **Vergangene Touren (1b):** überall eine Tabelle, auch am Handy. Am Handy bleibt die erste Spalte (Tourname) stehen (`position: sticky`), die anderen Spalten scrollen in der Tabelle; die Seite scrollt nie seitwärts (der Tabellenkasten ist `position: relative`, damit versteckter Bildschirmleser-Text die Seite nicht verbreitert). Spalten (2a): km, Hm, Zeit, Regen/trocken, Temperatur, Velo, 1 Learning oder Besonderes. Filter (3a): Zeitraum 12 Monate / Jahr / Alle, ein Knopf «Art» (Tagestour, Mehrtägig, Rennen, Ohne Velo, Mit Regen), Suche auch in Learnings.
+- **Eine Seite «Rückblick» (4a-7a):** letzte Fahrt, «Letzte 12 Monate» rollend (umschaltbar Jahr = 1. Januar bis heute gegen dieselben Tage im Vorjahr, Alle ohne Vorjahr), «Touren im Vergleich» mit 7 kleinen Diagrammen + Tabelle, Basis letzte 10 Touren, «12 Monate», «Gleiche Art». Tempo, Logbuch, Gelernt eine Ebene darunter, Inhalt unverändert bis R2.
+- **Umleitungen statt toter Links:** `#/review` und `#/debrief/compare` führen auf `#/debrief` (nav.js `redirectOf`, `history.replaceState`). Die Seite «Letzte 12 Monate» mit Packen- und Velo-Teil entfällt; diese Zahlen erzählen später D6 (Monatskarte, Jahresbrief).
+- **Woher die Zahlen kommen:** km aus dem Rückblick, sonst den Fahrten, sonst der Route; Hm und Zeit in Bewegung aus hochgeladenen Fahrten (Hm sonst aus der Route); Regen und Temperatur aus der mit der Tour gespeicherten Prognose (1 mm oder mehr = Regen), sonst dem Packwetter; Learnings einer Tour über `source` = Tourname oder `rideId`. Unbekannt bleibt «–», nie 0.
+- **Heute:** «Rückblick» führt auf die neue Seite, «Rückblicke» auf Vergangene Touren (dort ist ein offener Rückblick markiert), damit nicht zwei Knöpfe dasselbe öffnen. «Mehr › Rückblick» hat vier Zeilen statt fünf: Rückblick, Vergangene Touren, Learnings, Dein Tempo.
+
+
+## 9.10.2026: Pflege-Übersicht, Teile pro Velo, Eingang und Notizen (0.57.0)
+
+- **Eine Teileliste für alle Velos (Noah):** `care.js PARTS` ist die eine Vorlage. Jedes Teil hat einen Bereich (Rahmen & Federung, Antrieb, Bremsen, Laufräder, Cockpit, Extras, Checks). Sichtbar sind zuerst die Eckwerte, dann Kassette, Schaltwerk, Schalthebel, Kurbel, Innenlager und Kette, Bremse und Bremsscheibe vorne und hinten getrennt, Vorder- und Hinterrad, Reifen, Griffe und Sattelstütze. Unter «Mehr» stehen Rahmen, Dämpfer- und Gabel-Details, Sattelstützklemme, Akku, Steckachse, Sattel, Cockpit, Ladegerät und eigene Teile.
+  - Die Reifen bleiben **ein** Teil mit Werten für vorne und hinten (`widthF`, `widthR`, `modelR`), weil Dichtmilch, Schlauch oder tubeless (`tyreSetup`) und die Wartung das ganze Paar betreffen.
+  - Die alten Teile `brakes` (Bremsen entlüften) und `wheels` gelten als `legacy`. Sie verschwinden aus der Liste, sobald sie keinen Verlauf und kein Modell haben; mit Verlauf bleiben sie, damit der Lebenslauf erhalten ist.
+  - Werkstattbesuche, die ein solches Teil nennen, holen es zurück (`withVisits`).
+- **Datenblatt pro Teil:** Jedes Teil hat `model`, `weightG`, `material`, `notes` und typisierte `attrs` je Teil (Liste in `care.js`, Feld `attrs`). Pro Velo gibt es einen Block `geometry` mit 12 Zahlen. Leere Werte bleiben leer; die App erfindet keinen Wert.
+- **Import «bikeSpecs» (Datenpanel), JSON-Form:**
+  ```json
+  { "kind": "bikeSpecs", "bike": "<Velo-Name>",
+    "geometry": { "stack": 622, "reach": 450, "Lenkwinkel": 65.5 },
+    "parts": [
+      { "area": "Antrieb", "part": "Kassette", "model": "…", "weightG": 470, "material": "Stahl", "notes": "…",
+        "attrs": { "Ritzel": "10-51", "Übersetzung": "520 %" } },
+      { "part": "Scheibenbremse", "model": "…", "attrs": { "Kolben": 4 } },
+      { "part": "Bremsscheibe vorne", "attrs": { "Durchmesser": 180 } },
+      { "part": "Mein Kettenstrebenschutz", "model": "…" }
+    ] }
+  ```
+  - Statt `bike` geht auch `"bikes": [{ "bike": …, "parts": …, "geometry": … }]`. Das Velo wird über den Namen gefunden.
+  - Teil-, Attribut- und Geometrienamen dürfen die englischen Schlüssel (`cassette`, `cogs`, `stack`) oder die deutschen/englischen Namen sein.
+  - Attributschlüssel:
+    - Rahmen: `axle`, `clearance`.
+    - Gabel: `travel`, `axle`, `stanchion`, `steerer`, `offset`.
+    - Dämpfer: `travel`, `eye`.
+    - Schaltwerk: `cage`.
+    - Kassette: `cogs`, `range`.
+    - Kurbel: `rings`, `ring`, `length`.
+    - Innenlager: `standard`.
+    - Bremse vorne/hinten: `pistons`.
+    - Bremsscheibe vorne/hinten: `dia`.
+    - Vorder-/Hinterrad: `axle`, `mount`, `inner`, `size`.
+    - Reifen: `widthF`, `widthR`, `modelR`.
+    - Steckachse: `axle`.
+    - Cockpit: `dims`.
+    - Sattelstütze: `travel`, `dia`, `length`, `insertMin`, `insertMax`.
+  - **Vorne und hinten:** Ein Eintrag für beide («Scheibenbremse BR-…, 4 Kolben», «Laufräder», «Bremsscheiben») gilt für vorne **und** hinten; ein Gewicht für das Paar wird halbiert. Ein Attribut mit «vorne/hinten» (`Durchmesser vorne`) geht nur an die eine Seite. «Reifen vorne/hinten» gehen beide an das eine Reifen-Teil (`widthF`/`widthR`).
+  - Unbekannte Teile werden eigene Teile (`own-<name>`, Bereich «Extras», unter «Mehr»). Unbekannte Attribute landen in `notes`.
+  - **Nie überschreiben ohne Frage:** Ein gefülltes Feld mit anderem Wert wird ein Konflikt mit Häkchen im Bestätigungsdialog. Ohne Häkchen bleibt der alte Wert.
+- **Velos vergleichen** (`#/bikes?tab=compare`, von Velos → Setup in 2 Tippern): eine Tabelle mit Eckwerten, Bereichen, Geometrie und «Mehr». Unterschiedliche Werte haben einen leisen Hintergrund (`--info-soft`). Ein leeres Feld zeigt «–» und lässt sich antippen. Am Handy ist die erste Spalte fix, die Tabelle scrollt in sich.
+- **Startwerte (3 Schritte):** Das Kaufdatum gilt als Montagedatum. Die km beim Kauf und heute werden erfasst, dazu was seither neu ist. Daraus entstehen Einträge `{ action: 'replace', start: true }` (Wortlaut «seit Kauf»).
+- **Pflege-Übersicht C:**
+  - Ein Ring 0–100 pro Velo: der Anteil Teile ohne Fälliges; Bremsen und Antrieb zählen doppelt. Ohne Verlauf zeigt der Ring «–», nicht 100.
+  - Höchstens 3 Karten «Jetzt fällig».
+  - Probleme als eine flache Liste mit Filter «Offen/Alle» und Velo.
+  - km seit Service, Velomech-Aufträge, Kosten im Jahr und ein Velo-Tagebuch mit höchstens einem Meilenstein.
+  - Einziger Hauptknopf: «Arbeit eintragen».
+  - Ersetzen und Warten sind geführte Abläufe (`PartFlow`). Eine Folgefrage (z. B. Kette über 0,75 %) wird ein offenes Problem.
+- **Eingang statt Inbox:**
+  - Neueste zuoberst, nach Tagen gruppiert. Offene und heute abgelegte Einträge stehen in einer Liste.
+  - Heute Abgelegtes bleibt blass mit Ziel-Chip und «Rückgängig» bis Mitternacht, danach nur unter «Abgelegt» (Suche über Text, Laden, Velo, Betrag; Filter).
+  - «Ablegen als …» hat 7 Ziele. Jedes merkt sich in `note.to.made`, was es geschrieben hat, damit «Rückgängig» es auch später zurücknimmt.
+  - **Rechnungsbeleg** fragt nach Velo, Laden (aus früheren Besuchen), Datum und Betrag; die Arbeiten sind freiwillig. Daraus wird ein Werkstattbesuch mit dem Foto.
+  - Ein Notiz-Eintrag mit «Einfach behalten» bekommt Status `kept` und ein Thema.
+- **Werkstatt & Belege** (`#/bikes?tab=shop`, dritter Reiter unter Velos, pro Velo verlinkt in der Pflege): Velomech-Aufträge, Besuche nach Monat mit Belegfoto, Kosten im Jahr. Es gibt keine eigene Ablage-Seite.
+- **Notizen** (`#/notes`, über Mehr → App):
+  - 5 feste Themen plus #Tags, höchstens 3 angeheftet.
+  - Schnellerfassung mit Text, Diktat (Web Speech API, nur wo der Browser es kann), Foto, Link (Titel und Adresse, nichts wird online geholt) und Checkliste.
+  - «Aus Notiz wird …» legt eine Tour-Idee (eine Tour ohne Datum mit `idea: true`), einen Wunsch oder ein Problem an. Die Notiz bleibt und verlinkt dorthin.
+  - Die Notizen sind im normalen Backup (Tabelle `notes`); dazu gibt es einen Markdown-Export.
+  - Heute zeigt eine Zeile nur für eine angeheftete Notiz mit offener Checkliste.
+- **TODO Texterkennung:** Eine Texterkennung auf dem Gerät (Betrag, Laden und Datum aus dem Belegfoto) ist im Browser nicht günstig zu haben. Tesseract.js wiegt mehrere MB und ist langsam am Handy, die Shape Detection API kann keinen Text in Chrome/Android stabil. Darum ist sie nicht gebaut; die Felder werden von Hand ausgefüllt. Wieder prüfen, wenn `TextDetector` breit verfügbar ist.
+- **Bedienungsanleitungen** unter Werkstatt & Belege sind noch nicht gebaut (Roadmap).
+
+## 9.10.2026: Material-Detail ruhig (0.60.0, Noahs Antworten 1a 2a 3a)
 
 - **Teil-Fenster kurz (1a):** Oben stehen nur Name, Gewicht pro Stück mit Status (gewogen, aus einer Liste, nicht gewogen; bei Nicht-Besitz der Status dazu) und eine Zeile «Kommt mit: Standard · unter 10 °C · Satteltasche» (`src/lib/gear/detail.js` `comesLine`). Alles andere ist eine Klappzeile mit Kurzinhalt: Wo es hinkommt, Bausteine, Für Wetter und Fahrzeit, Name/Marke/Notiz (mit Kategorie, Status, Bereichen, Foto), In Vorlagen, Lebenslauf. Nur eine Zeile ist offen; die zuletzt geöffnete bleibt für die Sitzung offen (`sessionStorage pack.itemFold.item`). Bausteine starten zu. Kein Feld fällt weg. Die Detailspalte am Computer zeigt die Zahlen, die «Kommt mit»-Zeile und die Teile von «Lebenslauf» ebenfalls als Klappzeilen (eigene Merkung `pack.itemFold.panel`). Höhe des Teil-Fensters (Regenjacke, Testdaten): Handy 390 2241 → 704 px, Computer 1440 2377 → 689 px (alle Zeilen zu).
 - **Leichtere Alternative (2a):** Zuerst die selbst verknüpften («von dir verknüpft»), dann höchstens 2 Vorschläge: vorhanden, gewogen, gleiche Kategorie (Kleidung: gleiche Zone und, wenn beide eine haben, gleiche Schicht; Kleidung ohne Zone bekommt keinen Vorschlag), leichter, aber mindestens 40 % seines Gewichts (sonst ist es meist etwas anderes, z. B. ein Kabel statt eines Velocomputers), die gewichtsnächsten zuerst. «Passt nicht» blendet einen Vorschlag für dieses Teil aus (Einstellung `altDismissed` {itemId: [ids]}) und ist rückgängig zu machen. Ein Vorschlag wählt nie etwas aus. Die Karte zeigt weiterhin nur die verknüpfte Alternative.

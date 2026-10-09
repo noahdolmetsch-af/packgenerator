@@ -14,7 +14,7 @@ const T = (en, vars) => {
 const TIPS = { length: 28 };
 const GROUPS = ['Plan|tips', 'Packing & on the way', 'Looking back', 'Gear|tips', 'Bikes|tips', 'Your data|tips'].map((label) => ({ label }));
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
-const day = (n = 0) => new Date(Date.now() + n * 864e5).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 // the fixture's relative dates ("@+10" = in ten days) filled in, as in pf.spec.js
 const fixture = RAW.replace(/"@([+-]\d+)"/g, (m, n) => `"${day(Number(n))}"`);
 

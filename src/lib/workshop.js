@@ -6,7 +6,7 @@
  *
  * Pure functions only, so they are easy to test.
  */
-import { PART, PARTS, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM, prepFor, prepRules, prepSummary, isPrep, taskBike, serviceName } from './care.js';
+import { PART, PARTS, fits, ensureParts, partInfo, checkState, wear, needsWork, kmSince, CHECK_KM, prepFor, prepRules, prepSummary, isPrep, taskBike, serviceName } from './care.js';
 import { t as tr, tn, num, locale } from './i18n.svelte.js';
 import { localDay } from './localday.js';
 
@@ -46,7 +46,12 @@ const asEntry = (v, line) => ({
  */
 export function withVisits(bike, visits = []) {
   const mine = visits.filter((v) => v.bikeId === bike.id);
-  const parts = ensureParts(bike).map((p) => {
+  // v0.48.0: a job on a part the list does not show (the old two rotors) brings that part back.
+  const base = ensureParts(bike);
+  const have = new Set(base.map((p) => p.key));
+  const back = [...new Set(mine.flatMap((v) => (v.parts ?? []).map((l) => l.part)))].filter((k) => PART[k] && !have.has(k));
+  const all = [...base, ...back.map((key) => ({ key, model: '', history: [] }))];
+  const parts = all.map((p) => {
     const jobs = mine.flatMap((v) => (v.parts ?? []).filter((l) => l.part === p.key).map((l) => asEntry(v, l)));
     if (!jobs.length) return p;
     // Stable merge by date: the bike's own entries keep their order.
@@ -78,7 +83,7 @@ export function timeDue(bike, setup = { front: null, rear: null }, today = local
   const unknown = setup.front == null && setup.rear == null;
   return (bike.parts ?? [])
     .map(partInfo)
-    .filter((p) => p.everyDays && (!p.tubeless || anyTubeless || unknown))
+    .filter((p) => p.everyDays && fits(bike, p) && (!p.tubeless || anyTubeless || unknown))
     .map((p) => {
       const last = [...(p.history ?? [])].reverse().find((h) => h.action === 'service' || h.action === 'replace') ?? null;
       if (!last?.date) return { key: p.key, name: tr(p.due), every: p.everyDays, last: null, next: null, days: null, overdue: false, never: true };
@@ -146,7 +151,7 @@ export function lastPrice(visits, bikeId, key) {
 }
 
 /** Part keys that can hold a job, for the visit editor. */
-export const JOB_PARTS = [...PARTS.map((p) => ({ key: p.key, name: p.name })), { key: 'other', name: 'Other' }];
+export const JOB_PARTS = [...PARTS.filter((p) => !p.legacy).map((p) => ({ key: p.key, name: p.name })), { key: 'other', name: 'Other' }];
 
 /* ---------- workshop before a trip (v0.18.0, answers 9a and 10a) ---------- */
 
@@ -280,8 +285,9 @@ const PRICE_OF = {
 /** The jobs in German, for the message to the bike shop. */
 const DE = {
   fork: 'Gabel-Service', shock: 'Dämpfer-Service', tyres: 'Dichtmilch nachfüllen', check: '1000-km-Check (Bremsen, Kette, Reifen, Schrauben, Schaltung, Lager)',
-  chain: 'Kette', chainring: 'Kettenblatt', cassette: 'Kassette', padsF: 'Bremsbeläge vorne', padsR: 'Bremsbeläge hinten', rotorF: 'Bremsscheibe vorne', rotorR: 'Bremsscheibe hinten',
-  linkage: 'Hinterbau-Lager', saddle: 'Sattelhöhe', shifting: 'Schaltung', brakes: 'Bremsen', wheels: 'Laufräder', cockpit: 'Cockpit', bolts: 'Schrauben', bearings: 'Lager',
+  chain: 'Kette', chainring: 'Kettenblatt', cassette: 'Kassette', padsF: 'Bremsbeläge vorne', padsR: 'Bremsbeläge hinten', rotorF: 'Bremsscheibe vorne', rotorR: 'Bremsscheibe hinten', brakeF: 'Bremse vorne', brakeR: 'Bremse hinten', wheelF: 'Vorderrad', wheelR: 'Hinterrad',
+  frame: 'Rahmen', seatclamp: 'Sattelstützklemme', battery: 'Akku', shifter: 'Schalthebel', crank: 'Kurbel', bb: 'Innenlager', axles: 'Steckachsen', grips: 'Griffe', seatpost: 'Sattelstütze', charger: 'Ladegerät',
+  linkage: 'Hinterbau-Lager', saddle: 'Sattel', shifting: 'Schaltwerk', brakes: 'Bremsen', wheels: 'Laufräder', cockpit: 'Cockpit', bolts: 'Schrauben', bearings: 'Lager',
 };
 
 /**

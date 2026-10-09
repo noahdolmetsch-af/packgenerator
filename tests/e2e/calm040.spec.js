@@ -39,49 +39,40 @@ const shot = async (page, info, name, fullPage = false) => {
   if (process.env.V040_SHOTS) await page.screenshot({ path: `${process.env.V040_SHOTS}/${name}-${info.project.name}.png`, fullPage });
 };
 
-test('Inbox: one light button per note, the rest behind •••, a set bike shows as a neutral badge', async ({ page, context }, info) => {
+// v0.48.0: the Inbox is the «Eingang»: one light button «Ablegen» per entry, the app's suggestion
+// under the text, Delete behind •••; the targets are in the sheet (tests/e2e/v048.spec.js).
+test('Inbox: one light button per note, the rest behind •••, the suggestion under the text', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/inbox');
   await expect(page.getByRole('heading', { name: T('Inbox'), level: 1 })).toBeVisible();
-  await expect(page.locator('.page-sub')).toHaveText(T('{n} to sort', { n: 2 }));
-  const list = page.getByRole('list', { name: T('Notes, newest first') });
-  const note = list.locator('li.note').filter({ hasText: `${P} Bell rattles` });
-  // No badge until a bike or trip is set; one light button, no orange.
-  await expect(note.locator('.nbadge')).toHaveCount(0);
-  await expect(note.locator('.row-acts > .btn')).toHaveCount(1);
+  await expect(page.locator('.page-sub')).toContainText(T('{n} open', { n: 2 }));
+  const note = page.locator('li[data-note-id]').filter({ hasText: `${P} Bell rattles` });
+  await expect(note.locator('.acts > .btn')).toHaveCount(1);
+  await expect(note.locator('.acts > .btn')).toHaveText(T('File'));
   await expect(note.locator('.btn.hi')).toHaveCount(0);
-  // ••• → Bike or trip → the bike → a badge "Bike: …", stored on the note.
-  await note.getByLabel(T('More for this note: other places, bike or trip, delete')).click();
-  await note.getByRole('button', { name: T('Bike or trip'), exact: true }).click();
-  const ctx = note.getByRole('group', { name: T('Bike or trip for this note') });
-  await ctx.locator('select').first().selectOption(SPARK);
-  await expect(note.locator('.nbadge')).toHaveText(T('Bike: {name}', { name: SPARK_NAME }));
-  await expect.poll(async () => (await table(page, 'notes')).find((n) => n.id === `${P}n1`)?.bikeId).toBe(SPARK);
-  // The other note stays without a badge.
-  await expect(list.locator('li.note').filter({ hasText: `${P} New bottle cage?` }).locator('.nbadge')).toHaveCount(0);
+  await expect(note.locator('.sug')).toContainText(T('Suggestion: {what}', { what: T('Problem on a bike') }));
+  await note.getByLabel(T('More for this note')).click();
+  await expect(note.getByRole('button', { name: T('Delete'), exact: true })).toBeVisible();
   await noSideways(page);
   await shot(page, info, 'inbox');
   expect(errors).toEqual([]);
 });
 
-test('Past trips: one list with the debrief state, km right with their sum; Debrief links to it', async ({ page, context }, info) => {
+// v0.49.0 R1 (Noah 1b): Past trips became one table; the debrief state is a badge in the name cell.
+test('Past trips: one table with the debrief state and the km; Debrief links to it', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/pack/past');
   await expect(page.getByRole('heading', { name: T('Past trips'), level: 1 })).toBeVisible();
-  const done = page.getByRole('list', { name: new RegExp(`^${esc(T('Done|past'))}`) });
-  const herbst = done.locator('li').filter({ hasText: `${P} Herbstrunde` });
-  const sommer = done.locator('li').filter({ hasText: `${P} Sommertour` });
-  await expect(herbst.locator('.v')).toHaveText('140 km');
-  await expect(sommer.locator('.v')).toHaveText('210 km');
-  await expect(sommer).toContainText(T('{n} not needed', { n: 2 }));
-  // Done has no badge and no button; the head sums the km.
-  await expect(done.locator('.nbadge')).toHaveCount(0);
-  await expect(done.getByRole('button')).toHaveCount(0);
-  await expect(page.locator('#past-done .n')).toContainText('km');
-  // A row opens the debrief.
-  await expect(sommer.getByRole('link')).toHaveAttribute('href', `#/debrief/${P}sommer`);
-  // Compare and pace are rows to the debrief page.
-  await expect(page.getByRole('link', { name: new RegExp(esc(T('Trips compared'))) })).toHaveAttribute('href', '#/debrief/compare');
+  // the fixture's trips are older than 12 months on some machines' clocks: show all years
+  await page.getByRole('group', { name: T('Period') }).getByRole('button', { name: T('All|period') }).click();
+  const rows = page.locator('table.tt tbody tr');
+  const herbst = rows.filter({ hasText: `${P} Herbstrunde` });
+  const sommer = rows.filter({ hasText: `${P} Sommertour` });
+  await expect(herbst).toContainText('140');
+  await expect(sommer).toContainText('210');
+  // done rows have no badge; a row opens the debrief
+  await expect(sommer.locator('.nbadge')).toHaveCount(0);
+  await expect(sommer.getByRole('link').first()).toHaveAttribute('href', `#/debrief/${P}sommer`);
   await noSideways(page);
   await shot(page, info, 'vergangen');
 
@@ -182,9 +173,8 @@ test('Chain wear at the limit in Bike care: work needed, on the wishlist, Undo i
   const errors = await v038Start(page, context, info, expect);
   await page.goto(`./#/bikes?tab=care&bike=${SPARK}`);
   const spark = page.locator(`#care-${SPARK}`);
-  if (await spark.locator('.okfold[aria-expanded=false]').count()) await spark.locator('.okfold').click();
-  await spark.getByRole('button', { name: /^Kette/ }).first().click();
-  await spark.locator('li.pt.x').getByRole('button', { name: 'Erfassen …' }).click();
+  // v0.48.0: a row of the part table opens the part.
+  await spark.locator('button.prow').filter({ has: page.locator('.nm').getByText(T('Chain'), { exact: true }) }).click();
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Kette' }) });
   await dlg.getByLabel(new RegExp(`^${esc(T('Measured'))}`)).fill('0.6');
   await dlg.getByRole('button', { name: T('OK'), exact: true }).click();

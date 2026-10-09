@@ -284,7 +284,7 @@ test('Assign in the item dialog shows where the item is and puts it into a templ
   await page.getByRole('button', { name: /test_data_gtp_ Regenhose/ }).click();
   const item = page.getByRole('dialog', { name: 'test_data_gtp_ Regenhose' });
   // v0.32.0 (finding 5): its building blocks as pressed buttons, templates and the trip folded away.
-  // v0.54.0: the building blocks are a row that folds away too (closed at the start).
+  // v0.60.0: the building blocks are a row that folds away too (closed at the start).
   await item.locator('details.fold[data-fold="blocks"] > summary').click();
   const blocks = item.getByRole('group', { name: `${T('Comes along')} · ${T('Building blocks')}` });
   for (const name of ['test_data_gtp_ Regen', 'test_data_gtp_ Rain setup']) await expect(blocks.getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true');

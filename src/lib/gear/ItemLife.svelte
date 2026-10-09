@@ -6,7 +6,7 @@
    * the alternatives in your own gear, and the age and cost per use when a purchase day or a price
    * is known. Used in the item window and (compact) in the computer's detail column.
    *
-   * v0.54.0 «Material-Detail ruhig» (Noah 1a, 2a): in the detail column (folds) the parts fold away
+   * v0.60.0 «Material-Detail ruhig» (Noah 1a, 2a): in the detail column (folds) the parts fold away
    * as rows with a short summary, one open at a time. The weight part shows the lighter alternatives:
    * the ones you linked first («linked by you»), then at most two suggestions from your own gear
    * («Suggestion»), each with «Doesn't fit», which hides it for this item and can be undone.
@@ -21,7 +21,7 @@
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
   import { Route, Scale, Clock, Sparkles, ArrowLeftRight, ListChecks, ChevronRight } from '@lucide/svelte';
 
-  // folds (v0.54.0): the parts as rows that fold away (the detail column); line: a summary line under the numbers.
+  // folds (v0.60.0): the parts as rows that fold away (the detail column); line: a summary line under the numbers.
   let { item, items = [], stats, log = [], today, compact = false, folds = false, line = '' } = $props();
   // The year is open until you open or close a row; the rows draw their content only when open.
   let openFold = $state(folds ? lastFold('panel', 'y') : null);
@@ -32,7 +32,7 @@
     keepFold('panel', next);
   }
 
-  /* ---------- v0.54.0 (Noah 2a): lighter alternatives, linked and suggested ---------- */
+  /* ---------- v0.60.0 (Noah 2a): lighter alternatives, linked and suggested ---------- */
   const dismissedQ = liveQuery(() => db.settings.get(ALT_DISMISSED_KEY));
   const dismissed = $derived($dismissedQ?.value?.[item.id] ?? []);
   const lighter = $derived(lighterAlts(item, items, dismissed));
@@ -325,7 +325,7 @@
   .compact {
     gap: 10px;
   }
-  /* v0.54.0 (Noah 1a, 2a): the parts as rows that fold away, and the suggestions with «Doesn't fit». */
+  /* v0.60.0 (Noah 1a, 2a): the parts as rows that fold away, and the suggestions with «Doesn't fit». */
   .line {
     margin: 0;
     color: var(--ink-2);

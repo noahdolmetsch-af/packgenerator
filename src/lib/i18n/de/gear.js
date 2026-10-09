@@ -481,7 +481,7 @@ export default {
   'Below {t} °C always used, above never. From {n} trips.': 'Unter {t} °C immer gebraucht, darüber nie. Aus {n} Touren.',
   'Always used in the rain, never when dry. From {n} trip.': 'Bei Regen immer gebraucht, bei trockenem Wetter nie. Aus {n} Tour.',
   'Always used in the rain, never when dry. From {n} trips.': 'Bei Regen immer gebraucht, bei trockenem Wetter nie. Aus {n} Touren.',
-  // v0.54.0 «Material-Detail ruhig» (Noah 1a-3a)
+  // v0.60.0 «Material-Detail ruhig» (Noah 1a-3a)
   'History|item': 'Lebenslauf',
   'no block': 'kein Baustein',
   'from a list': 'aus einer Liste',

@@ -14,7 +14,7 @@ const tr = (lang) => (en, vars) => {
 };
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', import.meta.url)), 'utf8'));
-const day = (n = 0) => new Date(Date.now() + n * 864e5).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 
 function fixture(path) {
   const data = structuredClone(base);

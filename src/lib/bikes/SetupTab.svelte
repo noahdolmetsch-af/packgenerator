@@ -14,7 +14,7 @@
   import { db } from '../db.js';
   import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf } from '../bikes.js';
   import { formatWeight, parseGrams } from '../gear.js';
-  import { Briefcase, Plus, ChevronRight, Scale, Bike, Gauge, Camera, User } from '@lucide/svelte';
+  import { Briefcase, Plus, ChevronRight, Scale, Bike, Gauge, Camera, User, Columns3 } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
   import SetupDrawing from './SetupDrawing.svelte';
   import SetupFold from './SetupFold.svelte';
@@ -294,6 +294,9 @@
         <!-- v0.40.0 (design check): "Who works on it" only once there is something in it (WhoCard). -->
         <WhoCard bike={view} {visits} {tasks} year={today.slice(0, 4)} per={profile?.per} next={forShop} onorder={() => (orderOpen = true)} />
 
+        <!-- v0.48.0 (Noah): all bikes' parts, values and geometry side by side, two taps from Bikes. -->
+        <a class="cmplink" href={bikesHash({ tab: 'compare' })}><Columns3 class="ic" size={20} aria-hidden="true" /><span class="cl">{t('Compare bikes')}</span><span class="sum">{t('Parts, values, geometry')}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+
         <SetupFold icon={Bike} label={t('Bike details')} summary={`${weightWords} · ${tn((bike.fixtures ?? []).length, '{n} thing always mounted', '{n} things always mounted')}`}>
           <div class="details-in">
             <label class="wlabel">
@@ -472,6 +475,46 @@
 <style>
   .setup {
     min-width: 0;
+  }
+  /* v0.48.0: the link to «Compare bikes», drawn like a closed SetupFold row. */
+  .cmplink {
+    display: flex;
+    align-items: center;
+    gap: 4px 12px;
+    min-height: 56px;
+    margin: 0 0 8px;
+    padding: 8px 14px 8px 16px;
+    box-sizing: border-box;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .cmplink:visited {
+    color: var(--ink);
+  }
+  .cmplink:hover {
+    background: var(--paper-2);
+  }
+  .cmplink :global(.ic),
+  .cmplink :global(.chev) {
+    flex: none;
+    color: var(--ink-3);
+  }
+  .cmplink .cl {
+    flex: none;
+    margin: 0;
+    font-size: var(--fs-body);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .cmplink .sum {
+    flex: 1;
+    min-width: 0;
+    text-align: right;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .cols,
   .main,

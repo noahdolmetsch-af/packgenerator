@@ -131,7 +131,7 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   const weighGear = num(await page.locator('.gmenu button').filter({ hasText: T('Record weights') }).locator('.badge').textContent());
   expect(weighToday, `Today "Weigh" (${weighToday}) vs Gear "Record weights" (${weighGear})`).toBe(weighGear);
 
-  // Today's "Last 12 months" vs the Review page: the same number of trips and km
+  // Today's "Last 12 months" vs the Rückblick page (v0.49.0 R1: #/review leads to its part «Letzte 12 Monate»)
   await page.goto('./#/');
   await page.reload();
   const year = page.locator('[data-year-row] dl > div');
@@ -140,29 +140,26 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   const yKm = num((await year.nth(1).locator('dd').textContent()).replace(/[’'\s]/g, ''));
   await page.goto('./#/review');
   await page.reload();
-  const rv = page.locator('main li.r');
-  await expect(rv.first()).toBeVisible();
-  const rvVal = async (label) => num((await rv.filter({ has: page.locator('.k', { hasText: new RegExp(`^${esc(label)}$`) }) }).first().locator('.v').textContent()).replace(/[’'\s]/g, ''));
-  expect(await rvVal(T('trips|count')), 'Today "Last 12 months" trips = Review').toBe(yTrips);
-  expect(await rvVal(T('Distance')), 'Today "Last 12 months" km = Review').toBe(yKm);
+  const per = page.locator('main section.period');
+  await expect(per).toBeVisible();
+  const rvVal = async (label) => num((await per.getByRole('row').filter({ has: page.getByRole('rowheader', { name: label, exact: true }) }).locator('td').first().textContent()).replace(/[’'\s]/g, ''));
+  expect(await rvVal(T('Trips')), 'Today "Last 12 months" trips = Rückblick').toBe(yTrips);
+  expect(await rvVal(T('Distance')), 'Today "Last 12 months" km = Rückblick').toBe(yKm);
 
-  // Past trips: the open debriefs on the page = "n open" on Debrief
+  // Past trips: the open debriefs there = the open debriefs on the Rückblick page
+  const openOf = async () => {
+    const sub = (await page.locator('main .page-sub').first().textContent()) ?? '';
+    const om = sub.match(new RegExp(`(\\d+) (${esc(T('{n} debrief open', { n: '' }).trim())}|${esc(T('{n} debriefs open', { n: '' }).trim())})`));
+    return om ? Number(om[1]) : 0;
+  };
   await page.goto('./#/pack/past');
   await page.reload();
-  await expect(page.locator('main li a').filter({ hasText: 'test_data_gtp_' }).first()).toBeVisible();
-  // the rows with an open (or started) debrief: the badge with a dot ("Trips compared" has a plain one)
-  const openPast = await page.locator('main li a .nbadge .udot').count();
+  await expect(page.locator('main table.tt a').filter({ hasText: 'test_data_gtp_' }).first()).toBeVisible();
+  const openPast = await openOf();
   await page.goto('./#/debrief');
   await page.reload();
   // v0.47.0: read the line once the live data is in (it can show an earlier count for a moment)
-  let sub = '';
-  await expect
-    .poll(async () => {
-      sub = (await page.locator('main .page-sub').first().textContent()) ?? '';
-      const om = sub.match(new RegExp(`(\\d+) ${esc(T('{n} open', { n: '' }).trim())}`));
-      return om ? Number(om[1]) : 0;
-    }, { message: `Past trips (${openPast} open) vs Debrief` })
-    .toBe(openPast);
+  await expect.poll(openOf, { message: `Past trips (${openPast} open) vs Rückblick` }).toBe(openPast);
   info.annotations.push({ type: 'past', description: `year ${yTrips} trips ${yKm} km, ${openPast} open debriefs, weigh ${weighToday}` });
 
   // Inbox page

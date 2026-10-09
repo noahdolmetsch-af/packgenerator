@@ -140,7 +140,8 @@ for (const lang of ['en', 'de']) {
     await expect(page.locator('.saved-card').getByText(T('Debrief saved'))).toBeVisible();
     // v0.40.0 (Noah 3a): one list of past trips with the debrief state.
     await page.goto('./#/pack/past');
-    await expect(page.getByRole('list', { name: new RegExp(`^${esc(T('Done|past'))}`) }).getByText(title)).toBeVisible();
+    // v0.49.0 R1: one table of past trips.
+    await expect(page.locator('table.tt tbody tr').filter({ hasText: title })).toBeVisible();
 
     // 9. Gear: the area filter shows only weekend items.
     await page.goto('./#/gear');

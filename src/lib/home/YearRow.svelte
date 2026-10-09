@@ -36,7 +36,7 @@
       <div class="bars" role="img" aria-label={t('km per month, last 12 months')}>
         {#each bars as b (b.month)}<span class:now={b.now} style:height="{Math.max(b.pct, 3)}%" title="{monthName(b.month)}: {num(b.km)} km"></span>{/each}
       </div>
-      <a class="lnk" href="#/review">{t('Look back|function')} ›</a>
+      <a class="lnk" href="#/debrief">{t('Look back|function')} ›</a>
     </div>
     <div class="streak">
       <span class="k">{t('Series')}</span>

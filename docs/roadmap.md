@@ -564,7 +564,8 @@ Diese Reihenfolge gilt ab jetzt und ersetzt die offenen Punkte der Tabelle oben 
 | 2e | **0.47.1 Tagestour antippen** (erledigt) | Dauer, Datum, Wetter und Velo in der Tourkarte antippbar, keine «1 Tag · keine Übernachtung»-Doppelung, Wetter-Schnellwahl, Vorhersage ohne Rundung auf Vorgaben mit Quelle; «Mehr» mit Punkt, Inbox neueste zuerst und verlinkt, Velopflege: Probleme als eine flache Liste und neueste Arbeit zuerst; Wächter-Prüfungen | Menü als Ganzes weiter mit Übergänge Teil 1 |
 | 2f | **0.47.2 Material-Ansichten** (erledigt) | Sieben Ansichten mit Zahl, «Nie gebraucht» statt «Totes Gewicht», Karten · Liste mit Punkten pro Tour, Detailspalte am Computer, Sortieren und Filtern in einem Blatt, Teil mit «Sein Jahr auf Tour» | Antworten 6a–9a; Tabelle (D4) und Sparpotenzial folgen |
 | 2g | **0.47.3 Wetter-Chips und •••-Menüs** (erledigt) | «Kühl + Regen» bringt Kälte- und Regensachen (Chips setzen statt umschalten), •••-Menüs bleiben bei 320 und 390 px im Bild | |
-| 2h | **0.54.0 Material-Detail ruhig** (erledigt) | Teil-Fenster und Detailspalte: oben nur Name, Gewicht mit Status und eine Zeile «Kommt mit: …», alles andere als Klappzeilen mit Kurzinhalt (eine offen, Bausteine zu); leichtere Alternativen automatisch vorgeschlagen («Vorschlag», «Passt nicht» mit Rückgängig); leeres «Nie gebraucht» erklärt die Regel und zeigt «Auf dem Weg dahin» | |
+| 2g | **0.57.0 Pflege-Übersicht + Teile pro Velo + Eingang/Notizen** (erledigt) | Pflege-Übersicht C, Teiletabelle, geführtes Ersetzen/Warten, Startwerte; eine Teilevorlage mit Datenblatt und Geometrie, Import bikeSpecs, Velos vergleichen; Eingang mit «Ablegen als …» (7 Ziele, Rechnungsbeleg → Werkstattbesuch); Werkstatt & Belege; Notizen | Offen: Texterkennung aus Belegfoto, Bedienungsanleitungen unter Werkstatt, gemeinsamer Chip-Baustein |
+| 2h | **0.60.0 Material-Detail ruhig** (erledigt) | Teil-Fenster und Detailspalte: oben nur Name, Gewicht mit Status und eine Zeile «Kommt mit: …», alles andere als Klappzeilen mit Kurzinhalt (eine offen, Bausteine zu); leichtere Alternativen automatisch vorgeschlagen («Vorschlag», «Passt nicht» mit Rückgängig); leeres «Nie gebraucht» erklärt die Regel und zeigt «Auf dem Weg dahin» | |
 | 3 | **Gesamttest Runde 2** | Derselbe grosse erfundene Datensatz und dieselben Abläufe nach 0.46 | |
 | 4 | **0.47 Einkaufen, Lebenslauf, Werkstatt** | Eine Einkaufsliste für alles (eigene Läden, Monatsbudget); Lebenslauf pro Teil (Preis und Laden freiwillig, Kosten pro Einsatz, Archiv); Werkstatt-Anleitungen (allgemeine Drehmomente, Notfallkarten offline) | |
 | 5 | **0.48 Design und Bedienung aus der Strategierunde 2** | Umsetzung der Antworten | Wartet auf Noahs Antworten 62–119 |
@@ -607,6 +608,8 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.3 | 09.10.2026 | 0.47.1 «Tagestour antippen» erledigt (Noahs Test einer Tagestour, Inbox, Velopflege) |
 | 2.4 | 09.10.2026 | 0.47.2 «Material-Ansichten» erledigt |
 | 2.5 | 09.10.2026 | 0.47.3 Wetter-Chips im Fenster «Neue Tour» und •••-Menüs im Bild erledigt |
-| 2.6 | 09.10.2026 | 0.54.0 «Material-Detail ruhig» erledigt (Klappzeilen, Alternativen-Vorschläge, «Auf dem Weg dahin») |
+| 2.6 | 09.10.2026 | 0.56.0 R1 «Rückblick ruhig» erledigt (eine Rückblick-Seite, Vergangene Touren als Tabelle, Tour-Rückblick nach drei «A»); als Nächstes R2 Tempo und Logbuch |
+| 2.5 | 09.10.2026 | 0.57.0 «Pflege-Übersicht + Teile pro Velo + Eingang/Notizen» erledigt |
+| 2.6 | 09.10.2026 | 0.60.0 «Material-Detail ruhig» erledigt (Klappzeilen, Alternativen-Vorschläge, «Auf dem Weg dahin») |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

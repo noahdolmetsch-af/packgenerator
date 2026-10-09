@@ -24,11 +24,12 @@ export const MORE_GROUPS = [
     key: 'back',
     name: 'Look back',
     rows: [
-      { id: 'past', title: 'Past trips', href: '#/pack/past', icon: 'calendar', words: 'past trips vergangene touren finished vorbei archiv packing lists packlisten' },
-      // v0.44.0: the last 12 months, rolling (yearreview.js).
-      { id: 'review', title: 'Last 12 months', href: '#/review', icon: 'chart', words: 'last 12 months letzte 12 monate review rückblick jahr year jahresrückblick statistik statistics numbers zahlen' },
-      { id: 'debriefs', title: 'Debriefs and learnings', href: '#/debrief', icon: 'book', words: 'debriefs debrief learnings learning rückblick rückblicke lernen gelernt' },
-      { id: 'compare', title: 'Compare trips', href: '#/debrief/compare', icon: 'compare', words: 'compare vergleichen vergleich trend base weight basisgewicht' },
+      // v0.49.0 R1 (Noah 4a): one page «Rückblick» (the last ride, the 12 months, trips compared);
+      // «Letzte 12 Monate» and «Touren vergleichen» are parts of it, their words find it.
+      { id: 'debriefs', title: 'Look back|page', href: '#/debrief', icon: 'chart', words: 'look back rückblick rückblicke debriefs debrief last 12 months letzte 12 monate review jahr year jahresrückblick statistik statistics numbers zahlen compare vergleichen vergleich trend' },
+      { id: 'past', title: 'Past trips', href: '#/pack/past', icon: 'calendar', words: 'past trips vergangene touren finished vorbei archiv table tabelle' },
+      // one level below the Rückblick (R2 rebuilds them)
+      { id: 'learnings', title: 'Learnings', href: '#/debrief/learnings', icon: 'book', words: 'learnings learning lernen gelernt erkenntnisse' },
       { id: 'pace', title: 'Your pace', href: '#/debrief/pace', icon: 'gauge', words: 'pace tempo speed geschwindigkeit gpx riding time fahrzeit' },
     ],
   },
@@ -47,7 +48,9 @@ export const MORE_GROUPS = [
     rows: [
       // v0.51.0 «Im Flow» (Noah 11): from Today's card and from here, at most two taps.
       { id: 'flow', title: 'In the flow', href: '#/flow', icon: 'flow', words: 'in the flow im flow flow goals ziele sport training meditation yoga rings ringe daily check tagescheck stopwatch stoppuhr countdown habit gewohnheit' },
-      { id: 'inbox', title: 'Inbox', href: '#/inbox', icon: 'inbox', words: 'inbox eingang einordnen to sort zettel' },
+      { id: 'inbox', title: 'Inbox', href: '#/inbox', icon: 'inbox', words: 'inbox eingang einordnen ablegen abgelegt to sort file zettel beleg' },
+      // v0.48.0 (Noah 12a-17a): the Notes page (notes kept, topics, pinned, checklists).
+      { id: 'notes', title: 'Notes', href: '#/notes', icon: 'notes', words: 'notes notizen notiz merken checkliste checklist thema topics pinned angeheftet' },
       { id: 'data', title: 'Your data', action: 'data', icon: 'data', words: 'your data deine daten backup sicherung import export restore wiederherstellen' },
       { id: 'features', title: 'What the app can do', href: '#/features', icon: 'sparkles', words: 'what the app can do was die app kann features funktionen tips tipps updates neuerungen' },
     ],

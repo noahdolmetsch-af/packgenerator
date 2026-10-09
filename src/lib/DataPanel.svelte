@@ -10,6 +10,7 @@
   import { isDemoFile, startDemo, demoState } from './demo.js';
   import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
   import { isGearImportFile } from './gearimport.js';
+  import { isSpecsFile, specEntries, findBike, planSpecs, applySpecs } from './bikespecs.js';
   import { stageImport } from './gear/importdb.js';
   import { TEMPLATES_KEY, upsert } from './templates.js';
   import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, watchForChanges } from './folderBackup.js';
@@ -85,6 +86,18 @@
         message = '';
         return;
       }
+      // v0.48.0 (Noah): a bike's spec sheet (kind 'bikeSpecs') fills the bike whose name matches.
+      // Nothing filled is overwritten without a tick here.
+      if (isSpecsFile(data)) {
+        const bikes = await db.bikes.toArray();
+        const specs = specEntries(data).map((entry) => {
+          const bike = findBike(bikes, entry.bike);
+          return { entry, bike, plan: bike ? planSpecs(bike, entry) : null };
+        });
+        pending = { data, name: file.name, specs, allow: [] };
+        message = '';
+        return;
+      }
       // The favourites list (Noah, 4.10.2026) is no backup: it only adds stars and new items.
       if (isFavoritesFile(data)) {
         pending = { data, name: file.name, fav: planFavorites(data, await db.items.toArray()) };
@@ -140,6 +153,32 @@
       message = `${t('Nothing was changed.')} ${err.message}`;
     }
   }
+
+  /** v0.48.0: the spec sheet into the bikes; planned again against the bike as it is now. */
+  async function applySpecsFile() {
+    try {
+      const allow = new Set(pending.allow);
+      let n = 0;
+      await db.transaction('rw', db.bikes, async () => {
+        for (const s of pending.specs.filter((x) => x.bike)) {
+          const bike = await db.bikes.get(s.bike.id);
+          if (!bike) continue;
+          const plan = planSpecs(bike, s.entry);
+          n += plan.fills.length + plan.conflicts.filter((c) => allow.has(`${bike.id}|${c.id}`)).length;
+          const mine = new Set([...allow].filter((x) => x.startsWith(`${bike.id}|`)).map((x) => x.slice(bike.id.length + 1)));
+          await db.bikes.update(bike.id, applySpecs(bike, plan, mine));
+        }
+      });
+      message = tn(n, 'Spec sheet imported: {n} value.', 'Spec sheet imported: {n} values.');
+      pending = null;
+    } catch (err) {
+      message = `${t('Import failed, nothing was changed.')} ${err.message}`;
+    }
+  }
+  function toggleAllow(id, on) {
+    pending = { ...pending, allow: on ? [...pending.allow, id] : pending.allow.filter((x) => x !== id) };
+  }
+  const shownValue = (v) => (v == null || v === '' ? '–' : String(v));
 
   async function applyImport(mode) {
     try {
@@ -205,6 +244,31 @@
         <button type="button" onclick={() => (pending = null)}>{t('Later')}</button>
       </div>
       <p class="small">{t('The list waits under Gear → ••• → Check import.')}</p>
+    </div>
+  {:else if pending?.specs}
+    <!-- v0.48.0 (Noah): a bike's spec sheet. Empty fields are filled; a field with another value only with a tick. -->
+    <div class="confirm" role="dialog" aria-label={t('Import spec sheet')}>
+      {#each pending.specs as s, i (i)}
+        {#if !s.bike}
+          <p><strong>{s.entry.bike || '–'}</strong>: {t('no bike with this name. Nothing is changed for it.')}</p>
+        {:else}
+          <p><strong>{s.bike.name}</strong>: {t('{fills} empty fields get a value, {same} are the same already.', { fills: s.plan.fills.length, same: s.plan.same })}{#if s.plan.added.length} {t('New own parts: {names}.', { names: s.plan.added.join(', ') })}{/if}</p>
+          {#if s.plan.conflicts.length}
+            <p class="small">{t('These fields already have another value. Tick the ones the file may overwrite:')}</p>
+            <ul class="specc">
+              {#each s.plan.conflicts as c (c.id)}
+                {@const id = `${s.bike.id}|${c.id}`}
+                <li><label><input type="checkbox" checked={pending.allow.includes(id)} onchange={(e) => toggleAllow(id, e.currentTarget.checked)} /> <span><b>{c.target === 'geo' ? t('Geometry') : c.label}</b> · {shownValue(c.old)} → {shownValue(c.value)}</span></label></li>
+              {/each}
+            </ul>
+          {/if}
+          {#if s.plan.unknown.length}<p class="small">{t('Not known, left out: {names}.', { names: s.plan.unknown.join(', ') })}</p>{/if}
+        {/if}
+      {/each}
+      <div class="row">
+        <button type="button" class="hi" onclick={applySpecsFile} disabled={!pending.specs.some((x) => x.bike)}>{t('Import spec sheet')}</button>
+        <button type="button" onclick={() => (pending = null)}>{t('Cancel')}</button>
+      </div>
     </div>
   {:else if pending?.fav}
     <div class="confirm" role="dialog" aria-label={t('Apply favourites')}>
@@ -394,6 +458,24 @@
   }
   .impact li + li {
     margin-top: 4px;
+  }
+  .specc {
+    list-style: none;
+    margin: 6px 0 12px;
+    padding: 0;
+  }
+  .specc label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .specc input {
+    width: 20px;
+    height: 20px;
+    flex: none;
   }
   .small {
     font-size: 14px;

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { comesLine, blockNames, ruleNames, placeName, weightState, lifeLine, nextFold } from '../src/lib/gear/detail.js';
 import { lighterAlts, lighterAlt, onTheWay, materialStats, AUTO_ALTS } from '../src/lib/gear/material.js';
 
-// v0.54.0 «Material-Detail ruhig» (Noah 1a-3a). Fictional data only.
+// v0.60.0 «Material-Detail ruhig» (Noah 1a-3a). Fictional data only.
 const blocks = [
   { key: 'light', name: 'Light', builtIn: true },
   { key: 'warm', name: 'Night: Warm', builtIn: true },

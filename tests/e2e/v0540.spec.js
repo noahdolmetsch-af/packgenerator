@@ -1,4 +1,4 @@
-// v0.54.0 «Material-Detail ruhig» (Noah 1a-3a): the item window shows the name, the weight with its
+// v0.60.0 «Material-Detail ruhig» (Noah 1a-3a): the item window shows the name, the weight with its
 // status and one summary line; every other part is a row that folds away, one open at a time (the
 // building blocks folded too). Lighter alternatives: linked first, then suggestions with «Passt
 // nicht» and Undo. An empty «Nie gebraucht» says its rule and shows «Auf dem Weg dahin».

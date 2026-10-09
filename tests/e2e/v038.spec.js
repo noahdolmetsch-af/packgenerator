@@ -60,7 +60,7 @@ test('More: top right with the Inbox count, grouped, language; the search finds 
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/');
   const more = page.locator('.more-btn');
-  await expect(more).toHaveAttribute('aria-label', 'Mehr, Inbox: 2 zum Einordnen');
+  await expect(more).toHaveAttribute('aria-label', 'Mehr, Eingang: 2 zum Ablegen');
   // v0.47.1 (Noah): only a dot on the button, no number (the count stays in the label).
   await expect(more.locator('.mdot')).toBeVisible();
   await expect(more).not.toContainText('2');
@@ -70,7 +70,7 @@ test('More: top right with the Inbox count, grouped, language; the search finds 
   const sheet = page.locator('dialog.more');
   await expect(sheet).toBeVisible();
   for (const g of ['Planen', 'Rückblick', 'Material', 'App']) await expect(sheet.getByRole('heading', { name: g, exact: true })).toBeVisible();
-  await expect(sheet.getByRole('link', { name: /Inbox/ })).toContainText('2');
+  await expect(sheet.getByRole('link', { name: /Eingang/ })).toContainText('2');
   await noSideways(page);
   await shot(page, info, 'mehr');
   await sheet.getByRole('link', { name: 'Vergangene Touren' }).click();
@@ -84,9 +84,10 @@ test('More: top right with the Inbox count, grouped, language; the search finds 
   await page.keyboard.press('Escape');
 
   // The search finds pages and actions ("vorl" → Templates).
-  const field = page.getByRole('searchbox');
+  // v0.49.0: Past trips has its own search; this is the app search.
+  const field = page.getByRole('searchbox', { name: /^What do you want to do/ });
   if (!(await field.isVisible())) await page.getByRole('button', { name: 'Search everything' }).click();
-  await page.getByRole('searchbox').fill('templ');
+  await field.fill('templ');
   const res = page.getByRole('region', { name: 'Search results' });
   await expect(res.getByRole('button', { name: /^Templates/ })).toBeVisible();
   await res.getByRole('button', { name: /^Templates/ }).click();
@@ -178,26 +179,22 @@ test('Bike care: one list, due first, "n ok" folded with the names, tyres inside
   await expect(rows.first()).toBeVisible();
   // Overdue on top.
   await expect(rows.first().locator('.st')).toHaveText('überfällig');
-  // The rest folded: "n ok" with the names.
-  const fold = spark.locator('.okfold');
-  await expect(fold).toHaveText(/\d+ ok/);
-  await expect(fold).toContainText('Kette');
-  await expect(fold).toHaveAttribute('aria-expanded', 'false');
-  await expect(rows.filter({ has: page.getByRole('button', { name: /^Kette/ }) })).toHaveCount(0);
-  await fold.click();
-  await expect(rows.filter({ has: page.getByRole('button', { name: /^Kette/ }) })).toHaveCount(1);
-  // Tubeless or tube sits inside the expanded tyre row.
-  const tyreGroup = spark.getByRole('group', { name: 'Vorne: Schlauch oder tubeless' });
-  await expect(tyreGroup).toHaveCount(0);
-  await spark.getByRole('button', { name: /^Reifen \+ Dichtmilch/ }).click();
-  await expect(tyreGroup.getByRole('button', { name: 'Tubeless' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(spark.getByRole('button', { name: 'Erfassen …' })).toBeVisible();
+  // v0.48.0 «Teile pro Velo»: the rest is the part table by area (no «n ok» fold any more).
+  const prow = (name) => spark.locator('button.prow').filter({ has: page.locator('.nm').getByText(name, { exact: true }) });
+  await expect(spark.locator('.okfold')).toHaveCount(0);
+  await expect(prow('Kette')).toHaveCount(1);
+  // Tubeless or tube sits inside the tyre part (its dialog).
+  await prow('Reifen + Dichtmilch').click();
+  const tyre = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: /^Reifen/ }) });
+  await expect(tyre.getByRole('group', { name: 'Vorne: Schlauch oder tubeless' }).getByRole('button', { name: 'Tubeless' })).toHaveAttribute('aria-pressed', 'true');
+  await page.keyboard.press('Escape');
+  await expect(tyre).toBeHidden();
   // The filter: one segmented toggle.
   const seg = page.getByRole('group', { name: 'Teile zeigen' });
   for (const name of ['Alle', 'Fällig', 'von mir', 'Velomech']) await expect(seg.getByRole('button', { name, exact: true })).toBeVisible();
   // Phone: compact rows; computer: a table with the column heads once.
-  if (info.project.name === 'desktop') await expect(spark.locator('.th')).toBeVisible();
-  else await expect(spark.locator('.th')).toBeHidden();
+  if (info.project.name === 'desktop') await expect(spark.locator('.ptable .cols')).toBeVisible();
+  else await expect(spark.locator('.ptable .cols')).toBeHidden();
   await noSideways(page);
   await shot(page, info, 'pflege', true);
   await seg.getByRole('button', { name: 'Fällig', exact: true }).click();

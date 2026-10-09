@@ -33,7 +33,7 @@ const id = (key) => P + key;
 const BIKE = { scale: `${P}scale`, spark: `${P}spark`, gravel: `${P}gravel` };
 
 /** YYYY-MM-DD in Zurich, n days from today. */
-const day = (n = 0) => new Date(Date.now() + n * 864e5).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 
 /** Items that only belong to night sets: on a day ride each of them is one to take out by hand. */
 const NIGHT_SETS = ['base', 'sleep', 'warm', 'cook', 'lodging'];
@@ -561,7 +561,7 @@ test('PF09: category of an item linked to a trip, a template, a block and a lear
   await page.getByRole('searchbox', { name: T('Search gear') }).fill(nm('KL05'));
   await rec.click(page.getByRole('button', { name: new RegExp(esc(nm('KL05'))) }).first());
   const dlg = page.getByRole('dialog', { name: new RegExp(esc(nm('KL05'))) });
-  // v0.54.0: the category sits in the row «Name, brand, note», which folds away (one tap more)
+  // v0.60.0: the category sits in the row «Name, brand, note», which folds away (one tap more)
   await rec.click(dlg.locator('details.fold[data-fold="details"] > summary'));
   await rec.select(dlg.getByLabel(new RegExp(`^${esc(T('Category'))}`)), 'onbike');
   await rec.click(dlg.getByRole('button', { name: T('Save') }));

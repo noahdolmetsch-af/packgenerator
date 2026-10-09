@@ -183,7 +183,7 @@ export function lighterAlt(item, items = []) {
 }
 
 /**
- * v0.54.0 (Noah 2a): the setting with the suggestions you turned down: { [itemId]: [otherId, …] }.
+ * v0.60.0 (Noah 2a): the setting with the suggestions you turned down: { [itemId]: [otherId, …] }.
  * «Passt nicht» adds one, Undo takes it out again.
  */
 export const ALT_DISMISSED_KEY = 'altDismissed';
@@ -205,7 +205,7 @@ function sameKind(a, b) {
 }
 
 /**
- * v0.54.0 (Noah 2a): the lighter alternatives of an item. First the ones you linked («can be taken
+ * v0.60.0 (Noah 2a): the lighter alternatives of an item. First the ones you linked («can be taken
  * instead of», manual: true), then at most AUTO_ALTS suggestions (auto: true): owned and weighed,
  * of the same category (clothing: the same zone and layer), lighter but at least AUTO_MIN_SHARE of
  * its weight, not turned down for this item (dismissed: the ids). The suggestions closest in weight first: they are most often the same
@@ -226,7 +226,7 @@ export function lighterAlts(item, items = [], dismissed = []) {
 }
 
 /**
- * v0.54.0 (Noah 3a): «Auf dem Weg dahin» under an empty «Nie gebraucht»: owned items taken 1 or 2
+ * v0.60.0 (Noah 3a): «Auf dem Weg dahin» under an empty «Nie gebraucht»: owned items taken 1 or 2
  * times (fewer than NEVER_AFTER) on reviewed trips and never used, most often along first.
  * Returns [{ item, taken }].
  */

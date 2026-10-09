@@ -25,6 +25,8 @@ import wardrobe from './wardrobe.js';
 import weigh from './weigh.js';
 import review from './review.js';
 import home from './home.js';
+import rueckblick from './rueckblick.js';
+import pflege from './pflege.js';
 import flow from './flow.js';
 
-export default { ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review };
+export default { ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...pflege };

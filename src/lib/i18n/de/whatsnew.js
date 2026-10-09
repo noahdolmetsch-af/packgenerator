@@ -8,7 +8,7 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.54.0
+  // 0.60.0
   'An item opens short: its name, its weight and one line on how it comes along. Everything else is a row that opens with one tap, one at a time.':
     'Ein Teil öffnet kurz: Name, Gewicht und eine Zeile, wie es mitkommt. Alles andere ist eine Zeile, die sich mit einem Tipp öffnet, immer nur eine.',
   'Lighter alternatives from your own gear: the one you linked first, then up to two suggestions. "Doesn\'t fit" hides one, with Undo.':
@@ -16,6 +16,22 @@ export default {
   '"Never used" explains its rule when it is empty and shows what is on the way there: taken once or twice and never used.':
     '«Nie gebraucht» erklärt leer seine Regel und zeigt, was auf dem Weg dahin ist: ein- oder zweimal dabei und nie gebraucht.',
 
+  // 0.48.0
+  'Bike care starts with an overview: a ring per bike, at most three cards for what is due, all problems in one list. Replacing or servicing a part is a short guided flow.':
+    'Die Velopflege beginnt mit einer Übersicht: ein Ring pro Velo, höchstens drei Karten für Fälliges, alle Probleme in einer Liste. Ein Teil ersetzen oder warten ist ein kurzer geführter Ablauf.',
+  'Every bike has the same part list with a spec sheet and its geometry. "Compare bikes" puts them side by side; an empty cell is filled with one tap.':
+    'Jedes Velo hat dieselbe Teileliste mit Datenblatt und Geometrie. «Velos vergleichen» stellt sie nebeneinander; ein leeres Feld füllst du mit einem Tipp.',
+  'The Inbox is now "Eingang": grouped by day, one button "File" with seven targets. A receipt photo becomes a workshop visit, found under Bikes → Workshop.':
+    'Die Inbox heisst jetzt «Eingang»: nach Tagen gruppiert, ein Knopf «Ablegen» mit sieben Zielen. Ein Foto einer Rechnung wird ein Werkstattbesuch, zu finden unter Velos → Werkstatt.',
+  'New page Notes: write, dictate, add a photo, a link or a checklist; topics, pinned notes and "Turn the note into …" a trip idea, a wish or a problem.':
+    'Neue Seite Notizen: schreiben, diktieren, Foto, Link oder Checkliste anhängen; Themen, angeheftete Notizen und «Aus Notiz wird …» eine Tour-Idee, ein Wunsch oder ein Problem.',
+  // 0.49.0
+  'One page "Look back" instead of five: your last ride, the last 12 months with the year before, average and best, and your trips compared in 7 small charts and a table.':
+    'Eine Seite «Rückblick» statt fünf: deine letzte Fahrt, die letzten 12 Monate mit Vorjahr, Durchschnitt und Bestwert, und deine Touren im Vergleich in 7 kleinen Diagrammen und einer Tabelle.',
+  'Past trips is one table, on the phone too: km, Hm, time, rain, temperature, bike and one learning per trip. The name stays put while the other columns scroll; period, "Kind" and a search that finds learnings.':
+    '«Vergangene Touren» ist eine Tabelle, auch auf dem Handy: km, Hm, Zeit, Regen, Temperatur, Velo und ein Learning pro Tour. Der Name bleibt stehen, die anderen Spalten scrollen; Zeitraum, «Art» und eine Suche, die auch Learnings findet.',
+  "A trip's saved debrief now tells what the trip was: numbers and weather per day, plan against real, what you can leave at home, learnings and what it means for the next trip.":
+    'Der gespeicherte Rückblick einer Tour erzählt jetzt, wie die Tour war: Zahlen und Wetter pro Tag, Plan gegen Wirklichkeit, was zuhause bleiben kann, Learnings und was das für die nächste Tour heisst.',
   // 0.51.0
   "Tap a button on Today or on In the flow to tick an activity: one tap with Undo, tap again to take it back. A long press picks the place (Yoga studio or at home), the amount or the duration.":
     "Ein Tipp auf Heute oder in Im Flow hakt eine Aktivität ab, mit Rückgängig; nochmals tippen nimmt es zurück. Lange drücken wählt Ort (Yoga Studio oder Zuhause), Menge oder Dauer.",
