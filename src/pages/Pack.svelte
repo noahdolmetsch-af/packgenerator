@@ -709,7 +709,9 @@
 
 {#if !trips.length && $tripsQ}
   <h1 class="title big">{t('Pack')}</h1><p>{t('No trips yet. Import your data on the')} <a href="#/">{t('start page')}</a>{t(', or')} <button class="btn hi" onclick={() => dialog = { trip: null }}>{t('Create a trip')}</button></p>
-{:else if trip && stats}
+<!-- v0.52.0: the list waits for the gear too. Without it a worn jersey is not known as clothing for a
+     moment: the bag «On me» flashed up and went again when the card «On me» took the clothes (CI abnahme044). -->
+{:else if trip && stats && $itemsQ}
     {#snippet layers()}
       <p class="hint">{t('Review suggestions before adding them to your packing list.')}</p>
       <div class="ride" role="group" aria-label={t('Kind of ride')}>
