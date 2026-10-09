@@ -125,12 +125,12 @@
     <p class="kick"><Gauge size={16} aria-hidden="true" />{pace.mine ? tn(pace.n, 'Your rule · from {n} ride', 'Your rule · from {n} rides') : pace.standard && !pace.need ? t('Standard rule · chosen by you') : t('Standard rule')}</p>
     <h2 id="rule-h" class="sentence">
       {#if rule}
-        {t('You ride {kmh} km/h on average and need 1 h per {m} m of climbing.', { kmh: num(rule.kmh), m: num(rule.climbMh) })}
+        {t('On the flat you ride {kmh} km/h and need 1 h per {m} m of climbing.', { kmh: num(rule.kmh), m: num(rule.climbMh) })}
       {:else}
         {t('The riding time is guessed with {kmh} km/h and 1 h per {m} m of climbing.', { kmh: num(std.kmh), m: num(std.climbMh) })}
       {/if}
     </h2>
-    {#if rule && overall != null}<p class="flat muted">{t('{kmh} km/h on the flat, the climbing gets its own time: with the climbing your rides average {avg} km/h.', { kmh: num(rule.kmh), avg: n1(overall) })}</p>{/if}
+    {#if rule && overall != null}<p class="flat muted">{t('The climbing gets its own time: with the climbing your rides average {avg} km/h.', { avg: n1(overall) })}</p>{/if}
     {#if loaded}
       <div class="state" role="status">
         {#if pace.mine}

@@ -70,9 +70,10 @@ test('a) Dein Tempo: one sentence, your rule from the 5th ride, one tap back', a
   const main = page.locator('main');
   await expect(main.getByRole('heading', { level: 1, name: 'Dein Tempo' })).toBeVisible();
   const rule = main.locator('section.rule');
-  await expect(rule.getByRole('heading', { level: 2 })).toHaveText(/^Du fährst im Schnitt [\d.]+ km\/h und brauchst 1 h pro [\d’']+ Hm\.$/);
+  await expect(rule.getByRole('heading', { level: 2 })).toHaveText(/^Im Flachen fährst du [\d.]+ km\/h und brauchst 1 h pro [\d’']+ Hm\.$/);
   // 4 rides: still the standard, 1 is missing
   await expect(rule).toContainText('Standardregel');
+  await expect(rule).toContainText(/Die Höhenmeter bekommen ihre eigene Zeit: mit den Höhenmetern fahren deine Fahrten im Schnitt [\d.]+ km\/h\./);
   await expect(rule.getByRole('status')).toContainText('Noch 1 Fahrt, dann übernimmt deine Regel die Fahrzeit.');
   await expect(main.locator('.mini')).toHaveCount(3);
   await shot(page, info, 'tempo-4');
