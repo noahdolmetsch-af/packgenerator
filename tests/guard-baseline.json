@@ -75,9 +75,6 @@
     "src/lib/care/VisitDialog.svelte": {
       "fontsize": 6
     },
-    "src/lib/debrief/Pace.svelte": {
-      "fontsize": 1
-    },
     "src/lib/debrief/TemplateOffer.svelte": {
       "fontsize": 2
     },
@@ -260,7 +257,7 @@
     },
     "src/pages/Debrief.svelte": {
       "colour": 1,
-      "fontsize": 13,
+      "fontsize": 8,
       "global": 1
     },
     "src/pages/Favorites.svelte": {

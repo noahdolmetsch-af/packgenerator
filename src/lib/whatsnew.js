@@ -19,6 +19,16 @@ export const WHATS_NEW = [
     ],
   },
   {
+    version: '0.61.0',
+    date: '2026-10-09',
+    points: [
+      { text: '"Your pace" says your rule in one sentence. From 5 rides it guesses the riding time everywhere by itself, and "Back to the standard rule" undoes that with one tap.', href: '#/debrief/pace' },
+      { text: 'Under the sentence, three small charts: your speed per ride, from flat to hilly, and the climbing per km, for 12 months or all.', href: '#/debrief/pace' },
+      { text: 'The logbook is a diary of all your trips, newest first: km, Hm, time, weather and your notes, with a filter by year and kind of trip. A tap opens the trip.', href: '#/debrief/logbook' },
+      { text: '"Learned" lists every learning by topic, nothing folded away.', href: '#/debrief/learnings' },
+    ],
+  },
+  {
     version: '0.59.0',
     date: '2026-10-09',
     points: [
