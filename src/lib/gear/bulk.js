@@ -4,7 +4,7 @@
  * which `undoBulk` writes back ("Undo"). The new records come from the pure helpers in gear.js.
  */
 import { bulkDelete } from '../gear.js';
-import { TEMPLATES_KEY } from '../templates.js';
+import { TEMPLATES_KEY, saveTemplates } from '../templates.js';
 import { SETS_KEY } from '../sets.js';
 
 /** Save changed item records (category or ownership). Returns the undo snapshot. */
@@ -43,7 +43,7 @@ export async function deleteItems(db, ids) {
     const changedIds = new Set(plan.trips.map((t) => t.id));
     await db.items.bulkDelete(ids);
     if (plan.trips.length) await db.trips.bulkPut(plan.trips);
-    if (plan.templates) await db.settings.put({ ...setting, key: TEMPLATES_KEY, value: plan.templates });
+    if (plan.templates) await saveTemplates(db, plan.templates); // v0.39.0: linked templates drop them from their extras
     return {
       items,
       trips: tripsBefore.filter((t) => changedIds.has(t.id)),

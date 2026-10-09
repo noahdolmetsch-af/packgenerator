@@ -8,7 +8,7 @@
  */
 
 import { freshReady, slotFor, ALWAYS_OLD } from './trips.js';
-import { loadTemplates, saveTemplates, templateFrom, TEMPLATES_KEY } from './templates.js';
+import { loadTemplates, saveTemplates, templateFrom, TEMPLATES_KEY, linkTemplate, isLinked } from './templates.js';
 import { templateSlot } from './gear/assign.js';
 import { SETS_KEY, addSet, allSets } from './sets.js';
 import { isInventory } from './gear.js';
@@ -427,7 +427,36 @@ export async function blocksAfterImport(db, data, mode = 'replace') {
   return true;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, blocks2026];
+/**
+ * v0.39.0 (AP28, Noah 2a): templates linked to their building blocks. Every template without the new
+ * fields gets them once, with EXACTLY the same content (templates.js linkTemplate: blocks from
+ * tpl.blocks, block items it does not have as "without", the rest as extras, other places and
+ * amounts as slots and qty, domain bikepacking, createdAt = updatedAt). entries stays as it is (the
+ * snapshot for older versions). One transaction, a marker; it runs again only for templates that
+ * are still unlinked (an old backup, the favourites list), so a second run changes nothing.
+ * Returns the IDs of the linked templates.
+ */
+export const LINKED_MARKER = 'update.templatesLinked2026';
+export async function templatesLinked2026(db) {
+  let done = [];
+  await db.transaction('rw', db.items, db.settings, async () => {
+    const rec = await db.settings.get(TEMPLATES_KEY);
+    const list = rec?.value ?? [];
+    const marker = await db.settings.get(LINKED_MARKER);
+    if (marker && list.every(isLinked)) return;
+    if (list.some((x) => !isLinked(x))) {
+      const items = await db.items.toArray();
+      const sets = (await db.settings.get(SETS_KEY))?.value ?? [];
+      const out = list.map((x) => linkTemplate(x, items, sets));
+      done = out.filter((x, n) => x !== list[n]).map((x) => x.id);
+      await db.settings.put({ ...(rec ?? {}), key: TEMPLATES_KEY, value: out });
+    }
+    if (!marker) await db.settings.put({ key: LINKED_MARKER, value: now() });
+  });
+  return done;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, blocks2026, templatesLinked2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

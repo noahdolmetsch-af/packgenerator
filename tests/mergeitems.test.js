@@ -48,6 +48,16 @@ const state = () => structuredClone({ items: ITEMS, trips: TRIPS, debriefs: DEBR
 const opts = { now: NOW, today: TODAY };
 
 describe('merge plan (pure)', () => {
+  it('a linked template: single items, places and amounts move to the new item; the order stays', () => {
+    const st = state();
+    st.templates = [{ ...st.templates[0], blocks: [], without: {}, extras: [{ itemId: 'OB01', qty: 1 }, { itemId: 'FO01', qty: 3 }, { itemId: 'FO10', qty: 1 }], slots: { OB01: 'mounted' }, qty: {} }];
+    const p = mergePlan(st, 'OB01', ['EL20'], opts);
+    const tpl = p.templates[0];
+    expect(tpl.extras.map((x) => x.itemId)).toEqual(['EL20', 'FO01', 'FO10']);
+    expect(tpl.slots).toEqual({ EL20: 'mounted' });
+    expect(tpl.entries[0]).toEqual({ itemId: 'EL20', slot: 'mounted', qty: 1 });
+  });
+
   it('a double: templates, building blocks, bike fixtures, learnings, other items and open trips point to the target', () => {
     const p = mergePlan(state(), 'OB01', ['EL20'], opts);
     expect(p.targets).toEqual(['EL20']);

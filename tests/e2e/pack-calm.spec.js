@@ -202,18 +202,18 @@ test('Add material with tick boxes adds 3 items in one go', async ({ page, conte
   await expect(page.evaluate(() => document.documentElement.scrollWidth)).resolves.toBeLessThanOrEqual(page.viewportSize().width);
 });
 
-test('a template takes several ticked items in one write', async ({ page, context }, info) => {
+test('a template takes several single items from the picker', async ({ page, context }, info) => {
+  // v0.39.0 (AP28): the template page adds single items with "+ Item" (search, categories, one + each).
   const T = tr('de');
   await start(page, context, info, 'de');
   await page.goto('./#/pack/templates/tpl-gtp');
-  await expect(page.getByLabel(T('Template name'))).toHaveValue('test_data_gtp_ Vorlage');
-  await page.getByLabel(T('Place that + adds to')).selectOption('seat');
-  await page.locator('.np .gh', { hasText: T('Cooking') }).click();
-  await page.getByRole('button', { name: T('Select all: {group}', { group: T('Cooking') }) }).click();
-  await page.locator('.np .gh', { hasText: T('Sleep') }).click();
-  await page.getByRole('checkbox', { name: 'Sleeping bag' }).check();
-  await page.getByRole('button', { name: T('Add {n} items to {bag}', { n: 3, bag: 'Test Satteltasche' }) }).click();
-  await expect(page.locator('.np .pick-bar')).toHaveCount(0);
+  await expect(page.getByRole('heading', { level: 1, name: 'test_data_gtp_ Vorlage' })).toBeVisible();
+  await page.getByRole('button', { name: T('Item'), exact: true }).click();
+  await page.locator('.picker .cat', { hasText: T('Cooking') }).click();
+  await page.getByRole('button', { name: T('Add {name}', { name: 'test_data_gtp_ Löffel' }) }).click();
+  await page.getByRole('button', { name: T('Add {name}', { name: 'test_data_gtp_ Tasse' }) }).click();
+  await page.getByLabel(T('Search an item')).fill('Sleeping');
+  await page.getByRole('button', { name: T('Add {name}', { name: 'Sleeping bag' }) }).click();
   const tpl = async () => page.evaluate(() => new Promise((ok) => {
     const r = indexedDB.open('pack-generator');
     r.onsuccess = () => {
@@ -221,11 +221,9 @@ test('a template takes several ticked items in one write', async ({ page, contex
       q.onsuccess = () => { r.result.close(); ok(q.result.value[0]); };
     };
   }));
-  await expect.poll(async () => (await tpl()).entries.length).toBe(4);
-  expect((await tpl()).entries.slice(1)).toEqual([
-    { itemId: 'CK90', slot: 'seat', qty: 1 },
-    { itemId: 'CK91', slot: 'seat', qty: 1 },
-    { itemId: 'SL01', slot: 'seat', qty: 1 },
-  ]);
+  await expect.poll(async () => (await tpl()).entries.map((e) => e.itemId).sort()).toEqual(['CK90', 'CK91', 'SL01', 'TO01']);
+  const saved = await tpl();
+  expect(saved.extras.map((e) => e.itemId)).toEqual(expect.arrayContaining(['CK90', 'CK91', 'SL01']));
+  expect(saved.entries.every((e) => e.qty === 1)).toBe(true);
   await expect(page.evaluate(() => document.documentElement.scrollWidth)).resolves.toBeLessThanOrEqual(page.viewportSize().width);
 });

@@ -94,6 +94,10 @@ test('a template hint with its source, "Not now" into the History, the Home card
   await expect(card).toContainText(T('{n} suggestion for your templates', { n: 1 }));
   await card.getByRole('link', { name: T('Look at them') }).click();
   await expect(page).toHaveURL(/#\/pack\/templates$/);
+  // v0.39.0 (AP28): the list shows a quiet badge; the suggestions sit on the template's page under "More".
+  await expect(page.locator('[data-tpl="tpl-test_data_gtp_"]')).toContainText(T('{n} suggestion', { n: 1 }));
+  await page.locator('[data-tpl="tpl-test_data_gtp_"] a.main').click();
+  await page.getByRole('button', { name: new RegExp(T('From your debriefs')) }).click();
 
   const row = page.locator('[data-hint="out:AP01"]');
   await expect(row).toContainText(T('Take {name} out of the template?', { name: 'test_data_gtp_ Daunenjacke' }));
@@ -118,7 +122,7 @@ test('a template hint with its source, "Not now" into the History, the Home card
   await expect(hist).toContainText('test_data_gtp_ Napf, test_data_gtp_ Emmental, test_data_gtp_ Jura');
   await noSideScroll(page);
   // the template keeps its items
-  await expect(page.locator('.card').first()).toContainText(T('{n} items', { n: 2 }));
+  await expect(page.locator('.dmeta')).toContainText(T('{n} items', { n: 2 }));
 
   // Home: no more card
   await page.goto('./#/');

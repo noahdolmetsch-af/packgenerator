@@ -171,10 +171,11 @@ export function dayRidePlan(trips = [], bikes = [], { now = new Date(), forecast
  * the start (template, a copy of the last trip on the bike, or the standard set) plus the trip's
  * context (context.js contextTrip). fields: hours, overnight, cook, wx, event (and wxFrom).
  */
-export function buildBikeTrip({ draft, bike, start = 'last', templates = [], trips = [], items = [], readyStandard = null, fields = {} }, now = Date.now()) {
+export function buildBikeTrip({ draft, bike, start = 'last', templates = [], trips = [], items = [], readyStandard = null, fields = {}, sets = [] }, now = Date.now()) {
   const tpl = templates.find((x) => x.id === start);
+  // v0.39.0 (AP28): sets = the settings 'sets' (the amounts in the blocks of a linked template).
   const base = tpl
-    ? tripFromTemplate({ ...draft, bike }, tpl, items, now)
+    ? tripFromTemplate({ ...draft, bike }, tpl, items, now, sets)
     : newTrip({ ...draft, bike, readyStandard, overnight: fields.overnight ?? null }, start === 'standard' ? [] : trips, items, now);
   // v0.25.0 (M3, 6b/7b): the context goes straight into the list; a template keeps its hours when none are given.
   return contextTrip({ ...base, ...fields, hours: fields.hours ?? base.hours ?? null }, items, { fromCopy: !tpl && !!base.copiedFrom });
