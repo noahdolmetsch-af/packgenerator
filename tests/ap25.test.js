@@ -25,8 +25,8 @@ describe('first aid comes with a night only', () => {
     it_('AIDKIT', { sets: ['firstaid'], role: 'standard' }),
     it_('BLISTER', { sets: ['firstaid'], always: true }),
     it_('AIDPLUS', { sets: ['firstaid'] }),
-    it_('BRUSH', { sets: ['hotel'] }), // v0.55.0: Lodging → Hotel/hut
-    it_('SLEEPBAG', { sets: ['bivy'] }), // v0.55.0: Sleep → Bivouac
+    it_('BRUSH', { sets: ['hotel'] }), // v0.64.0: Lodging → Hotel/hut
+    it_('SLEEPBAG', { sets: ['bivy'] }), // v0.64.0: Sleep → Bivouac
   ];
   const bike = { id: 'b1', name: `${P} Gravel`, setup: { seat: 'bs', frame: 'bf' } };
   const draft = { title: `${P} trip`, startDate: '2026-10-11', days: 1 };

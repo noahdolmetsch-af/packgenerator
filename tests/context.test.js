@@ -12,7 +12,7 @@ const items = [
   it_('GEL', { role: 'standard', defaultBag: 'top', perHours: 1, maxQty: 8 }),
   it_('BAR', { role: 'standard', defaultBag: 'top', perHours: 3 }),
   it_('BOTTLE', { role: 'standard', defaultBag: 'frame', perHours: 3, maxQty: 2 }),
-  // v0.55.0 «Bausteine neu»: the blocks after the update (Base + Sleep → Bivouac, Lodging → Hotel/hut,
+  // v0.64.0 «Bausteine neu»: the blocks after the update (Base + Sleep → Bivouac, Lodging → Hotel/hut,
   // Warm → a temperature rule, Light → Light in the dark); the old keys stay on an item and do nothing.
   it_('BRUSH', { sets: ['base', 'lodging', 'bivy', 'hotel'], defaultBag: 'top' }),
   it_('TOWEL', { sets: ['base', 'bivy'] }),
@@ -35,7 +35,7 @@ const ids = (t) => t.entries.map((e) => e.itemId).sort();
 const qty = (t, id) => t.entries.find((e) => e.itemId === id)?.qty;
 
 describe('context sets', () => {
-  it('v0.55.0: every ride repair and charge; hotel its set, bivouac (+ tent), cook only when cooking', () => {
+  it('v0.64.0: every ride repair and charge; hotel its set, bivouac (+ tent), cook only when cooking', () => {
     expect(contextSets({ overnight: 'none' })).toEqual(['repair', 'charge']);
     expect(contextSets({ overnight: 'lodging' })).toEqual(['hotel', 'firstaid', 'repair', 'charge']); // v0.28.0: first aid with every night
     expect(contextSets({ overnight: 'outdoor', tent: false })).toEqual(['bivy', 'firstaid', 'repair', 'charge']);
@@ -70,7 +70,7 @@ describe('a new trip with its context', () => {
     expect(ids(t)).not.toContain('SHOWER');
     expect(ids(t)).not.toContain('WISH');
     expect(ids(t)).not.toContain('LIGHT'); // no dark on this trip
-    expect(ids(t)).not.toContain('PUFFY'); // v0.55.0 (6a): Warm comes with the weather only
+    expect(ids(t)).not.toContain('PUFFY'); // v0.64.0 (6a): Warm comes with the weather only
     expect(t.sets).toMatchObject({ bivy: true, tent: true, cook: true });
     expect(make({ days: 2, overnight: 'outdoor' }).entries.some((e) => e.itemId === 'STOVE')).toBe(false);
     expect(make({ days: 2, overnight: 'outdoor', tent: false }).entries.some((e) => e.itemId === 'TENT')).toBe(false); // Bivouac alone
@@ -166,7 +166,7 @@ describe('"Your packing list" summary', () => {
     const s = contextSummary(start, trip, items);
     expect(s.start).toBe(start.length);
     expect(s.amounts.map((a) => [a.item.id, a.qty])).toEqual([['GEL', 2]]);
-    expect(s.weather.map((i) => i.id)).toEqual(['ARMS', 'PUFFY']); // v0.55.0: the old Warm item below 10 °C
+    expect(s.weather.map((i) => i.id)).toEqual(['ARMS', 'PUFFY']); // v0.64.0: the old Warm item below 10 °C
     expect(s.sets).toEqual([{ key: 'repair', n: 1 }, { key: 'charge', n: 1 }]);
     expect(s.left).toEqual(['overnight', 'event']);
     const o = contextSummary(start, { ...trip, days: 2, overnight: 'outdoor', tent: true, cook: true, event: true }, items);

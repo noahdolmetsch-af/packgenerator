@@ -15,7 +15,7 @@ const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', imp
 const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
 
 const item = (id, name, f) => ({ id, name: `test_data_gtp_ ${name}`, category: 'other', weightG: 50, qty: 1, weightStatus: 'measured', defaultBag: 'top', ownership: 'owned', role: null, sets: [], kits: [], domains: ['bikepacking'], ...f });
-const NIGHT = ['CX01', 'CX03', 'CX05']; // base, sleep, cook (v0.55.0: Bivouac, Cook; the old Warm item CX04 comes with the weather, below 10 °C)
+const NIGHT = ['CX01', 'CX03', 'CX05']; // base, sleep, cook (v0.64.0: Bivouac, Cook; the old Warm item CX04 comes with the weather, below 10 °C)
 function fixture(path) {
   const data = structuredClone(base);
   data.tables.items.push(
@@ -107,7 +107,7 @@ for (const lang of ['de', 'en']) {
 
     const on = await ids(page, title);
     for (const id of [...NIGHT, 'CX02', 'CX06']) expect(on).not.toContain(id);
-    expect(on).toContain('CX04'); // v0.55.0 (6a): the old Warm item comes below 10 °C, also on a day ride
+    expect(on).toContain('CX04'); // v0.64.0 (6a): the old Warm item comes below 10 °C, also on a day ride
     expect(on).toContain('CX08');
     const trip = await stored(page, title);
     expect(trip).toMatchObject({ hours: 2, overnight: 'none', wx: { min: 6, max: 12, rain: 'none' }, event: false });

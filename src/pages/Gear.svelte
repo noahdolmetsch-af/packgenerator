@@ -518,7 +518,7 @@
             <button type="button" onclick={startWeigh}>{t('Record weights')}{#if toWeigh}<i class="badge num">{toWeigh}</i>{/if}</button>
             <!-- v0.47.2: "Check" was a tab; now a mode, one tap from here -->
             <button type="button" onclick={startCheck}>{t('Check items')}{#if toReview}<i class="badge num">{toReview}</i>{/if}</button>
-            <!-- v0.55.0 (Noah 4a): «Bausteine prüfen» -->
+            <!-- v0.64.0 (Noah 4a): «Bausteine prüfen» -->
             <a href="#/blocks/check">{t('Check building blocks')}</a>
             <a href="#/gear/import">{t('Check import')}{#if $stagedQ}<i class="badge num">{$stagedQ.data?.items?.length || t('Step 2')}</i>{/if}</a>
           </div>

@@ -8,7 +8,7 @@ const items = [
   it_('KL01', { role: 'worn', weightG: 200 }),
   it_('EL07', { role: 'standard', defaultBag: 'mounted' }),
   it_('EL13', { role: 'standard', defaultBag: 'top', weightG: null }),
-  it_('SL01', { sets: ['base', 'bivy'], defaultBag: 'side', weightG: 500 }), // v0.55.0: the base set is Bivouac
+  it_('SL01', { sets: ['base', 'bivy'], defaultBag: 'side', weightG: 500 }), // v0.64.0: the base set is Bivouac
   it_('XX01', { role: 'optional' }),
   it_('WISH', { role: 'standard', ownership: 'wishlist' }),
   it_('TA06', { category: 'bags', weightG: 200 }),
@@ -210,7 +210,7 @@ describe('pack extras', () => {
     expect(on.entries.map((e) => e.itemId)).toEqual(['S1', 'W1', 'W2', 'R1']);
     const off = toggleSet({ ...trip, ...on }, its, 'lights', false);
     expect(off.entries.map((e) => e.itemId)).toEqual(['S1', 'W2']); // W2 stays for "bivy", S1 is standard
-    // v0.55.0: a block the context brings (active) keeps its items too; false takes a suggested block off
+    // v0.64.0: a block the context brings (active) keeps its items too; false takes a suggested block off
     const off2 = toggleSet({ ...trip, ...on }, its, 'lights', false, { active: ['repair'] });
     expect(off2.entries.map((e) => e.itemId)).toEqual(['S1', 'W2', 'R1']);
     expect(off2.sets.lights).toBe(false);

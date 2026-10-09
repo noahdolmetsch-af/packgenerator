@@ -22,7 +22,7 @@ import { inStandard, isWorn, blockKeys } from './blocks2026.js';
 export const OVERNIGHT = ['none', 'lodging', 'outdoor'];
 
 /**
- * v0.55.0 «Bausteine neu» (Noah 8a): the night is one choice of four, changeable. Stored as before
+ * v0.64.0 «Bausteine neu» (Noah 8a): the night is one choice of four, changeable. Stored as before
  * (trip.overnight) plus trip.tent for "Bivouac + tent", so every older reader of overnight still works:
  *   none → no night; hotel → overnight 'lodging'; bivy → 'outdoor'; tent → 'outdoor' + tent.
  */
@@ -50,16 +50,16 @@ export const nightName = (x) => NIGHT_CHOICES.find((c) => c.key === nightChoice(
 /** The blocks that come with the night (they "come by themselves"). */
 export const NIGHT_BLOCKS = ['bivy', 'tent', 'hotel', 'cook', 'firstaid'];
 /**
- * v0.55.0 (Noah 7a, 9a): the blocks that come on the ride: repair and charge on every ride, lights
+ * v0.64.0 (Noah 7a, 9a): the blocks that come on the ride: repair and charge on every ride, lights
  * when the ride goes into the dark (trip.dark), race only on an event. Each one stays a visible
  * suggestion: trip.sets[key] === false takes it off for this trip.
  */
 export const RIDE_BLOCKS = ['repair', 'charge', 'lights', 'race'];
 /** The item sets a context can bring. */
 export const CONTEXT_SETS = [...NIGHT_BLOCKS, ...RIDE_BLOCKS];
-/** v0.55.0: the built-in blocks to add (filled by category at the update; loose groupings). */
+/** v0.64.0: the built-in blocks to add (filled by category at the update; loose groupings). */
 export const LOOSE = ['food', 'hygiene', 'comfort'];
-/** v0.55.0 (Noah 9a): Comfort is never packed by itself: its items are only offered, unticked. */
+/** v0.64.0 (Noah 9a): Comfort is never packed by itself: its items are only offered, unticked. */
 export const OFFER_ONLY = ['comfort'];
 /**
  * v0.28.0 (AP25, Noah: "Erste Hilfe komplett raus ausser bei 1 Nacht oder mehr"): the first aid
@@ -81,14 +81,14 @@ const SWITCHED = ['bivy', 'tent', 'cook'];
 /** Does the trip say where it sleeps? Older trips do not: their entries are never changed here. */
 export const hasContext = (trip) => OVERNIGHT.includes(trip?.overnight);
 
-/** v0.25.0 (Noah 4), v0.55.0: the blocks the night brings (one choice: hotel, bivy or bivy + tent). */
+/** v0.25.0 (Noah 4), v0.64.0: the blocks the night brings (one choice: hotel, bivy or bivy + tent). */
 export function nightSets(trip) {
   if (trip?.overnight === 'lodging') return ['hotel', 'firstaid'];
   if (trip?.overnight === 'outdoor') return ['bivy', ...(hasTent(trip) ? ['tent'] : []), ...(trip.cook ? ['cook'] : []), 'firstaid'];
   return [];
 }
 
-/** v0.55.0: the blocks the ride suggests (repair, charge; lights in the dark; race on an event), minus the ones taken off. */
+/** v0.64.0: the blocks the ride suggests (repair, charge; lights in the dark; race on an event), minus the ones taken off. */
 export function rideSets(trip) {
   const on = ['repair', 'charge', ...(trip?.dark ? ['lights'] : []), ...(trip?.event === true ? ['race'] : [])];
   return on.filter((k) => trip?.sets?.[k] !== false);
@@ -100,7 +100,7 @@ export function contextSets(trip) {
 }
 
 /**
- * v0.55.0: the blocks on a trip right now: what its context brings (only a trip with a known night)
+ * v0.64.0: the blocks on a trip right now: what its context brings (only a trip with a known night)
  * plus the ones switched on by hand (trip.sets[key] === true). For the switches in Pack.
  */
 export function activeBlocks(trip) {
@@ -182,7 +182,7 @@ export function applyContext(trip, items, before = null, { fresh = false } = {})
       entries.push(e.qtyManual ? e : { ...e, qty: want.qty });
     } else if (want || !fresh) entries.push(want && counted(e) ? { ...e, qty: want.qty } : e);
   }
-  // v0.55.0: a later change brings only the ride blocks it switched on (Light into the dark, Race on
+  // v0.64.0: a later change brings only the ride blocks it switched on (Light into the dark, Race on
   // an event, a block switched back on); one that was already on (an older trip made without it) does
   // not come along with a change of the weather or the hours.
   const stay = before && hasContext(before) ? rideSets(before).filter((k) => rideSets(trip).includes(k)) : [];
@@ -217,7 +217,7 @@ export function startEntries(trip, items) {
   const sets = contextSets(trip);
   return (trip.entries ?? []).filter((e) => {
     const i = byId.get(e.itemId);
-    // v0.55.0: Food, Hygiene and Comfort (to add, filled by category) do not keep a night item on a copy.
+    // v0.64.0: Food, Hygiene and Comfort (to add, filled by category) do not keep a night item on a copy.
     const keys = blockKeys(i).filter((s) => !LOOSE.includes(s));
     if (e.src === 'context' || !i || isWorn(i) || inStandard(i) || !keys.length) return true;
     return !keys.every((s) => CONTEXT_SETS.includes(s) && !sets.includes(s));

@@ -57,7 +57,8 @@ describe('last work per part', () => {
   it('puts every part in one group', () => {
     for (const p of PARTS) expect(GROUPS.some((g) => g.parts.includes(p.key))).toBe(true);
     expect(groupOf('padsR')).toBe('brakes');
-    expect(groupOf('something')).toBe('other');
+    expect(groupOf('something')).toBe('extras');
+    expect(groupOf('own-bell', { key: 'own-bell', area: 'cockpit' })).toBe('cockpit');
   });
 });
 

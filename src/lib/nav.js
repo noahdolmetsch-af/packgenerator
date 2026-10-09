@@ -125,7 +125,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/gear')) return 'gear';
   if (h.startsWith('#/favorites')) return 'favorites';
   if (h.startsWith('#/wardrobe')) return 'wardrobe'; // v0.42.0: the wardrobe (layers and zones)
-  if (h.startsWith('#/blocks/check')) return 'blockcheck'; // v0.55.0 (Noah 4a): «Bausteine prüfen»
+  if (h.startsWith('#/blocks/check')) return 'blockcheck'; // v0.64.0 (Noah 4a): «Bausteine prüfen»
   if (h.startsWith('#/blocks')) return 'blocks'; // v0.26.0 (Noah 2b): building blocks, own page
   if (h.startsWith('#/bikes') || h.startsWith('#/care')) return careTab ? 'care' : 'bikes';
   if (h.startsWith('#/trips')) return 'trips'; // v0.46.1: the trips overview behind «Touren»
@@ -137,10 +137,23 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/share/')) return 'share';
   if (h.startsWith('#/ride')) return 'ride';
   if (h.startsWith('#/inbox')) return 'inbox';
-  if (h.startsWith('#/review')) return 'review'; // v0.44.0: the last 12 months
+  if (h.startsWith('#/notes')) return 'notes'; // v0.48.0: the Notes page
+  if (h.startsWith('#/review')) return 'debrief'; // v0.44.0: the last 12 months; v0.49.0: part of the Rückblick
   if (h.startsWith('#/features')) return 'features'; // v0.30.0 (Noah 3a): what the app can do
   if (h.startsWith('#/flow')) return 'flow'; // v0.51.0 «Im Flow»
   return 'home';
+}
+
+/**
+ * v0.49.0 R1 «Rückblick ruhig» (Noah 4a): the old pages «Letzte 12 Monate» (#/review) and «Touren
+ * vergleichen» (#/debrief/compare) are parts of the one Rückblick page now. Their addresses lead there
+ * (no dead links): → { hash, spot } (spot: the section to scroll to), or null for every other address.
+ */
+export function redirectOf(hash = '') {
+  const h = (hash || '').split('?')[0];
+  if (h === '#/review' || h.startsWith('#/review/')) return { hash: '#/debrief', spot: 'period' };
+  if (h === '#/debrief/compare') return { hash: '#/debrief', spot: 'compare' };
+  return null;
 }
 
 /**

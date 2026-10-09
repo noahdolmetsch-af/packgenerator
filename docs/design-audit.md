@@ -69,20 +69,30 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 |---|---|---|---|
 | Heute | Startseite | Neubau 0.46 | – |
 | Heute | Neu-Blatt, Mehr-Menü, Suche | – | – |
-| Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.47: Velo mit Taschen oben, Gewichtskarte) | 3 |
+| Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.52: Karte «Am Körper», Blatt «Tauschen») | 4 |
 | Touren | Tour-Dialog, Vorlagen-Dialog, Lade-Blatt | 9.10.2026 (0.47.3: Wetter-Chips wie auf der Tourseite, Trocken/Regen) | 3 |
 | Touren | Unterwegs | – | – |
+| Touren | Rückblick (eine Seite: letzte Fahrt, 12 Monate, Vergleich) | 9.10.2026 (0.49 R1 nach Mockup «Rückblick-Hub») | 4 |
+| Touren | Tempo, Logbuch, Gelernt (eine Ebene unter Rückblick) | 9.10.2026 (0.53 R2) | 4 |
+| Touren | Gespeicherter Rückblick einer Tour | 9.10.2026 (0.49 R1 nach drei «A») | 4 |
+| Touren | Vergangene Touren (Tabelle) | 9.10.2026 (0.49 R1 nach Mockup) | 4 |
+| Touren | Fahrten, Teilen | – | – |
+| Touren | Vorlagen, Vorlage neu/bearbeiten, Bausteine | – | – |
 | Touren | Rückblick, Vergleich, Tempo, Logbuch | – | – |
 | Touren | Vergangene Touren, Fahrten, Jahresrückblick, Teilen | – | – |
 | Touren | Vorlagen, Vorlage neu/bearbeiten, Bausteine | 9.10.2026 (0.55: Bausteine mit «Auf der Fahrt», Link «Bausteine prüfen»; Vorlagen ungeprüft) | 3 |
 | Touren | Bausteine prüfen | 9.10.2026 (0.55 neu, ohne Mockup nach Noahs 4a) | 3 |
 | Material | Materialliste, Teil-Dialog, Zuordnen, Zusammenlegen | 9.10.2026 (0.47.2: sieben Ansichten, Karten mit Punkten pro Tour, Detailspalte, Filterblatt, Teil mit «Sein Jahr auf Tour»; Zuordnen und Zusammenlegen noch alt) | 4 |
-| Material | Kleiderschrank | 9.10.2026 (0.47 neu gebaut nach Mockup) | 4 |
+| Material | Kleiderschrank | 9.10.2026 (0.52: Tourband, unpassende Doppelte ausgeblendet) | 4 |
 | Material | Import prüfen, Favoriten, Wunschliste | – | – |
 | Velos | Setup, Velo-Dialog, Taschen-Dialog/-Blatt | 9.10.2026 (0.47: nur Kopfband in der Gletscher-Schrift) | 3 |
 | Velos | Velopflege, Teil-, Werkstattbesuch- und Bestell-Dialog | 9.10.2026 (0.47: Schrift vereinheitlicht, «Jetzt fällig» als Karten; Dialoge noch alt) | 3 |
 | Im Flow | Übersicht, Heute-Karte, Abhaken-Blatt, Stoppuhr, Tagescheck, Ziele/Bearbeiten | 9.10.2026 (0.51 neu nach Mockup ImFlow-*) | 4 |
 | Weiteres | Inbox/Notiz, Funktionen-Seite | 9.10.2026 (0.47: Inbox leert sich selbst) | 3 |
+| Velos | Velopflege, Teil-, Werkstattbesuch- und Bestell-Dialog | 9.10.2026 (0.48: Übersicht C nach Mockup, Teiletabelle, geführtes Ersetzen/Warten, Startwerte; Werkstattbesuch- und Bestell-Dialog noch alt) | 3 |
+| Velos | Velos vergleichen, Werkstatt & Belege | 9.10.2026 (0.48 neu) | 3 |
+| Weiteres | Eingang, Ablegen-Blatt, Notizen, Notiz-Blatt | 9.10.2026 (0.48 neu nach Mockup) | 3 |
+| Weiteres | Funktionen-Seite | – | – |
 
 Geplante Screens (zuerst Mockup): Im Flow (Woche, Tennis, Neuland), Einkaufszettel, Lebenslauf eines Teils, Werkstatt-Anleitungen.
 
@@ -97,6 +107,9 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Packtag (PackStage) mit derselben Velozeichnung und Gewichtskarte wie Planen. Ziel 0.48.
 - Velos/Setup: nur das Kopfband ist angeglichen; Zeichnung, Taschen-Blatt und Dialoge folgen. Velopflege-Dialoge (Teil, Werkstattbesuch, Bestellung). Ziel 0.48.
 - Material → Wiegen und Import prüfen «Unsicher»: bleiben bewusst (siehe decisions.md), Optik auf Karten-Token. Ziel 0.48.
+- Tempo, Logbuch, Gelernt: in R2 (0.61.0) umgebaut: Karten, ein Satz oben, kleine Diagramme aus R1 (MiniBars), flache Listen.
+- Heute, Touren-Übersicht, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
+- Auswahl-Chips (`.chip`, aria-pressed) aus 0.48 als gemeinsamer Baustein in `app.css`: heute lokal in FileSheet, NoteSheet, PartFlow, CareTab, ShopTab, Inbox. Ziel 0.49.
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
@@ -106,4 +119,10 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 9.10.2026, 0.47.2 «Material-Ansichten»: Reiter durch sieben Ansichten mit Zahl ersetzt, «Totes Gewicht» heisst «Nie gebraucht» mit einem Satz pro Teil, Karten mit Punkten pro Tour (gebraucht, dabei nicht gebraucht, zuhause), Detailspalte am Computer, Sortieren und Filtern in einem Blatt, Teil mit «Sein Jahr auf Tour», gelernter Regel, letzten Touren, Gewicht gegen Alternativen, Alter und Kosten nur mit Daten. Materialliste Note 3 → 4. Bilder vorher/nachher (390 und 1440, hell und dunkel): `design/v0472/vorher/`, `design/v0472/nachher/`.
 - 9.10.2026, 0.47.3: Tour-Dialog: Wetter-Chips setzen statt umschalten, Trocken/Regen als zwei Chips wie auf der Tourseite (Note 3). Packliste: das ••• bleibt rechts in seiner Zeile, wenn «Rückgängig» erscheint; alle •••-Menüs bleiben bei 320 und 390 px im Bild (`ui/inview.js`). Bilder: `design/v0473/vorher`, `nachher`.
 - 9.10.2026, 0.51 «Im Flow – kleiner Start»: Übersicht, Heute-Karte, Abhaken-Blatt, Stoppuhr (Blatt und schwebend), Tagescheck und Bearbeiten nach den freigegebenen Mockups ImFlow-* gebaut, hell und dunkel, 320/390/1440 (Note 4: unter 360 px fallen die Symbole der Abhaken-Knöpfe weg, lange Namen brechen in Ziele × Tage auf zwei Zeilen). Bilder: `design/v0510/`.
+- 9.10.2026, 0.56.0 R1 «Rückblick ruhig»: Rückblick als eine Seite, Vergangene Touren als Tabelle (am Handy mit stehender Namensspalte), gespeicherter Tour-Rückblick nach drei «A». Mitgezogen: Breadcrumbs auf Rückblick, Vergangene Touren und den Unterseiten Tempo/Gelernt/Logbuch; «Mehr › Rückblick», Heute (Rückblick-Knopf, 12-Monate-Zeile), Tipps. Wächter-Grundlinie: Stil nur gesunken (Compare/Review gelöscht, Debrief/PastTrips weniger), Konsistenz-Test prüft statt `#/review` jetzt `#/debrief/learnings` und `#/debrief/pace`. Bilder: `design/v0490/vorher` und `nachher`.
+- 9.10.2026, 0.48 «Pflege-Übersicht + Teile pro Velo + Eingang/Notizen»: Velopflege mit Übersicht C (Ringe, höchstens 3 Fällig-Karten, flache Probleme), Teiletabelle nach Bereich mit «Mehr», geführtes Ersetzen/Warten; Velos vergleichen (fixe erste Spalte, Tabelle scrollt in sich); Eingang nach Tagen mit Ablegen-Blatt (7 Ziele); Werkstatt & Belege; neue Seite Notizen. Mitgezogen: Velos-Reiter (dritter Reiter Werkstatt), Mehr-Menü (Notizen), Heute (eine Zeile für angeheftete Notiz). Offen: Chips (`.chip`) sind in FileSheet, NoteSheet, PartFlow und CareTab je lokal gestylt; als gemeinsamer Baustein in `app.css` Ziel 0.49. Werkstattbesuch- und Bestell-Dialog noch im alten Stil, Ziel 0.49.
+
+- 9.10.2026, 0.59.0 «Tauschen» (OP2a): Packliste mit der Karte «Am Körper» (Zone, Schicht, Temperaturbalken mit Tour-Rahmen), Blatt «Tauschen» (am Handy von unten, 44-px-Ziele), Kleiderschrank mit Tourband. Neuer Baukasten-Teil `src/lib/ui/TempBar.svelte` (der Balken des Kleiderschranks, mit Rahmen für den Bereich der Tour). Tour/Packen 3 → 4. Bilder vorher/nachher: `design/v0520-tausch/`.
+- 9.10.2026, 0.61.0 R2 «Tempo + Logbuch»: Tempo (Regel in einem Satz, Rückweg zur Standardregel, drei MiniBars), Logbuch (flache Tagebuchliste mit Filter Jahr/Reiseart), Gelernt (flach nach Thema). Mitgezogen: Rückblick-Karten Tempo und Logbuch, Hinweis in der Route (Packen). Wächter: Stil nur gesunken (Debrief.svelte 13 → 8, Pace.svelte 1 → 0); Konsistenz-Test prüft zusätzlich `#/debrief/logbook` (0 Befunde). Bilder: `design/v0530/vorher` und `nachher`.
+- 9.10.2026, 0.49.0 R1 «Rückblick ruhig»: Rückblick als eine Seite, Vergangene Touren als Tabelle (am Handy mit stehender Namensspalte), gespeicherter Tour-Rückblick nach drei «A». Mitgezogen: Breadcrumbs auf Rückblick, Vergangene Touren und den Unterseiten Tempo/Gelernt/Logbuch; «Mehr › Rückblick», Heute (Rückblick-Knopf, 12-Monate-Zeile), Tipps. Wächter-Grundlinie: Stil nur gesunken (Compare/Review gelöscht, Debrief/PastTrips weniger), Konsistenz-Test prüft statt `#/review` jetzt `#/debrief/learnings` und `#/debrief/pace`. Bilder: `design/v0490/vorher` und `nachher`.
 - 9.10.2026, 0.55 «Bausteine neu»: Seite «Bausteine prüfen» (Fortschritt, Zeilen mit Gewicht, Behalten/Raus/Woanders mit 44-px-Zielen, «Fehlt wohl hier»), Bausteine-Seite mit Abschnitt «Auf der Fahrt», Nacht-Chips Biwak / Biwak + Zelt / Hotel/Hütte im Fenster «Neue Tour». Note 3: ohne freigegebenes Mockup gebaut (Noahs Antwort 4a beschreibt den Ablauf). Bilder 320/390/1440, hell und dunkel: `design/v0550/`.

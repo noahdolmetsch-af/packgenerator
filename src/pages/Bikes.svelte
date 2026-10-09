@@ -8,6 +8,8 @@
   import BikesNav from '../lib/care/BikesNav.svelte';
   import SetupTab from '../lib/bikes/SetupTab.svelte';
   import CareTab from '../lib/care/CareTab.svelte';
+  import Compare from '../lib/bikes/Compare.svelte';
+  import ShopTab from '../lib/bikes/ShopTab.svelte';
   import { t } from '../lib/i18n.svelte.js';
 
   let route = $state(parseBikesHash(location.hash));
@@ -20,7 +22,7 @@
   });
   // Old links (#/care) and "open this bike" are written back as the plain address of the tab.
   $effect(() => {
-    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip });
+    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit });
     if (location.hash !== want && !route.open) history.replaceState(null, '', want);
   });
 
@@ -36,7 +38,11 @@
     <h1 class="title">{t('Bikes')}</h1>
     <BikesNav current={route.tab} bike={route.bike} />
   </header>
-  {#if route.tab === 'care'}
+  {#if route.tab === 'compare'}
+    <Compare />
+  {:else if route.tab === 'shop'}
+    <ShopTab bikeId={route.bike} visitId={route.visit ?? null} onbike={pickBike} />
+  {:else if route.tab === 'care'}
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
     <SetupTab bikeId={route.bike} onbike={pickBike} />

@@ -15,7 +15,7 @@ const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', imp
 const HOME = { name: 'test_data_gtp_ Heimat', lat: 47.37, lon: 8.54 };
 
 const item = (id, name, f) => ({ id, name: `test_data_gtp_ ${name}`, category: 'other', weightG: 50, qty: 1, weightStatus: 'measured', defaultBag: 'top', ownership: 'owned', role: null, sets: [], kits: [], domains: ['bikepacking'], ...f });
-const NIGHT = ['CX01', 'CX03', 'CX05']; // base, sleep, cook (v0.55.0: Bivouac, Cook; the old Warm item CX04 comes with the weather, below 10 °C)
+const NIGHT = ['CX01', 'CX03', 'CX05']; // base, sleep, cook (v0.64.0: Bivouac, Cook; the old Warm item CX04 comes with the weather, below 10 °C)
 function fixture(path, { home = false } = {}) {
   const data = structuredClone(base);
   data.tables.items.push(
@@ -114,7 +114,7 @@ for (const lang of ['de', 'en']) {
     const on = trips[0].entries.map((e) => e.itemId);
     expect(on.length).toBeGreaterThan(3);
     for (const id of NIGHT) expect(on).not.toContain(id);
-    expect(on).toContain('CX04'); // v0.55.0 (6a): the old Warm item comes below 10 °C (6–12 °C here)
+    expect(on).toContain('CX04'); // v0.64.0 (6a): the old Warm item comes below 10 °C (6–12 °C here)
     await expect(page.getByRole('heading', { name: title })).toBeVisible();
 
     // Change: the Edit trip dialog of the new trip.

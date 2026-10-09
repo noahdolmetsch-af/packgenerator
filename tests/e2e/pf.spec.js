@@ -33,11 +33,11 @@ const id = (key) => P + key;
 const BIKE = { scale: `${P}scale`, spark: `${P}spark`, gravel: `${P}gravel` };
 
 /** YYYY-MM-DD in Zurich, n days from today. */
-const day = (n = 0) => new Date(Date.now() + n * 864e5).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 
 /** Items that only belong to night sets: on a day ride each of them is one to take out by hand. */
 const NIGHT_SETS = ['base', 'sleep', 'warm', 'cook', 'lodging'];
-// v0.55.0: read on the fixture as it is in the file (before the update): the old Warm items get a
+// v0.64.0: read on the fixture as it is in the file (before the update): the old Warm items get a
 // temperature rule in the update (6a), so the down jacket comes on a cool day ride by design.
 const nightOnly = (i) => i.sets?.length && i.sets.every((s) => NIGHT_SETS.includes(s) || s.startsWith('u-')) && i.sets.some((s) => NIGHT_SETS.includes(s)) && !i.role && !i.always && i.coldBelow == null && !i.rain && !i.sets.includes('warm');
 
@@ -223,7 +223,8 @@ async function openAllBags(page) {
   const heads = page.locator('.calm-pack .bag-heading[aria-expanded="false"]');
   for (let n = await heads.count(); n > 0; n--) await heads.first().click();
 }
-const planningRow = (page, key) => page.locator('.calm-pack .planning-row').filter({ hasText: nm(key) });
+// v0.59.0: worn clothing stands in the card «On me» (with its reason), the rest in the bags.
+const planningRow = (page, key) => page.locator('.calm-pack :is(.planning-row, .worn-card li)').filter({ hasText: nm(key) });
 const rowButton = (page, key) => page.getByRole('button', { name: T('Amount, move or take out: {name}', { name: nm(key) }) });
 
 /** A tab in the trip band (v0.29.0): 'Plan|stage', 'Pack|stage', 'On the way', 'Debrief'. */
@@ -422,7 +423,7 @@ test('PF05: bikepacking, 3 days, outdoor, cooking: explicit sleep/cook choice, b
   await rec.click(dlg.getByRole('button', { name: T('Bivouac + tent') }));
   await rec.click(dlg.getByRole('checkbox', { name: T('Cooking') }));
   const box = dlg.getByRole('region', { name: T('Your packing list|preview') });
-  // v0.55.0: Base + Sleep are Bivouac, the tent its own block, Warm comes with the weather.
+  // v0.64.0: Base + Sleep are Bivouac, the tent its own block, Warm comes with the weather.
   await rec.check('the live box names the night sets with counts (Bivouac, Tent, Cook)', () => expect(box).toContainText(new RegExp(`${esc(T('Bivouac'))} \\d+, ${esc(T('Tent|block'))} \\d+, [^,]+ 3`), { timeout: 2000 }));
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
   await openAllBags(page); // v0.29.0 (Noah 5a): the bags start folded
@@ -466,11 +467,11 @@ test('PF06: the same tour with lodging: no tent/mat set by itself, an own choice
   let trip = await tripNamed(page, title);
   let on = trip.entries.map((e) => e.itemId);
   rec.r.counts.duplicates = dupes(trip).length;
-  // v0.55.0 (6a): the down jacket (old Warm) comes with the weather now, not with the night.
+  // v0.64.0 (6a): the down jacket (old Warm) comes with the weather now, not with the night.
   rec.r.counts.nightItemsToRemove = on.filter((x) => ['SL01', 'SL02', 'SL03', 'CO01', 'CO02', 'CO03', 'HY02'].map(id).includes(x)).length;
   await rec.check('no tent, mat, sleeping bag, stove on the list', () => expect(on.filter((x) => ['SL01', 'SL02', 'SL03', 'CO01', 'CO02', 'CO03'].map(id).includes(x))).toEqual([]));
   await rec.check('lodging set on the list (toothbrush, shower gel, flip-flops)', () => expect(on).toEqual(expect.arrayContaining(['HY01', 'HY04', 'OF01'].map(id))));
-  // Own choice: Add material → "+ Bivouac" adds the bivouac block anyway (v0.55.0: Sleep is in Bivouac, the tent in Tent).
+  // Own choice: Add material → "+ Bivouac" adds the bivouac block anyway (v0.64.0: Sleep is in Bivouac, the tent in Tent).
   await rec.click(page.getByRole('button', { name: T('Add material') }).filter({ visible: true }).first());
   const add = page.getByRole('dialog', { name: T('Add material') });
   const chip = add.getByRole('button', { name: new RegExp(`^${esc(T('Add {block}: {n} items', { block: T('Bivouac'), n: '#' }).split('#')[0])}`) });
@@ -604,7 +605,7 @@ test('PF10: one item from two building blocks and the weather: no duplicate, no 
   const errors = await start(page, context, info);
   const rec = record('PF10', info, page);
   const title = `${P} PF10 ${info.project.name}`;
-  // The Buff is in the own block "Rain" and comes below 8 °C (v0.55.0: "Warm" is no block any more, its rule stays).
+  // The Buff is in the own block "Rain" and comes below 8 °C (v0.64.0: "Warm" is no block any more, its rule stays).
   const dlg = await openNewTrip(page, rec);
   await fillTrip(dlg, rec, { title, bike: BIKE.gravel, days: 2, hours: 4, weather: 'Cold' });
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
@@ -788,7 +789,7 @@ test('PF14: missing weights and litres; empty search, no bike, no weather: hones
   await expect(dlg.locator('.chips button[aria-pressed="true"]').filter({ hasText: '°' })).toHaveCount(0);
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
   await expect(page.locator('.trip-band h1')).toHaveText(title);
-  // The power bank (no weight) is on the trip: v0.55.0 with the block Charging (every ride), else through Add material.
+  // The power bank (no weight) is on the trip: v0.64.0 with the block Charging (every ride), else through Add material.
   if (!(await tripNamed(page, title)).entries.some((e) => e.itemId === id('EL02'))) {
     await page.getByRole('button', { name: T('Add material') }).filter({ visible: true }).first().click();
     const add = page.getByRole('dialog', { name: T('Add material') });
@@ -1248,7 +1249,7 @@ test('Scenario 5: adapt an existing list: from the template, change it, update t
   await expect(page.locator('.trip-band h1')).toHaveText(title);
   const made = await tripNamed(page, title);
   // The forecast (6 to 12 C) already brings the arm warmers. Change by hand: stove in, rain jacket out
-  // (v0.55.0: the USB cable comes with the block Charging on every ride now).
+  // (v0.64.0: the USB cable comes with the block Charging on every ride now).
   await rec.click(page.getByRole('button', { name: T('Add material') }).filter({ visible: true }).first());
   const add = page.getByRole('dialog', { name: T('Add material') });
   await rec.fill(add.getByRole('searchbox', { name: T('Search your gear') }), nm('CO01'));

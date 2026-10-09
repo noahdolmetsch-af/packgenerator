@@ -29,12 +29,12 @@ export const FUNCTIONS = [
   { id: 'wardrobe', label: 'Wardrobe', icon: 'wardrobe', go: { href: '#/wardrobe' }, pitch: 'The wardrobe sorts your clothes from warm to cold, layer by layer.' },
   { id: 'templates', label: 'Templates', icon: 'layers', go: { href: '#/pack/templates' }, pitch: 'Save a good trip as a template and start the next one from it.' },
   { id: 'wish', label: 'Wishlist', icon: 'heart', go: { href: '#/gear?tab=wishlist' }, pitch: 'The wishlist shows which buy saves the most grams per franc.' },
-  { id: 'review', label: 'Look back|function', icon: 'chart', go: { href: '#/review' }, pitch: 'Your last 12 months: trips, km, nights out and what you learned.' },
+  { id: 'review', label: 'Look back|function', icon: 'chart', go: { href: '#/debrief' }, pitch: 'Your last ride, the last 12 months and your trips compared, on one page.' },
   { id: 'note', label: 'Note · Inbox', icon: 'note', go: { run: 'note' }, pitch: 'A quick note catches an idea or a photo in two taps; you sort it later.' },
   { id: 'km', label: 'Log km', icon: 'counter', go: { run: 'km' }, pitch: 'Type the km on the counter, and Bike care knows what is due.' },
   { id: 'blocks', label: 'Building blocks', icon: 'blocks', go: { href: '#/blocks' }, pitch: 'Building blocks such as sleep, cook or rain bring their items into a trip.' },
   { id: 'favorites', label: 'Favourites', icon: 'star', go: { href: '#/favorites' }, pitch: 'Mark your favourite things with ★ and find them all on one page.' },
-  { id: 'debriefs', label: 'Debriefs', icon: 'book', go: { href: '#/debrief' }, pitch: 'A debrief takes a minute and tells the app what you really used.' },
+  { id: 'debriefs', label: 'Debriefs', icon: 'book', go: { href: '#/pack/past' }, pitch: 'A debrief takes a minute and tells the app what you really used.' },
 ];
 export const FUNCTION = Object.fromEntries(FUNCTIONS.map((f) => [f.id, f]));
 /** Noah 13a: these four stay in front. */

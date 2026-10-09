@@ -12,7 +12,7 @@ const tr = (lang) => (en, vars) => {
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
 };
 const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', import.meta.url)), 'utf8'));
-const day = (n) => new Date(Date.now() + n * 864e5).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+const day = (n) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 const TRIP = 'test_data_gtp_quick';
 
 /** One finished day ride (yesterday) on a hardtail, nothing else planned. */
@@ -90,8 +90,10 @@ for (const lang of ['en', 'de']) {
 
     // 4. Past trips lists the trip under "Done", no longer under "Debrief open" (v0.40.0: one list of past trips).
     await page.goto('./#/pack/past');
-    await expect(page.getByRole('list', { name: new RegExp(`^${esc(T('Debrief open'))}`) }).getByText(title)).toHaveCount(0);
-    await expect(page.getByRole('list', { name: new RegExp(`^${esc(T('Done|past'))}`) }).getByText(title)).toBeVisible();
+    // v0.49.0 R1: one table; a done trip has no «Debrief open» badge.
+    const row = page.locator('table.tt tbody tr').filter({ hasText: title });
+    await expect(row).toBeVisible();
+    await expect(row.locator('.nbadge')).toHaveCount(0);
 
     // 5. The next day ride: New → Plan a trip → Start from a template → the template → Create (5 clicks, plus the name).
     // v0.30.0: the folded templates are in the New trip window.

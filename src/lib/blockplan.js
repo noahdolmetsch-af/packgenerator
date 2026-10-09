@@ -61,7 +61,7 @@ export function darkTimes(startAt, endAt, place, offsetOf = offsetFor) {
 }
 
 /**
- * v0.55.0 «Bausteine neu» (Noah 7a): does the ride go into the dark, with or without a night? Each
+ * v0.64.0 «Bausteine neu» (Noah 7a): does the ride go into the dark, with or without a night? Each
  * stage from its start (trip.rideStart, else 08:00) for its riding hours (trip.hours or the route),
  * against sunset and sunrise at the place (darkTimes). Riding hours that are only assumed do not
  * count. Without a place only a nonstop ride (through the night) counts as dark.

@@ -19,6 +19,7 @@
   import Onion from '../lib/pack/Onion.svelte';
   import { onionCheck, coldest, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET } from '../lib/wardrobe.js';
   import { acceptReview } from '../lib/preparation.js';
+  import { SWAP_MEMORY, swapEntries, rememberSwap, tripRange } from '../lib/swap.js';
   import { rowReasons, listDiff } from '../lib/reasons.js';
   import '../lib/pack/calm-pack.css';
   let review = $state(false);
@@ -307,7 +308,7 @@
       const forecastWx = forecastPreset(await fetchHomeForecast(home), rideDate());
       const plan = dayRidePlan(trips, bikes, { forecastWx, bikeId });
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
-      // v0.55.0 (Noah 7a): Light comes by itself when the ride goes into the dark.
+      // v0.64.0 (Noah 7a): Light comes by itself when the ride goes into the dark.
       const dark = ridesIntoDark({ startDate: plan.startDate, days: 1, hours: plan.hours }, homeOf(home));
       const fields = { hours: plan.hours, overnight: 'none', cook: false, wx: plan.wx, event: false, dark, ...(plan.wxFrom ? { wxFrom: plan.wxFrom } : {}) };
       const nt = buildBikeTrip({ draft: { title: plan.title, startDate: plan.startDate, days: 1 }, bike: $state.snapshot(plan.bike), start: 'standard', templates, trips, items, readyStandard, fields });
@@ -477,7 +478,7 @@
     if (!trip) return [];
     return allSets($setsQ?.value)
       .map((s) => ({ ...s, label: s.builtIn ? s.name.replace(/^(Night|Nacht): /, '') : s.name, n: addSetEntries(trip, items, s, { skip: blockSkip, slotOf: () => 'body' }).added.length, has: items.some((i) => isInventory(i) && i.sets?.includes(s.key)) }))
-      .filter((s) => s.has && !OFFER_ONLY.includes(s.key)); // v0.55.0: Comfort only item by item
+      .filter((s) => s.has && !OFFER_ONLY.includes(s.key)); // v0.64.0: Comfort only item by item
   });
   // v0.27.0 (Noah 1a, PF02/PF05/PF10): why each row is on the list (reasons.js), shown small under its name.
   const reasons = $derived(trip ? rowReasons(trip, items, $setsQ?.value) : {});
@@ -536,9 +537,27 @@
   }
   const kitRange = (k) => (k.minC != null && k.maxC != null ? `${k.minC}–${k.maxC} °C` : k.maxC != null ? t('below {n} °C', { n: k.maxC }) : t('above {n} °C', { n: k.minC }));
   async function onionUndo() {
+    const was = onionAdd;
     onionAdd = null;
     clearTimeout(onionTimer);
     await undoLast();
+    // v0.59.0: an undone swap is no pick: the memory goes back as it was.
+    if (was?.key === 'swap') await (was.memory ? db.settings.put(was.memory) : db.settings.delete(SWAP_MEMORY));
+  }
+  // v0.59.0 «Tauschen» (OP2a, Noah a): one tap in «Swap» puts the other piece in the same place (one
+  // change, so one Undo), remembers the pick (it ranks higher next time) and says so with Undo.
+  const swapQ = liveQuery(() => db.settings.get(SWAP_MEMORY));
+  async function swapWear(from, to) {
+    const prev = (await db.settings.get(SWAP_MEMORY)) ?? null;
+    await change((cur) => ({ entries: swapEntries(cur.entries, from, to) }));
+    await db.settings.put({ key: SWAP_MEMORY, value: rememberSwap(prev?.value, to, tripRange(trip)?.min ?? null) });
+    const name = (id) => (itemsById[id] ? nameOf(itemsById[id]) : id);
+    onionDone([], t('{new} instead of {old}', { new: name(to), old: name(from) }), 'swap');
+    onionAdd = { ...onionAdd, memory: prev };
+  }
+  async function takeOff(id) {
+    await removeEntry(id);
+    onionDone([], t('{name} left off. It stays in the wardrobe.', { name: itemsById[id] ? nameOf(itemsById[id]) : id }));
   }
   async function undoBlock() {
     blockNote = '';
@@ -624,7 +643,7 @@
   const tripItems = $derived(trip ? items.filter((i) => onTrip(trip).has(i.id)) : []);
   const toWeigh = $derived(weighQueue({ items: tripItems }).length);
 
-  // Answer 4: overnight sets as switches. v0.55.0 «Bausteine neu»: the blocks of the ride (Light,
+  // Answer 4: overnight sets as switches. v0.64.0 «Bausteine neu»: the blocks of the ride (Light,
   // Repair, Charging, Race) and Cook; on = what the trip's context brings or switched on by hand.
   const setOn = (key) => (trip ? activeBlocks(trip).includes(key) : false);
   const switchSet = (key) => change((t) => {
@@ -638,7 +657,7 @@
   const wxSet = $derived(wx?.min != null && wx?.max != null);
   const suggestion = $derived(trip ? layerSuggest(trip, items) : []);
   // v0.25.0 (M3, Noah 9b): on a trip with its context a change of weather or hours applies at once (Undo).
-  // v0.55.0 (Noah 7a): the dark follows date, days and hours (Light comes or goes with it).
+  // v0.64.0 (Noah 7a): the dark follows date, days and hours (Light comes or goes with it).
   const homeQ = liveQuery(() => db.settings.get('homePlace'));
   const changeContext = (fn) => change((cur) => {
     const patch0 = fn(cur);
@@ -699,7 +718,9 @@
 
 {#if !trips.length && $tripsQ}
   <h1 class="title big">{t('Pack')}</h1><p>{t('No trips yet. Import your data on the')} <a href="#/">{t('start page')}</a>{t(', or')} <button class="btn hi" onclick={() => dialog = { trip: null }}>{t('Create a trip')}</button></p>
-{:else if trip && stats}
+<!-- v0.59.0: the list waits for the gear too. Without it a worn jersey is not known as clothing for a
+     moment: the bag «On me» flashed up and went again when the card «On me» took the clothes (CI abnahme044). -->
+{:else if trip && stats && $itemsQ}
     {#snippet layers()}
       <p class="hint">{t('Review suggestions before adding them to your packing list.')}</p>
       <div class="ride" role="group" aria-label={t('Kind of ride')}>
@@ -743,7 +764,7 @@
           </button>
         {/each}
       </div>
-      <!-- v0.55.0 (Noah 6a): Warm is no block any more; warm clothes come with the weather (temperature rule). -->
+      <!-- v0.64.0 (Noah 6a): Warm is no block any more; warm clothes come with the weather (temperature rule). -->
     {/snippet}
 
     {#snippet bagChoice()}
@@ -835,12 +856,12 @@
   {#if packTab}
     <PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} />
   {:else}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={over ? null : factEdit} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} made={!!(dayMade && dayMade.id === trip.id)} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={over ? null : factEdit} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
       choose, addTo, addMany, qty: (id, qty) => setEntries(es => setQty(es, id, qty)),
-      move: moveTo, remove: removeEntry, undo: undoLast, swap: swapAlt, undoRow, undoWx,
+      move: moveTo, remove: removeEntry, undo: undoLast, swap: swapAlt, undoRow, undoWx, swapWear, takeOff,
       apply: choices => change(cur => acceptReview(cur, items, choices)),
       edit: () => dialog = { trip }, newTrip: () => dialog = { trip: null },
       pack: goPack, ride: goRide, packAndGo, end: endTrip,

@@ -20,7 +20,7 @@ import { SLOTS, isWornSlot } from './bikes.js';
 import { isWorn } from './blocks2026.js';
 
 /** The item sets that get a place suggestion. */
-export const PLACE_SETS = ['bivy', 'tent', 'cook']; // v0.55.0: Bivouac and Tent took over Sleep
+export const PLACE_SETS = ['bivy', 'tent', 'cook']; // v0.64.0: Bivouac and Tent took over Sleep
 /** Where sleep things go best: big, dry places first. */
 export const SLEEP_PLACES = ['seat', 'side', 'bar', 'fork', 'frame', 'down'];
 /** Where cook things go best: low and central first (stove, fuel, pot). */

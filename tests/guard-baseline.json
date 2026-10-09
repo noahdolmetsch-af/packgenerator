@@ -75,12 +75,6 @@
     "src/lib/care/VisitDialog.svelte": {
       "fontsize": 6
     },
-    "src/lib/debrief/Compare.svelte": {
-      "fontsize": 4
-    },
-    "src/lib/debrief/Pace.svelte": {
-      "fontsize": 1
-    },
     "src/lib/debrief/TemplateOffer.svelte": {
       "fontsize": 2
     },
@@ -263,7 +257,7 @@
     },
     "src/pages/Debrief.svelte": {
       "colour": 1,
-      "fontsize": 14,
+      "fontsize": 8,
       "global": 1
     },
     "src/pages/Favorites.svelte": {
@@ -283,18 +277,8 @@
     "src/pages/Home.svelte": {
       "fontsize": 23
     },
-    "src/pages/Inbox.svelte": {
-      "fontsize": 1
-    },
     "src/pages/Pack.svelte": {
       "fontsize": 10
-    },
-    "src/pages/PastTrips.svelte": {
-      "fontsize": 1,
-      "global": 1
-    },
-    "src/pages/Review.svelte": {
-      "fontsize": 4
     },
     "src/pages/Ride.svelte": {
       "fontsize": 19
@@ -387,6 +371,20 @@
       "target": 1,
       "wordbreak": 0
     },
+    "#/debrief/pace@320": {
+      "h1": 0,
+      "hscroll": 0,
+      "primary": 0,
+      "target": 1,
+      "wordbreak": 0
+    },
+    "#/debrief/pace@390": {
+      "h1": 0,
+      "hscroll": 0,
+      "primary": 0,
+      "target": 1,
+      "wordbreak": 0
+    },
     "#/debrief/ride@320": {
       "h1": 0,
       "hscroll": 0,
@@ -395,20 +393,6 @@
       "wordbreak": 0
     },
     "#/debrief/ride@390": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/debrief@320": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/debrief@390": {
       "h1": 0,
       "hscroll": 0,
       "primary": 0,

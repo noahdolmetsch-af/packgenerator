@@ -34,7 +34,7 @@ describe('workshop visits as part history', () => {
 
   it('adds the new parts to a bike that has an older list, rear linkage only on a full suspension', () => {
     const old = [{ key: 'chain', model: '', history: [] }];
-    expect(ensureParts(bike({ parts: old })).map((p) => p.key)).toEqual(expect.arrayContaining(['chain', 'brakes', 'wheels', 'cockpit', 'linkage']));
+    expect(ensureParts(bike({ parts: old })).map((p) => p.key)).toEqual(expect.arrayContaining(['chain', 'brakeF', 'brakeR', 'wheelF', 'wheelR', 'cockpit', 'linkage']));
     expect(ensureParts({ id: 'factor-ls', type: 'Gravel', parts: old }).map((p) => p.key)).not.toContain('linkage');
   });
 

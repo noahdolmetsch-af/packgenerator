@@ -24,7 +24,10 @@ const ROUTES = [
   ['#/ride', 'Unterwegs'],
   ['#/debrief', 'Rückblick'],
   ['#/debrief/ride', 'Fahrt hochladen'],
-  ['#/review', '12 Monate'],
+  // v0.49.0 R1: #/review is part of the Rückblick now; its pages one level below are checked instead
+  ['#/debrief/learnings', 'Gelernt'],
+  ['#/debrief/pace', 'Tempo'],
+  ['#/debrief/logbook', 'Logbuch'], // v0.61.0 R2
   ['#/gear', 'Material'],
   ['#/gear?tab=weigh', 'Material wiegen'],
   ['#/gear?tab=wishlist', 'Wunschliste'],
@@ -34,7 +37,10 @@ const ROUTES = [
   ['#/wardrobe', 'Kleiderschrank'],
   ['#/bikes', 'Velos Setup'],
   ['#/bikes?tab=care', 'Velos Pflege'],
-  ['#/inbox', 'Inbox'],
+  ['#/bikes?tab=compare', 'Velos vergleichen'], // v0.48.0
+  ['#/bikes?tab=shop', 'Werkstatt & Belege'], // v0.48.0
+  ['#/inbox', 'Eingang'],
+  ['#/notes', 'Notizen'], // v0.48.0
   ['#/features', 'Funktionen'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];

@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const P = 'test_data_gtp_';
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
-const day = (n = 0) => new Date(Date.now() + n * 864e5).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 // v0.30.2: messages show the day as people read it ("8. Okt. 2026").
 const shown = (iso) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('de-CH', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 const BIKE = `${P}scale`;
@@ -125,7 +125,7 @@ test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no l
   // v0.38.0: what is due comes first in the one list; a tap on the part opens its row, "Erfassen …" the dialog.
   const sealantDue = (bike) => bike.locator('li.pt.due').filter({ has: page.getByRole('button', { name: /^Reifen \+ Dichtmilch/ }) });
   await expect(sealantDue(care)).toHaveCount(1);
-  await care.getByRole('button', { name: /^Reifen \+ Dichtmilch/ }).click();
+  await sealantDue(care).getByRole('button', { name: /^Reifen \+ Dichtmilch/ }).click();
   await care.locator('li.pt.x').getByRole('button', { name: 'Erfassen …' }).click();
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Reifen + Dichtmilch' }) });
   await expect(dlg).toBeVisible();
@@ -137,8 +137,8 @@ test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no l
   // Seen: a short confirmation, no longer due, the next date in 90 days.
   await expect(page.getByRole('status').filter({ hasText: 'Reifen + Dichtmilch' })).toContainText(`Gespeichert: Reifen + Dichtmilch, erledigt, ${shown(day(0))} · 3’200 km. Nächstes Mal ${shown(day(90))}.`);
   await expect(sealantDue(care)).toHaveCount(0);
-  if (await care.locator('.okfold[aria-expanded=false]').count()) await care.locator('.okfold').click();
-  const row = care.locator('li.pt').filter({ has: page.getByRole('button', { name: /^Reifen \+ Dichtmilch/ }) });
+  // v0.48.0: the part table shows every part by area.
+  const row = care.locator('button.prow').filter({ has: page.locator('.nm').getByText('Reifen + Dichtmilch', { exact: true }) });
   await expect(row).toContainText(shown(day(90)));
   await expect(row).toContainText(`erledigt ${shown(day(0))}`);
   if (process.env.BIKECARE_SHOTS) await page.screenshot({ path: `${process.env.BIKECARE_SHOTS}/bikecare-sealant-saved-${info.project.name}.png` });
@@ -154,7 +154,7 @@ test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no l
 
   // After a reload nothing comes back.
   await page.reload();
-  await expect(page.locator(`#care-${GRAVEL}`).locator('li.pt, .okfold').first()).toBeVisible();
+  await expect(page.locator(`#care-${GRAVEL}`).locator('li.pt, .prow').first()).toBeVisible();
   await expect(page.locator('li.pt.due').filter({ has: page.getByRole('button', { name: /^Reifen \+ Dichtmilch/ }) })).toHaveCount(0);
   expect(errors).toEqual([]);
 });

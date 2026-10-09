@@ -9,7 +9,7 @@ const item = (id, fields = {}) => ({ id, name: `test_data_gtp_ ${id}`, category:
 
 describe('allSets', () => {
   it('lists the built-in sets first (translated), then own sets as written', () => {
-    // v0.55.0 «Bausteine neu»: the new built-in blocks; a record of an old key (sleep) is no own block.
+    // v0.64.0 «Bausteine neu»: the new built-in blocks; a record of an old key (sleep) is no own block.
     const own = [{ key: 'u-regen', name: 'test_data_gtp_ Regen' }, { key: 'bivy', qty: { SL01: 2 } }, { key: 'sleep', qty: { SL01: 2 } }];
     const list = allSets(own);
     expect(list.map((s) => s.key)).toEqual(['bivy', 'tent', 'hotel', 'cook', 'firstaid', 'repair', 'charge', 'lights', 'race', 'food', 'hygiene', 'comfort', 'u-regen']);
@@ -125,7 +125,7 @@ describe('New trip: blocks and templates in words', () => {
     expect(entriesWeight([{ itemId: 'R1', qty: 1 }, { itemId: 'R2', qty: 2 }], items)).toMatchObject({ g: 400, missing: 0 });
     expect(entriesWeight([{ itemId: 'S2', qty: 1 }, { itemId: 'R1' }], items)).toMatchObject({ g: 260, missing: 1 });
   });
-  it('tips: rain with rain, hygiene with a night (v0.55.0: Warm and Light are no tips any more)', () => {
+  it('tips: rain with rain, hygiene with a night (v0.64.0: Warm and Light are no tips any more)', () => {
     expect(isBlockTip(sets[1], { wet: true })).toBe(true);
     expect(isBlockTip(sets[1], { wet: false })).toBe(false);
     expect(isBlockTip(sets[0], { max: 8 })).toBe(false);

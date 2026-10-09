@@ -1,5 +1,5 @@
 /**
- * v0.55.0 «Bausteine neu + Bausteine prüfen»: the new building blocks, the night as one choice and
+ * v0.64.0 «Bausteine neu + Bausteine prüfen»: the new building blocks, the night as one choice and
  * the page «Bausteine prüfen». Swiss spelling (ss, no ß).
  */
 export default {

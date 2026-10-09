@@ -179,7 +179,7 @@ describe('one create path for the dialog and the day ride', () => {
   const items = [
     it_('JERSEY', { role: 'worn', defaultBag: 'body' }),
     it_('GEL', { role: 'standard', defaultBag: 'frame', perHours: 1, maxQty: 8 }),
-    it_('SLEEPBAG', { sets: ['bivy'] }), // v0.55.0: Sleep and Base → Bivouac
+    it_('SLEEPBAG', { sets: ['bivy'] }), // v0.64.0: Sleep and Base → Bivouac
     it_('TOWEL', { sets: ['bivy'] }),
   ];
   const fields = { hours: 3, overnight: 'none', cook: false, wx: { min: 6, max: 12, rain: 'none' }, event: false };

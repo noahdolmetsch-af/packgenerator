@@ -50,7 +50,7 @@ export const clearOptional = (d) => ({ role: d?.role === 'optional' ? '' : d?.ro
 export const leaveHomeFields = (d) => ({ role: 'optional', leaveHome: true, sets: withoutStd(d), ...(d?.always ? { always: false } : {}) });
 
 /**
- * The kinds of building blocks: 'always' (Standard), 'night' (come with the night), 'ride' (v0.55.0:
+ * The kinds of building blocks: 'always' (Standard), 'night' (come with the night), 'ride' (v0.64.0:
  * suggested on the ride, deselectable per trip: repair, charge, lights, race) or 'add'.
  */
 export const blockKind = (key) => (key === STANDARD ? 'always' : NIGHT_BLOCKS.includes(key) ? 'night' : RIDE_BLOCKS.includes(key) ? 'ride' : 'add');

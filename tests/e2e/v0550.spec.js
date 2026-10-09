@@ -1,4 +1,4 @@
-// v0.55.0 «Bausteine neu + Bausteine prüfen» (Noah 4a–10b); fictional data only (test_data_gtp_).
+// v0.64.0 «Bausteine neu + Bausteine prüfen» (Noah 4a–10b); fictional data only (test_data_gtp_).
 // 1. Old data (the pf fixture: Base, Sleep, Warm, Light, Lodging) is updated once on import: Biwak,
 //    Zelt, Hotel/Hütte, Licht, the ride blocks Reparatur and Laden; Warm becomes a temperature rule.
 //    Nothing is lost, the old keys stay on the items.

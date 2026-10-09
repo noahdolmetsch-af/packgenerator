@@ -424,7 +424,7 @@ export async function blocks2026(db) {
  * blocks2026 again on the imported data. Returns true when the marker was deleted.
  */
 export async function blocksAfterImport(db, data, mode = 'replace') {
-  // v0.55.0: a file from before «Bausteine neu» replacing the data gets the new blocks again (blockSplit2026).
+  // v0.64.0: a file from before «Bausteine neu» replacing the data gets the new blocks again (blockSplit2026).
   if (splitRerunAfterImport(data, mode)) await db.settings.delete(SPLIT_MARKER);
   if (!blocksRerunAfterImport(data, mode).rerun) return false;
   await db.settings.delete(BLOCKS_MARKER);
@@ -432,7 +432,7 @@ export async function blocksAfterImport(db, data, mode = 'replace') {
 }
 
 /**
- * v0.55.0 «Bausteine neu» (Noah 5a–10b): the building blocks split and renamed once (blocksplit.js
+ * v0.64.0 «Bausteine neu» (Noah 5a–10b): the building blocks split and renamed once (blocksplit.js
  * splitAll): Base + Sleep → Bivouac (a tent → Tent), Warm → a temperature rule on each item, Light →
  * Light (by itself in the dark), Lodging → Hotel/hut or Tent; the new blocks get only obvious
  * category matches. What to check goes into the settings 'blockReview' for «Bausteine prüfen».

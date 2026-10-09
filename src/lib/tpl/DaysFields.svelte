@@ -7,7 +7,7 @@
   import { NIGHT_CHOICES, nightChoice, nightFields } from '../context.js';
 
   let { tpl, byBike = true, onchange } = $props();
-  // v0.55.0 (Noah 8a): the night as one choice: none, Bivouac, Bivouac + tent, Hotel/hut.
+  // v0.64.0 (Noah 8a): the night as one choice: none, Bivouac, Bivouac + tent, Hotel/hut.
   const NIGHTS = NIGHT_CHOICES;
   function typedDays(value) {
     const n = Math.round(Number(value));

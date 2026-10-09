@@ -1,7 +1,7 @@
 /**
  * v0.26.0 (Noah 2a, AP10): item sets you can see and make.
  *
- * The built-in sets (gear.js SETS; v0.55.0: bivy, tent, hotel, cook, firstaid, repair, charge,
+ * The built-in sets (gear.js SETS; v0.64.0: bivy, tent, hotel, cook, firstaid, repair, charge,
  * lights, race, food, hygiene, comfort) keep their keys: context.js and Pack use them. Own sets live in the settings
  * record "sets" as [{ key: 'u-<slug>', name, note? }]; the name is saved as Noah wrote it and
  * never translated. Membership stays on the item (item.sets = ['sleep', 'u-rain', …]).
@@ -32,7 +32,7 @@ export function allSets(value) {
   const builtIn = BUILT_IN.map((key) => ({ key, name: rec(key)?.name || t(SETS[key]), note: '', builtIn: true, renamed: !!rec(key)?.name, qty: { ...(rec(key)?.qty ?? {}) } }));
   // v0.42.0: a temperature kit keeps its range (minC / maxC) and the Excel id it came from (sourceId).
   const extra = (s) => Object.fromEntries(['minC', 'maxC', 'sourceId', 'mergedIds'].filter((k) => s[k] !== undefined).map((k) => [k, s[k]]));
-  // v0.55.0: records of the old built-in keys (gear.js OLD_SETS, kept for older versions) are not own blocks.
+  // v0.64.0: records of the old built-in keys (gear.js OLD_SETS, kept for older versions) are not own blocks.
   const own = list.filter((s) => s?.key && !isBuiltIn(s.key) && !isOldSetKey(s.key)).map((s) => ({ key: s.key, name: s.name ?? s.key, note: s.note ?? '', builtIn: false, qty: { ...(s.qty ?? {}) }, ...extra(s) }));
   return [...builtIn, ...own];
 }
@@ -198,12 +198,12 @@ export function entriesWeight(entries, items) {
 
 /**
  * v0.30.0 (Noah, finding 2): a block worth a look for this trip ("Tip" on its chip in "New trip"):
- * a rain block (key or name with rain/Regen) when rain is in the weather; v0.55.0: Hygiene with a
+ * a rain block (key or name with rain/Regen) when rain is in the weather; v0.64.0: Hygiene with a
  * night (Warm and Light are no tips any more). ctx: { wet, night }.
  */
 export function isBlockTip(set, { wet = false, night = 'none' } = {}) {
   if (wet && /rain|regen/i.test(`${set.key} ${set.name ?? ''}`)) return true;
-  // v0.55.0: Warm became a temperature rule on each item; Light comes by itself with the dark.
+  // v0.64.0: Warm became a temperature rule on each item; Light comes by itself with the dark.
   if (set.key === 'hygiene') return !!night && night !== 'none';
   return false;
 }

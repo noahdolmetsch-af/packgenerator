@@ -51,16 +51,14 @@ const CASES = [
   { id: 'ride-running', hash: '#/ride', trip: TRIP.running },
   { id: 'templates', hash: '#/pack/templates' },
   { id: 'past', hash: '#/pack/past' },
-  { id: 'debriefs', hash: '#/debrief' },
+  { id: 'debriefs', hash: '#/debrief' }, // v0.49.0 R1: also the old #/review and #/debrief/compare
   { id: 'debrief-past', hash: `#/debrief/${TRIP.past}` },
   { id: 'debrief-running', hash: `#/debrief/${TRIP.running}` },
   { id: 'learnings', hash: '#/debrief/learnings' },
   { id: 'pace', hash: '#/debrief/pace' },
-  { id: 'compare', hash: '#/debrief/compare' },
   { id: 'logbook', hash: '#/debrief/logbook' },
   { id: 'rides', hash: '#/debrief/ride' },
   { id: 'ride-detail', hash: '#/debrief/ride/ride-gtp-01' },
-  { id: 'review', hash: '#/review' },
   { id: 'gear', hash: '#/gear' },
   { id: 'gear-wishlist', hash: '#/gear', act: async (page, T) => tap(page.getByRole('button', { name: new RegExp(`^${T('Wishlist')}`) }).or(page.getByRole('tab', { name: new RegExp(`^${T('Wishlist')}`) }))) },
   {

@@ -1,4 +1,4 @@
-// v0.55.0 «Bausteine neu»: the older golden lists (stage 1, blocks2026) were written before the blocks
+// v0.64.0 «Bausteine neu»: the older golden lists (stage 1, blocks2026) were written before the blocks
 // were split. With the new blocks they change ON PURPOSE, in exactly these ways (Noah 5a–9a):
 //   - the ride blocks Repair and Charging come on every ride (Light in the dark, Race on an event):
 //     items in them may be added, or come with the mark 'context' now;
@@ -19,7 +19,7 @@ export function split55(items, templates = [], sets = []) {
   return { items: b.items, templates: b.templates, sets: b.sets };
 }
 
-/** Is a different row of this item one of the intended v0.55.0 changes? before/after: Maps id → item. */
+/** Is a different row of this item one of the intended v0.64.0 changes? before/after: Maps id → item. */
 export function explained55(id, before, after) {
   const b = before.get(id);
   const a = after.get(id);

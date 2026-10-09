@@ -10,13 +10,51 @@
 
 export const WHATS_NEW = [
   {
-    version: '0.55.0',
+    version: '0.64.0',
     date: '2026-10-09',
     points: [
       { text: 'New building blocks: Bivouac, Tent and Hotel/hut for the night, Repair, Charging, Light and Race for the ride, Food, Hygiene and Comfort to add. Your items moved along by themselves, nothing was lost.', href: '#/blocks' },
       { text: 'A new trip with nights asks: Bivouac, Bivouac + tent or Hotel/hut. Repair and Charging come on every ride, Light by itself when you ride into the dark; each can be taken off. Comfort is only offered, never ticked.', href: '#/pack' },
       { text: 'Check building blocks: one block after the other with weight and total, per item Keep, Out or Elsewhere, and what is probably missing, one tap to add. Every step can be undone.', href: '#/blocks/check' },
       { text: 'Warm is no block any more: its items come with the weather (below 10 °C unless they had their own temperature). Check them first in Check building blocks.', href: '#/blocks/check' },
+    ],
+  },
+  {
+    version: '0.61.0',
+    date: '2026-10-09',
+    points: [
+      { text: '"Your pace" says your rule in one sentence. From 5 rides it guesses the riding time everywhere by itself, and "Back to the standard rule" undoes that with one tap.', href: '#/debrief/pace' },
+      { text: 'Under the sentence, three small charts: your speed per ride, from flat to hilly, and the climbing per km, for 12 months or all.', href: '#/debrief/pace' },
+      { text: 'The logbook is a diary of all your trips, newest first: km, Hm, time, weather and your notes, with a filter by year and kind of trip. A tap opens the trip.', href: '#/debrief/logbook' },
+      { text: '"Learned" lists every learning by topic, nothing folded away.', href: '#/debrief/learnings' },
+    ],
+  },
+  {
+    version: '0.59.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'The packing list shows what you wear as the first card "On me", head to feet. A tap on a piece opens "Swap": the pieces of the same zone and layer, those that fit the weather first. One tap swaps, Undo takes it back.', href: '#/pack' },
+      { text: 'The app remembers what you picked, so it comes first next time. Pieces without a °C range get their bar from warm, medium or cold.', href: '#/pack' },
+      { text: '"Open in the wardrobe" shows the wardrobe for the trip: its temperature, dry, rain or any, and pieces that do not fit hidden when a fitting one is there.', href: '#/wardrobe' },
+    ],
+  },
+  {
+    version: '0.57.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'Bike care starts with an overview: a ring per bike, at most three cards for what is due, all problems in one list. Replacing or servicing a part is a short guided flow.', href: '#/bikes?tab=care' },
+      { text: 'Every bike has the same part list with a spec sheet and its geometry. "Compare bikes" puts them side by side; an empty cell is filled with one tap.', href: '#/bikes' },
+      { text: 'The Inbox is now "Eingang": grouped by day, one button "File" with seven targets. A receipt photo becomes a workshop visit, found under Bikes → Workshop.', href: '#/inbox' },
+      { text: 'New page Notes: write, dictate, add a photo, a link or a checklist; topics, pinned notes and "Turn the note into …" a trip idea, a wish or a problem.', href: '#/notes' },
+    ],
+  },
+  {
+    version: '0.56.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'One page "Look back" instead of five: your last ride, the last 12 months with the year before, average and best, and your trips compared in 7 small charts and a table.', href: '#/debrief' },
+      { text: 'Past trips is one table, on the phone too: km, Hm, time, rain, temperature, bike and one learning per trip. The name stays put while the other columns scroll; period, "Kind" and a search that finds learnings.', href: '#/pack/past' },
+      { text: "A trip's saved debrief now tells what the trip was: numbers and weather per day, plan against real, what you can leave at home, learnings and what it means for the next trip.", href: '#/pack/past' },
     ],
   },
   {

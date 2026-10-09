@@ -343,14 +343,14 @@ export function addToPace(setting, ride, now = new Date().toISOString()) {
   const rides = [...(setting?.rides ?? [])];
   if (!rides.some((r) => r.id === ride.id)) rides.push({ id: ride.id, name: ride.name, date: ride.date, km: ride.km, gainM: ride.gainM, movingH: ride.movingH, totalH: ride.totalH, use: true, from: 'upload' });
   const learned = learnPace(rides);
-  return { ...(learned ?? { kmh: null, climbMh: null }), rides, updatedAt: now };
+  return { ...(learned ?? { kmh: null, climbMh: null }), rides, ...(setting?.standard ? { standard: true } : {}), updatedAt: now };
 }
 
 /** The ride taken out of "Your pace" again (when the ride is deleted). */
 export function dropFromPace(setting, rideId, now = new Date().toISOString()) {
   const rides = (setting?.rides ?? []).filter((r) => r.id !== rideId);
   const learned = learnPace(rides);
-  return { ...(learned ?? { kmh: null, climbMh: null }), rides, updatedAt: now };
+  return { ...(learned ?? { kmh: null, climbMh: null }), rides, ...(setting?.standard ? { standard: true } : {}), updatedAt: now };
 }
 
 /** "3:05" for hours. */

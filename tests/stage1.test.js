@@ -21,8 +21,8 @@ const NOW = 1_790_000_000_000;
 const norm = (trip) => (trip.entries ?? []).map((e) => `${e.itemId}@${e.slot}×${e.qty ?? 1}${e.src ? `:${e.src}` : ''}`).sort();
 
 /** Every new trip list we compare: per bike the standard set, a night outdoors and in lodging, the day ride and each template. */
-// v0.55.0 «Bausteine neu»: the lists are made on the data as the app holds it after the update
-// (golden/v0550.js split55); the frozen lists of stage 1 differ only where v0.55.0 says so (without55).
+// v0.64.0 «Bausteine neu»: the lists are made on the data as the app holds it after the update
+// (golden/v0550.js split55); the frozen lists of stage 1 differ only where v0.64.0 says so (without55).
 function lists(data, items0 = data.tables.items) {
   const { bikes, trips } = data.tables;
   const settings = Object.fromEntries((data.tables.settings ?? []).map((s) => [s.key, s.value]));
