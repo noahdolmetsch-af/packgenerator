@@ -13,6 +13,9 @@
    */
   import { Bike, Backpack, Clock3, CloudSun, UserRound, Briefcase, ChevronRight, ChevronDown, Plus, Minus, MoreHorizontal, Mountain, Layers, Weight, ArrowRight, Undo2, GripVertical, Wrench, Package } from '@lucide/svelte';
   import DecisionReview from './DecisionReview.svelte';
+  import WornCard from './WornCard.svelte';
+  import SwapSheet from './SwapSheet.svelte';
+  import { wornClothes, tripRange, tripRain } from '../swap.js';
   import TripBike from './TripBike.svelte';
   import TripBand from '../trip/TripBand.svelte';
   import Sum from '../ui/Sum.svelte';
@@ -31,7 +34,7 @@
   import { pastTrips } from '../hubs.js';
   import { localDay } from '../localday.js';
   import '../trip/trip.css';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {} } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -39,7 +42,14 @@
   let sheetEl = $state();
   let menuEl = $state();
   let note = $state('');
-  const groups = $derived(planningGroups(stats, items, grouping));
+  // v0.59.0 «Tauschen» (OP2a, Noah a): the worn clothing is the first card «On me» (a tap swaps); the
+  // groups below leave it out, so a piece stands in one place. «On me» without other things goes away.
+  const worn = $derived(wornClothes(trip, itemsById));
+  const groups = $derived(planningGroups(stats, items, grouping).map((g) => (worn.n ? { ...g, entries: g.entries.filter((e) => !worn.ids.has(e.itemId)) } : g)).filter((g) => !worn.n || g.entries.length || (grouping === 'bags' && g.key !== 'body')));
+  const swapRange = $derived(tripRange(trip));
+  const swapRain = $derived(tripRain(trip));
+  const wardrobeHref = $derived(`#/wardrobe/trip/${encodeURIComponent(trip.id)}`);
+  let swapping = $state(null); // { entry, item } while «Swap» is open
   // v0.26.1 (Noah 15b): litres only when every bag in use and every item in them has litres; else nothing.
   const volumes = $derived(bagVolumes(stats, itemsById));
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
@@ -234,6 +244,7 @@
           </section>
         {/if}
         <div class="bag-groups blist" class:cols={!phone.matches}>
+          {#if worn.n}<WornCard {worn} {itemsById} {reasons} range={swapRange} {wardrobeHref} onswap={(entry, item) => (swapping = { entry, item })} />{/if}
           {#each groups as group (group.key)}
             {@const Icon = icon(group)}
             {@const full = litresOver(group)}
@@ -303,6 +314,11 @@
   {/if}
   {#if note && sheet !== 'add'}<p class="calm-status" role="status">{note}</p>{/if}
 </div>
+
+{#if swapping}
+  {@const from = swapping.item}
+  <SwapSheet {trip} item={from} {items} memory={swapMemory} range={swapRange} rain={swapRain} {wardrobeHref} places={targets.filter((x) => x.key !== 'body').map((x) => ({ key: x.key, name: trip.purpose?.[x.key] || (x.bag ? bagName(x.bag.name) : t(x.zone.name)) }))} onmove={(slot) => actions.move(from.id, slot)} onpick={(to) => actions.swapWear(from.id, to)} ontakeoff={() => actions.takeOff(from.id)} onclose={() => (swapping = null)} />
+{/if}
 
 {#if openAsk}
   <dialog class="calm-sheet ask-sheet" bind:this={askEl} onclose={() => (openAsk = false)} aria-labelledby="calm-ask-h">
