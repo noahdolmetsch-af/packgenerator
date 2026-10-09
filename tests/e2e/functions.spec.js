@@ -70,3 +70,20 @@ test('all 16 functions: two taps from Today at most, each page opens without an 
   console.log(`16 functions (${info.project.name}): ${Object.entries(taps).map(([k, n]) => `${k} ${n}`).join(', ')}`);
   expect(Object.values(taps).every((n) => n <= 2)).toBe(true);
 });
+
+// v0.51.0 (Noah 11): «Im Flow» is reachable from Today's card (1 tap) and from «Mehr» (2 taps).
+test('Im Flow: one tap from its card on Today, two taps through More', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  const card = page.locator('[data-section="flow"]');
+  await card.getByRole('link', { name: /Im Flow|In the flow/ }).click(); // 1 tap
+  await expect(page).toHaveURL(/#\/flow$/);
+  await expect(page.locator('main h1')).toHaveText(/Im Flow|In the flow/);
+  await page.goto('./#/');
+  await page.locator('.more-btn').click(); // 1
+  await page.locator('dialog.more[open]').getByRole('link', { name: /Im Flow|In the flow/ }).click(); // 2
+  await expect(page).toHaveURL(/#\/flow$/);
+  await expect(page.locator('main h1')).toHaveText(/Im Flow|In the flow/);
+  expect(errors).toEqual([]);
+});

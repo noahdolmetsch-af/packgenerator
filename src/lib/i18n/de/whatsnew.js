@@ -15,6 +15,16 @@ export default {
     'Die App merkt sich, was du gewählt hast, und zeigt es beim nächsten Mal zuerst. Teile ohne °C-Bereich bekommen ihren Balken aus warm, mittel oder kalt.',
   '"Open in the wardrobe" shows the wardrobe for the trip: its temperature, dry, rain or any, and pieces that do not fit hidden when a fitting one is there.':
     '«Im Kleiderschrank öffnen» zeigt den Kleiderschrank für die Tour: ihre Temperatur, trocken, Regen oder egal, und blendet unpassende Teile aus, wenn ein passendes da ist.',
+  // 0.51.0
+  "Tap a button on Today or on In the flow to tick an activity: one tap with Undo, tap again to take it back. A long press picks the place (Yoga studio or at home), the amount or the duration.":
+    "Ein Tipp auf Heute oder in Im Flow hakt eine Aktivität ab, mit Rückgängig; nochmals tippen nimmt es zurück. Lange drücken wählt Ort (Yoga Studio oder Zuhause), Menge oder Dauer.",
+  "In the flow: three rings over the last 7 days (move, mindful, recovery) and goals × days, every goal a rolling window (daily, 7, 10 or 30 days). Sports with a season rest until their months come.":
+    "Im Flow: drei Ringe über die letzten 7 Tage (Bewegen, Achtsam, Erholung) und Ziele × Tage, jedes Ziel gleitend (täglich, 7, 10 oder 30 Tage). Sportarten mit Saison ruhen, bis ihre Monate kommen.",
+  "The stopwatch counts down to your target time, with a singing bowl at the start and the end and, if you like, in between (regularly, at chosen minutes or at random). Made small, it keeps running on every page.":
+    "Die Stoppuhr zählt auf deine Zielzeit herunter, mit Klangschale am Anfang und Ende und auf Wunsch dazwischen (regelmässig, zu gewählten Minuten oder zufällig). Verkleinert läuft sie auf jeder Seite weiter.",
+  "Daily check: sleep, energy, mood and a fourth question that changes each day, one tap each on 1–10. Every activity can be edited: name, symbol, ring, goal, minimum duration, season and what else counts.":
+    "Tagescheck: Schlaf, Energie, Stimmung und eine 4. Frage, die täglich wechselt, je ein Tipp auf 1–10. Jede Aktivität ist bearbeitbar: Name, Symbol, Ring, Ziel, Mindestdauer, Saison und was auch zählt.",
+
   // 0.47.3
   'In a new trip, "Chilly" and "Rain" stay chosen when you tap them, also when the forecast chose them already, so the list gets the cold and the rain items. Dry or rain are two chips, as on the trip page.':
     'Bei einer neuen Tour bleiben «Kühl» und «Regen» gewählt, wenn du sie antippst, auch wenn die Wettervorhersage sie schon gewählt hat; die Liste bekommt die Sachen für Kälte und Regen. Trocken oder Regen sind zwei Chips, wie auf der Tourseite.',
