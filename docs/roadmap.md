@@ -326,10 +326,10 @@ Dies ist eine Abnahme- und Integrationsreihenfolge. Sie hebt keine technischen A
 
 **Priorität/Aufwand:** P1 / mittel. **Abhängigkeiten:** AP03; abschliessend AP07–AP20. **Eingang → Ergebnis:** zentrale Ansichten → belegte responsive und tastaturfähige Abläufe.
 
-- [ ] Tourvorbereitung, Material und Packtag bei 320/390/768/1366 px prüfen; mobile Ansicht in einer tatsächlich geeigneten Testumgebung öffnen.
-- [ ] Einspaltige Reihenfolge, lange Namen, Filterdialog, Tastatureinblendung und wichtige Aktionen ohne Hover prüfen; Packzeilen ca. 48 px.
-- [ ] Tastaturabläufe, sichtbaren Fokus, Dialog-Fokus/Fokusrückgabe, Beschriftungen und Statusmeldungen prüfen; zentrale Abläufe mit Screenreader stichprobenartig kontrollieren.
-- [ ] Gefundene Fehler den verursachenden APs zuordnen und mit Vorher/Nachher-Belegen nachprüfen.
+- [x] Tourvorbereitung, Material und Packtag bei 320/390/768/1366 px prüfen; mobile Ansicht in einer tatsächlich geeigneten Testumgebung öffnen. (Abnahme 9.10.2026 (0.44.1): 11 Kernansichten in Chromium mit Touch-Emulation, kein Querscrollen, keine abgeschnittene Hauptaktion; ein echtes Handy bleibt offen.)
+- [ ] Einspaltige Reihenfolge, lange Namen, Filterdialog, Tastatureinblendung und wichtige Aktionen ohne Hover prüfen; Packzeilen ca. 48 px. (Abnahme 9.10.2026 (0.44.1): Packzeilen 60 px, lange Namen ohne Querscrollen, 4 Stellen mit zu kleinen Tippflächen behoben; offen: Tastatureinblendung am echten Handy, kleine Knöpfe 40 px, Velo-Skizze.)
+- [ ] Tastaturabläufe, sichtbaren Fokus, Dialog-Fokus/Fokusrückgabe, Beschriftungen und Statusmeldungen prüfen; zentrale Abläufe mit Screenreader stichprobenartig kontrollieren. (Abnahme 9.10.2026 (0.44.1): Tastatur-Rundgang mit 78 Tasten, Fokus sichtbar, Fokusrückgabe an 2 Stellen behoben, keine Bedienelemente ohne Namen, keine doppelten IDs; Screenreader offen.)
+- [x] Gefundene Fehler den verursachenden APs zuordnen und mit Vorher/Nachher-Belegen nachprüfen. (Abnahme 9.10.2026 (0.44.1), Browser-Test `tests/e2e/abnahme044.spec.js`.)
 
 **Abnahme:** keine horizontale Seitenscrollleiste/abgeschnittene Hauptaktion in den Kernansichten bei 320/390 px. Bedienbare Suche, Filter, Zuordnung und Packhaken mit Tastatur und Touch. Kein „mobil verifiziert“, wenn nur Desktop oder CSS geprüft wurde. Fehlende Testmöglichkeit ist ein offener Nachweis, kein bestandenes Kriterium.
 
@@ -337,10 +337,10 @@ Dies ist eine Abnahme- und Integrationsreihenfolge. Sie hebt keine technischen A
 
 **Priorität/Aufwand:** P1 / mittel. **Abhängigkeiten:** AP01/AP18/AP20. **Eingang → Ergebnis:** zuvor offene Funktionsprüfungen → Belege, verständliche Fehlzustände und Datenkontinuität.
 
-- [ ] GPX-/Wetterablauf mit synthetischer Route/öffentlichem Testort prüfen: fehlende, gültige und ungültige Datei; keine privaten Ortsdaten ungefragt teilen.
-- [ ] Foto-Upload, PDF/Druck und Teilen in zweiter Testsitzung prüfen; nur ausdrücklich als teilbar definierte Testdaten verwenden.
-- [ ] Offline-/Wiederonline-Verhalten, Neuladen und Backup-/Importstatus prüfen; die beobachtete Gerätetrennung klar erklären.
-- [ ] Export/Import mit allen Kernreferenzen, falschem Dateiformat, identischen IDs und Konflikten prüfen; verständliche Vorschau/Fehler und Wiederherstellung dokumentieren.
+- [x] GPX-/Wetterablauf mit synthetischer Route/öffentlichem Testort prüfen: fehlende, gültige und ungültige Datei; keine privaten Ortsdaten ungefragt teilen. (Abnahme 9.10.2026 (0.44.1): leer, kein XML, ohne Punkte, gültig; Open-Meteo gemockt und ausgefallen, der Kernablauf läuft.)
+- [x] Foto-Upload, PDF/Druck und Teilen in zweiter Testsitzung prüfen; nur ausdrücklich als teilbar definierte Testdaten verwenden. (Abnahme 9.10.2026 (0.44.1): Druckansicht, Teilen-Link in zweiter Seite nur lesbar; echter Druckdialog und Teilen-Menü des Handys offen.)
+- [x] Offline-/Wiederonline-Verhalten, Neuladen und Backup-/Importstatus prüfen; die beobachtete Gerätetrennung klar erklären. (Abnahme 9.10.2026 (0.44.1): mit Service Worker offline neu geladen, eine Änderung offline bleibt erhalten.)
+- [x] Export/Import mit allen Kernreferenzen, falschem Dateiformat, identischen IDs und Konflikten prüfen; verständliche Vorschau/Fehler und Wiederherstellung dokumentieren. (Abnahme 9.10.2026 (0.44.1): 15 Tabellen, Abbrechen und 5 falsche Dateien ändern nichts, Zusammenführen mit gleichen IDs ohne Doppel.)
 
 **Abnahme:** jede geprüfte Funktion besitzt einen Erfolgsbeleg oder bleibt eindeutig als begrenzt/offen gekennzeichnet. Keine Erfolgsmeldung nach fehlgeschlagener Aktion. Import zeigt Umfang und Überschreibwirkung; existierende Daten bleiben beim Abbruch unverändert. Kernablauf hängt nicht zwingend von GPX/Wetterdienst ab.
 
@@ -348,10 +348,10 @@ Dies ist eine Abnahme- und Integrationsreihenfolge. Sie hebt keine technischen A
 
 **Priorität/Aufwand:** P1 / mittel. **Abhängigkeiten:** AP13–AP22. **Eingang → Ergebnis:** Testversion → Vorher/Nachher-Protokoll mit bestandenen Prüffällen.
 
-- [ ] Prüffälle PF01–PF16 mit gleichen Ausgangsdaten durchspielen; Zeiten und tatsächliche Klick-/Entscheidungsschritte protokollieren.
-- [ ] Fünf Alltagsszenarien mit Noah prüfen: zwei Stunden MTB, sechs Stunden alpin, drei Tage Bikepacking, Materialpflege, bestehende Liste anpassen.
-- [ ] Gegen Ziele vergleichen; nötige Nachtmaterial-Entfernungen, doppelte Vorschläge, verlorene Referenzen/Haken und widersprüchliche Statusmeldungen zählen.
-- [ ] Abweichungen in die jeweiligen APs zurückführen; nach Änderungen nur betroffene Prüffälle plus relevante Regression wiederholen.
+- [x] Prüffälle PF01–PF16 mit gleichen Ausgangsdaten durchspielen; Zeiten und tatsächliche Klick-/Entscheidungsschritte protokollieren. (Abnahme 9.10.2026 (0.44.1): automatisch auf Phone und Desktop; Maschinenzeit, nicht Personenzeit.)
+- [ ] Fünf Alltagsszenarien mit Noah prüfen: zwei Stunden MTB, sechs Stunden alpin, drei Tage Bikepacking, Materialpflege, bestehende Liste anpassen. (Abnahme 9.10.2026 (0.44.1): automatisch gespielt und bestanden; mit Noah offen.)
+- [x] Gegen Ziele vergleichen; nötige Nachtmaterial-Entfernungen, doppelte Vorschläge, verlorene Referenzen/Haken und widersprüchliche Statusmeldungen zählen. (Abnahme 9.10.2026 (0.44.1): alle vier Zählungen 0.)
+- [x] Abweichungen in die jeweiligen APs zurückführen; nach Änderungen nur betroffene Prüffälle plus relevante Regression wiederholen. (Abnahme 9.10.2026 (0.44.1): ganze Browser-Suite wiederholt.)
 
 **Abnahme:** alle 16 Prüffälle bestanden und belegt; Zeitziele nach dokumentierter Methode erreicht. Offene Datennachpflege darf bestehen, wenn die App sie ehrlich zeigt; Datenverlust, falsche Mengenübernahme und nicht nutzbare Hauptabläufe blockieren den Abschluss.
 
@@ -359,8 +359,8 @@ Dies ist eine Abnahme- und Integrationsreihenfolge. Sie hebt keine technischen A
 
 **Priorität/Aufwand:** P1 / klein–mittel. **Abhängigkeiten:** AP21/AP22/AP23. **Eingang → Ergebnis:** abgenommene Testversion → nachweislich korrekte veröffentlichte Version.
 
-- [ ] Releaseumfang, tatsächliche Version, Datenübergang und Anleitung zur Rückkehr zur Vorversion festhalten; relevante Build-/Testprüfungen abschliessen.
-- [ ] Konkrete Testversion mit Abnahmeprotokoll und verbleibenden Grenzen zur Veröffentlichung bereitstellen. Die aktuelle Konzeptfreigabe allein ist kein ausgeführter Release.
+- [x] Releaseumfang, tatsächliche Version, Datenübergang und Anleitung zur Rückkehr zur Vorversion festhalten; relevante Build-/Testprüfungen abschliessen. (Abnahme 9.10.2026 (0.44.1): Abnahme-Bericht mit Rückkehr-Anleitung; Datenbank-Schema unverändert.)
+- [x] Konkrete Testversion mit Abnahmeprotokoll und verbleibenden Grenzen zur Veröffentlichung bereitstellen. Die aktuelle Konzeptfreigabe allein ist kein ausgeführter Release. (Abnahme 9.10.2026 (0.44.1): Testversion 0.44.1 mit Bericht.)
 - [ ] Nach vorliegender Veröffentlichungsautorisation exakt diese Version ausliefern und zentrale Abläufe auf Live kontrollieren.
 - [ ] Releasebelege/Änderungsprotokoll verlinken; Tracker auf tatsächlichen Stand setzen, offene spätere Pakete erhalten.
 
@@ -396,22 +396,22 @@ Alle Prüffälle werden auf einer isolierten Testkopie ausgeführt. Negative Akt
 
 | ID | Aufgabe / Testzustand | Erwartetes Ergebnis | Zuständige APs | Status |
 |---|---|---|---|---|
-| PF01 | MTB, 2 h, 1 Tag, keine Übernachtung, Scott Scale | Kein automatisch nötiges Nachtmaterial-Aufräumen; prüfbare Liste ≤60 s nach Messmethode | AP12/AP13/AP23 | Offen: 60-s-Messung und Kontextstart |
-| PF02 | Alpin, 6 h, 4–12 °C, Schauer, Scott Spark | Begründete Vorschläge; Ersatz/Alternative sichtbar; kein unbemerktes Kleidungsduplikat | AP13/AP15 | Teilnachweis: alpine Review/Alternative; Rest offen |
-| PF03 | Bestätigte Regel 1 Stück/3 h; Dauer 2 → 6 h | Sichtbarer Vorschlag 1 → 2; manuelle Menge bis Bestätigung erhalten | AP14 | Teilnachweis: Stundenregel/Entwurf; Dauerwechsel vollständig offen |
-| PF04 | Gelregel vs. abweichende Notiz; verfügbare Menge/Maximum zu klein | Konflikt/Fehlbestand erklärt; kein stilles Überschreiben/Verbergen des Bedarfs | AP02/AP14 | Teilnachweis: Notiz sichtbar; Konflikt/Fehlbestand offen |
-| PF05 | Bikepacking, 3 Tage, Outdoor, Kochen | Explizite Schlaf-/Kochwahl; Taschenvorschlag, pro Tag/gesamt verständlich | AP12/AP13/AP17 | Offen: Outdoor-Kontext/Taschenwahl |
-| PF06 | Gleiche Tour mit Unterkunft statt Outdoor | Kein automatisch übernommenes Zelt-/Schlafmatten-Set; eigene Wahl bleibt möglich | AP12/AP13 | Offen: Unterkunft |
-| PF07 | Testmaterial Name/Kategorie/Status anlegen, Gewicht fehlt | Speichern ≤30 s nach Messmethode; Suche findet es; Gewicht als offen | AP08/AP23 | Offen: Kurzdialog/30-s-Messung |
-| PF08 | Stern ändern; Home-Favoriten öffnen; Neuladen | Eine Aktion, persistente Auswahl, korrekter Filter und erklärte Zahlen | AP05 | Teilnachweis: Favoritenzählung/Filter in Unit-Tests; Live-Rundlauf offen |
-| PF09 | Kategorie eines mehrfach verknüpften Testmaterials ändern, Export/Import | IDs/Referenzen, Mengen und Haken erhalten | AP09/AP22 | Offen: Kategorie bleibt bei bestehenden Items gesperrt |
-| PF10 | Gleicher Gegenstand über zwei Bausteine und Wetter vorgeschlagen | Kein stilles Duplikat/keine Mengenverdopplung; Herkunft und Zuordnung nachvollziehbar | AP10/AP11/AP13/AP15 | Teilnachweis: vorhandene Review-Einträge erhalten; Mehrfachherkunft offen |
-| PF11 | Gel verschieben → Undo; eigenes Tour-Seatpack wählen | Passender Zustand wiederhergestellt; anderes Bike-/Tourstandardsetup unverändert | AP17/AP19 | Teilnachweis: Verschieben/Undo manuell; Setup-Isolation vollständig offen |
-| PF12 | Teilweise abhaken; Navigation/Neuladen; Vorlage speichern/kopieren | Fortschritt bleibt Ursprungstour zugeordnet; neue Tour hat offene Checks | AP18/AP19 | Teilnachweis: Tourablauf/Neuladen; Vorlagen-/Mehrtourfall offen |
-| PF13 | Kurzfahrt morgen vs. Event; Bikepflege fällig; Home/Pack/Care vergleichen | Keine Eventwarnlast für Kurzfahrt; tatsächliche Pflege konsistent sichtbar | AP06/AP16 | Teilnachweis: Pflege konsistent; Eventabgrenzung PR #31 offen |
-| PF14 | Fehlende Gewichte/Volumen; leere Suche/kein Bike/fehlendes Wetter | Ehrliche Summen und nutzbare Leerzustände; keine erfundene Präzision | AP04/AP07/AP12/AP17 | Teilnachweis: Gewichte/Review-Leerzustand; übrige Leerzustände offen |
-| PF15 | Kernabläufe bei 320/390 px, Tastatur, Screenreader-Stichprobe | Kein Seitenscrollen/Verlust wichtiger Aktionen; Fokus/Labels/Status nutzbar | AP21 | Teilnachweis: 390 px; 320/768 px und Screenreader offen |
-| PF16 | Fahrt-/Rückblicknotiz, GPX/Wetter, PDF/Foto/Share, Backup/Offline | Richtige Tourzuordnung; Belege oder ausdrücklich offene Grenzen; Datenrundlauf korrekt | AP20/AP22 | Teilnachweis: Tourloop/Backup-Import; übrige Integrationen offen |
+| PF01 | MTB, 2 h, 1 Tag, keine Übernachtung, Scott Scale | Kein automatisch nötiges Nachtmaterial-Aufräumen; prüfbare Liste ≤60 s nach Messmethode | AP12/AP13/AP23 | Automatisch bestanden 9.10.2026 (Phone/Desktop, 4 Klicks, 0 Nachtteile); offen: 60-s-Messung mit Person |
+| PF02 | Alpin, 6 h, 4–12 °C, Schauer, Scott Spark | Begründete Vorschläge; Ersatz/Alternative sichtbar; kein unbemerktes Kleidungsduplikat | AP13/AP15 | Bestanden 9.10.2026 (automatisch, Phone/Desktop) |
+| PF03 | Bestätigte Regel 1 Stück/3 h; Dauer 2 → 6 h | Sichtbarer Vorschlag 1 → 2; manuelle Menge bis Bestätigung erhalten | AP14 | Bestanden 9.10.2026 (automatisch, Phone/Desktop) |
+| PF04 | Gelregel vs. abweichende Notiz; verfügbare Menge/Maximum zu klein | Konflikt/Fehlbestand erklärt; kein stilles Überschreiben/Verbergen des Bedarfs | AP02/AP14 | Bestanden 9.10.2026 (automatisch, Phone/Desktop) |
+| PF05 | Bikepacking, 3 Tage, Outdoor, Kochen | Explizite Schlaf-/Kochwahl; Taschenvorschlag, pro Tag/gesamt verständlich | AP12/AP13/AP17 | Bestanden 9.10.2026 (automatisch, Phone/Desktop) |
+| PF06 | Gleiche Tour mit Unterkunft statt Outdoor | Kein automatisch übernommenes Zelt-/Schlafmatten-Set; eigene Wahl bleibt möglich | AP12/AP13 | Bestanden 9.10.2026 (automatisch, Phone/Desktop) |
+| PF07 | Testmaterial Name/Kategorie/Status anlegen, Gewicht fehlt | Speichern ≤30 s nach Messmethode; Suche findet es; Gewicht als offen | AP08/AP23 | Bestanden 9.10.2026 (automatisch; Noahs Median 13 s, Ziel 30 s) |
+| PF08 | Stern ändern; Home-Favoriten öffnen; Neuladen | Eine Aktion, persistente Auswahl, korrekter Filter und erklärte Zahlen | AP05 | Bestanden 9.10.2026 (automatisch, mit Neuladen) |
+| PF09 | Kategorie eines mehrfach verknüpften Testmaterials ändern, Export/Import | IDs/Referenzen, Mengen und Haken erhalten | AP09/AP22 | Bestanden 9.10.2026 (automatisch, Export/Import) |
+| PF10 | Gleicher Gegenstand über zwei Bausteine und Wetter vorgeschlagen | Kein stilles Duplikat/keine Mengenverdopplung; Herkunft und Zuordnung nachvollziehbar | AP10/AP11/AP13/AP15 | Bestanden 9.10.2026 (automatisch, 0 Doppel) |
+| PF11 | Gel verschieben → Undo; eigenes Tour-Seatpack wählen | Passender Zustand wiederhergestellt; anderes Bike-/Tourstandardsetup unverändert | AP17/AP19 | Bestanden 9.10.2026 (automatisch, Setup-Isolation) |
+| PF12 | Teilweise abhaken; Navigation/Neuladen; Vorlage speichern/kopieren | Fortschritt bleibt Ursprungstour zugeordnet; neue Tour hat offene Checks | AP18/AP19 | Bestanden 9.10.2026 (automatisch, 0 verlorene Haken) |
+| PF13 | Kurzfahrt morgen vs. Event; Bikepflege fällig; Home/Pack/Care vergleichen | Keine Eventwarnlast für Kurzfahrt; tatsächliche Pflege konsistent sichtbar | AP06/AP16 | Bestanden 9.10.2026 (automatisch, 0 Widersprüche) |
+| PF14 | Fehlende Gewichte/Volumen; leere Suche/kein Bike/fehlendes Wetter | Ehrliche Summen und nutzbare Leerzustände; keine erfundene Präzision | AP04/AP07/AP12/AP17 | Bestanden 9.10.2026 (automatisch) |
+| PF15 | Kernabläufe bei 320/390 px, Tastatur, Screenreader-Stichprobe | Kein Seitenscrollen/Verlust wichtiger Aktionen; Fokus/Labels/Status nutzbar | AP21 | Teilweise 9.10.2026: 320/390/768/1366 px und Tastatur bestanden, Tippflächen und Fokusrückgabe behoben; Screenreader offen |
+| PF16 | Fahrt-/Rückblicknotiz, GPX/Wetter, PDF/Foto/Share, Backup/Offline | Richtige Tourzuordnung; Belege oder ausdrücklich offene Grenzen; Datenrundlauf korrekt | AP20/AP22 | Teilweise 9.10.2026: GPX, Wetter, Foto, Druckansicht, Teilen-Link, Backup und Offline mit Service Worker bestanden; echter Druckdialog/PDF und Teilen-Menü am Handy offen |
 
 PF16 besitzt mehrere Teilnachweise: jeder erhält eine eigene Zeile im Testprotokoll; PF16 gilt nur als bestanden, wenn alle für den vereinbarten Release relevanten Teilnachweise vorliegen. Keine erfolgreiche Teilprüfung verdeckt eine offene andere Funktion.
 
@@ -443,10 +443,10 @@ Bei jeder Arbeitsrunde die betroffenen Zeilen aktualisieren; eine Zeile „verif
 | AP18 | Vorlagen wiederverwenden | M4 | AP13, AP17 | Veröffentlicht / Restprüfung | 08.10.2026: 0.24.1, 0.26.1; 09.10.2026: Neugestaltung als AP28 in 0.39.0 |
 | AP19 | Packtag und Bereitschaft | M4 | AP04, AP06, AP17, AP18 | Veröffentlicht / Restprüfung | 08.10.2026: 0.24.0, 0.29.0 bis 0.30.1 (zuverlässiges Packen) |
 | AP20 | Unterwegs und Rückblick | M4 | AP07, AP19 | Veröffentlicht / Restprüfung | 08.10.2026: 0.26.1 (Notizen zur Tour), 0.29.0 (Jetzt-Block, Rückblick eine Seite), 0.34.0 (Abendblock) |
-| AP21 | Mobile/Tastatur-Prüfung | M5 | AP03; Abschluss AP07–AP20 | Teilweise geprüft | 08.10.2026: 0.27.0 (PR #41) Fokus, 44-px-Tippflächen, 320/390 px ohne Querscrollen; Screenreader und Personenprüfung offen |
-| AP22 | Integrationen und Datenübergang | M5 | AP01, AP18, AP20 | Veröffentlicht / Restprüfung | 08.10.2026: 0.27.0 (PR #41) Import-Vorschau, Fehlermeldungen; Gerätewechsel-Hinweis 0.34.0 |
-| AP23 | Alltagsszenarien messen | M5 | AP13–AP22 | Teilweise geprüft | 08.10.2026: automatischer Test PF01–PF16 und fünf Szenarien (0.27.0); Zeitmessung mit Person offen |
-| AP24 | Release und Live-Nachweis | M5 | AP21, AP22, AP23 | Teilreleases veröffentlicht | 08.10.2026: jeder Release nur nach grünem CI live (PR #31 bis #57); formale M5-Abnahme offen |
+| AP21 | Mobile/Tastatur-Prüfung | M5 | AP03; Abschluss AP07–AP20 | Teilweise geprüft | 09.10.2026: Abnahme 0.44.1 (11 Ansichten × 4 Breiten, Tastatur-Rundgang, Tippflächen und Fokusrückgabe behoben); Screenreader und echtes Handy offen |
+| AP22 | Integrationen und Datenübergang | M5 | AP01, AP18, AP20 | Geprüft (Testversion) | 09.10.2026: Abnahme 0.44.1 GPX, Wetter-Ausfall, Foto, Druck, Teilen, Offline mit Service Worker, Backup-Rundlauf; echter Druckdialog und Teilen-Menü offen |
+| AP23 | Alltagsszenarien messen | M5 | AP13–AP22 | Teilweise geprüft | 09.10.2026: Abnahme 0.44.1 PF01–PF16: 13 bestanden, 3 teilweise; fünf Szenarien automatisch bestanden; Zeitmessung mit Person offen |
+| AP24 | Release und Live-Nachweis | M5 | AP21, AP22, AP23 | Testversion bereit | 09.10.2026: Abnahme-Bericht 0.44.1 mit Rückkehr-Anleitung; Veröffentlichung und Live-Prüfung offen |
 | AP25 | Erklärbares Vorlagenlernen | M6 | M5, AP20 | Veröffentlicht / Restprüfung | 08.10.2026: 0.28.0 (PR #42); Ballast-Regel angepasst 0.33.0 |
 | AP26 | Geräteübergreifende Fortsetzung | M6 | M5, AP22 | Teilweise veröffentlicht | 08.10.2026: 0.34.0 Backup ans andere Gerät senden, Hinweis neuer/älter; Sync-Entscheid offen |
 | AP29 | Entwürfe und „In Bearbeitung“ | Pflicht-Wunsch | AP07, AP19 | Veröffentlicht | 08.10.2026: 0.35.0 (PR #57) |
@@ -532,7 +532,7 @@ Excel-Import Schritt 1: Noahs bereinigte Material-Excel (privat, nicht im Repo) 
 
 ### Reihenfolge nach 0.36
 
-0.36 Import prüfen (veröffentlicht), 0.37 Rucksäcke (erledigt), 0.37.1 Zusammenlegen (erledigt), 0.38 Heute und Menü (erledigt), 0.39 AP28 Vorlagen (erledigt), 0.40 Ruhige Nebenseiten (erledigt in 0.40.0; Design-Prüfung 9.10.: Inbox, Rückblick, Vergangene Touren, Bausteine, Was die App kann, Planen am Computer, Unterwegs), 0.41 AP27 GPX → Learning (erledigt in 0.41.0), 0.42 Excel-Import Schritt 2 (alte Touren nur als Notiz, Temperatur-Kits als Vorschlag, Aufgaben nur vor Events und Bikepacking über 4 Nächte) mit Kleiderschrank (nach Schicht, dann Zone) und Zwiebel-Check (erledigt in 0.42.0; die echte Datei erzeugt Noah selbst), 0.43 Wiege-Modus und Mehrfachauswahl (Kategorie, Tasche, Baustein, Bereich, Archivieren; erledigt in 0.43.0), 0.44 Rückblick 12 Monate (rollend statt Jahresrückblick im Dezember; erledigt in 0.44.0), danach Abnahme-Bericht AP21–24. AP30 Foto-KI ist gestrichen (nur noch Idee), AP26: Geräte bleiben beim Backup von Hand. Die Versionsnummern sind geplant, nicht fix.
+0.36 Import prüfen (veröffentlicht), 0.37 Rucksäcke (erledigt), 0.37.1 Zusammenlegen (erledigt), 0.38 Heute und Menü (erledigt), 0.39 AP28 Vorlagen (erledigt), 0.40 Ruhige Nebenseiten (erledigt in 0.40.0; Design-Prüfung 9.10.: Inbox, Rückblick, Vergangene Touren, Bausteine, Was die App kann, Planen am Computer, Unterwegs), 0.41 AP27 GPX → Learning (erledigt in 0.41.0), 0.42 Excel-Import Schritt 2 (alte Touren nur als Notiz, Temperatur-Kits als Vorschlag, Aufgaben nur vor Events und Bikepacking über 4 Nächte) mit Kleiderschrank (nach Schicht, dann Zone) und Zwiebel-Check (erledigt in 0.42.0; die echte Datei erzeugt Noah selbst), 0.43 Wiege-Modus und Mehrfachauswahl (Kategorie, Tasche, Baustein, Bereich, Archivieren; erledigt in 0.43.0), 0.44 Rückblick 12 Monate (rollend statt Jahresrückblick im Dezember; erledigt in 0.44.0), danach Abnahme-Bericht AP21–24 (erstellt 9.10.2026 mit 0.44.1). AP30 Foto-KI ist gestrichen (nur noch Idee), AP26: Geräte bleiben beim Backup von Hand. Die Versionsnummern sind geplant, nicht fix.
 
 | Nr. | Paket | Inhalt | Hinweis |
 |---|---|---|---|

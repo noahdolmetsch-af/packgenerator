@@ -15,6 +15,7 @@
   let q = $state('');
   let open = $state(false); // phone: the field is shown
   let input = $state();
+  let btn = $state(); // phone: the magnifier that opened the field
   const all = liveQuery(async () => {
     const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
     return { items, trips, bikes, notes, templates: tpl?.value ?? [], events };
@@ -59,14 +60,18 @@
     if (open) queueMicrotask(() => input?.focus());
   }
   const key = (e) => {
-    if (e.key === 'Escape') (q = ''), (open = false);
+    if (e.key === 'Escape') {
+      q = '';
+      // v0.44.1 (AP21): on a phone the field closes, so the focus goes back to the magnifier (not to the page top).
+      if (open) (open = false), queueMicrotask(() => btn?.focus());
+    }
     if (e.key === 'Enter' && count) go(groups[0].rows[0]);
   };
 </script>
 
 <div class="search" bind:this={root} class:ph={phone.matches || compact} class:open>
   {#if phone.matches || compact}
-    <button type="button" class="icon" aria-label={open ? t('Close search') : t('Search everything')} aria-expanded={open} onclick={toggle}>
+    <button type="button" class="icon" bind:this={btn} aria-label={open ? t('Close search') : t('Search everything')} aria-expanded={open} onclick={toggle}>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
     </button>
   {/if}

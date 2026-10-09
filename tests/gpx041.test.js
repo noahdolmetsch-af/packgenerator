@@ -50,6 +50,9 @@ describe('pauses: 5 minutes or more is a pause, shorter stops are moving time', 
     const plan = '<gpx><trk><trkseg><trkpt lat="46.5" lon="7.5"><ele>400</ele></trkpt><trkpt lat="46.5" lon="7.6"><ele>410</ele></trkpt></trkseg></trk></gpx>';
     expect(() => analyseRide(plan)).toThrow(/no times/);
     expect(() => analyseRide('hello')).toThrow(/not a GPX/);
+    // v0.44.1 (AP22): an empty upload is said to be empty
+    expect(() => analyseRide('')).toThrow(/This file is empty/);
+    expect(() => analyseRide('  \n')).toThrow(/This file is empty/);
   });
 
   it('reads a TCX file too', () => {

@@ -54,7 +54,8 @@ export default defineConfig({
       },
       workbox: {
         // Everything the app needs is stored on the device at install time.
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        // v0.44.1 (AP22): the Latin fonts too (about 350 KB), else offline the app falls back to the system font.
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}', '**/*-latin-*.woff2'],
         // v0.41.0: the small handler for the shared file (POST), loaded before Workbox's own routes.
         importScripts: ['share-target.js'],
         runtimeCaching: [

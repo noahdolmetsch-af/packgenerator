@@ -311,8 +311,10 @@ export default {
   'Your data is kept aside first. "End demo" puts it back exactly as it is now; everything done in the demo is removed then. Backups are off while the demo runs.':
     'Deine Daten werden zuerst beiseitegelegt. «Demo beenden» holt sie genau so zurück, wie sie jetzt sind; alles aus der Demo wird dann entfernt. Backups sind aus, solange die Demo läuft.',
   'End the running demo first.': 'Beende zuerst die laufende Demo.',
-  'contains {items} gear items, {trips} trips and {learnings} learnings.':
-    'enthält {items} Ausrüstungsteile, {trips} Touren und {learnings} Learnings.',
+  // v0.44.1 (AP22): one or many for each count ("1 Tour", not "1 Touren").
+  'contains {items}, {trips} and {learnings}.': 'enthält {items}, {trips} und {learnings}.',
+  '{n} gear item': '{n} Ausrüstungsteil',
+  '{n} gear items': '{n} Ausrüstungsteile',
   'Replace all data': 'Alle Daten ersetzen',
   Merge: 'Zusammenführen',
   'Replace: the file becomes your data. Merge: records from the file are added or overwrite the same ID.':
