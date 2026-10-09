@@ -123,6 +123,40 @@ test('phone touch targets: gear category heads, PG, debrief All buttons, bike ca
   expect(l.h).toBeGreaterThanOrEqual(44);
 });
 
+test.describe('with the service worker', () => {
+  test.use({ serviceWorkers: 'allow' });
+  test('offline after a reload: the app opens with its own font and keeps a change', async ({ page, context }, info) => {
+    test.skip(info.project.name !== 'phone', 'phone only');
+    await load(page, context, info);
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    await page.reload();
+    await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
+    await context.setOffline(true);
+    await page.goto('./#/gear');
+    await page.reload();
+    await page.getByRole('searchbox', { name: T('Search gear') }).fill('Multitool');
+    const font = () => page.evaluate(async () => {
+      try {
+        const faces = await document.fonts.load('600 16px "Fira Sans"', 'Ä');
+        return faces.length > 0 && faces.every((f) => f.status === 'loaded');
+      } catch {
+        return false;
+      }
+    });
+    expect(await font(), 'Fira Sans loads offline').toBe(true);
+    await page.getByRole('button', { name: T('Mark as favourite') }).first().click();
+    await page.waitForTimeout(300);
+    await page.reload();
+    await expect(page.getByRole('searchbox', { name: T('Search gear') })).toBeVisible();
+    const fav = await page.evaluate(() => new Promise((ok) => {
+      const r = indexedDB.open('pack-generator');
+      r.onsuccess = () => { const q = r.result.transaction('items').objectStore('items').get('test_data_gtp_WZ01'); q.onsuccess = () => ok(q.result?.favorite); };
+    }));
+    expect(fav, 'the star set offline is kept after a reload').toBe(true);
+    await context.setOffline(false);
+  });
+});
+
 test('import preview says 1 trip and 1 learning in the singular', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'desktop', 'one is enough');
   const data = JSON.parse(fixture());
