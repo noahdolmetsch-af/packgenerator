@@ -92,6 +92,15 @@ describe('periodStats: Letzte 12 Monate, Jahr, Alle', () => {
     expect(all.bars.map((b) => b.key)).toEqual(['2025', '2026']);
   });
 
+  it('«Touren» counts trips only, as Today does; a ride on its own adds its km', () => {
+    const trip = { id: 't', title: 'Eine Tour', startDate: day(-5), days: 1, status: 'done', entries: [], route: { km: 40 } };
+    const ride = { id: 'solo', name: 'Feierabend', date: day(-2), km: 30, movingH: 1.5, tripId: null };
+    const f = tripFacts({ trips: [trip], rides: [ride], today: D0 });
+    const s = Object.fromEntries(periodStats(f, [], '12m', D0).stats.map((x) => [x.key, x]));
+    expect(s.trips.value).toBe(1);
+    expect(s.km.value).toBe(70);
+  });
+
   it('no trips: empty, nothing breaks', () => {
     const p = periodStats([], [], '12m', D0);
     expect(p.empty).toBe(true);

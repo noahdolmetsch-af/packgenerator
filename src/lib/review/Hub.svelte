@@ -15,6 +15,7 @@
   import { db } from '../db.js';
   import { loadReview } from './load.js';
   import { tripFacts, periodStats, compareSet, planVsReal, ARTS } from './rueckblick.js';
+  import { homeTrips } from '../home/heute.js';
   import { n0, n1, hours, temps, kg, dates, monthShort, monthLong, dayLong, rainText, DASH } from './fmt.js';
   import { paceOf } from '../pace.js';
   import { openTrip } from '../nav.js';
@@ -30,7 +31,8 @@
   const today = localDay();
   const dataQ = liveQuery(async () => ({ ...(await loadReview(db)), events: await db.events.count(), lastEvents: (await db.events.toArray()).sort((a, b) => (b.sortDate ?? '').localeCompare(a.sortDate ?? '')).slice(0, 3) }));
   const data = $derived($dataQ ?? null);
-  const facts = $derived(data ? tripFacts({ ...data, today }) : []);
+  // the same trips as Today's «Letzte 12 Monate»: no archived and no test trips (home/heute.js)
+  const facts = $derived(data ? tripFacts({ ...data, trips: homeTrips(data.trips), today }) : []);
 
   const KEEP = 'review.period';
   const keepGet = (k, d) => {
@@ -169,7 +171,7 @@
   <header class="head">
     <div class="ht">
       <h1 class="title">{t('Look back|page')}</h1>
-      {#if stats}<p class="page-sub num">{[rangeText, tn(stats.rows.length, '{n} trip', '{n} trips'), open ? tn(open, '{n} debrief open', '{n} debriefs open') : ''].filter(Boolean).join(' · ')}</p>{/if}
+      {#if stats}<p class="page-sub num">{[rangeText, tn(stats.stats[0].value ?? 0, '{n} trip', '{n} trips'), open ? tn(open, '{n} debrief open', '{n} debriefs open') : ''].filter(Boolean).join(' · ')}</p>{/if}
     </div>
     <div class="hacts">
       <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={setMode} />
@@ -357,6 +359,7 @@
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+    min-width: 44px;
     color: var(--accent);
   }
   .head {

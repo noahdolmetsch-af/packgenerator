@@ -9,6 +9,7 @@
    * still open gets a small marker in its row (the list «Rückblick offen» is gone). Numbers:
    * review/rueckblick.js, unknown is a calm «–».
    */
+  import { homeTrips } from '../lib/home/heute.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { loadReview } from '../lib/review/load.js';
@@ -22,7 +23,8 @@
 
   const today = localDay();
   const dataQ = liveQuery(() => loadReview(db));
-  const facts = $derived($dataQ ? tripFacts({ ...$dataQ, today }) : []);
+  // the same trips as the Rückblick and Today: no archived and no test trips (home/heute.js)
+  const facts = $derived($dataQ ? tripFacts({ ...$dataQ, trips: homeTrips($dataQ.trips), today }) : []);
 
   let mode = $state('12m');
   let art = $state('all');
@@ -195,6 +197,7 @@
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+    min-width: 44px;
     color: var(--accent);
   }
   .head {

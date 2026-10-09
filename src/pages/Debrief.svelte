@@ -987,6 +987,7 @@
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+    min-width: 44px;
     color: var(--accent);
   }
   .box {

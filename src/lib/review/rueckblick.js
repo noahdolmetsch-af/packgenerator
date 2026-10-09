@@ -204,9 +204,11 @@ function numbers(rows, learnings, from, to) {
   const ridesKm = sum(speedRows, (r) => sum(r.rides, (x) => x.km));
   const ridesH = sum(speedRows, (r) => r.movingH);
   const weather = rows.filter((r) => r.rain.wet != null);
+  // «Touren» are trips, as on Today (yearreview.js); a ride on its own adds its km, Hm and time only.
+  const tripRows = rows.filter((r) => r.kind === 'trip');
   return {
-    trips: rows.length,
-    days: rows.reduce((s, r) => s + r.days, 0),
+    trips: tripRows.length,
+    days: tripRows.reduce((s, r) => s + r.days, 0),
     km: kmRows.length ? Math.round(sum(kmRows, (r) => r.km)) : null,
     gainM: known((r) => r.gainM).length ? Math.round(sum(rows, (r) => r.gainM)) : null,
     movingH: known((r) => r.movingH).length ? r2(sum(rows, (r) => r.movingH)) : null,
@@ -239,7 +241,7 @@ export function periodStats(facts = [], learnings = [], mode = '12m', today = lo
     return xs.length ? xs.reduce((s, v) => s + v, 0) / xs.length : null;
   };
   const byMonth = {};
-  for (const r of rows) byMonth[r.start.slice(0, 7)] = (byMonth[r.start.slice(0, 7)] ?? 0) + 1;
+  for (const r of rows) if (r.kind === 'trip') byMonth[r.start.slice(0, 7)] = (byMonth[r.start.slice(0, 7)] ?? 0) + 1;
   const bestMonth = Object.entries(byMonth).sort((a, b) => b[1] - a[1] || b[0].localeCompare(a[0]))[0];
   const stat = (key, value, extra = {}) => {
     const pv = prev ? prev[key] : null;
