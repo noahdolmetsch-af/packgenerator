@@ -3,10 +3,16 @@
  * notes. Every word has to be found somewhere in the row (English or German name, brand, model,
  * note). Pure function, easy to test.
  */
-import { t, tn, num, nameOf, dateOf } from './i18n.svelte.js';
+import { t, tn, num, nameOf, locale } from './i18n.svelte.js';
 import { MORE_ROWS, ACTIONS } from './nav/menu.js';
 
 const norm = (s) => String(s ?? '').toLowerCase();
+/** v0.40.0 (design check): a trip's day as everywhere: "So., 19. Okt." (the year only when it is another one). */
+export const tripDay = (iso, now = new Date()) => {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return iso ?? '';
+  const other = iso.slice(0, 4) !== String(now.getFullYear());
+  return new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', ...(other ? { year: 'numeric' } : {}) });
+};
 
 /** Where each kind of result opens. */
 export const KIND = {
@@ -42,12 +48,12 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
     gear: sort(
       items
         .filter((i) => i.ownership !== 'gone' && hit(i.name, i.nameDe, i.brand, i.model, i.note, i.favNote))
-        .map((i) => ({ id: i.id, title: `${i.favorite ? '★ ' : ''}${nameOf(i)}`, sub: [i.brand, i.weightG != null ? `${num(i.weightG)} g` : t('not weighed'), i.ownership === 'wishlist' || i.ownership === 'to-buy' ? t('wishlist') : ''].filter(Boolean).join(' · '), href: `#/gear?q=${encodeURIComponent(nameOf(i))}&item=${encodeURIComponent(i.id)}` })),
+        .map((i) => ({ id: i.id, title: `${i.favorite ? '★ ' : ''}${nameOf(i)}`, sub: [i.brand, i.weightG != null ? '' : t('not weighed'), i.ownership === 'wishlist' || i.ownership === 'to-buy' ? t('wishlist') : ''].filter(Boolean).join(' · '), v: i.weightG != null ? `${num(i.weightG)} g` : '', href: `#/gear?q=${encodeURIComponent(nameOf(i))}&item=${encodeURIComponent(i.id)}` })),
     ),
     trip: trips
       .filter((tr) => hit(tr.title, tr.place?.name, tr.bike))
       .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))
-      .map((tr) => ({ id: tr.id, title: tr.title, sub: [tr.startDate ? dateOf(tr.startDate) : null, tr.bike].filter(Boolean).join(' · '), href: '#/pack', tripId: tr.id })),
+      .map((tr) => ({ id: tr.id, title: tr.title, sub: [tr.startDate ? tripDay(tr.startDate) : null, tr.bike].filter(Boolean).join(' · '), href: '#/pack', tripId: tr.id })),
     template: sort(templates.filter((tp) => hit(tp.name)).map((tp) => ({ id: tp.id, title: tp.name, sub: tn(tp.entries?.length ?? 0, '{n} item', '{n} items'), href: '#/pack/templates' }))),
     bike: sort(bikes.filter((b) => hit(b.name, b.model, b.kind)).map((b) => ({ id: b.id, title: b.name, sub: b.km != null ? `${num(b.km)} km` : '', href: `#/bikes?bike=${encodeURIComponent(b.id)}` }))),
     note: notes

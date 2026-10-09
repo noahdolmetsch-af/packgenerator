@@ -17,6 +17,8 @@
   const pct = $derived(y.share == null ? null : Math.round(y.share * 100));
 </script>
 
+<!-- v0.40.0 (design check R1): only once there is something: a job, a visit or something due. -->
+{#if y.self || y.shop || recent.length || next?.rows.length}
 <section class="card who" aria-labelledby="who-h">
   <h2 id="who-h"><Wrench size={18} aria-hidden="true" />{t('Who works on it')}<span class="r num">{y.year}</span></h2>
   {#if pct != null}
@@ -48,6 +50,7 @@
     </li>
   </ul>
 </section>
+{/if}
 
 <style>
   .who {
@@ -158,10 +161,9 @@
     font-weight: 600;
     white-space: nowrap;
   }
+  /* v0.40.0 (Noah 6a): neutral like every badge; the icon (shop or person) tells them apart. */
   .badge.mech {
-    background: #e8eef7;
-    border-color: #c5d3e8;
-    color: #2c4a75;
+    background: var(--paper-2);
   }
   .next .btn {
     flex: none;

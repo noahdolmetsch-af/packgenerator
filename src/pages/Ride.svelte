@@ -311,6 +311,8 @@
   const wearText = (b, n) => (n === 0 ? (b.wear.length ? t('Start with {list}', { list: b.wear.map((w) => w.name).join(', ') }) : t('Every-ride clothes')) : [b.on.length ? t('On: {list}', { list: b.on.map((w) => w.name).join(', ') }) : '', b.off.length ? t('Off: {list}', { list: b.off.map((w) => w.name).join(', ') }) : ''].filter(Boolean).join(' · ') || t('No change'));
   const foodText = (b) => b.food.map((f) => `${f.n} × ${f.name}`).join(', ') || t('Nothing planned');
   const lightText = (b) => (!b.light ? t('Not needed') : b.light.kind === 'on' ? (b.light.km == null ? t('On from about {time}', { time: b.light.at }) : t('On from about {time} (km {km})', { time: b.light.at, km: b.light.km })) : b.light.kind === 'off' ? (b.light.km == null ? t('On until about {time}', { time: b.light.at }) : t('On until about {time} (km {km})', { time: b.light.at, km: b.light.km })) : t('Dark the whole block'));
+  // v0.40.0: the one word of a block in the list: rain, light or a change of clothes, else nothing.
+  const keyword = (b, n) => (b.rest ? '' : b.wet ? t('rain likely') : b.light ? t('light|block') : n > 0 && (b.on.length || b.off.length) ? t('change clothes') : '');
   // v0.30.1 (Noah C1): where a block is: km on a route, else its hours.
   const where = (b) => (b.kmFrom == null ? t('{n} h riding', { n: num(Math.round(((new Date(`${b.endAt}:00Z`) - new Date(`${b.startAt}:00Z`)) / 36e5) * 10) / 10) }) : `km ${b.kmFrom}–${b.kmTo}`);
   const refillText = (b) => (b.refillKm.length ? t('Refill at km {list}', { list: b.refillKm.join(', ') }) : b.refillAt?.length ? t('Refill at about {list}', { list: b.refillAt.join(', ') }) : '');
@@ -461,10 +463,16 @@
         <section class="tp-card" aria-labelledby="blocks-h">
           <h2 id="blocks-h"><Clock size={18} aria-hidden="true" />{t('The day in blocks')}<span class="r">{nonstop && trip.plan?.schedule?.length ? t('your time plan') : t('3 h each')}</span></h2>
           <ol class="timeline blocks">
+            <!-- v0.40.0 (design check R2): one short line per block (time · °C · one word); the whole
+                 block (clothes, food, drink, light) opens with a tap, so the Now card is not repeated. -->
             {#each bp.rows as b, n (b.startAt)}
+              {@const key = keyword(b, n)}
               <li class:cur={n === nowIdx} class:rest={b.rest} aria-current={n === nowIdx && isNow ? 'time' : undefined}>
-                <span class="num tm">{dayName(b.startAt)} {span(b)}</span>
-                <span><b class="num">{b.rest ? t('stop at km {km}', { km: b.kmTo }) : where(b)}</b>{#if b.temp}{' · '}<span class="num">{tempText(b)}</span>{b.wet ? ` · ${t('rain likely')}` : ''}{/if}{#if !b.rest}{' · '}{wearText(b, n)} · {foodText(b)} · {t('about {n} L to drink', { n: num(b.drinkL) })}{#if refillText(b)}{' · '}{refillText(b)}{/if}{#if b.light}{' · '}{lightText(b)}{/if}{/if}{#if b.note}<small>{b.note}</small>{/if}</span>
+                <details>
+                  <summary><span class="num tm">{dayName(b.startAt)} {span(b)}</span><span class="one"><b class="num">{b.rest ? t('stop at km {km}', { km: b.kmTo }) : where(b)}</b>{#if b.temp}{' · '}<span class="num">{tempText(b)}</span>{/if}{#if key}{' · '}{key}{/if}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+                  {#if !b.rest}<p class="full">{wearText(b, n)} · {foodText(b)} · {t('about {n} L to drink', { n: num(b.drinkL) })}{#if refillText(b)}{' · '}{refillText(b)}{/if}{#if b.light}{' · '}{lightText(b)}{/if}</p>{/if}
+                  {#if b.note}<small>{b.note}</small>{/if}
+                </details>
               </li>
             {/each}
           </ol>
@@ -597,9 +605,15 @@
   .notes li { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; padding: 6px 0; border-top: 1px solid var(--paper-2); }
   .notes li span { flex: 1 1 50%; min-width: 0; overflow-wrap: anywhere; }
   .timeline { list-style: none; margin: 10px 0 0; padding: 0; }
-  .timeline li { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-top: 1px solid var(--paper-2); font-size: 14px; overflow-wrap: anywhere; }
+  .timeline li { padding: 0; border-top: 1px solid var(--paper-2); font-size: 14px; overflow-wrap: anywhere; }
+  .timeline summary { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 44px; padding: 6px 0; list-style: none; cursor: pointer; }
+  .timeline summary::-webkit-details-marker { display: none; }
+  .timeline summary :global(.chev) { color: var(--ink-3); transition: transform 0.15s; }
+  .timeline details[open] summary :global(.chev) { transform: rotate(90deg); }
+  .timeline .full { margin: 0 0 10px 102px; color: var(--ink-2); }
+  @media (max-width: 479px) { .timeline .full { margin-left: 0; } }
   .timeline li .tm { color: var(--ink-3); }
-  .timeline li.cur { background: var(--paper-2); margin: 0 -16px; padding: 10px 16px 10px 13px; border-left: 3px solid var(--ink); }
+  .timeline li.cur { background: var(--paper-2); margin: 0 -16px; padding: 0 16px 0 13px; border-left: 3px solid var(--ink); }
   .timeline li.cur .tm { color: var(--ink); font-weight: 700; }
   .timeline li.rest { color: var(--ink-3); }
   .timeline small { display: block; color: var(--ink-3); }

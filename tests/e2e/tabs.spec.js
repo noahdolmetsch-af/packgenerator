@@ -47,6 +47,8 @@ async function newTrip(page, T, title, { days = 1, date = day(0), weather = null
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await dlg.getByLabel(T('Name')).fill(title);
   await dlg.getByLabel(T('Start date')).fill(date);
+  // v0.40.0: the days field only after "More".
+  if (days > 1) await dlg.getByRole('button', { name: T('More'), exact: true }).click();
   if (days > 1) await dlg.getByLabel(T('Days')).fill(String(days));
   if (weather) {
     const b = dlg.getByRole('button', { name: new RegExp(`^${esc(T(weather))} `) });
@@ -230,10 +232,12 @@ test('the debrief is one page: nothing different = one tap', async ({ page, cont
   await page.goto(`./#/debrief/${trip.id}`);
   await expect(page.getByRole('heading', { name: T('What was different?') })).toBeVisible();
   // Filled in: weather as planned, amount right, bags fine; every item counts as used.
-  await expect(page.locator('.qa select')).toHaveCount(3);
-  await expect(page.locator('.qa select').nth(0)).toHaveValue('planned');
-  await expect(page.locator('.qa select').nth(1)).toHaveValue('right');
-  await expect(page.locator('.qa select').nth(2)).toHaveValue('fine');
+  // v0.40.0 (Noah 4a): segments instead of drop-downs.
+  const segs = page.locator('.qa [role=group]');
+  await expect(segs).toHaveCount(3);
+  await expect(segs.nth(0).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'planned');
+  await expect(segs.nth(1).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'right');
+  await expect(segs.nth(2).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'fine');
   await expect(page.locator('details.items-fold summary')).toContainText(T('{n} items used', { n: trip.entries.length }));
   await noSideScroll(page);
   let clicks = 0;

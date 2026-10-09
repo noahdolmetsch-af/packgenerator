@@ -12,7 +12,7 @@
   import { nextId } from '../lib/gear.js';
   import { addRideNote } from '../lib/ride.js';
   import Lightbox from '../lib/ui/Lightbox.svelte';
-  import { t, locale } from '../lib/i18n.svelte.js';
+  import { t, tn, locale } from '../lib/i18n.svelte.js';
 
   let { onnew } = $props();
 
@@ -33,9 +33,14 @@
   let pick = $state({});
   const bikeOf = (n) => pick[n.id]?.bikeId ?? guessBike(n.text, bikes, n.bikeId);
   const tripOf = (n) => pick[n.id]?.tripId ?? n.tripId ?? trips[0]?.id ?? null;
-  const setPick = (n, key, value) => (pick = { ...pick, [n.id]: { ...pick[n.id], [key]: value || null } });
+  // v0.40.0 (Noah 5a): a bike or trip chosen under ••• stays with the note (and shows as a badge).
+  function setPick(n, key, value) {
+    pick = { ...pick, [n.id]: { ...pick[n.id], [key]: value || null } };
+    db.notes.update(n.id, { [key]: value || null });
+  }
 
   let msg = $state('');
+  let assigning = $state(null); // the note whose bike and trip are open (••• → Bike or trip)
   let shown = $state(null); // photo src
 
   async function file(note, kind) {
@@ -76,65 +81,78 @@
 </script>
 
 <div class="inbox">
+  <!-- v0.40.0 (Noah 5a, 7a): one line under the title instead of the explanation; "+ Quick note"
+       is light (orange stays on the + at the bottom). -->
   <header class="head">
-    <h1 class="title">{t('Inbox')}</h1>
-    <button type="button" class="btn hi" onclick={onnew}>+ {t('Quick note')}</button>
+    <div>
+      <h1 class="title">{t('Inbox')}</h1>
+      {#if $notesQ}<p class="page-sub">{open.length ? tn(open.length, '{n} to sort', '{n} to sort') : notes.length ? t('All notes are sorted.') : ''}</p>{/if}
+    </div>
+    <button type="button" class="btn" onclick={onnew}>+ {t('Quick note')}</button>
   </header>
-  <p class="intro">{t('Notes from the + button on every page. Put each one where it belongs.')}</p>
   {#if msg}<p class="err" role="alert">{msg}</p>{/if}
 
-  {#if !open.length}
-    <p class="card empty">{notes.length ? t('All notes are sorted.') : t('No notes yet. Tap + at the bottom right on any page when something comes up.')}</p>
+  {#if $notesQ && !notes.length}
+    <p class="card empty">{t('No notes yet. Tap + at the bottom right on any page when something comes up.')}</p>
   {/if}
 
-  <ul class="list">
-    {#each open as n (n.id)}
-      {@const kind = guessKind(n)}
-      {@const others = KINDS.filter((k) => k.key !== kind)}
-      <li class="note">
-        <div class="body">
-          {#if n.photo}<button type="button" class="th" onclick={() => (shown = n.photo)} aria-label={t('Open photo')}><img src={n.photo} alt="" /></button>{/if}
-          <div class="txt">
-            <p class="t">{n.text}</p>
-            <p class="meta">{when(n.at)} · {PAGE_NAMES[n.page] ? t(PAGE_NAMES[n.page]) : n.page}{n.tripId ? ` · ${tripTitle(n.tripId)}` : ''}{n.day != null ? ` · ${t('Day {n}', { n: n.day + 1 })}` : ''}</p>
-          </div>
-        </div>
-        <div class="ctx">
-          <label>{t('Bike')}
-            <select class="sel mini" value={bikeOf(n) ?? ''} onchange={(e) => setPick(n, 'bikeId', e.currentTarget.value)}>
-              <option value="">{t('none')}</option>
-              {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
-            </select>
-          </label>
-          <label>{t('Trip')}
-            <select class="sel mini" value={tripOf(n) ?? ''} onchange={(e) => setPick(n, 'tripId', e.currentTarget.value)}>
-              <option value="">{t('none')}</option>
-              {#each trips as tr (tr.id)}<option value={tr.id}>{tr.title}</option>{/each}
-            </select>
-          </label>
-        </div>
-        <div class="acts">
-          <button type="button" class="btn sm hi" onclick={() => file(n, kind)}>{t(KIND[kind].name)}</button>
-          <details class="more">
-            <summary aria-label={t('Other places for this note')}>•••</summary>
-            <div class="more-in">
-              {#each others as k (k.key)}<button type="button" class="btn sm" onclick={(ev) => ((ev.currentTarget.closest('details').open = false), file(n, k.key))}>{t(k.name)}</button>{/each}
-              <button type="button" class="btn sm" onclick={() => remove(n)}>{t('Delete')}</button>
+  {#if open.length}
+    <!-- v0.40.0 (Noah 5a): one light button per note, the app's guess; the other places, bike or trip
+         and Delete behind •••. A bike or trip that is set shows as a small neutral badge. -->
+    <ul class="rowlist list" aria-label={t('Notes to sort')}>
+      {#each open as n (n.id)}
+        {@const kind = guessKind(n)}
+        {@const others = KINDS.filter((k) => k.key !== kind)}
+        {@const bk = pick[n.id]?.bikeId !== undefined ? pick[n.id].bikeId : n.bikeId}
+        {@const tr = pick[n.id]?.tripId !== undefined ? pick[n.id].tripId : n.tripId}
+        <li class="note">
+          <div class="lrow">
+            {#if n.photo}<button type="button" class="th" onclick={() => (shown = n.photo)} aria-label={t('Open photo')}><img src={n.photo} alt="" /></button>{/if}
+            <div class="m">
+              <span class="t">{n.text}</span>
+              <span class="s">{when(n.at)}{PAGE_NAMES[n.page] && n.page !== 'inbox' ? ` · ${t(PAGE_NAMES[n.page])}` : ''}{n.day != null ? ` · ${t('Day {n}', { n: n.day + 1 })}` : ''}{#if bk}{' '}<i class="nbadge">{t('Bike: {name}', { name: bikeName(bk) })}</i>{/if}{#if tr}{' '}<i class="nbadge">{t('Trip: {name}', { name: tripTitle(tr) })}</i>{/if}</span>
             </div>
-          </details>
-          <small class="where">→ {t(KIND[kind].where)}</small>
-        </div>
-      </li>
-    {/each}
-  </ul>
+            <span class="row-acts acts">
+              <button type="button" class="btn sm" onclick={() => file(n, kind)}>{t(KIND[kind].name)}</button>
+              <details class="more">
+                <summary aria-label={t('More for this note: other places, bike or trip, delete')}>•••</summary>
+                <div class="more-in">
+                  {#each others as k (k.key)}<button type="button" class="btn sm" onclick={(ev) => ((ev.currentTarget.closest('details').open = false), file(n, k.key))}>{t(k.name)}</button>{/each}
+                  <button type="button" class="btn sm" aria-expanded={assigning === n.id} onclick={(ev) => ((ev.currentTarget.closest('details').open = false), (assigning = assigning === n.id ? null : n.id))}>{t('Bike or trip')}</button>
+                  <button type="button" class="btn sm" onclick={() => remove(n)}>{t('Delete')}</button>
+                </div>
+              </details>
+            </span>
+          </div>
+          {#if assigning === n.id}
+            <div class="ctx" role="group" aria-label={t('Bike or trip for this note')}>
+              <label>{t('Bike')}
+                <select class="sel mini" value={bikeOf(n) ?? ''} onchange={(e) => setPick(n, 'bikeId', e.currentTarget.value)}>
+                  <option value="">{t('none')}</option>
+                  {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
+                </select>
+              </label>
+              <label>{t('Trip')}
+                <select class="sel mini" value={tripOf(n) ?? ''} onchange={(e) => setPick(n, 'tripId', e.currentTarget.value)}>
+                  <option value="">{t('none')}</option>
+                  {#each trips as tr2 (tr2.id)}<option value={tr2.id}>{tr2.title}</option>{/each}
+                </select>
+              </label>
+              <button type="button" class="btn sm" onclick={() => (assigning = null)}>{t('Done')}</button>
+            </div>
+          {/if}
+        </li>
+      {/each}
+    </ul>
+  {/if}
 
   {#if sorted.length}
     <details class="all">
-      <summary><span class="title">{t('All notes')}</span> <small>{sorted.length}</small></summary>
-      <ul class="done">
+      <summary class="sec-head"><span>{t('All notes')}</span><span class="n">{sorted.length}</span></summary>
+      <ul class="rowlist done">
         {#each sorted as n (n.id)}
-          <li>
-            <span class="txt"><b>{n.text}</b><small>{when(n.at)} · {labelOf(n.to)}{n.to?.kind === 'trip' && n.to.ref ? ` · ${tripTitle(n.to.ref)}` : ''}</small></span>
+          <li class="lrow">
+            <span class="m"><span class="t">{n.text}</span><span class="s">{when(n.at)} · {labelOf(n.to)}{n.to?.kind === 'trip' && n.to.ref ? ` · ${tripTitle(n.to.ref)}` : ''}</span></span>
             <span class="r">
               {#if LINK[n.to?.kind]}<a class="link" href={LINK[n.to.kind]}>{t('Open')}</a>{/if}
               {#if n.to?.kind === 'done'}<button type="button" class="link" onclick={() => reopen(n)}>{t('Back to inbox')}</button>{/if}
@@ -151,36 +169,25 @@
 {/if}
 
 <style>
+  .inbox {
+    max-width: 880px;
+    margin: 0 auto;
+  }
   .head {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
   }
-  .intro {
-    color: var(--ink-3);
-    margin: 4px 0 12px;
-  }
   .err {
     color: var(--bad);
   }
-  .list,
-  .done {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  .note .lrow {
+    flex-wrap: wrap;
   }
-  .note {
-    border: 1.5px solid var(--line);
-    border-radius: 8px;
-    background: var(--paper);
-    padding: 10px 12px;
-    margin-bottom: 10px;
-  }
-  .body {
-    display: flex;
-    gap: 10px;
+  .note .m {
+    flex: 1 1 180px;
   }
   .th {
     flex: none;
@@ -190,69 +197,46 @@
     cursor: pointer;
   }
   .th img {
-    width: 64px;
-    height: 64px;
+    display: block;
+    width: 52px;
+    height: 52px;
     object-fit: cover;
     border-radius: 6px;
   }
-  .txt {
-    min-width: 0;
-  }
-  .t {
-    margin: 0;
-    font-size: 16px;
-    overflow-wrap: anywhere;
-  }
-  .meta {
-    margin: 2px 0 0;
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-  }
-  .ctx {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 14px;
-    margin: 8px 0;
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-  }
-  .ctx label {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-  }
-  .ctx .sel {
-    max-width: 180px;
-  }
   .acts {
+    flex: none;
     display: flex;
     align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .where {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
+    gap: 4px;
+    margin-left: auto;
   }
   .more {
     position: relative;
   }
   .more summary {
     list-style: none;
-    cursor: pointer;
-    padding: 4px 10px;
-    border: 1.5px solid var(--line);
-    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 8px;
+    color: var(--ink-2);
     font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+  .more summary:hover {
+    background: var(--paper-2);
   }
   .more summary::-webkit-details-marker {
     display: none;
   }
+  /* The menu opens to the left, so it never leaves a phone screen. */
   .more-in {
     position: absolute;
     z-index: 3;
     top: calc(100% + 4px);
-    left: 0;
+    right: 0;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -260,37 +244,49 @@
     background: var(--paper);
     border: 1.5px solid var(--ink);
     border-radius: 8px;
-    min-width: 190px;
+    width: max-content;
+    max-width: calc(100vw - 48px);
+  }
+  .ctx {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    padding: 0 12px 12px;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .ctx label {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    min-width: 0;
+  }
+  .ctx .sel {
+    max-width: 200px;
+  }
+  /* The list scrolls the open ••• menu into view instead of cutting it off. */
+  .list {
+    overflow: visible;
   }
   .all {
-    margin-top: 18px;
+    margin-top: 8px;
   }
   .all summary {
     cursor: pointer;
+    list-style: none;
   }
-  .all .title {
-    font-size: var(--fs-sub);
+  .all summary::-webkit-details-marker {
+    display: none;
   }
-  .done li {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 8px 0;
-    border-top: 1px solid var(--line);
-    font-size: 14px;
-  }
-  .done .txt {
-    display: flex;
-    flex-direction: column;
-  }
-  .done small {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
+  .all:not([open]) summary {
+    border-bottom: 1px solid var(--line);
+    border-radius: 8px;
   }
   .r {
     flex: none;
     display: flex;
-    gap: 10px;
+    gap: 12px;
   }
   .link {
     border: 0;
@@ -301,6 +297,9 @@
     color: var(--ink);
     text-decoration: underline;
     cursor: pointer;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
   }
   .empty {
     color: var(--ink-3);

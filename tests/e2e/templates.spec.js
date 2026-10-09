@@ -137,7 +137,7 @@ test('a trip starts from a template, with its area; hiking without a bike', asyn
   await page.getByRole('menuitem', { name: T('New trip') }).click();
   dlg = page.getByRole('dialog', { name: T('New trip') });
   await expect(dlg).toBeVisible();
-  await expect(dlg.getByRole('button', { name: T('Hiking'), exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(dlg.locator('.area-fold > summary')).toContainText(T('Hiking')); // v0.40.0: the area folded as one row
   await dlg.getByRole('textbox', { name: T('Name') }).filter({ visible: true }).fill('test_data_gtp_ Rigi im Herbst');
   await dlg.getByRole('button', { name: new RegExp(T('Create trip')) }).click();
   await expect(dlg).toBeHidden();

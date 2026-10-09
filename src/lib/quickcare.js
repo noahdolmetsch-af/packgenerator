@@ -11,7 +11,9 @@
  * - bike washed: new, the bike's own list bike.washes (no part has it); the log shows it;
  * - km: the bike's km and the day they were set (the same as "change km" in Bike care).
  */
-import { logPart, PART, kmSince, lastValue, parseKm } from './care.js';
+import { logPart, PART, kmSince, lastValue, parseKm, wishFor } from './care.js';
+import { t as tr } from './i18n.svelte.js';
+import DE from './i18n/de/index.js';
 import { partStatus, yearSummary } from './care/last.js';
 import { timeDue, tyreSetup, costByYear } from './workshop.js';
 import { bikeCare } from './readiness.js';
@@ -102,6 +104,27 @@ export function quickLog(stored, kind, { today, value = null } = {}) {
     return { changes: { washes: [...(stored.washes ?? []), entry] }, entry };
   }
   return null;
+}
+
+/**
+ * v0.40.0 (Noah 1 "b und a"): chain wear recorded at or over the replace limit (Today's button or
+ * Bike care) also puts the chain on the wishlist: an item "Chain (bike)" / "Kette (bike)" with its
+ * reason (from: 'care', the wear and the limit in the note), the last price paid when there is one.
+ * Never twice: null when the value is under the limit or this bike's chain is already wished for
+ * (by the same name or by the care link), so a second measurement adds nothing.
+ * bike: as stored (its name and parts); items: all gear; id: the next free gear id.
+ */
+export function chainWish(bike, items = [], { id, value, limit = null, today, price = null } = {}) {
+  const lim = limit ?? (bike?.parts ?? []).find((p) => p.key === 'chain')?.limit ?? PART.chain.limit;
+  const v = Number(value);
+  if (!bike || value == null || !Number.isFinite(v) || v < lim) return null;
+  const open = (i) => i.ownership !== 'gone' && i.ownership !== 'owned';
+  if (items.some((i) => open(i) && i.from === 'care' && i.bikeId === bike.id && i.part === 'chain')) return null;
+  const part = (bike.parts ?? []).find((p) => p.key === 'chain') ?? { key: 'chain', history: [] };
+  const item = wishFor(part, bike, items, id, price);
+  if (!item) return null;
+  const why = tr('Chain wear {value} % on {date} (replace at {limit} %).', { value: v, date: today, limit: lim });
+  return { ...item, nameDe: `${DE.Chain ?? 'Kette'} (${bike.name})`, from: 'care', bikeId: bike.id, part: 'chain', note: `${item.note} ${why}` };
 }
 
 /**

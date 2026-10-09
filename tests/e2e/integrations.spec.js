@@ -380,6 +380,8 @@ test.describe('offline', () => {
     await expect(page.locator('footer')).toContainText(T('Offline'));
     // The device separation is explained where the data lives.
     const data = await openData(page);
+    // v0.40.0 (Noah 7a): the explanation sits behind the "?" next to "Your data".
+    await data.getByRole('button', { name: T('Explain: {what}', { what: T('Your data') }) }).click();
     await expect(data).toContainText(T('Everything is stored in this browser on this device. Use a backup file to move it to your other device.'));
 
     // An edit while offline: a quick note.

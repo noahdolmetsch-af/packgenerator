@@ -20,6 +20,7 @@
   import SetupFold from './SetupFold.svelte';
   import BagSheet from './BagSheet.svelte';
   import WhoCard from './WhoCard.svelte';
+  import Help from '../ui/Help.svelte';
   import BagDialog from './BagDialog.svelte';
   import BikeDialog from './BikeDialog.svelte';
   import { nextTrip } from '../debrief.js';
@@ -153,6 +154,8 @@
   const MOUNTS = SLOTS.filter((s) => !s.worn);
   const rows = $derived(bike ? (editMounts ? MOUNTS : placesOf(bike).filter((s) => !s.worn)) : []);
   const wornRows = $derived(bike && !editMounts ? placesOf(bike).filter((s) => s.worn) : []);
+  // v0.40.0: a place without a bag (and without another bag on the coming trip) is "empty".
+  const isEmpty = (s) => !bags.some((b) => b.id === bike?.setup?.[s.key]) && !tripBag(s.key);
 
   function pick(key) {
     if (!SLOT[key]) return;
@@ -238,7 +241,8 @@
         <section class="card draw" aria-label={t('{bike} with its bags', { bike: bike.name })}>
           <SetupDrawing {places} mounts={editMounts} active={activeSlot} label={t('{bike} with its bags', { bike: bike.name })} onpick={pick} />
           <div class="drawfoot">
-            <span class="hint">{editMounts ? t('Tap a place to switch its mount on or off.') : t('Tap a place to choose a bag.')}</span>
+            <!-- v0.40.0 (design check R2): no "Tap a place …" sentence; only while editing the mounts. -->
+            <span class="hint">{#if editMounts}{t('Tap a place to switch its mount on or off.')}{/if}</span>
             <button type="button" class="btn sm mountbtn" class:ink={editMounts} aria-pressed={editMounts} onclick={() => (editMounts = !editMounts)}>
               {editMounts ? t('Done with mounts') : t('Edit mounts')}
             </button>
@@ -246,9 +250,12 @@
         </section>
 
         <section class="card std" aria-labelledby="std-h">
-          <h2 id="std-h">{editMounts ? t('Mounts') : t('Standard bags')}<span class="r">{editMounts ? t('{n} of {all} places', { n: bike.slots.filter((k) => MOUNTS.some((m) => m.key === k)).length, all: MOUNTS.length }) : t('every new trip')}</span></h2>
+          <div class="std-head">
+            <h2 id="std-h">{editMounts ? t('Mounts') : t('Standard bags')}<span class="r">{editMounts ? t('{n} of {all} places', { n: bike.slots.filter((k) => MOUNTS.some((m) => m.key === k)).length, all: MOUNTS.length }) : t('every new trip')}</span></h2>
+            {#if !editMounts}<Help label={t('Standard bags')}><p>{t('Pack starts every new trip on this bike with them; a trip can change its own.')}</p></Help>{/if}
+          </div>
           <ul class="slots">
-            {#each rows as s (s.key)}
+            {#each editMounts ? rows : rows.filter((s) => !isEmpty(s)) as s (s.key)}
               {@const on = bike.slots.includes(s.key)}
               {@const bag = on ? bags.find((b) => b.id === bike.setup?.[s.key]) : null}
               {@const other = on ? tripBag(s.key) : null}
@@ -264,25 +271,27 @@
                 {/if}
               </li>
             {:else}
-              <li class="quiet none">{t('No mounts on this bike yet. Tap "Edit mounts".')}</li>
+              {#if !rows.length}<li class="quiet none">{t('No mounts on this bike yet. Tap "Edit mounts".')}</li>{/if}
             {/each}
+            {#if !editMounts}{@render empties(rows.filter((s) => isEmpty(s)))}{/if}
           </ul>
           {#if wornRows.length}
             <!-- v0.37.0 (Noah 2a): the worn places, a light header; their weight counts to On me. -->
             <h3 class="worn-h">{t('On me')}<span class="r">{t('not part of the bike weight')}</span></h3>
             <ul class="slots">
-              {#each wornRows as s (s.key)}
+              {#each wornRows.filter((s) => !isEmpty(s)) as s (s.key)}
                 {@const bag = bags.find((b) => b.id === bike.setup?.[s.key])}
                 {@const other = tripBag(s.key)}
                 <li class:active={activeSlot === s.key}>{@render slotRow(s, bag, other)}</li>
               {/each}
+              {@render empties(wornRows.filter((s) => isEmpty(s)))}
             </ul>
           {/if}
-          {#if !editMounts}<p class="note">{t('Pack starts every new trip on this bike with them; a trip can change its own.')}</p>{/if}
         </section>
       </div>
 
       <div class="side">
+        <!-- v0.40.0 (design check): "Who works on it" only once there is something in it (WhoCard). -->
         <WhoCard bike={view} {visits} {tasks} year={today.slice(0, 4)} per={profile?.per} next={forShop} onorder={() => (orderOpen = true)} />
 
         <SetupFold icon={Bike} label={t('Bike details')} summary={`${weightWords} · ${tn((bike.fixtures ?? []).length, '{n} thing always mounted', '{n} things always mounted')}`}>
@@ -349,10 +358,24 @@
 </div>
 
 
+<!-- v0.40.0 (design check R1/R2): the empty places as one row "4 places empty ›"; open, each one as before. -->
+{#snippet empties(list)}
+  {#if list.length}
+    <li class="empties">
+      <details open={list.some((s) => s.key === activeSlot)}>
+        <summary class="row erow"><span class="ibox empty"><Plus size={18} aria-hidden="true" /></span><span class="nm"><b class="quiet">{tn(list.length, '{n} place empty', '{n} places empty')}</b><small>{list.map((s) => t(s.name)).join(' · ')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+        <ul class="slots inner">
+          {#each list as s (s.key)}<li class:active={activeSlot === s.key}>{@render slotRow(s, null, tripBag(s.key))}</li>{/each}
+        </ul>
+      </details>
+    </li>
+  {/if}
+{/snippet}
+
 {#snippet slotRow(s, bag, other)}
                   <button type="button" class="row" id="slot-{s.key}" onclick={() => pick(s.key)}>
                     <span class="ibox" class:empty={!bag}>{#if bag}<Briefcase size={18} aria-hidden="true" />{:else}<Plus size={18} aria-hidden="true" />{/if}</span>
-                    <span class="nm"><small>{t(s.name)} · {t(s.where)}</small>{#if bag}<b>{bagName(bag.name)}</b>{:else}<b class="quiet">{t('empty · choose a bag')}</b>{/if}{#if bag}<small class="wsm num">{bagSub(bag)}{#if bagWeight(bag) == null}{bagSub(bag) ? ' · ' : ''}{t('not weighed')}{/if}</small>{/if}</span>
+                    <span class="nm"><small>{t(s.name)} · {t(s.where)}</small>{#if bag}<b>{bagName(bag.name)}</b>{:else}<b class="quiet">{t('empty · choose a bag')}</b>{/if}</span>
                     {#if bag}<span class="w num">{[bag.volumeL ? formatVolume(bag.volumeL) : '', bagWeight(bag) != null ? formatWeight(bagWeight(bag)) : ''].filter(Boolean).join(' · ')}{#if bagWeight(bag) == null}<span class="nw" title={t('not weighed')}><Scale size={14} aria-hidden="true" /><span class="sr">{t('not weighed')}</span></span>{/if}</span>{/if}
                     <ChevronRight class="chev" size={18} aria-hidden="true" />
                   </button>
@@ -567,17 +590,34 @@
     flex-direction: column;
     overflow-wrap: break-word;
   }
-  .wsm {
+  .std-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin: 0 0 4px;
+  }
+  .std-head h2 {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
+  .erow {
+    list-style: none;
+    cursor: pointer;
+  }
+  .erow::-webkit-details-marker {
     display: none;
   }
-  /* A small phone: the numbers go under the name, so the name keeps the width. */
+  .empties details[open] > .erow :global(.chev) {
+    transform: rotate(90deg);
+  }
+  .slots.inner {
+    padding-left: 12px;
+    border-top: 1px solid var(--line);
+  }
+  /* v0.40.0 (design check R3): litres and weight stay in the right column on a phone too. */
   @media (max-width: 400px) {
-    .row .w {
-      display: none;
-    }
-    .wsm {
-      display: block;
-    }
     .ibox {
       width: 34px;
       height: 34px;

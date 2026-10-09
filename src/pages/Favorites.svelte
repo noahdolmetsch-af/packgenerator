@@ -18,7 +18,8 @@
 
 <div class="favs">
   <p class="lbl no-print"><a href="#/gear">← {t('Gear')}</a></p>
-  <h1 class="title big">{t('All my favourite things')}</h1>
+  <!-- v0.40.0 (design check): one name for the page, as in the menu: Favourites. -->
+  <h1 class="title big">{t('Favourites')}</h1>
   {#if $itemsQ}
     <p class="meta">{tn(count, '{n} item', '{n} items')}{groups.length > 1 ? ` · ${tn(groups.length, '{n} area', '{n} areas')}` : ''}</p>
     {#if count}
@@ -29,13 +30,17 @@
         <h2 id="fav-{g.key}" class="title">{t(g.name)} <small class="num">{tn(g.items.length, '{n} item', '{n} items')}{g.grams ? ` · ${formatWeight(g.grams)}` : ''}</small></h2>
         <ul>
           {#each g.items as i (i.id)}
-            <li style:--c={CATEGORY[i.category]?.color ?? 'var(--line)'}>
-              <span class="nm">
-                <a href={gearHref(i)}>{nameOf(i)}</a>{#if i.qty > 1}<small> × {i.qty}</small>{/if}
-                {#if i.brand || i.model || wish(i)}<small class="sub">{[i.brand, i.model, wish(i) ? t('wishlist') : ''].filter(Boolean).join(' · ')}</small>{/if}
-                {#if i.favNote}<span class="why">{i.favNote}</span>{/if}
-              </span>
-              <span class="w num" class:nw={i.weightG == null}>{i.weightG == null ? t('not weighed') : formatWeight(itemWeight(i))}</span>
+            <!-- v0.40.0 (design check R2): the whole row opens the item (no underlined names); the
+                 category in words instead of an unexplained colour stripe. -->
+            <li>
+              <a class="frow" href={gearHref(i)}>
+                <span class="nm">
+                  <b>{nameOf(i)}</b>{#if i.qty > 1}<small> × {i.qty}</small>{/if}
+                  <small class="sub">{[CATEGORY[i.category] ? t(CATEGORY[i.category].name) : '', i.brand, i.model, wish(i) ? t('wishlist') : ''].filter(Boolean).join(' · ')}</small>
+                  {#if i.favNote}<span class="why">{i.favNote}</span>{/if}
+                </span>
+                <span class="w num" class:nw={i.weightG == null}>{i.weightG == null ? t('not weighed') : formatWeight(itemWeight(i))}</span>
+              </a>
             </li>
           {/each}
         </ul>
@@ -82,22 +87,30 @@
     padding: 0;
   }
   li {
+    border-bottom: 1px solid var(--line);
+    break-inside: avoid;
+  }
+  .frow {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 12px;
-    padding: 8px 0 8px 10px;
-    border-bottom: 1px solid var(--line);
-    border-left: 4px solid var(--c);
-    break-inside: avoid;
+    min-height: 44px;
+    padding: 8px 4px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  @media (hover: hover) {
+    .frow:hover {
+      background: var(--paper-2);
+    }
   }
   .nm {
     min-width: 0;
     overflow-wrap: anywhere;
   }
-  .nm a {
+  .nm b {
     font-weight: 700;
-    color: var(--ink);
   }
   .sub {
     display: block;
@@ -135,8 +148,8 @@
       color: #000;
       font-size: 11pt;
     }
-    .nm a {
-      text-decoration: none;
+    .frow {
+      min-height: 0;
     }
   }
 </style>

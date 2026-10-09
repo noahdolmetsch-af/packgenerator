@@ -1,7 +1,8 @@
 /* v0.29.0 (Noah 1a): one look for the four trip steps (Plan, Pack, On the way, Debrief):
    one card style (like Today's "Good to know"), rows that fold with ›, badges instead of text,
    orange only for the one next step. */
-.trip-page { max-width: 1240px; margin: 0 auto; font-family: var(--font-body); }
+/* v0.40.0 (Noah 8a): on a computer the trip pages use the whole width in two columns. */
+.trip-page { max-width: 1600px; margin: 0 auto; font-family: var(--font-body); }
 @media (max-width: 719px) { .trip-page { padding-bottom: 76px; } }
 
 .tp-card { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 0 0 12px; min-width: 0; }
@@ -12,9 +13,11 @@
 .tp-small { font-size: 14px; }
 
 .tp-badge { display: inline-flex; align-items: center; gap: 4px; font-style: normal; font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 99px; background: var(--paper-2); color: var(--ink-2); white-space: nowrap; vertical-align: 1px; }
-.tp-badge.ok { background: var(--ok-soft); color: var(--ok); }
-.tp-badge.warn { background: var(--warn-soft); color: var(--warn); }
-.tp-badge.hi { background: var(--hi-soft); color: var(--hi); }
+/* v0.40.0 (Noah 6a): badges are small and neutral grey; an urgent one (open work, something due)
+   only gets a small coloured dot in front, the word stays grey. .ok is neutral too. */
+.tp-badge.ok, .tp-badge.warn, .tp-badge.hi { background: var(--paper-2); color: var(--ink-2); }
+.tp-badge.warn::before, .tp-badge.hi::before { content: ''; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--hi); }
+.tp-badge.warn::before { background: var(--warn); }
 
 .tp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .tp-chip { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 8px 13px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--paper); color: var(--ink); font: 500 15px var(--font-body); cursor: pointer; text-align: left; overflow-wrap: anywhere; }

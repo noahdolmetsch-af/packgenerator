@@ -20,9 +20,9 @@
   import { blockKind, comesOf } from '../lib/gear/comes.js';
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet } from '../lib/gear/assign.js';
   import { undoBulk } from '../lib/gear/bulk.js';
-  import Sum from '../lib/ui/Sum.svelte';
-  import { t, tn, nameOf } from '../lib/i18n.svelte.js';
-  import { Check, Moon, Plus, X, Minus, Layers, ChevronRight, UserRound } from '@lucide/svelte';
+    import { t, tn, nameOf } from '../lib/i18n.svelte.js';
+  import { Check, Moon, Plus, X, Minus, Layers, ChevronRight, UserRound, Scale } from '@lucide/svelte';
+  import Help from '../lib/ui/Help.svelte';
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
@@ -42,7 +42,9 @@
     const { g, missing } = sumKnown(its.map(itemWeight));
     return { items: its, g, missing };
   });
-  const NAMES_SHOWN = 8;
+  const NAMES_SHOWN = 5;
+  // v0.40.0: the blocks an Outdoor night brings get the quiet word "outdoor" (the head says "with the night").
+  const OUTDOOR = ['base', 'sleep', 'warm', 'cook'];
 
   let error = $state('');
   let undo = $state.raw(null); // { text, snap }
@@ -114,114 +116,122 @@
   };
 </script>
 
-{#snippet head(icon, name, id, use, list, sum, s = null)}
-  <div class="head">
-    <span class="ico ico-{icon}" aria-hidden="true">
-      {#if icon === 'always'}<Check size={20} />{:else if icon === 'night'}<Moon size={20} />{:else}<Plus size={20} />{/if}
+{#snippet summary(icon, name, id, list, sum, s = null)}
+  <summary class="lrow">
+    <span class="ic ic-{icon}" aria-hidden="true">
+      {#if icon === 'always'}<Check size={18} />{:else if icon === 'night'}<Moon size={18} />{:else}<Plus size={18} />{/if}
     </span>
-    <div class="htext">
-      <div class="hrow">
-        <h3 class="nm" {id}>{name}</h3>
-        <span class="count"><span class="num">{tn(list.length, '{n} item', '{n} items')}</span> · <Sum g={sum.g} missing={sum.missing} /></span>
-      </div>
-      <p class="use">{use}</p>
-      {#if list.length}<p class="names">{namesOf(list, s).join(' · ')}</p>{:else}<p class="names empty">{t('No items in this building block yet.')}</p>{/if}
-    </div>
-  </div>
+    <span class="m">
+      <span class="t"><span class="nm" {id}>{name}</span>{#if s && OUTDOOR.includes(s.key)}{' '}<small class="quiet">{t('outdoor|block')}</small>{/if}{#if s && !s.builtIn}{' '}<i class="nbadge">{t('own|block')}</i>{/if}</span>
+      <span class="s">{#if list.length}{namesOf(list, s).join(' · ')}{:else}{t('No items in this building block yet.')}{/if}</span>
+    </span>
+    <!-- Count and weight right in one column; an unknown weight is the scale, never 0 g. -->
+    <span class="v num" aria-hidden="true">{list.length}{#if list.length}{' · '}{#if sum.missing === list.length}<Scale size={15} class="scale" />{:else}{sum.missing ? '~' : ''}{formatWeight(sum.g)}{/if}{/if}</span>
+    <span class="sr">{tn(list.length, '{n} item', '{n} items')}{list.length && sum.missing < list.length ? `, ${sum.missing ? t('known: {w}', { w: formatWeight(sum.g) }) : formatWeight(sum.g)}` : ''}{sum.missing ? `, ${t('{n} not weighed', { n: sum.missing })}` : ''}</span>
+    <ChevronRight class="chev" size={18} aria-hidden="true" />
+  </summary>
 {/snippet}
 
 {#snippet blockCard(s)}
-  <li class="card blk" aria-labelledby="blk-{s.key}">
-    {@render head(s.kind, blockLabel(s), `blk-${s.key}`, setUse(s.builtIn ? s.key : null), s.inventory, s, s)}
-    {#if s.note}<p class="note">{s.note}</p>{/if}
+  <li class="blk" aria-labelledby="blk-{s.key}">
     <details class="edit">
-      <summary>{t('Change|block')} <small>{s.builtIn ? t('Built-in') : t('Own')}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
-      {#if inTemplates(s.key)}<p class="note intpl">{tn(inTemplates(s.key), 'In {n} template: it changes with this block.', 'In {n} templates: they change with this block.')}</p>{/if}
-      {#if renaming === s.key}
-        <form class="newset" onsubmit={(e) => { e.preventDefault(); rename(s, renameTo); }}>
-          <label><span class="lbl">{t('New name')}</span><input class="inp" bind:value={renameTo} placeholder={s.builtIn ? builtInName(s.key) : ''} /></label>
-          <button type="submit" class="btn hi">{t('Save')}</button>
-          <button type="button" class="btn" onclick={() => (renaming = null)}>{t('Cancel')}</button>
-        </form>
-        {#if s.builtIn}<p class="note">{t('Empty: back to "{name}".', { name: builtInName(s.key) })}</p>{/if}
-      {/if}
-      {#if s.items.length}
-        <!-- One header for the columns, quiet icon buttons in the rows (no "Remove" on every row). -->
-        <p class="cols" aria-hidden="true"><span>{t('Item')}</span><span>{t('Amount')}</span></p>
-        <ul class="rows">
-          {#each s.items as item (item.id)}
-            {@const inv = isInventory(item)}
-            {@const n = qtyOf(s, item.id)}
-            <li class:off={!inv}>
-              <span class="in">
-                <span class="iname">{nameOf(item)}{#if n !== 1}{' '}<b class="num">× {n}</b>{/if}</span>
-                <small>{#if inv}<span class="num">{formatWeight(itemWeight(item))}</span>{:else}{t(OWNERSHIP[item.ownership] ?? item.ownership)} · {t('never packed')}{/if}</small>
-              </span>
-              <span class="racts">
-                {#if inv}
-                  <span class="step" role="group" aria-label={t('Amount of {name}', { name: nameOf(item) })}>
-                    <button type="button" class="sq" disabled={n <= 1} aria-label={t('Fewer: {name}', { name: nameOf(item) })} onclick={() => amount(s, item, n - 1)}><Minus size={16} aria-hidden="true" /></button>
-                    <button type="button" class="sq" disabled={n >= 20} aria-label={t('More: {name}', { name: nameOf(item) })} onclick={() => amount(s, item, n + 1)}><Plus size={16} aria-hidden="true" /></button>
-                  </span>
-                {/if}
-                <button type="button" class="sq quietx" aria-label={t('Remove {name} from {block}', { name: nameOf(item), block: s.name })} title={t('Remove')} onclick={() => takeOut(s, item)}><X size={16} aria-hidden="true" /></button>
-              </span>
-            </li>
-          {/each}
-        </ul>
-      {/if}
-      <div class="acts">
-        <a class="btn" href={fillHref(s)} aria-label={t('Add items to {block}', { block: s.name })}>+ {t('Add items')}</a>
-        <button type="button" class="btn" aria-label={t('Rename {name}', { name: blockLabel(s) })} onclick={() => ((renaming = s.key), (renameTo = s.name))}>{t('Rename')}</button>
-        {#if !s.builtIn}<button type="button" class="btn del" onclick={() => remove(s)}>{t('Delete')}</button>{/if}
+      {@render summary(s.kind, blockLabel(s), `blk-${s.key}`, s.inventory, s, s)}
+      <div class="body">
+        <p class="note use">{setUse(s.builtIn ? s.key : null)}</p>
+        {#if s.note}<p class="note">{s.note}</p>{/if}
+        {#if inTemplates(s.key)}<p class="note intpl">{tn(inTemplates(s.key), 'In {n} template: it changes with this block.', 'In {n} templates: they change with this block.')}</p>{/if}
+        {#if renaming === s.key}
+          <form class="newset" onsubmit={(e) => { e.preventDefault(); rename(s, renameTo); }}>
+            <label><span class="lbl">{t('New name')}</span><input class="inp" bind:value={renameTo} placeholder={s.builtIn ? builtInName(s.key) : ''} /></label>
+            <button type="submit" class="btn hi">{t('Save')}</button>
+            <button type="button" class="btn" onclick={() => (renaming = null)}>{t('Cancel')}</button>
+          </form>
+          {#if s.builtIn}<p class="note">{t('Empty: back to "{name}".', { name: builtInName(s.key) })}</p>{/if}
+        {/if}
+        {#if s.items.length}
+          <!-- One header for the columns, quiet icon buttons in the rows (no "Remove" on every row). -->
+          <p class="cols" aria-hidden="true"><span>{t('Item')}</span><span>{t('Amount')}</span></p>
+          <ul class="rows">
+            {#each s.items as item (item.id)}
+              {@const inv = isInventory(item)}
+              {@const n = qtyOf(s, item.id)}
+              <li class:off={!inv}>
+                <span class="in">
+                  <span class="iname">{nameOf(item)}{#if n !== 1}{' '}<b class="num">× {n}</b>{/if}</span>
+                  <small>{#if inv}<span class="num">{formatWeight(itemWeight(item))}</span>{:else}{t(OWNERSHIP[item.ownership] ?? item.ownership)} · {t('never packed')}{/if}</small>
+                </span>
+                <span class="racts row-acts">
+                  {#if inv}
+                    <span class="step" role="group" aria-label={t('Amount of {name}', { name: nameOf(item) })}>
+                      <button type="button" class="sq" disabled={n <= 1} aria-label={t('Fewer: {name}', { name: nameOf(item) })} onclick={() => amount(s, item, n - 1)}><Minus size={16} aria-hidden="true" /></button>
+                      <button type="button" class="sq" disabled={n >= 20} aria-label={t('More: {name}', { name: nameOf(item) })} onclick={() => amount(s, item, n + 1)}><Plus size={16} aria-hidden="true" /></button>
+                    </span>
+                  {/if}
+                  <button type="button" class="sq quietx" aria-label={t('Remove {name} from {block}', { name: nameOf(item), block: s.name })} title={t('Remove')} onclick={() => takeOut(s, item)}><X size={16} aria-hidden="true" /></button>
+                </span>
+              </li>
+            {/each}
+          </ul>
+        {/if}
+        <div class="acts">
+          <a class="btn" href={fillHref(s)} aria-label={t('Add items to {block}', { block: s.name })}>+ {t('Add items')}</a>
+          <button type="button" class="btn" aria-label={t('Rename {name}', { name: blockLabel(s) })} onclick={() => ((renaming = s.key), (renameTo = s.name))}>{t('Rename')}</button>
+          {#if !s.builtIn}<button type="button" class="btn del" onclick={() => remove(s)}>{t('Delete')}</button>{/if}
+        </div>
       </div>
     </details>
   </li>
 {/snippet}
 
 <div class="blocks">
-  <p class="back"><a href="#/gear">← {t('Gear')}</a></p>
-  <h1 class="title big">{t('Building blocks')}</h1>
-  <p class="hint">{t('A building block is a group of items that comes along together. There are three kinds: always with you, with the night, and to add. Changing a block does not change trips you already made.')}</p>
+  <!-- v0.40.0 (design check, Noah 7a): one line instead of four, the rest behind "?"; rows, not cards. -->
+  <h1 class="title">{t('Building blocks')}</h1>
+  <div class="page-sub">{tn(cards.length + 1, '{n} building block', '{n} building blocks')} · {t('groups of items that come along together')}
+    <Help label={t('Building blocks')}>
+      <p>{t('A building block is a group of items that comes along together. There are three kinds: always with you, with the night, and to add. Changing a block does not change trips you already made.')}</p>
+      <p>{t('Tools are never called "not needed" in the debrief.')}</p>
+    </Help>
+  </div>
   {#if error}<p class="err" role="alert">{error}</p>{/if}
 
   <div class="groups">
     <section class="grp" aria-labelledby="g-always">
-      <h2 class="gh" id="g-always">{t('Always with you')} <small>{t('every new trip')}</small></h2>
-      <ul class="list">
-        <li class="card blk std" aria-labelledby="blk-standard">
-          {@render head('always', t('Standard|block'), 'blk-standard', t('Comes into every new trip'), standard.items, standard)}
+      <h2 class="sec-head" id="g-always"><span>{t('Always with you')}</span><span class="n">{t('every new trip')}</span></h2>
+      <ul class="rowlist">
+        <li class="blk std" aria-labelledby="blk-standard">
           <details class="edit">
-            <summary>{t('Items')} <small>{t('change in the item: Comes along')}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
-            {#if inTemplates('standard')}<p class="note intpl">{tn(inTemplates('standard'), 'In {n} template: it changes with this block.', 'In {n} templates: they change with this block.')}</p>{/if}
-            {#if standard.items.length}
-              <p class="cols" aria-hidden="true"><span>{t('Item')}</span><span>{t('Weight')}</span></p>
-              <ul class="rows">
-                {#each standard.items as item (item.id)}
-                  <li>
-                    <span class="in"><span class="iname">{nameOf(item)}{#if comesOf(item).body}{' '}<small class="where"><UserRound size={14} aria-hidden="true" /> {t('On me')}</small>{/if}</span></span>
-                    <small class="num w">{formatWeight(itemWeight(item))}</small>
-                  </li>
-                {/each}
-              </ul>
-            {/if}
-            <p class="note">{t('To change: open the item in Gear, then "Comes along" → Standard.')}</p>
+            {@render summary('always', t('Standard|block'), 'blk-standard', standard.items, standard)}
+            <div class="body">
+              <p class="note use">{t('Comes into every new trip')}</p>
+              {#if inTemplates('standard')}<p class="note intpl">{tn(inTemplates('standard'), 'In {n} template: it changes with this block.', 'In {n} templates: they change with this block.')}</p>{/if}
+              {#if standard.items.length}
+                <p class="cols" aria-hidden="true"><span>{t('Item')}</span><span>{t('Weight')}</span></p>
+                <ul class="rows">
+                  {#each standard.items as item (item.id)}
+                    <li>
+                      <span class="in"><span class="iname">{nameOf(item)}{#if comesOf(item).body}{' '}<small class="where"><UserRound size={14} aria-hidden="true" /> {t('On me')}</small>{/if}</span></span>
+                      <small class="num w">{formatWeight(itemWeight(item))}</small>
+                    </li>
+                  {/each}
+                </ul>
+              {/if}
+              <p class="note">{t('To change: open the item in Gear, then "Comes along" → Standard.')}</p>
+            </div>
           </details>
         </li>
       </ul>
-      <p class="note side">{t('Tools are never called "not needed" in the debrief.')}</p>
     </section>
 
     <section class="grp" aria-labelledby="g-night">
-      <h2 class="gh" id="g-night">{t('With the night')} <small>{t('come by themselves')}</small></h2>
-      <ul class="list">
+      <h2 class="sec-head" id="g-night"><span>{t('With the night')}</span><span class="n">{t('come by themselves')}</span></h2>
+      <ul class="rowlist">
         {#each nightCards as s (s.key)}{@render blockCard(s)}{/each}
       </ul>
     </section>
 
     <section class="grp" aria-labelledby="g-add">
-      <h2 class="gh" id="g-add">{t('To add')} <small>{t('one tap when you make a trip')}</small></h2>
-      <ul class="list">
+      <h2 class="sec-head" id="g-add"><span>{t('To add')}</span><span class="n">{t('one tap when you make a trip')}</span></h2>
+      <ul class="rowlist">
         {#each addCards as s (s.key)}{@render blockCard(s)}{/each}
       </ul>
       <div class="top">
@@ -233,9 +243,9 @@
           </form>
         {:else}
           <button type="button" class="btn" onclick={() => (adding = true)}><Plus size={18} aria-hidden="true" /> {t('New building block')}</button>
+          <a class="btn tpl" href="#/pack/templates"><Layers size={18} aria-hidden="true" /><span>{t('Templates')}</span><span class="num tc">{tplCount}</span><ChevronRight size={16} aria-hidden="true" /></a>
         {/if}
       </div>
-      <a class="card tpl" href="#/pack/templates"><Layers size={20} aria-hidden="true" /><span class="tt">{t('Templates = building blocks + extras')}</span><span class="num tc">{tplCount}</span><ChevronRight size={18} aria-hidden="true" /></a>
     </section>
   </div>
 </div>
@@ -251,21 +261,20 @@
 <style>
   .blocks {
     max-width: 1200px;
+    margin: 0 auto;
   }
-  .back {
-    margin: 0 0 8px;
-  }
-  .hint {
-    color: var(--ink-2);
-    max-width: 760px;
+  .page-sub {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 6px;
   }
   .err {
     color: var(--bad);
   }
   .groups {
     display: grid;
-    gap: 24px;
-    margin-top: 16px;
+    gap: 0 24px;
   }
   @media (min-width: 1000px) {
     .groups {
@@ -276,22 +285,13 @@
   .grp {
     min-width: 0;
   }
-  /* Light section headers: the group name, its rule quiet next to it. */
-  .gh {
-    font-size: var(--fs-sub);
-    font-weight: 700;
-    margin: 0 0 10px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 2px 8px;
-  }
-  .gh small {
-    font-size: var(--fs-small);
-    font-weight: 400;
-    color: var(--ink-3);
+  .grp .sec-head {
+    margin-top: 12px;
   }
   .top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
     margin: 12px 0;
   }
   .newset {
@@ -299,6 +299,7 @@
     flex-wrap: wrap;
     align-items: end;
     gap: 8px;
+    width: 100%;
   }
   .newset label {
     display: grid;
@@ -306,123 +307,48 @@
     flex: 1 1 200px;
     min-width: 0;
   }
-  .list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 10px;
-  }
   .blk {
     min-width: 0;
-    padding: 12px 14px;
-  }
-  .std {
-    border: 1.5px solid var(--ink);
-  }
-  .head {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-  }
-  .ico {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius);
-    background: var(--paper-2);
-    color: var(--ink-2);
-  }
-  .ico-always {
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .htext {
-    flex: 1;
-    min-width: 0;
-  }
-  .hrow {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 2px 10px;
   }
   .nm {
-    font-size: var(--fs-sub);
-    font-weight: 700;
-    margin: 0;
-    overflow-wrap: anywhere;
-    min-width: 0;
+    font-weight: 600;
   }
-  .count {
-    margin-left: auto;
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-  }
-  .use {
-    margin: 0;
-    font-size: var(--fs-small);
+  .quiet {
+    font-size: 13px;
+    font-weight: 400;
     color: var(--ink-3);
   }
-  .names {
-    margin: 4px 0 0;
-    font-size: 15px;
-    color: var(--ink-2);
-    overflow-wrap: anywhere;
+  .ic-always {
+    background: var(--ink) !important;
+    color: var(--paper) !important;
   }
-  .names.empty {
+  .v :global(.scale) {
+    vertical-align: -2px;
     color: var(--ink-3);
+  }
+  .body {
+    padding: 0 12px 10px 56px;
+  }
+  @media (max-width: 479px) {
+    .body {
+      padding-left: 12px;
+    }
   }
   .note {
     margin: 6px 0 0;
     font-size: var(--fs-small);
     color: var(--ink-3);
   }
-  .note.side {
-    margin-top: 8px;
+  .note.use {
+    margin-top: 0;
   }
-  /* Progressive disclosure: the rows and the changes fold away. */
-  .edit {
-    margin-top: 8px;
-    border-top: 1px solid var(--line);
-  }
-  .edit summary {
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 44px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 15px;
-    color: var(--ink-2);
-  }
-  .edit summary::-webkit-details-marker {
-    display: none;
-  }
-  .edit summary small {
-    font-weight: 400;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .edit :global(.chev) {
-    margin-left: auto;
-    flex: none;
-    color: var(--ink-3);
-    transition: transform 0.15s;
-  }
-  .edit[open] :global(.chev) {
-    transform: rotate(90deg);
+  .edit[open] > summary {
+    background: var(--paper-2);
   }
   .cols {
     display: flex;
     justify-content: space-between;
-    margin: 4px 0 0;
+    margin: 8px 0 0;
     font-size: 13px;
     font-weight: 600;
     color: var(--ink-3);
@@ -496,16 +422,7 @@
     border-color: transparent;
     color: var(--ink-3);
   }
-  /* Row actions: quiet on a desktop, full on hover and on focus, always full on a phone. */
   @media (hover: hover) and (pointer: fine) {
-    .racts {
-      opacity: 0.45;
-      transition: opacity 0.12s;
-    }
-    .rows li:hover .racts,
-    .rows li:focus-within .racts {
-      opacity: 1;
-    }
     .sq {
       width: 36px;
       height: 36px;
@@ -515,31 +432,14 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 4px;
+    margin: 8px 0 4px;
   }
   .del {
     margin-left: auto;
     border-color: var(--bad);
     color: var(--bad);
   }
-  .tpl {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 52px;
-    padding: 10px 14px;
-    color: var(--ink);
-    text-decoration: none;
-    font-weight: 600;
-  }
-  .tpl:visited {
-    color: var(--ink);
-  }
-  .tpl .tt {
-    flex: 1;
-    min-width: 0;
-  }
-  .tc {
+  .tpl .tc {
     color: var(--ink-3);
     font-weight: 400;
   }

@@ -40,7 +40,8 @@ export function tabStatus(trip, { open = 0, debrief = null, today, km = null } =
   const readyAll = ready.every((r) => readyDone(r, trip));
   const over = isOver(trip, today);
   const out = {};
-  out.plan = !entries.length ? { text: t('empty'), done: false } : open ? { text: tn(open, '{n} open', '{n} open'), done: false } : { text: t('ready'), done: true };
+  // v0.40.0 (design check): after the trip, planning is over: only ✓ (no "6 open" on a finished trip).
+  out.plan = over && entries.length ? { text: '', done: true } : !entries.length ? { text: t('empty'), done: false } : open ? { text: tn(open, '{n} open', '{n} open'), done: false } : { text: t('ready'), done: true };
   out.pack = entries.length ? { text: `${packed}/${entries.length}`, done: packed === entries.length && readyAll } : { text: '', done: false };
   const start = trip?.startDate;
   if (over) out.ride = { text: km ? `${num(Math.round(km))} km` : t('done|step'), done: true };

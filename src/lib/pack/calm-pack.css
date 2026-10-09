@@ -1,5 +1,5 @@
 /* Tour preparation: quiet surfaces, one action colour, details on demand. */
-main.calm .calm-pack { --calm-muted: #566a5f; --calm-line: #d5dddc; --calm-action: var(--hi); max-width: 1240px; margin: 0 auto; font-family: var(--font-body); }
+main.calm .calm-pack { --calm-muted: #566a5f; --calm-line: #d5dddc; --calm-action: var(--hi); max-width: 1600px; /* v0.40.0 (Noah 8a): the full width like Unterwegs and Rückblick */ margin: 0 auto; font-family: var(--font-body); }
 main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-pack h1, .calm-pack h2, .calm-pack h3, .calm-sheet h2 { font-family: var(--font-body); text-transform: none; letter-spacing: -.025em; line-height: 1.2; }
 .calm-pack button, .calm-pack select, .calm-sheet button { font-family: inherit; color: inherit; cursor: pointer; }

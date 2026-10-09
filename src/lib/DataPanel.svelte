@@ -5,7 +5,8 @@
   import { db, DATA_TABLES } from './db.js';
   import { restoreBackup, validateBackup, countRows, downloadBackup, importImpact, shareBackup, lastChangeOf, markImported, compareStates, LAST_CHANGE } from './backup.js';
   import { phone } from './media.svelte.js';
-  import { Send } from '@lucide/svelte';
+  import { Send, ChevronRight } from '@lucide/svelte';
+  import Help from './ui/Help.svelte';
   import { isDemoFile, startDemo, demoState } from './demo.js';
   import { isFavoritesFile, planFavorites, favoritesTemplate } from './favorites.js';
   import { isGearImportFile } from './gearimport.js';
@@ -27,6 +28,7 @@
   let pending = $state.raw(null);
   let folder = $state({ state: 'off' });
 
+  let countsOpen = $state(false);
   const LABELS = {
     items: 'Gear + wishlist', kits: 'Old kits (now templates)', trips: 'Trips', debriefs: 'Debriefs', learnings: 'Learnings',
     events: 'Events', maintenance: 'Maintenance tasks', bikes: 'Bikes', containers: 'Bags', weightChecks: 'Weight checks', settings: 'Settings',
@@ -164,15 +166,25 @@
 </script>
 
 <section class="card" aria-labelledby="data-title">
-  <h2 id="data-title">{t('Your data')}</h2>
-  <p>{t('Everything is stored in this browser on this device. Use a backup file to move it to your other device.')}</p>
+  <!-- v0.40.0 (design check R1): one summary line "48 items · 8 trips · 3 bikes"; the other counts
+       folded, without the zeros; the explanations behind "?". -->
+  <div class="dhead">
+    <h2 id="data-title">{t('Your data')}</h2>
+    <Help label={t('Your data')}><p>{t('Everything is stored in this browser on this device. Use a backup file to move it to your other device.')}</p></Help>
+  </div>
 
   {#if $counts}
-    <dl class="counts">
-      {#each DATA_TABLES as k (k)}
-        <div><dt>{LABELS[k] ? t(LABELS[k]) : k}</dt><dd>{$counts[k]}</dd></div>
-      {/each}
-    </dl>
+    <!-- a button, not a <details>: "Your data" itself sits in a <details> on Today -->
+    <div class="cfold" class:open={countsOpen}>
+      <button type="button" class="csum" aria-expanded={countsOpen} aria-controls="data-counts" onclick={() => (countsOpen = !countsOpen)}><span class="num">{[tn($counts.items ?? 0, '{n} item', '{n} items'), tn($counts.trips ?? 0, '{n} trip', '{n} trips'), tn($counts.bikes ?? 0, '{n} bike', '{n} bikes')].join(' · ')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></button>
+      {#if countsOpen}
+        <dl class="counts" id="data-counts">
+          {#each DATA_TABLES.filter((k) => $counts[k]) as k (k)}
+            <div><dt>{LABELS[k] ? t(LABELS[k]) : k}</dt><dd class="num">{$counts[k]}</dd></div>
+          {/each}
+        </dl>
+      {/if}
+    </div>
   {/if}
 
   <div class="row">
@@ -180,7 +192,7 @@
     <label class="btn">{t('Import backup')}<input type="file" accept="application/json,.json,text/plain,.txt" onchange={pickFile} hidden /></label>
     <button type="button" class="send" onclick={sendFile} disabled={!!$demoQ || sending} title={$demoQ ? t('Off while the demo runs') : undefined}><Send size={16} aria-hidden="true" />{phone.matches ? t('Send to computer') : t('Send to phone')}</button>
   </div>
-  <p class="small quiet">{t('Send: the backup file goes to the share sheet (mail, chat, nearby), or is downloaded. On the other device: Import backup.')}{#if $changeQ?.at}{' '}{t('Last change on this device: {when}.', { when: when($changeQ.at) })}{/if}</p>
+  <div class="small quiet sendhelp">{#if $changeQ?.at}<span>{t('Last change on this device: {when}.', { when: when($changeQ.at) })}</span>{/if}<Help label={t('How sending works')}><p>{t('Send: the backup file goes to the share sheet (mail, chat, nearby), or is downloaded. On the other device: Import backup.')}</p></Help></div>
 
   {#if $demoQ}<p class="small">{t('A demo is running: backups are off until you end it (yellow bar on top).')}</p>{/if}
 
@@ -241,9 +253,8 @@
   {/if}
 
   {#if folderBackupSupported}
-    <h3>{t('Auto-backup to a folder')}</h3>
+    <div class="dhead"><h3>{t('Auto-backup to a folder')}</h3>{#if folder.state === 'off'}<Help label={t('Auto-backup to a folder')}><p>{t('Pick a folder (for example one that syncs to the cloud). After every change the app writes the newest backup there, plus one file per day.')}</p></Help>{/if}</div>
     {#if folder.state === 'off'}
-      <p>{t('Pick a folder (for example one that syncs to the cloud). After every change the app writes the newest backup there, plus one file per day.')}</p>
       <button type="button" onclick={pickFolder}>{t('Choose folder')}</button>
     {:else if folder.state === 'needs-ok'}
       <p>{t('Folder')} <strong>{folder.name}</strong>: {t('chosen, but the browser needs your OK again after a restart.')}</p>
@@ -288,6 +299,40 @@
   p {
     margin: 0 0 12px;
     color: var(--ink-2);
+  }
+  .dhead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+  }
+  .dhead h2,
+  .dhead h3 {
+    margin-bottom: 0;
+  }
+  .cfold {
+    margin: 4px 0 12px;
+  }
+  .csum {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: inherit;
+    cursor: pointer;
+  }
+  .cfold.open .csum :global(.chev) {
+    transform: rotate(90deg);
+  }
+  .sendhelp {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
   }
   .counts {
     display: grid;
@@ -376,13 +421,20 @@
     color: var(--ink-2);
     margin-right: 4px;
   }
-  .badge.newer {
-    background: var(--ok-soft);
-    color: var(--ok);
-  }
+  /* v0.40.0 (Noah 6a): badges neutral grey; only an urgent one has a small coloured dot. */
   .badge.older {
-    background: var(--warn-soft);
-    color: var(--warn);
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .badge.older::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 5px;
+    border-radius: 50%;
+    vertical-align: 1px;
+    background: var(--warn);
   }
   @media (pointer: coarse) {
     button,

@@ -57,6 +57,8 @@ describe('the four trip tabs', () => {
     let s = tabStatus(past, { today: TODAY, km: 149.6 });
     expect(s.ride).toEqual({ text: '150 km', done: true });
     expect(s.debrief).toEqual({ text: 'open', done: false });
+    // v0.40.0: after the trip planning shows only ✓, never "3 open"
+    expect(tabStatus(past, { today: TODAY, open: 3 }).plan).toEqual({ text: '', done: true });
     s = tabStatus(past, { today: TODAY, debrief: { status: 'done' } });
     expect(s.ride).toEqual({ text: 'done', done: true });
     expect(s.debrief).toEqual({ text: 'saved', done: true });

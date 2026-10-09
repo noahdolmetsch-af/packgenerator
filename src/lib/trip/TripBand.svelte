@@ -116,7 +116,7 @@
       {@const s = status[key]}
       <a href={tabHref(key, trip)} class:done={s.done} aria-current={key === tab ? 'page' : undefined} onclick={() => openTrip(trip.id)}>
         <span class="tn">{t(TAB_NAMES[key])}</span>
-        {#if s.text}<small>{#if s.done}<Check size={13} aria-hidden="true" />{/if}{s.text}</small>{/if}
+        {#if s.text || s.done}<small>{#if s.done}<Check size={13} aria-hidden="true" />{/if}{#if s.text}{s.text}{:else}<span class="sr">{t('done|step')}</span>{/if}</small>{/if}
       </a>
     {/each}
   </nav>

@@ -50,11 +50,15 @@ for (const lang of ['en', 'de']) {
     await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
     const tripDlg = page.getByRole('dialog', { name: T('New trip') });
     await expect(tripDlg).toBeVisible();
+    // v0.40.0 (Noah 10a): the area is folded as one row with the last one chosen.
+    await expect(tripDlg.locator('.area-fold > summary')).toContainText(T('Bikepacking'));
+    await tripDlg.locator('.area-fold > summary').click();
     await tripDlg.getByRole('group', { name: T('Area') }).getByRole('button', { name: T('Weekend'), exact: true }).click();
+    await expect(tripDlg.locator('.area-fold > summary')).toContainText(T('Weekend'));
     await fits('New packing list, weekend');
 
     // 3. The trip dialog keeps Weekend and asks no bike.
-    await expect(tripDlg.getByRole('button', { name: T('Weekend'), exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(tripDlg.locator('.area-fold > summary')).toContainText(T('Weekend')); // v0.40.0: folded, says the area
     await expect(tripDlg.getByLabel(T('Bike'))).toHaveCount(0);
     await tripDlg.getByLabel(T('Name')).fill(title);
     await tripDlg.getByLabel(T('Start date')).fill(today());
@@ -123,8 +127,9 @@ for (const lang of ['en', 'de']) {
 
     // 8. Debrief on one page: one exception, then save.
     await expect(page.getByRole('heading', { name: T('What was different?') })).toBeVisible();
-    await expect(page.locator('.qa select')).toHaveCount(3); // no bike: no km
-    await expect(page.locator('.qa select').nth(2)).toHaveValue('fine');
+    // v0.40.0 (Noah 4a): segments instead of drop-downs.
+    await expect(page.locator('.qa [role=group]')).toHaveCount(3); // no bike: no km
+    await expect(page.locator('.qa [role=group]').nth(2).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'fine');
     await fits('debrief, weekend');
     const fold = page.locator('details.items-fold');
     if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
@@ -133,8 +138,9 @@ for (const lang of ['en', 'de']) {
     await expect(fold.locator('button.state.unused')).toHaveCount(1);
     await page.getByRole('button', { name: T('Save debrief') }).click();
     await expect(page.locator('.saved-card').getByText(T('Debrief saved'))).toBeVisible();
-    await page.goto('./#/debrief');
-    await expect(page.getByRole('region', { name: T('Done') }).getByText(title)).toBeVisible();
+    // v0.40.0 (Noah 3a): one list of past trips with the debrief state.
+    await page.goto('./#/pack/past');
+    await expect(page.getByRole('list', { name: new RegExp(`^${esc(T('Done|past'))}`) }).getByText(title)).toBeVisible();
 
     // 9. Gear: the area filter shows only weekend items.
     await page.goto('./#/gear');
@@ -145,7 +151,7 @@ for (const lang of ['en', 'de']) {
 
     // 10. All my favourite things, by area.
     await page.goto('./#/favorites');
-    await expect(page.getByRole('heading', { name: T('All my favourite things') })).toBeVisible();
+    await expect(page.getByRole('heading', { name: T('Favourites') })).toBeVisible();
     const wk = page.getByRole('region', { name: new RegExp(`^${esc(T('Weekend'))}`) });
     await expect(wk.getByRole('link', { name: 'Paperback book' })).toHaveAttribute('href', '#/gear?q=Paperback%20book');
     await expect(wk.getByText('Always one chapter before sleep')).toBeVisible();

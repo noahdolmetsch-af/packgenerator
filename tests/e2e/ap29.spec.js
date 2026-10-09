@@ -222,10 +222,16 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   await start(page, context, info);
   await page.goto('./#/features');
   const news = page.locator('section.news');
-  await expect(news.getByRole('heading', { name: T('New in the last updates') })).toBeVisible();
+  // v0.40.0 (Noah 9a): one folded row "New in 0.40 · 0.39 · 0.38  n ›"; open, the points as before.
+  const short = (v) => v.replace(/\.0$/, '');
+  await expect(news.getByRole('heading', { name: T('New in {versions}', { versions: WHATS_NEW.slice(0, 3).map((e) => short(e.version)).join(' · ') }) })).toBeVisible();
+  await expect(news.locator('details.newsfold')).not.toHaveAttribute('open', '');
+  await news.locator('details.newsfold > summary').click();
   await expect(news.locator('.vers').first().locator('.ver')).toHaveCount(3);
-  await expect(news.locator('.ver').first()).toContainText(T('Version {v}', { v: WHATS_NEW[0].version.replace(/\.0$/, '') }));
-  await expect(news.locator('.vers').first().getByRole('link', { name: T('Try it') }).first()).toBeVisible();
+  await expect(news.locator('.ver').first()).toContainText(T('Version {v}', { v: short(WHATS_NEW[0].version) }));
+  // the whole point is the link (no "Try it" on every row)
+  await expect(news.locator('.vers').first().locator('a.try').first()).toBeVisible();
+  await expect(news.getByRole('link', { name: T('Try it') })).toHaveCount(0);
   await expect(news.locator('details.older')).not.toHaveAttribute('open', '');
   await fits(page, info);
   await shot(page, info, 'whatsnew');
@@ -245,8 +251,8 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   await fits(page, info);
   await shot(page, info, 'whatsnew-older');
   await older.locator('> summary').click();
-  // "Try it" goes to the exact place.
-  await news.locator('.ver').first().getByRole('link', { name: T('Try it') }).first().click();
+  // A point goes to the exact place.
+  await news.locator('.ver').first().locator('a.try').first().click();
   // v0.36.0: the first point of the newest version (was #/pack in 0.35.0).
   await expect(page).toHaveURL(new RegExp(`${WHATS_NEW[0].points[0].href.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}$`));
 
@@ -258,7 +264,7 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   // v0.38.0 (Noah 9a): the line became the row "New in the app" in "Jump to", with the count.
   const line = page.locator('section.jumps [data-jump=news]');
   await expect(line.getByRole('link', { name: new RegExp(T('New in the app')) })).toBeVisible();
-  await expect(line.getByRole('link')).toHaveAttribute('href', '#/features');
+  await expect(line.getByRole('link')).toHaveAttribute('href', '#/features?news');
   await shot(page, info, 'today-hint');
   expect(await page.evaluate(() => localStorage.getItem('whatsnew.seen'))).toBe(WHATS_NEW[0].version);
   await page.reload();

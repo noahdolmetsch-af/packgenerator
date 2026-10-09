@@ -170,6 +170,8 @@ async function openNewTrip(page, rec, start = 'standard') {
   // v0.30.0 (Noah, finding 2): the window starts with the standard set; last trip and templates are folded in it.
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await expect(dlg).toBeVisible();
+  // v0.40.0 (Noah 10a): the last trip and the templates are folded under "Start differently", below the standard.
+  if (start !== 'standard') await rec.click(dlg.getByText(T('Start differently')));
   if (start === 'last') await rec.click(dlg.getByRole('button', { name: T('Copy the last trip') }));
   else if (start !== 'standard') {
     // v0.29.2 (Noah 7a): the templates are folded under "Start from a template".
@@ -196,6 +198,8 @@ async function fillTrip(dlg, rec, o) {
       if ((await sel.inputValue()) !== o.bike) await rec.select(sel, o.bike);
     }
   }
+  // v0.40.0: in a new trip the days field comes with "More".
+  if (o.days && (await dlg.getByRole('button', { name: T('More'), exact: true }).count())) await rec.click(dlg.getByRole('button', { name: T('More'), exact: true }));
   if (o.days) await rec.fill(dlg.getByLabel(T('Days')).first(), String(o.days));
   if (o.hours) await rec.fill(dlg.getByLabel(T('Riding hours per day')), String(o.hours));
   if (o.overnight) {
@@ -480,7 +484,8 @@ test('PF07: a new item with name, category and status, weight missing: saved qui
   await expect(dlg).toBeVisible();
   await rec.fill(dlg.getByLabel(new RegExp(`^${esc(T('Name'))}`)), name);
   await rec.select(dlg.getByLabel(new RegExp(`^${esc(T('Category'))}`)), 'cook');
-  await rec.check('status is asked, "Owned" already chosen', () => expect(dlg.getByLabel(new RegExp(`^${esc(T('Status'))}`))).toHaveValue('owned', { timeout: 2000 }));
+  // v0.40.0: the status is a segment (Owned · Wishlist · Gone).
+  await rec.check('status is asked, "Owned" already chosen', () => expect(dlg.getByRole('group', { name: new RegExp(`^${esc(T('Status'))}`) }).getByRole('button', { name: T('Owned') })).toHaveAttribute('aria-pressed', 'true', { timeout: 2000 }));
   await rec.click(dlg.getByRole('button', { name: T('Save') }));
   await expect(dlg).toBeHidden();
   rec.stop();
@@ -805,6 +810,7 @@ test('PF14: missing weights and litres; empty search, no bike, no weather: hones
   // v0.30.0: the area is chosen in the New trip window.
   const wd = page.getByRole('dialog', { name: T('New trip') });
   await expect(wd).toBeVisible();
+  await wd.locator('.area-fold > summary').click(); // v0.40.0: the area is folded
   await wd.locator('.areas button').nth(2).click();
   await rec.check('no bike: the New trip dialog asks no bike and says what the list starts with', async () => {
     await expect(wd.locator(`select:has(option[value="${BIKE.scale}"])`)).toHaveCount(0, { timeout: 2000 });
@@ -1178,8 +1184,8 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   await rec.check('Bike care: the Spark shows the same "1 due" as Today', () => expect(care).toContainText(due, { timeout: 3000 }));
   // v0.38.0 (Noah 5a): the bike shop and the year are one folded row "Bike shop & 2026".
   await care.locator('summary').filter({ hasText: /Velomech & \d{4}/ }).click();
-  const visitShown = await care.textContent();
-  await rec.check('Bike care: the workshop visit is listed for the Spark', () => expect(visitShown).toContain(`${P} Velo shop`));
+  // The fold renders its rows after the click, so wait for them instead of reading the text once.
+  await rec.check('Bike care: the workshop visit is listed for the Spark', () => expect(care).toContainText(`${P} Velo shop`, { timeout: 3000 }));
   // v0.38.0: a tap on the part opens its row, "Record …" the dialog.
   await rec.click(each.getByRole('button', { name: new RegExp(`^${esc(T('Chain'))}`) }).first());
   await rec.click(each.locator('li.pt.x').getByRole('button', { name: T('Record …') }));

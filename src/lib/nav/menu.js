@@ -33,7 +33,7 @@ export const MORE_GROUPS = [
   {
     key: 'gear',
     name: 'Gear|place',
-    rows: [{ id: 'favorites', title: 'All my favourite things', short: 'Favourites', href: '#/favorites', icon: 'star', words: 'favourites favorites favourite favorite best things lieblingsstücke favoriten beste' }],
+    rows: [{ id: 'favorites', title: 'Favourites', short: 'Favourites', href: '#/favorites', icon: 'star', words: 'favourites favorites favourite favorite best things lieblingsstücke favoriten beste' }],
   },
   {
     key: 'app',

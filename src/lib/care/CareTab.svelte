@@ -4,6 +4,7 @@
   import { db } from '../db.js';
   import { sortBikes } from '../bikes.js';
   import { nextId } from '../gear.js';
+  import { chainWish } from '../quickcare.js';
   import { tick } from 'svelte';
   import {
     ensureParts, checkState, serviceDue, logPart, parseKm, PART, taskBike, openRepairs, toReview, prepFor, prepRules, upcomingTrips, wishFor, CHECK_KM,
@@ -111,10 +112,31 @@
 
   async function savePart(view, key, entry) {
     const bike = bikeById[view.id];
-    await db.bikes.update(bike.id, { parts: logPart(bike.parts, key, entry) });
-    saved(view, [key], entry);
-    // "Replace needed" puts the part on the wishlist (answer 6), with the last price paid (answer 19a).
-    if (entry.result === 'needed') await wish(view, key, entry.model);
+    // v0.40.0 (Noah 1 "b und a"): a chain checked at or over its replace limit is "work needed", not OK.
+    const lim = typeof entry.limit === 'number' ? entry.limit : (bike.parts?.find((p) => p.key === key)?.limit ?? PART[key]?.limit);
+    const e = key === 'chain' && entry.action === 'check' && entry.value != null && lim != null && entry.value >= lim ? { ...entry, result: 'needed' } : entry;
+    const prev = bike.parts;
+    await db.bikes.update(bike.id, { parts: logPart(bike.parts, key, e) });
+    // "Replace needed" puts the part on the wishlist (answer 6), with the last price paid (answer 19a);
+    // a worn chain with its wear as the reason (quickcare.js chainWish), never twice.
+    let item = null;
+    if (e.result === 'needed') {
+      if (key === 'chain' && e.value != null) {
+        item = chainWish({ ...bike, parts: logPart(bike.parts, key, e) }, items, { id: nextId(items, 'bike'), value: e.value, today, price: lastPrice(visits, view.id, key) });
+        if (item) await db.items.put(item);
+      } else item = await wish(view, key, e.model);
+    }
+    saved(view, [key], e, { bikeId: bike.id, prev, itemId: item?.id ?? null });
+  }
+  async function undoSave() {
+    const u = $state.snapshot(notice?.undo); // plain data: Dexie cannot store a state proxy
+    clearTimeout(noticeTimer);
+    notice = null;
+    if (!u) return;
+    await db.transaction('rw', db.bikes, db.items, async () => {
+      await db.bikes.update(u.bikeId, { parts: u.prev });
+      if (u.itemId) await db.items.delete(u.itemId);
+    });
   }
   async function wish(view, key, model = null) {
     const part = view.parts.find((p) => p.key === key);
@@ -141,22 +163,23 @@
   /* ---------- what was just saved (v0.30.1, D1 + D2: Noah did not see that it worked) ---------- */
   let notice = $state(null); // { id, text }
   let noticeTimer;
-  function say(text) {
+  function say(text, undo = null) {
     clearTimeout(noticeTimer);
-    notice = { id: Date.now(), text };
-    noticeTimer = setTimeout(() => (notice = null), 6000);
+    notice = { id: Date.now(), text, undo };
+    noticeTimer = setTimeout(() => (notice = null), undo ? 8000 : 6000);
   }
   const WHAT = (entry, key) =>
     entry.result === 'needed' ? t('work needed') : entry.action === 'check' ? t('checked, OK') : entry.action === 'service' ? t('serviced') : PART[key]?.unit ? t('replaced') : t('done');
   /** "Saved: Tyres + sealant, done, 8 Oct 2026 · 3'200 km. Next time 6 Jan 2027." */
-  function saved(view, keys, entry) {
+  function saved(view, keys, entry, undo = null) {
     const parts = keys.map((k) => (PART[k] ? t(PART[k].name) : k)).join(', ');
     const vars = { part: parts, what: WHAT(entry, keys[0]), date: dateOf(entry.date), km: num(entry.km) };
     let text = entry.km != null ? t('Saved: {part}, {what}, {date} · {km} km.', vars) : t('Saved: {part}, {what}, {date}.', vars);
     // A service by time: say when it is due next (sealant every 90 days, fork once a year).
     const timed = keys.length === 1 && entry.result === 'done' && entry.action !== 'check' ? checks.find((c) => c.bike.id === view.id)?.time.find((s) => s.key === keys[0]) : null;
     if (timed) text += ` ${t('Next time {date}.', { date: dateOf(new Date(Date.parse(`${entry.date}T00:00:00Z`) + timed.every * 864e5).toISOString().slice(0, 10)) })}`;
-    say(text);
+    if (undo?.itemId) text += ` ${t('The chain is on the wishlist.')}`;
+    say(text, undo);
   }
   async function checkAndSay(view, keys, action, note, who = by) {
     const entry = await checkParts(view, keys, action, note, who);
@@ -334,7 +357,7 @@
 </div>
 
 {#if notice}
-  {#key notice.id}<p class="notice" role="status">{notice.text}</p>{/key}
+  {#key notice.id}<p class="notice" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="undo" onclick={undoSave}>{t('Undo')}</button>{/if}</p>{/key}
 {/if}
 
 {#if partOpen}
@@ -359,6 +382,17 @@
 
 <style>
   /* v0.30.1 (D2): a short line after a save, above the bottom bar, so it is seen wherever the page is scrolled. */
+  .notice .undo {
+    margin-left: 12px;
+    min-height: 36px;
+    padding: 0 10px;
+    border: 1px solid rgb(255 255 255 / 0.5);
+    border-radius: 6px;
+    background: none;
+    color: var(--paper);
+    font: 600 14px var(--font-body);
+    cursor: pointer;
+  }
   .notice {
     position: fixed;
     left: 50%;

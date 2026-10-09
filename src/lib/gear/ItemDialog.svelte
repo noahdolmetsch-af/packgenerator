@@ -9,6 +9,7 @@
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
   import AssignDialog from './AssignDialog.svelte';
+  import Seg from '../ui/Seg.svelte';
   import MergeSheet from './MergeSheet.svelte';
   import { undoBulk } from './bulk.js';
   import { t, tn, nameOf } from '../i18n.svelte.js';
@@ -51,6 +52,10 @@
   const moved = $derived(!isNew && draft.category !== item.category);
   // A new item is never "Gone"; an existing one keeps every status.
   const statuses = $derived(Object.entries(OWNERSHIP).filter(([k]) => !isNew || k !== 'gone'));
+  // v0.40.0: the three usual ones as a segment, the rest under "Other status".
+  const MAIN_STATUS = ['owned', 'wishlist', 'gone'];
+  const statusSeg = $derived(statuses.filter(([k]) => MAIN_STATUS.includes(k)).map(([k, v]) => ({ key: k, name: t(v) })));
+  const statusMore = $derived(statuses.map(([k]) => k).filter((k) => !MAIN_STATUS.includes(k)));
 
   $effect(() => {
     dialog.showModal();
@@ -219,7 +224,6 @@
     {:else if !comes.body && BAG[draft.defaultBag]}
       <p class="quiet">{t('Usual bag')}: {t(BAG[draft.defaultBag])}</p>
     {/if}
-    <p class="quiet">{t('"On me" replaces the old word "Worn". On me is always part of Standard.')}</p>
     {#if canBeBag}
       <div class="alsobag">
         <label class="cb"><input type="checkbox" checked={alsoOn} onchange={(e) => { alsoTouched = true; alsoOn = e.currentTarget.checked; }} /> {t('Also a bag on my back (e.g. a vest with pockets)')}</label>
@@ -235,18 +239,31 @@
         {#if comes.standard}<Check size={16} aria-hidden="true" />{:else}<Plus size={16} aria-hidden="true" />{/if}
         {t('Standard|block')} <small>{t('every trip')}</small>
       </button>
-      {#each blocks as b (b.key)}
-        <button type="button" class="chip" aria-pressed={inBlock(b.key)} onclick={() => toggleBlock(b.key)}>
-          {#if inBlock(b.key)}<Check size={16} aria-hidden="true" />{:else}<Plus size={16} aria-hidden="true" />{/if}
-          {blockLabel(b)}{#if blockKind(b.key) === 'night'}{' '}<small>{t('with a night')}</small>{/if}
-        </button>
-      {/each}
+      {#each blocks.filter((b) => blockKind(b.key) !== 'night') as b (b.key)}{@render blockChip(b)}{/each}
     </div>
+    <!-- v0.40.0 (design check R2): "with a night" once as a light subheading, not on every chip. -->
+    {#if blocks.some((b) => blockKind(b.key) === 'night')}
+      <h4 class="subh" id="night-h">{t('Come with the overnight stay')}</h4>
+      <div class="chips" role="group" aria-labelledby="night-h">
+        {#each blocks.filter((b) => blockKind(b.key) === 'night') as b (b.key)}{@render blockChip(b)}{/each}
+      </div>
+    {/if}
     {#if comes.optional}
       <p class="mark"><span class="badge">{t('Stays at home')}</span> <span class="quiet">{t('Marked in a debrief.')}</span> <button type="button" class="btn sm" onclick={() => Object.assign(draft, clearOptional(draft))}>{t('Take it along again')}</button></p>
     {/if}
-    <p class="info"><Info size={16} aria-hidden="true" /><span>{t('A building block is a group of items that comes along together. Standard is on every new trip. The blocks "with a night" come by themselves when the trip has a night; the others you add with one tap when you make a trip.')}</span></p>
+    <!-- v0.40.0 (design check R1): the explanation folded as "What is a building block? ›". -->
+    <details class="whatis">
+      <summary><Info size={16} aria-hidden="true" /><span>{t('What is a building block?')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+      <p class="info">{t('A building block is a group of items that comes along together. Standard is on every new trip. The blocks "with a night" come by themselves when the trip has a night; the others you add with one tap when you make a trip.')}</p>
+    </details>
   </section>
+{/snippet}
+
+{#snippet blockChip(b)}
+  <button type="button" class="chip" aria-pressed={inBlock(b.key)} onclick={() => toggleBlock(b.key)}>
+    {#if inBlock(b.key)}<Check size={16} aria-hidden="true" />{:else}<Plus size={16} aria-hidden="true" />{/if}
+    {blockLabel(b)}
+  </button>
 {/snippet}
 
 <!-- v0.32.0: the rest folds away (progressive disclosure), each row says what is inside. -->
@@ -391,12 +408,18 @@
             {#each CATEGORIES as c (c.key)}<option value={c.key}>{t(c.name)}</option>{/each}
           </select>
         </label>
-        <label>
-          <span class="lbl">{t('Status')} <small class="req">{t('required')}</small></span>
-          <select class="sel" bind:value={draft.ownership}>
-            {#each statuses as [k, v] (k)}<option value={k}>{t(v)}</option>{/each}
-          </select>
-        </label>
+        <!-- v0.40.0 (design check R4): the status as a segment "Owned · Wishlist · Gone"; the two
+             rarer ones (Unclear, To buy) one tap further, never lost. -->
+        <div class="wide status">
+          <span class="lbl" id="status-h">{t('Status')} <small class="req">{t('required')}</small></span>
+          <Seg labelledby="status-h" options={statusSeg} value={draft.ownership} onchange={(k) => (draft.ownership = k)} />
+          {#if statusMore.length}
+            <details class="moreStat" open={statusMore.some((k) => k === draft.ownership)}>
+              <summary>{t('Other status')}</summary>
+              <Seg label={t('Other status')} full={false} options={statusMore.map((k) => ({ key: k, name: t(OWNERSHIP[k]) }))} value={draft.ownership} onchange={(k) => (draft.ownership = k)} />
+            </details>
+          {/if}
+        </div>
         <label class="wide"><span class="lbl">{t('Weight of one piece (g)')} <small class="req">{t('optional')}</small></span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
         {#if moved}{@render movedNote()}{/if}
       </div>
@@ -619,6 +642,45 @@
   .info :global(svg) {
     flex: none;
     margin-top: 2px;
+  }
+  .whatis {
+    margin-top: 8px;
+  }
+  .whatis > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    list-style: none;
+    color: var(--ink-2);
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .whatis > summary::-webkit-details-marker {
+    display: none;
+  }
+  .whatis[open] > summary :global(.chev) {
+    transform: rotate(90deg);
+  }
+  .whatis .info {
+    margin-top: 0;
+  }
+  .subh {
+    margin: 12px 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-3);
+  }
+  .status .lbl {
+    display: block;
+  }
+  .moreStat > summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ink-3);
+    font-size: 14px;
+    cursor: pointer;
   }
   .fold {
     margin-top: 8px;

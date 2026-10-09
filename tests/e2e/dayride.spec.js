@@ -151,7 +151,8 @@ test('New trip: Create without typing (name, date and bike are filled in)', asyn
   const name = dlg.getByLabel(T('Name'));
   await expect(name).toHaveValue(T('{bike} day ride {date}', { bike: 'Test gravel', date: dM(day) }));
   await expect(dlg.getByLabel(T('Start date'))).toHaveValue(day);
-  // The name follows the days until it is typed in.
+  // The name follows the days until it is typed in. v0.40.0: the days field comes with "More".
+  await dlg.getByRole('button', { name: T('More'), exact: true }).click();
   await dlg.getByRole('spinbutton', { name: T('Days') }).fill('3');
   await expect(name).toHaveValue(T('{bike} {n} days {date}', { bike: 'Test gravel', n: 3, date: dM(day) }));
   await dlg.getByRole('spinbutton', { name: T('Days') }).fill('1');
@@ -168,7 +169,7 @@ test('New trip: Create without typing (name, date and bike are filled in)', asyn
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
   await name.fill('test_data_gtp_ Mein Name');
-  await dlg.getByRole('spinbutton', { name: T('Days') }).fill('2');
+  await dlg.getByRole('button', { name: T('2 days'), exact: true }).click();
   await expect(name).toHaveValue('test_data_gtp_ Mein Name');
   await dlg.getByRole('button', { name: T('Cancel') }).click();
   expect(errors).toEqual([]);
