@@ -132,15 +132,16 @@ for (const lang of ['en', 'de']) {
     await expect(page).toHaveURL(/#\/gear\?unused=1/);
     await expect(page.getByText(T('Only items on no trip for 12 months'))).toBeVisible();
     // the sleeping bag (last on a trip 400 days ago) is one of them; standard items are not
-    const list = page.locator('.list');
+    // v0.47.2: the items are cards now
+    const list = page.locator('.cards');
     await expect(list.getByText('Sleeping bag', { exact: true })).toBeVisible();
-    await expect(list.locator('.count')).toHaveText(/^\s*\d+\s/);
-    const n = Number((await list.locator('.count').textContent()).match(/\d+/)[0]);
+    const n = await list.locator('.mcard').count();
+    expect(n).toBeGreaterThan(0);
     await expect(list.getByText('Multi tool', { exact: true })).toHaveCount(0);
     await page.getByRole('button', { name: T('Show all items') }).first().click();
     // all items again (on the phone the categories fold shut again, so count instead of looking)
     await expect(page.getByText(T('Only items on no trip for 12 months'))).toHaveCount(0);
-    await expect(list.locator('.count')).not.toHaveText(new RegExp(`^\\s*${n}\\s`));
+    await expect(list.locator('.mcard')).not.toHaveCount(n);
     await expect(page).not.toHaveURL(/unused=1/);
     const sw = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(sw).toBeLessThanOrEqual(page.viewportSize().width);

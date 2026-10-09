@@ -75,7 +75,9 @@ test('Inbox: a filed note stays faint with its target, Undo restores it; with no
 test('Gear check: Still have it brings the next item at once, Undo puts the item back in front', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/gear');
-  await page.getByRole('tab', { name: new RegExp(`^${T('Check')}`) }).click();
+  // v0.47.2: "Check" is a mode in the ••• menu of the page head
+  await page.getByLabel(T('More for Gear')).click();
+  await page.getByRole('button', { name: new RegExp(`^${T('Check items')}`) }).click();
   const name = page.locator('.review .name');
   const first = (await name.textContent()).trim();
   const still = page.getByRole('button', { name: T('Still have it') });

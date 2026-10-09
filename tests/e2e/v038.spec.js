@@ -96,6 +96,8 @@ test('More: top right with the Inbox count, grouped, language; the search finds 
 
 test('Gear: compact rows, "With bag" remembered; ••• has every action; swipe on a phone', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
+  // v0.47.2: the rows with swipe and ••• are the list display ("Cards · List")
+  await page.evaluate(() => localStorage.setItem('gear.display', 'list'));
   await page.goto(`./#/gear?q=${encodeURIComponent(`${P} Rain`)}`);
   const rows = page.locator('li.gr');
   await expect(rows.first()).toBeVisible();
@@ -119,6 +121,7 @@ test('Gear: compact rows, "With bag" remembered; ••• has every action; swi
   await menu.getByRole('button', { name: 'Schliessen' }).click();
 
   if (info.project.name === 'phone') {
+    await jacket.evaluate((el) => el.scrollIntoView({ block: 'center' }));
     // Up and down stays the scroll: a vertical move does not open the row.
     await swipe(page, jacket.locator('.face'), 4, 120);
     await expect(jacket).not.toHaveClass(/open/);
@@ -139,6 +142,8 @@ test('Gear: compact rows, "With bag" remembered; ••• has every action; swi
     // An item never on a trip: a short swipe shows Delete; the long swipe deletes, with Undo.
     await page.goto(`./#/gear?q=${encodeURIComponent(`${P} Arm warmers`)}`);
     const warm = page.locator(`li.gr[data-item="${P}KL04"]`);
+    // v0.47.2: the views sit above the list; bring the row to the middle, away from the bottom bar
+    await warm.evaluate((el) => el.scrollIntoView({ block: 'center' }));
     await swipe(page, warm.locator('.face'), -100);
     await expect(warm.getByRole('button', { name: 'Löschen' })).toBeVisible();
     await shot(page, info, 'material-swipe-links');

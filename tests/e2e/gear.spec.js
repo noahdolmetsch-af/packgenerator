@@ -161,6 +161,8 @@ test('gear: change the category, links survive a reload', async ({ page, context
 
   // Gear shows it under its new category.
   await page.getByRole('searchbox', { name: T('Search gear') }).fill('Rain jacket');
+  // v0.47.2: the categories are the list display ("Cards · List")
+  await page.getByRole('group', { name: T('Show as') }).getByRole('button', { name: T('List') }).click();
   const rain = page.locator('section.cat', { has: page.locator('#gh-rain') });
   await expect(rain.getByRole('button', { name: /test_data_gtp_ Regenjacke/ })).toBeVisible();
 
@@ -186,6 +188,8 @@ test('an item with an unknown category shows in "Other / unknown category" with 
   writeFileSync(file, JSON.stringify(data));
   const T = await start(page, context, 'de', file);
   await page.goto('./#/gear');
+  // v0.47.2: the categories are the list display ("Cards · List")
+  await page.getByRole('group', { name: T('Show as') }).getByRole('button', { name: T('List') }).click();
   const group = page.locator('section.cat').filter({ has: page.locator('#gh-other') });
   await expect(group.locator('h2')).toContainText(T('Other / unknown category'));
   if ((await group.locator('h2 button').getAttribute('aria-expanded')) === 'false') await group.locator('h2 button').click();
