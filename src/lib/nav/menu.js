@@ -45,6 +45,8 @@ export const MORE_GROUPS = [
     key: 'app',
     name: 'App|more',
     rows: [
+      // v0.51.0 «Im Flow» (Noah 11): from Today's card and from here, at most two taps.
+      { id: 'flow', title: 'In the flow', href: '#/flow', icon: 'flow', words: 'in the flow im flow flow goals ziele sport training meditation yoga rings ringe daily check tagescheck stopwatch stoppuhr countdown habit gewohnheit' },
       { id: 'inbox', title: 'Inbox', href: '#/inbox', icon: 'inbox', words: 'inbox eingang einordnen to sort zettel' },
       { id: 'data', title: 'Your data', action: 'data', icon: 'data', words: 'your data deine daten backup sicherung import export restore wiederherstellen' },
       { id: 'features', title: 'What the app can do', href: '#/features', icon: 'sparkles', words: 'what the app can do was die app kann features funktionen tips tipps updates neuerungen' },

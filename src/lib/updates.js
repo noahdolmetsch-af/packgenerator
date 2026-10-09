@@ -13,6 +13,7 @@ import { templateSlot } from './gear/assign.js';
 import { SETS_KEY, addSet, allSets } from './sets.js';
 import { isInventory } from './gear.js';
 import { migrateAll, blocksRerunAfterImport, BLOCKS_MARKER } from './blocks2026.js';
+import { ensureSeed } from './flowdb.js';
 
 const now = () => new Date().toISOString();
 
@@ -475,7 +476,14 @@ export async function basicCheck2026(db) {
   return true;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, blocks2026, templatesLinked2026];
+/**
+ * v0.51.0 «Im Flow»: the starter activities and the question pool, once (flowdb.js ensureSeed: only
+ * when there is no marker and no activity, so a restored backup with flow data keeps its own). Runs
+ * with the other updates (start and after an import), not only when Today's card is on screen.
+ */
+export const flowSeed2026 = (db) => ensureSeed(db);
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, blocks2026, templatesLinked2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

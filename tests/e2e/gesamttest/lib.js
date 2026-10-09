@@ -106,6 +106,8 @@ export async function start(page, context, info, { lang = 'de', data = null } = 
   await importBackup(page, info, data ?? fixture().data, { lang });
   // the tidy-up after an import runs on: wait until the settings markers are there
   await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === 'update.templatesLinked2026'), { timeout: 20_000 }).toBe(true);
+  // v0.51.0: Today's «Im Flow» card seeds the starter activities once after an import without flow data
+  await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === 'flowSeeded'), { timeout: 20_000 }).toBe(true);
   return errors;
 }
 
@@ -126,7 +128,7 @@ export const table = (page, name) =>
     name,
   );
 
-export const TABLES = ['items', 'kits', 'trips', 'debriefs', 'learnings', 'events', 'maintenance', 'bikes', 'containers', 'weightChecks', 'settings', 'visits', 'photos', 'notes', 'rides'];
+export const TABLES = ['items', 'kits', 'trips', 'debriefs', 'learnings', 'events', 'maintenance', 'bikes', 'containers', 'weightChecks', 'settings', 'visits', 'photos', 'notes', 'rides', 'flowActs', 'flowLog', 'flowChecks'];
 /** The whole database as { table: rows } (meta left out, as a backup does). */
 export async function snapshot(page) {
   const out = {};
