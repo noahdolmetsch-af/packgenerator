@@ -8,6 +8,10 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.46.3
+  '"More" is calm again: the packing lists of your trips no longer stand on top as single rows. You find them under "Trips"; templates are under Plan, past trips under Look back.':
+    '«Mehr» ist wieder ruhig: Die Packlisten deiner Touren stehen nicht mehr einzeln zuoberst. Du findest sie unter «Touren»; Vorlagen stehen unter Planen, vergangene Touren unter Rückblick.',
+
   // 0.46.2
   '"Customise the start page" shows each section name readable on its line again (on the phone the names stood letter by letter in a narrow column).':
     '«Startseite anpassen» zeigt jeden Abschnitt wieder lesbar in seiner Zeile (am Handy standen die Namen Buchstabe für Buchstabe in einer schmalen Spalte).',

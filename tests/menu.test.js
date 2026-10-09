@@ -6,7 +6,7 @@ import { searchAll } from '../src/lib/search.js';
 
 // Pages reached on purpose without a menu entry of their own, with where they are reached.
 const ELSEWHERE = {
-  pack: 'a trip from Trips (#/trips, v0.46.1), Today or More → Packing lists',
+  pack: 'a trip from Trips (#/trips, v0.46.1) or Today; the lists are no longer in More (v0.46.3, Noah)',
   care: 'Bikes → Care (a tab of the Bikes place)',
   ride: 'the trip band on a ride day',
   share: 'a shared link only',
@@ -15,9 +15,9 @@ const ELSEWHERE = {
 const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'debrief', 'gearimport', 'wardrobe', 'review'];
 
 describe('the menu "More"', () => {
-  it('has the four groups Noah chose, with "Packing lists" first (v0.46.1)', () => {
-    expect(MORE_GROUPS.map((g) => g.key)).toEqual(['lists', 'plan', 'back', 'gear', 'app']);
-    expect(MORE_GROUPS[0].rows.map((r) => r.id)).toEqual(['templates', 'past']);
+  it('has the four groups Noah chose (v0.46.3: the packing-list group of 0.46.1 is gone again)', () => {
+    expect(MORE_GROUPS.map((g) => g.key)).toEqual(['plan', 'back', 'gear', 'app']);
+    expect(MORE_GROUPS.find((g) => g.key === 'plan').rows.map((r) => r.id)).toEqual(['templates', 'blocks']);
     expect(MORE_GROUPS.find((g) => g.key === 'app').rows.map((r) => r.id)).toEqual(['inbox', 'data', 'features']);
   });
 

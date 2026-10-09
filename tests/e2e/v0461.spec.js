@@ -3,7 +3,7 @@
 // 2. Bike care: the newest problems on top.
 // 3. The priority of a problem changes on the phone in two taps (in the row), also through •••.
 // 5. The search on the phone is a clean sheet under the top bar, × closes it.
-// 6. The packing lists are in the menu «Mehr» under «Packlisten».
+// 6. The packing lists: Touren shows them (v0.46.3: no longer as rows in «Mehr», Noah found it untidy).
 // 7. «Touren» opens an overview of all trips (#/trips), not the last trip at Packen.
 // SHOTS=<folder> saves screenshots (never into the repo).
 import { test, expect } from '@playwright/test';
@@ -159,24 +159,22 @@ test('5: the search on the phone is a clean sheet under the top bar', async ({ p
   expect(errors).toEqual([]);
 });
 
-test('6: the menu More has the packing lists first', async ({ page, context }, info) => {
+test('6 (v0.46.3, Noah: "unschön"): More is calm again, no trip rows; the lists are under Touren', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/');
   await page.getByRole('button', { name: /^Mehr/ }).click();
   const sheet = page.getByRole('dialog', { name: 'Mehr' });
-  const lists = sheet.getByRole('region', { name: 'Packlisten' });
-  await expect(lists.getByRole('heading', { name: 'Packlisten', exact: true })).toBeVisible();
-  await expect(lists.getByRole('button', { name: /Jura event/ })).toBeVisible();
-  await expect(lists.getByRole('button', { name: 'Neue Packliste' })).toBeVisible();
-  await expect(lists.getByRole('link', { name: 'Vorlagen für Packlisten' })).toBeVisible();
-  await expect(lists.getByRole('link', { name: 'Vergangene Touren' })).toBeVisible();
-  await shot(page, info, 'menu-packlists-after');
-  await lists.getByRole('button', { name: /Jura event/ }).click();
-  await expect(page).toHaveURL(/#\/pack$/);
-  await expect(page.getByText(`${P} Jura event`).first()).toBeVisible();
-  await page.getByRole('button', { name: /^Mehr/ }).click();
-  await sheet.getByRole('link', { name: 'Vorlagen für Packlisten' }).click();
+  for (const g of ['Planen', 'Rückblick', 'Material', 'App']) await expect(sheet.getByRole('heading', { name: g, exact: true })).toBeVisible();
+  await expect(sheet.getByRole('heading', { name: 'Packlisten', exact: true })).toHaveCount(0);
+  await expect(sheet.getByRole('button', { name: /Jura event/ })).toHaveCount(0);
+  await expect(sheet.getByRole('link', { name: 'Vorlagen' })).toBeVisible();
+  await expect(sheet.getByRole('link', { name: 'Vergangene Touren' })).toBeVisible();
+  await shot(page, info, 'menu-calm-after');
+  await sheet.getByRole('link', { name: 'Vorlagen' }).click();
   await expect(page).toHaveURL(/#\/pack\/templates/);
+  // The packing list of a trip: Touren → its row.
+  await page.goto('./#/trips');
+  await expect(page.getByText(`${P} Jura event`).first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 

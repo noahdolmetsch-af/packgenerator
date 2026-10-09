@@ -316,3 +316,7 @@ Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0
 
 - **Fehler (Noah am Handy):** Die Namen der Abschnitte standen Buchstabe für Buchstabe senkrecht, die Liste wirkte leer. Ursache: Das Etikett in `src/lib/home/Customize.svelte` nutzte die Klasse `sw`, die `app.css` global als 10 × 10 px Farbfeld festlegt; die Breite von 10 px galt auch für das Etikett. Jetzt `tg`. Ein Browsertest prüft, dass jeder Name lesbar in seiner Zeile steht.
 - **Lehre:** Ein Klassenname aus `app.css` darf in einer Komponente nicht für etwas anderes verwendet werden. Die «Wächter»-Tests (Skill packgenerator-einheitlich, kommt mit den Übergängen Teil 1) sollen das künftig automatisch finden.
+
+## 9.10.2026: «Mehr» wieder ruhig (0.46.3)
+
+- Noah fand die Touren-Einträge zuoberst in «Mehr» (0.46.1) unschön. Sie sind wieder weg; Vorlagen zurück unter Planen, Vergangene Touren unter Rückblick (Stand 0.46.0). Die Packlisten der Touren findet man über «Touren» (Übersicht nach Stand). Ein Mockup für das ganze Menü folgt mit Fragen.
