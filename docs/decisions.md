@@ -468,3 +468,8 @@ Noahs Antworten (alle a) zu den Bildern `design/optimierenPacken2/OP2-*`, nur Te
 - **Nicht in 0.59.0:** «Outfit speichern» und Outfits lernen (D5).
 - **Selbst entschieden (Schnellmodus):** Basis/Mitte/Aussen-Reiter im Tauschen-Blatt weggelassen (getauscht wird nur in derselben Schicht; Schicht dazu kommt mit OP2b); Teile, die schon auf der Tour sind, werden nicht angeboten; «Lieber einpacken in» im Blatt ersetzt «Verschieben nach» der alten Zeile; Zeilen am Körper zeigen ihren Grund («Unter 10 °C»); Kleiderschrank-Zeilen mit Tour zeigen «auf der Tour», ohne Tausch-Knöpfe pro Zeile (Tauschen bleibt in der Packliste).
 
+
+## Arbeitsweise (9.10.2026, 23:26)
+
+- **Entscheid:** nur ein Paket (höchstens zwei) gleichzeitig; vor jedem Release Mockups, Noahs Prüfung und a/b-Fragen, gebaut wird erst danach. Ersetzt den Schnellmodus. Details und verbindliche Anweisung: [Arbeitsweise](arbeitsweise.md).
+- **Grund:** Drei Pakete parallel brachten Umnummerierungen und Funktionen ohne Design-Prüfung.
