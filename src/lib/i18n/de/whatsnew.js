@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.59.0
+  'The packing list shows what you wear as the first card "On me", head to feet. A tap on a piece opens "Swap": the pieces of the same zone and layer, those that fit the weather first. One tap swaps, Undo takes it back.':
+    'Die Packliste zeigt, was du trägst, als erste Karte «Am Körper», von Kopf bis Füsse. Ein Tipp auf ein Teil öffnet «Tauschen»: die Teile derselben Zone und Schicht, zuerst die, die zum Wetter passen. Ein Tipp tauscht, «Rückgängig» nimmt es zurück.',
+  'The app remembers what you picked, so it comes first next time. Pieces without a °C range get their bar from warm, medium or cold.':
+    'Die App merkt sich, was du gewählt hast, und zeigt es beim nächsten Mal zuerst. Teile ohne °C-Bereich bekommen ihren Balken aus warm, mittel oder kalt.',
+  '"Open in the wardrobe" shows the wardrobe for the trip: its temperature, dry, rain or any, and pieces that do not fit hidden when a fitting one is there.':
+    '«Im Kleiderschrank öffnen» zeigt den Kleiderschrank für die Tour: ihre Temperatur, trocken, Regen oder egal, und blendet unpassende Teile aus, wenn ein passendes da ist.',
   // 0.48.0
   'Bike care starts with an overview: a ring per bike, at most three cards for what is due, all problems in one list. Replacing or servicing a part is a short guided flow.':
     'Die Velopflege beginnt mit einer Übersicht: ein Ring pro Velo, höchstens drei Karten für Fälliges, alle Probleme in einer Liste. Ein Teil ersetzen oder warten ist ein kurzer geführter Ablauf.',

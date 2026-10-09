@@ -69,7 +69,7 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 |---|---|---|---|
 | Heute | Startseite | Neubau 0.46 | – |
 | Heute | Neu-Blatt, Mehr-Menü, Suche | – | – |
-| Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.47: Velo mit Taschen oben, Gewichtskarte) | 3 |
+| Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.52: Karte «Am Körper», Blatt «Tauschen») | 4 |
 | Touren | Tour-Dialog, Vorlagen-Dialog, Lade-Blatt | 9.10.2026 (0.47.3: Wetter-Chips wie auf der Tourseite, Trocken/Regen) | 3 |
 | Touren | Unterwegs | – | – |
 | Touren | Rückblick (eine Seite: letzte Fahrt, 12 Monate, Vergleich) | 9.10.2026 (0.49 R1 nach Mockup «Rückblick-Hub») | 4 |
@@ -79,7 +79,7 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Touren | Fahrten, Teilen | – | – |
 | Touren | Vorlagen, Vorlage neu/bearbeiten, Bausteine | – | – |
 | Material | Materialliste, Teil-Dialog, Zuordnen, Zusammenlegen | 9.10.2026 (0.47.2: sieben Ansichten, Karten mit Punkten pro Tour, Detailspalte, Filterblatt, Teil mit «Sein Jahr auf Tour»; Zuordnen und Zusammenlegen noch alt) | 4 |
-| Material | Kleiderschrank | 9.10.2026 (0.47 neu gebaut nach Mockup) | 4 |
+| Material | Kleiderschrank | 9.10.2026 (0.52: Tourband, unpassende Doppelte ausgeblendet) | 4 |
 | Material | Import prüfen, Favoriten, Wunschliste | – | – |
 | Velos | Setup, Velo-Dialog, Taschen-Dialog/-Blatt | 9.10.2026 (0.47: nur Kopfband in der Gletscher-Schrift) | 3 |
 | Velos | Velopflege, Teil-, Werkstattbesuch- und Bestell-Dialog | 9.10.2026 (0.47: Schrift vereinheitlicht, «Jetzt fällig» als Karten; Dialoge noch alt) | 3 |
@@ -118,3 +118,4 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 9.10.2026, 0.56.0 R1 «Rückblick ruhig»: Rückblick als eine Seite, Vergangene Touren als Tabelle (am Handy mit stehender Namensspalte), gespeicherter Tour-Rückblick nach drei «A». Mitgezogen: Breadcrumbs auf Rückblick, Vergangene Touren und den Unterseiten Tempo/Gelernt/Logbuch; «Mehr › Rückblick», Heute (Rückblick-Knopf, 12-Monate-Zeile), Tipps. Wächter-Grundlinie: Stil nur gesunken (Compare/Review gelöscht, Debrief/PastTrips weniger), Konsistenz-Test prüft statt `#/review` jetzt `#/debrief/learnings` und `#/debrief/pace`. Bilder: `design/v0490/vorher` und `nachher`.
 - 9.10.2026, 0.48 «Pflege-Übersicht + Teile pro Velo + Eingang/Notizen»: Velopflege mit Übersicht C (Ringe, höchstens 3 Fällig-Karten, flache Probleme), Teiletabelle nach Bereich mit «Mehr», geführtes Ersetzen/Warten; Velos vergleichen (fixe erste Spalte, Tabelle scrollt in sich); Eingang nach Tagen mit Ablegen-Blatt (7 Ziele); Werkstatt & Belege; neue Seite Notizen. Mitgezogen: Velos-Reiter (dritter Reiter Werkstatt), Mehr-Menü (Notizen), Heute (eine Zeile für angeheftete Notiz). Offen: Chips (`.chip`) sind in FileSheet, NoteSheet, PartFlow und CareTab je lokal gestylt; als gemeinsamer Baustein in `app.css` Ziel 0.49. Werkstattbesuch- und Bestell-Dialog noch im alten Stil, Ziel 0.49.
 
+- 9.10.2026, 0.59.0 «Tauschen» (OP2a): Packliste mit der Karte «Am Körper» (Zone, Schicht, Temperaturbalken mit Tour-Rahmen), Blatt «Tauschen» (am Handy von unten, 44-px-Ziele), Kleiderschrank mit Tourband. Neuer Baukasten-Teil `src/lib/ui/TempBar.svelte` (der Balken des Kleiderschranks, mit Rahmen für den Bereich der Tour). Tour/Packen 3 → 4. Bilder vorher/nachher: `design/v0520-tausch/`.

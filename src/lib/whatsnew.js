@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.59.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'The packing list shows what you wear as the first card "On me", head to feet. A tap on a piece opens "Swap": the pieces of the same zone and layer, those that fit the weather first. One tap swaps, Undo takes it back.', href: '#/pack' },
+      { text: 'The app remembers what you picked, so it comes first next time. Pieces without a °C range get their bar from warm, medium or cold.', href: '#/pack' },
+      { text: '"Open in the wardrobe" shows the wardrobe for the trip: its temperature, dry, rain or any, and pieces that do not fit hidden when a fitting one is there.', href: '#/wardrobe' },
+    ],
+  },
+  {
     version: '0.57.0',
     date: '2026-10-09',
     points: [
