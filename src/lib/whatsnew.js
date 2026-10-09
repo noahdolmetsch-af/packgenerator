@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.39.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'Templates are linked to your building blocks: change a building block and every template with it changes too.', href: '#/pack/templates' },
+      { text: 'A new template in 3 steps: building blocks, single items, then the bike (optional) and its bags.', href: '#/pack/templates' },
+      { text: 'The template list shows what is in each one, its weight, when you last used it and how often; a switch per area.', href: '#/pack/templates' },
+      { text: 'Templates you have not used for a year get a quiet hint: keep or archive them. Nothing is deleted.', href: '#/pack/templates' },
+    ],
+  },
+  {
     version: '0.38.0',
     date: '2026-10-09',
     points: [

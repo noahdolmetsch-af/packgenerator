@@ -265,7 +265,10 @@ test('kits become templates after the start; the rain kit becomes a building blo
   expect(tpls.some((x) => /Rain/.test(x.name))).toBe(false);
   expect(settings.find((s) => s.key === 'sets').value).toEqual([{ key: 'u-test-data-gtp-rain-setup', name: 'test_data_gtp_ Rain setup', note: 'test_data_gtp_ extra for rain' }]);
   expect((await table(page, 'kits')).length).toBe(2);
+  // v0.39.0 (AP28): the list shows name and composition; the note sits on the template's own page.
   await page.goto('./#/pack/templates');
+  await expect(page.getByRole('link', { name: /test_data_gtp_ Daily ride/ }).first()).toBeVisible();
+  await page.goto('./#/pack/templates/tpl-kit-D');
   await expect(page.getByText('test_data_gtp_ short rides up to 3 h')).toBeVisible();
   await page.goto('./#/blocks');
   await expect(page.getByRole('listitem', { name: 'test_data_gtp_ Rain setup' })).toContainText(T('{n} items', { n: 3 }));

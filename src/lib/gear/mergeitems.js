@@ -24,7 +24,7 @@ import { isOver } from '../debrief.js';
 import { localDay } from '../localday.js';
 import { itemDomains } from '../domains.js';
 import { STANDARD, inStandard, leaveHome } from '../blocks2026.js';
-import { TEMPLATES_KEY } from '../templates.js';
+import { TEMPLATES_KEY, saveTemplates } from '../templates.js';
 import { SETS_KEY } from '../sets.js';
 
 const empty = (v) => v == null || v === '' || (Array.isArray(v) && !v.length);
@@ -141,9 +141,32 @@ export function mergePlan(state, oldId, targetIds, { now = new Date().toISOStrin
   let tplChanged = false;
   const templates = tplList.map((tpl) => {
     const entries = swapEntries(tpl.entries ?? [], oldId, ids);
-    if (entries === (tpl.entries ?? [])) return tpl;
+    // v0.39.0 (AP28): a block item a linked template leaves out ("without") stays left out under its new ID.
+    const outOf = Object.entries(tpl.without ?? {}).filter(([, list]) => list?.includes(oldId));
+    // Single items, other places and amounts move to the new ID(s) too, so the snapshot keeps its order.
+    const inExtras = (tpl.extras ?? []).some((x) => x.itemId === oldId);
+    const inSlots = tpl.slots && oldId in tpl.slots;
+    const inQty = tpl.qty && oldId in tpl.qty;
+    if (entries === (tpl.entries ?? []) && !outOf.length && !inExtras && !inSlots && !inQty) return tpl;
     tplChanged = true;
-    return { ...tpl, entries, updatedAt: now };
+    const without = outOf.length ? Object.fromEntries(Object.entries(tpl.without).map(([k, list]) => [k, union(list.filter((id) => id !== oldId), list.includes(oldId) ? ids : [])])) : tpl.without;
+    const moveKey = (map) => {
+      const { [oldId]: v, ...rest } = map;
+      for (const id of ids) if (!(id in rest)) rest[id] = v;
+      return rest;
+    };
+    const extras = inExtras
+      ? tpl.extras.flatMap((x) => (x.itemId === oldId ? ids.filter((id) => !tpl.extras.some((y) => y.itemId === id)).map((id) => ({ ...x, itemId: id })) : [x]))
+      : tpl.extras;
+    return {
+      ...tpl,
+      entries,
+      ...(outOf.length ? { without } : {}),
+      ...(inExtras ? { extras } : {}),
+      ...(inSlots ? { slots: moveKey(tpl.slots) } : {}),
+      ...(inQty ? { qty: moveKey(tpl.qty) } : {}),
+      updatedAt: now,
+    };
   });
 
   // Amounts per item in a building block (settings "sets"): the targets take the old amount.
@@ -211,8 +234,8 @@ export async function mergeItems(db, oldId, targetIds, opts = {}) {
     if (plan.containers.length) await db.containers.bulkPut(plan.containers);
     if (plan.bikes.length) await db.bikes.bulkPut(plan.bikes);
     if (plan.learnings.length) await db.learnings.bulkPut(plan.learnings);
-    if (plan.templates) await db.settings.put({ ...(tplRec ?? {}), key: TEMPLATES_KEY, value: plan.templates });
     if (plan.sets) await db.settings.put({ ...(setsRec ?? {}), key: SETS_KEY, value: plan.sets });
+    if (plan.templates) await saveTemplates(db, plan.templates); // v0.39.0: after the items and sets, so linked templates see the merged blocks
     return snap;
   });
 }

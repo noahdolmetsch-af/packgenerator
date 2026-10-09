@@ -10,6 +10,15 @@ export default {
   'Try it': 'Ausprobieren',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.39.0
+  'Templates are linked to your building blocks: change a building block and every template with it changes too.':
+    'Vorlagen sind mit deinen Bausteinen verbunden: Änderst du einen Baustein, ändert sich jede Vorlage mit ihm.',
+  'A new template in 3 steps: building blocks, single items, then the bike (optional) and its bags.':
+    'Eine neue Vorlage in 3 Schritten: Bausteine, einzelne Teile, dann das Velo (freiwillig) und seine Taschen.',
+  'The template list shows what is in each one, its weight, when you last used it and how often; a switch per area.':
+    'Die Vorlagenliste zeigt, was drin ist, das Gewicht, wann du sie zuletzt benutzt hast und wie oft; dazu ein Umschalter pro Bereich.',
+  'Templates you have not used for a year get a quiet hint: keep or archive them. Nothing is deleted.':
+    'Vorlagen, die du ein Jahr nicht benutzt hast, bekommen einen leisen Hinweis: behalten oder archivieren. Nichts wird gelöscht.',
   // 0.38
   'Today: a ready light per bike and quick buttons: chain lubed, wear measured, washed, sealant, tyre pressure, km. Each with Undo.':
     'Heute: eine Bereit-Ampel pro Velo und Schnellknöpfe: Kette geölt, Verschleiss gemessen, geputzt, Dichtmilch, Reifendruck, km. Jeder mit Rückgängig.',

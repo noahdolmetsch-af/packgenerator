@@ -1,72 +1,131 @@
 <script>
   /**
    * Templates (Noah, 4.10.2026, answer 9): all saved packing setups on their own page.
-   * Rename, see what is in them, start a new trip from one, or delete one.
-   * What is inside a template changes from a trip: open a trip made from it and press
-   * "Save as template" → "Update" (answer 7a).
+   * v0.39.0 (AP28, "Vorlagen neu"): one quiet row per template (no box), linked to the building
+   * blocks (3a). Noah's choices:
+   *   2a  the row: name and weight, "Standard + Rain + 2 extra", quietly "last 5 Oct · 4 trips";
+   *   4a/5a  the area switch on top, only areas with templates plus All, remembered per device;
+   *   6a  "long not used" after 12 months, with Archive (Undo) and Keep (12 months rest, Q6a);
+   *   8a  "New trip" in the ••• (phone) and on hover or focus (computer); always inside the template.
+   * Desktop: a table with Weight, Last, Trips (the header once). Archived templates fold away below.
+   * #/pack/templates/new opens the 3 steps of a new template, #/pack/templates/<id> one template.
    */
   import { liveQuery } from 'dexie';
+  import { Archive, Plus, Route } from '@lucide/svelte';
   import { db } from '../lib/db.js';
-  import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
-  import { NIGHT_SETS, newTrip } from '../lib/trips.js';
-  import { SETS_KEY, allSets, templateBlocks, blocksLine, blockLabel } from '../lib/sets.js';
-  import { RIDES } from '../lib/layers.js';
-  import { templateHints, applyTemplateHint, rejectTemplateHint, TEMPLATE_AFTER, REJECT_FOR } from '../lib/debrief.js';
+  import { TEMPLATES_KEY, saveTemplates, templateUse, isStale, templateAreas, tplDomain, templateWeight, duplicateTemplate, freeName } from '../lib/templates.js';
+  import { SETS_KEY } from '../lib/sets.js';
+  import { knownWeight } from '../lib/gear.js';
+  import { domainName } from '../lib/domains.js';
+  import { templateHints } from '../lib/debrief.js';
+  import { changeTemplates } from '../lib/tpl/toast.svelte.js';
+  import Toast from '../lib/tpl/Toast.svelte';
+  import { newTrip } from '../lib/nav.js';
+  import { localDay } from '../lib/localday.js';
+  import { lineOf } from '../lib/tpl/view.js';
+  import Menu from '../lib/tpl/Menu.svelte';
   import TemplateEdit from './TemplateEdit.svelte';
+  import TemplateNew from './TemplateNew.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
 
-  // #/pack/templates/<id> opens the editor for one template (answer 7b).
+  // #/pack/templates/<id> opens one template; #/pack/templates/new?area=… a new one.
   let hash = $state(location.hash);
   $effect(() => {
     const update = () => (hash = location.hash);
     window.addEventListener('hashchange', update);
     return () => window.removeEventListener('hashchange', update);
   });
-  const editId = $derived(decodeURIComponent(hash.split('/')[3] ?? ''));
+  const sub = $derived(decodeURIComponent(hash.split('/')[3] ?? ''));
+  const editId = $derived(sub.startsWith('new') ? '' : sub);
+  const isNew = $derived(sub === 'new' || sub.startsWith('new?'));
+  const newArea = $derived(new URLSearchParams(sub.split('?')[1] ?? '').get('area'));
 
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
-  const bagsQ = liveQuery(() => db.containers.toArray());
-  const templates = $derived([...($tplQ?.value ?? [])].sort((a, b) => a.name.localeCompare(b.name)));
-  // v0.19.0: after 3 debriefs the templates learn what you never use and what was missing.
+  const itemsQ = liveQuery(() => db.items.toArray());
+  const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
-  const itemsQ = liveQuery(() => db.items.toArray());
-  const doneN = $derived(($debriefsQ ?? []).filter((d) => d.status === 'done').length);
-  const hintsFor = (tp) => templateHints(tp, $tripsQ ?? [], $debriefsQ ?? [], $itemsQ ?? []);
-  // v0.28.0 (AP25): every decision goes into the template's history (tpl.hintLog) with the trips behind it.
-  async function applyHint(tp, h) {
-    await saveTemplates(db, templates.map((x) => (x.id === tp.id ? applyTemplateHint(x, h, $itemsQ ?? [], new Date().toISOString(), doneN) : x)));
-  }
-  // Noah 4a: "Not now" hides the hint until 3 more debriefs are done; the template stays as it is.
-  async function rejectHint(tp, h) {
-    await saveTemplates(db, templates.map((x) => (x.id === tp.id ? rejectTemplateHint(x, h, doneN) : x)));
-  }
-  const tripTitle = $derived(Object.fromEntries(($tripsQ ?? []).map((x) => [x.id, x.title])));
-  const day = (iso) => (iso ? new Date(iso.length > 10 ? iso : `${iso}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) : '');
-  const history = (tp) => [...(tp.hintLog ?? [])].reverse();
-  const logTrips = (x) => (x.trips ?? []).map((id, n) => tripTitle[id] ?? x.tripTitles?.[n] ?? id).join(', ');
-  const bagName = $derived(Object.fromEntries(($bagsQ ?? []).map((b) => [b.id, b.name])));
+  const all = $derived($tplQ?.value ?? []);
+  const items = $derived($itemsQ ?? []);
+  const setsValue = $derived($setsQ?.value ?? []);
+  const trips = $derived($tripsQ ?? []);
+  const today = localDay();
 
-  let error = $state('');
-  async function rename(tp, value) {
-    const clean = value.trim();
-    error = '';
-    if (!clean || clean === tp.name) return;
-    if (templates.some((x) => x.id !== tp.id && x.name.toLowerCase() === clean.toLowerCase())) return (error = t('There is already a template "{name}".', { name: clean }));
-    await saveTemplates(db, templates.map((x) => (x.id === tp.id ? { ...x, name: clean } : x)));
+  // Noah 5a: only the areas that have templates, plus All; the choice is remembered on this device.
+  const AREA_KEY = 'templates.area';
+  const areas = $derived(templateAreas(all));
+  let picked = $state(readArea());
+  function readArea() {
+    try {
+      return localStorage.getItem(AREA_KEY) || '';
+    } catch {
+      return '';
+    }
   }
+  function pickArea(key) {
+    picked = key;
+    try {
+      localStorage.setItem(AREA_KEY, key);
+    } catch {
+      /* private mode: the choice lasts until the page closes */
+    }
+  }
+  const area = $derived(picked === 'all' || areas.some((a) => a.key === picked) ? picked : (areas.find((a) => a.key === 'bikepacking') ?? areas[0])?.key ?? 'all');
+  const showSwitch = $derived(areas.length > 1);
+  const active = $derived(all.filter((x) => !x.archivedAt));
+  const archived = $derived(all.filter((x) => x.archivedAt).sort((a, b) => a.name.localeCompare(b.name)));
+
+  // One row per template: the last use first (Noah 7a: trips started or ridden), never used ones last.
+  const rows = $derived(
+    active
+      .filter((x) => !showSwitch || area === 'all' || tplDomain(x) === area)
+      .map((tp) => {
+        const use = templateUse(tp, trips, today);
+        const w = templateWeight(tp, items, setsValue);
+        const hints = templateHints(tp, trips, $debriefsQ ?? [], items).length;
+        return { tp, use, w, hints, line: lineOf(tp, setsValue), stale: isStale(tp, trips, today) };
+      })
+      .sort((a, b) => (b.use.last ?? '').localeCompare(a.use.last ?? '') || (b.tp.createdAt ?? '').localeCompare(a.tp.createdAt ?? '') || a.tp.name.localeCompare(b.tp.name)),
+  );
+  const day = (iso) => {
+    if (!iso) return '';
+    const d = new Date(`${iso}T12:00:00`);
+    return d.toLocaleDateString(locale(), { day: 'numeric', month: 'short', ...(iso.slice(0, 4) !== today.slice(0, 4) ? { year: 'numeric' } : {}) });
+  };
+  const weight = (w) => (w.n ? knownWeight(w.g, w.missing) : '–');
+  const useLine = (use) => (use.n ? `${t('last {date}', { date: day(use.last) })} · ${tn(use.n, '{n} trip', '{n} trips')}` : t('not used yet'));
+  const newHref = $derived(`#/pack/templates/new${showSwitch && area !== 'all' ? `?area=${area}` : areas.length === 1 ? `?area=${areas[0].key}` : ''}`);
+
+  /* ---------- actions, each with Undo for a few seconds (tpl/toast.svelte.js) ---------- */
+  const change = (fn, text) => changeTemplates(fn, text);
+  const now = () => new Date().toISOString();
+  const setOne = (id, patch) => (list) => list.map((x) => (x.id === id ? { ...x, ...patch, updatedAt: now() } : x));
+  const archive = (tp) => change(setOne(tp.id, { archivedAt: now() }), t('{name} archived', { name: tp.name }));
+  const restore = (tp) => change(setOne(tp.id, { archivedAt: null, keptAt: now() }), t('{name} is back', { name: tp.name }));
+  const keep = (tp) => change(setOne(tp.id, { keptAt: now() }), t('{name} kept. No hint for 12 months.', { name: tp.name }));
   async function remove(tp) {
     if (!confirm(t('Delete the template "{name}"? Trips made from it stay. A backup file can bring it back.', { name: tp.name }))) return;
-    await saveTemplates(db, templates.filter((x) => x.id !== tp.id));
+    await change((list) => list.filter((x) => x.id !== tp.id), t('{name} deleted', { name: tp.name }));
   }
-  function start(tp) {
-    try {
-      localStorage.setItem('pack.startFrom', tp.id);
-    } catch {
-      /* private mode: the trip dialog opens without the template chosen */
-    }
-    location.hash = '#/pack';
+  async function duplicate(tp) {
+    const id = `tpl-${Date.now().toString(36)}`;
+    await change((list) => [...list, duplicateTemplate(tp, { id, name: freeName(t('{name} copy', { name: tp.name }), list), now: now() })], t('Copy made'));
+    location.hash = `#/pack/templates/${encodeURIComponent(id)}`;
   }
+  const start = (tp) => newTrip(tp.id);
+  function pick(tp, key) {
+    if (key === 'trip') start(tp);
+    if (key === 'dup') duplicate(tp);
+    if (key === 'archive') archive(tp);
+    if (key === 'restore') restore(tp);
+    if (key === 'delete') remove(tp);
+  }
+  const menuOf = (tp) => [
+    ...(tp.archivedAt ? [{ key: 'restore', label: t('Bring back') }] : [{ key: 'trip', label: t('New trip') }]),
+    { key: 'dup', label: t('Duplicate') },
+    ...(tp.archivedAt ? [] : [{ key: 'archive', label: t('Archive') }]),
+    { key: 'delete', label: t('Delete'), bad: true },
+  ];
   // Design audit T2: from the empty page straight to "Save as template" on Pack.
   function saveCurrent() {
     try {
@@ -76,226 +135,339 @@
     }
     location.hash = '#/pack';
   }
-  // v0.32.0 (finding 5, stage 1): a template in the app's two words, "Standard + Rain + 2 extra"
-  // (the same line as in "New trip"; the standard set of a day ride without a night, like there).
-  const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
-  const blockSets = $derived(allSets($setsQ?.value));
-  const stdIds = $derived(newTrip({ title: '', startDate: '', days: 1, bike: { id: '', setup: {} }, overnight: 'none' }, [], $itemsQ ?? [], 0).entries.map((e) => e.itemId));
-  const blocksOf = (tp) => blocksLine(templateBlocks((tp.entries ?? []).map((e) => e.itemId), stdIds, blockSets, $itemsQ ?? []), blockLabel);
-  const bags = (tp) => Object.values(tp.setup ?? {}).filter(Boolean).map((id) => bagName[id] ?? id);
-  const nights = (tp) => NIGHT_SETS.filter((n) => tp.sets?.[n.key]).map((n) => t(n.name));
 </script>
 
-{#if editId}
+{#if isNew}
+  <TemplateNew area={newArea} />
+{:else if editId}
   <TemplateEdit id={editId} />
 {:else}
-<div class="tpls">
-  <p class="back"><a href="#/pack">← {t('Pack')}</a></p>
-  <h1 class="title big">{t('Templates')}</h1>
-  <p class="hint">{t('A template is a packing setup you can start new trips from. Save one on the Pack page with "Save as template". Change what is inside with "Edit", or from a trip made from it with "Save as template" → "Update".')}</p>
-  {#if error}<p class="err" role="alert">{error}</p>{/if}
-  {#if templates.length && doneN < TEMPLATE_AFTER}<p class="hint">{t('After {n} debriefs the templates learn what you never use and what was missing ({done} of {n} done).', { n: TEMPLATE_AFTER, done: doneN })}</p>{/if}
-  <ul class="list">
-    {#each templates as tp (tp.id)}
-      <li class="card">
-        <label class="nm"><span class="lbl">{t('Name')}</span><input class="inp" value={tp.name} onchange={(e) => rename(tp, e.currentTarget.value)} /></label>
-        <!-- v0.26.0 (Noah 1a): a template made from a kit keeps what the kit was for (read-only). -->
-        {#if tp.note}<p class="facts tnote">{tp.note}</p>{/if}
-        <p class="blocksline">{blocksOf(tp)}</p>
-        <p class="facts">
-          {tn(tp.entries.length, '{n} item', '{n} items')} · {tn(tp.ready.length, '{n} check', '{n} checks')}
-          {#if tp.ride}{' · '}{t(RIDES.find((r) => r.key === tp.ride)?.name ?? '')}{/if}{#if tp.hours}{' · '}{tp.hours} h{/if}{#if tp.days > 1}{' · '}{tn(tp.days, '{n} day', '{n} days')}{/if}{#if tp.overnight === 'outdoor'}{' · '}{t('Outdoor')}{:else if tp.overnight === 'lodging'}{' · '}{t('Lodging')}{/if}
-          {#if nights(tp).length}{' · '}{t('Night: {sets}', { sets: nights(tp).join(', ') })}{/if}
-        </p>
-        {#if bags(tp).length}<p class="facts">{t('Bags: {bags}', { bags: bags(tp).join(', ') })}</p>{/if}
-        <p class="facts muted">{t('Saved {date}', { date: tp.updatedAt?.slice(0, 10) })}</p>
-        {#if hintsFor(tp).length}
-          <div class="hints">
-            <span class="lbl">{t('From your debriefs')}</span>
-            <p class="note">{t('Not used does not mean not needed: you decide.')}</p>
-            <ul>
-              {#each hintsFor(tp) as h (h.id)}
-                <li class="hint-row" data-hint={h.id}>
-                  <b>{h.kind === 'out' ? t('Take {name} out of the template?', { name: h.name }) : t('Put {name} into the template?', { name: h.name })}</b>
-                  <details class="src">
-                    <summary>{h.kind === 'out' ? t('{count} of {of} trips not used', { count: h.count, of: h.of }) : t('Missing on {count} of {of} trips', { count: h.count, of: h.of })}</summary>
-                    <span class="lbl">{h.kind === 'out' ? t('Not needed on:') : t('Missing on:')}</span>
-                    <ul class="trips">
-                      {#each h.trips as tr (tr.id)}<li><span class="tt">{tr.title}</span> <small>{[day(tr.startDate), tr.ctx].filter(Boolean).join(' · ')}</small></li>{/each}
-                    </ul>
-                  </details>
-                  <div class="hacts">
-                    <button type="button" class="btn sm" onclick={() => applyHint(tp, h)}>{h.kind === 'out' ? t('Take out') : t('Put in')}</button>
-                    <button type="button" class="btn sm" onclick={() => rejectHint(tp, h)}>{t('Not now')}</button>
-                  </div>
-                </li>
-              {/each}
-            </ul>
-            <p class="note">{t('"Not now" asks again after {n} more debriefs.', { n: REJECT_FOR })}</p>
-          </div>
-        {/if}
-        {#if tp.hintLog?.length}
-          <details class="hist">
-            <summary>{t('History')} ({tp.hintLog.length})</summary>
-            <ul>
-              {#each history(tp) as x, n (n)}
-                <li>
-                  <b>{x.decision === 'applied' ? t('Applied') : t('Not now')}</b>: {x.kind === 'out' ? t('Take out: {name}', { name: x.name ?? x.itemId }) : t('Put in: {name}', { name: x.name ?? x.itemId })}
-                  <small>{day(x.at)}{#if x.trips?.length}{' · '}{t('from {trips}', { trips: logTrips(x) })}{/if}</small>
-                </li>
-              {/each}
-            </ul>
-          </details>
-        {/if}
-        <div class="acts">
-          <button type="button" class="btn hi" onclick={() => start(tp)}>{t('New trip from it')}</button>
-          <a class="btn" href="#/pack/templates/{encodeURIComponent(tp.id)}">{t('Edit')}</a>
-          <button type="button" class="btn del" onclick={() => remove(tp)}>{t('Delete')}</button>
-        </div>
-      </li>
-    {:else}
-      <li class="card empty">
+  <div class="tpls">
+    <p class="back"><a href="#/pack">← {t('Trips|place')}</a></p>
+    <div class="head">
+      <h1 class="title big">{t('Templates')}</h1>
+      <a class="btn hi new" href={newHref}><Plus size={18} aria-hidden="true" /> {t('New template')}</a>
+    </div>
+    <p class="lead">{t('Building blocks plus single items. Change a building block and the templates change with it.')}</p>
+
+    {#if showSwitch}
+      <div class="seg" role="group" aria-label={t('Area')}>
+        {#each areas as a (a.key)}<button type="button" aria-pressed={area === a.key} onclick={() => pickArea(a.key)}>{t(domainName(a.key))}<small class="num">{a.n}</small></button>{/each}
+        <button type="button" aria-pressed={area === 'all'} onclick={() => pickArea('all')}>{t('All|areas')}<small class="num">{active.length}</small></button>
+      </div>
+    {/if}
+
+    {#if rows.length}
+      <div class="thead" aria-hidden="true"><span>{t('Template')}</span><span class="r">{t('Weight')}</span><span class="r">{t('Last')}</span><span class="r">{t('Trips|place')}</span><span></span></div>
+      <ul class="list">
+        {#each rows as r (r.tp.id)}
+          <li class="row" data-tpl={r.tp.id}>
+            <a class="main" href="#/pack/templates/{encodeURIComponent(r.tp.id)}">
+              <span class="l1"><span class="nm">{r.tp.name}</span><span class="w num ph">{weight(r.w)}</span></span>
+              <span class="comp">{r.line}{#if r.hints}<i class="badge">{tn(r.hints, '{n} suggestion', '{n} suggestions')}</i>{/if}</span>
+              <span class="use num ph">{useLine(r.use)}</span>
+            </a>
+            <span class="c-w num dk">{weight(r.w)}</span>
+            <span class="c-last num dk">{r.use.n ? day(r.use.last) : '–'}</span>
+            <span class="c-n num dk">{r.use.n}</span>
+            <span class="acts">
+              <button type="button" class="btn sm dk" onclick={() => start(r.tp)}><Route size={16} aria-hidden="true" /> {t('New trip')}</button>
+              <Menu label={t('More for {name}', { name: r.tp.name })} actions={menuOf(r.tp)} onpick={(k) => pick(r.tp, k)} />
+            </span>
+            {#if r.stale}
+              <div class="stale">
+                <Archive size={16} aria-hidden="true" /><span>{t('long not used')}</span>
+                <button type="button" class="lnk" onclick={() => keep(r.tp)}>{t('Keep')}</button>
+                <button type="button" class="lnk" onclick={() => archive(r.tp)}>{t('Archive')}</button>
+              </div>
+            {/if}
+          </li>
+        {/each}
+      </ul>
+    {:else if !archived.length}
+      <div class="empty">
         <b>{t('No templates yet.')}</b>
-        <p>{t('A template remembers bags, items and checks of a trip, so the next trip starts packed.')}</p>
-        <button type="button" class="btn hi" onclick={saveCurrent}>{t('Save the current trip as a template')}</button>
-      </li>
-    {/each}
-  </ul>
-</div>
+        <p>{t('A template is building blocks plus single items, so the next trip starts packed.')}</p>
+        <button type="button" class="btn" onclick={saveCurrent}>{t('Save the current trip as a template')}</button>
+      </div>
+    {/if}
+
+    {#if archived.length}
+      <details class="fold">
+        <summary>{t('Archived')} <small class="num">{archived.length}</small></summary>
+        <p class="note">{t('Archived templates are not offered in "New trip". Nothing is deleted.')}</p>
+        <ul class="list">
+          {#each archived as tp (tp.id)}
+            <li class="row arch">
+              <a class="main" href="#/pack/templates/{encodeURIComponent(tp.id)}"><span class="l1"><span class="nm">{tp.name}</span></span><span class="comp">{lineOf(tp, setsValue)}</span></a>
+              <span class="acts">
+                <button type="button" class="btn sm" onclick={() => restore(tp)}>{t('Bring back')}</button>
+                <Menu label={t('More for {name}', { name: tp.name })} actions={menuOf(tp)} onpick={(k) => pick(tp, k)} />
+              </span>
+            </li>
+          {/each}
+        </ul>
+      </details>
+    {/if}
+  </div>
 {/if}
+<Toast />
 
 <style>
+  .tpls {
+    max-width: 1040px;
+  }
+  .back {
+    margin: 0;
+  }
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    margin: 4px 0;
+  }
+  .head h1 {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
   .big {
     font-size: var(--fs-page);
     line-height: var(--lh-title);
   }
-  .back {
-    margin: 0 0 6px;
+  .new {
+    min-height: 44px;
   }
-  .hint {
+  .lead {
+    margin: 4px 0 0;
     color: var(--ink-3);
+    font-size: 15px;
     max-width: 60ch;
   }
-  .err {
-    color: var(--bad);
+  /* Segmented toggle (Noah 4a/5a). */
+  .seg {
+    display: inline-flex;
+    flex-wrap: wrap;
+    max-width: 100%;
+    margin: 16px 0 4px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .seg button {
+    min-height: 44px;
+    padding: 0 12px;
+    border: 0;
+    border-right: 1.5px solid var(--line-strong);
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 15px var(--font-body);
+    cursor: pointer;
+  }
+  .seg button:last-child {
+    border-right: 0;
+  }
+  .seg button[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .seg small {
+    margin-left: 5px;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+  /* One row per template, no box per row. */
+  .thead {
+    display: none;
   }
   .list {
     list-style: none;
-    margin: 16px 0 0;
+    margin: 8px 0 0;
     padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .row {
     display: grid;
-    gap: 12px;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 8px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .main {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+    text-decoration: none;
+    color: var(--ink);
+    min-height: 44px;
+  }
+  .main:visited {
+    color: var(--ink);
+  }
+  .l1 {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
   }
   .nm {
-    display: grid;
-    gap: 4px;
-  }
-  /* v0.32.0: what is in the template, in building blocks ("Standard + Rain + 2 extra"). */
-  .blocksline {
-    margin: 8px 0 0;
     font-weight: 600;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+    flex: 1;
+    min-width: 0;
+  }
+  .w {
+    text-align: right;
+    white-space: nowrap;
+    font-size: 15px;
+  }
+  .comp {
+    font-size: 15px;
+    color: var(--ink-2);
     overflow-wrap: anywhere;
   }
-  .facts {
-    margin: 8px 0 0;
+  .use {
     font-size: 14px;
-  }
-  .muted {
     color: var(--ink-3);
   }
-  .tnote {
+  .badge {
+    display: inline-block;
+    margin-left: 8px;
+    font-style: normal;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 1px 8px;
+    border-radius: 99px;
+    background: var(--paper-2);
     color: var(--ink-2);
-    font-style: italic;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
   }
   .acts {
     display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .dk {
+    display: none;
+  }
+  .stale {
+    grid-column: 1 / -1;
+    display: flex;
     flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    font-size: 14px;
+    color: var(--ink-3);
+  }
+  .stale span {
+    margin-right: auto;
+  }
+  .lnk {
+    min-height: 44px;
+    padding: 0 6px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 500 14px var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .arch .comp {
+    color: var(--ink-3);
+  }
+  .fold {
+    margin-top: 16px;
+  }
+  .fold summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
     gap: 8px;
-    margin-top: 12px;
+    font-weight: 600;
+    color: var(--ink-2);
+    cursor: pointer;
   }
-  .hints {
-    margin-top: 12px;
-    padding: 8px 12px;
-    border-left: 4px solid var(--ink);
-    background: var(--paper-2);
-    border-radius: 6px;
-  }
-  .hints ul {
-    list-style: none;
-    margin: 4px 0 0;
-    padding: 0;
-  }
-  .hint-row {
-    display: grid;
-    gap: 6px;
-    padding: 8px 0;
-    border-top: 1px solid var(--line);
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-  .hint-row:first-child {
-    border-top: 0;
+  .fold summary small {
+    color: var(--ink-3);
   }
   .note {
-    margin: 4px 0 0;
+    margin: 0 0 4px;
     font-size: var(--fs-small);
     color: var(--ink-3);
   }
-  .src summary,
-  .hist summary {
-    cursor: pointer;
-    min-height: 32px;
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-  }
-  @media (pointer: coarse) {
-    .src summary,
-    .hist summary {
-      min-height: 44px;
-    }
-    .hacts .btn {
-      min-height: 44px;
-    }
-  }
-  .trips {
-    margin: 2px 0 4px;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: 4px;
-  }
-  .trips li,
-  .hist li {
-    font-size: 14px;
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-  .trips small,
-  .hist small {
-    display: block;
-    color: var(--ink-3);
-  }
-  .hacts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .hist {
-    margin-top: 10px;
-  }
-  .hist ul {
-    list-style: none;
-    margin: 4px 0 0;
-    padding: 0;
+  .empty {
+    margin-top: 16px;
     display: grid;
     gap: 6px;
+    justify-items: start;
   }
-  .del {
-    margin-left: auto;
-    border-color: var(--bad);
-    color: var(--bad);
+  .empty p {
+    margin: 0;
+    color: var(--ink-2);
+  }
+  @media (min-width: 720px) {
+    .thead {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 90px 120px 70px 180px;
+      gap: 12px;
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink-3);
+      padding: 0 8px 4px;
+    }
+    .thead .r {
+      text-align: right;
+    }
+    .thead + .list {
+      margin-top: 0;
+      border-top: 1px solid var(--line-strong);
+    }
+    .row {
+      grid-template-columns: minmax(0, 1fr) 90px 120px 70px 180px;
+      gap: 4px 12px;
+      padding: 6px 8px;
+      min-height: 56px;
+    }
+    .row.arch {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .row:hover,
+    .row:focus-within {
+      background: var(--paper);
+    }
+    .ph {
+      display: none;
+    }
+    .dk {
+      display: inline-flex;
+    }
+    .c-w,
+    .c-last,
+    .c-n {
+      justify-content: flex-end;
+      font-size: 15px;
+    }
+    .c-last,
+    .c-n {
+      color: var(--ink-2);
+    }
+    /* Row actions: quiet, full on hover and on keyboard focus. */
+    .row:not(.arch) .acts {
+      opacity: 0;
+    }
+    .row:hover .acts,
+    .row:focus-within .acts {
+      opacity: 1;
+    }
+  }
+  /* A touch screen has no hover: the ••• stays visible. */
+  @media (hover: none) {
+    .row .acts {
+      opacity: 1 !important;
+    }
   }
 </style>

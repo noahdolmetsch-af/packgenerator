@@ -7,11 +7,11 @@
   import { newBikeRecord } from '../bikes.js';
   import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly } from '../context.js';
   import { isEvent } from '../care.js';
-  import { tripFromTemplate, templateDefaults } from '../templates.js';
+  import { tripFromTemplate, templateDefaults, tplDomain, templateParts } from '../templates.js';
   import { t, tn, num, nameOf } from '../i18n.svelte.js';
   import { TRIP_DOMAINS, DOMAIN, BIKEPACKING, domainName, lastDomain, rememberDomain, newPackTrip, lastTripIn, readyKey, inDomain, hasBike } from '../domains.js';
   import { isInventory, knownWeight, formatWeight } from '../gear.js';
-  import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks, blocksLine } from '../sets.js';
+  import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks, blocksLine, blockLabel } from '../sets.js';
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
   import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf } from '../dayride.js';
@@ -101,16 +101,22 @@
   }
   // svelte-ignore state_referenced_locally
   if (isNew) useTemplate(startFrom);
-  // A template always makes a bikepacking trip.
+  // v0.39.0 (AP28): a template makes a trip of its own area (older templates: bikepacking).
   // svelte-ignore state_referenced_locally
-  let area = $state(templates.some((x) => x.id === startFrom) ? BIKEPACKING : DOMAIN[domain] && DOMAIN[domain].trip !== false ? domain : lastDomain());
+  const startTpl = templates.find((x) => x.id === startFrom);
+  // svelte-ignore state_referenced_locally
+  let area = $state(startTpl ? tplDomain(startTpl) : DOMAIN[domain] && DOMAIN[domain].trip !== false ? domain : lastDomain());
+  // v0.39.0 (Noah 6a): archived templates are not offered; only the ones of the chosen area.
+  const areaTemplates = $derived(templates.filter((x) => !x.archivedAt && tplDomain(x) === area));
+  const chosenTpl = $derived(templates.find((x) => x.id === start) ?? null);
   const byBike = $derived(isNew ? !!DOMAIN[area]?.bike : hasBike(trip));
   const fromArea = $derived(isNew && !byBike ? lastTripIn(area, trips) : null);
   const areaItems = $derived(items.filter((i) => isInventory(i) && inDomain(i, area)).length);
-  // A template does not fit an area without a bike: back to the standard (the area's items).
+  // A template of another area does not fit: back to the standard (the area's items).
   // v0.28.0 (Noah 8.10.2026): a new trip starts with the standard set; templates are optional.
   $effect(() => {
-    if (!byBike && templates.some((x) => x.id === start)) start = 'standard';
+    const tp = templates.find((x) => x.id === start);
+    if (tp && tplDomain(tp) !== area) start = 'standard';
   });
   let error = $state('');
   let dialog;
@@ -151,7 +157,7 @@
   /** The start of a new bike trip (template, last trip or standard set), before its context. */
   function startTrip() {
     const tpl = templates.find((x) => x.id === start);
-    const base = tpl ? tripFromTemplate({ ...draft, bike }, tpl, items) : newTrip({ ...draft, bike, overnight: night }, start === 'standard' ? [] : trips, items);
+    const base = tpl ? tripFromTemplate({ ...draft, bike }, tpl, items, Date.now(), setsValue) : newTrip({ ...draft, bike, overnight: night }, start === 'standard' ? [] : trips, items);
     return { base, tpl, fromCopy: !tpl && !!base.copiedFrom };
   }
   // v0.25.0 (M3): "Your packing list", live from the same pure functions as "Create trip".
@@ -172,10 +178,11 @@
   let namesOpen = $state(false);
 
   // v0.30.0 (Noah, finding 2): the new trip as "Create trip" will make it, live (count on the button).
-  const built = $derived(isNew && byBike && bike ? buildBikeTrip({ draft: { ...draft }, bike, start, templates, trips, items, fields: ctxFields() }, 0) : null);
+  const built = $derived(isNew && byBike && bike ? buildBikeTrip({ draft: { ...draft }, bike, start, templates, trips, items, fields: ctxFields(), sets: setsValue }, 0) : null);
   // Building blocks that do not come by themselves (contextSets), with what each would add. The
   // same function as Pack's "Add material → Building blocks" (addSetEntries), same bags skipped.
   const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
+  const setsValue = $derived($setsQ?.value ?? []);
   const sets = $derived(allSets($setsQ?.value).map((s) => ({ ...s, label: s.builtIn ? s.name.replace(/^(Night|Nacht): /, '') : s.name })));
   const skip = $derived(new Set([...bagItemIds(bags), ...(bike?.fixtures ?? [])]));
   let picked = $state([]);
@@ -216,7 +223,9 @@
     if (d.hours != null) parts.push(t('{n} h', { n: num(d.hours) }));
     // v0.30.1 (Noah N10): always in blocks ("Standard + Rain + Light"), the rest as "+ 3 extra".
     // v0.32.0 (finding 5): "Standard + Rain + 2 extra" (blocksLine, the same words as the Templates page).
-    parts.push(blocksLine(templateBlocks((tp.entries ?? []).map((e) => e.itemId), stdIds, sets, items), (s) => s.label));
+    // v0.39.0 (AP28): a linked template says its blocks itself.
+    const linked = templateParts(tp, setsValue);
+    parts.push(linked ? blocksLine(linked, blockLabel) : blocksLine(templateBlocks((tp.entries ?? []).map((e) => e.itemId), stdIds, sets, items), (s) => s.label));
     return parts.join(' · ');
   }
   let tplOpen = $state(false);
@@ -253,6 +262,13 @@
     }
   }
 
+  /** v0.39.0 (AP28): a new trip without a bike: from a template of this area, a copy of the last one, or the area's items. */
+  function packTrip(readyStandard, now) {
+    const snap = $state.snapshot(draft);
+    if (chosenTpl) return tripFromTemplate(snap, $state.snapshot(chosenTpl), items, now ?? Date.now(), $state.snapshot(setsValue));
+    return newPackTrip({ ...snap, domain: area, readyStandard }, start === 'standard' ? [] : trips, items, now ?? Date.now());
+  }
+
   async function save(event) {
     event.preventDefault();
     if (!draft.title.trim()) return (error = t('Give the trip a name.'));
@@ -260,7 +276,7 @@
     if (byBike && !hoursOk) return (error = t('Riding hours per day: between 0.5 and 24, or leave it empty.'));
     if (isNew && !byBike) {
       const readyStandard = (await db.settings.get(readyKey(area)))?.value ?? null;
-      const nt = newPackTrip({ ...draft, domain: area, readyStandard }, start === 'standard' ? [] : trips, items, autoNow ?? Date.now());
+      const nt = packTrip(readyStandard, autoNow ?? Date.now());
       ended = true;
       clearTimeout(autoTimer);
       await db.trips.put(touched(nt));
@@ -270,7 +286,7 @@
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
       // v0.25.1: the same path as the day ride (dayride.js buildBikeTrip); wxFrom says the weather came from the forecast.
       const fields = { ...ctxFields(), ...(fromForecast ? { wxFrom: 'forecast' } : {}) };
-      const nt = buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips, items, readyStandard, fields }, autoNow ?? Date.now());
+      const nt = buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow ?? Date.now());
       ended = true;
       clearTimeout(autoTimer);
       // v0.30.0 (Noah, finding 2): the building blocks chosen in the window, like Pack's block chips.
@@ -308,12 +324,12 @@
     if (!autoKeep({ isNew, name: draft.title, changed: !autoName })) return null;
     if (!byBike) {
       const readyStandard = (await db.settings.get(readyKey(area)))?.value ?? null;
-      return newPackTrip({ ...$state.snapshot(draft), domain: area, readyStandard }, start === 'standard' ? [] : trips, items, autoNow);
+      return packTrip(readyStandard, autoNow);
     }
     if (!bike || !hoursOk) return null;
     const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
     const fields = { ...ctxFields(), ...(fromForecast ? { wxFrom: 'forecast' } : {}) };
-    return $state.snapshot(withBlocks(buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips, items, readyStandard, fields }, autoNow)));
+    return $state.snapshot(withBlocks(buildBikeTrip({ draft: $state.snapshot(draft), bike: $state.snapshot(bike), start, templates, trips, items, readyStandard, fields, sets: $state.snapshot(setsValue) }, autoNow)));
   }
   let autoTimer;
   let autoBusy = Promise.resolve();
@@ -449,15 +465,15 @@
       {#if days > 1}{@render overnight()}{/if}
       {@render weather()}
       <!-- L9: only real choices: no last trip, no "Copy the last trip"; nothing to choose, no "Start from". -->
-      {#if from || templates.length}<div class="starts">
+      {#if from || areaTemplates.length}<div class="starts">
         <span class="lbl">{t('Start from')}</span>
         <!-- v0.30.1 (Noah N11): "Copy the last trip" visible at once, with the trip's name, first in "Start from". -->
         {#if from}<button type="button" class="tp-fold row" aria-pressed={start === 'last'} onclick={() => (start = 'last')}><span class="rt"><b>{t('Copy the last trip: {title}', { title: from.title })}</b></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>{/if}
-        {#if templates.length}
+        {#if areaTemplates.length}
           <details class="tp-fold" bind:open={tplOpen}>
-            <summary><span>{t('Start from a template')}</span><span class="r"><span class="num">{templates.length}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+            <summary><span>{t('Start from a template')}</span><span class="r"><span class="num">{areaTemplates.length}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
             <ul class="in opts">
-              {#each templates as tp (tp.id)}<li><button type="button" class="opt" aria-pressed={start === tp.id} onclick={() => pickStart(tp.id)}><b>{tp.name}</b><span>{tplLine(tp)}</span></button></li>{/each}
+              {#each areaTemplates as tp (tp.id)}<li><button type="button" class="opt" aria-pressed={start === tp.id} onclick={() => pickStart(tp.id)}><b>{tp.name}</b><span>{tplLine(tp)}</span></button></li>{/each}
             </ul>
           </details>
         {/if}
@@ -524,16 +540,19 @@
         <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
       {/if}
       {#if isNew}
-        {#if fromArea}
+        {#if fromArea || areaTemplates.length}
           <label class="start"><span class="lbl">{t('Start from')}</span>
             <select class="sel" bind:value={start}>
-              <option value="last">{t('Last {area} trip: {title}', { area: t(domainName(area)), title: fromArea.title })}</option>
+              {#if fromArea}<option value="last">{t('Last {area} trip: {title}', { area: t(domainName(area)), title: fromArea.title })}</option>{/if}
               <option value="standard">{t('Items of this area')}</option>
+              <!-- v0.39.0 (AP28): templates of an area without a bike -->
+              {#each areaTemplates as tp (tp.id)}<option value={tp.id}>{t('Template: {name}', { name: tp.name })}</option>{/each}
             </select>
           </label>
         {/if}
         <p class="note">
-          {#if fromArea && start !== 'standard'}{t('A copy of {title}. Nothing is ticked off yet.', { title: fromArea.title })}
+          {#if chosenTpl}{t('From the template {name}. Bags: {bags}.', { name: chosenTpl.name, bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}
+          {:else if fromArea && start !== 'standard'}{t('A copy of {title}. Nothing is ticked off yet.', { title: fromArea.title })}
           {:else if areaItems}{t('Starts with the {area} items in Standard. Bags: {bags}.', { area: t(domainName(area)), bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}
           {:else}{t('No items for {area} yet, so the list starts empty. Add items in Pack (search finds all your gear), or in Gear: open an item and tick {area} under Areas.', { area: t(domainName(area)) })}{/if}
         </p>

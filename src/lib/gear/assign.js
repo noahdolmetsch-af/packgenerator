@@ -10,7 +10,7 @@
 import { isInventory } from '../gear.js';
 import { isWorn } from '../blocks2026.js';
 import { slotFor, addEntries } from '../trips.js';
-import { TEMPLATES_KEY } from '../templates.js';
+import { TEMPLATES_KEY, templateSlot, saveTemplates, loadTemplates, dropBlock } from '../templates.js';
 import { SETS_KEY, addSet, deleteSetPlan, renameSet, setQty } from '../sets.js';
 
 const pickOf = (ids) => new Set(ids);
@@ -33,16 +33,8 @@ export function withBag(items, ids, bag, now = new Date().toISOString()) {
   return items.filter((i) => pick.has(i.id) && i.defaultBag !== bag).map((i) => ({ ...i, defaultBag: bag, updatedAt: now }));
 }
 
-/**
- * Where an item goes in a template: worn on me; with the template's bags its usual bag via
- * slotFor; a template without bags (e.g. made from a kit) keeps the usual bag itself, which
- * tripFromTemplate later puts into the bike's matching bag (or slotFor's choice).
- */
-export function templateSlot(item, setup) {
-  if (isWorn(item)) return 'body';
-  const hasBags = Object.values(setup ?? {}).some(Boolean);
-  return hasBags ? slotFor(item.defaultBag, setup) : item.defaultBag || 'seat';
-}
+/** v0.39.0: templateSlot lives in templates.js now (it also serves templates without a bike). */
+export { templateSlot };
 
 /**
  * The picked items into one template: missing ones as entries in their place; no duplicates.
@@ -135,6 +127,7 @@ export async function assignSet(db, ids, key, { newName = null, out = false } = 
     const changed = out ? outOfSet(items, ids, setKey) : intoSet(items, ids, setKey);
     snap.items = items.filter((i) => changed.some((c) => c.id === i.id));
     if (changed.length) await db.items.bulkPut(changed);
+    if (changed.length) await refreshTemplates(db);
     return { snap, n: changed.length, key: setKey };
   });
 }
@@ -156,7 +149,7 @@ export async function assignTemplate(db, ids, tplId) {
     const items = (await db.items.bulkGet(ids)).filter(Boolean);
     const { list, added } = intoTemplate(setting?.value ?? [], tplId, items, ids);
     if (!added.length) return { snap: {}, n: 0 };
-    await db.settings.put({ ...(setting ?? {}), key: TEMPLATES_KEY, value: list });
+    await saveTemplates(db, list); // v0.39.0: a linked template takes them as extras
     return { snap: { templates: setting ?? null }, n: added.length };
   });
 }
@@ -178,11 +171,12 @@ export async function assignTrip(db, ids, tripId) {
 
 /** Change the sets setting (rename, amount). fn(value) → { value } or { error }. Returns { snap } or { error }. */
 export async function editSets(db, fn) {
-  return db.transaction('rw', db.settings, async () => {
+  return db.transaction('rw', db.items, db.settings, async () => {
     const rec = await db.settings.get(SETS_KEY);
     const res = fn(rec?.value ?? []);
     if (res.error) return { error: res.error };
     await db.settings.put({ key: SETS_KEY, value: res.value });
+    await refreshTemplates(db); // v0.39.0: an amount in a block changes the linked templates
     return { snap: { sets: rec ?? null } };
   });
 }
@@ -196,8 +190,23 @@ export async function deleteSet(db, key) {
     const items = await db.items.toArray();
     const plan = deleteSetPlan(rec?.value ?? [], items, key);
     if (!plan) return { error: 'builtIn' };
+    // v0.39.0 (AP28): templates holding the block keep its items as extras first, so nothing disappears.
+    const tplRec = await db.settings.get(TEMPLATES_KEY);
+    const kept = dropBlock(tplRec?.value ?? [], key, items, rec?.value ?? []);
+    if (kept) await db.settings.put({ ...(tplRec ?? {}), key: TEMPLATES_KEY, value: kept });
     await db.settings.put({ key: SETS_KEY, value: plan.value });
     if (plan.items.length) await db.items.bulkPut(plan.items);
-    return { snap: { sets: rec ?? null, items: items.filter((i) => plan.items.some((c) => c.id === i.id)) }, n: plan.items.length };
+    if (kept) await refreshTemplates(db);
+    return { snap: { sets: rec ?? null, items: items.filter((i) => plan.items.some((c) => c.id === i.id)), ...(kept ? { templates: tplRec ?? null } : {}) }, n: plan.items.length };
   });
+}
+
+/**
+ * v0.39.0 (AP28): after a building block changed (items in or out, an amount), the linked templates
+ * rewrite their entries snapshot (what older versions and other lists read). Inside a transaction
+ * with db.items and db.settings. Nothing is written when there are no templates.
+ */
+export async function refreshTemplates(db) {
+  const list = await loadTemplates(db);
+  if (list.length) await saveTemplates(db, list);
 }
