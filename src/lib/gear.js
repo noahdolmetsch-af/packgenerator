@@ -277,9 +277,18 @@ export function itemRecord(draft, { item = null, items = [], weightG = null, now
     altFor: rest.altFor || null,
     weightG,
     weightStatus: weightG == null ? 'missing' : weightG !== item?.weightG ? 'measured' : item.weightStatus,
+    ...boughtNow(item, rest.ownership, now),
     updatedAt: now,
   };
 }
+
+/** A wish (wishlist or to buy). */
+export const isWish = (item) => item?.ownership === 'wishlist' || item?.ownership === 'to-buy';
+/**
+ * v0.44.0: a wish that becomes owned gets the day it was bought (boughtAt), for the review of the
+ * last 12 months (yearreview.js). Only then; otherwise nothing is added.
+ */
+export const boughtNow = (item, ownership, now = new Date().toISOString()) => (item && isWish(item) && ownership === 'owned' ? { boughtAt: now } : {});
 
 /*
  * v0.24.1 (Noah 5a): several items at once in the Gear list ("Select"). The functions below only
@@ -300,7 +309,7 @@ export function bulkCategory(items, ids, category, now = new Date().toISOString(
 /** v0.24.1 (Noah 5a): the selected items onto the wishlist ('wishlist') or into my gear ('owned'); only the ones that change. */
 export function bulkOwnership(items, ids, ownership, now = new Date().toISOString()) {
   const pick = new Set(ids);
-  return items.filter((i) => pick.has(i.id) && i.ownership !== ownership).map((i) => ({ ...i, ownership, updatedAt: now }));
+  return items.filter((i) => pick.has(i.id) && i.ownership !== ownership).map((i) => ({ ...i, ownership, ...boughtNow(i, ownership, now), updatedAt: now }));
 }
 
 // Does a trip or template list one of the picked items (as an entry or an old ready row)?

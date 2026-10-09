@@ -15,6 +15,7 @@
   import GearImport from './pages/GearImport.svelte';
   import Rides from './pages/Rides.svelte';
   import Wardrobe from './pages/Wardrobe.svelte';
+  import Review from './pages/Review.svelte';
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
@@ -212,6 +213,9 @@
   {:else if page === 'wardrobe'}
     <!-- v0.42.0 (Noah 1): the wardrobe, by layer and body zone -->
     <Wardrobe />
+  {:else if page === 'review'}
+    <!-- v0.44.0: the last 12 months (rolling) -->
+    <Review />
   {:else if page === 'inbox'}
     <Inbox onnew={() => (noteOpen = true)} />
   {:else if page === 'rides'}

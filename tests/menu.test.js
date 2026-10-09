@@ -11,7 +11,7 @@ const ELSEWHERE = {
   share: 'a shared link only',
   gearimport: 'Gear → Import (the import flow)',
 };
-const PAGES = ['home', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'debrief', 'gearimport', 'wardrobe'];
+const PAGES = ['home', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'debrief', 'gearimport', 'wardrobe', 'review'];
 
 describe('the menu "More"', () => {
   it('has the four groups Noah chose', () => {

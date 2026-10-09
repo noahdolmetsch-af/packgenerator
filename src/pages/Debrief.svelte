@@ -18,7 +18,7 @@
   import TripBand from '../lib/trip/TripBand.svelte';
   import { openTrip } from '../lib/nav.js';
   import '../lib/trip/trip.css';
-  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, CalendarCheck, Route } from '@lucide/svelte';
+  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, CalendarCheck, Route, ChartColumn } from '@lucide/svelte';
   import { ZONE, touched } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
@@ -552,6 +552,14 @@
           <span class="ic"><Upload size={18} aria-hidden="true" /></span>
           <span class="m"><span class="t">{t('Upload ride')}</span><span class="s">{t('GPX: pauses, planned vs real, learnings')}</span></span>
           {#if $ridesQ?.length}<span class="v num">{tn($ridesQ.length, '{n} ride', '{n} rides')}</span>{/if}
+          <ChevronRight class="chev" size={18} aria-hidden="true" />
+        </a>
+      </li>
+      <li>
+        <!-- v0.44.0: the last 12 months, rolling: riding, packing, learned, bikes -->
+        <a class="lrow" href="#/review">
+          <span class="ic"><ChartColumn size={18} aria-hidden="true" /></span>
+          <span class="m"><span class="t">{t('Last 12 months')}</span><span class="s">{t('Riding, packing, learned, bikes')}</span></span>
           <ChevronRight class="chev" size={18} aria-hidden="true" />
         </a>
       </li>
