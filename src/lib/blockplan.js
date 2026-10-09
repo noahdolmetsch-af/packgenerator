@@ -7,7 +7,7 @@
  * - light: when the sun sets and rises (computed offline), from which km the light goes on.
  * Pure functions, easy to test.
  */
-import { addHours } from './ride.js';
+import { addHours, stage, stageCount, isNonstop } from './ride.js';
 import { rainOf, coldLayer, isNightEyewear } from './layers.js';
 import { nameOf } from './i18n.svelte.js';
 
@@ -58,6 +58,26 @@ export function darkTimes(startAt, endAt, place, offsetOf = offsetFor) {
     if (a && b) out.push({ from: local(a.set, offsetOf(d)), to: local(b.rise, offsetOf(next(d))) });
   }
   return out;
+}
+
+/**
+ * v0.55.0 «Bausteine neu» (Noah 7a): does the ride go into the dark, with or without a night? Each
+ * stage from its start (trip.rideStart, else 08:00) for its riding hours (trip.hours or the route),
+ * against sunset and sunrise at the place (darkTimes). Riding hours that are only assumed do not
+ * count. Without a place only a nonstop ride (through the night) counts as dark.
+ */
+export function ridesIntoDark(trip, place, offsetOf = offsetFor) {
+  if (!trip?.startDate) return false;
+  for (let d = 0; d < stageCount(trip); d++) {
+    const st = stage(trip, d);
+    if (!st.startAt || !st.endAt || st.hoursGuess) continue;
+    if (!place) {
+      if (isNonstop(trip)) return true;
+      continue;
+    }
+    if (darkTimes(st.startAt, st.endAt, place, offsetOf).some((n) => n.to > st.startAt && n.from < st.endAt)) return true;
+  }
+  return false;
 }
 
 /** Where on the block a time is, in km. */

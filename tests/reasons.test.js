@@ -9,8 +9,8 @@ const items = [
   { id: `${P}gloves`, name: 'Winter gloves', ownership: 'owned', coldBelow: 6 },
   { id: `${P}vest`, name: 'Wind vest', ownership: 'owned', coldBelow: 12 },
   { id: `${P}gilet`, name: 'Light gilet', ownership: 'owned', altFor: `${P}vest` },
-  { id: `${P}buff`, name: 'Buff', ownership: 'owned', coldBelow: 8, sets: ['warm', 'u-rain'] },
-  { id: `${P}lamp`, name: 'Lamp', ownership: 'owned', sets: ['sleep', 'light'] },
+  { id: `${P}buff`, name: 'Buff', ownership: 'owned', coldBelow: 8, sets: ['repair', 'u-rain'] },
+  { id: `${P}lamp`, name: 'Lamp', ownership: 'owned', sets: ['bivy', 'lights'] },
   { id: `${P}mine`, name: 'Camera', ownership: 'owned' },
 ];
 const e = (id, qty = 1, src) => ({ itemId: `${P}${id}`, slot: 'seat', qty, packed: false, ...(src ? { src } : {}) });
@@ -34,13 +34,13 @@ describe('amountReason', () => {
 });
 
 describe('rowReasons', () => {
-  const trip = { hours: 6, days: 1, overnight: 'outdoor', wx: { min: 4, max: 12, rain: 'none' }, entries: [e('gloves', 1, 'context'), e('vest', 1, 'context'), e('bar', 3), e('buff', 1, 'context'), e('lamp', 1, 'set'), e('mine')] };
+  const trip = { hours: 6, days: 1, overnight: 'outdoor', tent: false, wx: { min: 4, max: 12, rain: 'none' }, entries: [e('gloves', 1, 'context'), e('vest', 1, 'context'), e('bar', 3), e('buff', 1, 'context'), e('lamp', 1, 'set'), e('mine')] };
   const r = rowReasons(trip, items, [{ key: 'u-rain', name: 'Rain' }]);
   it('weather layer says its limit', () => expect(r[`${P}gloves`].line).toBe('Below 6 °C'));
   it('the alternative can be reached', () => expect(r[`${P}vest`]).toMatchObject({ slot: `${P}vest`, alts: [`${P}gilet`] }));
   it('capped amount with its note', () => expect(r[`${P}bar`]).toMatchObject({ line: '1 per 1 h · 6 h · Need 6, you carry 3 (maximum)', note: 'never more than 2' }));
-  it('the night set it came with', () => expect(r[`${P}buff`].line).toBe('Below 8 °C · from Warm'));
-  it('the blocks of a block entry', () => expect(r[`${P}lamp`].line).toBe('from Sleep, Light'));
+  it('the night set it came with', () => expect(r[`${P}buff`].line).toBe('Below 8 °C · from Repair'));
+  it('the blocks of a block entry', () => expect(r[`${P}lamp`].line).toBe('from Bivouac, Light'));
   it('nothing on an item added by hand', () => expect(r[`${P}mine`]).toMatchObject({ line: '', note: '', alts: [] }));
   it('a picked alternative keeps the reason and offers the way back', () => {
     const swapped = rowReasons({ ...trip, layerPick: { [`${P}vest`]: `${P}gilet` }, entries: [e('gilet', 1, 'context')] }, items);

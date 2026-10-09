@@ -23,7 +23,7 @@ describe('chat updates', () => {
     expect(bikes.fully).toMatchObject({ name: 'Scott Spark', weightG: 14200, km: 1460 });
     expect(bikes['factor-ls']).toMatchObject({ use: 'Alpenbrevet; Veneto gravel', gearing: [32, 34] });
     expect((await db.trips.get('t')).bikeId).toBe('factor-ls');
-    expect((await db.items.get('LI01')).sets).toEqual(['light']);
+    expect((await db.items.get('LI01')).sets).toEqual(['light', 'lights']); // v0.55.0: + the new key Light
     expect(bikes['canyon-world-cup']).toMatchObject({ weightG: 10100, slots: ['seat', 'cage1', 'cage2'] });
     expect(bikes['factor-ls'].slots).toEqual(['cage1', 'cage2']);
     await db.bikes.update('scott-hardtail', { name: 'My Scott', km: 2500 });
@@ -69,11 +69,12 @@ describe('chat updates', () => {
       { id: 'RG14', name: 'test_data_gtp_ wind jacket', ownership: 'owned', sets: ['lodging'], weightG: 120 },
     ]);
     await applyUpdates(db);
-    expect((await db.items.get('HY07')).sets).toEqual(['base', 'lodging']);
-    expect((await db.items.get('HY08')).sets).toEqual(['lodging']);
+    // v0.55.0 «Bausteine neu» runs after it: the old keys stay, Bivouac and Hotel/hut join them.
+    expect((await db.items.get('HY07')).sets).toEqual(['base', 'lodging', 'bivy', 'hotel']);
+    expect((await db.items.get('HY08')).sets).toEqual(['lodging', 'hotel']);
     expect((await db.items.get('HY09')).sets).toEqual([]);
     expect((await db.items.get('OB06')).sets).toEqual([]);
-    expect(await db.items.get('RG14')).toMatchObject({ sets: ['lodging'], weightG: 120 });
+    expect(await db.items.get('RG14')).toMatchObject({ sets: ['lodging', 'hotel'], weightG: 120 });
     // Once: a set taken off in Gear stays off.
     await db.items.update('HY08', { sets: [] });
     await applyUpdates(db);
@@ -100,7 +101,8 @@ describe('v0.26.0 kits become templates (Noah 1a)', () => {
     const tpls = (await db.settings.get('templates')).value;
     expect(tpls.map((x) => x.id)).toEqual(['tpl-own', 'tpl-kit-D']);
     expect(tpls[1]).toMatchObject({ name: 'test_data_gtp_ Daily', note: 'test_data_gtp_ short rides', setup: {}, ready: [], sets: {}, ride: null, hours: null });
-    expect(tpls[1].entries).toEqual([{ itemId: 'X1', slot: 'frame', qty: 1 }, { itemId: 'X4', slot: 'body', qty: 1 }]);
+    // v0.55.0: X4's old block Base is Bivouac now; the same items (the block's items come first)
+    expect([...tpls[1].entries].sort((a, b) => a.itemId.localeCompare(b.itemId))).toEqual([{ itemId: 'X1', slot: 'frame', qty: 1 }, { itemId: 'X4', slot: 'body', qty: 1 }]);
     const sets = (await db.settings.get('sets')).value;
     expect(sets).toEqual([{ key: 'u-test-data-gtp-rain-setup', name: 'test_data_gtp_ Rain setup', note: 'extra for rain' }]);
     expect((await db.items.get('X1')).sets).toEqual(['u-test-data-gtp-rain-setup']);

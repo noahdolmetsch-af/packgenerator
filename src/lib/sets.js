@@ -1,8 +1,8 @@
 /**
  * v0.26.0 (Noah 2a, AP10): item sets you can see and make.
  *
- * The built-in sets (gear.js SETS: base, warm, sleep, cook, light, lodging, firstaid) stay as they are:
- * context.js and the night switches in Pack use their keys. Own sets live in the settings
+ * The built-in sets (gear.js SETS; v0.55.0: bivy, tent, hotel, cook, firstaid, repair, charge,
+ * lights, race, food, hygiene, comfort) keep their keys: context.js and Pack use them. Own sets live in the settings
  * record "sets" as [{ key: 'u-<slug>', name, note? }]; the name is saved as Noah wrote it and
  * never translated. Membership stays on the item (item.sets = ['sleep', 'u-rain', …]).
  *
@@ -12,7 +12,7 @@
  *
  * Pure functions only (no database, no screen), so they are easy to test.
  */
-import { SETS, isInventory, itemWeight, sumKnown } from './gear.js';
+import { SETS, isInventory, itemWeight, sumKnown, isOldSetKey } from './gear.js';
 import { slotFor } from './trips.js';
 import { t, tn } from './i18n.svelte.js';
 import { STANDARD, isWorn } from './blocks2026.js';
@@ -32,7 +32,8 @@ export function allSets(value) {
   const builtIn = BUILT_IN.map((key) => ({ key, name: rec(key)?.name || t(SETS[key]), note: '', builtIn: true, renamed: !!rec(key)?.name, qty: { ...(rec(key)?.qty ?? {}) } }));
   // v0.42.0: a temperature kit keeps its range (minC / maxC) and the Excel id it came from (sourceId).
   const extra = (s) => Object.fromEntries(['minC', 'maxC', 'sourceId', 'mergedIds'].filter((k) => s[k] !== undefined).map((k) => [k, s[k]]));
-  const own = list.filter((s) => s?.key && !isBuiltIn(s.key)).map((s) => ({ key: s.key, name: s.name ?? s.key, note: s.note ?? '', builtIn: false, qty: { ...(s.qty ?? {}) }, ...extra(s) }));
+  // v0.55.0: records of the old built-in keys (gear.js OLD_SETS, kept for older versions) are not own blocks.
+  const own = list.filter((s) => s?.key && !isBuiltIn(s.key) && !isOldSetKey(s.key)).map((s) => ({ key: s.key, name: s.name ?? s.key, note: s.note ?? '', builtIn: false, qty: { ...(s.qty ?? {}) }, ...extra(s) }));
   return [...builtIn, ...own];
 }
 
@@ -159,19 +160,25 @@ export const setAddable = (trip, items, set, skip = new Set()) => addSetEntries(
  */
 export function setUse(key) {
   switch (key) {
-    case 'base':
-      return t('Comes with an Outdoor overnight stay');
-    case 'warm':
-    case 'sleep':
-      return t('Comes with an Outdoor overnight stay (switch under Night in Pack)');
+    case 'bivy':
+      return t('Comes with a night outdoors (Bivouac or Bivouac + tent)');
+    case 'tent':
+      return t('Comes with Bivouac + tent, always together with Bivouac');
+    case 'hotel':
+      return t('Comes with a night in a hotel or hut');
     case 'cook':
-      return t('Comes with an Outdoor overnight stay when you cook');
-    case 'light':
-      return t('Switch "Light" under Night in Pack');
-    case 'lodging':
-      return t('Comes with Lodging');
+      return t('Comes with a night outdoors when you cook');
     case 'firstaid':
-      return t('Comes with every night (Lodging or Outdoor); never on a trip without a night');
+      return t('Comes with every night (hotel, hut or outdoors); never on a trip without a night');
+    case 'repair':
+    case 'charge':
+      return t('Suggested on every ride; you can take it off per trip');
+    case 'lights':
+      return t('Comes when the ride goes into the dark, with or without a night; you can take it off per trip');
+    case 'race':
+      return t('Comes only on a trip marked as an event');
+    case 'comfort':
+      return t('Nice to have: its items are only offered, never packed by themselves');
     default:
       return t('Add it in Pack: Add material → Building blocks');
   }
@@ -191,13 +198,13 @@ export function entriesWeight(entries, items) {
 
 /**
  * v0.30.0 (Noah, finding 2): a block worth a look for this trip ("Tip" on its chip in "New trip"):
- * a rain block (key or name with rain/Regen) when rain is in the weather, Warm when it is cold
- * (max 10 °C or less), Light with a night. ctx: { wet, max, night }.
+ * a rain block (key or name with rain/Regen) when rain is in the weather; v0.55.0: Hygiene with a
+ * night (Warm and Light are no tips any more). ctx: { wet, night }.
  */
-export function isBlockTip(set, { wet = false, max = null, night = 'none' } = {}) {
+export function isBlockTip(set, { wet = false, night = 'none' } = {}) {
   if (wet && /rain|regen/i.test(`${set.key} ${set.name ?? ''}`)) return true;
-  if (set.key === 'warm') return max != null && max <= 10;
-  if (set.key === 'light') return !!night && night !== 'none';
+  // v0.55.0: Warm became a temperature rule on each item; Light comes by itself with the dark.
+  if (set.key === 'hygiene') return !!night && night !== 'none';
   return false;
 }
 

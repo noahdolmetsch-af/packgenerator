@@ -155,7 +155,7 @@ test('template from a trip: update or save as new, and the new trip takes days a
   await nt.getByRole('button', { name: /^test_data_gtp_ Bivvy/ }).first().click();
   await expect(nt.getByLabel(T('Days')).first()).toHaveValue('3');
   await expect(nt.getByLabel(T('Riding hours per day'))).toHaveValue('4');
-  await expect(nt.getByRole('button', { name: T('Outdoor (tent, bivvy)') })).toHaveAttribute('aria-pressed', 'true');
+  await expect(nt.getByRole('button', { name: T('Bivouac + tent') })).toHaveAttribute('aria-pressed', 'true');
   await expect(nt.getByLabel(T('Cooking'))).toBeChecked();
   await nt.getByRole('button', { name: T('Cancel') }).click();
 });

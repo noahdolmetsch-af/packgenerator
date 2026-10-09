@@ -6,7 +6,9 @@
    *   - Always with you: the block "Standard" (v0.33.0: item.sets has 'standard', or the old role /
    *     "On every trip", plus the items On me; changed in the item dialog under "Comes along");
    *   - With the night: the blocks the overnight stay brings by itself (context.js CONTEXT_SETS);
-   *   - To add: Light and your own blocks, one tap in "New trip" or in Pack's "Add material".
+   *   - To add: your own blocks (and Food, Hygiene, Comfort), one tap in "New trip" or in Pack's "Add material".
+   * v0.55.0 «Bausteine neu»: a fourth group "On the ride" (Repair, Charging, Light in the dark, Race on
+   * an event: suggested, deselectable per trip), and the way to «Bausteine prüfen» (#/blocks/check).
    * The rows and the changes (amount, remove, add items, rename, delete) fold away under "Change".
    * Built-in blocks (gear.js SETS) can be renamed but not deleted; own blocks can be renamed and
    * deleted. Every change can be undone for a few seconds. No data changes because of the groups.
@@ -17,12 +19,13 @@
   import { SETS_KEY, allSets, setView, setUse, qtyOf, addSet, blockLabel } from '../lib/sets.js';
   import { TEMPLATES_KEY, templatesWith } from '../lib/templates.js';
   import { tempRange } from '../lib/wardrobe.js';
-  import { CONTEXT_SETS } from '../lib/context.js';
+  import { NIGHT_BLOCKS, RIDE_BLOCKS } from '../lib/context.js';
+  import { REVIEW_KEY, reviewOpen } from '../lib/blocksplit.js';
   import { blockKind, comesOf } from '../lib/gear/comes.js';
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet } from '../lib/gear/assign.js';
   import { undoBulk } from '../lib/gear/bulk.js';
     import { t, tn, nameOf } from '../lib/i18n.svelte.js';
-  import { Check, Moon, Plus, X, Minus, Layers, ChevronRight, UserRound, Scale } from '@lucide/svelte';
+  import { Check, Moon, Plus, X, Minus, Layers, ChevronRight, UserRound, Scale, Bike, ListChecks } from '@lucide/svelte';
   import Help from '../lib/ui/Help.svelte';
   import { SvelteSet } from 'svelte/reactivity';
 
@@ -33,7 +36,11 @@
   const sets = $derived(allSets($setsQ?.value));
   const cards = $derived(sets.map((s) => ({ ...s, ...setView(s, items), kind: blockKind(s.key) })));
   // With the night in the order the overnight stay brings them; to add: Light first, then your own.
-  const nightCards = $derived(CONTEXT_SETS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
+  const nightCards = $derived(NIGHT_BLOCKS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
+  const rideCards = $derived(RIDE_BLOCKS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
+  // v0.55.0: «Bausteine prüfen» says when something from the update is still to check.
+  const reviewQ = liveQuery(() => db.settings.get(REVIEW_KEY));
+  const toCheck = $derived(reviewOpen($reviewQ?.value));
   const addCards = $derived(cards.filter((c) => c.kind === 'add'));
   const tplCount = $derived(($tplQ?.value ?? []).length);
   // v0.39.0 (AP28, Noah 3a): templates are linked to their blocks; a quiet line says how many a change reaches.
@@ -46,7 +53,7 @@
   });
   const NAMES_SHOWN = 5;
   // v0.40.0: the blocks an Outdoor night brings get the quiet word "outdoor" (the head says "with the night").
-  const OUTDOOR = ['base', 'sleep', 'warm', 'cook'];
+  const OUTDOOR = ['bivy', 'tent', 'cook'];
 
   let error = $state('');
   let undo = $state.raw(null); // { text, snap }
@@ -139,7 +146,7 @@
 {#snippet summary(icon, name, id, list, sum, s = null)}
   <summary class="lrow">
     <span class="ic ic-{icon}" aria-hidden="true">
-      {#if icon === 'always'}<Check size={18} />{:else if icon === 'night'}<Moon size={18} />{:else}<Plus size={18} />{/if}
+      {#if icon === 'always'}<Check size={18} />{:else if icon === 'night'}<Moon size={18} />{:else if icon === 'ride'}<Bike size={18} />{:else}<Plus size={18} />{/if}
     </span>
     <span class="m">
       <span class="t"><span class="nm" {id}>{name}</span>{#if s && (typeof s.minC === 'number' || typeof s.maxC === 'number')}{' '}<small class="quiet num">{tempRange(s.minC, s.maxC, t)}</small>{/if}{#if s && OUTDOOR.includes(s.key)}{' '}<small class="quiet">{t('outdoor|block')}</small>{/if}{#if s && !s.builtIn}{' '}<i class="nbadge">{t('own|block')}</i>{/if}</span>
@@ -222,6 +229,8 @@
       <p>{t('Tools are never called "not needed" in the debrief.')}</p>
     </Help>
   </div>
+  <!-- v0.55.0 (Noah 4a): one block after the other, every item keep / out / elsewhere. -->
+  <p class="check"><a class="btn" href="#/blocks/check"><ListChecks size={18} aria-hidden="true" /><span>{t('Check building blocks')}</span>{#if toCheck}<i class="nbadge">{t('to check|blocks')}</i>{/if}<ChevronRight size={16} aria-hidden="true" /></a></p>
   {#if error}<p class="err" role="alert">{error}</p>{/if}
 
   <div class="groups">
@@ -249,6 +258,10 @@
             </div>
           </details>
         </li>
+      </ul>
+      <h2 class="sec-head" id="g-ride"><span>{t('On the ride')}</span><span class="n">{t('suggested, you can take it off')}</span></h2>
+      <ul class="rowlist" aria-labelledby="g-ride">
+        {#each rideCards as s (s.key)}{@render blockCard(s)}{/each}
       </ul>
     </section>
 
@@ -313,6 +326,14 @@
   }
   .err {
     color: var(--bad);
+  }
+  .check {
+    margin: 8px 0 0;
+  }
+  .check .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   .groups {
     display: grid;

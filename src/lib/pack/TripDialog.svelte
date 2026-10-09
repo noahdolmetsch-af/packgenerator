@@ -6,7 +6,8 @@
   import { db } from '../db.js';
   import { newTrip, lastTripOn, switchBike, WX_PRESETS, bagItemIds, touched } from '../trips.js';
   import { newBikeRecord } from '../bikes.js';
-  import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly } from '../context.js';
+  import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly, NIGHT_CHOICES, nightFields, nightName, NIGHT_BLOCKS, rideSets, OFFER_ONLY, hasTent } from '../context.js';
+  import { ridesIntoDark } from '../blockplan.js';
   import { isEvent } from '../care.js';
   import { tripFromTemplate, templateDefaults, tplDomain, templateParts } from '../templates.js';
   import { t, tn, num, nameOf, locale } from '../i18n.svelte.js';
@@ -67,6 +68,8 @@
     max: trip?.wx?.max ?? null,
     rain: trip?.wx?.rain ?? 'none',
     event: trip ? isEvent(trip) : false,
+    // v0.55.0 (Noah 8a): Bivouac + tent; a new trip starts with the tent (as the old "Outdoor (tent, bivvy)").
+    tent: trip?.tent !== false, // an older outdoor trip (no field) had the tent
   };
   let ctx = $state({ ...was });
   const days = $derived(Math.max(1, Number(draft.days) || 1));
@@ -83,12 +86,21 @@
     Object.assign(ctx, pickWxChip(ctx, choice));
   }
   /** The context fields to store (only for bike trips). */
-  const ctxFields = () => ({ hours: hoursOk ? hoursNum : null, overnight: night, cook: night === 'outdoor' && ctx.cook, wx: wxOut, event: ctx.event });
-  const OVERNIGHTS = [
-    { key: 'none', name: 'None|overnight' },
-    { key: 'lodging', name: 'Lodging' },
-    { key: 'outdoor', name: 'Outdoor (tent, bivvy)' },
-  ];
+  // v0.55.0 (Noah 7a, 9a): dark: the ride goes into the dark (Light comes); sets: the ride blocks taken off here.
+  const ctxFields = () => ({ hours: hoursOk ? hoursNum : null, overnight: night, cook: night === 'outdoor' && ctx.cook, tent: night === 'outdoor' && ctx.tent, wx: wxOut, event: ctx.event, dark, ...(isNew && off.length ? { sets: Object.fromEntries(off.map((k) => [k, false])) } : {}) });
+  // v0.55.0 (Noah 8a): the night as one choice: none, Bivouac, Bivouac + tent, Hotel/hut.
+  const choice = $derived(night === 'outdoor' ? (ctx.tent ? 'tent' : 'bivy') : night === 'lodging' ? 'hotel' : night);
+  function pickNight(key) {
+    const f = nightFields(key);
+    ctx.overnight = f.overnight;
+    ctx.tent = f.tent;
+  }
+  // v0.55.0 (Noah 7a): Light comes by itself when the ride goes into the dark (sunset at the trip's or the home place).
+  const homeQ = liveQuery(() => db.settings.get('homePlace'));
+  const darkPlace = $derived(trip?.place ?? homeOf($homeQ?.value) ?? null);
+  const dark = $derived(ridesIntoDark({ ...(trip ?? {}), startDate: draft.startDate, days, hours: hoursOk ? hoursNum : null }, darkPlace));
+  // v0.55.0 (Noah 9a): the ride blocks the window suggests, taken off with a tap (a visible suggestion, never forced).
+  let off = $state([]);
   // svelte-ignore state_referenced_locally
   let start = $state(startFrom);
   // v0.26.1 (AP18, Noah 17b): a template brings its days, riding hours, overnight stay (+ cooking) and
@@ -174,7 +186,7 @@
     const copied = fromCopy ? trips.find((x) => x.id === base.copiedFrom) : null;
     return { tpl, copied, ...sum, w: entriesWeight(list, items), names: list.map((e) => nameOf(byId.get(e.itemId))) };
   });
-  const setName = (key) => (key === 'lodging' ? t('Lodging') : key === 'base' ? t('Base') : key === 'sleep' ? t('Sleep') : key === 'warm' ? t('Warm') : key === 'firstaid' ? t('First aid') : t('Cook'));
+  const setName = (key) => sets.find((s) => s.key === key)?.label ?? key;
   const byId = $derived(new Map(items.map((i) => [i.id, i])));
   let namesOpen = $state(false);
 
@@ -189,9 +201,9 @@
   let picked = $state([]);
   const blocks = $derived.by(() => {
     if (!built) return [];
-    const comes = contextSets({ overnight: night, cook: night === 'outdoor' && ctx.cook });
+    const comes = contextSets({ overnight: night, cook: night === 'outdoor' && ctx.cook, tent: night === 'outdoor' && ctx.tent, dark, event: ctx.event });
     return sets
-      .filter((s) => !comes.includes(s.key))
+      .filter((s) => !comes.includes(s.key) && !OFFER_ONLY.includes(s.key))
       .map((s) => {
         const add = addSetEntries(built, items, s, { skip, slotOf: () => 'body' }).entries.slice(built.entries.length);
         const w = entriesWeight(add, items);
@@ -201,10 +213,31 @@
       .sort((a, b) => b.tip - a.tip); // the tips first
   });
   const chosen = $derived(blocks.filter((s) => picked.includes(s.key)));
+  // v0.55.0 (Noah 9a): the ride blocks that come by themselves (Repair, Charging, Light in the dark,
+  // Race on an event), as pressed chips: one tap takes one off for this trip.
+  const rideChips = $derived.by(() => {
+    if (!built) return [];
+    return rideSets({ dark, event: ctx.event }).map((key) => {
+      const s = sets.find((x) => x.key === key);
+      const its = items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes(key) && !skip.has(i.id));
+      const w = entriesWeight(its.map((i) => ({ itemId: i.id, qty: 1 })), items);
+      return s ? { ...s, n: its.length, weight: w.missing && !w.g ? formatWeight(null) : knownWeight(w.g, w.missing) } : null;
+    }).filter((s) => s && s.n > 0);
+  });
+  const flipOff = (key) => (off = off.includes(key) ? off.filter((k) => k !== key) : [...off, key]);
+  // v0.55.0 (Noah 9a): Comfort, nice to have: its items only as unticked suggestions, one tap each.
+  let comfortPicked = $state([]);
+  const comfortItems = $derived(built ? items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes('comfort') && !skip.has(i.id) && !built.entries.some((e) => e.itemId === i.id)) : []);
+  const flipComfort = (id) => (comfortPicked = comfortPicked.includes(id) ? comfortPicked.filter((x) => x !== id) : [...comfortPicked, id]);
   const tips = $derived(blocks.filter((s) => s.tip).length);
   const pick = (key) => (picked = picked.includes(key) ? picked.filter((k) => k !== key) : [...picked, key]);
   /** The trip with the chosen blocks, each into its usual bag (Pack: tripSlot with the trip's setup). */
-  const withBlocks = (nt) => chosen.reduce((cur, s) => ({ ...cur, entries: addSetEntries(cur, items, s, { skip, slotOf: (i) => tripSlot(i, cur.setup) }).entries }), nt);
+  const withBlocks = (nt) => {
+    const out = chosen.reduce((cur, s) => ({ ...cur, entries: addSetEntries(cur, items, s, { skip, slotOf: (i) => tripSlot(i, cur.setup) }).entries }), nt);
+    const have = new Set(out.entries.map((e) => e.itemId));
+    const extra = comfortPicked.filter((id) => !have.has(id) && byId.has(id)).map((id) => ({ itemId: id, slot: tripSlot(byId.get(id), out.setup), qty: 1, packed: false, src: 'set' }));
+    return extra.length ? { ...out, entries: [...out.entries, ...extra] } : out;
+  };
   const total = $derived(built ? withBlocks(built).entries.length : 0);
 
   // v0.30.0 (Noah, finding 2): when and how long as chips; the date field stays for any other day.
@@ -311,7 +344,8 @@
         // v0.25.0 (M3): only what was changed here is stored (an older trip keeps its values).
         const f = ctxFields();
         if (ctx.hours !== was.hours) changes.hours = f.hours;
-        if (night && (night !== was.overnight || ctx.cook !== was.cook)) Object.assign(changes, { overnight: night, cook: f.cook });
+        if (night && (night !== was.overnight || ctx.cook !== was.cook || f.tent !== hasTent({ overnight: was.overnight, tent: was.tent }))) Object.assign(changes, { overnight: night, cook: f.cook, tent: f.tent });
+        if (f.dark !== !!trip.dark) changes.dark = f.dark; // v0.55.0: Light follows the dark
         // v0.25.1: weather chosen here is no longer "from the forecast".
         if (ctx.min !== was.min || ctx.max !== was.max || ctx.rain !== was.rain) Object.assign(changes, { wx: f.wx, wxFrom: null });
         if (ctx.event !== was.event) changes.event = ctx.event;
@@ -359,7 +393,7 @@
   // Every change of a field (after a name was typed) saves again, a moment after the last key.
   $effect(() => {
     if (!isNew) return;
-    JSON.stringify([draft, ctx, start, picked, area, autoName]); // what the trip is made of
+    JSON.stringify([draft, ctx, start, picked, area, autoName, off, comfortPicked, dark]); // what the trip is made of
     if (!autoKeep({ isNew, name: draft.title, changed: !autoName })) return;
     clearTimeout(autoTimer);
     autoTimer = setTimeout(autoSave, 300);
@@ -398,7 +432,7 @@
   <fieldset class="ctx">
     <legend class="lbl">{t('Overnight')}</legend>
     <div class="chips">
-      {#each OVERNIGHTS as o (o.key)}<button type="button" class="toggle" aria-pressed={night === o.key} onclick={() => (ctx.overnight = o.key)}>{t(o.name)}</button>{/each}
+      {#each NIGHT_CHOICES as o (o.key)}<button type="button" class="toggle" aria-pressed={choice === o.key} onclick={() => pickNight(o.key)}>{t(o.name)}</button>{/each}
     </div>
     {#if !night}<p class="note">{t('Not set for this trip: its list stays as it is until you choose.')}</p>{/if}
     {#if days > 1 && night === 'none'}<p class="note">{t('More than one day without a night? Choose where you sleep.')}</p>{/if}
@@ -504,8 +538,7 @@
           <ul class="auto">
             <li>{#if preview.weather.length}{t('For the weather, comes by itself')}: {preview.weather.map((i) => nameOf(i)).join(' · ')}{:else}{t('For the weather: nothing extra')}{/if}</li>
             {#if preview.amounts.length}<li>{t('By duration')}: {#each preview.amounts as a, n (a.item.id)}{n ? ', ' : ''}{nameOf(a.item)} <b>{a.qty}</b>{/each}</li>{/if}
-            {#if night === 'lodging'}<li>{t('Overnight: lodging set, {n} more', { n: preview.sets.reduce((s, x) => s + x.n, 0) })}</li>
-            {:else if night === 'outdoor'}<li>{t('Overnight outdoors: {sets}', { sets: preview.sets.filter((x) => x.n || x.key !== 'firstaid').map((x) => `${setName(x.key)} ${x.n}`).join(', ') })}</li>{/if}
+            {#if night === 'lodging' || night === 'outdoor'}<li>{t('Overnight ({night}): {sets}', { night: t(nightName({ overnight: night, tent: ctx.tent })), sets: preview.sets.filter((x) => NIGHT_BLOCKS.includes(x.key) && (x.n || x.key !== 'firstaid')).map((x) => `${setName(x.key)} ${x.n}`).join(', ') })}</li>{/if}
             {#if preview.left.length}<li class="tp-muted">{preview.left.includes('overnight') && preview.left.includes('event') ? t('Not included: overnight gear, event preparation') : preview.left.includes('overnight') ? t('Not included: overnight gear') : t('Not included: event preparation')}</li>{/if}
           </ul>
         </section>
@@ -529,13 +562,30 @@
           </div>
         </details>
       {/if}
-      {#if blocks.length}
+      {#if rideChips.length || blocks.length || comfortItems.length}
         <section class="blocks" aria-labelledby="blocks-h">
-          <h3 id="blocks-h">{t('Add building blocks')}{#if tips}<span class="tp-muted">{` · ${tn(tips, '{n} tip', '{n} tips')}`}</span>{/if}</h3>
-          <div class="tp-chips">
-            {#each blocks as b (b.key)}<button type="button" class="tp-chip blk" aria-pressed={picked.includes(b.key)} onclick={() => pick(b.key)}><span class="bn">+ {b.label}</span> <small class="num">{b.n} · {b.weight}</small>{#if b.tip}<i class="tp-badge">{t('Tip')}</i>{/if}</button>{/each}
-          </div>
-          <p class="note small" aria-live="polite">{#if chosen.length}{chosen.map((b) => `${b.label}: ${b.names.join(', ')}`).join(' · ')}{/if}</p>
+          <h3 id="blocks-h">{t('Building blocks')}{#if tips}<span class="tp-muted">{` · ${tn(tips, '{n} tip', '{n} tips')}`}</span>{/if}</h3>
+          <!-- v0.55.0 (Noah 7a, 9a): what the ride suggests is pressed already; one tap takes it off. -->
+          {#if rideChips.length}
+            <p class="note small sub">{t('Suggested for this ride')}</p>
+            <div class="tp-chips" role="group" aria-label={t('Suggested for this ride')}>
+              {#each rideChips as b (b.key)}<button type="button" class="tp-chip blk" aria-pressed={!off.includes(b.key)} onclick={() => flipOff(b.key)}><span class="bn">{b.label}</span> <small class="num">{b.n} · {b.weight}</small></button>{/each}
+            </div>
+          {/if}
+          {#if blocks.length}
+            <p class="note small sub">{t('Add building blocks')}</p>
+            <div class="tp-chips" role="group" aria-label={t('Add building blocks')}>
+              {#each blocks as b (b.key)}<button type="button" class="tp-chip blk" aria-pressed={picked.includes(b.key)} onclick={() => pick(b.key)}><span class="bn">+ {b.label}</span> <small class="num">{b.n} · {b.weight}</small>{#if b.tip}<i class="tp-badge">{t('Tip')}</i>{/if}</button>{/each}
+            </div>
+            <p class="note small" aria-live="polite">{#if chosen.length}{chosen.map((b) => `${b.label}: ${b.names.join(', ')}`).join(' · ')}{/if}</p>
+          {/if}
+          <!-- v0.55.0 (Noah 9a): Comfort only ever as unticked suggestions, one item at a time. -->
+          {#if comfortItems.length}
+            <p class="note small sub">{t('Comfort, if you like')}</p>
+            <div class="tp-chips" role="group" aria-label={t('Comfort, if you like')}>
+              {#each comfortItems as i (i.id)}<button type="button" class="tp-chip" aria-pressed={comfortPicked.includes(i.id)} onclick={() => flipComfort(i.id)}>+ {nameOf(i)}</button>{/each}
+            </div>
+          {/if}
         </section>
       {/if}
       <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
@@ -771,6 +821,9 @@
   .blocks h3 {
     margin: 0 0 8px;
     font: 600 17px/1.25 var(--font-body);
+  }
+  .blocks .sub {
+    margin: 8px 0 4px;
   }
   .blk small {
     font-size: 13px;

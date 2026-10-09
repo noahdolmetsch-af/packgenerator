@@ -26,7 +26,9 @@ describe('gear', () => {
     expect(matches(a, { category: 'sleep' })).toBe(false);
     expect(matches(a, { role: 'standard' })).toBe(true);
     expect(matches(a, { role: 'none' })).toBe(false);
-    expect(matches(it_('X', { sets: ['base'] }), { role: 'night' })).toBe(true);
+    expect(matches(it_('X', { sets: ['bivy'] }), { role: 'night' })).toBe(true);
+    // v0.55.0: an old key alone (kept for older versions) is no block any more
+    expect(matches(it_('Y', { sets: ['base'] }), { role: 'night' })).toBe(false);
     // v0.32.0 (finding 5, stage 1): "Comes along": Standard = worn, standard pack or "On every trip".
     expect(matches(it_('W', { role: 'worn' }), { role: 'standard' })).toBe(true);
     expect(matches(it_('A', { always: true }), { role: 'standard' })).toBe(true);
@@ -59,7 +61,7 @@ describe('gear', () => {
     const q = weighQueue([
       it_('EL01', { weightG: null }),
       it_('EL02', { weightG: null, role: 'optional' }),
-      it_('SL01', { category: 'sleep', weightG: null, sets: ['sleep'] }),
+      it_('SL01', { category: 'sleep', weightG: null, sets: ['bivy'] }),
       it_('SL02', { category: 'sleep', weightG: null, role: 'standard' }),
       it_('EL03', { weightG: null, role: 'worn' }),
     ]);

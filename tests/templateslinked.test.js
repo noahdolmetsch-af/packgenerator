@@ -4,6 +4,7 @@
 // items, and a trip from a template takes the template's area, also without a bike. Fictional data only.
 import 'fake-indexeddb/auto';
 import { readFileSync } from 'node:fs';
+import { splitAll } from '../src/lib/blocksplit.js';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { templatesLinked2026, LINKED_MARKER } from '../src/lib/updates.js';
@@ -59,7 +60,10 @@ describe('the one-time update: identical content (Noah 2a)', () => {
     expect(feier.extras).toEqual([{ itemId: 'FO01', qty: 1 }]);
     expect(blocksLine(templateParts(feier, sets0))).toBe('Standard + 1 extra');
     const jura = linkTemplate(byId(tpls0, 'tpl-jura'), items, sets0);
-    expect(blocksLine(templateParts(jura, sets0))).toBe('Standard + Night: Sleep + Night: Light + Regen + 1 extra');
+    // v0.55.0 «Bausteine neu»: the old blocks Sleep and Light become Bivouac and Light (blocksplit.js), same items.
+    const up = splitAll({ items, templates: [jura], sets: sets0 });
+    expect(blocksLine(templateParts(up.templates[0], up.sets))).toBe('Standard + Bivouac + Light + Regen + 1 extra');
+    expect(sameEntries(templateEntries(up.templates[0], up.items, up.sets), templateEntries(jura, items, sets0))).toBe(true);
   });
 
   it('runs once in one transaction with a marker; a second run changes nothing', async () => {

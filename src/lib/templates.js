@@ -13,6 +13,7 @@ import { allSets, qtyOf } from './sets.js';
 import { isInventory, itemWeight, sumKnown } from './gear.js';
 import { DOMAIN, BIKEPACKING, inDomain, packsFor, packSlot, READY_BY_DOMAIN, domainEntries } from './domains.js';
 import { STANDARD, inStandard, isWorn, blockOrder } from './blocks2026.js';
+import { hasTent } from './context.js';
 
 export const TEMPLATES_KEY = 'templates';
 
@@ -51,6 +52,7 @@ export function templateFrom(trip, { id, name, now = new Date().toISOString() })
     days: Math.max(1, Number(trip.days) || 1),
     overnight: trip.overnight ?? null,
     cook: trip.overnight === 'outdoor' && !!trip.cook,
+    tent: hasTent(trip), // v0.55.0: Bivouac + tent
     bikeId: trip.bikeId ?? null,
     fromTrip: trip.id,
     createdAt: now,
@@ -87,7 +89,7 @@ export async function saveTripAsTemplate(db, trip, name, id = null) {
 /**
  * v0.26.1 (Noah 17b): what the New trip dialog takes from a template as its defaults (only what the
  * template knows; an older template without them changes nothing). The bike only when it still exists.
- * → { days?, hours?, overnight?, cook?, bikeId? }
+ * → { days?, hours?, overnight?, cook?, tent?, bikeId? }
  */
 export function templateDefaults(tpl, bikes = []) {
   if (!tpl) return {};
@@ -97,6 +99,7 @@ export function templateDefaults(tpl, bikes = []) {
   if (tpl.overnight) {
     out.overnight = tpl.overnight;
     out.cook = tpl.overnight === 'outdoor' && !!tpl.cook;
+    out.tent = hasTent(tpl);
   }
   if (tpl.bikeId && bikes.some((b) => b.id === tpl.bikeId)) out.bikeId = tpl.bikeId;
   return out;
@@ -128,7 +131,7 @@ export function tripFromTemplate({ title, startDate, days, bike = null }, tpl, i
     templateId: tpl.id,
     createdAt: new Date(now).toISOString(),
     // v0.26.1 (Noah 17b): the template's overnight stay; the dialog's choice replaces it (buildBikeTrip fields).
-    ...(tpl.overnight ? { overnight: tpl.overnight, cook: tpl.overnight === 'outdoor' && !!tpl.cook } : {}),
+    ...(tpl.overnight ? { overnight: tpl.overnight, cook: tpl.overnight === 'outdoor' && !!tpl.cook, tent: hasTent(tpl) } : {}),
   };
   if (!DOMAIN[domain]?.bike) {
     const packs = packsFor(domain);

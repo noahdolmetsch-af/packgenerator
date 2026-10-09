@@ -179,8 +179,8 @@ describe('one create path for the dialog and the day ride', () => {
   const items = [
     it_('JERSEY', { role: 'worn', defaultBag: 'body' }),
     it_('GEL', { role: 'standard', defaultBag: 'frame', perHours: 1, maxQty: 8 }),
-    it_('SLEEPBAG', { sets: ['sleep'] }),
-    it_('TOWEL', { sets: ['base'] }),
+    it_('SLEEPBAG', { sets: ['bivy'] }), // v0.55.0: Sleep and Base → Bivouac
+    it_('TOWEL', { sets: ['bivy'] }),
   ];
   const fields = { hours: 3, overnight: 'none', cook: false, wx: { min: 6, max: 12, rain: 'none' }, event: false };
   const draft = { title: 'test_data_gtp_ Ride', startDate: '2026-10-11', days: 1 };

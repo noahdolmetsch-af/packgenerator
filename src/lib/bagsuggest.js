@@ -20,7 +20,7 @@ import { SLOTS, isWornSlot } from './bikes.js';
 import { isWorn } from './blocks2026.js';
 
 /** The item sets that get a place suggestion. */
-export const PLACE_SETS = ['sleep', 'cook'];
+export const PLACE_SETS = ['bivy', 'tent', 'cook']; // v0.55.0: Bivouac and Tent took over Sleep
 /** Where sleep things go best: big, dry places first. */
 export const SLEEP_PLACES = ['seat', 'side', 'bar', 'fork', 'frame', 'down'];
 /** Where cook things go best: low and central first (stove, fuel, pot). */
@@ -38,7 +38,7 @@ export function poorPlace(entry, item, trip) {
 
 /** The best place on this trip for one item, or null: { slot, bagId, addBag }. */
 function bestPlace(item, trip, bike, containers) {
-  const order = item.sets?.includes('sleep') ? SLEEP_PLACES : COOK_PLACES;
+  const order = item.sets?.some((k) => k === 'bivy' || k === 'tent') ? SLEEP_PLACES : COOK_PLACES;
   const setup = trip.setup ?? {};
   if (item.defaultBag && setup[item.defaultBag] && !isWornSlot(item.defaultBag)) return { slot: item.defaultBag, bagId: setup[item.defaultBag], addBag: false };
   const own = order.find((s) => setup[s]);

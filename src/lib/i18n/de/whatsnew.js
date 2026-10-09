@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.55.0
+  'New building blocks: Bivouac, Tent and Hotel/hut for the night, Repair, Charging, Light and Race for the ride, Food, Hygiene and Comfort to add. Your items moved along by themselves, nothing was lost.':
+    'Neue Bausteine: Biwak, Zelt und Hotel/Hütte für die Nacht, Reparatur, Laden, Licht und Rennen für die Fahrt, Verpflegung, Hygiene und Komfort zum Dazunehmen. Deine Sachen sind von selbst mitgezogen, nichts ging verloren.',
+  'A new trip with nights asks: Bivouac, Bivouac + tent or Hotel/hut. Repair and Charging come on every ride, Light by itself when you ride into the dark; each can be taken off. Comfort is only offered, never ticked.':
+    'Eine neue Tour mit Nächten fragt: Biwak, Biwak + Zelt oder Hotel/Hütte. Reparatur und Laden kommen auf jede Fahrt, Licht von selbst, wenn du in die Dunkelheit fährst; alles lässt sich abwählen. Komfort wird nur angeboten, nie angehakt.',
+  'Check building blocks: one block after the other with weight and total, per item Keep, Out or Elsewhere, and what is probably missing, one tap to add. Every step can be undone.':
+    'Bausteine prüfen: ein Baustein nach dem anderen mit Gewicht und Total, pro Sache Behalten, Raus oder Woanders, und was wohl fehlt, mit einem Tipp dazu. Jeder Schritt lässt sich rückgängig machen.',
+  'Warm is no block any more: its items come with the weather (below 10 °C unless they had their own temperature). Check them first in Check building blocks.':
+    'Warm ist kein Baustein mehr: Seine Sachen kommen mit dem Wetter (unter 10 °C, ausser sie hatten schon eine eigene Temperatur). Prüfe sie zuerst in Bausteine prüfen.',
+
   // 0.51.0
   "Tap a button on Today or on In the flow to tick an activity: one tap with Undo, tap again to take it back. A long press picks the place (Yoga studio or at home), the amount or the duration.":
     "Ein Tipp auf Heute oder in Im Flow hakt eine Aktivität ab, mit Rückgängig; nochmals tippen nimmt es zurück. Lange drücken wählt Ort (Yoga Studio oder Zuhause), Menge oder Dauer.",

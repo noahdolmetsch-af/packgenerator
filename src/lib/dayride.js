@@ -218,7 +218,9 @@ export function buildBikeTrip({ draft, bike, start = 'last', templates = [], tri
     ? tripFromTemplate({ ...draft, bike }, tpl, items, now, sets)
     : newTrip({ ...draft, bike, readyStandard, overnight: fields.overnight ?? null }, start === 'standard' ? [] : trips, items, now);
   // v0.25.0 (M3, 6b/7b): the context goes straight into the list; a template keeps its hours when none are given.
-  return contextTrip({ ...base, ...fields, hours: fields.hours ?? base.hours ?? null }, items, { fromCopy: !tpl && !!base.copiedFrom });
+  // v0.55.0: fields.sets (ride blocks taken off in the window) go on top of the template's switches.
+  const off = fields.sets ? { sets: { ...(base.sets ?? {}), ...fields.sets } } : {};
+  return contextTrip({ ...base, ...fields, ...off, hours: fields.hours ?? base.hours ?? null }, items, { fromCopy: !tpl && !!base.copiedFrom });
 }
 
 /** The words for a packing weather: "Chilly" (a preset), else "8–14 °C"; with rain "Chilly, rain". */

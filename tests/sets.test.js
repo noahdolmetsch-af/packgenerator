@@ -9,33 +9,38 @@ const item = (id, fields = {}) => ({ id, name: `test_data_gtp_ ${id}`, category:
 
 describe('allSets', () => {
   it('lists the built-in sets first (translated), then own sets as written', () => {
-    const own = [{ key: 'u-regen', name: 'test_data_gtp_ Regen' }, { key: 'sleep', qty: { SL01: 2 } }];
+    // v0.55.0 «Bausteine neu»: the new built-in blocks; a record of an old key (sleep) is no own block.
+    const own = [{ key: 'u-regen', name: 'test_data_gtp_ Regen' }, { key: 'bivy', qty: { SL01: 2 } }, { key: 'sleep', qty: { SL01: 2 } }];
     const list = allSets(own);
-    expect(list.map((s) => s.key)).toEqual(['base', 'warm', 'sleep', 'cook', 'light', 'lodging', 'firstaid', 'u-regen']);
+    expect(list.map((s) => s.key)).toEqual(['bivy', 'tent', 'hotel', 'cook', 'firstaid', 'repair', 'charge', 'lights', 'race', 'food', 'hygiene', 'comfort', 'u-regen']);
     expect(list.find((s) => s.key === 'u-regen')).toMatchObject({ name: 'test_data_gtp_ Regen', builtIn: false });
-    expect(list.find((s) => s.key === 'sleep')).toMatchObject({ name: 'Night: Sleep', builtIn: true, qty: { SL01: 2 } });
+    expect(list.find((s) => s.key === 'bivy')).toMatchObject({ name: 'Bivouac', builtIn: true, qty: { SL01: 2 } });
+    expect(list.find((s) => s.key === 'tent').name).toBe('Tent');
     lang.v = 'de';
-    expect(allSets(own).find((s) => s.key === 'sleep').name).toBe('Nacht: Schlafen');
+    expect(allSets(own).find((s) => s.key === 'bivy').name).toBe('Biwak');
+    expect(allSets(own).find((s) => s.key === 'hotel').name).toBe('Hotel/Hütte');
     expect(allSets(own).find((s) => s.key === 'u-regen').name).toBe('test_data_gtp_ Regen');
-    expect(allSets(undefined)).toHaveLength(7); // v0.28.0: + first aid
+    expect(allSets(undefined)).toHaveLength(12);
   });
 
   it('makes, renames and refuses names that are empty or taken', () => {
     const a = addSet([], ' test_data_gtp_ Regen ');
     expect(a).toEqual({ key: 'u-test-data-gtp-regen', value: [{ key: 'u-test-data-gtp-regen', name: 'test_data_gtp_ Regen' }] });
     expect(addSet(a.value, 'TEST_DATA_GTP_ regen').error).toBe('taken');
-    expect(addSet(a.value, 'Lodging').error).toBe('taken');
+    expect(addSet(a.value, 'Hotel/hut').error).toBe('taken');
+    expect(addSet(a.value, 'Tent').error).toBe('taken');
     expect(addSet(a.value, '  ').error).toBe('empty');
     expect(setKey('Regen', [{ key: 'u-regen' }])).toBe('u-regen-2');
     expect(renameSet(a.value, 'u-test-data-gtp-regen', 'test_data_gtp_ Nass').value[0]).toMatchObject({ key: 'u-test-data-gtp-regen', name: 'test_data_gtp_ Nass' });
     // Noah 5b: built-in blocks can be renamed; an empty name brings the label back; keys stay.
-    const r = renameSet(a.value, 'sleep', 'test_data_gtp_ Schlafsack');
-    expect(r.value[1]).toEqual({ key: 'sleep', name: 'test_data_gtp_ Schlafsack' });
-    expect(allSets(r.value).find((s) => s.key === 'sleep')).toMatchObject({ name: 'test_data_gtp_ Schlafsack', builtIn: true });
-    expect(renameSet(r.value, 'sleep', ' ').value[1]).toEqual({ key: 'sleep' });
+    const r = renameSet(a.value, 'bivy', 'test_data_gtp_ Schlafsack');
+    expect(r.value[1]).toEqual({ key: 'bivy', name: 'test_data_gtp_ Schlafsack' });
+    expect(allSets(r.value).find((s) => s.key === 'bivy')).toMatchObject({ name: 'test_data_gtp_ Schlafsack', builtIn: true });
+    expect(renameSet(r.value, 'bivy', ' ').value[1]).toEqual({ key: 'bivy' });
     expect(renameSet(a.value, 'u-gone', 'x').error).toBe('missing');
-    expect(isBuiltIn('lodging')).toBe(true);
-    expect(setUse('lodging')).toBe('Comes with Lodging');
+    expect(isBuiltIn('hotel')).toBe(true);
+    expect(isBuiltIn('lodging')).toBe(false);
+    expect(setUse('hotel')).toBe('Comes with a night in a hotel or hut');
   });
 });
 
@@ -46,7 +51,7 @@ describe('delete plan', () => {
     const plan = deleteSetPlan(value, items, 'u-regen', 'now');
     expect(plan.value).toEqual([{ key: 'u-x', name: 'X' }]);
     expect(plan.items.map((i) => [i.id, i.sets])).toEqual([['A', ['sleep']], ['C', []]]);
-    expect(deleteSetPlan(value, items, 'sleep')).toBeNull();
+    expect(deleteSetPlan(value, items, 'bivy')).toBeNull();
   });
 });
 
@@ -120,13 +125,13 @@ describe('New trip: blocks and templates in words', () => {
     expect(entriesWeight([{ itemId: 'R1', qty: 1 }, { itemId: 'R2', qty: 2 }], items)).toMatchObject({ g: 400, missing: 0 });
     expect(entriesWeight([{ itemId: 'S2', qty: 1 }, { itemId: 'R1' }], items)).toMatchObject({ g: 260, missing: 1 });
   });
-  it('tips: rain with rain, warm when cold, light with a night', () => {
+  it('tips: rain with rain, hygiene with a night (v0.55.0: Warm and Light are no tips any more)', () => {
     expect(isBlockTip(sets[1], { wet: true })).toBe(true);
     expect(isBlockTip(sets[1], { wet: false })).toBe(false);
-    expect(isBlockTip(sets[0], { max: 8 })).toBe(true);
-    expect(isBlockTip(sets[0], { max: 18 })).toBe(false);
-    expect(isBlockTip({ key: 'light' }, { night: 'outdoor' })).toBe(true);
-    expect(isBlockTip({ key: 'light' }, { night: 'none' })).toBe(false);
+    expect(isBlockTip(sets[0], { max: 8 })).toBe(false);
+    expect(isBlockTip({ key: 'hygiene' }, { night: 'outdoor' })).toBe(true);
+    expect(isBlockTip({ key: 'hygiene' }, { night: 'none' })).toBe(false);
+    expect(isBlockTip({ key: 'lights' }, { night: 'outdoor' })).toBe(false);
   });
   it('a template is "Standard + blocks" only when it is exactly that', () => {
     expect(startBlocks(['S1', 'S2', 'R1', 'R2'], ['S1', 'S2'], sets, items).map((s) => s.key)).toEqual(['u-regen']);

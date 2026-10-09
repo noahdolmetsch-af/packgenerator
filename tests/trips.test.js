@@ -8,7 +8,7 @@ const items = [
   it_('KL01', { role: 'worn', weightG: 200 }),
   it_('EL07', { role: 'standard', defaultBag: 'mounted' }),
   it_('EL13', { role: 'standard', defaultBag: 'top', weightG: null }),
-  it_('SL01', { sets: ['base'], defaultBag: 'side', weightG: 500 }),
+  it_('SL01', { sets: ['base', 'bivy'], defaultBag: 'side', weightG: 500 }), // v0.55.0: the base set is Bivouac
   it_('XX01', { role: 'optional' }),
   it_('WISH', { role: 'standard', ownership: 'wishlist' }),
   it_('TA06', { category: 'bags', weightG: 200 }),
@@ -200,15 +200,20 @@ describe('pack extras', () => {
   it('switches an overnight set on and off', async () => {
     const { toggleSet } = await import('../src/lib/trips.js');
     const its = [
-      { id: 'W1', ownership: 'owned', sets: ['warm'], defaultBag: 'seat' },
-      { id: 'W2', ownership: 'owned', sets: ['warm', 'sleep'], defaultBag: 'seat' },
-      { id: 'S1', ownership: 'owned', sets: ['warm'], role: 'standard', defaultBag: 'top' },
+      { id: 'W1', ownership: 'owned', sets: ['lights'], defaultBag: 'seat' },
+      { id: 'W2', ownership: 'owned', sets: ['lights', 'bivy'], defaultBag: 'seat' },
+      { id: 'S1', ownership: 'owned', sets: ['lights'], role: 'standard', defaultBag: 'top' },
+      { id: 'R1', ownership: 'owned', sets: ['lights', 'repair'], defaultBag: 'seat' },
     ];
-    const trip = { setup: { seat: 'b', top: 'c' }, sets: { sleep: true }, entries: [{ itemId: 'S1', slot: 'top' }] };
-    const on = toggleSet(trip, its, 'warm', true);
-    expect(on.entries.map((e) => e.itemId)).toEqual(['S1', 'W1', 'W2']);
-    const off = toggleSet({ ...trip, ...on }, its, 'warm', false);
-    expect(off.entries.map((e) => e.itemId)).toEqual(['S1', 'W2']); // W2 stays for "sleep", S1 is standard
+    const trip = { setup: { seat: 'b', top: 'c' }, sets: { bivy: true }, entries: [{ itemId: 'S1', slot: 'top' }] };
+    const on = toggleSet(trip, its, 'lights', true);
+    expect(on.entries.map((e) => e.itemId)).toEqual(['S1', 'W1', 'W2', 'R1']);
+    const off = toggleSet({ ...trip, ...on }, its, 'lights', false);
+    expect(off.entries.map((e) => e.itemId)).toEqual(['S1', 'W2']); // W2 stays for "bivy", S1 is standard
+    // v0.55.0: a block the context brings (active) keeps its items too; false takes a suggested block off
+    const off2 = toggleSet({ ...trip, ...on }, its, 'lights', false, { active: ['repair'] });
+    expect(off2.entries.map((e) => e.itemId)).toEqual(['S1', 'W2', 'R1']);
+    expect(off2.sets.lights).toBe(false);
   });
 
   it('hints above 80 % and offers a bag that keeps 20 % free', async () => {

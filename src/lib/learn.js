@@ -12,6 +12,7 @@
  */
 import { t, tn } from './i18n.svelte.js';
 import { isWorn } from './blocks2026.js';
+import { nightName } from './context.js';
 
 /**
  * Noah: tools and the spare tube always come along; the app never calls them ballast.
@@ -48,8 +49,7 @@ export function weatherCounts(item, trip) {
 export function tripContext(trip) {
   const parts = [tn(Math.max(1, Number(trip?.days) || 1), '{n} day', '{n} days')];
   if (trip?.overnight === 'none') parts.push(t('No night'));
-  else if (trip?.overnight === 'lodging') parts.push(t('Lodging'));
-  else if (trip?.overnight === 'outdoor') parts.push(t('Outdoor'));
+  else if (trip?.overnight === 'lodging' || trip?.overnight === 'outdoor') parts.push(t(nightName(trip))); // v0.55.0: Hotel/hut, Bivouac (+ tent)
   const wx = trip?.wx;
   const temps = typeof wx?.min === 'number' && typeof wx?.max === 'number' ? `${wx.min}–${wx.max} °C` : null;
   if (!temps && !wetKnown(wx)) parts.push(t('weather unknown'));

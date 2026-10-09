@@ -24,7 +24,7 @@
   import { bagVolumes } from '../bagsuggest.js';
   import { litreWarning } from '../backpacks.js';
   import { phone } from '../media.svelte.js';
-  import { hasContext } from '../context.js';
+  import { hasContext, nightName } from '../context.js';
   import { rainOf } from '../layers.js';
   import { inView } from '../ui/inview.js';
   import { rainChance } from '../wardrobe.js';
@@ -47,9 +47,8 @@
   const pct = $derived(rainChance(trip));
   const wxText = $derived(trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C · ${t(RAIN[trip.wx.rain ?? 'none'])}${pct != null ? ` ${pct} %` : ''}` : t('No weather set'));
   // v0.25.0 (M3): days and the night for a trip with its context; older trips their hours.
-  const NIGHT = { none: 'no overnight stay', lodging: 'Lodging', outdoor: 'Outdoor' };
   const days = $derived(Math.max(1, Number(trip.days) || 1));
-  const durationText = $derived(hasContext(trip) ? `${tn(days, '{n} day', '{n} days')} · ${t(NIGHT[trip.overnight])}` : tn(days, '{n} day', '{n} days'));
+  const durationText = $derived(hasContext(trip) ? `${tn(days, '{n} day', '{n} days')} · ${t(trip.overnight === 'none' ? 'no overnight stay' : nightName(trip))}` : tn(days, '{n} day', '{n} days'));
   // v0.47.1 (Noah b): one day without a night (99 % of rides): no «1 day · no overnight stay» field; the
   // hours are in the top card. A route still shows its km here.
   const oneDay = $derived(days === 1 && (trip.overnight == null || trip.overnight === 'none'));

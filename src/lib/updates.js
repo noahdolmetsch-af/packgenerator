@@ -13,6 +13,7 @@ import { templateSlot } from './gear/assign.js';
 import { SETS_KEY, addSet, allSets } from './sets.js';
 import { isInventory } from './gear.js';
 import { migrateAll, blocksRerunAfterImport, BLOCKS_MARKER } from './blocks2026.js';
+import { splitAll, needsSplitUpdate, splitRerunAfterImport, SPLIT_MARKER, REVIEW_KEY } from './blocksplit.js';
 import { ensureSeed } from './flowdb.js';
 
 const now = () => new Date().toISOString();
@@ -423,9 +424,45 @@ export async function blocks2026(db) {
  * blocks2026 again on the imported data. Returns true when the marker was deleted.
  */
 export async function blocksAfterImport(db, data, mode = 'replace') {
+  // v0.55.0: a file from before «Bausteine neu» replacing the data gets the new blocks again (blockSplit2026).
+  if (splitRerunAfterImport(data, mode)) await db.settings.delete(SPLIT_MARKER);
   if (!blocksRerunAfterImport(data, mode).rerun) return false;
   await db.settings.delete(BLOCKS_MARKER);
   return true;
+}
+
+/**
+ * v0.55.0 «Bausteine neu» (Noah 5a–10b): the building blocks split and renamed once (blocksplit.js
+ * splitAll): Base + Sleep → Bivouac (a tent → Tent), Warm → a temperature rule on each item, Light →
+ * Light (by itself in the dark), Lodging → Hotel/hut or Tent; the new blocks get only obvious
+ * category matches. What to check goes into the settings 'blockReview' for «Bausteine prüfen».
+ * The old keys stay on the items (older versions). Runs after templatesLinked2026. On the first run
+ * (no marker) every item is looked at; later only items or templates that still carry an old key
+ * (an older backup merged in), so a second run changes nothing. Returns { items, templates }.
+ */
+export async function blockSplit2026(db) {
+  const marker = await db.settings.get(SPLIT_MARKER);
+  if (!(await db.items.count())) return { items: [], templates: [] }; // nothing imported yet
+  let res = { items: [], templates: [] };
+  await db.transaction('rw', db.items, db.settings, async () => {
+    const items = await db.items.toArray();
+    const templates = await loadTemplates(db);
+    if (marker && !needsSplitUpdate({ items, templates })) return;
+    const sets = (await db.settings.get(SETS_KEY))?.value ?? [];
+    const review = (await db.settings.get(REVIEW_KEY))?.value ?? null;
+    const up = splitAll({ items, templates, sets, review }, { first: !marker, now: now() });
+    const changed = new Set(up.changedItems);
+    if (changed.size) await db.items.bulkPut(up.items.filter((i) => changed.has(i.id)));
+    if (up.setsChanged) await db.settings.put({ key: SETS_KEY, value: up.sets });
+    if (up.changedTemplates.length) {
+      const rec = await db.settings.get(TEMPLATES_KEY);
+      await db.settings.put({ ...(rec ?? {}), key: TEMPLATES_KEY, value: up.templates });
+    }
+    if (changed.size || !review) await db.settings.put({ key: REVIEW_KEY, value: up.review });
+    if (!marker) await db.settings.put(up.marker);
+    res = { items: up.changedItems, templates: up.changedTemplates };
+  });
+  return res;
 }
 
 /**
@@ -483,7 +520,7 @@ export async function basicCheck2026(db) {
  */
 export const flowSeed2026 = (db) => ensureSeed(db);
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, blocks2026, templatesLinked2026];
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, blocks2026, templatesLinked2026, blockSplit2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

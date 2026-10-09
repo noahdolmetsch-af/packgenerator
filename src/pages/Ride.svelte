@@ -26,6 +26,7 @@
   import { newDebrief } from '../lib/debrief.js';
   import { homeOf } from '../lib/dayride.js';
   import { sunTimes } from '../lib/blockplan.js';
+  import { nightName } from '../lib/context.js';
   import { isInventory } from '../lib/gear.js';
   import TripBand from '../lib/trip/TripBand.svelte';
   import BaseCheck from '../lib/trip/BaseCheck.svelte';
@@ -404,9 +405,9 @@
       {#if eve}
         <!-- v0.34.0 (L8): the evening, folded; it opens by itself once the day's riding is over. -->
         <details class="tp-fold eve" use:openOnce={!!st.endAt && clock >= st.endAt}>
-          <summary><Moon size={20} aria-hidden="true" /><span id="eve-h">{t('Evening')}</span><span class="r">{#if eve.overnight}<i class="tp-badge">{eve.overnight === 'lodging' ? t('Lodging') : t('Outdoor')}</i>{/if}{#if eve.charge.length}<i class="tp-badge num" class:ok={eveCharged.done === eveCharged.total}>{t('Charge {done}/{n}', { done: eveCharged.done, n: eveCharged.total })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <summary><Moon size={20} aria-hidden="true" /><span id="eve-h">{t('Evening')}</span><span class="r">{#if eve.overnight}<i class="tp-badge">{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}</i>{/if}{#if eve.charge.length}<i class="tp-badge num" class:ok={eveCharged.done === eveCharged.total}>{t('Charge {done}/{n}', { done: eveCharged.done, n: eveCharged.total })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
           <ul class="do">
-            <li><span class="k"><BedDouble size={20} aria-hidden="true" /></span><div><span class="lab">{t('Night')}</span><span class="val">{#if eve.overnight === 'lodging'}{t('Lodging')}{:else if eve.overnight === 'outdoor'}{t('Outdoor')}{:else}<span class="tp-muted">{t('Not set')}</span>{' '}<small>· <a href="#/pack" onclick={() => openTrip(trip.id)}>{t('Set it in Plan')}</a></small>{/if}</span></div></li>
+            <li><span class="k"><BedDouble size={20} aria-hidden="true" /></span><div><span class="lab">{t('Night')}</span><span class="val">{#if eve.overnight}{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}{:else}<span class="tp-muted">{t('Not set')}</span>{' '}<small>· <a href="#/pack" onclick={() => openTrip(trip.id)}>{t('Set it in Plan')}</a></small>{/if}</span></div></li>
             <li><span class="k"><BatteryCharging size={20} aria-hidden="true" /></span><div><span class="lab">{t('Charge tonight')}</span><ChargeList {trip} {items} night={eve.date} /></div></li>
             <li><span class="k"><Shirt size={20} aria-hidden="true" /></span><div><span class="lab">{t('Lay out for tomorrow')}</span><span class="val">{eve.layOut.length ? names(eve.layOut) : eve.everyRide ? t('Every-ride clothes') : t('Not known yet')}</span></div></li>
             <li><span class="k"><CloudSun size={20} aria-hidden="true" /></span><div><span class="lab">{t('Tomorrow morning')}</span>

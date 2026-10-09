@@ -74,7 +74,8 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Touren | Unterwegs | – | – |
 | Touren | Rückblick, Vergleich, Tempo, Logbuch | – | – |
 | Touren | Vergangene Touren, Fahrten, Jahresrückblick, Teilen | – | – |
-| Touren | Vorlagen, Vorlage neu/bearbeiten, Bausteine | – | – |
+| Touren | Vorlagen, Vorlage neu/bearbeiten, Bausteine | 9.10.2026 (0.55: Bausteine mit «Auf der Fahrt», Link «Bausteine prüfen»; Vorlagen ungeprüft) | 3 |
+| Touren | Bausteine prüfen | 9.10.2026 (0.55 neu, ohne Mockup nach Noahs 4a) | 3 |
 | Material | Materialliste, Teil-Dialog, Zuordnen, Zusammenlegen | 9.10.2026 (0.47.2: sieben Ansichten, Karten mit Punkten pro Tour, Detailspalte, Filterblatt, Teil mit «Sein Jahr auf Tour»; Zuordnen und Zusammenlegen noch alt) | 4 |
 | Material | Kleiderschrank | 9.10.2026 (0.47 neu gebaut nach Mockup) | 4 |
 | Material | Import prüfen, Favoriten, Wunschliste | – | – |
@@ -105,3 +106,4 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 9.10.2026, 0.47.2 «Material-Ansichten»: Reiter durch sieben Ansichten mit Zahl ersetzt, «Totes Gewicht» heisst «Nie gebraucht» mit einem Satz pro Teil, Karten mit Punkten pro Tour (gebraucht, dabei nicht gebraucht, zuhause), Detailspalte am Computer, Sortieren und Filtern in einem Blatt, Teil mit «Sein Jahr auf Tour», gelernter Regel, letzten Touren, Gewicht gegen Alternativen, Alter und Kosten nur mit Daten. Materialliste Note 3 → 4. Bilder vorher/nachher (390 und 1440, hell und dunkel): `design/v0472/vorher/`, `design/v0472/nachher/`.
 - 9.10.2026, 0.47.3: Tour-Dialog: Wetter-Chips setzen statt umschalten, Trocken/Regen als zwei Chips wie auf der Tourseite (Note 3). Packliste: das ••• bleibt rechts in seiner Zeile, wenn «Rückgängig» erscheint; alle •••-Menüs bleiben bei 320 und 390 px im Bild (`ui/inview.js`). Bilder: `design/v0473/vorher`, `nachher`.
 - 9.10.2026, 0.51 «Im Flow – kleiner Start»: Übersicht, Heute-Karte, Abhaken-Blatt, Stoppuhr (Blatt und schwebend), Tagescheck und Bearbeiten nach den freigegebenen Mockups ImFlow-* gebaut, hell und dunkel, 320/390/1440 (Note 4: unter 360 px fallen die Symbole der Abhaken-Knöpfe weg, lange Namen brechen in Ziele × Tage auf zwei Zeilen). Bilder: `design/v0510/`.
+- 9.10.2026, 0.55 «Bausteine neu»: Seite «Bausteine prüfen» (Fortschritt, Zeilen mit Gewicht, Behalten/Raus/Woanders mit 44-px-Zielen, «Fehlt wohl hier»), Bausteine-Seite mit Abschnitt «Auf der Fahrt», Nacht-Chips Biwak / Biwak + Zelt / Hotel/Hütte im Fenster «Neue Tour». Note 3: ohne freigegebenes Mockup gebaut (Noahs Antwort 4a beschreibt den Ablauf). Bilder 320/390/1440, hell und dunkel: `design/v0550/`.
