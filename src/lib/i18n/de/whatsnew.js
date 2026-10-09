@@ -17,6 +17,15 @@ export default {
     "Die Stoppuhr zählt auf deine Zielzeit herunter, mit Klangschale am Anfang und Ende und auf Wunsch dazwischen (regelmässig, zu gewählten Minuten oder zufällig). Verkleinert läuft sie auf jeder Seite weiter.",
   "Daily check: sleep, energy, mood and a fourth question that changes each day, one tap each on 1–10. Every activity can be edited: name, symbol, ring, goal, minimum duration, season and what else counts.":
     "Tagescheck: Schlaf, Energie, Stimmung und eine 4. Frage, die täglich wechselt, je ein Tipp auf 1–10. Jede Aktivität ist bearbeitbar: Name, Symbol, Ring, Ziel, Mindestdauer, Saison und was auch zählt.",
+
+  // 0.47.3
+  'In a new trip, "Chilly" and "Rain" stay chosen when you tap them, also when the forecast chose them already, so the list gets the cold and the rain items. Dry or rain are two chips, as on the trip page.':
+    'Bei einer neuen Tour bleiben «Kühl» und «Regen» gewählt, wenn du sie antippst, auch wenn die Wettervorhersage sie schon gewählt hat; die Liste bekommt die Sachen für Kälte und Regen. Trocken oder Regen sind zwei Chips, wie auf der Tourseite.',
+  'The ••• menus (packing list, templates, trips in progress, bike care) stay fully on the screen on a phone: they move aside or open upwards.':
+    'Die •••-Menüs (Packliste, Vorlagen, Touren in Bearbeitung, Velopflege) bleiben am Handy ganz im Bild: Sie rücken zur Seite oder öffnen nach oben.',
+  '"No weather" takes the weather off again, in a new trip and on the trip page, also when the forecast chose it.':
+    '«Ohne Wetter» nimmt das Wetter wieder weg, bei einer neuen Tour und auf der Tourseite, auch wenn die Wettervorhersage es gewählt hat.',
+
   // 0.47.2
   'Gear has seven views, each with its count: All, Most used, Proven, Favourite things, Never used, Unweighed and Wishlist.':
     'Material hat sieben Ansichten, jede mit ihrer Zahl: Alle, Meist genutzt, Bewährt, Lieblingssachen, Nie gebraucht, Ungewogen und Wunschliste.',
