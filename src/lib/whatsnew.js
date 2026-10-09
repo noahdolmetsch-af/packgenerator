@@ -10,6 +10,13 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.46.2',
+    date: '2026-10-09',
+    points: [
+      { text: '"Customise the start page" shows each section name readable on its line again (on the phone the names stood letter by letter in a narrow column).', href: '#/' },
+    ],
+  },
+  {
     version: '0.46.1',
     date: '2026-10-09',
     points: [
