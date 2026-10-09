@@ -354,6 +354,10 @@ Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0
 - **Wiegen und Prüfen** sind keine Reiter mehr, sondern Modi (`#/gear?tab=weigh`, `?tab=check` bleiben gültig): «Wägen» im Kopf (Computer) und im •••-Menü, «Teile prüfen» im •••-Menü. Alte Adressen `?tab=wishlist`, `?tab=dead`, `?fav=1` öffnen die passende Ansicht; neu `?view=<name>`.
 - **Seitentitel «Material»** wie im Menü (vorher «Ausrüstung»).
 
+## 9.10.2026: Wetter-Chips setzen, •••-Menüs bleiben im Bild (0.47.3)
+
+- **«Kühl + Regen» brachte nichts (Ursache):** Im Fenster «Neue Tour» schalteten die Wetter-Chips um. Hatte die Wettervorhersage schon «Kühl» und Regen gewählt, nahmen die Tipps auf «Kühl» und «+ Regen» beides wieder weg, und die Vorschau zeigte «Fürs Wetter: nichts zusätzlich». Die Logik in `layers.js`/`context.js` war richtig. Entscheid: Ein Wetter-Chip **setzt** nur (`dayride.js pickWxChip`), wie auf der Tourseite; Trocken und Regen sind zwei Chips statt eines «+ Regen»-Schalters. Damit das Wetter trotzdem immer abwählbar bleibt (Noahs Regel: Vorschläge sind nie zwingend und immer änderbar), gibt es den Chip **«Ohne Wetter»** im Fenster «Neue Tour» und auf der Tourseite («Ans Wetter angepasst» und das Wetter-Blatt der Tourkarte): Er nimmt Bereich und Regen weg, auch was die Wettervorhersage gewählt hat; ein anderer Chip setzt wieder. «Trocken» ist nur gedrückt, wenn ein Wetter gesetzt ist.
+- **•••-Menüs im Bild:** Ein Menü neben seinem ••• wird verschoben (seitlich) oder nach oben geklappt (unten kein Platz), nie verkleinert (`src/lib/ui/inview.js`, Baukasten). Gilt für Packliste, Vorlagen, «In Bearbeitung» und Velopflege (deren eigenes «nach oben» aus 0.46.1 ersetzt). Ein Menü, das auch oben keinen Platz hat, bleibt unten (die Seite scrollt), damit es sein ••• nie verdeckt.
 
 ## 9.10.2026: Pflege-Übersicht, Teile pro Velo, Eingang und Notizen (0.48.0)
 

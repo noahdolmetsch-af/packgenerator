@@ -70,7 +70,7 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Heute | Startseite | Neubau 0.46 | – |
 | Heute | Neu-Blatt, Mehr-Menü, Suche | – | – |
 | Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.47: Velo mit Taschen oben, Gewichtskarte) | 3 |
-| Touren | Tour-Dialog, Vorlagen-Dialog, Lade-Blatt | – | – |
+| Touren | Tour-Dialog, Vorlagen-Dialog, Lade-Blatt | 9.10.2026 (0.47.3: Wetter-Chips wie auf der Tourseite, Trocken/Regen) | 3 |
 | Touren | Unterwegs | – | – |
 | Touren | Rückblick, Vergleich, Tempo, Logbuch | – | – |
 | Touren | Vergangene Touren, Fahrten, Jahresrückblick, Teilen | – | – |
@@ -105,5 +105,6 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 9.10.2026: Regel eingeführt. Erste Runde gestartet: Neuentwurf Kleiderschrank, Material, Tour und Velos sowie erste Mockups für Im Flow und 0.47.
 - 9.10.2026, 0.47 «Aufpimpen» (D1): Kleiderschrank nach Mockup neu (Note 2 → 4); Tour/Packen mit Velo und Gewichtskarte, Material mit Reitern und Karten, Velopflege mit einer Schriftordnung und «Jetzt fällig» als Karten, Setup-Kopfband angeglichen, Inbox und Prüfen leeren sich selbst. Neue Regel «Eine Abarbeitungsliste leert sich selbst». Bilder vorher/nachher: `design/audit-0.47/` (Velopflege: `care-*`). Offenes unter «Offen: Angleichen».
 - 9.10.2026, 0.47.2 «Material-Ansichten»: Reiter durch sieben Ansichten mit Zahl ersetzt, «Totes Gewicht» heisst «Nie gebraucht» mit einem Satz pro Teil, Karten mit Punkten pro Tour (gebraucht, dabei nicht gebraucht, zuhause), Detailspalte am Computer, Sortieren und Filtern in einem Blatt, Teil mit «Sein Jahr auf Tour», gelernter Regel, letzten Touren, Gewicht gegen Alternativen, Alter und Kosten nur mit Daten. Materialliste Note 3 → 4. Bilder vorher/nachher (390 und 1440, hell und dunkel): `design/v0472/vorher/`, `design/v0472/nachher/`.
+- 9.10.2026, 0.47.3: Tour-Dialog: Wetter-Chips setzen statt umschalten, Trocken/Regen als zwei Chips wie auf der Tourseite (Note 3). Packliste: das ••• bleibt rechts in seiner Zeile, wenn «Rückgängig» erscheint; alle •••-Menüs bleiben bei 320 und 390 px im Bild (`ui/inview.js`). Bilder: `design/v0473/vorher`, `nachher`.
 - 9.10.2026, 0.48 «Pflege-Übersicht + Teile pro Velo + Eingang/Notizen»: Velopflege mit Übersicht C (Ringe, höchstens 3 Fällig-Karten, flache Probleme), Teiletabelle nach Bereich mit «Mehr», geführtes Ersetzen/Warten; Velos vergleichen (fixe erste Spalte, Tabelle scrollt in sich); Eingang nach Tagen mit Ablegen-Blatt (7 Ziele); Werkstatt & Belege; neue Seite Notizen. Mitgezogen: Velos-Reiter (dritter Reiter Werkstatt), Mehr-Menü (Notizen), Heute (eine Zeile für angeheftete Notiz). Offen: Chips (`.chip`) sind in FileSheet, NoteSheet, PartFlow und CareTab je lokal gestylt; als gemeinsamer Baustein in `app.css` Ziel 0.49. Werkstattbesuch- und Bestell-Dialog noch im alten Stil, Ziel 0.49.
 

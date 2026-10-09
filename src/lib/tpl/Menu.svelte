@@ -5,6 +5,7 @@
    * back to •••. The button is 44 px (touch) and always reachable with Tab.
    */
   import { Ellipsis } from '@lucide/svelte';
+  import { inView } from '../ui/inview.js';
 
   let { label, actions = [], onpick, align = 'right' } = $props();
   let open = $state(false);
@@ -38,7 +39,7 @@
 <div class="mw" bind:this={wrap}>
   <button type="button" class="icb" bind:this={btn} aria-label={label} aria-haspopup="menu" aria-expanded={open} onkeydown={key} onclick={() => (open = !open)}><Ellipsis size={20} aria-hidden="true" /></button>
   {#if open}
-    <div class="menu {align}" role="menu">
+    <div class="menu {align}" role="menu" use:inView>
       {#each actions as a (a.key)}<button type="button" role="menuitem" class:bad={a.bad} onkeydown={key} onclick={() => pick(a.key)}>{a.label}</button>{/each}
     </div>
   {/if}

@@ -20,12 +20,13 @@
   import { t, tn, nameOf, num, locale, bagName } from '../i18n.svelte.js';
   import { formatWeight } from '../gear.js';
   import { RAIN, heavyHigh, isDayTrip, daysUntil, WX_PRESETS } from '../trips.js';
-  import { wxSource } from '../dayride.js';
+  import { wxSource, noWx } from '../dayride.js';
   import { bagVolumes } from '../bagsuggest.js';
   import { litreWarning } from '../backpacks.js';
   import { phone } from '../media.svelte.js';
   import { hasContext } from '../context.js';
   import { rainOf } from '../layers.js';
+  import { inView } from '../ui/inview.js';
   import { rainChance } from '../wardrobe.js';
   import { pastTrips } from '../hubs.js';
   import { localDay } from '../localday.js';
@@ -171,8 +172,9 @@
               <!-- v0.47.1 (Noah c): one tap switches the range (the weather presets) or dry/rain; Undo as for every change. -->
               <div class="tp-chips wxq" role="group" aria-label={t('Quick weather')}>
                 {#each WX_PRESETS as p (p.name)}<button type="button" class="tp-chip" aria-pressed={trip.wx?.min === p.min && trip.wx?.max === p.max} onclick={() => edit.wx({ min: p.min, max: p.max })}>{t(p.name)} <small class="num">{p.min}–{p.max}°</small></button>{/each}
-                <button type="button" class="tp-chip" aria-pressed={!wet} onclick={() => edit.wx({ rain: 'none' })}>{t('Dry|weather')}</button>
+                <button type="button" class="tp-chip" aria-pressed={!wet && !noWx(trip.wx)} onclick={() => edit.wx({ rain: 'none' })}>{t('Dry|weather')}</button>
                 <button type="button" class="tp-chip" aria-pressed={wet} onclick={() => edit.wx({ rain: 'rain' })}>{t('Rain')}</button>
+                <button type="button" class="tp-chip" aria-pressed={noWx(trip.wx)} onclick={() => edit.wx({ min: null, max: null, rain: 'none' })}>{t('No weather|chip')}</button>
               </div>
             {/if}
             {#if bikeTrip}{@render reviewRow()}{/if}
@@ -204,7 +206,7 @@
             <span class="undo-live" role="status" aria-live="polite">{#if canUndo}<button class="tp-link undo" onclick={actions.undo}><Undo2 size={18} aria-hidden="true" />{t('Undo')}</button>{/if}</span>
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
             <details class="list-menu" bind:this={menuEl} onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}><summary aria-label={t('More: other trip, edit trip, templates, print')}><MoreHorizontal size={24} aria-hidden="true" /></summary>
-              <div class="list-menu-content">
+              <div class="list-menu-content" use:inView>
                 <label>{t('Open another trip')}<select class="sel" value={trip.id} onchange={(e) => { changeTrip(e.currentTarget.value); menuEl.open = false; }}>{#each trips as tr}<option value={tr.id}>{tr.title}</option>{/each}</select></label>
                 <!-- v0.30.1 (Noah N9): the past trips, easy to find next to the trip chooser. -->
                 {#if pastN}<a href="#/pack/past">{t('Past trips ({n})', { n: pastN })}</a>{/if}
@@ -351,7 +353,7 @@
   .wxnote { margin: 8px 0 0; }
   .list-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
   .list-head h2 { flex: 1 1 auto; }
-  .list-toolbar { display: flex; align-items: center; gap: 4px 16px; flex-wrap: wrap; }
+  .list-toolbar { display: flex; margin-left: auto; justify-content: flex-end; align-items: center; gap: 4px 16px; flex-wrap: wrap; }
   .group-control { position: relative; display: inline-flex; align-items: center; }
   .group-control select { appearance: none; background: none; border: 0; font: 400 14px var(--font-body); color: var(--ink-3); min-height: 44px; padding: 10px 22px 10px 0; cursor: pointer; }
   .group-control :global(svg) { position: absolute; right: 0; pointer-events: none; color: var(--ink-3); }
