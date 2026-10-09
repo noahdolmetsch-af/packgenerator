@@ -3,6 +3,7 @@
  * the English texts. Swiss spelling (ss).
  */
 export default {
+  'All never used items in Gear': 'Alle nie gebrauchten Teile im Material',
   'Last 12 months': 'Letzte 12 Monate',
   'View →|review': 'Ansehen →',
   'Riding, packing, learned, bikes': 'Fahren, Packen, Gelernt, Velos',

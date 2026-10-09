@@ -120,6 +120,8 @@
               <li><Minus size={16} aria-hidden="true" /><span class="nm">{nameOf(byId[e.itemId])}</span><span class="num g">{w(e) == null ? DASH : formatWeight(w(e))}</span></li>
             {/each}
           </ul>
+          <!-- v0.47.2: the same idea across all trips is the Gear view «Nie gebraucht» -->
+          <a class="tap" href="#/gear?view=never">{t('All never used items in Gear')}</a>
         {:else}
           <p class="tp-muted">{t('Everything on the list was used.')}</p>
         {/if}

@@ -123,11 +123,13 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   const weighToday = num(await page.locator('[data-section="actions"] .grid [data-fn="weigh"] .badge').textContent());
   await page.goto('./#/gear');
   await page.reload();
-  const tabs = page.locator('main [role="tablist"] [role="tab"]');
-  await expect(tabs.nth(0).locator('small')).toHaveText(String(owned));
-  await expect(tabs.nth(1).locator('small')).toHaveText(String(wish));
-  const weighGear = num(await tabs.nth(3).locator('small').textContent());
-  expect(weighToday, `Today "Weigh" (${weighToday}) vs Gear "Weigh" tab (${weighGear})`).toBe(weighGear);
+  // v0.47.2: the views carry the counts; what waits for the scale is on "Record weights" in •••
+  const views = page.getByRole('group', { name: T('Views') });
+  await expect(views.locator('[data-view="all"] small')).toHaveText(String(owned));
+  await expect(views.locator('[data-view="wish"] small')).toHaveText(String(wish));
+  await page.getByLabel(T('More for Gear')).click();
+  const weighGear = num(await page.locator('.gmenu button').filter({ hasText: T('Record weights') }).locator('.badge').textContent());
+  expect(weighToday, `Today "Weigh" (${weighToday}) vs Gear "Record weights" (${weighGear})`).toBe(weighGear);
 
   // Today's "Last 12 months" vs the Rückblick page (v0.49.0 R1: #/review leads to its part «Letzte 12 Monate»)
   await page.goto('./#/');

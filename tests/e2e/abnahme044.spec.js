@@ -92,6 +92,8 @@ test('phone touch targets: gear category heads, PG, debrief All buttons, bike ca
   await load(page, context, info);
   await page.setViewportSize({ width: 320, height: 700 });
   await page.goto('./#/gear');
+  // v0.47.2: the category heads are in the list display ("Cards · List")
+  await page.evaluate(() => localStorage.setItem('gear.display', 'list'));
   await page.reload();
   const cat = page.locator('h2.ch button').first();
   await expect(cat).toBeVisible();

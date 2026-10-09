@@ -145,9 +145,14 @@ for (const lang of ['en', 'de']) {
 
     // 9. Gear: the area filter shows only weekend items.
     await page.goto('./#/gear');
-    await page.getByLabel(T('Area'), { exact: true }).selectOption('weekend');
-    await expect(page.locator('.rows').getByText('Paperback book')).toBeVisible();
-    await expect(page.locator('.rows').getByText('Bib shorts')).toHaveCount(0);
+    // v0.47.2: the area is in the sheet "Sort and filter"
+    await page.locator('.fbtn').click();
+    const fs = page.getByRole('dialog', { name: T('Sort and filter') });
+    await fs.getByRole('group', { name: T('Area') }).getByRole('button', { name: new RegExp(`^${esc(T('Weekend'))}`) }).click();
+    await page.keyboard.press('Escape');
+    await expect(fs).toBeHidden();
+    await expect(page.locator('.cards').getByText('Paperback book')).toBeVisible();
+    await expect(page.locator('.cards').getByText('Bib shorts')).toHaveCount(0);
     await fits('Gear');
 
     // 10. All my favourite things, by area.
