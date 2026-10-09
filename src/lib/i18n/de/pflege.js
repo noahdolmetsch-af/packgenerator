@@ -225,6 +225,8 @@ export default {
   Notes: 'Notizen',
   // v0.48.0 Eingang (was the Inbox) and «Ablegen als …»
   Inbox: 'Eingang',
+  'More, Inbox: {n} to sort': 'Mehr, Eingang: {n} zum Ablegen',
+  'Inbox, {n} to sort': 'Eingang, {n} zum Ablegen',
   'Filed: {where}': 'Abgelegt: {where}',
   'newest on top': 'neueste oben',
   'Open|inbox': 'Offen',

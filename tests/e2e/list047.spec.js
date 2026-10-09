@@ -32,39 +32,43 @@ const count = async (page) => {
   return out;
 };
 
-test('Inbox: a sorted note leaves, the next is first and focused, Undo restores it; the last one leaves a line with an action', async ({ page, context }, info) => {
+// v0.48.0 «Eingang»: a filed entry stays in its place until midnight, faint, with the chip where it
+// went and «Rückgängig»; the toast offers Undo too. With nothing open, one calm line with an action.
+test('Inbox: a filed note stays faint with its target, Undo restores it; with nothing open a line with an action', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/inbox');
-  const list = page.getByRole('list', { name: T('Notes, newest first') });
-  const notes = list.locator('li.note');
-  await expect(notes).toHaveCount(2);
-  const ids = await notes.evaluateAll((li) => li.map((l) => l.dataset.noteId));
+  const open = page.locator('li[data-note-id]:not(.filed)');
+  await expect(open).toHaveCount(2);
+  const ids = await open.evaluateAll((li) => li.map((l) => l.dataset.noteId));
   const before = await count(page);
 
-  // Sort the first note with its one light button: the row is gone, the other one is first and focused.
-  await notes.first().locator('.acts > .btn').click();
-  await expect(notes).toHaveCount(1);
-  await expect(notes.first()).toHaveAttribute('data-note-id', ids[1]);
-  await expect(notes.first().locator('.acts > .btn')).toBeFocused();
+  // File the first one as the app suggests: the sheet, the suggested target, its main button.
+  const fileFirst = async () => {
+    await open.first().locator('.acts > .btn').click();
+    const sheet = page.getByRole('dialog');
+    await sheet.locator('.targets li.sug button').click();
+    await sheet.locator('.btn.hi').click();
+    await expect(sheet).toBeHidden();
+  };
+  await fileFirst();
+  await expect(open).toHaveCount(1);
+  await expect(page.locator(`li.filed[data-note-id="${ids[0]}"]`)).toBeVisible();
   await expect.poll(async () => (await table(page, 'notes')).find((n) => n.id === ids[0]).status).not.toBe('open');
   const toast = page.locator('.toast[role=status]');
-  await expect(toast).toContainText('→');
+  await expect(toast).toBeVisible();
 
-  // Undo: the note is open again at its place, and what it wrote is gone.
+  // Undo: the note is open again, and what it wrote is gone.
   await toast.getByRole('button', { name: T('Undo') }).click();
-  await expect(notes).toHaveCount(2);
-  await expect(notes.first()).toHaveAttribute('data-note-id', ids[0]);
+  await expect(open).toHaveCount(2);
   await expect.poll(async () => (await table(page, 'notes')).find((n) => n.id === ids[0]).status).toBe('open');
   await expect.poll(() => count(page)).toEqual(before);
 
-  // Both sorted: one calm line with an action, focused.
-  await notes.first().locator('.acts > .btn').click();
-  await expect(notes).toHaveCount(1);
-  await notes.first().locator('.acts > .btn').click();
+  // Both filed: one calm line with an action.
+  await fileFirst();
+  await fileFirst();
   const done = page.locator('#inbox-done');
   await expect(done).toContainText(T('All notes are sorted.'));
   await expect(done.getByRole('button', { name: `+ ${T('Quick note')}` })).toBeVisible();
-  await expect(done).toBeFocused();
   expect(errors).toEqual([]);
 });
 

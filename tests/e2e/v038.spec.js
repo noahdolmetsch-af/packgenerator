@@ -60,7 +60,7 @@ test('More: top right with the Inbox count, grouped, language; the search finds 
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/');
   const more = page.locator('.more-btn');
-  await expect(more).toHaveAttribute('aria-label', 'Mehr, Inbox: 2 zum Einordnen');
+  await expect(more).toHaveAttribute('aria-label', 'Mehr, Eingang: 2 zum Ablegen');
   // v0.47.1 (Noah): only a dot on the button, no number (the count stays in the label).
   await expect(more.locator('.mdot')).toBeVisible();
   await expect(more).not.toContainText('2');
@@ -70,7 +70,7 @@ test('More: top right with the Inbox count, grouped, language; the search finds 
   const sheet = page.locator('dialog.more');
   await expect(sheet).toBeVisible();
   for (const g of ['Planen', 'Rückblick', 'Material', 'App']) await expect(sheet.getByRole('heading', { name: g, exact: true })).toBeVisible();
-  await expect(sheet.getByRole('link', { name: /Inbox/ })).toContainText('2');
+  await expect(sheet.getByRole('link', { name: /Eingang/ })).toContainText('2');
   await noSideways(page);
   await shot(page, info, 'mehr');
   await sheet.getByRole('link', { name: 'Vergangene Touren' }).click();
