@@ -2,8 +2,10 @@ import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// GitHub Pages serves the app from https://<user>.github.io/packgenerator/
-const base = '/packgenerator/';
+// GitHub Pages serves the app from https://<user>.github.io/packgenerator/.
+// A Vercel preview (one per pull request, so Noah can test before he merges) serves it from the root.
+const vercel = !!process.env.VERCEL;
+const base = vercel ? '/' : '/packgenerator/';
 
 import pkg from './package.json' with { type: 'json' };
 
@@ -12,7 +14,7 @@ export default defineConfig({
   preview: { host: "127.0.0.1" },
   server: { host: "0.0.0.0", allowedHosts: ["terminal.local"] },
   // Replaces __APP_VERSION__ in the code with the version from package.json.
-  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
+  define: { __APP_VERSION__: JSON.stringify(pkg.version), __PREVIEW__: JSON.stringify(vercel) },
   // v0.21.0: Vitest runs the unit tests only; the browser test in tests/e2e runs with `npm run e2e`.
   test: { include: ['tests/*.test.js'] },
   plugins: [

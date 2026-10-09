@@ -24,6 +24,16 @@ applyClock();
 // v0.34.0 (L10): remember when the data last changed, so a backup file can say newer or older.
 trackChanges(db);
 
+// A pull-request preview (Vercel) says so on every page: it has its own, separate data.
+if (__PREVIEW__) {
+  const de = (() => { try { return localStorage.getItem('lang') === 'de'; } catch { return false; } })();
+  const bar = document.createElement('div');
+  bar.setAttribute('role', 'note');
+  bar.textContent = de ? 'Vorschau zum Testen: eigene Daten, nicht deine echte App.' : 'Test preview: separate data, not your real app.';
+  bar.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;padding:4px 12px calc(4px + env(safe-area-inset-bottom,0px));background:#7a5a00;color:#fff;font:600 13px/1.4 system-ui,sans-serif;text-align:center;pointer-events:none';
+  document.body.appendChild(bar);
+}
+
 // Svelte renders the App component into <div id="app"> in index.html.
 mount(App, { target: document.getElementById('app') });
 
