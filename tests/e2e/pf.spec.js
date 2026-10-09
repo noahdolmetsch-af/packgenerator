@@ -220,7 +220,8 @@ async function openAllBags(page) {
   const heads = page.locator('.calm-pack .bag-heading[aria-expanded="false"]');
   for (let n = await heads.count(); n > 0; n--) await heads.first().click();
 }
-const planningRow = (page, key) => page.locator('.calm-pack .planning-row').filter({ hasText: nm(key) });
+// v0.52.0: worn clothing stands in the card «On me» (with its reason), the rest in the bags.
+const planningRow = (page, key) => page.locator('.calm-pack :is(.planning-row, .worn-card li)').filter({ hasText: nm(key) });
 const rowButton = (page, key) => page.getByRole('button', { name: T('Amount, move or take out: {name}', { name: nm(key) }) });
 
 /** A tab in the trip band (v0.29.0): 'Plan|stage', 'Pack|stage', 'On the way', 'Debrief'. */

@@ -11,7 +11,7 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { wardrobe, USES, LAYERS, ZONES, tempRange, tempKey, tempKits, CLOTHING_OFFSET, wardrobeGaps, gapWish, offsetLine, resetOffset, kitFromOutfit, rangeAround } from '../lib/wardrobe.js';
+  import { wardrobe, USES, LAYERS, ZONES, tempRange, tempKey, tempKits, CLOTHING_OFFSET, wardrobeGaps, gapWish, offsetLine, resetOffset, kitFromOutfit, rangeAround, barStyle } from '../lib/wardrobe.js';
   import { SETS_KEY, allSets } from '../lib/sets.js';
   import { tick } from 'svelte';
   import { slide } from 'svelte/transition';
@@ -19,8 +19,10 @@
   import { HOME_PLACE, HOME_FORECAST } from '../lib/know.js';
   import { todayOutfit } from '../lib/home/outfit.js';
   import { formatWeight, itemWeight, isInventory } from '../lib/gear.js';
-  import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
+  import { t, tn, nameOf, locale, dateOf, num } from '../lib/i18n.svelte.js';
   import Seg from '../lib/ui/Seg.svelte';
+  import TempBar from '../lib/ui/TempBar.svelte';
+  import { tripRange, tripRain, unfitDuplicates } from '../lib/swap.js';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import { wearItems, undoBulk } from '../lib/gear/bulk.js';
   import { SvelteSet } from 'svelte/reactivity';
@@ -54,6 +56,32 @@
   }
 
   const items = $derived($itemsQ ?? []);
+
+  /* ---------- v0.52.0 «Tauschen» (OP2a, Noah a): the wardrobe for a trip (#/wardrobe/trip/<id>) ---------- */
+  // From the packing list («Open in the wardrobe»): a band with the trip's range and dry / rain / any;
+  // «Fits the trip» hides a piece that does not fit when its place has one that does (a hint says how
+  // many, «All» shows them). Only a view: the trip's weather stays as it is.
+  const tripOfHash = () => {
+    const m = /^#\/wardrobe\/trip\/([^?]+)/.exec(location.hash);
+    return m ? decodeURIComponent(m[1]) : null;
+  };
+  let tripId = $state(tripOfHash());
+  $effect(() => {
+    const on = () => (tripId = tripOfHash());
+    window.addEventListener('hashchange', on);
+    return () => window.removeEventListener('hashchange', on);
+  });
+  const trip = $derived(tripId ? ($tripsQ ?? []).find((x) => x.id === tripId) ?? null : null);
+  const tripR = $derived(trip ? tripRange(trip) : null);
+  let fitMode = $state('fits');
+  let rainPick = $state(null); // null: as the trip says
+  const rainSel = $derived(rainPick ?? (trip ? tripRain(trip) : 'dry'));
+  const onTripIds = $derived(new Set((trip?.entries ?? []).map((e) => e.itemId)));
+  const RAIN_OPTS = [
+    { key: 'dry', name: 'Dry|weather' },
+    { key: 'wet', name: 'Rain' },
+    { key: 'any', name: 'Any|rain' },
+  ];
   const offset = $derived(Number($offsetQ?.value) || 0);
   // v0.45.0 (decision 2): the gaps are about riding, so not under Alltag.
   const gaps = $derived(use === 'everyday' ? [] : wardrobeGaps(items, { offset }));
@@ -209,26 +237,16 @@
   const zoneN = $derived(Object.fromEntries(ZONES.map((z) => [z.key, w.layers.reduce((s, l) => s + (l.zones.find((x) => x.key === z.key)?.items.length ?? 0), 0)])));
   const gapZones = $derived(new Set(gaps.filter((g) => !g.wished).map((g) => g.zone)));
   const layerOf = (key) => w.layers.find((l) => l.key === key) ?? { key, n: 0, g: 0, zones: [] };
+  const hidden = $derived(trip && fitMode === 'fits' ? unfitDuplicates(w.all, tripR, rainSel === 'any' ? null : rainSel) : new Set());
   const shownLayers = $derived(
     w.layers
       .filter((l) => !fLayer || l.key === fLayer)
-      .map((l) => ({ ...l, zones: l.zones.filter((z) => !fZone || z.key === fZone) }))
+      .map((l) => ({ ...l, zones: l.zones.filter((z) => !fZone || z.key === fZone).map((z) => (hidden.size ? { ...z, items: z.items.filter((i) => !hidden.has(i.id)) } : z)).filter((z) => z.items.length || z.gap) }))
       .filter((l) => !fZone || l.zones.length),
   );
   const LN = { base: 1, mid: 2, outer: 3, accessory: 4 };
   // 2b: the temperature bar on the scale −10 … 35 °C, plus the short text «4–35°».
-  const LO = -10;
-  const HI = 35;
-  function tbar(i) {
-    const k = tempKey(i);
-    if (!k) return null;
-    const lo = Math.max(LO, Math.min(HI, Number.isFinite(k.lo) ? k.lo : LO));
-    const hi = Math.max(LO, Math.min(HI, Number.isFinite(k.hi) ? k.hi : HI));
-    const x = ((lo - LO) / (HI - LO)) * 100;
-    const y = Math.max(5, ((hi - lo) / (HI - LO)) * 100);
-    const left = Math.min(x, 100 - y);
-    return `left:${left}%;width:${y}%;background-size:${(10000 / y).toFixed(1)}% 100%;background-position:${y >= 100 ? 0 : ((left / (100 - y)) * 100).toFixed(1)}% 0`;
-  }
+  const tbar = (i) => barStyle(tempKey(i)) || null;
   const tshort = (i) => (typeof i.tempMin === 'number' && typeof i.tempMax === 'number' ? `${i.tempMin}–${i.tempMax}°` : temp(i));
   // 3b: the suggestion of a row in words ("Basis · Oberkörper"); a tap sets what it knows.
   const chipText = (u) => [u.guessLayer ? layerName(u.guessLayer) : null, u.guessZone ? zoneName(u.guessZone) : null].filter(Boolean).join(' · ');
@@ -275,6 +293,20 @@
       <button type="button" class="btn hi wear-btn" aria-controls="w-today" onclick={showToday}><Sparkles size={18} aria-hidden="true" />{suggestion.win?.tomorrow ? t('What do I wear tomorrow?') : t('What do I wear today?')}{#if suggestion.state === 'ok'}<span class="num"> · {suggestion.outfit.c}°</span>{/if}</button>
     {/if}
   </header>
+
+  {#if trip}
+    <!-- v0.52.0 (OP2a, Noah a): the trip this wardrobe is open for, its range and dry / rain / any -->
+    <section class="tband" aria-labelledby="tband-h">
+      <p class="tk">{t('For your trip')}</p>
+      <h2 class="tt" id="tband-h">{trip.title}</h2>
+      <p class="tf num">{[trip.startDate ? dateOf(trip.startDate) : null, tripR ? `${tripR.min}–${tripR.max} °C` : t('No weather set'), trip.hours ? t('{n} h', { n: num(trip.hours) }) : null].filter(Boolean).join(' · ')}</p>
+      <div class="tsegs">
+        <Seg small full={false} label={t('Rain|wardrobe trip')} value={rainSel} options={RAIN_OPTS.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(k) => (rainPick = k)} />
+        <Seg small full={false} label={t('Show|wardrobe trip')} value={fitMode} options={[{ key: 'fits', name: tripR ? t('Fits {range}', { range: `${tripR.min}–${tripR.max}°` }) : t('Fits the trip'), n: w.n - hidden.size }, { key: 'all', name: t('All|wardrobe'), n: w.n }]} onchange={(k) => (fitMode = k)} />
+      </div>
+      <p class="tb-back"><a class="btn sm" href="#/pack"><ChevronLeft size={16} aria-hidden="true" />{t('Back to the packing list')}</a></p>
+    </section>
+  {/if}
 
   <div class="wgrid">
     <aside class="wside">
@@ -409,6 +441,13 @@
         </p>
       {/if}
 
+      {#if hidden.size}
+        <p class="filt hid" role="status">
+          <span>{tn(hidden.size, '{n} piece hidden: it does not fit this trip, another one in its place does.', '{n} pieces hidden: they do not fit this trip, others in their place do.')}</span>
+          <button type="button" class="linkbtn" onclick={() => (fitMode = 'all')}>{t('Show all|filter')}</button>
+        </p>
+      {/if}
+
       {#if $itemsQ && !w.n}
         <p class="surf empty">{t('No clothing here yet. Clothing is every item of the categories On-bike clothing, Rain & cold, Off-bike clothing and Shoes, and every item with a layer or a body zone.')}</p>
       {/if}
@@ -435,8 +474,8 @@
                         <div class="row">
                           {#if i.photo}<img class="thumb" src={i.photo} alt="" />{:else}<span class="zi" aria-hidden="true">{@render zoneIcon(z.key)}</span>{/if}
                           <span class="mid">
-                            <span class="nm">{nameOf(i)}{#if i.ownership === 'wishlist' || i.ownership === 'to-buy'}<i class="badge">{t('Wishlist')}</i>{/if}</span>
-                            <span class="tl">{#if bar}<span class="tbar"><i style={bar}></i></span>{/if}<span class="tc num">{tshort(i)}</span><span class="w num">{weight(i)}</span></span>
+                            <span class="nm">{nameOf(i)}{#if i.ownership === 'wishlist' || i.ownership === 'to-buy'}<i class="badge">{t('Wishlist')}</i>{/if}{#if onTripIds.has(i.id)}<i class="badge on">{t('on the trip')}</i>{/if}</span>
+                            <span class="tl">{#if trip}<TempBar item={i} mark={tripR} width={64} />{:else if bar}<span class="tbar"><i style={bar}></i></span>{/if}<span class="tc num">{tshort(i)}</span><span class="w num">{weight(i)}</span></span>
                           </span>
                           <button type="button" class="dots" aria-expanded={open} aria-label={t('Layer, zone or edit: {name}', { name: nameOf(i) })} onclick={() => flip(i.id)}><MoreHorizontal size={20} aria-hidden="true" /></button>
                         </div>
@@ -1395,6 +1434,47 @@
     margin: 0 0 24px;
     color: var(--ink-3);
     font-size: 13px;
+  }
+  /* v0.52.0 (OP2a): the trip band, the one dark card of the page in trip mode (like today's suggestion) */
+  .tband {
+    margin: 0 0 14px;
+    padding: 16px 18px;
+    border-radius: var(--radius-card);
+    background: var(--ink);
+    color: var(--paper);
+    min-width: 0;
+  }
+  .tband .tk {
+    margin: 0;
+    color: var(--hi);
+    font: 600 var(--fs-label)/1.3 var(--font-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .tband .tt {
+    margin: 2px 0;
+    font-size: var(--fs-section);
+    overflow-wrap: break-word;
+  }
+  .tband .tf {
+    margin: 0 0 10px;
+    opacity: 0.85;
+    font-size: var(--fs-small);
+  }
+  .tsegs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tb-back {
+    margin: 10px 0 0;
+  }
+  .badge.on {
+    background: var(--accent-soft);
+    color: var(--ok);
+  }
+  .hid span {
+    flex: 1 1 14em;
   }
   .tbar.legend {
     width: 90px;

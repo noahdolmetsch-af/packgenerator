@@ -132,6 +132,32 @@ export function tempKey(item) {
   if (min != null || max != null) return { lo: min ?? -Infinity, hi: max ?? Infinity };
   return CLASS_RANGE[item?.tempClass] ?? null;
 }
+/**
+ * v0.47.0 (Noah 2b), shared in v0.52.0: the temperature bar on the scale −10 … 35 °C. The style of the
+ * coloured part for a range { lo, hi } (an open border runs to the end of the scale), or '' without one.
+ * The gradient is sized to the whole scale, so a colour always means the same temperature.
+ */
+export const BAR_LO = -10;
+export const BAR_HI = 35;
+const onScale = (n, open) => Math.max(BAR_LO, Math.min(BAR_HI, Number.isFinite(n) ? n : open));
+export function barStyle(k) {
+  if (!k) return '';
+  const lo = onScale(k.lo, BAR_LO);
+  const hi = onScale(k.hi, BAR_HI);
+  const x = ((lo - BAR_LO) / (BAR_HI - BAR_LO)) * 100;
+  const y = Math.max(5, ((hi - lo) / (BAR_HI - BAR_LO)) * 100);
+  const left = Math.min(x, 100 - y);
+  return `left:${left}%;width:${y}%;background-size:${(10000 / y).toFixed(1)}% 100%;background-position:${y >= 100 ? 0 : ((left / (100 - y)) * 100).toFixed(1)}% 0`;
+}
+/** The frame of the trip's range { min, max } on the same scale (left and width in %). */
+export function markStyle(range) {
+  if (!range) return '';
+  const lo = onScale(range.min, BAR_LO);
+  const hi = onScale(range.max, BAR_HI);
+  const x = ((lo - BAR_LO) / (BAR_HI - BAR_LO)) * 100;
+  const y = Math.max(3, ((hi - lo) / (BAR_HI - BAR_LO)) * 100);
+  return `left:${Math.min(x, 100 - y)}%;width:${y}%`;
+}
 const cmpDesc = (a, b) => (a === b ? 0 : a > b ? -1 : 1);
 /**
  * Warm to cold within a zone (decision 1): the upper border first (higher first), then the lower
