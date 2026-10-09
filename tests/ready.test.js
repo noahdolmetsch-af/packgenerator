@@ -57,3 +57,36 @@ describe('ready check cleanup (4.10.2026)', () => {
     expect((await db.trips.get('next')).ready).toEqual([]);
   });
 });
+
+// v0.45.1 (Noah): the new base check before every ride, his six things first.
+import 'fake-indexeddb/auto';
+import Dexie from 'dexie';
+import { basicCheck2026 } from '../src/lib/updates.js';
+import { READY_OLD_IDS } from '../src/lib/trips.js';
+
+describe('base check 2026', () => {
+  it('starts with lock, mini backpack, bottle, sunglasses, cap, wind jacket', () => {
+    expect(READY_DEFAULT.slice(0, 6).map((r) => r.id)).toEqual(['lock', 'minipack', 'bottle', 'glasses', 'cap', 'wind']);
+    expect(READY_DEFAULT.map((r) => r.id)).not.toContain('route');
+  });
+
+  it('replaces the old rows of the saved standard and of coming trips without ticks; own rows stay', async () => {
+    const db = new Dexie(`bc-${Math.random()}`);
+    db.version(1).stores({ trips: 'id', settings: 'key' });
+    const old = READY_OLD_IDS.map((id) => ({ id, label: id }));
+    await db.settings.put({ key: 'readyStandard', value: [...old, { id: 'std-1', label: 'Buy gas' }] });
+    await db.trips.bulkPut([
+      { id: 'next', startDate: '2999-01-01', ready: [...old.map((r) => ({ ...r, done: false })), { id: 'own-x', label: 'Mine', done: false }] },
+      { id: 'ticked', startDate: '2999-01-01', ready: [{ id: 'kit', label: 'kit', done: true }] },
+      { id: 'past', startDate: '2000-01-01', ready: [{ id: 'kit', label: 'kit', done: false }] },
+    ]);
+    expect(await basicCheck2026(db)).toBe(true);
+    const std = (await db.settings.get('readyStandard')).value;
+    expect(std.map((r) => r.id)).toEqual([...READY_DEFAULT.map((r) => r.id), 'std-1']);
+    const next = await db.trips.get('next');
+    expect(next.ready.map((r) => r.id)).toEqual([...READY_DEFAULT.map((r) => r.id), 'std-1', 'own-x']);
+    expect((await db.trips.get('ticked')).ready).toHaveLength(1);
+    expect((await db.trips.get('past')).ready).toHaveLength(1);
+    expect(await basicCheck2026(db)).toBe(false);
+  });
+});

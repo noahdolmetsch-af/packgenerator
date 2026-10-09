@@ -7,7 +7,7 @@
  * else's data never gets Noah's own items, bags or ready check.
  */
 
-import { freshReady, slotFor, ALWAYS_OLD } from './trips.js';
+import { freshReady, slotFor, ALWAYS_OLD, READY_DEFAULT, READY_OLD_IDS } from './trips.js';
 import { loadTemplates, saveTemplates, templateFrom, TEMPLATES_KEY, linkTemplate, isLinked } from './templates.js';
 import { templateSlot } from './gear/assign.js';
 import { SETS_KEY, addSet, allSets } from './sets.js';
@@ -456,7 +456,36 @@ export async function templatesLinked2026(db) {
   return done;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, blocks2026, templatesLinked2026];
+/**
+ * v0.45.1 (Noah 9.10.2026): the new base check before every ride (trips.js READY_DEFAULT) replaces
+ * the old suggested rows. A saved standard keeps its own rows after the new ones; coming trips
+ * without a tick get the new check (their own rows stay). Past trips and trips without a bike stay.
+ */
+export async function basicCheck2026(db) {
+  if (await db.settings.get('update.basicCheck2026')) return false;
+  const today = now().slice(0, 10);
+  const merge = (rows) => {
+    const labels = new Set(READY_DEFAULT.map((r) => r.label.toLowerCase()));
+    const keep = (rows ?? []).filter((r) => !r.itemId && !READY_OLD_IDS.includes(r.id) && !READY_DEFAULT.some((d) => d.id === r.id) && !labels.has(String(r.label).toLowerCase()));
+    return [...READY_DEFAULT.map((r) => ({ ...r })), ...keep];
+  };
+  await db.transaction('rw', db.trips, db.settings, async () => {
+    const std = await db.settings.get('readyStandard');
+    const standard = std?.value?.length ? merge(std.value).map(({ done, ...r }) => r) : null;
+    if (standard) await db.settings.put({ key: 'readyStandard', value: standard });
+    for (const t of await db.trips.toArray()) {
+      if (t.startDate && t.startDate < today) continue;
+      if (Array.isArray(t.packs) || t.finished) continue;
+      if ((t.ready ?? []).some((r) => r.done)) continue;
+      const own = (t.ready ?? []).filter((r) => r.id?.startsWith('own-'));
+      await db.trips.update(t.id, { ready: [...freshReady(standard), ...own.filter((o) => !(standard ?? []).some((r) => r.id === o.id))] });
+    }
+    await db.settings.put({ key: 'update.basicCheck2026', value: now() });
+  });
+  return true;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, blocks2026, templatesLinked2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

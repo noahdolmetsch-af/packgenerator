@@ -28,6 +28,7 @@
   import { sunTimes } from '../lib/blockplan.js';
   import { isInventory } from '../lib/gear.js';
   import TripBand from '../lib/trip/TripBand.svelte';
+  import BaseCheck from '../lib/trip/BaseCheck.svelte';
   import { openTrip } from '../lib/nav.js';
   import '../lib/trip/trip.css';
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, BatteryCharging } from '@lucide/svelte';
@@ -358,6 +359,7 @@
 {:else}
 <div class="ride trip-page">
   <TripBand {trip} tab="ride" {kicker} compact action={go} aside={pen} hint={ahead ? '' : t('End the trip when you are back home.')} />
+  {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} />{/if}
   <div class="tp-grid2 r">
     <div class="col">
       <!-- Noah 7a: the days, then the block of now, on top. -->

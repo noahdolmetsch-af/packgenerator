@@ -20,16 +20,23 @@ import { inStandard, isWorn, blockKeys } from './blocks2026.js';
  * are now normal items marked "On every trip" (see alwaysEntries). Noah can save his own
  * list as the standard (setting "readyStandard"), which then replaces this one.
  */
+// v0.45.1 (Noah 9.10.2026, "gilt primär"): the base check before every ride starts with his six
+// things; from the old list stay what still makes sense (kit, charged, tyres, phone/wallet/keys).
+// Dropped: food, "Backpack packed" (now the mini backpack), route on the Garmin, live tracking.
 export const READY_DEFAULT = [
+  { id: 'lock', label: 'Lock' },
+  { id: 'minipack', label: 'Mini backpack' },
+  { id: 'bottle', label: 'Bottle filled' },
+  { id: 'glasses', label: 'Sunglasses' },
+  { id: 'cap', label: 'Cap' },
+  { id: 'wind', label: 'Wind jacket' },
   { id: 'kit', label: 'Helmet, shoes, gloves' },
   { id: 'charged', label: 'Devices charged' },
-  { id: 'fuel', label: 'Bottles filled, food packed' },
-  { id: 'backpack', label: 'Backpack packed' },
-  { id: 'route', label: 'Route on the Garmin' },
   { id: 'tyres', label: 'Tyre pressure checked' },
   { id: 'wallet', label: 'Phone, wallet, keys' },
-  { id: 'tracking', label: 'Live tracking on, someone knows the route' },
 ];
+/** The ids of the ready check before 0.45.1 (basicCheck2026 replaces them, own rows stay). */
+export const READY_OLD_IDS = ['kit', 'charged', 'fuel', 'backpack', 'route', 'tyres', 'wallet', 'tracking'];
 /** Where the old "Always with me" checks put a missing item (used once when trips are updated). */
 export const ALWAYS_OLD = { EL13: 'top', EL07: 'mounted', EL10: 'body', KL22: 'body', HY01: 'top', WZ23: 'frame' };
 /** A fresh ready check: the saved standard (if any) or the suggested list, nothing ticked. */

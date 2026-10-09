@@ -8,7 +8,7 @@
   import { suggestPacks, suggestBack, choosePack, rankBags, wantFor } from '../lib/backpacks.js';
   import { CATEGORIES, formatWeight, weightText, isInventory, matches } from '../lib/gear.js';
   import { weighQueue } from '../lib/weigh.js';
-  import { tripStats, packSteps, togglePacked, packAll, tickReady, packAndReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike, setQty, touched } from '../lib/trips.js';
+  import { tripStats, packSteps, togglePacked, packAll, tickReady, addEntries, readyDone, whenLabel, onTrip, zoneName, freshReady, bagItemIds, NIGHT_SETS, toggleSet, WX_PRESETS, RAIN, axleLoad, axleSplit, switchBike, setQty, touched, isDayTrip } from '../lib/trips.js';
   import { suggestPlaces, applyPlaces, dismissPlace } from '../lib/bagsuggest.js';
   import PlaceSuggest from '../lib/pack/PlaceSuggest.svelte';
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
@@ -562,7 +562,8 @@
   // v0.20.2: where the trip stands. 0 pack list, 1 packing day, 2 ride day, 3 debrief.
   // v0.21.0: a trip without a bike has no ride day; after the packing day comes the debrief.
   const STEPS = $derived(bikeTrip ? ['Packing list', 'Packing day', 'Ride day', 'Debrief'] : ['Packing list', 'Packing day', 'Debrief']);
-  const allIn = $derived(!!stats?.count && stats.packed >= stats.count && readyCount >= readyTotal);
+  // v0.45.1: on a day ride the base check waits on the ride page, so packed is enough here.
+  const allIn = $derived(!!stats?.count && stats.packed >= stats.count && (isDayTrip(trip) || readyCount >= readyTotal));
   const step = $derived(!trip || !stats ? 0 : bikeTrip ? (over ? 3 : allIn ? 2 : 1) : over || allIn ? 2 : 1);
   const DEBRIEF = $derived(STEPS.length - 1);
   function toggleReady(row) {
@@ -580,8 +581,9 @@
   const tickAllReady = () => change((t) => ({ ready: tickReady(t.ready) }));
   // v0.24.1 (Noah 2a): a day ride skips the packing day: every item packed and the whole ready
   // check in one write (packAll + tickReady, one Undo), then on to the ride day.
+  // v0.45.1 (Noah): the base check is no longer ticked here: it waits on the ride page as a reminder.
   async function packAndGo() {
-    await change((t) => packAndReady(t));
+    await change((t) => ({ entries: packAll(t.entries ?? []) }));
     goRide();
   }
   function goRide() {

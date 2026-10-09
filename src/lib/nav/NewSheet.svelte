@@ -12,6 +12,7 @@
   import { newTrip, addItem, dayRide } from '../nav.js';
   import { t, num } from '../i18n.svelte.js';
   import { parseKm } from '../care.js';
+  import ProblemForm from './ProblemForm.svelte';
 
   let { mode = $bindable(null), onnote } = $props();
 
@@ -47,11 +48,13 @@
 
 <dialog class="sheet new" bind:this={dialog} onclose={() => ((mode = null), (kmMsg = ''))} aria-labelledby="new-h">
   <div class="top">
-    <h2 id="new-h" class="title">{mode === 'km' ? t('km for a bike') : t('New')}</h2>
+    <h2 id="new-h" class="title">{mode === 'km' ? t('km for a bike') : mode === 'problem' ? t('Problem with a bike') : t('New')}</h2>
     <button type="button" class="btn sm" onclick={close}>{t('Close')}</button>
   </div>
 
-  {#if mode === 'km'}
+  {#if mode === 'problem'}
+    <ProblemForm {bikes} ondone={close} />
+  {:else if mode === 'km'}
     <form class="km" onsubmit={saveKm}>
       <label><span class="lbl">{t('Bike')}</span>
         <select class="sel" value={kmBike?.id ?? ''} onchange={(e) => (bikeId = e.currentTarget.value)}>
@@ -69,6 +72,8 @@
   {:else}
     <ul class="opts grid">
       <li><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard'))}><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></button></li>
+      <!-- v0.45.1 (Noah on the bike): several problems with one bike at once, into Bike care -->
+      {#if bikes.length}<li><button type="button" class="opt" onclick={() => (mode = 'problem')}><b>{t('Problem with a bike')}</b><span>{t('Air, saddle, battery: one per line')}</span></button></li>{/if}
       <!-- v0.38.0 (Noah 8a, E): the day ride and "Note + photo" here too; Plan a trip stays the one orange row. -->
       <li><button type="button" class="opt" onclick={() => run(dayRide)}><b>{t('Day ride now')}</b><span>{t('One tap, with Undo')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => run(addItem)}><b>{t('Gear item')}</b><span>{t('Name, weight, bag')}</span></button></li>

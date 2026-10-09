@@ -8,6 +8,15 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.45.1
+  'Problem with a bike from the + menu: choose the bike with one tap, one problem per line (or quick buttons like "Saddle too low"), an optional photo. Each line becomes its own open repair in Bike care, with Undo.':
+    'Problem am Velo im Plus-Menü: Velo mit einem Tipp wählen, ein Problem pro Zeile (oder Schnellknöpfe wie «Sattel zu tief»), freiwillig ein Foto. Jede Zeile wird eine eigene offene Reparatur in der Velopflege, mit Rückgängig.',
+
+  'The app sorts each problem: myself (with the first step, e.g. "Pump to your pressure"), with a guide, bike shop (into the order for the shop) or part needed (onto the wishlist). One tap changes it; the same problem twice in 30 days brings a lasting fix.':
+    'Die App ordnet jedes Problem ein: selber (mit dem ersten Schritt, z. B. «Auf deinen Druck pumpen»), mit Anleitung, Werkstatt (in den Auftrag für die Werkstatt) oder Teil nötig (auf die Wunschliste). Ein Tipp ändert das; dasselbe Problem zweimal in 30 Tagen bringt eine dauerhafte Lösung.',
+  'Base check before every ride: lock, mini backpack, bottle, sunglasses, cap, wind jacket, plus helmet, charged devices, tyre pressure, phone and keys. It waits on the ride page until everything is with you.':
+    'Basischeck vor jeder Fahrt: Schloss, Mini-Rucksack, Flasche, Sonnenbrille, Cap, Windjacke, dazu Helm, geladene Geräte, Reifendruck, Handy und Schlüssel. Er wartet auf der Seite Unterwegs, bis alles dabei ist.',
+
   // 0.45.0
   'Wardrobe: warm to cold within a zone, quiet gaps like "No gloves below 5 °C" with "Add to wishlist", a photo per piece and "Save as kit …" for an outfit that Plan then suggests. Everyday-only clothes show only under Everyday; what the debriefs taught ("You run cold: +2 °C") is in the header with Reset.':
     'Kleiderschrank: in jeder Zone von warm nach kalt, ruhige Lücken wie «Keine Handschuhe unter 5 °C» mit «Auf die Wunschliste», ein Foto pro Teil und «Als Kit speichern …» für ein Outfit, das Planen dann vorschlägt. Reine Alltagskleider stehen nur unter Alltag; was die Rückblicke gelernt haben («Du frierst eher: +2 °C»), steht oben mit Zurücksetzen.',

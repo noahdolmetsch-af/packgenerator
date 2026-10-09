@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.45.1',
+    date: '2026-10-09',
+    points: [
+      { text: 'Problem with a bike from the + menu: choose the bike with one tap, one problem per line (or quick buttons like "Saddle too low"), an optional photo. Each line becomes its own open repair in Bike care, with Undo.', href: '#/bikes?tab=care' },
+      { text: 'The app sorts each problem: myself (with the first step, e.g. "Pump to your pressure"), with a guide, bike shop (into the order for the shop) or part needed (onto the wishlist). One tap changes it; the same problem twice in 30 days brings a lasting fix.', href: '#/bikes?tab=care' },
+      { text: 'Base check before every ride: lock, mini backpack, bottle, sunglasses, cap, wind jacket, plus helmet, charged devices, tyre pressure, phone and keys. It waits on the ride page until everything is with you.', href: '#/ride' },
+    ],
+  },
+  {
     version: '0.45.0',
     date: '2026-10-09',
     points: [
