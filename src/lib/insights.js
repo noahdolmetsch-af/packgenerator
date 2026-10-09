@@ -2,7 +2,7 @@
  * What the debriefs say across trips (v0.19.2, "Auswerten", Noah 5a 6a 7a):
  * - usage per item: how often taken, used, not used, broken, missing;
  * - one row per debriefed trip for the comparison chart, and the trend;
- * - dead weight: taken at least twice and never used;
+ * - never used (called "dead weight" until 0.47.2; the Gear view is gear/material.js): taken at least twice and never used;
  * - why a wishlist item is there and how much it would help.
  * Pure functions, easy to test.
  */
