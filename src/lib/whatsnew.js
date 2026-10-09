@@ -10,7 +10,7 @@
 
 export const WHATS_NEW = [
   {
-    version: '0.53.0',
+    version: '0.58.0',
     date: '2026-10-09',
     points: [
       { text: '"Your pace" says your rule in one sentence. From 5 rides it guesses the riding time everywhere by itself, and "Back to the standard rule" undoes that with one tap.', href: '#/debrief/pace' },
@@ -20,12 +20,22 @@ export const WHATS_NEW = [
     ],
   },
   {
-    version: '0.49.0',
+    version: '0.56.0',
     date: '2026-10-09',
     points: [
       { text: 'One page "Look back" instead of five: your last ride, the last 12 months with the year before, average and best, and your trips compared in 7 small charts and a table.', href: '#/debrief' },
       { text: 'Past trips is one table, on the phone too: km, Hm, time, rain, temperature, bike and one learning per trip. The name stays put while the other columns scroll; period, "Kind" and a search that finds learnings.', href: '#/pack/past' },
       { text: "A trip's saved debrief now tells what the trip was: numbers and weather per day, plan against real, what you can leave at home, learnings and what it means for the next trip.", href: '#/pack/past' },
+    ],
+  },
+  {
+    version: '0.51.0',
+    date: '2026-10-09',
+    points: [
+      { text: "Tap a button on Today or on In the flow to tick an activity: one tap with Undo, tap again to take it back. A long press picks the place (Yoga studio or at home), the amount or the duration.", href: '#/flow' },
+      { text: "In the flow: three rings over the last 7 days (move, mindful, recovery) and goals × days, every goal a rolling window (daily, 7, 10 or 30 days). Sports with a season rest until their months come.", href: '#/flow' },
+      { text: "The stopwatch counts down to your target time, with a singing bowl at the start and the end and, if you like, in between (regularly, at chosen minutes or at random). Made small, it keeps running on every page.", href: '#/flow' },
+      { text: "Daily check: sleep, energy, mood and a fourth question that changes each day, one tap each on 1–10. Every activity can be edited: name, symbol, ring, goal, minimum duration, season and what else counts.", href: '#/flow/goals' },
     ],
   },
   {

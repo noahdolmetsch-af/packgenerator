@@ -1,4 +1,4 @@
-// v0.53.0 R2 «Tempo + Logbuch» (Noah ★a): your rule takes over from 5 rides, one tap back to the
+// v0.58.0 R2 «Tempo + Logbuch» (Noah ★a): your rule takes over from 5 rides, one tap back to the
 // standard rule; the Logbuch lists all trips and the logbook's entries, filtered by year and area.
 import { describe, it, expect } from 'vitest';
 import { paceOf, ruleOf, withStandard, paceSeries, learnPace, PACE_MIN } from '../src/lib/pace.js';
@@ -13,7 +13,7 @@ const setting = (n, extra = {}) => {
   return { ...(learnPace(rides) ?? { kmh: null, climbMh: null }), rides, ...extra };
 };
 
-describe('your rule from 5 rides (v0.53.0)', () => {
+describe('your rule from 5 rides (v0.58.0)', () => {
   it('below 5 rides the standard guesses, and says how many are missing', () => {
     expect(PACE_MIN).toBe(5);
     const p = paceOf(setting(4));
@@ -51,7 +51,7 @@ describe('your rule from 5 rides (v0.53.0)', () => {
   });
 });
 
-describe('the Logbuch (v0.53.0)', () => {
+describe('the Logbuch (v0.58.0)', () => {
   const facts = [
     { id: 't2', kind: 'trip', trip: { id: 't2' }, rides: [], title: 'Herbst', start: '2026-09-26', end: '2026-09-27', days: 2, domain: 'bikepacking', km: 148, gainM: 2210, movingH: 11, rain: { wet: true, days: [2] }, tmin: 4, tmax: 15, learnings: [] },
     { id: 't1', kind: 'trip', trip: { id: 't1' }, rides: [], title: 'Skitour', start: '2026-02-01', end: '2026-02-02', days: 2, domain: 'ski', km: null, gainM: null, movingH: null, rain: { wet: false, days: [] }, tmin: -8, tmax: -2, learnings: [] },

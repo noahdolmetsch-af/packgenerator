@@ -1,4 +1,4 @@
-// v0.53.0 R2 «Tempo + Logbuch» (Noah ★a), German UI, phone 390 and desktop:
+// v0.58.0 R2 «Tempo + Logbuch» (Noah ★a), German UI, phone 390 and desktop:
 // a) «Dein Tempo»: the rule in one sentence; with 4 rides it says 1 is missing, the 5th ride switches
 //    the riding-time guess to your rule by itself (visible), «Zurück zur Standardregel» undoes it
 //    (stored as a setting) and «Meine Regel nutzen» takes it back.

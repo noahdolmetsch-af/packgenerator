@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.53.0 R2 «Logbuch» (Noah ★a): a diary of ALL trips, newest first, in one flat list: date, trip,
+   * v0.58.0 R2 «Logbuch» (Noah ★a): a diary of ALL trips, newest first, in one flat list: date, trip,
    * km, Hm, time, weather (rain, temperatures), the sentence for next time and the notes on the way,
    * and the logbook's own entries (the old trips of the Excel, read only). Filter by year and area,
    * and a search. A tap on a trip opens it. Entries: review/logbook.js.

@@ -1,4 +1,4 @@
-// v0.53.0 R2 «Tempo + Logbuch»: Dein Tempo (your rule in one sentence), the Logbuch, Gelernt.
+// v0.58.0 R2 «Tempo + Logbuch»: Dein Tempo (your rule in one sentence), the Logbuch, Gelernt.
 export default {
   // Dein Tempo
   'Your rule · from {n} ride': 'Deine Regel · aus {n} Fahrt',

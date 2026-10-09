@@ -1,5 +1,5 @@
 /**
- * v0.53.0 R2 «Logbuch» (Noah ★a): a diary of ALL trips, newest first, in one flat list. Every trip
+ * v0.58.0 R2 «Logbuch» (Noah ★a): a diary of ALL trips, newest first, in one flat list. Every trip
  * that happened and every uploaded ride on its own (rueckblick.js tripFacts), plus the entries of the
  * logbook that are not trips of the app (db.events: the old trips of the Excel and the logbook events).
  * One entry: { id, kind: 'trip' | 'ride' | 'event', date, end, year, title, domain, km, gainM, movingH,

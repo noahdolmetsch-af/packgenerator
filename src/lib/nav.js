@@ -138,6 +138,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/inbox')) return 'inbox';
   if (h.startsWith('#/review')) return 'debrief'; // v0.44.0: the last 12 months; v0.49.0: part of the Rückblick
   if (h.startsWith('#/features')) return 'features'; // v0.30.0 (Noah 3a): what the app can do
+  if (h.startsWith('#/flow')) return 'flow'; // v0.51.0 «Im Flow»
   return 'home';
 }
 
@@ -167,8 +168,8 @@ export const PLACES = [
 
 /** Which main place a page belongs to (null: the Inbox, which has its own icon). */
 export function placeOf(page) {
-  if (page === 'home' || page === 'features') return 'today';
-  if (['trips', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share'].includes(page)) return 'trips';
+  if (page === 'home' || page === 'features' || page === 'flow') return 'today';
+  if (['trips', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   return null;

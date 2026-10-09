@@ -1392,6 +1392,9 @@
   "visits": [],
   "photos": [],
   "notes": [],
-  "rides": []
+  "rides": [],
+  "flowActs": [],
+  "flowLog": [],
+  "flowChecks": []
  }
 }

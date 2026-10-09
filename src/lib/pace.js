@@ -79,7 +79,7 @@ export function learnPace(rides) {
 const round1 = (v) => Math.round(v * 10) / 10;
 
 /**
- * v0.53.0 R2 «Dein Tempo» (Noah ★a): your own rule takes over the riding-time guess by itself from
+ * v0.58.0 R2 «Dein Tempo» (Noah ★a): your own rule takes over the riding-time guess by itself from
  * PACE_MIN rides that count; below that the standard (16 km/h, 600 m per hour) stays. It is a visible
  * suggestion: «Zurück zur Standardregel» keeps the standard (setting.standard = true), «Meine Regel
  * nutzen» takes it back. The flag lives in the same setting and survives adding or removing rides.

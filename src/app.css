@@ -792,3 +792,16 @@ details[open] > summary.lrow .chev {
   background: var(--warn-soft);
   color: var(--warn);
 }
+
+/* v0.51.0 «Im Flow»: a sheet that comes from below on a phone (tick, countdown, daily check). */
+@media (max-width: 719px) {
+  dialog.sheet.from-below {
+    margin: auto 0 0;
+    width: 100vw;
+    max-width: 100vw;
+    max-height: 94vh;
+    border-radius: 22px 22px 0 0;
+    border-bottom: 0;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom));
+  }
+}
