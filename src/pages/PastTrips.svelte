@@ -43,10 +43,11 @@
     else if (r.state === 'done') {
       if (r.unused) parts.push(tn(r.unused, '{n} not needed', '{n} not needed'));
       if (r.missing) parts.push(tn(r.missing, '{n} missing', '{n} missing'));
-    } else parts.push(r.items ? t('without a debrief') : t('packed outside the app'));
+    } else parts.push(r.items ? t('without a debrief') : r.trip.fromRide ? t('from an uploaded ride') : t('packed outside the app'));
     return parts.filter(Boolean).join(' · ');
   }
-  const href = (r) => (r.state === 'none' && !r.items ? '#/pack' : `#/debrief/${encodeURIComponent(r.trip.id)}`);
+  // v0.41.0: a trip made from an uploaded ride opens that ride (planned vs real, learnings).
+  const href = (r) => (r.trip.fromRide && !r.items ? `#/debrief/ride/${encodeURIComponent(r.trip.fromRide)}` : r.state === 'none' && !r.items ? '#/pack' : `#/debrief/${encodeURIComponent(r.trip.id)}`);
 </script>
 
 {#snippet row(r)}

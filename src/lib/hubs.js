@@ -30,7 +30,8 @@ export function pastTrips(trips = [], debriefs = [], today) {
         end: tripEnd(trip),
         days: Math.max(1, Number(trip.days) || 1),
         bike: trip.bike ?? null,
-        km: typeof d?.km === 'number' ? d.km : null,
+        // v0.41.0: a past trip made from an uploaded ride has the ride's km.
+        km: typeof d?.km === 'number' ? d.km : trip.fromRide && typeof trip.route?.km === 'number' ? trip.route.km : null,
         items,
         debrief: d?.status === 'done' ? 'done' : d ? 'draft' : 'none',
         // Only trips packed in the app can be debriefed (the same rule as toDebrief).

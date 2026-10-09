@@ -20,5 +20,6 @@ import merge from './merge.js';
 import today from './today.js';
 import templates from './templates.js';
 import calm from './calm.js';
+import gpx from './gpx.js';
 
-export default { ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm };
+export default { ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx };
