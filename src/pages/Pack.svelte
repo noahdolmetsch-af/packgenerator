@@ -46,7 +46,7 @@
   import ChargeList from '../lib/trip/ChargeList.svelte';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import { tickPrep, untickPrep } from '../lib/care/prep.js';
-  import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, wxLabel, shortDate } from '../lib/dayride.js';
+  import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate } from '../lib/dayride.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
   import { t, tn, num, locale, nameOf, bagName, dateOf } from '../lib/i18n.svelte.js';
   import { comesOf } from '../lib/gear/comes.js';
@@ -219,7 +219,7 @@
     return colder || wetter ? { fc: fcWx, have } : null;
   });
   function useForecast() {
-    changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx, ...pctOf(t) } }));
+    changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx, ...pctOf(t) }, wxFrom: 'forecast' }));
     location.hash = '#/pack';
   }
   // v0.21.0: a trip without a bike ends here (with a bike: "End trip and debrief" on the ride day).
@@ -638,7 +638,21 @@
     const next = { ...cur, ...patch };
     return hasContext(next) ? { ...patch, ...applyContext(next, items, cur) } : patch;
   }, { ctx: true });
-  const setWx = (patch) => changeContext((t) => ({ wx: { min: t.wx?.min ?? null, max: t.wx?.max ?? null, rain: t.wx?.rain ?? 'none', ...patch } }));
+  // v0.47.1 (Noah d): a range set by hand is no longer "from the forecast" (or "like the last day ride").
+  const setWx = (patch) => changeContext((t) => ({ wx: { min: t.wx?.min ?? null, max: t.wx?.max ?? null, rain: t.wx?.rain ?? 'none', ...patch }, wxFrom: null }));
+  // v0.47.1 (Noah a): the chips of the trip band change one fact in place, through the same change logic
+  // as the trip dialog (context change: the amounts follow, Undo takes it back).
+  const factEdit = $derived({
+    date: (iso) => change(() => ({ startDate: iso })),
+    hours: (n) => changeContext(() => ({ hours: n })),
+    days: (n) => changeContext(() => ({ days: Math.max(1, n) })),
+    wx: setWx,
+    bike: (b) => b.id !== trip?.bikeId && changeContext((cur) => switchBike(cur, $state.snapshot(b))),
+    more: () => (dialog = { trip }),
+    compare: () => (choosing = true),
+    undo: undoLast,
+    canUndo,
+  });
   // v0.27.0 (Noah 1a): sets <details open> once when it is shown; later changes of the weather leave it as Noah has it.
   const openOnce = (node, open) => { node.open = open; };
   function typedTemp(field, value) {
@@ -804,11 +818,10 @@
     {/snippet}
 
   {#snippet notice()}{#if dayMade && dayMade.id === trip.id}
-    {@const when = trip.startDate === localDay() ? t('today') : trip.startDate === localDay(new Date(Date.now() + 864e5)) ? t('tomorrow') : shortDate(trip.startDate)}
-    {@const what = [bike?.name ?? null, when, tn(trip.entries.length, '{n} item', '{n} items')].filter(Boolean).join(' · ')}
+    <!-- v0.47.1 (Noah b): bike, date, hours and weather are in the top card; the card only says what was made. -->
+    {@const what = tn(trip.entries.length, '{n} item', '{n} items')}
     <div class="made-card" role="status">
       <p class="made-t"><b>{dayMade.day ? t('Day ride created') : t('Trip created')}</b> · {what}</p>
-      {#if dayMade.day}<p class="made-s">{t('{hours} h · {weather}', { hours: num(dayMade.hours), weather: dayMade.wxFrom === 'forecast' ? t('{weather} (forecast)', { weather: wxLabel(dayMade.wx) }) : wxLabel(dayMade.wx) })}</p>{/if}
       <p class="made-s">{t('You find it under Trips and at the top of Today.')}</p>
       <div class="dayride-acts">
         <button type="button" class="btn sm" onclick={() => (dialog = { trip })}>{t('Change')}</button>
@@ -821,7 +834,7 @@
   {#if packTab}
     <PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} />
   {:else}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} made={!!(dayMade && dayMade.id === trip.id)} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={over ? null : factEdit} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} made={!!(dayMade && dayMade.id === trip.id)} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).

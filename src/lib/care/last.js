@@ -47,6 +47,15 @@ export function lastWork(part) {
   return { main, also, by: main.by ?? null };
 }
 
+/**
+ * v0.47.1 (Noah): parts with the newest action first: by the date of the last work (lastWork main),
+ * then by its km; parts without any work last. For rows { last } (BikeCare) or for parts.
+ */
+export const lastDate = (last) => last?.main?.date ?? '';
+export const newestFirst = (a, b) => lastDate(b.last).localeCompare(lastDate(a.last)) || (b.last?.main?.km ?? 0) - (a.last?.main?.km ?? 0);
+/** A part's history, newest first (by date; the same day: the one recorded later first). */
+export const historyNewest = (history = []) => history.map((h, n) => ({ h, n })).sort((a, b) => (b.h.date ?? '').localeCompare(a.h.date ?? '') || b.n - a.n).map((x) => x.h);
+
 /** The last work of every part of a bike: { [key]: lastWork }. */
 export const lastWorkByPart = (bike) => Object.fromEntries((bike?.parts ?? []).map((p) => [p.key, lastWork(p)]));
 

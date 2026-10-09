@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.47.1',
+    date: '2026-10-09',
+    points: [
+      { text: 'The top card of a trip shows the ride time. Tap date, duration, weather or bike to change it right there; the list follows, Undo takes it back. A day ride no longer shows "1 day, no overnight stay".', href: '#/pack' },
+      { text: '"Fitted to the weather" switches between cold, chilly, mild, warm and hot, dry or rain, in one tap. The forecast keeps its own range (10–16 °C stays 10–16), and the card says where the range comes from.', href: '#/pack' },
+      { text: 'The Inbox shows the newest note on top, and a sorted note opens what it became (the repair, the wish). "More" shows only a small dot when notes wait.', href: '#/inbox' },
+      { text: 'Bike care shows the problems of all bikes in one list, newest on top, each with a chip for the bike and the way to fix it. Parts and their history show the newest work first.', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
     version: '0.47.0',
     date: '2026-10-09',
     points: [

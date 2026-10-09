@@ -8,6 +8,15 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.47.1
+  'The top card of a trip shows the ride time. Tap date, duration, weather or bike to change it right there; the list follows, Undo takes it back. A day ride no longer shows "1 day, no overnight stay".':
+    'Die oberste Karte einer Tour zeigt die Fahrzeit. Tippe auf Datum, Dauer, Wetter oder Velo, um es gleich dort zu ändern; die Liste zieht mit, «Rückgängig» nimmt es zurück. Eine Tagestour zeigt nicht mehr «1 Tag, keine Übernachtung».',
+  '"Fitted to the weather" switches between cold, chilly, mild, warm and hot, dry or rain, in one tap. The forecast keeps its own range (10–16 °C stays 10–16), and the card says where the range comes from.':
+    '«Ans Wetter angepasst» wechselt mit einem Tipp zwischen kalt, kühl, mild, warm und heiss, trocken oder Regen. Die Wettervorhersage behält ihren Bereich (10–16 °C bleibt 10–16), und die Karte sagt, woher der Bereich kommt.',
+  'The Inbox shows the newest note on top, and a sorted note opens what it became (the repair, the wish). "More" shows only a small dot when notes wait.':
+    'Die Inbox zeigt die neueste Notiz zuoberst, und eine eingeordnete Notiz öffnet, was aus ihr wurde (die Reparatur, den Wunsch). «Mehr» zeigt nur noch einen kleinen Punkt, wenn Notizen warten.',
+  'Bike care shows the problems of all bikes in one list, newest on top, each with a chip for the bike and the way to fix it. Parts and their history show the newest work first.':
+    'Die Velopflege zeigt die Probleme aller Velos in einer Liste, neueste zuoberst, jedes mit einem Chip für das Velo und den Weg zur Lösung. Teile und ihr Verlauf zeigen die neueste Arbeit zuerst.',
   // 0.47.0
   'Wardrobe in the new look: the onion figure on the left filters by zone or layer and marks gaps with a pin, four narrow layer columns with a temperature bar per piece. "Still to sort" is a short list with one tap per row: a sorted row leaves, the next one moves up, Undo brings it back.':
     'Kleiderschrank im neuen Kleid: Die Zwiebel-Figur links filtert nach Zone oder Schicht und zeigt Lücken mit einer Markierung, vier schmale Schicht-Spalten mit einem Temperaturbalken pro Teil. «Noch einordnen» ist eine kurze Liste mit einem Tipp pro Zeile: Eine eingeordnete Zeile verschwindet, die nächste rückt nach, «Rückgängig» holt sie zurück.',

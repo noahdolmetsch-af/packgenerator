@@ -108,10 +108,11 @@ test('Log a problem lands in Bike care as an open repair', async ({ page, contex
   await expect(page).toHaveURL(/tab=care/);
   // in the bike's repairs (and in the "before the trip" list of the next trip on it);
   // v0.31.0: also named in the bike's card "For the bike shop"
-  await expect(page.getByLabel(T('Each bike')).getByText('test_data_gtp_ Kette knackt', { exact: true }).first()).toBeVisible();
+  // v0.47.1 (Noah): problems stand in one flat list above the bikes, newest on top.
+  await expect(page.locator('section.problems').getByText('test_data_gtp_ Kette knackt', { exact: true }).first()).toBeVisible();
   // the note stays in the Inbox as sorted ("All notes"), not as one to sort
   await page.goto('./#/inbox');
-  await expect(page.getByText('test_data_gtp_ Kette knackt').first()).toBeAttached(); // folded under "All notes"
+  await expect(page.getByText('test_data_gtp_ Kette knackt').first()).toBeAttached(); // v0.47.1: in the one Inbox list, newest first
 });
 
 test('An idea for the bike shows on Bikes and can be ticked', async ({ page, context }, info) => {

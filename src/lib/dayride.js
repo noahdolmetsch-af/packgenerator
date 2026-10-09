@@ -114,15 +114,29 @@ export function presetFor(min, max) {
 }
 
 /**
- * The packing weather for a date from a forecast (weather.js fetchForecast): the matching preset,
- * and the rain rule of weather.js toWx ('rain' from 5 mm, 'showers' from 1 mm or 50 %).
+ * The packing weather for a date from a forecast (weather.js fetchForecast): the forecast's own range
+ * (whole degrees, weather.js toWx) and the rain rule of toWx ('rain' from 5 mm, 'showers' from 1 mm or 50 %).
  * → { min, max, rain } or null when the forecast does not reach that day.
+ * v0.47.1 (Noah, cause of finding d): this used to round the range to the nearest preset, so a forecast of
+ * 10–16 °C became «Mild» 10–18 °C on the trip. The range now stays as the forecast says.
  */
 export function forecastPreset(forecast, date) {
   const day = (forecast?.days ?? []).find((d) => d.date === date);
   const wx = day ? toWx([day]) : null;
-  const p = wx ? presetFor(wx.min, wx.max) : null;
-  return p ? { min: p.min, max: p.max, rain: wx.rain } : null;
+  return wx ? { min: wx.min, max: wx.max, rain: wx.rain } : null;
+}
+
+/**
+ * v0.47.1 (Noah d): where the trip's weather range comes from, in words: the forecast, the last day
+ * ride, a preset («Mild»), or set by hand. '' without a weather.
+ */
+export function wxSource(trip) {
+  const wx = trip?.wx;
+  if (wx?.min == null || wx?.max == null) return '';
+  if (trip.wxFrom === 'forecast') return t('From the forecast');
+  if (trip.wxFrom === 'last') return t('Like your last day ride');
+  const p = WX_PRESETS.find((x) => x.min === wx.min && x.max === wx.max);
+  return p ? t('Preset: {name}', { name: t(p.name) }) : t('Set by you');
 }
 
 /** A usable home place (settings 'homePlace'), or null. */
@@ -166,7 +180,7 @@ export function dayRidePlan(trips = [], bikes = [], { now = new Date(), forecast
   const old = source?.wx?.min != null && source?.wx?.max != null ? { min: source.wx.min, max: source.wx.max, rain: 'none' } : null;
   const wx = forecastWx ?? old ?? { min: chilly.min, max: chilly.max, rain: 'none' };
   const startDate = rideDate(now);
-  return { bike, hours, wx, wxFrom: forecastWx ? 'forecast' : null, startDate, title: freeTitle(rideName({ bike: bike.name, date: startDate }), trips), source };
+  return { bike, hours, wx, wxFrom: forecastWx ? 'forecast' : old ? 'last' : null, startDate, title: freeTitle(rideName({ bike: bike.name, date: startDate }), trips), source };
 }
 
 /**

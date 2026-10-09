@@ -2,6 +2,7 @@
   import { localDay } from '../localday.js';
   import { partInfo, wear, replaceHint, kmSince, lastReplace, EXTRA } from '../care.js';
   import { t, num as fmtNum, dateOf } from '../i18n.svelte.js';
+  import { historyNewest } from './last.js';
   import { UserRound, Store } from '@lucide/svelte';
 
   /**
@@ -103,7 +104,7 @@
   <h3>{t('History')}</h3>
   {#if part.history?.length}
     <ol class="hist">
-      {#each [...part.history].reverse() as h, n (n)}
+      {#each historyNewest(part.history) as h, n (n)}
         <li>
           <span class="num">{dateOf(h.date)}{h.km != null ? ` · ${fmtNum(h.km)} km` : ''}</span>
           <b>{t(h.action === 'check' ? RESULT[h.result] : h.action === 'replace' && !p.unit ? 'Done' : ACTION[h.action])}{h.value != null ? ` · ${h.value} ${p.unit}` : ''}</b>
