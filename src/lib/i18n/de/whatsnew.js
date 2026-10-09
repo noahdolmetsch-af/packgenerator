@@ -10,6 +10,13 @@ export default {
   'Try it': 'Ausprobieren',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.37.1
+  'Merge items: a double or a collection item goes into the imported item(s); the app proposes the counterpart.':
+    'Zusammenlegen: Ein doppeltes Teil oder ein Sammelteil geht in das importierte Teil (oder mehrere); die App schlägt das Gegenstück vor.',
+  'Templates, building blocks, bags and planned trips then use the new item; past trips stay complete.':
+    'Vorlagen, Bausteine, Taschen und geplante Touren nehmen dann das neue Teil; vergangene Touren bleiben vollständig.',
+  'Archived items no longer come into a new trip, also not from a template or a copy.': 'Archivierte Teile kommen nicht mehr in eine neue Tour, auch nicht aus einer Vorlage oder Kopie.',
+  'In the item window: "Merge with …" for any double.': 'Im Material-Fenster: «Zusammenlegen mit …» für jedes doppelte Teil.',
   // 0.35
   'Switch between your trips: the small "more" button in the dark band lists every trip and debrief still in progress.':
     'Zwischen Touren wechseln: Das kleine Feld «weitere» im dunklen Band zeigt alle Touren und Rückblicke, die noch in Bearbeitung sind.',

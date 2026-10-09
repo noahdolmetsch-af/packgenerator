@@ -55,9 +55,12 @@ export async function deleteItems(db, ids) {
 
 /** Undo: write the records of a snapshot back exactly as they were. */
 export async function undoBulk(db, snap) {
-  return db.transaction('rw', db.items, db.trips, db.settings, db.containers, async () => {
+  return db.transaction('rw', [db.items, db.trips, db.settings, db.containers, db.bikes, db.learnings], async () => {
     if (snap.items?.length) await db.items.bulkPut(snap.items);
     if (snap.containers?.length) await db.containers.bulkPut(snap.containers);
+    // v0.37.1 (Zusammenlegen, mergeitems.js): bike fixtures and learnings too.
+    if (snap.bikes?.length) await db.bikes.bulkPut(snap.bikes);
+    if (snap.learnings?.length) await db.learnings.bulkPut(snap.learnings);
     if (snap.trips?.length) await db.trips.bulkPut(snap.trips);
     if ('templates' in snap) {
       if (snap.templates) await db.settings.put(snap.templates);

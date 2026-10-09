@@ -5,6 +5,8 @@
    * the list does not name (Nicht im Import, archive only). One orange button takes the safe ones;
    * a backup comes first and "Rückgängig" puts it back. Rules: src/lib/gearimport.js; writes:
    * src/lib/gear/importdb.js.
+   * v0.37.1 "Zusammenlegen": a "Nicht im Import" row can also be merged into its imported
+   * counterpart (MergeSheet, mergeitems.js); "Merged · Undo" comes as a toast.
    */
   import { liveQuery } from 'dexie';
   import { SvelteSet } from 'svelte/reactivity';
@@ -12,6 +14,7 @@
   import { planGearImport, FIELD_NAMES, categoryName, isGearImportFile } from '../lib/gearimport.js';
   import { stageImport, decide, dropStaged, applyImport, undoImport, changedSince, lastApplied, keepImport, archiveItems, STAGED, UNDO } from '../lib/gear/importdb.js';
   import { undoBulk } from '../lib/gear/bulk.js';
+  import MergeSheet from '../lib/gear/MergeSheet.svelte';
   import { demoState } from '../lib/demo.js';
   import { formatWeight, itemWeight } from '../lib/gear.js';
   import { domainName } from '../lib/domains.js';
@@ -110,6 +113,23 @@
       const snap = await archiveItems(db, ids);
       for (const id of ids) picked.delete(id);
       archived = { text: tn(ids.length, '{n} item archived (Gear → Gone).', '{n} items archived (Gear → Gone).'), snap };
+    });
+  /* ---------- v0.37.1 Zusammenlegen ---------- */
+  let merging = $state(null); // the item whose merge sheet is open
+  let merged = $state.raw(null); // { snap } for the toast's undo
+  let toastTimer;
+  function mergedDone(snap) {
+    picked.delete(snap.merge.oldId);
+    merged = { snap };
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => (merged = null), 10000);
+  }
+  const unmerge = () =>
+    run(async () => {
+      if (!merged) return;
+      await undoBulk(db, merged.snap);
+      merged = null;
+      clearTimeout(toastTimer);
     });
   const unarchive = () =>
     run(async () => {
@@ -244,7 +264,10 @@
           <li>
             <label class="ck"><input type="checkbox" checked={picked.has(i.id)} onchange={() => flip(i.id)} aria-label={nameOf(i)} /></label>
             <span class="nm">{nameOf(i)}<small class="q">{catText(i.category)}{i.ownership === 'wishlist' || i.ownership === 'to-buy' ? ` · ${t('Wishlist')}` : ''}</small></span>
-            <button type="button" class="btn sm row-act" disabled={busy} onclick={() => archive([i.id])} aria-label={t('Archive {name}', { name: nameOf(i) })}>{t('Archive')}</button>
+            <span class="row-acts">
+              <button type="button" class="btn sm row-act" disabled={busy} onclick={() => (merging = i)} aria-label={t('Merge {name}', { name: nameOf(i) })}>{t('Merge|items')}</button>
+              <button type="button" class="btn sm row-act" disabled={busy} onclick={() => archive([i.id])} aria-label={t('Archive {name}', { name: nameOf(i) })}>{t('Archive')}</button>
+            </span>
           </li>
         {/each}
       </ul>
@@ -254,6 +277,14 @@
     <p class="foot"><button type="button" class="btn link" disabled={busy} onclick={discard}>{t('Discard import')}</button></p>
   {/if}
 </div>
+
+{#if merging}<MergeSheet item={merging} items={$itemsQ ?? []} imported onmerged={mergedDone} onclose={() => (merging = null)} />{/if}
+{#if merged}
+  <div class="toast" role="status">
+    <span>{t('Merged')}</span>
+    <button type="button" class="btn sm" disabled={busy} onclick={unmerge}>{t('Undo')}</button>
+  </div>
+{/if}
 
 <style>
   .imp {
@@ -472,14 +503,46 @@
     justify-content: center;
     margin: -6px 0;
   }
-  .notin li {
-    flex-wrap: nowrap;
-  }
   .notin .nm {
-    flex: 1 1 auto;
+    flex: 1 1 10em;
+  }
+  .row-acts {
+    display: inline-flex;
+    gap: 6px;
+    margin-left: auto;
   }
   .row-act {
     flex: none;
+  }
+  /* "Merged · Undo": a quiet toast at the bottom. */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: calc(100vw - 32px);
+    padding: 6px 8px 6px 16px;
+    border-radius: 10px;
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: 0 8px 24px rgba(15, 46, 39, 0.3);
+    font-weight: 600;
+  }
+  /* A phone: above the bottom bar. */
+  @media (max-width: 719px) {
+    .toast {
+      bottom: calc(76px + env(safe-area-inset-bottom));
+    }
+  }
+  .toast .btn {
+    background: none;
+    border-color: transparent;
+    color: var(--paper);
+    text-decoration: underline;
   }
   input[type='checkbox'] {
     width: 18px;

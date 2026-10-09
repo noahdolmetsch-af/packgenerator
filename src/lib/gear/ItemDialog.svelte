@@ -9,6 +9,8 @@
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
   import AssignDialog from './AssignDialog.svelte';
+  import MergeSheet from './MergeSheet.svelte';
+  import { undoBulk } from './bulk.js';
   import { t, tn, nameOf } from '../i18n.svelte.js';
   import { DOMAINS, itemDomains, domainName } from '../domains.js';
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
@@ -176,6 +178,18 @@
     dialog.close();
   }
 
+  /* ---------- v0.37.1 "Zusammenlegen mit …": a double goes into its counterpart ---------- */
+  let mergeOpen = $state(false);
+  let mergedInto = $state.raw(null); // { snap, names } after a merge: the form gives way to "Merged · Undo"
+  const canMerge = $derived(!isNew && !readOnly && item?.ownership !== 'gone');
+  const mergedDone = (snap, targets) => (mergedInto = { snap, names: targets.map((x) => nameOf(x)).join(', ') });
+  async function unmerge() {
+    if (!mergedInto) return;
+    await undoBulk(db, mergedInto.snap);
+    mergedInto = null;
+    dialog.close();
+  }
+
   async function remove() {
     if (!confirm(t('Delete "{name}" from your gear? A backup file can bring it back.', { name: nameOf(item) }))) return;
     await db.items.delete(item.id);
@@ -314,6 +328,15 @@
 {/snippet}
 
 <dialog class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="item-h">
+  {#if mergedInto}
+    <p class="meta">{t('Merge|items')}</p>
+    <h2 id="item-h" class="title">{nameOf(item)}</h2>
+    <p class="merged" role="status">{t('Merged into {names}. The item is now under Gone; past trips keep it.', { names: mergedInto.names })}</p>
+    <div class="foot">
+      <button type="button" class="btn" onclick={unmerge}>{t('Undo')}</button>
+      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Close')}</button>
+    </div>
+  {:else}
   <form onsubmit={save} novalidate>
     <p class="meta">
       <span class="sw" style:background={CATEGORY[draft.category]?.color}></span>
@@ -395,10 +418,14 @@
       <button type="submit" class="btn hi">{t('Save')}</button>
       {#if isNew && autoId}<button type="button" class="btn" onclick={discard}>{t('Discard')}</button><span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span>
       {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
+      {#if canMerge}<button type="button" class="btn quiet" onclick={() => (mergeOpen = true)}>{t('Merge with …')}</button>{/if}
       {#if !isNew && !readOnly}<button type="button" class="btn del" onclick={remove}>{t('Delete')}</button>{/if}
     </div>
   </form>
+  {/if}
 </dialog>
+
+{#if mergeOpen}<MergeSheet {item} items={allItems} onmerged={mergedDone} onclose={() => (mergeOpen = false)} />{/if}
 
 {#if assigning}<AssignDialog ids={[item.id]} {item} onclose={assigned} />{/if}
 
@@ -743,6 +770,19 @@
     gap: 4px;
     font-size: 13px;
     color: var(--ink-3);
+  }
+  .quiet {
+    border-color: transparent;
+    background: none;
+    color: var(--ink-2);
+  }
+  .quiet:hover,
+  .quiet:focus-visible {
+    border-color: var(--line-strong);
+    color: var(--ink);
+  }
+  .merged {
+    margin: 8px 0 14px;
   }
   .del {
     margin-left: auto;

@@ -532,7 +532,7 @@ Excel-Import Schritt 1: Noahs bereinigte Material-Excel (privat, nicht im Repo) 
 
 ### Reihenfolge nach 0.36
 
-0.36 Import prüfen (veröffentlicht), 0.37 Rucksäcke (erledigt), 0.38 Heute und Menü, 0.39 AP28 Vorlagen, 0.40 AP27 GPX → Learning, 0.41 Excel-Import Schritt 2 (Verlauf), danach AP30 Foto-KI, Mehrfachauswahl und die offenen Abnahmen. Die Versionsnummern sind geplant, nicht fix.
+0.36 Import prüfen (veröffentlicht), 0.37 Rucksäcke (erledigt), 0.37.1 Zusammenlegen (erledigt: Doppelte und Sammelteile aus „Nicht im Import“ ins importierte Teil zusammenlegen), 0.38 Heute und Menü, 0.39 AP28 Vorlagen, 0.40 AP27 GPX → Learning, 0.41 Excel-Import Schritt 2 (Verlauf), danach AP30 Foto-KI, Mehrfachauswahl und die offenen Abnahmen. Die Versionsnummern sind geplant, nicht fix.
 
 | Nr. | Paket | Inhalt | Hinweis |
 |---|---|---|---|
@@ -552,5 +552,6 @@ Excel-Import Schritt 1: Noahs bereinigte Material-Excel (privat, nicht im Repo) 
 | 1.0 | 07.10.2026 | Abgenommenes Konzept in AP01–AP26, PF01–PF16 und Meilensteine übersetzt; noch keine Umsetzung |
 | 1.1 | 07.10.2026 | Mit PR #30/#32 und Live abgeglichen; vorgezogene Screens, offenen PR #31 und parallele Branchintegration, Teilnachweise und Quellen verbindlich verknüpft |
 | 1.2 | 08.10.2026 | Stand v0.35.0 nachgetragen: Fortschrittsregister pro Release, AP29 erledigt, Abschnitt „Stand und nächste Pakete“ mit Reihenfolge nach 0.36 (neu 0.37 Rucksäcke) |
+| 1.3 | 09.10.2026 | 0.37.1 Zusammenlegen eingeschoben (Folge aus dem Excel-Import Schritt 1) |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

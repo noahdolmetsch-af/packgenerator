@@ -84,7 +84,8 @@ export function lastTripOn(bikeId, trips) {
 export function newTrip({ title, startDate, days, bike, readyStandard = null, overnight = null }, trips, items, now = Date.now()) {
   const from = lastTripOn(bike.id, trips);
   const setup = { ...(bike.setup ?? {}) };
-  const known = new Set(items.map((i) => i.id));
+  // v0.37.1: an archived item (ownership 'gone') stays on the old trip but never comes into the copy.
+  const known = new Set(items.filter((i) => i.ownership !== 'gone').map((i) => i.id));
   const entries = from
     ? from.entries.filter((e) => known.has(e.itemId)).map(({ qtyManual, ...e }) => ({ ...e, slot: e.slot === 'body' || e.slot === 'mounted' || setup[e.slot] ? e.slot : slotFor(e.slot, setup), packed: false }))
     // v0.25.0 (Noah 4): with a known overnight stay the base set only comes through the context

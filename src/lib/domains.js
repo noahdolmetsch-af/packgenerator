@@ -141,7 +141,8 @@ export function newPackTrip({ title, startDate, days, domain, readyStandard = nu
   const packs = packsFor(domain);
   const keys = new Set(['body', ...packs.map((p) => p.key)]);
   const from = lastTripIn(domain, trips);
-  const known = new Set(items.map((i) => i.id));
+  // v0.37.1: an archived item (ownership 'gone') stays on the old trip but never comes into the copy.
+  const known = new Set(items.filter((i) => i.ownership !== 'gone').map((i) => i.id));
   const entries = from
     ? from.entries.filter((e) => known.has(e.itemId)).map((e) => ({ ...e, slot: keys.has(e.slot) ? e.slot : packs[0]?.key ?? 'body', packed: false }))
     : domainEntries(items, domain, packs);
