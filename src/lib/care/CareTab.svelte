@@ -432,30 +432,32 @@
   .chips {
     display: grid;
     grid-template-columns: repeat(4, auto);
+    gap: 2px;
     width: max-content;
     max-width: 100%;
     margin: 0 0 12px;
-    border: 1.5px solid var(--line-strong);
-    border-radius: 8px;
-    overflow: hidden;
+    padding: 3px;
+    border-radius: 12px;
+    background: var(--paper-2);
   }
+  /* v0.47.0 (style sheet «Gletscher»): the soft segmented control of ui/Seg. */
   .chip {
     min-height: 44px;
     min-width: 0;
     padding: 4px 12px;
     border: 0;
-    background: var(--paper);
-    font: 600 14px var(--font-body);
-    color: var(--ink);
+    border-radius: 9px;
+    background: transparent;
+    font: 500 14px var(--font-body);
+    color: var(--ink-2);
     white-space: nowrap;
     cursor: pointer;
   }
-  .chip + .chip {
-    border-left: 1.5px solid var(--line-strong);
-  }
   .chip[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--paper);
+    color: var(--ink);
+    font-weight: 600;
+    box-shadow: 0 1px 3px var(--shadow);
   }
   @media (max-width: 400px) {
     .chips {
@@ -568,6 +570,26 @@
     gap: 8px 12px;
     margin: 0 0 16px;
     font-size: 14px;
+    color: var(--ink-2);
+  }
+
+  /* v0.47.0 (Noah: one type scale for the care tab, style sheet «Gletscher»). */
+  .review .cat {
+    font-weight: 500;
+    color: var(--ink-3);
+  }
+  .review .name {
+    font-weight: 500;
+  }
+  .link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .link:hover {
+    text-decoration: underline;
+  }
+  .rev-cta {
     color: var(--ink-2);
   }
 </style>

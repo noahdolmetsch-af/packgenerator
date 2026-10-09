@@ -30,7 +30,7 @@
 <details class="block" id="before-{trip.id}" bind:open>
   <summary>
     <Flag size={18} aria-hidden="true" />
-    <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} · <span class="num">{dateOf(trip.startDate)}</span> <small>{bikeName ?? t('no bike')}</small></h2>
+    <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} <small><span class="num">{dateOf(trip.startDate)}</span> · {bikeName ?? t('no bike')}</small></h2>
     <span class="r">{#if count}<span class="badge">{t('{n} due', { n: count })}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span>
   </summary>
   {#if open}
@@ -39,7 +39,7 @@
     <div class="shop">
       <span class="lbl">{bikeCareLine(care)}</span>
       {#if bikeRows.length}
-        <ul>{#each bikeRows as r (r.key)}<li class:late={r.late}><b>{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : r.late ? '' : `${t('before the start')} · `}{r.detail}</small></li>{/each}</ul>
+        <ul>{#each bikeRows as r (r.key)}<li class:late={r.late}><b class="rn">{r.name}</b> <small>{r.when === 'during' ? `${t('on the trip')} · ` : r.late ? '' : `${t('before the start')} · `}{r.detail}</small></li>{/each}</ul>
       {:else if care.status === 'nodata'}
         <p class="nd">{t('No data: enter km and record a check or service, then the app can tell.')}</p>
       {/if}
@@ -290,5 +290,33 @@
     color: var(--ink);
     text-decoration: underline;
     cursor: pointer;
+  }
+
+  /* v0.47.0 (Noah: one type scale for the care tab): the trip as one title and one quiet sub line,
+     the badge as the one small pill, no bold lists. */
+  .title {
+    display: flex;
+    flex-direction: column;
+    font: 500 17px/1.3 var(--font-body);
+  }
+  .title small {
+    color: var(--ink-3);
+    font: 400 14px/1.35 var(--font-body);
+  }
+  .badge {
+    padding: 1px 9px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--warn-soft);
+    color: var(--warn);
+    font: 500 12.5px/1.6 var(--font-body);
+  }
+  .pt,
+  .rows li.late .when,
+  .shop li.late b {
+    font-weight: 500;
+  }
+  .shop .rn {
+    font-weight: 500;
   }
 </style>

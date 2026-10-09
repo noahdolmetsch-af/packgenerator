@@ -263,6 +263,31 @@
       flex: 0 1 auto;
     }
   }
+  /* v0.47.0 (Noah 16:58 "Schriftlayout vereinheitlichen"): the band on the Gletscher type scale, like
+     every page title: the bike name in the brand face, a quiet uppercase kicker, numbers medium, one
+     card radius, the chosen tab medium instead of bold. */
+  .band {
+    border-radius: var(--radius-card);
+  }
+  .kick {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .name {
+    font: 800 clamp(28px, 1.6vw + 20px, 40px)/1.05 var(--font-brand);
+    letter-spacing: 0;
+  }
+  .meta b {
+    font-weight: 500;
+  }
+  .badge.due {
+    font-weight: 500;
+  }
+  .strip button[aria-selected='true'] {
+    font-weight: 500;
+  }
   @media print {
     .band {
       display: none;

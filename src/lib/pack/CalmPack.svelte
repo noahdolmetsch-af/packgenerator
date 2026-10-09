@@ -13,6 +13,7 @@
    */
   import { Bike, Backpack, Clock3, CloudSun, UserRound, Briefcase, ChevronRight, ChevronDown, Plus, Minus, MoreHorizontal, Mountain, Layers, Weight, ArrowRight, Undo2, GripVertical, Wrench, Package } from '@lucide/svelte';
   import DecisionReview from './DecisionReview.svelte';
+  import TripBike from './TripBike.svelte';
   import TripBand from '../trip/TripBand.svelte';
   import Sum from '../ui/Sum.svelte';
   import { planningGroups } from '../preparation.js';
@@ -28,7 +29,7 @@
   import { pastTrips } from '../hubs.js';
   import { localDay } from '../localday.js';
   import '../trip/trip.css';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -62,6 +63,12 @@
   // v0.37.0 (Noah 5a): a quiet litre note, only from known litres (litreWarning never guesses).
   const litresOver = (g) => (grouping === 'bags' ? litreWarning(g, itemsById) : null);
   const flip = (key) => opened = { ...opened, [key]: !opened[key] };
+  // v0.47.0 (Noah 8): a tap on a bag of the drawing opens that bag in the list.
+  function openBag(key) {
+    grouping = 'bags';
+    opened = { ...opened, [key]: true };
+    setTimeout(() => document.querySelector(`[aria-controls="calm-bag-${key}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 30);
+  }
   const groupG = (g) => g.entries.reduce((s, e) => s + (itemsById[e.itemId]?.weightG ?? 0) * (e.qty || 1), 0);
   const groupMissing = (g) => g.entries.filter((e) => itemsById[e.itemId]?.weightG == null).length;
   const preview = (g) => g.entries.map((e) => `${itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId}${(e.qty || 1) > 1 ? ` × ${e.qty}` : ''}`).join(' · ');
@@ -126,6 +133,8 @@
     <TripBand {trip} tab="plan" {kicker} action={go} aside={plus} weighHint={!made} hint={primary === 'go' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : primary === 'pack' ? t('List ready? Then pack bag by bag.') : primary === 'ride' ? t('Everything is packed.') : ''} />
     {@render notice?.()}
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
+    <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
+    {#if bikeTrip && bike}<TripBike {trip} {stats} {bike} {photo} onbag={openBag} onphoto={actions.photo} />{/if}
     <div class="tp-grid2">
       <div class="left">
         <!-- Noah: the conditions as four fields; a tap changes them. A template is one way to start, not a must. -->
@@ -324,7 +333,7 @@
   .undo-live { display: contents; }
   .blist { display: grid; gap: 10px; }
   .blist.cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .bag-group { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 4px 14px 8px; min-width: 0; }
+  .bag-group { background: var(--paper); border: 1px solid var(--card-line); border-radius: var(--radius-card); box-shadow: var(--card-shadow); padding: 4px 14px 8px; min-width: 0; }
   .blist.cols .bag-group.open { grid-column: 1 / -1; }
   .bag-heading { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 4px 0; border: 0; background: none; color: var(--ink); text-align: left; font: 600 16px var(--font-body); cursor: pointer; }
   .bag-heading :global(svg) { color: var(--ink-3); flex: none; }

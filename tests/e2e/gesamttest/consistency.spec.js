@@ -102,9 +102,14 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   // "More, Inbox: n to sort"
   await expect(page.locator('.more-btn')).toHaveAttribute('aria-label', T('More, Inbox: {n} to sort', { n: open }));
   // Today, "Important today": n notes to sort (v0.46.0: a row, maybe below "Show all")
+  // The rows of "Important today" arrive one source after the other, so "Show all" can appear after the
+  // first look: open it whenever it is there and closed, until the inbox row shows.
   const more = page.locator('[data-section="today"] button.more');
-  if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
-  await expect(page.locator('[data-section="today"] li[data-row="inbox"] .tx')).toHaveText(T('{n} notes to sort', { n: open }).trim());
+  const inboxRow = page.locator('[data-section="today"] li[data-row="inbox"] .tx');
+  await expect(async () => {
+    if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
+    await expect(inboxRow).toHaveText(T('{n} notes to sort', { n: open }).trim(), { timeout: 1000 });
+  }).toPass({ timeout: 15000 });
 
   // Today's "Your data" and "Weigh" (what waits to be weighed) vs the stored data and the Gear page
   const items = await table(page, 'items');
@@ -147,9 +152,15 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   const openPast = await page.locator('main li a .nbadge .udot').count();
   await page.goto('./#/debrief');
   await page.reload();
-  const sub = (await page.locator('main .page-sub').first().textContent()) ?? '';
-  const om = sub.match(new RegExp(`(\\d+) ${esc(T('{n} open', { n: '' }).trim())}`));
-  expect(om ? Number(om[1]) : 0, `Past trips (${openPast} open) vs Debrief "${sub}"`).toBe(openPast);
+  // v0.47.0: read the line once the live data is in (it can show an earlier count for a moment)
+  let sub = '';
+  await expect
+    .poll(async () => {
+      sub = (await page.locator('main .page-sub').first().textContent()) ?? '';
+      const om = sub.match(new RegExp(`(\\d+) ${esc(T('{n} open', { n: '' }).trim())}`));
+      return om ? Number(om[1]) : 0;
+    }, { message: `Past trips (${openPast} open) vs Debrief` })
+    .toBe(openPast);
   info.annotations.push({ type: 'past', description: `year ${yTrips} trips ${yKm} km, ${openPast} open debriefs, weigh ${weighToday}` });
 
   // Inbox page

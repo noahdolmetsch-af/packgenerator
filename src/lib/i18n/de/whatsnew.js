@@ -8,6 +8,15 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.47.0
+  'Wardrobe in the new look: the onion figure on the left filters by zone or layer and marks gaps with a pin, four narrow layer columns with a temperature bar per piece. "Still to sort" is a short list with one tap per row: a sorted row leaves, the next one moves up, Undo brings it back.':
+    'Kleiderschrank im neuen Kleid: Die Zwiebel-Figur links filtert nach Zone oder Schicht und zeigt Lücken mit einer Markierung, vier schmale Schicht-Spalten mit einem Temperaturbalken pro Teil. «Noch einordnen» ist eine kurze Liste mit einem Tipp pro Zeile: Eine eingeordnete Zeile verschwindet, die nächste rückt nach, «Rückgängig» holt sie zurück.',
+  'A bike trip shows the bike drawing with each bag and its weight on top (or the setup photo, if there is one), next to it the weight in one dark card: base on the bike, on me, food and water.':
+    'Eine Velotour zeigt oben die Velozeichnung mit jeder Tasche und ihrem Gewicht (oder das Setup-Foto, wenn es eines gibt), daneben das Gewicht in einer dunklen Karte: Basis am Velo, am Körper, Essen und Wasser.',
+  'Gear has a slim tab bar with small counters, round category dots and calmer cards. In the Inbox a sorted note leaves the list, the next one gets the focus, Undo puts it back.':
+    'Material hat eine schlanke Reiterleiste mit kleinen Zählern, runde Kategorie-Punkte und ruhigere Karten. In der Inbox verschwindet eine eingeordnete Notiz, die nächste kommt an die Reihe, «Rückgängig» holt sie zurück.',
+  'Bike care reads calmer: one style for titles, rows, badges and numbers, links in quiet teal, no bold lists. What is due now stands as cards on top.':
+    'Die Velopflege liest sich ruhiger: ein Stil für Titel, Zeilen, Abzeichen und Zahlen, Links in ruhigem Petrol, keine fetten Listen. Was jetzt fällig ist, steht als Karten zuoberst.',
   // 0.46.3
   '"More" is calm again: the packing lists of your trips no longer stand on top as single rows. You find them under "Trips"; templates are under Plan, past trips under Look back.':
     '«Mehr» ist wieder ruhig: Die Packlisten deiner Touren stehen nicht mehr einzeln zuoberst. Du findest sie unter «Touren»; Vorlagen stehen unter Planen, vergangene Touren unter Rückblick.',

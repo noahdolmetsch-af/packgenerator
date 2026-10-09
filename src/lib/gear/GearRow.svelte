@@ -194,7 +194,8 @@
   .w {
     grid-column: 2;
     grid-row: 1 / span 2;
-    font-weight: 700;
+    font-weight: 500; /* v0.47.0: calm numbers (style sheet «Gletscher») */
+    font-variant-numeric: tabular-nums;
     text-align: right;
   }
   .nw {

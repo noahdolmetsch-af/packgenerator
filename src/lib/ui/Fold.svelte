@@ -29,19 +29,29 @@
     box-sizing: border-box;
     cursor: pointer;
   }
+  /* v0.47.0 (one type scale): the label in the row style (medium), the summary as its quiet sub line. */
+  summary {
+    flex-direction: column;
+    gap: 2px;
+  }
   summary .lbl {
-    display: inline;
+    display: block;
     margin: 0;
-    min-width: 9em;
+    color: var(--ink);
+    font: 500 15.5px/1.3 var(--font-body);
   }
   .sum {
-    color: var(--ink-2);
+    color: var(--ink-3);
     font-size: 14px;
+    line-height: 1.4;
     min-width: 0;
   }
+  .sum:empty {
+    display: none;
+  }
   .sum.late {
-    color: var(--ink);
-    font-weight: 700;
+    color: var(--warn);
+    font-weight: 500;
   }
   .fold-in {
     padding: 0 0 14px;
