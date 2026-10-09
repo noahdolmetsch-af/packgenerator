@@ -136,7 +136,9 @@ describe('milestones (Noah 21a)', () => {
 describe('layout (Noah 33a)', () => {
   it('made whole, moved and switched', () => {
     expect(layoutOf(null)).toEqual({ order: SECTIONS, off: [] });
-    expect(layoutOf({ order: ['year', 'bogus', 'year'], off: ['bikes', 'x'] })).toEqual({ order: ['year', 'greeting', 'trip', 'actions', 'today', 'bikes'], off: ['bikes'] });
+    // v0.51.0: a section added later (Im Flow) lands after its neighbour in a stored layout
+    expect(layoutOf({ order: ['greeting', 'trip', 'actions', 'today', 'bikes', 'year'], off: [] }).order).toEqual(['greeting', 'trip', 'flow', 'actions', 'today', 'bikes', 'year']);
+    expect(layoutOf({ order: ['year', 'bogus', 'year'], off: ['bikes', 'x'] })).toEqual({ order: ['year', 'greeting', 'trip', 'flow', 'actions', 'today', 'bikes'], off: ['bikes'] });
     expect(moveSection(null, 'trip', -1).order.slice(0, 2)).toEqual(['trip', 'greeting']);
     expect(moveSection(null, 'greeting', -1).order[0]).toBe('greeting');
     expect(toggleSection(toggleSection(null, 'year'), 'year').off).toEqual([]);

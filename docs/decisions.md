@@ -333,6 +333,22 @@ Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0
 
 - Noah fand die Touren-Einträge zuoberst in «Mehr» (0.46.1) unschön. Sie sind wieder weg; Vorlagen zurück unter Planen, Vergangene Touren unter Rückblick (Stand 0.46.0). Die Packlisten der Touren findet man über «Touren» (Übersicht nach Stand). Ein Mockup für das ganze Menü folgt mit Fragen.
 
+## 9.10.2026: Im Flow – kleiner Start (0.51.0)
+
+- **Fenster (1a):** Jedes Ziel ist ein gleitendes Fenster von N Tagen bis heute; «pro Monat» = letzte 30 Tage. Tägliche Ziele zeigen als Stand die erreichten Tage der letzten 7. «In N Tagen» auf dem Knopf steht nur, wenn ein Ziel mit Fenster über 7 Tagen in höchstens 7 Tagen ausläuft (Laufen), sonst «im Soll».
+- **Saison (2a):** Pro Aktivität eine Menge Sommer-Monate (Rest = Winter), je mit eigenem Ziel; ein Halbjahr ohne Ziel = ruht («ruht bis 1. Nov.», am Handy eingeklappt, am Computer blasse Zeilen).
+- **Liegestütze (3):** `perTap` = Menge eines Tipps (10); lange drücken: +10, +20 oder eigene Zahl.
+- **Yoga (4a):** eine Aktivität mit Teilzielen (Yoga Studio, Zuhause); ein Tipp geht ans erste offene Teilziel, lange drücken wählt.
+- **Pendeln (5a):** Jeder Tipp «Pendeln» ist ein eigener Eintrag (`via: 'commute'`) und zählt als eine Ausfahrt. Touren aus dem Pack Generator (nicht übersprungen, keine Test-/Archivtouren) zählen pro Tag, wenn «Velotour» unter «zählt auch» steht.
+- **Sauna (6b):** fest Erholung, kein Nachfragen beim Abhaken.
+- **Stoppuhr (7b):** Countdown auf die Zielzeit (Vorgabe = Mindestdauer der Aktivität, sonst 10 min), bei 0 Ende mit Schlussklang; «Fertig · abhaken» speichert die gelaufenen Minuten. Zeit immer aus Start, Pausen und Uhrzeit berechnet; verpasste Zwischenklänge nach der Bildschirmsperre werden still übersprungen, der Schlussklang kommt trotzdem.
+- **Klangschale (8):** in `flowbowl.js` mit fünf unharmonischen Teiltönen, je zwei leicht verstimmte Sinus mit langem Ausklingen. Ton startet erst nach einem Tipp (Start, Pause). Zwischenklänge regelmässig, individuell (Minuten), zufällig (fester Seed pro Sitzung, mindestens 30 s Abstand).
+- **Skala (9a):** eine Reihe à 10, unter 360 px höher (54 px) statt breiter.
+- **4. Frage (10a):** Vorrat von 10 im Settings-Eintrag `flowQuestions`, reihum nach Tag (jede alle 10 Tage), im Tagescheck bearbeitbar.
+- **Erreichbarkeit (11):** Karte auf Heute (Abschnitt `flow` direkt unter der Tour, auch in «Startseite anpassen») und «Mehr» → App → Im Flow; Wächter «Noch alles da?» prüft beide Wege (1 bzw. 2 Tipps). «Alle 16 Funktionen» bleibt bei 16.
+- **Stoppuhr-Knopf schwebt nur auf Im Flow am Handy** (Mockup zeigte ihn auch auf Heute): auf Heute würde er dauernd Inhalte verdecken; am Computer steht er im Seitenkopf. Läuft die Uhr, schwebt die kleine Uhr auf jeder Seite.
+- **Seed:** einmal, gemerkt im Settings-Eintrag `flowSeeded` (geht ins Backup). Ein Backup ohne Flow-Daten bekommt die Start-Aktivitäten wieder; wer alle löscht, bekommt keine neuen.
+
 ## 9.10.2026: Tagestour antippen (0.47.1)
 
 - **Fakten der Tour als Chips (Noah a):** Datum, Dauer, Wetter und Velo in der obersten Karte sind antippbar und öffnen ein kleines Blatt mit nur diesem Feld (Handy von unten, Computer in der Mitte). Keine neue Speicherlogik: Datum über `change`, Stunden, Tage, Wetter und Velo über `changeContext` (wie das Tour-Fenster), also ziehen Mengen mit und «Rückgängig» gilt. Nur auf Planen (die anderen Schritte zeigen die Dauer nur an). Mehr Tage oder eine Nacht bleiben im Tour-Fenster (Link im Blatt), damit die Übernachtung nicht nebenbei falsch wird.
@@ -358,7 +374,7 @@ Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0
 
 - **«Kühl + Regen» brachte nichts (Ursache):** Im Fenster «Neue Tour» schalteten die Wetter-Chips um. Hatte die Wettervorhersage schon «Kühl» und Regen gewählt, nahmen die Tipps auf «Kühl» und «+ Regen» beides wieder weg, und die Vorschau zeigte «Fürs Wetter: nichts zusätzlich». Die Logik in `layers.js`/`context.js` war richtig. Entscheid: Ein Wetter-Chip **setzt** nur (`dayride.js pickWxChip`), wie auf der Tourseite; Trocken und Regen sind zwei Chips statt eines «+ Regen»-Schalters. Damit das Wetter trotzdem immer abwählbar bleibt (Noahs Regel: Vorschläge sind nie zwingend und immer änderbar), gibt es den Chip **«Ohne Wetter»** im Fenster «Neue Tour» und auf der Tourseite («Ans Wetter angepasst» und das Wetter-Blatt der Tourkarte): Er nimmt Bereich und Regen weg, auch was die Wettervorhersage gewählt hat; ein anderer Chip setzt wieder. «Trocken» ist nur gedrückt, wenn ein Wetter gesetzt ist.
 - **•••-Menüs im Bild:** Ein Menü neben seinem ••• wird verschoben (seitlich) oder nach oben geklappt (unten kein Platz), nie verkleinert (`src/lib/ui/inview.js`, Baukasten). Gilt für Packliste, Vorlagen, «In Bearbeitung» und Velopflege (deren eigenes «nach oben» aus 0.46.1 ersetzt). Ein Menü, das auch oben keinen Platz hat, bleibt unten (die Seite scrollt), damit es sein ••• nie verdeckt.
-## 9.10.2026: R1 «Rückblick ruhig» (0.49.0)
+## 9.10.2026: R1 «Rückblick ruhig» (0.56.0)
 
 - **Vergangene Touren (1b):** überall eine Tabelle, auch am Handy. Am Handy bleibt die erste Spalte (Tourname) stehen (`position: sticky`), die anderen Spalten scrollen in der Tabelle; die Seite scrollt nie seitwärts (der Tabellenkasten ist `position: relative`, damit versteckter Bildschirmleser-Text die Seite nicht verbreitert). Spalten (2a): km, Hm, Zeit, Regen/trocken, Temperatur, Velo, 1 Learning oder Besonderes. Filter (3a): Zeitraum 12 Monate / Jahr / Alle, ein Knopf «Art» (Tagestour, Mehrtägig, Rennen, Ohne Velo, Mit Regen), Suche auch in Learnings.
 - **Eine Seite «Rückblick» (4a-7a):** letzte Fahrt, «Letzte 12 Monate» rollend (umschaltbar Jahr = 1. Januar bis heute gegen dieselben Tage im Vorjahr, Alle ohne Vorjahr), «Touren im Vergleich» mit 7 kleinen Diagrammen + Tabelle, Basis letzte 10 Touren, «12 Monate», «Gleiche Art». Tempo, Logbuch, Gelernt eine Ebene darunter, Inhalt unverändert bis R2.

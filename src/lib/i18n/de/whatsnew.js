@@ -15,6 +15,15 @@ export default {
     '«Vergangene Touren» ist eine Tabelle, auch auf dem Handy: km, Hm, Zeit, Regen, Temperatur, Velo und ein Learning pro Tour. Der Name bleibt stehen, die anderen Spalten scrollen; Zeitraum, «Art» und eine Suche, die auch Learnings findet.',
   "A trip's saved debrief now tells what the trip was: numbers and weather per day, plan against real, what you can leave at home, learnings and what it means for the next trip.":
     'Der gespeicherte Rückblick einer Tour erzählt jetzt, wie die Tour war: Zahlen und Wetter pro Tag, Plan gegen Wirklichkeit, was zuhause bleiben kann, Learnings und was das für die nächste Tour heisst.',
+  // 0.51.0
+  "Tap a button on Today or on In the flow to tick an activity: one tap with Undo, tap again to take it back. A long press picks the place (Yoga studio or at home), the amount or the duration.":
+    "Ein Tipp auf Heute oder in Im Flow hakt eine Aktivität ab, mit Rückgängig; nochmals tippen nimmt es zurück. Lange drücken wählt Ort (Yoga Studio oder Zuhause), Menge oder Dauer.",
+  "In the flow: three rings over the last 7 days (move, mindful, recovery) and goals × days, every goal a rolling window (daily, 7, 10 or 30 days). Sports with a season rest until their months come.":
+    "Im Flow: drei Ringe über die letzten 7 Tage (Bewegen, Achtsam, Erholung) und Ziele × Tage, jedes Ziel gleitend (täglich, 7, 10 oder 30 Tage). Sportarten mit Saison ruhen, bis ihre Monate kommen.",
+  "The stopwatch counts down to your target time, with a singing bowl at the start and the end and, if you like, in between (regularly, at chosen minutes or at random). Made small, it keeps running on every page.":
+    "Die Stoppuhr zählt auf deine Zielzeit herunter, mit Klangschale am Anfang und Ende und auf Wunsch dazwischen (regelmässig, zu gewählten Minuten oder zufällig). Verkleinert läuft sie auf jeder Seite weiter.",
+  "Daily check: sleep, energy, mood and a fourth question that changes each day, one tap each on 1–10. Every activity can be edited: name, symbol, ring, goal, minimum duration, season and what else counts.":
+    "Tagescheck: Schlaf, Energie, Stimmung und eine 4. Frage, die täglich wechselt, je ein Tipp auf 1–10. Jede Aktivität ist bearbeitbar: Name, Symbol, Ring, Ziel, Mindestdauer, Saison und was auch zählt.",
 
   // 0.47.3
   'In a new trip, "Chilly" and "Rain" stay chosen when you tap them, also when the forecast chose them already, so the list gets the cold and the rain items. Dry or rain are two chips, as on the trip page.':

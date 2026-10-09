@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 5; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides
+export const SCHEMA_VERSION = 6; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -32,6 +32,9 @@ export const DATA_TABLES = [
   'photos', // setup photos of a bike, shown in a gallery and pale behind the bags in Pack
   'notes', // quick notes from any page, sorted later on the Inbox page
   'rides', // v0.41.0: uploaded rides (GPX): moving time, pauses, planned vs real (gpx.js)
+  'flowActs', // v0.51.0 «Im Flow»: activities with their rolling goals and seasons (flow.js)
+  'flowLog', // v0.51.0: one row per tick (activity, day, amount, place, minutes)
+  'flowChecks', // v0.51.0: the daily check, one row per day (flowcheck.js)
 ];
 
 /**
@@ -127,6 +130,12 @@ export function createDb(name = 'pack-generator') {
   // Version 5 (v0.41.0) only adds the uploaded rides, so existing data stays as it is.
   db.version(5).stores({
     rides: 'id, date, tripId',
+  });
+  // Version 6 (v0.51.0 «Im Flow») only adds tables, so existing data stays as it is.
+  db.version(6).stores({
+    flowActs: 'id, order',
+    flowLog: 'id, actId, day',
+    flowChecks: 'day',
   });
   return db;
 }
