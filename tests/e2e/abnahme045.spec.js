@@ -76,6 +76,8 @@ test('4. touch: the bike drawing places have 44 px tap areas that never overlap'
   await page.reload();
   const spots = page.locator('.drawing .spot');
   await expect(spots.first()).toBeVisible();
+  // 0.65.0: the «Masse» card sits above the drawing; bring the drawing on screen before hit-testing.
+  await page.locator('.drawing').scrollIntoViewIfNeeded();
   const res = await spots.evaluateAll((els) => els.map((el) => {
     const r = el.getBoundingClientRect();
     const a = getComputedStyle(el, '::after');

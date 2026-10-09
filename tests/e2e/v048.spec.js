@@ -48,7 +48,7 @@ async function start(page, context, info) {
 test('Velos vergleichen: every bike a column, empty cells «–» to fill, two taps from Setup', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/bikes');
-  await page.getByRole('link', { name: /Velos vergleichen/ }).click();
+  await page.getByRole('link', { name: 'Velos vergleichen', exact: true }).click();
   const region = page.getByRole('region', { name: 'Velos vergleichen' });
   await expect(region).toBeVisible();
   await expect(region.locator('thead')).toContainText(`${P} Bergziege 29`);

@@ -258,7 +258,7 @@
             <ul class="specc">
               {#each s.plan.conflicts as c (c.id)}
                 {@const id = `${s.bike.id}|${c.id}`}
-                <li><label><input type="checkbox" checked={pending.allow.includes(id)} onchange={(e) => toggleAllow(id, e.currentTarget.checked)} /> <span><b>{c.target === 'geo' ? t('Geometry') : c.label}</b> · {shownValue(c.old)} → {shownValue(c.value)}</span></label></li>
+                <li><label><input type="checkbox" checked={pending.allow.includes(id)} onchange={(e) => toggleAllow(id, e.currentTarget.checked)} /> <span><b>{c.target === 'geo' ? t('Geometry') : c.target === 'fit' ? `${t('Fit and setup')}: ${t(c.label)}` : c.label}</b> · {shownValue(c.old)} → {shownValue(c.value)}</span></label></li>
               {/each}
             </ul>
           {/if}
