@@ -10,13 +10,23 @@
 
 export const WHATS_NEW = [
   {
-    version: '0.48.0',
+    version: '0.57.0',
     date: '2026-10-09',
     points: [
       { text: 'Bike care starts with an overview: a ring per bike, at most three cards for what is due, all problems in one list. Replacing or servicing a part is a short guided flow.', href: '#/bikes?tab=care' },
       { text: 'Every bike has the same part list with a spec sheet and its geometry. "Compare bikes" puts them side by side; an empty cell is filled with one tap.', href: '#/bikes' },
       { text: 'The Inbox is now "Eingang": grouped by day, one button "File" with seven targets. A receipt photo becomes a workshop visit, found under Bikes → Workshop.', href: '#/inbox' },
       { text: 'New page Notes: write, dictate, add a photo, a link or a checklist; topics, pinned notes and "Turn the note into …" a trip idea, a wish or a problem.', href: '#/notes' },
+    ],
+  },
+  {
+    version: '0.51.0',
+    date: '2026-10-09',
+    points: [
+      { text: "Tap a button on Today or on In the flow to tick an activity: one tap with Undo, tap again to take it back. A long press picks the place (Yoga studio or at home), the amount or the duration.", href: '#/flow' },
+      { text: "In the flow: three rings over the last 7 days (move, mindful, recovery) and goals × days, every goal a rolling window (daily, 7, 10 or 30 days). Sports with a season rest until their months come.", href: '#/flow' },
+      { text: "The stopwatch counts down to your target time, with a singing bowl at the start and the end and, if you like, in between (regularly, at chosen minutes or at random). Made small, it keeps running on every page.", href: '#/flow' },
+      { text: "Daily check: sleep, energy, mood and a fourth question that changes each day, one tap each on 1–10. Every activity can be edited: name, symbol, ring, goal, minimum duration, season and what else counts.", href: '#/flow/goals' },
     ],
   },
   {

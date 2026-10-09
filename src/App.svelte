@@ -18,6 +18,8 @@
   import Rides from './pages/Rides.svelte';
   import Wardrobe from './pages/Wardrobe.svelte';
   import Review from './pages/Review.svelte';
+  import Flow from './pages/Flow.svelte';
+  import FlowLayer from './lib/flow/FlowLayer.svelte';
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
@@ -184,7 +186,7 @@
 
 <DemoBar />
 
-<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features' || page === 'wardrobe'}>
+<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'}>
   {#key switchN}
   {#if page === 'gear'}
     <Gear />
@@ -220,6 +222,9 @@
   {:else if page === 'wardrobe'}
     <!-- v0.42.0 (Noah 1): the wardrobe, by layer and body zone -->
     <Wardrobe />
+  {:else if page === 'flow'}
+    <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
+    <Flow sub={hash.split('/').slice(2).join('/')} />
   {:else if page === 'review'}
     <!-- v0.44.0: the last 12 months (rolling) -->
     <Review />
@@ -243,6 +248,7 @@
   <QuickNote {page} bind:open={noteOpen} prefill={notePrefill} prefillBike={noteBike} />
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
+{#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <MoreSheet bind:open={menuOpen} inbox={$inboxQ ?? 0} current={hash} />
 {#if phone.matches}
   <!-- v0.23.0 (AP07): the same four places on every page, also under a shared list (there without +). -->

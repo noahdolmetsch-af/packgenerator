@@ -45,6 +45,8 @@ export const MORE_GROUPS = [
     key: 'app',
     name: 'App|more',
     rows: [
+      // v0.51.0 «Im Flow» (Noah 11): from Today's card and from here, at most two taps.
+      { id: 'flow', title: 'In the flow', href: '#/flow', icon: 'flow', words: 'in the flow im flow flow goals ziele sport training meditation yoga rings ringe daily check tagescheck stopwatch stoppuhr countdown habit gewohnheit' },
       { id: 'inbox', title: 'Inbox', href: '#/inbox', icon: 'inbox', words: 'inbox eingang einordnen ablegen abgelegt to sort file zettel beleg' },
       // v0.48.0 (Noah 12a-17a): the Notes page (notes kept, topics, pinned, checklists).
       { id: 'notes', title: 'Notes', href: '#/notes', icon: 'notes', words: 'notes notizen notiz merken checkliste checklist thema topics pinned angeheftet' },

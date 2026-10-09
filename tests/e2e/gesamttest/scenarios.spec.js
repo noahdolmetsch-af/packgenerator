@@ -472,7 +472,7 @@ test('S6 backup round trip: export, replace, export again, merge', async ({ page
   await page.waitForTimeout(800);
   const db3 = await snapshot(page);
   for (const name of Object.keys(db1)) {
-    const key = name === 'debriefs' ? 'tripId' : name === 'settings' ? 'key' : 'id';
+    const key = name === 'debriefs' ? 'tripId' : name === 'settings' ? 'key' : name === 'flowChecks' ? 'day' : 'id';
     const ids = (db) => db[name].map((r) => String(r[key]));
     const extra = ids(db3).filter((k) => !ids(db1).includes(k) && k !== 'tips');
     expect(new Set(ids(db3)).size, `merge twice: ${name} has no doubles`).toBe(ids(db3).length);
