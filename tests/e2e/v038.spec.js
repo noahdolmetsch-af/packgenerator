@@ -67,7 +67,7 @@ test('More: top right with the Inbox count, grouped, language; the search finds 
   await more.click();
   const sheet = page.locator('dialog.more');
   await expect(sheet).toBeVisible();
-  for (const g of ['Packlisten', 'Planen', 'Rückblick', 'Material', 'App']) await expect(sheet.getByRole('heading', { name: g, exact: true })).toBeVisible();
+  for (const g of ['Planen', 'Rückblick', 'Material', 'App']) await expect(sheet.getByRole('heading', { name: g, exact: true })).toBeVisible();
   await expect(sheet.getByRole('link', { name: /Inbox/ })).toContainText('2');
   await noSideways(page);
   await shot(page, info, 'mehr');

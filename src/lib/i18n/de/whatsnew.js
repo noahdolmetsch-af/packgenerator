@@ -17,6 +17,13 @@ export default {
     'Material hat eine schlanke Reiterleiste mit kleinen Zählern, runde Kategorie-Punkte und ruhigere Karten. In der Inbox verschwindet eine eingeordnete Notiz, die nächste kommt an die Reihe, «Rückgängig» holt sie zurück.',
   'Bike care reads calmer: one style for titles, rows, badges and numbers, links in quiet teal, no bold lists. What is due now stands as cards on top.':
     'Die Velopflege liest sich ruhiger: ein Stil für Titel, Zeilen, Abzeichen und Zahlen, Links in ruhigem Petrol, keine fetten Listen. Was jetzt fällig ist, steht als Karten zuoberst.',
+  // 0.46.3
+  '"More" is calm again: the packing lists of your trips no longer stand on top as single rows. You find them under "Trips"; templates are under Plan, past trips under Look back.':
+    '«Mehr» ist wieder ruhig: Die Packlisten deiner Touren stehen nicht mehr einzeln zuoberst. Du findest sie unter «Touren»; Vorlagen stehen unter Planen, vergangene Touren unter Rückblick.',
+
+  // 0.46.2
+  '"Customise the start page" shows each section name readable on its line again (on the phone the names stood letter by letter in a narrow column).':
+    '«Startseite anpassen» zeigt jeden Abschnitt wieder lesbar in seiner Zeile (am Handy standen die Namen Buchstabe für Buchstabe in einer schmalen Spalte).',
 
   // 0.46.1
   'Problem with a bike: several problems in one line, separated by commas or "and", become single repairs, each ticked off on its own. Under the field you see what will be saved.':

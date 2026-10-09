@@ -204,3 +204,23 @@ test('the evening: review of the day and charging first; a phone swipes to the n
   }
   await expect(title).not.toHaveText(first);
 });
+
+// v0.46.2 (Noah, phone): «Startseite anpassen» showed the section names as one letter per line, because the
+// label used the class name "sw" which app.css reserves for the 10 px colour swatch. Each name must be
+// readable on one line, wide enough, and next to its checkbox.
+test('customise the start page: every section name readable, not squeezed into a 10 px column', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.getByRole('button', { name: T('Customise the start page') }).click();
+  const panel = page.locator('section.cust');
+  await expect(panel).toBeVisible();
+  const rows = panel.locator('li');
+  expect(await rows.count()).toBeGreaterThanOrEqual(4);
+  for (const li of await rows.all()) {
+    const name = li.locator('label span');
+    await expect(name).not.toHaveText('');
+    const box = await name.boundingBox();
+    expect(box.width, `${await name.textContent()} is wide enough`).toBeGreaterThan(30);
+    expect(box.height, `${await name.textContent()} on one or two lines`).toBeLessThan(60);
+  }
+  await noSideScroll(page, 'Customise the start page');
+});

@@ -30,7 +30,7 @@
     {#each l.order as key, i (key)}
       {@const on = !l.off.includes(key)}
       <li data-section={key}>
-        <label class="sw"><input type="checkbox" checked={on} onchange={() => save(toggleSection(l, key))} /><span>{t(SECTION_NAME[key])}</span></label>
+        <label class="tg"><input type="checkbox" checked={on} onchange={() => save(toggleSection(l, key))} /><span>{t(SECTION_NAME[key])}</span></label>
         <span class="mv">
           <button type="button" class="btn sm ic" disabled={i === 0} onclick={() => save(moveSection(l, key, -1))} aria-label={t('{name} up', { name: t(SECTION_NAME[key]) })}><ArrowUp size={18} aria-hidden="true" /></button>
           <button type="button" class="btn sm ic" disabled={i === SECTIONS.length - 1} onclick={() => save(moveSection(l, key, 1))} aria-label={t('{name} down', { name: t(SECTION_NAME[key]) })}><ArrowDown size={18} aria-hidden="true" /></button>
@@ -73,7 +73,7 @@
     min-height: 52px;
     border-bottom: 1px solid var(--line);
   }
-  .sw {
+  .tg {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -81,13 +81,13 @@
     min-width: 0;
     cursor: pointer;
   }
-  .sw input {
+  .tg input {
     flex: none;
     width: 22px;
     height: 22px;
     accent-color: var(--accent);
   }
-  .sw span {
+  .tg span {
     min-width: 0;
     overflow-wrap: break-word;
   }

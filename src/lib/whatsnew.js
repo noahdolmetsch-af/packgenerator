@@ -17,6 +17,17 @@ export const WHATS_NEW = [
       { text: 'A bike trip shows the bike drawing with each bag and its weight on top (or the setup photo, if there is one), next to it the weight in one dark card: base on the bike, on me, food and water.', href: '#/pack' },
       { text: 'Gear has a slim tab bar with small counters, round category dots and calmer cards. In the Inbox a sorted note leaves the list, the next one gets the focus, Undo puts it back.', href: '#/gear' },
       { text: 'Bike care reads calmer: one style for titles, rows, badges and numbers, links in quiet teal, no bold lists. What is due now stands as cards on top.', href: '#/bikes?tab=care' },
+    version: '0.46.3',
+    date: '2026-10-09',
+    points: [
+      { text: '"More" is calm again: the packing lists of your trips no longer stand on top as single rows. You find them under "Trips"; templates are under Plan, past trips under Look back.', href: '#/trips' },
+    ],
+  },
+  {
+    version: '0.46.2',
+    date: '2026-10-09',
+    points: [
+      { text: '"Customise the start page" shows each section name readable on its line again (on the phone the names stood letter by letter in a narrow column).', href: '#/' },
     ],
   },
   {

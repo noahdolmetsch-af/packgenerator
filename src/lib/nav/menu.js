@@ -3,7 +3,7 @@
  * besides gear, trips, bikes and notes. Every page of the app is in exactly one menu:
  * - the four places (Today, Trips, Gear, Bikes) in the bar,
  * - "New" (+) for everything you create,
- * - "More" for the rarer pages, in light groups (v0.46.1: "Packing lists" first).
+ * - "More" for the rarer pages, in four light groups.
  * No sub-tabs on the pages (13a): the rarer pages are found here and by the search.
  * The trip tabs (Plan, Pack, On the way, Debrief) stay in the trip band; Share stays a link.
  *
@@ -12,19 +12,10 @@
  */
 export const MORE_GROUPS = [
   {
-    // v0.46.1 (Noah: "Wo finde ich die Packlisten?"): the packing lists first. MoreSheet lists the
-    // packing lists of the trips in progress above these rows (each opens its list) and "New packing list".
-    key: 'lists',
-    name: 'Packing lists',
-    rows: [
-      { id: 'templates', title: 'Templates', short: 'Packing list templates', href: '#/pack/templates', icon: 'file', words: 'templates template vorlagen vorlage kits kit packing lists packlisten packliste' },
-      { id: 'past', title: 'Past trips', href: '#/pack/past', icon: 'calendar', words: 'past trips vergangene touren finished vorbei archiv packing lists packlisten' },
-    ],
-  },
-  {
     key: 'plan',
     name: 'Plan|more',
     rows: [
+      { id: 'templates', title: 'Templates', href: '#/pack/templates', icon: 'file', words: 'templates template vorlagen vorlage kits kit packing lists packlisten packliste' },
       // v0.32.0 (finding 5, stage 1): the old words (role, worn, every trip, kits) find the new places.
       { id: 'blocks', title: 'Building blocks', href: '#/blocks', icon: 'layers', words: 'building blocks block bausteine baustein sets set standard always with you immer dabei with the night mit nacht to add dazunehmen role rolle every trip jeder tour' },
     ],
@@ -33,6 +24,7 @@ export const MORE_GROUPS = [
     key: 'back',
     name: 'Look back',
     rows: [
+      { id: 'past', title: 'Past trips', href: '#/pack/past', icon: 'calendar', words: 'past trips vergangene touren finished vorbei archiv packing lists packlisten' },
       // v0.44.0: the last 12 months, rolling (yearreview.js).
       { id: 'review', title: 'Last 12 months', href: '#/review', icon: 'chart', words: 'last 12 months letzte 12 monate review rückblick jahr year jahresrückblick statistik statistics numbers zahlen' },
       { id: 'debriefs', title: 'Debriefs and learnings', href: '#/debrief', icon: 'book', words: 'debriefs debrief learnings learning rückblick rückblicke lernen gelernt' },
