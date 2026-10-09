@@ -15,7 +15,7 @@
   import { liveQuery } from 'dexie';
   import { SvelteSet } from 'svelte/reactivity';
   import { db } from '../lib/db.js';
-  import { planGearImport, FIELD_NAMES, categoryName, isGearImportFile } from '../lib/gearimport.js';
+  import { planGearImport, FIELD_NAMES, categoryName, isGearImportFile, stagedStatus, appliedNothing } from '../lib/gearimport.js';
   import { stageImport, decide, dropStaged, applyImport, undoImport, changedSince, lastApplied, keepImport, archiveItems, STAGED, UNDO, UNDO2, applyStep2, undoStep2, lastApplied2, keepStep2, choose2 } from '../lib/gear/importdb.js';
   import { hasStep2, planStep2, defaultChoice } from '../lib/importstep2.js';
   import { tempRange } from '../lib/wardrobe.js';
@@ -53,6 +53,8 @@
   /* ---------- v0.42.0 step 2 ---------- */
   const two = $derived(!!data && hasStep2(data));
   const step1Done = $derived(!!data && !(data.items ?? []).length);
+  // v0.45.0 (coordinator fix 1): the status line under the file name follows the last apply.
+  const status = $derived(stagedStatus(staged, $undoQ));
   let tab = $state(null);
   const shownTab = $derived(tab ?? (two && step1Done ? 'step2' : 'material'));
   const plan2 = $derived(two && $itemsQ && $tasksQ && $eventsQ && $setsQ !== undefined ? planStep2(data, { items: $itemsQ, sets: $setsQ?.value ?? [], tasks: $tasksQ, events: $eventsQ }) : null);
@@ -195,7 +197,9 @@
     <div class="done card" role="status">
       <p>
         <b>{t('Import applied {when}.', { when: when($undoQ.at) })}</b>
-        {t('{enriched} completed, {added} new, {learn} learnings. A backup was made first.', { enriched: $undoQ.counts.enriched + $undoQ.counts.merged, added: $undoQ.counts.added, learn: $undoQ.counts.learningsAdded })}
+        <!-- v0.45.0 (coordinator fix 2): an apply that changed nothing says so in words. -->
+        {#if appliedNothing($undoQ.counts)}<span data-nothing>{t('Nothing to add: all items were already complete.')}</span>
+        {:else}{t('{enriched} completed, {added} new, {learn} learnings. A backup was made first.', { enriched: $undoQ.counts.enriched + $undoQ.counts.merged, added: $undoQ.counts.added, learn: $undoQ.counts.learningsAdded })}{/if}
       </p>
       <div class="acts">
         <button type="button" class="btn" disabled={busy} onclick={undo}>{t('Undo')}</button>
@@ -232,7 +236,8 @@
     <p class="meta">
       <span>{staged.name || t('Gear list')}</span>
       <span>{t('chosen {when}', { when: when(staged.at) })}</span>
-      <span>{step1Done ? t('Step 1 applied') : t('nothing applied yet')}</span>
+      <!-- v0.45.0 (coordinator fix 1): after an apply the line says when, not "nothing applied yet". -->
+      <span data-applied>{status.at ? t(status.text, { when: when(status.at) }) : t(status.text)}</span>
     </p>
 
     {#if two}

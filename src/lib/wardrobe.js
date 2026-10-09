@@ -20,7 +20,8 @@
  *
  * Pure functions only (no database, no screen), so they are easy to test.
  */
-import { isInventory, itemWeight } from './gear.js';
+import { isInventory, itemWeight, nextId } from './gear.js';
+import { addSet } from './sets.js';
 import { itemDomains, inDomain, BIKEPACKING } from './domains.js';
 import { rainOf } from './layers.js';
 import { fold } from './gearimport.js';
@@ -55,16 +56,26 @@ export const CLOTHING_CATEGORIES = ['onbike', 'rain', 'offbike', 'shoes'];
 /** Is this item clothing? A clothing category, or a layer or a zone from the import. Gone items never. */
 export const isClothing = (item) => !!item && item.ownership !== 'gone' && (CLOTHING_CATEGORIES.includes(item.category) || !!item.zone || !!item.layer);
 
-/** The "Einsatz" filter: Velo (bike trips), Alltag (everyday), Alle. */
+/**
+ * The "Einsatz" filter: Velo (bike trips), Alltag (everyday), Alle.
+ *
+ * v0.45.0 (Noah, decision 10): everyday clothes show only under Alltag. An item is "everyday only"
+ * when Everyday is its only area (item.domains = ['everyday']). Such an item is never under Velo
+ * (it never was: inDomain) and no longer under Alle; Alle is everything else (also ski touring or
+ * hiking clothing). An item of Everyday AND another area (['velo', 'everyday']) shows under all three.
+ */
 export const USES = [
   { key: 'velo', name: 'Cycling|use' },
   { key: 'everyday', name: 'Everyday|use' },
   { key: 'all', name: 'All|use' },
 ];
+export const EVERYDAY = 'everyday';
+/** Is Everyday the only area of this item? */
+export const everydayOnly = (item) => itemDomains(item).every((d) => d === EVERYDAY);
 export function inUse(item, use) {
   if (use === 'velo') return inDomain(item, BIKEPACKING);
-  if (use === 'everyday') return itemDomains(item).includes('everyday');
-  return true;
+  if (use === EVERYDAY) return itemDomains(item).includes(EVERYDAY);
+  return !everydayOnly(item);
 }
 
 /* ---------- guesses from the name ---------- */
@@ -108,6 +119,33 @@ export function tempRange(min, max, t = (s, v) => s.replace(/\{(\w+)\}/g, (m, k)
 }
 
 const byName = (a, b) => String(a.nameDe || a.name).localeCompare(String(b.nameDe || b.name));
+
+/**
+ * v0.45.0 (Noah, decision 1): the temperature range an item is made for, { lo, hi } in °C, or null.
+ * tempMin / tempMax first (a missing border is open: −∞ or +∞); without either the class of the
+ * import counts as a range: warm 15 °C and more, mittel 5–15 °C, kalt 5 °C and less.
+ */
+export const CLASS_RANGE = { warm: { lo: 15, hi: Infinity }, mittel: { lo: 5, hi: 15 }, kalt: { lo: -Infinity, hi: 5 } };
+export function tempKey(item) {
+  const min = typeof item?.tempMin === 'number' ? item.tempMin : null;
+  const max = typeof item?.tempMax === 'number' ? item.tempMax : null;
+  if (min != null || max != null) return { lo: min ?? -Infinity, hi: max ?? Infinity };
+  return CLASS_RANGE[item?.tempClass] ?? null;
+}
+const cmpDesc = (a, b) => (a === b ? 0 : a > b ? -1 : 1);
+/**
+ * Warm to cold within a zone (decision 1): the upper border first (higher first), then the lower
+ * border (higher first), so the short jersey comes before the winter jacket. Items without a range
+ * or class last; equal ones by name.
+ */
+export function warmToCold(a, b) {
+  const ka = tempKey(a);
+  const kb = tempKey(b);
+  if (ka && !kb) return -1;
+  if (!ka && kb) return 1;
+  if (ka && kb) return cmpDesc(ka.hi, kb.hi) || cmpDesc(ka.lo, kb.lo) || byName(a, b);
+  return byName(a, b);
+}
 const grams = (list) => list.reduce((s, i) => s + (itemWeight(i) ?? 0), 0);
 
 /**
@@ -115,7 +153,7 @@ const grams = (list) => list.reduce((s, i) => s + (itemWeight(i) ?? 0), 0);
  * all: the clothing in this filter (owned, unclear and wishlist items; not gone). unsorted: items
  * without a layer or zone, each with its guesses { item, layer, zone, guessLayer, guessZone }.
  */
-export function wardrobe(items = [], use = 'all') {
+export function wardrobe(items = [], use = 'all', { gaps = [] } = {}) {
   const all = items.filter((i) => isClothing(i) && inUse(i, use)).sort(byName);
   const unsorted = [];
   const placed = [];
@@ -125,11 +163,17 @@ export function wardrobe(items = [], use = 'all') {
     if (layer && zone) placed.push({ item: i, layer, zone });
     else unsorted.push({ item: i, layer, zone, guessLayer: layer ?? guessLayer(i.name), guessZone: zone ?? guessZone(i.name) });
   }
+  // v0.45.0: warm to cold within a zone (decision 1); a gap (decision 2) keeps its zone and layer
+  // on the page even when nothing is there yet.
   const layers = LAYERS.map((l) => {
     const mine = placed.filter((p) => p.layer === l.key);
-    const zones = ZONES.map((z) => ({ key: z.key, items: mine.filter((p) => p.zone === z.key).map((p) => p.item) })).filter((z) => z.items.length);
+    const zones = ZONES.map((z) => ({
+      key: z.key,
+      items: mine.filter((p) => p.zone === z.key).map((p) => p.item).sort(warmToCold),
+      gap: gaps.find((g) => g.layer === l.key && g.zone === z.key) ?? null,
+    })).filter((z) => z.items.length || z.gap);
     return { key: l.key, n: mine.length, g: grams(mine.map((p) => p.item)), zones };
-  }).filter((l) => l.n);
+  }).filter((l) => l.n || l.zones.length);
   return { all, unsorted, layers, n: all.length, g: grams(all) };
 }
 
@@ -222,11 +266,31 @@ export const CLOTHING = [
  * The offset from the saved debriefs, oldest first: "too cold" +1, "too warm" −1, "fitted" stays;
  * never beyond ±3. Computed from all debriefs again, so a debrief answered twice counts once.
  */
-export function clothingOffset(debriefs = []) {
+export function clothingOffset(debriefs = [], since = null) {
   let o = 0;
-  const done = debriefs.filter((d) => d?.status === 'done' && (d.clothing === 'cold' || d.clothing === 'warm')).sort((a, b) => String(a.doneAt ?? '').localeCompare(String(b.doneAt ?? '')));
+  const done = debriefs.filter((d) => d?.status === 'done' && (d.clothing === 'cold' || d.clothing === 'warm') && (!since || String(d.doneAt ?? '') > since)).sort((a, b) => String(a.doneAt ?? '').localeCompare(String(b.doneAt ?? '')));
   for (const d of done) o = Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, o + (d.clothing === 'cold' ? 1 : -1)));
   return o;
+}
+/**
+ * v0.45.0 (Noah, decision 8): the settings record after a saved debrief. A reset ("Reset" in the
+ * wardrobe) stores resetAt: only debriefs saved after it count, so the offset starts at 0 again
+ * and the old answers do not come back with the next debrief. prev: the record as it was (or null).
+ */
+export function offsetRecord(prev, debriefs = [], at = new Date().toISOString()) {
+  const since = prev?.resetAt ?? null;
+  return { key: CLOTHING_OFFSET, value: clothingOffset(debriefs, since), at, ...(since ? { resetAt: since } : {}) };
+}
+/** The record of a reset: 0 from now on. Undo puts the previous record back. */
+export const resetOffset = (at = new Date().toISOString()) => ({ key: CLOTHING_OFFSET, value: 0, at, resetAt: at });
+/**
+ * The header line of the wardrobe (decision 8): { text, n } (an English key for t() and the signed
+ * number), or null at 0. A positive offset: you run cold ("+2 °C"); a negative one: you run warm.
+ */
+export function offsetLine(offset) {
+  const o = Math.round(Number(offset) || 0);
+  if (!o) return null;
+  return o > 0 ? { text: 'You run cold: {n} °C', n: `+${o}` } : { text: 'You run warm: {n} °C', n: `−${Math.abs(o)}` };
 }
 /** The temperature as it feels to you: colder by the offset. */
 export const felt = (c, offset = 0) => (c == null ? null : c - (Number(offset) || 0));
@@ -338,3 +402,135 @@ function best(list, c) {
     )[0] ?? null
   );
 }
+
+/* ---------- v0.45.0 "Kleiderschrank 2": gaps, the outfit of the day, a kit from an outfit ---------- */
+
+/**
+ * The gap rule (Noah, decision 2), kept simple on purpose:
+ *   1. The wardrobe should keep you warm on a ride down to COVER_TO (0 °C), felt: with the learned
+ *      offset ("you run cold: +2 °C" means down to −2 °C).
+ *   2. Seven places need something warm, each from its own temperature on (the onion's rows):
+ *      base, mid and outer layer of the upper body, the legs, the hands, the head and the feet.
+ *      A rule names where its row shows (layer × zone) and which pieces count: for the legs and the
+ *      accessories any layer of that zone, for the upper body only that layer.
+ *   3. An owned piece (owned or unclear) covers COVER_TO when warmEnough says so: its lower border
+ *      at most 2 °C above it; without a range only the class "warm" fails (unknown never alarms).
+ *   4. No owned piece covers it → a gap. below: the lowest border of what is owned there ("No
+ *      gloves below 7 °C"); nothing owned there at all → the temperature the place is needed from.
+ *   5. A wish (wishlist or to buy) in that place shows with the gap instead of the button.
+ * Everyday-only clothing never counts (decision 10): the gaps are about riding.
+ */
+export const COVER_TO = 0;
+export const GAP_RULES = [
+  { key: 'base', layer: 'base', zone: 'upper', from: 10, text: 'No warm base layer below {n} °C', wish: 'Warm base layer' },
+  { key: 'mid', layer: 'mid', zone: 'upper', from: 15, text: 'No mid layer below {n} °C', wish: 'Warm mid layer' },
+  { key: 'outer', layer: 'outer', zone: 'upper', from: 12, text: 'No jacket below {n} °C', wish: 'Warm jacket' },
+  { key: 'legs', layer: 'mid', zone: 'legs', any: true, from: 10, text: 'No leg warmers or tights below {n} °C', wish: 'Warm tights' },
+  { key: 'hands', layer: 'accessory', zone: 'hands', any: true, from: 12, text: 'No gloves below {n} °C', wish: 'Warm gloves' },
+  { key: 'head', layer: 'accessory', zone: 'head', any: true, from: 8, text: 'No cap below {n} °C', wish: 'Warm cap' },
+  { key: 'feet', layer: 'accessory', zone: 'feet', any: true, from: 5, text: 'No overshoes or warm socks below {n} °C', wish: 'Overshoes' },
+];
+const inRule = (rule, item) => zoneGroup(item.zone) === rule.zone && (rule.any || layerKey(item.layer) === rule.layer);
+const isWishItem = (i) => i.ownership === 'wishlist' || i.ownership === 'to-buy';
+/** The lowest temperature a piece is made for (−∞: no range, so it is not held against it). */
+const floorOf = (item) => (typeof item.tempMin === 'number' ? item.tempMin : tempKey(item)?.lo ?? -Infinity);
+
+/** The gaps of the wardrobe: [{ key, layer, zone, below, text, wish (English name), wished (item or null) }]. */
+export function wardrobeGaps(items = [], { offset = 0, to = COVER_TO } = {}) {
+  const c = felt(to, offset);
+  const riding = items.filter((i) => isClothing(i) && !everydayOnly(i));
+  const out = [];
+  for (const rule of GAP_RULES) {
+    const owned = riding.filter((i) => isInventory(i) && inRule(rule, i));
+    if (owned.some((i) => warmEnough(i, c))) continue;
+    const floors = owned.map(floorOf).filter((n) => Number.isFinite(n));
+    const below = floors.length ? Math.min(...floors) : rule.from;
+    const wished = riding.find((i) => isWishItem(i) && inRule(rule, i)) ?? null;
+    out.push({ key: rule.key, layer: rule.layer, zone: rule.zone, below, text: rule.text, wish: rule.wish, wished });
+  }
+  return out;
+}
+
+/**
+ * "Add to wishlist" on a gap: the new wishlist item, or null when a wish is already there.
+ * name / reason: the words in the current language (the page passes them through t()); the record
+ * keeps them as written. The item gets the gap's layer and zone, so it shows in that place.
+ */
+export function gapWish(gap, items = [], { name, reason, now = new Date().toISOString() } = {}) {
+  if (!gap || gap.wished) return null;
+  const zone = ZONES.find((z) => z.key === gap.zone)?.set ?? gap.zone;
+  return {
+    id: nextId(items, 'onbike'), name: name || gap.wish, brand: '', model: '', category: 'onbike', weightG: null, qty: 1, weightStatus: 'missing', carry: 'body',
+    defaultBag: 'body', ownership: 'wishlist', role: null, sets: [], kits: [], domains: ['velo'], layer: gap.layer, zone,
+    note: reason || '', from: 'wardrobe', updatedAt: now,
+  };
+}
+
+/**
+ * "What do I wear today?" (Noah, decision 9): the outfit for a day ride at the home place.
+ * forecast: the saved home forecast (days, with hourly values when there are); date: the ride's
+ * day; start: its first hour; hours: how long. The onion decides which rows are needed at the
+ * coldest riding hour (felt, with the offset); the legs always get a row. Each row gets the best
+ * owned piece for it (never everyday-only), or null when nothing owned fits.
+ * → { c (felt), real, hour, from, wet, pct, rows: [{ key, name, item, rain }] } or null (no forecast for that day).
+ */
+export function outfitFor(forecast, items = [], { date, start = 8, hours = 2, offset = 0 } = {}) {
+  if (!forecast || !date) return null;
+  const trip = { startDate: date, days: 1, hours, rideStart: [`${String(start).padStart(2, '0')}:00`], forecast, wx: null };
+  const day = (forecast.days ?? []).find((x) => x.date === date);
+  let cold = coldest(trip);
+  if (!cold) {
+    if (num(day?.min) == null) return null;
+    cold = { c: day.min, from: 'min' };
+  }
+  const c = felt(cold.c, offset);
+  const wet = isWet(trip) || day?.rain === 'rain' || day?.rain === 'showers';
+  const own = items.filter((i) => isInventory(i) && isClothing(i) && !everydayOnly(i));
+  const rows = [];
+  for (const row of ONION) {
+    if (!row.need(c, wet) && row.key !== 'legs') continue;
+    const rain = row.key === 'outer' && wet;
+    const fits = own.filter((i) => matchesRow(row, i) && warmEnough(i, c) && (!rain || rainProof(i)));
+    rows.push({ key: row.key, name: row.name, item: best(fits, c), rain });
+  }
+  return { c, real: cold.c, hour: cold.hour ?? null, from: cold.from, wet, pct: rainChance(trip), rows };
+}
+
+/**
+ * The ride "What do I wear today?" is for (decision 9), as the Day ride button picks its day
+ * (dayride.js: from 14:00 on it is tomorrow's ride): { date, start, hours, tomorrow }. Today it
+ * starts at the coming hour (not before 08:00), tomorrow at 08:00. hours: of the last day ride, else 2.
+ */
+export function rideWindow(now = new Date(), { late = 14, hours = 2 } = {}) {
+  const d = new Date(now);
+  const tomorrow = d.getHours() >= late;
+  if (tomorrow) d.setDate(d.getDate() + 1);
+  const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const len = Math.max(1, Math.min(12, Math.round(Number(hours) || 2)));
+  return { date, start: tomorrow ? 8 : Math.max(8, new Date(now).getHours()), hours: len, tomorrow };
+}
+
+/**
+ * Save an outfit as a temperature kit (Noah, decision 5): a building block with a range, exactly
+ * like the kits of the import (settings "sets": { key, name, minC, maxC }; the pieces carry its key
+ * in item.sets), so Pack suggests it (chooseKit). value: the settings value "sets".
+ * → { value, key, items (only the changed records) } or { error: 'empty' | 'taken' | 'range' | 'none' }.
+ */
+export function kitFromOutfit(value, items = [], { name, minC = null, maxC = null, ids = [] } = {}, now = new Date().toISOString()) {
+  const parse = (v) => (v == null || String(v).trim() === '' ? null : Number(String(v).trim().replace('−', '-').replace(',', '.')));
+  const lo = parse(minC);
+  const hi = parse(maxC);
+  if ((lo != null && !Number.isFinite(lo)) || (hi != null && !Number.isFinite(hi)) || (lo == null && hi == null) || (lo != null && hi != null && lo > hi)) return { error: 'range' };
+  const chosen = items.filter((i) => ids.includes(i.id));
+  if (!chosen.length) return { error: 'none' };
+  const r = addSet(value, name);
+  if (r.error) return r;
+  const range = { ...(lo != null ? { minC: lo } : {}), ...(hi != null ? { maxC: hi } : {}) };
+  return {
+    key: r.key,
+    value: r.value.map((s) => (s.key === r.key ? { ...s, ...range } : s)),
+    items: chosen.filter((i) => !(i.sets ?? []).includes(r.key)).map((i) => ({ ...i, sets: [...(i.sets ?? []), r.key], updatedAt: now })),
+  };
+}
+/** A first range for the kit form around a temperature: 3 °C either side, whole degrees. */
+export const rangeAround = (c) => (c == null ? { minC: '', maxC: '' } : { minC: Math.round(c) - 3, maxC: Math.round(c) + 3 });

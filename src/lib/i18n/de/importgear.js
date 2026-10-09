@@ -9,6 +9,9 @@ export default {
   'Gear list': 'Ausrüstungsliste',
   'chosen {when}': 'gewählt {when}',
   'nothing applied yet': 'noch nichts übernommen',
+  // v0.45.0 (coordinator fixes)
+  'applied {when}': 'übernommen {when}',
+  'Nothing to add: all items were already complete.': 'Nichts zu ergänzen: alle Teile waren schon vollständig.',
   'Apply all safe ones': 'Alle sicheren übernehmen',
   'Takes "Already there" and "New"': 'Übernimmt «Schon da» und «Neu»',
   'and {n} decided item': 'und {n} entschiedenes Teil',

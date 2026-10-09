@@ -11,6 +11,7 @@
    * onpick(key): a place or its label was tapped.
    */
   import { t } from '../i18n.svelte.js';
+  import { tapAreas } from './tap.js';
 
   let { places, mounts = false, active = null, label = '', onpick } = $props();
 
@@ -34,6 +35,11 @@
   });
   const colX = (i, n) => ((i + 0.5) / n) * W;
   const pos = (b) => `left:${(b.x / W) * 100}%;top:${(b.y / H) * 100}%;width:${(b.w / W) * 100}%;height:${(b.h / H) * 100}%`;
+  // v0.45.0 (acceptance follow-up 4): an invisible tap area of 44 px around each place on a touch
+  // screen, never over the next one (tap.js). Measured from the drawing's width on screen.
+  let bw = $state(0);
+  const areas = $derived(bw ? tapAreas(places.map((p) => p.box), bw / W) : []);
+  const tap = (i) => (areas[i] ? `;--tl:${areas[i].l}px;--tt:${areas[i].t}px;--tr:${areas[i].r}px;--tb:${areas[i].b}px` : '');
 </script>
 
 {#snippet labels(list, where)}
@@ -52,7 +58,7 @@
 
 <div class="drawing" role="group" aria-label={label}>
   {@render labels(rows.top, 'top')}
-  <div class="bike">
+  <div class="bike" bind:clientWidth={bw}>
     <svg viewBox="0 0 {W} {H}" aria-hidden="true">
       <g class="frame">
         <path class="ground" d="M20 404 L700 404" />
@@ -68,14 +74,14 @@
         {#each rows.bottom as p, i (p.key)}<line x1={cx(p.box)} y1={p.box.y + p.box.h} x2={colX(i, rows.bottom.length)} y2={H} />{/each}
       </g>
     </svg>
-    {#each places as p (p.key)}
+    {#each places as p, i (p.key)}
       <button
         type="button"
         class="spot"
         class:empty={!p.bag}
         class:off={mounts && !p.on}
         class:active={active === p.key}
-        style={pos(p.box)}
+        style={pos(p.box) + tap(i)}
         aria-label={mounts ? (p.on ? t('{place}: mount on, tap to switch off', { place: p.name }) : t('{place}: no mount, tap to switch on', { place: p.name })) : p.bag ? t('{place}: {bag}, choose a bag', { place: p.name, bag: p.bag.name }) : t('{place}: empty, choose a bag', { place: p.name })}
         title={p.name}
         onclick={() => onpick?.(p.key)}
@@ -135,6 +141,17 @@
     color: var(--ink-3);
     font: 600 14px/1 var(--font-body);
     cursor: pointer;
+  }
+  /* v0.45.0: the tap area (only on touch; a mouse keeps the exact shape). */
+  @media (pointer: coarse) {
+    .spot::after {
+      content: '';
+      position: absolute;
+      left: calc(-2px - var(--tl, 0px));
+      top: calc(-2px - var(--tt, 0px));
+      right: calc(-2px - var(--tr, 0px));
+      bottom: calc(-2px - var(--tb, 0px));
+    }
   }
   .spot.empty {
     border-style: dashed;

@@ -93,7 +93,8 @@
     {#if naming}
       <input class="rename" bind:this={nameEl} bind:value={nameDraft} onkeydown={nameKey} onblur={saveName} aria-label={t('Trip name')} enterkeyhint="done" />
     {:else}
-      <h1><button type="button" class="name" title={t('Rename trip')} onclick={startRename}>{trip.title}<Pencil class="pen" size={18} aria-hidden="true" /></button></h1>
+      <!-- v0.45.0 (acceptance follow-up 5): focusable from code, so a new trip announces its name. -->
+      <h1 tabindex="-1" data-trip-title><button type="button" class="name" title={t('Rename trip')} onclick={startRename}>{trip.title}<Pencil class="pen" size={18} aria-hidden="true" /></button></h1>
     {/if}
     <p class="meta">
       <span><CalendarDays size={16} aria-hidden="true" />{tripDates(trip)}</span>

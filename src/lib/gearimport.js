@@ -605,3 +605,18 @@ export const FIELD_NAMES = {
   note: 'Note',
 };
 export const categoryName = (key) => CATEGORY[key]?.name ?? key;
+
+/* ---------- v0.45.0 (coordinator fixes): what the import page says after "Apply all safe ones" ---------- */
+
+/**
+ * The status under the file name: { text, at } with an English key for t(). After an apply (the
+ * undo record is newer than the moment the file was chosen, or step 1 is done) "applied {when}",
+ * else "nothing applied yet". staged: the staged file ({ at, step1At? }); undo: lastApplied ({ at } or null).
+ */
+export function stagedStatus(staged, undo = null) {
+  if (staged?.step1At) return { text: 'applied {when}', at: staged.step1At };
+  if (undo?.at && staged?.at && undo.at >= staged.at) return { text: 'applied {when}', at: undo.at };
+  return { text: 'nothing applied yet', at: null };
+}
+/** Did an apply change nothing at all (nothing completed, merged or new, no learnings)? */
+export const appliedNothing = (counts = {}) => !((counts.enriched ?? 0) + (counts.merged ?? 0) + (counts.added ?? 0) + (counts.learningsAdded ?? 0) + (counts.learningsUpdated ?? 0));
