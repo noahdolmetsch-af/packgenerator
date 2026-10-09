@@ -29,7 +29,7 @@
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
   import Seg from '../lib/ui/Seg.svelte';
-  import { CLOTHING, CLOTHING_OFFSET, clothingOffset, chooseKit, tempKits, coldest, tempRange } from '../lib/wardrobe.js';
+  import { CLOTHING, CLOTHING_OFFSET, offsetRecord, chooseKit, tempKits, coldest, tempRange } from '../lib/wardrobe.js';
   import { SETS_KEY } from '../lib/sets.js';
 
   let { param = '' } = $props();
@@ -319,7 +319,8 @@
       d.doneAt = new Date().toISOString();
       await db.debriefs.put($state.snapshot(d));
       // v0.42.0 (Noah 6): the clothing answers of all saved debriefs shift the kit borders (±3 °C at most).
-      await db.settings.put({ key: CLOTHING_OFFSET, value: clothingOffset(await db.debriefs.toArray()), at: d.doneAt });
+      // v0.45.0 (decision 8): after a reset in the wardrobe only the debriefs saved since then count.
+      await db.settings.put(offsetRecord(await db.settings.get(CLOTHING_OFFSET), await db.debriefs.toArray(), d.doneAt));
       // v0.29.0: a debrief saved before the last day ends the trip (as "Next: Debrief" on the way does).
       await db.trips.update(trip.id, isOver(trip) ? { status: 'done' } : { status: 'done', finished: localDay() });
     });
