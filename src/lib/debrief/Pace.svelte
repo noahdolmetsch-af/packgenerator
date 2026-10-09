@@ -1,6 +1,6 @@
 <script>
   /**
-   * «Dein Tempo» (v0.19.0 «App lernt»; v0.58.0 R2, Noah ★a): your rule in ONE sentence on top, from
+   * «Dein Tempo» (v0.19.0 «App lernt»; v0.61.0 R2, Noah ★a): your rule in ONE sentence on top, from
    * your recorded rides (GPX here, or uploaded rides that count for your pace). From PACE_MIN rides it
    * replaces the standard guess (16 km/h, 1 h per 600 m) everywhere the riding time is guessed, as a
    * visible suggestion with one tap back («Zurück zur Standardregel», settings 'pace'.standard).

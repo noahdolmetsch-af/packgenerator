@@ -1,4 +1,4 @@
-// v0.58.0 R2 «Tempo + Logbuch»: fictional data on top of the R1 fixture (r1-fixture.js). Clock:
+// v0.61.0 R2 «Tempo + Logbuch»: fictional data on top of the R1 fixture (r1-fixture.js). Clock:
 // Friday 9 October 2026. «Dein Tempo» starts with 4 rides that count (one short of the 5 that switch
 // the riding-time guess to your own rule); a ski weekend and two Excel entries fill the Logbuch.
 import { r1Data, P, D0, day } from './r1-fixture.js';

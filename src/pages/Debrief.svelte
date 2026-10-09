@@ -492,17 +492,17 @@
   {/if}
 {:else if SUBS.includes(param)}
   <!-- v0.49.0 R1 (Noah 4a): Dein Tempo, Logbuch and Gelernt are one level below the Rückblick, each
-       its own page; v0.58.0 R2 rebuilt all three. -->
+       its own page; v0.61.0 R2 rebuilt all three. -->
   <div class="over">
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips">{t('Trips|place')}</a><ChevronRight size={14} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={14} aria-hidden="true" /></nav>
     <h1 class="title">{param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : t('Learned|review')}</h1>
     {#if param === 'pace'}
       <Pace />
     {:else if param === 'logbook'}
-      <!-- v0.58.0 R2 (Noah ★a): a diary of all trips, newest first; filter by year and area. -->
+      <!-- v0.61.0 R2 (Noah ★a): a diary of all trips, newest first; filter by year and area. -->
       <Logbook />
     {:else}
-      <!-- v0.58.0 R2 (Noah ★a): every learning flat by topic. -->
+      <!-- v0.61.0 R2 (Noah ★a): every learning flat by topic. -->
       <Learned />
     {/if}
   </div>

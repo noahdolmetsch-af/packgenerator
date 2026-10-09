@@ -7,7 +7,7 @@
    *    Durchschnitt and Bestwert per number.
    * 3. «Touren im Vergleich»: 7 small charts and a compact table; base the last 10 trips, the 12
    *    months or the same kind (Art) as the newest one.
-   * 4. One level below: Dein Tempo, Gelernt, Logbuch (their own pages; v0.58.0 R2 rebuilt them).
+   * 4. One level below: Dein Tempo, Gelernt, Logbuch (their own pages; v0.61.0 R2 rebuilt them).
    * «Fahrt hochladen» is a quiet button in the head. #/review and #/debrief/compare land here.
    * Numbers: review/rueckblick.js (tested); unknown is a calm «–».
    */

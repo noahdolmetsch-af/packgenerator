@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.58.0 R2 «Gelernt» (Noah ★a): every learning in one flat list by topic, nothing folded: the
+   * v0.61.0 R2 «Gelernt» (Noah ★a): every learning in one flat list by topic, nothing folded: the
    * topic with the most learnings first, the important ones first in a topic. A search on top.
    * (R1 left this page as it was: topics folded shut.)
    */

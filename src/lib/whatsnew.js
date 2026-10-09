@@ -10,13 +10,22 @@
 
 export const WHATS_NEW = [
   {
-    version: '0.58.0',
+    version: '0.61.0',
     date: '2026-10-09',
     points: [
       { text: '"Your pace" says your rule in one sentence. From 5 rides it guesses the riding time everywhere by itself, and "Back to the standard rule" undoes that with one tap.', href: '#/debrief/pace' },
       { text: 'Under the sentence, three small charts: your speed per ride, from flat to hilly, and the climbing per km, for 12 months or all.', href: '#/debrief/pace' },
       { text: 'The logbook is a diary of all your trips, newest first: km, Hm, time, weather and your notes, with a filter by year and kind of trip. A tap opens the trip.', href: '#/debrief/logbook' },
       { text: '"Learned" lists every learning by topic, nothing folded away.', href: '#/debrief/learnings' },
+    ],
+  },
+  {
+    version: '0.59.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'The packing list shows what you wear as the first card "On me", head to feet. A tap on a piece opens "Swap": the pieces of the same zone and layer, those that fit the weather first. One tap swaps, Undo takes it back.', href: '#/pack' },
+      { text: 'The app remembers what you picked, so it comes first next time. Pieces without a °C range get their bar from warm, medium or cold.', href: '#/pack' },
+      { text: '"Open in the wardrobe" shows the wardrobe for the trip: its temperature, dry, rain or any, and pieces that do not fit hidden when a fitting one is there.', href: '#/wardrobe' },
     ],
   },
   {
