@@ -99,7 +99,7 @@ describe('the list of what is new', () => {
     expect(compareVersions('0.35.0', '0.34.0')).toBe(1);
     expect(compareVersions('0.9.0', '0.10.0')).toBe(-1);
     expect(compareVersions('0.35', '0.35.0')).toBe(0);
-    expect(newerThan('0.33.0').map((e) => e.version)).toEqual(['0.37.1', '0.37.0', '0.36.0', '0.35.0', '0.34.0']);
+    expect(newerThan('0.33.0').map((e) => e.version)).toEqual(['0.38.0', '0.37.1', '0.37.0', '0.36.0', '0.35.0', '0.34.0']);
   });
 });
 

@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.38.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'Today: a ready light per bike and quick buttons: chain lubed, wear measured, washed, sealant, tyre pressure, km. Each with Undo.', href: '#/' },
+      { text: '"Jump to" on Today: what is due, dead weight, a year ago, the weekend and what is new.', href: '#/' },
+      { text: 'The menu "More" at the top right holds the rarer pages and the Inbox; the search also finds pages.', href: '#/' },
+      { text: 'Compact rows in Gear (the bag on wish) with swipe on a phone, and Bike care as one list: due first, the rest folded.', href: '#/gear' },
+    ],
+  },
+  {
     version: '0.37.1',
     date: '2026-10-09',
     points: [

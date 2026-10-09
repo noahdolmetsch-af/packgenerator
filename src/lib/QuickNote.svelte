@@ -7,7 +7,7 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from './db.js';
-  import { newNote, guessBike, PAGE_NAMES, rideContext } from './notes.js';
+  import { newNote, guessBike, PAGE_NAMES, rideContext, sortNote, nextNumber } from './notes.js';
   import { localDay } from './localday.js';
   import { autoKeep, leaveWindow } from './drafts.js';
   import { nextTrip } from './debrief.js';
@@ -31,6 +31,16 @@
   let text = $state('');
   let photo = $state(null);
   let bikeId = $state(null); // null: the app's guess
+  // v0.38.0 (Noah 8a): two starts, "What was missing" and "This is broken". Broken with a bike: the
+  // note also becomes an open repair in Bike care (the same as "Repair" in the Inbox, notes.js).
+  let kind = $state(null); // null | 'missing' | 'broken'
+  const START = { missing: 'What was missing|note', broken: 'This is broken' };
+  function start(k) {
+    const prev = kind ? `${t(START[kind])}: ` : '';
+    kind = kind === k ? null : k;
+    const rest = prev && text.startsWith(prev) ? text.slice(prev.length) : text;
+    text = kind ? `${t(START[kind])}: ${rest}` : rest;
+  }
   let reading = $state(false);
   let msg = $state('');
   let saved = $state('');
@@ -103,6 +113,19 @@
     clearTimeout(autoTimer);
     const r = record();
     ended = true;
+    if (kind === 'broken' && bike) {
+      // the note is sorted as a repair of that bike at once (it stays in "All notes")
+      await autoBusy;
+      const bikeName = bikes.find((b) => b.id === bike)?.name ?? '';
+      await db.transaction('rw', db.notes, db.maintenance, async () => {
+        const out = sortNote(r, 'repair', { bikeId: bike, ids: { task: nextNumber(await db.maintenance.toArray()) }, now: new Date().toISOString(), bikeName });
+        await db.maintenance.put(out.repair);
+        await db.notes.put(out.note);
+      });
+      showSaved(t('Saved in Bike care as an open repair.'));
+      dialog.close();
+      return;
+    }
     await autoSave(r);
     showSaved();
     dialog.close();
@@ -137,6 +160,7 @@
     text = '';
     photo = null;
     bikeId = null;
+    kind = null;
     msg = '';
   }
 </script>
@@ -145,7 +169,11 @@
 
 <dialog class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="qn-h">
   <form onsubmit={save}>
-    <h2 id="qn-h" class="title">{t('Quick note')}</h2>
+    <h2 id="qn-h" class="title">{t('Note + photo')}</h2>
+    <div class="starts" role="group" aria-label={t('Start with')}>
+      {#each Object.entries(START) as [k, label] (k)}<button type="button" class="chip" aria-pressed={kind === k} onclick={() => start(k)}>{t(label)}</button>{/each}
+    </div>
+    {#if kind === 'broken'}<p class="hint">{bike ? t('With a bike it lands in Bike care as an open repair.') : t('Choose the bike below and it lands in Bike care as an open repair.')}</p>{/if}
     <!-- svelte-ignore a11y_autofocus -->
     <textarea class="inp" bind:value={text} rows="4" placeholder={t('e.g. Rear brake squeaks on the Spark')} aria-label={t('Note')} autofocus></textarea>
     <div class="row">
@@ -192,6 +220,32 @@
   h2 {
     font-size: var(--fs-section);
     margin: 0 0 8px;
+  }
+  .starts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 8px;
+  }
+  .chip {
+    min-height: 44px;
+    padding: 6px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 15px var(--font-body);
+    cursor: pointer;
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .hint {
+    margin: 0 0 8px;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
   }
   textarea {
     width: 100%;

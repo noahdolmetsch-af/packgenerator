@@ -111,17 +111,18 @@ for (const [soon, button, step, wx] of [['2026-10-08', 'Pack|stage', 'Pack|stage
   });
 }
 
-// v0.23.1 (Noah 1b): DE|EN sits only in the profile menu (phone and desktop), one tap once the menu
-// is open, keyboard reachable, and it shows which language is on.
-test('the language switch lives in the profile menu', async ({ page, context }) => {
+// v0.23.1 (Noah 1b): DE|EN sits only in the menu (phone and desktop), one tap once the menu
+// is open, keyboard reachable, and it shows which language is on. v0.38.0 (Noah 12a): the menu is
+// "More" at the top right, where the profile icon was.
+test('the language switch lives in the menu "More"', async ({ page, context }) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.getItem('lang') || localStorage.setItem('lang', 'en'));
   await page.goto('./');
   const top = page.locator('header.top');
-  const menu = top.locator('details.profile-menu');
+  const menu = page.locator('dialog.more');
   await expect(top.locator('button[lang="de"]').filter({ visible: true })).toHaveCount(0);
-  // keyboard: the profile icon opens the menu with Enter
-  await menu.locator('summary').focus();
+  // keyboard: "More" opens the menu with Enter
+  await top.locator('.more-btn').focus();
   await page.keyboard.press('Enter');
   const group = menu.getByRole('group', { name: 'Language' });
   await expect(group).toBeVisible();
@@ -144,7 +145,8 @@ test('Today folds the places on the phone', async ({ page, context }, info) => {
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.goto('./');
   const T = tr('de');
-  const names = [T('Trips|place'), T('Gear|place'), T('Bikes|place')];
+  // v0.38.0 (Noah 8a): the Bikes place became "Bikes ready?" (only with a bike), so two places fold.
+  const names = [T('Trips|place'), T('Gear|place')];
   const know = page.locator('main section.know');
   await expect(know.getByRole('heading', { name: T('Good to know'), level: 2 })).toBeVisible();
   await expect(know.locator('[data-tip]').first()).toBeVisible();
@@ -154,8 +156,8 @@ test('Today folds the places on the phone', async ({ page, context }, info) => {
     return;
   }
   const folds = page.locator('main details.folded');
-  await expect(folds).toHaveCount(3);
-  for (let i = 0; i < 3; i++) {
+  await expect(folds).toHaveCount(2);
+  for (let i = 0; i < 2; i++) {
     await expect(folds.nth(i)).toHaveJSProperty('open', false);
     await expect(folds.nth(i).locator('summary h2')).toHaveText(names[i]);
     await expect(folds.nth(i).locator('summary .fsum')).not.toBeEmpty();
@@ -164,7 +166,7 @@ test('Today folds the places on the phone', async ({ page, context }, info) => {
   // touch opens Trips, the keyboard opens Gear
   await folds.nth(0).locator('summary').tap();
   await expect(folds.nth(0)).toHaveJSProperty('open', true);
-  await expect(folds.nth(0).getByRole('button', { name: T('New trip') })).toBeVisible();
+  await expect(folds.nth(0).locator('.hub-in')).toBeVisible();
   await folds.nth(1).locator('summary').focus();
   await page.keyboard.press('Enter');
   await expect(folds.nth(1)).toHaveJSProperty('open', true);

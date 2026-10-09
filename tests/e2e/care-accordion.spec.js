@@ -94,34 +94,44 @@ test('accordion: one bike open, the others one row; last work per part with me /
   await expect(scale.locator('.badge')).toHaveText(/fällig|keine Daten/);
   await expect(scale.locator('.parts')).toHaveCount(0);
 
-  // Due now: 3 rows, the rest on a tap; my own job with "Erledigt", the shop's with a badge.
-  const due = spark.locator('ul.due > li');
-  await expect(due).toHaveCount(3);
-  await spark.getByRole('button', { name: /^Alle \d+ zeigen$/ }).click();
-  expect(await due.count()).toBeGreaterThan(3);
-  await expect(due.filter({ hasText: 'Gabel-Service' }).locator('.who.mech')).toHaveText('Velomech');
-  await expect(due.filter({ hasText: 'Kette wachsen' }).getByRole('button', { name: 'Erledigt' })).toBeVisible();
-
-  // One row per part: what, when, km, CHF, who; a state badge and what comes next.
+  // v0.38.0 (Noah 5a): one list, what is due first (worst on top), with its button in the row:
+  // my own job "Erledigt", the bike shop's with the shop sign.
   const row = (name) => spark.locator('li.pt').filter({ has: page.getByRole('button', { name: new RegExp(`^${name}`) }) });
-  await expect(row('Kassette')).toContainText(`ersetzt ${shown(day(-200))} · 3’900 km · CHF 129`);
+  const due = spark.locator('li.pt.due');
+  expect(await due.count()).toBeGreaterThan(3);
+  await expect(due.first().locator('.st')).toHaveText(/Arbeit nötig|überfällig/);
+  await expect(row('Gabel').locator('.act .who.mech')).toHaveText('Velomech');
+  await expect(row('Kette').getByRole('button', { name: 'Erledigt' })).toBeVisible();
+  // Parts that are fine are folded as "n ok" with their names (6a).
+  const ok = spark.locator('.okfold');
+  await expect(ok).toHaveText(/\d+ ok/);
+  await expect(ok).toContainText('Kassette');
+  await ok.click();
+
+  // One row per part: what, when, km, CHF; the shop sign only on the bike shop's work; a state badge and what comes next.
+  await expect(row('Kassette')).toContainText(`ersetzt ${shown(day(-200))} · CHF 129`);
+  await expect(row('Kassette').locator('.kmv')).toHaveText('3’900');
   await expect(row('Kassette').locator('.who')).toHaveText('Velomech');
   await expect(row('Kassette')).toContainText('1’100 km alt');
   await expect(row('Kette')).toContainText(`gewachst ${shown(day(-30))}`);
   await expect(row('Kette')).toContainText(`gemessen 0.4 % am ${shown(day(-9))}`);
-  await expect(row('Kette').locator('.who')).toHaveText('ich');
+  await expect(row('Kette').locator('.who')).toHaveCount(0); // "me" is not on every row any more
   await expect(row('Kette').locator('.st')).toHaveText('fällig');
   await expect(row('Gabel').locator('.st')).toHaveText('überfällig');
   await expect(row('Schaltung').locator('.st')).toHaveText('Arbeit nötig');
   await expect(row('Bremsbeläge vorne').locator('.st')).toHaveText('bald');
   await expect(row('Bremsbeläge vorne')).toContainText('unter 50 % ersetzen');
-  // Tube or tubeless as a switch per wheel in the tyre row.
+  // Tube or tubeless as a switch per wheel inside the opened tyre row (7a).
+  await expect(row('Reifen').getByRole('group', { name: 'Vorne: Schlauch oder tubeless' })).toHaveCount(0);
+  await spark.getByRole('button', { name: /^Reifen/ }).click();
   await expect(row('Reifen').getByRole('group', { name: 'Vorne: Schlauch oder tubeless' }).getByRole('button', { name: 'Tubeless' })).toHaveAttribute('aria-pressed', 'true');
   // Folded: parts without data, the 1000 km check, the log.
   await expect(spark.locator('summary').filter({ hasText: 'Ohne Daten' })).toContainText('Teile');
   await expect(spark.locator('summary').filter({ hasText: '1’000-km-Check' })).toBeVisible();
   await expect(spark.locator('summary').filter({ hasText: 'Logbuch' })).toBeVisible();
-  // For the bike shop and the year.
+  // For the bike shop and the year: one folded row "Velomech & 2026".
+  await expect(spark.getByRole('button', { name: 'Werkstattauftrag senden' })).toHaveCount(0);
+  await spark.locator('summary').filter({ hasText: /Velomech & \d{4}/ }).click();
   await expect(spark.getByRole('button', { name: 'Werkstattauftrag senden' })).toBeVisible();
   await expect(spark.getByRole('region', { name: /an diesem Velo/ })).toContainText('Velomech');
   await expect(spark).toContainText(SHOP);
@@ -147,30 +157,34 @@ test('filter: all parts, only due, by me, by the bike shop; remembered', async (
   const spark = page.locator(`#care-${SPARK}`);
   const chips = page.getByRole('group', { name: 'Teile zeigen' });
   const names = () => spark.locator('li.pt .part-btn').allTextContents();
-  await expect(chips.getByRole('button', { name: 'Alle Teile' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(chips.getByRole('button', { name: 'Alle', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await spark.locator('.okfold').click();
   const all = await names();
   expect(all.length).toBeGreaterThanOrEqual(8);
 
-  await chips.getByRole('button', { name: 'vom Velomech' }).click();
+  await chips.getByRole('button', { name: 'Velomech', exact: true }).click();
   await expect.poll(names).not.toEqual(all);
+  if (await spark.locator('.okfold[aria-expanded=false]').count()) await spark.locator('.okfold').click();
   const shop = await names();
   expect(shop.some((n) => n.startsWith('Kassette'))).toBe(true);
   expect(shop.some((n) => n.startsWith('Gabel'))).toBe(true);
   expect(shop.some((n) => n.startsWith('Kette'))).toBe(false);
 
   await chips.getByRole('button', { name: 'von mir' }).click();
+  if (await spark.locator('.okfold[aria-expanded=false]').count()) await spark.locator('.okfold').click();
   await expect.poll(async () => (await names()).some((n) => n.startsWith('Kette'))).toBe(true);
   expect((await names()).some((n) => n.startsWith('Kassette'))).toBe(false);
 
-  await chips.getByRole('button', { name: 'Nur fällige' }).click();
+  await chips.getByRole('button', { name: 'Fällig', exact: true }).click();
+  await expect(spark.locator('.okfold')).toHaveCount(0);
   await expect.poll(async () => (await names()).length).toBeLessThan(all.length);
   for (const st of await spark.locator('li.pt .st').allTextContents()) expect(['fällig', 'überfällig', 'Arbeit nötig']).toContain(st.trim());
   await noSideways(page);
   await shot(page, info, 'care-filter-due');
 
   await page.reload();
-  await expect(page.getByRole('group', { name: 'Teile zeigen' }).getByRole('button', { name: 'Nur fällige' })).toHaveAttribute('aria-pressed', 'true');
-  await page.getByRole('group', { name: 'Teile zeigen' }).getByRole('button', { name: 'Alle Teile' }).click();
+  await expect(page.getByRole('group', { name: 'Teile zeigen' }).getByRole('button', { name: 'Fällig', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('group', { name: 'Teile zeigen' }).getByRole('button', { name: 'Alle', exact: true }).click();
   expect(errors).toEqual([]);
 });
 
@@ -195,7 +209,9 @@ test('"Done by: me / bike shop" is chosen in the dialog, the last choice presele
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${SPARK}`);
   const spark = page.locator(`#care-${SPARK}`);
+  // v0.38.0: a tap on the part opens its row; "Record …" opens the dialog.
   await spark.getByRole('button', { name: /^Kette/ }).first().click();
+  await spark.locator('li.pt.x').getByRole('button', { name: 'Erfassen …' }).click();
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Kette' }) });
   const who = dlg.getByRole('group', { name: 'Gemacht von' });
   await expect(who.getByRole('button', { name: 'ich' })).toHaveAttribute('aria-pressed', 'true');
@@ -207,7 +223,8 @@ test('"Done by: me / bike shop" is chosen in the dialog, the last choice presele
   await dlg.getByRole('button', { name: 'Gewachst' }).click();
   await expect(dlg).toBeHidden();
   await expect.poll(async () => (await stored(page, SPARK)).parts.find((p) => p.key === 'chain').history.at(-1)).toMatchObject({ date: day(0), km: 5000, action: 'service', result: 'done', by: 'shop' });
-  // The row says it at once: waxed today, bike shop.
+  // The row says it at once: waxed today, bike shop (now fine, so in the "ok" fold).
+  if (await spark.locator('.okfold[aria-expanded=false]').count()) await spark.locator('.okfold').click();
   const chain = spark.locator('li.pt').filter({ has: page.getByRole('button', { name: /^Kette/ }) });
   await expect(chain).toContainText(`gewachst ${shown(day(0))}`);
   await expect(chain.locator('.who')).toHaveText('Velomech');
@@ -216,6 +233,7 @@ test('"Done by: me / bike shop" is chosen in the dialog, the last choice presele
   // After a reload the next dialog starts with the last choice.
   await page.reload();
   await page.locator(`#care-${SPARK}`).getByRole('button', { name: /^Bremsbeläge vorne/ }).click();
+  await page.locator(`#care-${SPARK} li.pt.x`).getByRole('button', { name: 'Erfassen …' }).click();
   const pads = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Bremsbeläge vorne' }) });
   await expect(pads.getByRole('group', { name: 'Gemacht von' }).getByRole('button', { name: 'Velomech' })).toHaveAttribute('aria-pressed', 'true');
   await pads.getByRole('group', { name: 'Gemacht von' }).getByRole('button', { name: 'ich' }).click();

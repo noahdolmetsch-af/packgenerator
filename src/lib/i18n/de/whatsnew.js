@@ -10,6 +10,16 @@ export default {
   'Try it': 'Ausprobieren',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.38
+  'Today: a ready light per bike and quick buttons: chain lubed, wear measured, washed, sealant, tyre pressure, km. Each with Undo.':
+    'Heute: eine Bereit-Ampel pro Velo und Schnellknöpfe: Kette geölt, Verschleiss gemessen, geputzt, Dichtmilch, Reifendruck, km. Jeder mit Rückgängig.',
+  '"Jump to" on Today: what is due, dead weight, a year ago, the weekend and what is new.':
+    '«Springen zu» auf Heute: was fällig ist, totes Gewicht, vor einem Jahr, das Wochenende und was neu ist.',
+  'The menu "More" at the top right holds the rarer pages and the Inbox; the search also finds pages.':
+    'Das Menü «Mehr» oben rechts hat die selteneren Seiten und die Inbox; die Suche findet auch Seiten.',
+  'Compact rows in Gear (the bag on wish) with swipe on a phone, and Bike care as one list: due first, the rest folded.':
+    'Kompakte Zeilen im Material (Tasche auf Wunsch) mit Wischen auf dem Handy, und die Velopflege als eine Liste: Fälliges zuerst, der Rest zugeklappt.',
+
   // 0.37.1
   'Merge items: a double or a collection item goes into the imported item(s); the app proposes the counterpart.':
     'Zusammenlegen: Ein doppeltes Teil oder ein Sammelteil geht in das importierte Teil (oder mehrere); die App schlägt das Gegenstück vor.',

@@ -47,8 +47,9 @@ async function load(page, context, info) {
   await page.goto('./#/');
 }
 
-/** The tile (opened on a phone, where it starts folded). */
+/** The tile (opened on a phone, where it starts folded). v0.38.0: the Bikes tile is "Bikes ready?". */
 async function tile(page, key) {
+  if (key === 'bikes') return page.locator('section.ready');
   const fold = page.locator('details.hub').filter({ has: page.locator(`#${key}-h`) });
   if (await fold.count()) {
     if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
@@ -58,39 +59,33 @@ async function tile(page, key) {
 
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 
-test('Trips and Bikes tiles: four buttons and More, the menu by keyboard and touch', async ({ page, context }, info) => {
+test('Trips tile and "Bikes ready?": only what no menu has, the More menu by keyboard and touch', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await load(page, context, info);
 
+  // v0.38.0 (Noah 13a): every target once. Day ride, New trip, Past trips, Compare trips, Learnings,
+  // templates and building blocks are in "New" and "More"; the Trips tile keeps what only it knows.
   const trips = (await tile(page, 'pack')).getByRole('group', { name: T('Trips|place') });
-  const shown = trips.locator(':scope > .btn');
-  await expect(shown).toHaveCount(5);
-  await expect(shown).toHaveText([T('Day ride'), T('New trip'), T('Write debrief'), T('Past trips ({n})', { n: 1 }), T('More')]); // v0.30.1 (Noah N9): with the count
+  await expect(trips.locator(':scope > .btn')).toHaveText([T('Write debrief'), T('Setups')]);
   await expect(trips.getByRole('link', { name: T('Write debrief') })).toHaveAttribute('href', `#/debrief/${PAST}`);
 
+  // The Bikes tile became "Bikes ready?" (Noah 8a): a problem and an idea, the rest under More.
   const bikes = (await tile(page, 'bikes')).getByRole('group', { name: T('Bikes|place') });
-  await expect(bikes.locator(':scope > .btn')).toHaveText([T('Log a problem'), T('Log km'), T('Bike care'), T('Idea'), T('More')]);
+  await expect(bikes.locator(':scope > .btn')).toHaveText([T('Log a problem'), T('Idea'), T('More')]);
   await noSideways(page);
 
-  // "Day ride" makes the trip in Pack (dayride.spec.js tests the trip itself); then back to Today.
-  await trips.getByRole('button', { name: T('Day ride') }).click();
-  await expect(page).toHaveURL(/#\/pack$/);
-  await page.getByRole('button', { name: T('Undo') }).first().click();
-  await page.goto('./#/');
-  await tile(page, 'pack'); // on a phone the tile starts folded again
-
   // More by keyboard: Enter opens and focuses the first entry, arrows move, Escape closes back on More.
-  const more = trips.getByRole('button', { name: T('More') });
+  const more = bikes.getByRole('button', { name: T('More') });
   await more.focus();
   await page.keyboard.press('Enter');
-  const menu = trips.getByRole('menu');
+  const menu = bikes.getByRole('menu');
   await expect(menu).toBeVisible();
   await expect(more).toHaveAttribute('aria-expanded', 'true');
-  await expect(menu.getByRole('menuitem')).toHaveText([T('Setups'), T('Compare trips'), T('Learnings'), T('All templates'), T('Building blocks')]);
-  await expect(menu.getByRole('menuitem', { name: T('Setups') })).toBeFocused();
+  await expect(menu.getByRole('menuitem')).toHaveText([T('Log a workshop visit'), T('Workshop order'), T('Choose a bike for the trip')]);
+  await expect(menu.getByRole('menuitem', { name: T('Log a workshop visit') })).toBeFocused();
   await page.keyboard.press('ArrowDown');
-  await expect(menu.getByRole('menuitem', { name: T('Compare trips') })).toBeFocused();
+  await expect(menu.getByRole('menuitem', { name: T('Workshop order') })).toBeFocused();
   await noSideways(page);
   await page.keyboard.press('Escape');
   await expect(menu).toBeHidden();
@@ -101,19 +96,18 @@ test('Trips and Bikes tiles: four buttons and More, the menu by keyboard and tou
   await page.locator('main h1').first().click();
   await expect(menu).toBeHidden();
 
-  // The Bikes "More": Choose a bike opens the comparison for the next trip.
-  await tile(page, 'bikes');
-  await bikes.getByRole('button', { name: T('More') }).click();
-  const bmenu = bikes.getByRole('menu');
-  await expect(bmenu.getByRole('menuitem')).toHaveText([T('Note on a bike'), T('Log a workshop visit'), T('Workshop order'), T('Choose a bike for the trip')]);
-  await bmenu.getByRole('menuitem', { name: T('Choose a bike for the trip') }).click();
+  // Choose a bike opens the comparison for the next trip.
+  await more.click();
+  await menu.getByRole('menuitem', { name: T('Choose a bike for the trip') }).click();
   await expect(page.getByRole('dialog', { name: T('Which bike?') })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
 test('Past trips lists the finished trip and opens it', async ({ page, context }, info) => {
   await load(page, context, info);
-  await (await tile(page, 'pack')).getByRole('group', { name: T('Trips|place') }).getByRole('link', { name: T('Past trips ({n})', { n: 1 }) }).click();
+  // v0.38.0 (Noah 13a): Past trips is in "More" › Look back.
+  await page.locator('.more-btn').click();
+  await page.locator('dialog.more').getByRole('link', { name: T('Past trips') }).click();
   await expect(page).toHaveURL(/#\/pack\/past/);
   await expect(page.getByRole('heading', { name: T('Past trips'), level: 1 })).toBeVisible();
   const rows = page.locator('.past li.card');
@@ -155,8 +149,7 @@ test('An idea for the bike shows on Bikes and can be ticked', async ({ page, con
   await dlg.getByLabel(T('What would be great?')).fill('test_data_gtp_ Dropper');
   await dlg.getByRole('button', { name: T('Save') }).click();
   await expect(dlg).toBeHidden();
-  // the tile counts it
-  await expect((await tile(page, 'bikes')).getByRole('link', { name: `Test gravel bike: ${T('{n} idea', { n: 1 })}` })).toBeVisible();
+  // v0.38.0: the Bikes tile with its idea count became "Bikes ready?"; the ideas list on Bikes counts it.
   await page.getByRole('status').filter({ hasText: T('Idea saved.') }).getByRole('link', { name: T('Open') }).click();
   await expect(page).toHaveURL(/#\/bikes/);
   const list = page.getByRole('list', { name: T('Ideas for the {bike}', { bike: 'Test gravel bike' }) });
