@@ -55,6 +55,17 @@
   const fitsWho = (by) => (filter === 'self' ? by === 'self' : filter === 'shop' ? by === 'shop' : true);
   const stub = (d) => ({ part: { key: d.part, model: '' }, last: null, st: { state: 'due', fill: null, tone: 'warn', next: d.detail }, group: groupOf(d.part) });
   const rankOf = (x) => (x.d?.kind === 'repair' ? (x.d.task.status === 'needed' ? RANK.work : RANK.due) : x.d?.kind === 'check' ? RANK.due : RANK[x.r?.st.state] ?? RANK.due);
+  /** Newest repair first: by the day it was logged, then by its number (made later = higher). */
+  const newer = (a, b) => (b.logDate ?? '').localeCompare(a.logDate ?? '') || (Number(b.id) || 0) - (Number(a.id) || 0);
+  // v0.46.1 (Noah: "Priorität über ••• ändern: nicht möglich"): the priority is a button in the row;
+  // a tap opens High / Medium / Low right under it, a second tap sets it.
+  let prioOpen = $state(null); // the repair id whose priority choice is open
+  let prioSaved = $state(null); // { id, text } after a change
+  async function setPriority(task, p) {
+    prioOpen = null;
+    if (task.priority !== p) await db.maintenance.update(task.id, { priority: p });
+    prioSaved = { id: task.id, text: t('Priority: {p}', { p: t(PRIORITY_NAME[p]) }) };
+  }
   const due = $derived.by(() => {
     if (!open) return [];
     const list = c.care.rows
@@ -63,7 +74,8 @@
     const taken = new Set(c.care.rows.map((d) => d.part).filter(Boolean));
     // A part in a due state that the care rows do not name (a worn pad measured today): due too.
     for (const r of known) if (isDueState(r.st.state) && !taken.has(r.part.key) && fitsWho(r.last?.by ?? 'self')) list.push({ d: null, by: r.last?.by ?? 'self', r });
-    return list.map((x, n) => ({ ...x, n })).sort((a, b) => rankOf(b) - rankOf(a) || a.n - b.n);
+    // v0.46.1 (Noah: "neueste Probleme zuoberst"): among repairs of the same rank the newest first.
+    return list.map((x, n) => ({ ...x, n })).sort((a, b) => rankOf(b) - rankOf(a) || (a.d?.kind === 'repair' && b.d?.kind === 'repair' ? newer(a.d.task, b.d.task) : 0) || a.n - b.n);
   });
   const dueParts = $derived(new Set(due.map((x) => x.r?.part.key).filter(Boolean)));
   const fits = (r) => (filter === 'due' ? false : filter === 'self' ? r.last?.by === 'self' : filter === 'shop' ? r.last?.by === 'shop' : true);
@@ -225,16 +237,27 @@
               <span class="pn"><b class="rn">{x.d.name}</b></span>
               <span class="st">{@render badge(task.status === 'needed' || isLate(task, today) ? 'work' : 'due')}</span>
               <span class="last"><span class="lt">{#if task.fix}<b class="fix">{t(FIXES[task.fix])}</b>{#if stepFor(task)} · {t(stepFor(task))}{/if}{:else}{x.d.detail}{/if}{#if task.note} · {task.note}{/if}</span></span>
-              <span class="next" class:late={isLate(task, today)}>{#if task.priority}{t({ high: 'High', medium: 'Medium', low: 'Low' }[task.priority] ?? task.priority)}{:else}–{/if}{#if task.dueDate} · {t('by {date}', { date: dateOf(task.dueDate) })}{:else if task.beforeRide} · {t('Before the next ride')}{/if}</span>
+              <span class="next" class:late={isLate(task, today)}>
+                <button type="button" class="prio" class:hi={task.priority === 'high'} aria-expanded={prioOpen === task.id} aria-controls="prio-{task.id}" onclick={() => ((prioOpen = prioOpen === task.id ? null : task.id), (prioSaved = null))}>{t('Priority: {p}', { p: t(PRIORITY_NAME[task.priority] ?? 'Medium') })}<ChevronDown size={14} aria-hidden="true" /></button>{#if task.dueDate} · {t('by {date}', { date: dateOf(task.dueDate) })}{:else if task.beforeRide} · {t('Before the next ride')}{/if}
+              </span>
               <span class="wear"></span>
               <span class="act">
                 <button type="button" class="btn sm" onclick={() => onrepair(task, 'done')}><Check size={16} aria-hidden="true" />{t('Done|task')}</button>
                 <MoreMenu label={task.task} actions={[
                   // v0.45.2 (Noah 1a): the app's way to fix it, changed with one tap
-                  ...PRIORITIES.filter((p) => p !== task.priority).map((p) => ({ name: t('Priority: {p}', { p: t(PRIORITY_NAME[p]) }), run: () => db.maintenance.update(task.id, { priority: p }) })),
+                  ...PRIORITIES.filter((p) => p !== task.priority).map((p) => ({ name: t('Priority: {p}', { p: t(PRIORITY_NAME[p]) }), run: () => setPriority(task, p) })),
                   ...Object.keys(FIXES).filter((f) => f !== (task.fix ?? '')).map((f) => ({ name: t('Fix: {how}', { how: t(FIXES[f]) }), run: () => setFix(task, f, bike) })),
                   { name: t('Work needed'), run: () => onrepair(task, 'needed') }, { name: t('Not needed any more'), run: () => onrepair(task, 'gone') }]} />
               </span>
+              {#if prioOpen === task.id}
+                <div class="extra" id="prio-{task.id}">
+                  <span class="seg" role="group" aria-label={t('Priority: {task}|repair', { task: task.task })}>
+                    {#each PRIORITIES as p (p)}<button type="button" aria-pressed={(task.priority ?? 'medium') === p} onclick={() => setPriority(task, p)}>{t(PRIORITY_NAME[p])}</button>{/each}
+                  </span>
+                </div>
+              {:else if prioSaved?.id === task.id}
+                <p class="extra saved-prio" role="status">✓ {prioSaved.text}</p>
+              {/if}
             </li>
           {/if}
         {/each}
@@ -702,6 +725,36 @@
   }
   .bar.bad i {
     background: var(--bad);
+  }
+  /* v0.46.1: the priority of a repair, a button in the row (44 px tall for a thumb, no layout jump). */
+  .prio {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: var(--ink-2);
+    text-decoration: underline;
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .prio::before {
+    content: '';
+    position: absolute;
+    inset: -12px -6px;
+  }
+  .prio.hi {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .saved-prio {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-2);
   }
   .extra {
     grid-column: 1 / -1;

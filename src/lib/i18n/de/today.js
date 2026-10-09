@@ -2,6 +2,20 @@
 export default {
   /* ---------- More and the search ---------- */
   'Plan|more': 'Planen',
+  // v0.46.1 (Noah: "Wo finde ich die Packlisten?")
+  'Packing lists': 'Packlisten',
+  'Packing list templates': 'Vorlagen für Packlisten',
+  // v0.46.1 (Noah): «Touren», the overview of all trips (#/trips)
+  'What now?': 'Was jetzt?',
+  'Tap a trip to continue.': 'Tippe eine Tour an, um weiterzumachen.',
+  'Soon on the way': 'Bald unterwegs',
+  'In planning': 'In Planung',
+  Ridden: 'Gefahren',
+  'Continue to Plan': 'Weiter zu Planen',
+  'Continue to Pack': 'Weiter zu Packen',
+  'Open|trip': 'Öffnen',
+  'Create the first trip': 'Erste Tour anlegen',
+  'No trips yet. A trip is the packing list for one ride or journey.': 'Noch keine Touren. Eine Tour ist die Packliste für eine Fahrt oder Reise.',
   'Look back': 'Rückblick',
   'App|more': 'App',
   'Backup due': 'Backup fällig',

@@ -1,7 +1,7 @@
 <script>
   /**
    * Search everything from the top bar (v0.19.6, start page answer 1a): gear, trips, templates,
-   * bikes and notes. On a phone the magnifier opens the field under the bar.
+   * bikes and notes. On a phone the magnifier opens the field under the bar (v0.46.1: a full-width sheet).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -57,6 +57,12 @@
     await undoCare(u);
   }
   $effect(() => () => clearTimeout(doneTimer));
+  // v0.46.1: while the sheet is open the top bar (with the sheet in it) lies above the page's own bars.
+  $effect(() => {
+    const on = open && (phone.matches || compact);
+    document.body.classList.toggle('search-open', on);
+    return () => document.body.classList.remove('search-open');
+  });
 
   // v0.38.0 (Noah 13a): pages of "More" and the things of "New" are found too; an action does it.
   const RUN = { trip: () => openNew('list'), dayride: dayRide, note: () => openNote(''), item: () => addItem(), km: () => openNew('km'), data: openData };
@@ -90,9 +96,20 @@
     open = false;
     addItem(name);
   }
+  // v0.46.1: the sheet starts right under the top bar (its height differs with the safe area).
+  let top = $state(64);
   function toggle() {
     open = !open;
-    if (open) queueMicrotask(() => input?.focus());
+    if (open) {
+      top = Math.round(root?.closest('header')?.getBoundingClientRect().bottom ?? 64);
+      queueMicrotask(() => input?.focus());
+    }
+  }
+  function close() {
+    q = '';
+    open = false;
+    done = null;
+    queueMicrotask(() => btn?.focus());
   }
   const key = (e) => {
     if (e.key === 'Escape') {
@@ -105,18 +122,39 @@
   };
 </script>
 
+<!-- v0.46.1 (Noah: "bei Suche auf Handy blockiert Suchfeld obersten Teil"): on a phone the open search
+     is one clean sheet under the top bar (field, then the results), the magnifier turns into ×. -->
 <div class="search" bind:this={root} class:ph={phone.matches || compact} class:open>
   {#if phone.matches || compact}
     <button type="button" class="icon" bind:this={btn} aria-label={open ? t('Close search') : t('Search everything')} aria-expanded={open} onclick={toggle}>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
+      {#if open}
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      {:else}
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
+      {/if}
     </button>
+    {#if open}
+      <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+      <div class="sheet" style="--top: {top}px" onclick={(e) => e.target === e.currentTarget && close()}>
+        {@render field()}
+        {@render results()}
+        {#if q.trim().length < 2 && !done}<p class="tip">{t('Type two letters or more, or say what you want to do: "weigh", "day ride".')}</p>{/if}
+      </div>
+    {/if}
+  {:else}
+    {@render field()}
+    {@render results()}
   {/if}
-  {#if (!phone.matches && !compact) || open}
-    <label class="field">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
-      <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder={t('What do you want to do? "weigh", "day ride factor"')} aria-label={t('What do you want to do? Search or say an action')} autocomplete="off" />
-    </label>
-  {/if}
+</div>
+
+{#snippet field()}
+  <label class="field">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
+    <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder={t('What do you want to do? "weigh", "day ride factor"')} aria-label={t('What do you want to do? Search or say an action')} autocomplete="off" />
+  </label>
+{/snippet}
+
+{#snippet results()}
   {#if done && !q.trim()}
     <div class="res" role="region" aria-label={t('Search results')}>
       <p class="done" role="status"><span>{done.text}</span><button type="button" class="btn sm" onclick={undoDone}>{t('Undo')}</button></p>
@@ -147,7 +185,7 @@
       {/if}
     </div>
   {/if}
-</div>
+{/snippet}
 
 <style>
   .search {
@@ -195,16 +233,34 @@
     color: var(--brand-ink);
     cursor: pointer;
   }
-  /* Phone: the field sits under the bar, full width. */
-  .ph .field {
+  /* v0.46.1: phone: one sheet under the top bar, full width, the page dimmed below it. */
+  .sheet {
     position: fixed;
-    left: 8px;
-    right: 8px;
-    top: calc(56px + env(safe-area-inset-top));
-    width: auto;
+    top: var(--top, 64px);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px var(--gut, 16px) 16px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+  .sheet .field {
+    flex: none;
+    width: 100%;
     height: 48px;
     border: 1.5px solid var(--line-strong);
-    z-index: 30;
+  }
+  .tip {
+    margin: 4px 2px;
+    color: var(--ink-3);
+    font-size: 15px;
   }
   .res {
     position: absolute;
@@ -222,12 +278,13 @@
     z-index: 30;
     box-sizing: border-box;
   }
-  .ph .res {
-    position: fixed;
-    left: 8px;
-    right: 8px;
-    top: calc(110px + env(safe-area-inset-top));
+  .sheet .res {
+    position: static;
+    flex: none;
     width: auto;
+    max-height: none;
+    overflow: visible;
+    box-shadow: none;
   }
   .gh {
     margin: 8px 6px 2px;

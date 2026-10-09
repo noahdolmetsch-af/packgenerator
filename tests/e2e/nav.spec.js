@@ -15,6 +15,7 @@ const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', imp
 /** address → the main place that must be marked (null: none of the four, e.g. the Inbox). */
 const ROUTES = [
   ['#/', 'Today|place'],
+  ['#/trips', 'Trips|place'],
   ['#/pack', 'Trips|place'],
   ['#/pack?day', 'Trips|place'],
   ['#/pack/templates', 'Trips|place'],

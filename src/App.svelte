@@ -10,6 +10,7 @@
   import Inbox from './pages/Inbox.svelte';
   import Favorites from './pages/Favorites.svelte';
   import PastTrips from './pages/PastTrips.svelte';
+  import Trips from './pages/Trips.svelte';
   import Blocks from './pages/Blocks.svelte';
   import Features from './pages/Features.svelte';
   import GearImport from './pages/GearImport.svelte';
@@ -195,6 +196,9 @@
     <Bikes />
   {:else if page === 'templates'}
     <Templates />
+  {:else if page === 'trips'}
+    <!-- v0.46.1 (Noah): «Touren», the overview of all trips -->
+    <Trips />
   {:else if page === 'past'}
     <!-- v0.25.1 (Noah 3a): the finished trips, from Today's Trips tile -->
     <PastTrips />
@@ -262,6 +266,12 @@
     position: sticky;
     top: 0;
     z-index: 5;
+  }
+  /* v0.46.1: the open search sheet (in the top bar) covers the page's bottom bars too. */
+  :global(body.search-open) .top {
+    z-index: 40;
+  }
+  .top {
     display: flex;
     align-items: center;
     min-height: 64px;

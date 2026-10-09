@@ -8,7 +8,7 @@
  * Pure functions, easy to test.
  */
 import { addHours } from './ride.js';
-import { rainOf } from './layers.js';
+import { rainOf, coldLayer, isNightEyewear } from './layers.js';
 import { nameOf } from './i18n.svelte.js';
 
 /** Assumption, not measured: half a litre per riding hour, a quarter more from 25 °C. */
@@ -70,7 +70,7 @@ const kmAt = (b, at) => b.kmFrom == null || b.kmTo == null ? null : Math.round(b
  * Returns { rows: [block plan], capL, rate, lights: [{ name, place }] }.
  */
 export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx = null, offsetOf = offsetFor } = {}) {
-  const layers = items.filter(({ item }) => typeof item.coldBelow === 'number' || rainOf(item));
+  const layers = items.filter(({ item }) => typeof item.coldBelow === 'number' || rainOf(item) || isNightEyewear(item));
   const food = items.filter(({ item }) => item.perHours && !item.waterL);
   const capL = items.reduce((t, { item, qty }) => t + (item.waterL || 0) * (qty || 1), 0);
   const lights = items.filter(({ item }) => item.category === 'light').map(({ item, place: p }) => ({ name: nameOf(item), place: p }));
@@ -91,8 +91,11 @@ export function blockPlan(rows, items, { wxOf = () => [], place = null, tripWx =
     const plan = { ...b, temp, wet, wxFrom: temps.length ? 'hours' : fromTrip ? 'trip' : null, wear: [], on: [], off: [], food: [], drinkL: 0, refillKm: [], refillAt: [], light: null };
 
     // Clothing: a layer is worn when the block gets colder than its limit, a rain layer when it is wet.
-    if (temp || hrs.length || tripWx) {
-      const now = layers.filter(({ item }) => (typeof item.coldBelow === 'number' && temp && temp.lo < item.coldBelow) || (rainOf(item) === 'yes' && wet));
+    // v0.46.1: rain gear only when it is wet (also with a cold limit); glasses for the dark only
+    // in the rain or when the block is dark (a sunset, a sunrise or the whole block at night).
+    const dark = nights.some((n) => n.to > b.startAt && n.from < b.endAt);
+    if (temp || hrs.length || tripWx || dark) {
+      const now = layers.filter(({ item }) => (coldLayer(item) && temp && temp.lo < item.coldBelow) || (rainOf(item) === 'yes' && wet) || (isNightEyewear(item) && dark));
       const ids = new Set(now.map(({ item }) => item.id));
       plan.wear = now.map(({ item, place: p }) => ({ id: item.id, name: nameOf(item), place: p }));
       if (!b.rest) {

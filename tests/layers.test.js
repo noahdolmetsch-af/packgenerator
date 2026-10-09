@@ -83,3 +83,21 @@ describe('layers', () => {
     expect(swapInTrip(both, 'A', 'B').entries).toEqual([{ itemId: 'B' }]);
   });
 });
+
+// v0.46.1 (Noah, day ride: «Nachtbrille gelb, Latex-Handschuhe, Regensocken wasserdicht, obwohl nicht nötig»).
+describe('a dry day ride brings no rain gear and no glasses for the dark (v0.46.1)', () => {
+  const gear = [
+    own('LATEX', { name: 'Latex-Handschuhe', rain: 'yes', coldBelow: 5 }),
+    own('SOCKS', { name: 'Regensocken wasserdicht', rain: 'yes', coldBelow: 5 }),
+    own('NIGHT', { name: 'Nachtbrille gelb', rain: 'yes', coldBelow: 5, replaces: 'SUN' }),
+    own('CLEAR', { name: 'Clear glasses', coldBelow: 5 }),
+    own('BUFF', { name: 'Buff', coldBelow: 8, sets: ['u-regen'] }),
+    own('TIGHTS', { name: 'Tights', coldBelow: 5 }),
+  ];
+  it('cold and dry: only the real cold layers, not rain gear with a cold limit, not night glasses', () => {
+    expect(ids(layerSuggest({ wx: { min: -2, max: 4, rain: 'none' }, entries: [] }, gear))).toEqual(['BUFF', 'TIGHTS']);
+  });
+  it('with rain the rain gear (and the night glasses marked for rain) come along', () => {
+    expect(ids(layerSuggest({ wx: { min: 6, max: 12, rain: 'showers' }, entries: [] }, gear)).sort()).toEqual(['BUFF', 'LATEX', 'NIGHT', 'SOCKS']);
+  });
+});

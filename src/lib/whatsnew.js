@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.46.1',
+    date: '2026-10-09',
+    points: [
+      { text: 'Problem with a bike: several problems in one line, separated by commas or "and", become single repairs, each ticked off on its own. Under the field you see what will be saved.', href: '#/bikes?tab=care' },
+      { text: 'Bike care shows the newest problems on top. The priority is a button in the row: tap it, then High, Medium or Low. The ••• menu opens upwards when there is no room below.', href: '#/bikes?tab=care' },
+      { text: 'A dry day ride no longer brings rain gear (rain socks, latex gloves) because it is cold, and glasses for the dark only come in the rain or when the ride runs into the dark. A new day ride takes the temperatures of the last one, never its rain.', href: '#/pack' },
+      { text: '"Trips" opens an overview of all trips by state (soon on the way, in planning, debrief open, ridden), each with one button to its next step. More → Packing lists has the lists, templates and past trips. The search on the phone opens as a clean page under the top bar.', href: '#/trips' },
+    ],
+  },
+  {
     version: '0.46.0',
     date: '2026-10-09',
     points: [

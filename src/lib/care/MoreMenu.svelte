@@ -3,9 +3,20 @@
   import { t } from '../i18n.svelte.js';
 
   let { label, actions } = $props();
+  // v0.46.1 (Noah's phone: "Priorität über ••• ändern: nicht möglich"): near the bottom of the screen
+  // the menu opened under the bottom bar; now it opens upwards when there is no room below.
+  let up = $state(false);
+  function place(ev) {
+    const d = ev.currentTarget;
+    if (!d.open) return (up = false);
+    const box = d.querySelector('.more-in')?.getBoundingClientRect();
+    const bar = document.querySelector('nav.bottom')?.getBoundingClientRect();
+    const floor = bar && bar.height ? bar.top : window.innerHeight;
+    up = !!box && box.bottom > floor - 8 && d.getBoundingClientRect().top - box.height > 64;
+  }
 </script>
 
-<details class="more">
+<details class="more" class:up ontoggle={place}>
   <summary aria-label={t('More answers for {label}', { label })}>•••</summary>
   <div class="more-in">{#each actions as a (a.name)}<button type="button" class="btn sm" onclick={(ev) => (ev.currentTarget.closest('details').open = false, a.run())}>{a.name}</button>{/each}</div>
 </details>
@@ -49,8 +60,18 @@
     border-radius: 6px;
     box-shadow: 0 6px 18px var(--shadow);
   }
+  .up .more-in {
+    top: auto;
+    bottom: calc(100% + 4px);
+  }
   .btn.sm {
     padding: 3px 10px;
     font-size: var(--fs-small);
+  }
+  /* v0.46.1: each answer 44 px tall for a thumb. */
+  @media (pointer: coarse) {
+    .more-in .btn.sm {
+      min-height: 44px;
+    }
   }
 </style>

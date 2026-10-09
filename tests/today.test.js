@@ -99,8 +99,8 @@ describe('Today: the trip and its one next step', () => {
 });
 
 describe('main places', () => {
-  it('four places in a fixed order', () => {
-    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['trips', '#/pack'], ['gear', '#/gear'], ['bikes', '#/bikes']]);
+  it('four places in a fixed order (v0.46.1: Trips opens the overview)', () => {
+    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['trips', '#/trips'], ['gear', '#/gear'], ['bikes', '#/bikes']]);
   });
 
   it('every address belongs to the right place', () => {

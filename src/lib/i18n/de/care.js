@@ -73,6 +73,8 @@ export default {
   'Part needed': 'Teil nötig',
   'Fix: {how}': 'Lösung: {how}',
   'Priority: {p}': 'Priorität: {p}',
+  // v0.46.1: the priority choice under a repair row
+  'Priority: {task}|repair': 'Priorität: {task}',
   'How to fix: {task}': 'Lösungsweg: {task}',
   '{n}× in 30 days.': '{n}× in 30 Tagen.',
   'They are open repairs in Bike care now. The app sorted them; one tap changes it.': 'Sie stehen jetzt als offene Reparaturen in der Velopflege. Die App hat sie eingeordnet; ein Tipp ändert das.',

@@ -382,6 +382,8 @@ export default {
 
   /* ---------- search ---------- */
   'Close search': 'Suche schliessen',
+  // v0.46.1: the empty search sheet on a phone
+  'Type two letters or more, or say what you want to do: "weigh", "day ride".': 'Tippe zwei Buchstaben oder mehr, oder sag, was du tun willst: «wiegen», «Tagestour».',
   'Search everything': 'Alles durchsuchen',
   'Find gear, trips, bikes, notes': 'Ausrüstung, Touren, Velos, Notizen finden',
   'Search results': 'Suchergebnisse',
@@ -515,7 +517,6 @@ export default {
   'Problem with a bike': 'Problem am Velo',
   'Air, saddle, battery: one per line': 'Luft, Sattel, Akku: eins pro Zeile',
   'Which bike?': 'Welches Velo?',
-  'What is wrong? One problem per line': 'Was ist los? Ein Problem pro Zeile',
   'e.g. Too little air in the tyres': 'z. B. Zu wenig Luft in den Reifen',
   'Too little air in the tyres': 'Zu wenig Luft in den Reifen',
   'Saddle too low': 'Sattel zu tief',
@@ -526,7 +527,6 @@ export default {
   Quick: 'Schnell',
   'Save problem': 'Problem speichern',
   'Save {n} problems': '{n} Probleme speichern',
-  'Each line becomes an open repair in Bike care.': 'Jede Zeile wird eine offene Reparatur in der Velopflege.',
   '1 problem saved for {bike}': '1 Problem beim {bike} gespeichert',
   '{n} problems saved for {bike}': '{n} Probleme beim {bike} gespeichert',
   'They are open repairs in Bike care now.': 'Sie stehen jetzt als offene Reparaturen in der Velopflege.',
@@ -540,4 +540,9 @@ export default {
   'Choose a priority.': 'Wähle eine Priorität.',
   'Choose a priority first.': 'Zuerst eine Priorität wählen.',
   'Choose the date of the deadline.': 'Wähle das Datum der Deadline.',
+  /* ---------- v0.46.1 (Noah: one entry per problem) ---------- */
+  'What is wrong? One problem per line or separated by commas': 'Was ist los? Ein Problem pro Zeile oder mit Komma getrennt',
+  'Saved as 1 problem:': 'Wird als 1 Problem gespeichert:',
+  'Saved as {n} problems:': 'Wird als {n} Probleme gespeichert:',
+  'Each problem becomes its own open repair in Bike care.': 'Jedes Problem wird eine eigene offene Reparatur in der Velopflege.',
 };
