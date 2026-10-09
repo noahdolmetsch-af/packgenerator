@@ -134,7 +134,7 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .nm b {
     font-weight: 600;

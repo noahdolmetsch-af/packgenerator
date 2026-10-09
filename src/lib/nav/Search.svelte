@@ -243,7 +243,7 @@
     color: var(--ink);
     font: 600 15px var(--font-body);
     text-align: left;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     cursor: pointer;
   }
   .add:hover,

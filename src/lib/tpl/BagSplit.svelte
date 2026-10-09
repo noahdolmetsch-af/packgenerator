@@ -132,7 +132,7 @@
   }
   .t {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .t small {
     display: block;

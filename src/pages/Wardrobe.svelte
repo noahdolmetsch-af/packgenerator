@@ -424,7 +424,7 @@
     display: flex;
     gap: 12px;
     margin: 0 0 6px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .sname .w {
     margin-left: auto;
@@ -501,7 +501,7 @@
   .nm {
     flex: 1;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .badge {
     font-style: normal;
@@ -565,7 +565,7 @@
     color: var(--paper);
     box-shadow: 0 8px 24px rgba(15, 46, 39, 0.3);
     font-weight: 600;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .toast .btn {
     flex: none;
@@ -623,7 +623,7 @@
   .selbar .undo span {
     flex: 1 1 160px;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .bacts {
     display: flex;

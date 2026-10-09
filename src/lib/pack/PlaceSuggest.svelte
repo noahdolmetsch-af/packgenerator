@@ -67,7 +67,7 @@
   .ps-text {
     flex: 1 1 180px;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .ps-text small {
     display: block;

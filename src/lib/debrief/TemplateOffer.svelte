@@ -59,7 +59,7 @@
   .offer h2 {
     font-size: var(--fs-sub);
     margin: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .why {
     margin: 0;

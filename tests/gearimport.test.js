@@ -116,6 +116,39 @@ describe('matching', () => {
   });
 });
 
+describe('v0.45.1 (G001): the same item twice in one file', () => {
+  const FILE2 = {
+    kind: 'gear-import', version: 1,
+    items: [imp('M15', N('Lampe vorne'), 'light', { weightG: 160 }), imp('M16', N('Multitool'), 'tools'), imp('M102', N('Lampe vorne'), 'light', { weightG: 165 }), imp('M103', N('Lampe hinten'), 'light'), imp('M104', N('multitool.'), 'tools')],
+  };
+  it('a later line that is (nearly) the same as an earlier one is "Unsicher", the earlier line first', () => {
+    const { rows } = match(FILE2.items, []);
+    expect(rows.map((r) => r.kind)).toEqual(['fresh', 'fresh', 'unsure', 'fresh', 'unsure']);
+    expect(rows[2]).toMatchObject({ reason: 'file' });
+    expect(rows[2].candidates[0].item).toMatchObject({ id: 'line:M15', name: N('Lampe vorne') });
+    expect(rows[4].candidates[0].item.id).toBe('line:M16');
+  });
+  it('"Alle sicheren übernehmen" never makes two items; "same as the line" merges into the new item', () => {
+    const w = buildWrites(FILE2, [], [], {}, NOW);
+    expect(w.items.map((i) => i.name)).toEqual([N('Lampe vorne'), N('Multitool'), N('Lampe hinten')]);
+    expect(w.counts.open).toBe(2);
+    const w2 = buildWrites(FILE2, [], [], { M102: 'line:M15', M104: 'new' }, NOW);
+    expect(w2.items.filter((i) => i.name === N('Lampe vorne'))).toHaveLength(1);
+    expect(w2.items.find((i) => i.name === N('Lampe vorne')).mergedIds).toContain('M102');
+    expect(w2.items.map((i) => i.name)).toContain(N('multitool.'));
+    expect(w2.counts.merged).toBe(1);
+  });
+  it('after the safe ones are applied the rest still points at the item the first line made', () => {
+    const w = buildWrites(FILE2, [], [], {}, NOW);
+    const rest = remaining(FILE2, w.done, w.took);
+    const { rows } = match(rest.items, w.items, rest.appliedItemIds);
+    expect(rows.map((r) => r.kind)).toEqual(['unsure', 'unsure']);
+    const lamp = w.items.find((i) => i.name === N('Lampe vorne'));
+    expect(rows[0]).toMatchObject({ reason: 'file' });
+    expect(rows[0].candidates[0].item.id).toBe(lamp.id);
+  });
+});
+
 describe('"Schon da" only fills empty fields (the app item is the master)', () => {
   it('never overwrites name, weight, category, quantity, ownership or building blocks', () => {
     const item = ITEMS[4]; // sleeping bag, 700 g, in the block "sleep"

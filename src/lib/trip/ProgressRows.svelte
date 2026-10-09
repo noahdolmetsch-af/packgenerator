@@ -113,7 +113,7 @@
   .nm {
     grid-column: 1;
     font-weight: 600;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .sub {
     grid-column: 1;
@@ -219,7 +219,7 @@
   .ask p {
     margin: 0 0 8px;
     font-size: 14px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .ask-b {
     display: flex;

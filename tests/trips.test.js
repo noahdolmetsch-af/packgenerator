@@ -157,6 +157,33 @@ describe('trips', () => {
   });
 });
 
+describe('v0.45.1 (G002): past and finished trips are history', () => {
+  it('keeps mounts (fixtures) and bags on past and finished trips; a planned trip still loses them', async () => {
+    const db = createDb('trips-g002');
+    await db.bikes.put({ id: 'bk-gtp', name: 'test_data_gtp_Velo', setup: { seat: 'bag-gtp' }, fixtures: ['test_data_gtp_BK002'] });
+    await db.containers.put({ id: 'bag-gtp', itemId: 'test_data_gtp_TA01', slot: 'seat' });
+    const entries = [
+      { itemId: 'test_data_gtp_BK002', slot: 'bar', qty: 1, packed: true },
+      { itemId: 'test_data_gtp_TA01', slot: 'seat', qty: 1, packed: true },
+      { itemId: 'test_data_gtp_EL01', slot: 'top', qty: 1, packed: true },
+    ];
+    const base = { bikeId: 'bk-gtp', setup: { seat: 'bag-gtp' }, ready: [], entries };
+    await db.trips.bulkPut([
+      { ...base, id: 'past', startDate: '2026-09-01', days: 3 },
+      { ...base, id: 'ended', startDate: '2026-10-08', days: 3, finished: true },
+      { ...base, id: 'planned', startDate: '2026-10-20', days: 2, entries: entries.map((e) => ({ ...e, packed: false })) },
+    ]);
+    const before = await db.trips.get('past');
+    expect(await ensureTrips(db, '2026-10-09')).toBe(1);
+    expect(await db.trips.get('past')).toEqual(before);
+    expect((await db.trips.get('ended')).entries).toEqual(entries);
+    expect((await db.trips.get('planned')).entries.map((e) => e.itemId)).toEqual(['test_data_gtp_EL01']);
+    // a start-up later changes nothing
+    expect(await ensureTrips(db, '2026-10-09')).toBe(0);
+    expect(await ensureTrips(db, '2027-01-01')).toBe(0);
+  });
+});
+
 describe('bags packed as items', () => {
   it('move into the bag setup and leave the packing list', async () => {
     const { absorbBags } = await import('../src/lib/trips.js');

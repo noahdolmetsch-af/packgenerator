@@ -1,0 +1,889 @@
+{
+ "kind": "gear-import",
+ "version": 1,
+ "created": "2026-10-01",
+ "items": [
+  {
+   "sourceId": "GTP-M0001",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "rain",
+   "name": "test_data_gtp_Regenjacke leicht",
+   "layer": "outer",
+   "zone": "torso",
+   "tempMin": -2,
+   "tempMax": 18,
+   "tempClass": "mittel",
+   "weightG": 240,
+   "areas": [
+    "Velo",
+    "Wandern"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0002",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "onbike",
+   "name": "test_data_gtp_Trikot kurzarm",
+   "layer": "base",
+   "zone": "torso",
+   "tempMin": 15,
+   "tempMax": 32,
+   "tempClass": "warm",
+   "weightG": 130,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0003",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "onbike",
+   "name": "test_data_gtp_Trägerhose kurz",
+   "layer": "base",
+   "zone": "legs",
+   "tempMin": 14,
+   "tempMax": 32,
+   "tempClass": "warm",
+   "weightG": 190,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0004",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "onbike",
+   "name": "test_data_gtp_Armlinge",
+   "layer": "mid",
+   "zone": "arms",
+   "tempMin": 6,
+   "tempMax": 15,
+   "tempClass": "mittel",
+   "weightG": 70,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0005",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "onbike",
+   "name": "test_data_gtp_Beinlinge",
+   "layer": "mid",
+   "zone": "legs",
+   "tempMin": 3,
+   "tempMax": 14,
+   "tempClass": "mittel",
+   "weightG": 120,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0006",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "rain",
+   "name": "test_data_gtp_Windweste",
+   "layer": "outer",
+   "zone": "torso",
+   "tempMin": 6,
+   "tempMax": 18,
+   "tempClass": "mittel",
+   "weightG": 80,
+   "areas": [
+    "Velo",
+    "Alltag"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0007",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "rain",
+   "name": "test_data_gtp_Handschuhe Winter",
+   "layer": "accessory",
+   "zone": "hands",
+   "tempMin": -10,
+   "tempMax": 6,
+   "tempClass": "kalt",
+   "weightG": 150,
+   "areas": [
+    "Velo",
+    "Ski"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0008",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "onbike",
+   "name": "test_data_gtp_Handschuhe Sommer",
+   "layer": "accessory",
+   "zone": "hands",
+   "tempMin": 12,
+   "tempMax": 35,
+   "tempClass": "warm",
+   "weightG": 50,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0009",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "shoes",
+   "name": "test_data_gtp_Veloschuhe",
+   "layer": "accessory",
+   "zone": "feet",
+   "tempMin": -5,
+   "tempMax": 35,
+   "tempClass": "mittel",
+   "weightG": 820,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0010",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "offbike",
+   "name": "test_data_gtp_Daunenjacke",
+   "layer": "mid",
+   "zone": "torso",
+   "tempMin": -15,
+   "tempMax": 8,
+   "tempClass": "kalt",
+   "weightG": 310,
+   "areas": [
+    "Reisen",
+    "Ski"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0011",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "tools",
+   "name": "test_data_gtp_Multitool",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 150,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0012",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "tools",
+   "name": "test_data_gtp_Minipumpe",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 110,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0013",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "tools",
+   "name": "test_data_gtp_Ersatzschlauch 29\"",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 120,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0014",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "elec",
+   "name": "test_data_gtp_Powerbank 10000 mAh",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 180,
+   "areas": [
+    "Velo",
+    "Reisen"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0015",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "light",
+   "name": "test_data_gtp_Lampe vorne",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 160,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0016",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "light",
+   "name": "test_data_gtp_Rücklicht",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 40,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0017",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "sleep",
+   "name": "test_data_gtp_Schlafsack Sommer",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 560,
+   "areas": [
+    "Velo",
+    "Wandern"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0018",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "sleep",
+   "name": "test_data_gtp_Schlafmatte",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 420,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0019",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "sleep",
+   "name": "test_data_gtp_Zelt 1 Person",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 980,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0020",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "cook",
+   "name": "test_data_gtp_Gaskocher",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 80,
+   "areas": [
+    "Velo",
+    "Wandern"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0021",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "hyg",
+   "name": "test_data_gtp_Sonnencreme",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 60,
+   "areas": [
+    "Alltag"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0022",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "hyg",
+   "name": "test_data_gtp_Erste-Hilfe-Set",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 180,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0023",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "docs",
+   "name": "test_data_gtp_Identitätskarte",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 10,
+   "areas": [
+    "Reisen"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0024",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "food",
+   "name": "test_data_gtp_Trinkflasche 750 ml",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 90,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0025",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "bags",
+   "name": "test_data_gtp_Satteltasche 14 L",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 480,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0026",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "bags",
+   "name": "test_data_gtp_Rahmentasche gross",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 260,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0027",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "bags",
+   "name": "test_data_gtp_Oberrohrtasche",
+   "layer": "",
+   "zone": "",
+   "tempMin": null,
+   "tempMax": null,
+   "tempClass": "",
+   "weightG": 110,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0028",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "offbike",
+   "name": "test_data_gtp_Wanderhose",
+   "layer": "base",
+   "zone": "legs",
+   "tempMin": 0,
+   "tempMax": 25,
+   "tempClass": "mittel",
+   "weightG": 330,
+   "areas": [
+    "Wandern"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0029",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "rain",
+   "name": "test_data_gtp_Mütze",
+   "layer": "accessory",
+   "zone": "head",
+   "tempMin": -15,
+   "tempMax": 8,
+   "tempClass": "kalt",
+   "weightG": 50,
+   "areas": [
+    "Ski",
+    "Alltag"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0030",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "onbike",
+   "name": "test_data_gtp_Merinosocken",
+   "layer": "accessory",
+   "zone": "feet",
+   "tempMin": -5,
+   "tempMax": 25,
+   "tempClass": "mittel",
+   "weightG": 60,
+   "areas": [
+    "Velo",
+    "Wandern"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0101",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "tools",
+   "name": "test_data_gtp_Multitool",
+   "weightG": 150,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0102",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "light",
+   "name": "test_data_gtp_Lampe vorne",
+   "weightG": 165,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0103",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "rain",
+   "name": "test_data_gtp_Regenjacke leicht",
+   "layer": "outer",
+   "zone": "torso",
+   "tempMin": -2,
+   "tempMax": 18,
+   "weightG": 240,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0104",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "tools",
+   "name": "test_data_gtp_Mini Pumpe",
+   "weightG": 110,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0105",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "sleep",
+   "name": "test_data_gtp_Schlafsack Somer",
+   "weightG": 560,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0106",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "elec",
+   "name": "test_data_gtp_Powerbank 20000 mAh",
+   "weightG": 350,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0110",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": false,
+   "optional": true,
+   "rule": "",
+   "notes": "",
+   "category": "lux",
+   "name": "test_data_gtp_Packraft",
+   "weightG": 2400,
+   "areas": [
+    "Reisen"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0111",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": false,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "sleep",
+   "name": "test_data_gtp_Ultraleicht-Zelt",
+   "weightG": 690,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0120",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "tools",
+   "name": "",
+   "weightG": 50,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0121",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "tools",
+   "name": "test_data_gtp_Kettenöl",
+   "weightG": "ca. 70 g",
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0122",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "xyz-unbekannt",
+   "name": "test_data_gtp_Seltsames Ding",
+   "weightG": 33,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0123",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "hyg",
+   "name": "test_data_gtp_Zahnbürste",
+   "weightG": 15,
+   "areas": "Velo, Reisen"
+  },
+  {
+   "sourceId": "GTP-M0124",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "onbike",
+   "name": "test_data_gtp_Thermotrikot",
+   "layer": "MID",
+   "zone": "Oberkörper",
+   "tempMin": "kalt",
+   "tempMax": "12",
+   "weightG": 320,
+   "areas": [
+    "Velo"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0125",
+   "mergedIds": [],
+   "qty": -2,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "docs",
+   "name": "test_data_gtp_Bargeld",
+   "weightG": 20,
+   "areas": [
+    "Reisen"
+   ]
+  },
+  {
+   "sourceId": "GTP-M0126",
+   "mergedIds": [],
+   "qty": 1,
+   "owned": true,
+   "optional": false,
+   "rule": "",
+   "notes": "",
+   "category": "tools",
+   "name": "   test_data_gtp_Reifenheber   ",
+   "weightG": 0,
+   "areas": [
+    "Velo"
+   ]
+  }
+ ],
+ "learnings": [
+  {
+   "sourceId": "GTP-L01",
+   "date": "2021-06-12",
+   "topic": "test_data_gtp_ Kleidung",
+   "text": "test_data_gtp_ Bei Regen zuerst die Hände schützen",
+   "condition": "unter 10 °C",
+   "recommendation": "Überhandschuhe",
+   "exceptions": "",
+   "reason": "kalte Finger"
+  },
+  {
+   "sourceId": "GTP-L02",
+   "date": "",
+   "topic": "test_data_gtp_ Schlafen",
+   "text": "test_data_gtp_ Matte vor der Tour testen",
+   "condition": "",
+   "recommendation": "",
+   "exceptions": "",
+   "reason": ""
+  },
+  {
+   "sourceId": "GTP-L03",
+   "date": "2024",
+   "topic": "test_data_gtp_ Essen",
+   "text": "test_data_gtp_ Pro Stunde ein Riegel",
+   "condition": "",
+   "recommendation": "",
+   "exceptions": "",
+   "reason": ""
+  },
+  {
+   "sourceId": "GTP-L01",
+   "date": "2021-06-12",
+   "topic": "test_data_gtp_ Kleidung",
+   "text": "test_data_gtp_ Bei Regen zuerst die Hände schützen",
+   "condition": "",
+   "recommendation": "",
+   "exceptions": "",
+   "reason": ""
+  }
+ ]
+}

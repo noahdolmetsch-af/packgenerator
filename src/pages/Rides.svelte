@@ -512,7 +512,7 @@
     display: block;
     font-weight: 600;
     line-height: 1.3;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .lr .s {
     display: block;

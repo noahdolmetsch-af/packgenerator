@@ -53,6 +53,8 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run e2e -- --project=${{ matrix.project }}
+        env:
+          E2E_SKIP_GESAMTTEST: '1' # runs in its own job below
       # The page as the failing test saw it, readable in the log (the artifact can't be opened everywhere).
       - if: failure()
         run: for f in test-results/*/error-context.md; do echo "::group::$f"; head -c 20000 "$f"; echo "::endgroup::"; done
@@ -63,9 +65,38 @@ jobs:
           path: test-results
           retention-days: 7
 
+  # v0.45.1 (Noah: browser tests stay in CI): the Gesamttest with the big fictional data set
+  # (tests/e2e/gesamttest, 700 items): every page at 390/320/1366 px in German and English, the
+  # scenarios S1-S8 and the same counts everywhere. Split in two per project so it stays short.
+  gesamttest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [phone, desktop]
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/e2e/gesamttest --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2
+      - if: failure()
+        run: for f in test-results/*/error-context.md; do echo "::group::$f"; head -c 20000 "$f"; echo "::endgroup::"; done
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: gesamttest-results-${{ matrix.project }}-${{ matrix.shard }}
+          path: test-results
+          retention-days: 7
+
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: [build, e2e]
+    needs: [build, e2e, gesamttest]
     runs-on: ubuntu-latest
     environment:
       name: github-pages

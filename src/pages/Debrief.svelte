@@ -660,7 +660,7 @@
     flex: 1;
     min-width: 0;
     line-height: 1.25;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .nm small {
     display: block;
@@ -744,7 +744,7 @@
   }
   .qa label > span:first-child {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .qa small {
     color: var(--ink-3);
@@ -770,7 +770,7 @@
     display: flex;
     gap: 12px;
     margin: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .ld {
     margin-left: auto;
@@ -783,7 +783,7 @@
     color: var(--ink-2);
     font-size: 14px;
     white-space: pre-line;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .lsrc {
     margin: 2px 0 0;

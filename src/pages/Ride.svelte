@@ -28,6 +28,7 @@
   import { sunTimes } from '../lib/blockplan.js';
   import { isInventory } from '../lib/gear.js';
   import TripBand from '../lib/trip/TripBand.svelte';
+  import BaseCheck from '../lib/trip/BaseCheck.svelte';
   import { openTrip } from '../lib/nav.js';
   import '../lib/trip/trip.css';
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, BatteryCharging } from '@lucide/svelte';
@@ -358,6 +359,7 @@
 {:else}
 <div class="ride trip-page">
   <TripBand {trip} tab="ride" {kicker} compact action={go} aside={pen} hint={ahead ? '' : t('End the trip when you are back home.')} />
+  {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} />{/if}
   <div class="tp-grid2 r">
     <div class="col">
       <!-- Noah 7a: the days, then the block of now, on top. -->
@@ -588,7 +590,7 @@
   .do li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 10px; padding: 12px 16px; border-top: 1px solid var(--paper-2); align-items: start; }
   .k { width: 40px; height: 40px; border-radius: 10px; background: var(--paper-2); display: grid; place-items: center; color: var(--ink-2); }
   .lab { display: block; font-size: 13px; font-weight: 500; color: var(--ink-3); }
-  .val { display: block; font-size: 17px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+  .val { display: block; font-size: 17px; font-weight: 600; line-height: 1.3; overflow-wrap: break-word; }
   .val small, .do small { font-weight: 400; font-size: 14px; color: var(--ink-2); }
   .do small.warn { display: block; }
   .after { display: flex; gap: 12px; align-items: flex-start; }
@@ -603,9 +605,9 @@
   .ok:empty { display: none; }
   .notes { list-style: none; margin: 10px 0 0; padding: 0; font-size: 15px; }
   .notes li { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; padding: 6px 0; border-top: 1px solid var(--paper-2); }
-  .notes li span { flex: 1 1 50%; min-width: 0; overflow-wrap: anywhere; }
+  .notes li span { flex: 1 1 50%; min-width: 0; overflow-wrap: break-word; }
   .timeline { list-style: none; margin: 10px 0 0; padding: 0; }
-  .timeline li { padding: 0; border-top: 1px solid var(--paper-2); font-size: 14px; overflow-wrap: anywhere; }
+  .timeline li { padding: 0; border-top: 1px solid var(--paper-2); font-size: 14px; overflow-wrap: break-word; }
   .timeline summary { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 44px; padding: 6px 0; list-style: none; cursor: pointer; }
   .timeline summary::-webkit-details-marker { display: none; }
   .timeline summary :global(.chev) { color: var(--ink-3); transition: transform 0.15s; }
@@ -646,7 +648,7 @@
   .bags { display: grid; gap: 10px; }
   @media (min-width: 640px) { .bags { grid-template-columns: 1fr 1fr; } }
   .bag { min-width: 0; }
-  .bag ul { margin: 4px 0 0; padding-left: 20px; overflow-wrap: anywhere; }
+  .bag ul { margin: 4px 0 0; padding-left: 20px; overflow-wrap: break-word; }
   .warn { color: #a03a00; }
   /* v0.34.0 (L8): the evening is quiet: smaller values than the block of now. */
   .eve .do li:first-child { border-top: 1px solid var(--paper-2); }

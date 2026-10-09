@@ -199,9 +199,14 @@
     cursor: pointer;
     overflow-wrap: break-word;
   }
-  /* A word longer than the column ("test_data_gtp_…") breaks instead of sticking out. */
+  /* A word longer than the column ("test_data_gtp_…") breaks instead of sticking out.
+     v0.45.1 (G009): a long bag name in a narrow column ("Oberrohrtasche" in a third of 320 px)
+     breaks at a syllable with a hyphen (the page carries lang="de" or "en"). */
   .lab > * {
     max-width: 100%;
+  }
+  .lab b {
+    hyphens: auto;
   }
   .lab.active {
     background: var(--hi-soft);

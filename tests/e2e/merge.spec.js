@@ -176,8 +176,8 @@ test('Zusammenlegen: propose, confirm, undo; a collection into its pieces; past 
     await page.screenshot({ path: `${shots}/import-notin-${info.project.name}.png`, fullPage: true });
   }
 
-  // 4. Desktop: the item window offers "Zusammenlegen mit …" for any item.
-  if (info.project.name === 'desktop') {
+  // 4. The item window offers "Zusammenlegen mit …" for any item; v0.45.1 (G014a) on the phone too.
+  {
     await page.goto('./#/gear');
     await page.getByRole('searchbox', { name: T('Search gear') }).fill('rüttelfest');
     await page.getByRole('button', { name: new RegExp(N('Garmin-Halterung')) }).first().click();

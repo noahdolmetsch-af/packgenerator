@@ -417,7 +417,7 @@
     display: grid;
   }
   .iname {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .in small,
   .w {
@@ -546,7 +546,7 @@
   .selbar .ul span {
     flex: 1 1 160px;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .bacts {
     display: flex;
@@ -575,7 +575,7 @@
   .undo span {
     flex: 1 1 180px;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   @media (max-width: 719px) {
     .undo {

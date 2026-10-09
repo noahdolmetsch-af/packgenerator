@@ -13,6 +13,8 @@ import { isInventory, isConsumable } from './gear.js';
 import { t as tr, bagName } from './i18n.svelte.js';
 import { inDomain, BIKEPACKING } from './domains.js';
 import { inStandard, isWorn, blockKeys } from './blocks2026.js';
+import { isOver } from './debrief.js';
+import { localDay } from './localday.js';
 
 /**
  * The ready check suggested for every new trip (decision 7: editable per trip).
@@ -20,16 +22,23 @@ import { inStandard, isWorn, blockKeys } from './blocks2026.js';
  * are now normal items marked "On every trip" (see alwaysEntries). Noah can save his own
  * list as the standard (setting "readyStandard"), which then replaces this one.
  */
+// v0.45.2 (Noah 9.10.2026, "gilt primär"): the base check before every ride starts with his six
+// things; from the old list stay what still makes sense (kit, charged, tyres, phone/wallet/keys).
+// Dropped: food, "Backpack packed" (now the mini backpack), route on the Garmin, live tracking.
 export const READY_DEFAULT = [
+  { id: 'lock', label: 'Lock' },
+  { id: 'minipack', label: 'Mini backpack' },
+  { id: 'bottle', label: 'Bottle filled' },
+  { id: 'glasses', label: 'Sunglasses' },
+  { id: 'cap', label: 'Cap' },
+  { id: 'wind', label: 'Wind jacket' },
   { id: 'kit', label: 'Helmet, shoes, gloves' },
   { id: 'charged', label: 'Devices charged' },
-  { id: 'fuel', label: 'Bottles filled, food packed' },
-  { id: 'backpack', label: 'Backpack packed' },
-  { id: 'route', label: 'Route on the Garmin' },
   { id: 'tyres', label: 'Tyre pressure checked' },
   { id: 'wallet', label: 'Phone, wallet, keys' },
-  { id: 'tracking', label: 'Live tracking on, someone knows the route' },
 ];
+/** The ids of the ready check before 0.45.2 (basicCheck2026 replaces them, own rows stay). */
+export const READY_OLD_IDS = ['kit', 'charged', 'fuel', 'backpack', 'route', 'tyres', 'wallet', 'tracking'];
 /** Where the old "Always with me" checks put a missing item (used once when trips are updated). */
 export const ALWAYS_OLD = { EL13: 'top', EL07: 'mounted', EL10: 'body', KL22: 'body', HY01: 'top', WZ23: 'frame' };
 /** A fresh ready check: the saved standard (if any) or the suggested list, nothing ticked. */
@@ -311,8 +320,10 @@ export const bagItemIds = (containers) => new Set(containers.filter((c) => !c.al
  * Start-up step: trips from the Excel import get a bike, a bag setup and a ready check,
  * their entries use `slot` instead of `container`, and bags packed as items move to the setup.
  * Trips that already have all this stay as they are.
+ * v0.45.1 (G002): a past or finished trip is history. Its list stays exactly as it was packed: bags
+ * and mounts (fixtures) on it are not moved or removed, only the old format (slot) is updated.
  */
-export async function ensureTrips(db) {
+export async function ensureTrips(db, today = localDay()) {
   return db.transaction('rw', db.trips, db.bikes, db.containers, async () => {
     const bikes = await db.bikes.toArray();
     const containers = await db.containers.toArray();
@@ -320,7 +331,7 @@ export async function ensureTrips(db) {
     const fixturesOf = (id) => bikes.find((b) => b.id === id)?.fixtures ?? [];
     const todo = (await db.trips.toArray()).filter(
       // v0.21.0: trips without a bike (own bags in trip.packs) need none of this.
-      (t) => !Array.isArray(t.packs) && (!t.bikeId || !t.setup || !t.ready || t.entries?.some((e) => !e.slot || bagItems.has(e.itemId) || fixturesOf(t.bikeId).includes(e.itemId))),
+      (t) => !Array.isArray(t.packs) && (!t.bikeId || !t.setup || !t.ready || t.entries?.some((e) => !e.slot || (!isOver(t, today) && (bagItems.has(e.itemId) || fixturesOf(t.bikeId).includes(e.itemId))))),
     );
     for (const t of todo) {
       const bike = bikes.find((b) => b.id === t.bikeId) ?? bikes.find((b) => b.name === t.bike) ?? null;
@@ -331,7 +342,7 @@ export async function ensureTrips(db) {
         ready: t.ready ?? freshReady(),
         entries: (t.entries ?? []).map(({ container: c, ...e }) => ({ ...e, slot: e.slot ?? c ?? 'seat', packed: !!e.packed })),
       };
-      await db.trips.put(absorbBags(trip, containers, fixturesOf(trip.bikeId)));
+      await db.trips.put(isOver(trip, today) ? trip : absorbBags(trip, containers, fixturesOf(trip.bikeId)));
     }
     return todo.length;
   });

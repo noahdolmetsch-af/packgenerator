@@ -57,7 +57,7 @@
     text-align: right;
     color: var(--ink-3);
     font-size: 14px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .sum.late {
     color: var(--bad);

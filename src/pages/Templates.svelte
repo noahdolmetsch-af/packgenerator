@@ -313,7 +313,7 @@
   .nm {
     font-weight: 600;
     font-size: 16px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     flex: 1;
     min-width: 0;
   }
@@ -325,7 +325,7 @@
   .comp {
     font-size: 15px;
     color: var(--ink-2);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .use {
     font-size: 14px;

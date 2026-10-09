@@ -147,7 +147,7 @@
   .nm {
     flex: 1;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   /* Small and neutral: something waits here. */
   .badge {

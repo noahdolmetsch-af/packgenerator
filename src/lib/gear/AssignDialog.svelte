@@ -221,7 +221,7 @@
   h2 {
     font-size: var(--fs-section);
     margin: 0 0 8px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .sub,
   .what,
@@ -235,7 +235,7 @@
     padding: 6px 10px;
     border-left: 3px solid var(--hi);
     background: var(--paper-2);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .kinds {
     border: 0;
@@ -277,7 +277,7 @@
     align-items: center;
     gap: 6px 10px;
     margin: 0 0 10px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .ok span {
     flex: 1 1 160px;

@@ -342,7 +342,7 @@
   }
   .t {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .t small {
     display: block;
@@ -481,7 +481,7 @@
     display: block;
     color: var(--ink);
     font-size: 15px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .sticky .btn.hi {
     min-height: 48px;

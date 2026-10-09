@@ -183,7 +183,7 @@
   }
   .nm {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .bg {
     grid-column: 1;

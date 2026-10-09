@@ -185,12 +185,18 @@
   const isOpen = (key) => searching || !folded[key];
   const allOpen = $derived(groups.every((g) => !folded[g.key]));
   const toggle = (key) => (folded[key] = !folded[key]);
+  // v0.45.1 (G012): on the computer an open category first draws its first ROWS_FIRST rows, the rest
+  // with one tap ("Show all n"). 700 rows at once took 3–6 s. The phone starts folded and stays as it was.
+  const ROWS_FIRST = 12;
+  let full = $state({});
+  const rowsOf = (g) => (phone.matches || searching || full[g.key] || g.items.length <= ROWS_FIRST + 5 ? g.items : g.items.slice(0, ROWS_FIRST));
   const setAll = (shut) => (folded = Object.fromEntries([...CATEGORIES, UNKNOWN_CATEGORY].map((c) => [c.key, shut])));
 
   const pickCategory = (key) => (filter.category = filter.category === key ? '' : key);
   // Side column: jump to a category (and open it).
   function jump(key) {
     folded[key] = false;
+    full[key] = true;
     queueMicrotask(() => document.getElementById(`gh-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
   const open = (item) => (dialog = { item });
@@ -529,8 +535,9 @@
                 {/if}
                 {#if isOpen(g.key)}
                   {#if g.unknown}<p class="unknown-cat">{t('The app does not know the category of these items. Open one and pick a category.')}</p>{/if}
+                  {@const rows = rowsOf(g)}
                   <ul class="rows">
-                    {#each g.items as item (item.id)}
+                    {#each rows as item (item.id)}
                       {#if !selecting}
                         <GearRow {item} {showBag} {touch} {swiped} used={(usedN[item.id] ?? 0) > 0} onswipe={(id) => (swiped = id)} onopen={open} onmenu={(it) => (rowMenu = it)} onassign={assignOne} onarchive={archiveOne} ondelete={deleteOne} />
                       {:else}
@@ -542,6 +549,9 @@
                       {/if}
                     {/each}
                   </ul>
+                  {#if rows.length < g.items.length}
+                    <button type="button" class="link tap allrows" aria-label={`${t(g.name)}: ${t('Show all {n}', { n: g.items.length })}`} onclick={() => (full[g.key] = true)}>{t('Show all {n}', { n: g.items.length })}</button>
+                  {/if}
                 {/if}
               </section>
             {:else}
@@ -568,7 +578,7 @@
                 {@render pickRow(item, `${t(OWNERSHIP[item.ownership] ?? '')} · ${t(CATEGORY[item.category]?.name ?? '')}`)}
               {:else}
                 <FavStar {item} describedby="gn-{item.id}" />
-                <button type="button" onclick={() => open(item)}>
+                <button type="button" class:wl={item.ownership === 'wishlist'} onclick={() => open(item)}>
                   <span class="st st-{item.ownership}">{t(OWNERSHIP[item.ownership] ?? '')}</span>
                   <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if reasons.length}<small class="why">{reasons.join(' · ')}</small>{/if}</span>
                   <span class="bg">{t(CATEGORIES.find((c) => c.key === item.category)?.name ?? '')}</span>
@@ -1012,6 +1022,11 @@
     text-decoration: underline;
     cursor: pointer;
   }
+  .allrows {
+    display: block;
+    min-height: 44px;
+    padding: 0 8px;
+  }
   /* v0.22.0 (AP05): the star button sits before the row's own button. */
   .rows .fr {
     display: flex;
@@ -1025,7 +1040,7 @@
   }
   .rows .fr .nm {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .favbase {
     margin: -4px 0 10px;
@@ -1059,7 +1074,7 @@
   }
   .rows .nm {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .rows .bg {
     grid-column: 1;
@@ -1241,12 +1256,12 @@
   }
   .none p {
     margin: 0 0 10px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .none .btn {
     max-width: 100%;
     white-space: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     text-align: left;
   }
   /* Desktop: a side column to jump between categories, categories in two columns (G1). */
@@ -1326,7 +1341,7 @@
     padding: 8px 12px;
     border-left: 3px solid var(--hi);
     background: var(--paper);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .dead {
     max-width: 1000px;
@@ -1409,6 +1424,23 @@
   }
   .wish .w {
     grid-column: 3;
+  }
+  /* v0.45.1 (G007): on the phone a wishlist row in the wishlist needs no "Wishlist" tag; the name gets the room. */
+  @media (max-width: 719px) {
+    .wish .rows button.wl {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .wish .rows button.wl .st {
+      display: none;
+    }
+    .wish .rows button.wl .nm,
+    .wish .rows button.wl .bg {
+      grid-column: 1;
+    }
+    .wish .rows button.wl .w {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
   }
   @media (min-width: 720px) {
     .wish .rows button {
@@ -1533,7 +1565,7 @@
   .undo span {
     flex: 1 1 180px;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .bacts b {
     margin-right: auto;

@@ -57,7 +57,7 @@
   }
   .t {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   label {
     display: flex;

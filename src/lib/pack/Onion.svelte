@@ -129,7 +129,7 @@
     min-width: 0;
     color: var(--ink-2);
     font-size: 14px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .gap {
     display: block;
@@ -138,7 +138,7 @@
     margin-top: 6px;
     min-height: 44px;
     max-width: 100%;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     text-align: left;
   }
   .badge {
@@ -179,7 +179,7 @@
     margin: 6px 0 4px;
     color: var(--ink-3);
     font-size: 13px;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   #onion-rows > .meta {
     margin: 4px 4px 8px;

@@ -294,7 +294,7 @@
     font: 800 18px/1.1 var(--font-brand);
     hyphens: auto;
     letter-spacing: 0.01em;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .small .n {
     font-size: 17px;

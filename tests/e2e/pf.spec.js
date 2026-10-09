@@ -734,7 +734,8 @@ test('PF13: short ride tomorrow vs event; bike care due: Today, Pack and Bike ca
   const careLine = T('Bike care {state}', { state: tag }); // v0.29.0: a badge in the fold
   const beforeTrip = page.locator('.calm-extra > summary').filter({ hasText: T('Before the trip') });
   await rec.check('short ride: no event preparation in Pack', () => expect(beforeTrip).not.toContainText(T('Event preparation'), { timeout: 2000 }));
-  await rec.check('short ride: no bike care step in Pack (decision 10)', () => expect(beforeTrip).not.toContainText(T('Bike care'), { timeout: 2000 }));
+  // v0.45.1 (G013a): no bike care list on a short ride, but the due count as one quiet badge and line
+  await rec.check('short ride: bike care due as one quiet line in Pack', () => expect(beforeTrip).toContainText(careLine, { timeout: 2000 }));
   const texts = {};
   // Pack, the event trip.
   await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
@@ -977,8 +978,7 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'pf16-export.json' }))).toBeVisible();
   // v0.30.0 (Noah 1a): Today keeps the tips it shows in the setting "tips" and adds to it as it
-  // shows them (the export itself ends the backup reminder, so one more tip shows): that record is
-  // compared with the exported file, by what Noah decided (known, tapped), not with the snapshot.
+  // shows them (the export itself ends the backup reminder, so one more tip shows).
   const tipsOf = (rows) => rows.find((r) => r.key === 'tips')?.value ?? null;
   const exported = JSON.parse(readFileSync(file, 'utf8'));
   await rec.check('backup: every record comes back the same (items, trips, debriefs, notes, photos, bikes, bags, learnings, settings)', async () => {
@@ -987,10 +987,11 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
       if (name !== 'settings') expect(now, name).toEqual(snapshot[name]);
       else expect(now.filter((r) => r.key !== 'tips'), name).toEqual(snapshot[name].filter((r) => r.key !== 'tips'));
     }
-    const was = tipsOf(exported.tables.settings);
+    // v0.45.1 (G015a): the tips memory is no longer in the file; the device keeps its own over "Replace all data"
+    expect(tipsOf(exported.tables.settings)).toBeNull();
+    const had = tipsOf(snapshot.settings);
     const back = tipsOf(await table(page, 'settings'));
-    expect(was).not.toBeNull();
-    expect({ known: back.known, tapped: back.tapped }).toEqual({ known: was.known, tapped: was.tapped });
+    if (had) expect({ known: back?.known, tapped: back?.tapped }).toEqual({ known: had.known, tapped: had.tapped });
   });
   // Offline: the tests block the service worker (it would cache old builds), so offline use cannot be shown here.
   rec.r.open = ['offline use: not testable here (service worker blocked in the tests); Noah checks it on the phone in flight mode'];
@@ -1056,10 +1057,10 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   await rec.click(goBtn(page));
   await expect(page).toHaveURL(/#\/ride/);
   const packed = (await table(page, 'trips')).find((x) => x.id === trip0.id);
-  await rec.check('"All packed, let\'s go" ticks every item and the ready check', () => {
-    expect(packed.entries.every((e) => e.packed)).toBe(true);
-    expect(packed.ready.every((r) => r.done || r.itemId)).toBe(true);
-  });
+  await rec.check('"All packed, let\'s go" ticks every item', () => expect(packed.entries.every((e) => e.packed)).toBe(true));
+  // v0.45.2 (Noah): the base check waits on the ride page as a reminder; one tap ticks it all.
+  await rec.click(page.getByRole('region', { name: T('Base check') }).getByRole('button', { name: T('All with me') }));
+  await expect.poll(async () => (await table(page, 'trips')).find((x) => x.id === trip0.id).ready.every((r) => r.done || r.itemId)).toBe(true);
   await rec.check('ride day: no hint to a Pack place that does not exist ("Ride and weather")', () => expect(page.getByText(T('under "Ride and weather".'))).toHaveCount(0, { timeout: 2000 }));
   await rec.click(goBtn(page));
   await rec.click(page.getByRole('button', { name: T('Save debrief') }));

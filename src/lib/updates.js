@@ -7,7 +7,7 @@
  * else's data never gets Noah's own items, bags or ready check.
  */
 
-import { freshReady, slotFor, ALWAYS_OLD } from './trips.js';
+import { freshReady, slotFor, ALWAYS_OLD, READY_DEFAULT, READY_OLD_IDS } from './trips.js';
 import { loadTemplates, saveTemplates, templateFrom, TEMPLATES_KEY, linkTemplate, isLinked } from './templates.js';
 import { templateSlot } from './gear/assign.js';
 import { SETS_KEY, addSet, allSets } from './sets.js';
@@ -456,7 +456,26 @@ export async function templatesLinked2026(db) {
   return done;
 }
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, blocks2026, templatesLinked2026];
+/**
+ * v0.45.2 (Noah 9.10.2026): the new base check before every ride (trips.js READY_DEFAULT) replaces
+ * the old suggested rows of a saved standard; its own rows stay after the new ones. Trips keep the
+ * check they have (an import keeps the records exactly as in the file); new trips get the new one.
+ */
+export async function basicCheck2026(db) {
+  if (await db.settings.get('update.basicCheck2026')) return false;
+  const labels = new Set(READY_DEFAULT.map((r) => r.label.toLowerCase()));
+  await db.transaction('rw', db.settings, async () => {
+    const std = await db.settings.get('readyStandard');
+    if (std?.value?.length) {
+      const keep = std.value.filter((r) => !r.itemId && !READY_OLD_IDS.includes(r.id) && !READY_DEFAULT.some((d) => d.id === r.id) && !labels.has(String(r.label).toLowerCase()));
+      await db.settings.put({ key: 'readyStandard', value: [...READY_DEFAULT.map((r) => ({ ...r })), ...keep.map(({ done, ...r }) => r)] });
+    }
+    await db.settings.put({ key: 'update.basicCheck2026', value: now() });
+  });
+  return true;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, blocks2026, templatesLinked2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);
