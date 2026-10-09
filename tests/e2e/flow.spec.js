@@ -140,12 +140,14 @@ for (const lang of ['en', 'de']) {
     await expect(page.getByRole('heading', { name: T('Saved') })).toBeVisible();
 
     // 9. The trip no longer waits for a debrief; it is listed as done.
+    // v0.40.0 (Noah 3a): one list of past trips with the debrief state; the Debrief page links to it.
     await page.goto('./#/debrief');
-    const todo = page.getByRole('region', { name: T('To debrief') });
-    await expect(todo).toBeVisible();
-    await expect(todo.getByText(title)).toHaveCount(0);
-    await expect(page.getByRole('region', { name: T('Done') }).getByText(title)).toBeVisible();
+    await expect(page.getByRole('heading', { name: T('Debrief'), level: 1 })).toBeVisible();
     await fits('Debrief overview');
+    await page.goto('./#/pack/past');
+    await expect(page.getByRole('list', { name: new RegExp(`^${esc(T('Debrief open'))}`) }).getByText(title)).toHaveCount(0);
+    await expect(page.getByRole('list', { name: new RegExp(`^${esc(T('Done|past'))}`) }).getByText(title)).toBeVisible();
+    await fits('Past trips');
 
     expect(errors, 'no page errors').toEqual([]);
   });

@@ -42,8 +42,7 @@ describe('the list of what is new', () => {
       }
     }
     lang.v = 'de';
-    expect(t('New in the last updates')).toBe('Neu in den letzten Updates');
-    expect(t('Try it')).toBe('Ausprobieren');
+    expect(t('New in {versions}', { versions: '0.40 · 0.39' })).toBe('Neu in 0.40 · 0.39');
     expect(t('Older updates')).toBe('Ältere Updates');
     expect(t('{from} to {to}|versions', { from: '0.1', to: '0.9' })).toBe('0.1 bis 0.9');
   });
@@ -99,7 +98,7 @@ describe('the list of what is new', () => {
     expect(compareVersions('0.35.0', '0.34.0')).toBe(1);
     expect(compareVersions('0.9.0', '0.10.0')).toBe(-1);
     expect(compareVersions('0.35', '0.35.0')).toBe(0);
-    expect(newerThan('0.33.0').map((e) => e.version)).toEqual(['0.39.0', '0.38.0', '0.37.1', '0.37.0', '0.36.0', '0.35.0', '0.34.0']);
+    expect(newerThan('0.33.0').map((e) => e.version)).toEqual(['0.40.0', '0.39.0', '0.38.0', '0.37.1', '0.37.0', '0.36.0', '0.35.0', '0.34.0']);
   });
 });
 

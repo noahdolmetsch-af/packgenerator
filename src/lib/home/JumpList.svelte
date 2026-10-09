@@ -41,7 +41,7 @@
       dead.dead.length ? { key: 'dead', icon: ShoppingBag, label: t('Dead weight'), value: `${tn(dead.dead.length, '{n} item', '{n} items')}${dead.deadG ? ` · ${formatWeight(dead.deadG)}` : ''}`, href: '#/gear?tab=dead' } : null,
       ago ? { key: 'ago', icon: CalendarHeart, label: t('A year ago'), value: ago.learnings ? t('{trip} + {n} learnings', { trip: ago.trip.title, n: ago.learnings }) : ago.trip.title, href: ago.debriefed ? `#/debrief/${encodeURIComponent(ago.trip.id)}` : '#/pack/past' } : null,
       weekend ? { key: 'weekend', icon: CloudSun, label: t('Weekend weather'), value: range(weekend), toggle: true } : null,
-      news ? { key: 'news', icon: Sparkles, label: t('New in the app'), value: tn(news, '{n} update', '{n} updates'), href: '#/features' } : null,
+      news ? { key: 'news', icon: Sparkles, label: t('New in the app'), value: tn(news, '{n} update', '{n} updates'), href: '#/features?news' } : null,
     ].filter(Boolean),
   );
 </script>

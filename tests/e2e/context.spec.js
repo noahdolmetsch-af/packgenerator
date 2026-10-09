@@ -130,6 +130,7 @@ test('lodging for 2 days, then outdoor in Edit trip, and Undo', async ({ page, c
   const dlg = await openNew(page, T, (l) => l.click());
   await dlg.getByLabel(T('Name')).fill(title);
   await dlg.getByLabel(T('Start date')).fill(today());
+  await dlg.getByRole('button', { name: T('More'), exact: true }).click(); // v0.40.0: the days field only after "More"
   await dlg.getByLabel(T('Days')).fill('2');
   // 2 days: outdoor until something is chosen; "None" with 2 days gives a gentle hint.
   await expect(dlg.getByRole('button', { name: T('Outdoor (tent, bivvy)') })).toHaveAttribute('aria-pressed', 'true');

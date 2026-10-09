@@ -14,7 +14,8 @@
   import { t, lang, setLang } from '../i18n.svelte.js';
   import HomePlaceForm from './HomePlaceForm.svelte';
 
-  let { id, next = null, cls = 'btn sm go' } = $props();
+  // v0.40.0: children = the whole row as the button (#/features); without it the tile's short label.
+  let { id, next = null, cls = 'btn sm go', children = null } = $props();
 
   const tip = $derived(TIP[id]);
   let extra = $state(null); // 'place' | 'install'
@@ -51,9 +52,9 @@
 </script>
 
 {#if tip.go.href}
-  <a class={cls} href={tip.go.href} onclick={follow}>{label}</a>
+  <a class={cls} href={tip.go.href} onclick={follow}>{#if children}{@render children()}{:else}{label}{/if}</a>
 {:else}
-  <button type="button" class={cls} disabled={busy} onclick={run} aria-expanded={tip.go.run === 'homePlace' || tip.go.run === 'install' ? extra != null : undefined}>{label}</button>
+  <button type="button" class={cls} disabled={busy} onclick={run} aria-expanded={tip.go.run === 'homePlace' || tip.go.run === 'install' ? extra != null : undefined}>{#if children}{@render children()}{:else}{label}{/if}</button>
 {/if}
 {#if extra === 'place'}
   <div class="extra"><HomePlaceForm onchosen={() => (extra = null)} /></div>

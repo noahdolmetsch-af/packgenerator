@@ -49,39 +49,67 @@
 
   const toggle = (id) => store(saved.rides.map((r) => (r.id === id ? { ...r, use: r.use === false } : r)));
   const drop = (id) => store(saved.rides.filter((r) => r.id !== id));
+  // open once when shown (an attribute would shut it again on every change)
+  const once = (node, v) => {
+    node.open = v;
+    let done = v;
+    return { update: (n) => { if (n && !done) (node.open = true), (done = true); } };
+  };
   const hm = (h) => `${Math.floor(h)}:${String(Math.round((h % 1) * 60)).padStart(2, '0')}`;
 </script>
 
+<!-- v0.40.0 (design check R1, R6): a light head; not learned yet, it is one row with the
+     explanation and the (light) button behind it. Opened from #/debrief/pace it is open. -->
 <section id="pace" aria-labelledby="pace-h">
-  <h2 id="pace-h" class="title h">{t('Your pace')} <small class="muted">{pace ? tn(pace.n, 'from {n} ride', 'from {n} rides') : t('not learned yet')}</small></h2>
-  <div class="card">
-    {#if pace}
-      <p class="big"><b class="num">{num(pace.kmh)} km/h</b> {t('plus 1 h per')} <b class="num">{num(pace.climbMh)} m</b> {t('climbing')}</p>
-      <p class="muted">{t('You need {pct} % of the standard guess ({kmh} km/h, 1 h per {m} m). Stops add about {stops} % to the riding time. Pack and the ride day use this now.', { pct: Math.round(pace.factor * 100), kmh: SPEED_KMH, m: CLIMB_MH, stops: Math.round((pace.stops - 1) * 100) })}</p>
-    {:else}
-      <p>{t('The riding hours are a standard guess: {kmh} km/h plus 1 h per {m} m climbing. Load a few of your recorded rides and the app learns how fast you really are.', { kmh: SPEED_KMH, m: CLIMB_MH })}</p>
-    {/if}
-    <p class="acts">
-      <label class="btn sm" class:hi={!pace}>{busy ? t('Reading …') : t('Add rides (GPX)')}<input type="file" accept=".gpx,application/gpx+xml" multiple onchange={pick} hidden disabled={busy} /></label>
-      <span class="muted small">{t('Garmin Connect or Strava: a ride → Export GPX. Read on this device, nothing is uploaded.')}</span>
-    </p>
-    {#if msg}<p class="small" role="status">{msg}</p>{/if}
-    {#if rides.length}
-      <ul class="rides">
-        {#each rides as r (r.id)}
-          <li class:off={r.use === false}>
-            <label><input type="checkbox" checked={r.use !== false} onchange={() => toggle(r.id)} /> <b>{r.name}</b></label>
-            <span class="muted small">{r.date} · {r.km} km · ↑ {r.gainM} m · {t('riding {time} h', { time: hm(r.movingH) })}{r.totalH > r.movingH + 0.05 ? ` ${t('({time} h with stops)', { time: hm(r.totalH) })}` : ''}{pace ? ` · ${t('guess {time} h', { time: hm(guessFor(r, pace)) })}` : ''}</span>
-            <button type="button" class="link small" onclick={() => drop(r.id)} aria-label={t('Remove {name}', { name: r.name })}>{t('Remove')}</button>
-          </li>
-        {/each}
-      </ul>
-      <p class="muted small">{t('Untick a ride that does not fit, e.g. a race without luggage.')}</p>
-    {/if}
-  </div>
+  <details class="pace" use:once={!!pace || location.hash.endsWith('/pace')}>
+    <summary class="sec-head"><span id="pace-h">{t('Your pace')}</span><span class="n">{pace ? tn(pace.n, 'from {n} ride', 'from {n} rides') : t('not learned yet')} ›</span></summary>
+    <div class="box">
+      {#if pace}
+        <p class="big"><b class="num">{num(pace.kmh)} km/h</b> {t('plus 1 h per')} <b class="num">{num(pace.climbMh)} m</b> {t('climbing')}</p>
+        <p class="muted">{t('You need {pct} % of the standard guess ({kmh} km/h, 1 h per {m} m). Stops add about {stops} % to the riding time. Pack and the ride day use this now.', { pct: Math.round(pace.factor * 100), kmh: SPEED_KMH, m: CLIMB_MH, stops: Math.round((pace.stops - 1) * 100) })}</p>
+      {:else}
+        <p>{t('The riding hours are a standard guess: {kmh} km/h plus 1 h per {m} m climbing. Load a few of your recorded rides and the app learns how fast you really are.', { kmh: SPEED_KMH, m: CLIMB_MH })}</p>
+      {/if}
+      <p class="acts">
+        <label class="btn sm">{busy ? t('Reading …') : t('Add rides (GPX)')}<input type="file" accept=".gpx,application/gpx+xml" multiple onchange={pick} hidden disabled={busy} /></label>
+        <span class="muted small">{t('Garmin Connect or Strava: a ride → Export GPX. Read on this device, nothing is uploaded.')}</span>
+      </p>
+      {#if msg}<p class="small" role="status">{msg}</p>{/if}
+      {#if rides.length}
+        <ul class="rides">
+          {#each rides as r (r.id)}
+            <li class:off={r.use === false}>
+              <label><input type="checkbox" checked={r.use !== false} onchange={() => toggle(r.id)} /> <b>{r.name}</b></label>
+              <span class="muted small">{r.date} · {r.km} km · ↑ {r.gainM} m · {t('riding {time} h', { time: hm(r.movingH) })}{r.totalH > r.movingH + 0.05 ? ` ${t('({time} h with stops)', { time: hm(r.totalH) })}` : ''}{pace ? ` · ${t('guess {time} h', { time: hm(guessFor(r, pace)) })}` : ''}</span>
+              <button type="button" class="link small" onclick={() => drop(r.id)} aria-label={t('Remove {name}', { name: r.name })}>{t('Remove')}</button>
+            </li>
+          {/each}
+        </ul>
+        <p class="muted small">{t('Untick a ride that does not fit, e.g. a race without luggage.')}</p>
+      {/if}
+    </div>
+  </details>
 </section>
 
 <style>
+  .pace > summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .pace > summary::-webkit-details-marker {
+    display: none;
+  }
+  .pace:not([open]) > summary {
+    border-bottom: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .box {
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-top: 0;
+    border-radius: 0 0 8px 8px;
+    background: var(--paper);
+  }
   .big {
     font-size: 1.15rem;
     margin: 0 0 6px;

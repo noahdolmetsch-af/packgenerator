@@ -475,13 +475,34 @@
     color: var(--ink-2);
     white-space: nowrap;
   }
+  /* v0.40.0 (Noah 6a): badges neutral grey; only an urgent one has a small coloured dot. */
   .badge.warn {
-    background: var(--warn-soft);
-    color: var(--warn);
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .badge.warn::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 5px;
+    border-radius: 50%;
+    vertical-align: 1px;
+    background: var(--warn);
   }
   .badge.bad {
-    background: var(--bad-soft);
-    color: var(--bad);
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .badge.bad::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 5px;
+    border-radius: 50%;
+    vertical-align: 1px;
+    background: var(--bad);
   }
   /* v0.22.0 (AP06): no data is said in words, with a dashed edge, not as "fine". */
   .badge.nodata {

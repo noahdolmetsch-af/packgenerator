@@ -63,7 +63,7 @@
 {#if rows.length}
   <button type="button" class="tp-fold shop-row" onclick={() => (open = true)}>
     <ShoppingCart size={20} aria-hidden="true" /><span>{t('Shopping list')}</span>
-    <span class="r"><i class="tp-badge" class:hi={count.open > 0} class:ok={!count.open}>{count.open ? tn(count.open, '{n} to buy', '{n} to buy') : t('all bought')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span>
+    <span class="r"><i class="tp-badge">{count.open ? tn(count.open, '{n} to buy', '{n} to buy') : t('all bought')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span>
   </button>
 {/if}
 

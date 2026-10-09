@@ -175,7 +175,7 @@
 
 <DemoBar />
 
-<main class:calm={page === 'pack'} class:wide={page === 'pack' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features'}>
+<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features'}>
   {#key switchN}
   {#if page === 'gear'}
     <Gear />

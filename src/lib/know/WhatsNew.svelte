@@ -6,13 +6,14 @@
    * groups by version range (each folded again). A version is a small neutral badge; the date
    * shows only when it differs from the version above (no repeated labels).
    */
-  import { ChevronRight } from '@lucide/svelte';
+  import { ChevronRight, Star } from '@lucide/svelte';
   import { t, locale } from '../i18n.svelte.js';
   import { openData } from '../nav.js';
   import { splitNews, groupOlder, shortVersion } from '../whatsnew.js';
 
   const { recent, older } = splitNews();
   const groups = groupOlder(older);
+  const opened = typeof location !== 'undefined' && /[?&]news\b/.test(location.hash);
   const day = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' });
   function go(p, e) {
     if (p.action !== 'data') return;
@@ -29,10 +30,12 @@
     </h3>
     <ul>
       {#each e.points as p (p.text)}
+        <!-- v0.40.0 (design check R2): the whole row leads to the place, only a ›; no "Try it" on every row. -->
         <li>
-          <span class="pt">{t(p.text)}</span>
           {#if p.href}
-            <a class="try" href={p.href} onclick={(ev) => go(p, ev)}>{t('Try it')}<ChevronRight size={16} aria-hidden="true" /></a>
+            <a class="try" href={p.href} onclick={(ev) => go(p, ev)}><span class="pt">{t(p.text)}</span><ChevronRight size={16} aria-hidden="true" /></a>
+          {:else}
+            <span class="pt">{t(p.text)}</span>
           {/if}
         </li>
       {/each}
@@ -46,8 +49,17 @@
   </div>
 {/snippet}
 
+<!-- v0.40.0 (Noah 9a, design check R1): the list is one row "New in 0.40 · 0.39 · 0.38  12 ›", folded;
+     it opens by itself when Today's "New in the app" leads here (#/features?news). -->
 <section class="news" id="news" aria-labelledby="news-h">
-  <h2 id="news-h">{t('New in the last updates')}</h2>
+  <details class="newsfold" open={opened}>
+  <summary class="lrow">
+    <span class="ic" aria-hidden="true"><Star size={18} /></span>
+    <h2 id="news-h" class="m t">{t('New in {versions}', { versions: recent.map((e) => shortVersion(e.version)).join(' · ') })}</h2>
+    <span class="nbadge num">{recent.reduce((n, e) => n + e.points.length, 0)}</span>
+    <ChevronRight class="chev" size={18} aria-hidden="true" />
+  </summary>
+  <div class="in">
   {@render list(recent)}
   {#if older.length}
     <details class="older">
@@ -64,19 +76,33 @@
       {/each}
     </details>
   {/if}
+  </div>
+  </details>
 </section>
 
 <style>
   .news {
-    margin: 0 0 24px;
-    padding: 16px;
+    margin: 0 0 8px;
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: 8px;
     background: var(--paper);
+    overflow: hidden;
+  }
+  .newsfold > summary {
+    list-style: none;
+  }
+  .newsfold > summary::-webkit-details-marker {
+    display: none;
+  }
+  .newsfold[open] > summary {
+    background: var(--paper-2);
   }
   h2 {
-    margin: 0 0 4px;
-    font-size: var(--fs-section);
+    margin: 0;
+    font-size: 16px;
+  }
+  .in {
+    padding: 0 12px 8px;
   }
   .vers {
     display: grid;
@@ -135,19 +161,18 @@
   }
   /* Quiet: a text link with a chevron, a 44 px tap area. */
   .try {
-    flex: none;
-    display: inline-flex;
+    flex: 1;
+    display: flex;
     align-items: center;
-    gap: 2px;
+    justify-content: space-between;
+    gap: 12px;
     min-height: 44px;
     margin: -8px 0;
-    padding: 0 2px 0 8px;
     color: var(--ink);
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    white-space: nowrap;
+    text-decoration: none;
+  }
+  .try:hover .pt {
+    color: var(--ink);
   }
   .try :global(svg) {
     color: var(--ink-3);

@@ -11,7 +11,9 @@
   import { bikesHash } from '../bikes.js';
   import { lastBikeId } from '../dayride.js';
   import { dayRide, openNote } from '../nav.js';
-  import { readyLight, LIGHT_WORD, quickHints, quickLog, addPressure, parseBar, kmFrom, stepWear } from '../quickcare.js';
+  import { readyLight, LIGHT_WORD, quickHints, quickLog, addPressure, parseBar, kmFrom, stepWear, chainWish } from '../quickcare.js';
+  import { nextId } from '../gear.js';
+  import { lastPrice } from '../workshop.js';
   import { PART } from '../care.js';
   import BikesHubActions from '../hubs/BikesHubActions.svelte';
   import { t, tn, num, dateOf, locale } from '../i18n.svelte.js';
@@ -53,14 +55,21 @@
   /** Change one bike as stored (never the view with the workshop visits) and remember what it was. */
   async function change(bikeId, make) {
     let out = null;
-    await db.transaction('rw', db.bikes, async () => {
+    await db.transaction('rw', db.bikes, db.items, async () => {
       const stored = await db.bikes.get(bikeId);
       if (!stored) return;
       const res = make(stored);
       if (!res) return;
       const prev = Object.fromEntries(Object.keys(res.changes).map((k) => [k, stored[k]]));
       await db.bikes.update(bikeId, res.changes);
-      out = { ...res, prev, stored };
+      // v0.40.0 (Noah 1 "b und a"): chain wear at the limit puts the chain on the wishlist, in the same step.
+      let wish = null;
+      if (res.entry?.result === 'needed' && res.entry.value != null) {
+        const items = await db.items.toArray();
+        wish = chainWish(stored, items, { id: nextId(items, 'bike'), value: res.entry.value, today, price: lastPrice(visits, bikeId, 'chain') });
+        if (wish) await db.items.put(wish);
+      }
+      out = { ...res, prev, stored, wish };
     });
     return out;
   }
@@ -68,7 +77,12 @@
     const u = $state.snapshot(notice?.undo);
     clearTimeout(timer);
     notice = null;
-    if (u) await db.bikes.update(u.bikeId, u.prev);
+    if (!u) return;
+    // Undo takes back the whole tap: the bike as it was and the wishlist item it made (v0.40.0).
+    await db.transaction('rw', db.bikes, db.items, async () => {
+      await db.bikes.update(u.bikeId, u.prev);
+      if (u.itemId) await db.items.delete(u.itemId);
+    });
   }
   const nameOfBike = (id) => bikes.find((b) => b.id === id)?.name ?? '';
   const inDays = (iso, days) => new Date(Date.parse(`${iso}T00:00:00Z`) + days * 864e5).toISOString().slice(0, 10);
@@ -77,9 +91,9 @@
     const r = await change(bikeId, (stored) => quickLog(stored, kind, { today, value }));
     if (!r) return;
     const bike = nameOfBike(bikeId);
-    const u = { bikeId, prev: r.prev };
+    const u = { bikeId, prev: r.prev, itemId: r.wish?.id ?? null };
     if (kind === 'chain') say(r.entry.km != null ? t('{bike}: chain lubed. Next time at {km} km.', { bike, km: num(r.entry.km + PART.chain.everyKm) }) : t('{bike}: chain lubed.', { bike }), u);
-    else if (kind === 'wear') say(`${t('{bike}: chain wear {value} % saved.', { bike, value: num(r.entry.value) })}${r.entry.result === 'needed' ? ` ${t('Time for a new chain.')}` : ''}`, u);
+    else if (kind === 'wear') say(`${t('{bike}: chain wear {value} % saved.', { bike, value: num(r.entry.value) })}${r.entry.result === 'needed' ? ` ${r.wish ? t('Time for a new chain: it is on the wishlist.') : t('Time for a new chain.')}` : ''}`, u);
     else if (kind === 'wash') say(t('{bike}: washed.', { bike }), u);
     else if (kind === 'sealant') say(t('{bike}: sealant topped up. Next time {date}.', { bike, date: dateOf(inDays(today, PART.tyres.everyDays)) }), u);
     else if (kind === 'pressure') say(t('{bike}: tyre pressure checked.', { bike }), u, { pressure: bikeId });

@@ -144,21 +144,42 @@
     margin: 0 0 12px;
     font-size: 14px;
   }
+  /* v0.40.0 (Noah 6a): badges neutral grey; only an urgent one has a small coloured dot. */
   .badge {
     padding: 1px 8px;
     border-radius: 999px;
-    font-weight: 700;
+    font-weight: 600;
     font-size: var(--fs-small);
-    background: var(--ok-soft);
-    color: var(--ok);
+    background: var(--paper-2);
+    color: var(--ink-2);
   }
   .badge.warn {
-    background: var(--hi-soft);
-    color: var(--ink);
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .badge.warn::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 5px;
+    border-radius: 50%;
+    vertical-align: 1px;
+    background: var(--warn);
   }
   .badge.worn {
-    background: var(--bad-soft);
-    color: var(--bad);
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .badge.worn::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 5px;
+    border-radius: 50%;
+    vertical-align: 1px;
+    background: var(--bad);
   }
   .grid {
     display: grid;

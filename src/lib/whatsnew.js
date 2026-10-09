@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.40.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'Calmer side pages: Inbox, Past trips, Debrief, Building blocks and What the app can do as short rows; explanations behind a small "?".', href: '#/inbox' },
+      { text: 'Past trips is one list with the debrief state and the km on the right; Debrief keeps learnings, comparison and pace.', href: '#/pack/past' },
+      { text: 'Chain wear at the replace limit (Today or Bike care) marks the chain as work needed and puts it on the wishlist, with Undo.', href: '#/bikes' },
+      { text: 'New trip: the area and the other starts are folded, the standard comes first; Plan and the ride use the full width on a computer.', href: '#/pack' },
+    ],
+  },
+  {
     version: '0.39.0',
     date: '2026-10-09',
     points: [

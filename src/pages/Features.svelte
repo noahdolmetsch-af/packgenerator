@@ -4,6 +4,7 @@
    * for what is used (seen in the data, its button tapped, or "I know it") and how much of it that
    * is. Each row has the same ONE button as its tile on Today. Tips hidden with "I know it" stay here.
    * v0.35.0 (Noah): "New in the last updates" on top (know/WhatsNew.svelte, whatsnew.js).
+   * v0.40.0 (Noah 9a): unused tips as rows with ›, used ones folded by area; the update list one row.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -17,8 +18,8 @@
   import { nextTrip } from '../lib/debrief.js';
   import { standalone } from '../lib/install.js';
   import { localDay } from '../lib/localday.js';
-  import { t } from '../lib/i18n.svelte.js';
-  import { Check } from '@lucide/svelte';
+  import { t, tn } from '../lib/i18n.svelte.js';
+  import { Check, ChevronRight } from '@lucide/svelte';
   import { TIP_ICON } from '../lib/know/icons.js';
   import TipButton from '../lib/know/TipButton.svelte';
   import WhatsNew from '../lib/know/WhatsNew.svelte';
@@ -50,153 +51,106 @@
   const used = $derived(d ? usedTips({ ...d, langSet, standalone: standalone() }) : new Set());
   const all = $derived(d ? overview(d.tips, used) : null);
   const next = $derived(d ? nextTrip(d.trips, localDay()) : null);
+  // v0.40.0 (Noah 9a): the unused tips as rows (the first SHOWN, then "+ n more"), the used ones by area.
+  const SHOWN = 6;
+  let allOpen = $state(false);
+  const unused = $derived(all ? all.groups.flatMap((g) => g.tips.filter((x) => !x.used)) : []);
+  const unusedIdx = (x) => unused.indexOf(x);
+  const usedGroups = $derived(all ? all.groups.map((g) => ({ ...g, used: g.tips.filter((x) => x.used) })).filter((g) => g.used.length) : []);
 </script>
 
+{#snippet tipRow(x)}
+  {@const Icon = TIP_ICON[x.icon]}
+  <li data-feature={x.id} class:used={x.used} class:later={!x.used && unusedIdx(x) >= SHOWN && !allOpen}>
+    <TipButton id={x.id} {next} cls="lrow tiprow">
+      <span class="ic" aria-hidden="true"><Icon size={18} strokeWidth={2} /></span>
+      <span class="m"><span class="t">{t(x.title)}</span><span class="s">{t(x.text)}</span></span>
+      {#if x.used}<span class="state"><Check size={15} strokeWidth={3} aria-hidden="true" /><span class="sr">{x.known ? t('You know it') : t('Used|tips')}</span></span>{/if}
+      <ChevronRight class="chev" size={18} aria-hidden="true" />
+    </TipButton>
+  </li>
+{/snippet}
+
 <div class="feat">
-  <p class="back"><a href="#/">← {t('Today|place')}</a></p>
-  <h1 class="title big">{t('What the app can do')}</h1>
-  <!-- v0.35.0 (Noah): what is new in the last versions comes first. -->
+  <!-- v0.40.0 (Noah 9a): what you have not used yet as rows; what you use folded by area (1.5 phone
+       screens instead of 9). Every tip keeps its one action: a tap on the row starts it. -->
+  <h1 class="title">{t('What the app can do')}</h1>
+  {#if all}<p class="page-sub"><span class="num">{t('{n} of {total} used', { n: all.used, total: all.total })}</span></p>{/if}
+  <!-- v0.35.0 (Noah): what is new in the last versions; v0.40.0: one row, folded. -->
   <WhatsNew />
   {#if all}
-    <div class="prog">
-      <p><b class="num">{t('{n} of {total} used', { n: all.used, total: all.total })}</b> · {t('✓ = seen in your data, tapped, or "I know it".')}</p>
-      <div class="bar" role="progressbar" aria-label={t('What the app can do')} aria-valuemin="0" aria-valuemax={all.total} aria-valuenow={all.used}><i style:width="{Math.round((all.used / all.total) * 100)}%"></i></div>
-    </div>
-    <div class="groups">
-      {#each all.groups as g (g.key)}
-        <section class="grp" aria-labelledby="f-{g.key}">
-          <h2 id="f-{g.key}">{t(g.label)}</h2>
-          <ul>
-            {#each g.tips as x (x.id)}
-              {@const Icon = TIP_ICON[x.icon]}
-              <li data-feature={x.id} class:used={x.used}>
-                <span class="ico" aria-hidden="true"><Icon size={22} strokeWidth={2} /></span>
-                <div class="txt">
-                  <b>{t(x.title)}</b>
-                  <span class="say">{t(x.text)}</span>
-                  <span class="state">{#if x.used}<Check size={16} strokeWidth={3} aria-hidden="true" />{x.known ? t('You know it') : t('Used|tips')}{:else}{t('Not used yet')}{/if}</span>
-                  <div class="acts"><TipButton id={x.id} {next}/></div>
-                </div>
-              </li>
-            {/each}
-          </ul>
-        </section>
-      {/each}
-    </div>
+    {#if unused.length}
+      <section class="grp" aria-labelledby="f-unused">
+        <h2 class="sec-head" id="f-unused"><span>{t('Not used yet')}</span><span class="n">{unused.length}</span></h2>
+        <ul class="rowlist">
+          {#each unused as x (x.id)}{@render tipRow(x)}{/each}
+          {#if unused.length > SHOWN && !allOpen}
+            <li><button type="button" class="lrow morerow" onclick={() => (allOpen = true)}>{tn(unused.length - SHOWN, '+ {n} more', '+ {n} more')}</button></li>
+          {/if}
+        </ul>
+      </section>
+    {/if}
+    {#if usedGroups.length}
+      <section class="grp" aria-labelledby="f-used">
+        <h2 class="sec-head" id="f-used"><span>{t('Already used')}</span><span class="n">{all.used}</span></h2>
+        <ul class="rowlist">
+          {#each usedGroups as g (g.key)}
+            <li>
+              <details class="area" data-group={g.key}>
+                <summary class="lrow">
+                  <span class="m"><span class="t">{t(g.label)}</span><span class="s">{g.used.map((x) => t(x.title)).join(' · ')}</span></span>
+                  <span class="v num">{g.used.length} ✓</span>
+                  <ChevronRight class="chev" size={18} aria-hidden="true" />
+                </summary>
+                <ul class="inner">{#each g.used as x (x.id)}{@render tipRow(x)}{/each}</ul>
+              </details>
+            </li>
+          {/each}
+        </ul>
+      </section>
+    {/if}
   {/if}
 </div>
 
 <style>
   .feat {
-    max-width: 1360px;
+    max-width: 880px;
     margin: 0 auto;
   }
-  .big {
-    font-size: var(--fs-page);
-    line-height: var(--lh-title);
-    margin: 0 0 6px;
+  .grp :global(.sec-head) {
+    margin-top: 16px;
   }
-  .back {
-    margin: 0 0 6px;
+  .grp li.later {
+    display: none;
   }
-  .back a {
+  :global(.lrow.tiprow) {
+    width: 100%;
+  }
+  .state {
+    flex: none;
     display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    color: var(--ink);
+    color: var(--ok);
   }
-  .prog {
-    margin: 0 0 20px;
-    max-width: 640px;
+  .morerow {
+    justify-content: center;
+    color: var(--ink-3);
+    font-size: 14px;
   }
-  .prog p {
-    margin: 0 0 8px;
-    color: var(--ink-2);
-    overflow-wrap: anywhere;
+  .area > summary {
+    list-style: none;
   }
-  .prog b {
-    color: var(--ink);
+  .area > summary::-webkit-details-marker {
+    display: none;
   }
-  .bar {
-    height: 10px;
-    border-radius: 99px;
+  .area[open] > summary {
     background: var(--paper-2);
-    border: 1px solid var(--line);
-    overflow: hidden;
   }
-  .bar i {
-    display: block;
-    height: 100%;
-    background: var(--ok);
-  }
-  .groups {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr));
-    gap: 20px;
-    align-items: start;
-  }
-  .grp {
-    padding: 16px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: var(--paper);
-    min-width: 0;
-  }
-  .grp h2 {
-    margin: 0 0 8px;
-    font-size: var(--fs-section);
-  }
-  ul {
+  .inner {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  li {
-    display: flex;
-    gap: 12px;
-    padding: 12px 0;
+  .inner > li {
     border-top: 1px solid var(--line);
-  }
-  li:first-child {
-    border-top: 0;
-  }
-  .ico {
-    flex: none;
-    display: inline-flex;
-    padding-top: 2px;
-    color: var(--ink-3);
-  }
-  .txt {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-    flex: 1;
-  }
-  .txt b {
-    font-size: 17px;
-    overflow-wrap: anywhere;
-  }
-  .say {
-    font-size: 15px;
-    color: var(--ink-2);
-    overflow-wrap: anywhere;
-  }
-  .state {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-  }
-  li.used .state {
-    color: var(--ok);
-    font-weight: 600;
-  }
-  .acts {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 12px;
   }
 </style>

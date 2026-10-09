@@ -52,6 +52,8 @@ async function newTrip(page, T, title, days = 1) {
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await dlg.getByLabel(T('Name')).fill(title);
   await dlg.getByLabel(T('Start date')).fill(today());
+  // v0.40.0: the days field only after "More".
+  if (days > 1) await dlg.getByRole('button', { name: T('More'), exact: true }).click();
   if (days > 1) await dlg.getByLabel(T('Days')).fill(String(days));
   await dlg.getByRole('button', { name: T('Create trip') }).click();
   await expect(dlg).toBeHidden();

@@ -163,7 +163,7 @@ test('first aid: none on a day ride, with a 1-night lodging trip', async ({ page
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await dlg.getByLabel(T('Name')).fill(title);
   await dlg.getByLabel(T('Start date')).fill(today());
-  await dlg.getByRole('spinbutton', { name: T('Days') }).fill('2');
+  await dlg.getByRole('button', { name: T('2 days'), exact: true }).click(); // v0.40.0: the days field only after "More"
   await dlg.getByRole('button', { name: T('Lodging'), exact: true }).click();
   await dlg.getByRole('button', { name: T('Create trip') }).click();
   await expect(dlg).toBeHidden();

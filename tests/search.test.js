@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { searchAll } from '../src/lib/search.js';
+import { searchAll, tripDay } from '../src/lib/search.js';
 
 const data = {
   items: [
@@ -26,13 +26,19 @@ describe('search everything', () => {
   it('every word has to match, across kinds', () => {
     const r = searchAll('rain jacket', data);
     expect(r.map((g) => g.kind)).toEqual(['gear', 'note']);
-    expect(r[0].rows[0]).toMatchObject({ title: '★ Rain jacket', sub: 'Haglöfs · 180 g', href: '#/gear?q=Rain%20jacket&item=RG01' });
+    expect(r[0].rows[0]).toMatchObject({ title: '★ Rain jacket', sub: 'Haglöfs', v: '180 g', href: '#/gear?q=Rain%20jacket&item=RG01' });
   });
 
   it('finds trips, bikes and templates', () => {
     expect(searchAll('factor', data).map((g) => g.kind)).toEqual(['trip', 'bike']);
     expect(searchAll('favor', data)[0]).toMatchObject({ kind: 'template', rows: [{ sub: '2 items' }] });
     expect(searchAll('jacket', data)[0].rows.find((x) => x.id === 'W1').sub).toBe('not weighed · wishlist');
+  });
+
+  it('v0.40.0: a trip day with the weekday, the year only for another year', () => {
+    expect(tripDay('2026-10-18', new Date('2026-10-09T12:00:00'))).toBe('Sun 18 Oct');
+    expect(tripDay('2025-10-18', new Date('2026-10-09T12:00:00'))).toBe('Sat, 18 Oct 2025');
+    expect(searchAll('jura', data)[0].rows[0].sub).toMatch(/^Fri,? 1 May( 2026)? · Factor LS$/);
   });
 
   it('needs two letters', () => {
