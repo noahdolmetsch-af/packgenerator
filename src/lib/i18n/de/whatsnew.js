@@ -17,6 +17,15 @@ export default {
     "Die Stoppuhr zählt auf deine Zielzeit herunter, mit Klangschale am Anfang und Ende und auf Wunsch dazwischen (regelmässig, zu gewählten Minuten oder zufällig). Verkleinert läuft sie auf jeder Seite weiter.",
   "Daily check: sleep, energy, mood and a fourth question that changes each day, one tap each on 1–10. Every activity can be edited: name, symbol, ring, goal, minimum duration, season and what else counts.":
     "Tagescheck: Schlaf, Energie, Stimmung und eine 4. Frage, die täglich wechselt, je ein Tipp auf 1–10. Jede Aktivität ist bearbeitbar: Name, Symbol, Ring, Ziel, Mindestdauer, Saison und was auch zählt.",
+  // 0.47.2
+  'Gear has seven views, each with its count: All, Most used, Proven, Favourite things, Never used, Unweighed and Wishlist.':
+    'Material hat sieben Ansichten, jede mit ihrer Zahl: Alle, Meist genutzt, Bewährt, Lieblingssachen, Nie gebraucht, Ungewogen und Wunschliste.',
+  '"Dead weight" is now called "Never used", with one plain sentence per item: "Taken 4 times, never used".':
+    '«Totes Gewicht» heisst jetzt «Nie gebraucht», mit einem klaren Satz pro Teil: «4 Mal mitgenommen, nie gebraucht».',
+  'Every item shows its trips as dots: used, along but not used, at home. On the computer the chosen card opens on the right; sorting and filters are in one sheet.':
+    'Jedes Teil zeigt seine Touren als Punkte: gebraucht, dabei, aber nicht gebraucht, zuhause. Am Computer öffnet sich die gewählte Karte rechts; Sortieren und Filter sind in einem Blatt.',
+  'An item tells its year on tour, a rule learnt from your debriefs (like "Below 9 °C always used"), its last trips and a lighter alternative from your own gear.':
+    'Ein Teil erzählt sein Jahr auf Tour, eine Regel aus deinen Rückblicken (etwa «Unter 9 °C immer gebraucht»), seine letzten Touren und eine leichtere Alternative aus deinem Material.',
 
   // 0.47.1
   'The top card of a trip shows the ride time. Tap date, duration, weather or bike to change it right there; the list follows, Undo takes it back. A day ride no longer shows "1 day, no overnight stay".':
@@ -159,8 +168,8 @@ export default {
   // 0.38
   'Today: a ready light per bike and quick buttons: chain lubed, wear measured, washed, sealant, tyre pressure, km. Each with Undo.':
     'Heute: eine Bereit-Ampel pro Velo und Schnellknöpfe: Kette geölt, Verschleiss gemessen, geputzt, Dichtmilch, Reifendruck, km. Jeder mit Rückgängig.',
-  '"Jump to" on Today: what is due, dead weight, a year ago, the weekend and what is new.':
-    '«Springen zu» auf Heute: was fällig ist, totes Gewicht, vor einem Jahr, das Wochenende und was neu ist.',
+  '"Jump to" on Today: what is due, never used items, a year ago, the weekend and what is new.':
+    '«Springen zu» auf Heute: was fällig ist, nie Gebrauchtes, vor einem Jahr, das Wochenende und was neu ist.',
   'The menu "More" at the top right holds the rarer pages and the Inbox; the search also finds pages.':
     'Das Menü «Mehr» oben rechts hat die selteneren Seiten und die Inbox; die Suche findet auch Seiten.',
   'Compact rows in Gear (the bag on wish) with swipe on a phone, and Bike care as one list: due first, the rest folded.':
@@ -333,7 +342,7 @@ export default {
   'A quick note from any page, with an optional photo; sort the notes later in the Inbox.': 'Eine Notiz von jeder Seite, Foto nach Wunsch; einordnen später in der Inbox.',
   // 0.19.2
   'Your trips compared: luggage per trip, used and not used, with a trend.': 'Deine Touren im Vergleich: Gepäck pro Tour, gebraucht und nicht gebraucht, mit Trend.',
-  'Gear shows dead weight: taken along but never used.': 'Material zeigt totes Gewicht: mitgenommen, aber nie gebraucht.',
+  'Gear shows what you never used: taken along, never needed.': 'Material zeigt, was du nie gebraucht hast: mitgenommen, aber nie gebraucht.',
   'The wishlist with a reason, sorted by benefit.': 'Die Wunschliste mit Grund, nach Nutzen sortiert.',
   'Mark a trip "Not riding": it stays, but no longer counts as the next trip.': 'Eine Tour als «Nicht fahren» markieren: Sie bleibt, zählt aber nicht mehr als nächste Tour.',
   // 0.19.0
