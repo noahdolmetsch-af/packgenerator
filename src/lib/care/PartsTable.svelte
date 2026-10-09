@@ -180,6 +180,8 @@
     display: block;
     font-weight: 500;
     overflow-wrap: break-word;
+    /* «Scheibenbremse vorne» in a 320 px half column: a syllable break, not a cut in the middle */
+    hyphens: auto;
   }
   .pn small {
     display: block;

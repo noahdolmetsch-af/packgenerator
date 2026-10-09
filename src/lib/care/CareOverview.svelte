@@ -472,12 +472,14 @@
     min-width: 0;
     overflow-wrap: break-word;
   }
-  /* Long bike names: the badge shortens, the order button wraps (no sideways scroll at 320 px). */
+  /* Long bike names: the badge wraps to a second line instead of cutting the name, the order button
+     wraps too (no sideways scroll at 320 px, and the whole name stays readable). */
   .ov .nbadge {
     max-width: 100%;
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow-wrap: break-word;
+    text-align: left;
   }
   .sacts {
     display: flex;
