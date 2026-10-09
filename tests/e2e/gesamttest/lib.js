@@ -11,7 +11,7 @@ import { build, step1, step2, track, gpxText, P } from '../../fixtures/gesamttes
 export { P, build, step1, step2, track, gpxText, DE };
 
 /** Today in Zurich (YYYY-MM-DD), n days from now. */
-export const day = (n = 0) => new Date(Date.now() + n * 864e5).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+export const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 
 /** The text of an English key in a language (as the app's t() does). */
 export const tr = (lang) => (en, vars) => {
