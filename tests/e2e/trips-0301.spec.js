@@ -108,7 +108,9 @@ test('A2: "+ Rain" in the trip brings the rain gear with its reason and Undo', a
   await start(page, context, info, { trips: [trip('gtp-a2', 'Regenrunde', { startDate: day(3), wx: { min: 10, max: 18, rain: 'none' } })] });
   await page.evaluate(() => localStorage.setItem('pack.currentTrip', 'gtp-a2'));
   await page.goto('./#/pack');
-  await page.locator('.calm-pack .cell').first().click(); // Duration: the trip's details
+  // v0.47.1: a one-day trip has no Duration field; its details open from the ••• menu.
+  await page.locator('.list-menu > summary').click();
+  await page.locator('.list-menu-content').getByRole('button', { name: T('Edit trip'), exact: true }).click();
   const dlg = page.getByRole('dialog', { name: T('Trip details') });
   const rain = dlg.getByRole('button', { name: `+ ${T('Rain')}` });
   await rain.click();

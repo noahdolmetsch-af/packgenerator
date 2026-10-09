@@ -175,7 +175,8 @@
          the Inbox count shows on it. -->
     <button type="button" class="more-btn" aria-haspopup="dialog" aria-expanded={menuOpen} aria-label={$inboxQ ? t('More, Inbox: {n} to sort', { n: $inboxQ }) : t('More')} onclick={() => (menuOpen = true)}>
       <Menu size={24} aria-hidden="true" />{#if !phone.matches}<span class="ml">{t('More')}</span>{/if}
-      {#if $inboxQ}<span class="n num" aria-hidden="true">{$inboxQ}</span>{/if}
+      <!-- v0.47.1 (Noah): no number on the button, only a small dot; the count stays in the label. -->
+      {#if $inboxQ}<span class="mdot" aria-hidden="true"></span>{/if}
     </button>
   </div>
 </header>
@@ -328,19 +329,15 @@
     align-items: center;
     gap: 10px;
   }
-  .more-btn .n {
+  .more-btn .mdot {
     position: absolute;
-    top: 2px;
-    right: 0;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 4px;
-    border-radius: 9px;
+    top: 8px;
+    right: 6px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
     background: var(--hi-bright);
-    color: var(--ink);
-    font: 700 11px/18px var(--font-body);
-    text-align: center;
-    box-sizing: border-box;
+    box-shadow: 0 0 0 2px var(--brand);
   }
   .new {
     gap: 6px;

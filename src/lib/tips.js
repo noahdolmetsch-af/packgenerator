@@ -122,7 +122,7 @@ export function usedTips({ trips = [], items = [], bikes = [], visits = [], debr
   on('templates', templates.length > 0);
   on('gpx', trips.some((t) => !!t.route));
   on('homeweather', !!homePlace);
-  on('wxsuggest', trips.some((t) => !!t.wxFrom));
+  on('wxsuggest', trips.some((t) => !!t.wxFrom && t.wxFrom !== 'last')); // v0.47.1: 'last' = copied from the last day ride
   on('bags', trips.some((t) => t.entries?.some((e) => e.packed)));
   on('note', notesN > 0);
   on('event', trips.some((t) => isEvent(t)));

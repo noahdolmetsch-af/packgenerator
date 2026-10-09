@@ -61,7 +61,9 @@ test('More: top right with the Inbox count, grouped, language; the search finds 
   await page.goto('./#/');
   const more = page.locator('.more-btn');
   await expect(more).toHaveAttribute('aria-label', 'Mehr, Inbox: 2 zum Einordnen');
-  await expect(more.locator('.n')).toHaveText('2');
+  // v0.47.1 (Noah): only a dot on the button, no number (the count stays in the label).
+  await expect(more.locator('.mdot')).toBeVisible();
+  await expect(more).not.toContainText('2');
   // The bar has the 4 places and "+"; the profile menu is gone.
   await expect(page.locator('details.profile-menu')).toHaveCount(0);
   await more.click();

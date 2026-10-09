@@ -87,7 +87,8 @@ for (const [w, hgt] of [
       expect(m.top, `${where}: low top bar`).toBeLessThanOrEqual(52);
       expect(m.bottom, `${where}: small bottom bar`).toBeLessThanOrEqual(52);
       // The band: name, one line of facts and the steps, not half the screen.
-      expect(m.band, `${where}: compact band`).toBeLessThanOrEqual(150);
+      // v0.47.1: on Plan the facts (date, duration, bike, weather) are tappable and may take two short lines.
+      expect(m.band, `${where}: compact band`).toBeLessThanOrEqual(step === 'Plan' ? 165 : 150);
       expect(m.bandTop - m.top, `${where}: the band right under the top bar`).toBeLessThanOrEqual(16);
       // Every step tab is whole on screen and big enough for a thumb.
       for (const s of m.steps) {

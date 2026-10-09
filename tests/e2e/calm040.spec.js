@@ -44,7 +44,7 @@ test('Inbox: one light button per note, the rest behind •••, a set bike sh
   await page.goto('./#/inbox');
   await expect(page.getByRole('heading', { name: T('Inbox'), level: 1 })).toBeVisible();
   await expect(page.locator('.page-sub')).toHaveText(T('{n} to sort', { n: 2 }));
-  const list = page.getByRole('list', { name: T('Notes to sort') });
+  const list = page.getByRole('list', { name: T('Notes, newest first') });
   const note = list.locator('li.note').filter({ hasText: `${P} Bell rattles` });
   // No badge until a bike or trip is set; one light button, no orange.
   await expect(note.locator('.nbadge')).toHaveCount(0);

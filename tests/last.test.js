@@ -1,7 +1,7 @@
 // v0.31.0 (Velopflege redesign): the last work per part, its state and the year on one bike.
 // Fictional data only.
 import { describe, it, expect, afterEach } from 'vitest';
-import { shopSkip, lastWork, lastWorkByPart, lastLine, usualBy, partStatus, isDueState, yearSummary, groupOf, GROUPS, workWords } from '../src/lib/care/last.js';
+import { shopSkip, lastWork, lastWorkByPart, lastLine, usualBy, partStatus, isDueState, yearSummary, groupOf, GROUPS, workWords, newestFirst, historyNewest } from '../src/lib/care/last.js';
 import { ensureParts, logPart, PARTS } from '../src/lib/care.js';
 import { withVisits, timeDue, workshopOrder } from '../src/lib/workshop.js';
 import { lang, num } from '../src/lib/i18n.svelte.js';
@@ -153,5 +153,18 @@ describe('the workshop order takes only what I do not usually do myself', () => 
     for (const k of ['padsR', 'chain', 'bolts']) p2 = logPart(p2, k, e('2025-01-01', { km: 1000, by: 'shop' }));
     expect(shopSkip(bike({ parts: p2 }))('check')).toBe(false);
     expect(shopSkip(bike())('check')).toBe(true);
+  });
+});
+
+// v0.47.1 (Noah): in Bike care the newest action first.
+describe('newest action first (v0.47.1)', () => {
+  it('rows by the date of their last work, parts without work last', () => {
+    const r = (key, date, km) => ({ key, last: date ? { main: { date, km } } : null });
+    const rows = [r('a', '2026-03-01', 100), r('b', null), r('c', '2026-09-01', 900), r('d', '2026-09-01', 950)];
+    expect([...rows].sort(newestFirst).map((x) => x.key)).toEqual(['d', 'c', 'a', 'b']);
+  });
+  it('a history newest first, the same day: recorded later first', () => {
+    const h = [{ date: '2026-05-01', id: 1 }, { date: '2026-09-01', id: 2 }, { date: '2026-01-01', id: 3 }, { date: '2026-09-01', id: 4 }];
+    expect(historyNewest(h).map((x) => x.id)).toEqual([4, 2, 1, 3]);
   });
 });

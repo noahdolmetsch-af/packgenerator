@@ -7,12 +7,13 @@
   import { chainWish } from '../quickcare.js';
   import { tick } from 'svelte';
   import {
-    ensureParts, checkState, serviceDue, logPart, parseKm, PART, taskBike, openRepairs, toReview, prepFor, prepRules, upcomingTrips, wishFor, CHECK_KM,
+    ensureParts, isPrep, checkState, serviceDue, logPart, parseKm, PART, taskBike, openRepairs, toReview, prepFor, prepRules, upcomingTrips, wishFor, CHECK_KM,
   } from '../care.js';
   import TripCare from './TripCare.svelte';
   import { tickPrep, untickPrep } from './prep.js';
   import { shopSkip } from './last.js';
   import BikeCare from './BikeCare.svelte';
+  import ProblemList from './ProblemList.svelte';
   import Fold from '../ui/Fold.svelte';
   import PartDialog from './PartDialog.svelte';
   import VisitDialog from './VisitDialog.svelte';
@@ -222,6 +223,8 @@
   const repairResult = (t, status) => db.maintenance.update(t.id, { status, statusDate: today, by, reviewedAt: now() });
   const repairsFor = (bikeId) => repairs.filter((t) => taskBike(t) === bikeId && t.status !== 'check');
   const otherRepairs = $derived(repairs.filter((t) => !taskBike(t) && t.status !== 'check'));
+  // v0.47.1 (Noah): the problems of all bikes in one flat list, newest on top (was: in each bike's «Due now»).
+  const bikeProblems = $derived(tasks.filter((x) => !isPrep(x) && (x.status === 'open' || x.status === 'needed') && bikes.some((b) => b.id === taskBike(x))));
 
   /* ---------- tube or tubeless per wheel (answer 12a) ---------- */
   const setTyre = (bike, wheel, value) => db.bikes.update(bike.id, { tyreSetup: { ...tyreSetup(bike, visits), ...(bike.tyreSetup ?? {}), [wheel]: value } });
@@ -312,6 +315,7 @@
       <p class="rev-cta">{tn(review.length, '{n} task from the Excel (June) is not checked yet.', '{n} tasks from the Excel (June) are not checked yet.')} <button type="button" class="btn sm" onclick={() => (reviewing = true)}>{t('Go through them')}</button></p>
     {/if}
 
+    {#if filter !== 'shop'}<ProblemList repairs={bikeProblems} {bikes} {today} bikeIdOf={taskBike} onrepair={repairResult} />{/if}
     <section class="per-bike" aria-label={t('Each bike')}>
       {#each checks as c (c.bike.id)}
         <BikeCare

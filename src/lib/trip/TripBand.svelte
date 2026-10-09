@@ -13,9 +13,9 @@
    * "Saved ✓" shows at the end of the meta line for about 2 seconds (Noah 6b).
    */
   import { liveQuery } from 'dexie';
-  import { CalendarDays, Bike, Backpack, CloudSun, ShoppingBag, Check, Pencil } from '@lucide/svelte';
+  import { CalendarDays, Bike, Backpack, CloudSun, ShoppingBag, Check, Pencil, Clock3 } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { t, locale } from '../i18n.svelte.js';
+  import { t, tn, num, locale } from '../i18n.svelte.js';
   import { tripStats, RAIN } from '../trips.js';
   import { hasBike, domainOf, domainName } from '../domains.js';
   import { layerSuggest, openRows } from '../layers.js';
@@ -23,9 +23,11 @@
   import { localDay } from '../localday.js';
   import { TAB_NAMES, tabsOf, tabHref, tabStatus, tripDates } from '../tabs.js';
   import InProgress from './InProgress.svelte';
+  import FactSheet from './FactSheet.svelte';
 
   // weighHint: false hides the "6 not weighed" badge (v0.30.1, Noah E4: not next to the green "Day ride created" card).
-  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true } = $props();
+  // v0.47.1 (Noah a): edit (Plan only) turns date, duration, weather and bike into chips that change the value in place.
+  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true, edit = null } = $props();
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -81,6 +83,11 @@
     if ($debriefQ) seen = { id: trip.id, at };
   });
   $effect(() => () => clearTimeout(savedTimer));
+  // v0.47.1 (Noah a): the duration: hours for a one-day ride, days for a longer trip.
+  const tripDays = $derived(Math.max(1, Number(trip.days) || 1));
+  const duration = $derived(tripDays === 1 ? (trip.hours ? t('{n} h', { n: num(trip.hours) }) : edit ? t('Set hours') : '') : tn(tripDays, '{n} day', '{n} days'));
+  let factOpen = $state(null);
+  const allBikes = $derived($bikesQ ?? []);
   const wx = $derived(trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C · ${t(RAIN[trip.wx.rain ?? 'none'])}` : '');
 </script>
 
@@ -97,10 +104,19 @@
       <h1 tabindex="-1" data-trip-title><button type="button" class="name" title={t('Rename trip')} onclick={startRename}>{trip.title}<Pencil class="pen" size={18} aria-hidden="true" /></button></h1>
     {/if}
     <p class="meta">
+      {#if edit}
+        <button type="button" class="fact" aria-label={t('Date: {value}. Change', { value: tripDates(trip) })} onclick={() => (factOpen = 'date')}><CalendarDays size={16} aria-hidden="true" />{tripDates(trip)}</button>
+        <button type="button" class="fact" data-fact="duration" aria-label={t('Duration: {value}. Change', { value: duration })} onclick={() => (factOpen = 'duration')}><Clock3 size={16} aria-hidden="true" />{duration}</button>
+        {#if byBike}<button type="button" class="fact" aria-label={t('Bike: {value}. Change', { value: bike?.name ?? trip.bike ?? t('No bike') })} onclick={() => (factOpen = 'bike')}><Bike size={16} aria-hidden="true" />{bike?.name ?? trip.bike ?? t('No bike')}</button>{:else}<span><Backpack size={16} aria-hidden="true" />{t(domainName(domainOf(trip)))}</span>{/if}
+        {#if byBike}<button type="button" class="fact" aria-label={t('Weather: {value}. Change', { value: wx || t('No weather set') })} onclick={() => (factOpen = 'weather')}><CloudSun size={16} aria-hidden="true" />{wx || t('No weather set')}</button>{:else if wx}<span><CloudSun size={16} aria-hidden="true" />{wx}</span>{/if}
+        {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.unweighed && weighHint}<i class="badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}</span>{/if}
+      {:else}
       <span><CalendarDays size={16} aria-hidden="true" />{tripDates(trip)}</span>
+      {#if duration}<span data-fact="duration"><Clock3 size={16} aria-hidden="true" />{duration}</span>{/if}
       {#if byBike}<span><Bike size={16} aria-hidden="true" />{bike?.name ?? trip.bike ?? t('No bike')}</span>{:else}<span><Backpack size={16} aria-hidden="true" />{t(domainName(domainOf(trip)))}</span>{/if}
       {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.unweighed && weighHint}<i class="badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}</span>{/if}
       {#if wx}<span><CloudSun size={16} aria-hidden="true" />{wx}</span>{/if}
+      {/if}
       <span class="saved" class:on={saved} role="status">{#if shown}<Check size={14} aria-hidden="true" />{t('Saved')}{/if}</span>
     </p>
   </div>
@@ -122,6 +138,7 @@
     {/each}
   </nav>
 </section>
+{#if factOpen && edit}<FactSheet field={factOpen} {trip} bikes={allBikes} {edit} onclose={() => (factOpen = null)} />{/if}
 
 <style>
   .band {
@@ -210,6 +227,33 @@
     gap: 6px;
     min-width: 0;
     overflow-wrap: break-word;
+  }
+  /* v0.47.1 (Noah a): a fact you can change: a quiet pill, 44 px high on a phone. */
+  .meta .fact {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    min-height: 36px;
+    margin: 0 -4px;
+    padding: 4px 10px;
+    border: 1px solid color-mix(in srgb, var(--brand-ink) 22%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--brand-ink) 8%, transparent);
+    color: var(--brand-ink);
+    font: inherit;
+    text-align: left;
+    overflow-wrap: break-word;
+    cursor: pointer;
+  }
+  @media (hover: hover) {
+    .meta .fact:hover {
+      background: color-mix(in srgb, var(--brand-ink) 16%, transparent);
+    }
+  }
+  .meta .fact:focus-visible {
+    outline: 2px solid var(--focus-on-dark);
+    outline-offset: 2px;
   }
   .meta b {
     color: var(--brand-ink);
@@ -322,6 +366,12 @@
 
   /* Phone (Noah 3a): the next step stays at the bottom, above the bottom bar. */
   @media (max-width: 719px) {
+    .meta .fact {
+      min-height: 44px;
+    }
+    .meta:has(.fact) {
+      gap: 6px 12px;
+    }
     .act {
       position: fixed;
       left: 0;
@@ -437,6 +487,20 @@
       gap: 2px 12px;
       margin: 0;
       font-size: 13px;
+    }
+    /* v0.47.1: sideways the facts stay one quiet line (underlined, no pill), so the band stays low. */
+    .meta .fact {
+      min-height: 26px;
+      margin: 0;
+      padding: 0 2px;
+      border: 0;
+      background: none;
+      text-decoration: underline dotted;
+      text-underline-offset: 3px;
+    }
+    /* On Plan the weight is in the bike card below; sideways it leaves the facts line. */
+    .meta:has(.fact) > .num {
+      display: none;
     }
     .act :global(.btn.hi) {
       min-width: 0;

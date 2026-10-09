@@ -19,7 +19,8 @@
   import { planningGroups } from '../preparation.js';
   import { t, tn, nameOf, num, locale, bagName } from '../i18n.svelte.js';
   import { formatWeight } from '../gear.js';
-  import { RAIN, heavyHigh, isDayTrip, daysUntil } from '../trips.js';
+  import { RAIN, heavyHigh, isDayTrip, daysUntil, WX_PRESETS } from '../trips.js';
+  import { wxSource } from '../dayride.js';
   import { bagVolumes } from '../bagsuggest.js';
   import { litreWarning } from '../backpacks.js';
   import { phone } from '../media.svelte.js';
@@ -29,7 +30,7 @@
   import { pastTrips } from '../hubs.js';
   import { localDay } from '../localday.js';
   import '../trip/trip.css';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -48,6 +49,13 @@
   const NIGHT = { none: 'no overnight stay', lodging: 'Lodging', outdoor: 'Outdoor' };
   const days = $derived(Math.max(1, Number(trip.days) || 1));
   const durationText = $derived(hasContext(trip) ? `${tn(days, '{n} day', '{n} days')} · ${t(NIGHT[trip.overnight])}` : tn(days, '{n} day', '{n} days'));
+  // v0.47.1 (Noah b): one day without a night (99 % of rides): no «1 day · no overnight stay» field; the
+  // hours are in the top card. A route still shows its km here.
+  const oneDay = $derived(days === 1 && (trip.overnight == null || trip.overnight === 'none'));
+  const routeText = $derived(trip.route?.km ? [`${num(Math.round(trip.route.km))} km`, trip.route.gainM ? `${num(Math.round(trip.route.gainM))} ${t('m up|short')}` : null].filter(Boolean).join(' · ') : '');
+  // v0.47.1 (Noah c, d): the quick ranges in «Fitted to the weather», and where the range comes from.
+  const wet = $derived(trip.wx?.rain === 'rain' || trip.wx?.rain === 'showers');
+  const source = $derived(wxSource(trip));
   const perDay = $derived.by(() => {
     const r = trip.route;
     if (r?.km) return [`${num(Math.round(r.km / days))} km`, r.gainM ? `${num(Math.round(r.gainM / days))} ${t('m up|short')}` : null, trip.hours ? t('{n} h', { n: num(trip.hours) }) : null].filter(Boolean).join(' · ');
@@ -130,7 +138,7 @@
     <TripBand {trip} tab="plan" {kicker} action={null} />
     {#key trip.id}<DecisionReview {trip} {items} onapply={apply} oncancel={() => review = false} onconditions={() => show('conditions')} />{/key}
   {:else}
-    <TripBand {trip} tab="plan" {kicker} action={go} aside={plus} weighHint={!made} hint={primary === 'go' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : primary === 'pack' ? t('List ready? Then pack bag by bag.') : primary === 'ride' ? t('Everything is packed.') : ''} />
+    <TripBand {trip} tab="plan" {kicker} {edit} action={go} aside={plus} weighHint={!made} hint={primary === 'go' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : primary === 'pack' ? t('List ready? Then pack bag by bag.') : primary === 'ride' ? t('Everything is packed.') : ''} />
     {@render notice?.()}
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
     <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
@@ -139,9 +147,10 @@
       <div class="left">
         <!-- Noah: the conditions as four fields; a tap changes them. A template is one way to start, not a must. -->
         <section class="tp-card cond" aria-label={t('Trip conditions')}>
-          <div class="cgrid">
-            <button type="button" class="cell" onclick={actions.edit}><Clock3 size={18} aria-hidden="true" /><span><small>{t('Duration')}</small>{durationText}</span></button>
+          <div class="cgrid" class:odd={oneDay && !routeText} class:three={oneDay && !!routeText}>
+            {#if !oneDay}<button type="button" class="cell" onclick={actions.edit}><Clock3 size={18} aria-hidden="true" /><span><small>{t('Duration')}</small>{durationText}</span></button>
             <button type="button" class="cell" onclick={() => show('conditions')}><Mountain size={18} aria-hidden="true" /><span><small>{t('Per day')}</small>{perDay}</span></button>
+            {:else if routeText}<button type="button" class="cell" onclick={() => show('conditions')}><Mountain size={18} aria-hidden="true" /><span><small>{t('Route')}</small>{routeText}</span></button>{/if}
             <button type="button" class="cell" onclick={() => show('conditions')}><CloudSun size={18} aria-hidden="true" /><span><small>{t('Weather')}</small>{wxText}</span></button>
             <a class="cell" href="#/pack/templates"><Layers size={18} aria-hidden="true" /><span><small>{t('Start with')}</small>{startText}</span><span class="sr"> · {t('Templates')}</span></a>
           </div>
@@ -152,11 +161,20 @@
         <!-- v0.40.0 (design check): the weather in ONE place: the open suggestions are the first row
              of the card that shows what the weather brought (alone when it brought nothing yet). -->
         {#snippet reviewRow()}<button type="button" class="tp-fold fold-btn detail-link" class:open-work={openLayers.length > 0} onclick={() => { review = true; window.scrollTo({ top: 0 }); }}><CloudSun size={20} aria-hidden="true" /><span>{t('Review weather suggestions')}</span><span class="r">{#if openLayers.length}<i class="tp-badge hi">{tn(openLayers.length, '{n} open', '{n} open')}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></button>{/snippet}
-        {#if bikeTrip && !(wxRows.length || changeNote || ctxChanged)}{@render reviewRow()}{/if}
+        {#if bikeTrip && !edit && !(wxRows.length || changeNote || ctxChanged)}{@render reviewRow()}{/if}
         <!-- Noah 4b: the weather changes the list by itself; here is what it brought, each with its reason. -->
-        {#if wxRows.length || changeNote || ctxChanged}
+        {#if wxRows.length || changeNote || ctxChanged || (bikeTrip && edit)}
           <section class="tp-card wxcard" aria-labelledby="wx-h">
             <h2 id="wx-h"><CloudSun size={18} aria-hidden="true" />{t('Fitted to the weather')}<span class="r">{wxText}</span></h2>
+            {#if source}<p class="wxsrc tp-muted tp-small" data-wx-source>{source}</p>{/if}
+            {#if bikeTrip && edit}
+              <!-- v0.47.1 (Noah c): one tap switches the range (the weather presets) or dry/rain; Undo as for every change. -->
+              <div class="tp-chips wxq" role="group" aria-label={t('Quick weather')}>
+                {#each WX_PRESETS as p (p.name)}<button type="button" class="tp-chip" aria-pressed={trip.wx?.min === p.min && trip.wx?.max === p.max} onclick={() => edit.wx({ min: p.min, max: p.max })}>{t(p.name)} <small class="num">{p.min}–{p.max}°</small></button>{/each}
+                <button type="button" class="tp-chip" aria-pressed={!wet} onclick={() => edit.wx({ rain: 'none' })}>{t('Dry|weather')}</button>
+                <button type="button" class="tp-chip" aria-pressed={wet} onclick={() => edit.wx({ rain: 'rain' })}>{t('Rain')}</button>
+              </div>
+            {/if}
             {#if bikeTrip}{@render reviewRow()}{/if}
             {#if wxRows.length}
               <ul class="wxrows">
@@ -315,6 +333,13 @@
   .cell small { display: block; font-size: 12px; font-weight: 400; color: var(--ink-3); }
   @media (hover: hover) { .cell:hover { background: var(--paper-2); } }
   .cfoot { margin: 4px 10px 6px; }
+  /* v0.47.1 (Noah b): a day ride shows two or three cells; a lone last cell takes the whole row. */
+  .cgrid.three .cell:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
+  .cgrid.three .cell:nth-child(3) { grid-column: 1 / -1; border-bottom: 0; }
+  .cgrid.odd .cell { border-bottom: 0; border-radius: 8px; }
+  .wxsrc { margin: 2px 0 0 26px; }
+  .wxq { margin: 10px 0 0; gap: 6px; }
+  .wxq small { color: inherit; opacity: 0.8; }
   .wxrows { list-style: none; margin: 8px 0 0; padding: 0; }
   .wxrows li { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 6px 0; border-top: 1px solid var(--paper-2); }
   .wxrows li:first-child { border-top: 0; }

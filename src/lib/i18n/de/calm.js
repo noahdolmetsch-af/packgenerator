@@ -17,6 +17,8 @@ export default {
   'used → not used → broken': 'gebraucht → nicht gebraucht → kaputt',
   'Already used': 'Schon genutzt',
   'Notes to sort': 'Notizen zum Einordnen',
+  'Notes, newest first': 'Notizen, neueste zuerst', // v0.47.1 (Noah): one Inbox list
+  'Problems, newest first': 'Probleme, neueste zuerst',
   'Bike: {name}': 'Velo: {name}',
   'Trip: {name}': 'Tour: {name}',
   'More for this note: other places, bike or trip, delete': 'Mehr zu dieser Notiz: andere Orte, Velo oder Tour, löschen',
