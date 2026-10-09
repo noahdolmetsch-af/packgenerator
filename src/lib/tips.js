@@ -68,7 +68,7 @@ export const TIPS = [
   { id: 'debrief', group: 'back', icon: 'message', title: 'Debrief in 1 minute', text: 'A debrief takes a minute and tells the app what you really used.', button: 'Open debriefs', go: { href: '#/debrief' }, needs: 'trip' },
   { id: 'learn', group: 'back', icon: 'sparkles', title: 'Templates that learn (after 3 debriefs)', text: 'After 3 debriefs your templates suggest what to take out or add.', button: 'Open templates', go: { href: '#/pack/templates' }, needs: 'trip' },
   { id: 'pace', group: 'back', icon: 'gauge', title: 'Your pace', text: 'Load a few GPX rides and riding times use your own pace.', button: 'Show your pace', go: { href: '#/debrief/pace' } },
-  { id: 'trend', group: 'back', icon: 'trend', title: 'Weight trend', text: 'Compare trips and see how your base weight changes trip by trip.', button: 'Compare trips', go: { href: '#/debrief/compare' }, needs: 'trip' },
+  { id: 'trend', group: 'back', icon: 'trend', title: 'Weight trend', text: 'Compare trips and see how your base weight changes trip by trip.', button: 'Compare trips', go: { href: '#/debrief' }, needs: 'trip' },
   // Gear
   { id: 'weigh', group: 'gear', icon: 'scale', title: 'Weigh items', text: 'Weigh your items one after the other: then every total is exact.', button: 'Start weighing', go: { href: '#/gear?tab=weigh' }, needs: 'items' },
   { id: 'fav', group: 'gear', icon: 'star', title: 'Favourites ★', text: 'Mark your favourite things with ★ and find them all on one page.', button: 'Show favourites', go: { href: '#/favorites' }, needs: 'items' },

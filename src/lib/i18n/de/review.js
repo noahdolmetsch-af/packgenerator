@@ -3,6 +3,7 @@
  * the English texts. Swiss spelling (ss).
  */
 export default {
+  'All never used items in Gear': 'Alle nie gebrauchten Teile im Material',
   'Last 12 months': 'Letzte 12 Monate',
   'View →|review': 'Ansehen →',
   'Riding, packing, learned, bikes': 'Fahren, Packen, Gelernt, Velos',
@@ -33,7 +34,6 @@ export default {
   'Base weight per trip': 'Basisgewicht pro Tour',
   "With today's weights of the items.": 'Mit den heutigen Gewichten der Teile.',
   'Never used': 'Nie gebraucht',
-  'All never used items in Gear': 'Alle nie gebrauchten Teile im Material',
   '{n}× along': '{n}× dabei',
   'Most often along': 'Am häufigsten dabei',
   'Bought from the wishlist': 'Von der Wunschliste gekauft',

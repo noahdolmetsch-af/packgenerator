@@ -98,7 +98,7 @@ test('lubed right on Today, with Undo; All 16 functions', async ({ page, context
   const sheet = page.getByRole('dialog', { name: T('All {n} functions', { n: 16 }) });
   await expect(sheet.locator('.fnrow')).toHaveCount(16);
   await sheet.locator('[data-fn="review"]').click();
-  await expect(page).toHaveURL(/#\/review$/);
+  await expect(page).toHaveURL(/#\/debrief$/);
   // the tap counts: Look back moves to the front of the rest
   await page.goto('./#/');
   // (care was tapped once too, by "Lubed"; with the same count the list order decides)

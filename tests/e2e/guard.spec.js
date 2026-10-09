@@ -24,7 +24,9 @@ const ROUTES = [
   ['#/ride', 'Unterwegs'],
   ['#/debrief', 'Rückblick'],
   ['#/debrief/ride', 'Fahrt hochladen'],
-  ['#/review', '12 Monate'],
+  // v0.49.0 R1: #/review is part of the Rückblick now; its pages one level below are checked instead
+  ['#/debrief/learnings', 'Gelernt'],
+  ['#/debrief/pace', 'Tempo'],
   ['#/gear', 'Material'],
   ['#/gear?tab=weigh', 'Material wiegen'],
   ['#/gear?tab=wishlist', 'Wunschliste'],

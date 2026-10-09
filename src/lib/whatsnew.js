@@ -20,6 +20,15 @@ export const WHATS_NEW = [
     ],
   },
   {
+    version: '0.56.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'One page "Look back" instead of five: your last ride, the last 12 months with the year before, average and best, and your trips compared in 7 small charts and a table.', href: '#/debrief' },
+      { text: 'Past trips is one table, on the phone too: km, Hm, time, rain, temperature, bike and one learning per trip. The name stays put while the other columns scroll; period, "Kind" and a search that finds learnings.', href: '#/pack/past' },
+      { text: "A trip's saved debrief now tells what the trip was: numbers and weather per day, plan against real, what you can leave at home, learnings and what it means for the next trip.", href: '#/pack/past' },
+    ],
+  },
+  {
     version: '0.51.0',
     date: '2026-10-09',
     points: [
