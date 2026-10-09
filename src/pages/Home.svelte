@@ -29,7 +29,7 @@
   import { backupAfterTrip } from '../lib/todos.js';
   import { CATEGORY, formatWeight, knownWeight, weightText, gearStats, isConsumable, favouriteCounts } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
-  import { withVisits, costByYear, tripPrep, tyreSetup } from '../lib/workshop.js';
+  import { withVisits, tripPrep, tyreSetup } from '../lib/workshop.js';
   import { tripSchedule, stepWords, stepHref, STEP_NAME, shortDay, weatherKnown } from '../lib/schedule.js';
   import { shopList, shopCount } from '../lib/shop.js';
   import { layerSuggest, openRows } from '../lib/layers.js';
@@ -41,7 +41,9 @@
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   // v0.25.1 (Noah 1b, 2b, 3a): more buttons on the Trips and Bikes tiles, four visible, the rest under "More".
   import TripsHubActions from '../lib/hubs/TripsHubActions.svelte';
-  import BikesHubActions from '../lib/hubs/BikesHubActions.svelte';
+  // v0.38.0 (Noah 8a, 9a): the bikes with their ready light and quick buttons, and "Jump to".
+  import ReadyBikes from '../lib/home/ReadyBikes.svelte';
+  import JumpList from '../lib/home/JumpList.svelte';
   import { wishReason } from '../lib/insights.js';
   import { ballast } from '../lib/packhints.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
@@ -52,8 +54,7 @@
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
   import GoodToKnow from '../lib/know/GoodToKnow.svelte';
-  import { newsHint, SEEN_KEY, WHATS_NEW } from '../lib/whatsnew.js';
-  import { Sparkles } from '@lucide/svelte';
+  import { newsHint, newerThan, SEEN_KEY, BEFORE } from '../lib/whatsnew.js';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -85,7 +86,8 @@
   const loaded = $derived(!!$tripsQ && !!$itemsQ);
   // v0.35.0 (Noah): once after an update a quiet line "New since your last visit" (not on a first
   // install). The version is stored at once, so the line shows this one visit only.
-  let newsLine = $state(false);
+  // v0.38.0 (Noah 9a): it is the row "New in the app" in "Jump to", with how many points are new.
+  let newsN = $state(0);
   let newsChecked = false;
   $effect(() => {
     if (newsChecked || !loaded || !$bikesQ) return;
@@ -102,7 +104,7 @@
     } catch {
       /* private mode */
     }
-    newsLine = h.show;
+    newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + e.points.length, 0) : 0;
   });
   const today = localDay();
 
@@ -260,19 +262,7 @@
   );
   const weighedPct = $derived(gs.inventory.length ? Math.round(((gs.inventory.length - gs.unweighed) / gs.inventory.length) * 100) : 0);
 
-  /* ---------- Bikes ---------- */
-  const totalKm = $derived(bikes.reduce((t, b) => t + (b.km ?? 0), 0));
-  const year = $derived(costByYear(visits).find((y) => y.year === today.slice(0, 4)) ?? null);
-  // One line per bike (v0.22.0, AP06): Bike care in the same words as Bikes → Care and Pack:
-  // what is due (with its name), "no data" when nothing is recorded, else "nothing due".
-  // The Excel preparation of the next trip is not the bike's: it has its own line in the band.
-  const bikeState = (b) => {
-    const c = bikeCare(b, { tasks, visits, today });
-    const w = bikeCareWords(c);
-    const lastVisit = visits.filter((v) => v.bikeId === b.id).sort((x, y) => y.date.localeCompare(x.date))[0];
-    const facts = [b.km != null ? `${num(b.km)} km` : null, next?.bikeId === b.id ? t('next trip') : null, lastVisit ? t('serviced {date}', { date: fmt(lastVisit.date, { day: 'numeric', month: 'short' }) }) : null].filter(Boolean).join(' · ');
-    return { due: c.rows.length, tone: w.tone, tag: w.tag, text: [w.text, facts].filter(Boolean).join(' · '), href: c.status === 'ok' ? bikesHash({ bike: b.id }) : c.href };
-  };
+  /* ---------- Bikes: v0.38.0 (Noah 8a) in lib/home/ReadyBikes.svelte ---------- */
 
   /* ---------- Good to know: v0.25.1 (Noah 1a) the cards live in know.js and GoodToKnow.svelte ---------- */
   const place = $derived(next ? (next.place ?? next.route?.start ?? null) : null);
@@ -300,13 +290,10 @@
   });
   /* ---------- v0.23.1 (Noah 3b): on a phone the three places and Good to know start folded ---------- */
   // Closed, each is one line: its name and the number that matters. The desktop shows them open as before.
-  let folds = $state({ pack: false, gear: false, bikes: false });
+  let folds = $state({ pack: false, gear: false });
   const hubSum = $derived({
     pack: next ? `${next.title} · ${t('{n} % packed', { n: packedPct })}` : tn(trips.length, '{n} trip', '{n} trips'),
     gear: [tn(gs.inventory.length, '{n} item owned', '{n} items owned'), gs.unweighed ? t('{n} not weighed', { n: gs.unweighed }) : null].filter(Boolean).join(' · '),
-    bikes: bikes.length
-      ? [`${num(totalKm)} km`, tn(bikes.length, '{n} bike', '{n} bikes'), (() => { const n = bikes.filter((b) => bikeCare(b, { tasks, visits, today }).rows.length).length; return n ? t('{n} due', { n }) : null; })()].filter(Boolean).join(' · ')
-      : t('No bikes yet.'),
   });
   const notes = $derived([...($notesQ ?? [])].sort((a, b) => (b.at ?? '').localeCompare(a.at ?? '')));
 
@@ -400,9 +387,6 @@
     </section>
   {/if}
 
-  {#if newsLine}
-    <p class="newsline"><Sparkles size={16} aria-hidden="true" /><a href="#/features">{t('New since your last visit')}</a><span class="num">{t('Version {v}', { v: WHATS_NEW[0].version.replace(/\.0$/, '') })}</span></p>
-  {/if}
 
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data; in place of "No trip planned". -->
   {#if showFirst}
@@ -542,13 +526,16 @@
     </section>
   {/if}
 
-  <!-- Phone: four ways to create, one tap each (desktop has "New" in the top bar). -->
-  <nav class="quick" aria-label={t('Create')}>
-    <button type="button" onclick={() => openNew('list')}><span class="ring hi">{@render ic('plus', 22)}</span>{t('Plan a trip')}</button>
-    <button type="button" onclick={() => openNote('')}><span class="ring">{@render ic('note', 22)}</span>{t('Note')}</button>
-    <button type="button" onclick={addItem}><span class="ring">{@render ic('star', 22)}</span>{t('Gear item|short')}</button>
-    <button type="button" onclick={() => openNew('km')}><span class="ring">{@render ic('bike', 22)}</span>{t('Log km')}</button>
-  </nav>
+  <!-- v0.38.0 (Noah 8a, 9a): the bikes with their ready light and six quick buttons, Day ride and
+       Note + photo; beside them (desktop) or below (phone) "Jump to" and the season in numbers.
+       The four round buttons of before (plan a trip, note, item, km) are all in "New". -->
+  {#if loaded && $bikesQ && $visitsQ && $tasksQ}
+    <div class="today2" class:solo={!bikes.length}>
+      {#if bikes.length}<ReadyBikes {bikes} {trips} {tasks} {visits} {next} {today} />{/if}
+      <JumpList {bikes} {trips} {items} {debriefs} {learnings} {visits} {tasks} {today} news={newsN} />
+    </div>
+  {/if}
+
 
   <!-- Where to go (answers 5a, 7a, 8a): three equal places, number → create → open. -->
   <div class="hubs">
@@ -606,37 +593,18 @@
         </ul>
       </div>
       <div class="foot">
-        <button type="button" class="btn sm" onclick={addItem}>{@render ic('plus', 16)}{t('Add item')}</button>
         <!-- v0.23.1 (Noah): search right from the card, the cursor waits in Gear's search field. -->
         <a class="btn sm" href="#/gear?find=1">{t('Search')}</a>
-        <a class="btn sm" href="#/gear?fav=1">★ {t('Favourites')}</a>
         <a class="btn sm" href="#/gear?tab=wishlist">{t('Wishlist')}</a>
       </div>
     {/snippet}
     {@render hub('gear', t('Gear|place'), '#/gear', 'star', gearBody)}
 
-    {#snippet bikesBody()}
-      {#if bikes.length}
-        <div class="kpis"><div><b class="title num">{num(totalKm)}</b><span class="lbl">{tn(bikes.length, 'km on {n} bike', 'km on {n} bikes')}</span></div></div>
-        <ul class="rows">
-          {#each bikes as b (b.id)}
-            {@const s = bikeState(b)}
-            <li><a href={s.href}><span class="two"><b>{b.name}</b><small class="muted">{s.text}</small></span><span class="tag" class:due={s.due} class:nd={s.tone === 'nodata'}>{s.tag}</span></a></li>
-          {/each}
-        </ul>
-        {#if year}<p class="small">{t('Workshop {year}:', { year: year.year })} <b class="num">{year.unknown === year.visits ? t('cost unknown') : `CHF ${num(Math.round(year.chf))}${year.unknown ? ` + ${t('unknown')}` : ''}`}</b> ({tn(year.visits, '{n} visit', '{n} visits')}).</p>{/if}
-      {:else}
-        <p class="small">{t('No bikes yet.')} <a href="#/bikes" onclick={wantBike}>{t('Add a bike')}</a></p>
-      {/if}
-      <!-- v0.25.1 (Noah 2b, 3a): Log a problem · Log km · Bike care · Idea, then More. -->
-      <BikesHubActions {bikes} {next} />
-    {/snippet}
-    {@render hub('bikes', t('Bikes|place'), '#/bikes', 'bike', bikesBody)}
   </div>
 
   <!-- Good to know (v0.25.1, Noah 1a): only cards with content, the most urgent first, one button each.
        v0.30.0 (Noah 1a): 6 tiles with tips; it waits for every table it reads (a tip must not look unused). -->
-  <GoodToKnow loaded={loaded && !!$bikesQ && !!$debriefsQ && !!$visitsQ && !!$learnQ && !!$bagsQ} {today} {next} {place} {trips} {items} {bikes} {visits} {debriefs} {learnings} containers={$bagsQ ?? []} demo={$demoQ ?? null} onData={openData} />
+  <GoodToKnow omit={['season', 'weekend']} loaded={loaded && !!$bikesQ && !!$debriefsQ && !!$visitsQ && !!$learnQ && !!$bagsQ} {today} {next} {place} {trips} {items} {bikes} {visits} {debriefs} {learnings} containers={$bagsQ ?? []} demo={$demoQ ?? null} onData={openData} />
 
   <details class="data" bind:this={dataEl} bind:open={dataOpen}>
     <summary><b>{t('Your data')}</b> <span class="muted">{t('backup, import, export, favourites')}</span></summary>
@@ -1003,50 +971,29 @@
     padding-left: 40px;
   }
 
-  /* Phone: quick create buttons */
-  .quick {
-    display: none;
-  }
   @media (max-width: 719px) {
     .band {
       padding: 18px;
     }
-    .quick {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px;
-    }
-    .quick button {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      padding: 0;
-      border: 0;
-      background: none;
-      color: var(--ink);
-      font: 500 13px/1.25 var(--font-body);
-      text-align: center;
-      min-width: 0;
-      hyphens: auto;
-      overflow-wrap: anywhere;
-      cursor: pointer;
-    }
-    .ring {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      border: 1px solid var(--line);
-      background: var(--paper);
-    }
-    .ring.hi {
-      border: 1.5px solid var(--ink);
+  }
+  /* v0.38.0 (Noah 8a, 9a): the bikes and their buttons, beside them Jump to and the season. */
+  .today2 {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 24px 48px;
+    align-items: start;
+  }
+  .today2.solo {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 760px;
+  }
+  @media (max-width: 899px) {
+    .today2 {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 
+  /* The places (v0.38.0: Trips and Gear; the bikes are above) */
   /* The three places */
   .hubs {
     display: grid;

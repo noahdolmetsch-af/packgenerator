@@ -9,6 +9,8 @@
   import { saveItems, deletePlan, deleteItems, undoBulk } from '../lib/gear/bulk.js';
   import { STAGED } from '../lib/gear/importdb.js';
   import FavStar from '../lib/gear/FavStar.svelte';
+  import GearRow from '../lib/gear/GearRow.svelte';
+  import { tripCount } from '../lib/gear/swipe.js';
   import WeightOverview from '../lib/gear/WeightOverview.svelte';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import ReviewMode from '../lib/gear/ReviewMode.svelte';
@@ -42,6 +44,53 @@
   const usage = $derived(itemUsage($tripsQ ?? [], $debriefsQ ?? []));
   const dead = $derived(deadWeight(items, usage));
   const debriefN = $derived(($debriefsQ ?? []).filter((d) => d.status === 'done').length);
+  // v0.38.0 (Noah 1a): "Compact | With bag" above the list; the bag is hidden unless chosen, remembered here.
+  const BAGCOL = 'gear.bagColumn';
+  let showBag = $state(
+    (() => {
+      try {
+        return localStorage.getItem(BAGCOL) === '1';
+      } catch {
+        return false;
+      }
+    })(),
+  );
+  function setShowBag(on) {
+    showBag = on;
+    try {
+      localStorage.setItem(BAGCOL, on ? '1' : '0');
+    } catch {
+      /* private mode: only this visit */
+    }
+  }
+  // v0.38.0 (Noah 3a, 4a): row actions. An item on a trip is archived (Gone), never deleted from the
+  // row; a real delete stays the red button in the item. Swipe on a phone, ••• everywhere.
+  const usedN = $derived(Object.fromEntries(items.map((i) => [i.id, tripCount(i.id, $tripsQ ?? [])])));
+  let swiped = $state(null);
+  let rowMenu = $state(null); // the item whose ••• menu is open
+  let assignItem = $state(null); // the item "Assign …" is open for
+  let menuDlg = $state();
+  $effect(() => {
+    if (rowMenu && menuDlg && !menuDlg.open) menuDlg.showModal();
+    if (!rowMenu && menuDlg?.open) menuDlg.close();
+  });
+  const touch = $derived(phone.matches);
+  async function archiveOne(item) {
+    rowMenu = null;
+    const n = usedN[item.id] ?? 0;
+    const snap = await saveItems(db, [{ ...$state.snapshot(item), ownership: 'gone', updatedAt: new Date().toISOString() }]);
+    offerUndo(tn(n, '"{name}" archived. It was on {n} trip and stays in the look back.', '"{name}" archived. It was on {n} trips and stays in the look back.', { name: nameOf(item) }), snap);
+  }
+  async function deleteOne(item) {
+    rowMenu = null;
+    if ((usedN[item.id] ?? 0) > 0) return archiveOne(item); // never delete a used item from the row
+    offerUndo(t('"{name}" deleted.', { name: nameOf(item) }), await deleteItems(db, [item.id]));
+  }
+  async function favOne(item) {
+    rowMenu = null;
+    await db.items.update(item.id, { favorite: item.favorite ? null : true, updatedAt: new Date().toISOString() });
+  }
+  const assignOne = (item) => ((rowMenu = null), (assignItem = item));
   // v0.33.0 (finding 5, stage 2): the mark item.leaveHome, out of Standard; role / always in step (comes.js).
   async function markHome(item) {
     await db.items.update(item.id, { ...leaveHomeFields(item), updatedAt: new Date().toISOString() });
@@ -423,12 +472,19 @@
             <!-- v0.25.1 (Noah 1a): the filter says what it shows and goes away with one tap -->
             <p class="unused-f"><span>{unused?.full === false ? t('Only items on no trip since {date}', { date: new Date(`${unused.since}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) }) : t('Only items on no trip for 12 months')}</span> <button type="button" class="btn sm" onclick={() => setUnused(false)}>{t('Show all items')}</button></p>
           {/if}
-          <p class="count num" aria-live="polite">
-            {t('{a} of {b} items', { a: inventory.length, b: stats.inventory.length })}
-            {#if !searching && groups.length}<button type="button" class="link tap" onclick={() => setAll(allOpen)}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}
-            <!-- v0.21.0: every favourite by area, read-only and printable -->
-            {#if filter.fav}<a class="favlink" href="#/favorites">{t('All my favourite things')} →</a>{/if}
-          </p>
+          <!-- v0.38.0: the count and "Compact | With bag" share one line (one header row less). -->
+          <div class="viewbar">
+            <p class="count num" aria-live="polite">
+              {t('{a} of {b} items', { a: inventory.length, b: stats.inventory.length })}
+              {#if !searching && groups.length}<button type="button" class="link tap" onclick={() => setAll(allOpen)}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}
+              <!-- v0.21.0: every favourite by area, read-only and printable -->
+              {#if filter.fav}<a class="favlink" href="#/favorites">{t('All my favourite things')} →</a>{/if}
+            </p>
+            <span class="seg" role="group" aria-label={t('Show the bag')}>
+              <button type="button" aria-pressed={!showBag} onclick={() => setShowBag(false)}>{t('Compact')}</button>
+              <button type="button" aria-pressed={showBag} onclick={() => setShowBag(true)}>{t('With bag')}</button>
+            </span>
+          </div>
           {#if filter.fav}
             <!-- v0.22.0 (AP05): what the favourites number counts, and where the others are. -->
             <p class="favbase">
@@ -456,18 +512,15 @@
                   {#if g.unknown}<p class="unknown-cat">{t('The app does not know the category of these items. Open one and pick a category.')}</p>{/if}
                   <ul class="rows">
                     {#each g.items as item (item.id)}
+                      {#if !selecting}
+                        <GearRow {item} {showBag} {touch} {swiped} used={(usedN[item.id] ?? 0) > 0} onswipe={(id) => (swiped = id)} onopen={open} onmenu={(it) => (rowMenu = it)} onassign={assignOne} onarchive={archiveOne} ondelete={deleteOne} />
+                      {:else}
                       <li class="fr">
                         {#if selecting}
                           {@render pickRow(item, BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–')}
-                        {:else}
-                          <FavStar {item} describedby="gn-{item.id}" />
-                          <button type="button" onclick={() => open(item)}>
-                            <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
-                            <span class="bg">{BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–'}</span>
-                            <span class="w num" class:nw={item.weightG == null}>{formatWeight(itemWeight(item))}</span>
-                          </button>
                         {/if}
                       </li>
+                      {/if}
                     {/each}
                   </ul>
                 {/if}
@@ -596,6 +649,30 @@
 {#if assign}
   <AssignDialog ids={chosen.map((i) => i.id)} kind={assign} ondone={({ text, snap }) => offerUndo(text, snap)} onclose={() => (assign = null)} />
 {/if}
+
+{#if assignItem}
+  <AssignDialog ids={[assignItem.id]} item={assignItem} onclose={() => (assignItem = null)} />
+{/if}
+
+<!-- v0.38.0 (Noah 4a): ••• on a row: every action, also without swiping (keyboard, screen reader). -->
+<dialog class="sheet rowmenu" class:phone={phone.matches} bind:this={menuDlg} onclose={() => (rowMenu = null)} aria-labelledby="rm-h">
+  {#if rowMenu}
+    {@const used = (usedN[rowMenu.id] ?? 0) > 0}
+    <div class="rmh"><h2 id="rm-h" class="title">{nameOf(rowMenu)}</h2><span class="num">{rowMenu.weightG == null ? '–' : formatWeight(itemWeight(rowMenu))}</span></div>
+    <ul>
+      <li><button type="button" onclick={() => favOne(rowMenu)}><span>{rowMenu.favorite ? t('Remove from favourites') : t('Mark as favourite')}</span></button></li>
+      <li><button type="button" onclick={() => assignOne(rowMenu)}><span>{t('Assign …')}</span><small>{t('Building block, trip, bag')}</small></button></li>
+      <li><button type="button" onclick={() => ((dialog = { item: rowMenu }), (rowMenu = null))}><span>{t('Open and edit')}</span></button></li>
+      {#if used}
+        <li><button type="button" onclick={() => archiveOne(rowMenu)}><span>{t('Archive')}</span><small>{t('Status "Gone", stays in the look back')}</small></button></li>
+      {:else}
+        <li><button type="button" class="del" onclick={() => deleteOne(rowMenu)}><span>{t('Delete')}</span><small>{t('with Undo')}</small></button></li>
+      {/if}
+    </ul>
+    {#if used}<p class="rmn">{tn(usedN[rowMenu.id], 'On {n} trip: delete it for good in the item itself.', 'On {n} trips: delete it for good in the item itself.')}</p>{/if}
+    <div class="rmf"><button type="button" class="btn" onclick={() => (rowMenu = null)}>{t('Close')}</button></div>
+  {/if}
+</dialog>
 
 {#if dialog}
   <ItemDialog item={dialog.item} {items} preset={dialog.preset ?? {}} readOnly={phone.matches && !!dialog.item} onclose={() => (dialog = null)} />
@@ -747,11 +824,15 @@
     font-weight: 400;
     opacity: 0.8;
   }
-  .toolbar .q {
+  /* v0.38.0: search and category on one line (one header row less); the toggles below. */
+  .toolbar {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+  .toolbar.areas .q {
     grid-column: 1 / -1;
   }
   /* v0.22.0 (AP03): on the narrowest phones the category list gets the full width. */
-  @media (max-width: 379px) {
+  @media (max-width: 339px) {
     .toolbar {
       grid-template-columns: 1fr;
     }
@@ -770,7 +851,8 @@
     .toolbar.areas {
       grid-template-columns: minmax(200px, 2fr) 1fr 1fr auto auto 1fr auto;
     }
-    .toolbar .q {
+    .toolbar .q,
+    .toolbar.areas .q {
       grid-column: auto;
     }
   }
@@ -797,10 +879,11 @@
     margin: 0;
     border-bottom: 1px solid var(--line-strong);
   }
+  /* v0.38.0 (Noah 2a): one line: name, count (and how many not weighed), weight. */
   .ch button {
     display: grid;
-    grid-template-columns: auto 1fr auto auto;
-    align-items: center;
+    grid-template-columns: auto auto 1fr auto auto;
+    align-items: baseline;
     gap: 0 8px;
     width: 100%;
     padding: 0 0 4px;
@@ -823,14 +906,23 @@
     font-size: 16px;
   }
   .ch .m {
-    grid-column: 2 / 4;
-    grid-row: 2;
+    grid-column: 3;
+    grid-row: 1;
+    min-width: 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
     font-weight: 400;
   }
-  .ch .chev {
+  .ch .k {
     grid-column: 4;
+    grid-row: 1;
+    text-align: right;
+  }
+  .ch .sw {
+    align-self: center;
+  }
+  .ch .chev {
+    grid-column: 5;
     grid-row: 1;
     font-size: 16px;
     transition: transform 0.15s;
@@ -956,6 +1048,105 @@
   }
   .gone {
     margin-top: 18px;
+  }
+  /* v0.38.0 (Noah 1a): "Compact | With bag", a segmented toggle above the list */
+  .viewbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin: 0 0 8px;
+  }
+  .viewbar .count {
+    margin: 0;
+  }
+  .seg {
+    display: inline-flex;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .seg button {
+    min-height: 40px;
+    padding: 4px 14px;
+    border: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 14px var(--font-body);
+    cursor: pointer;
+  }
+  .seg button + button {
+    border-left: 1.5px solid var(--line-strong);
+  }
+  .seg button[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  @media (pointer: coarse) {
+    .seg button {
+      min-height: 44px;
+    }
+  }
+  .rowmenu ul {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+  }
+  .rowmenu li {
+    border-bottom: 1px solid var(--line);
+  }
+  .rowmenu li button {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px 12px;
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 2px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 500 16px var(--font-body);
+    text-align: left;
+    cursor: pointer;
+  }
+  .rowmenu li button:hover,
+  .rowmenu li button:focus-visible {
+    background: var(--paper-2);
+  }
+  .rowmenu li button small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    font-weight: 400;
+  }
+  .rowmenu .del {
+    color: var(--bad);
+  }
+  .rmh {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .rmh h2 {
+    font-size: var(--fs-sub);
+  }
+  .rmn {
+    margin: 10px 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .rmf {
+    margin-top: 12px;
+  }
+  .rowmenu.phone {
+    margin: auto 0 0;
+    width: 100vw;
+    max-width: 100vw;
+    border-radius: 16px 16px 0 0;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom));
   }
   /* v0.23.0 (AP08): the folded analyses under the list. */
   .analysis {

@@ -7,7 +7,7 @@
   import { db } from '../db.js';
   import { TEMPLATES_KEY } from '../templates.js';
   import { searchAll } from '../search.js';
-  import { openTrip, addItem } from '../nav.js';
+  import { openTrip, addItem, openNew, openNote, dayRide, openData } from '../nav.js';
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
 
@@ -22,13 +22,22 @@
   const groups = $derived(q.trim().length >= 2 && $all ? searchAll(q, $all) : []);
   const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
 
+  // v0.38.0 (Noah 13a): pages of "More" and the things of "New" are found too; an action does it.
+  const RUN = { trip: () => openNew('list'), dayride: dayRide, note: () => openNote(''), item: () => addItem(), km: () => openNew('km'), data: openData };
   function go(row) {
     if (row.tripId) openTrip(row.tripId);
     q = '';
     open = false;
+    if (row.action && RUN[row.action]) return RUN[row.action]();
     if (location.hash === row.href) window.dispatchEvent(new HashChangeEvent('hashchange'));
     else location.hash = row.href;
   }
+  // v0.38.0: another page closes the search (the field and its results).
+  $effect(() => {
+    const close = () => ((q = ''), (open = false));
+    window.addEventListener('hashchange', close);
+    return () => window.removeEventListener('hashchange', close);
+  });
   // v0.24.0 (Noah): what is not there yet can be added right from the search.
   function addNew() {
     const name = q.trim();
@@ -55,7 +64,7 @@
   {#if (!phone.matches && !compact) || open}
     <label class="field">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
-      <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder={t('Find gear, trips, bikes, notes')} aria-label={t('Search everything')} autocomplete="off" />
+      <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder={t('Search: gear, trips, bikes, pages')} aria-label={t('Search everything')} autocomplete="off" />
     </label>
   {/if}
   {#if q.trim().length >= 2}

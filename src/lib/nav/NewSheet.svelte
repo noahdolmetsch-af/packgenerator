@@ -9,7 +9,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { sortBikes } from '../bikes.js';
-  import { newTrip, addItem } from '../nav.js';
+  import { newTrip, addItem, dayRide } from '../nav.js';
   import { t, num } from '../i18n.svelte.js';
   import { parseKm } from '../care.js';
 
@@ -69,8 +69,10 @@
   {:else}
     <ul class="opts grid">
       <li><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard'))}><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></button></li>
+      <!-- v0.38.0 (Noah 8a, E): the day ride and "Note + photo" here too; Plan a trip stays the one orange row. -->
+      <li><button type="button" class="opt" onclick={() => run(dayRide)}><b>{t('Day ride now')}</b><span>{t('One tap, with Undo')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => run(addItem)}><b>{t('Gear item')}</b><span>{t('Name, weight, bag')}</span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><b>{t('Quick note')}</b><span>{t('Text or photo, sorted later')}</span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><b>{t('Note + photo')}</b><span>{t('"What was missing", "This is broken"')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => (mode = 'km')}><b>{t('km for a bike')}</b><span>{t('What the counter says')}</span></button></li>
       <li><button type="button" class="opt" onclick={() => run(() => onnote(t('Workshop receipt: ')))}><b>{t('Workshop visit')}</b><span>{t('Photo of the receipt into the Inbox')}</span></button></li>
       <li><a class="opt" href="#/pack/templates" onclick={close}><b>{t('Template')}</b><span>{t('From the open trip, in Templates')}</span></a></li>

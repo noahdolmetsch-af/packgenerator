@@ -170,7 +170,9 @@ export function bikeLog(bike, tasks = []) {
   const repairs = tasks
     .filter((t) => taskBike(t) === bike.id && t.status === 'done' && t.statusDate)
     .map((t) => ({ date: t.statusDate, km: null, action: 'repair', result: 'done', by: t.by ?? null, what: t.task, note: '' }));
-  return [...parts, ...repairs].sort((a, b) => (b.date ?? '').localeCompare(a.date ?? '') || (b.km ?? 0) - (a.km ?? 0));
+  // v0.38.0 (Noah 8a): "Bike washed" from Today, the bike's own list (no part has it).
+  const washes = (bike.washes ?? []).map((w) => ({ date: w.date, km: w.km ?? null, action: 'wash', result: 'done', by: w.by ?? 'self', what: tr('Bike washed'), unit: '', note: '' }));
+  return [...parts, ...repairs, ...washes].sort((a, b) => (b.date ?? '').localeCompare(a.date ?? '') || (b.km ?? 0) - (a.km ?? 0));
 }
 
 /** When a chain is replaced after more than 0.75 %, cassette and chainring should be checked too. */

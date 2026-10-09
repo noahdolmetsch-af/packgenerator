@@ -3,7 +3,8 @@
  * notes. Every word has to be found somewhere in the row (English or German name, brand, model,
  * note). Pure function, easy to test.
  */
-import { t, tn, num, nameOf } from './i18n.svelte.js';
+import { t, tn, num, nameOf, dateOf } from './i18n.svelte.js';
+import { MORE_ROWS, ACTIONS } from './nav/menu.js';
 
 const norm = (s) => String(s ?? '').toLowerCase();
 
@@ -14,17 +15,15 @@ export const KIND = {
   template: { name: 'Templates', max: 3 },
   bike: { name: 'Bikes', max: 4 },
   note: { name: 'Notes', max: 3 },
-  page: { name: 'Pages', max: 2 },
+  page: { name: 'Pages', max: 4 },
+  action: { name: 'Actions', max: 3 },
 };
 
-/** v0.21.0: pages the search finds by a word, e.g. "favourites" opens all my favourite things. */
-const PAGES = [{ id: 'favorites', title: 'All my favourite things', words: 'favourites favorites favourite favorite best things lieblingsstücke favoriten beste', href: '#/favorites' },
-  // v0.26.0 (Noah 2b): the building blocks page
-  // v0.32.0 (finding 5, stage 1): the old words (role, worn, every trip, kits) find the new places.
-  { id: 'blocks', title: 'Building blocks', words: 'building blocks block bausteine baustein sets set standard always with you immer dabei with the night mit nacht to add dazunehmen role rolle every trip jeder tour', href: '#/blocks' },
-  { id: 'templates', title: 'Templates', words: 'templates template vorlagen vorlage kits kit', href: '#/pack/templates' },
-];
-
+/**
+ * v0.21.0: pages the search finds by a word, e.g. "favourites" opens all my favourite things.
+ * v0.38.0 (Noah 13a): every page of "More" (nav/menu.js), and the things to do of "New".
+ */
+const PAGES = MORE_ROWS;
 /**
  * Results grouped by kind, best first: [{ kind, name, rows: [{ id, title, sub, href, tripId? }] }].
  * Empty groups are left out; fewer than 2 letters find nothing.
@@ -48,7 +47,7 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
     trip: trips
       .filter((tr) => hit(tr.title, tr.place?.name, tr.bike))
       .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))
-      .map((tr) => ({ id: tr.id, title: tr.title, sub: [tr.startDate, tr.bike].filter(Boolean).join(' · '), href: '#/pack', tripId: tr.id })),
+      .map((tr) => ({ id: tr.id, title: tr.title, sub: [tr.startDate ? dateOf(tr.startDate) : null, tr.bike].filter(Boolean).join(' · '), href: '#/pack', tripId: tr.id })),
     template: sort(templates.filter((tp) => hit(tp.name)).map((tp) => ({ id: tp.id, title: tp.name, sub: tn(tp.entries?.length ?? 0, '{n} item', '{n} items'), href: '#/pack/templates' }))),
     bike: sort(bikes.filter((b) => hit(b.name, b.model, b.kind)).map((b) => ({ id: b.id, title: b.name, sub: b.km != null ? `${num(b.km)} km` : '', href: `#/bikes?bike=${encodeURIComponent(b.id)}` }))),
     note: notes
@@ -59,9 +58,12 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
       id: p.id,
       title: t(p.title),
       // v0.32.0: each page says what it holds (was: the favourites count for every page).
-      sub: p.id === 'blocks' ? t('Standard, with the night, to add') : p.id === 'templates' ? tn(templates.length, '{n} template', '{n} templates') : tn(items.filter((i) => i.favorite && i.ownership !== 'gone').length, '{n} item', '{n} items'),
-      href: p.href,
+      // v0.38.0: the others say where they are in the menu ("More › Plan").
+      sub: p.id === 'blocks' ? t('Standard, with the night, to add') : p.id === 'templates' ? tn(templates.length, '{n} template', '{n} templates') : p.id === 'favorites' ? tn(items.filter((i) => i.favorite && i.ownership !== 'gone').length, '{n} item', '{n} items') : `${t('More')} › ${t(p.group)}`,
+      href: p.href ?? null,
+      action: p.action ?? null,
     })),
+    action: ACTIONS.filter((a) => hit(a.words, a.title, t(a.title))).map((a) => ({ id: a.id, title: t(a.title), sub: t('New'), href: a.href ?? null, action: a.action ?? null })),
   };
   return Object.entries(groups)
     .filter(([, rows]) => rows.length)
