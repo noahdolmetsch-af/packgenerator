@@ -863,7 +863,7 @@
               <!-- v0.30.2 (L5): each task is ticked off here; "Checked, all OK" and "Work needed" stay in Bike care. -->
               <ul class="prep-rows">{#each before.open as row (row.task.id)}<li><span><b>{row.task.task}</b> {row.needed ? t('work needed') : row.overdue ? overdueFor(row.due, today) : t('by {date}', { date: row.due ?? '–' })}</span><button type="button" class="btn sm" onclick={() => tickRow(row)} aria-label={t('Done: {task}', { task: row.task.task })}>{t('Done|task')}</button></li>{/each}</ul>
               {#if prepTicked?.tripId === trip.id}<p class="prep-note" role="status"><span>{t('Ticked off: {task}', { task: prepTicked.row.task.task })}</span> <button type="button" class="text-button" onclick={untickRow}>{t('Undo')}</button></p>{/if}
-              <a href={before.prep.href}>{t('More options in Bike care')}</a>
+              <a class="care-more" href={before.prep.href}>{t('More options in Bike care')}</a>
             {/if}
           </div>
         </details>
@@ -917,6 +917,8 @@
   /* v0.30.2 (L5): event preparation ticked off in the trip; the button a full 44 px target. */
   .prep-rows { list-style: none; padding: 0; }
   .prep-rows li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+  /* v0.44.1 (AP21): the link to Bike care is a 44 px target, also when it wraps at 320 px */
+  .care-more { display: inline-flex; align-items: center; min-height: 44px; }
   .prep-rows li > span { flex: 1 1 12em; min-width: 0; overflow-wrap: anywhere; }
   .prep-rows .btn { min-height: 44px; }
   .prep-note { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }

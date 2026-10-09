@@ -978,6 +978,11 @@
     display: flex;
     gap: 14px;
   }
+  /* v0.44.1 (AP21): "All ✓" and "All –" are 44 px wide targets, not only 44 px high */
+  .alls .tp-link {
+    min-width: 44px;
+    justify-content: center;
+  }
   .saved-card .title {
     margin: 0 0 10px;
   }
