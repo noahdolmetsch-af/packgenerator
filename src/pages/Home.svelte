@@ -69,6 +69,7 @@
   import YearRow from '../lib/home/YearRow.svelte';
   import Customize from '../lib/home/Customize.svelte';
   import WearToday from '../lib/home/WearToday.svelte';
+  import FlowCard from '../lib/home/FlowCard.svelte';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { PartyPopper } from '@lucide/svelte';
 
@@ -764,6 +765,7 @@
     {#if on(key)}
       {#if key === 'greeting'}{@render greetingS()}
       {:else if key === 'trip'}{@render tripS()}
+      {:else if key === 'flow'}<FlowCard {today} />
       {:else if key === 'actions'}
         <div data-section="actions"><ActionGrid {usage} {badges} {used} onrun={runFn} /></div>
       {:else if key === 'today'}{@render todayS()}

@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.51.0
+  "Tap a button on Today or on In the flow to tick an activity: one tap with Undo, tap again to take it back. A long press picks the place (Yoga studio or at home), the amount or the duration.":
+    "Ein Tipp auf Heute oder in Im Flow hakt eine Aktivität ab, mit Rückgängig; nochmals tippen nimmt es zurück. Lange drücken wählt Ort (Yoga Studio oder Zuhause), Menge oder Dauer.",
+  "In the flow: three rings over the last 7 days (move, mindful, recovery) and goals × days, every goal a rolling window (daily, 7, 10 or 30 days). Sports with a season rest until their months come.":
+    "Im Flow: drei Ringe über die letzten 7 Tage (Bewegen, Achtsam, Erholung) und Ziele × Tage, jedes Ziel gleitend (täglich, 7, 10 oder 30 Tage). Sportarten mit Saison ruhen, bis ihre Monate kommen.",
+  "The stopwatch counts down to your target time, with a singing bowl at the start and the end and, if you like, in between (regularly, at chosen minutes or at random). Made small, it keeps running on every page.":
+    "Die Stoppuhr zählt auf deine Zielzeit herunter, mit Klangschale am Anfang und Ende und auf Wunsch dazwischen (regelmässig, zu gewählten Minuten oder zufällig). Verkleinert läuft sie auf jeder Seite weiter.",
+  "Daily check: sleep, energy, mood and a fourth question that changes each day, one tap each on 1–10. Every activity can be edited: name, symbol, ring, goal, minimum duration, season and what else counts.":
+    "Tagescheck: Schlaf, Energie, Stimmung und eine 4. Frage, die täglich wechselt, je ein Tipp auf 1–10. Jede Aktivität ist bearbeitbar: Name, Symbol, Ring, Ziel, Mindestdauer, Saison und was auch zählt.",
+
   // 0.47.1
   'The top card of a trip shows the ride time. Tap date, duration, weather or bike to change it right there; the list follows, Undo takes it back. A day ride no longer shows "1 day, no overnight stay".':
     'Die oberste Karte einer Tour zeigt die Fahrzeit. Tippe auf Datum, Dauer, Wetter oder Velo, um es gleich dort zu ändern; die Liste zieht mit, «Rückgängig» nimmt es zurück. Eine Tagestour zeigt nicht mehr «1 Tag, keine Übernachtung».',

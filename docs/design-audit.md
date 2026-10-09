@@ -80,9 +80,10 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Material | Import prüfen, Favoriten, Wunschliste | – | – |
 | Velos | Setup, Velo-Dialog, Taschen-Dialog/-Blatt | 9.10.2026 (0.47: nur Kopfband in der Gletscher-Schrift) | 3 |
 | Velos | Velopflege, Teil-, Werkstattbesuch- und Bestell-Dialog | 9.10.2026 (0.47: Schrift vereinheitlicht, «Jetzt fällig» als Karten; Dialoge noch alt) | 3 |
+| Im Flow | Übersicht, Heute-Karte, Abhaken-Blatt, Stoppuhr, Tagescheck, Ziele/Bearbeiten | 9.10.2026 (0.51 neu nach Mockup ImFlow-*) | 4 |
 | Weiteres | Inbox/Notiz, Funktionen-Seite | 9.10.2026 (0.47: Inbox leert sich selbst) | 3 |
 
-Geplante Screens (zuerst Mockup): Im Flow (Übersicht, Tagescheck, Woche, Tennis, Neuland), Einkaufszettel, Lebenslauf eines Teils, Werkstatt-Anleitungen.
+Geplante Screens (zuerst Mockup): Im Flow (Woche, Tennis, Neuland), Einkaufszettel, Lebenslauf eines Teils, Werkstatt-Anleitungen.
 
 ## Offen: Angleichen
 
@@ -101,3 +102,4 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 
 - 9.10.2026: Regel eingeführt. Erste Runde gestartet: Neuentwurf Kleiderschrank, Material, Tour und Velos sowie erste Mockups für Im Flow und 0.47.
 - 9.10.2026, 0.47 «Aufpimpen» (D1): Kleiderschrank nach Mockup neu (Note 2 → 4); Tour/Packen mit Velo und Gewichtskarte, Material mit Reitern und Karten, Velopflege mit einer Schriftordnung und «Jetzt fällig» als Karten, Setup-Kopfband angeglichen, Inbox und Prüfen leeren sich selbst. Neue Regel «Eine Abarbeitungsliste leert sich selbst». Bilder vorher/nachher: `design/audit-0.47/` (Velopflege: `care-*`). Offenes unter «Offen: Angleichen».
+- 9.10.2026, 0.51 «Im Flow – kleiner Start»: Übersicht, Heute-Karte, Abhaken-Blatt, Stoppuhr (Blatt und schwebend), Tagescheck und Bearbeiten nach den freigegebenen Mockups ImFlow-* gebaut, hell und dunkel, 320/390/1440 (Note 4: unter 360 px fallen die Symbole der Abhaken-Knöpfe weg, lange Namen brechen in Ziele × Tage auf zwei Zeilen). Bilder: `design/v0510/`.

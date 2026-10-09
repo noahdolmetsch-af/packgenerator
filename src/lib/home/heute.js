@@ -225,13 +225,19 @@ export function milestoneText(e) {
 
 export const LAYOUT_KEY = 'homeLayout';
 /** The sections of Today that can be switched off and moved, in their first order. */
-export const SECTIONS = ['greeting', 'trip', 'actions', 'today', 'bikes', 'year'];
-export const SECTION_NAME = { greeting: 'Greeting and weather', trip: 'Next trip', actions: 'What do you want to do?', today: 'Important today and Tried it yet?', bikes: 'Bikes|place', year: 'Last 12 months' };
+export const SECTIONS = ['greeting', 'trip', 'flow', 'actions', 'today', 'bikes', 'year'];
+export const SECTION_NAME = { greeting: 'Greeting and weather', trip: 'Next trip', flow: 'In the flow', actions: 'What do you want to do?', today: 'Important today and Tried it yet?', bikes: 'Bikes|place', year: 'Last 12 months' };
 
-/** A stored layout made whole: { order: all sections, off: [] }; unknown keys go, new ones come last. */
+/** A stored layout made whole: { order: all sections, off: [] }; unknown keys go, new ones follow their neighbour. */
 export function layoutOf(value) {
   const order = (Array.isArray(value?.order) ? value.order : []).filter((k, i, a) => SECTIONS.includes(k) && a.indexOf(k) === i);
-  for (const k of SECTIONS) if (!order.includes(k)) order.push(k);
+  // v0.51.0: a new section comes right after the one before it in SECTIONS (Im Flow under the trip)
+  SECTIONS.forEach((k, i) => {
+    if (order.includes(k)) return;
+    const at = i ? order.indexOf(SECTIONS[i - 1]) : -1;
+    if (at >= 0) order.splice(at + 1, 0, k);
+    else order.push(k);
+  });
   const off = (Array.isArray(value?.off) ? value.off : []).filter((k, i, a) => SECTIONS.includes(k) && a.indexOf(k) === i);
   return { order, off };
 }

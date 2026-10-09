@@ -571,6 +571,8 @@ Diese Reihenfolge gilt ab jetzt und ersetzt die offenen Punkte der Tabelle oben 
 
 Ganz geplant, gebaut erst nach allem oben.
 
+**0.51.0 «Im Flow – kleiner Start» (9.10.2026):** aus Schritt 2 die rollenden Ziele, Saisons pro Sportart und die Stoppuhr mit Klangschale; aus Schritt 4 der tägliche Check und der Erholungs-Ring. Offen aus 2: Material pro Sportart; aus 4: Rituale, Fitbit.
+
 1. Bildentwürfe.
 2. Grundlage: Sportarten, rollende Ziele «X in N Tagen», Saisons pro Sportart, Stoppuhr, Meditation mit Klangschale, Material pro Sportart.
 3. Bausteine pro Sportart und Tennisstunden (Protokoll, Schülerinnen und Schüler, 20 Start-Bausteine, Abrechnung).
@@ -598,6 +600,7 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.0 | 09.10.2026 | 0.44 „Rückblick 12 Monate“ erledigt (rollend statt Jahresrückblick im Dezember) |
 | 2.1 | 09.10.2026 | 0.45.1 Gesamttest Runde 1; neue Reihenfolge 0.46 Startseite, Gesamttest Runde 2, 0.47, 0.48, später; Abschnitt «Im Flow» (Schritte 1–9) |
 | 2.2 | 09.10.2026 | 0.47.0 «Aufpimpen» (Design-Release D1) erledigt |
+| 2.3 | 09.10.2026 | 0.51.0 «Im Flow – kleiner Start» erledigt (Ziele, Saisons, Stoppuhr, Tagescheck) |
 | 2.3 | 09.10.2026 | 0.47.1 «Tagestour antippen» erledigt (Noahs Test einer Tagestour, Inbox, Velopflege) |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.
