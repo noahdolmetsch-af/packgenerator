@@ -138,7 +138,7 @@ function stored(tables) {
   const bike = tables.bikes.find((b) => (tables.trips ?? []).some((t) => t.bikeId === b.id)) ?? tables.bikes[0];
   let trips = (tables.trips ?? []).filter((t) => t.bikeId === bike.id);
   if (!trips.length) {
-    // v0.64.0: the prior trip is made as the app makes it now (the blocks split), Bivouac + tent.
+    // v0.66.0: the prior trip is made as the app makes it now (the blocks split), Bivouac + tent.
     const now = splitAll({ items, templates: [], sets: setting(tables, 'sets') ?? [] }, { now: '2026-10-09T08:00:00.000Z' }).items;
     const prior = buildBikeTrip({ draft: { title: 'test_data_gtp_ Prior', startDate: '2026-09-01', days: 2 }, bike, start: 'standard', items: now, fields: { hours: 5, overnight: 'outdoor', tent: true, cook: true, wx: wx('Chilly'), event: false } }, NOW - 1e9);
     trips = [prior];
@@ -153,7 +153,7 @@ function lists({ items, templates, bike, trips }) {
   const draft = (days) => ({ title: 'test_data_gtp_ New', startDate: '2026-10-20', days });
   const make = (start, days, fields = {}, tr = trips) => buildBikeTrip({ draft: draft(days), bike, start, templates, trips: tr, items, fields }, NOW);
   const day = { hours: 2, overnight: 'none', cook: false, wx: wx('Chilly'), event: false };
-  const outdoor = { hours: 5, overnight: 'outdoor', tent: true, cook: true, wx: wx('Cold', 'rain'), event: false }; // v0.64.0: Bivouac + tent = the old Outdoor
+  const outdoor = { hours: 5, overnight: 'outdoor', tent: true, cook: true, wx: wx('Cold', 'rain'), event: false }; // v0.66.0: Bivouac + tent = the old Outdoor
   const lodging = { hours: 4, overnight: 'lodging', cook: false, wx: wx('Mild', 'showers'), event: true };
   const tpl = templates[0];
   const td = templateDefaults(tpl, [bike]);
@@ -174,7 +174,7 @@ function lists({ items, templates, bike, trips }) {
   // the sets switches a context sets (they decide toggleSet later)
   res.outdoorSwitches = Object.entries(out.outdoor.sets ?? {}).filter(([, v]) => v).map(([k]) => k).sort();
   // "Sleep" off again on the outdoor trip (trips.js toggleSet: worn / standard stay)
-  // v0.64.0: Sleep is Bivouac now; Warm is no block any more (the weather brings its items)
+  // v0.66.0: Sleep is Bivouac now; Warm is no block any more (the weather brings its items)
   res.outdoorSleepOff = norm(toggleSet(out.outdoor, items, 'bivy', false).entries);
   res.outdoorWarmOff = norm(toggleSet(out.outdoor, items, 'lights', false).entries);
   // the layer rows the context reads (id, place, qty)
@@ -220,9 +220,9 @@ function diffAnswers(a, b) {
 }
 
 /*
- * v0.64.0 «Bausteine neu»: the lists are made on the data as the app holds it after the split of the
+ * v0.66.0 «Bausteine neu»: the lists are made on the data as the app holds it after the split of the
  * blocks (blocksplit.js splitAll), once on the data as it is and once after migrateAll: still the same.
- * Against the frozen lists of v0.32.0 only the intended v0.64.0 changes are allowed (golden/v0550.js).
+ * Against the frozen lists of v0.32.0 only the intended v0.66.0 changes are allowed (golden/v0550.js).
  */
 const split = (items, templates, sets) => {
   const r = splitAll({ items, templates, sets: sets ?? [] }, { now: '2026-10-09T08:00:00.000Z' });
@@ -314,7 +314,7 @@ describe('stage 2: every packing list as in v0.32.0 (frozen snapshot), 11a apart
   for (const [name, r] of Object.entries(RESULTS)) {
     describe(name, () => {
       for (const key of Object.keys(REF[name].lists).filter((k) => !KEYS_11A.includes(k) && !CHANGED_55.includes(k))) {
-        it(`${key}: as in v0.32.0 (v0.64.0 changes apart)`, () => {
+        it(`${key}: as in v0.32.0 (v0.66.0 changes apart)`, () => {
           expect(r.strip(r.listsAfter[key])).toEqual(r.strip(REF[name].lists[key]));
           expect(r.strip(r.listsBefore[key])).toEqual(r.strip(REF[name].lists[key]));
         });
@@ -371,7 +371,7 @@ describe('blocks2026 11a: Standard comes into every new trip (an intended change
 
   it('the expected difference in numbers: pf-fixture gains, fixture.json and the edge set do not', () => {
     const n = (name, key) => diff11a(RESULTS[name].strip(REF[name].lists[key]), RESULTS[name].strip(RESULTS[name].listsAfter[key])).added.length;
-    expect(n('pf', 'template')).toBe(RESULTS.pf.strip(REF.pf.gain11a.template).length); // v0.64.0: 5 before, minus the ones now in Repair / Charging
+    expect(n('pf', 'template')).toBe(RESULTS.pf.strip(REF.pf.gain11a.template).length); // v0.66.0: 5 before, minus the ones now in Repair / Charging
     expect(n('pf', 'template')).toBeGreaterThan(0);
     expect([n('pf', 'copyDayRide'), n('pf', 'copyNoContext')]).toEqual([RESULTS.pf.strip(REF.pf.gain11a.copyDayRide).length, RESULTS.pf.strip(REF.pf.gain11a.copyNoContext).length]);
     expect(REF.pf.gain11a.copyDayRide.length + REF.pf.gain11a.copyNoContext.length).toBeGreaterThan(0);

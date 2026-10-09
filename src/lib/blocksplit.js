@@ -1,5 +1,5 @@
 /**
- * v0.64.0 «Bausteine neu» (Noah, Trello 9.10.2026, answers 5a–10b): the one-time update of the
+ * v0.66.0 «Bausteine neu» (Noah, Trello 9.10.2026, answers 5a–10b): the one-time update of the
  * building blocks, in the same way as blocks2026.js (pure functions; updates.js writes them).
  *
  *   base, sleep  → bivy «Biwak» (5a + 8a: Base and Sleep merged, then replaced by Bivouac);

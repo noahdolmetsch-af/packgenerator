@@ -10,7 +10,7 @@ const bags = [
   { id: 'bag-top', name: 'Top tube bag', slot: 'top', volumeL: 1 },
   { id: 'bag-cargo', name: 'Cargo cage', slot: 'fork', volumeL: 3 },
 ];
-// v0.64.0: Bivouac and Tent took over the old Sleep (a mat in Tent here, to cover both keys).
+// v0.66.0: Bivouac and Tent took over the old Sleep (a mat in Tent here, to cover both keys).
 const items = [
   { id: 'SL01', name: 'Sleeping bag', sets: ['bivy'], defaultBag: 'seat', volumeL: 6 },
   { id: 'SL02', name: 'Sleeping mat', sets: ['tent'], defaultBag: 'bar', volumeL: 3 },

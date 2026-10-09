@@ -15,6 +15,7 @@ import { isInventory } from './gear.js';
 import { migrateAll, blocksRerunAfterImport, BLOCKS_MARKER } from './blocks2026.js';
 import { splitAll, needsSplitUpdate, splitRerunAfterImport, SPLIT_MARKER, REVIEW_KEY } from './blocksplit.js';
 import { ensureSeed } from './flowdb.js';
+import { moveSeatHeight } from './bikespecs.js';
 
 const now = () => new Date().toISOString();
 
@@ -424,7 +425,7 @@ export async function blocks2026(db) {
  * blocks2026 again on the imported data. Returns true when the marker was deleted.
  */
 export async function blocksAfterImport(db, data, mode = 'replace') {
-  // v0.64.0: a file from before «Bausteine neu» replacing the data gets the new blocks again (blockSplit2026).
+  // v0.66.0: a file from before «Bausteine neu» replacing the data gets the new blocks again (blockSplit2026).
   if (splitRerunAfterImport(data, mode)) await db.settings.delete(SPLIT_MARKER);
   if (!blocksRerunAfterImport(data, mode).rerun) return false;
   await db.settings.delete(BLOCKS_MARKER);
@@ -432,7 +433,7 @@ export async function blocksAfterImport(db, data, mode = 'replace') {
 }
 
 /**
- * v0.64.0 «Bausteine neu» (Noah 5a–10b): the building blocks split and renamed once (blocksplit.js
+ * v0.66.0 «Bausteine neu» (Noah 5a–10b): the building blocks split and renamed once (blocksplit.js
  * splitAll): Base + Sleep → Bivouac (a tent → Tent), Warm → a temperature rule on each item, Light →
  * Light (by itself in the dark), Lodging → Hotel/hut or Tent; the new blocks get only obvious
  * category matches. What to check goes into the settings 'blockReview' for «Bausteine prüfen».
@@ -520,7 +521,26 @@ export async function basicCheck2026(db) {
  */
 export const flowSeed2026 = (db) => ensureSeed(db);
 
-export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, blocks2026, templatesLinked2026, blockSplit2026];
+/**
+ * v0.65.0 «Velo-Masse»: the saddle height moved from the geometry to the fit block. Every bike with
+ * geometry.seatHeight gets it as fit.seatHeight (a value typed in fit stays) and loses the old field.
+ * Idempotent: it checks the data itself, so it runs on every start and after an import.
+ */
+export async function fitMove2026(db) {
+  let n = 0;
+  await db.transaction('rw', db.bikes, async () => {
+    for (const bike of await db.bikes.toArray()) {
+      const changes = moveSeatHeight(bike);
+      if (changes) {
+        await db.bikes.update(bike.id, changes);
+        n++;
+      }
+    }
+  });
+  return n > 0;
+}
+
+export const UPDATES = [bikeSetups2026, lightSet2026, layers2026, fullFrameBag, readyClean2026, dailyCommuteTemplate, stravaKm2026, lodgingSet2026, kitTemplates2026, firstAid2026, toolsAlways2026, basicCheck2026, flowSeed2026, fitMove2026, blocks2026, templatesLinked2026, blockSplit2026];
 
 export async function applyUpdates(db) {
   for (const update of UPDATES) await update(db);

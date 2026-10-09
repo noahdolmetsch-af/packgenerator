@@ -68,7 +68,7 @@
     max: trip?.wx?.max ?? null,
     rain: trip?.wx?.rain ?? 'none',
     event: trip ? isEvent(trip) : false,
-    // v0.64.0 (Noah 8a): Bivouac + tent; a new trip starts with the tent (as the old "Outdoor (tent, bivvy)").
+    // v0.66.0 (Noah 8a): Bivouac + tent; a new trip starts with the tent (as the old "Outdoor (tent, bivvy)").
     tent: trip?.tent !== false, // an older outdoor trip (no field) had the tent
   };
   let ctx = $state({ ...was });
@@ -86,20 +86,20 @@
     Object.assign(ctx, pickWxChip(ctx, choice));
   }
   /** The context fields to store (only for bike trips). */
-  // v0.64.0 (Noah 7a, 9a): dark: the ride goes into the dark (Light comes); sets: the ride blocks taken off here.
+  // v0.66.0 (Noah 7a, 9a): dark: the ride goes into the dark (Light comes); sets: the ride blocks taken off here.
   const ctxFields = () => ({ hours: hoursOk ? hoursNum : null, overnight: night, cook: night === 'outdoor' && ctx.cook, tent: night === 'outdoor' && ctx.tent, wx: wxOut, event: ctx.event, dark, ...(isNew && off.length ? { sets: Object.fromEntries(off.map((k) => [k, false])) } : {}) });
-  // v0.64.0 (Noah 8a): the night as one choice: none, Bivouac, Bivouac + tent, Hotel/hut.
+  // v0.66.0 (Noah 8a): the night as one choice: none, Bivouac, Bivouac + tent, Hotel/hut.
   const choice = $derived(night === 'outdoor' ? (ctx.tent ? 'tent' : 'bivy') : night === 'lodging' ? 'hotel' : night);
   function pickNight(key) {
     const f = nightFields(key);
     ctx.overnight = f.overnight;
     ctx.tent = f.tent;
   }
-  // v0.64.0 (Noah 7a): Light comes by itself when the ride goes into the dark (sunset at the trip's or the home place).
+  // v0.66.0 (Noah 7a): Light comes by itself when the ride goes into the dark (sunset at the trip's or the home place).
   const homeQ = liveQuery(() => db.settings.get('homePlace'));
   const darkPlace = $derived(trip?.place ?? homeOf($homeQ?.value) ?? null);
   const dark = $derived(ridesIntoDark({ ...(trip ?? {}), startDate: draft.startDate, days, hours: hoursOk ? hoursNum : null }, darkPlace));
-  // v0.64.0 (Noah 9a): the ride blocks the window suggests, taken off with a tap (a visible suggestion, never forced).
+  // v0.66.0 (Noah 9a): the ride blocks the window suggests, taken off with a tap (a visible suggestion, never forced).
   let off = $state([]);
   // svelte-ignore state_referenced_locally
   let start = $state(startFrom);
@@ -213,7 +213,7 @@
       .sort((a, b) => b.tip - a.tip); // the tips first
   });
   const chosen = $derived(blocks.filter((s) => picked.includes(s.key)));
-  // v0.64.0 (Noah 9a): the ride blocks that come by themselves (Repair, Charging, Light in the dark,
+  // v0.66.0 (Noah 9a): the ride blocks that come by themselves (Repair, Charging, Light in the dark,
   // Race on an event), as pressed chips: one tap takes one off for this trip.
   const rideChips = $derived.by(() => {
     if (!built) return [];
@@ -225,7 +225,7 @@
     }).filter((s) => s && s.n > 0);
   });
   const flipOff = (key) => (off = off.includes(key) ? off.filter((k) => k !== key) : [...off, key]);
-  // v0.64.0 (Noah 9a): Comfort, nice to have: its items only as unticked suggestions, one tap each.
+  // v0.66.0 (Noah 9a): Comfort, nice to have: its items only as unticked suggestions, one tap each.
   let comfortPicked = $state([]);
   const comfortItems = $derived(built ? items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes('comfort') && !skip.has(i.id) && !built.entries.some((e) => e.itemId === i.id)) : []);
   const flipComfort = (id) => (comfortPicked = comfortPicked.includes(id) ? comfortPicked.filter((x) => x !== id) : [...comfortPicked, id]);
@@ -345,7 +345,7 @@
         const f = ctxFields();
         if (ctx.hours !== was.hours) changes.hours = f.hours;
         if (night && (night !== was.overnight || ctx.cook !== was.cook || f.tent !== hasTent({ overnight: was.overnight, tent: was.tent }))) Object.assign(changes, { overnight: night, cook: f.cook, tent: f.tent });
-        if (f.dark !== !!trip.dark) changes.dark = f.dark; // v0.64.0: Light follows the dark
+        if (f.dark !== !!trip.dark) changes.dark = f.dark; // v0.66.0: Light follows the dark
         // v0.25.1: weather chosen here is no longer "from the forecast".
         if (ctx.min !== was.min || ctx.max !== was.max || ctx.rain !== was.rain) Object.assign(changes, { wx: f.wx, wxFrom: null });
         if (ctx.event !== was.event) changes.event = ctx.event;
@@ -565,7 +565,7 @@
       {#if rideChips.length || blocks.length || comfortItems.length}
         <section class="blocks" aria-labelledby="blocks-h">
           <h3 id="blocks-h">{t('Building blocks')}{#if tips}<span class="tp-muted">{` · ${tn(tips, '{n} tip', '{n} tips')}`}</span>{/if}</h3>
-          <!-- v0.64.0 (Noah 7a, 9a): what the ride suggests is pressed already; one tap takes it off. -->
+          <!-- v0.66.0 (Noah 7a, 9a): what the ride suggests is pressed already; one tap takes it off. -->
           {#if rideChips.length}
             <p class="note small sub">{t('Suggested for this ride')}</p>
             <div class="tp-chips" role="group" aria-label={t('Suggested for this ride')}>
@@ -579,7 +579,7 @@
             </div>
             <p class="note small" aria-live="polite">{#if chosen.length}{chosen.map((b) => `${b.label}: ${b.names.join(', ')}`).join(' · ')}{/if}</p>
           {/if}
-          <!-- v0.64.0 (Noah 9a): Comfort only ever as unticked suggestions, one item at a time. -->
+          <!-- v0.66.0 (Noah 9a): Comfort only ever as unticked suggestions, one item at a time. -->
           {#if comfortItems.length}
             <p class="note small sub">{t('Comfort, if you like')}</p>
             <div class="tp-chips" role="group" aria-label={t('Comfort, if you like')}>

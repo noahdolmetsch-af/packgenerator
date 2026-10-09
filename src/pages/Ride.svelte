@@ -360,7 +360,7 @@
 {:else}
 <div class="ride trip-page">
   <TripBand {trip} tab="ride" {kicker} compact action={go} aside={pen} hint={ahead ? '' : t('End the trip when you are back home.')} />
-  {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} />{/if}
+  {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} />{/if}
   <div class="tp-grid2 r">
     <div class="col">
       <!-- Noah 7a: the days, then the block of now, on top. -->

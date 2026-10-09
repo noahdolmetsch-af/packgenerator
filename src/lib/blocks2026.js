@@ -73,7 +73,7 @@ export function migrateItem(item) {
  */
 export function blockOrder(items, setsValue = [], { old = false } = {}) {
   const own = (Array.isArray(setsValue) ? setsValue : []).map((s) => s?.key).filter(Boolean);
-  // v0.64.0: the old keys (gear.js OLD_SETS) only for the update of old data (old: true), first.
+  // v0.66.0: the old keys (gear.js OLD_SETS) only for the update of old data (old: true), first.
   const known = [STANDARD, ...(old ? Object.keys(OLD_SETS) : []), ...Object.keys(SETS), ...own.filter((k) => !isOldSetKey(k))];
   const seen = new Set(known);
   const rest = [...new Set(items.flatMap((i) => (Array.isArray(i?.sets) ? i.sets : [])))].filter((k) => !seen.has(k) && !isOldSetKey(k)).sort();
@@ -88,7 +88,7 @@ export function blockOrder(items, setsValue = [], { old = false } = {}) {
  */
 export function templateBlockKeys(tpl, items, setsValue = []) {
   const ids = new Set((tpl?.entries ?? []).map((e) => e.itemId));
-  // v0.64.0: old data (an old backup) keeps its old blocks here; blocksplit.js maps them afterwards.
+  // v0.66.0: old data (an old backup) keeps its old blocks here; blocksplit.js maps them afterwards.
   return blockOrder(items, setsValue, { old: true }).filter((key) => {
     const its = items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes(key));
     return its.length > 0 && its.every((i) => ids.has(i.id));

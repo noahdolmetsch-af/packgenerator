@@ -1,5 +1,5 @@
 /**
- * v0.64.0 «Bausteine prüfen» (Noah 4a): one building block after the other, every item with its
+ * v0.66.0 «Bausteine prüfen» (Noah 4a): one building block after the other, every item with its
  * weight and the block's total; per item «behalten», «raus» or «gehört woanders hin»; at the bottom
  * items from the inventory that probably belong there but are missing (by category and name).
  *

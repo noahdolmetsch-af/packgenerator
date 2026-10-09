@@ -39,7 +39,7 @@ export const MORE_GROUPS = [
     rows: [
       { id: 'favorites', title: 'Favourites', short: 'Favourites', href: '#/favorites', icon: 'star', words: 'favourites favorites favourite favorite best things lieblingsstücke favoriten beste' },
       // v0.42.0 (Noah 1): the clothing by layer and body zone.
-      // v0.64.0 (Noah 4a): one block after the other, keep / out / elsewhere.
+      // v0.66.0 (Noah 4a): one block after the other, keep / out / elsewhere.
       { id: 'blockcheck', title: 'Check building blocks', href: '#/blocks/check', icon: 'layers', words: 'check building blocks bausteine prüfen pruefen review blocks aufräumen tidy' },
       { id: 'wardrobe', title: 'Wardrobe', href: '#/wardrobe', icon: 'shirt', words: 'wardrobe clothing clothes layers onion kleiderschrank kleider kleidung schicht schichten zwiebel' },
     ],

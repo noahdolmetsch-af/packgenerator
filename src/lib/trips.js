@@ -70,7 +70,7 @@ export function slotFor(defaultBag, setup) {
 
 /**
  * The standard set: worn items on me, standard items and the overnight base set in their default bag
- * (v0.64.0: the base set is the block Bivouac, which took in Base and Sleep).
+ * (v0.66.0: the base set is the block Bivouac, which took in Base and Sleep).
  * v0.24.0 (Noah, fewer clicks; AP02 answer 2b): the base set (towel, toothbrush, swim shorts …) only
  * comes along when the trip has a night, i.e. more than one day. A day ride no longer starts with
  * seven items to take out again.
@@ -363,7 +363,7 @@ export { SLOT };
 /* ---------- overnight sets (answer 4: switches per trip) ---------- */
 
 /**
- * v0.64.0 «Bausteine neu»: the block switches of a trip in Pack: what the ride suggests (Light,
+ * v0.66.0 «Bausteine neu»: the block switches of a trip in Pack: what the ride suggests (Light,
  * Repair, Charging, Race) and Cook. The night itself is one choice in the trip window.
  */
 export const NIGHT_SETS = [
@@ -376,7 +376,7 @@ export const NIGHT_SETS = [
 
 /**
  * Switch a building block on or off for a trip (trip.sets[key]; false also takes off a block the
- * context suggests, v0.64.0). On: its items are added to their usual bag. Off: its items leave the
+ * context suggests, v0.66.0). On: its items are added to their usual bag. Off: its items leave the
  * trip, unless they are standard items or belong to another block that is still on.
  * active: the blocks on the trip besides the explicit switches (context.js activeBlocks).
  */

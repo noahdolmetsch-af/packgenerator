@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.64.0 «Bausteine prüfen» (Noah 4a, #/blocks/check): one building block after the other, with a
+   * v0.66.0 «Bausteine prüfen» (Noah 4a, #/blocks/check): one building block after the other, with a
    * progress line. Each block lists its items with weight and the block's total; per item «Keep»,
    * «Out» or «Elsewhere» (pick another block). At the bottom: items from the inventory that probably
    * belong there but are missing (blockcheck.js missingFor), one tap to add. Every action can be

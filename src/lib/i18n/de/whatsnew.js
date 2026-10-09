@@ -8,7 +8,7 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.64.0
+  // 0.66.0
   'New building blocks: Bivouac, Tent and Hotel/hut for the night, Repair, Charging, Light and Race for the ride, Food, Hygiene and Comfort to add. Your items moved along by themselves, nothing was lost.':
     'Neue Bausteine: Biwak, Zelt und Hotel/Hütte für die Nacht, Reparatur, Laden, Licht und Rennen für die Fahrt, Verpflegung, Hygiene und Komfort zum Dazunehmen. Deine Sachen sind von selbst mitgezogen, nichts ging verloren.',
   'A new trip with nights asks: Bivouac, Bivouac + tent or Hotel/hut. Repair and Charging come on every ride, Light by itself when you ride into the dark; each can be taken off. Comfort is only offered, never ticked.':
@@ -18,6 +18,12 @@ export default {
   'Warm is no block any more: its items come with the weather (below 10 °C unless they had their own temperature). Check them first in Check building blocks.':
     'Warm ist kein Baustein mehr: Seine Sachen kommen mit dem Wetter (unter 10 °C, ausser sie hatten schon eine eigene Temperatur). Prüfe sie zuerst in Bausteine prüfen.',
 
+  // 0.65.0
+  'Every bike shows its fit and setup at the top: saddle height, target tyre pressure, bar width and more. Tap a value to change it.':
+    'Jedes Velo zeigt oben seine Masse: Sitzhöhe, Solldruck der Reifen, Lenkerbreite und mehr. Tippe auf einen Wert, um ihn zu ändern.',
+  '"Compare bikes" starts with these numbers for all bikes.': '«Velos vergleichen» beginnt mit diesen Werten für alle Velos.',
+  'Checking the tyre pressure shows the target beside the last value and fills it in; the base check names it too.':
+    'Beim Reifendruck-Prüfen steht der Solldruck neben dem letzten Wert und ist schon eingetragen; auch der Basischeck nennt ihn.',
   // 0.63.0
   'An item opens short: its name, its weight and one line on how it comes along. Everything else is a row that opens with one tap, one at a time.':
     'Ein Teil öffnet kurz: Name, Gewicht und eine Zeile, wie es mitkommt. Alles andere ist eine Zeile, die sich mit einem Tipp öffnet, immer nur eine.',

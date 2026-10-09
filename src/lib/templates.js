@@ -52,7 +52,7 @@ export function templateFrom(trip, { id, name, now = new Date().toISOString() })
     days: Math.max(1, Number(trip.days) || 1),
     overnight: trip.overnight ?? null,
     cook: trip.overnight === 'outdoor' && !!trip.cook,
-    tent: hasTent(trip), // v0.64.0: Bivouac + tent
+    tent: hasTent(trip), // v0.66.0: Bivouac + tent
     bikeId: trip.bikeId ?? null,
     fromTrip: trip.id,
     createdAt: now,

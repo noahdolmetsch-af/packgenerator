@@ -1,5 +1,5 @@
 /**
- * v0.64.0 «Bausteine neu + Bausteine prüfen»: the new building blocks, the night as one choice and
+ * v0.66.0 «Bausteine neu + Bausteine prüfen»: the new building blocks, the night as one choice and
  * the page «Bausteine prüfen». Swiss spelling (ss, no ß).
  */
 export default {
@@ -12,7 +12,7 @@ export default {
   'Light|block': 'Licht',
   'Race|block': 'Rennen',
   'Food|block': 'Verpflegung',
-  // v0.64.0: «Food» is now a known UI word (block label), so a learning topic «food» needs its German name too.
+  // v0.66.0: «Food» is now a known UI word (block label), so a learning topic «food» needs its German name too.
   Food: 'Essen',
   'Hygiene|block': 'Hygiene',
   'Comfort|block': 'Komfort',

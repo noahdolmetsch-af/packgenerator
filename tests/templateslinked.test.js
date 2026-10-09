@@ -60,7 +60,7 @@ describe('the one-time update: identical content (Noah 2a)', () => {
     expect(feier.extras).toEqual([{ itemId: 'FO01', qty: 1 }]);
     expect(blocksLine(templateParts(feier, sets0))).toBe('Standard + 1 extra');
     const jura = linkTemplate(byId(tpls0, 'tpl-jura'), items, sets0);
-    // v0.64.0 «Bausteine neu»: the old blocks Sleep and Light become Bivouac and Light (blocksplit.js), same items.
+    // v0.66.0 «Bausteine neu»: the old blocks Sleep and Light become Bivouac and Light (blocksplit.js), same items.
     const up = splitAll({ items, templates: [jura], sets: sets0 });
     expect(blocksLine(templateParts(up.templates[0], up.sets))).toBe('Standard + Bivouac + Light + Regen + 1 extra');
     expect(sameEntries(templateEntries(up.templates[0], up.items, up.sets), templateEntries(jura, items, sets0))).toBe(true);

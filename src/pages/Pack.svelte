@@ -51,6 +51,7 @@
   import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, homeOf } from '../lib/dayride.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
   import { t, tn, num, locale, nameOf, bagName, dateOf } from '../lib/i18n.svelte.js';
+  import { targetPressure, pressureText } from '../lib/bikespecs.js';
   import { comesOf } from '../lib/gear/comes.js';
   import { inStandard, isWorn, leaveHome, blockKeys } from '../lib/blocks2026.js';
   import { hasBike, domainOf, domainName, inDomain, itemDomains, readyKey, READY_BY_DOMAIN, rememberDomain, BIKEPACKING } from '../lib/domains.js';
@@ -308,7 +309,7 @@
       const forecastWx = forecastPreset(await fetchHomeForecast(home), rideDate());
       const plan = dayRidePlan(trips, bikes, { forecastWx, bikeId });
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
-      // v0.64.0 (Noah 7a): Light comes by itself when the ride goes into the dark.
+      // v0.66.0 (Noah 7a): Light comes by itself when the ride goes into the dark.
       const dark = ridesIntoDark({ startDate: plan.startDate, days: 1, hours: plan.hours }, homeOf(home));
       const fields = { hours: plan.hours, overnight: 'none', cook: false, wx: plan.wx, event: false, dark, ...(plan.wxFrom ? { wxFrom: plan.wxFrom } : {}) };
       const nt = buildBikeTrip({ draft: { title: plan.title, startDate: plan.startDate, days: 1 }, bike: $state.snapshot(plan.bike), start: 'standard', templates, trips, items, readyStandard, fields });
@@ -478,7 +479,7 @@
     if (!trip) return [];
     return allSets($setsQ?.value)
       .map((s) => ({ ...s, label: s.builtIn ? s.name.replace(/^(Night|Nacht): /, '') : s.name, n: addSetEntries(trip, items, s, { skip: blockSkip, slotOf: () => 'body' }).added.length, has: items.some((i) => isInventory(i) && i.sets?.includes(s.key)) }))
-      .filter((s) => s.has && !OFFER_ONLY.includes(s.key)); // v0.64.0: Comfort only item by item
+      .filter((s) => s.has && !OFFER_ONLY.includes(s.key)); // v0.66.0: Comfort only item by item
   });
   // v0.27.0 (Noah 1a, PF02/PF05/PF10): why each row is on the list (reasons.js), shown small under its name.
   const reasons = $derived(trip ? rowReasons(trip, items, $setsQ?.value) : {});
@@ -643,7 +644,7 @@
   const tripItems = $derived(trip ? items.filter((i) => onTrip(trip).has(i.id)) : []);
   const toWeigh = $derived(weighQueue({ items: tripItems }).length);
 
-  // Answer 4: overnight sets as switches. v0.64.0 «Bausteine neu»: the blocks of the ride (Light,
+  // Answer 4: overnight sets as switches. v0.66.0 «Bausteine neu»: the blocks of the ride (Light,
   // Repair, Charging, Race) and Cook; on = what the trip's context brings or switched on by hand.
   const setOn = (key) => (trip ? activeBlocks(trip).includes(key) : false);
   const switchSet = (key) => change((t) => {
@@ -657,7 +658,7 @@
   const wxSet = $derived(wx?.min != null && wx?.max != null);
   const suggestion = $derived(trip ? layerSuggest(trip, items) : []);
   // v0.25.0 (M3, Noah 9b): on a trip with its context a change of weather or hours applies at once (Undo).
-  // v0.64.0 (Noah 7a): the dark follows date, days and hours (Light comes or goes with it).
+  // v0.66.0 (Noah 7a): the dark follows date, days and hours (Light comes or goes with it).
   const homeQ = liveQuery(() => db.settings.get('homePlace'));
   const changeContext = (fn) => change((cur) => {
     const patch0 = fn(cur);
@@ -764,7 +765,7 @@
           </button>
         {/each}
       </div>
-      <!-- v0.64.0 (Noah 6a): Warm is no block any more; warm clothes come with the weather (temperature rule). -->
+      <!-- v0.66.0 (Noah 6a): Warm is no block any more; warm clothes come with the weather (temperature rule). -->
     {/snippet}
 
     {#snippet bagChoice()}
@@ -818,7 +819,7 @@
           <li class:done>
             <label class="ck">
               <input type="checkbox" checked={done} disabled={!!r.itemId && done} onchange={() => toggleReady(r)} />
-              <span>{t(r.label)}{#if r.itemId && !done}<small class="warn"> {t('not on this trip, tick to add it')}</small>{/if}</span>
+              <span>{t(r.label)}{#if r.id === 'tyres' && targetPressure(bike)}<small> · {t('Target')} {pressureText(targetPressure(bike), num)}</small>{/if}{#if r.itemId && !done}<small class="warn"> {t('not on this trip, tick to add it')}</small>{/if}</span>
             </label>
             {#if r.id === 'charged' && charge.length}<button type="button" class="tp-link" onclick={() => (chargeOpen = true)}>{t('Charge list {done}/{n}', { done: charged.done, n: charged.total })}</button>{/if}
             <button type="button" class="x" aria-label={t("Remove {name} from this trip's check", { name: t(r.label) })} onclick={() => removeReady(r.id)}>×</button>
@@ -854,7 +855,7 @@
     </div>
   {/if}{/snippet}
   {#if packTab}
-    <PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} />
+    <PackDay {trip} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} />
   {:else}
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={over ? null : factEdit} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} bind:q bind:zoneKey bind:review
     actions={{

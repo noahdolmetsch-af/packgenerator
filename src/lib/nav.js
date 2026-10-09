@@ -125,7 +125,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/gear')) return 'gear';
   if (h.startsWith('#/favorites')) return 'favorites';
   if (h.startsWith('#/wardrobe')) return 'wardrobe'; // v0.42.0: the wardrobe (layers and zones)
-  if (h.startsWith('#/blocks/check')) return 'blockcheck'; // v0.64.0 (Noah 4a): «Bausteine prüfen»
+  if (h.startsWith('#/blocks/check')) return 'blockcheck'; // v0.66.0 (Noah 4a): «Bausteine prüfen»
   if (h.startsWith('#/blocks')) return 'blocks'; // v0.26.0 (Noah 2b): building blocks, own page
   if (h.startsWith('#/bikes') || h.startsWith('#/care')) return careTab ? 'care' : 'bikes';
   if (h.startsWith('#/trips')) return 'trips'; // v0.46.1: the trips overview behind «Touren»

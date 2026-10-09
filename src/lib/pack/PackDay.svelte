@@ -19,7 +19,9 @@
   import { phone } from '../media.svelte.js';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, bike = true, lessons = [], oncharge = null } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, bike = true, lessons = [], oncharge = null, pressure = '' } = $props();
+  // v0.65.0 «Velo-Masse»: pressure: the trip bike's target pressure («1.6 / 1.7 bar»), named in the tyre row.
+  const readyLabel = (r) => (r.id === 'tyres' && pressure ? `${t(r.label)} · ${t('Target')} ${pressure}` : t(r.label));
   const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${t(RAIN[w.rain ?? 'none'])}`;
   const READY = '__ready';
 
@@ -315,7 +317,7 @@
               <li class:in={ok}>
                 <button type="button" class="it" aria-pressed={ok} disabled={!!r.itemId && ok} onclick={() => readyTick(r)}>
                   <span class="box" aria-hidden="true">{#if ok}<Check size={20} />{/if}</span>
-                  <span class="nm">{t(r.label)}</span>
+                  <span class="nm">{readyLabel(r)}</span>
                 </button>
                 <!-- v0.34.0 (L4): which devices, from the packing list -->
                 {#if r.id === 'charged' && oncharge}<button type="button" class="tp-link chg" onclick={oncharge}><BatteryCharging size={16} aria-hidden="true" />{t('Charge list')}</button>{/if}
@@ -326,7 +328,7 @@
             {#if !done}<button type="button" class="tp-link" onclick={readyAllTick}>{t('Tick all checks')}</button>{:else}<span class="tp-muted tp-small">{t('all in')}</span>{/if}
             {#if canUndo}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
           </div>
-        {:else if !done}<p class="preview">{ready.filter((r) => !readyDone(r, trip)).map((r) => t(r.label)).join(' · ')}</p>{/if}
+        {:else if !done}<p class="preview">{ready.filter((r) => !readyDone(r, trip)).map((r) => readyLabel(r)).join(' · ')}</p>{/if}
       </section>
     {/if}
   </div>

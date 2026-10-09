@@ -222,7 +222,7 @@
   {:else if page === 'share'}
     {#key param}<Share code={param} />{/key}
   {:else if page === 'blockcheck'}
-    <!-- v0.64.0 (Noah 4a): «Bausteine prüfen», one block after the other -->
+    <!-- v0.66.0 (Noah 4a): «Bausteine prüfen», one block after the other -->
     <BlockCheck />
   {:else if page === 'blocks'}
     <!-- v0.26.0 (Noah 2a/2b): building blocks (item sets) you can see and make -->

@@ -7,7 +7,7 @@
    *     "On every trip", plus the items On me; changed in the item dialog under "Comes along");
    *   - With the night: the blocks the overnight stay brings by itself (context.js CONTEXT_SETS);
    *   - To add: your own blocks (and Food, Hygiene, Comfort), one tap in "New trip" or in Pack's "Add material".
-   * v0.64.0 «Bausteine neu»: a fourth group "On the ride" (Repair, Charging, Light in the dark, Race on
+   * v0.66.0 «Bausteine neu»: a fourth group "On the ride" (Repair, Charging, Light in the dark, Race on
    * an event: suggested, deselectable per trip), and the way to «Bausteine prüfen» (#/blocks/check).
    * The rows and the changes (amount, remove, add items, rename, delete) fold away under "Change".
    * Built-in blocks (gear.js SETS) can be renamed but not deleted; own blocks can be renamed and
@@ -38,7 +38,7 @@
   // With the night in the order the overnight stay brings them; to add: Light first, then your own.
   const nightCards = $derived(NIGHT_BLOCKS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
   const rideCards = $derived(RIDE_BLOCKS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
-  // v0.64.0: «Bausteine prüfen» says when something from the update is still to check.
+  // v0.66.0: «Bausteine prüfen» says when something from the update is still to check.
   const reviewQ = liveQuery(() => db.settings.get(REVIEW_KEY));
   const toCheck = $derived(reviewOpen($reviewQ?.value));
   const addCards = $derived(cards.filter((c) => c.kind === 'add'));
@@ -229,7 +229,7 @@
       <p>{t('Tools are never called "not needed" in the debrief.')}</p>
     </Help>
   </div>
-  <!-- v0.64.0 (Noah 4a): one block after the other, every item keep / out / elsewhere. -->
+  <!-- v0.66.0 (Noah 4a): one block after the other, every item keep / out / elsewhere. -->
   <p class="check"><a class="btn" href="#/blocks/check"><ListChecks size={18} aria-hidden="true" /><span>{t('Check building blocks')}</span>{#if toCheck}<i class="nbadge">{t('to check|blocks')}</i>{/if}<ChevronRight size={16} aria-hidden="true" /></a></p>
   {#if error}<p class="err" role="alert">{error}</p>{/if}
 

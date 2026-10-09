@@ -1,4 +1,4 @@
-// v0.64.0 «Bausteine neu + Bausteine prüfen» (Noah, Trello 9.10.2026, 4a–10b): the one-time update of
+// v0.66.0 «Bausteine neu + Bausteine prüfen» (Noah, Trello 9.10.2026, 4a–10b): the one-time update of
 // the building blocks (blocksplit.js), the trip block logic (context.js, blockplan.js) and the pure
 // helpers of «Bausteine prüfen» (blockcheck.js). Fictional data only.
 import 'fake-indexeddb/auto';
@@ -23,7 +23,7 @@ afterEach(() => (lang.v = 'en'));
 const P = 'test_data_gtp_';
 const it_ = (id, f = {}) => ({ id: `${P}${id}`, name: `${P} ${id}`, category: 'elec', ownership: 'owned', role: null, sets: [], defaultBag: 'seat', domains: ['bikepacking'], weightG: 100, qty: 1, ...f });
 
-/** Items as before v0.64.0, with the old keys. */
+/** Items as before v0.66.0, with the old keys. */
 const OLD = [
   it_('BAG', { name: `${P} Sleeping bag`, category: 'sleep', sets: ['sleep'] }),
   it_('TOWEL', { name: `${P} Towel`, category: 'hyg', sets: ['base'] }),
@@ -253,7 +253,7 @@ describe('Repair, Charging, Race, Comfort (9a)', () => {
   it('a later change of an older trip brings only the ride blocks it switches on, not Repair and Charging with the weather', () => {
     const made = make({ overnight: 'none' }, 1);
     const RIDE_IDS = ['TUBE', 'BANK', 'LAMP'];
-    const before = { ...made, entries: made.entries.filter((e) => !RIDE_IDS.includes(e.itemId.replace(P, ''))) }; // made before v0.64.0
+    const before = { ...made, entries: made.entries.filter((e) => !RIDE_IDS.includes(e.itemId.replace(P, ''))) }; // made before v0.66.0
     const after = (next) => (applyContext(next, NEW, before).entries ?? before.entries).map((e) => e.itemId.replace(P, ''));
     const wet = after({ ...before, wx: { min: 10, max: 18, rain: 'rain' } });
     expect(wet).not.toContain('TUBE');

@@ -74,7 +74,7 @@ describe('template update or new (v0.26.1)', () => {
   it('keeps days, hours, overnight, cooking and bike, and offers them as defaults', () => {
     const tp = templateFrom(outdoor, { id: 'tpl-a', name: 'Jura' });
     expect(tp).toMatchObject({ days: 3, hours: 5, overnight: 'outdoor', cook: true, bikeId: 'factor-ls' });
-    expect(templateDefaults(tp, bikes)).toEqual({ days: 3, hours: 5, overnight: 'outdoor', cook: true, tent: true, bikeId: 'factor-ls' }); // v0.64.0: + tent (an older outdoor trip had it)
+    expect(templateDefaults(tp, bikes)).toEqual({ days: 3, hours: 5, overnight: 'outdoor', cook: true, tent: true, bikeId: 'factor-ls' }); // v0.66.0: + tent (an older outdoor trip had it)
     // A bike that is gone is not offered; an older template without these values changes nothing.
     expect(templateDefaults(tp, [bikes[1]])).not.toHaveProperty('bikeId');
     expect(templateDefaults({ id: 'old', entries: [], hours: null }, bikes)).toEqual({});
