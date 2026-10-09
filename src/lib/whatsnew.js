@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.37.1',
+    date: '2026-10-09',
+    points: [
+      { text: 'Merge items: a double or a collection item goes into the imported item(s); the app proposes the counterpart.', href: '#/gear/import' },
+      { text: 'Templates, building blocks, bags and planned trips then use the new item; past trips stay complete.', href: '#/gear/import' },
+      { text: 'Archived items no longer come into a new trip, also not from a template or a copy.', href: '#/pack' },
+      { text: 'In the item window: "Merge with …" for any double.', href: '#/gear' },
+    ],
+  },
+  {
     version: '0.37.0',
     date: '2026-10-08',
     points: [

@@ -7,6 +7,7 @@
  *   "Unsicher" items stay staged.
  * - "Rückgängig" puts that backup back (backup.js restoreBackup) and the staged file too.
  * - "Archivieren" (Nicht im Import) sets ownership 'gone' and remembers the old one; never deletes.
+ * - v0.37.1 "Zusammenlegen" (Nicht im Import, and the item window): see mergeitems.js.
  */
 import { buildBackup, restoreBackup, LAST_IMPORT, LAST_CHANGE } from '../backup.js';
 import { buildWrites, remaining, validateGearImport } from '../gearimport.js';
@@ -62,7 +63,7 @@ export async function applyImport(db, now = new Date().toISOString()) {
     if (w.items.length) await db.items.bulkPut(w.items);
     if (w.learnings.add.length) await db.learnings.bulkPut(w.learnings.add);
     for (const u of w.learnings.update) await db.learnings.update(u.id, u.changes);
-    const rest = remaining(staged.data, w.done);
+    const rest = remaining(staged.data, w.done, w.took);
     if (rest.items.length) await db.table('meta').put({ ...staged, data: rest, decisions: {} });
     else await db.table('meta').delete(STAGED);
     const lastImport = (await db.table('meta').get(LAST_IMPORT)) ?? null;

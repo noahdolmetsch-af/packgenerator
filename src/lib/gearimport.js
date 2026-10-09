@@ -230,7 +230,7 @@ const knownIds = (item) => [item.id, item.sourceId, ...(Array.isArray(item.merge
  * and notIn (app items, not gone, not matched and no candidate). Gone (archived) items are only
  * matched by ID, never by name.
  */
-export function match(importItems, items) {
+export function match(importItems, items, applied = []) {
   const live = items.filter((i) => i.ownership !== 'gone');
   const byKnown = new Map();
   for (const it of items) for (const id of knownIds(it)) if (!byKnown.has(id)) byKnown.set(id, it);
@@ -262,7 +262,9 @@ export function match(importItems, items) {
     delete r.item;
     delete r.via;
   }
-  const touched = new Set();
+  // v0.37.1: the app items an earlier apply of this file already took (the staged rest only holds the
+  // unsure lines) are not "Nicht im Import".
+  const touched = new Set(applied);
   for (const r of rows) {
     if (r.kind === 'same') touched.add(r.item.id);
     if (r.kind === 'unsure') for (const c of r.candidates) touched.add(c.item.id);
@@ -446,7 +448,7 @@ export function planLearnings(list, existing, now = new Date().toISOString()) {
  * same rows with nothing to add carry adds: [].
  */
 export function planGearImport(data, items, learnings = [], now = new Date().toISOString()) {
-  const { rows, notIn } = match(data.items ?? [], items);
+  const { rows, notIn } = match(data.items ?? [], items, data.appliedItemIds ?? []);
   const all = [...items];
   const out = { same: [], fresh: [], unsure: [], skipped: [], notIn };
   for (const r of rows) {
@@ -493,7 +495,9 @@ export function buildWrites(data, items, learnings = [], decisions = {}, now = n
     counts.added++;
     if (item.ownership === 'wishlist') counts.wishlist++;
   };
+  const took = [];
   for (const r of plan.same) {
+    took.push(r.item.id);
     if (into(r.item.id, r.imp)) counts.enriched++;
     else counts.unchanged++;
     done.push(r.key);
@@ -506,6 +510,7 @@ export function buildWrites(data, items, learnings = [], decisions = {}, now = n
     const d = decisions[r.key];
     if (d === 'new') fresh(r.imp);
     else if (d && byId.has(d)) {
+      took.push(d);
       into(d, r.imp);
       counts.merged++;
     } else {
@@ -518,14 +523,67 @@ export function buildWrites(data, items, learnings = [], decisions = {}, now = n
     items: [...[...changed].map((id) => byId.get(id)), ...added],
     learnings: plan.learnings,
     done,
+    took: [...took, ...added.map((i) => i.id)],
     counts: { ...counts, learningsAdded: plan.learnings.add.length, learningsUpdated: plan.learnings.update.length },
   };
 }
 
-/** The file without the items already applied (what stays on the staging page). */
-export function remaining(data, done) {
+/**
+ * The file without the items already applied (what stays on the staging page). took: the app item IDs
+ * the apply matched or made (v0.37.1), so they do not show under "Nicht im Import" afterwards.
+ */
+export function remaining(data, done, took = []) {
   const set = new Set(done);
-  return { ...data, items: (data.items ?? []).filter((imp, i) => !set.has(keyOf(imp, i))), learnings: [] };
+  const applied = [...new Set([...(data.appliedItemIds ?? []), ...took])];
+  return { ...data, items: (data.items ?? []).filter((imp, i) => !set.has(keyOf(imp, i))), learnings: [], ...(applied.length ? { appliedItemIds: applied } : {}) };
+}
+
+/* ---------- v0.37.1 Zusammenlegen: the counterpart of an item ---------- */
+
+/** Below this a candidate is not proposed. */
+export const PROPOSE_AT = 0.35;
+const STOP = new Set(['und', 'mit', 'fur', 'oder', 'the', 'and', 'for', 'with', 'von', 'der', 'die', 'das', 'ein', 'eine', 'set']);
+const tokens = (name) => normalizeName(name).words.filter((w) => w.length >= 3 && !STOP.has(w));
+const wordHit = (a, b) => a === b || (Math.min(a.length, b.length) >= 4 && (a.startsWith(b) || b.startsWith(a)));
+
+/** Share of the shorter name's words found in the other one (a prefix counts: "Halter" ~ "Halterung"), 0..1. */
+export function tokenOverlap(a, b) {
+  const A = tokens(a);
+  const B = tokens(b);
+  if (!A.length || !B.length) return 0;
+  const [short, long] = A.length <= B.length ? [A, B] : [B, A];
+  return short.filter((w) => long.some((x) => wordHit(w, x))).length / short.length;
+}
+
+/**
+ * How well a candidate fits as the counterpart of an item, 0..1: the name similarity of the import
+ * matching, or (lower threshold) the shared words, so a collection item ("Snack (Biber/Banane)")
+ * finds each of its pieces ("Biber"). The same category gives a small bonus but is not required.
+ */
+export function counterpartScore(item, cand) {
+  let best = 0;
+  for (const a of namesOf(item)) {
+    for (const b of namesOf(cand)) {
+      const sim = nameSimilarity(a, b);
+      best = Math.max(best, sim, (sim + tokenOverlap(a, b)) / 2);
+    }
+  }
+  const bonus = item.category && item.category === cand.category ? 0.1 : 0;
+  return Math.round(Math.min(1, best + (best > 0 ? bonus : 0)) * 1000) / 1000;
+}
+
+/**
+ * Up to `max` proposed counterparts of an item: [{ item, score }], best first. Only items that are
+ * not gone and not the item itself; imported: only items that came from an import (sourceId).
+ */
+export function counterparts(item, items, { max = 3, imported = false, min = PROPOSE_AT } = {}) {
+  if (!item) return [];
+  return items
+    .filter((c) => c.id !== item.id && c.ownership !== 'gone' && (!imported || c.sourceId))
+    .map((c) => ({ item: c, score: counterpartScore(item, c) }))
+    .filter((x) => x.score >= min)
+    .sort((a, b) => b.score - a.score || a.item.id.localeCompare(b.item.id))
+    .slice(0, max);
 }
 
 /** Shown names for the categories and fields (English keys for t()). */

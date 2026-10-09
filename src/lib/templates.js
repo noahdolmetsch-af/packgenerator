@@ -86,7 +86,8 @@ export function templateDefaults(tpl, bikes = []) {
 export function tripFromTemplate({ title, startDate, days, bike }, tpl, items, now = Date.now()) {
   const setup = { ...(bike.setup ?? {}) };
   for (const [slot, bagId] of Object.entries(tpl.setup ?? {})) if (bagId && bike.slots?.includes(slot)) setup[slot] = bagId;
-  const known = new Set(items.map((i) => i.id));
+  // v0.37.1: an archived item (ownership 'gone', e.g. merged into another) never comes into a new trip.
+  const known = new Set(items.filter((i) => i.ownership !== 'gone').map((i) => i.id));
   const entries = tpl.entries
     .filter((e) => known.has(e.itemId))
     .map((e) => ({ itemId: e.itemId, slot: e.slot === 'body' || e.slot === 'mounted' || setup[e.slot] ? e.slot : slotFor(e.slot, setup), qty: e.qty || 1, packed: false }));
