@@ -102,9 +102,14 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   // "More, Inbox: n to sort"
   await expect(page.locator('.more-btn')).toHaveAttribute('aria-label', T('More, Inbox: {n} to sort', { n: open }));
   // Today, "Important today": n notes to sort (v0.46.0: a row, maybe below "Show all")
+  // The rows of "Important today" arrive one source after the other, so "Show all" can appear after the
+  // first look: open it whenever it is there and closed, until the inbox row shows.
   const more = page.locator('[data-section="today"] button.more');
-  if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
-  await expect(page.locator('[data-section="today"] li[data-row="inbox"] .tx')).toHaveText(T('{n} notes to sort', { n: open }).trim());
+  const inboxRow = page.locator('[data-section="today"] li[data-row="inbox"] .tx');
+  await expect(async () => {
+    if ((await more.count()) && (await more.getAttribute('aria-expanded')) === 'false') await more.click();
+    await expect(inboxRow).toHaveText(T('{n} notes to sort', { n: open }).trim(), { timeout: 1000 });
+  }).toPass({ timeout: 15000 });
 
   // Today's "Your data" and "Weigh" (what waits to be weighed) vs the stored data and the Gear page
   const items = await table(page, 'items');
