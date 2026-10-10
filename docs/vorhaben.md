@@ -143,7 +143,7 @@ flowchart LR
   KI --> R["Im Flow, Neuland"]
 ```
 
-1. Übergänge Teil 1 (drei kleine Releases)
+1. Übergänge Teil 1 in zwei Releases: (1) Baukasten, Zwischenseiten, Schrittleiste, Weitermachen, Zurück-Taste; (2) Was ist neu und Touren-Einstiegsseite. «Heute neu» geht in E1 auf, Menü und Stilwelten in D3 (Noah, 10.10.2026: «Zusammenlegen»).
 2. D3 Navigation «Basecamp», danach E1 Startseite neu
 3. D5 Packen vorschlagen
 4. D2 Einkauf, Lebenslauf, Werkstatt
