@@ -12,6 +12,7 @@ import { test, expect } from '@playwright/test';
 import { createHash } from 'node:crypto';
 import { existsSync, statSync, mkdirSync, renameSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { settle } from '../settle.js';
 import { fixture, prepare, importBackup, view, sideways, cutOff, brokenWords, unnamed, untranslated, record, tr, table, shot } from './lib.js';
 import { newButton } from '../newbutton.js';
 
@@ -155,6 +156,8 @@ for (const lang of ['de', 'en']) {
         await page.addInitScript(([l]) => localStorage.setItem('lang', l), [lang]);
         try {
           await page.goto('./');
+          // v0.80.0: in the evening Today opens Unterwegs once a day; let it decide before the page is opened
+          await settle(page);
           if (c.trip) await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), c.trip);
           for (const w of widths) {
             await page.setViewportSize({ width: w, height: phone ? 844 : 900 });

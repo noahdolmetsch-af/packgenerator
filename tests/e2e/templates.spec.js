@@ -4,6 +4,7 @@
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openData, settle } from './settle.js';
 
 const FIX = fileURLToPath(new URL('./templates-fixture.json', import.meta.url));
 const T = (en, vars) => {
@@ -18,13 +19,10 @@ async function start(page, context) {
   // A fixed day, so "last used" and "long not used" do not drift.
   await page.clock.setFixedTime(new Date('2026-10-09T10:00:00+02:00'));
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   await data.getByLabel(T('Import backup')).setInputFiles(FIX);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(/importiert/)).toBeVisible();
 }
 

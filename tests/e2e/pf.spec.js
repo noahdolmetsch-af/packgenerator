@@ -16,6 +16,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openData, settle } from './settle.js';
 
 const LANG = process.env.PF_LANG === 'en' ? 'en' : 'de';
 const tr = (lang) => (en, vars) => {
@@ -78,13 +79,10 @@ async function start(page, context, info) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'pf-fixture.json' }))).toBeVisible();
   return errors;
 }
@@ -575,8 +573,7 @@ test('PF09: category of an item linked to a trip, a template, a block and a lear
   await expect(dlg).toBeHidden();
   // Export (Today → Your data → Export backup) and import the file again (Replace all data).
   await page.goto('./#/');
-  const data = page.locator('details.data');
-  if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+  const data = await openData(page);
   const wait = page.waitForEvent('download');
   await rec.click(data.getByRole('button', { name: T('Export backup') }));
   const file = info.outputPath('pf09-export.json');
@@ -584,6 +581,7 @@ test('PF09: category of an item linked to a trip, a template, a block and a lear
   const exported = JSON.parse(readFileSync(file, 'utf8'));
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'pf09-export.json' }))).toBeVisible();
   const items = await table(page, 'items');
   const jacket = items.filter((i) => i.id === id('KL05'));
@@ -987,14 +985,14 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   const snapshot = {};
   for (const name of ['items', 'trips', 'debriefs', 'notes', 'photos', 'bikes', 'containers', 'learnings', 'settings']) snapshot[name] = await table(page, name);
   await page.goto('./#/');
-  const data = page.locator('details.data');
-  if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
+  const data = await openData(page);
   const wait = page.waitForEvent('download');
   await data.getByRole('button', { name: T('Export backup') }).click();
   const file = info.outputPath('pf16-export.json');
   await (await wait).saveAs(file);
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'pf16-export.json' }))).toBeVisible();
   // v0.30.0 (Noah 1a): Today keeps the tips it shows in the setting "tips" and adds to it as it
   // shows them (the export itself ends the backup reminder, so one more tip shows).

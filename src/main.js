@@ -17,6 +17,7 @@ import './lib/ui/touch.css';
 import App from './App.svelte';
 import { db } from './lib/db.js';
 import { tidyData } from './lib/tidy.js';
+import { settling } from './lib/settled.js';
 import { applyClock } from './lib/demo.js';
 import { trackChanges } from './lib/backup.js';
 import { initTheme } from './lib/theme.svelte.js';
@@ -48,4 +49,4 @@ mount(App, { target: document.getElementById('app') });
 navigator.storage?.persist?.();
 
 // One-time fixes for older data (brand/model split, bag list and bike setups).
-tidyData(db).catch((err) => console.warn('tidyData', err));
+settling(() => tidyData(db)).catch((err) => console.warn('tidyData', err));

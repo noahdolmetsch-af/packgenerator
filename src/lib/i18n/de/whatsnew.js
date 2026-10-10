@@ -8,6 +8,10 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.80.0 «Tests stabil»
+  'Behind the scenes: the automatic checks are steadier, so new versions come faster.':
+    'Im Hintergrund: Die automatischen Prüfungen laufen stabiler, so kommen neue Versionen schneller.',
+
   // 0.78.0 «Fünf Orte» 2
   'Each place has its tabs on top. On a phone you swipe sideways to the next tab; a place opens at the tab you had open last.':
     'Jeder Ort hat oben seine Tabs. Am Handy wischst du seitwärts zum nächsten Tab; ein Ort öffnet sich beim Tab, den du zuletzt offen hattest.',

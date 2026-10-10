@@ -12,6 +12,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { WHATS_NEW } from '../../src/lib/whatsnew.js';
+import { openData, settle } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -61,13 +62,10 @@ async function start(page, context, info, current = A) {
   }, current);
   page.on('dialog', (d) => d.accept());
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === MARK.key)).toBe(true);
 }
 
@@ -252,9 +250,11 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   await shot(page, info, 'whatsnew-older');
   await older.locator('> summary').click();
   // A point goes to the exact place.
-  await news.locator('.ver').first().locator('a.try').first().click();
+  // v0.80.0: the newest point can have no place (a change behind the scenes): the first point with one.
+  const firstPlace = WHATS_NEW.flatMap((e) => e.points).find((p) => p.href);
+  await news.locator('.vers').first().locator('a.try').first().click();
   // v0.36.0: the first point of the newest version (was #/pack in 0.35.0).
-  await expect(page).toHaveURL(new RegExp(`${WHATS_NEW[0].points[0].href.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}$`));
+  await expect(page).toHaveURL(new RegExp(`${firstPlace.href.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}$`));
 
   // Today: an update from 0.34 says it once.
   await page.evaluate(() => localStorage.setItem('whatsnew.seen', '0.34.0'));

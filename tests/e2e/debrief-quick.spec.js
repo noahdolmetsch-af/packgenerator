@@ -6,6 +6,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { newButton } from './newbutton.js';
+import { openData, settle } from './settle.js';
 
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const tr = (lang) => (en, vars) => {
@@ -47,14 +48,11 @@ for (const lang of ['en', 'de']) {
     await context.addInitScript((l) => localStorage.setItem('lang', l), lang);
     page.on('dialog', (d) => d.accept());
     await page.goto('./');
-    const data = page.locator('details.data');
-    // the app opens this panel by itself on an empty start: make sure it ends up open
-    await expect(async () => {
-      if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-      expect(await data.evaluate((d) => d.open)).toBe(true);
-    }).toPass();
+    // the app opens this panel by itself on an empty start: openData waits for that, then opens it
+    const data = await openData(page);
     await data.getByLabel(T('Import backup')).setInputFiles(file);
     await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+    await settle(page); // the tidy-up after the import done, Today decided
     await expect(data.getByText(/importiert|Imported/)).toBeVisible();
     await page.goto('./#/');
 
@@ -130,14 +128,11 @@ test('No thanks is not asked again, and the one-page debrief offers the template
   await context.addInitScript(() => localStorage.setItem('lang', 'en'));
   page.on('dialog', (d) => d.accept());
   await page.goto('./');
-  const data = page.locator('details.data');
-  // the app opens this panel by itself on an empty start: make sure it ends up open
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  // the app opens this panel by itself on an empty start: openData waits for that, then opens it
+  const data = await openData(page);
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(/Imported/)).toBeVisible();
 
   // v0.29.0 (Noah 9a): one page, everything filled in → one tap on Save → the Saved screen offers the template.

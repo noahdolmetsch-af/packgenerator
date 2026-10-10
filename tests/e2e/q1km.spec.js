@@ -3,6 +3,7 @@
 // card on Today. Fictional data only (q1km-fixture.js); every action is undone once.
 import { test, expect } from '@playwright/test';
 import { q1File, q1Data, q1ImportFiles, NEU, GRAVEL, day } from './q1km-fixture.js';
+import { openData, settle } from './settle.js';
 
 const SHOTS = process.env.Q1_SHOTS;
 const shot = async (page, info, name) => {
@@ -37,13 +38,10 @@ async function start(page, context, info) {
   const errors = [];
   page.on('pageerror', (err) => errors.push(err.message));
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   await data.getByLabel('Backup importieren').setInputFiles(file);
   await data.getByRole('button', { name: 'Alle Daten ersetzen' }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(/importiert.*alle Daten ersetzt/i)).toBeVisible();
   return errors;
 }
