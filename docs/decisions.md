@@ -664,6 +664,14 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - Eigene Reisearten lassen sich als Vorlage anlegen (2a).
 - Das ist ein Paket-Kandidat neben D5 Start-Packlisten. Zuerst kommen Mockups. Der Platz in der Reihenfolge ist noch offen.
 
+## 10.10.2026: Hobby-Seiten Teil 1 (0.79.0, Noahs Antworten H1–H29 a)
+
+- **Reihenfolge (H9a):** zuerst Aktivität-Übersicht und Meilensteine (0.79.0), dann Meditation B1–B7 (Teil 2), dann Liegestütze und Tennis, dann Yoga, Gym, Velo.
+- **Tab:** «Aktivität» ist der dritte Tab von Aktiv (Heute · Ziele · Aktivität); «Heft» kommt erst, wenn es gebaut ist. Ein Editor, der von einer Kachel aus geöffnet wird (`?from=activity`), lässt «Aktivität» leuchten.
+- **Meilensteine:** Stufen Anfang bis Weg, nur der nächste Stern sichtbar, ein erreichter Stern bleibt auch nach Änderungen an den Zahlen. Alles ist ein Vorschlag: Zahlen änderbar, Meilensteine ausblendbar.
+- **H26a–H29a (Runde 4, 10.10.2026):** am Handy während einer Sitzung nur «Beenden» oben (Teil 2); Ende-Gong als Mitteilung auf gesperrtem iPhone (Teil 2); Zitate wie in B8 (eigene Übersetzung gemeinfreier Texte); Kacheln ohne eigene Seite öffnen den Aktivitäts-Editor.
+- **Daten:** neue Tabellen nur dazu (Dexie v8), keine bestehende Tabelle umgebaut; Namen von Personen bleiben nur auf dem Gerät.
+
 ## 10.10.2026: Fünf Orte Teil 2 in einem Release (Noah, Karte 21:07)
 
 - **Entscheid:** Teil 2 kommt als **ein** Release 0.78.0 (Tabs, Wischen, letzter Tab, alte Adressen, Was ist neu, Touren-Kacheln, Rückblick, Einkauf), nicht in zwei (Empfehlung war zwei).

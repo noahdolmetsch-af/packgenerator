@@ -513,7 +513,9 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 10.10.2026 (v0.78.0, PR offen):** Fünf Orte Teil 2 ist gebaut: Tabs oben pro Ort, Wischen am Handy, letzter Tab gemerkt, Hinweis bei alten Adressen, Was ist neu als Blatt, Touren-Einstieg mit Kacheln und Bestwerten, Rückblick mit offenen Rückblicken zuerst, Material › Einkauf. Als Nächstes nach der Reihenfolge vom 10.10. 14:33: Hobby-Unterseiten (Mockups zuerst), E1, D5.
+**Nachtrag 11.10.2026 (v0.79.0, PR offen):** Hobby-Seiten Teil 1 gebaut: Aktiv › Aktivität mit sechs Kacheln, Ringen, Vorschlägen und Ideen, dazu Meilensteine über alle Aktivitäten mit Stufen, Sternen, eigenen Zahlen und Belohnung (Im Flow, Ziel 3). Als Nächstes Hobby-Seiten Teil 2 (Meditation), dann E1, D5.
+
+**Nachtrag 10.10.2026 (v0.78.0, gemergt, PR #105):** Fünf Orte Teil 2 ist gebaut: Tabs oben pro Ort, Wischen am Handy, letzter Tab gemerkt, Hinweis bei alten Adressen, Was ist neu als Blatt, Touren-Einstieg mit Kacheln und Bestwerten, Rückblick mit offenen Rückblicken zuerst, Material › Einkauf. Als Nächstes nach der Reihenfolge vom 10.10. 14:33: Hobby-Unterseiten (Mockups zuerst), E1, D5.
 
 **Nachtrag 10.10.2026 (v0.77.0, gemergt, PR #104):** KI-Helfer (PR #89) auf Fünf Orte gebracht (K1–K3 a): Ich › Helfer, «Frag den Helfer» oben in Neue Tour, Antwort in der Suche, «Liste prüfen» neben «Weiter zu Packen», Rückblick-Entwurf, Wartungsvorschläge in «Jetzt fällig» (AP-Bezug S4 KI-Helfer, Ziele 1, 2 und 4). Danach Fünf Orte Teil 2. «Reisearten neu» ist ein eigenes Paket ganz am Ende, nach Neuland + Inspiration (Noah, 16:38).
 

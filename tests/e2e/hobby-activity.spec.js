@@ -69,8 +69,12 @@ async function fits(page, where) {
 test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea', async ({ page, context }) => {
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
-  await main.locator('a[data-to="activity"]').first().click();
+  // the tab «Aktivität» on top of Aktiv (after «Fünf Orte» 2); «Ziele» is not lit there
+  const tabs = page.locator('.ptabs');
+  await tabs.getByRole('link', { name: T('Activity|tab'), exact: true }).click();
   await expect(page).toHaveURL(/#\/flow\/activity$/);
+  await expect(tabs.getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(tabs.getByRole('link', { name: T('Goals|tab'), exact: true })).not.toHaveAttribute('aria-current', 'page');
   await expect(main.getByRole('heading', { level: 1, name: T('Activity|tab') })).toBeVisible();
 
   // the six favourites with their playful names, in the seed order
@@ -98,7 +102,8 @@ test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea
   // a tile without its own page opens the editor (H29a), and its back link leads here again
   await main.locator('[data-tile="yoga"] a.tl').click();
   await expect(page).toHaveURL(/#\/flow\/edit\/yoga\?from=activity$/);
-  await main.getByRole('link', { name: T('Activity|tab') }).click();
+  await expect(tabs.getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await main.locator('a[href="#/flow/activity"]:not(.ptabs a)').click(); // the editor's own back link
   await expect(page).toHaveURL(/#\/flow\/activity$/);
 
   // a suggestion that is not an activity yet: one tap makes it one and ticks it

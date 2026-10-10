@@ -52,4 +52,4 @@ Noah writes German and is not a developer. Write replies to him in short, simple
 - Afterwards run `git checkout -- qa/` (tests write screenshots there).
 - Never skip, disable or loosen a test to get green. Fix the cause, or adapt the test when the UI changed on purpose.
 - Test dates use calendar-day arithmetic in Europe/Zurich, never `Date.now() + n*864e5`.
-- For «today» in app code, use `localToday()` (src/lib/localday.js), not `toISOString().slice(0,10)`.
+- For «today» in app code, use `localDay()` (src/lib/localday.js), not `toISOString().slice(0,10)`.

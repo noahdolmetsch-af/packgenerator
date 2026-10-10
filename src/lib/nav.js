@@ -209,7 +209,9 @@ export const PLACE_TABS = {
   ],
   active: [
     { key: 'today', label: 'Today|active', href: '#/flow', match: (h) => /^#\/flow\/?$/.test(h.split('?')[0]) },
-    { key: 'goals', label: 'Goals|tab', href: '#/flow/goals', match: (h) => h.startsWith('#/flow/') },
+    { key: 'goals', label: 'Goals|tab', href: '#/flow/goals', match: (h) => /^#\/flow\/(goals|edit|new)(\/|\?|$)/.test(h) && !/[?&]from=activity\b/.test(h) },
+    // hobby pages 1: Aktivität (tiles, milestones; the editor opened from a tile stays here)
+    { key: 'activity', label: 'Activity|tab', href: '#/flow/activity', match: (h) => /^#\/flow\/(activity|milestones|act\/)/.test(h) || (h.startsWith('#/flow/') && /[?&]from=activity\b/.test(h)) },
   ],
 };
 

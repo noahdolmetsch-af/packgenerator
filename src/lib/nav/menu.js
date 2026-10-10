@@ -43,6 +43,9 @@ export const PAGE_GROUPS = [
     rows: [
       // v0.51.0 «Im Flow»; v0.76.0: the place «Aktiv».
       { id: 'flow', title: 'In the flow', href: '#/flow', icon: 'flow', words: 'in the flow im flow flow aktiv active goals ziele sport training meditation yoga rings ringe daily check tagescheck stopwatch stoppuhr countdown habit gewohnheit' },
+      // hobby pages 1: Aktiv › Aktivität and Meilensteine
+      { id: 'activity', title: 'Activity|tab', href: '#/flow/activity', icon: 'flow', words: 'activity aktivität hobby hobbys tiles kacheln kissenzeit pedal-glück filzball boden-küsse rings ringe sauna spaziergang walk ideas ideen erholen recovery fun spass' },
+      { id: 'milestones', title: 'Milestones', href: '#/flow/milestones', icon: 'star', words: 'milestones meilenstein meilensteine stars sterne stufen stages reward belohnung records rekorde rekord-wand bestwert' },
     ],
   },
   {
