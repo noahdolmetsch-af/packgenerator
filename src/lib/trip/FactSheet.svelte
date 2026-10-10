@@ -5,6 +5,7 @@
    * changeContext), so the packing amounts follow at once and Undo takes it back.
    * edit: { date(iso), hours(n), days(n), wx(patch), bike(bike), more(), compare(), undo(), canUndo }
    */
+  import DateInput from '../ui/DateInput.svelte';
   import { Undo2 } from '@lucide/svelte';
   import { t, tn, num } from '../i18n.svelte.js';
   import { WX_PRESETS } from '../trips.js';
@@ -42,7 +43,7 @@
       <button type="button" class="tp-chip" aria-pressed={trip.startDate === localDay()} onclick={() => edit.date(localDay())}>{t('Today')}</button>
       <button type="button" class="tp-chip" aria-pressed={trip.startDate === tomorrow} onclick={() => edit.date(tomorrow)}>{t('Tomorrow')}</button>
     </div>
-    <label class="field"><span class="lbl">{t('Start date')}</span><input class="inp" type="date" value={trip.startDate ?? ''} onchange={(e) => e.currentTarget.value && edit.date(e.currentTarget.value)} /></label>
+    <label class="field"><span class="lbl">{t('Start date')}</span><DateInput value={trip.startDate ?? ''} onchange={(v) => v && edit.date(v)} /></label>
   {:else if field === 'duration'}
     {#if oneDay}
       <div class="tp-chips" role="group" aria-label={t('Riding hours')}>

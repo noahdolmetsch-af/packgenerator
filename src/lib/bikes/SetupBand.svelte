@@ -7,7 +7,7 @@
   import { tick } from 'svelte';
   import { Gauge, Weight, Briefcase, Pencil, Plus, Scale } from '@lucide/svelte';
   import { t, tn, num, locale } from '../i18n.svelte.js';
-  import { formatVolume } from '../bikes.js';
+  import { formatVolume, bikeTypeName } from '../bikes.js';
   import { formatWeight } from '../gear.js';
 
   let { bikes, bike, setup, kind, due = 0, careHref = '', onbike, onadd, onedit } = $props();
@@ -40,7 +40,7 @@
 </script>
 
 <section class="band setup-band" aria-label={t('Bike')}>
-  <p class="kick">{[bike.type, bike.use].filter(Boolean).join(' · ')}</p>
+  <p class="kick">{[bike.type ? t(bikeTypeName(bike.type)) : '', bike.use].filter(Boolean).join(' · ')}</p>
   <h2 class="name">
     <span>{bike.name}</span>
     <button type="button" class="edit" onclick={() => onedit?.()} aria-label={t('Edit {bike}', { bike: bike.name })} title={t('Edit')}><Pencil size={18} aria-hidden="true" /></button>

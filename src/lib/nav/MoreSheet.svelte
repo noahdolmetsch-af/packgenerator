@@ -20,7 +20,7 @@
 
   let { open = $bindable(false), inbox = 0, current = '' } = $props();
 
-  const ICON = { file: FileText, layers: Layers, calendar: CalendarCheck, book: BookOpen, compare: GitCompareArrows, gauge: Gauge, star: Star, shirt: Shirt, inbox: Inbox, data: HardDriveDownload, sparkles: Sparkles, chart: ChartColumn, notes: NotebookPen, Activity };
+  const ICON = { file: FileText, layers: Layers, calendar: CalendarCheck, book: BookOpen, compare: GitCompareArrows, gauge: Gauge, star: Star, shirt: Shirt, inbox: Inbox, data: HardDriveDownload, sparkles: Sparkles, chart: ChartColumn, notes: NotebookPen, Activity, flow: Activity };
 
   // "Backup due" (the same rule as Today's line): only with items and no demo running.
   const backupQ = liveQuery(async () => {

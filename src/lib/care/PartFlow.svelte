@@ -7,6 +7,7 @@
    * writes it all at once (the page offers Undo).
    * part: from withVisits; bike: the bike view; shops: the shop names of earlier visits.
    */
+  import DateInput from '../ui/DateInput.svelte';
   import { localDay } from '../localday.js';
   import { PART, partInfo, partName, parseKm, kmSince, lastReplace, lastValue } from '../care.js';
   import { t, num } from '../i18n.svelte.js';
@@ -190,7 +191,7 @@
     <details class="more">
       <summary>{t('Date today, note')}</summary>
       <div class="two">
-        <label class="fld"><span class="lbl">{t('Date')}</span><input class="inp" type="date" bind:value={date} /></label>
+        <label class="fld"><span class="lbl">{t('Date')}</span><DateInput bind:value={date} /></label>
         <label class="fld"><span class="lbl">{t('Note')}</span><input class="inp" bind:value={note} placeholder={t('optional')} /></label>
       </div>
     </details>
@@ -230,7 +231,7 @@
       <label class="fld"><span class="lbl">{t('Sealant added')} (ml)</span><input class="inp num" type="text" inputmode="decimal" bind:value={sealant} placeholder={t('optional')} /></label>
     {/if}
     <div class="two">
-      <label class="fld"><span class="lbl">{t('When')}</span><input class="inp" type="date" bind:value={date} /></label>
+      <label class="fld"><span class="lbl">{t('When')}</span><DateInput bind:value={date} /></label>
       <label class="fld"><span class="lbl">km</span><input class="inp num" type="text" inputmode="numeric" bind:value={km} placeholder={t('not known')} /></label>
     </div>
     <div class="chips" role="group" aria-label={t('Who did it?')}>

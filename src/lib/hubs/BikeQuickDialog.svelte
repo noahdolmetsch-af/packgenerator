@@ -7,6 +7,7 @@
    * - 'idea': "Was geil wäre", the bike's own idea list (bike.ideas, hubs.js).
    * - 'visit': a workshop visit typed in by hand (date, shop, km, cost, receipt photo) → db.visits.
    */
+  import DateInput from '../ui/DateInput.svelte';
   import { db } from '../db.js';
   import { newNote, sortNote, nextNumber } from '../notes.js';
   import { addIdea, newVisit, parseChf } from '../hubs.js';
@@ -115,7 +116,7 @@
 
     {#if kind === 'visit'}
       <div class="grid">
-        <label class="field"><span class="lbl">{t('Date')}</span><input class="inp" type="date" bind:value={date} max={today} /></label>
+        <label class="field"><span class="lbl">{t('Date')}</span><DateInput bind:value={date} max={today} /></label>
         <label class="field"><span class="lbl">{t('Bike shop')}</span><input class="inp" type="text" bind:value={shop} autocomplete="off" /></label>
         <label class="field"><span class="lbl">{t('km at the visit')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={km} placeholder={t('not known')} /></label>
         <label class="field"><span class="lbl">{t('Cost CHF (optional)')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={chf} placeholder={t('not known')} /></label>

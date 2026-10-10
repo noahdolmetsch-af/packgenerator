@@ -185,6 +185,23 @@ export const bagsFor = (slotKey, containers) =>
     : containers.filter((c) => c.slot === slotKey);
 
 /** "16.5 L", or "–" when unknown */
+/**
+ * v0.67.1 (fix: Velos › Pflege showed «FULL» / «full»): the bike's type as a word. The type is free
+ * text; the usual short keys (from imports and older versions) get a translated name, anything else
+ * is shown as typed. The English keys go through t() where they are shown.
+ */
+const TYPE_NAMES = [
+  [/^(full|fully|full[ -]?suspension)$/i, 'Full suspension'],
+  [/^hard[ -]?tail$/i, 'Hardtail'],
+  [/^gravel$/i, 'Gravel bike'],
+  [/^(road|road ?bike|racer)$/i, 'Road bike'],
+  [/^(mtb|mountain ?bike)$/i, 'Mountain bike'],
+];
+export function bikeTypeName(type) {
+  const s = `${type ?? ''}`.trim();
+  return TYPE_NAMES.find(([re]) => re.test(s))?.[1] ?? s;
+}
+
 export const formatVolume = (l) => (l ? `${Math.round(l * 10) / 10} L` : '–');
 
 /** Bikes in Excel order (the favourite first), new bikes after them by name. */

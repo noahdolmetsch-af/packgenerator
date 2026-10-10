@@ -5,6 +5,7 @@
    * or a bike problem. The note stays and links to what it became. Changes are saved when the sheet
    * closes; «Fertig» is the one main button.
    */
+  import DateInput from '../ui/DateInput.svelte';
   import { db } from '../db.js';
   import { TOPICS, MAX_PINNED, addLink, noteTitle } from '../notebook.js';
   import { fileNote } from '../inbox.js';
@@ -166,7 +167,7 @@
     {/if}
     {#if make === 'trip'}
       <div class="two">
-        <label class="fld"><span class="lbl">{t('When')} <span class="q">{t('optional')}</span></span><input class="inp" type="date" bind:value={start} /></label>
+        <label class="fld"><span class="lbl">{t('When')} <span class="q">{t('optional')}</span></span><DateInput bind:value={start} /></label>
         <label class="fld"><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" bind:value={days} /></label>
       </div>
     {/if}

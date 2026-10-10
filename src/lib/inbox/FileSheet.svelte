@@ -5,6 +5,7 @@
    * by where the entry lands. A receipt asks for bike, shop, date and amount (the work is optional)
    * and becomes a workshop visit with the photo. «Anderes Ziel wählen» goes back to the list.
    */
+  import DateInput from '../ui/DateInput.svelte';
   import { TARGETS, TARGET, guessTarget, shopsOf, receiptName, TOPICS, guessTopic } from '../inbox.js';
   import { fileTo } from '../inboxdb.js';
   import { guessBike } from '../notes.js';
@@ -158,7 +159,7 @@
       </div>
       {#if newShop || !shops.length}<label class="fld"><span class="sr">{t('Bike shop')}</span><input class="inp" type="text" bind:value={shop} placeholder={t('Name of the shop')} autocomplete="off" /></label>{/if}
       <div class="two">
-        <label class="fld"><span class="lbl">{t('Date')}</span><input class="inp" type="date" bind:value={date} max={today} /></label>
+        <label class="fld"><span class="lbl">{t('Date')}</span><DateInput bind:value={date} max={today} /></label>
         <label class="fld"><span class="lbl">{t('Amount CHF')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={chf} placeholder={t('not known')} /></label>
       </div>
       <p class="lbl">{t('What was done?')} <span class="q">{t('optional')}</span></p>

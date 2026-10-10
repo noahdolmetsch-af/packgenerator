@@ -12,7 +12,7 @@
   import { ringScore, ringTone, dueCards, kmSinceService, calmWeeks, diary, costYear } from './overview.js';
   import { workWords } from './last.js';
   import ProblemList from './ProblemList.svelte';
-  import { bikesHash } from '../bikes.js';
+  import { bikesHash, bikeTypeName } from '../bikes.js';
   import { openNew } from '../nav.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
 
@@ -56,7 +56,7 @@
           </svg>
           <span class="rt">
             <b class="bn">{c.bike.name}</b>
-            <small class="num">{[c.bike.type ? t(c.bike.type) : '', c.bike.km != null ? `${num(c.bike.km)} km` : t('km not set')].filter(Boolean).join(' · ')}</small>
+            <small class="num">{[c.bike.type ? t(bikeTypeName(c.bike.type)) : '', c.bike.km != null ? `${num(c.bike.km)} km` : t('km not set')].filter(Boolean).join(' · ')}</small>
             {#if km}<span class="mini"><span class="mb" aria-hidden="true"><i style="width:{Math.max(4, Math.min(100, Math.round((km.since / km.every) * 100)))}%" class:late={km.since >= km.every}></i></span><small class="num">{t('{km} km since the check', { km: num(km.since) })}</small></span>{/if}
             {#if c.care.rows.filter((r) => r.kind !== 'repair').length}<i class="pill act">{tn(c.care.rows.filter((r) => r.kind !== 'repair').length, '{n} due', '{n} due')}</i>{:else if ring.score == null}<i class="pill">{t('no data')}</i>{:else}<i class="pill ok">{t('nothing due')}</i>{/if}
           </span>
