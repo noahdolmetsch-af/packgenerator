@@ -1,5 +1,5 @@
 /**
- * v0.67.0 «KI-Helfer» (Noah's answers 1–8, all ★a, 10.10.2026): the pure parts of POST /api/helper.
+ * v0.77.0 «KI-Helfer» (Noah's answers 1–8, all ★a, 10.10.2026): the pure parts of POST /api/helper.
  *
  * One prompt and one answer schema per task (trip, search, debrief, checklist, maintenance). The
  * model answers by calling the tool `answer`; its input is checked here before the app sees it:

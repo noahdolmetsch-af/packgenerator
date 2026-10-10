@@ -455,7 +455,7 @@
 
   const moveTo = (itemId, slot) => setEntries((es) => es.map((e) => (e.itemId === itemId ? { ...e, slot, packed: false } : e)));
   const removeEntry = (itemId) => setEntries((es) => es.filter((e) => e.itemId !== itemId));
-  /** v0.67.0 (answer 4a): «Hinzufügen» from «Liste prüfen»: into the item's usual bag (other areas: their first bag), with Undo. */
+  /** v0.77.0 (answer 4a): «Hinzufügen» from «Liste prüfen»: into the item's usual bag (other areas: their first bag), with Undo. */
   function helperAdd(itemId) {
     const it = itemsById[itemId];
     if (!it || onTrip(trip).has(itemId)) return;

@@ -1,5 +1,5 @@
 /**
- * v0.67.0 (answers 5a, 6a): the helper's maintenance suggestions for one bike, with the local cache.
+ * v0.77.0 (answers 5a, 6a): the helper's maintenance suggestions for one bike, with the local cache.
  *
  * The cache lives in db.meta "helper.care" (never exported): { bikes: { [bikeId]: { hash, day,
  * result } }, done: [{ bikeId, key, hash, date, km, status }], dismissed: [{ bikeId, key, hash }] }.

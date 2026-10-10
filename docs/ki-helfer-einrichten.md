@@ -1,4 +1,4 @@
-# KI-Helfer einrichten (ab 0.67.0)
+# KI-Helfer einrichten (ab 0.77.0)
 
 Der Helfer läuft über den kleinen Server der App auf Vercel (Projekt **packgen**, https://packgen-three.vercel.app). Die App selbst kennt keinen Schlüssel von Anthropic: Sie schickt nur deinen **Helfer-Code** mit, und der Server fragt Claude. Ohne Einrichtung funktioniert die App wie bisher.
 

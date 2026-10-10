@@ -251,7 +251,7 @@
   const withBlocks = (nt) => withExtras(withBlocksOnly(nt));
   const total = $derived(built ? withBlocks(built).entries.length : 0);
 
-  /* ---------- v0.67.0 (answer 1a): «Frag den Helfer» ---------- */
+  /* ---------- v0.77.0 (answer 1a): «Frag den Helfer» ---------- */
   // From the search («Als Packliste vorschlagen», answer 2a): the question comes along and is asked at once.
   // svelte-ignore state_referenced_locally
   const askPrefill = isNew ? take('pack.helperAsk') ?? '' : '';
@@ -521,7 +521,7 @@
   <form onsubmit={save} novalidate>
     <!-- v0.30.0 (Noah, finding 2): the dark band of the trip pages on top. -->
     <div class="band"><h2 id="trip-h" class="title">{isNew ? t('New trip') : t('Trip details')}</h2></div>
-    <!-- v0.67.0 (answers 1a, 8a): «Frag den Helfer» on top; before the setup a calm notice, switched off nothing. -->
+    <!-- v0.77.0 (answers 1a, 8a): «Frag den Helfer» on top; before the setup a calm notice, switched off nothing. -->
     {#if isNew && helper.loaded}
       {#if !isSetUp()}
         <section class="kh-setup"><p class="lbl">{t('Ask the helper')}</p><HelperNotice onsetup={() => dialog.close()} /></section>
@@ -885,7 +885,7 @@
     font-size: 14px;
     color: var(--ink-2);
   }
-  /* v0.67.0: the helper's notice before the setup, like the «Frag den Helfer» field after it */
+  /* v0.77.0: the helper's notice before the setup, like the «Frag den Helfer» field after it */
   .kh-setup {
     margin: 4px 0 16px;
   }

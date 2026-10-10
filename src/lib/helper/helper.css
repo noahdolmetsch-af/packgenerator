@@ -1,4 +1,4 @@
-/* v0.67.0 «KI-Helfer»: the helper's parts in every place (trip dialog, search, Rückblick, Liste
+/* v0.77.0 «KI-Helfer»: the helper's parts in every place (trip dialog, search, Rückblick, Liste
    prüfen, Velopflege, settings), as in the approved mockups. Only the app's tokens. */
 .kh-ic { display: inline-flex; flex: none; color: var(--accent); }
 .kh-card { background: var(--paper); border: 1px solid var(--card-line); border-radius: var(--radius-card); box-shadow: var(--card-shadow); padding: 14px 16px; min-width: 0; }
@@ -57,7 +57,13 @@
 .kh-ans p .kh-ic { vertical-align: -3px; margin-right: 4px; }
 .kh-ans .kh-link { margin-top: 6px; }
 /* the button next to «Weiter: Packen» */
-.kh-go-check { width: auto; padding: 0 14px; gap: 6px; font: inherit; font-weight: 500; font-size: var(--fs-small); }
+.kh-go-check { display: inline-flex; align-items: center; width: auto; padding: 0 14px; gap: 6px; font: inherit; font-weight: 500; font-size: var(--fs-small); }
+.kh-go-check svg { color: var(--accent); }
+/* on a computer the two buttons side by side in the trip band (K3a) */
+.kh-gorow { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; }
+/* the first entry of the Packliste ••• menu */
+.calm-pack .list-menu-content button.kh-menu-check { display: flex; align-items: center; gap: 8px; }
+.kh-menu-check svg { color: var(--accent); flex: none; }
 @media (pointer: coarse) {
   .kh-x { width: 44px; height: 44px; }
   .kh-chip { min-height: 44px; }

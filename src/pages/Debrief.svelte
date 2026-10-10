@@ -230,7 +230,7 @@
     missName = '';
     persist();
   }
-  /* ---------- v0.67.0 (answer 3a): «Entwurf holen» → «Entwurf vom Helfer» ---------- */
+  /* ---------- v0.77.0 (answer 3a): «Entwurf holen» → «Entwurf vom Helfer» ---------- */
   let draft = $state(null);
   let draftBusy = $state(false);
   let draftMsg = $state('');
@@ -457,7 +457,7 @@
               <div class="ridenotes">
                 <span class="lbl">{t('Notes on the way')}</span>
                 <ul>{#each freeNotes as n (n.key)}<li><small class="num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</small> {n.text}</li>{/each}</ul>
-                <!-- v0.67.0 (answer 3a): the helper's draft only on request -->
+                <!-- v0.77.0 (answer 3a): the helper's draft only on request -->
                 {#if isOn() && !draft}
                   <p class="kh-getdraft"><button type="button" class="btn sm" disabled={draftBusy} onclick={getDraft}><Sparkles size={16} aria-hidden="true" />{draftBusy ? t('The helper is thinking …') : t('Get a draft')}</button></p>
                   {#if draftMsg}<p class="kh-msg" role="status">{draftMsg}</p>{/if}

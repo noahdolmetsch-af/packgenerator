@@ -1,5 +1,5 @@
 /**
- * v0.67.0 «KI-Helfer»: what goes to Claude, per task. Pure functions, no database.
+ * v0.77.0 «KI-Helfer»: what goes to Claude, per task. Pure functions, no database.
  *
  * Noah's rule (answer 8a, «Was geht an Claude?»): only the question and the names it needs from the
  * list and the gear, plus the notes. NEVER photos, receipts or money (workshop visits, prices),

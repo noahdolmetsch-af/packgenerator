@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.67.0 (answer 8a): the calm notice before the helper is set up. Only in New trip and in the
+   * v0.77.0 (answer 8a): the calm notice before the helper is set up. Only in New trip and in the
    * settings; everywhere else the helper simply is not there. «Was geht an Claude?» unfolds.
    */
   import { Sparkles, ChevronRight } from '@lucide/svelte';

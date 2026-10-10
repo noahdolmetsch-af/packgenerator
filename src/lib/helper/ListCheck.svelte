@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.67.0 (answer 4a): «Liste prüfen». From the Packliste ••• menu (first entry) and from the button
+   * v0.77.0 (answer 4a): «Liste prüfen». From the Packliste ••• menu (first entry) and from the button
    * next to «Weiter: Packen». Three groups: «Fehlt vielleicht» (own items first, else a generic name)
    * with «Hinzufügen», «Doppelt» and «Schwer» with «Entfernen» (the reason names a lighter own
    * alternative). Every row has «Ignorieren». Every change goes through Pack's Undo.

@@ -1,5 +1,5 @@
 /**
- * v0.67.0 (KI-Helfer): the shared parts of the small Pack Generator server on Vercel (project
+ * v0.77.0 (KI-Helfer): the shared parts of the small Pack Generator server on Vercel (project
  * «packgen», https://packgen-three.vercel.app). Taken from the parked Strava server (branch
  * wip-strava, 29b1ca6) without its Strava parts, so Strava can later add its own file next to this.
  *

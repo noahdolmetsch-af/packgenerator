@@ -664,7 +664,7 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - Eigene Reisearten lassen sich als Vorlage anlegen (2a).
 - Das ist ein Paket-Kandidat neben D5 Start-Packlisten. Zuerst kommen Mockups. Der Platz in der Reihenfolge ist noch offen.
 
-## 10.10.2026: KI-Helfer (Noahs Antworten 1a–8a; Version wird beim Release vergeben)
+## 10.10.2026: KI-Helfer (0.77.0, Noahs Antworten 1a–8a)
 
 - **1a Neue Tour:** Feld «Frag den Helfer» oben im Fenster «Neue Tour». Der Vorschlag ist eine Karte oben: verstandene Bedingungen als änderbare Chips (Tipp ändert oder lässt weg), die Bausteine, die er einschaltet, 4–6 zusätzliche Sachen aus dem **eigenen** Material mit Grund und ×, «Übernehmen» und «Verwerfen», grau «Vorschlag, du kannst alles ändern.» Übernommene Sachen stehen im Fenster als «Vom Helfer» mit × und kommen mit `src: 'helper'` auf die Liste; was die Bausteine ohnehin bringen, wird nicht doppelt.
 - **2a Suche:** Der Helfer antwortet nur auf eine Frage (Text endet mit «?», kurz nach der letzten Taste, oder Enter auf einem Text, der wie eine Frage beginnt), nie bei jeder Taste. Die Antwort steht über den normalen Treffern; «Als Packliste vorschlagen» öffnet «Neue Tour» mit der Frage im Feld und holt den Vorschlag sofort.
@@ -677,3 +677,18 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Server:** `api/helper.js` (Vercel-Funktion ohne Framework, `fetch` an die Messages API, `anthropic-version: 2023-06-01`), gemeinsame Teile in `api/_lib/core.js` (aus dem geparkten Strava-Server). Zugang per Helfer-Code (Bearer, Vergleich in konstanter Zeit). Kosten aus `usage` mit Preistabelle und festem Kurs USD→CHF 0.9. Fünf Aufgaben mit je eigenem Prompt und striktem Tool-Schema; die Antwort wird geprüft, erfundene IDs fallen weg. Keine Anfragen im Log, gespeichert nur der Monatszähler. Keine `vercel.json`.
 - **Datenschutz:** Pro Aufgabe nur die nötigen Felder (Allowlist, unit-getestet); nie Fotos, Belege, Geldbeträge, Werkstattnamen, Dokumente, Gesundheitsdaten, Namen von Personen oder den Helfer-Code im Inhalt. Der Server lehnt solche Felder zusätzlich ab (400 `forbidden_field`).
 - **Selbst entschieden:** `tool_choice` «auto» mit Anweisung statt erzwungenem Tool (das Modell lehnt erzwungene Tools ab), fehlende Antwort = Fehler; keine Ersatzmodelle bei einer Ablehnung; Einstellungsseite `#/helper` unter Mehr › App; alle Helfer-Einstellungen nur auf dem Gerät (nicht im Backup); «Verbindung prüfen» als eigene Aufgabe ohne Kosten; Zusammenfassung → «Für nächstes Mal»; Sachen für Touren ohne Velo in die erste Tasche; Helfer-Code als Passwortfeld mit Zeigen/Verbergen.
+
+## 10.10.2026: KI-Helfer in Fünf Orte (0.77.0, Noahs Antworten K1–K3 a)
+
+- **Entscheid (K1 a):** Die Einstellungen des Helfers sind eine eigene Zeile **Ich › Helfer** (`#/helper`), immer sichtbar mit dem Zustand (nicht eingerichtet, eingerichtet, ausgeschaltet, Pause). Ersetzt «Einstellungsseite unter Mehr › App» (1a–8a) und «Der Helfer erscheint in Ich erst, wenn er eingeschaltet ist» (0.76.0, selbst entschieden): ohne Zeile fände man das Einrichten nicht.
+- **Entscheid (K2 a):** «Frag den Helfer» steht oben in «Neue Tour» als eigene Karte über den Angaben zur Tour.
+- **Entscheid (K3 a):** «Liste prüfen» am Handy als Funkel-Knopf links in der Weiter-Leiste neben «Weiter zu Packen»; am Computer «Liste prüfen» mit Text links neben dem Hauptknopf im Tour-Band. Dazu bleibt es der erste Eintrag im •••-Menü der Packliste (4a).
+- **Selbst entschieden:** «Neue Tour» ist auf main noch ein Fenster (die Seite kommt mit Übergänge 2 / Fünf Orte Teil 2); die Helfer-Karte steht dort zuoberst und zieht mit, wenn das Fenster zur Seite wird. Das blasse Formular bis «Übernehmen» und «Daraus wird» aus dem Mockup kommen mit dieser Seite.
+- **Selbst entschieden:** Am Handy bleibt «Material ergänzen» (+) in der Weiter-Leiste; der Funkel-Knopf steht ganz links davor. Der Knopf erscheint nur, solange der Hauptknopf «Weiter zu Packen» ist (vor dem Packen), wie im Mockup.
+- **Selbst entschieden:** «Neue Tour» öffnet der Gesamttest und der Helfer-Test über Touren › «+ Neue Tour» statt über das •••-Menü. Die Kommentare im Code heissen jetzt «v0.77.0» statt «v0.67.0»; die Test-Daten-Datei heisst `tests/e2e/v0770-fixture.js`.
+- **Grund:** Die Bilder von 1a–8a stammten aus der alten Navigation; K1–K3 legen fest, wo der Helfer in Fünf Orte sitzt (Mockups `design/ki-helfer/neu`).
+
+## 10.10.2026: «Reisearten neu» ans Ende (Noah, Entscheidungskarte 16:38)
+
+- **Entscheid:** «Reisearten neu» ist ein eigenes Paket am **Ende** der Reihenfolge, nach Neuland + Inspiration. Noahs Antworten 1–10 a (Trello-Karte 54fP2GQe), Mockups `design/reisearten`.
+- **Grund:** Die Reihenfolge davor (Fünf Orte Teil 2, KI-Helfer, Hobby-Unterseiten, E1, D5, Neuland + Inspiration) bleibt; die neuen Reisearten bauen auf D5 Start-Packlisten auf.

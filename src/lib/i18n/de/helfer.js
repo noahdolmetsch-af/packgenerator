@@ -1,5 +1,5 @@
 /**
- * v0.67.0 «KI-Helfer»: the German texts of the helper (trip dialog, search, Rückblick, Liste prüfen,
+ * v0.77.0 «KI-Helfer»: the German texts of the helper (trip dialog, search, Rückblick, Liste prüfen,
  * Velopflege, settings). Texts as in the approved mockups (Noah's answers 1–8, ★a).
  */
 export default {
@@ -89,4 +89,6 @@ export default {
   'Monthly limit: a number of francs from 0.50 to 500.': 'Monatslimit: ein Betrag in Franken von 0.50 bis 500.',
   'When the limit is reached, the helper pauses until next month. The server has its own limit as well.': 'Ist das Limit erreicht, macht der Helfer Pause bis nächsten Monat. Der Server hat zusätzlich sein eigenes Limit.',
   'Per request only what that task needs: names, categories and weights of your items, building blocks, temperature ranges, the trip conditions, your learnings and notes, and for bike care the parts with their km, intervals and last service dates. No money amounts, no shop names, no documents, never the helper code.': 'Pro Anfrage nur, was diese Aufgabe braucht: Namen, Kategorien und Gewichte deiner Teile, Bausteine, Temperaturbereiche, die Bedingungen der Tour, deine Learnings und Notizen, und für die Velopflege die Teile mit km, Intervallen und letztem Service. Keine Beträge, keine Werkstattnamen, keine Dokumente, nie der Helfer-Code.',
+  // v0.77.0 (K1a): the row on «Ich»
+  'Suggestions from Claude, only on request': 'Vorschläge von Claude, nur auf Wunsch',
 };

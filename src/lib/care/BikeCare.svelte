@@ -85,7 +85,7 @@
   const dueParts = $derived(new Set(due.map((x) => x.r?.part.key).filter(Boolean)));
 
   /*
-   * v0.67.0 (answers 5a, 6a): the helper's maintenance suggestions go INTO «Jetzt fällig», marked with
+   * v0.77.0 (answers 5a, 6a): the helper's maintenance suggestions go INTO «Jetzt fällig», marked with
    * the sparkle, a one-line reason and a status (bald fällig / prüfen; «ok» never here). A part that is
    * due anyway gets the helper's line in its own card. «Als Aufgabe merken», «Erledigt», ×.
    * They refresh by themselves after new km or a new ride, at most once a day per bike (care.js).
@@ -1205,7 +1205,7 @@
   .duecards .extra {
     grid-column: 1 / -1;
   }
-  /* v0.67.0 (answer 5a): the helper's cards and lines in «Due now» */
+  /* v0.77.0 (answer 5a): the helper's cards and lines in «Due now» */
   .duecards .kh-pt {
     grid-template-areas:
       'pn st'

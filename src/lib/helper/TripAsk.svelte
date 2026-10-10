@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.67.0 (answer 1a): «Frag den Helfer» at the top of New trip. The proposal is a card above the
+   * v0.77.0 (answer 1a): «Frag den Helfer» at the top of New trip. The proposal is a card above the
    * form: the understood conditions as chips (a tap changes one or leaves it out), the blocks it would
    * switch on (a tap switches one off), 4–6 extra items from the person's own gear, each with its
    * reason and ×. «Übernehmen» puts what is left into the form, «Verwerfen» closes the card.

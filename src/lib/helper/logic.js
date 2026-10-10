@@ -1,5 +1,5 @@
 /**
- * v0.67.0 «KI-Helfer»: what the app does with the helper's answers. Pure functions, no database.
+ * v0.77.0 «KI-Helfer»: what the app does with the helper's answers. Pure functions, no database.
  */
 import { nextNumber } from '../notes.js';
 import { isInventory } from '../gear.js';

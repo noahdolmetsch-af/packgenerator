@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.67.0 (answer 3a): «Entwurf vom Helfer» in the Rückblick. Up to 3 learnings from the notes on
+   * v0.77.0 (answer 3a): «Entwurf vom Helfer» in the Rückblick. Up to 3 learnings from the notes on
    * the way, each with «Übernehmen» (saved as a learning, the way the app saves its own) and ×, and a
    * summary of 2–3 sentences with «Übernehmen» (it becomes the sentence for next time) and
    * «Bearbeiten» (the same, with the field open to change it). Nothing is saved without a tap.

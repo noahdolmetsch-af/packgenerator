@@ -1,4 +1,4 @@
-// v0.67.0 «KI-Helfer»: the fictional v048 data set (all names start with test_data_gtp_; receipts,
+// v0.77.0 «KI-Helfer»: the fictional v048 data set (all names start with test_data_gtp_; receipts,
 // workshop costs and shop names included on purpose, so the privacy check can see they never leave)
 // plus a finished trip three days ago with two notes on the way, for the Rückblick draft.
 import { writeFileSync, mkdirSync } from 'node:fs';
@@ -10,7 +10,7 @@ export const JURA = `${P}kh-jura`;
 export const EVENT = `${P}event`;
 export const CODE = 'test-helfer-code-not-real-0000';
 
-export function v0670Data() {
+export function v0770Data() {
   const fix = v048Data();
   const T = fix.tables;
   const spark = T.bikes.find((b) => b.id === SPARK);
@@ -26,10 +26,10 @@ export function v0670Data() {
   return fix;
 }
 
-export function v0670File(info) {
+export function v0770File(info) {
   // An ASCII path: the titles of these tests hold «» and umlauts, which the file chooser trips over.
   mkdirSync(info.project.outputDir, { recursive: true });
-  const path = join(info.project.outputDir, `v0670-fixture-${info.testId}-${info.project.name}.json`);
-  writeFileSync(path, JSON.stringify(v0670Data()));
+  const path = join(info.project.outputDir, `v0770-fixture-${info.testId}-${info.project.name}.json`);
+  writeFileSync(path, JSON.stringify(v0770Data()));
   return path;
 }

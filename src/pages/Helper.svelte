@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.67.0 «KI-Helfer» (answers 7a, 8a): the helper's settings (#/helper, More › App › Helper).
+   * v0.77.0 «KI-Helfer» (answers 7a, 8a): the helper's settings (#/helper, Ich › Helfer, K1a).
    * Status, the Helfer-Code (only on this device, never in a backup or an export), the switch, the
    * monthly limit (default CHF 5) with this month's spend, and «Was geht an Claude?».
    */

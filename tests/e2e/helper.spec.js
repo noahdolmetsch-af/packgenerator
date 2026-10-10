@@ -1,10 +1,10 @@
-// v0.67.0 «KI-Helfer» (Noah's answers 1–8 ★a, 10.10.2026): every place of the helper with canned
+// v0.77.0 «KI-Helfer» (Noah's answers 1–8 ★a, 10.10.2026): every place of the helper with canned
 // answers (page.route on /api/helper, nothing goes out): New trip, the search, the Rückblick draft,
 // «Liste prüfen», the bike care, the once-a-day cache, the monthly cap (429), offline, the notice
 // before the setup, and what goes to Claude (the privacy allowlist). Fictional data only.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
-import { v0670File, P, SPARK, JURA, EVENT, CODE } from './v0670-fixture.js';
+import { v0770File, P, SPARK, JURA, EVENT, CODE } from './v0770-fixture.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -95,7 +95,7 @@ async function fakeHelper(page, { reply = null } = {}) {
 }
 
 async function start(page, context, info) {
-  const file = v0670File(info);
+  const file = v0770File(info);
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => {
     if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
@@ -126,11 +126,10 @@ async function setUp(page) {
   await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'helper')?.value).toMatchObject({ code: CODE, on: true });
 }
 
+/** v0.76.0 «Fünf Orte»: New trip opens from Touren («+ Neue Tour»), as a person does. */
 async function openNewTrip(page) {
-  await page.evaluate((tripId) => localStorage.setItem('pack.currentTrip', tripId), EVENT);
-  await page.goto('./#/pack');
-  await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
-  await page.getByRole('button', { name: T('New trip'), exact: true }).click();
+  await page.goto('./#/trips');
+  await page.locator('main').getByRole('button', { name: T('New trip'), exact: true }).click();
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await expect(dlg).toBeVisible();
   return dlg;
@@ -160,6 +159,12 @@ test('8a: before the setup, a calm notice only in New trip and in the settings; 
   await expect(page.getByText(T('The helper is not set up yet'))).toBeVisible();
   await page.getByRole('button', { name: T('Set up') }).click();
   await expect(page.getByLabel(T('Helper code'))).toBeFocused();
+  // K1a: Ich › Helfer, its own row with the state
+  await page.goto('./#/me');
+  const row = page.locator('main').getByRole('link', { name: new RegExp(`^${T('Helper')}`) });
+  await expect(row).toContainText(T('not set up'));
+  await row.click();
+  await expect(page).toHaveURL(/#\/helper/);
 
   // Elsewhere the helper is simply not there.
   await page.evaluate((tripId) => localStorage.setItem('pack.currentTrip', tripId), EVENT);

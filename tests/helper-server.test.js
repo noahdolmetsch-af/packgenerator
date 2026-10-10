@@ -1,4 +1,4 @@
-// v0.67.0 «KI-Helfer»: the server function api/helper.js with a fake environment, a fake Redis and a
+// v0.77.0 «KI-Helfer»: the server function api/helper.js with a fake environment, a fake Redis and a
 // fake Claude. Fictional values only (no real key or code anywhere).
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { makeHandler, sameToken, helperEnv, MESSAGES_URL } from '../api/helper.js';

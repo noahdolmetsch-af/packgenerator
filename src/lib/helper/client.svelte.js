@@ -1,5 +1,5 @@
 /**
- * v0.67.0 «KI-Helfer»: the helper's settings on this device and the one way to ask it.
+ * v0.77.0 «KI-Helfer»: the helper's settings on this device and the one way to ask it.
  *
  * Settings record "helper" (db.settings): { code, on, capChf }. It is device-only (backup.js
  * DEVICE_SETTINGS): the Helfer-Code never goes into an export, a backup file or the folder backup.

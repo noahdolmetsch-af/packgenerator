@@ -1,5 +1,5 @@
 /**
- * POST /api/helper (v0.67.0 «KI-Helfer», Noah's answers 1–8 ★a, 10.10.2026)
+ * POST /api/helper (v0.77.0 «KI-Helfer», Noah's answers 1–8 ★a, 10.10.2026)
  *
  * Authorization: Bearer <HELPER_TOKEN> (the «Helfer-Code» Noah types into the app's settings).
  * Body: { task: 'trip'|'search'|'debrief'|'checklist'|'maintenance'|'status', input: {...} }.

@@ -1,4 +1,4 @@
-// v0.67.0 «KI-Helfer» (Noah's answers 1–8 ★a): the app side. What goes to Claude (the field
+// v0.77.0 «KI-Helfer» (Noah's answers 1–8 ★a): the app side. What goes to Claude (the field
 // allowlist), the Helfer-Code never in a backup, the question rule of the search, the daily refresh
 // of the maintenance suggestions, and what the app does with the answers. Fictional data only.
 import 'fake-indexeddb/auto';
