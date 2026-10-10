@@ -636,3 +636,9 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - Die Hobby-Unterseiten im Ort «Aktiv» kommen gleich nach dem KI-Helfer, also vor E1 und vor D5 (1b). Sie brauchen zuerst Mockups und eine Fragerunde.
 - Die ersten Unterseiten: Meditation, Velo, Yoga, Gym, Tennis und Liegestütze (3).
 - Reihenfolge: Fünf Orte 1 + Feinschliff → Fünf Orte 2 → KI-Helfer → Hobby-Unterseiten → E1 Startseite → D5 → Neuland + Inspiration.
+
+## 10.10.2026: Neue Reisearten (Noahs Antworten «1 plus Hochtour, Rennen/Event 2a», 14:40)
+
+- Es gibt neun Reisearten: Weekend Sport Trip (2 Nächte), ein paar Tage Berge oder Stadt, Backpacking ab 10 Tagen, ein paar Monate auf dem Bike, Skitouren, Hüttenwanderung, Trail Running, Hochtour, Rennen/Event.
+- Eigene Reisearten lassen sich als Vorlage anlegen (2a).
+- Das ist ein Paket-Kandidat neben D5 Start-Packlisten. Zuerst kommen Mockups. Der Platz in der Reihenfolge ist noch offen.
