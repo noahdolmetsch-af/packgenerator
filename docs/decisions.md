@@ -620,10 +620,36 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid:** Jede Mockup-Runde kommt auf die eine Seite «Offene Mockups» (https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv), mit einem eigenen Abschnitt pro Runde. Computer und Handy stehen nebeneinander, mit einer Zeile «★ ist …» und einem Link zur Fragen-Karte auf Trello. Die Trello-Karte und die Antwort im Thread verlinken auf diesen Abschnitt. Ein Ordnerpfad allein reicht nie.
 - **Grund:** Noah fand die Bilder im Projektordner nicht; es gibt keinen Web-Link zum Ordner, und die Anhänge im Thread sind begrenzt. Ohne sichtbare Mockups kann er sie nicht freigeben (Prinzip Nr. 1, Schritt 4).
 
-## 10.10.2026: Claude veröffentlicht Releases selbst (Noah, 13:52)
+## 10.10.2026: Claude veröffentlicht Releases selbst (Noah, 13:52; ersetzt um 14:16, siehe unten)
 
 - Noah: «Ich erteile hier die Freigabe zum Veröffentlichen auf GitHub und Vercel für alle folgenden Releases.»
 - Claude merged fertige Release-Pull-Requests selbst, sobald der Gesamttest lokal und alle Prüfungen auf dem letzten Commit grün sind. Ein rotes Vercel-Tageslimit hält nicht auf.
 - Nie bei roten oder laufenden Prüfungen, nie Entwürfe oder geparkte Pull Requests (KI-Helfer #89). Ein Pull Request nach dem anderen.
 - Danach wandert die Trello-Karte nach «Zu testen», und Noah bekommt eine kurze Zeile, was online neu ist.
 - Die Mockups gibt weiterhin Noah frei (Prinzip Nr. 1).
+
+## 10.10.2026: Noah merged wieder selbst, Mockup-Prüfung vor jedem Release (Noah, 14:16)
+
+- Noah auf Trello: «ab sofort immer wieder selber mergen. und eine prüfung, dass ich die mockups für das geplante gesehen und kommentiert habe. vor jedem release … ab sofort und überall.»
+- Das ersetzt den Entscheid von 13:52: Claude merged nicht mehr selbst. Claude bereitet den Pull Request bis grün vor und schickt Noah Link und Klicks.
+- Vor jedem Release-PR prüft Claude, dass Noah die Mockups des Pakets gesehen und kommentiert hat, und nennt den Kommentar im Pull Request unter «Mockup-Prüfung».
+
+## 10.10.2026: Kurs-Check 0.68 bis 0.73 (Noahs Antworten «1b 2b 3b 4a»)
+
+- Reihenfolge nach Fünf Orte und Feinschliff: E1 Startseite, dann D5 Start-Packlisten, dann Neuland + Inspiration (1b).
+- Kein fester Plan für eine echte Tour; Funde aus dem Alltag kommen nebenbei (2b).
+- Der KI-Helfer (Wartungsvorschläge) wird direkt nach E1 eingeschaltet. Dafür setzt Noah den Anthropic-Schlüssel in Vercel (3b).
+- Höchstens 2 Bauten gleichzeitig (4a).
+
+## 10.10.2026: KI-Helfer früher, Hobby-Unterseiten vor D5 (Noahs Antworten «1b 2b 3», 14:33)
+
+- Der KI-Helfer wird schon nach Fünf Orte Teil 2 eingeschaltet, also vor E1 (2b). Das ersetzt 3b aus dem Kurs-Check von 14:16.
+- Die Hobby-Unterseiten im Ort «Aktiv» kommen gleich nach dem KI-Helfer, also vor E1 und vor D5 (1b). Sie brauchen zuerst Mockups und eine Fragerunde.
+- Die ersten Unterseiten: Meditation, Velo, Yoga, Gym, Tennis und Liegestütze (3).
+- Reihenfolge: Fünf Orte 1 + Feinschliff → Fünf Orte 2 → KI-Helfer → Hobby-Unterseiten → E1 Startseite → D5 → Neuland + Inspiration.
+
+## 10.10.2026: Neue Reisearten (Noahs Antworten «1 plus Hochtour, Rennen/Event 2a», 14:40)
+
+- Es gibt neun Reisearten: Weekend Sport Trip (2 Nächte), ein paar Tage Berge oder Stadt, Backpacking ab 10 Tagen, ein paar Monate auf dem Bike, Skitouren, Hüttenwanderung, Trail Running, Hochtour, Rennen/Event.
+- Eigene Reisearten lassen sich als Vorlage anlegen (2a).
+- Das ist ein Paket-Kandidat neben D5 Start-Packlisten. Zuerst kommen Mockups. Der Platz in der Reihenfolge ist noch offen.

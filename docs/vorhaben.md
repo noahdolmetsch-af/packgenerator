@@ -18,12 +18,12 @@ Prüffragen:
 4. Braucht es einen fremden Dienst, wo eine eigene, schlanke Lösung reicht?
 5. Wurde die letzte grössere Version schon echt benutzt?
 
-**Letzter Kurs-Check (10.10.2026, Versionen 0.62 bis 0.67):**
-- **Schneller packen:** am weitesten.
-- **Velo im Griff:** halb erreicht. Es fehlen die km aus Strava und die Wartungsvorschläge.
-- **Von der Haustür bis zurück:** ruhigere Abläufe, die Startseite ist noch Mockup.
-- **Aus jeder Tour lernen:** hinkt am meisten hinterher.
-- **Prüffrage 5** ist offen. Darum kommt vor dem nächsten Bau eine echte Tour.
+**Letzter Kurs-Check (10.10.2026, Versionen 0.68 bis 0.73, Antworten «1b 2b 3b 4a»):**
+- **Schneller packen:** seit 0.66 nichts Neues; die Start-Packlisten (D5) sind freigegeben.
+- **Velo im Griff:** grösster Sprung (Fahrten-Buch, Strava/Garmin-Import, Velo-Blätter). Wartungsvorschläge kommen mit dem KI-Helfer direkt nach E1.
+- **Von der Haustür bis zurück:** ruhige Startseite live, Fünf Orte im Bau, E1 freigegeben.
+- **Aus jeder Tour lernen:** hinkt noch hinterher; Neuland + Inspiration ist freigegeben.
+- **Prüffrage 5:** kein fester Plan für eine echte Tour, Funde kommen nebenbei.
 
 ## Kurz gesagt
 
@@ -184,6 +184,8 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 Taktgeber ist echte Nutzung: Eine grössere Version kommt erst, wenn die letzte im Alltag oder auf einer Tour benutzt wurde.
 
 Noah, 10.10.2026: zuerst die Design-Pakete und die anderen Vorhaben, der KI-Helfer kommt später dazu. Am Morgen des 10.10.2026 hat Noah die Reihenfolge noch einmal bestätigt und geschärft (alle Fragen a).
+
+**Neu seit dem 10.10.2026 nachmittags (gilt vor der Liste unten):** nach Fünf Orte Teil 1 und Feinschliff kommt Fünf Orte Teil 2, dann wird der KI-Helfer eingeschaltet, dann kommen die Hobby-Unterseiten im Ort «Aktiv» (zuerst Meditation, Velo, Yoga, Gym, Tennis und Liegestütze), dann E1 Startseite, dann D5 Start-Packlisten, dann Neuland + Inspiration. Höchstens 2 Bauten gleichzeitig. Die Hobby-Unterseiten brauchen zuerst Mockups und eine Fragerunde. **Neuer Kandidat «Reisearten neu»** (Noah, 10.10.2026, 14:40): neun Reisearten (Weekend Sport Trip mit 2 Nächten, ein paar Tage Berge oder Stadt, Backpacking ab 10 Tagen, ein paar Monate auf dem Bike, Skitouren, Hüttenwanderung, Trail Running, Hochtour, Rennen/Event) und eigene Reisearten als Vorlage. Das Paket passt zu D5 Start-Packlisten und braucht zuerst Mockups. Sein Platz in der Reihenfolge ist noch offen. Vor jedem Release prüft Claude, dass Noah die Mockups gesehen und kommentiert hat; Noah merged selbst.
 
 ```mermaid
 flowchart LR

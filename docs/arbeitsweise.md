@@ -37,7 +37,8 @@ Damit gilt wieder die Regel aus [Design-Audits](design-audit.md): vor jedem neue
 
 ## 3. Freigabe bleibt bei Noah
 
-- Claude merged selbst (seit 10.10.2026), sobald der Gesamttest lokal und alle Prüfungen auf dem letzten Commit grün sind. Ein rotes Vercel-Tageslimit hält nicht auf. Nie bei roten oder laufenden Prüfungen, nie Entwürfe oder geparkte Pull Requests. Ein Pull Request nach dem anderen; die übrigen bekommen eine neue Nummer. Danach sagt Claude Noah in einer kurzen Zeile, was online neu ist.
+- Noah merged jeden Pull Request selbst (wieder seit 10.10.2026, 14:16, «ab sofort und überall»). Claude öffnet den Pull Request, lässt den Gesamttest lokal laufen, wartet, bis alle Prüfungen auf dem letzten Commit grün sind, und schickt Noah dann den Link mit den Klicks «Merge pull request» → «Confirm merge». Ein rotes Vercel-Tageslimit hält nicht auf.
+- **Mockup-Prüfung vor jedem Release:** Noah hat die Mockups zu diesem Paket gesehen und kommentiert (Trello-Kommentar oder Antwort im Thread). Der Pull Request nennt den Link unter «Mockup-Prüfung». Ohne Kommentar kein Release-PR, zuerst Noah fragen. Das spart Tests am Schluss und späte Wünsche am Aussehen.
 - Jeder Pull Request hat eine Trello-Karte mit Link und Testschritten. Nach dem Merge wandert sie nach «PG · Zu testen».
 
 ## 4. Unverändert
