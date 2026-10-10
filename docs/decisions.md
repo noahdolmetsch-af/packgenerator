@@ -491,3 +491,15 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Neue Tour mit Nächten:** «Biwak + Zelt» ist vorgewählt (wie früher «Draussen»). Eine ältere Tour oder Vorlage «Draussen» ohne Zelt-Angabe gilt als «Biwak + Zelt» (sie brachte das Zelt mit); nur `tent: false` ist Biwak allein.
 - **Ältere Touren:** Eine spätere Änderung (Wetter, Stunden) bringt nur die Fahrt-Bausteine, die sie neu einschaltet (Licht in die Dunkelheit, Rennen mit Event); Reparatur und Laden kommen nicht ungefragt in eine Tour, die vor 0.55 erstellt wurde.
 
+
+## Arbeitsweise (9.10.2026, 23:26)
+
+- **Entscheid:** nur ein Paket (höchstens zwei) gleichzeitig; vor jedem Release Mockups, Noahs Prüfung und a/b-Fragen, gebaut wird erst danach. Ersetzt den Schnellmodus. Details und verbindliche Anweisung: [Arbeitsweise](arbeitsweise.md).
+- **Grund:** Drei Pakete parallel brachten Umnummerierungen und Funktionen ohne Design-Prüfung.
+
+## Kurs-Check, Mockups nur hell, Gesamttest vor dem PR (10.10.2026)
+
+- **Entscheid:** [Geplante Vorhaben](vorhaben.md) ist der Massstab, ob wir auf dem richtigen Weg sind; vor jedem Paket wird es geprüft, in jedem Release nachgeführt. Mockups gibt es nur noch hell. Vor jedem PR läuft der komplette Gesamttest lokal.
+- **Grund:** Noah möchte die Übersicht als Basis behalten und den Kurs regelmässig prüfen; dunkle Mockups verdoppelten die Bilder; mehrere PRs wurden erst in CI rot.
+
+

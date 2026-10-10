@@ -4,6 +4,9 @@ Stand: 8. Oktober 2026 (live v0.35.0). Verbindliche Quelle: dieses Repository, a
 
 | Frage | Dokument | Verantwortung |
 |---|---|---|
+| Was muss Claude bei jeder Arbeit beachten? | [CLAUDE.md](../CLAUDE.md) | Kurzanleitung für jede Claude-Sitzung: Arbeitsweise, Datenschutz, Release-Checkliste, Tests |
+| Was ist geplant und warum? Sind wir auf Kurs? | [Geplante Vorhaben](vorhaben.md) | Alle Vorhaben mit Warum, Beispiel und Stand; Kurs-Check vor jedem Paket |
+| Wie arbeiten wir zusammen (Pakete, Mockups, Freigabe)? | [Arbeitsweise](arbeitsweise.md) | Verbindliche Arbeitsanweisung seit 9.10.2026: ein Paket, Mockups und a/b-Fragen vor jedem Release |
 | Was ist live, was ist in Arbeit, was kam in welchem Release? | [Projektstand](status.md) | Kurzer Überblick; Historie aller Releases, neueste zuerst |
 | Was ist beschlossen und was ersetzt ältere Entscheidungen? | [Entscheidungslog](decisions.md) | Fachliche Entscheidungen und bewusste Grenzen |
 | Welche Arbeitsschritte und Abnahmen sind geplant, was kommt als Nächstes? | [Roadmap AP01–AP30](roadmap.md) | Einzige aktive Gesamtroadmap, Status/Abhängigkeiten/Erfolgskriterien; [Stand und nächste Pakete](roadmap.md#stand-und-nächste-pakete-8102026) |
