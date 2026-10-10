@@ -513,6 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 10.10.2026 (v0.68.0, PR offen):** Q1 «Jeder km zählt» ist gebaut: Fahrten-Buch pro Velo, Strava-CSV- und FIT-Import mit Regeln, Wochen-Abgleich auf Heute, Startpunkte für Teile (AP-Bezug Velo-Pflege). Als Nächstes 0.69 Velo-Blätter.
+
 **Nachtrag 10.10.2026 (v0.67.1):** Live ist v0.67.1. Die aktuelle Reihenfolge steht in [Geplante Vorhaben](vorhaben.md) und im [Projektstand](status.md#in-arbeit): 0.68 Q1 «Jeder km zählt» (AP-Bezug Velo-Pflege), 0.69 Velo-Blätter, echte Tour, Fünf Orte 1 und 2, danach E1, D5, D2, D4/D6, E2–E4, KI-Helfer. Die Tabellen unten bleiben der Stand vom 8.10.2026.
 
 Live ist **v0.35.0**. „Ausgeliefert“ heisst: als Software veröffentlicht, mit Unit- und Browser-Tests. Die formale Abnahme mit Zeitmessung durch eine Person ist bei den meisten Paketen noch offen (siehe Fortschrittsregister).

@@ -533,3 +533,11 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid:** Nach den Velo-Blättern folgt ein vollständiger UI-Test: alle Abläufe einmal komplett durchspielen, Fehler dokumentieren und selbst beheben; bei grösseren Entscheiden fragt Claude.
 - **Grund:** Noah hatte bei 84 offenen Fragen den Überblick verloren. Er holt heute ein neues Velo ab und will dessen km und Werte von Anfang an sauber in der App.
 
+## 10.10.2026: Q1 «Jeder km zählt» (0.68.0, Noahs Antworten 1–9 a, Q1.1–Q1.7 a)
+
+- **Entscheid:** Die km eines Velos sind die Summe seiner Einträge im Fahrten-Buch (Fahrt, Startwert, Ablesung, Korrektur), je mit Quelle (FIT, Strava-CSV, von Hand, Strava, Zähler) und Sicherheit (sicher, wahrscheinlich, unklar, von dir). `bike.km` bleibt als Kopie der Summe, damit alle bisherigen Stellen weiterlaufen. Ersetzt den einzelnen km-Zähler.
+- **Entscheid:** Zuordnung in dieser Reihenfolge: Sensor (sicher) › Strava-Velo (wahrscheinlich) › eine Profil-Regel (wahrscheinlich) › du. Widerspruch, ein Profil für mehrere Velos oder kein Hinweis heisst «unklar»; unklare Fahrten zählen erst nach deiner Wahl. Die Sportart entscheidet nie über das Velo (zwei Mountainbikes sind gleich «MTB»), sie filtert nur Läufe und Ähnliches aus.
+- **Entscheid:** Ein unbekannter Sensor wird beim ersten FIT-Import einmal gefragt («Zu welchem Velo gehört der Sensor …?»); die Antwort wird eine Regel (Sensor → Velo), die im Import änderbar ist und danach von selbst gilt. Gleich für ein unbekanntes Strava-Velo.
+- **Entscheid:** Doppelte (gleiche Strava-ID oder gleicher Tag, km innerhalb 3 % bzw. 1 km, Start innerhalb 30 Minuten) werden zusammengeführt; was schon im Buch steht oder vor dem Startwert liegt, wird nicht nochmals gezählt. Jeder Import lässt sich als Ganzes rückgängig machen.
+- **Entscheid:** Q1 ist pro Velo an, sobald es Fahrten im Buch hat (Antwort 6a), und lässt sich pro Velo ausblenden. Startpunkte für Teile sind ein Vorschlag, nie Pflicht; ein Teil von einem anderen Velo bringt «km schon am Teil» mit (Schritt 3 in einfacher Form, ohne automatisches Umziehen).
+- **Grund:** Noah holt ein neues Velo ab und will dessen km von Anfang an lückenlos und nachvollziehbar; die Strava-Werte weichen heute ohne Erklärung ab.

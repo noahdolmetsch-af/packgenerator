@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.68.0',
+    date: '2026-10-10',
+    points: [
+      { text: 'Every bike has a ride ledger: its km are the sum of its rides. Unclear rides are marked red and count only after you pick the bike. Everything can be undone.', href: '#/bikes?tab=care' },
+      { text: 'Import rides: a Strava export (activities.csv) or Garmin FIT files. The app assigns them by sensor, Strava bike or your rules, asks once which bike an unknown sensor belongs to and merges duplicates.', href: '#/bikes?tab=care' },
+      { text: 'Once a week Today compares the km with Strava and shows rides still to assign; at the start of a month a short report.', href: '#/' },
+      { text: 'Parts get a start point: mounted when and at which km, also from another bike. From it the app counts the km of each part.', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
     version: '0.67.1',
     date: '2026-10-10',
     points: [
