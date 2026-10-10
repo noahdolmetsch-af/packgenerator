@@ -5,6 +5,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { newButton } from './newbutton.js';
 
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const tr = (lang) => (en, vars) => {
@@ -103,7 +104,7 @@ for (const lang of ['en', 'de']) {
       await loc.click();
       clicks++;
     };
-    await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
+    await click((await newButton(page, T('New'))));
     await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
     // v0.29.2 (Noah 7a): the templates are folded under "Start from a template" (one click more).
     const dlg = page.getByRole('dialog', { name: T('New trip') });

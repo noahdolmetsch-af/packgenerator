@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { start, prepare, openData, importBackup, table, snapshot, integrity, ticks, comparable, fixture, tr, esc, day, P, step1, step2, track, gpxText, gearFile, shot, sideways, brokenWords } from './lib.js';
 import { fitRide } from '../../fixtures/fit.js';
 import { AID_KEY, inSmallAid } from '../../../src/lib/firstaid.js';
+import { newButton } from '../newbutton.js';
 
 const LANG = 'de';
 const T = tr(LANG);
@@ -34,7 +35,7 @@ const noProblems = async (page, where) => expect(integrity(await snapshot(page))
 
 /** New → Plan a trip: the New trip window. */
 async function newTrip(page) {
-  await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
+  await (await newButton(page, T('New'))).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
   const dlg = page.locator('dialog.trip-dlg');
   await expect(dlg).toBeVisible();
@@ -265,7 +266,7 @@ test('S4 new item, weigh, wardrobe, block, trip', async ({ page, context }, info
   await page.goto('./#/gear');
   await page.reload();
   // the New button works on every screen (on the phone the inventory is look-up and weigh only)
-  await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
+  await (await newButton(page, T('New'))).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Gear item') }).click();
   const dlg = page.locator('dialog[open]');
   await dlg.getByRole('textbox', { name: new RegExp(`^${T('Name')}`) }).fill(NAME);

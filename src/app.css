@@ -321,6 +321,55 @@
   --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
 }
 
+/* ---------- v0.76.0 «Fünf Orte» 1 (Noah 10.10.2026): each place has a light colour ----------
+   Heute teal, Touren orange, Material ochre, Velos blue, Aktiv violet, «Ich» the ink. The App sets
+   data-place on <html>; --pc is the place's colour (the chosen place in the bars, the + Neu), --pc-soft
+   its pill and --tint the page ground, a breath of the colour (Noah 4b). The same in every colour world. */
+:root {
+  --pc-today: #0b6f6b;
+  --pc-trips: #c2441b;
+  --pc-gear: #8a5f12;
+  --pc-bikes: #2d6aa3;
+  --pc-active: #7a4fae;
+  --pc-me: #14232d;
+  --pc-ink: #ffffff; /* an icon or a word on the place colour */
+  /* the dark sidebar: a lighter row, a line between groups */
+  --side-row: color-mix(in srgb, var(--brand-ink) 9%, var(--brand));
+  --side-line: color-mix(in srgb, var(--brand-ink) 16%, var(--brand));
+}
+:root[data-theme='dark'] {
+  --pc-today: #4fc1b8;
+  --pc-trips: #ff8a5c;
+  --pc-gear: #dcae4f;
+  --pc-bikes: #79b0e6;
+  --pc-active: #b596e3;
+  --pc-me: #c9d6dd;
+  --pc-ink: #0e171d;
+}
+:root {
+  --pc: var(--pc-today);
+}
+:root[data-place='trips'] {
+  --pc: var(--pc-trips);
+}
+:root[data-place='gear'] {
+  --pc: var(--pc-gear);
+}
+:root[data-place='bikes'] {
+  --pc: var(--pc-bikes);
+}
+:root[data-place='active'] {
+  --pc: var(--pc-active);
+}
+:root[data-place='me'] {
+  --pc: var(--pc-me);
+}
+:root,
+:root[data-place] {
+  --pc-soft: color-mix(in srgb, var(--pc) 15%, var(--paper));
+  --tint: color-mix(in srgb, var(--pc) 4%, var(--ground));
+}
+
 * {
   box-sizing: border-box;
 }
@@ -332,8 +381,9 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  /* v0.22.0 (AP03): plain calm ground; the topo lines stay in the logo and the photos. */
-  background-color: var(--ground);
+  /* v0.22.0 (AP03): plain calm ground; the topo lines stay in the logo and the photos.
+     v0.76.0 «Fünf Orte»: tinted a breath by the place (--tint). */
+  background-color: var(--tint, var(--ground));
   color: var(--ink);
   font-family: var(--font-body);
   font-size: var(--fs-body);

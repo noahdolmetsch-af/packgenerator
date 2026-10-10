@@ -5,6 +5,7 @@ import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { newButton } from './newbutton.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -60,7 +61,7 @@ const table = (page, name) =>
 /** A day ride from Today. v0.38.0 (Noah 13a): "Day ride now" is in "New" (+), once. */
 async function dayRideFromToday(page) {
   await page.goto('./#/');
-  await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).first().click();
+  await (await newButton(page, T('New'))).click();
   await page.getByRole('dialog').getByRole('button', { name: new RegExp(`^${T('Day ride now')}`) }).click();
   await expect(page.locator('.made-card')).toBeVisible();
 }
@@ -211,8 +212,10 @@ test('N8, N9: rename a past trip in its band; past trips are easy to find', asyn
   await start(page, context, info, { trips: [trip('gtp-old', 'Alt', { startDate: day(-4), finished: day(-4) }), trip('gtp-next', 'Bald', { startDate: day(5) })] });
   // Today: "More" has the page (v0.46.0: the Trips tile with its row left Today).
   // v0.38.0 (Noah 13a): the button moved into "More" › Look back (one place per target).
-  await page.locator('.more-btn').click();
-  await expect(page.locator('dialog.more').getByRole('link', { name: T('Past trips') })).toHaveAttribute('href', '#/pack/past');
+  // v0.76.0 «Fünf Orte»: «More» is gone; the search finds every page (Past trips: Touren).
+  if (!(await page.locator('.search input').isVisible())) await page.getByRole('button', { name: T('Search everything') }).click();
+  await page.locator('.search input').fill(T('Past trips'));
+  await expect(page.getByRole('region', { name: T('Search results') }).getByRole('button', { name: new RegExp(`^${T('Past trips')}`) }).first()).toBeVisible();
   await page.keyboard.press('Escape');
   // Pack: next to the trip chooser.
   await page.goto('./#/pack');

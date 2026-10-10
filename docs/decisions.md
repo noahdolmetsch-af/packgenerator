@@ -603,6 +603,16 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid (selbst):** Am Handy kommt «Im Flow» nach den 8 Knöpfen, wenn es direkt davor steht (Regel 0.46: Gruss, Tourkarte und Knöpfe ohne Scrollen); am Computer bleibt Im Flow unter der Karte (0.51). Eine andere eigene Reihenfolge aus «Startseite anpassen» bleibt.
 - **Entscheid (selbst):** Ein eigenes Album gibt es noch nicht; «Album ›» öffnet Velos › Setup des Velos mit aufgeklappten «Fotos». Ort = Name des Fotos (ein Kamera-Name wie «IMG_1234» → Velo-Name), Monat = Datum, an dem das Foto hinzugefügt wurde.
 - **Grund:** Noah: Das blasse Foto aus 0.46/0.69 gefiel ihm nicht, und der grosse Vorschlag drängte die Tourkarte nach unten.
+## 10.10.2026: Fünf Orte Teil 1, die Navigation (0.76.0)
+
+- **Entscheid:** Die Leiste hat fünf Orte: Heute, Touren, Material, Velos, Aktiv. Aktiv öffnet Im Flow. «Mehr» ist weg; seine Seiten stehen unter ihrem Ort (Vorlagen, Rückblick, Vergangene Touren, Gelernt, Tempo unter Touren; Favoriten, Bausteine, Bausteine prüfen, Kleiderschrank unter Material) oder in «Ich» (Inbox, Notizen, Daten und Backup, Was die App kann). Die Suche findet sie alle und nennt den Ort.
+- **Entscheid:** «Ich» ist eine eigene Seite (`#/me`), erreichbar über den runden Knopf oben rechts (am Computer neben der Suche). Ein Punkt zeigt offene Notizen in der Inbox, die Zahl steht im Namen des Knopfs.
+- **Entscheid:** Am Handy und in schmalen Fenstern (unter 900 px oder quer gehalten) stehen die Orte unten, «+ Neu» ist ein runder Knopf unten rechts. Auf den Tourseiten mit eigenem Hauptknopf unten (Packen, Unterwegs, Zwischenseiten, ein Rückblick) fehlt der runde Knopf, damit nichts den Hauptknopf verdeckt.
+- **Entscheid:** Am Computer ab 900 px eine Seitenleiste mit Logo, Suche, Ich, «+ Neu» und den Orten samt ihren schon gebauten Seiten. Was noch nicht gebaut ist (Neuland, Heft, Aktivität, Einkauf), bleibt ausgeblendet (O2.1a).
+- **Entscheid:** Jeder Ort hat eine leichte Farbe (Heute türkis, Touren orange, Material ocker, Velos blau, Aktiv violett); sie tönt den Hintergrund ganz leicht und färbt den gewählten Ort in Leiste und Seitenleiste.
+- **Selbst entschieden:** «Ich» zeigt ein Personen-Symbol statt eines Buchstabens (die App kennt keinen Namen). Velos › Masse führt in Teil 1 zu «Velos vergleichen», das die Masse aller Velos zeigt; Velos › Werkstatt zu «Werkstatt & Belege». Der Helfer erscheint in Ich erst, wenn er eingeschaltet ist. Tastenkürzel nur für das, was schon geht; Tabs 1–4 kommen mit Teil 2.
+- **Entscheid (Noah, Karte «Weicht aus», 10.10.2026 16:25):** Auf Heute am Handy verdeckte der runde +-Knopf den achten Knopf von «Was willst du tun?». Der + tritt dort zur Seite, solange die 8 Knöpfe zu sehen sind, und kommt beim Scrollen zurück. Auf allen anderen Seiten bleibt er wie im Mockup.
+- **Grund:** Das Mehr-Menü war am Handy zu lang, und die täglichen Orte gehören in die Leiste (Fünf Orte statt Basecamp, siehe oben).
 
 ## 10.10.2026: Feinschliff (0.75.0, Noahs Antworten D1–D4 a, Material-Detail 1–5 a, Umbenennen 1–5 a)
 

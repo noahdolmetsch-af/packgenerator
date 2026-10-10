@@ -63,7 +63,8 @@ for (const lang of ['en', 'de']) {
     await expect(newBtn).toHaveCount(1);
     const box = await newBtn.boundingBox();
     if (info.project.name === 'phone') expect(box.y, '"+" sits in the bottom bar').toBeGreaterThan(page.viewportSize().height / 2);
-    else expect(box.y, '"New" sits in the top bar').toBeLessThan(100);
+    // v0.76.0 «Fünf Orte»: on a computer «+ Neu» sits at the top of the sidebar
+    else expect(box.y, '"New" sits at the top of the sidebar').toBeLessThan(200);
     await newBtn.click();
     const sheet = page.getByRole('dialog', { name: T('New') });
     await sheet.getByRole('button', { name: T('Plan a trip') }).click(); // v0.30.0: the window starts with the standard set

@@ -74,9 +74,10 @@ test('Today: the waiting debrief in Important today, the bike jobs under the bik
 
 test('Past trips lists the finished trip and opens it', async ({ page, context }, info) => {
   await load(page, context, info);
-  // v0.38.0 (Noah 13a): Past trips is in "More" › Look back.
-  await page.locator('.more-btn').click();
-  await page.locator('dialog.more').getByRole('link', { name: T('Past trips') }).click();
+  // v0.76.0 «Fünf Orte»: «More» is gone; the search finds every page (Past trips: Touren).
+  if (!(await page.locator('.search input').isVisible())) await page.getByRole('button', { name: T('Search everything') }).click();
+  await page.locator('.search input').fill(T('Past trips'));
+  await page.getByRole('region', { name: T('Search results') }).getByRole('button', { name: new RegExp(`^${T('Past trips')}`) }).first().click();
   await expect(page).toHaveURL(/#\/pack\/past/);
   await expect(page.getByRole('heading', { name: T('Past trips'), level: 1 })).toBeVisible();
   // v0.40.0 (Noah 3a): one row per trip; an open debrief is a small neutral badge, the row opens it.

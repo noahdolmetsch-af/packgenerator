@@ -246,12 +246,13 @@ function extrasFile(info) {
   return path;
 }
 
-test('extras: «Mehr» shows a dot, the Inbox is newest first and a sorted note opens what it became', async ({ page, context }, info) => {
+test('extras: «Ich» shows a dot, the Inbox is newest first and a sorted note opens what it became', async ({ page, context }, info) => {
   const errors = await start(page, context, info, { file: extrasFile(info) });
   await page.goto('./#/');
-  const more = page.locator('.more-btn');
-  await expect(more).toHaveAttribute('aria-label', 'Mehr, Eingang: 2 zum Ablegen');
-  await expect(more.locator('.mdot')).toBeVisible();
+  // v0.76.0 «Fünf Orte»: «Ich» took the place of «Mehr»
+  const more = page.locator('a.me');
+  await expect(more).toHaveAttribute('aria-label', 'Ich, Eingang: 2 zum Ablegen');
+  await expect(more.locator('.dot')).toBeVisible();
   expect(await more.innerText()).not.toMatch(/\d/);
 
   // v0.48.0 «Eingang»: the note filed today stays in the list, faint, its chip links to the repair;

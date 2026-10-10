@@ -9,6 +9,7 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { newButton } from './newbutton.js';
 
 const P = 'test_data_gtp_';
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
@@ -60,7 +61,7 @@ const tap = (loc, info) => (info.project.name === 'phone' ? loc.tap() : loc.clic
 test('1: one dictated line becomes single problems, shown before saving', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/');
-  await page.getByRole('button', { name: 'Neu', exact: true }).filter({ visible: true }).first().click();
+  await (await newButton(page, 'Neu')).click();
   await page.getByRole('dialog', { name: 'Neu' }).getByRole('button', { name: /Problem am Velo/ }).click();
   const dlg = page.getByRole('dialog', { name: 'Problem am Velo' });
   await dlg.getByRole('button', { name: `${P} Scott Scale 940` }).click();
@@ -160,18 +161,18 @@ test('5: the search on the phone is a clean sheet under the top bar', async ({ p
   expect(errors).toEqual([]);
 });
 
-test('6 (v0.46.3, Noah: "unschön"): More is calm again, no trip rows; the lists are under Touren', async ({ page, context }, info) => {
+// v0.76.0 «Fünf Orte»: «More» became «Ich»; it stays calm (no trip rows), Vorlagen is a page of Touren.
+test('6 (v0.46.3, Noah: "unschön"; v0.76.0): Ich is calm, no trip rows; the lists are under Touren', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/');
-  await page.getByRole('button', { name: /^Mehr/ }).click();
-  const sheet = page.getByRole('dialog', { name: 'Mehr' });
-  for (const g of ['Planen', 'Rückblick', 'Material', 'App']) await expect(sheet.getByRole('heading', { name: g, exact: true })).toBeVisible();
-  await expect(sheet.getByRole('heading', { name: 'Packlisten', exact: true })).toHaveCount(0);
-  await expect(sheet.getByRole('button', { name: /Jura event/ })).toHaveCount(0);
-  await expect(sheet.getByRole('link', { name: 'Vorlagen' })).toBeVisible();
-  await expect(sheet.getByRole('link', { name: 'Vergangene Touren' })).toBeVisible();
+  await page.getByRole('link', { name: /^Ich\b/ }).first().click();
+  const main = page.locator('main');
+  await expect(main.getByRole('heading', { level: 1, name: 'Ich' })).toBeVisible();
+  await expect(main.getByRole('heading', { name: 'Packlisten', exact: true })).toHaveCount(0);
+  await expect(main.getByRole('button', { name: /Jura event/ })).toHaveCount(0);
   await shot(page, info, 'menu-calm-after');
-  await sheet.getByRole('link', { name: 'Vorlagen' }).click();
+  if (info.project.name === 'desktop') await page.locator('.side li[data-place="trips"] .tabs').getByRole('link', { name: 'Vorlagen' }).click();
+  else await page.goto('./#/pack/templates');
   await expect(page).toHaveURL(/#\/pack\/templates/);
   // The packing list of a trip: Touren → its row.
   await page.goto('./#/trips');
