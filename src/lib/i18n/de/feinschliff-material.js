@@ -60,7 +60,7 @@ export default {
   'Come on every ride, deselectable. Tools and charging things are suggested by category.': 'Kommen auf jede Fahrt, abwählbar. Werkzeug und Ladesachen sind nach Kategorie vorgeschlagen.',
   'First aid only with a night': 'Erste Hilfe nur mit Nacht',
   'on every trip': 'auf jeder Tour',
-  'Day trip: the small set ({s} items). With a night: the full set ({f} items). Both changeable.': 'Tagestour: das kleine Set ({s} Teile). Mit Übernachtung: das volle Set ({f} Teile). Beides änderbar.',
+  'Day trip: the small set. With a night: the full set. Both changeable per trip and per item.': 'Tagestour: das kleine Set. Mit Übernachtung: das volle Set. Beides pro Tour und pro Teil änderbar.',
   '{name}: part of the small set.': '{name}: gehört zum kleinen Set.',
   '{name}: only in the full set.': '{name}: nur im vollen Set.',
   '{name} in the small set (day trips)': '{name} im kleinen Set (Tagestouren)',

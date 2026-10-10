@@ -184,7 +184,7 @@ export function overviewRows(items, setsValue, review, steps = []) {
       n: 10,
       from: [t('First aid only with a night')],
       to: [{ key: 'firstaid', label: label('firstaid'), note: t('on every trip') }],
-      text: t('Day trip: the small set ({s} items). With a night: the full set ({f} items). Both changeable.', { s: aid.small, f: aid.full }),
+      text: t('Day trip: the small set. With a night: the full set. Both changeable per trip and per item.'),
       aid,
       go: block('firstaid'),
       act: t('Set the sets'),
