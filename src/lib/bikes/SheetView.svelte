@@ -383,6 +383,13 @@
     color: var(--ink-2);
     overflow-wrap: break-word;
   }
+  /* v0.69.1 G001: on a small phone (320 px) «Sattelüberhöhung» does not fit half the sheet: label above value */
+  @media (max-width: 359px) {
+    .vr {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2px;
+    }
+  }
   .vr dd {
     margin: 0;
     font-weight: 600;
@@ -487,6 +494,7 @@
     flex-direction: column;
     min-width: 0;
     overflow-wrap: break-word;
+    hyphens: auto; /* long part names («Bremsbeläge») break by syllable on a 320 px phone, not mid-word */
   }
   .cl b {
     font-weight: 500;

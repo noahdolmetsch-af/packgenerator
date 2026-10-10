@@ -3,7 +3,7 @@
    * v0.68.0 «Q1 Jeder km zählt» (Q1.3 a, Q1.4 a, Q1.5 a): «Import rides» (Bikes › Care › Import rides).
    * Files: the Strava export activities.csv (with the bike column «Activity Gear») and Garmin FIT files
    * (unit, profile and the serial numbers of the bike's sensors). Every ride gets a bike by the rule
-   * Sensor › Strava bike › profile rule › you; on top «Check»: contradictions, unusual distances, rides
+   * Sensor › Strava bike › profile rule › ride type rule (v0.69.1) › you; on top «Check»: contradictions, unusual distances, rides
    * without a bike. Then per bike, the sure ones folded. Per ride: the bike to choose plus chips where
    * it comes from and how sure it is. The rules sit right here and can be changed at any time.
    * Nothing is taken over before «Take over»; afterwards «Undo» on the bike page takes it all back.
@@ -111,7 +111,7 @@
   let nKind = $state('profile');
   let nValue = $state('');
   let nBikes = $state([]);
-  const KIND = { sensor: 'Sensor', profile: 'Profile', gear: 'Strava bike' };
+  const KIND = { sensor: 'Sensor', profile: 'Profile', gear: 'Strava bike', type: 'Ride type' };
   const toggleIn = (list, id) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
   const setRuleBikes = (id, bikeIds) => setRules(rules.map((r) => (r.id === id ? { ...r, bikeIds } : r)));
   const dropRule = (id) => setRules(rules.filter((r) => r.id !== id));
@@ -122,12 +122,13 @@
     nValue = '';
     nBikes = [];
   }
-  const ruleOrder = { sensor: 0, gear: 1, profile: 2 };
+  const ruleOrder = { sensor: 0, gear: 1, profile: 2, type: 3 };
   const sortedRules = $derived([...rules].sort((a, b) => ruleOrder[a.kind] - ruleOrder[b.kind]));
   /**
    * What the files show and no rule knows yet: each new sensor serial once («Which bike does sensor …4F2A
    * belong to?», the bike Strava names most as the suggestion), unknown Strava bikes. The answer is a
-   * rule (sensor → bike), used automatically from then on and changeable. The activity type never decides.
+   * rule (sensor → bike), used automatically from then on and changeable. The ride type decides only
+   * through a rule you made (v0.69.1, kind «Ride type»), never by itself.
    */
   const hints = $derived.by(() => {
     if (!plan) return [];
@@ -279,7 +280,7 @@
             <label><span class="lbl">{t('Kind')}</span>
               <select class="sel" bind:value={nKind}>{#each Object.entries(KIND) as [k, n] (k)}<option value={k}>{t(n)}</option>{/each}</select>
             </label>
-            <label><span class="lbl">{nKind === 'sensor' ? t('Serial number') : nKind === 'gear' ? t('Name in Strava') : t('Profile name')}</span><input class="inp" type="text" bind:value={nValue} /></label>
+            <label><span class="lbl">{nKind === 'sensor' ? t('Serial number') : nKind === 'gear' ? t('Name in Strava') : nKind === 'type' ? t('Ride type, as in Strava (e.g. Gravel Ride)') : t('Profile name')}</span><input class="inp" type="text" bind:value={nValue} /></label>
             <div class="bchips" role="group" aria-label={t('Bike')}>{#each bikes as b (b.id)}<button type="button" class="bchip" aria-pressed={nBikes.includes(b.id)} onclick={() => (nBikes = toggleIn(nBikes, b.id))}>{b.name}</button>{/each}</div>
             <div class="fb"><button type="button" class="btn ink sm" disabled={!nValue.trim() || !nBikes.length} onclick={() => addRule()}>{t('Add')}</button><button type="button" class="btn sm" onclick={() => (adding = false)}>{t('Cancel')}</button></div>
           </div>
@@ -309,7 +310,7 @@
 
 {#snippet rule(r)}
   <li>
-    <span class="rk">{r.kind === 'sensor' ? `${t('Sensor')} ${sensorShort(r.value)}` : r.kind === 'gear' ? t('Strava bike «{gear}»', { gear: r.value }) : t('Profile {name}', { name: r.value })}{#if r.kind === 'profile' && r.bikeIds.length > 1}<small>{t('{n} bikes, so only sure with Strava', { n: r.bikeIds.length })}</small>{/if}</span>
+    <span class="rk">{r.kind === 'sensor' ? `${t('Sensor')} ${sensorShort(r.value)}` : r.kind === 'gear' ? t('Strava bike «{gear}»', { gear: r.value }) : r.kind === 'type' ? t('Ride type «{type}»', { type: r.value }) : t('Profile {name}', { name: r.value })}{#if r.kind === 'profile' && r.bikeIds.length > 1}<small>{t('{n} bikes, so only sure with Strava', { n: r.bikeIds.length })}</small>{:else if r.kind === 'type' && r.bikeIds.length > 1}<small>{t('{n} bikes, so it decides nothing alone', { n: r.bikeIds.length })}</small>{/if}</span>
     {#if editRules}
       <span class="bchips" role="group" aria-label={t('Bike')}>
         {#each bikes as b (b.id)}<button type="button" class="bchip" aria-pressed={r.bikeIds.includes(b.id)} onclick={() => setRuleBikes(r.id, toggleIn(r.bikeIds, b.id))}>{b.name}</button>{/each}

@@ -8,7 +8,7 @@
    */
   import { ChevronLeft, Minus, Plus, Check, Sun, Snowflake, Trash2, X } from '@lucide/svelte';
   import Seg from '../ui/Seg.svelte';
-  import ActIcon, { ACT_ICONS } from './ActIcon.svelte';
+  import ActIcon, { ACT_ICONS, ACT_ICON_NAMES } from './ActIcon.svelte';
   import { db } from '../db.js';
   import { saveAct, deleteAct } from '../flowdb.js';
   import { normAct, blankAct, actState, toggleMonth, halfOf, WINDOWS, SUMMER } from '../flow.js';
@@ -123,7 +123,7 @@
       <p class="lbl" id="ed-icon">{t('Symbol')}</p>
       <div class="icons" role="group" aria-labelledby="ed-icon">
         {#each Object.keys(ACT_ICONS) as k (k)}
-          <button type="button" class="icb {a.ring}" aria-pressed={a.icon === k} aria-label={k} onclick={() => (a.icon = k)}><ActIcon icon={k} ring={a.ring} box={false} size={20} /></button>
+          <button type="button" class="icb {a.ring}" aria-pressed={a.icon === k} aria-label={t(ACT_ICON_NAMES[k] ?? k)} onclick={() => (a.icon = k)}><ActIcon icon={k} ring={a.ring} box={false} size={20} /></button>
         {/each}
       </div>
       <p class="lbl" id="ed-ring">{t('Category · ring')}</p>

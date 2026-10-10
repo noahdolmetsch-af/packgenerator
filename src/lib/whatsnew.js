@@ -10,6 +10,14 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.69.1',
+    date: '2026-10-10',
+    points: [
+      { text: 'Import rides knows a new rule: a ride type (for example «Gravel Ride») belongs to one bike. You make the rule yourself in «Rules»; a contradiction still goes to «Check».', href: '#/bikes?tab=care' },
+      { text: 'A full test of every page and flow: long words on the Bike pass and in the flow no longer break in the middle of a word, and the flow summary names each activity once.', href: '#/flow' },
+    ],
+  },
+  {
     version: '0.69.0',
     date: '2026-10-10',
     points: [

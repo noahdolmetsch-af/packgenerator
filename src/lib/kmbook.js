@@ -9,8 +9,8 @@
  *
  * Which ride belongs to which bike is the hard part (two Garmin units, profiles per bike type, the
  * Strava default bike). The rule never guesses silently: signals in this order, Sensor › Strava bike ›
- * profile rule › you. A contradiction, an unusual distance or no bike at all makes a ride unclear: it
- * waits in «Assign rides» and counts only after you confirmed it.
+ * profile rule › ride type rule › you. A contradiction, an unusual distance or no bike at all makes a
+ * ride unclear: it waits in «Assign rides» and counts only after you confirmed it.
  *
  * Pure functions, tested in tests/kmbook.test.js. The database side is kmbookdb.js.
  */
@@ -23,8 +23,8 @@ export const KINDS = ['ride', 'start', 'reading', 'correction'];
 export const SOURCES = ['fit', 'csv', 'hand', 'strava', 'sync'];
 /** How sure the bike is: by a sensor, likely (Strava bike or one profile), unclear, or chosen by you. */
 export const SURE = ['sure', 'likely', 'unclear', 'user'];
-/** Where the bike came from (Q1.4 «woher»). */
-export const BY = ['sensor', 'gear', 'profile', 'user'];
+/** Where the bike came from (Q1.4 «woher»). type: a rule for the ride type (v0.69.1, «Gravel Ride» → a bike). */
+export const BY = ['sensor', 'gear', 'profile', 'type', 'user'];
 
 const r1 = (n) => Math.round(n * 10) / 10;
 export const counts = (e) => e?.state === 'counted';
@@ -99,6 +99,7 @@ export function makeEntry(fields, now = new Date()) {
     profile: fields.profile ?? '',
     sensors: fields.sensors ?? [],
     gear: fields.gear ?? '',
+    type: fields.type ?? '',
     stravaId: fields.stravaId ?? null,
     by: fields.by ?? null,
     sure: fields.sure ?? (fields.state === 'open' ? 'unclear' : 'user'),
@@ -284,6 +285,20 @@ export const GARMIN = { 2713: 'Edge 1030', 3121: 'Edge 530', 3122: 'Edge 830', 3
 /** ANT+ device types that belong to a bike (not the rider: no heart rate strap). */
 const BIKE_SENSOR = { 11: 'power', 121: 'speed', 122: 'cadence', 123: 'speed', 34: 'shifting', 40: 'radar', 35: 'light' };
 const SPORT_CYCLING = new Set([2, 21]); // cycling, e-biking
+/**
+ * v0.69.1: the ride type of a FIT file in Strava's words, so one «ride type» rule fits both files.
+ * sport 2 cycling / 21 e-biking; sub_sport 46 gravel, 8 mountain, 9 downhill, 47 e-bike mountain,
+ * 28 e-bike fitness, 6 and 58 indoor / virtual. Anything else is a plain «Ride».
+ */
+export function fitType(sport, sub) {
+  if (sport !== 2 && sport !== 21) return '';
+  if (sub === 47 || (sport === 21 && (sub === 8 || sub === 9))) return 'E-Mountain Bike Ride';
+  if (sport === 21 || sub === 28) return 'E-Bike Ride';
+  if (sub === 46) return 'Gravel Ride';
+  if (sub === 8 || sub === 9) return 'Mountain Bike Ride';
+  if (sub === 6 || sub === 58) return 'Virtual Ride';
+  return 'Ride';
+}
 
 function readValue(dv, u8, p, size, type, little) {
   const [bsize, kind, invalid] = BASE[type] ?? [1, 'u8', null];
@@ -376,6 +391,7 @@ export function parseFit(buffer, file = '') {
     if (fp && !sensors.some((x) => x.fp === fp)) sensors.push({ fp, kind: kind ?? 'sensor' });
   }
   const sport = s[5] ?? out.sport?.[0] ?? null;
+  const sub = s[6] ?? out.sport?.[1] ?? null;
   return {
     source: 'fit',
     file,
@@ -383,7 +399,7 @@ export function parseFit(buffer, file = '') {
     time,
     km: s[9] != null ? r1(s[9] / 100 / 1000) : null,
     name: '',
-    type: '',
+    type: fitType(sport ?? 2, sub),
     gear: '',
     stravaId: null,
     device: device || '',
@@ -439,9 +455,11 @@ export function mergeRides(a, b) {
 const same = (x, y) => String(x ?? '').trim().toLowerCase() === String(y ?? '').trim().toLowerCase() && String(x ?? '').trim() !== '';
 
 /**
- * The rules (Q1.5, changeable at any time), each { id, kind: 'sensor' | 'profile' | 'gear', value, bikeIds }.
+ * The rules (Q1.5, changeable at any time), each { id, kind: 'sensor' | 'profile' | 'gear' | 'type', value, bikeIds }.
  * Without a gear rule a Strava bike matches a bike of the same name; without a profile rule a
  * profile named like a bike matches that bike (answer 9a: one Garmin profile per bike, named like it).
+ * v0.69.1: a type rule (the ride type, «Gravel Ride» → a bike) only counts when you made one: no
+ * name fallback, nothing pre-filled.
  */
 export function signals(ride, { bikes, rules = [] }) {
   const exists = (id) => bikes.some((b) => b.id === id);
@@ -457,13 +475,19 @@ export function signals(ride, { bikes, rules = [] }) {
     const r = rules.find((x) => x.kind === 'profile' && same(x.value, ride.profile));
     profile = r ? r.bikeIds.filter(exists) : bikes.filter((b) => same(b.name, ride.profile)).map((b) => b.id);
   }
-  return { sensor, gear, gearUnknown: !!ride.gear && !gear, profile };
+  let type = [];
+  if (ride.type) {
+    const r = rules.find((x) => x.kind === 'type' && same(x.value, ride.type));
+    type = r ? r.bikeIds.filter(exists) : [];
+  }
+  return { sensor, gear, gearUnknown: !!ride.gear && !gear, profile, type };
 }
 
 /**
  * The bike of one ride, never guessed silently: { bikeId, by, sure, reason }.
- * Sensor (sure) › Strava bike (likely) › one profile rule (likely) › you. Any contradiction between
- * the signals, a ride much longer than usual on that bike, or no bike: unclear, with the reason.
+ * Sensor (sure) › Strava bike (likely) › one profile rule (likely) › one ride type rule (likely, v0.69.1)
+ * › you. Any contradiction between the signals, a ride much longer than usual on that bike, or no
+ * bike: unclear, with the reason.
  * usual: { [bikeId]: [km of earlier rides] } for the distance check.
  */
 export function assignRide(ride, ctx) {
@@ -480,9 +504,17 @@ export function assignRide(ride, ctx) {
   } else if (s.profile.length === 1) {
     out = { bikeId: s.profile[0], by: 'profile', sure: 'likely', reason: null };
   } else if (s.profile.length > 1) {
-    out = { bikeId: null, by: 'profile', sure: 'unclear', reason: { code: 'several', bikes: s.profile, profile: ride.profile } };
+    // v0.69.1: a ride type rule for exactly one of these bikes tells them apart
+    const one = s.type.length === 1 && s.profile.includes(s.type[0]);
+    out = one ? { bikeId: s.type[0], by: 'type', sure: 'likely', reason: null } : { bikeId: null, by: 'profile', sure: 'unclear', reason: { code: 'several', bikes: s.profile, profile: ride.profile } };
+  } else if (s.type.length === 1) {
+    out = { bikeId: s.type[0], by: 'type', sure: 'likely', reason: null };
   } else {
     out = { bikeId: null, by: null, sure: 'unclear', reason: { code: 'none', gear: s.gearUnknown ? ride.gear : '', profile: ride.profile ?? '' } };
+  }
+  // v0.69.1: the ride type rule says another bike than the sensor, Strava or the profile: please check
+  if (out.bikeId && out.by !== 'type' && out.sure !== 'unclear' && s.type.length && !s.type.includes(out.bikeId)) {
+    out = { ...out, sure: 'unclear', reason: { code: 'conflict', by: 'type', from: out.by, said: s.type[0], bike: out.bikeId, type: ride.type } };
   }
   // Plausibility: a hint, never a decision. Much longer than every earlier ride on that bike: please check.
   const earlier = out.bikeId && out.sure !== 'unclear' ? ctx.usual?.[out.bikeId] ?? [] : [];
@@ -574,7 +606,7 @@ export function importEntries(plan, choices = {}, importId, now = new Date()) {
       makeEntry(
         {
           bikeId, date: r.date, time: r.time, km: r.km, kind: 'ride', source: r.source, name: r.name, device: r.device, serial: r.serial,
-          profile: r.profile, sensors: (r.sensors ?? []).map((s) => s.fp), gear: r.gear, stravaId: r.stravaId, by, sure, state,
+          profile: r.profile, sensors: (r.sensors ?? []).map((s) => s.fp), gear: r.gear, type: r.type ?? '', stravaId: r.stravaId, by, sure, state,
           reason: state === 'open' ? row.reason : null, importId,
         },
         now,
@@ -674,17 +706,25 @@ export function prevMonth(day) {
 
 export const SOURCE_NAME = { fit: 'FIT file', csv: 'Strava CSV', hand: 'By hand', strava: 'Strava', sync: 'Counter' };
 export const SURE_NAME = { sure: 'sure', likely: 'likely', unclear: 'unclear', user: 'by you' };
-export const BY_NAME = { sensor: 'Sensor', gear: 'Strava bike', profile: 'Profile rule', user: 'by you' };
+export const BY_NAME = { sensor: 'Sensor', gear: 'Strava bike', profile: 'Profile rule', type: 'Ride type rule', user: 'by you' };
 
 /** Why a ride is unclear, as one sentence. nameOf: bike id → name. */
 export function reasonText(reason, nameOf = (id) => id) {
   if (!reason) return '';
+  if (reason.code === 'conflict' && reason.by === 'type') {
+    const v = { bike: nameOf(reason.bike), said: nameOf(reason.said), type: reason.type };
+    if (reason.from === 'sensor') return t('Contradiction: the sensor says {bike}, the rule for the ride type «{type}» says {said}.', v);
+    if (reason.from === 'gear') return t('Contradiction: Strava says {bike}, the rule for the ride type «{type}» says {said}.', v);
+    return t('Contradiction: the profile says {bike}, the rule for the ride type «{type}» says {said}.', v);
+  }
   if (reason.code === 'conflict' && reason.by === 'gear') return t('Contradiction: the sensor says {bike}, Strava says {said}.', { bike: nameOf(reason.bike), said: nameOf(reason.said) });
   if (reason.code === 'conflict' && reason.strava) return t('Contradiction: Strava says {bike}, the rule for {profile} says {said}.', { bike: nameOf(reason.bike), said: nameOf(reason.said), profile: reason.profile });
   if (reason.code === 'conflict') return t('Contradiction: the sensor says {bike}, the profile {profile} says {said}.', { bike: nameOf(reason.bike), said: nameOf(reason.said), profile: reason.profile });
   if (reason.code === 'several') return t('The profile {profile} fits {bikes}: only Strava or a sensor can tell.', { profile: reason.profile, bikes: reason.bikes.map(nameOf).join(' · ') });
   if (reason.code === 'long') return t('Longer than usual: with {bike} mostly under {km} km.', { bike: nameOf(reason.bike), km: num(reason.under) });
-  if (reason.gear) return t('Strava bike «{gear}» is unknown here, no rule for the profile «{profile}».', { gear: reason.gear, profile: reason.profile || '–' });
+  // v0.69.1 G: a Strava ride has no profile: no «rule for the profile «–»»
+  if (reason.gear && !reason.profile) return t('Strava bike «{gear}» is unknown here.', { gear: reason.gear });
+  if (reason.gear) return t('Strava bike «{gear}» is unknown here, no rule for the profile «{profile}».', { gear: reason.gear, profile: reason.profile });
   if (reason.profile) return t('No bike in Strava, no rule for the profile «{profile}».', { profile: reason.profile });
   return t('No bike in Strava, no profile.');
 }
@@ -703,7 +743,7 @@ export function entryDetail(e) {
   if (e.kind === 'start') return e.note === 'Earlier counter' ? t('from the km counter before {date}', { date: dateOf(e.date) }) : e.note && e.note !== 'Start value' ? e.note : t('km at the purchase');
   if (e.kind === 'reading') return e.note && e.note !== 'Counter changed outside the ride ledger' ? e.note : '';
   if (e.tripId) return t('the whole trip, from the debrief');
-  const parts = [e.device, e.profile ? t('Profile {name}', { name: e.profile }) : '', ...(e.sensors ?? []).slice(0, 1).map((fp) => `${t('Sensor')} ${sensorShort(fp)}`)].filter(Boolean);
+  const parts = [e.device, e.profile ? t('Profile {name}', { name: e.profile }) : '', ...(e.sensors ?? []).slice(0, 1).map((fp) => `${t('Sensor')} ${sensorShort(fp)}`), e.by === 'type' && e.type ? t('Ride type {type}', { type: e.type }) : ''].filter(Boolean);
   if (!parts.length && e.source === 'hand') return t('entered by hand');
   if (!parts.length && e.gear) return t('Strava bike {gear}', { gear: e.gear });
   return parts.join(' · ');
