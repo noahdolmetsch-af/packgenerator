@@ -33,5 +33,6 @@ import masse from './masse.js';
 import tempo from './tempo.js';
 import uebergaenge from './uebergaenge.js';
 import fix0671 from './fix0671.js';
+import kmbook from './kmbook.js';
 
-export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671 };
+export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook };

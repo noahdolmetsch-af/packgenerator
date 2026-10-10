@@ -9,12 +9,15 @@
    */
   import { ChevronRight, ChevronDown, ArrowLeftRight, Droplet, Wrench, Check, Ruler, Tag, CircleAlert } from '@lucide/svelte';
   import { PART, kmSince, isMore, partName } from '../care.js';
+  import { partStart, partKm } from '../kmbook.js';
   import { lastWork, partStatus, workWords, isDueState, RANK } from './last.js';
   import { partAreas } from './overview.js';
   import Seg from '../ui/Seg.svelte';
   import { t, num, dateOf } from '../i18n.svelte.js';
 
-  let { bike, time = [], today, onpart, compact = false } = $props();
+  // v0.68.0 «Q1 Jeder km zählt» (Q1.7 a): q1 on: the column «Start point» (mounted on, at bike km) and
+  // «km on part» instead of «Last done» and «since»; a part without one shows «without start point · set».
+  let { bike, time = [], today, onpart, compact = false, q1 = false, onstartpoint = null, bikes = [] } = $props();
 
   const SORTS = [
     ['area', 'By area'],
@@ -44,7 +47,8 @@
     const st = partStatus(bike, part, time, today);
     const since = last ? kmSince(bike, last.main) : null;
     const days = last?.main?.date ? Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${last.main.date}T00:00:00Z`)) / 864e5) : null;
-    return { part, last, st, since, days };
+    const start = q1 ? partStart(part) : null;
+    return { part, last, st, since, days, start, onPart: start ? partKm(bike, part) : null };
   };
   const rows = $derived((bike.parts ?? []).map(rowOf));
   const groups = $derived(partAreas(bike.parts ?? [], isMore));
@@ -63,15 +67,38 @@
     h.start ? Tag : h.result === 'needed' ? CircleAlert : h.action === 'check' ? (typeof h.value === 'number' ? Ruler : Check) : h.action === 'replace' ? ArrowLeftRight : PART[key]?.service || typeof h.sealantMl === 'number' ? Droplet : Wrench;
   const BADGE = { soon: 'soon|part', due: 'due|part', overdue: 'overdue|part', work: 'work needed|part' };
   const sinceText = (r) => (r.since != null ? `${num(r.since)} km` : r.days != null ? t('{n} days|since', { n: num(r.days) }) : '–');
+  const nameOfBike = (id) => bikes.find((b) => b.id === id)?.name ?? t('another bike');
+  /** The line under the start point: brought from another bike, the last work after it, or from the factory. */
+  function startSub(r) {
+    if (r.start.from) return { from: true, text: t('from {bike}, brought {km} km', { bike: nameOfBike(r.start.from), km: num(r.start.carried) }) };
+    if (r.last && r.last.main !== r.start.entry) return { text: `${workWords(r.part.key, r.last.main)} ${dateOf(r.last.main.date)}` };
+    return { text: r.start.start ? t('from the factory') : `${workWords(r.part.key, r.start.entry)} ${dateOf(r.start.date)}` };
+  }
+  function tap(e, key, r) {
+    if (q1 && !r.start && e.target.closest('[data-set]') && onstartpoint) onstartpoint(key);
+    else onpart(key);
+  }
 </script>
 
 {#snippet row(r)}
   {@const L = r.last ? iconOf(r.last.main, r.part.key) : null}
   <li>
-    <button type="button" class="prow" class:late={isDueState(r.st.state)} onclick={() => onpart(r.part.key)}>
+    <button type="button" class="prow" class:late={isDueState(r.st.state)} onclick={(e) => tap(e, r.part.key, r)}>
       <span class="pn"><span class="nm">{partName(r.part)}</span>{#if r.part.model}<small>{r.part.model}</small>{/if}</span>
+      {#if q1}
+        <span class="lw sp">
+          {#if r.start}
+            {@const sub = startSub(r)}
+            <span class="spd num">{t('{date} · at {km} km', { date: dateOf(r.start.date), km: num(r.start.km) })}</span><small class:from={sub.from}>{sub.text}</small>
+          {:else}
+            <span class="nost" data-set><i class="pill warn">{t('without start point')}</i> <u>{t('set|start')}</u></span>
+          {/if}
+        </span>
+        <span class="sn num">{r.onPart != null ? `${num(r.onPart)} km` : '?'}</span>
+      {:else}
       <span class="lw">{#if r.last}<L size={15} aria-hidden="true" /><span>{workWords(r.part.key, r.last.main)} {dateOf(r.last.main.date)}</span>{:else}<span class="m">–</span>{/if}</span>
       <span class="sn num">{r.last ? sinceText(r) : ''}</span>
+      {/if}
       <span class="wb">{#if r.st.fill != null}<span class="bar {r.st.tone}" role="img" aria-label="{Math.round(r.st.fill * 100)} %"><i style="width:{Math.max(4, Math.round(r.st.fill * 100))}%"></i></span>{:else if r.last}<span class="bar empty" aria-hidden="true"></span>{/if}</span>
       <span class="nx" class:late={isDueState(r.st.state)}>{r.st.next || (r.last ? '' : '–')}{#if BADGE[r.st.state]}{' '}<i class="pill" class:act={isDueState(r.st.state)} class:warn={r.st.state === 'soon'}>{t(BADGE[r.st.state])}</i>{/if}</span>
       <ChevronRight class="chev" size={18} aria-hidden="true" />
@@ -84,7 +111,8 @@
     <h3 id="pt-h-{bike.id}" class="ph"><Wrench size={18} aria-hidden="true" />{t('Parts')} <span class="n num">{total}</span></h3>
     {#if !compact}<div class="sorts"><Seg small full={false} label={t('Sort the parts')} value={sort} onchange={setSort} options={SORTS.map(([k, n]) => ({ key: k, name: t(n) }))} /></div>{/if}
   </div>
-  <div class="cols" aria-hidden="true"><span>{t('Part')}</span><span>{t('Last done')}</span><span class="r">{t('since|km')}</span><span>{t('Wear|column')}</span><span>{t('Next|care')}</span><span></span></div>
+  {#if q1}<p class="sphint">{t('Start point = date and bike km at mounting. From it the app counts the km of every part, also across several bikes. To change: tap the part.')}</p>{/if}
+  <div class="cols" aria-hidden="true"><span>{t('Part')}</span><span>{q1 ? t('Start point: mounted on · at bike km') : t('Last done')}</span><span class="r">{q1 ? t('km on part') : t('since|km')}</span><span>{t('Wear|column')}</span><span>{t('Next|care')}</span><span></span></div>
   {#if sort === 'area'}
     {#each groups.main as g (g.key)}
       <p class="zlabel">{t(g.name)}</p>
@@ -203,6 +231,34 @@
   }
   .m {
     color: var(--ink-3);
+  }
+  .lw.sp {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    color: var(--ink);
+  }
+  .lw.sp small {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  .lw.sp small.from {
+    color: var(--accent);
+  }
+  .nost {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .nost u {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .sphint {
+    margin: 0 0 6px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .sn {
     color: var(--ink-2);

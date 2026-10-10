@@ -13,6 +13,7 @@
   import { newTrip, addItem, dayRide } from '../nav.js';
   import { t, num } from '../i18n.svelte.js';
   import { parseKm } from '../care.js';
+  import { setReading } from '../kmbookdb.js';
   import ProblemForm from './ProblemForm.svelte';
 
   let { mode = $bindable(null), onnote } = $props();
@@ -40,7 +41,7 @@
     event.preventDefault();
     const n = parseKm(km); // v0.30.1 (D1): "2'287", "2.287", "2 287"
     if (!kmBike || n == null || Number.isNaN(n)) return (kmMsg = t('Type the km as a whole number, e.g. 12400.'));
-    await db.bikes.update(kmBike.id, { km: n, kmDate: localDay() });
+    await setReading(db, kmBike.id, n, { date: localDay() }); // v0.68.0: a new entry in the ride ledger, nothing overwritten
     kmMsg = t('{bike}: {km} km saved.', { bike: kmBike.name, km: num(n) });
     km = '';
     setTimeout(close, 900);

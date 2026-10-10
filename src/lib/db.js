@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 6; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow
+export const SCHEMA_VERSION = 7; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -35,6 +35,7 @@ export const DATA_TABLES = [
   'flowActs', // v0.51.0 «Im Flow»: activities with their rolling goals and seasons (flow.js)
   'flowLog', // v0.51.0: one row per tick (activity, day, amount, place, minutes)
   'flowChecks', // v0.51.0: the daily check, one row per day (flowcheck.js)
+  'kmBook', // v0.68.0 «Q1 Jeder km zählt»: the ride ledger, one row per km change of a bike (kmbook.js)
 ];
 
 /**
@@ -136,6 +137,11 @@ export function createDb(name = 'pack-generator') {
     flowActs: 'id, order',
     flowLog: 'id, actId, day',
     flowChecks: 'day',
+  });
+  // Version 7 (v0.68.0 «Q1 Jeder km zählt») only adds the ride ledger. The km counters stay; the
+  // first start writes each counter as the ledger's opening entry (kmbookdb.js ensureKmBook).
+  db.version(7).stores({
+    kmBook: 'id, bikeId, date, state, importId',
   });
   return db;
 }
