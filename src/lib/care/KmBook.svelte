@@ -100,6 +100,7 @@
     eName = r.kind === 'correction' ? r.note : r.name;
   }
   async function change(r, changes, text) {
+    editing = null;
     const prev = await updateEntry(db, r.id, changes);
     if (prev) say(text, { put: [prev] });
   }
@@ -368,7 +369,7 @@
   .cols,
   .row {
     display: grid;
-    grid-template-columns: 130px minmax(0, 1fr) 72px minmax(150px, 190px) 100px 44px;
+    grid-template-columns: 130px minmax(0, 1fr) 72px minmax(150px, 190px) 120px 44px;
     gap: 4px 14px;
     align-items: center;
   }

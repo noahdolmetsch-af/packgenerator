@@ -124,7 +124,11 @@
   }
   const ruleOrder = { sensor: 0, gear: 1, profile: 2 };
   const sortedRules = $derived([...rules].sort((a, b) => ruleOrder[a.kind] - ruleOrder[b.kind]));
-  /** What the files show and no rule knows yet: new sensors (with the bike Strava names most), unknown Strava bikes. */
+  /**
+   * What the files show and no rule knows yet: each new sensor serial once («Which bike does sensor …4F2A
+   * belong to?», the bike Strava names most as the suggestion), unknown Strava bikes. The answer is a
+   * rule (sensor → bike), used automatically from then on and changeable. The activity type never decides.
+   */
   const hints = $derived.by(() => {
     if (!plan) return [];
     const out = [];
@@ -256,15 +260,16 @@
         <p class="quiet">{t('A contradiction or an unusual distance: the ride goes to «Check». The app never guesses silently.')}</p>
         {#if hints.length}
           <p class="lbl">{t('New in these files')}</p>
+          <p class="quiet">{t('Asked once: the answer becomes a rule above, used from now on and changeable at any time.')}</p>
           <ul class="hints">
             {#each hints as h (h.kind + h.value)}
               <li>
-                <span>{h.kind === 'sensor' ? `${t('Sensor')} ${sensorShort(h.value)}` : t('Strava bike «{gear}»', { gear: h.value })}</span>
+                <span>{h.kind === 'sensor' ? t('Which bike does sensor {sensor} belong to?', { sensor: sensorShort(h.value) }) : t('Which bike is «{gear}» in Strava?', { gear: h.value })}</span>
                 <select class="sel" aria-label={t('Bike')} value={hintPick[h.kind + h.value] ?? h.guess} onchange={(e) => (hintPick = { ...hintPick, [h.kind + h.value]: e.currentTarget.value })}>
                   <option value="">{t('Choose a bike')}</option>
                   {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
                 </select>
-                <button type="button" class="btn sm" disabled={!(hintPick[h.kind + h.value] ?? h.guess)} onclick={() => addRule(h.kind, h.value, [hintPick[h.kind + h.value] ?? h.guess])}>{t('as a rule')}</button>
+                <button type="button" class="btn sm" disabled={!(hintPick[h.kind + h.value] ?? h.guess)} onclick={() => addRule(h.kind, h.value, [hintPick[h.kind + h.value] ?? h.guess])}>{t('Remember')}</button>
               </li>
             {/each}
           </ul>
