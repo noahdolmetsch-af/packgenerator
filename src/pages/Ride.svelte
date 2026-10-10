@@ -31,6 +31,9 @@
   import TripBand from '../lib/trip/TripBand.svelte';
   import BaseCheck from '../lib/trip/BaseCheck.svelte';
   import { openTrip } from '../lib/nav.js';
+  import { mainStep, packedAll, canReopen, daysFrom, endNeedsAsk } from '../lib/phase.js';
+  import { endTrip as endTripNow, reopenTrip } from '../lib/trip/ending.js';
+  import EndTripSheet from '../lib/trip/EndTripSheet.svelte';
   import '../lib/trip/trip.css';
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, BatteryCharging } from '@lucide/svelte';
 
@@ -83,10 +86,22 @@
   async function change(fields) {
     await db.trips.update(trip.id, touched(fields));
   }
-  // v0.20.1: end the trip now (also before its last day) and go straight to its debrief.
+  // v0.20.1: end the trip now (also before its last day).
+  // v0.67.0 «Übergänge 1» (U004, U005, U22, U25): the last day ends with «Letzten Tag abschliessen»;
+  // before that, or while the day's riding is still ahead (a day ride at 08:00), it asks first
+  // (EndTripSheet: «Weiterfahren» on top). Then the interstitial «Tour beendet», with Undo.
+  let endAsk = $state(false);
+  // the PLANNED arrival of the last day: its set start (or 08:00) plus the riding, not «starts now»
+  const planEnd = $derived.by(() => {
+    if (!trip) return '';
+    const a = stage(trip, days - 1, pace, { today })?.arrive ?? '';
+    return /^\d\d:\d\d$/.test(a) ? a : '';
+  });
   async function finish() {
-    await change({ finished: localDay() });
-    location.hash = `#/debrief/${encodeURIComponent(trip.id)}`;
+    const nowHM = new Date().toTimeString().slice(0, 5);
+    const arrive = planEnd || null;
+    if (endNeedsAsk(trip, today, nowHM, arrive)) return (endAsk = true);
+    await endTripNow($state.snapshot(trip));
   }
   function setStart(value) {
     const rideStart = { ...($state.snapshot(trip.rideStart) ?? {}), [cur]: value || DEFAULT_START };
@@ -327,6 +342,7 @@
   const tripStarted = $derived(trip?.startDate ? trip.startDate <= today : false);
   // L7: before the start there is nothing to end yet: the next step leads back to Pack (the debrief opens from the last day on).
   const ahead = $derived(!!trip?.startDate && !tripStarted && !trip.finished);
+  const main = $derived(trip ? mainStep(trip, today, 'ride', { debriefDone: debrief?.status === 'done' }) : { kind: null });
   const kicker = $derived(!trip ? '' : tripStarted ? (days > 1 ? t('On the way · day {n} of {total}', { n: cur + 1, total: days }) : t('On the way|step')) : t('On the way · from {date}', { date: dateOf(0) }));
   // Opened once when shown; afterwards it stays as you leave it.
   const openOnce = (node, open) => { node.open = open; };
@@ -352,14 +368,34 @@
   });
 </script>
 
-{#snippet go()}{#if ahead}<a class="btn hi go" href="#/pack?day" onclick={() => openTrip(trip.id)}><ArrowLeft size={20} aria-hidden="true" />{t('Back to packing')}</a>{:else}<button type="button" class="btn hi go" onclick={finish}>{trip.finished ? t('Open the debrief') : t('Next: Debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
+<!-- v0.67.0 «Übergänge 1» (U002, U004, U008, Ü4a): the main button follows the phase (phase.js):
+     before the start the waiting state («Zur Startseite», or «Weiter zu Packen» while not packed),
+     on the last day «Letzten Tag abschliessen», after the trip «Weiter zum Rückblick». Earlier days have
+     no orange button: ending early is the quiet «Tour beenden …» in the band (it asks first). -->
+{#snippet go()}{#if main.kind === 'last'}<button type="button" class="btn hi go" onclick={finish}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>{:else if main.kind === 'go'}<a class="btn hi go" href={main.href} onclick={() => openTrip(trip.id)}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
+{#snippet endLink()}{#if main.kind === null}<button type="button" class="endlink" onclick={() => (endAsk = true)}>{t('End the trip …')}</button>{/if}{/snippet}
 {#snippet pen()}<button type="button" class="tp-icon-btn" aria-label={t('Note for the debrief')} onclick={goNote}><Pencil size={22} aria-hidden="true" /></button>{/snippet}
 
 {#if !trip}
   {#if $tripsQ}<p class="card">{t('No trip yet. Create one in')} <a href="#/pack">{t('Plan|stage')}</a>.</p>{/if}
 {:else}
 <div class="ride trip-page">
-  <TripBand {trip} tab="ride" {kicker} compact action={go} aside={pen} hint={ahead ? '' : t('End the trip when you are back home.')} />
+  <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : null} aside={main.kind ? pen : null} extra={endLink} hint={main.kind === 'last' ? t('End the trip when you are back home.') : ''} />
+  {#if ahead}
+    <!-- v0.67.0 (U002, Ü4a): before the start On the way is a calm waiting state, not a loop back to Pack. -->
+    {@const n = daysFrom(today, trip.startDate)}
+    <section class="tp-card wait" aria-labelledby="wait-h">
+      <span class="dbox" aria-hidden="true"><small>{new Date(`${trip.startDate}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short' })}</small><b class="num">{new Date(`${trip.startDate}T12:00:00`).getDate()}</b></span>
+      <div>
+        <h2 id="wait-h">{n === 1 ? t('Start tomorrow') : tn(n, 'Start in {n} day', 'Start in {n} days')}</h2>
+        <p class="tp-muted tp-small">{packedAll(trip) ? t('Everything is packed. Until then there is nothing to do.') : t('Not everything is packed yet.')} {t('On the way opens by itself on the day.')}</p>
+      </div>
+    </section>
+  {/if}
+  {#if trip.finished && main.kind === 'go' && canReopen(trip, today)}
+    <!-- v0.67.0 (U005): ended by mistake? Until the next day it can be taken back. -->
+    <p class="tp-status reopen">{t('Trip ended.')} <button type="button" class="tp-link" onclick={() => reopenTrip($state.snapshot(trip))}>{t('Still on the way? Reopen the trip')}</button></p>
+  {/if}
   {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} />{/if}
   <div class="tp-grid2 r">
     <div class="col">
@@ -571,9 +607,21 @@
     </div>
   </div>
 </div>
+{#if endAsk}<EndTripSheet {trip} day={cur + 1} {days} arrive={cur + 1 >= days ? planEnd : ''} onclose={() => (endAsk = false)} />{/if}
 {/if}
 
 <style>
+  /* v0.67.0 (Ü4a): the waiting state before the start: the date box and the countdown. */
+  .wait { display: flex; align-items: center; gap: 14px; }
+  .wait h2 { margin: 0 0 4px; }
+  .wait p { margin: 0; }
+  .dbox { display: grid; place-items: center; flex: none; width: 56px; height: 60px; border-radius: 10px; background: var(--paper-2); color: var(--ink); }
+  .dbox small { font-size: var(--fs-tiny); text-transform: uppercase; color: var(--ink-3); }
+  .dbox b { font: 700 var(--fs-section)/1 var(--font-body); }
+  .reopen { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; }
+  /* «Tour beenden …» in the band: quiet, never orange (U25a), a full tap target */
+  .endlink { min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--brand-ink); font: 500 var(--fs-small) var(--font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .endlink:focus-visible { outline: 2px solid var(--focus-on-dark); outline-offset: 2px; }
   .col { min-width: 0; }
   .days { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0 0 12px; }
   .days .sum { flex-basis: 100%; }

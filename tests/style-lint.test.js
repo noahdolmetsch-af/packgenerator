@@ -2,7 +2,8 @@
 // Fails only when a file gets MORE violations than tests/guard-baseline.json lists for it (a new file:
 // any violation). Prints a summary so the baseline can shrink release by release.
 import { describe, it, expect } from 'vitest';
-import { lintAll, lintFile, countsOf, readBaseline, compare, summary, globalClasses, checkDecl, RULES } from '../scripts/style-lint.mjs';
+import { existsSync } from 'node:fs';
+import { lintAll, lintFile, countsOf, readBaseline, compare, summary, globalClasses, checkDecl, RULES, STRICT_STYLE, stillToRebuild } from '../scripts/style-lint.mjs';
 
 describe('style lint rules', () => {
   const globals = globalClasses('.sw { width: 10px }\n.btn.hi { color: red }\n.card, .row .x { padding: 0 }\n@media (max-width: 9px) { .sel { width: 1px } }');
@@ -55,5 +56,24 @@ describe('style lint on src/', () => {
     ]);
     const help = { colour: 'use a var(--…) token from src/app.css', breakword: 'use overflow-wrap: break-word (whole words wrap)', global: 'rename the class: app.css styles it for everyone', fontsize: 'use var(--fs-page|section|sub|body|label|small)' };
     expect(messages, `New style violations (${[...new Set(worse.map((w) => `${w.rule}: ${help[w.rule]}`))].join('; ')}):\n${messages.join('\n')}`).toEqual([]);
+  });
+});
+
+// v0.67.0 «Übergänge 1» (Noah Ü2a): the kit and every file a release builds or brings onto it is strict:
+// no baseline, no violation at all. The rest stays listed as «noch umbauen» until a release touches it.
+describe('style lint: strict for the kit and the touched pages', () => {
+  it('the strict files exist, have no violation and no baseline entry', () => {
+    const result = lintAll();
+    const base = readBaseline().style ?? {};
+    for (const f of STRICT_STYLE) {
+      expect(existsSync(new URL(`../${f}`, import.meta.url)), f).toBe(true);
+      expect(base[f], `${f} must not be in the baseline`).toBeUndefined();
+      expect((result[f] ?? []).map((v) => `${f}:${v.line} ${v.rule} ${v.text}`), f).toEqual([]);
+    }
+  });
+  it('lists the files still to rebuild («noch umbauen»)', () => {
+    const list = stillToRebuild(readBaseline().style ?? {});
+    console.log(`noch umbauen: ${list.length} files\n${list.slice(0, 15).map(([f, n]) => `  ${String(n).padStart(4)}  ${f}`).join('\n')}`);
+    expect(list.every(([f]) => !STRICT_STYLE.includes(f))).toBe(true);
   });
 });

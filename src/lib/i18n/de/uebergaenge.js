@@ -1,0 +1,101 @@
+/**
+ * v0.67.0 «Übergänge 1»: the kit (main bar, step bar, interstitials), the main buttons by phase,
+ * «Tour beenden» with its question, «Weitermachen» and the evening reminders on Today.
+ * Keys are the English texts. Swiss spelling (ss), calm words.
+ */
+export default {
+  // main buttons by phase (phase.js mainStep)
+  'To the start page': 'Zur Startseite',
+  'Continue to On the way': 'Weiter zu Unterwegs',
+  'Continue to Debrief': 'Weiter zum Rückblick',
+  'Back to Trips': 'Zurück zu Touren',
+  'Finish packing': 'Packen abschliessen',
+  'Finish the trip': 'Tour abschliessen',
+  'Finish the last day': 'Letzten Tag abschliessen',
+  'End the trip …': 'Tour beenden …',
+
+  // EndTripSheet (U004, U25a)
+  'End the trip now?': 'Tour jetzt beenden?',
+  'You are on day {n} of {total}. Day {last} falls away, then the debrief comes.': 'Du bist an Tag {n} von {total}. Tag {last} fällt weg, danach kommt der Rückblick.',
+  'You are on day {n} of {total}. Days {from} to {last} fall away, then the debrief comes.': 'Du bist an Tag {n} von {total}. Tag {from} bis {last} fallen weg, danach kommt der Rückblick.',
+  'By the plan you arrive at about {time}. Then the debrief comes.': 'Laut Plan kommst du etwa um {time} an. Danach kommt der Rückblick.',
+  'Then the debrief comes.': 'Danach kommt der Rückblick.',
+  'Why? Optional, it helps the debrief.': 'Warum? Freiwillig, hilft beim Rückblick.',
+  'Weather|reason': 'Wetter',
+  Breakdown: 'Panne',
+  Tired: 'Müde',
+  'Plan changed': 'Plan geändert',
+  'Ride on': 'Weiterfahren',
+  'End the trip': 'Tour beenden',
+  'Until tomorrow you can take it back: «Still on the way».': 'Bis morgen rückgängig: «Doch noch unterwegs».',
+  'Back closes only this window.': 'Zurück schliesst nur dieses Fenster.',
+
+  // On the way: waiting state, reopen (Ü4a, U005)
+  'Start today': 'Start heute',
+  'Start tomorrow': 'Start morgen',
+  'Start in {n} day': 'Start in {n} Tag',
+  'Start in {n} days': 'Start in {n} Tagen',
+  'Everything is packed. Until then there is nothing to do.': 'Alles ist gepackt. Bis dann ist nichts zu tun.',
+  'Not everything is packed yet.': 'Noch ist nicht alles gepackt.',
+  'On the way opens by itself on the day.': 'Unterwegs öffnet sich am Starttag von selbst.',
+  'Trip ended.': 'Tour beendet.',
+  'Still on the way? Reopen the trip': 'Doch noch unterwegs? Tour wieder öffnen',
+  'Still on the way? Back to On the way': 'Doch noch unterwegs? Zurück zu Unterwegs',
+  'The packing list is still empty. Add gear in Plan first, then pack here.': 'Die Packliste ist noch leer. Ergänze zuerst Material in Planen, dann packst du hier.',
+
+  // interstitial «Gepackt»
+  'Almost packed': 'Fast gepackt',
+  'Everything is in the bags. They can stay like that until {day}.': 'Alles ist in den Taschen. Die können bis {day} so stehen bleiben.',
+  'Everything is in the bags.': 'Alles ist in den Taschen.',
+  '{n} thing is not ticked yet. That is fine, you decide.': '{n} Sache ist noch nicht abgehakt. Das ist in Ordnung, du entscheidest.',
+  '{n} things are not ticked yet. That is fine, you decide.': '{n} Sachen sind noch nicht abgehakt. Das ist in Ordnung, du entscheidest.',
+  'On {day} it starts. Until then there is nothing to do.': 'Am {day} geht es los. Bis dann ist nichts zu tun.',
+  'Today it starts. Have a good trip!': 'Heute geht es los. Gute Fahrt!',
+  'See the packing list': 'Packliste ansehen',
+  items: 'Teile',
+  'base on the bike': 'Basis am Velo',
+  base: 'Basis',
+  'total with food': 'total mit Essen',
+  'Reminder the evening before': 'Erinnerung am Vorabend',
+  '{day}, from 18:00 at the top of Today': '{day}, ab 18:00 zuoberst auf Heute',
+  'On the way opens by itself on {day}.': 'Unterwegs öffnet sich am {day} von selbst.',
+
+  // interstitial «Tour beendet»
+  'Trip ended': 'Tour beendet',
+  'Ended after day {n} of {total}. Good to be back.': 'Beendet nach Tag {n} von {total}. Gut zurück.',
+  '{n} day on the way. Good to be back.': '{n} Tag unterwegs. Gut zurück.',
+  '{n} days on the way. Good to be back.': '{n} Tage unterwegs. Gut zurück.',
+  'Good to be back.': 'Gut zurück.',
+  'ridden|km': 'gefahren',
+  'climbed|stat': 'Höhenmeter',
+  'Numbers from your route. With an uploaded ride they get exact.': 'Zahlen aus deiner Route. Mit einer hochgeladenen Fahrt werden sie genau.',
+  'Noted on the way · {n}': 'Unterwegs notiert · {n}',
+  'It goes into the debrief, nothing to copy.': 'Kommt in den Rückblick, du musst nichts abschreiben.',
+  'Debrief, about 3 minutes. Best today, while everything is fresh.': 'Rückblick, etwa 3 Minuten. Am besten heute, solange alles frisch ist.',
+  'A short debrief: «All good» when nothing was different.': 'Ein kurzer Rückblick: «Alles gut», wenn nichts anders war.',
+  'Nothing more. The debrief is saved.': 'Nichts mehr. Der Rückblick ist gespeichert.',
+  'Debrief in detail': 'Ausführlicher Rückblick',
+  'Every item counts as used.': 'Jedes Teil zählt als gebraucht.',
+  'With «Later», Today reminds you tomorrow.': 'Bei «Später» erinnert Heute dich morgen.',
+  '{trip} ended.': '{trip} beendet.',
+
+  // interstitial «Rückblick fertig»
+  'Debrief finished|title': 'Rückblick fertig',
+  'Thank you. The next packing list knows more now.': 'Danke. Die nächste Packliste weiss jetzt mehr.',
+  'base {kg} kg': 'Basis {kg} kg',
+  Learned: 'Gelernt',
+  '{name} was missing': '{name} hat gefehlt',
+  '{name} not used': '{name} nicht gebraucht',
+  '{name} broke': '{name} ist kaputt gegangen',
+  'Everything was as planned: every item was used.': 'Alles war wie geplant: jedes Teil wurde gebraucht.',
+  'Nothing more. {trip} is now under «Past trips».': 'Nichts mehr. {trip} liegt jetzt unter «Vergangene Touren».',
+  'See the debrief': 'Rückblick ansehen',
+  'Trip not found': 'Tour nicht gefunden',
+
+  // Today: Weitermachen and the evening (U3, U24b, Ü6a, U22b)
+  'Continue · {step}, step {n} of {total}': 'Weitermachen · {step}, Schritt {n} von {total}',
+  'Tomorrow it starts: {trip}': 'Morgen geht es los: {trip}',
+  'Charge the batteries, look at the weather, fill the bottles.': 'Akkus laden, Wetter ansehen, Flaschen füllen.',
+  'Last evening: {trip}': 'Letzter Abend: {trip}',
+  'Back home? Finish the trip.': 'Zurück zuhause? Tour abschliessen.',
+};

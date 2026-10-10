@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
   import { SLOTS } from '../bikes.js';
   import { shrinkImage } from '../photo.js';
@@ -55,6 +56,10 @@
     dialog.close();
   }
 
+  // v0.67.0 (Ü7a, U070): back closes this window first and keeps what was typed (saved like «Save»);
+  // without a name there is nothing to keep.
+  const keepOnBack = () => (draft.name.trim() ? save({ preventDefault() {} }) : dialog.close());
+
   async function remove() {
     const n = await db.trips.filter((x) => x.bikeId === bike.id).count();
     if (n) return (error = t('{n} trip(s) use this bike. Give them another bike first (Pack → Edit trip).', { n }));
@@ -64,7 +69,7 @@
   }
 </script>
 
-<dialog class="sheet" bind:this={dialog} {onclose} aria-labelledby="bike-dlg-h">
+<dialog class="sheet" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bike-dlg-h">
   <form onsubmit={save} novalidate>
     <h2 id="bike-dlg-h" class="title">{isNew ? t('Add bike') : t('Bike details')}</h2>
     <div class="grid">

@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js';
   import '../trip/trip.css';
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
@@ -460,7 +461,7 @@
   </fieldset>
 {/snippet}
 
-<dialog class="sheet trip-dlg" bind:this={dialog} onclose={closed} aria-labelledby="trip-h">
+<dialog class="sheet trip-dlg" bind:this={dialog} use:backClose onclose={closed} aria-labelledby="trip-h">
   <form onsubmit={save} novalidate>
     <!-- v0.30.0 (Noah, finding 2): the dark band of the trip pages on top. -->
     <div class="band"><h2 id="trip-h" class="title">{isNew ? t('New trip') : t('Trip details')}</h2></div>

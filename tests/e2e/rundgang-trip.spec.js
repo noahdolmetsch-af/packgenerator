@@ -76,9 +76,10 @@ async function fits(page, info) {
 }
 /** RG_SHOTS=<folder> saves screenshots there (never into the repo). */
 const shot = (page, info, name) => process.env.RG_SHOTS && page.screenshot({ path: `${process.env.RG_SHOTS}/${name}-${info.project.name}.png` });
-const goButton = (page) => page.locator('.trip-band .act .go');
+// v0.67.0 «Übergänge 1»: the one main button sits in the band's main bar (src/lib/ui/MainBar)
+const goButton = (page) => page.locator('.trip-band .mainbar .go');
 
-test('L2: open suggestions on top of Plan; "Next: Pack" asks once, the Pack tab never', async ({ page, context }, info) => {
+test('L2: open suggestions on top of Plan; "Continue to Pack" asks once, the Pack tab never', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   // Cold (4–12 °C): arm warmers, wind vest and long gloves are suggested, none of them on the list yet.
@@ -105,8 +106,8 @@ test('L2: open suggestions on top of Plan; "Next: Pack" asks once, the Pack tab 
   await expect(page.locator('dialog.ask-sheet')).toHaveCount(0);
   await page.goto('./#/pack');
 
-  // "Next: Pack" asks: n open, the first three names, then "Decide now" opens Still to decide.
-  await expect(goButton(page)).toHaveText(T('Next: Pack'));
+  // "Continue to Pack" asks: n open, the first three names, then "Decide now" opens Still to decide.
+  await expect(goButton(page)).toHaveText(T('Continue to Pack'));
   await goButton(page).click();
   const ask = page.locator('dialog.ask-sheet');
   await expect(ask.getByRole('heading', { name: T('{n} suggestions still open', { n: 4 }) })).toBeVisible();
@@ -151,7 +152,7 @@ test('L7: no debrief before the last day; On the way before the start leads back
   const end = new Date(`${day(11)}T12:00:00`).toLocaleDateString('de-CH', { weekday: 'short', day: 'numeric', month: 'long' });
   await expect(page.getByRole('heading', { name: T('Debrief from {date}', { date: end }) })).toBeVisible();
   await expect(page.getByRole('button', { name: T('Save debrief') })).toHaveCount(0);
-  await expect(goButton(page)).toHaveText(T('Back to packing'));
+  await expect(goButton(page)).toHaveText(T('Continue to Pack')); // v0.67.0 (U002): by the phase, no «Zurück zum Packen» loop
   await fits(page, info);
   await shot(page, info, 'l7-debrief');
   // "Trip is off" is the Plan's "Not riding" (skipped); it can be taken back.
@@ -165,14 +166,15 @@ test('L7: no debrief before the last day; On the way before the start leads back
   // On the way, 10 days before the start: back to Pack, the trip is not ended.
   await page.evaluate(() => localStorage.setItem('pack.currentTrip', 'gtp-l7'));
   await page.goto('./#/ride');
-  await expect(goButton(page)).toHaveText(T('Back to packing'));
+  await expect(goButton(page)).toHaveText(T('Continue to Pack')); // v0.67.0 (U002): by the phase, no «Zurück zum Packen» loop
   await goButton(page).click();
   await expect(page).toHaveURL(/#\/pack\?day/);
   expect((await table(page, 'trips'))[0].finished).toBeFalsy();
   expect(errors).toEqual([]);
 });
 
-test('L7: during the trip "Next: Debrief" on the way ends it and opens the whole debrief', async ({ page, context }, info) => {
+// (no «» in a test name: the output folder carries it, and a file pick from there fails)
+test('L7: during the trip "End the trip" on the way asks, ends it, and "Trip ended" opens the whole debrief', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, info, { trips: [trip('gtp-l7b', 'Unterwegs', { startDate: day(0), days: 2 })] });
@@ -182,8 +184,14 @@ test('L7: during the trip "Next: Debrief" on the way ends it and opens the whole
   // …but ending the trip on the way opens it at once.
   await page.evaluate(() => localStorage.setItem('pack.currentTrip', 'gtp-l7b'));
   await page.goto('./#/ride');
-  await expect(goButton(page)).toHaveText(T('Next: Debrief'));
-  await goButton(page).click();
+  // v0.67.0 (U004): before the last day no main button; the quiet link asks first («Weiterfahren» on top)
+  await expect(goButton(page)).toHaveCount(0);
+  await page.getByRole('button', { name: T('End the trip …') }).click();
+  const sheet = page.locator('dialog.endsheet');
+  await expect(sheet).toBeVisible();
+  await sheet.getByRole('button', { name: T('End the trip'), exact: true }).click();
+  await expect(page).toHaveURL(/#\/trip\/gtp-l7b\/ended$/);
+  await page.locator('main .mainbar .btn.hi').click(); // «Weiter zum Rückblick»
   await expect(page).toHaveURL(/#\/debrief\/gtp-l7b/);
   await expect(page.getByRole('button', { name: T('Save debrief') }).first()).toBeVisible();
   expect((await table(page, 'trips'))[0].finished).toBe(day(0));

@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.67.0
+  'After packing, after the trip and after the debrief a calm page shows what is done and the one next step. «Later» always works.':
+    'Nach dem Packen, nach der Tour und nach dem Rückblick zeigt eine ruhige Seite, was erledigt ist, und den einen nächsten Schritt. «Später» geht immer.',
+  'The orange button of a trip follows the date: before the start «To the start page» once everything is packed, under way On the way, afterwards the debrief.':
+    'Der orange Knopf einer Tour folgt dem Datum: vor dem Start «Zur Startseite», sobald alles gepackt ist, während der Tour Unterwegs, danach der Rückblick.',
+  '«Continue» at the top of Today opens the step the next trip is in. From 18:00 the evening before the start a reminder sits there too.':
+    '«Weitermachen» zuoberst auf Heute öffnet den Schritt, in dem die nächste Tour steht. Ab 18 Uhr am Vorabend des Starts steht dort auch eine Erinnerung.',
+  'Ending a trip early asks first and can be undone. The back key closes an open window first and keeps what you typed.':
+    'Eine Tour früher beenden fragt zuerst nach und lässt sich rückgängig machen. Die Zurück-Taste schliesst zuerst ein offenes Fenster und behält, was du getippt hast.',
+
   // 0.66.0
   'New building blocks: Bivouac, Tent and Hotel/hut for the night, Repair, Charging, Light and Race for the ride, Food, Hygiene and Comfort to add. Your items moved along by themselves, nothing was lost.':
     'Neue Bausteine: Biwak, Zelt und Hotel/Hütte für die Nacht, Reparatur, Laden, Licht und Rennen für die Fahrt, Verpflegung, Hygiene und Komfort zum Dazunehmen. Deine Sachen sind von selbst mitgezogen, nichts ging verloren.',

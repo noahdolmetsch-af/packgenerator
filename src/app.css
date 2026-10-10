@@ -46,6 +46,10 @@
   --fs-body: 16px;
   --fs-label: 14px;
   --fs-small: 14px;
+  /* v0.67.0 «Übergänge 1» (kit): the two sizes the trip band and the step bar need, so they use
+     the scale instead of their own numbers: the step states and badges, and a trip's name. */
+  --fs-tiny: 12px;
+  --fs-title: clamp(23px, 1.25vw + 18px, 32px);
   --lh: 1.5;
   --lh-title: 1.2;
   /* Spacing steps. */

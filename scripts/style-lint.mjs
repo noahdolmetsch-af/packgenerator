@@ -23,6 +23,33 @@ import { fileURLToPath } from 'node:url';
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const BASELINE = join(ROOT, 'tests/guard-baseline.json');
 export const RULES = ['colour', 'breakword', 'global', 'fontsize'];
+/**
+ * v0.67.0 «Übergänge 1» (Noah Ü2a, Mitziehen): what a release builds or brings onto the kit is STRICT:
+ * no baseline, every rule must be 0 (style lint here; the Konsistenz-Test also: at most one main
+ * button). Everything still in the baseline is «noch umbauen» (docs/design-audit.md), one release at a time.
+ */
+export const STRICT_STYLE = [
+  'src/lib/ui/StepBar.svelte',
+  'src/lib/ui/MainBar.svelte',
+  'src/lib/ui/PageHead.svelte',
+  'src/lib/ui/Empty.svelte',
+  'src/lib/ui/Celebrate.svelte',
+  'src/lib/ui/Interstitial.svelte',
+  'src/lib/trip/TripBand.svelte',
+  'src/lib/trip/EndTripSheet.svelte',
+  'src/lib/home/Continue.svelte',
+  'src/pages/Between.svelte',
+];
+/** The routes of the trip pages and interstitials (tests/e2e/guard.spec.js), strict in the same way. */
+export const STRICT_ROUTES = ['#/pack', '#/pack?day', '#/ride', '#/debrief/test_data_gtp_Napf', '#/trip/test_data_gtp_Herbstrunde/packed', '#/trip/test_data_gtp_Napf/ended', '#/trip/test_data_gtp_Napf/debriefed'];
+/** «noch umbauen»: every file the baseline still lists (not strict), most violations first. */
+export const stillToRebuild = (base = {}) =>
+  Object.entries(base)
+    .filter(([f]) => !STRICT_STYLE.includes(f))
+    .map(([f, c]) => [f, Object.values(c).reduce((a, b) => a + b, 0)])
+    .filter(([, n]) => n > 0)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
 /** The rules of the Konsistenz-Test (tests/e2e/guard.spec.js); primary is reported only. */
 export const LAYOUT_RULES = ['hscroll', 'wordbreak', 'target', 'h1', 'primary'];
 

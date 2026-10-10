@@ -16,7 +16,8 @@ const tr = (lang) => (en, vars) => {
 const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', import.meta.url)), 'utf8'));
 const day = (n) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 const TRIP = 'test_data_gtp_gpxtrip';
-const SHOTS = '/mnt/project-files/design/v041/';
+// SHOTS_DIR: another folder for the design shots (a run that must not write into the shared folder)
+const SHOTS = process.env.SHOTS_DIR ? `${process.env.SHOTS_DIR}/v041/` : '/mnt/project-files/design/v041/';
 const shot = async (page, name) => {
   try {
     mkdirSync(SHOTS, { recursive: true });

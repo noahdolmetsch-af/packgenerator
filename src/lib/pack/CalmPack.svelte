@@ -33,8 +33,9 @@
   import { rainChance } from '../wardrobe.js';
   import { pastTrips } from '../hubs.js';
   import { localDay } from '../localday.js';
+  import { mainStep } from '../phase.js';
   import '../trip/trip.css';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {} } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {} } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -131,15 +132,23 @@
     if (m[1] === 'decide' && bikeTrip) review = true;
     else show('conditions');
   });
-  const primary = $derived(over ? 'debrief' : step === debriefStep ? 'end' : step === 2 ? 'ride' : dayRide ? 'go' : 'pack');
+  // v0.67.0 «Übergänge 1» (U008, U014): the main button follows the PHASE of the trip (phase.js),
+  // not the next tab: an empty list adds gear, a packed trip waits («Zur Startseite»), under way it is
+  // On the way, after the trip the debrief.
+  const main = $derived(mainStep(trip, localDay(), 'plan', phaseOpts));
+  // v0.67.0: #/pack?add (the Pack tab of an empty list) opens «Add material» here.
+  $effect(() => {
+    if (!/^#\/pack\?add\b/.test(location.hash)) return;
+    history.replaceState(null, '', '#/pack');
+    show('add');
+  });
 </script>
 
 {#snippet go()}
-  {#if primary === 'debrief'}<button class="btn hi go" onclick={() => location.hash = `#/debrief/${encodeURIComponent(trip.id)}`}>{t('Next: Debrief')}<ArrowRight size={20} aria-hidden="true" /></button>
-  {:else if primary === 'end'}<button class="btn hi go" onclick={actions.end}>{t('Next: Debrief')}<ArrowRight size={20} aria-hidden="true" /></button>
-  {:else if primary === 'ride'}<button class="btn hi go" onclick={actions.ride}>{t('Next: On the way')}<ArrowRight size={20} aria-hidden="true" /></button>
-  {:else if primary === 'go'}<button class="btn hi go" onclick={actions.packAndGo}>{t("All packed, let's go")}<ArrowRight size={20} aria-hidden="true" /></button>
-  {:else}<button class="btn hi go" onclick={toPack}>{t('Next: Pack')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}
+  {#if main.kind === 'add'}<button class="btn hi go" onclick={() => show('add')}>{t(main.label)}<Plus size={20} aria-hidden="true" /></button>
+  {:else if main.kind === 'packgo'}<button class="btn hi go" onclick={actions.packAndGo}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
+  {:else if main.href === '#/pack?day'}<button class="btn hi go" onclick={toPack}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
+  {:else if main.kind === 'go'}<a class="btn hi go" href={main.href} onclick={() => actions.choose(trip.id)}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}
 {/snippet}
 {#snippet plus()}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')}><Plus size={22} aria-hidden="true" /></button>{/snippet}
 
@@ -148,7 +157,7 @@
     <TripBand {trip} tab="plan" {kicker} action={null} />
     {#key trip.id}<DecisionReview {trip} {items} onapply={apply} oncancel={() => review = false} onconditions={() => show('conditions')} />{/key}
   {:else}
-    <TripBand {trip} tab="plan" {kicker} {edit} action={go} aside={plus} weighHint={!made} hint={primary === 'go' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : primary === 'pack' ? t('List ready? Then pack bag by bag.') : primary === 'ride' ? t('Everything is packed.') : ''} />
+    <TripBand {trip} tab="plan" {kicker} {edit} action={go} aside={plus} weighHint={!made} hint={main.kind === 'packgo' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : main.href === '#/pack?day' ? t('List ready? Then pack bag by bag.') : main.kind === 'add' ? t('The list is still empty.') : main.href === '#/' ? t('Everything is packed.') : ''} />
     {@render notice?.()}
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
     <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->

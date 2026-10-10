@@ -13,7 +13,10 @@
   import { t } from '../i18n.svelte.js';
   import { tapAreas } from './tap.js';
 
-  let { places, mounts = false, active = null, label = '', onpick, tapText = null } = $props();
+  let { places, mounts = false, active = null, label = '', onpick, tapText = null, quietSpots = false } = $props();
+  // v0.67.0 (Konsistenz-Test strict on the trip page): quietSpots: a shape with a label above or below
+  // is only a shortcut for the mouse and the finger; the label is the button (44 px, read out), so two
+  // small shapes side by side never make a too small target.
   // v0.47.0: the trip page's drawing opens the bag in the list (tapText(place) says so).
   const say = (p) => (tapText ? tapText(p) : t('{place}: {bag}, choose a bag', { place: p.name, bag: p.bag.name }));
 
@@ -77,6 +80,10 @@
       </g>
     </svg>
     {#each places as p, i (p.key)}
+      {#if quietSpots && p.bag && !mounts}
+        <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+        <span class="spot" class:active={active === p.key} style={pos(p.box) + tap(i)} aria-hidden="true" title={p.name} onclick={() => onpick?.(p.key)}></span>
+      {:else}
       <button
         type="button"
         class="spot"
@@ -88,6 +95,7 @@
         title={p.name}
         onclick={() => onpick?.(p.key)}
       >{#if !p.bag && !mounts}<span aria-hidden="true">+</span>{/if}</button>
+      {/if}
     {/each}
   </div>
   {@render labels(rows.bottom, 'bottom')}

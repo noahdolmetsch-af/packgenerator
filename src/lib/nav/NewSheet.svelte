@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js';
   import { localDay } from '../localday.js';
   /**
    * "New" (v0.19.6, start page answers 4a and 8a): every way to create something, in one place.
@@ -46,7 +47,7 @@
   }
 </script>
 
-<dialog class="sheet new" bind:this={dialog} onclose={() => ((mode = null), (kmMsg = ''))} aria-labelledby="new-h">
+<dialog class="sheet new" bind:this={dialog} use:backClose onclose={() => ((mode = null), (kmMsg = ''))} aria-labelledby="new-h">
   <div class="top">
     <h2 id="new-h" class="title">{mode === 'km' ? t('km for a bike') : mode === 'problem' ? t('Problem with a bike') : t('New')}</h2>
     <button type="button" class="btn sm" onclick={close}>{t('Close')}</button>

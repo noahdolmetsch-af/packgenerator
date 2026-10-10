@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.67.0',
+    date: '2026-10-10',
+    points: [
+      { text: 'After packing, after the trip and after the debrief a calm page shows what is done and the one next step. «Later» always works.', href: '#/trips' },
+      { text: 'The orange button of a trip follows the date: before the start «To the start page» once everything is packed, under way On the way, afterwards the debrief.', href: '#/pack' },
+      { text: '«Continue» at the top of Today opens the step the next trip is in. From 18:00 the evening before the start a reminder sits there too.', href: '#/' },
+      { text: 'Ending a trip early asks first and can be undone. The back key closes an open window first and keeps what you typed.', href: '#/ride' },
+    ],
+  },
+  {
     version: '0.66.0',
     date: '2026-10-09',
     points: [

@@ -1,7 +1,7 @@
 // v0.21.0 (Noah's decision 7a): the whole trip loop in a real browser, on phone and desktop, in
 // English and German. Runs on every pull request (npm run e2e), so a broken step can't be merged.
 // start page → import the fictional fixture → New → Packing list → Standard set → Create trip
-// → Pack (everything ticked bag by bag, ready check done) → On the way → Next: Debrief → saved on one page.
+// → Pack (everything ticked bag by bag, ready check done) → On the way → Tour beendet → saved on one page.
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -117,15 +117,24 @@ for (const lang of ['en', 'de']) {
     await fits('Pack');
     await expect(page.locator('.pd .pbag.cur .bagfoot, .pd').getByText(T('Everything is in. Have a good ride!')), `bags after packing: ${left}; status: ${await page.locator('.pd p[role=status]').first().innerText()}`).toBeVisible();
 
-    // 6. The one orange button now leads to On the way.
-    await expect(go).toContainText(T('Next: On the way'));
+    // 6. The one orange button now finishes packing; a day ride goes straight on to On the way
+    // (v0.67.0 «Übergänge 1», Ü5a: no «Gepackt» page for a day ride).
+    await expect(go).toContainText(T('Finish packing'));
     await go.click();
     await expect(page).toHaveURL(/#\/ride/);
     await expect(page.getByText(title).first()).toBeVisible();
     await fits('On the way');
 
-    // 7. On the way → Next: Debrief (ends the trip).
+    // 7. On the way → «Tour abschliessen» (v0.67.0): before the planned end of the ride (the real clock
+    // runs here) it asks first (U004); then «Tour beendet» and from there the whole debrief.
+    await expect(go).toContainText(T('Finish the trip'));
     await go.click();
+    const endSheet = page.locator('dialog.endsheet');
+    const ended = page.getByRole('heading', { level: 1, name: T('Trip ended') });
+    await expect(endSheet.or(ended)).toBeVisible();
+    if (await endSheet.isVisible()) await endSheet.getByRole('button', { name: T('End the trip'), exact: true }).click();
+    await expect(ended).toBeVisible();
+    await page.getByRole('link', { name: T('Debrief in detail') }).click();
     await expect(page).toHaveURL(/#\/debrief\/./);
 
     // 8. Debrief on one page (Noah 9a): everything filled in; one tap per exception, then save.

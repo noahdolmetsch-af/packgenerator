@@ -3,6 +3,7 @@
 // Inbox, and a missing item that becomes a learning. Fictional fixture plus test_data_gtp_ records;
 // nothing leaves the preview server.
 import { test, expect } from '@playwright/test';
+import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -180,7 +181,7 @@ test('On the way note: in the Inbox and in the debrief; a missing item becomes a
   await expect(page.getByText('test_data_gtp_ Gloves too thin')).toBeVisible();
 
   await page.goto('./#/ride');
-  await page.locator('.trip-band .go').click();
+  await endToDebrief(page, T); // v0.67.0: the trip ends («Tour beendet»), then its debrief
   await expect(page).toHaveURL(new RegExp(`#/debrief/${RIDE}`));
   const way = page.locator('.ridenotes');
   await expect(way.getByText(T('Notes on the way'))).toBeVisible();
@@ -205,7 +206,9 @@ test('On the way note: in the Inbox and in the debrief; a missing item becomes a
     }
   }
   await page.getByRole('button', { name: T('Save debrief') }).click();
-  await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
+  // v0.67.0 (U006): a trip of two days closes its loop on «Rückblick fertig»
+  await expect(page).toHaveURL(new RegExp(`#/trip/${RIDE}/debriefed$`));
+  await expect(page.getByRole('heading', { level: 1, name: T('Debrief finished|title') })).toBeVisible();
   const learnings = await table(page, 'learnings');
   expect(learnings.map((l) => l.rule)).toEqual(expect.arrayContaining(['Take test_data_gtp_ Head torch next time', 'test_data_gtp_ Gloves too thin']));
   expect(learnings.find((l) => l.rule.startsWith('Take')).source).toBe('test_data_gtp_ Two days');

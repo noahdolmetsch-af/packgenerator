@@ -87,7 +87,7 @@ for (const lang of ['en', 'de']) {
 
     // 6. Pack (v0.29.0, a normal page): tick everything bag by bag, then the ready check.
     const go = page.locator('.trip-band .go');
-    await expect(go).toContainText(T('Next: Pack'));
+    await expect(go).toContainText(T('Continue to Pack'));
     await go.click();
     await expect(page).toHaveURL(/#\/pack\?day/);
     // wait for the bags: on a slow CI machine the loop below found no rows yet and stopped at once (8.10.2026)
@@ -119,10 +119,22 @@ for (const lang of ['en', 'de']) {
     await fits('Pack, weekend');
     await expect(page.locator('.pd').getByText(T('Everything is in. Have a good trip!')), `bags after packing: ${left}; status: ${await page.locator('.pd p[role=status]').first().innerText()}`).toBeVisible();
 
-    // 7. No "On the way": the one orange button goes straight to the debrief.
-    await expect(go).toContainText(T('Next: Debrief'));
+    // 7. No "On the way" (v0.67.0 «Übergänge 1»): «Packen abschliessen» (a day trip: no «Gepackt»,
+    // Ü5a), then on the Pack tab the one orange button ends the trip. Before the planned end of the day
+    // (the real clock runs here) it asks first (U004). «Tour beendet» → the whole debrief.
+    await expect(go).toContainText(T('Finish packing'));
     await fits('Pack, weekend packed');
     await go.click();
+    await expect(page).toHaveURL(/#\/$/);
+    await page.goto('./#/pack?day');
+    await expect(go).toContainText(T('Finish the trip'));
+    await go.click();
+    const sheet = page.locator('dialog.endsheet');
+    const ended = page.getByRole('heading', { level: 1, name: T('Trip ended') });
+    await expect(sheet.or(ended)).toBeVisible();
+    if (await sheet.isVisible()) await sheet.getByRole('button', { name: T('End the trip'), exact: true }).click();
+    await expect(ended).toBeVisible();
+    await page.getByRole('link', { name: T('Debrief in detail') }).click();
     await expect(page).toHaveURL(/#\/debrief\/./);
 
     // 8. Debrief on one page: one exception, then save.

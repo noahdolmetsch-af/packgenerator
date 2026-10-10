@@ -37,6 +37,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | --- | --- | --- |
 | 0.65.0 | Velo-Masse: Sattelhöhe, Rahmengrösse, Lenkerbreite pro Velo, Import aus Datei | live |
 | 0.66.0 | Bausteine neu (Biwak, Zelt, Hotel, Kochen, Erste Hilfe, Reparatur, Laden, Licht, Rennen, Essen, Hygiene, Komfort) und «Bausteine prüfen» | live |
+| 0.67.0 | Übergänge Teil 1: Baukasten, Zwischenseiten «Gepackt», «Tour beendet», «Rückblick fertig», Schrittleiste, Hauptknopf nach Phase, Weitermachen auf Heute, Zurück-Taste schliesst zuerst Fenster | PR offen |
 | – | KI-Helfer (siehe unten) | wird fertig gebaut, dann als Entwurf geparkt |
 | – | Startseite & Integrationen E1–E4 | Konzept fertig, Mockups werden gezeichnet |
 
@@ -94,6 +95,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Warum:** Man soll nirgends stecken bleiben. Heute landet «Touren» mitten in einer Packliste.
 - **Was:** drei kleine Releases. Ruhige Zwischenseite «Packen erledigt ✓» mit einem grossen Weiter-Knopf. «Weitermachen: Tour X, Schritt 3 von 4» auf Heute. Schrittleiste Planen · Packen · Unterwegs · Rückblick auf allen Tour-Seiten. Jede Seite hat einen Hauptknopf «Weiter zu …». Eine Touren-Einstiegsseite listet Touren nach Zustand (in Planung, gepackt, Rückblick offen, fertig), Vorlagen und Bestwerte.
 - **Beispiel:** Nach dem letzten Tourtag erscheint am Abend automatisch «Tour abschliessen?» mit Knopf «Zur Startseite».
+- **Stand:** Teil 1 (0.67.0) als PR offen: Baukasten, drei Zwischenseiten mit eigener Adresse, Schrittleiste, Hauptknopf nach Phase, Weitermachen und Vorabend-Erinnerung auf Heute, Zurück-Taste. Teil 2 (Was ist neu, Touren-Einstiegsseite) folgt.
 
 ### 6. Im Flow (Aktiv)
 

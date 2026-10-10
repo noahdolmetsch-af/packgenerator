@@ -12,7 +12,8 @@ const T = (en, vars) => {
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
 };
 const base = JSON.parse(readFileSync(fileURLToPath(new URL('./fixture.json', import.meta.url)), 'utf8'));
-const SHOTS = '/mnt/project-files/design/v0301/';
+// SHOTS_DIR: another folder for the design shots (a run that must not write into the shared folder)
+const SHOTS = process.env.SHOTS_DIR ? `${process.env.SHOTS_DIR}/v0301/` : '/mnt/project-files/design/v0301/';
 
 const item = (id, name, f) => ({ id, name: `test_data_gtp_ ${name}`, category: 'other', weightG: 40, qty: 1, weightStatus: 'measured', carry: 'luggage', defaultBag: 'top', ownership: 'owned', role: 'standard', sets: [], kits: [], domains: ['bikepacking'], ...f });
 
@@ -149,7 +150,7 @@ test.describe('Pack tab on a phone', () => {
     await expect(openBag(page).locator('#pb-seat')).toBeVisible();
   });
 
-  test('B10: all packed shows a clear card with the next step', async ({ page, context }, info) => {
+  test('B10: all packed shows a clear card, the next step is the main button', async ({ page, context }, info) => {
     await start(page, context, info);
     await packTab(page);
     await expect(page.locator('.pd .alldone')).toHaveCount(0);
@@ -157,8 +158,12 @@ test.describe('Pack tab on a phone', () => {
     const card = page.locator('.pd .alldone');
     await expect(card.getByRole('heading', { name: T('Everything is in. Have a good ride!') })).toBeVisible();
     await expect(card).toBeInViewport();
-    const go = card.getByRole('button', { name: T('Next: On the way') });
-    await expect(go).toBeVisible();
+    // v0.67.0 (U001): one «Weiter» only, the main button in the band («Packen abschliessen», fixed at the
+    // thumb on a phone); the card no longer repeats it
+    await expect(card.getByRole('button')).toHaveCount(0);
+    const go = page.locator('.trip-band .mainbar .go');
+    await expect(go).toHaveText(T('Finish packing'));
+    await expect(go).toBeInViewport();
     const box = await go.boundingBox();
     expect(box.height).toBeGreaterThanOrEqual(44);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
