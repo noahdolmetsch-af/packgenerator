@@ -193,16 +193,16 @@
     text-overflow: ellipsis;
   }
   .strip.more {
-    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
-    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
   }
   .strip.less {
-    mask-image: linear-gradient(to right, transparent, #000 32px);
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 32px);
+    mask-image: linear-gradient(to right, transparent, black 32px);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 32px);
   }
   .strip.less.more {
-    mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to right, transparent, black 32px, black calc(100% - 32px), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 32px, black calc(100% - 32px), transparent);
   }
   .strip button,
   .add {

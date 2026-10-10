@@ -659,3 +659,24 @@ test('S10 Velo-Blaetter: every sheet, copy as text, pick-up check into care, und
   await noProblems(page, 'S10');
   expect(errors).toEqual([]);
 });
+
+test('S11 Setup: the chosen bike tab is fully in view; a cut row fades instead of a hard edge (G008)', async ({ page, context }, info) => {
+  const errors = await start(page, context, info, { lang: LANG });
+  const { summary } = fixture();
+  for (const id of summary.bikeIds) {
+    await page.goto(`./#/bikes?bike=${id}`);
+    const strip = page.locator('.strip[role="tablist"]');
+    const sel = strip.locator('[aria-selected="true"]');
+    await expect(sel).toBeVisible();
+    await expect
+      .poll(async () => {
+        const [a, b] = await Promise.all([sel.boundingBox(), strip.boundingBox()]);
+        return a.x >= b.x - 1 && a.x + a.width <= b.x + b.width + 1;
+      }, { message: `${id}: chosen tab inside the row` })
+      .toBe(true);
+    // a row scrolled away from its start fades at the left (no tab cut hard at the edge)
+    const st = await strip.evaluate((el) => ({ left: el.scrollLeft, less: el.classList.contains('less') }));
+    expect(st.less, `${id}: fade at the left when scrolled`).toBe(st.left > 2);
+  }
+  expect(errors).toEqual([]);
+});
