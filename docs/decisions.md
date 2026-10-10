@@ -664,6 +664,15 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - Eigene Reisearten lassen sich als Vorlage anlegen (2a).
 - Das ist ein Paket-Kandidat neben D5 Start-Packlisten. Zuerst kommen Mockups. Der Platz in der Reihenfolge ist noch offen.
 
+## 11.10.2026: Schneller von der Idee zur Umsetzung (Noah, «1-5 a», 00:32)
+
+- **1a:** ein kleines Release «Tests stabil» behebt die wackligen Tests, danach keine Reparatur-Runden mehr.
+- **2a:** lokal laufen nur die eigenen Tests und die betroffenen Seiten; der volle Gesamttest läuft auf GitHub (ersetzt «kompletter Gesamttest lokal vor jedem PR»).
+- **3a:** kleine Releases mit einer sichtbaren Sache statt grosser Pakete.
+- **4a:** eine Mockup-Runde pro Paket mit höchstens 5 Fragen, gebaut wird direkt nach der Antwort.
+- **5a:** zwei Bauten gleichzeitig nur, wenn sie verschiedene Bereiche ändern.
+- Mockups bleiben immer, Noah merged weiterhin selbst.
+
 ## 10.10.2026: Hobby-Seiten Teil 1 (0.79.0, Noahs Antworten H1–H29 a)
 
 - **Reihenfolge (H9a):** zuerst Aktivität-Übersicht und Meilensteine (0.79.0), dann Meditation B1–B7 (Teil 2), dann Liegestütze und Tennis, dann Yoga, Gym, Velo.
