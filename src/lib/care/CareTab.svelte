@@ -15,6 +15,8 @@
   import BikeCare from './BikeCare.svelte';
   import CareOverview from './CareOverview.svelte';
   import StartValues from './StartValues.svelte';
+  import StartPointDialog from './StartPointDialog.svelte';
+  import { partStart } from '../kmbook.js';
   import { setSpec } from '../bikespecs.js';
   import { setReading, addHand } from '../kmbookdb.js';
   import { nextNumber } from '../notes.js';
@@ -38,6 +40,7 @@
   const tasksQ = liveQuery(() => db.maintenance.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
+  const kmQ = liveQuery(() => db.kmBook.toArray()); // v0.68.0 «Q1 Jeder km zählt»: the ride ledger
 
   // What is stored (writes go here) and what is shown: the stored parts plus the jobs of the workshop visits.
   const bikes = $derived(sortBikes($bikesQ ?? []).map((b) => ({ ...b, parts: ensureParts(b) })));
@@ -157,6 +160,25 @@
     if (typeof km === 'number') await setReading(db, bikeId, km, { date: kmDate ?? today });
     say(t('Start values saved.'));
   }
+
+  /* ---------- v0.68.0 (Q1.7 a): a part's start point, with Undo ---------- */
+  let startPoint = $state(null); // { bikeId, key, missing }
+  const kmEntries = $derived($kmQ ?? []);
+  async function saveStartPoint(bikeId, key, entry) {
+    const bike = bikeById[bikeId];
+    const prev = bike.parts;
+    const parts = bike.parts.map((p) => {
+      if (p.key !== key) return p;
+      const history = [...(p.history ?? [])];
+      // in date order: the mounting goes before the work done after it
+      const at = history.findIndex((h) => (h.date ?? '') > entry.date);
+      history.splice(at < 0 ? history.length : at, 0, entry);
+      return { ...p, history };
+    });
+    await db.bikes.update(bikeId, { parts });
+    say(t('Start point saved: {part}, {date} · {km} km.', { part: PART[key] ? t(PART[key].name) : key, date: dateOf(entry.date), km: num(entry.km) }), { bikeId, prev, itemId: null });
+  }
+  const setQ1 = (bikeId, on) => db.bikes.update(bikeId, { q1: on });
 
   async function savePart(view, key, entry) {
     const bike = bikeById[view.id];
@@ -405,6 +427,10 @@
           onwish={(s) => wishTime(c.bike, s)}
           onrepair={repairResult}
           onstart={() => (startOpen = c.bike.id)}
+          {kmEntries}
+          {bikes}
+          onstartpoint={(key, main) => (startPoint = { bikeId: c.bike.id, key, missing: main.filter((p) => !partStart(p)).map((p) => p.key) })}
+          onq1={(on) => setQ1(c.bike.id, on)}
         />
       {/each}
     </section>
@@ -438,6 +464,16 @@
   {#if b && part}
     <PartDialog {part} bike={b} {by} onby={setBy} onlog={(entry) => savePart(b, part.key, entry)} onclose={() => (partOpen = null)}
       onflow={(x) => saveFlow(b, x)} onspec={(f, v) => saveSpec(b.id, part.key, f, v)} {shops} tyres={orderOf[b.id]?.tyres} ontyre={(w, v) => setTyre(bikeById[b.id], w, v)} start={partOpen.start ?? null} />
+  {/if}
+{/if}
+
+{#if startPoint && viewById[startPoint.bikeId]}
+  {@const sb = viewById[startPoint.bikeId]}
+  {@const sp = sb.parts.find((p) => p.key === startPoint.key)}
+  {#if sp}
+    {#key startPoint.key}
+      <StartPointDialog bike={sb} part={sp} {bikes} entries={kmEntries} missing={startPoint.missing} onsave={(e) => saveStartPoint(sb.id, sp.key, e)} onnext={(key) => (startPoint = { ...startPoint, key, missing: startPoint.missing.filter((k) => k !== startPoint.key) })} onclose={() => (startPoint = null)} />
+    {/key}
   {/if}
 {/if}
 

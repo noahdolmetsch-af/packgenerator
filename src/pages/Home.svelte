@@ -73,6 +73,7 @@
   import Customize from '../lib/home/Customize.svelte';
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
+  import KmCard from '../lib/home/KmCard.svelte';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { PartyPopper } from '@lucide/svelte';
 
@@ -789,6 +790,8 @@
   {/if}
 
   {#each layout.order as key (key)}
+    <!-- v0.68.0 «Q1 Jeder km zählt» (Q1.6 a): the weekly km card right under the trip; only when there is something to do -->
+    {#if key === 'trip' && ready}<KmCard {today} />{/if}
     {#if on(key)}
       {#if key === 'greeting'}{@render greetingS()}
       {:else if key === 'trip'}{@render tripS()}

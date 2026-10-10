@@ -225,13 +225,16 @@ export function parseBikesHash(hash = '') {
   if (tab === 'shop' && q.get('visit')) out.visit = q.get('visit');
   // v0.22.0 (AP06): &trip=<id> on Care opens that trip's event preparation.
   if (tab === 'care' && q.get('trip')) out.trip = q.get('trip');
+  // v0.68.0 «Q1 Jeder km zählt»: &view=import on Care is «Import rides».
+  if (tab === 'care' && q.get('view') === 'import') out.view = 'import';
   return out;
 }
 
 /** The address for a tab (and bike): the canonical form of the Bikes page. */
-export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null } = {}) {
+export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null, view = null } = {}) {
   const q = new URLSearchParams();
   if (tab === 'care' || tab === 'compare' || tab === 'shop') q.set('tab', tab);
+  if (view === 'import' && tab === 'care') q.set('view', 'import');
   if (bike) q.set('bike', bike);
   if (open && bike) q.set('open', '1');
   if (trip && tab === 'care') q.set('trip', trip);
