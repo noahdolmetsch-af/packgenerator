@@ -14,6 +14,7 @@
   import Trips from './pages/Trips.svelte';
   import Blocks from './pages/Blocks.svelte';
   import Features from './pages/Features.svelte';
+  import Helper from './pages/Helper.svelte';
   import GearImport from './pages/GearImport.svelte';
   import Rides from './pages/Rides.svelte';
   import Wardrobe from './pages/Wardrobe.svelte';
@@ -223,6 +224,8 @@
   {:else if page === 'blocks'}
     <!-- v0.26.0 (Noah 2a/2b): building blocks (item sets) you can see and make -->
     <Blocks />
+  {:else if page === 'helper'}
+    <Helper />
   {:else if page === 'features'}
     <!-- v0.30.0 (Noah 3a): everything the app can do, with ✓ and how much is used -->
     <Features />

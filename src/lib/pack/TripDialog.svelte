@@ -16,6 +16,12 @@
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
   import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
+  import { X } from '@lucide/svelte';
+  import TripAsk from '../helper/TripAsk.svelte';
+  import HelperNotice from '../helper/HelperNotice.svelte';
+  import { helper, isSetUp, isOn } from '../helper/client.svelte.js';
+  import { addHelperItems } from '../helper/logic.js';
+  import { take } from '../nav.js';
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -204,8 +210,38 @@
   const tips = $derived(blocks.filter((s) => s.tip).length);
   const pick = (key) => (picked = picked.includes(key) ? picked.filter((k) => k !== key) : [...picked, key]);
   /** The trip with the chosen blocks, each into its usual bag (Pack: tripSlot with the trip's setup). */
-  const withBlocks = (nt) => chosen.reduce((cur, s) => ({ ...cur, entries: addSetEntries(cur, items, s, { skip, slotOf: (i) => tripSlot(i, cur.setup) }).entries }), nt);
+  const withBlocksOnly = (nt) => chosen.reduce((cur, s) => ({ ...cur, entries: addSetEntries(cur, items, s, { skip, slotOf: (i) => tripSlot(i, cur.setup) }).entries }), nt);
+  const withBlocks = (nt) => withExtras(withBlocksOnly(nt));
   const total = $derived(built ? withBlocks(built).entries.length : 0);
+
+  /* ---------- v0.67.0 (answer 1a): «Frag den Helfer» ---------- */
+  // From the search («Als Packliste vorschlagen», answer 2a): the question comes along and is asked at once.
+  // svelte-ignore state_referenced_locally
+  const askPrefill = isNew ? take('pack.helperAsk') ?? '' : '';
+  let extras = $state([]); // [{ id, reason }] the helper's extra items, each with × in the form
+  const extraRows = $derived(extras.filter((r) => byId.has(r.id)));
+  const askAreas = $derived(TRIP_DOMAINS.map((d) => ({ key: d.key, name: t(d.name) })));
+  /** «Übernehmen»: the chips that are left go into the form; blocks switch on; the items come along. */
+  function takeProposal(p) {
+    const c = p.conditions;
+    if (c.area && DOMAIN[c.area]) area = c.area;
+    if (c.bikeId && bikes.some((b) => b.id === c.bikeId)) draft.bikeId = c.bikeId;
+    if (c.days > 0) {
+      draft.days = c.days;
+      moreWanted = c.days >= 3;
+    }
+    if (c.overnight) (ctx.overnight = c.overnight), (ctx.cook = c.overnight === 'outdoor' && !!c.cook);
+    if (c.tempMin != null || c.tempMax != null || c.rain) {
+      wxTouched = true;
+      if (c.tempMin != null) (ctx.min = c.tempMin), (ctx.max = c.tempMax ?? c.tempMin);
+      if (c.rain) ctx.rain = c.rain;
+    }
+    const comes = contextSets({ overnight: c.overnight || night, cook: !!c.cook });
+    picked = [...new Set([...picked, ...p.blocks.filter((k) => !comes.includes(k) && sets.some((s) => s.key === k))])];
+    extras = [...extras.filter((r) => !p.items.some((x) => x.id === r.id)), ...p.items];
+  }
+  /** The helper's items into a trip: bike trips into their usual bag, other areas into their first bag. */
+  const withExtras = (nt) => (extraRows.length ? addHelperItems(nt, items, extraRows.map((r) => r.id), (i) => (nt.packs?.length ? nt.packs[0].key : tripSlot(i, nt.setup))) : nt);
 
   // v0.30.0 (Noah, finding 2): when and how long as chips; the date field stays for any other day.
   const today = localDay();
@@ -277,8 +313,8 @@
   /** v0.39.0 (AP28): a new trip without a bike: from a template of this area, a copy of the last one, or the area's items. */
   function packTrip(readyStandard, now) {
     const snap = $state.snapshot(draft);
-    if (chosenTpl) return tripFromTemplate(snap, $state.snapshot(chosenTpl), items, now ?? Date.now(), $state.snapshot(setsValue));
-    return newPackTrip({ ...snap, domain: area, readyStandard }, start === 'standard' ? [] : trips, items, now ?? Date.now());
+    if (chosenTpl) return withExtras(tripFromTemplate(snap, $state.snapshot(chosenTpl), items, now ?? Date.now(), $state.snapshot(setsValue)));
+    return withExtras(newPackTrip({ ...snap, domain: area, readyStandard }, start === 'standard' ? [] : trips, items, now ?? Date.now()));
   }
 
   async function save(event) {
@@ -359,7 +395,7 @@
   // Every change of a field (after a name was typed) saves again, a moment after the last key.
   $effect(() => {
     if (!isNew) return;
-    JSON.stringify([draft, ctx, start, picked, area, autoName]); // what the trip is made of
+    JSON.stringify([draft, ctx, start, picked, area, autoName, extras]); // what the trip is made of
     if (!autoKeep({ isNew, name: draft.title, changed: !autoName })) return;
     clearTimeout(autoTimer);
     autoTimer = setTimeout(autoSave, 300);
@@ -426,10 +462,29 @@
   </fieldset>
 {/snippet}
 
+{#snippet helperItems()}
+  {#if extraRows.length}
+    <section class="blocks kh-extras" aria-labelledby="kh-extras-h">
+      <h3 id="kh-extras-h">{t('From the helper')}</h3>
+      <div class="tp-chips">
+        {#each extraRows as r (r.id)}<button type="button" class="tp-chip" aria-label={t('Remove {name}', { name: nameOf(byId.get(r.id)) })} title={r.reason} onclick={() => (extras = extras.filter((x) => x.id !== r.id))}>{nameOf(byId.get(r.id))} <X size={16} aria-hidden="true" /></button>{/each}
+      </div>
+    </section>
+  {/if}
+{/snippet}
+
 <dialog class="sheet trip-dlg" bind:this={dialog} onclose={closed} aria-labelledby="trip-h">
   <form onsubmit={save} novalidate>
     <!-- v0.30.0 (Noah, finding 2): the dark band of the trip pages on top. -->
     <div class="band"><h2 id="trip-h" class="title">{isNew ? t('New trip') : t('Trip details')}</h2></div>
+    <!-- v0.67.0 (answers 1a, 8a): «Frag den Helfer» on top; before the setup a calm notice, switched off nothing. -->
+    {#if isNew && helper.loaded}
+      {#if !isSetUp()}
+        <section class="kh-setup"><p class="lbl">{t('Ask the helper')}</p><HelperNotice onsetup={() => dialog.close()} /></section>
+      {:else if isOn()}
+        <TripAsk {items} {bikes} {sets} areas={askAreas} prefill={askPrefill} onapply={takeProposal} />
+      {/if}
+    {/if}
     {#if isNew}
       <!-- v0.21.0 (package 5): the area first; it decides bike or own bags.
            v0.40.0 (Noah 10a): folded as one row "Area · Bikepacking ›", the last chosen area preselected. -->
@@ -538,6 +593,7 @@
           <p class="note small" aria-live="polite">{#if chosen.length}{chosen.map((b) => `${b.label}: ${b.names.join(', ')}`).join(' · ')}{/if}</p>
         </section>
       {/if}
+      {@render helperItems()}
       <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
       <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
     {:else}
@@ -580,6 +636,7 @@
             </select>
           </label>
         {/if}
+        {@render helperItems()}
         <p class="note">
           {#if chosenTpl}{t('From the template {name}. Bags: {bags}.', { name: chosenTpl.name, bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}
           {:else if fromArea && start !== 'standard'}{t('A copy of {title}. Nothing is ticked off yet.', { title: fromArea.title })}
@@ -764,6 +821,10 @@
     gap: 4px;
     font-size: 14px;
     color: var(--ink-2);
+  }
+  /* v0.67.0: the helper's notice before the setup, like the «Frag den Helfer» field after it */
+  .kh-setup {
+    margin: 4px 0 16px;
   }
   .blocks {
     margin-top: 16px;

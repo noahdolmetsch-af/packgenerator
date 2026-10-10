@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.67.0',
+    date: '2026-10-10',
+    points: [
+      { text: 'The helper: once set up with your helper code, Claude suggests things for you. Everything is a suggestion you can change, and without setup the app works as before.', href: '#/helper' },
+      { text: 'In "New trip", write the trip in one sentence: the helper fills in the conditions, the building blocks and a few items from your own gear.', href: '#/pack' },
+      { text: '"Check the list" names what may be missing, what is double and what is heavy, with a lighter item of your own.', href: '#/pack' },
+      { text: 'Bike care: the helper adds parts that will be due soon to "Due now", from your km, rides and notes, with a concrete check (chain gauge, pads, tyres).', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
     version: '0.65.0',
     date: '2026-10-09',
     points: [

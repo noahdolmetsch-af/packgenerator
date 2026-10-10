@@ -34,6 +34,14 @@
   import Seg from '../lib/ui/Seg.svelte';
   import { CLOTHING, CLOTHING_OFFSET, offsetRecord, chooseKit, tempKits, coldest, tempRange } from '../lib/wardrobe.js';
   import { SETS_KEY } from '../lib/sets.js';
+  import { Sparkles } from '@lucide/svelte';
+  import DebriefDraft from '../lib/helper/DebriefDraft.svelte';
+  import { ask, errorText, helper, isOn, isPaused } from '../lib/helper/client.svelte.js';
+  import { debriefPayload } from '../lib/helper/payload.js';
+  import { helperLearning } from '../lib/helper/logic.js';
+  import { isDe } from '../lib/i18n.svelte.js';
+  import { tick } from 'svelte';
+  import '../lib/helper/helper.css';
 
   let { param = '', spot = '' } = $props();
 
@@ -219,6 +227,47 @@
     missName = '';
     persist();
   }
+  /* ---------- v0.67.0 (answer 3a): «Entwurf holen» → «Entwurf vom Helfer» ---------- */
+  let draft = $state(null);
+  let draftBusy = $state(false);
+  let draftMsg = $state('');
+  async function getDraft() {
+    if (draftBusy) return;
+    if (isPaused()) return (draftMsg = errorText('paused', { capChf: helper.capChf }));
+    draftBusy = true;
+    draftMsg = '';
+    const r = await ask('debrief', debriefPayload(trip, { notes: $state.snapshot(freeNotes), debrief: $state.snapshot(d), items, learnings, lang: isDe() ? 'de' : 'en' }));
+    draftBusy = false;
+    if (!r.ok) return (draftMsg = errorText(r.error, { capChf: helper.capChf }));
+    if (!r.result.learnings.length && !r.result.summary) return (draftMsg = t('The helper found nothing to suggest this time.'));
+    draft = r.result;
+  }
+  /** «Übernehmen» on a learning: saved like the app's own; its note on the way counts as answered. */
+  async function learnFromDraft(s) {
+    const now = new Date().toISOString();
+    const note = wayNotes.find((n) => n.key === s.noteKey);
+    await db.transaction('rw', [db.learnings, db.debriefs, db.notes], async () => {
+      const rec = helperLearning(s, trip, await db.learnings.toArray(), now);
+      await db.learnings.put(rec);
+      if (note?.noteId) await db.notes.update(note.noteId, { status: 'sorted', to: { kind: 'learning', label: 'Learning', ref: rec.id }, sortedAt: now });
+      if (note && !d.applied.includes(note.key)) d.applied = [...d.applied, note.key];
+      d.updatedAt = now;
+      await db.debriefs.put($state.snapshot(d));
+    });
+  }
+  /** «Übernehmen» / «Bearbeiten» on the summary: it becomes the sentence for next time (the field opens for «Bearbeiten»). */
+  async function summaryFromDraft(text, edit) {
+    d.note = text;
+    await persist();
+    const fold = document.querySelector('details.note-fold');
+    if (fold) fold.open = true;
+    if (edit) {
+      await tick();
+      const area = fold?.querySelector('textarea');
+      area?.scrollIntoView({ block: 'center' });
+      area?.focus();
+    }
+  }
   const noteWhen = (iso) => new Date(iso).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit' });
   function dropMissing(id) {
     d.missing = d.missing.filter((m) => m.id !== id);
@@ -389,9 +438,15 @@
               <div class="ridenotes">
                 <span class="lbl">{t('Notes on the way')}</span>
                 <ul>{#each freeNotes as n (n.key)}<li><small class="num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</small> {n.text}</li>{/each}</ul>
+                <!-- v0.67.0 (answer 3a): the helper's draft only on request -->
+                {#if isOn() && !draft}
+                  <p class="kh-getdraft"><button type="button" class="btn sm" disabled={draftBusy} onclick={getDraft}><Sparkles size={16} aria-hidden="true" />{draftBusy ? t('The helper is thinking …') : t('Get a draft')}</button></p>
+                  {#if draftMsg}<p class="kh-msg" role="status">{draftMsg}</p>{/if}
+                {/if}
               </div>
             {/if}
           </section>
+          {#if draft}<DebriefDraft {draft} notes={freeNotes} days={trip.days ?? 1} onlearn={learnFromDraft} onsummary={summaryFromDraft} onclose={() => (draft = null)} />{/if}
 
           <!-- Noah 9a: filled in; change only what was not so. -->
           <section class="tp-card" aria-labelledby="how-h">

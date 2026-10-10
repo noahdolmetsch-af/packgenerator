@@ -63,6 +63,15 @@ export function newTrip(startFrom, domain = null) {
 }
 
 /**
+ * v0.67.0 (answer 2a): «Als Packliste vorschlagen» from the helper's answer in the search: New trip
+ * opens with the question in «Frag den Helfer», and the helper's proposal comes at once.
+ */
+export function proposeTrip(question) {
+  keep('pack.helperAsk', String(question ?? '').trim());
+  newTrip('standard');
+}
+
+/**
  * v0.25.1 (Noah 1a): a day ride in one tap. Pack makes the trip without a dialog (dayride.js) and
  * opens it with "Change" and "Undo". The App takes the wish to Pack when another page is open.
  */
@@ -140,6 +149,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/review')) return 'debrief'; // v0.44.0: the last 12 months; v0.49.0: part of the Rückblick
   if (h.startsWith('#/features')) return 'features'; // v0.30.0 (Noah 3a): what the app can do
   if (h.startsWith('#/flow')) return 'flow'; // v0.51.0 «Im Flow»
+  if (h.startsWith('#/helper')) return 'helper'; // v0.67.0 «KI-Helfer»: its settings
   return 'home';
 }
 
@@ -169,7 +179,7 @@ export const PLACES = [
 
 /** Which main place a page belongs to (null: the Inbox, which has its own icon). */
 export function placeOf(page) {
-  if (page === 'home' || page === 'features' || page === 'flow') return 'today';
+  if (page === 'home' || page === 'features' || page === 'flow' || page === 'helper') return 'today';
   if (['trips', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';

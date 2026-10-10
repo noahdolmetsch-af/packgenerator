@@ -34,6 +34,9 @@
   import { pastTrips } from '../hubs.js';
   import { localDay } from '../localday.js';
   import '../trip/trip.css';
+  import { Sparkles } from '@lucide/svelte';
+  import ListCheck from '../helper/ListCheck.svelte';
+  import { isOn } from '../helper/client.svelte.js';
   let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, step, debriefStep, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {} } = $props();
   let grouping = $state('bags');
   let opened = $state({});
@@ -132,6 +135,12 @@
     if (m[1] === 'decide' && bikeTrip) review = true;
     else show('conditions');
   });
+  // v0.67.0 (answer 4a): «Liste prüfen» from the ••• menu and next to «Weiter: Packen»; a second tap asks again.
+  let checking = $state(0);
+  function openCheck() {
+    checking++;
+    setTimeout(() => document.querySelector('.kh-check')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+  }
   const primary = $derived(over ? 'debrief' : step === debriefStep ? 'end' : step === 2 ? 'ride' : dayRide ? 'go' : 'pack');
 </script>
 
@@ -140,7 +149,7 @@
   {:else if primary === 'end'}<button class="btn hi go" onclick={actions.end}>{t('Next: Debrief')}<ArrowRight size={20} aria-hidden="true" /></button>
   {:else if primary === 'ride'}<button class="btn hi go" onclick={actions.ride}>{t('Next: On the way')}<ArrowRight size={20} aria-hidden="true" /></button>
   {:else if primary === 'go'}<button class="btn hi go" onclick={actions.packAndGo}>{t("All packed, let's go")}<ArrowRight size={20} aria-hidden="true" /></button>
-  {:else}<button class="btn hi go" onclick={toPack}>{t('Next: Pack')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}
+  {:else}{#if isOn()}<button type="button" class="tp-icon-btn kh-go-check" onclick={openCheck}><Sparkles size={18} aria-hidden="true" /><span class="kh-lbl">{t('Check the list')}</span></button>{/if}<button class="btn hi go" onclick={toPack}>{t('Next: Pack')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}
 {/snippet}
 {#snippet plus()}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')}><Plus size={22} aria-hidden="true" /></button>{/snippet}
 
@@ -217,6 +226,7 @@
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
             <details class="list-menu" bind:this={menuEl} onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}><summary aria-label={t('More: other trip, edit trip, templates, print')}><MoreHorizontal size={24} aria-hidden="true" /></summary>
               <div class="list-menu-content" use:inView>
+                {#if isOn()}<button onclick={menu(openCheck)}>{t('Check the list')}</button>{/if}
                 <label>{t('Open another trip')}<select class="sel" value={trip.id} onchange={(e) => { changeTrip(e.currentTarget.value); menuEl.open = false; }}>{#each trips as tr}<option value={tr.id}>{tr.title}</option>{/each}</select></label>
                 <!-- v0.30.1 (Noah N9): the past trips, easy to find next to the trip chooser. -->
                 {#if pastN}<a href="#/pack/past">{t('Past trips ({n})', { n: pastN })}</a>{/if}
@@ -235,6 +245,7 @@
             </details>
           </div>
         </section>
+        {#if checking}{#key checking}<ListCheck {trip} {items} onadd={actions.helperAdd} onremove={actions.remove} onsearch={(name) => { q = name; show('add'); }} onclose={() => (checking = 0)} />{/key}{/if}
         <!-- L9: a trip made without any gear lands here: say so kindly and lead to adding the first item. -->
         {#if !trip.entries.length}
           <section class="tp-card empty-list" aria-labelledby="empty-list-h">

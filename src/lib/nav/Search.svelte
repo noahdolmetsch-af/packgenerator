@@ -7,12 +7,17 @@
   import { db } from '../db.js';
   import { TEMPLATES_KEY } from '../templates.js';
   import { searchAll, commandActions } from '../search.js';
-  import { openTrip, addItem, openNew, openNote, dayRide, openData, openWear } from '../nav.js';
+  import { openTrip, addItem, openNew, openNote, dayRide, openData, openWear, proposeTrip } from '../nav.js';
+  import { Sparkles, ArrowRight } from '@lucide/svelte';
+  import { ask, errorText, helper, isOn, isPaused } from '../helper/client.svelte.js';
+  import { searchPayload } from '../helper/payload.js';
+  import { endsAsQuestion, looksLikeQuestion } from '../helper/logic.js';
+  import '../helper/helper.css';
   import { sortBikes } from '../bikes.js';
   import { recordCare, undoCare } from '../home/care-tap.js';
   import { countUse } from '../home/usage.js';
   import { phone } from '../media.svelte.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, isDe, num } from '../i18n.svelte.js';
 
   let { compact = false } = $props();
   let q = $state('');
@@ -25,6 +30,43 @@
   });
   const groups = $derived(q.trim().length >= 2 && $all ? searchAll(q, $all) : []);
   const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
+  /*
+   * v0.67.0 (answer 2a): «Frag den Helfer». Only a question gets an answer: the text ends with «?»
+   * (a moment after the last key), or Enter on a text that starts like a question. Never on every key;
+   * the normal search below stays free and local. The answer sits above the hits.
+   */
+  let hq = $state(''); // the question the answer belongs to
+  let hans = $state(null);
+  let hbusy = $state(false);
+  let hmsg = $state('');
+  const hshow = $derived(isOn() && !!hq && q.trim() === hq);
+  async function askHelper(question) {
+    if (!isOn() || hbusy || (hq === question && (hans || hmsg))) return;
+    hq = question;
+    hans = null;
+    hmsg = '';
+    if (isPaused()) return (hmsg = errorText('paused', { capChf: helper.capChf }));
+    hbusy = true;
+    const r = await ask('search', searchPayload(question, { items: $all?.items ?? [], lang: isDe() ? 'de' : 'en' }));
+    hbusy = false;
+    if (q.trim() !== question) return;
+    if (r.ok) hans = r.result;
+    else hmsg = errorText(r.error, { capChf: helper.capChf });
+  }
+  let qTimer;
+  $effect(() => {
+    const s = q.trim();
+    clearTimeout(qTimer);
+    if (isOn() && endsAsQuestion(s) && s !== hq) qTimer = setTimeout(() => askHelper(s), 900);
+    return () => clearTimeout(qTimer);
+  });
+  const itemById = $derived(new Map(($all?.items ?? []).map((i) => [i.id, i])));
+  function propose() {
+    const question = hq;
+    q = '';
+    open = false;
+    proposeTrip(question);
+  }
   // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
   const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes) }) : []);
   let done = $state(null); // { text, undo } after a bike job saved from here
@@ -117,6 +159,7 @@
       // v0.44.1 (AP21): on a phone the field closes, so the focus goes back to the magnifier (not to the page top).
       if (open) (open = false), queueMicrotask(() => btn?.focus());
     }
+    if (e.key === 'Enter' && isOn() && looksLikeQuestion(q)) return (e.preventDefault(), askHelper(q.trim()));
     if (e.key === 'Enter' && cmds.length) run(cmds[0]);
     else if (e.key === 'Enter' && count) go(groups[0].rows[0]);
   };
@@ -162,6 +205,19 @@
   {/if}
   {#if q.trim().length >= 2}
     <div class="res" role="region" aria-label={t('Search results')} aria-live="polite">
+      {#if hshow}
+        <div class="kh">
+          <p class="gh">{t('Ask the helper')}</p>
+          <div class="kh-ans">
+            {#if hbusy}<p role="status">{t('The helper is thinking …')}</p>
+            {:else if hmsg}<p role="status">{hmsg}</p>
+            {:else if hans}
+              <p><span class="kh-ic"><Sparkles size={18} aria-hidden="true" /></span>{#each hans.answer as s, n (n)}{#if s.itemId && itemById.get(s.itemId)}{@const it = itemById.get(s.itemId)}<b>{s.text}</b>{#if it.weightG != null}{` (${num(it.weightG)} g)`}{/if}{:else}{s.text}{/if}{/each}</p>
+              <button type="button" class="kh-link" onclick={propose}>{t('Suggest as a packing list')}<ArrowRight size={16} aria-hidden="true" /></button>
+            {/if}
+          </div>
+        </div>
+      {/if}
       {#if cmds.length}
         <p class="gh">{t('Do it now')}</p>
         <ul class="cmds">

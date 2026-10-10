@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.67.0
+  'The helper: once set up with your helper code, Claude suggests things for you. Everything is a suggestion you can change, and without setup the app works as before.':
+    'Der Helfer: Mit deinem Helfer-Code eingerichtet, schlägt Claude dir Dinge vor. Alles ist ein Vorschlag, den du ändern kannst, und ohne Einrichtung funktioniert die App wie bisher.',
+  'In "New trip", write the trip in one sentence: the helper fills in the conditions, the building blocks and a few items from your own gear.':
+    'In «Neue Tour» beschreibst du die Tour in einem Satz: Der Helfer füllt die Bedingungen, die Bausteine und ein paar Sachen aus deiner eigenen Ausrüstung aus.',
+  '"Check the list" names what may be missing, what is double and what is heavy, with a lighter item of your own.':
+    '«Liste prüfen» nennt, was vielleicht fehlt, was doppelt ist und was schwer ist, mit einer leichteren Sache aus deiner Ausrüstung.',
+  'Bike care: the helper adds parts that will be due soon to "Due now", from your km, rides and notes, with a concrete check (chain gauge, pads, tyres).':
+    'Velopflege: Der Helfer ergänzt «Jetzt fällig» um Teile, die bald fällig werden, aus deinen km, Fahrten und Notizen, mit einer konkreten Prüfung (Kettenlehre, Beläge, Reifen).',
+
   // 0.65.0
   'Every bike shows its fit and setup at the top: saddle height, target tyre pressure, bar width and more. Tap a value to change it.':
     'Jedes Velo zeigt oben seine Masse: Sitzhöhe, Solldruck der Reifen, Lenkerbreite und mehr. Tippe auf einen Wert, um ihn zu ändern.',
