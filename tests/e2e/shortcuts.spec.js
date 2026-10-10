@@ -2,6 +2,7 @@
 // A day ride from New to a saved debrief with the shortcuts, and new gear from the searches.
 // Fictional fixture plus one test_data_gtp_ base-set item; nothing outside the preview server.
 import { test, expect } from '@playwright/test';
+import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -48,6 +49,8 @@ for (const lang of ['de', 'en']) {
     const title = `test_data_gtp_ Kurz ${info.project.name} ${lang}`;
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
+    // v0.67.0: the ride is over when it is ended (17:00, after the planned ride): ending asks nothing (U22a)
+    await page.clock.setFixedTime(new Date(`${today()}T17:00:00+02:00`));
     await start(page, context, info, lang);
     let clicks = 0;
     const click = async (loc) => {
@@ -75,12 +78,14 @@ for (const lang of ['de', 'en']) {
     await click(go);
     await expect(page).toHaveURL(/#\/ride/);
 
-    // On the way → Next: Debrief → one page, everything filled in → Save (v0.29.0, Noah 9a).
+    // On the way → «Tour abschliessen» → «Tour beendet» → «Alles gut»: the short debrief of a day ride
+    // (v0.67.0 «Übergänge 1», Ü5a; before: Next: Debrief → one page → Save).
+    await expect(go).toHaveText(T('Finish the trip'));
     await click(go);
-    await expect(page).toHaveURL(/#\/debrief\//);
-    await click(page.getByRole('button', { name: T('Save debrief') }));
-    await expect(page.getByRole('heading', { name: T('Saved') })).toBeVisible();
-    // v0.24.1: 8 clicks; v0.29.0: 7; v0.30.0: 6 (New, Plan a trip, Create, All packed, Next: Debrief, Save).
+    await expect(page).toHaveURL(/#\/trip\/[^/]+\/ended$/);
+    await click(page.locator('main .mainbar .btn.hi'));
+    await expect(page.locator('.celebrate.small')).toContainText(T('Debrief saved'));
+    // v0.24.1: 8 clicks; v0.29.0: 7; v0.30.0: 6 (New, Plan a trip, Create, All packed, Finish the trip, All good).
     expect(clicks, 'a whole day ride in at most 6 clicks').toBeLessThanOrEqual(6);
     info.annotations.push({ type: 'clicks', description: String(clicks) });
     expect(errors).toEqual([]);
@@ -109,7 +114,7 @@ test('Pack bag by bag with Whole bag packed, and select all in the debrief', asy
 
   // v0.29.0 (Noah 6a): Pack is a page; "Whole bag packed" fills a bag and the next one opens by itself.
   const go = page.locator('.trip-band .go');
-  await expect(go).toContainText(T('Next: Pack'));
+  await expect(go).toContainText(T('Continue to Pack'));
   await go.click();
   await expect(page).toHaveURL(/#\/pack\?day/);
   const whole = page.locator('.pd .pbag.cur').getByRole('button', { name: T('Whole bag packed') });
@@ -121,16 +126,18 @@ test('Pack bag by bag with Whole bag packed, and select all in the debrief', asy
   }
   await expect(page.locator('.pd .pbag.cur')).toContainText(T('Ready check'));
   await expect(page.locator('.pd ul.items button[aria-pressed="false"]')).not.toHaveCount(0);
-  // Not everything ticked: the one orange button asks first.
-  await expect(go).toContainText(T('Next: On the way'));
+  // Not everything ticked: the one orange button («Packen abschliessen», v0.67.0) asks first.
+  await expect(go).toContainText(T('Finish packing'));
   await go.click();
   const ask = page.locator('dialog.ask');
   await expect(ask).toBeVisible();
   await ask.getByRole('button', { name: T('Go anyway') }).click();
+  // two days: the interstitial «Gepackt»; on the start day it leads on to On the way
+  await expect(page).toHaveURL(/#\/trip\/[^/]+\/packed$/);
+  await page.locator('main .mainbar .btn.hi').click();
   await expect(page).toHaveURL(/#\/ride/);
 
-  await go.click();
-  await expect(page).toHaveURL(/#\/debrief\//);
+  await endToDebrief(page, T); // day 1 of 2: «Tour beenden …» asks, then «Tour beendet», the debrief
   const fold = page.locator('details.items-fold');
   if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
   const first = fold.locator('section.bag').first();

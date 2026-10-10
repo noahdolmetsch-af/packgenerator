@@ -12,7 +12,22 @@ import { start, prepare, openData, importBackup, table, snapshot, integrity, tic
 
 const LANG = 'de';
 const T = tr(LANG);
-const go = (page) => page.locator('.trip-band .act .go');
+// v0.67.0 «Übergänge 1»: the one main button of a trip page sits in the band's main bar (src/lib/ui/MainBar)
+const go = (page) => page.locator('.trip-band .mainbar .go');
+/**
+ * v0.67.0 (U004, U22a): the main button of the last day ends the trip. While the day's riding is
+ * still ahead by the plan (the real clock runs here) it asks first: then «Tour beenden» in the sheet.
+ * Either way the interstitial «Tour beendet» (#/trip/<id>/ended) comes next.
+ */
+async function endLastDay(page, trip, label) {
+  await expect(go(page)).toHaveText(T(label));
+  await go(page).click();
+  const sheet = page.locator('dialog.endsheet');
+  await expect(page.locator(`dialog.endsheet[open]`).or(page.getByRole('heading', { level: 1, name: T('Trip ended') }))).toBeVisible();
+  if (await sheet.isVisible()) await sheet.getByRole('button', { name: T('End the trip'), exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`#/trip/${esc(encodeURIComponent(trip.id))}/ended$`));
+  await expect(page.getByRole('heading', { level: 1, name: T('Trip ended') })).toBeVisible();
+}
 const noProblems = async (page, where) => expect(integrity(await snapshot(page)), `${where}: data integrity`).toEqual([]);
 
 /** New → Plan a trip: the New trip window. */
@@ -77,7 +92,7 @@ test('S1 day ride: one tap, pack, ride, debrief', async ({ page, context }, info
   const stored = (await table(page, 'trips')).find((t) => t.id === trip.id);
   expect(stored.entries.filter((e) => e.packed).length, 'three ticks kept after a reload').toBe(3);
 
-  // On the way → Next: Debrief (ends the trip) → Save debrief
+  // On the way → «Tour abschliessen» → «Tour beendet» → «Alles gut» (v0.67.0 Ü5a: a day ride's short debrief)
   await page.goto('./#/ride');
   await page.reload();
   if (stored.startDate === day()) {
@@ -86,10 +101,9 @@ test('S1 day ride: one tap, pack, ride, debrief', async ({ page, context }, info
     await check.getByRole('button', { name: T('All with me') }).click();
     await expect(check.getByRole('button', { name: T('All with me') })).toBeHidden();
     await expect.poll(async () => (await table(page, 'trips')).find((t) => t.id === trip.id).ready.every((r) => r.done || r.itemId)).toBe(true);
-    await expect(go(page)).toHaveText(T('Next: Debrief'));
-    await go(page).click();
-    await expect(page).toHaveURL(new RegExp(`#/debrief/${esc(trip.id)}`));
-    await page.getByRole('button', { name: T('Save debrief') }).first().click();
+    await endLastDay(page, trip, 'Finish the trip');
+    await page.locator('main .mainbar .btn.hi').click(); // «Alles gut»
+    await expect(page.locator('.celebrate.small')).toContainText(T('Debrief saved'));
     await expect.poll(async () => (await table(page, 'debriefs')).find((d) => d.tripId === trip.id)?.status).toBe('done');
     const after = (await table(page, 'trips')).find((t) => t.id === trip.id);
     expect(after.entries.filter((e) => e.packed).length, 'ticks kept after the debrief').toBe(3);
@@ -126,11 +140,13 @@ test('S2 3-day bikepacking with tent, GPX debrief', async ({ page, context }, in
 
   await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), trip.id);
   await tickItems(page, 5, trip.id);
-  // the trip is running (started 2 days ago): On the way → Next: Debrief
+  // the trip is on its last day (started 2 days ago): On the way → «Letzten Tag abschliessen» →
+  // «Tour beendet» → «Weiter zum Rückblick» (v0.67.0)
   await page.goto('./#/ride');
   await page.reload();
-  await expect(go(page)).toHaveText(T('Next: Debrief'));
-  await go(page).click();
+  await endLastDay(page, trip, 'Finish the last day');
+  await expect(page.locator('main .mainbar .btn.hi')).toHaveText(T('Continue to Debrief'));
+  await page.locator('main .mainbar .btn.hi').click();
   await expect(page).toHaveURL(new RegExp(`#/debrief/${esc(trip.id)}`));
 
   // the recorded ride of day 1 (GPX), saved to this trip

@@ -1,6 +1,7 @@
 // v0.30.1: Noah's phone test of 0.29.2, findings E5, E6, A2, C1, C2, C3, C5 (German UI).
 // Fictional fixture plus test_data_gtp_ bikes, items and trips; nothing leaves the preview server.
 import { test, expect } from '@playwright/test';
+import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -161,13 +162,14 @@ test('C3, C5: "Yes, remember" saves the suggestion; a debrief saved early makes 
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   // A two-day trip that started today, ended early on the way and debriefed today (L7: the debrief
-  // itself opens only from the last day; "Next: Debrief" on the way ends the trip and opens it).
+  // itself opens only from the last day; v0.67.0: «Tour beenden …» on the way asks, ends the trip,
+  // and «Tour beendet» leads to the debrief).
   await start(page, context, info, { trips: [trip('gtp-c5', 'Morgen', { startDate: day(0), days: 2, entries: [{ itemId: 'TO01', slot: 'frame', qty: 1, packed: true }, { itemId: 'TO02', slot: 'frame', qty: 1, packed: true }] })] });
   await page.goto('./#/debrief/gtp-c5');
   await expect(page.locator('section.early')).toBeVisible();
   await page.evaluate(() => localStorage.setItem('pack.currentTrip', 'gtp-c5'));
   await page.goto('./#/ride');
-  await page.locator('.trip-band .act .go').click();
+  await endToDebrief(page, T);
   await expect(page).toHaveURL(/#\/debrief\/gtp-c5/);
   await page.getByPlaceholder(T('What you missed, e.g. Headlamp')).fill('test_data_gtp_ Kettenöl');
   await page.getByRole('button', { name: T('Add'), exact: true }).click();
@@ -183,7 +185,9 @@ test('C3, C5: "Yes, remember" saves the suggestion; a debrief saved early makes 
   await page.locator('input[aria-label="' + T('km of this trip') + '"]').fill('42');
   await page.locator('input[aria-label="' + T('km of this trip') + '"]').press('Tab');
   await page.getByRole('button', { name: T('Save debrief') }).first().click();
-  await expect(page.locator('.saved-card')).toBeVisible();
+  // v0.67.0 (U006): a trip of two days closes its loop on «Rückblick fertig»
+  await expect(page).toHaveURL(/#\/trip\/gtp-c5\/debriefed$/);
+  await expect(page.getByRole('heading', { level: 1, name: T('Debrief finished|title') })).toBeVisible();
   const [tr] = await table(page, 'trips');
   expect(tr.finished).toBe(day(0));
   expect((await table(page, 'items')).filter((i) => i.ownership === 'wishlist')).toEqual([]);

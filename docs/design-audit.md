@@ -61,6 +61,12 @@ Automatische Prüfungen bei jedem PR (Skill «packgenerator-einheitlich»), dami
 - Stil neu schreiben: `node scripts/style-lint.mjs --update` (ohne `--update` druckt es die Übersicht und was kleiner werden kann).
 - Seiten neu schreiben: `GUARD_UPDATE=1 npx playwright test tests/e2e/guard.spec.js`, dann `node scripts/style-lint.mjs --merge-e2e` (druckt die Übersicht der Seiten; im Update-Lauf listet der Test jeden Befund, das ist die Aufräumliste).
 
+**Streng seit 0.67.0 (Noah Ü2a):** was ein Release baut oder auf den Baukasten bringt, hat keine Grundlinie mehr. Die Listen stehen in `scripts/style-lint.mjs` (`STRICT_STYLE`, `STRICT_ROUTES`): der Baukasten (`src/lib/ui/StepBar`, `MainBar`, `PageHead`, `Empty`, `Celebrate`, `Interstitial`), `TripBand`, `EndTripSheet`, `home/Continue`, `pages/Between`; im Konsistenz-Test Planen, Packen (Tab), Unterwegs, ein gespeicherter Rückblick und die drei Zwischenseiten (dort zählt auch «mehr als ein Hauptknopf» als Fehler). Der Konsistenz-Test misst die echte Tippfläche: das Element plus eine unsichtbare `::after`-Tippfläche (das Muster der App seit AP21).
+
+### Noch umbauen
+
+Alle Dateien, die noch in `tests/guard-baseline.json` stehen (der Test druckt die Liste mit Zahlen, meist Schriftgrössen ohne Stufe). Nächste Ziele: Heute (`Home.svelte`, E1), die Tourseiten-Innereien (`Pack.svelte`, `PackDay.svelte`, `CalmPack.svelte`, `calm-pack.css`, `trip.css`, `Ride.svelte`, `Debrief.svelte`: Logik in 0.67 umgebaut, Schriftgrössen noch alt, Ziel Übergänge 2), die Dialoge (`QuickNote`, `NewSheet`, `TripDialog`, `ItemDialog`, `BikeDialog`: in 0.67 nur das Verhalten der Zurück-Taste, Ziel D3) und die älteren `src/lib/ui`-Teile (`Fold`, `Help`, `Lightbox`, `Profile`, `Seg`, `Sum`).
+
 ## Screen-Inventar
 
 Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
@@ -116,6 +122,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
+- 10.10.2026, 0.67.0 «Übergänge 1»: Baukasten als echte Komponenten (`PageHead`, `MainBar`, `Empty`, `Interstitial`, `StepBar`, `Celebrate`), drei Zwischenseiten nach den Mockups Zwischen-Gepackt/-Tourende/-Rueckblick/-Desktop, Rückfrage «Tour jetzt beenden?» nach Tour-beenden-Phone, «Weitermachen» auf Heute nach Heute-Weitermachen-Phone (nur die Zeile, Heute sonst unverändert bis E1). Mitgezogen: das Tourband aller vier Tourseiten (StepBar und MainBar statt eigener Regeln, Schriftstufen statt px, neue Stufen `--fs-tiny` und `--fs-title`), die Velozeichnung auf Planen (Formen sind nur noch Abkürzung, die Beschriftung ist der Knopf). Wächter streng für diese Teile (siehe oben), Grundlinie nur gesunken (TripBand 23 → 0). Bilder: keine Ablage im geteilten Ordner in diesem Lauf; Vorher/Nachher macht der PR.
 
 - 9.10.2026: Regel eingeführt. Erste Runde gestartet: Neuentwurf Kleiderschrank, Material, Tour und Velos sowie erste Mockups für Im Flow und 0.47.
 - 9.10.2026, 0.47 «Aufpimpen» (D1): Kleiderschrank nach Mockup neu (Note 2 → 4); Tour/Packen mit Velo und Gewichtskarte, Material mit Reitern und Karten, Velopflege mit einer Schriftordnung und «Jetzt fällig» als Karten, Setup-Kopfband angeglichen, Inbox und Prüfen leeren sich selbst. Neue Regel «Eine Abarbeitungsliste leert sich selbst». Bilder vorher/nachher: `design/audit-0.47/` (Velopflege: `care-*`). Offenes unter «Offen: Angleichen».

@@ -4,6 +4,7 @@
 // the debrief is one page (0 exceptions = 1 tap); weather changes show their reason and an Undo per row.
 // Fictional fixture plus test_data_gtp_ items; nothing outside the preview server.
 import { test, expect } from '@playwright/test';
+import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -203,7 +204,7 @@ for (const lang of ['de', 'en']) {
     await expect(page.getByText(T('{name} not needed', { name: 'Multi tool' }))).toBeVisible();
     // The debrief starts with them as the exceptions, each "from your note on the way".
     await page.goto('./#/ride');
-    await go(page).click();
+    await endToDebrief(page, T); // v0.67.0: the trip ends («Tour beendet»), then its debrief
     await expect(page).toHaveURL(new RegExp(`#/debrief/${trip.id}`));
     const diff = page.getByRole('region', { name: T('What was different?') });
     await expect(diff.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Multi tool', state: T('Not used') }) })).toBeVisible();
@@ -251,7 +252,7 @@ test('the debrief is one page: nothing different = one tap', async ({ page, cont
   expect(d).toMatchObject({ status: 'done', weather: 'planned', amount: 'right', bags: 'fine', items: {}, missing: [] });
   // The tab now says "saved".
   await expect(tab(page, T, 'Debrief')).toContainText(T('saved'));
-  await expect(go(page)).toHaveText(T('Done'));
+  await expect(go(page)).toHaveText(T('Back to Trips')); // v0.67.0: the loop is closed (phase.js mainStep)
 });
 
 test('weather: applied by itself, each changed row says why and has its own Undo, plus one for the whole change', async ({ page, context }, info) => {

@@ -164,7 +164,9 @@ test('Today: five days before, the weather; its button opens the trip conditions
   await expect(page).toHaveURL(/#\/pack$/);
 });
 
-test('Today: start day, all packed: the ready check, then On the way', async ({ page, context }, info) => {
+// v0.67.0 «Übergänge 1» (U009): on the start day, packed, the button is On the way; the open ready
+// check becomes the card's side link (it was the button before).
+test('Today: start day, all packed: On the way, the ready check as the side link', async ({ page, context }, info) => {
   const t0 = trip({ startDate: '2026-10-07', shop: { FD901: true, FD902: true } });
   // HY01 (sun cream) is one of the things that always come along (trips.js ALWAYS_OLD)
   t0.entries = [...t0.entries, { itemId: 'HY01', slot: 'top', qty: 1 }].map((e) => ({ ...e, packed: true }));
@@ -172,6 +174,8 @@ test('Today: start day, all packed: the ready check, then On the way', async ({ 
   await context.addInitScript(() => localStorage.setItem('ride.autoOpened', 'test_data_gtp_Vorab:2026-10-07'));
   await start(page, context, info, t0);
   const band = page.getByRole('region', { name: 'test_data_gtp_ Vorab' });
-  await expect(band.locator('a.main')).toHaveAttribute('data-step', 'check');
-  await expect(band.locator('a.main')).toHaveAttribute('href', '#/pack?day');
+  await expect(band.locator('a.main')).toHaveAttribute('data-step', 'way');
+  await expect(band.locator('a.main')).toHaveAttribute('href', '#/ride');
+  await expect(band.locator('a.lk')).toHaveText(T('Ready check'));
+  await expect(band.locator('a.lk')).toHaveAttribute('href', '#/pack?day');
 });

@@ -11,6 +11,7 @@
 // checkable result) are logged for PF01, PF05, PF06 and PF07.
 // PF_SHOTS=<folder> saves one screenshot per case and project there (never into the repo).
 import { test, expect } from '@playwright/test';
+import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -973,8 +974,8 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   await note.getByRole('textbox').fill(`${P} PF16 note`);
   await note.getByRole('button', { name: T('Save note') }).click();
   await rec.check('ride note: stored on this trip', async () => expect.poll(async () => (await table(page, 'notes')).find((n) => n.text === `${P} PF16 note`)?.tripId, { timeout: 3000 }).toBe(tripId));
-  await goBtn(page).click();
-  await expect(page).toHaveURL(/#\/debrief\//);
+  // v0.67.0: the trip ends («Tour beendet»), then the debrief
+  await endToDebrief(page, T);
   await rec.check('debrief: the ride note is shown for this trip', () => expect(page.locator('.ridenotes')).toContainText(`${P} PF16 note`, { timeout: 3000 }));
   await page.getByRole('button', { name: T('Save debrief') }).click();
   await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
@@ -1046,7 +1047,8 @@ async function packingDay(page, rec, title) {
   }
   const checks = pd.getByRole('button', { name: T('Tick all checks') });
   if (await checks.count()) await rec.click(checks);
-  await expect(pd.getByText(T('Everything is in. Have a good ride!'))).toBeVisible();
+  // v0.67.0 (U001): these trips start in three days: «Alles drin.», no «Gute Fahrt!» yet
+  await expect(pd.locator('#alldone-h')).toHaveText(T('Everything is in.'));
 }
 
 test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pack, ride, debrief', async ({ page, context }, info) => {
@@ -1083,7 +1085,8 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   await rec.click(page.getByRole('region', { name: T('Base check') }).getByRole('button', { name: T('All with me') }));
   await expect.poll(async () => (await table(page, 'trips')).find((x) => x.id === trip0.id).ready.every((r) => r.done || r.itemId)).toBe(true);
   await rec.check('ride day: no hint to a Pack place that does not exist ("Ride and weather")', () => expect(page.getByText(T('under "Ride and weather".'))).toHaveCount(0, { timeout: 2000 }));
-  await rec.click(goBtn(page));
+  // v0.67.0: «Tour abschliessen» (it asks while the ride is still ahead), «Tour beendet», the debrief
+  await endToDebrief(page, T);
   await rec.click(page.getByRole('button', { name: T('Save debrief') }));
   await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
   rec.stop();
@@ -1126,7 +1129,7 @@ test('Scenario 2: 6 h alpine on the Spark: conditions, review the suggestions, p
   const packed = await tripNamed(page, title);
   rec.r.counts.lostTicks = packed.entries.filter((e) => !e.packed).length;
   await rec.check('everything packed after the packing day', () => expect(rec.r.counts.lostTicks).toBe(0));
-  await rec.check('Pack now leads to On the way', () => expect(goBtn(page)).toContainText(T('Next: On the way'), { timeout: 2000 }));
+  await rec.check('Pack now offers «Packen abschliessen» (v0.67.0, U001)', () => expect(goBtn(page)).toContainText(T('Finish packing'), { timeout: 2000 }));
   await page.goto('./#/');
   const pack = await tile(page, 'pack');
   await rec.check('Today says 100 % packed for this trip (same as Pack)', () => expect(pack).toContainText(allPacked(), { timeout: 2000 }));

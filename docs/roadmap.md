@@ -573,6 +573,7 @@ Diese Reihenfolge gilt ab jetzt und ersetzt die offenen Punkte der Tabelle oben 
 | 4 | **0.47 Einkaufen, Lebenslauf, Werkstatt** | Eine Einkaufsliste für alles (eigene Läden, Monatsbudget); Lebenslauf pro Teil (Preis und Laden freiwillig, Kosten pro Einsatz, Archiv); Werkstatt-Anleitungen (allgemeine Drehmomente, Notfallkarten offline) | |
 | 5 | **0.48 Design und Bedienung aus der Strategierunde 2** | Umsetzung der Antworten | Wartet auf Noahs Antworten 62–119 |
 | 6 | **Später** | TalkBack-Test (tiefe Priorität), Zeitmessung | |
+| 3a | **0.67.0 Übergänge Teil 1** (PR offen) | Baukasten, Hauptknopf nach Phase, Zwischenseiten Gepackt / Tour beendet / Rückblick fertig, Tour beenden mit Rückfrage und Rückgängig, Weitermachen und Vorabend auf Heute, Zurück-Taste schliesst Fenster zuerst; Wächter streng für Angefasstes | Teil 2: Touren-Übersicht, Was ist neu; D3: Menü und Stilwelten; E1: Heute neu |
 
 ### Im Flow (Gewohnheiten und Sport)
 

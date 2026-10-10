@@ -107,7 +107,8 @@ for (const [soon, button, step, wx] of [['2026-10-08', 'Pack|stage', 'Pack|stage
     // the band's tab of that step is the current one
     await expect(page.locator('.trip-band nav a[aria-current="page"]')).toContainText(T(step));
     if (step === 'Pack|stage') await expect(page.locator('.pd')).toHaveAttribute('aria-label', T('Packing day: {title}', { title: 'test_data_gtp_ sooner' }));
-    await expect(page.locator('nav[aria-label]:not(.steps) a[aria-current="page"]').filter({ visible: true })).toHaveText(T('Trips|place'));
+    // v0.67.0: the trip's steps are the StepBar (nav.stepbar), not a place
+    await expect(page.locator('nav[aria-label]:not(.steps):not(.stepbar) a[aria-current="page"]').filter({ visible: true })).toHaveText(T('Trips|place'));
     expect(await page.evaluate(() => localStorage.getItem('pack.currentTrip'))).toBe('test_data_gtp_sooner');
   });
 }

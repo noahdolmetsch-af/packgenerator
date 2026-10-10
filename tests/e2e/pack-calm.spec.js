@@ -148,16 +148,16 @@ test("a day ride: All packed, let's go lands on On the way with everything packe
   await expect(check.getByRole('button', { name: T('Lock') })).toBeHidden();
   expect((await stored(page, title)).ready.filter((r) => !r.itemId).every((r) => r.done)).toBe(true);
 
-  // Back on Pack the next step is the ride day.
+  // Back on Pack the next step is the ride day (v0.67.0: «Weiter zu Unterwegs», phase.js mainStep).
   await page.goto('./#/pack');
-  await expect(page.locator('.trip-band .go')).toContainText(T('Next: On the way'));
+  await expect(page.locator('.trip-band .go')).toContainText(T('Continue to On the way'));
 });
 
 test('a trip of 2 days keeps the packing check', async ({ page, context }, info) => {
   const T = tr('de');
   await start(page, context, info, 'de');
   await newTrip(page, T, 'test_data_gtp_ Zwei Tage', 2);
-  await expect(page.locator('.trip-band .go')).toContainText(T('Next: Pack'));
+  await expect(page.locator('.trip-band .go')).toContainText(T('Continue to Pack'));
   await page.locator('.trip-band .go').click();
   await expect(page).toHaveURL(/#\/pack\?day/);
   await expect(page.locator('.pd')).toHaveAttribute('aria-label', T('Packing day: {title}', { title: 'test_data_gtp_ Zwei Tage' }));

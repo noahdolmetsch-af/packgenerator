@@ -491,3 +491,25 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Neue Tour mit Nächten:** «Biwak + Zelt» ist vorgewählt (wie früher «Draussen»). Eine ältere Tour oder Vorlage «Draussen» ohne Zelt-Angabe gilt als «Biwak + Zelt» (sie brachte das Zelt mit); nur `tent: false` ist Biwak allein.
 - **Ältere Touren:** Eine spätere Änderung (Wetter, Stunden) bringt nur die Fahrt-Bausteine, die sie neu einschaltet (Licht in die Dunkelheit, Rennen mit Event); Reparatur und Laden kommen nicht ungefragt in eine Tour, die vor 0.55 erstellt wurde.
 
+## 9.10.2026: Übergänge Teil 1 (0.67.0, Noahs Antworten Ü1–Ü12 alle a, U21–U26)
+
+- **Ü1a Releases:** drei kleine Releases. Teil 1 (dieser): Baukasten, Wächter, Zwischenseiten, Zurück-Taste, Weitermachen auf Heute. «Was ist neu» und die Touren-Übersicht kommen mit Teil 2; Menü und Stilwelten gehen in D3 (Noah 10.10.2026 «Zusammenlegen»); Heute neu ist E1.
+- **Ü2a Mitziehen:** nur was ein Release anfasst, kommt in den Baukasten. Die Wächter sind streng (Grundlinie 0) für den Baukasten, die neuen und die angefassten Tourseiten; alles andere steht als Liste «noch umbauen».
+- **Ü3a Adressen:** jede Zwischenseite hat eine eigene Adresse `#/trip/<id>/packed | ended | debriefed`; Neuladen, Zurück und ein Link von Heute landen richtig.
+- **Ü4a Wiederöffnen:** die App zeigt eine Zwischenseite nur direkt nach dem Schritt. Danach zeigt die Tour ihren Wartezustand: Unterwegs mit Countdown, Hauptknopf «Zur Startseite». Ob «Packen abschliessen» schon getippt wurde, merkt sich die Tour (`trip.packedAt`).
+- **Ü5a Tagestouren:** nur «Tour beendet» mit Kurz-Rückblick («Alles gut» oder ausführlich), kein «Gepackt» und kein «Rückblick fertig».
+- **Ü6a Vorabend:** nur in der App, ab 18 Uhr am Vorabend zuoberst auf Heute, wenn die Erinnerung der Tour an ist (`trip.remindEve`, Standard an).
+- **Ü7a Zurück-Taste:** schliesst zuerst Dialog oder Blatt, die Eingaben bleiben (ein Verlaufseintrag pro offenem Fenster, `ui/backclose.js`). Velo bearbeiten speichert dabei, was getippt ist.
+- **Ü8a–Ü12a** (Noch alles da?, Was ist neu, Abkürzungen in «Mehr», Stil pro Gerät, Velocomputer/Tageslicht): gehören zu Teil 2 und D3, hier nur festgehalten.
+- **U21a:** nach dem Packen «Zur Startseite» als Hauptknopf, die Erinnerung am Vorabend als Schalter darunter (an).
+- **U22 a+b:** «Tour beendet» erscheint nach «Letzten Tag abschliessen» und von selbst am Abend des letzten Tages (einmal, ab 18 Uhr). Das Öffnen beendet die Tour nicht.
+- **U23a:** was in die nächste Packliste kommt, schlägt der Rückblick vor (wie bisher); «Rückblick fertig» zeigt, was gelernt ist.
+- **U24b:** «Weitermachen» zeigt immer die nächste Tour, auch wenn gerade nichts zu tun ist; ohne nächste Tour die, deren Rückblick offen ist.
+- **U25a:** in der Rückfrage «Tour jetzt beenden?» steht «Weiterfahren» oben (stark), «Tour beenden» rot darunter.
+- **U26b:** der Hauptknopf auf «Gepackt» heisst «Zur Startseite».
+- **Hauptknopf nach Phase (Befunde U001–U004, U008, U009, U013, U014):** der orange Knopf jeder Tourseite folgt dem Datum (vor / während / nach), nicht dem nächsten Tab. Eine leere Liste sagt nie «Alles gepackt, los». Regeln in `src/lib/phase.js` (`mainStep`), getestet in `tests/phase.test.js`.
+- **Starttag:** bis «Packen abschliessen» getippt ist, bleibt Packen der Schritt (eine Tagestour, am Morgen erstellt). Gepackt führt eine Velotour am Starttag zu Unterwegs; auf Heute ist «Unterwegs» dann der Hauptknopf, ein offener Startcheck die Nebenzeile (U009). «Gute Fahrt!» erst ab dem Starttag (U001).
+- **Tour beenden fragt** vor dem letzten Tag, und am letzten Tag, solange die geplante Fahrt noch vor einem liegt (Start der Etappe oder 08:00 plus Fahrzeit; ohne Angabe bis 14 Uhr). Am Abend fragt «Letzten Tag abschliessen» nicht (U22a).
+- **Von selbst am letzten Abend** öffnet sich «Tour beendet» nicht für eine Tour, die heute erstellt wurde (wie der Fahrtag, Noah 6a); dort bleibt «Heute zurückblicken» auf Heute.
+- **Zurück-Taste und Links:** schliesst ein Fenster mit einem Link oder öffnet es gleich das nächste («Neu» → «Tour planen»), bleibt die Adresse des Links und das nächste Fenster übernimmt den Verlaufseintrag.
+
