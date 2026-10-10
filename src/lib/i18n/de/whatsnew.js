@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.67.1
+  'Date fields show the date like the rest of the app, with the weekday, for example «Sat, Oct 10, 2026». Tapping still opens the calendar.':
+    'Datumsfelder zeigen das Datum wie überall in der App, mit Wochentag, zum Beispiel «Sa., 10. Okt. 2026». Antippen öffnet weiterhin den Kalender.',
+  'Bike types appear as words: Full suspension, Hardtail, Gravel bike, Road bike.':
+    'Velo-Typen erscheinen als Wörter: Fully, Hardtail, Gravelbike, Rennvelo.',
+  'In the flow has its icon in the menu.': 'Im Flow hat im Menü sein Symbol.',
+
   // 0.67.0
   'After packing, after the trip and after the debrief a calm page shows what is done and the one next step. «Later» always works.':
     'Nach dem Packen, nach der Tour und nach dem Rückblick zeigt eine ruhige Seite, was erledigt ist, und den einen nächsten Schritt. «Später» geht immer.',

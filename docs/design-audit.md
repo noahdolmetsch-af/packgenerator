@@ -122,6 +122,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
+- 10.10.2026, 0.67.1 Fix-Release: neue Komponente `DateInput` im Baukasten (`src/lib/ui/`), alle 8 Datumsfelder zeigen dasselbe Format mit Wochentag; Velo-Typen als Wörter. Kein neuer Screen.
 - 10.10.2026, 0.67.0 «Übergänge 1»: Baukasten als echte Komponenten (`PageHead`, `MainBar`, `Empty`, `Interstitial`, `StepBar`, `Celebrate`), drei Zwischenseiten nach den Mockups Zwischen-Gepackt/-Tourende/-Rueckblick/-Desktop, Rückfrage «Tour jetzt beenden?» nach Tour-beenden-Phone, «Weitermachen» auf Heute nach Heute-Weitermachen-Phone (nur die Zeile, Heute sonst unverändert bis E1). Mitgezogen: das Tourband aller vier Tourseiten (StepBar und MainBar statt eigener Regeln, Schriftstufen statt px, neue Stufen `--fs-tiny` und `--fs-title`), die Velozeichnung auf Planen (Formen sind nur noch Abkürzung, die Beschriftung ist der Knopf). Wächter streng für diese Teile (siehe oben), Grundlinie nur gesunken (TripBand 23 → 0). Bilder: keine Ablage im geteilten Ordner in diesem Lauf; Vorher/Nachher macht der PR.
 
 - 9.10.2026: Regel eingeführt. Erste Runde gestartet: Neuentwurf Kleiderschrank, Material, Tour und Velos sowie erste Mockups für Im Flow und 0.47.

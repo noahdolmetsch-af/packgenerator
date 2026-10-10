@@ -523,3 +523,13 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid:** [Geplante Vorhaben](vorhaben.md) ist der Massstab, ob wir auf dem richtigen Weg sind; vor jedem Paket wird es geprüft, in jedem Release nachgeführt. Mockups gibt es nur noch hell. Vor jedem PR läuft der komplette Gesamttest lokal.
 - **Grund:** Noah möchte die Übersicht als Basis behalten und den Kurs regelmässig prüfen; dunkle Mockups verdoppelten die Bilder; mehrere PRs wurden erst in CI rot.
 
+## Neu planen: Reihenfolge, Fragen pro Paket, Velo-Blätter (10.10.2026, 0.67.1)
+
+- **Entscheid:** Fünf Orte kommt in zwei Releases (1 Navigation, 2 Tabs pro Ort samt Übergänge 2); Übergänge 2 ist kein eigener Release mehr. Vor Fünf Orte packt Noah eine echte Tour mit der App; eine Tagestour genügt, die Lücken kommen als einfache Liste. Davor kommen zwei kleine Pakete: 0.68 Q1 «Jeder km zählt» und 0.69 Velo-Blätter. D6 bleibt nach D2. Der KI-Helfer bleibt bis nach E2–E4 geparkt.
+- **Entscheid:** Keine grosse Fragen-Runde mehr für alle Pakete. Pro Paket kommen kurz vor dem Bau höchstens 7 a/b-Fragen; das Aussehen folgt den ★-Vorschlägen, Noah prüft in der Vorschau. Ersetzt den Wunsch «alle Fragen in einer Runde» vom selben Morgen.
+- **Entscheid:** Datumsfelder zeigen das Datum im Format der App mit Wochentag («Sa., 10. Okt. 2026»). Funde aus dem Handytest kommen als Kommentar auf die Trello-Karte des Releases und gehen in den nächsten Fix-Release.
+- **Entscheid (Q1 «Jeder km zählt», Qualitätsmerkmal):** Jeder km jedes Velos ist nachvollziehbar: Fahrten-Buch pro Velo mit Quelle und Sicherheit, Strava-CSV mit Velo-Spalte bis E3, FIT-Import mit Sensor als Fingerabdruck, ein eigener Sensor und ein Garmin-Profil pro Velo, das Strava-Velo gilt mit Prüfung, unklare Fahrten zählen erst nach Bestätigung, Wochen-Karte auf Heute und Monatsbericht. Teile-km über mehrere Velos nur, wenn es einfach geht.
+- **Entscheid (Velo-Blätter):** Aus der Abhol-Checkliste für den Bikemech werden Blätter, die sich aus den Daten der App füllen: eine Mappe pro Velo, Auftrag und Abhol-Check zusätzlich beim Werkstatt-Termin. Zuerst Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check; ansehen, als PDF teilen, Text kopieren. Häkchen im Abhol-Check bleiben gespeichert und werden zum Pflege-Eintrag. Noahs echte Werte kommen nur über eine private Import-Datei.
+- **Entscheid:** Nach den Velo-Blättern folgt ein vollständiger UI-Test: alle Abläufe einmal komplett durchspielen, Fehler dokumentieren und selbst beheben; bei grösseren Entscheiden fragt Claude.
+- **Grund:** Noah hatte bei 84 offenen Fragen den Überblick verloren. Er holt heute ein neues Velo ab und will dessen km und Werte von Anfang an sauber in der App.
+
