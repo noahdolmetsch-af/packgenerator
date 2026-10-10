@@ -230,20 +230,24 @@ test('an empty list never says «Alles gepackt, los» (U014); a trip without a b
   await expect(main(page)).toHaveText(T('To the start page')); // no «Zurück zum Packen» loop
 });
 
-test('Today: «Weitermachen» jumps into the right step; from 18:00 the evening before a reminder on top (U007, U24b, Ü6a)', async ({ page, context }, info) => {
+test('Today: from 18:00 the evening before a reminder on top; no «Weitermachen» for the trip the card shows (Ü6a; v0.73.0 Noah 2a)', async ({ page, context }, info) => {
   await open(page, context, info, [trip('Herbst', day(1), { entries: entries(6, 2) }), trip('Später', day(9))], { hour: 19 });
+  await expect(page.locator('[data-row="eve"]')).toContainText(T('Tomorrow it starts: {trip}', { trip: 'test_data_gtp_ Herbst' }));
+  await expect(page.locator('#next-h')).toHaveText('test_data_gtp_ Herbst');
+  await expect(page.locator('[data-row="continue"]')).toHaveCount(0);
+});
+
+test('Today: «Weitermachen» for another trip than the card jumps into the right step (U007, U24b)', async ({ page, context }, info) => {
+  // the card asks about a trip that ended yesterday; the next trip is more than two weeks away
+  await open(page, context, info, [trip('Napf', day(-2), { days: 2, entries: entries(4, 4) }), trip('Herbst', day(15), { entries: entries(6, 2) })]);
+  await expect(page.locator('#next-h')).toHaveText(T('How was {trip}?', { trip: 'test_data_gtp_ Napf' }));
   const cont = page.locator('[data-row="continue"]');
   await expect(cont).toContainText('test_data_gtp_ Herbst');
   await expect(cont).toContainText(T('Continue · {step}, step {n} of {total}', { step: T('Pack|stage'), n: 2, total: 4 }));
-  await expect(page.locator('[data-row="eve"]')).toContainText(T('Tomorrow it starts: {trip}', { trip: 'test_data_gtp_ Herbst' }));
   await cont.click();
   await expect(page).toHaveURL(/#\/pack\?day$/);
   await expect(page.locator('.trip-band h1')).toContainText('test_data_gtp_ Herbst');
-  // the start day: not packed yet, packing is still the step; packed, Weitermachen leads to On the way (U009)
-  await page.clock.setFixedTime(new Date(`${day(1)}T07:00:00+02:00`));
-  await page.evaluate((v) => localStorage.setItem('ride.autoOpened', v), `${ID('Herbst')}:${day(1)}`); // Today stays
-  await go(page, '#/');
-  await expect(page.locator('[data-row="continue"]')).toHaveAttribute('data-step', 'pack');
+  // packed, Weitermachen leads to On the way (U009)
   await patchTrip(page, ID('Herbst'), { entries: entries(6, 6) });
   await go(page, '#/');
   await expect(page.locator('[data-row="continue"]')).toHaveAttribute('data-step', 'ride');
@@ -255,7 +259,7 @@ test('the back key closes a dialog first and keeps the inputs; the page stays (�
   await page.goto('./#/gear');
   await expect(page.locator('main')).not.toBeEmpty();
   const phone = info.project.name === 'phone';
-  // v0.71.0 «Fünf Orte»: the round + on a phone, «+ Neu» in the sidebar on a computer
+  // v0.74.0 «Fünf Orte»: the round + on a phone, «+ Neu» in the sidebar on a computer
   const plus = () => (phone ? page.locator('button.fab') : page.locator('.side .newbtn'));
   // «Neu» sheet
   await plus().click();

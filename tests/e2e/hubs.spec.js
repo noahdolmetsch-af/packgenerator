@@ -74,7 +74,7 @@ test('Today: the waiting debrief in Important today, the bike jobs under the bik
 
 test('Past trips lists the finished trip and opens it', async ({ page, context }, info) => {
   await load(page, context, info);
-  // v0.71.0 «Fünf Orte»: «More» is gone; the search finds every page (Past trips: Touren).
+  // v0.74.0 «Fünf Orte»: «More» is gone; the search finds every page (Past trips: Touren).
   if (!(await page.locator('.search input').isVisible())) await page.getByRole('button', { name: T('Search everything') }).click();
   await page.locator('.search input').fill(T('Past trips'));
   await page.getByRole('region', { name: T('Search results') }).getByRole('button', { name: new RegExp(`^${T('Past trips')}`) }).first().click();

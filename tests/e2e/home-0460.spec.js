@@ -56,11 +56,17 @@ test('sections, greeting with the weather, the trip card, 12 or 8 buttons in the
   // Noah 2b: greeting, trip card and the buttons without scrolling
   expect(await inFirstScreen(page, page.locator('#hello-h')), 'greeting in the first screen').toBe(true);
   expect(await inFirstScreen(page, page.locator('section.trip')), 'trip card in the first screen').toBe(true);
-  // v0.51.0 (Noah, approved mockup ImFlow-Heute): «Im Flow» is the second card, right under the trip,
-  // so the buttons now follow it (no longer all in the first screen); the flow card starts in it.
-  expect(await inFirstScreen(page, page.locator('#fc-h')), 'Im Flow starts in the first screen').toBe(true);
+  // v0.51.0 (Noah, approved mockup ImFlow-Heute): on a computer «Im Flow» is the second card, right under
+  // the trip, and starts in the first screen. v0.73.0 «Fotoband» (Noah 1a): on a phone the 8 buttons come
+  // right after the trip card again and stay in the first screen; «Im Flow» follows them.
   const order = await page.locator('[data-section="trip"], [data-section="flow"], [data-section="actions"]').evaluateAll((els) => els.map((e) => e.dataset.section));
-  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['trip', 'flow', 'actions']);
+  if (phone) {
+    for (const b of await buttons.all()) expect(await inFirstScreen(page, b), `${await b.textContent()} in the first screen`).toBe(true);
+    expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['trip', 'actions', 'flow']);
+  } else {
+    expect(await inFirstScreen(page, page.locator('#fc-h')), 'Im Flow starts in the first screen').toBe(true);
+    expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['trip', 'flow', 'actions']);
+  }
 
   // Important today, Tried it yet?, bikes, 12 months, customise
   const imp = page.getByRole('region', { name: T('Important today') });
@@ -135,7 +141,7 @@ test('colour worlds and dark mode in More; every choice stays', async ({ page, c
   const html = page.locator('html');
   await expect(html).toHaveAttribute('data-palette', 'gletscher');
   await expect(html).toHaveAttribute('data-theme', 'light');
-  // v0.71.0 «Fünf Orte»: the page ground is tinted a breath by the place; the colour world sets --ground.
+  // v0.74.0 «Fünf Orte»: the page ground is tinted a breath by the place; the colour world sets --ground.
   const bg = () => page.evaluate(() => {
     const d = document.body.appendChild(document.createElement('div'));
     d.style.background = 'var(--ground)';
@@ -145,7 +151,7 @@ test('colour worlds and dark mode in More; every choice stays', async ({ page, c
   });
   expect(await bg()).toBe('rgb(238, 242, 244)');
 
-  // v0.71.0: the colour world and light or dark are in «Ich» (top right), no longer in «More».
+  // v0.74.0: the colour world and light or dark are in «Ich» (top right), no longer in «More».
   await page.getByRole('link', { name: /^(Me|Ich)\b/ }).first().click();
   await expect(page).toHaveURL(/#\/me$/);
   const more = page.locator('main');

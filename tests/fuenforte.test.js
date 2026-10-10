@@ -1,4 +1,4 @@
-// v0.71.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): the pages under each place (sidebar) and the
+// v0.74.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): the pages under each place (sidebar) and the
 // keyboard shortcuts. Pure functions, no data.
 import { describe, it, expect } from 'vitest';
 import { PLACES, PLACE_TABS, tabOf, pageOf, placeOf } from '../src/lib/nav.js';

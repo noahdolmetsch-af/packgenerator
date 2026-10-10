@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.71.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): «Ich», top right on every page, took the place of
+   * v0.74.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): «Ich», top right on every page, took the place of
    * the menu «More». First what you set for yourself (language, light or dark, colour world), then the
    * places of the app: home place, Inbox, notes, your data, what the app can do and has learned, help
    * and keyboard shortcuts. Numbers only where something waits (the Inbox, «Backup due»).

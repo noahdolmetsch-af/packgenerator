@@ -1,5 +1,5 @@
 /**
- * v0.71.0 «Fünf Orte» 1 (Noah 10.10.2026): the menu «More» is gone. Every page has one home:
+ * v0.74.0 «Fünf Orte» 1 (Noah 10.10.2026): the menu «More» is gone. Every page has one home:
  * - the five places (Today, Trips, Gear, Bikes, Active) in the bar, with their pages in the sidebar,
  * - «Ich» (top right, #/me) for the Inbox, the notes, your data and what the app can do,
  * - «New» (+) for everything you create.
@@ -41,7 +41,7 @@ export const PAGE_GROUPS = [
     key: 'active',
     name: 'Active|place',
     rows: [
-      // v0.51.0 «Im Flow»; v0.71.0: the place «Aktiv».
+      // v0.51.0 «Im Flow»; v0.74.0: the place «Aktiv».
       { id: 'flow', title: 'In the flow', href: '#/flow', icon: 'flow', words: 'in the flow im flow flow aktiv active goals ziele sport training meditation yoga rings ringe daily check tagescheck stopwatch stoppuhr countdown habit gewohnheit' },
     ],
   },
@@ -54,7 +54,7 @@ export const PAGE_GROUPS = [
       { id: 'notes', title: 'Notes', href: '#/notes', icon: 'notes', words: 'notes notizen notiz merken checkliste checklist thema topics pinned angeheftet' },
       { id: 'data', title: 'Your data', action: 'data', icon: 'data', words: 'your data deine daten backup sicherung import export restore wiederherstellen' },
       { id: 'features', title: 'What the app can do', href: '#/features', icon: 'sparkles', words: 'what the app can do was die app kann features funktionen tips tipps updates neuerungen' },
-      // v0.71.0: «Ich» itself, with the language, light or dark and the colour world.
+      // v0.74.0: «Ich» itself, with the language, light or dark and the colour world.
       { id: 'me', title: 'Me|place', href: '#/me', icon: 'user', words: 'me ich settings einstellungen language sprache deutsch english dark dunkel light hell colours farben stil style theme home place heimat keyboard shortcuts tastenkürzel help hilfe version' },
     ],
   },

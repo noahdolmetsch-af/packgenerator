@@ -56,7 +56,7 @@ test('Today: a bike card per bike with a dot and a word; a tap opens its Bike ca
   expect(errors).toEqual([]);
 });
 
-// v0.71.0 «Fünf Orte»: «More» became «Ich» (top right, #/me); its pages live under their place.
+// v0.74.0 «Fünf Orte»: «More» became «Ich» (top right, #/me); its pages live under their place.
 test('Ich: top right with the Inbox count, settings and the app; the search finds pages', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/');

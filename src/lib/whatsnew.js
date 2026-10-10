@@ -10,13 +10,22 @@
 
 export const WHATS_NEW = [
   {
-    version: '0.71.0',
+    version: '0.74.0',
     date: '2026-10-10',
     points: [
       { text: 'Five places: Today, Trips, Gear, Bikes and Active. On a phone they sit at the bottom, on a computer in a sidebar on the left with the pages of each place.', href: '#/' },
       { text: '«More» is gone. «Me» top right holds the language, light or dark, the colour world, your home place, the Inbox, your data and the help.', href: '#/me' },
       { text: '«New» is a round + bottom right on a phone. Each place has a light colour of its own.', href: '#/' },
       { text: 'Keyboard shortcuts on a computer: g and a letter opens a place, n is New, / searches, ? shows them all.', href: '#/me' },
+    ],
+  },
+  {
+    version: '0.73.0',
+    date: '2026-10-10',
+    points: [
+      { text: 'Today is calmer: the greeting is one line, the next trip comes right after it, and «Continue» only appears for another trip than the card shows.', href: '#/' },
+      { text: 'The photo on Today is sharp now. On the phone it is a narrow band above the trip card with place and month; «Album ›» opens the bike\'s photos.', href: '#/' },
+      { text: 'With a trip today, «Idea for tomorrow» is one slim row under the trip card; without one it stays big beside the greeting.', href: '#/' },
     ],
   },
   {

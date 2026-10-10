@@ -390,7 +390,7 @@
   .bag-heading :global(svg) { color: var(--ink-3); flex: none; }
   .bag-heading strong { font-weight: 600; min-width: 0; overflow-wrap: break-word; }
   .bag-heading small { margin-left: auto; font-size: 14px; font-weight: 400; color: var(--ink-3); white-space: nowrap; }
-  /* v0.45.1 (G004): "14 items · 1.87 kg" goes under the bag's name when both do not fit; v0.71.0: on
+  /* v0.45.1 (G004): "14 items · 1.87 kg" goes under the bag's name when both do not fit; v0.74.0: on
      every width, since two bag columns next to the sidebar can be as narrow as a small phone */
   .bag-heading { flex-wrap: wrap; row-gap: 0; }
   .bag-heading strong { flex: 1 1 auto; }

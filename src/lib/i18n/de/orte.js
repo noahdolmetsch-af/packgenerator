@@ -1,4 +1,4 @@
-// v0.71.0 «Fünf Orte» 1: the five places, the sidebar, «Ich» and the keyboard shortcuts.
+// v0.74.0 «Fünf Orte» 1: the five places, the sidebar, «Ich» and the keyboard shortcuts.
 export default {
   'Active|place': 'Aktiv',
   'Me|place': 'Ich',

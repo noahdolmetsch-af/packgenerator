@@ -1,5 +1,5 @@
 <script>
-  /** v0.71.0 «Fünf Orte» 1: the icon of a place, the same in the sidebar and the bottom bar. */
+  /** v0.74.0 «Fünf Orte» 1: the icon of a place, the same in the sidebar and the bottom bar. */
   import { Sun, Route, Backpack, Bike, Activity } from '@lucide/svelte';
 
   let { place, size = 22 } = $props();

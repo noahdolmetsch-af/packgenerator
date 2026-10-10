@@ -266,7 +266,7 @@
     gap: 8px;
     max-width: 100%;
   }
-  /* v0.71.0 «Fünf Orte»: next to the sidebar a card can be narrow; the line wraps between words */
+  /* v0.74.0 «Fünf Orte»: next to the sidebar a card can be narrow; the line wraps between words */
   .mini small {
     min-width: 0;
   }

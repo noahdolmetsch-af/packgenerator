@@ -2064,7 +2064,7 @@
     margin: 0;
     font: 800 20px/1.1 var(--font-brand);
   }
-  /* v0.71.0: the sidebar (252 px) takes room from 900 px on, so the numbers move next to the title only
+  /* v0.74.0: the sidebar (252 px) takes room from 900 px on, so the numbers move next to the title only
      where the middle column still has room for both */
   @media (min-width: 1452px) {
     .vhead {

@@ -211,7 +211,7 @@ test('N8, N9: rename a past trip in its band; past trips are easy to find', asyn
   await start(page, context, info, { trips: [trip('gtp-old', 'Alt', { startDate: day(-4), finished: day(-4) }), trip('gtp-next', 'Bald', { startDate: day(5) })] });
   // Today: "More" has the page (v0.46.0: the Trips tile with its row left Today).
   // v0.38.0 (Noah 13a): the button moved into "More" › Look back (one place per target).
-  // v0.71.0 «Fünf Orte»: «More» is gone; the search finds every page (Past trips: Touren).
+  // v0.74.0 «Fünf Orte»: «More» is gone; the search finds every page (Past trips: Touren).
   if (!(await page.locator('.search input').isVisible())) await page.getByRole('button', { name: T('Search everything') }).click();
   await page.locator('.search input').fill(T('Past trips'));
   await expect(page.getByRole('region', { name: T('Search results') }).getByRole('button', { name: new RegExp(`^${T('Past trips')}`) }).first()).toBeVisible();

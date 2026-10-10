@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.71.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): on a phone (and a narrow window) the five places
+   * v0.74.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): on a phone (and a narrow window) the five places
    * sit at the bottom, in reach of the thumb: Heute, Touren, Material, Velos, Aktiv. The chosen place
    * shows its colour as a pill behind the icon and in bold, not by colour alone. «+ Neu» is a round
    * button bottom right, above the bar (O1.3a); on the trip pages it sits higher, above their own main

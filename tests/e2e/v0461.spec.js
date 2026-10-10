@@ -160,8 +160,8 @@ test('5: the search on the phone is a clean sheet under the top bar', async ({ p
   expect(errors).toEqual([]);
 });
 
-// v0.71.0 «Fünf Orte»: «More» became «Ich»; it stays calm (no trip rows), Vorlagen is a page of Touren.
-test('6 (v0.46.3, Noah: "unschön"; v0.71.0): Ich is calm, no trip rows; the lists are under Touren', async ({ page, context }, info) => {
+// v0.74.0 «Fünf Orte»: «More» became «Ich»; it stays calm (no trip rows), Vorlagen is a page of Touren.
+test('6 (v0.46.3, Noah: "unschön"; v0.74.0): Ich is calm, no trip rows; the lists are under Touren', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/');
   await page.getByRole('link', { name: /^Ich\b/ }).first().click();

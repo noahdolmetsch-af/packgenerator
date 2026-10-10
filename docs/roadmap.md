@@ -513,9 +513,11 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 10.10.2026 (v0.71.0, PR offen):** Fünf Orte Teil 1 ist gebaut: fünf Orte (Aktiv neu), «Ich» statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Tastenkürzel (AP-Bezug AP07 Navigation). Als Nächstes Fünf Orte Teil 2 (Tabs pro Ort, Wischen, alte Adressen, Übergänge 2).
+**Nachtrag 10.10.2026 (v0.74.0, PR offen):** Fünf Orte Teil 1 ist gebaut: fünf Orte (Aktiv neu), «Ich» statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Tastenkürzel (AP-Bezug AP07 Navigation). Als Nächstes Fünf Orte Teil 2 (Tabs pro Ort, Wischen, alte Adressen, Übergänge 2).
 
-**Nachtrag 10.10.2026 (v0.70.0, live, PR #97):** Velo-Blätter Teil 2 gebaut (Noah W1–W7 a): Einfahr-Plan (von selbst bei neuem Velo, Häkchen in die Pflege, Erinnerung auf Heute), Repair-Kit pro Art der Fahrt mit «Auf die Packliste …», Garantie & Belege mit Erinnerung und Kalender-Datei, Diebstahl-Blatt (AP-Bezug Velo-Pflege, Ziel 2). 0.69.1 ist live (PR #96).
+**Nachtrag 10.10.2026 (v0.73.0, live, PR #99):** «Ruhige Startseite + Fotoband» gebaut (Mockups heute-ruhig A und fotoalbum-neu A freigegeben): Gruss in einer Zeile, scharfes Foto, Fotoband am Handy, Vorschlag als schmale Zeile, kein doppeltes «Weitermachen» (AP-Bezug Startseite, Ziel 1).
+
+**Nachtrag 10.10.2026 (v0.70.0, live, PR #98):** Velo-Blätter Teil 2 gebaut (Noah W1–W7 a): Einfahr-Plan (von selbst bei neuem Velo, Häkchen in die Pflege, Erinnerung auf Heute), Repair-Kit pro Art der Fahrt mit «Auf die Packliste …», Garantie & Belege mit Erinnerung und Kalender-Datei, Diebstahl-Blatt (AP-Bezug Velo-Pflege, Ziel 2). 0.69.1 ist live (PR #96).
 
 **Nachtrag 10.10.2026 (v0.69.1, live, PR #96):** Vollständiger UI-Test (Gesamttest-Runde) gemacht, Befunde A–C behoben, D als Fragen an Noah; dazu die Regel «Fahrt-Typ» im Import (AP-Bezug Ziel 2, Q1). Schritt 4 der Reihenfolge in vorhaben.md ist damit als PR offen.
 

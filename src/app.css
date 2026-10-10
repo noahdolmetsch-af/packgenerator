@@ -321,7 +321,7 @@
   --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
 }
 
-/* ---------- v0.71.0 «Fünf Orte» 1 (Noah 10.10.2026): each place has a light colour ----------
+/* ---------- v0.74.0 «Fünf Orte» 1 (Noah 10.10.2026): each place has a light colour ----------
    Heute teal, Touren orange, Material ochre, Velos blue, Aktiv violet, «Ich» the ink. The App sets
    data-place on <html>; --pc is the place's colour (the chosen place in the bars, the + Neu), --pc-soft
    its pill and --tint the page ground, a breath of the colour (Noah 4b). The same in every colour world. */
@@ -382,7 +382,7 @@ body {
   margin: 0;
   min-height: 100vh;
   /* v0.22.0 (AP03): plain calm ground; the topo lines stay in the logo and the photos.
-     v0.71.0 «Fünf Orte»: tinted a breath by the place (--tint). */
+     v0.74.0 «Fünf Orte»: tinted a breath by the place (--tint). */
   background-color: var(--tint, var(--ground));
   color: var(--ink);
   font-family: var(--font-body);

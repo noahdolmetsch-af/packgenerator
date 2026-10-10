@@ -57,7 +57,7 @@ const ROUTES = [
   ['#/bikes?bike=test_data_gtp_spark&sheet=order', 'Werkstatt-Auftrag'],
   ['#/bikes?bike=test_data_gtp_spark&sheet=pickup', 'Abhol-Check'],
   ['#/flow', 'Im Flow'],
-  ['#/me', 'Ich'], // v0.71.0 «Fünf Orte»: strict like its file
+  ['#/me', 'Ich'], // v0.74.0 «Fünf Orte»: strict like its file
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

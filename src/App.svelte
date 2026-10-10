@@ -68,14 +68,14 @@
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
   const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page));
-  // v0.71.0 «Fünf Orte» 1: the place tints the page and colours the bars (app.css --pc, --tint).
+  // v0.74.0 «Fünf Orte» 1: the place tints the page and colours the bars (app.css --pc, --tint).
   $effect(() => {
     if (place) document.documentElement.dataset.place = place;
     else delete document.documentElement.dataset.place;
   });
   // The trip pages have their own main button at the bottom (rule U1): the round + sits above it there.
   const calm = $derived(page === 'pack' || page === 'ride' || page === 'between' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param)));
-  // v0.71.0: the keyboard shortcuts (nav/keys.js), «?» shows them (also from Ich).
+  // v0.74.0: the keyboard shortcuts (nav/keys.js), «?» shows them (also from Ich).
   let keysOpen = $state(false);
   $effect(() => {
     const open = () => (keysOpen = true);
@@ -206,7 +206,7 @@
 </script>
 
 <!-- v0.19.6 (start page answers 1a-4a): the same places on every page, search, Inbox and one "New".
-     v0.71.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): five places. On a computer a sidebar on the left
+     v0.74.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): five places. On a computer a sidebar on the left
      (logo, search, Ich, + Neu, the places with their pages); on a phone the top bar with search and
      «Ich», the places at the bottom and a round + above them. «More» is gone: its pages are under
      their place or in «Ich». -->
@@ -272,7 +272,7 @@
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <Flow sub={hash.split('/').slice(2).join('/')} />
   {:else if page === 'me'}
-    <!-- v0.71.0 «Fünf Orte» 1: «Ich», top right -->
+    <!-- v0.74.0 «Fünf Orte» 1: «Ich», top right -->
     <Me />
   {:else if page === 'inbox'}
     <Inbox onnew={() => (noteOpen = true)} />
@@ -297,14 +297,14 @@
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <Keys bind:open={keysOpen} />
 {#if !wide.matches}
-  <!-- v0.71.0: the five places at the bottom (also under a shared list, there without +). -->
+  <!-- v0.74.0: the five places at the bottom (also under a shared list, there without +). -->
   <PlaceBar {place} due={$dueQ ?? 0} fab={page !== 'share'} high={calm && phone.matches} onnew={() => (newMode = 'all')} />
 {/if}
 </div>
 </div>
 
 <style>
-  /* v0.71.0 «Fünf Orte» 1: on a computer the sidebar on the left and the page next to it. */
+  /* v0.74.0 «Fünf Orte» 1: on a computer the sidebar on the left and the page next to it. */
   .shell.wide {
     display: grid;
     grid-template-columns: 252px minmax(0, 1fr);
@@ -383,7 +383,7 @@
   main.wide {
     max-width: 1600px;
   }
-  /* Room for the bottom bar, and for the round + on the right (v0.71.0). */
+  /* Room for the bottom bar, and for the round + on the right (v0.74.0). */
   main.bar:not(.calm) {
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
