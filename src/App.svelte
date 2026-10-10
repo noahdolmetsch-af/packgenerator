@@ -13,6 +13,7 @@
   import PastTrips from './pages/PastTrips.svelte';
   import Trips from './pages/Trips.svelte';
   import Blocks from './pages/Blocks.svelte';
+  import BlockCheck from './pages/BlockCheck.svelte';
   import Features from './pages/Features.svelte';
   import GearImport from './pages/GearImport.svelte';
   import Rides from './pages/Rides.svelte';
@@ -196,7 +197,7 @@
 
 <DemoBar />
 
-<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'}>
+<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'}>
   {#key switchN}
   {#if page === 'gear'}
     <Gear />
@@ -220,6 +221,9 @@
     <Ride />
   {:else if page === 'share'}
     {#key param}<Share code={param} />{/key}
+  {:else if page === 'blockcheck'}
+    <!-- v0.66.0 (Noah 4a): «Bausteine prüfen», one block after the other -->
+    <BlockCheck />
   {:else if page === 'blocks'}
     <!-- v0.26.0 (Noah 2a/2b): building blocks (item sets) you can see and make -->
     <Blocks />

@@ -88,7 +88,7 @@ describe('writes with undo', () => {
     expect(del.n).toBe(1);
     expect((await db.items.get('B')).sets).toEqual([]);
     expect((await db.settings.get('sets')).value).toEqual([]);
-    expect((await deleteSet(db, 'sleep')).error).toBe('builtIn');
+    expect((await deleteSet(db, 'bivy')).error).toBe('builtIn');
     await undoBulk(db, del.snap);
     expect((await db.items.get('B')).sets).toEqual(['u-regen']);
     expect((await db.settings.get('sets')).value[0].name).toBe('Nass');

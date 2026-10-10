@@ -37,7 +37,9 @@ const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString(
 
 /** Items that only belong to night sets: on a day ride each of them is one to take out by hand. */
 const NIGHT_SETS = ['base', 'sleep', 'warm', 'cook', 'lodging'];
-const nightOnly = (i) => i.sets?.length && i.sets.every((s) => NIGHT_SETS.includes(s) || s.startsWith('u-')) && i.sets.some((s) => NIGHT_SETS.includes(s)) && !i.role && !i.always && i.coldBelow == null && !i.rain;
+// v0.66.0: read on the fixture as it is in the file (before the update): the old Warm items get a
+// temperature rule in the update (6a), so the down jacket comes on a cool day ride by design.
+const nightOnly = (i) => i.sets?.length && i.sets.every((s) => NIGHT_SETS.includes(s) || s.startsWith('u-')) && i.sets.some((s) => NIGHT_SETS.includes(s)) && !i.role && !i.always && i.coldBelow == null && !i.rain && !i.sets.includes('warm');
 
 /**
  * Checks that fail on v0.27.0 and are reported in the protocol instead of failing the suite.
@@ -203,7 +205,7 @@ async function fillTrip(dlg, rec, o) {
   if (o.days) await rec.fill(dlg.getByLabel(T('Days')).first(), String(o.days));
   if (o.hours) await rec.fill(dlg.getByLabel(T('Riding hours per day')), String(o.hours));
   if (o.overnight) {
-    const name = { none: T('None|overnight'), lodging: T('Lodging'), outdoor: T('Outdoor (tent, bivvy)') }[o.overnight];
+    const name = { none: T('None|overnight'), lodging: T('Hotel/hut'), outdoor: T('Bivouac + tent') }[o.overnight];
     await rec.click(dlg.getByRole('button', { name, exact: true }));
   }
   if (o.cook) await rec.click(dlg.getByRole('checkbox', { name: T('Cooking') }));
@@ -415,17 +417,18 @@ test('PF05: bikepacking, 3 days, outdoor, cooking: explicit sleep/cook choice, b
   const dlg = await openNewTrip(page, rec);
   await fillTrip(dlg, rec, { title, bike: BIKE.gravel, days: 3, hours: 5 });
   await rec.check('from 2 days on "Outdoor" is chosen and cooking is asked', async () => {
-    await expect(dlg.getByRole('button', { name: T('Outdoor (tent, bivvy)') })).toHaveAttribute('aria-pressed', 'true', { timeout: 2000 });
+    await expect(dlg.getByRole('button', { name: T('Bivouac + tent') })).toHaveAttribute('aria-pressed', 'true', { timeout: 2000 });
     await expect(dlg.getByRole('checkbox', { name: T('Cooking') })).toBeVisible({ timeout: 2000 });
   });
-  await rec.click(dlg.getByRole('button', { name: T('Outdoor (tent, bivvy)') }));
+  await rec.click(dlg.getByRole('button', { name: T('Bivouac + tent') }));
   await rec.click(dlg.getByRole('checkbox', { name: T('Cooking') }));
   const box = dlg.getByRole('region', { name: T('Your packing list|preview') });
-  await rec.check('the live box names the night sets with counts (Base, Sleep, Warm, Cook)', () => expect(box).toContainText(new RegExp(`${esc(T('Sleep'))} 3.*${esc(T('Cook'))} 3`), { timeout: 2000 }));
+  // v0.66.0: Base + Sleep are Bivouac, the tent its own block, Warm comes with the weather.
+  await rec.check('the live box names the night sets with counts (Bivouac, Tent, Cook)', () => expect(box).toContainText(new RegExp(`${esc(T('Bivouac'))} \\d+, ${esc(T('Tent|block'))} \\d+, [^,]+ 3`), { timeout: 2000 }));
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
   await openAllBags(page); // v0.29.0 (Noah 5a): the bags start folded
   await expect(page.locator('.calm-pack .list-head h2')).toHaveText(T('Packing list'));
-  await expect(page.locator('.cond')).toContainText(T('Outdoor'));
+  await expect(page.locator('.cond')).toContainText(T('Bivouac + tent'));
   rec.stop();
   await rec.shot();
   const trip = await tripNamed(page, title);
@@ -438,7 +441,7 @@ test('PF05: bikepacking, 3 days, outdoor, cooking: explicit sleep/cook choice, b
   await rec.check('every sleep and cook item sits in a bag of this bike (or a place suggestion is shown)', async () => {
     if (bad.length) await expect(page.getByRole('region', { name: T('Suggested places') })).toBeVisible({ timeout: 2000 });
   });
-  await rec.check('header: 5 h per day · 3 days · Outdoor', () => expect(page.locator('.cond')).toContainText(new RegExp(`${esc(T('{n} days', { n: 3 }))} · ${esc(T('Outdoor'))}.*${esc(T('{n} h per day', { n: 5 }))}`), { timeout: 2000 }));
+  await rec.check('header: 5 h per day · 3 days · Bivouac + tent', () => expect(page.locator('.cond')).toContainText(new RegExp(`${esc(T('{n} days', { n: 3 }))} · ${esc(T('Bivouac + tent'))}.*${esc(T('{n} h per day', { n: 5 }))}`), { timeout: 2000 }));
   await rec.check('gel for 15 h capped at 4 with "Buy on the way?"', async () => {
     await expect(planningRow(page, 'FD01').locator('.item-qty')).toHaveText('× 4', { timeout: 2000 });
     await expect(planningRow(page, 'FD01')).toContainText(T('Buy {name} on the way?', { name: nm('FD01') }), { timeout: 2000 });
@@ -458,26 +461,26 @@ test('PF06: the same tour with lodging: no tent/mat set by itself, an own choice
   await fillTrip(dlg, rec, { title, bike: BIKE.gravel, days: 3, hours: 5, overnight: 'lodging' });
   await rec.check('no cooking question with lodging', () => expect(dlg.getByRole('checkbox', { name: T('Cooking') })).toHaveCount(0, { timeout: 2000 }));
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
-  await expect(page.locator('.cond')).toContainText(T('Lodging'));
+  await expect(page.locator('.cond')).toContainText(T('Hotel/hut'));
   rec.stop();
   await rec.shot();
   let trip = await tripNamed(page, title);
   let on = trip.entries.map((e) => e.itemId);
   rec.r.counts.duplicates = dupes(trip).length;
-  rec.r.counts.nightItemsToRemove = on.filter((x) => ['SL01', 'SL02', 'SL03', 'CO01', 'CO02', 'CO03', 'SL04', 'HY02'].map(id).includes(x)).length;
-  await rec.check('no tent, mat, sleeping bag, stove, down jacket on the list', () => expect(on.filter((x) => ['SL01', 'SL02', 'SL03', 'CO01', 'CO02', 'CO03', 'SL04'].map(id).includes(x))).toEqual([]));
+  // v0.66.0 (6a): the down jacket (old Warm) comes with the weather now, not with the night.
+  rec.r.counts.nightItemsToRemove = on.filter((x) => ['SL01', 'SL02', 'SL03', 'CO01', 'CO02', 'CO03', 'HY02'].map(id).includes(x)).length;
+  await rec.check('no tent, mat, sleeping bag, stove on the list', () => expect(on.filter((x) => ['SL01', 'SL02', 'SL03', 'CO01', 'CO02', 'CO03'].map(id).includes(x))).toEqual([]));
   await rec.check('lodging set on the list (toothbrush, shower gel, flip-flops)', () => expect(on).toEqual(expect.arrayContaining(['HY01', 'HY04', 'OF01'].map(id))));
-  // Own choice: Add material → "+ Sleep" adds the sleep block anyway.
+  // Own choice: Add material → "+ Bivouac" adds the bivouac block anyway (v0.66.0: Sleep is in Bivouac, the tent in Tent).
   await rec.click(page.getByRole('button', { name: T('Add material') }).filter({ visible: true }).first());
   const add = page.getByRole('dialog', { name: T('Add material') });
-  const sleepName = T('Night: Sleep').replace(/^(Night|Nacht): /, '');
-  const chip = add.getByRole('button', { name: T('Add {block}: {n} items', { block: sleepName, n: 3 }) });
-  await rec.check('"+ Sleep (3)" is offered', () => expect(chip).toBeVisible({ timeout: 2000 }));
+  const chip = add.getByRole('button', { name: new RegExp(`^${esc(T('Add {block}: {n} items', { block: T('Bivouac'), n: '#' }).split('#')[0])}`) });
+  await rec.check('"+ Bivouac" is offered', () => expect(chip).toBeVisible({ timeout: 2000 }));
   if (await chip.count()) {
     await rec.click(chip);
     await expect.poll(async () => (await tripNamed(page, title)).entries.length).toBeGreaterThan(on.length);
     trip = await tripNamed(page, title);
-    await rec.check('after "+ Sleep": tent, mat, sleeping bag on the list once', () => expect(trip.entries.map((e) => e.itemId).filter((x) => ['SL01', 'SL02', 'SL03'].map(id).includes(x)).sort()).toEqual(['SL01', 'SL02', 'SL03'].map(id)));
+    await rec.check('after "+ Bivouac": mat and sleeping bag on the list once', () => expect(trip.entries.map((e) => e.itemId).filter((x) => ['SL01', 'SL02', 'SL03'].map(id).includes(x)).sort()).toEqual(['SL02', 'SL03'].map(id)));
   }
   await rec.check('no sideways scroll', async () => expect(await wide(page)).toBe(0));
   rec.done(errors);
@@ -604,11 +607,11 @@ test('PF10: one item from two building blocks and the weather: no duplicate, no 
   const errors = await start(page, context, info);
   const rec = record('PF10', info, page);
   const title = `${P} PF10 ${info.project.name}`;
-  // The Buff is in "Warm" (outdoor night) and in the own block "Rain", and comes below 8 °C.
+  // The Buff is in the own block "Rain" and comes below 8 °C (v0.66.0: "Warm" is no block any more, its rule stays).
   const dlg = await openNewTrip(page, rec);
   await fillTrip(dlg, rec, { title, bike: BIKE.gravel, days: 2, hours: 4, weather: 'Cold' });
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
-  await expect(page.locator('.cond')).toContainText(T('Outdoor'));
+  await expect(page.locator('.cond')).toContainText(T('Bivouac + tent'));
   await rec.click(page.getByRole('button', { name: T('Add material') }).filter({ visible: true }).first());
   const add = page.getByRole('dialog', { name: T('Add material') });
   const blockName = T('Add {block}: {n} items', { block: `${P} Rain`, n: '#' }).split('#')[0];
@@ -633,7 +636,6 @@ test('PF10: one item from two building blocks and the weather: no duplicate, no 
   await rec.check('the item dialog lists both blocks and the trip ("In: …")', async () => {
     await expect(item).toContainText(`${P} Rain`, { timeout: 2000 });
     await expect(item).toContainText(T('Trip "{name}"', { name: title }), { timeout: 2000 });
-    await expect(item).toContainText(T('Night: Warm').replace(/^.*?: /, ''), { timeout: 2000 });
   });
   rec.done(errors);
 });
@@ -789,13 +791,15 @@ test('PF14: missing weights and litres; empty search, no bike, no weather: hones
   await expect(dlg.locator('.chips button[aria-pressed="true"]').filter({ hasText: '°' })).toHaveCount(0);
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
   await expect(page.locator('.trip-band h1')).toHaveText(title);
-  // The power bank (no weight) goes onto the trip through Add material.
-  await page.getByRole('button', { name: T('Add material') }).filter({ visible: true }).first().click();
-  const add = page.getByRole('dialog', { name: T('Add material') });
-  await add.getByRole('searchbox', { name: T('Search your gear') }).fill(nm('EL02'));
-  await add.locator('.np li .plus').first().click();
-  await expect(add.getByRole('status').first()).toBeVisible();
-  await add.getByRole('button', { name: T('Done') }).click();
+  // The power bank (no weight) is on the trip: v0.66.0 with the block Charging (every ride), else through Add material.
+  if (!(await tripNamed(page, title)).entries.some((e) => e.itemId === id('EL02'))) {
+    await page.getByRole('button', { name: T('Add material') }).filter({ visible: true }).first().click();
+    const add = page.getByRole('dialog', { name: T('Add material') });
+    await add.getByRole('searchbox', { name: T('Search your gear') }).fill(nm('EL02'));
+    await add.locator('.np li .plus').first().click();
+    await expect(add.getByRole('status').first()).toBeVisible();
+    await add.getByRole('button', { name: T('Done') }).click();
+  }
   await rec.check('no weather: the header says "No weather set", no invented °C', async () => {
     await expect(page.locator('.cond')).toContainText(T('No weather set'), { timeout: 2000 });
     await expect(page.locator('.cond')).not.toContainText('°C');
@@ -1246,10 +1250,11 @@ test('Scenario 5: adapt an existing list: from the template, change it, update t
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
   await expect(page.locator('.trip-band h1')).toHaveText(title);
   const made = await tripNamed(page, title);
-  // The forecast (6 to 12 C) already brings the arm warmers. Change by hand: USB cable in, rain jacket out.
+  // The forecast (6 to 12 C) already brings the arm warmers. Change by hand: stove in, rain jacket out
+  // (v0.66.0: the USB cable comes with the block Charging on every ride now).
   await rec.click(page.getByRole('button', { name: T('Add material') }).filter({ visible: true }).first());
   const add = page.getByRole('dialog', { name: T('Add material') });
-  await rec.fill(add.getByRole('searchbox', { name: T('Search your gear') }), nm('EL03'));
+  await rec.fill(add.getByRole('searchbox', { name: T('Search your gear') }), nm('CO01'));
   await rec.click(add.locator('.np li .plus').first());
   await expect(add.getByRole('status').first()).toBeVisible();
   await rec.click(add.getByRole('button', { name: T('Done') }));
@@ -1267,8 +1272,8 @@ test('Scenario 5: adapt an existing list: from the template, change it, update t
   rec.stop();
   const tpl = (await setting(page, 'templates')).find((x) => x.id === 'tpl-gtp-evening');
   const ids = tpl.entries.map((e) => e.itemId);
-  await rec.check('the template now has the USB cable and no rain jacket', () => {
-    expect(ids).toContain(id('EL03'));
+  await rec.check('the template now has the stove and no rain jacket', () => {
+    expect(ids).toContain(id('CO01'));
     expect(ids).not.toContain(id('KL05'));
   });
   await rec.check('the template keeps the trip\'s items, places and amounts (none lost)', () => expect(tpl.entries).toEqual(changed.entries.map(({ itemId, slot, qty }) => ({ itemId, slot, qty: qty || 1 }))));

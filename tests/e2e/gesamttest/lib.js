@@ -337,7 +337,9 @@ export function integrity(db) {
   for (const b of db.bikes) for (const [slot, c] of Object.entries(b.setup ?? {})) if (c && !bags.has(c)) problems.push(`bike ${b.id}: ${slot} bag ${c} missing`);
   for (const c of db.containers) if (c.itemId && !items.has(c.itemId)) problems.push(`bag ${c.id}: item ${c.itemId} missing`);
   const setRec = db.settings.find((s) => s.key === 'sets')?.value ?? [];
-  const known = new Set(['standard', 'base', 'warm', 'sleep', 'cook', 'light', 'lodging', 'firstaid', ...setRec.map((s) => s.key)]);
+  // The built-in blocks (gear.js SETS, v0.66.0) plus the old keys, which stay on the items for two versions.
+  const builtIn = ['standard', 'bivy', 'tent', 'hotel', 'cook', 'firstaid', 'repair', 'charge', 'lights', 'race', 'food', 'hygiene', 'comfort'];
+  const known = new Set([...builtIn, 'base', 'warm', 'sleep', 'light', 'lodging', ...setRec.map((s) => s.key)]);
   for (const i of db.items) for (const k of i.sets ?? []) if (!known.has(k)) problems.push(`item ${i.id}: block ${k} unknown`);
   for (const tpl of db.settings.find((s) => s.key === 'templates')?.value ?? []) for (const e of tpl.entries ?? []) if (!items.has(e.itemId)) problems.push(`template ${tpl.id}: ${e.itemId} missing`);
   for (const n of db.notes) if (n.tripId && !trips.has(n.tripId)) problems.push(`note ${n.id}: trip ${n.tripId} missing`);

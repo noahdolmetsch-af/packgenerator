@@ -568,6 +568,7 @@ Diese Reihenfolge gilt ab jetzt und ersetzt die offenen Punkte der Tabelle oben 
 | 2h | **0.59.0 Tauschen (OP2a)** (erledigt) | Kleider am Körper als erste Karte «Am Körper», ein Tipp öffnet «Tauschen» mit Teilen derselben Zone und Schicht nach Wetter und letzter Wahl, ein Tipp tauscht mit «Rückgängig», Wahl wird gemerkt; Kleiderschrank mit Tourband und ausgeblendeten unpassenden Doppelten | «Outfit speichern» und Outfits lernen mit D5; Schicht dazu/weg (OP2b) |
 | 2h | **0.63.0 Material-Detail ruhig** (erledigt) | Teil-Fenster und Detailspalte: oben nur Name, Gewicht mit Status und eine Zeile «Kommt mit: …», alles andere als Klappzeilen mit Kurzinhalt (eine offen, Bausteine zu); leichtere Alternativen automatisch vorgeschlagen («Vorschlag», «Passt nicht» mit Rückgängig); leeres «Nie gebraucht» erklärt die Regel und zeigt «Auf dem Weg dahin» | |
 | 2h | **0.65.0 Velo-Masse** (erledigt) | Block «Masse» pro Velo immer offen oben (Sitzhöhe, Solldruck v/h, Lenkerbreite zuerst, 16 Werte), zuerst in «Velos vergleichen», Solldruck beim Reifendruck-Prüfen und im Basischeck, Import `fit` | |
+| 2h | **0.66.0 Bausteine neu + Bausteine prüfen** (erledigt) | Biwak, Zelt, Hotel/Hütte; Reparatur, Laden, Licht (Dunkelheit), Rennen (Event); Verpflegung, Hygiene, Komfort; Warm als Temperaturregel; Seite «Bausteine prüfen» | Alte Schlüssel ab 0.57 entfernen |
 | 3 | **Gesamttest Runde 2** | Derselbe grosse erfundene Datensatz und dieselben Abläufe nach 0.46 | |
 | 4 | **0.47 Einkaufen, Lebenslauf, Werkstatt** | Eine Einkaufsliste für alles (eigene Läden, Monatsbudget); Lebenslauf pro Teil (Preis und Laden freiwillig, Kosten pro Einsatz, Archiv); Werkstatt-Anleitungen (allgemeine Drehmomente, Notfallkarten offline) | |
 | 5 | **0.48 Design und Bedienung aus der Strategierunde 2** | Umsetzung der Antworten | Wartet auf Noahs Antworten 62–119 |
@@ -616,5 +617,6 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.7 | 09.10.2026 | 0.61.0 R2 «Tempo + Logbuch» erledigt (Regel in einem Satz, eigene Regel ab 5 Fahrten mit Rückweg, Logbuch als Tagebuch aller Touren, Gelernt flach); Strava und Fotos bleiben geparkt |
 | 2.6 | 09.10.2026 | 0.63.0 «Material-Detail ruhig» erledigt (Klappzeilen, Alternativen-Vorschläge, «Auf dem Weg dahin») |
 | 2.7 | 09.10.2026 | 0.65.0 «Velo-Masse» erledigt |
+| 2.6 | 09.10.2026 | 0.66.0 «Bausteine neu + Bausteine prüfen» erledigt |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

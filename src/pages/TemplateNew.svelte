@@ -17,6 +17,7 @@
   import { TEMPLATES_KEY, saveTemplates, blankTemplate, upsert, tplByBike } from '../lib/templates.js';
   import { SETS_KEY } from '../lib/sets.js';
   import { STANDARD } from '../lib/blocks2026.js';
+  import { nightName } from '../lib/context.js';
   import { knownWeight, formatWeight, itemWeight } from '../lib/gear.js';
   import { TRIP_DOMAINS, DOMAIN, BIKEPACKING, lastDomain } from '../lib/domains.js';
   import { sortBikes } from '../lib/bikes.js';
@@ -127,7 +128,7 @@
     location.hash = `#/pack/templates/${encodeURIComponent(draft.id)}`;
   }
   const weight = (g, missing, n = 1) => (n ? knownWeight(g, missing) : '–');
-  const nightWord = (x) => (x.overnight === 'outdoor' ? t('Outdoor') : x.overnight === 'lodging' ? t('Lodging') : t('no night'));
+  const nightWord = (x) => (x.overnight === 'outdoor' || x.overnight === 'lodging' ? t(nightName(x)) : t('no night'));
 </script>
 
 <div class="tn">

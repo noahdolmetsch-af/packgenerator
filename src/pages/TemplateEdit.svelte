@@ -16,6 +16,7 @@
   import { TEMPLATES_KEY, updateTemplate, saveTemplates, templateUse, tplByBike, tplDomain, duplicateTemplate, freeName, isLinked, linkTemplate } from '../lib/templates.js';
   import { SETS_KEY } from '../lib/sets.js';
   import { STANDARD } from '../lib/blocks2026.js';
+  import { nightName } from '../lib/context.js';
   import { knownWeight, formatWeight, itemWeight } from '../lib/gear.js';
   import { domainName, DOMAIN } from '../lib/domains.js';
   import { sortBikes } from '../lib/bikes.js';
@@ -155,7 +156,7 @@
   let openMore = $state(null);
   const toggleMore = (key) => (openMore = openMore === key ? null : key);
   const day = (iso) => (iso ? new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', ...(iso.slice(0, 4) !== today.slice(0, 4) ? { year: 'numeric' } : {}) }) : '');
-  const nightWord = (x) => (x.overnight === 'outdoor' ? t('Outdoor') : x.overnight === 'lodging' ? t('Lodging') : t('no night'));
+  const nightWord = (x) => (x.overnight === 'outdoor' || x.overnight === 'lodging' ? t(nightName(x)) : t('no night'));
   const daysLine = $derived(tpl ? `${tn(tpl.days ?? 1, '{n} day', '{n} days')} · ${nightWord(tpl)}${byBike && tpl.hours ? ` · ${tpl.hours} h` : ''}` : '');
   // v0.19.0 / v0.28.0 (AP25): after 3 debriefs the template asks what you never used and what was missing.
   const doneN = $derived(($debriefsQ ?? []).filter((d) => d.status === 'done').length);

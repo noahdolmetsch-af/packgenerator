@@ -12,7 +12,8 @@
   import { suggestPlaces, applyPlaces, dismissPlace } from '../lib/bagsuggest.js';
   import PlaceSuggest from '../lib/pack/PlaceSuggest.svelte';
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
-  import { applyContext, hasContext, carryHint } from '../lib/context.js';
+  import { applyContext, hasContext, carryHint, activeBlocks, OFFER_ONLY } from '../lib/context.js';
+  import { ridesIntoDark } from '../lib/blockplan.js';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import CalmPack from '../lib/pack/CalmPack.svelte';
   import Onion from '../lib/pack/Onion.svelte';
@@ -47,7 +48,7 @@
   import ChargeList from '../lib/trip/ChargeList.svelte';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import { tickPrep, untickPrep } from '../lib/care/prep.js';
-  import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate } from '../lib/dayride.js';
+  import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, homeOf } from '../lib/dayride.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
   import { t, tn, num, locale, nameOf, bagName, dateOf } from '../lib/i18n.svelte.js';
   import { targetPressure, pressureText } from '../lib/bikespecs.js';
@@ -308,7 +309,9 @@
       const forecastWx = forecastPreset(await fetchHomeForecast(home), rideDate());
       const plan = dayRidePlan(trips, bikes, { forecastWx, bikeId });
       const readyStandard = (await db.settings.get('readyStandard'))?.value ?? null;
-      const fields = { hours: plan.hours, overnight: 'none', cook: false, wx: plan.wx, event: false, ...(plan.wxFrom ? { wxFrom: plan.wxFrom } : {}) };
+      // v0.66.0 (Noah 7a): Light comes by itself when the ride goes into the dark.
+      const dark = ridesIntoDark({ startDate: plan.startDate, days: 1, hours: plan.hours }, homeOf(home));
+      const fields = { hours: plan.hours, overnight: 'none', cook: false, wx: plan.wx, event: false, dark, ...(plan.wxFrom ? { wxFrom: plan.wxFrom } : {}) };
       const nt = buildBikeTrip({ draft: { title: plan.title, startDate: plan.startDate, days: 1 }, bike: $state.snapshot(plan.bike), start: 'standard', templates, trips, items, readyStandard, fields });
       await db.trips.put($state.snapshot(nt));
       rememberDomain(BIKEPACKING);
@@ -476,7 +479,7 @@
     if (!trip) return [];
     return allSets($setsQ?.value)
       .map((s) => ({ ...s, label: s.builtIn ? s.name.replace(/^(Night|Nacht): /, '') : s.name, n: addSetEntries(trip, items, s, { skip: blockSkip, slotOf: () => 'body' }).added.length, has: items.some((i) => isInventory(i) && i.sets?.includes(s.key)) }))
-      .filter((s) => s.has);
+      .filter((s) => s.has && !OFFER_ONLY.includes(s.key)); // v0.66.0: Comfort only item by item
   });
   // v0.27.0 (Noah 1a, PF02/PF05/PF10): why each row is on the list (reasons.js), shown small under its name.
   const reasons = $derived(trip ? rowReasons(trip, items, $setsQ?.value) : {});
@@ -641,11 +644,13 @@
   const tripItems = $derived(trip ? items.filter((i) => onTrip(trip).has(i.id)) : []);
   const toWeigh = $derived(weighQueue({ items: tripItems }).length);
 
-  // Answer 4: overnight sets as switches.
-  const setOn = (key) => !!trip?.sets?.[key];
-  const switchSet = (key) => change((t) => toggleSet(t, items, key, !t.sets?.[key]));
-  const warmItems = $derived(items.filter((i) => isInventory(i) && i.sets?.includes('warm')));
-  const tripIds = $derived(trip ? onTrip(trip) : new Set());
+  // Answer 4: overnight sets as switches. v0.66.0 «Bausteine neu»: the blocks of the ride (Light,
+  // Repair, Charging, Race) and Cook; on = what the trip's context brings or switched on by hand.
+  const setOn = (key) => (trip ? activeBlocks(trip).includes(key) : false);
+  const switchSet = (key) => change((t) => {
+    const active = activeBlocks(t);
+    return toggleSet(t, items, key, !active.includes(key), { active });
+  });
   const setCount = (key) => items.filter((i) => isInventory(i) && i.sets?.includes(key)).length;
 
   // Answer 5 and round C answer 2: weather range, kind of ride and the layers they add.
@@ -653,8 +658,12 @@
   const wxSet = $derived(wx?.min != null && wx?.max != null);
   const suggestion = $derived(trip ? layerSuggest(trip, items) : []);
   // v0.25.0 (M3, Noah 9b): on a trip with its context a change of weather or hours applies at once (Undo).
+  // v0.66.0 (Noah 7a): the dark follows date, days and hours (Light comes or goes with it).
+  const homeQ = liveQuery(() => db.settings.get('homePlace'));
   const changeContext = (fn) => change((cur) => {
-    const patch = fn(cur);
+    const patch0 = fn(cur);
+    const dark = ridesIntoDark({ ...cur, ...patch0 }, cur.place ?? homeOf($homeQ?.value) ?? null);
+    const patch = !!cur.dark === dark ? patch0 : { ...patch0, dark };
     const next = { ...cur, ...patch };
     return hasContext(next) ? { ...patch, ...applyContext(next, items, cur) } : patch;
   }, { ctx: true });
@@ -663,7 +672,7 @@
   // v0.47.1 (Noah a): the chips of the trip band change one fact in place, through the same change logic
   // as the trip dialog (context change: the amounts follow, Undo takes it back).
   const factEdit = $derived({
-    date: (iso) => change(() => ({ startDate: iso })),
+    date: (iso) => changeContext(() => ({ startDate: iso })),
     hours: (n) => changeContext(() => ({ hours: n })),
     days: (n) => changeContext(() => ({ days: Math.max(1, n) })),
     wx: setWx,
@@ -749,22 +758,14 @@
     {/snippet}
 
     {#snippet night()}
-      <div class="sets" role="group" aria-label={t('Building blocks with the night')}>
+      <div class="sets" role="group" aria-label={t('Building blocks of this trip')}>
         {#each NIGHT_SETS as ns (ns.key)}
           <button type="button" class="toggle" aria-pressed={setOn(ns.key)} onclick={() => switchSet(ns.key)} disabled={!setCount(ns.key)} title={setCount(ns.key) ? '' : t('No items in this building block yet. Add them in Gear.')}>
             {t(ns.name)} <small>{setCount(ns.key)}</small>
           </button>
         {/each}
       </div>
-      <!-- Noah, 4.10.2026 (1b): what "Warm" brings is shown open. -->
-      {#if warmItems.length}
-        <details class="setlist" open>
-          <summary>{t('Warm')}: {tn(warmItems.length, '{n} item', '{n} items')}</summary>
-          <ul>
-            {#each warmItems as i (i.id)}<li class:on={tripIds.has(i.id)}>{nameOf(i)}{#if tripIds.has(i.id)}<span class="ok"> ✓</span>{/if}</li>{/each}
-          </ul>
-        </details>
-      {/if}
+      <!-- v0.66.0 (Noah 6a): Warm is no block any more; warm clothes come with the weather (temperature rule). -->
     {/snippet}
 
     {#snippet bagChoice()}
@@ -872,7 +873,7 @@
     {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{/snippet}
     {#snippet settings(mode)}
       {#if mode === 'conditions'}
-        {#if bikeTrip}{@render layers()}<h3>{t('Night')}</h3>{@render night()}{:else}<TripRoute {trip} onchange={changeContext} />{/if}
+        {#if bikeTrip}{@render layers()}<h3>{t('Building blocks')}</h3>{@render night()}{:else}<TripRoute {trip} onchange={changeContext} />{/if}
       {:else if mode === 'bags'}{@render bagChoice()}
       {:else if mode === 'purposes'}{#each stats.zones as z}<label class="bag-purpose">{zoneName(z)}<input class="inp" value={trip.purpose?.[z.key] ?? ''} placeholder={t('What it is for, e.g. Quick access')} onchange={e => savePurpose(z.key, e.currentTarget.value)} /></label>{/each}
       {:else if mode === 'ready'}{@render readyFull()}{/if}

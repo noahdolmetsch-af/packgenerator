@@ -28,8 +28,9 @@ async function freshDb(items, settings = []) {
 
 describe('the one-time update blocks2026 in updates.js', () => {
   it('runs after toolsAlways2026, only the linked templates of v0.39.0 come after it', () => {
-    expect(UPDATES.at(-2)).toBe(blocks2026);
-    expect(UPDATES.at(-1)).toBe(templatesLinked2026);
+    // v0.66.0: «Bausteine neu» (blockSplit2026) runs last, after the linked templates.
+    expect(UPDATES.at(-3)).toBe(blocks2026);
+    expect(UPDATES.at(-2)).toBe(templatesLinked2026);
     expect(UPDATES.indexOf(toolsAlways2026)).toBeLessThan(UPDATES.indexOf(blocks2026));
   });
 
@@ -47,15 +48,17 @@ describe('the one-time update blocks2026 in updates.js', () => {
     await applyUpdates(db);
     const got = Object.fromEntries((await db.items.toArray()).map((i) => [i.id.replace('test_data_gtp_', ''), i]));
     expect(got.STD).toMatchObject({ role: 'standard', sets: [STANDARD], weightG: 120, note: 'keep me' });
-    expect(got.ALW).toMatchObject({ always: true, sets: ['sleep', STANDARD] });
+    expect(got.ALW).toMatchObject({ always: true, sets: ['sleep', STANDARD, 'bivy'] }); // v0.66.0: + Bivouac
     expect(got.WRN).toEqual(items[2]); // worn: nothing changes, also no defaultBag 'body'
     expect(got.OPT).toMatchObject({ role: 'optional', leaveHome: true, sets: [] });
     expect(got.PLAIN).toEqual(items[4]);
     // toolsAlways2026 ran first, so the spare tube is in Standard too
-    expect(got.TUBE).toMatchObject({ always: true, sets: [STANDARD] });
+    expect(got.TUBE).toMatchObject({ always: true, sets: [STANDARD, 'repair'] }); // v0.66.0: tools → Repair
     expect((await db.settings.get(BLOCKS_MARKER))?.value).toBeTruthy();
     const [t] = (await db.settings.get(TEMPLATES_KEY)).value;
-    expect(t.entries).toEqual(tpl.entries);
+    // v0.66.0: the old block Sleep became Bivouac; the same entries (the blocks' items come first)
+    const byItem = (a, b) => a.itemId.localeCompare(b.itemId);
+    expect([...t.entries].sort(byItem)).toEqual([...tpl.entries].sort(byItem));
     expect(t.blocks).toContain(STANDARD);
   });
 
@@ -110,7 +113,8 @@ describe('the key standard on item.sets moves nothing it should not', () => {
     expect(matches(migrated, { role: 'night' })).toBe(false);
     expect(weighPriority(migrated)).toBe(weighPriority(alw));
     expect(layerOf(migrated)).toEqual(layerOf(alw));
-    expect(blockKeys({ sets: [STANDARD, 'sleep'] })).toEqual(['sleep']);
+    expect(blockKeys({ sets: [STANDARD, 'bivy'] })).toEqual(['bivy']);
+    expect(blockKeys({ sets: [STANDARD, 'sleep'] })).toEqual([]); // v0.66.0: an old key is no block
   });
 
   it('the filter "Stays at home" reads the new mark; "Take it along again" wins over an old role', () => {
