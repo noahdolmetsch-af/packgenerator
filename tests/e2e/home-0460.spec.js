@@ -141,7 +141,7 @@ test('colour worlds and dark mode in More; every choice stays', async ({ page, c
   const html = page.locator('html');
   await expect(html).toHaveAttribute('data-palette', 'gletscher');
   await expect(html).toHaveAttribute('data-theme', 'light');
-  // v0.74.0 «Fünf Orte»: the page ground is tinted a breath by the place; the colour world sets --ground.
+  // v0.76.0 «Fünf Orte»: the page ground is tinted a breath by the place; the colour world sets --ground.
   const bg = () => page.evaluate(() => {
     const d = document.body.appendChild(document.createElement('div'));
     d.style.background = 'var(--ground)';
@@ -151,7 +151,7 @@ test('colour worlds and dark mode in More; every choice stays', async ({ page, c
   });
   expect(await bg()).toBe('rgb(238, 242, 244)');
 
-  // v0.74.0: the colour world and light or dark are in «Ich» (top right), no longer in «More».
+  // v0.76.0: the colour world and light or dark are in «Ich» (top right), no longer in «More».
   await page.getByRole('link', { name: /^(Me|Ich)\b/ }).first().click();
   await expect(page).toHaveURL(/#\/me$/);
   const more = page.locator('main');

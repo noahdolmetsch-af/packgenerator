@@ -147,7 +147,7 @@ async function stageImport(page, info) {
 test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
 
-  // 1. The wardrobe: v0.74.0 «Fünf Orte»: Material › Kleider (sidebar), on a phone through the search.
+  // 1. The wardrobe: v0.76.0 «Fünf Orte»: Material › Kleider (sidebar), on a phone through the search.
   if (info.project.name === 'desktop') await page.locator('.side li[data-place="gear"] .tabs').getByRole('link', { name: T('Clothes|tab') }).click();
   else {
     await page.getByRole('button', { name: T('Search everything') }).click();

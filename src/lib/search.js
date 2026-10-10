@@ -29,7 +29,7 @@ export const KIND = {
 /**
  * v0.21.0: pages the search finds by a word, e.g. "favourites" opens all my favourite things.
  * v0.38.0 (Noah 13a): every page of "More" (nav/menu.js), and the things to do of "New".
- * v0.74.0: «More» is gone; the same pages, each under its place or «Ich».
+ * v0.76.0: «More» is gone; the same pages, each under its place or «Ich».
  */
 const PAGES = PAGE_ROWS;
 /**
@@ -70,7 +70,7 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
       id: p.id,
       title: t(p.title),
       // v0.32.0: each page says what it holds (was: the favourites count for every page).
-      // v0.38.0: the others say where they are in the menu ("More › Plan"); v0.74.0: their place («Touren»).
+      // v0.38.0: the others say where they are in the menu ("More › Plan"); v0.76.0: their place («Touren»).
       sub: p.id === 'blocks' ? t('Standard, with the night, to add') : p.id === 'templates' ? tn(templates.length, '{n} template', '{n} templates') : p.id === 'favorites' ? tn(items.filter((i) => i.favorite && i.ownership !== 'gone').length, '{n} item', '{n} items') : t(p.group),
       href: p.href ?? null,
       action: p.action ?? null,

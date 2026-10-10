@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.74.0 «Fünf Orte» 1 (mockup orte-tastenkuerzel): the keyboard shortcuts, opened with «?» or from
+   * v0.76.0 «Fünf Orte» 1 (mockup orte-tastenkuerzel): the keyboard shortcuts, opened with «?» or from
    * Ich › Hilfe und Tastenkürzel. Letters work only when no field is active (App.svelte). The tabs
    * 1–4 come with release 2 (tabs per place); only what works is listed.
    */

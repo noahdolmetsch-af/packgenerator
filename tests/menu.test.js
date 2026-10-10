@@ -1,5 +1,5 @@
 // v0.38.0 (Noah 11a-13a): the menu "More", "New" and the search find every page, each once.
-// v0.74.0 «Fünf Orte» 1: «More» is gone; every page lives under its place or in «Ich» (#/me).
+// v0.76.0 «Fünf Orte» 1: «More» is gone; every page lives under its place or in «Ich» (#/me).
 import { describe, it, expect } from 'vitest';
 import { PAGE_GROUPS, PAGE_ROWS, ACTIONS } from '../src/lib/nav/menu.js';
 import { PLACES, pageOf } from '../src/lib/nav.js';
@@ -16,7 +16,7 @@ const ELSEWHERE = {
 const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'notes', 'debrief', 'gearimport', 'wardrobe', 'flow', 'me', 'blockcheck'];
 // v0.49.0 R1: #/review is part of the one Rückblick page (#/debrief) now; nav.js redirectOf leads there.
 
-describe('the pages under the places and «Ich» (v0.74.0)', () => {
+describe('the pages under the places and «Ich» (v0.76.0)', () => {
   it('groups the pages by their place, «Ich» last', () => {
     expect(PAGE_GROUPS.map((g) => g.key)).toEqual(['trips', 'gear', 'active', 'me']);
     expect(PAGE_GROUPS.find((g) => g.key === 'trips').rows.map((r) => r.id)).toEqual(['templates', 'debriefs', 'past', 'learnings', 'pace']);

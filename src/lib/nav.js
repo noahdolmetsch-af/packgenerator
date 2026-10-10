@@ -142,7 +142,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/review')) return 'debrief'; // v0.44.0: the last 12 months; v0.49.0: part of the Rückblick
   if (h.startsWith('#/features')) return 'features'; // v0.30.0 (Noah 3a): what the app can do
   if (h.startsWith('#/flow')) return 'flow'; // v0.51.0 «Im Flow»
-  if (h.startsWith('#/me')) return 'me'; // v0.74.0 «Fünf Orte»: «Ich», top right
+  if (h.startsWith('#/me')) return 'me'; // v0.76.0 «Fünf Orte»: «Ich», top right
   return 'home';
 }
 
@@ -159,7 +159,7 @@ export function redirectOf(hash = '') {
 }
 
 /**
- * v0.74.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): five places, the same on every page and in this
+ * v0.76.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): five places, the same on every page and in this
  * order (bottom bar on a phone, sidebar on a computer). Labels are English keys for t(); key: the
  * letter after «g» on a keyboard (g h = Today). colour: the place's light tint (app.css --pc-*).
  * Before: four places (v0.23.0, AP07); «Im Flow» was reached from Today and the menu «More».
@@ -170,12 +170,12 @@ export const PLACES = [
   { key: 'trips', href: '#/trips', label: 'Trips|place', letter: 't' },
   { key: 'gear', href: '#/gear', label: 'Gear|place', letter: 'm' },
   { key: 'bikes', href: '#/bikes', label: 'Bikes|place', letter: 'v' },
-  // v0.74.0: «Aktiv» is the fifth place; it opens «Im Flow» (v0.51.0).
+  // v0.76.0: «Aktiv» is the fifth place; it opens «Im Flow» (v0.51.0).
   { key: 'active', href: '#/flow', label: 'Active|place', letter: 'a' },
 ];
 
 /**
- * v0.74.0 «Fünf Orte» 1: the pages under each place (sidebar on a computer). Only what is built
+ * v0.76.0 «Fünf Orte» 1: the pages under each place (sidebar on a computer). Only what is built
  * shows (Noah O2.1a: Neuland, Heft and the rest come with their package); release 2 turns them
  * into tabs on top of each place. match: the addresses that count as this entry.
  */
@@ -210,7 +210,7 @@ export function tabOf(place, hash = '') {
 }
 
 /**
- * Which place a page belongs to. 'me' (v0.74.0): «Ich» top right, with the Inbox, the notes, your
+ * Which place a page belongs to. 'me' (v0.76.0): «Ich» top right, with the Inbox, the notes, your
  * data and what the app can do.
  */
 export function placeOf(page) {

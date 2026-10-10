@@ -18,12 +18,12 @@ Prüffragen:
 4. Braucht es einen fremden Dienst, wo eine eigene, schlanke Lösung reicht?
 5. Wurde die letzte grössere Version schon echt benutzt?
 
-**Letzter Kurs-Check (10.10.2026, Versionen 0.62 bis 0.67):**
-- **Schneller packen:** am weitesten.
-- **Velo im Griff:** halb erreicht. Es fehlen die km aus Strava und die Wartungsvorschläge.
-- **Von der Haustür bis zurück:** ruhigere Abläufe, die Startseite ist noch Mockup.
-- **Aus jeder Tour lernen:** hinkt am meisten hinterher.
-- **Prüffrage 5** ist offen. Darum kommt vor dem nächsten Bau eine echte Tour.
+**Letzter Kurs-Check (10.10.2026, Versionen 0.68 bis 0.73, Antworten «1b 2b 3b 4a»):**
+- **Schneller packen:** seit 0.66 nichts Neues; die Start-Packlisten (D5) sind freigegeben.
+- **Velo im Griff:** grösster Sprung (Fahrten-Buch, Strava/Garmin-Import, Velo-Blätter). Wartungsvorschläge kommen mit dem KI-Helfer direkt nach E1.
+- **Von der Haustür bis zurück:** ruhige Startseite live, Fünf Orte im Bau, E1 freigegeben.
+- **Aus jeder Tour lernen:** hinkt noch hinterher; Neuland + Inspiration ist freigegeben.
+- **Prüffrage 5:** kein fester Plan für eine echte Tour, Funde kommen nebenbei.
 
 ## Kurz gesagt
 
@@ -50,10 +50,11 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.69.0 | Velo-Blätter: Mappe pro Velo mit Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check; ansehen, als PDF teilen, Text kopieren; Häkchen werden Pflege-Einträge mit Startpunkt | live (PR #95) |
 | 0.69.1 | Gesamttest-Runde: alle Abläufe durchgespielt, Befunde A–C behoben, D als Fragen; Import-Regel «Fahrt-Typ» (Gravel Ride → Velo) | live (PR #96) |
 | 0.70.0 | Velo-Blätter Teil 2: Einfahr-Plan (von selbst bei neuem Velo, Erinnerung auf Heute), Repair-Kit pro Art der Fahrt mit «Auf die Packliste», Garantie & Belege mit Erinnerung, Diebstahl-Blatt | live (PR #98) |
-| 0.73.0 | Ruhige Startseite + Fotoband: Gruss in einer Zeile, scharfes Foto (Handy: Band über der Tourkarte, «Album ›»), Vorschlag als schmale Zeile, kein doppeltes «Weitermachen» | live |
-| 0.74.0 | Fünf Orte Teil 1: fünf Orte (Aktiv neu), «Ich» oben rechts statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Ortsfarben, Tastenkürzel | PR offen |
+| 0.73.0 | Ruhige Startseite + Fotoband: Gruss in einer Zeile, scharfes Foto (Handy: Band über der Tourkarte, «Album ›»), Vorschlag als schmale Zeile, kein doppeltes «Weitermachen» | live (PR #99) |
+| 0.75.0 | Feinschliff: ein Umbenennen-Blatt überall mit Rückgängig, Zurück-Taste speichert, Import fragt neue Fahrt-Typen einmal, Teile-Fenster mit Zusammenfassung und leichteren Alternativen, Erste Hilfe auf jeder Tour, 44-px-Tippflächen | live |
+| 0.76.0 | Fünf Orte Teil 1: fünf Orte (Aktiv neu), «Ich» oben rechts statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Ortsfarben, Tastenkürzel | PR offen |
 | – | KI-Helfer (siehe unten) | fertig gebaut und getestet, als Entwurf geparkt (PR #89), wird beim Einschalten neu nummeriert |
-| – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Fragen beantwortet; Teil 1 (0.74.0) als PR offen, Teil 2 folgt |
+| – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Fragen beantwortet; Teil 1 (0.76.0) als PR offen, Teil 2 folgt |
 | – | Startseite & Integrationen E1–E4 | Konzept und Mockups fertig, Fragen beantwortet |
 | – | D5, D2, D4/D6 | Mockups fertig, Fragen werden kurz vor dem Paket gestellt |
 
@@ -184,6 +185,8 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 Taktgeber ist echte Nutzung: Eine grössere Version kommt erst, wenn die letzte im Alltag oder auf einer Tour benutzt wurde.
 
 Noah, 10.10.2026: zuerst die Design-Pakete und die anderen Vorhaben, der KI-Helfer kommt später dazu. Am Morgen des 10.10.2026 hat Noah die Reihenfolge noch einmal bestätigt und geschärft (alle Fragen a).
+
+**Neu seit dem 10.10.2026 nachmittags (gilt vor der Liste unten):** nach Fünf Orte Teil 1 und Feinschliff kommt Fünf Orte Teil 2, dann wird der KI-Helfer eingeschaltet, dann kommen die Hobby-Unterseiten im Ort «Aktiv» (zuerst Meditation, Velo, Yoga, Gym, Tennis und Liegestütze), dann E1 Startseite, dann D5 Start-Packlisten, dann Neuland + Inspiration. Höchstens 2 Bauten gleichzeitig. Die Hobby-Unterseiten brauchen zuerst Mockups und eine Fragerunde. **Neuer Kandidat «Reisearten neu»** (Noah, 10.10.2026, 14:40): neun Reisearten (Weekend Sport Trip mit 2 Nächten, ein paar Tage Berge oder Stadt, Backpacking ab 10 Tagen, ein paar Monate auf dem Bike, Skitouren, Hüttenwanderung, Trail Running, Hochtour, Rennen/Event) und eigene Reisearten als Vorlage. Das Paket passt zu D5 Start-Packlisten und braucht zuerst Mockups. Sein Platz in der Reihenfolge ist noch offen. Vor jedem Release prüft Claude, dass Noah die Mockups gesehen und kommentiert hat; Noah merged selbst.
 
 ```mermaid
 flowchart LR

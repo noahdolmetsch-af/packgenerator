@@ -281,3 +281,34 @@ export function viewSummary(list = [], stats) {
   const used = along.reduce((s, u) => s + u.used, 0);
   return { n: list.length, g, missing, avgTaken: along.length ? Math.round(taken / along.length) : null, usedShare: taken ? Math.round((used / taken) * 100) : null };
 }
+
+/**
+ * v0.72.0 «Feinschliff» (Noah 2a): the setting of turned-down suggestions after «Passt nicht» (on)
+ * or its Undo (off): a new value, the old one untouched. An item with none left drops its entry.
+ */
+export function dismissValue(all = {}, itemId, otherId, on) {
+  const out = { ...(all ?? {}) };
+  const now = (out[itemId] ?? []).filter((x) => x !== otherId);
+  if (on) now.push(otherId);
+  if (now.length) out[itemId] = now;
+  else delete out[itemId];
+  return out;
+}
+
+/**
+ * v0.72.0 (Noah 2a): «Als Alternative merken» links a suggestion to the item, so alternatives(item)
+ * lists it as «linked by you». The suggestion gets altFor = the item, unless it already stands in
+ * for another item; then the item gets altFor = the suggestion, when the item has none yet; else the
+ * suggestion's old link gives way. Returns { id, altFor } (the record to change), or null when they
+ * are linked already.
+ */
+export function linkPatch(item, other) {
+  if (!item || !other || item.id === other.id) return null;
+  if (alternatives(item, [other]).length) return null;
+  if (!other.altFor) return { id: other.id, altFor: item.id };
+  if (!item.altFor) return { id: item.id, altFor: other.id };
+  return { id: other.id, altFor: item.id };
+}
+
+/** v0.72.0 (Noah 2a): why the app suggests it, as the card says: 'zone' (clothing) or 'category'. */
+export const suggestWhy = (item) => (isClothing(item) && item?.zone ? 'zone' : 'category');

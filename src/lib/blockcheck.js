@@ -11,8 +11,9 @@
 import { isInventory, itemWeight, sumKnown, isConsumable } from './gear.js';
 import { allSets, qtyOf, blockLabel } from './sets.js';
 import { STANDARD, inStandard, isWorn, leaveHome } from './blocks2026.js';
-import { TENT_WORDS, HOTEL_WORDS, CHARGE_WORDS } from './blocksplit.js';
-import { t } from './i18n.svelte.js';
+import { TENT_WORDS, HOTEL_WORDS, CHARGE_WORDS, COLD_DEFAULT } from './blocksplit.js';
+import { aidCounts } from './firstaid.js';
+import { t, tn } from './i18n.svelte.js';
 
 const words = (i) => `${i?.name ?? ''} ${i?.nameDe ?? ''} ${i?.model ?? ''}`.toLowerCase();
 
@@ -84,13 +85,14 @@ export function blockTotal(set, members) {
 }
 
 /**
- * Every step of «Bausteine prüfen»: [{ kind: 'unassigned' | 'cold' | 'block', key, name, ids? }].
+ * Every step of «Bausteine prüfen»: [{ kind: 'overview' | 'unassigned' | 'cold' | 'block', key, name, ids? }].
  * review: the settings REVIEW_KEY value (may be missing). Only ids of items that still exist count.
  */
 export function checkSteps(items, setsValue, review) {
   const have = new Set(items.filter((i) => i.ownership !== 'gone').map((i) => i.id));
   const live = (ids) => (ids ?? []).filter((id) => have.has(id));
-  const out = [];
+  // v0.72.0 (Noah 4a): first the overview of what changed (overviewRows), then the checks.
+  const out = [{ kind: 'overview', key: null, name: t('Overview') }];
   const un = live(review?.unassigned);
   if (un.length) out.push({ kind: 'unassigned', key: 'hotel', name: t('Still to assign'), ids: un });
   const cold = live(review?.cold);
@@ -111,4 +113,81 @@ export function withBlock(sets, key, on) {
   const list = Array.isArray(sets) ? sets : [];
   if (on) return list.includes(key) ? list : [...list, key];
   return list.includes(key) ? list.filter((k) => k !== key) : list;
+}
+
+/**
+ * v0.72.0 «Feinschliff» (Noah 4a): the first step «Überblick» of «Bausteine prüfen»: the changes 5–10
+ * as rows «old names → new names», one sentence each with the numbers of YOUR data, and the step a
+ * button jumps to (null: no such step, no button). steps: checkSteps(…).
+ * → [{ n, from: [label], to: [{ key, label, note? }], fresh, text, aid?: { small, full }, go: index|null, act }]
+ */
+export function overviewRows(items, setsValue, review, steps = []) {
+  const sets = allSets(setsValue);
+  const label = (key) => blockLabel(sets.find((s) => s.key === key) ?? { name: key });
+  const inv = items.filter((i) => isInventory(i));
+  const count = (key) => inv.filter((i) => i.sets?.includes(key)).length;
+  const have = new Set(items.filter((i) => i.ownership !== 'gone').map((i) => i.id));
+  const open = (ids) => (ids ?? []).filter((id) => have.has(id)).length;
+  const stepOf = (kind, key = null) => {
+    const n = steps.findIndex((s) => s.kind === kind && (key == null || s.key === key));
+    return n < 0 ? null : n;
+  };
+  const block = (key) => stepOf('block', key);
+  const bivy = count('bivy');
+  const based = open(review?.suggested?.bivy);
+  const warm = inv.filter((i) => i.sets?.includes('warm')).length;
+  const unassigned = open(review?.unassigned);
+  const aid = aidCounts(inv);
+  return [
+    {
+      n: 5,
+      from: [t('Night: Base'), t('Night: Sleep')],
+      to: [{ key: 'bivy', label: label('bivy') }],
+      text: based ? tn(bivy, '{n} item together; {m} base items as a suggestion to check.', '{n} items together; {m} base items as a suggestion to check.', { m: based }) : tn(bivy, '{n} item together in one block.', '{n} items together in one block.'),
+      go: block('bivy'),
+      act: t('Check|step'),
+    },
+    {
+      n: 6,
+      from: [t('Night: Warm')],
+      to: [{ key: 'cold', label: t('Temperature rule'), note: t('below {t} °C', { t: COLD_DEFAULT }) }],
+      text: tn(warm, '{n} item now comes with the temperature, no longer as a block. The limit is changeable per item.', '{n} items now come with the temperature, no longer as a block. The limit is changeable per item.'),
+      go: stepOf('cold'),
+      act: t('See the rules'),
+    },
+    {
+      n: 7,
+      from: [t('Light by hand')],
+      to: [{ key: 'lights', label: label('lights'), note: t('comes in the dark') }],
+      text: t('A ride after sunset or nonstop: the light comes by itself, deselectable per trip.'),
+      go: block('lights'),
+      act: t('See|step'),
+    },
+    {
+      n: 8,
+      from: [t('Lodging')],
+      to: [{ key: 'tent', label: `${label('tent')} / ${label('bivy')}` }, { key: 'hotel', label: label('hotel') }],
+      text: unassigned ? tn(unassigned, 'The app could not place {n} item for sure: it is under «Still to assign».', 'The app could not place {n} items for sure: they are under «Still to assign».') : t('Every item found its block.'),
+      go: stepOf('unassigned') ?? block('hotel'),
+      act: t('Assign|step'),
+    },
+    {
+      n: 9,
+      from: [],
+      to: [{ key: 'repair', label: label('repair') }, { key: 'charge', label: label('charge') }],
+      fresh: true,
+      text: t('Come on every ride, deselectable. Tools and charging things are suggested by category.'),
+      go: block('repair'),
+      act: t('Check|step'),
+    },
+    {
+      n: 10,
+      from: [t('First aid only with a night')],
+      to: [{ key: 'firstaid', label: label('firstaid'), note: t('on every trip') }],
+      text: t('Day trip: the small set. With a night: the full set. Both changeable per trip and per item.'),
+      aid,
+      go: block('firstaid'),
+      act: t('Set the sets'),
+    },
+  ];
 }

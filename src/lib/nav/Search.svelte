@@ -14,7 +14,7 @@
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
 
-  // v0.74.0 «Fünf Orte»: short: the narrow field in the sidebar says only «Suchen» (with «/»).
+  // v0.76.0 «Fünf Orte»: short: the narrow field in the sidebar says only «Suchen» (with «/»).
   let { compact = false, short = false } = $props();
   let q = $state('');
   let open = $state(false); // phone: the field is shown

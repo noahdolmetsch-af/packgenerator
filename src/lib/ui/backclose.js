@@ -9,6 +9,11 @@
  * When the dialog closes in another way (a button, Escape), the entry is taken away again, unless
  * the address changed meanwhile (a link inside the dialog went to another page).
  * Each open dialog has its own entry, so a dialog opened over another one closes first.
+ *
+ * v0.72.0 «Feinschliff» (Umbenennen 2a): on a real Android phone Chrome closes a modal <dialog> on
+ * back by itself (CloseWatcher → `cancel` → close), without a popstate, so onBack never ran there and
+ * the typed name was lost (tests used history.back(), which goes the popstate way). With onBack the
+ * `cancel` event (Android back, Escape) now runs onBack too, like NoteSheet's oncancel: back keeps.
  */
 let seq = 0;
 /** Tokens of the dialogs open now. An entry whose dialog closed is stale and may be reused. */
@@ -66,7 +71,14 @@ export function backClose(node, onBack = null) {
   const watch = new MutationObserver(() => (node.open ? push() : drop()));
   watch.observe(node, { attributes: true, attributeFilter: ['open'] });
   const onClose = () => drop();
+  // Android back (CloseWatcher) and Escape: keep what was typed instead of closing without it
+  const onCancel = (e) => {
+    if (!back || e.defaultPrevented) return;
+    e.preventDefault();
+    back();
+  };
   node.addEventListener('close', onClose);
+  node.addEventListener('cancel', onCancel);
   window.addEventListener('popstate', onPop);
   if (node.open) push();
   return {
@@ -76,6 +88,7 @@ export function backClose(node, onBack = null) {
     destroy() {
       watch.disconnect();
       node.removeEventListener('close', onClose);
+      node.removeEventListener('cancel', onCancel);
       window.removeEventListener('popstate', onPop);
       // the dialog leaves the page while open (its component closed): take the entry away too
       if (token) drop();

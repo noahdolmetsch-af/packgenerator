@@ -99,7 +99,7 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   const open = notes.filter((n) => n.status === 'open').length;
   await page.goto('./#/');
   await page.reload();
-  // "Me, Inbox: n to sort" (v0.74.0: «Ich» took the place of «More»)
+  // "Me, Inbox: n to sort" (v0.76.0: «Ich» took the place of «More»)
   await expect(page.locator('a.me')).toHaveAttribute('aria-label', T('Me, Inbox: {n} to sort', { n: open }));
   // Today, "Important today": n notes to sort (v0.46.0: a row, maybe below "Show all")
   // The rows of "Important today" arrive one source after the other, so "Show all" can appear after the

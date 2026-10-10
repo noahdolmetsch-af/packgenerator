@@ -17,7 +17,7 @@
 </script>
 
 <div class="favs">
-  <p class="lbl no-print"><a href="#/gear">← {t('Gear')}</a></p>
+  <p class="lbl no-print back"><a href="#/gear">← {t('Gear')}</a></p>
   <!-- v0.40.0 (design check): one name for the page, as in the menu: Favourites. -->
   <h1 class="title big">{t('Favourites')}</h1>
   {#if $itemsQ}

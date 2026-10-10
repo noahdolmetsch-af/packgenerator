@@ -9,7 +9,7 @@ export const phone = $state({ matches: query?.matches ?? false });
 query?.addEventListener('change', (e) => (phone.matches = e.matches));
 
 /**
- * v0.74.0 «Fünf Orte» 1: `wide.matches` is true where the sidebar fits: a computer or a tablet held
+ * v0.76.0 «Fünf Orte» 1: `wide.matches` is true where the sidebar fits: a computer or a tablet held
  * wide (from 900 px, and not a phone turned sideways, at most 500 px high). Narrower screens get the
  * top bar with «Ich», the five places at the bottom and the round + (also between 720 and 899 px).
  */

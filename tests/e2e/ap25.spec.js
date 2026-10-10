@@ -1,6 +1,6 @@
 // v0.28.0 (AP25, Noah 8.10.2026): templates learn from experience, traceably. A hint says
 // "3 of 3 trips not used" with the trips and their context, "Not now" puts it in the History,
-// Home shows a card while there are suggestions. First aid only comes with a night.
+// Home shows a card while there are suggestions. First aid only comes with a night (v0.72.0: small set on a day ride).
 // Fictional fixture plus test_data_gtp_ records; nothing outside the preview server.
 import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -131,7 +131,7 @@ test('a template hint with its source, "Not now" into the History, the Home card
   expect(errors).toEqual([]);
 });
 
-test('first aid: none on a day ride, with a 1-night lodging trip', async ({ page, context }, info) => {
+test('first aid: the small set on a day ride (v0.72.0), the full set with a 1-night lodging trip', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context, info, aidFixture());
@@ -143,8 +143,9 @@ test('first aid: none on a day ride, with a 1-night lodging trip', async ({ page
   expect(list).toHaveLength(1);
   const day = list[0].entries.map((e) => e.itemId);
   expect(day.length).toBeGreaterThan(3);
+  // v0.72.0 (Noah 10a): first aid on every trip; a day ride brings the small set (the rescue blanket)
   expect(day).not.toContain('AP02');
-  expect(day).not.toContain('AP03');
+  expect(day).toContain('AP03');
 
   // v0.28.0 (Noah 8.10.2026): a fresh "New trip" dialog starts with the standard set
   await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
@@ -170,7 +171,7 @@ test('first aid: none on a day ride, with a 1-night lodging trip', async ({ page
   const top = page.getByRole('region', { name: T('Top tube bag') });
   const head = top.locator('.bag-heading');
   if ((await head.getAttribute('aria-expanded')) !== 'true') await head.click();
-  await expect(top.locator('.planning-row').filter({ hasText: 'test_data_gtp_ Rettungsdecke' })).toContainText(T('First aid from 1 night'));
+  await expect(top.locator('.planning-row').filter({ hasText: 'test_data_gtp_ Rettungsdecke' })).toContainText(T('First aid: full (with a night)'));
   await noSideScroll(page);
   list = await allTrips(page);
   expect(list).toHaveLength(2);

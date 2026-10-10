@@ -30,7 +30,7 @@ const ROUTES = [
   ['#/ride', 'Trips|place'],
   ['#/debrief', 'Trips|place'],
   ['#/debrief/test_data_gtp_none', 'Trips|place'],
-  // v0.74.0 «Fünf Orte»: Im Flow is the place Aktiv; the Inbox lives in «Ich» (no place lit)
+  // v0.76.0 «Fünf Orte»: Im Flow is the place Aktiv; the Inbox lives in «Ich» (no place lit)
   ['#/flow', 'Active|place'],
   ['#/inbox', null],
   ['#/inbox/new', null],
@@ -50,7 +50,7 @@ for (const lang of ['en', 'de']) {
       await page.goto(`./${hash}`);
       const nav = page.locator('nav[aria-label]').filter({ visible: true }).filter({ has: page.locator(`a[href="#/gear"]`) });
       await expect(nav, hash).toHaveCount(1);
-      // the same places (v0.74.0: five, read from nav.js), in the same order, on every page (the sidebar also lists their pages)
+      // the same places (v0.76.0: five, read from nav.js), in the same order, on every page (the sidebar also lists their pages)
       const places = page.locator('nav.bottom a, .side li.pl > a.pa');
       await expect(places, hash).toHaveText(PLACES.map((p) => T(p.label)));
       const lit = page.locator('nav.bottom a[aria-current], .side li.pl > a.pa[aria-current]');
@@ -121,7 +121,7 @@ for (const [soon, button, step, wx] of [['2026-10-08', 'Pack|stage', 'Pack|stage
 
 // v0.23.1 (Noah 1b): DE|EN sits only in the menu (phone and desktop), one tap once the menu
 // is open, keyboard reachable, and it shows which language is on. v0.38.0 (Noah 12a): the menu was
-// "More" at the top right; v0.74.0 «Fünf Orte»: it is the page «Ich» behind the round button there.
+// "More" at the top right; v0.76.0 «Fünf Orte»: it is the page «Ich» behind the round button there.
 test('the language switch lives in «Ich»', async ({ page, context }) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.getItem('lang') || localStorage.setItem('lang', 'en'));

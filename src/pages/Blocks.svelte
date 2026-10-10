@@ -27,6 +27,7 @@
     import { t, tn, nameOf } from '../lib/i18n.svelte.js';
   import { Check, Moon, Plus, X, Minus, Layers, ChevronRight, UserRound, Scale, Bike, ListChecks } from '@lucide/svelte';
   import Help from '../lib/ui/Help.svelte';
+  import RenameSheet from '../lib/ui/RenameSheet.svelte';
   import { SvelteSet } from 'svelte/reactivity';
 
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -85,16 +86,16 @@
     newName = '';
     adding = false;
   }
-  let renaming = $state(null);
-  let renameTo = $state('');
+  // v0.72.0 «Feinschliff» (Umbenennen 1a): «Rename» opens the one rename sheet (before: a field
+  // higher up in the block, without the keyboard). Undo as before, 10 s in the bar below.
+  let renaming = $state(null); // the block
   const builtInName = (key) => allSets([]).find((x) => x.key === key)?.name ?? key;
   async function rename(s, value) {
     error = '';
     const name = value.trim();
-    renaming = null;
     if (name === s.name || (!name && !s.builtIn)) return;
     const res = await renameSetIn(db, s.key, name);
-    if (res.error) return (error = errText(res.error, name));
+    if (res.error) return errText(res.error, name);
     offer(t('Renamed to "{name}".', { name: name || builtInName(s.key) }), res.snap);
   }
   async function remove(s) {
@@ -167,14 +168,6 @@
         <p class="note use">{setUse(s.builtIn ? s.key : null)}</p>
         {#if s.note}<p class="note">{s.note}</p>{/if}
         {#if inTemplates(s.key)}<p class="note intpl">{tn(inTemplates(s.key), 'In {n} template: it changes with this block.', 'In {n} templates: they change with this block.')}</p>{/if}
-        {#if renaming === s.key}
-          <form class="newset" onsubmit={(e) => { e.preventDefault(); rename(s, renameTo); }}>
-            <label><span class="lbl">{t('New name')}</span><input class="inp" bind:value={renameTo} placeholder={s.builtIn ? builtInName(s.key) : ''} /></label>
-            <button type="submit" class="btn hi">{t('Save')}</button>
-            <button type="button" class="btn" onclick={() => (renaming = null)}>{t('Cancel')}</button>
-          </form>
-          {#if s.builtIn}<p class="note">{t('Empty: back to "{name}".', { name: builtInName(s.key) })}</p>{/if}
-        {/if}
         {#if s.items.length}
           <!-- One header for the columns, quiet icon buttons in the rows (no "Remove" on every row). -->
           <div class="cols"><span aria-hidden="true">{t('Item')}</span>{#if s.items.length > 1}<button type="button" class="selb" aria-pressed={selKey === s.key} onclick={() => selectIn(s.key)}>{selKey === s.key ? t('Done') : t('Select')}</button>{/if}<span aria-hidden="true">{selKey === s.key ? '' : t('Amount')}</span></div>
@@ -212,7 +205,7 @@
         {/if}
         <div class="acts">
           <a class="btn" href={fillHref(s)} aria-label={t('Add items to {block}', { block: s.name })}>+ {t('Add items')}</a>
-          <button type="button" class="btn" aria-label={t('Rename {name}', { name: blockLabel(s) })} onclick={() => ((renaming = s.key), (renameTo = s.name))}>{t('Rename')}</button>
+          <button type="button" class="btn" aria-label={t('Rename {name}', { name: blockLabel(s) })} onclick={() => (renaming = s)}>{t('Rename')}</button>
           {#if !s.builtIn}<button type="button" class="btn del" onclick={() => remove(s)}>{t('Delete')}</button>{/if}
         </div>
       </div>
@@ -311,6 +304,19 @@
     <span>{undo.text}</span>
     {#if undo.snap}<button type="button" class="btn hi" onclick={doUndo}>{t('Undo')}</button>{/if}
   </div>
+{/if}
+
+{#if renaming}
+  {@const r = renaming}
+  <RenameSheet
+    kicker={t('Building block')}
+    title={t('Rename building block')}
+    value={r.name}
+    empty={r.builtIn ? builtInName(r.key) : ''}
+    hint={[r.builtIn ? t('Empty: back to "{name}".', { name: builtInName(r.key) }) : '', inTemplates(r.key) ? tn(inTemplates(r.key), 'Changes with it in {n} template.', 'Changes with it in {n} templates.') : ''].filter(Boolean).join(' ')}
+    onsave={(name) => rename(r, name)}
+    onclose={() => (renaming = null)}
+  />
 {/if}
 
 <style>

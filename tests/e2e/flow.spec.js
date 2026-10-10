@@ -63,7 +63,7 @@ for (const lang of ['en', 'de']) {
     await expect(newBtn).toHaveCount(1);
     const box = await newBtn.boundingBox();
     if (info.project.name === 'phone') expect(box.y, '"+" sits in the bottom bar').toBeGreaterThan(page.viewportSize().height / 2);
-    // v0.74.0 «Fünf Orte»: on a computer «+ Neu» sits at the top of the sidebar
+    // v0.76.0 «Fünf Orte»: on a computer «+ Neu» sits at the top of the sidebar
     else expect(box.y, '"New" sits at the top of the sidebar').toBeLessThan(200);
     await newBtn.click();
     const sheet = page.getByRole('dialog', { name: T('New') });

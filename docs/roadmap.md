@@ -513,7 +513,9 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 10.10.2026 (v0.74.0, PR offen):** Fünf Orte Teil 1 ist gebaut: fünf Orte (Aktiv neu), «Ich» statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Tastenkürzel (AP-Bezug AP07 Navigation). Als Nächstes Fünf Orte Teil 2 (Tabs pro Ort, Wischen, alte Adressen, Übergänge 2).
+**Nachtrag 10.10.2026 (v0.76.0, PR offen):** Fünf Orte Teil 1 ist gebaut: fünf Orte (Aktiv neu), «Ich» statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Tastenkürzel (AP-Bezug AP07 Navigation). Als Nächstes Fünf Orte Teil 2 (Tabs pro Ort, Wischen, alte Adressen, Übergänge 2).
+
+**Nachtrag 10.10.2026 (v0.75.0, live, PR #101):** «Feinschliff» gebaut (D1–D4 a, Material-Detail 1–5 a, Umbenennen 1–5 a): ein Umbenennen-Blatt überall mit Rückgängig, Zurück-Taste speichert, Import fragt neue Fahrt-Typen einmal, Teile-Fenster mit Zusammenfassung und leichteren Alternativen, Erste Hilfe auf jeder Tour, 44-px-Tippflächen (AP-Bezug Feinschliff, Ziele 1 und 2).
 
 **Nachtrag 10.10.2026 (v0.73.0, live, PR #99):** «Ruhige Startseite + Fotoband» gebaut (Mockups heute-ruhig A und fotoalbum-neu A freigegeben): Gruss in einer Zeile, scharfes Foto, Fotoband am Handy, Vorschlag als schmale Zeile, kein doppeltes «Weitermachen» (AP-Bezug Startseite, Ziel 1).
 

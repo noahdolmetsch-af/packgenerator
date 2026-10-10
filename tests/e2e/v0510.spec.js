@@ -107,7 +107,15 @@ test('the countdown runs to its target on a fake clock, small it keeps running, 
 test('editing an activity: name, goal and window', async ({ page, context }) => {
   await open(page, context, '#/flow/edit/stretch', 'h1');
   await expect(page.locator('h1')).toHaveText('Stretching + Mini-Workout');
-  await page.getByRole('textbox', { name: T('Name') }).fill('Mobility');
+  // v0.72.0 (Umbenennen 1a): the pencil at the title opens the one rename sheet, saved at once
+  await page.getByRole('button', { name: T('Rename {name}', { name: 'Stretching + Mini-Workout' }) }).click();
+  const rn = page.locator('dialog.rename[open]');
+  await expect(rn.getByRole('textbox', { name: T('Name'), exact: true })).toBeFocused();
+  await rn.getByRole('textbox', { name: T('Name'), exact: true }).fill('Mobility');
+  await rn.getByRole('textbox', { name: T('Name'), exact: true }).press('Enter');
+  await expect(rn).toHaveCount(0);
+  await expect(page.locator('h1')).toHaveText('Mobility');
+  await expect(page.getByRole('status').filter({ hasText: T('Renamed to "{name}".', { name: 'Mobility' }) })).toBeVisible();
   await page.getByRole('button', { name: T('One more|count') }).click();
   await expect(page.locator('.cnum')).toHaveText('4');
   await page.getByRole('button', { name: T('{n} days', { n: 10 }) }).click();

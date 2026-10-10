@@ -14,7 +14,7 @@
   import Dots from './Dots.svelte';
   import DotsLegend from './DotsLegend.svelte';
   import { formatWeight, itemWeight } from '../gear.js';
-  import { usageOf, learnedRule, ruleText, alternatives, lighterAlts, ageOf, ageText, costPerUse, ALT_DISMISSED_KEY } from './material.js';
+  import { usageOf, learnedRule, ruleText, alternatives, lighterAlts, ageOf, ageText, costPerUse, ALT_DISMISSED_KEY, dismissValue } from './material.js';
   import { lastFold, keepFold, nextFold } from './detail.js';
   import { db } from '../db.js';
   import { liveQuery } from 'dexie';
@@ -22,7 +22,8 @@
   import { Route, Scale, Clock, Sparkles, ArrowLeftRight, ListChecks, ChevronRight } from '@lucide/svelte';
 
   // folds (v0.63.0): the parts as rows that fold away (the detail column); line: a summary line under the numbers.
-  let { item, items = [], stats, log = [], today, compact = false, folds = false, line = '' } = $props();
+  // weight (v0.72.0): false in the item window, whose row «Weight» shows the lighter alternatives itself.
+  let { item, items = [], stats, log = [], today, compact = false, folds = false, line = '', weight = true } = $props();
   // The year is open until you open or close a row; the rows draw their content only when open.
   let openFold = $state(folds ? lastFold('panel', 'y') : null);
   function onFold(key, open) {
@@ -40,12 +41,7 @@
   let hidden = $state(null); // { itemId, other } after «Doesn't fit», for Undo
   async function setDismissed(itemId, other, on) {
     const rec = await db.settings.get(ALT_DISMISSED_KEY);
-    const all = { ...(rec?.value ?? {}) };
-    const now = (all[itemId] ?? []).filter((x) => x !== other);
-    if (on) now.push(other);
-    if (now.length) all[itemId] = now;
-    else delete all[itemId];
-    await db.settings.put({ key: ALT_DISMISSED_KEY, value: all });
+    await db.settings.put({ key: ALT_DISMISSED_KEY, value: dismissValue(rec?.value, itemId, other, on) });
   }
   async function dismiss(a) {
     await setDismissed(item.id, a.item.id, true);
@@ -162,7 +158,7 @@
 
   {@render part('y', Route, t('Its year on tour'), u.dots.length ? t('used on {a} of {b}', { a: u.dots.filter((d) => d === 'used').length, b: u.dots.length }) : t('none yet'), yearBody)}
   {#if u.taken && recent.length}{@render part('trips', ListChecks, t('Last trips'), recent[0]?.title ?? '', tripsBody)}{/if}
-  {#if bars.length || suggested.length || lightest || (hidden && hidden.itemId === item.id)}
+  {#if weight && (bars.length || suggested.length || lightest || (hidden && hidden.itemId === item.id))}
     {@render part('w', Scale, t('Weight'), lighter.length ? tn(lighter.length, '{n} lighter option', '{n} lighter options') : '', weightBody)}
   {/if}
   {#if age || cost != null}{@render part('a', Clock, t('Age and cost'), [age ? ageText(age) : '', cost != null ? `${chf(cost)} CHF` : ''].filter(Boolean).join(' · '), ageBody)}{/if}

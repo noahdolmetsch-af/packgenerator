@@ -259,7 +259,7 @@ test('the back key closes a dialog first and keeps the inputs; the page stays (�
   await page.goto('./#/gear');
   await expect(page.locator('main')).not.toBeEmpty();
   const phone = info.project.name === 'phone';
-  // v0.74.0 «Fünf Orte»: the round + on a phone, «+ Neu» in the sidebar on a computer
+  // v0.76.0 «Fünf Orte»: the round + on a phone, «+ Neu» in the sidebar on a computer
   const plus = () => (phone ? page.locator('button.fab') : page.locator('.side .newbtn'));
   // «Neu» sheet
   await plus().click();
@@ -288,11 +288,11 @@ test('the back key closes a dialog first and keeps the inputs; the page stays (�
   await page.goBack();
   await expect(tripDlg).toBeHidden();
   expect(page.url()).toBe(at);
-  // Edit bike: back keeps the new name
+  // Rename bike (v0.72.0: the one rename sheet): back keeps the new name
   await page.goto('./#/');
   await page.goto('./#/bikes');
-  await page.getByRole('button', { name: T('Edit {bike}', { bike: base.tables.bikes[0].name }) }).click();
-  const bike = page.locator('dialog[aria-labelledby="bike-dlg-h"]');
+  await page.getByRole('button', { name: T('Rename {name}', { name: base.tables.bikes[0].name }) }).click();
+  const bike = page.locator('dialog.rename');
   await expect(bike).toBeVisible();
   await bike.locator('input').first().fill('test_data_gtp_ Scale neu');
   await page.goBack();

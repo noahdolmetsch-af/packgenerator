@@ -35,7 +35,7 @@
 <style>
   .tg {
     display: grid;
-    /* at most --cols columns; v0.74.0 «Fünf Orte»: next to the sidebar a row of 5 is too narrow, so
+    /* at most --cols columns; v0.76.0 «Fünf Orte»: next to the sidebar a row of 5 is too narrow, so
        a tile is at least 150 px wide on a computer (fewer per row), names stay whole */
     grid-template-columns: repeat(auto-fill, minmax(max(var(--min, 0px), calc((100% - (var(--cols) - 1) * 8px) / var(--cols))), 1fr));
     gap: 8px;

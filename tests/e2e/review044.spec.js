@@ -113,7 +113,7 @@ test('Review: the old address leads to the 12 months on the look back page, no s
   expect(errors).toEqual([]);
 });
 
-// v0.74.0 «Fünf Orte»: «More» is gone; the Rückblick is a page of Touren (sidebar) and the search finds it.
+// v0.76.0 «Fünf Orte»: «More» is gone; the Rückblick is a page of Touren (sidebar) and the search finds it.
 test('the search and the sidebar lead to the look back page', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/');

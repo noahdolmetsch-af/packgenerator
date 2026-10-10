@@ -52,7 +52,7 @@ export const STRICT_STYLE = [
   'src/lib/bikes/SheetMore.svelte',
   // v0.73.0 «Ruhige Startseite + Fotoband»
   'src/lib/home/TripPhoto.svelte',
-  // v0.74.0 «Fünf Orte» 1: the new navigation and «Ich»
+  // v0.76.0 «Fünf Orte» 1: the new navigation and «Ich»
   'src/lib/nav/SideBar.svelte',
   'src/lib/nav/PlaceBar.svelte',
   'src/lib/nav/PlaceIcon.svelte',

@@ -249,7 +249,7 @@ function extrasFile(info) {
 test('extras: «Ich» shows a dot, the Inbox is newest first and a sorted note opens what it became', async ({ page, context }, info) => {
   const errors = await start(page, context, info, { file: extrasFile(info) });
   await page.goto('./#/');
-  // v0.74.0 «Fünf Orte»: «Ich» took the place of «Mehr»
+  // v0.76.0 «Fünf Orte»: «Ich» took the place of «Mehr»
   const more = page.locator('a.me');
   await expect(more).toHaveAttribute('aria-label', 'Ich, Eingang: 2 zum Ablegen');
   await expect(more.locator('.dot')).toBeVisible();

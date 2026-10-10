@@ -603,7 +603,7 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid (selbst):** Am Handy kommt «Im Flow» nach den 8 Knöpfen, wenn es direkt davor steht (Regel 0.46: Gruss, Tourkarte und Knöpfe ohne Scrollen); am Computer bleibt Im Flow unter der Karte (0.51). Eine andere eigene Reihenfolge aus «Startseite anpassen» bleibt.
 - **Entscheid (selbst):** Ein eigenes Album gibt es noch nicht; «Album ›» öffnet Velos › Setup des Velos mit aufgeklappten «Fotos». Ort = Name des Fotos (ein Kamera-Name wie «IMG_1234» → Velo-Name), Monat = Datum, an dem das Foto hinzugefügt wurde.
 - **Grund:** Noah: Das blasse Foto aus 0.46/0.69 gefiel ihm nicht, und der grosse Vorschlag drängte die Tourkarte nach unten.
-## 10.10.2026: Fünf Orte Teil 1, die Navigation (0.74.0)
+## 10.10.2026: Fünf Orte Teil 1, die Navigation (0.76.0)
 
 - **Entscheid:** Die Leiste hat fünf Orte: Heute, Touren, Material, Velos, Aktiv. Aktiv öffnet Im Flow. «Mehr» ist weg; seine Seiten stehen unter ihrem Ort (Vorlagen, Rückblick, Vergangene Touren, Gelernt, Tempo unter Touren; Favoriten, Bausteine, Bausteine prüfen, Kleiderschrank unter Material) oder in «Ich» (Inbox, Notizen, Daten und Backup, Was die App kann). Die Suche findet sie alle und nennt den Ort.
 - **Entscheid:** «Ich» ist eine eigene Seite (`#/me`), erreichbar über den runden Knopf oben rechts (am Computer neben der Suche). Ein Punkt zeigt offene Notizen in der Inbox, die Zahl steht im Namen des Knopfs.
@@ -611,17 +611,55 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid:** Am Computer ab 900 px eine Seitenleiste mit Logo, Suche, Ich, «+ Neu» und den Orten samt ihren schon gebauten Seiten. Was noch nicht gebaut ist (Neuland, Heft, Aktivität, Einkauf), bleibt ausgeblendet (O2.1a).
 - **Entscheid:** Jeder Ort hat eine leichte Farbe (Heute türkis, Touren orange, Material ocker, Velos blau, Aktiv violett); sie tönt den Hintergrund ganz leicht und färbt den gewählten Ort in Leiste und Seitenleiste.
 - **Selbst entschieden:** «Ich» zeigt ein Personen-Symbol statt eines Buchstabens (die App kennt keinen Namen). Velos › Masse führt in Teil 1 zu «Velos vergleichen», das die Masse aller Velos zeigt; Velos › Werkstatt zu «Werkstatt & Belege». Der Helfer erscheint in Ich erst, wenn er eingeschaltet ist. Tastenkürzel nur für das, was schon geht; Tabs 1–4 kommen mit Teil 2.
+- **Entscheid (Noah, Karte «Weicht aus», 10.10.2026 16:25):** Auf Heute am Handy verdeckte der runde +-Knopf den achten Knopf von «Was willst du tun?». Der + tritt dort zur Seite, solange die 8 Knöpfe zu sehen sind, und kommt beim Scrollen zurück. Auf allen anderen Seiten bleibt er wie im Mockup.
 - **Grund:** Das Mehr-Menü war am Handy zu lang, und die täglichen Orte gehören in die Leiste (Fünf Orte statt Basecamp, siehe oben).
+
+## 10.10.2026: Feinschliff (0.75.0, Noahs Antworten D1–D4 a, Material-Detail 1–5 a, Umbenennen 1–5 a)
+
+- **Entscheid (D1 a):** Bringt ein Import einen neuen Fahrt-Typ ohne Regel, fragt die App einmal, welches Velo dazu gehört, und merkt die Antwort als Regel. «+ Regel» bleibt. Der Vorschlag kommt nur aus dem Velo, das Sensor, Strava-Velo oder Profil schon bestimmt haben, nie aus dem Typ selbst.
+- **Entscheid (D2 a):** Die 1'000-km-Prüfung bleibt, wie sie ist.
+- **Entscheid (D3 a):** Alle kleinen Knöpfe haben am Handy eine Tippfläche von 44 px (unsichtbar vergrössert, `src/lib/ui/touch.css`).
+- **Entscheid (D4 a):** Die stille Regel «Profil heisst wie ein Velo» steht als ruhige Zeile in der Regel-Liste.
+- **Entscheid (Material-Detail 1–5 a):** Eine Zusammenfassung in einer Zeile im Teile-Fenster, Zeile «Gewicht» zuerst mit leichteren Alternativen («Als Alternative merken», «Passt nicht»), leere Ansicht «Nie gebraucht» mit «Auf dem Weg dahin», Übersicht in «Bausteine prüfen», Erste Hilfe auf jeder Tour (Tagestour: kleines Set, mit Nacht: volles Set, in Packen umschaltbar und abwählbar).
+- **Entscheid (Umbenennen 1–5 a):** Ein Umbenennen-Blatt überall (Velo, Tasche, Material, Baustein, Aktivität, Foto): Stift öffnet es, Speichern über der Tastatur, Taste «Fertig», danach «Rückgängig» 10 Sekunden. Die Zurück-Taste von Android speichert in allen Bearbeiten-Fenstern (über `cancel`). Material lässt sich auch am Handy umbenennen. Setup bleibt beim umbenannten Velo. Das Tour-Band bleibt und bekommt nur das gleiche Rückgängig.
+- **Entscheid (selbst):** Fenster für Aktionen (Ablegen, Vorlage, Startwerte, Teil) speichern bei Zurück nichts; nur Bearbeiten-Fenster behalten. Namensvergleich im Import zählt Leerzeichen im Namen einmal («Mtb  Fully Spark» = «mtb fully spark»).
+- **Grund:** Noah: Namen ändern war je nach Ort anders, und am Handy ging Getipptes mit der Zurück-Taste verloren.
 
 ## 10.10.2026: Mockups immer auf einer Seite zeigen (Noah, Priorität 1)
 
 - **Entscheid:** Jede Mockup-Runde kommt auf die eine Seite «Offene Mockups» (https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv), mit einem eigenen Abschnitt pro Runde. Computer und Handy stehen nebeneinander, mit einer Zeile «★ ist …» und einem Link zur Fragen-Karte auf Trello. Die Trello-Karte und die Antwort im Thread verlinken auf diesen Abschnitt. Ein Ordnerpfad allein reicht nie.
 - **Grund:** Noah fand die Bilder im Projektordner nicht; es gibt keinen Web-Link zum Ordner, und die Anhänge im Thread sind begrenzt. Ohne sichtbare Mockups kann er sie nicht freigeben (Prinzip Nr. 1, Schritt 4).
 
-## 10.10.2026: Claude veröffentlicht Releases selbst (Noah, 13:52)
+## 10.10.2026: Claude veröffentlicht Releases selbst (Noah, 13:52; ersetzt um 14:16, siehe unten)
 
 - Noah: «Ich erteile hier die Freigabe zum Veröffentlichen auf GitHub und Vercel für alle folgenden Releases.»
 - Claude merged fertige Release-Pull-Requests selbst, sobald der Gesamttest lokal und alle Prüfungen auf dem letzten Commit grün sind. Ein rotes Vercel-Tageslimit hält nicht auf.
 - Nie bei roten oder laufenden Prüfungen, nie Entwürfe oder geparkte Pull Requests (KI-Helfer #89). Ein Pull Request nach dem anderen.
 - Danach wandert die Trello-Karte nach «Zu testen», und Noah bekommt eine kurze Zeile, was online neu ist.
 - Die Mockups gibt weiterhin Noah frei (Prinzip Nr. 1).
+
+## 10.10.2026: Noah merged wieder selbst, Mockup-Prüfung vor jedem Release (Noah, 14:16)
+
+- Noah auf Trello: «ab sofort immer wieder selber mergen. und eine prüfung, dass ich die mockups für das geplante gesehen und kommentiert habe. vor jedem release … ab sofort und überall.»
+- Das ersetzt den Entscheid von 13:52: Claude merged nicht mehr selbst. Claude bereitet den Pull Request bis grün vor und schickt Noah Link und Klicks.
+- Vor jedem Release-PR prüft Claude, dass Noah die Mockups des Pakets gesehen und kommentiert hat, und nennt den Kommentar im Pull Request unter «Mockup-Prüfung».
+
+## 10.10.2026: Kurs-Check 0.68 bis 0.73 (Noahs Antworten «1b 2b 3b 4a»)
+
+- Reihenfolge nach Fünf Orte und Feinschliff: E1 Startseite, dann D5 Start-Packlisten, dann Neuland + Inspiration (1b).
+- Kein fester Plan für eine echte Tour; Funde aus dem Alltag kommen nebenbei (2b).
+- Der KI-Helfer (Wartungsvorschläge) wird direkt nach E1 eingeschaltet. Dafür setzt Noah den Anthropic-Schlüssel in Vercel (3b).
+- Höchstens 2 Bauten gleichzeitig (4a).
+
+## 10.10.2026: KI-Helfer früher, Hobby-Unterseiten vor D5 (Noahs Antworten «1b 2b 3», 14:33)
+
+- Der KI-Helfer wird schon nach Fünf Orte Teil 2 eingeschaltet, also vor E1 (2b). Das ersetzt 3b aus dem Kurs-Check von 14:16.
+- Die Hobby-Unterseiten im Ort «Aktiv» kommen gleich nach dem KI-Helfer, also vor E1 und vor D5 (1b). Sie brauchen zuerst Mockups und eine Fragerunde.
+- Die ersten Unterseiten: Meditation, Velo, Yoga, Gym, Tennis und Liegestütze (3).
+- Reihenfolge: Fünf Orte 1 + Feinschliff → Fünf Orte 2 → KI-Helfer → Hobby-Unterseiten → E1 Startseite → D5 → Neuland + Inspiration.
+
+## 10.10.2026: Neue Reisearten (Noahs Antworten «1 plus Hochtour, Rennen/Event 2a», 14:40)
+
+- Es gibt neun Reisearten: Weekend Sport Trip (2 Nächte), ein paar Tage Berge oder Stadt, Backpacking ab 10 Tagen, ein paar Monate auf dem Bike, Skitouren, Hüttenwanderung, Trail Running, Hochtour, Rennen/Event.
+- Eigene Reisearten lassen sich als Vorlage anlegen (2a).
+- Das ist ein Paket-Kandidat neben D5 Start-Packlisten. Zuerst kommen Mockups. Der Platz in der Reihenfolge ist noch offen.

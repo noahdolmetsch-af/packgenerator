@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.74.0 «Fünf Orte» 1 (Noah 10.10.2026, O1.1a): on a computer the places live in a sidebar on the
+   * v0.76.0 «Fünf Orte» 1 (Noah 10.10.2026, O1.1a): on a computer the places live in a sidebar on the
    * left: the logo, the search and «Ich», the orange «+ Neu», then the five places, each with its
    * pages (nav.js PLACE_TABS; release 2 makes them tabs on top). The chosen place shows in its colour.
    */

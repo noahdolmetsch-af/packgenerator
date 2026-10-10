@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.74.0 «Fünf Orte» 1 (Noah O1.x, 4a of 10.10.2026 02:39): «Ich», a round button top right (in
+   * v0.76.0 «Fünf Orte» 1 (Noah O1.x, 4a of 10.10.2026 02:39): «Ich», a round button top right (in
    * the sidebar on a computer). It took the place of «More». A small dot says that notes wait in the
    * Inbox; the number is in its label. It opens #/me.
    */

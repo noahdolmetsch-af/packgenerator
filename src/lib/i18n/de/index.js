@@ -29,6 +29,7 @@ import rueckblick from './rueckblick.js';
 import pflege from './pflege.js';
 import flow from './flow.js';
 import fix0691 from './fix0691.js';
+import feinschliffMaterial from './feinschliff-material.js';
 import blocks from './blocks.js';
 import masse from './masse.js';
 import tempo from './tempo.js';
@@ -38,6 +39,7 @@ import kmbook from './kmbook.js';
 import blaetter from './blaetter.js';
 import orte from './orte.js';
 import blaetter2 from './blaetter2.js';
+import feinschliff from './feinschliff.js';
 import heuteruhig from './heuteruhig.js';
 
-export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...orte };
+export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte };

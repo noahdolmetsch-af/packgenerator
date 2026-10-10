@@ -1,4 +1,8 @@
 <script>
+  import { backClose } from '../ui/backclose.js';
+  import { offerRename } from '../ui/rename.svelte.js';
+  import RenameSheet from '../ui/RenameSheet.svelte';
+  import { Pencil } from '@lucide/svelte';
   import { db } from '../db.js';
   import { SLOTS, SLOT, isWornSlot } from '../bikes.js';
   import { formatWeight, parseGrams } from '../gear.js';
@@ -75,6 +79,27 @@
     dialog.close();
   }
 
+  // v0.72.0 «Feinschliff» (Umbenennen 2a, 4a): Android back and Escape keep what was typed (saved
+  // like «Save»); untouched, or a new bag without a name, it only closes.
+  // svelte-ignore state_referenced_locally
+  const openedAs = JSON.stringify(draft);
+  const keepOnBack = () => (JSON.stringify($state.snapshot(draft)) === openedAs || !draft.name.trim() ? dialog.close() : save({ preventDefault() {} }));
+
+  // v0.72.0 (Umbenennen 1a): the pencil next to the name opens the one rename sheet.
+  let renaming = $state(false);
+  async function rename(name) {
+    const old = bag.name;
+    await db.containers.update(bag.id, { name });
+    draft.name = name;
+    shownName = name;
+    offerRename(name, async () => {
+      await db.containers.update(bag.id, { name: old });
+      if (dialog?.open) (draft.name = old), (shownName = old);
+    });
+  }
+  // svelte-ignore state_referenced_locally
+  let shownName = $state(bag?.name ?? '');
+
   async function remove() {
     if (!confirm(t('Delete the bag "{name}"? It is taken off every bike. The gear item stays.', { name: bag.name }))) return;
     await db.transaction('rw', db.containers, db.bikes, async () => {
@@ -86,12 +111,12 @@
   }
 </script>
 
-<dialog class="sheet" bind:this={dialog} {onclose} aria-labelledby="bag-h">
+<dialog class="sheet" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bag-h">
   <form onsubmit={save} novalidate>
     <p class="meta">{t(SLOT[draft.slot]?.name ?? 'Bag')}</p>
-    <h2 id="bag-h" class="title">{isNew ? t('Add bag') : bag.name}</h2>
+    <h2 id="bag-h" class="title">{#if isNew}{t('Add bag')}{:else}<span>{shownName}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: shownName })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={18} aria-hidden="true" /></button>{/if}</h2>
     <div class="grid">
-      <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required /></label>
+      <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required enterkeyhint="done" /></label>
       <label>
         <span class="lbl">{t('Place')}</span>
         <select class="sel" bind:value={draft.slot}>
@@ -136,7 +161,27 @@
   </form>
 </dialog>
 
+{#if renaming}
+  <RenameSheet kicker={t('Bag')} title={t('Rename bag')} value={shownName} hint={t('Place, volume and weight stay as they are.')} onsave={rename} onclose={() => (renaming = false)} />
+{/if}
+
 <style>
+  h2 .pen {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: -8px 0 -8px 4px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--ink-2);
+    vertical-align: middle;
+    cursor: pointer;
+  }
+  h2 .pen:hover {
+    background: var(--paper-2);
+  }
   .meta {
     margin: 0;
     font-size: var(--fs-small);

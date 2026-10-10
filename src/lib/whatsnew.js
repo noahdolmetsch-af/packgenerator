@@ -10,13 +10,23 @@
 
 export const WHATS_NEW = [
   {
-    version: '0.74.0',
+    version: '0.76.0',
     date: '2026-10-10',
     points: [
       { text: 'Five places: Today, Trips, Gear, Bikes and Active. On a phone they sit at the bottom, on a computer in a sidebar on the left with the pages of each place.', href: '#/' },
       { text: '«More» is gone. «Me» top right holds the language, light or dark, the colour world, your home place, the Inbox, your data and the help.', href: '#/me' },
       { text: '«New» is a round + bottom right on a phone. Each place has a light colour of its own.', href: '#/' },
       { text: 'Keyboard shortcuts on a computer: g and a letter opens a place, n is New, / searches, ? shows them all.', href: '#/me' },
+    ],
+  },
+  {
+    version: '0.75.0',
+    date: '2026-10-10',
+    points: [
+      { text: 'Renaming is the same everywhere: the pencil opens one small sheet, the keyboard key saves, and «Undo» stays for 10 seconds. Gear items can be renamed on the phone too.', href: '#/bikes' },
+      { text: 'The back button keeps what you typed in a window, like «Save».', href: '#/gear' },
+      { text: 'Import rides asks once which bike a new ride type belongs to and remembers it as a rule.', href: '#/bikes?tab=care' },
+      { text: 'Gear items show one summary line and lighter alternatives under «Weight»; first aid comes on every trip, the small set on a day ride.', href: '#/gear' },
     ],
   },
   {
