@@ -469,7 +469,28 @@ Noahs Antworten (alle a) zu den Bildern `design/optimierenPacken2/OP2-*`, nur Te
 - **Selbst entschieden (Schnellmodus):** Basis/Mitte/Aussen-Reiter im Tauschen-Blatt weggelassen (getauscht wird nur in derselben Schicht; Schicht dazu kommt mit OP2b); Teile, die schon auf der Tour sind, werden nicht angeboten; «Lieber einpacken in» im Blatt ersetzt «Verschieben nach» der alten Zeile; Zeilen am Körper zeigen ihren Grund («Unter 10 °C»); Kleiderschrank-Zeilen mit Tour zeigen «auf der Tour», ohne Tausch-Knöpfe pro Zeile (Tauschen bleibt in der Packliste).
 
 
+## 9.10.2026: Material-Detail ruhig (0.63.0, Noahs Antworten 1a 2a 3a)
+
+- **Teil-Fenster kurz (1a):** Oben stehen nur Name, Gewicht pro Stück mit Status (gewogen, aus einer Liste, nicht gewogen; bei Nicht-Besitz der Status dazu) und eine Zeile «Kommt mit: Standard · unter 10 °C · Satteltasche» (`src/lib/gear/detail.js` `comesLine`). Alles andere ist eine Klappzeile mit Kurzinhalt: Wo es hinkommt, Bausteine, Für Wetter und Fahrzeit, Name/Marke/Notiz (mit Kategorie, Status, Bereichen, Foto), In Vorlagen, Lebenslauf. Nur eine Zeile ist offen; die zuletzt geöffnete bleibt für die Sitzung offen (`sessionStorage pack.itemFold.item`). Bausteine starten zu. Kein Feld fällt weg. Die Detailspalte am Computer zeigt die Zahlen, die «Kommt mit»-Zeile und die Teile von «Lebenslauf» ebenfalls als Klappzeilen (eigene Merkung `pack.itemFold.panel`). Höhe des Teil-Fensters (Regenjacke, Testdaten): Handy 390 2241 → 704 px, Computer 1440 2377 → 689 px (alle Zeilen zu).
+- **Leichtere Alternative (2a):** Zuerst die selbst verknüpften («von dir verknüpft»), dann höchstens 2 Vorschläge: vorhanden, gewogen, gleiche Kategorie (Kleidung: gleiche Zone und, wenn beide eine haben, gleiche Schicht; Kleidung ohne Zone bekommt keinen Vorschlag), leichter, aber mindestens 40 % seines Gewichts (sonst ist es meist etwas anderes, z. B. ein Kabel statt eines Velocomputers), die gewichtsnächsten zuerst. «Passt nicht» blendet einen Vorschlag für dieses Teil aus (Einstellung `altDismissed` {itemId: [ids]}) und ist rückgängig zu machen. Ein Vorschlag wählt nie etwas aus. Die Karte zeigt weiterhin nur die verknüpfte Alternative.
+- **Leeres «Nie gebraucht» (3a):** Ein Satz zur Regel (ab 3× dabei, nie gebraucht), ohne Auswertungen der Hinweis, dass sich die Ansicht nach den ersten Tour-Auswertungen füllt, sonst wie viele Touren ausgewertet sind. Darunter «Auf dem Weg dahin»: 1–2× dabei und nie gebraucht, mit Zahl (`material.js` `onTheWay`).
+- Der Bausteine-Katalog selbst blieb unberührt (paralleler Umbau); die Chips lesen die Bausteine wie bisher aus `allSets()`.
+## 9.10.2026: Velo-Masse (0.65.0)
+
+Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reifendruck, die Lenkerbreite … sowie weitere angezeigt werden».
+- Jedes Velo hat einen Block **Masse** (EN «Fit and setup», `bike.fit`), auf der Velo-Seite oben, immer offen, nie unter «Mehr». Sitzhöhe, Solldruck vorne/hinten und Lenkerbreite stehen immer zuerst.
+- Die Sitzhöhe wandert aus der Geometrie in die Masse; ein altes `geometry.seatHeight` wird weiter gelesen und von `updates.js fitMove2026` einmal verschoben (idempotent, ein schon getippter Wert in `fit` gewinnt).
+- Solldruck = der gewünschte Druck (bar), nicht der gemessene. Der gemessene bleibt im Verlauf des Reifens. Beim «Druck geprüft» steht «Soll» neben «Zuletzt gemessen», die Felder sind mit dem Soll vorausgefüllt; der Basischeck nennt den Soll pro Velo.
+- Selbst entschieden (Schnellmodus): zusätzliche Felder Rahmengrösse, Sattelversatz, Sattelüberhöhung, Vorbaulänge/-winkel, Kurbellänge, Reifenbreite v/h, Gabeldruck/-Sag, Dämpferdruck/-Sag; Federung in psi, Sag in %; Kurbellänge und Reifenbreiten leben weiter am Teil (Kurbel, Reifen) und werden nur gezeigt (ein Wert, ein Ort); Gabel- bzw. Dämpferzeilen nur bei Velos mit dieser Federung oder mit einem Wert; am Handy 2 Spalten, ab 900 px 4.
+- Import `bikeSpecs`: `fit: {…}` (auch `masse`) mit englischen Schlüsseln oder deutschen Namen; unbekannte Schlüssel werden genannt und ausgelassen; ein anderer vorhandener Wert nur mit Häkchen.
+
 ## Arbeitsweise (9.10.2026, 23:26)
 
 - **Entscheid:** nur ein Paket (höchstens zwei) gleichzeitig; vor jedem Release Mockups, Noahs Prüfung und a/b-Fragen, gebaut wird erst danach. Ersetzt den Schnellmodus. Details und verbindliche Anweisung: [Arbeitsweise](arbeitsweise.md).
 - **Grund:** Drei Pakete parallel brachten Umnummerierungen und Funktionen ohne Design-Prüfung.
+
+## Kurs-Check, Mockups nur hell, Gesamttest vor dem PR (10.10.2026)
+
+- **Entscheid:** [Geplante Vorhaben](vorhaben.md) ist der Massstab, ob wir auf dem richtigen Weg sind; vor jedem Paket wird es geprüft, in jedem Release nachgeführt. Mockups gibt es nur noch hell. Vor jedem PR läuft der komplette Gesamttest lokal.
+- **Grund:** Noah möchte die Übersicht als Basis behalten und den Kurs regelmässig prüfen; dunkle Mockups verdoppelten die Bilder; mehrere PRs wurden erst in CI rot.
+

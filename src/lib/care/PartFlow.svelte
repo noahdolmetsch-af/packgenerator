@@ -10,6 +10,8 @@
   import { localDay } from '../localday.js';
   import { PART, partInfo, partName, parseKm, kmSince, lastReplace, lastValue } from '../care.js';
   import { t, num } from '../i18n.svelte.js';
+  import { targetPressure } from '../bikespecs.js';
+  import { parseBar } from '../quickcare.js';
   import { Check, X, ChevronRight, CircleAlert } from '@lucide/svelte';
 
   let { part, bike, mode = 'replace', shops = [], by = 'self', onsave, oncancel } = $props();
@@ -50,6 +52,15 @@
   let did = $state([]);
   const toggleDid = (k) => (did = did.includes(k) ? did.filter((x) => x !== k) : [...did, k]);
   let sealant = $state('');
+  // v0.65.0 «Velo-Masse»: «Pressure checked» asks for the pressure, prefilled with the bike's target
+  // (bike.fit pressureF / pressureR), and shows the target beside the last measured value.
+  // svelte-ignore state_referenced_locally
+  const target = p.key === 'tyres' ? targetPressure(bike) : null;
+  // svelte-ignore state_referenced_locally
+  const lastP = p.key === 'tyres' ? [...(part.history ?? [])].reverse().find((h) => h.pressureF != null || h.pressureR != null) ?? null : null;
+  let presF = $state(target?.f != null ? String(target.f) : '');
+  let presR = $state(target?.r != null ? String(target.r) : '');
+  const pair = (f, r) => `${f != null ? num(f) : '–'} / ${r != null ? num(r) : '–'} bar`;
 
   const fmt = (v) => `${num(v)} ${p.unit}`.trim();
   // svelte-ignore state_referenced_locally
@@ -92,9 +103,13 @@
     const v = did.includes('Measured') && val != null ? val : null;
     const onlyLook = did.every((x) => ['Checked', 'Measured', 'Pressure checked'].includes(x));
     const ml = String(sealant).trim() === '' ? null : Number(String(sealant).replace(',', '.'));
+    const pf = did.includes('Pressure checked') ? parseBar(presF) : null;
+    const pr = did.includes('Pressure checked') ? parseBar(presR) : null;
+    if (Number.isNaN(pf) || Number.isNaN(pr)) return (error = t('Type the pressure in bar, e.g. 1.6'));
     const entry = {
       date, km: k, value: v, action: onlyLook ? 'check' : 'service', result: onlyLook && v != null && worn ? 'needed' : onlyLook ? 'ok' : 'done', by: who === 'self' ? 'self' : 'shop', model: null,
       note: did.map((x) => t(x)).join(', '), ...(ml != null && Number.isFinite(ml) ? { sealantMl: ml } : {}),
+      ...(pf != null ? { pressureF: pf } : {}), ...(pr != null ? { pressureR: pr } : {}),
     };
     await onsave({ entries: [{ key: p.key, entry }], problems: [] });
   }
@@ -202,6 +217,15 @@
     {#if did.includes('Measured') && p.unit}
       <label class="fld"><span class="lbl">{t('Measured')} ({p.unit})</span><input class="inp num" type="text" inputmode="decimal" bind:value /></label>
     {/if}
+    {#if p.key === 'tyres' && (target || lastP)}
+      <p class="psoll num" data-testid="pressure-target">{#if target}<span><b>{t('Target')}</b> {pair(target.f, target.r)}</span>{/if}{#if lastP}<span>{t('Last measured')} {pair(lastP.pressureF ?? null, lastP.pressureR ?? null)}</span>{/if}</p>
+    {/if}
+    {#if did.includes('Pressure checked')}
+      <div class="two">
+        <label class="fld"><span class="lbl">{t('Pressure front')} (bar)</span><input class="inp num" type="text" inputmode="decimal" bind:value={presF} placeholder={t('optional')} /></label>
+        <label class="fld"><span class="lbl">{t('Pressure rear')} (bar)</span><input class="inp num" type="text" inputmode="decimal" bind:value={presR} placeholder={t('optional')} /></label>
+      </div>
+    {/if}
     {#if did.includes('Sealant topped up')}
       <label class="fld"><span class="lbl">{t('Sealant added')} (ml)</span><input class="inp num" type="text" inputmode="decimal" bind:value={sealant} placeholder={t('optional')} /></label>
     {/if}
@@ -220,6 +244,17 @@
 </div>
 
 <style>
+  .psoll {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 16px;
+    margin: 10px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .psoll b {
+    color: var(--ink);
+  }
   .fh {
     display: flex;
     align-items: center;

@@ -6,10 +6,14 @@
    */
   import { db } from '../db.js';
   import { readyDone, tickReady, touched } from '../trips.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, num } from '../i18n.svelte.js';
+  import { targetPressure, pressureText } from '../bikespecs.js';
   import { Check } from '@lucide/svelte';
 
-  let { trip } = $props();
+  let { trip, bike = null } = $props();
+  // v0.65.0 «Velo-Masse»: the tyre pressure row names the bike's target pressure when it is set.
+  const target = $derived(pressureText(targetPressure(bike), num));
+  const label = (r) => (r.id === 'tyres' && target ? `${t(r.label)} · ${t('Target')} ${target}` : t(r.label));
 
   const rows = $derived((trip.ready ?? []).filter((r) => !r.itemId));
   const open = $derived(rows.filter((r) => !readyDone(r, trip)));
@@ -35,7 +39,7 @@
     {#if open.length || show}
       <ul class="chips">
         {#each rows as r (r.id)}
-          <li><button type="button" class="chip" aria-pressed={readyDone(r, trip)} onclick={() => toggle(r)}>{#if readyDone(r, trip)}<Check size={16} aria-hidden="true" />{/if}{t(r.label)}</button></li>
+          <li><button type="button" class="chip" aria-pressed={readyDone(r, trip)} onclick={() => toggle(r)}>{#if readyDone(r, trip)}<Check size={16} aria-hidden="true" />{/if}{label(r)}</button></li>
         {/each}
       </ul>
     {/if}

@@ -50,6 +50,7 @@
   import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate } from '../lib/dayride.js';
   import { packBadges, ballast, leaveAtHome, keepOnTrip } from '../lib/packhints.js';
   import { t, tn, num, locale, nameOf, bagName, dateOf } from '../lib/i18n.svelte.js';
+  import { targetPressure, pressureText } from '../lib/bikespecs.js';
   import { comesOf } from '../lib/gear/comes.js';
   import { inStandard, isWorn, leaveHome, blockKeys } from '../lib/blocks2026.js';
   import { hasBike, domainOf, domainName, inDomain, itemDomains, readyKey, READY_BY_DOMAIN, rememberDomain, BIKEPACKING } from '../lib/domains.js';
@@ -817,7 +818,7 @@
           <li class:done>
             <label class="ck">
               <input type="checkbox" checked={done} disabled={!!r.itemId && done} onchange={() => toggleReady(r)} />
-              <span>{t(r.label)}{#if r.itemId && !done}<small class="warn"> {t('not on this trip, tick to add it')}</small>{/if}</span>
+              <span>{t(r.label)}{#if r.id === 'tyres' && targetPressure(bike)}<small> · {t('Target')} {pressureText(targetPressure(bike), num)}</small>{/if}{#if r.itemId && !done}<small class="warn"> {t('not on this trip, tick to add it')}</small>{/if}</span>
             </label>
             {#if r.id === 'charged' && charge.length}<button type="button" class="tp-link" onclick={() => (chargeOpen = true)}>{t('Charge list {done}/{n}', { done: charged.done, n: charged.total })}</button>{/if}
             <button type="button" class="x" aria-label={t("Remove {name} from this trip's check", { name: t(r.label) })} onclick={() => removeReady(r.id)}>×</button>
@@ -853,7 +854,7 @@
     </div>
   {/if}{/snippet}
   {#if packTab}
-    <PackDay {trip} bike={bikeTrip} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} />
+    <PackDay {trip} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} />
   {:else}
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={over ? null : factEdit} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} bind:q bind:zoneKey bind:review
     actions={{
