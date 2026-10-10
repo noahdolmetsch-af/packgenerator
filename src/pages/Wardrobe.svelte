@@ -15,7 +15,7 @@
   import { SETS_KEY, allSets } from '../lib/sets.js';
   import { tick } from 'svelte';
   import { slide } from 'svelte/transition';
-  import { flip as flipMove } from 'svelte/animate';
+  import { flip as flipMove } from '../lib/ui/flip.js';
   import { HOME_PLACE, HOME_FORECAST } from '../lib/know.js';
   import { todayOutfit } from '../lib/home/outfit.js';
   import { formatWeight, itemWeight, isInventory } from '../lib/gear.js';

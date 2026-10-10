@@ -379,7 +379,10 @@
   .pbag.cur { border: 2px solid var(--ink); }
   .bagh { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 14px; border: 0; background: none; color: var(--ink); font: 600 16px var(--font-body); text-align: left; cursor: pointer; }
   .bagh :global(svg) { color: var(--ink-3); flex: none; }
-  .bt { min-width: 0; overflow-wrap: break-word; }
+  /* v0.77.0: the title never gets narrower than its longest word (capped at the row), so a short
+     row takes the room from the bar (.r) instead: with min-width 0, flex shrinking also took a
+     fraction of a pixel from the title and broke «Oberrohrtasche» mid-word at 1366 px. */
+  .bt { min-width: min(min-content, 100%); overflow-wrap: break-word; }
   .bt small { display: block; font-size: 13px; font-weight: 400; color: var(--ink-3); }
   .pbag.done .bt b { color: var(--ink-3); }
   /* v0.77.0: in a narrow column the bar gives way first, so a bag name («Oberrohrtasche») is not broken. */
