@@ -12,7 +12,7 @@ import { ridesIntoDark } from '../src/lib/blockplan.js';
 import { buildBikeTrip } from '../src/lib/dayride.js';
 import { toggleSet } from '../src/lib/trips.js';
 import { linkTemplate, templateEntries, TEMPLATES_KEY } from '../src/lib/templates.js';
-import { checkSteps, missingFor, blockTotal, blockMembers, withBlock } from '../src/lib/blockcheck.js';
+import { checkSteps, missingFor, blockTotal, blockMembers, withBlock, overviewRows } from '../src/lib/blockcheck.js';
 import { blockKeys, blockOrder, STANDARD } from '../src/lib/blocks2026.js';
 import { allSets } from '../src/lib/sets.js';
 import { blockKind } from '../src/lib/gear/comes.js';
@@ -268,7 +268,8 @@ describe('Repair, Charging, Race, Comfort (9a)', () => {
     expect(ids(t)).toEqual(expect.arrayContaining(['TUBE', 'BANK']));
     expect(t.entries.find((e) => e.itemId === `${P}TUBE`).src).toBe('context');
     expect(ids(make({ overnight: 'none', sets: { repair: false } }, 1))).not.toContain('TUBE');
-    expect(rideSets({ sets: { charge: false } })).toEqual(['repair']);
+    expect(rideSets({ sets: { charge: false } })).toEqual(['firstaid', 'repair']); // v0.72.0: first aid on every trip
+    expect(rideSets({ sets: { firstaid: false } })).toEqual(['repair', 'charge']);
   });
 
   it('race only on a trip marked as an event', () => {
@@ -286,8 +287,9 @@ describe('Repair, Charging, Race, Comfort (9a)', () => {
   });
 
   it('the kinds of blocks', () => {
-    expect(['bivy', 'tent', 'hotel', 'cook', 'firstaid'].map(blockKind)).toEqual(['night', 'night', 'night', 'night', 'night']);
-    expect(['repair', 'charge', 'lights', 'race'].map(blockKind)).toEqual(['ride', 'ride', 'ride', 'ride']);
+    expect(['bivy', 'tent', 'hotel', 'cook'].map(blockKind)).toEqual(['night', 'night', 'night', 'night']);
+    // v0.72.0 (Noah 10a): first aid comes on every ride (small or full), no longer with the night only
+    expect(['firstaid', 'repair', 'charge', 'lights', 'race'].map(blockKind)).toEqual(['ride', 'ride', 'ride', 'ride', 'ride']);
     expect(['food', 'hygiene', 'comfort', 'u-regen'].map(blockKind)).toEqual(['add', 'add', 'add', 'add']);
     expect(blockKind(STANDARD)).toBe('always');
   });
@@ -296,11 +298,30 @@ describe('Repair, Charging, Race, Comfort (9a)', () => {
 describe('«Bausteine prüfen» (4a)', () => {
   const up = splitAll({ items: OLD, templates: [], sets: [] });
 
-  it('steps: still to assign, temperature rules, then Standard and every block', () => {
+  it('steps: the overview (v0.72.0), still to assign, temperature rules, then Standard and every block', () => {
     const steps = checkSteps(up.items, [], up.review);
-    expect(steps.slice(0, 3).map((s) => [s.kind, s.key])).toEqual([['unassigned', 'hotel'], ['cold', null], ['block', STANDARD]]);
-    expect(steps.slice(3).map((s) => s.key)).toEqual(allSets([]).map((s) => s.key));
-    expect(checkSteps(up.items, [], null)[0].kind).toBe('block');
+    expect(steps.slice(0, 4).map((s) => [s.kind, s.key])).toEqual([['overview', null], ['unassigned', 'hotel'], ['cold', null], ['block', STANDARD]]);
+    expect(steps.slice(4).map((s) => s.key)).toEqual(allSets([]).map((s) => s.key));
+    expect(checkSteps(up.items, [], null).map((s) => s.kind).slice(0, 2)).toEqual(['overview', 'block']);
+  });
+
+  it('v0.72.0 (Noah 4a): the overview rows 5–10 count from the data and jump to their step', () => {
+    const steps = checkSteps(up.items, [], up.review);
+    const rows = overviewRows(up.items, [], up.review, steps);
+    expect(rows.map((r) => r.n)).toEqual([5, 6, 7, 8, 9, 10]);
+    const inv = up.items.filter((i) => ['owned', 'unclear'].includes(i.ownership));
+    expect(rows[0].text).toContain(String(inv.filter((i) => i.sets?.includes('bivy')).length));
+    expect(rows[1].text).toContain(String(inv.filter((i) => i.sets?.includes('warm')).length));
+    expect(rows[3].text).toContain(String(up.review.unassigned.length));
+    const at = (r) => steps[r.go];
+    expect([at(rows[0]).key, at(rows[1]).kind, at(rows[2]).key, at(rows[3]).kind, at(rows[4]).key, at(rows[5]).key]).toEqual(['bivy', 'cold', 'lights', 'unassigned', 'repair', 'firstaid']);
+    expect(rows[5].aid).toEqual({ small: inv.filter((i) => i.sets?.includes('firstaid') && /blister|plaster|pflaster|rettungsdecke/i.test(i.name)).length, full: inv.filter((i) => i.sets?.includes('firstaid')).length });
+    // without the update's leftovers: no cold step (no button), row 8 jumps to Hotel/hut
+    const plain = checkSteps(up.items, [], null);
+    const rows2 = overviewRows(up.items, [], null, plain);
+    expect(rows2[1].go).toBe(null);
+    expect(plain[rows2[3].go].key).toBe('hotel');
+    expect(rows2[3].text).toBe('Every item found its block.');
   });
 
   it('probably missing: same category or a telling word; not what stays at home or water', () => {

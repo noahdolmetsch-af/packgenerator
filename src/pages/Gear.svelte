@@ -21,7 +21,7 @@
   import { SETS_KEY, allSets } from '../lib/sets.js';
   import { wishReason } from '../lib/insights.js';
   // v0.47.2 «Material-Ansichten» (Noah 6a-9a): seven fixed views, cards with the trips as dots.
-  import { materialStats, tripLog, usageOf, inView, viewCounts, sortItems, lighterAlt, viewSummary, onTheWay, neverText, VIEWS, NEVER_AFTER, PROVEN_AFTER } from '../lib/gear/material.js';
+  import { materialStats, tripLog, usageOf, inView, viewCounts, sortItems, lighterAlt, viewSummary, onTheWay, VIEWS, NEVER_AFTER, PROVEN_AFTER } from '../lib/gear/material.js';
   import { comesLine } from '../lib/gear/detail.js';
   import MatCard from '../lib/gear/MatCard.svelte';
   import DotsLegend from '../lib/gear/DotsLegend.svelte';
@@ -30,7 +30,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import { catIcon, catColor } from '../lib/gear/caticon.js';
   import { localDay } from '../lib/localday.js';
-  import { List, TrendingUp, Trophy, Star, PackageX, Scale, Heart, SlidersHorizontal, Plus, ChevronRight } from '@lucide/svelte';
+  import { List, TrendingUp, Trophy, Star, PackageX, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, Check } from '@lucide/svelte';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
   import Sum from '../lib/ui/Sum.svelte';
@@ -294,6 +294,11 @@
   }
   async function leaveAtHome(item) {
     await markHome(item);
+  }
+  // v0.72.0 (Noah 3a): «Leave at home» in «On the way there», as the debrief does it, with Undo.
+  async function homeWithUndo(item) {
+    const snap = await saveItems(db, [{ ...$state.snapshot(item), ...leaveHomeFields(item), updatedAt: new Date().toISOString() }]);
+    offerUndo(t('"{name}" stays at home: new trips no longer pack it on their own.', { name: nameOf(item) }), snap);
   }
   // The side column and the sheet: categories, bags and building blocks with their counts.
   const base = $derived(view === 'wish' ? stats.wishlist : stats.inventory);
@@ -778,19 +783,43 @@
   {#if filter.q.trim() || filter.category || filter.bag || filter.domain || filter.role || unusedOnly}
     {@render nothing()}
   {:else if view === 'never'}
-    <!-- v0.63.0 (Noah 3a): an empty «Never used» says its rule in one sentence and shows what is on the way there. -->
+    <!-- v0.63.0 (Noah 3a): an empty «Never used» says its rule in one sentence and shows what is on the way there.
+         v0.72.0 (Noah 3a): a green check, three numbers, and «On the way there» with 3 dots per item and «Leave at home». -->
     <div class="card none never0">
       {#if debriefN === 0}
-        <p>{t('This view fills after your first trip reviews: then it shows what you took along {n} times or more and never used.', { n: NEVER_AFTER })}</p>
+        <p>{t('This view fills after your first trip reviews. After every trip the app asks briefly what you used.')} <a class="tolink" href="#/debrief">{t('To the debrief ›')}</a></p>
       {:else}
-        <p>{t('Here go the things you took along {n} times or more and never used.', { n: NEVER_AFTER })}{' '}{debriefN >= NEVER_AFTER ? t('Nothing: everything you took got used at least once.') : tn(debriefN, 'You have reviewed {n} trip so far.', 'You have reviewed {n} trips so far.')}</p>
+        <div class="okhead">
+          <span class="okic" aria-hidden="true"><Check size={22} /></span>
+          <div class="okt">
+            <h3 class="okh">{t('Nothing right now that only rides along')}</h3>
+            <p>{t('Here go the things you took along {n} times or more and never used.', { n: NEVER_AFTER })}{' '}{debriefN >= NEVER_AFTER ? t('So far you used everything that was along that often at least once.') : tn(debriefN, 'You have reviewed {n} trip so far.', 'You have reviewed {n} trips so far.')}</p>
+          </div>
+        </div>
+        <dl class="ntiles">
+          <div><dt>{t('trips reviewed')}</dt><dd class="num">{debriefN}</dd></div>
+          <div><dt>{t('on the way there')}</dt><dd class="num">{onWay.length}</dd></div>
+          <div><dt>{t('dead weight')}</dt><dd class="num">{formatWeight(0)}</dd></div>
+        </dl>
       {/if}
       {#if onWay.length}
         <section class="onway" aria-labelledby="onway-h">
           <h3 id="onway-h" class="owh">{t('On the way there')} <small class="num">{onWay.length}</small></h3>
+          <p class="owsub">{t('Along 1 or 2 times and never used. The 3rd time without use puts them up here.')}</p>
           <ul>
             {#each onWay as w (w.item.id)}
-              <li><button type="button" class="owb" onclick={() => open(w.item)}><span class="nm">{nameOf(w.item)}</span><span class="owc num">{neverText({ taken: w.taken })}</span></button></li>
+              <li class="owrow">
+                <button type="button" class="owb" onclick={() => open(w.item)}><span class="nm">{nameOf(w.item)}</span><small class="owcat">{t(CATEGORY[w.item.category]?.name ?? '')}</small></button>
+                <span class="owdots" role="img" aria-label={t('{a} of {b} · never used', { a: w.taken, b: NEVER_AFTER })}>
+                  {#each Array.from({ length: NEVER_AFTER }, (_, n) => n < w.taken) as on, n (n)}<i class:on></i>{/each}
+                  <span class="owc num" aria-hidden="true">{t('{a} of {b} · never used', { a: w.taken, b: NEVER_AFTER })}</span>
+                </span>
+                {#if leaveHome(w.item)}
+                  <span class="owhome">{t('Stays at home')}</span>
+                {:else}
+                  <button type="button" class="btn sm owgo" aria-label={t('Leave {name} at home', { name: nameOf(w.item) })} onclick={() => homeWithUndo(w.item)}>{t('Leave at home')}</button>
+                {/if}
+              </li>
             {/each}
           </ul>
         </section>
@@ -1297,8 +1326,116 @@
   }
   /* v0.63.0 (Noah 3a): «On the way there» under an empty «Never used» */
   .onway {
-    margin: 12px 0 0;
+    margin: 16px 0 0;
     text-align: left;
+  }
+  /* v0.72.0 (Noah 3a): the green check, three numbers, dots and «Leave at home». */
+  .never0 {
+    text-align: left;
+  }
+  .okhead {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .okic {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: var(--ok-soft);
+    color: var(--ok);
+  }
+  .okt {
+    min-width: 0;
+  }
+  .okh {
+    margin: 2px 0 4px;
+    font: 600 var(--fs-sub) / 1.3 var(--font-body);
+  }
+  .okt p {
+    margin: 0;
+    color: var(--ink-2);
+  }
+  .ntiles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 0;
+  }
+  .ntiles div {
+    display: flex;
+    flex-direction: column-reverse;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: var(--paper-2);
+    min-width: 0;
+  }
+  .ntiles dd {
+    margin: 0;
+    font: 800 var(--fs-section) / 1.1 var(--font-brand);
+  }
+  .ntiles dt {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .owsub {
+    margin: 0 0 6px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .owrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 14px;
+    padding: 4px 0;
+  }
+  .owrow .owb {
+    flex: 1 1 12em;
+    width: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .owcat {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .owdots {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .owdots i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--warn);
+    box-sizing: border-box;
+  }
+  .owdots i.on {
+    background: var(--warn);
+  }
+  .owgo {
+    min-height: 44px;
+  }
+  .owhome {
+    font-size: var(--fs-small);
+    font-weight: 600;
+    border-radius: 99px;
+    padding: 2px 10px;
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  .tolink {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 600;
+    color: var(--accent);
   }
   .owh {
     margin: 0 0 4px;
