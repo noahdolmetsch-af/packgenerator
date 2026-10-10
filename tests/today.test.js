@@ -99,8 +99,8 @@ describe('Today: the trip and its one next step', () => {
 });
 
 describe('main places', () => {
-  it('four places in a fixed order (v0.46.1: Trips opens the overview)', () => {
-    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['trips', '#/trips'], ['gear', '#/gear'], ['bikes', '#/bikes']]);
+  it('five places in a fixed order (v0.46.1: Trips opens the overview; v0.76.0 «Fünf Orte»: Aktiv opens Im Flow)', () => {
+    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['trips', '#/trips'], ['gear', '#/gear'], ['bikes', '#/bikes'], ['active', '#/flow']]);
   });
 
   it('every address belongs to the right place', () => {
@@ -119,8 +119,14 @@ describe('main places', () => {
       '#/favorites': 'gear',
       '#/bikes?tab=care': 'bikes',
       '#/care': 'bikes',
-      '#/inbox': null,
-      '#/inbox/new': null,
+      // v0.76.0 «Fünf Orte»: Im Flow is the place Aktiv; the Inbox, the notes and the features live in «Ich»
+      '#/flow': 'active',
+      '#/flow/goals': 'active',
+      '#/me': 'me',
+      '#/inbox': 'me',
+      '#/inbox/new': 'me',
+      '#/notes': 'me',
+      '#/features': 'me',
     };
     for (const [hash, place] of Object.entries(cases)) expect([hash, placeOf(pageOf(hash))]).toEqual([hash, place]);
     expect(pageOf('#/care', true)).toBe('care');

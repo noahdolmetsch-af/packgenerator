@@ -14,7 +14,8 @@
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
 
-  let { compact = false } = $props();
+  // v0.76.0 «Fünf Orte»: short: the narrow field in the sidebar says only «Suchen» (with «/»).
+  let { compact = false, short = false } = $props();
   let q = $state('');
   let open = $state(false); // phone: the field is shown
   let input = $state();
@@ -150,7 +151,7 @@
 {#snippet field()}
   <label class="field">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
-    <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder={t('What do you want to do? "weigh", "day ride factor"')} aria-label={t('What do you want to do? Search or say an action')} autocomplete="off" />
+    <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder={short ? `${t('Search')}  /` : t('What do you want to do? "weigh", "day ride factor"')} aria-label={t('What do you want to do? Search or say an action')} autocomplete="off" />
   </label>
 {/snippet}
 

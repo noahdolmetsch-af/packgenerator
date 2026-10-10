@@ -141,11 +141,20 @@ test('colour worlds and dark mode in More; every choice stays', async ({ page, c
   const html = page.locator('html');
   await expect(html).toHaveAttribute('data-palette', 'gletscher');
   await expect(html).toHaveAttribute('data-theme', 'light');
-  const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  // v0.76.0 «Fünf Orte»: the page ground is tinted a breath by the place; the colour world sets --ground.
+  const bg = () => page.evaluate(() => {
+    const d = document.body.appendChild(document.createElement('div'));
+    d.style.background = 'var(--ground)';
+    const c = getComputedStyle(d).backgroundColor;
+    d.remove();
+    return c;
+  });
   expect(await bg()).toBe('rgb(238, 242, 244)');
 
-  await page.getByRole('button', { name: /^(More|Mehr)/ }).click();
-  const more = page.getByRole('dialog', { name: T('More') });
+  // v0.76.0: the colour world and light or dark are in «Ich» (top right), no longer in «More».
+  await page.getByRole('link', { name: /^(Me|Ich)\b/ }).first().click();
+  await expect(page).toHaveURL(/#\/me$/);
+  const more = page.locator('main');
   await more.getByRole('group', { name: T('Colours') }).getByRole('button', { name: T('Sandstone|palette') }).click();
   await expect(html).toHaveAttribute('data-palette', 'sandstein');
   expect(await bg()).toBe('rgb(244, 239, 230)');
@@ -157,14 +166,12 @@ test('colour worlds and dark mode in More; every choice stays', async ({ page, c
   await expect(html).toHaveAttribute('data-theme', 'dark');
   // System follows the device
   await page.emulateMedia({ colorScheme: 'light' });
-  await page.getByRole('button', { name: /^(More|Mehr)/ }).click();
-  await page.getByRole('dialog', { name: T('More') }).getByRole('group', { name: T('Light or dark') }).getByRole('button', { name: T('System|theme') }).click();
+  await more.getByRole('group', { name: T('Light or dark') }).getByRole('button', { name: T('System|theme') }).click();
   await expect(html).toHaveAttribute('data-theme', 'light');
   await page.emulateMedia({ colorScheme: 'dark' });
   await expect(html).toHaveAttribute('data-theme', 'dark');
-  // Today itself, with the More sheet closed again
-  await page.keyboard.press('Escape');
-  await expect(page.getByRole('dialog', { name: T('More') })).toBeHidden();
+  // Today itself, in the dark
+  await page.goto('./#/');
   await noSideScroll(page, 'Today in the dark');
 });
 

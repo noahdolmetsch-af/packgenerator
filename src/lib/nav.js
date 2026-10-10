@@ -142,6 +142,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/review')) return 'debrief'; // v0.44.0: the last 12 months; v0.49.0: part of the Rückblick
   if (h.startsWith('#/features')) return 'features'; // v0.30.0 (Noah 3a): what the app can do
   if (h.startsWith('#/flow')) return 'flow'; // v0.51.0 «Im Flow»
+  if (h.startsWith('#/me')) return 'me'; // v0.76.0 «Fünf Orte»: «Ich», top right
   return 'home';
 }
 
@@ -158,22 +159,66 @@ export function redirectOf(hash = '') {
 }
 
 /**
- * v0.23.0 (AP07): the four main places, the same on every page and in this order
- * (top bar on a computer, bottom bar on a phone). Labels are English keys for t().
+ * v0.76.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): five places, the same on every page and in this
+ * order (bottom bar on a phone, sidebar on a computer). Labels are English keys for t(); key: the
+ * letter after «g» on a keyboard (g h = Today). colour: the place's light tint (app.css --pc-*).
+ * Before: four places (v0.23.0, AP07); «Im Flow» was reached from Today and the menu «More».
  */
 export const PLACES = [
-  { key: 'today', href: '#/', label: 'Today|place' },
+  { key: 'today', href: '#/', label: 'Today|place', letter: 'h' },
   // v0.46.1 (Noah): «Touren» opens the overview of all trips, no longer the last trip at Packen.
-  { key: 'trips', href: '#/trips', label: 'Trips|place' },
-  { key: 'gear', href: '#/gear', label: 'Gear|place' },
-  { key: 'bikes', href: '#/bikes', label: 'Bikes|place' },
+  { key: 'trips', href: '#/trips', label: 'Trips|place', letter: 't' },
+  { key: 'gear', href: '#/gear', label: 'Gear|place', letter: 'm' },
+  { key: 'bikes', href: '#/bikes', label: 'Bikes|place', letter: 'v' },
+  // v0.76.0: «Aktiv» is the fifth place; it opens «Im Flow» (v0.51.0).
+  { key: 'active', href: '#/flow', label: 'Active|place', letter: 'a' },
 ];
 
-/** Which main place a page belongs to (null: the Inbox, which has its own icon). */
+/**
+ * v0.76.0 «Fünf Orte» 1: the pages under each place (sidebar on a computer). Only what is built
+ * shows (Noah O2.1a: Neuland, Heft and the rest come with their package); release 2 turns them
+ * into tabs on top of each place. match: the addresses that count as this entry.
+ */
+export const PLACE_TABS = {
+  today: [],
+  trips: [
+    { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') },
+    { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
+    { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') },
+  ],
+  gear: [
+    { key: 'all', label: 'All|gear', href: '#/gear', match: (h) => h.startsWith('#/gear') || h.startsWith('#/favorites') },
+    { key: 'clothes', label: 'Clothes|tab', href: '#/wardrobe', match: (h) => h.startsWith('#/wardrobe') },
+    { key: 'blocks', label: 'Building blocks', href: '#/blocks', match: (h) => h.startsWith('#/blocks') },
+  ],
+  bikes: [
+    { key: 'overview', label: 'Overview|tab', href: '#/bikes', match: (h) => h.startsWith('#/bikes') && !/[?&]tab=(care|shop|compare)/.test(h) },
+    { key: 'care', label: 'Care|tab', href: '#/bikes?tab=care', match: (h) => h.startsWith('#/care') || (h.startsWith('#/bikes') && /[?&]tab=care/.test(h)) },
+    { key: 'shop', label: 'Workshop|tab', href: '#/bikes?tab=shop', match: (h) => h.startsWith('#/bikes') && /[?&]tab=shop/.test(h) },
+    { key: 'fit', label: 'Measurements|tab', href: '#/bikes?tab=compare', match: (h) => h.startsWith('#/bikes') && /[?&]tab=compare/.test(h) },
+  ],
+  active: [
+    { key: 'today', label: 'Today|active', href: '#/flow', match: (h) => /^#\/flow\/?$/.test(h.split('?')[0]) },
+    { key: 'goals', label: 'Goals|tab', href: '#/flow/goals', match: (h) => h.startsWith('#/flow/') },
+  ],
+};
+
+/** The entry of PLACE_TABS an address belongs to (its key), or null. */
+export function tabOf(place, hash = '') {
+  const h = hash || '#/';
+  return (PLACE_TABS[place] ?? []).find((x) => x.match(h))?.key ?? null;
+}
+
+/**
+ * Which place a page belongs to. 'me' (v0.76.0): «Ich» top right, with the Inbox, the notes, your
+ * data and what the app can do.
+ */
 export function placeOf(page) {
-  if (page === 'home' || page === 'features' || page === 'flow') return 'today';
+  if (page === 'home') return 'today';
+  if (page === 'flow') return 'active';
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
+  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features') return 'me';
   return null;
 }

@@ -13,7 +13,7 @@
   let { states = [], today, cols = 2 } = $props();
 </script>
 
-<ul class="tg" style:--cols={cols}>
+<ul class="tg" style:--cols={cols} style:--min={cols > 2 ? '150px' : '0px'}>
   {#each states as s (s.act.id)}
     <li>
       <button
@@ -35,7 +35,9 @@
 <style>
   .tg {
     display: grid;
-    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    /* at most --cols columns; v0.76.0 «Fünf Orte»: next to the sidebar a row of 5 is too narrow, so
+       a tile is at least 150 px wide on a computer (fewer per row), names stay whole */
+    grid-template-columns: repeat(auto-fill, minmax(max(var(--min, 0px), calc((100% - (var(--cols) - 1) * 8px) / var(--cols))), 1fr));
     gap: 8px;
     margin: 0;
     padding: 0;

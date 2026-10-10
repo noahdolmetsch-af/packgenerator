@@ -1,6 +1,7 @@
 // v0.38.0 (Noah 11a-13a): the menu "More", "New" and the search find every page, each once.
+// v0.76.0 «Fünf Orte» 1: «More» is gone; every page lives under its place or in «Ich» (#/me).
 import { describe, it, expect } from 'vitest';
-import { MORE_GROUPS, MORE_ROWS, ACTIONS } from '../src/lib/nav/menu.js';
+import { PAGE_GROUPS, PAGE_ROWS, ACTIONS } from '../src/lib/nav/menu.js';
 import { PLACES, pageOf } from '../src/lib/nav.js';
 import { searchAll } from '../src/lib/search.js';
 
@@ -12,25 +13,27 @@ const ELSEWHERE = {
   share: 'a shared link only',
   gearimport: 'Gear → Import (the import flow)',
 };
-const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'notes', 'debrief', 'gearimport', 'wardrobe'];
+const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'notes', 'debrief', 'gearimport', 'wardrobe', 'flow', 'me', 'blockcheck'];
 // v0.49.0 R1: #/review is part of the one Rückblick page (#/debrief) now; nav.js redirectOf leads there.
 
-describe('the menu "More"', () => {
-  it('has the four groups Noah chose (v0.46.3: the packing-list group of 0.46.1 is gone again)', () => {
-    expect(MORE_GROUPS.map((g) => g.key)).toEqual(['plan', 'back', 'gear', 'app']);
-    expect(MORE_GROUPS.find((g) => g.key === 'plan').rows.map((r) => r.id)).toEqual(['templates', 'blocks']);
-    expect(MORE_GROUPS.find((g) => g.key === 'app').rows.map((r) => r.id)).toEqual(['flow', 'inbox', 'notes', 'data', 'features']);
+describe('the pages under the places and «Ich» (v0.76.0)', () => {
+  it('groups the pages by their place, «Ich» last', () => {
+    expect(PAGE_GROUPS.map((g) => g.key)).toEqual(['trips', 'gear', 'active', 'me']);
+    expect(PAGE_GROUPS.find((g) => g.key === 'trips').rows.map((r) => r.id)).toEqual(['templates', 'debriefs', 'past', 'learnings', 'pace']);
+    expect(PAGE_GROUPS.find((g) => g.key === 'me').rows.map((r) => r.id)).toEqual(['inbox', 'notes', 'data', 'features', 'me']);
   });
 
-  it('lists every page exactly once across the places and "More"', () => {
-    const hrefs = [...PLACES.map((p) => p.href), ...MORE_ROWS.filter((r) => r.href).map((r) => r.href)];
+  it('every page is reached by a place or a page row (the places\' own pages once)', () => {
+    const rows = PAGE_ROWS.filter((r) => r.href).map((r) => r.href);
+    expect(new Set(rows).size).toBe(rows.length);
+    const hrefs = [...PLACES.map((p) => p.href), ...rows.filter((h) => !PLACES.some((p) => p.href === h))];
     expect(new Set(hrefs).size).toBe(hrefs.length);
     const reached = new Set(hrefs.map((h) => pageOf(h)));
     for (const page of PAGES) expect(reached.has(page) || page in ELSEWHERE, page).toBe(true);
   });
 
   it('has no row twice', () => {
-    const ids = MORE_ROWS.map((r) => r.id);
+    const ids = PAGE_ROWS.map((r) => r.id);
     expect(new Set(ids).size).toBe(ids.length);
     const actions = ACTIONS.map((a) => a.id);
     expect(new Set(actions).size).toBe(actions.length);

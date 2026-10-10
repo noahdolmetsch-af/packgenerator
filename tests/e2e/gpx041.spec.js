@@ -7,6 +7,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { newButton } from './newbutton.js';
 import { makeGpx } from '../test_data_gtp_gpx.js';
 
 const tr = (lang) => (en, vars) => {
@@ -81,7 +82,7 @@ for (const lang of ['en', 'de']) {
 
     // 1. New → "Upload ride" (Fahrt hochladen)
     await page.goto('./#/');
-    await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
+    await (await newButton(page, T('New'))).click();
     await page.getByRole('dialog', { name: T('New') }).getByRole('link', { name: new RegExp(`^${T('Upload ride')}`) }).click();
     await expect(page).toHaveURL(/#\/debrief\/ride$/);
     await expect(page.getByRole('heading', { level: 1, name: T('Upload ride') })).toBeVisible();
