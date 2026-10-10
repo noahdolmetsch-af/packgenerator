@@ -42,6 +42,7 @@ const ROUTES = [
   ['#/inbox', 'Eingang'],
   ['#/notes', 'Notizen'], // v0.48.0
   ['#/features', 'Funktionen'],
+  ['#/helper', 'Helfer'], // v0.67.0 KI-Helfer: the settings, before the setup
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

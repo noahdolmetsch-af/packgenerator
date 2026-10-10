@@ -92,6 +92,7 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Velos | Setup: Block «Masse» | 9.10.2026 (0.62 neu: Karte immer offen, 2/4 Spalten, Bearbeiten an Ort, Rückgängig) | 4 |
 | Weiteres | Eingang, Ablegen-Blatt, Notizen, Notiz-Blatt | 9.10.2026 (0.48 neu nach Mockup) | 3 |
 | Weiteres | Funktionen-Seite | – | – |
+| Weiteres | Helfer: Einstellungen, Hinweis «noch nicht eingerichtet», Vorschlagskarte in Neue Tour, Antwort in der Suche, Entwurf im Rückblick, Liste prüfen, Zeilen in «Jetzt fällig» | 10.10.2026 (0.67 neu nach den Mockups ki-helfer: neue-tour, suche, rueckblick, liste-pruefen, wartung, einrichten) | 4 |
 
 Geplante Screens (zuerst Mockup): Im Flow (Woche, Tennis, Neuland), Einkaufszettel, Lebenslauf eines Teils, Werkstatt-Anleitungen.
 
@@ -111,6 +112,8 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Auswahl-Chips (`.chip`, aria-pressed) aus 0.48 als gemeinsamer Baustein in `app.css`: heute lokal in FileSheet, NoteSheet, PartFlow, CareTab, ShopTab, Inbox. Ziel 0.49.
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
+- Helfer-Karten (`src/lib/helper/helper.css`, Klassen `kh-*`): nur Tokens, aber eine eigene Karte, Chips und Listenzeile statt der Baukasten-Teile Card, Chip und Row. In den Baukasten überführen, wenn diese als Komponenten da sind. Ziel 0.68.
+
 ## Protokoll
 
 - 9.10.2026: Regel eingeführt. Erste Runde gestartet: Neuentwurf Kleiderschrank, Material, Tour und Velos sowie erste Mockups für Im Flow und 0.47.
@@ -126,3 +129,4 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - 9.10.2026, 0.61.0 R2 «Tempo + Logbuch»: Tempo (Regel in einem Satz, Rückweg zur Standardregel, drei MiniBars), Logbuch (flache Tagebuchliste mit Filter Jahr/Reiseart), Gelernt (flach nach Thema). Mitgezogen: Rückblick-Karten Tempo und Logbuch, Hinweis in der Route (Packen). Wächter: Stil nur gesunken (Debrief.svelte 13 → 8, Pace.svelte 1 → 0); Konsistenz-Test prüft zusätzlich `#/debrief/logbook` (0 Befunde). Bilder: `design/v0530/vorher` und `nachher`.
 - 9.10.2026, 0.49.0 R1 «Rückblick ruhig»: Rückblick als eine Seite, Vergangene Touren als Tabelle (am Handy mit stehender Namensspalte), gespeicherter Tour-Rückblick nach drei «A». Mitgezogen: Breadcrumbs auf Rückblick, Vergangene Touren und den Unterseiten Tempo/Gelernt/Logbuch; «Mehr › Rückblick», Heute (Rückblick-Knopf, 12-Monate-Zeile), Tipps. Wächter-Grundlinie: Stil nur gesunken (Compare/Review gelöscht, Debrief/PastTrips weniger), Konsistenz-Test prüft statt `#/review` jetzt `#/debrief/learnings` und `#/debrief/pace`. Bilder: `design/v0490/vorher` und `nachher`.
 - 9.10.2026, 0.65.0 «Velo-Masse»: neue Karte «Masse» oben auf jedem Velo (Baukasten: `.card`, Typo-Tokens, keine neuen Farben; Wert-Knöpfe 44 px; kein seitliches Scrollen bei 320/390). Velos vergleichen: Gruppe «Masse» zuerst. «Druck geprüft» zeigt Soll und zuletzt gemessen. Bilder: `design/v0620/vorher` und `nachher` (1440 + 390, hell + dunkel). Wächter unverändert grün (Note 4).
+- 10.10.2026, 0.67.0 «KI-Helfer»: Helfer an fünf Orten nach den Mockups ki-helfer (1440/390, hell/dunkel): Vorschlagskarte oben in «Neue Tour», Antwort über den Suchtreffern, «Entwurf vom Helfer» unter «Was war anders?», «Liste prüfen» als Karte über der Liste, Helfer-Karten in «Jetzt fällig» (Velopflege, gleiche Kartenform wie die fälligen Teile). Neue Seite Mehr › Helfer (in den Wächter-Routen und im Gesamttest). Nur Tokens, 44-px-Ziele am Handy, kein seitliches Scrollen bei 320/390. Mitgezogen: Neue Tour und Einstellungen zeigen denselben Hinweis vor der Einrichtung; Offen: Angleichen der Helfer-Karten an den Baukasten (Ziel 0.68).

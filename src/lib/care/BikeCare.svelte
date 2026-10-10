@@ -86,9 +86,11 @@
   let hmsg = $state('');
   let hnote = $state('');
   const hdata = $derived(open && isOn() ? JSON.stringify([bike.km, bike.parts, tasks.length]) : '');
+  // A moment after the bike's data settles (the page fills in steps), never once per step.
   $effect(() => {
     if (!hdata) return;
-    untrack(() => loadHelper());
+    const wait = setTimeout(() => untrack(() => loadHelper()), 700);
+    return () => clearTimeout(wait);
   });
   async function loadHelper() {
     if (isPaused() && !hres) hmsg = errorText('paused', { capChf: helper.capChf });

@@ -126,6 +126,14 @@
     min-height: 44px;
     margin-top: 8px;
   }
+  /* the status and this month's spend stay visible on a phone too (elsewhere .kh-r hides there) */
+  .helper-page .kh-head {
+    flex-wrap: wrap;
+  }
+  .helper-page .kh-head .kh-r {
+    display: inline;
+    white-space: normal;
+  }
   .hp-what {
     margin-top: 0;
     border-top: 0;

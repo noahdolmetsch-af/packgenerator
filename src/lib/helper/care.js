@@ -35,7 +35,19 @@ export async function careInput(bike, today = localDay()) {
  * The suggestions of one bike: from the cache when the data is the same (or already asked today),
  * else asked anew. Returns { result, hash, state, error }.
  */
-export async function careSuggestions(bike, { today = localDay() } = {}) {
+// One request per bike at a time: a second call waits for the first and then finds it in the cache.
+const inflight = new Map();
+export async function careSuggestions(bike, opts = {}) {
+  while (inflight.has(bike.id)) await inflight.get(bike.id).catch(() => null);
+  const run = suggestionsOf(bike, opts);
+  inflight.set(bike.id, run);
+  try {
+    return await run;
+  } finally {
+    inflight.delete(bike.id);
+  }
+}
+async function suggestionsOf(bike, { today = localDay() } = {}) {
   const input = await careInput(bike, today);
   const hash = careHash(input);
   const state = await careState();

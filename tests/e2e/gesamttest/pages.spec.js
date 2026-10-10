@@ -43,6 +43,18 @@ const CASES = [
   },
   { id: 'today-data', hash: '#/', act: async (page) => tap(page.locator('details.data > summary')) },
   { id: 'features', hash: '#/features' },
+  // v0.67.0 KI-Helfer: the settings and New trip before the setup (the notice with «Was geht an Claude?» open)
+  { id: 'helper', hash: '#/helper' },
+  {
+    id: 'new-trip-helper',
+    hash: '#/pack',
+    trip: TRIP.event,
+    act: async (page, T) => {
+      await tap(page.getByLabel(T('More: other trip, edit trip, templates, print')).filter({ visible: true }));
+      await tap(page.getByRole('button', { name: T('New trip'), exact: true }).filter({ visible: true }));
+      await tap(page.getByRole('dialog', { name: T('New trip') }).getByText(T('What goes to Claude?')));
+    },
+  },
   { id: 'plan-event', hash: '#/pack', trip: TRIP.event },
   { id: 'plan-event-before', hash: '#/pack', trip: TRIP.event, act: async (page, T) => tap(page.locator('summary, button').filter({ hasText: T('Before the trip') })) },
   { id: 'plan-ski', hash: '#/pack', trip: TRIP.ski },
