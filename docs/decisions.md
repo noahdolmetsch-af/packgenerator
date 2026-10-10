@@ -555,6 +555,13 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid:** Q1 ist pro Velo an, sobald es Fahrten im Buch hat (Antwort 6a), und lässt sich pro Velo ausblenden. Startpunkte für Teile sind ein Vorschlag, nie Pflicht; ein Teil von einem anderen Velo bringt «km schon am Teil» mit (Schritt 3 in einfacher Form, ohne automatisches Umziehen).
 - **Grund:** Noah holt ein neues Velo ab und will dessen km von Anfang an lückenlos und nachvollziehbar; die Strava-Werte weichen heute ohne Erklärung ab.
 
+## 10.10.2026: Regel «Fahrt-Typ» im Import (0.69.1, Noahs Entscheid zur Datenbasis 10.10.2026)
+
+- **Entscheid:** Jedes Velo hat bei Noah einen eigenen Garmin-Fahrt-Typ (Gravel → Gravel Ride, MTB → Mountain Bike Ride, E-MTB → E-Mountain Bike Ride, Arbeitsweg → Ride). Der Import kennt darum eine vierte Regel-Art «Fahrt-Typ» (Fahrt-Typ → Velo). Reihenfolge jetzt: Sensor (sicher) › Strava-Velo › Profil-Regel › Fahrt-Typ-Regel (je wahrscheinlich) › du. Ersetzt den Satz «der Aktivitätstyp entscheidet nie» aus 0.68.0.
+- **Entscheid:** Eine Fahrt-Typ-Regel zählt nur, wenn Noah sie selbst angelegt hat (nichts vorbefüllt, keine Namen im Repo) und nur für genau ein Velo. Sagt der Sensor, Strava oder das Profil ein anderes Velo, kommt die Fahrt zu «Prüfen». Bei einem Profil für mehrere Velos entscheidet eine Fahrt-Typ-Regel, die eines davon nennt.
+- **Entscheid (selbst):** FIT-Dateien liefern den Fahrt-Typ in Strava-Wörtern (Sport/Unter-Sport → «Gravel Ride», «Mountain Bike Ride», «E-Mountain Bike Ride», «E-Bike Ride», «Ride»), damit eine Regel für beide Quellen gilt. Der Typ wird am Eintrag gespeichert.
+- **Grund:** Bei Noah ist der Fahrt-Typ pro Velo eindeutig; ohne diese Regel landeten Fahrten ohne Strava-Velo und ohne Sensor immer in «Prüfen».
+
 ## 10.10.2026: Velo-Blätter (0.69.0, Noahs Antworten V1–V7 a)
 
 - **Entscheid:** Jedes Velo hat eine Mappe mit Blättern (Vorschlag A): unter Velos › Setup unter dem Kopfband, im offenen Velo der Pflege als eine Zeile mit Links. Werkstatt-Auftrag und Abhol-Check stehen zusätzlich dort, wo die Werkstatt lebt (Pflege «Für den Velomech», Werkstatt & Belege); einen eigenen Termin-Datensatz gibt es noch nicht.
@@ -564,3 +571,13 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid:** Die Häkchen des Abhol-Checks werden auf dem Velo gespeichert (`bike.sheets.pickup`, mit dem ersten Häkchen samt den Arbeiten des Auftrags). «In die Pflege übernehmen» schreibt pro abgehakter Arbeit einen Eintrag «Velomech», heute, bei den aktuellen km; ein ersetztes Teil hat damit seinen Startpunkt (Q1), der 1000-km-Check zählt für seine Prüfpunkte, eine Reparatur wird erledigt. Rückgängig ist möglich.
 - **Grund:** Noahs Abhol-Dokument für den Bikemech soll sich aus der App füllen statt von Hand gepflegt zu werden (Ziel 2 «Das Velo im Griff haben»).
 
+## 10.10.2026: Nächste Pakete, Fünf Orte, Velo-Blätter Teil 2, Inspiration (Noahs Antworten am Mittag)
+
+- **Entscheid (Datenbasis):** Die Velo-Namen in der App heissen genau wie die Garmin-Aktivitätsprofile und die Strava-Velos. Jedes Velo hat einen eigenen Garmin-Fahrt-Typ. Die echten Namen liegen nur im privaten Ordner, nie im Repo. Darauf baut die Regel «Fahrt-Typ» in 0.69.1.
+- **Entscheid (N1–N3 a):** Als Nächstes: Mockups für Velo-Blätter Teil 2; 0.69.1 bringt den UI-Test, den Fahrt-Typ als Hinweis und die Funde vom Handy; die Fragen zu Fünf Orte werden jetzt geklärt.
+- **Entscheid (O1.1–O1.5 a, O2.1–O2.6 a):** Fünf Orte wie im Mockup: Tabs am Computer oben und in der Seitenleiste, Inbox als schmale Zeile auf Heute, «+ Neu» schlägt das Passende vor, grosser Titel am Handy, Material in Ocker; fehlende Tabs ausblenden, letzten Tab merken, Wischen am Handy, alte Links mit Hinweis.
+- **Entscheid:** Fünf Orte wird gebaut, ohne vorher eine echte Tour zu fahren (Noah, 11:54). Was eine Tour später zeigt, kommt als Fix-Paket. Fünf Orte startet direkt nach dem Merge von 0.69.1, in einem neuen Thread.
+- **Entscheid (W1–W7 a):** Velo-Blätter Teil 2 (Einfahr-Plan, Repair-Kit, Garantie & Belege, Diebstahl-Blatt) wie im Mockup, als 0.70.0.
+- **Entscheid (Inspiration I1 b, I2 b mit Teilen von a, I3–I7 a):** Inspiration bekommt einen eigenen Platz in der Leiste. Die Ideenkarten und die Link-Sammlung kommen am Schluss zusammen mit Neuland; die vier Start-Packlisten und die Taschen-Tipps kommen mit D5. Nur Links und eigene Eckdaten, keine fremden Texte oder Fotos, keine Liste «Neu auf bikepacking.com».
+- **Entscheid (Brainstorm der fünf Ideen, 12:08):** Im Flow beginnt mit beidem: Tagescheck mit Wochenzielen und Tennis-Seite mit Sporttaschen (IF1 a und b). Neuland ist Rückblick und Ideen-Motor zugleich (NL1 a und b); Neues erkennt die App aus den Strava-Routen (braucht den Server), von Hand eintragen geht auch (NL2 b und a). Die App ist ab jetzt die Hauptliste, die Excel braucht es nur noch für die alten Touren (XI1 a). Mehrfachauswahl kommt überall hin (Material, Vorlagen, Tour-Listen, Pflege) und mit dem Material-Paket D2 (MA1 b, MA2 a). Reihenfolge nach Paket 12: zuerst Neuland, dann Im Flow und Fotoalbum (R1 b). Für das Fotoalbum auf Heute zeichnet Claude neue Vorschläge (FA1).
+- **Grund:** Noah will die nächsten Pakete klar geordnet und das neue Velo von Anfang an sauber in der App.

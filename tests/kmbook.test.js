@@ -3,7 +3,7 @@ import 'fake-indexeddb/auto';
 import {
   bikeKm, kmOn, ledgerRows, ledgerCounts, makeEntry, openingEntry, syncEntry, readingEntry, ledgerStart, inStart,
   parseStravaCsv, stravaTime, zurichDay, parseFit, sameRide, mergeRides, signals, assignRide, planImport, importEntries,
-  reconcile, matches, isoWeek, partStart, partKm, q1Status, monthReport, prevMonth, reasonText, tripSpan, tripRidesIn, sensorShort,
+  reconcile, matches, isoWeek, partStart, partKm, q1Status, monthReport, prevMonth, reasonText, tripSpan, tripRidesIn, sensorShort, fitType, entryDetail,
 } from '../src/lib/kmbook.js';
 import { createDb } from '../src/lib/db.js';
 import { ensureKmBook, setReading, addEntries, updateEntry, applyImport, undoImport, deleteEntries, restoreEntries } from '../src/lib/kmbookdb.js';
@@ -245,6 +245,76 @@ describe('assignment: Sensor › Strava bike › profile rule › you, never sil
     expect(plan.strava[NEU]).toEqual({ km: 141.2, date: '2026-10-04' });
     // the ride before the start day is in the start value already
     expect(plan.rows.find((r) => r.ride.date === '2026-09-04').dup).toBe('start');
+  });
+});
+
+// v0.69.1: one Garmin ride type per bike (fictional bikes): a rule «ride type → bike», made by you, nothing pre-filled
+describe('ride type rule: likely after Strava bike and profile, only for exactly one bike', () => {
+  const RENN = 'test_data_gtp_renn';
+  const typeRules = [
+    { id: 't1', kind: 'type', value: 'Gravel Ride', bikeIds: [GRAVEL] },
+    { id: 't2', kind: 'type', value: 'Mountain Bike Ride', bikeIds: [HT] },
+    { id: 't3', kind: 'type', value: 'E-Mountain Bike Ride', bikeIds: [TRAIL] },
+    { id: 't4', kind: 'type', value: 'Ride', bikeIds: [RENN] },
+  ];
+  const ctx = { bikes: BIKES, rules: typeRules };
+  const name = (id) => BIKES.find((b) => b.id === id).name;
+  it('no rule, no decision: the type alone never picks a bike', () => {
+    expect(assignRide({ km: 30, type: 'Gravel Ride', sensors: [] }, { bikes: BIKES, rules: [] })).toMatchObject({ bikeId: null, sure: 'unclear', reason: { code: 'none' } });
+    // a type named like a bike is no rule either (only profiles and Strava bikes match by name)
+    expect(assignRide({ km: 30, type: 'Demo Gravel', sensors: [] }, { bikes: BIKES, rules: [] }).bikeId).toBeNull();
+  });
+  it('one bike for the type: likely, by the ride type; case and spaces do not matter', () => {
+    expect(assignRide({ km: 30, type: 'Gravel Ride', sensors: [] }, ctx)).toMatchObject({ bikeId: GRAVEL, by: 'type', sure: 'likely', reason: null });
+    expect(assignRide({ km: 12, type: ' mountain bike ride ', sensors: [] }, ctx)).toMatchObject({ bikeId: HT, by: 'type' });
+    expect(assignRide({ km: 25, type: 'E-Mountain Bike Ride', sensors: [] }, ctx)).toMatchObject({ bikeId: TRAIL, by: 'type' });
+    // the commute: a plain «Ride»
+    expect(assignRide({ km: 9, type: 'Ride', sensors: [] }, ctx)).toMatchObject({ bikeId: RENN, by: 'type' });
+  });
+  it('a type rule for two bikes decides nothing alone', () => {
+    const two = [{ id: 'x', kind: 'type', value: 'Ride', bikeIds: [RENN, NEU] }];
+    expect(assignRide({ km: 9, type: 'Ride', sensors: [] }, { bikes: BIKES, rules: two })).toMatchObject({ bikeId: null, sure: 'unclear' });
+    // a rule pointing at a deleted bike only counts the bikes that are there
+    const gone = [{ id: 'y', kind: 'type', value: 'Ride', bikeIds: ['test_data_gtp_gone', RENN] }];
+    expect(assignRide({ km: 9, type: 'Ride', sensors: [] }, { bikes: BIKES, rules: gone })).toMatchObject({ bikeId: RENN, by: 'type' });
+  });
+  it('Strava bike and profile come first; when they agree with the type nothing changes', () => {
+    expect(assignRide({ km: 30, gear: 'Demo Gravel', type: 'Gravel Ride', sensors: [] }, ctx)).toMatchObject({ bikeId: GRAVEL, by: 'gear', sure: 'likely' });
+    expect(assignRide({ km: 30, profile: 'Demo Gravel', type: 'Gravel Ride', sensors: [] }, ctx)).toMatchObject({ bikeId: GRAVEL, by: 'profile', sure: 'likely' });
+  });
+  it('a contradiction with the sensor, the Strava bike or the profile makes the ride unclear', () => {
+    const rules = [...typeRules, { id: 's', kind: 'sensor', value: 'A1B24F2A', bikeIds: [NEU] }];
+    const bySensor = assignRide({ km: 30, type: 'Gravel Ride', sensors: [{ fp: 'A1B24F2A' }] }, { bikes: BIKES, rules });
+    expect(bySensor).toMatchObject({ bikeId: NEU, by: 'sensor', sure: 'unclear', reason: { code: 'conflict', by: 'type', from: 'sensor', said: GRAVEL } });
+    expect(reasonText(bySensor.reason, name)).toBe('Contradiction: the sensor says Demo Neu, the rule for the ride type «Gravel Ride» says Demo Gravel.');
+    const byGear = assignRide({ km: 30, gear: 'Demo Neu', type: 'Gravel Ride', sensors: [] }, ctx);
+    expect(byGear).toMatchObject({ bikeId: NEU, sure: 'unclear', reason: { by: 'type', from: 'gear' } });
+    expect(reasonText(byGear.reason, name)).toBe('Contradiction: Strava says Demo Neu, the rule for the ride type «Gravel Ride» says Demo Gravel.');
+    const byProfile = assignRide({ km: 30, profile: 'Demo Hardtail', type: 'Gravel Ride', sensors: [] }, ctx);
+    expect(reasonText(byProfile.reason, name)).toBe('Contradiction: the profile says Demo Hardtail, the rule for the ride type «Gravel Ride» says Demo Gravel.');
+  });
+  it('a profile for two bikes: the type rule tells them apart when it names one of them', () => {
+    const rules = [...typeRules, { id: 'p', kind: 'profile', value: 'Gravel', bikeIds: [GRAVEL, NEU] }];
+    expect(assignRide({ km: 30, profile: 'Gravel', type: 'Gravel Ride', sensors: [] }, { bikes: BIKES, rules })).toMatchObject({ bikeId: GRAVEL, by: 'type', sure: 'likely' });
+    expect(assignRide({ km: 30, profile: 'Gravel', type: 'Mountain Bike Ride', sensors: [] }, { bikes: BIKES, rules })).toMatchObject({ bikeId: null, reason: { code: 'several' } });
+  });
+  it('a Strava ride with an unknown bike and no profile: no «rule for the profile «–»» (G005)', () => {
+    const a = assignRide({ km: 22, gear: 'Altes Velo', sensors: [] }, { bikes: BIKES, rules: [] });
+    expect(reasonText(a.reason)).toBe('Strava bike «Altes Velo» is unknown here.');
+    expect(reasonText(assignRide({ km: 22, gear: 'Altes Velo', profile: 'Rad', sensors: [] }, { bikes: BIKES, rules: [] }).reason)).toBe('Strava bike «Altes Velo» is unknown here, no rule for the profile «Rad».');
+  });
+  it('the distance check still applies to a ride placed by its type', () => {
+    expect(assignRide({ km: 90, type: 'Ride', sensors: [] }, { ...ctx, usual: { [RENN]: [8, 9, 10] } })).toMatchObject({ bikeId: RENN, sure: 'unclear', reason: { code: 'long' } });
+  });
+  it('FIT files carry the ride type in Strava words; the import keeps it on the entry', () => {
+    expect([fitType(2, 46), fitType(2, 8), fitType(21, 8), fitType(2, 47), fitType(21, 0), fitType(2, 0), fitType(2, 48), fitType(1, 0)]).toEqual(['Gravel Ride', 'Mountain Bike Ride', 'E-Mountain Bike Ride', 'E-Mountain Bike Ride', 'E-Bike Ride', 'Ride', 'Ride', '']);
+    const r = parseFit(fitRide({ start: '2026-10-04T06:00:00Z', km: 41, profile: 'Unbekannt', subSport: 46 }));
+    expect(r.type).toBe('Gravel Ride');
+    const plan = planImport([r], { bikes: BIKES, rules: typeRules, entries: [] });
+    expect(plan.rows[0]).toMatchObject({ bikeId: GRAVEL, by: 'type', sure: 'likely' });
+    const [entry] = importEntries(plan, {}, 'imp-type');
+    expect(entry).toMatchObject({ bikeId: GRAVEL, by: 'type', state: 'counted', type: 'Gravel Ride' });
+    expect(entryDetail(entry)).toBe('Edge 1040 · Profile Unbekannt · Ride type Gravel Ride');
   });
 });
 

@@ -2,6 +2,8 @@
   import { Flower2, BicepsFlexed, PersonStanding, Accessibility, Footprints, Volleyball, Bike, Goal, Mountain, Dumbbell, Activity, Flame, Waves, TreePine, Heart, Moon, Snowflake, Leaf } from '@lucide/svelte';
   /** v0.51.0 «Im Flow»: the symbols an activity can have (the editor offers them in this order). */
   export const ACT_ICONS = { lotus: Flower2, pushup: BicepsFlexed, stretch: PersonStanding, yoga: Accessibility, run: Footprints, tennis: Volleyball, bike: Bike, hockey: Goal, climb: Mountain, gym: Dumbbell, spin: Activity, sauna: Flame, swim: Waves, walk: TreePine, ski: Snowflake, leaf: Leaf, moon: Moon, heart: Heart };
+  /** v0.69.1 (Gesamttest G-Befund): what each symbol shows, for the screen reader (English keys for t()). */
+  export const ACT_ICON_NAMES = { lotus: 'Lotus|icon', pushup: 'Arm|icon', stretch: 'Standing person|icon', yoga: 'Yoga pose|icon', run: 'Footprints|icon', tennis: 'Ball|icon', bike: 'Bike|icon', hockey: 'Goal|icon', climb: 'Mountain|icon', gym: 'Dumbbell|icon', spin: 'Pulse|icon', sauna: 'Flame|icon', swim: 'Waves|icon', walk: 'Tree|icon', ski: 'Snowflake|icon', leaf: 'Leaf|icon', moon: 'Moon|icon', heart: 'Heart|icon' };
 </script>
 
 <script>

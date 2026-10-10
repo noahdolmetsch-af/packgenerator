@@ -151,6 +151,10 @@ test.describe('Pack tab on a phone', () => {
   });
 
   test('B10: all packed shows a clear card, the next step is the main button', async ({ page, context }, info) => {
+    // A day ride made after 14:00 is for tomorrow (dayride.js LATE_HOUR), and then the card only says
+    // «Alles ist drin.». Pin the clock to late morning today (Zurich calendar day), so the ride is today.
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Zurich' }).format(new Date());
+    await page.clock.setFixedTime(new Date(`${today}T10:00:00Z`));
     await start(page, context, info);
     await packTab(page);
     await expect(page.locator('.pd .alldone')).toHaveCount(0);

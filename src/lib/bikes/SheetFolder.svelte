@@ -83,7 +83,7 @@
             {#if s.since && !seen.includes(s.key)}<span class="new">{t('new|sheet')}</span>{/if}
             <span class="nm">{t(s.name)}</span>
             <span class="sb">{t(s.sub)}</span>
-            {#if state[s.key]}<span class="st {state[s.key].tone}">{state[s.key].text}</span>{/if}
+            {#if state[s.key]}<span class="st {state[s.key].tone}" title={state[s.key].text}>{state[s.key].text}</span>{/if}
           </a>
         </li>
       {/each}
@@ -229,6 +229,12 @@
     background: var(--paper-2);
     color: var(--ink-2);
     font: 500 var(--fs-tiny) / 1.6 var(--font-body);
+    /* v0.69.1 (mockup round): one line, never a two-line pill; the full text as title */
+    max-width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .st.ok {
     background: var(--accent-soft);
@@ -276,6 +282,12 @@
   @media (max-width: 900px) {
     .grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  /* v0.69.1: two cards side by side on a phone: a little less padding, so «noch nicht begonnen» fits */
+  @media (max-width: 480px) {
+    .sheet {
+      padding: 12px;
     }
   }
   @media (max-width: 340px) {

@@ -8,7 +8,8 @@
 // are real findings carry the G-ID of /mnt/project-files/design/gesamttest/befunde-runde1.md.
 import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { start, prepare, openData, importBackup, table, snapshot, integrity, ticks, comparable, fixture, tr, esc, day, P, step1, step2, track, gpxText, gearFile, shot, sideways } from './lib.js';
+import { start, prepare, openData, importBackup, table, snapshot, integrity, ticks, comparable, fixture, tr, esc, day, P, step1, step2, track, gpxText, gearFile, shot, sideways, brokenWords } from './lib.js';
+import { fitRide } from '../../fixtures/fit.js';
 
 const LANG = 'de';
 const T = tr(LANG);
@@ -537,4 +538,145 @@ test('S8 demo clock +12 months', async ({ page, context }, info) => {
     expect.soft(comparable({ [name]: db2[name] })[name], `a year later, only looking changed ${name}`).toEqual(comparable({ [name]: db1[name] })[name]);
   await noProblems(page, 'S8');
   await page.evaluate(() => localStorage.removeItem('demo.clockOffset'));
+});
+
+/* ---------- v0.69.1 Gesamttest-Runde: the 0.68 ride ledger and the 0.69 Velo-Blätter on the big data set ---------- */
+
+/** A Strava CSV date («Oct 9, 2026, 7:00:00 AM», UTC) for a Zurich calendar day and an hour. */
+const stravaDate = (iso, h) => {
+  const d = new Date(`${iso}T${String(h).padStart(2, '0')}:00:00Z`);
+  return `"${d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' })} ${d.getUTCDate()}, ${d.getUTCFullYear()}, ${h % 12 || 12}:00:00 ${h < 12 ? 'AM' : 'PM'}"`;
+};
+
+test('S9 import rides: a ride type rule places the ride, take over, undo', async ({ page, context }, info) => {
+  const errors = await start(page, context, info, { lang: LANG });
+  const { summary } = fixture();
+  const [HT, , GRAVEL] = summary.bikeIds;
+  const bikes0 = await table(page, 'bikes');
+  const name = Object.fromEntries(bikes0.map((b) => [b.id, b.name]));
+  // the migrated counters start their ledgers on bike.kmDate (fixture: 2 to 5 days ago): rides after that
+  const csv = [
+    'Activity ID,Activity Date,Activity Name,Activity Type,Elapsed Time,Distance,Commute,Activity Gear',
+    `9101,${stravaDate(day(0), 6)},${P} Albis gravel,Gravel Ride,7200,41.2,false,${name[GRAVEL]}`,
+    `9102,${stravaDate(day(0), 15)},${P} Trail abend,Mountain Bike Ride,3000,14.0,false,`,
+    `9103,${stravaDate(day(0), 5)},${P} Arbeitsweg,Ride,1800,9.5,true,`,
+    `9104,${stravaDate(day(0), 17)},${P} Lauf,Run,1800,8.0,false,`,
+  ].join('\n');
+  const csvFile = info.outputPath('activities.csv');
+  writeFileSync(csvFile, csv);
+  const fitFile = info.outputPath('gravel.fit');
+  writeFileSync(fitFile, fitRide({ start: `${day(0)}T12:00:00Z`, km: 33.3, profile: `${P} Sonst`, subSport: 46 }));
+
+  await page.goto(`./#/bikes?tab=care&bike=${GRAVEL}&open=1`);
+  await page.getByRole('link', { name: T('Import rides') }).or(page.getByRole('button', { name: T('Import rides') })).first().click();
+  await expect(page).toHaveURL(/view=import/);
+  await page.getByLabel(T('Choose files')).setInputFiles([csvFile, fitFile]);
+  const check = page.locator('section.check');
+  // without a rule the type decides nothing: the MTB ride, the commute and the FIT ride wait in «Check»
+  await expect(check.locator('li.ir')).toHaveCount(3);
+  // a ride type rule, made here (nothing is pre-filled): Mountain Bike Ride → Hardtail, Gravel Ride → Gravel
+  for (const [type, bike] of [['Mountain Bike Ride', HT], ['Gravel Ride', GRAVEL]]) {
+    await page.getByRole('button', { name: `+ ${T('Rule')}` }).click();
+    const nr = page.locator('.newrule');
+    await nr.locator('select').selectOption('type');
+    await nr.getByLabel(T('Ride type, as in Strava (e.g. Gravel Ride)')).fill(type);
+    await nr.getByRole('button', { name: name[bike] }).click();
+    await nr.getByRole('button', { name: T('Add') }).click();
+  }
+  const rules = page.locator('ol.rules');
+  await expect(rules).toContainText(T('Ride type «{type}»', { type: 'Mountain Bike Ride' }));
+  await expect(rules).toContainText(T('Ride type «{type}»', { type: 'Gravel Ride' }));
+  // only the commute («Ride», no rule) is left to check; the rules are stored with the backup
+  await expect(check.locator('li.ir')).toHaveCount(1);
+  await expect(check).toContainText(`${P} Arbeitsweg`);
+  expect((await table(page, 'settings')).find((x) => x.key === 'kmRules').value.map((r) => [r.kind, r.value, r.bikeIds])).toEqual([['type', 'Mountain Bike Ride', [HT]], ['type', 'Gravel Ride', [GRAVEL]]]);
+  const ht = page.locator(`section.pb[aria-labelledby="pb-${HT}"]`);
+  await ht.getByRole('button', { name: T('show') }).click().catch(() => {});
+  await expect(ht).toContainText(T('Ride type rule'));
+  expect(await brokenWords(page), 'import: words broken in the middle').toEqual([]);
+  await shot(page, 's9-import');
+  await page.getByRole('button', { name: T('Take over'), exact: true }).click();
+  await expect(page).toHaveURL(/tab=care/);
+  const mine = async () => (await table(page, 'kmBook')).filter((e) => e.importId);
+  await expect.poll(async () => (await mine()).length).toBe(4);
+  const got = Object.fromEntries((await mine()).map((e) => [e.name || e.source, [e.bikeId, e.by, e.state, e.type]]));
+  expect(got).toEqual({
+    [`${P} Albis gravel`]: [GRAVEL, 'gear', 'counted', 'Gravel Ride'],
+    [`${P} Trail abend`]: [HT, 'type', 'counted', 'Mountain Bike Ride'],
+    [`${P} Arbeitsweg`]: [null, null, 'open', 'Ride'],
+    fit: [GRAVEL, 'type', 'counted', 'Gravel Ride'],
+  });
+  const km = async (id) => (await table(page, 'bikes')).find((b) => b.id === id).km;
+  expect(await km(GRAVEL)).toBe(Math.round(bikes0.find((b) => b.id === GRAVEL).km + 41.2 + 33.3));
+  expect(await km(HT)).toBe(bikes0.find((b) => b.id === HT).km + 14);
+  // Undo on the bike page takes it all back
+  await page.getByRole('button', { name: T('Undo') }).first().click();
+  await expect.poll(async () => (await mine()).length).toBe(0);
+  expect(await km(GRAVEL)).toBe(bikes0.find((b) => b.id === GRAVEL).km);
+  expect(await km(HT)).toBe(bikes0.find((b) => b.id === HT).km);
+  await noProblems(page, 'S9');
+  expect(errors).toEqual([]);
+});
+
+// the sheets in the folder's order, read from the app source (sheets.js imports the Svelte i18n, so it is read as text)
+const SHEETS_SRC = readFileSync(new URL('../../../src/lib/sheets.js', import.meta.url), 'utf8');
+const SHEETS = [...SHEETS_SRC.slice(SHEETS_SRC.indexOf('export const SHEETS'), SHEETS_SRC.indexOf('];', SHEETS_SRC.indexOf('export const SHEETS'))).matchAll(/\{ key: '(\w+)', name: '([^']+)'/g)].map((m) => ({ key: m[1], name: m[2] }));
+
+test('S10 Velo-Blaetter: every sheet, copy as text, pick-up check into care, undo', async ({ page, context }, info) => {
+  await context.addInitScript(() => {
+    window.__copied = [];
+    Object.defineProperty(Navigator.prototype, 'clipboard', { value: { writeText: async (s) => window.__copied.push(s) }, configurable: true });
+  });
+  const errors = await start(page, context, info, { lang: LANG });
+  const { summary } = fixture();
+  const GRAVEL = summary.bikeIds[2];
+  const bike0 = (await table(page, 'bikes')).find((b) => b.id === GRAVEL);
+  expect(SHEETS.length).toBeGreaterThanOrEqual(4);
+  for (const sh of SHEETS) {
+    await page.goto(`./#/bikes?bike=${GRAVEL}&sheet=${sh.key}`);
+    await expect(page.locator('main')).toContainText(T(sh.name));
+    await page.getByRole('button', { name: T('Copy text') }).click();
+    await expect.poll(() => page.evaluate(() => window.__copied.length)).toBeGreaterThan(0);
+    const text = await page.evaluate(() => window.__copied.at(-1));
+    // the copied text starts with the sheet and names the bike; km as the app shows them
+    expect(text.split('\n')[0].length, `${sh.key}: copied text`).toBeGreaterThan(3);
+    expect(text, `${sh.key}: the bike`).toContain(bike0.name);
+    expect(await brokenWords(page), `${sh.key}: words broken in the middle`).toEqual([]);
+    const s = await sideways(page);
+    expect(s.sw, `${sh.key}: sideways`).toBeLessThanOrEqual(s.w);
+  }
+  // Pick-up check: tick the first job, take the ticked work into care, then undo
+  await page.goto(`./#/bikes?bike=${GRAVEL}&sheet=pickup`);
+  const boxes = page.locator('main label.ck input[type=checkbox]');
+  await boxes.first().check();
+  await expect(page.getByRole('button', { name: T('Take the ticked work into care') })).toBeEnabled();
+  const histories = async () => ((await table(page, 'bikes')).find((b) => b.id === GRAVEL).parts ?? []).reduce((n, p) => n + (p.history ?? []).length, 0);
+  const h0 = await histories();
+  await page.getByRole('button', { name: T('Take the ticked work into care') }).click();
+  await expect.poll(histories).toBeGreaterThan(h0);
+  await page.getByRole('button', { name: T('Undo') }).first().click();
+  await expect.poll(histories).toBe(h0);
+  await noProblems(page, 'S10');
+  expect(errors).toEqual([]);
+});
+
+test('S11 Setup: the chosen bike tab is fully in view; a cut row fades instead of a hard edge (G008)', async ({ page, context }, info) => {
+  const errors = await start(page, context, info, { lang: LANG });
+  const { summary } = fixture();
+  for (const id of summary.bikeIds) {
+    await page.goto(`./#/bikes?bike=${id}`);
+    const strip = page.locator('.strip[role="tablist"]');
+    const sel = strip.locator('[aria-selected="true"]');
+    await expect(sel).toBeVisible();
+    await expect
+      .poll(async () => {
+        const [a, b] = await Promise.all([sel.boundingBox(), strip.boundingBox()]);
+        return a.x >= b.x - 1 && a.x + a.width <= b.x + b.width + 1;
+      }, { message: `${id}: chosen tab inside the row` })
+      .toBe(true);
+    // a row scrolled away from its start fades at the left (no tab cut hard at the edge)
+    const st = await strip.evaluate((el) => ({ left: el.scrollLeft, less: el.classList.contains('less') }));
+    expect(st.less, `${id}: fade at the left when scrolled`).toBe(st.left > 2);
+  }
+  expect(errors).toEqual([]);
 });

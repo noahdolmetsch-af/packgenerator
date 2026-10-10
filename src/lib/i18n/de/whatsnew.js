@@ -8,6 +8,12 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.69.1
+  'Import rides knows a new rule: a ride type (for example «Gravel Ride») belongs to one bike. You make the rule yourself in «Rules»; a contradiction still goes to «Check».':
+    'Fahrten importieren kennt eine neue Regel: Ein Fahrt-Typ (zum Beispiel «Gravel Ride») gehört zu einem Velo. Die Regel legst du selbst unter «Regeln» an; ein Widerspruch kommt weiterhin zu «Prüfen».',
+  'A full test of every page and flow: long words on the Bike pass and in the flow no longer break in the middle of a word, and the flow summary names each activity once.':
+    'Ein Gesamttest aller Seiten und Abläufe: Lange Wörter im Velo-Pass und in Im Flow brechen nicht mehr mitten im Wort um, und die Zusammenfassung in Im Flow nennt jede Aktivität nur einmal.',
+
   // 0.69.0
   'Every bike has a folder of sheets: Bike pass, Service plan, Workshop order and Pick-up check. The app fills them from your data; a missing value is an empty line with «enter».':
     'Jedes Velo hat eine Mappe mit Blättern: Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check. Die App füllt sie aus deinen Daten; ein fehlender Wert ist eine leere Zeile mit «eintragen».',
