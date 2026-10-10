@@ -382,7 +382,13 @@
   .vr dt {
     color: var(--ink-2);
     overflow-wrap: break-word;
-    hyphens: auto; /* v0.69.1 G: «Sattelüberhöhung» at 320 px: a syllable break, not mid-letter */
+  }
+  /* v0.69.1 G001: on a small phone (320 px) «Sattelüberhöhung» does not fit half the sheet: label above value */
+  @media (max-width: 359px) {
+    .vr {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2px;
+    }
   }
   .vr dd {
     margin: 0;

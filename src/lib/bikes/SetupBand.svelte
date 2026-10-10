@@ -15,14 +15,27 @@
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
   const bagsG = $derived(setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : '');
   let strip = $state();
-  // The chosen bike's tab stays in view in a long row of tabs.
+  // The chosen bike's tab stays in view in a long row of tabs. v0.69.1 (Gesamttest): in the middle of
+  // the row, so its neighbours show on both sides (no tab cut hard at the left edge), and only the row
+  // scrolls (scrollIntoView also moved the page).
   $effect(() => {
     bike.id;
-    tick().then(() => strip?.querySelector('[aria-selected="true"]')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }));
+    tick().then(() => {
+      const sel = strip?.querySelector('[aria-selected="true"]');
+      if (!sel) return;
+      const a = sel.getBoundingClientRect();
+      const b = strip.getBoundingClientRect();
+      strip.scrollLeft = Math.max(0, strip.scrollLeft + a.left - b.left - (strip.clientWidth - a.width) / 2);
+      measure();
+    });
   });
-  // v0.40.0: more tabs to the right than fit: the row fades out there.
+  // v0.40.0: more tabs to the right than fit: the row fades out there. v0.69.1: also at the left.
   let more = $state(false);
-  const measure = () => (more = !!strip && strip.scrollLeft + strip.clientWidth < strip.scrollWidth - 2);
+  let less = $state(false);
+  const measure = () => {
+    more = !!strip && strip.scrollLeft + strip.clientWidth < strip.scrollWidth - 2;
+    less = !!strip && strip.scrollLeft > 2;
+  };
   $effect(() => {
     bikes.length;
     tick().then(measure);
@@ -52,7 +65,7 @@
     {#if due}<a class="badge due" href={careHref}>{tn(due, '{n} care due', '{n} care due')}</a>{/if}
   </p>
   <div class="tabsrow">
-    <div class="strip" class:more bind:this={strip} onscroll={measure} role="tablist" aria-label={t('Bike')} tabindex="-1" onkeydown={keys}>
+    <div class="strip" class:more class:less bind:this={strip} onscroll={measure} role="tablist" aria-label={t('Bike')} tabindex="-1" onkeydown={keys}>
       {#each bikes as b (b.id)}
         <button type="button" role="tab" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} title={b.name} onclick={() => onbike?.(b.id)}><span class="bn">{b.name}</span></button>
       {/each}
@@ -182,6 +195,14 @@
   .strip.more {
     mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
     -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  }
+  .strip.less {
+    mask-image: linear-gradient(to right, transparent, #000 32px);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 32px);
+  }
+  .strip.less.more {
+    mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
   }
   .strip button,
   .add {
