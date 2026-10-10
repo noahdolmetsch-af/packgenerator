@@ -4,6 +4,7 @@
  */
 import { seedActs, normAct, newEntry, SEED_KEY } from './flow.js';
 import { QUESTIONS_KEY, SEED_QUESTIONS } from './flowcheck.js';
+import { SEED2_KEY, seed2Plan } from './flowtiles.js';
 
 /**
  * The small start: the twelve activities and the question pool, once. A restored backup without
@@ -33,11 +34,12 @@ export const removeEntry = (db, id) => db.flowLog.delete(id);
 export const putEntry = (db, e) => db.flowLog.put(e);
 
 export const saveAct = (db, act) => db.flowActs.put(JSON.parse(JSON.stringify(normAct(act))));
-/** Delete an activity with its history (pausing keeps the history). */
+/** Delete an activity with its history and its session details (pausing keeps them). Stars reached stay. */
 export async function deleteAct(db, id) {
-  await db.transaction('rw', db.flowActs, db.flowLog, async () => {
+  await db.transaction('rw', db.flowActs, db.flowLog, db.flowSessions, async () => {
     await db.flowActs.delete(id);
     await db.flowLog.where('actId').equals(id).delete();
+    await db.flowSessions.where('actId').equals(id).delete();
   });
 }
 /** Save a new order (moveAct in flow.js gives the list). */
@@ -45,3 +47,24 @@ export const saveOrder = (db, list) => db.flowActs.bulkPut(list.map((a) => JSON.
 
 export const saveCheck = (db, check) => db.flowChecks.put(JSON.parse(JSON.stringify(check)));
 export const saveQuestions = (db, list) => db.settings.put({ key: QUESTIONS_KEY, value: JSON.parse(JSON.stringify(list)) });
+
+/* ---------- hobby pages, package 1 (Aktiv › Aktivität, Meilensteine) ---------- */
+/**
+ * Seed 2, once (setting flow.seed2): the playful names, the six favourite tiles and the walk, for new
+ * and existing users, without overwriting their own (flowtiles.js seed2Plan). Runs after the first seed.
+ */
+export async function ensureSeed2(db) {
+  await db.transaction('rw', db.flowActs, db.settings, async () => {
+    const [mark, acts] = await Promise.all([db.settings.get(SEED2_KEY), db.flowActs.toArray()]);
+    if (mark || !acts.length) return;
+    const plan = seed2Plan(acts);
+    if (plan.length) await db.flowActs.bulkPut(JSON.parse(JSON.stringify(plan)));
+    await db.settings.put({ key: SEED2_KEY, value: true });
+  });
+}
+/** Keep the stars reached (flowms.js newStars): they never get lost. */
+export const saveStars = (db, rows) => (rows.length ? db.flowStars.bulkPut(rows) : Promise.resolve());
+/** A setting of the hobby pages (flow.msTune, flow.reward, flow.hiddenSugg); null removes it. */
+export const putSetting = (db, key, value) => (value == null ? db.settings.delete(key) : db.settings.put({ key, value: JSON.parse(JSON.stringify(value)) }));
+/** Several activities at once (favourites, their order, a new one from a suggestion). */
+export const putActs = (db, list) => db.flowActs.bulkPut(list.map((a) => JSON.parse(JSON.stringify(normAct(a)))));

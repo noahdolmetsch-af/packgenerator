@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.79.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'Aktiv has a new tab «Activity»: your six favourite activities as tiles with playful names you can change, each with one line about where you stand.', href: '#/flow/activity' },
+      { text: 'Milestones over all activities: stages from «Anfang» to «Weg», only the next star is shown, a reached star stays. Your own numbers and a reward from the wishlist.', href: '#/flow/milestones' },
+      { text: 'The page suggests more on its own: a few more activities to tick, recovery and fun like sauna or a walk, and ideas. Hide what you do not want.', href: '#/flow/activity' },
+    ],
+  },
+  {
     version: '0.78.0',
     date: '2026-10-10',
     points: [

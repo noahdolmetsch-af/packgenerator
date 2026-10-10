@@ -38,7 +38,7 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (10.10.2026)
+## Stand heute (11.10.2026)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
@@ -53,9 +53,10 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.73.0 | Ruhige Startseite + Fotoband: Gruss in einer Zeile, scharfes Foto (Handy: Band über der Tourkarte, «Album ›»), Vorschlag als schmale Zeile, kein doppeltes «Weitermachen» | live (PR #99) |
 | 0.75.0 | Feinschliff: ein Umbenennen-Blatt überall mit Rückgängig, Zurück-Taste speichert, Import fragt neue Fahrt-Typen einmal, Teile-Fenster mit Zusammenfassung und leichteren Alternativen, Erste Hilfe auf jeder Tour, 44-px-Tippflächen | live |
 | 0.76.0 | Fünf Orte Teil 1: fünf Orte (Aktiv neu), «Ich» oben rechts statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Ortsfarben, Tastenkürzel | live seit 10.10.2026 (PR #100, mit #103) |
-| 0.77.0 | KI-Helfer eingeschaltet (aus PR #89, in Fünf Orte gesetzt, K1–K3 a): Ich › Helfer, «Frag den Helfer» oben in Neue Tour, Antwort in der Suche, «Liste prüfen» neben «Weiter zu Packen» (Handy: Funkel-Knopf links in der Leiste), Rückblick-Entwurf, Wartungsvorschläge in «Jetzt fällig» | gemergt 10.10.2026 (PR #104) |
-| 0.78.0 | Fünf Orte Teil 2: Tabs pro Ort mit Wischen, letzter Tab bleibt, alte Adressen mit Hinweis, «Was ist neu» als Blatt, Touren-Einstieg mit Kacheln und Bestwerten, Rückblick «offen» zuerst, Material › Einkauf | PR offen |
-| – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Teil 1 (0.76.0) live; Teil 2 (0.78.0) als PR offen |
+| 0.77.0 | KI-Helfer eingeschaltet (aus PR #89, in Fünf Orte gesetzt, K1–K3 a): Ich › Helfer, «Frag den Helfer» oben in Neue Tour, Antwort in der Suche, «Liste prüfen» neben «Weiter zu Packen» (Handy: Funkel-Knopf links in der Leiste), Rückblick-Entwurf, Wartungsvorschläge in «Jetzt fällig» | live seit 10.10.2026 (PR #104) |
+| 0.78.0 | Fünf Orte Teil 2: Tabs pro Ort mit Wischen, letzter Tab bleibt, alte Adressen mit Hinweis, «Was ist neu» als Blatt, Touren-Einstieg mit Kacheln und Bestwerten, Rückblick «offen» zuerst, Material › Einkauf | gemergt 10.10.2026 (PR #105) |
+| 0.79.0 | Hobby-Seiten Teil 1: Aktiv › Aktivität (sechs Kacheln mit verspielten Namen, Ringe, Vorschläge, Erholung und Ideen) und Meilensteine über alle Aktivitäten (Stufen, Sterne bleiben, eigene Zahlen, Belohnung) | PR offen |
+| – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Teil 1 (0.76.0) live; Teil 2 (0.78.0) gemergt |
 | – | Startseite & Integrationen E1–E4 | Konzept und Mockups fertig, Fragen beantwortet |
 | – | D5, D2, D4/D6 | Mockups fertig, Fragen werden kurz vor dem Paket gestellt |
 
@@ -68,7 +69,7 @@ Seit 10.10.2026, 09:30 gilt **Prinzip Nr. 1** (siehe [arbeitsweise.md](arbeitswe
 3. **0.69 Velo-Blätter** (Ziel 2, Mockup freigegeben, V1–V7 a, live seit PR #95): Mappe pro Velo mit Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check. Die übrigen vier Blätter (Einfahr-Plan, Repair-Kit, Garantie & Belege, Diebstahl-Blatt) kommen als 0.70.0 «Velo-Blätter Teil 2» (W1–W7 a, live seit PR #98).
 4. **Vollständiger UI-Test** aller Abläufe, Fehler beheben, als Fix-Release: 0.69.1, live (PR #96) (mit der Import-Regel «Fahrt-Typ»).
 5. **Noah packt eine echte Tour** (Tagestour genügt) und schickt die Lücken als Liste.
-6. **Fünf Orte** in zwei Releases, danach E1, D5, D2, D4/D6, E2–E4, KI-Helfer.
+6. **Fünf Orte** in zwei Releases (0.76.0, 0.78.0), KI-Helfer (0.77.0), danach nach Noahs Reihenfolge vom 10.10.2026: **Hobby-Seiten** (Teil 1 = 0.79.0 Aktivität und Meilensteine, Teil 2 Meditation, Teil 3 Liegestütze, Tennis, Yoga, Gym, Velo), E1, D5, Neuland + Inspiration, Reisearten neu.
 
 ### Mockups
 

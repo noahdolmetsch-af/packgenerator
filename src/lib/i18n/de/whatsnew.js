@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.79.0 Hobby-Seiten 1
+  'Aktiv has a new tab «Activity»: your six favourite activities as tiles with playful names you can change, each with one line about where you stand.':
+    'Aktiv hat einen neuen Tab «Aktivität»: deine sechs Lieblings-Aktivitäten als Kacheln mit verspielten Namen, die du ändern kannst, jede mit einer Zeile, wo du stehst.',
+  'Milestones over all activities: stages from «Anfang» to «Weg», only the next star is shown, a reached star stays. Your own numbers and a reward from the wishlist.':
+    'Meilensteine über alle Aktivitäten: Stufen von «Anfang» bis «Weg», nur der nächste Stern wird gezeigt, ein erreichter Stern bleibt. Eigene Zahlen und eine Belohnung von der Wunschliste.',
+  'The page suggests more on its own: a few more activities to tick, recovery and fun like sauna or a walk, and ideas. Hide what you do not want.':
+    'Die Seite schlägt selbst mehr vor: ein paar weitere Aktivitäten zum Abhaken, Erholung und Spass wie Sauna oder Spaziergang, und Ideen. Blende aus, was du nicht willst.',
+
   // 0.78.0 «Fünf Orte» 2
   'Each place has its tabs on top. On a phone you swipe sideways to the next tab; a place opens at the tab you had open last.':
     'Jeder Ort hat oben seine Tabs. Am Handy wischst du seitwärts zum nächsten Tab; ein Ort öffnet sich beim Tab, den du zuletzt offen hattest.',

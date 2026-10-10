@@ -18,7 +18,8 @@
   import { actGoalText, goalsText, oneGoal } from './words.js';
   import { t, locale, lang } from '../i18n.svelte.js';
 
-  let { id, acts = [], log = [], today, tripDays = [] } = $props();
+  // back: where «Save» and the back link lead (hobby pages: #/flow/activity when opened from a tile)
+  let { id, acts = [], log = [], today, tripDays = [], back = '' } = $props();
   const isNew = $derived(id === 'new');
   const orig = $derived(isNew ? null : (acts.find((a) => a.id === id) ?? null));
   let a = $state(null);
@@ -101,7 +102,7 @@
     }
     if (minKey === 'own') out.minMin = Math.max(0, Math.round(Number(minOwn) || 0));
     await saveAct(db, out);
-    location.hash = '#/flow';
+    location.hash = back || '#/flow';
   }
   /*
    * v0.72.0 «Feinschliff» (Umbenennen 1a, 4a): an activity is renamed with the pencil at its title in
@@ -141,7 +142,7 @@
 
 {#if a}
   <div class="ed">
-    <p class="back"><a href={isNew ? '#/flow/goals' : '#/flow'}><ChevronLeft size={16} aria-hidden="true" />{isNew ? t('Goals|flow') : t('In the flow')}</a></p>
+    <p class="back"><a href={back || (isNew ? '#/flow/goals' : '#/flow')}><ChevronLeft size={16} aria-hidden="true" />{back === '#/flow/activity' ? t('Activity|tab') : isNew ? t('Goals|flow') : t('In the flow')}</a></p>
     <h1 class="title">{#if isNew}{t('New activity')}{:else}<span>{name || actName(orig)}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: name || actName(orig) })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={20} aria-hidden="true" /></button>{/if}</h1>
     {#if st}<p class="page-sub">{RING_OPTS.find((r) => r.key === a.ring).name} · {actGoalText(normAct(a), today, { min: false })}{#if !st.resting}{" · "}{t('stand {n}/{m}', { n: st.stand.n, m: st.stand.of })}{/if}</p>{/if}
 

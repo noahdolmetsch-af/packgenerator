@@ -48,7 +48,7 @@ describe('the search finds pages and actions', () => {
   });
 
   it('finds the rarer pages by English or German words', () => {
-    for (const [q, id] of [['packlisten', 'templates'], ['vergangene', 'past'], ['tempo', 'pace'], ['backup', 'data'], ['inbox', 'inbox'], ['favoriten', 'favorites'], ['bausteine', 'blocks'], ['helfer', 'helper']]) {
+    for (const [q, id] of [['packlisten', 'templates'], ['vergangene', 'past'], ['tempo', 'pace'], ['backup', 'data'], ['inbox', 'inbox'], ['favoriten', 'favorites'], ['bausteine', 'blocks'], ['helfer', 'helper'], ['meilenstein', 'milestones'], ['kissenzeit', 'activity']]) {
       const rows = searchAll(q, {}).flatMap((g) => g.rows);
       expect(rows.map((x) => x.id), q).toContain(id);
     }

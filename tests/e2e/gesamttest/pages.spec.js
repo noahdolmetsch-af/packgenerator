@@ -98,6 +98,9 @@ const CASES = [
   { id: 'sheets-all', hash: `#/bikes?bike=${encodeURIComponent(summary.bikeIds[2])}&sheet=all` },
   { id: 'flow', hash: '#/flow' },
   { id: 'flow-new', hash: '#/flow/new' },
+  // hobby pages 1: Aktiv › Aktivität and Meilensteine (mockups A, A2)
+  { id: 'flow-activity', hash: '#/flow/activity' },
+  { id: 'flow-milestones', hash: '#/flow/milestones' },
   { id: 'notes', hash: '#/notes' },
 ];
 
