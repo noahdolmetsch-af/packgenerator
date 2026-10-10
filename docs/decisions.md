@@ -663,3 +663,13 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - Es gibt neun Reisearten: Weekend Sport Trip (2 Nächte), ein paar Tage Berge oder Stadt, Backpacking ab 10 Tagen, ein paar Monate auf dem Bike, Skitouren, Hüttenwanderung, Trail Running, Hochtour, Rennen/Event.
 - Eigene Reisearten lassen sich als Vorlage anlegen (2a).
 - Das ist ein Paket-Kandidat neben D5 Start-Packlisten. Zuerst kommen Mockups. Der Platz in der Reihenfolge ist noch offen.
+
+## 10.10.2026: Fünf Orte Teil 2 in einem Release (Noah, Karte 21:07)
+
+- **Entscheid:** Teil 2 kommt als **ein** Release 0.78.0 (Tabs, Wischen, letzter Tab, alte Adressen, Was ist neu, Touren-Kacheln, Rückblick, Einkauf), nicht in zwei (Empfehlung war zwei).
+- **O2.2a letzter Tab:** pro Ort in `localStorage` (`nav.tab.<ort>`); ein Tipp auf den Ort, auf dem man ist, führt zum ersten Tab.
+- **O2.3a Wischen:** nur am Handy, waagrecht mindestens 60 px und doppelt so weit wie senkrecht, nicht auf Feldern, Dialogen und Streifen, die selbst seitwärts scrollen. Der Hinweis verschwindet nach dem ersten Wischen.
+- **O2.5a Einkauf:** der Tab zeigt heute die Wunschliste (`#/gear?view=wish`); selbst eintragen, Verschleiss und Verbrauchtes kommen mit D2.
+- **O2.6a alte Adressen:** `#/care` → Velos › Pflege (das gewählte Velo bleibt), `#/review` und `#/debrief/compare` → Rückblick, jeweils mit Hinweis zum Schliessen.
+- **Ü9a Was ist neu:** als Blatt nur nach einem echten Update (eine frühere Version war gespeichert); ohne gespeicherte Version (erster Besuch mit Daten, Backup) bleibt die leise Zeile auf Heute.
+- **Touren-Einstieg (T1–T20 a, U1–U5 a):** Bestwerte und Schnitt nur aus hochgeladenen Fahrten (GPX) und der GPX-Route einer Tour, nichts geschätzt; «diese Saison» heisst ab 1. Januar.

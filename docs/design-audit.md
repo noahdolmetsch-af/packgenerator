@@ -111,7 +111,7 @@ Geplante Screens (zuerst Mockup): Im Flow (Woche, Tennis, Neuland), Einkaufszett
 
 Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zielrelease.
 
-- Fünf Orte: die Reiter innerhalb der Seiten (Velos Setup/Pflege/Werkstatt, Material-Ansichten, Im Flow) werden zu den Tabs der Orte mit denselben Namen wie in der Seitenleiste. Ziel 0.72 (Fünf Orte Teil 2).
+- Fünf Orte: die Reiter innerhalb der Seiten (Velos Setup/Pflege/Werkstatt, Material-Ansichten, Im Flow) werden zu den Tabs der Orte mit denselben Namen wie in der Seitenleiste. Erledigt in 0.78.0 (Fünf Orte Teil 2): `BikesNav` gelöscht, Tabs oben pro Ort (`PlaceTabs`).
 
 - Baukasten in `src/lib/ui/` (PageHead, SectionHead, Card, Row, Badge, Button, Stat, Empty, Toast) als echte Komponenten; 0.47 nutzt gemeinsame Klassen in `app.css` (`.surf`, `.zlabel`, `.bignum`, `.tbar`, `.pill`). Ziel 0.48.
 - Wächter-Tests (Stil-Lint, Konsistenz-Test pro Route bei 320/390/1440 hell und dunkel, Bild-Vergleich). Ziel 0.48.
@@ -126,6 +126,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
+- 10.10.2026, 0.78.0 «Fünf Orte» Teil 2: Tabs oben pro Ort nach den Mockups `fuenf-orte-2` (am Handy volle Breite, Punkte und Wisch-Hinweis; am Computer bündig mit der Seite darunter), Hinweis für alte Adressen, «Was ist neu» als Blatt und Touren-Einstieg mit Kacheln nach `uebergaenge2`. Velo-Reiter im Kopfband (`BikesNav`) durch die Orts-Tabs ersetzt. Neue Dateien `PlaceTabs`, `NewsSheet` und die neu gebaute `Trips.svelte` strikt im Stil-Wächter.
 - 10.10.2026, 0.76.0 «Fünf Orte» Teil 1: neue Navigation nach den Mockups `d3-fuenf-orte` und dem Prototyp `fuenf-orte-prototyp`: Seitenleiste am Computer (ab 900 px), helle Leiste mit fünf Orten und runder +-Knopf am Handy, Seite «Ich», Tastenkürzel-Fenster. Ortsfarben als Tokens in `app.css` (`--pc-*`, `--pc`, `--pc-soft`, `--tint`). Neue Dateien strikt im Stil-Wächter, `MoreSheet` gelöscht. Offen für Teil 2: Tabs oben pro Ort; bis dahin heissen die Reiter in Velos noch Setup/Pflege/Werkstatt, in der Seitenleiste schon Übersicht/Pflege/Werkstatt/Masse.
 - 10.10.2026, 0.75.0 «Feinschliff»: neues Umbenennen-Blatt `RenameSheet.svelte` und Toast `RenameToast.svelte` strikt im Stil-Wächter (nur Tokens); Teile-Fenster nach Mockup `material-detail` (Zusammenfassung, Zeile Gewicht, Vorschlagskarten), «Nie gebraucht» leer, Übersicht in «Bausteine prüfen». Tippflächen 44 px am Handy (`touch.css`), Wächter misst jetzt auch `::before` und gestreckte Tippflächen, Baseline gesenkt; offen bleiben «Idee» auf Heute und die Zeichnungs-Punkte in Setup (bewusst begrenzt).
 - 10.10.2026, 0.73.0 «Ruhige Startseite + Fotoband»: Heute nach den Mockups `heute-ruhig` (A Ruhige Karte) und `fotoalbum-neu` (A Fotoband). Foto scharf statt blass (Deckkraft 1), Gruss einzeilig mit `--fs-page`, Vorschlag als schmale Zeile mit hellem Knopf, Fotoband 140 px am Handy; neue Datei `TripPhoto.svelte` strikt im Stil-Wächter (nur Tokens), Home.svelte eine Schriftgrösse weniger in der Baseline. Bilder mit Testdaten im Projektordner `design/heute-ruhig-gebaut`.

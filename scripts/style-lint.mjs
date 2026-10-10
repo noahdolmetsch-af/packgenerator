@@ -59,6 +59,10 @@ export const STRICT_STYLE = [
   'src/lib/nav/MeButton.svelte',
   'src/lib/nav/Keys.svelte',
   'src/pages/Me.svelte',
+  // v0.78.0 «Fünf Orte» 2: the tabs of each place
+  'src/lib/nav/PlaceTabs.svelte',
+  'src/lib/know/NewsSheet.svelte',
+  'src/pages/Trips.svelte',
 ];
 /** The routes of the trip pages and interstitials (tests/e2e/guard.spec.js), strict in the same way. */
 export const STRICT_ROUTES = ['#/pack', '#/pack?day', '#/ride', '#/debrief/test_data_gtp_Napf', '#/trip/test_data_gtp_Herbstrunde/packed', '#/trip/test_data_gtp_Napf/ended', '#/trip/test_data_gtp_Napf/debriefed', '#/bikes?tab=care&view=import&bike=test_data_gtp_spark', '#/bikes?bike=test_data_gtp_spark&sheet=all', '#/bikes?bike=test_data_gtp_spark&sheet=pass', '#/bikes?bike=test_data_gtp_spark&sheet=order', '#/bikes?bike=test_data_gtp_spark&sheet=pickup', '#/me'];

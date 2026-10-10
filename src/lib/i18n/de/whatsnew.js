@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.78.0 «Fünf Orte» 2
+  'Each place has its tabs on top. On a phone you swipe sideways to the next tab; a place opens at the tab you had open last.':
+    'Jeder Ort hat oben seine Tabs. Am Handy wischst du seitwärts zum nächsten Tab; ein Ort öffnet sich beim Tab, den du zuletzt offen hattest.',
+  'Trips shows all trips as tiles with their route, grouped by state, with templates to start quickly and your best values from GPX.':
+    'Touren zeigt alle Touren als Kacheln mit ihrer Route, nach Zustand geordnet, dazu Vorlagen zum schnellen Start und deine Bestwerte aus GPX.',
+  'Look back starts with the debriefs still open. Gear has a tab «Shopping» with your wishlist.':
+    'Der Rückblick beginnt mit den offenen Rückblicken. Material hat einen Tab «Einkauf» mit deiner Wunschliste.',
+  'After an update a calm sheet says once what is new. An old link like #/care says where it leads now.':
+    'Nach einem Update sagt ein ruhiges Blatt einmal, was neu ist. Ein alter Link wie #/care sagt, wohin er jetzt führt.',
+
   // 0.76.0 «Fünf Orte» 1
   'Five places: Today, Trips, Gear, Bikes and Active. On a phone they sit at the bottom, on a computer in a sidebar on the left with the pages of each place.':
     'Fünf Orte: Heute, Touren, Material, Velos und Aktiv. Am Handy unten, am Computer in einer Seitenleiste links, mit den Seiten jedes Orts.',

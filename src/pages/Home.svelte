@@ -53,6 +53,7 @@
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
   import { newsHint, newerThan, SEEN_KEY, BEFORE } from '../lib/whatsnew.js';
+  import NewsSheet from '../lib/know/NewsSheet.svelte';
   import { HOME_PLACE, HOME_FORECAST, usable, needsFetch, knowCards, wearWhat } from '../lib/know.js';
   import { openTodos } from '../lib/todos.js';
   import { weightText } from '../lib/gear.js';
@@ -133,6 +134,7 @@
 
   /* ---------- v0.35.0: "New in the app" once after an update ---------- */
   let newsN = $state(0);
+  let newsSheet = $state([]);
   let newsChecked = false;
   $effect(() => {
     if (newsChecked || !loaded || !$bikesQ) return;
@@ -149,7 +151,10 @@
     } catch {
       /* private mode */
     }
-    newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + e.points.length, 0) : 0;
+    // v0.78.0 (Ü9a): after a real update (a version was seen before) a calm sheet says once what is
+    // new; a first visit with data (a backup, an import) keeps the quiet line.
+    if (h.show && seen) newsSheet = newerThan(seen);
+    else newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + e.points.length, 0) : 0;
   });
 
   /* ---------- 1. greeting and weather (Noah 18a, 19a, 20a) ---------- */
@@ -856,6 +861,7 @@
   </footer>
 </div>
 
+{#if newsSheet.length}<NewsSheet entries={newsSheet} onclose={() => (newsSheet = [])} />{/if}
 <dialog class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
   <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
   {#if wearOpen}

@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.78.0',
+    date: '2026-10-10',
+    points: [
+      { text: 'Each place has its tabs on top. On a phone you swipe sideways to the next tab; a place opens at the tab you had open last.', href: '#/bikes' },
+      { text: 'Trips shows all trips as tiles with their route, grouped by state, with templates to start quickly and your best values from GPX.', href: '#/trips' },
+      { text: 'Look back starts with the debriefs still open. Gear has a tab «Shopping» with your wishlist.', href: '#/debrief' },
+      { text: 'After an update a calm sheet says once what is new. An old link like #/care says where it leads now.', href: '#/features?news' },
+    ],
+  },
+  {
     version: '0.76.0',
     date: '2026-10-10',
     points: [

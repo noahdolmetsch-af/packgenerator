@@ -6,17 +6,17 @@
    * button bottom right, above the bar (O1.3a); on the trip pages it sits higher, above their own main
    * button at the bottom (rule U1), never on it. Before: four places with the + in the middle (v0.23.0).
    */
-  import { PLACES } from '../nav.js';
+  import { PLACES, placeHref } from '../nav.js';
   import { t } from '../i18n.svelte.js';
   import PlaceIcon from './PlaceIcon.svelte';
   import { Plus } from '@lucide/svelte';
 
-  let { place = null, due = 0, onnew, fab = true, high = false, away = false } = $props();
+  let { place = null, hash = '#/', due = 0, onnew, fab = true, high = false, away = false } = $props();
 </script>
 
 <nav class="bottom" aria-label={t('Sections')}>
   {#each PLACES as p (p.key)}
-    <a href={p.href} data-place={p.key} aria-current={place === p.key ? 'page' : undefined}>
+    <a href={placeHref(p, place, hash)} data-place={p.key} aria-current={place === p.key ? 'page' : undefined}>
       <span class="pi"><PlaceIcon place={p.key} />{#if p.key === 'bikes' && due}<span class="due num" aria-hidden="true">{due}</span>{/if}</span>
       <span class="pn">{t(p.label)}</span>{#if p.key === 'bikes' && due}<span class="sr">, {t('{n} due', { n: due })}</span>{/if}
     </a>

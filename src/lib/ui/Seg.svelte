@@ -76,8 +76,10 @@
     font-size: 13.5px;
   }
   /* Not full width: each button as wide as its word (v0.42.0). */
+  /* v0.78.0: never narrower than its word, and a short word («Alle») still gets a 44 px wide tap area */
   .seg:not(.full) button {
-    flex: 0 1 auto;
+    flex: 0 0 auto;
+    min-width: 44px;
     padding-inline: 14px;
   }
   .seg.small:not(.full) button {
