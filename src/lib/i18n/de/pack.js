@@ -551,6 +551,8 @@ export default {
   // v0.25.0 (M3): the trip decides the packing list (New trip dialog, Pack header, buy on the way).
   'None|overnight': 'Keine',
   'Your packing list|preview': 'So wird deine Packliste',
+  'The {n} item on the list': 'Das {n} Teil auf der Liste',
+  'The {n} items on the list': 'Die {n} Teile auf der Liste',
   'Outdoor (tent, bivvy)': 'Draussen (Zelt, Biwak)',
   'Outdoor': 'Draussen',
   'How long?': 'Wie lange?',

@@ -587,7 +587,8 @@
               {#if !preview.tpl && !preview.copied}<i class="tp-badge ok">{t('always with you')}</i>{/if}
               <span class="r num">{tn(preview.start, '{n} item', '{n} items')} · {knownWeight(preview.w.g, preview.w.missing)}</span>
             </h3>
-            {#if preview.names.length}<button type="button" class="names" class:open={namesOpen} aria-expanded={namesOpen} onclick={() => (namesOpen = !namesOpen)}>{preview.names.join(' · ')}</button>{/if}
+            {#if preview.names.length}<!-- the names are the visible text; a short name for screen readers (a list of 20+ names is no button name) -->
+            <button type="button" class="names" class:open={namesOpen} aria-expanded={namesOpen} aria-label={tn(preview.names.length, 'The {n} item on the list', 'The {n} items on the list')} onclick={() => (namesOpen = !namesOpen)}>{preview.names.join(' · ')}</button>{/if}
             {#if start !== 'standard'}<button type="button" class="tp-link" onclick={() => (start = 'standard')}>{t('Back to Standard')}</button>{/if}
           </div>
           <ul class="auto">
