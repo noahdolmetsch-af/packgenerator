@@ -9,6 +9,7 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { newButton } from './newbutton.js';
 
 const P = 'test_data_gtp_';
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
@@ -60,7 +61,7 @@ const tap = (loc, info) => (info.project.name === 'phone' ? loc.tap() : loc.clic
 test('1: one dictated line becomes single problems, shown before saving', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/');
-  await page.getByRole('button', { name: 'Neu', exact: true }).filter({ visible: true }).first().click();
+  await (await newButton(page, 'Neu')).click();
   await page.getByRole('dialog', { name: 'Neu' }).getByRole('button', { name: /Problem am Velo/ }).click();
   const dlg = page.getByRole('dialog', { name: 'Problem am Velo' });
   await dlg.getByRole('button', { name: `${P} Scott Scale 940` }).click();
