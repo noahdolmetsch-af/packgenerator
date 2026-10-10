@@ -27,6 +27,8 @@ const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const P = 'test_data_gtp_';
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
 const FIX = JSON.parse(RAW);
+// Every table the app has, read from DATA_TABLES in src/lib/db.js (not a copy here).
+const APP_TABLES = [...readFileSync(fileURLToPath(new URL('../../src/lib/db.js', import.meta.url)), 'utf8').match(/export const DATA_TABLES = \[([\s\S]*?)\];/)[1].matchAll(/'(\w+)'/g)].map((m) => m[1]);
 const key = (itemId) => (itemId.startsWith(P) ? itemId.slice(P.length) : itemId);
 const ITEM = Object.fromEntries(FIX.tables.items.map((i) => [key(i.id), i]));
 const nm = (key) => (LANG === 'de' ? ITEM[key].nameDe : ITEM[key].name);
@@ -592,7 +594,7 @@ test('PF09: category of an item linked to a trip, a template, a block and a lear
   await rec.check('the template keeps the item', async () => expect((await setting(page, 'templates'))[0].entries).toEqual(before.tpl.entries));
   await rec.check('the learning keeps its link', async () => expect((await table(page, 'learnings'))[0].itemIds).toEqual(before.learning.itemIds));
   await rec.check('the item stays in the Rain block', () => expect(jacket[0]?.sets).toEqual(['u-test-data-gtp-regen']));
-  await rec.check('the export file has every table of the app', () => expect(Object.keys(exported.tables).sort()).toEqual(Object.keys(FIX.tables).sort()));
+  await rec.check('the export file has every table of the app', () => expect(Object.keys(exported.tables).sort()).toEqual([...APP_TABLES].sort()));
   await page.goto('./#/pack');
   await rec.check('Pack shows the jacket on the event trip after the import', async () => {
     await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
