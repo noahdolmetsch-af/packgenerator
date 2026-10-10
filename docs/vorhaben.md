@@ -49,6 +49,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.68.0 | Q1 «Jeder km zählt»: Fahrten-Buch pro Velo, Import Strava-CSV und Garmin-FIT mit Sensor-Erkennung, Wochen-Abgleich auf Heute, Startpunkt pro Teil | live seit 10.10.2026 |
 | 0.69.0 | Velo-Blätter: Mappe pro Velo mit Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check; ansehen, als PDF teilen, Text kopieren; Häkchen werden Pflege-Einträge mit Startpunkt | live (PR #95) |
 | 0.69.1 | Gesamttest-Runde: alle Abläufe durchgespielt, Befunde A–C behoben, D als Fragen; Import-Regel «Fahrt-Typ» (Gravel Ride → Velo) | live (PR #96) |
+| 0.70.0 | Velo-Blätter Teil 2: Einfahr-Plan (von selbst bei neuem Velo, Erinnerung auf Heute), Repair-Kit pro Art der Fahrt mit «Auf die Packliste», Garantie & Belege mit Erinnerung, Diebstahl-Blatt | live |
 | 0.71.0 | Fünf Orte Teil 1: fünf Orte (Aktiv neu), «Ich» oben rechts statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Ortsfarben, Tastenkürzel | PR offen |
 | – | KI-Helfer (siehe unten) | fertig gebaut und getestet, als Entwurf geparkt (PR #89), wird beim Einschalten neu nummeriert |
 | – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Fragen beantwortet; Teil 1 (0.71.0) als PR offen, Teil 2 folgt |
@@ -61,8 +62,8 @@ Seit 10.10.2026, 09:30 gilt **Prinzip Nr. 1** (siehe [arbeitsweise.md](arbeitswe
 
 1. **0.67.1 Fix-Release**: live seit 10.10.2026. Funde aus Noahs Handytest von 0.67.0 kommen in den nächsten Fix-Release.
 2. **0.68 Q1 «Jeder km zählt»** (dieser PR, Qualitätsmerkmal für Ziel 2, Mockup freigegeben): Fahrten-Buch pro Velo, Strava-CSV mit Velo-Spalte, FIT-Import, Wochen-Abgleich auf Heute, Startpunkt pro Teil.
-3. **0.69 Velo-Blätter** (Ziel 2, Mockup freigegeben, V1–V7 a, live seit PR #95): Mappe pro Velo mit Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check. Die übrigen vier Blätter (Repair-Kit, Garantie & Belege, Diebstahl-Blatt, Einfahr-Plan) folgen später.
-4. **Vollständiger UI-Test** aller Abläufe, Fehler beheben, als Fix-Release: 0.69.1, PR offen (mit der Import-Regel «Fahrt-Typ»).
+3. **0.69 Velo-Blätter** (Ziel 2, Mockup freigegeben, V1–V7 a, live seit PR #95): Mappe pro Velo mit Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check. Die übrigen vier Blätter (Einfahr-Plan, Repair-Kit, Garantie & Belege, Diebstahl-Blatt) kommen als 0.70.0 «Velo-Blätter Teil 2» (W1–W7 a, PR offen).
+4. **Vollständiger UI-Test** aller Abläufe, Fehler beheben, als Fix-Release: 0.69.1, live (PR #96) (mit der Import-Regel «Fahrt-Typ»).
 5. **Noah packt eine echte Tour** (Tagestour genügt) und schickt die Lücken als Liste.
 6. **Fünf Orte** in zwei Releases, danach E1, D5, D2, D4/D6, E2–E4, KI-Helfer.
 

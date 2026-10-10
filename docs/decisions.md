@@ -555,6 +555,18 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid:** Q1 ist pro Velo an, sobald es Fahrten im Buch hat (Antwort 6a), und lässt sich pro Velo ausblenden. Startpunkte für Teile sind ein Vorschlag, nie Pflicht; ein Teil von einem anderen Velo bringt «km schon am Teil» mit (Schritt 3 in einfacher Form, ohne automatisches Umziehen).
 - **Grund:** Noah holt ein neues Velo ab und will dessen km von Anfang an lückenlos und nachvollziehbar; die Strava-Werte weichen heute ohne Erklärung ab.
 
+## 10.10.2026: Velo-Blätter Teil 2 (0.70.0, Noahs Antworten W1–W7 a)
+
+- **Entscheid (W1 a):** Der Einfahr-Plan erscheint von selbst bei einem neuen Velo (unter 500 km), vorne in der Mappe; nach dem ersten Service geht er weg. Über «Blätter wählen» bleibt er erreichbar und ausblendbar.
+- **Entscheid (W2 a):** Häkchen im Einfahr-Plan bleiben auf dem Velo gespeichert (mit Datum und km); «Abgehakte in die Pflege übernehmen» macht daraus Pflege-Einträge «von mir», mit Rückgängig.
+- **Entscheid (W3 a):** Ein fälliger Einfahr-Schritt (km oder Datum, was zuerst kommt) erinnert auf Heute; «später» und im Blatt abschaltbar.
+- **Entscheid (W4 a):** Das Repair-Kit ist pro Art der Fahrt umschaltbar (Feierabend-Runde, Tagestour, Mehrtägig).
+- **Entscheid (W5 a):** «Auf die Packliste …» nimmt die fehlenden Teile auf die nächste Tour mit diesem Velo, jedes abwählbar.
+- **Entscheid (W6 a):** Garantie: Erinnerung 30 Tage vor dem Ablauf auf Heute; Kalender nur, wenn eingeschaltet.
+- **Entscheid (W7 a):** Die Rahmennummer steht im PDF und im kopierten Text (für Polizei und Versicherung) und bleibt sonst nur auf dem Gerät.
+- **Entscheid (selbst):** Alles in `bike.sheets` (keine neue Tabelle); das Kaufdatum ist das bestehende `bike.bought`; Garantie-Jahre sind Vorschläge (Rahmen 5, sonst 2 Jahre); ein mit «hinzufügen» erfasstes Teil kommt als vorhanden und «noch zu wiegen» ins Material; Diebstahl-Fotos landen bei den Fotos des Velos (nie als Hauptfoto); «später» wartet eine Woche. Der Schritt «In der App als gestohlen markieren» aus dem Mockup ist ersetzt durch «Velo-Läden in der Nähe informieren» (es gibt keinen Gestohlen-Zustand in der App).
+- **Grund:** Das neue Fully kommt nächste Woche: sauber einfahren, unterwegs das richtige Werkzeug, Garantie und Belege nicht verpassen, bei Diebstahl sofort bereit (Ziel 2 «Das Velo im Griff haben»).
+
 ## 10.10.2026: Regel «Fahrt-Typ» im Import (0.69.1, Noahs Entscheid zur Datenbasis 10.10.2026)
 
 - **Entscheid:** Jedes Velo hat bei Noah einen eigenen Garmin-Fahrt-Typ (Gravel → Gravel Ride, MTB → Mountain Bike Ride, E-MTB → E-Mountain Bike Ride, Arbeitsweg → Ride). Der Import kennt darum eine vierte Regel-Art «Fahrt-Typ» (Fahrt-Typ → Velo). Reihenfolge jetzt: Sensor (sicher) › Strava-Velo › Profil-Regel › Fahrt-Typ-Regel (je wahrscheinlich) › du. Ersetzt den Satz «der Aktivitätstyp entscheidet nie» aus 0.68.0.
@@ -591,4 +603,9 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid:** Jeder Ort hat eine leichte Farbe (Heute türkis, Touren orange, Material ocker, Velos blau, Aktiv violett); sie tönt den Hintergrund ganz leicht und färbt den gewählten Ort in Leiste und Seitenleiste.
 - **Selbst entschieden:** «Ich» zeigt ein Personen-Symbol statt eines Buchstabens (die App kennt keinen Namen). Velos › Masse führt in Teil 1 zu «Velos vergleichen», das die Masse aller Velos zeigt; Velos › Werkstatt zu «Werkstatt & Belege». Der Helfer erscheint in Ich erst, wenn er eingeschaltet ist. Tastenkürzel nur für das, was schon geht; Tabs 1–4 kommen mit Teil 2.
 - **Grund:** Das Mehr-Menü war am Handy zu lang, und die täglichen Orte gehören in die Leiste (Fünf Orte statt Basecamp, siehe oben).
+
+## 10.10.2026: Mockups immer auf einer Seite zeigen (Noah, Priorität 1)
+
+- **Entscheid:** Jede Mockup-Runde kommt auf die eine Seite «Offene Mockups» (https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv), mit einem eigenen Abschnitt pro Runde. Computer und Handy stehen nebeneinander, mit einer Zeile «★ ist …» und einem Link zur Fragen-Karte auf Trello. Die Trello-Karte und die Antwort im Thread verlinken auf diesen Abschnitt. Ein Ordnerpfad allein reicht nie.
+- **Grund:** Noah fand die Bilder im Projektordner nicht; es gibt keinen Web-Link zum Ordner, und die Anhänge im Thread sind begrenzt. Ohne sichtbare Mockups kann er sie nicht freigeben (Prinzip Nr. 1, Schritt 4).
 

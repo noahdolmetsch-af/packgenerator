@@ -48,6 +48,8 @@ export const STRICT_STYLE = [
   // v0.69.0 «Velo-Blätter»
   'src/lib/bikes/SheetFolder.svelte',
   'src/lib/bikes/SheetView.svelte',
+  // v0.70.0 «Velo-Blätter Teil 2»
+  'src/lib/bikes/SheetMore.svelte',
   // v0.71.0 «Fünf Orte» 1: the new navigation and «Ich»
   'src/lib/nav/SideBar.svelte',
   'src/lib/nav/PlaceBar.svelte',
