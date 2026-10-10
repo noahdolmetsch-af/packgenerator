@@ -73,7 +73,7 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 
 | Bereich | Screen oder Dialog | Letztes Audit | Note |
 |---|---|---|---|
-| Heute | Startseite | Neubau 0.46 | – |
+| Heute | Startseite | 10.10.2026 (0.73 ruhiger nach Mockups heute-ruhig A und fotoalbum-neu A) | 4 |
 | Heute | Neu-Blatt, Mehr-Menü, Suche | – | – |
 | Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.52: Karte «Am Körper», Blatt «Tauschen») | 4 |
 | Touren | Tour-Dialog, Vorlagen-Dialog, Lade-Blatt | 9.10.2026 (0.47.3: Wetter-Chips wie auf der Tourseite, Trocken/Regen) | 3 |
@@ -123,6 +123,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
+- 10.10.2026, 0.73.0 «Ruhige Startseite + Fotoband»: Heute nach den Mockups `heute-ruhig` (A Ruhige Karte) und `fotoalbum-neu` (A Fotoband). Foto scharf statt blass (Deckkraft 1), Gruss einzeilig mit `--fs-page`, Vorschlag als schmale Zeile mit hellem Knopf, Fotoband 140 px am Handy; neue Datei `TripPhoto.svelte` strikt im Stil-Wächter (nur Tokens), Home.svelte eine Schriftgrösse weniger in der Baseline. Bilder mit Testdaten im Projektordner `design/heute-ruhig-gebaut`.
 - 10.10.2026, 0.69.1 Gesamttest-Runde: alle Seiten 1440/390/320, hell und dunkel, DE/EN; kein neuer Screen. Velo-Pass-Werte stehen bei 320 px unter der Bezeichnung, Kacheln in Im Flow trennen nach Silben (`hyphens: auto`) statt mitten im Wort; Velo-Reiter im Kopfband (Setup) zeigen das gewählte Velo in der Mitte und blenden an beiden Rändern aus statt links hart abzuschneiden; Status-Chips der Mappe bleiben einzeilig (zwei Karten nebeneinander am Handy); Wächter (`tests/e2e/guard.spec.js`) prüft jetzt auch «Fahrten importieren» und die Velo-Blätter streng sowie Im Flow (Mitziehen-Lücke aus 0.68/0.69). Import-Regeln: neue Art «Fahrt-Typ» in der bestehenden Regel-Liste, gleicher Baustein.
 - 10.10.2026, 0.69.0 «Velo-Blätter»: neue Screens nach den Mockups `velo-dokumente` (Vorschlag A: Mappe unter dem Kopfband in Setup, Blätter als Papier mit Werkzeugleiste, Abhol-Check mit Häkchen), nur mit Bausteinen aus `app.css`; neue Dateien `SheetFolder` und `SheetView` strikt im Stil-Wächter. Bilder mit Testdaten im Projektordner `design/velo-blaetter-gebaut`.
 - 10.10.2026, 0.68.0 «Q1 Jeder km zählt»: neue Screens nach den Mockups `q1-jeder-km` (Fahrten-Buch zuoberst im Velo, Import-Seite «Prüfen» dann pro Velo, Wochenkarte auf Heute unter der Tour, Startpunkt-Spalte und Q1-Status in der Teileliste), nur mit Bausteinen aus `app.css`; Wächter 0 Funde auf Desktop und Handy. Bilder mit Testdaten im Projektordner `design/q1-jeder-km-gebaut`.

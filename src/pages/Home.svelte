@@ -1,3 +1,8 @@
+<script module>
+  // v0.73.0 «Fotoband» (Noah 4a): one photo per app start, a different one on the next start.
+  const PICK = Math.random();
+</script>
+
 <script>
   /**
    * Today (Heute). v0.46.0 «Startseite neu» (Noah, 9.10.2026, answers 1a 2b 3a 4b 5a+menu 6-33a 34b):
@@ -75,7 +80,9 @@
   import FlowCard from '../lib/home/FlowCard.svelte';
   import KmCard from '../lib/home/KmCard.svelte';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
-  import { PartyPopper } from '@lucide/svelte';
+  import TripPhoto from '../lib/home/TripPhoto.svelte';
+  import { tripToday, bandPhotos, pickPhoto, photoCaption, actionsFirst } from '../lib/home/ruhig.js';
+  import { PartyPopper, Sun } from '@lucide/svelte';
 
   /* ---------- the records ---------- */
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -88,8 +95,6 @@
   const notesQ = liveQuery(() => db.notes.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
-  // the setup photos Today may show: a trip's own, else the bike's main photo (Noah 11a)
-  const photosQ = liveQuery(() => db.photos.filter((p) => !!p.main || !!p.tripId).toArray());
   const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, 'userName', MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
@@ -185,6 +190,9 @@
     const src = daySource(trips);
     return { bike: plan.bike, hours: plan.hours, n: src?.entries?.length ?? 0, fromLast: !!src, tomorrow: rideDay !== today };
   });
+  // v0.73.0 (Noah, Heute ruhiger 1a 3a): with a trip today the suggestion is one slim row under the
+  // trip card; without one it stays big beside the greeting (then it is the main thing).
+  const slim = $derived(!!suggestion && on('trip') && tripToday(trips, today));
   function startDayRide() {
     countUse('dayride');
     dayRide(suggestion?.bike?.id ?? null);
@@ -232,11 +240,16 @@
   const stepNow = $derived(sched?.next ? stepWords(sched.next, shown, ctx, today) : null);
   const bars = $derived(sched ? sched.steps.filter((s) => s.key !== 'plan' && s.key !== 'debrief') : []);
   const cd = $derived(shown ? countdown(shown, now) : null);
-  const photo = $derived.by(() => {
-    if (!shown) return null;
-    const ps = $photosQ ?? [];
-    return (ps.find((p) => p.tripId === shown.id) ?? (shown.bikeId ? ps.find((p) => p.bikeId === shown.bikeId && p.main) : null))?.data ?? null;
+  // v0.73.0 «Fotoband» (Noah, Foto auf Heute 1a–4a): the trip's own photos, else its bike's photos;
+  // one of them per app start (PICK), sharp; a phone shows it as a band over the card, a computer
+  // on the right inside it. Only the photos of the trip shown and its bike are read.
+  const photoKey = $derived(shown ? `${shown.id}|${hasBike(shown) ? shown.bikeId ?? '' : ''}` : '');
+  const photosQ = $derived.by(() => {
+    const [tid, bid] = photoKey.split('|');
+    return liveQuery(() => (!tid ? [] : bid ? db.photos.where('bikeId').equals(bid).or('tripId').equals(tid).toArray() : db.photos.where('tripId').equals(tid).toArray()));
   });
+  const photo = $derived(shown ? pickPhoto(bandPhotos(shown, shownBike, $photosQ ?? []), PICK) : null);
+  const caption = $derived(photo ? photoCaption(photo, { fallback: shownBike?.name ?? '', locale: locale() }) : '');
   const meta = $derived.by(() => {
     if (!shown || !stats) return '';
     const who = hasBike(shown) ? shown.bike : t(domainName(domainOf(shown)));
@@ -639,10 +652,10 @@
 
 <!-- 1. greeting and weather, the suggestion of the day -->
 {#snippet greetingS()}
-  <section class="greet" class:solo={!suggestion} aria-labelledby="hello-h" data-section="greeting">
+  <section class="greet" class:solo={!suggestion || slim} aria-labelledby="hello-h" data-section="greeting">
     <div class="hi-text">
       {#if !phone.matches}<span class="dl">{dateLine}</span>{/if}
-      <h1 id="hello-h" class="hello">{hello}{#if wx}<br /><span class="wx" data-weather>{wx.text}</span>{/if}</h1>
+      <h1 id="hello-h" class="hello">{hello}{#if wx}{' '}<span class="wx" data-weather>{wx.text}</span>{/if}</h1>
       {#if !wx && ready}
         {#if !place}
           <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
@@ -650,7 +663,7 @@
       {/if}
       {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
     </div>
-    {#if suggestion}
+    {#if suggestion && !slim}
       <div class="sugg" data-suggestion>
         <span class="kick">{suggestion.tomorrow ? t('Idea for tomorrow') : t('Idea for today')}</span>
         <span class="sq">{t('{h} h ride with the {bike}?', { h: num(suggestion.hours), bike: suggestion.bike.name })}</span>
@@ -667,7 +680,8 @@
 <!-- 2. the next trip -->
 {#snippet tripS()}
   {#if focus || shown}
-    <section class="trip" class:has-photo={!!photo && !phone.matches} aria-labelledby="next-h" data-section="trip" data-trip={shown?.id} onpointerdown={pdown} onpointerup={pup} onpointercancel={() => (sx = null)}>
+    {#if photo && phone.matches}<TripPhoto {photo} {caption} mode="band" />{/if}
+    <section class="trip" class:has-photo={!!photo && !phone.matches} class:on-band={!!photo && phone.matches} aria-labelledby="next-h" data-section="trip" data-trip={shown?.id} onpointerdown={pdown} onpointerup={pup} onpointercancel={() => (sx = null)}>
       <div class="tc">
         <div class="kl">
           {#if ask}
@@ -711,8 +725,16 @@
           {#if phone.matches}<InProgress current={shown?.id} light label={(n) => tn(n, '+{n} more trip', '+{n} more trips')} />{/if}
         </div>
       </div>
-      {#if photo && !phone.matches}<div class="ph" aria-hidden="true"><img src={photo} alt="" /></div>{/if}
+      {#if photo && !phone.matches}<TripPhoto {photo} {caption} mode="side" />{/if}
     </section>
+    {#if slim}
+      <div class="srow" data-suggestion data-slim>
+        <Sun size={20} aria-hidden="true" />
+        <span class="st"><b>{suggestion.tomorrow ? t('Dry tomorrow') : t('Dry today')}:</b> <span>{t('{h} h ride with the {bike}?', { h: num(suggestion.hours), bike: suggestion.bike.name })}</span></span>
+        <button type="button" class="btn" onclick={startDayRide}>{phone.matches ? t('Start|dayride') : t('Start day ride')}</button>
+        {#if bikes.length > 1 && !phone.matches}<button type="button" class="linkq" onclick={nextBike}>{t('Other bike')}</button>{/if}
+      </div>
+    {/if}
   {:else if loaded && !showFirst}
     <section class="trip none" aria-labelledby="next-h" data-section="trip">
       <div class="tc">
@@ -765,7 +787,7 @@
 
 <div class="home">
   <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top. -->
-  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} />{/if}
+  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->
   {#if showFirst}
     <section class="card first" aria-labelledby="first-h">
@@ -789,7 +811,7 @@
     </section>
   {/if}
 
-  {#each layout.order as key (key)}
+  {#each phone.matches ? actionsFirst(layout.order) : layout.order as key (key)}
     {#if on(key)}
       {#if key === 'greeting'}{@render greetingS()}
       {:else if key === 'trip'}{@render tripS()}
@@ -910,9 +932,10 @@
   .dl {
     color: var(--ink-2);
   }
+  /* v0.73.0 (Noah 5a): the greeting in one line, at most 40 px */
   .hello {
     margin: 0;
-    font: 800 clamp(26px, 3vw + 14px, 60px) / 0.98 var(--font-brand);
+    font: 800 var(--fs-page) / 1.05 var(--font-brand);
     letter-spacing: 0.005em;
     overflow-wrap: break-word;
   }
@@ -997,7 +1020,13 @@
     touch-action: pan-y;
   }
   .trip.has-photo {
-    grid-template-columns: minmax(0, 1fr) minmax(200px, 340px);
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 300px);
+  }
+  /* v0.73.0 «Fotoband» (Noah 1a 3a): on a phone the card lies 34 px over the lower edge of the band */
+  .trip.on-band {
+    position: relative;
+    margin: -48px var(--sp-2) 0;
+    box-shadow: 0 6px 22px var(--shadow);
   }
   .tc {
     display: flex;
@@ -1142,17 +1171,45 @@
       flex: 1 1 100%;
     }
   }
-  .ph {
-    position: relative;
-    background: var(--paper-2);
+  /* v0.73.0 (Noah 1a): «Idea for tomorrow» beside a trip today is one slim row with a light button */
+  .srow {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-3);
+    min-height: 56px;
+    padding: var(--sp-2) 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
   }
-  .ph img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.55;
+  .srow :global(svg) {
+    flex: none;
+    color: var(--head);
+  }
+  .st {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .st b {
+    font-weight: 600;
+  }
+  .st span {
+    color: var(--ink-2);
+  }
+  .srow .btn {
+    flex: none;
+    min-height: 44px;
+  }
+  @media (max-width: 719px) {
+    .srow {
+      padding: var(--sp-2) var(--sp-3);
+    }
+    .st {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
   .trip.none .tc {
     gap: 10px;

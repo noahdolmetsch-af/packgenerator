@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.73.0',
+    date: '2026-10-10',
+    points: [
+      { text: 'Today is calmer: the greeting is one line, the next trip comes right after it, and «Continue» only appears for another trip than the card shows.', href: '#/' },
+      { text: 'The photo on Today is sharp now. On the phone it is a narrow band above the trip card with place and month; «Album ›» opens the bike\'s photos.', href: '#/' },
+      { text: 'With a trip today, «Idea for tomorrow» is one slim row under the trip card; without one it stays big beside the greeting.', href: '#/' },
+    ],
+  },
+  {
     version: '0.69.1',
     date: '2026-10-10',
     points: [

@@ -6,6 +6,8 @@
    * - on the evening of a trip's last day: «Letzter Abend: … Tour abschliessen» (the interstitial);
    * - «Weitermachen: Tour X · Packen, Schritt 2 von 4»: always the next planned trip (U24b), else a
    *   trip still waiting for its debrief. One tap opens exactly that step (phase.js stepOf).
+   * v0.73.0 «Ruhige Startseite» (Noah 2a): «Weitermachen» is left out when the trip card below already
+   * leads with the same trip (cardId); it stays for another trip and for the evening rows.
    */
   import { ChevronRight, Moon, Flag } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
@@ -13,12 +15,13 @@
   import { nextTrip, toDebrief } from '../debrief.js';
   import { openTrip } from '../nav.js';
   import { stepOf, eveningBefore, lastEvening, betweenHref } from '../phase.js';
+  import { sameAsCard } from './ruhig.js';
 
-  let { trips, debriefs, today, hour } = $props();
+  let { trips, debriefs, today, hour, cardId = null } = $props();
 
   const done = (x) => debriefs.some((d) => d.tripId === x.id && d.status === 'done');
   const lead = $derived(nextTrip(trips, today) ?? toDebrief(trips, debriefs, today)[0] ?? null);
-  const step = $derived(lead ? stepOf(lead, today, { debriefDone: done(lead) }) : null);
+  const step = $derived(lead && !sameAsCard(lead.id, cardId) ? stepOf(lead, today, { debriefDone: done(lead) }) : null);
   const eve = $derived(trips.find((x) => eveningBefore(x, today, hour)) ?? null);
   const last = $derived(trips.find((x) => lastEvening(x, today, hour, { debriefDone: done(x) })) ?? null);
 </script>

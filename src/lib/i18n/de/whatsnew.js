@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.73.0
+  'Today is calmer: the greeting is one line, the next trip comes right after it, and «Continue» only appears for another trip than the card shows.':
+    'Heute ist ruhiger: Der Gruss steht in einer Zeile, die nächste Tour kommt direkt danach, und «Weitermachen» erscheint nur noch für eine andere Tour als die Karte.',
+  "The photo on Today is sharp now. On the phone it is a narrow band above the trip card with place and month; «Album ›» opens the bike's photos.":
+    'Das Foto auf Heute ist jetzt scharf. Am Handy ist es ein schmales Band über der Tourkarte mit Ort und Monat; «Album ›» öffnet die Fotos des Velos.',
+  'With a trip today, «Idea for tomorrow» is one slim row under the trip card; without one it stays big beside the greeting.':
+    'Mit einer Tour heute ist «Vorschlag für morgen» eine schmale Zeile unter der Tourkarte; ohne Tour bleibt er gross neben dem Gruss.',
+
   // 0.69.1
   'Import rides knows a new rule: a ride type (for example «Gravel Ride») belongs to one bike. You make the rule yourself in «Rules»; a contradiction still goes to «Check».':
     'Fahrten importieren kennt eine neue Regel: Ein Fahrt-Typ (zum Beispiel «Gravel Ride») gehört zu einem Velo. Die Regel legst du selbst unter «Regeln» an; ein Widerspruch kommt weiterhin zu «Prüfen».',

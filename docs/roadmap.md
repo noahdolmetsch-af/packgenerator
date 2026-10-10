@@ -513,6 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 10.10.2026 (v0.73.0, PR offen):** «Ruhige Startseite + Fotoband» gebaut (Mockups heute-ruhig A und fotoalbum-neu A freigegeben): Gruss in einer Zeile, scharfes Foto, Fotoband am Handy, Vorschlag als schmale Zeile, kein doppeltes «Weitermachen» (AP-Bezug Startseite, Ziel 1).
+
 **Nachtrag 10.10.2026 (v0.69.1, PR offen):** Vollständiger UI-Test (Gesamttest-Runde) gemacht, Befunde A–C behoben, D als Fragen an Noah; dazu die Regel «Fahrt-Typ» im Import (AP-Bezug Ziel 2, Q1). Schritt 4 der Reihenfolge in vorhaben.md ist damit als PR offen.
 
 **Nachtrag 10.10.2026 (v0.69.0, PR offen):** Velo-Blätter sind gebaut: Mappe pro Velo mit Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check, als PDF teilen und Text kopieren, Abhol-Check schreibt Pflege-Einträge mit Startpunkt (AP-Bezug Velo-Pflege). Als Nächstes der vollständige UI-Test mit Fix-Release.
