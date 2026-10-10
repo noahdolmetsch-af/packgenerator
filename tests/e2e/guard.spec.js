@@ -49,6 +49,14 @@ const ROUTES = [
   ['#/trip/test_data_gtp_Herbstrunde/packed', 'Zwischenseite Gepackt'],
   ['#/trip/test_data_gtp_Napf/ended', 'Zwischenseite Tour beendet'],
   ['#/trip/test_data_gtp_Napf/debriefed', 'Zwischenseite Rückblick fertig'],
+  // v0.69.1 Gesamttest-Runde (G-Befund: the 0.68/0.69 screens were strict in the style lint only):
+  // «Fahrten importieren» and the Velo-Blätter, strict like their files; «Im Flow» with its baseline
+  ['#/bikes?tab=care&view=import&bike=test_data_gtp_spark', 'Fahrten importieren'],
+  ['#/bikes?bike=test_data_gtp_spark&sheet=all', 'Velo-Mappe'],
+  ['#/bikes?bike=test_data_gtp_spark&sheet=pass', 'Velo-Pass'],
+  ['#/bikes?bike=test_data_gtp_spark&sheet=order', 'Werkstatt-Auftrag'],
+  ['#/bikes?bike=test_data_gtp_spark&sheet=pickup', 'Abhol-Check'],
+  ['#/flow', 'Im Flow'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

@@ -78,6 +78,12 @@ const CASES = [
   { id: 'care', hash: '#/care' },
   { id: 'care-hardtail', hash: `#/bikes?tab=care&bike=${encodeURIComponent(summary.bikeIds[0])}&open=1` },
   { id: 'inbox', hash: '#/inbox' },
+  // v0.69.1 Gesamttest-Runde: the screens of 0.68 «Q1», 0.69 «Velo-Blätter» and «Im Flow»
+  { id: 'km-import', hash: `#/bikes?tab=care&view=import&bike=${encodeURIComponent(summary.bikeIds[2])}` },
+  { id: 'sheets-all', hash: `#/bikes?bike=${encodeURIComponent(summary.bikeIds[2])}&sheet=all` },
+  { id: 'flow', hash: '#/flow' },
+  { id: 'flow-new', hash: '#/flow/new' },
+  { id: 'notes', hash: '#/notes' },
 ];
 
 /** Findings that make a case fail today (G-IDs of the findings list); keyed "case" or "case/lang". */

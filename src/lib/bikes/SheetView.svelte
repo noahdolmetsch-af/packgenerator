@@ -382,6 +382,7 @@
   .vr dt {
     color: var(--ink-2);
     overflow-wrap: break-word;
+    hyphens: auto; /* v0.69.1 G: «Sattelüberhöhung» at 320 px: a syllable break, not mid-letter */
   }
   .vr dd {
     margin: 0;

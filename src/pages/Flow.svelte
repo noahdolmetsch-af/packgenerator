@@ -42,7 +42,9 @@
   const list = (names) => (names.length ? new Intl.ListFormat(locale(), { type: 'conjunction' }).format(names) : '');
   const sumLine = $derived.by(() => {
     const met = sum.met.map(actName);
-    const miss = sum.missing.map((m) => (m.goal ? `${actName(m.act)} ${goalName(m.goal)}` : `${m.n}× ${actName(m.act)}`));
+    // v0.69.1 G: «Yoga Yoga Studio» → «Yoga Studio»; a sub-goal without the name: «Yoga (Zuhause)»
+    const subOf = (m) => (goalName(m.goal).toLowerCase().includes(actName(m.act).toLowerCase()) ? goalName(m.goal) : `${actName(m.act)} (${goalName(m.goal)})`);
+    const miss = sum.missing.map((m) => (m.goal ? subOf(m) : `${m.n}× ${actName(m.act)}`));
     const a = met.length ? t('{list} on track.', { list: list(met) }) : '';
     const b = miss.length ? t('{list} still to do.', { list: list(miss) }) : met.length ? t('Everything on track.') : '';
     return [a, b].filter(Boolean).join(' ');

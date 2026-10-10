@@ -89,6 +89,7 @@
     display: block;
     font-weight: 500;
     overflow-wrap: break-word;
+    hyphens: auto; /* v0.69.1 G: «draussen» on a done tile at 320 px: a syllable break, not mid-letter */
   }
   .tx small {
     display: block;
