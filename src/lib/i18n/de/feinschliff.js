@@ -14,6 +14,7 @@ export default {
   'Rename item': 'Teil umbenennen',
   'The new name counts everywhere: Setup, Care, {n} trip.': 'Der neue Name gilt überall: Setup, Pflege, {n} Tour.',
   'The new name counts everywhere: Setup, Care, {n} trips.': 'Der neue Name gilt überall: Setup, Pflege, {n} Touren.',
+  'The new name counts everywhere: Setup and Care.': 'Der neue Name gilt überall: Setup und Pflege.',
   'Type, use and photo: Bike details': 'Typ, Zweck und Foto: Velodetails',
   'Place, volume and weight stay as they are.': 'Platz, Volumen und Gewicht bleiben, wie sie sind.',
   'Changes with it in {n} template.': 'In {n} Vorlage mitgeändert.',

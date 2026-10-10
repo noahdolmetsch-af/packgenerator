@@ -480,7 +480,7 @@
     kicker={t('Bike')}
     title={t('Rename bike')}
     value={bikeRename.name}
-    hint={tn(tripsOn(bikeRename.id), 'The new name counts everywhere: Setup, Care, {n} trip.', 'The new name counts everywhere: Setup, Care, {n} trips.')}
+    hint={tripsOn(bikeRename.id) ? tn(tripsOn(bikeRename.id), 'The new name counts everywhere: Setup, Care, {n} trip.', 'The new name counts everywhere: Setup, Care, {n} trips.') : t('The new name counts everywhere: Setup and Care.')}
     onsave={renameThis}
     onclose={() => (bikeRename = null)}
   >
