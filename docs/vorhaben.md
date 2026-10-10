@@ -184,7 +184,7 @@ Taktgeber ist echte Nutzung: Eine grössere Version kommt erst, wenn die letzte 
 
 Noah, 10.10.2026: zuerst die Design-Pakete und die anderen Vorhaben, der KI-Helfer kommt später dazu. Am Morgen des 10.10.2026 hat Noah die Reihenfolge noch einmal bestätigt und geschärft (alle Fragen a).
 
-**Neu seit dem Kurs-Check am 10.10.2026 nachmittags (gilt vor der Liste unten):** nach Fünf Orte und Feinschliff kommt E1 Startseite, gleich danach wird der KI-Helfer eingeschaltet, dann D5 Start-Packlisten, dann Neuland + Inspiration. Höchstens 2 Bauten gleichzeitig. Vor jedem Release prüft Claude, dass Noah die Mockups gesehen und kommentiert hat; Noah merged selbst.
+**Neu seit dem 10.10.2026 nachmittags (gilt vor der Liste unten):** nach Fünf Orte Teil 1 und Feinschliff kommt Fünf Orte Teil 2, dann wird der KI-Helfer eingeschaltet, dann E1 Startseite, dann die Hobby-Unterseiten im Ort «Aktiv» (zuerst Meditation, Velo, Yoga, Gym, Tennis und Liegestütze), dann D5 Start-Packlisten, dann Neuland + Inspiration. Höchstens 2 Bauten gleichzeitig. Die Hobby-Unterseiten brauchen zuerst Mockups und eine Fragerunde. Vor jedem Release prüft Claude, dass Noah die Mockups gesehen und kommentiert hat; Noah merged selbst.
 
 ```mermaid
 flowchart LR

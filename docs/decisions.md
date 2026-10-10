@@ -629,3 +629,10 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - Kein fester Plan für eine echte Tour; Funde aus dem Alltag kommen nebenbei (2b).
 - Der KI-Helfer (Wartungsvorschläge) wird direkt nach E1 eingeschaltet. Dafür setzt Noah den Anthropic-Schlüssel in Vercel (3b).
 - Höchstens 2 Bauten gleichzeitig (4a).
+
+## 10.10.2026: KI-Helfer früher, Hobby-Unterseiten vor D5 (Noahs Antworten «1b 2b 3», 14:33)
+
+- Der KI-Helfer wird schon nach Fünf Orte Teil 2 eingeschaltet, also vor E1 (2b). Das ersetzt 3b aus dem Kurs-Check von 14:16.
+- Die Hobby-Unterseiten im Ort «Aktiv» kommen vor D5 Start-Packlisten (1b). Claude setzt sie nach E1, weil die Mockups für E1 schon freigegeben sind und die Hobby-Seiten zuerst Mockups brauchen; Noah kann das ändern.
+- Die ersten Unterseiten: Meditation, Velo, Yoga, Gym, Tennis und Liegestütze (3).
+- Reihenfolge: Fünf Orte 1 + Feinschliff → Fünf Orte 2 → KI-Helfer → E1 Startseite → Hobby-Unterseiten → D5 → Neuland + Inspiration.
