@@ -232,6 +232,8 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 | ÖV | transport.opendata.ch, Knopf zur SBB-App | gratis |
 | Daten zwischen Geräten | Sicherungsdatei (kein Live-Sync) | gratis |
 
+**Vercel-Vorschauen sparen (10.10.2026):** Beide Vercel-Projekte haben einen «Ignored Build Step». Er vergleicht alle Änderungen seit der letzten erfolgreichen Vorschau (`$VERCEL_GIT_PREVIOUS_SHA`), nicht nur den letzten Commit. «packgenerator» baut nur, wenn sich ausserhalb von `docs/` und `*.md` etwas geändert hat. «packgen» baut nur bei Änderungen in `api/`. Wenn keine frühere Vorschau bekannt ist, wird immer gebaut. Grund: Das Gratis-Kontingent von Vercel (etwa 100 Builds pro Tag) war am 10.10.2026 erschöpft.
+
 **Datenschutz:** Persönliche Daten (Excel, Belege, Fotos, GPX, Sicherungen, echte Velo-Daten, Heimatadresse) kommen nie ins öffentliche Repo. Testdaten sind erfunden. Schlüssel liegen nur in Vercel. Gesundheitswerte sind nur Beobachtung, nie Bewertung.
 
 ## Bewusst nicht und offene Punkte
