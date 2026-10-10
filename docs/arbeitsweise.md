@@ -34,3 +34,4 @@ Damit gilt wieder die Regel aus [Design-Audits](design-audit.md): vor jedem neue
 
 - Vor jedem neuen Paket und in jedem Release-PR wird [vorhaben.md](vorhaben.md) geprüft und nachgeführt (Abschnitt «Kurs-Check» dort). Etwa alle fünf Releases bekommt Noah einen kurzen Kurs-Check mit a/b-Fragen.
 - Vor jedem Pull Request läuft der komplette Gesamttest lokal: Computer und Handy, je beide Teile. Tests lesen ihre Listen aus dem App-Code statt Kopien zu führen.
+- Gebündelt pushen (Noah 10.10.2026): pro Schritt einmal pushen, nicht nach jedem kleinen Commit. Vercel baut bei «packgen» nur, wenn sich `api/` ändert, und bei «packgenerator» nicht bei reinen Doku-Änderungen (Ignored Build Step in den Vercel-Einstellungen). Grund: Der Gratis-Plan erlaubt etwa 100 Builds pro Tag.
