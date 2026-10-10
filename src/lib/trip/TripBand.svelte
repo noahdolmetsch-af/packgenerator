@@ -21,13 +21,15 @@
   import { layerSuggest, openRows } from '../layers.js';
   import { openTrip } from '../nav.js';
   import { localDay } from '../localday.js';
-  import { TAB_NAMES, tabsOf, tabHref, tabStatus, tripDates } from '../tabs.js';
+  import { tabsOf, tabStatus, tripDates } from '../tabs.js';
   import InProgress from './InProgress.svelte';
   import FactSheet from './FactSheet.svelte';
+  import StepBar from '../ui/StepBar.svelte';
+  import MainBar from '../ui/MainBar.svelte';
 
   // weighHint: false hides the "6 not weighed" badge (v0.30.1, Noah E4: not next to the green "Day ride created" card).
   // v0.47.1 (Noah a): edit (Plan only) turns date, duration, weather and bike into chips that change the value in place.
-  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true, edit = null } = $props();
+  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true, edit = null, extra = null } = $props();
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -96,6 +98,7 @@
     <div class="kline">
       {#if kicker}<p class="kick">{kicker}</p>{/if}
       <InProgress current={trip.id} />
+      {@render extra?.()}
     </div>
     {#if naming}
       <input class="rename" bind:this={nameEl} bind:value={nameDraft} onkeydown={nameKey} onblur={saveName} aria-label={t('Trip name')} enterkeyhint="done" />
@@ -120,23 +123,13 @@
       <span class="saved" class:on={saved} role="status">{#if shown}<Check size={14} aria-hidden="true" />{t('Saved')}{/if}</span>
     </p>
   </div>
-  <!-- L7: no button (the debrief before the last day): no empty bar at the bottom of a phone. -->
+  <!-- L7: no button (the debrief before the last day): no empty bar at the bottom of a phone.
+       v0.67.0 (kit): the one main button sits in the MainBar of the kit (bottom of a phone). -->
   {#if action || aside || hint}
-    <div class="act">
-      {#if aside}<span class="aside">{@render aside()}</span>{/if}
-      {@render action?.()}
-      {#if hint}<small class="hint">{hint}</small>{/if}
-    </div>
+    <MainBar place="band" {aside} {hint}>{@render action?.()}</MainBar>
   {/if}
-  <nav class="steps" aria-label={t('Steps of this trip')} style:--n={tabs.length}>
-    {#each tabs as key (key)}
-      {@const s = status[key]}
-      <a href={tabHref(key, trip)} class:done={s.done} aria-current={key === tab ? 'page' : undefined} onclick={() => openTrip(trip.id)}>
-        <span class="tn">{t(TAB_NAMES[key])}</span>
-        {#if s.text || s.done}<small>{#if s.done}<Check size={13} aria-hidden="true" />{/if}{#if s.text}{s.text}{:else}<span class="sr">{t('done|step')}</span>{/if}</small>{/if}
-      </a>
-    {/each}
-  </nav>
+  <!-- v0.67.0 (kit, Ü1 a): the steps are the kit's StepBar, the same as on the interstitials. -->
+  <div class="steps"><StepBar {trip} {tabs} {status} current={tab} onpick={() => openTrip(trip.id)} /></div>
 </section>
 {#if factOpen && edit}<FactSheet field={factOpen} {trip} bikes={allBikes} {edit} onclose={() => (factOpen = null)} />{/if}
 
@@ -170,13 +163,13 @@
   .kick {
     margin: 0;
     min-width: 0;
-    font-size: 13px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     color: var(--brand-ink-2);
   }
   h1 {
     margin: 2px 0 6px;
-    font: 700 23px/1.15 var(--font-body);
+    font: 700 var(--fs-title)/1.15 var(--font-body);
     letter-spacing: -0.01em;
     overflow-wrap: break-word;
   }
@@ -207,7 +200,7 @@
     min-height: 44px;
     margin: 2px 0 6px;
     padding: 6px 10px;
-    font: 700 20px/1.2 var(--font-body);
+    font: 700 var(--fs-section)/1.2 var(--font-body);
     color: var(--ink);
     background: var(--input);
     border: 0;
@@ -218,7 +211,7 @@
     flex-wrap: wrap;
     gap: 4px 14px;
     margin: 0 0 6px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--brand-ink-2);
   }
   .meta span {
@@ -262,10 +255,10 @@
   /* Noah 6b: small and quiet, gone after about 2 seconds (no time, nothing that stays). */
   .meta .saved {
     gap: 4px;
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     color: var(--brand-ink);
-    background: rgba(255, 255, 255, 0.12);
+    background: color-mix(in srgb, var(--brand-ink) 12%, transparent);
     border-radius: 99px;
     padding: 1px 8px 1px 6px;
     opacity: 0;
@@ -285,83 +278,13 @@
   }
   .badge {
     font-style: normal;
-    background: rgba(255, 255, 255, 0.12);
+    background: color-mix(in srgb, var(--brand-ink) 12%, transparent);
     color: var(--brand-ink);
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     font-weight: 500;
     padding: 1px 7px;
     border-radius: 99px;
     white-space: nowrap;
-  }
-  .steps {
-    display: grid;
-    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-    margin: 8px -16px 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-  }
-  .steps a {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 56px;
-    padding: 6px 2px 8px;
-    color: var(--brand-ink-2);
-    text-decoration: none;
-    font: 500 15px/1.15 var(--font-body);
-    text-align: center;
-    overflow-wrap: break-word;
-  }
-  /* v0.30.2 (test HD12.4): on a 320 px phone "Unterwegs" broke inside the word. */
-  @media (max-width: 360px) {
-    .steps a {
-      font-size: 13px;
-    }
-  }
-  .steps a small {
-    display: inline-flex;
-    gap: 3px;
-    align-items: center;
-    margin-top: 2px;
-    font-size: 12px;
-    font-weight: 400;
-    color: var(--brand-ink-2);
-  }
-  .steps a.done small {
-    color: var(--brand-ink-2);
-  }
-  .steps a[aria-current='page'] {
-    color: var(--brand-ink);
-    font-weight: 600;
-  }
-  .steps a[aria-current='page']::after {
-    content: '';
-    position: absolute;
-    left: 14%;
-    right: 14%;
-    bottom: 0;
-    height: 3px;
-    border-radius: 3px 3px 0 0;
-    background: var(--hi-bright);
-  }
-  .band :global(:focus-visible) {
-    outline-color: var(--focus-on-dark);
-  }
-  .act :global(.btn.hi) {
-    min-height: 52px;
-    padding: 10px 20px;
-    font-size: 17px;
-    border-radius: 8px;
-    gap: 8px;
-  }
-  .hint {
-    color: var(--brand-ink-2);
-    font-size: 13px;
-    text-align: right;
-  }
-  .aside {
-    display: none;
   }
 
   /* Phone (Noah 3a): the next step stays at the bottom, above the bottom bar. */
@@ -371,35 +294,6 @@
     }
     .meta:has(.fact) {
       gap: 6px 12px;
-    }
-    .act {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: calc(62px + env(safe-area-inset-bottom));
-      z-index: 5;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      padding: 10px var(--gut);
-      background: color-mix(in srgb, var(--ground) 97%, transparent);
-      border-top: 1px solid var(--line);
-      color: var(--ink);
-    }
-    .act :global(.btn.hi) {
-      flex: 1;
-      min-width: 0;
-      white-space: normal;
-      line-height: 1.2;
-    }
-    .aside {
-      display: contents;
-    }
-    .hint {
-      display: none;
-    }
-    .act :global(:focus-visible) {
-      outline-color: var(--focus);
     }
     /* Noah 7a: On the way, only the name and the tabs (and "Saved ✓" for a moment, v0.35.0). */
     .compact .meta > :not(.saved),
@@ -413,39 +307,8 @@
       column-gap: 24px;
       padding: 22px 26px 0;
     }
-    h1 {
-      font-size: 32px;
-    }
     .meta {
-      font-size: 15px;
-    }
-    .act {
-      grid-column: 2;
-      grid-row: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      justify-content: center;
-      gap: 6px;
-    }
-    .act :global(.btn.hi) {
-      min-width: 260px;
-    }
-    .steps {
-      grid-column: 1 / -1;
-      margin: 16px -26px 0;
-      padding: 0 10px;
-      grid-template-columns: repeat(var(--n), minmax(0, 200px));
-    }
-    .steps a {
-      flex-direction: row;
-      gap: 8px;
-      font-size: 16px;
-      min-height: 52px;
-    }
-    .steps a small {
-      font-size: 13px;
-      margin: 0;
+      font-size: var(--fs-body);
     }
   }
   /* v0.30.1 (Noah D6): a phone turned sideways (844×390): the band was 212 of 390 px. Compact there:
@@ -474,7 +337,7 @@
       flex: 1 1 0;
       min-width: 0;
       margin: 0 0 2px;
-      font-size: 20px;
+      font-size: var(--fs-section);
     }
     .rename {
       flex: 1 1 0;
@@ -486,7 +349,7 @@
     .meta {
       gap: 2px 12px;
       margin: 0;
-      font-size: 13px;
+      font-size: var(--fs-tiny);
     }
     /* v0.47.1: sideways the facts stay one quiet line (underlined, no pill), so the band stays low. */
     .meta .fact {
@@ -502,34 +365,24 @@
     .meta:has(.fact) > .num {
       display: none;
     }
-    .act :global(.btn.hi) {
-      min-width: 0;
-      min-height: 44px;
-      padding: 6px 16px;
-      font-size: 15px;
-    }
-    .hint {
-      display: none;
-    }
+  }
+  /* v0.67.0 (kit): the step bar spans the band; the main bar is its right column on a computer. */
+  .steps {
+    margin: 8px -16px 0;
+  }
+  @media (min-width: 720px) {
     .steps {
-      margin: 6px -16px 0;
-      padding: 0 4px;
-      grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+      grid-column: 1 / -1;
+      margin: 16px -26px 0;
     }
-    .steps a {
-      min-height: 44px;
-      padding: 2px 4px;
-      font-size: 15px;
-    }
-    .steps a small {
-      font-size: 12px;
+    .band > :global(.mainbar) {
+      grid-column: 2;
+      grid-row: 1;
     }
   }
-  /* A small phone sideways keeps the button at the bottom, on the lower bottom bar (App.svelte). */
-  @media (max-height: 500px) and (max-width: 719px) {
-    .act {
-      bottom: calc(48px + env(safe-area-inset-bottom));
-      padding: 4px max(var(--gut), env(safe-area-inset-right)) 4px max(var(--gut), env(safe-area-inset-left));
+  @media (max-height: 500px) {
+    .steps {
+      margin: 6px -16px 0;
     }
   }
   @media print {

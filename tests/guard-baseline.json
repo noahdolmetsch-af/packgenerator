@@ -225,10 +225,6 @@
     "src/lib/trip/ProgressRows.svelte": {
       "fontsize": 3
     },
-    "src/lib/trip/TripBand.svelte": {
-      "colour": 3,
-      "fontsize": 20
-    },
     "src/lib/trip/trip.css": {
       "fontsize": 9
     },

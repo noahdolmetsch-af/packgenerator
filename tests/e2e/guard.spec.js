@@ -14,6 +14,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { openHome } from './home0460-fixture.js';
+import { STRICT_ROUTES } from '../../scripts/style-lint.mjs';
 
 const ROUTES = [
   ['#/', 'Heute'],
@@ -42,6 +43,12 @@ const ROUTES = [
   ['#/inbox', 'Eingang'],
   ['#/notes', 'Notizen'], // v0.48.0
   ['#/features', 'Funktionen'],
+  // v0.67.0 «Übergänge 1»: the Pack tab, a saved debrief and the three interstitials (strict, see below)
+  ['#/pack?day', 'Packen (Tab)'],
+  ['#/debrief/test_data_gtp_Napf', 'Rückblick einer Tour'],
+  ['#/trip/test_data_gtp_Herbstrunde/packed', 'Zwischenseite Gepackt'],
+  ['#/trip/test_data_gtp_Napf/ended', 'Zwischenseite Tour beendet'],
+  ['#/trip/test_data_gtp_Napf/debriefed', 'Zwischenseite Rückblick fertig'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];
@@ -111,7 +118,14 @@ function measure(phone) {
     for (const scope of scopes) {
       for (const el of scope.querySelectorAll('button, a[href], summary, [role="button"], select')) {
         if (!visible(el) || inlineLink(el)) continue;
-        const r = el.getBoundingClientRect();
+        // v0.67.0: the real tap area: the box, grown by an invisible ::after tap area (position absolute
+        // with negative insets, the app's pattern since v0.27.0 AP21 / v0.45.0) when there is one.
+        const b = el.getBoundingClientRect();
+        const after = getComputedStyle(el, '::after');
+        const grow = (v) => Math.max(0, -(parseFloat(v) || 0));
+        const r = after.content !== 'none' && after.position === 'absolute' && getComputedStyle(el).position !== 'static'
+          ? { width: b.width + grow(after.left) + grow(after.right), height: b.height + grow(after.top) + grow(after.bottom) }
+          : b;
         if (r.width < 43.5 || r.height < 43.5) out.target.push(`${where(el)} «${(el.getAttribute('aria-label') || el.textContent).trim().replace(/\s+/g, ' ').slice(0, 30)}» ${Math.round(r.width)} × ${Math.round(r.height)} px`);
       }
     }
@@ -164,10 +178,12 @@ for (let g = 0; g < GROUPS; g++) {
         found[key] = Object.fromEntries([...FAIL_RULES, ...REPORT_RULES].map((r) => [r, now[r].length]));
         for (const rule of [...FAIL_RULES, ...REPORT_RULES]) {
           if (UPDATE && now[rule].length) listed.push(`${label} ${key} ${rule}: ${now[rule].length}`, ...now[rule].map((x) => `    ${x}`));
-          const was = baseline[key]?.[rule] ?? 0;
+          // v0.67.0 (Ü2a): the trip pages and interstitials are strict: no baseline, at most one main button
+          const strict = STRICT_ROUTES.includes(hash);
+          const was = strict ? 0 : baseline[key]?.[rule] ?? 0;
           if (now[rule].length <= was) continue;
-          const lines = [`${label} ${key}: ${now[rule].length} ${rule} (baseline ${was})`, ...now[rule].map((x) => `    ${x}`)];
-          (FAIL_RULES.includes(rule) ? failures : reports).push(...lines);
+          const lines = [`${label} ${key}: ${now[rule].length} ${rule} (${strict ? 'strict' : `baseline ${was}`})`, ...now[rule].map((x) => `    ${x}`)];
+          (FAIL_RULES.includes(rule) || strict ? failures : reports).push(...lines);
         }
       }
     }

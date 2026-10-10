@@ -43,7 +43,7 @@
       {#if view === 'photo' && photo}
         <button type="button" class="ph" onclick={() => onphoto?.()} aria-label={t('Open photo')}><img src={photo} alt={t('Setup photo of {bike}', { bike: bike?.name ?? '' })} /></button>
       {:else}
-        <SetupDrawing {places} tapText={(p) => t('{bag}: {sub}, show in the list', { bag: p.bag.name, sub: p.bag.sub })} label={t('{bike} with its bags', { bike: bike?.name ?? '' })} onpick={(k) => onbag?.(k)} />
+        <SetupDrawing {places} quietSpots tapText={(p) => t('{bag}: {sub}, show in the list', { bag: p.bag.name, sub: p.bag.sub })} label={t('{bike} with its bags', { bike: bike?.name ?? '' })} onpick={(k) => onbag?.(k)} />
       {/if}
       {#if stats.onMeG}
         <p class="onme num"><UserRound size={16} aria-hidden="true" /><b>{t('On me')}</b> {kgN(stats.onMeG)} kg</p>

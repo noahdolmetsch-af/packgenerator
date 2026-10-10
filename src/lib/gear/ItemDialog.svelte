@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
   import { RIDES, RAIN_ITEM } from '../layers.js';
   import { CATEGORIES, CATEGORY, BAGS, BAG, OWNERSHIP, formatWeight, itemWeight, itemDraft, itemRecord, parseGrams } from '../gear.js';
@@ -492,7 +493,7 @@
   {#if !isNew && life}{@render fold('life', CalendarClock, t('History|item'), lifeSum, lifeBody)}{/if}
 {/snippet}
 
-<dialog class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="item-h">
+<dialog class="sheet" bind:this={dialog} use:backClose onclose={closed} aria-labelledby="item-h">
   {#if mergedInto}
     <p class="meta">{t('Merge|items')}</p>
     <h2 id="item-h" class="title">{nameOf(item)}</h2>

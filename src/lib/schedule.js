@@ -105,7 +105,9 @@ export function nextStep(trip, ctx = {}, today = localDay(), steps = tripSteps(t
   if (isOver(trip, today)) return debrief?.state === 'open' ? debrief : null;
   const before = steps.filter((s) => s.key !== 'debrief');
   // Under way (from the second day): the ride, whatever was left open before.
-  if (today > trip.startDate) return { key: 'way', day: today, state: 'open', late: false, due: true };
+  // v0.67.0 (U009): a bike trip on its start day too: «Unterwegs» is the next step; what is still open
+  // before (forecast, ready check) waits on the ride page and in the card's links, not as the button.
+  if (today > trip.startDate || (today === trip.startDate && hasBike(trip))) return { key: 'way', day: today, state: 'open', late: false, due: true };
   const open = before.find((s) => s.state === 'open');
   if (open) return open;
   return today === trip.startDate ? { key: 'way', day: today, state: 'open', late: false, due: true } : { key: 'ready', day: trip.startDate, state: 'open', late: false, due: false };
@@ -174,9 +176,10 @@ export function stepWords(step, trip, ctx = {}, today = localDay()) {
     case 'way':
       return bike
         ? { title: t('On the way'), why: t('Route, weather and the list for the day.'), when, button: t('On the way'), href: '#/ride', links: [] }
-        : { title: t('On the way'), why: t('Your list for the way.'), when, button: t('Open the trip'), href: '#/pack', links: [] };
+        : { title: t('On the way'), why: t('Your list for the way.'), when, button: t('Open the trip'), href: '#/pack?day', links: [] };
     case 'ready':
-      return { title: t('All set'), why: t('Everything is done until the start on {date}.', { date: dayText(trip.startDate) }), when: '', button: t('Open the trip'), href: '#/pack', links: [] };
+      // v0.67.0 (U007, Ü4a): all done before the start: the trip's waiting state (On the way with its countdown).
+      return { title: t('All set'), why: t('Everything is done until the start on {date}.', { date: dayText(trip.startDate) }), when: '', button: t('Open the trip'), href: bike ? '#/ride' : '#/pack?day', links: [] };
     default:
       return null;
   }

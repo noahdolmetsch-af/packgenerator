@@ -19,6 +19,8 @@
   import Rides from './pages/Rides.svelte';
   import Wardrobe from './pages/Wardrobe.svelte';
   import Flow from './pages/Flow.svelte';
+  import Between from './pages/Between.svelte';
+  import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
@@ -197,7 +199,7 @@
 
 <DemoBar />
 
-<main class:calm={page === 'pack' || page === 'ride' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'}>
+<main class:calm={page === 'pack' || page === 'ride' || page === 'between' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'}>
   {#key switchN}
   {#if page === 'gear'}
     <Gear />
@@ -211,6 +213,10 @@
     <Bikes />
   {:else if page === 'templates'}
     <Templates />
+  {:else if page === 'between'}
+    <!-- v0.67.0 «Übergänge 1» (Ü3a): #/trip/<id>/packed | ended | debriefed, the interstitials -->
+    {@const b = parseBetween(hash)}
+    {#key hash}<Between id={b?.id ?? ''} kind={b?.kind ?? 'packed'} />{/key}
   {:else if page === 'trips'}
     <!-- v0.46.1 (Noah): «Touren», the overview of all trips -->
     <Trips />

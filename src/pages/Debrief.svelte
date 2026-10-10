@@ -28,6 +28,7 @@
   import Logbook from '../lib/review/Logbook.svelte';
   import Learned from '../lib/review/Learned.svelte';
   import TripSaved from '../lib/review/TripSaved.svelte';
+  import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
@@ -314,6 +315,9 @@
     });
     busy = false;
     saved = true;
+    // v0.67.0 «Übergänge 1» (U006, Ü5a): a trip of several days closes with the interstitial «Rückblick
+    // fertig»; a day ride stays here (its saved view offers the template).
+    if (!isDayTrip(trip)) location.hash = betweenHref(trip, 'debriefed');
   }
   async function reopen() {
     d.status = 'draft';
@@ -338,7 +342,10 @@
     <!-- L7: before the last day there is nothing to look back on yet: a calm placeholder, no save.
          A trip ended early (finished) or over keeps the whole debrief. -->
     <!-- The page's one orange button leads back to where the trip stands: On the way once it has started, else Pack. -->
-    {#snippet back()}{#if byBike && trip.startDate <= localDay()}<a class="btn hi go" href="#/ride" onclick={() => openTrip(trip.id)}><ArrowLeft size={20} aria-hidden="true" />{t('Back to On the way')}</a>{:else}<a class="btn hi go" href="#/pack?day" onclick={() => openTrip(trip.id)}><ArrowLeft size={20} aria-hidden="true" />{t('Back to packing')}</a>{/if}{/snippet}
+    <!-- v0.67.0 «Übergänge 1» (U002, U013): the page's one button follows the phase (phase.js): packed and
+         waiting «Zur Startseite», not packed «Weiter zu Packen», under way «Weiter zu Unterwegs». -->
+    {@const m = mainStep(trip, localDay(), 'debrief')}
+    {#snippet back()}<a class="btn hi go" href={m.href} onclick={() => openTrip(trip.id)}>{t(m.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/snippet}
     <div class="flow trip-page">
       <TripBand {trip} tab="debrief" kicker={t('Debrief')} action={back} />
       <section class="tp-card early" aria-labelledby="early-h">
@@ -348,7 +355,7 @@
       </section>
     </div>
   {:else if d}
-    {#snippet go()}{#if saved}<a class="btn hi go" href="#/">{t('Done')}<ArrowRight size={20} aria-hidden="true" /></a>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish}>{t('Save debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
+    {#snippet go()}{#if saved}<a class="btn hi go" href="#/trips">{t('Back to Trips')}<ArrowRight size={20} aria-hidden="true" /></a>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish}>{t('Save debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
     {@const end = tripEnd(trip)}
     {@const back = end ? Math.round((Date.parse(`${localDay()}T00:00:00Z`) - Date.parse(`${end}T00:00:00Z`)) / 864e5) : null}
     <div class="flow trip-page">

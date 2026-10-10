@@ -44,6 +44,9 @@
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { take } from '../lib/nav.js';
+  import { mainStep, afterPacking, endNeedsAsk } from '../lib/phase.js';
+  import { endTrip as endTripNow } from '../lib/trip/ending.js';
+  import EndTripSheet from '../lib/trip/EndTripSheet.svelte';
   import ChargeSheet from '../lib/trip/ChargeSheet.svelte';
   import ChargeList from '../lib/trip/ChargeList.svelte';
   import { chargeList, chargeCount } from '../lib/charge.js';
@@ -225,13 +228,24 @@
     changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx, ...pctOf(t) }, wxFrom: 'forecast' }));
     location.hash = '#/pack';
   }
-  // v0.21.0: a trip without a bike ends here (with a bike: "End trip and debrief" on the ride day).
+  // v0.21.0: a trip without a bike ends here (with a bike: on the way).
+  // v0.67.0 «Übergänge 1» (U004, U013): before its last day it asks first (EndTripSheet); then the
+  // interstitial «Tour beendet» (ending.js), never the debrief straight away.
+  let endAsk = $state(false);
   async function endTrip() {
-    const id = trip.id;
-    // L7: before its start a trip is not ended (the debrief shows "Debrief from …" until the last day).
-    if (!(trip.startDate && trip.startDate > localDay())) await change(() => ({ finished: localDay() }));
-    location.hash = `#/debrief/${encodeURIComponent(id)}`;
+    if (!trip.startDate || trip.startDate > localDay()) return; // L7: before its start a trip does not end
+    if (endNeedsAsk(trip, localDay(), new Date().toTimeString().slice(0, 5))) return (endAsk = true);
+    await endTripNow($state.snapshot(trip));
   }
+  // v0.67.0 (U001, U003): «Packen abschliessen»: the step is done (packedAt), then the interstitial
+  // «Gepackt» (a day ride goes straight on, Ü5a). The Pack tab asks first when something is missing.
+  async function finishPacking() {
+    const cur = $state.snapshot(trip);
+    await change(() => ({ packedAt: localDay() }));
+    location.hash = afterPacking(cur, localDay());
+  }
+  const debriefDone = $derived(!!trip && ($debriefsQ ?? []).some((d) => d.tripId === trip.id && d.status === 'done'));
+  const phaseOpts = $derived({ debriefDone });
   const toggleIn = (itemId) => change((t) => ({ entries: togglePacked(t.entries, itemId) }));
   // v0.24.0: a whole bag (or, with null, the whole trip) in one tap.
   const packIn = (ids) => change((t) => ({ entries: packAll(t.entries, ids) }));
@@ -855,9 +869,9 @@
     </div>
   {/if}{/snippet}
   {#if packTab}
-    <PackDay {trip} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={bikeTrip ? goRide : endTrip} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} />
+    <PackDay {trip} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} />
   {:else}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={over ? null : factEdit} {readyCount} {readyTotal} {over} {step} debriefStep={DEBRIEF} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={over ? null : factEdit} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
@@ -954,6 +968,7 @@
       <h2>{t('Ready check')}</h2>
       <ul>{#each ready as r (r.id)}<li>☐ {t(r.label)}</li>{/each}</ul>
     </section>{/if}
+{#if endAsk && trip}<EndTripSheet {trip} day={Math.max(1, Math.min(trip.days || 1, Math.round((Date.parse(`${today}T12:00:00Z`) - Date.parse(`${trip.startDate}T12:00:00Z`)) / 864e5) + 1))} days={Math.max(1, Number(trip.days) || 1)} onclose={() => (endAsk = false)} />{/if}
 {#if dialog}
   <TripDialog trip={dialog.trip} {trips} {bikes} {items} {bags} {templates} startFrom={dialog.startFrom ?? 'standard'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={(id) => { dayMade = { id, before: chosen, day: false }; focusNew = id; choose(id); }} />
 {/if}

@@ -67,9 +67,12 @@ describe('nextStep: one step per day band', () => {
     expect(s.key).toBe('check');
     expect(s.due).toBe(false);
   });
-  it('start day: the ready check, then On the way', () => {
-    expect(nextStep(packed(trip()), DONE, day(0)).key).toBe('check');
+  // v0.67.0 (U009): on the start day of a bike trip the next step is On the way, open checks or not
+  // (they wait on the ride page); before it the ready check is still the step.
+  it('start day: On the way; the day before: the ready check', () => {
+    expect(nextStep(packed(trip()), DONE, day(0)).key).toBe('way');
     expect(nextStep(checked(packed(trip())), DONE, day(0)).key).toBe('way');
+    expect(nextStep(packed(trip()), DONE, day(-1)).key).toBe('check');
   });
   it('everything done before the start: All set', () => {
     expect(nextStep(checked(packed(trip())), DONE, day(-3)).key).toBe('ready');
@@ -104,7 +107,8 @@ describe('nextStep: one step per day band', () => {
     const steps = tripSteps(ski, OPEN, day(-14));
     expect(steps.map((s) => s.key)).toEqual(['weather', 'shop', 'pack', 'check', 'debrief']);
     expect(steps.find((s) => s.key === 'check').state).toBe('skip');
-    expect(stepWords(nextStep(checked(packed(ski)), DONE, day(0)), ski).href).toBe('#/pack');
+    // v0.67.0 (U007): the trip opens at its list for the way (Pack), not at Plan
+    expect(stepWords(nextStep(checked(packed(ski)), DONE, day(0)), ski).href).toBe('#/pack?day');
   });
 });
 

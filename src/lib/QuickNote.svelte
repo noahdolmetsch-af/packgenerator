@@ -1,4 +1,5 @@
 <script>
+  import { backClose } from './ui/backclose.js';
   /**
    * Quick note (v0.19.3, Noah 4.10.2026, answers 1a-3a). Since v0.19.6 (answer 4a) it opens from
    * "New" in the top bar (phone: the + in the bottom bar); the Inbox count sits in the top bar. Write down a
@@ -167,7 +168,7 @@
 
 {#if saved}<p class="saved" role="status">{saved} <a href="#/inbox">{t('Open')}</a></p>{/if}
 
-<dialog class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="qn-h">
+<dialog class="sheet" bind:this={dialog} use:backClose onclose={closed} aria-labelledby="qn-h">
   <form onsubmit={save}>
     <h2 id="qn-h" class="title">{t('Note + photo')}</h2>
     <div class="starts" role="group" aria-label={t('Start with')}>

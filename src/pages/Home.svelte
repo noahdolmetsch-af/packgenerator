@@ -37,6 +37,8 @@
   import { tripStats } from '../lib/trips.js';
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
+  import Continue from '../lib/home/Continue.svelte';
+  import { stepOf, lastEvening, betweenHref } from '../lib/phase.js';
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { openNew, openNote, openTrip, openPrep, addItem, wantBike, take, dayRide } from '../lib/nav.js';
@@ -192,6 +194,8 @@
   }
 
   /* ---------- 2. the trip card ---------- */
+  // v0.67.0 (U007): «Open the trip» leads into the step the trip is in now, not always to Plan.
+  const stepHere = (tr) => stepOf(tr, today, { debriefDone: debriefs.some((d) => d.tripId === tr.id && d.status === 'done') });
   const focus = $derived(loaded ? todayFocus(trips, debriefs, today) : null);
   const lead = $derived(focus?.trip ?? null);
   const next = $derived(nextTrip(trips, today));
@@ -493,13 +497,13 @@
         if (c.total > c.done) rows.push({ key: 'charge', tone: 'eve', text: tn(c.total - c.done, 'Charge batteries: {n} device for {trip}', 'Charge batteries: {n} devices for {trip}', { trip: soon.title }), act: { label: t('Charge list'), href: '#/pack?charge', trip: soon.id } });
       }
     }
-    if (debrief) rows.push({ key: 'debrief', tone: 'warn', text: t('Debrief still open: {title}', { title: debrief.title }), act: { label: t('All good'), run: () => allGood(debrief) } });
+    if (debrief) rows.push({ key: 'debrief', tone: 'warn', text: t('Debrief still open: {title}', { title: debrief.title }), act: { label: t('All good'), run: () => allGood(debrief) }, act2: { label: t('Open the debrief'), href: `#/debrief/${encodeURIComponent(debrief.id)}`, trip: debrief.id } }); // v0.67.0 (U011): also the way to the whole debrief
     if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true } });
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
     if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
     rows.push(...careRows.filter((r) => r.tone !== 'bad'));
-    for (const x of alsoToday) rows.push({ key: `also:${x.id}`, tone: 'info', text: `${t('Also today: {title}', { title: x.title })}${x.bike ? ` · ${x.bike}` : ''}`, act: { label: t('Open the trip'), href: '#/pack', trip: x.id } });
-    if (focus?.kind === 'debrief' && next) rows.push({ key: 'next', tone: 'info', text: t('Next trip: {title}', { title: next.title }), act: { label: t('Open the trip'), href: '#/pack', trip: next.id } });
+    for (const x of alsoToday) rows.push({ key: `also:${x.id}`, tone: 'info', text: `${t('Also today: {title}', { title: x.title })}${x.bike ? ` · ${x.bike}` : ''}`, act: { label: t('Open the trip'), href: stepHere(x).href, trip: x.id } });
+    if (focus?.kind === 'debrief' && next) rows.push({ key: 'next', tone: 'info', text: t('Next trip: {title}', { title: next.title }), act: { label: t('Open the trip'), href: stepHere(next).href, trip: next.id } });
     if (notes.length) rows.push({ key: 'inbox', tone: 'info', text: tn(notes.length, '{n} note to sort', '{n} notes to sort'), act: { label: t('Inbox'), href: '#/inbox' } });
     // v0.48.0 (Noah 17a): one line only for a pinned note with an open checklist.
     for (const x of todayNotes($notesQ ?? [], 1)) rows.push({ key: `note:${x.id}`, tone: 'info', text: tn(x.open, 'Note «{title}»: {n} point open', 'Note «{title}»: {n} points open', { title: x.title }), act: { label: t('Notes'), href: '#/notes' } });
@@ -588,8 +592,23 @@
   // v0.29.2 (Noah 6a): not on the day the trip was made: then Noah is still planning or packing.
   const madeToday = (tr) => !!tr?.createdAt && localDay(new Date(tr.createdAt)) === today;
   const riding = $derived(next && hasBike(next) && !madeToday(next) ? onTripDay(next, today) : false);
+  // v0.67.0 (U22b): on the evening of a trip's last day the interstitial «Tour beendet» opens by itself,
+  // once (the app does not end the trip: «Weiter zum Rückblick» or «Doch noch unterwegs» decide).
+  const lastEve = $derived(loaded && $debriefsQ ? trips.find((x) => !x.id.startsWith('demo') && lastEvening(x, today, now.getHours(), { debriefDone: debriefs.some((d) => d.tripId === x.id && d.status === 'done') })) ?? null : null);
   $effect(() => {
-    if (!riding) return;
+    if (!lastEve) return;
+    const key = 'between.evening';
+    try {
+      if (localStorage.getItem(key) === `${lastEve.id}:${today}`) return;
+      localStorage.setItem(key, `${lastEve.id}:${today}`);
+    } catch {
+      return; // without storage it would open every time: better not at all
+    }
+    openTrip(lastEve.id);
+    location.hash = betweenHref(lastEve, 'ended');
+  });
+  $effect(() => {
+    if (!riding || lastEve) return;
     const key = 'ride.autoOpened';
     try {
       if (localStorage.getItem(key) === `${next.id}:${today}`) return;
@@ -682,7 +701,7 @@
           {:else if stepNow}
             <a class="btn hi main" href={stepNow.href} onclick={() => openTrip(shown.id)} data-step={sched.next.key}>{stepNow.button}</a>
             {#each stepNow.links.slice(0, 1) as l (l.href)}<a class="lk" href={l.href} onclick={() => openTrip(shown.id)}>{l.label}</a>{/each}
-            {#if stepNow.href !== '#/pack'}<a class="lk" href="#/pack" onclick={() => openTrip(shown.id)}>{t('Open the trip')}</a>{/if}
+            {#if stepNow.href !== stepHere(shown).href}<a class="lk" href={stepHere(shown).href} onclick={() => openTrip(shown.id)}>{t('Open the trip')}</a>{/if}
           {:else if focus && isLead}
             <a class="btn hi main" href={focus.href} onclick={() => openTrip(shown.id)}>{t(focus.label)}</a>
           {/if}
@@ -727,6 +746,7 @@
                   {:else if r.act.care}<button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button>
                   {:else}<button type="button" class="btn sm" disabled={r.act.busy && backingUp} onclick={() => act(r)}>{r.act.label}</button>{/if}
                 {/if}
+                {#if r.act2}<a class="lk" href={r.act2.href} onclick={() => r.act2.trip && openTrip(r.act2.trip)}>{r.act2.label}</a>{/if}
               {/if}
             </li>
           {/each}
@@ -741,6 +761,8 @@
 {/snippet}
 
 <div class="home">
+  <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top. -->
+  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->
   {#if showFirst}
     <section class="card first" aria-labelledby="first-h">

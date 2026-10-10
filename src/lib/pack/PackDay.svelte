@@ -13,13 +13,14 @@
   import { Check, ChevronDown, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging } from '@lucide/svelte';
   import { tick as settle, untrack } from 'svelte';
   import TripBand from '../trip/TripBand.svelte';
+  import Empty from '../ui/Empty.svelte';
   import { formatWeight } from '../gear.js';
   import { readyDone, RAIN } from '../trips.js';
   import { t, tn, nameOf } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, bike = true, lessons = [], oncharge = null, pressure = '' } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], oncharge = null, pressure = '' } = $props();
   // v0.65.0 «Velo-Masse»: pressure: the trip bike's target pressure («1.6 / 1.7 bar»), named in the tyre row.
   const readyLabel = (r) => (r.id === 'tyres' && pressure ? `${t(r.label)} · ${t('Target')} ${pressure}` : t(r.label));
   const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${t(RAIN[w.rain ?? 'none'])}`;
@@ -40,7 +41,8 @@
   // Everything packed and checked: a card of its own at the top (v0.30.1, Noah B10: the status line
   // alone was too quiet), whichever bag is open.
   const finished = $derived(total > 0 && packed === total && readyAll);
-  const doneText = $derived(bike ? t('Everything is in. Have a good ride!') : t('Everything is in. Have a good trip!'));
+  // v0.67.0 (U001): «Gute Fahrt!» only fits on the day itself; before it the bags are simply ready.
+  const doneText = $derived(t('Everything is in.'));
   const stepOf = (key) => steps.find((x) => x.key === key);
   const status = $derived(finished ? '' : note && stepOf(note.from) && full(stepOf(note.from)) ? t('{bag} is packed. Next: {next}', { bag: titleOf(note.from), next: titleOf(note.to) }) : '');
   const nextAfter = (key) => {
@@ -221,11 +223,18 @@
     <b class="num">{packed}/{total}</b>
   </span>
 {/snippet}
-{#snippet go()}<button type="button" class="btn hi go" onclick={next}>{bike ? t('Next: On the way') : t('Next: Debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/snippet}
+<!-- v0.67.0 «Übergänge 1» (U001, U003, U013): the main button follows the phase (phase.js mainStep):
+     «Packen abschliessen» (asks when something is missing, then the interstitial «Gepackt»), packed and
+     waiting «Zur Startseite», under way «Weiter zu Unterwegs», after the trip «Weiter zum Rückblick». -->
+{#snippet go()}{#if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
+{:else if main.kind === 'end'}<button type="button" class="btn hi go" onclick={onend}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
+{:else if main.kind === 'go'}<a class="btn hi go" href={main.href}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
 {#snippet aside()}{@render ring(52)}{/snippet}
 
 <div class="pd trip-page" aria-label={t('Packing day: {title}', { title: trip.title })}>
-  <TripBand {trip} tab="pack" {kicker} action={go} {aside} hint={missing ? tn(missing, '{n} still missing', '{n} still missing') : t('Everything is in.')} />
+  <TripBand {trip} tab="pack" {kicker} action={main.kind ? go : null} {aside} hint={missing ? tn(missing, '{n} still missing', '{n} still missing') : t('Everything is in.')} />
+  <!-- v0.67.0 (U014, kit Empty): an empty list says so and leads to adding gear (never «Alles gepackt»). -->
+  {#if total === 0}<Empty text={t('The packing list is still empty. Add gear in Plan first, then pack here.')} action={{ label: t('Add material'), href: '#/pack?add' }} />{/if}
 
   {#if wxGap}
     <div class="tp-card wxgap" role="note">
@@ -260,8 +269,7 @@
         <h2 id="alldone-h">{doneText}</h2>
         <p>{tn(total, '{n} item packed', '{n} items packed')}{#if ready.length}{' · '}{t('Ready check done')}{/if}</p>
       </div>
-      <!-- dark, not orange: the one orange button of the page stays in the band (at the thumb on a phone) -->
-      <button type="button" class="btn ink adgo" onclick={onnext}>{bike ? t('Next: On the way') : t('Next: Debrief')}<ArrowRight size={20} aria-hidden="true" /></button>
+      <!-- v0.67.0 (U001): no second «Weiter» here: the one button of the page is in the band (at the thumb on a phone) -->
     </section>
   {/if}
 
