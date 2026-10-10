@@ -4,6 +4,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { newButton } from './newbutton.js';
 
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -46,7 +47,7 @@ async function start(page, context, info, lang) {
 }
 
 async function newTrip(page, T, title, days = 1) {
-  await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
+  await (await newButton(page, T('New'))).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await dlg.getByLabel(T('Name')).fill(title);
@@ -73,7 +74,7 @@ test('three problems for one bike in one go, sorted, changed with one tap, undon
   const T = tr('de');
   await start(page, context, info, 'de');
   await page.goto('./#/');
-  await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).first().click();
+  await (await newButton(page, T('New'))).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: new RegExp(T('Problem with a bike')) }).click();
   const dlg = page.getByRole('dialog', { name: T('Problem with a bike') });
   await expect(dlg.getByRole('button', { name: 'Test gravel bike' })).toHaveAttribute('aria-pressed', 'true');

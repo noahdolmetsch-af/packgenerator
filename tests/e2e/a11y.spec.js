@@ -8,6 +8,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { newButton } from './newbutton.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -149,7 +150,7 @@ test('dialogs: focus in, Tab stays inside, Escape closes, focus back', async ({ 
   await start(page, context, info);
   // New → Plan a trip → New trip (v0.30.0: the window opens straight away)
   await view(page, '#/');
-  const newBtn = page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true });
+  const newBtn = (await newButton(page, T('New')));
   await newBtn.focus();
   await page.keyboard.press('Enter');
   await dialogKeys(page, page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }), page.getByRole('dialog', { name: T('New trip') }), newBtn);

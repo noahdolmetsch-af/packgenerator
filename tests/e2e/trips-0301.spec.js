@@ -5,6 +5,7 @@ import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { newButton } from './newbutton.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -60,7 +61,7 @@ const table = (page, name) =>
 /** A day ride from Today. v0.38.0 (Noah 13a): "Day ride now" is in "New" (+), once. */
 async function dayRideFromToday(page) {
   await page.goto('./#/');
-  await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).first().click();
+  await (await newButton(page, T('New'))).click();
   await page.getByRole('dialog').getByRole('button', { name: new RegExp(`^${T('Day ride now')}`) }).click();
   await expect(page.locator('.made-card')).toBeVisible();
 }

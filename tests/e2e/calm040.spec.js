@@ -6,6 +6,7 @@
 // V040_SHOTS=<folder> saves screenshots (never into the repo).
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
+import { newButton } from './newbutton.js';
 import { P, SPARK, v038Start } from './v038-fixture.js';
 
 const T = (en, vars) => {
@@ -143,7 +144,7 @@ test('Building blocks and What the app can do are rows; explanations behind "?"'
 test('New trip: the area folded with the last one, the days field with "More", other starts below the standard', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/');
-  await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
+  await (await newButton(page, T('New'))).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await expect(dlg.locator('.area-fold')).not.toHaveAttribute('open', '');

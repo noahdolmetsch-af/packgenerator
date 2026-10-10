@@ -5,6 +5,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { newButton } from './newbutton.js';
 import { PLACES } from '../../src/lib/nav.js';
 
 const tr = (lang) => (en, vars) => {
@@ -168,7 +169,7 @@ test('Gear card search and + plans a trip', async ({ page, context }) => {
   await page.goto('./#/gear?find=1');
   await expect(page.getByRole('searchbox', { name: T('Search gear') })).toBeFocused();
   await page.goto('./#/');
-  await page.getByRole('button', { name: T('New'), exact: true }).first().click();
+  await (await newButton(page, T('New'))).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
   // v0.30.0 (Noah, finding 2): straight into the New trip window (empty data: no bike yet, so no list preview).
   const dlg = page.getByRole('dialog', { name: T('New trip') });
