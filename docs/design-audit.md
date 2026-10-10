@@ -99,6 +99,7 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Weiteres | Inbox/Notiz, Funktionen-Seite | 9.10.2026 (0.47: Inbox leert sich selbst) | 3 |
 | Velos | Velopflege, Teil-, Werkstattbesuch- und Bestell-Dialog | 9.10.2026 (0.48: Übersicht C nach Mockup, Teiletabelle, geführtes Ersetzen/Warten, Startwerte; Werkstattbesuch- und Bestell-Dialog noch alt) | 3 |
 | Velos | Velos vergleichen, Werkstatt & Belege | 9.10.2026 (0.48 neu; 0.62: Masse zuerst) | 3 |
+| Velos | Setup: Mappe und Blätter (Velo-Pass, Service-Plan, Werkstatt-Auftrag, Abhol-Check) | 10.10.2026 (0.69 neu nach Mockup velo-dokumente) | 4 |
 | Velos | Setup: Block «Masse» | 9.10.2026 (0.62 neu: Karte immer offen, 2/4 Spalten, Bearbeiten an Ort, Rückgängig) | 4 |
 | Weiteres | Eingang, Ablegen-Blatt, Notizen, Notiz-Blatt | 9.10.2026 (0.48 neu nach Mockup) | 3 |
 | Weiteres | Funktionen-Seite | – | – |
@@ -122,6 +123,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
+- 10.10.2026, 0.69.0 «Velo-Blätter»: neue Screens nach den Mockups `velo-dokumente` (Vorschlag A: Mappe unter dem Kopfband in Setup, Blätter als Papier mit Werkzeugleiste, Abhol-Check mit Häkchen), nur mit Bausteinen aus `app.css`; neue Dateien `SheetFolder` und `SheetView` strikt im Stil-Wächter. Bilder mit Testdaten im Projektordner `design/velo-blaetter-gebaut`.
 - 10.10.2026, 0.68.0 «Q1 Jeder km zählt»: neue Screens nach den Mockups `q1-jeder-km` (Fahrten-Buch zuoberst im Velo, Import-Seite «Prüfen» dann pro Velo, Wochenkarte auf Heute unter der Tour, Startpunkt-Spalte und Q1-Status in der Teileliste), nur mit Bausteinen aus `app.css`; Wächter 0 Funde auf Desktop und Handy. Bilder mit Testdaten im Projektordner `design/q1-jeder-km-gebaut`.
 - 10.10.2026, 0.67.1 Fix-Release: neue Komponente `DateInput` im Baukasten (`src/lib/ui/`), alle 8 Datumsfelder zeigen dasselbe Format mit Wochentag; Velo-Typen als Wörter. Kein neuer Screen.
 - 10.10.2026, 0.67.0 «Übergänge 1»: Baukasten als echte Komponenten (`PageHead`, `MainBar`, `Empty`, `Interstitial`, `StepBar`, `Celebrate`), drei Zwischenseiten nach den Mockups Zwischen-Gepackt/-Tourende/-Rueckblick/-Desktop, Rückfrage «Tour jetzt beenden?» nach Tour-beenden-Phone, «Weitermachen» auf Heute nach Heute-Weitermachen-Phone (nur die Zeile, Heute sonst unverändert bis E1). Mitgezogen: das Tourband aller vier Tourseiten (StepBar und MainBar statt eigener Regeln, Schriftstufen statt px, neue Stufen `--fs-tiny` und `--fs-title`), die Velozeichnung auf Planen (Formen sind nur noch Abkürzung, die Beschriftung ist der Knopf). Wächter streng für diese Teile (siehe oben), Grundlinie nur gesunken (TripBand 23 → 0). Bilder: keine Ablage im geteilten Ordner in diesem Lauf; Vorher/Nachher macht der PR.
