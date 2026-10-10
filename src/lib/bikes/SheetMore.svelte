@@ -212,7 +212,11 @@
     {#each BREAKIN_MARKS as m (m.km)}
       <span class="mk" class:on={(plan.km ?? 0) >= m.km} style:left={pos(m.km)}><i></i><small>{t(m.label)}</small></span>
     {/each}
-    {#if plan.km != null}<span class="now" style:left={pos(plan.km)}><small>{t('today {km} km', { km: num(plan.km) })}</small><i></i></span>{/if}
+    {#if plan.km != null}
+      <!-- the label stays inside the bar: near an end it is aligned to that end -->
+      <small class="nowl" class:start={plan.km < NEW_KM * 0.15} class:end={plan.km > NEW_KM * 0.85} style:left={pos(plan.km)}>{t('today {km} km', { km: num(plan.km) })}</small>
+      <span class="now" style:left={pos(plan.km)}><i></i></span>
+    {/if}
   </div>
   {#each plan.steps as st (st.key)}
     <section class="psec" aria-labelledby="bi-{st.key}">
@@ -621,12 +625,21 @@
     white-space: nowrap;
   }
   .now {
-    top: 0;
+    top: 16px;
   }
-  .now small {
+  .nowl {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
     color: var(--ink);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
     white-space: nowrap;
+  }
+  .nowl.start {
+    transform: translateX(-9px);
+  }
+  .nowl.end {
+    transform: translateX(calc(-100% + 9px));
   }
   .now i {
     width: 18px;
