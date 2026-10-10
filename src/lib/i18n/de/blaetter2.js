@@ -22,6 +22,8 @@ export default {
   '{part} until {year}': '{part} bis {year}',
   'purchase date missing': 'Kaufdatum fehlt',
   'frame number missing': 'Rahmennummer fehlt',
+  '{n} is missing|sheet': '{n} fehlt',
+  '{n} are missing|sheet': '{n} fehlen',
   '{n} photo missing': '{n} Foto fehlt',
   '{n} photos missing': '{n} Fotos fehlen',
 

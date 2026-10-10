@@ -512,7 +512,7 @@
     if (!bikes.length && !showFirst) rows.push({ key: 'nobike', tone: 'info', text: t('No bikes yet.'), act: { label: t('Add a bike'), href: '#/bikes', run: wantBike } });
     rows.push(...knowRows);
     // v0.70.0 «Velo-Blätter Teil 2» (W3 a, W6 a): a due step of a Break-in plan, a warranty that ends soon; «later» waits a week
-    for (const r of sheetReminders(bikes, { visits, today })) rows.push({ key: `sheet:${r.key}`, tone: r.tone, text: r.text, act: { label: t('Open the sheet'), href: r.href }, later: () => sheetLater(r) });
+    for (const r of sheetReminders(bikes, { visits, today })) rows.push({ key: `sheet:${r.bikeId}:${r.key}`, tone: r.tone, text: r.text, act: { label: t('Open the sheet'), href: r.href }, later: () => sheetLater(r) });
     if (newsN) rows.push({ key: 'news', tone: 'quiet', text: tn(newsN, 'New in the app: {n} update', 'New in the app: {n} updates'), act: { label: t('Show'), href: '#/features?news' } });
     if (tests.length) rows.push({ key: 'tests', tone: 'quiet', text: tn(tests.length, 'Clean up {n} test trip', 'Clean up {n} test trips'), act: { label: t('Clean up'), run: () => (cleanAsk = true) } });
     // milestones and the evening rows first, then the urgent ones (bad, warn), then the rest

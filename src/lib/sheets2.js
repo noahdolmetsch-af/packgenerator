@@ -612,7 +612,9 @@ export function theftSheet(bike, { photos = [], gallery = [], visits = [] } = {}
   const marks = ['marks', 'changes', 'sensor', 'hidden'].map(row);
   const insurance = ['insurer', 'policy', 'sum', 'deductible', 'report'].map(row);
   const own = photos.filter((p) => p.bikeId === b.id && p.theft);
-  const main = gallery.find((p) => p.main) ?? gallery[0] ?? null;
+  // the side view: a photo added for it, else the bike's main photo (never one added for another tile)
+  const rest = gallery.filter((p) => !own.some((x) => x.id === p.id));
+  const main = rest.find((p) => p.main) ?? rest[0] ?? null;
   const tiles = THEFT_PHOTOS.map((p) => {
     const ph = own.find((x) => x.theft === p.key) ?? (p.key === 'side' && main ? { id: main.id, data: main.src, gallery: true } : null);
     return { key: p.key, label: t(p.label), src: ph?.data ?? null, photoId: ph && !ph.gallery ? ph.id : null };
@@ -640,7 +642,7 @@ export function moreState({ breakin, kit, warranty: w, theft }) {
     else if (breakin.due) out.breakin = { text: t('Step {n} due', { n: breakin.due.n }), tone: 'warn' };
     else out.breakin = { text: t('Step {n}: {when}', { n: breakin.next.n, when: breakin.next.badge.text }), tone: 'n' };
   }
-  if (kit) out.kit = kit.missing ? { text: tn(kit.missing, '{n} missing', '{n} missing'), tone: 'warn' } : kit.packed === kit.total ? { text: t('everything packed'), tone: 'ok' } : { text: t('{n} of {all} packed', { n: kit.packed, all: kit.total }), tone: 'n' };
+  if (kit) out.kit = kit.missing ? { text: tn(kit.missing, '{n} is missing|sheet', '{n} are missing|sheet'), tone: 'warn' } : kit.packed === kit.total ? { text: t('everything packed'), tone: 'ok' } : { text: t('{n} of {all} packed', { n: kit.packed, all: kit.total }), tone: 'n' };
   if (w) {
     const soon = w.soon[0];
     if (soon) out.warranty = { text: t('{part} ends {when}', { part: soon.label, when: inText(soon.left) }), tone: 'warn' };

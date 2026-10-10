@@ -158,8 +158,8 @@
     try {
       const data = await shrinkImage(file);
       const id = `photo-${Date.now().toString(36)}-${tile.key}`;
-      const mine = await db.photos.where('bikeId').equals(bike.id).count();
-      await db.photos.put({ id, bikeId: bike.id, name: tile.label, tripId: null, main: !mine && !bike.photo, data, theft: tile.key, addedAt: new Date().toISOString() });
+      // into the bike's photos (Setup › Photos), never as its main photo: that one stays the side view
+      await db.photos.put({ id, bikeId: bike.id, name: tile.label, tripId: null, main: false, data, theft: tile.key, addedAt: new Date().toISOString() });
       say(t('Photo saved: {name}. It is also in the photos of the bike.', { name: tile.label }), () => db.photos.delete(id));
     } catch (err) {
       photoMsg = err.message || t('This photo could not be read.');
@@ -364,7 +364,7 @@
     <section class="psec" aria-labelledby="th-mk"><h3 id="th-mk">{t('Special marks')}</h3>{@render vals(th.marks)}</section>
   </div>
   <section class="psec" aria-labelledby="th-ph">
-    <h3 id="th-ph">{t('Photos')} {#if th.photosMissing}{@render badge({ text: tn(th.photosMissing, '{n} missing', '{n} missing'), tone: 'warn' })}{/if}</h3>
+    <h3 id="th-ph">{t('Photos')} {#if th.photosMissing}{@render badge({ text: tn(th.photosMissing, '{n} is missing|sheet', '{n} are missing|sheet'), tone: 'warn' })}{/if}</h3>
     <ul class="tiles">
       {#each th.photos as p (p.key)}
         <li class:empty={!p.src}>
