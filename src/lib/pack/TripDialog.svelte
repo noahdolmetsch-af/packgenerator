@@ -8,6 +8,7 @@
   import { db } from '../db.js';
   import { newTrip, lastTripOn, switchBike, WX_PRESETS, bagItemIds, touched } from '../trips.js';
   import { newBikeRecord } from '../bikes.js';
+  import { AID_KEY, aidLevel, aidFits } from '../firstaid.js';
   import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly, NIGHT_CHOICES, nightFields, nightName, NIGHT_BLOCKS, rideSets, OFFER_ONLY, hasTent } from '../context.js';
   import { ridesIntoDark } from '../blockplan.js';
   import { isEvent } from '../care.js';
@@ -221,7 +222,8 @@
     if (!built) return [];
     return rideSets({ dark, event: ctx.event }).map((key) => {
       const s = sets.find((x) => x.key === key);
-      const its = items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes(key) && !skip.has(i.id));
+      // v0.72.0 (Noah 10a): first aid counts only its set (a day trip: the small one).
+      const its = items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes(key) && !skip.has(i.id) && (key !== AID_KEY || aidFits(i, aidLevel({ overnight: night }))));
       const w = entriesWeight(its.map((i) => ({ itemId: i.id, qty: 1 })), items);
       return s ? { ...s, n: its.length, weight: w.missing && !w.g ? formatWeight(null) : knownWeight(w.g, w.missing) } : null;
     }).filter((s) => s && s.n > 0);

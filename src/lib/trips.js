@@ -13,6 +13,7 @@ import { isInventory, isConsumable } from './gear.js';
 import { t as tr, bagName } from './i18n.svelte.js';
 import { inDomain, BIKEPACKING } from './domains.js';
 import { inStandard, isWorn, blockKeys } from './blocks2026.js';
+import { AID_KEY, aidLevel, aidFits } from './firstaid.js';
 import { isOver } from './debrief.js';
 import { localDay } from './localday.js';
 
@@ -367,6 +368,7 @@ export { SLOT };
  * Repair, Charging, Race) and Cook. The night itself is one choice in the trip window.
  */
 export const NIGHT_SETS = [
+  { key: 'firstaid', name: 'First aid' }, // v0.72.0 (Noah 10a): on every trip, small or full
   { key: 'lights', name: 'Light|block' },
   { key: 'repair', name: 'Repair|block' },
   { key: 'charge', name: 'Charging|block' },
@@ -382,7 +384,8 @@ export const NIGHT_SETS = [
  */
 export function toggleSet(trip, items, key, on, { active = [] } = {}) {
   const sets = { ...(trip.sets ?? {}), [key]: on };
-  const inSet = items.filter((i) => isInventory(i) && i.sets?.includes(key));
+  // v0.72.0 (Noah 10a): first aid switched on brings only the items of the trip's set (day trip: small).
+  const inSet = items.filter((i) => isInventory(i) && i.sets?.includes(key) && (key !== AID_KEY || !on || aidFits(i, aidLevel({ ...trip, sets }))));
   let entries = trip.entries;
   if (on) {
     const have = new Set(entries.map((e) => e.itemId));

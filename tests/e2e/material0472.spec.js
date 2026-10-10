@@ -73,14 +73,18 @@ test('the item: its year on tour, the learned rule, the last trips, the lighter 
   await expect(dlg.getByRole('img', { name: /Letzte 12 Monate: auf 4 Touren gebraucht, auf 4 dabei/ })).toBeVisible();
   await expect(dlg).toContainText('Unter 12 °C immer gebraucht, darüber nie. Aus 8 Touren.');
   await expect(dlg.getByRole('heading', { name: /Letzte Touren/ })).toBeVisible();
-  await expect(dlg).toContainText('Leichteste Alternative: Wind vest, 112 g weniger');
   await expect(dlg).toContainText('2 J. 6 M.');
   await expect(dlg).toContainText('87.25 CHF');
+  // v0.72.0 (Noah 2a): the lighter alternative sits in the row «Gewicht», not in the history
+  await dlg.locator('details.fold[data-fold="weight"] > summary').click();
+  await expect(dlg.locator('details.fold[data-fold="weight"]')).toContainText('Leichteste Alternative: Wind vest, 112 g weniger');
   // an item without price, purchase day or alternative shows none of these
   await page.keyboard.press('Escape');
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   await page.goto('./#/gear?item=EL01');
   const d2 = page.locator('dialog[open]');
+  // the row «Gewicht» opened last stays open for the session: open the history again
+  await d2.locator('details.fold[data-fold="life"] > summary').click();
   await expect(d2.getByRole('heading', { name: 'Sein Jahr auf Tour' })).toBeVisible();
   await expect(d2.getByRole('heading', { name: 'Alter und Kosten' })).toHaveCount(0);
   await expect(d2.getByRole('heading', { name: 'Gewicht', exact: true })).toHaveCount(0);

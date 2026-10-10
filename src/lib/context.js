@@ -18,6 +18,7 @@ import { inDomain, BIKEPACKING } from './domains.js';
 import { layerSuggest, applyLayers, rideHours } from './layers.js';
 import { slotFor } from './trips.js';
 import { inStandard, isWorn, blockKeys } from './blocks2026.js';
+import { AID_KEY, aidLevel, aidFits } from './firstaid.js';
 
 export const OVERNIGHT = ['none', 'lodging', 'outdoor'];
 
@@ -48,13 +49,15 @@ export const nightFields = (key) => {
 export const nightName = (x) => NIGHT_CHOICES.find((c) => c.key === nightChoice(x))?.name ?? '';
 
 /** The blocks that come with the night (they "come by themselves"). */
-export const NIGHT_BLOCKS = ['bivy', 'tent', 'hotel', 'cook', 'firstaid'];
+export const NIGHT_BLOCKS = ['bivy', 'tent', 'hotel', 'cook'];
 /**
  * v0.66.0 (Noah 7a, 9a): the blocks that come on the ride: repair and charge on every ride, lights
  * when the ride goes into the dark (trip.dark), race only on an event. Each one stays a visible
  * suggestion: trip.sets[key] === false takes it off for this trip.
+ * v0.72.0 (Noah 10a): first aid on every ride too: the small set without a night, the full one
+ * with a night (firstaid.js aidLevel).
  */
-export const RIDE_BLOCKS = ['repair', 'charge', 'lights', 'race'];
+export const RIDE_BLOCKS = ['firstaid', 'repair', 'charge', 'lights', 'race'];
 /** The item sets a context can bring. */
 export const CONTEXT_SETS = [...NIGHT_BLOCKS, ...RIDE_BLOCKS];
 /** v0.66.0: the built-in blocks to add (filled by category at the update; loose groupings). */
@@ -62,18 +65,26 @@ export const LOOSE = ['food', 'hygiene', 'comfort'];
 /** v0.66.0 (Noah 9a): Comfort is never packed by itself: its items are only offered, unticked. */
 export const OFFER_ONLY = ['comfort'];
 /**
- * v0.28.0 (AP25, Noah: "Erste Hilfe komplett raus ausser bei 1 Nacht oder mehr"): the first aid
- * set comes with every night (lodging and outdoor). A new trip without a night carries none of
- * its items, also when one is standard, "On every trip" or in the template.
+ * v0.28.0 (AP25): the first aid set came only with a night. v0.72.0 (Noah 10a): it comes on every
+ * trip; without a night only the small set (firstaid.js). The key stays for older readers.
  */
-export const NIGHT_ONLY = ['firstaid'];
-const nightOnly = (item) => !!item?.sets?.some((s) => NIGHT_ONLY.includes(s));
+export const NIGHT_ONLY = [AID_KEY];
 
-/** Without a night (overnight 'none'): the entries without the first aid items. Other trips keep all. */
+/**
+ * v0.72.0 (Noah 10a): the entries without the first aid items this trip's set does not hold: on a
+ * day trip (small set) the items of the full set only, with first aid switched off all of them, also
+ * when one is standard, "On every trip" or in the template. A trip with the full set keeps all, and
+ * an older trip without a known night is never changed. (The name stays from v0.28.0.)
+ */
 export function dropNightOnly(entries, trip, items) {
-  if (trip?.overnight !== 'none') return entries;
+  if (!hasContext(trip)) return entries;
+  const level = aidLevel(trip);
+  if (level === 'full') return entries;
   const byId = new Map(items.map((i) => [i.id, i]));
-  return entries.filter((e) => !nightOnly(byId.get(e.itemId)));
+  return entries.filter((e) => {
+    const i = byId.get(e.itemId);
+    return !i?.sets?.includes(AID_KEY) || aidFits(i, level);
+  });
 }
 /** Night switches that follow the overnight stay (trip.sets, read by older versions). */
 const SWITCHED = ['bivy', 'tent', 'cook'];
@@ -83,14 +94,17 @@ export const hasContext = (trip) => OVERNIGHT.includes(trip?.overnight);
 
 /** v0.25.0 (Noah 4), v0.66.0: the blocks the night brings (one choice: hotel, bivy or bivy + tent). */
 export function nightSets(trip) {
-  if (trip?.overnight === 'lodging') return ['hotel', 'firstaid'];
-  if (trip?.overnight === 'outdoor') return ['bivy', ...(hasTent(trip) ? ['tent'] : []), ...(trip.cook ? ['cook'] : []), 'firstaid'];
+  if (trip?.overnight === 'lodging') return ['hotel'];
+  if (trip?.overnight === 'outdoor') return ['bivy', ...(hasTent(trip) ? ['tent'] : []), ...(trip.cook ? ['cook'] : [])];
   return [];
 }
 
-/** v0.66.0: the blocks the ride suggests (repair, charge; lights in the dark; race on an event), minus the ones taken off. */
+/**
+ * v0.66.0: the blocks the ride suggests (repair, charge; lights in the dark; race on an event), minus
+ * the ones taken off. v0.72.0 (Noah 10a): first aid on every ride (its set: firstaid.js aidLevel).
+ */
 export function rideSets(trip) {
-  const on = ['repair', 'charge', ...(trip?.dark ? ['lights'] : []), ...(trip?.event === true ? ['race'] : [])];
+  const on = [AID_KEY, 'repair', 'charge', ...(trip?.dark ? ['lights'] : []), ...(trip?.event === true ? ['race'] : [])];
   return on.filter((k) => trip?.sets?.[k] !== false);
 }
 
@@ -138,8 +152,11 @@ export function contextEntries(trip, items, { slotOf = null } = {}) {
   const out = (trip.entries ?? []).map((e) => ({ ...e }));
   const have = new Set(out.map((e) => e.itemId));
   const sets = contextSets(trip);
+  const level = aidLevel(trip);
+  // v0.72.0 (Noah 10a): a first aid item comes only with its set (day trip: the small one).
+  const brings = (i) => i.sets?.some((s) => sets.includes(s) && (s !== AID_KEY || aidFits(i, level)));
   for (const i of items) {
-    if (!sets.length || have.has(i.id) || !isInventory(i) || !inDomain(i, BIKEPACKING) || !i.sets?.some((s) => sets.includes(s))) continue;
+    if (!sets.length || have.has(i.id) || !isInventory(i) || !inDomain(i, BIKEPACKING) || !brings(i)) continue;
     out.push({ itemId: i.id, slot: isWorn(i) ? 'body' : slot(i.id), qty: 1, packed: false, src: 'context' });
     have.add(i.id);
   }
@@ -150,7 +167,7 @@ const sameContext = (a, b) =>
   a.overnight === b.overnight && !!a.cook === !!b.cook && hasTent(a) === hasTent(b) && !!a.dark === !!b.dark && !!a.event === !!b.event &&
   RIDE_BLOCKS.every((k) => (a.sets?.[k] === false) === (b.sets?.[k] === false)) && (Number(a.hours) || 0) === (Number(b.hours) || 0) &&
   Math.max(1, Number(a.days) || 1) === Math.max(1, Number(b.days) || 1) && JSON.stringify(a.wx ?? null) === JSON.stringify(b.wx ?? null) &&
-  (a.ride ?? null) === (b.ride ?? null);
+  (a.ride ?? null) === (b.ride ?? null) && aidLevel(a) === aidLevel(b);
 
 /**
  * v0.25.0 (Noah 9b): a change of duration, overnight stay or weather applies at once (Pack keeps
@@ -185,7 +202,8 @@ export function applyContext(trip, items, before = null, { fresh = false } = {})
   // v0.66.0: a later change brings only the ride blocks it switched on (Light into the dark, Race on
   // an event, a block switched back on); one that was already on (an older trip made without it) does
   // not come along with a change of the weather or the hours.
-  const stay = before && hasContext(before) ? rideSets(before).filter((k) => rideSets(trip).includes(k)) : [];
+  // v0.72.0: first aid stays quiet only while its set stays the same (small → full brings the rest).
+  const stay = before && hasContext(before) ? rideSets(before).filter((k) => rideSets(trip).includes(k) && (k !== AID_KEY || aidLevel(before) === aidLevel(trip))) : [];
   const fresh2 = contextSets(trip).filter((k) => !stay.includes(k));
   const quiet = (id) => {
     const keys = blockKeys(byId.get(id));
@@ -201,8 +219,8 @@ export function applyContext(trip, items, before = null, { fresh = false } = {})
  * A new trip with its context (Pack / TripDialog "Create trip"). fromCopy: the start is a copy of
  * the last trip; items of that trip that only belong to overnight sets this trip does not bring
  * stay at home (a day ride after a bivvy weekend starts without the sleeping bag). Worn, standard
- * and "On every trip" items always stay, except the first aid set on a trip without a night
- * (v0.28.0, dropNightOnly).
+ * and "On every trip" items always stay, except first aid items outside the trip's set (v0.72.0:
+ * a day trip keeps only the small set, dropNightOnly).
  */
 export function contextTrip(trip, items, { fromCopy = false } = {}) {
   if (!hasContext(trip)) return trip;
@@ -243,7 +261,7 @@ export function carryHint(trip, items, entries = trip?.entries ?? []) {
  * → { start, total, amounts: [{ item, qty }], weather: [item], sets: [{ key, n }], left: ['overnight', 'event'] }
  */
 export function contextSummary(start0, trip, items) {
-  const start = dropNightOnly(start0, trip, items); // v0.28.0: no first aid without a night
+  const start = dropNightOnly(start0, trip, items); // v0.72.0: a day trip only the small first aid set
   const byId = new Map(items.map((i) => [i.id, i]));
   const startIds = new Set(start.map((e) => e.itemId));
   const full = contextEntries({ ...trip, entries: start }, items);

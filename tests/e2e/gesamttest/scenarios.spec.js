@@ -10,6 +10,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { start, prepare, openData, importBackup, table, snapshot, integrity, ticks, comparable, fixture, tr, esc, day, P, step1, step2, track, gpxText, gearFile, shot, sideways, brokenWords } from './lib.js';
 import { fitRide } from '../../fixtures/fit.js';
+import { AID_KEY, inSmallAid } from '../../../src/lib/firstaid.js';
 
 const LANG = 'de';
 const T = tr(LANG);
@@ -80,10 +81,11 @@ test('S1 day ride: one tap, pack, ride, debrief', async ({ page, context }, info
   const trip = await lastTrip(page);
   expect(trip).toMatchObject({ days: 1, overnight: 'none' });
   expect(trip.entries.length).toBeGreaterThan(3);
-  // no night-only items on a day ride
+  // no night-only items on a day ride; v0.72.0 (Noah 10a): first aid only from the small set
   const items = await table(page, 'items');
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
-  expect(trip.entries.filter((e) => (byId[e.itemId]?.sets ?? []).some((s) => ['sleep', 'cook', 'firstaid'].includes(s))).map((e) => e.itemId), 'night items on a day ride').toEqual([]);
+  expect(trip.entries.filter((e) => (byId[e.itemId]?.sets ?? []).some((s) => ['sleep', 'cook'].includes(s))).map((e) => e.itemId), 'night items on a day ride').toEqual([]);
+  expect(trip.entries.filter((e) => byId[e.itemId]?.sets?.includes(AID_KEY) && !inSmallAid(byId[e.itemId])).map((e) => e.itemId), 'full first aid set on a day ride').toEqual([]);
   // no gone item comes into a new trip
   expect(trip.entries.filter((e) => byId[e.itemId]?.ownership === 'gone').map((e) => e.itemId), 'gone items on a new trip').toEqual([]);
 

@@ -5,7 +5,7 @@
  * row with a short summary, and only one row is open at a time (the last one opened is remembered
  * for the session). Pure functions, tested in tests/detail0540.test.js.
  */
-import { BAG } from '../gear.js';
+import { BAG, formatWeight } from '../gear.js';
 import { RIDES, rainOf } from '../layers.js';
 import { comesOf } from './comes.js';
 import { t, tn } from '../i18n.svelte.js';
@@ -52,6 +52,33 @@ export function comesLine(item, blocks = []) {
   const how = [...blockNames(item, blocks), ...ruleNames(item)];
   const parts = [...(comesOf(item).optional ? [t('Stays at home')] : []), ...(how.length ? how : [t('by hand')]), placeName(item)];
   return t('Comes along: {what}', { what: parts.join(' · ') });
+}
+
+/**
+ * v0.72.0 «Feinschliff» (Noah 1a): the ONE line under the name, in parts:
+ * «245 g · kommt mit Regen · Satteltasche · 6× dabei, 4× gebraucht». The weight of one piece (or
+ * «not weighed»), how it comes along (its blocks and rules, or «by hand»; «stays at home» first),
+ * the place (On me or the usual bag) and, only after a reviewed trip, how often it was along and used.
+ * item: the item or the open form ({ weightG }); u: usageOf(…) or null.
+ */
+export function summaryParts(item, blocks = [], u = null) {
+  const g = item?.weightG;
+  const how = [...blockNames(item, blocks), ...ruleNames(item)];
+  const parts = [g == null || g === '' ? t('not weighed') : formatWeight(Number(g))];
+  if (comesOf(item).optional) parts.push(t('Stays at home'));
+  parts.push(how.length ? t('comes with {what}', { what: how.join(', ') }) : t('comes along by hand'));
+  parts.push(placeName(item));
+  if (u?.taken) parts.push(t('{a}× along, {b}× used', { a: u.taken, b: u.used }));
+  return parts;
+}
+
+/** The summary line as one text (summaryParts joined by « · »). */
+export const summaryLine = (item, blocks = [], u = null) => summaryParts(item, blocks, u).join(' · ');
+
+/** The summary of the «Weight» row: «245 g · weighed», or «not weighed». */
+export function weightLine(item) {
+  const g = item?.weightG;
+  return g == null || g === '' ? t('not weighed') : `${formatWeight(Number(g))} · ${weightState(item)}`;
 }
 
 /** The summary of the «History» row: «8× along · 4× used», or that it was on no debriefed trip. */

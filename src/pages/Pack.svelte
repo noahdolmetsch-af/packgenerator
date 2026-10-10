@@ -14,6 +14,8 @@
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
   import { applyContext, hasContext, carryHint, activeBlocks, OFFER_ONLY } from '../lib/context.js';
   import { ridesIntoDark } from '../lib/blockplan.js';
+  import { aidLevel, aidChosen } from '../lib/firstaid.js';
+  import Seg from '../lib/ui/Seg.svelte';
   import WeighMode from '../lib/gear/WeighMode.svelte';
   import CalmPack from '../lib/pack/CalmPack.svelte';
   import Onion from '../lib/pack/Onion.svelte';
@@ -779,6 +781,14 @@
           </button>
         {/each}
       </div>
+      <!-- v0.72.0 (Noah 10a): first aid on every trip; the app picks small (day trip) or full (a night), changeable here. -->
+      {#if trip && hasContext(trip) && setOn('firstaid') && setCount('firstaid')}
+        <div class="aidset">
+          <span class="lbl" id="aid-h">{t('First aid')}</span>
+          <Seg labelledby="aid-h" full={false} options={[{ key: 'small', name: t('Small · day trip') }, { key: 'full', name: t('Full · with a night') }]} value={aidLevel(trip)} onchange={(k) => changeContext(() => ({ aid: k }))} />
+          <small class="hint">{aidChosen(trip) ? t('Chosen for this trip.') : t('Chosen by the app from the night.')}</small>
+        </div>
+      {/if}
       <!-- v0.66.0 (Noah 6a): Warm is no block any more; warm clothes come with the weather (temperature rule). -->
     {/snippet}
 
@@ -1010,6 +1020,8 @@
   .toggle { min-height: 40px; padding: 5px 14px; border: 1.5px solid var(--ink-3); border-radius: 999px; background: var(--paper); color: var(--ink); font: 600 15px var(--font-body); cursor: pointer; }
   .toggle[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
   .toggle:disabled { opacity: 0.5; cursor: default; }
+  .aidset { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 12px; }
+  .aidset .hint { flex-basis: 100%; }
   .wxbox > summary { padding: 10px 0; cursor: pointer; }
   .wxin { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 12px; margin-top: 16px; }
   .hours { display: block; margin-top: 20px; }

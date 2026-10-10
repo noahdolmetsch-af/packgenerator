@@ -113,11 +113,25 @@ test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves
   expect(await wide(page)).toBe(0);
   await shot(page, info, 'blocks');
 
-  // 3. «Bausteine prüfen»: first the items still to assign (from the old Lodging).
+  // 3. «Bausteine prüfen»: v0.72.0 (Noah 4a) first the overview of the changes 5–10, each row with
+  // a button to its step; then the items still to assign (from the old Lodging).
   await tap(check, info);
   await expect(page.getByRole('heading', { level: 1, name: T('Check building blocks') })).toBeVisible();
-  await expect(stepHead(page)).toContainText(T('Still to assign'));
+  await expect(stepHead(page)).toContainText(T('What has changed'));
+  await expect(page.locator('.progress')).toContainText(`${T('Overview')}`);
   await expect(page.getByRole('progressbar', { name: T('Progress') })).toHaveAttribute('aria-valuenow', '1');
+  const rows = page.locator('.ovr');
+  await expect(rows).toHaveCount(6);
+  await expect(rows.nth(0)).toContainText('Nacht: Basis');
+  await expect(rows.nth(0)).toContainText('Biwak');
+  await expect(rows.nth(5)).toContainText('Klein · Tagestour');
+  const review = (await table(page, 'settings')).find((s) => s.key === 'blockReview')?.value;
+  await expect(rows.nth(3)).toContainText(String(review.unassigned.length));
+  expect(await wide(page)).toBe(0);
+  await shot(page, info, 'check-overview');
+  await tap(rows.nth(3).getByRole('button', { name: /Zuordnen/ }), info);
+  await expect(stepHead(page)).toContainText(T('Still to assign'));
+  await expect(page.getByRole('progressbar', { name: T('Progress') })).toHaveAttribute('aria-valuenow', '2');
   await shot(page, info, 'check-assign');
   const gel = page.getByRole('group', { name: /Duschgel|Shower gel/ });
   await tap(gel.getByRole('button', { name: /nehmen$/ }), info);
