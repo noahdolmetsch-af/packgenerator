@@ -194,9 +194,11 @@ test('7: Touren opens the overview of all trips; a row opens its trip at the nex
     await tap(page.locator('nav[aria-label]').filter({ visible: true }).getByRole('link', { name: 'Touren' }), info);
     await expect(page).toHaveURL(/#\/trips$/);
     await expect(page.getByRole('heading', { name: 'Touren', level: 1 })).toBeVisible();
-    await expect(page.getByText('Was jetzt?')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Neue Tour' })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 2 })).toHaveText([/In Planung/, /Rückblick offen/]);
+    // v0.78.0 «Fünf Orte» 2 / «Übergänge 2»: the four steps on top, tiles by state, templates and best values on the side
+    await expect(page.getByText('Jede Tour geht in vier Schritten.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Neue Tour', exact: true }).first()).toBeVisible();
+    await expect(page.locator('.groups').getByRole('heading', { level: 2 })).toHaveText([/In Planung/, /Rückblick offen/]);
+    await expect(page.getByRole('heading', { level: 2, name: 'Bestwerte und Schnitt' })).toBeVisible();
     expect(await noSideScroll(page)).toBe(true);
     for (const b of await page.locator('.trips .go, .trips .btn.hi').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
     if (width !== 320) await shot(page, info, 'touren-after', true);

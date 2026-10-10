@@ -50,9 +50,6 @@
       "colour": 2,
       "fontsize": 33
     },
-    "src/lib/care/BikesNav.svelte": {
-      "fontsize": 1
-    },
     "src/lib/care/CareTab.svelte": {
       "colour": 1,
       "fontsize": 8
@@ -287,9 +284,6 @@
     },
     "src/pages/Templates.svelte": {
       "fontsize": 11
-    },
-    "src/pages/Trips.svelte": {
-      "fontsize": 1
     },
     "src/pages/Wardrobe.svelte": {
       "fontsize": 25,

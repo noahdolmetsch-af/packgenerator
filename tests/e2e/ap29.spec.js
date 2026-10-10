@@ -256,22 +256,23 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   // v0.36.0: the first point of the newest version (was #/pack in 0.35.0).
   await expect(page).toHaveURL(new RegExp(`${WHATS_NEW[0].points[0].href.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}$`));
 
-  // Today: an update from 0.34 shows the line once.
+  // Today: an update from 0.34 says it once.
   await page.evaluate(() => localStorage.setItem('whatsnew.seen', '0.34.0'));
   // v0.38.0: "Try it" of the newest point is Today itself; open Today afresh from another page.
   await page.goto('./#/features');
   await page.goto('./#/');
-  // v0.38.0 (Noah 9a): the line became the row "New in the app" in "Jump to", with the count.
-  // v0.46.0 (Noah 34b): a quiet row of "Important today" (behind "Show all {n}" when there are more).
-  const imp = page.getByRole('region', { name: T('Important today') });
-  await expect(imp.locator('li').first()).toBeVisible();
-  if (await imp.locator('button.more').count()) await imp.locator('button.more').click();
-  const line = imp.locator('[data-row=news]');
-  await expect(line).toContainText(new RegExp(T('New in the app: {n} updates').split(':')[0]));
-  await expect(line.getByRole('link')).toHaveAttribute('href', '#/features?news');
+  // v0.78.0 (Übergänge 2, Noah Ü9a): after a real update a calm sheet «New in …» with the points,
+  // «Show» to the exact place, «Fine, go on» and «All news» (the quiet row stays for a first visit).
+  const sheet = page.locator('dialog.news[open]');
+  await expect(sheet.getByRole('heading', { name: T('New in {version}', { version: short(WHATS_NEW[0].version) }) })).toBeVisible();
+  await expect(sheet.getByRole('button', { name: T('Show') }).first()).toBeVisible();
+  await expect(sheet.getByRole('link', { name: T('All news') })).toHaveAttribute('href', '#/features?news');
   await shot(page, info, 'today-hint');
   expect(await page.evaluate(() => localStorage.getItem('whatsnew.seen'))).toBe(WHATS_NEW[0].version);
+  await sheet.getByRole('button', { name: T('Fine, go on') }).click();
+  await expect(page.locator('dialog.news[open]')).toHaveCount(0);
   await page.reload();
   await expect(page.locator('.home')).toBeVisible();
-  await expect(line).toHaveCount(0);
+  await expect(page.locator('dialog.news[open]')).toHaveCount(0);
+  await expect(page.locator('[data-row=news]')).toHaveCount(0);
 });

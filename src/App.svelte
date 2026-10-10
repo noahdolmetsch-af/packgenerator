@@ -41,7 +41,8 @@
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
-  import { pageOf, placeOf, redirectOf } from './lib/nav.js';
+  import { pageOf, placeOf, redirectOf, tabOf, keepTab } from './lib/nav.js';
+  import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import { t, lang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
@@ -49,17 +50,21 @@
   // v0.49.0 R1: an old address of a page that became part of another (#/review, #/debrief/compare)
   // is replaced by the new one, so a bookmark or an old link still lands on the right page.
   let spot = $state('');
+  // v0.78.0 «Fünf Orte» 2 (Noah O2.6a): the old address that led here, shown once in a small note.
+  let moved = $state(null);
   const follow = (h) => {
     const r = redirectOf(h);
     if (!r) return h;
     history.replaceState(null, '', `${location.pathname}${location.search}${r.hash}`);
     spot = r.spot;
+    moved = r.old ?? null;
     return r.hash;
   };
   let hash = $state(follow(location.hash));
   $effect(() => {
     const update = () => {
       spot = '';
+      moved = null;
       hash = follow(location.hash);
       window.scrollTo(0, 0);
     };
@@ -69,6 +74,11 @@
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
   const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page));
+  // v0.78.0 «Fünf Orte» 2 (Noah O2.2a): each place remembers the tab opened last (nav.js placeHref).
+  const tab = $derived(place ? tabOf(place, hash) : null);
+  $effect(() => {
+    if (place && tab) keepTab(place, tab);
+  });
   // v0.76.0 «Fünf Orte» 1: the place tints the page and colours the bars (app.css --pc, --tint).
   $effect(() => {
     if (place) document.documentElement.dataset.place = place;
@@ -255,6 +265,7 @@
 <DemoBar />
 
 <main class:calm class:fab={!wide.matches && !calm && page !== 'share'} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches}>
+  {#if !calm && page !== 'share'}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   {#key switchN}
   {#if page === 'gear'}
     <Gear />
@@ -330,7 +341,7 @@
 <Keys bind:open={keysOpen} />
 {#if !wide.matches}
   <!-- v0.76.0: the five places at the bottom (also under a shared list, there without +). -->
-  <PlaceBar {place} due={$dueQ ?? 0} fab={page !== 'share'} high={calm && phone.matches} away={actionsSeen} onnew={() => (newMode = 'all')} />
+  <PlaceBar {place} {hash} due={$dueQ ?? 0} fab={page !== 'share'} high={calm && phone.matches} away={actionsSeen} onnew={() => (newMode = 'all')} />
 {/if}
 </div>
 </div>
