@@ -169,7 +169,7 @@ test('b: a one-day ride has no «1 Tag · keine Übernachtung» field; a trip of
   await page.goto('./#/pack');
   await expect(page.locator('.trip-band h1')).toContainText('Jura event');
   await expect(band(page).locator('[data-fact="duration"]')).toHaveText('2 Tage');
-  await expect(cond).toContainText('2 Tage · Unterkunft');
+  await expect(cond).toContainText('2 Tage · Hotel/Hütte');
   await expect(cond).toContainText('pro Tag');
   expect(await noSideScroll(page)).toBe(true);
   expect(errors).toEqual([]);

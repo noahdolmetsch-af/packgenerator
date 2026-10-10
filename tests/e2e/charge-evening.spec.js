@@ -114,7 +114,7 @@ test('charge list from #/pack?charge, ticks on the trip; evening block on day 1 
   await page.goto('./#/ride');
   const eve = page.locator('details.eve');
   await expect(eve.locator('summary')).toContainText(T('Evening'));
-  await expect(eve.locator('summary')).toContainText(T('Lodging'));
+  await expect(eve.locator('summary')).toContainText(T('Hotel/hut'));
   await expect(eve.locator('summary')).toContainText(T('Charge {done}/{n}', { done: 0, n: 4 }));
   if (!(await eve.evaluate((d) => d.open))) await eve.locator('summary').click();
   await expect(eve).toContainText(T('Lay out for tomorrow'));

@@ -25,8 +25,8 @@ describe('first aid comes with a night only', () => {
     it_('AIDKIT', { sets: ['firstaid'], role: 'standard' }),
     it_('BLISTER', { sets: ['firstaid'], always: true }),
     it_('AIDPLUS', { sets: ['firstaid'] }),
-    it_('BRUSH', { sets: ['lodging'] }),
-    it_('SLEEPBAG', { sets: ['sleep'] }),
+    it_('BRUSH', { sets: ['hotel'] }), // v0.66.0: Lodging → Hotel/hut
+    it_('SLEEPBAG', { sets: ['bivy'] }), // v0.66.0: Sleep → Bivouac
   ];
   const bike = { id: 'b1', name: `${P} Gravel`, setup: { seat: 'bs', frame: 'bf' } };
   const draft = { title: `${P} trip`, startDate: '2026-10-11', days: 1 };
@@ -173,9 +173,9 @@ describe('traceable source (count of, trips with context)', () => {
     const h = templateHints(tpl, trips, three, items).find((x) => x.id === 'out:JACKET');
     expect(h).toMatchObject({ kind: 'out', itemId: 'JACKET', count: 3, of: 3 });
     expect(h.trips.map((x) => x.id)).toEqual(['t3', 't2', 't1']);
-    expect(h.trips[0]).toMatchObject({ title: `${P} Trip 3`, startDate: '2026-08-01', ctx: '2 days · Lodging · 8–14 °C, rain' });
+    expect(h.trips[0]).toMatchObject({ title: `${P} Trip 3`, startDate: '2026-08-01', ctx: '2 days · Hotel/hut · 8–14 °C, rain' });
     lang.v = 'de';
-    expect(tripContext(trips[0])).toBe('2 Tage · Unterkunft · 6–12 °C');
+    expect(tripContext(trips[0])).toBe('2 Tage · Hotel/Hütte · 6–12 °C');
     expect(tripContext({ days: 1, overnight: 'none' })).toBe('1 Tag · Ohne Nacht · Wetter unbekannt');
   });
   it('in: missing on 2 of 3 trips', () => {

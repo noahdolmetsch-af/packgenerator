@@ -36,7 +36,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | Version | Inhalt | Stand |
 | --- | --- | --- |
 | 0.65.0 | Velo-Masse: Sattelhöhe, Rahmengrösse, Lenkerbreite pro Velo, Import aus Datei | live |
-| 0.66.0 | Bausteine neu (Biwak, Zelt, Hotel, Kochen, Erste Hilfe, Reparatur, Laden, Licht, Rennen, Essen, Hygiene, Komfort) und «Bausteine prüfen» | fertig, wartet auf Freigabe |
+| 0.66.0 | Bausteine neu (Biwak, Zelt, Hotel, Kochen, Erste Hilfe, Reparatur, Laden, Licht, Rennen, Essen, Hygiene, Komfort) und «Bausteine prüfen» | live |
 | – | KI-Helfer (siehe unten) | wird fertig gebaut, dann als Entwurf geparkt |
 | – | Startseite & Integrationen E1–E4 | Konzept fertig, Mockups werden gezeichnet |
 
@@ -49,7 +49,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Warum:** Die alten Bausteine (Basis, Warm, Schlafen, Licht, Unterkunft) waren zu grob. «Unterkunft» mischte Zelt und Hotel, «Warm» doppelte die Temperaturregeln.
 - **Was:** 12 klare Bausteine: Biwak, Zelt, Hotel/Hütte, Kochen, Erste Hilfe (immer dabei, klein oder voll), Reparatur, Laden, Licht (kommt mit Dunkelheit), Rennen, Essen, Hygiene, Komfort. Dazu die Seite «Bausteine prüfen», um jeden Baustein durchzugehen. Eine Migration verteilt die alten Bausteine automatisch, die alten Schlüssel bleiben zwei Versionen erhalten.
 - **Beispiel:** Neue Tour «2 Nächte, Hütte» schaltet Hotel/Hütte, Hygiene und Laden ein, Biwak und Kochen bleiben aus.
-- **Stand:** fertig, alle Tests grün, wartet auf Freigabe.
+- **Stand:** live seit 10.10.2026.
 
 ### 2. KI-Helfer (gebaut, geparkt)
 
@@ -132,7 +132,7 @@ Noah, 10.10.2026: zuerst die Design-Pakete und die anderen Vorhaben, der KI-Helf
 
 ```mermaid
 flowchart LR
-  B["0.66 Bausteine<br/>Freigabe"] --> U["Übergänge Teil 1"]
+  B["0.66 Bausteine<br/>live"] --> U["Übergänge Teil 1"]
   U --> D3["D3 Navigation Basecamp"]
   D3 --> E1["E1 Startseite neu"]
   E1 --> D5["D5 Packen vorschlagen"]

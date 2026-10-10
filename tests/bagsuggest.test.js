@@ -10,13 +10,14 @@ const bags = [
   { id: 'bag-top', name: 'Top tube bag', slot: 'top', volumeL: 1 },
   { id: 'bag-cargo', name: 'Cargo cage', slot: 'fork', volumeL: 3 },
 ];
+// v0.66.0: Bivouac and Tent took over the old Sleep (a mat in Tent here, to cover both keys).
 const items = [
-  { id: 'SL01', name: 'Sleeping bag', sets: ['sleep'], defaultBag: 'seat', volumeL: 6 },
-  { id: 'SL02', name: 'Sleeping mat', sets: ['sleep'], defaultBag: 'bar', volumeL: 3 },
+  { id: 'SL01', name: 'Sleeping bag', sets: ['bivy'], defaultBag: 'seat', volumeL: 6 },
+  { id: 'SL02', name: 'Sleeping mat', sets: ['tent'], defaultBag: 'bar', volumeL: 3 },
   { id: 'CO01', name: 'Stove', sets: ['cook'], defaultBag: null, volumeL: 1 },
   { id: 'WA01', name: 'Down jacket', sets: ['warm'], defaultBag: 'seat' },
   { id: 'ON01', name: 'Jersey', role: 'worn', sets: [], defaultBag: 'body' },
-  { id: 'SL03', name: 'Sleep shirt', role: 'worn', sets: ['sleep'], defaultBag: 'body' },
+  { id: 'SL03', name: 'Sleep shirt', role: 'worn', sets: ['bivy'], defaultBag: 'body' },
 ];
 const trip = (over = {}) => ({
   id: 'test_data_gtp_bivvy', overnight: 'outdoor', cook: true, bikeId: 'gravel', setup: { ...bike.setup },

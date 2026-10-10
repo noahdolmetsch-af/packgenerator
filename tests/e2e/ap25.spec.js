@@ -109,7 +109,7 @@ test('a template hint with its source, "Not now" into the History, the Home card
   const trips = src.locator('.trips li');
   await expect(trips).toHaveCount(3);
   await expect(trips.first()).toContainText('test_data_gtp_ Napf');
-  await expect(trips.first()).toContainText(`2 Tage · ${T('Lodging')} · 6–12 °C, Regen`);
+  await expect(trips.first()).toContainText(`2 Tage · ${T('Hotel/hut')} · 6–12 °C, Regen`);
   await expect(trips.nth(1)).toContainText('8–14 °C, Schauer');
   await noSideScroll(page);
 
@@ -163,7 +163,7 @@ test('first aid: none on a day ride, with a 1-night lodging trip', async ({ page
   await dlg.getByLabel(T('Name')).fill(title);
   await dlg.getByLabel(T('Start date')).fill(today());
   await dlg.getByRole('button', { name: T('2 days'), exact: true }).click(); // v0.40.0: the days field only after "More"
-  await dlg.getByRole('button', { name: T('Lodging'), exact: true }).click();
+  await dlg.getByRole('button', { name: T('Hotel/hut'), exact: true }).click();
   await dlg.getByRole('button', { name: T('Create trip') }).click();
   await expect(dlg).toBeHidden();
   await expect.poll(async () => (await allTrips(page)).find((x) => x.title === title)?.entries.map((e) => e.itemId) ?? []).toEqual(expect.arrayContaining(['AP02', 'AP03']));

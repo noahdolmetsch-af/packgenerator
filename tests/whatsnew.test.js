@@ -81,7 +81,9 @@ describe('the list of what is new', () => {
     const { older } = splitNews();
     const groups = groupOlder(older);
     expect(groups.flatMap((g) => g.entries)).toEqual(older);
-    expect(groups.length).toBeLessThanOrEqual(6);
+    // One group per ten minor versions (0.0–0.9, 0.10–0.19, …); it grows by one with every new decade.
+    const decades = new Set(older.map((e) => Math.floor(Number(e.version.split('.')[1]) / 10)));
+    expect(groups.length).toBe(decades.size);
     expect(groups.at(-1)).toMatchObject({ key: '0.0', from: '0.1', to: '0.9' });
     for (const g of groups) {
       expect(g.entries.length).toBeGreaterThan(0);
@@ -130,7 +132,7 @@ describe('the list of what is new', () => {
     expect(compareVersions('0.35.0', '0.34.0')).toBe(1);
     expect(compareVersions('0.9.0', '0.10.0')).toBe(-1);
     expect(compareVersions('0.35', '0.35.0')).toBe(0);
-    expect(newerThan('0.33.0').map((e) => e.version)).toEqual(['0.65.0', '0.63.0', '0.61.0', '0.59.0', '0.57.0', '0.56.0', '0.51.0', '0.47.3', '0.47.2', '0.47.1', '0.47.0', '0.46.3', '0.46.2', '0.46.1', '0.46.0', '0.45.2', '0.45.1', '0.45.0', '0.44.1', '0.44.0', '0.43.0', '0.42.0', '0.41.0', '0.40.0', '0.39.0', '0.38.0', '0.37.1', '0.37.0', '0.36.0', '0.35.0', '0.34.0']);
+    expect(newerThan('0.33.0').map((e) => e.version)).toEqual(['0.66.0', '0.65.0', '0.63.0', '0.61.0', '0.59.0', '0.57.0', '0.56.0', '0.51.0', '0.47.3', '0.47.2', '0.47.1', '0.47.0', '0.46.3', '0.46.2', '0.46.1', '0.46.0', '0.45.2', '0.45.1', '0.45.0', '0.44.1', '0.44.0', '0.43.0', '0.42.0', '0.41.0', '0.40.0', '0.39.0', '0.38.0', '0.37.1', '0.37.0', '0.36.0', '0.35.0', '0.34.0']);
   });
 });
 

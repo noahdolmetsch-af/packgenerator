@@ -12,17 +12,22 @@ const items = [
   it_('GEL', { role: 'standard', defaultBag: 'top', perHours: 1, maxQty: 8 }),
   it_('BAR', { role: 'standard', defaultBag: 'top', perHours: 3 }),
   it_('BOTTLE', { role: 'standard', defaultBag: 'frame', perHours: 3, maxQty: 2 }),
-  it_('BRUSH', { sets: ['base', 'lodging'], defaultBag: 'top' }),
-  it_('TOWEL', { sets: ['base'] }),
-  it_('SHOWER', { sets: ['lodging'], defaultBag: 'top' }),
-  it_('SLEEPBAG', { sets: ['sleep'] }),
-  it_('PUFFY', { sets: ['warm'] }),
+  // v0.66.0 «Bausteine neu»: the blocks after the update (Base + Sleep → Bivouac, Lodging → Hotel/hut,
+  // Warm → a temperature rule, Light → Light in the dark); the old keys stay on an item and do nothing.
+  it_('BRUSH', { sets: ['base', 'lodging', 'bivy', 'hotel'], defaultBag: 'top' }),
+  it_('TOWEL', { sets: ['base', 'bivy'] }),
+  it_('SHOWER', { sets: ['lodging', 'hotel'], defaultBag: 'top' }),
+  it_('SLEEPBAG', { sets: ['sleep', 'bivy'] }),
+  it_('TENT', { sets: ['tent'] }),
+  it_('PUFFY', { sets: ['warm'], coldBelow: 10 }),
   it_('STOVE', { sets: ['cook'] }),
-  it_('LIGHT', { sets: ['light'] }),
+  it_('LIGHT', { sets: ['light', 'lights'] }),
+  it_('PUMP', { sets: ['repair'], defaultBag: 'frame' }),
+  it_('CABLE', { sets: ['charge'], defaultBag: 'top' }),
   it_('ARMS', { coldBelow: 15 }),
   it_('RAINJ', { rain: 'yes' }),
   it_('OVERSHOE', { rain: 'optional' }),
-  it_('WISH', { sets: ['sleep'], ownership: 'wishlist' }),
+  it_('WISH', { sets: ['bivy'], ownership: 'wishlist' }),
 ];
 const bike = { id: 'b', name: 'test_data_gtp_ MTB', setup: { seat: 'bs', frame: 'bf', top: 'bt' } };
 const make = (ctx, trips = []) => contextTrip({ ...newTrip({ title: 'test_data_gtp_ trip', startDate: '2026-10-10', days: ctx.days ?? 1, bike, overnight: ctx.overnight }, trips, items, 1), ...ctx }, items, { fromCopy: trips.length > 0 });
@@ -30,12 +35,13 @@ const ids = (t) => t.entries.map((e) => e.itemId).sort();
 const qty = (t, id) => t.entries.find((e) => e.itemId === id)?.qty;
 
 describe('context sets', () => {
-  it('none brings nothing, lodging its set, outdoor base, sleep, warm and cook only when cooking', () => {
-    expect(contextSets({ overnight: 'none' })).toEqual([]);
-    expect(contextSets({})).toEqual([]);
-    expect(contextSets({ overnight: 'lodging' })).toEqual(['lodging', 'firstaid']); // v0.28.0: first aid with every night
-    expect(contextSets({ overnight: 'outdoor' })).toEqual(['base', 'sleep', 'warm', 'firstaid']);
-    expect(contextSets({ overnight: 'outdoor', cook: true })).toEqual(['base', 'sleep', 'warm', 'cook', 'firstaid']);
+  it('v0.66.0: every ride repair and charge; hotel its set, bivouac (+ tent), cook only when cooking', () => {
+    expect(contextSets({ overnight: 'none' })).toEqual(['repair', 'charge']);
+    expect(contextSets({ overnight: 'lodging' })).toEqual(['hotel', 'firstaid', 'repair', 'charge']); // v0.28.0: first aid with every night
+    expect(contextSets({ overnight: 'outdoor', tent: false })).toEqual(['bivy', 'firstaid', 'repair', 'charge']);
+    // an older outdoor trip (no tent field) was "Outdoor (tent, bivvy)": it keeps the tent
+    expect(contextSets({ overnight: 'outdoor' })).toEqual(['bivy', 'tent', 'firstaid', 'repair', 'charge']);
+    expect(contextSets({ overnight: 'outdoor', tent: true, cook: true })).toEqual(['bivy', 'tent', 'cook', 'firstaid', 'repair', 'charge']);
     expect(hasContext({ overnight: 'none' })).toBe(true);
     expect(hasContext({})).toBe(false);
   });
@@ -44,7 +50,7 @@ describe('context sets', () => {
 describe('a new trip with its context', () => {
   it('day ride 2 h, no overnight: no night items, gel 2, nothing open to decide', () => {
     const t = make({ hours: 2, overnight: 'none' });
-    expect(ids(t)).toEqual(['BAR', 'BOTTLE', 'GEL', 'JERSEY', 'TOOL']);
+    expect(ids(t)).toEqual(['BAR', 'BOTTLE', 'CABLE', 'GEL', 'JERSEY', 'PUMP', 'TOOL']);
     expect(qty(t, 'GEL')).toBe(Math.ceil(2 / 1));
     expect(qty(t, 'BAR')).toBe(1);
     expect(reviewRows(t, items).filter((r) => r.selected)).toEqual([]);
@@ -58,21 +64,24 @@ describe('a new trip with its context', () => {
     expect(reviewRows(t, items).filter((r) => r.selected)).toEqual([]);
   });
 
-  it('outdoor with cooking brings base, sleep, warm and cook, not lodging-only items or wishlist', () => {
-    const t = make({ days: 2, hours: 5, overnight: 'outdoor', cook: true });
-    expect(ids(t)).toEqual(expect.arrayContaining(['BRUSH', 'TOWEL', 'SLEEPBAG', 'PUFFY', 'STOVE']));
+  it('bivouac + tent with cooking brings bivy, tent and cook, not hotel-only items or wishlist', () => {
+    const t = make({ days: 2, hours: 5, overnight: 'outdoor', tent: true, cook: true });
+    expect(ids(t)).toEqual(expect.arrayContaining(['BRUSH', 'TOWEL', 'SLEEPBAG', 'TENT', 'STOVE']));
     expect(ids(t)).not.toContain('SHOWER');
     expect(ids(t)).not.toContain('WISH');
-    expect(ids(t)).not.toContain('LIGHT');
-    expect(t.sets).toMatchObject({ sleep: true, warm: true, cook: true });
+    expect(ids(t)).not.toContain('LIGHT'); // no dark on this trip
+    expect(ids(t)).not.toContain('PUFFY'); // v0.66.0 (6a): Warm comes with the weather only
+    expect(t.sets).toMatchObject({ bivy: true, tent: true, cook: true });
     expect(make({ days: 2, overnight: 'outdoor' }).entries.some((e) => e.itemId === 'STOVE')).toBe(false);
+    expect(make({ days: 2, overnight: 'outdoor', tent: false }).entries.some((e) => e.itemId === 'TENT')).toBe(false); // Bivouac alone
+    expect(ids(make({ days: 2, overnight: 'outdoor', wx: { min: 2, max: 8, rain: 'none' } }))).toContain('PUFFY'); // below 10 °C
   });
 
-  it('lodging brings only the lodging set', () => {
+  it('hotel brings only the hotel set', () => {
     const t = make({ days: 2, overnight: 'lodging' });
     expect(ids(t)).toEqual(expect.arrayContaining(['BRUSH', 'SHOWER']));
-    for (const id of ['TOWEL', 'SLEEPBAG', 'PUFFY', 'STOVE']) expect(ids(t)).not.toContain(id);
-    expect(t.sets).toMatchObject({ sleep: false, warm: false, cook: false });
+    for (const id of ['TOWEL', 'SLEEPBAG', 'TENT', 'PUFFY', 'STOVE']) expect(ids(t)).not.toContain(id);
+    expect(t.sets).toMatchObject({ bivy: false, tent: false, cook: false });
   });
 
   it('8a: 2 days × 6 h at 1 per 3 h → 4 bars; capped bottles and multi-day food get "buy on the way?"', () => {
@@ -90,7 +99,7 @@ describe('a new trip with its context', () => {
   it('a copy of the last outdoor trip leaves the night items at home on a day ride', () => {
     const last = make({ days: 2, overnight: 'outdoor', cook: true });
     const t = make({ hours: 2, overnight: 'none' }, [{ ...last, bikeId: 'b', startDate: '2026-10-01' }]);
-    for (const id of ['BRUSH', 'TOWEL', 'SLEEPBAG', 'PUFFY', 'STOVE']) expect(ids(t)).not.toContain(id);
+    for (const id of ['BRUSH', 'TOWEL', 'SLEEPBAG', 'TENT', 'STOVE']) expect(ids(t)).not.toContain(id);
   });
 
   it('keeps the v0.24.0 rule without an overnight value', () => {
@@ -101,19 +110,19 @@ describe('a new trip with its context', () => {
 });
 
 describe('a later change (9b)', () => {
-  it('lodging → outdoor: night items come, lodging-only items go, own entries and manual amounts stay', () => {
+  it('hotel → bivouac: night items come, hotel-only items go, own entries and manual amounts stay', () => {
     const t = make({ days: 2, hours: 3, overnight: 'lodging' });
     // Noah adds the light by hand, ticks the toothbrush as packed and sets 5 gels himself.
     t.entries.push({ itemId: 'LIGHT', slot: 'top', qty: 1, packed: false });
     t.entries = t.entries.map((e) => (e.itemId === 'BRUSH' ? { ...e, packed: true } : e.itemId === 'GEL' ? { ...e, qty: 5, qtyManual: true } : e));
-    const next = { ...t, overnight: 'outdoor' };
+    const next = { ...t, overnight: 'outdoor', tent: false };
     const ch = applyContext(next, items, t);
     const after = { ...next, ...ch };
-    expect(ids(after)).toEqual(expect.arrayContaining(['TOWEL', 'SLEEPBAG', 'PUFFY', 'LIGHT', 'BRUSH']));
+    expect(ids(after)).toEqual(expect.arrayContaining(['TOWEL', 'SLEEPBAG', 'LIGHT', 'BRUSH']));
     expect(ids(after)).not.toContain('SHOWER');
     expect(after.entries.find((e) => e.itemId === 'BRUSH').packed).toBe(true);
     expect(qty(after, 'GEL')).toBe(5);
-    expect(ch.sets).toMatchObject({ sleep: true, warm: true });
+    expect(ch.sets).toMatchObject({ bivy: true, tent: false });
   });
 
   it('shorter or longer amounts follow, an entry without src context is never removed', () => {
@@ -157,11 +166,11 @@ describe('"Your packing list" summary', () => {
     const s = contextSummary(start, trip, items);
     expect(s.start).toBe(start.length);
     expect(s.amounts.map((a) => [a.item.id, a.qty])).toEqual([['GEL', 2]]);
-    expect(s.weather.map((i) => i.id)).toEqual(['ARMS']);
-    expect(s.sets).toEqual([]);
+    expect(s.weather.map((i) => i.id)).toEqual(['ARMS', 'PUFFY']); // v0.66.0: the old Warm item below 10 °C
+    expect(s.sets).toEqual([{ key: 'repair', n: 1 }, { key: 'charge', n: 1 }]);
     expect(s.left).toEqual(['overnight', 'event']);
-    const o = contextSummary(start, { ...trip, days: 2, overnight: 'outdoor', cook: true, event: true }, items);
-    expect(o.sets).toEqual([{ key: 'base', n: 2 }, { key: 'sleep', n: 1 }, { key: 'warm', n: 1 }, { key: 'cook', n: 1 }, { key: 'firstaid', n: 0 }]);
+    const o = contextSummary(start, { ...trip, days: 2, overnight: 'outdoor', tent: true, cook: true, event: true }, items);
+    expect(o.sets).toEqual([{ key: 'bivy', n: 3 }, { key: 'tent', n: 1 }, { key: 'cook', n: 1 }, { key: 'firstaid', n: 0 }, { key: 'repair', n: 1 }, { key: 'charge', n: 1 }, { key: 'race', n: 0 }]);
     expect(o.left).toEqual([]);
   });
 });

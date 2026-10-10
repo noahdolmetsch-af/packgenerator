@@ -109,7 +109,7 @@ test('S2 3-day bikepacking with tent, GPX debrief', async ({ page, context }, in
   await dlg.getByLabel(T('Start date')).fill(day(-2));
   await dlg.getByRole('button', { name: T('More'), exact: true }).click();
   await dlg.getByRole('spinbutton', { name: T('Days') }).fill('3');
-  await dlg.getByRole('button', { name: T('Outdoor (tent, bivvy)') }).click();
+  await dlg.getByRole('button', { name: T('Bivouac + tent'), exact: true }).click();
   await dlg.getByLabel(T('Cooking')).check();
   await dlg.getByRole('button', { name: new RegExp(`^${T('Mild')}`) }).click();
   await dlg.getByLabel(T('Name')).fill(`${P} S2 Zelt 3 Tage`);
@@ -187,7 +187,7 @@ test('S3 event with preparation tasks and workshop order', async ({ page, contex
   await dlg.getByRole('group', { name: T('Bike') }).getByRole('button', { name: hardtail.name, exact: true }).click();
   await dlg.getByLabel(T('Start date')).fill(day(14));
   await dlg.getByRole('button', { name: T('2 days'), exact: true }).click();
-  await dlg.getByRole('button', { name: T('Lodging'), exact: true }).click();
+  await dlg.getByRole('button', { name: T('Hotel/hut'), exact: true }).click();
   await dlg.getByLabel(T('Name')).fill(`${P} S3 Rennen`);
   await dlg.getByLabel(T('Event (race or organised ride)')).check();
   await dlg.getByRole('button', { name: new RegExp(`^${esc(T('Create trip'))}`) }).click();
@@ -427,6 +427,17 @@ test('S6a import keeps the records as they are in the file', async ({ page, cont
   const errors = await start(page, context, info, { lang: LANG });
   const fix = fixture().data.tables;
   const db1 = await snapshot(page);
+  // v0.66.0: the one-time update «Bausteine neu» (blocksplit.js) runs on an old file. It only adds:
+  // the old block keys stay and the new ones come after them, a Warm item gets coldBelow, and the
+  // marker split2026. Check that, then compare the rest as it is in the file.
+  const fixItems = new Map(fix.items.map((i) => [i.id, i]));
+  db1.items = db1.items.map((i) => {
+    const f = fixItems.get(i.id);
+    if (!f || f.split2026 || !i.split2026) return i;
+    expect.soft(i.sets?.slice(0, f.sets?.length ?? 0), `${i.id}: the old blocks stay`).toEqual(f.sets ?? []);
+    const { split2026, coldBelow, ...rest } = i;
+    return { ...rest, sets: f.sets, ...(f.coldBelow !== undefined ? { coldBelow } : {}) };
+  });
   // the import keeps the user's records as they are (only the app's own markers are added)
   for (const name of ['items', 'debriefs', 'learnings', 'notes', 'rides', 'visits', 'maintenance', 'events', 'containers', 'trips', 'bikes'])
     expect.soft(comparable({ [name]: db1[name] })[name], `import changed ${name}: ${changes(fix[name], db1[name])}`).toEqual(comparable({ [name]: fix[name] })[name]);

@@ -45,7 +45,33 @@ export const BAG = Object.fromEntries(BAGS.map((b) => [b.key, b.name]));
 
 export const OWNERSHIP = { owned: 'Owned', unclear: 'Unclear', 'to-buy': 'To buy', wishlist: 'Wishlist', gone: 'Gone' };
 export const ROLES = { worn: 'Worn', standard: 'Standard pack', optional: 'Optional' };
-export const SETS = { base: 'Night: Base', warm: 'Night: Warm', sleep: 'Night: Sleep', cook: 'Night: Cook', light: 'Night: Light', lodging: 'Lodging', firstaid: 'First aid' }; // v0.25.0 (Noah 4): lodging set; v0.28.0 (AP25): first aid, with every night
+/**
+ * The built-in building blocks (v0.66.0 «Bausteine neu», Noah 5a–10b):
+ *   with the night (one choice per trip): bivy «Biwak» (the old Base + Sleep), tent «Zelt» (always
+ *   together with bivy), hotel «Hotel/Hütte» (the old Lodging), cook, firstaid (every night, as before);
+ *   on the ride (suggested, deselectable per trip): repair, charge, lights «Licht» (when the ride goes
+ *   into darkness), race «Rennen» (only on an event);
+ *   to add: food «Verpflegung», hygiene, comfort «Komfort» (only ever unticked suggestions).
+ * The old keys (OLD_SETS) stay on the items for two versions, so a backup still opens in an older
+ * version; the app no longer reads them as blocks (blocksplit.js maps them once).
+ */
+export const SETS = {
+  bivy: 'Bivouac',
+  tent: 'Tent|block',
+  hotel: 'Hotel/hut',
+  cook: 'Night: Cook',
+  firstaid: 'First aid',
+  repair: 'Repair|block',
+  charge: 'Charging|block',
+  lights: 'Light|block',
+  race: 'Race|block',
+  food: 'Food|block',
+  hygiene: 'Hygiene|block',
+  comfort: 'Comfort|block',
+};
+/** v0.66.0: the block keys before «Bausteine neu» (read only by the one-time update and older backups). */
+export const OLD_SETS = { base: 'Night: Base', warm: 'Night: Warm', sleep: 'Night: Sleep', light: 'Night: Light', lodging: 'Lodging' };
+export const isOldSetKey = (key) => Object.hasOwn(OLD_SETS, key);
 
 /** Food and water are used up on the way: they are packed, but not part of the gear weight. */
 export const CONSUMABLE_CATEGORIES = ['food'];
