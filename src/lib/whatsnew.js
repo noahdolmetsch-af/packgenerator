@@ -19,6 +19,16 @@ export const WHATS_NEW = [
     ],
   },
   {
+    version: '0.70.0',
+    date: '2026-10-10',
+    points: [
+      { text: 'The folder of each bike has four more sheets: Break-in plan, Repair kit, Warranty & receipts and Theft sheet.', href: '#/bikes' },
+      { text: 'A new bike gets its Break-in plan by itself: four steps up to the first service. Tick what is done and take it into care; a due step reminds you on Today.', href: '#/bikes' },
+      { text: 'The Repair kit matches the parts of the bike, per kind of ride. What is missing in the gear list you add with one tap, the rest goes on the packing list of the next trip.', href: '#/bikes' },
+      { text: 'Warranty & receipts reminds you 30 days before a warranty ends; the Theft sheet keeps the frame number, photos and insurance ready for the police.', href: '#/bikes' },
+    ],
+  },
+  {
     version: '0.69.1',
     date: '2026-10-10',
     points: [

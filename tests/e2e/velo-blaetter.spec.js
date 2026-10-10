@@ -57,13 +57,15 @@ async function start(page, context, info) {
   await expect(data.getByText(/importiert.*alle Daten ersetzt/i)).toBeVisible();
   return errors;
 }
-const names = SHEETS.map((s) => DE[s.name]);
+// v0.70.0 (W1 a): «Demo Trail» has more than 500 km, so its folder shows every sheet but the Break-in plan
+const OLD = SHEETS.filter((s) => s.key !== 'breakin');
+const names = OLD.map((s) => DE[s.name]);
 
-test('the folder of a bike: four sheets, each can be hidden and shown again; whole folder as PDF', async ({ page, context }, info) => {
+test('the folder of a bike: its sheets, each can be hidden and shown again; whole folder as PDF', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?bike=${TRAIL}`);
   const folder = page.locator('section.folder');
-  await expect(folder.getByRole('heading', { name: '4 Blätter zu diesem Velo' })).toBeVisible();
+  await expect(folder.getByRole('heading', { name: `${OLD.length} Blätter zu diesem Velo` })).toBeVisible();
   await expect(folder.locator('a.sheet .nm')).toHaveText(names);
   await expect(folder.locator('[data-sheet="pickup"] .st')).toHaveText('noch nicht begonnen');
   await expect(folder.locator('[data-sheet="order"] .st')).toHaveText(/\d+ Arbeiten?/);
@@ -73,15 +75,15 @@ test('the folder of a bike: four sheets, each can be hidden and shown again; who
   // «Blätter wählen»: the Service plan off, then on again (stored on the bike)
   await folder.getByRole('button', { name: 'Blätter wählen' }).click();
   await folder.getByRole('checkbox', { name: 'Service-Plan' }).uncheck();
-  await expect(folder.locator('a.sheet')).toHaveCount(3);
+  await expect(folder.locator('a.sheet')).toHaveCount(OLD.length - 1);
   await expect(folder.getByText('1 Blatt ausgeblendet.', { exact: false })).toBeVisible();
   expect((await stored(page, 'bikes', TRAIL)).sheets.hidden).toEqual(['plan']);
   await folder.getByRole('checkbox', { name: 'Service-Plan' }).check();
-  await expect(folder.locator('a.sheet')).toHaveCount(4);
+  await expect(folder.locator('a.sheet')).toHaveCount(OLD.length);
 
   // the whole folder: every shown sheet one after the other, «Als PDF teilen» opens the print dialog
   await folder.getByRole('link', { name: 'Ganze Mappe als PDF' }).click();
-  await expect(page.locator('article.paper')).toHaveCount(4);
+  await expect(page.locator('article.paper')).toHaveCount(OLD.length);
   await page.getByRole('button', { name: 'Als PDF teilen' }).click();
   expect(await page.evaluate(() => window.__printed)).toBe(1);
   // only the paper prints: the toolbar and the page head are hidden in print
