@@ -200,4 +200,5 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 - KI-Helfer: Noah legt Schlüssel und Helfer-Code in Vercel an.
 - Startseite: Mockups E1–E4 anschauen und Fragen beantworten.
 - Zwei kleine Fehler (kommen später): Datum in Neue Tour als 10/10/2026 statt 10.10.2026, Velotypen in Velos › Pflege nicht übersetzt.
+- Kleine Darstellungsfehler aus den Startseiten-Mockups (kommen mit den zwei Fehlern): Taschennamen brechen am Handy mitten im Wort um (Tour › Planen), in Velos › Pflege stösst «km seit Check» am Computer an den Pfeil, «Im Flow» hat im Menü kein Symbol, die Datumszeile auf Heute zeigt jeden Ortsnamen ungeprüft.
 - Strava-Regeln schränken die Nutzung von Strava-Daten durch KI ein; vor E3 klären, was der Helfer davon sehen darf.
