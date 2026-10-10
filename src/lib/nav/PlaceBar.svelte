@@ -11,7 +11,7 @@
   import PlaceIcon from './PlaceIcon.svelte';
   import { Plus } from '@lucide/svelte';
 
-  let { place = null, due = 0, onnew, fab = true, high = false } = $props();
+  let { place = null, due = 0, onnew, fab = true, high = false, away = false } = $props();
 </script>
 
 <nav class="bottom" aria-label={t('Sections')}>
@@ -23,7 +23,7 @@
   {/each}
 </nav>
 {#if fab}
-  <button type="button" class="fab" class:high aria-label={t('New')} aria-haspopup="dialog" onclick={onnew}><Plus size={28} strokeWidth={2.4} aria-hidden="true" /></button>
+  <button type="button" class="fab" class:high class:away tabindex={away ? -1 : undefined} aria-hidden={away || undefined} aria-label={t('New')} aria-haspopup="dialog" onclick={onnew}><Plus size={28} strokeWidth={2.4} aria-hidden="true" /></button>
 {/if}
 
 <style>
@@ -107,6 +107,20 @@
   /* above the trip pages' main button (MainBar: 62 px from the bottom, about 74 px high) */
   .fab.high {
     bottom: calc(148px + env(safe-area-inset-bottom));
+  }
+  /* v0.74.0: on Today on a phone it steps aside while «What do you want to do?» is on the screen */
+  .fab.away {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.6);
+  }
+  .fab {
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fab {
+      transition: none;
+    }
   }
   .fab:hover {
     background: var(--hi-hover);

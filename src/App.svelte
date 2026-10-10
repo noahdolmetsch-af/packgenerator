@@ -74,6 +74,34 @@
     else delete document.documentElement.dataset.place;
   });
   // The trip pages have their own main button at the bottom (rule U1): the round + sits above it there.
+  // v0.74.0: Today on a phone shows its 8 buttons in the first screen (rule of 0.46); the round + steps
+  // aside while they are on the screen (they start the same things) and comes back below them.
+  let actionsSeen = $state(false);
+  $effect(() => {
+    if (page !== 'home' || !phone.matches || typeof IntersectionObserver === 'undefined') {
+      actionsSeen = false;
+      return;
+    }
+    let io = null;
+    let seen = null;
+    const find = () => {
+      const el = document.querySelector('[data-section="actions"]');
+      if (el === seen) return;
+      io?.disconnect();
+      seen = el;
+      actionsSeen = false;
+      if (!el) return;
+      io = new IntersectionObserver(([e]) => (actionsSeen = e.isIntersecting));
+      io.observe(el);
+    };
+    const mo = new MutationObserver(find);
+    mo.observe(document.body, { childList: true, subtree: true });
+    find();
+    return () => {
+      mo.disconnect();
+      io?.disconnect();
+    };
+  });
   const calm = $derived(page === 'pack' || page === 'ride' || page === 'between' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param)));
   // v0.74.0: the keyboard shortcuts (nav/keys.js), «?» shows them (also from Ich).
   let keysOpen = $state(false);
@@ -298,7 +326,7 @@
 <Keys bind:open={keysOpen} />
 {#if !wide.matches}
   <!-- v0.74.0: the five places at the bottom (also under a shared list, there without +). -->
-  <PlaceBar {place} due={$dueQ ?? 0} fab={page !== 'share'} high={calm && phone.matches} onnew={() => (newMode = 'all')} />
+  <PlaceBar {place} due={$dueQ ?? 0} fab={page !== 'share'} high={calm && phone.matches} away={actionsSeen} onnew={() => (newMode = 'all')} />
 {/if}
 </div>
 </div>
