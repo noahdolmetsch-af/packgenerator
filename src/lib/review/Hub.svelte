@@ -62,7 +62,9 @@
   const pace = $derived(paceOf(data?.pace ?? null));
   const rule = $derived(ruleOf(pace.learned));
   const log = $derived(data ? logEntries({ facts, events: data.events }) : []);
-  const open = $derived(facts.filter((r) => r.debrief === 'open' || r.debrief === 'draft').length);
+  // v0.78.0 «Fünf Orte» 2 (Noah O2.4a): the debriefs still open come first, each with «Write».
+  const openList = $derived(facts.filter((r) => r.debrief === 'open' || r.debrief === 'draft'));
+  const open = $derived(openList.length);
   const year = today.slice(0, 4);
   const newest = $derived([...(data?.learnings ?? [])].sort((a, b) => String(b.createdAt ?? b.date ?? '').localeCompare(String(a.createdAt ?? a.date ?? ''))).slice(0, 3));
 
@@ -191,6 +193,20 @@
       <a class="btn" href="#/debrief/ride"><Upload size={18} aria-hidden="true" />{t('Upload ride')}</a>
     </section>
   {:else}
+    {#if openList.length}
+      <!-- v0.78.0 (O2.4a): «Rückblick offen» on top -->
+      <section class="card openlist" aria-labelledby="open-h">
+        <h2 id="open-h" class="ch"><span>{t('Debrief open')}</span><span class="r num">{num(openList.length)}</span></h2>
+        <ul class="ol">
+          {#each openList as r (r.id)}
+            <li>
+              <span class="m"><b>{r.title}</b><small>{[dates(r.start, r.end), r.bike, r.debrief === 'draft' ? t('started') : ''].filter(Boolean).join(' · ')}</small></span>
+              <a class="btn sm wr" href="#/debrief/{encodeURIComponent(r.id)}" onclick={() => openTrip(r.id)} aria-label="{t('Write')}: {r.title}">{t('Write')}<ChevronRight size={16} aria-hidden="true" /></a>
+            </li>
+          {/each}
+        </ul>
+      </section>
+    {/if}
     <div class="top">
       <!-- 1. the last ride -->
       {#if last}
@@ -348,6 +364,43 @@
 </div>
 
 <style>
+  .openlist {
+    margin: 0 0 var(--sp-4);
+  }
+  .ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ol li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-3);
+    padding: var(--sp-2) 0;
+    border-top: 1px solid var(--line);
+  }
+  .ol li:first-child {
+    border-top: 0;
+  }
+  .ol .m {
+    display: grid;
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+  .ol .m b {
+    overflow-wrap: break-word;
+  }
+  .ol .m small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .wr {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+    min-height: 44px;
+  }
   .hub {
     max-width: 1400px;
     margin: 0 auto;

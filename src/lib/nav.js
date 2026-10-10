@@ -153,9 +153,16 @@ export function pageOf(hash = '', careTab = false) {
  * (no dead links): → { hash, spot } (spot: the section to scroll to), or null for every other address.
  */
 export function redirectOf(hash = '') {
-  const h = (hash || '').split('?')[0];
-  if (h === '#/review' || h.startsWith('#/review/')) return { hash: '#/debrief', spot: 'period' };
-  if (h === '#/debrief/compare') return { hash: '#/debrief', spot: 'compare' };
+  const [h, query = ''] = (hash || '').split('?');
+  if (h === '#/review' || h.startsWith('#/review/')) return { hash: '#/debrief', spot: 'period', old: '#/review' };
+  if (h === '#/debrief/compare') return { hash: '#/debrief', spot: 'compare', old: '#/debrief/compare' };
+  // v0.78.0 «Fünf Orte» 2 (Noah O2.6a): #/care was Bike care; it is Velos › Pflege now.
+  if (h === '#/care') {
+    const q = new URLSearchParams(query);
+    q.delete('tab');
+    const rest = q.toString();
+    return { hash: `#/bikes?tab=care${rest ? `&${rest}` : ''}`, spot: '', old: '#/care' };
+  }
   return null;
 }
 
@@ -177,8 +184,8 @@ export const PLACES = [
 
 /**
  * v0.76.0 «Fünf Orte» 1: the pages under each place (sidebar on a computer). Only what is built
- * shows (Noah O2.1a: Neuland, Heft and the rest come with their package); release 2 turns them
- * into tabs on top of each place. match: the addresses that count as this entry.
+ * shows (Noah O2.1a: Neuland, Heft and the rest come with their package). v0.78.0: they are the tabs
+ * on top of each place too (nav/PlaceTabs), at most four. match: the addresses that count as this entry.
  */
 export const PLACE_TABS = {
   today: [],
@@ -188,9 +195,11 @@ export const PLACE_TABS = {
     { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') },
   ],
   gear: [
-    { key: 'all', label: 'All|gear', href: '#/gear', match: (h) => h.startsWith('#/gear') || h.startsWith('#/favorites') },
+    { key: 'all', label: 'All|gear', href: '#/gear', match: (h) => (h.startsWith('#/gear') && !/[?&]view=wish\b/.test(h)) || h.startsWith('#/favorites') },
     { key: 'clothes', label: 'Clothes|tab', href: '#/wardrobe', match: (h) => h.startsWith('#/wardrobe') },
     { key: 'blocks', label: 'Building blocks', href: '#/blocks', match: (h) => h.startsWith('#/blocks') },
+    // v0.78.0 «Fünf Orte» 2 (Noah O2.5a): «Einkauf» shows today's list (the wishlist); typing in comes with D2.
+    { key: 'shop', label: 'Shopping|tab', href: '#/gear?view=wish', match: (h) => h.startsWith('#/gear') && /[?&]view=wish\b/.test(h) },
   ],
   bikes: [
     { key: 'overview', label: 'Overview|tab', href: '#/bikes', match: (h) => h.startsWith('#/bikes') && !/[?&]tab=(care|shop|compare)/.test(h) },
@@ -222,4 +231,45 @@ export function placeOf(page) {
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper') return 'me';
   return null;
+}
+
+/* ---------- v0.78.0 «Fünf Orte» 2: the last tab of each place (Noah O2.2a) ---------- */
+const TAB_KEY = 'nav.tab';
+
+/** The tab of a place opened last on this device (an entry of PLACE_TABS), or null. */
+export function lastTab(place) {
+  try {
+    const key = localStorage.getItem(`${TAB_KEY}.${place}`);
+    return (PLACE_TABS[place] ?? []).find((x) => x.key === key) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Remember the tab of a place (the App calls it whenever a tab shows). */
+export function keepTab(place, key) {
+  try {
+    localStorage.setItem(`${TAB_KEY}.${place}`, key);
+  } catch {
+    /* private mode: a place opens at its first tab */
+  }
+}
+
+/**
+ * Where a tap on a place goes: the tab opened last there; a tap on the place you are on goes to its
+ * first tab (Noah O2.2a). hash: only read so a bar redraws when the address changes.
+ */
+export function placeHref(p, current = null, hash = '') {
+  void hash;
+  const tabs = PLACE_TABS[p.key] ?? [];
+  if (p.key === current || tabs.length < 2) return tabs[0]?.href ?? p.href;
+  return lastTab(p.key)?.href ?? p.href;
+}
+
+/** The tab before (-1) or after (+1) the current one, for a swipe on a phone (Noah O2.3a), or null. */
+export function tabStep(place, hash, dir) {
+  const tabs = PLACE_TABS[place] ?? [];
+  const i = tabs.findIndex((x) => x.key === tabOf(place, hash));
+  if (i < 0) return null;
+  return tabs[i + dir] ?? null;
 }

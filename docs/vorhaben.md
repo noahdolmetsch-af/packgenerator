@@ -52,9 +52,10 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.70.0 | Velo-Blätter Teil 2: Einfahr-Plan (von selbst bei neuem Velo, Erinnerung auf Heute), Repair-Kit pro Art der Fahrt mit «Auf die Packliste», Garantie & Belege mit Erinnerung, Diebstahl-Blatt | live (PR #98) |
 | 0.73.0 | Ruhige Startseite + Fotoband: Gruss in einer Zeile, scharfes Foto (Handy: Band über der Tourkarte, «Album ›»), Vorschlag als schmale Zeile, kein doppeltes «Weitermachen» | live (PR #99) |
 | 0.75.0 | Feinschliff: ein Umbenennen-Blatt überall mit Rückgängig, Zurück-Taste speichert, Import fragt neue Fahrt-Typen einmal, Teile-Fenster mit Zusammenfassung und leichteren Alternativen, Erste Hilfe auf jeder Tour, 44-px-Tippflächen | live |
-| 0.76.0 | Fünf Orte Teil 1: fünf Orte (Aktiv neu), «Ich» oben rechts statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Ortsfarben, Tastenkürzel | live (PR #100) |
-| 0.77.0 | KI-Helfer eingeschaltet (aus PR #89, in Fünf Orte gesetzt, K1–K3 a): Ich › Helfer, «Frag den Helfer» oben in Neue Tour, Antwort in der Suche, «Liste prüfen» neben «Weiter zu Packen» (Handy: Funkel-Knopf links in der Leiste), Rückblick-Entwurf, Wartungsvorschläge in «Jetzt fällig» | PR vorbereitet, wartet auf Mockup-Prüfung |
-| – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Teil 1 live (0.76.0), Teil 2 folgt |
+| 0.76.0 | Fünf Orte Teil 1: fünf Orte (Aktiv neu), «Ich» oben rechts statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Ortsfarben, Tastenkürzel | live seit 10.10.2026 (PR #100, mit #103) |
+| 0.77.0 | KI-Helfer eingeschaltet (aus PR #89, in Fünf Orte gesetzt, K1–K3 a): Ich › Helfer, «Frag den Helfer» oben in Neue Tour, Antwort in der Suche, «Liste prüfen» neben «Weiter zu Packen» (Handy: Funkel-Knopf links in der Leiste), Rückblick-Entwurf, Wartungsvorschläge in «Jetzt fällig» | gemergt 10.10.2026 (PR #104) |
+| 0.78.0 | Fünf Orte Teil 2: Tabs pro Ort mit Wischen, letzter Tab bleibt, alte Adressen mit Hinweis, «Was ist neu» als Blatt, Touren-Einstieg mit Kacheln und Bestwerten, Rückblick «offen» zuerst, Material › Einkauf | PR offen |
+| – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Teil 1 (0.76.0) live; Teil 2 (0.78.0) als PR offen |
 | – | Startseite & Integrationen E1–E4 | Konzept und Mockups fertig, Fragen beantwortet |
 | – | D5, D2, D4/D6 | Mockups fertig, Fragen werden kurz vor dem Paket gestellt |
 

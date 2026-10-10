@@ -156,8 +156,8 @@ describe("a trip's saved Rückblick", () => {
 
 describe('no dead links (Noah 4a)', () => {
   it('#/review and #/debrief/compare lead to the one Rückblick page', () => {
-    expect(redirectOf('#/review')).toEqual({ hash: '#/debrief', spot: 'period' });
-    expect(redirectOf('#/debrief/compare')).toEqual({ hash: '#/debrief', spot: 'compare' });
+    expect(redirectOf('#/review')).toEqual({ hash: '#/debrief', spot: 'period', old: '#/review' });
+    expect(redirectOf('#/debrief/compare')).toEqual({ hash: '#/debrief', spot: 'compare', old: '#/debrief/compare' });
     expect(redirectOf('#/debrief/pace')).toBeNull();
     expect(redirectOf('#/debrief/learnings')).toBeNull();
     expect(pageOf('#/review')).toBe('debrief');
