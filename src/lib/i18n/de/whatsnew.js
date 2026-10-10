@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.68.0
+  'Every bike has a ride ledger: its km are the sum of its rides. Unclear rides are marked red and count only after you pick the bike. Everything can be undone.':
+    'Jedes Velo hat ein Fahrten-Buch: seine km sind die Summe seiner Fahrten. Unklare Fahrten sind rot markiert und zählen erst, wenn du das Velo wählst. Alles lässt sich rückgängig machen.',
+  'Import rides: a Strava export (activities.csv) or Garmin FIT files. The app assigns them by sensor, Strava bike or your rules, asks once which bike an unknown sensor belongs to and merges duplicates.':
+    'Fahrten importieren: ein Strava-Export (activities.csv) oder Garmin-FIT-Dateien. Die App ordnet sie nach Sensor, Strava-Velo oder deinen Regeln zu, fragt einmal, zu welchem Velo ein unbekannter Sensor gehört, und führt Doppelte zusammen.',
+  'Once a week Today compares the km with Strava and shows rides still to assign; at the start of a month a short report.':
+    'Einmal pro Woche gleicht Heute die km mit Strava ab und zeigt Fahrten, die noch zuzuordnen sind; am Monatsanfang ein kurzer Bericht.',
+  'Parts get a start point: mounted when and at which km, also from another bike. From it the app counts the km of each part.':
+    'Teile bekommen einen Startpunkt: wann und bei wie vielen km montiert, auch von einem anderen Velo. Daraus zählt die App die km jedes Teils.',
+
   // 0.67.1
   'Date fields show the date like the rest of the app, with the weekday, for example «Sat, Oct 10, 2026». Tapping still opens the calendar.':
     'Datumsfelder zeigen das Datum wie überall in der App, mit Wochentag, zum Beispiel «Sa., 10. Okt. 2026». Antippen öffnet weiterhin den Kalender.',

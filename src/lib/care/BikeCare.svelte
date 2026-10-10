@@ -21,13 +21,22 @@
   let {
     c, tasks = [], visits = [], wished = {}, kmMsg = null, open = false, filter = 'all', today,
     ontoggle, onkm, oncheck, ondone, onpart, ontyre, onvisit, onorder, onwish, onrepair, onstart = null,
+    kmEntries = [], bikes = [], onstartpoint = null, onq1 = null,
   } = $props();
   import PartsTable from './PartsTable.svelte';
+  import KmBook from './KmBook.svelte';
+  import Q1Status from './Q1Status.svelte';
+  import { partAreas } from './overview.js';
+  import { isMore } from '../care.js';
 
   const bike = $derived(c.bike);
   const words = $derived(bikeCareWords(c.care));
   const lastVisit = $derived(c.mine[0] ?? null);
   const nothingYet = $derived(!bike.parts.some((p) => p.history?.length) && !c.mine.length);
+  // v0.68.0 «Q1 Jeder km zählt» (answer 6a: first the new bike): Q1 is on for a bike whose ledger has
+  // rides, or that you switched on; «Hide» switches it off. The ledger itself is on every bike.
+  const q1On = $derived(bike.q1 === true || (bike.q1 !== false && kmEntries.some((e) => e.bikeId === bike.id && e.kind === 'ride')));
+  const mainParts = $derived(open ? partAreas(bike.parts, isMore).main.flatMap((g) => g.parts) : []);
 
   /* ---------- the parts: last work and state ---------- */
   const rows = $derived(
@@ -176,7 +185,7 @@
       <small class="sub num">
         {#if bike.km != null}{num(bike.km)} km{:else}{t('km not set')}{/if}
         {#if open}
-          {#if bike.kmDate} · {t('as of {date}', { date: dateOf(bike.kmDate) })}{/if}
+          {#if bike.kmDate} · {kmEntries.some((e) => e.bikeId === bike.id) ? t('from the ride ledger, as of {date}', { date: dateOf(bike.kmDate) }) : t('as of {date}', { date: dateOf(bike.kmDate) })}{/if}
           · <button type="button" class="lnk" aria-expanded={kmOpen || bike.km == null} onclick={() => (kmOpen = !kmOpen)}>{bike.km == null ? t('enter km') : t('change km')}</button>
         {:else if lastVisit}
           · {t('bike shop {date}', { date: dateOf(lastVisit.date) })}
@@ -205,6 +214,12 @@
       {/if}
       {#if kmMsg?.error}<p class="err" role="alert">{kmMsg.text}</p>{:else if kmMsg}<p class="saved" role="status">{kmMsg.text}</p>{/if}
       {#if words.text && c.care.status !== 'due'}<p class="quiet">{words.text}</p>{/if}
+      {#if q1On}
+        <Q1Status {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} parts={mainParts} {bikes} {today} onstart={(key) => onstartpoint?.(key, mainParts)} onhide={() => onq1?.(false)} />
+      {/if}
+      <!-- v0.68.0 (Q1.1 a): the ride ledger as its own block at the top of the bike -->
+      <KmBook {bike} {bikes} />
+      {#if !q1On && onq1}<p class="q1on"><button type="button" class="lnk" onclick={() => onq1(true)}>{t('Check Q1 «Gapless km» for this bike')}</button></p>{/if}
 
       <!-- v0.47.0 (Noah 10a): "Due now" as cards above the wear list -->
       {#if due.length}
@@ -235,7 +250,7 @@
       {/if}
       {#if filter === 'all'}
         <!-- v0.48.0 «Teile pro Velo»: all parts of the one list by area, the rest under «More». -->
-        <PartsTable {bike} time={c.time} {today} onpart={onpart} />
+        <PartsTable {bike} time={c.time} {today} onpart={onpart} q1={q1On} {bikes} onstartpoint={(key) => onstartpoint?.(key, mainParts)} />
       {:else}
       {#if soon.length || ok.length}
           <p class="zlabel">{t('Wear|list')}</p>
@@ -378,6 +393,9 @@
 {/snippet}
 
 <style>
+  .q1on {
+    margin: -6px 0 8px;
+  }
   .startcta {
     display: flex;
     flex-wrap: wrap;

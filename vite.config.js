@@ -58,6 +58,9 @@ export default defineConfig({
         // Everything the app needs is stored on the device at install time.
         // v0.44.1 (AP22): the Latin fonts too (about 350 KB), else offline the app falls back to the system font.
         globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}', '**/*-latin-*.woff2'],
+        // v0.68.0: the one app bundle passed Workbox's default 2 MiB; without this it would not be stored
+        // on the device and the app would not start offline. 4 MiB leaves room.
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         // v0.41.0: the small handler for the shared file (POST), loaded before Workbox's own routes.
         importScripts: ['share-target.js'],
         runtimeCaching: [

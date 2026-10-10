@@ -237,7 +237,7 @@ describe('the singing bowl schedule', () => {
 
 describe('the database', () => {
   it('a schema bump with three tables that go into the backup', async () => {
-    expect(SCHEMA_VERSION).toBe(6);
+    expect(SCHEMA_VERSION).toBe(7); // v0.68.0: version 7 adds the ride ledger (kmBook); the Im Flow tables of version 6 stay
     expect(DATA_TABLES).toEqual(expect.arrayContaining(['flowActs', 'flowLog', 'flowChecks']));
     const db = createDb('flow-1');
     await ensureSeed(db);

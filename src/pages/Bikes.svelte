@@ -10,6 +10,7 @@
   import CareTab from '../lib/care/CareTab.svelte';
   import Compare from '../lib/bikes/Compare.svelte';
   import ShopTab from '../lib/bikes/ShopTab.svelte';
+  import KmImport from '../lib/care/KmImport.svelte';
   import { t } from '../lib/i18n.svelte.js';
 
   let route = $state(parseBikesHash(location.hash));
@@ -22,7 +23,7 @@
   });
   // Old links (#/care) and "open this bike" are written back as the plain address of the tab.
   $effect(() => {
-    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit });
+    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit, view: route.view });
     if (location.hash !== want && !route.open) history.replaceState(null, '', want);
   });
 
@@ -42,6 +43,9 @@
     <Compare />
   {:else if route.tab === 'shop'}
     <ShopTab bikeId={route.bike} visitId={route.visit ?? null} onbike={pickBike} />
+  {:else if route.tab === 'care' && route.view === 'import'}
+    <!-- v0.68.0 «Q1 Jeder km zählt» (Q1.3 a): import rides, «Check» first, then per bike -->
+    <KmImport bikeId={route.bike} />
   {:else if route.tab === 'care'}
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}

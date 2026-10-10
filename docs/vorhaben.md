@@ -45,7 +45,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.65.0 | Velo-Masse: Sattelhöhe, Rahmengrösse, Lenkerbreite pro Velo, Import aus Datei | live |
 | 0.66.0 | Bausteine neu (Biwak, Zelt, Hotel, Kochen, Erste Hilfe, Reparatur, Laden, Licht, Rennen, Essen, Hygiene, Komfort) und «Bausteine prüfen» | live |
 | 0.67.0 | Übergänge Teil 1: Baukasten, Zwischenseiten «Gepackt», «Tour beendet», «Rückblick fertig», Schrittleiste, Hauptknopf nach Phase, Weitermachen auf Heute, Zurück-Taste schliesst zuerst Fenster | live seit 10.10.2026, Noah testet am Handy |
-| 0.67.1 | Fix-Release: Datumsfelder mit Wochentag, Velo-Typen als Wörter, Im-Flow-Symbol im Menü; Prinzip Nr. 1 in CLAUDE.md und Arbeitsweise | PR offen |
+| 0.67.1 | Fix-Release: Datumsfelder mit Wochentag, Velo-Typen als Wörter, Im-Flow-Symbol im Menü; Prinzip Nr. 1 in CLAUDE.md und Arbeitsweise | live seit 10.10.2026 |
+| 0.68.0 | Q1 «Jeder km zählt»: Fahrten-Buch pro Velo, Import Strava-CSV und Garmin-FIT mit Sensor-Erkennung, Wochen-Abgleich auf Heute, Startpunkt pro Teil | PR offen |
 | – | KI-Helfer (siehe unten) | fertig gebaut und getestet, als Entwurf geparkt (PR #89), wird beim Einschalten neu nummeriert |
 | – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | entschieden, Mockups fertig, 5 Fragen offen |
 | – | Startseite & Integrationen E1–E4 | Konzept und Mockups fertig, Fragen beantwortet |
@@ -55,8 +56,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 
 Seit 10.10.2026, 09:30 gilt **Prinzip Nr. 1** (siehe [arbeitsweise.md](arbeitsweise.md)): Mockup, Noahs Freigabe, dann Bau und PR, nach jedem Schritt dokumentieren. Die laufende Roadmap mit allen Arbeitspaketen führt Claude als Dokument, verlinkt auf der Trello-Karte «Roadmap und Arbeitspakete».
 
-1. **0.67.1 Fix-Release** (dieser PR). Funde aus Noahs Handytest von 0.67.0 kommen in den nächsten Fix-Release.
-2. **0.68 Q1 «Jeder km zählt»** (Qualitätsmerkmal für Ziel 2, Mockup freigegeben): Fahrten-Buch pro Velo, Strava-CSV mit Velo-Spalte, FIT-Import, Wochen-Abgleich auf Heute, Startpunkt pro Teil.
+1. **0.67.1 Fix-Release**: live seit 10.10.2026. Funde aus Noahs Handytest von 0.67.0 kommen in den nächsten Fix-Release.
+2. **0.68 Q1 «Jeder km zählt»** (dieser PR, Qualitätsmerkmal für Ziel 2, Mockup freigegeben): Fahrten-Buch pro Velo, Strava-CSV mit Velo-Spalte, FIT-Import, Wochen-Abgleich auf Heute, Startpunkt pro Teil.
 3. **0.69 Velo-Blätter** (Ziel 2, Mockup freigegeben): Mappe pro Velo mit Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check.
 4. **Vollständiger UI-Test** aller Abläufe, Fehler beheben, als Fix-Release.
 5. **Noah packt eine echte Tour** (Tagestour genügt) und schickt die Lücken als Liste.

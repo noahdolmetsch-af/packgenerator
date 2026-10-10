@@ -128,7 +128,7 @@ export const table = (page, name) =>
     name,
   );
 
-export const TABLES = ['items', 'kits', 'trips', 'debriefs', 'learnings', 'events', 'maintenance', 'bikes', 'containers', 'weightChecks', 'settings', 'visits', 'photos', 'notes', 'rides', 'flowActs', 'flowLog', 'flowChecks'];
+export const TABLES = ['items', 'kits', 'trips', 'debriefs', 'learnings', 'events', 'maintenance', 'bikes', 'containers', 'weightChecks', 'settings', 'visits', 'photos', 'notes', 'rides', 'flowActs', 'flowLog', 'flowChecks', 'kmBook'];
 /** The whole database as { table: rows } (meta left out, as a backup does). */
 export async function snapshot(page) {
   const out = {};

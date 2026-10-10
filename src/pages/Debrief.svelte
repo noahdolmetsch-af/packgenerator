@@ -11,6 +11,8 @@
   import { liveQuery } from 'dexie';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { db } from '../lib/db.js';
+  import { makeEntry, tripSpan, tripRidesIn } from '../lib/kmbook.js';
+  import { syncBikes } from '../lib/kmbookdb.js';
   import { formatWeight, CATEGORY, isInventory, matches } from '../lib/gear.js';
   import { tripNotes, noteToDebrief } from '../lib/notes.js';
   import { isOver } from '../lib/debrief.js';
@@ -293,12 +295,22 @@
     const out = applyDebrief({ ...$state.snapshot(d), rideNotes: $state.snapshot(freeNotes) }, trip, items, learnings, templates, on, { newItemId: (n) => `W${stamp}${n}` });
     const km = kmUpdate(bike, d);
     const sortedAt = new Date().toISOString();
-    await db.transaction('rw', [db.items, db.learnings, db.debriefs, db.trips, db.settings, db.bikes, db.notes], async () => {
+    await db.transaction('rw', [db.items, db.learnings, db.debriefs, db.trips, db.settings, db.bikes, db.notes, db.kmBook], async () => {
       // v0.26.1 (Noah 19b): an Inbox note that became a learning here is sorted there too (no second learning later).
       for (const n of out.notes) await db.notes.update(n.id, { status: 'sorted', to: { kind: 'learning', label: 'Learning', ref: n.learningId }, sortedAt });
       if (out.items.length) await db.items.bulkPut(out.items);
       if (km) {
-        await db.bikes.update(bike.id, { km: km.km, kmDate: localDay() });
+        // v0.68.0 (Q1): the trip's km are one entry in the ride ledger (its days as span), unless the
+        // rides of these days are in the ledger already (imported): then nothing is counted twice.
+        const mine = await db.kmBook.where('bikeId').equals(bike.id).toArray();
+        const span = tripSpan(trip, tripEnd(trip));
+        if (!tripRidesIn(mine, bike.id, span).length) {
+          const diff = km.km - (bike.km ?? 0);
+          const had = mine.find((e) => e.tripId === trip.id && e.kind === 'ride');
+          if (had) await db.kmBook.update(had.id, { km: Math.round((had.km + diff) * 10) / 10 });
+          else await db.kmBook.put(makeEntry({ bikeId: bike.id, date: span?.[0] ?? localDay(), km: diff, kind: 'ride', source: 'hand', name: trip.title, by: 'user', sure: 'user', span, tripId: trip.id, note: 'From the debrief' }));
+          await syncBikes(db, [bike.id]);
+        }
         d.kmApplied = km.kmApplied;
       }
       if (out.learnings.length) await db.learnings.bulkPut(out.learnings);
