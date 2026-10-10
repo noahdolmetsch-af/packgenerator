@@ -21,6 +21,7 @@
   import BagSheet from './BagSheet.svelte';
   import WhoCard from './WhoCard.svelte';
   import FitCard from './FitCard.svelte';
+  import SheetFolder from './SheetFolder.svelte';
   import Help from '../ui/Help.svelte';
   import BagDialog from './BagDialog.svelte';
   import BikeDialog from './BikeDialog.svelte';
@@ -236,6 +237,9 @@
       <button type="button" class="btn hi addfirst" onclick={() => (bikeDialog = { bike: null })}>{t('Add bike')}</button></p>
   {:else if bike}
     <SetupBand {bikes} {bike} {setup} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} />
+
+    <!-- v0.69.0 «Velo-Blätter» (Noah V1 a, mockup a-mappe): the bike's folder of sheets, below the band. -->
+    <SheetFolder {bike} />
 
     <!-- v0.65.0 «Velo-Masse» (Noah): the fit and setup numbers, always open, at the top of the bike. -->
     {#key bike.id}<FitCard {bike} />{/key}

@@ -227,11 +227,17 @@ export function parseBikesHash(hash = '') {
   if (tab === 'care' && q.get('trip')) out.trip = q.get('trip');
   // v0.68.0 «Q1 Jeder km zählt»: &view=import on Care is «Import rides».
   if (tab === 'care' && q.get('view') === 'import') out.view = 'import';
+  // v0.69.0 «Velo-Blätter»: &sheet=<key> on Setup shows one sheet of the bike's folder (sheets.js);
+  // &from=care|shop: the sheet was opened there, so «back» goes there.
+  if (tab === 'setup' && /^(pass|plan|order|pickup|all)$/.test(q.get('sheet') ?? '')) {
+    out.sheet = q.get('sheet');
+    if (['care', 'shop'].includes(q.get('from'))) out.from = q.get('from');
+  }
   return out;
 }
 
 /** The address for a tab (and bike): the canonical form of the Bikes page. */
-export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null, view = null } = {}) {
+export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null, view = null, sheet = null, from = null } = {}) {
   const q = new URLSearchParams();
   if (tab === 'care' || tab === 'compare' || tab === 'shop') q.set('tab', tab);
   if (view === 'import' && tab === 'care') q.set('view', 'import');
@@ -239,6 +245,10 @@ export function bikesHash({ tab = 'setup', bike = null, open = false, trip = nul
   if (open && bike) q.set('open', '1');
   if (trip && tab === 'care') q.set('trip', trip);
   if (visit && tab === 'shop') q.set('visit', visit);
+  if (sheet && tab === 'setup' && bike) {
+    q.set('sheet', sheet);
+    if (from === 'care' || from === 'shop') q.set('from', from);
+  }
   const s = q.toString();
   return `#/bikes${s ? `?${s}` : ''}`;
 }

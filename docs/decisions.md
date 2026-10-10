@@ -554,3 +554,13 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid:** Doppelte (gleiche Strava-ID oder gleicher Tag, km innerhalb 3 % bzw. 1 km, Start innerhalb 30 Minuten) werden zusammengeführt; was schon im Buch steht oder vor dem Startwert liegt, wird nicht nochmals gezählt. Jeder Import lässt sich als Ganzes rückgängig machen.
 - **Entscheid:** Q1 ist pro Velo an, sobald es Fahrten im Buch hat (Antwort 6a), und lässt sich pro Velo ausblenden. Startpunkte für Teile sind ein Vorschlag, nie Pflicht; ein Teil von einem anderen Velo bringt «km schon am Teil» mit (Schritt 3 in einfacher Form, ohne automatisches Umziehen).
 - **Grund:** Noah holt ein neues Velo ab und will dessen km von Anfang an lückenlos und nachvollziehbar; die Strava-Werte weichen heute ohne Erklärung ab.
+
+## 10.10.2026: Velo-Blätter (0.69.0, Noahs Antworten V1–V7 a)
+
+- **Entscheid:** Jedes Velo hat eine Mappe mit Blättern (Vorschlag A): unter Velos › Setup unter dem Kopfband, im offenen Velo der Pflege als eine Zeile mit Links. Werkstatt-Auftrag und Abhol-Check stehen zusätzlich dort, wo die Werkstatt lebt (Pflege «Für den Velomech», Werkstatt & Belege); einen eigenen Termin-Datensatz gibt es noch nicht.
+- **Entscheid:** Zuerst vier Blätter: Velo-Pass, Service-Plan, Werkstatt-Auftrag, Abhol-Check. Repair-Kit, Garantie & Belege, Diebstahl-Blatt und Einfahr-Plan folgen später. Jedes Blatt lässt sich ausblenden («Blätter wählen»).
+- **Entscheid:** Ein Blatt lässt sich ansehen, als PDF teilen (Druckdialog des Geräts, nur das Blatt druckt, kein neues Paket) und als Text kopieren. Der Auftrag als Text ist deutsch (für den Velomech), mit km, Wünschen und «Bitte so lassen».
+- **Entscheid:** Die Werte kommen aus den vorhandenen Daten (Masse, Teile-Angaben, Pflege, Fahrten-Buch); ein fehlender Wert ist eine leere Zeile «eintragen» mit Link dorthin, wo er bearbeitet wird. Drehmomente, Zugstufe und Sensoren hat die App noch nicht als Feld; sie stehen darum noch nicht im Velo-Pass.
+- **Entscheid:** Die Häkchen des Abhol-Checks werden auf dem Velo gespeichert (`bike.sheets.pickup`, mit dem ersten Häkchen samt den Arbeiten des Auftrags). «In die Pflege übernehmen» schreibt pro abgehakter Arbeit einen Eintrag «Velomech», heute, bei den aktuellen km; ein ersetztes Teil hat damit seinen Startpunkt (Q1), der 1000-km-Check zählt für seine Prüfpunkte, eine Reparatur wird erledigt. Rückgängig ist möglich.
+- **Grund:** Noahs Abhol-Dokument für den Bikemech soll sich aus der App füllen statt von Hand gepflegt zu werden (Ziel 2 «Das Velo im Griff haben»).
+

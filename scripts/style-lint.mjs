@@ -45,6 +45,9 @@ export const STRICT_STYLE = [
   'src/lib/care/Q1Status.svelte',
   'src/lib/care/StartPointDialog.svelte',
   'src/lib/home/KmCard.svelte',
+  // v0.69.0 «Velo-Blätter»
+  'src/lib/bikes/SheetFolder.svelte',
+  'src/lib/bikes/SheetView.svelte',
 ];
 /** The routes of the trip pages and interstitials (tests/e2e/guard.spec.js), strict in the same way. */
 export const STRICT_ROUTES = ['#/pack', '#/pack?day', '#/ride', '#/debrief/test_data_gtp_Napf', '#/trip/test_data_gtp_Herbstrunde/packed', '#/trip/test_data_gtp_Napf/ended', '#/trip/test_data_gtp_Napf/debriefed'];
