@@ -80,6 +80,7 @@ test('Packen → «Gepackt»: own address, reload, «Zur Startseite», reminder 
   await go(page, '#/pack?day');
   await expect(main(page)).toHaveText(T('Finish packing'));
   await page.getByRole('button', { name: T('Everything is packed') }).click();
+  await expect(page.getByRole('button', { name: T('Everything is packed') })).toHaveCount(0); // ticks saved before the next tap
   // U001: one «Weiter» only, «Gute Fahrt!» is not said five days early
   await expect(page.locator('.alldone')).toContainText(T('Everything is in.'));
   await expect(page.locator('.alldone .btn')).toHaveCount(0);
@@ -177,6 +178,7 @@ test('a day ride: no «Gepackt», at 08:00 ending asks, then «Tour beendet» wi
   await open(page, context, info, [trip('Feierabend', D0, { days: 1, hours: 3 })], { hour: 8, current: ID('Feierabend') });
   await go(page, '#/pack?day');
   await page.getByRole('button', { name: T('Everything is packed') }).click();
+  await expect(page.getByRole('button', { name: T('Everything is packed') })).toHaveCount(0); // ticks saved before the next tap
   await main(page).click();
   await expect(page).toHaveURL(/#\/ride$/); // Ü5a: straight on, no «Gepackt»
   await expect(main(page)).toHaveText(T('Finish the trip'));
@@ -221,6 +223,7 @@ test('an empty list never says «Alles gepackt, los» (U014); a trip without a b
   await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), ID('Wandern'));
   await go(page, '#/pack?day');
   await page.getByRole('button', { name: T('Everything is packed') }).click();
+  await expect(page.getByRole('button', { name: T('Everything is packed') })).toHaveCount(0); // ticks saved before the next tap
   await main(page).click();
   await expect(page).toHaveURL(new RegExp(`#/trip/${ID('Wandern')}/packed$`));
   await go(page, `#/debrief/${ID('Wandern')}`);
