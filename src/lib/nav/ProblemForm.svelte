@@ -5,6 +5,7 @@
    * v0.46.1: a line is also split at commas and «und»; the list under the field shows the split.
    * After saving a calm "3 problems saved for Factor LS ✓" with Undo. Pure part in problems.js.
    */
+  import DateInput from '../ui/DateInput.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { rideContext, runningTrip } from '../notes.js';
@@ -185,7 +186,7 @@
         <button type="button" aria-pressed={when === 'ride'} onclick={() => (when = 'ride')}>{t('Before the next ride')}</button>
         <button type="button" aria-pressed={when === 'date'} onclick={() => (when = 'date')}>{t('Date')}</button>
       </div>
-      {#if when === 'date'}<input class="inp due" type="date" min={today} bind:value={dueDate} aria-label={t('Deadline')} />{/if}
+      {#if when === 'date'}<DateInput class="inp due" min={today} bind:value={dueDate} aria-label={t('Deadline')} />{/if}
     </fieldset>
 
     <div class="row">
@@ -249,9 +250,10 @@
   .req {
     font-weight: 400;
   }
-  .due {
+  /* v0.67.1: the date field is ui/DateInput.svelte (its own box around the input) */
+  fieldset :global(.date-in:has(.due)) {
     margin-top: 8px;
-    max-width: 220px;
+    max-width: 240px;
   }
   .again {
     margin: 0;

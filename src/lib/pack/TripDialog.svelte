@@ -1,4 +1,5 @@
 <script>
+  import DateInput from '../ui/DateInput.svelte';
   import { backClose } from '../ui/backclose.js';
   import '../trip/trip.css';
   import { tick } from 'svelte';
@@ -507,7 +508,7 @@
         <div class="tp-chips">
           <button type="button" class="tp-chip" aria-pressed={draft.startDate === today} onclick={() => (draft.startDate = today)}>{t('Today')}</button>
           <button type="button" class="tp-chip" aria-pressed={draft.startDate === tomorrow} onclick={() => (draft.startDate = tomorrow)}>{t('Tomorrow')}</button>
-          <input class="inp date" type="date" lang={locale()} bind:value={draft.startDate} aria-label={t('Start date')} />
+          <DateInput class="inp date" bind:value={draft.startDate} aria-label={t('Start date')} />
         </div>
       </fieldset>
       <fieldset class="ctx">
@@ -594,7 +595,7 @@
     {:else}
       <div class="grid">
         <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
-        <label><span class="lbl">{t('Start date')}</span><input class="inp" type="date" lang={locale()} bind:value={draft.startDate} /></label>
+        <label><span class="lbl">{t('Start date')}</span><DateInput bind:value={draft.startDate} /></label>
         {#if byBike}
           <label>
             <span class="lbl">{t('Bike')}</span>
@@ -758,11 +759,13 @@
   .ctx .tp-chips {
     align-items: center;
   }
-  .date {
-    width: auto;
+  /* v0.67.1: the date field is ui/DateInput.svelte (its own box around the input) */
+  .tp-chips :global(.date-in) {
+    flex: 1 1 170px;
+    max-width: 220px;
+  }
+  .tp-chips :global(.inp.date) {
     min-height: 44px;
-    flex: 1 1 150px;
-    max-width: 190px;
   }
   .grid.two {
     margin-top: 8px;

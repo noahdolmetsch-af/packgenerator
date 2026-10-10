@@ -6,6 +6,7 @@
    * 3. what is new since then («original» or «new», a new part with its date and, if known, km).
    * Unsure? «original» is a good start value. Nothing is stored before the last button.
    */
+  import DateInput from '../ui/DateInput.svelte';
   import { localDay } from '../localday.js';
   import { parseKm, partName } from '../care.js';
   import { startValues, WIZARD_PARTS } from './overview.js';
@@ -79,7 +80,7 @@
 
   {#if step === 0}
     <p class="hint">{t('The purchase date counts as the mounting date of every part.')}</p>
-    <label class="fld"><span class="lbl">{t('Purchase date')}</span><input class="inp" type="date" bind:value={bought} max={localDay()} /></label>
+    <label class="fld"><span class="lbl">{t('Purchase date')}</span><DateInput bind:value={bought} max={localDay()} /></label>
     <label class="fld"><span class="lbl">{t('km at the purchase')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={kmBought} /></label>
   {:else if step === 1}
     <p class="hint">{t('From the bike computer, Strava or Garmin.')}</p>
@@ -98,7 +99,7 @@
         </div>
         {#if on}
           <div class="two">
-            <label class="fld"><span class="lbl">{t('Date')}</span><input class="inp" type="date" bind:value={fresh[p.key].date} min={bought} max={localDay()} /></label>
+            <label class="fld"><span class="lbl">{t('Date')}</span><DateInput bind:value={fresh[p.key].date} min={bought} max={localDay()} /></label>
             <label class="fld"><span class="lbl">km</span><input class="inp num" type="text" inputmode="numeric" bind:value={fresh[p.key].km} placeholder={t('not known')} /></label>
           </div>
         {/if}
