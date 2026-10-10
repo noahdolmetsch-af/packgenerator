@@ -255,7 +255,8 @@ test('the back key closes a dialog first and keeps the inputs; the page stays (�
   await page.goto('./#/gear');
   await expect(page.locator('main')).not.toBeEmpty();
   const phone = info.project.name === 'phone';
-  const plus = () => (phone ? page.locator('nav.bottom .plus') : page.locator('header.top .btn.hi.new'));
+  // v0.71.0 «Fünf Orte»: the round + on a phone, «+ Neu» in the sidebar on a computer
+  const plus = () => (phone ? page.locator('button.fab') : page.locator('.side .newbtn'));
   // «Neu» sheet
   await plus().click();
   const sheet = page.locator('dialog.sheet.new');

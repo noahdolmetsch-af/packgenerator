@@ -152,8 +152,9 @@ test('selecting on a 320 px phone: no sideways scroll, the bar sits above the bo
   // The bar ends above the bottom navigation.
   const b = await bar.boundingBox();
   const nav = await page.locator('nav.bottom').boundingBox();
-  const plus = await page.locator('nav.bottom .plus').boundingBox();
-  expect(b.y + b.height).toBeLessThanOrEqual(Math.min(nav.y, plus.y));
+  expect(b.y + b.height).toBeLessThanOrEqual(nav.y);
+  // v0.71.0 «Fünf Orte»: the round + lies under the bar, never on its buttons.
+  expect(await page.evaluate(([x, y]) => !!document.elementFromPoint(x, y)?.closest('[role="region"]'), [b.x + b.width - 12, b.y + b.height / 2])).toBe(true);
   // Group "Select all" works on a folded category.
   await page.locator('.selrow').getByRole('button', { name: T('Select none'), exact: true }).click();
   await page.getByRole('button', { name: T('Select all: {cat}', { cat: T('Lights') }) }).click();

@@ -56,32 +56,33 @@ test('Today: a bike card per bike with a dot and a word; a tap opens its Bike ca
   expect(errors).toEqual([]);
 });
 
-test('More: top right with the Inbox count, grouped, language; the search finds pages', async ({ page, context }, info) => {
+// v0.71.0 «Fünf Orte»: «More» became «Ich» (top right, #/me); its pages live under their place.
+test('Ich: top right with the Inbox count, settings and the app; the search finds pages', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/');
-  const more = page.locator('.more-btn');
-  await expect(more).toHaveAttribute('aria-label', 'Mehr, Eingang: 2 zum Ablegen');
+  const me = page.locator('a.me');
+  await expect(me).toHaveAttribute('aria-label', 'Ich, Eingang: 2 zum Ablegen');
   // v0.47.1 (Noah): only a dot on the button, no number (the count stays in the label).
-  await expect(more.locator('.mdot')).toBeVisible();
-  await expect(more).not.toContainText('2');
-  // The bar has the 4 places and "+"; the profile menu is gone.
+  await expect(me.locator('.dot')).toBeVisible();
+  await expect(me).not.toContainText('2');
+  // The bar has the 5 places; the profile menu and «More» are gone.
   await expect(page.locator('details.profile-menu')).toHaveCount(0);
-  await more.click();
-  const sheet = page.locator('dialog.more');
-  await expect(sheet).toBeVisible();
-  for (const g of ['Planen', 'Rückblick', 'Material', 'App']) await expect(sheet.getByRole('heading', { name: g, exact: true })).toBeVisible();
-  await expect(sheet.getByRole('link', { name: /Eingang/ })).toContainText('2');
+  await expect(page.locator('dialog.more')).toHaveCount(0);
+  await expect(page.locator('nav.bottom a, .side li.pl > a.pa')).toHaveText([/Heute/, /Touren/, /Material/, /Velos/, /Aktiv/]);
+  await me.click();
+  await expect(page).toHaveURL(/#\/me$/);
+  const main = page.locator('main');
+  await expect(main.getByRole('heading', { level: 1, name: 'Ich' })).toBeVisible();
+  await expect(main.getByRole('link', { name: /Eingang/ })).toContainText('2');
   await noSideways(page);
-  await shot(page, info, 'mehr');
-  await sheet.getByRole('link', { name: 'Vergangene Touren' }).click();
-  await expect(page).toHaveURL(/#\/pack\/past/);
-  await expect(sheet).toBeHidden();
+  await shot(page, info, 'ich');
+  await main.getByRole('link', { name: /^Notizen/ }).click();
+  await expect(page).toHaveURL(/#\/notes/);
 
-  // Language in "More".
-  await more.click();
-  await sheet.getByRole('button', { name: 'EN', exact: true }).click();
-  await expect(page.locator('.more-btn')).toHaveAttribute('aria-label', 'More, Inbox: 2 to sort');
-  await page.keyboard.press('Escape');
+  // Language in «Ich».
+  await page.goto('./#/me');
+  await main.getByRole('group', { name: 'Sprache' }).getByRole('button', { name: 'English', exact: true }).click();
+  await expect(me).toHaveAttribute('aria-label', 'Me, Inbox: 2 to sort');
 
   // The search finds pages and actions ("vorl" → Templates).
   // v0.49.0: Past trips has its own search; this is the app search.

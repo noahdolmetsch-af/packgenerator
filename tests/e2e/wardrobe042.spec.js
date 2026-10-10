@@ -147,9 +147,13 @@ async function stageImport(page, info) {
 test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
 
-  // 1. The wardrobe through More → Gear → Wardrobe.
-  await page.getByRole('button', { name: T('More') }).first().click();
-  await page.getByRole('dialog').getByRole('link', { name: T('Wardrobe') }).click();
+  // 1. The wardrobe: v0.71.0 «Fünf Orte»: Material › Kleider (sidebar), on a phone through the search.
+  if (info.project.name === 'desktop') await page.locator('.side li[data-place="gear"] .tabs').getByRole('link', { name: T('Clothes|tab') }).click();
+  else {
+    await page.getByRole('button', { name: T('Search everything') }).click();
+    await page.locator('.search input').fill(T('Wardrobe'));
+    await page.getByRole('region', { name: T('Search results') }).getByRole('button', { name: new RegExp(`^${T('Wardrobe')}`) }).first().click();
+  }
   await expect(page).toHaveURL(/#\/wardrobe$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Wardrobe') })).toBeVisible();
   for (const l of ['Base|layer', 'Mid|layer', 'Outer|layer', 'Accessories|layer']) await expect(page.locator('h2.lh', { hasText: T(l) })).toBeVisible();

@@ -113,15 +113,19 @@ test('Review: the old address leads to the 12 months on the look back page, no s
   expect(errors).toEqual([]);
 });
 
-test('More leads to the look back page', async ({ page, context }, info) => {
+// v0.71.0 «Fünf Orte»: «More» is gone; the Rückblick is a page of Touren (sidebar) and the search finds it.
+test('the search and the sidebar lead to the look back page', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/');
-  await page.locator('.more-btn').click();
-  const sheet = page.locator('dialog.more');
-  await expect(sheet).toBeVisible();
-  await sheet.getByRole('link', { name: 'Rückblick' }).click();
+  if (info.project.name === 'desktop') {
+    await page.locator('.side li[data-place="trips"] .tabs').getByRole('link', { name: 'Rückblick' }).click();
+    await expect(page).toHaveURL(/#\/debrief$/);
+    await page.goto('./#/');
+  }
+  if (info.project.name === 'phone') await page.getByRole('button', { name: 'Alles durchsuchen' }).click();
+  await page.locator('.search input').fill('rückblick');
+  await page.getByRole('region', { name: 'Suchergebnisse' }).getByRole('button', { name: /^Rückblick/ }).first().click();
   await expect(page).toHaveURL(/#\/debrief$/);
-  await expect(sheet).toBeHidden();
   expect(errors).toEqual([]);
 });
 

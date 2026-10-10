@@ -33,7 +33,8 @@
           {@const on = place === p.key}
           {@const tab = on ? tabOf(p.key, hash) : null}
           <li class="pl" class:on data-place={p.key}>
-            <a class="pa" href={p.href} aria-current={on && (!tabs.length || tab === tabs[0].key) ? 'page' : undefined}>
+            <!-- the place of the page: «page» when none of its pages is lit (a trip), else «true» -->
+            <a class="pa" href={p.href} aria-current={on ? (tab && tabs.length > 1 ? 'true' : 'page') : undefined}>
               <span class="pi"><PlaceIcon place={p.key} size={18} /></span>
               <span class="pn">{t(p.label)}</span>
               {#if p.key === 'bikes' && due}<span class="cnt num"><span class="sr">, {t('{n} due', { n: due })}</span><span aria-hidden="true">{due}</span></span>{/if}

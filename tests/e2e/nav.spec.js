@@ -28,6 +28,8 @@ const ROUTES = [
   ['#/ride', 'Trips|place'],
   ['#/debrief', 'Trips|place'],
   ['#/debrief/test_data_gtp_none', 'Trips|place'],
+  // v0.71.0 «Fünf Orte»: Im Flow is the place Aktiv; the Inbox lives in «Ich» (no place lit)
+  ['#/flow', 'Active|place'],
   ['#/inbox', null],
   ['#/inbox/new', null],
   ['#/share/test_data_gtp_code', 'Trips|place'],
@@ -46,10 +48,12 @@ for (const lang of ['en', 'de']) {
       await page.goto(`./${hash}`);
       const nav = page.locator('nav[aria-label]').filter({ visible: true }).filter({ has: page.locator(`a[href="#/gear"]`) });
       await expect(nav, hash).toHaveCount(1);
-      // the same four places, in the same order, on every page
-      await expect(nav.locator('a'), hash).toHaveText([T('Today|place'), T('Trips|place'), T('Gear|place'), T('Bikes|place')]);
-      if (place) await expect(nav.locator('a[aria-current="page"]'), hash).toHaveText(T(place));
-      else await expect(nav.locator('a[aria-current="page"]'), hash).toHaveCount(0);
+      // the same five places (v0.71.0), in the same order, on every page (the sidebar also lists their pages)
+      const places = page.locator('nav.bottom a, .side li.pl > a.pa');
+      await expect(places, hash).toHaveText([T('Today|place'), T('Trips|place'), T('Gear|place'), T('Bikes|place'), T('Active|place')]);
+      const lit = page.locator('nav.bottom a[aria-current], .side li.pl > a.pa[aria-current]');
+      if (place) await expect(lit, hash).toHaveText(T(place));
+      else await expect(lit, hash).toHaveCount(0);
       await expect(page.locator('main'), hash).not.toBeEmpty();
       const sw = await page.evaluate(() => document.documentElement.scrollWidth);
       expect(sw, `${hash} scrolls sideways`).toBeLessThanOrEqual(width);
@@ -114,28 +118,27 @@ for (const [soon, button, step, wx] of [['2026-10-08', 'Pack|stage', 'Pack|stage
 }
 
 // v0.23.1 (Noah 1b): DE|EN sits only in the menu (phone and desktop), one tap once the menu
-// is open, keyboard reachable, and it shows which language is on. v0.38.0 (Noah 12a): the menu is
-// "More" at the top right, where the profile icon was.
-test('the language switch lives in the menu "More"', async ({ page, context }) => {
+// is open, keyboard reachable, and it shows which language is on. v0.38.0 (Noah 12a): the menu was
+// "More" at the top right; v0.71.0 «Fünf Orte»: it is the page «Ich» behind the round button there.
+test('the language switch lives in «Ich»', async ({ page, context }) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.getItem('lang') || localStorage.setItem('lang', 'en'));
   await page.goto('./');
-  const top = page.locator('header.top');
-  const menu = page.locator('dialog.more');
-  await expect(top.locator('button[lang="de"]').filter({ visible: true })).toHaveCount(0);
-  // keyboard: "More" opens the menu with Enter
-  await top.locator('.more-btn').focus();
+  await expect(page.locator('header.top, .side').locator('button[lang="de"]').filter({ visible: true })).toHaveCount(0);
+  // keyboard: «Ich» opens with Enter
+  await page.locator('a.me').focus();
   await page.keyboard.press('Enter');
-  const group = menu.getByRole('group', { name: 'Language' });
+  await expect(page).toHaveURL(/#\/me$/);
+  const group = page.locator('main').getByRole('group', { name: 'Language' });
   await expect(group).toBeVisible();
-  await expect(group.getByRole('button', { name: 'EN' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(group.getByRole('button', { name: 'DE' })).toHaveAttribute('aria-pressed', 'false');
-  await group.getByRole('button', { name: 'DE' }).focus();
+  await expect(group.getByRole('button', { name: 'English' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(group.getByRole('button', { name: 'Deutsch' })).toHaveAttribute('aria-pressed', 'false');
+  await group.getByRole('button', { name: 'Deutsch' }).focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
-  const gruppe = menu.getByRole('group', { name: 'Sprache' });
-  await expect(gruppe.getByRole('button', { name: 'DE' })).toHaveAttribute('aria-pressed', 'true');
-  await gruppe.getByRole('button', { name: 'EN' }).click();
+  const gruppe = page.locator('main').getByRole('group', { name: 'Sprache' });
+  await expect(gruppe.getByRole('button', { name: 'Deutsch' })).toHaveAttribute('aria-pressed', 'true');
+  await gruppe.getByRole('button', { name: 'English' }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 });
 

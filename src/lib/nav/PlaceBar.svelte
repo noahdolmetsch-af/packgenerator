@@ -3,15 +3,15 @@
    * v0.71.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): on a phone (and a narrow window) the five places
    * sit at the bottom, in reach of the thumb: Heute, Touren, Material, Velos, Aktiv. The chosen place
    * shows its colour as a pill behind the icon and in bold, not by colour alone. «+ Neu» is a round
-   * button bottom right, above the bar (O1.3a); the trip pages leave it out, their own main button
-   * sits there (rule U1). Before: four places with the + in the middle (v0.23.0).
+   * button bottom right, above the bar (O1.3a); on the trip pages it sits higher, above their own main
+   * button at the bottom (rule U1), never on it. Before: four places with the + in the middle (v0.23.0).
    */
   import { PLACES } from '../nav.js';
   import { t } from '../i18n.svelte.js';
   import PlaceIcon from './PlaceIcon.svelte';
   import { Plus } from '@lucide/svelte';
 
-  let { place = null, due = 0, onnew, fab = true } = $props();
+  let { place = null, due = 0, onnew, fab = true, high = false } = $props();
 </script>
 
 <nav class="bottom" aria-label={t('Sections')}>
@@ -23,7 +23,7 @@
   {/each}
 </nav>
 {#if fab}
-  <button type="button" class="fab" aria-label={t('New')} aria-haspopup="dialog" onclick={onnew}><Plus size={28} strokeWidth={2.4} aria-hidden="true" /></button>
+  <button type="button" class="fab" class:high aria-label={t('New')} aria-haspopup="dialog" onclick={onnew}><Plus size={28} strokeWidth={2.4} aria-hidden="true" /></button>
 {/if}
 
 <style>
@@ -103,6 +103,10 @@
     box-shadow: 0 6px 16px var(--shadow);
     cursor: pointer;
   }
+  /* above the trip pages' main button (MainBar: 62 px from the bottom, about 74 px high) */
+  .fab.high {
+    bottom: calc(148px + env(safe-area-inset-bottom));
+  }
   .fab:hover {
     background: var(--hi-hover);
   }
@@ -128,6 +132,9 @@
       bottom: calc(60px + env(safe-area-inset-bottom));
       width: 48px;
       height: 48px;
+    }
+    .fab.high {
+      bottom: calc(134px + env(safe-area-inset-bottom));
     }
   }
   @media print {

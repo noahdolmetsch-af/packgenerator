@@ -29,7 +29,9 @@ const tap = async (loc) => {
 const CASES = [
   { id: 'today', hash: '#/' },
   { id: 'today-new-sheet', hash: '#/', act: async (page, T) => tap(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true })) },
-  { id: 'today-more-sheet', hash: '#/', act: async (page, T) => tap(page.getByRole('button', { name: new RegExp(`^${T('More')}`) }).filter({ visible: true })) },
+  // v0.71.0 «Fünf Orte»: «Ich» (top right) took the place of the «More» sheet
+  { id: 'me', hash: '#/me' },
+  { id: 'keys', hash: '#/me', act: async (page, T) => tap(page.locator('main').getByRole('button', { name: T('Help and keyboard shortcuts') })) },
   {
     id: 'today-search',
     hash: '#/',

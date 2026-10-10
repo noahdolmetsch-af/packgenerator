@@ -29,7 +29,7 @@
   const version = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
 </script>
 
-<div class="me">
+<div class="mepage">
   <PageHead title={t('Me|place')} text={t('Settings and the app, only on this device')} />
 
   <section class="grp" aria-label={t('Settings')}>
@@ -111,7 +111,7 @@
 </div>
 
 <style>
-  .me {
+  .mepage {
     max-width: 680px;
   }
   .grp {

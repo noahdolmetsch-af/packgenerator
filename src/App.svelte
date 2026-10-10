@@ -29,7 +29,7 @@
   import { parseBikesHash } from './lib/bikes.js';
   import { liveQuery } from 'dexie';
   import { db } from './lib/db.js';
-  import { wide } from './lib/media.svelte.js';
+  import { wide, phone } from './lib/media.svelte.js';
   import Me from './pages/Me.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
@@ -73,7 +73,7 @@
     if (place) document.documentElement.dataset.place = place;
     else delete document.documentElement.dataset.place;
   });
-  // The trip pages have their own main button at the bottom (rule U1): no round + over it there.
+  // The trip pages have their own main button at the bottom (rule U1): the round + sits above it there.
   const calm = $derived(page === 'pack' || page === 'ride' || page === 'between' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param)));
   // v0.71.0: the keyboard shortcuts (nav/keys.js), «?» shows them (also from Ich).
   let keysOpen = $state(false);
@@ -298,7 +298,7 @@
 <Keys bind:open={keysOpen} />
 {#if !wide.matches}
   <!-- v0.71.0: the five places at the bottom (also under a shared list, there without +). -->
-  <PlaceBar {place} due={$dueQ ?? 0} fab={!calm && page !== 'share'} onnew={() => (newMode = 'all')} />
+  <PlaceBar {place} due={$dueQ ?? 0} fab={page !== 'share'} high={calm && phone.matches} onnew={() => (newMode = 'all')} />
 {/if}
 </div>
 </div>
@@ -386,6 +386,12 @@
   /* Room for the bottom bar, and for the round + on the right (v0.71.0). */
   main.bar:not(.calm) {
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+  /* a trip page on a phone: its main button at the bottom, the round + above it */
+  @media (max-width: 719px) {
+    main.bar.calm {
+      padding-bottom: calc(214px + env(safe-area-inset-bottom));
+    }
   }
   main.bar.fab {
     padding-bottom: calc(150px + env(safe-area-inset-bottom));
