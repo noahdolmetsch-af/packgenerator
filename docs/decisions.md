@@ -594,7 +594,25 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid (Brainstorm der fünf Ideen, 12:08):** Im Flow beginnt mit beidem: Tagescheck mit Wochenzielen und Tennis-Seite mit Sporttaschen (IF1 a und b). Neuland ist Rückblick und Ideen-Motor zugleich (NL1 a und b); Neues erkennt die App aus den Strava-Routen (braucht den Server), von Hand eintragen geht auch (NL2 b und a). Die App ist ab jetzt die Hauptliste, die Excel braucht es nur noch für die alten Touren (XI1 a). Mehrfachauswahl kommt überall hin (Material, Vorlagen, Tour-Listen, Pflege) und mit dem Material-Paket D2 (MA1 b, MA2 a). Reihenfolge nach Paket 12: zuerst Neuland, dann Im Flow und Fotoalbum (R1 b). Für das Fotoalbum auf Heute zeichnet Claude neue Vorschläge (FA1).
 - **Grund:** Noah will die nächsten Pakete klar geordnet und das neue Velo von Anfang an sauber in der App.
 
+## 10.10.2026: Ruhige Startseite + Fotoband (0.73.0, Noahs Antworten «Heute ruhiger» 1–5 a, «Foto auf Heute» 1–4 a)
+
+- **Entscheid:** Vorschlag A «Ruhige Karte»: Gruss in einer Zeile, Tourkarte direkt danach, Foto scharf (keine Deckkraft unter 1 auf Fotos in Heute), am Computer 300 px rechts in der Karte.
+- **Entscheid:** «Vorschlag für morgen» ist mit einer Tour heute eine schmale Zeile unter der Tourkarte mit hellem Knopf; ohne Tour heute bleibt er gross neben dem Gruss.
+- **Entscheid:** «Weitermachen» erscheint nicht, wenn die Tourkarte dieselbe Tour zeigt; für eine andere Tour und die Abend-Hinweise bleibt es. Ersetzt die Regel U24b aus 0.67.0 («immer die nächste Tour»).
+- **Entscheid:** Fotoband am Handy (Vorschlag A aus «Fotoalbum neu»): 140 px mit Ort und Monat und «Album ›», die Karte liegt über seinem unteren Rand; ein anderes Foto erst beim nächsten Öffnen der App, kein Knopf «Anderes Foto». Ohne Foto kein Band.
+- **Entscheid (selbst):** Am Handy kommt «Im Flow» nach den 8 Knöpfen, wenn es direkt davor steht (Regel 0.46: Gruss, Tourkarte und Knöpfe ohne Scrollen); am Computer bleibt Im Flow unter der Karte (0.51). Eine andere eigene Reihenfolge aus «Startseite anpassen» bleibt.
+- **Entscheid (selbst):** Ein eigenes Album gibt es noch nicht; «Album ›» öffnet Velos › Setup des Velos mit aufgeklappten «Fotos». Ort = Name des Fotos (ein Kamera-Name wie «IMG_1234» → Velo-Name), Monat = Datum, an dem das Foto hinzugefügt wurde.
+- **Grund:** Noah: Das blasse Foto aus 0.46/0.69 gefiel ihm nicht, und der grosse Vorschlag drängte die Tourkarte nach unten.
+
 ## 10.10.2026: Mockups immer auf einer Seite zeigen (Noah, Priorität 1)
 
 - **Entscheid:** Jede Mockup-Runde kommt auf die eine Seite «Offene Mockups» (https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv), mit einem eigenen Abschnitt pro Runde. Computer und Handy stehen nebeneinander, mit einer Zeile «★ ist …» und einem Link zur Fragen-Karte auf Trello. Die Trello-Karte und die Antwort im Thread verlinken auf diesen Abschnitt. Ein Ordnerpfad allein reicht nie.
 - **Grund:** Noah fand die Bilder im Projektordner nicht; es gibt keinen Web-Link zum Ordner, und die Anhänge im Thread sind begrenzt. Ohne sichtbare Mockups kann er sie nicht freigeben (Prinzip Nr. 1, Schritt 4).
+
+## 10.10.2026: Claude veröffentlicht Releases selbst (Noah, 13:52)
+
+- Noah: «Ich erteile hier die Freigabe zum Veröffentlichen auf GitHub und Vercel für alle folgenden Releases.»
+- Claude merged fertige Release-Pull-Requests selbst, sobald der Gesamttest lokal und alle Prüfungen auf dem letzten Commit grün sind. Ein rotes Vercel-Tageslimit hält nicht auf.
+- Nie bei roten oder laufenden Prüfungen, nie Entwürfe oder geparkte Pull Requests (KI-Helfer #89). Ein Pull Request nach dem anderen.
+- Danach wandert die Trello-Karte nach «Zu testen», und Noah bekommt eine kurze Zeile, was online neu ist.
+- Die Mockups gibt weiterhin Noah frei (Prinzip Nr. 1).

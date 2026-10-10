@@ -8,7 +8,7 @@ Gilt ab 9.10.2026, 23:26, für alle folgenden Releases. Quelle: Noahs Anweisung 
 2. **Plan:** eine aktuelle Roadmap, ein Ablauf- und Umsetzungsplan und Arbeitspakete.
 3. **Mockups für jedes Arbeitspaket.**
 4. **Noah gibt das Mockup frei.** Erst danach baut Claude und öffnet den Pull Request.
-5. **Noah gibt den Pull Request frei** (er merged, nie Claude).
+5. **Claude veröffentlicht fertige Releases selbst** (Noah, 10.10.2026: Freigabe für alle folgenden Releases), aber nur, wenn der Gesamttest lokal und alle Prüfungen auf GitHub grün sind. Die Mockups gibt weiterhin Noah frei.
 6. **Nach jedem Schritt** dokumentiert Claude den Fortschritt (Doku, Trello, Memory).
 7. **Kleine Dinge** prüft und verbessert Claude selbst. **Bei grösseren Dingen** stellt Claude immer gezielte a/b-Fragen mit ★.
 
@@ -37,8 +37,8 @@ Damit gilt wieder die Regel aus [Design-Audits](design-audit.md): vor jedem neue
 
 ## 3. Freigabe bleibt bei Noah
 
-- Claude merged nie selbst. Claude öffnet den Pull Request, bringt die Tests auf Grün und gibt Noah den Link, die Testschritte und die Klicks «Merge pull request» → «Confirm merge».
-- Jeder Pull Request hat eine Trello-Karte in «PG · Zur Freigabe» mit Link, Vorschau-Link und Testschritten. Nach dem Merge wandert sie nach «PG · Zu testen».
+- Claude merged selbst (seit 10.10.2026), sobald der Gesamttest lokal und alle Prüfungen auf dem letzten Commit grün sind. Ein rotes Vercel-Tageslimit hält nicht auf. Nie bei roten oder laufenden Prüfungen, nie Entwürfe oder geparkte Pull Requests. Ein Pull Request nach dem anderen; die übrigen bekommen eine neue Nummer. Danach sagt Claude Noah in einer kurzen Zeile, was online neu ist.
+- Jeder Pull Request hat eine Trello-Karte mit Link und Testschritten. Nach dem Merge wandert sie nach «PG · Zu testen».
 
 ## 4. Unverändert
 

@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.73.0
+  'Today is calmer: the greeting is one line, the next trip comes right after it, and «Continue» only appears for another trip than the card shows.':
+    'Heute ist ruhiger: Der Gruss steht in einer Zeile, die nächste Tour kommt direkt danach, und «Weitermachen» erscheint nur noch für eine andere Tour als die Karte.',
+  "The photo on Today is sharp now. On the phone it is a narrow band above the trip card with place and month; «Album ›» opens the bike's photos.":
+    'Das Foto auf Heute ist jetzt scharf. Am Handy ist es ein schmales Band über der Tourkarte mit Ort und Monat; «Album ›» öffnet die Fotos des Velos.',
+  'With a trip today, «Idea for tomorrow» is one slim row under the trip card; without one it stays big beside the greeting.':
+    'Mit einer Tour heute ist «Vorschlag für morgen» eine schmale Zeile unter der Tourkarte; ohne Tour bleibt er gross neben dem Gruss.',
+
   // 0.70.0
   'The folder of each bike has four more sheets: Break-in plan, Repair kit, Warranty & receipts and Theft sheet.':
     'Die Mappe jedes Velos hat vier Blätter mehr: Einfahr-Plan, Repair-Kit, Garantie & Belege und Diebstahl-Blatt.',
