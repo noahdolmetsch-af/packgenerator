@@ -46,7 +46,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.66.0 | Bausteine neu (Biwak, Zelt, Hotel, Kochen, Erste Hilfe, Reparatur, Laden, Licht, Rennen, Essen, Hygiene, Komfort) und «Bausteine prüfen» | live |
 | 0.67.0 | Übergänge Teil 1: Baukasten, Zwischenseiten «Gepackt», «Tour beendet», «Rückblick fertig», Schrittleiste, Hauptknopf nach Phase, Weitermachen auf Heute, Zurück-Taste schliesst zuerst Fenster | live seit 10.10.2026, Noah testet am Handy |
 | 0.67.1 | Fix-Release: Datumsfelder mit Wochentag, Velo-Typen als Wörter, Im-Flow-Symbol im Menü; Prinzip Nr. 1 in CLAUDE.md und Arbeitsweise | live seit 10.10.2026 |
-| 0.68.0 | Q1 «Jeder km zählt»: Fahrten-Buch pro Velo, Import Strava-CSV und Garmin-FIT mit Sensor-Erkennung, Wochen-Abgleich auf Heute, Startpunkt pro Teil | PR offen |
+| 0.68.0 | Q1 «Jeder km zählt»: Fahrten-Buch pro Velo, Import Strava-CSV und Garmin-FIT mit Sensor-Erkennung, Wochen-Abgleich auf Heute, Startpunkt pro Teil | live seit 10.10.2026 |
 | 0.69.0 | Velo-Blätter: Mappe pro Velo mit Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check; ansehen, als PDF teilen, Text kopieren; Häkchen werden Pflege-Einträge mit Startpunkt | PR offen |
 | 0.69.1 | Gesamttest-Runde: alle Abläufe durchgespielt, Befunde A–C behoben, D als Fragen; Import-Regel «Fahrt-Typ» (Gravel Ride → Velo) | PR offen |
 | – | KI-Helfer (siehe unten) | fertig gebaut und getestet, als Entwurf geparkt (PR #89), wird beim Einschalten neu nummeriert |

@@ -110,7 +110,7 @@ describe('the Workshop order', () => {
     const text = orderSheetText(picked, { bike: b, wishes: b.sheets.wishes, keep: keepValues(b) });
     expect(text).toContain('- Gabel-Service');
     expect(text).not.toContain('Kette');
-    expect(text).toContain('Kilometerstand: 3’100 km');
+    expect(text).toContain(`Kilometerstand: ${(3100).toLocaleString('de-CH')} km`); // the separator depends on the ICU version
     expect(text).toContain('Wünsche: Bitte anrufen');
     expect(text).toContain('Gabeldruck 72 psi');
     expect(text.indexOf('Wünsche')).toBeGreaterThan(text.indexOf('- Gabel-Service'));
