@@ -16,6 +16,7 @@
   import CareOverview from './CareOverview.svelte';
   import StartValues from './StartValues.svelte';
   import { setSpec } from '../bikespecs.js';
+  import { setReading, addHand } from '../kmbookdb.js';
   import { nextNumber } from '../notes.js';
   import { isMore, partName as nameOfPart } from '../care.js';
   import Fold from '../ui/Fold.svelte';
@@ -147,7 +148,13 @@
     if (bike) await db.bikes.update(bikeId, setSpec(bike, key, field, value));
   }
   async function saveStart(bikeId, values) {
-    await db.bikes.update(bikeId, values);
+    // v0.68.0 (Q1): the km go into the ride ledger: the km at the purchase as its start value (when the
+    // ledger is still empty), the km today as a new reading. Nothing is overwritten.
+    const { km, kmDate, ...rest } = values;
+    await db.bikes.update(bikeId, rest);
+    const kmBought = rest.parts.flatMap((p) => p.history ?? []).find((h) => h.start)?.km ?? 0;
+    if (!(await db.kmBook.where('bikeId').equals(bikeId).count()) && rest.bought) await addHand(db, { bikeId, date: rest.bought, km: kmBought, kind: 'start', note: 'Start value' });
+    if (typeof km === 'number') await setReading(db, bikeId, km, { date: kmDate ?? today });
     say(t('Start values saved.'));
   }
 
@@ -241,7 +248,7 @@
       kmMsg = { bikeId: bike.id, text: t('Type the km as a whole number, e.g. 12400.'), error: true };
       return null;
     }
-    await db.bikes.update(bike.id, { km: n, kmDate: today });
+    await setReading(db, bike.id, n, { date: today }); // v0.68.0: an entry in the ride ledger
     kmMsg = { bikeId: bike.id, text: t('{km} km saved.', { km: num(n) }), error: false };
     return n;
   }
