@@ -1,0 +1,22 @@
+/*
+ * v0.72.0 «Feinschliff» (D3a, Noah 10.10.2026): every small button (.btn.sm) gets an invisible tap
+ * area of 44 px on a touch screen, the app's pattern since v0.27.0 (AP21) / v0.45.0. The look stays
+ * the same, also where a page makes the button smaller (32–40 px rows in Inbox, Care, Gear …).
+ * Kept outside app.css (the «Fünf Orte» build owns that file); loaded in main.js right after it.
+ * :where() keeps the position at zero specificity, so a page that places its button absolutely wins.
+ */
+@media (pointer: coarse) {
+  :where(.btn.sm) {
+    position: relative;
+  }
+  .btn.sm::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 44px;
+    min-width: 44px;
+    transform: translateY(-50%);
+  }
+}

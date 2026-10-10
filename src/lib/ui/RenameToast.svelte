@@ -27,7 +27,7 @@
     color: var(--brand-ink);
     border-radius: 12px;
     box-shadow: 0 8px 24px var(--shadow);
-    font: 500 15px/1.35 var(--font-body);
+    font: 500 var(--fs-body)/1.35 var(--font-body);
   }
   .rtoast span {
     flex: 1;
@@ -42,7 +42,7 @@
     border-radius: 8px;
     background: none;
     color: var(--hi-bright);
-    font: 700 15px/1 var(--font-body);
+    font: 700 var(--fs-body)/1 var(--font-body);
     cursor: pointer;
   }
   @media (max-width: 719px) {

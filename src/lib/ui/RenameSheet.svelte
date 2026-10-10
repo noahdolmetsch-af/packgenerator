@@ -144,7 +144,7 @@
     width: 100%;
     min-height: 48px;
     padding-right: 52px;
-    font-size: 17px;
+    font-size: var(--fs-sub);
   }
   .clr {
     position: absolute;

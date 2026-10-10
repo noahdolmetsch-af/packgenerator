@@ -12,6 +12,8 @@ import '@fontsource/sofia-sans-extra-condensed/latin-700.css';
 import '@fontsource/sofia-sans-extra-condensed/latin-800.css';
 import '@fontsource/sofia-sans-extra-condensed/latin-900.css';
 import './app.css';
+// v0.72.0 (D3a): the invisible 44 px tap area of the small buttons on a touch screen
+import './lib/ui/touch.css';
 import App from './App.svelte';
 import { db } from './lib/db.js';
 import { tidyData } from './lib/tidy.js';

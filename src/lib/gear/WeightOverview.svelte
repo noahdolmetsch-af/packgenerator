@@ -118,6 +118,16 @@
   .seg.dim {
     opacity: 0.3;
   }
+  /* v0.72.0 (D3a): on a touch screen the bar, the rows and the fold are 44 px high */
+  @media (pointer: coarse) {
+    .bar {
+      height: 44px;
+    }
+    .legend button,
+    .fold > summary {
+      min-height: 44px;
+    }
+  }
   /* On the phone the lists fold away; on the desktop they are always open. */
   .fold > summary {
     list-style: none;
