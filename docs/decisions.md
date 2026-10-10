@@ -604,6 +604,17 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid (selbst):** Ein eigenes Album gibt es noch nicht; «Album ›» öffnet Velos › Setup des Velos mit aufgeklappten «Fotos». Ort = Name des Fotos (ein Kamera-Name wie «IMG_1234» → Velo-Name), Monat = Datum, an dem das Foto hinzugefügt wurde.
 - **Grund:** Noah: Das blasse Foto aus 0.46/0.69 gefiel ihm nicht, und der grosse Vorschlag drängte die Tourkarte nach unten.
 
+## 10.10.2026: Feinschliff (0.75.0, Noahs Antworten D1–D4 a, Material-Detail 1–5 a, Umbenennen 1–5 a)
+
+- **Entscheid (D1 a):** Bringt ein Import einen neuen Fahrt-Typ ohne Regel, fragt die App einmal, welches Velo dazu gehört, und merkt die Antwort als Regel. «+ Regel» bleibt. Der Vorschlag kommt nur aus dem Velo, das Sensor, Strava-Velo oder Profil schon bestimmt haben, nie aus dem Typ selbst.
+- **Entscheid (D2 a):** Die 1'000-km-Prüfung bleibt, wie sie ist.
+- **Entscheid (D3 a):** Alle kleinen Knöpfe haben am Handy eine Tippfläche von 44 px (unsichtbar vergrössert, `src/lib/ui/touch.css`).
+- **Entscheid (D4 a):** Die stille Regel «Profil heisst wie ein Velo» steht als ruhige Zeile in der Regel-Liste.
+- **Entscheid (Material-Detail 1–5 a):** Eine Zusammenfassung in einer Zeile im Teile-Fenster, Zeile «Gewicht» zuerst mit leichteren Alternativen («Als Alternative merken», «Passt nicht»), leere Ansicht «Nie gebraucht» mit «Auf dem Weg dahin», Übersicht in «Bausteine prüfen», Erste Hilfe auf jeder Tour (Tagestour: kleines Set, mit Nacht: volles Set, in Packen umschaltbar und abwählbar).
+- **Entscheid (Umbenennen 1–5 a):** Ein Umbenennen-Blatt überall (Velo, Tasche, Material, Baustein, Aktivität, Foto): Stift öffnet es, Speichern über der Tastatur, Taste «Fertig», danach «Rückgängig» 10 Sekunden. Die Zurück-Taste von Android speichert in allen Bearbeiten-Fenstern (über `cancel`). Material lässt sich auch am Handy umbenennen. Setup bleibt beim umbenannten Velo. Das Tour-Band bleibt und bekommt nur das gleiche Rückgängig.
+- **Entscheid (selbst):** Fenster für Aktionen (Ablegen, Vorlage, Startwerte, Teil) speichern bei Zurück nichts; nur Bearbeiten-Fenster behalten. Namensvergleich im Import zählt Leerzeichen im Namen einmal («Mtb  Fully Spark» = «mtb fully spark»).
+- **Grund:** Noah: Namen ändern war je nach Ort anders, und am Handy ging Getipptes mit der Zurück-Taste verloren.
+
 ## 10.10.2026: Mockups immer auf einer Seite zeigen (Noah, Priorität 1)
 
 - **Entscheid:** Jede Mockup-Runde kommt auf die eine Seite «Offene Mockups» (https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv), mit einem eigenen Abschnitt pro Runde. Computer und Handy stehen nebeneinander, mit einer Zeile «★ ist …» und einem Link zur Fragen-Karte auf Trello. Die Trello-Karte und die Antwort im Thread verlinken auf diesen Abschnitt. Ein Ordnerpfad allein reicht nie.

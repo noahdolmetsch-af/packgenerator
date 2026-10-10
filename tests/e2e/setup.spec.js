@@ -105,7 +105,7 @@ test('band: name, km, weight, bags, care due; the bikes as tabs; edit and add', 
   await expect(band.getByRole('tab', { name: `${P} Gravel Grinder` })).toHaveAttribute('aria-selected', 'true');
 
   // Edit and add are one tap away.
-  await band.getByRole('button', { name: T('Edit {bike}', { bike: `${P} Gravel Grinder` }) }).click();
+  await band.getByRole('button', { name: T('Rename {name}', { name: `${P} Gravel Grinder` }) }).click();
   await expect(page.locator('dialog[open]')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.locator('dialog[open]')).toHaveCount(0);

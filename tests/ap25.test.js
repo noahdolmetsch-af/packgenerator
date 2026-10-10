@@ -1,4 +1,4 @@
-// v0.28.0 (AP25): templates learn from experience, traceably; first aid only with a night; tools always.
+// v0.28.0 (AP25): templates learn from experience, traceably; first aid (v0.72.0: on every trip, small or full); tools always.
 // Fictional data only.
 import 'fake-indexeddb/auto';
 import { describe, it, expect, afterEach } from 'vitest';
@@ -18,13 +18,14 @@ afterEach(() => (lang.v = 'en'));
 const P = 'test_data_gtp_';
 const it_ = (id, f = {}) => ({ id, name: `${P} ${id}`, ownership: 'owned', role: null, sets: [], defaultBag: 'seat', domains: ['bikepacking'], ...f });
 
-/* ---------- 1. first aid only with a night ---------- */
-describe('first aid comes with a night only', () => {
+/* ---------- 1. first aid: v0.28.0 only with a night; v0.72.0 (Noah 10a) on every trip, small or full ---------- */
+describe('first aid on every trip: the small set on a day ride, the full set with a night', () => {
   const items = [
     it_('JERSEY', { role: 'worn', defaultBag: 'body' }),
     it_('AIDKIT', { sets: ['firstaid'], role: 'standard' }),
-    it_('BLISTER', { sets: ['firstaid'], always: true }),
+    it_('BLISTER', { sets: ['firstaid'], always: true }), // small by its name
     it_('AIDPLUS', { sets: ['firstaid'] }),
+    it_('PLASTER', { sets: ['firstaid'] }), // small by its name
     it_('BRUSH', { sets: ['hotel'] }), // v0.66.0: Lodging → Hotel/hut
     it_('SLEEPBAG', { sets: ['bivy'] }), // v0.66.0: Sleep → Bivouac
   ];
@@ -33,42 +34,66 @@ describe('first aid comes with a night only', () => {
   const base = { hours: 2, cook: false, wx: { min: 6, max: 12, rain: 'none' }, event: false };
   const ids = (t) => t.entries.map((e) => e.itemId).sort();
 
-  it('contextSets brings first aid for lodging and outdoor, never without a night', () => {
-    expect(contextSets({ overnight: 'none' })).not.toContain('firstaid');
+  it('contextSets brings first aid on every trip, with or without a night', () => {
+    expect(contextSets({ overnight: 'none' })).toContain('firstaid');
     expect(contextSets({ overnight: 'lodging' })).toContain('firstaid');
     expect(contextSets({ overnight: 'outdoor' })).toContain('firstaid');
+    expect(contextSets({ overnight: 'none', sets: { firstaid: false } })).not.toContain('firstaid');
   });
 
-  it('a day ride has no first aid item, even standard or "On every trip"', () => {
+  it('a day ride brings only the small set, also when a full-set item is standard', () => {
     const day = buildBikeTrip({ draft, bike, start: 'standard', items, fields: { ...base, overnight: 'none' } }, 1);
-    expect(ids(day)).toEqual(['JERSEY']);
-  });
-
-  it('a day ride copied from a lodging trip leaves the first aid at home', () => {
-    const lodging = buildBikeTrip({ draft: { ...draft, days: 2 }, bike, start: 'standard', items, fields: { ...base, overnight: 'lodging' } }, 1);
-    expect(ids(lodging)).toEqual(['AIDKIT', 'AIDPLUS', 'BLISTER', 'BRUSH', 'JERSEY']);
-    const day = buildBikeTrip({ draft, bike, start: 'last', trips: [lodging], items, fields: { ...base, overnight: 'none' } }, 2);
-    expect(ids(day)).toEqual(['JERSEY']);
-  });
-
-  it('a 1-night outdoor trip has it, with the reason line', () => {
-    const out = buildBikeTrip({ draft: { ...draft, days: 2 }, bike, start: 'standard', items, fields: { ...base, overnight: 'outdoor' } }, 1);
-    expect(ids(out)).toEqual(expect.arrayContaining(['AIDKIT', 'AIDPLUS', 'BLISTER', 'SLEEPBAG']));
-    const r = rowReasons(out, items);
-    expect(r.AIDPLUS.line).toBe('First aid from 1 night');
+    expect(ids(day)).toEqual(['BLISTER', 'JERSEY', 'PLASTER']);
+    const r = rowReasons(day, items);
+    expect(r.PLASTER.line).toBe('First aid: small (day trip)');
     lang.v = 'de';
-    expect(rowReasons(out, items).AIDPLUS.line).toBe('Erste Hilfe ab 1 Nacht');
+    expect(rowReasons(day, items).PLASTER.line).toBe('Erste Hilfe: klein (Tagestour)');
   });
 
-  it('a day trip from a template that contains first aid starts without it', () => {
+  it('a day ride copied from a lodging trip leaves the full set at home', () => {
+    const lodging = buildBikeTrip({ draft: { ...draft, days: 2 }, bike, start: 'standard', items, fields: { ...base, overnight: 'lodging' } }, 1);
+    expect(ids(lodging)).toEqual(['AIDKIT', 'AIDPLUS', 'BLISTER', 'BRUSH', 'JERSEY', 'PLASTER']);
+    const day = buildBikeTrip({ draft, bike, start: 'last', trips: [lodging], items, fields: { ...base, overnight: 'none' } }, 2);
+    expect(ids(day)).toEqual(['BLISTER', 'JERSEY', 'PLASTER']);
+  });
+
+  it('a 1-night outdoor trip has the full set, with the reason line', () => {
+    const out = buildBikeTrip({ draft: { ...draft, days: 2 }, bike, start: 'standard', items, fields: { ...base, overnight: 'outdoor' } }, 1);
+    expect(ids(out)).toEqual(expect.arrayContaining(['AIDKIT', 'AIDPLUS', 'BLISTER', 'PLASTER', 'SLEEPBAG']));
+    const r = rowReasons(out, items);
+    expect(r.AIDPLUS.line).toBe('First aid: full (with a night)');
+    lang.v = 'de';
+    expect(rowReasons(out, items).AIDPLUS.line).toBe('Erste Hilfe: voll (mit Nacht)');
+  });
+
+  it('a day trip from a template that contains the full set starts with the small one', () => {
     const tpl = { id: 'tpA', name: `${P} Tpl`, entries: [{ itemId: 'AIDPLUS', slot: 'seat', qty: 1 }, { itemId: 'JERSEY', slot: 'body', qty: 1 }], overnight: 'lodging' };
     const day = buildBikeTrip({ draft, bike, start: 'tpA', templates: [tpl], items, fields: { ...base, overnight: 'none' } }, 3);
-    expect(ids(day)).toEqual(['JERSEY']);
+    expect(ids(day)).toEqual(['BLISTER', 'JERSEY', 'PLASTER']); // BLISTER is «On every trip» and small
     const night = buildBikeTrip({ draft: { ...draft, days: 2 }, bike, start: 'tpA', templates: [tpl], items, fields: { ...base, overnight: 'lodging' } }, 4);
     expect(ids(night)).toContain('AIDPLUS');
   });
 
-  it('night → none takes away what the night brought, keeps what was added by hand', () => {
+  it('per trip changeable: full on a day ride, small with a night, or none at all', () => {
+    const fullDay = buildBikeTrip({ draft, bike, start: 'standard', items, fields: { ...base, overnight: 'none', aid: 'full' } }, 5);
+    expect(ids(fullDay)).toEqual(['AIDKIT', 'AIDPLUS', 'BLISTER', 'JERSEY', 'PLASTER']);
+    expect(rowReasons(fullDay, items).AIDPLUS.line).toBe('First aid: full (chosen)');
+    const smallNight = buildBikeTrip({ draft: { ...draft, days: 2 }, bike, start: 'standard', items, fields: { ...base, overnight: 'lodging', aid: 'small' } }, 6);
+    expect(ids(smallNight)).toEqual(['BLISTER', 'BRUSH', 'JERSEY', 'PLASTER']);
+    const none = buildBikeTrip({ draft, bike, start: 'standard', items, fields: { ...base, overnight: 'none', sets: { firstaid: false } } }, 7);
+    expect(ids(none)).toEqual(['JERSEY']);
+  });
+
+  it('switching a day ride to the full set in Pack brings the rest, back to small takes it away', () => {
+    const day = buildBikeTrip({ draft, bike, start: 'standard', items, fields: { ...base, overnight: 'none' } }, 8);
+    const full = { ...day, aid: 'full' };
+    const up = applyContext({ ...full }, items, day);
+    expect(up.entries.map((e) => e.itemId).sort()).toEqual(['AIDKIT', 'AIDPLUS', 'BLISTER', 'JERSEY', 'PLASTER']);
+    const down = applyContext({ ...full, entries: up.entries, aid: 'small' }, items, { ...full, entries: up.entries });
+    expect(down.entries.map((e) => e.itemId).sort()).toEqual(['BLISTER', 'JERSEY', 'PLASTER']);
+  });
+
+  it('night → none takes away what only the full set brought, keeps what was added by hand', () => {
     const t = buildBikeTrip({ draft: { ...draft, days: 2 }, bike, start: 'standard', items, fields: { ...base, overnight: 'lodging' } }, 1);
     // Noah put the blister kit on by hand (no src): it stays.
     const mine = { ...t, entries: t.entries.map((e) => (e.itemId === 'BLISTER' ? { itemId: e.itemId, slot: e.slot, qty: 1, packed: false } : e)) };
@@ -76,6 +101,7 @@ describe('first aid comes with a night only', () => {
     const left = changed.entries.map((e) => e.itemId);
     expect(left).not.toContain('AIDPLUS');
     expect(left).toContain('BLISTER');
+    expect(left).toContain('PLASTER');
   });
 
   it('an old trip without a known overnight stay is untouched', () => {

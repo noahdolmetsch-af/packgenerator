@@ -15,10 +15,11 @@
   import { STANDARD } from '../lib/blocks2026.js';
   import { setStandard } from '../lib/gear/comes.js';
   import { REVIEW_KEY, settle } from '../lib/blocksplit.js';
-  import { checkSteps, blockMembers, missingFor, blockTotal, suggestedIn, withBlock, inBlock } from '../lib/blockcheck.js';
+  import { checkSteps, blockMembers, missingFor, blockTotal, suggestedIn, withBlock, inBlock, overviewRows } from '../lib/blockcheck.js';
+  import { AID_KEY, inSmallAid } from '../lib/firstaid.js';
   import { refreshSnapshots } from '../lib/templates.js';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
-  import { Check, X, ArrowRightLeft, Plus, ChevronLeft, ChevronRight, Undo2, Thermometer } from '@lucide/svelte';
+  import { Check, X, ArrowRightLeft, Plus, ChevronLeft, ChevronRight, Undo2, Thermometer, ListChecks, ArrowRight, Moon, Flashlight, Tent, BedDouble, Wrench, PlugZap, BriefcaseMedical } from '@lucide/svelte';
   import { SvelteSet } from 'svelte/reactivity';
 
   const dataQ = liveQuery(async () => ({
@@ -118,6 +119,17 @@
   };
   const weightText = (i, k) => (isInventory(i) ? formatWeight(itemWeight(i) == null ? null : itemWeight(i) * (k && k !== STANDARD ? qtyOf(setOf(k), i.id) : 1)) : `${t(OWNERSHIP[i.ownership] ?? i.ownership)} · ${t('never packed')}`);
   const pct = $derived(steps?.length ? Math.round(((at + 1) / steps.length) * 100) : 0);
+  const stepName = (s) => (s.kind === 'block' ? nameOfBlock(s.key) : s.name);
+
+  /* v0.72.0 «Feinschliff» (Noah 4a): the first step «Overview»: the changes 5–10, before → after, with your numbers. */
+  const rows = $derived(step?.kind === 'overview' ? overviewRows(items, setsValue, review, steps) : []);
+  const ICON = { bivy: Moon, cold: Thermometer, lights: Flashlight, tent: Tent, hotel: BedDouble, repair: Wrench, charge: PlugZap, firstaid: BriefcaseMedical };
+
+  /* v0.72.0 (Noah 5a): in the step «First aid» each item is part of the small set (day trips) or only of the full one. */
+  const flipSmall = (i) => {
+    const small = !inSmallAid(i);
+    act(small ? t('{name}: part of the small set.', { name: nameOf(i) }) : t('{name}: only in the full set.', { name: nameOf(i) }), { change: [{ id: i.id, fn: (x) => ({ ...x, aidSmall: small }) }] });
+  };
 </script>
 
 {#snippet itemRow(i)}
@@ -130,6 +142,9 @@
       <span class="iname">{nameOf(i)}{#if k !== STANDARD && qtyOf(setOf(k), i.id) !== 1}{' '}<b class="num">× {qtyOf(setOf(k), i.id)}</b>{/if}{#if sug}{' '}<i class="nbadge">{t('suggested|blocks')}</i>{/if}</span>
       <small class="num w">{weightText(i, k)}</small>
     </div>
+    {#if k === AID_KEY && inBlock(i, k) && isInventory(i)}
+      <button type="button" class="btn sm aidsm" aria-pressed={inSmallAid(i)} onclick={() => flipSmall(i)} aria-label={t('{name} in the small set (day trips)', { name: nameOf(i) })}>{#if inSmallAid(i)}<Check size={16} aria-hidden="true" />{/if}{t('Small set')}</button>
+    {/if}
     {#if kept}
       <span class="state"><Check size={16} aria-hidden="true" /> {t('Kept')}</span>
     {:else if gone}
@@ -154,18 +169,51 @@
 <div class="bcheck">
   <p class="back"><a href="#/blocks"><ChevronLeft size={16} aria-hidden="true" />{t('Building blocks')}</a></p>
   <h1 class="title">{t('Check building blocks')}</h1>
-  <p class="page-sub">{t('One block after the other: keep what belongs, take out what does not, move what belongs elsewhere.')}</p>
+  <!-- v0.72.0 (Noah 4a): first the overview, then one block after the other. -->
+  <p class="page-sub">{t('The building blocks are newly arranged. First the overview, then one block after the other: keep, take out or move.')}</p>
 
   {#if !steps}
     <p class="page-sub">{t('Loading…')}</p>
   {:else if step}
     <div class="progress">
-      <span class="num">{t('Step {n} of {total}', { n: at + 1, total: steps.length })}</span>
+      <span class="num">{t('Step {n} of {total}', { n: at + 1, total: steps.length })} · {stepName(step)}</span>
       <div class="bar" role="progressbar" aria-label={t('Progress')} aria-valuemin="1" aria-valuemax={steps.length} aria-valuenow={at + 1}><span style:width="{pct}%"></span></div>
     </div>
 
     <section class="step" aria-labelledby="step-h">
-      {#if step.kind === 'cold'}
+      {#if step.kind === 'overview'}
+        <div class="ovw">
+          <h2 class="ovh" id="step-h"><span class="ovt"><ListChecks size={18} aria-hidden="true" />{t('What has changed')}</span><small class="num">{tn(rows.length, '{n} change · before → after', '{n} changes · before → after')}</small></h2>
+          <ol class="ovl">
+            {#each rows as r (r.n)}
+              <li class="ovr">
+                <span class="ovn num" aria-hidden="true">{r.n}</span>
+                <div class="ovm">
+                  <p class="ovchg">
+                    <span class="ovfrom">
+                      <span class="sr">{t('before')}:</span>
+                      {#if r.from.length}{#each r.from as f (f)}<s class="ochip">{f}</s>{/each}{:else}<span class="dash" aria-hidden="true">–</span><span class="sr">{t('nothing')}</span>{/if}
+                    </span>
+                    <ArrowRight class="ovarr" size={18} aria-hidden="true" />
+                    <span class="ovto">
+                      <span class="sr">{t('after')}:</span>
+                      {#each r.to as x (x.key)}{@const I = ICON[x.key]}<span class="nchip">{#if I}<I size={15} aria-hidden="true" />{/if}{x.label}{#if x.note}<small>{x.note}</small>{/if}</span>{/each}
+                      {#if r.fresh}<b class="fresh">{t('New')}</b>{/if}
+                    </span>
+                  </p>
+                  {#if r.aid}
+                    <span class="aidseg" role="group" aria-label={t('First aid')}>
+                      <span class="on">{t('Small · day trip')} <small class="num">{r.aid.small}</small></span><span>{t('Full · with a night')} <small class="num">{r.aid.full}</small></span>
+                    </span>
+                  {/if}
+                  <p class="ovtext">{r.text}</p>
+                </div>
+                {#if r.go != null}<button type="button" class="btn sm ovgo" onclick={() => go(r.go)}>{r.act}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
+              </li>
+            {/each}
+          </ol>
+        </div>
+      {:else if step.kind === 'cold'}
         <h2 class="sec-head" id="step-h"><span><Thermometer size={16} aria-hidden="true" /> {step.name}</span><span class="n">{tn(step.ids.length, '{n} item', '{n} items')}</span></h2>
         <p class="note">{t('"Warm" is no building block any more: these items now come with the weather, below a temperature. Check the value or change it (empty: no rule).')}</p>
         <ul class="rowlist">
@@ -214,7 +262,7 @@
     <nav class="stepnav" aria-label={t('Steps')}>
       <button type="button" class="btn" disabled={at === 0} onclick={() => go(at - 1)}><ChevronLeft size={18} aria-hidden="true" />{t('Back')}</button>
       {#if at < steps.length - 1}
-        <button type="button" class="btn hi" onclick={() => go(at + 1)}>{t('Next: {name}', { name: steps[at + 1].kind === 'block' ? nameOfBlock(steps[at + 1].key) : steps[at + 1].name })}<ChevronRight size={18} aria-hidden="true" /></button>
+        <button type="button" class="btn hi" onclick={() => go(at + 1)}>{t('Next: {name}', { name: stepName(steps[at + 1]) })}<ChevronRight size={18} aria-hidden="true" /></button>
       {:else}
         <a class="btn hi" href="#/blocks">{t('Done')}</a>
       {/if}
@@ -348,6 +396,169 @@
   .temp .inp {
     width: 4.5em;
     min-height: 44px;
+  }
+  /* v0.72.0 (Noah 4a): the overview, before → after, one row per change. */
+  .ovw {
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    overflow: hidden;
+  }
+  .ovh {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px 12px;
+    margin: 0;
+    padding: 12px 16px;
+    background: var(--paper-2);
+    border-bottom: 1px solid var(--line);
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
+  }
+  .ovt {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ovh small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 500;
+  }
+  .ovl {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .ovr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    padding: 14px 16px;
+  }
+  .ovr + .ovr {
+    border-top: 1px solid var(--line);
+  }
+  .ovn {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 700;
+    align-self: flex-start;
+  }
+  .ovm {
+    flex: 1 1 20em;
+    min-width: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .ovchg {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    margin: 0;
+  }
+  .ovfrom,
+  .ovto {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .ochip,
+  .nchip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+  .ochip {
+    background: var(--paper-2);
+    color: var(--ink-3);
+  }
+  .nchip {
+    align-items: center;
+    border: 1.5px solid var(--ok);
+    background: var(--ok-soft);
+    color: var(--ok);
+  }
+  .nchip small {
+    font-weight: 500;
+  }
+  .dash {
+    color: var(--ink-3);
+  }
+  .ovw :global(.ovarr) {
+    flex: none;
+    color: var(--ink-3);
+  }
+  .fresh {
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: var(--hi);
+    color: var(--paper);
+    font-size: var(--fs-small);
+  }
+  .aidseg {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-self: start;
+    max-width: 100%;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: var(--fs-small);
+  }
+  .aidseg span {
+    padding: 4px 10px;
+  }
+  .aidseg .on {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .ovtext {
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .ovgo {
+    min-height: 44px;
+    margin-left: auto;
+  }
+  @media (max-width: 719px) {
+    .ovchg {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .ovw :global(.ovarr) {
+      transform: rotate(90deg);
+    }
+    .ovgo {
+      margin-left: 42px;
+    }
+  }
+  .aidsm {
+    min-height: 44px;
+  }
+  .aidsm[aria-pressed='true'] {
+    background: var(--ok-soft);
+    border-color: var(--ok);
   }
   .stepnav {
     display: flex;

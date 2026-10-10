@@ -169,7 +169,8 @@ export function setUse(key) {
     case 'cook':
       return t('Comes with a night outdoors when you cook');
     case 'firstaid':
-      return t('Comes with every night (hotel, hut or outdoors); never on a trip without a night');
+      // v0.72.0 (Noah 10a): on every trip, small or full.
+      return t('Comes on every trip: the small set on a day trip, the full set from one night; changeable per trip');
     case 'repair':
     case 'charge':
       return t('Suggested on every ride; you can take it off per trip');

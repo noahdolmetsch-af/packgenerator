@@ -701,6 +701,7 @@
     align-items: baseline;
     gap: 0 6px;
     min-height: 44px;
+    min-width: 44px; /* v0.72.0 (D3a): a short name («Kette») too */
     margin: -8px 0;
     padding: 0;
     border: 0;

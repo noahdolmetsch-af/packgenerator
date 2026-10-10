@@ -6,7 +6,9 @@
    * winter; a season without a goal rests) and «zählt auch» (commute, bike trips, another activity).
    * A new activity is the same form, empty. Pause keeps the history; delete removes it too.
    */
-  import { ChevronLeft, Minus, Plus, Check, Sun, Snowflake, Trash2, X } from '@lucide/svelte';
+  import { ChevronLeft, Minus, Plus, Check, Sun, Snowflake, Trash2, X, Pencil } from '@lucide/svelte';
+  import RenameSheet from '../ui/RenameSheet.svelte';
+  import { offerRename } from '../ui/rename.svelte.js';
   import Seg from '../ui/Seg.svelte';
   import ActIcon, { ACT_ICONS, ACT_ICON_NAMES } from './ActIcon.svelte';
   import { db } from '../db.js';
@@ -92,6 +94,7 @@
     if (orig && nm === actName(orig)) {
       out.name = orig.name;
       if (orig.nameDe) out.nameDe = orig.nameDe;
+      else delete out.nameDe; // renamed in the sheet meanwhile (v0.72.0)
     } else {
       out.name = nm;
       delete out.nameDe;
@@ -99,6 +102,32 @@
     if (minKey === 'own') out.minMin = Math.max(0, Math.round(Number(minOwn) || 0));
     await saveAct(db, out);
     location.hash = '#/flow';
+  }
+  /*
+   * v0.72.0 «Feinschliff» (Umbenennen 1a, 4a): an activity is renamed with the pencil at its title in
+   * the one rename sheet, saved at once (before: the field at the top, «Save» one and a half screens
+   * further down). Symbol, ring and goal stay as they are.
+   */
+  let renaming = $state(false);
+  async function rename(nm) {
+    const live = acts.find((x) => x.id === a.id) ?? orig;
+    const before = { name: live.name, nameDe: live.nameDe };
+    const next = { ...$state.snapshot(live), name: nm };
+    delete next.nameDe;
+    await saveAct(db, next);
+    name = nm;
+    a.name = nm;
+    delete a.nameDe;
+    offerRename(nm, async () => {
+      const back = { ...$state.snapshot(acts.find((x) => x.id === next.id) ?? next), name: before.name };
+      if (before.nameDe) back.nameDe = before.nameDe;
+      await saveAct(db, back);
+      if (loadedFor === next.id && a) {
+        a.name = back.name;
+        if (back.nameDe) a.nameDe = back.nameDe;
+        name = actName(back);
+      }
+    });
   }
   async function pause() {
     await saveAct(db, { ...$state.snapshot(a), name: orig.name, paused: !orig.paused });
@@ -113,12 +142,14 @@
 {#if a}
   <div class="ed">
     <p class="back"><a href={isNew ? '#/flow/goals' : '#/flow'}><ChevronLeft size={16} aria-hidden="true" />{isNew ? t('Goals|flow') : t('In the flow')}</a></p>
-    <h1 class="title">{isNew ? t('New activity') : name || actName(orig)}</h1>
+    <h1 class="title">{#if isNew}{t('New activity')}{:else}<span>{name || actName(orig)}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: name || actName(orig) })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={20} aria-hidden="true" /></button>{/if}</h1>
     {#if st}<p class="page-sub">{RING_OPTS.find((r) => r.key === a.ring).name} · {actGoalText(normAct(a), today, { min: false })}{#if !st.resting}{" · "}{t('stand {n}/{m}', { n: st.stand.n, m: st.stand.of })}{/if}</p>{/if}
 
     <section class="surf cp" aria-label={t('Name and symbol')}>
-      <label class="lbl" for="ed-name">{t('Name')}</label>
-      <input id="ed-name" class="inp big" type="text" bind:value={name} maxlength="40" autocomplete="off" oninput={() => (err = '')} />
+      {#if isNew}
+        <label class="lbl" for="ed-name">{t('Name')}</label>
+        <input id="ed-name" class="inp big" type="text" bind:value={name} maxlength="40" autocomplete="off" enterkeyhint="done" oninput={() => (err = '')} />
+      {/if}
       {#if err}<p class="err" role="alert">{err}</p>{/if}
       <p class="lbl" id="ed-icon">{t('Symbol')}</p>
       <div class="icons" role="group" aria-labelledby="ed-icon">
@@ -206,7 +237,24 @@
   <p>{t('This activity no longer exists.')} <a href="#/flow">{t('In the flow')}</a></p>
 {/if}
 
+{#if renaming && a}
+  <RenameSheet kicker={t('In the flow')} title={t('Rename activity')} value={name} max={40} hint={t('Symbol, ring and goal stay as they are.')} onsave={rename} onclose={() => (renaming = false)} />
+{/if}
+
 <style>
+  h1 .pen {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-left: 6px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--ink-2);
+    vertical-align: middle;
+    cursor: pointer;
+  }
   .ed {
     display: flex;
     flex-direction: column;

@@ -128,12 +128,26 @@ function measure(phone) {
         if (!visible(el) || inlineLink(el)) continue;
         // v0.67.0: the real tap area: the box, grown by an invisible ::after tap area (position absolute
         // with negative insets, the app's pattern since v0.27.0 AP21 / v0.45.0) when there is one.
+        // v0.72.0 (D3a): ::before counts like ::after, a fixed height or min-width of the tap area too
+        // (top: 50%; height: 44px, the .tap pattern), and a «stretched» area (inset 0 on an unpositioned
+        // button: the whole row it sits in is the tap area, as in Care's bike headers).
         const b = el.getBoundingClientRect();
-        const after = getComputedStyle(el, '::after');
         const grow = (v) => Math.max(0, -(parseFloat(v) || 0));
-        const r = after.content !== 'none' && after.position === 'absolute' && getComputedStyle(el).position !== 'static'
-          ? { width: b.width + grow(after.left) + grow(after.right), height: b.height + grow(after.top) + grow(after.bottom) }
-          : b;
+        const positioned = getComputedStyle(el).position !== 'static';
+        let r = b;
+        for (const which of ['::after', '::before']) {
+          const ps = getComputedStyle(el, which);
+          if (ps.content === 'none' || ps.position !== 'absolute') continue;
+          let box;
+          if (positioned) {
+            box = { width: b.width + grow(ps.left) + grow(ps.right), height: b.height + grow(ps.top) + grow(ps.bottom) };
+            if (parseFloat(ps.height)) box.height = Math.max(box.height, parseFloat(ps.height));
+            if (parseFloat(ps.minWidth)) box.width = Math.max(box.width, parseFloat(ps.minWidth));
+          } else if (['left', 'right', 'top', 'bottom'].every((k) => parseFloat(ps[k]) === 0) && el.offsetParent) {
+            box = el.offsetParent.getBoundingClientRect();
+          }
+          if (box && box.width >= r.width && box.height >= r.height) r = box;
+        }
         if (r.width < 43.5 || r.height < 43.5) out.target.push(`${where(el)} «${(el.getAttribute('aria-label') || el.textContent).trim().replace(/\s+/g, ' ').slice(0, 30)}» ${Math.round(r.width)} × ${Math.round(r.height)} px`);
       }
     }

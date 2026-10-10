@@ -6,7 +6,7 @@
  *   - an amount by the hour: "1 per 3 h · 2 per day × 2 days = 4", and when the maximum (or a hand-set
  *     amount) differs from the need: "Need 6, you carry 3 (maximum)"
  *   - an entry that a building block or the overnight stay brought (src 'set' / 'context'): "from Sleep, Light"
- *   - v0.28.0 (AP25): a first aid item the night brought: "First aid from 1 night"
+ *   - v0.72.0 (Noah 10a): a first aid item: "First aid: small (day trip)" / "full (with a night)"
  * An item Noah added himself without any rule gets no line (no clutter).
  * Pure functions (no database), tested in tests/reasons.test.js.
  */
@@ -14,6 +14,7 @@ import { layerSuggest, rainOf } from './layers.js';
 import { contextSets } from './context.js';
 import { allSets } from './sets.js';
 import { blockKeys } from './blocks2026.js';
+import { AID_KEY, aidLevel, aidChosen } from './firstaid.js';
 import { t, num } from './i18n.svelte.js';
 
 /** Riding hours per day and days of a trip. */
@@ -40,6 +41,16 @@ export function amountReason(item, trip, qty = 1) {
   const parts = [t('1 per {n} h', { n: num(item.perHours) }), same ? `${calc} = ${need}` : calc];
   if (!same) parts.push(capped && qty >= item.maxQty ? t('Need {need}, you carry {qty} (maximum)', { need, qty }) : t('Need {need}, you carry {qty}', { need, qty }));
   return { need, qty, capped, text: parts.join(' · ') };
+}
+
+/**
+ * v0.72.0 (Noah 10a): why a first aid item is on the list: «First aid: small (day trip)», «First aid:
+ * full (with a night)», or «… (chosen)» when the trip picked its set by hand.
+ */
+export function aidReason(trip) {
+  const level = aidLevel(trip);
+  if (aidChosen(trip)) return level === 'small' ? t('First aid: small (chosen)') : t('First aid: full (chosen)');
+  return level === 'small' ? t('First aid: small (day trip)') : t('First aid: full (with a night)');
 }
 
 /** A block's label without the "Night: " prefix (as on the "+ block" chips). */
@@ -78,10 +89,10 @@ export function rowReasons(trip, items, setsValue = []) {
     if (amount) parts.push(amount.text);
     if (e.src === 'context' || e.src === 'set') {
       const keys = blockKeys(item).filter((k) => (e.src === 'context' ? night.includes(k) : true));
-      // v0.28.0 (AP25): first aid comes with the night, and the line says so.
-      const aid = e.src === 'context' && keys.includes('firstaid');
-      const rest = aid ? keys.filter((k) => k !== 'firstaid') : keys;
-      if (aid) parts.push(t('First aid from 1 night'));
+      // v0.72.0 (Noah 10a): first aid on every trip, and the line says which set and why.
+      const aid = e.src === 'context' && keys.includes(AID_KEY);
+      const rest = aid ? keys.filter((k) => k !== AID_KEY) : keys;
+      if (aid) parts.push(aidReason(trip));
       if (rest.length) parts.push(t('from {blocks}', { blocks: rest.map((k) => blockLabel(sets, k)).join(', ') }));
     }
     out[e.itemId] = {

@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.75.0
+  'Renaming is the same everywhere: the pencil opens one small sheet, the keyboard key saves, and «Undo» stays for 10 seconds. Gear items can be renamed on the phone too.':
+    'Umbenennen geht überall gleich: Der Stift öffnet ein kleines Blatt, die Taste der Tastatur speichert, und «Rückgängig» bleibt 10 Sekunden. Material kannst du jetzt auch am Handy umbenennen.',
+  'The back button keeps what you typed in a window, like «Save».':
+    'Die Zurück-Taste behält, was du in einem Fenster getippt hast, wie «Speichern».',
+  'Import rides asks once which bike a new ride type belongs to and remembers it as a rule.':
+    'Fahrten importieren fragt einmal, zu welchem Velo eine neue Fahrtart gehört, und merkt es sich als Regel.',
+  'Gear items show one summary line and lighter alternatives under «Weight»; first aid comes on every trip, the small set on a day ride.':
+    'Material zeigt eine Zusammenfassung in einer Zeile und leichtere Alternativen unter «Gewicht»; Erste Hilfe kommt auf jede Tour mit, auf einer Tagestour das kleine Set.',
+
   // 0.73.0
   'Today is calmer: the greeting is one line, the next trip comes right after it, and «Continue» only appears for another trip than the card shows.':
     'Heute ist ruhiger: Der Gruss steht in einer Zeile, die nächste Tour kommt direkt danach, und «Weitermachen» erscheint nur noch für eine andere Tour als die Karte.',

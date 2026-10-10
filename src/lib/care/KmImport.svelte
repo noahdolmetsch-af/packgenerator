@@ -12,7 +12,7 @@
   import { ChevronDown, ChevronRight, X, Upload } from '@lucide/svelte';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
-  import { parseStravaCsv, parseFit, planImport, importEntries, reasonText, sensorShort, signals, entryId } from '../kmbook.js';
+  import { parseStravaCsv, parseFit, planImport, importEntries, reasonText, sensorShort, signals, entryId, typeHints } from '../kmbook.js';
   import { loadRules, saveRules, applyImport } from '../kmbookdb.js';
   import KmChips from './KmChips.svelte';
   import Empty from '../ui/Empty.svelte';
@@ -128,7 +128,9 @@
    * What the files show and no rule knows yet: each new sensor serial once («Which bike does sensor …4F2A
    * belong to?», the bike Strava names most as the suggestion), unknown Strava bikes. The answer is a
    * rule (sensor → bike), used automatically from then on and changeable. The ride type decides only
-   * through a rule you made (v0.69.1, kind «Ride type»), never by itself.
+   * through a rule (v0.69.1, kind «Ride type»), never by itself. v0.72.0 (D1a): each new ride type is
+   * asked once too («Which bike do you ride for «Gravel Ride»?»), the answer becomes that rule;
+   * «+ Rule» stays for everything else.
    */
   const hints = $derived.by(() => {
     if (!plan) return [];
@@ -146,6 +148,7 @@
       if (s.gearUnknown && !out.some((h) => h.kind === 'gear' && h.value === r.ride.gear)) out.push({ kind: 'gear', value: r.ride.gear, guess: '' });
     }
     for (const [fp, m] of fps) out.unshift({ kind: 'sensor', value: fp, sensor: m.kind, guess: Object.entries(m.votes).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '' });
+    out.push(...typeHints(plan.rows, rules));
     return out;
   });
   let hintPick = $state({});
@@ -255,7 +258,10 @@
         <ol class="rules">
           {#each sortedRules.filter((r) => r.kind === 'sensor') as r (r.id)}{@render rule(r)}{/each}
           <li><span class="rk">{t('Bike in Strava')}<small>{t('column «Activity Gear»')}</small></span><b>{t('as Strava')}</b></li>
-          {#each sortedRules.filter((r) => r.kind !== 'sensor') as r (r.id)}{@render rule(r)}{/each}
+          {#each sortedRules.filter((r) => r.kind === 'gear' || r.kind === 'profile') as r (r.id)}{@render rule(r)}{/each}
+          <!-- v0.72.0 (D4a): the silent rule shown as a quiet line, like «Bike in Strava» (decision 9a) -->
+          <li class="silent"><span class="rk">{t('Profile named like a bike')}<small>{t('Garmin profile = bike name')}</small></span><b>{t('that bike')}</b></li>
+          {#each sortedRules.filter((r) => r.kind === 'type') as r (r.id)}{@render rule(r)}{/each}
           <li><span class="rk">{t('otherwise')}</span><b>{t('unclear, you choose')}</b></li>
         </ol>
         <p class="quiet">{t('A contradiction or an unusual distance: the ride goes to «Check». The app never guesses silently.')}</p>
@@ -265,7 +271,7 @@
           <ul class="hints">
             {#each hints as h (h.kind + h.value)}
               <li>
-                <span>{h.kind === 'sensor' ? t('Which bike does sensor {sensor} belong to?', { sensor: sensorShort(h.value) }) : t('Which bike is «{gear}» in Strava?', { gear: h.value })}</span>
+                <span>{h.kind === 'sensor' ? t('Which bike does sensor {sensor} belong to?', { sensor: sensorShort(h.value) }) : h.kind === 'type' ? t('Which bike do you ride for «{type}»?', { type: h.value }) : t('Which bike is «{gear}» in Strava?', { gear: h.value })}{#if h.kind === 'type'}<small>{tn(h.n, '{n} ride in these files', '{n} rides in these files')}</small>{/if}</span>
                 <select class="sel" aria-label={t('Bike')} value={hintPick[h.kind + h.value] ?? h.guess} onchange={(e) => (hintPick = { ...hintPick, [h.kind + h.value]: e.currentTarget.value })}>
                   <option value="">{t('Choose a bike')}</option>
                   {#each bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
@@ -547,6 +553,19 @@
   }
   .rules b {
     text-align: right;
+  }
+  /* v0.72.0 (D4a): the rule that works without being made, quiet */
+  .rules li.silent,
+  .rules li.silent b {
+    color: var(--ink-2);
+    font-weight: 400;
+  }
+  .hints li > span {
+    display: flex;
+    flex-direction: column;
+  }
+  .hints li small {
+    color: var(--ink-3);
   }
   .rules .bchips {
     grid-column: 2 / -1;

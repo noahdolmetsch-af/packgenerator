@@ -36,8 +36,8 @@ const qty = (t, id) => t.entries.find((e) => e.itemId === id)?.qty;
 
 describe('context sets', () => {
   it('v0.66.0: every ride repair and charge; hotel its set, bivouac (+ tent), cook only when cooking', () => {
-    expect(contextSets({ overnight: 'none' })).toEqual(['repair', 'charge']);
-    expect(contextSets({ overnight: 'lodging' })).toEqual(['hotel', 'firstaid', 'repair', 'charge']); // v0.28.0: first aid with every night
+    expect(contextSets({ overnight: 'none' })).toEqual(['firstaid', 'repair', 'charge']); // v0.72.0 (Noah 10a): first aid on every trip
+    expect(contextSets({ overnight: 'lodging' })).toEqual(['hotel', 'firstaid', 'repair', 'charge']); // v0.72.0: first aid on every trip (a ride block)
     expect(contextSets({ overnight: 'outdoor', tent: false })).toEqual(['bivy', 'firstaid', 'repair', 'charge']);
     // an older outdoor trip (no tent field) was "Outdoor (tent, bivvy)": it keeps the tent
     expect(contextSets({ overnight: 'outdoor' })).toEqual(['bivy', 'tent', 'firstaid', 'repair', 'charge']);
@@ -167,7 +167,7 @@ describe('"Your packing list" summary', () => {
     expect(s.start).toBe(start.length);
     expect(s.amounts.map((a) => [a.item.id, a.qty])).toEqual([['GEL', 2]]);
     expect(s.weather.map((i) => i.id)).toEqual(['ARMS', 'PUFFY']); // v0.66.0: the old Warm item below 10 °C
-    expect(s.sets).toEqual([{ key: 'repair', n: 1 }, { key: 'charge', n: 1 }]);
+    expect(s.sets).toEqual([{ key: 'firstaid', n: 0 }, { key: 'repair', n: 1 }, { key: 'charge', n: 1 }]);
     expect(s.left).toEqual(['overnight', 'event']);
     const o = contextSummary(start, { ...trip, days: 2, overnight: 'outdoor', tent: true, cook: true, event: true }, items);
     expect(o.sets).toEqual([{ key: 'bivy', n: 3 }, { key: 'tent', n: 1 }, { key: 'cook', n: 1 }, { key: 'firstaid', n: 0 }, { key: 'repair', n: 1 }, { key: 'charge', n: 1 }, { key: 'race', n: 0 }]);

@@ -10,6 +10,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { start, prepare, openData, importBackup, table, snapshot, integrity, ticks, comparable, fixture, tr, esc, day, P, step1, step2, track, gpxText, gearFile, shot, sideways, brokenWords } from './lib.js';
 import { fitRide } from '../../fixtures/fit.js';
+import { AID_KEY, inSmallAid } from '../../../src/lib/firstaid.js';
 
 const LANG = 'de';
 const T = tr(LANG);
@@ -80,10 +81,11 @@ test('S1 day ride: one tap, pack, ride, debrief', async ({ page, context }, info
   const trip = await lastTrip(page);
   expect(trip).toMatchObject({ days: 1, overnight: 'none' });
   expect(trip.entries.length).toBeGreaterThan(3);
-  // no night-only items on a day ride
+  // no night-only items on a day ride; v0.72.0 (Noah 10a): first aid only from the small set
   const items = await table(page, 'items');
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
-  expect(trip.entries.filter((e) => (byId[e.itemId]?.sets ?? []).some((s) => ['sleep', 'cook', 'firstaid'].includes(s))).map((e) => e.itemId), 'night items on a day ride').toEqual([]);
+  expect(trip.entries.filter((e) => (byId[e.itemId]?.sets ?? []).some((s) => ['sleep', 'cook'].includes(s))).map((e) => e.itemId), 'night items on a day ride').toEqual([]);
+  expect(trip.entries.filter((e) => byId[e.itemId]?.sets?.includes(AID_KEY) && !inSmallAid(byId[e.itemId])).map((e) => e.itemId), 'full first aid set on a day ride').toEqual([]);
   // no gone item comes into a new trip
   expect(trip.entries.filter((e) => byId[e.itemId]?.ownership === 'gone').map((e) => e.itemId), 'gone items on a new trip').toEqual([]);
 
@@ -574,16 +576,25 @@ test('S9 import rides: a ride type rule places the ride, take over, undo', async
   const check = page.locator('section.check');
   // without a rule the type decides nothing: the MTB ride, the commute and the FIT ride wait in «Check»
   await expect(check.locator('li.ir')).toHaveCount(3);
-  // a ride type rule, made here (nothing is pre-filled): Mountain Bike Ride → Hardtail, Gravel Ride → Gravel
-  for (const [type, bike] of [['Mountain Bike Ride', HT], ['Gravel Ride', GRAVEL]]) {
-    await page.getByRole('button', { name: `+ ${T('Rule')}` }).click();
-    const nr = page.locator('.newrule');
-    await nr.locator('select').selectOption('type');
-    await nr.getByLabel(T('Ride type, as in Strava (e.g. Gravel Ride)')).fill(type);
-    await nr.getByRole('button', { name: name[bike] }).click();
-    await nr.getByRole('button', { name: T('Add') }).click();
-  }
+  // v0.72.0 (D1a): each new ride type is asked once; nothing is pre-filled from the type, only the bike
+  // Strava gave a ride of that type is suggested (Gravel Ride: the Albis ride on the Gravel)
+  const ask = (type) => page.locator('ul.hints li').filter({ hasText: T('Which bike do you ride for «{type}»?', { type }) });
+  await expect(ask('Mountain Bike Ride').locator('select')).toHaveValue('');
+  await expect(ask('Ride')).toHaveCount(1);
+  await expect(ask('Gravel Ride').locator('select')).toHaveValue(GRAVEL);
+  // «+ Rule» stays (Mountain Bike Ride → Hardtail), the question makes the other one (Gravel Ride → Gravel)
+  await page.getByRole('button', { name: `+ ${T('Rule')}` }).click();
+  const nr = page.locator('.newrule');
+  await nr.locator('select').selectOption('type');
+  await nr.getByLabel(T('Ride type, as in Strava (e.g. Gravel Ride)')).fill('Mountain Bike Ride');
+  await nr.getByRole('button', { name: name[HT] }).click();
+  await nr.getByRole('button', { name: T('Add') }).click();
+  await expect(ask('Mountain Bike Ride')).toHaveCount(0);
+  await ask('Gravel Ride').getByRole('button', { name: T('Remember') }).click();
+  await expect(ask('Gravel Ride')).toHaveCount(0);
   const rules = page.locator('ol.rules');
+  // D4a: the silent rule «profile named like a bike» stands in the list as a quiet line
+  await expect(rules.locator('li.silent')).toContainText(T('Profile named like a bike'));
   await expect(rules).toContainText(T('Ride type «{type}»', { type: 'Mountain Bike Ride' }));
   await expect(rules).toContainText(T('Ride type «{type}»', { type: 'Gravel Ride' }));
   // only the commute («Ride», no rule) is left to check; the rules are stored with the backup

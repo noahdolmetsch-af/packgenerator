@@ -1,12 +1,12 @@
 <script>
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
-  import { SLOTS } from '../bikes.js';
+  import { SLOTS, renameBike } from '../bikes.js';
   import { shrinkImage } from '../photo.js';
   import { t } from '../i18n.svelte.js';
 
   /** bike: the bike to edit, or null for "Add bike". */
-  let { bike, bikes, oncreated, onclose } = $props();
+  let { bike, bikes, oncreated, onsaved = null, onclose } = $props();
 
   // svelte-ignore state_referenced_locally
   const isNew = !bike;
@@ -50,14 +50,15 @@
       await db.bikes.put({ id, name, type: draft.type.trim(), use: draft.use.trim(), gearing: [], openPoints: '', weightG: null, slots: SLOTS.map((s) => s.key), setup: {}, fixtures: [], photo: draft.photo });
       oncreated?.(id);
     } else {
-      await db.bikes.update(bike.id, { name, type: draft.type.trim(), use: draft.use.trim(), photo: draft.photo });
-      await db.trips.filter((t) => t.bikeId === bike.id).modify({ bike: name });
+      await db.bikes.update(bike.id, { type: draft.type.trim(), use: draft.use.trim(), photo: draft.photo });
+      if (name !== bike.name) await renameBike(db, bike.id, name);
+      onsaved?.(bike.id);
     }
     dialog.close();
   }
 
   // v0.67.0 (Ü7a, U070): back closes this window first and keeps what was typed (saved like «Save»);
-  // without a name there is nothing to keep.
+  // without a name there is nothing to keep. v0.72.0: also Android's own back (CloseWatcher) and Escape.
   const keepOnBack = () => (draft.name.trim() ? save({ preventDefault() {} }) : dialog.close());
 
   async function remove() {
@@ -73,7 +74,7 @@
   <form onsubmit={save} novalidate>
     <h2 id="bike-dlg-h" class="title">{isNew ? t('Add bike') : t('Bike details')}</h2>
     <div class="grid">
-      <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required /></label>
+      <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required enterkeyhint="done" /></label>
       <label class="wide"><span class="lbl">{t('Type')}</span><input class="inp" bind:value={draft.type} placeholder={t('e.g. Full suspension')} /></label>
       <label class="wide"><span class="lbl">{t('What you use it for')}</span><input class="inp" bind:value={draft.use} /></label>
       <div class="wide photo">

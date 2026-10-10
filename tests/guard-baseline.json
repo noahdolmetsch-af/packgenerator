@@ -32,7 +32,7 @@
       "fontsize": 1
     },
     "src/lib/bikes/SetupBand.svelte": {
-      "colour": 10,
+      "colour": 8,
       "fontsize": 11
     },
     "src/lib/bikes/SetupDrawing.svelte": {
@@ -315,182 +315,28 @@
       "h1": 0,
       "hscroll": 0,
       "primary": 1,
-      "target": 5,
+      "target": 1,
       "wordbreak": 7
     },
     "#/@390": {
       "h1": 0,
       "hscroll": 0,
       "primary": 1,
-      "target": 5,
-      "wordbreak": 0
-    },
-    "#/bikes?tab=care@320": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 3,
-      "wordbreak": 0
-    },
-    "#/bikes?tab=care@390": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 5,
+      "target": 1,
       "wordbreak": 0
     },
     "#/bikes@320": {
       "h1": 0,
       "hscroll": 0,
       "primary": 0,
-      "target": 8,
+      "target": 7,
       "wordbreak": 0
     },
     "#/bikes@390": {
       "h1": 0,
       "hscroll": 0,
       "primary": 0,
-      "target": 8,
-      "wordbreak": 0
-    },
-    "#/blocks@320": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/blocks@390": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/debrief/pace@320": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/debrief/pace@390": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/debrief/ride@320": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/debrief/ride@390": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/favorites@320": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/favorites@390": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/gear/import@320": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/gear/import@390": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/gear@320": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/gear@390": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/pack/templates@320": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/pack/templates@390": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/pack@320": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 4,
-      "wordbreak": 0
-    },
-    "#/pack@390": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 4,
-      "wordbreak": 0
-    },
-    "#/ride@320": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/ride@390": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/wardrobe@320": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
-      "wordbreak": 0
-    },
-    "#/wardrobe@390": {
-      "h1": 0,
-      "hscroll": 0,
-      "primary": 0,
-      "target": 1,
+      "target": 6,
       "wordbreak": 0
     }
   }

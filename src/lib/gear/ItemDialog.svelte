@@ -1,4 +1,5 @@
 <script>
+  import { tick } from 'svelte';
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
   import { RIDES, RAIN_ITEM } from '../layers.js';
@@ -18,12 +19,15 @@
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
-  import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock } from '@lucide/svelte';
+  import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2, Pencil } from '@lucide/svelte';
+  import RenameSheet from '../ui/RenameSheet.svelte';
+  import { offerRename } from '../ui/rename.svelte.js';
   import { isClothing } from '../wardrobe.js';
   import { shrinkImage } from '../photo.js';
   import ItemLife from './ItemLife.svelte';
-  import { materialStats, tripLog, usageOf, lighterAlts, ALT_DISMISSED_KEY } from './material.js';
-  import { comesLine, blockNames, ruleNames, placeName, weightState, lifeLine, lastFold, keepFold, nextFold, blockLabel } from './detail.js';
+  import { materialStats, tripLog, usageOf, lighterAlts, ALT_DISMISSED_KEY, dismissValue, linkPatch, suggestWhy } from './material.js';
+  import { inSmallAid, AID_KEY } from '../firstaid.js';
+  import { summaryLine, blockNames, ruleNames, placeName, weightState, lifeLine, lastFold, keepFold, nextFold, blockLabel } from './detail.js';
 
   /**
    * item: the item to show, or null for "Add item".
@@ -115,12 +119,72 @@
     openFold = next;
     keepFold('item', next);
   }
-  const summary = $derived(comesLine(draft, blocks));
   const gramsNow = $derived(String(draft.grams ?? '').trim());
+  // The weight as typed (an unreadable entry keeps the saved one), for the line and the suggestions.
+  const gramsG = $derived(gramsNow === '' ? null : (parseGrams(gramsNow) ?? item?.weightG ?? null));
   const wState = $derived(gramsNow === '' ? t('not weighed') : item && parseGrams(gramsNow) === item.weightG ? weightState(item) : t('weighed'));
   const ruleLine = $derived(ruleNames(draft).join(' · ') || (layerCount ? tn(layerCount, '{n} rule', '{n} rules') : t('not set')));
   const dismissedQ = liveQuery(() => db.settings.get(ALT_DISMISSED_KEY));
-  const lifeSum = $derived(life && item ? lifeLine(usageOf(life.stats, item.id), lighterAlts($liveQ ?? item, allItems, $dismissedQ?.value?.[item.id] ?? []).length) : '');
+  /*
+   * v0.72.0 «Feinschliff» (Noah 1a): ONE line under the name: weight, how it comes along, the place
+   * and (after a reviewed trip) how often it was along and used. The weight field moved into the
+   * first row «Weight».
+   */
+  const usage = $derived(life && item ? usageOf(life.stats, item.id) : null);
+  const summary = $derived(isNew ? '' : summaryLine({ ...draft, weightG: gramsG }, blocks, usage));
+  const lifeSum = $derived(usage ? lifeLine(usage) : '');
+
+  /*
+   * v0.72.0 (Noah 2a): the lighter alternative right in the row «Weight»: bars (the suggestion
+   * against this item), a card per suggestion with one sentence why, «Remember as alternative»
+   * (links them, material.js linkPatch) and «Doesn't fit» (hidden for this item, with Undo). The app
+   * chooses nothing. ItemLife leaves its weight part out in this window, so nothing shows twice.
+   */
+  const wItem = $derived(item ? { ...($liveQ ?? item), weightG: gramsG } : null);
+  const lighter = $derived(wItem ? lighterAlts(wItem, allItems, $dismissedQ?.value?.[item.id] ?? []) : []);
+  const suggested = $derived(lighter.filter((a) => a.auto));
+  const linkedLight = $derived(lighter.find((a) => a.manual) ?? null);
+  const wBars = $derived.by(() => {
+    if (!wItem || wItem.weightG == null || !lighter.length) return [];
+    const mine = wItem.weightG * (Number(wItem.qty) || 1);
+    const rows = [...lighter.map((a) => ({ item: a.item, g: a.g, me: false, auto: !!a.auto })), { item: wItem, g: mine, me: true }].sort((a, b) => a.g - b.g);
+    const max = Math.max(...rows.map((r) => r.g), 1);
+    return rows.map((r) => ({ ...r, pct: Math.max(4, Math.round((r.g / max) * 100)) }));
+  });
+  let altNote = $state(null); // { text, undo } after «Doesn't fit» or «Remember as alternative»
+  async function dismissAlt(a) {
+    const rec = await db.settings.get(ALT_DISMISSED_KEY);
+    await db.settings.put({ key: ALT_DISMISSED_KEY, value: dismissValue(rec?.value, item.id, a.item.id, true) });
+    altNote = {
+      text: t('"{name}" hidden', { name: nameOf(a.item) }),
+      undo: async () => {
+        const now = await db.settings.get(ALT_DISMISSED_KEY);
+        await db.settings.put({ key: ALT_DISMISSED_KEY, value: dismissValue(now?.value, item.id, a.item.id, false) });
+      },
+    };
+  }
+  async function linkAlt(a) {
+    const patch = linkPatch($liveQ ?? item, a.item);
+    if (!patch) return;
+    const before = patch.id === item.id ? (draft.altFor ?? '') : (a.item.altFor ?? '');
+    const write = async (altFor) => {
+      if (patch.id === item.id) draft.altFor = altFor;
+      await db.items.update(patch.id, { altFor: altFor || null, updatedAt: new Date().toISOString() });
+    };
+    await write(patch.altFor);
+    altNote = { text: t('"{name}" remembered as an alternative', { name: nameOf(a.item) }), undo: () => write(before) };
+  }
+  async function undoAlt() {
+    const n = altNote;
+    altNote = null;
+    await n?.undo?.();
+  }
+  const whyText = () => (suggestWhy(wItem) === 'zone' ? t('Same category and same layer ({zone}), already weighed. The app chooses nothing.', { zone: [wItem.zone, wItem.layer].filter(Boolean).join(', ') }) : t('Same category, already weighed. The app chooses nothing.'));
+  const weightSum = $derived(gramsG == null ? t('not weighed') : `${formatWeight(gramsG)} · ${wState}`);
+
+  /* v0.72.0 (Noah 5a): a first aid item is part of the small set (day trips) or only of the full one. */
+  const isAid = $derived(!!draft.sets?.includes(AID_KEY));
+  const aidSmall = $derived(inSmallAid(draft));
   // v0.37.0 (Noah 4a): clothing that is also a worn bag (a vest with pockets). The switch makes a bag
   // record on Back (backpacks.js); the item stays here as clothing. Saved with "Save".
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -204,6 +268,39 @@
     }
     onclose?.();
   }
+  /* ---------- v0.72.0 «Feinschliff» (Umbenennen 1a + 3a): the pencil opens the one rename sheet ---------- */
+  // Also on the phone (the read-only card): a name is tidying up, like merging. Saved at once with Undo;
+  // a built-in German name (nameDe) gives way to the new one.
+  let renaming = $state(false);
+  // svelte-ignore state_referenced_locally
+  let shownName = $state(nameOf(item));
+  async function rename(name) {
+    const live = await db.items.get(item.id);
+    if (!live) return;
+    const old = { name: live.name, nameDe: live.nameDe };
+    await db.items.update(item.id, { name, nameDe: undefined, updatedAt: new Date().toISOString() });
+    draft.name = name;
+    delete draft.nameDe;
+    shownName = name;
+    offerRename(name, async () => {
+      await db.items.update(item.id, { name: old.name, nameDe: old.nameDe });
+      if (dialog?.open) {
+        draft.name = old.name;
+        if (old.nameDe) draft.nameDe = old.nameDe;
+        shownName = nameOf({ ...old });
+      }
+    });
+  }
+  // v0.72.0 (Umbenennen 2a): Android back and Escape keep what was changed in an existing item, like «Save»
+  // (a new item keeps itself already while it is typed, see closed()).
+  // Compared with the form as it stands after the first render: bound fields fill in their defaults
+  // then (a checkbox writes favorite: false), which is not a change by the person.
+  let shownAs = null;
+  $effect(() => {
+    tick().then(() => (shownAs ??= JSON.stringify($state.snapshot(draft))));
+  });
+  const keepOnBack = () => (isNew || mergedInto || !draft.name.trim() || JSON.stringify($state.snapshot(draft)) === (shownAs ?? startText) ? dialog.close() : save({ preventDefault() {} }));
+
   async function discard() {
     ended = true;
     clearTimeout(autoTimer);
@@ -271,11 +368,41 @@
 {/snippet}
 
 <!-- v0.63.0 (Noah 1a): one row that folds away; only one is open at a time (onFold). -->
-{#snippet fold(key, Icon, title, value, body)}
+{#snippet fold(key, Icon, title, value, body, badge = '')}
   <details class="fold" data-fold={key} open={openFold === key} ontoggle={(e) => onFold(key, e.currentTarget.open)}>
-    <summary><Icon size={18} aria-hidden="true" /><span class="ft">{title}</span><span class="fv">{value}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+    <summary><Icon size={18} aria-hidden="true" /><span class="ft">{title}</span>{#if badge}<span class="fbadge">{badge}</span>{/if}<span class="fv">{value}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
     <div class="fbody">{@render body()}</div>
   </details>
+{/snippet}
+
+<!-- v0.72.0 (Noah 1a, 2a): the row «Weight»: the field, then the lighter alternatives. -->
+{#snippet weightBody()}
+  <label class="wrow">
+    <span class="lbl">{t('Weight of one piece (g)')}</span>
+    <span class="wfield"><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /><span class="wst">{wState}{#if item.ownership !== 'owned'}{' · '}<b>{t(OWNERSHIP[item.ownership] ?? '')}</b>{/if}</span></span>
+  </label>
+  {#if wBars.length}
+    <ul class="bars" aria-label={t('Weight compared')}>
+      {#each wBars as b (b.item.id)}
+        <li class:me={b.me}><span class="bn">{nameOf(b.item)}<small>{b.me ? t('this one') : b.auto ? t('Suggestion') : t('linked by you')}</small></span><span class="track"><i style:width="{b.pct}%"></i></span><span class="num bg">{formatWeight(b.g)}</span></li>
+      {/each}
+    </ul>
+  {/if}
+  {#if linkedLight}<p class="altl"><ArrowLeftRight size={16} aria-hidden="true" /><span>{t('Lightest alternative: {name}, {g} g less', { name: nameOf(linkedLight.item), g: -linkedLight.diffG })} <small>· {t('linked by you')}</small></span></p>{/if}
+  {#each suggested as a (a.item.id)}
+    <div class="scard" role="group" aria-label={t('Suggestion: {name}', { name: nameOf(a.item) })}>
+      <p class="shead"><Sparkles size={16} aria-hidden="true" /><span class="stag">{t('Suggestion')}</span><b class="sname">{nameOf(a.item)}</b><span class="sless num">{t('{g} g lighter', { g: -a.diffG })}</span></p>
+      <p class="swhy">{whyText()}</p>
+      <div class="sacts">
+        <button type="button" class="btn sm" onclick={() => linkAlt(a)}><ArrowLeftRight size={16} aria-hidden="true" />{t('Remember as alternative')}</button>
+        <button type="button" class="btn sm plain" aria-label={t("Doesn't fit: {name}", { name: nameOf(a.item) })} onclick={() => dismissAlt(a)}><X size={16} aria-hidden="true" />{t("Doesn't fit")}</button>
+      </div>
+    </div>
+  {/each}
+  {#if !suggested.length && !linkedLight && gramsG != null}<p class="quiet">{t('No lighter alternative in your gear.')}</p>{/if}
+  {#if altNote}
+    <p class="altnote" role="status"><Undo2 size={16} aria-hidden="true" /><span>{altNote.text}</span><button type="button" class="btn sm" onclick={undoAlt}>{t('Undo')}</button></p>
+  {/if}
 {/snippet}
 
 <!-- v0.32.0 (finding 5, stage 1): one question, "Does it come along?", in two words: the place
@@ -318,6 +445,10 @@
     <div class="chips" role="group" aria-labelledby="night-h">
       {#each blocks.filter((b) => blockKind(b.key) === 'night') as b (b.key)}{@render blockChip(b)}{/each}
     </div>
+  {/if}
+  {#if isAid}
+    <label class="cb aid"><input type="checkbox" checked={aidSmall} onchange={(e) => (draft.aidSmall = e.currentTarget.checked)} /> {t('Part of the small first aid set (day trips)')}</label>
+    <p class="quiet">{t('Day trips bring only the small set, trips with a night the full one. Changeable per trip.')}</p>
   {/if}
   {#if comes.optional}
     <p class="mark"><span class="badge">{t('Stays at home')}</span> <span class="quiet">{t('Marked in a debrief.')}</span> <button type="button" class="btn sm" onclick={() => Object.assign(draft, clearOptional(draft))}>{t('Take it along again')}</button></p>
@@ -423,7 +554,7 @@
   {:else}
     <div class="grid">
       {#if !isNew}
-        <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} required /></label>
+        <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} enterkeyhint="done" required /></label>
         {@render categoryField()}
         {@render statusField()}
         {@render photoRow()}
@@ -480,20 +611,21 @@
 {/snippet}
 
 {#snippet lifeBody()}
-  <ItemLife item={$liveQ ?? item} items={allItems} stats={life.stats} log={life.log} {today} />
+  <ItemLife item={$liveQ ?? item} items={allItems} stats={life.stats} log={life.log} {today} weight={false} />
 {/snippet}
 
-<!-- The rows in Noah's order: where, blocks, weather, brand …, templates, its history. -->
+<!-- v0.72.0 (Noah 1a): the rows in Noah's order: weight, where, blocks, weather, its history, name …, templates. -->
 {#snippet rows()}
+  {#if !isNew}{@render fold('weight', Scale, t('Weight'), weightSum, weightBody, suggested.length ? tn(suggested.length, '{n} suggestion', '{n} suggestions') : '')}{/if}
   {@render fold('where', MapPin, t('Where it goes'), placeName(draft), whereBody)}
   {@render fold('blocks', Package, t('Building blocks'), blockNames(draft, blocks).join(' · ') || t('no block'), blocksBody)}
   {@render fold('rules', Route, t('For weather and riding time'), ruleLine, rulesBody)}
+  {#if !isNew && life}{@render fold('life', CalendarClock, t('History|item'), lifeSum, lifeBody)}{/if}
   {@render fold('details', FileText, isNew ? t('Brand, model, note') : t('Name, brand, note'), detailLine || t(CATEGORY[draft.category]?.name ?? ''), detailsBody)}
   {#if !isNew}{@render fold('templates', Layers, t('In templates'), `${where.templates.length}${where.trip ? ` · ${t('on the current trip')}` : ''}`, templatesBody)}{/if}
-  {#if !isNew && life}{@render fold('life', CalendarClock, t('History|item'), lifeSum, lifeBody)}{/if}
 {/snippet}
 
-<dialog class="sheet" bind:this={dialog} use:backClose onclose={closed} aria-labelledby="item-h">
+<dialog class="sheet" bind:this={dialog} use:backClose={keepOnBack} onclose={closed} aria-labelledby="item-h">
   {#if mergedInto}
     <p class="meta">{t('Merge|items')}</p>
     <h2 id="item-h" class="title">{nameOf(item)}</h2>
@@ -508,12 +640,12 @@
       <span class="sw" style:background={CATEGORY[draft.category]?.color}></span>
       {t(CATEGORY[draft.category]?.name ?? '')}{draft.id ? ` · ${draft.id}` : ''}
     </p>
-    <h2 id="item-h" class="title">{isNew ? t('Add item') : nameOf(item)}</h2>
+    <h2 id="item-h" class="title">{#if isNew}{t('Add item')}{:else}<span>{shownName}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: shownName })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={18} aria-hidden="true" /></button>{/if}</h2>
 
     {#if isNew}
       <!-- v0.23.0 (AP08): the four main fields first; the rest folds away under "More details". -->
       <div class="grid">
-        <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} required /></label>
+        <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} enterkeyhint="done" required /></label>
         {@render categoryField()}
         {@render statusField()}
         <label class="wide"><span class="lbl">{t('Weight of one piece (g)')} <small class="req">{t('optional')}</small></span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
@@ -525,12 +657,8 @@
         {@render rows()}
       </details>
     {:else}
-      <!-- v0.63.0 (Noah 1a): the weight with its status and one summary line, then the rows. -->
+      <!-- v0.72.0 (Noah 1a): one summary line, then the rows (the weight field is in the row «Weight»). -->
       <div class="top">
-        <label class="wrow">
-          <span class="lbl">{t('Weight of one piece (g)')}</span>
-          <span class="wfield"><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /><span class="wst">{wState}{#if item.ownership !== 'owned'}{' · '}<b>{t(OWNERSHIP[item.ownership] ?? '')}</b>{/if}</span></span>
-        </label>
         <p class="sumline" data-testid="comes-line">{summary}</p>
       </div>
       <div class="rows">{@render rows()}</div>
@@ -549,6 +677,10 @@
 </dialog>
 
 {#if mergeOpen}<MergeSheet {item} items={allItems} onmerged={mergedDone} onclose={() => (mergeOpen = false)} />{/if}
+
+{#if renaming}
+  <RenameSheet kicker={t('Gear item')} title={t('Rename item')} value={shownName} hint={t('Counts everywhere: gear, packing lists, templates.')} onsave={rename} onclose={() => (renaming = false)} />
+{/if}
 
 {#if assigning}<AssignDialog ids={[item.id]} {item} onclose={assigned} />{/if}
 
@@ -600,6 +732,22 @@
   h2 {
     font-size: var(--fs-section);
     margin: 4px 0 14px;
+  }
+  h2 .pen {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: -8px 0 -8px 4px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--ink-2);
+    vertical-align: middle;
+    cursor: pointer;
+  }
+  h2 .pen:hover {
+    background: var(--paper-2);
   }
   .grid {
     display: grid;
@@ -683,6 +831,147 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
     overflow-wrap: break-word;
+  }
+  .fbadge {
+    flex: none;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    border-radius: 99px;
+    padding: 1px 8px;
+    background: var(--warn-soft);
+    color: var(--warn);
+    white-space: nowrap;
+  }
+  /* v0.72.0 (Noah 2a): bars and the suggestion card in the row «Weight». */
+  .bars {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .bars li {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(48px, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    font-size: var(--fs-small);
+  }
+  .bn {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .bn small {
+    display: block;
+    color: var(--ink-3);
+  }
+  .track {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .track i {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+    background: var(--ok);
+  }
+  .bars .me .track i {
+    background: var(--ink-3);
+  }
+  .bg {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .altl {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--paper-2);
+    font-size: var(--fs-small);
+  }
+  .altl :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  .altl small {
+    color: var(--ink-3);
+  }
+  .scard {
+    margin: 12px 0 0;
+    padding: 12px;
+    border: 1.5px solid var(--ok);
+    border-radius: var(--radius);
+    background: var(--ok-soft);
+  }
+  .shead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin: 0;
+  }
+  .shead :global(svg) {
+    flex: none;
+  }
+  .stag {
+    font-size: var(--fs-small);
+    font-weight: 600;
+    border-radius: 99px;
+    padding: 1px 8px;
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  .sname {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .sless {
+    margin-left: auto;
+    font-weight: 700;
+    color: var(--ok);
+    white-space: nowrap;
+  }
+  .swhy {
+    margin: 6px 0 8px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .sacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .sacts .btn,
+  .altnote .btn {
+    min-height: 44px;
+  }
+  .sacts .plain {
+    border-color: transparent;
+    background: none;
+    color: var(--ink-2);
+  }
+  .altnote {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin: 10px 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .altnote span {
+    flex: 1 1 10em;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .aid {
+    min-height: 44px;
+    margin-top: 10px;
   }
   .rows {
     display: grid;
