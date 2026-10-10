@@ -10,7 +10,7 @@ Noah writes German and is not a developer. Write replies to him in short, simple
 2. **Plan:** keep an updated roadmap, a sequence and implementation plan, and work packages.
 3. **Mockups for every work package, always shown on the one page «Offene Mockups»** (Noah, 10.10.2026, priority 1, «extrem wichtig»): https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv. Each round gets its own section, with computer and phone side by side and a link to its Trello question card. The Trello card and the thread reply both link to that section. Never hand over only a folder path.
 4. **Noah approves the mockup.** Only then build and open the PR.
-5. **Claude merges finished releases itself** (Noah, 10.10.2026: «Freigabe zum Veröffentlichen auf GitHub und Vercel für alle folgenden Releases»), but only after the local Gesamttest and all CI checks on the head commit are green. Noah still approves every mockup.
+5. **Noah merges every PR himself** (Noah, 10.10.2026 14:16, «ab sofort und überall»; this replaces the self-merge from 13:52). Claude opens the PR, runs the local Gesamttest, gets CI green on the head commit, then sends Noah the link and the clicks. **Mockup check before every release:** the PR names the Trello comment where Noah saw and commented on this package's mockups. No such comment means no release PR; ask Noah first.
 6. **After every step:** document the progress (docs, Trello, memory).
 7. **Small things:** check and improve them yourself. **Bigger things:** always ask Noah targeted a/b questions with ★.
 
@@ -22,7 +22,8 @@ Noah writes German and is not a developer. Write replies to him in short, simple
   2. Noah reviews them.
   3. a/b questions, with the recommendation marked ★.
   4. Build only after his answers.
-- **Self-merge (since 10.10.2026):** open the PR, run the full Gesamttest locally, get CI green on the head commit, then merge it yourself. A Vercel rate-limit red does not block. Never merge red or pending checks, drafts or parked PRs. Merge one PR at a time and renumber the others. Afterwards move the Trello card to «Zu testen» with the test steps and tell Noah in one short German line what is new online.
+- **Noah merges (since 10.10.2026 14:16):** open the PR, run the full Gesamttest locally, get CI green on the head commit, then give Noah the link with the clicks «Merge pull request» → «Confirm merge». Never merge yourself. A Vercel rate-limit red does not block. Renumber open PRs when main moves on. After Noah's merge, move the Trello card to «Zu testen» with the test steps and tell Noah in one short German line what is new online.
+- **Mockup check (since 10.10.2026 14:16):** before every release PR, check that Noah saw and commented on the mockups for this package (Trello comment or thread answer). Put the link under «Mockup-Prüfung» in the PR. This saves testing at the end and late front-end wishes.
 - Small decisions you take yourself go in the PR under «Selbst entschieden».
 - Everything in the app is a suggestion: never mandatory, always changeable and deselectable.
 - **Course check:** `docs/vorhaben.md` lists every planned project with its why, goals and order. Before starting a new package, check it fits one of the four goals and the order there; if not, ask Noah. Every release PR updates its «Stand heute» section. About every five releases, send Noah a short course check with a/b questions.
