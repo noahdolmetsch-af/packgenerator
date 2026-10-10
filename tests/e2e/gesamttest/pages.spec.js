@@ -13,6 +13,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, statSync, mkdirSync, renameSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { fixture, prepare, importBackup, view, sideways, cutOff, brokenWords, unnamed, untranslated, record, tr, table, shot } from './lib.js';
+import { newButton } from '../newbutton.js';
 
 const { summary } = fixture();
 const TRIP = summary.tripIds;
@@ -28,7 +29,8 @@ const tap = async (loc) => {
 /** The pages and main open states. trip: the trip Pack and Ride open; act: what a person opens. */
 const CASES = [
   { id: 'today', hash: '#/' },
-  { id: 'today-new-sheet', hash: '#/', act: async (page, T) => tap(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true })) },
+  // v0.76.0: on a phone the round + steps aside while Today's 8 buttons are on the screen (newbutton.js)
+  { id: 'today-new-sheet', hash: '#/', act: async (page, T) => tap(await newButton(page, T('New'))) },
   // v0.76.0 «Fünf Orte»: «Ich» (top right) took the place of the «More» sheet
   { id: 'me', hash: '#/me' },
   { id: 'keys', hash: '#/me', act: async (page, T) => tap(page.locator('main').getByRole('button', { name: T('Help and keyboard shortcuts') })) },
