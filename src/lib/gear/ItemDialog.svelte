@@ -1,4 +1,5 @@
 <script>
+  import { tick } from 'svelte';
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
   import { RIDES, RAIN_ITEM } from '../layers.js';
@@ -292,7 +293,13 @@
   }
   // v0.72.0 (Umbenennen 2a): Android back and Escape keep what was changed in an existing item, like «Save»
   // (a new item keeps itself already while it is typed, see closed()).
-  const keepOnBack = () => (isNew || mergedInto || !draft.name.trim() || JSON.stringify($state.snapshot(draft)) === startText ? dialog.close() : save({ preventDefault() {} }));
+  // Compared with the form as it stands after the first render: bound fields fill in their defaults
+  // then (a checkbox writes favorite: false), which is not a change by the person.
+  let shownAs = null;
+  $effect(() => {
+    tick().then(() => (shownAs ??= JSON.stringify($state.snapshot(draft))));
+  });
+  const keepOnBack = () => (isNew || mergedInto || !draft.name.trim() || JSON.stringify($state.snapshot(draft)) === (shownAs ?? startText) ? dialog.close() : save({ preventDefault() {} }));
 
   async function discard() {
     ended = true;
