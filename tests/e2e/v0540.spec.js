@@ -74,11 +74,18 @@ test('lighter alternatives in the row Gewicht: linked first, suggestions with Al
   await expect(fold(dlg, 'weight')).toContainText('Leichteste Alternative: Wind vest, 112 g weniger · von dir verknüpft');
   await expect(fold(dlg, 'weight').getByRole('list', { name: 'Gewicht im Vergleich' }).getByRole('listitem')).toHaveCount(2);
   await page.keyboard.press('Escape');
+  // wait until the first window is really closed, so the next steps cannot catch it on its way out
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
 
   await page.goto('./#/gear?item=CO03');
   dlg = page.locator('dialog[open]');
+  await expect(dlg).toContainText('Steel pot');
   const w = fold(dlg, 'weight');
-  if (!(await w.evaluate((d) => d.open))) await w.locator(':scope > summary').click();
+  // the row Gewicht stays open from before (remembered for the session); open it if it is not
+  await expect(async () => {
+    if (!(await w.evaluate((d) => d.open))) await w.locator(':scope > summary').click();
+    await expect(w).toHaveJSProperty('open', true, { timeout: 1000 });
+  }).toPass();
   const cards = w.getByRole('group', { name: /^Vorschlag: / });
   await expect(cards).toHaveCount(2);
   await expect(cards.first()).toContainText('Titanium pot');

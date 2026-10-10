@@ -108,6 +108,11 @@ export async function start(page, context, info, { lang = 'de', data = null } = 
   await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === 'update.templatesLinked2026'), { timeout: 20_000 }).toBe(true);
   // v0.51.0: Today's «Im Flow» card seeds the starter activities once after an import without flow data
   await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === 'flowSeeded'), { timeout: 20_000 }).toBe(true);
+  // v0.76.0: the fictional data has a trip running today with a ride block 18–21 h. In the evening
+  // Today opens Unterwegs by itself, once a day: let that happen here, so the tests find Today later.
+  await page.goto('./#/');
+  await page.locator('main').waitFor();
+  await page.waitForTimeout(1500);
   return errors;
 }
 
