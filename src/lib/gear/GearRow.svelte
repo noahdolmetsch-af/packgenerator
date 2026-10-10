@@ -98,7 +98,7 @@
   };
 </script>
 
-<li class="fr gr" class:open={rest !== 0} data-item={item.id}>
+<li class="fr gr noswipe" class:open={rest !== 0} data-item={item.id}>
   {#if touch}
     <!-- the actions under the row, shown by the swipe (also reachable through •••) -->
     <div class="under ul" aria-hidden={rest <= 0} inert={rest <= 0}>

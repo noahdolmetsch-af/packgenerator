@@ -108,7 +108,7 @@
               <ActIcon icon={a.icon} ring={a.ring} dim={a.paused} />
               <span class="m"><b>{actName(a)}</b><small>{a.paused ? t('paused') : actGoalText(a, today)}{#if !a.paused && !activeGoals(a, today).length && a.season}{" · "}{t('rests until {date}', { date: dayShort(restsUntil(a, today)) })}{/if}</small></span>
             </a>
-            <button type="button" class="grip" data-grip={a.id} aria-label={t('Move {name}: arrow keys', { name: actName(a) })} onkeydown={(e) => gripKey(e, a, i)} onpointerdown={(e) => gripDown(e, a)} onpointermove={gripMove} onpointerup={gripUp} onpointercancel={gripUp}><GripVertical size={18} aria-hidden="true" /></button>
+            <button type="button" class="grip noswipe" data-grip={a.id} aria-label={t('Move {name}: arrow keys', { name: actName(a) })} onkeydown={(e) => gripKey(e, a, i)} onpointerdown={(e) => gripDown(e, a)} onpointermove={gripMove} onpointerup={gripUp} onpointercancel={gripUp}><GripVertical size={18} aria-hidden="true" /></button>
             <a class="chev" href="#/flow/edit/{encodeURIComponent(a.id)}" aria-hidden="true" tabindex="-1"><ChevronRight size={18} /></a>
           </li>
         {/each}

@@ -693,7 +693,7 @@
 {#snippet tripS()}
   {#if focus || shown}
     {#if photo && phone.matches}<TripPhoto {photo} {caption} mode="band" />{/if}
-    <section class="trip" class:has-photo={!!photo && !phone.matches} class:on-band={!!photo && phone.matches} aria-labelledby="next-h" data-section="trip" data-trip={shown?.id} onpointerdown={pdown} onpointerup={pup} onpointercancel={() => (sx = null)}>
+    <section class="trip noswipe" class:has-photo={!!photo && !phone.matches} class:on-band={!!photo && phone.matches} aria-labelledby="next-h" data-section="trip" data-trip={shown?.id} onpointerdown={pdown} onpointerup={pup} onpointercancel={() => (sx = null)}>
       <div class="tc">
         <div class="kl">
           {#if ask}
