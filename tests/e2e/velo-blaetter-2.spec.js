@@ -252,7 +252,9 @@ test('Warranty & receipts: years per part changeable, receipts from Workshop & r
   await expect(part('Gabel')).toContainText('3 Jahre');
   const w = (await stored(page, 'bikes', XC)).sheets.warranty;
   expect(w).toMatchObject({ price: 4290, years: { fork: 3, frame: 5 } });
-  await expect(paper.locator('.facts')).toContainText(`CHF ${(4290).toLocaleString('de-CH')}`);
+  // The thousands separator comes from the browser's ICU (’ or '), so format the price in the page, not in Node.
+  const price = await page.evaluate(() => (4290).toLocaleString('de-CH'));
+  await expect(paper.locator('.facts')).toContainText(`CHF ${price}`);
 
   // the calendar only when switched on
   await expect(paper.getByRole('button', { name: 'Kalender-Datei' })).toHaveCount(0);
