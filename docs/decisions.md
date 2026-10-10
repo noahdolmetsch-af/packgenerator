@@ -555,6 +555,13 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid:** Q1 ist pro Velo an, sobald es Fahrten im Buch hat (Antwort 6a), und lässt sich pro Velo ausblenden. Startpunkte für Teile sind ein Vorschlag, nie Pflicht; ein Teil von einem anderen Velo bringt «km schon am Teil» mit (Schritt 3 in einfacher Form, ohne automatisches Umziehen).
 - **Grund:** Noah holt ein neues Velo ab und will dessen km von Anfang an lückenlos und nachvollziehbar; die Strava-Werte weichen heute ohne Erklärung ab.
 
+## 10.10.2026: Regel «Fahrt-Typ» im Import (0.69.1, Noahs Entscheid zur Datenbasis 10.10.2026)
+
+- **Entscheid:** Jedes Velo hat bei Noah einen eigenen Garmin-Fahrt-Typ (Gravel → Gravel Ride, MTB → Mountain Bike Ride, E-MTB → E-Mountain Bike Ride, Arbeitsweg → Ride). Der Import kennt darum eine vierte Regel-Art «Fahrt-Typ» (Fahrt-Typ → Velo). Reihenfolge jetzt: Sensor (sicher) › Strava-Velo › Profil-Regel › Fahrt-Typ-Regel (je wahrscheinlich) › du. Ersetzt den Satz «der Aktivitätstyp entscheidet nie» aus 0.68.0.
+- **Entscheid:** Eine Fahrt-Typ-Regel zählt nur, wenn Noah sie selbst angelegt hat (nichts vorbefüllt, keine Namen im Repo) und nur für genau ein Velo. Sagt der Sensor, Strava oder das Profil ein anderes Velo, kommt die Fahrt zu «Prüfen». Bei einem Profil für mehrere Velos entscheidet eine Fahrt-Typ-Regel, die eines davon nennt.
+- **Entscheid (selbst):** FIT-Dateien liefern den Fahrt-Typ in Strava-Wörtern (Sport/Unter-Sport → «Gravel Ride», «Mountain Bike Ride», «E-Mountain Bike Ride», «E-Bike Ride», «Ride»), damit eine Regel für beide Quellen gilt. Der Typ wird am Eintrag gespeichert.
+- **Grund:** Bei Noah ist der Fahrt-Typ pro Velo eindeutig; ohne diese Regel landeten Fahrten ohne Strava-Velo und ohne Sensor immer in «Prüfen».
+
 ## 10.10.2026: Velo-Blätter (0.69.0, Noahs Antworten V1–V7 a)
 
 - **Entscheid:** Jedes Velo hat eine Mappe mit Blättern (Vorschlag A): unter Velos › Setup unter dem Kopfband, im offenen Velo der Pflege als eine Zeile mit Links. Werkstatt-Auftrag und Abhol-Check stehen zusätzlich dort, wo die Werkstatt lebt (Pflege «Für den Velomech», Werkstatt & Belege); einen eigenen Termin-Datensatz gibt es noch nicht.
