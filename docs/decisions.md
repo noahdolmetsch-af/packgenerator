@@ -608,3 +608,11 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 
 - **Entscheid:** Jede Mockup-Runde kommt auf die eine Seite «Offene Mockups» (https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv), mit einem eigenen Abschnitt pro Runde. Computer und Handy stehen nebeneinander, mit einer Zeile «★ ist …» und einem Link zur Fragen-Karte auf Trello. Die Trello-Karte und die Antwort im Thread verlinken auf diesen Abschnitt. Ein Ordnerpfad allein reicht nie.
 - **Grund:** Noah fand die Bilder im Projektordner nicht; es gibt keinen Web-Link zum Ordner, und die Anhänge im Thread sind begrenzt. Ohne sichtbare Mockups kann er sie nicht freigeben (Prinzip Nr. 1, Schritt 4).
+
+## 10.10.2026: Claude veröffentlicht Releases selbst (Noah, 13:52)
+
+- Noah: «Ich erteile hier die Freigabe zum Veröffentlichen auf GitHub und Vercel für alle folgenden Releases.»
+- Claude merged fertige Release-Pull-Requests selbst, sobald der Gesamttest lokal und alle Prüfungen auf dem letzten Commit grün sind. Ein rotes Vercel-Tageslimit hält nicht auf.
+- Nie bei roten oder laufenden Prüfungen, nie Entwürfe oder geparkte Pull Requests (KI-Helfer #89). Ein Pull Request nach dem anderen.
+- Danach wandert die Trello-Karte nach «Zu testen», und Noah bekommt eine kurze Zeile, was online neu ist.
+- Die Mockups gibt weiterhin Noah frei (Prinzip Nr. 1).
