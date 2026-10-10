@@ -48,9 +48,10 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.67.1 | Fix-Release: Datumsfelder mit Wochentag, Velo-Typen als Wörter, Im-Flow-Symbol im Menü; Prinzip Nr. 1 in CLAUDE.md und Arbeitsweise | live seit 10.10.2026 |
 | 0.68.0 | Q1 «Jeder km zählt»: Fahrten-Buch pro Velo, Import Strava-CSV und Garmin-FIT mit Sensor-Erkennung, Wochen-Abgleich auf Heute, Startpunkt pro Teil | live seit 10.10.2026 |
 | 0.69.0 | Velo-Blätter: Mappe pro Velo mit Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check; ansehen, als PDF teilen, Text kopieren; Häkchen werden Pflege-Einträge mit Startpunkt | live (PR #95) |
-| 0.69.1 | Gesamttest-Runde: alle Abläufe durchgespielt, Befunde A–C behoben, D als Fragen; Import-Regel «Fahrt-Typ» (Gravel Ride → Velo) | PR offen |
+| 0.69.1 | Gesamttest-Runde: alle Abläufe durchgespielt, Befunde A–C behoben, D als Fragen; Import-Regel «Fahrt-Typ» (Gravel Ride → Velo) | live (PR #96) |
+| 0.71.0 | Fünf Orte Teil 1: fünf Orte (Aktiv neu), «Ich» oben rechts statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Ortsfarben, Tastenkürzel | PR offen |
 | – | KI-Helfer (siehe unten) | fertig gebaut und getestet, als Entwurf geparkt (PR #89), wird beim Einschalten neu nummeriert |
-| – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | entschieden, Mockups fertig, 5 Fragen offen |
+| – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Fragen beantwortet; Teil 1 (0.71.0) als PR offen, Teil 2 folgt |
 | – | Startseite & Integrationen E1–E4 | Konzept und Mockups fertig, Fragen beantwortet |
 | – | D5, D2, D4/D6 | Mockups fertig, Fragen werden kurz vor dem Paket gestellt |
 

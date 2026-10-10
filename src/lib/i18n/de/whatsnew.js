@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.71.0 «Fünf Orte» 1
+  'Five places: Today, Trips, Gear, Bikes and Active. On a phone they sit at the bottom, on a computer in a sidebar on the left with the pages of each place.':
+    'Fünf Orte: Heute, Touren, Material, Velos und Aktiv. Am Handy unten, am Computer in einer Seitenleiste links, mit den Seiten jedes Orts.',
+  '«More» is gone. «Me» top right holds the language, light or dark, the colour world, your home place, the Inbox, your data and the help.':
+    '«Mehr» ist weg. «Ich» oben rechts hat Sprache, Hell oder dunkel, Farbwelt, Heimat, Inbox, deine Daten und die Hilfe.',
+  '«New» is a round + bottom right on a phone. Each place has a light colour of its own.':
+    '«Neu» ist am Handy ein runder Knopf + unten rechts. Jeder Ort hat eine leichte eigene Farbe.',
+  'Keyboard shortcuts on a computer: g and a letter opens a place, n is New, / searches, ? shows them all.':
+    'Tastenkürzel am Computer: g und ein Buchstabe öffnet einen Ort, n ist Neu, / sucht, ? zeigt alle.',
+
   // 0.69.1
   'Import rides knows a new rule: a ride type (for example «Gravel Ride») belongs to one bike. You make the rule yourself in «Rules»; a contradiction still goes to «Check».':
     'Fahrten importieren kennt eine neue Regel: Ein Fahrt-Typ (zum Beispiel «Gravel Ride») gehört zu einem Velo. Die Regel legst du selbst unter «Regeln» an; ein Widerspruch kommt weiterhin zu «Prüfen».',

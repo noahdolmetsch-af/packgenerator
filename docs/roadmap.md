@@ -513,7 +513,9 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 10.10.2026 (v0.69.1, PR offen):** Vollständiger UI-Test (Gesamttest-Runde) gemacht, Befunde A–C behoben, D als Fragen an Noah; dazu die Regel «Fahrt-Typ» im Import (AP-Bezug Ziel 2, Q1). Schritt 4 der Reihenfolge in vorhaben.md ist damit als PR offen.
+**Nachtrag 10.10.2026 (v0.71.0, PR offen):** Fünf Orte Teil 1 ist gebaut: fünf Orte (Aktiv neu), «Ich» statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Tastenkürzel (AP-Bezug AP07 Navigation). Als Nächstes Fünf Orte Teil 2 (Tabs pro Ort, Wischen, alte Adressen, Übergänge 2).
+
+**Nachtrag 10.10.2026 (v0.69.1, live seit PR #96):** Vollständiger UI-Test (Gesamttest-Runde) gemacht, Befunde A–C behoben, D als Fragen an Noah; dazu die Regel «Fahrt-Typ» im Import (AP-Bezug Ziel 2, Q1). Schritt 4 der Reihenfolge in vorhaben.md ist damit als PR offen.
 
 **Nachtrag 10.10.2026 (v0.69.0, PR offen):** Velo-Blätter sind gebaut: Mappe pro Velo mit Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check, als PDF teilen und Text kopieren, Abhol-Check schreibt Pflege-Einträge mit Startpunkt (AP-Bezug Velo-Pflege). Als Nächstes der vollständige UI-Test mit Fix-Release.
 

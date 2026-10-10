@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.71.0',
+    date: '2026-10-10',
+    points: [
+      { text: 'Five places: Today, Trips, Gear, Bikes and Active. On a phone they sit at the bottom, on a computer in a sidebar on the left with the pages of each place.', href: '#/' },
+      { text: '«More» is gone. «Me» top right holds the language, light or dark, the colour world, your home place, the Inbox, your data and the help.', href: '#/me' },
+      { text: '«New» is a round + bottom right on a phone. Each place has a light colour of its own.', href: '#/' },
+      { text: 'Keyboard shortcuts on a computer: g and a letter opens a place, n is New, / searches, ? shows them all.', href: '#/me' },
+    ],
+  },
+  {
     version: '0.69.1',
     date: '2026-10-10',
     points: [

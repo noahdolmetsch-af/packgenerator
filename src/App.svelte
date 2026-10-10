@@ -29,14 +29,18 @@
   import { parseBikesHash } from './lib/bikes.js';
   import { liveQuery } from 'dexie';
   import { db } from './lib/db.js';
-  import { phone } from './lib/media.svelte.js';
-  import { Menu, Sun, Route, Backpack, Bike } from '@lucide/svelte';
-  import MoreSheet from './lib/nav/MoreSheet.svelte';
+  import { wide } from './lib/media.svelte.js';
+  import Me from './pages/Me.svelte';
+  import SideBar from './lib/nav/SideBar.svelte';
+  import PlaceBar from './lib/nav/PlaceBar.svelte';
+  import MeButton from './lib/nav/MeButton.svelte';
+  import Keys from './lib/nav/Keys.svelte';
+  import { shortcutOf, typing, G_WAIT } from './lib/nav/keys.js';
   import { sortBikes } from './lib/bikes.js';
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
-  import { PLACES, pageOf, placeOf, redirectOf } from './lib/nav.js';
+  import { pageOf, placeOf, redirectOf } from './lib/nav.js';
   import { t, lang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
@@ -56,7 +60,6 @@
     const update = () => {
       spot = '';
       hash = follow(location.hash);
-      menuOpen = false;
       window.scrollTo(0, 0);
     };
     window.addEventListener('hashchange', update);
@@ -65,9 +68,42 @@
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
   const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page));
-  const ICONS = { today: Sun, trips: Route, gear: Backpack, bikes: Bike };
-  const places = PLACES.map((p) => ({ ...p, icon: ICONS[p.key] }));
-  let menuOpen = $state(false);
+  // v0.71.0 «Fünf Orte» 1: the place tints the page and colours the bars (app.css --pc, --tint).
+  $effect(() => {
+    if (place) document.documentElement.dataset.place = place;
+    else delete document.documentElement.dataset.place;
+  });
+  // The trip pages have their own main button at the bottom (rule U1): no round + over it there.
+  const calm = $derived(page === 'pack' || page === 'ride' || page === 'between' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param)));
+  // v0.71.0: the keyboard shortcuts (nav/keys.js), «?» shows them (also from Ich).
+  let keysOpen = $state(false);
+  $effect(() => {
+    const open = () => (keysOpen = true);
+    let gAt = 0;
+    const key = (e) => {
+      if (typing(e)) return;
+      const afterG = Date.now() - gAt < G_WAIT;
+      const s = shortcutOf(e.key, afterG);
+      gAt = s?.wait ? Date.now() : 0;
+      if (!s || s.wait) return;
+      e.preventDefault();
+      if (s.go) location.hash = s.go;
+      else if (s.act === 'me') location.hash = '#/me';
+      else if (s.act === 'help') keysOpen = true;
+      else if (s.act === 'new' && page !== 'share') newMode = 'all';
+      else if (s.act === 'search') {
+        const field = document.querySelector('.side .search input');
+        if (field) field.focus();
+        else document.querySelector('header.top .search button.icon')?.click();
+      }
+    };
+    window.addEventListener('pg:keys', open);
+    document.addEventListener('keydown', key);
+    return () => {
+      window.removeEventListener('pg:keys', open);
+      document.removeEventListener('keydown', key);
+    };
+  });
   // #/debrief/<trip id> opens one trip's debrief.
   const param = $derived(hash.split('/')[2] ?? '');
   // v0.41.0: #/debrief/ride/<ride id>
@@ -170,36 +206,26 @@
 </script>
 
 <!-- v0.19.6 (start page answers 1a-4a): the same places on every page, search, Inbox and one "New".
-     On a phone the places move to a bar at the bottom, with the + in the middle.
-     v0.23.0 (AP07): one navigation for every page, Today / Trips / Gear / Bikes (the Pack page no longer
-     has its own). Debriefs, templates, a quick note and the language sit in the menu behind the profile icon. -->
-<header class="top">
-  <a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="long">Pack Generator</span><span class="short" aria-hidden="true">PG</span></a>
-  {#if !phone.matches}
-    <nav class="places" aria-label={t('Sections')}>
-      {#each places as p (p.key)}<a href={p.href} aria-current={place === p.key ? 'page' : undefined}>{t(p.label)}{#if p.key === 'bikes' && $dueQ}<span class="due num"><span class="sr">, {t('{n} due', { n: $dueQ })}</span><span aria-hidden="true">{$dueQ}</span></span>{/if}</a>{/each}
-    </nav>
-  {/if}
-  <div class="tools">
-    <Search />
-    {#if !phone.matches && page !== 'share'}
-      <button type="button" class="btn hi new" onclick={() => (newMode = 'all')} aria-haspopup="dialog">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>{t('New')}
-      </button>
-    {/if}
-    <!-- v0.38.0 (Noah 11a, 12a): "More" took the place of the profile icon and the Inbox icon;
-         the Inbox count shows on it. -->
-    <button type="button" class="more-btn" aria-haspopup="dialog" aria-expanded={menuOpen} aria-label={$inboxQ ? t('More, Inbox: {n} to sort', { n: $inboxQ }) : t('More')} onclick={() => (menuOpen = true)}>
-      <Menu size={24} aria-hidden="true" />{#if !phone.matches}<span class="ml">{t('More')}</span>{/if}
-      <!-- v0.47.1 (Noah): no number on the button, only a small dot; the count stays in the label. -->
-      {#if $inboxQ}<span class="mdot" aria-hidden="true"></span>{/if}
-    </button>
-  </div>
-</header>
-
+     v0.71.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): five places. On a computer a sidebar on the left
+     (logo, search, Ich, + Neu, the places with their pages); on a phone the top bar with search and
+     «Ich», the places at the bottom and a round + above them. «More» is gone: its pages are under
+     their place or in «Ich». -->
+<div class="shell" class:wide={wide.matches}>
+{#if wide.matches}
+  <SideBar {place} {hash} due={$dueQ ?? 0} inbox={$inboxQ ?? 0} shownew={page !== 'share'} onnew={() => (newMode = 'all')} />
+{:else}
+  <header class="top">
+    <a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="long">Pack Generator</span><span class="short" aria-hidden="true">PG</span></a>
+    <div class="tools">
+      <Search compact />
+      <MeButton inbox={$inboxQ ?? 0} current={place === 'me'} />
+    </div>
+  </header>
+{/if}
+<div class="col">
 <DemoBar />
 
-<main class:calm={page === 'pack' || page === 'ride' || page === 'between' || (page === 'debrief' && !!param && !['learnings', 'pace', 'compare', 'logbook'].includes(param))} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'}>
+<main class:calm class:fab={!wide.matches && !calm && page !== 'share'} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches}>
   {#key switchN}
   {#if page === 'gear'}
     <Gear />
@@ -245,6 +271,9 @@
   {:else if page === 'flow'}
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <Flow sub={hash.split('/').slice(2).join('/')} />
+  {:else if page === 'me'}
+    <!-- v0.71.0 «Fünf Orte» 1: «Ich», top right -->
+    <Me />
   {:else if page === 'inbox'}
     <Inbox onnew={() => (noteOpen = true)} />
   {:else if page === 'notes'}
@@ -266,26 +295,24 @@
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
-<MoreSheet bind:open={menuOpen} inbox={$inboxQ ?? 0} current={hash} />
-{#if phone.matches}
-  <!-- v0.23.0 (AP07): the same four places on every page, also under a shared list (there without +). -->
-  <nav class="bottom" aria-label={t('Sections')}>
-    {#each places as p, i (p.key)}
-      {#if i === 2 && page !== 'share'}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" onclick={() => (newMode = 'all')}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></button>{/if}
-      <a href={p.href} aria-current={place === p.key ? 'page' : undefined}><span class="pi"><p.icon size={22} strokeWidth={2} aria-hidden="true" />{#if p.key === 'bikes' && $dueQ}<span class="due num" aria-hidden="true">{$dueQ}</span>{/if}</span>{t(p.label)}{#if p.key === 'bikes' && $dueQ}<span class="sr">, {t('{n} due', { n: $dueQ })}</span>{/if}</a>
-    {/each}
-  </nav>
+<Keys bind:open={keysOpen} />
+{#if !wide.matches}
+  <!-- v0.71.0: the five places at the bottom (also under a shared list, there without +). -->
+  <PlaceBar {place} due={$dueQ ?? 0} fab={!calm && page !== 'share'} onnew={() => (newMode = 'all')} />
 {/if}
+</div>
+</div>
 
 <style>
-  /* v0.38.0 (Noah 11a, 12a): "More" top right; the Inbox count on it, small and orange like before. */
-  .more-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; height: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: rgba(255, 255, 255, 0.08); color: var(--brand-ink); font: 500 16px var(--font-body); cursor: pointer; }
-  .more-btn:hover, .more-btn[aria-expanded='true'] { background: rgba(255, 255, 255, 0.16); }
-  @media (max-width: 719px) { .more-btn { background: none; padding: 0; } }
-  /* the count of something waiting on the Bikes place (bikes with something due), small and neutral */
-  .top .due, .bottom .due { display: inline-block; min-width: 20px; height: 20px; margin-left: 6px; padding: 0 5px; border-radius: 10px; background: rgba(255, 255, 255, 0.18); color: var(--brand-ink); font: 600 12px/20px var(--font-body); text-align: center; vertical-align: 2px; box-sizing: border-box; }
-  .bottom .pi { position: relative; display: inline-flex; }
-  .bottom .due { position: absolute; top: -6px; left: 16px; margin: 0; }
+  /* v0.71.0 «Fünf Orte» 1: on a computer the sidebar on the left and the page next to it. */
+  .shell.wide {
+    display: grid;
+    grid-template-columns: 252px minmax(0, 1fr);
+    min-height: 100vh;
+  }
+  .col {
+    min-width: 0;
+  }
   /* v0.29.0: the trip steps use the same gutter as every page (16 px on a phone). */
   main.calm { padding: var(--gut) var(--gut) 80px; max-width: none; }
   @media (max-width: 719px) { main.calm { padding: 12px var(--gut) calc(106px + env(safe-area-inset-bottom)); } }
@@ -294,26 +321,17 @@
     position: sticky;
     top: 0;
     z-index: 5;
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+    gap: 6px 10px;
+    padding: calc(6px + env(safe-area-inset-top)) var(--gut) 6px;
+    background: var(--brand);
+    color: var(--brand-ink);
   }
   /* v0.46.1: the open search sheet (in the top bar) covers the page's bottom bars too. */
   :global(body.search-open) .top {
     z-index: 40;
-  }
-  .top {
-    display: flex;
-    align-items: center;
-    min-height: 64px;
-    box-sizing: border-box;
-    gap: 6px 22px;
-    padding: calc(8px + env(safe-area-inset-top)) var(--gut) 8px;
-    background: var(--brand);
-    color: var(--brand-ink);
-  }
-  /* v0.22.0 (AP03): places in Fira Sans, sentence case; the condensed face stays for the logo. */
-  .top a {
-    font: 500 16px var(--font-body);
-    color: var(--brand-ink);
-    text-decoration: none;
   }
   /* v0.27.0 (AP21): the logo link is 44 px high (was 31 px). */
   .top .brand {
@@ -321,183 +339,39 @@
     align-items: center;
     min-height: 44px;
     min-width: 44px; /* v0.44.1 (AP21): "PG" on a phone is a 44 px target too */
-    font-family: var(--font-brand);
+    font: 900 var(--fs-section) / 1 var(--font-brand);
     color: var(--hi-bright);
-    font-size: 26px;
-    font-weight: 900;
+    text-decoration: none;
     text-transform: uppercase;
     letter-spacing: 0.03em;
   }
-  /* Focus on the dark bars: a light ring that shows against the green. */
-  .top :focus-visible,
-  .bottom :focus-visible {
+  /* Focus on the dark bar: a light ring that shows against it. */
+  .top :focus-visible {
     outline-color: var(--focus-on-dark);
   }
-  .places {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 28px;
-    margin-left: 8px;
-  }
-  .places a {
-    font-size: 17px;
-    padding: 10px 0 7px;
-    border-bottom: 3px solid transparent;
-    color: var(--brand-ink-2);
-  }
-  .top a[aria-current='page'] {
-    color: var(--brand-ink);
-    font-weight: 600;
-    border-bottom-color: var(--hi-bright);
-  }
   .tools {
-    margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 10px;
-  }
-  .more-btn .mdot {
-    position: absolute;
-    top: 8px;
-    right: 6px;
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: var(--hi-bright);
-    box-shadow: 0 0 0 2px var(--brand);
-  }
-  .new {
-    gap: 6px;
+    gap: var(--sp-2);
+    min-width: 0;
+    margin-left: auto;
   }
   .top .short {
     display: none;
   }
   @media (max-width: 719px) {
-    .top {
-      gap: 6px 10px;
-    }
     .top .long {
       display: none;
     }
     .top .short {
       display: inline;
     }
-    .tools {
-      min-width: 0;
-      gap: 2px;
-    }
   }
-  /* v0.30.1 (Noah D6): a phone turned sideways (844×390) is wider than 720 px and gets the big-screen
-     bar, which took 102 of 390 px (logo and places on two lines). Low there: one line, 48 px. */
-  @media (max-height: 500px) and (min-width: 720px) {
-    .top {
-      min-height: 48px;
-      gap: 4px 16px;
-      padding: calc(2px + env(safe-area-inset-top)) max(var(--gut), env(safe-area-inset-right)) 2px max(var(--gut), env(safe-area-inset-left));
-    }
-    .top .long {
-      display: none;
-    }
-    .top .short {
-      display: inline;
-    }
-    .places {
-      flex-wrap: nowrap;
-      gap: 4px 20px;
-      margin-left: 0;
-    }
-    .places a {
-      font-size: 16px;
-      white-space: nowrap;
-    }
-    .tools {
-      min-width: 0;
-      gap: 6px;
-    }
-  }
-  /* A small phone sideways (667×375) keeps the phone layout: low bars there too. */
-  @media (max-height: 500px) and (max-width: 719px) {
-    .top {
-      min-height: 48px;
-      padding-top: calc(2px + env(safe-area-inset-top));
-      padding-bottom: 2px;
-    }
-  }
-  /* Phone (answer 3a): the places at the bottom, in reach of the thumb, + in the middle. */
-  .bottom {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 6;
-    display: flex;
-    align-items: center;
-    padding: 4px 6px calc(6px + env(safe-area-inset-bottom));
-    background: var(--brand);
-  }
-  .bottom a {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    min-height: 52px;
-    justify-content: center;
-    color: var(--brand-ink-2);
-    font: 500 13px var(--font-body);
-    text-decoration: none;
-  }
-  /* The current place: white label plus a short orange bar, not colour alone. */
-  .bottom a[aria-current='page'] {
-    color: var(--brand-ink);
-    font-weight: 600;
-    box-shadow: inset 0 3px 0 var(--hi-bright);
-  }
-  .bottom svg {
-    width: 22px;
-    height: 22px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-  }
-  .bottom .plus {
-    flex: none;
-    width: 60px;
-    height: 60px;
-    margin: -22px 4px 0;
-    border-radius: 50%;
-    border: 4px solid var(--ground);
-    background: var(--hi);
-    color: var(--hi-ink);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-  .bottom .plus svg {
-    width: 26px;
-    height: 26px;
-    stroke-width: 2.6;
-  }
-  .bottom .plus:focus-visible {
-    outline: 3px solid var(--focus-on-dark);
-    outline-offset: 2px;
-  }
-  /* v0.30.1 (D6): sideways, the bottom bar is one 44 px row: icon next to the label, a smaller +. */
+  /* A phone turned sideways: a low top bar. */
   @media (max-height: 500px) {
-    .bottom {
-      padding: 2px max(6px, env(safe-area-inset-right)) calc(2px + env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
-    }
-    .bottom a {
-      flex-direction: row;
-      gap: 6px;
-      min-height: 44px;
-    }
-    .bottom .plus {
-      width: 44px;
-      height: 44px;
-      margin: 0 4px;
-      border-width: 0;
+    .top {
+      min-height: 48px;
+      padding: calc(2px + env(safe-area-inset-top)) max(var(--gut), env(safe-area-inset-right)) 2px max(var(--gut), env(safe-area-inset-left));
     }
   }
   main {
@@ -509,11 +383,12 @@
   main.wide {
     max-width: 1600px;
   }
-  /* Room for the bottom bar on a phone. */
-  @media (max-width: 719px) {
-    main {
-      padding-bottom: calc(96px + env(safe-area-inset-bottom));
-    }
+  /* Room for the bottom bar, and for the round + on the right (v0.71.0). */
+  main.bar:not(.calm) {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+  main.bar.fab {
+    padding-bottom: calc(150px + env(safe-area-inset-bottom));
   }
   /* v0.30.1 (D6): sideways, less room above the page, and clear of a notch at the side. */
   @media (max-height: 500px) {
@@ -527,8 +402,11 @@
   /* v0.23.0 (AP07): the bars never print (a shared list, Print list). */
   @media print {
     .top,
-    .bottom {
+    .shell :global(.side) {
       display: none !important;
+    }
+    .shell.wide {
+      display: block;
     }
   }
 </style>
