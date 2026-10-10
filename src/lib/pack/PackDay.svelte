@@ -388,6 +388,8 @@
   /* v0.77.0: in a narrow column the bar gives way first, so a bag name («Oberrohrtasche») is not broken. */
   .r { margin-left: auto; min-width: 0; flex-shrink: 20; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 400; color: var(--ink-3); white-space: nowrap; }
   .mini { width: 120px; flex: 0 1 120px; min-width: 24px; height: 6px; border-radius: 9px; background: var(--paper-2); overflow: hidden; display: none; }
+  /* v0.76.0: next to the sidebar the left column is narrow: the count may go under the name */
+  .bagh { flex-wrap: wrap; row-gap: 2px; }
   .mini i { display: block; height: 100%; background: var(--ok); }
   .preview { margin: -6px 14px 10px 46px; font-size: 14px; color: var(--ink-2); line-height: 1.5; overflow-wrap: break-word; }
   .items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); }

@@ -81,8 +81,13 @@ test('lighter alternatives in the row Gewicht: linked first, suggestions with Al
 
   await page.goto('./#/gear?item=CO03');
   dlg = page.locator('dialog[open]');
+  await expect(dlg).toContainText('Steel pot');
   const w = fold(dlg, 'weight');
-  if (!(await w.evaluate((d) => d.open))) await w.locator(':scope > summary').click();
+  // the row Gewicht stays open from before (remembered for the session); open it if it is not
+  await expect(async () => {
+    if (!(await w.evaluate((d) => d.open))) await w.locator(':scope > summary').click();
+    await expect(w).toHaveJSProperty('open', true, { timeout: 1000 });
+  }).toPass();
   const cards = w.getByRole('group', { name: /^Vorschlag: / });
   await expect(cards).toHaveCount(2);
   await expect(cards.first()).toContainText('Titanium pot');
