@@ -8,6 +8,16 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.70.0
+  'The folder of each bike has four more sheets: Break-in plan, Repair kit, Warranty & receipts and Theft sheet.':
+    'Die Mappe jedes Velos hat vier Blätter mehr: Einfahr-Plan, Repair-Kit, Garantie & Belege und Diebstahl-Blatt.',
+  'A new bike gets its Break-in plan by itself: four steps up to the first service. Tick what is done and take it into care; a due step reminds you on Today.':
+    'Ein neues Velo bekommt seinen Einfahr-Plan von selbst: vier Schritte bis zum ersten Service. Abhaken, was erledigt ist, und in die Pflege übernehmen; ein fälliger Schritt erinnert dich auf Heute.',
+  'The Repair kit matches the parts of the bike, per kind of ride. What is missing in the gear list you add with one tap, the rest goes on the packing list of the next trip.':
+    'Das Repair-Kit passt zu den Teilen des Velos, pro Art der Fahrt. Was im Material fehlt, fügst du mit einem Tipp hinzu, der Rest kommt auf die Packliste der nächsten Tour.',
+  'Warranty & receipts reminds you 30 days before a warranty ends; the Theft sheet keeps the frame number, photos and insurance ready for the police.':
+    'Garantie & Belege erinnert dich 30 Tage bevor eine Garantie endet; das Diebstahl-Blatt hält Rahmennummer, Fotos und Versicherung für die Polizei bereit.',
+
   // 0.69.1
   'Import rides knows a new rule: a ride type (for example «Gravel Ride») belongs to one bike. You make the rule yourself in «Rules»; a contradiction still goes to «Check».':
     'Fahrten importieren kennt eine neue Regel: Ein Fahrt-Typ (zum Beispiel «Gravel Ride») gehört zu einem Velo. Die Regel legst du selbst unter «Regeln» an; ein Widerspruch kommt weiterhin zu «Prüfen».',

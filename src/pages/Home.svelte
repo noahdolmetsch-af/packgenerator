@@ -29,6 +29,7 @@
   import { backupAfterTrip } from '../lib/todos.js';
   import { knownWeight, isInventory } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
+  import { sheetReminders, laterChanges } from '../lib/sheets2.js';
   import { withVisits, tripPrep, tyreSetup } from '../lib/workshop.js';
   import { tripSchedule, stepWords, STEP_NAME, weatherKnown } from '../lib/schedule.js';
   import { shopList, shopCount } from '../lib/shop.js';
@@ -510,6 +511,8 @@
     for (const x of todayNotes($notesQ ?? [], 1)) rows.push({ key: `note:${x.id}`, tone: 'info', text: tn(x.open, 'Note «{title}»: {n} point open', 'Note «{title}»: {n} points open', { title: x.title }), act: { label: t('Notes'), href: '#/notes' } });
     if (!bikes.length && !showFirst) rows.push({ key: 'nobike', tone: 'info', text: t('No bikes yet.'), act: { label: t('Add a bike'), href: '#/bikes', run: wantBike } });
     rows.push(...knowRows);
+    // v0.70.0 «Velo-Blätter Teil 2» (W3 a, W6 a): a due step of a Break-in plan, a warranty that ends soon; «later» waits a week
+    for (const r of sheetReminders(bikes, { visits, today })) rows.push({ key: `sheet:${r.bikeId}:${r.key}`, tone: r.tone, text: r.text, act: { label: t('Open the sheet'), href: r.href }, later: () => sheetLater(r) });
     if (newsN) rows.push({ key: 'news', tone: 'quiet', text: tn(newsN, 'New in the app: {n} update', 'New in the app: {n} updates'), act: { label: t('Show'), href: '#/features?news' } });
     if (tests.length) rows.push({ key: 'tests', tone: 'quiet', text: tn(tests.length, 'Clean up {n} test trip', 'Clean up {n} test trips'), act: { label: t('Clean up'), run: () => (cleanAsk = true) } });
     // milestones and the evening rows first, then the urgent ones (bad, warn), then the rest
@@ -520,6 +523,10 @@
     const d = new Date(`${day}T12:00:00`);
     d.setDate(d.getDate() + 1);
     return localDay(d);
+  }
+  async function sheetLater(r) {
+    const bike = await db.bikes.get(r.bikeId);
+    if (bike) await db.bikes.update(r.bikeId, { sheets: laterChanges(bike, r.key, today) });
   }
   let allRows = $state(false);
   const rowsShown = $derived(allRows ? important : important.slice(0, 3));
@@ -750,6 +757,7 @@
                   {:else}<button type="button" class="btn sm" disabled={r.act.busy && backingUp} onclick={() => act(r)}>{r.act.label}</button>{/if}
                 {/if}
                 {#if r.act2}<a class="lk" href={r.act2.href} onclick={() => r.act2.trip && openTrip(r.act2.trip)}>{r.act2.label}</a>{/if}
+                {#if r.later}<button type="button" class="lkb" onclick={r.later}>{t('later')}</button>{/if}
               {/if}
             </li>
           {/each}
