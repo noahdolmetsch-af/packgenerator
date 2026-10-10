@@ -494,6 +494,7 @@
     flex-direction: column;
     min-width: 0;
     overflow-wrap: break-word;
+    hyphens: auto; /* long part names («Bremsbeläge») break by syllable on a 320 px phone, not mid-word */
   }
   .cl b {
     font-weight: 500;
