@@ -633,6 +633,6 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 ## 10.10.2026: KI-Helfer früher, Hobby-Unterseiten vor D5 (Noahs Antworten «1b 2b 3», 14:33)
 
 - Der KI-Helfer wird schon nach Fünf Orte Teil 2 eingeschaltet, also vor E1 (2b). Das ersetzt 3b aus dem Kurs-Check von 14:16.
-- Die Hobby-Unterseiten im Ort «Aktiv» kommen vor D5 Start-Packlisten (1b). Claude setzt sie nach E1, weil die Mockups für E1 schon freigegeben sind und die Hobby-Seiten zuerst Mockups brauchen; Noah kann das ändern.
+- Die Hobby-Unterseiten im Ort «Aktiv» kommen gleich nach dem KI-Helfer, also vor E1 und vor D5 (1b). Sie brauchen zuerst Mockups und eine Fragerunde.
 - Die ersten Unterseiten: Meditation, Velo, Yoga, Gym, Tennis und Liegestütze (3).
-- Reihenfolge: Fünf Orte 1 + Feinschliff → Fünf Orte 2 → KI-Helfer → E1 Startseite → Hobby-Unterseiten → D5 → Neuland + Inspiration.
+- Reihenfolge: Fünf Orte 1 + Feinschliff → Fünf Orte 2 → KI-Helfer → Hobby-Unterseiten → E1 Startseite → D5 → Neuland + Inspiration.
