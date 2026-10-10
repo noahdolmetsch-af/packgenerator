@@ -18,6 +18,13 @@ Prüffragen:
 4. Braucht es einen fremden Dienst, wo eine eigene, schlanke Lösung reicht?
 5. Wurde die letzte grössere Version schon echt benutzt?
 
+**Letzter Kurs-Check (10.10.2026, Versionen 0.62 bis 0.67):**
+- **Schneller packen:** am weitesten.
+- **Velo im Griff:** halb erreicht. Es fehlen die km aus Strava und die Wartungsvorschläge.
+- **Von der Haustür bis zurück:** ruhigere Abläufe, die Startseite ist noch Mockup.
+- **Aus jeder Tour lernen:** hinkt am meisten hinterher.
+- **Prüffrage 5** ist offen. Darum kommt vor dem nächsten Bau eine echte Tour.
+
 ## Kurz gesagt
 
 Der Pack Generator ist eine persönliche Web-App (PWA) für Bikepacking- und Velotouren. Sie hilft beim Packen, beim Planen und beim Lernen aus vergangenen Touren. Daten liegen nur auf dem Gerät (IndexedDB), es gibt kein Konto. Die App läuft offline und lässt sich auf Computer und Handy installieren.
@@ -37,9 +44,33 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | --- | --- | --- |
 | 0.65.0 | Velo-Masse: Sattelhöhe, Rahmengrösse, Lenkerbreite pro Velo, Import aus Datei | live |
 | 0.66.0 | Bausteine neu (Biwak, Zelt, Hotel, Kochen, Erste Hilfe, Reparatur, Laden, Licht, Rennen, Essen, Hygiene, Komfort) und «Bausteine prüfen» | live |
-| 0.67.0 | Übergänge Teil 1: Baukasten, Zwischenseiten «Gepackt», «Tour beendet», «Rückblick fertig», Schrittleiste, Hauptknopf nach Phase, Weitermachen auf Heute, Zurück-Taste schliesst zuerst Fenster | PR offen |
-| – | KI-Helfer (siehe unten) | wird fertig gebaut, dann als Entwurf geparkt |
-| – | Startseite & Integrationen E1–E4 | Konzept fertig, Mockups werden gezeichnet |
+| 0.67.0 | Übergänge Teil 1: Baukasten, Zwischenseiten «Gepackt», «Tour beendet», «Rückblick fertig», Schrittleiste, Hauptknopf nach Phase, Weitermachen auf Heute, Zurück-Taste schliesst zuerst Fenster | live seit 10.10.2026, Noah testet am Handy |
+| – | KI-Helfer (siehe unten) | fertig gebaut und getestet, als Entwurf geparkt (PR #89), wird beim Einschalten neu nummeriert |
+| – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | entschieden, Mockups fertig, 5 Fragen offen |
+| – | Startseite & Integrationen E1–E4 | Konzept und Mockups fertig, Fragen beantwortet |
+| – | D5, D2, D4/D6 | Mockups fertig, Fragen werden kurz vor dem Paket gestellt |
+
+### Was als Nächstes ansteht
+
+1. **Noah testet 0.67.0 am Handy.** Gefundene Fehler kommen in ein kleines Fix-Release, zusammen mit den zwei kleinen Fehlern (Datum, Velotypen) und den Darstellungsfehlern unten.
+2. **Noah packt eine echte Tour mit der App** und sammelt die Lücken (Prüffrage 5).
+3. **Fehlende Mockups und eine Fragen-Runde** für alles, was noch keine Bilder hat. Das läuft im Thread «Neu planen und autonom bauen».
+4. **Fünf Orte** wird erst gebaut, wenn die Tour gemacht und die 5 Fragen beantwortet sind.
+
+### Mockups
+
+Alle Mockups liegen ausserhalb des Repos im Projektordner (`design/…`). Sie sind nur hell und nutzen erfundene Daten.
+
+| Paket | Ordner | Stand |
+| --- | --- | --- |
+| E1–E4 Startseite & Integrationen | `design/startseite` | 24 Bilder, Fragen 1–9 beantwortet |
+| KI-Helfer | `design/ki-helfer` | beantwortet, gebaut |
+| Fünf Orte | `design/d3-fuenf-orte` | 15 Bilder, 5 Fragen offen |
+| Übergänge Teil 2 | `design/uebergaenge2` | 10 Bilder, 5 Fragen offen |
+| D5 Packen vorschlagen | `design/d5-vorschlag` | 8 Bilder, 4 Fragen offen |
+| D2 Einkauf, Lebenslauf, Werkstatt | `design/d2-einkauf-lebenslauf-werkstatt` | 6 Bilder, 5 Fragen offen |
+| D4 und D6 | `design/d4-d6` | 12 Bilder, 5 Fragen offen |
+| Im Flow, Neuland, Fotoalbum, weitere Wünsche | ältere Skizzen | neue Mockups folgen |
 
 Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Packliste, Vorlagen, Bausteine, Temperaturbereiche, Velos mit Teilen und Pflege («Jetzt fällig»), Notizen unterwegs, Rückblick mit Learnings, Einkaufsliste, Belege, Sicherung als Datei (der einzige Weg, Daten zwischen Computer und Handy zu übertragen), Deutsch und Englisch, hell und dunkel.
 
@@ -85,7 +116,18 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Warum:** Aus dem Strategie-Dokument (119 Fragen, alle beantwortet, siehe `strategie-pakete.md`). Die App soll schön, ruhig und am Computer ein echtes Werkzeug sein.
 - **D1 Aufpimpen:** Farbwelt Gletscher, Dunkelmodus überall, Karten statt Tabellen am Handy. Erledigt.
 - **D2 Einkaufszettel, Lebenslauf, Werkstatt:** in einem Release. Lebenslauf zeigt pro Teil, wann gekauft, gewartet, ersetzt.
-- **D3 Navigation «Basecamp»:** untere Leiste Heute · Unterwegs · Aktiv · Neuland · Mehr, Akzentfarbe pro Welt, am Computer Seitenleiste und Tastenkürzel.
+- **D3 wird «Fünf Orte»** (Noah, 10.10.2026, alle 10 Fragen a). Das alte «Basecamp» gab die Leiste an Welten (Unterwegs, Aktiv, Neuland). Dadurch rutschten Touren, Material und Velos ins Mehr, und das Mehr wurde am Handy unbrauchbar lang.
+  - **Neu:** die untere Leiste Heute · Touren · Material · Velos · Aktiv. Jeder Ort hat oben höchstens 4 Reiter:
+    - Touren: Übersicht, Vorlagen, Rückblick, Neuland
+    - Material: Alles, Kleider, Bausteine, Einkauf
+    - Velos: Übersicht, Pflege, Werkstatt, Masse
+    - Aktiv: Heute, Ziele, Heft, Aktivität
+  - **«Ich» oben rechts ersetzt das Mehr:** Sprache, Hell/Dunkel, Stil, Heimat, Inbox, Daten und Backup, Helfer, Was die App kann, Was die App gelernt hat, Hilfe.
+  - **«+ Neu»** ist ein runder Knopf unten rechts.
+  - **Am Computer** eine Seitenleiste mit den Orten und ihren Reitern.
+  - **Jeder Ort hat eine leichte Farbe:** Heute türkis, Touren orange, Material ocker, Velos blau, Aktiv violett.
+  - **Alte Adressen** leiten weiter.
+  - **Zwei Releases:** (1) die Navigation, (2) die Reiter zusammen mit Übergänge Teil 2.
 - **D4 Computer als Werkzeug:** Material als Tabelle mit wählbaren Spalten, Packen mit Liste, Velo-Skizze und Gewichtsverteilung nebeneinander, Pflege-Kosten pro 1000 km.
 - **D5 Packen vorschlagen:** Neue Tour startet mit fertiger Liste aus ähnlichen Touren (auch Region und Höhenmeter), Wetter und Kits. In drei kleinen Releases. Wetter immer überschreibbar.
 - **D6 Lernen sichtbar:** Seite «Was die App gelernt hat» mit «stimmt nicht», «warum» bei jedem Vorschlag, Monatskarte, Jahres-Brief im Dezember.
@@ -95,7 +137,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Warum:** Man soll nirgends stecken bleiben. Heute landet «Touren» mitten in einer Packliste.
 - **Was:** drei kleine Releases. Ruhige Zwischenseite «Packen erledigt ✓» mit einem grossen Weiter-Knopf. «Weitermachen: Tour X, Schritt 3 von 4» auf Heute. Schrittleiste Planen · Packen · Unterwegs · Rückblick auf allen Tour-Seiten. Jede Seite hat einen Hauptknopf «Weiter zu …». Eine Touren-Einstiegsseite listet Touren nach Zustand (in Planung, gepackt, Rückblick offen, fertig), Vorlagen und Bestwerte.
 - **Beispiel:** Nach dem letzten Tourtag erscheint am Abend automatisch «Tour abschliessen?» mit Knopf «Zur Startseite».
-- **Stand:** Teil 1 (0.67.0) als PR offen: Baukasten, drei Zwischenseiten mit eigener Adresse, Schrittleiste, Hauptknopf nach Phase, Weitermachen und Vorabend-Erinnerung auf Heute, Zurück-Taste. Teil 2 (Was ist neu, Touren-Einstiegsseite) folgt.
+- **Stand:** Teil 1 (0.67.0) ist live seit 10.10.2026. Er enthält den Baukasten, drei Zwischenseiten mit eigener Adresse, die Schrittleiste, den Hauptknopf nach Phase, Weitermachen und die Vorabend-Erinnerung auf Heute sowie die Zurück-Taste. Teil 2 geht im zweiten Release von Fünf Orte auf. Er bringt «Was ist neu» als Blatt nach einem Update und die Touren-Übersicht als Kacheln mit Kartenbild, nach Zustand gruppiert.
 
 ### 6. Im Flow (Aktiv)
 
@@ -130,13 +172,15 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 
 Taktgeber ist echte Nutzung: Eine grössere Version kommt erst, wenn die letzte im Alltag oder auf einer Tour benutzt wurde.
 
-Noah, 10.10.2026: zuerst die Design-Pakete und die anderen Vorhaben, der KI-Helfer kommt später dazu.
+Noah, 10.10.2026: zuerst die Design-Pakete und die anderen Vorhaben, der KI-Helfer kommt später dazu. Am Morgen des 10.10.2026 hat Noah die Reihenfolge noch einmal bestätigt und geschärft (alle Fragen a).
 
 ```mermaid
 flowchart LR
-  B["0.66 Bausteine<br/>live"] --> U["Übergänge Teil 1"]
-  U --> D3["D3 Navigation Basecamp"]
-  D3 --> E1["E1 Startseite neu"]
+  U["0.67 Übergänge 1<br/>live"] --> T["Handy-Test und<br/>echte Tour"]
+  T --> F["Fix-Release"]
+  F --> O1["Fünf Orte 1<br/>Navigation"]
+  O1 --> O2["Fünf Orte 2<br/>Reiter + Übergänge 2"]
+  O2 --> E1["E1 Startseite neu"]
   E1 --> D5["D5 Packen vorschlagen"]
   D5 --> D2["D2 Einkauf, Lebenslauf, Werkstatt"]
   D2 --> D46["D4 und D6"]
@@ -145,16 +189,19 @@ flowchart LR
   KI --> R["Im Flow, Neuland"]
 ```
 
-1. Übergänge Teil 1 in zwei Releases: (1) Baukasten, Zwischenseiten, Schrittleiste, Weitermachen, Zurück-Taste; (2) Was ist neu und Touren-Einstiegsseite. «Heute neu» geht in E1 auf, Menü und Stilwelten in D3 (Noah, 10.10.2026: «Zusammenlegen»).
-2. D3 Navigation «Basecamp», danach E1 Startseite neu
-3. D5 Packen vorschlagen
-4. D2 Einkauf, Lebenslauf, Werkstatt
-5. D4 und D6
-6. E2 bis E4 (Karten, Strava, SBB)
-7. KI-Helfer einschalten: er ist fertig gebaut und getestet und wartet als Entwurf. Er kommt bewusst nach D2 und Strava, weil er dann die Wartungsgeschichte jedes Teils und die echten km kennt.
-8. Danach Im Flow und Neuland.
+1. **Handy-Test von 0.67.0 und eine echte Tour** mit der App. Erst danach wird weitergebaut.
+2. **Fix-Release** mit den Fehlern aus dem Test, den zwei kleinen Fehlern (Datum, Velotypen) und den Darstellungsfehlern unten.
+3. **Fünf Orte Teil 1:** Leiste, Ich, «+ Neu», Seitenleiste am Computer.
+4. **Fünf Orte Teil 2:** die Reiter pro Ort, dazu Übergänge Teil 2 (Was ist neu, Touren-Übersicht). Menü und Stilwelten gehen ins Ich.
+5. **E1 Startseite neu,** mit «Heute neu».
+6. **D5 Packen vorschlagen,** in drei kleinen Releases, mit Tauschen und Outfit.
+7. **D2:** Einkauf, Lebenslauf, Werkstatt.
+8. **D4 und D6.**
+9. **E2 bis E4:** Karten, Wetter, Strava, SBB.
+10. **KI-Helfer einschalten.** Er ist fertig gebaut und getestet und wartet als Entwurf. Er kommt bewusst nach D2 und Strava, weil er dann die Wartungsgeschichte jedes Teils und die echten km kennt.
+11. **Danach Im Flow und Neuland.**
 
-Die zwei kleinen Fehler (Datum, Velotypen) kommen später.
+Fragen zu einem Paket werden kurz vor dem Paket gestellt. Gebaut wird erst, wenn sie beantwortet sind.
 
 Vor jedem Paket prüfen wir, ob die Reihenfolge noch stimmt (Kurs-Check).
 
@@ -200,7 +247,7 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 **Offen:**
 
 - KI-Helfer: Noah legt Schlüssel und Helfer-Code in Vercel an.
-- Startseite: Mockups E1–E4 anschauen und Fragen beantworten.
-- Zwei kleine Fehler (kommen später): Datum in Neue Tour als 10/10/2026 statt 10.10.2026, Velotypen in Velos › Pflege nicht übersetzt.
-- Kleine Darstellungsfehler aus den Startseiten-Mockups (kommen mit den zwei Fehlern): Taschennamen brechen am Handy mitten im Wort um (Tour › Planen), in Velos › Pflege stösst «km seit Check» am Computer an den Pfeil, «Im Flow» hat im Menü kein Symbol, die Datumszeile auf Heute zeigt jeden Ortsnamen ungeprüft.
+- Fünf Orte: 5 Fragen zu den Mockups beantworten.
+- Zwei kleine Fehler (kommen ins Fix-Release): Datum in Neue Tour als 10/10/2026 statt 10.10.2026, Velotypen in Velos › Pflege nicht übersetzt.
+- Kleine Darstellungsfehler aus den Startseiten-Mockups (kommen ins Fix-Release): Taschennamen brechen am Handy mitten im Wort um (Tour › Planen), in Velos › Pflege stösst «km seit Check» am Computer an den Pfeil, «Im Flow» hat im Menü kein Symbol, die Datumszeile auf Heute zeigt jeden Ortsnamen ungeprüft.
 - Strava-Regeln schränken die Nutzung von Strava-Daten durch KI ein; vor E3 klären, was der Helfer davon sehen darf.

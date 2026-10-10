@@ -523,3 +523,16 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid:** [Geplante Vorhaben](vorhaben.md) ist der Massstab, ob wir auf dem richtigen Weg sind; vor jedem Paket wird es geprüft, in jedem Release nachgeführt. Mockups gibt es nur noch hell. Vor jedem PR läuft der komplette Gesamttest lokal.
 - **Grund:** Noah möchte die Übersicht als Basis behalten und den Kurs regelmässig prüfen; dunkle Mockups verdoppelten die Bilder; mehrere PRs wurden erst in CI rot.
 
+## Fünf Orte statt Basecamp (10.10.2026)
+
+- **Entscheid:** Die Seitenaufteilung wird neu: fünf Orte in der Leiste (Heute, Touren, Material, Velos, Aktiv) mit höchstens 4 Reitern pro Ort. «Ich» oben rechts ersetzt das Mehr, «+ Neu» ist ein runder Knopf unten rechts, am Computer gibt es eine Seitenleiste. Rückblick ist ein Reiter in Touren, Favoriten ein Filter in Material, Inbox im Ich und als Modul auf Heute. Fünf Orte kommt in zwei Releases (Navigation, dann Reiter mit Übergänge Teil 2). Details: [Geplante Vorhaben](vorhaben.md), Abschnitt D3.
+- **Grund:** Das Mehr-Menü von D3 «Basecamp» war am Handy rund 2 200 Pixel lang, weil die täglichen Orte ins Mehr gerutscht waren.
+
+## Testen vor dem Weiterbauen (10.10.2026)
+
+- **Entscheid:**
+  - Noah testet 0.67.0 am Handy und packt eine echte Tour mit der App, bevor weitergebaut wird. Fehler daraus kommen in ein kleines Fix-Release vor Fünf Orte.
+  - Fragen zu einem Paket werden kurz vor dem Paket gestellt; gebaut wird erst nach den Antworten.
+  - Der KI-Helfer bleibt bis nach E2–E4 geparkt.
+- **Grund:** Prüffrage 5 im Kurs-Check: Die letzten grösseren Versionen wurden noch nicht auf einer echten Tour benutzt.
+
