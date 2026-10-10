@@ -18,6 +18,16 @@ export default {
   'Bike care: the helper adds parts that will be due soon to "Due now", from your km, rides and notes, with a concrete check (chain gauge, pads, tyres).':
     'Velopflege: Der Helfer ergänzt «Jetzt fällig» um Teile, die bald fällig werden, aus deinen km, Fahrten und Notizen, mit einer konkreten Prüfung (Kettenlehre, Beläge, Reifen).',
 
+  // 0.66.0
+  'New building blocks: Bivouac, Tent and Hotel/hut for the night, Repair, Charging, Light and Race for the ride, Food, Hygiene and Comfort to add. Your items moved along by themselves, nothing was lost.':
+    'Neue Bausteine: Biwak, Zelt und Hotel/Hütte für die Nacht, Reparatur, Laden, Licht und Rennen für die Fahrt, Verpflegung, Hygiene und Komfort zum Dazunehmen. Deine Sachen sind von selbst mitgezogen, nichts ging verloren.',
+  'A new trip with nights asks: Bivouac, Bivouac + tent or Hotel/hut. Repair and Charging come on every ride, Light by itself when you ride into the dark; each can be taken off. Comfort is only offered, never ticked.':
+    'Eine neue Tour mit Nächten fragt: Biwak, Biwak + Zelt oder Hotel/Hütte. Reparatur und Laden kommen auf jede Fahrt, Licht von selbst, wenn du in die Dunkelheit fährst; alles lässt sich abwählen. Komfort wird nur angeboten, nie angehakt.',
+  'Check building blocks: one block after the other with weight and total, per item Keep, Out or Elsewhere, and what is probably missing, one tap to add. Every step can be undone.':
+    'Bausteine prüfen: ein Baustein nach dem anderen mit Gewicht und Total, pro Sache Behalten, Raus oder Woanders, und was wohl fehlt, mit einem Tipp dazu. Jeder Schritt lässt sich rückgängig machen.',
+  'Warm is no block any more: its items come with the weather (below 10 °C unless they had their own temperature). Check them first in Check building blocks.':
+    'Warm ist kein Baustein mehr: Seine Sachen kommen mit dem Wetter (unter 10 °C, ausser sie hatten schon eine eigene Temperatur). Prüfe sie zuerst in Bausteine prüfen.',
+
   // 0.65.0
   'Every bike shows its fit and setup at the top: saddle height, target tyre pressure, bar width and more. Tap a value to change it.':
     'Jedes Velo zeigt oben seine Masse: Sitzhöhe, Solldruck der Reifen, Lenkerbreite und mehr. Tippe auf einen Wert, um ihn zu ändern.',

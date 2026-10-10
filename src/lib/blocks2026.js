@@ -15,7 +15,7 @@
  * Pure functions only: no database. v0.33.0 (stage 2): the one-time update runs from updates.js
  * (blocks2026, after toolsAlways2026), and every place that read role / always uses the helpers.
  */
-import { SETS, isInventory } from './gear.js';
+import { SETS, OLD_SETS, isInventory, isOldSetKey } from './gear.js';
 import { inDomain, BIKEPACKING } from './domains.js';
 
 /** The key of the built-in block "Standard" on item.sets. */
@@ -37,7 +37,7 @@ export const inStandard = (item) => !!item && (!!item.sets?.includes(STANDARD) |
  * place that asks "is it in a block?" (item.sets.length) uses this, so the key 'standard' never
  * counts as an overnight set, a filter hit or a sort rank of its own.
  */
-export const blockKeys = (item) => (Array.isArray(item?.sets) ? item.sets.filter((k) => k !== STANDARD) : []);
+export const blockKeys = (item) => (Array.isArray(item?.sets) ? item.sets.filter((k) => k !== STANDARD && !isOldSetKey(k)) : []);
 
 /** Worn ("Am Körper" on screen): role 'worn', exactly as today. */
 export const isWorn = (item) => !!item && item.role === 'worn';
@@ -71,11 +71,12 @@ export function migrateItem(item) {
  * The block keys in display order: Standard, the built-in blocks, the own blocks in their saved
  * order (settings 'sets'), then any other key found on an item (alphabetical, so nothing is lost).
  */
-export function blockOrder(items, setsValue = []) {
+export function blockOrder(items, setsValue = [], { old = false } = {}) {
   const own = (Array.isArray(setsValue) ? setsValue : []).map((s) => s?.key).filter(Boolean);
-  const known = [STANDARD, ...Object.keys(SETS), ...own];
+  // v0.66.0: the old keys (gear.js OLD_SETS) only for the update of old data (old: true), first.
+  const known = [STANDARD, ...(old ? Object.keys(OLD_SETS) : []), ...Object.keys(SETS), ...own.filter((k) => !isOldSetKey(k))];
   const seen = new Set(known);
-  const rest = [...new Set(items.flatMap((i) => (Array.isArray(i?.sets) ? i.sets : [])))].filter((k) => !seen.has(k)).sort();
+  const rest = [...new Set(items.flatMap((i) => (Array.isArray(i?.sets) ? i.sets : [])))].filter((k) => !seen.has(k) && !isOldSetKey(k)).sort();
   return [...new Set([...known, ...rest])];
 }
 
@@ -87,7 +88,8 @@ export function blockOrder(items, setsValue = []) {
  */
 export function templateBlockKeys(tpl, items, setsValue = []) {
   const ids = new Set((tpl?.entries ?? []).map((e) => e.itemId));
-  return blockOrder(items, setsValue).filter((key) => {
+  // v0.66.0: old data (an old backup) keeps its old blocks here; blocksplit.js maps them afterwards.
+  return blockOrder(items, setsValue, { old: true }).filter((key) => {
     const its = items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes(key));
     return its.length > 0 && its.every((i) => ids.has(i.id));
   });

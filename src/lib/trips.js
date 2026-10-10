@@ -69,7 +69,8 @@ export function slotFor(defaultBag, setup) {
 }
 
 /**
- * The standard set: worn items on me, standard items and the overnight base set in their default bag.
+ * The standard set: worn items on me, standard items and the overnight base set in their default bag
+ * (v0.66.0: the base set is the block Bivouac, which took in Base and Sleep).
  * v0.24.0 (Noah, fewer clicks; AP02 answer 2b): the base set (towel, toothbrush, swim shorts …) only
  * comes along when the trip has a night, i.e. more than one day. A day ride no longer starts with
  * seven items to take out again.
@@ -77,7 +78,7 @@ export function slotFor(defaultBag, setup) {
 export function standardEntries(items, setup, { overnight = true } = {}) {
   return items
     // v0.21.0: only items of the bikepacking area (an item only for the weekend stays out)
-    .filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && (isWorn(i) || inStandard(i) || (overnight && i.sets?.includes('base'))))
+    .filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && (isWorn(i) || inStandard(i) || (overnight && i.sets?.includes('bivy'))))
     .map((i) => ({ itemId: i.id, slot: isWorn(i) ? 'body' : slotFor(i.defaultBag, setup), qty: 1, packed: false }));
 }
 
@@ -361,19 +362,25 @@ export { SLOT };
 
 /* ---------- overnight sets (answer 4: switches per trip) ---------- */
 
+/**
+ * v0.66.0 «Bausteine neu»: the block switches of a trip in Pack: what the ride suggests (Light,
+ * Repair, Charging, Race) and Cook. The night itself is one choice in the trip window.
+ */
 export const NIGHT_SETS = [
-  { key: 'warm', name: 'Warm' },
-  { key: 'sleep', name: 'Sleep' },
+  { key: 'lights', name: 'Light|block' },
+  { key: 'repair', name: 'Repair|block' },
+  { key: 'charge', name: 'Charging|block' },
+  { key: 'race', name: 'Race|block' },
   { key: 'cook', name: 'Cook' },
-  { key: 'light', name: 'Light' },
 ];
 
 /**
- * Switch an overnight set on or off for a trip.
- * On: its items are added to their usual bag. Off: its items leave the trip,
- * unless they are standard items or belong to another set that is still on.
+ * Switch a building block on or off for a trip (trip.sets[key]; false also takes off a block the
+ * context suggests, v0.66.0). On: its items are added to their usual bag. Off: its items leave the
+ * trip, unless they are standard items or belong to another block that is still on.
+ * active: the blocks on the trip besides the explicit switches (context.js activeBlocks).
  */
-export function toggleSet(trip, items, key, on) {
+export function toggleSet(trip, items, key, on, { active = [] } = {}) {
   const sets = { ...(trip.sets ?? {}), [key]: on };
   const inSet = items.filter((i) => isInventory(i) && i.sets?.includes(key));
   let entries = trip.entries;
@@ -382,7 +389,7 @@ export function toggleSet(trip, items, key, on) {
     entries = [...entries, ...inSet.filter((i) => !have.has(i.id)).map((i) => ({ itemId: i.id, slot: slotFor(i.defaultBag, trip.setup), qty: 1, packed: false }))];
   } else {
     const byId = Object.fromEntries(items.map((i) => [i.id, i]));
-    const keep = (i) => inStandard(i) || isWorn(i) || blockKeys(i).some((s) => s !== key && (s === 'base' || sets[s]));
+    const keep = (i) => inStandard(i) || isWorn(i) || blockKeys(i).some((s) => s !== key && (sets[s] === true || (sets[s] !== false && active.includes(s))));
     const drop = new Set(inSet.filter((i) => !keep(i)).map((i) => i.id));
     entries = entries.filter((e) => !drop.has(e.itemId) || !byId[e.itemId]);
   }

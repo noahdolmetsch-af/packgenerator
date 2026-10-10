@@ -20,6 +20,16 @@ export const WHATS_NEW = [
     ],
   },
   {
+    version: '0.66.0',
+    date: '2026-10-09',
+    points: [
+      { text: 'New building blocks: Bivouac, Tent and Hotel/hut for the night, Repair, Charging, Light and Race for the ride, Food, Hygiene and Comfort to add. Your items moved along by themselves, nothing was lost.', href: '#/blocks' },
+      { text: 'A new trip with nights asks: Bivouac, Bivouac + tent or Hotel/hut. Repair and Charging come on every ride, Light by itself when you ride into the dark; each can be taken off. Comfort is only offered, never ticked.', href: '#/pack' },
+      { text: 'Check building blocks: one block after the other with weight and total, per item Keep, Out or Elsewhere, and what is probably missing, one tap to add. Every step can be undone.', href: '#/blocks/check' },
+      { text: 'Warm is no block any more: its items come with the weather (below 10 °C unless they had their own temperature). Check them first in Check building blocks.', href: '#/blocks/check' },
+    ],
+  },
+  {
     version: '0.65.0',
     date: '2026-10-09',
     points: [

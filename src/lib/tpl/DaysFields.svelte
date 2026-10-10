@@ -4,13 +4,11 @@
    * New trip dialog takes them as defaults (templateDefaults). onchange(fn) changes the template.
    */
   import { t } from '../i18n.svelte.js';
+  import { NIGHT_CHOICES, nightChoice, nightFields } from '../context.js';
 
   let { tpl, byBike = true, onchange } = $props();
-  const NIGHTS = [
-    { key: 'none', name: 'None|overnight' },
-    { key: 'lodging', name: 'Lodging' },
-    { key: 'outdoor', name: 'Outdoor (tent, bivvy)' },
-  ];
+  // v0.66.0 (Noah 8a): the night as one choice: none, Bivouac, Bivouac + tent, Hotel/hut.
+  const NIGHTS = NIGHT_CHOICES;
   function typedDays(value) {
     const n = Math.round(Number(value));
     if (n >= 1 && n <= 60) onchange?.((x) => ({ ...x, days: n }));
@@ -19,7 +17,10 @@
     const n = value.trim() === '' ? null : Number(value.replace(',', '.'));
     if (n === null || (n > 0 && n <= 24)) onchange?.((x) => ({ ...x, hours: n }));
   }
-  const night = (key) => onchange?.((x) => ({ ...x, overnight: key, cook: key === 'outdoor' ? !!x.cook : false }));
+  const night = (key) => onchange?.((x) => {
+    const f = nightFields(key);
+    return { ...x, ...f, cook: f.overnight === 'outdoor' ? !!x.cook : false };
+  });
 </script>
 
 <div class="df">
@@ -29,7 +30,7 @@
   </div>
   <span class="lbl">{t('Overnight')}</span>
   <div class="seg" role="group" aria-label={t('Overnight')}>
-    {#each NIGHTS as o (o.key)}<button type="button" aria-pressed={(tpl.overnight ?? 'none') === o.key} onclick={() => night(o.key)}>{t(o.name)}</button>{/each}
+    {#each NIGHTS as o (o.key)}<button type="button" aria-pressed={(nightChoice(tpl) ?? 'none') === o.key} onclick={() => night(o.key)}>{t(o.name)}</button>{/each}
   </div>
   {#if tpl.overnight === 'outdoor'}<label class="ck"><input type="checkbox" checked={!!tpl.cook} onchange={(e) => onchange?.((x) => ({ ...x, cook: e.currentTarget.checked }))} /> {t('Cooking')}</label>{/if}
 </div>

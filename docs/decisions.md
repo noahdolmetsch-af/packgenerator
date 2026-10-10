@@ -483,6 +483,14 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - Solldruck = der gewünschte Druck (bar), nicht der gemessene. Der gemessene bleibt im Verlauf des Reifens. Beim «Druck geprüft» steht «Soll» neben «Zuletzt gemessen», die Felder sind mit dem Soll vorausgefüllt; der Basischeck nennt den Soll pro Velo.
 - Selbst entschieden (Schnellmodus): zusätzliche Felder Rahmengrösse, Sattelversatz, Sattelüberhöhung, Vorbaulänge/-winkel, Kurbellänge, Reifenbreite v/h, Gabeldruck/-Sag, Dämpferdruck/-Sag; Federung in psi, Sag in %; Kurbellänge und Reifenbreiten leben weiter am Teil (Kurbel, Reifen) und werden nur gezeigt (ein Wert, ein Ort); Gabel- bzw. Dämpferzeilen nur bei Velos mit dieser Federung oder mit einem Wert; am Handy 2 Spalten, ab 900 px 4.
 - Import `bikeSpecs`: `fit: {…}` (auch `masse`) mit englischen Schlüsseln oder deutschen Namen; unbekannte Schlüssel werden genannt und ausgelassen; ein anderer vorhandener Wert nur mit Häkchen.
+## 9.10.2026: Bausteine neu und Bausteine prüfen (0.66.0)
+
+- **Neue Schlüssel, alte bleiben (5a–8a):** `bivy`, `tent`, `hotel`, `repair`, `charge`, `lights`, `race`, `food`, `hygiene`, `comfort`. Die alten Schlüssel (`base`, `warm`, `sleep`, `light`, `lodging`, `gear.js OLD_SETS`) bleiben auf den Sachen, die App liest sie nicht mehr; ältere Versionen und Backups bleiben lesbar. Entfernen frühestens mit 0.57.
+- **Abbildung im Update:** Basis/Schlafen → Biwak (Basis-Sachen als «vorgeschlagen» zum Prüfen); ein Zelt, Heringe, Footprint (nach Name) → Zelt; Licht → Licht; Unterkunft → Zelt (nach Name) oder Hotel/Hütte, was nicht eindeutig Hotel ist, bleibt vorläufig in Hotel/Hütte und steht unter «Noch zuordnen»; Warm → Temperaturregel (bestehende bleibt, sonst 10 °C) und zuerst in «Bausteine prüfen». Ein Backup von vor 0.55 (Ersetzen) läuft das Update erneut.
+- **Fahrt-Bausteine (7a, 9a):** Reparatur und Laden kommen auf jede Fahrt, Licht nur in die Dunkelheit (ohne Ort zählt nur eine Nonstop-Fahrt als dunkel), Rennen nur mit Event. Abwählen pro Tour speichert `trip.sets[k] = false`. Komfort nie vorausgewählt, nur als einzelne Vorschläge im Fenster «Neue Tour». Erste Hilfe unverändert nur mit Nächten (10b).
+- **Neue Tour mit Nächten:** «Biwak + Zelt» ist vorgewählt (wie früher «Draussen»). Eine ältere Tour oder Vorlage «Draussen» ohne Zelt-Angabe gilt als «Biwak + Zelt» (sie brachte das Zelt mit); nur `tent: false` ist Biwak allein.
+- **Ältere Touren:** Eine spätere Änderung (Wetter, Stunden) bringt nur die Fahrt-Bausteine, die sie neu einschaltet (Licht in die Dunkelheit, Rennen mit Event); Reparatur und Laden kommen nicht ungefragt in eine Tour, die vor 0.55 erstellt wurde.
+
 
 ## 10.10.2026: KI-Helfer (0.67.0, Noahs Antworten 1a–8a)
 

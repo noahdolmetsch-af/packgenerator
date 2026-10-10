@@ -71,6 +71,8 @@ import { tripSlot } from '../src/lib/sets.js';
 import { templateSlot } from '../src/lib/gear/assign.js';
 import { poorPlace } from '../src/lib/bagsuggest.js';
 import { lang } from '../src/lib/i18n.svelte.js';
+import { splitAll } from '../src/lib/blocksplit.js';
+import { without55 } from './golden/v0550.js';
 
 lang.v = 'en';
 const NOW = Date.UTC(2026, 9, 8, 8, 0, 0);
@@ -136,7 +138,9 @@ function stored(tables) {
   const bike = tables.bikes.find((b) => (tables.trips ?? []).some((t) => t.bikeId === b.id)) ?? tables.bikes[0];
   let trips = (tables.trips ?? []).filter((t) => t.bikeId === bike.id);
   if (!trips.length) {
-    const prior = buildBikeTrip({ draft: { title: 'test_data_gtp_ Prior', startDate: '2026-09-01', days: 2 }, bike, start: 'standard', items, fields: { hours: 5, overnight: 'outdoor', cook: true, wx: wx('Chilly'), event: false } }, NOW - 1e9);
+    // v0.66.0: the prior trip is made as the app makes it now (the blocks split), Bivouac + tent.
+    const now = splitAll({ items, templates: [], sets: setting(tables, 'sets') ?? [] }, { now: '2026-10-09T08:00:00.000Z' }).items;
+    const prior = buildBikeTrip({ draft: { title: 'test_data_gtp_ Prior', startDate: '2026-09-01', days: 2 }, bike, start: 'standard', items: now, fields: { hours: 5, overnight: 'outdoor', tent: true, cook: true, wx: wx('Chilly'), event: false } }, NOW - 1e9);
     trips = [prior];
   }
   let templates = setting(tables, 'templates') ?? [];
@@ -149,7 +153,7 @@ function lists({ items, templates, bike, trips }) {
   const draft = (days) => ({ title: 'test_data_gtp_ New', startDate: '2026-10-20', days });
   const make = (start, days, fields = {}, tr = trips) => buildBikeTrip({ draft: draft(days), bike, start, templates, trips: tr, items, fields }, NOW);
   const day = { hours: 2, overnight: 'none', cook: false, wx: wx('Chilly'), event: false };
-  const outdoor = { hours: 5, overnight: 'outdoor', cook: true, wx: wx('Cold', 'rain'), event: false };
+  const outdoor = { hours: 5, overnight: 'outdoor', tent: true, cook: true, wx: wx('Cold', 'rain'), event: false }; // v0.66.0: Bivouac + tent = the old Outdoor
   const lodging = { hours: 4, overnight: 'lodging', cook: false, wx: wx('Mild', 'showers'), event: true };
   const tpl = templates[0];
   const td = templateDefaults(tpl, [bike]);
@@ -170,8 +174,9 @@ function lists({ items, templates, bike, trips }) {
   // the sets switches a context sets (they decide toggleSet later)
   res.outdoorSwitches = Object.entries(out.outdoor.sets ?? {}).filter(([, v]) => v).map(([k]) => k).sort();
   // "Sleep" off again on the outdoor trip (trips.js toggleSet: worn / standard stay)
-  res.outdoorSleepOff = norm(toggleSet(out.outdoor, items, 'sleep', false).entries);
-  res.outdoorWarmOff = norm(toggleSet(out.outdoor, items, 'warm', false).entries);
+  // v0.66.0: Sleep is Bivouac now; Warm is no block any more (the weather brings its items)
+  res.outdoorSleepOff = norm(toggleSet(out.outdoor, items, 'bivy', false).entries);
+  res.outdoorWarmOff = norm(toggleSet(out.outdoor, items, 'lights', false).entries);
   // the layer rows the context reads (id, place, qty)
   res.layersOutdoor = layerSuggest(out.outdoor, items).map((r) => `${r.id}:${r.place}x${r.qty}${r.optional ? '?' : ''}${r.replaces ? `>${r.replaces}` : ''}`);
   res.layersDay = layerSuggest(out.dayRide, items).map((r) => `${r.id}:${r.place}x${r.qty}${r.optional ? '?' : ''}${r.replaces ? `>${r.replaces}` : ''}`);
@@ -214,13 +219,28 @@ function diffAnswers(a, b) {
   return out;
 }
 
+/*
+ * v0.66.0 «Bausteine neu»: the lists are made on the data as the app holds it after the split of the
+ * blocks (blocksplit.js splitAll), once on the data as it is and once after migrateAll: still the same.
+ * Against the frozen lists of v0.32.0 only the intended v0.66.0 changes are allowed (golden/v0550.js).
+ */
+const split = (items, templates, sets) => {
+  const r = splitAll({ items, templates, sets: sets ?? [] }, { now: '2026-10-09T08:00:00.000Z' });
+  return { items: r.items, templates: r.templates };
+};
+/** The keys whose meaning changed with the new blocks (no longer compared with v0.32.0). */
+const CHANGED_55 = ['outdoorSwitches', 'outdoorSleepOff', 'outdoorWarmOff', 'summaryOutdoor'];
 const RESULTS = {};
 for (const [name, tables] of Object.entries(DATASETS)) {
   const { bike, trips, templates } = stored(tables);
-  const before = { items: tables.items, templates, bike, trips };
-  const up = migrateAll({ items: tables.items, templates, settings: { sets: setting(tables, 'sets') } }, { now: '2026-10-08T08:00:00.000Z' });
-  const after = { items: up.items, templates: up.templates, bike, trips };
-  RESULTS[name] = { before, after, up, listsBefore: lists(before), listsAfter: lists(after), answersBefore: itemAnswers(before.items, bike), answersAfter: itemAnswers(after.items, bike) };
+  const sets0 = setting(tables, 'sets');
+  const before = { ...split(tables.items, templates, sets0), bike, trips };
+  const up = migrateAll({ items: tables.items, templates, settings: { sets: sets0 } }, { now: '2026-10-08T08:00:00.000Z' });
+  const after = { ...split(up.items, up.templates, sets0), bike, trips };
+  const raw = new Map(tables.items.map((i) => [i.id, i]));
+  const now = new Map(after.items.map((i) => [i.id, i]));
+  const strip = (rows) => (Array.isArray(rows) ? without55(rows, raw, now) : rows);
+  RESULTS[name] = { before, after, up, strip, listsBefore: lists(before), listsAfter: lists(after), answersBefore: itemAnswers(before.items, bike), answersAfter: itemAnswers(after.items, bike) };
 }
 
 describe('golden: the same packing lists before and after blocks2026', () => {
@@ -253,7 +273,7 @@ describe('golden: the same packing lists before and after blocks2026', () => {
         // only items that had no set before and got 'standard' move (their sets went from [] to ['standard'])
         for (const id of Object.keys(diff)) {
           const i = r.before.items.find((x) => x.id === id);
-          expect([id, !(i.sets ?? []).length && r.up.changedItems.includes(id)]).toEqual([id, true]);
+          expect([id, !(i.sets ?? []).filter((k) => !['repair', 'charge', 'hygiene', 'food'].includes(k)).length && r.up.changedItems.includes(id)]).toEqual([id, true]);
         }
       });
     });
@@ -293,10 +313,10 @@ function diff11a(ref, now) {
 describe('stage 2: every packing list as in v0.32.0 (frozen snapshot), 11a apart', () => {
   for (const [name, r] of Object.entries(RESULTS)) {
     describe(name, () => {
-      for (const key of Object.keys(REF[name].lists).filter((k) => !KEYS_11A.includes(k))) {
-        it(`${key}: as in v0.32.0`, () => {
-          expect(r.listsAfter[key]).toEqual(REF[name].lists[key]);
-          expect(r.listsBefore[key]).toEqual(REF[name].lists[key]);
+      for (const key of Object.keys(REF[name].lists).filter((k) => !KEYS_11A.includes(k) && !CHANGED_55.includes(k))) {
+        it(`${key}: as in v0.32.0 (v0.66.0 changes apart)`, () => {
+          expect(r.strip(r.listsAfter[key])).toEqual(r.strip(REF[name].lists[key]));
+          expect(r.strip(r.listsBefore[key])).toEqual(r.strip(REF[name].lists[key]));
         });
       }
 
@@ -322,7 +342,7 @@ describe('blocks2026 11a: Standard comes into every new trip (an intended change
 
       for (const key of KEYS_11A) {
         it(`${key}: only Standard items are added, nothing else changes`, () => {
-          const d = diff11a(REF[name].lists[key], r.listsAfter[key]);
+          const d = diff11a(r.strip(REF[name].lists[key]), r.strip(r.listsAfter[key]));
           expect(d.other).toEqual([]);
           for (const id of [...d.added, ...d.fromStandard]) expect([id, stdIds.has(id)]).toEqual([id, true]);
           // an added Standard item goes to its usual place, once
@@ -332,10 +352,10 @@ describe('blocks2026 11a: Standard comes into every new trip (an intended change
       }
 
       it('template and copy starts gain exactly the Standard items of the snapshot (gain11a)', () => {
-        const gain = (key) => diff11a(REF[name].lists[key], r.listsAfter[key]).added;
-        expect(gain('template')).toEqual(REF[name].gain11a.template);
-        expect(gain('copyDayRide')).toEqual(REF[name].gain11a.copyDayRide);
-        expect(gain('copyNoContext')).toEqual(REF[name].gain11a.copyNoContext);
+        const gain = (key) => diff11a(r.strip(REF[name].lists[key]), r.strip(r.listsAfter[key])).added;
+        expect(gain('template')).toEqual(r.strip(REF[name].gain11a.template));
+        expect(gain('copyDayRide')).toEqual(r.strip(REF[name].gain11a.copyDayRide));
+        expect(gain('copyNoContext')).toEqual(r.strip(REF[name].gain11a.copyNoContext));
       });
 
       it('every Standard item of the area is on every template and copy start now', () => {
@@ -350,9 +370,10 @@ describe('blocks2026 11a: Standard comes into every new trip (an intended change
   }
 
   it('the expected difference in numbers: pf-fixture gains, fixture.json and the edge set do not', () => {
-    const n = (name, key) => diff11a(REF[name].lists[key], RESULTS[name].listsAfter[key]).added.length;
-    expect(n('pf', 'template')).toBe(5);
-    expect([n('pf', 'copyDayRide'), n('pf', 'copyNoContext')]).toEqual([REF.pf.gain11a.copyDayRide.length, REF.pf.gain11a.copyNoContext.length]);
+    const n = (name, key) => diff11a(RESULTS[name].strip(REF[name].lists[key]), RESULTS[name].strip(RESULTS[name].listsAfter[key])).added.length;
+    expect(n('pf', 'template')).toBe(RESULTS.pf.strip(REF.pf.gain11a.template).length); // v0.66.0: 5 before, minus the ones now in Repair / Charging
+    expect(n('pf', 'template')).toBeGreaterThan(0);
+    expect([n('pf', 'copyDayRide'), n('pf', 'copyNoContext')]).toEqual([RESULTS.pf.strip(REF.pf.gain11a.copyDayRide).length, RESULTS.pf.strip(REF.pf.gain11a.copyNoContext).length]);
     expect(REF.pf.gain11a.copyDayRide.length + REF.pf.gain11a.copyNoContext.length).toBeGreaterThan(0);
     for (const key of ['template', 'copyDayRide', 'copyNoContext']) {
       expect(n('fixture', key)).toBe(0);
