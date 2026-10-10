@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.69.0',
+    date: '2026-10-10',
+    points: [
+      { text: 'Every bike has a folder of sheets: Bike pass, Service plan, Workshop order and Pick-up check. The app fills them from your data; a missing value is an empty line with «enter».', href: '#/bikes' },
+      { text: 'View a sheet, share it as a PDF or copy it as text for an email or a message to the bike shop.', href: '#/bikes' },
+      { text: 'Workshop order and Pick-up check also sit in Care and in Workshop & receipts. The ticks stay saved; the ticked work goes into care, a replaced part gets its start point.', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
     version: '0.68.0',
     date: '2026-10-10',
     points: [

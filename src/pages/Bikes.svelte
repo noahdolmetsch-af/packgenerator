@@ -11,6 +11,7 @@
   import Compare from '../lib/bikes/Compare.svelte';
   import ShopTab from '../lib/bikes/ShopTab.svelte';
   import KmImport from '../lib/care/KmImport.svelte';
+  import SheetView from '../lib/bikes/SheetView.svelte';
   import { t } from '../lib/i18n.svelte.js';
 
   let route = $state(parseBikesHash(location.hash));
@@ -23,7 +24,7 @@
   });
   // Old links (#/care) and "open this bike" are written back as the plain address of the tab.
   $effect(() => {
-    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit, view: route.view });
+    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit, view: route.view, sheet: route.sheet, from: route.from });
     if (location.hash !== want && !route.open) history.replaceState(null, '', want);
   });
 
@@ -39,7 +40,10 @@
     <h1 class="title">{t('Bikes')}</h1>
     <BikesNav current={route.tab} bike={route.bike} />
   </header>
-  {#if route.tab === 'compare'}
+  {#if route.sheet && route.bike}
+    <!-- v0.69.0 «Velo-Blätter»: one sheet of the bike's folder (or the whole folder) -->
+    <SheetView bikeId={route.bike} sheet={route.sheet} from={route.from ?? null} />
+  {:else if route.tab === 'compare'}
     <Compare />
   {:else if route.tab === 'shop'}
     <ShopTab bikeId={route.bike} visitId={route.visit ?? null} onbike={pickBike} />

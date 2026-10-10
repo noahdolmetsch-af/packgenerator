@@ -26,6 +26,7 @@
   import PartsTable from './PartsTable.svelte';
   import KmBook from './KmBook.svelte';
   import Q1Status from './Q1Status.svelte';
+  import SheetFolder from '../bikes/SheetFolder.svelte';
   import { partAreas } from './overview.js';
   import { isMore } from '../care.js';
 
@@ -220,6 +221,8 @@
       <!-- v0.68.0 (Q1.1 a): the ride ledger as its own block at the top of the bike -->
       <KmBook {bike} {bikes} />
       {#if !q1On && onq1}<p class="q1on"><button type="button" class="lnk" onclick={() => onq1(true)}>{t('Check Q1 «Gapless km» for this bike')}</button></p>{/if}
+      <!-- v0.69.0 «Velo-Blätter» (V1 a): the bike's folder, one line of links -->
+      <SheetFolder bike={c.bike} compact from="care" />
 
       <!-- v0.47.0 (Noah 10a): "Due now" as cards above the wear list -->
       {#if due.length}
@@ -324,6 +327,11 @@
               {:else}
                 <p class="quiet">{t('Nothing for the bike shop right now.')}</p>
               {/if}
+              <!-- v0.69.0 «Velo-Blätter» (V1 a): the order as a sheet, and the check at the pick-up -->
+              <p class="sheetlinks">
+                <a class="btn" href={bikesHash({ tab: 'setup', bike: bike.id, sheet: 'order', from: 'care' })}>{t('Workshop order|sheet')}</a>
+                <a class="btn" href={bikesHash({ tab: 'setup', bike: bike.id, sheet: 'pickup', from: 'care' })}>{t('Pick-up check')}</a>
+              </p>
             </section>
             <section class="sub-sec" aria-labelledby="year-h-{bike.id}">
               <h3 id="year-h-{bike.id}" class="ch">{t('{year} on this bike', { year: year.year })}</h3>
@@ -393,6 +401,16 @@
 {/snippet}
 
 <style>
+  .sheetlinks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 0;
+  }
+  .sheetlinks .btn {
+    min-height: 44px;
+    text-decoration: none;
+  }
   .q1on {
     margin: -6px 0 8px;
   }
