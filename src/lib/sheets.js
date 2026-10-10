@@ -19,24 +19,72 @@ import { orderText, withVisits, tyreSetup, timeDue, workshopOrder } from './work
 import { bikesHash, bikeTypeName } from './bikes.js';
 import { t, tn, num, dateOf } from './i18n.svelte.js';
 
-/** The four sheets, in the folder's order (V2 a). The other four of the proposal come later. */
+/**
+ * The sheets, in the folder's order. v0.69.0: the first four (V2 a). v0.70.0 «Velo-Blätter Teil 2»
+ * (Noah W1–W7 a): the Break-in plan goes first (it shows by itself on a new bike, W1 a), the Repair
+ * kit, Warranty & receipts and the Theft sheet after the four (sheets2.js). since: the version that
+ * brought the sheet (the folder marks it «new» until it was opened once).
+ */
 export const SHEETS = [
+  { key: 'breakin', name: 'Break-in plan', sub: 'What to check after the first km, step by step', since: '0.70.0' },
   { key: 'pass', name: 'Bike pass', sub: 'Suspension, tyres, position and parts on one page' },
   { key: 'plan', name: 'Service plan', sub: 'Every part with its interval, the last work and when it is next' },
   { key: 'order', name: 'Workshop order|sheet', sub: 'What the bike shop should do, with km and wishes' },
   { key: 'pickup', name: 'Pick-up check', sub: 'Tick at the pick-up: work done, values, receipt' },
+  { key: 'kit', name: 'Repair kit', sub: 'What comes along, matching the parts of this bike', since: '0.70.0' },
+  { key: 'warranty', name: 'Warranty & receipts', sub: 'Purchase date, warranty per part, all receipts', since: '0.70.0' },
+  { key: 'theft', name: 'Theft sheet', sub: 'Frame number, photos, marks, insurance', since: '0.70.0' },
 ];
 export const SHEET = Object.fromEntries(SHEETS.map((s) => [s.key, s]));
 export const SHEET_KEYS = SHEETS.map((s) => s.key);
-
 /** Where a sheet comes from in the address: #/bikes?bike=<id>&sheet=<key>[&from=care|shop]. */
 export const isSheetKey = (k) => SHEET_KEYS.includes(k) || k === 'all';
 
 /* ---------- what is stored on the bike ---------- */
 
-export const sheetsOf = (bike) => ({ hidden: [], orderOff: [], wishes: '', pickup: null, ...(bike?.sheets ?? {}) });
+export const sheetsOf = (bike) => ({ hidden: [], shown: [], orderOff: [], wishes: '', pickup: null, ...(bike?.sheets ?? {}) });
+
+/**
+ * v0.70.0 (W1 a): the Break-in plan comes by itself on a new bike: under NEW_KM km (or, without km,
+ * bought in the last NEW_DAYS days), or once a step of it is ticked; it goes after the first service
+ * (its inspection ticked, or a workshop visit since the purchase). «Choose sheets» still shows it.
+ */
+export const NEW_KM = 500;
+export const NEW_DAYS = 180;
+export function firstServiceDone(bike, visits = []) {
+  if (sheetsOf(bike).breakin?.ticks?.['s4:inspect']) return true;
+  // a workshop visit two weeks after the purchase or later (the receipt of the purchase does not count)
+  const from = bike?.bought ?? null;
+  if (!from) return false;
+  const after = new Date(Date.parse(`${from}T00:00:00Z`) + 14 * 864e5).toISOString().slice(0, 10);
+  return visits.some((v) => v.bikeId === bike.id && v.date >= after);
+}
+export function breakinAuto(bike, { today, visits = [] } = {}) {
+  if (!bike || firstServiceDone(bike, visits)) return false;
+  const ticked = Object.values(sheetsOf(bike).breakin?.ticks ?? {}).some(Boolean);
+  if (ticked) return true;
+  if (typeof bike.km === 'number') return bike.km < NEW_KM;
+  if (!bike.bought || !today) return false;
+  return Date.parse(`${today}T00:00:00Z`) - Date.parse(`${bike.bought}T00:00:00Z`) <= NEW_DAYS * 864e5;
+}
+/** Does the folder show this sheet by itself (without a choice)? Only the Break-in plan may not. */
+export const autoOn = (bike, key, ctx = {}) => (key === 'breakin' ? breakinAuto(bike, ctx) : true);
+/** Is the sheet shown: switched on in «Choose sheets», or by itself and not hidden. */
+export const isShown = (bike, key, ctx = {}) => {
+  const s = sheetsOf(bike);
+  return s.shown.includes(key) || (!s.hidden.includes(key) && autoOn(bike, key, ctx));
+};
 /** The sheets shown in the folder (a hidden one can be switched on again in «Choose sheets»). */
-export const shownSheets = (bike) => SHEETS.filter((s) => !sheetsOf(bike).hidden.includes(s.key));
+export const shownSheets = (bike, ctx = {}) => SHEETS.filter((s) => isShown(bike, s.key, ctx));
+/** «Choose sheets»: a sheet switched on or off (stored as hidden / shown on the bike). */
+export function chooseSheet(bike, key, on, ctx = {}) {
+  const s = sheetsOf(bike);
+  const hidden = s.hidden.filter((k) => k !== key);
+  const shown = s.shown.filter((k) => k !== key);
+  if (on && !autoOn(bike, key, ctx)) shown.push(key);
+  if (!on) hidden.push(key);
+  return { hidden, shown };
+}
 
 /* ---------- the Bike pass ---------- */
 

@@ -31,8 +31,8 @@ const trail = (over = {}) => ({
 const tyres = { front: 'tubeless', rear: 'tubeless' };
 
 describe('the folder', () => {
-  it('has four sheets first (V2 a), each with a German name; the address keeps the sheet', () => {
-    expect(SHEET_KEYS).toEqual(['pass', 'plan', 'order', 'pickup']);
+  it('has the four sheets of V2 a, since v0.70.0 (W1 a) with the Break-in plan first and three more after them; each with a German name; the address keeps the sheet', () => {
+    expect(SHEET_KEYS).toEqual(['breakin', 'pass', 'plan', 'order', 'pickup', 'kit', 'warranty', 'theft']);
     for (const s of SHEETS) {
       expect(DE[s.name], s.name).toBeTruthy();
       expect(DE[s.sub], s.sub).toBeTruthy();
@@ -46,10 +46,11 @@ describe('the folder', () => {
     expect(bikesHash({ tab: 'care', bike: 'x', sheet: 'pass' })).toBe('#/bikes?tab=care&bike=x');
   });
 
-  it('a hidden sheet leaves the folder; nothing is hidden at first', () => {
-    expect(shownSheets(trail()).map((s) => s.key)).toEqual(SHEET_KEYS);
-    expect(shownSheets(trail({ sheets: { hidden: ['plan'] } })).map((s) => s.key)).toEqual(['pass', 'order', 'pickup']);
-    expect(sheetsOf({})).toEqual({ hidden: [], orderOff: [], wishes: '', pickup: null });
+  it('a hidden sheet leaves the folder; nothing is hidden at first (a bike with 3100 km has no Break-in plan, W1 a)', () => {
+    const rest = SHEET_KEYS.filter((k) => k !== 'breakin');
+    expect(shownSheets(trail()).map((s) => s.key)).toEqual(rest);
+    expect(shownSheets(trail({ sheets: { hidden: ['plan'] } })).map((s) => s.key)).toEqual(rest.filter((k) => k !== 'plan'));
+    expect(sheetsOf({})).toEqual({ hidden: [], shown: [], orderOff: [], wishes: '', pickup: null });
   });
 });
 

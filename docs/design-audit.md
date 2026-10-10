@@ -100,6 +100,7 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 | Velos | Velopflege, Teil-, Werkstattbesuch- und Bestell-Dialog | 9.10.2026 (0.48: Übersicht C nach Mockup, Teiletabelle, geführtes Ersetzen/Warten, Startwerte; Werkstattbesuch- und Bestell-Dialog noch alt) | 3 |
 | Velos | Velos vergleichen, Werkstatt & Belege | 9.10.2026 (0.48 neu; 0.62: Masse zuerst) | 3 |
 | Velos | Setup: Mappe und Blätter (Velo-Pass, Service-Plan, Werkstatt-Auftrag, Abhol-Check) | 10.10.2026 (0.69 neu nach Mockup velo-dokumente) | 4 |
+| Velos | Setup: Blätter Teil 2 (Einfahr-Plan, Repair-Kit, Garantie & Belege, Diebstahl-Blatt) | 10.10.2026 (0.70 neu nach Mockup velo-blaetter-2) | 4 |
 | Velos | Setup: Block «Masse» | 9.10.2026 (0.62 neu: Karte immer offen, 2/4 Spalten, Bearbeiten an Ort, Rückgängig) | 4 |
 | Weiteres | Eingang, Ablegen-Blatt, Notizen, Notiz-Blatt | 9.10.2026 (0.48 neu nach Mockup) | 3 |
 | Weiteres | Funktionen-Seite | – | – |
@@ -123,6 +124,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
+- 10.10.2026, 0.70.0 «Velo-Blätter Teil 2»: vier neue Blätter nach den Mockups `velo-blaetter-2` (W1–W7 a), gleiche Papier-Ansicht und Werkzeugleiste wie Teil 1, Mappe mit acht Karten und «neu»-Marke; neue Datei `SheetMore` strikt im Stil-Wächter. Erinnerungen als Zeilen in «Heute wichtig» mit «später» (gleicher Baustein wie die übrigen Zeilen). Bilder mit Testdaten im Projektordner `design/velo-blaetter-2-gebaut`.
 - 10.10.2026, 0.69.1 Gesamttest-Runde: alle Seiten 1440/390/320, hell und dunkel, DE/EN; kein neuer Screen. Velo-Pass-Werte stehen bei 320 px unter der Bezeichnung, Kacheln in Im Flow trennen nach Silben (`hyphens: auto`) statt mitten im Wort; Velo-Reiter im Kopfband (Setup) zeigen das gewählte Velo in der Mitte und blenden an beiden Rändern aus statt links hart abzuschneiden; Status-Chips der Mappe bleiben einzeilig (zwei Karten nebeneinander am Handy); Wächter (`tests/e2e/guard.spec.js`) prüft jetzt auch «Fahrten importieren» und die Velo-Blätter streng sowie Im Flow (Mitziehen-Lücke aus 0.68/0.69). Import-Regeln: neue Art «Fahrt-Typ» in der bestehenden Regel-Liste, gleicher Baustein.
 - 10.10.2026, 0.69.0 «Velo-Blätter»: neue Screens nach den Mockups `velo-dokumente` (Vorschlag A: Mappe unter dem Kopfband in Setup, Blätter als Papier mit Werkzeugleiste, Abhol-Check mit Häkchen), nur mit Bausteinen aus `app.css`; neue Dateien `SheetFolder` und `SheetView` strikt im Stil-Wächter. Bilder mit Testdaten im Projektordner `design/velo-blaetter-gebaut`.
 - 10.10.2026, 0.68.0 «Q1 Jeder km zählt»: neue Screens nach den Mockups `q1-jeder-km` (Fahrten-Buch zuoberst im Velo, Import-Seite «Prüfen» dann pro Velo, Wochenkarte auf Heute unter der Tour, Startpunkt-Spalte und Q1-Status in der Teileliste), nur mit Bausteinen aus `app.css`; Wächter 0 Funde auf Desktop und Handy. Bilder mit Testdaten im Projektordner `design/q1-jeder-km-gebaut`.

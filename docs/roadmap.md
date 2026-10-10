@@ -513,7 +513,9 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 10.10.2026 (v0.69.1, PR offen):** Vollständiger UI-Test (Gesamttest-Runde) gemacht, Befunde A–C behoben, D als Fragen an Noah; dazu die Regel «Fahrt-Typ» im Import (AP-Bezug Ziel 2, Q1). Schritt 4 der Reihenfolge in vorhaben.md ist damit als PR offen.
+**Nachtrag 10.10.2026 (v0.70.0, PR offen):** Velo-Blätter Teil 2 gebaut (Noah W1–W7 a): Einfahr-Plan (von selbst bei neuem Velo, Häkchen in die Pflege, Erinnerung auf Heute), Repair-Kit pro Art der Fahrt mit «Auf die Packliste …», Garantie & Belege mit Erinnerung und Kalender-Datei, Diebstahl-Blatt (AP-Bezug Velo-Pflege, Ziel 2). 0.69.1 ist live (PR #96).
+
+**Nachtrag 10.10.2026 (v0.69.1, live, PR #96):** Vollständiger UI-Test (Gesamttest-Runde) gemacht, Befunde A–C behoben, D als Fragen an Noah; dazu die Regel «Fahrt-Typ» im Import (AP-Bezug Ziel 2, Q1). Schritt 4 der Reihenfolge in vorhaben.md ist damit als PR offen.
 
 **Nachtrag 10.10.2026 (v0.69.0, PR offen):** Velo-Blätter sind gebaut: Mappe pro Velo mit Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check, als PDF teilen und Text kopieren, Abhol-Check schreibt Pflege-Einträge mit Startpunkt (AP-Bezug Velo-Pflege). Als Nächstes der vollständige UI-Test mit Fix-Release.
 

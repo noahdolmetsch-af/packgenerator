@@ -4,33 +4,46 @@
    * as cards, each with one state line (complete, due, jobs, ticks). «Choose sheets» hides a sheet
    * (everything is a suggestion); «Whole folder as PDF» opens all shown sheets one after the other.
    * compact: one line of links, for the open bike in Care.
+   * v0.70.0 «Velo-Blätter Teil 2» (Noah W1–W7 a): eight sheets; the Break-in plan shows by itself on a
+   * new bike and goes after the first service (W1 a), «Choose sheets» covers all eight; a new sheet is
+   * marked «new» until it was opened once (on this device).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { localDay } from '../localday.js';
   import { bikesHash } from '../bikes.js';
-  import { SHEETS, sheetsOf, shownSheets, sheetData, folderState } from '../sheets.js';
-  import { t, tn } from '../i18n.svelte.js';
-  import { IdCard, CalendarCheck, ClipboardList, ListChecks, FolderOpen } from '@lucide/svelte';
+  import { SHEETS, sheetsOf, shownSheets, isShown, chooseSheet, sheetData, folderState, NEW_KM } from '../sheets.js';
+  import { moreData, moreState } from '../sheets2.js';
+  import { bikePhotos } from '../photo.js';
+  import { seenSheets } from './seen.js';
+  import { t, tn, num } from '../i18n.svelte.js';
+  import { IdCard, CalendarCheck, ClipboardList, ListChecks, FolderOpen, Gauge, Wrench, ReceiptText, ShieldAlert } from '@lucide/svelte';
 
   let { bike, compact = false, from = null } = $props();
 
   const visitsQ = liveQuery(() => db.visits.toArray());
   const tasksQ = liveQuery(() => db.maintenance.toArray());
   const tripsQ = liveQuery(() => db.trips.toArray());
+  const itemsQ = liveQuery(() => db.items.toArray());
+  const photosQ = liveQuery(() => db.photos.toArray());
   const today = localDay();
 
-  const data = $derived(sheetData(bike, { visits: $visitsQ ?? [], tasks: $tasksQ ?? [], trips: $tripsQ ?? [], today }));
-  const state = $derived(folderState({ pass: data.pass, plan: data.plan, order: data.picked, pickup: data.pickup }));
-  const shown = $derived(shownSheets(bike));
-  const ICON = { pass: IdCard, plan: CalendarCheck, order: ClipboardList, pickup: ListChecks };
+  const visits = $derived($visitsQ ?? []);
+  const data = $derived(sheetData(bike, { visits, tasks: $tasksQ ?? [], trips: $tripsQ ?? [], today }));
+  const more = $derived(moreData(bike, data, { visits, items: $itemsQ ?? [], photos: $photosQ ?? [], gallery: bikePhotos(bike, $photosQ ?? []), today }));
+  const state = $derived({ ...folderState({ pass: data.pass, plan: data.plan, order: data.picked, pickup: data.pickup }), ...moreState(more) });
+  const ctx = $derived({ today, visits });
+  const shown = $derived(shownSheets(bike, ctx));
+  const hiddenN = $derived(SHEETS.filter((s) => sheetsOf(bike).hidden.includes(s.key)).length);
+  const breakinOn = $derived(shown.some((s) => s.key === 'breakin'));
+  const ICON = { breakin: Gauge, pass: IdCard, plan: CalendarCheck, order: ClipboardList, pickup: ListChecks, kit: Wrench, warranty: ReceiptText, theft: ShieldAlert };
+  const seen = seenSheets();
   const href = (key) => bikesHash({ tab: 'setup', bike: bike.id, sheet: key, from });
 
   let choosing = $state(false);
   async function toggle(key, on) {
     const s = sheetsOf(bike);
-    const hidden = on ? s.hidden.filter((k) => k !== key) : [...new Set([...s.hidden, key])];
-    await db.bikes.update(bike.id, { sheets: { ...$state.snapshot(s), hidden } });
+    await db.bikes.update(bike.id, { sheets: { ...$state.snapshot(s), ...chooseSheet(bike, key, on, ctx) } });
   }
 </script>
 
@@ -57,7 +70,7 @@
       <fieldset class="pick" id="folder-pick-{bike.id}">
         <legend>{t('Which sheets the folder shows')}</legend>
         {#each SHEETS as s (s.key)}
-          <label class="pk"><input type="checkbox" checked={!sheetsOf(bike).hidden.includes(s.key)} onchange={(e) => toggle(s.key, e.currentTarget.checked)} />{t(s.name)}</label>
+          <label class="pk"><input type="checkbox" checked={isShown(bike, s.key, ctx)} onchange={(e) => toggle(s.key, e.currentTarget.checked)} />{t(s.name)}</label>
         {/each}
       </fieldset>
     {/if}
@@ -67,6 +80,7 @@
         <li>
           <a class="sheet" href={href(s.key)} data-sheet={s.key}>
             <span class="ic"><Icon size={20} aria-hidden="true" /></span>
+            {#if s.since && !seen.includes(s.key)}<span class="new">{t('new|sheet')}</span>{/if}
             <span class="nm">{t(s.name)}</span>
             <span class="sb">{t(s.sub)}</span>
             {#if state[s.key]}<span class="st {state[s.key].tone}" title={state[s.key].text}>{state[s.key].text}</span>{/if}
@@ -74,7 +88,12 @@
         </li>
       {/each}
     </ul>
-    <p class="foot">{shown.length < SHEETS.length ? tn(SHEETS.length - shown.length, '{n} sheet hidden. «Choose sheets» shows it again.', '{n} sheets hidden. «Choose sheets» shows them again.') : t('Every sheet can be hidden. Values come from Setup, Care and the ride ledger.')}</p>
+    <p class="foot">
+      {#if hiddenN}{tn(hiddenN, '{n} sheet hidden. «Choose sheets» shows it again.', '{n} sheets hidden. «Choose sheets» shows them again.')}
+      {:else if breakinOn}{t('The Break-in plan comes by itself with a new bike and goes after the first service. Every sheet can be hidden.')}
+      {:else if typeof bike.km === 'number' && bike.km >= NEW_KM}{t('No Break-in plan: this bike already has {km} km. Every sheet can be hidden.', { km: num(bike.km) })}
+      {:else}{t('Every sheet can be hidden. Values come from Setup, Care and the ride ledger.')}{/if}
+    </p>
   </section>
 {/if}
 
@@ -166,6 +185,19 @@
     background: var(--paper);
     color: var(--ink);
     text-decoration: none;
+  }
+  .sheet {
+    position: relative;
+  }
+  .new {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--hi-soft);
+    color: var(--badge-ink);
+    font: 600 var(--fs-tiny) / 1.6 var(--font-body);
   }
   .sheet:hover {
     border-color: var(--line-strong);
