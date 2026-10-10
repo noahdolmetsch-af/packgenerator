@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.69.0
+  'Every bike has a folder of sheets: Bike pass, Service plan, Workshop order and Pick-up check. The app fills them from your data; a missing value is an empty line with «enter».':
+    'Jedes Velo hat eine Mappe mit Blättern: Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check. Die App füllt sie aus deinen Daten; ein fehlender Wert ist eine leere Zeile mit «eintragen».',
+  'View a sheet, share it as a PDF or copy it as text for an email or a message to the bike shop.':
+    'Ein Blatt ansehen, als PDF teilen oder als Text kopieren, für eine Mail oder eine Nachricht an den Velomech.',
+  'Workshop order and Pick-up check also sit in Care and in Workshop & receipts. The ticks stay saved; the ticked work goes into care, a replaced part gets its start point.':
+    'Werkstatt-Auftrag und Abhol-Check gibt es auch in der Pflege und in Werkstatt & Belege. Die Häkchen bleiben gespeichert; abgehakte Arbeiten kommen in die Pflege, ein ersetztes Teil bekommt seinen Startpunkt.',
+
   // 0.68.0
   'Every bike has a ride ledger: its km are the sum of its rides. Unclear rides are marked red and count only after you pick the bike. Everything can be undone.':
     'Jedes Velo hat ein Fahrten-Buch: seine km sind die Summe seiner Fahrten. Unklare Fahrten sind rot markiert und zählen erst, wenn du das Velo wählst. Alles lässt sich rückgängig machen.',

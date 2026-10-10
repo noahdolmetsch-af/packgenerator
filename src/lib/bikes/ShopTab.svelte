@@ -12,7 +12,7 @@
   import VisitDialog from '../care/VisitDialog.svelte';
   import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
   import { t, tn, locale } from '../i18n.svelte.js';
-  import { ReceiptText, Wrench, ChevronRight } from '@lucide/svelte';
+  import { ReceiptText, Wrench, ChevronRight, ClipboardList, ListChecks } from '@lucide/svelte';
 
   let { bikeId = null, visitId = null, onbike } = $props();
 
@@ -68,6 +68,13 @@
   {/if}
 
   <h3 class="zlabel">{t('For the bike shop')}</h3>
+  {#if pick}
+    <!-- v0.69.0 «Velo-Blätter» (V1 a): the order as a sheet before the visit, the check at the pick-up -->
+    <p class="sheetlinks">
+      <a class="btn" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'order', from: 'shop' })}><ClipboardList size={16} aria-hidden="true" />{t('Workshop order|sheet')}</a>
+      <a class="btn" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'pickup', from: 'shop' })}><ListChecks size={16} aria-hidden="true" />{t('Pick-up check')}</a>
+    </p>
+  {/if}
   {#if orders.length}
     <ul class="rowlist">
       {#each orders as o (o.id)}
@@ -151,6 +158,16 @@
     color: var(--ink-2);
     font-weight: 600;
     font-size: var(--fs-small);
+  }
+  .sheetlinks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 4px 0 10px;
+  }
+  .sheetlinks .btn {
+    min-height: 44px;
+    text-decoration: none;
   }
   .rc {
     flex: none;
