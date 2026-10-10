@@ -37,7 +37,7 @@
             <a class="pa" href={p.href} aria-current={on ? (tab && tabs.length > 1 ? 'true' : 'page') : undefined}>
               <span class="pi"><PlaceIcon place={p.key} size={18} /></span>
               <span class="pn">{t(p.label)}</span>
-              {#if p.key === 'bikes' && due}<span class="cnt num"><span class="sr">, {t('{n} due', { n: due })}</span><span aria-hidden="true">{due}</span></span>{/if}
+              {#if p.key === 'bikes' && due}<span class="cnt due num"><span class="sr">, {t('{n} due', { n: due })}</span><span aria-hidden="true">{due}</span></span>{/if}
             </a>
             {#if tabs.length > 1}
               <ul class="tabs">

@@ -390,11 +390,10 @@
   .bag-heading :global(svg) { color: var(--ink-3); flex: none; }
   .bag-heading strong { font-weight: 600; min-width: 0; overflow-wrap: break-word; }
   .bag-heading small { margin-left: auto; font-size: 14px; font-weight: 400; color: var(--ink-3); white-space: nowrap; }
-  /* v0.45.1 (G004): under 360 px "14 items · 1.87 kg" goes under the bag's name when both do not fit */
-  @media (max-width: 359px) {
-    .bag-heading { flex-wrap: wrap; row-gap: 0; }
-    .bag-heading strong { flex: 1 1 auto; }
-  }
+  /* v0.45.1 (G004): "14 items · 1.87 kg" goes under the bag's name when both do not fit; v0.71.0: on
+     every width, since two bag columns next to the sidebar can be as narrow as a small phone */
+  .bag-heading { flex-wrap: wrap; row-gap: 0; }
+  .bag-heading strong { flex: 1 1 auto; }
   .preview { margin: 0 0 4px 32px; font-size: 14px; line-height: 1.5; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: break-word; }
   .addrow { margin: 4px 0 0 32px; }
   .real-pack { margin: 0 0 4px 32px; }

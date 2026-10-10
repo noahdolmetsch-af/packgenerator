@@ -266,8 +266,12 @@
     gap: 8px;
     max-width: 100%;
   }
+  /* v0.71.0 «Fünf Orte»: next to the sidebar a card can be narrow; the line wraps between words */
   .mini small {
-    white-space: nowrap;
+    min-width: 0;
+  }
+  .rings > li {
+    min-width: 0;
   }
   .mb,
   .kb,

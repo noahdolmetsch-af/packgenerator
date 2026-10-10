@@ -1,10 +1,6 @@
 {
   "_readme": "Wächter baseline (docs/design-audit.md «Wächter»): the violations that existed when the checks came in. A check fails only when a file or route gets MORE than listed here. The numbers may only shrink; a PR that raises one explains why. style: file → rule → count (scripts/style-lint.mjs --update). layout: route@width → rule → count (GUARD_UPDATE=1 playwright run, then scripts/style-lint.mjs --merge-e2e).",
   "style": {
-    "src/App.svelte": {
-      "colour": 3,
-      "fontsize": 7
-    },
     "src/app.css": {
       "fontsize": 10
     },
@@ -32,7 +28,7 @@
       "fontsize": 1
     },
     "src/lib/bikes/SetupBand.svelte": {
-      "colour": 10,
+      "colour": 8,
       "fontsize": 11
     },
     "src/lib/bikes/SetupDrawing.svelte": {
@@ -134,9 +130,6 @@
     "src/lib/know/WhatsNew.svelte": {
       "breakword": 1,
       "fontsize": 4
-    },
-    "src/lib/nav/MoreSheet.svelte": {
-      "fontsize": 5
     },
     "src/lib/nav/NewSheet.svelte": {
       "fontsize": 1
