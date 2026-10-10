@@ -174,7 +174,7 @@
               {#if best.avg.some((a) => a.n)}
                 <h3 class="th">{t('Average per trip, from GPX')}</h3>
                 <table class="avg">
-                  <thead><tr><th scope="col">{t('Kind|trip')}</th><th scope="col">km</th><th scope="col">Hm</th><th scope="col">{t('moving')}</th><th scope="col">{t('in all')}</th><th scope="col">{t('Stops')}</th></tr></thead>
+                  <thead><tr><th scope="col">{t('Kind|trip')}</th><th scope="col">km</th><th scope="col">Hm</th><th scope="col">{t('moving|col')}</th><th scope="col">{t('in all')}</th><th scope="col">{t('Stops')}</th></tr></thead>
                   <tbody>
                     {#each best.avg.filter((a) => a.n) as a (a.key)}
                       <tr><th scope="row">{t(a.name)}</th><td class="num">{num(a.km)}</td><td class="num">{num(a.gainM)}</td><td class="num">{hmm(a.movingH)}</td><td class="num">{hmm(a.totalH)}</td><td class="num">{a.stops}</td></tr>
