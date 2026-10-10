@@ -3,7 +3,7 @@ import 'fake-indexeddb/auto';
 import {
   bikeKm, kmOn, ledgerRows, ledgerCounts, makeEntry, openingEntry, syncEntry, readingEntry, ledgerStart, inStart,
   parseStravaCsv, stravaTime, zurichDay, parseFit, sameRide, mergeRides, signals, assignRide, planImport, importEntries,
-  reconcile, matches, isoWeek, partStart, partKm, q1Status, monthReport, prevMonth, reasonText, tripSpan, tripRidesIn, sensorShort, fitType, entryDetail,
+  reconcile, matches, isoWeek, partStart, partKm, q1Status, monthReport, prevMonth, reasonText, tripSpan, tripRidesIn, sensorShort, fitType, entryDetail, typeHints,
 } from '../src/lib/kmbook.js';
 import { createDb } from '../src/lib/db.js';
 import { ensureKmBook, setReading, addEntries, updateEntry, applyImport, undoImport, deleteEntries, restoreEntries } from '../src/lib/kmbookdb.js';
@@ -315,6 +315,31 @@ describe('ride type rule: likely after Strava bike and profile, only for exactly
     const [entry] = importEntries(plan, {}, 'imp-type');
     expect(entry).toMatchObject({ bikeId: GRAVEL, by: 'type', state: 'counted', type: 'Gravel Ride' });
     expect(entryDetail(entry)).toBe('Edge 1040 · Profile Unbekannt · Ride type Gravel Ride');
+  });
+});
+
+describe('ride types asked once (D1a): the answer becomes a rule', () => {
+  const rides = [
+    { source: 'csv', date: '2026-10-01', time: '07:00', km: 30, type: 'Gravel Ride', gear: 'Demo Gravel', sensors: [] },
+    { source: 'csv', date: '2026-10-02', time: '07:00', km: 31, type: 'gravel ride ', gear: 'Demo Gravel', sensors: [] },
+    { source: 'csv', date: '2026-10-03', time: '07:00', km: 9, type: 'Ride', sensors: [] },
+    { source: 'csv', date: '2026-10-04', time: '07:00', km: 12, type: 'Mountain Bike Ride', sensors: [] },
+    { source: 'csv', date: '2026-10-05', time: '07:00', km: 14, type: 'Mountain Bike Ride', sensors: [] },
+    { source: 'csv', date: '2026-10-06', time: '07:00', km: 15, type: 'Mountain Bike Ride', sensors: [] },
+  ];
+  it('each new type once, most rides first; the suggestion only from Strava, sensor or profile', () => {
+    const plan = planImport(rides, { bikes: BIKES, rules: [], entries: [] });
+    expect(typeHints(plan.rows, [])).toEqual([
+      { kind: 'type', value: 'Mountain Bike Ride', n: 3, guess: '' },
+      { kind: 'type', value: 'Gravel Ride', n: 2, guess: GRAVEL },
+      { kind: 'type', value: 'Ride', n: 1, guess: '' },
+    ]);
+  });
+  it('a type with a rule is not asked again (case and spaces do not matter); no type, no question', () => {
+    const rules = [{ id: 't', kind: 'type', value: 'mountain bike ride', bikeIds: [HT] }];
+    const plan = planImport(rides, { bikes: BIKES, rules, entries: [] });
+    expect(typeHints(plan.rows, rules).map((h) => h.value)).toEqual(['Gravel Ride', 'Ride']);
+    expect(typeHints(planImport([{ source: 'csv', date: '2026-10-01', km: 5, type: '', sensors: [] }], { bikes: BIKES, rules: [], entries: [] }).rows, [])).toEqual([]);
   });
 });
 

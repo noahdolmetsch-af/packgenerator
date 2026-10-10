@@ -414,6 +414,12 @@
     }
     onclose?.();
   }
+  // v0.72.0 «Feinschliff» (Umbenennen 4a, back rule in every window): Android back and Escape keep
+  // what was typed. A new trip keeps it as before (closed()); an existing trip saves its changes like
+  // «Save» (nothing changed: it only closes).
+  // svelte-ignore state_referenced_locally
+  const openedAs = JSON.stringify([draft, ctx]);
+  const keepOnBack = () => (isNew || JSON.stringify([$state.snapshot(draft), $state.snapshot(ctx)]) === openedAs ? dialog.close() : save({ preventDefault() {} }));
   /** "Discard": the trip this window made goes again (it was made here and has nothing else). */
   async function discard() {
     ended = true;
@@ -462,7 +468,7 @@
   </fieldset>
 {/snippet}
 
-<dialog class="sheet trip-dlg" bind:this={dialog} use:backClose onclose={closed} aria-labelledby="trip-h">
+<dialog class="sheet trip-dlg" bind:this={dialog} use:backClose={keepOnBack} onclose={closed} aria-labelledby="trip-h">
   <form onsubmit={save} novalidate>
     <!-- v0.30.0 (Noah, finding 2): the dark band of the trip pages on top. -->
     <div class="band"><h2 id="trip-h" class="title">{isNew ? t('New trip') : t('Trip details')}</h2></div>

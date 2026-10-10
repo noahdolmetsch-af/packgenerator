@@ -571,6 +571,29 @@ export function planImport(records, { bikes, rules = [], entries = [] }) {
   return { rows: [...rows, ...extra], strava };
 }
 
+/**
+ * v0.72.0 «Feinschliff» (D1a, Noah 10.10.2026): each ride type of the files that no «Ride type» rule
+ * knows yet, asked once («Which bike do you ride for «Gravel Ride»?»); the answer becomes a rule.
+ * Nothing is pre-filled from the type itself: the suggestion is the bike that sensor, Strava or the
+ * profile gave most rides of that type (else none). Returns [{ kind: 'type', value, n, guess }],
+ * most rides first. rows: planImport(…).rows; rules: the import rules.
+ */
+export function typeHints(rows = [], rules = []) {
+  const found = new Map(); // lower-case type → { value, n, votes }
+  for (const r of rows) {
+    if (r.dup === 'merged') continue;
+    const value = String(r.ride?.type ?? '').trim();
+    if (!value || rules.some((u) => u.kind === 'type' && same(u.value, value))) continue;
+    const m = found.get(value.toLowerCase()) ?? { value, n: 0, votes: {} };
+    m.n += 1;
+    if (r.bikeId && r.by && r.by !== 'type' && r.sure !== 'unclear') m.votes[r.bikeId] = (m.votes[r.bikeId] ?? 0) + 1;
+    found.set(value.toLowerCase(), m);
+  }
+  return [...found.values()]
+    .map((m) => ({ kind: 'type', value: m.value, n: m.n, guess: Object.entries(m.votes).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '' }))
+    .sort((a, b) => b.n - a.n || a.value.localeCompare(b.value));
+}
+
 /** Rows that will be written (new rides), and the ones to check first (unclear). */
 export const newRows = (plan) => plan.rows.filter((r) => !r.dup || r.take);
 export const toCheck = (plan) => newRows(plan).filter((r) => r.sure === 'unclear');

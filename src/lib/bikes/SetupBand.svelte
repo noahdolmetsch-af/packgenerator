@@ -56,7 +56,7 @@
   <p class="kick">{[bike.type ? t(bikeTypeName(bike.type)) : '', bike.use].filter(Boolean).join(' · ')}</p>
   <h2 class="name">
     <span>{bike.name}</span>
-    <button type="button" class="edit" onclick={() => onedit?.()} aria-label={t('Edit {bike}', { bike: bike.name })} title={t('Edit')}><Pencil size={18} aria-hidden="true" /></button>
+    <button type="button" class="edit" onclick={() => onedit?.()} aria-label={t('Rename {name}', { name: bike.name })} title={t('Rename')}><Pencil size={18} aria-hidden="true" /></button>
   </h2>
   <p class="meta num">
     <span><Gauge size={16} aria-hidden="true" />{#if bike.km != null}<b>{num(bike.km)} km</b>{:else}{t('km not set')}{/if}</span>

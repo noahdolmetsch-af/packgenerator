@@ -574,16 +574,25 @@ test('S9 import rides: a ride type rule places the ride, take over, undo', async
   const check = page.locator('section.check');
   // without a rule the type decides nothing: the MTB ride, the commute and the FIT ride wait in «Check»
   await expect(check.locator('li.ir')).toHaveCount(3);
-  // a ride type rule, made here (nothing is pre-filled): Mountain Bike Ride → Hardtail, Gravel Ride → Gravel
-  for (const [type, bike] of [['Mountain Bike Ride', HT], ['Gravel Ride', GRAVEL]]) {
-    await page.getByRole('button', { name: `+ ${T('Rule')}` }).click();
-    const nr = page.locator('.newrule');
-    await nr.locator('select').selectOption('type');
-    await nr.getByLabel(T('Ride type, as in Strava (e.g. Gravel Ride)')).fill(type);
-    await nr.getByRole('button', { name: name[bike] }).click();
-    await nr.getByRole('button', { name: T('Add') }).click();
-  }
+  // v0.72.0 (D1a): each new ride type is asked once; nothing is pre-filled from the type, only the bike
+  // Strava gave a ride of that type is suggested (Gravel Ride: the Albis ride on the Gravel)
+  const ask = (type) => page.locator('ul.hints li').filter({ hasText: T('Which bike do you ride for «{type}»?', { type }) });
+  await expect(ask('Mountain Bike Ride').locator('select')).toHaveValue('');
+  await expect(ask('Ride')).toHaveCount(1);
+  await expect(ask('Gravel Ride').locator('select')).toHaveValue(GRAVEL);
+  // «+ Rule» stays (Mountain Bike Ride → Hardtail), the question makes the other one (Gravel Ride → Gravel)
+  await page.getByRole('button', { name: `+ ${T('Rule')}` }).click();
+  const nr = page.locator('.newrule');
+  await nr.locator('select').selectOption('type');
+  await nr.getByLabel(T('Ride type, as in Strava (e.g. Gravel Ride)')).fill('Mountain Bike Ride');
+  await nr.getByRole('button', { name: name[HT] }).click();
+  await nr.getByRole('button', { name: T('Add') }).click();
+  await expect(ask('Mountain Bike Ride')).toHaveCount(0);
+  await ask('Gravel Ride').getByRole('button', { name: T('Remember') }).click();
+  await expect(ask('Gravel Ride')).toHaveCount(0);
   const rules = page.locator('ol.rules');
+  // D4a: the silent rule «profile named like a bike» stands in the list as a quiet line
+  await expect(rules.locator('li.silent')).toContainText(T('Profile named like a bike'));
   await expect(rules).toContainText(T('Ride type «{type}»', { type: 'Mountain Bike Ride' }));
   await expect(rules).toContainText(T('Ride type «{type}»', { type: 'Gravel Ride' }));
   // only the commute («Ride», no rule) is left to check; the rules are stored with the backup

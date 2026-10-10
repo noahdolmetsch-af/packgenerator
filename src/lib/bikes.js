@@ -202,6 +202,20 @@ export function bikeTypeName(type) {
   return TYPE_NAMES.find(([re]) => re.test(s))?.[1] ?? s;
 }
 
+/**
+ * v0.72.0 «Feinschliff» (Umbenennen): rename a bike everywhere it is written: the bike and the
+ * trips that carry its name. The id stays, so Care, km and rules keep the bike. Returns the old name.
+ */
+export async function renameBike(db, id, name) {
+  const bike = await db.bikes.get(id);
+  if (!bike) return null;
+  await db.transaction('rw', db.bikes, db.trips, async () => {
+    await db.bikes.update(id, { name });
+    await db.trips.filter((x) => x.bikeId === id).modify({ bike: name });
+  });
+  return bike.name;
+}
+
 export const formatVolume = (l) => (l ? `${Math.round(l * 10) / 10} L` : '–');
 
 /** Bikes in Excel order (the favourite first), new bikes after them by name. */

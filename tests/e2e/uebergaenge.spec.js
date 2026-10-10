@@ -283,11 +283,11 @@ test('the back key closes a dialog first and keeps the inputs; the page stays (Ã
   await page.goBack();
   await expect(tripDlg).toBeHidden();
   expect(page.url()).toBe(at);
-  // Edit bike: back keeps the new name
+  // Rename bike (v0.72.0: the one rename sheet): back keeps the new name
   await page.goto('./#/');
   await page.goto('./#/bikes');
-  await page.getByRole('button', { name: T('Edit {bike}', { bike: base.tables.bikes[0].name }) }).click();
-  const bike = page.locator('dialog[aria-labelledby="bike-dlg-h"]');
+  await page.getByRole('button', { name: T('Rename {name}', { name: base.tables.bikes[0].name }) }).click();
+  const bike = page.locator('dialog.rename');
   await expect(bike).toBeVisible();
   await bike.locator('input').first().fill('test_data_gtp_ Scale neu');
   await page.goBack();

@@ -15,6 +15,7 @@
   import { liveQuery } from 'dexie';
   import { CalendarDays, Bike, Backpack, CloudSun, ShoppingBag, Check, Pencil, Clock3 } from '@lucide/svelte';
   import { db } from '../db.js';
+  import { offerRename } from '../ui/rename.svelte.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
   import { tripStats, RAIN } from '../trips.js';
   import { hasBike, domainOf, domainName } from '../domains.js';
@@ -62,7 +63,12 @@
     if (!naming) return;
     naming = false;
     const title = nameDraft.trim();
-    if (title && title !== trip.title) await db.trips.update(trip.id, { title, updatedAt: new Date().toISOString() });
+    if (!title || title === trip.title) return;
+    const id = trip.id;
+    const old = trip.title;
+    await db.trips.update(id, { title, updatedAt: new Date().toISOString() });
+    // v0.72.0 «Feinschliff» (Umbenennen 5a): the same «Renamed to … · Undo» as everywhere else.
+    offerRename(title, () => db.trips.update(id, { title: old, updatedAt: new Date().toISOString() }));
   }
   function nameKey(e) {
     if (e.key === 'Enter') (e.preventDefault(), saveName());

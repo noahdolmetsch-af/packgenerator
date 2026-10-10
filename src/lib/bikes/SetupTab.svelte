@@ -12,7 +12,9 @@
   import { localDay } from '../localday.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf } from '../bikes.js';
+  import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf, renameBike } from '../bikes.js';
+  import RenameSheet from '../ui/RenameSheet.svelte';
+  import { offerRename } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
   import { Briefcase, Plus, ChevronRight, Scale, Bike, Gauge, Camera, User, Columns3 } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
@@ -113,9 +115,14 @@
       for (const x of mine) await db.photos.update(x.id, { main: x.id === p.id });
     });
   }
-  async function rename(p) {
-    const name = prompt(t('Name of this photo, e.g. "Hope 2026"'), p.name);
-    if (name?.trim()) await db.photos.update(p.id, { name: name.trim().slice(0, 60) });
+  // v0.72.0 «Feinschliff» (Umbenennen 1a): the same rename sheet as everywhere (was the browser's prompt()).
+  let photoRename = $state(null);
+  const rename = (p) => (photoRename = p);
+  async function renamePhoto(name) {
+    const p = photoRename;
+    const next = name.slice(0, 60);
+    await db.photos.update(p.id, { name: next });
+    offerRename(next, () => db.photos.update(p.id, { name: p.name }));
   }
   const setTrip = (p, tripId) => db.photos.update(p.id, { tripId: tripId || null });
   async function removePhoto(p) {
@@ -221,6 +228,21 @@
       : [],
   );
 
+  /*
+   * v0.72.0 «Feinschliff» (Umbenennen 1a, Noah 10.10.2026): the pencil next to the bike's name opens
+   * only «Rename bike» (the sheet above the keyboard); type, use and photo stay in «Bike details»,
+   * one link further. After a rename the same bike stays chosen: its id goes into the address, else
+   * Setup would show the first bike by name and the new name looked lost.
+   */
+  let bikeRename = $state(null);
+  const tripsOn = (id) => ($tripsQ ?? []).filter((x) => x.bikeId === id).length;
+  async function renameThis(name) {
+    const b = bikeRename;
+    onbike?.(b.id);
+    const old = await renameBike(db, b.id, name);
+    offerRename(name, () => renameBike(db, b.id, old));
+  }
+
   function chooseBike(id) {
     onbike?.(id);
     activeSlot = null;
@@ -236,7 +258,7 @@
       <!-- v0.23.0 (AP07): or add one right here -->
       <button type="button" class="btn hi addfirst" onclick={() => (bikeDialog = { bike: null })}>{t('Add bike')}</button></p>
   {:else if bike}
-    <SetupBand {bikes} {bike} {setup} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} />
+    <SetupBand {bikes} {bike} {setup} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeRename = bike)} />
 
     <!-- v0.69.0 «Velo-Blätter» (Noah V1 a, mockup a-mappe): the bike's folder of sheets, below the band. -->
     <SheetFolder {bike} />
@@ -450,7 +472,26 @@
 {/if}
 
 {#if bikeDialog}
-  <BikeDialog bike={bikeDialog.bike} {bikes} oncreated={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
+  <BikeDialog bike={bikeDialog.bike} {bikes} oncreated={(id) => onbike?.(id)} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
+{/if}
+
+{#if bikeRename}
+  <RenameSheet
+    kicker={t('Bike')}
+    title={t('Rename bike')}
+    value={bikeRename.name}
+    hint={tn(tripsOn(bikeRename.id), 'The new name counts everywhere: Setup, Care, {n} trip.', 'The new name counts everywhere: Setup, Care, {n} trips.')}
+    onsave={renameThis}
+    onclose={() => (bikeRename = null)}
+  >
+    {#snippet extra()}
+      <button type="button" class="link more-d" onclick={() => ((bikeDialog = { bike: bikeRename }), (bikeRename = null))}>{t('Type, use and photo: Bike details')} ›</button>
+    {/snippet}
+  </RenameSheet>
+{/if}
+
+{#if photoRename}
+  <RenameSheet kicker={t('Photo')} title={t('Rename photo')} value={photoRename.name} hint={t('Name of this photo, e.g. "Hope 2026"')} onsave={renamePhoto} onclose={() => (photoRename = null)} />
 {/if}
 
 {#if dialog}
@@ -804,6 +845,12 @@
     top: 50%;
     height: 44px;
     transform: translateY(-50%);
+  }
+  .more-d {
+    display: inline-block;
+    margin-top: 10px;
+    min-height: 44px;
+    color: var(--accent);
   }
   .addfirst {
     display: flex;

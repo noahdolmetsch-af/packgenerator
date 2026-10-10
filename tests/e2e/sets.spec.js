@@ -240,8 +240,12 @@ test('building blocks page on a 320 px phone: gone item greyed, amount, rename b
   const cook = page.getByRole('listitem', { name: T('Night: Cook').replace(/^[^:]+: /, ''), exact: true });
   await cook.locator('details.edit > summary').click();
   await cook.getByRole('button', { name: T('Rename {name}', { name: T('Night: Cook').replace(/^[^:]+: /, '') }) }).click();
-  await cook.getByLabel(T('New name')).fill('test_data_gtp_ Küche');
-  await cook.getByRole('button', { name: T('Save') }).click();
+  // v0.72.0: in the one rename sheet (Umbenennen 1a)
+  const rn = page.locator('dialog.rename[open]');
+  await expect(rn.getByLabel(T('Name'), { exact: true })).toBeFocused();
+  await rn.getByLabel(T('Name'), { exact: true }).fill('test_data_gtp_ Küche');
+  await rn.getByRole('button', { name: T('Save') }).click();
+  await expect(rn).toHaveCount(0);
   await expect(page.getByRole('listitem', { name: 'test_data_gtp_ Küche' })).toBeVisible();
   expect((await table(page, 'settings')).find((s) => s.key === 'sets').value).toContainEqual({ key: 'cook', name: 'test_data_gtp_ Küche' });
   // Built-in blocks have no Delete; own ones do, with Undo.
