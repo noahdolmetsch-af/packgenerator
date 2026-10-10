@@ -34,7 +34,8 @@
     bottom: 0;
     z-index: 6;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
     padding: var(--sp-1) var(--sp-1) calc(6px + env(safe-area-inset-bottom));
     border-top: 1px solid var(--line);
     background: var(--paper);

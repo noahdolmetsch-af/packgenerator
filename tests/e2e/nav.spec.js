@@ -5,6 +5,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { PLACES } from '../../src/lib/nav.js';
 
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -48,9 +49,9 @@ for (const lang of ['en', 'de']) {
       await page.goto(`./${hash}`);
       const nav = page.locator('nav[aria-label]').filter({ visible: true }).filter({ has: page.locator(`a[href="#/gear"]`) });
       await expect(nav, hash).toHaveCount(1);
-      // the same five places (v0.71.0), in the same order, on every page (the sidebar also lists their pages)
+      // the same places (v0.71.0: five, read from nav.js), in the same order, on every page (the sidebar also lists their pages)
       const places = page.locator('nav.bottom a, .side li.pl > a.pa');
-      await expect(places, hash).toHaveText([T('Today|place'), T('Trips|place'), T('Gear|place'), T('Bikes|place'), T('Active|place')]);
+      await expect(places, hash).toHaveText(PLACES.map((p) => T(p.label)));
       const lit = page.locator('nav.bottom a[aria-current], .side li.pl > a.pa[aria-current]');
       if (place) await expect(lit, hash).toHaveText(T(place));
       else await expect(lit, hash).toHaveCount(0);
