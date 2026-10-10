@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.75.0',
+    date: '2026-10-10',
+    points: [
+      { text: 'Renaming is the same everywhere: the pencil opens one small sheet, the keyboard key saves, and «Undo» stays for 10 seconds. Gear items can be renamed on the phone too.', href: '#/bikes' },
+      { text: 'The back button keeps what you typed in a window, like «Save».', href: '#/gear' },
+      { text: 'Import rides asks once which bike a new ride type belongs to and remembers it as a rule.', href: '#/bikes?tab=care' },
+      { text: 'Gear items show one summary line and lighter alternatives under «Weight»; first aid comes on every trip, the small set on a day ride.', href: '#/gear' },
+    ],
+  },
+  {
     version: '0.73.0',
     date: '2026-10-10',
     points: [

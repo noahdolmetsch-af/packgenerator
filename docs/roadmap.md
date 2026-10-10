@@ -513,7 +513,9 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 10.10.2026 (v0.73.0, PR offen):** «Ruhige Startseite + Fotoband» gebaut (Mockups heute-ruhig A und fotoalbum-neu A freigegeben): Gruss in einer Zeile, scharfes Foto, Fotoband am Handy, Vorschlag als schmale Zeile, kein doppeltes «Weitermachen» (AP-Bezug Startseite, Ziel 1).
+**Nachtrag 10.10.2026 (v0.75.0, PR offen):** «Feinschliff» gebaut (D1–D4 a, Material-Detail 1–5 a, Umbenennen 1–5 a): ein Umbenennen-Blatt überall mit Rückgängig, Zurück-Taste speichert, Import fragt neue Fahrt-Typen einmal, Teile-Fenster mit Zusammenfassung und leichteren Alternativen, Erste Hilfe auf jeder Tour, 44-px-Tippflächen (AP-Bezug Feinschliff, Ziele 1 und 2).
+
+**Nachtrag 10.10.2026 (v0.73.0, live, PR #99):** «Ruhige Startseite + Fotoband» gebaut (Mockups heute-ruhig A und fotoalbum-neu A freigegeben): Gruss in einer Zeile, scharfes Foto, Fotoband am Handy, Vorschlag als schmale Zeile, kein doppeltes «Weitermachen» (AP-Bezug Startseite, Ziel 1).
 
 **Nachtrag 10.10.2026 (v0.70.0, live, PR #98):** Velo-Blätter Teil 2 gebaut (Noah W1–W7 a): Einfahr-Plan (von selbst bei neuem Velo, Häkchen in die Pflege, Erinnerung auf Heute), Repair-Kit pro Art der Fahrt mit «Auf die Packliste …», Garantie & Belege mit Erinnerung und Kalender-Datei, Diebstahl-Blatt (AP-Bezug Velo-Pflege, Ziel 2). 0.69.1 ist live (PR #96).
 
