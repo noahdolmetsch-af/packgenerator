@@ -40,6 +40,16 @@ Die Stufen 1–9 sind im Aktiv-Dokument geplant. Aus der Strategie kommen dazu:
 | **S4 KI-Helfer** | «Pack mir eine 3-Tage-Tour für 5 °C», Learnings aus Notizen, Rückblick schreiben | 87 |
 | **S5 Kleine Anbindungen** | Teilen-Seite, Spotify/YouTube-Knöpfe, Wikipedia/OSM-Kurztexte, Sonnen- und Mondkalender, Veloladen-Bestellung, E-Mail an die App, Preis-Wächter, Komoot/Ride with GPS, SBB, Drive-Backup | 79, 81–84, 89–93 |
 
+### Anreise und Karten: zuerst einfach, dann mehr (Noah, 9.10.2026)
+
+Noah: «zuerst einfach, dann mehr integrieren, ungefähr mit der Strava-Integrierung».
+
+- **Stufe 1 «Links» (eigenes kleines Paket, ohne Server, kostenlos):** Knöpfe mit vorausgefülltem Ziel und Datum, die die andere App öffnen. SBB.ch (Verbindung), Google Maps (Anreise mit dem Auto), swisstopo bzw. OpenStreetMap (Startort auf der Karte), Kalender-Datei (.ics) für die Tour.
+- **Stufe 2 «Mehr» (zusammen mit S1 Strava und Server):** Verbindungen direkt in der App (offene Fahrplan-Daten, z. B. transport.opendata.ch); GPX-Route auf einer Karte (swisstopo- oder OSM-Kacheln); Import von Google-My-Maps-Exporten (KML/KMZ); Komoot/Ride with GPS.
+- Kein Google-Maps-Einbau mit API-Schlüssel (braucht ein Abrechnungskonto); Google Maps nur als Link.
+- Wie jedes Paket: zuerst Mockups und a/b-Fragen ([Arbeitsweise](arbeitsweise.md)).
+- Reihenfolge (Noah, 9.10.2026): zuerst der KI-Helfer (aus S4, jetzt mit Mockups planen), danach Stufe 1 «Links».
+
 ## Neuland
 
 **N1 Neuland mit Rennen.** Enthält:

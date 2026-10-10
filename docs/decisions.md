@@ -513,3 +513,13 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Von selbst am letzten Abend** öffnet sich «Tour beendet» nicht für eine Tour, die heute erstellt wurde (wie der Fahrtag, Noah 6a); dort bleibt «Heute zurückblicken» auf Heute.
 - **Zurück-Taste und Links:** schliesst ein Fenster mit einem Link oder öffnet es gleich das nächste («Neu» → «Tour planen»), bleibt die Adresse des Links und das nächste Fenster übernimmt den Verlaufseintrag.
 
+## Arbeitsweise (9.10.2026, 23:26)
+
+- **Entscheid:** nur ein Paket (höchstens zwei) gleichzeitig; vor jedem Release Mockups, Noahs Prüfung und a/b-Fragen, gebaut wird erst danach. Ersetzt den Schnellmodus. Details und verbindliche Anweisung: [Arbeitsweise](arbeitsweise.md).
+- **Grund:** Drei Pakete parallel brachten Umnummerierungen und Funktionen ohne Design-Prüfung.
+
+## Kurs-Check, Mockups nur hell, Gesamttest vor dem PR (10.10.2026)
+
+- **Entscheid:** [Geplante Vorhaben](vorhaben.md) ist der Massstab, ob wir auf dem richtigen Weg sind; vor jedem Paket wird es geprüft, in jedem Release nachgeführt. Mockups gibt es nur noch hell. Vor jedem PR läuft der komplette Gesamttest lokal.
+- **Grund:** Noah möchte die Übersicht als Basis behalten und den Kurs regelmässig prüfen; dunkle Mockups verdoppelten die Bilder; mehrere PRs wurden erst in CI rot.
+
