@@ -7,6 +7,9 @@
    * prints). A missing value is an empty line «enter» that links to where it is edited.
    * Workshop order: every job can be taken off, wishes typed in. Pick-up check: every tick is stored
    * at once; «Take into care» records the ticked work (a replaced part gets its start point).
+   * v0.70.0 «Velo-Blätter Teil 2»: the four more sheets (Break-in plan, Repair kit, Warranty &
+   * receipts, Theft sheet) are drawn by SheetMore.svelte; their values typed on the sheet open with
+   * «Change values» (Warranty, Theft).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -15,6 +18,10 @@
   import { kmOn } from '../kmbook.js';
   import { PART } from '../care.js';
   import { SHEET, sheetsOf, shownSheets, sheetData, keepValues, orderSheetText, sheetText, bikeLine, tickPickup, pickupEntries } from '../sheets.js';
+  import { moreData, breakinText, kitText, warrantyText, theftText } from '../sheets2.js';
+  import { bikePhotos } from '../photo.js';
+  import { markSeen } from './seen.js';
+  import SheetMore from './SheetMore.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { ChevronLeft, Copy, Printer, Pencil } from '@lucide/svelte';
 
@@ -25,11 +32,21 @@
   const tasksQ = liveQuery(() => db.maintenance.toArray());
   const tripsQ = liveQuery(() => db.trips.toArray());
   const kmQ = liveQuery(() => db.kmBook.toArray());
+  const itemsQ = liveQuery(() => db.items.toArray());
+  const photosQ = liveQuery(() => db.photos.where('bikeId').equals(bikeId).toArray());
   const today = localDay();
 
   const bike = $derived(($bikesQ ?? []).find((b) => b.id === bikeId) ?? null);
   const data = $derived(bike ? sheetData(bike, { visits: $visitsQ ?? [], tasks: $tasksQ ?? [], trips: $tripsQ ?? [], today }) : null);
-  const kinds = $derived(sheet === 'all' ? (bike ? shownSheets(bike).map((s) => s.key) : []) : [sheet]);
+  const more = $derived(bike && data ? moreData(bike, data, { visits: $visitsQ ?? [], items: $itemsQ ?? [], photos: $photosQ ?? [], gallery: bikePhotos(bike, $photosQ ?? []), today }) : null);
+  const kinds = $derived(sheet === 'all' ? (bike ? shownSheets(bike, { today, visits: $visitsQ ?? [] }).map((s) => s.key) : []) : [sheet]);
+  const MORE = ['breakin', 'kit', 'warranty', 'theft'];
+  // the km of a tick in the Break-in plan: the counter, else the ride ledger on that day
+  const kmNow = $derived(typeof bike?.km === 'number' ? bike.km : kmOn($kmQ ?? [], bikeId, today));
+  let editing = $state(false); // Warranty and Theft sheet: the form of the values typed on the sheet
+  $effect(() => {
+    for (const k of kinds) markSeen(k);
+  });
   const km = $derived(typeof data?.view.km === 'number' ? data.view.km : null);
   const kmLine = $derived(km != null ? `${num(km)} km` : t('km not set'));
   const s = $derived(bike ? sheetsOf(bike) : null);
@@ -42,8 +59,8 @@
         ? { href: bikesHash({ tab: 'shop', bike: bikeId }), label: t('Workshop & receipts') }
         : { href: bikesHash({ tab: 'setup', bike: bikeId }), label: t('Folder {bike}', { bike: bike?.name ?? '' }) },
   );
-  const EDIT = { pass: 'setup', plan: 'care', order: 'care', pickup: 'setup' };
-  const editHref = $derived(sheet === 'all' ? null : EDIT[sheet] === 'setup' ? bikesHash({ tab: 'setup', bike: bikeId }) : bikesHash({ tab: 'care', bike: bikeId, open: true }));
+  const EDIT = { pass: 'setup', plan: 'care', order: 'care', pickup: 'setup', breakin: 'setup', kit: 'gear', warranty: 'form', theft: 'form' };
+  const editHref = $derived(sheet === 'all' || EDIT[sheet] === 'form' ? null : EDIT[sheet] === 'gear' ? '#/gear' : EDIT[sheet] === 'setup' ? bikesHash({ tab: 'setup', bike: bikeId }) : bikesHash({ tab: 'care', bike: bikeId, open: true }));
 
   /* ---------- storing on the bike (plain data: Dexie cannot store a state proxy) ---------- */
   async function store(changes) {
@@ -68,6 +85,10 @@
         sections: [{ name: t('Parts'), rows: data.plan.rows.map((r) => ({ id: r.key, label: r.name, value: r.next || '–', hint: [r.interval, r.last && t('last {when}', { when: r.last }), r.since && t('since then {since}', { since: r.since })].filter(Boolean).join(' · ') })) }],
         foot: 'Pack Generator',
       });
+    if (kind === 'breakin') return breakinText(data.view, more.breakin, { today });
+    if (kind === 'kit') return kitText(data.view, more.kit);
+    if (kind === 'warranty') return warrantyText(data.view, more.warranty, { today });
+    if (kind === 'theft') return theftText(data.view, more.theft, { today });
     if (kind === 'order') return orderSheetText(data.picked, { bike: data.view, trip: data.trip, wishes: s.wishes ?? '', keep: keepValues(data.view) });
     return sheetText({ title: t('Pick-up check'), sub: `${data.view.name} · ${t('at the bike shop')}`, facts: [kmLine, t('{n} of {all} done', { n: data.pickup.ticked, all: data.pickup.total })], sections: data.pickup.sections, ticks: data.pickup.pickup.ticks, foot: t('Pack Generator · the ticks stay saved in the app') });
   }
@@ -258,7 +279,8 @@
     <div class="bar noprint">
       <a class="backl" href={back.href}><ChevronLeft size={18} aria-hidden="true" />{back.label}</a>
       <span class="grow"></span>
-      {#if editHref}<a class="btn" href={editHref}><Pencil size={16} aria-hidden="true" />{t('Change values')}</a>{/if}
+      {#if editHref}<a class="btn" href={editHref}><Pencil size={16} aria-hidden="true" />{t('Change values')}</a>
+      {:else if EDIT[sheet] === 'form'}<button type="button" class="btn" aria-pressed={editing} onclick={() => (editing = !editing)}><Pencil size={16} aria-hidden="true" />{t('Change values')}</button>{/if}
       <button type="button" class="btn" onclick={copy}><Copy size={16} aria-hidden="true" />{t('Copy text')}</button>
       <button type="button" class="btn ink" onclick={pdf}><Printer size={16} aria-hidden="true" />{t('Share as PDF')}</button>
     </div>
@@ -267,7 +289,8 @@
     <div class="papers">
       {#each kinds as kind (kind)}
         <article class="paper" data-sheet={kind} aria-label={t(SHEET[kind].name)}>
-          {#if kind === 'pass'}{@render pass()}{:else if kind === 'plan'}{@render plan()}{:else if kind === 'order'}{@render order()}{:else}{@render pickup()}{/if}
+          {#if MORE.includes(kind)}<SheetMore {kind} {bike} {data} {more} items={$itemsQ ?? []} {today} {kmNow} visits={$visitsQ ?? []} bind:editing />
+          {:else if kind === 'pass'}{@render pass()}{:else if kind === 'plan'}{@render plan()}{:else if kind === 'order'}{@render order()}{:else}{@render pickup()}{/if}
         </article>
       {/each}
     </div>
