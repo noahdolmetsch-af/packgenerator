@@ -2,6 +2,7 @@
 // The big fictional data set comes from tests/fixtures/gesamttest/make.mjs (built for the real day,
 // so "running", "past" and "planned" stay true). Open-Meteo is mocked; nothing leaves the preview
 // server. Service workers are blocked by playwright.config.js (serviceWorkers: 'block').
+import { DATA_TABLES } from '../../../src/lib/db.js';
 import { expect } from '@playwright/test';
 import { writeFileSync, mkdirSync, appendFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -133,7 +134,9 @@ export const table = (page, name) =>
     name,
   );
 
-export const TABLES = ['items', 'kits', 'trips', 'debriefs', 'learnings', 'events', 'maintenance', 'bikes', 'containers', 'weightChecks', 'settings', 'visits', 'photos', 'notes', 'rides', 'flowActs', 'flowLog', 'flowChecks', 'kmBook'];
+// hobby pages 1: read from the app (db.js DATA_TABLES) instead of a copy, so a new table (v8: flowSessions,
+// flowTemplates, flowStars) is in the snapshot as it is in the backup
+export const TABLES = DATA_TABLES;
 /** The whole database as { table: rows } (meta left out, as a backup does). */
 export async function snapshot(page) {
   const out = {};

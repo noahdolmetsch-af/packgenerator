@@ -58,6 +58,9 @@ const ROUTES = [
   ['#/bikes?bike=test_data_gtp_spark&sheet=order', 'Werkstatt-Auftrag'],
   ['#/bikes?bike=test_data_gtp_spark&sheet=pickup', 'Abhol-Check'],
   ['#/flow', 'Im Flow'],
+  // hobby pages 1: Aktiv › Aktivität and Meilensteine, strict like their files
+  ['#/flow/activity', 'Aktivität'],
+  ['#/flow/milestones', 'Meilensteine'],
   ['#/me', 'Ich'], // v0.76.0 «Fünf Orte»: strict like its file
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];

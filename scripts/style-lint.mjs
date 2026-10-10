@@ -52,6 +52,17 @@ export const STRICT_STYLE = [
   'src/lib/bikes/SheetMore.svelte',
   // v0.73.0 «Ruhige Startseite + Fotoband»
   'src/lib/home/TripPhoto.svelte',
+  // hobby pages, package 1: Aktiv › Aktivität and Meilensteine (all new, all strict)
+  'src/pages/flow/Activity.svelte',
+  'src/pages/flow/Milestones.svelte',
+  'src/lib/flow/hobby/ActTile.svelte',
+  'src/lib/flow/hobby/CanDo.svelte',
+  'src/lib/flow/hobby/MsBlock.svelte',
+  'src/lib/flow/hobby/MsCard.svelte',
+  'src/lib/flow/hobby/RecordWall.svelte',
+  'src/lib/flow/hobby/RewardRow.svelte',
+  'src/lib/flow/hobby/RingsWeek.svelte',
+  'src/lib/flow/hobby/Sugg.svelte',
   // v0.76.0 «Fünf Orte» 1: the new navigation and «Ich»
   'src/lib/nav/SideBar.svelte',
   'src/lib/nav/PlaceBar.svelte',
@@ -61,7 +72,7 @@ export const STRICT_STYLE = [
   'src/pages/Me.svelte',
 ];
 /** The routes of the trip pages and interstitials (tests/e2e/guard.spec.js), strict in the same way. */
-export const STRICT_ROUTES = ['#/pack', '#/pack?day', '#/ride', '#/debrief/test_data_gtp_Napf', '#/trip/test_data_gtp_Herbstrunde/packed', '#/trip/test_data_gtp_Napf/ended', '#/trip/test_data_gtp_Napf/debriefed', '#/bikes?tab=care&view=import&bike=test_data_gtp_spark', '#/bikes?bike=test_data_gtp_spark&sheet=all', '#/bikes?bike=test_data_gtp_spark&sheet=pass', '#/bikes?bike=test_data_gtp_spark&sheet=order', '#/bikes?bike=test_data_gtp_spark&sheet=pickup', '#/me'];
+export const STRICT_ROUTES = ['#/pack', '#/pack?day', '#/ride', '#/debrief/test_data_gtp_Napf', '#/trip/test_data_gtp_Herbstrunde/packed', '#/trip/test_data_gtp_Napf/ended', '#/trip/test_data_gtp_Napf/debriefed', '#/bikes?tab=care&view=import&bike=test_data_gtp_spark', '#/bikes?bike=test_data_gtp_spark&sheet=all', '#/bikes?bike=test_data_gtp_spark&sheet=pass', '#/bikes?bike=test_data_gtp_spark&sheet=order', '#/bikes?bike=test_data_gtp_spark&sheet=pickup', '#/me', '#/flow/activity', '#/flow/milestones'];
 /** «noch umbauen»: every file the baseline still lists (not strict), most violations first. */
 export const stillToRebuild = (base = {}) =>
   Object.entries(base)
