@@ -455,6 +455,13 @@
 
   const moveTo = (itemId, slot) => setEntries((es) => es.map((e) => (e.itemId === itemId ? { ...e, slot, packed: false } : e)));
   const removeEntry = (itemId) => setEntries((es) => es.filter((e) => e.itemId !== itemId));
+  /** v0.77.0 (answer 4a): «Hinzufügen» from «Liste prüfen»: into the item's usual bag (other areas: their first bag), with Undo. */
+  function helperAdd(itemId) {
+    const it = itemsById[itemId];
+    if (!it || onTrip(trip).has(itemId)) return;
+    const slot = bikeTrip ? tripSlot(it, trip.setup) : trip.packs?.[0]?.key ?? 'body';
+    return setEntries((es) => [...es, { itemId, slot, qty: 1, packed: false, src: 'helper' }]);
+  }
   /** Put an item into a bag (key of the place); a place without a bag puts it on me. */
   function addTo(key, itemId) {
     const z = stats.zones.find((x) => x.key === key);
@@ -886,7 +893,7 @@
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
       choose, addTo, addMany, qty: (id, qty) => setEntries(es => setQty(es, id, qty)),
-      move: moveTo, remove: removeEntry, undo: undoLast, swap: swapAlt, undoRow, undoWx, swapWear, takeOff,
+      move: moveTo, remove: removeEntry, helperAdd, undo: undoLast, swap: swapAlt, undoRow, undoWx, swapWear, takeOff,
       apply: choices => change(cur => acceptReview(cur, items, choices)),
       edit: () => dialog = { trip }, newTrip: () => dialog = { trip: null },
       pack: goPack, ride: goRide, packAndGo, end: endTrip,

@@ -53,6 +53,8 @@ export const PAGE_GROUPS = [
       // v0.48.0 (Noah 12a-17a): the Notes page (notes kept, topics, pinned, checklists).
       { id: 'notes', title: 'Notes', href: '#/notes', icon: 'notes', words: 'notes notizen notiz merken checkliste checklist thema topics pinned angeheftet' },
       { id: 'data', title: 'Your data', action: 'data', icon: 'data', words: 'your data deine daten backup sicherung import export restore wiederherstellen' },
+      // v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer.
+      { id: 'helper', title: 'Helper', href: '#/helper', icon: 'sparkles', words: 'helper helfer ki ai claude assistant assistent settings einstellungen code limit vorschlag suggestion' },
       { id: 'features', title: 'What the app can do', href: '#/features', icon: 'sparkles', words: 'what the app can do was die app kann features funktionen tips tipps updates neuerungen' },
       // v0.76.0: «Ich» itself, with the language, light or dark and the colour world.
       { id: 'me', title: 'Me|place', href: '#/me', icon: 'user', words: 'me ich settings einstellungen language sprache deutsch english dark dunkel light hell colours farben stil style theme home place heimat keyboard shortcuts tastenkürzel help hilfe version' },

@@ -13,6 +13,7 @@
   import { countUse } from '../home/usage.js';
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
+  import SearchAnswer from '../helper/SearchAnswer.svelte';
 
   // v0.76.0 «Fünf Orte»: short: the narrow field in the sidebar says only «Suchen» (with «/»).
   let { compact = false, short = false } = $props();
@@ -20,6 +21,7 @@
   let open = $state(false); // phone: the field is shown
   let input = $state();
   let btn = $state(); // phone: the magnifier that opened the field
+  let kh = $state(); // v0.77.0 KI-Helfer (answer 2a): «Frag den Helfer» above the hits
   const all = liveQuery(async () => {
     const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
     return { items, trips, bikes, notes, templates: tpl?.value ?? [], events };
@@ -118,6 +120,7 @@
       // v0.44.1 (AP21): on a phone the field closes, so the focus goes back to the magnifier (not to the page top).
       if (open) (open = false), queueMicrotask(() => btn?.focus());
     }
+    if (e.key === 'Enter' && kh?.onEnter(q)) return e.preventDefault();
     if (e.key === 'Enter' && cmds.length) run(cmds[0]);
     else if (e.key === 'Enter' && count) go(groups[0].rows[0]);
   };
@@ -125,7 +128,7 @@
 
 <!-- v0.46.1 (Noah: "bei Suche auf Handy blockiert Suchfeld obersten Teil"): on a phone the open search
      is one clean sheet under the top bar (field, then the results), the magnifier turns into ×. -->
-<div class="search" bind:this={root} class:ph={phone.matches || compact} class:open>
+<div class="search" bind:this={root} class:ph={phone.matches || compact} class:short class:open>
   {#if phone.matches || compact}
     <button type="button" class="icon" bind:this={btn} aria-label={open ? t('Close search') : t('Search everything')} aria-expanded={open} onclick={toggle}>
       {#if open}
@@ -163,6 +166,7 @@
   {/if}
   {#if q.trim().length >= 2}
     <div class="res" role="region" aria-label={t('Search results')} aria-live="polite">
+      <SearchAnswer bind:this={kh} {q} items={$all?.items ?? []} onpropose={() => { q = ''; open = false; }} />
       {#if cmds.length}
         <p class="gh">{t('Do it now')}</p>
         <ul class="cmds">
@@ -278,6 +282,12 @@
     box-shadow: 0 10px 30px var(--shadow);
     z-index: 30;
     box-sizing: border-box;
+  }
+  /* v0.77.0: in the sidebar (short) the results open to the right, over the page (Mockup KI-Helfer 5),
+     not to the left out of the window. */
+  .short .res {
+    left: 0;
+    right: auto;
   }
   .sheet .res {
     position: static;

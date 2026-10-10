@@ -18,6 +18,16 @@ export default {
   'After an update a calm sheet says once what is new. An old link like #/care says where it leads now.':
     'Nach einem Update sagt ein ruhiges Blatt einmal, was neu ist. Ein alter Link wie #/care sagt, wohin er jetzt führt.',
 
+  // 0.77.0 «KI-Helfer»
+  'The helper (Claude) makes suggestions, only when you ask: «Ask the helper» on top of New trip and a question in the search turn a few words into a packing list proposal.':
+    'Der Helfer (Claude) macht Vorschläge, nur wenn du fragst: «Frag den Helfer» oben in «Neue Tour» und eine Frage in der Suche machen aus ein paar Wörtern einen Packlisten-Vorschlag.',
+  '«Check the list» next to «Continue to Pack» shows what may be missing, what is double and what is heavy. «Get a draft» in the Rückblick writes learnings from your notes on the way.':
+    '«Liste prüfen» neben «Weiter zu Packen» zeigt, was vielleicht fehlt, was doppelt und was schwer ist. «Entwurf holen» im Rückblick schreibt Learnings aus deinen Notizen unterwegs.',
+  'In bike care the helper adds suggestions to «Due now». Everything is a suggestion: take it over, ignore it or change it.':
+    'In der Velopflege setzt der Helfer Vorschläge in «Jetzt fällig». Alles ist ein Vorschlag: übernehmen, ignorieren oder ändern.',
+  'Me › Helper: the helper code stays only on this device, with a monthly limit (CHF 5) and what goes to Claude. Without the code the app works as before.':
+    'Ich › Helfer: Der Helfer-Code bleibt nur auf diesem Gerät, mit Monatslimit (CHF 5) und was an Claude geht. Ohne Code funktioniert die App wie bisher.',
+
   // 0.76.0 «Fünf Orte» 1
   'Five places: Today, Trips, Gear, Bikes and Active. On a phone they sit at the bottom, on a computer in a sidebar on the left with the pages of each place.':
     'Fünf Orte: Heute, Touren, Material, Velos und Aktiv. Am Handy unten, am Computer in einer Seitenleiste links, mit den Seiten jedes Orts.',

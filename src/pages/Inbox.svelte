@@ -23,7 +23,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
-  import { flip } from 'svelte/animate';
+  import { flip } from '../lib/ui/flip.js';
   import { Check, Undo2, ChevronRight, Sparkles, Search } from '@lucide/svelte';
 
   let { onnew } = $props();

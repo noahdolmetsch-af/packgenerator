@@ -74,8 +74,10 @@ test('lighter alternatives in the row Gewicht: linked first, suggestions with Al
   await expect(fold(dlg, 'weight')).toContainText('Leichteste Alternative: Wind vest, 112 g weniger · von dir verknüpft');
   await expect(fold(dlg, 'weight').getByRole('list', { name: 'Gewicht im Vergleich' }).getByRole('listitem')).toHaveCount(2);
   await page.keyboard.press('Escape');
-  // wait until the first window is really closed, so the next steps cannot catch it on its way out
+  // the closed dialog takes its history entry away (backclose.js, history.back() after the tap);
+  // a next address before that would be undone by that late back step
   await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
 
   await page.goto('./#/gear?item=CO03');
   dlg = page.locator('dialog[open]');

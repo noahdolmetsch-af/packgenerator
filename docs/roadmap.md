@@ -515,6 +515,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 **Nachtrag 10.10.2026 (v0.78.0, PR offen):** Fünf Orte Teil 2 ist gebaut: Tabs oben pro Ort, Wischen am Handy, letzter Tab gemerkt, Hinweis bei alten Adressen, Was ist neu als Blatt, Touren-Einstieg mit Kacheln und Bestwerten, Rückblick mit offenen Rückblicken zuerst, Material › Einkauf. Als Nächstes nach der Reihenfolge vom 10.10. 14:33: Hobby-Unterseiten (Mockups zuerst), E1, D5.
 
+**Nachtrag 10.10.2026 (v0.77.0, gemergt, PR #104):** KI-Helfer (PR #89) auf Fünf Orte gebracht (K1–K3 a): Ich › Helfer, «Frag den Helfer» oben in Neue Tour, Antwort in der Suche, «Liste prüfen» neben «Weiter zu Packen», Rückblick-Entwurf, Wartungsvorschläge in «Jetzt fällig» (AP-Bezug S4 KI-Helfer, Ziele 1, 2 und 4). Danach Fünf Orte Teil 2. «Reisearten neu» ist ein eigenes Paket ganz am Ende, nach Neuland + Inspiration (Noah, 16:38).
+
 **Nachtrag 10.10.2026 (v0.76.0, live):** Fünf Orte Teil 1 ist gebaut: fünf Orte (Aktiv neu), «Ich» statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Tastenkürzel (AP-Bezug AP07 Navigation). Als Nächstes Fünf Orte Teil 2 (Tabs pro Ort, Wischen, alte Adressen, Übergänge 2).
 
 **Nachtrag 10.10.2026 (v0.75.0, live, PR #101):** «Feinschliff» gebaut (D1–D4 a, Material-Detail 1–5 a, Umbenennen 1–5 a): ein Umbenennen-Blatt überall mit Rückgängig, Zurück-Taste speichert, Import fragt neue Fahrt-Typen einmal, Teile-Fenster mit Zusammenfassung und leichteren Alternativen, Erste Hilfe auf jeder Tour, 44-px-Tippflächen (AP-Bezug Feinschliff, Ziele 1 und 2).

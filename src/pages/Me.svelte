@@ -4,7 +4,7 @@
    * the menu «More». First what you set for yourself (language, light or dark, colour world), then the
    * places of the app: home place, Inbox, notes, your data, what the app can do and has learned, help
    * and keyboard shortcuts. Numbers only where something waits (the Inbox, «Backup due»).
-   * The helper (KI-Helfer) shows here once it is switched on (Noah O2.1a: what is not built is hidden).
+   * v0.77.0 KI-Helfer (K1a): its own row «Helfer» with the state (set up, switched off, paused, not set up).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -17,7 +17,8 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
-  import { Globe, SunMoon, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight } from '@lucide/svelte';
+  import { Globe, SunMoon, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles } from '@lucide/svelte';
+  import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
 
   const waitQ = liveQuery(async () => {
     const [notes, file, folder, n, demo, place] = await Promise.all([db.notes.where('status').equals('open').count(), db.meta.get(LAST_BACKUP), db.meta.get('backupFolder'), db.items.count(), demoState(db), db.settings.get(HOME_PLACE)]);
@@ -26,6 +27,7 @@
   });
   let placeOpen = $state(false);
   const keys = () => window.dispatchEvent(new Event('pg:keys'));
+  const helperState = $derived(!helper.loaded ? '' : !isSetUp() ? t('not set up') : !helper.on ? t('switched off') : isPaused() ? t('paused until next month') : t('set up'));
   const version = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
 </script>
 
@@ -82,6 +84,13 @@
           {#if $waitQ?.backup}<span class="badge warn">{t('Backup due')}</span>{/if}
           <ChevronRight class="chev" size={18} aria-hidden="true" />
         </button>
+      </li>
+      <li>
+        <a class="row go" href="#/helper">
+          <Sparkles size={20} aria-hidden="true" />
+          <span class="nm">{t('Helper')}<small>{helperState || t('Suggestions from Claude, only on request')}</small></span>
+          <ChevronRight class="chev" size={18} aria-hidden="true" />
+        </a>
       </li>
       <li>
         <a class="row go" href="#/features">

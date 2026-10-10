@@ -20,6 +20,16 @@ export const WHATS_NEW = [
     ],
   },
   {
+    version: '0.77.0',
+    date: '2026-10-10',
+    points: [
+      { text: 'The helper (Claude) makes suggestions, only when you ask: «Ask the helper» on top of New trip and a question in the search turn a few words into a packing list proposal.', href: '#/trips' },
+      { text: '«Check the list» next to «Continue to Pack» shows what may be missing, what is double and what is heavy. «Get a draft» in the Rückblick writes learnings from your notes on the way.', href: '#/trips' },
+      { text: 'In bike care the helper adds suggestions to «Due now». Everything is a suggestion: take it over, ignore it or change it.', href: '#/bikes?tab=care' },
+      { text: 'Me › Helper: the helper code stays only on this device, with a monthly limit (CHF 5) and what goes to Claude. Without the code the app works as before.', href: '#/helper' },
+    ],
+  },
+  {
     version: '0.76.0',
     date: '2026-10-10',
     points: [
