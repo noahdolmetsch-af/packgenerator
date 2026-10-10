@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.67.1',
+    date: '2026-10-10',
+    points: [
+      { text: 'Date fields show the date like the rest of the app, with the weekday, for example «Sat, Oct 10, 2026». Tapping still opens the calendar.', href: '#/trips' },
+      { text: 'Bike types appear as words: Full suspension, Hardtail, Gravel bike, Road bike.', href: '#/bikes?tab=care' },
+      { text: 'In the flow has its icon in the menu.', href: '#/flow' },
+    ],
+  },
+  {
     version: '0.67.0',
     date: '2026-10-10',
     points: [
