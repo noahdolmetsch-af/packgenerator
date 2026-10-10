@@ -82,6 +82,22 @@
 
   /* ---------- setup photos (Noah, 4.10.2026, answers 1a-6a) ---------- */
   const gallery = $derived(bikePhotos(bike, $photosQ ?? []));
+  // v0.73.0 «Fotoband»: «Album ›» on Today opens this fold once for its bike.
+  let photosOpen = $state(false);
+  let photosEl = $state();
+  $effect(() => {
+    if (!bike?.id || !photosEl) return;
+    let wish = null;
+    try {
+      wish = localStorage.getItem('bikes.photos');
+    } catch {
+      return;
+    }
+    if (wish !== bike.id) return;
+    take('bikes.photos');
+    photosOpen = true;
+    queueMicrotask(() => photosEl?.scrollIntoView({ block: 'start' }));
+  });
   const bikeTrips = $derived(bike ? ($tripsQ ?? []).filter((t) => t.bikeId === bike.id).sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '')) : []);
   const tripTitle = (id) => ($tripsQ ?? []).find((t) => t.id === id)?.title ?? null;
   let shown = $state(null); // index in the gallery
@@ -366,7 +382,8 @@
           </SetupFold>
         {/if}
 
-        <SetupFold icon={Camera} label={t('Photos')} summary={`${gallery.length ? tn(gallery.length, '{n} photo', '{n} photos') : t('no photo yet')}${gallery.find((p) => p.main) ? ` · ${t('in Pack: {name}', { name: gallery.find((p) => p.main).name })}` : ''}`}>
+        <div bind:this={photosEl}></div>
+        <SetupFold icon={Camera} bind:open={photosOpen} label={t('Photos')} summary={`${gallery.length ? tn(gallery.length, '{n} photo', '{n} photos') : t('no photo yet')}${gallery.find((p) => p.main) ? ` · ${t('in Pack: {name}', { name: gallery.find((p) => p.main).name })}` : ''}`}>
           <div class="gal" aria-label={t('Photos of the {bike}', { bike: bike.name })}>
             {#each gallery as p, n (p.id)}
               <button type="button" class="th" class:main={p.main} onclick={() => (shown = n)} aria-label={p.main ? t('Open photo {name}, shown in Pack', { name: p.name }) : t('Open photo {name}', { name: p.name })}>

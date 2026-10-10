@@ -10,7 +10,7 @@ Noah writes German and is not a developer. Write replies to him in short, simple
 2. **Plan:** keep an updated roadmap, a sequence and implementation plan, and work packages.
 3. **Mockups for every work package, always shown on the one page «Offene Mockups»** (Noah, 10.10.2026, priority 1, «extrem wichtig»): https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv. Each round gets its own section, with computer and phone side by side and a link to its Trello question card. The Trello card and the thread reply both link to that section. Never hand over only a folder path.
 4. **Noah approves the mockup.** Only then build and open the PR.
-5. **Noah approves the PR** (he merges, never Claude).
+5. **Claude merges finished releases itself** (Noah, 10.10.2026: «Freigabe zum Veröffentlichen auf GitHub und Vercel für alle folgenden Releases»), but only after the local Gesamttest and all CI checks on the head commit are green. Noah still approves every mockup.
 6. **After every step:** document the progress (docs, Trello, memory).
 7. **Small things:** check and improve them yourself. **Bigger things:** always ask Noah targeted a/b questions with ★.
 
@@ -22,7 +22,7 @@ Noah writes German and is not a developer. Write replies to him in short, simple
   2. Noah reviews them.
   3. a/b questions, with the recommendation marked ★.
   4. Build only after his answers.
-- **Never merge.** Open the PR, get CI green, then give Noah the link, the test steps and the clicks «Merge pull request» → «Confirm merge».
+- **Self-merge (since 10.10.2026):** open the PR, run the full Gesamttest locally, get CI green on the head commit, then merge it yourself. A Vercel rate-limit red does not block. Never merge red or pending checks, drafts or parked PRs. Merge one PR at a time and renumber the others. Afterwards move the Trello card to «Zu testen» with the test steps and tell Noah in one short German line what is new online.
 - Small decisions you take yourself go in the PR under «Selbst entschieden».
 - Everything in the app is a suggestion: never mandatory, always changeable and deselectable.
 - **Course check:** `docs/vorhaben.md` lists every planned project with its why, goals and order. Before starting a new package, check it fits one of the four goals and the order there; if not, ask Noah. Every release PR updates its «Stand heute» section. About every five releases, send Noah a short course check with a/b questions.
