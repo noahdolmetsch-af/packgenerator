@@ -37,7 +37,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | --- | --- | --- |
 | 0.65.0 | Velo-Masse: Sattelhöhe, Rahmengrösse, Lenkerbreite pro Velo, Import aus Datei | live |
 | 0.66.0 | Bausteine neu (Biwak, Zelt, Hotel, Kochen, Erste Hilfe, Reparatur, Laden, Licht, Rennen, Essen, Hygiene, Komfort) und «Bausteine prüfen» | fertig, wartet auf Freigabe |
-| 0.67.0 | KI-Helfer (siehe unten) | wird gebaut |
+| – | KI-Helfer (siehe unten) | wird fertig gebaut, dann als Entwurf geparkt |
 | – | Startseite & Integrationen E1–E4 | Konzept fertig, Mockups werden gezeichnet |
 
 Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Packliste, Vorlagen, Bausteine, Temperaturbereiche, Velos mit Teilen und Pflege («Jetzt fällig»), Notizen unterwegs, Rückblick mit Learnings, Einkaufsliste, Belege, Sicherung als Datei (der einzige Weg, Daten zwischen Computer und Handy zu übertragen), Deutsch und Englisch, hell und dunkel.
@@ -65,7 +65,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
   8. Hinweis «noch nicht eingerichtet» nur in Neue Tour und Einstellungen.
 - **Beispiel Wartung:** «Kette: 2 400 km seit Wechsel, viele Regenfahrten. Mit der Lehre messen: ab 0,5 bald wechseln, ab 0,75 sofort.» Oder: «Bremsbeläge hinten: unter 1 mm Belag wechseln. Mindestdicke der Scheibe steht auf der Scheibe.»
 - **Technik:** kleiner Server auf Vercel (`api/helper.js`) hält den Anthropic-Schlüssel. Die App schickt nur, was die Aufgabe braucht: Namen, Gewichte, Bausteine, Notizen, km. Nie Fotos, Belege, Gesundheitsdaten oder Namen von Personen.
-- **Stand:** wird gebaut. Danach richtet Noah den Schlüssel ein (Anleitung `docs/ki-helfer-einrichten.md`).
+- **Stand:** wird fertig gebaut und getestet, dann als Entwurf geparkt (Noah, 10.10.2026). Eingeschaltet wird er nach E2–E4; dann richtet Noah den Schlüssel ein (Anleitung `docs/ki-helfer-einrichten.md`).
 
 ### 3. Startseite & Integrationen (E1–E4)
 
@@ -106,7 +106,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **S1 Strava:** Fahrten automatisch holen (Garmin kommt über Strava mit), km pro Velo, Trainer- und Zwift-Fahrten zählen zum Velo. Server ist vorbereitet und geparkt, kommt mit E3.
 - **S2 Erinnerungen:** Push mit Ein-Tap-Antwort, Unwetter-, Hitze- und Nullgrad-Warnungen.
 - **S3 Fitbit und Kalender:** Ruhepuls, HRV, Schlaf als Beobachtung; Google Kalender in beide Richtungen.
-- **S4 KI-Helfer:** vorgezogen, wird jetzt als 0.67.0 gebaut.
+- **S4 KI-Helfer:** wird jetzt fertig gebaut und als Entwurf geparkt, eingeschaltet nach E2–E4.
 - **S5 Kleine Anbindungen:** Sonnen- und Mondzeiten, Wikipedia/OSM-Kurztexte, Teilen an die App. SBB und komoot sind in Startseite & Integrationen aufgegangen.
 
 ### 8. Neuland (N1)
@@ -128,18 +128,33 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 
 Taktgeber ist echte Nutzung: Eine grössere Version kommt erst, wenn die letzte im Alltag oder auf einer Tour benutzt wurde.
 
+Noah, 10.10.2026: zuerst die Design-Pakete und die anderen Vorhaben, der KI-Helfer kommt später dazu.
+
 ```mermaid
 flowchart LR
-  A["0.65 Velo-Masse<br/>live"] --> B["0.66 Bausteine<br/>Freigabe"]
-  B --> C["0.67 KI-Helfer<br/>im Bau"]
-  C --> E1["E1 Startseite neu"]
-  E1 --> E2["E2 Karten + Wetter"]
-  E2 --> E3["E3 Strava + Aktivität"]
-  E3 --> E4["E4 SBB in der App"]
-  E4 --> R["Danach: Übergänge, D2–D6,<br/>Im Flow, S2/S3, Neuland"]
+  B["0.66 Bausteine<br/>Freigabe"] --> U["Übergänge Teil 1"]
+  U --> D3["D3 Navigation Basecamp"]
+  D3 --> E1["E1 Startseite neu"]
+  E1 --> D5["D5 Packen vorschlagen"]
+  D5 --> D2["D2 Einkauf, Lebenslauf, Werkstatt"]
+  D2 --> D46["D4 und D6"]
+  D46 --> E24["E2–E4 Karten, Strava, SBB"]
+  E24 --> KI["KI-Helfer einschalten"]
+  KI --> R["Im Flow, Neuland"]
 ```
 
-Die Reihenfolge nach E4 ist noch offen und wird vor jedem Paket mit Noah abgestimmt.
+1. Übergänge Teil 1 (drei kleine Releases)
+2. D3 Navigation «Basecamp», danach E1 Startseite neu
+3. D5 Packen vorschlagen
+4. D2 Einkauf, Lebenslauf, Werkstatt
+5. D4 und D6
+6. E2 bis E4 (Karten, Strava, SBB)
+7. KI-Helfer einschalten: er ist fertig gebaut und getestet und wartet als Entwurf. Er kommt bewusst nach D2 und Strava, weil er dann die Wartungsgeschichte jedes Teils und die echten km kennt.
+8. Danach Im Flow und Neuland.
+
+Die zwei kleinen Fehler (Datum, Velotypen) kommen später.
+
+Vor jedem Paket prüfen wir, ob die Reihenfolge noch stimmt (Kurs-Check).
 
 ## Wie wir arbeiten
 
@@ -184,6 +199,5 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 
 - KI-Helfer: Noah legt Schlüssel und Helfer-Code in Vercel an.
 - Startseite: Mockups E1–E4 anschauen und Fragen beantworten.
-- Reihenfolge nach E4.
-- Zwei kleine Fehler: Datum in Neue Tour als 10/10/2026 statt 10.10.2026, Velotypen in Velos › Pflege nicht übersetzt.
+- Zwei kleine Fehler (kommen später): Datum in Neue Tour als 10/10/2026 statt 10.10.2026, Velotypen in Velos › Pflege nicht übersetzt.
 - Strava-Regeln schränken die Nutzung von Strava-Daten durch KI ein; vor E3 klären, was der Helfer davon sehen darf.
