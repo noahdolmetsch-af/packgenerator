@@ -51,7 +51,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Beispiel:** Neue Tour «2 Nächte, Hütte» schaltet Hotel/Hütte, Hygiene und Laden ein, Biwak und Kochen bleiben aus.
 - **Stand:** fertig, alle Tests grün, wartet auf Freigabe.
 
-### 2. KI-Helfer (0.67.0)
+### 2. KI-Helfer (gebaut, geparkt)
 
 - **Warum:** Viel Wissen steckt schon in der App (Material, Learnings, km, Notizen), aber man muss es selbst zusammensuchen. Der Helfer macht daraus Vorschläge. Noahs wichtigster Wunsch: sinnvolle Wartungsvorschläge.
 - **Was (Antworten 1–8 a):**
