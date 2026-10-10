@@ -173,6 +173,17 @@
       padding: 0 var(--sp-2);
     }
   }
+  /* 320 px: four tabs («Overview · Care · Workshop · Measures») still fit side by side */
+  @media (max-width: 380px) {
+    .ptabs {
+      gap: 0;
+      padding: 0 var(--sp-1);
+    }
+    .ptabs a {
+      padding: 0 var(--sp-1);
+      font-size: var(--fs-label);
+    }
+  }
   .dots {
     display: flex;
     align-items: center;
