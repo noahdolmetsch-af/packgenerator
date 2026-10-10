@@ -47,6 +47,17 @@ const CASES = [
   },
   { id: 'today-data', hash: '#/', act: async (page) => tap(page.locator('details.data > summary')) },
   { id: 'features', hash: '#/features' },
+  // v0.77.0 KI-Helfer: Ich › Helfer and New trip before the setup (the notice with «What goes to Claude?» open).
+  // v0.76.0 «Fünf Orte»: New trip opens from Trips («+ New trip»), no longer from the list's ••• menu.
+  { id: 'helper', hash: '#/helper' },
+  {
+    id: 'new-trip-helper',
+    hash: '#/trips',
+    act: async (page, T) => {
+      await tap(page.locator('main').getByRole('button', { name: T('New trip'), exact: true }));
+      await tap(page.getByRole('dialog', { name: T('New trip') }).getByText(T('What goes to Claude?')));
+    },
+  },
   { id: 'plan-event', hash: '#/pack', trip: TRIP.event },
   { id: 'plan-event-before', hash: '#/pack', trip: TRIP.event, act: async (page, T) => tap(page.locator('summary, button').filter({ hasText: T('Before the trip') })) },
   { id: 'plan-ski', hash: '#/pack', trip: TRIP.ski },

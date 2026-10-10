@@ -88,9 +88,12 @@
       close();
     }
   }
+  // v0.77.0: the row closes at the tap, not only after the save (under load the open row stayed
+  // open for a moment, and the next swipe started from the open position).
   async function fav() {
-    await db.items.update(item.id, { favorite: item.favorite ? null : true, updatedAt: new Date().toISOString() });
+    const favorite = item.favorite ? null : true;
     close();
+    await db.items.update(item.id, { favorite, updatedAt: new Date().toISOString() });
   }
   const run = (fn) => () => {
     close();

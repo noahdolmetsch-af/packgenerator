@@ -13,14 +13,14 @@ const ELSEWHERE = {
   share: 'a shared link only',
   gearimport: 'Gear → Import (the import flow)',
 };
-const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'notes', 'debrief', 'gearimport', 'wardrobe', 'flow', 'me', 'blockcheck'];
+const PAGES = ['home', 'trips', 'pack', 'gear', 'bikes', 'care', 'templates', 'past', 'ride', 'share', 'blocks', 'features', 'favorites', 'inbox', 'notes', 'debrief', 'gearimport', 'wardrobe', 'flow', 'me', 'blockcheck', 'helper'];
 // v0.49.0 R1: #/review is part of the one Rückblick page (#/debrief) now; nav.js redirectOf leads there.
 
 describe('the pages under the places and «Ich» (v0.76.0)', () => {
   it('groups the pages by their place, «Ich» last', () => {
     expect(PAGE_GROUPS.map((g) => g.key)).toEqual(['trips', 'gear', 'active', 'me']);
     expect(PAGE_GROUPS.find((g) => g.key === 'trips').rows.map((r) => r.id)).toEqual(['templates', 'debriefs', 'past', 'learnings', 'pace']);
-    expect(PAGE_GROUPS.find((g) => g.key === 'me').rows.map((r) => r.id)).toEqual(['inbox', 'notes', 'data', 'features', 'me']);
+    expect(PAGE_GROUPS.find((g) => g.key === 'me').rows.map((r) => r.id)).toEqual(['inbox', 'notes', 'data', 'helper', 'features', 'me']); // v0.77.0: + Ich › Helfer (K1a)
   });
 
   it('every page is reached by a place or a page row (the places\' own pages once)', () => {
@@ -48,7 +48,7 @@ describe('the search finds pages and actions', () => {
   });
 
   it('finds the rarer pages by English or German words', () => {
-    for (const [q, id] of [['packlisten', 'templates'], ['vergangene', 'past'], ['tempo', 'pace'], ['backup', 'data'], ['inbox', 'inbox'], ['favoriten', 'favorites'], ['bausteine', 'blocks']]) {
+    for (const [q, id] of [['packlisten', 'templates'], ['vergangene', 'past'], ['tempo', 'pace'], ['backup', 'data'], ['inbox', 'inbox'], ['favoriten', 'favorites'], ['bausteine', 'blocks'], ['helfer', 'helper']]) {
       const rows = searchAll(q, {}).flatMap((g) => g.rows);
       expect(rows.map((x) => x.id), q).toContain(id);
     }

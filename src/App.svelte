@@ -15,6 +15,7 @@
   import Blocks from './pages/Blocks.svelte';
   import BlockCheck from './pages/BlockCheck.svelte';
   import Features from './pages/Features.svelte';
+  import Helper from './pages/Helper.svelte';
   import GearImport from './pages/GearImport.svelte';
   import Rides from './pages/Rides.svelte';
   import Wardrobe from './pages/Wardrobe.svelte';
@@ -302,6 +303,9 @@
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <Me />
+  {:else if page === 'helper'}
+    <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
+    <Helper />
   {:else if page === 'inbox'}
     <Inbox onnew={() => (noteOpen = true)} />
   {:else if page === 'notes'}

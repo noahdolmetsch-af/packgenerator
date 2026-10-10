@@ -16,8 +16,10 @@ export const APP_ID = 'pack-generator';
  * v0.45.1 (G015a): settings records that are the app's own memory on this device, not the user's data
  * ("tip of the day" shown and tapped). They never go into a backup, so two backups without a change
  * are the same; an older backup that still has them imports fine and the device keeps its own.
+ * v0.77.0 (KI-Helfer): "helper" (the Helfer-Code, the switch and the monthly limit) stays on this
+ * device: the code is a key and never travels in an export, a backup file or the folder backup.
  */
-export const DEVICE_SETTINGS = ['tips'];
+export const DEVICE_SETTINGS = ['tips', 'helper'];
 const deviceOnly = (name, row) => name === 'settings' && DEVICE_SETTINGS.includes(row?.key);
 
 /** Read every data table and build the backup object. */

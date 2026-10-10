@@ -29,6 +29,13 @@
   import SheetFolder from '../bikes/SheetFolder.svelte';
   import { partAreas } from './overview.js';
   import { isMore } from '../care.js';
+  import { Sparkles, X as XIcon } from '@lucide/svelte';
+  import { untrack } from 'svelte';
+  import { db } from '../db.js';
+  import { isOn, isPaused, errorText, helper } from '../helper/client.svelte.js';
+  import { careSuggestions, careMark } from '../helper/care.js';
+  import { careRows, careTask } from '../helper/logic.js';
+  import '../helper/helper.css';
 
   const bike = $derived(c.bike);
   const words = $derived(bikeCareWords(c.care));
@@ -76,6 +83,53 @@
     return list.map((x, n) => ({ ...x, n })).sort((a, b) => rankOf(b) - rankOf(a) || (a.r && b.r ? newestFirst(a.r, b.r) : 0) || a.n - b.n);
   });
   const dueParts = $derived(new Set(due.map((x) => x.r?.part.key).filter(Boolean)));
+
+  /*
+   * v0.77.0 (answers 5a, 6a): the helper's maintenance suggestions go INTO «Jetzt fällig», marked with
+   * the sparkle, a one-line reason and a status (bald fällig / prüfen; «ok» never here). A part that is
+   * due anyway gets the helper's line in its own card. «Als Aufgabe merken», «Erledigt», ×.
+   * They refresh by themselves after new km or a new ride, at most once a day per bike (care.js).
+   */
+  let hres = $state(null);
+  let hhash = $state('');
+  let hstate = $state({ done: [], dismissed: [] });
+  let hmsg = $state('');
+  let hnote = $state('');
+  const hdata = $derived(open && isOn() ? JSON.stringify([bike.km, bike.parts, tasks.length]) : '');
+  // A moment after the bike's data settles (the page fills in steps), never once per step.
+  $effect(() => {
+    if (!hdata) return;
+    const wait = setTimeout(() => untrack(() => loadHelper()), 700);
+    return () => clearTimeout(wait);
+  });
+  async function loadHelper() {
+    if (isPaused() && !hres) hmsg = errorText('paused', { capChf: helper.capChf });
+    const r = await careSuggestions($state.snapshot(bike));
+    hres = r.result;
+    hhash = r.hash;
+    hstate = r.state;
+    if (r.error && r.error !== 'off') hmsg = errorText(r.error, { capChf: helper.capChf });
+    else if (!r.error) hmsg = '';
+  }
+  const hrows = $derived(isOn() && hres ? careRows(hres, { bikeId: bike.id, hash: hhash, done: hstate.done, dismissed: hstate.dismissed }) : []);
+  const hmap = $derived(new Map(hrows.map((h) => [h.key, h])));
+  const hcards = $derived(hrows.filter((h) => !dueParts.has(h.key) && filter !== 'shop'));
+  const HSTATUS = { soon: 'due soon|helper', check: 'check|helper' };
+  const hname = (key) => t(PART[key]?.name ?? (bike.parts.find((p) => p.key === key)?.name || key));
+  async function hmark(kind, h) {
+    hstate = await careMark(kind, { bikeId: bike.id, key: h.key, hash: hhash, km: bike.km ?? null, status: h.status });
+  }
+  async function htask(h) {
+    try {
+      await db.transaction('rw', db.maintenance, async () => {
+        await db.maintenance.put(careTask(h, bike, hname(h.key), await db.maintenance.toArray(), today));
+      });
+      await hmark('done', h);
+      hnote = t('Remembered as a task: {part}', { part: hname(h.key) });
+    } catch {
+      hnote = t('Could not save. Please try again.');
+    }
+  }
   const fits = (r) => (filter === 'due' ? false : filter === 'self' ? r.last?.by === 'self' : filter === 'shop' ? r.last?.by === 'shop' : true);
   // v0.47.1 (Noah): the newest action first, also in the groups (the group with the newest action on top).
   const rest = $derived(known.filter((r) => !dueParts.has(r.part.key) && !c.care.rows.some((d) => d.part === r.part.key) && fits(r)).sort(newestFirst));
@@ -164,6 +218,10 @@
         {/if}
       {/if}
     </span>
+    {#if x && hmap.get(key)}
+      {@const h = hmap.get(key)}
+      <span class="kh-why"><span class="kh-ic"><Sparkles size={14} aria-hidden="true" /><span class="sr">{t('Suggestion from the helper')}: </span></span><span><b>{t(HSTATUS[h.status])}</b> · {h.reason}{#if h.check} → {h.check}{/if}</span><button type="button" class="kh-x" aria-label={t('Drop the suggestion for {part}', { part: hname(key) })} onclick={() => hmark('dismissed', h)}><XIcon size={16} aria-hidden="true" /></button></span>
+    {/if}
     {#if isOpen}
       <div class="extra" id="px-{bike.id}-{key}">
         {#if key === 'tyres'}{@render tyres()}{/if}
@@ -225,8 +283,8 @@
       <SheetFolder bike={c.bike} compact from="care" />
 
       <!-- v0.47.0 (Noah 10a): "Due now" as cards above the wear list -->
-      {#if due.length}
-        <p class="zlabel nowh">{t('Due now')} <span class="pill act num">{due.length}</span></p>
+      {#if due.length || hcards.length}
+        <p class="zlabel nowh">{t('Due now')} <span class="pill act num">{due.length + hcards.length}</span></p>
       {/if}
       <ul class="parts duecards">
         {#each due as x (x.d?.key ?? x.r.part.key)}
@@ -243,7 +301,22 @@
             </li>
           {/if}
         {/each}
+        {#each hcards as h (h.key)}
+          <li class="pt due kh-pt">
+            <span class="pn"><span class="kh-ic"><Sparkles size={16} aria-hidden="true" /><span class="sr">{t('Suggestion from the helper')}: </span></span><span class="kh-pn">{hname(h.key)}</span></span>
+            <span class="st"><span class="badge {h.status === 'soon' ? 'warn' : 'n'}">{t(HSTATUS[h.status])}</span></span>
+            <span class="last"><span class="lt">{h.reason}{#if h.check} → {h.check}{/if}</span></span>
+            <span class="act kh-care-acts">
+              <button type="button" class="btn sm" onclick={() => htask(h)}>{t('Remember as a task')}</button>
+              <button type="button" class="btn sm" onclick={() => hmark('done', h)}><Check size={16} aria-hidden="true" />{t('Done|task')}</button>
+              <button type="button" class="kh-x" aria-label={t('Drop the suggestion for {part}', { part: hname(h.key) })} onclick={() => hmark('dismissed', h)}><XIcon size={18} aria-hidden="true" /></button>
+            </span>
+          </li>
+        {/each}
       </ul>
+      {#if hrows.length}<p class="kh-quiet kh-care-note">{t('A suggestion from your km and notes, not a workshop diagnosis.')}</p>{/if}
+      {#if hnote}<p class="kh-msg" role="status">{hnote}</p>{/if}
+      {#if hmsg && isOn()}<p class="kh-msg" role="status">{hmsg}</p>{/if}
       {#if nothingYet && onstart}
         <!-- v0.48.0 (Noah 9a): a bike without part data gets its start values in three steps. -->
         <div class="startcta surf">
@@ -1131,6 +1204,51 @@
   }
   .duecards .extra {
     grid-column: 1 / -1;
+  }
+  /* v0.77.0 (answer 5a): the helper's cards and lines in «Due now» */
+  .duecards .kh-pt {
+    grid-template-areas:
+      'pn st'
+      'last last'
+      'act act';
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .kh-pt .pn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .kh-pn {
+    font-weight: 500;
+  }
+  .kh-care-acts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    justify-self: start;
+    margin-top: 6px;
+  }
+  .kh-why {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .kh-why > span:not(.kh-ic) {
+    flex: 1;
+    min-width: 0;
+  }
+  .kh-why .kh-ic {
+    margin-top: 2px;
+  }
+  .kh-care-note {
+    margin: -2px 4px 8px;
   }
 
   /* ---------- v0.47.0 (Noah 9.10.: "Velopflege: Schriftlayout vereinheitlichen") ----------

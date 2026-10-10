@@ -69,6 +69,16 @@ const patchTrip = (page, id, patch) =>
       get.onsuccess = () => { store.put({ ...get.result, ...p }).onsuccess = () => done(); };
     };
   }), [id, patch]);
+/** A stored trip as it is in the database now. */
+const storedTrip = (page, id) =>
+  page.evaluate((tid) => new Promise((done, fail) => {
+    const req = indexedDB.open('pack-generator');
+    req.onerror = fail;
+    req.onsuccess = () => {
+      const get = req.result.transaction('trips').objectStore('trips').get(tid);
+      get.onsuccess = () => { req.result.close(); done(get.result); };
+    };
+  }), id);
 const main = (page) => page.locator('main .mainbar .btn.hi');
 const go = async (page, hash) => {
   await page.goto(`./${hash}`);
@@ -96,10 +106,10 @@ test('Packen → «Gepackt»: own address, reload, «Zur Startseite», reminder 
   await expect(sw).toBeChecked();
   await sw.click();
   await expect(sw).not.toBeChecked();
-  await expect(async () => {
-    await page.reload();
-    await expect(page.getByRole('switch')).not.toBeChecked({ timeout: 1000 });
-  }).toPass();
+  // the switch saves in the background: a reload before the save is done would cancel it
+  await expect.poll(async () => (await storedTrip(page, ID('Alpen'))).remindEve).toBe(false);
+  await page.reload();
+  await expect(page.getByRole('switch')).not.toBeChecked();
   await expect(main(page)).toHaveText(T('To the start page'));
   await main(page).click();
   await expect(page).toHaveURL(/#\/$/);

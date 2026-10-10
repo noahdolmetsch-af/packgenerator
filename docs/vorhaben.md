@@ -52,9 +52,9 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.70.0 | Velo-Blätter Teil 2: Einfahr-Plan (von selbst bei neuem Velo, Erinnerung auf Heute), Repair-Kit pro Art der Fahrt mit «Auf die Packliste», Garantie & Belege mit Erinnerung, Diebstahl-Blatt | live (PR #98) |
 | 0.73.0 | Ruhige Startseite + Fotoband: Gruss in einer Zeile, scharfes Foto (Handy: Band über der Tourkarte, «Album ›»), Vorschlag als schmale Zeile, kein doppeltes «Weitermachen» | live (PR #99) |
 | 0.75.0 | Feinschliff: ein Umbenennen-Blatt überall mit Rückgängig, Zurück-Taste speichert, Import fragt neue Fahrt-Typen einmal, Teile-Fenster mit Zusammenfassung und leichteren Alternativen, Erste Hilfe auf jeder Tour, 44-px-Tippflächen | live |
-| 0.76.0 | Fünf Orte Teil 1: fünf Orte (Aktiv neu), «Ich» oben rechts statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Ortsfarben, Tastenkürzel | PR offen |
-| – | KI-Helfer (siehe unten) | fertig gebaut und getestet, als Entwurf geparkt (PR #89), wird beim Einschalten neu nummeriert |
-| – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Fragen beantwortet; Teil 1 (0.76.0) als PR offen, Teil 2 folgt |
+| 0.76.0 | Fünf Orte Teil 1: fünf Orte (Aktiv neu), «Ich» oben rechts statt «Mehr», runder +-Knopf am Handy, Seitenleiste am Computer, Ortsfarben, Tastenkürzel | live (PR #100) |
+| 0.77.0 | KI-Helfer eingeschaltet (aus PR #89, in Fünf Orte gesetzt, K1–K3 a): Ich › Helfer, «Frag den Helfer» oben in Neue Tour, Antwort in der Suche, «Liste prüfen» neben «Weiter zu Packen» (Handy: Funkel-Knopf links in der Leiste), Rückblick-Entwurf, Wartungsvorschläge in «Jetzt fällig» | PR vorbereitet, wartet auf Mockup-Prüfung |
+| – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Teil 1 live (0.76.0), Teil 2 folgt |
 | – | Startseite & Integrationen E1–E4 | Konzept und Mockups fertig, Fragen beantwortet |
 | – | D5, D2, D4/D6 | Mockups fertig, Fragen werden kurz vor dem Paket gestellt |
 
@@ -76,7 +76,7 @@ Alle Mockups liegen ausserhalb des Repos im Projektordner (`design/…`). Sie si
 | Paket | Ordner | Stand |
 | --- | --- | --- |
 | E1–E4 Startseite & Integrationen | `design/startseite` | 24 Bilder, Fragen 1–9 beantwortet |
-| KI-Helfer | `design/ki-helfer` | beantwortet, gebaut |
+| KI-Helfer | `design/ki-helfer`, neu in Fünf Orte `design/ki-helfer/neu` | 1–8 a und K1–K3 a, gebaut (0.77.0) |
 | Fünf Orte | `design/d3-fuenf-orte` | 15 Bilder, 5 Fragen offen |
 | Übergänge Teil 2 | `design/uebergaenge2` | 10 Bilder, 5 Fragen offen |
 | D5 Packen vorschlagen | `design/d5-vorschlag` | 8 Bilder, 4 Fragen offen |
@@ -95,7 +95,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Beispiel:** Neue Tour «2 Nächte, Hütte» schaltet Hotel/Hütte, Hygiene und Laden ein, Biwak und Kochen bleiben aus.
 - **Stand:** live seit 10.10.2026.
 
-### 2. KI-Helfer (gebaut, geparkt)
+### 2. KI-Helfer (0.77.0)
 
 - **Warum:** Viel Wissen steckt schon in der App (Material, Learnings, km, Notizen), aber man muss es selbst zusammensuchen. Der Helfer macht daraus Vorschläge. Noahs wichtigster Wunsch: sinnvolle Wartungsvorschläge.
 - **Was (Antworten 1–8 a):**
@@ -109,7 +109,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
   8. Hinweis «noch nicht eingerichtet» nur in Neue Tour und Einstellungen.
 - **Beispiel Wartung:** «Kette: 2 400 km seit Wechsel, viele Regenfahrten. Mit der Lehre messen: ab 0,5 bald wechseln, ab 0,75 sofort.» Oder: «Bremsbeläge hinten: unter 1 mm Belag wechseln. Mindestdicke der Scheibe steht auf der Scheibe.»
 - **Technik:** kleiner Server auf Vercel (`api/helper.js`) hält den Anthropic-Schlüssel. Die App schickt nur, was die Aufgabe braucht: Namen, Gewichte, Bausteine, Notizen, km. Nie Fotos, Belege, Gesundheitsdaten oder Namen von Personen.
-- **Stand:** wird fertig gebaut und getestet, dann als Entwurf geparkt (Noah, 10.10.2026). Eingeschaltet wird er nach E2–E4; dann richtet Noah den Schlüssel ein (Anleitung `docs/ki-helfer-einrichten.md`).
+- **Stand:** gebaut und getestet (PR #89), am 10.10.2026 auf Fünf Orte gebracht und als 0.77.0 vorbereitet (K1 a Ich › Helfer, K2 a «Frag den Helfer» oben in Neue Tour, K3 a Funkel-Knopf «Liste prüfen» am Handy in der Weiter-Leiste). Ohne Helfer-Code bleibt alles wie bisher; Noah richtet Schlüssel und Code in Vercel ein (Anleitung `docs/ki-helfer-einrichten.md`).
 
 ### 3. Startseite & Integrationen (E1–E4)
 
@@ -186,7 +186,7 @@ Taktgeber ist echte Nutzung: Eine grössere Version kommt erst, wenn die letzte 
 
 Noah, 10.10.2026: zuerst die Design-Pakete und die anderen Vorhaben, der KI-Helfer kommt später dazu. Am Morgen des 10.10.2026 hat Noah die Reihenfolge noch einmal bestätigt und geschärft (alle Fragen a).
 
-**Neu seit dem 10.10.2026 nachmittags (gilt vor der Liste unten):** nach Fünf Orte Teil 1 und Feinschliff kommt Fünf Orte Teil 2, dann wird der KI-Helfer eingeschaltet, dann kommen die Hobby-Unterseiten im Ort «Aktiv» (zuerst Meditation, Velo, Yoga, Gym, Tennis und Liegestütze), dann E1 Startseite, dann D5 Start-Packlisten, dann Neuland + Inspiration. Höchstens 2 Bauten gleichzeitig. Die Hobby-Unterseiten brauchen zuerst Mockups und eine Fragerunde. **Neuer Kandidat «Reisearten neu»** (Noah, 10.10.2026, 14:40): neun Reisearten (Weekend Sport Trip mit 2 Nächten, ein paar Tage Berge oder Stadt, Backpacking ab 10 Tagen, ein paar Monate auf dem Bike, Skitouren, Hüttenwanderung, Trail Running, Hochtour, Rennen/Event) und eigene Reisearten als Vorlage. Das Paket passt zu D5 Start-Packlisten und braucht zuerst Mockups. Sein Platz in der Reihenfolge ist noch offen. Vor jedem Release prüft Claude, dass Noah die Mockups gesehen und kommentiert hat; Noah merged selbst.
+**Neu seit dem 10.10.2026 nachmittags (gilt vor der Liste unten):** nach Fünf Orte Teil 1 und Feinschliff kommt Fünf Orte Teil 2, dann wird der KI-Helfer eingeschaltet, dann kommen die Hobby-Unterseiten im Ort «Aktiv» (zuerst Meditation, Velo, Yoga, Gym, Tennis und Liegestütze), dann E1 Startseite, dann D5 Start-Packlisten, dann Neuland + Inspiration, ganz am Ende «Reisearten neu» (Noah, 16:38). Höchstens 2 Bauten gleichzeitig. Die Hobby-Unterseiten brauchen zuerst Mockups und eine Fragerunde. **Neuer Kandidat «Reisearten neu»** (Noah, 10.10.2026, 14:40): neun Reisearten (Weekend Sport Trip mit 2 Nächten, ein paar Tage Berge oder Stadt, Backpacking ab 10 Tagen, ein paar Monate auf dem Bike, Skitouren, Hüttenwanderung, Trail Running, Hochtour, Rennen/Event) und eigene Reisearten als Vorlage. Das Paket passt zu D5 Start-Packlisten. **Platz (Noah, Entscheidungskarte 10.10.2026 16:38):** eigenes Paket ganz am Ende der Reihenfolge, nach Neuland + Inspiration; Fragen 1–10 a beantwortet (Trello 54fP2GQe), Mockups `design/reisearten`. Vor jedem Release prüft Claude, dass Noah die Mockups gesehen und kommentiert hat; Noah merged selbst.
 
 ```mermaid
 flowchart LR
@@ -214,6 +214,7 @@ flowchart LR
 9. **E2 bis E4:** Karten, Wetter, Strava, SBB.
 10. **KI-Helfer einschalten.** Er ist fertig gebaut und getestet und wartet als Entwurf. Er kommt bewusst nach D2 und Strava, weil er dann die Wartungsgeschichte jedes Teils und die echten km kennt.
 11. **Danach Im Flow und Neuland.**
+12. **«Reisearten neu»** als eigenes Paket ganz am Ende (Noah, 10.10.2026 16:38).
 
 Fragen zu einem Paket werden kurz vor dem Paket gestellt. Gebaut wird erst, wenn sie beantwortet sind.
 
