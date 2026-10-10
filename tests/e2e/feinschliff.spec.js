@@ -136,3 +136,45 @@ test('a bag: the pencil in its window opens the same sheet; the window keeps cha
   expect([rec.name, rec.note]).toEqual([`${P} Satteltasche neu`, `${P} wasserdicht`]);
   expect(errors).toEqual([]);
 });
+
+test('a gear item: the pencil renames it, also on the phone; the window keeps a changed weight on Escape', async ({ page, context }, info) => {
+  const { T, errors } = await setup(page, context, info);
+  const itemRec = (id) =>
+    page.evaluate(
+      (id) =>
+        new Promise((res) => {
+          const q = indexedDB.open('pack-generator');
+          q.onsuccess = () => {
+            const r = q.result.transaction('items').objectStore('items').get(id);
+            r.onsuccess = () => res(r.result);
+          };
+        }),
+      id,
+    );
+  await page.goto('./#/gear?item=EL01');
+  const dlg = page.locator('dialog.sheet[aria-labelledby="item-h"]');
+  await expect(dlg).toBeVisible();
+  await dlg.getByRole('button', { name: T('Rename {name}', { name: 'Bike computer' }) }).click();
+  const rn = page.locator('dialog.rename[open]');
+  await expect(rn.getByRole('heading', { name: T('Rename item') })).toBeVisible();
+  await expect(rn).toContainText(T('Counts everywhere: gear, packing lists, templates.'));
+  const field = rn.getByRole('textbox', { name: T('Name'), exact: true });
+  await expect(field).toBeFocused();
+  await field.fill(`${P} Velocomputer`);
+  await field.press('Enter');
+  await expect(rn).toHaveCount(0);
+  await expect(dlg.locator('#item-h')).toContainText(`${P} Velocomputer`);
+  expect((await itemRec('EL01')).name).toBe(`${P} Velocomputer`);
+  // Undo brings the old name back, in the window too
+  await page.locator('.rtoast').getByRole('button', { name: T('Undo') }).click();
+  await expect(dlg.locator('#item-h')).toContainText('Bike computer');
+  expect((await itemRec('EL01')).name).toBe('Bike computer');
+  // a changed weight is kept on Escape (Android back), like «Save»
+  await dlg.locator('details[data-fold="weight"] > summary').click();
+  await dlg.getByLabel(T('Weight of one piece (g)')).fill('142');
+  await page.keyboard.press('Escape');
+  await expect(dlg).toBeHidden();
+  const rec = await itemRec('EL01');
+  expect([rec.name, rec.weightG]).toEqual(['Bike computer', 142]);
+  expect(errors).toEqual([]);
+});

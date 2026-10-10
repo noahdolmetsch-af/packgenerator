@@ -18,7 +18,9 @@
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
-  import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2 } from '@lucide/svelte';
+  import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2, Pencil } from '@lucide/svelte';
+  import RenameSheet from '../ui/RenameSheet.svelte';
+  import { offerRename } from '../ui/rename.svelte.js';
   import { isClothing } from '../wardrobe.js';
   import { shrinkImage } from '../photo.js';
   import ItemLife from './ItemLife.svelte';
@@ -265,6 +267,33 @@
     }
     onclose?.();
   }
+  /* ---------- v0.72.0 «Feinschliff» (Umbenennen 1a + 3a): the pencil opens the one rename sheet ---------- */
+  // Also on the phone (the read-only card): a name is tidying up, like merging. Saved at once with Undo;
+  // a built-in German name (nameDe) gives way to the new one.
+  let renaming = $state(false);
+  // svelte-ignore state_referenced_locally
+  let shownName = $state(nameOf(item));
+  async function rename(name) {
+    const live = await db.items.get(item.id);
+    if (!live) return;
+    const old = { name: live.name, nameDe: live.nameDe };
+    await db.items.update(item.id, { name, nameDe: undefined, updatedAt: new Date().toISOString() });
+    draft.name = name;
+    delete draft.nameDe;
+    shownName = name;
+    offerRename(name, async () => {
+      await db.items.update(item.id, { name: old.name, nameDe: old.nameDe });
+      if (dialog?.open) {
+        draft.name = old.name;
+        if (old.nameDe) draft.nameDe = old.nameDe;
+        shownName = nameOf({ ...old });
+      }
+    });
+  }
+  // v0.72.0 (Umbenennen 2a): Android back and Escape keep what was changed in an existing item, like «Save»
+  // (a new item keeps itself already while it is typed, see closed()).
+  const keepOnBack = () => (isNew || mergedInto || !draft.name.trim() || JSON.stringify($state.snapshot(draft)) === startText ? dialog.close() : save({ preventDefault() {} }));
+
   async function discard() {
     ended = true;
     clearTimeout(autoTimer);
@@ -518,7 +547,7 @@
   {:else}
     <div class="grid">
       {#if !isNew}
-        <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} required /></label>
+        <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} enterkeyhint="done" required /></label>
         {@render categoryField()}
         {@render statusField()}
         {@render photoRow()}
@@ -589,7 +618,7 @@
   {#if !isNew}{@render fold('templates', Layers, t('In templates'), `${where.templates.length}${where.trip ? ` · ${t('on the current trip')}` : ''}`, templatesBody)}{/if}
 {/snippet}
 
-<dialog class="sheet" bind:this={dialog} use:backClose onclose={closed} aria-labelledby="item-h">
+<dialog class="sheet" bind:this={dialog} use:backClose={keepOnBack} onclose={closed} aria-labelledby="item-h">
   {#if mergedInto}
     <p class="meta">{t('Merge|items')}</p>
     <h2 id="item-h" class="title">{nameOf(item)}</h2>
@@ -604,12 +633,12 @@
       <span class="sw" style:background={CATEGORY[draft.category]?.color}></span>
       {t(CATEGORY[draft.category]?.name ?? '')}{draft.id ? ` · ${draft.id}` : ''}
     </p>
-    <h2 id="item-h" class="title">{isNew ? t('Add item') : nameOf(item)}</h2>
+    <h2 id="item-h" class="title">{#if isNew}{t('Add item')}{:else}<span>{shownName}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: shownName })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={18} aria-hidden="true" /></button>{/if}</h2>
 
     {#if isNew}
       <!-- v0.23.0 (AP08): the four main fields first; the rest folds away under "More details". -->
       <div class="grid">
-        <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} required /></label>
+        <label class="wide"><span class="lbl">{t('Name')} <small class="req">{t('required')}</small></span><input class="inp" bind:value={draft.name} enterkeyhint="done" required /></label>
         {@render categoryField()}
         {@render statusField()}
         <label class="wide"><span class="lbl">{t('Weight of one piece (g)')} <small class="req">{t('optional')}</small></span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>
@@ -641,6 +670,10 @@
 </dialog>
 
 {#if mergeOpen}<MergeSheet {item} items={allItems} onmerged={mergedDone} onclose={() => (mergeOpen = false)} />{/if}
+
+{#if renaming}
+  <RenameSheet kicker={t('Gear item')} title={t('Rename item')} value={shownName} hint={t('Counts everywhere: gear, packing lists, templates.')} onsave={rename} onclose={() => (renaming = false)} />
+{/if}
 
 {#if assigning}<AssignDialog ids={[item.id]} {item} onclose={assigned} />{/if}
 
@@ -692,6 +725,22 @@
   h2 {
     font-size: var(--fs-section);
     margin: 4px 0 14px;
+  }
+  h2 .pen {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: -8px 0 -8px 4px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--ink-2);
+    vertical-align: middle;
+    cursor: pointer;
+  }
+  h2 .pen:hover {
+    background: var(--paper-2);
   }
   .grid {
     display: grid;

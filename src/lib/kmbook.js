@@ -452,7 +452,9 @@ export function mergeRides(a, b) {
 
 /* ---------- rules and assignment ---------- */
 
-const same = (x, y) => String(x ?? '').trim().toLowerCase() === String(y ?? '').trim().toLowerCase() && String(x ?? '').trim() !== '';
+// v0.72.0: spaces inside count once too («Mtb  Fully Spark» is «mtb fully spark»)
+const norm = (x) => String(x ?? '').trim().replace(/\s+/g, ' ').toLowerCase();
+const same = (x, y) => norm(x) === norm(y) && norm(x) !== '';
 
 /**
  * The rules (Q1.5, changeable at any time), each { id, kind: 'sensor' | 'profile' | 'gear' | 'type', value, bikeIds }.

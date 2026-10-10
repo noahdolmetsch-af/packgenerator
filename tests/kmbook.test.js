@@ -198,6 +198,9 @@ describe('assignment: Sensor › Strava bike › profile rule › you, never sil
     expect(assignRide({ km: 20, profile: 'MTB', sensors: [] }, ctx)).toMatchObject({ bikeId: HT, by: 'profile', sure: 'likely' });
     // answer 9a: a profile named like the bike needs no rule
     expect(assignRide({ km: 20, profile: 'demo rennvelo', sensors: [] }, { bikes: BIKES, rules: [] })).toMatchObject({ bikeId: 'test_data_gtp_renn', by: 'profile' });
+    // v0.72.0: spaces inside count once, like outer spaces and capitals
+    expect(assignRide({ km: 20, profile: ' Demo   Rennvelo ', sensors: [] }, { bikes: BIKES, rules: [] })).toMatchObject({ bikeId: 'test_data_gtp_renn', by: 'profile' });
+    expect(assignRide({ km: 38, profile: 'Gravel', gear: 'demo  neu', sensors: [] }, ctx)).toMatchObject({ bikeId: NEU, by: 'gear' });
   });
   it('the sensor wins over a Strava bike that says something else, but the ride waits for you', () => {
     const a = assignRide({ km: 41, gear: 'Demo Gravel', sensors: sensor }, ctx);
