@@ -23,7 +23,13 @@ Gilt ab 9.10.2026, 23:26, für alle folgenden Releases. Quelle: Noahs Anweisung 
 Kein Release wird gebaut, bevor diese Schritte erledigt sind:
 
 1. **Mockups** für jeden Screen, Dialog und Zustand, den der Release neu macht oder sichtbar ändert. Computer (1440) und Handy (390), nur hell (Noah 10.10.2026; den Dunkelmodus prüft er in der App). Auch kleine Änderungen an bestehenden Seiten bekommen ein Mockup.
-2. **Noah prüft** die Mockups.
+2. **Noah prüft** die Mockups. **So zeigt Claude sie (Noah, 10.10.2026, Priorität 1, «extrem wichtig»):**
+   - Alle Bilder jeder Runde kommen auf die eine Seite «Offene Mockups»: https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv.
+   - Jede Runde hat dort einen eigenen Abschnitt. Computer und Handy stehen nebeneinander, und ein Tipp zeigt das Bild gross.
+   - Jeder Abschnitt hat eine Zeile «★ ist …» und einen Link zur Fragen-Karte auf Trello.
+   - Die Trello-Karte («PG · Dokumente und Fragen») verlinkt auf ihren Abschnitt, und die Antwort im Thread nennt den Link.
+   - Nie nur einen Ordnerpfad nennen: Noah hat keinen Link zum Projektordner, und Anhänge im Thread sind begrenzt.
+   - Offene Runden stehen oben, beantwortete Runden rutschen nach unten unter «Erledigt».
 3. **a/b-Fragen:** zu jedem offenen Punkt eine Frage mit Optionen a/b, die Empfehlung mit ★ markiert, höchstens rund 10 Fragen pro Runde.
 4. **Bauen** erst nach Noahs Antworten. Was Claude danach noch selbst entscheidet, steht im Pull Request unter «Selbst entschieden».
 

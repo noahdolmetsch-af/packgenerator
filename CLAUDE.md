@@ -8,7 +8,7 @@ Noah writes German and is not a developer. Write replies to him in short, simple
 
 1. **Overview first:** check the current state in the project (repo docs, memory, Trello, open PRs) and work by our rules, using the project's skills and plugins.
 2. **Plan:** keep an updated roadmap, a sequence and implementation plan, and work packages.
-3. **Mockups for every work package.**
+3. **Mockups for every work package, always shown on the one page «Offene Mockups»** (Noah, 10.10.2026, priority 1, «extrem wichtig»): https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv. Each round gets its own section, with computer and phone side by side and a link to its Trello question card. The Trello card and the thread reply both link to that section. Never hand over only a folder path.
 4. **Noah approves the mockup.** Only then build and open the PR.
 5. **Noah approves the PR** (he merges, never Claude).
 6. **After every step:** document the progress (docs, Trello, memory).
