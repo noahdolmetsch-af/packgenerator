@@ -4,6 +4,16 @@ Personal tour-preparation PWA for Noah: plan, pack, ride, debrief, bike care. It
 
 Noah writes German and is not a developer. Write replies to him in short, simple German, and explain GitHub steps click by click. The app's source language is English, and the German texts go through `t()`.
 
+## Principle No. 1 (Noah, 10.10.2026, binding, above everything else)
+
+1. **Overview first:** check the current state in the project (repo docs, memory, Trello, open PRs) and work by our rules, using the project's skills and plugins.
+2. **Plan:** keep an updated roadmap, a sequence and implementation plan, and work packages.
+3. **Mockups for every work package.**
+4. **Noah approves the mockup.** Only then build and open the PR.
+5. **Noah approves the PR** (he merges, never Claude).
+6. **After every step:** document the progress (docs, Trello, memory).
+7. **Small things:** check and improve them yourself. **Bigger things:** always ask Noah targeted a/b questions with ★.
+
 ## How we work (binding, see docs/arbeitsweise.md)
 
 - One package at a time, two at most.

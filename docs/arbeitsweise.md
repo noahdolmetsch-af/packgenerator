@@ -2,6 +2,16 @@
 
 Gilt ab 9.10.2026, 23:26, für alle folgenden Releases. Quelle: Noahs Anweisung im Projekt-Chat. Ersetzt den «Schnellmodus» vom 9.10.2026 (mehrere Pakete gleichzeitig, Mockups nur für ganz neue Seiten).
 
+## 0. Prinzip Nr. 1 (Noah, 10.10.2026, 09:27, gilt vor allem anderen)
+
+1. **Überblick zuerst:** Claude verschafft sich den aktuellen Stand im Projekt (Repo-Doku, Memory, Trello, offene PRs) und arbeitet nach unseren Regeln, mit den Skills und Plugins des Projekts.
+2. **Plan:** eine aktuelle Roadmap, ein Ablauf- und Umsetzungsplan und Arbeitspakete.
+3. **Mockups für jedes Arbeitspaket.**
+4. **Noah gibt das Mockup frei.** Erst danach baut Claude und öffnet den Pull Request.
+5. **Noah gibt den Pull Request frei** (er merged, nie Claude).
+6. **Nach jedem Schritt** dokumentiert Claude den Fortschritt (Doku, Trello, Memory).
+7. **Kleine Dinge** prüft und verbessert Claude selbst. **Bei grösseren Dingen** stellt Claude immer gezielte a/b-Fragen mit ★.
+
 ## 1. Nur ein Paket, höchstens zwei gleichzeitig
 
 - Es läuft ein Paket, in Ausnahmefällen zwei. Ein Paket ist gebaut, getestet und als Pull Request offen oder in Arbeit.
