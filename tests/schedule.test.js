@@ -74,6 +74,12 @@ describe('nextStep: one step per day band', () => {
     expect(nextStep(checked(packed(trip())), DONE, day(0)).key).toBe('way');
     expect(nextStep(packed(trip()), DONE, day(-1)).key).toBe('check');
   });
+  it('start day: the open checks become side links of On the way; an unpacked list is packed first', () => {
+    const s = nextStep(packed(trip()), DONE, day(0));
+    expect(s.open).toEqual(['check']);
+    expect(stepWords(s, packed(trip()), DONE, day(0)).links).toEqual([{ label: 'Ready check', href: '#/pack?day' }]);
+    expect(nextStep(trip(), DONE, day(0)).key).toBe('pack');
+  });
   it('everything done before the start: All set', () => {
     expect(nextStep(checked(packed(trip())), DONE, day(-3)).key).toBe('ready');
   });

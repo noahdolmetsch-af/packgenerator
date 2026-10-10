@@ -594,7 +594,8 @@
   const riding = $derived(next && hasBike(next) && !madeToday(next) ? onTripDay(next, today) : false);
   // v0.67.0 (U22b): on the evening of a trip's last day the interstitial «Tour beendet» opens by itself,
   // once (the app does not end the trip: «Weiter zum Rückblick» or «Doch noch unterwegs» decide).
-  const lastEve = $derived(loaded && $debriefsQ ? trips.find((x) => !x.id.startsWith('demo') && lastEvening(x, today, now.getHours(), { debriefDone: debriefs.some((d) => d.tripId === x.id && d.status === 'done') })) ?? null : null);
+  // Not for a trip made today (as the ride day, Noah 6a): Today's «Review today» row is its place.
+  const lastEve = $derived(loaded && $debriefsQ ? trips.find((x) => !x.id.startsWith('demo') && !madeToday(x) && lastEvening(x, today, now.getHours(), { debriefDone: debriefs.some((d) => d.tripId === x.id && d.status === 'done') })) ?? null : null);
   $effect(() => {
     if (!lastEve) return;
     const key = 'between.evening';
@@ -608,7 +609,8 @@
     location.hash = betweenHref(lastEve, 'ended');
   });
   $effect(() => {
-    if (!riding || lastEve) return;
+    // on the last evening the interstitial wins (asked of this trip itself: lastEve may still load)
+    if (!riding || lastEve || lastEvening(next, today, now.getHours())) return;
     const key = 'ride.autoOpened';
     try {
       if (localStorage.getItem(key) === `${next.id}:${today}`) return;

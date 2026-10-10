@@ -11,6 +11,8 @@
  * Each open dialog has its own entry, so a dialog opened over another one closes first.
  */
 let seq = 0;
+/** Tokens of the dialogs open now. An entry whose dialog closed is stale and may be reused. */
+const live = new Set();
 
 export function backClose(node, onBack = null) {
   let back = onBack;
@@ -22,16 +24,27 @@ export function backClose(node, onBack = null) {
     if (token) return;
     token = `d${++seq}`;
     url = location.href;
-    history.pushState({ ...(history.state ?? {}), pgDialog: token }, '', url);
+    live.add(token);
+    const state = { ...(history.state ?? {}), pgDialog: token };
+    // one dialog closes and the next opens in the same tap («Neu» → «Tour planen»): the closed one's
+    // entry is still there (its history.back() waits), so this one takes it over instead of a second
+    if (history.state?.pgDialog && !live.has(history.state.pgDialog)) history.replaceState(state, '', url);
+    else history.pushState(state, '', url);
   };
   const drop = () => {
     const mine = token;
     token = null;
-    if (!mine || leaving) return;
-    if (history.state?.pgDialog === mine && location.href === url) {
-      leaving = true;
-      history.back();
-    }
+    if (!mine) return;
+    live.delete(mine);
+    if (leaving) return;
+    // wait for the rest of the tap: a link in the dialog changes the address, a next dialog takes the
+    // entry over; only when we are still on our own entry, it is taken away
+    setTimeout(() => {
+      if (history.state?.pgDialog === mine && location.href === url) {
+        leaving = true;
+        history.back();
+      }
+    }, 0);
   };
   const onPop = () => {
     if (leaving) {
@@ -41,6 +54,7 @@ export function backClose(node, onBack = null) {
     if (!token || !node.open) return;
     // still on (or above) our entry: nothing to do
     if (history.state?.pgDialog === token) return;
+    live.delete(token);
     token = null; // the entry is gone already
     if (back) back();
     else {

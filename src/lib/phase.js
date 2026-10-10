@@ -62,7 +62,7 @@ export function currentStep(trip, today, opts = {}) {
   const phase = tripPhase(trip, today, opts);
   const bike = hasBike(trip);
   if (phase === 'after' || phase === 'done') return 'debrief';
-  if (phase === 'during') return bike ? 'ride' : 'pack';
+  if (phase === 'during' && !packingDay(trip, today)) return bike ? 'ride' : 'pack';
   if (phase === 'skipped') return 'plan';
   const es = trip.entries ?? [];
   if (!es.length) return 'plan';
@@ -70,6 +70,13 @@ export function currentStep(trip, today, opts = {}) {
   const soon = trip.startDate ? daysFrom(today, trip.startDate) <= PACK_DAYS : false;
   return soon || es.some((e) => e.packed) ? 'pack' : 'plan';
 }
+
+/**
+ * The start day before «Packen abschliessen» was tapped: the trip has begun by the date, but packing
+ * is still its step (a day ride made this morning), and finishing it shows «Gepackt» (Ü4a). Packed,
+ * a bike trip goes on to On the way (U009).
+ */
+export const packingDay = (trip, today) => trip?.startDate === today && !trip.packedAt;
 
 /** «Schritt 2 von 4»: { key, n, total, href }. */
 export function stepOf(trip, today, opts = {}) {
@@ -109,7 +116,7 @@ export function mainStep(trip, today, tab, opts = {}) {
   if (phase === 'done') return { kind: 'go', label: 'Back to Trips', href: '#/trips' };
   if (phase === 'after') return tab === 'debrief' ? { kind: 'save', label: 'Save debrief' } : debrief;
   const es = trip.entries ?? [];
-  if (phase === 'during') {
+  if (phase === 'during' && (tab === 'ride' || !packingDay(trip, today))) {
     if (bike) {
       if (tab !== 'ride') return { kind: 'go', label: 'Continue to On the way', href: tabHref('ride', trip) };
       return today >= tripEnd(trip) ? { kind: 'last', label: isDayTrip(trip) ? 'Finish the trip' : 'Finish the last day' } : { kind: null };

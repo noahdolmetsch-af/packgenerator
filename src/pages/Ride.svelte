@@ -31,7 +31,7 @@
   import TripBand from '../lib/trip/TripBand.svelte';
   import BaseCheck from '../lib/trip/BaseCheck.svelte';
   import { openTrip } from '../lib/nav.js';
-  import { mainStep, packedAll, canReopen, daysFrom } from '../lib/phase.js';
+  import { mainStep, packedAll, canReopen, daysFrom, endNeedsAsk } from '../lib/phase.js';
   import { endTrip as endTripNow, reopenTrip } from '../lib/trip/ending.js';
   import EndTripSheet from '../lib/trip/EndTripSheet.svelte';
   import '../lib/trip/trip.css';
@@ -91,9 +91,15 @@
   // before that, or while the day's riding is still ahead (a day ride at 08:00), it asks first
   // (EndTripSheet: «Weiterfahren» on top). Then the interstitial «Tour beendet», with Undo.
   let endAsk = $state(false);
+  // the PLANNED arrival of the last day: its set start (or 08:00) plus the riding, not «starts now»
+  const planEnd = $derived.by(() => {
+    if (!trip) return '';
+    const a = stage(trip, days - 1, pace, { today })?.arrive ?? '';
+    return /^\d\d:\d\d$/.test(a) ? a : '';
+  });
   async function finish() {
     const nowHM = new Date().toTimeString().slice(0, 5);
-    const arrive = /^\d\d:\d\d$/.test(st?.arrive ?? '') ? st.arrive : null;
+    const arrive = planEnd || null;
     if (endNeedsAsk(trip, today, nowHM, arrive)) return (endAsk = true);
     await endTripNow($state.snapshot(trip));
   }
@@ -601,7 +607,7 @@
     </div>
   </div>
 </div>
-{#if endAsk}<EndTripSheet {trip} day={cur + 1} {days} arrive={days - 1 === cur && /^\d\d:\d\d$/.test(st?.arrive ?? '') ? st.arrive : ''} onclose={() => (endAsk = false)} />{/if}
+{#if endAsk}<EndTripSheet {trip} day={cur + 1} {days} arrive={cur + 1 >= days ? planEnd : ''} onclose={() => (endAsk = false)} />{/if}
 {/if}
 
 <style>

@@ -18,6 +18,7 @@
   import { readyDone, RAIN } from '../trips.js';
   import { t, tn, nameOf } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
+  import { localDay } from '../localday.js';
   import '../trip/trip.css';
 
   let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], oncharge = null, pressure = '' } = $props();
@@ -42,7 +43,8 @@
   // alone was too quiet), whichever bag is open.
   const finished = $derived(total > 0 && packed === total && readyAll);
   // v0.67.0 (U001): «Gute Fahrt!» only fits on the day itself; before it the bags are simply ready.
-  const doneText = $derived(t('Everything is in.'));
+  // v0.67.0 (U001): «Gute Fahrt!» only from the start day on, not five days early
+  const doneText = $derived(trip?.startDate && trip.startDate <= localDay() ? (bike ? t('Everything is in. Have a good ride!') : t('Everything is in. Have a good trip!')) : t('Everything is in.'));
   const stepOf = (key) => steps.find((x) => x.key === key);
   const status = $derived(finished ? '' : note && stepOf(note.from) && full(stepOf(note.from)) ? t('{bag} is packed. Next: {next}', { bag: titleOf(note.from), next: titleOf(note.to) }) : '');
   const nextAfter = (key) => {

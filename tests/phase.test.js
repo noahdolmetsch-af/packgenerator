@@ -68,6 +68,14 @@ describe('mainStep: the one main button follows the phase (U001–U004, U008, U0
     for (const tab of ['plan', 'pack', 'ride', 'debrief']) expect(mainStep(done, D0, tab), tab).toMatchObject({ kind: 'go', label: 'To the start page', href: '#/' });
     expect(mainStep(hike({ entries: es(4, 4), packedAt: D0 }), D0, 'debrief').href).toBe('#/');
   });
+  it('the start day, not packed yet: packing is still the step (a day ride made this morning)', () => {
+    const t0 = trip({ startDate: D0, days: 1 });
+    expect(currentStep(t0, D0)).toBe('pack');
+    expect(mainStep(t0, D0, 'plan')).toMatchObject({ kind: 'packgo' });
+    expect(mainStep(t0, D0, 'pack').kind).toBe('finish');
+    expect(mainStep(t0, D0, 'ride').kind).toBe('last'); // on the ride page the day can always be finished
+    expect(mainStep(trip({ startDate: D0, entries: es(4, 4) }), D0, 'plan')).toMatchObject({ href: '#/ride' });
+  });
   it('the start day, packed: On the way (U009)', () => {
     expect(mainStep(trip({ entries: es(10, 10), packedAt: D0 }), day(4), 'plan')).toMatchObject({ label: 'Continue to On the way', href: '#/ride' });
   });

@@ -105,9 +105,13 @@ export function nextStep(trip, ctx = {}, today = localDay(), steps = tripSteps(t
   if (isOver(trip, today)) return debrief?.state === 'open' ? debrief : null;
   const before = steps.filter((s) => s.key !== 'debrief');
   // Under way (from the second day): the ride, whatever was left open before.
-  // v0.67.0 (U009): a bike trip on its start day too: «Unterwegs» is the next step; what is still open
-  // before (forecast, ready check) waits on the ride page and in the card's links, not as the button.
-  if (today > trip.startDate || (today === trip.startDate && hasBike(trip))) return { key: 'way', day: today, state: 'open', late: false, due: true };
+  if (today > trip.startDate) return { key: 'way', day: today, state: 'open', late: false, due: true };
+  // v0.67.0 (U009): a bike trip on its start day, packed: «Unterwegs» is the next step; what is still
+  // open before (forecast, ready check) becomes the card's side links, not its button. Not packed yet
+  // (a day ride made this morning): packing comes first, as on the trip page (phase.js packingDay).
+  if (today === trip.startDate && hasBike(trip) && before.find((x) => x.key === 'pack')?.state !== 'open') {
+    return { key: 'way', day: today, state: 'open', late: false, due: true, open: before.filter((x) => x.state === 'open').map((x) => x.key) };
+  }
   const open = before.find((s) => s.state === 'open');
   if (open) return open;
   return today === trip.startDate ? { key: 'way', day: today, state: 'open', late: false, due: true } : { key: 'ready', day: trip.startDate, state: 'open', late: false, due: false };
@@ -175,7 +179,7 @@ export function stepWords(step, trip, ctx = {}, today = localDay()) {
       return { title: t('Debrief'), why: t('"All good": every item counts as used and nothing else changes.'), when, button: t('Debrief'), href: `#/debrief/${encodeURIComponent(trip.id)}`, links: [] };
     case 'way':
       return bike
-        ? { title: t('On the way'), why: t('Route, weather and the list for the day.'), when, button: t('On the way'), href: '#/ride', links: [] }
+        ? { title: t('On the way'), why: t('Route, weather and the list for the day.'), when, button: t('On the way'), href: '#/ride', links: (step.open ?? []).map((k) => stepWords({ key: k, day: today, state: 'open' }, trip, ctx, today)).filter(Boolean).map((w) => ({ label: w.button, href: w.href })) }
         : { title: t('On the way'), why: t('Your list for the way.'), when, button: t('Open the trip'), href: '#/pack?day', links: [] };
     case 'ready':
       // v0.67.0 (U007, Ü4a): all done before the start: the trip's waiting state (On the way with its countdown).
