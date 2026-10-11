@@ -6,6 +6,7 @@
 // German texts (src/lib/i18n/de), the button names from phase.js.
 import { test, expect } from '@playwright/test';
 import { base, tr, mockWeather } from './home0460-fixture.js';
+import { importAndSettle, settle } from './settle.js';
 
 const T = tr('de');
 const D0 = '2026-10-14'; // a Wednesday
@@ -45,17 +46,9 @@ async function open(page, context, info, trips, { date = D0, hour = 9, debriefs 
   // as a buffer: the output folder of these tests has «» and → in its name, which a file pick does not read
   const file = { name: 'ueb.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(data(trips, debriefs))) };
   await page.goto('./#/');
-  const panel = page.locator('details.data');
-  await expect(async () => {
-    if (!(await panel.evaluate((d) => d.open))) await panel.locator('summary').click();
-    expect(await panel.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
-  await panel.getByLabel(T('Import backup')).setInputFiles(file);
-  await panel.getByRole('button', { name: T('Replace all data') }).press('Enter');
-  // a trip under way opens On the way (or the last evening its interstitial) right after the import
-  await expect(async () => {
-    expect((await panel.getByText(/importiert|Imported/).count()) > 0 || !/#\/$/.test(page.url())).toBe(true);
-  }).toPass();
+  // a trip under way opens On the way (or the last evening its interstitial) right after the import:
+  // wait until the tidy-up after the import is done and Today has decided
+  await importAndSettle(page, file);
   if (current) await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), current);
 }
 /** Change a stored trip directly (the import fills an empty list with the old «always» items). */
@@ -83,6 +76,7 @@ const main = (page) => page.locator('main .mainbar .btn.hi');
 const go = async (page, hash) => {
   await page.goto(`./${hash}`);
   await page.reload();
+  await settle(page); // the start-up tidy-up has finished: it cannot undo the next tap
 };
 
 test('Packen → «Gepackt»: own address, reload, «Zur Startseite», reminder switch, then the waiting state (U001, U002, Ü3a, Ü4a, U21a, U26b)', async ({ page, context }, info) => {

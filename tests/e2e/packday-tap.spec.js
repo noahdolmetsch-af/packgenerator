@@ -6,6 +6,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openData, settle } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -26,13 +27,10 @@ async function start(page, context, info, extra = []) {
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   page.on('dialog', (d) => d.accept());
   await page.goto('./');
-  const panel = page.locator('details.data');
-  await expect(async () => {
-    if (!(await panel.evaluate((d) => d.open))) await panel.locator('summary').click();
-    expect(await panel.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const panel = await openData(page);
   await panel.getByLabel(T('Import backup')).setInputFiles(file);
   await panel.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(panel.getByText(/importiert/)).toBeVisible();
   // A day ride in one tap (the Home button sends this event): a trip with the standard items.
   await page.evaluate(() => window.dispatchEvent(new Event('pg:dayride')));

@@ -7,6 +7,7 @@
 import { test, expect } from '@playwright/test';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { tauschData, P, TRIP } from './v0520-fixture.js';
+import { openData, settle } from './settle.js';
 
 const id = (n) => `${P}${n}`;
 const name = (n) => `${P}${n}`;
@@ -21,13 +22,10 @@ async function start(page, context, info, opts = {}) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   await data.getByLabel('Backup importieren').setInputFiles(file);
   await data.getByRole('button', { name: 'Alle Daten ersetzen' }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(/importiert.*alle Daten ersetzt/i)).toBeVisible();
   await page.goto('./#/pack');
   await expect(page.locator('.worn-card')).toBeVisible();

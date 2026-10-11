@@ -9,6 +9,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openData as openDataFold, settle } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z0-9]+$/, '');
@@ -92,12 +93,7 @@ const table = (page, name) =>
   }), name);
 
 async function openData(page) {
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
-  return data;
+  return openDataFold(page);
 }
 
 async function start(page, context, info) {
@@ -112,6 +108,7 @@ async function start(page, context, info) {
   const panel = await openData(page);
   await panel.getByLabel(T('Import backup')).setInputFiles(file);
   await panel.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === MARK.key)).toBe(true);
   await expect(panel.getByRole('dialog')).toHaveCount(0);
   return errors;

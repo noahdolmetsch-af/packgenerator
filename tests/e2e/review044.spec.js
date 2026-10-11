@@ -8,6 +8,7 @@
 import { test, expect } from '@playwright/test';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { P, SPARK, GRAVEL, v038Data, day } from './v038-fixture.js';
+import { openData, settle } from './settle.js';
 
 const SHOTS = process.env.V044_SHOTS;
 const shot = async (page, info, name, fullPage = false) => {
@@ -54,13 +55,10 @@ async function start(page, context, info, fix = data()) {
   const errors = [];
   page.on('pageerror', (err) => errors.push(err.message));
   await page.goto('./');
-  const panel = page.locator('details.data');
-  await expect(async () => {
-    if (!(await panel.evaluate((d) => d.open))) await panel.locator('summary').click();
-    expect(await panel.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const panel = await openData(page);
   await panel.getByLabel('Backup importieren').setInputFiles(file);
   await panel.getByRole('button', { name: 'Alle Daten ersetzen' }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(panel.getByText(/importiert.*alle Daten ersetzt/i)).toBeVisible();
   return errors;
 }

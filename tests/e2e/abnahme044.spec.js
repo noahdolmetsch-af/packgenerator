@@ -8,6 +8,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openData, settle } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -25,17 +26,14 @@ async function start(page, context, info, text = fixture(), name = 'abnahme.json
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   page.on('dialog', (d) => d.accept());
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   return data;
 }
 async function load(page, context, info) {
   const data = await start(page, context, info);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'abnahme.json' }))).toBeVisible();
 }
 

@@ -10,6 +10,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openData, settle } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -27,13 +28,10 @@ async function load(page, context, info) {
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   page.on('dialog', (d) => d.accept());
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'abnahme045.json' }))).toBeVisible();
   return data;
 }
@@ -159,11 +157,7 @@ test('import: the status line after an apply, and an apply that adds nothing say
   }));
   const stage = async () => {
     await page.goto('./');
-    const panel = page.locator('details.data');
-    await expect(async () => {
-      if (!(await panel.evaluate((d) => d.open))) await panel.locator('summary').click();
-      expect(await panel.evaluate((d) => d.open)).toBe(true);
-    }).toPass();
+    const panel = await openData(page);
     await panel.locator('input[type=file]').setInputFiles(file);
     await panel.getByRole('dialog', { name: T('Check import') }).getByRole('link', { name: T('Check import') }).click();
     await expect(page).toHaveURL(/#\/gear\/import$/);

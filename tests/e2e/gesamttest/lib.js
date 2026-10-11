@@ -8,6 +8,7 @@ import { writeFileSync, mkdirSync, appendFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../../src/lib/i18n/de/index.js';
 import { build, step1, step2, track, gpxText, P } from '../../fixtures/gesamttest/make.mjs';
+import { openData as openDataFold, settle } from '../settle.js';
 
 export { P, build, step1, step2, track, gpxText, DE };
 
@@ -63,20 +64,8 @@ export async function prepare(page, context, lang = 'de') {
   return errors;
 }
 
-/** The "Your data" fold on Today, open. */
-export async function openData(page) {
-  const data = page.locator('details.data');
-  // after an import the app may show the ride day: "Your data" is on Today
-  if (!(await data.count())) {
-    await page.goto('./#/');
-    await data.waitFor();
-  }
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
-  return data;
-}
+/** The "Your data" fold on Today, open (after an import the app may show the ride day: it goes to Today). */
+export const openData = (page) => openDataFold(page);
 
 /** Writes a backup object to the test's output folder and imports it: Replace all data (or merge). */
 export async function importBackup(page, info, obj, { lang = 'de', name = 'gesamttest.json', mode = 'replace' } = {}) {
@@ -97,6 +86,7 @@ export async function importBackup(page, info, obj, { lang = 'de', name = 'gesam
       return ids.every((id) => have.has(id)) && (mode !== 'replace' || have.size === ids.length);
     }, { timeout: 30_000 })
     .toBe(true);
+  await settle(page); // the tidy-up after the import done, Today's auto-open decided
   return data;
 }
 
@@ -111,9 +101,10 @@ export async function start(page, context, info, { lang = 'de', data = null } = 
   await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === 'flowSeeded'), { timeout: 20_000 }).toBe(true);
   // v0.76.0: the fictional data has a trip running today with a ride block 18–21 h. In the evening
   // Today opens Unterwegs by itself, once a day: let that happen here, so the tests find Today later.
+  // v0.80.0: wait for Today's decision (html data-today, tests/e2e/settle.js) instead of 1.5 s.
   await page.goto('./#/');
   await page.locator('main').waitFor();
-  await page.waitForTimeout(1500);
+  await settle(page);
   return errors;
 }
 

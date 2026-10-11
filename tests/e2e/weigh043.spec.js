@@ -10,6 +10,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openData, settle } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z0-9]+$/, '');
@@ -52,15 +53,12 @@ async function start(page, context, info) {
   await page.goto('./');
   const panel = page.locator('details.data');
   // The app opens this panel by itself on an empty start: make sure it ends up open (also after the pick).
-  const opened = () =>
-    expect(async () => {
-      if (!(await panel.evaluate((d) => d.open))) await panel.locator('summary').click();
-      expect(await panel.evaluate((d) => d.open)).toBe(true);
-    }).toPass();
+  const opened = () => openData(page);
   await opened();
   await panel.getByLabel(T('Import backup')).setInputFiles(file);
   await opened();
   await panel.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === MARK.key)).toBe(true);
   await expect(panel.getByRole('dialog')).toHaveCount(0);
   return errors;

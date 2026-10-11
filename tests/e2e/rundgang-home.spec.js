@@ -10,6 +10,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { importAndSettle, settle, closeDialog } from './settle.js';
 
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -34,18 +35,12 @@ async function start(page, context, info, { lang = null, data = null } = {}) {
 }
 
 async function importData(page, info, data, lang) {
-  const T = tr(lang);
   const file = info.outputPath(`rundgang-${Math.random().toString(36).slice(2)}.json`);
   writeFileSync(file, JSON.stringify(data));
-  const panel = page.locator('details.data');
-  await expect(async () => {
-    if (!(await panel.evaluate((d) => d.open))) await panel.locator('summary').click();
-    expect(await panel.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
-  await panel.getByLabel(T('Import backup')).setInputFiles(file);
-  await panel.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  const panel = await importAndSettle(page, file);
   await expect(panel.getByText(/importiert|Imported/)).toBeVisible();
   await page.goto('./#/');
+  await settle(page);
 }
 
 /** A record straight from IndexedDB. */
@@ -233,7 +228,7 @@ test.describe('L9: first start on a German browser', () => {
     // Plan your first trip opens the New trip window.
     await first.getByRole('button', { name: T('Plan your first trip') }).click();
     await expect(page.getByRole('dialog', { name: T('New trip') })).toBeVisible();
-    await page.keyboard.press('Escape');
+    await closeDialog(page); // its history entry gone, so the next address stays
     await page.goto('./#/');
 
     // A bike only: step 1 done, the card stays.

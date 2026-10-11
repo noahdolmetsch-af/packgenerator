@@ -1,0 +1,96 @@
+// v0.80.0 «Tests stabil»: wait until the app has settled, instead of guessing a time.
+// - <html data-ready="1">: the data tidy-up (at start-up, after an import or a demo start) has finished
+//   (src/lib/settled.js). Before that, a reload or a next address can cut the tidy-up off, or the
+//   tidy-up can still change what the test just did.
+// - <html data-today="n">: Today has decided about its once-a-day auto-open (On the way on a ride day,
+//   «Tour beendet» on the last evening) with n trips loaded (src/pages/Home.svelte). When n is the
+//   number of stored trips, Today saw the data the test imported: it stays, or it has moved on.
+// All labels come from the app's own texts, so the helpers work in English and in German.
+import { expect } from '@playwright/test';
+import DE from '../../src/lib/i18n/de/index.js';
+
+/** A label in both languages: «Import backup» or «Backup importieren». */
+const either = (en) => {
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^(${esc(en)}${DE[en] ? `|${esc(DE[en])}` : ''})$`);
+};
+
+/** The data tidy-up has finished. */
+export async function ready(page) {
+  await expect(page.locator('html')).toHaveAttribute('data-ready', '1', { timeout: 30_000 });
+}
+
+/**
+ * The tidy-up has finished, and (on Today) Today has decided about its auto-open with the stored data.
+ * `sameTrips: false` only asks that Today has decided: for a page whose test wrote trips straight into
+ * IndexedDB, which Today does not see until the next load.
+ */
+export async function settle(page, { sameTrips = true } = {}) {
+  await ready(page);
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          (same) =>
+            new Promise((ok) => {
+              const onToday = () => /^#?\/?(\?.*)?$/.test(location.hash);
+              if (!onToday()) return ok(true); // not on Today, or Today moved on
+              const seen = document.documentElement.dataset.today;
+              if (seen == null) return ok(false);
+              if (!same) return ok(true);
+              const r = indexedDB.open('pack-generator');
+              r.onerror = () => ok(false);
+              r.onsuccess = () => {
+                const db = r.result;
+                if (!db.objectStoreNames.contains('trips')) return (db.close(), ok(seen === '0'));
+                const q = db.transaction('trips').objectStore('trips').count();
+                q.onsuccess = () => {
+                  db.close();
+                  ok(!onToday() || document.documentElement.dataset.today === String(q.result));
+                };
+                q.onerror = () => (db.close(), ok(false));
+              };
+            }),
+          sameTrips,
+        ),
+      { timeout: 30_000 },
+    )
+    .toBe(true);
+}
+
+/** «Your data» on Today, open (Today opens it by itself on an empty start: decided first, then one click). */
+export async function openData(page) {
+  const panel = page.locator('details.data');
+  if (!/^#?\/?(\?.*)?$/.test(new URL(page.url()).hash)) await page.goto('./#/');
+  await settle(page, { sameTrips: false });
+  if (!(await panel.count())) {
+    // Today moved on (a ride day): «Your data» is on Today, and the auto-open happens once a day only
+    await page.goto('./#/');
+    await settle(page, { sameTrips: false });
+  }
+  if (!(await panel.evaluate((d) => d.open))) await panel.locator('summary').click();
+  await expect(panel).toHaveJSProperty('open', true);
+  return panel;
+}
+
+/**
+ * Imports a backup (a file path or { name, mimeType, buffer }) through «Your data», «Replace all data»
+ * or «Merge», then waits until the app has settled (the tidy-up done, Today's auto-open decided).
+ */
+export async function importAndSettle(page, file, { mode = 'replace' } = {}) {
+  const panel = await openData(page);
+  await panel.getByLabel(either('Import backup')).setInputFiles(file);
+  await panel.getByRole('button', { name: either(mode === 'replace' ? 'Replace all data' : 'Merge') }).press('Enter');
+  await settle(page);
+  return panel;
+}
+
+/**
+ * Closes the open dialog with Escape and waits until it has taken its history entry away
+ * (backclose.js steps back a moment after): a next address before that would be undone.
+ */
+export async function closeDialog(page) {
+  await page.keyboard.press('Escape');
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
+}

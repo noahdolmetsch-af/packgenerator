@@ -8,6 +8,7 @@ import { test, expect } from '@playwright/test';
 import { vb2File, XC, XC_TRIP, TRAIL, P, PIXEL_B64 } from './velo-blaetter-2-fixture.js';
 import { readFileSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openData, settle } from './settle.js';
 
 // the sheets in the folder's order, read from the app source (sheets.js imports the Svelte i18n, so it is read as text)
 const SRC = readFileSync(new URL('../../src/lib/sheets.js', import.meta.url), 'utf8');
@@ -52,13 +53,10 @@ async function start(page, context, info) {
   const errors = [];
   page.on('pageerror', (err) => errors.push(err.message));
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   await data.getByLabel('Backup importieren').setInputFiles(file);
   await data.getByRole('button', { name: 'Alle Daten ersetzen' }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(/importiert.*alle Daten ersetzt/i)).toBeVisible();
   return errors;
 }

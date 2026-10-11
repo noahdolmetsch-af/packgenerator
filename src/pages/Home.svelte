@@ -647,6 +647,13 @@
     openTrip(next.id);
     location.hash = '#/ride';
   });
+  // v0.80.0 «Tests stabil»: <html data-today="n"> says Today has made the two decisions above with n
+  // trips loaded (after them, in the same run). Nothing in the app reads it; the browser tests wait for it.
+  $effect(() => {
+    if (!loaded || !$debriefsQ) return;
+    document.documentElement.dataset.today = String(allTrips.length);
+    return () => delete document.documentElement.dataset.today;
+  });
 
   let online = $state(navigator.onLine);
   $effect(() => {
