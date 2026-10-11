@@ -2,6 +2,15 @@
 
 Gilt ab 9.10.2026, 23:26, für alle folgenden Releases. Quelle: Noahs Anweisung im Projekt-Chat. Ersetzt den «Schnellmodus» vom 9.10.2026 (mehrere Pakete gleichzeitig, Mockups nur für ganz neue Seiten).
 
+## Regel Nr. 0: ausdrückliche Freigabe für jedes Mockup (Noah, 11.10.2026, wichtiger als alle anderen Regeln, überall)
+
+Noahs Worte: «ab sofort für jedes einzelne Mockup eine ausdrückliche Freigabe von mir … zuvor kann kein PR erstellt werden».
+
+- Jedes einzelne Mockup braucht Noahs **ausdrückliche** Freigabe, bevor irgendein Pull Request entsteht. Das gilt auch für kleine Korrekturen und für das Wegnehmen von etwas.
+- Ohne Freigabe gibt es keinen PR. Claude zeigt das Mockup auf «Offene Mockups» und fragt.
+- Im PR verlinkt der Abschnitt «Mockup-Prüfung» Noahs Freigabe für jedes Mockup.
+- Diese Regel geht «Kleines selbst verbessern» (Punkt 7 unten) und allen Regeln zum schnelleren Arbeiten vor.
+
 ## 0. Prinzip Nr. 1 (Noah, 10.10.2026, 09:27, gilt vor allem anderen)
 
 1. **Überblick zuerst:** Claude verschafft sich den aktuellen Stand im Projekt (Repo-Doku, Memory, Trello, offene PRs) und arbeitet nach unseren Regeln, mit den Skills und Plugins des Projekts.

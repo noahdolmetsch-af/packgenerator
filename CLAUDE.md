@@ -4,6 +4,10 @@ Personal tour-preparation PWA for Noah: plan, pack, ride, debrief, bike care. It
 
 Noah writes German and is not a developer. Write replies to him in short, simple German, and explain GitHub steps click by click. The app's source language is English, and the German texts go through `t()`.
 
+## Rule No. 0: explicit mockup approval (Noah, 11.10.2026, above every other rule, everywhere)
+
+Every single mockup needs Noah's **explicit** approval before any PR is opened, also for small fixes and removals. No approval, no PR: show the mockup on «Offene Mockups» and ask. The PR's «Mockup-Prüfung» links Noah's approval of each mockup. This overrides «small things yourself» and every faster-working rule below.
+
 ## Principle No. 1 (Noah, 10.10.2026, binding, above everything else)
 
 1. **Overview first:** check the current state in the project (repo docs, memory, Trello, open PRs) and work by our rules, using the project's skills and plugins.
