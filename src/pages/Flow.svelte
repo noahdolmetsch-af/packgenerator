@@ -12,6 +12,7 @@
    *   …/done/<sid>       hobby pages 3: the evaluation after the gong (MedDone.svelte, B3)
    *   …/log              hobby pages 3: the log, list · calendar · chart (MedLog.svelte, B4 + B6)
    *   …/s/<sid>          hobby pages 3: one session in full (MedSession.svelte, B5)
+   *   …/mehr             v0.86.0 «Meditation einfach»: «Mehr», the rare things folded (MedMore.svelte, C)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
   import { ChevronLeft, ChevronRight, Pencil, Plus, Sun, Timer, GripVertical, Snowflake, Sparkles } from '@lucide/svelte';
@@ -25,6 +26,8 @@
   import Rings from '../lib/flow/Rings.svelte';
   import TickGrid from '../lib/flow/TickGrid.svelte';
   import GoalGrid from '../lib/flow/GoalGrid.svelte';
+  import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
+  import { isMedAct } from '../lib/flow/hobby/medstart.js';
   import ActIcon from '../lib/flow/ActIcon.svelte';
   import ActEditor from '../lib/flow/ActEditor.svelte';
   import Activity from './flow/Activity.svelte';
@@ -34,6 +37,7 @@
   import MedDone from './flow/MedDone.svelte';
   import MedLog from './flow/MedLog.svelte';
   import MedSession from './flow/MedSession.svelte';
+  import MedMore from './flow/MedMore.svelte';
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
   import { t, tn, locale, lang } from '../lib/i18n.svelte.js';
@@ -107,6 +111,11 @@
     if (i >= 0 && i !== from) move(dragId, i);
   }
   const gripUp = () => (dragId = null);
+
+  /* v0.86.0 «Meditation einfach»: a tap on Meditation in «Heute abhaken» opens the start sheet (mockup A) */
+  let medFor = $state(null);
+  const medSt = $derived(medFor ? (states.find((s) => s.act.id === medFor) ?? null) : null);
+  const hasMed = $derived(live.some((s) => isMedAct(s.act)));
 </script>
 
 {#if route[0] === 'activity'}
@@ -119,6 +128,8 @@
   {#key sub}<MedLog actId={decodeURIComponent(route[1] ?? '')} {params} />{/key}
 {:else if route[0] === 'act' && route[2] === 's'}
   {#key sub}<MedSession actId={decodeURIComponent(route[1] ?? '')} id={decodeURIComponent(route[3] ?? '')} />{/key}
+{:else if route[0] === 'act' && route[2] === 'mehr'}
+  {#key sub}<MedMore actId={decodeURIComponent(route[1] ?? '')} />{/key}
 {:else if route[0] === 'act' && route[2] === 'timer'}
   {#key sub}<MedTimer actId={decodeURIComponent(route[1] ?? '')} {params} />{/key}
 {:else if route[0] === 'act'}
@@ -180,10 +191,11 @@
             <h2 id="tick-h" class="sh">{t('Tick off today')}</h2>
             <span class="quiet">{phone.matches ? t('one tap') : t('one click ticks · right click: duration, place, stopwatch')}</span>
           </div>
-          <TickGrid states={live} {today} cols={phone.matches ? 2 : 5} />
+          <TickGrid states={live} {today} cols={phone.matches ? 2 : 5} onmed={(s) => (medFor = s.act.id)} />
           {#if phone.matches}
-            <p class="hint">{t('Long press: duration, place (Studio / At home) or the stopwatch.')}</p>
+            <p class="hint">{#if hasMed}{t('Tap Meditation: start or tick off.')}{' '}{/if}{t('Long press: duration, place (Studio / At home) or the stopwatch.')}</p>
           {:else}
+            {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
             {@render checkRow()}
           {/if}
         </section>
@@ -259,6 +271,8 @@
     {/if}
   </div>
 {/if}
+
+{#if medSt}<MedStartSheet st={medSt} {today} onclose={() => (medFor = null)} />{/if}
 
 {#snippet checkRow()}
   {#if complete(check)}

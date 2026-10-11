@@ -9,7 +9,6 @@
    * A filter change keeps the scroll position: the address is updated in place.
    */
   import { ChevronLeft, ChevronRight, X, SlidersHorizontal } from '@lucide/svelte';
-  import CanDo from '../../lib/flow/hobby/CanDo.svelte';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
   import { artsOf, sortTemplates, bowlWords, logRows, filterRows, filterOf, filterQuery, filterCount, LOG_DEFAULT, DUR, TOD, RANGES, heatmap, streaks, hourHistogram, deepestHours, monthCompare, monthCalendar, monthRun, monthAdd, artMinutes, durationBins, weekMinutes, weekendMinutes, doubleDays } from '../../lib/flowmed.js';
   import { actName } from '../../lib/flow/ui.svelte.js';
@@ -106,7 +105,6 @@
     { id: 'cal', name: 'Calendar|view' },
     { id: 'chart', name: 'Chart|view' },
   ];
-  const CAN = ['tap any session to open it', 'filter by kind, duration, time of day, template, note, period', 'show only the longest in one go', 'streaks: current, longest, a calendar heatmap', 'views List · Calendar · Chart, also on the phone', 'best time of day and month comparison'];
 </script>
 
 <div class="ml">
@@ -287,8 +285,6 @@
         </section>
       </div>
     </div>
-
-    <CanDo items={CAN} />
   {/if}
 </div>
 

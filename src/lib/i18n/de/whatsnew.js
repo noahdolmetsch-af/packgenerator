@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.86.0 «Meditation einfach»
+  'Meditation in two taps: tap it in «Tick off today» and start at once, choose the minutes, or only tick it off.':
+    'Meditation in zwei Tipps: in «Heute abhaken» antippen und sofort starten, die Minuten wählen oder nur abhaken.',
+  'The meditation page is short: start like last time or from a template, this week, the log and the next star; everything else under «More».':
+    'Die Meditations-Seite ist kurz: wie letztes Mal oder aus einer Vorlage starten, diese Woche, das Protokoll und der nächste Stern; alles andere unter «Mehr».',
+  'After the gong only a sentence, the depth and «Done»; mood and more on request. The running clock is calmer: the time left once, the next gong below.':
+    'Nach dem Gong nur ein Satz, die Tiefe und «Fertig»; Stimmung und mehr auf Wunsch. Die laufende Uhr ist ruhiger: die Restzeit einmal, darunter der nächste Gong.',
+
   // 0.84.0 «Nach dem Gong» (hobby pages 3)
   'After the gong a calm evaluation opens: a note with depth and mood, what helped, your streak, a comparison and a suggestion for next time with a calendar file.':
     'Nach dem Gong öffnet eine ruhige Auswertung: Notiz mit Tiefe und Stimmung, was geholfen hat, deine Serie, ein Vergleich und ein Vorschlag fürs nächste Mal mit Kalender-Datei.',

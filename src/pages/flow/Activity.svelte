@@ -3,7 +3,7 @@
    * Hobby pages, package 1: Aktiv › Aktivität (mockup A, Noah 10.10.2026, H14a–H20a, H29a).
    *   #/flow/activity   the six favourite tiles (playful names, one line each), the three rings with this
    *                     week, the big milestone block over all activities, more actions suggested by
-   *                     itself, recovery and fun, connections, «Diese Seite kann».
+   *                     itself, recovery and fun, connections (v0.86.0: only working ones, no «Diese Seite kann»).
    * Everything is a suggestion: names, favourites, lines, suggestions and ideas can be changed, hidden or
    * removed. A tile opens the activity's editor until its own page comes (H29a).
    */
@@ -15,7 +15,6 @@
   import RingsWeek from '../../lib/flow/hobby/RingsWeek.svelte';
   import MsBlock from '../../lib/flow/hobby/MsBlock.svelte';
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
-  import CanDo from '../../lib/flow/hobby/CanDo.svelte';
   import { db } from '../../lib/db.js';
   import { hobbyQuery, seedHobby } from '../../lib/flow/data.svelte.js';
   import { actState, flowStates, rings as ringsOf } from '../../lib/flow.js';
@@ -117,21 +116,11 @@
   }
   const tickAct = (a) => tickWith(a, { day: today });
 
-  /* connections (H20a) */
-  const conns = $derived(connections(data?.weather ?? null));
+  /* connections (H20a); v0.86.0 «Meditation einfach» (Noah «1-5 a»): only what works today, no grey «geplant» rows */
+  const conns = $derived(connections(data?.weather ?? null).filter((c) => c.state === 'active' || c.state === 'setup'));
   const ICON = { strava: Pulse, fitbit: Pulse, ics: CalendarDays, weather: Sun, intervals: LineChart, media: Music };
   const STATE = { planned: 'planned', active: 'active', later: 'later', setup: 'not set up' };
 
-  const CAN = [
-    'six favourite activities as tiles, each with its own name',
-    'one useful line per tile instead of a date',
-    'three rings Mindful · Move · Recover with this week',
-    'milestones over all activities, with «soon» and «recently»',
-    'a reward from the wishlist on a star',
-    'more actions suggested by itself, ticked with one tap',
-    'recovery and fun: sauna, walk and more ideas',
-    'connections: weather now, Strava, Fitbit and calendar planned',
-  ];
 </script>
 
 <div class="hob">
@@ -209,7 +198,7 @@
       {/if}
     </section>
 
-    <h2 class="zlabel hs">{t('Connections')}<Sugg /></h2>
+    {#if conns.length}<h2 class="zlabel hs">{t('Connections')}<Sugg /></h2>{/if}
     <ul class="conn">
       {#each conns as c (c.id)}
         {@const Icon = ICON[c.id] ?? Cloud}
@@ -219,8 +208,6 @@
         </li>
       {/each}
     </ul>
-
-    <CanDo items={CAN} />
   {/if}
 </div>
 

@@ -9,15 +9,15 @@
    */
   import { ChevronLeft, Play, X, Volume2, Trash2 } from '@lucide/svelte';
   import Dial from '../../lib/flow/hobby/Dial.svelte';
-  import CanDo from '../../lib/flow/hobby/CanDo.svelte';
   import { db } from '../../lib/db.js';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
-  import { artsOf, tplOf, newTplId, lastSession, sessionPlan, PLACES, choiceList } from '../../lib/flowmed.js';
+  import { artsOf, tplOf, newTplId, lastSession } from '../../lib/flowmed.js';
   import { planMarks, setMarkSound, marksOf, toggleMark, GRID } from '../../lib/flowbowl.js';
   import { SOUNDS, soundOk, playSound, vibrate, DEFAULT_SOUND, DEFAULT_END_SOUND } from '../../lib/flowsounds.js';
   import { saveTemplate, deleteTemplate } from '../../lib/flowdb.js';
-  import { startSession, clockState, ui, actName, toast } from '../../lib/flow/ui.svelte.js';
+  import { clockState, actName, toast } from '../../lib/flow/ui.svelte.js';
   import { tplName, artName } from '../../lib/flow/hobby/words.js';
+  import { beginMed } from '../../lib/flow/hobby/medstart.js';
   import { clock } from '../../lib/flowtimer.js';
   import { localDay } from '../../lib/localday.js';
   import { t } from '../../lib/i18n.svelte.js';
@@ -161,21 +161,9 @@
     toast(t('Template deleted'), was ? () => saveTemplate(db, was) : null);
     location.hash = base;
   }
-  function start() {
-    if (running) {
-      ui.sessionOpen = true;
-      return;
-    }
-    const a = arts.all.find((x) => x.id === art);
-    const places = choiceList(data.places, PLACES);
-    const p = places.list.find((x) => x.id === places.cur);
-    const plan = sessionPlan({ minutes, bowl, sound, endSound, art, tplId, name: tplId ? name : null, place: places.cur });
-    plan.extra.session.artLabel = a ? artName(a) : act ? actName(act) : '';
-    plan.extra.session.placeLabel = p ? (p.own ? p.name : t(p.name)) : '';
-    startSession(actId, plan);
-  }
+  // v0.86.0: the one start of a session (lib/flow/hobby/medstart.js), the same as the page and the start sheet
+  const start = () => beginMed(actId, data, { minutes, bowl, sound, endSound, art, tplId, name: tplId ? name : null });
 
-  const CAN = ['choose the duration in one tap', 'sounds: none, every 5, every 10, at random or your own', 'set and remove your own marks right on the clock', 'one sound for all, single marks different on request', 'save as a template with a name'];
 </script>
 
 <div class="mt">
@@ -263,8 +251,6 @@
         </section>
       </div>
     </div>
-
-    <CanDo items={CAN} />
   {/if}
 </div>
 

@@ -3,14 +3,18 @@
    * v0.51.0 «Im Flow»: «Heute abhaken», one button per activity. One tap ticks it (the amount of the
    * goal, the place still open) with «Rückgängig»; tapping again takes today's tick back. A long press
    * (right click on a computer) opens the sheet for place, amount, duration or the countdown.
+   * v0.86.0 «Meditation einfach»: with `onmed`, a tap on the meditation activity calls onmed(state)
+   * (Aktiv opens its start sheet, lib/flow/MedStartSheet.svelte); without it the tap ticks as before.
    */
   import { Check } from '@lucide/svelte';
   import ActIcon from './ActIcon.svelte';
   import { press } from './press.js';
   import { ui, tapAct, actName } from './ui.svelte.js';
   import { tileSub } from './words.js';
+  import { isMedAct } from './hobby/medstart.js';
   import { t } from '../i18n.svelte.js';
-  let { states = [], today, cols = 2 } = $props();
+  let { states = [], today, cols = 2, onmed = null } = $props();
+  const tap = (s) => (onmed && isMedAct(s.act) ? onmed(s) : tapAct(s, today));
 </script>
 
 <ul class="tg" style:--cols={cols} style:--min={cols > 2 ? '150px' : '0px'}>
@@ -23,7 +27,7 @@
         data-act={s.act.id}
         aria-pressed={s.todayDone}
         aria-description={t('Long press: place, amount, duration or the countdown')}
-        use:press={{ tap: () => tapAct(s, today), long: () => (ui.tick = s.act.id) }}
+        use:press={{ tap: () => tap(s), long: () => (ui.tick = s.act.id) }}
       >
         <span class="ic" aria-hidden="true">{#if s.todayDone}<Check size={20} strokeWidth={2.6} />{:else}<ActIcon icon={s.act.icon} ring={s.act.ring} box={false} size={18} />{/if}</span>
         <span class="tx"><b>{actName(s.act)}</b><small>{tileSub(s)}</small></span>

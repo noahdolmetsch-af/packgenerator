@@ -11,7 +11,6 @@
   import PageHead from '../../lib/ui/PageHead.svelte';
   import MsBlock from '../../lib/flow/hobby/MsBlock.svelte';
   import MsCard from '../../lib/flow/hobby/MsCard.svelte';
-  import CanDo from '../../lib/flow/hobby/CanDo.svelte';
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
   import { db } from '../../lib/db.js';
   import { hobbyQuery, seedHobby } from '../../lib/flow/data.svelte.js';
@@ -81,15 +80,6 @@
   }
   const own = (r) => !!data?.tune?.[r.m.key]?.steps;
 
-  const CAN = [
-    'all milestones in one place, filtered by activity',
-    'only the next star per milestone',
-    'highlight «soon within reach» from 80 %',
-    'recently reached stars with their date',
-    'hang a reward from the wishlist on a star',
-    'record wall with your personal bests',
-    'change numbers and stages yourself, or hide a milestone',
-  ];
 </script>
 
 <div class="hob">
@@ -137,8 +127,6 @@
         {/each}
       </ul>
     </details>
-
-    <CanDo items={CAN} />
   {/if}
 </div>
 

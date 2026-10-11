@@ -128,9 +128,12 @@ test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea
   await expect(main.locator('[data-always="nap"]')).toBeVisible();
   await expect(main.locator('[data-idea="nap"]')).toHaveCount(0);
 
-  // connections: weather and the planned ones
-  await expect(main.locator('[data-conn="strava"]')).toContainText(T('planned'));
-  await expect(main.getByRole('heading', { name: T('This page can') })).toBeVisible();
+  // connections: v0.86.0 «Meditation einfach» (Noah «1-5 a»): only what works (the weather), no grey
+  // «geplant» rows and no «Diese Seite kann» any more
+  await expect(main.locator('[data-conn="weather"]')).toBeVisible();
+  await expect(main.locator('[data-conn="strava"]')).toHaveCount(0);
+  await expect(main.getByText(T('planned'), { exact: true })).toHaveCount(0);
+  await expect(main.getByRole('heading', { name: T('This page can') })).toHaveCount(0);
   await fits(page, 'Aktivität after the changes');
   expect(errors).toEqual([]);
 });

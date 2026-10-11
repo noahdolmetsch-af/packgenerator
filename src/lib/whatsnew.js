@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.86.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'Meditation in two taps: tap it in «Tick off today» and start at once, choose the minutes, or only tick it off.', href: '#/flow' },
+      { text: 'The meditation page is short: start like last time or from a template, this week, the log and the next star; everything else under «More».', href: '#/flow/act/meditation' },
+      { text: 'After the gong only a sentence, the depth and «Done»; mood and more on request. The running clock is calmer: the time left once, the next gong below.', href: '#/flow/act/meditation' },
+    ],
+  },
+  {
     version: '0.84.0',
     date: '2026-10-11',
     points: [

@@ -513,6 +513,7 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 11.10.2026 (v0.86.0, PR offen):** «Meditation einfach» nach Noahs «1-5 a» (Mockups A–E): Startblatt aus «Heute abhaken», kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant»-Zeilen und Wisch-Hinweis weg (Im Flow, Ziel-Check: Vorhaben 6). Das Startblatt ist bereit für Heute (anderer Faden). Danach weiter mit Liegestütze und Tennis (H9a).
 **Nachtrag 11.10.2026 (v0.84.0, PR offen):** Hobby-Seiten Teil 3 «Nach dem Gong» gebaut (B3–B6): Auswertung nach dem Gong mit Notiz, Tiefe, Stimmung, «Was hat geholfen», Serie, Vergleich und «Als Nächstes» (.ics); Protokoll mit Filtern, Serien-Wärmebild, Tageszeit, Monatsvergleich, Kalender und Grafik; Sitzung im Detail mit «Wieder so starten» und «Als Vorlage speichern» (Im Flow, Ziel-Check: Vorhaben 6). Damit ist Meditation B1–B8 komplett. Als Nächstes Liegestütze und Tennis (H9a).
 **Nachtrag 11.10.2026 (v0.83.0, live, PR #109):** «Ausstattung» nach Noahs Wunsch (Canyon-Vorbild, A1–A5 a): Velos › Ausstattung mit Masse-Kacheln, Teilen in Gruppen mit Gewicht und Preis, Gewicht pro Bereich und teuersten Teilen; Vergleich nur mit gefüllten Zeilen. Kleiner Release neben Hobby Teil 3 (anderer Bereich, Regel 5).
 

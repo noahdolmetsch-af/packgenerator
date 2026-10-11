@@ -5,9 +5,8 @@
    *   mood and what helped; the star reached here. «Wieder so starten» (the same clock again), «Als Vorlage
    *   speichern» (a name, then a new template), «Bearbeiten» (the note, B3), «Löschen» with «Rückgängig».
    */
-  import { ChevronLeft, Play, Copy, Pencil, Star, Check, Activity as Pulse } from '@lucide/svelte';
+  import { ChevronLeft, Play, Copy, Pencil, Star, Check } from '@lucide/svelte';
   import Dial from '../../lib/flow/hobby/Dial.svelte';
-  import CanDo from '../../lib/flow/hobby/CanDo.svelte';
   import { db } from '../../lib/db.js';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
   import { artsOf, sortTemplates, bowlWords, noteOf, hasNote, starsOfSession, sessionPlan, tplOf, newTplId, compareSession } from '../../lib/flowmed.js';
@@ -90,7 +89,6 @@
     toast(t('Session deleted'), () => restoreSession(db, e, s));
   }
 
-  const CAN = ['show a session in full: kind, duration, sounds, place', 'start exactly like this again in one tap', 'read and change the note, depth and mood', 'save it as a new template'];
 </script>
 
 <div class="ms">
@@ -158,11 +156,8 @@
           <a class="btn big" href="{base}/done/{encodeURIComponent(id)}?edit=1"><Pencil size={18} aria-hidden="true" />{t('Edit')}</a>
           <button type="button" class="lnk del" onclick={remove} data-delete>{t('Delete')}</button>
         </section>
-        <p class="fitbit"><Pulse size={16} aria-hidden="true" /><span>{t('Fitbit: resting pulse, HRV and sleep as an observation')}</span><span class="pill">{t('planned')}</span></p>
       </div>
     </div>
-
-    <CanDo items={CAN} />
   {/if}
 </div>
 
@@ -396,14 +391,5 @@
   }
   .lnk.del {
     color: var(--bad);
-  }
-  .fitbit {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 8px;
-    margin: 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
 </style>

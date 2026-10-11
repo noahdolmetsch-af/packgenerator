@@ -56,7 +56,6 @@ export const STRICT_STYLE = [
   'src/pages/flow/Activity.svelte',
   'src/pages/flow/Milestones.svelte',
   'src/lib/flow/hobby/ActTile.svelte',
-  'src/lib/flow/hobby/CanDo.svelte',
   'src/lib/flow/hobby/MsBlock.svelte',
   'src/lib/flow/hobby/MsCard.svelte',
   'src/lib/flow/hobby/RecordWall.svelte',
@@ -72,6 +71,9 @@ export const STRICT_STYLE = [
   'src/pages/flow/MedDone.svelte',
   'src/pages/flow/MedLog.svelte',
   'src/pages/flow/MedSession.svelte',
+  // v0.86.0 «Meditation einfach»: the start sheet, the shared start and «Mehr» (all new, all strict)
+  'src/lib/flow/MedStartSheet.svelte',
+  'src/pages/flow/MedMore.svelte',
   // v0.76.0 «Fünf Orte» 1: the new navigation and «Ich»
   'src/lib/nav/SideBar.svelte',
   'src/lib/nav/PlaceBar.svelte',

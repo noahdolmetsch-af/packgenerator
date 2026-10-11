@@ -25,7 +25,10 @@ test('one tap ticks with Undo, a second tap takes it back', async ({ page, conte
   const errors = await open(page, context);
   const med = page.locator('[data-act="meditation"]');
   await expect(med).toHaveAttribute('aria-pressed', 'false');
+  // v0.86.0 «Meditation einfach»: a tap on Meditation opens its start sheet; «Nur abhaken» ticks as before
   await med.click();
+  await page.locator('dialog[data-med-sheet][open] [data-tick-only]').click();
+  await expect(page.locator('dialog[data-med-sheet][open]')).toHaveCount(0);
   await expect(med).toHaveAttribute('aria-pressed', 'true');
   const toast = page.locator('.ftoast');
   await expect(toast).toContainText(T('{name} ticked', { name: 'Meditation' }));
