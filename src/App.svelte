@@ -22,6 +22,7 @@
   import Flow from './pages/Flow.svelte';
   import Between from './pages/Between.svelte';
   import Ski from './pages/Ski.svelte';
+  import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
   import DemoBar from './lib/DemoBar.svelte';
@@ -468,6 +469,7 @@
   <QuickNote {page} bind:open={noteOpen} prefill={notePrefill} prefillBike={noteBike} />
   <NewSheet bind:mode={newMode} onnote={note} />
 {/if}
+{#if page !== 'share'}<SkiTurn />{/if}
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if page !== 'share' && page !== 'timer'}<TimerFloat />{/if}

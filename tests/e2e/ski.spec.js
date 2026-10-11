@@ -147,3 +147,32 @@ test('Rucksack-Check: the five groups in order, a tap packs, n of m counts', asy
   await goggles.click();
   await expect.poll(async () => (await trip(page, NEXT)).entries.find((e) => e.itemId === 'SK06').packed).toBe(false);
 });
+
+test('Start-Check: five checks, the missing ones added, the turnaround time and its notice on the day', async ({ page, context }, info) => {
+  await open(page, context, info, `#/ski/start/${NEXT}`);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Start check'));
+  await expect(page.locator('[data-check]')).toHaveCount(5);
+  // the trip keeps its own list and gets the missing checks (none taken away)
+  await expect.poll(async () => (await trip(page, NEXT)).ready.map((r) => r.id)).toEqual(['lvs', 'bulletin', 'skins', ...START_CHECKS.map((c) => c.id).filter((id) => !['lvs', 'bulletin'].includes(id))]);
+  const lvs = page.locator('[data-check="lvs"] [role="checkbox"]');
+  await lvs.click();
+  await expect(lvs).toHaveAttribute('aria-checked', 'true');
+  await expect(page.locator('[data-check="bulletin"] a')).toHaveAttribute('href', 'https://www.slf.ch');
+  await page.getByRole('group', { name: T('Turnaround time') }).getByRole('button', { name: '13:00' }).click();
+  await expect(page.locator('[data-check="turn"] [role="checkbox"]')).toHaveAttribute('aria-checked', 'true');
+  const go = page.locator('main .btn.hi');
+  await expect(go).toHaveText(T("Let's go · turn around at {time}", { time: '13:00' }));
+  await expect.poll(async () => (await trip(page, NEXT)).ski?.turnAt).toBe('13:00');
+  expect(await noSideScroll(page)).toBe(true);
+  await shot(page, info, 'C-Start-Check');
+  await go.click();
+  await expect(page).toHaveURL(/#\/ski$/);
+  await expect(page.locator('[data-ski-turn]')).toHaveCount(0);
+  // on the tour's day at 14:00 the turnaround time shows as a notice in the app, until «OK»
+  await page.clock.setFixedTime(new Date(`${day(1)}T14:00:00+01:00`));
+  await page.reload();
+  const notice = page.locator('[data-ski-turn]');
+  await expect(notice).toContainText('13:00');
+  await notice.getByRole('button').click();
+  await expect(notice).toHaveCount(0);
+});

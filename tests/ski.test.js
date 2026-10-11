@@ -100,3 +100,32 @@ describe('the season', () => {
     expect(seasonHm(trips, '2026/27', '2027-02-01')).toBe(2530);
   });
 });
+
+describe('the start check', () => {
+  it('new ski trips get the five checks; an older trip keeps its own and gets the missing ones', () => {
+    expect(READY_BY_DOMAIN.ski.map((r) => r.id)).toEqual(['lvs', 'battery', 'group', 'bulletin', 'turn']);
+    expect(START_CHECKS.map((r) => r.id)).toEqual(['lvs', 'battery', 'group', 'bulletin', 'turn']);
+    const t = newPackTrip({ title: 'test_data_gtp_ Piz Beispiel', startDate: '2026-12-12', days: 1, domain: 'ski' }, [], []);
+    expect(t.ready.map((r) => r.id)).toEqual(['lvs', 'battery', 'group', 'bulletin', 'turn']);
+    const old = [{ id: 'lvs', label: 'Avalanche transceiver on and tested', done: true }, { id: 'skins', label: 'Skins, crampons, poles', done: false }];
+    const next = withStartChecks(old);
+    expect(next.map((r) => r.id)).toEqual(['lvs', 'skins', 'battery', 'group', 'bulletin', 'turn']);
+    expect(next[0]).toEqual(old[0]);
+    expect(withStartChecks(next)).toBe(null);
+    for (const c of START_CHECKS) expect(DE[c.label], c.id).toBeTruthy();
+  });
+
+  it('reads a turnaround time and says when it has come (only on the tour\'s day)', () => {
+    expect(turnTime('13:00')).toBe('13:00');
+    expect(turnTime('9.30')).toBe('09:30');
+    expect(turnTime('25:00')).toBe('');
+    expect(turnTime('')).toBe('');
+    const trip = ski('t', '2026-12-12', { ski: { turnAt: '13:00' } });
+    const at = (h, m) => new Date(2026, 11, 12, h, m);
+    expect(turnDue(trip, '2026-12-12', at(12, 59))).toBe(false);
+    expect(turnDue(trip, '2026-12-12', at(13, 0))).toBe(true);
+    expect(turnDue(trip, '2026-12-13', at(13, 30))).toBe(false);
+    expect(turnDue({ ...trip, finished: '2026-12-12' }, '2026-12-12', at(14, 0))).toBe(false);
+    expect(turnDue(ski('u', '2026-12-12'), '2026-12-12', at(14, 0))).toBe(false);
+  });
+});

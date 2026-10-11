@@ -11,6 +11,7 @@
   import '../lib/ski/ski.css';
   import SkiHome from './ski/SkiHome.svelte';
   import SkiCheck from './ski/SkiCheck.svelte';
+  import SkiStart from './ski/SkiStart.svelte';
 
   let { sub = '' } = $props();
   const parts = $derived(sub.split('?')[0].split('/').filter(Boolean));
@@ -19,6 +20,8 @@
 
 {#if parts[0] === 'check'}
   <SkiCheck {id} />
+{:else if parts[0] === 'start'}
+  <SkiStart {id} />
 {:else}
   <SkiHome />
 {/if}

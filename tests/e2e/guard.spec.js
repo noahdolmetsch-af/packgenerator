@@ -101,6 +101,7 @@ const ROUTES = [
   // ski tour: the empty states; tests/e2e/ski.spec.js checks them filled)
   ['#/ski', 'Skitouren'],
   ['#/ski/check', 'Rucksack-Check'],
+  ['#/ski/start', 'Start-Check'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

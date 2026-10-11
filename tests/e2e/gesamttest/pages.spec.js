@@ -100,6 +100,7 @@ const CASES = [
   // v0.97.0 «Skitouren»: Touren › Skitouren and its pages, with the fixture's ski trip
   { id: 'ski', hash: '#/ski' },
   { id: 'ski-check', hash: `#/ski/check/${TRIP.ski}` },
+  { id: 'ski-start', hash: `#/ski/start/${TRIP.ski}` },
   { id: 'logbook', hash: '#/debrief/logbook' },
   { id: 'rides', hash: '#/debrief/ride' },
   { id: 'ride-detail', hash: '#/debrief/ride/ride-gtp-01' },
