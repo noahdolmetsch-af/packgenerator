@@ -48,7 +48,7 @@ export default {
   'set the intervals': 'Intervalle einstellen',
   'adjust last time first': 'letztes Mal zuerst anpassen',
   // D: the calm clock
-  'next gong in {t}': 'nächster Gong in {t}',
+  'next gong in {t}': 'nächster Klang in {t}', // v0.93.0 (mockup G/H): «Klang» like «Klänge dazwischen»
   'quieter|sound': 'leiser',
   'louder|sound': 'lauter',
   // E: after the gong

@@ -6,6 +6,7 @@
    * vielleicht», the challenge, all kinds, own kinds), Orte und Dinge, Zitate (original, «weglassen», own
    * ones), Links (own only), Alle Sterne (the milestones 6 + 4), Vorlagen verwalten. These are the blocks of
    * the old long page (hobby pages 2), moved here: nothing lost, only folded away.
+   * v0.93.0: …/mehr?open=stars opens «Alle Sterne» (the milestone row of «Neue Sitzung»).
    */
   import { ChevronLeft, ChevronRight, Play, X, Plus, Lightbulb, Link as LinkIcon, ExternalLink, Check, Music, Flower2, House, Quote, ArrowUpRight, Star, Settings } from '@lucide/svelte';
   import MsBlock from '../../lib/flow/hobby/MsBlock.svelte';
@@ -24,7 +25,7 @@
   import { phone } from '../../lib/media.svelte.js';
   import { t, tn, lang } from '../../lib/i18n.svelte.js';
 
-  let { actId = 'meditation' } = $props();
+  let { actId = 'meditation', params = new URLSearchParams() } = $props();
   const today = localDay();
   const q = $derived(medQuery(actId, today));
   const data = $derived($q);
@@ -329,7 +330,7 @@
         </div>
       </details>
 
-      <details data-fold="stars">
+      <details data-fold="stars" open={params.get('open') === 'stars'}>
         {@render head(Star, t('All stars'), sums.stars)}
         <div class="in">
           <MsBlock list={msShown} all={msShown} {today} compact tuneHref="#/flow/milestones?act={encodeURIComponent(actId)}&tune=1" />

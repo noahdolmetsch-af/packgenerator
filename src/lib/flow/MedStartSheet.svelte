@@ -6,6 +6,8 @@
    * (never used: the first suggestion); the chips 10 · 20 · 30 · 45 · andere change the minutes; one quiet
    * line says template, gong and sound. «Nur abhaken» does what the tap did before (tick with «Rückgängig»);
    * «Zur Meditations-Seite ›» opens the page. The start is the page's own (hobby/medstart.js).
+   * v0.93.0 «Meditation Wünsche» (mockup F): the chips 10 · 15 · 20 · 30 · 45 · 60 and always next to them
+   * «oder frei: [ ] Minuten» (1–600); no «andere» any more.
    * st: the activity's flow state (flow.js actState); today; onclose. Heute can use it the same way.
    */
   import { Play, Check, ChevronRight, X } from '@lucide/svelte';
@@ -14,6 +16,7 @@
   import { tapAct, actName } from './ui.svelte.js';
   import { actGoalText } from './words.js';
   import { beginMed, tplStart, medTemplates, startLine } from './hobby/medstart.js';
+  import { MED_DURATIONS, freeMinutes } from '../flowmed.js';
   import { backClose } from '../ui/backclose.js';
   import { localDay } from '../localday.js';
   import { t } from '../i18n.svelte.js';
@@ -27,20 +30,14 @@
     seedMed(data, actId);
   });
   const tpl = $derived(medTemplates(data)[0] ?? null);
-  const CHIPS = [10, 20, 30, 45];
-
   let dlg = $state();
   let min = $state(null); // null: the template's own minutes
-  let other = $state(false);
-  let own = $state('');
-  const n = $derived(other ? Math.max(1, Math.min(600, Math.round(Number(own) || 0))) || (tpl?.minutes ?? 20) : (min ?? tpl?.minutes ?? 20));
+  const n = $derived(min ?? tpl?.minutes ?? 20);
   const start = $derived(tpl ? tplStart(tpl, n) : { minutes: n, bowl: { mode: 'none' }, sound: undefined, endSound: undefined, art: null, tplId: null, name: null });
 
   $effect(() => {
     if (dlg && !dlg.open) {
       min = null;
-      other = false;
-      own = '';
       dlg.showModal();
     }
   });
@@ -55,12 +52,10 @@
     close();
     if (s) await tapAct(s, today);
   }
-  const pick = (m) => {
-    other = false;
-    min = m;
+  const typed = (v) => {
+    const m = freeMinutes(v);
+    if (m != null) min = m;
   };
-  const chipOn = (m) => !other && n === m;
-  const otherOn = $derived(other || !CHIPS.includes(n));
 </script>
 
 <dialog class="sheet from-below mss" bind:this={dlg} use:backClose onclose={() => onclose?.()} onclick={(e) => e.target === dlg && close()} aria-labelledby="mss-h" data-med-sheet>
@@ -77,14 +72,11 @@
     <button type="button" class="btn hi go" onclick={go} data-start="sheet"><Play size={22} aria-hidden="true" />{t('Now {n} min', { n })}</button>
 
     <div class="chips" role="group" aria-label={t('Duration')}>
-      {#each CHIPS as m (m)}
-        <button type="button" class="chip num" class:on={chipOn(m)} aria-pressed={chipOn(m)} onclick={() => pick(m)} data-min-chip={m}>{m}</button>
+      {#each MED_DURATIONS as m (m)}
+        <button type="button" class="chip num" class:on={n === m} aria-pressed={n === m} onclick={() => (min = m)} data-min-chip={m}>{m}</button>
       {/each}
-      <button type="button" class="chip other" class:on={otherOn} aria-pressed={otherOn} onclick={() => ((other = true), (own = String(n)))}>{t('other|duration')}</button>
     </div>
-    {#if other}
-      <label class="own"><span class="lbl">{t('Minutes')}</span><input class="inp num" type="number" inputmode="numeric" min="1" max="600" bind:value={own} data-min-own /></label>
-    {/if}
+    <label class="own"><span>{t('or free:')}</span><input class="inp num" type="number" inputmode="numeric" min="1" max="600" value={n} oninput={(e) => typed(e.currentTarget.value)} data-min-own /><span>{t('minutes')}</span></label>
     <p class="line">{startLine(start)}</p>
 
     <ul class="rows">
@@ -173,27 +165,20 @@
     background: var(--ok-soft);
     color: var(--accent);
   }
-  .chip.other {
-    border-style: dashed;
-    font-weight: 500;
-    color: var(--ink-2);
-  }
-  .chip.other.on {
-    border-style: solid;
-    color: var(--accent);
-  }
   .own {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 10px;
     margin-top: 10px;
-  }
-  .own .lbl {
-    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .own .inp {
-    width: 110px;
-    min-height: 44px;
+    width: 96px;
+    min-height: 48px;
+    text-align: right;
+    font-weight: 600;
   }
   .line {
     margin: 12px 0 0;

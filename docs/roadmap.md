@@ -513,6 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 11.10.2026 (v0.93.0, PR offen):** «Meditation Wünsche» nach Noahs «1-5 a» (Mockups F–H): Neue Sitzung mit Sternen zuerst, Dauer 10–60 oder frei, Klänge keine · zufällig · eigene (alle N oder an Minute), «Als Vorlage speichern?» mit Namensvorschlag; vier Uhren Ring · Sanduhr · Mond · Zahl, gemerkt, Sanduhr mit ausblendbarer Zeit. Heute (Startseite) bleibt beim Faden «UI-Analyse».
+
 **Nachtrag 11.10.2026 (v0.88.0, PR offen):** «Aufräumen und Ausprobieren», der erste Schritt der App-einfach-Reihe (Noah «1a 2a 3b 4a 5a», Mockups F–H «0.88 alle a»): Ich › Testdaten aufräumen mit Rückgängig, Ich › Ausprobieren als Spielwiese, «Wieder planen» für eine zu früh beendete Tour. Danach 0.89 Rückblick antippen, 0.90 Velo kurz (mit Pflege und Ausstattung ohne rote Hinweise), 0.91 Material Liste zuerst. Neue Tour und Planen bleiben (3b).
 
 **Nachtrag 11.10.2026 (v0.86.0, PR offen):** «Meditation einfach» nach Noahs «1-5 a» (Mockups A–E): Startblatt aus «Heute abhaken», kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant»-Zeilen und Wisch-Hinweis weg (Im Flow, Ziel-Check: Vorhaben 6). Das Startblatt ist bereit für Heute (anderer Faden). Danach weiter mit Liegestütze und Tennis (H9a).

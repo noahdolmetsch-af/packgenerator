@@ -11,11 +11,15 @@
 //    early and saved; «Fertig» with nothing entered only closes; save as template, delete, «Rückgängig».
 // 3. The start sheet: the chips change the minutes, «Nur abhaken» ticks with «Rückgängig», «Zur
 //    Meditations-Seite» opens the page.
+// 4. v0.93.0 «Meditation Wünsche» (mockup F): «Neue Sitzung»: the stars on top (→ «Alle Sterne»), the
+//    durations 10–60 and «oder frei», «eigene · alle N» and «an Minute», an old «alle 5» template, the
+//    folded sounds, «Als Vorlage speichern?» with the suggested name, «nicht jetzt».
+// 5. v0.93.0 (mockups G, H): the four clocks; «Sanduhr» stays after a reload, its time can be hidden.
 // No sideways scroll, no page errors. Fictional data only. No data import and no dialog of the app shell,
 // so of tests/e2e/settle.js only ready() is needed: the start-up tidy-up has finished before the test acts.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
-import { SEED_TEMPLATES } from '../../src/lib/flowmed.js';
+import { SEED_TEMPLATES, MED_DURATIONS, CLOCK_VIEWS } from '../../src/lib/flowmed.js';
 import { SOUNDS } from '../../src/lib/flowsounds.js';
 import { ready } from './settle.js';
 
@@ -76,7 +80,7 @@ test('Meditation einfach: start sheet → calm clock → gong → a sentence and
   await expect(sheet).toContainText(T('Template «{name}»', { name: FIRST.nameDe }));
   await expect(sheet.locator(`[data-min-chip="${FIRST.minutes}"]`)).toHaveAttribute('aria-pressed', 'true');
   await fits(page, 'Startblatt');
-  await sheet.getByRole('button', { name: T('other|duration'), exact: true }).click();
+  await expect(sheet.getByRole('button', { name: T('other|duration'), exact: true })).toHaveCount(0); // v0.93.0: «oder frei» instead
   await sheet.locator('[data-min-own]').fill('1');
   await expect(sheet.locator('[data-start="sheet"]')).toHaveText(T('Now {n} min', { n: 1 }));
   await sheet.locator('[data-start="sheet"]').click();
@@ -216,24 +220,37 @@ test('Meditation einfach: the short page, a new template, a session from «Mehr 
   if (phone) expect(height, 'the phone page is about two screens at most').toBeLessThanOrEqual(1800);
   await fits(page, 'B Meditation kurz');
 
-  // «+ neue»: the intervals; a mark set on the ring (5:00 of 20 min) and taken away; then 1 minute
+  // «+ neue»: «Neue Sitzung»; a mark set on the ring (5:00 of 20 min) and taken away (on a phone the ring
+  // stays away, mockup F: «an Minute» sets it); then 1 minute
   await main.locator('[data-to="new-tpl"]').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation\/timer\?new=1$/);
-  await expect(main.getByRole('heading', { level: 1, name: T('Intervals') })).toBeVisible();
+  await expect(main.getByRole('heading', { level: 1, name: T('New session') })).toBeVisible();
   await expect(main.getByRole('button', { name: '20', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await tapRing(page, 90);
-  await expect(main.getByRole('button', { name: T('own|marks'), exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await expect(main.locator('.dial [data-mark="300"]')).toHaveCount(1);
-  await main.getByRole('button', { name: T('Remove the mark at {t}', { t: '5:00' }) }).click();
-  await expect(main.locator('.dial [data-mark]')).toHaveCount(0);
+  const ownChip = main.getByRole('button', { name: T('own|marks'), exact: true });
+  if (phone) {
+    await expect(main.locator('.dial')).toHaveCount(0);
+    await ownChip.click();
+    await main.locator('[data-marks]').fill('5');
+    await expect(main.locator('[data-own="marks"]')).toBeChecked();
+    await expect(main.locator('[data-when]')).toHaveText(T('Sounds at {list} · end {end}', { list: '5:00', end: '20:00' }));
+    await main.locator('[data-marks]').fill('');
+    await expect(main.locator('[data-when]')).toHaveText(T('Only start and end · end {end}', { end: '20:00' }));
+  } else {
+    await tapRing(page, 90);
+    await expect(ownChip).toHaveAttribute('aria-pressed', 'true');
+    await expect(main.locator('[data-own="marks"]')).toBeChecked();
+    await expect(main.locator('.dial [data-mark="300"]')).toHaveCount(1);
+    await expect(main.locator('[data-marks]')).toHaveValue('5');
+    await tapRing(page, 90);
+    await expect(main.locator('.dial [data-mark]')).toHaveCount(0);
+  }
   await expect(main.getByRole('heading', { name: T('This page can') })).toHaveCount(0);
-  await fits(page, 'Intervalle');
-  await main.getByRole('button', { name: T('Other duration') }).click();
+  await fits(page, 'Neue Sitzung');
   await main.locator('[data-min]').fill('1');
   await main.locator('[data-tpl-name]').fill('Test eine Minute');
-  await main.getByRole('button', { name: T('Save'), exact: true }).click();
+  await main.locator('[data-tpl-save]').click();
   await expect(page.locator('.ftoast')).toContainText(T('Template «{name}» saved', { name: 'Test eine Minute' }));
-  await main.getByRole('link', { name: T('Back to {name}', { name: 'Meditation' }) }).click();
+  await main.locator('.back a').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation$/);
   await expect(main.getByRole('button', { name: T('Start {name}', { name: 'Test eine Minute' }) })).toBeVisible();
   await expect.poll(() => count(page, 'flowTemplates')).toBe(SEED_TEMPLATES.length + 1);
@@ -298,6 +315,14 @@ test('Meditation einfach: the start sheet changes the minutes, «Nur abhaken» t
   const sheet = page.locator('dialog[data-med-sheet][open]');
 
   await med.click();
+  // v0.93.0: the chips 10–60 and «oder frei» always next to them
+  await expect(sheet.locator('[data-min-chip]')).toHaveCount(MED_DURATIONS.length);
+  for (const m of MED_DURATIONS) await expect(sheet.locator(`[data-min-chip="${m}"]`)).toHaveText(String(m));
+  await sheet.locator('[data-min-chip="15"]').click();
+  await expect(sheet.locator('[data-min-own]')).toHaveValue('15');
+  await sheet.locator('[data-min-own]').fill('25');
+  await expect(sheet.locator('[data-start="sheet"]')).toHaveText(T('Now {n} min', { n: 25 }));
+  await expect(sheet.locator('[data-min-chip][aria-pressed="true"]')).toHaveCount(0);
   await sheet.locator('[data-min-chip="30"]').click();
   await expect(sheet.locator('[data-min-chip="30"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(sheet.locator('[data-start="sheet"]')).toHaveText(T('Now {n} min', { n: 30 }));
@@ -320,5 +345,149 @@ test('Meditation einfach: the start sheet changes the minutes, «Nur abhaken» t
   await expect(page).toHaveURL(/#\/flow\/act\/meditation$/);
   await expect(page.locator('dialog[data-med-sheet][open]')).toHaveCount(0);
   await expect(page.locator('main').getByRole('heading', { level: 1, name: 'Meditation' })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('Meditation Wünsche: «Neue Sitzung» with the stars on top, 10–60 or free, «eigene · alle N», «Als Vorlage speichern?»', async ({ page, context }, info) => {
+  const errors = await open(page, context, '#/flow/act/meditation/timer?new=1');
+  const main = page.locator('main');
+  await expect(main.getByRole('heading', { level: 1, name: T('New session') })).toBeVisible();
+
+  // the next star first, its bar and «noch …»; a tap opens «Alle Sterne»
+  const ms = main.locator('[data-ms-row]');
+  await expect(ms).toBeVisible();
+  await expect(ms).toContainText(T('Next star: {name}', { name: '' }).trim());
+  await expect(ms.locator('[role="progressbar"]')).toHaveCount(1);
+  expect((await ms.boundingBox()).y, 'the stars come before the settings').toBeLessThan((await main.getByText(T('Duration'), { exact: true }).boundingBox()).y);
+  await ms.click();
+  await expect(page).toHaveURL(/#\/flow\/act\/meditation\/mehr\?open=stars$/);
+  await expect(main.locator('details[data-fold="stars"]')).toHaveAttribute('open', '');
+  await page.goBack();
+  await expect(main.getByRole('heading', { level: 1, name: T('New session') })).toBeVisible();
+
+  // the durations in one tap, or typed
+  for (const m of MED_DURATIONS) await expect(main.locator(`[data-dur="${m}"]`)).toHaveText(String(m));
+  await main.locator('[data-dur="45"]').click();
+  await expect(main.locator('[data-dur="45"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(main.locator('[data-min]')).toHaveValue('45');
+  await expect(main.locator('[data-start="timer"]')).toHaveText(T('Start · {n} min', { n: 45 }));
+  await main.locator('[data-min]').fill('17');
+  await expect(main.locator('[data-dur][aria-pressed="true"]')).toHaveCount(0);
+  await expect(main.locator('[data-start="timer"]')).toHaveText(T('Start · {n} min', { n: 17 }));
+  await main.locator('[data-dur="15"]').click();
+
+  // «Klänge dazwischen»: keine · zufällig · eigene; «eigene · alle 5» and the line when they come
+  await expect(main.locator('[data-mode]')).toHaveCount(3);
+  await expect(main.getByRole('button', { name: T('every 5 min'), exact: true })).toHaveCount(0);
+  await main.locator('[data-mode="own"]').click();
+  await expect(main.locator('[data-own="every"]')).toBeChecked();
+  await main.locator('[data-every]').fill('5');
+  await expect(main.locator('[data-when]')).toHaveText(T('Sounds at {list} · end {end}', { list: '5:00 · 10:00', end: '15:00' }));
+  const kind = T('Om Ah Hung');
+  const name = main.locator('[data-tpl-name]');
+  await expect(name).toHaveValue(`${kind} 15 · ${T('every {n} min', { n: 5 })}`);
+  // «an Minute» starts with the same times, typed ones follow
+  await main.locator('[data-own="marks"]').check();
+  await expect(main.locator('[data-marks]')).toHaveValue('5, 10');
+  await main.locator('[data-marks]').fill('3, 7, 12');
+  await expect(main.locator('[data-when]')).toHaveText(T('Sounds at {list} · end {end}', { list: '3:00 · 7:00 · 12:00', end: '15:00' }));
+  await expect(name).toHaveValue(`${kind} 15 · ${T('{n} own sounds', { n: 3 })}`);
+  await main.locator('[data-mode="random"]').click();
+  await expect(name).toHaveValue(`${kind} 15 · ${T('sounds at random')}`);
+  await main.locator('[data-mode="none"]').click();
+  await expect(name).toHaveValue(`${kind} 15`);
+  await main.locator('[data-mode="own"]').click();
+  await main.locator('[data-own="every"]').check();
+  await main.locator('[data-every]').fill('5');
+
+  // the sounds fold into one line; «ändern» opens them
+  await expect(main.getByRole('combobox', { name: T('Start and end') })).toHaveCount(0);
+  await main.locator('[data-sounds]').click();
+  await expect(main.getByRole('combobox', { name: T('Start and end') })).toBeVisible();
+  await fits(page, 'F Neue Sitzung');
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  info.annotations.push({ type: 'height', description: `Neue Sitzung ${page.viewportSize().width} px: ${height} px high` });
+
+  // «Als Vorlage speichern?»: the suggested name, «Speichern» keeps it as a template
+  const card = main.locator('[data-save-card]');
+  await expect(card.getByRole('heading', { name: T('Save as a template?') })).toBeVisible();
+  await card.locator('[data-tpl-save]').click();
+  const saved = `${kind} 15 · ${T('every {n} min', { n: 5 })}`;
+  await expect(page.locator('.ftoast')).toContainText(T('Template «{name}» saved', { name: saved }));
+  await expect.poll(() => count(page, 'flowTemplates')).toBe(SEED_TEMPLATES.length + 1);
+  await expect(main.locator('[data-save-card]')).toHaveCount(0);
+  await expect(main.getByRole('heading', { level: 1, name: saved })).toBeVisible();
+  await expect(main.getByRole('button', { name: T('Delete') })).toBeVisible();
+
+  // «nicht jetzt» hides the card for this visit
+  await page.reload();
+  await ready(page);
+  await expect(main.getByRole('heading', { level: 1, name: T('New session') })).toBeVisible();
+  await expect(main.locator('[data-save-card]')).toBeVisible();
+  await main.locator('[data-tpl-later]').click();
+  await expect(main.locator('[data-save-card]')).toHaveCount(0);
+  await expect(main.locator('[data-start="timer"]')).toBeVisible();
+
+  // an old template «alle 5» opens as «eigene · alle 5»
+  await page.goto('./#/flow/act/meditation/timer?tpl=tpl-oah30');
+  await expect(main.getByRole('heading', { level: 1, name: 'Om Ah Hung 30' })).toBeVisible();
+  await expect(main.locator('[data-mode="own"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(main.locator('[data-own="every"]')).toBeChecked();
+  await expect(main.locator('[data-every]')).toHaveValue('5');
+  await expect(main.locator('[data-dur="30"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(main.locator('[data-save-card]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Meditation Wünsche: four clocks, «Sanduhr» stays after a reload, its time can be hidden', async ({ page, context }) => {
+  const errors = await open(page, context, '#/flow/act/meditation/timer?new=1');
+  const main = page.locator('main');
+  await main.locator('[data-dur="15"]').click();
+  await main.locator('[data-mode="own"]').click();
+  await main.locator('[data-start="timer"]').click();
+
+  const sess = page.locator('dialog.sess[open]');
+  const timer = sess.locator('[role="timer"]');
+  await expect(sess.locator('[data-clock-view]')).toHaveCount(CLOCK_VIEWS.length);
+  await expect(sess.locator('[data-clock-view="ring"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(sess.locator('.dial')).toBeVisible();
+  await expect(timer).toHaveAttribute('data-left', '900');
+
+  // Sanduhr: the glass, the time below, «nächster Klang in …», the controls
+  await sess.locator('[data-clock-view="glass"]').click();
+  await expect(sess.locator('.glass > svg')).toBeVisible();
+  await expect(sess.locator('.dial')).toHaveCount(0);
+  await page.clock.runFor(120_000);
+  await expect(timer).toHaveAttribute('data-left', '780');
+  await expect(sess.locator('.next')).toHaveText(T('next gong in {t}', { t: '3:00' }));
+  await expect(sess.locator('.stream')).toHaveCount(1);
+  await sess.getByRole('button', { name: T('Pause'), exact: true }).click();
+  await expect(sess.locator('.stream')).toHaveCount(0); // no stream while paused
+  await sess.getByRole('button', { name: T('Continue'), exact: true }).click();
+  await sess.locator('[data-hide-time]').click();
+  await expect(timer).toBeHidden();
+  await expect(sess.locator('[data-hide-time]')).toHaveText(T('Show the time'));
+  await expect(sess.locator('.next')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
+
+  // a reload: the session keeps running; the clock opens as Sanduhr with the time hidden
+  await page.reload();
+  await ready(page);
+  await page.locator('.fmini .open').click();
+  await expect(sess.locator('[data-clock-view="glass"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(sess.locator('[role="timer"]')).toBeHidden();
+  await sess.locator('[data-hide-time]').click();
+  await expect(sess.locator('[role="timer"]')).toBeVisible();
+
+  // Mond and Zahl show the time; Ring again
+  await sess.locator('[data-clock-view="moon"]').click();
+  await expect(sess.locator('[data-clock="moon"] .water')).toHaveCount(1);
+  await expect(sess.locator('[role="timer"]')).toBeVisible();
+  await sess.locator('[data-clock-view="digits"]').click();
+  await expect(sess.locator('[data-clock="digits"] [role="timer"]')).toBeVisible();
+  await sess.locator('[data-clock-view="ring"]').click();
+  await expect(sess.locator('.dial')).toBeVisible();
+  await sess.locator('[data-end-session]').click();
+  await expect(page).toHaveURL(/#\/flow\/act\/meditation\/done\//);
   expect(errors).toEqual([]);
 });

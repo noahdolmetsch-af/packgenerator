@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.93.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'Meditation › «New session»: 10 · 15 · 20 · 30 · 45 · 60 minutes or any number, sounds in between «none · at random · own» (every N minutes or at chosen minutes), and your next star on top.', href: '#/flow/act/meditation' },
+      { text: '«Save as a template?» suggests a name from kind, duration and sounds; one tap and it starts next time from the meditation page.', href: '#/flow/act/meditation' },
+      { text: 'Four clocks for a running session: ring, hourglass, moon or only the number. The app remembers yours, and the hourglass can hide the time.', href: '#/flow/act/meditation' },
+    ],
+  },
+  {
     version: '0.88.0',
     date: '2026-10-11',
     points: [
