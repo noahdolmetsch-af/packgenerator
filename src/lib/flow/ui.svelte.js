@@ -8,10 +8,14 @@ import { lang, t } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
 import { tick, removeEntry, putEntry } from '../flowdb.js';
 import { lastEntryOn, tapSub } from '../flow.js';
-import { TIMER_KEY, timerOf, startTimer, pauseTimer, resumeTimer, dueBowls, isDone, loggedMinutes } from '../flowtimer.js';
+import { TIMER_KEY, timerOf, startTimer, pauseTimer, resumeTimer, dueBowls, isDone, loggedMinutes, elapsedSec } from '../flowtimer.js';
 import { strike, wakeAudio } from '../flowbowl.js';
+import { strokesOf, soundAt, playSound, vibrate, schedulePlan, cancelPlan, playedByPlan, setVolume, wakeSounds } from '../flowsounds.js';
+import { sessionRecords } from '../flowmed.js';
+import { saveSession } from '../flowdb.js';
 
-export const ui = $state({ tick: null, timerOpen: false, checkOpen: false, toast: null });
+// sessionOpen: hobby pages 2, the running session in full (B7)
+export const ui = $state({ tick: null, timerOpen: false, checkOpen: false, toast: null, sessionOpen: false });
 
 /* ---------- names in the current language ---------- */
 export const actName = (a) => (a ? (lang.v === 'de' && a.nameDe ? a.nameDe : a.name) || t('Activity') : '');
@@ -77,17 +81,22 @@ const keep = () => {
 };
 
 let wake = null;
+/** Whether the screen is held on (B7 «Bildschirm bleibt an»). */
+export const screen = $state({ held: false });
 async function holdScreen(on) {
   try {
     if (on && !wake && navigator.wakeLock) {
       wake = await navigator.wakeLock.request('screen');
-      wake.addEventListener?.('release', () => (wake = null));
+      screen.held = true;
+      wake.addEventListener?.('release', () => ((wake = null), (screen.held = false)));
     } else if (!on && wake) {
       await wake.release();
       wake = null;
+      screen.held = false;
     }
   } catch {
     wake = null; // no wake lock: the time is still right, it is computed from the start
+    screen.held = false;
   }
 }
 
@@ -101,8 +110,14 @@ function step() {
     clockState.tm = timer;
     keep();
   }
-  if (play != null) strike({ f0: play === 0 || play === tm.targetSec ? 196 : 262, gain: 0.32 });
+  if (play != null && tm.session) {
+    // a session (B7): the stroke was planned on the audio clock; play it now only when the clock missed it
+    const sound = soundAt(tm, play);
+    if (sound === 'vibrate') vibrate();
+    else if (!playedByPlan(play)) playSound(sound, 0, play === tm.targetSec ? 0.45 : 0.38);
+  } else if (play != null) strike({ f0: play === 0 || play === tm.targetSec ? 196 : 262, gain: 0.32 });
   if (isDone(tm, clockState.now) || tm.pausedAt) holdScreen(false);
+  if (tm.session && !tm.saved && isDone(tm, clockState.now)) saveDone();
 }
 function run() {
   if (loop) return;
@@ -114,7 +129,10 @@ if (typeof window !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') return;
     step(); // after the screen lock: the time is computed again from the start
-    if (clockState.tm && !clockState.tm.pausedAt && !isDone(clockState.tm, Date.now())) holdScreen(true);
+    if (clockState.tm && !clockState.tm.pausedAt && !isDone(clockState.tm, Date.now())) {
+      holdScreen(true);
+      if (clockState.tm.session) planAhead(); // the audio clock may have slept: plan the rest again
+    }
   });
 }
 
@@ -123,9 +141,9 @@ export function openTimer(actId = null) {
   ui.timerOpen = true;
 }
 /** Start (from a tap: the audio may start now). */
-export function startClock(actId, minutes, bowl, sub = null) {
+export function startClock(actId, minutes, bowl, sub = null, extra = null) {
   wakeAudio();
-  clockState.tm = { ...startTimer({ actId, minutes, bowl, now: Date.now() }), ...(sub ? { sub } : {}) };
+  clockState.tm = { ...startTimer({ actId, minutes, bowl, now: Date.now() }), ...(sub ? { sub } : {}), ...(extra ?? {}) };
   keep();
   holdScreen(true);
   run();
@@ -136,12 +154,18 @@ export function togglePause() {
   clockState.tm = clockState.tm?.pausedAt ? resumeTimer(clockState.tm, now) : pauseTimer(clockState.tm, now);
   keep();
   holdScreen(!clockState.tm?.pausedAt);
+  if (clockState.tm?.session) {
+    if (clockState.tm.pausedAt) cancelPlan();
+    else planAhead();
+  }
   step();
 }
 export function stopClock() {
   clockState.tm = null;
   keep();
   holdScreen(false);
+  cancelPlan();
+  ui.sessionOpen = false;
   clearInterval(loop);
   loop = null;
 }
@@ -149,9 +173,114 @@ export function stopClock() {
 export async function finishClock(states = []) {
   const tm = clockState.tm;
   if (!tm) return;
+  if (tm.session) return endSession();
   const s = states.find((x) => x.act.id === tm.actId);
   const min = loggedMinutes(tm, Date.now());
   stopClock();
   ui.timerOpen = false;
   if (s) await tickWith(s.act, { min, via: 'timer', sub: tm.sub ?? tapSub(s) });
+}
+
+/* ---------- hobby pages 2 «Kissenzeit»: a meditation session (B7) ---------- */
+/** Plan every coming stroke on the audio clock (start, «Weiter», back from the lock screen). */
+function planAhead() {
+  const tm = clockState.tm;
+  if (!tm?.session || tm.pausedAt) return;
+  const el = elapsedSec(tm, Date.now());
+  schedulePlan(strokesOf(tm, el), el);
+}
+/**
+ * Start a session (from a tap: the audio may start now). plan: flowmed.js sessionPlan. The full view
+ * (B7) opens; on a phone the navigation steps back (H26a).
+ */
+export function startSession(actId, plan) {
+  wakeSounds();
+  setVolume(plan.extra.vol ?? 0.8);
+  startClock(actId, plan.minutes, plan.bowl, null, { ...plan.extra, vol: plan.extra.vol ?? 0.8 });
+  planAhead();
+  ui.timerOpen = false;
+  ui.sessionOpen = true;
+}
+/** The volume of the gong (B7): 0…1, also for the strokes already planned. */
+export function sessionVolume(v) {
+  if (!clockState.tm) return;
+  clockState.tm = { ...clockState.tm, vol: Math.max(0, Math.min(1, v)) };
+  setVolume(clockState.tm.vol);
+  keep();
+}
+let saving = false;
+/** The session's time is up: save it once (the same rows when saved twice), tell the locked phone. */
+async function saveDone() {
+  const tm = clockState.tm;
+  if (!tm || saving) return;
+  saving = true;
+  try {
+    const rec = sessionRecords(tm, tm.targetSec, Date.now(), (ms) => localDay(new Date(ms)));
+    if (rec) await saveSession(db, rec);
+    if (clockState.tm && clockState.tm.startedAt === tm.startedAt) {
+      clockState.tm = { ...clockState.tm, saved: rec ? rec.entry.id : 'none', savedMin: rec?.entry.min ?? 0 };
+      keep();
+    }
+    if (typeof document !== 'undefined' && document.visibilityState !== 'visible') notifyEnd(rec?.entry.min ?? 0);
+  } finally {
+    saving = false;
+  }
+}
+/**
+ * «Beenden»: save what ran (from one minute on) and close. When the time was up the session is saved
+ * already. Returns the minutes saved (0: under a minute, nothing saved).
+ */
+export async function endSession() {
+  const tm = clockState.tm;
+  if (!tm) return 0;
+  let min = tm.savedMin ?? 0;
+  if (!tm.saved) {
+    const rec = sessionRecords(tm, elapsedSec(tm, Date.now()), Date.now(), (ms) => localDay(new Date(ms)));
+    if (rec) await saveSession(db, rec);
+    min = rec?.entry.min ?? 0;
+  }
+  stopClock();
+  ui.timerOpen = false;
+  toast(min ? t('Meditation saved · {n} min', { n: min }) : t('Under a minute: not saved'));
+  return min;
+}
+
+/* the end gong as a notification when the phone was locked (H27a): only where the browser can and allowed it */
+export const NOTIFY_KEY = 'flow.notifyEnd';
+export const notifyState = () => (typeof Notification === 'undefined' ? 'none' : Notification.permission);
+export function notifyWanted() {
+  try {
+    return localStorage.getItem(NOTIFY_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+/** Ask once (from a tap); keeps the wish on this device. Returns the permission. */
+export async function askNotify(on) {
+  try {
+    localStorage.setItem(NOTIFY_KEY, on ? '1' : '0');
+  } catch {
+    /* private mode */
+  }
+  if (!on || typeof Notification === 'undefined') return notifyState();
+  if (Notification.permission === 'default') {
+    try {
+      await Notification.requestPermission();
+    } catch {
+      /* an older browser */
+    }
+  }
+  return notifyState();
+}
+function notifyEnd(min) {
+  if (notifyState() !== 'granted' || !notifyWanted()) return;
+  const title = t('Meditation ended');
+  const body = min ? t('Meditation saved · {n} min', { n: min }) : t('Time is up ✓');
+  try {
+    const sw = navigator.serviceWorker;
+    if (sw?.controller) sw.ready.then((r) => r.showNotification(title, { body, tag: 'flow-end', silent: false }));
+    else new Notification(title, { body, tag: 'flow-end' });
+  } catch {
+    /* no notification: the gong sounds when the page wakes up */
+  }
 }

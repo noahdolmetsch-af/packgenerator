@@ -101,6 +101,9 @@ const CASES = [
   // hobby pages 1: Aktiv › Aktivität and Meilensteine (mockups A, A2)
   { id: 'flow-activity', hash: '#/flow/activity' },
   { id: 'flow-milestones', hash: '#/flow/milestones' },
+  // hobby pages 2 «Kissenzeit» (mockups B1, B2)
+  { id: 'flow-meditation', hash: '#/flow/act/meditation' },
+  { id: 'flow-med-timer', hash: '#/flow/act/meditation/timer?new=1' },
   { id: 'notes', hash: '#/notes' },
 ];
 

@@ -5,6 +5,7 @@
    * wall. Only the next star of each milestone; stars reached stay. No confetti, no ranking.
    * list: the evaluated milestones to count (not off); all: the cards under «Alle»; allMore: a link
    * under «Alle» ({ href, label }); label(r): the activity's name for a milestone of one activity; records: flowms.js records(); reward, wishlist, onreward.
+   * compact (hobby pages 2, B1): only «Bald», «Zuletzt» and «Alle», without the year, reward and record wall.
    */
   import { Trophy, Star, ListChecks, Gift } from '@lucide/svelte';
   import MsCard from './MsCard.svelte';
@@ -14,18 +15,20 @@
   import { msName, starLine, dayWord, monthWord } from './words.js';
   import { t, tn } from '../../i18n.svelte.js';
 
-  let { list = [], all = [], allMore = null, label = () => '', records = [], reward = null, wishlist = [], onreward, today, tuneHref = '' } = $props();
+  let { list = [], all = [], allMore = null, label = () => '', records = [], reward = null, wishlist = [], onreward, today, tuneHref = '', compact = false } = $props();
   const sum = $derived(yearSummary(list, today));
   const soon = $derived(soonList(list, 3));
   const recent = $derived(recentStars(list, 3));
 </script>
 
 <div class="msb">
+  {#if !compact}
   <div class="hero">
     <p class="hk">{t('Your year so far')}</p>
     <p class="hn">{tn(sum.year, '{n} star', '{n} stars')} · {t('{n} new in {month}', { n: sum.month, month: monthWord(today, 'long') })}</p>
     <p class="hs">{sum.soon ? tn(sum.soon, 'Calm onwards: {n} star is within reach.', 'Calm onwards: {n} stars are within reach.') : t('No star close right now. Every step counts.')}</p>
   </div>
+  {/if}
 
   <h3 class="bh"><Trophy size={16} aria-hidden="true" />{t('Soon within reach')}</h3>
   {#if soon.length}
@@ -50,11 +53,13 @@
     <div class="grid">{#each all as r (r.id)}<MsCard {r} sub={label(r)} />{/each}</div>
   {/if}
 
+  {#if !compact}
   <h3 class="bh"><Gift size={16} aria-hidden="true" />{t('Reward')}</h3>
   <RewardRow list={list.filter((r) => r.next)} {reward} {wishlist} onsave={onreward} />
 
   <h3 class="bh"><Trophy size={16} aria-hidden="true" />{t('Record wall')}</h3>
   <RecordWall list={records} {today} />
+  {/if}
   <p class="note">{t('Only the next star per milestone. Stars reached stay, even when a streak breaks. No confetti, no ranking. The numbers are suggestions.')}{#if tuneHref}{' '}<a href={tuneHref}>{t('Change numbers')}</a>{/if}</p>
 </div>
 

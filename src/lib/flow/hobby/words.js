@@ -24,3 +24,18 @@ export function val(v, unit = '') {
 export const dayWord = (day, today) => (!day ? '' : day === today ? t('today') : dayShort(day));
 /** «Sept.» for a day. */
 export const monthWord = (day, month = 'short') => new Date(`${day}T00:00:00Z`).toLocaleDateString(locale(), { month, timeZone: 'UTC' });
+/** Hobby pages 2: «Fr 9.10. · 07:10» for a saved time (Zurich on the device). */
+export const whenShort = (at) => {
+  if (!at) return '';
+  const d = new Date(at);
+  if (Number.isNaN(d.getTime())) return '';
+  const day = d.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' });
+  const time = d.toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
+  return `${day} · ${time}`;
+};
+/** «07:02» */
+export const timeShort = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
+/** A template's name in the current language (the suggestions have a German name too). */
+export const tplName = (x) => (x ? (lang.v === 'de' && x.nameDe ? x.nameDe : x.name) || t('Template') : '');
+/** A kind of meditation: the built-in ones through t(), own ones as written. */
+export const artName = (a) => (!a ? '' : a.own ? a.name : t(a.name));
