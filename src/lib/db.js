@@ -13,7 +13,7 @@ import Dexie from 'dexie';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 7; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger
+export const SCHEMA_VERSION = 8; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages
 
 /** Tables that belong to the user's data and go into every backup file. */
 export const DATA_TABLES = [
@@ -36,6 +36,9 @@ export const DATA_TABLES = [
   'flowLog', // v0.51.0: one row per tick (activity, day, amount, place, minutes)
   'flowChecks', // v0.51.0: the daily check, one row per day (flowcheck.js)
   'kmBook', // v0.68.0 «Q1 Jeder km zählt»: the ride ledger, one row per km change of a bike (kmbook.js)
+  'flowSessions', // hobby pages: the details of a timed session (id = its flowLog entry)
+  'flowTemplates', // hobby pages: timer templates
+  'flowStars', // hobby pages: milestone stars reached (id = `${msId}:${star}`), kept forever (flowms.js)
 ];
 
 /**
@@ -142,6 +145,14 @@ export function createDb(name = 'pack-generator') {
   // first start writes each counter as the ledger's opening entry (kmbookdb.js ensureKmBook).
   db.version(7).stores({
     kmBook: 'id, bikeId, date, state, importId',
+  });
+  // Version 8 (hobby pages, package 1) only adds tables, so existing data stays as it is: the details of a
+  // timed session (one per flowLog entry, which stays and keeps counting), timer templates and the
+  // milestone stars reached (they never get lost, even when a streak breaks).
+  db.version(8).stores({
+    flowSessions: 'id, actId, day, tplId',
+    flowTemplates: 'id, actId, usedAt',
+    flowStars: 'id, msId, day',
   });
   return db;
 }

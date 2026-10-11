@@ -5,10 +5,10 @@ import { PLACES, PLACE_TABS, tabOf, pageOf, placeOf } from '../src/lib/nav.js';
 import { shortcutOf } from '../src/lib/nav/keys.js';
 
 describe('the pages under each place', () => {
-  it('each place has at most 4, and only built pages (O2.1a: Neuland and Heft come later; v0.78.0 O2.5a: Einkauf shows the wishlist)', () => {
+  it('each place has at most 4, and only built pages (O2.1a: Neuland and Heft come later; v0.78.0 O2.5a: Einkauf shows the wishlist; v0.79.0: Aktivität is built)', () => {
     for (const p of PLACES) expect((PLACE_TABS[p.key] ?? []).length, p.key).toBeLessThanOrEqual(4);
     const keys = Object.values(PLACE_TABS).flat().map((x) => x.key);
-    for (const later of ['neuland', 'heft', 'activity']) expect(keys).not.toContain(later);
+    for (const later of ['neuland', 'heft']) expect(keys).not.toContain(later);
   });
 
   it('every entry leads to a page of its own place', () => {
