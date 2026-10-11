@@ -553,11 +553,12 @@ export function planImport(records, { bikes, rules = [], entries = [] }) {
   }
   const usual = usualKm(entries);
   const ctx = { bikes, rules, usual };
+  // v0.91.0 (Noah 11.10.2026 «Fix bauen»): each bike's ledger start, also for a bike picked by hand (dupOf).
+  const starts = Object.fromEntries((bikes ?? []).map((b) => [b.id, ledgerStart(entries, b.id)]).filter(([, st]) => st));
   const rows = rides.map((ride, n) => {
     const a = assignRide(ride, ctx);
     const known = (entries ?? []).find((e) => e.kind === 'ride' && e.state !== 'removed' && (sameRide(e, ride) || (a.bikeId && e.bikeId === a.bikeId && counts(e) && inSpan(e, ride.date))));
-    const start = a.bikeId ? ledgerStart(entries, a.bikeId) : null;
-    const dup = known ? 'known' : inStart(start, ride.date) ? 'start' : null;
+    const dup = known ? 'known' : (a.bikeId ? inStart(starts[a.bikeId], ride.date) : beforeAll(starts, ride.date)) ? 'start' : null;
     return { key: `r${n}`, ride, ...a, dup, of: known?.id ?? null };
   });
   const extra = merged.map((m, n) => ({ key: `m${n}`, ride: m.ride, bikeId: rows[m.into].bikeId, by: null, sure: null, reason: null, dup: 'merged', of: rows[m.into].key }));
@@ -570,7 +571,29 @@ export function planImport(records, { bikes, rules = [], entries = [] }) {
     s.km = r1(s.km + (r.km ?? 0));
     if (r.date > s.date) s.date = r.date;
   }
-  return { rows: [...rows, ...extra], strava };
+  return { rows: [...rows, ...extra], strava, starts };
+}
+
+/**
+ * v0.91.0: an old ride without a bike (no Strava bike, no profile) that lies in the start value of
+ * every bike with a ledger: wherever it belongs, its km are counted already, so it is set aside
+ * instead of waiting in «Check» (Noah's first real export: 1000 such rides).
+ */
+const beforeAll = (starts, date) => {
+  const list = Object.values(starts ?? {});
+  return list.length > 0 && list.every((st) => inStart(st, date));
+};
+
+/**
+ * A row's duplicate kind after your choice: «take anyway» clears it; merged and known stay; a bike
+ * picked by hand checks that bike's start value too, so an old ride is never counted twice.
+ */
+export function dupOf(plan, row, c = {}) {
+  if (c.take) return null;
+  if (row.dup === 'merged' || row.dup === 'known') return row.dup;
+  const bikeId = c.bikeId !== undefined ? c.bikeId : row.bikeId;
+  if (bikeId) return inStart(plan?.starts?.[bikeId], row.ride.date) ? 'start' : null;
+  return row.dup === 'start' ? 'start' : null;
 }
 
 /**
@@ -583,7 +606,7 @@ export function planImport(records, { bikes, rules = [], entries = [] }) {
 export function typeHints(rows = [], rules = []) {
   const found = new Map(); // lower-case type → { value, n, votes }
   for (const r of rows) {
-    if (r.dup === 'merged') continue;
+    if (r.dup) continue; // v0.91.0: only rides that will be taken over ask for a rule
     const value = String(r.ride?.type ?? '').trim();
     if (!value || rules.some((u) => u.kind === 'type' && same(u.value, value))) continue;
     const m = found.get(value.toLowerCase()) ?? { value, n: 0, votes: {} };
@@ -609,7 +632,7 @@ export function importEntries(plan, choices = {}, importId, now = new Date()) {
   const out = [];
   for (const row of plan.rows) {
     const c = choices[row.key] ?? {};
-    if (row.dup && !c.take) continue;
+    if (dupOf(plan, row, c)) continue;
     if (row.dup === 'merged') continue;
     const r = row.ride;
     let bikeId = row.bikeId;

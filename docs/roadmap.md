@@ -513,6 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 11.10.2026 (v0.91.0, PR offen):** Fix im Fahrten-Import (Q1 «Jeder km zählt», Noah «Fix bauen»): alte Strava-Fahrten ohne Velo, die schon in den Startwerten stecken, liegen zur Seite statt unter «Prüfen»; ein von Hand gewähltes Velo prüft seinen Startwert. «Material Liste zuerst» bekommt die nächste freie Nummer.
+
 **Nachtrag 11.10.2026 (v0.88.0, PR offen):** «Aufräumen und Ausprobieren», der erste Schritt der App-einfach-Reihe (Noah «1a 2a 3b 4a 5a», Mockups F–H «0.88 alle a»): Ich › Testdaten aufräumen mit Rückgängig, Ich › Ausprobieren als Spielwiese, «Wieder planen» für eine zu früh beendete Tour. Danach 0.89 Rückblick antippen, 0.90 Velo kurz (mit Pflege und Ausstattung ohne rote Hinweise), 0.91 Material Liste zuerst. Neue Tour und Planen bleiben (3b).
 
 **Nachtrag 11.10.2026 (v0.86.0, PR offen):** «Meditation einfach» nach Noahs «1-5 a» (Mockups A–E): Startblatt aus «Heute abhaken», kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant»-Zeilen und Wisch-Hinweis weg (Im Flow, Ziel-Check: Vorhaben 6). Das Startblatt ist bereit für Heute (anderer Faden). Danach weiter mit Liegestütze und Tennis (H9a).

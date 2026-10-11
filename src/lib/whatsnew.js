@@ -10,6 +10,14 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.91.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'Importing a Strava export: old rides without a bike, whose km are already in your bikes, are set aside as «Older rides without a bike» instead of waiting in «Check».', href: '#/bikes?tab=care' },
+      { text: "Picking a bike by hand checks its start value too: a ride already in that bike's km is not counted twice.", href: '#/bikes?tab=care' },
+    ],
+  },
+  {
     version: '0.88.0',
     date: '2026-10-11',
     points: [

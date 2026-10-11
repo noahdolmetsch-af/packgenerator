@@ -673,6 +673,12 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **5a:** zwei Bauten gleichzeitig nur, wenn sie verschiedene Bereiche ändern.
 - Mockups bleiben immer, Noah merged weiterhin selbst.
 
+## 11.10.2026: «Import: alte Fahrten» (0.91.0, Noah «Fix bauen» 14:01)
+
+- **Anlass:** Noahs erster echter Strava-Export (1319 Fahrten): 1000 alte Fahrten ohne Velo landeten unter «Prüfen». Strava setzt das Standard-Velo nur für neue Fahrten, und die Strava-Datei enthält kein Garmin-Profil. Ihre km stecken schon in den Startwerten der Velos; von Hand zugeordnet hätten sie doppelt gezählt.
+- **Entscheid (Karte im Thread, «Fix bauen» ★):** Fahrten ohne Velo vor dem Startwert jedes Velos liegen als «schon in den km» zur Seite; ein von Hand gewähltes Velo prüft seinen Startwert auch. Als dritter Bau zugelassen, weil er nur den Import ändert.
+- **Selbst entschieden:** Liegt eine Fahrt nur im Startwert eines Teils der Velos, bleibt sie unter «Prüfen» (sie kann zu einem Velo gehören, dessen Buch später beginnt). Velos ohne Startwert zählen für die Regel nicht. Zur Seite gelegte Fahrten fragen nicht nach einer Fahrt-Typ-Regel, damit «Welches Velo fährst du bei Ride?» nicht aus 1000 alten Fahrten gefragt wird.
+
 ## 11.10.2026: «Aufräumen und Ausprobieren» (0.88.0, App einfach «1a 2a 3b 4a 5a», Mockups F–H «0.88 alle a»)
 
 - **Anlass:** Noahs Auftrag vom 11.10.2026 («für mich als Nutzer ist alles noch viel zu kompliziert»). Das Durchspielen mit seinem Backup zeigte: 21 von 27 Touren sind Tests, die App lernt daraus, und eine echte Tour verschwand von Heute, weil ein Test-Rückblick sie vor ihrem Datum beendet hatte.

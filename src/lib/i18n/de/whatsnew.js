@@ -8,6 +8,12 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.91.0 «Import: alte Fahrten»
+  'Importing a Strava export: old rides without a bike, whose km are already in your bikes, are set aside as «Older rides without a bike» instead of waiting in «Check».':
+    'Strava-Export importieren: Alte Fahrten ohne Velo, deren km schon in deinen Velos stecken, liegen als «Ältere Fahrten ohne Velo» zur Seite statt unter «Prüfen».',
+  "Picking a bike by hand checks its start value too: a ride already in that bike's km is not counted twice.":
+    'Wählst du ein Velo von Hand, prüft die App auch dessen Startwert: Eine Fahrt, die schon in den km dieses Velos steckt, zählt nicht doppelt.',
+
   // 0.88.0 «Aufräumen und Ausprobieren»
   'Ich › «Clean up test data»: everything with «test» in its name at a glance, untick what stays, archive the rest. Nothing is deleted, «Undo» brings it back, and the app no longer learns from it.':
     'Ich › «Testdaten aufräumen»: alles mit «test» im Namen auf einen Blick, abwählen was bleibt, den Rest archivieren. Nichts wird gelöscht, «Rückgängig» holt es zurück, und die App lernt nicht mehr daraus.',
