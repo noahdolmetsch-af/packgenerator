@@ -103,6 +103,53 @@ export function bowlWords(bowl) {
   return { key: 'only start and end', vars: {} };
 }
 
+/* ---------- v0.93.0 «Meditation Wünsche» (mockups F–H, Noah «1-5 a» 11.10.2026) ---------- */
+/** The durations to pick in one tap (start sheet and «Neue Sitzung»); any other is typed («oder frei»). */
+export const MED_DURATIONS = [10, 15, 20, 30, 45, 60];
+/** A typed duration made safe: whole minutes 1–600, or null for nothing usable. */
+export const freeMinutes = (v) => {
+  const n = Math.round(Number(String(v ?? '').replace(',', '.')));
+  return Number.isFinite(n) && n >= 1 ? Math.min(600, n) : null;
+};
+/**
+ * «Klänge dazwischen» in three chips: none · random · own; «own» is either every N minutes or at
+ * minute marks. An older template with «alle 5», «alle 10» or «alle 7» is «own · every N».
+ * → { mode: 'none'|'random'|'own', own: 'every'|'marks', every, count, marks }
+ */
+export function soundsOf(bowl) {
+  const b = bowlOf(bowl);
+  const mode = b.mode === 'random' ? 'random' : b.mode === 'every' || b.mode === 'marks' ? 'own' : 'none';
+  return { mode, own: b.mode === 'marks' ? 'marks' : 'every', every: Math.min(60, b.every), count: b.count, marks: b.marks };
+}
+/** The bowl setting of the three chips (the reverse of soundsOf); marks past the end are left out. */
+export function bowlOfSounds({ mode, own = 'every', every = 5, count = 2, marks = [] }, totalSec = Infinity) {
+  if (mode === 'random') return { mode: 'random', count: Math.max(1, Math.min(10, Math.round(Number(count) || 2))) };
+  if (mode !== 'own') return { mode: 'none' };
+  if (own === 'marks') return { mode: 'marks', marks: marksOf(marks).filter((m) => m.sec < totalSec) };
+  return { mode: 'every', every: Math.max(1, Math.min(60, Math.round(Number(every) || 5))) };
+}
+/** Minute marks as text for the «an Minute» field: 180 s, 450 s → «3, 7,5» (a decimal comma). */
+export const marksText = (marks = []) =>
+  marksOf(marks)
+    .map((m) => String(Math.round((m.sec / 60) * 10) / 10).replace('.', ','))
+    .join(', ');
+/** The suggested template name: the kind (or «Meditation»), the minutes and the sounds in between. */
+export function tplSuggestion({ kind = '', minutes = 20, bowl = null }) {
+  const b = bowlOf(bowl);
+  const head = `${kind || 'Meditation'} ${Math.round(Number(minutes) || 20)}`;
+  if (b.mode === 'every') return { head, key: 'every {n} min', vars: { n: b.every } };
+  if (b.mode === 'random') return { head, key: 'sounds at random', vars: {} };
+  if (b.mode === 'marks' && b.marks.length) return { head, key: '{n} own sounds', vars: { n: b.marks.length } };
+  return { head, key: '', vars: {} };
+}
+/** The clock of a running session: Ring · Sanduhr · Mond · Zahl; remembered in db.settings. */
+export const CLOCK_KEY = 'flow.medClock';
+export const CLOCK_VIEWS = ['ring', 'glass', 'moon', 'digits'];
+export function clockPrefOf(v) {
+  const o = v && typeof v === 'object' ? v : {};
+  return { view: CLOCK_VIEWS.includes(o.view) ? o.view : 'ring', hideTime: o.hideTime === true };
+}
+
 /* ---------- the last session, the log ---------- */
 /**
  * «Wie letztes Mal»: the newest session record of the activity (flowSessions), or, without one, the

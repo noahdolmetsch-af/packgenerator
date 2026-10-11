@@ -673,6 +673,16 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **5a:** zwei Bauten gleichzeitig nur, wenn sie verschiedene Bereiche ändern.
 - Mockups bleiben immer, Noah merged weiterhin selbst.
 
+## 11.10.2026: «Meditation Wünsche» (0.93.0, Noah «1-5 a» auf Trello ZWyY4F4r, Mockups F–H)
+
+- **Anlass:** Noahs Wünsche nach «Meditation einfach»: mehr Dauern, eigene Klänge einfacher, Vorlage aus einer neuen Sitzung, mehrere Uhren. Antwort «1-5 a» am 11.10.2026 auf die Mockups F (Neue Sitzung), G (Sanduhr), H (Vier Uhren).
+- **Dauer:** 10 · 15 · 20 · 30 · 45 · 60 und ein Feld «oder frei» (1–600 Minuten), im Startblatt und in «Neue Sitzung»; «andere»/«…» fällt weg.
+- **Klänge dazwischen:** keine · zufällig · eigene; «eigene» = «alle N Minuten» (1–60) oder «an Minute …». Alte Vorlagen mit «alle 5», «alle 10» oder «alle 7» werden «eigene · alle N» (gespeichert bleibt `mode: 'every'`).
+- **Vorlage:** eine neue Sitzung fragt «Als Vorlage speichern?» mit einem Namensvorschlag aus Art, Dauer und Klängen; «nicht jetzt» blendet die Karte für diesen Besuch aus. Bestehende Vorlagen behalten Speichern und Löschen.
+- **Sterne zuerst (Noahs Zusatz):** «Neue Sitzung» zeigt oben den nächsten Stern und die erreichten; die Zeile «Nächster Stern» der Meditations-Seite bleibt.
+- **Vier Uhren:** Ring (wie bisher), Sanduhr, Mond, Zahl; die App merkt sich die Wahl (`flow.medClock`). In der Sanduhr kann die Zeit ausgeblendet werden (Noah).
+- **Selbst entschieden:** am Handy keine Uhr auf «Neue Sitzung» (wie Mockup F), Marken setzt dort «an Minute»; eigener Klang pro Marke (langes Drücken) bleibt am Computer und Tablet. Titel «Neue Sitzung» statt «Intervalle» (bei einer Vorlage ihr Name), Zurück-Link «‹ Meditation» wie im Mockup. «nächster Gong in» heisst «nächster Klang in» (Mockup G/H). Der Fuss der Uhr bleibt «Bildschirm sperren ist ok · Einstellungen» statt «Die App merkt sich deine Uhr». Die Abzeichen zeigen die drei zuletzt erreichten Sterne. Der Hauptknopf bleibt `btn hi` (orange) wie überall, nicht das Grün der Mockups. Der Name einer eigenen Vorlage mit Marken endet auf «{n} eigene Klänge».
+
 ## 11.10.2026: «Rückblick antippen» (0.92.0, App einfach «4a», Mockup C)
 
 - **Anlass:** im Durchspielen stand «nicht gebraucht», das Versprechen der App, zuletzt hinter «3 Teile gebraucht ›». Noah «1a 2a 3b 4a 5a» (Trello bGBkdWXp): **4a** = «nicht gebraucht» als antippbare Chips oben, «Was hat gefehlt?» und «Wie war's?» unter «Mehr», dann «Fertig».

@@ -129,7 +129,7 @@
 {:else if route[0] === 'act' && route[2] === 's'}
   {#key sub}<MedSession actId={decodeURIComponent(route[1] ?? '')} id={decodeURIComponent(route[3] ?? '')} />{/key}
 {:else if route[0] === 'act' && route[2] === 'mehr'}
-  {#key sub}<MedMore actId={decodeURIComponent(route[1] ?? '')} />{/key}
+  {#key sub}<MedMore actId={decodeURIComponent(route[1] ?? '')} {params} />{/key}
 {:else if route[0] === 'act' && route[2] === 'timer'}
   {#key sub}<MedTimer actId={decodeURIComponent(route[1] ?? '')} {params} />{/key}
 {:else if route[0] === 'act'}

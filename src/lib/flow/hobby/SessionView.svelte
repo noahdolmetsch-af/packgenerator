@@ -11,6 +11,12 @@
    * above, «nächster Gong in m:ss» below; no «0:01 von 20:00», no legend, no «Beenden» on top; one
    * control row (leiser · Pause · Beenden); the settings fold behind «Einstellungen ›»; on a computer
    * «Leiste öffnen ›» top right makes the session small.
+   * v0.93.0 «Meditation Wünsche» (mockups G, H, Noah «1-5 a» 11.10.2026): four clocks, one switch on top
+   * «Ring · Sanduhr · Mond · Zahl», remembered (db.settings flow.medClock). Ring = the dial; Sanduhr = the
+   * sand runs from the top into the bottom with the time left, a thin stream while it runs, and the time
+   * can be hidden («Zeit ausblenden»); Mond = a circle filling from below like water; Zahl = only the
+   * digits. All keep «nächster Klang in …», the controls and what they do. No moving stream with reduced
+   * motion.
    * acts: for the activity's symbol.
    */
   import { Pause, Play, Square, Volume1, Volume2, Smartphone, Lock, BellRing, ChevronRight, ChevronDown, Check } from '@lucide/svelte';
@@ -19,7 +25,9 @@
   import { ui, clockState, togglePause, endSession, stopClock, sessionVolume, screen, askNotify, notifyState, notifyWanted, actName } from '../ui.svelte.js';
   import { elapsedSec, remainingSec, isDone, clock } from '../../flowtimer.js';
   import { soundAt, SOUNDS, canVibrate } from '../../flowsounds.js';
-  import { bowlWords } from '../../flowmed.js';
+  import { bowlWords, CLOCK_KEY, CLOCK_VIEWS, clockPrefOf } from '../../flowmed.js';
+  import { db } from '../../db.js';
+  import { putSetting } from '../../flowdb.js';
   import { t } from '../../i18n.svelte.js';
   import { wide } from '../../media.svelte.js';
 
@@ -61,6 +69,28 @@
     perm = await askNotify(notify);
   }
 
+  /* v0.93.0: the four clocks, remembered */
+  const VIEW_NAMES = { ring: 'Ring|clock', glass: 'Hourglass', moon: 'Moon|clock', digits: 'Number|clock' };
+  let pref = $state(clockPrefOf(null));
+  $effect(() => {
+    db.settings
+      .get(CLOCK_KEY)
+      .then((r) => (pref = clockPrefOf(r?.value)))
+      .catch(() => {});
+  });
+  function setPref(patch) {
+    pref = clockPrefOf({ ...pref, ...patch });
+    putSetting(db, CLOCK_KEY, pref);
+  }
+  const frac = $derived(tm && tm.targetSec > 0 ? Math.min(1, Math.max(0, el / tm.targetSec)) : 0);
+  const flowing = $derived(!!tm && !tm.pausedAt && !done);
+  // the hourglass (viewBox 0 0 124 200): the top sand sinks to the neck, the bottom grows from the floor
+  const topY = $derived(14 + frac * 84);
+  const botY = $derived(186 - frac * 70);
+  // the moon (viewBox 0 0 200 200, radius 92): the water rises from below
+  const waterY = $derived(192 - frac * 184);
+  const timeShown = $derived(pref.view !== 'glass' || !pref.hideTime);
+
   $effect(() => {
     const open = ui.sessionOpen && !!tm?.session;
     if (open && dlg && !dlg.open) dlg.showModal();
@@ -87,18 +117,60 @@
         {#if wide.matches}<button type="button" class="lk side" onclick={small}>{t('Open the sidebar')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
       </header>
 
-      <section class="clock">
-        <Dial total={tm.targetSec} {marks} elapsed={el} next={nextMark}>
+      <div class="views" role="group" aria-label={t('Clock')}>
+        {#each CLOCK_VIEWS as v (v)}<button type="button" class="vb" class:on={pref.view === v} aria-pressed={pref.view === v} onclick={() => setPref({ view: v })} data-clock-view={v}>{t(VIEW_NAMES[v])}</button>{/each}
+      </div>
+
+      <section class="clock" data-clock={pref.view}>
+        {#snippet mid(withK = true)}
           {#if done}
-            <span class="k">{t('done|session')}</span>
+            {#if withK}<span class="k">{t('done|session')}</span>{/if}
             <b class="time num" data-left="0"><Check size={40} aria-hidden="true" /></b>
             <span class="of num">{tm.savedMin ? t('{n} min saved', { n: tm.savedMin }) : t('Time is up ✓')}</span>
           {:else}
-            <span class="k">{tm.pausedAt ? t('paused') : t('left|time')}</span>
-            <b class="time num" role="timer" aria-live="off" data-left={Math.ceil(left)}>{clock(left)}</b>
+            {#if withK}<span class="k">{tm.pausedAt ? t('paused') : t('left|time')}</span>{/if}
+            <b class="time num" role="timer" aria-live="off" data-left={Math.ceil(left)} hidden={!timeShown}>{clock(left)}</b>
             {#if nextMark != null}<span class="next num" title={`${soundName(soundAt(tm, nextSec))}${modeLine ? ` · ${modeLine}` : ''}`}>{t('next gong in {t}', { t: clock(nextSec - el) })}</span>{/if}
           {/if}
-        </Dial>
+        {/snippet}
+        {#if pref.view === 'glass'}
+          <div class="glass">
+            <svg viewBox="0 0 124 200" role="img" aria-label={t('Hourglass: {n} % of the time has run', { n: Math.round(frac * 100) })}>
+              <defs>
+                <clipPath id="sess-glass"><path d="M16 12 C16 60 56 84 58 100 C56 116 16 140 16 188 L108 188 C108 140 68 116 66 100 C68 84 108 60 108 12 Z" /></clipPath>
+              </defs>
+              <path class="gin" d="M16 12 C16 60 56 84 58 100 C56 116 16 140 16 188 L108 188 C108 140 68 116 66 100 C68 84 108 60 108 12 Z" />
+              <g clip-path="url(#sess-glass)">
+                {#if frac < 1}<rect class="sand" x="0" y={topY} width="124" height={Math.max(0, 100 - topY)} />{/if}
+                {#if frac > 0}<path class="sand" d="M0 200 L0 {botY + 10} Q62 {botY - 14} 124 {botY + 10} L124 200 Z" />{/if}
+              </g>
+              {#if flowing}<line class="stream" x1="62" y1="98" x2="62" y2={botY} />{/if}
+              <path class="gout" d="M16 12 C16 60 56 84 58 100 C56 116 16 140 16 188 L108 188 C108 140 68 116 66 100 C68 84 108 60 108 12 Z" />
+              <rect class="cap" x="6" y="2" width="112" height="10" rx="5" />
+              <rect class="cap" x="6" y="188" width="112" height="10" rx="5" />
+            </svg>
+            <div class="gmid">{@render mid(false)}</div>
+            {#if !done}<button type="button" class="lk" aria-pressed={!pref.hideTime} onclick={() => setPref({ hideTime: !pref.hideTime })} data-hide-time>{pref.hideTime ? t('Show the time') : t('Hide the time')}</button>{/if}
+          </div>
+        {:else if pref.view === 'moon'}
+          <div class="moon">
+            <svg viewBox="0 0 200 200" role="img" aria-label={t('Moon: {n} % of the time has run', { n: Math.round(frac * 100) })}>
+              <defs><clipPath id="sess-moon"><circle cx="100" cy="100" r="92" /></clipPath></defs>
+              <circle class="mface" cx="100" cy="100" r="92" />
+              {#if frac > 0}
+                <g clip-path="url(#sess-moon)"><path class="water" d="M0 200 L0 {waterY} Q50 {waterY - 8} 100 {waterY} T200 {waterY} L200 200 Z" /></g>
+              {/if}
+              <circle class="mrim" cx="100" cy="100" r="92" />
+            </svg>
+            <div class="mmid">{@render mid()}</div>
+          </div>
+        {:else if pref.view === 'digits'}
+          <div class="digits">{@render mid()}</div>
+        {:else}
+          <Dial total={tm.targetSec} {marks} elapsed={el} next={nextMark}>
+            {@render mid()}
+          </Dial>
+        {/if}
         {#if done}
           <div class="acts">
             <button type="button" class="btn hi big" onclick={close} data-close-session>{t('Close')}</button>
@@ -187,6 +259,132 @@
   }
   .wide .clock :global(.dial) {
     width: min(100%, 470px);
+  }
+  .views {
+    display: flex;
+    width: fit-content;
+    max-width: 100%;
+    gap: 4px;
+    margin: 0 auto 8px;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--paper);
+    box-shadow: 0 1px 2px var(--shadow);
+  }
+  .vb {
+    min-height: 44px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--ink-2);
+    font: 600 var(--fs-small)/1 var(--font-body);
+    cursor: pointer;
+  }
+  .vb.on {
+    background: var(--accent);
+    color: var(--paper);
+  }
+  .glass,
+  .digits {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+  }
+  .glass svg {
+    display: block;
+    width: auto;
+    height: min(42dvh, 300px);
+    margin: 12px 0 8px;
+  }
+  .wide .glass svg {
+    height: min(52dvh, 420px);
+  }
+  .gin {
+    fill: var(--paper);
+  }
+  .gout {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+  }
+  .sand {
+    fill: var(--l2);
+  }
+  .stream {
+    stroke: var(--l2);
+    stroke-width: 3;
+    stroke-dasharray: 4 3;
+    animation: sand-run 0.6s linear infinite;
+  }
+  @keyframes sand-run {
+    to {
+      stroke-dashoffset: -7;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stream {
+      animation: none;
+      stroke-dasharray: none;
+    }
+  }
+  .cap {
+    fill: var(--ink);
+  }
+  .gmid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .moon {
+    position: relative;
+    width: min(100%, 380px);
+    margin: 0 auto;
+    aspect-ratio: 1;
+  }
+  .wide .moon {
+    width: min(100%, 470px);
+  }
+  .moon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .mface {
+    fill: var(--paper);
+  }
+  .water {
+    fill: var(--accent);
+    fill-opacity: 0.3;
+  }
+  .mrim {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+  }
+  .mmid {
+    position: absolute;
+    inset: 22%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    text-align: center;
+  }
+  .digits {
+    --fs-huge: calc(var(--fs-display) * 1.8);
+    justify-content: center;
+    min-height: min(46dvh, 380px);
+  }
+  .digits .time {
+    font-size: var(--fs-huge);
+  }
+  .digits .next {
+    margin-top: 10px;
   }
   .next {
     color: var(--hi);

@@ -1,0 +1,30 @@
+/** v0.93.0 «Meditation Wünsche» (mockups F–H, Noah «1-5 a» 11.10.2026): «Neue Sitzung», the start sheet, four clocks. */
+export default {
+  // F: «Neue Sitzung» and the start sheet
+  'New session': 'Neue Sitzung',
+  'Stars reached': 'Erreichte Sterne',
+  'or free:': 'oder frei:',
+  'every|minutes': 'alle',
+  'every N minutes': 'alle wie viele Minuten',
+  'at minute|marks': 'an Minute',
+  'Sounds at {list} · end {end}': 'Klänge um {list} · Ende {end}',
+  'Only start and end · end {end}': 'Nur Anfang und Ende · Ende {end}',
+  'Sound: {a} · start and end: {b}': 'Klang: {a} · Start und Ende: {b}',
+  'Save as a template?': 'Als Vorlage speichern?',
+  'Then you start it next time with one tap.': 'Dann startest du sie nächstes Mal mit einem Tipp.',
+  'Suggested from kind, duration and sounds. You can change it.': 'Vorschlag aus Art, Dauer und Klängen. Du kannst ihn ändern.',
+  'not now': 'nicht jetzt',
+  'Start · {n} min': 'Starten · {n} Min',
+  'every {n} min': 'alle {n} Min',
+  'sounds at random': 'Klänge zufällig',
+  '{n} own sounds': '{n} eigene Klänge',
+  // G, H: the four clocks of a running session
+  'Ring|clock': 'Ring',
+  Hourglass: 'Sanduhr',
+  'Moon|clock': 'Mond',
+  'Number|clock': 'Zahl',
+  'Hourglass: {n} % of the time has run': 'Sanduhr: {n} % der Zeit sind um',
+  'Moon: {n} % of the time has run': 'Mond: {n} % der Zeit sind um',
+  'Hide the time': 'Zeit ausblenden',
+  'Show the time': 'Zeit zeigen',
+};

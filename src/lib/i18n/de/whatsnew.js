@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.93.0 «Meditation Wünsche»
+  'Meditation › «New session»: 10 · 15 · 20 · 30 · 45 · 60 minutes or any number, sounds in between «none · at random · own» (every N minutes or at chosen minutes), and your next star on top.':
+    'Meditation › «Neue Sitzung»: 10 · 15 · 20 · 30 · 45 · 60 Minuten oder frei, Klänge dazwischen «keine · zufällig · eigene» (alle N Minuten oder an gewählten Minuten), und dein nächster Stern zuoberst.',
+  '«Save as a template?» suggests a name from kind, duration and sounds; one tap and it starts next time from the meditation page.':
+    '«Als Vorlage speichern?» schlägt einen Namen aus Art, Dauer und Klängen vor; ein Tipp, und sie startet nächstes Mal von der Meditations-Seite.',
+  'Four clocks for a running session: ring, hourglass, moon or only the number. The app remembers yours, and the hourglass can hide the time.':
+    'Vier Uhren für die laufende Sitzung: Ring, Sanduhr, Mond oder nur die Zahl. Die App merkt sich deine, und die Sanduhr kann die Zeit ausblenden.',
   // 0.92.0 «Rückblick antippen»
   'The debrief starts with «What did you not need?»: every packed item as a chip, tap what stayed in the bag. Below it counts how much lighter you could go next time.':
     'Der Rückblick beginnt mit «Was hast du nicht gebraucht?»: jedes gepackte Teil als Chip, antippen, was in der Tasche blieb. Darunter steht, wie viel leichter du nächstes Mal fahren könntest.',

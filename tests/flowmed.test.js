@@ -4,7 +4,7 @@
 // its calendar file, the log's filters, streaks and heatmap, the calendar, the time of day and the month
 // comparison. Days are calendar days (Europe/Zurich); fictional data only.
 import { describe, it, expect } from 'vitest';
-import { ARTS, FAV_ARTS, artsOf, addArt, toggleFavArt, SEED_TEMPLATES, seedTemplates, tplOf, sortTemplates, bowlWords, lastSession, recentSessions, daysGrid, streaks, weekMinutes, challenge, choiceList, PLACES, placeCounts, linkOf, linksOf, sessionPlan, sessionRecords, MOODS, HELPED, noteOf, hasNote, toggleIn, compareSession, starsOfSession, zurichTime, nextUp, icsEvent, TOD, DUR, LOG_DEFAULT, durOf, todOf, filterOf, filterQuery, filterCount, monthAdd, rangeStart, logRows, filterRows, levelOf, heatmap, monthRun, weekendMinutes, doubleDays, monthCalendar, hourHistogram, deepestHours, monthCompare, artMinutes, durationBins } from '../src/lib/flowmed.js';
+import { ARTS, FAV_ARTS, artsOf, addArt, toggleFavArt, SEED_TEMPLATES, seedTemplates, tplOf, sortTemplates, bowlWords, lastSession, recentSessions, daysGrid, streaks, weekMinutes, challenge, choiceList, PLACES, placeCounts, linkOf, linksOf, sessionPlan, sessionRecords, MOODS, HELPED, noteOf, hasNote, toggleIn, compareSession, starsOfSession, zurichTime, nextUp, icsEvent, TOD, DUR, LOG_DEFAULT, durOf, todOf, filterOf, filterQuery, filterCount, monthAdd, rangeStart, logRows, filterRows, levelOf, heatmap, monthRun, weekendMinutes, doubleDays, monthCalendar, hourHistogram, deepestHours, monthCompare, artMinutes, durationBins, MED_DURATIONS, freeMinutes, soundsOf, bowlOfSounds, marksText, tplSuggestion, CLOCK_VIEWS, clockPrefOf } from '../src/lib/flowmed.js';
 import { startTimer, elapsedSec } from '../src/lib/flowtimer.js';
 import { QUOTES, quotesOf, quoteSet, quoteOfDay } from '../src/lib/flowquotes.js';
 import { msContext, actMilestones, evaluate } from '../src/lib/flowms.js';
@@ -52,6 +52,42 @@ describe('templates', () => {
     expect(bowlWords({ mode: 'marks', marks: [{ sec: 60 }, { sec: 120 }] }).vars.n).toBe(2);
     expect(bowlWords({ mode: 'none' }).key).toBe('only start and end');
     expect(bowlWords({ mode: 'random', count: 3 }).vars.n).toBe(3);
+  });
+});
+
+// v0.93.0 «Meditation Wünsche» (mockups F–H, Noah «1-5 a» 11.10.2026)
+describe('«Neue Sitzung»: durations, sounds in between, the suggested name, the clock', () => {
+  it('six durations in one tap; a typed one is whole minutes 1–600', () => {
+    expect(MED_DURATIONS).toEqual([10, 15, 20, 30, 45, 60]);
+    expect([freeMinutes('7'), freeMinutes('12,4'), freeMinutes(''), freeMinutes('0'), freeMinutes('900')]).toEqual([7, 12, null, null, 600]);
+  });
+  it('three chips; old «alle 5», «alle 10», «alle 7» are «eigene · alle N»; and back', () => {
+    expect(soundsOf({ mode: 'every', every: 5 })).toMatchObject({ mode: 'own', own: 'every', every: 5 });
+    expect(soundsOf({ mode: 'every', every: 10 })).toMatchObject({ mode: 'own', own: 'every', every: 10 });
+    expect(soundsOf({ mode: 'every', every: 7 })).toMatchObject({ mode: 'own', own: 'every', every: 7 });
+    expect(soundsOf({ mode: 'marks', marks: [{ sec: 180 }] })).toMatchObject({ mode: 'own', own: 'marks', marks: [{ sec: 180 }] });
+    expect(soundsOf({ mode: 'random', count: 3 })).toMatchObject({ mode: 'random', count: 3 });
+    expect(soundsOf(null).mode).toBe('none');
+    expect(bowlOfSounds({ mode: 'own', own: 'every', every: 90 })).toEqual({ mode: 'every', every: 60 });
+    expect(bowlOfSounds({ mode: 'own', own: 'marks', marks: [{ sec: 180 }, { sec: 900 }] }, 600)).toEqual({ mode: 'marks', marks: [{ sec: 180 }] });
+    expect(bowlOfSounds({ mode: 'random', count: 4 })).toEqual({ mode: 'random', count: 4 });
+    expect(bowlOfSounds({ mode: 'none', every: 5 })).toEqual({ mode: 'none' });
+  });
+  it('the marks as minutes for the field, with a decimal comma', () => {
+    expect(marksText([{ sec: 450 }, { sec: 180 }, { sec: 720 }])).toBe('3, 7,5, 12');
+    expect(marksText([])).toBe('');
+  });
+  it('the suggested name from kind, minutes and sounds; nothing added without sounds', () => {
+    expect(tplSuggestion({ kind: 'Om Ah Hung', minutes: 15, bowl: { mode: 'every', every: 5 } })).toEqual({ head: 'Om Ah Hung 15', key: 'every {n} min', vars: { n: 5 } });
+    expect(tplSuggestion({ kind: 'Om Ah Hung', minutes: 15, bowl: { mode: 'random', count: 2 } }).key).toBe('sounds at random');
+    expect(tplSuggestion({ kind: 'Sitzen', minutes: 20, bowl: { mode: 'marks', marks: [{ sec: 60 }, { sec: 120 }] } })).toMatchObject({ key: '{n} own sounds', vars: { n: 2 } });
+    expect(tplSuggestion({ kind: '', minutes: 30, bowl: { mode: 'none' } })).toEqual({ head: 'Meditation 30', key: '', vars: {} });
+  });
+  it('the clock: Ring first, the time shown unless hidden', () => {
+    expect(CLOCK_VIEWS).toEqual(['ring', 'glass', 'moon', 'digits']);
+    expect(clockPrefOf(null)).toEqual({ view: 'ring', hideTime: false });
+    expect(clockPrefOf({ view: 'glass', hideTime: true })).toEqual({ view: 'glass', hideTime: true });
+    expect(clockPrefOf({ view: 'sun', hideTime: 'yes' })).toEqual({ view: 'ring', hideTime: false });
   });
 });
 
