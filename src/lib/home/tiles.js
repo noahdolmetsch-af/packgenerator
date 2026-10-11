@@ -36,7 +36,7 @@ const FN_AREA = { dayride: 'trips', trip: 'trips', wear: 'today', weigh: 'gear',
  * that brought it (idea 1: a «New» dot for two weeks); fn: one of the 16 functions (a small button).
  */
 export const TILES = [
-  { id: 'trip', area: 'trips', label: 'Next trip', icon: 'bag', sizes: ['long'], size: 'long', pitch: 'Your next trip with its step, the countdown and a photo.' },
+  { id: 'trip', area: 'trips', label: 'Next trip', icon: 'bag', sizes: ['long'], size: 'long', pitch: 'Your next trip with its step and the countdown.' },
   { id: 'important', area: 'today', label: 'Important today', icon: 'alert', sizes: ['w', 'l', 'long'], size: 'l', pitch: 'What is due today: a bike job, the backup, a debrief.' },
   { id: 'flow', area: 'flow', label: 'In the flow', icon: 'flow', sizes: ['l', 'long'], size: 'l', pitch: 'Tick off today, your rings and the daily check.' },
   { id: 'series', area: 'flow', label: 'Series and milestones', icon: 'flame', sizes: ['w', 'l'], size: 'w', since: '0.94.0', pitch: 'Weeks in a row with anything: a ride, a trip, meditation, yoga …' },
