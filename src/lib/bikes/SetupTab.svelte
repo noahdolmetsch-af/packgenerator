@@ -341,7 +341,7 @@
         <WhoCard bike={view} {visits} {tasks} year={today.slice(0, 4)} per={profile?.per} next={forShop} onorder={() => (orderOpen = true)} />
 
         <!-- v0.48.0 (Noah): all bikes' parts, values and geometry side by side, two taps from Bikes. -->
-        <a class="cmplink" href={bikesHash({ tab: 'compare' })}><Columns3 class="ic" size={20} aria-hidden="true" /><span class="cl">{t('Compare bikes')}</span><span class="sum">{t('Fit, parts, values, geometry')}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+        <a class="cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 class="ic" size={20} aria-hidden="true" /><span class="cl">{t('Compare bikes')}</span><span class="sum">{t('Fit, parts, values, geometry')}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
 
         <SetupFold icon={Bike} label={t('Bike details')} summary={`${weightWords} · ${tn((bike.fixtures ?? []).length, '{n} thing always mounted', '{n} things always mounted')}`}>
           <div class="details-in">

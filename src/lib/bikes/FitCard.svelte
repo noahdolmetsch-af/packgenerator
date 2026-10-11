@@ -7,15 +7,18 @@
    * unit beside it), Enter or leaving the field saves, Escape cancels, and a toast offers Undo.
    */
   import { db } from '../db.js';
-  import { fitRows, setFit, readValue } from '../bikespecs.js';
+  import { fitRows, setFit, readValue, FIT_FIRST as FIRST } from '../bikespecs.js';
   import { bikesHash } from '../bikes.js';
   import { t, num } from '../i18n.svelte.js';
   import { Ruler, Columns3 } from '@lucide/svelte';
   import { tick } from 'svelte';
 
-  let { bike } = $props();
+  // v0.83.0 «Ausstattung» (A1a): compact shows Noah's four as big tiles, the rest behind «+ n more».
+  let { bike, compact = false } = $props();
 
   const rows = $derived(fitRows(bike));
+  let more = $state(false);
+  const shown = $derived(compact && !more ? rows.filter((r) => FIRST.includes(r.key)) : rows);
   const filled = $derived(rows.filter((r) => r.value != null).length);
   const show = (r) => (r.value == null ? '–' : r.num && typeof r.value === 'number' ? `${num(r.value)}${r.unit ? ` ${r.unit}` : ''}` : String(r.value));
 
@@ -75,15 +78,15 @@
   }
 </script>
 
-<section class="card fit" aria-labelledby="fit-h">
+<section class="card fit" class:compact aria-labelledby="fit-h">
   <div class="fh">
     <h2 id="fit-h"><Ruler size={20} aria-hidden="true" />{t('Fit and setup')}</h2>
     <span class="r num">{t('{n} of {all}', { n: filled, all: rows.length })}</span>
-    <a class="cmp" href={bikesHash({ tab: 'compare' })}><Columns3 size={16} aria-hidden="true" />{t('Compare bikes')}</a>
+    {#if !compact}<a class="cmp" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 size={16} aria-hidden="true" />{t('Compare bikes')}</a>{/if}
   </div>
   <dl class="grid">
-    {#each rows as r (r.key)}
-      <div class="cell" class:first={r.key === 'seatHeight' || r.key === 'pressureF' || r.key === 'pressureR' || r.key === 'barWidth'}>
+    {#each shown as r (r.key)}
+      <div class="cell" class:first={FIRST.includes(r.key)}>
         <dt id="fit-{r.key}">{t(r.name)}</dt>
         <dd>
           {#if editing === r.key}
@@ -99,6 +102,9 @@
       </div>
     {/each}
   </dl>
+  {#if compact && rows.length > FIRST.length}
+    <button type="button" class="morefit" aria-expanded={more} onclick={() => (more = !more)}>{more ? t('Fewer measurements') : t('+ {n} more measurements', { n: rows.length - FIRST.length })}</button>
+  {/if}
 </section>
 
 {#if toast}
@@ -217,6 +223,27 @@
     display: block;
     color: var(--bad);
     font-size: var(--fs-small);
+  }
+  .compact .grid {
+    gap: 8px;
+  }
+  .compact .cell {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 8px 12px 2px;
+  }
+  .compact .cell.first .val {
+    font-size: var(--fs-section);
+  }
+  .morefit {
+    min-height: 44px;
+    margin-top: 4px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: 600 var(--fs-small) var(--font-body);
+    color: var(--hi);
+    cursor: pointer;
   }
   .fittoast {
     position: fixed;

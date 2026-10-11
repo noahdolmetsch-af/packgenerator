@@ -604,7 +604,7 @@ export function theftSheet(bike, { photos = [], gallery = [], visits = [] } = {}
   const id = [
     row('frameNo'),
     { id: 'model', label: t('Brand and model'), value: [b.name, b.type ? t(bikeTypeName(b.type)) : ''].filter(Boolean).join(' · ') || null, edit: bikesHash({ tab: 'setup', bike: b.id }) },
-    { id: 'size', label: t('Frame size · wheels'), value: size || null, edit: bikesHash({ tab: 'compare' }) },
+    { id: 'size', label: t('Frame size · wheels'), value: size || null, edit: bikesHash({ tab: 'compare', view: 'all' }) },
     row('colour'),
     { id: 'weight', label: t('Weight'), value: b.weightG ? `${num(Math.round(b.weightG / 100) / 10)} kg${kind === 'measured' ? ` ${t('measured')}` : ''}` : null, edit: bikesHash({ tab: 'setup', bike: b.id }) },
     { id: 'price', label: t('Purchase price'), value: chf(typeof w.price === 'number' ? w.price : null), edit: bikesHash({ tab: 'setup', bike: b.id, sheet: 'warranty' }), href: buy ? { href: bikesHash({ tab: 'shop', bike: b.id, visit: buy.id }), label: t('Receipt') } : null },

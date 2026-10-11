@@ -24,6 +24,11 @@ const table = (page, name) =>
     name,
   );
 
+// v0.83.0 (A5a): on a phone «Velos vergleichen» starts with two bikes; these checks want every bike.
+async function allBikes(page) {
+  const off = page.getByRole('group', { name: 'Velos zum Vergleichen' }).locator('button[aria-pressed="false"]');
+  while (await off.count()) await off.first().click();
+}
 async function start(page, context, info) {
   const file = v048File(info);
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
@@ -49,6 +54,7 @@ test('Velos vergleichen: every bike a column, empty cells «–» to fill, two t
   await page.getByRole('link', { name: 'Velos vergleichen', exact: true }).click();
   const region = page.getByRole('region', { name: 'Velos vergleichen' });
   await expect(region).toBeVisible();
+  await allBikes(page);
   await expect(region.locator('thead')).toContainText(`${P} Bergziege 29`);
   // A value of the Spark, an empty cell of the Bergziege; tap it, fill it in, it is stored.
   await expect(region.getByRole('button', { name: new RegExp(`^${P} Scott Spark 960: Stack`) }).first()).toHaveText(/622/);

@@ -23,6 +23,11 @@ const table = (page, name) =>
   );
 const bikeOf = async (page, id) => (await table(page, 'bikes')).find((b) => b.id === id);
 
+// v0.83.0 (A5a): on a phone «Velos vergleichen» starts with two bikes; these checks want every bike.
+async function allBikes(page) {
+  const off = page.getByRole('group', { name: 'Velos zum Vergleichen' }).locator('button[aria-pressed="false"]');
+  while (await off.count()) await off.first().click();
+}
 async function start(page, context, info) {
   const file = v0620File(info);
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
@@ -80,7 +85,8 @@ test('Masse: always open on the bike, set saddle height and target pressure in p
 
 test('Velos vergleichen: the Masse rows come first and show the values', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
-  await page.goto('./#/bikes?tab=compare');
+  await page.goto('./#/bikes?tab=compare&view=all');
+  await allBikes(page);
   const region = page.getByRole('region', { name: 'Velos vergleichen' });
   await expect(region.locator('tbody .zl').first()).toHaveText('Masse');
   await expect(region.getByRole('button', { name: new RegExp(`^${P} Scott Spark 960: Sitzhöhe`) })).toHaveText('742 mm');

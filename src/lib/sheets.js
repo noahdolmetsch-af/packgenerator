@@ -172,7 +172,7 @@ export function bikePass(bike, { tyres = null } = {}) {
         if (r.tubeless) return { id: 'tubeless', label: t(r.label), value: tubelessText(tyres), edit: bikesHash({ tab: 'care', bike: b.id, open: true }) };
         const value = specValue(b, r.part, r.field);
         if (r.susp && empty(value) && !hasSuspension(b, r.susp)) return null;
-        if (!empty(value) || fits(b, PART[r.part] ?? {})) return { id: `${r.part}:${r.field}`, label: t(r.label), value: withUnit(value, r.unit), edit: bikesHash({ tab: 'compare' }) };
+        if (!empty(value) || fits(b, PART[r.part] ?? {})) return { id: `${r.part}:${r.field}`, label: t(r.label), value: withUnit(value, r.unit), edit: bikesHash({ tab: 'compare', view: 'all' }) };
         return null;
       })
       .filter(Boolean);
