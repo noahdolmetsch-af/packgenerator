@@ -65,6 +65,8 @@ const ROUTES = [
   // hobby pages 2 «Kissenzeit»: the meditation page and the intervals, strict like their files
   ['#/flow/act/meditation', 'Meditation'],
   ['#/flow/act/meditation/timer?new=1', 'Intervalle'],
+  // v0.86.0 «Meditation einfach»: «Mehr» of the meditation page, strict like its file
+  ['#/flow/act/meditation/mehr', 'Meditation Mehr'],
   // hobby pages 3 «Nach dem Gong»: the log in its three views, strict like their files (B3 and B5 need a
   // session: tests/e2e/hobby-meditation.spec.js checks them)
   ['#/flow/act/meditation/log', 'Protokoll'],

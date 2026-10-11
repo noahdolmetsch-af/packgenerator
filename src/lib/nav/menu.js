@@ -50,6 +50,8 @@ export const PAGE_GROUPS = [
       { id: 'meditation', title: 'Meditation', href: '#/flow/act/meditation', icon: 'flow', words: 'meditation meditieren kissenzeit cushion sitzen sitting timer intervalle intervals gong klangschale singing bowl vorlage template om ah hung achtsam mindful zitate quotes' },
       // hobby pages 3 «Nach dem Gong»: the meditation log (B4, B6)
       { id: 'medlog', title: 'Meditation log', href: '#/flow/act/meditation/log', icon: 'flow', words: 'meditation log protokoll sitzungen sessions serie serien streak wärmebild heatmap kalender calendar grafik chart tageszeit time of day monatsvergleich notiz note tiefe depth' },
+      // v0.86.0 «Meditation einfach»: «Mehr» of the meditation page (mockup C)
+      { id: 'medmore', title: 'Meditation · more', href: '#/flow/act/meditation/mehr', icon: 'flow', words: 'meditation mehr more klang klänge sound sounds anhören listen arten kinds orte dinge places things zitate quotes links alle sterne vorlagen templates verwalten manage' },
     ],
   },
   {

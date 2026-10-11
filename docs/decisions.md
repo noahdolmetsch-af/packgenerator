@@ -673,6 +673,16 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **5a:** zwei Bauten gleichzeitig nur, wenn sie verschiedene Bereiche ändern.
 - Mockups bleiben immer, Noah merged weiterhin selbst.
 
+## 11.10.2026: «Meditation einfach» (0.86.0, Noah «1-5 a» 08:22, Mockups A–E «Ok» 09:35)
+
+- **Anlass:** Noah 08:03 nach dem Durchspielen: «viel zu kompliziert». Antwort «1-5 a» auf die fünf Fragen, Mockups A–E am 11.10.2026 09:35 mit «Ok» freigegeben.
+- **1a Startblatt:** ein Tipp auf Meditation in «Heute abhaken» öffnet ein kleines Blatt statt sofort abzuhaken: «Jetzt {n} Min», Dauer-Chips, «Nur abhaken», «Zur Meditations-Seite». Nur Meditation; die anderen Aktivitäten und das lange Drücken bleiben. Heute (Startseite) kann dasselbe Blatt später nutzen.
+- **2a Seite kurz:** oben Start und Vorlagen, darunter drei Zeilen (Diese Woche, Protokoll, Nächster Stern), alles andere unter «Mehr» (`#/flow/act/meditation/mehr`), zugeklappt, nichts gestrichen.
+- **3a Nach dem Gong:** sichtbar nur Satz, Tiefe und «Fertig»; Stimmung, was half, Art und «Als Nächstes» hinter «mehr erfassen». «Fertig» speichert; ohne Eingabe schliesst es nur. «Ohne Notiz schliessen», «Wo du stehst», Zitat, Vergleich und Fitbit-Zeile fallen weg.
+- **4a Weniger Meta:** «Diese Seite kann», graue «geplant»-Zeilen (Fitbit, Strava, Kalender, Medien) und der Hinweis «wischen für den nächsten Tab» verschwinden auf Aktiv und allen Hobby-Seiten; das Wischen selbst bleibt.
+- **5a Protokoll und Sitzung** bleiben wie sie sind, nur ohne «Diese Seite kann» und «geplant».
+- **Uhr ruhig (Mockup D):** Restzeit einmal, «nächster Gong in m:ss», keine Legende, kein «0:01 von 20:00», am Handy kein «Beenden» oben; Einstellungen hinter «Einstellungen ›».
+
 ## 11.10.2026: Hobby-Seiten Teil 3 «Nach dem Gong» (0.84.0, umnummeriert von 0.82.0, H11a, H23a, H24a)
 
 - **Auswertung (H11a):** öffnet nach jeder gespeicherten Sitzung als eigene Seite; «Ohne Notiz schliessen» führt zurück. Unter einer Minute bleibt es bei der kurzen Zeile.

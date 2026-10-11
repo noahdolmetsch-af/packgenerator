@@ -2,7 +2,8 @@
   /**
    * v0.78.0 «Fünf Orte» 2 (Noah 10.10.2026, O2.1a–O2.6a): the pages of a place as tabs on top (at
    * most four; tabs whose function is missing stay hidden). On a phone a swipe sideways on the page
-   * opens the next or the previous tab; dots show where you are, with a hint until the first swipe.
+   * opens the next or the previous tab; dots show where you are (v0.86.0 «Meditation einfach», Noah
+   * «1-5 a»: no more «wischen für den nächsten Tab» hint; the swipe itself stays).
    * The tab opened last is remembered per place (nav.js keepTab / placeHref). An old address that
    * leads here (#/care, #/review …) says so once, in a small note you can close.
    */
@@ -54,14 +55,6 @@
     };
   });
 
-  const SWIPED = 'nav.swiped';
-  let swiped = $state(false);
-  try {
-    swiped = localStorage.getItem(SWIPED) === '1';
-  } catch {
-    swiped = true; // private mode: no hint that never goes away
-  }
-
   /** A swipe started on something that scrolls sideways itself (a strip, a table) or on a field is not a tab swipe. */
   function ownSwipe(el) {
     for (let n = el; n && n !== document.body; n = n.parentElement) {
@@ -91,12 +84,6 @@
       if (!quick || Math.abs(dx) < 60 || Math.abs(dx) < 2 * Math.abs(dy)) return;
       const next = tabStep(place, location.hash, dx < 0 ? 1 : -1);
       if (!next) return;
-      try {
-        localStorage.setItem(SWIPED, '1');
-      } catch {
-        /* private mode */
-      }
-      swiped = true;
       location.hash = hrefOf(next, location.hash);
     };
     main.addEventListener('touchstart', down, { passive: true });
@@ -118,7 +105,6 @@
   {#if phone.matches}
     <p class="dots">
       <span class="dd" aria-hidden="true">{#each tabs as x (x.key)}<span class="d" class:on={cur === x.key}></span>{/each}</span>
-      {#if !swiped}<span class="hint">{t('swipe for the next tab')}</span>{/if}
     </p>
   {/if}
 {/if}
