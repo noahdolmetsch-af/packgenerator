@@ -13,7 +13,9 @@ const T = (en, vars) => {
 };
 // tips.js (unit-tested) reads Svelte state through i18n: its numbers here
 const TIPS = { length: 28 };
-const GROUPS = ['Plan|tips', 'Packing & on the way', 'Looking back', 'Gear|tips', 'Bikes|tips', 'Your data|tips'].map((label) => ({ label }));
+// v0.96.0: the groups of «What the app can do», read from the app source (features.js)
+const FSRC = readFileSync(fileURLToPath(new URL('../../src/lib/features.js', import.meta.url)), 'utf8');
+const FGROUPS = [...FSRC.slice(FSRC.indexOf('FEATURE_GROUPS = ['), FSRC.indexOf('];', FSRC.indexOf('FEATURE_GROUPS = ['))).matchAll(/label: '([^']+)'/g)].map((m) => m[1]);
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
 const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 // the fixture's relative dates ("@+10" = in ten days) filled in, as in pf.spec.js
@@ -60,33 +62,29 @@ test('Tried it yet? with one idea and Next; the overview with ticks and progress
   await expect(card).not.toHaveAttribute('data-try', first);
   await noSideScroll(page);
 
-  // the overview on #/features: all tips by area, ✓ for used, the count matches
+  // v0.96.0 «F1 Alles finden» (mockup A): the overview on #/features: every function in 6 groups by
+  // situation, never used first, ✓ for used, the count matches; each row has «Take me there».
   await page.goto('./#/features');
   await expect(page.getByRole('heading', { name: T('What the app can do'), level: 1 })).toBeVisible();
-  const n = Number((await page.locator('.page-sub').textContent()).match(/\d+/)[0]);
-  // v0.40.0 (Noah 9a): "Not used yet" as rows, "Already used" folded by area (the areas as before).
-  const heads = [...(n < TIPS.length ? [T('Not used yet')] : []), ...(n ? [T('Already used')] : [])];
-  await expect(page.locator('main section.grp h2 > span:first-child')).toHaveText(heads);
-  if (n) await expect(page.locator('details.area > summary .t').first()).toBeAttached();
-  for (const label of await page.locator('details.area > summary .t').allTextContents()) expect(GROUPS.map((g) => T(g.label))).toContain(label);
-  await expect(page.locator('[data-feature]')).toHaveCount(TIPS.length);
+  await expect(page.locator('section[data-group] h2')).toHaveText(FGROUPS.map((l) => T(l)));
+  const [total, n] = (await page.locator('.pagehead .sub').textContent()).match(/\d+/g).map(Number);
+  expect(total).toBeGreaterThan(TIPS.length);
+  // per group: the never used rows come before the used ones
+  for (const g of await page.locator('section[data-group]').all()) {
+    const used = await g.locator('[data-feature]').evaluateAll((els) => els.map((e) => e.classList.contains('used')));
+    expect(used.indexOf(true) === -1 || !used.slice(used.indexOf(true)).includes(false)).toBe(true);
+  }
+  // «All n» opens a whole group; then every function is there
+  const alls = page.locator('section[data-group] .fall');
+  while (await alls.count()) await alls.first().click();
+  await expect(page.locator('[data-feature]')).toHaveCount(total);
   await expect(page.locator('[data-feature].used')).toHaveCount(n);
-  await expect(page.locator('.page-sub')).toHaveText(T('{n} of {total} used', { n, total: TIPS.length }));
   // the home place is set in the fixture: its tip counts as used
   await expect(page.locator('[data-feature="homeweather"]')).toContainText(T('Used|tips'));
   await noSideScroll(page);
-
-  // v0.40.0 (Noah 9a): a tip is a row; beyond the first six unused ones it waits behind "+ n more",
-  // a used one inside its folded area.
-  const reveal = async (row) => {
-    if (!(await row.isVisible()) && (await page.locator('.morerow').count())) await page.locator('.morerow').click();
-    if (!(await row.isVisible())) await page.locator('details.area').filter({ has: row }).locator('> summary').click();
-    await expect(row).toBeVisible();
-  };
-  // each row starts the thing (the whole row): the weigh tab of Gear, marked as used
+  // «Take me there» starts the thing: the weigh tab of Gear, marked as used
   const weigh = page.locator('[data-feature="weigh"]');
-  await reveal(weigh);
-  await weigh.getByRole('link').click();
+  await weigh.getByRole('link', { name: T('Take me there') }).click();
   await expect(page).toHaveURL(/#\/gear\?tab=weigh$/);
   await expect.poll(async () => (await tipsState(page))?.tapped?.weigh ?? null).not.toBeNull();
   expect(errors).toEqual([]);

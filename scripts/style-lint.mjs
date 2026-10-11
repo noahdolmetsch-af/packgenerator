@@ -78,6 +78,8 @@ export const STRICT_STYLE = [
   'src/lib/nav/SideBar.svelte',
   'src/lib/nav/PlaceBar.svelte',
   'src/lib/nav/PlaceIcon.svelte',
+  // v0.96.0 «F1 Alles finden»: «What the app can do» rebuilt (all strict)
+  'src/pages/Features.svelte',
   'src/lib/nav/MeButton.svelte',
   'src/lib/nav/Keys.svelte',
   'src/pages/Me.svelte',

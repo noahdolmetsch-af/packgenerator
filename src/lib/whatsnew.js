@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.96.0',
+    date: '2026-10-11',
+    points: [
+      { text: '«What the app can do» shows every function by situation (before the trip, on the way, after the trip …) or, switched, by page of the app. What you never used is on top.', href: '#/features' },
+      { text: 'Each function has «Take me there» to its place in the app, and many have «Try it» in the playground; a field and chips narrow the list.', href: '#/features' },
+      { text: 'The search shows 3 commands to try, your last searches and «See all functions», and finds functions too, for example «warranty».', href: '#/features' },
+    ],
+  },
+  {
     version: '0.95.0',
     date: '2026-10-11',
     points: [

@@ -513,6 +513,7 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 11.10.2026 (v0.96.0, PR offen):** F1 «Alles finden» (Noah «1-5 a», Mockups A/B): «Was die App kann» zeigt alle 84 Funktionen nach Situation, nie Benutztes zuerst, mit «Hinbringen» und «Ausprobieren»; die Suche zeigt Befehle zum Ausprobieren und findet Funktionen. Danach die Kalender-Bausteine Kal1–Kal5 neben D5 (je eine Mockup-Runde).
 **Nachtrag 11.10.2026 (v0.95.0, PR offen):** «Velo kurz» (App einfach D, Noah 5a): Velos › Übersicht mit drei Zeilen, «Fahrten importieren» als Knopf und «Mehr»; Ausstattung ohne orange Hinweise. Danach E «Material Liste zuerst» zusammen mit «Bereiche trennen» B2 (zuerst Mockups).
 
 **Nachtrag 11.10.2026 (v0.94.0, live, PR #111):** «Kachel-Wand» nach Noahs «1-5 a» und «ok a» (Mockups A–D): Heute ist eine Wand aus Kacheln in vier Grössen, anpassbar (auch lange drücken), «+» mit Katalog, «Neu»-Punkt, eine Serie über alles mit Ruhewoche und Feier, alle Meilensteine auf einer Seite, Daten und Backup unter Ich, die Wand im Backup. Ersetzt den Entwurf «Startseite dicht» (E1 Teil 1). Später: K6 Tipp der Woche und App-Symbol-Kürzel, K7 Tageszeit, mehrere Wände, Kachel-Vorschlag (je mit Mockups).
