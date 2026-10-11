@@ -46,3 +46,24 @@ export async function reopenTrip(trip, before = { finished: null, endReason: nul
   openTrip(trip.id);
   location.hash = hasBike(trip) ? '#/ride' : '#/pack?day';
 }
+
+/**
+ * v0.88.0 «Aufräumen und Ausprobieren» (Noah 0.88 5a, mockup H): «Wieder planen». A trip that was
+ * ended (or debriefed) before its start date comes back as planned: the end is taken back, «done»
+ * becomes «planned», and a saved debrief goes back to a draft (nothing in it is lost), so nothing
+ * learns from a trip that has not happened yet. Then the trip opens at Plan.
+ */
+export const planAgainChanges = (trip) => ({ finished: null, endReason: null, ...(trip.status === 'done' ? { status: 'planned' } : {}) });
+
+export async function planAgain(trip, { go = true } = {}) {
+  await db.transaction('rw', db.trips, db.debriefs, async () => {
+    const cur = await db.trips.get(trip.id);
+    if (!cur) return;
+    await db.trips.update(trip.id, touched(planAgainChanges(cur)));
+    const d = await db.debriefs.get(trip.id);
+    if (d?.status === 'done') await db.debriefs.update(trip.id, { status: 'draft', updatedAt: new Date().toISOString() });
+  });
+  if (!go) return;
+  openTrip(trip.id);
+  location.hash = '#/pack';
+}

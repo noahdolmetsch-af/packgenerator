@@ -5,6 +5,9 @@
    * places of the app: home place, Inbox, notes, your data, what the app can do and has learned, help
    * and keyboard shortcuts. Numbers only where something waits (the Inbox, «Backup due»).
    * v0.77.0 KI-Helfer (K1a): its own row «Helfer» with the state (set up, switched off, paused, not set up).
+   * v0.88.0 «Aufräumen und Ausprobieren» (Noah 0.88 alle a, mockups F, G): under «Data and backup» two
+   * rows: «Clean up test data» (how many found, the sheet archives them with Undo) and «Try it out»
+   * (the playground; the debrief's «Lieber in der Spielwiese probieren» opens it here once).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -12,19 +15,28 @@
   import { demoState } from '../lib/demo.js';
   import { HOME_PLACE } from '../lib/know.js';
   import { openData } from '../lib/nav.js';
-  import { t, lang, setLang } from '../lib/i18n.svelte.js';
+  import { t, tn, lang, setLang } from '../lib/i18n.svelte.js';
   import { theme, PALETTES, MODES, setPalette, setMode } from '../lib/theme.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { Globe, SunMoon, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles } from '@lucide/svelte';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
+  import { Archive, FlaskConical } from '@lucide/svelte';
+  import { testDataState } from '../lib/testdatadb.js';
+  import { PLAY_WISH } from '../lib/play.js';
+  import { take } from '../lib/nav.js';
+  import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
+  import PlaySheet from '../lib/testdata/PlaySheet.svelte';
 
   const waitQ = liveQuery(async () => {
     const [notes, file, folder, n, demo, place] = await Promise.all([db.notes.where('status').equals('open').count(), db.meta.get(LAST_BACKUP), db.meta.get('backupFolder'), db.items.count(), demoState(db), db.settings.get(HOME_PLACE)]);
     const last = [file?.at, folder?.lastWrite].filter(Boolean).sort().at(-1) ?? null;
-    return { inbox: notes, backup: n && !demo ? backupDue(last).due : false, home: place?.value?.name ?? '' };
+    return { inbox: notes, backup: n && !demo ? backupDue(last).due : false, home: place?.value?.name ?? '', demo: !!demo, play: !!demo?.play };
   });
+  const testQ = liveQuery(() => testDataState(db));
+  let tidyOpen = $state(false);
+  let playOpen = $state(take(PLAY_WISH) === '1');
   let placeOpen = $state(false);
   const keys = () => window.dispatchEvent(new Event('pg:keys'));
   const helperState = $derived(!helper.loaded ? '' : !isSetUp() ? t('not set up') : !helper.on ? t('switched off') : isPaused() ? t('paused until next month') : t('set up'));
@@ -86,6 +98,21 @@
         </button>
       </li>
       <li>
+        <button type="button" class="row go" onclick={() => (tidyOpen = true)} aria-haspopup="dialog">
+          <Archive size={20} aria-hidden="true" />
+          <span class="nm">{t('Clean up test data')}<small>{$testQ?.found.n ? tn($testQ.found.n, '{n} thing with «test» in its name', '{n} things with «test» in their name') : $testQ?.tidied ? t('Archived; «Undo» is here') : t('Nothing with «test» in its name')}</small></span>
+          {#if $testQ?.found.n}<span class="badge num"><span class="sr">{t('{n} to clean up', { n: $testQ.found.n })}</span><span aria-hidden="true">{$testQ.found.n}</span></span>{/if}
+          <ChevronRight class="chev" size={18} aria-hidden="true" />
+        </button>
+      </li>
+      <li>
+        <button type="button" class="row go" onclick={() => (playOpen = true)} aria-haspopup="dialog">
+          <FlaskConical size={20} aria-hidden="true" />
+          <span class="nm">{t('Try it out')}<small>{$waitQ?.play ? t('The playground is running') : t('Playground: try everything, afterwards all is as before')}</small></span>
+          <ChevronRight class="chev" size={18} aria-hidden="true" />
+        </button>
+      </li>
+      <li>
         <a class="row go" href="#/helper">
           <Sparkles size={20} aria-hidden="true" />
           <span class="nm">{t('Helper')}<small>{helperState || t('Suggestions from Claude, only on request')}</small></span>
@@ -115,6 +142,9 @@
       </li>
     </ul>
   </section>
+
+  {#if tidyOpen}<TestDataSheet onclose={() => (tidyOpen = false)} />{/if}
+  {#if playOpen}<PlaySheet running={!!$waitQ?.demo} onclose={() => (playOpen = false)} />{/if}
 
   {#if version}<p class="ver num">{t('Version {v}', { v: version })} · {t('Data only on this device')}</p>{/if}
 </div>
