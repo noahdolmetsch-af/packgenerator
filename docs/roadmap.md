@@ -513,6 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 11.10.2026 (v0.94.0, PR offen):** «Velo kurz» (App einfach D, Noah 5a): Velos › Übersicht mit drei Zeilen, «Fahrten importieren» als Knopf und «Mehr»; Ausstattung ohne orange Hinweise. Danach E «Material Liste zuerst» zusammen mit «Bereiche trennen» B2 (zuerst Mockups).
+
 **Nachtrag 11.10.2026 (v0.93.0, PR offen):** «Meditation Wünsche» nach Noahs «1-5 a» (Mockups F–H): Neue Sitzung mit Sternen zuerst, Dauer 10–60 oder frei, Klänge keine · zufällig · eigene (alle N oder an Minute), «Als Vorlage speichern?» mit Namensvorschlag; vier Uhren Ring · Sanduhr · Mond · Zahl, gemerkt, Sanduhr mit ausblendbarer Zeit. Heute (Startseite) bleibt beim Faden «UI-Analyse».
 **Nachtrag 11.10.2026 (v0.92.0, PR offen):** «Rückblick antippen» (App einfach C, Noah 4a): der Rückblick beginnt mit den Chips «Was hast du nicht gebraucht?», der Rest sind Zeilen darunter, der Knopf heisst «Fertig». Danach Velo kurz (D) und Material Liste zuerst (E).
 **Nachtrag 11.10.2026 (v0.91.0, PR offen):** Fix im Fahrten-Import (Q1 «Jeder km zählt», Noah «Fix bauen»): alte Strava-Fahrten ohne Velo, die schon in den Startwerten stecken, liegen zur Seite statt unter «Prüfen»; ein von Hand gewähltes Velo prüft seinen Startwert. «Material Liste zuerst» bekommt die nächste freie Nummer.

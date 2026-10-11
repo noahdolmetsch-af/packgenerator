@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { openMore } from './bike-more.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -159,6 +160,7 @@ test('Rucksaecke: a bike trip with a hip bag on Huefte and a vest on Ruecken cou
   // Bikes → Setup: Rücken and Hüfte under "Am Körper", with their bags.
   await page.goto('./#/bikes');
   await page.reload();
+  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
   const worn = page.locator('.worn-h');
   await expect(worn).toContainText(T('On me'));
   await expect(page.locator('#slot-carry')).toContainText(T('Back|worn'));

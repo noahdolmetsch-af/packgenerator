@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.94.0 «Velo kurz»
+  'Bikes › Overview is short: bike care, bags and equipment as three rows, everything else under «More».':
+    'Velos › Übersicht ist kurz: Velopflege, Taschen und Ausstattung als drei Zeilen, alles andere unter «Mehr».',
+  '«Import rides» (Strava, Garmin) is now a big button right on the bike page.':
+    '«Fahrten importieren» (Strava, Garmin) ist jetzt ein grosser Knopf direkt auf der Velo-Seite.',
+  'Equipment: a missing weight or price is a quiet grey hint instead of orange on every part.':
+    'Ausstattung: ein fehlendes Gewicht oder ein fehlender Preis ist ein ruhiger grauer Hinweis statt orange bei jedem Teil.',
+
   // 0.93.0 «Meditation Wünsche»
   'Meditation › «New session»: 10 · 15 · 20 · 30 · 45 · 60 minutes or any number, sounds in between «none · at random · own» (every N minutes or at chosen minutes), and your next star on top.':
     'Meditation › «Neue Sitzung»: 10 · 15 · 20 · 30 · 45 · 60 Minuten oder frei, Klänge dazwischen «keine · zufällig · eigene» (alle N Minuten oder an gewählten Minuten), und dein nächster Stern zuoberst.',

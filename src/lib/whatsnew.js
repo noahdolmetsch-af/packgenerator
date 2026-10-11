@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.94.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'Bikes › Overview is short: bike care, bags and equipment as three rows, everything else under «More».', href: '#/bikes' },
+      { text: '«Import rides» (Strava, Garmin) is now a big button right on the bike page.', href: '#/bikes' },
+      { text: 'Equipment: a missing weight or price is a quiet grey hint instead of orange on every part.', href: '#/bikes?tab=compare' },
+    ],
+  },
+  {
     version: '0.93.0',
     date: '2026-10-11',
     points: [

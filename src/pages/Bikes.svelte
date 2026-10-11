@@ -56,7 +56,7 @@
   {:else if route.tab === 'care'}
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
-    <SetupTab bikeId={route.bike} onbike={pickBike} />
+    <SetupTab bikeId={route.bike} more={route.open} onbike={pickBike} onopened={opened} />
   {/if}
 </div>
 

@@ -64,7 +64,7 @@ describe('the Bike pass (V5 a: values from the data, missing ones to enter)', ()
     expect(row('fork:attrs.travel').value).toBe('140 mm');
     expect(row('tyres:model').value).toBe('Demo Pneu 29 × 2.4');
     expect(row('tubeless').value).toBe('yes');
-    expect(row('fit:barWidth')).toMatchObject({ value: null, edit: '#/bikes?bike=test_data_gtp_trail' });
+    expect(row('fit:barWidth')).toMatchObject({ value: null, edit: '#/bikes?bike=test_data_gtp_trail&open=1' });
     expect(row('rotorF:attrs.dia')).toMatchObject({ value: null, edit: '#/bikes?tab=compare&view=all' });
     expect(p.filled).toBeLessThan(p.total);
     // every label of the pass has a German entry (read from the source list)

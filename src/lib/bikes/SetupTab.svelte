@@ -16,7 +16,7 @@
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
-  import { Briefcase, Plus, ChevronRight, Scale, Bike, Gauge, Camera, User, Columns3 } from '@lucide/svelte';
+  import { Briefcase, Plus, ChevronRight, Scale, Bike, Gauge, Camera, User, Columns3, Wrench, Ruler, Upload, MoreHorizontal } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
   import SetupDrawing from './SetupDrawing.svelte';
   import SetupFold from './SetupFold.svelte';
@@ -34,7 +34,7 @@
   import OrderDialog from '../care/OrderDialog.svelte';
   import { withVisits, tyreSetup, bikeProfile, workshopOrder } from '../workshop.js';
   import { upcomingTrips } from '../care.js';
-  import { bikeCare } from '../readiness.js';
+  import { bikeCare, bikeCareWords } from '../readiness.js';
   import { nextForShop } from './who.js';
   import { t, tn, num, nameOf, bagName, dateOf } from '../i18n.svelte.js';
   import { take } from '../nav.js';
@@ -58,7 +58,7 @@
   const today = localDay();
 
   // v0.21.0: the chosen bike lives in the address (#/bikes?bike=<id>) and stays when Care is opened.
-  let { bikeId = null, onbike } = $props();
+  let { bikeId = null, more = false, onbike, onopened } = $props();
   const bike = $derived(bikes.find((b) => b.id === bikeId) ?? bikes[0]);
   const setup = $derived(bike ? bikeSetup(bike, bags, items) : null);
   const bikeKind = $derived(bikeWeightKind(bike));
@@ -78,6 +78,25 @@
   const order = $derived(view ? workshopOrder(view, orderTrip, tasks, visits, tyres, today) : null);
   const forShop = $derived(view ? nextForShop(order, view) : null);
   let orderOpen = $state(false);
+  // v0.94.0 «Velo kurz» (App einfach D, Noah 4a/5a, mockup D): the bike page is short: three rows
+  // (care, bags, equipment), «Import rides» as the one button, everything else under «More».
+  const careWords = $derived(care ? bikeCareWords(care) : null);
+  let bagsOpen = $state(false);
+  // A deep link from Today («Album ›», «Idea saved → Open») lands inside «More»: open it so the fold can show itself.
+  const wished = () => {
+    try {
+      return !!(localStorage.getItem('bikes.photos') || localStorage.getItem('bikes.ideas'));
+    } catch {
+      return false;
+    }
+  };
+  let moreOpen = $state(wished());
+  // «&open=1» (a sheet's «Folder», «enter» or «Change values») lands on what lives under «More».
+  $effect(() => {
+    if (!more) return;
+    moreOpen = true;
+    onopened?.();
+  });
   const chf = (n) => `CHF ${Math.round(n).toLocaleString('de-CH')}`;
 
   /* ---------- setup photos (Noah, 4.10.2026, answers 1a-6a) ---------- */
@@ -276,14 +295,33 @@
   {:else if bike}
     <SetupBand {bikes} {bike} {setup} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeRename = bike)} />
 
+    <!-- v0.94.0 «Velo kurz» (App einfach D, mockup D): three rows and one button; the rest opens below. -->
+    <div class="vk">
+      <ul class="card vk-rows" aria-label={t('{bike} at a glance', { bike: bike.name })}>
+        <li><a class="vk-row" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><span class="ib care" class:late={careWords?.tone === 'late' || careWords?.tone === 'due'}><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bike care')}</b><small>{careWords?.text || careWords?.tag || ''}</small></span>{#if care?.rows.length}<i class="tp-badge warn">{careWords.tag}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+        <li><button type="button" class="vk-row" aria-expanded={bagsOpen} aria-controls="vk-bags" onclick={() => (bagsOpen = !bagsOpen)}><span class="ib"><Briefcase size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bags')}</b><small>{places.filter((p) => p.bag).map((p) => p.bag.name).join(', ') || t('no bag yet')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button></li>
+        <li><a class="vk-row" href={bikesHash({ tab: 'compare', bike: bike.id })}><span class="ib"><Ruler size={18} aria-hidden="true" /></span><span class="m"><b>{t('Equipment|tab')}</b><small>{t('Measures and parts')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+      </ul>
+      <div class="vk-side">
+        <!-- the coordinator 11.10.2026: Noah could not find the Strava import (it was three taps deep in Care) -->
+        <a class="btn ink vk-go" href={bikesHash({ tab: 'care', bike: bike.id, view: 'import' })}><Upload size={18} aria-hidden="true" />{t('Import rides')}<small>{t('Strava, Garmin')}</small></a>
+        <button type="button" class="card vk-row vk-more" aria-expanded={moreOpen} aria-controls="vk-more" onclick={() => (moreOpen = !moreOpen)}><span class="ib"><MoreHorizontal size={18} aria-hidden="true" /></span><span class="m"><b>{t('More')}</b><small>{t('Sheets (bike pass, service plan …), measures, mounts, photos, profile, settings')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
+      </div>
+    </div>
+
+    {#if moreOpen}
+    <div id="vk-more">
     <!-- v0.69.0 «Velo-Blätter» (Noah V1 a, mockup a-mappe): the bike's folder of sheets, below the band. -->
     <SheetFolder {bike} />
 
-    <!-- v0.65.0 «Velo-Masse» (Noah): the fit and setup numbers, always open, at the top of the bike. -->
+    <!-- v0.65.0 «Velo-Masse» (Noah): the fit and setup numbers. -->
     {#key bike.id}<FitCard {bike} />{/key}
+    </div>
+    {/if}
 
-    <div class="cols">
-      <div class="main">
+    {#if bagsOpen || moreOpen}
+    <div class="cols" class:solo={!moreOpen}>
+      <div class="main" id="vk-bags">
         <section class="card draw" aria-label={t('{bike} with its bags', { bike: bike.name })}>
           <SetupDrawing {places} mounts={editMounts} active={activeSlot} label={t('{bike} with its bags', { bike: bike.name })} onpick={pick} />
           <div class="drawfoot">
@@ -336,6 +374,7 @@
         </section>
       </div>
 
+      {#if moreOpen}
       <div class="side">
         <!-- v0.40.0 (design check): "Who works on it" only once there is something in it (WhoCard). -->
         <WhoCard bike={view} {visits} {tasks} year={today.slice(0, 4)} per={profile?.per} next={forShop} onorder={() => (orderOpen = true)} />
@@ -402,7 +441,9 @@
         {#key bike.id}<IdeasFold {bike} />{/key}
         {@render rest()}
       </div>
+      {/if}
     </div>
+    {/if}
   {/if}
   {#if !bike}{@render rest()}{/if}
 </div>
@@ -1124,6 +1165,92 @@
       gap: 20px;
       align-items: start;
     }
+    .cols.solo {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+    .vk {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: 20px;
+      align-items: start;
+    }
+  }
+  /* v0.94.0 «Velo kurz»: three rows, one button, «More». */
+  .vk {
+    margin-bottom: 12px;
+  }
+  .vk-rows {
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 4px 16px;
+  }
+  .vk-rows li + li {
+    border-top: 1px solid var(--line);
+  }
+  .vk-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 64px;
+    padding: 8px 0;
+    box-sizing: border-box;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .vk-row .ib {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    border-radius: 10px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .vk-row .ib.late {
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  .vk-row .m {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+  .vk-row .m small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .vk-row :global(.chev) {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 0.15s;
+  }
+  .vk-row[aria-expanded='true'] :global(.chev) {
+    transform: rotate(90deg);
+  }
+  .vk-side {
+    display: grid;
+    gap: 12px;
+  }
+  .vk-go {
+    justify-content: center;
+    min-height: 56px;
+    gap: 8px;
+  }
+  .vk-go small {
+    font-weight: 400;
+    opacity: 0.8;
+  }
+  .vk-more {
+    padding: 8px 16px;
   }
   /* v0.45.1 (G009): under 360 px the bag list puts litres and weight on a line below the name. */
   @media (max-width: 359px) {

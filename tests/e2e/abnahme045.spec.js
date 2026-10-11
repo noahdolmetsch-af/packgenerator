@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { openMore } from './bike-more.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -72,6 +73,7 @@ test('4. touch: the bike drawing places have 44 px tap areas that never overlap'
   await load(page, context, info);
   await page.goto(`./#/bikes?tab=setup&bike=${P}gravel`);
   await page.reload();
+  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
   const spots = page.locator('.drawing .spot');
   await expect(spots.first()).toBeVisible();
   // 0.65.0: the «Masse» card sits above the drawing; bring the drawing on screen before hit-testing.

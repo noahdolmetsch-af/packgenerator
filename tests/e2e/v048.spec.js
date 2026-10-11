@@ -3,6 +3,7 @@
 import { test, expect } from '@playwright/test';
 import { v048File, P, SPARK, SCALE, GOAT } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
+import { openMore } from './bike-more.js';
 
 const SHOTS = process.env.V048_SHOTS;
 const shot = async (page, info, name) => {
@@ -51,6 +52,7 @@ async function start(page, context, info) {
 test('Velos vergleichen: every bike a column, empty cells «–» to fill, two taps from Setup', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/bikes');
+  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
   await page.getByRole('link', { name: 'Velos vergleichen', exact: true }).click();
   const region = page.getByRole('region', { name: 'Velos vergleichen' });
   await expect(region).toBeVisible();

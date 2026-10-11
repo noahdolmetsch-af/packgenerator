@@ -8,6 +8,7 @@ import { inflateRawSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData as openDataFold } from './settle.js';
+import { openMore } from './bike-more.js';
 
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -185,6 +186,7 @@ test('photos: non-image, broken image and huge image give a message or a small p
   await start(page, context, info, 'de');
   // Bike setup photo (bike gallery).
   await page.goto('./#/bikes?tab=setup&bike=bike-test');
+  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
   await page.locator('summary').filter({ hasText: T('Photos') }).first().click();
   const input = page.locator('input[type=file][accept="image/*"][multiple]');
   await input.setInputFiles({ name: 'list.txt', mimeType: 'text/plain', buffer: Buffer.from('not a photo') });
