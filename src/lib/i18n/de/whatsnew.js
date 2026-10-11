@@ -8,7 +8,7 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.82.0 «Nach dem Gong» (hobby pages 3)
+  // 0.84.0 «Nach dem Gong» (hobby pages 3)
   'After the gong a calm evaluation opens: a note with depth and mood, what helped, your streak, a comparison and a suggestion for next time with a calendar file.':
     'Nach dem Gong öffnet eine ruhige Auswertung: Notiz mit Tiefe und Stimmung, was geholfen hat, deine Serie, ein Vergleich und ein Vorschlag fürs nächste Mal mit Kalender-Datei.',
   'The meditation log: every session opens in full, with filters, a streak heatmap, the best time of day and a month comparison; also as a calendar and as charts.':
@@ -16,6 +16,10 @@ export default {
   'Start a past session like this again in one tap, or save it as a template.':
     'Eine frühere Sitzung mit einem Tipp wieder so starten oder als Vorlage speichern.',
 
+  // 0.83.0 «Ausstattung» (Velos)
+  'Bikes has a new tab «Equipment»: every part of a bike in groups like a bike maker’s spec list, with name, details, weight and price.': 'Velos hat einen neuen Tab «Ausstattung»: jedes Teil eines Velos in Gruppen wie beim Hersteller, mit Name, Details, Gewicht und Preis.',
+  'Your four key measurements sit on top as tiles; parts without details fold into one line, and a tap on a part edits its name, weight and price.': 'Deine vier wichtigsten Masse stehen oben als Kacheln. Teile ohne Angaben sind in einer Zeile eingeklappt, ein Tipp auf ein Teil ändert Name, Gewicht und Preis.',
+  '«Compare bikes» now shows only rows with a value; on a phone two bikes sit side by side and you pick which.': '«Velos vergleichen» zeigt nur noch Zeilen mit Werten. Am Handy stehen zwei Velos nebeneinander, du wählst welche.',
   // 0.81.0 «Kissenzeit» (hobby pages 2)
   'Kissenzeit has its own meditation page: start from a template or like last time, kinds, milestones, sounds, quotes, places and your own links.':
     'Kissenzeit hat eine eigene Meditations-Seite: aus Vorlage oder wie letztes Mal starten, Arten, Meilensteine, Klänge, Zitate, Orte und eigene Links.',

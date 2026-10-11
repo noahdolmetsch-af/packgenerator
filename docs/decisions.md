@@ -673,7 +673,7 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **5a:** zwei Bauten gleichzeitig nur, wenn sie verschiedene Bereiche ändern.
 - Mockups bleiben immer, Noah merged weiterhin selbst.
 
-## 11.10.2026: Hobby-Seiten Teil 3 «Nach dem Gong» (0.82.0, H11a, H23a, H24a)
+## 11.10.2026: Hobby-Seiten Teil 3 «Nach dem Gong» (0.84.0, umnummeriert von 0.82.0, H11a, H23a, H24a)
 
 - **Auswertung (H11a):** öffnet nach jeder gespeicherten Sitzung als eigene Seite; «Ohne Notiz schliessen» führt zurück. Unter einer Minute bleibt es bei der kurzen Zeile.
 - **Notiz (H23a):** Satz, Tiefe 1–5, Stimmung und «Was hat geholfen?», alles freiwillig und später änderbar (B5 «Bearbeiten»).
@@ -737,3 +737,13 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 
 - **Entscheid:** Ein kleiner Release 0.80.0 macht die automatischen Browser-Tests stabil, bevor das nächste Paket kommt. Die Tests warten auf ein Zeichen der App (`data-ready` nach dem Aufräumen der Daten, `data-today` nach Heutes Entscheid über Unterwegs) statt auf eine feste Zeit; ein gemeinsamer Helfer `tests/e2e/settle.js` ersetzt die kopierte Öffnen-Schleife für «Deine Daten».
 - **Grund:** In den CI-Läufen vom 10.10.2026 schlugen Tests zufällig fehl und liefen erst im zweiten Versuch durch. Die Ursache war immer dieselbe: «Import fertig» hiess im Test nicht «App fertig». Stabile Tests machen jeden weiteren Release schneller.
+
+## 11.10.2026: «Ausstattung» wie bei Canyon (0.83.0, Noahs Antworten A1–A5 «1-5a», 06:56)
+
+- **Entscheid (A1a):** Der Velos-Tab «Masse» heisst «Ausstattung»: oben die Masse, darunter die Teile.
+- **Entscheid (A2a):** Teile ohne Angaben sind pro Gruppe als eine Zeile «+ n ohne Angaben» eingeklappt.
+- **Entscheid (A3a):** Jedes Teil hat einen Preis (CHF) mit Summe pro Gruppe und «Kaufwert» oben; fehlt er, steht «Preis +».
+- **Entscheid (A4a):** Rechts «Gewicht pro Bereich» und «Teuerste Teile», am Handy darunter.
+- **Entscheid (A5a):** «Velos vergleichen» zeigt nur Zeilen mit mindestens einem Wert, «alle zeigen» als Link; am Handy zuerst zwei Velos nebeneinander.
+- **Selbst entschieden:** Die Gruppen tragen die bestehenden Bereichsnamen der App (Rahmen statt «Rahmenset»), damit Pflege, Vergleich und Ausstattung gleich heissen. Die Geometrie bleibt im Vergleich (nicht auf der Ausstattung). Kein Knopf «Datenblatt importieren» im Kopfband (der Import bleibt unter «Deine Daten»). Die Adresse `#/bikes?tab=compare` bleibt (alte Links landen auf der Ausstattung), der Vergleich ist `&view=all`. Der Link «Velos vergleichen» steht auf der Ausstattung einmal oben, nicht zusätzlich im Masse-Block.
+- **Grund:** Noah (11.10.2026, nach dem Import seiner Velo-Daten): die Masse-Seite war eine lange Tabelle mit fast nur «–» und für ihn unübersichtlich; Vorbild ist Canyons Liste «Alle Komponenten».

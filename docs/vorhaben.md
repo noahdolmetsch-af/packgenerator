@@ -57,7 +57,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.78.0 | Fünf Orte Teil 2: Tabs pro Ort mit Wischen, letzter Tab bleibt, alte Adressen mit Hinweis, «Was ist neu» als Blatt, Touren-Einstieg mit Kacheln und Bestwerten, Rückblick «offen» zuerst, Material › Einkauf | gemergt 10.10.2026 (PR #105) |
 | 0.79.0 | Hobby-Seiten Teil 1: Aktiv › Aktivität (sechs Kacheln mit verspielten Namen, Ringe, Vorschläge, Erholung und Ideen) und Meilensteine über alle Aktivitäten (Stufen, Sterne bleiben, eigene Zahlen, Belohnung) | gemergt 11.10.2026 (PR #106) |
 | 0.81.0 | Hobby-Seiten Teil 2 «Kissenzeit»: Meditations-Seite (Vorlagen, Wie letztes Mal, Arten, Herausforderung, Meilensteine, Klänge, Zitate, Links, Orte), Intervalle mit Marken auf der Uhr, Sitzung im ganzen Bildschirm | PR offen |
-| 0.82.0 | Hobby-Seiten Teil 3 «Nach dem Gong»: Auswertung mit Notiz, Tiefe, Stimmung und «Als Nächstes» (.ics), Protokoll mit Filtern, Serien-Wärmebild, Kalender und Grafik, Sitzung im Detail mit «Wieder so starten» | PR offen |
+| 0.84.0 | Hobby-Seiten Teil 3 «Nach dem Gong»: Auswertung mit Notiz, Tiefe, Stimmung und «Als Nächstes» (.ics), Protokoll mit Filtern, Serien-Wärmebild, Kalender und Grafik, Sitzung im Detail mit «Wieder so starten» | PR offen |
+| 0.83.0 | Ausstattung: Velos-Tab «Masse» wird «Ausstattung» (Masse als Kacheln, jedes Teil in Gruppen mit Gewicht und Preis, Gewicht pro Bereich, teuerste Teile); «Velos vergleichen» nur mit Zeilen mit Werten | live, PR #109 |
 | 0.80.0 | Tests stabil: die automatischen Browser-Tests warten auf ein Zeichen der App statt auf eine Zeit; keine sichtbare Änderung | PR offen |
 | – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Teil 1 (0.76.0) live; Teil 2 (0.78.0) gemergt |
 | – | Startseite & Integrationen E1–E4 | Konzept und Mockups fertig, Fragen beantwortet |

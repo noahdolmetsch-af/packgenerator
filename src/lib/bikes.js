@@ -241,6 +241,8 @@ export function parseBikesHash(hash = '') {
   if (tab === 'care' && q.get('trip')) out.trip = q.get('trip');
   // v0.68.0 «Q1 Jeder km zählt»: &view=import on Care is «Import rides».
   if (tab === 'care' && q.get('view') === 'import') out.view = 'import';
+  // v0.83.0 «Ausstattung»: tab=compare is the bike's equipment; &view=all is «Compare bikes».
+  if (tab === 'compare' && q.get('view') === 'all') out.view = 'all';
   // v0.69.0 «Velo-Blätter»: &sheet=<key> on Setup shows one sheet of the bike's folder (sheets.js);
   // &from=care|shop: the sheet was opened there, so «back» goes there. v0.70.0: four more sheets.
   if (tab === 'setup' && /^(pass|plan|order|pickup|breakin|kit|warranty|theft|all)$/.test(q.get('sheet') ?? '')) {
@@ -255,6 +257,7 @@ export function bikesHash({ tab = 'setup', bike = null, open = false, trip = nul
   const q = new URLSearchParams();
   if (tab === 'care' || tab === 'compare' || tab === 'shop') q.set('tab', tab);
   if (view === 'import' && tab === 'care') q.set('view', 'import');
+  if (view === 'all' && tab === 'compare') q.set('view', 'all');
   if (bike) q.set('bike', bike);
   if (open && bike) q.set('open', '1');
   if (trip && tab === 'care') q.set('trip', trip);

@@ -10,12 +10,21 @@
 
 export const WHATS_NEW = [
   {
-    version: '0.82.0',
+    version: '0.84.0',
     date: '2026-10-11',
     points: [
       { text: 'After the gong a calm evaluation opens: a note with depth and mood, what helped, your streak, a comparison and a suggestion for next time with a calendar file.', href: '#/flow/act/meditation' },
       { text: 'The meditation log: every session opens in full, with filters, a streak heatmap, the best time of day and a month comparison; also as a calendar and as charts.', href: '#/flow/act/meditation/log' },
       { text: 'Start a past session like this again in one tap, or save it as a template.', href: '#/flow/act/meditation/log' },
+    ],
+  },
+  {
+    version: '0.83.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'Bikes has a new tab «Equipment»: every part of a bike in groups like a bike maker’s spec list, with name, details, weight and price.', href: '#/bikes?tab=compare' },
+      { text: 'Your four key measurements sit on top as tiles; parts without details fold into one line, and a tap on a part edits its name, weight and price.', href: '#/bikes?tab=compare' },
+      { text: '«Compare bikes» now shows only rows with a value; on a phone two bikes sit side by side and you pick which.', href: '#/bikes?tab=compare' },
     ],
   },
   {
