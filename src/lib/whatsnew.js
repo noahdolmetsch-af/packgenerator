@@ -10,6 +10,13 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.96.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'Today shows no photo any more: the trip card starts right at the top. Your bike photos stay under Bikes › Setup.', href: '#/' },
+    ],
+  },
+  {
     version: '0.95.0',
     date: '2026-10-11',
     points: [

@@ -8,6 +8,10 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.96.0 «Foto weg von Heute»
+  'Today shows no photo any more: the trip card starts right at the top. Your bike photos stay under Bikes › Setup.':
+    'Heute zeigt kein Foto mehr: Die Tour-Karte beginnt gleich oben. Deine Velo-Fotos bleiben unter Velos › Setup.',
+
   // 0.95.0 «Velo kurz»
   'Bikes › Overview is short: bike care, bags and equipment as three rows, everything else under «More».':
     'Velos › Übersicht ist kurz: Velopflege, Taschen und Ausstattung als drei Zeilen, alles andere unter «Mehr».',

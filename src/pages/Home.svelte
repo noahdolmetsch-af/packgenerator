@@ -1,8 +1,3 @@
-<script module>
-  // v0.73.0 «Fotoband» (Noah 4a): one photo per app start, a different one on the next start.
-  const PICK = Math.random();
-</script>
-
 <script>
   /**
    * Today (Heute). v0.46.0 «Startseite neu» (Noah, 9.10.2026, answers 1a 2b 3a 4b 5a+menu 6-33a 34b):
@@ -11,7 +6,7 @@
    *  1. Greeting band: "Good morning, Noah." and the weather in one sentence (home forecast); beside it
    *     the suggestion of the day (a day ride when it stays dry, "Other bike").
    *  2. The next trip as a compact card: countdown, name, bike · items · weight · km, the steps as thin
-   *     bars, ONE button for the current step, a quiet setup photo; several trips: "+2 more trips ▾"
+   *     bars, ONE button for the current step; several trips: "+2 more trips ▾"
    *     (the 0.35 switcher) and a swipe on a phone. Test trips ("test" in the name) never lead here.
    *  3. "What do you want to do?": 12 buttons (phone 8), the last "All 16 functions" (lib/home/functions.js).
    *  4. "Important today" (at most 3 rows, urgent first, one action each; a bike job can be done right
@@ -95,8 +90,7 @@
   import FlowCard from '../lib/home/FlowCard.svelte';
   import KmCard from '../lib/home/KmCard.svelte';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
-  import TripPhoto from '../lib/home/TripPhoto.svelte';
-  import { tripToday, bandPhotos, pickPhoto, photoCaption } from '../lib/home/ruhig.js';
+  import { tripToday } from '../lib/home/ruhig.js';
   import { PartyPopper, Sun, Pencil, RotateCcw } from '@lucide/svelte';
 
   /* ---------- the records ---------- */
@@ -259,16 +253,8 @@
   const stepNow = $derived(sched?.next ? stepWords(sched.next, shown, ctx, today) : null);
   const bars = $derived(sched ? sched.steps.filter((s) => s.key !== 'plan' && s.key !== 'debrief') : []);
   const cd = $derived(shown ? countdown(shown, now) : null);
-  // v0.73.0 «Fotoband» (Noah, Foto auf Heute 1a–4a): the trip's own photos, else its bike's photos;
-  // one of them per app start (PICK), sharp; a phone shows it as a band over the card, a computer
-  // on the right inside it. Only the photos of the trip shown and its bike are read.
-  const photoKey = $derived(shown ? `${shown.id}|${hasBike(shown) ? shown.bikeId ?? '' : ''}` : '');
-  const photosQ = $derived.by(() => {
-    const [tid, bid] = photoKey.split('|');
-    return liveQuery(() => (!tid ? [] : bid ? db.photos.where('bikeId').equals(bid).or('tripId').equals(tid).toArray() : db.photos.where('tripId').equals(tid).toArray()));
-  });
-  const photo = $derived(shown ? pickPhoto(bandPhotos(shown, shownBike, $photosQ ?? []), PICK) : null);
-  const caption = $derived(photo ? photoCaption(photo, { fallback: shownBike?.name ?? '', locale: locale() }) : '');
+  // 0.96.0 (Noah 11.10.2026 «bild wieder vom homescreen weg»): Heute shows no photo; the photos
+  // stay under Velos › Setup.
   const meta = $derived.by(() => {
     if (!shown || !stats) return '';
     const who = hasBike(shown) ? shown.bike : t(domainName(domainOf(shown)));
@@ -720,8 +706,7 @@
 <!-- 2. the next trip -->
 {#snippet tripS()}
   {#if focus || shown}
-    {#if photo && phone.matches}<TripPhoto {photo} {caption} mode="band" />{/if}
-    <section class="trip noswipe" class:has-photo={!!photo && !phone.matches} class:on-band={!!photo && phone.matches} aria-labelledby="next-h" data-section="trip" data-trip={shown?.id} onpointerdown={pdown} onpointerup={pup} onpointercancel={() => (sx = null)}>
+    <section class="trip noswipe" aria-labelledby="next-h" data-section="trip" data-trip={shown?.id} onpointerdown={pdown} onpointerup={pup} onpointercancel={() => (sx = null)}>
       <div class="tc">
         <div class="kl">
           {#if ask}
@@ -765,7 +750,6 @@
           {#if phone.matches}<InProgress current={shown?.id} light label={(n) => tn(n, '+{n} more trip', '+{n} more trips')} />{/if}
         </div>
       </div>
-      {#if photo && !phone.matches}<TripPhoto {photo} {caption} mode="side" />{/if}
     </section>
     {#if slim}
       <div class="srow" data-suggestion data-slim>
@@ -1078,15 +1062,6 @@
     border-radius: 20px;
     background: var(--paper);
     touch-action: pan-y;
-  }
-  .trip.has-photo {
-    grid-template-columns: minmax(0, 1fr) minmax(200px, 300px);
-  }
-  /* v0.73.0 «Fotoband» (Noah 1a 3a): on a phone the card lies 34 px over the lower edge of the band */
-  .trip.on-band {
-    position: relative;
-    margin: -48px var(--sp-2) 0;
-    box-shadow: 0 6px 22px var(--shadow);
   }
   .tc {
     display: flex;

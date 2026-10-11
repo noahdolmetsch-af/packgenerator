@@ -51,7 +51,6 @@ export const STRICT_STYLE = [
   // v0.70.0 «Velo-Blätter Teil 2»
   'src/lib/bikes/SheetMore.svelte',
   // v0.73.0 «Ruhige Startseite + Fotoband»
-  'src/lib/home/TripPhoto.svelte',
   // hobby pages, package 1: Aktiv › Aktivität and Meilensteine (all new, all strict)
   'src/pages/flow/Activity.svelte',
   'src/pages/flow/Milestones.svelte',

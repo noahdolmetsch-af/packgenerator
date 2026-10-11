@@ -673,6 +673,12 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **5a:** zwei Bauten gleichzeitig nur, wenn sie verschiedene Bereiche ändern.
 - Mockups bleiben immer, Noah merged weiterhin selbst.
 
+## 11.10.2026: «Foto weg von Heute» (0.96.0, Noahs Idee «bild wieder vom homescreen weg»)
+
+- **Anlass:** Noah schrieb am 11.10.2026 17:14 im Faden «Mein Überblick»: «idee: bild wieder vom homescreen weg». Das einzige Bild auf Heute war das Foto der Tour-Karte aus 0.73.0 «Fotoband» (am Handy ein Band über der Karte, am Computer rechts in der Karte).
+- **Gebaut:** Heute zeigt kein Foto mehr; die Tour-Karte beginnt gleich oben. Die Fotos der Velos bleiben unter Velos › Setup › Mehr › Fotos. `lib/home/TripPhoto.svelte` und die Foto-Regeln in `lib/home/ruhig.js` sind gelöscht.
+- **Selbst entschieden:** Kleine Entfernung ohne eigene Mockup-Runde, weil Noahs Satz eindeutig ist und nichts Neues entsteht. Kein Foto als Kachel im Katalog (wäre neu, nur auf Wunsch).
+
 ## 11.10.2026: «Velo kurz» (0.95.0, App einfach «5a», Mockup D)
 
 - **Anlass:** im Durchspielen war die Velo-Seite nach dem ersten Velo 3,9 Handy-Bildschirme lang (Mappe, 12 leere Masse, Zeichnung, Taschen, 7 Zeilen); Noah fand am 11.10.2026 den Strava-Import nicht (er lag unter Velos › Pflege › Velo öffnen). Noah «1a 2a 3b 4a 5a» (Trello bGBkdWXp), Mockup D.
