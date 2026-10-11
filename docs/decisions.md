@@ -673,6 +673,13 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **5a:** zwei Bauten gleichzeitig nur, wenn sie verschiedene Bereiche ändern.
 - Mockups bleiben immer, Noah merged weiterhin selbst.
 
+## 11.10.2026: Hobby-Seiten Teil 3 «Nach dem Gong» (0.84.0, umnummeriert von 0.82.0, H11a, H23a, H24a)
+
+- **Auswertung (H11a):** öffnet nach jeder gespeicherten Sitzung als eigene Seite; «Ohne Notiz schliessen» führt zurück. Unter einer Minute bleibt es bei der kurzen Zeile.
+- **Notiz (H23a):** Satz, Tiefe 1–5, Stimmung und «Was hat geholfen?», alles freiwillig und später änderbar (B5 «Bearbeiten»).
+- **Als Nächstes (H24a):** ein Vorschlag: morgen zur gleichen Uhrzeit; nach einer langen Sitzung die kürzeste Vorlage. Kalender-Datei (.ics) in Zürcher Zeit; «keine Vorschläge» schaltet ihn ab (`flow.medNext`).
+- **Protokoll:** Filter wirken auf Liste, Kalender und Grafik; Serien, Wärmebild, Tageszeit und Monatsvergleich zählen alle Sitzungen. Ein Filterwechsel ändert die Adresse ohne Sprung nach oben.
+
 ## 11.10.2026: Hobby-Seiten Teil 2 «Kissenzeit» (0.81.0, H1–H29 a)
 
 - **Seite:** Meditation hat als erste Aktivität eine eigene Seite `#/flow/act/meditation`; die übrigen Kacheln öffnen bis Teil 3 weiter den Editor (H29a).

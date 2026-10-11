@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.84.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'After the gong a calm evaluation opens: a note with depth and mood, what helped, your streak, a comparison and a suggestion for next time with a calendar file.', href: '#/flow/act/meditation' },
+      { text: 'The meditation log: every session opens in full, with filters, a streak heatmap, the best time of day and a month comparison; also as a calendar and as charts.', href: '#/flow/act/meditation/log' },
+      { text: 'Start a past session like this again in one tap, or save it as a template.', href: '#/flow/act/meditation/log' },
+    ],
+  },
+  {
     version: '0.83.0',
     date: '2026-10-11',
     points: [

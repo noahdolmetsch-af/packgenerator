@@ -65,6 +65,11 @@ const ROUTES = [
   // hobby pages 2 «Kissenzeit»: the meditation page and the intervals, strict like their files
   ['#/flow/act/meditation', 'Meditation'],
   ['#/flow/act/meditation/timer?new=1', 'Intervalle'],
+  // hobby pages 3 «Nach dem Gong»: the log in its three views, strict like their files (B3 and B5 need a
+  // session: tests/e2e/hobby-meditation.spec.js checks them)
+  ['#/flow/act/meditation/log', 'Protokoll'],
+  ['#/flow/act/meditation/log?view=cal', 'Protokoll Kalender'],
+  ['#/flow/act/meditation/log?view=chart', 'Protokoll Grafik'],
   ['#/me', 'Ich'], // v0.76.0 «Fünf Orte»: strict like its file
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];

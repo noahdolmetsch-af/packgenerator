@@ -105,3 +105,24 @@ export async function deleteSession(db, id) {
     await db.flowSessions.delete(id);
   });
 }
+
+/* ---------- hobby pages 3 «Nach dem Gong» (B3, B5) ---------- */
+/**
+ * The note after the gong (H23a: all optional) and the kind it was: written into the session's details.
+ * A log entry without details (an old one, a tick) gets them now, with what the entry knows.
+ */
+export async function saveNote(db, id, patch) {
+  await db.transaction('rw', db.flowLog, db.flowSessions, async () => {
+    const [s, e] = await Promise.all([db.flowSessions.get(id), db.flowLog.get(id)]);
+    if (!s && !e) return;
+    const base = s ?? { id, actId: e.actId, day: e.day, at: e.at ?? null, min: e.min ?? null, marks: [] };
+    await db.flowSessions.put(JSON.parse(JSON.stringify({ ...base, ...patch })));
+  });
+}
+/** «Rückgängig» after deleting a session: the log entry and its details come back. */
+export async function restoreSession(db, entry, session) {
+  await db.transaction('rw', db.flowLog, db.flowSessions, async () => {
+    if (entry) await db.flowLog.put(entry);
+    if (session) await db.flowSessions.put(session);
+  });
+}

@@ -6,6 +6,8 @@ import { t, tn, num, locale, lang } from '../../i18n.svelte.js';
 import { actName } from '../ui.svelte.js';
 import { STAGES } from '../../flowms.js';
 import { dayShort } from '../words.js';
+import { PLACES, MOODS, HELPED } from '../../flowmed.js';
+import { clock } from '../../flowtimer.js';
 
 /** The tile name: the playful name (a suggestion, renamable), else the activity's name. */
 export const tileName = (a) => (a ? (lang.v === 'de' && a.nickDe ? a.nickDe : a.nick) || actName(a) : '');
@@ -39,3 +41,17 @@ export const timeShort = (ms) => new Date(ms).toLocaleTimeString(locale(), { hou
 export const tplName = (x) => (x ? (lang.v === 'de' && x.nameDe ? x.nameDe : x.name) || t('Template') : '');
 /** A kind of meditation: the built-in ones through t(), own ones as written. */
 export const artName = (a) => (!a ? '' : a.own ? a.name : t(a.name));
+
+/* ---------- hobby pages 3 «Nach dem Gong» (B3–B6) ---------- */
+/** A session's place: the suggestions through t(), own ones as written. */
+export const placeLabel = (id) => (!id ? '' : id.startsWith('own:') ? id.slice(4) : t(PLACES.find((p) => p.id === id)?.name ?? id));
+export const moodLabel = (id) => (id.startsWith('own:') ? id.slice(4) : t(MOODS.find((m) => m.id === id)?.name ?? id));
+export const helpedLabel = (id) => (id.startsWith('own:') ? id.slice(4) : t(HELPED.find((m) => m.id === id)?.name ?? id));
+/** «Sa 10.10. · 06:52 bis 07:37» */
+export function sessionWhen(s) {
+  if (!s?.at) return s?.day ? dayShort(s.day) : '';
+  const head = whenShort(s.at);
+  return s.endAt ? t('{from} to {to}', { from: head, to: timeShort(Date.parse(s.endAt)) }) : head;
+}
+/** «3:00 · 10:00 · 18:30» for the marks of a session. */
+export const marksLine = (marks = []) => marks.map((m) => clock(m.sec)).join(' · ');

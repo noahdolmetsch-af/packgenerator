@@ -217,11 +217,17 @@ async function saveDone() {
   try {
     const rec = sessionRecords(tm, tm.targetSec, Date.now(), (ms) => localDay(new Date(ms)));
     if (rec) await saveSession(db, rec);
-    if (clockState.tm && clockState.tm.startedAt === tm.startedAt) {
-      clockState.tm = { ...clockState.tm, saved: rec ? rec.entry.id : 'none', savedMin: rec?.entry.min ?? 0 };
-      keep();
-    }
     if (typeof document !== 'undefined' && document.visibilityState !== 'visible') notifyEnd(rec?.entry.min ?? 0);
+    if (clockState.tm && clockState.tm.startedAt === tm.startedAt) {
+      if (rec) {
+        // hobby pages 3 (H11a): after the gong the evaluation opens (B3); the end gong rings out
+        leaveSession();
+        openDone(tm.actId, rec.entry.id);
+      } else {
+        clockState.tm = { ...clockState.tm, saved: 'none', savedMin: 0 };
+        keep();
+      }
+    }
   } finally {
     saving = false;
   }
@@ -234,15 +240,34 @@ export async function endSession() {
   const tm = clockState.tm;
   if (!tm) return 0;
   let min = tm.savedMin ?? 0;
+  let id = tm.saved && tm.saved !== 'none' ? tm.saved : null;
   if (!tm.saved) {
     const rec = sessionRecords(tm, elapsedSec(tm, Date.now()), Date.now(), (ms) => localDay(new Date(ms)));
     if (rec) await saveSession(db, rec);
     min = rec?.entry.min ?? 0;
+    id = rec?.entry.id ?? null;
   }
   stopClock();
   ui.timerOpen = false;
-  toast(min ? t('Meditation saved · {n} min', { n: min }) : t('Under a minute: not saved'));
+  // hobby pages 3 (H11a): a saved session opens its evaluation (B3); under a minute only a short line
+  if (min && id) openDone(tm.actId, id);
+  else toast(t('Under a minute: not saved'));
   return min;
+}
+/** The address of a session's evaluation after the gong (B3). */
+export const doneHref = (actId, id) => `#/flow/act/${encodeURIComponent(actId)}/done/${encodeURIComponent(id)}`;
+function openDone(actId, id) {
+  if (typeof location !== 'undefined') location.hash = doneHref(actId, id);
+}
+/** The session is over and saved: close the full view, but let the end gong ring out (no cancelPlan). */
+function leaveSession() {
+  clockState.tm = null;
+  keep();
+  holdScreen(false);
+  ui.sessionOpen = false;
+  ui.timerOpen = false;
+  clearInterval(loop);
+  loop = null;
 }
 
 /* the end gong as a notification when the phone was locked (H27a): only where the browser can and allowed it */

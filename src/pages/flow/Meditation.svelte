@@ -8,7 +8,7 @@
    * Everything is a suggestion: templates, kinds, places, things, quotes and the challenge can be changed,
    * put away or deleted. A session runs in the full view (B7, FlowLayer) and is saved in flowLog + flowSessions.
    */
-  import { ChevronLeft, Play, X, Plus, Lightbulb, Volume2, Link as LinkIcon, ExternalLink, Activity as Pulse, Check, Trash2 } from '@lucide/svelte';
+  import { ChevronLeft, Play, X, Plus, Lightbulb, Volume2, Link as LinkIcon, ExternalLink, Activity as Pulse, Check } from '@lucide/svelte';
   import ActIcon from '../../lib/flow/ActIcon.svelte';
   import Dial from '../../lib/flow/hobby/Dial.svelte';
   import MsBlock from '../../lib/flow/hobby/MsBlock.svelte';
@@ -18,14 +18,14 @@
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
   import { actState } from '../../lib/flow.js';
   import { msContext, actMilestones, evaluate, isOff, newStars } from '../../lib/flowms.js';
-  import { artsOf, addArt, toggleFavArt, sortTemplates, bowlWords, lastSession, recentSessions, daysGrid, streaks, weekMinutes, challenge, PLACES, THINGS, choiceList, placeCounts, linkOf, linksOf, sessionPlan, ARTS_KEY, PLACES_KEY, THINGS_KEY, LINKS_KEY, SOUND_KEY, CHALLENGE_KEY } from '../../lib/flowmed.js';
+  import { artsOf, addArt, toggleFavArt, sortTemplates, bowlWords, lastSession, daysGrid, streaks, weekMinutes, challenge, PLACES, THINGS, choiceList, placeCounts, linkOf, linksOf, sessionPlan, ARTS_KEY, PLACES_KEY, THINGS_KEY, LINKS_KEY, SOUND_KEY, CHALLENGE_KEY } from '../../lib/flowmed.js';
   import { planMarks } from '../../lib/flowbowl.js';
   import { SOUNDS, soundOk, playSound, canVibrate, vibrate, DEFAULT_SOUND, DEFAULT_END_SOUND } from '../../lib/flowsounds.js';
   import { quotesOf, QUOTES_KEY, quoteSet } from '../../lib/flowquotes.js';
-  import { saveStars, putSetting, deleteSession } from '../../lib/flowdb.js';
-  import { startSession, clockState, ui, actName, toast } from '../../lib/flow/ui.svelte.js';
+  import { saveStars, putSetting } from '../../lib/flowdb.js';
+  import { startSession, clockState, ui, actName } from '../../lib/flow/ui.svelte.js';
   import { actGoalText } from '../../lib/flow/words.js';
-  import { tileName, whenShort, tplName, artName, dayWord } from '../../lib/flow/hobby/words.js';
+  import { tileName, whenShort, tplName, artName } from '../../lib/flow/hobby/words.js';
   import { clock } from '../../lib/flowtimer.js';
   import { localDay } from '../../lib/localday.js';
   import { t, tn, lang } from '../../lib/i18n.svelte.js';
@@ -84,12 +84,6 @@
   const weeks = $derived(data ? weekMinutes(data.log, actId, today, 8) : []);
   const weekMax = $derived(Math.max(1, ...weeks.map((w) => w.min)));
   const str = $derived(data ? streaks(data.log, actId, today) : { now: 0, longest: 0 });
-  let logOpen = $state(false);
-  const recent = $derived(data ? recentSessions(data.log, data.sessions, actId, 10) : []);
-  async function removeSession(x) {
-    await deleteSession(db, x.e.id);
-    toast(t('Session deleted'));
-  }
 
   /* kinds (H13a) and the challenge (H12a) */
   const favArts = $derived(arts.favs.map(artOf).filter(Boolean));
@@ -264,27 +258,9 @@
           {#each weeks as w, i (w.week)}<i class:now={i === weeks.length - 1} style:height="{Math.max(4, Math.round((w.min / weekMax) * 100))}%"></i>{/each}
         </div>
         <p class="hint num">{t('Streak: {n} days', { n: str.now })} · {t('this week {n} min', { n: weeks.at(-1)?.min ?? 0 })}</p>
-        <button type="button" class="btn wide" aria-expanded={logOpen} aria-controls="medlog" onclick={() => (logOpen = !logOpen)}>{logOpen ? t('Close the log') : t('Open the log')}</button>
+        <a class="btn wide" href="{base}/log" data-to="log">{t('Open the log')}</a>
       </section>
     </div>
-
-    {#if logOpen}
-      <section id="medlog" class="surf pad" aria-label={t('Log')}>
-        {#if recent.length}
-          <ul class="log">
-            {#each recent as x (x.e.id)}
-              <li data-session={x.e.id}>
-                <span class="lg"><b class="num">{x.e.min ? `${x.e.min} min` : t('ticked')}</b><small>{x.e.at ? whenShort(x.e.at) : dayWord(x.e.day, today)}{#if x.s?.art && artOf(x.s.art)}{' · '}{artName(artOf(x.s.art))}{/if}{#if x.s?.tplId && tpls.find((y) => y.id === x.s.tplId)}{' · '}«{tplName(tpls.find((y) => y.id === x.s.tplId))}»{/if}</small></span>
-                <button type="button" class="ib" aria-label={t('Delete session {when}', { when: x.e.at ? whenShort(x.e.at) : x.e.day })} onclick={() => removeSession(x)}><Trash2 size={18} aria-hidden="true" /></button>
-              </li>
-            {/each}
-          </ul>
-        {:else}
-          <p class="hint">{t('No session yet.')}</p>
-        {/if}
-        <p class="hint">{t('Filters, calendar and charts come with the next package.')}</p>
-      </section>
-    {/if}
 
     <h2 class="zlabel hs">{t('Kinds')}</h2>
     <section class="surf pad">
@@ -561,7 +537,6 @@
     font-size: var(--fs-small);
   }
   .tpls,
-  .log,
   .sounds,
   .quotes,
   .lks {
@@ -676,28 +651,6 @@
   }
   .hint + .btn {
     margin-top: 12px;
-  }
-  .log li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 0;
-    border-top: 1px solid var(--line);
-  }
-  .log li:first-child {
-    border-top: 0;
-  }
-  .lg {
-    flex: 1;
-    min-width: 0;
-    line-height: 1.3;
-  }
-  .lg b {
-    display: block;
-  }
-  .lg small {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
   }
   .cap {
     margin: 0 0 8px;

@@ -48,6 +48,8 @@ export const PAGE_GROUPS = [
       { id: 'milestones', title: 'Milestones', href: '#/flow/milestones', icon: 'star', words: 'milestones meilenstein meilensteine stars sterne stufen stages reward belohnung records rekorde rekord-wand bestwert' },
       // hobby pages 2: Kissenzeit, the meditation page (B1)
       { id: 'meditation', title: 'Meditation', href: '#/flow/act/meditation', icon: 'flow', words: 'meditation meditieren kissenzeit cushion sitzen sitting timer intervalle intervals gong klangschale singing bowl vorlage template om ah hung achtsam mindful zitate quotes' },
+      // hobby pages 3 «Nach dem Gong»: the meditation log (B4, B6)
+      { id: 'medlog', title: 'Meditation log', href: '#/flow/act/meditation/log', icon: 'flow', words: 'meditation log protokoll sitzungen sessions serie serien streak wärmebild heatmap kalender calendar grafik chart tageszeit time of day monatsvergleich notiz note tiefe depth' },
     ],
   },
   {

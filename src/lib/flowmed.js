@@ -10,7 +10,7 @@
 import { addDays } from './flow.js';
 import { bowlOf, marksOf } from './flowbowl.js';
 import { soundOk, DEFAULT_SOUND, DEFAULT_END_SOUND } from './flowsounds.js';
-import { weekStart } from './flowms.js';
+import { weekStart, zurichHour, msContext, actMilestones, evaluate, isOff } from './flowms.js';
 
 export const ARTS_KEY = 'flow.medArts';
 export const PLACES_KEY = 'flow.medPlaces';
@@ -281,4 +281,369 @@ export function sessionRecords(tm, elapsed, now, day) {
     endSound: tm.endSound ?? DEFAULT_END_SOUND,
   };
   return { entry, session };
+}
+
+/* ======================================================================================================
+ * Hobby pages 3 «Nach dem Gong» (mockups B3–B6, Noah 10.10.2026, H11a, H23a, H24a): the note after the
+ * gong, what helped, the comparison, «Als Nächstes» with a calendar file, the log with its filters, the
+ * streak heatmap, the calendar, the time of day and the month comparison. Pure and tested.
+ * ==================================================================================================== */
+export const HELPED_KEY = 'flow.medHelped';
+export const NEXT_KEY = 'flow.medNext';
+
+/* ---------- the note (H23a: a sentence, depth 1–5, mood, all optional) ---------- */
+export const MOODS = [
+  { id: 'calm', name: 'calm|mood' },
+  { id: 'clear', name: 'clear|mood' },
+  { id: 'grateful', name: 'grateful|mood' },
+  { id: 'restless', name: 'restless|mood' },
+  { id: 'tired', name: 'tired|mood' },
+  { id: 'distracted', name: 'distracted|mood' },
+  { id: 'sleepy', name: 'sleepy|mood' },
+  { id: 'warm', name: 'warm|mood' },
+];
+/** «Was hat geholfen?»: suggestions, own ones added by name (choiceList). */
+export const HELPED = [
+  { id: 'early', name: 'early in the morning' },
+  { id: 'breaths', name: 'counting breaths at the start' },
+  { id: 'anchor', name: 'the sound as an anchor' },
+  { id: 'candle', name: 'a candle' },
+  { id: 'window', name: 'the window open' },
+];
+const strList = (v, n = 12) => [...new Set((Array.isArray(v) ? v : []).filter((x) => typeof x === 'string' && x.trim()).map((x) => x.trim().slice(0, 60)))].slice(0, n);
+/** The note of a session made safe: { note, depth (1–5 | null), moods, helped }. */
+export function noteOf(s) {
+  const o = s && typeof s === 'object' ? s : {};
+  const d = Math.round(Number(o.depth));
+  return {
+    note: typeof o.note === 'string' ? o.note.trim().slice(0, 1000) : '',
+    depth: d >= 1 && d <= 5 ? d : null,
+    moods: strList(o.moods),
+    helped: strList(o.helped),
+  };
+}
+/** Something written down: a sentence, a depth, a mood or what helped. */
+export const hasNote = (s) => {
+  const n = noteOf(s);
+  return !!(n.note || n.depth || n.moods.length || n.helped.length);
+};
+/** Toggle a value in a list (moods, helped). */
+export const toggleIn = (list, id) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
+
+/* ---------- the comparison and the best time ---------- */
+/**
+ * «45 Min · dein Schnitt 28 Min · diese Woche 180 Min, letzte 170»: the session against the others.
+ * → { min, avg (the other sessions with minutes, null without), week, lastWeek, best (before), isBest }.
+ */
+export function compareSession(log = [], actId, id, today) {
+  const mine = log.filter((e) => e.actId === actId && e.day);
+  const me = mine.find((e) => e.id === id);
+  const min = Math.round(Number(me?.min) || 0);
+  const others = mine.filter((e) => e.id !== id && Number(e.min) > 0);
+  const avg = others.length ? Math.round(others.reduce((s, e) => s + Number(e.min), 0) / others.length) : null;
+  const w0 = weekStart(today);
+  const sumIn = (from, to) => Math.round(mine.filter((e) => e.day >= from && e.day < to).reduce((s, e) => s + (Number(e.min) || 0), 0));
+  const before = others.filter((e) => !me || (e.at ?? e.day) < (me.at ?? me.day));
+  const best = before.length ? Math.max(...before.map((e) => Number(e.min))) : null;
+  return { min, avg, week: sumIn(w0, addDays(w0, 7)), lastWeek: sumIn(addDays(w0, -7), w0), best, isBest: best != null && min > best };
+}
+
+/**
+ * The stars a session made reachable (B3 «neuer Stern», B5 «Hier erreicht»): the milestones of the
+ * activity evaluated with and without the session; a star counts when it is reached with it, not
+ * without it, on the session's day. → [{ r (evaluated), star }]
+ */
+export function starsOfSession({ act, acts = [], log = [], sessions = [], today, tripDays = [], tune = {} }, id) {
+  if (!act) return [];
+  const day = log.find((e) => e.id === id)?.day;
+  if (!day) return [];
+  const withIt = msContext({ acts, log, sessions, today, tripDays });
+  const without = msContext({ acts, log: log.filter((e) => e.id !== id), sessions: sessions.filter((s) => s.id !== id), today, tripDays });
+  return actMilestones(act)
+    .filter((m) => !isOff(m, tune))
+    .flatMap((m) => {
+      const a = evaluate(m, withIt, new Map(), tune);
+      const had = new Set(evaluate(m, without, new Map(), tune).reached.map((r) => r.star));
+      return a.reached.filter((r) => !had.has(r.star) && r.day === day).map((r) => ({ r: a, star: r.star }));
+    });
+}
+
+/* ---------- «Als Nächstes» (H24a: one calm suggestion, with a calendar file, can be switched off) ---------- */
+/** «06:52» in Zurich for an ISO time. */
+export function zurichTime(at) {
+  const d = new Date(at);
+  if (!at || Number.isNaN(d.getTime())) return null;
+  return d.toLocaleTimeString('en-GB', { timeZone: 'Europe/Zurich', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+}
+/**
+ * The next session as a suggestion: tomorrow (after the later of the session's day and today) at the
+ * same time of day (down to 5 minutes). After a long session (a third over the average, at least 30
+ * min) the shortest template, else the session's own template (or the same duration).
+ * → { day, time, minutes, tplId, art, why: 'short' | 'same' }
+ */
+export function nextUp({ log = [], tpls = [], session, today }) {
+  if (!session) return null;
+  const day = addDays(session.day > today ? session.day : today, 1);
+  const hm = zurichTime(session.at) ?? '07:00';
+  const [h, m] = hm.split(':').map(Number);
+  const time = `${String(h).padStart(2, '0')}:${String(Math.floor(m / 5) * 5).padStart(2, '0')}`;
+  const { avg } = compareSession(log, session.actId, session.id, today);
+  const min = Number(session.min) || 0;
+  const long = min >= 30 && avg != null && min >= avg * 4 / 3;
+  if (long && tpls.length) {
+    const short = [...tpls].sort((a, b) => a.minutes - b.minutes || (b.usedAt ?? '').localeCompare(a.usedAt ?? ''))[0];
+    if (short.minutes < min) return { day, time, minutes: short.minutes, tplId: short.id, art: short.art ?? null, why: 'short' };
+  }
+  const own = tpls.find((x) => x.id === session.tplId);
+  if (own) return { day, time, minutes: own.minutes, tplId: own.id, art: session.art ?? own.art ?? null, why: 'same' };
+  return { day, time, minutes: Math.max(1, Number(session.target) || min || 20), tplId: null, art: session.art ?? null, why: 'same' };
+}
+
+/** Text for a calendar file: backslash, semicolon, comma and line breaks escaped. */
+const icsText = (s) => String(s ?? '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+const icsLocal = (day, hm) => `${day.replace(/-/g, '')}T${hm.replace(':', '')}00`;
+/**
+ * One event as a calendar file (.ics) in Zurich time, with the time zone's rules so every calendar
+ * reads it the same. { uid, title, note?, day, time 'HH:MM', minutes, now (ms) } → the text (CRLF).
+ */
+export function icsEvent({ uid, title, note = '', day, time, minutes, now = Date.now() }) {
+  const start = Date.parse(`${day}T${time}:00Z`);
+  const end = new Date(start + Math.max(1, Math.round(minutes)) * 60000).toISOString();
+  const stamp = new Date(now).toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Pack Generator//Flow//DE',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VTIMEZONE',
+    'TZID:Europe/Zurich',
+    'BEGIN:DAYLIGHT',
+    'TZOFFSETFROM:+0100',
+    'TZOFFSETTO:+0200',
+    'TZNAME:CEST',
+    'DTSTART:19700329T020000',
+    'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+    'END:DAYLIGHT',
+    'BEGIN:STANDARD',
+    'TZOFFSETFROM:+0200',
+    'TZOFFSETTO:+0100',
+    'TZNAME:CET',
+    'DTSTART:19701025T030000',
+    'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',
+    'END:STANDARD',
+    'END:VTIMEZONE',
+    'BEGIN:VEVENT',
+    `UID:${icsText(uid)}@packgenerator`,
+    `DTSTAMP:${stamp}`,
+    `DTSTART;TZID=Europe/Zurich:${icsLocal(day, time)}`,
+    `DTEND;TZID=Europe/Zurich:${icsLocal(end.slice(0, 10), end.slice(11, 16))}`,
+    `SUMMARY:${icsText(title)}`,
+    ...(note ? [`DESCRIPTION:${icsText(note)}`] : []),
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ];
+  return `${lines.join('\r\n')}\r\n`;
+}
+
+/* ---------- the log (B4): rows, filters ---------- */
+/** Time of day (by the hour in Zurich). */
+export const TOD = [
+  { id: 'early', name: 'before 8', from: 0, to: 8 },
+  { id: 'morning', name: '8 to 12', from: 8, to: 12 },
+  { id: 'afternoon', name: '12 to 18', from: 12, to: 18 },
+  { id: 'evening', name: 'from 18', from: 18, to: 24 },
+];
+/** Duration bins (B4 filter, B6 «Dauer der Sitzungen»). */
+export const DUR = [
+  { id: 's', name: 'up to 15', from: 0, to: 15 },
+  { id: 'm', name: '16–30', from: 16, to: 30 },
+  { id: 'l', name: '31–45', from: 31, to: 45 },
+  { id: 'xl', name: 'over 45', from: 46, to: Infinity },
+];
+export const RANGES = [
+  { id: '1m', name: '1 month', months: 1 },
+  { id: '3m', name: '3 months', months: 3 },
+  { id: '12m', name: '12 months', months: 12 },
+  { id: 'all', name: 'all|range', months: null },
+];
+export const VIEWS = ['list', 'cal', 'chart'];
+export const LOG_DEFAULT = { view: 'list', art: 'all', dur: 'all', tod: 'all', tpl: 'all', note: false, longest: false, range: '3m' };
+export const durOf = (min) => DUR.find((d) => Math.round(Number(min) || 0) <= d.to)?.id ?? 'xl';
+export const todOf = (hour) => (hour == null ? null : (TOD.find((x) => hour >= x.from && hour < x.to)?.id ?? null));
+
+/** The filter from the address (…/log?view=cal&art=metta&note=1); unknown values fall back. */
+export function filterOf(params) {
+  const p = params instanceof URLSearchParams ? params : new URLSearchParams(params ?? '');
+  const pick = (k, ok) => (p.has(k) && ok(p.get(k)) ? p.get(k) : LOG_DEFAULT[k]);
+  return {
+    view: pick('view', (v) => VIEWS.includes(v)),
+    art: pick('art', (v) => !!v),
+    dur: pick('dur', (v) => v === 'all' || DUR.some((d) => d.id === v)),
+    tod: pick('tod', (v) => v === 'all' || TOD.some((d) => d.id === v)),
+    tpl: pick('tpl', (v) => !!v),
+    note: p.get('note') === '1',
+    longest: p.get('longest') === '1',
+    range: pick('range', (v) => RANGES.some((r) => r.id === v)),
+    month: /^\d{4}-\d{2}$/.test(p.get('month') ?? '') ? p.get('month') : null,
+    day: /^\d{4}-\d{2}-\d{2}$/.test(p.get('day') ?? '') ? p.get('day') : null,
+  };
+}
+/** The address part of a filter: only what differs from the default. */
+export function filterQuery(f) {
+  const p = new URLSearchParams();
+  for (const k of ['view', 'art', 'dur', 'tod', 'tpl', 'range']) if (f[k] && f[k] !== LOG_DEFAULT[k]) p.set(k, f[k]);
+  if (f.note) p.set('note', '1');
+  if (f.longest) p.set('longest', '1');
+  if (f.month) p.set('month', f.month);
+  if (f.day) p.set('day', f.day);
+  const s = p.toString();
+  return s ? `?${s}` : '';
+}
+/** How many filters are set (the view, month and day are not filters). */
+export const filterCount = (f) => ['art', 'dur', 'tod', 'tpl', 'range'].filter((k) => f[k] !== LOG_DEFAULT[k]).length + (f.note ? 1 : 0) + (f.longest ? 1 : 0);
+
+/** «2026-10» plus n months. */
+export function monthAdd(month, n) {
+  const [y, m] = month.split('-').map(Number);
+  const k = y * 12 + (m - 1) + n;
+  return `${Math.floor(k / 12)}-${String((k % 12) + 1).padStart(2, '0')}`;
+}
+/** The first day of the range (n months back on the calendar; the day kept or the month's last), null for all. */
+export function rangeStart(range, today) {
+  const r = RANGES.find((x) => x.id === range);
+  if (!r?.months) return null;
+  const month = monthAdd(today.slice(0, 7), -r.months);
+  const last = new Date(Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0)).getUTCDate();
+  return `${month}-${String(Math.min(Number(today.slice(8, 10)), last)).padStart(2, '0')}`;
+}
+/** The log entries of the activity joined with their details, newest first. */
+export function logRows(log = [], sessions = [], actId = 'meditation') {
+  const det = new Map(sessions.map((s) => [s.id, s]));
+  return log
+    .filter((e) => e.actId === actId && e.day)
+    .map((e) => {
+      const s = det.get(e.id) ?? null;
+      const n = noteOf(s);
+      return { id: e.id, actId, day: e.day, at: e.at ?? null, min: Math.round(Number(e.min) || 0), hour: zurichHour(e.at), art: s?.art ?? null, tplId: s?.tplId ?? null, marks: s ? marksOf(s.marks) : [], bowl: s?.bowl ?? null, place: s?.place ?? null, ...n, noted: hasNote(s), s, e };
+    })
+    .sort((a, b) => (b.at ?? b.day).localeCompare(a.at ?? a.day));
+}
+/** The rows that pass the filter; «längste am Stück» puts the longest first. */
+export function filterRows(rows = [], f = LOG_DEFAULT, today) {
+  const from = rangeStart(f.range, today);
+  const out = rows.filter(
+    (r) =>
+      (!from || r.day >= from) &&
+      r.day <= today &&
+      (f.art === 'all' || r.art === f.art) &&
+      (f.dur === 'all' || (r.min > 0 && durOf(r.min) === f.dur)) &&
+      (f.tod === 'all' || todOf(r.hour) === f.tod) &&
+      (f.tpl === 'all' || r.tplId === f.tpl) &&
+      (!f.note || r.noted),
+  );
+  return f.longest ? [...out].sort((a, b) => b.min - a.min || (b.at ?? b.day).localeCompare(a.at ?? a.day)) : out;
+}
+
+/* ---------- streaks and the heatmap (B4) ---------- */
+/** 0 no session, 1 up to 15 min (or ticked without minutes), 2 up to 30, 3 more. */
+export const levelOf = (n, min) => (!n ? 0 : min > 30 ? 3 : min > 15 ? 2 : 1);
+function dayTotals(rows, actId) {
+  const by = new Map();
+  for (const e of rows) {
+    if ((actId && e.actId !== actId) || !e.day) continue;
+    const o = by.get(e.day) ?? { n: 0, min: 0 };
+    by.set(e.day, { n: o.n + 1, min: o.min + (Number(e.min) || 0) });
+  }
+  return by;
+}
+/**
+ * The streak heatmap: `weeks` columns (Monday on), seven days each, up to this week.
+ * → { cols: [[{ day, min, n, level, future }]], share (percent of days up to today with a session) }
+ */
+export function heatmap(rows = [], actId, today, weeks = 13) {
+  const by = dayTotals(rows, actId);
+  const first = addDays(weekStart(today), -7 * (weeks - 1));
+  let on = 0;
+  let all = 0;
+  const cols = Array.from({ length: weeks }, (_, w) =>
+    Array.from({ length: 7 }, (_, d) => {
+      const day = addDays(first, w * 7 + d);
+      const x = by.get(day) ?? { n: 0, min: 0 };
+      const future = day > today;
+      if (!future) (all++, x.n && on++);
+      return { day, min: Math.round(x.min), n: x.n, level: levelOf(x.n, x.min), future };
+    }),
+  );
+  return { cols, share: all ? Math.round((on / all) * 100) : 0 };
+}
+/** The longest run of days in a row within a month (up to today): «10 Tage im Oktober ohne Lücke». */
+export function monthRun(rows = [], actId, month, today) {
+  const by = dayTotals(rows, actId);
+  let best = 0;
+  let run = 0;
+  for (let d = `${month}-01`; d.startsWith(month) && d <= today; d = addDays(d, 1)) {
+    run = by.has(d) ? run + 1 : 0;
+    best = Math.max(best, run);
+  }
+  return best;
+}
+/** Minutes on the Saturday and Sunday of the day's week. */
+export function weekendMinutes(rows = [], actId, day) {
+  const sat = addDays(weekStart(day), 5);
+  const sun = addDays(sat, 1);
+  return Math.round(rows.filter((e) => e.actId === actId && (e.day === sat || e.day === sun)).reduce((s, e) => s + (Number(e.min) || 0), 0));
+}
+/** Days with two sessions or more. */
+export const doubleDays = (rows = [], actId) => [...dayTotals(rows, actId).values()].filter((x) => x.n >= 2).length;
+
+/* ---------- the calendar (B6) ---------- */
+/** A month as weeks (Monday on): { month, weeks: [[{ day | null, min, n, level, future }]] }. */
+export function monthCalendar(rows = [], actId, month, today) {
+  const by = dayTotals(rows, actId);
+  const first = `${month}-01`;
+  const lead = (new Date(`${first}T00:00:00Z`).getUTCDay() + 6) % 7;
+  const cells = Array.from({ length: lead }, () => null);
+  for (let d = first; d.startsWith(month); d = addDays(d, 1)) {
+    const x = by.get(d) ?? { n: 0, min: 0 };
+    cells.push({ day: d, min: Math.round(x.min), n: x.n, level: levelOf(x.n, x.min), future: d > today });
+  }
+  while (cells.length % 7) cells.push(null);
+  return { month, weeks: Array.from({ length: cells.length / 7 }, (_, i) => cells.slice(i * 7, i * 7 + 7)) };
+}
+
+/* ---------- the charts (B4 «beste Tageszeit», «Monatsvergleich»; B6) ---------- */
+/** Sessions per hour of the day (Zurich), 24 numbers. */
+export function hourHistogram(rows = []) {
+  const out = Array(24).fill(0);
+  for (const r of rows) if (r.hour != null) out[r.hour]++;
+  return out;
+}
+/** «Am tiefsten (Tiefe 4–5): 6 bis 8 Uhr»: the two hours with the most deep sessions; null without depth. */
+export function deepestHours(rows = []) {
+  const deep = hourHistogram(rows.filter((r) => (r.depth ?? 0) >= 4));
+  let best = null;
+  for (let h = 0; h < 24; h++) {
+    const n = deep[h] + (deep[(h + 1) % 24] ?? 0);
+    if (n && (!best || n > best.n)) best = { from: h, to: (h + 2) % 24 || 24, n };
+  }
+  return best;
+}
+/** Minutes per month for the last n months (oldest first); the current one is «bis heute». */
+export function monthCompare(rows = [], actId, today, n = 3) {
+  const cur = today.slice(0, 7);
+  const months = Array.from({ length: n }, (_, i) => monthAdd(cur, i - n + 1));
+  const by = new Map(months.map((m) => [m, 0]));
+  for (const e of rows) if ((!actId || e.actId === actId) && e.day && by.has(e.day.slice(0, 7))) by.set(e.day.slice(0, 7), by.get(e.day.slice(0, 7)) + (Number(e.min) || 0));
+  return months.map((month) => ({ month, min: Math.round(by.get(month)), partial: month === cur }));
+}
+/** Minutes per kind, the most first: [{ art (id | null), min }]. */
+export function artMinutes(rows = []) {
+  const by = new Map();
+  for (const r of rows) if (r.min > 0) by.set(r.art ?? null, (by.get(r.art ?? null) ?? 0) + r.min);
+  return [...by].map(([art, min]) => ({ art, min })).sort((a, b) => b.min - a.min);
+}
+/** How many sessions per duration bin: [{ id, name, n }]. */
+export function durationBins(rows = []) {
+  return DUR.map((d) => ({ ...d, n: rows.filter((r) => r.min > 0 && durOf(r.min) === d.id).length }));
 }

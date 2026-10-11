@@ -513,7 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 11.10.2026 (v0.83.0, PR offen):** «Ausstattung» nach Noahs Wunsch (Canyon-Vorbild, A1–A5 a): Velos › Ausstattung mit Masse-Kacheln, Teilen in Gruppen mit Gewicht und Preis, Gewicht pro Bereich und teuersten Teilen; Vergleich nur mit gefüllten Zeilen. Kleiner Release neben Hobby Teil 3 (anderer Bereich, Regel 5).
+**Nachtrag 11.10.2026 (v0.84.0, PR offen):** Hobby-Seiten Teil 3 «Nach dem Gong» gebaut (B3–B6): Auswertung nach dem Gong mit Notiz, Tiefe, Stimmung, «Was hat geholfen», Serie, Vergleich und «Als Nächstes» (.ics); Protokoll mit Filtern, Serien-Wärmebild, Tageszeit, Monatsvergleich, Kalender und Grafik; Sitzung im Detail mit «Wieder so starten» und «Als Vorlage speichern» (Im Flow, Ziel-Check: Vorhaben 6). Damit ist Meditation B1–B8 komplett. Als Nächstes Liegestütze und Tennis (H9a).
+**Nachtrag 11.10.2026 (v0.83.0, live, PR #109):** «Ausstattung» nach Noahs Wunsch (Canyon-Vorbild, A1–A5 a): Velos › Ausstattung mit Masse-Kacheln, Teilen in Gruppen mit Gewicht und Preis, Gewicht pro Bereich und teuersten Teilen; Vergleich nur mit gefüllten Zeilen. Kleiner Release neben Hobby Teil 3 (anderer Bereich, Regel 5).
 
 **Nachtrag 11.10.2026 (v0.81.0, PR offen):** Hobby-Seiten Teil 2 «Kissenzeit» gebaut (B1, B2, B7, B8): Meditations-Seite mit Vorlagen, Wie letztes Mal, Arten, Herausforderung, Meilensteinen, Klängen, Zitaten, Links, Orten; Intervalle mit Marken auf der Uhr; Sitzung im ganzen Bildschirm, gespeichert in flowSessions (Im Flow, Ziel-Check: Vorhaben 6). Als Nächstes Teil 3 «Nach dem Gong» (B3–B6), dann E1, D5.
 

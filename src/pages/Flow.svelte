@@ -9,6 +9,9 @@
    *   #/flow/milestones  hobby pages 1: all milestones (pages/flow/Milestones.svelte), ?act=, ?tune=1
    *   #/flow/act/<id>    hobby pages 2: an activity's own page (Meditation.svelte, B1); …/timer the
    *                      intervals (MedTimer.svelte, B2); the running session is in FlowLayer (B7)
+   *   …/done/<sid>       hobby pages 3: the evaluation after the gong (MedDone.svelte, B3)
+   *   …/log              hobby pages 3: the log, list · calendar · chart (MedLog.svelte, B4 + B6)
+   *   …/s/<sid>          hobby pages 3: one session in full (MedSession.svelte, B5)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
   import { ChevronLeft, ChevronRight, Pencil, Plus, Sun, Timer, GripVertical, Snowflake, Sparkles } from '@lucide/svelte';
@@ -28,6 +31,9 @@
   import Milestones from './flow/Milestones.svelte';
   import Meditation from './flow/Meditation.svelte';
   import MedTimer from './flow/MedTimer.svelte';
+  import MedDone from './flow/MedDone.svelte';
+  import MedLog from './flow/MedLog.svelte';
+  import MedSession from './flow/MedSession.svelte';
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
   import { t, tn, locale, lang } from '../lib/i18n.svelte.js';
@@ -107,6 +113,12 @@
   <Activity />
 {:else if route[0] === 'milestones'}
   <Milestones {params} />
+{:else if route[0] === 'act' && route[2] === 'done'}
+  {#key sub}<MedDone actId={decodeURIComponent(route[1] ?? '')} id={decodeURIComponent(route[3] ?? '')} {params} />{/key}
+{:else if route[0] === 'act' && route[2] === 'log'}
+  {#key sub}<MedLog actId={decodeURIComponent(route[1] ?? '')} {params} />{/key}
+{:else if route[0] === 'act' && route[2] === 's'}
+  {#key sub}<MedSession actId={decodeURIComponent(route[1] ?? '')} id={decodeURIComponent(route[3] ?? '')} />{/key}
 {:else if route[0] === 'act' && route[2] === 'timer'}
   {#key sub}<MedTimer actId={decodeURIComponent(route[1] ?? '')} {params} />{/key}
 {:else if route[0] === 'act'}
