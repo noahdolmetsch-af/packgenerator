@@ -52,3 +52,12 @@ describe('old addresses (O2.6a)', () => {
     for (const h of ['#/', '#/bikes', '#/bikes?tab=care', '#/gear', '#/trips', '#/careful']) expect(redirectOf(h)).toBe(null);
   });
 });
+
+describe('hobby pages 1: the tab «Aktivität» in Aktiv', () => {
+  it('lights «Aktivität» on the tiles, milestones and an editor opened from a tile; «Ziele» elsewhere', async () => {
+    const { tabOf } = await import('../src/lib/nav.js');
+    for (const h of ['#/flow/activity', '#/flow/milestones?act=meditation', '#/flow/act/meditation', '#/flow/edit/yoga?from=activity']) expect(tabOf('active', h), h).toBe('activity');
+    for (const h of ['#/flow/goals', '#/flow/edit/yoga', '#/flow/new']) expect(tabOf('active', h), h).toBe('goals');
+    expect(tabOf('active', '#/flow')).toBe('today');
+  });
+});

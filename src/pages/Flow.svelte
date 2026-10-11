@@ -5,9 +5,11 @@
    *                      (7 days on a phone, 14 on a computer), the daily check, recovery and seasons
    *   #/flow/goals       all activities, in their order (drag the grip or use the arrow keys)
    *   #/flow/edit/<id>   edit one activity; #/flow/new a new one (the same form, empty)
+   *   #/flow/activity    hobby pages 1: Aktiv › Aktivität (pages/flow/Activity.svelte)
+   *   #/flow/milestones  hobby pages 1: all milestones (pages/flow/Milestones.svelte), ?act=, ?tune=1
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
-  import { ChevronLeft, ChevronRight, Pencil, Plus, Sun, Timer, GripVertical, Snowflake } from '@lucide/svelte';
+  import { ChevronLeft, ChevronRight, Pencil, Plus, Sun, Timer, GripVertical, Snowflake, Sparkles } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { flowStates, rings as ringsOf, summary, lastDays, activeGoals, halfOf, halfEnds, halfSince, restsUntil, moveAct } from '../lib/flow.js';
@@ -20,6 +22,8 @@
   import GoalGrid from '../lib/flow/GoalGrid.svelte';
   import ActIcon from '../lib/flow/ActIcon.svelte';
   import ActEditor from '../lib/flow/ActEditor.svelte';
+  import Activity from './flow/Activity.svelte';
+  import Milestones from './flow/Milestones.svelte';
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
   import { t, tn, locale, lang } from '../lib/i18n.svelte.js';
@@ -50,7 +54,9 @@
     return [a, b].filter(Boolean).join(' ');
   });
 
-  const route = $derived(sub.split('/'));
+  // hobby pages 1: the sub address may carry a query (#/flow/milestones?act=meditation)
+  const route = $derived(sub.split('?')[0].split('/'));
+  const params = $derived(new URLSearchParams(sub.split('?')[1] ?? ''));
   const editId = $derived(route[0] === 'edit' ? decodeURIComponent(route[1] ?? '') : route[0] === 'new' ? 'new' : null);
 
   /* the daily check */
@@ -93,8 +99,12 @@
   const gripUp = () => (dragId = null);
 </script>
 
-{#if editId}
-  {#if data}<ActEditor id={editId} acts={data.acts} log={data.log} {today} tripDays={data.tripDays} />{/if}
+{#if route[0] === 'activity'}
+  <Activity />
+{:else if route[0] === 'milestones'}
+  <Milestones {params} />
+{:else if editId}
+  {#if data}<ActEditor id={editId} acts={data.acts} log={data.log} {today} tripDays={data.tripDays} back={params.get('from') === 'activity' ? '#/flow/activity' : ''} />{/if}
 {:else if route[0] === 'goals'}
   <div class="flow narrow">
     <p class="back"><a href="#/flow"><ChevronLeft size={16} aria-hidden="true" />{t('In the flow')}</a></p>
@@ -129,6 +139,7 @@
         <div class="hb">
           <button type="button" class="btn" onclick={() => (ui.checkOpen = true)}><Sun size={18} aria-hidden="true" />{t('Daily check')}</button>
           <button type="button" class="btn" onclick={() => openTimer()}><Timer size={18} aria-hidden="true" />{t('Stopwatch')}</button>
+          <a class="btn" href="#/flow/activity" data-to="activity"><Sparkles size={18} aria-hidden="true" />{t('Activity|tab')}</a>
         </div>
       {/if}
     </header>
@@ -222,6 +233,7 @@
         <div class="foot">
           <a class="btn" href="#/flow/new"><Plus size={16} aria-hidden="true" />{t('Activity')}</a>
           <a class="lk" href="#/flow/goals">{t('All goals')}<ChevronRight size={16} aria-hidden="true" /></a>
+          <a class="lk" href="#/flow/activity" data-to="activity">{t('Activity|tab')}<ChevronRight size={16} aria-hidden="true" /></a>
         </div>
       {/if}
     {/if}
