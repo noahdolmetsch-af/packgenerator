@@ -8,6 +8,11 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.92.0 «Rückblick antippen»
+  'The debrief starts with «What did you not need?»: every packed item as a chip, tap what stayed in the bag. Below it counts how much lighter you could go next time.':
+    'Der Rückblick beginnt mit «Was hast du nicht gebraucht?»: jedes gepackte Teil als Chip, antippen, was in der Tasche blieb. Darunter steht, wie viel leichter du nächstes Mal fahren könntest.',
+  '«What was missing?», «How was it?» and the suggestions are short rows under it; the button says «Done».':
+    '«Was hat gefehlt?», «Wie war\'s?» und die Vorschläge sind kurze Zeilen darunter; der Knopf heisst «Fertig».',
   // 0.91.0 «Import: alte Fahrten»
   'Importing a Strava export: old rides without a bike, whose km are already in your bikes, are set aside as «Older rides without a bike» instead of waiting in «Check».':
     'Strava-Export importieren: Alte Fahrten ohne Velo, deren km schon in deinen Velos stecken, liegen als «Ältere Fahrten ohne Velo» zur Seite statt unter «Prüfen».',

@@ -137,13 +137,13 @@ for (const lang of ['en', 'de']) {
     await expect(page).toHaveURL(/#\/debrief\/./);
 
     // 8. Debrief on one page (Noah 9a): everything filled in; one tap per exception, then save.
-    await expect(page.getByRole('heading', { name: T('What was different?') })).toBeVisible();
+    await expect(page.getByRole('heading', { name: T('What did you not need?') })).toBeVisible();
     const fold = page.locator('details.items-fold');
     if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
     await fold.getByRole('button', { name: new RegExp(esc(T('{name}: {state}. Tap to change.', { name: '', state: T('Used') }).trim())) }).first().click();
     await expect(page.locator('ul.exc').first().getByRole('button', { name: new RegExp(esc(T('Not used'))) })).toHaveCount(1);
     await fits('debrief');
-    await page.getByRole('button', { name: T('Save debrief') }).click();
+    await page.getByRole('button', { name: T('Done|debrief') }).click();
     await expect(page.locator('.saved-card').getByText(T('Debrief saved'))).toBeVisible();
     await expect(page.getByRole('heading', { name: T('Saved') })).toBeVisible();
 

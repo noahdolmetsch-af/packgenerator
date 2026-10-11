@@ -137,7 +137,7 @@ test('No thanks is not asked again, and the one-page debrief offers the template
 
   // v0.29.0 (Noah 9a): one page, everything filled in → one tap on Save → the Saved screen offers the template.
   await page.goto(`./#/debrief/${TRIP}`);
-  await page.getByRole('button', { name: T('Save debrief') }).click();
+  await page.getByRole('button', { name: T('Done|debrief') }).click();
   await expect(page.getByRole('heading', { name: T('Saved') })).toBeVisible();
   const name = T('{kind} day ride', { kind: 'MTB' });
   const offer = page.getByRole('form', { name: T('Save as template "{name}"?', { name }) });
@@ -146,7 +146,7 @@ test('No thanks is not asked again, and the one-page debrief offers the template
   await expect(offer).toBeHidden();
   // Saving again (after "Change answers") does not ask again for this trip.
   await page.getByRole('button', { name: T('Change answers') }).click();
-  await page.getByRole('button', { name: T('Save debrief') }).click();
+  await page.getByRole('button', { name: T('Done|debrief') }).click();
   await expect(page.getByRole('heading', { name: T('Saved') })).toBeVisible();
   await expect(page.getByRole('form', { name: /template/i })).toHaveCount(0);
 });

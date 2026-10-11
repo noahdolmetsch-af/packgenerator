@@ -673,6 +673,11 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **5a:** zwei Bauten gleichzeitig nur, wenn sie verschiedene Bereiche ändern.
 - Mockups bleiben immer, Noah merged weiterhin selbst.
 
+## 11.10.2026: «Rückblick antippen» (0.92.0, App einfach «4a», Mockup C)
+
+- **Anlass:** im Durchspielen stand «nicht gebraucht», das Versprechen der App, zuletzt hinter «3 Teile gebraucht ›». Noah «1a 2a 3b 4a 5a» (Trello bGBkdWXp): **4a** = «nicht gebraucht» als antippbare Chips oben, «Was hat gefehlt?» und «Wie war's?» unter «Mehr», dann «Fertig».
+- **Gebaut:** Karte «Was hast du nicht gebraucht?» mit einem Chip pro gepacktem Teil (Reihenfolge der Tour); Tipp = nicht gebraucht (durchgestrichen), nochmal = gebraucht. Darunter «{n} nicht gebraucht · {Gewicht} weniger beim nächsten Mal?». Rechts (Handy darunter) Zeilen: Was hat gefehlt? (am Computer offen), Wie war's? (Wetter, Kleidung, Essen, Taschen, km, Fahrt, Notizen unterwegs, ein Satz), Fürs nächste Mal (Vorschläge), alle Teile nach Tasche (auch «kaputt»). Der Haupt-Knopf heisst «Fertig».
+- **Selbst entschieden:** «Fertig» bleibt am Ort des Haupt-Knopfs im Tour-Band (Computer oben rechts, Handy unten über der Leiste), wie auf allen Tour-Seiten. Der Hinweis «ZUERST» aus dem Mockup entfällt. «Kaputt» geht über die Zeile mit allen Teilen; ein kaputtes Teil zeigt sich im Chip rot. Die Vorschläge («Fürs nächste Mal») sind eine eigene Zeile statt einer offenen Karte, angehakte gelten wie bisher beim Speichern.
 ## 11.10.2026: «Import: alte Fahrten» (0.91.0, Noah «Fix bauen» 14:01)
 
 - **Anlass:** Noahs erster echter Strava-Export (1319 Fahrten): 1000 alte Fahrten ohne Velo landeten unter «Prüfen». Strava setzt das Standard-Velo nur für neue Fahrten, und die Strava-Datei enthält kein Garmin-Profil. Ihre km stecken schon in den Startwerten der Velos; von Hand zugeordnet hätten sie doppelt gezählt.

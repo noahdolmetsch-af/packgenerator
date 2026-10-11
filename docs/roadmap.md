@@ -513,6 +513,7 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 11.10.2026 (v0.92.0, PR offen):** «Rückblick antippen» (App einfach C, Noah 4a): der Rückblick beginnt mit den Chips «Was hast du nicht gebraucht?», der Rest sind Zeilen darunter, der Knopf heisst «Fertig». Danach Velo kurz (D) und Material Liste zuerst (E).
 **Nachtrag 11.10.2026 (v0.91.0, PR offen):** Fix im Fahrten-Import (Q1 «Jeder km zählt», Noah «Fix bauen»): alte Strava-Fahrten ohne Velo, die schon in den Startwerten stecken, liegen zur Seite statt unter «Prüfen»; ein von Hand gewähltes Velo prüft seinen Startwert. «Material Liste zuerst» bekommt die nächste freie Nummer.
 
 **Nachtrag 11.10.2026 (v0.88.0, PR offen):** «Aufräumen und Ausprobieren», der erste Schritt der App-einfach-Reihe (Noah «1a 2a 3b 4a 5a», Mockups F–H «0.88 alle a»): Ich › Testdaten aufräumen mit Rückgängig, Ich › Ausprobieren als Spielwiese, «Wieder planen» für eine zu früh beendete Tour. Danach 0.89 Rückblick antippen, 0.90 Velo kurz (mit Pflege und Ausstattung ohne rote Hinweise), 0.91 Material Liste zuerst. Neue Tour und Planen bleiben (3b).

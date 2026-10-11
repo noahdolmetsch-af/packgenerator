@@ -10,6 +10,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { newButton } from './newbutton.js';
 import { makeGpx } from '../test_data_gtp_gpx.js';
 import { openData, settle } from './settle.js';
+import { openRow } from './debrief-rows.js';
 
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -125,6 +126,7 @@ for (const lang of ['en', 'de']) {
     const settings = await stored(page, 'settings');
     expect(settings.find((s) => s.key === 'pace').value.rides.length).toBe(1);
     await page.goto(`./#/debrief/${TRIP}`);
+    await openRow(page, 'how-fold'); // v0.92.0: weather, km, ride and notes are under «Wie war's?»
     await expect(page.getByRole('link', { name: new RegExp(T('Planned vs real')) })).toBeVisible();
     // v0.49.0 R1: the one Rückblick page; uploading is a quiet link, the pace card one level below.
     await page.goto('./#/debrief');

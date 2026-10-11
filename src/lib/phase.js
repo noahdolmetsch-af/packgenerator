@@ -114,7 +114,7 @@ export function mainStep(trip, today, tab, opts = {}) {
   const debrief = { kind: 'go', label: 'Continue to Debrief', href: tabHref('debrief', trip) };
   if (phase === 'skipped') return home;
   if (phase === 'done') return { kind: 'go', label: 'Back to Trips', href: '#/trips' };
-  if (phase === 'after') return tab === 'debrief' ? { kind: 'save', label: 'Save debrief' } : debrief;
+  if (phase === 'after') return tab === 'debrief' ? { kind: 'save', label: 'Done|debrief' } : debrief;
   const es = trip.entries ?? [];
   if (phase === 'during' && (tab === 'ride' || !packingDay(trip, today))) {
     if (bike) {

@@ -136,7 +136,7 @@ for (const lang of ['en', 'de']) {
     await expect(page).toHaveURL(/#\/debrief\/./);
 
     // 8. Debrief on one page: one exception, then save.
-    await expect(page.getByRole('heading', { name: T('What was different?') })).toBeVisible();
+    await expect(page.getByRole('heading', { name: T('What did you not need?') })).toBeVisible();
     // v0.40.0 (Noah 4a): segments instead of drop-downs.
     await expect(page.locator('.qa [role=group]')).toHaveCount(4); // no bike: no km; v0.42.0: + clothing
     await expect(page.locator('.qa [role=group]').nth(3).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'fine');
@@ -146,7 +146,7 @@ for (const lang of ['en', 'de']) {
     await expect(fold.getByRole('region', { name: T('Travel bag') })).toBeVisible();
     await fold.locator('button.state').first().click();
     await expect(fold.locator('button.state.unused')).toHaveCount(1);
-    await page.getByRole('button', { name: T('Save debrief') }).click();
+    await page.getByRole('button', { name: T('Done|debrief') }).click();
     await expect(page.locator('.saved-card').getByText(T('Debrief saved'))).toBeVisible();
     // v0.40.0 (Noah 3a): one list of past trips with the debrief state.
     await page.goto('./#/pack/past');

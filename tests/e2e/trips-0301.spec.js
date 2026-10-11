@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { newButton } from './newbutton.js';
 import { importAndSettle } from './settle.js';
+import { openRow } from './debrief-rows.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -168,8 +169,10 @@ test('C3, C5: "Yes, remember" saves the suggestion; a debrief saved early makes 
   await page.goto('./#/ride');
   await endToDebrief(page, T);
   await expect(page).toHaveURL(/#\/debrief\/gtp-c5/);
+  await openRow(page, 'miss-fold');
   await page.getByPlaceholder(T('What you missed, e.g. Headlamp')).fill('test_data_gtp_ Kettenöl');
   await page.getByRole('button', { name: T('Add'), exact: true }).click();
+  await openRow(page, 'next-fold');
   const learn = page.locator('section.learn');
   await expect(learn).toContainText(T('Take {name} next time', { name: 'test_data_gtp_ Kettenöl' }));
   await learn.getByRole('button', { name: T('Yes, remember') }).click();
@@ -179,9 +182,10 @@ test('C3, C5: "Yes, remember" saves the suggestion; a debrief saved early makes 
   await expect(learn).toContainText(T('{name} (missing)', { name: 'test_data_gtp_ Kettenöl' }));
   await page.waitForTimeout(800);
   await learn.getByRole('button', { name: T('No'), exact: true }).click();
+  await openRow(page, 'how-fold');
   await page.locator('input[aria-label="' + T('km of this trip') + '"]').fill('42');
   await page.locator('input[aria-label="' + T('km of this trip') + '"]').press('Tab');
-  await page.getByRole('button', { name: T('Save debrief') }).first().click();
+  await page.getByRole('button', { name: T('Done|debrief') }).first().click();
   // v0.67.0 (U006): a trip of two days closes its loop on «Rückblick fertig»
   await expect(page).toHaveURL(/#\/trip\/gtp-c5\/debriefed$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Debrief finished|title') })).toBeVisible();

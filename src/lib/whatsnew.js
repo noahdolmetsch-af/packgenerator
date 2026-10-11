@@ -10,6 +10,14 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.92.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'The debrief starts with «What did you not need?»: every packed item as a chip, tap what stayed in the bag. Below it counts how much lighter you could go next time.', href: '#/trips' },
+      { text: '«What was missing?», «How was it?» and the suggestions are short rows under it; the button says «Done».', href: '#/trips' },
+    ],
+  },
+  {
     version: '0.91.0',
     date: '2026-10-11',
     points: [

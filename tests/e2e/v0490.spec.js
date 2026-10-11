@@ -183,6 +183,6 @@ test("d) a trip's saved Rückblick tells what the trip was", async ({ page, cont
   await noSideways(page);
   await shot(page, info, 'tour-rueckblick');
   await main.getByRole('button', { name: 'Antworten ändern' }).click();
-  await expect(main.getByRole('heading', { name: 'Was war anders?' })).toBeVisible();
+  await expect(main.getByRole('heading', { name: 'Was hast du nicht gebraucht?' })).toBeVisible();
   expect(errors).toEqual([]);
 });
