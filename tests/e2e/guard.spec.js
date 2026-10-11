@@ -61,6 +61,9 @@ const ROUTES = [
   // hobby pages 1: Aktiv › Aktivität and Meilensteine, strict like their files
   ['#/flow/activity', 'Aktivität'],
   ['#/flow/milestones', 'Meilensteine'],
+  // hobby pages 2 «Kissenzeit»: the meditation page and the intervals, strict like their files
+  ['#/flow/act/meditation', 'Meditation'],
+  ['#/flow/act/meditation/timer?new=1', 'Intervalle'],
   ['#/me', 'Ich'], // v0.76.0 «Fünf Orte»: strict like its file
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];

@@ -50,7 +50,8 @@
 
   /* the tiles */
   const favs = $derived(data ? favActs(data.acts) : []);
-  const hrefOf = (a) => `#/flow/edit/${encodeURIComponent(a.id)}?from=activity`;
+  // hobby pages 2: Kissenzeit has its own page (B1); the other tiles open the editor until theirs come (H29a)
+  const hrefOf = (a) => (a.page === 'meditation' || a.id === 'meditation' ? `#/flow/act/${encodeURIComponent(a.id)}` : `#/flow/edit/${encodeURIComponent(a.id)}?from=activity`);
   const tiles = $derived(
     data
       ? favs.map((a) => ({

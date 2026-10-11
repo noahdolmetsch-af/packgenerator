@@ -9,7 +9,9 @@ import { addDays, normAct, tripDays } from '../flow.js';
 import { QUESTIONS_KEY, poolOf } from '../flowcheck.js';
 import { BOWL_KEY, bowlOf } from '../flowbowl.js';
 import { homeTrips } from '../home/heute.js';
-import { ensureSeed, ensureSeed2 } from '../flowdb.js';
+import { ensureSeed, ensureSeed2, ensureMedSeed } from '../flowdb.js';
+import { ARTS_KEY, PLACES_KEY, THINGS_KEY, LINKS_KEY, SOUND_KEY, CHALLENGE_KEY, MED_SEED_KEY, tplOf } from '../flowmed.js';
+import { QUOTES_KEY } from '../flowquotes.js';
 import { TUNE_KEY, REWARD_KEY } from '../flowms.js';
 import { HIDDEN_KEY } from '../flowsugg.js';
 import { SEED2_KEY } from '../flowtiles.js';
@@ -103,5 +105,59 @@ export async function seedHobby(data) {
     await ensureSeed2(db);
   } finally {
     seeding2 = false;
+  }
+}
+
+/* ---------- hobby pages 2 «Kissenzeit» (B1, B2) ---------- */
+/**
+ * The meditation page: what hobbyQuery reads (for its milestones: the whole history) plus the
+ * templates of the activity and the settings of the page (kinds, places, things, links, quotes, the
+ * sound, the challenge put away). One query, computed once per change.
+ */
+export function medQuery(actId, today) {
+  return liveQuery(async () => {
+    const [acts, log, sessions, stars, trips, tpls, sets] = await Promise.all([
+      db.flowActs.toArray(),
+      db.flowLog.where('actId').equals(actId).toArray(),
+      db.flowSessions.where('actId').equals(actId).toArray(),
+      db.flowStars.toArray(),
+      db.trips.toArray(),
+      db.flowTemplates.where('actId').equals(actId).toArray(),
+      db.settings.where('key').anyOf([TUNE_KEY, ARTS_KEY, PLACES_KEY, THINGS_KEY, LINKS_KEY, SOUND_KEY, CHALLENGE_KEY, QUOTES_KEY, MED_SEED_KEY, SEED2_KEY, 'flowSeeded']).toArray(),
+    ]);
+    const set = Object.fromEntries(sets.map((s) => [s.key, s.value]));
+    return {
+      acts: acts.map(normAct).sort((a, b) => a.order - b.order),
+      log,
+      sessions,
+      stars,
+      tripDays: tripDays(homeTrips(trips), today),
+      tpls: tpls.map((x) => tplOf(x, actId)),
+      tune: set[TUNE_KEY] ?? {},
+      arts: set[ARTS_KEY] ?? null,
+      places: set[PLACES_KEY] ?? null,
+      things: set[THINGS_KEY] ?? null,
+      links: set[LINKS_KEY] ?? [],
+      sound: set[SOUND_KEY] ?? null,
+      seen: set[CHALLENGE_KEY] ?? null,
+      quotes: set[QUOTES_KEY] ?? null,
+      seeded: !!set.flowSeeded || acts.length > 0,
+      seeded2: !!set[SEED2_KEY],
+      medSeeded: !!set[MED_SEED_KEY],
+    };
+  });
+}
+
+let seedingMed = false;
+/** The first seeds when needed, then the three suggested templates, once. */
+export async function seedMed(data, actId) {
+  if (!data || seedingMed || (data.seeded && data.seeded2 && data.medSeeded)) return;
+  seedingMed = true;
+  try {
+    if (!data.seeded) await ensureSeed(db);
+    if (!data.seeded2) await ensureSeed2(db);
+    if (!data.medSeeded) await ensureMedSeed(db, actId);
+  } finally {
+    seedingMed = false;
   }
 }

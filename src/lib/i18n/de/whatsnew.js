@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.81.0 «Kissenzeit» (hobby pages 2)
+  'Kissenzeit has its own meditation page: start from a template or like last time, kinds, milestones, sounds, quotes, places and your own links.':
+    'Kissenzeit hat eine eigene Meditations-Seite: aus Vorlage oder wie letztes Mal starten, Arten, Meilensteine, Klänge, Zitate, Orte und eigene Links.',
+  'Intervals made simple: choose the duration, then none, every 5, every 10, at random or your own marks set right on the round clock. Seven built-in sounds.':
+    'Intervalle ganz einfach: Dauer wählen, dann keine, alle 5, alle 10, zufällig oder eigene Marken direkt auf der runden Uhr. Sieben eingebaute Klänge.',
+  'While you sit the whole screen is a calm clock with pause and end; the session is saved and counts for your milestones.':
+    'Beim Sitzen ist der ganze Bildschirm eine ruhige Uhr mit Pause und Beenden; die Sitzung wird gespeichert und zählt für deine Meilensteine.',
+
   // 0.80.0 «Tests stabil»
   'Behind the scenes: the automatic checks are steadier, so new versions come faster.':
     'Im Hintergrund: Die automatischen Prüfungen laufen stabiler, so kommen neue Versionen schneller.',

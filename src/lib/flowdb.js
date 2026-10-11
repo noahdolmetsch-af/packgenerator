@@ -5,6 +5,7 @@
 import { seedActs, normAct, newEntry, SEED_KEY } from './flow.js';
 import { QUESTIONS_KEY, SEED_QUESTIONS } from './flowcheck.js';
 import { SEED2_KEY, seed2Plan } from './flowtiles.js';
+import { MED_SEED_KEY, seedTemplates } from './flowmed.js';
 
 /**
  * The small start: the twelve activities and the question pool, once. A restored backup without
@@ -68,3 +69,39 @@ export const saveStars = (db, rows) => (rows.length ? db.flowStars.bulkPut(rows)
 export const putSetting = (db, key, value) => (value == null ? db.settings.delete(key) : db.settings.put({ key, value: JSON.parse(JSON.stringify(value)) }));
 /** Several activities at once (favourites, their order, a new one from a suggestion). */
 export const putActs = (db, list) => db.flowActs.bulkPut(list.map((a) => JSON.parse(JSON.stringify(normAct(a)))));
+
+/* ---------- hobby pages 2 «Kissenzeit» (B1, B2, B7) ---------- */
+/** The three suggested templates, once (setting flow.medSeed); deleted ones do not come back. */
+export async function ensureMedSeed(db, actId = 'meditation') {
+  await db.transaction('rw', db.flowTemplates, db.settings, async () => {
+    const mark = await db.settings.get(MED_SEED_KEY);
+    if (mark) return;
+    const n = await db.flowTemplates.where('actId').equals(actId).count();
+    if (!n) await db.flowTemplates.bulkPut(JSON.parse(JSON.stringify(seedTemplates(actId))));
+    await db.settings.put({ key: MED_SEED_KEY, value: true });
+  });
+}
+export const saveTemplate = (db, tpl) => db.flowTemplates.put(JSON.parse(JSON.stringify(tpl)));
+export const deleteTemplate = (db, id) => db.flowTemplates.delete(id);
+/**
+ * A session ended (B7): the log entry and its details in one go, and the template gets «last used».
+ * The same session saved twice writes the same rows (the id comes from its start).
+ */
+export async function saveSession(db, { entry, session }) {
+  await db.transaction('rw', db.flowLog, db.flowSessions, db.flowTemplates, async () => {
+    const was = await db.flowSessions.get(session.id);
+    await db.flowLog.put(entry);
+    await db.flowSessions.put(JSON.parse(JSON.stringify(session)));
+    if (session.tplId && !was) {
+      const tpl = await db.flowTemplates.get(session.tplId);
+      if (tpl) await db.flowTemplates.put({ ...tpl, usedAt: session.at, uses: (Number(tpl.uses) || 0) + 1 });
+    }
+  });
+}
+/** Delete a session: its log entry and its details. */
+export async function deleteSession(db, id) {
+  await db.transaction('rw', db.flowLog, db.flowSessions, async () => {
+    await db.flowLog.delete(id);
+    await db.flowSessions.delete(id);
+  });
+}

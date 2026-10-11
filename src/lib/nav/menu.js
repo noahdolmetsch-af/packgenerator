@@ -46,6 +46,8 @@ export const PAGE_GROUPS = [
       // hobby pages 1: Aktiv › Aktivität and Meilensteine
       { id: 'activity', title: 'Activity|tab', href: '#/flow/activity', icon: 'flow', words: 'activity aktivität hobby hobbys tiles kacheln kissenzeit pedal-glück filzball boden-küsse rings ringe sauna spaziergang walk ideas ideen erholen recovery fun spass' },
       { id: 'milestones', title: 'Milestones', href: '#/flow/milestones', icon: 'star', words: 'milestones meilenstein meilensteine stars sterne stufen stages reward belohnung records rekorde rekord-wand bestwert' },
+      // hobby pages 2: Kissenzeit, the meditation page (B1)
+      { id: 'meditation', title: 'Meditation', href: '#/flow/act/meditation', icon: 'flow', words: 'meditation meditieren kissenzeit cushion sitzen sitting timer intervalle intervals gong klangschale singing bowl vorlage template om ah hung achtsam mindful zitate quotes' },
     ],
   },
   {

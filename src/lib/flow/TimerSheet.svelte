@@ -43,7 +43,7 @@
         clockState.pick = null;
         minutes = live.find((s) => s.act.id === pick)?.act.minMin || 10;
         bowl = bowlOf(bowlDefault);
-        marksText = bowl.marks.join(', ');
+        marksText = bowl.marks.map((m) => Math.round(m.sec / 6) / 10).join(', '); // marks are { sec } now (hobby pages 2)
         saved = false;
       }
       dlg.showModal();

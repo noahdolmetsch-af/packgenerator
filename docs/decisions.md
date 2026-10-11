@@ -673,6 +673,13 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **5a:** zwei Bauten gleichzeitig nur, wenn sie verschiedene Bereiche ändern.
 - Mockups bleiben immer, Noah merged weiterhin selbst.
 
+## 11.10.2026: Hobby-Seiten Teil 2 «Kissenzeit» (0.81.0, H1–H29 a)
+
+- **Seite:** Meditation hat als erste Aktivität eine eigene Seite `#/flow/act/meditation`; die übrigen Kacheln öffnen bis Teil 3 weiter den Editor (H29a).
+- **Sitzung:** läuft im ganzen Bildschirm (B7), am Handy ohne Navigation, nur «Beenden» oben (H26a). «Beenden» speichert ohne Nachfrage, was gelaufen ist (ab 1 Minute); bei Zeit um speichert die Sitzung sich selbst. Bis die Auswertung (B3) kommt, gibt es nur eine kurze Zeile.
+- **Ton:** sieben Klänge ohne Datei (WebAudio), im Audio-Takt vorgeplant; Ende-Gong als Mitteilung nur, wo der Browser es kann und erlaubt hat, sonst ein ruhiger Hinweis (H27a).
+- **Zitate:** nur gemeinfreie Texte in eigener Übersetzung (zitate.md, H28a); eigene Zitate und Links bleiben auf dem Gerät, keine Links voreingestellt.
+
 ## 10.10.2026: Hobby-Seiten Teil 1 (0.79.0, Noahs Antworten H1–H29 a)
 
 - **Reihenfolge (H9a):** zuerst Aktivität-Übersicht und Meilensteine (0.79.0), dann Meditation B1–B7 (Teil 2), dann Liegestütze und Tennis, dann Yoga, Gym, Velo.

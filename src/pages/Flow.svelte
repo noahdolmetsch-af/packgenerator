@@ -7,6 +7,8 @@
    *   #/flow/edit/<id>   edit one activity; #/flow/new a new one (the same form, empty)
    *   #/flow/activity    hobby pages 1: Aktiv › Aktivität (pages/flow/Activity.svelte)
    *   #/flow/milestones  hobby pages 1: all milestones (pages/flow/Milestones.svelte), ?act=, ?tune=1
+   *   #/flow/act/<id>    hobby pages 2: an activity's own page (Meditation.svelte, B1); …/timer the
+   *                      intervals (MedTimer.svelte, B2); the running session is in FlowLayer (B7)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
   import { ChevronLeft, ChevronRight, Pencil, Plus, Sun, Timer, GripVertical, Snowflake, Sparkles } from '@lucide/svelte';
@@ -24,6 +26,8 @@
   import ActEditor from '../lib/flow/ActEditor.svelte';
   import Activity from './flow/Activity.svelte';
   import Milestones from './flow/Milestones.svelte';
+  import Meditation from './flow/Meditation.svelte';
+  import MedTimer from './flow/MedTimer.svelte';
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
   import { t, tn, locale, lang } from '../lib/i18n.svelte.js';
@@ -103,6 +107,10 @@
   <Activity />
 {:else if route[0] === 'milestones'}
   <Milestones {params} />
+{:else if route[0] === 'act' && route[2] === 'timer'}
+  {#key sub}<MedTimer actId={decodeURIComponent(route[1] ?? '')} {params} />{/key}
+{:else if route[0] === 'act'}
+  {#key route[1]}<Meditation actId={decodeURIComponent(route[1] ?? 'meditation')} />{/key}
 {:else if editId}
   {#if data}<ActEditor id={editId} acts={data.acts} log={data.log} {today} tripDays={data.tripDays} back={params.get('from') === 'activity' ? '#/flow/activity' : ''} />{/if}
 {:else if route[0] === 'goals'}

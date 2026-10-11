@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.81.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'Kissenzeit has its own meditation page: start from a template or like last time, kinds, milestones, sounds, quotes, places and your own links.', href: '#/flow/act/meditation' },
+      { text: 'Intervals made simple: choose the duration, then none, every 5, every 10, at random or your own marks set right on the round clock. Seven built-in sounds.', href: '#/flow/act/meditation' },
+      { text: 'While you sit the whole screen is a calm clock with pause and end; the session is saved and counts for your milestones.', href: '#/flow/act/meditation' },
+    ],
+  },
+  {
     version: '0.80.0',
     date: '2026-10-11',
     points: [{ text: 'Behind the scenes: the automatic checks are steadier, so new versions come faster.' }],
