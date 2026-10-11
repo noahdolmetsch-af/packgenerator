@@ -50,6 +50,9 @@ async function open(page, context, info, trips, { date = D0, hour = 9, debriefs 
   // wait until the tidy-up after the import is done and Today has decided
   await importAndSettle(page, file);
   if (current) await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), current);
+  // v0.94.0: the import runs under Me; back to Today, which decides as it did after an import there
+  await page.goto('./#/');
+  await settle(page);
 }
 /** Change a stored trip directly (the import fills an empty list with the old «always» items). */
 const patchTrip = (page, id, patch) =>

@@ -58,18 +58,22 @@ export async function settle(page, { sameTrips = true } = {}) {
     .toBe(true);
 }
 
-/** «Your data» on Today, open (Today opens it by itself on an empty start: decided first, then one click). */
+/**
+ * «Data and backup» open. v0.94.0 «Kachel-Wand» (Noah 5a): it lives under Me (#/me), no longer at
+ * the bottom of Today. The page is settled first (the tidy-up done, Today's auto-open decided).
+ */
 export async function openData(page) {
-  const panel = page.locator('details.data');
-  if (!/^#?\/?(\?.*)?$/.test(new URL(page.url()).hash)) await page.goto('./#/');
-  await settle(page, { sameTrips: false });
-  if (!(await panel.count())) {
-    // Today moved on (a ride day): «Your data» is on Today, and the auto-open happens once a day only
-    await page.goto('./#/');
+  if (/^#\/me(\?|$)/.test(new URL(page.url()).hash)) await settle(page, { sameTrips: false });
+  else {
+    // a page that is still settling (an import, a demo start) finishes first; a fresh page needs no wait
+    if (page.url().startsWith('http')) await settle(page, { sameTrips: false });
+    await page.goto('./#/me');
     await settle(page, { sameTrips: false });
   }
+  const panel = page.locator('details.data');
   if (!(await panel.evaluate((d) => d.open))) await panel.locator('summary').click();
   await expect(panel).toHaveJSProperty('open', true);
+  await expect(panel.locator('input[type="file"]').first()).toBeAttached();
   return panel;
 }
 

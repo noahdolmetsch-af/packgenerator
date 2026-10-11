@@ -1,4 +1,4 @@
-/** v0.94.0 «Velo kurz» (App einfach D): the bike page with three rows, «Import rides» and «More». */
+/** v0.95.0 «Velo kurz» (App einfach D): the bike page with three rows, «Import rides» and «More». */
 export default {
   '{bike} at a glance': '{bike} auf einen Blick',
   'no bag yet': 'noch keine Tasche',

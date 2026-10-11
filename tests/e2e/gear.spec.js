@@ -171,7 +171,7 @@ test('gear: change the category, links survive a reload', async ({ page, context
 
   // The bag keeps its gear item and its weight (2 × 300 g) in the bag dialog on Bikes.
   await page.goto('./#/bikes');
-  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   const yours = page.locator('details', { hasText: T('Your bags') }).last();
   await yours.locator('summary').first().click();
   await yours.getByRole('button', { name: /test_data_gtp_ Roll bag/ }).click();

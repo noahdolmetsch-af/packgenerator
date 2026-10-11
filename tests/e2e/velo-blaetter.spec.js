@@ -63,7 +63,7 @@ const names = OLD.map((s) => DE[s.name]);
 test('the folder of a bike: its sheets, each can be hidden and shown again; whole folder as PDF', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?bike=${TRAIL}`);
-  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   const folder = page.locator('section.folder');
   await expect(folder.getByRole('heading', { name: `${OLD.length} Blätter zu diesem Velo` })).toBeVisible();
   await expect(folder.locator('a.sheet .nm')).toHaveText(names);
@@ -97,7 +97,7 @@ test('the folder of a bike: its sheets, each can be hidden and shown again; whol
 test('the Bike pass: values from Setup and the parts, an empty line «eintragen» leads to where it is edited, copy as text', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?bike=${TRAIL}`);
-  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   await page.locator('section.folder a[data-sheet="pass"]').click();
   const paper = page.locator('article.paper[data-sheet="pass"]');
   await expect(paper.getByRole('heading', { name: 'Velo-Pass' })).toBeVisible();

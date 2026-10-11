@@ -80,13 +80,26 @@ export async function writeNow(db) {
  * Watch the data tables and write a backup shortly after any change.
  * Dexie "hooks" are called on every create, update and delete.
  */
+// v0.94.0 «Kachel-Wand»: «Data and backup» moved from Today (always open at the start) to Me, so the
+// watch starts once at app start (main.js) and lives for the whole session; a panel that shows the
+// folder state only listens (onFolderWritten). Before, every mount of the panel added its hooks again.
+const listeners = new Set();
+let watching = false;
+/** Call fn after each folder write; returns the function that stops listening. */
+export function onFolderWritten(fn) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
 export function watchForChanges(db, onWritten = () => {}) {
+  if (onWritten) listeners.add(onWritten);
+  if (watching) return;
+  watching = true;
   let timer = null;
   const schedule = () => {
     clearTimeout(timer);
     timer = setTimeout(async () => {
       try {
-        if (await writeNow(db)) onWritten();
+        if (await writeNow(db)) for (const fn of listeners) fn();
       } catch (err) {
         console.warn('Folder backup failed', err);
       }

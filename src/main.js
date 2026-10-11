@@ -20,6 +20,7 @@ import { tidyData } from './lib/tidy.js';
 import { settling } from './lib/settled.js';
 import { applyClock } from './lib/demo.js';
 import { trackChanges } from './lib/backup.js';
+import { folderBackupSupported, watchForChanges } from './lib/folderBackup.js';
 import { initTheme } from './lib/theme.svelte.js';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
@@ -30,6 +31,10 @@ applyClock();
 
 // v0.34.0 (L10): remember when the data last changed, so a backup file can say newer or older.
 trackChanges(db);
+
+// v0.94.0 «Kachel-Wand»: the automatic backup into a chosen folder watches from the start, on every
+// page (before, «Your data» on Today started it; it lives under Me now).
+if (folderBackupSupported) watchForChanges(db, null);
 
 // A pull-request preview (Vercel) says so on every page: it has its own, separate data.
 if (__PREVIEW__) {

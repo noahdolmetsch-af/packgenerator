@@ -345,7 +345,7 @@
   .p {
     color: var(--ink-2);
   }
-  /* v0.94.0 «Velo kurz» (App einfach D): a missing weight or price is a quiet hint, not orange on every part. */
+  /* v0.95.0 «Velo kurz» (App einfach D): a missing weight or price is a quiet hint, not orange on every part. */
   em {
     font-style: normal;
     color: var(--ink-3);

@@ -34,6 +34,9 @@ async function load(page, context, info) {
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
   await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'abnahme045.json' }))).toBeVisible();
+  // v0.94.0: the import runs under Me; back to Today, where it used to end
+  await page.goto('./#/');
+  await settle(page);
   return data;
 }
 
@@ -73,7 +76,7 @@ test('4. touch: the bike drawing places have 44 px tap areas that never overlap'
   await load(page, context, info);
   await page.goto(`./#/bikes?tab=setup&bike=${P}gravel`);
   await page.reload();
-  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   const spots = page.locator('.drawing .spot');
   await expect(spots.first()).toBeVisible();
   // 0.65.0: the «Masse» card sits above the drawing; bring the drawing on screen before hit-testing.

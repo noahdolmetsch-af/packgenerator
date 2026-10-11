@@ -4,18 +4,28 @@
  * at the top: version, date, 1-4 points in plain words (English keys for t(), German in
  * i18n/de/whatsnew.js), each with the address of the exact place ("Try it"), or no address when
  * the place no longer exists (older versions). The list goes back to the first version (0.1.0).
- * action 'data': the place is "Your data" on Today (nav.js openData) instead of an address.
+ * action 'data': the place is "Data and backup" (under Me since v0.94.0, nav.js openData) instead of an address.
  * Pure, tested in tests/whatsnew.test.js.
  */
 
 export const WHATS_NEW = [
   {
-    version: '0.94.0',
+    version: '0.95.0',
     date: '2026-10-11',
     points: [
       { text: 'Bikes › Overview is short: bike care, bags and equipment as three rows, everything else under «More».', href: '#/bikes' },
       { text: '«Import rides» (Strava, Garmin) is now a big button right on the bike page.', href: '#/bikes' },
       { text: 'Equipment: a missing weight or price is a quiet grey hint instead of orange on every part.', href: '#/bikes?tab=compare' },
+    ],
+  },
+  {
+    version: '0.94.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'Today is a wall of tiles: «Customise the start page» (or a long press on a phone) moves tiles, gives them one of four sizes or takes them away; «Reset» brings the ready wall back.', href: '#/' },
+      { text: '«+» adds any tile, by area or with a search: a function, meditation, the playground, the milestones and more. New tiles carry a «New» dot for two weeks.', href: '#/' },
+      { text: 'One series over everything: weeks in a row with a ride, a trip or any activity. A rest week keeps it, and all milestones are on one page.', href: '#/flow/milestones' },
+      { text: '«Data and backup» lives under Me now; the backup reminder stays in «Important today».', href: '#/me', action: 'data' },
     ],
   },
   {

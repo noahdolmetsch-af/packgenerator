@@ -46,7 +46,8 @@ const CASES = [
       await page.waitForTimeout(400);
     },
   },
-  { id: 'today-data', hash: '#/', act: async (page) => tap(page.locator('details.data > summary')) },
+  // v0.94.0 «Kachel-Wand» (Noah 5a): «Data and backup» lives under Me
+  { id: 'me-data', hash: '#/me', act: async (page) => tap(page.locator('details.data > summary')) },
   { id: 'features', hash: '#/features' },
   // v0.77.0 KI-Helfer: Ich › Helfer and New trip before the setup (the notice with «What goes to Claude?» open).
   // v0.76.0 «Fünf Orte»: New trip opens from Trips («+ New trip»), no longer from the list's ••• menu.

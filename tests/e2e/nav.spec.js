@@ -145,16 +145,16 @@ test('the language switch lives in «Ich»', async ({ page, context }) => {
 
 // v0.23.1 (Noah 3b): on the phone the places of Today started folded.
 // v0.46.0 «Startseite neu»: the places are gone; nothing on Today folds. An empty app shows First
-// steps and "What do you want to do?" with 8 buttons on a phone, 12 on a computer.
-test('Today folds nothing; First steps and the buttons of What do you want to do?', async ({ page, context }, info) => {
+// steps and "What do you want to do?" with 8 buttons on a phone, 12 on a computer. v0.94.0 «Kachel-Wand»:
+// the ready wall with the 16 functions as small tiles.
+test('Today folds nothing; First steps and the 16 functions on the wall', async ({ page, context }, info) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.goto('./');
   const T = tr('de');
   await expect(page.getByRole('region', { name: T('First steps') })).toBeVisible();
   await expect(page.locator('main details.folded')).toHaveCount(0);
-  const grid = page.getByRole('region', { name: T('What do you want to do?') });
-  await expect(grid.locator('.grid > *')).toHaveCount(info.project.name === 'phone' ? 8 : 12);
+  await expect(page.locator('.wall [data-fn]')).toHaveCount(16);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
 });

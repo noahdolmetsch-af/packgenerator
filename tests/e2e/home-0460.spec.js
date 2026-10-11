@@ -30,7 +30,7 @@ const inFirstScreen = async (page, loc) => {
   return !!box && box.y >= 0 && box.y + box.height <= page.viewportSize().height;
 };
 
-test('sections, greeting with the weather, the trip card, 12 or 8 buttons in the first screen', async ({ page, context }, info) => {
+test('sections, greeting with the weather, the trip card, the 16 functions as small tiles', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
@@ -45,28 +45,21 @@ test('sections, greeting with the weather, the trip card, 12 or 8 buttons in the
   await expect(page.locator('.steps li.cur')).toHaveCount(1);
   await expect(page.locator('section.trip .btn.hi')).toHaveCount(1);
 
-  const buttons = page.locator('[data-section="actions"] .grid > button');
-  await expect(buttons).toHaveCount(phone ? 8 : 12);
+  // v0.94.0 «Kachel-Wand» (Noah 3a, mockup A): the 16 functions are small tiles on the ready wall
+  const buttons = page.locator('.wall [data-fn]');
+  await expect(buttons).toHaveCount(16);
   await expect(buttons.first()).toHaveAttribute('data-fn', 'dayride');
-  await expect(buttons.last()).toHaveAttribute('data-fn', 'all');
   // a number only where something waits: the notes and the bike care, not on Day ride
-  await expect(page.locator('[data-fn="dayride"] .badge')).toHaveCount(0);
-  await expect(page.locator('[data-section="actions"] .grid [data-fn="care"] .badge')).toHaveText('1');
+  await expect(page.locator('.wall [data-fn="dayride"] .bd')).toHaveCount(0);
+  await expect(page.locator('.wall [data-fn="care"] .bd')).toHaveText('1');
 
-  // Noah 2b: greeting, trip card and the buttons without scrolling
+  // Noah 2b: greeting and trip card without scrolling
   expect(await inFirstScreen(page, page.locator('#hello-h')), 'greeting in the first screen').toBe(true);
   expect(await inFirstScreen(page, page.locator('section.trip')), 'trip card in the first screen').toBe(true);
-  // v0.51.0 (Noah, approved mockup ImFlow-Heute): on a computer «Im Flow» is the second card, right under
-  // the trip, and starts in the first screen. v0.73.0 «Fotoband» (Noah 1a): on a phone the 8 buttons come
-  // right after the trip card again and stay in the first screen; «Im Flow» follows them.
-  const order = await page.locator('[data-section="trip"], [data-section="flow"], [data-section="actions"]').evaluateAll((els) => els.map((e) => e.dataset.section));
-  if (phone) {
-    for (const b of await buttons.all()) expect(await inFirstScreen(page, b), `${await b.textContent()} in the first screen`).toBe(true);
-    expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['trip', 'actions', 'flow']);
-  } else {
-    expect(await inFirstScreen(page, page.locator('#fc-h')), 'Im Flow starts in the first screen').toBe(true);
-    expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['trip', 'flow', 'actions']);
-  }
+  // mockup A: the trip, then what is important today and Im Flow; on a computer Im Flow starts in the first screen
+  const order = await page.locator('[data-section="trip"], [data-section="today"], [data-section="flow"]').evaluateAll((els) => els.map((e) => e.dataset.section));
+  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['trip', 'today', 'flow']);
+  if (!phone) expect(await inFirstScreen(page, page.locator('#fc-h')), 'Im Flow starts in the first screen').toBe(true);
 
   // Important today, Tried it yet?, bikes, 12 months, customise
   const imp = page.getByRole('region', { name: T('Important today') });
@@ -86,7 +79,7 @@ test('sections, greeting with the weather, the trip card, 12 or 8 buttons in the
   expect(errors).toEqual([]);
 });
 
-test('lubed right on Today, with Undo; All 16 functions', async ({ page, context }, info) => {
+test('lubed right on Today, with Undo; a function tile opens its page', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
   const imp = page.getByRole('region', { name: T('Important today') });
   const row = imp.locator('li').filter({ hasText: T('{bike}: lube the chain', { bike: 'test_data_gtp_ Scale' }) });
@@ -100,15 +93,9 @@ test('lubed right on Today, with Undo; All 16 functions', async ({ page, context
   await expect(imp.locator('li').filter({ hasText: T('{bike}: lube the chain', { bike: 'test_data_gtp_ Scale' }) })).toHaveCount(1);
   expect((await stored(page, 'bikes', 'bike-test')).parts[0].history).toHaveLength(1);
 
-  await page.locator('[data-section="actions"] [data-fn="all"]').click();
-  const sheet = page.getByRole('dialog', { name: T('All {n} functions', { n: 16 }) });
-  await expect(sheet.locator('.fnrow')).toHaveCount(16);
-  await sheet.locator('[data-fn="review"]').click();
+  // v0.94.0 «Kachel-Wand»: every function is its own tile; the wall keeps the order the user set
+  await page.locator('.wall [data-fn="review"]').click();
   await expect(page).toHaveURL(/#\/debrief$/);
-  // the tap counts: Look back moves to the front of the rest
-  await page.goto('./#/');
-  // (care was tapped once too, by "Lubed"; with the same count the list order decides)
-  await expect(page.locator('[data-section="actions"] .grid > button').nth(5)).toHaveAttribute('data-fn', 'review');
 });
 
 test('test trips: hidden as next trip, cleaned up after a question on the page, Undo', async ({ page, context }, info) => {
@@ -223,21 +210,19 @@ test('the evening: review of the day and charging first; a phone swipes to the n
 });
 
 // v0.46.2 (Noah, phone): «Startseite anpassen» showed the section names as one letter per line, because the
-// label used the class name "sw" which app.css reserves for the 10 px colour swatch. Each name must be
-// readable on one line, wide enough, and next to its checkbox.
-test('customise the start page: every section name readable, not squeezed into a 10 px column', async ({ page, context }, info) => {
+// label used the class name "sw" which app.css reserves for the 10 px colour swatch. v0.94.0 «Kachel-Wand»:
+// customising happens on the wall; the picked tile's name in the tools bar must be readable on one line.
+test('customise the start page: the picked tile\'s name readable, not squeezed into a 10 px column', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
   await page.getByRole('button', { name: T('Customise the start page') }).click();
-  const panel = page.locator('section.cust');
-  await expect(panel).toBeVisible();
-  const rows = panel.locator('li');
-  expect(await rows.count()).toBeGreaterThanOrEqual(4);
-  for (const li of await rows.all()) {
-    const name = li.locator('label span');
+  for (const id of ['important', 'fn:weigh', 'year']) {
+    const tile = page.locator(`.wall [data-tile="${id}"]`);
+    await tile.locator('.pick').click();
+    const name = page.locator(`[data-tools="${id}"] .tn`);
     await expect(name).not.toHaveText('');
     const box = await name.boundingBox();
     expect(box.width, `${await name.textContent()} is wide enough`).toBeGreaterThan(30);
-    expect(box.height, `${await name.textContent()} on one or two lines`).toBeLessThan(60);
+    expect(box.height, `${await name.textContent()} on one line`).toBeLessThan(40);
   }
   await noSideScroll(page, 'Customise the start page');
 });

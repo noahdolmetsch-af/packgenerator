@@ -70,7 +70,7 @@ const copied = async (page) => {
 test('the folder: eight sheets on a new bike, the Break-in plan first and marked «neu»; an old bike has seven (W1 a)', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?bike=${XC}`);
-  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   const folder = page.locator('section.folder');
   await expect(folder.getByRole('heading', { name: `${SHEETS.length} Blätter zu diesem Velo` })).toBeVisible();
   await expect(folder.locator('a.sheet .nm')).toHaveText(SHEETS.map((s) => DE[s.name]));
@@ -101,7 +101,7 @@ test('the folder: eight sheets on a new bike, the Break-in plan first and marked
 
   // an old bike: no Break-in plan, but «Blätter wählen» can switch it on
   await page.goto(`./#/bikes?bike=${TRAIL}`);
-  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   await expect(folder.locator('a.sheet')).toHaveCount(SHEETS.length - 1);
   await expect(folder.locator('a[data-sheet="breakin"]')).toHaveCount(0);
   await expect(folder.getByText('Kein Einfahr-Plan: dieses Velo hat schon', { exact: false })).toBeVisible();

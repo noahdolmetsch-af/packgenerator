@@ -78,7 +78,7 @@
   const order = $derived(view ? workshopOrder(view, orderTrip, tasks, visits, tyres, today) : null);
   const forShop = $derived(view ? nextForShop(order, view) : null);
   let orderOpen = $state(false);
-  // v0.94.0 «Velo kurz» (App einfach D, Noah 4a/5a, mockup D): the bike page is short: three rows
+  // v0.95.0 «Velo kurz» (App einfach D, Noah 4a/5a, mockup D): the bike page is short: three rows
   // (care, bags, equipment), «Import rides» as the one button, everything else under «More».
   const careWords = $derived(care ? bikeCareWords(care) : null);
   let bagsOpen = $state(false);
@@ -295,7 +295,7 @@
   {:else if bike}
     <SetupBand {bikes} {bike} {setup} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeRename = bike)} />
 
-    <!-- v0.94.0 «Velo kurz» (App einfach D, mockup D): three rows and one button; the rest opens below. -->
+    <!-- v0.95.0 «Velo kurz» (App einfach D, mockup D): three rows and one button; the rest opens below. -->
     <div class="vk">
       <ul class="card vk-rows" aria-label={t('{bike} at a glance', { bike: bike.name })}>
         <li><a class="vk-row" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><span class="ib care" class:late={careWords?.tone === 'late' || careWords?.tone === 'due'}><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bike care')}</b><small>{careWords?.text || careWords?.tag || ''}</small></span>{#if care?.rows.length}<i class="tp-badge warn">{careWords.tag}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
@@ -1175,7 +1175,7 @@
       align-items: start;
     }
   }
-  /* v0.94.0 «Velo kurz»: three rows, one button, «More». */
+  /* v0.95.0 «Velo kurz»: three rows, one button, «More». */
   .vk {
     margin-bottom: 12px;
   }

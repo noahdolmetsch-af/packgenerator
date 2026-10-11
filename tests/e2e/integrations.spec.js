@@ -186,7 +186,7 @@ test('photos: non-image, broken image and huge image give a message or a small p
   await start(page, context, info, 'de');
   // Bike setup photo (bike gallery).
   await page.goto('./#/bikes?tab=setup&bike=bike-test');
-  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   await page.locator('summary').filter({ hasText: T('Photos') }).first().click();
   const input = page.locator('input[type=file][accept="image/*"][multiple]');
   await input.setInputFiles({ name: 'list.txt', mimeType: 'text/plain', buffer: Buffer.from('not a photo') });
@@ -368,6 +368,8 @@ test.describe('offline', () => {
   test('offline: the app loads from the cache, an edit survives reload, nothing lost back online, de', async ({ page, context }, info) => {
     const T = tr('de');
     await start(page, context, info, 'de');
+    // v0.94.0: the import happens under Me; the online line is in Today's footer
+    await page.goto('./#/');
     // Wait until the service worker controls the page.
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.reload();
@@ -393,7 +395,7 @@ test.describe('offline', () => {
     await page.goto('./#/');
     await page.reload();
     await expect(page.locator('footer')).toContainText(T('Offline'));
-    await expect(page.locator('details.data')).toBeVisible();
+    await expect(page.locator('.wall')).toBeVisible(); // v0.94.0: Today is the tile wall
     expect((await table(page, 'notes')).some((n) => n.text === 'test_data_gtp_ offline note')).toBe(true);
     // Pack still opens offline with the trip.
     await page.goto('./#/pack');

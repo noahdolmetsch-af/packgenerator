@@ -52,7 +52,7 @@ async function start(page, context, info) {
 test('Velos vergleichen: every bike a column, empty cells «–» to fill, two taps from Setup', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/bikes');
-  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   await page.getByRole('link', { name: 'Velos vergleichen', exact: true }).click();
   const region = page.getByRole('region', { name: 'Velos vergleichen' });
   await expect(region).toBeVisible();

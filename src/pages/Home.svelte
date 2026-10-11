@@ -22,14 +22,20 @@
    *  "Customise the start page" switches sections on and off and moves them (settings "homeLayout").
    *
    * Kept from before: First steps for a new user (until its three steps are done), "How was {trip}?"
-   * with "All good" (v0.24.1), the ride day opening by itself (v0.20), "Your data" and the footer.
+   * with "All good" (v0.24.1), the ride day opening by itself (v0.20) and the footer.
    * The rules are pure and tested: lib/home/heute.js, lib/home/functions.js, today.js, schedule.js.
+   *
+   * v0.94.0 «Kachel-Wand» (Noah 11.10.2026, Trello nLi5yNmS «1-5 a», mockups #startseite-kacheln):
+   * under the greeting the page is a wall of tiles (lib/home/Wall.svelte, tiles.js): the trip, Important
+   * today, Im Flow, the series over everything, what is new, Meditation, the playground, the 16
+   * functions as small buttons, the bikes and the 12 months. «Customise the start page» (or a long
+   * press on a phone) moves, resizes and removes tiles; «+» adds any tile (TileCatalog.svelte); «Reset»
+   * brings the ready wall back. Stored in «homeWall» (in every backup). «Your data» lives under Me now.
    */
   import { todayNotes } from '../lib/notebook.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { localDay } from '../lib/localday.js';
-  import DataPanel from '../lib/DataPanel.svelte';
   import { LAST_BACKUP, LAST_IMPORT, backupDue, downloadBackup } from '../lib/backup.js';
   import { backupAfterTrip } from '../lib/todos.js';
   import { knownWeight, isInventory } from '../lib/gear.js';
@@ -47,7 +53,7 @@
   import { stepOf, lastEvening, betweenHref } from '../lib/phase.js';
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
-  import { openNew, openNote, openTrip, openPrep, addItem, wantBike, take, dayRide } from '../lib/nav.js';
+  import { openNew, openNote, openTrip, openPrep, addItem, wantBike, take, dayRide, openData, openPlay } from '../lib/nav.js';
   import { todayFocus, openDebrief, endedOn } from '../lib/today.js';
   import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
@@ -67,24 +73,31 @@
   import { SETS_KEY } from '../lib/sets.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { standalone } from '../lib/install.js';
-  import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, MILESTONE_KEY, LAYOUT_KEY, layoutOf } from '../lib/home/heute.js';
+  import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
+  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew } from '../lib/home/tiles.js';
+  import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
   import { countUse } from '../lib/home/usage.js';
   import { recordCare, undoCare } from '../lib/home/care-tap.js';
   import { yearReview, tripDone } from '../lib/yearreview.js';
   import InProgress from '../lib/trip/InProgress.svelte';
-  import ActionGrid from '../lib/home/ActionGrid.svelte';
+  import Wall from '../lib/home/Wall.svelte';
+  import TileCatalog from '../lib/home/TileCatalog.svelte';
+  import SmallTile from '../lib/home/SmallTile.svelte';
+  import SeriesTile from '../lib/home/SeriesTile.svelte';
+  import NewsTile from '../lib/home/NewsTile.svelte';
+  import MedTile from '../lib/home/MedTile.svelte';
+  import { ui as flowUi } from '../lib/flow/ui.svelte.js';
   import TryCard from '../lib/home/TryCard.svelte';
   import BikeCards from '../lib/home/BikeCards.svelte';
   import YearRow from '../lib/home/YearRow.svelte';
-  import Customize from '../lib/home/Customize.svelte';
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import KmCard from '../lib/home/KmCard.svelte';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import TripPhoto from '../lib/home/TripPhoto.svelte';
-  import { tripToday, bandPhotos, pickPhoto, photoCaption, actionsFirst } from '../lib/home/ruhig.js';
-  import { PartyPopper, Sun } from '@lucide/svelte';
+  import { tripToday, bandPhotos, pickPhoto, photoCaption } from '../lib/home/ruhig.js';
+  import { PartyPopper, Sun, Pencil, RotateCcw } from '@lucide/svelte';
 
   /* ---------- the records ---------- */
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -97,7 +110,7 @@
   const notesQ = liveQuery(() => db.notes.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
-  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, 'userName', MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY];
+  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -433,13 +446,15 @@
   // (bikes {}, or 0 trips) and written again a moment later; with 0 trips stored first, the import
   // itself could later be celebrated as "Your 10th trip".
   async function stepMilestones(day) {
-    await db.transaction('rw', db.trips, db.bikes, db.debriefs, db.settings, async () => {
-      const [all, bikeRows, drs, stored] = await Promise.all([db.trips.toArray(), db.bikes.toArray(), db.debriefs.toArray(), db.settings.get(MILESTONE_KEY)]);
+    await db.transaction('rw', [db.trips, db.bikes, db.debriefs, db.settings, db.flowLog, db.rides], async () => {
+      const [all, bikeRows, drs, stored, log, rideRows, rest] = await Promise.all([db.trips.toArray(), db.bikes.toArray(), db.debriefs.toArray(), db.settings.get(MILESTONE_KEY), db.flowLog.toArray(), db.rides.toArray(), db.settings.get(REST_KEY)]);
       if (!all.length && !bikeRows.length) return; // nothing to count yet
       const home = homeTrips(all);
       const done = home.filter((x) => tripDone(x, drs, day));
       const nights = yearReview({ today: day, trips: home, debriefs: drs, rides: [] }).ride.nights + 0;
-      const cur = milestoneLevels({ tripsDone: done.length, bikes: bikeRows, nights: done.some((x) => Number(x.days) > 1 && x.overnight !== 'lodging' && x.overnight !== 'none') ? Math.max(1, nights) : 0 });
+      // v0.94.0 (idea 6): the series over everything reaching 2, 4, 8 … weeks is celebrated too
+      const series = stepOfMs(seriesOf(activeDays({ log, rides: rideRows, trips: home, debriefs: drs, today: day }), restOf(rest?.value), day).n, SERIES_STEPS);
+      const cur = milestoneLevels({ tripsDone: done.length, bikes: bikeRows, nights: done.some((x) => Number(x.days) > 1 && x.overnight !== 'lodging' && x.overnight !== 'none') ? Math.max(1, nights) : 0, series });
       const r = milestoneStep(stored?.value ?? null, cur, day);
       if (r.changed) await db.settings.put({ key: MILESTONE_KEY, value: r.state });
     });
@@ -588,31 +603,37 @@
     await n?.undo?.();
   }
 
-  /* ---------- Customise (Noah 33a) ---------- */
-  const layout = $derived(layoutOf(S[LAYOUT_KEY]));
-  let customOpen = $state(false);
-  const on = (key) => !layout.off.includes(key);
-
-  /* ---------- Your data (v0.30.0: openData from anywhere opens it here) ---------- */
-  let dataOpen = $state(false);
-  let autoOpened = false;
-  $effect(() => {
-    if (loaded && !allTrips.length && !autoOpened) {
-      autoOpened = true;
-      dataOpen = true;
-    }
-  });
-  let dataEl = $state();
-  function openData() {
-    dataOpen = true;
-    queueMicrotask(() => dataEl?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  /* ---------- v0.94.0 «Kachel-Wand»: the wall, customising and «+» ---------- */
+  // the stored wall; without one the ready wall (minus sections switched off in the old layout)
+  const wall = $derived(wallOf(S[WALL_KEY], S[LAYOUT_KEY]));
+  const onWall = $derived(new Set(wall.map((x) => x.id)));
+  const on = (key) => onWall.has(key);
+  let editing = $state(false);
+  let catalogOpen = $state(false);
+  const saveWall = (tiles) => db.settings.put({ key: WALL_KEY, value: wallRecord(tiles) });
+  const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
+  // «Reset» (Noah 3a): the ready wall again; the old layout no longer counts after that
+  async function resetWall() {
+    await db.settings.delete(WALL_KEY);
+    await db.settings.delete(LAYOUT_KEY);
   }
+  let nameIn = $state('');
   $effect(() => {
-    if (dataEl && take('home.data')) openData();
-    const onData = () => take('home.data') && openData();
-    window.addEventListener('pg:data', onData);
-    return () => window.removeEventListener('pg:data', onData);
+    if (editing) nameIn = S.userName ?? '';
   });
+  async function saveName(e) {
+    e.preventDefault();
+    await db.settings.put({ key: 'userName', value: nameIn.trim() });
+  }
+  const newTile = (id) => isNew(TILE[id], today);
+  // a short line under a small function tile (a computer, or a wide tile)
+  const gearN = $derived(items.filter(isInventory).length);
+  function fnSub(id) {
+    if (id === 'dayride') return suggestion ? t('{h} h ride, dry', { h: num(suggestion.hours) }) : '';
+    if (id === 'gear') return gearN ? tn(gearN, '{n} item', '{n} items') : '';
+    return '';
+  }
+  const seriesParty = $derived(milestones.some((m) => m.key === 'series'));
 
   // Ride day (answer 1a): on the days of the trip the app opens the ride view, once a day.
   // v0.29.2 (Noah 6a): not on the day the trip was made: then Noah is still planning or packing.
@@ -767,7 +788,7 @@
 
 <!-- 4. Important today and Tried it yet? -->
 {#snippet todayS()}
-  <div class="two" data-section="today">
+  <div class="impw" data-section="today">
     <section class="imp" aria-labelledby="imp-h">
       <h2 id="imp-h" class="kick">{t('Important today')}</h2>
       {#if notice}<p class="notice" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="btn sm" onclick={undoNotice}>{t('Undo')}</button>{/if}</p>{/if}
@@ -801,8 +822,32 @@
         <p class="calm">{t('Nothing urgent. Enjoy the day.')}</p>
       {/if}
     </section>
-    <TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />
   </div>
+{/snippet}
+
+<!-- v0.94.0 «Kachel-Wand»: what each tile shows (lib/home/tiles.js) -->
+{#snippet tileBody(x)}
+  {#if x.id === 'trip'}
+    {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS()}{#if ready}<KmCard {today} />{/if}</div>{/if}
+  {:else if x.id === 'important'}{@render todayS()}
+  {:else if x.id === 'flow'}<FlowCard {today} />
+  {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
+  {:else if x.id === 'news'}<NewsTile size={x.size} />
+  {:else if x.id === 'meditation'}<MedTile {today} size={x.size} isnew={newTile('meditation')} />
+  {:else if x.id === 'play'}<SmallTile tile={TILE.play} size={x.size} dark isnew={newTile('play')} sub={$demoQ?.play ? t('The playground is running') : t('try without risk')} onclick={openPlay} />
+  {:else if x.id === 'try'}<TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />
+  {:else if x.id === 'bikes'}{#if ready}<div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>{/if}
+  {:else if x.id === 'year'}<div data-section="year"><YearRow {today} /></div>
+  {:else if x.id === 'check'}<SmallTile tile={TILE.check} size={x.size} onclick={() => (flowUi.checkOpen = true)} />
+  {:else if x.id === 'milestones'}<SmallTile tile={TILE.milestones} size={x.size} href="#/flow/milestones" />
+  {:else if x.id === 'helper'}<SmallTile tile={TILE.helper} size={x.size} href="#/helper" />
+  {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
+  {:else if x.id === 'inbox'}<SmallTile tile={TILE.inbox} size={x.size} href="#/inbox" badge={notes.length} />
+  {:else if x.id === 'data'}<SmallTile tile={TILE.data} size={x.size} onclick={openData} badge={backup.due ? 1 : 0} />
+  {:else if TILE[x.id]?.fn}
+    {@const f = FUNCTIONS.find((y) => y.id === TILE[x.id].fn)}
+    <SmallTile tile={TILE[x.id]} size={x.size} fn={f.id} badge={badges[f.id] ?? 0} sub={fnSub(f.id)} onclick={() => runFn(f)} />
+  {/if}
 {/snippet}
 
 <div class="home">
@@ -831,36 +876,29 @@
     </section>
   {/if}
 
-  {#each phone.matches ? actionsFirst(layout.order) : layout.order as key (key)}
-    {#if on(key)}
-      {#if key === 'greeting'}{@render greetingS()}
-      {:else if key === 'trip'}{@render tripS()}
-      {:else if key === 'flow'}<FlowCard {today} />
-      {:else if key === 'actions'}
-        <div data-section="actions"><ActionGrid {usage} {badges} {used} onrun={runFn} /></div>
-      {:else if key === 'today'}{@render todayS()}
-      {:else if key === 'bikes' && ready}
-        <div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>
-      {:else if key === 'year'}
-        <div data-section="year"><YearRow {today} /></div>
-      {/if}
-    {/if}
-    <!-- v0.68.0 «Q1 Jeder km zählt» (Q1.6 a): the weekly km card right under the trip; only when there is something to do -->
-    {#if key === 'trip' && ready}<KmCard {today} />{/if}
-  {/each}
+  {@render greetingS()}
+  {#if editing}
+    <div class="ebar" role="region" aria-label={t('Customise the start page')}>
+      <b>{t('Customise the start page')}</b>
+      {#if !phone.matches}<span class="eh">{t('Drag to move · tap a tile for its size · × takes it away')}</span>{/if}
+      <span class="ea">
+        <button type="button" class="btn sm" onclick={resetWall}><RotateCcw size={16} aria-hidden="true" />{t('Reset')}</button>
+        <button type="button" class="btn sm hi" onclick={() => (editing = false)}>{t('Done|customise')}</button>
+      </span>
+    </div>
+  {/if}
+  <Wall tiles={wall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveWall} onadd={() => (catalogOpen = true)} />
 
   <div class="custom">
-    {#if customOpen}
-      <Customize layout={S[LAYOUT_KEY]} name={S.userName ?? ''} onclose={() => (customOpen = false)} />
+    {#if editing}
+      <form class="nm" onsubmit={saveName}>
+        <label><span class="lbl">{t('Your name for the greeting')}</span><input class="inp" type="text" bind:value={nameIn} autocomplete="given-name" maxlength="40" /></label>
+        <button type="submit" class="btn">{t('Save name')}</button>
+      </form>
     {:else}
-      <button type="button" class="lkb" onclick={() => (customOpen = true)} aria-expanded={customOpen}>{t('Customise the start page')}</button>
+      <button type="button" class="lkb" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>
     {/if}
   </div>
-
-  <details class="data" bind:this={dataEl} bind:open={dataOpen}>
-    <summary><b>{t('Your data')}</b> <span class="muted">{t('backup, import, export, favourites')}</span></summary>
-    <DataPanel />
-  </details>
 
   <footer>
     <span class="odot" class:off={!online}></span>
@@ -869,6 +907,7 @@
 </div>
 
 {#if newsSheet.length}<NewsSheet entries={newsSheet} onclose={() => (newsSheet = [])} />{/if}
+{#if catalogOpen}<TileCatalog on={onWall} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
 <dialog class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
   <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
   {#if wearOpen}
@@ -1237,22 +1276,22 @@
   }
 
   /* 4. Important today + Tried it yet? */
-  .two {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
+  /* v0.94.0 «Kachel-Wand»: the trip tile stacks the card, the slim row and the week km */
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
-  @media (min-width: 900px) {
-    .two {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 24px;
-    }
+  .impw {
+    height: 100%;
   }
   .imp {
     display: flex;
     flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
     min-width: 0;
-    padding: 16px 20px 10px;
+    padding: 14px 18px 8px;
     border: 1px solid var(--line);
     border-radius: 18px;
     background: var(--paper);
@@ -1359,12 +1398,50 @@
     flex-direction: column;
     align-items: center;
   }
-  .custom > :global(section) {
-    align-self: stretch;
-  }
   .custom .lkb {
+    gap: 6px;
     color: var(--ink-2);
     font-size: 14px;
+  }
+  .nm {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px 12px;
+    align-self: stretch;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+  .nm label {
+    flex: 1 1 220px;
+  }
+  /* edit mode: one dark bar on top of the wall, «Reset» and «Done» always in reach */
+  .ebar {
+    position: sticky;
+    top: 8px;
+    z-index: 30;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    padding: 10px 16px;
+    border-radius: 14px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .eh {
+    color: color-mix(in srgb, var(--paper) 75%, transparent);
+    font-size: var(--fs-small);
+  }
+  .ea {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .ea .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
 
   /* v0.30.2 (L9): First steps, three numbered rows; a done one shows ✓ and loses its buttons. */
@@ -1441,15 +1518,6 @@
     font-size: 14px;
   }
 
-  .data {
-    border: 1.5px solid var(--line);
-    border-radius: 12px;
-    background: var(--paper);
-    padding: 12px 16px;
-  }
-  .data summary {
-    cursor: pointer;
-  }
   footer {
     display: flex;
     align-items: center;

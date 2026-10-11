@@ -98,9 +98,6 @@
     "src/lib/gear/WeightOverview.svelte": {
       "fontsize": 1
     },
-    "src/lib/home/ActionGrid.svelte": {
-      "fontsize": 6
-    },
     "src/lib/home/BikeCards.svelte": {
       "fontsize": 3
     },

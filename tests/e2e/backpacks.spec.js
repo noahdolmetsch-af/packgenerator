@@ -160,7 +160,7 @@ test('Rucksaecke: a bike trip with a hip bag on Huefte and a vest on Ruecken cou
   // Bikes → Setup: Rücken and Hüfte under "Am Körper", with their bags.
   await page.goto('./#/bikes');
   await page.reload();
-  await openMore(page); // v0.94.0 «Velo kurz»: this lives under «More»
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   const worn = page.locator('.worn-h');
   await expect(worn).toContainText(T('On me'));
   await expect(page.locator('#slot-carry')).toContainText(T('Back|worn'));
