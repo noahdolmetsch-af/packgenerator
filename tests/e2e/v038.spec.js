@@ -90,8 +90,10 @@ test('Ich: top right with the Inbox count, settings and the app; the search find
   if (!(await field.isVisible())) await page.getByRole('button', { name: 'Search everything' }).click();
   await field.fill('templ');
   const res = page.getByRole('region', { name: 'Search results' });
-  await expect(res.getByRole('button', { name: /^Templates/ })).toBeVisible();
-  await res.getByRole('button', { name: /^Templates/ }).click();
+  // v0.96.0 «Alles finden»: the functions are found too («Templates that learn»); the page row has its count
+  const row = res.getByRole('button', { name: /^Templates\s+\d+ template/ });
+  await expect(row).toBeVisible();
+  await row.click();
   await expect(page).toHaveURL(/#\/pack\/templates/);
   expect(errors).toEqual([]);
 });
