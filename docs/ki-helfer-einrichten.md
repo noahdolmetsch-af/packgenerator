@@ -55,14 +55,16 @@ Den Code kopieren und im Passwort-Manager unter «Pack Generator Helfer-Code» a
 Neue Variablen gelten erst nach einem neuen Deployment:
 
 1. Im Projekt **packgen** oben **Deployments**.
-2. Beim obersten Eintrag rechts **⋯** → **Redeploy** → **Redeploy**.
+2. Beim Eintrag mit dem blauen Etikett **Production** rechts **⋯** → **Redeploy** → **Redeploy**.
 3. Warten, bis der Status **Ready** ist (1–2 Minuten).
+
+Achtung: packgen baut wegen des «Ignored Build Step» nur neu, wenn sich der Ordner `api` geändert hat. Ein Redeploy von Hand wird darum nach 1 Sekunde **Canceled**. Dann entweder den Ignored Build Step kurz auf **Automatic** stellen, neu veröffentlichen und den Befehl wieder einsetzen, oder Claude um eine kleine Änderung in `api` bitten: Nach dem Merge baut packgen von selbst neu (so am 11.10.2026 gelöst).
 
 ## 6. Den Helfer-Code in der App eingeben
 
 Auf jedem Gerät, auf dem du den Helfer willst:
 
-1. App öffnen → **Mehr** → **Helfer** (oder in «Neue Tour» bei «Der Helfer ist noch nicht eingerichtet» auf **Einrichten**).
+1. App öffnen → **Ich** (Symbol oben rechts) → **Helfer** (oder in «Neue Tour» bei «Der Helfer ist noch nicht eingerichtet» auf **Einrichten**).
 2. Bei **Helfer-Code** den Code aus Schritt 3 einfügen → **Speichern**.
 3. **Verbindung prüfen** tippen. Es soll «Verbunden. Diesen Monat: CHF 0.00.» erscheinen.
 4. Bei Bedarf das **Monatslimit** ändern (Standard CHF 5) → **Speichern**.
@@ -80,7 +82,7 @@ Der Code bleibt nur auf diesem Gerät. Er kommt nie in ein Backup, einen Export 
 
 ## Ausschalten
 
-- Nur auf einem Gerät: **Mehr** → **Helfer** → Schalter **Helfer eingeschaltet** aus.
+- Nur auf einem Gerät: **Ich** (Symbol oben rechts) → **Helfer** → Schalter **Helfer eingeschaltet** aus.
 - Ganz: in Vercel `HELPER_TOKEN` löschen und Redeploy, oder in der Anthropic Console den Schlüssel **Disable**/**Delete**.
 
 ## Was an Claude geht
