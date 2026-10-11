@@ -189,6 +189,14 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Mehrfachauswahl:** viele Teile markieren und gemeinsam einer Kategorie, Tasche oder einem Baustein zuweisen.
 - **Fallen gelassen:** Foto-KI (Teil fotografieren, App erkennt es), Live-Sync über Drive.
 
+### 10. Bereiche sauber trennen (B1–B5)
+
+- **Warum:** Die Velo-Daten (Velos mit Pflege, Kleiderschrank, Bikepacking-Material) sind sauber und umfassend. Künftige Bereiche (Skitouren, Tennis, Eishockey, Alltag, Verbrauch, Essen) sollen sie nicht vermischen.
+- **Was (Noah 11.10.2026 «1-5 a», Trello YINDLpHj):** ein Inventar, jedes Teil mit einer Heimat und «auch für»; Velo bleibt geschützter Kern und Standard; Bereich «Überall» für gemeinsame Dinge; Bereichs-Umschalter in Material; Typ «Verbrauch» mit Vorrat, Ablaufdatum und Nachkaufen; neue Bereiche nur über einen Import mit Vorschau, der sich als Ganzes entfernen lässt.
+- **Pakete:** B1 Velo geschützt (Heimat pro Teil, Import-Nummer, Wächter-Test für unveränderte Velo-Daten) · B2 Umschalter + Überall · B3 Import mit Vorschau · B4 Vorrat · B5 erster neuer Bereich (Skitouren) mit Geräte-Pflege.
+- **Beispiel:** Eine Eishockey-Liste wird importiert, die Stirnlampe wird erkannt und bekommt nur «auch für Eishockey»; Material zeigt weiter Velo, bis Eishockey gewählt wird.
+- **Stand:** entschieden, noch nicht gebaut. Vorschlag https://claude.ai/artifact/8DQ6CKj1n9vJuBEwsj7msN.
+
 ## Reihenfolge
 
 Taktgeber ist echte Nutzung: Eine grössere Version kommt erst, wenn die letzte im Alltag oder auf einer Tour benutzt wurde.
@@ -224,6 +232,8 @@ flowchart LR
 10. **KI-Helfer einschalten.** Er ist fertig gebaut und getestet und wartet als Entwurf. Er kommt bewusst nach D2 und Strava, weil er dann die Wartungsgeschichte jedes Teils und die echten km kennt.
 11. **Danach Im Flow und Neuland.**
 12. **«Reisearten neu»** als eigenes Paket ganz am Ende (Noah, 10.10.2026 16:38).
+
+**Bereiche sauber trennen (Noah 11.10.2026 «1-5 a»):** B1 «Velo geschützt» gleich nach «App einfach», B2 Umschalter + Überall zusammen mit «Material Liste zuerst», B3 Import mit Vorschau und B4 Vorrat vor «Reisearten neu», B5 erster neuer Bereich zusammen mit «Reisearten neu».
 
 Fragen zu einem Paket werden kurz vor dem Paket gestellt. Gebaut wird erst, wenn sie beantwortet sind.
 

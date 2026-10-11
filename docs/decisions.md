@@ -770,3 +770,16 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid (A5a):** «Velos vergleichen» zeigt nur Zeilen mit mindestens einem Wert, «alle zeigen» als Link; am Handy zuerst zwei Velos nebeneinander.
 - **Selbst entschieden:** Die Gruppen tragen die bestehenden Bereichsnamen der App (Rahmen statt «Rahmenset»), damit Pflege, Vergleich und Ausstattung gleich heissen. Die Geometrie bleibt im Vergleich (nicht auf der Ausstattung). Kein Knopf «Datenblatt importieren» im Kopfband (der Import bleibt unter «Deine Daten»). Die Adresse `#/bikes?tab=compare` bleibt (alte Links landen auf der Ausstattung), der Vergleich ist `&view=all`. Der Link «Velos vergleichen» steht auf der Ausstattung einmal oben, nicht zusätzlich im Masse-Block.
 - **Grund:** Noah (11.10.2026, nach dem Import seiner Velo-Daten): die Masse-Seite war eine lange Tabelle mit fast nur «–» und für ihn unübersichtlich; Vorbild ist Canyons Liste «Alle Komponenten».
+
+## 11.10.2026: Bereiche sauber trennen (Noah «1-5 a», Trello YINDLpHj)
+
+Vorschlag: https://claude.ai/artifact/8DQ6CKj1n9vJuBEwsj7msN. Noch kein Bau; vor B2 bis B5 kommt je eine Mockup-Runde.
+
+- **Entscheid (1a) Grundmodell:** Ein Inventar. Jedes Teil hat genau eine Heimat (Bereich) und darf «auch für» andere Bereiche sein. Baut auf `item.domains` auf; ein Teil ohne Bereich bleibt Velo/Bikepacking. Gewicht und Pflege gibt es nur einmal.
+- **Entscheid (2a) Überall:** Neuer Bereich «Überall» für Dinge, die zu keinem Sport gehören (Stirnlampe, Powerbank, Erste Hilfe, Ausweis, Every-Day-Carry). Die App schlägt den Umzug aus Velo vor, Noah bestätigt, mit Rückgängig.
+- **Entscheid (3a) Anzeige:** Material bekommt oben einen Bereichs-Umschalter, Standard Velo, gemerkt auf dem Gerät. Ein neuer Bereich erscheint erst, wenn er Teile hat. Velo-Seiten (Velos, Pflege, Kleiderschrank mit Velo-Filter) zeigen nie Teile anderer Bereiche.
+- **Entscheid (4a) Verbrauch:** Eigener Typ «Verbrauch» mit Bestand, Ziel, Ablaufdatum und Nachkaufen (fehlt etwas, steht es auf der Einkaufsliste). «Vorrat» ist eine Ansicht über diese Teile, kein Bereich.
+- **Entscheid (5a) Reihenfolge:** B1 «Velo geschützt» gleich nach «App einfach»; B2 Umschalter + Überall zusammen mit «Material Liste zuerst»; B3 Import mit Vorschau und B4 Vorrat vor «Reisearten neu»; B5 erster neuer Bereich (Vorschlag Skitouren, mit Geräte-Pflege nach Tagen/Stunden) zusammen mit «Reisearten neu».
+- **Modell (Vorschlag, mit 1a angenommen):** vier Etiketten pro Teil: Bereich (Heimat + auch für), Art (Kategorie, sport-neutral benannt, neu z. B. Sportgerät und Schutz), Typ (Gerät, Teil, Kleid, Verbrauch), freie Etiketten (z. B. «Import Eishockey 12.2026»). Bausteine bekommen einen optionalen Bereich. Bereiche: Velo, Überall, Berg & Schnee, Halle & Platz, Reisen, Alltag.
+- **Import neuer Bereiche (B3):** Bereich wählen → Vorschau mit Abwählen und Erkennen schon vorhandener Teile (bekommen nur «auch für») → automatisches Etikett pro Import → «Ganzen Import entfernen» unter Ich › Daten; Velo-Teile bleiben dabei unberührt. Vorher automatische Sicherung.
+- **Grund:** Noah (11.10.2026): Angst, dass sich die saubere Velo-Datengrundlage mit künftigen Bereichen (Eishockey, Tennis, Skitouren, Alltag, Verbrauch, Essen) vermischt.
