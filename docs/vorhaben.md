@@ -56,6 +56,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.77.0 | KI-Helfer eingeschaltet (aus PR #89, in Fünf Orte gesetzt, K1–K3 a): Ich › Helfer, «Frag den Helfer» oben in Neue Tour, Antwort in der Suche, «Liste prüfen» neben «Weiter zu Packen» (Handy: Funkel-Knopf links in der Leiste), Rückblick-Entwurf, Wartungsvorschläge in «Jetzt fällig» | live seit 10.10.2026 (PR #104) |
 | 0.78.0 | Fünf Orte Teil 2: Tabs pro Ort mit Wischen, letzter Tab bleibt, alte Adressen mit Hinweis, «Was ist neu» als Blatt, Touren-Einstieg mit Kacheln und Bestwerten, Rückblick «offen» zuerst, Material › Einkauf | gemergt 10.10.2026 (PR #105) |
 | 0.79.0 | Hobby-Seiten Teil 1: Aktiv › Aktivität (sechs Kacheln mit verspielten Namen, Ringe, Vorschläge, Erholung und Ideen) und Meilensteine über alle Aktivitäten (Stufen, Sterne bleiben, eigene Zahlen, Belohnung) | gemergt 11.10.2026 (PR #106) |
+| 0.81.0 | Hobby-Seiten Teil 2 «Kissenzeit»: Meditations-Seite (Vorlagen, Wie letztes Mal, Arten, Herausforderung, Meilensteine, Klänge, Zitate, Links, Orte), Intervalle mit Marken auf der Uhr, Sitzung im ganzen Bildschirm | PR offen |
 | 0.80.0 | Tests stabil: die automatischen Browser-Tests warten auf ein Zeichen der App statt auf eine Zeit; keine sichtbare Änderung | PR offen |
 | – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Teil 1 (0.76.0) live; Teil 2 (0.78.0) gemergt |
 | – | Startseite & Integrationen E1–E4 | Konzept und Mockups fertig, Fragen beantwortet |

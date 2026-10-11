@@ -4,10 +4,12 @@
 // taken away again) → started → the running session in full (the navigation steps back) → the end gong
 // → the session is saved (flowLog + flowSessions) → the milestone «Hingebungsvoll» counts up. A second
 // session from «Heute vielleicht» is paused and ended early. No sideways scroll, no page errors.
-// Fictional data only.
+// Fictional data only. No data import and no dialog of the app shell, so of tests/e2e/settle.js only
+// ready() is needed: the start-up tidy-up has finished before the test acts.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { SEED_TEMPLATES } from '../../src/lib/flowmed.js';
+import { ready } from './settle.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -22,6 +24,7 @@ async function open(page, context, hash) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`./${hash}`);
+  await ready(page); // the data tidy-up has finished (tests/e2e/settle.js)
   return errors;
 }
 const count = (page, table) =>
