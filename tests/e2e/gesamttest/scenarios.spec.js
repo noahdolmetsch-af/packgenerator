@@ -12,6 +12,7 @@ import { start, prepare, openData, importBackup, table, snapshot, integrity, tic
 import { fitRide } from '../../fixtures/fit.js';
 import { AID_KEY, inSmallAid } from '../../../src/lib/firstaid.js';
 import { newButton } from '../newbutton.js';
+import { openRow } from '../debrief-rows.js';
 
 const LANG = 'de';
 const T = tr(LANG);
@@ -168,8 +169,9 @@ test('S2 3-day bikepacking with tent, GPX debrief', async ({ page, context }, in
 
   await page.goto(`./#/debrief/${trip.id}`);
   await page.reload();
+  await openRow(page, 'how-fold'); // v0.92.0: the ride is under «Wie war's?»
   await expect(page.getByRole('link', { name: new RegExp(T('Planned vs real')) })).toBeVisible();
-  await page.getByRole('button', { name: T('Save debrief') }).first().click();
+  await page.getByRole('button', { name: T('Done|debrief') }).first().click();
   await expect.poll(async () => (await table(page, 'debriefs')).find((d) => d.tripId === trip.id)?.status).toBe('done');
   const after = (await table(page, 'trips')).find((t) => t.id === trip.id);
   expect(after.entries.filter((e) => e.packed).length, 'ticks kept').toBe(5);

@@ -8,6 +8,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { openRow } from './debrief-rows.js';
 
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -178,19 +179,20 @@ test('On the way note: in the Inbox and in the debrief; a missing item becomes a
   await page.goto('./#/ride');
   await endToDebrief(page, T); // v0.67.0: the trip ends («Tour beendet»), then its debrief
   await expect(page).toHaveURL(new RegExp(`#/debrief/${RIDE}`));
+  await openRow(page, 'how-fold'); // v0.92.0: the notes on the way are under «Wie war's?»
   const way = page.locator('.ridenotes');
   await expect(way.getByText(T('Notes on the way'))).toBeVisible();
   await expect(way.getByText('test_data_gtp_ Gloves too thin')).toBeVisible();
   await expect(way.getByText(T('Day {n}', { n: 1 }), { exact: false })).toBeVisible();
 
   // What was missing, from the search: "Add … as new" (v0.29.0: on the same page).
+  await openRow(page, 'miss-fold');
   await page.getByLabel(T('What you missed')).fill('test_data_gtp_ Head torch');
   await page.getByRole('button', { name: T('Add "{q}" as new (not in your gear)', { q: 'test_data_gtp_ Head torch' }) }).click();
   await expect(page.locator('ul.exc li').filter({ hasText: 'test_data_gtp_ Head torch' })).toBeVisible();
   await noSideScroll(page);
   // Both become suggestions, all ticked: one shown as "For next time", the others under "More suggestions".
-  const more = page.locator('details.tp-fold').filter({ hasText: T('More suggestions') });
-  if (await more.count()) await more.locator('summary').click();
+  await openRow(page, 'next-fold'); // v0.92.0: the suggestions are one row «Fürs nächste Mal»
   for (const label of [T('Take {name} next time', { name: 'test_data_gtp_ Head torch' }), 'From the ride: "test_data_gtp_ Gloves too thin"']) {
     const box = page.getByRole('checkbox', { name: new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) });
     if (await box.count()) await expect(box).toBeChecked();
@@ -200,7 +202,7 @@ test('On the way note: in the Inbox and in the debrief; a missing item becomes a
       await expect(page.locator('.learn').getByRole('button', { name: T('Yes, remember') })).toBeVisible();
     }
   }
-  await page.getByRole('button', { name: T('Save debrief') }).click();
+  await page.getByRole('button', { name: T('Done|debrief') }).click();
   // v0.67.0 (U006): a trip of two days closes its loop on «Rückblick fertig»
   await expect(page).toHaveURL(new RegExp(`#/trip/${RIDE}/debriefed$`));
   await expect(page.getByRole('heading', { level: 1, name: T('Debrief finished|title') })).toBeVisible();

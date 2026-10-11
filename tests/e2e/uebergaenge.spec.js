@@ -205,7 +205,7 @@ test('«Rückblick speichern» → «Rückblick fertig»: the loop closes, the t
   await go(page, '#/pack');
   await expect(main(page)).toHaveText(T('Continue to Debrief'));
   await go(page, `#/debrief/${ID('Napf')}`);
-  await page.locator('.trip-band').getByRole('button', { name: T('Save debrief') }).click();
+  await page.locator('.trip-band').getByRole('button', { name: T('Done|debrief') }).click();
   await expect(page).toHaveURL(new RegExp(`#/trip/${ID('Napf')}/debriefed$`));
   await expect(page.getByRole('heading', { level: 1, name: T('Debrief finished|title') })).toBeVisible();
   await expect(page.getByText(T('{name} was missing', { name: 'test_data_gtp_ Ersatzschlauch' }))).toBeVisible();

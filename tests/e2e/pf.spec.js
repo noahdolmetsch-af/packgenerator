@@ -977,7 +977,7 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   // v0.67.0: the trip ends («Tour beendet»), then the debrief
   await endToDebrief(page, T);
   await rec.check('debrief: the ride note is shown for this trip', () => expect(page.locator('.ridenotes')).toContainText(`${P} PF16 note`, { timeout: 3000 }));
-  await page.getByRole('button', { name: T('Save debrief') }).click();
+  await page.getByRole('button', { name: T('Done|debrief') }).click();
   await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
   await rec.check('debrief: saved for this trip', async () => expect((await table(page, 'debriefs')).map((d) => d.tripId)).toContain(tripId));
   await rec.shot('debrief');
@@ -1087,7 +1087,7 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   await rec.check('ride day: no hint to a Pack place that does not exist ("Ride and weather")', () => expect(page.getByText(T('under "Ride and weather".'))).toHaveCount(0, { timeout: 2000 }));
   // v0.67.0: «Tour abschliessen» (it asks while the ride is still ahead), «Tour beendet», the debrief
   await endToDebrief(page, T);
-  await rec.click(page.getByRole('button', { name: T('Save debrief') }));
+  await rec.click(page.getByRole('button', { name: T('Done|debrief') }));
   await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
   rec.stop();
   const done = (await table(page, 'trips')).find((x) => x.id === trip0.id);

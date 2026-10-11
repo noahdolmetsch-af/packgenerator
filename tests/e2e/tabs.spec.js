@@ -9,6 +9,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { openRow } from './debrief-rows.js';
 
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -204,14 +205,18 @@ for (const lang of ['de', 'en']) {
     await page.goto('./#/ride');
     await endToDebrief(page, T); // v0.67.0: the trip ends («Tour beendet»), then its debrief
     await expect(page).toHaveURL(new RegExp(`#/debrief/${trip.id}`));
-    const diff = page.getByRole('region', { name: T('What was different?') });
+    // v0.92.0 «Rückblick antippen»: the chips on top show them; what was missing is in its row.
+    const diff = page.getByRole('region', { name: T('What did you not need?') });
     await expect(diff.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Multi tool', state: T('Not used') }) })).toBeVisible();
     await expect(diff.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Spare tube', state: T('Broken') }) })).toBeVisible();
-    await expect(diff.locator('li').filter({ hasText: 'test_data_gtp_ Sitzcreme' })).toContainText(T('Was missing'));
-    await expect(diff.locator('li').filter({ hasText: 'Multi tool' })).toContainText(T('from your note on the way, {time}', { time: '' }).replace(/[,\s]+$/, ''));
-    // One tap changes an exception: not used → broken.
-    await diff.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Multi tool', state: T('Not used') }) }).click();
-    await expect(diff.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Multi tool', state: T('Broken') }) })).toBeVisible();
+    await openRow(page, 'miss-fold');
+    await expect(page.locator('details.miss-fold li').filter({ hasText: 'test_data_gtp_ Sitzcreme' })).toContainText(T('Was missing'));
+    await expect(page.locator('details.miss-fold li').filter({ hasText: 'test_data_gtp_ Sitzcreme' })).toContainText(T('from your note on the way, {time}', { time: '' }).replace(/[,\s]+$/, ''));
+    // In the full list one tap changes an item: not used → broken.
+    await openRow(page, 'items-fold');
+    const all = page.locator('details.items-fold');
+    await all.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Multi tool', state: T('Not used') }) }).click();
+    await expect(all.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Multi tool', state: T('Broken') }) })).toBeVisible();
     await go(page).click();
     await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
     const saved = (await table(page, 'debriefs')).find((d) => d.tripId === trip.id);
@@ -229,7 +234,7 @@ test('the debrief is one page: nothing different = one tap', async ({ page, cont
   const title = 'test_data_gtp_ Rueckblick';
   const trip = await newTrip(page, T, title, { date: day(-2) });
   await page.goto(`./#/debrief/${trip.id}`);
-  await expect(page.getByRole('heading', { name: T('What was different?') })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('What did you not need?') })).toBeVisible();
   // Filled in: weather as planned, amount right, bags fine; every item counts as used.
   // v0.40.0 (Noah 4a): segments instead of drop-downs.
   const segs = page.locator('.qa [role=group]');
