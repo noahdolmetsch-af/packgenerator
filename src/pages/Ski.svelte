@@ -12,6 +12,7 @@
   import SkiHome from './ski/SkiHome.svelte';
   import SkiCheck from './ski/SkiCheck.svelte';
   import SkiStart from './ski/SkiStart.svelte';
+  import SkiCare from './ski/SkiCare.svelte';
   import SkiAfter from './ski/SkiAfter.svelte';
 
   let { sub = '' } = $props();
@@ -23,6 +24,8 @@
   <SkiCheck {id} />
 {:else if parts[0] === 'start'}
   <SkiStart {id} />
+{:else if parts[0] === 'care'}
+  <SkiCare />
 {:else if parts[0] === 'after'}
   {#key id}<SkiAfter {id} />{/key}
 {:else}

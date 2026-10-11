@@ -208,3 +208,21 @@ test('Nach der Tour: Strava fills it in, «Speichern» makes learnings that show
   await expect(page.locator('[data-group="clothing"] [data-tip]')).toHaveText(T('too warm on the way up'));
   await expect(page.locator('[data-group="hardware"] [data-tip]')).toHaveText('Harscheisen ab 2200 m nötig');
 });
+
+test('Saison-Pflege: three phases, «Erledigt» keeps day and metres, Undo takes it back', async ({ page, context }, info) => {
+  await open(page, context, info, '#/ski/care');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Season care'));
+  await expect(page.locator('[data-phase]')).toHaveCount(3);
+  await expect(page.locator('[data-task]')).toHaveCount(CARE_TASKS.length);
+  await expect(page.locator('[data-task="lvs"] [role="checkbox"]')).toHaveAttribute('aria-checked', 'true');
+  await expect(page.locator('[data-task="skins"] .pill')).toHaveText(T('due|care'));
+  expect(await noSideScroll(page)).toBe(true);
+  await shot(page, info, 'D-Saison-Pflege');
+  await page.locator('[data-task="skins"] [role="checkbox"]').click();
+  await expect(page.locator('[data-task="skins"] [role="checkbox"]')).toHaveAttribute('aria-checked', 'true');
+  await expect(page.locator('[data-task="skins"] .pill')).toHaveCount(0);
+  await expect.poll(async () => (await setting(page, 'ski.care')).filter((e) => e.task === 'skins').map((e) => [e.day, e.hm, e.season])).toEqual([[D0, 0, '2026/27']]);
+  await page.locator('.sk-notice button').click();
+  await expect.poll(async () => (await setting(page, 'ski.care')).filter((e) => e.task === 'skins').length).toBe(0);
+  await expect(page.locator('[data-task="skins"] [role="checkbox"]')).toHaveAttribute('aria-checked', 'false');
+});

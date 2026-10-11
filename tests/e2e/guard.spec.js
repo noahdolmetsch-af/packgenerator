@@ -98,10 +98,12 @@ const ROUTES = [
   ['#/me/lists', 'Listen und Typen'],
   ['#/me/lists?categories', 'Kategorien'],
   // v0.97.0 «Skitouren»: Touren › Skitouren and its pages, strict like their files (the fixture has no
+  // v0.97.0 «Skitouren»: Touren › Skitouren and its four pages, strict like their files (the fixture has no
   // ski tour: the empty states; tests/e2e/ski.spec.js checks them filled)
   ['#/ski', 'Skitouren'],
   ['#/ski/check', 'Rucksack-Check'],
   ['#/ski/start', 'Start-Check'],
+  ['#/ski/care', 'Saison-Pflege'],
   ['#/ski/after', 'Nach der Tour'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];

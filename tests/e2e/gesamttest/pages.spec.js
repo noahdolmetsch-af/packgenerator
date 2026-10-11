@@ -101,6 +101,7 @@ const CASES = [
   { id: 'ski', hash: '#/ski' },
   { id: 'ski-check', hash: `#/ski/check/${TRIP.ski}` },
   { id: 'ski-start', hash: `#/ski/start/${TRIP.ski}` },
+  { id: 'ski-care', hash: '#/ski/care' },
   { id: 'ski-after', hash: `#/ski/after/${TRIP.ski}` },
   { id: 'logbook', hash: '#/debrief/logbook' },
   { id: 'rides', hash: '#/debrief/ride' },

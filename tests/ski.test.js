@@ -209,3 +209,48 @@ describe('Strava ski tours', () => {
     expect(mergeStrava(tours, [{ ...tours[0], hm: 1200 }]).find((a) => a.stravaId === '101').hm).toBe(1200);
   });
 });
+
+describe('the season care', () => {
+  const tasks = careTasks(null);
+  const T = Object.fromEntries(tasks.map((x) => [x.id, x]));
+
+  it('three phases with the tasks of the mockup, each in German', () => {
+    expect(CARE_PHASES.map((p) => p.key)).toEqual(['start', 'during', 'end']);
+    expect(CARE_PHASES.map((p) => tasks.filter((x) => x.phase === p.key).length)).toEqual([6, 3, 4]);
+    for (const x of CARE_TASKS) expect([DE[x.task], DE[x.hint]].every(Boolean), x.id).toBe(true);
+  });
+
+  it('start tasks are due from 1 November until done this season (October: soon)', () => {
+    expect(careState(T.skins, [], '2026-11-01', 0).state).toBe('due');
+    expect(careState(T.skins, [], '2027-03-01', 0).state).toBe('due');
+    expect(careState(T.skins, [], '2026-10-11', 0).state).toBe('soon');
+    expect(careState(T.skins, [], '2026-08-01', 0).state).toBe('');
+    const done = careEntry(T.skins, '2026-11-03', 0, 1);
+    expect(done).toMatchObject({ task: 'skins', day: '2026-11-03', hm: 0, season: '2026/27' });
+    expect(careState(T.skins, [done], '2027-01-01', 0)).toMatchObject({ state: 'ok', done });
+    expect(careState(T.skins, [{ ...done, season: '2025/26' }], '2026-11-02', 0).state).toBe('due');
+    expect(careDue(tasks, [done], '2026-11-04', 0)).toBe(5);
+  });
+
+  it('wax is due every 5,000 m climbed since the last wax this season (soon from 4,000)', () => {
+    expect(careState(T.wax, [], '2026-12-20', 1200)).toMatchObject({ state: '', left: 3800 });
+    expect(careState(T.wax, [], '2027-01-20', 4200)).toMatchObject({ state: 'soon', left: 800 });
+    expect(careState(T.wax, [], '2027-02-20', WAX_EVERY)).toMatchObject({ state: 'due', left: 0 });
+    const waxed = { id: 'w', task: 'wax', day: '2027-02-21', hm: 5100, season: '2026/27' };
+    expect(careState(T.wax, [waxed], '2027-02-22', 5300)).toMatchObject({ state: 'ok', left: 4800 });
+    expect(careState(T.wax, [waxed], '2027-04-22', 10100)).toMatchObject({ state: 'due', left: 0 });
+  });
+
+  it('end tasks are due from 1 May (April: soon); during tasks have no date', () => {
+    expect(careState(T['lvs-out'], [], '2027-05-01', 0).state).toBe('due');
+    expect(careState(T['lvs-out'], [], '2027-04-15', 0).state).toBe('soon');
+    expect(careState(T['lvs-out'], [], '2027-02-15', 0).state).toBe('');
+    expect(careState(T.dry, [], '2027-02-15', 0).state).toBe('');
+  });
+
+  it('the list is yours: own tasks join their phase, hidden ones go', () => {
+    const list = careTasks({ own: [{ id: 'own-1', phase: 'start', task: 'Stöcke prüfen' }, { id: 'own-2', phase: 'nowhere', task: 'x' }], hidden: ['crampons'] });
+    expect(list.filter((x) => x.phase === 'start').map((x) => x.id)).toEqual(['lvs', 'skins', 'service', 'binding', 'boots', 'own-1']);
+    expect(list.find((x) => x.id === 'own-1').own).toBe(true);
+  });
+});
