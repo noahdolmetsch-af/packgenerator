@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.88.0 «Aufräumen und Ausprobieren»
+  'Ich › «Clean up test data»: everything with «test» in its name at a glance, untick what stays, archive the rest. Nothing is deleted, «Undo» brings it back, and the app no longer learns from it.':
+    'Ich › «Testdaten aufräumen»: alles mit «test» im Namen auf einen Blick, abwählen was bleibt, den Rest archivieren. Nichts wird gelöscht, «Rückgängig» holt es zurück, und die App lernt nicht mehr daraus.',
+  'Ich › «Try it out»: a playground with a made-up trip; play the packing day, the ride or the debrief. When you end it, your data is exactly as before.':
+    'Ich › «Ausprobieren»: eine Spielwiese mit erfundener Tour; spiel den Packtag, die Fahrt oder den Rückblick. Beim Beenden sind deine Daten genau wie vorher.',
+  'A trip ended before its date asks before a debrief, and on Trips it comes back with «Plan again».':
+    'Eine Tour, die vor ihrem Datum beendet wurde, fragt vor dem Rückblick nach und kommt unter Touren mit «Wieder planen» zurück.',
+
   // 0.86.0 «Meditation einfach»
   'Meditation in two taps: tap it in «Tick off today» and start at once, choose the minutes, or only tick it off.':
     'Meditation in zwei Tipps: in «Heute abhaken» antippen und sofort starten, die Minuten wählen oder nur abhaken.',

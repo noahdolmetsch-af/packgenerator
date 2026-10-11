@@ -3,6 +3,8 @@
   /**
    * The bar on top while a demo runs: which demo, the demo day, and "End demo".
    * Ending puts your own data back exactly as it was before the demo.
+   * v0.88.0 (mockup G): the playground (Ich › Ausprobieren, play.js) says so in one line: your data
+   * is safe and nothing counts; «End» ends it the same way.
    */
   import { liveQuery } from 'dexie';
   import { db } from './db.js';
@@ -20,7 +22,8 @@
     location.reload();
   }
   async function end() {
-    if (!confirm(t('End the demo? Your own data comes back exactly as it was before the demo. Everything done in the demo is removed.'))) return;
+    const ask = demo?.play ? t('End the playground? Your own data comes back exactly as it was. Everything done in the playground is removed.') : t('End the demo? Your own data comes back exactly as it was before the demo. Everything done in the demo is removed.');
+    if (!confirm(ask)) return;
     busy = true;
     await endDemo(db);
     location.hash = '#/';
@@ -30,16 +33,16 @@
 
 {#if demo}
   <div class="demo" role="region" aria-label={t('Demo')}>
-    <span class="t"><b>{t('Demo')}:</b> {demo.name}</span>
-    <label>
-      <span>{t('Demo day')}</span>
+    {#if demo.play}<span class="t"><b>{t('Playground')}</b> · {t('your data is safe · nothing counts')}</span>{:else}<span class="t"><b>{t('Demo')}:</b> {demo.name}</span>{/if}
+    {#if demo.days.length || shifted}<label>
+      <span>{demo.play ? t('Play day') : t('Demo day')}</span>
       <select value={shifted ? today : ''} onchange={(e) => goTo(e.currentTarget.value)}>
         <option value="">{t('Real today')}</option>
         {#each demo.days as d (d.date)}<option value={d.date}>{d.label}</option>{/each}
         {#if shifted && !demo.days.some((d) => d.date === today)}<option value={today}>{today}</option>{/if}
       </select>
-    </label>
-    <button type="button" class="end" disabled={busy} onclick={end}>{t('End demo')}</button>
+    </label>{/if}
+    <button type="button" class="end" disabled={busy} onclick={end}>{demo.play ? t('End|playground') : t('End demo')}</button>
     {#if demo.note}<p class="note">{demo.note}</p>{/if}
   </div>
 {/if}

@@ -35,7 +35,7 @@ export async function startDemo(db, data, now = new Date()) {
   if (problems.length) throw new Error(problems.join(' '));
   if (await db.table('meta').get(DEMO_KEY)) throw new Error(t('A demo is already running. End it first.'));
   const snapshot = await buildBackup(db);
-  await db.table('meta').put({ key: DEMO_KEY, name: data.demo.name ?? 'Demo', note: data.demo.note ?? '', days: data.demo.days ?? [], startedAt: now.toISOString(), snapshot });
+  await db.table('meta').put({ key: DEMO_KEY, name: data.demo.name ?? 'Demo', note: data.demo.note ?? '', days: data.demo.days ?? [], play: !!data.demo.play, startedAt: now.toISOString(), snapshot });
   try {
     await restoreBackup(db, data, 'merge');
     await blocksAfterImport(db, data, 'merge'); // v0.33.0: old demo data gets the building blocks (tidyData)

@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.88.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'Ich › «Clean up test data»: everything with «test» in its name at a glance, untick what stays, archive the rest. Nothing is deleted, «Undo» brings it back, and the app no longer learns from it.', href: '#/me' },
+      { text: 'Ich › «Try it out»: a playground with a made-up trip; play the packing day, the ride or the debrief. When you end it, your data is exactly as before.', href: '#/me' },
+      { text: 'A trip ended before its date asks before a debrief, and on Trips it comes back with «Plan again».', href: '#/trips' },
+    ],
+  },
+  {
     version: '0.86.0',
     date: '2026-10-11',
     points: [

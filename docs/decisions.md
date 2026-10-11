@@ -673,6 +673,13 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **5a:** zwei Bauten gleichzeitig nur, wenn sie verschiedene Bereiche ändern.
 - Mockups bleiben immer, Noah merged weiterhin selbst.
 
+## 11.10.2026: «Aufräumen und Ausprobieren» (0.88.0, App einfach «1a 2a 3b 4a 5a», Mockups F–H «0.88 alle a»)
+
+- **Anlass:** Noahs Auftrag vom 11.10.2026 («für mich als Nutzer ist alles noch viel zu kompliziert»). Das Durchspielen mit seinem Backup zeigte: 21 von 27 Touren sind Tests, die App lernt daraus, und eine echte Tour verschwand von Heute, weil ein Test-Rückblick sie vor ihrem Datum beendet hatte.
+- **App einfach 1a 2a 3b 4a 5a:** zuerst Aufräumen (0.88), dann Rückblick antippen (0.89), Velo kurz (0.90), Material Liste zuerst (0.91). **3b:** Neue Tour und Planen bleiben, wie sie sind.
+- **0.88 1a:** gefunden wird alles mit «test» im Namen, mit Vorschau zum Abwählen. **2a:** archivieren statt löschen, die App lernt nicht mehr daraus, «Rückgängig» jederzeit. **3a:** Spielwiese mit erfundener Wochenend-Tour und «Tag spielen»; beim Beenden ist alles wie vorher. **4a:** ein Rückblick für eine Tour, die noch kommt, fragt zuerst; «Trotzdem» bleibt möglich. **5a:** «Wieder planen» für eine beendete Tour, deren Datum noch kommt.
+- **Selbst entschieden:** Bausteine und Pflege-Einträge sind (anders als im Mockup F) nicht dabei: Bausteine haben kein Archiv, und bei der Pflege heissen echte Aufgaben oft «Testfahrt» oder «Test Spot Tracker». Material und Vorlagen zählen nur mit «test» am Wortanfang («Contest» nicht). Die Rückblicke gehen mit ihren Touren (eine Zeile statt einer eigenen Gruppe).
+
 ## 11.10.2026: «Meditation einfach» (0.86.0, Noah «1-5 a» 08:22, Mockups A–E «Ok» 09:35)
 
 - **Anlass:** Noah 08:03 nach dem Durchspielen: «viel zu kompliziert». Antwort «1-5 a» auf die fünf Fragen, Mockups A–E am 11.10.2026 09:35 mit «Ok» freigegeben.

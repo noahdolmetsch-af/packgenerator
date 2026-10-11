@@ -19,6 +19,9 @@
   import { parseKm } from '../lib/care.js';
   import TripBand from '../lib/trip/TripBand.svelte';
   import { openTrip } from '../lib/nav.js';
+  import { planAgain } from '../lib/trip/ending.js';
+  import { endedTooEarly } from '../lib/tripsoverview.js';
+  import { PLAY_WISH } from '../lib/play.js';
   import '../lib/trip/trip.css';
   import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, Route } from '@lucide/svelte';
   import { ZONE, touched } from '../lib/trips.js';
@@ -89,6 +92,19 @@
   // (the same skipped switch as Plan's "Not riding"). Ended early (finished) or over: the whole debrief.
   const early = $derived(!!trip && !isOver(trip) && !!tripEnd(trip) && localDay() < tripEnd(trip));
   const byBike = $derived(trip ? hasBike(trip) : true);
+  // v0.88.0 (Noah 0.88 4a/5a, mockup H): a trip ended before its start date asks first, before a
+  // debrief teaches the app something that has not happened: «Wieder planen», «Trotzdem Rückblick»,
+  // or try it in the playground (Ich › Ausprobieren). «Trotzdem» holds until the page is left.
+  const tooEarly = $derived(!!trip && endedTooEarly(trip, localDay()));
+  let anyway = $state(null);
+  function toPlay() {
+    try {
+      localStorage.setItem(PLAY_WISH, '1');
+    } catch {
+      /* private mode: Ich opens without the sheet */
+    }
+    location.hash = '#/me';
+  }
   const longDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'long' });
   const toggleSkip = () => db.trips.update(trip.id, touched({ skipped: !trip.skipped }));
   // Answer 8b: how often each item was not used before (other trips), shown in step 2.
@@ -415,6 +431,18 @@
         <p><button type="button" class="btn" onclick={toggleSkip}>{trip.skipped ? (byBike ? t('Riding it after all') : t('Going after all')) : t('Trip is off')}</button></p>
       </section>
     </div>
+  {:else if tooEarly && anyway !== trip.id}
+    <div class="flow trip-page">
+      <section class="tp-card early ahead" aria-labelledby="ahead-h">
+        <h2 id="ahead-h">{t('{name} is still to come', { name: trip.title || t('This trip') })}</h2>
+        <p class="tp-muted">{t('It starts on {date}. A debrief now ends the trip, and the app learns from it.', { date: longDate(trip.startDate) })}</p>
+        <div class="ahead-acts">
+          <button type="button" class="btn hi" onclick={() => planAgain($state.snapshot(trip))}>{t('Plan again')}<ArrowRight size={18} aria-hidden="true" /></button>
+          <button type="button" class="btn" onclick={() => (anyway = trip.id)}>{t('Debrief anyway')}</button>
+          <button type="button" class="tp-link" onclick={toPlay}>{t('Rather try it in the playground')}</button>
+        </div>
+      </section>
+    </div>
   {:else if d}
     {#snippet go()}{#if saved}<a class="btn hi go" href="#/trips">{t('Back to Trips')}<ArrowRight size={20} aria-hidden="true" /></a>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish}>{t('Save debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
     {@const end = tripEnd(trip)}
@@ -586,6 +614,17 @@
 {/if}
 
 <style>
+  .ahead-acts {
+    display: grid;
+    gap: 10px;
+    max-width: 420px;
+    margin-top: 14px;
+  }
+  .ahead-acts .btn {
+    min-height: 48px;
+    justify-content: center;
+  }
+
   .ridelink {
     margin-bottom: 12px;
   }

@@ -8,6 +8,7 @@
    * drawing of its route and one button named by its next step; a dashed tile starts a new trip.
    * On the side the templates to start quickly and the best values and averages from the uploaded
    * rides (tripsboard.js). Heart rate, zones and power come later with Strava, as a grey note.
+   * v0.88.0 (Noah 0.88 5a): a trip ended before its start date gets «Wieder planen» (trip/ending.js).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -16,6 +17,7 @@
   import { TEMPLATES_KEY, templateEntries } from '../lib/templates.js';
   import { SETS_KEY } from '../lib/sets.js';
   import { switchTrip, openNew, newTrip } from '../lib/nav.js';
+  import { planAgain } from '../lib/trip/ending.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import Continue from '../lib/home/Continue.svelte';
@@ -137,7 +139,11 @@
                         <h3 class="t">{r.title}</h3>
                         <p class="s">{line({ ...r, km: null })}</p>
                         <p class="st">{#if g.key === 'debrief'}<span class="udot" aria-hidden="true"></span>{/if}{t(r.state.label, r.state)}</p>
-                        <a class="btn sm go" class:hi={g.key === 'soon' || g.key === 'planning' && r === view.planning[0]} href={r.go.href} onclick={(e) => (e.preventDefault(), go(r))} aria-label="{t(r.go.label)}: {r.title}">{t(r.go.label)}<ArrowRight size={16} aria-hidden="true" /></a>
+                        {#if g.key === 'replan'}
+                          <button type="button" class="btn sm go hi" onclick={() => planAgain(byId[r.tripId])} aria-label="{t(r.go.label)}: {r.title}">{t(r.go.label)}<ArrowRight size={16} aria-hidden="true" /></button>
+                        {:else}
+                        <a class="btn sm go" class:hi={g.key === 'soon' && !view.replan.length || g.key === 'planning' && r === view.planning[0]} href={r.go.href} onclick={(e) => (e.preventDefault(), go(r))} aria-label="{t(r.go.label)}: {r.title}">{t(r.go.label)}<ArrowRight size={16} aria-hidden="true" /></a>
+                        {/if}
                       </div>
                     </li>
                   {/if}
