@@ -229,7 +229,8 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   await expect(news.locator('.ver').first()).toContainText(T('Version {v}', { v: short(WHATS_NEW[0].version) }));
   // the whole point is the link (no "Try it" on every row)
   await expect(news.locator('.vers').first().locator('a.try').first()).toBeVisible();
-  await expect(news.getByRole('link', { name: T('Try it') })).toHaveCount(0);
+  // (exact: a point may name the Ich row «Ausprobieren», v0.88.0; no separate "Try it" link)
+  await expect(news.getByRole('link', { name: T('Try it'), exact: true })).toHaveCount(0);
   await expect(news.locator('details.older')).not.toHaveAttribute('open', '');
   await fits(page, info);
   await shot(page, info, 'whatsnew');
