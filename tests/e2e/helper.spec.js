@@ -6,6 +6,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { v0770File, P, SPARK, JURA, EVENT, CODE } from './v0770-fixture.js';
 import { openData, settle } from './settle.js';
+import { openRow } from './debrief-rows.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -170,6 +171,7 @@ test('8a: before the setup, a calm notice only in New trip and in the settings; 
   await expect(page.locator('.tp-list, .list-head').first()).toBeVisible();
   await expect(page.getByRole('button', { name: T('Check the list') })).toHaveCount(0);
   await page.goto(`./#/debrief/${JURA}`);
+  await openRow(page, 'how-fold'); // v0.92.0: weather, km, ride and notes are under «Wie war's?»
   await expect(page.locator('.ridenotes')).toBeVisible();
   await expect(page.getByRole('button', { name: T('Get a draft') })).toHaveCount(0);
   await expect(page.getByText(T('The helper is not set up yet'))).toHaveCount(0);
@@ -276,6 +278,7 @@ test('3a: Rückblick «Entwurf holen»: learnings from the notes on the way, the
   const seen = await fakeHelper(page);
   await setUp(page);
   await page.goto(`./#/debrief/${JURA}`);
+  await openRow(page, 'how-fold'); // v0.92.0: weather, km, ride and notes are under «Wie war's?»
   await page.getByRole('button', { name: T('Get a draft') }).click();
   const draft = page.getByRole('region', { name: T('Draft from the helper') });
   await expect(draft).toBeVisible();

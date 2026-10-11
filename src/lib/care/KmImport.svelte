@@ -12,7 +12,7 @@
   import { ChevronDown, ChevronRight, X, Upload } from '@lucide/svelte';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
-  import { parseStravaCsv, parseFit, planImport, importEntries, reasonText, sensorShort, signals, entryId, typeHints } from '../kmbook.js';
+  import { parseStravaCsv, parseFit, planImport, importEntries, reasonText, sensorShort, signals, entryId, typeHints, dupOf } from '../kmbook.js';
   import { loadRules, saveRules, applyImport } from '../kmbookdb.js';
   import KmChips from './KmChips.svelte';
   import Empty from '../ui/Empty.svelte';
@@ -82,25 +82,30 @@
     if (c.confirm && row.bikeId) return { bikeId: row.bikeId, by: row.sure === 'unclear' ? 'user' : row.by, sure: row.sure === 'unclear' ? 'user' : row.sure };
     return { bikeId: row.bikeId, by: row.by, sure: row.sure };
   }
-  const live = $derived(plan ? plan.rows.filter((r) => !r.dup || choices[r.key]?.take) : []);
+  /** v0.91.0: the duplicate kind after your choice (a bike picked by hand checks its start value too). */
+  const dup = (r) => dupOf(plan, r, choices[r.key]);
+  const live = $derived(plan ? plan.rows.filter((r) => !dup(r)) : []);
   const checkRows = $derived(live.filter((r) => eff(r).sure === 'unclear'));
   const perBike = $derived(
     bikes.map((b) => {
-      const rows = plan ? plan.rows.filter((r) => (r.dup && !choices[r.key]?.take ? r.bikeId === b.id : eff(r).bikeId === b.id && eff(r).sure !== 'unclear')) : [];
-      const fresh = rows.filter((r) => !r.dup || choices[r.key]?.take);
+      const rows = plan ? plan.rows.filter((r) => (dup(r) ? eff(r).bikeId === b.id : eff(r).bikeId === b.id && eff(r).sure !== 'unclear')) : [];
+      const fresh = rows.filter((r) => !dup(r));
       return { bike: b, rows, fresh, km: Math.round(fresh.reduce((s, r) => s + r.ride.km, 0)), dups: rows.length - fresh.length };
     }),
   );
+  /** v0.91.0: old rides without a bike, already in the start value of every bike: set aside, folded. */
+  const older = $derived(plan ? plan.rows.filter((r) => dup(r) === 'start' && !eff(r).bikeId) : []);
+  let olderOpen = $state(false);
   let openBikes = $state({});
   const isOpen = (id) => openBikes[id] ?? id === (bikeId ?? perBike.filter((x) => x.rows.length).sort((a, b) => b.rows.length - a.rows.length)[0]?.bike.id);
   const total = $derived({ n: live.length, km: Math.round(live.reduce((s, r) => s + r.ride.km, 0)), dup: plan ? plan.rows.length - live.length : 0, open: checkRows.length });
 
-  const detail = (r) =>
-    r.dup === 'merged'
+  const detail = (r, d = dup(r)) =>
+    d === 'merged'
       ? [r.ride.device, t('the same ride, second unit')].filter(Boolean).join(' · ')
-      : r.dup === 'known'
+      : d === 'known'
         ? t('{source} · already in the ride ledger', { source: r.ride.source === 'fit' ? t('FIT file') : 'Strava' })
-        : r.dup === 'start'
+        : d === 'start'
           ? t('before the start value, counted in it')
           : [r.ride.device, r.ride.profile ? t('Profile {name}', { name: r.ride.profile }) : '', ...(r.ride.sensors ?? []).slice(0, 1).map((s) => `${t('Sensor')} ${sensorShort(s.fp)}`), !r.ride.device && r.ride.gear ? t('Strava bike {gear}', { gear: r.ride.gear }) : ''].filter(Boolean).join(' · ');
   const DUP = { merged: 'duplicate: merged', known: 'duplicate: already in', start: 'in the start value' };
@@ -183,14 +188,14 @@
 {/snippet}
 
 {#snippet ride(r, unclear = false)}
-  <li class="ir" class:dup={r.dup && !choices[r.key]?.take}>
+  <li class="ir" class:dup={!!dup(r)}>
     <span class="d num">{dateOf(r.ride.date)}</span>
     <span class="w"><b>{r.ride.name || (r.ride.source === 'fit' ? t('Ride from {unit}', { unit: r.ride.device || t('FIT file') }) : t('Ride'))}</b><small>{detail(r)}</small></span>
     <span class="k num">{num(r.ride.km)} km</span>
     <span class="c">
-      {#if r.dup && !choices[r.key]?.take}
-        <span class="dupchip">{t(DUP[r.dup])}</span>
-        {#if r.dup !== 'merged'}<button type="button" class="lnk" onclick={() => choose(r.key, { take: true })}>{t('take anyway')}</button>{/if}
+      {#if dup(r)}
+        <span class="dupchip">{t(DUP[dup(r)])}</span>
+        {#if dup(r) !== 'merged'}<button type="button" class="lnk" onclick={() => choose(r.key, { take: true })}>{t('take anyway')}</button>{/if}
       {:else}
         {@render bikePick(r, unclear)}
       {/if}
@@ -216,6 +221,17 @@
           <section class="check surf" aria-labelledby="chk-h">
             <div class="ch"><h3 id="chk-h">{t('Check')} · {checkRows.length}</h3><span>{t('They count only when you confirm them.')}</span></div>
             <ul class="list">{#each checkRows as r (r.key)}{@render ride(r, true)}{/each}</ul>
+          </section>
+        {/if}
+        {#if older.length}
+          <section class="pb surf" aria-labelledby="old-h">
+            <div class="ch">
+              <h3 id="old-h">{t('Older rides without a bike')}</h3>
+              <span class="num">{tn(older.length, '{n} ride', '{n} rides')} · {t('already in the km of your bikes')}
+                <button type="button" class="lnk" aria-expanded={olderOpen} onclick={() => (olderOpen = !olderOpen)}>{olderOpen ? t('hide') : t('show')}</button>
+              </span>
+            </div>
+            {#if olderOpen}<ul class="list">{#each older as r (r.key)}{@render ride(r)}{/each}</ul>{/if}
           </section>
         {/if}
         {#each perBike as x (x.bike.id)}

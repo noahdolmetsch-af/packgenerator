@@ -149,7 +149,7 @@ test('L7: no debrief before the last day; On the way before the start leads back
   await page.goto('./#/debrief/gtp-l7');
   const end = new Date(`${day(11)}T12:00:00`).toLocaleDateString('de-CH', { weekday: 'short', day: 'numeric', month: 'long' });
   await expect(page.getByRole('heading', { name: T('Debrief from {date}', { date: end }) })).toBeVisible();
-  await expect(page.getByRole('button', { name: T('Save debrief') })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: T('Done|debrief') })).toHaveCount(0);
   await expect(goButton(page)).toHaveText(T('Continue to Pack')); // v0.67.0 (U002): by the phase, no «Zurück zum Packen» loop
   await fits(page, info);
   await shot(page, info, 'l7-debrief');
@@ -191,7 +191,7 @@ test('L7: during the trip "End the trip" on the way asks, ends it, and "Trip end
   await expect(page).toHaveURL(/#\/trip\/gtp-l7b\/ended$/);
   await page.locator('main .mainbar .btn.hi').click(); // «Weiter zum Rückblick»
   await expect(page).toHaveURL(/#\/debrief\/gtp-l7b/);
-  await expect(page.getByRole('button', { name: T('Save debrief') }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: T('Done|debrief') }).first()).toBeVisible();
   expect((await table(page, 'trips'))[0].finished).toBe(day(0));
   expect(errors).toEqual([]);
 });

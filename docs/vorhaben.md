@@ -59,8 +59,10 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.81.0 | Hobby-Seiten Teil 2 «Kissenzeit»: Meditations-Seite (Vorlagen, Wie letztes Mal, Arten, Herausforderung, Meilensteine, Klänge, Zitate, Links, Orte), Intervalle mit Marken auf der Uhr, Sitzung im ganzen Bildschirm | PR offen |
 | 0.84.0 | Hobby-Seiten Teil 3 «Nach dem Gong»: Auswertung mit Notiz, Tiefe, Stimmung und «Als Nächstes» (.ics), Protokoll mit Filtern, Serien-Wärmebild, Kalender und Grafik, Sitzung im Detail mit «Wieder so starten» | PR offen |
 | 0.86.0 | Meditation einfach (Noah «1-5 a»): Startblatt aus «Heute abhaken» (Jetzt {n} Min, Dauer, Nur abhaken), kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant» und Wisch-Hinweis weg | PR offen |
-| 0.88.0 | Aufräumen und Ausprobieren (App einfach 1a, Mockups F–H «0.88 alle a»): Ich › Testdaten aufräumen (Vorschau, abwählbar, archivieren mit Rückgängig, lernt nicht mehr daraus), Ich › Ausprobieren (Spielwiese mit erfundener Tour, «Tag spielen», danach alles wie vorher), Tour vor ihrem Datum beendet: Rückblick fragt zuerst, «Wieder planen» unter Touren. Erster Schritt der App-einfach-Reihe (0.89 Rückblick antippen, 0.90 Velo kurz, 0.91 Material Liste zuerst) | PR offen |
 | 0.93.0 | Meditation Wünsche (Noah «1-5 a», Mockups F–H): Neue Sitzung mit Sternen zuerst, Dauer 10–60 oder frei, Klänge keine · zufällig · eigene (alle N Minuten oder an Minute), «Als Vorlage speichern?» mit Namensvorschlag; vier Uhren Ring · Sanduhr · Mond · Zahl, gemerkt, Sanduhr mit ausblendbarer Zeit | PR offen |
+| 0.92.0 | Rückblick antippen (App einfach 4a, Mockup C): «Was hast du nicht gebraucht?» als Chips oben, Was hat gefehlt, Wie war's, Vorschläge und alle Teile als Zeilen darunter, Knopf «Fertig» | PR offen |
+| 0.91.0 | Import: alte Fahrten (Noah «Fix bauen»): Strava-Fahrten ohne Velo, die schon in den km der Velos stecken, liegen zur Seite statt unter «Prüfen»; ein von Hand gewähltes Velo zählt eine alte Fahrt nicht doppelt (Ziel «Velo im Griff», Q1) | live, PR #114 |
+| 0.88.0 | Aufräumen und Ausprobieren (App einfach 1a, Mockups F–H «0.88 alle a»): Ich › Testdaten aufräumen (Vorschau, abwählbar, archivieren mit Rückgängig, lernt nicht mehr daraus), Ich › Ausprobieren (Spielwiese mit erfundener Tour, «Tag spielen», danach alles wie vorher), Tour vor ihrem Datum beendet: Rückblick fragt zuerst, «Wieder planen» unter Touren. Erster Schritt der App-einfach-Reihe (0.89 Rückblick antippen, 0.90 Velo kurz, 0.91 Material Liste zuerst) | live, PR #113 |
 | 0.83.0 | Ausstattung: Velos-Tab «Masse» wird «Ausstattung» (Masse als Kacheln, jedes Teil in Gruppen mit Gewicht und Preis, Gewicht pro Bereich, teuerste Teile); «Velos vergleichen» nur mit Zeilen mit Werten | live, PR #109 |
 | 0.80.0 | Tests stabil: die automatischen Browser-Tests warten auf ein Zeichen der App statt auf eine Zeit; keine sichtbare Änderung | PR offen |
 | – | Fünf Orte (neue Seitenaufteilung, ersetzt D3 Basecamp) | Teil 1 (0.76.0) live; Teil 2 (0.78.0) gemergt |
@@ -189,6 +191,14 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Mehrfachauswahl:** viele Teile markieren und gemeinsam einer Kategorie, Tasche oder einem Baustein zuweisen.
 - **Fallen gelassen:** Foto-KI (Teil fotografieren, App erkennt es), Live-Sync über Drive.
 
+### 10. Bereiche sauber trennen (B1–B5)
+
+- **Warum:** Die Velo-Daten (Velos mit Pflege, Kleiderschrank, Bikepacking-Material) sind sauber und umfassend. Künftige Bereiche (Skitouren, Tennis, Eishockey, Alltag, Verbrauch, Essen) sollen sie nicht vermischen.
+- **Was (Noah 11.10.2026 «1-5 a», Trello YINDLpHj):** ein Inventar, jedes Teil mit einer Heimat und «auch für»; Velo bleibt geschützter Kern und Standard; Bereich «Überall» für gemeinsame Dinge; Bereichs-Umschalter in Material; Typ «Verbrauch» mit Vorrat, Ablaufdatum und Nachkaufen; neue Bereiche nur über einen Import mit Vorschau, der sich als Ganzes entfernen lässt.
+- **Pakete:** B1 Velo geschützt (Heimat pro Teil, Import-Nummer, Wächter-Test für unveränderte Velo-Daten) · B2 Umschalter + Überall · B3 Import mit Vorschau · B4 Vorrat · B5 erster neuer Bereich (Skitouren) mit Geräte-Pflege.
+- **Beispiel:** Eine Eishockey-Liste wird importiert, die Stirnlampe wird erkannt und bekommt nur «auch für Eishockey»; Material zeigt weiter Velo, bis Eishockey gewählt wird.
+- **Stand:** entschieden, noch nicht gebaut. Vorschlag https://claude.ai/artifact/8DQ6CKj1n9vJuBEwsj7msN.
+
 ## Reihenfolge
 
 Taktgeber ist echte Nutzung: Eine grössere Version kommt erst, wenn die letzte im Alltag oder auf einer Tour benutzt wurde.
@@ -224,6 +234,8 @@ flowchart LR
 10. **KI-Helfer einschalten.** Er ist fertig gebaut und getestet und wartet als Entwurf. Er kommt bewusst nach D2 und Strava, weil er dann die Wartungsgeschichte jedes Teils und die echten km kennt.
 11. **Danach Im Flow und Neuland.**
 12. **«Reisearten neu»** als eigenes Paket ganz am Ende (Noah, 10.10.2026 16:38).
+
+**Bereiche sauber trennen (Noah 11.10.2026 «1-5 a»):** B1 «Velo geschützt» gleich nach «App einfach», B2 Umschalter + Überall zusammen mit «Material Liste zuerst», B3 Import mit Vorschau und B4 Vorrat vor «Reisearten neu», B5 erster neuer Bereich zusammen mit «Reisearten neu».
 
 Fragen zu einem Paket werden kurz vor dem Paket gestellt. Gebaut wird erst, wenn sie beantwortet sind.
 

@@ -303,11 +303,12 @@
   // v0.30.1 (Noah C3): a suggestion answered "No" makes room for the next one (it stays unticked under "More").
   const top = $derived([...sugg].filter((s) => ticks[s.id] !== false).sort((a, b) => RANK[a.group] - RANK[b.group])[0] ?? null);
   const more = $derived(sugg.filter((x) => x !== top));
-  // The exceptions: what was not used or broke, and what was missing.
-  const exceptions = $derived(d && trip ? trip.entries.filter((e) => d.items[e.itemId] && byId[e.itemId]) : []);
   const used = $derived(d && trip ? trip.entries.filter((e) => byId[e.itemId] && !d.items[e.itemId]).length : 0);
+  // v0.92.0 (Noah 4a): one chip per packed item, in the order of the trip; the tally counts what stayed in the bag.
+  const chips = $derived(trip ? trip.entries.filter((e, i, all) => byId[e.itemId] && all.findIndex((x) => x.itemId === e.itemId) === i).map((e) => ({ e, item: byId[e.itemId] })) : []);
+  const unusedN = $derived(d ? chips.filter(({ e }) => d.items[e.itemId] === 'unused').length : 0);
+  const unusedG = $derived(d ? chips.reduce((g, { e, item }) => g + (d.items[e.itemId] === 'unused' && item.weightG != null ? item.weightG * (e.qty || 1) : 0), 0) : 0);
   const fromNote = (id) => wayNotes.find((n) => n.noteId === id) ?? null;
-  const zoneOf = (slot) => groups.find((g) => g.slot === slot)?.name ?? slot;
   const STATE = { used: 'Used', unused: 'Not used', broken: 'Broken' };
   const GROUPS = [
     { key: 'home', name: 'Leave at home?' },
@@ -444,129 +445,144 @@
       </section>
     </div>
   {:else if d}
-    {#snippet go()}{#if saved}<a class="btn hi go" href="#/trips">{t('Back to Trips')}<ArrowRight size={20} aria-hidden="true" /></a>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish}>{t('Save debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
+    {#snippet go()}{#if saved}<a class="btn hi go" href="#/trips">{t('Back to Trips')}<ArrowRight size={20} aria-hidden="true" /></a>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish}>{t('Done|debrief')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
     {@const end = tripEnd(trip)}
     {@const back = end ? Math.round((Date.parse(`${localDay()}T00:00:00Z`) - Date.parse(`${end}T00:00:00Z`)) / 864e5) : null}
     <div class="flow trip-page">
-      <TripBand {trip} tab="debrief" kicker={[t('Debrief'), back === 1 ? t('back yesterday') : back > 1 ? t('back {n} days ago', { n: back }) : ''].filter(Boolean).join(' · ')} action={go} hint={saved ? '' : t('Everything else counts as used.')} />
+      <TripBand {trip} tab="debrief" kicker={[t('Debrief'), back === 1 ? t('back yesterday') : back > 1 ? t('back {n} days ago', { n: back }) : ''].filter(Boolean).join(' · ')} action={go} />
       {#if saved}
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
         <TripSaved {trip} {d} {bike} {trips} {debriefs} rides={$ridesQ ?? []} {learnings} {items} containers={$bagsQ ?? []} bikes={$bikesQ ?? []} {counts} {sugg} {offer} onreopen={reopen} />
       {:else}
+      <!-- v0.92.0 «Rückblick antippen» (App einfach C, Noah 4a, mockup C): «not needed» as chips on top,
+           the rest as three rows below (what was missing, how it was, for next time), the button «Done». -->
       <div class="tp-grid2 r">
         <div class="col">
-          <!-- Noah 9a: only what was different; everything else counts as used. -->
-          <section class="tp-card" aria-labelledby="diff-h">
-            <h2 id="diff-h">{t('What was different?')}</h2>
-            {#if exceptions.length || d.missing.length}
-              <ul class="exc">
-                {#each exceptions as e (e.itemId)}
-                  {@const st = d.items[e.itemId]}
-                  {@const n = fromNote(d.itemNotes?.[e.itemId])}
-                  <li><span class="nm">{nameOf(byId[e.itemId])}<small>{n ? t('from your note on the way, {time}', { time: noteWhen(n.at) }) : `${t(zoneOf(e.slot))}${byId[e.itemId].weightG != null ? ` · ${formatWeight(byId[e.itemId].weightG * (e.qty || 1))}` : ''}`}</small></span>
-                    <button type="button" class="state {st}" aria-label={t('{name}: {state}. Tap to change.', { name: nameOf(byId[e.itemId]), state: t(STATE[st]) })} onclick={() => cycle(e.itemId)}>{#if st === 'unused'}<Minus size={16} aria-hidden="true" />{:else}<X size={16} aria-hidden="true" />{/if}{t(STATE[st])}</button></li>
-                {/each}
-                {#each d.missing as m (m.id)}
-                  {@const n = m.noteId ? fromNote(m.noteId) : null}
-                  <li><span class="nm">{m.name}<small>{n ? t('from your note on the way, {time}', { time: noteWhen(n.at) }) : m.itemId ? (trip.templateId ? t('in your gear · goes into the template') : t('in your gear')) : t('not in your gear · goes to the wishlist')}</small></span>
-                    <span class="state miss"><Plus size={16} aria-hidden="true" />{t('Was missing')}</span>
-                    <button type="button" class="x" aria-label={t('Remove {name}', { name: m.name })} onclick={() => dropMissing(m.id)}><X size={18} aria-hidden="true" /></button></li>
-                {/each}
-              </ul>
-            {/if}
-            <form class="miss" onsubmit={addMissing}>
-              <input class="inp" list="gear-names" placeholder={t('What you missed, e.g. Headlamp')} bind:value={missName} aria-label={t('What you missed')} />
-              <button type="submit" class="btn">{t('Add')}</button>
-            </form>
-            {#if similar.length}<p class="similar"><span>{t('In your gear:')}</span>{#each similar as i (i.id)}<button type="button" class="btn sm" onclick={() => addItem(i)}>{nameOf(i)}</button>{/each}</p>{/if}
-            {#if missQ && !exactMiss}<p class="similar"><button type="button" class="btn sm" onclick={addMissing}>+ {t('Add "{q}" as new (not in your gear)', { q: missQ })}</button></p>{/if}
-            <datalist id="gear-names">{#each notOnTrip as i (i.id)}<option value={i.name}></option>{/each}</datalist>
-            {#if freeNotes.length}
-              <div class="ridenotes">
-                <span class="lbl">{t('Notes on the way')}</span>
-                <ul>{#each freeNotes as n (n.key)}<li><small class="num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</small> {n.text}</li>{/each}</ul>
-                <!-- v0.77.0 (answer 3a): the helper's draft only on request -->
-                {#if isOn() && !draft}
-                  <p class="kh-getdraft"><button type="button" class="btn sm" disabled={draftBusy} onclick={getDraft}><Sparkles size={16} aria-hidden="true" />{draftBusy ? t('The helper is thinking …') : t('Get a draft')}</button></p>
-                  {#if draftMsg}<p class="kh-msg" role="status">{draftMsg}</p>{/if}
-                {/if}
-              </div>
-            {/if}
-          </section>
-          {#if draft}<DebriefDraft {draft} notes={freeNotes} days={trip.days ?? 1} onlearn={learnFromDraft} onsummary={summaryFromDraft} onclose={() => (draft = null)} />{/if}
-
-          <!-- Noah 9a: filled in; change only what was not so. -->
-          <section class="tp-card" aria-labelledby="how-h">
-            <h2 id="how-h">{t("How it was")}</h2>
-            <!-- v0.40.0 (Noah 4a): segmented toggles instead of drop-downs: one tap, the answer in sight. -->
-            <div class="qa">
-              <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={WEATHER.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('weather', v)} /></div>
-              <!-- v0.42.0 (Noah 6): how the clothing was; it slowly shifts the borders of the temperature kits. -->
-              <div class="segq"><span class="lbl" id="q-cloth">{t('Clothing')}</span><Seg labelledby="q-cloth" value={d.clothing ?? null} options={CLOTHING.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('clothing', v)} />
-                <p class="tp-muted tp-small clothhint">{tripKit ? t('Slowly shifts the borders of your temperature kits (here kit {range}).', { range: tempRange(tripKit.minC, tripKit.maxC, t) }) : t('Slowly shifts the borders of your temperature kits.')}</p></div>
-              <div class="segq"><span class="lbl" id="q-amount">{t('Amount of food and drink')}</span><Seg labelledby="q-amount" value={d.amount} options={AMOUNT.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('amount', v)} /></div>
-              <div class="segq"><span class="lbl" id="q-bags">{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><Seg labelledby="q-bags" value={d.bags} options={BAGS_OK.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('bags', v)} /></div>
-              {#if bike}
-                <label><span>{t('km for {bike}', { bike: bike.name })} <small>{bike.km != null ? t('now {km} km', { km: num(bike.km) }) : ''}</small></span><span class="kmin"><input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder={t('e.g. 303')} aria-label={t('km of this trip')} /> km</span></label>
-              {/if}
+          <section class="tp-card unneeded" aria-labelledby="unneeded-h">
+            <h2 id="unneeded-h">{t('What did you not need?')}</h2>
+            <p class="tp-muted sub">{t('Tap what stayed in the bag. The app learns it for next time.')}</p>
+            <div class="chips" role="group" aria-labelledby="unneeded-h">
+              {#each chips as { e, item } (e.itemId)}
+                {@const st = d.items[e.itemId] ?? 'used'}
+                <button type="button" class="chip {st}" aria-pressed={st !== 'used'} aria-label={t('{name}: {state}. Tap to change.', { name: nameOf(item), state: t(STATE[st]) })} onclick={() => mark(e.itemId, st === 'used' ? 'unused' : 'used')}>{nameOf(item)}{#if e.qty > 1}<small> × {e.qty}</small>{/if}{#if st === 'broken'}<small class="br"> · {t('Broken')}</small>{/if}</button>
+              {/each}
             </div>
-            {#if bike}
-              <p class="tp-muted tp-small kmsrc">{trip.route?.km && d.km === Math.round(trip.route.km) ? t('km from the route.') : ''}</p>
-              {#if rideMsg}<p class="hint ride" role="status">{rideMsg}</p>{/if}
-              <details class="howto">
-                <summary>{t('Import from Strava or Garmin')}</summary>
-                <span class="btn sm imp"><Upload size={16} aria-hidden="true" />{t('Choose files')}<input type="file" accept=".csv,.gpx,.tcx,text/csv,application/gpx+xml" multiple onchange={importRides} aria-label={t('Import from Strava or Garmin')} /></span>
-                <p><b>Strava:</b> {t('on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).')}</p>
-                <p><b>Garmin Connect:</b> {t('on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).')}</p>
-                <p>{t('Several files at once are fine (one per day). Only rides on the days of this trip count.')}</p>
-              </details>
-            {/if}
-            <!-- v0.40.0 (design check R1): folded as a row; open when there is a sentence already. -->
-            <details class="note-fold" use:openOnce={!!d.note}>
-              <summary><span>{t('One sentence for next time')}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
-              <textarea class="inp" rows="2" bind:value={d.note} oninput={persist} placeholder={t('e.g. Heatwave, the rain gear was never used')} aria-label={t('One sentence for next time')}></textarea>
-            </details>
+            <p class="tally" role="status">{#if unusedN}<b>{tn(unusedN, '{n} not used', '{n} not used')}</b>{#if unusedG > 0}{' · '}{t('{weight} less next time?', { weight: formatWeight(unusedG) })}{/if}{:else}{t('Nothing tapped: everything counts as used.')}{/if}</p>
           </section>
         </div>
         <div class="col">
-          <!-- v0.41.0 (Noah 1, 3): the recorded ride of this trip: planned vs real and its learnings -->
-          <ul class="rowlist ridelink">
-            {#each tripRides as r (r.id)}
-              <li><a class="lrow" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}><span class="ic"><Route size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Planned vs real')}</span><span class="s">{r.name}</span></span><span class="v num">{num(r.km)} km</span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-            {:else}
-              <li><a class="lrow" href="#/debrief/ride"><span class="ic"><Upload size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Upload ride')}</span><span class="s">{t('GPX: pauses, planned vs real, learnings')}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-            {/each}
-          </ul>
-          {#if rememberMsg}<p class="card ok remembered" role="status">{rememberMsg}</p>{/if}
-          {#if top}
-            <!-- Noah 9a: one suggestion for next time, with its reason. -->
-            <section class="tp-card learn" aria-labelledby="learn-h1">
-              <h2 id="learn-h1"><Star size={18} aria-hidden="true" />{t('For next time')}</h2>
-              <p><b>{top.label}</b><br />{top.detail}</p>
-              <div class="tp-chips" role="group" aria-label={top.label}>
-                <button type="button" class="btn yes" disabled={remembering} onclick={() => remember(top)}>{t('Yes, remember')}</button>
-                <button type="button" class="btn" disabled={remembering} onclick={() => ((ticks[top.id] = false), (rememberMsg = ''))}>{t('No')}</button>
-              </div>
-            </section>
-          {/if}
-          {#if more.length}
-            <details class="tp-fold">
-              <summary><Star size={20} aria-hidden="true" /><span>{t('More suggestions')}</span><span class="r"><i class="tp-badge">{tn(more.filter(ticked).length, '{n} ticked', '{n} ticked')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-              <div class="in">
-                {#each GROUPS as grp (grp.key)}
-                  {@const list = more.filter((x) => x.group === grp.key)}
-                  {#if list.length}
-                    <p class="lbl">{t(grp.name)}</p>
-                    {#each list as x (x.id)}<label class="chk"><input type="checkbox" checked={ticked(x)} onchange={(ev) => (ticks[x.id] = ev.currentTarget.checked)} /><span>{x.label}<small>{x.detail}</small></span></label>{/each}
+          <details class="tp-fold more-row miss-fold" use:openOnce={!phone.matches}>
+            <summary><span class="two"><b>{t('What was missing?')}</b><small>{d.missing.length ? d.missing.map((m) => m.name).join(', ') : t('e.g. Headlamp')}</small></span><span class="r"><i class="tp-badge">{t('More')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+            <div class="in">
+              {#if d.missing.length}
+                <ul class="exc">
+                  {#each d.missing as m (m.id)}
+                    {@const n = m.noteId ? fromNote(m.noteId) : null}
+                    <li><span class="nm">{m.name}<small>{n ? t('from your note on the way, {time}', { time: noteWhen(n.at) }) : m.itemId ? (trip.templateId ? t('in your gear · goes into the template') : t('in your gear')) : t('not in your gear · goes to the wishlist')}</small></span>
+                      <span class="state miss"><Plus size={16} aria-hidden="true" />{t('Was missing')}</span>
+                      <button type="button" class="x" aria-label={t('Remove {name}', { name: m.name })} onclick={() => dropMissing(m.id)}><X size={18} aria-hidden="true" /></button></li>
+                  {/each}
+                </ul>
+              {/if}
+              <form class="miss" onsubmit={addMissing}>
+                <input class="inp" list="gear-names" placeholder={t('What you missed, e.g. Headlamp')} bind:value={missName} aria-label={t('What you missed')} />
+                <button type="submit" class="btn">{t('Add')}</button>
+              </form>
+              {#if similar.length}<p class="similar"><span>{t('In your gear:')}</span>{#each similar as i (i.id)}<button type="button" class="btn sm" onclick={() => addItem(i)}>{nameOf(i)}</button>{/each}</p>{/if}
+              {#if missQ && !exactMiss}<p class="similar"><button type="button" class="btn sm" onclick={addMissing}>+ {t('Add "{q}" as new (not in your gear)', { q: missQ })}</button></p>{/if}
+              <datalist id="gear-names">{#each notOnTrip as i (i.id)}<option value={i.name}></option>{/each}</datalist>
+            </div>
+          </details>
+
+          <!-- Noah 9a: filled in; change only what was not so. -->
+          <details class="tp-fold more-row how-fold">
+            <summary><span class="two"><b>{t("How was it?")}</b><small>{byBike ? t('Weather, clothing, food, km, ride') : t('Weather, clothing, food, bags')}</small></span><span class="r"><i class="tp-badge">{t('More')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+            <div class="in">
+              {#if freeNotes.length}
+                <div class="ridenotes">
+                  <span class="lbl">{t('Notes on the way')}</span>
+                  <ul>{#each freeNotes as n (n.key)}<li><small class="num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</small> {n.text}</li>{/each}</ul>
+                  <!-- v0.77.0 (answer 3a): the helper's draft only on request -->
+                  {#if isOn() && !draft}
+                    <p class="kh-getdraft"><button type="button" class="btn sm" disabled={draftBusy} onclick={getDraft}><Sparkles size={16} aria-hidden="true" />{draftBusy ? t('The helper is thinking …') : t('Get a draft')}</button></p>
+                    {#if draftMsg}<p class="kh-msg" role="status">{draftMsg}</p>{/if}
                   {/if}
+                </div>
+              {/if}
+              {#if draft}<DebriefDraft {draft} notes={freeNotes} days={trip.days ?? 1} onlearn={learnFromDraft} onsummary={summaryFromDraft} onclose={() => (draft = null)} />{/if}
+              <!-- v0.40.0 (Noah 4a): segmented toggles instead of drop-downs: one tap, the answer in sight. -->
+              <div class="qa">
+                <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={WEATHER.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('weather', v)} /></div>
+                <!-- v0.42.0 (Noah 6): how the clothing was; it slowly shifts the borders of the temperature kits. -->
+                <div class="segq"><span class="lbl" id="q-cloth">{t('Clothing')}</span><Seg labelledby="q-cloth" value={d.clothing ?? null} options={CLOTHING.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('clothing', v)} />
+                  <p class="tp-muted tp-small clothhint">{tripKit ? t('Slowly shifts the borders of your temperature kits (here kit {range}).', { range: tempRange(tripKit.minC, tripKit.maxC, t) }) : t('Slowly shifts the borders of your temperature kits.')}</p></div>
+                <div class="segq"><span class="lbl" id="q-amount">{t('Amount of food and drink')}</span><Seg labelledby="q-amount" value={d.amount} options={AMOUNT.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('amount', v)} /></div>
+                <div class="segq"><span class="lbl" id="q-bags">{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><Seg labelledby="q-bags" value={d.bags} options={BAGS_OK.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('bags', v)} /></div>
+                {#if bike}
+                  <label><span>{t('km for {bike}', { bike: bike.name })} <small>{bike.km != null ? t('now {km} km', { km: num(bike.km) }) : ''}</small></span><span class="kmin"><input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder={t('e.g. 303')} aria-label={t('km of this trip')} /> km</span></label>
+                {/if}
+              </div>
+              {#if bike}
+                <p class="tp-muted tp-small kmsrc">{trip.route?.km && d.km === Math.round(trip.route.km) ? t('km from the route.') : ''}</p>
+                {#if rideMsg}<p class="hint ride" role="status">{rideMsg}</p>{/if}
+                <details class="howto">
+                  <summary>{t('Import from Strava or Garmin')}</summary>
+                  <span class="btn sm imp"><Upload size={16} aria-hidden="true" />{t('Choose files')}<input type="file" accept=".csv,.gpx,.tcx,text/csv,application/gpx+xml" multiple onchange={importRides} aria-label={t('Import from Strava or Garmin')} /></span>
+                  <p><b>Strava:</b> {t('on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).')}</p>
+                  <p><b>Garmin Connect:</b> {t('on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).')}</p>
+                  <p>{t('Several files at once are fine (one per day). Only rides on the days of this trip count.')}</p>
+                </details>
+              {/if}
+              <!-- v0.41.0 (Noah 1, 3): the recorded ride of this trip: planned vs real and its learnings -->
+              <ul class="rowlist ridelink">
+                {#each tripRides as r (r.id)}
+                  <li><a class="lrow" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}><span class="ic"><Route size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Planned vs real')}</span><span class="s">{r.name}</span></span><span class="v num">{num(r.km)} km</span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+                {:else}
+                  <li><a class="lrow" href="#/debrief/ride"><span class="ic"><Upload size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Upload ride')}</span><span class="s">{t('GPX: pauses, planned vs real, learnings')}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
                 {/each}
-                <p class="hint tp-small">{t('Nothing changes without a tick.')}</p>
+              </ul>
+              <!-- v0.40.0 (design check R1): folded as a row; open when there is a sentence already. -->
+              <details class="note-fold" use:openOnce={!!d.note}>
+                <summary><span>{t('One sentence for next time')}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+                <textarea class="inp" rows="2" bind:value={d.note} oninput={persist} placeholder={t('e.g. Heatwave, the rain gear was never used')} aria-label={t('One sentence for next time')}></textarea>
+              </details>
+            </div>
+          </details>
+
+          {#if top || more.length || rememberMsg}
+            <details class="tp-fold more-row next-fold">
+              <summary><span class="two"><b>{t('For next time')}</b><small>{top ? top.label : t('Nothing more to suggest.')}</small></span><span class="r"><i class="tp-badge">{tn(sugg.filter(ticked).length, '{n} ticked', '{n} ticked')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+              <div class="in">
+                {#if rememberMsg}<p class="card ok remembered" role="status">{rememberMsg}</p>{/if}
+                {#if top}
+                  <!-- Noah 9a: one suggestion for next time, with its reason. -->
+                  <section class="tp-card learn" aria-labelledby="learn-h1">
+                    <h2 id="learn-h1"><Star size={18} aria-hidden="true" />{t('For next time')}</h2>
+                    <p><b>{top.label}</b><br />{top.detail}</p>
+                    <div class="tp-chips" role="group" aria-label={top.label}>
+                      <button type="button" class="btn yes" disabled={remembering} onclick={() => remember(top)}>{t('Yes, remember')}</button>
+                      <button type="button" class="btn" disabled={remembering} onclick={() => ((ticks[top.id] = false), (rememberMsg = ''))}>{t('No')}</button>
+                    </div>
+                  </section>
+                {/if}
+                {#if more.length}
+                  <p class="lbl moresug">{t('More suggestions')}</p>
+                  {#each GROUPS as grp (grp.key)}
+                    {@const list = more.filter((x) => x.group === grp.key)}
+                    {#if list.length}
+                      <p class="lbl">{t(grp.name)}</p>
+                      {#each list as x (x.id)}<label class="chk"><input type="checkbox" checked={ticked(x)} onchange={(ev) => (ticks[x.id] = ev.currentTarget.checked)} /><span>{x.label}<small>{x.detail}</small></span></label>{/each}
+                    {/if}
+                  {/each}
+                  <p class="hint tp-small">{t('Nothing changes without a tick.')}</p>
+                {/if}
               </div>
             </details>
           {/if}
+
           <!-- Noah 9a: every item counts as used; a tap on an item changes it: used → not used → broken. -->
-          <details class="tp-fold items-fold" use:openOnce={!phone.matches}>
-            <summary><span class="tp-okdot"><Check size={16} aria-hidden="true" /></span><span class="two"><b>{tn(used, '{n} item used', '{n} items used')}</b></span><span class="r"><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <details class="tp-fold more-row items-fold">
+            <summary><span class="two"><b>{tn(used, '{n} item used', '{n} items used')}</b><small>{t('All items by bag, also broken')}</small></span><span class="r"><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
             <div class="in">
               <p class="tp-muted tp-small cyc">{t('used → not used → broken')}</p>
               {#each groups as g (g.slot)}
@@ -626,7 +642,59 @@
   }
 
   .ridelink {
-    margin-bottom: 12px;
+    margin: 4px 0 8px;
+  }
+  /* v0.92.0 «Rückblick antippen»: the packed items as chips; a tapped one stayed in the bag. */
+  .unneeded .sub {
+    margin: 4px 0 12px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    min-height: 44px;
+    padding: 8px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-body) var(--font-body);
+    cursor: pointer;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    text-align: left;
+  }
+  .chip small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .chip.unused {
+    background: var(--paper-2);
+    border-color: transparent;
+    color: var(--ink-3);
+    text-decoration: line-through;
+  }
+  .chip.broken {
+    background: var(--bad-soft);
+    border-color: transparent;
+    color: var(--bad);
+    text-decoration: line-through;
+  }
+  .chip.broken small.br {
+    color: var(--bad);
+  }
+  .tally {
+    margin: 14px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .tally b {
+    color: var(--ink);
+  }
+  .moresug {
+    margin-top: 12px;
   }
   .flow .tp-card > h2 {
     margin-bottom: 10px;
@@ -904,12 +972,12 @@
   .learn :global(:focus-visible) {
     outline-color: var(--focus-on-dark);
   }
-  .items-fold .two {
+  .more-row .two {
     display: flex;
     flex-direction: column;
     min-width: 0;
   }
-  .items-fold .two small {
+  .more-row .two small {
     font-size: 13px;
     font-weight: 400;
     color: var(--ink-3);

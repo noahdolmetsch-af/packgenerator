@@ -683,6 +683,17 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Vier Uhren:** Ring (wie bisher), Sanduhr, Mond, Zahl; die App merkt sich die Wahl (`flow.medClock`). In der Sanduhr kann die Zeit ausgeblendet werden (Noah).
 - **Selbst entschieden:** am Handy keine Uhr auf «Neue Sitzung» (wie Mockup F), Marken setzt dort «an Minute»; eigener Klang pro Marke (langes Drücken) bleibt am Computer und Tablet. Titel «Neue Sitzung» statt «Intervalle» (bei einer Vorlage ihr Name), Zurück-Link «‹ Meditation» wie im Mockup. «nächster Gong in» heisst «nächster Klang in» (Mockup G/H). Der Fuss der Uhr bleibt «Bildschirm sperren ist ok · Einstellungen» statt «Die App merkt sich deine Uhr». Die Abzeichen zeigen die drei zuletzt erreichten Sterne. Der Hauptknopf bleibt `btn hi` (orange) wie überall, nicht das Grün der Mockups. Der Name einer eigenen Vorlage mit Marken endet auf «{n} eigene Klänge».
 
+## 11.10.2026: «Rückblick antippen» (0.92.0, App einfach «4a», Mockup C)
+
+- **Anlass:** im Durchspielen stand «nicht gebraucht», das Versprechen der App, zuletzt hinter «3 Teile gebraucht ›». Noah «1a 2a 3b 4a 5a» (Trello bGBkdWXp): **4a** = «nicht gebraucht» als antippbare Chips oben, «Was hat gefehlt?» und «Wie war's?» unter «Mehr», dann «Fertig».
+- **Gebaut:** Karte «Was hast du nicht gebraucht?» mit einem Chip pro gepacktem Teil (Reihenfolge der Tour); Tipp = nicht gebraucht (durchgestrichen), nochmal = gebraucht. Darunter «{n} nicht gebraucht · {Gewicht} weniger beim nächsten Mal?». Rechts (Handy darunter) Zeilen: Was hat gefehlt? (am Computer offen), Wie war's? (Wetter, Kleidung, Essen, Taschen, km, Fahrt, Notizen unterwegs, ein Satz), Fürs nächste Mal (Vorschläge), alle Teile nach Tasche (auch «kaputt»). Der Haupt-Knopf heisst «Fertig».
+- **Selbst entschieden:** «Fertig» bleibt am Ort des Haupt-Knopfs im Tour-Band (Computer oben rechts, Handy unten über der Leiste), wie auf allen Tour-Seiten. Der Hinweis «ZUERST» aus dem Mockup entfällt. «Kaputt» geht über die Zeile mit allen Teilen; ein kaputtes Teil zeigt sich im Chip rot. Die Vorschläge («Fürs nächste Mal») sind eine eigene Zeile statt einer offenen Karte, angehakte gelten wie bisher beim Speichern.
+## 11.10.2026: «Import: alte Fahrten» (0.91.0, Noah «Fix bauen» 14:01)
+
+- **Anlass:** Noahs erster echter Strava-Export (1319 Fahrten): 1000 alte Fahrten ohne Velo landeten unter «Prüfen». Strava setzt das Standard-Velo nur für neue Fahrten, und die Strava-Datei enthält kein Garmin-Profil. Ihre km stecken schon in den Startwerten der Velos; von Hand zugeordnet hätten sie doppelt gezählt.
+- **Entscheid (Karte im Thread, «Fix bauen» ★):** Fahrten ohne Velo vor dem Startwert jedes Velos liegen als «schon in den km» zur Seite; ein von Hand gewähltes Velo prüft seinen Startwert auch. Als dritter Bau zugelassen, weil er nur den Import ändert.
+- **Selbst entschieden:** Liegt eine Fahrt nur im Startwert eines Teils der Velos, bleibt sie unter «Prüfen» (sie kann zu einem Velo gehören, dessen Buch später beginnt). Velos ohne Startwert zählen für die Regel nicht. Zur Seite gelegte Fahrten fragen nicht nach einer Fahrt-Typ-Regel, damit «Welches Velo fährst du bei Ride?» nicht aus 1000 alten Fahrten gefragt wird.
+
 ## 11.10.2026: «Aufräumen und Ausprobieren» (0.88.0, App einfach «1a 2a 3b 4a 5a», Mockups F–H «0.88 alle a»)
 
 - **Anlass:** Noahs Auftrag vom 11.10.2026 («für mich als Nutzer ist alles noch viel zu kompliziert»). Das Durchspielen mit seinem Backup zeigte: 21 von 27 Touren sind Tests, die App lernt daraus, und eine echte Tour verschwand von Heute, weil ein Test-Rückblick sie vor ihrem Datum beendet hatte.
@@ -774,3 +785,16 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **Entscheid (A5a):** «Velos vergleichen» zeigt nur Zeilen mit mindestens einem Wert, «alle zeigen» als Link; am Handy zuerst zwei Velos nebeneinander.
 - **Selbst entschieden:** Die Gruppen tragen die bestehenden Bereichsnamen der App (Rahmen statt «Rahmenset»), damit Pflege, Vergleich und Ausstattung gleich heissen. Die Geometrie bleibt im Vergleich (nicht auf der Ausstattung). Kein Knopf «Datenblatt importieren» im Kopfband (der Import bleibt unter «Deine Daten»). Die Adresse `#/bikes?tab=compare` bleibt (alte Links landen auf der Ausstattung), der Vergleich ist `&view=all`. Der Link «Velos vergleichen» steht auf der Ausstattung einmal oben, nicht zusätzlich im Masse-Block.
 - **Grund:** Noah (11.10.2026, nach dem Import seiner Velo-Daten): die Masse-Seite war eine lange Tabelle mit fast nur «–» und für ihn unübersichtlich; Vorbild ist Canyons Liste «Alle Komponenten».
+
+## 11.10.2026: Bereiche sauber trennen (Noah «1-5 a», Trello YINDLpHj)
+
+Vorschlag: https://claude.ai/artifact/8DQ6CKj1n9vJuBEwsj7msN. Noch kein Bau; vor B2 bis B5 kommt je eine Mockup-Runde.
+
+- **Entscheid (1a) Grundmodell:** Ein Inventar. Jedes Teil hat genau eine Heimat (Bereich) und darf «auch für» andere Bereiche sein. Baut auf `item.domains` auf; ein Teil ohne Bereich bleibt Velo/Bikepacking. Gewicht und Pflege gibt es nur einmal.
+- **Entscheid (2a) Überall:** Neuer Bereich «Überall» für Dinge, die zu keinem Sport gehören (Stirnlampe, Powerbank, Erste Hilfe, Ausweis, Every-Day-Carry). Die App schlägt den Umzug aus Velo vor, Noah bestätigt, mit Rückgängig.
+- **Entscheid (3a) Anzeige:** Material bekommt oben einen Bereichs-Umschalter, Standard Velo, gemerkt auf dem Gerät. Ein neuer Bereich erscheint erst, wenn er Teile hat. Velo-Seiten (Velos, Pflege, Kleiderschrank mit Velo-Filter) zeigen nie Teile anderer Bereiche.
+- **Entscheid (4a) Verbrauch:** Eigener Typ «Verbrauch» mit Bestand, Ziel, Ablaufdatum und Nachkaufen (fehlt etwas, steht es auf der Einkaufsliste). «Vorrat» ist eine Ansicht über diese Teile, kein Bereich.
+- **Entscheid (5a) Reihenfolge:** B1 «Velo geschützt» gleich nach «App einfach»; B2 Umschalter + Überall zusammen mit «Material Liste zuerst»; B3 Import mit Vorschau und B4 Vorrat vor «Reisearten neu»; B5 erster neuer Bereich (Vorschlag Skitouren, mit Geräte-Pflege nach Tagen/Stunden) zusammen mit «Reisearten neu».
+- **Modell (Vorschlag, mit 1a angenommen):** vier Etiketten pro Teil: Bereich (Heimat + auch für), Art (Kategorie, sport-neutral benannt, neu z. B. Sportgerät und Schutz), Typ (Gerät, Teil, Kleid, Verbrauch), freie Etiketten (z. B. «Import Eishockey 12.2026»). Bausteine bekommen einen optionalen Bereich. Bereiche: Velo, Überall, Berg & Schnee, Halle & Platz, Reisen, Alltag.
+- **Import neuer Bereiche (B3):** Bereich wählen → Vorschau mit Abwählen und Erkennen schon vorhandener Teile (bekommen nur «auch für») → automatisches Etikett pro Import → «Ganzen Import entfernen» unter Ich › Daten; Velo-Teile bleiben dabei unberührt. Vorher automatische Sicherung.
+- **Grund:** Noah (11.10.2026): Angst, dass sich die saubere Velo-Datengrundlage mit künftigen Bereichen (Eishockey, Tennis, Skitouren, Alltag, Verbrauch, Essen) vermischt.

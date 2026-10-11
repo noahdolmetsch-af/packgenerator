@@ -10,6 +10,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData as openDataFold, settle } from './settle.js';
+import { openRow } from './debrief-rows.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z0-9]+$/, '');
@@ -279,12 +280,13 @@ test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page
 test('Rueckblick (debrief): the clothing row shifts the kit borders', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/debrief/gtp-past');
+  await openRow(page, 'how-fold'); // v0.92.0: weather, km, ride and notes are under «Wie war's?»
   const q = page.getByRole('group', { name: T('Clothing') });
   await expect(q).toBeVisible();
   await q.getByRole('button', { name: T('Too cold') }).click();
   await expect(q.getByRole('button', { name: T('Too cold') })).toHaveAttribute('aria-pressed', 'true');
   await shot(page, info, 'rueckblick-kleidung');
-  await page.getByRole('button', { name: T('Save debrief') }).first().click();
+  await page.getByRole('button', { name: T('Done|debrief') }).first().click();
   await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'clothing.offset')?.value).toBe(1);
   expect((await table(page, 'debriefs')).find((d) => d.tripId === 'gtp-past').clothing).toBe('cold');
   // The wardrobe says it (v0.45.0, decision 8: in the header, with Reset).

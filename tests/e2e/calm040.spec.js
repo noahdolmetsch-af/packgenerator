@@ -8,6 +8,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { newButton } from './newbutton.js';
 import { P, SPARK, v038Start } from './v038-fixture.js';
+import { openRow } from './debrief-rows.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -104,6 +105,7 @@ test('Debrief of a trip: weather, amount and bags as segments', async ({ page, c
   );
   await page.goto(`./#/debrief/${P}sommer`);
   await page.reload();
+  await openRow(page, 'how-fold'); // v0.92.0: weather, km, ride and notes are under «Wie war's?»
   const wx = page.getByRole('group', { name: T('Weather') });
   await expect(wx.getByRole('button')).toHaveText([T('Colder'), T('As planned'), T('Warmer')]);
   await wx.getByRole('button', { name: T('Warmer') }).click();
