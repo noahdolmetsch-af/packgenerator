@@ -6,12 +6,15 @@
    *   #/flow/milestones?act=<id>   filtered: 'cross' (over all) or one activity
    *   #/flow/milestones?tune=1     the numbers and stages opened (change, hide, back to the suggestion)
    * Only the next star of a milestone is shown. Stars reached stay for ever (flowStars).
+   * v0.94.0 «Kachel-Wand» (Noah 4a): on top (all), the series over everything and the milestones of
+   * trips and bikes (lib/home/MsHome.svelte): all areas on one page.
    */
   import { ChevronLeft } from '@lucide/svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import MsBlock from '../../lib/flow/hobby/MsBlock.svelte';
   import MsCard from '../../lib/flow/hobby/MsCard.svelte';
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
+  import MsHome from '../../lib/home/MsHome.svelte';
   import { db } from '../../lib/db.js';
   import { hobbyQuery, seedHobby } from '../../lib/flow/data.svelte.js';
   import { msContext, allMilestones, newStars, nextPerAct, records as recordsOf, STAGES, TUNE_KEY, REWARD_KEY } from '../../lib/flowms.js';
@@ -92,6 +95,8 @@
       <a class="chip" href="#/flow/milestones?act=cross" aria-current={filter === 'cross' ? 'page' : undefined}>{t('Over all')}</a>
       {#each chipActs as a (a.id)}<a class="chip" href="#/flow/milestones?act={encodeURIComponent(a.id)}" aria-current={filter === a.id ? 'page' : undefined}>{tileName(a)}</a>{/each}
     </nav>
+
+    {#if filter === 'all'}<MsHome />{/if}
 
     <h2 class="zlabel hs">{#if actOf}{tileName(actOf)}{:else}{t('Milestones')} <span class="hsub">· {t('over all activities')}</span>{/if}</h2>
     {#if cards.length || scoped.length}

@@ -673,6 +673,23 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **5a:** zwei Bauten gleichzeitig nur, wenn sie verschiedene Bereiche ändern.
 - Mockups bleiben immer, Noah merged weiterhin selbst.
 
+## 11.10.2026: «Velo kurz» (0.95.0, App einfach «5a», Mockup D)
+
+- **Anlass:** im Durchspielen war die Velo-Seite nach dem ersten Velo 3,9 Handy-Bildschirme lang (Mappe, 12 leere Masse, Zeichnung, Taschen, 7 Zeilen); Noah fand am 11.10.2026 den Strava-Import nicht (er lag unter Velos › Pflege › Velo öffnen). Noah «1a 2a 3b 4a 5a» (Trello bGBkdWXp), Mockup D.
+- **Gebaut:** Velos › Übersicht zeigt unter dem Band nur drei Zeilen (Velopflege mit dem, was fällig ist; Taschen klappt Zeichnung und Standardtaschen auf; Ausstattung → Masse und Teile), den Knopf **Fahrten importieren** (Strava, Garmin) und die Zeile **Mehr** (Mappe mit den Blättern, Masse, Zeichnung, Wer schraubt, Vergleichen, Velodetails, Profil, Fotos, Ideen, Einstellungen, Taschen-Liste). Nichts ist weg. Ausstattung: fehlendes Gewicht oder fehlender Preis grau statt orange.
+- **Selbst entschieden:** Der dunkle Knopf heisst «Fahrten importieren» statt «+ km eintragen» (Mockup), weil Noah den Import nicht fand; «km eintragen» bleibt in der Velopflege. Pflege selbst ist (noch) nicht gekürzt: eigenes kleines Paket, wenn Noah es will. Links, die in «Mehr» führen («Album ›» und «Idee gespeichert › Öffnen» von Heute, «Mappe», «eintragen» und «Werte ändern» in einem Blatt), öffnen «Mehr» gleich mit.
+
+## 11.10.2026: «Kachel-Wand» (0.94.0, Noah «1-5 a» auf Trello nLi5yNmS, Mockups A–D `#startseite-kacheln`, «ok a» für einen grossen Release)
+
+- **Anlass:** Noah lehnte «Startseite dicht» (PR #111, Entwurf) ab und wünschte eine Startseite aus kleinen Kacheln, die er selbst zusammenstellt. Antwort «1-5 a» am 11.10.2026 14:52 auf die Mockups A (fertige Wand), B (Anpassen), C (+ Kachel), D (Serie und Meilensteine); dazu die Ideen 1 («Neu»-Punkt), 6 (Ruhetag und Feier) und 8 (Wand im Backup). «ok a» 14:55: K1–K5 als **ein** grosser Release (Ausnahme von den kleinen Releases, gilt nur für Heute). K6 (Tipp der Woche, App-Symbol lange drücken) und K7 (Tageszeit, mehrere Wände, Kachel-Vorschlag) kommen später mit eigenen Mockups.
+- **1a Vier Grössen:** klein (1 × 1), breit (2 × 1), gross, ganze Zeile. Computer 8 Spalten, Handy 4.
+- **2a Anpassen:** Knopf «Startseite anpassen», am Handy auch lange drücken. Verschieben mit Griff oder ‹ ›, Grösse wählen, × nimmt weg, «Zurücksetzen» bringt die fertige Wand zurück. Die Kacheln selbst ruhen solange.
+- **3a Fertige Auswahl** wie Mockup A; «+» am Ende öffnet den Katalog nach Bereichen mit Suche, ein Tipp fügt hinzu, ✓ nimmt wieder weg.
+- **4a Eine Serie über alles:** Wochen am Stück mit einer Fahrt, einem Tourtag oder irgendeiner Aktivität von Aktiv; Stufen 2, 4, 8, 12, 26, 52, 104 Wochen, gefeiert in «Heute wichtig». Alle Meilensteine auf einer Seite (`#/flow/milestones`, oben Serie sowie Touren und Velos).
+- **5a Deine Daten nach Ich › Daten und Backup;** die Backup-Erinnerung bleibt in «Heute wichtig».
+- **Ideen:** «Neu»-Punkt zwei Wochen nach der Version einer Kachel; die Wand (`homeWall`) ist ein Einstellungs-Datensatz und reist mit jedem Backup; Ruhewoche hält die Serie, ohne zu zählen.
+- **Selbst entschieden:** am Computer ist «gross» halbe Breite × 2 Zeilen und «ganze Zeile» die volle Breite; «Schon probiert?» bleibt als grosse Kachel; Ruhe**woche** statt Ruhetag (die Serie zählt Wochen); die Zeile «Letzte 12 Monate» zeigt dieselbe Serie über alles; das automatische Ordner-Backup startet beim App-Start (nicht mehr mit «Deine Daten» auf Heute); die Reihe «Was willst du tun?» mit «Alle 16» und das alte Anpassen-Fenster sind weg, die 16 Funktionen sind kleine Kacheln in fester Reihenfolge (keine Sortierung nach Tipps mehr, die Wand ordnet der Nutzer); Meditation in «Im Flow» öffnet das Startblatt; der Ruhewoche-Knopf steht auf der grossen Serien-Kachel und auf der Meilenstein-Seite; der runde «+» weicht auf Heute nicht mehr aus.
+
 ## 11.10.2026: «Meditation Wünsche» (0.93.0, Noah «1-5 a» auf Trello ZWyY4F4r, Mockups F–H)
 
 - **Anlass:** Noahs Wünsche nach «Meditation einfach»: mehr Dauern, eigene Klänge einfacher, Vorlage aus einer neuen Sitzung, mehrere Uhren. Antwort «1-5 a» am 11.10.2026 auf die Mockups F (Neue Sitzung), G (Sanduhr), H (Vier Uhren).

@@ -86,13 +86,13 @@ test('a trip today: sharp photo, band on a phone, the 8 buttons in the first scr
   await expect(row.locator('.btn.hi')).toHaveCount(0);
   await expect(row.getByRole('button', { name: phone ? T('Start|dayride') : T('Start day ride'), exact: true })).toBeVisible();
 
-  // the rule of 0.46: greeting, trip card and the 8 (12) buttons without scrolling, on a 390×844 phone
+  // the rule of 0.46: greeting and trip card without scrolling, on a 390×844 phone (v0.94.0 «Kachel-Wand»,
+  // mockup A: the 16 functions are small tiles further down the wall)
   if (phone) await page.setViewportSize({ width: 390, height: 844 });
   await page.evaluate(() => window.scrollTo(0, 0));
-  const buttons = page.locator('[data-section="actions"] .grid > button');
-  await expect(buttons).toHaveCount(phone ? 8 : 12);
-  if (phone) for (const b of await buttons.all()) expect(await firstScreen(b), `${await b.textContent()} in the first screen`).toBe(true);
+  await expect(page.locator('.wall [data-fn]')).toHaveCount(16);
   expect(await firstScreen(page.locator('#hello-h'))).toBe(true);
+  expect(await firstScreen(page.locator('section.trip h2, #next-h').first())).toBe(true);
   await shot(page, info, 'heute-mit-tour');
 
   // «Album ›» opens the bike's photos in Setup

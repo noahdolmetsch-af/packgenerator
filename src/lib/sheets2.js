@@ -152,7 +152,7 @@ export function breakIn(bike, { tyres = null, today, visits = [] }) {
   const ticks = st.ticks ?? {};
   const applied = st.applied ?? {};
   const bought = bike?.bought ?? null;
-  const setupHref = bikesHash({ tab: 'setup', bike: b.id });
+  const setupHref = bikesHash({ tab: 'setup', bike: b.id, open: true });
   const steps = BREAKIN.map((step, i) => {
     const rows = step.rows
       .filter((r) => fitsWhen(r.when, b, tyres))

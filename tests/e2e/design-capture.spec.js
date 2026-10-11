@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
+import { openData } from './settle.js';
 const fixture = fileURLToPath(new URL('./preparation-fixture.json', import.meta.url));
 // Visual evidence for the accepted designs; desktop matches the source dimensions exactly.
 test('capture preparation designs', async ({ page, context }, info) => {
@@ -7,8 +8,10 @@ test('capture preparation designs', async ({ page, context }, info) => {
   await context.addInitScript(() => localStorage.setItem('lang','de'));
   if (info.project.name === 'desktop') await page.setViewportSize({ width:1487, height:1058 });
   await page.goto('./');
-  await page.getByLabel('Backup importieren').setInputFiles(fixture);
-  await page.getByRole('button', {name:'Alle Daten ersetzen'}).press('Enter');
+  // v0.94.0: «Daten und Backup» lives under Ich
+  const data = await openData(page);
+  await data.getByLabel('Backup importieren').setInputFiles(fixture);
+  await data.getByRole('button', {name:'Alle Daten ersetzen'}).press('Enter');
   await expect(page.getByText(/importiert.*alle Daten ersetzt/i)).toBeVisible();
   await page.goto('./#/pack');
   await expect(page.getByRole('heading', {name:'Packliste', exact: true})).toBeVisible();

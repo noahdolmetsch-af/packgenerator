@@ -10,6 +10,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { openMore } from './bike-more.js';
 
 const P = 'test_data_gtp_';
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
@@ -117,6 +118,7 @@ test('band: name, km, weight, bags, care due; the bikes as tabs; edit and add', 
 test('drawing and bag sheet: long names are never cut off, a bag is chosen from a list from below, mounts on and off', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=setup&bike=${GRAVEL}`);
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   const draw = page.locator('section.draw');
   // The long name stands in full and fits its label.
   const label = draw.locator('.lab', { hasText: `${P} Satteltasche 14 L` });
@@ -168,6 +170,7 @@ test('drawing and bag sheet: long names are never cut off, a bag is chosen from 
 test('Wer schraubt: ich and Velomech this year, the last jobs, next for the Velomech with the order', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=setup&bike=${SPARK}`);
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   const card = page.locator('section.who');
   await expect(card.getByRole('heading', { name: T('Who works on it') })).toBeVisible();
   // v0.31.0: an entry without "who" is not counted as mine (the same rule as Bike care).

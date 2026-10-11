@@ -8,13 +8,15 @@
    * v0.88.0 «Aufräumen und Ausprobieren» (Noah 0.88 alle a, mockups F, G): under «Data and backup» two
    * rows: «Clean up test data» (how many found, the sheet archives them with Undo) and «Try it out»
    * (the playground; the debrief's «Lieber in der Spielwiese probieren» opens it here once).
+   * v0.94.0 «Kachel-Wand» (Noah 5a): «Data and backup» (backup, restore, import, export) opens right
+   * here, no longer at the bottom of Today; nav.js openData leads here from anywhere.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { LAST_BACKUP, backupDue } from '../lib/backup.js';
   import { demoState } from '../lib/demo.js';
   import { HOME_PLACE } from '../lib/know.js';
-  import { openData } from '../lib/nav.js';
+  import DataPanel from '../lib/DataPanel.svelte';
   import { t, tn, lang, setLang } from '../lib/i18n.svelte.js';
   import { theme, PALETTES, MODES, setPalette, setMode } from '../lib/theme.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
@@ -37,6 +39,21 @@
   const testQ = liveQuery(() => testDataState(db));
   let tidyOpen = $state(false);
   let playOpen = $state(take(PLAY_WISH) === '1');
+  let dataOpen = $state(take('me.data') === '1');
+  let dataEl = $state();
+  $effect(() => {
+    if (dataOpen && dataEl) queueMicrotask(() => dataEl?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }));
+  });
+  $effect(() => {
+    const onData = () => take('me.data') && (dataOpen = true);
+    const onPlay = () => take(PLAY_WISH) && (playOpen = true);
+    window.addEventListener('pg:data', onData);
+    window.addEventListener('pg:play', onPlay);
+    return () => {
+      window.removeEventListener('pg:data', onData);
+      window.removeEventListener('pg:play', onPlay);
+    };
+  });
   let placeOpen = $state(false);
   const keys = () => window.dispatchEvent(new Event('pg:keys'));
   const helperState = $derived(!helper.loaded ? '' : !isSetUp() ? t('not set up') : !helper.on ? t('switched off') : isPaused() ? t('paused until next month') : t('set up'));
@@ -90,12 +107,15 @@
         </a>
       </li>
       <li>
-        <button type="button" class="row go" onclick={openData}>
-          <Database size={20} aria-hidden="true" />
-          <span class="nm">{t('Data and backup')}<small>{t('Backup, restore, import')}</small></span>
-          {#if $waitQ?.backup}<span class="badge warn">{t('Backup due')}</span>{/if}
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </button>
+        <details class="data" bind:this={dataEl} bind:open={dataOpen}>
+          <summary class="row go">
+            <Database size={20} aria-hidden="true" />
+            <span class="nm">{t('Data and backup')}<small>{t('Backup, restore, import')}</small></span>
+            {#if $waitQ?.backup}<span class="badge warn">{t('Backup due')}</span>{/if}
+            <ChevronRight class="chev" size={18} aria-hidden="true" />
+          </summary>
+          {#if dataOpen}<div class="dp"><DataPanel /></div>{/if}
+        </details>
       </li>
       <li>
         <button type="button" class="row go" onclick={() => (tidyOpen = true)} aria-haspopup="dialog">
@@ -231,6 +251,19 @@
     color: var(--warn);
   }
   .pf {
+    padding: 0 0 var(--sp-3);
+  }
+  .data summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .data summary::-webkit-details-marker {
+    display: none;
+  }
+  .data[open] :global(.chev) {
+    transform: rotate(90deg);
+  }
+  .dp {
     padding: 0 0 var(--sp-3);
   }
   .ver {

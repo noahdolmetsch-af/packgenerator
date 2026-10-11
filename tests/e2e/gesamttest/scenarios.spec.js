@@ -75,8 +75,8 @@ test('S1 day ride: one tap, pack, ride, debrief', async ({ page, context }, info
   const errors = await start(page, context, info, { lang: LANG });
   const before = await table(page, 'trips');
   await page.goto('./#/');
-  // v0.46.0: "Day ride" is the first button of "What do you want to do?" (the quick row is gone)
-  await page.locator('[data-section="actions"] .grid [data-fn="dayride"]').click();
+  // v0.46.0: "Day ride" is the first button of "What do you want to do?"; v0.94.0: a small tile on the wall
+  await page.locator('.wall [data-fn="dayride"]').click();
   await expect(page).toHaveURL(/#\/pack/);
   await expect(page.locator('.made-card')).toContainText(T('Day ride created'));
   await expect.poll(async () => (await table(page, 'trips')).length).toBe(before.length + 1);
@@ -472,6 +472,11 @@ const noTips = (db) => ({ ...db, settings: db.settings.filter((r) => r.key !== '
 
 test('S6 backup round trip: export, replace, export again, merge', async ({ page, context }, info) => {
   const errors = await start(page, context, info, { lang: LANG });
+  // v0.94.0: the import runs under Me, and the first visit may open Unterwegs. Today, seen once, stores its
+  // milestone levels (homeMilestones); show it before the first backup, as the import on Today used to.
+  await page.goto('./#/');
+  await page.reload();
+  await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === 'homeMilestones'), { timeout: 20_000 }).toBe(true);
   const db1 = await snapshot(page);
   const panel = await openData(page);
   const [dl] = await Promise.all([page.waitForEvent('download'), panel.getByRole('button', { name: T('Export backup') }).click()]);

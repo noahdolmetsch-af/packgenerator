@@ -3,6 +3,7 @@
    * v0.51.0 «Im Flow» on Today (mockup ImFlow-Heute-Phone): right under the next trip. The three
    * rings (rolling 7 days), what is still open today as one-tap buttons (daily goals), the daily
    * check (Start, or the four numbers when done), «Im Flow ›» and a commute in one tap.
+   * v0.94.0 «Kachel-Wand»: a tap on Meditation opens its start sheet here too, as on Aktiv (Q5 a).
    */
   import { ChevronRight, Sun, Bike, Check } from '@lucide/svelte';
   import Rings from '../flow/Rings.svelte';
@@ -12,6 +13,7 @@
   import { checkOf, complete, rotating, FIXED } from '../flowcheck.js';
   import { ui, tickWith, actName, qText } from '../flow/ui.svelte.js';
   import { phone } from '../media.svelte.js';
+  import MedStartSheet from '../flow/MedStartSheet.svelte';
   import { t } from '../i18n.svelte.js';
 
   let { today } = $props();
@@ -27,6 +29,8 @@
   const commuter = $derived(states.find((s) => !s.resting && s.act.counts.includes('commute')) ?? null);
   const check = $derived(checkOf(data?.checks.find((c) => c.day === today), today));
   const rot = $derived(data ? rotating(data.pool, today) : null);
+  let medFor = $state(null);
+  const medSt = $derived(medFor ? (states.find((s) => s.act.id === medFor) ?? null) : null);
 </script>
 
 {#if data && states.length}
@@ -40,7 +44,7 @@
       <div class="now">
         {#if openToday.length}
           <p class="kick">{t('Still today')}</p>
-          <TickGrid states={openToday} {today} cols={2} />
+          <TickGrid states={openToday} {today} cols={2} onmed={(s) => (medFor = s.act.id)} />
         {/if}
         {#if complete(check)}
           <div class="crow done">
@@ -71,10 +75,13 @@
     </div>
   </section>
 {/if}
+{#if medSt}<MedStartSheet st={medSt} {today} onclose={() => (medFor = null)} />{/if}
 
 <style>
   .fc {
     padding: 18px 22px;
+    /* v0.94.0 «Kachel-Wand»: the card can be a large tile (half the wall) or a whole row */
+    container-type: inline-size;
   }
   @media (max-width: 719px) {
     .fc {
@@ -102,7 +109,7 @@
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
   }
-  @media (min-width: 900px) {
+  @container (min-width: 760px) {
     .body {
       grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
       gap: 28px;
