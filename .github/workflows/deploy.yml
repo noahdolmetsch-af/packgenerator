@@ -63,7 +63,7 @@ jobs:
         with:
           name: e2e-results-${{ matrix.project }}
           path: test-results
-          retention-days: 7
+          retention-days: 1 # Noah 11.10.2026: 0 costs; the free 0.5 GB Actions storage filled up with 7-day test results
 
   # v0.45.1 (Noah: browser tests stay in CI): the Gesamttest with the big fictional data set
   # (tests/e2e/gesamttest, 700 items): every page at 390/320/1366 px in German and English, the
@@ -92,7 +92,7 @@ jobs:
         with:
           name: gesamttest-results-${{ matrix.project }}-${{ matrix.shard }}
           path: test-results
-          retention-days: 7
+          retention-days: 1 # Noah 11.10.2026: 0 costs; the free 0.5 GB Actions storage filled up with 7-day test results
 
   deploy:
     if: github.ref == 'refs/heads/main'
