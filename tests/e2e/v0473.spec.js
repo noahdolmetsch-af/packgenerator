@@ -8,6 +8,7 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { openData, settle } from './settle.js';
 
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
 const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
@@ -35,13 +36,10 @@ async function start(page, context, info, { forecast = false } = {}) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   await data.getByLabel('Backup importieren').setInputFiles(fixtureFile(info));
   await data.getByRole('button', { name: 'Alle Daten ersetzen' }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(/importiert.*alle Daten ersetzt/i)).toBeVisible();
   return errors;
 }

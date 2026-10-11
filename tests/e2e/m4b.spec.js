@@ -7,6 +7,7 @@ import { endToDebrief } from './ending.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openData, settle } from './settle.js';
 
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -45,17 +46,11 @@ async function start(page, context, info, lang, tripId) {
   await context.addInitScript(([l, id, ride]) => { localStorage.setItem('lang', l); localStorage.setItem('pack.currentTrip', id); localStorage.setItem('ride.autoOpened', ride); }, [lang, tripId, `${RIDE}:${day(0)}`]);
   page.on('dialog', (d) => d.accept());
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    // the app opens this panel by itself on an empty start: make sure it ends up open
-    await expect(async () => {
-      if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-      expect(await data.evaluate((d) => d.open)).toBe(true);
-    }).toPass();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  // the app opens this panel by itself on an empty start: openData waits for that, then opens it
+  const data = await openData(page);
   await data.getByLabel(tr(lang)('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: tr(lang)('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(/importiert|Imported/)).toBeVisible();
 }
 

@@ -7,6 +7,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { inflateRawSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openData as openDataFold } from './settle.js';
 
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -64,12 +65,7 @@ async function start(page, context, info, lang, { weather = 'down' } = {}) {
 }
 
 async function openData(page) {
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
-  return data;
+  return openDataFold(page);
 }
 
 async function importFile(page, lang, file, button) {

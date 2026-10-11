@@ -1,5 +1,6 @@
 <script>
   import { tidyData } from './tidy.js';
+  import { settling } from './settled.js';
   import { blocksAfterImport } from './updates.js';
   import { liveQuery } from 'dexie';
   import { db, DATA_TABLES } from './db.js';
@@ -126,8 +127,10 @@
   const demoQ = liveQuery(() => demoState(db));
   async function beginDemo() {
     try {
-      await startDemo(db, pending.data);
-      await tidyData(db);
+      await settling(async () => {
+        await startDemo(db, pending.data);
+        await tidyData(db);
+      });
       message = t('Demo started: {name}. "End demo" in the yellow bar puts your data back.', { name: pending.data.demo.name });
       pending = null;
     } catch (err) {
@@ -182,10 +185,12 @@
 
   async function applyImport(mode) {
     try {
-      await restoreBackup(db, pending.data, mode);
-      await blocksAfterImport(db, pending.data, mode); // v0.33.0: old data in the file gets the building blocks too
-      await tidyData(db);
-      await markImported(db, pending.data, mode); // v0.34.0 (L10): the device now holds the file's state
+      await settling(async () => {
+        await restoreBackup(db, pending.data, mode);
+        await blocksAfterImport(db, pending.data, mode); // v0.33.0: old data in the file gets the building blocks too
+        await tidyData(db);
+        await markImported(db, pending.data, mode); // v0.34.0 (L10): the device now holds the file's state
+      });
       message = mode === 'replace' ? t('Imported {name} (replaced all data).', { name: pending.name }) : t('Imported {name} (merged).', { name: pending.name });
       pending = null;
     } catch (err) {

@@ -10,6 +10,11 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.80.0',
+    date: '2026-10-11',
+    points: [{ text: 'Behind the scenes: the automatic checks are steadier, so new versions come faster.' }],
+  },
+  {
     version: '0.79.0',
     date: '2026-10-11',
     points: [

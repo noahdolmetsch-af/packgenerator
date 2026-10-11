@@ -4,6 +4,7 @@
 import { test, expect } from '@playwright/test';
 import { writeFileSync } from 'node:fs';
 import { v0620File, P, SPARK, SCALE } from './v0620-fixture.js';
+import { importAndSettle, openData } from './settle.js';
 
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 const table = (page, name) =>
@@ -33,15 +34,9 @@ async function start(page, context, info) {
   const errors = [];
   page.on('pageerror', (err) => errors.push(err.message));
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
-  await data.getByLabel('Backup importieren').setInputFiles(file);
-  await data.getByRole('button', { name: 'Alle Daten ersetzen' }).press('Enter');
-  // The planned ride of today opens the ride page after the import; wait for the data instead.
-  await expect.poll(async () => (await table(page, 'bikes')).length).toBe(4);
+  // The planned ride of today opens the ride page after the import: wait until the app has settled.
+  await importAndSettle(page, file);
+  expect(await table(page, 'bikes')).toHaveLength(4);
   return errors;
 }
 
@@ -120,11 +115,7 @@ test('Import: a bikeSpecs file with fit fills empty values, German names, unknow
   const path = info.outputPath('fit-specs.json');
   writeFileSync(path, JSON.stringify({ kind: 'bikeSpecs', bike: `${P} Scott Scale 940`, fit: { Lenkerbreite: 740, 'Solldruck hinten': '1,8 bar', seatHeight: 730, Lieblingsfarbe: 'blau' } }));
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   await data.getByLabel('Backup importieren').setInputFiles(path);
   const dlg = data.getByRole('dialog', { name: 'Datenblatt übernehmen' });
   await expect(dlg).toContainText('Lieblingsfarbe');

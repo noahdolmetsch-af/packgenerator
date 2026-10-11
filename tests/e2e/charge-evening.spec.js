@@ -8,6 +8,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openData, settle } from './settle.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -50,13 +51,10 @@ async function start(page, context, info) {
   }, TRIP);
   page.on('dialog', (d) => d.accept());
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   await data.getByLabel(T('Import backup')).setInputFiles(file);
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === MARK.key)).toBe(true);
 }
 
@@ -135,11 +133,7 @@ test('charge list from #/pack?charge, ticks on the trip; evening block on day 1 
 
   // L10: "Send to phone" in the Data panel (here it downloads: no share sheet in the test browser).
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   const send = data.getByRole('button', { name: info.project.name === 'phone' ? T('Send to computer') : T('Send to phone') });
   await expect(send).toBeVisible();
   const download = page.waitForEvent('download');

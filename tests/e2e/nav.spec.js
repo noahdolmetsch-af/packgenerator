@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { newButton } from './newbutton.js';
 import { PLACES } from '../../src/lib/nav.js';
+import { openData, settle } from './settle.js';
 
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -93,14 +94,11 @@ for (const [soon, button, step, wx] of [['2026-10-08', 'Pack|stage', 'Pack|stage
     await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
     page.on('dialog', (d) => d.accept());
     await page.goto('./');
-    const data = page.locator('details.data');
-    // the app opens this panel by itself on an empty start: make sure it ends up open
-    await expect(async () => {
-      if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-      expect(await data.evaluate((d) => d.open)).toBe(true);
-    }).toPass();
+    // the app opens this panel by itself on an empty start: openData waits for that, then opens it
+    const data = await openData(page);
     await data.getByLabel(T('Import backup')).setInputFiles(file);
     await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+    await settle(page); // the tidy-up after the import done, Today decided
     await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'nav-fixture.json' }))).toBeVisible();
     // Pack last showed the other trip
     await page.evaluate(() => localStorage.setItem('pack.currentTrip', 'test_data_gtp_later'));

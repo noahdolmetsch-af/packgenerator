@@ -718,3 +718,8 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 
 - **Entscheid:** «Reisearten neu» ist ein eigenes Paket am **Ende** der Reihenfolge, nach Neuland + Inspiration. Noahs Antworten 1–10 a (Trello-Karte 54fP2GQe), Mockups `design/reisearten`.
 - **Grund:** Die Reihenfolge davor (Fünf Orte Teil 2, KI-Helfer, Hobby-Unterseiten, E1, D5, Neuland + Inspiration) bleibt; die neuen Reisearten bauen auf D5 Start-Packlisten auf.
+
+## 11.10.2026: «Tests stabil» (Noah, «1-5 a», 00:32, Frage 1a)
+
+- **Entscheid:** Ein kleiner Release 0.80.0 macht die automatischen Browser-Tests stabil, bevor das nächste Paket kommt. Die Tests warten auf ein Zeichen der App (`data-ready` nach dem Aufräumen der Daten, `data-today` nach Heutes Entscheid über Unterwegs) statt auf eine feste Zeit; ein gemeinsamer Helfer `tests/e2e/settle.js` ersetzt die kopierte Öffnen-Schleife für «Deine Daten».
+- **Grund:** In den CI-Läufen vom 10.10.2026 schlugen Tests zufällig fehl und liefen erst im zweiten Versuch durch. Die Ursache war immer dieselbe: «Import fertig» hiess im Test nicht «App fertig». Stabile Tests machen jeden weiteren Release schneller.

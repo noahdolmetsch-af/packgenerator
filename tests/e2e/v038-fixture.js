@@ -4,6 +4,7 @@
 // trips with items never used (dead weight) and two notes to sort (Inbox).
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { openData, settle } from './settle.js';
 
 export const P = 'test_data_gtp_';
 export const SPARK = `${P}spark`;
@@ -68,13 +69,10 @@ export async function v038Start(page, context, info, expect, lang = 'de') {
   const errors = [];
   page.on('pageerror', (err) => errors.push(err.message));
   await page.goto('./');
-  const data = page.locator('details.data');
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  const data = await openData(page);
   await data.getByLabel(lang === 'de' ? 'Backup importieren' : 'Import backup').setInputFiles(file);
   await data.getByRole('button', { name: lang === 'de' ? 'Alle Daten ersetzen' : 'Replace all data' }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(lang === 'de' ? /importiert.*alle Daten ersetzt/i : /replaced all data/i)).toBeVisible();
   return errors;
 }

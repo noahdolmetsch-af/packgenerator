@@ -5,6 +5,7 @@
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
+import { openData, settle } from './settle.js';
 
 const FIXTURE = fileURLToPath(new URL('./fixture.json', import.meta.url));
 
@@ -35,14 +36,11 @@ for (const lang of ['en', 'de']) {
 
     // 1. Import the fictional data.
     await page.goto('./');
-    const data = page.locator('details.data');
-    // the app opens this panel by itself on an empty start: make sure it ends up open
-    await expect(async () => {
-      if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-      expect(await data.evaluate((d) => d.open)).toBe(true);
-    }).toPass();
+    // the app opens this panel by itself on an empty start: openData waits for that, then opens it
+    const data = await openData(page);
     await data.getByLabel(T('Import backup')).setInputFiles(FIXTURE);
     await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
+    await settle(page); // the tidy-up after the import done, Today decided
     await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'fixture.json' }))).toBeVisible();
 
     // 2. New → Plan a trip → the area: Weekend (v0.30.0: in the New trip window; it starts with the area's items).

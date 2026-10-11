@@ -8,6 +8,10 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.80.0 «Tests stabil»
+  'Behind the scenes: the automatic checks are steadier, so new versions come faster.':
+    'Im Hintergrund: Die automatischen Prüfungen laufen stabiler, so kommen neue Versionen schneller.',
+
   // 0.79.0 Hobby-Seiten 1
   'Aktiv has a new tab «Activity»: your six favourite activities as tiles with playful names you can change, each with one line about where you stand.':
     'Aktiv hat einen neuen Tab «Aktivität»: deine sechs Lieblings-Aktivitäten als Kacheln mit verspielten Namen, die du ändern kannst, jede mit einer Zeile, wo du stehst.',

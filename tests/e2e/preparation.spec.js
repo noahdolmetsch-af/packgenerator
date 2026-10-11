@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
+import { openData, settle } from './settle.js';
 const fixture = fileURLToPath(new URL('./preparation-fixture.json', import.meta.url));
 
 // This catches premature writes, a lost alternative, a lost quantity, and accidentally
@@ -12,14 +13,11 @@ test('review, apply, edit and pack a tour', async ({ page, context }) => {
   page.on('pageerror', e => errors.push(e.message));
   page.on('dialog', d => d.accept());
   await page.goto('./');
-  const data = page.locator('details.data');
-  // the app opens this panel by itself on an empty start: make sure it ends up open
-  await expect(async () => {
-    if (!(await data.evaluate((d) => d.open))) await data.locator('summary').click();
-    expect(await data.evaluate((d) => d.open)).toBe(true);
-  }).toPass();
+  // the app opens this panel by itself on an empty start: openData waits for that, then opens it
+  const data = await openData(page);
   await data.getByLabel('Backup importieren').setInputFiles(fixture);
   await data.getByRole('button', { name: 'Alle Daten ersetzen' }).press('Enter');
+  await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(/importiert.*alle Daten ersetzt/i)).toBeVisible();
   await page.goto('./#/pack');
   await expect(page.getByRole('heading', { name: 'Packliste', exact: true })).toBeVisible();
