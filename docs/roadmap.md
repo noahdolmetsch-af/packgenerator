@@ -513,6 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 11.10.2026 (v0.83.0, PR offen):** «Ausstattung» nach Noahs Wunsch (Canyon-Vorbild, A1–A5 a): Velos › Ausstattung mit Masse-Kacheln, Teilen in Gruppen mit Gewicht und Preis, Gewicht pro Bereich und teuersten Teilen; Vergleich nur mit gefüllten Zeilen. Kleiner Release neben Hobby Teil 3 (anderer Bereich, Regel 5).
+
 **Nachtrag 11.10.2026 (v0.81.0, PR offen):** Hobby-Seiten Teil 2 «Kissenzeit» gebaut (B1, B2, B7, B8): Meditations-Seite mit Vorlagen, Wie letztes Mal, Arten, Herausforderung, Meilensteinen, Klängen, Zitaten, Links, Orten; Intervalle mit Marken auf der Uhr; Sitzung im ganzen Bildschirm, gespeichert in flowSessions (Im Flow, Ziel-Check: Vorhaben 6). Als Nächstes Teil 3 «Nach dem Gong» (B3–B6), dann E1, D5.
 
 **Nachtrag 11.10.2026 (v0.80.0, PR offen):** «Tests stabil» (Noah «1-5 a», Frage 1a): die wackligen Browser-Tests behoben (App-Zeichen `data-ready`/`data-today`, gemeinsamer Helfer `tests/e2e/settle.js`), keine sichtbare Änderung. Die Reihenfolge danach bleibt.

@@ -7,7 +7,6 @@ export default {
   'All|gear': 'Alles',
   'Clothes|tab': 'Kleider',
   'Care|tab': 'Pflege',
-  'Measurements|tab': 'Masse',
   'Today|active': 'Heute',
   'Goals|tab': 'Ziele',
   'Me, Inbox: {n} to sort': 'Ich, Eingang: {n} zum Ablegen',

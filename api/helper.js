@@ -13,6 +13,10 @@
  * Monthly cap (Noah 7a): the estimated cost of every answer is added to helper:spend:YYYY-MM;
  * from the cap on every task answers 429 { code: 'monthly_cap' } until the next month.
  * Privacy: request bodies, keys and tokens are never logged or stored; only the spend counter is kept.
+ *
+ * New or changed variables only reach a new Production build. The project's Ignored Build Step
+ * cancels a hand-made redeploy when api/ is unchanged, so a change here (merged to main) is the
+ * simple way to restart the server with new variables (11.10.2026: HELPER_TOKEN was not seen).
  */
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { route, json, needStore, redisEnv, pick, ApiError } from './_lib/core.js';

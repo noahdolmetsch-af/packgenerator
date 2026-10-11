@@ -8,6 +8,8 @@
    * v0.65.0 «Velo-Masse»: the fit and setup rows (saddle height, target pressure, bar width …) come
    * first of all and are always shown, never under «More».
    * Phone: the first column stays, the bike columns scroll inside the table, never the page.
+   * v0.83.0 «Ausstattung» (A5a): only rows with at least one value («show all» brings the rest back);
+   * the bikes to compare are chosen on top, on a phone two side by side to start with.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -20,9 +22,24 @@
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bikes = $derived(sortBikes($bikesQ ?? []));
-  const table = $derived(compareRows(bikes));
+  const narrow = typeof matchMedia === 'function' && matchMedia('(max-width: 719px)').matches;
+  let picked = $state(null); // Set of bike ids, null = the default (all; two on a phone)
+  const cols = $derived(picked ? bikes.filter((b) => picked.has(b.id)) : narrow ? bikes.slice(0, 2) : bikes);
+  function togglePick(id) {
+    const s = new Set(cols.map((b) => b.id));
+    if (s.has(id)) {
+      if (s.size > 1) s.delete(id);
+    } else s.add(id);
+    picked = s;
+  }
+  const full = $derived(compareRows(cols));
+  let all = $state(false);
+  const keep = (r) => all || r.values.some((v) => v != null);
+  const trim = (g) => ({ ...g, rows: g.rows.filter(keep) });
+  const table = $derived({ fit: trim(full.fit), top: full.top.filter(keep), main: full.main.map(trim).filter((g) => g.rows.length), geo: trim(full.geo), more: full.more.map(trim).filter((g) => g.rows.length) });
+  const hidden = $derived(all ? 0 : [full.fit, { rows: full.top }, ...full.main, full.geo].reduce((n, g) => n + g.rows.filter((r) => !keep(r)).length, 0));
   let more = $state(false);
-  const moreCount = $derived(new Set(table.more.flatMap((g) => g.rows.map((r) => r.key))).size);
+  const moreCount = $derived(new Set(full.more.flatMap((g) => g.rows.map((r) => r.key))).size);
   const areas = AREAS.filter((a) => a.key !== 'checks');
 
   const show = (r, v) => (v == null ? '–' : r.num && typeof v === 'number' ? `${num(v)}${r.unit ? ` ${r.unit}` : ''}` : String(v));
@@ -50,18 +67,25 @@
 </script>
 
 <div class="cmp">
-  <p class="back"><a href={bikesHash({ tab: 'setup' })}><ChevronLeft size={18} aria-hidden="true" />{t('Bikes')}</a></p>
+  <p class="back"><a href={bikesHash({ tab: 'compare' })}><ChevronLeft size={18} aria-hidden="true" />{t('Equipment|tab')}</a></p>
   <h2 class="title">{t('Compare bikes')}</h2>
   <p class="page-sub">{t('Fit, parts, values and geometry of every bike side by side. Tap a cell to fill it in.')}</p>
 
   {#if !bikes.length && $bikesQ}
     <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
   {:else if bikes.length}
+    {#if bikes.length > 2}
+      <div class="bpicks" role="group" aria-label={t('Bikes to compare')}>
+        {#each bikes as b (b.id)}
+          <button type="button" class="bpick" aria-pressed={cols.some((c) => c.id === b.id)} onclick={() => togglePick(b.id)}>{b.name}</button>
+        {/each}
+      </div>
+    {/if}
     {#snippet rows(list)}
       {#each list as r (r.id)}
         <tr class:first={r.first && r.part}>
           <th scope="row" class="rh">{#if r.first && r.part}<span class="pn">{r.part}</span>{/if}<span class="fl">{t(r.label)}</span></th>
-          {#each bikes as b, i (b.id)}
+          {#each cols as b, i (b.id)}
             <td class:diff={r.differ && r.values[i] != null}>
               <button type="button" class="cell" class:none={r.values[i] == null} aria-label="{b.name}: {cellLabel(r)}: {show(r, r.values[i])}" onclick={() => open(b, r)}>{show(r, r.values[i])}</button>
             </td>
@@ -70,25 +94,29 @@
       {/each}
     {/snippet}
     {#snippet group(g)}
-      <tr class="gh"><th scope="rowgroup" colspan={bikes.length + 1}><span class="zl">{t(g.name)}</span></th></tr>
-      {@render rows(g.rows)}
+      {#if g.rows.length}
+        <tr class="gh"><th scope="rowgroup" colspan={cols.length + 1}><span class="zl">{t(g.name)}</span></th></tr>
+        {@render rows(g.rows)}
+      {/if}
     {/snippet}
     <div class="wrap surf" role="region" aria-label={t('Compare bikes')} tabindex="-1">
       <table>
         <thead>
           <tr>
             <th scope="col" class="rh corner">{t('Part')}</th>
-            {#each bikes as b (b.id)}<th scope="col" class="bh">{b.name}</th>{/each}
+            {#each cols as b (b.id)}<th scope="col" class="bh">{b.name}</th>{/each}
           </tr>
         </thead>
         <tbody>
           {@render group(table.fit)}
-          <tr class="gh"><th scope="rowgroup" colspan={bikes.length + 1}><span class="zl">{t('Key values')}</span></th></tr>
-          {@render rows(table.top)}
+          {#if table.top.length}
+            <tr class="gh"><th scope="rowgroup" colspan={cols.length + 1}><span class="zl">{t('Key values')}</span></th></tr>
+            {@render rows(table.top)}
+          {/if}
           {#each table.main as g (g.area)}{@render group(g)}{/each}
           {@render group(table.geo)}
           <tr class="gh morerow">
-            <th scope="rowgroup" colspan={bikes.length + 1}>
+            <th scope="rowgroup" colspan={cols.length + 1}>
               <button type="button" class="morebtn" aria-expanded={more} onclick={() => (more = !more)}>
                 {#if more}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
                 {t('More')} <span class="n">{t('{n} more parts: frame, suspension, cockpit, own parts', { n: moreCount })}</span>
@@ -98,11 +126,11 @@
           {#if more}{#each table.more as g (g.area)}{@render group(g)}{/each}{/if}
         </tbody>
         <tfoot>
-          <tr class="gh"><th scope="rowgroup" colspan={bikes.length + 1}><span class="zl">{t('Weight per area')}</span></th></tr>
+          <tr class="gh"><th scope="rowgroup" colspan={cols.length + 1}><span class="zl">{t('Weight per area')}</span></th></tr>
           {#each areas as a (a.key)}
             <tr>
               <th scope="row" class="rh"><span class="fl">{t(a.name)}</span></th>
-              {#each bikes as b (b.id)}
+              {#each cols as b (b.id)}
                 {@const w = areaWeight(b, a.key)}
                 <td class="tot num">{w.known ? formatWeight(w.g) : '–'}{#if w.known && w.known < w.total}<small>{t('{n} of {all}', { n: w.known, all: w.total })}</small>{/if}</td>
               {/each}
@@ -110,7 +138,7 @@
           {/each}
           <tr class="sum">
             <th scope="row" class="rh"><span class="fl">{t('Total|weight')}</span></th>
-            {#each bikes as b (b.id)}
+            {#each cols as b (b.id)}
               {@const g = areas.reduce((s, a) => s + areaWeight(b, a.key).g, 0)}
               <td class="tot num">{g ? formatWeight(g) : '–'}</td>
             {/each}
@@ -118,6 +146,9 @@
         </tfoot>
       </table>
     </div>
+    <p class="hid">
+      {#if all}<button type="button" class="showall" onclick={() => (all = false)}>{t('Hide empty rows')}</button>{:else if hidden}{t('Only rows with at least one value · {n} empty rows hidden', { n: hidden })} · <button type="button" class="showall" onclick={() => (all = true)}>{t('show all')}</button>{/if}
+    </p>
     <p class="legend"><span class="sw diffsw" aria-hidden="true"></span>{t('= the bikes differ here')}</p>
   {/if}
 </div>
@@ -287,6 +318,41 @@
   tr.sum .fl {
     font-weight: 600;
     color: var(--ink);
+  }
+  .bpicks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0 0;
+  }
+  .bpick {
+    min-height: 44px;
+    padding: 6px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font: 500 var(--fs-small) var(--font-body);
+    cursor: pointer;
+  }
+  .bpick[aria-pressed='true'] {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--brand-ink);
+  }
+  .hid {
+    margin: 10px 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .showall {
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--hi);
+    font: 600 var(--fs-small) var(--font-body);
+    cursor: pointer;
   }
   .legend {
     display: flex;

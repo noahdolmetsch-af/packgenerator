@@ -358,6 +358,9 @@ export function planSpecs(bike, entry) {
       // One weight for a pair (both brakes, both wheels) is split in half; the file names the set.
       const w = readValue(line.weightG ?? line.weight ?? line.gewicht, true);
       consider('part', key, 'weightG', pair && typeof w === 'number' ? Math.round(w / 2) : w, label);
+      // v0.83.0 «Ausstattung» (A3a): the price in CHF, split in half for a pair like the weight.
+      const price = readValue(line.priceChf ?? line.price ?? line.preis, true);
+      consider('part', key, 'priceChf', pair && typeof price === 'number' ? Math.round(price / 2) : price, label);
       consider('part', key, 'material', readValue(line.material ?? line.werkstoff, false), label);
       consider('part', key, 'notes', readValue(line.notes ?? line.notiz, false), label);
       const attrs = { ...(line.attrs ?? {}) };

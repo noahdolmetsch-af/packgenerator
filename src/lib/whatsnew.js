@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.83.0',
+    date: '2026-10-11',
+    points: [
+      { text: 'Bikes has a new tab «Equipment»: every part of a bike in groups like a bike maker’s spec list, with name, details, weight and price.', href: '#/bikes?tab=compare' },
+      { text: 'Your four key measurements sit on top as tiles; parts without details fold into one line, and a tap on a part edits its name, weight and price.', href: '#/bikes?tab=compare' },
+      { text: '«Compare bikes» now shows only rows with a value; on a phone two bikes sit side by side and you pick which.', href: '#/bikes?tab=compare' },
+    ],
+  },
+  {
     version: '0.81.0',
     date: '2026-10-11',
     points: [

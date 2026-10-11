@@ -9,6 +9,7 @@
   import SetupTab from '../lib/bikes/SetupTab.svelte';
   import CareTab from '../lib/care/CareTab.svelte';
   import Compare from '../lib/bikes/Compare.svelte';
+  import Equipment from '../lib/bikes/Equipment.svelte';
   import ShopTab from '../lib/bikes/ShopTab.svelte';
   import KmImport from '../lib/care/KmImport.svelte';
   import SheetView from '../lib/bikes/SheetView.svelte';
@@ -42,8 +43,11 @@
   {#if route.sheet && route.bike}
     <!-- v0.69.0 «Velo-Blätter»: one sheet of the bike's folder (or the whole folder) -->
     <SheetView bikeId={route.bike} sheet={route.sheet} from={route.from ?? null} />
-  {:else if route.tab === 'compare'}
+  {:else if route.tab === 'compare' && route.view === 'all'}
     <Compare />
+  {:else if route.tab === 'compare'}
+    <!-- v0.83.0 «Ausstattung» (A1–A5 a): every part of one bike in groups, «Compare bikes» one tap away -->
+    <Equipment bikeId={route.bike} onbike={pickBike} />
   {:else if route.tab === 'shop'}
     <ShopTab bikeId={route.bike} visitId={route.visit ?? null} onbike={pickBike} />
   {:else if route.tab === 'care' && route.view === 'import'}
