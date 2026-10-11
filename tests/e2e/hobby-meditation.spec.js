@@ -2,8 +2,10 @@
 // fixed clock (page.clock). Aktiv › Aktivität → the Kissenzeit tile → the meditation page with its three
 // suggested templates → a new template of 1 minute on the intervals page (a mark set on the dial and
 // taken away again) → started → the running session in full (the navigation steps back) → the end gong
-// → the session is saved (flowLog + flowSessions) → the milestone «Hingebungsvoll» counts up. A second
-// session from «Heute vielleicht» is paused and ended early. No sideways scroll, no page errors.
+// → the session is saved (flowLog + flowSessions) → B3 opens: note and depth → the milestone «Hingebungsvoll»
+// counts up → the log (B4) shows the row, filters, calendar and chart (B6) → the session (B5) → «Wieder so
+// starten». A second session from «Heute vielleicht» is paused and ended early, saved as a template,
+// deleted and brought back. No sideways scroll, no page errors.
 // Fictional data only. No data import and no dialog of the app shell, so of tests/e2e/settle.js only
 // ready() is needed: the start-up tidy-up has finished before the test acts.
 import { test, expect } from '@playwright/test';
@@ -112,20 +114,71 @@ test('Kissenzeit: tile → page → a 1-minute template → the session runs →
   await page.clock.runFor(30_000);
   await expect(sess.locator('[role="timer"]')).toHaveAttribute('data-left', '30');
 
-  // the end gong: the session saves itself (log entry + details, the same id)
+  // the end gong: the session saves itself (log entry + details, the same id) and B3 opens (H11a)
   await page.clock.runFor(31_000);
-  await expect(sess.getByText(T('{n} min saved', { n: 1 }))).toBeVisible();
+  await expect(page).toHaveURL(/#\/flow\/act\/meditation\/done\/fl-s-/);
+  await expect(page.locator('dialog.sess[open]')).toHaveCount(0);
   await expect.poll(() => count(page, 'flowSessions')).toBe(1);
   expect(await count(page, 'flowLog')).toBe(1);
-  await sess.locator('[data-close-session]').click();
-  await expect(page.locator('dialog.sess[open]')).toHaveCount(0);
 
-  // the milestone counts up, the template shows its last use, the log lists the session
+  // B3: the big minutes, the note card (a sentence, depth 4, a mood), «Als Nächstes» with a calendar file
+  await expect(main.getByRole('heading', { level: 1, name: T('{n} minute.', { n: 1 }) })).toBeVisible();
+  await expect(main).toContainText(T('Template «{name}»', { name: 'Test eine Minute' }));
+  await main.locator('[data-note]').fill('Am Anfang unruhig, dann still.');
+  await main.locator('[data-depth="4"]').click();
+  await expect(main.locator('[data-depth="4"]')).toHaveAttribute('aria-pressed', 'true');
+  await main.locator('[data-mood="calm"]').click();
+  await expect(main.locator('[data-next]')).toContainText(T('tomorrow'));
+  const [dl] = await Promise.all([page.waitForEvent('download'), main.locator('[data-ics]').click()]);
+  expect(dl.suggestedFilename()).toBe('meditation-2026-10-10.ics');
+  await fits(page, 'B3 Auswertung');
+  await main.locator('[data-save-note]').click();
+  await expect(page.locator('.ftoast')).toContainText(T('Note saved'));
+  await expect(page).toHaveURL(/#\/flow\/act\/meditation$/);
+
+  // the milestone counts up, the template shows its last use
   await expect(devoted.locator('.v b')).toHaveText('1');
   await expect(main.locator('[data-tpl]').filter({ hasText: 'Test eine Minute' })).toContainText(T('last {when}', { when: '' }).trim());
-  await main.getByRole('button', { name: T('Open the log') }).click();
-  await expect(main.locator('#medlog [data-session]')).toHaveCount(1);
-  await fits(page, 'Meditation after the session');
+
+  // B4: the log lists the session with its note; the filter «mit Notiz» keeps it; calendar and chart views
+  await main.getByRole('link', { name: T('Open the log') }).click();
+  await expect(page).toHaveURL(/#\/flow\/act\/meditation\/log$/);
+  await expect(main.getByRole('heading', { level: 1, name: T('Log') })).toBeVisible();
+  const row = main.locator('[data-session]');
+  await expect(row).toHaveCount(1);
+  await expect(row).toContainText('Am Anfang unruhig');
+  if (phone) await main.locator('[data-filters]').click(); // on a phone the filters fold behind one button
+  await main.locator('[data-filter="note"]').click();
+  await expect(page).toHaveURL(/log\?note=1$/);
+  await expect(row).toHaveCount(1);
+  await main.locator('[data-filter="tod"]').selectOption('evening');
+  await expect(row).toHaveCount(0);
+  await main.getByRole('button', { name: T('reset {n} filters', { n: 2 }) }).click();
+  await expect(row).toHaveCount(1);
+  await fits(page, 'B4 Liste');
+  await main.locator('[data-view="cal"]').click();
+  await expect(main.locator('[data-day="2026-10-09"]')).toContainText('1');
+  if (phone) expect((await main.locator('button[data-day="2026-10-09"]').boundingBox()).width, 'a day is a 44 px target').toBeGreaterThanOrEqual(43.5);
+  await main.locator('[data-day="2026-10-09"]').click();
+  await expect(main.locator('[data-session]')).toHaveCount(1);
+  await fits(page, 'B6 Kalender');
+  await main.locator('[data-view="chart"]').click();
+  await expect(main.getByRole('heading', { name: T('Minutes per week') })).toBeVisible();
+  await fits(page, 'B6 Grafik');
+  await main.locator('[data-view="list"]').click();
+
+  // B5: the session in full; «Wieder so starten» opens the same clock again
+  await row.click();
+  await expect(page).toHaveURL(/#\/flow\/act\/meditation\/s\/fl-s-/);
+  await expect(main).toContainText('Am Anfang unruhig, dann still.');
+  await expect(main).toContainText(T('{n} of 5', { n: 4 }));
+  await fits(page, 'B5 Sitzung');
+  await main.locator('[data-again]').click();
+  const again = page.locator('dialog.sess[open]');
+  await expect(again.locator('[role="timer"]')).toHaveAttribute('data-left', '60');
+  await again.locator('[data-end-session]').click();
+  await expect(page.locator('.ftoast')).toContainText(T('Under a minute: not saved'));
+  expect(await count(page, 'flowSessions')).toBe(1);
   expect(errors).toEqual([]);
 });
 
@@ -152,14 +205,35 @@ test('Kissenzeit: a session from «Heute vielleicht», paused, ended early, save
   await page.clock.runFor(10_000);
   await expect(sess.locator('[role="timer"]')).toHaveAttribute('data-left', '1040');
 
-  // «Beenden» saves what ran (2:40 → 3 min), without asking
+  // «Beenden» saves what ran (2:40 → 3 min), without asking; B3 opens, «Ohne Notiz schliessen» goes back
   await sess.locator('[data-end-session]').click();
   await expect(page.locator('dialog.sess[open]')).toHaveCount(0);
-  await expect(page.locator('.ftoast')).toContainText(T('Meditation saved · {n} min', { n: 3 }));
+  await expect(page).toHaveURL(/#\/flow\/act\/meditation\/done\//);
+  await expect(main.getByRole('heading', { level: 1, name: T('{n} minutes.', { n: 3 }) })).toBeVisible();
   await expect.poll(() => count(page, 'flowSessions')).toBe(1);
+  await main.getByRole('button', { name: T('Close without a note') }).click();
+  await expect(page).toHaveURL(/#\/flow\/act\/meditation$/);
   await expect(main.locator('[data-tpl="tpl-morning20"]')).toContainText(T('last {when}', { when: '' }).trim());
   // «Wie letztes Mal» offers it again
   await expect(main.locator('[data-start="last"]')).toBeVisible();
   await fits(page, 'Meditation after ending early');
+
+  // B5: save it as a template, delete it, «Rückgängig» brings it back
+  await main.getByRole('link', { name: T('Open the log') }).click();
+  await main.locator('[data-session]').click();
+  await expect(main.getByRole('heading', { level: 1, name: 'Atemzüge zählen' })).toBeVisible();
+  await expect(main).toContainText(T('No note yet.'));
+  await main.locator('[data-as-tpl]').click();
+  await main.locator('[data-tpl-name]').fill('Zählen kurz');
+  await main.getByRole('button', { name: T('Save'), exact: true }).click();
+  await expect(page.locator('.ftoast')).toContainText(T('Template «{name}» saved', { name: 'Zählen kurz' }));
+  await expect.poll(() => count(page, 'flowTemplates')).toBe(SEED_TEMPLATES.length + 1);
+  await main.locator('[data-delete]').click();
+  await expect(page).toHaveURL(/#\/flow\/act\/meditation\/log$/);
+  await expect(main.locator('[data-session]')).toHaveCount(0);
+  expect(await count(page, 'flowLog')).toBe(0);
+  await page.locator('.ftoast').getByRole('button', { name: T('Undo') }).click();
+  await expect(main.locator('[data-session]')).toHaveCount(1);
+  expect(await count(page, 'flowSessions')).toBe(1);
   expect(errors).toEqual([]);
 });

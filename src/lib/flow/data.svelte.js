@@ -10,7 +10,7 @@ import { QUESTIONS_KEY, poolOf } from '../flowcheck.js';
 import { BOWL_KEY, bowlOf } from '../flowbowl.js';
 import { homeTrips } from '../home/heute.js';
 import { ensureSeed, ensureSeed2, ensureMedSeed } from '../flowdb.js';
-import { ARTS_KEY, PLACES_KEY, THINGS_KEY, LINKS_KEY, SOUND_KEY, CHALLENGE_KEY, MED_SEED_KEY, tplOf } from '../flowmed.js';
+import { ARTS_KEY, PLACES_KEY, THINGS_KEY, LINKS_KEY, SOUND_KEY, CHALLENGE_KEY, MED_SEED_KEY, HELPED_KEY, NEXT_KEY, tplOf } from '../flowmed.js';
 import { QUOTES_KEY } from '../flowquotes.js';
 import { TUNE_KEY, REWARD_KEY } from '../flowms.js';
 import { HIDDEN_KEY } from '../flowsugg.js';
@@ -123,7 +123,7 @@ export function medQuery(actId, today) {
       db.flowStars.toArray(),
       db.trips.toArray(),
       db.flowTemplates.where('actId').equals(actId).toArray(),
-      db.settings.where('key').anyOf([TUNE_KEY, ARTS_KEY, PLACES_KEY, THINGS_KEY, LINKS_KEY, SOUND_KEY, CHALLENGE_KEY, QUOTES_KEY, MED_SEED_KEY, SEED2_KEY, 'flowSeeded']).toArray(),
+      db.settings.where('key').anyOf([TUNE_KEY, ARTS_KEY, PLACES_KEY, THINGS_KEY, LINKS_KEY, SOUND_KEY, CHALLENGE_KEY, QUOTES_KEY, MED_SEED_KEY, SEED2_KEY, HELPED_KEY, NEXT_KEY, 'flowSeeded']).toArray(),
     ]);
     const set = Object.fromEntries(sets.map((s) => [s.key, s.value]));
     return {
@@ -141,6 +141,8 @@ export function medQuery(actId, today) {
       sound: set[SOUND_KEY] ?? null,
       seen: set[CHALLENGE_KEY] ?? null,
       quotes: set[QUOTES_KEY] ?? null,
+      helped: set[HELPED_KEY] ?? null, // hobby pages 3: own «Was hat geholfen?»
+      nextOff: set[NEXT_KEY]?.off === true, // hobby pages 3: «Als Nächstes» switched off (H24a)
       seeded: !!set.flowSeeded || acts.length > 0,
       seeded2: !!set[SEED2_KEY],
       medSeeded: !!set[MED_SEED_KEY],

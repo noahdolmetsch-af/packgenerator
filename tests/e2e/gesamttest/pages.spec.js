@@ -105,6 +105,10 @@ const CASES = [
   // hobby pages 2 «Kissenzeit» (mockups B1, B2)
   { id: 'flow-meditation', hash: '#/flow/act/meditation' },
   { id: 'flow-med-timer', hash: '#/flow/act/meditation/timer?new=1' },
+  // hobby pages 3 «Nach dem Gong» (mockups B4, B6): the log as list, calendar and chart
+  { id: 'flow-med-log', hash: '#/flow/act/meditation/log' },
+  { id: 'flow-med-cal', hash: '#/flow/act/meditation/log?view=cal' },
+  { id: 'flow-med-chart', hash: '#/flow/act/meditation/log?view=chart' },
   { id: 'notes', hash: '#/notes' },
 ];
 

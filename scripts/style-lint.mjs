@@ -68,6 +68,10 @@ export const STRICT_STYLE = [
   'src/pages/flow/MedTimer.svelte',
   'src/lib/flow/hobby/Dial.svelte',
   'src/lib/flow/hobby/SessionView.svelte',
+  // hobby pages 3 «Nach dem Gong»: the evaluation, the log (list, calendar, chart), one session (all new, all strict)
+  'src/pages/flow/MedDone.svelte',
+  'src/pages/flow/MedLog.svelte',
+  'src/pages/flow/MedSession.svelte',
   // v0.76.0 «Fünf Orte» 1: the new navigation and «Ich»
   'src/lib/nav/SideBar.svelte',
   'src/lib/nav/PlaceBar.svelte',
@@ -81,7 +85,7 @@ export const STRICT_STYLE = [
   'src/pages/Trips.svelte',
 ];
 /** The routes of the trip pages and interstitials (tests/e2e/guard.spec.js), strict in the same way. */
-export const STRICT_ROUTES = ['#/pack', '#/pack?day', '#/ride', '#/debrief/test_data_gtp_Napf', '#/trip/test_data_gtp_Herbstrunde/packed', '#/trip/test_data_gtp_Napf/ended', '#/trip/test_data_gtp_Napf/debriefed', '#/bikes?tab=care&view=import&bike=test_data_gtp_spark', '#/bikes?bike=test_data_gtp_spark&sheet=all', '#/bikes?bike=test_data_gtp_spark&sheet=pass', '#/bikes?bike=test_data_gtp_spark&sheet=order', '#/bikes?bike=test_data_gtp_spark&sheet=pickup', '#/me', '#/flow/activity', '#/flow/milestones', '#/flow/act/meditation', '#/flow/act/meditation/timer?new=1'];
+export const STRICT_ROUTES = ['#/pack', '#/pack?day', '#/ride', '#/debrief/test_data_gtp_Napf', '#/trip/test_data_gtp_Herbstrunde/packed', '#/trip/test_data_gtp_Napf/ended', '#/trip/test_data_gtp_Napf/debriefed', '#/bikes?tab=care&view=import&bike=test_data_gtp_spark', '#/bikes?bike=test_data_gtp_spark&sheet=all', '#/bikes?bike=test_data_gtp_spark&sheet=pass', '#/bikes?bike=test_data_gtp_spark&sheet=order', '#/bikes?bike=test_data_gtp_spark&sheet=pickup', '#/me', '#/flow/activity', '#/flow/milestones', '#/flow/act/meditation', '#/flow/act/meditation/timer?new=1', '#/flow/act/meditation/log', '#/flow/act/meditation/log?view=cal', '#/flow/act/meditation/log?view=chart'];
 /** «noch umbauen»: every file the baseline still lists (not strict), most violations first. */
 export const stillToRebuild = (base = {}) =>
   Object.entries(base)
