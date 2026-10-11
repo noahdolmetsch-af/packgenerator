@@ -1,6 +1,10 @@
 <script module>
   import { Zap, Backpack, Shirt, Scale, Wrench, Route, FileText, Layers, Heart, ChartColumn, StickyNote, Gauge, Blocks, Star, BookOpen, TriangleAlert, Activity, Flame, Sparkles, Flower2, FlaskConical, Sun, Lightbulb, Bike, MessageCircle, Info, Inbox, Database, Plus } from '@lucide/svelte';
   /** The icons of the tiles (tiles.js icon keys). */
+  // a long word may break on a small phone tile: only where German breaks it (a soft hyphen after the
+  // first part, «Kleider-schrank»). → the label in pieces, each piece its own span.
+  const PARTS = /^(Kleider|Wunsch|Velo|Rück|Meilen|Spiel|Lieblings|Erinnerungs|Baustein|Ausrüstungs)(\p{L}{4,})$/u;
+  export const soft = (text) => text.replace(/\p{L}{11,}/gu, (w) => w.replace(PARTS, '$1\u00ad\n$2')).split('\n');
   export const ICON = { zap: Zap, bag: Backpack, shirt: Shirt, scale: Scale, wrench: Wrench, route: Route, file: FileText, wardrobe: Shirt, layers: Layers, heart: Heart, chart: ChartColumn, note: StickyNote, counter: Gauge, blocks: Blocks, star: Star, book: BookOpen, alert: TriangleAlert, flow: Activity, flame: Flame, sparkles: Sparkles, lotus: Flower2, flask: FlaskConical, sun: Sun, bulb: Lightbulb, bike: Bike, chat: MessageCircle, info: Info, inbox: Inbox, data: Database, plus: Plus };
 </script>
 
@@ -14,13 +18,13 @@
 
   let { tile, size = 's', href = null, onclick = null, sub = '', badge = 0, isnew = false, hot = false, dark = false, fn = null } = $props();
   const Icon = $derived(ICON[tile.icon] ?? Sparkles);
-  const label = $derived(badge ? `${t(tile.label)}, ${t('{n} to do', { n: badge })}` : isnew ? `${t(tile.label)}, ${t('new|tile')}` : undefined);
+  const label = $derived(badge ? `${t(tile.label)}, ${t('{n} to do', { n: badge })}` : isnew ? `${t(tile.label)}, ${t('new|tile')}` : t(tile.label));
 </script>
 
 {#snippet inner()}
   <span class="ic"><Icon size={20} strokeWidth={2} aria-hidden="true" /></span>
   {#if badge}<span class="bd num" aria-hidden="true">{num(badge)}</span>{:else if isnew}<span class="nw" aria-hidden="true">{t('New|tile')}</span>{/if}
-  <span class="lb">{t(tile.label)}</span>
+  <span class="lb">{#each soft(t(tile.label)) as p, i (i)}<span>{p}</span>{/each}</span>
   {#if sub}<span class="su">{sub}</span>{/if}
 {/snippet}
 
@@ -71,7 +75,7 @@
     min-width: 0;
     max-width: 100%;
     overflow-wrap: break-word;
-    hyphens: auto;
+    hyphens: manual;
   }
   .su {
     color: var(--ink-3);
@@ -118,9 +122,10 @@
       align-items: center;
       justify-content: center;
       gap: 4px;
-      padding: 8px 4px;
+      padding: 8px 1px;
       text-align: center;
       font-size: var(--fs-tiny);
+      letter-spacing: -0.01em;
     }
     .st.s .ic {
       margin-bottom: 0;
@@ -137,4 +142,5 @@
       right: 4px;
     }
   }
+
 </style>

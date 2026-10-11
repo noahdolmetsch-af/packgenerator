@@ -366,6 +366,8 @@ test.describe('offline', () => {
   test('offline: the app loads from the cache, an edit survives reload, nothing lost back online, de', async ({ page, context }, info) => {
     const T = tr('de');
     await start(page, context, info, 'de');
+    // v0.94.0: the import happens under Me; the online line is in Today's footer
+    await page.goto('./#/');
     // Wait until the service worker controls the page.
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.reload();

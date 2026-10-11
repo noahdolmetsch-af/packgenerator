@@ -66,7 +66,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    min-height: 32px;
+    min-height: 44px;
     color: var(--ink);
     text-decoration: none;
   }

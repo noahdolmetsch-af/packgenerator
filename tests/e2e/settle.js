@@ -73,7 +73,7 @@ export async function openData(page) {
   const panel = page.locator('details.data');
   if (!(await panel.evaluate((d) => d.open))) await panel.locator('summary').click();
   await expect(panel).toHaveJSProperty('open', true);
-  await expect(panel.getByLabel(either('Import backup'))).toBeAttached();
+  await expect(panel.locator('input[type="file"]').first()).toBeAttached();
   return panel;
 }
 

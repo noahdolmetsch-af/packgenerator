@@ -116,6 +116,12 @@
     grid-auto-flow: row dense;
     gap: 8px;
   }
+  /* a very narrow phone (320 px): 3 columns, so a word like «Kleiderschrank» fits on a small tile */
+  @media (max-width: 359px) {
+    .wall {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
   @media (min-width: 720px) {
     .wall {
       grid-template-columns: repeat(8, minmax(0, 1fr));
