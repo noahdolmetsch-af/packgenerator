@@ -1,5 +1,6 @@
-// v0.96.0 «F1 Alles finden» (Noah «1-5 a» 11.10.2026, mockups A/B, Trello vaSqiSQb): «Was die App kann»
-// in 6 groups by situation, never used first, «Hinbringen» and «Ausprobieren»; the search shows
+// v0.96.0 «F1 Alles finden» (Noah «1-5 a» 11.10.2026, mockups A/B, Trello vaSqiSQb; new mockups «1-2
+// freigeben» 11.10. 16:10): «Was die App kann» in 6 groups by situation or 5 by page, 4 rows each, never
+// used first, «Hinbringen» and «Ausprobieren»; the search shows
 // commands to try, the last searches and all functions, and finds a function («garantie»).
 // Fictional data (home0460-fixture.js, test_data_gtp_), German UI, nothing leaves the preview.
 import { test, expect } from '@playwright/test';
@@ -21,9 +22,21 @@ test('Was die App kann: groups by situation, chips, find, Hinbringen, Ausprobier
 
   // phone: every button is a 44 px target, nothing scrolls sideways
   if (info.project.name === 'phone') {
-    for (const b of await page.locator('main .fchip, main .fgo, main .fall').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    for (const b of await page.locator('main .fbyb, main .fchip, main .fgo, main .fall').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
   }
   await noSideScroll(page);
+  // 4 rows per group, then «Alle N»
+  await expect(groups.first().locator('[data-feature]')).toHaveCount(4);
+
+  // switched to «Nach Seite»: the places of the app, the chips follow
+  await page.getByRole('button', { name: T('By page'), exact: true }).click();
+  await expect(groups).toHaveCount(5);
+  await expect(groups.first().locator('h2')).toHaveText(T('Trips|place'));
+  await page.getByRole('button', { name: T('Bikes|place'), exact: true }).click();
+  await expect(groups).toHaveCount(1);
+  await expect(groups.first()).toHaveAttribute('data-group', 'bikes');
+  await page.getByRole('button', { name: T('By situation'), exact: true }).click();
+  await expect(groups).toHaveCount(6);
 
   // a chip shows one situation, with all its rows
   await page.getByRole('button', { name: T('Bike|features'), exact: true }).click();

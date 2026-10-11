@@ -1,6 +1,6 @@
 // v0.96.0 «F1 Alles finden» (Noah «1-5 a», mockups A/B): the catalogue of every function by situation.
 import { describe, it, expect, afterEach } from 'vitest';
-import { FEATURES, FEATURE, FEATURE_GROUPS, catalogue, seenOf, featureHref, findFeatures } from '../src/lib/features.js';
+import { FEATURES, FEATURE, FEATURE_GROUPS, PAGE_GROUPS, pageOf, catalogue, seenOf, featureHref, findFeatures } from '../src/lib/features.js';
 import { TIPS, TIP } from '../src/lib/tips.js';
 import { t, lang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -72,5 +72,30 @@ describe('the search finds functions', () => {
 
   it('every word has to match', () => {
     expect(findFeatures('import rides', t).map((x) => x.featureId)).toEqual(['f.kmimport']);
+  });
+});
+
+describe('by page (Noah «1 a und b beides umstellbar»)', () => {
+  it('every function sits on one place of the app, each place has some', () => {
+    const keys = PAGE_GROUPS.map((g) => g.key);
+    expect(keys).toEqual(['trips', 'gear', 'bikes', 'flow', 'me']);
+    for (const f of FEATURES) expect(keys, f.id).toContain(pageOf(f));
+    const { groups, total } = catalogue(null, new Set(), 'page');
+    expect(groups.map((g) => g.key)).toEqual(keys);
+    for (const g of groups) expect(g.total, g.key).toBeGreaterThan(0);
+    expect(groups.reduce((n, g) => n + g.total, 0)).toBe(total);
+  });
+
+  it('where it leads decides the place; a trip function opening a bike stays with the trips', () => {
+    expect(pageOf(FEATURE['f.warranty'])).toBe('bikes');
+    expect(pageOf(FEATURE['f.meditation'])).toBe('flow');
+    expect(pageOf(FEATURE['f.wardrobe'])).toBe('gear');
+    expect(pageOf(FEATURE['f.plan'])).toBe('trips');
+    expect(pageOf(FEATURE['f.theme'])).toBe('me');
+    expect(pageOf(FEATURE.event)).toBe('trips');
+  });
+
+  it('every place has a German name', () => {
+    expect(PAGE_GROUPS.map((g) => g.label).filter((k) => !(k in DE))).toEqual([]);
   });
 });

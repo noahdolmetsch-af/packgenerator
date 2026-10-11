@@ -131,11 +131,11 @@ test('Building blocks and What the app can do are rows; explanations behind "?"'
   await noSideways(page);
   await shot(page, info, 'bausteine', true);
 
-  // v0.96.0 «F1 Alles finden»: 6 groups by situation, 3 rows each and «All n», the news folded
+  // v0.96.0 «F1 Alles finden»: 6 groups by situation, 4 rows each (Noah «2 mit 4 zeilen») and «All n», the news folded
   await page.goto('./#/features');
   await expect(page.locator('section[data-group]')).toHaveCount(6);
   await expect(page.locator('details.newsfold')).not.toHaveAttribute('open', '');
-  for (const g of await page.locator('section[data-group]').all()) expect(await g.locator('[data-feature]').count()).toBeLessThanOrEqual(3);
+  for (const g of await page.locator('section[data-group]').all()) expect(await g.locator('[data-feature]').count()).toBeLessThanOrEqual(4);
   await expect(page.getByRole('progressbar')).toHaveCount(0);
   await noSideways(page);
   await shot(page, info, 'features', true);

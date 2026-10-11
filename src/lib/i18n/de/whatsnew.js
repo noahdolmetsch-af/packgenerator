@@ -9,8 +9,8 @@ export default {
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
   // 0.96.0 «Alles finden»
-  '«What the app can do» shows every function in 6 groups: before the trip, packing and on the way, after the trip, bike, active, data and app. What you never used is on top.':
-    '«Was die App alles kann» zeigt jede Funktion in 6 Gruppen: vor der Tour, packen und unterwegs, nach der Tour, Velo, Aktiv, Daten und App. Was du noch nie benutzt hast, steht oben.',
+  '«What the app can do» shows every function by situation (before the trip, on the way, after the trip …) or, switched, by page of the app. What you never used is on top.':
+    '«Was die App alles kann» zeigt jede Funktion nach Situation (vor der Tour, unterwegs, nach der Tour …) oder, umgestellt, nach Seite der App. Was du noch nie benutzt hast, steht oben.',
   'Each function has «Take me there» to its place in the app, and many have «Try it» in the playground; a field and chips narrow the list.':
     'Jede Funktion hat «Hinbringen» zu ihrer Stelle in der App, viele auch «Ausprobieren» in der Spielwiese; ein Suchfeld und Chips machen die Liste kürzer.',
   'The search shows 3 commands to try, your last searches and «See all functions», and finds functions too, for example «warranty».':

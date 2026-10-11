@@ -837,7 +837,17 @@ Mockups A und B (`design/alles-finden-f1`, Galerie #alles-finden-f1). Noah im Th
 - **(3a)** Jede Zeile hat «Hinbringen» (öffnet die Stelle oder startet die Aktion) und, wo es passt, «Ausprobieren» in der Spielwiese.
 - **(4a)** Die Suche zeigt beim Öffnen 3 Befehle zum Ausprobieren, die letzten Suchen und «Alle Funktionen ansehen»; sie findet auch Funktionen.
 - **(5a)** Eine Kachel «Alles finden» auf der Kachel-Wand: die Kachel «Was die App kann» der Kachel-Wand (PR #111, `home/tiles.js` id `features`) zeigt schon auf `#/features`; der Thread «UI-Analyse» benennt sie um, F1 fasst Heute nicht an.
-- **Selbst entschieden:** 84 Funktionen im Katalog `src/lib/features.js` (die 28 Tipps plus 56 aus dem Inventar), nicht 110: kleine Varianten sind zusammengelegt. «Benutzt» heisst: in den Daten gesehen, einmal «Hinbringen» getippt oder «Kenne ich». Pro Gruppe 3 Zeilen, dann «Alle n». Velo-Blätter öffnen beim ersten Velo. «Ausprobieren» nur bei Funktionen rund um eine Tour, nur solange sie nie benutzt wurden und keine Spielwiese läuft; es öffnet das Spielwiesen-Blatt am passenden Tag, gestartet wird erst dort. Die Neuheiten bleiben als eine zugeklappte Zeile (am Computer rechts), bis der Thread «Neu planen» die Release-Karte baut. Am Handy kein «So liest du die Liste».
+- **Selbst entschieden:** 84 Funktionen im Katalog `src/lib/features.js` (die 28 Tipps plus 56 aus dem Inventar), nicht 110: kleine Varianten sind zusammengelegt. «Benutzt» heisst: in den Daten gesehen, einmal «Hinbringen» getippt oder «Kenne ich». Pro Gruppe 3 Zeilen, dann «Alle n» (später 4, siehe unten). Velo-Blätter öffnen beim ersten Velo. «Ausprobieren» nur bei Funktionen rund um eine Tour, nur solange sie nie benutzt wurden und keine Spielwiese läuft; es öffnet das Spielwiesen-Blatt am passenden Tag, gestartet wird erst dort. Die Neuheiten bleiben als eine zugeklappte Zeile (am Computer rechts), bis der Thread «Neu planen» die Release-Karte baut. Am Handy kein «So liest du die Liste».
+
+## 11.10.2026: F1 an Noahs Trello-Antwort angepasst und ausdrücklich freigegeben (0.96.0)
+
+Noahs eigene Antwort auf Trello vaSqiSQb (14:34 UTC) war beim Bau übersehen worden: «1 a und b beides umstellbar», «2 mit 4 zeilen», «3a … als Baustein ‹Buttons und User Journey›». Neue Mockups auf «Offene Mockups» #alles-finden-f1 («Neu zur Freigabe»). Noah im Thread «Freigaben prüfen», 16:10 UTC: «1-2 freigeben» (Punkt 2 = diese Mockups).
+
+- **(1 a und b)** Oben ein Umschalter «Nach Situation · Nach Seite». «Nach Seite» ordnet dieselben Funktionen nach Touren, Material, Velos, Aktiv, Ich (`PAGE_GROUPS`, `pageOf()` in `src/lib/features.js`).
+- **(2)** Pro Gruppe 4 Zeilen, dann «Alle n».
+- **(3)** «Buttons und User Journey» wird ein eigener Baustein mit eigener Mockup-Runde, nicht Teil von F1.
+- Am Handy brechen die Knöpfe oben in Zeilen um statt seitlich zu wischen (Gesamttest: sonst abgeschnitten); im freigegebenen Mockup so gezeigt.
+- **Selbst entschieden:** Wohin eine Funktion führt, bestimmt ihre Seite; eine Tour-Funktion, die ein Velo öffnet (Eventvorbereitung), bleibt bei den Touren; der Rest steht unter Ich.
 
 ## 11.10.2026: Antworten zu den späteren Kalender-Fragen (Noah, gleiche Nachricht)
 

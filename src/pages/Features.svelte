@@ -2,15 +2,16 @@
   /**
    * What the app can do (v0.30.0, #/features). v0.35.0: «New in the last updates» on top (WhatsNew).
    * v0.96.0 «F1 Alles finden» (Noah 11.10.2026, mockup A «1-5 a»): every function of the app
-   * (features.js), in 6 groups by the situation you are in. In each group what you never used comes
-   * first, 3 rows, «All n ›» opens the rest; used rows are quiet with ✓. Each row: «Take me there»
+   * (features.js), in 6 groups by the situation you are in, or switched to 5 by the page it lives on
+   * (Noah «1 a und b beides umstellbar», 11.10. «1-2 freigeben»). In each group what you never used
+   * comes first, 4 rows («2 mit 4 zeilen»), «All n ›» opens the rest; used rows are quiet with ✓. Each row: «Take me there»
    * opens the place (or starts the action), «Try it» plays it in the playground without touching
-   * your data. A search field and chips narrow the list. #/features?f=<id> opens at one function.
+   * your data. A search field and chips (wrapping on a phone) narrow the list. #/features?f=<id> opens at one function.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { usedTips, TIPS_KEY } from '../lib/tips.js';
-  import { catalogue, seenOf, findFeatures, FEATURE_GROUPS } from '../lib/features.js';
+  import { catalogue, seenOf, findFeatures, FEATURE_GROUPS, PAGE_GROUPS } from '../lib/features.js';
   import { goFeature } from '../lib/know/featureRun.js';
   import { HOME_PLACE } from '../lib/know.js';
   import { paceOf, PACE_KEY } from '../lib/pace.js';
@@ -31,7 +32,7 @@
 
   const GROUP_ICON = { compass: Compass, backpack: Backpack, book: BookOpen, bike: Bike, leaf: Leaf, save: Save };
   /** Rows shown per group before «All n ›». */
-  const SHOWN = 3;
+  const SHOWN = 4;
 
   const dataQ = liveQuery(async () => {
     const [trips, items, bikes, visits, debriefs, notesN, setting, file, folder, demo, counts] = await Promise.all([
@@ -61,7 +62,8 @@
   })();
   const d = $derived($dataQ);
   const used = $derived(d ? new Set([...usedTips({ ...d, langSet, standalone: standalone() }), ...seenOf({ counts: d.counts, folder: d.folder, play: !!d.demo?.play })]) : new Set());
-  const all = $derived(d ? catalogue(d.tips, used) : null);
+  let by = $state('situation');
+  const all = $derived(d ? catalogue(d.tips, used, by) : null);
   const next = $derived(d ? nextTrip(d.trips, localDay()) : null);
   const bikeId = $derived(d ? (sortBikes(d.bikes)[0]?.id ?? null) : null);
 
@@ -131,9 +133,14 @@
         <input type="search" bind:value={q} placeholder={t('What do you want to do? e.g. «warranty»')} aria-label={t('Find a function')} autocomplete="off" />
       </label>
       {#if !sideOn}<WhatsNew />{/if}
-      <div class="fchips" role="group" aria-label={t('Situation')}>
+      <!-- Noah «1 a und b beides umstellbar»: by situation or by the page a function lives on -->
+      <div class="fby" role="group" aria-label={t('Sort')}>
+        <button type="button" class="fbyb" aria-pressed={by === 'situation'} onclick={() => { by = 'situation'; only = 'all'; }}>{t('By situation')}</button>
+        <button type="button" class="fbyb" aria-pressed={by === 'page'} onclick={() => { by = 'page'; only = 'all'; }}>{t('By page')}</button>
+      </div>
+      <div class="fchips" role="group" aria-label={by === 'page' ? t('Page|features') : t('Situation')}>
         <button type="button" class="fchip" aria-pressed={only === 'all'} onclick={() => (only = 'all')}>{t('All|features')}</button>
-        {#each FEATURE_GROUPS as g (g.key)}
+        {#each by === 'page' ? PAGE_GROUPS : FEATURE_GROUPS as g (g.key)}
           <button type="button" class="fchip" aria-pressed={only === g.key} onclick={() => (only = only === g.key ? 'all' : g.key)}>{t(g.label)}</button>
         {/each}
       </div>
@@ -222,12 +229,34 @@
     color: var(--ink);
     font: 400 var(--fs-body) var(--font-body);
   }
+  .fby {
+    display: flex;
+    width: fit-content;
+    gap: var(--sp-1);
+    padding: var(--sp-1);
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    margin-bottom: var(--sp-2);
+  }
+  .fbyb {
+    min-height: 44px;
+    padding: 0 var(--sp-4);
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink);
+    font: 600 var(--fs-label) var(--font-body);
+    cursor: pointer;
+  }
+  .fbyb[aria-pressed='true'] {
+    background: var(--accent);
+    color: var(--paper);
+  }
   .fchips {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--sp-2);
-    overflow-x: auto;
-    padding-bottom: 2px;
-    scrollbar-width: none;
   }
   .fchip {
     flex: none;

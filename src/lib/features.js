@@ -24,6 +24,39 @@ export const FEATURE_GROUPS = [
   { key: 'data', label: 'Data and app', icon: 'save' },
 ];
 
+/**
+ * The same functions by the place of the app they live on (Noah «1 a und b beides umstellbar»,
+ * Trello vaSqiSQb): «What the app can do» switches between situation and page.
+ */
+export const PAGE_GROUPS = [
+  { key: 'trips', label: 'Trips|place', icon: 'compass' },
+  { key: 'gear', label: 'Gear|place', icon: 'backpack' },
+  { key: 'bikes', label: 'Bikes|place', icon: 'bike' },
+  { key: 'flow', label: 'Active|place', icon: 'leaf' },
+  { key: 'me', label: 'Me|place', icon: 'save' },
+];
+const PAGE_OF = [
+  [/^#\/(pack|ride|debrief|trips)/, 'trips'],
+  [/^#\/(gear|wardrobe|blocks)/, 'gear'],
+  [/^#\/bikes/, 'bikes'],
+  [/^#\/flow/, 'flow'],
+];
+const RUN_PAGE = { trip: 'trips', wear: 'gear', problem: 'bikes', km: 'bikes', receipt: 'bikes' };
+
+/**
+ * The place a function lives on (a key of PAGE_GROUPS): from where it leads, else its action;
+ * a trip function that opens a bike (an event's preparation) stays with the trips; the rest is Me.
+ */
+export function pageOf(f) {
+  const href = f.tip ? (TIP[f.tip].go?.href ?? '') : (f.href ?? '');
+  const trip = f.group === 'before' || f.group === 'onway' || f.group === 'after';
+  for (const [re, k] of PAGE_OF) if (re.test(href)) return trip && k === 'bikes' ? 'trips' : k;
+  if (f.run && RUN_PAGE[f.run]) return RUN_PAGE[f.run];
+  if (!href && f.group === 'bike') return 'bikes';
+  if (!href && trip) return 'trips';
+  return 'me';
+}
+
 /** Where each tip of Good to know belongs. */
 const TIP_GROUP = {
   dayride: 'before', blocks: 'before', templates: 'before', gpx: 'before', homeweather: 'before', wxsuggest: 'before', weigh: 'before', fav: 'before', wish: 'before', unused: 'before',
@@ -128,12 +161,13 @@ export function seenOf({ counts = {}, folder = false, play = false } = {}) {
  * The catalogue as the page shows it: [{ ...group, items: [{ ...feature, used }], used, total }],
  * in each group what you never used first (in catalogue order), then the used ones.
  * state: the settings record "tips" (taps count as used); used: tips used (usedTips) and own
- * entries seen (seenOf), one Set.
+ * entries seen (seenOf), one Set; by: 'situation' (FEATURE_GROUPS) or 'page' (PAGE_GROUPS).
  */
-export function catalogue(state, used = new Set()) {
+export function catalogue(state, used = new Set(), by = 'situation') {
   const s = tipState(state);
-  const groups = FEATURE_GROUPS.map((g) => {
-    const items = FEATURES.filter((x) => x.group === g.key).map((x) => ({ ...x, used: isUsed(s, x.id, used) }));
+  const byPage = by === 'page';
+  const groups = (byPage ? PAGE_GROUPS : FEATURE_GROUPS).map((g) => {
+    const items = FEATURES.filter((x) => (byPage ? pageOf(x) : x.group) === g.key).map((x) => ({ ...x, used: isUsed(s, x.id, used) }));
     const sorted = [...items.filter((x) => !x.used), ...items.filter((x) => x.used)];
     return { ...g, items: sorted, used: items.filter((x) => x.used).length, total: items.length };
   });
