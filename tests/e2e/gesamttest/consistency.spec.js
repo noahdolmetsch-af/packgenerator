@@ -8,7 +8,7 @@
 // - trips: Today's "Last 12 months" and the Review page; open debriefs on Past trips and Debrief
 //   (v0.46.0 has no Trips tile with "Past trips (n)" any more).
 import { test, expect } from '@playwright/test';
-import { start, table, fixture, tr, esc } from './lib.js';
+import { start, table, fixture, tr, esc, openData } from './lib.js';
 
 const T = tr('de');
 const num = (s) => {
@@ -116,11 +116,11 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   const trips = await table(page, 'trips');
   const owned = items.filter((i) => i.ownership === 'owned' || i.ownership === 'unclear').length;
   const wish = items.filter((i) => i.ownership === 'wishlist' || i.ownership === 'to-buy').length;
-  const data = page.locator('details.data');
-  await data.locator('summary').click();
+  // v0.94.0 «Kachel-Wand»: «Weigh» is a small tile on Today's wall, «Data and backup» lives under Me
+  const weighToday = num(await page.locator('.wall [data-fn="weigh"] .bd').textContent());
+  const data = await openData(page);
   await expect(data.locator('.csum')).toContainText(T('{n} items', { n: items.length }));
   await expect(data.locator('.csum')).toContainText(T('{n} trips', { n: trips.length }));
-  const weighToday = num(await page.locator('[data-section="actions"] .grid [data-fn="weigh"] .badge').textContent());
   await page.goto('./#/gear');
   await page.reload();
   // v0.47.2: the views carry the counts; what waits for the scale is on "Record weights" in •••

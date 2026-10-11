@@ -84,6 +84,9 @@ async function start(page, context, info) {
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
   await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'pf-fixture.json' }))).toBeVisible();
+  // v0.94.0: the import runs under Me; back to Today, where it used to end
+  await page.goto('./#/');
+  await settle(page);
   return errors;
 }
 
@@ -535,10 +538,9 @@ test('PF08: star an item, open the favourites on Today, reload: one tap, kept, r
   const favs = (await table(page, 'items')).filter((i) => i.favorite && ['owned', 'unclear'].includes(i.ownership));
   await page.goto('./#/');
   // v0.46.0: the Gear tile with its favourites count left Today; "Favourites" is one of the 16
-  // functions (the favourites page), and Gear's ★ filter is reached at #/gear?fav=1.
-  await rec.click(page.locator('.actions .grid [data-fn="all"]'));
-  await rec.click(page.locator('dialog.fnsheet [data-fn="favorites"]'));
-  await rec.check('Today: All functions → Favourites opens the favourites', () => expect(page).toHaveURL(/#\/favorites/, { timeout: 2000 }));
+  // functions (the favourites page), and Gear's ★ filter is reached at #/gear?fav=1. v0.94.0: a small tile.
+  await rec.click(page.locator('.wall [data-fn="favorites"]'));
+  await rec.check('Today: the Favourites tile opens the favourites', () => expect(page).toHaveURL(/#\/favorites/, { timeout: 2000 }));
   await page.goto('./#/gear?fav=1');
   const check = async (when) => {
     // v0.47.2: the favourites are the view "Favourite things"; its button carries the number
@@ -981,10 +983,12 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
   await rec.check('debrief: saved for this trip', async () => expect((await table(page, 'debriefs')).map((d) => d.tripId)).toContain(tripId));
   await rec.shot('debrief');
-  // Backup round trip.
+  // Backup round trip. v0.94.0: Today first (it stores its milestone levels when it is seen), then the
+  // snapshot, then «Data and backup» under Me.
+  await page.goto('./#/');
+  await settle(page);
   const snapshot = {};
   for (const name of ['items', 'trips', 'debriefs', 'notes', 'photos', 'bikes', 'containers', 'learnings', 'settings']) snapshot[name] = await table(page, name);
-  await page.goto('./#/');
   const data = await openData(page);
   const wait = page.waitForEvent('download');
   await data.getByRole('button', { name: T('Export backup') }).click();
@@ -1057,7 +1061,7 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   await page.goto('./#/');
   // v0.38.0 (Noah 8a): "Day ride now" in the quick row under the bikes on Today.
   // v0.46.0: the first button of "What do you want to do?".
-  await rec.click(page.locator('.actions .grid [data-fn="dayride"]'));
+  await rec.click(page.locator('.wall [data-fn="dayride"]'));
   const bar = page.locator('.made-card');
   await expect(bar).toBeVisible();
   // The day ride copies the last day ride (gravel, 3 h): change it to the Scale and 2 h.
@@ -1177,13 +1181,8 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   const due = T('{n} due', { n: 1 });
   await page.goto('./#/');
   // v0.38.0 (Noah 8a): the km are a quick button of the bike on Today.
-  // v0.46.0: "Log km" is one of the 16 functions (in "All 16 functions" when not among the buttons).
-  const kmBtn = page.locator('.actions .grid [data-fn="km"]');
-  if (await kmBtn.count()) await rec.click(kmBtn);
-  else {
-    await rec.click(page.locator('.actions .grid [data-fn="all"]'));
-    await rec.click(page.locator('dialog.fnsheet [data-fn="km"]'));
-  }
+  // v0.46.0: "Log km" is one of the 16 functions; v0.94.0 «Kachel-Wand»: a small tile on the wall.
+  await rec.click(page.locator('.wall [data-fn="km"]'));
   const km = page.getByRole('dialog', { name: T('km for a bike') });
   await rec.select(km.locator('select').first(), BIKE.spark);
   await rec.fill(km.getByLabel(T('km on the counter')), '5100');

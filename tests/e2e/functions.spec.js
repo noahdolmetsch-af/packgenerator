@@ -1,7 +1,7 @@
-// Wächter «Noch alles da?»: the 16 functions of "All 16 functions" (src/lib/home/functions.js) are each
-// reachable from Today in at most two taps (a button in "What do you want to do?", or "All 16" and the
-// row in its sheet) and open their page or window without a console error. The list below is written
-// out on purpose: when a function disappears from Today, this test fails. Fictional data of
+// Wächter «Noch alles da?»: the 16 functions (src/lib/home/fnlist.js) are each reachable from Today in
+// at most two taps and open their page or window without a console error. Since v0.94.0 «Kachel-Wand»
+// each is a small tile on the ready wall (1 tap); a tile taken away comes back through «+» (the catalog
+// lists all 16). The list below is written out on purpose: when a function disappears, this test fails. Fictional data of
 // home0460-fixture.js (test_data_gtp_ records), clock on Friday 9 October 2026, Open-Meteo mocked.
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
@@ -37,30 +37,24 @@ test('all 16 functions: two taps from Today at most, each page opens without an 
   page.on('dialog', (d) => d.dismiss());
   await openHome(page, context, info);
 
-  const grid = page.locator('[data-section="actions"] .grid');
-  // the sheet lists exactly these 16
-  await grid.locator('[data-fn="all"]').click();
-  const sheet = page.locator('dialog.fnsheet[open]');
-  await expect(sheet.locator('.fnrow')).toHaveCount(16);
-  expect((await sheet.locator('.fnrow').evaluateAll((els) => els.map((e) => e.dataset.fn))).sort()).toEqual(Object.keys(EXPECTED).sort());
+  // the catalog lists exactly these 16 as tiles
+  await page.getByRole('button', { name: /^(Add a tile|Kachel hinzufügen)$/ }).click();
+  const sheet = page.getByRole('dialog');
+  const listed = await sheet.locator('[data-add^="fn:"]').evaluateAll((els) => els.map((e) => e.dataset.add.slice(3)));
+  expect(listed.sort()).toEqual(Object.keys(EXPECTED).sort());
+  await page.keyboard.press('Escape');
 
+  const wall = page.locator('.wall');
   const taps = {};
   for (const [id, want] of Object.entries(EXPECTED)) {
     await page.goto('./#/');
     await page.reload();
-    await expect(grid.locator('[data-fn="all"]')).toBeVisible();
+    await expect(wall.locator('.plusw')).toBeVisible();
     const before = errors.length;
-    const direct = grid.locator(`[data-fn="${id}"]`);
-    if (await direct.isVisible()) {
-      await direct.click(); // 1 tap
-      taps[id] = 1;
-    } else {
-      await grid.locator('[data-fn="all"]').click(); // 2 taps: All 16, then the row
-      const row = page.locator(`dialog.fnsheet[open] [data-fn="${id}"]`);
-      await expect(row, `${id} is in "All 16 functions"`).toBeVisible();
-      await row.click();
-      taps[id] = 2;
-    }
+    const direct = wall.locator(`[data-fn="${id}"]`);
+    await expect(direct, `${id} is a tile on the ready wall`).toBeVisible();
+    await direct.click(); // 1 tap
+    taps[id] = 1;
     if (want.url) await expect(page, `${id} leads to its page`).toHaveURL(want.url);
     if (want.dialog) await expect(page.locator(want.dialog), `${id} opens its window`).toBeVisible();
     if (want.url && !want.dialog) await expect(page.locator('main h1').first(), `${id}: the page has its title`).toBeVisible();

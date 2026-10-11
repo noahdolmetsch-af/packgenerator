@@ -59,6 +59,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.81.0 | Hobby-Seiten Teil 2 «Kissenzeit»: Meditations-Seite (Vorlagen, Wie letztes Mal, Arten, Herausforderung, Meilensteine, Klänge, Zitate, Links, Orte), Intervalle mit Marken auf der Uhr, Sitzung im ganzen Bildschirm | PR offen |
 | 0.84.0 | Hobby-Seiten Teil 3 «Nach dem Gong»: Auswertung mit Notiz, Tiefe, Stimmung und «Als Nächstes» (.ics), Protokoll mit Filtern, Serien-Wärmebild, Kalender und Grafik, Sitzung im Detail mit «Wieder so starten» | PR offen |
 | 0.86.0 | Meditation einfach (Noah «1-5 a»): Startblatt aus «Heute abhaken» (Jetzt {n} Min, Dauer, Nur abhaken), kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant» und Wisch-Hinweis weg | PR offen |
+| 0.94.0 | Kachel-Wand (Noah «1-5 a», «ok a», Mockups A–D): Heute als Wand aus Kacheln in vier Grössen, anpassbar (auch lange drücken), «+» mit Katalog, «Neu»-Punkt, eine Serie über alles mit Ruhewoche, alle Meilensteine auf einer Seite, Daten und Backup unter Ich; ersetzt den Entwurf «Startseite dicht». Später K6/K7 mit Mockups | PR offen |
 | 0.93.0 | Meditation Wünsche (Noah «1-5 a», Mockups F–H): Neue Sitzung mit Sternen zuerst, Dauer 10–60 oder frei, Klänge keine · zufällig · eigene (alle N Minuten oder an Minute), «Als Vorlage speichern?» mit Namensvorschlag; vier Uhren Ring · Sanduhr · Mond · Zahl, gemerkt, Sanduhr mit ausblendbarer Zeit | PR offen |
 | 0.92.0 | Rückblick antippen (App einfach 4a, Mockup C): «Was hast du nicht gebraucht?» als Chips oben, Was hat gefehlt, Wie war's, Vorschläge und alle Teile als Zeilen darunter, Knopf «Fertig» | PR offen |
 | 0.91.0 | Import: alte Fahrten (Noah «Fix bauen»): Strava-Fahrten ohne Velo, die schon in den km der Velos stecken, liegen zur Seite statt unter «Prüfen»; ein von Hand gewähltes Velo zählt eine alte Fahrt nicht doppelt (Ziel «Velo im Griff», Q1) | live, PR #114 |
@@ -132,7 +133,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **E4 Anreise in der App:** SBB-Verbindungen direkt in der App (transport.opendata.ch), nächster Zug nach Hause.
 - **Take me home:** Knopf während der Fahrt. Er nimmt den aktuellen Standort und öffnet den schnellsten Weg zur Heimat-PLZ: ÖV über die SBB-App, Auto über Google Maps.
 - **Beispiel:** Samstag 7 Uhr, Tour Jura geplant: die Startseite zeigt «Startklar: 2 Teile fehlen», Wetter Start 6 °C, Ziel 9 °C, und den Zug 7:32 ab Zürich HB. Am Nachmittag, platt in Le Brassus: «Take me home» zeigt den nächsten Zug.
-- **Stand:** Konzept fertig und beantwortet, Mockups für alle Etappen werden gezeichnet (nur hell).
+- **Stand:** Konzept fertig und beantwortet, Mockups für alle Etappen werden gezeichnet (nur hell). **11.10.2026:** E1 wird zur «Kachel-Wand» (0.94.0, PR offen): Noah stellt Heute selbst aus Kacheln zusammen; der Entwurf «Startseite dicht» (#111) ist abgelöst. Danach K6 und K7 (Mockups zuerst), dann E2–E4.
 
 ### 4. Design-Pakete D1–D6
 
