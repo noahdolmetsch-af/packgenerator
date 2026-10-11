@@ -33,6 +33,9 @@ async function load(page, context, info) {
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
   await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'abnahme045.json' }))).toBeVisible();
+  // v0.94.0: the import runs under Me; back to Today, where it used to end
+  await page.goto('./#/');
+  await settle(page);
   return data;
 }
 

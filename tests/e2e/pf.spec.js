@@ -84,6 +84,9 @@ async function start(page, context, info) {
   await data.getByRole('button', { name: T('Replace all data') }).press('Enter');
   await settle(page); // the tidy-up after the import done, Today decided
   await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'pf-fixture.json' }))).toBeVisible();
+  // v0.94.0: the import runs under Me; back to Today, where it used to end
+  await page.goto('./#/');
+  await settle(page);
   return errors;
 }
 
@@ -980,10 +983,12 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   await expect(page.getByRole('heading', { name: T('Saved'), exact: true })).toBeVisible();
   await rec.check('debrief: saved for this trip', async () => expect((await table(page, 'debriefs')).map((d) => d.tripId)).toContain(tripId));
   await rec.shot('debrief');
-  // Backup round trip.
+  // Backup round trip. v0.94.0: Today first (it stores its milestone levels when it is seen), then the
+  // snapshot, then «Data and backup» under Me.
+  await page.goto('./#/');
+  await settle(page);
   const snapshot = {};
   for (const name of ['items', 'trips', 'debriefs', 'notes', 'photos', 'bikes', 'containers', 'learnings', 'settings']) snapshot[name] = await table(page, name);
-  await page.goto('./#/');
   const data = await openData(page);
   const wait = page.waitForEvent('download');
   await data.getByRole('button', { name: T('Export backup') }).click();
