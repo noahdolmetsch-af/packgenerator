@@ -176,3 +176,35 @@ test('Start-Check: five checks, the missing ones added, the turnaround time and 
   await notice.getByRole('button').click();
   await expect(notice).toHaveCount(0);
 });
+
+test('Nach der Tour: Strava fills it in, «Speichern» makes learnings that show in the check', async ({ page, context }, info) => {
+  await open(page, context, info);
+  await page.locator('[data-row="after"]').click();
+  await expect(page).toHaveURL(new RegExp(`#/ski/after/${PAST}$`));
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('After the tour'));
+  await expect(page.locator('[data-strava]')).toHaveText(T('taken from Strava · everything changeable'));
+  await expect(page.getByLabel(T('Metres climbed'))).toHaveValue('1180');
+  await expect(page.getByLabel(T('Time moving'))).toHaveValue('3:40');
+  await expect(page.getByLabel(T('Time elapsed'))).toHaveValue('5:15');
+  await page.getByLabel(T('Peak')).fill('Muster-Gipfel');
+  await page.getByLabel(T('Place / start')).fill('Beispieltal');
+  await page.getByLabel(T('Ski and skins')).selectOption('SK01');
+  await page.getByRole('button', { name: T('Person') }).click();
+  await page.getByLabel(T('Name'), { exact: true }).fill('Sam');
+  await page.getByLabel(T('Name'), { exact: true }).press('Enter');
+  await expect(page.getByRole('button', { name: 'Sam' })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: T('too warm on the way up') }).click();
+  await page.getByLabel(T('Learning and notable things')).fill('Harscheisen ab 2200 m nötig');
+  expect(await noSideScroll(page)).toBe(true);
+  await shot(page, info, 'E-Nach-der-Tour');
+  await page.getByRole('button', { name: T('Save'), exact: true }).click();
+  await expect(page).toHaveURL(/#\/ski$/);
+  await expect.poll(async () => (await trip(page, PAST)).ski).toMatchObject({ peak: 'Muster-Gipfel', place: 'Beispieltal', hm: 1180, skiItemId: 'SK01', activeMin: 220, elapsedMin: 315, with: ['Sam'], changeTags: ['too warm on the way up'] });
+  const ls = (await table(page, 'learnings')).filter((l) => l.area === 'ski');
+  expect(ls.map((l) => [l.rule, l.skiGroup])).toEqual([[T('too warm on the way up'), 'clothing'], ['Harscheisen ab 2200 m nötig', 'hardware']]);
+  // the season counts it; the learnings stand in the check under their group
+  await expect(page.locator('.sk-sub')).toContainText('1’180');
+  await page.goto(`./#/ski/check/${NEXT}`);
+  await expect(page.locator('[data-group="clothing"] [data-tip]')).toHaveText(T('too warm on the way up'));
+  await expect(page.locator('[data-group="hardware"] [data-tip]')).toHaveText('Harscheisen ab 2200 m nötig');
+});

@@ -12,6 +12,7 @@
   import SkiHome from './ski/SkiHome.svelte';
   import SkiCheck from './ski/SkiCheck.svelte';
   import SkiStart from './ski/SkiStart.svelte';
+  import SkiAfter from './ski/SkiAfter.svelte';
 
   let { sub = '' } = $props();
   const parts = $derived(sub.split('?')[0].split('/').filter(Boolean));
@@ -22,6 +23,8 @@
   <SkiCheck {id} />
 {:else if parts[0] === 'start'}
   <SkiStart {id} />
+{:else if parts[0] === 'after'}
+  {#key id}<SkiAfter {id} />{/key}
 {:else}
   <SkiHome />
 {/if}

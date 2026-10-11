@@ -129,3 +129,83 @@ describe('the start check', () => {
     expect(turnDue(ski('u', '2026-12-12'), '2026-12-12', at(14, 0))).toBe(false);
   });
 });
+
+describe('after the tour', () => {
+  it('reads durations as h:mm', () => {
+    expect(parseDuration('3:40')).toBe(220);
+    expect(parseDuration('3 h 40')).toBe(220);
+    expect(parseDuration('5h')).toBe(300);
+    expect(parseDuration('95')).toBe(95);
+    expect(parseDuration('')).toBe(null);
+    expect(parseDuration('abc')).toBe(null);
+    expect(durationText(220)).toBe('3:40');
+    expect(durationText(null)).toBe('');
+  });
+
+  it('offers the names of everyone who came along before, most often first', () => {
+    const trips = [ski('a', '2026-12-01', { ski: { with: ['Sam', 'Alex'] } }), ski('b', '2026-12-08', { ski: { with: ['Sam'] } }), ski('c', '2026-12-09')];
+    expect(companions(trips)).toEqual(['Sam', 'Alex']);
+  });
+
+  it('makes learnings of area ski: clothing answers in group clothing, the learning by its words; saving again replaces them', () => {
+    const trip = ski('t', '2026-12-06', { title: 'test_data_gtp_ Muster-Gipfel' });
+    const answers = { changeTags: ['too warm on the way up', 'Mütze dünner'], change: 'Isolationsjacke erst am Gipfel', learning: 'Harscheisen ab 2 200 m nötig' };
+    const before = [{ id: 7, topic: 'Debrief', rule: 'old' }];
+    const { add, drop } = afterLearnings(trip, answers, before, { now: '2026-12-06T18:00:00.000Z', tr: (s) => DE[s] ?? s });
+    expect(drop).toEqual([]);
+    expect(add.map((l) => [l.id, l.rule, l.skiGroup])).toEqual([
+      [8, 'zu warm im Aufstieg', 'clothing'],
+      [9, 'Mütze dünner', 'clothing'],
+      [10, 'Isolationsjacke erst am Gipfel', 'clothing'],
+      [11, 'Harscheisen ab 2 200 m nötig', 'hardware'],
+    ]);
+    expect(add[0]).toMatchObject({ area: 'ski', appliesTo: ['ski'], topic: 'Ski tour', tripId: 't', from: 'ski-after', source: trip.title });
+    const again = afterLearnings(trip, { learning: 'Früh los' }, [...before, ...add]);
+    expect(again.drop).toEqual([8, 9, 10, 11]);
+    expect(again.add.map((l) => [l.id, l.skiGroup])).toEqual([[8, null]]);
+    expect(groupOfText('LVS-Batterie war fast leer')).toBe('safety');
+    expect(groupOfText('Thermos voll')).toBe('food');
+  });
+
+  it('shows ski learnings under their group in the check, and only on ski trips', () => {
+    const ls = [
+      { id: 1, area: 'ski', skiGroup: 'clothing', rule: 'Handschuhe warm', createdAt: '2026-12-06T18:00:00Z', topic: 'Ski tour', priority: 'medium' },
+      { id: 2, area: 'ski', skiGroup: null, rule: 'Früh los', createdAt: '2026-12-07T18:00:00Z', topic: 'Ski tour', priority: 'medium' },
+      { id: 3, rule: 'Bike rule', topic: 'Debrief', priority: 'medium', createdAt: '2026-12-01T18:00:00Z' },
+    ];
+    const g = learningsByGroup(ls);
+    expect(g.clothing.map((l) => l.id)).toEqual([1]);
+    expect(g.general.map((l) => l.id)).toEqual([2]);
+    expect(g.hardware).toEqual([]);
+    const now = new Date('2026-12-08T12:00:00Z');
+    expect(learningsFor(ski('t', '2026-12-12'), ls, 5, now).map((l) => l.id).sort()).toEqual([1, 2, 3]);
+    expect(learningsFor({ domain: 'bikepacking', startDate: '2026-12-12', entries: [] }, ls, 5, now).map((l) => l.id)).toEqual([3]);
+  });
+});
+
+describe('Strava ski tours', () => {
+  const csv = [
+    'Activity ID,Activity Date,Activity Name,Activity Type,Elapsed Time,Distance,Activity Gear,Moving Time,Elevation Gain',
+    '101,"Dec 6, 2026, 7:12:33 AM",Muster-Gipfel,Backcountry Ski,18900,9.4,,13200,1180',
+    '102,"Dec 7, 2026, 9:00:00 AM",Runde,Ride,3600,30.2,test_data_gtp_ Scale,3500,300',
+    '103,"Jan 3, 2027, 9:00:00 AM",Loipe,Nordic Ski,5400,20.1,,5200,150',
+  ].join('\n');
+
+  it('the import keeps them apart from the rides, with metres climbed and both durations', () => {
+    const { rides, other, ski: tours } = parseStravaCsv(csv);
+    expect(rides.map((r) => r.name)).toEqual(['Runde']);
+    expect(other).toBe(2);
+    expect(tours).toEqual([
+      { date: '2026-12-06', time: '2026-12-06T07:12:33Z', type: 'Backcountry Ski', name: 'Muster-Gipfel', hm: 1180, activeMin: 220, elapsedMin: 315, stravaId: '101' },
+      { date: '2027-01-03', time: '2027-01-03T09:00:00Z', type: 'Nordic Ski', name: 'Loipe', hm: 150, activeMin: 87, elapsedMin: 90, stravaId: '103' },
+    ]);
+  });
+
+  it('«Nach der Tour» finds the one of the tour\'s day; a second import does not double them', () => {
+    const { ski: tours } = parseStravaCsv(csv);
+    expect(stravaFor(ski('t', '2026-12-06'), tours)?.stravaId).toBe('101');
+    expect(stravaFor(ski('t', '2026-12-08'), tours)).toBe(null);
+    expect(mergeStrava(tours, tours).length).toBe(2);
+    expect(mergeStrava(tours, [{ ...tours[0], hm: 1200 }]).find((a) => a.stravaId === '101').hm).toBe(1200);
+  });
+});

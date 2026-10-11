@@ -15,6 +15,7 @@
   import { sortBikes, bikesHash } from '../bikes.js';
   import { parseStravaCsv, parseFit, planImport, importEntries, reasonText, sensorShort, signals, entryId, typeHints, dupOf } from '../kmbook.js';
   import { loadRules, saveRules, applyImport } from '../kmbookdb.js';
+  import { keepStrava } from '../ski/skidb.js';
   import KmChips from './KmChips.svelte';
   import Empty from '../ui/Empty.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
@@ -59,8 +60,10 @@
           const r = parseFit(bytes, name);
           files = [...files, { id: entryId(), name: file.name, kind: 'fit', records: [r], device: r.device, error: r.cycling ? '' : t('no ride (another sport)') }];
         } else {
-          const { rides, other } = parseStravaCsv(new TextDecoder().decode(bytes));
-          files = [...files, { id: entryId(), name: file.name, kind: 'csv', records: rides, other }];
+          const { rides, other, ski } = parseStravaCsv(new TextDecoder().decode(bytes));
+          // v0.97.0 «Skitouren»: the ski tours are no rides; they wait for «Nach der Tour» (no bike, no km)
+          await keepStrava(ski);
+          files = [...files, { id: entryId(), name: file.name, kind: 'csv', records: rides, other, ski: ski.length }];
         }
       } catch (err) {
         files = [...files, { id: entryId(), name: file.name, kind: 'bad', records: [], error: err.message }];
@@ -268,7 +271,7 @@
           <ul class="files">
             {#each files as f (f.id)}
               <li>
-                <span class="fn"><b>{f.name}</b>{#if f.kind === 'csv'}{' · '}Strava{:else if f.kind === 'fit' && f.device}{' · '}{f.device}{/if}{#if f.error}<small class="err">{f.error}</small>{/if}</span>
+                <span class="fn"><b>{f.name}</b>{#if f.kind === 'csv'}{' · '}Strava{:else if f.kind === 'fit' && f.device}{' · '}{f.device}{/if}{#if f.error}<small class="err">{f.error}</small>{/if}{#if f.ski}<small>{tn(f.ski, '{n} ski tour kept for «After the tour»', '{n} ski tours kept for «After the tour»')}</small>{/if}</span>
                 <span class="num">{tn(f.records.filter((r) => r.cycling !== false).length, '{n} ride', '{n} rides')}</span>
                 <button type="button" class="ix" aria-label={t('Remove {file}', { file: f.name })} onclick={() => removeFile(f.id)}><X size={16} aria-hidden="true" /></button>
               </li>

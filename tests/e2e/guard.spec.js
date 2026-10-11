@@ -102,6 +102,7 @@ const ROUTES = [
   ['#/ski', 'Skitouren'],
   ['#/ski/check', 'Rucksack-Check'],
   ['#/ski/start', 'Start-Check'],
+  ['#/ski/after', 'Nach der Tour'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

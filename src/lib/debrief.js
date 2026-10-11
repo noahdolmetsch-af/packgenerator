@@ -330,9 +330,11 @@ export function learningsFor(trip, learnings, n = 3, today = new Date()) {
       (recentAt(l) && today - new Date(recentAt(l)) < 30 * 864e5 ? 100 : 0)
     );
   };
+  // «Skitouren»: a learning of one area (l.area, e.g. ski) only shows for trips of that area
+  const area = trip?.domain || 'bikepacking';
   // «Inspiration» UC2-2: a packing rule from your inspiration has its own hint (inspiration/PackHints)
   return learnings
-    .filter((l) => l.topic !== 'Open question' && !l.inspo)
+    .filter((l) => l.topic !== 'Open question' && !l.inspo && (!l.area || l.area === area))
     .map((l) => ({ l, s: score(l) }))
     .sort((a, b) => b.s - a.s || String(a.l.id).localeCompare(String(b.l.id), undefined, { numeric: true }))
     .slice(0, n)
