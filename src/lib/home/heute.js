@@ -181,11 +181,12 @@ export const stepOf = (n, steps = TRIP_STEPS) => steps.filter((s) => n >= s).at(
  * Where the data stands now: { trips, bikes: { id: thousands }, names: { id: name }, nights }.
  * tripsDone: how many trips happened; bikes: [{ id, name, km }]; nights: nights outside so far.
  */
-export function milestoneLevels({ tripsDone = 0, bikes = [], nights = 0 } = {}) {
+export function milestoneLevels({ tripsDone = 0, bikes = [], nights = 0, series = null } = {}) {
   const km = {};
   const names = {};
   for (const b of bikes) if (typeof b.km === 'number' && b.km >= 0) (km[b.id] = Math.floor(b.km / 1000)), (names[b.id] = b.name);
-  return { trips: stepOf(tripsDone), bikes: km, names, nights: nights > 0 };
+  // v0.94.0 (idea 6): the step the series over everything reached (series.js SERIES_STEPS); null = not counted
+  return { trips: stepOf(tripsDone), bikes: km, names, nights: nights > 0, series };
 }
 
 const addDays = (iso, n) => new Date(ms(iso) + n * 864e5).toISOString().slice(0, 10);
@@ -196,7 +197,7 @@ const addDays = (iso, n) => new Date(ms(iso) + n * 864e5).toISOString().slice(0,
  * → { state, changed }.
  */
 export function milestoneStep(state, cur, today = localDay()) {
-  if (!state || typeof state !== 'object' || !state.levels) return { state: { levels: { trips: cur.trips, bikes: cur.bikes, nights: cur.nights }, events: [] }, changed: true };
+  if (!state || typeof state !== 'object' || !state.levels) return { state: { levels: { trips: cur.trips, bikes: cur.bikes, nights: cur.nights, ...(cur.series != null ? { series: cur.series } : {}) }, events: [] }, changed: true };
   const prev = state.levels;
   const events = (state.events ?? []).filter((e) => e.day >= addDays(today, -7));
   let changed = events.length !== (state.events ?? []).length;
@@ -205,7 +206,10 @@ export function milestoneStep(state, cur, today = localDay()) {
     if (prev.bikes?.[id] != null && k > prev.bikes[id]) events.push({ key: 'bikeKm', bikeId: id, bike: cur.names?.[id] ?? '', km: k * 1000, day: today });
   }
   if (cur.nights && !prev.nights) events.push({ key: 'firstNight', day: today });
-  const levels = { trips: Math.max(cur.trips, prev.trips ?? 0), bikes: { ...prev.bikes, ...cur.bikes }, nights: !!(cur.nights || prev.nights) };
+  // the series: celebrated when it reaches a higher step than ever stored (not the first time it is counted)
+  if (cur.series != null && prev.series != null && cur.series > prev.series) events.push({ key: 'series', n: cur.series, day: today });
+  const series = cur.series != null ? Math.max(cur.series, prev.series ?? 0) : prev.series;
+  const levels = { trips: Math.max(cur.trips, prev.trips ?? 0), bikes: { ...prev.bikes, ...cur.bikes }, nights: !!(cur.nights || prev.nights), ...(series != null ? { series } : {}) };
   if (events.length !== (state.events ?? []).length || JSON.stringify(levels) !== JSON.stringify(prev)) changed = true;
   return { state: { levels, events }, changed };
 }
@@ -218,6 +222,7 @@ export function milestoneText(e) {
   if (e.key === 'trips') return t('Your {n}th trip with the app. Well done!', { n: e.n });
   if (e.key === 'bikeKm') return t('{bike}: {km} km on the counter.', { bike: e.bike, km: num(e.km) });
   if (e.key === 'firstNight') return t('Your first night out. Well done!');
+  if (e.key === 'series') return t('{n} weeks in a row active. Well done!', { n: e.n });
   return '';
 }
 

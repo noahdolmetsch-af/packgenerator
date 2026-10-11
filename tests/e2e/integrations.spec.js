@@ -391,7 +391,7 @@ test.describe('offline', () => {
     await page.goto('./#/');
     await page.reload();
     await expect(page.locator('footer')).toContainText(T('Offline'));
-    await expect(page.locator('details.data')).toBeVisible();
+    await expect(page.locator('.wall')).toBeVisible(); // v0.94.0: Today is the tile wall
     expect((await table(page, 'notes')).some((n) => n.text === 'test_data_gtp_ offline note')).toBe(true);
     // Pack still opens offline with the trip.
     await page.goto('./#/pack');

@@ -14,7 +14,7 @@
   import { isSpecsFile, specEntries, findBike, planSpecs, applySpecs } from './bikespecs.js';
   import { stageImport } from './gear/importdb.js';
   import { TEMPLATES_KEY, upsert } from './templates.js';
-  import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, watchForChanges } from './folderBackup.js';
+  import { folderBackupSupported, folderStatus, chooseFolder, allowAgain, forgetFolder, onFolderWritten } from './folderBackup.js';
   import { t, tn, locale } from './i18n.svelte.js';
 
   // liveQuery re-runs the query whenever the database changes, so the counts stay current.
@@ -42,7 +42,8 @@
   }
   $effect(() => {
     refreshFolder();
-    if (folderBackupSupported) watchForChanges(db, refreshFolder);
+    // the watch itself runs from the app start (main.js); the panel only shows the new state
+    return onFolderWritten(refreshFolder);
   });
 
   async function exportFile() {

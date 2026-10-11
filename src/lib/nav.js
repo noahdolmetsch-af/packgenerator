@@ -106,13 +106,20 @@ export function openWear() {
 }
 
 /**
- * v0.30.0 (Noah 1a): "Your data" on Today from anywhere (the tip "Try a demo"): Today opens the
- * fold and brings it into view.
+ * v0.30.0 (Noah 1a): "Your data" from anywhere (the tip "Try a demo"): the page opens the fold and
+ * brings it into view. v0.94.0 «Kachel-Wand» (Noah 5a): «Data and backup» lives under Me now.
  */
 export function openData() {
-  keep('home.data', '1');
-  location.hash = '#/';
+  keep('me.data', '1');
+  location.hash = '#/me';
   window.dispatchEvent(new Event('pg:data'));
+}
+
+/** v0.94.0 «Kachel-Wand»: the tile «Playground» opens the playground sheet under Me. */
+export function openPlay() {
+  keep('me.play', '1');
+  location.hash = '#/me';
+  window.dispatchEvent(new Event('pg:play'));
 }
 
 /**

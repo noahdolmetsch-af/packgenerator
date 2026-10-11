@@ -4,13 +4,16 @@
    * of the base weight, 12 mini bars of the km per month (this month in the action colour) and the
    * link to the review; beside it the series: weeks in a row with at least one trip or ride.
    * Only once a trip or ride happened in the last 12 months.
+   * v0.94.0 «Kachel-Wand» (Noah 4a): the series here is the ONE series over everything (series.js),
+   * the same number as the tile «Series and milestones», so two series never disagree.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { loadReview } from '../review/load.js';
-  import { yearReview, tripDone } from '../yearreview.js';
+  import { yearReview } from '../yearreview.js';
   import { formatWeight } from '../gear.js';
-  import { homeTrips, monthBars, streakWeeks } from './heute.js';
+  import { homeTrips, monthBars } from './heute.js';
+  import { activeDays, seriesOf, restOf, REST_KEY } from './series.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
 
   let { today } = $props();
@@ -19,7 +22,8 @@
   const data = $derived($dataQ ? { ...$dataQ, trips: homeTrips($dataQ.trips) } : null);
   const review = $derived(data ? yearReview({ ...data, today }) : null);
   const bars = $derived(review ? monthBars(review.months, today) : []);
-  const streak = $derived(data ? streakWeeks([...data.trips.filter((x) => tripDone(x, data.debriefs, today)).map((x) => x.startDate), ...data.rides.map((r) => r.date)], today) : 0);
+  const flowQ = liveQuery(async () => ({ log: await db.flowLog.toArray(), rest: restOf((await db.settings.get(REST_KEY))?.value) }));
+  const streak = $derived(data && $flowQ ? seriesOf(activeDays({ log: $flowQ.log, rides: data.rides, trips: data.trips, debriefs: data.debriefs, today }), $flowQ.rest, today).n : 0);
   const base = $derived(review?.pack.trend?.diffG ?? null);
   const monthName = (m) => new Date(`${m}-15T12:00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' });
 </script>
@@ -42,10 +46,10 @@
       <span class="k">{t('Series')}</span>
       {#if streak}
         <b class="num">{tn(streak, '{n} week in a row', '{n} weeks in a row')}</b>
-        <span class="k">{t('every week at least 1 trip')}</span>
+        <span class="k">{t('Everything counts: a ride, a trip, meditation, yoga, tennis, gym …')}</span>
       {:else}
         <b>{t('A new series starts')}</b>
-        <span class="k">{t('with your next trip or ride')}</span>
+        <span class="k">{t('with your next ride, trip or activity')}</span>
       {/if}
     </div>
   </section>
