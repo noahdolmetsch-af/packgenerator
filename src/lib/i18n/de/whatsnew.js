@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.95.0 «Velo kurz»
+  'Bikes › Overview is short: bike care, bags and equipment as three rows, everything else under «More».':
+    'Velos › Übersicht ist kurz: Velopflege, Taschen und Ausstattung als drei Zeilen, alles andere unter «Mehr».',
+  '«Import rides» (Strava, Garmin) is now a big button right on the bike page.':
+    '«Fahrten importieren» (Strava, Garmin) ist jetzt ein grosser Knopf direkt auf der Velo-Seite.',
+  'Equipment: a missing weight or price is a quiet grey hint instead of orange on every part.':
+    'Ausstattung: ein fehlendes Gewicht oder ein fehlender Preis ist ein ruhiger grauer Hinweis statt orange bei jedem Teil.',
+
   // 0.94.0 «Kachel-Wand»
   'Today is a wall of tiles: «Customise the start page» (or a long press on a phone) moves tiles, gives them one of four sizes or takes them away; «Reset» brings the ready wall back.':
     'Heute ist eine Kachel-Wand: «Startseite anpassen» (oder auf dem Handy lange drücken) verschiebt Kacheln, gibt ihnen eine von vier Grössen oder nimmt sie weg; «Zurücksetzen» bringt die fertige Wand zurück.',
@@ -17,6 +25,7 @@ export default {
     'Eine Serie über alles: Wochen am Stück mit einer Fahrt, einer Tour oder irgendeiner Aktivität. Eine Ruhewoche hält sie, und alle Meilensteine stehen auf einer Seite.',
   '«Data and backup» lives under Me now; the backup reminder stays in «Important today».':
     '«Daten und Backup» wohnt jetzt unter Ich; die Backup-Erinnerung bleibt in «Heute wichtig».',
+
   // 0.93.0 «Meditation Wünsche»
   'Meditation › «New session»: 10 · 15 · 20 · 30 · 45 · 60 minutes or any number, sounds in between «none · at random · own» (every N minutes or at chosen minutes), and your next star on top.':
     'Meditation › «Neue Sitzung»: 10 · 15 · 20 · 30 · 45 · 60 Minuten oder frei, Klänge dazwischen «keine · zufällig · eigene» (alle N Minuten oder an gewählten Minuten), und dein nächster Stern zuoberst.',

@@ -5,6 +5,7 @@ import { test, expect } from '@playwright/test';
 import { writeFileSync } from 'node:fs';
 import { v0620File, P, SPARK, SCALE } from './v0620-fixture.js';
 import { importAndSettle, openData } from './settle.js';
+import { openMore } from './bike-more.js';
 
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 const table = (page, name) =>
@@ -48,6 +49,7 @@ async function start(page, context, info) {
 test('Masse: always open on the bike, set saddle height and target pressure in place, Undo', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?bike=${SCALE}`);
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   const card = page.getByRole('region', { name: 'Masse' });
   await expect(card).toBeVisible();
   // Noah's three first; the old geometry.seatHeight of the Scale was moved to fit on import.
@@ -130,6 +132,7 @@ test('Import: a bikeSpecs file with fit fills empty values, German names, unknow
   await dlg.getByRole('button', { name: 'Datenblatt übernehmen' }).click();
   await expect.poll(async () => (await bikeOf(page, SCALE)).fit).toEqual({ seatHeight: 735, barWidth: 740, pressureR: 1.8 });
   await page.goto(`./#/bikes?bike=${SCALE}`);
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   await expect(page.getByRole('region', { name: 'Masse' }).getByRole('button', { name: /^Lenkerbreite:/ })).toHaveText('740 mm');
   expect(errors).toEqual([]);
 });

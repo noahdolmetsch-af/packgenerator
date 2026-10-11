@@ -673,6 +673,12 @@ Noah: «wichtig ist mir zudem, dass zwingend die Sitzhöhe, der gewünschte Reif
 - **5a:** zwei Bauten gleichzeitig nur, wenn sie verschiedene Bereiche ändern.
 - Mockups bleiben immer, Noah merged weiterhin selbst.
 
+## 11.10.2026: «Velo kurz» (0.95.0, App einfach «5a», Mockup D)
+
+- **Anlass:** im Durchspielen war die Velo-Seite nach dem ersten Velo 3,9 Handy-Bildschirme lang (Mappe, 12 leere Masse, Zeichnung, Taschen, 7 Zeilen); Noah fand am 11.10.2026 den Strava-Import nicht (er lag unter Velos › Pflege › Velo öffnen). Noah «1a 2a 3b 4a 5a» (Trello bGBkdWXp), Mockup D.
+- **Gebaut:** Velos › Übersicht zeigt unter dem Band nur drei Zeilen (Velopflege mit dem, was fällig ist; Taschen klappt Zeichnung und Standardtaschen auf; Ausstattung → Masse und Teile), den Knopf **Fahrten importieren** (Strava, Garmin) und die Zeile **Mehr** (Mappe mit den Blättern, Masse, Zeichnung, Wer schraubt, Vergleichen, Velodetails, Profil, Fotos, Ideen, Einstellungen, Taschen-Liste). Nichts ist weg. Ausstattung: fehlendes Gewicht oder fehlender Preis grau statt orange.
+- **Selbst entschieden:** Der dunkle Knopf heisst «Fahrten importieren» statt «+ km eintragen» (Mockup), weil Noah den Import nicht fand; «km eintragen» bleibt in der Velopflege. Pflege selbst ist (noch) nicht gekürzt: eigenes kleines Paket, wenn Noah es will. Links, die in «Mehr» führen («Album ›» und «Idee gespeichert › Öffnen» von Heute, «Mappe», «eintragen» und «Werte ändern» in einem Blatt), öffnen «Mehr» gleich mit.
+
 ## 11.10.2026: «Kachel-Wand» (0.94.0, Noah «1-5 a» auf Trello nLi5yNmS, Mockups A–D `#startseite-kacheln`, «ok a» für einen grossen Release)
 
 - **Anlass:** Noah lehnte «Startseite dicht» (PR #111, Entwurf) ab und wünschte eine Startseite aus kleinen Kacheln, die er selbst zusammenstellt. Antwort «1-5 a» am 11.10.2026 14:52 auf die Mockups A (fertige Wand), B (Anpassen), C (+ Kachel), D (Serie und Meilensteine); dazu die Ideen 1 («Neu»-Punkt), 6 (Ruhetag und Feier) und 8 (Wand im Backup). «ok a» 14:55: K1–K5 als **ein** grosser Release (Ausnahme von den kleinen Releases, gilt nur für Heute). K6 (Tipp der Woche, App-Symbol lange drücken) und K7 (Tageszeit, mehrere Wände, Kachel-Vorschlag) kommen später mit eigenen Mockups.

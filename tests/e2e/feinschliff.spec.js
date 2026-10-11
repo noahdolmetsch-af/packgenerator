@@ -5,6 +5,7 @@
 // Fictional data only (home0460-fixture.js, test_data_gtp_ records).
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
+import { openMore } from './bike-more.js';
 
 const P = 'test_data_gtp_';
 const FACTOR = 'test_data_gtp_factor';
@@ -107,6 +108,7 @@ test('back keeps the typed name: Escape (Android back) and history back save, Cl
 test('a bag: the pencil in its window opens the same sheet; the window keeps changes on Escape', async ({ page, context }, info) => {
   const { T, errors } = await setup(page, context, info);
   await page.goto(`./#/bikes?bike=${FACTOR}`);
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   const fold = page.locator('details', { hasText: T('Your bags') }).last();
   await fold.locator('summary').first().click();
   await fold.getByRole('button', { name: /Test seat pack/ }).first().click();

@@ -57,10 +57,10 @@
       ? { href: bikesHash({ tab: 'care', bike: bikeId, open: true }), label: t('Care: {bike}', { bike: bike?.name ?? '' }) }
       : from === 'shop'
         ? { href: bikesHash({ tab: 'shop', bike: bikeId }), label: t('Workshop & receipts') }
-        : { href: bikesHash({ tab: 'setup', bike: bikeId }), label: t('Folder {bike}', { bike: bike?.name ?? '' }) },
+        : { href: bikesHash({ tab: 'setup', bike: bikeId, open: true }), label: t('Folder {bike}', { bike: bike?.name ?? '' }) },
   );
   const EDIT = { pass: 'setup', plan: 'care', order: 'care', pickup: 'setup', breakin: 'setup', kit: 'gear', warranty: 'form', theft: 'form' };
-  const editHref = $derived(sheet === 'all' || EDIT[sheet] === 'form' ? null : EDIT[sheet] === 'gear' ? '#/gear' : EDIT[sheet] === 'setup' ? bikesHash({ tab: 'setup', bike: bikeId }) : bikesHash({ tab: 'care', bike: bikeId, open: true }));
+  const editHref = $derived(sheet === 'all' || EDIT[sheet] === 'form' ? null : EDIT[sheet] === 'gear' ? '#/gear' : EDIT[sheet] === 'setup' ? bikesHash({ tab: 'setup', bike: bikeId, open: true }) : bikesHash({ tab: 'care', bike: bikeId, open: true }));
 
   /* ---------- storing on the bike (plain data: Dexie cannot store a state proxy) ---------- */
   async function store(changes) {

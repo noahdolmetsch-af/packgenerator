@@ -17,6 +17,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { openMore } from './bike-more.js';
 
 const LANG = process.env.PF_LANG === 'en' ? 'en' : 'de';
 const tr = (lang) => (en, vars) => {
@@ -961,6 +962,7 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   }
   // Setup photo of the bike (Bikes → Photos → + Photo).
   await page.goto(`./#/bikes?bike=${BIKE.gravel}`);
+  await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   await rec.check('photo: a setup photo is stored on the right bike', async () => {
     const fold = page.locator('details.fold').filter({ has: page.locator('summary .lbl', { hasText: new RegExp(`^${esc(T('Photos'))}$`) }) }).first();
     if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();

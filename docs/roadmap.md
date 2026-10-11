@@ -513,7 +513,9 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 11.10.2026 (v0.94.0, PR offen):** «Kachel-Wand» nach Noahs «1-5 a» und «ok a» (Mockups A–D): Heute ist eine Wand aus Kacheln in vier Grössen, anpassbar (auch lange drücken), «+» mit Katalog, «Neu»-Punkt, eine Serie über alles mit Ruhewoche und Feier, alle Meilensteine auf einer Seite, Daten und Backup unter Ich, die Wand im Backup. Ersetzt den Entwurf «Startseite dicht» (E1 Teil 1). Später: K6 Tipp der Woche und App-Symbol-Kürzel, K7 Tageszeit, mehrere Wände, Kachel-Vorschlag (je mit Mockups).
+**Nachtrag 11.10.2026 (v0.95.0, PR offen):** «Velo kurz» (App einfach D, Noah 5a): Velos › Übersicht mit drei Zeilen, «Fahrten importieren» als Knopf und «Mehr»; Ausstattung ohne orange Hinweise. Danach E «Material Liste zuerst» zusammen mit «Bereiche trennen» B2 (zuerst Mockups).
+
+**Nachtrag 11.10.2026 (v0.94.0, live, PR #111):** «Kachel-Wand» nach Noahs «1-5 a» und «ok a» (Mockups A–D): Heute ist eine Wand aus Kacheln in vier Grössen, anpassbar (auch lange drücken), «+» mit Katalog, «Neu»-Punkt, eine Serie über alles mit Ruhewoche und Feier, alle Meilensteine auf einer Seite, Daten und Backup unter Ich, die Wand im Backup. Ersetzt den Entwurf «Startseite dicht» (E1 Teil 1). Später: K6 Tipp der Woche und App-Symbol-Kürzel, K7 Tageszeit, mehrere Wände, Kachel-Vorschlag (je mit Mockups).
 
 **Nachtrag 11.10.2026 (v0.93.0, PR offen):** «Meditation Wünsche» nach Noahs «1-5 a» (Mockups F–H): Neue Sitzung mit Sternen zuerst, Dauer 10–60 oder frei, Klänge keine · zufällig · eigene (alle N oder an Minute), «Als Vorlage speichern?» mit Namensvorschlag; vier Uhren Ring · Sanduhr · Mond · Zahl, gemerkt, Sanduhr mit ausblendbarer Zeit. Heute (Startseite) bleibt beim Faden «UI-Analyse».
 **Nachtrag 11.10.2026 (v0.92.0, PR offen):** «Rückblick antippen» (App einfach C, Noah 4a): der Rückblick beginnt mit den Chips «Was hast du nicht gebraucht?», der Rest sind Zeilen darunter, der Knopf heisst «Fertig». Danach Velo kurz (D) und Material Liste zuerst (E).
