@@ -3,7 +3,7 @@ import 'fake-indexeddb/auto';
 import {
   bikeKm, kmOn, ledgerRows, ledgerCounts, makeEntry, openingEntry, syncEntry, readingEntry, ledgerStart, inStart,
   parseStravaCsv, stravaTime, zurichDay, parseFit, sameRide, mergeRides, signals, assignRide, planImport, importEntries,
-  reconcile, matches, isoWeek, partStart, partKm, q1Status, monthReport, prevMonth, reasonText, tripSpan, tripRidesIn, sensorShort, fitType, entryDetail, typeHints,
+  reconcile, matches, isoWeek, partStart, partKm, q1Status, monthReport, prevMonth, reasonText, tripSpan, tripRidesIn, sensorShort, fitType, entryDetail, typeHints, dupOf,
 } from '../src/lib/kmbook.js';
 import { createDb } from '../src/lib/db.js';
 import { ensureKmBook, setReading, addEntries, updateEntry, applyImport, undoImport, deleteEntries, restoreEntries } from '../src/lib/kmbookdb.js';
@@ -429,5 +429,41 @@ describe('database: import, undo, change, delete', () => {
     const gone = await deleteEntries(db, [id]);
     expect(gone).toHaveLength(1);
     expect(await db.kmBook.get(id)).toBeUndefined();
+  });
+});
+
+// v0.91.0 (Noah 11.10.2026 «Fix bauen»): the first real Strava export had 1000 old rides without a
+// bike. Their km are in the start values already: set aside, and never counted twice by a hand pick.
+describe('old rides without a bike: already in the start values', () => {
+  const two = BIKES.slice(0, 2);
+  const startOf = (bikeId, date) => makeEntry({ bikeId, date, km: 500, kind: 'start', inclusive: true }, at);
+  const entries = [startOf(NEU, '2026-10-09'), startOf(GRAVEL, '2026-10-10')];
+  const old = { source: 'csv', date: '2026-07-29', km: 5.4, name: 'Radfahrt am Nachmittag', type: 'Ride', gear: '', sensors: [] };
+  const between = { source: 'csv', date: '2026-10-10', km: 20, name: 'Zwischen den Startwerten', type: 'Ride', gear: '', sensors: [] };
+  const fresh = { source: 'csv', date: '2026-10-11', km: 33, name: 'Neue Fahrt', type: 'Ride', gear: '', sensors: [] };
+
+  it('a ride before the start of every bike is set aside, not in «Check»', () => {
+    const plan = planImport([old, between, fresh], { bikes: two, rules: [], entries });
+    const [o, b, f] = plan.rows;
+    expect(o).toMatchObject({ bikeId: null, dup: 'start' });
+    // in the start of one bike only: it may belong to the other, so you choose
+    expect(b).toMatchObject({ bikeId: null, sure: 'unclear', dup: null });
+    expect(f).toMatchObject({ bikeId: null, sure: 'unclear', dup: null });
+    expect(importEntries(plan, {}, 'imp').map((x) => x.name)).toEqual(['Zwischen den Startwerten', 'Neue Fahrt']);
+    // «take anyway» still brings it in
+    expect(importEntries(plan, { [o.key]: { take: true, bikeId: NEU } }, 'imp').map((x) => x.name)).toContain('Radfahrt am Nachmittag');
+  });
+  it('a bike picked by hand checks that bike start value too', () => {
+    const plan = planImport([between], { bikes: two, rules: [], entries });
+    const [row] = plan.rows;
+    expect(dupOf(plan, row, { bikeId: NEU })).toBe(null);
+    expect(dupOf(plan, row, { bikeId: GRAVEL })).toBe('start');
+    expect(importEntries(plan, { [row.key]: { bikeId: GRAVEL } }, 'imp')).toEqual([]);
+    expect(importEntries(plan, { [row.key]: { bikeId: NEU } }, 'imp')).toMatchObject([{ bikeId: NEU, state: 'counted' }]);
+  });
+  it('no bike with a start value: nothing is set aside; set-aside rides ask no ride type', () => {
+    expect(planImport([old], { bikes: two, rules: [], entries: [] }).rows[0].dup).toBe(null);
+    const plan = planImport([old, old, fresh].map((r, i) => ({ ...r, time: `0${i}:00` })), { bikes: two, rules: [], entries });
+    expect(typeHints(plan.rows, [])).toEqual([{ kind: 'type', value: 'Ride', n: 1, guess: '' }]);
   });
 });

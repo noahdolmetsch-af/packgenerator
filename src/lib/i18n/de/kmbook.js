@@ -246,4 +246,7 @@ export default {
   '{n} rides confirmed: {bike} matches Strava now.': '{n} Fahrten bestätigt: {bike} stimmt jetzt mit Strava.',
   '{n} ride waits for its bike': '{n} Fahrt wartet auf ihr Velo',
   '{n} rides wait for their bike': '{n} Fahrten warten auf ihr Velo',
+  // v0.91.0: old rides without a bike, set aside on the import
+  'Older rides without a bike': 'Ältere Fahrten ohne Velo',
+  'already in the km of your bikes': 'schon in den km deiner Velos',
 };
