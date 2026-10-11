@@ -199,6 +199,14 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Beispiel:** Eine Eishockey-Liste wird importiert, die Stirnlampe wird erkannt und bekommt nur «auch für Eishockey»; Material zeigt weiter Velo, bis Eishockey gewählt wird.
 - **Stand:** entschieden, noch nicht gebaut. Vorschlag https://claude.ai/artifact/8DQ6CKj1n9vJuBEwsj7msN.
 
+### 11. Alles finden + Kalender (F1, F2, Kal1–Kal5)
+
+- **Warum:** Von 110 Funktionen (0.92.0) sind 40 versteckt. Und was nicht vergessen werden darf (To-dos, Fristen, Termine, Links), liegt an zehn Stellen verstreut.
+- **Was (Noah 11.10.2026 «1a 2a+b 3a 4b 5a», Trello vOUX40b3):** eine Funktions-Übersicht nach Anwendungsfall; die versteckten Perlen eine Ebene nach vorn; ein neuer Ort «Kalender» (Agenda · Merken · Ablage · Eingang) mit den eigenen To-dos vorne und den Daten der App kleiner darunter; Kalender verknüpfen in Stufen; Ablage zuerst nur Links.
+- **Pakete:** F1 Alles finden · F2 Perlen nach vorn (verteilt auf Seiten, die ohnehin angefasst werden) · Kal1 Merken + Agenda (neuer Ort, To-dos mit Datum und Wiederholung, Notizen und Eingang ziehen um) · Kal2 Ablage mit Links · Kal3 .ics raus und rein · Kal4 Abo-Link nur lesen, freie Wochenenden mit Wetter, Feiertage, Wochenblick · Kal5 Dateien in der Ablage; beide Richtungen mit S3.
+- **Beispiel:** «Ersatz-Schaltauge bestellen» steht oben in Merken; darunter «Jura-Runde: Einkauf und Laden (−2 Tage)» und «Dichtmilch fällig».
+- **Stand:** entschieden, noch nicht gebaut. Vorschlag https://claude.ai/artifact/TuvocwdUios23adoGp6e5D, Inventar im Projektordner `notes/funktionen-kalender-2026-10-11/inventar.md`.
+
 ## Reihenfolge
 
 Taktgeber ist echte Nutzung: Eine grössere Version kommt erst, wenn die letzte im Alltag oder auf einer Tour benutzt wurde.
@@ -236,6 +244,8 @@ flowchart LR
 12. **«Reisearten neu»** als eigenes Paket ganz am Ende (Noah, 10.10.2026 16:38).
 
 **Bereiche sauber trennen (Noah 11.10.2026 «1-5 a»):** B1 «Velo geschützt» gleich nach «App einfach», B2 Umschalter + Überall zusammen mit «Material Liste zuerst», B3 Import mit Vorschau und B4 Vorrat vor «Reisearten neu», B5 erster neuer Bereich zusammen mit «Reisearten neu».
+
+**Alles finden + Kalender (Noah 11.10.2026, Frage 5a):** zuerst F1 «Alles finden» als kleines Paket, danach Kal1 bis Kal4 im zweiten Bauplatz neben D5 (andere Seiten), Kal5 später. Vor jedem Baustein eine Runde mit Mockups.
 
 Fragen zu einem Paket werden kurz vor dem Paket gestellt. Gebaut wird erst, wenn sie beantwortet sind.
 

@@ -798,3 +798,15 @@ Vorschlag: https://claude.ai/artifact/8DQ6CKj1n9vJuBEwsj7msN. Noch kein Bau; vor
 - **Modell (Vorschlag, mit 1a angenommen):** vier Etiketten pro Teil: Bereich (Heimat + auch für), Art (Kategorie, sport-neutral benannt, neu z. B. Sportgerät und Schutz), Typ (Gerät, Teil, Kleid, Verbrauch), freie Etiketten (z. B. «Import Eishockey 12.2026»). Bausteine bekommen einen optionalen Bereich. Bereiche: Velo, Überall, Berg & Schnee, Halle & Platz, Reisen, Alltag.
 - **Import neuer Bereiche (B3):** Bereich wählen → Vorschau mit Abwählen und Erkennen schon vorhandener Teile (bekommen nur «auch für») → automatisches Etikett pro Import → «Ganzen Import entfernen» unter Ich › Daten; Velo-Teile bleiben dabei unberührt. Vorher automatische Sicherung.
 - **Grund:** Noah (11.10.2026): Angst, dass sich die saubere Velo-Datengrundlage mit künftigen Bereichen (Eishockey, Tennis, Skitouren, Alltag, Verbrauch, Essen) vermischt.
+
+## 11.10.2026: Alles finden + Kalender (Noah «1a 2a und b, wobei die to dos im vordergrund stehen 3a 4b 5a», Trello vOUX40b3)
+
+Vorschlag: https://claude.ai/artifact/TuvocwdUios23adoGp6e5D. Inventar von 0.92.0: 110 Funktionen, 39 sichtbar, 31 eine Ebene tief, 40 versteckt. Noch kein Bau; vor jedem Baustein kommt eine Runde mit Mockups.
+
+- **Entscheid (1a) Ort:** «Kalender» wird ein eigener Ort mit den Tabs Agenda · Merken · Ablage · Eingang. Notizen und Eingang ziehen von «Ich» dorthin. Am Handy bleiben 5 Plätze in der Leiste; welche, wählt Noah.
+- **Entscheid (2a+b) Agenda:** Die eigenen To-dos stehen vorne und gross. Was die App schon weiss (Touren, Schritte vor der Tour, Event-Vorbereitung, Velo-Fristen, Service nach Zeit, Einfahr-Plan, Garantie, Aktiv-Termine, Backup) steht kleiner darunter, pro Quelle abwählbar.
+- **Entscheid (3a) Verknüpfen:** in Stufen. Zuerst .ics-Dateien raus (pro Termin und als Sammeldatei) und rein (nur lesen). Dann der Abo-Link eines Google- oder iCloud-Kalenders nur zum Lesen, über eine kleine Vercel-Funktion ohne Speicher; der Link bleibt auf dem Gerät. Beide Richtungen erst mit dem Server-Paket S3.
+- **Entscheid (4b) Ablage:** vorerst nur Links. Dateien kommen später in einem eigenen Baustein.
+- **Entscheid (5a) Reihenfolge:** zuerst F1 «Alles finden» (Funktions-Übersicht nach Anwendungsfall, «Hinbringen» und «Ausprobieren», Suche zeigt ihre Befehle; liefert die Kacheln für die Startseite des Threads «UI-Analyse»). Danach die Kalender-Bausteine im zweiten Bauplatz neben D5. Jeder Baustein bekommt vorher eine eigene Runde mit Mockups.
+- **Selbst entschieden:** Weil die To-dos vorne stehen, kommen Merken und Agenda zusammen in den ersten Kalender-Baustein Kal1. Die Pakete heissen Kal1–Kal5 (K1–K5 sind die Schritte der Kachel-Wand). «Was die App kann» behält oben die Karte des neusten Releases aus dem Thread «Neu planen»; F1 baut keine zweite Neuheiten-Liste.
+- **Grund:** Noah (11.10.2026): viele Funktionen sind in Schritten versteckt, wo man nie hinkommt; dazu ein Ort, an dem nichts Wichtiges vergessen geht.
