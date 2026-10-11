@@ -513,6 +513,7 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 11.10.2026 (v0.96.0, PR offen):** F1 «Alles finden» (Noah «1-5 a», Mockups A/B): «Was die App kann» zeigt alle 84 Funktionen nach Situation, nie Benutztes zuerst, mit «Hinbringen» und «Ausprobieren»; die Suche zeigt Befehle zum Ausprobieren und findet Funktionen. Danach die Kalender-Bausteine Kal1–Kal5 neben D5 (je eine Mockup-Runde).
 **Nachtrag 11.10.2026 (v0.93.0, PR offen):** «Meditation Wünsche» nach Noahs «1-5 a» (Mockups F–H): Neue Sitzung mit Sternen zuerst, Dauer 10–60 oder frei, Klänge keine · zufällig · eigene (alle N oder an Minute), «Als Vorlage speichern?» mit Namensvorschlag; vier Uhren Ring · Sanduhr · Mond · Zahl, gemerkt, Sanduhr mit ausblendbarer Zeit. Heute (Startseite) bleibt beim Faden «UI-Analyse».
 **Nachtrag 11.10.2026 (v0.92.0, PR offen):** «Rückblick antippen» (App einfach C, Noah 4a): der Rückblick beginnt mit den Chips «Was hast du nicht gebraucht?», der Rest sind Zeilen darunter, der Knopf heisst «Fertig». Danach Velo kurz (D) und Material Liste zuerst (E).
 **Nachtrag 11.10.2026 (v0.91.0, PR offen):** Fix im Fahrten-Import (Q1 «Jeder km zählt», Noah «Fix bauen»): alte Strava-Fahrten ohne Velo, die schon in den Startwerten stecken, liegen zur Seite statt unter «Prüfen»; ein von Hand gewähltes Velo prüft seinen Startwert. «Material Liste zuerst» bekommt die nächste freie Nummer.

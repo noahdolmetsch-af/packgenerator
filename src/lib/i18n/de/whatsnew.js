@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.96.0 «Alles finden»
+  '«What the app can do» shows every function in 6 groups: before the trip, packing and on the way, after the trip, bike, active, data and app. What you never used is on top.':
+    '«Was die App alles kann» zeigt jede Funktion in 6 Gruppen: vor der Tour, packen und unterwegs, nach der Tour, Velo, Aktiv, Daten und App. Was du noch nie benutzt hast, steht oben.',
+  'Each function has «Take me there» to its place in the app, and many have «Try it» in the playground; a field and chips narrow the list.':
+    'Jede Funktion hat «Hinbringen» zu ihrer Stelle in der App, viele auch «Ausprobieren» in der Spielwiese; ein Suchfeld und Chips machen die Liste kürzer.',
+  'The search shows 3 commands to try, your last searches and «See all functions», and finds functions too, for example «warranty».':
+    'Die Suche zeigt 3 Befehle zum Ausprobieren, deine letzten Suchen und «Alle Funktionen ansehen» und findet auch Funktionen, zum Beispiel «Garantie».',
+
   // 0.93.0 «Meditation Wünsche»
   'Meditation › «New session»: 10 · 15 · 20 · 30 · 45 · 60 minutes or any number, sounds in between «none · at random · own» (every N minutes or at chosen minutes), and your next star on top.':
     'Meditation › «Neue Sitzung»: 10 · 15 · 20 · 30 · 45 · 60 Minuten oder frei, Klänge dazwischen «keine · zufällig · eigene» (alle N Minuten oder an gewählten Minuten), und dein nächster Stern zuoberst.',

@@ -17,10 +17,13 @@
   import Seg from '../ui/Seg.svelte';
   import { ArrowRight } from '@lucide/svelte';
 
-  let { running = false, onclose } = $props();
+  // v0.96.0 «F1 Alles finden»: «Try it» on «What the app can do» opens the sheet on a day (pack, ride, after).
+  let { running = false, onclose, kind: kind0 = 'weekend', day: day0 = 'today' } = $props();
   let dialog = $state();
-  let kind = $state('weekend');
-  let day = $state('today');
+  // svelte-ignore state_referenced_locally
+  let kind = $state(kind0); // the start only: the sheet's own choice wins afterwards
+  // svelte-ignore state_referenced_locally
+  let day = $state(day0);
   let busy = $state(false);
   let msg = $state('');
   $effect(() => {

@@ -59,6 +59,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.81.0 | Hobby-Seiten Teil 2 «Kissenzeit»: Meditations-Seite (Vorlagen, Wie letztes Mal, Arten, Herausforderung, Meilensteine, Klänge, Zitate, Links, Orte), Intervalle mit Marken auf der Uhr, Sitzung im ganzen Bildschirm | PR offen |
 | 0.84.0 | Hobby-Seiten Teil 3 «Nach dem Gong»: Auswertung mit Notiz, Tiefe, Stimmung und «Als Nächstes» (.ics), Protokoll mit Filtern, Serien-Wärmebild, Kalender und Grafik, Sitzung im Detail mit «Wieder so starten» | PR offen |
 | 0.86.0 | Meditation einfach (Noah «1-5 a»): Startblatt aus «Heute abhaken» (Jetzt {n} Min, Dauer, Nur abhaken), kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant» und Wisch-Hinweis weg | PR offen |
+| 0.96.0 | F1 Alles finden (Noah «1-5 a», Mockups A/B): «Was die App kann» mit 84 Funktionen in 6 Gruppen nach Situation, nie Benutztes zuerst, «Hinbringen» und «Ausprobieren», Suchfeld und Chips; die Suche zeigt 3 Befehle, letzte Suchen und findet Funktionen | PR offen |
 | 0.93.0 | Meditation Wünsche (Noah «1-5 a», Mockups F–H): Neue Sitzung mit Sternen zuerst, Dauer 10–60 oder frei, Klänge keine · zufällig · eigene (alle N Minuten oder an Minute), «Als Vorlage speichern?» mit Namensvorschlag; vier Uhren Ring · Sanduhr · Mond · Zahl, gemerkt, Sanduhr mit ausblendbarer Zeit | PR offen |
 | 0.92.0 | Rückblick antippen (App einfach 4a, Mockup C): «Was hast du nicht gebraucht?» als Chips oben, Was hat gefehlt, Wie war's, Vorschläge und alle Teile als Zeilen darunter, Knopf «Fertig» | PR offen |
 | 0.91.0 | Import: alte Fahrten (Noah «Fix bauen»): Strava-Fahrten ohne Velo, die schon in den km der Velos stecken, liegen zur Seite statt unter «Prüfen»; ein von Hand gewähltes Velo zählt eine alte Fahrt nicht doppelt (Ziel «Velo im Griff», Q1) | live, PR #114 |
@@ -197,7 +198,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Was (Noah 11.10.2026 «1-5 a», Trello YINDLpHj):** ein Inventar, jedes Teil mit einer Heimat und «auch für»; Velo bleibt geschützter Kern und Standard; Bereich «Überall» für gemeinsame Dinge; Bereichs-Umschalter in Material; Typ «Verbrauch» mit Vorrat, Ablaufdatum und Nachkaufen; neue Bereiche nur über einen Import mit Vorschau, der sich als Ganzes entfernen lässt.
 - **Pakete:** B1 Velo geschützt (Heimat pro Teil, Import-Nummer, Wächter-Test für unveränderte Velo-Daten) · B2 Umschalter + Überall · B3 Import mit Vorschau · B4 Vorrat · B5 erster neuer Bereich (Skitouren) mit Geräte-Pflege.
 - **Beispiel:** Eine Eishockey-Liste wird importiert, die Stirnlampe wird erkannt und bekommt nur «auch für Eishockey»; Material zeigt weiter Velo, bis Eishockey gewählt wird.
-- **Stand:** entschieden, noch nicht gebaut. Vorschlag https://claude.ai/artifact/8DQ6CKj1n9vJuBEwsj7msN.
+- **Stand:** F1 «Alles finden» als 0.96.0 gebaut (PR offen, Noah «1-5 a»); Kal1–Kal5 entschieden, noch nicht gebaut. Vorschlag https://claude.ai/artifact/8DQ6CKj1n9vJuBEwsj7msN.
 
 ### 11. Alles finden + Kalender (F1, F2, Kal1–Kal5)
 

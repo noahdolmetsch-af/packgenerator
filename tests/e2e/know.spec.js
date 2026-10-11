@@ -122,11 +122,10 @@ for (const lang of ['en', 'de']) {
     // the overview lists everything; "Long not used" from there (Noah 3a)
     await page.goto('./#/features');
     // Long not used → Look through: Gear shows exactly those items
-    // v0.40.0 (Noah 9a): the whole row starts it; it may wait behind "+ n more" or in its folded area.
+    // v0.96.0 «F1 Alles finden»: «Take me there» starts it; it may wait behind «All n» of its group.
     const unusedRow = page.locator('[data-feature="unused"]');
-    if (!(await unusedRow.isVisible()) && (await page.locator('.morerow').count())) await page.locator('.morerow').click();
-    if (!(await unusedRow.isVisible())) await page.locator('details.area').filter({ has: unusedRow }).locator('> summary').click();
-    await unusedRow.getByRole('link').click();
+    if (!(await unusedRow.isVisible())) await page.locator('section[data-group="before"] .fall').click();
+    await unusedRow.getByRole('link', { name: T('Take me there') }).click();
     await expect(page).toHaveURL(/#\/gear\?unused=1/);
     await expect(page.getByText(T('Only items on no trip for 12 months'))).toBeVisible();
     // the sleeping bag (last on a trip 400 days ago) is one of them; standard items are not

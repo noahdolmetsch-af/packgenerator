@@ -14,6 +14,8 @@
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
   import SearchAnswer from '../helper/SearchAnswer.svelte';
+  import { findFeatures, FEATURE, FEATURES } from '../features.js';
+  import { goFeature } from '../know/featureRun.js';
 
   // v0.76.0 «Fünf Orte»: short: the narrow field in the sidebar says only «Suchen» (with «/»).
   let { compact = false, short = false } = $props();
@@ -30,11 +32,73 @@
   const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
   // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
   const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes) }) : []);
+  // v0.96.0 «F1 Alles finden» (mockup B): the functions of the app are found too («garantie»).
+  const feats = $derived(q.trim().length >= 2 ? findFeatures(q, t).filter((f) => !groups.some((g) => g.kind === 'page' && g.rows.some((r) => r.title === f.title))).slice(0, 3) : []);
+  let focused = $state(false); // the field has the focus: an empty field shows the commands to try
+  // v0.96.0 (mockup B): an empty search shows 3 commands to try, the last searches and all functions.
+  const firstBike = $derived($all ? (sortBikes($all.bikes)[0] ?? null) : null);
+  const bikeWord = $derived(firstBike ? String(firstBike.name ?? '').trim().split(/\s+/)[0].toLowerCase() : '');
+  const tries = $derived([
+    firstBike && bikeWord ? { say: `${t('chain lubed|command')} ${bikeWord}`, sub: t('enters «chain lubed» for the {bike}', { bike: firstBike.name }) } : { say: t('weigh|command'), sub: t('starts weighing, one item after the other') },
+    { say: t('note saddle creaks'), sub: t('puts a note into the Inbox') },
+    { say: t('day ride|command'), sub: t('makes a day ride like the last one') },
+  ]);
+  const RECENT = 'search.recent';
+  let recent = $state(readRecent());
+  function readRecent() {
+    try {
+      const v = JSON.parse(localStorage.getItem(RECENT) ?? '[]');
+      return Array.isArray(v) ? v.filter((x) => typeof x === 'string').slice(0, 3) : [];
+    } catch {
+      return [];
+    }
+  }
+  /** Remember what was searched (the last 3, newest first). */
+  function remember(text) {
+    const v = String(text ?? '').trim();
+    if (v.length < 2) return;
+    recent = [v, ...recent.filter((x) => x.toLowerCase() !== v.toLowerCase())].slice(0, 3);
+    try {
+      localStorage.setItem(RECENT, JSON.stringify(recent));
+    } catch {
+      /* no storage: only for this visit */
+    }
+  }
+  /** Fill the field (a command to try, a recent search) and keep the focus in it. */
+  function fill(text) {
+    q = text;
+    queueMicrotask(() => input?.focus());
+  }
+  function goFeat(f) {
+    remember(q);
+    q = '';
+    open = false;
+    focused = false;
+    const feature = FEATURE[f.featureId];
+    if (feature) goFeature(feature, { bikeId: firstBike?.id ?? null });
+  }
+  function allFunctions() {
+    q = '';
+    open = false;
+    focused = false;
+  }
+  // v0.96.0: «Search commands» on «What the app can do» opens the search with an example.
+  $effect(() => {
+    const show = (e) => {
+      if ((phone.matches || compact) && !open) toggle();
+      q = typeof e.detail === 'string' ? e.detail : '';
+      focused = true;
+      queueMicrotask(() => input?.focus());
+    };
+    window.addEventListener('pg:search', show);
+    return () => window.removeEventListener('pg:search', show);
+  });
   let done = $state(null); // { text, undo } after a bike job saved from here
   let doneTimer;
   const USE = { weigh: 'weigh', dayride: 'dayride', chain: 'care', sealant: 'care', wash: 'care', km: 'km', note: 'note', wear: 'wear', trip: 'trip' };
   async function run(c) {
     const cmd = c.cmd;
+    remember(q);
     countUse(USE[cmd.kind]);
     if (['chain', 'sealant', 'wash'].includes(cmd.kind)) {
       const r = await recordCare(cmd.bikeId, cmd.kind);
@@ -70,6 +134,7 @@
   // v0.38.0 (Noah 13a): pages of "More" and the things of "New" are found too; an action does it.
   const RUN = { trip: () => openNew('list'), dayride: dayRide, note: () => openNote(''), item: () => addItem(), km: () => openNew('km'), data: openData };
   function go(row) {
+    remember(q);
     if (row.tripId) openTrip(row.tripId);
     q = '';
     open = false;
@@ -79,7 +144,7 @@
   }
   // v0.38.0: another page closes the search (the field and its results).
   $effect(() => {
-    const close = () => ((q = ''), (open = false));
+    const close = () => ((q = ''), (open = false), (focused = false));
     window.addEventListener('hashchange', close);
     return () => window.removeEventListener('hashchange', close);
   });
@@ -87,7 +152,7 @@
   let root = $state();
   $effect(() => {
     const away = (e) => {
-      if (root && !root.contains(e.target) && (open || q || done)) (q = ''), (open = false), (done = null);
+      if (root && !root.contains(e.target) && (open || q || done || focused)) (q = ''), (open = false), (done = null), (focused = false);
     };
     document.addEventListener('pointerdown', away, true);
     return () => document.removeEventListener('pointerdown', away, true);
@@ -117,6 +182,7 @@
   const key = (e) => {
     if (e.key === 'Escape') {
       q = '';
+      focused = false;
       // v0.44.1 (AP21): on a phone the field closes, so the focus goes back to the magnifier (not to the page top).
       if (open) (open = false), queueMicrotask(() => btn?.focus());
     }
@@ -142,19 +208,38 @@
       <div class="sheet" style="--top: {top}px" onclick={(e) => e.target === e.currentTarget && close()}>
         {@render field()}
         {@render results()}
-        {#if q.trim().length < 2 && !done}<p class="tip">{t('Type two letters or more, or say what you want to do: "weigh", "day ride".')}</p>{/if}
+        {#if !q.trim() && !done}{@render empty()}{:else if q.trim().length < 2 && !done}<p class="tip">{t('Type two letters or more, or say what you want to do: "weigh", "day ride".')}</p>{/if}
       </div>
     {/if}
   {:else}
     {@render field()}
     {@render results()}
+    {#if focused && !q.trim() && !done}<div class="res">{@render empty()}</div>{/if}
   {/if}
 </div>
+
+{#snippet empty()}
+  <div class="try" role="region" aria-label={t('Try a command')}>
+    <p class="gh">{t('Try a command')}</p>
+    <ul class="cmds">
+      {#each tries as x (x.say)}
+        <li><button type="button" data-try={x.say} onclick={() => fill(x.say)}><span class="m"><b class="say">{x.say}</b><small>{x.sub}</small></span></button></li>
+      {/each}
+    </ul>
+    {#if recent.length}
+      <p class="gh">{t('Searched lately')}</p>
+      <div class="recent">
+        {#each recent as r (r)}<button type="button" class="rchip" onclick={() => fill(r)}>{r}</button>{/each}
+      </div>
+    {/if}
+    <a class="allf" href="#/features" onclick={allFunctions}>{t('See all {n} functions', { n: FEATURES.length })} ›</a>
+  </div>
+{/snippet}
 
 {#snippet field()}
   <label class="field">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
-    <input bind:this={input} type="search" bind:value={q} onkeydown={key} placeholder={short ? `${t('Search')}  /` : t('What do you want to do? "weigh", "day ride factor"')} aria-label={t('What do you want to do? Search or say an action')} autocomplete="off" />
+    <input bind:this={input} type="search" bind:value={q} onkeydown={key} onfocus={() => (focused = true)} placeholder={short ? `${t('Search')}  /` : t('What do you want to do? "weigh", "day ride factor"')} aria-label={t('What do you want to do? Search or say an action')} autocomplete="off" />
   </label>
 {/snippet}
 
@@ -183,8 +268,16 @@
           {/each}
         </ul>
       {:else}
-        {#if !cmds.length}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
+        {#if !cmds.length && !feats.length}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
       {/each}
+      {#if feats.length}
+        <p class="gh">{t('Functions')}</p>
+        <ul>
+          {#each feats as f (f.id)}
+            <li><button type="button" data-feat={f.featureId} onclick={() => goFeat(f)}><span class="m"><b>{f.title}</b><small>{f.sub}</small></span></button></li>
+          {/each}
+        </ul>
+      {/if}
       {#if !groups.some((g) => g.kind === 'gear' && g.rows.some((r) => r.title.replace(/^★ /, '').toLowerCase() === q.trim().toLowerCase()))}
         <button type="button" class="add" onclick={addNew}>+ {t('Add "{q}" as a new item', { q: q.trim() })}</button>
       {/if}
@@ -369,6 +462,34 @@
   .none {
     margin: 6px;
     color: var(--ink-3);
+  }
+  .say {
+    font-family: var(--font-mono, ui-monospace, monospace);
+  }
+  .recent {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: 4px 6px;
+  }
+  .rchip {
+    min-height: 44px;
+    padding: 0 var(--sp-3);
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-label) var(--font-body);
+    cursor: pointer;
+  }
+  .allf {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 4px 6px 0;
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
   }
   .add {
     display: block;

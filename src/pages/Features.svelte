@@ -1,14 +1,17 @@
 <script>
   /**
-   * What the app can do (v0.30.0, Noah 3a, #/features): every tip of Good to know by area, with ✓
-   * for what is used (seen in the data, its button tapped, or "I know it") and how much of it that
-   * is. Each row has the same ONE button as its tile on Today. Tips hidden with "I know it" stay here.
-   * v0.35.0 (Noah): "New in the last updates" on top (know/WhatsNew.svelte, whatsnew.js).
-   * v0.40.0 (Noah 9a): unused tips as rows with ›, used ones folded by area; the update list one row.
+   * What the app can do (v0.30.0, #/features). v0.35.0: «New in the last updates» on top (WhatsNew).
+   * v0.96.0 «F1 Alles finden» (Noah 11.10.2026, mockup A «1-5 a»): every function of the app
+   * (features.js), in 6 groups by the situation you are in. In each group what you never used comes
+   * first, 3 rows, «All n ›» opens the rest; used rows are quiet with ✓. Each row: «Take me there»
+   * opens the place (or starts the action), «Try it» plays it in the playground without touching
+   * your data. A search field and chips narrow the list. #/features?f=<id> opens at one function.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { overview, usedTips, TIPS_KEY } from '../lib/tips.js';
+  import { usedTips, TIPS_KEY } from '../lib/tips.js';
+  import { catalogue, seenOf, findFeatures, FEATURE_GROUPS } from '../lib/features.js';
+  import { goFeature } from '../lib/know/featureRun.js';
   import { HOME_PLACE } from '../lib/know.js';
   import { paceOf, PACE_KEY } from '../lib/pace.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
@@ -16,16 +19,22 @@
   import { LAST_BACKUP } from '../lib/backup.js';
   import { demoState } from '../lib/demo.js';
   import { nextTrip } from '../lib/debrief.js';
+  import { sortBikes } from '../lib/bikes.js';
   import { standalone } from '../lib/install.js';
   import { localDay } from '../lib/localday.js';
-  import { t, tn } from '../lib/i18n.svelte.js';
-  import { Check, ChevronRight } from '@lucide/svelte';
-  import { TIP_ICON } from '../lib/know/icons.js';
+  import { t } from '../lib/i18n.svelte.js';
+  import { Check, ChevronRight, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search } from '@lucide/svelte';
+  import PageHead from '../lib/ui/PageHead.svelte';
   import TipButton from '../lib/know/TipButton.svelte';
   import WhatsNew from '../lib/know/WhatsNew.svelte';
+  import PlaySheet from '../lib/testdata/PlaySheet.svelte';
+
+  const GROUP_ICON = { compass: Compass, backpack: Backpack, book: BookOpen, bike: Bike, leaf: Leaf, save: Save };
+  /** Rows shown per group before «All n ›». */
+  const SHOWN = 3;
 
   const dataQ = liveQuery(async () => {
-    const [trips, items, bikes, visits, debriefs, notesN, setting, file, folder, demo] = await Promise.all([
+    const [trips, items, bikes, visits, debriefs, notesN, setting, file, folder, demo, counts] = await Promise.all([
       db.trips.toArray(),
       db.items.toArray(),
       db.bikes.toArray(),
@@ -36,9 +45,12 @@
       db.meta.get(LAST_BACKUP),
       db.meta.get('backupFolder'),
       demoState(db),
+      Promise.all([db.rides.count(), db.events.count(), db.learnings.count(), db.kmBook.filter((r) => !!r.importId).count(), db.maintenance.count(), db.flowLog.count(), db.flowChecks.count(), db.flowStars.count(), db.flowSessions.count()]),
     ]);
     const [tips, home, pace, tpl, sets] = setting.map((r) => r?.value ?? null);
-    return { trips, items, bikes, visits, debriefs, notesN, tips, homePlace: home, pace: paceOf(pace), templates: tpl ?? [], sets: sets ?? [], lastBackup: file?.at ?? folder?.lastWrite ?? null, demo };
+    const [rides, events, learnings, imports, problems, flowLog, flowChecks, flowStars, flowSessions] = counts;
+    const n = { trips: trips.length, rides, events, learnings, imports, problems, visits: visits.length, flowLog, flowChecks, flowStars, flowSessions, notes: notesN };
+    return { trips, items, bikes, visits, debriefs, notesN, tips, homePlace: home, pace: paceOf(pace), templates: tpl ?? [], sets: sets ?? [], lastBackup: file?.at ?? folder?.lastWrite ?? null, demo, counts: n, folder: !!folder };
   });
   const langSet = (() => {
     try {
@@ -48,109 +60,335 @@
     }
   })();
   const d = $derived($dataQ);
-  const used = $derived(d ? usedTips({ ...d, langSet, standalone: standalone() }) : new Set());
-  const all = $derived(d ? overview(d.tips, used) : null);
+  const used = $derived(d ? new Set([...usedTips({ ...d, langSet, standalone: standalone() }), ...seenOf({ counts: d.counts, folder: d.folder, play: !!d.demo?.play })]) : new Set());
+  const all = $derived(d ? catalogue(d.tips, used) : null);
   const next = $derived(d ? nextTrip(d.trips, localDay()) : null);
-  // v0.40.0 (Noah 9a): the unused tips as rows (the first SHOWN, then "+ n more"), the used ones by area.
-  const SHOWN = 6;
-  let allOpen = $state(false);
-  const unused = $derived(all ? all.groups.flatMap((g) => g.tips.filter((x) => !x.used)) : []);
-  const unusedIdx = (x) => unused.indexOf(x);
-  const usedGroups = $derived(all ? all.groups.map((g) => ({ ...g, used: g.tips.filter((x) => x.used) })).filter((g) => g.used.length) : []);
+  const bikeId = $derived(d ? (sortBikes(d.bikes)[0]?.id ?? null) : null);
+
+  // #/features?f=<id>: open at that function (from the search or a tip with a form of its own)
+  const wanted = typeof location !== 'undefined' ? (location.hash.match(/[?&]f=([^&]+)/)?.[1] ?? null) : null;
+  const wantId = wanted ? decodeURIComponent(wanted) : null;
+  let q = $state('');
+  let only = $state('all');
+  let opened = $state({});
+  let play = $state(null); // the day the playground starts on («Try it»)
+  const hits = $derived(q.trim().length >= 2 ? new Set(findFeatures(q, t).map((x) => x.featureId)) : null);
+  const groups = $derived(
+    all
+      ? all.groups
+          .filter((g) => only === 'all' || g.key === only)
+          .map((g) => ({ ...g, rows: hits ? g.items.filter((x) => hits.has(x.id)) : g.items }))
+          .filter((g) => g.rows.length)
+      : [],
+  );
+  // a computer with room: the news and «How to read the list» in a column on the right (mockup A)
+  const sideQ = typeof window !== 'undefined' ? window.matchMedia('(min-width: 1180px)') : null;
+  let sideOn = $state(sideQ?.matches ?? false);
+  $effect(() => {
+    const on = (e) => (sideOn = e.matches);
+    sideQ?.addEventListener('change', on);
+    return () => sideQ?.removeEventListener('change', on);
+  });
+  const isOpen = (g) => !!hits || only !== 'all' || !!opened[g.key] || (wantId != null && g.items.findIndex((x) => x.id === wantId) >= SHOWN);
+  let scrolled = false; // once, when the list is there (not on every change of the data)
+  $effect(() => {
+    if (!all || !wantId || scrolled) return;
+    scrolled = true;
+    queueMicrotask(() => document.querySelector(`[data-feature="${CSS.escape(wantId)}"]`)?.scrollIntoView({ block: 'center' }));
+  });
 </script>
 
-{#snippet tipRow(x)}
-  {@const Icon = TIP_ICON[x.icon]}
-  <li data-feature={x.id} class:used={x.used} class:later={!x.used && unusedIdx(x) >= SHOWN && !allOpen}>
-    <TipButton id={x.id} {next} cls="lrow tiprow">
-      <span class="ic" aria-hidden="true"><Icon size={18} strokeWidth={2} /></span>
-      <span class="m"><span class="t">{t(x.title)}</span><span class="s">{t(x.text)}</span></span>
-      {#if x.used}<span class="state"><Check size={15} strokeWidth={3} aria-hidden="true" /><span class="sr">{x.known ? t('You know it') : t('Used|tips')}</span></span>{/if}
-      <ChevronRight class="chev" size={18} aria-hidden="true" />
-    </TipButton>
+{#snippet row(x)}
+  <li data-feature={x.id} class="frow" class:used={x.used} class:want={x.id === wantId}>
+    <div class="fm">
+      <span class="ft">{t(x.title)}</span>
+      <span class="fs">{t(x.text)}</span>
+      {#if x.used}
+        <span class="fused"><Check size={14} strokeWidth={3} aria-hidden="true" />{t('Used|tips')}</span>
+      {:else}
+        <span class="pill warn fnever">{t('Never used|features')}</span>
+      {/if}
+    </div>
+    <div class="fa">
+      {#if x.tip}
+        <TipButton id={x.tip} {next} cls="btn sm fgo">{t('Take me there')}<ChevronRight size={16} aria-hidden="true" /></TipButton>
+      {:else}
+        <button type="button" class="btn sm fgo" onclick={() => goFeature(x, { bikeId })}>{t('Take me there')}<ChevronRight size={16} aria-hidden="true" /></button>
+      {/if}
+      {#if x.play && !x.used && !d?.demo}
+        <button type="button" class="ftry" onclick={() => (play = x.play)}>{t('Try it')}</button>
+      {/if}
+    </div>
   </li>
 {/snippet}
 
 <div class="feat">
-  <!-- v0.40.0 (Noah 9a): what you have not used yet as rows; what you use folded by area (1.5 phone
-       screens instead of 9). Every tip keeps its one action: a tap on the row starts it. -->
-  <h1 class="title">{t('What the app can do')}</h1>
-  {#if all}<p class="page-sub"><span class="num">{t('{n} of {total} used', { n: all.used, total: all.total })}</span></p>{/if}
-  <!-- v0.35.0 (Noah): what is new in the last versions; v0.40.0: one row, folded. -->
-  <WhatsNew />
-  {#if all}
-    {#if unused.length}
-      <section class="grp" aria-labelledby="f-unused">
-        <h2 class="sec-head" id="f-unused"><span>{t('Not used yet')}</span><span class="n">{unused.length}</span></h2>
-        <ul class="rowlist">
-          {#each unused as x (x.id)}{@render tipRow(x)}{/each}
-          {#if unused.length > SHOWN && !allOpen}
-            <li><button type="button" class="lrow morerow" onclick={() => (allOpen = true)}>{tn(unused.length - SHOWN, '+ {n} more', '+ {n} more')}</button></li>
-          {/if}
-        </ul>
+  <PageHead title={t('What the app can do')} sub={all ? t('{total} functions · you use {n}', { total: all.total, n: all.used }) : ''} />
+  <div class="cols">
+    <div class="mainc">
+      <label class="ffind">
+        <Search size={18} aria-hidden="true" />
+        <input type="search" bind:value={q} placeholder={t('What do you want to do? e.g. «warranty»')} aria-label={t('Find a function')} autocomplete="off" />
+      </label>
+      {#if !sideOn}<WhatsNew />{/if}
+      <div class="fchips" role="group" aria-label={t('Situation')}>
+        <button type="button" class="fchip" aria-pressed={only === 'all'} onclick={() => (only = 'all')}>{t('All|features')}</button>
+        {#each FEATURE_GROUPS as g (g.key)}
+          <button type="button" class="fchip" aria-pressed={only === g.key} onclick={() => (only = only === g.key ? 'all' : g.key)}>{t(g.label)}</button>
+        {/each}
+      </div>
+      {#if all && !groups.length}
+        <p class="fnone" role="status">{t('No function found for «{q}».', { q: q.trim() })}</p>
+      {/if}
+      <div class="fgrid">
+        {#each groups as g (g.key)}
+          {@const Icon = GROUP_ICON[g.icon]}
+          {@const open = isOpen(g)}
+          <section class="fgroup" data-group={g.key} aria-labelledby="fg-{g.key}">
+            <header class="fgh">
+              <span class="fgi" aria-hidden="true"><Icon size={20} /></span>
+              <h2 id="fg-{g.key}">{t(g.label)}</h2>
+              <span class="fgn num">{t('{n} of {total} used', { n: g.used, total: g.total })}</span>
+            </header>
+            <ul class="flist">
+              {#each open ? g.rows : g.rows.slice(0, SHOWN) as x (x.id)}{@render row(x)}{/each}
+            </ul>
+            {#if !open && g.rows.length > SHOWN}
+              <button type="button" class="fall" onclick={() => (opened = { ...opened, [g.key]: true })}>{t('All {n}|features', { n: g.rows.length })}<ChevronRight size={16} aria-hidden="true" /></button>
+            {/if}
+          </section>
+        {/each}
+      </div>
+    </div>
+    {#if sideOn}
+    <aside class="side">
+      <WhatsNew />
+      <section class="howto" aria-labelledby="howto-h">
+        <h2 id="howto-h">{t('How to read the list')}</h2>
+        <p>{t('On top of each group is what you have never used. Used things are quiet, with ✓. «Take me there» opens the place in the app; «Try it» plays it in the playground without changing your data.')}</p>
       </section>
+    </aside>
     {/if}
-    {#if usedGroups.length}
-      <section class="grp" aria-labelledby="f-used">
-        <h2 class="sec-head" id="f-used"><span>{t('Already used')}</span><span class="n">{all.used}</span></h2>
-        <ul class="rowlist">
-          {#each usedGroups as g (g.key)}
-            <li>
-              <details class="area" data-group={g.key}>
-                <summary class="lrow">
-                  <span class="m"><span class="t">{t(g.label)}</span><span class="s">{g.used.map((x) => t(x.title)).join(' · ')}</span></span>
-                  <span class="v num">{g.used.length} ✓</span>
-                  <ChevronRight class="chev" size={18} aria-hidden="true" />
-                </summary>
-                <ul class="inner">{#each g.used as x (x.id)}{@render tipRow(x)}{/each}</ul>
-              </details>
-            </li>
-          {/each}
-        </ul>
-      </section>
-    {/if}
-  {/if}
+  </div>
 </div>
+{#if play}<PlaySheet running={!!d?.demo} kind="weekend" day={play} onclose={() => (play = null)} />{/if}
 
 <style>
   .feat {
-    max-width: 880px;
+    max-width: 1200px;
     margin: 0 auto;
   }
-  .grp :global(.sec-head) {
-    margin-top: 16px;
+  .cols {
+    display: grid;
+    gap: var(--sp-5);
   }
-  .grp li.later {
-    display: none;
+  .mainc {
+    min-width: 0;
+    display: grid;
+    gap: var(--sp-3);
+    align-content: start;
   }
-  :global(.lrow.tiprow) {
-    width: 100%;
+  .side {
+    display: grid;
+    gap: var(--sp-3);
+    align-content: start;
   }
-  .state {
+  @media (min-width: 1180px) {
+    .cols {
+      grid-template-columns: minmax(0, 1fr) 320px;
+    }
+  }
+  .ffind {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 48px;
+    padding: 0 var(--sp-3);
+    border: 1.5px solid var(--line-strong);
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--ink-3);
+  }
+  .ffind:has(input:focus-visible) {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .ffind input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--ink);
+    font: 400 var(--fs-body) var(--font-body);
+  }
+  .fchips {
+    display: flex;
+    gap: var(--sp-2);
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .fchip {
+    flex: none;
+    min-height: 44px;
+    padding: 0 var(--sp-4);
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-label) var(--font-body);
+    cursor: pointer;
+  }
+  .fchip[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .fnone {
+    margin: var(--sp-2) 0;
+    color: var(--ink-3);
+  }
+  .fgrid {
+    display: grid;
+    gap: var(--sp-4);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    align-items: start;
+  }
+  .fgroup {
+    min-width: 0;
+    padding: var(--sp-4);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
+  }
+  .fgh {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding-bottom: var(--sp-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .fgi {
     flex: none;
     display: inline-flex;
-    color: var(--ok);
+    color: var(--hi);
   }
-  .morerow {
-    justify-content: center;
+  .fgh h2 {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font: 700 var(--fs-sub)/1.25 var(--font-body);
+    overflow-wrap: break-word;
+  }
+  .fgn {
+    flex: none;
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-tiny);
   }
-  .area > summary {
-    list-style: none;
-  }
-  .area > summary::-webkit-details-marker {
-    display: none;
-  }
-  .area[open] > summary {
-    background: var(--paper-2);
-  }
-  .inner {
+  .flist {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  .inner > li {
+  .frow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--sp-2) var(--sp-3);
+    padding: var(--sp-3) 0;
     border-top: 1px solid var(--line);
+  }
+  .frow:first-child {
+    border-top: 0;
+  }
+  .frow.want {
+    background: var(--hi-soft);
+  }
+  .fm {
+    flex: 1 1 12em;
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+    justify-items: start;
+  }
+  .ft {
+    font-weight: 600;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+  .fs {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.4;
+    overflow-wrap: break-word;
+  }
+  .used .ft,
+  .used .fs {
+    color: var(--ink-3);
+  }
+  .fused {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  .fnever {
+    margin-top: 4px;
+  }
+  .fa {
+    flex: none;
+    display: grid;
+    gap: 2px;
+    justify-items: end;
+  }
+  .fa :global(.fgo) {
+    min-height: 44px;
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .used .fa :global(.fgo) {
+    border-color: var(--line);
+    color: var(--ink-3);
+  }
+  .ftry {
+    min-height: 44px;
+    padding: 0 var(--sp-1);
+    border: 0;
+    background: none;
+    color: var(--hi);
+    font: 600 var(--fs-small) var(--font-body);
+    cursor: pointer;
+  }
+  .fall {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: 600 var(--fs-label) var(--font-body);
+    cursor: pointer;
+  }
+  .howto {
+    padding: var(--sp-4);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+  }
+  .howto h2 {
+    margin: 0 0 var(--sp-2);
+    font: 700 var(--fs-sub)/1.25 var(--font-body);
+  }
+  .howto p {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.5;
   }
 </style>

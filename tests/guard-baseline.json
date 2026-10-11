@@ -250,9 +250,6 @@
       "colour": 2,
       "fontsize": 3
     },
-    "src/pages/Features.svelte": {
-      "fontsize": 1
-    },
     "src/pages/Gear.svelte": {
       "fontsize": 20
     },
