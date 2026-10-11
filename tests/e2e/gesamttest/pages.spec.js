@@ -97,6 +97,9 @@ const CASES = [
   { id: 'debrief-running', hash: `#/debrief/${TRIP.running}` },
   { id: 'learnings', hash: '#/debrief/learnings' },
   { id: 'pace', hash: '#/debrief/pace' },
+  // v0.97.0 «Skitouren»: Touren › Skitouren and its pages, with the fixture's ski trip
+  { id: 'ski', hash: '#/ski' },
+  { id: 'ski-check', hash: `#/ski/check/${TRIP.ski}` },
   { id: 'logbook', hash: '#/debrief/logbook' },
   { id: 'rides', hash: '#/debrief/ride' },
   { id: 'ride-detail', hash: '#/debrief/ride/ride-gtp-01' },

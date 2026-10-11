@@ -22,6 +22,8 @@ export const PAGE_GROUPS = [
       { id: 'past', title: 'Past trips', href: '#/pack/past', icon: 'calendar', words: 'past trips vergangene touren finished vorbei archiv table tabelle' },
       { id: 'learnings', title: 'Learnings', href: '#/debrief/learnings', icon: 'book', words: 'learnings learning lernen gelernt erkenntnisse what the app learned was die app gelernt hat' },
       { id: 'pace', title: 'Your pace', href: '#/debrief/pace', icon: 'gauge', words: 'pace tempo speed geschwindigkeit gpx riding time fahrzeit' },
+      // v0.97.0 «Skitouren»: Touren › Skitouren (next tour, backpack check, start check, care, after the tour)
+      { id: 'ski', title: 'Ski tours', href: '#/ski', icon: 'route', words: 'ski tours skitouren skitour ski touring skitouren rucksack-check backpack check start-check lvs lawine avalanche bulletin umkehrzeit turnaround saison-pflege season care felle skins wachsen wax gipfel peak höhenmeter' },
     ],
   },
   {

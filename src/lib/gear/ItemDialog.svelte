@@ -18,6 +18,7 @@
   import Help from '../ui/Help.svelte'; // FE14
   import { FIELD_HELP, weiter } from '../daumen.js'; // FE14, FE16
   import { DOMAINS, itemDomains, domainName } from '../domains.js';
+  import { SKI_GROUPS, SKI_GROUP, skiGroupOf } from '../ski.js';
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
@@ -581,6 +582,15 @@
           <label class="cb"><input type="checkbox" checked={on} disabled={on && draft.domains.length === 1} onchange={(e) => (draft.domains = e.currentTarget.checked ? [...(draft.domains ?? []), d.key] : (draft.domains ?? []).filter((x) => x !== d.key))} /> {t(d.name)}</label>
         {/each}
       </fieldset>
+      <!-- v0.97.0 «Skitouren»: the group in the ski backpack check (only for items of the area ski) -->
+      {#if draft.domains?.includes('ski')}
+        <label class="wide"><span class="lbl">{t('Ski tour group')}</span>
+          <select class="sel" bind:value={draft.skiGroup}>
+            <option value="">{t('automatic: {group}', { group: t(SKI_GROUP[skiGroupOf({ ...draft, skiGroup: '' })].name) })}</option>
+            {#each SKI_GROUPS as g (g.key)}<option value={g.key}>{t(g.name)}</option>{/each}
+          </select>
+        </label>
+      {/if}
       <label class="wide"><span class="lbl">{t('Note')}</span><textarea class="inp" rows="2" bind:value={draft.note}></textarea></label>
       <!-- v0.36.0: from the reviewed gear list (gear import); kept as they are when saving. -->
       {#if draft.sourceId || draft.rule || draft.zone || draft.layer || draft.tempClass}
