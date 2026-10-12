@@ -47,7 +47,8 @@ test('Inbox: one light button per note, the rest behind •••, the suggestio
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/inbox');
   await expect(page.getByRole('heading', { name: T('Inbox'), level: 1 })).toBeVisible();
-  await expect(page.locator('.page-sub')).toContainText(T('{n} open', { n: 2 }));
+  // Design-Refresh P9 (I3): the count sits on the view chip «To file · n», no longer in the line under the title
+  await expect(page.getByRole('group', { name: T('Show') }).getByRole('button', { name: new RegExp(T('To file')) })).toHaveText(`${T('To file')} · 2`);
   const note = page.locator('li[data-note-id]').filter({ hasText: `${P} Bell rattles` });
   await expect(note.locator('.acts > .btn')).toHaveCount(1);
   await expect(note.locator('.acts > .btn')).toHaveText(T('File'));

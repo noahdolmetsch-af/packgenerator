@@ -188,7 +188,9 @@ test('Data and backup lives under Me; the playground tile opens the playground t
   await expect(page).toHaveURL(/#\/me$/);
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');
-  const data = page.locator('details.data');
-  await data.locator('summary').click();
+  // Design-Refresh P9 (I2): «Data and backup» is a row on Ich that opens its own page, no longer a fold
+  await page.getByRole('link', { name: new RegExp(T('Data and backup')) }).click();
+  await expect(page).toHaveURL(/#\/me\/data$/);
+  const data = page.locator('.datapanel');
   await expect(data.getByText(T('Import backup'), { exact: true })).toBeVisible();
 });

@@ -9,19 +9,27 @@
    *
    * steps: from packSteps(). ontoggle(itemId), onready(row), onpack(itemIds | null), onreadyall(): save.
    * onnext(): the next step (On the way, or the debrief for a trip without a bike). onundo(): the page's Undo.
+   *
+   * v0.106.0 Design-Refresh P5 «Packen» (T6, approved 12.10.2026 «Runde 20 freigegeben»): «Taschen» as one
+   * light list (each bag with its items, weight and a small bar, the open one tinted), the open bag below
+   * it as its own section with check boxes, and on the right «Gewicht nach Taschen» (the scale of P4),
+   * «Aus früheren Touren» and «Mehr» (Laden). The open bag keeps its classes (.pbag.cur, #pb-<key>).
    */
-  import { Check, ChevronDown, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging } from '@lucide/svelte';
+  import { Check, ChevronRight, Undo2, ArrowRight, Briefcase, UserRound, Bike, ListChecks, BatteryCharging } from '@lucide/svelte';
+  import WeightCard from './WeightCard.svelte';
+  import LessonsCard from './LessonsCard.svelte';
   import { tick as settle, untrack } from 'svelte';
   import TripBand from '../trip/TripBand.svelte';
   import Empty from '../ui/Empty.svelte';
   import { formatWeight } from '../gear.js';
   import { readyDone, RAIN } from '../trips.js';
-  import { t, tn, nameOf } from '../i18n.svelte.js';
+  import { t, tn, nameOf, locale } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
   import { localDay } from '../localday.js';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], oncharge = null, pressure = '' } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], oncharge = null, pressure = '', stats = null, charge = null } = $props();
+  // v0.105.0 P5 (T6): stats for «Gewicht nach Taschen»; charge { names, done, total } for the row «Laden» in «Mehr».
   // v0.65.0 «Velo-Masse»: pressure: the trip bike's target pressure («1.6 / 1.7 bar»), named in the tyre row.
   const readyLabel = (r) => (r.id === 'tyres' && pressure ? `${t(r.label)} · ${t('Target')} ${pressure}` : t(r.label));
   const wxText = (w) => `${w.min === w.max ? w.min : `${w.min}–${w.max}`} °C, ${t(RAIN[w.rain ?? 'none'])}`;
@@ -174,6 +182,18 @@
   const shownTips = $derived(new Set(Object.values(badges).flat().filter((b) => b.key === 'tip').map((b) => b.text)));
   const newLessons = $derived(lessons.filter((l) => !shownTips.has(l.rule)));
   const hintOf = (id) => (badges[id] ?? []).map((b) => (b.key === 'tip' ? b.text : b.label)).join(' · ');
+  // v0.105.0 P5 (T6): the line under a bag in «Taschen»: «6 Teile · 3.4 kg».
+  const kgOf = (s) => s.entries.reduce((g, e) => g + (itemsById[e.itemId]?.weightG ?? 0) * (e.qty || 1), 0);
+  const kgText = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
+  const subOf = (s) => [tn(s.entries.length, '{n} item', '{n} items'), kgOf(s) ? kgText(kgOf(s)) : ''].filter(Boolean).join(' · ');
+  // A tap on a bag in the list opens it below; when the open bag is out of sight the page goes there.
+  let openEl = $state();
+  async function pick(key) {
+    cur = key;
+    await settle();
+    const r = openEl?.getBoundingClientRect?.();
+    if (r && (r.top < 0 || r.top > innerHeight - 120)) openEl.scrollIntoView?.({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
   const kicker = $derived(packed < total ? `${t('Packing day')} · ${tn(total - packed, '{n} item left', '{n} items left')} ${tn(bagsLeft, 'in {n} bag', 'in {n} bags')}` : `${t('Packing day')} · ${t('everything packed')}`);
 
   // "Next: On the way" with something missing asks first (Noah: also works when something is missing).
@@ -233,33 +253,36 @@
 {:else if main.kind === 'go'}<a class="btn hi go" href={main.href}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
 {#snippet aside()}{@render ring(52)}{/snippet}
 
+<!-- v0.105.0 P5 (T6): one bag in the list «Taschen»: icon, name, «6 Teile · 3.4 kg», a small bar, the count -->
+{#snippet bagRow(s, Icon, done, isCur)}
+  {#if isCur}
+    <!-- the open bag: tinted in the list; its items (with the id and the heading) are in the section below -->
+    <li class="brow open"><button type="button" class="bsel" aria-current="true" onclick={() => pick(s.key)}>
+      <span class="bic" aria-hidden="true"><Icon size={18} /></span><span class="bt"><b>{s.title}</b><small>{subOf(s)}</small></span>
+      <span class="r"><span class="mini" aria-hidden="true"><i style:width="{(s.done / s.entries.length) * 100}%"></i></span><span class="num">{s.done}/{s.entries.length}</span></span>
+    </button></li>
+  {:else}
+    <li class="brow pbag" class:done aria-labelledby="pb-{s.key}">
+      <button type="button" class="bagh" aria-expanded="false" onclick={() => pick(s.key)}>
+        <span class="bic" aria-hidden="true"><Icon size={18} /></span><span class="bt"><b id="pb-{s.key}">{s.title}</b><small>{subOf(s)}</small></span>
+        <span class="r">{#if done}<span class="num">{s.done}/{s.entries.length}</span><span class="tp-okdot" aria-label={t('all in')}><Check size={16} aria-hidden="true" /></span>{:else}<span class="mini" aria-hidden="true"><i style:width="{(s.done / s.entries.length) * 100}%"></i></span><span class="num">{s.done}/{s.entries.length}</span>{/if}</span>
+      </button>
+    </li>
+  {/if}
+{/snippet}
+
 <div class="pd trip-page" aria-label={t('Packing day: {title}', { title: trip.title })}>
   <TripBand {trip} tab="pack" {kicker} action={main.kind ? go : null} {aside} hint={missing ? tn(missing, '{n} still missing', '{n} still missing') : t('Everything is in.')} />
   <!-- v0.67.0 (U014, kit Empty): an empty list says so and leads to adding gear (never «Alles gepackt»). -->
   {#if total === 0}<Empty icon={ListChecks} text={t('The packing list is still empty. Add gear in Plan first, then pack here.')} action={{ label: t('Add material'), href: '#/pack?add' }} />{/if}
 
   {#if wxGap}
-    <div class="tp-card wxgap" role="note">
+    <div class="card wxgap" role="note">
       <p><b>{t('The forecast is {wx}.', { wx: wxText(wxGap.fc) })}</b> {t('This trip is packed for {wx}.', { wx: wxText(wxGap.have) })}</p>
       <button type="button" class="btn" onclick={onwx}>{t('Pack for the forecast first')}</button>
     </div>
   {/if}
 
-  <!-- v0.30.2 (test R6.6): what earlier debriefs taught, before the first bag. -->
-  <!-- v0.40.0 (design check R2): a learning that already stands under its item is not repeated here. -->
-  {#if newLessons.length}
-    <div class="tp-card lessons" role="note">
-      <p class="tp-small"><b>{t('From earlier trips')}</b></p>
-      <ul>{#each newLessons as l (l.id)}<li>{l.rule}</li>{/each}</ul>
-    </div>
-  {/if}
-
-  {#if !phone.matches}
-    <div class="tp-card prog">
-      {@render ring(72)}
-      <div><p class="pt">{packed < total ? tn(total - packed, '{n} item left', '{n} items left') + ' ' + tn(bagsLeft, 'in {n} bag', 'in {n} bags') : t('Everything is in.')}</p><p class="tp-muted tp-small">{t('Tap the whole row. A full bag jumps to the next one.')}</p></div>
-    </div>
-  {/if}
   <!-- v0.30.1 (B6): read out here, shown in the bag's foot: a line appearing above the bags pushed the
        open bag down under the finger, so a quick second tap closed it. -->
   <p class="sr" role="status">{status}</p>
@@ -275,74 +298,109 @@
     </section>
   {/if}
 
-  <div class="pgrid">
-    {#each steps as s (s.key)}
-      {@const Icon = iconOf(s.key)}
-      {@const done = full(s)}
-      {#if s.key === cur}
-        <section class="pbag cur" aria-labelledby="pb-{s.key}" style:--span={steps.length + 1} onpointerdown={touchBag}>
-          <button type="button" class="bagh" aria-expanded="true" onclick={() => { if (now() - lastTap.at >= TAP_MS) cur = ''; }}>
-            <Icon size={20} aria-hidden="true" /><span class="bt"><b id="pb-{s.key}">{s.title}</b>{#if s.sub}<small>{s.sub}</small>{/if}</span>
-            <span class="r"><span class="mini" aria-hidden="true"><i style:width="{(s.done / s.entries.length) * 100}%"></i></span><span class="num">{s.done}/{s.entries.length}</span><ChevronDown size={18} aria-hidden="true" /></span>
-          </button>
-          <ul class="items">
-            {#each ordered(s) as e (e.itemId)}
-              {@const it = itemsById[e.itemId]}
-              {@const hint = hintOf(e.itemId)}
-              <li class:in={e.packed}>
-                <button type="button" class="it" aria-pressed={!!e.packed} onclick={(ev) => tick(s, e, ev)}>
-                  <span class="box" aria-hidden="true">{#if e.packed}<Check size={20} />{/if}</span>
-                  <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q">{' '}× {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{/if}</span>
-                  <span class="w num">{it?.weightG != null ? formatWeight(it.weightG * (e.qty || 1)) : t('not weighed')}</span>
+  {#if total > 0}
+  <div class="pcols">
+    <div class="pmain">
+      <section class="psec" aria-labelledby="bags-h">
+        <h2 id="bags-h" class="sh">{t('Bags')}</h2>
+        <p class="ssub"><span class="num packed-count">{t('{n} of {total} packed', { n: packed, total })}</span>{' · '}{t('tap a bag')}</p>
+        <ul class="card blist">
+          {#each steps as s (s.key)}{@render bagRow(s, iconOf(s.key), full(s), s.key === cur)}{/each}
+          {#if ready.length}
+            {#if cur === READY}
+              <li class="brow open"><button type="button" class="bsel" aria-current="true" onclick={() => pick(READY)}><span class="bic" aria-hidden="true"><ListChecks size={18} /></span><span class="bt"><b>{t('Ready check')}</b></span><span class="r"><span class="num">{readyN}/{ready.length}</span></span></button></li>
+            {:else}
+              <li class="brow pbag" class:done={readyAll} aria-labelledby="pb-ready">
+                <button type="button" class="bagh" aria-expanded="false" onclick={() => pick(READY)}>
+                  <span class="bic" aria-hidden="true"><ListChecks size={18} /></span><span class="bt"><b id="pb-ready">{t('Ready check')}</b>{#if !readyAll}<small>{ready.filter((r) => !readyDone(r, trip)).map((r) => readyLabel(r)).join(' · ')}</small>{/if}</span>
+                  <span class="r"><span class="num">{readyN}/{ready.length}</span>{#if readyAll}<span class="tp-okdot"><Check size={16} aria-hidden="true" /></span>{:else}<ChevronRight size={18} aria-hidden="true" />{/if}</span>
                 </button>
               </li>
-            {/each}
-          </ul>
-          <div class="bagfoot">
-            {#if !done}<button type="button" class="tp-link" onclick={() => wholeBag(s)}>{t('Whole bag packed')}</button>{:else}<span class="tp-muted tp-small packed-note" aria-hidden={status && note?.from === s.key ? 'true' : undefined}>{status && note?.from === s.key ? status : t('all in')}</span>{/if}
-            {#if canUndo}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
+            {/if}
+          {/if}
+        </ul>
+      </section>
+
+      {#each steps as s (s.key)}
+        {#if s.key === cur}
+          {@const done = full(s)}
+          <section class="pbag cur" aria-labelledby="pb-{s.key}" bind:this={openEl} onpointerdown={touchBag}>
+            <div class="bagh">
+              <h2 class="sh"><b id="pb-{s.key}">{s.title}</b></h2>
+              <p class="ssub">{t('{done} of {n} · a full bag jumps to the next one', { done: s.done, n: s.entries.length })}{#if s.sub}{' · '}{s.sub}{/if}</p>
+            </div>
+            <div class="card ibox">
+              <ul class="items">
+                {#each ordered(s) as e (e.itemId)}
+                  {@const it = itemsById[e.itemId]}
+                  {@const hint = hintOf(e.itemId)}
+                  <li class:in={e.packed}>
+                    <button type="button" class="it" aria-pressed={!!e.packed} onclick={(ev) => tick(s, e, ev)}>
+                      <span class="box" aria-hidden="true">{#if e.packed}<Check size={16} strokeWidth={2.5} />{/if}</span>
+                      <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q">{' '}× {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{/if}</span>
+                      <span class="w num">{it?.weightG != null ? formatWeight(it.weightG * (e.qty || 1)) : t('not weighed')}</span>
+                    </button>
+                  </li>
+                {/each}
+              </ul>
+              <div class="bagfoot">
+                {#if !done}<button type="button" class="tp-link" onclick={() => wholeBag(s)}>{t('Whole bag packed')}</button>{:else}<span class="tp-muted tp-small packed-note" aria-hidden={status && note?.from === s.key ? 'true' : undefined}>{status && note?.from === s.key ? status : t('all in')}</span>{/if}
+                {#if canUndo}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
+              </div>
+            </div>
+          </section>
+        {/if}
+      {/each}
+      {#if ready.length && cur === READY}
+        <section class="pbag cur" aria-labelledby="pb-ready" bind:this={openEl}>
+          <div class="bagh">
+            <h2 class="sh"><b id="pb-ready">{t('Ready check')}</b></h2>
+            <p class="ssub num">{readyN}/{ready.length}</p>
           </div>
-        </section>
-      {:else}
-        <section class="pbag" class:done aria-labelledby="pb-{s.key}">
-          <button type="button" class="bagh" aria-expanded="false" onclick={() => (cur = s.key)}>
-            <Icon size={20} aria-hidden="true" /><span class="bt"><b id="pb-{s.key}">{s.title}</b></span>
-            <span class="r">{#if done}<span class="num">{s.done}/{s.entries.length}</span><span class="tp-okdot" aria-label={t('all in')}><Check size={16} aria-hidden="true" /></span>{:else}<span class="mini" aria-hidden="true"><i style:width="{(s.done / s.entries.length) * 100}%"></i></span><span class="num">{s.done}/{s.entries.length}</span><ChevronRight size={18} aria-hidden="true" />{/if}</span>
-          </button>
-          {#if !done}<p class="preview">{names(s)}</p>{/if}
+          <div class="card ibox">
+            <ul class="items">
+              {#each ready as r (r.id)}
+                {@const ok = readyDone(r, trip)}
+                <li class:in={ok}>
+                  <button type="button" class="it" aria-pressed={ok} disabled={!!r.itemId && ok} onclick={() => readyTick(r)}>
+                    <span class="box" aria-hidden="true">{#if ok}<Check size={16} strokeWidth={2.5} />{/if}</span>
+                    <span class="nm">{readyLabel(r)}</span>
+                  </button>
+                  <!-- v0.34.0 (L4): which devices, from the packing list -->
+                  {#if r.id === 'charged' && oncharge}<button type="button" class="tp-link chg" onclick={oncharge}><BatteryCharging size={16} aria-hidden="true" />{t('Charge list')}</button>{/if}
+                </li>
+              {/each}
+            </ul>
+            <div class="bagfoot">
+              {#if !readyAll}<button type="button" class="tp-link" onclick={readyAllTick}>{t('Tick all checks')}</button>{:else}<span class="tp-muted tp-small">{t('all in')}</span>{/if}
+              {#if canUndo}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
+            </div>
+          </div>
         </section>
       {/if}
-    {/each}
-    {#if ready.length}
-      {@const done = readyAll}
-      <section class="pbag" class:cur={cur === READY} class:done={done && cur !== READY} aria-labelledby="pb-ready" style:--span={steps.length + 1}>
-        <button type="button" class="bagh" aria-expanded={cur === READY} onclick={() => (cur = cur === READY ? '' : READY)}>
-          <ListChecks size={20} aria-hidden="true" /><span class="bt"><b id="pb-ready">{t('Ready check')}</b></span>
-          <span class="r"><span class="num">{readyN}/{ready.length}</span>{#if done && cur !== READY}<span class="tp-okdot"><Check size={16} aria-hidden="true" /></span>{:else if cur === READY}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}</span>
-        </button>
-        {#if cur === READY}
-          <ul class="items">
-            {#each ready as r (r.id)}
-              {@const ok = readyDone(r, trip)}
-              <li class:in={ok}>
-                <button type="button" class="it" aria-pressed={ok} disabled={!!r.itemId && ok} onclick={() => readyTick(r)}>
-                  <span class="box" aria-hidden="true">{#if ok}<Check size={20} />{/if}</span>
-                  <span class="nm">{readyLabel(r)}</span>
-                </button>
-                <!-- v0.34.0 (L4): which devices, from the packing list -->
-                {#if r.id === 'charged' && oncharge}<button type="button" class="tp-link chg" onclick={oncharge}><BatteryCharging size={16} aria-hidden="true" />{t('Charge list')}</button>{/if}
-              </li>
-            {/each}
+      {#if packed < total || !readyAll}<p class="all"><button type="button" class="tp-link" onclick={everything}>{t('Everything is packed')}</button></p>{/if}
+    </div>
+
+    <div class="pside">
+      {#if stats}<WeightCard {trip} {stats} {itemsById} title={t('Weight by bag')} />{/if}
+      <!-- v0.30.2 (test R6.6): what earlier debriefs taught. v0.40.0: a learning that already stands
+           under its item is not repeated here. -->
+      <LessonsCard lessons={newLessons} />
+      {#if oncharge}
+        <section class="psec" aria-labelledby="more-h">
+          <h2 id="more-h" class="sh">{t('More')}</h2>
+          <ul class="card mlist">
+            <li><button type="button" class="mrow" onclick={oncharge}>
+              <span class="bic" aria-hidden="true"><BatteryCharging size={18} /></span>
+              <span class="bt"><b>{t('Charge the evening before')}</b>{#if charge?.names?.length}<small>{charge.names.slice(0, 3).join(', ')}{charge.names.length > 3 ? ' …' : ''}</small>{/if}</span>
+              <span class="r">{#if charge}<span class="num">{charge.done}/{charge.total}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span>
+            </button></li>
           </ul>
-          <div class="bagfoot">
-            {#if !done}<button type="button" class="tp-link" onclick={readyAllTick}>{t('Tick all checks')}</button>{:else}<span class="tp-muted tp-small">{t('all in')}</span>{/if}
-            {#if canUndo}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
-          </div>
-        {:else if !done}<p class="preview">{ready.filter((r) => !readyDone(r, trip)).map((r) => readyLabel(r)).join(' · ')}</p>{/if}
-      </section>
-    {/if}
+        </section>
+      {/if}
+    </div>
   </div>
-  {#if packed < total || !readyAll}<p class="all"><button type="button" class="tp-link" onclick={everything}>{t('Everything is packed')}</button></p>{/if}
+  {/if}
 </div>
 
 <dialog class="sheet ask" bind:this={askEl} aria-labelledby="ask-h">
@@ -355,68 +413,64 @@
 </dialog>
 
 <style>
-  /* v0.30.1 (Noah B10): all done, calm and clear: green for the state; orange stays on the band's button. */
-  .alldone { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px 14px; margin: 0 0 12px; padding: 18px 16px; border: 2px solid var(--ok); border-radius: 12px; background: var(--ok-soft); scroll-margin-top: 72px; }
+  /* v0.106.0 Design-Refresh P5 (T6): light sections with a title and a short line, white cards. */
+  .alldone { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px 14px; margin: 0 0 16px; padding: 18px 16px; border: 1px solid var(--card-line); border-radius: var(--radius-card); background: var(--ok-soft); scroll-margin-top: 72px; }
   .alldone:focus { outline: none; }
   .okbig { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--ok); color: var(--paper); }
-  .alldone h2 { margin: 0; font: 700 21px/1.25 var(--font-body); color: var(--ink); overflow-wrap: break-word; }
-  .alldone p { margin: 2px 0 0; font-size: 15px; color: var(--ink-2); }
-  .adgo { grid-column: 1 / -1; min-height: 48px; font-size: 16px; }
-  @media (min-width: 720px) { .alldone { grid-template-columns: auto minmax(0, 1fr) auto; } .adgo { grid-column: auto; } }
-  .prog { display: flex; align-items: center; gap: 16px; }
-  .prog p { margin: 0; }
-  .prog .pt { font-weight: 600; font-size: 17px; }
+  .alldone h2 { margin: 0; font: 700 var(--fs-sub) / 1.25 var(--font-body); color: var(--ink); overflow-wrap: break-word; }
+  .alldone p { margin: 2px 0 0; font-size: var(--fs-small); color: var(--ink-2); }
   .ring { position: relative; display: inline-block; flex: none; }
   .ring svg { transform: rotate(-90deg); display: block; }
-  .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--ink); }
-  .wxgap { background: var(--info-soft); }
+  .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: var(--fs-tiny); font-weight: 700; color: var(--ink); }
+  .wxgap { margin: 0 0 16px; background: var(--info-soft); }
   .wxgap p { margin: 0 0 10px; }
-  .lessons p { margin: 0 0 4px; }
-  .lessons ul { margin: 0; padding-left: 20px; }
-  .lessons li { overflow-wrap: break-word; }
-  .pgrid { display: grid; gap: 10px; }
-  .pbag { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; min-width: 0; }
-  .pbag.cur { border: 2px solid var(--ink); }
-  .bagh { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 14px; border: 0; background: none; color: var(--ink); font: 600 16px var(--font-body); text-align: left; cursor: pointer; }
-  .bagh :global(svg) { color: var(--ink-3); flex: none; }
+  .pcols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .pmain, .pside { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-content: start; min-width: 0; }
+  @media (min-width: 900px) { .pcols { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; } }
+  .psec, .pbag { min-width: 0; }
+  .sh { margin: 0; font: 600 var(--fs-sub) / 1.3 var(--font-body); color: var(--ink); overflow-wrap: break-word; }
+  .sh b { font-weight: 600; }
+  .ssub { margin: 2px 0 8px; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
+  /* the list of bags: one row each, the open one tinted */
+  .blist, .mlist { list-style: none; margin: 0; padding: 0; overflow: hidden; }
+  .brow + .brow, .mlist li + li { border-top: 1px solid var(--line); }
+  .bagh, .bsel, .mrow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 8px 16px; border: 0; background: none; color: var(--ink); font: 400 var(--fs-body) var(--font-body); text-align: left; cursor: pointer; }
+  .brow.open { background: var(--hi-soft); }
+  .brow .r, .mrow .r { flex-shrink: 0; }
+  @media (max-width: 479px) { .mini { width: 44px; flex-basis: 44px; } }
+  .bic { display: grid; flex: none; place-items: center; width: 34px; height: 34px; border-radius: 8px; background: var(--paper-2); color: var(--ink-2); }
   /* v0.77.0: the title never gets narrower than its longest word (capped at the row), so a short
-     row takes the room from the bar (.r) instead: with min-width 0, flex shrinking also took a
-     fraction of a pixel from the title and broke «Oberrohrtasche» mid-word at 1366 px. */
-  .bt { min-width: min(min-content, 100%); overflow-wrap: break-word; }
-  .bt small { display: block; font-size: 13px; font-weight: 400; color: var(--ink-3); }
+     row takes the room from the bar (.r) instead (no «Oberrohrtasche» broken mid-word). */
+  .bt { flex: 1 1 auto; min-width: min(min-content, 100%); overflow-wrap: break-word; }
+  .bt b { display: block; font-weight: 500; }
+  .bt small { display: block; font-size: var(--fs-small); color: var(--ink-2); }
   .pbag.done .bt b { color: var(--ink-3); }
-  /* v0.77.0: in a narrow column the bar gives way first, so a bag name («Oberrohrtasche») is not broken. */
-  .r { margin-left: auto; min-width: 0; flex-shrink: 20; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 400; color: var(--ink-3); white-space: nowrap; }
-  .mini { width: 120px; flex: 0 1 120px; min-width: 24px; height: 6px; border-radius: 9px; background: var(--paper-2); overflow: hidden; display: none; }
-  /* v0.76.0: next to the sidebar the left column is narrow: the count may go under the name */
-  .bagh { flex-wrap: wrap; row-gap: 2px; }
-  .mini i { display: block; height: 100%; background: var(--ok); }
-  .preview { margin: -6px 14px 10px 46px; font-size: 14px; color: var(--ink-2); line-height: 1.5; overflow-wrap: break-word; }
+  .r { margin-left: auto; min-width: 0; flex-shrink: 20; display: flex; align-items: center; gap: 10px; font-size: var(--fs-small); color: var(--ink-2); white-space: nowrap; }
+  .r :global(svg) { color: var(--ink-3); flex: none; }
+  .mini { width: 72px; flex: 0 1 72px; min-width: 20px; height: 6px; border-radius: 9px; background: var(--paper-2); overflow: hidden; }
+  .mini i { display: block; height: 100%; background: var(--hi); }
+  @media (max-width: 359px) { .mini { display: none; } }
+  /* the open bag: its own section, the items with check boxes */
+  .pbag.cur { scroll-margin-top: 72px; }
+  .pbag.cur .bagh { display: block; min-height: 0; padding: 0; cursor: default; }
+  .ibox { padding-top: 4px; padding-bottom: 4px; }
   .items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
-  .it { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 60px; padding: 6px 14px; border: 0; border-top: 1px solid var(--paper-2); background: none; color: var(--ink); font: 400 17px/1.25 var(--font-body); text-align: left; cursor: pointer; }
-  .box { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--line-strong); background: var(--input); }
-  /* v0.30.1 (Noah B1): every item name in the same face, size and weight; × n and the hint line
-     only quieter in colour (before: × n bold, so rows with an amount looked like another font). */
+  .items li + li { border-top: 1px solid var(--line); }
+  .it { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 6px 0; border: 0; background: none; color: var(--ink); font: 400 var(--fs-body) / 1.3 var(--font-body); text-align: left; cursor: pointer; }
+  .box { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; border: 1.5px solid var(--line-strong); background: var(--paper); }
+  /* v0.30.1 (Noah B1): every item name in the same face, size and weight; × n and the hint only quieter. */
   .nm { flex: 1; min-width: 0; overflow-wrap: break-word; font: inherit; }
-  .nm small { display: block; font: 400 14px/1.35 var(--font-body); color: var(--ink-3); }
+  .nm small { display: block; font: 400 var(--fs-small) / 1.35 var(--font-body); color: var(--ink-3); }
   .q { font: inherit; color: var(--ink-3); white-space: nowrap; }
-  .w { flex: none; font-size: 14px; color: var(--ink-3); white-space: nowrap; }
-  .in .box { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-  .in .nm > :global(:not(small)), .in .nm { color: var(--ink-3); }
-  .in .nm { text-decoration: line-through; text-decoration-thickness: 1px; }
+  .w { flex: none; font-size: var(--fs-small); color: var(--ink-2); white-space: nowrap; }
+  .in .box { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); }
+  .in .nm { color: var(--ink-3); text-decoration: line-through; text-decoration-thickness: 1px; }
   .in .nm small { text-decoration: none; }
-  li:has(> .chg) { display: flex; align-items: center; border-top: 1px solid var(--paper-2); }
-  li:has(> .chg) .it { border-top: 0; }
-  .chg { flex: none; padding: 0 14px; font-size: 14px; white-space: nowrap; }
-  .bagfoot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 14px 6px; border-top: 1px solid var(--paper-2); }
-  .all { margin: 12px 0 0; }
-  .ask h2 { margin: 0 0 8px; font: 600 19px/1.3 var(--font-body); }
+  li:has(> .chg) { display: flex; align-items: center; }
+  .chg { flex: none; padding: 0 0 0 12px; font-size: var(--fs-small); white-space: nowrap; }
+  .bagfoot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0 12px; border-top: 1px solid var(--line); }
+  .bagfoot .tp-link, .all .tp-link { font-size: var(--fs-small); }
+  .all { margin: -12px 0 0; }
+  .ask h2 { margin: 0 0 8px; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
   .askacts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-  @media (min-width: 900px) {
-    .pgrid { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 10px 20px; align-items: start; }
-    .pgrid .pbag { grid-column: 1; }
-    .pgrid .pbag.cur { grid-column: 2; grid-row: 1 / span var(--span, 8); }
-    .pgrid .pbag.cur .it { min-height: 64px; font-size: 18px; }
-    .mini { display: block; }
-  }
 </style>

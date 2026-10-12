@@ -4,10 +4,6 @@
     "src/app.css": {
       "fontsize": 10
     },
-    "src/lib/DataPanel.svelte": {
-      "fontsize": 5,
-      "global": 3
-    },
     "src/lib/DemoBar.svelte": {
       "colour": 3,
       "fontsize": 3
@@ -15,32 +11,14 @@
     "src/lib/QuickNote.svelte": {
       "fontsize": 6
     },
-    "src/lib/bikes/BagDialog.svelte": {
-      "fontsize": 2
-    },
-    "src/lib/bikes/BagSheet.svelte": {
-      "fontsize": 3
-    },
-    "src/lib/bikes/BikeDialog.svelte": {
-      "fontsize": 1
-    },
     "src/lib/bikes/IdeasFold.svelte": {
       "fontsize": 1
-    },
-    "src/lib/bikes/SetupBand.svelte": {
-      "colour": 8,
-      "fontsize": 11
     },
     "src/lib/bikes/SetupDrawing.svelte": {
       "fontsize": 6
     },
-    "src/lib/bikes/SetupFold.svelte": {
-      "fontsize": 3
-    },
     "src/lib/bikes/SetupTab.svelte": {
-      "colour": 2,
-      "fontsize": 26,
-      "global": 1
+      "colour": 2
     },
     "src/lib/bikes/WhoCard.svelte": {
       "colour": 1,
@@ -52,11 +30,11 @@
     },
     "src/lib/care/CareTab.svelte": {
       "colour": 1,
-      "fontsize": 8
+      "fontsize": 6
     },
     "src/lib/care/OrderDialog.svelte": {
       "colour": 4,
-      "fontsize": 7
+      "fontsize": 6
     },
     "src/lib/care/PartDialog.svelte": {
       "fontsize": 7
@@ -66,7 +44,7 @@
       "global": 2
     },
     "src/lib/care/VisitDialog.svelte": {
-      "fontsize": 6
+      "fontsize": 5
     },
     "src/lib/debrief/TemplateOffer.svelte": {
       "fontsize": 2
@@ -119,7 +97,7 @@
     },
     "src/lib/nav/ProblemForm.svelte": {
       "breakword": 1,
-      "fontsize": 9,
+      "fontsize": 8,
       "global": 1
     },
     "src/lib/nav/Search.svelte": {
@@ -137,9 +115,6 @@
     },
     "src/lib/pack/Onion.svelte": {
       "fontsize": 4
-    },
-    "src/lib/pack/PackDay.svelte": {
-      "fontsize": 15
     },
     "src/lib/pack/PackStage.svelte": {
       "fontsize": 5
@@ -160,7 +135,7 @@
       "fontsize": 3
     },
     "src/lib/pack/calm-pack.css": {
-      "fontsize": 46
+      "fontsize": 19
     },
     "src/lib/tpl/BagSplit.svelte": {
       "fontsize": 6
@@ -177,15 +152,8 @@
     "src/lib/tpl/ReadyFields.svelte": {
       "fontsize": 1
     },
-    "src/lib/trip/BaseCheck.svelte": {
-      "fontsize": 2
-    },
     "src/lib/trip/ChargeList.svelte": {
-      "fontsize": 2,
       "global": 1
-    },
-    "src/lib/trip/ChargeSheet.svelte": {
-      "fontsize": 1
     },
     "src/lib/trip/InProgress.svelte": {
       "colour": 2,
@@ -222,8 +190,6 @@
       "global": 1
     },
     "src/pages/Debrief.svelte": {
-      "colour": 1,
-      "fontsize": 8,
       "global": 1
     },
     "src/pages/Favorites.svelte": {
@@ -242,12 +208,6 @@
     },
     "src/pages/Pack.svelte": {
       "fontsize": 10
-    },
-    "src/pages/Ride.svelte": {
-      "fontsize": 19
-    },
-    "src/pages/Rides.svelte": {
-      "fontsize": 6
     },
     "src/pages/Share.svelte": {
       "colour": 2,

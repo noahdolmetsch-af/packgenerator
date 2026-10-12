@@ -262,15 +262,16 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   // v0.38.0: "Try it" of the newest point is Today itself; open Today afresh from another page.
   await page.goto('./#/features');
   await page.goto('./#/');
-  // v0.78.0 (Übergänge 2, Noah Ü9a): after a real update a calm sheet «New in …» with the points,
-  // «Show» to the exact place, «Fine, go on» and «All news» (the quiet row stays for a first visit).
+  // v0.78.0 (Übergänge 2, Noah Ü9a): after a real update a calm sheet «New in …» with the points.
+  // v0.110.0 Design-Refresh P10 (I11b, changed on purpose): «New in 0.110: name», «Try it ›», «Later» and
+  // «All news» to Ich › Was ist neu; «Later» closes it for this start (the quiet row stays for a first visit).
   const sheet = page.locator('dialog.news[open]');
-  await expect(sheet.getByRole('heading', { name: T('New in {version}', { version: short(WHATS_NEW[0].version) }) })).toBeVisible();
-  await expect(sheet.getByRole('button', { name: T('Show') }).first()).toBeVisible();
-  await expect(sheet.getByRole('link', { name: T('All news') })).toHaveAttribute('href', '#/features?news');
+  await expect(sheet.getByRole('heading', { name: WHATS_NEW[0].title ? T('New in {v}: {name}', { v: short(WHATS_NEW[0].version), name: T(WHATS_NEW[0].title) }) : T('New in {version}', { version: short(WHATS_NEW[0].version) }) })).toBeVisible();
+  await expect(sheet.getByRole('button', { name: T('Try it') })).toBeVisible();
+  await expect(sheet.getByRole('link', { name: T('All news') })).toHaveAttribute('href', '#/me/news');
   await shot(page, info, 'today-hint');
   expect(await page.evaluate(() => localStorage.getItem('whatsnew.seen'))).toBe(WHATS_NEW[0].version);
-  await sheet.getByRole('button', { name: T('Fine, go on') }).click();
+  await sheet.getByRole('button', { name: T('Later') }).click();
   await expect(page.locator('dialog.news[open]')).toHaveCount(0);
   await page.reload();
   await expect(page.locator('.home')).toBeVisible();

@@ -6,6 +6,7 @@
 // the clock on Friday 9 October 2026 (Europe/Zurich), Open-Meteo mocked; SHOTS=<folder> saves screenshots.
 import { test, expect } from '@playwright/test';
 import { D0, homeFixture, openHome, trip, entries } from './home0460-fixture.js';
+import { openMore } from './bike-more.js';
 
 // calendar days (no 24 h steps): the date at noon UTC plus n days
 const cal = (n) => {
@@ -80,7 +81,8 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
 
   // the photo is still there, under Velos › Setup › More
   await page.goto('./#/bikes?bike=bike-test');
-  await page.locator('.vk-more').click();
+  // Design-Refresh P7 (V1): «Mehr» is a list of rows; the photo sits in the opened folds
+  await openMore(page);
   await expect(page.getByText(/test_data_gtp_ Seeufer/).first()).toBeVisible();
   expect(errors).toEqual([]);
 });

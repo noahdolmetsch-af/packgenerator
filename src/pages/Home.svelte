@@ -53,7 +53,9 @@
   import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
-  import { newsHint, newerThan, SEEN_KEY, BEFORE } from '../lib/whatsnew.js';
+  import { newsHint, newerThan, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
+  import { showMessage, tileDaysLeft, pinNews, unpinNews } from '../lib/know/wasneu.js';
+  import { readUpdate, writeUpdate, readMute, readLater, readPin, writePin } from '../lib/know/wasneuStore.js';
   import NewsSheet from '../lib/know/NewsSheet.svelte';
   import { HOME_PLACE, HOME_FORECAST, usable, needsFetch, knowCards, wearWhat } from '../lib/know.js';
   import { openTodos } from '../lib/todos.js';
@@ -147,11 +149,16 @@
   const evening = $derived(dayPart(now.getHours()) === 'evening' && now.getHours() >= 18);
 
   /* ---------- v0.35.0: "New in the app" once after an update ---------- */
+  // v0.110.0 Design-Refresh P10 (I11b, I11e): after a real update the device keeps it (wasneuStore:
+  // version, the one before, the day); the message comes at each start until «Do not show again»
+  // (until the next update) and the tile «New» goes on top of the wall for 14 days.
   let newsN = $state(0);
   let newsSheet = $state([]);
   let newsChecked = false;
+  let newsUpdate = $state(readUpdate());
   $effect(() => {
-    if (newsChecked || !loaded || !$bikesQ) return;
+    // the stored wall must be read before the tile «New» moves on it ($setQ)
+    if (newsChecked || !loaded || !$bikesQ || !$setQ) return;
     newsChecked = true;
     let seen = null;
     try {
@@ -165,11 +172,33 @@
     } catch {
       /* private mode */
     }
-    // v0.78.0 (Ü9a): after a real update (a version was seen before) a calm sheet says once what is
-    // new; a first visit with data (a backup, an import) keeps the quiet line.
-    if (h.show && seen) newsSheet = newerThan(seen);
-    else newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + e.points.length, 0) : 0;
+    // v0.78.0 (Ü9a): after a real update (a version was seen before) a calm sheet says what is new;
+    // a first visit with data (a backup, an import) keeps the quiet line.
+    if (h.show && seen) {
+      writeUpdate({ v: h.mark, from: seen, at: localDay() });
+      newsUpdate = readUpdate();
+      pinNewsTile();
+    } else newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + e.points.length, 0) : 0;
+    const u = readUpdate();
+    if (showMessage({ update: u, mute: readMute(), later: readLater() })) newsSheet = newerThan(u.from ?? BEFORE);
+    unpinNewsTile();
   });
+  const newsDays = $derived(tileDaysLeft(newsUpdate, today));
+  // I11e: on top of the wall, a whole row, once per update; back where it stood after the 14 days
+  function pinNewsTile() {
+    const v = WHATS_NEW[0].version;
+    if (readPin()?.v === v) return;
+    const { tiles, from } = pinNews(wall);
+    writePin({ v, from, done: false });
+    saveWall(tiles);
+  }
+  function unpinNewsTile() {
+    const p = readPin();
+    if (!p || p.done || p.v !== WHATS_NEW[0].version || tileDaysLeft(readUpdate(), localDay()) > 0) return;
+    writePin({ ...p, done: true });
+    const back = unpinNews(wall, p.from);
+    if (back) saveWall(back);
+  }
 
   /* ---------- 1. greeting and weather (Noah 18a, 19a, 20a) ---------- */
   const place = $derived(S[HOME_PLACE] ?? null);
@@ -862,7 +891,7 @@
   {:else if x.id === 'important'}{@render todayS()}
   {:else if x.id === 'flow'}<FlowCard {today} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
-  {:else if x.id === 'news'}<NewsTile size={x.size} />
+  {:else if x.id === 'news'}<NewsTile size={x.size} days={newsDays} onremove={() => saveWall(removeTile(wall, 'news'))} />
   {:else if x.id === 'meditation'}<MedTile {today} size={x.size} isnew={newTile('meditation')} />
   {:else if x.id === 'play'}<SmallTile tile={TILE.play} size={x.size} isnew={newTile('play')} sub={$demoQ?.play ? t('The playground is running') : t('try without risk')} onclick={openPlay} />
   {:else if x.id === 'try'}<TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />

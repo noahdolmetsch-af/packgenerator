@@ -8,12 +8,13 @@
    * title, icon, options [names], pick, done (today), label(name) → shown word, challenge ({ what,
    * times, until, n } | null), reached (a challenge just reached), onpick(name), onadd(name), ontick(),
    * onchallenge() (opens the sheet).
+   * v0.105.0 Design-Refresh P8 «Aktiv» (A7): sub, an optional quiet line under the head (why suggested).
    */
   import { Check, Trophy, Plus } from '@lucide/svelte';
   import TileHead from '../home/TileHead.svelte';
   import { t, num, locale } from '../i18n.svelte.js';
 
-  let { title, icon, id = 'sg-h', side = '', options = [], pick = null, done = false, label = (x) => x, challenge = null, reached = null, onpick, onadd, ontick, onchallenge } = $props();
+  let { title, icon, id = 'sg-h', side = '', sub = '', options = [], pick = null, done = false, label = (x) => x, challenge = null, reached = null, onpick, onadd, ontick, onchallenge } = $props();
   let adding = $state(false);
   let own = $state('');
   const until = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', timeZone: 'UTC' });
@@ -27,6 +28,7 @@
 
 <section class="sg surf" aria-labelledby={id} data-suggest>
   <TileHead {icon} {id} {title} {side} />
+  {#if sub}<p class="sub">{sub}</p>{/if}
   <div class="chips" role="group" aria-label={t('Alternatives')}>
     {#each options as o (o)}
       <button type="button" class="chip" aria-pressed={o === pick} onclick={() => onpick?.(o)}>{label(o)}</button>
@@ -61,6 +63,11 @@
     height: 100%;
     padding: 14px 18px;
     box-sizing: border-box;
+  }
+  .sub {
+    margin: -4px 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .chips {
     display: flex;

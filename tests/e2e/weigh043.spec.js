@@ -51,7 +51,7 @@ async function start(page, context, info) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./');
-  const panel = page.locator('details.data');
+  const panel = page.locator('.datapanel'); // Design-Refresh P9 (I2): the page #/me/data, no longer a fold
   // The app opens this panel by itself on an empty start: make sure it ends up open (also after the pick).
   const opened = () => openData(page);
   await opened();

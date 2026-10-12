@@ -18,6 +18,7 @@
   import FitCard from './FitCard.svelte';
   import Seg from '../ui/Seg.svelte';
   import { Columns3, ChevronRight, ChevronDown } from '@lucide/svelte';
+  import VeloHead from './VeloHead.svelte';
 
   let { bikeId = null, onbike } = $props();
 
@@ -67,22 +68,24 @@
 
 <div class="eq">
   {#if !bikes.length && $bikesQ}
+    <h1 class="title">{t('Equipment|tab')}</h1>
     <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
   {:else if bike}
-    <div class="pick">
-      {#if bikes.length > 1}
-        <Seg full={false} label={t('Bike')} options={bikes.map((b) => ({ key: b.id, name: b.name }))} value={bike.id} onchange={(id) => onbike?.(id)} />
-      {/if}
-      <a class="cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 size={18} aria-hidden="true" />{t('Compare bikes')}</a>
-    </div>
-
-    <section class="hero" aria-labelledby="eq-h">
-      {#if bike.type}<p class="kind">{t(bikeTypeName(bike.type))}</p>{/if}
-      <h2 id="eq-h" class="name">{bike.name}</h2>
-      <p class="facts">
-        {t('{n} parts recorded', { n: totals.count })}{#if totals.weightG}{' · '}<b>{kg(totals.weightG)}</b> {t('parts|weight')}{/if}{#if totals.priceChf}{' · '}<b>{chf(totals.priceChf)}</b> {t('purchase value')}{/if}
-      </p>
-    </section>
+    <!-- Design-Refresh P7 (V14, Noah 12.10.2026 «v11-v14 freigegeben»): «‹ Velo › Gravel Blau › Ausstattung»,
+         «Ausstattung Gravel Blau», the counts below, «Compare bikes» as a button; the other bikes as chips. -->
+    <VeloHead
+      crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }, { label: bike.name, href: bikesHash({ tab: 'setup', bike: bike.id }) }]}
+      here={t('Equipment|tab')}
+      title={t('Equipment {bike}', { bike: bike.name })}
+      sub={[bike.type ? t(bikeTypeName(bike.type)) : '', t('{n} parts recorded', { n: totals.count }), totals.weightG ? `${kg(totals.weightG)} ${t('parts|weight')}` : '', totals.priceChf ? `${chf(totals.priceChf)} ${t('purchase value')}` : ''].filter(Boolean).join(' · ')}
+    >
+      <a class="btn cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 size={16} aria-hidden="true" />{t('Compare bikes')}</a>
+    </VeloHead>
+    {#if bikes.length > 1}
+      <div class="bchips" role="group" aria-label={t('Bike')}>
+        {#each bikes as b (b.id)}<button type="button" class="bchip" aria-pressed={b.id === bike.id} onclick={() => onbike?.(b.id)}>{b.name}</button>{/each}
+      </div>
+    {/if}
 
     {#key bike.id}<FitCard {bike} compact />{/key}
 
@@ -197,49 +200,33 @@
 {/if}
 
 <style>
-  .pick {
+  .cmplink {
+    gap: 6px;
+    text-decoration: none;
+  }
+  .bchips {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 16px;
-    margin: 0 0 14px;
+    gap: 8px;
+    margin: -4px 0 16px;
   }
-  .cmplink {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+  .bchip {
     min-height: 44px;
-    margin-left: auto;
-    color: var(--ink-2);
-    font-weight: 600;
-    font-size: var(--fs-small);
+    padding: 0 16px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-small) var(--font-body);
+    cursor: pointer;
   }
-  .hero {
-    margin: 0 0 12px;
-    padding: 18px 22px;
-    border-radius: 14px;
-    background: var(--brand);
-    color: var(--brand-ink);
+  .bchip:hover {
+    background: var(--paper-2);
   }
-  .kind {
-    margin: 0;
-    color: var(--brand-ink-2);
-    font-size: var(--fs-tiny);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .name {
-    margin: 2px 0 4px;
-    font: 800 var(--fs-title) / 1.1 var(--font-brand);
-    color: var(--brand-ink);
-  }
-  .facts {
-    margin: 0;
-    color: var(--brand-ink-2);
-    font-size: var(--fs-small);
-  }
-  .facts b {
-    color: var(--brand-ink);
+  .bchip[aria-pressed='true'] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
   }
   .cols {
     display: grid;

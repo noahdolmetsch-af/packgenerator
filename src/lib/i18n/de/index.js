@@ -34,7 +34,6 @@ import blocks from './blocks.js';
 import masse from './masse.js';
 import tempo from './tempo.js';
 import uebergaenge from './uebergaenge.js';
-import checks from './checks.js';
 import fix0671 from './fix0671.js';
 import kmbook from './kmbook.js';
 import blaetter from './blaetter.js';
@@ -61,5 +60,13 @@ import heute2 from './heute2.js';
 import challenge from './challenge.js';
 import material2 from './material2.js';
 import touren2 from './touren2.js';
+import velo2 from './velo2.js';
+import packen2 from './packen2.js';
+import aktiv2 from './aktiv2.js';
+import ich2 from './ich2.js';
+import rueckblick2 from './rueckblick2.js';
+import wasneu2 from './wasneu2.js';
+// v0.111.0 Bausteine bearbeiten: evening-before and after-trip check
+import checks from './checks.js';
 
-export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...checks };
+export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks };

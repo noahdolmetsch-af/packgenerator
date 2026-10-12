@@ -6,7 +6,8 @@
    * winter; a season without a goal rests) and «zählt auch» (commute, bike trips, another activity).
    * A new activity is the same form, empty. Pause keeps the history; delete removes it too.
    */
-  import { ChevronLeft, Minus, Plus, Check, Sun, Snowflake, Trash2, X, Pencil } from '@lucide/svelte';
+  import { ChevronDown, Minus, Plus, Check, Sun, Snowflake, Trash2, X, Pencil } from '@lucide/svelte';
+  import Crumb from './kit/Crumb.svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import Seg from '../ui/Seg.svelte';
@@ -142,11 +143,11 @@
 
 {#if a}
   <div class="ed">
-    <p class="back"><a href={back || (isNew ? '#/flow/goals' : '#/flow')}><ChevronLeft size={16} aria-hidden="true" />{back === '#/flow/activity' ? t('Activity|tab') : isNew ? t('Goals|flow') : t('In the flow')}</a></p>
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, back === '#/flow/activity' ? { href: '#/flow/activity', label: t('Activity|tab') } : { href: '#/flow/goals', label: t('Goals|flow') }]} here={isNew ? t('New activity') : name || actName(orig)} />
     <h1 class="title">{#if isNew}{t('New activity')}{:else}<span>{name || actName(orig)}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: name || actName(orig) })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={20} aria-hidden="true" /></button>{/if}</h1>
     {#if st}<p class="page-sub">{RING_OPTS.find((r) => r.key === a.ring).name} · {actGoalText(normAct(a), today, { min: false })}{#if !st.resting}{" · "}{t('stand {n}/{m}', { n: st.stand.n, m: st.stand.of })}{/if}</p>{/if}
 
-    <section class="surf cp" aria-label={t('Name and symbol')}>
+    <section class="card cp" aria-label={t('Name and symbol')}>
       {#if isNew}
         <label class="lbl" for="ed-name">{t('Name')}</label>
         <input id="ed-name" class="inp big" type="text" bind:value={name} maxlength="40" autocomplete="off" enterkeyhint="done" oninput={() => (err = '')} />
@@ -159,11 +160,9 @@
         {/each}
       </div>
       <p class="lbl" id="ed-ring">{t('Category · ring')}</p>
-      <Seg full={false} labelledby="ed-ring" value={a.ring} onchange={(k) => (a.ring = k)} options={RING_OPTS} />
-    </section>
+      <Seg chips full={false} labelledby="ed-ring" value={a.ring} onchange={(k) => (a.ring = k)} options={RING_OPTS} />
 
-    <section class="surf cp" aria-labelledby="ed-goal">
-      <div class="sh-row"><h2 id="ed-goal" class="sh">{t('Goal')}</h2><span class="quiet">{t('rolling')}</span></div>
+      <p class="lbl" id="ed-goal">{t('Goal')} <span class="quiet">· {t('rolling')}</span></p>
       {#if a.season}
         <Seg full={false} small label={t('Season')} value={half} onchange={(k) => (half = k)} options={[{ key: 'summer', name: t('Summer') }, { key: 'winter', name: t('Winter') }]} />
       {/if}
@@ -178,21 +177,22 @@
             <button type="button" class="rb" onclick={() => upd(i, { count: q.count + 1 })} aria-label={t('One more|count')}><Plus size={18} aria-hidden="true" /></button>
             <span class="quiet">{q.count ? t('× in') : t('rests in this season')}</span>
           </div>
-          <Seg full={false} small label={t('Window')} value={q.days} onchange={(d) => upd(i, { days: d })} options={WINDOWS.map((d) => ({ key: d, name: WIN_NAME(d) }))} />
+          <Seg chips full={false} label={t('Window')} value={q.days} onchange={(d) => upd(i, { days: d })} options={WINDOWS.map((d) => ({ key: d, name: WIN_NAME(d) }))} />
         </div>
       {/each}
       {#if !goals.length}<p class="hint">{t('No goal in this season: the activity rests.')}</p>{/if}
       <button type="button" class="lk" onclick={addSub}><Plus size={16} aria-hidden="true" />{goals.length ? t('Sub-goal') : t('Goal')}</button>
       <p class="hint">{t('Always counts the last {n} days, whatever the weekday.', { n: goals[0]?.days ?? 7 })}</p>
       <p class="lbl" id="ed-min">{t('Minimum duration')}</p>
-      <Seg full={false} small labelledby="ed-min" value={minKey} onchange={(k) => (k === 'own' ? (minOwn = String(a.minMin || 20)) : ((minOwn = ''), (a.minMin = k)))} options={[{ key: 0, name: t('none|duration') }, { key: 15, name: '15 min' }, { key: 30, name: '30 min' }, { key: 'own', name: t('own|duration') }]} />
+      <Seg chips full={false} labelledby="ed-min" value={minKey} onchange={(k) => (k === 'own' ? (minOwn = String(a.minMin || 20)) : ((minOwn = ''), (a.minMin = k)))} options={[{ key: 0, name: t('none|duration') }, { key: 15, name: t('{n} min', { n: 15 }) }, { key: 30, name: t('{n} min', { n: 30 }) }, { key: 'own', name: t('own|duration') }]} />
       {#if minKey === 'own'}<label class="inl"><input class="inp n" type="number" min="1" inputmode="numeric" bind:value={minOwn} aria-label={t('Minimum duration')} /> min</label>{/if}
       <label class="inl tap"><span>{t('One tap counts')}</span><input class="inp n" type="number" min="1" inputmode="numeric" value={a.perTap} oninput={(e) => (a.perTap = Math.max(1, Math.round(Number(e.currentTarget.value) || 1)))} /></label>
     </section>
 
-    <section class="surf cp" aria-labelledby="ed-season">
+    <details class="card acc">
+      <summary><b id="ed-season">{t('Season')}</b><small>{a.season ? `${t('Summer')} ${goalsText(a.goals)}, ${t('Winter')} ${goalsText(a.season.winter)}` : t('the same goal all year')}</small><ChevronDown class="cv" size={18} aria-hidden="true" /></summary>
       <div class="sh-row">
-        <h2 id="ed-season" class="sh">{t('Season')}</h2>
+        <span class="quiet">{t('Another goal in summer than in winter')}</span>
         <input type="checkbox" class="switch" checked={!!a.season} onchange={(e) => seasonOn(e.currentTarget.checked)} aria-labelledby="ed-season" />
       </div>
       <p class="hint top">{t('Per sport: another goal in summer than in winter. Tap a month to move it.')}</p>
@@ -207,10 +207,10 @@
           <li><Snowflake size={18} class="snow" aria-hidden="true" /><span class="m"><b>{t('Winter')}</b><small>{monthsText(winter)}{#if winter.includes(nowMonth)}{" · "}{t('now')}{/if}</small></span><button type="button" class="chip" aria-pressed={half === 'winter'} onclick={() => (half = 'winter')}>{goalsText(a.season.winter)}</button></li>
         </ul>
       {/if}
-    </section>
+    </details>
 
-    <section class="surf cp" aria-labelledby="ed-counts">
-      <h2 id="ed-counts" class="sh">{t('Also counts')}</h2>
+    <details class="card acc">
+      <summary><b id="ed-counts">{t('Also counts')}</b><small>{a.counts.length ? [a.counts.includes('commute') ? t('Commute') : '', a.counts.includes('trip') ? t('Bike trip') : '', ...others.filter((o) => a.counts.includes(o.id)).map((o) => actName(o))].filter(Boolean).join(', ') : t('nothing chosen')}</small><ChevronDown class="cv" size={18} aria-hidden="true" /></summary>
       <div class="chips">
         <button type="button" class="chip" aria-pressed={a.counts.includes('commute')} onclick={() => toggleCount('commute')}>{#if a.counts.includes('commute')}<Check size={16} aria-hidden="true" />{/if}{t('Commute')}</button>
         <button type="button" class="chip" aria-pressed={a.counts.includes('trip')} onclick={() => toggleCount('trip')}>{#if a.counts.includes('trip')}<Check size={16} aria-hidden="true" />{/if}{t('Bike trip')}</button>
@@ -220,19 +220,25 @@
         {#if !moreCounts && others.some((o) => !a.counts.includes(o.id))}<button type="button" class="lk" onclick={() => (moreCounts = true)}><Plus size={16} aria-hidden="true" />{t('another activity')}</button>{/if}
       </div>
       <p class="hint">{t('Commute: a tap on «Commute» counts as one ride. Trips from the Pack Generator count by themselves, one per day.')}</p>
-    </section>
+    </details>
 
-    <button type="button" class="btn hi save" onclick={save}>{t('Save')}</button>
     {#if !isNew}
-      <div class="more">
-        <button type="button" class="lk" onclick={pause}>{orig.paused ? t('Resume') : t('Pause|activity')}</button>
-        {#if asking}
-          <span class="ask">{t('Delete with its history?')} <button type="button" class="btn sm" onclick={remove}>{t('Delete')}</button> <button type="button" class="lk" onclick={() => (asking = false)}>{t('Cancel')}</button></span>
-        {:else}
-          <button type="button" class="lk" onclick={() => (asking = true)}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
-        {/if}
-      </div>
+      <details class="card acc">
+        <summary><b>{t('Pause or delete')}</b><small>{t('Pause: rests without a goal · delete asks first')}</small><ChevronDown class="cv" size={18} aria-hidden="true" /></summary>
+        <div class="more">
+          <button type="button" class="btn" onclick={pause}>{orig.paused ? t('Resume') : t('Pause|activity')}</button>
+          {#if asking}
+            <span class="ask">{t('Delete with its history?')} <button type="button" class="btn sm" onclick={remove}>{t('Delete')}</button> <button type="button" class="lk" onclick={() => (asking = false)}>{t('Cancel')}</button></span>
+          {:else}
+            <button type="button" class="btn" onclick={() => (asking = true)}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
+          {/if}
+        </div>
+      </details>
     {/if}
+    <div class="foot">
+      <a class="btn" href={back || (isNew ? '#/flow/goals' : '#/flow')}>{t('Cancel')}</a>
+      <button type="button" class="btn hi" onclick={save}>{t('Save')}</button>
+    </div>
   </div>
 {:else if !isNew}
   <p>{t('This activity no longer exists.')} <a href="#/flow">{t('In the flow')}</a></p>
@@ -263,23 +269,11 @@
     max-width: 640px;
     margin: 0 auto;
   }
-  .back {
-    margin: 0;
-  }
-  .back a {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 32px;
-    color: var(--accent);
-    text-decoration: none;
-    font-size: var(--fs-small);
-  }
   .ed .page-sub {
     margin: 0;
   }
   .cp {
-    padding: 16px 18px;
+    padding: var(--sp-4) var(--sp-5);
   }
   .sh-row {
     display: flex;
@@ -287,14 +281,6 @@
     justify-content: space-between;
     gap: 12px;
     margin-bottom: 10px;
-  }
-  .sh {
-    margin: 0 0 10px;
-    font-size: var(--fs-section);
-    font-weight: 500;
-  }
-  .sh-row .sh {
-    margin: 0;
   }
   .quiet {
     color: var(--ink-3);
@@ -549,17 +535,57 @@
   .halves .chip[aria-pressed='true'] {
     border-color: var(--accent);
   }
-  .save {
+  /* v0.105.0 Design-Refresh P8 «Aktiv» (A6): the rare parts folded in one line each, the buttons at
+     the bottom right */
+  .acc {
+    padding: 0 var(--sp-4);
+  }
+  .acc summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 10px;
     min-height: 52px;
-    border-radius: 12px;
-    font-size: var(--fs-body);
+    padding: 14px 28px 14px 0;
+    position: relative;
+    box-sizing: border-box;
+    list-style: none;
+    cursor: pointer;
+  }
+  .acc summary::-webkit-details-marker {
+    display: none;
+  }
+  .acc summary b {
+    font-weight: 600;
+  }
+  .acc summary small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .acc summary :global(.cv) {
+    position: absolute;
+    right: 0;
+    top: 17px;
+    color: var(--ink-3);
+    transition: transform 0.15s;
+  }
+  .acc[open] summary :global(.cv) {
+    transform: rotate(180deg);
+  }
+  .acc[open] {
+    padding-bottom: var(--sp-4);
   }
   .more {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
     gap: 8px;
+  }
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--sp-2);
   }
   .ask {
     display: inline-flex;

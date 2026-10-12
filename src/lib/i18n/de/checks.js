@@ -37,4 +37,7 @@ export default {
   'Dry and clean the boots': 'Schuhe trocknen und putzen',
   'Rinse and dry the bottle': 'Trinkflasche ausspülen und trocknen',
   'Wash the clothes': 'Kleider waschen',
+  // v0.111.0 the function in Ich › Was ist neu
+  'The evening before and after the trip: your own list per area, tick, add, save as standard.':
+    'Am Vorabend und nach der Tour: deine eigene Liste pro Reiseart, abhaken, ergänzen, als Standard speichern.',
 };

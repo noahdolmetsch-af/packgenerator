@@ -11,7 +11,7 @@ const T = (en, vars) => {
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
 };
 
-test('Velo kurz: three rows, Import rides, More', async ({ page, context }) => {
+test('Velo kurz: three rows, Import rides, More as rows', async ({ page, context }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
@@ -20,24 +20,23 @@ test('Velo kurz: three rows, Import rides, More', async ({ page, context }) => {
   await importAndSettle(page, fileURLToPath(new URL('./fixture.json', import.meta.url)));
   await page.goto('./#/bikes');
 
+  // Design-Refresh P7 (V1, Noah 12.10.2026 «v1-v4 freigabe»): the drawing and the bags are open on the page;
+  // «Pflege und Ausstattung» has three rows (bike care, always mounted, equipment); «Fahrten importieren» is
+  // the one button; «Mehr» is a list of rows (folder, photos, compare, profile and settings, ideas).
   const rows = page.locator('.vk-rows > li');
   await expect(rows).toHaveCount(3);
   await expect(rows.nth(0)).toContainText(T('Bike care'));
-  await expect(rows.nth(1)).toContainText(T('Bags'));
+  await expect(rows.nth(1)).toContainText(T('Always mounted'));
   await expect(rows.nth(2)).toContainText(T('Equipment|tab'));
-  // The rest waits under «Mehr»: no folder, no drawing yet.
-  await expect(page.getByRole('button', { name: T('Edit mounts') })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: T('Edit mounts') })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Bags'), exact: true })).toBeVisible();
   const imp = page.getByRole('link', { name: new RegExp(T('Import rides')) });
   await expect(imp).toBeVisible();
-  const box = await imp.boundingBox();
-  expect(box.y + box.height).toBeLessThan(page.viewportSize().height);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
 
-  // «Taschen» opens the drawing and the standard bags, «Mehr» everything else.
-  await rows.nth(1).getByRole('button').click();
-  await expect(page.getByRole('heading', { name: T('Standard bags') })).toBeVisible();
-  await page.locator('.vk-more').click();
   await expect(page.locator('#vk-more')).toBeVisible();
+  await expect(page.locator('#vk-more details.vm-folder')).toHaveCount(1);
+  await expect(page.locator('#vk-more details.vm-profile')).toHaveCount(1);
   await expect(page.locator('a.cmplink')).toContainText(T('Compare bikes'));
 
   // «Fahrten importieren» lands on the import.

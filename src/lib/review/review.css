@@ -1,0 +1,289 @@
+/* v0.109.0 Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (T14–T23, approved 12.10.2026): the shared
+   pieces of the look-back pages, as in the mockups:
+   - .rv-lay      two columns on a computer (main 1.55 : side 1), one column on a phone
+   - .rv-sec      a section: .rv-h (h2 + quiet line .rv-sub, a link .rv-more on the right), then a box
+   - .rv-box      a white card holding rows (.rv-row: icon box, title + quiet line, value, chevron)
+   - .rv-tiles    up to four number tiles in one card (.rv-tile: big number, small label)
+   - .rv-chips    filter chips (.rv-chip, aria-pressed: dark when chosen)
+   - .rv-note     a quiet hint with its icon under a column
+   Colours and sizes only from the tokens of app.css. */
+.rv-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 0 32px;
+  min-width: 0;
+}
+.rv-lay {
+  display: grid;
+  gap: 22px 24px;
+  align-items: start;
+}
+@media (min-width: 1100px) {
+  .rv-lay {
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  }
+}
+.rv-col {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+.rv-sec {
+  min-width: 0;
+}
+.rv-h {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2px 12px;
+  margin: 0 2px 8px;
+}
+.rv-h > div {
+  min-width: 0;
+}
+.rv-h h2 {
+  margin: 0;
+  font: 600 var(--fs-sub) / 1.3 var(--font-body);
+  color: var(--ink);
+  overflow-wrap: break-word;
+}
+.rv-sub {
+  margin: 2px 0 0;
+  color: var(--ink-3);
+  font-size: var(--fs-small);
+  overflow-wrap: break-word;
+}
+.rv-more {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--ink);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  text-decoration: none;
+}
+.rv-more:visited {
+  color: var(--ink);
+}
+.rv-more:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* 44 px tap area around the small link, without moving the layout */
+.rv-more::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  top: 50%;
+  height: 44px;
+  transform: translateY(-50%);
+}
+.rv-box {
+  background: var(--paper);
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+  padding: 6px 16px;
+  min-width: 0;
+}
+.rv-box.pad {
+  padding: 14px 16px;
+}
+ul.rv-box {
+  list-style: none;
+  margin: 0;
+}
+.rv-box > li + li,
+.rv-row + .rv-row {
+  border-top: 1px solid var(--line);
+}
+.rv-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 8px 0;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: var(--fs-body);
+  box-sizing: border-box;
+  min-width: 0;
+}
+a.rv-row,
+a.rv-row:visited,
+button.rv-row,
+label.rv-row {
+  color: var(--ink);
+  cursor: pointer;
+}
+button.rv-row {
+  width: 100%;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+}
+a.rv-row:hover .rv-t,
+button.rv-row:hover .rv-t {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.rv-ic {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-ctl);
+  background: var(--paper-2);
+  color: var(--ink-3);
+}
+.rv-m {
+  flex: 1;
+  min-width: 0;
+}
+.rv-t {
+  display: block;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+.rv-s {
+  display: block;
+  margin-top: 1px;
+  color: var(--ink-3);
+  font-size: var(--fs-small);
+  line-height: 1.35;
+  overflow-wrap: break-word;
+}
+.rv-v {
+  flex: none;
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.rv-chev {
+  flex: none;
+  color: var(--ink-3);
+}
+/* a small tag in a row: «wichtig», «Gemerkt», «Rückblick offen» */
+.rv-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--ok-soft);
+  color: var(--ink-2);
+  font-size: var(--fs-tiny);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.rv-tag.warn {
+  background: var(--warn-soft);
+}
+.rv-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 8px;
+  padding: 14px 16px;
+}
+.rv-tile {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 14px 12px;
+  border-radius: var(--r-ctl);
+  background: var(--paper-2);
+}
+.rv-tile b {
+  font: 600 var(--fs-sub) / 1.2 var(--font-body);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: break-word;
+}
+.rv-tile small {
+  color: var(--ink-3);
+  font-size: var(--fs-small);
+  overflow-wrap: break-word;
+}
+@media (max-width: 719px) {
+  .rv-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.rv-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.rv-chips .rv-lbl {
+  margin-right: 2px;
+  color: var(--ink-3);
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+.rv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 500 var(--fs-small) var(--font-body);
+  cursor: pointer;
+  text-decoration: none;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+.rv-chip[aria-pressed='true'],
+.rv-chip[aria-current='true'] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+.rv-search {
+  position: relative;
+  display: block;
+}
+.rv-search svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-3);
+  pointer-events: none;
+}
+.rv-search input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px 10px 40px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-ctl);
+  background: var(--input);
+  color: var(--ink);
+  font: 400 var(--fs-body) var(--font-body);
+  box-sizing: border-box;
+}
+.rv-note {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 0 12px;
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+  line-height: 1.45;
+}
+.rv-note svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--ink-3);
+}

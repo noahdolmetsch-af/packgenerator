@@ -108,11 +108,10 @@ export function openWear() {
 /**
  * v0.30.0 (Noah 1a): "Your data" from anywhere (the tip "Try a demo"): the page opens the fold and
  * brings it into view. v0.94.0 «Kachel-Wand» (Noah 5a): «Data and backup» lives under Me now.
+ * Design-Refresh P9 (I2): «Daten und Backup» is its own page under Ich (#/me/data).
  */
 export function openData() {
-  keep('me.data', '1');
-  location.hash = '#/me';
-  window.dispatchEvent(new Event('pg:data'));
+  location.hash = '#/me/data';
 }
 
 /** v0.94.0 «Kachel-Wand»: the tile «Playground» opens the playground sheet under Me. */
@@ -151,6 +150,9 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/flow')) return 'flow'; // v0.51.0 «Im Flow»
   if (h.startsWith('#/helper')) return 'helper'; // v0.77.0 KI-Helfer (K1a): Ich › Helfer
   if (h.startsWith('#/me/look')) return 'look'; // v0.97.0 Design-Refresh R1: Ich › Darstellung
+  if (h.startsWith('#/me/data')) return 'data'; // Design-Refresh P9 (I2): Ich › Daten und Backup, its own page
+  if (h.startsWith('#/me/news')) return 'news'; // v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu
+  if (h.startsWith('#/me/phone')) return 'phone'; // Design-Refresh P9 (B35): Ich › Daten › Aufs Handy
   if (h.startsWith('#/me')) return 'me'; // v0.76.0 «Fünf Orte»: «Ich», top right
   return 'home';
 }
@@ -239,7 +241,7 @@ export function placeOf(page) {
   if (['trips', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review'].includes(page)) return 'trips';
   if (page === 'gear' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
-  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'look') return 'me';
+  if (page === 'me' || page === 'inbox' || page === 'notes' || page === 'features' || page === 'helper' || page === 'look' || page === 'data' || page === 'phone' || page === 'news') return 'me';
   return null;
 }
 

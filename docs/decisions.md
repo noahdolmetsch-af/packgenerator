@@ -862,9 +862,9 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
-## 12.10.2026: Bausteine bearbeiten, Teil 1: Vorabend- und Schluss-Check (0.106.0)
+## 12.10.2026: Bausteine bearbeiten, Teil 1: Vorabend- und Schluss-Check (0.111.0)
 
-Nach den Mockups A–F «Bausteine bearbeiten» (Offene Mockups #bausteine-bearbeiten, Trello «Bausteine bearbeiten»), Noah im Thread 12.10.2026 «freigabe 1-5a: bausteine bearbeiten und ansehen».
+Nach den Mockups A–F «Bausteine bearbeiten» (Offene Mockups #bausteine-bearbeiten, Trello «Bausteine bearbeiten»), Noah im Thread 12.10.2026 «freigabe 1-5a: bausteine bearbeiten und ansehen». Das sind Antworten auf die a/b-Fragen, noch keine Freigabe der Bilder: Die Mockups A und B brauchen Noahs ausdrückliche Freigabe, bevor der PR bereit ist (gefragt 12.10.2026). Noah 12.10.2026 16:18 «4b»: der Thread «Design-Refresh alle Seiten» übernimmt den PR, neu als 0.111.0 nach dem Design-Refresh.
 
 - **1a:** Checks bearbeitet man direkt in der Tour (wie den Start-Check) und speichert sie als Standard pro Reiseart.
 - **2a:** «Meist vergessen» zählt automatisch aus allen Rückblicken der Reiseart; anheften, ändern, aus der Liste nehmen; Top 3 oben beim Packen (kommt als eigener Release).
@@ -873,7 +873,47 @@ Nach den Mockups A–F «Bausteine bearbeiten» (Offene Mockups #bausteine-bearb
 - **5a:** Der Regel-Editor startet mit den 10 Regeln aus dem Content-Doc, Zahlen änderbar, eigene Regeln dazu; Regeln schlagen nur vor (Release 2).
 - **Wer baut was (Noah 12.10.2026 «1a»):** «Bausteine bearbeiten» A–F wird im Thread «Bausteine bearbeiten» fertig gebaut, für alle Reisearten. Der Skitour-Fahrplan (Thread «Neu planen») baut A–F nicht selbst, sondern zeigt dieselben Listen (`src/lib/checks.js`, `src/lib/trip/TripCheck.svelte`) in seinen Schritten 3 Packen und 5 Heimkommen.
 - **Neue Mockup-Ablage (Noah 12.10.2026 «bitte ab sofort einen neuen Ort zur Ablage für Mockups verwenden»):** Die Seite «Offene Mockups» hat die Grenze von 512 Dateien erreicht. Neue Runden kommen auf «Offene Mockups 2» (https://claude.ai/artifact/3j2eefXk4fHn6txJsp4i36); die erste Seite verweist oben darauf, ihre offenen Runden bleiben dort.
-- **Selbst entschieden:** Kleine Releases (Regel «eine sichtbare Sache»): 0.106.0 nur A+B. Die Tour speichert ihre Liste erst bei der ersten Änderung; bis dahin zeigt sie den Standard bzw. Vorschlag (spätere Standard-Änderungen wirken so auch auf geplante, unberührte Touren). Der Vorabend-Check steht auf «Gepackt» bis zum Starttag, die Abend-Erinnerung auf Heute führt dorthin (statt zum Packtag). Die Vorschläge kommen aus dem Content-Doc (Skitour, Wandern) und sind für Bikepacking, Weekend und Weltreise kurz gehalten.
+- **Selbst entschieden (Übernahme 0.111.0):** Seit P5 und P6 haben «Gepackt» und «Tour beendet» das neue Aussehen. Der Vorabend-Check steht jetzt unter «Bis zum Start», der Schluss-Check direkt unter der Karte «Tour beendet», vor «Unterwegs notiert». Neue Funktion «Checks davor und danach» im Katalog von Was ist neu (jetzt 86), seit 0.111.0.
+- **Selbst entschieden:** Kleine Releases (Regel «eine sichtbare Sache»): 0.111.0 nur A+B. Die Tour speichert ihre Liste erst bei der ersten Änderung; bis dahin zeigt sie den Standard bzw. Vorschlag (spätere Standard-Änderungen wirken so auch auf geplante, unberührte Touren). Der Vorabend-Check steht auf «Gepackt» bis zum Starttag, die Abend-Erinnerung auf Heute führt dorthin (statt zum Packtag). Die Vorschläge kommen aus dem Content-Doc (Skitour, Wandern) und sind für Bikepacking, Weekend und Weltreise kurz gehalten.
+
+## 12.10.2026: Design-Refresh P10 «Was ist neu» (0.110.0)
+
+Nach den Mockups I11 (v2), I11b (v2), I11c, I11d und I11e (Noah 12.10.2026 03:50 «Runde 20 freigegeben»; Antworten 03:45 «1 beides, 2b, 3 beides, 4a, 5b»).
+
+- **Meldung nach einem Update (2b):** kommt bei jedem Start nach einem Update, bis «Nicht mehr anzeigen» angekreuzt ist; das gilt bis zum nächsten Update und lässt sich unter Ich › Was ist neu wieder einschalten. «Später», ✕, «Alle Neuigkeiten» und «Ausprobieren» schliessen nur für diesen Start. Ersetzt «einmal pro Update» (0.78.0).
+- **Deine Top 10 und Wichtigste 10 (1 beides):** gezählt wird nur auf diesem Gerät (localStorage), nie im Backup, nicht auf der Spielwiese. Es zählen «Hinbringen» bei einer Funktion, die Knöpfe auf Heute und die Such-Befehle. Wichtigste 10 ist eine feste Auswahl.
+- **Kachel «Neu» (5b):** nach einem Update 14 Kalendertage oben auf der Kachel-Wand als ganze Zeile; danach zurück an ihren Platz (oder weg, wenn sie vorher nicht da war), ausser sie wurde von Hand verschoben, vergrössert oder weggenommen. Die Kachel kann jetzt auch «Ganze Zeile» sein.
+- **Selbst entschieden (P10):** neue Adresse `#/me/news` (Zeile in Ich › Die App); `#/features?news` bleibt wie es war. Neue Funktion «Was ist neu» im Katalog (jetzt 85). «Seit» jeder Funktion aus der Liste der Neuigkeiten abgeleitet. Ältere Versionen haben keinen Namen: die Versionsliste zeigt den ersten Punkt. Die Seite zeigt 10 Funktionen, «Alle 85 Funktionen ›» öffnet die ganze Liste; im neuesten Monat 6 Versionen, der Rest mit «Alle n Updates». Der Knopf auf «Was ist neu» heisst «Loslegen» / englisch «Go» (Noah 12.10.2026 «3 loslegen / eng. go»; Mockup: «Hinführen»); «Was die App kann» behält «Hinbringen». Die Häkchen von «So testest du» bleiben auf dem Gerät. «Als Nächstes geplant»: Skitour als Fahrplan, Merken und Agenda, Reisearten neu.
+
+## 12.10.2026: Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (0.109.0)
+
+Nach den Mockups T14–T18 (Noah 12.10.2026 01:00 «T13–T18»), T19 (01:42 «t19 ok») und T20–T23 (01:51 «T20–T23 freigegeben») und «10 Pakete» (P6 = R12+R13+R14). Nur das Aussehen ist neu.
+
+- **Selbst entschieden (P6):** Die Titel «Tour beendet» und «Fahrt hochladen» bleiben. Hauptknöpfe bleiben in der Weiter-Leiste wie in P5. «Weitere Vorschläge» unter «Was hat gefehlt?» bleiben sichtbar statt zugeklappt, damit man sieht, was mit «Fertig» übernommen wird. Vergangene Touren behalten alle 9 Spalten; «In diesem Zeitraum» als 5 Kacheln darüber. Im gespeicherten Rückblick steht im Band «Antworten ändern» (wie T16), zurück geht es über den Pfad oben. Strava bleibt Datei-Import (Noah «4a»). Nicht gebaut, weil neu oder ohne Daten: Stimmungs-Skala, «Deine schönsten Touren», Fotostreifen, Band-Profil, Vergleich zweier Touren, Wisch-Karte bei Gelernt, Tempo-Regeln mit/ohne Gepäck, eigene Logbuch-Kacheln und Diagramm, «Alte Tour nachtragen», «Was war anders als letztes Mal?», Monats-Kacheln bei Fahrten, Karte, Puls und Leistung einer Fahrt.
+
+## 12.10.2026: Design-Refresh P9 «Ich» (0.108.0)
+
+Nach den Mockups I1–I3 (Noah 12.10.2026 03:06), I4–I6, I8, I9 (03:20), I7 neu, I10, I12, I13 (03:50 «Runde 20 freigegeben») und den Bausteinen 20 «Status-Ampel» und 35 «QR-Code» (11.10.2026). I11 «Was ist neu» kommt mit P10.
+
+- **Selbst entschieden (P9):** «Daten und Backup» ist eine eigene Seite `#/me/data`, «Aufs Handy» eine eigene Seite `#/me/phone` mit QR-Code (nur die Adresse der App; Daten reisen weiter per Backup-Datei). Für den QR-Code kommt die kleine, freie Bibliothek `qrcode-generator` dazu (läuft auf dem Gerät, kein Dienst). Drei Lichter: Backup, Ordner, Speicher; ein ausgeschaltetes Ordner-Backup ist grau, weil es nur ein Vorschlag ist. Namen bleiben «Helfer» und «Heimat», die Sprache bleibt ein Schalter in der Zeile. «Problem melden» erscheint nur mit Velos. Nicht gebaut, weil neu: Lichter für Strava, Wetter und Handy-Abgleich, Abgleich über den QR-Code, Felder «Art» und «Wer macht es», Abhaken direkt in der Notizen-Liste, ein Umschalter beim Import-Check.
+
+## 12.10.2026: Design-Refresh P8 «Aktiv» (0.107.0)
+
+Nach den Mockups A1–A2, A4–A6 (Noah 12.10.2026 02:40 «a1-a6 freigeben»), A7–A8 (02:47 «A7 - A9 freigabe»), A13 (03:06), A14 und A14c «Muster» (03:15 «freigabe für a14 und a14c»); A3 und A9–A12 bleiben wie heute (Noah 02:44, 02:47, 02:51). Challenge-Regel nach D1b/D5 («d1-d5 freigeben» 03:59).
+
+- **Selbst entschieden (P8):** Der Seitentitel heisst «Aktiv» (vorher «Im Flow»). Stoppuhr als Zeile unter «Mehr». Die Erholungs-Karte fällt weg (die Ringe zeigen sie). Tagescheck bleibt 1–10, Abhaken 15/30/45/60 Min. Der Ziel-Weg nutzt den nächsten Meilenstein (es gibt kein Saison- oder Jahresziel). Aktivität: Antippen öffnet die Kachel, Umbenennen unter «Kacheln ändern», die Meilensteine ziehen auf die Seite Meilensteine. Vorschläge mit `SuggestTile`/`ChallengeSheet` auf Aktivität («Vorschlag für heute») und Meditation «Mehr» («Heute vielleicht»). Logbuch: Kalender als 13 Wochen; alte Links mit view=cal/chart öffnen die Übersicht. Muster: Rekorde über alle Sitzungen, Kurven über 13 Wochen; kein wertender Satz. Nicht gebaut, weil ohne Daten oder neu: Jahreskreis (B34), Saison- und Jahresziele, «Pendeln zählt», Teilen als Bild, Ziel- und Trendlinie, «Als Tipp vor dem Start zeigen».
+
+## 12.10.2026: Design-Refresh P5 «Packen und Unterwegs» (0.106.0)
+
+Nach den Mockups T6–T13 (Noah 12.10.2026, alle Seiten «Runde 20 freigegeben») und «10 Pakete» (P5 = R10+R11). Nur das Aussehen ist neu.
+
+- **Selbst entschieden (P5):** Packen zeigt «Taschen» als eine Liste, die offene Tasche darunter; der Ring bleibt nur in der Handy-Leiste. Unterwegs: Basischeck links, «Was ist wo» zählt Taschen, das Wetter Stunde für Stunde bleibt offen, «Heute Abend laden» als eigene Liste. **Tour beenden:** «Tour beenden» ist jetzt der grüne Hauptknopf (wie im Mockup T13), «Weiterfahren» bleibt zuerst; das ersetzt «rot darunter» aus U25a. Die Gründe bleiben Wetter, Panne, Müde, Plan geändert. Nicht gebaut, weil neu: «Ziel unter 12 kg», Ausgelegt-Bild, Erinnerung am Vorabend, ein gemeinsames Fakten-Blatt, Licht-Bogen, «Doch heute starten», Unterwegs-Modus mit grossen Knöpfen, Regen-Hinweis, Namen der Herkunfts-Touren bei Learnings.
+
+## 12.10.2026: Design-Refresh P7 «Velo» (0.105.0)
+
+Nach den Mockups V1–V14 (Noah 12.10.2026 «v1-v4 freigabe», 02:30 «v5-v10 freigabe», 02:36 «v11-v14 freigegeben») und «10 Pakete» (P7 = R18+R19). Nur das Aussehen ist neu.
+
+- **Selbst entschieden (P7):** Ein gewähltes Velo in der Pflege öffnet sich als eigene Seite (Weg «Pflege» zurück zur Übersicht), auch aus Setup; dort nur die Touren mit diesem Velo. Die Übersicht zeigt die Velos als Zeilen statt der Liste «Jedes Velo». Die Pflege eines Velos bleibt das bisherige Akkordeon mit neuem Kopf (keine eigenen Karten «Verschleiss», «Lückenlose km», «Werkstatt»). «Arbeit eintragen» ist eine Zeile unter «Mehr». Im Fenster «Teil» bleiben die drei Knöpfe, «Gemacht von» als Chips. Nicht gebaut, weil neu oder ohne Daten: Teil-Punkte in der Zeichnung, Kosten «pro 1000 km», «Teile mit Garantie», Seitenkarte «Auf einen Blick» und Schalter bei Ausstattung.
 
 ## 12.10.2026: Design-Refresh P4 «Touren» (0.104.0)
 

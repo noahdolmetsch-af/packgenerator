@@ -6,10 +6,11 @@
    */
   // v0.42.0 (Noah 1): suggest outlines a guessed choice (not chosen yet, one tap sets it); small: a
   // compact row (the wardrobe's layer and zone).
-  let { options = [], value = null, onchange, label = '', labelledby = null, full = true, suggest = null, small = false } = $props();
+  // v0.105.0 Design-Refresh P8 «Aktiv» (A2, A6): `chips` draws separate round chips, the chosen one filled in ink.
+  let { options = [], value = null, onchange, label = '', labelledby = null, full = true, suggest = null, small = false, chips = false } = $props();
 </script>
 
-<div class="seg" class:full class:small role="group" aria-label={labelledby ? undefined : label} aria-labelledby={labelledby}>
+<div class="seg" class:full class:small class:chips role="group" aria-label={labelledby ? undefined : label} aria-labelledby={labelledby}>
   {#each options as o (o.key)}
     <button type="button" data-key={o.key} class:sug={value !== o.key && suggest === o.key} aria-pressed={value === o.key} aria-description={value !== o.key && suggest === o.key ? o.hint : undefined} onclick={() => value !== o.key && onchange?.(o.key)}>{o.name}{#if o.n != null} <small class="n">{o.n}</small>{/if}</button>
   {/each}
@@ -88,5 +89,27 @@
   button:focus-visible {
     outline: var(--focus-ring);
     outline-offset: -2px;
+  }
+  /* v0.105.0 Design-Refresh P8 «Aktiv»: round chips side by side, the chosen one filled in ink */
+  .seg.chips {
+    gap: 6px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+  }
+  .chips button {
+    flex: 0 0 auto;
+    padding: 4px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .chips button[aria-pressed='true'] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: none;
   }
 </style>

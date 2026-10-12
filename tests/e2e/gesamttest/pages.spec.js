@@ -47,7 +47,12 @@ const CASES = [
     },
   },
   // v0.94.0 «Kachel-Wand» (Noah 5a): «Data and backup» lives under Me
-  { id: 'me-data', hash: '#/me', act: async (page) => tap(page.locator('details.data > summary')) },
+  // Design-Refresh P9 (I2): its own page, opened from the row on Ich; B35 «To the phone» below it
+  { id: 'me-data', hash: '#/me', act: async (page, T) => tap(page.locator('main').getByRole('link', { name: new RegExp(T('Data and backup')) })) },
+  { id: 'me-phone', hash: '#/me/phone' },
+  // v0.110.0 Design-Refresh P10 (I11, I11c): Ich › Was ist neu and the whole list by «Your top 10»
+  { id: 'me-news', hash: '#/me/news' },
+  { id: 'me-news-top', hash: '#/me/news?all&sort=top' },
   { id: 'features', hash: '#/features' },
   // v0.77.0 KI-Helfer: Ich › Helfer and New trip before the setup (the notice with «What goes to Claude?» open).
   // v0.76.0 «Fünf Orte»: New trip opens from Trips («+ New trip»), no longer from the list's ••• menu.

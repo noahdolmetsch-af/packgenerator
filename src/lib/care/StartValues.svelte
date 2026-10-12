@@ -12,6 +12,7 @@
   import { startValues, WIZARD_PARTS } from './overview.js';
   import { t, tn, num } from '../i18n.svelte.js';
   import { X, ChevronRight, ChevronDown } from '@lucide/svelte';
+  import '../bikes/velo-dlg.css';
 
   let { bike, onsave, onclose } = $props();
   let dialog;
@@ -68,15 +69,17 @@
   }
 </script>
 
-<dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="sv-h">
-  <div class="fh">
-    <div>
-      <p class="meta">{bike.name}</p>
+<!-- Design-Refresh P7 (V9, Noah 12.10.2026 «v5-v10 freigabe»): the start values as a window of the bike
+     pages: the question, «bike · step n of 3», three named steps, «original / new» as chips. -->
+<dialog class="sheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="sv-h">
+  <div class="fh vd-head">
+    <div class="vd-t">
       <h2 id="sv-h" class="title">{[t('When did you buy it?'), t('How many km today?'), t('What is new since the purchase?')][step]}</h2>
+      <p class="vd-sub">{bike.name} · {t('Step {n} of {all}', { n: step + 1, all: 3 })}</p>
     </div>
-    <button type="button" class="x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
+    <button type="button" class="x vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
-  <ol class="steps" aria-label={t('Steps')}>{#each [0, 1, 2] as i (i)}<li class:done={step > i} class:now={step === i}><i></i></li>{/each}</ol>
+  <ol class="steps" aria-label={t('Steps')}>{#each [t('Purchase date'), t('km today'), t('What is new')] as name, i (i)}<li class:done={step > i} class:now={step === i}><i></i><span>{name}</span></li>{/each}</ol>
 
   {#if step === 0}
     <p class="hint">{t('The purchase date counts as the mounting date of every part.')}</p>
@@ -92,9 +95,9 @@
       <li>
         <div class="pr">
           <span class="pn">{partName(p)}<small>{on ? t('new') : t('since {date}', { date: bought })}</small></span>
-          <span class="seg" role="group" aria-label={partName(p)}>
-            <button type="button" aria-pressed={!on} onclick={() => setFresh(p.key, false)}>{t('original')}</button>
-            <button type="button" aria-pressed={on} onclick={() => setFresh(p.key, true)}>{t('new')}</button>
+          <span class="vd-chips" role="group" aria-label={partName(p)}>
+            <button type="button" class="vd-chip" aria-pressed={!on} onclick={() => setFresh(p.key, false)}>{t('original')}</button>
+            <button type="button" class="vd-chip" aria-pressed={on} onclick={() => setFresh(p.key, true)}>{t('new')}</button>
           </span>
         </div>
         {#if on}
@@ -113,7 +116,7 @@
   {/if}
 
   <p class="err" role="alert">{error}</p>
-  <div class="foot">
+  <div class="foot vd-foot">
     {#if step > 0}<button type="button" class="btn" onclick={() => ((error = ''), (step -= 1))}>{t('Back')}</button>{/if}
     {#if step < 2}
       <button type="button" class="btn hi" onclick={next}>{t('Next|step')}</button>
@@ -130,11 +133,6 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
-  }
-  .meta {
-    margin: 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
   .fh .title {
     font-size: var(--fs-section);
@@ -170,6 +168,16 @@
   }
   .steps .now i {
     background: var(--hi);
+  }
+  .steps span {
+    display: block;
+    margin-top: 6px;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  .steps .now span {
+    color: var(--ink);
+    font-weight: 600;
   }
   .hint {
     margin: 0 0 12px;
@@ -211,29 +219,8 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  .seg {
-    display: inline-flex;
+  .vd-chips {
     flex: none;
-    gap: 2px;
-    padding: 3px;
-    border-radius: 12px;
-    background: var(--paper-2);
-  }
-  .seg button {
-    min-height: 44px;
-    padding: 4px 12px;
-    border: 0;
-    border-radius: 9px;
-    background: transparent;
-    font: 500 var(--fs-small) var(--font-body);
-    color: var(--ink-2);
-    cursor: pointer;
-  }
-  .seg button[aria-pressed='true'] {
-    background: var(--paper);
-    color: var(--ink);
-    font-weight: 600;
-    box-shadow: 0 1px 3px var(--shadow);
   }
   .restbtn {
     display: flex;

@@ -4,6 +4,9 @@
    * per line (or quick buttons), an optional photo; each problem becomes an open repair in Bike care.
    * v0.46.1: a line is also split at commas and «und»; the list under the field shows the split.
    * After saving a calm "3 problems saved for Factor LS ✓" with Undo. Pure part in problems.js.
+   * Design-Refresh P9 (I9, Noah 12.10.2026 «Runde 19 freigegeben»): the window look of the new style:
+   * small labels, light chips (the chosen one dark), the photo as one quiet row «Photo (optional)» with
+   * «Add», the buttons bottom right (Cancel, then the main one). The same steps as before.
    */
   import DateInput from '../ui/DateInput.svelte';
   import { liveQuery } from 'dexie';
@@ -14,6 +17,7 @@
   import { QUICK_PROBLEMS, FIXES, PRIORITIES, PRIORITY_NAME, splitProblems, addLine, startBike, buildProblems, stepFor, repeats } from '../problems.js';
   import { wishForProblem, setFix } from '../problemsdb.js';
   import { t, tn, dateOf } from '../i18n.svelte.js';
+  import { Image as ImageIcon } from '@lucide/svelte';
 
   let { bikes = [], ondone } = $props();
 
@@ -189,17 +193,20 @@
       {#if when === 'date'}<DateInput class="inp due" min={today} bind:value={dueDate} aria-label={t('Deadline')} />{/if}
     </fieldset>
 
-    <div class="row">
-      <label class="btn sm">{reading ? t('Reading…') : photo ? t('Other photo') : `+ ${t('Photo')}`}<input type="file" accept="image/*" onchange={addPhoto} hidden disabled={reading} /></label>
-      {#if photo}<img class="th" src={photo} alt={t('Photo of the problem')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
+    <div class="row phrow">
+      {#if photo}<img class="th" src={photo} alt={t('Photo of the problem')} />{:else}<span class="pib"><ImageIcon size={18} aria-hidden="true" /></span>{/if}
+      <span class="pm"><b>{t('Photo (optional)')}</b><small>{t('e.g. of the damage')}</small></span>
+      {#if photo}<button type="button" class="btn btn-link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
+      <label class="btn">{reading ? t('Reading…') : photo ? t('Other photo') : t('Add')}<input type="file" accept="image/*" onchange={addPhoto} hidden disabled={reading} /></label>
     </div>
 
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
-    <div class="foot">
+    <p class="small" id="pf-need">{priority ? t('Each problem becomes its own open repair in Bike care.') : t('Choose a priority first.')}</p>
+    <div class="foot end">
+      <button type="button" class="btn" onclick={ondone}>{t('Cancel')}</button>
       <button type="submit" class="btn hi" disabled={busy || reading || !bike} aria-describedby={priority ? undefined : 'pf-need'}>
         {lines.length > 1 ? t('Save {n} problems', { n: lines.length }) : t('Save problem')}
       </button>
-      <span class="small" id="pf-need">{priority ? t('Each problem becomes its own open repair in Bike care.') : t('Choose a priority first.')}</span>
     </div>
   </form>
 {/if}
@@ -282,13 +289,13 @@
     gap: 8px;
   }
   .chip {
-    min-height: 48px;
-    padding: 8px 16px;
-    border: 2px solid var(--line);
+    min-height: 44px;
+    padding: 6px 14px;
+    border: 1px solid var(--line);
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink);
-    font: 600 16px/1.2 var(--font-body);
+    font: 500 var(--fs-small) / 1.25 var(--font-body);
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
@@ -324,7 +331,7 @@
     min-height: 44px;
     padding: 6px 12px;
     border: 1px dashed var(--line);
-    border-radius: 10px;
+    border-radius: 999px;
     background: none;
     color: var(--ink);
     font: 15px/1.2 var(--font-body);
@@ -344,10 +351,38 @@
     flex-wrap: wrap;
   }
   .th {
-    width: 56px;
-    height: 56px;
+    width: 34px;
+    height: 34px;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: var(--radius);
+  }
+  /* the photo as one quiet row (I9): icon, «Photo (optional)», the button right */
+  .phrow {
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .pib {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius);
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .pm {
+    flex: 1 1 10em;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .pm small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .end {
+    justify-content: flex-end;
   }
   .ok {
     margin: 0;

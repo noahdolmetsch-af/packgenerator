@@ -4,18 +4,18 @@
    * name, a small ring with the stand, and ONE line that fits instead of a date (milestone, history,
    * week, nudge, streak or best). The tile opens the activity's own page, or its editor until that page
    * exists. state: flow.js actState; line: flowtiles.js tileLine.
+   * v0.105.0 Design-Refresh P8 «Aktiv» (A7): the light tile of the mockup; the ring became the small
+   * stand at the right, renaming moved to «Kacheln ändern».
    */
-  import { ChevronRight } from '@lucide/svelte';
+  import ActIcon from '../ActIcon.svelte';
   import { TILE_LINE_NAMES } from '../../flowtiles.js';
   import { tileName, monthWord } from './words.js';
   import { actName, goalName } from '../ui.svelte.js';
   import { dayShort, oneGoal } from '../words.js';
   import { t, tn } from '../../i18n.svelte.js';
 
-  let { state, line, href, onrename } = $props();
+  let { state, line, href } = $props();
   const a = $derived(state.act);
-  const fill = $derived(state.stand.of ? Math.min(1, state.stand.n / state.stand.of) : 0);
-  const C = 2 * Math.PI * 17;
   const text = $derived.by(() => {
     if (!line || line.kind === 'spark' || line.parts) return '';
     if (line.one) return tn(line.n, line.one, line.many);
@@ -32,23 +32,17 @@
   });
 </script>
 
-<div class="tile {a.ring}" data-tile={a.id}>
-  <a class="tl" {href}>
-    <span class="ring" aria-hidden="true">
-      <svg viewBox="0 0 44 44" width="44" height="44"><circle cx="22" cy="22" r="17" class="rs" /><circle cx="22" cy="22" r="17" class="ra" stroke-dasharray="{Math.max(0.01, fill * C)} {C}" transform="rotate(-90 22 22)" /></svg>
-      <span class="rn num">{state.resting ? '–' : `${state.stand.n}/${state.stand.of}`}</span>
-    </span>
-    <span class="tn"><b>{tileName(a)}</b></span>
-    <span class="cv" aria-hidden="true"><ChevronRight size={18} /></span>
-  </a>
-  <p class="own">{actName(a)} · <button type="button" class="rn-btn" onclick={() => onrename?.(a)} aria-label={t('Rename {name}', { name: tileName(a) })}>{t('rename')}</button></p>
-  <p class="kind">{t(TILE_LINE_NAMES[line?.kind] ?? 'Week')}</p>
+<!-- v0.105.0 Design-Refresh P8 «Aktiv» (A7): the light tile: the symbol in a square, the playful name
+     and its one line; a nudge («heute wäre gut») framed dashed. Renaming moved to «Kacheln ändern». -->
+<a class="tile {a.ring}" class:nudge={line?.kind === 'nudge'} class:rest={state.resting} data-tile={a.id} data-kind={line?.kind ?? 'week'} {href} aria-label="{tileName(a)} · {actName(a)}{line?.kind ? ` · ${t(TILE_LINE_NAMES[line.kind])}` : ''}">
+  <span class="top"><ActIcon icon={a.icon} ring={a.ring} dim={state.resting} /><span class="sd num" aria-hidden="true">{state.resting ? '' : `${state.stand.n}/${state.stand.of}`}</span></span>
+  <b class="tn">{tileName(a)}</b>
   {#if line?.kind === 'spark'}
     <svg class="spark" viewBox="0 0 100 24" preserveAspectRatio="none" role="img" aria-label={tn(line.vars.n, '{n} time in 8 weeks', '{n} times in 8 weeks')}><polyline points={spark} /></svg>
   {:else}
-    <p class="line">{line?.parts ? weekText : text}</p>
+    <span class="line">{line?.parts ? weekText : text}</span>
   {/if}
-</div>
+</a>
 
 <style>
   .tile {
@@ -56,122 +50,45 @@
     flex-direction: column;
     gap: 4px;
     min-width: 0;
-    padding: 12px 14px;
-    border: 1px solid var(--card-line);
+    min-height: 120px;
+    padding: 14px;
+    border: 2px solid transparent;
     border-radius: var(--radius-card);
+    outline: 1px solid var(--card-line);
     background: var(--paper);
-  }
-  .tl {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 48px;
+    box-shadow: var(--card-shadow);
     color: var(--ink);
     text-decoration: none;
+    box-sizing: border-box;
   }
-  .ring {
-    position: relative;
-    flex: none;
-    width: 44px;
-    height: 44px;
+  .tile:hover {
+    background: var(--paper-2);
   }
-  .ring svg {
-    display: block;
+  .tile.nudge {
+    border: 2px dashed var(--warn);
+    outline-color: transparent;
   }
-  .rs,
-  .ra {
-    fill: none;
-    stroke-width: 5;
+  .tile.rest {
+    opacity: 0.6;
   }
-  .rs {
-    stroke: var(--paper-2);
+  .top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 4px;
   }
-  .ra {
-    stroke-linecap: round;
-  }
-  .move .ra {
-    stroke: var(--hi);
-  }
-  .mind .ra {
-    stroke: var(--accent);
-  }
-  .rest .ra {
-    stroke: var(--l3);
-  }
-  .rn {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    font: 600 var(--fs-tiny)/1 var(--font-body);
+  .sd {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
   }
   .tn {
-    flex: 1;
-    min-width: 0;
-  }
-  .cv {
-    flex: none;
-    line-height: 0;
-    color: var(--ink-3);
-  }
-  .tn b {
-    display: block;
-    font: 600 var(--fs-sub)/1.2 var(--font-body);
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
     overflow-wrap: break-word;
   }
-  /* a phone: two tiles side by side, the name gets the whole width under the ring */
-  @media (max-width: 599px) {
-    .tl {
-      flex-wrap: wrap;
-      gap: 6px 10px;
-    }
-    .cv {
-      margin-left: auto;
-    }
-    .tn {
-      order: 3;
-      flex-basis: 100%;
-    }
-    .tn b {
-      font-size: var(--fs-body);
-    }
-  }
-  .own {
-    margin: -4px 0 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .rn-btn {
-    position: relative;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--accent);
-    font: inherit;
-    text-decoration: underline;
-    cursor: pointer;
-  }
-  .rn-btn::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 100%;
-    min-width: 44px;
-    height: 44px;
-    transform: translate(-50%, -50%);
-  }
-  .kind {
-    margin: 6px 0 0;
-    color: var(--ink-3);
-    font: 600 var(--fs-tiny)/1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
   .line {
-    margin: 0;
-    font-size: var(--fs-small);
-    font-weight: 500;
+    color: var(--ink-3);
+    font: 400 var(--fs-small) / 1.35 var(--font-body);
   }
   .spark {
     width: 100%;

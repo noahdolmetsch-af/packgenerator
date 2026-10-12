@@ -81,7 +81,8 @@ test('Pflege overview: a ring per bike, at most 3 due cards, problems as one fla
   await expect(ov.locator('.ring')).toHaveCount(4);
   await expect(ov.getByRole('button', { name: `${P} Bergziege 29: noch keine Daten` })).toBeVisible();
   expect(await ov.locator('.dcard').count()).toBeLessThanOrEqual(3);
-  await expect(ov.locator('.btn.hi')).toHaveCount(1);
+  // Design-Refresh P7 (V6): no main button in the overview any more («Arbeit eintragen» is a row under «Mehr»).
+  await expect(ov.locator('.btn.hi')).toHaveCount(0);
   for (const p of ['Bremse hinten schleift', 'Kette knackt am Berg', 'Steuersatz hat Spiel']) await expect(ov).toContainText(p);
   // The Bergziege has no part data: its section offers the start values.
   await page.goto(`./#/bikes?tab=care&bike=${GOAT}&open=1`);
@@ -132,7 +133,8 @@ test('Eingang: day groups, filed today stays faint with its target; a receipt be
   await page.getByPlaceholder('Suchen: Text, Laden, Velo, Betrag').fill('127.50');
   await expect(page.locator('.frow')).toHaveCount(1);
   // Undo takes the visit back.
-  await page.getByRole('group', { name: 'Anzeigen' }).getByRole('button', { name: /Offen/ }).click();
+  // Design-Refresh P9 (I3): the view chips are «Zum Ablegen» and «Abgelegt»; the filed one waits in «Kürzlich abgelegt»
+  await page.getByRole('group', { name: 'Anzeigen' }).getByRole('button', { name: /Zum Ablegen/ }).click();
   await page.locator('li.filed').filter({ hasText: `${P} Foto Rechnung` }).getByRole('button', { name: 'Rückgängig: zurück in den Eingang' }).click();
   await expect.poll(async () => (await table(page, 'visits')).filter((x) => x.bikeId === GOAT).length).toBe(0);
   await shot(page, info, 'eingang');
@@ -150,8 +152,10 @@ test('Notizen: capture with a checklist, a wish made from a note, one line on To
   await page.getByRole('button', { name: 'Speichern' }).click();
   await expect.poll(async () => (await table(page, 'notes')).find((n) => n.title === `${P} Isomatte vergleichen`)).toMatchObject({ status: 'kept', topic: 'gear', checklist: [{ text: '180 g leichter', done: false }, { text: 'Preis', done: false }] });
   // Open it, make a wish from it: the note stays and links to the wish.
-  await page.locator('article.ncard').filter({ hasText: `${P} Isomatte vergleichen` }).getByRole('button', { name: `${P} Isomatte vergleichen` }).click();
+  // Design-Refresh P9 (I5, I6): notes are rows (li.ncard); «Aus Notiz wird …» is folded in the note window
+  await page.locator('li.ncard').filter({ hasText: `${P} Isomatte vergleichen` }).getByRole('button', { name: `${P} Isomatte vergleichen` }).click();
   const dlg = page.getByRole('dialog');
+  await dlg.locator('details.turn > summary').click();
   await dlg.locator('[data-make=wish]').click();
   await dlg.getByRole('button', { name: 'Auf die Wunschliste' }).click();
   await expect.poll(async () => (await table(page, 'items')).filter((i) => i.ownership === 'wishlist' && i.name === `${P} Isomatte vergleichen`).length).toBe(1);

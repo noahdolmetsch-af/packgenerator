@@ -17,7 +17,8 @@
   import { n1, dayLong } from '../review/fmt.js';
   import Seg from '../ui/Seg.svelte';
   import MiniBars from '../review/MiniBars.svelte';
-  import { Gauge, Upload, Undo2, Check } from '@lucide/svelte';
+  import { Gauge, Plus, Undo2, Check, TriangleAlert } from '@lucide/svelte';
+  import '../review/review.css';
 
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
   const saved = $derived($paceQ?.value ?? null);
@@ -119,87 +120,99 @@
   });
 </script>
 
-<div class="tempo">
-  <!-- 1. the rule in one sentence, and what the riding time uses now -->
-  <section class="card rule" id="pace" aria-labelledby="rule-h">
-    <p class="kick"><Gauge size={16} aria-hidden="true" />{pace.mine ? tn(pace.n, 'Your rule · from {n} ride', 'Your rule · from {n} rides') : pace.standard && !pace.need ? t('Standard rule · chosen by you') : t('Standard rule')}</p>
-    <h2 id="rule-h" class="sentence">
-      {#if rule}
-        {t('On the flat you ride {kmh} km/h and need 1 h per {m} m of climbing.', { kmh: num(rule.kmh), m: num(rule.climbMh) })}
-      {:else}
-        {t('The riding time is guessed with {kmh} km/h and 1 h per {m} m of climbing.', { kmh: num(std.kmh), m: num(std.climbMh) })}
-      {/if}
-    </h2>
-    {#if rule && overall != null}<p class="flat muted">{t('The climbing gets its own time: with the climbing your rides average {avg} km/h.', { avg: n1(overall) })}</p>{/if}
-    {#if loaded}
-      <div class="state" role="status">
-        {#if pace.mine}
-          <p><Check size={16} aria-hidden="true" /><span>{t('Pack and On the way guess the riding time with your rule now, instead of {kmh} km/h and 1 h per {m} m.', { kmh: num(std.kmh), m: num(std.climbMh) })}{#if pace.stops && pace.stops > 1.02}{' '}{t('Your usual stops add about {pct} %.', { pct: Math.round((pace.stops - 1) * 100) })}{/if}</span></p>
-          <button type="button" class="quiet" onclick={() => setStandard(true)}><Undo2 size={18} aria-hidden="true" />{t('Back to the standard rule')}</button>
-        {:else if pace.standard && !pace.need}
-          <p><span>{t('The riding time is guessed with the standard rule, {kmh} km/h and 1 h per {m} m, as you chose.', { kmh: num(std.kmh), m: num(std.climbMh) })}</span></p>
-          <button type="button" class="quiet" onclick={() => setStandard(false)}><Gauge size={18} aria-hidden="true" />{t('Use my rule')}</button>
-        {:else}
-          <p class="need">
-            <span class="dots" aria-hidden="true">{#each Array.from({ length: PACE_MIN }, (_, i) => i) as i (i)}<i class:on={i < pace.n}></i>{/each}</span>
-            <span>{tn(pace.need, '{n} more ride and your rule takes over the riding time.', '{n} more rides and your rule takes over the riding time.')} {t('Until then: {kmh} km/h and 1 h per {m} m.', { kmh: num(std.kmh), m: num(std.climbMh) })}</span>
-          </p>
-        {/if}
+<!-- v0.109.0 Design-Refresh P6 (T19 «Dein Tempo», approved 12.10.2026): two columns on a computer. Left the
+     rule as a white card (quiet caps line, the sentence), what the riding time uses now under it, then the
+     small charts; right «Deine Fahrten» as rows with their checkbox, «Fahrten hinzufügen (GPX)» and the hint. -->
+<div class="tempo rv-lay">
+  <div class="rv-col">
+    <!-- 1. the rule in one sentence, and what the riding time uses now -->
+    <section class="rule" id="pace" aria-labelledby="rule-h">
+      <div class="rv-box pad rcard">
+        <p class="kick"><Gauge size={14} aria-hidden="true" />{pace.mine ? tn(pace.n, 'Your rule · from {n} ride', 'Your rule · from {n} rides') : pace.standard && !pace.need ? t('Standard rule · chosen by you') : t('Standard rule')}</p>
+        <h2 id="rule-h" class="sentence">
+          {#if rule}
+            {t('On the flat you ride {kmh} km/h and need 1 h per {m} m of climbing.', { kmh: num(rule.kmh), m: num(rule.climbMh) })}
+          {:else}
+            {t('The riding time is guessed with {kmh} km/h and 1 h per {m} m of climbing.', { kmh: num(std.kmh), m: num(std.climbMh) })}
+          {/if}
+        </h2>
+        {#if rule && overall != null}<p class="flat">{t('The climbing gets its own time: with the climbing your rides average {avg} km/h.', { avg: n1(overall) })}</p>{/if}
       </div>
-    {/if}
-  </section>
+      {#if loaded}
+        <div class="state" role="status">
+          {#if pace.mine}
+            <p><Check size={16} aria-hidden="true" /><span>{t('Pack and On the way guess the riding time with your rule now, instead of {kmh} km/h and 1 h per {m} m.', { kmh: num(std.kmh), m: num(std.climbMh) })}{#if pace.stops && pace.stops > 1.02}{' '}{t('Your usual stops add about {pct} %.', { pct: Math.round((pace.stops - 1) * 100) })}{/if}</span></p>
+            <button type="button" class="quiet" onclick={() => setStandard(true)}><Undo2 size={18} aria-hidden="true" />{t('Back to the standard rule')}</button>
+          {:else if pace.standard && !pace.need}
+            <p><Check size={16} aria-hidden="true" /><span>{t('The riding time is guessed with the standard rule, {kmh} km/h and 1 h per {m} m, as you chose.', { kmh: num(std.kmh), m: num(std.climbMh) })}</span></p>
+            <button type="button" class="quiet" onclick={() => setStandard(false)}><Gauge size={18} aria-hidden="true" />{t('Use my rule')}</button>
+          {:else}
+            <p class="need">
+              <span class="dots" aria-hidden="true">{#each Array.from({ length: PACE_MIN }, (_, i) => i) as i (i)}<i class:on={i < pace.n}></i>{/each}</span>
+              <span>{tn(pace.need, '{n} more ride and your rule takes over the riding time.', '{n} more rides and your rule takes over the riding time.')} {t('Until then: {kmh} km/h and 1 h per {m} m.', { kmh: num(std.kmh), m: num(std.climbMh) })}</span>
+            </p>
+          {/if}
+        </div>
+      {/if}
+    </section>
 
-  <!-- 2. a few calm small charts -->
-  <section class="card charts" aria-labelledby="charts-h">
-    <div class="ch">
-      <h2 id="charts-h">{t('Over time')}</h2>
-      <Seg full={false} label={t('Period')} value={period} options={PERIODS} onchange={setPeriod} />
-    </div>
-    {#if charts.length}
-      <p class="lead muted">{tn(series.length, 'Bars = {n} ride, the newest orange, dashed = average.', 'Bars = {n} rides, the newest orange, dashed = average.')}</p>
-      <ul class="minis">
-        {#each charts as c (c.key)}
-          <li class="mini">
-            <span class="ml">{c.name}</span>
-            {#if c.value != null}<span class="mv"><b class="num">{c.value}</b> <span class="u">{c.unit}</span></span>{/if}
-            <MiniBars values={c.values} mark={newest} avg={c.avg} label={c.name} />
-            <span class="mf num">{c.foot}</span>
-          </li>
-        {/each}
-      </ul>
-    {:else}
-      <p class="lead muted">{t('From 2 rides small charts show your speed over time.')}</p>
-    {/if}
-  </section>
+    <!-- 2. a few calm small charts -->
+    <section class="rv-sec charts" aria-labelledby="charts-h">
+      <div class="rv-h">
+        <div>
+          <h2 id="charts-h">{t('Over time')}</h2>
+          <p class="rv-sub num">{charts.length ? tn(series.length, 'Bars = {n} ride, the newest orange, dashed = average.', 'Bars = {n} rides, the newest orange, dashed = average.') : t('From 2 rides small charts show your speed over time.')}</p>
+        </div>
+        <Seg full={false} label={t('Period')} value={period} options={PERIODS} onchange={setPeriod} />
+      </div>
+      {#if charts.length}
+        <ul class="rv-box pad minis">
+          {#each charts as c (c.key)}
+            <li class="mini">
+              <span class="ml">{c.name}</span>
+              {#if c.value != null}<span class="mv"><b class="num">{c.value}</b> <span class="u">{c.unit}</span></span>{/if}
+              <MiniBars values={c.values} mark={newest} avg={c.avg} label={c.name} />
+              <span class="mf num">{c.foot}</span>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+    </section>
+  </div>
 
   <!-- 3. the rides it learns from -->
-  <section class="card rides-c" aria-labelledby="rides-h">
-    <h2 id="rides-h" class="ch"><span>{t('Your rides')}</span><span class="r num">{tn(pace.n, '{n} counts', '{n} count')}</span></h2>
-    <p class="acts">
+  <section class="rv-col rides-c" aria-labelledby="rides-h">
+    <div class="rv-sec">
+      <div class="rv-h">
+        <div>
+          <h2 id="rides-h">{t('Your rides')}</h2>
+          <p class="rv-sub num">{tn(pace.n, '{n} counts', '{n} count')} · {t('Garmin Connect or Strava: a ride → Export GPX. Read on this device, nothing is uploaded.')}</p>
+        </div>
+      </div>
+      {#if rides.length}
+        <ul class="rv-box rides">
+          {#each rides as r (r.id)}
+            <li class:off={r.use === false}>
+              <label class="pick"><input type="checkbox" checked={r.use !== false} onchange={() => toggle(r.id)} /><span class="nm"><span class="rv-t">{r.name}</span><span class="rv-s num">{dayLong(r.date)} · {num(r.km)} km · ↑ {num(r.gainM)} m · {t('riding {time} h', { time: hm(r.movingH) })}{r.totalH > r.movingH + 0.05 ? ` ${t('({time} h with stops)', { time: hm(r.totalH) })}` : ''}{pace.mine ? ` · ${t('guess {time} h', { time: hm(guessFor(r, pace)) })}` : ''}{r.km < 20 ? ` · ${t('under 20 km, does not count')}` : ''}</span></span></label>
+              <button type="button" class="rm" onclick={() => drop(r.id)} aria-label={t('Remove {name}', { name: r.name })}>{t('Remove')}</button>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
+    <div class="acts">
       <label class="btn">
-        <Upload size={18} aria-hidden="true" />{busy ? t('Reading …') : t('Add rides (GPX)')}<input type="file" accept=".gpx,application/gpx+xml" multiple onchange={pick} hidden disabled={busy} />
+        <Plus size={18} aria-hidden="true" />{busy ? t('Reading …') : t('Add rides (GPX)')}<input type="file" accept=".gpx,application/gpx+xml" multiple onchange={pick} hidden disabled={busy} />
       </label>
-      <span class="muted small">{t('Garmin Connect or Strava: a ride → Export GPX. Read on this device, nothing is uploaded.')}</span>
-    </p>
-    {#if msg}<p class="small" role="status">{msg}</p>{/if}
-    {#if rides.length}
-      <ul class="rides">
-        {#each rides as r (r.id)}
-          <li class:off={r.use === false}>
-            <label class="pick"><input type="checkbox" checked={r.use !== false} onchange={() => toggle(r.id)} /><span class="nm"><b>{r.name}</b><small class="num">{dayLong(r.date)} · {num(r.km)} km · ↑ {num(r.gainM)} m · {t('riding {time} h', { time: hm(r.movingH) })}{r.totalH > r.movingH + 0.05 ? ` ${t('({time} h with stops)', { time: hm(r.totalH) })}` : ''}{pace.mine ? ` · ${t('guess {time} h', { time: hm(guessFor(r, pace)) })}` : ''}{r.km < 20 ? ` · ${t('under 20 km, does not count')}` : ''}</small></span></label>
-            <button type="button" class="rm" onclick={() => drop(r.id)} aria-label={t('Remove {name}', { name: r.name })}>{t('Remove')}</button>
-          </li>
-        {/each}
-      </ul>
-      <p class="muted small">{t('Untick a ride that does not fit, e.g. a race without luggage.')}</p>
-    {/if}
+      {#if msg}<p class="msg" role="status">{msg}</p>{/if}
+    </div>
+    {#if rides.length}<p class="rv-note"><TriangleAlert size={16} aria-hidden="true" /><span>{t('Untick a ride that does not fit, e.g. a race without luggage.')}</span></p>{/if}
   </section>
 </div>
 
 <style>
-  .tempo {
-    display: grid;
-    gap: 16px;
+  .rcard {
+    padding: 16px 18px;
   }
   .kick {
     display: flex;
@@ -207,50 +220,49 @@
     gap: 6px;
     margin: 0;
     color: var(--ink-3);
-    font-size: var(--fs-small);
+    font-size: var(--fs-tiny);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
   .sentence {
-    margin: 6px 0 0;
-    font-family: var(--font-brand);
-    font-weight: 800;
-    font-size: var(--fs-section);
-    line-height: 1.15;
+    margin: 8px 0 0;
+    font: 500 var(--fs-sub) / 1.4 var(--font-body);
+    color: var(--ink);
     overflow-wrap: break-word;
-  }
-  @media (min-width: 720px) {
-    .sentence {
-      font-size: var(--fs-page);
-    }
   }
   .flat {
     margin: 6px 0 0;
+    color: var(--ink-3);
     font-size: var(--fs-small);
+    line-height: 1.4;
   }
   .state {
     display: grid;
-    gap: 4px;
+    gap: 2px;
     justify-items: start;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--line);
+    margin: 10px 0 0;
+    padding: 0 12px;
   }
   .state p {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     align-items: flex-start;
     margin: 0;
     color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
   }
   .state p :global(svg) {
     flex: none;
-    margin-top: 3px;
-    color: var(--ok);
+    margin-top: 2px;
+    color: var(--ink-2);
   }
   .dots {
     display: inline-flex;
     flex: none;
     gap: 4px;
-    margin-top: 6px;
+    margin-top: 5px;
   }
   .dots i {
     width: 10px;
@@ -260,67 +272,38 @@
     box-sizing: border-box;
   }
   .dots i.on {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--ink);
+    border-color: var(--ink);
   }
   .quiet {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     min-height: 44px;
+    margin-left: 26px;
     padding: 0;
     border: 0;
     background: none;
-    color: var(--accent);
-    font: 500 var(--fs-body) var(--font-body);
+    color: var(--ink);
+    font: 500 var(--fs-small) var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 3px;
     cursor: pointer;
   }
-  .quiet:hover {
-    text-decoration: underline;
-  }
-  .ch {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px 12px;
-    margin: 0;
-    font-size: var(--fs-sub);
-    font-weight: 600;
-  }
-  .ch h2 {
-    margin: 0;
-    font-size: var(--fs-sub);
-  }
-  .ch .r {
-    font-size: var(--fs-small);
-    font-weight: 400;
-    color: var(--ink-3);
-  }
-  .lead {
-    margin: 10px 0 12px;
-    font-size: var(--fs-small);
-  }
-  .muted {
-    color: var(--ink-3);
-  }
-  .small {
-    font-size: var(--fs-small);
+  .rv-h :global(.seg) {
+    flex: none;
   }
   .minis {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 8px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 10px;
   }
   .mini {
     display: grid;
     gap: 2px;
     align-content: start;
     padding: 10px 10px 8px;
-    border-radius: var(--radius);
+    border-radius: var(--r-ctl);
     background: var(--paper-2);
     min-width: 0;
   }
@@ -331,43 +314,41 @@
     overflow-wrap: break-word;
   }
   .mv b {
-    font-family: var(--font-brand);
-    font-weight: 800;
-    font-size: var(--fs-section);
+    font: 600 var(--fs-sub) / 1.2 var(--font-body);
   }
   .u {
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
   .acts {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 12px;
-    margin: 12px 0 0;
+    display: grid;
+    gap: 8px;
+    justify-items: start;
   }
   .acts .btn {
     min-height: 44px;
   }
+  .msg {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .rides {
-    list-style: none;
-    margin: 12px 0 4px;
-    padding: 0;
+    padding: 0 16px;
   }
   .rides li {
     display: flex;
     align-items: center;
     gap: 8px;
-    border-top: 1px solid var(--line);
   }
   .pick {
     flex: 1;
     min-width: 0;
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
-    min-height: 52px;
-    padding: 4px 0;
+    min-height: 60px;
+    padding: 8px 0;
     cursor: pointer;
   }
   .pick input {
@@ -378,12 +359,6 @@
   }
   .nm {
     min-width: 0;
-    overflow-wrap: break-word;
-  }
-  .nm small {
-    display: block;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
   .rm {
     flex: none;
@@ -400,7 +375,7 @@
     color: var(--ink);
     text-decoration: underline;
   }
-  .rides li.off b {
+  .rides li.off .rv-t {
     color: var(--ink-3);
     text-decoration: line-through;
   }

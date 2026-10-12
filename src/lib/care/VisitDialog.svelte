@@ -9,6 +9,8 @@
   import { visitTotal } from '../workshop.js';
   import Lightbox from '../ui/Lightbox.svelte';
   import { t } from '../i18n.svelte.js';
+  import { X } from '@lucide/svelte';
+  import '../bikes/velo-dlg.css';
 
   let { visit, bike, onclose } = $props();
   let dialog;
@@ -36,9 +38,16 @@
   }
 </script>
 
-<dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="visit-h">
-  <p class="meta">{bike?.name ?? ''} · {t('Workshop')}</p>
-  <h2 id="visit-h" class="title">{visit.shop}, {visit.date}</h2>
+<!-- Design-Refresh P7 (V10, Noah 12.10.2026 «v5-v10 freigabe»): the workshop visit as a window of the bike
+     pages: «shop, date», «bike · workshop» below, ✕; the jobs in a soft panel; «Remove visit» left, «Close» right. -->
+<dialog class="sheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="visit-h">
+  <div class="vd-head">
+    <div class="vd-t">
+      <h2 id="visit-h" class="title">{visit.shop}, {visit.date}</h2>
+      <p class="vd-sub">{bike?.name ?? ''} · {t('Workshop')}</p>
+    </div>
+    <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
+  </div>
   <p class="facts num">{visit.invoice ? `${t('Invoice {n}', { n: visit.invoice })} · ` : ''}<b>{visitTotal(visit) == null ? t('Cost unknown') : `CHF ${chf(visitTotal(visit))}`}</b></p>
 
   <label class="km">
@@ -57,7 +66,7 @@
   {/if}
 
   <h3>{t('What was done')}</h3>
-  <ul class="jobs">
+  <ul class="jobs vd-panel">
     {#each lines as l, n (n)}
       <li>
         <span class="j"><b>{t(PART[l.part]?.name ?? 'Other')}</b> {ACTION[l.action] ? t(ACTION[l.action]) : ''}{#if l.model}<small>{l.model}</small>{/if}{#if l.what}<small>{l.what}</small>{/if}</span>
@@ -66,9 +75,9 @@
     {/each}
   </ul>
 
-  <div class="foot">
+  <div class="foot vd-foot">
+    <button type="button" class="link rm" onclick={remove}>{t('Remove visit')}</button>
     <button type="button" class="btn" onclick={() => dialog.close()}>{t('Close')}</button>
-    <button type="button" class="link" onclick={remove}>{t('Remove visit')}</button>
   </div>
 </dialog>
 
@@ -77,12 +86,6 @@
 {/if}
 
 <style>
-  .meta {
-    margin: 0;
-    font-size: var(--fs-small);
-    font-weight: 700;
-    color: var(--ink-3);
-  }
   h2 {
     font-size: var(--fs-section);
     margin: 4px 0 4px;
@@ -146,15 +149,20 @@
   .jobs {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 4px 16px;
   }
   .jobs li {
     display: flex;
     justify-content: space-between;
     gap: 10px;
-    padding: 6px 0;
+    padding: 8px 0;
+    font-size: var(--fs-small);
+  }
+  .jobs li + li {
     border-top: 1px solid var(--line);
-    font-size: 14px;
+  }
+  .rm {
+    margin-right: auto;
   }
   .j {
     display: flex;

@@ -12,9 +12,10 @@
   import { parseChf } from '../hubs.js';
   import { CATEGORIES, parseGrams } from '../gear.js';
   import { localDay } from '../localday.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, locale } from '../i18n.svelte.js';
   import { ICONS } from './icons.js';
-  import { ReceiptText, ChevronRight, ChevronLeft, Check, X } from '@lucide/svelte';
+  import { ReceiptText, Check, X } from '@lucide/svelte';
+  import '../bikes/velo-dlg.css';
 
   let { note, bikes = [], trips = [], visits = [], onclose, onfiled } = $props();
 
@@ -44,7 +45,8 @@
   let dialog;
   // svelte-ignore state_referenced_locally
   const suggest = guessTarget(note);
-  let kind = $state(null);
+  // Design-Refresh P9 (I4): the suggestion is chosen from the start; one tap on another tile changes it.
+  let kind = $state(suggest);
   // svelte-ignore state_referenced_locally
   let bike = $state(guessBike(note.text ?? '', bikes, note.bikeId ?? null) ?? bikes[0]?.id ?? null);
   const today = localDay();
@@ -116,46 +118,49 @@
     }
   }
   const short = (s) => (s.length > 70 ? `${s.slice(0, 69)}…` : s);
+  const when = (iso) => new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 </script>
 
-<dialog class="sheet fsheet" bind:this={dialog} onclose={onclose} aria-labelledby="file-h">
-  <div class="top">
-    <h2 id="file-h" class="title">{kind ? t(TARGET[kind].name) : t('File as …')}</h2>
-    <button type="button" class="x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
-  </div>
-  <div class="what">
-    {#if note.photo}<img src={note.photo} alt={t('Photo of the entry')} />{/if}
-    <p>{short(note.text ?? '')}</p>
+<!-- Design-Refresh P9 (I4, Noah 12.10.2026 «Runde 19 freigegeben»): the window look of the new style: the
+     entry under the title, the 7 targets as tiles (the suggestion first, marked and chosen), the fields of
+     the chosen target right below, the main button bottom right, named by where the entry lands. -->
+<dialog class="sheet fsheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="file-h">
+  <div class="vd-head">
+    <div class="vd-t">
+      <h2 id="file-h" class="title">{t('File as …')}</h2>
+      <p class="vd-sub">{short(note.text ?? '')}{#if note.at} · {when(note.at)}{/if}</p>
+    </div>
+    {#if note.photo}<img class="ph" src={note.photo} alt={t('Photo of the entry')} />{/if}
+    <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
 
-  {#if !kind}
-    <ul class="rowlist targets" aria-label={t('Targets')}>
-      {#each order as x (x.key)}
-        {@const Icon = ICONS[x.key]}
-        <li class:sug={x.key === suggest}>
-          <button type="button" class="lrow" data-target={x.key} onclick={() => (kind = x.key)}>
-            <span class="ic tg-{x.key}"><Icon size={18} aria-hidden="true" /></span>
-            <span class="m"><span class="t">{t(x.name)}</span><span class="s">{t(LANDS[x.key])}</span></span>
-            {#if x.key === suggest}<span class="pill act">{t('Suggestion')}</span>{/if}
-            <ChevronRight class="chev" size={18} aria-hidden="true" />
-          </button>
-        </li>
-      {/each}
-    </ul>
-  {:else}
+  <ul class="targets" aria-label={t('Targets')}>
+    {#each order as x (x.key)}
+      {@const Icon = ICONS[x.key]}
+      <li class:sug={x.key === suggest}>
+        <button type="button" class="tile" data-target={x.key} aria-pressed={kind === x.key} onclick={() => ((kind = x.key), (msg = ''))}>
+          <Icon size={18} aria-hidden="true" />
+          <b>{t(x.name)}</b>
+          {#if x.key === suggest}<small>{t('Suggestion')}</small>{/if}
+        </button>
+      </li>
+    {/each}
+  </ul>
+
+  {#if kind}
     <p class="lands">{t(LANDS[kind])}</p>
     {#if ['receipt', 'problem', 'idea'].includes(kind)}
       <p class="lbl">{t('Bike')}</p>
-      <div class="chips" role="group" aria-label={t('Bike')}>
-        {#each bikes as b (b.id)}<button type="button" class="chip" aria-pressed={bike === b.id} onclick={() => (bike = b.id)}>{#if bike === b.id}<Check size={14} aria-hidden="true" />{/if}{b.name}</button>{/each}
+      <div class="vd-chips chips" role="group" aria-label={t('Bike')}>
+        {#each bikes as b (b.id)}<button type="button" class="vd-chip" aria-pressed={bike === b.id} onclick={() => (bike = b.id)}>{b.name}</button>{/each}
       </div>
     {/if}
 
     {#if kind === 'receipt'}
       <p class="lbl">{t('Bike shop')}{#if shops.length}<span class="q"> · {t('from earlier visits')}</span>{/if}</p>
-      <div class="chips" role="group" aria-label={t('Bike shop')}>
-        {#each shops as s (s.shop)}<button type="button" class="chip" aria-pressed={!newShop && shop === s.shop} onclick={() => ((shop = s.shop), (newShop = false))}>{#if !newShop && shop === s.shop}<Check size={14} aria-hidden="true" />{/if}{s.shop}<small>{s.n}×</small></button>{/each}
-        <button type="button" class="chip" aria-pressed={newShop || !shops.length} onclick={() => ((newShop = true), (shop = ''))}>+ {t('New shop')}</button>
+      <div class="vd-chips chips" role="group" aria-label={t('Bike shop')}>
+        {#each shops as s (s.shop)}<button type="button" class="vd-chip" aria-pressed={!newShop && shop === s.shop} onclick={() => ((shop = s.shop), (newShop = false))}>{s.shop}<small class="n">{s.n}×</small></button>{/each}
+        <button type="button" class="vd-chip" aria-pressed={newShop || !shops.length} onclick={() => ((newShop = true), (shop = ''))}>+ {t('New shop')}</button>
       </div>
       {#if newShop || !shops.length}<label class="fld"><span class="sr">{t('Bike shop')}</span><input class="inp" type="text" bind:value={shop} placeholder={t('Name of the shop')} autocomplete="off" /></label>{/if}
       <div class="two">
@@ -163,8 +168,8 @@
         <label class="fld"><span class="lbl">{t('Amount CHF')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={chf} placeholder={t('not known')} /></label>
       </div>
       <p class="lbl">{t('What was done?')} <span class="q">{t('optional')}</span></p>
-      <div class="chips" role="group" aria-label={t('What was done?')}>
-        {#each JOBS as j (j.part)}{@const on = jobs.some((x) => x.part === j.part)}<button type="button" class="chip" aria-pressed={on} onclick={() => toggleJob(j)}>{#if on}<Check size={14} aria-hidden="true" />{/if}{t(j.name)}</button>{/each}
+      <div class="vd-chips chips" role="group" aria-label={t('What was done?')}>
+        {#each JOBS as j (j.part)}{@const on = jobs.some((x) => x.part === j.part)}<button type="button" class="vd-chip" aria-pressed={on} onclick={() => toggleJob(j)}>{t(j.name)}</button>{/each}
       </div>
       <p class="name"><ReceiptText size={16} aria-hidden="true" /><span>{t('Name')}: {t('Receipt|target')} {receiptName(shop, date)}</span></p>
     {:else if kind === 'material' || kind === 'wish'}
@@ -183,75 +188,74 @@
       {/if}
     {:else if kind === 'keep'}
       <p class="lbl">{t('Topic')}</p>
-      <div class="chips" role="group" aria-label={t('Topic')}>
-        {#each TOPICS as x (x.key)}<button type="button" class="chip" aria-pressed={topic === x.key} onclick={() => (topic = x.key)}>{#if topic === x.key}<Check size={14} aria-hidden="true" />{/if}{t(x.name)}</button>{/each}
+      <div class="vd-chips chips" role="group" aria-label={t('Topic')}>
+        {#each TOPICS as x (x.key)}<button type="button" class="vd-chip" aria-pressed={topic === x.key} onclick={() => (topic = x.key)}>{t(x.name)}</button>{/each}
       </div>
     {/if}
 
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
-    <button type="button" class="btn hi wide" disabled={busy} onclick={save}>{t(SAVE[kind])}</button>
-    <button type="button" class="lnk" onclick={() => ((kind = null), (msg = ''))}><ChevronLeft size={16} aria-hidden="true" />{t('Choose another target')}</button>
+    <div class="vd-foot">
+      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+      <button type="button" class="btn hi" disabled={busy} onclick={save}><Check size={16} aria-hidden="true" />{t(SAVE[kind])}</button>
+    </div>
   {/if}
 </dialog>
 
 <style>
-  .fsheet {
-    padding: 16px;
-  }
-  .top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-  }
-  .top .title {
-    margin: 0;
-    font-size: var(--fs-section);
-  }
-  .x {
-    display: grid;
-    place-items: center;
+  .ph {
+    flex: none;
     width: 44px;
-    height: 44px;
-    border: 0;
-    border-radius: 10px;
-    background: var(--paper-2);
-    color: var(--ink-2);
+    height: 56px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+  }
+  .targets {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+    gap: 8px;
+    margin: 0 0 14px;
+    padding: 0;
+  }
+  .tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    height: 100%;
+    min-height: 76px;
+    padding: 10px 6px;
+    box-sizing: border-box;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    text-align: center;
     cursor: pointer;
   }
-  .what {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin: 10px 0 12px;
-  }
-  .what img {
-    width: 56px;
-    height: 72px;
-    object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid var(--line);
-    flex: none;
-  }
-  .what p {
-    margin: 0;
-    color: var(--ink-2);
+  .tile b {
+    font: 600 var(--fs-small) / 1.25 var(--font-body);
     overflow-wrap: break-word;
-    min-width: 0;
+    max-width: 100%;
   }
-  .targets .sug {
-    background: var(--hi-soft);
+  .tile small {
+    color: var(--ok);
+    font-size: var(--fs-tiny);
+    font-weight: 500;
   }
-  .targets .ic {
+  .tile :global(svg) {
+    color: var(--ink-2);
+  }
+  .tile:hover {
     background: var(--paper-2);
   }
-  .tg-receipt,
-  .tg-problem {
-    color: var(--hi);
-  }
-  .tg-material,
-  .tg-tour {
-    color: var(--accent);
+  .tile[aria-pressed='true'] {
+    border: 2px solid var(--accent);
+    background: var(--accent-soft);
   }
   .lands {
     margin: 0 0 10px;
@@ -263,31 +267,12 @@
     color: var(--ink-3);
   }
   .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
     margin: 0 0 12px;
   }
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    padding: 6px 12px;
-    border: 1.5px solid var(--line);
-    border-radius: 10px;
-    background: var(--paper);
-    font: 500 var(--fs-body) var(--font-body);
-    color: var(--ink);
-    cursor: pointer;
-  }
-  .chip small {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .chip[aria-pressed='true'] {
-    border-color: var(--hi);
-    background: var(--hi-soft);
+  .n {
+    margin-left: 6px;
+    opacity: 0.75;
+    font-size: var(--fs-tiny);
   }
   .fld {
     display: block;
@@ -303,9 +288,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 0 0 12px;
+    margin: 0 0 4px;
     padding: 8px 12px;
-    border-radius: 8px;
+    border-radius: var(--r-ctl);
     background: var(--paper-2);
     color: var(--ink-2);
     font-size: var(--fs-small);
@@ -314,25 +299,8 @@
     min-width: 0;
     overflow-wrap: break-word;
   }
-  .wide {
-    width: 100%;
-    min-height: 44px;
-  }
-  .lnk {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    width: 100%;
-    min-height: 44px;
-    margin-top: 4px;
-    border: 0;
-    background: none;
-    color: var(--ink-2);
-    font: inherit;
-    cursor: pointer;
-  }
   .err {
+    margin: 8px 0 0;
     color: var(--bad);
   }
 </style>

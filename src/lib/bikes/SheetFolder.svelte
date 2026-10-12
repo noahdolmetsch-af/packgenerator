@@ -17,9 +17,9 @@
   import { bikePhotos } from '../photo.js';
   import { seenSheets } from './seen.js';
   import { t, tn, num } from '../i18n.svelte.js';
-  import { IdCard, CalendarCheck, ClipboardList, ListChecks, FolderOpen, Gauge, Wrench, ReceiptText, ShieldAlert } from '@lucide/svelte';
+  import { IdCard, CalendarCheck, ClipboardList, ListChecks, FolderOpen, Gauge, Wrench, ReceiptText, ShieldAlert, ChevronRight } from '@lucide/svelte';
 
-  let { bike, compact = false, from = null } = $props();
+  let { bike, compact = false, from = null, current = null, acts = true, choosing = $bindable(false) } = $props();
 
   const visitsQ = liveQuery(() => db.visits.toArray());
   const tasksQ = liveQuery(() => db.maintenance.toArray());
@@ -40,7 +40,7 @@
   const seen = seenSheets();
   const href = (key) => bikesHash({ tab: 'setup', bike: bike.id, sheet: key, from });
 
-  let choosing = $state(false);
+
   async function toggle(key, on) {
     const s = sheetsOf(bike);
     await db.bikes.update(bike.id, { sheets: { ...$state.snapshot(s), ...chooseSheet(bike, key, on, ctx) } });
@@ -54,17 +54,20 @@
     {#if !shown.length}<a class="fchip" href={bikesHash({ tab: 'setup', bike: bike.id })}>{t('Choose sheets')}</a>{/if}
   </nav>
 {:else}
-  <section class="card folder" aria-labelledby="folder-h-{bike.id}">
+  <!-- Design-Refresh P7 (V5): the sheets as rows of one card (icon, name, its state), «Choose sheets» and
+       «Whole folder as PDF» above; on the sheet page the same list stands right, the open sheet marked. -->
+  <section class="folder" aria-labelledby="folder-h-{bike.id}">
     <div class="fh">
       <div class="ft">
-        <p class="eyebrow">{t('Folder|sheets')} · {bike.name}</p>
         <h2 id="folder-h-{bike.id}">{tn(shown.length, '{n} sheet for this bike', '{n} sheets for this bike')}</h2>
-        <p class="lead">{t('The app fills every sheet from your data. View it, share it as a PDF or copy the text.')}</p>
+        <p class="lead">{acts ? t('The app fills every sheet from your data. View it, share it as a PDF or copy the text.') : t('Every sheet can be hidden.')}</p>
       </div>
-      <div class="acts">
-        <button type="button" class="btn" aria-expanded={choosing} aria-controls="folder-pick-{bike.id}" onclick={() => (choosing = !choosing)}>{t('Choose sheets')}</button>
-        {#if shown.length}<a class="btn ink" href={href('all')}>{t('Whole folder as PDF')}</a>{/if}
-      </div>
+      {#if acts}
+        <div class="acts">
+          <button type="button" class="btn" aria-expanded={choosing} aria-controls="folder-pick-{bike.id}" onclick={() => (choosing = !choosing)}>{t('Choose sheets')}</button>
+          {#if shown.length}<a class="btn" href={href('all')}>{t('Whole folder as PDF')}</a>{/if}
+        </div>
+      {/if}
     </div>
     {#if choosing}
       <fieldset class="pick" id="folder-pick-{bike.id}">
@@ -74,20 +77,24 @@
         {/each}
       </fieldset>
     {/if}
-    <ul class="grid">
-      {#each shown as s (s.key)}
-        {@const Icon = ICON[s.key]}
-        <li>
-          <a class="sheet" href={href(s.key)} data-sheet={s.key}>
-            <span class="ic"><Icon size={20} aria-hidden="true" /></span>
-            {#if s.since && !seen.includes(s.key)}<span class="new">{t('new|sheet')}</span>{/if}
-            <span class="nm">{t(s.name)}</span>
-            <span class="sb">{t(s.sub)}</span>
-            {#if state[s.key]}<span class="st {state[s.key].tone}" title={state[s.key].text}>{state[s.key].text}</span>{/if}
-          </a>
-        </li>
-      {/each}
-    </ul>
+    {#if shown.length}
+      <ul class="card grid">
+        {#each shown as s (s.key)}
+          {@const Icon = ICON[s.key]}
+          <li>
+            <a class="sheet" href={href(s.key)} data-sheet={s.key} aria-current={current === s.key ? 'page' : undefined}>
+              <span class="ic"><Icon size={18} aria-hidden="true" /></span>
+              <span class="m">
+                <span class="nm">{t(s.name)}</span>
+                {#if state[s.key]}<span class="st {state[s.key].tone}">{state[s.key].text}</span>{:else}<span class="sb">{t(s.sub)}</span>{/if}
+              </span>
+              {#if s.since && !seen.includes(s.key)}<span class="new">{t('new|sheet')}</span>{/if}
+              <ChevronRight class="chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+        {/each}
+      </ul>
+    {/if}
     <p class="foot">
       {#if hiddenN}{tn(hiddenN, '{n} sheet hidden. «Choose sheets» shows it again.', '{n} sheets hidden. «Choose sheets» shows them again.')}
       {:else if breakinOn}{t('The Break-in plan comes by itself with a new bike and goes after the first service. Every sheet can be hidden.')}
@@ -99,7 +106,8 @@
 
 <style>
   .folder {
-    margin: 0 0 16px;
+    margin: 0;
+    min-width: 0;
   }
   .fh {
     display: flex;
@@ -107,26 +115,19 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 10px 16px;
+    margin: 0 2px 10px;
   }
   .ft {
-    flex: 1 1 320px;
+    flex: 1 1 220px;
     min-width: 0;
   }
-  .eyebrow {
-    margin: 0;
-    color: var(--ink-3);
-    font: 600 var(--fs-tiny) / 1.4 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
   .ft h2 {
-    margin: 2px 0;
-    font-size: var(--fs-section);
-    line-height: 1.25;
+    margin: 0;
+    font: 600 var(--fs-sub) / 1.25 var(--font-body);
   }
   .lead {
-    margin: 0;
-    color: var(--ink-2);
+    margin: 2px 0 0;
+    color: var(--ink-3);
     font-size: var(--fs-small);
   }
   .acts {
@@ -142,10 +143,11 @@
     display: flex;
     flex-wrap: wrap;
     gap: 4px 16px;
-    margin: 12px 0 0;
+    margin: 0 0 12px;
     padding: 8px 12px;
     border: 1px solid var(--line);
-    border-radius: 8px;
+    border-radius: var(--r-ctl);
+    background: var(--paper);
   }
   .pick legend {
     padding: 0 4px;
@@ -162,90 +164,87 @@
   .pk input {
     width: 20px;
     height: 20px;
-    accent-color: var(--accent);
+    accent-color: var(--hi);
   }
   .grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
     list-style: none;
-    margin: 14px 0 0;
-    padding: 0;
+    margin: 0;
+    padding: 4px 16px;
   }
-  .sheet {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    height: 100%;
-    box-sizing: border-box;
-    padding: 14px 16px;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: var(--paper);
-    color: var(--ink);
-    text-decoration: none;
+  .grid li + li {
+    border-top: 1px solid var(--line);
   }
   .sheet {
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 60px;
+    padding: 8px 0;
+    box-sizing: border-box;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .sheet:visited {
+    color: var(--ink);
+  }
+  .sheet:hover .nm {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .sheet[aria-current='page'] .nm {
+    font-weight: 600;
+  }
+  .sheet[aria-current='page'] .ic {
+    background: var(--hi-soft);
+    color: var(--hi);
+  }
+  .ic {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius);
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .m {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .nm {
+    font: 500 var(--fs-body) / 1.3 var(--font-body);
+  }
+  .sb,
+  .st {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    line-height: 1.35;
+    overflow-wrap: break-word;
+  }
+  .st.ok {
+    color: var(--ok);
+  }
+  .st.warn {
+    color: var(--warn);
   }
   .new {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    flex: none;
     padding: 1px 8px;
     border-radius: 999px;
     background: var(--hi-soft);
     color: var(--badge-ink);
     font: 600 var(--fs-tiny) / 1.6 var(--font-body);
   }
-  .sheet:hover {
-    border-color: var(--line-strong);
-    background: var(--paper-2);
-  }
-  .ic {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    margin-bottom: 6px;
-    border-radius: 8px;
-    background: var(--paper-2);
-    color: var(--ink-2);
-  }
-  .nm {
-    font: 600 var(--fs-body) / 1.3 var(--font-body);
-  }
-  .sb {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-    line-height: 1.4;
-  }
-  .st {
-    margin-top: auto;
-    padding: 1px 9px;
-    border-radius: 999px;
-    background: var(--paper-2);
-    color: var(--ink-2);
-    font: 500 var(--fs-tiny) / 1.6 var(--font-body);
-    /* v0.69.1 (mockup round): one line, never a two-line pill; the full text as title */
-    max-width: 100%;
-    box-sizing: border-box;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .st.ok {
-    background: var(--accent-soft);
-    color: var(--ok);
-  }
-  .st.warn {
-    background: var(--warn-soft);
-    color: var(--warn);
+  .sheet :global(.chev) {
+    flex: none;
+    color: var(--ink-3);
   }
   .foot {
-    margin: 12px 0 0;
+    margin: 10px 2px 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
@@ -278,21 +277,5 @@
   }
   .fchip:hover {
     background: var(--paper-2);
-  }
-  @media (max-width: 900px) {
-    .grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  /* v0.69.1: two cards side by side on a phone: a little less padding, so «noch nicht begonnen» fits */
-  @media (max-width: 480px) {
-    .sheet {
-      padding: 12px;
-    }
-  }
-  @media (max-width: 340px) {
-    .grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
   }
 </style>

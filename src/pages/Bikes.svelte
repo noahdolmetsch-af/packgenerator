@@ -37,9 +37,13 @@
 </script>
 
 <div class="bikes">
-  <header class="head">
-    <h1 class="title">{t('Bikes')}</h1>
-  </header>
+  <!-- Design-Refresh P7: «Velos» heads the bike page only; every sub-page (folder, care, import, workshop,
+       equipment, compare) has its own path back and title (VeloHead). -->
+  {#if !(route.sheet && route.bike) && !['care', 'shop', 'compare'].includes(route.tab)}
+    <header class="head">
+      <h1 class="title">{t('Bikes')}</h1>
+    </header>
+  {/if}
   {#if route.sheet && route.bike}
     <!-- v0.69.0 «Velo-Blätter»: one sheet of the bike's folder (or the whole folder) -->
     <SheetView bikeId={route.bike} sheet={route.sheet} from={route.from ?? null} />

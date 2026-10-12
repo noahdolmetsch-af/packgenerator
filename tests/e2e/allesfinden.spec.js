@@ -17,7 +17,8 @@ test('Was die App kann: groups by situation, chips, find, Hinbringen, Ausprobier
   const groups = page.locator('section[data-group]');
   await expect(groups).toHaveCount(6);
   await expect(groups.first().locator('h2')).toHaveText(T('Before the trip'));
-  await expect(page.locator('.pagehead .sub')).toHaveText(new RegExp(`^${T('{total} functions · you use {n}', { total: '\\d+', n: '\\d+' })}$`));
+  // Design-Refresh P9 (I7): the head with the path back (VeloHead), its line under the title is .vsub
+  await expect(page.locator('.vhead .vsub')).toHaveText(new RegExp(`^${T('{total} functions · you use {n}', { total: '\\d+', n: '\\d+' })}$`));
   await page.screenshot({ path: info.outputPath('f1-was-die-app-kann.png'), fullPage: true });
 
   // phone: every button is a 44 px target, nothing scrolls sideways

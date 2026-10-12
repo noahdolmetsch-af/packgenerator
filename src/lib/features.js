@@ -86,6 +86,7 @@ const OWN = [
   { id: 'f.blockcheck', group: 'before', title: 'Check building blocks', text: 'One block after the other: keep, out or elsewhere.', href: '#/blocks/check', words: 'bausteine prüfen aufräumen' },
   { id: 'f.gearimport', group: 'before', title: 'Import a gear list', text: 'Check an imported list: take the safe rows, the others with one tap each.', href: '#/gear/import', words: 'import liste excel' },
   // Packing and on the way
+  { id: 'f.tripcheck', group: 'onway', title: 'Checks before and after', text: 'The evening before and after the trip: your own list per area, tick, add, save as standard.', href: '#/trips', words: 'vorabend check schluss check lawinenbulletin felle trocknen' },
   { id: 'f.basecheck', group: 'onway', title: 'Basic check before every ride', text: 'Lock, bottle, glasses, helmet, batteries, tyre pressure, phone, keys.', href: '#/ride', play: 'ride', words: 'basischeck startcheck schloss helm' },
   { id: 'f.dayblocks', group: 'onway', title: 'The day in blocks', text: 'Every 3 hours: dress, eat, light, and your arrival at your own pace.', href: '#/ride', play: 'ride', words: 'jetzt karte blöcke ankunft' },
   { id: 'f.evening', group: 'onway', title: 'Evening block', text: 'On a trip of several days: charge tonight, lay out for tomorrow.', href: '#/ride', play: 'ride', words: 'abend laden morgen bereitlegen' },
@@ -131,6 +132,8 @@ const OWN = [
   { id: 'f.helper', group: 'data', title: 'Helper', text: 'The code stays on this device, with a monthly limit; you see what goes to Claude.', href: '#/helper', words: 'helfer ki code limit' },
   { id: 'f.shortcuts', group: 'data', title: 'Keyboard shortcuts', text: 'g h, g t … switch places, n = New, / = search, ? = the list.', href: '#/me', words: 'tastenkürzel tastatur' },
   { id: 'f.theme', group: 'data', title: 'Light, dark and colours', text: 'Font, colour world, text size and light or dark, under Me › Appearance.', href: '#/me/look', words: 'hell dunkel farben stil schrift grösse darstellung' },
+  // v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu, the newest version, every function and all versions
+  { id: 'f.news', group: 'data', title: 'What is new', text: 'The newest version, every function one by one and all versions by month.', href: '#/me/news', words: 'neu neuigkeiten update version was ist neu top 10' },
 ];
 
 /** Every function: the tips (with their group) first, then the own entries, by group order. */

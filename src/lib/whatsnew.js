@@ -4,18 +4,90 @@
  * at the top: version, date, 1-4 points in plain words (English keys for t(), German in
  * i18n/de/whatsnew.js), each with the address of the exact place ("Try it"), or no address when
  * the place no longer exists (older versions). The list goes back to the first version (0.1.0).
+ * v0.110.0 (I11): an entry may also have title, lead (one sentence) and test (the steps «How to test it»).
  * action 'data': the place is "Data and backup" (under Me since v0.94.0, nav.js openData) instead of an address.
  * Pure, tested in tests/whatsnew.test.js.
  */
 
 export const WHATS_NEW = [
   {
-    version: '0.106.0',
+    version: '0.111.0',
     date: '2026-10-12',
+    title: 'Checks before and after',
+    lead: '«Packed» has an evening-before check, «Trip ended» an after-trip check, and both lists are yours.',
     points: [
       { text: 'New on «Packed»: the evening-before check, e.g. read the avalanche bulletin, route offline, charge the tracker.', href: '#/trips' },
       { text: 'New on «Trip ended»: the after-trip check before the debrief, e.g. dry the skins, refill, charge.', href: '#/trips' },
       { text: 'Both lists are yours: tick, remove, add and save them as the standard of the area. The evening reminder on Today opens the check.', href: '#/trips' },
+    ],
+    test: [
+      'Open a packed trip: the evening-before check sits under «Until the start».',
+      'Tick a point, add your own and save the list as the standard.',
+      'End a trip: the after-trip check comes before the debrief.',
+    ],
+  },
+  {
+    // v0.110.0 Design-Refresh P10 (I11): the newest version also has a name, one sentence and the
+    // steps «How to test it» (the card on top of Ich › Was ist neu); older versions do without.
+    version: '0.110.0',
+    date: '2026-10-12',
+    title: 'What is new',
+    lead: 'Me › What is new shows the newest version, every function one by one and all versions by month.',
+    points: [
+      { text: 'What is new lists every function: sort by newest, name, category, place, your top 10 or the most important 10, with a search.', href: '#/me/news?all&sort=top' },
+      { text: '«Your top 10» counts how often you open a function, only on this device and never in the playground.', href: '#/me/news' },
+      { text: 'After an update a message says what is new; «Do not show again» holds until the next update.', href: '#/me/news' },
+      { text: 'For 14 days after an update the tile «New» sits on top of Today, with «Try it», «What is new» and «Take away».', href: '#/' },
+    ],
+    test: [
+      'Open Me › What is new and tap «Your top 10».',
+      'Tap «Go» at a function: its place opens.',
+      'Go back: the function now counts once more.',
+    ],
+  },
+  {
+    version: '0.109.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 12: the end of a trip and the debrief in two columns, with the items as chips by bag.', href: '#/debrief' },
+      { text: 'Look back shows the last trip with number tiles, your 12 months and the comparison, and «More» as plain rows.', href: '#/debrief' },
+      { text: 'Learned, your pace, the logbook with your best values, past trips and your rides use the same light cards.', href: '#/debrief/logbook' },
+    ],
+  },
+  {
+    version: '0.108.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 11: Me is light, in four groups, with a band on top when a backup is due.', href: '#/me' },
+      { text: 'Data and backup is its own page with three status lights; «To the phone» shows a QR code with the app address.', href: '#/me/data' },
+      { text: 'Inbox, filing, notes, the helper, report a problem, home place, shortcuts and the playground use the new light look.', href: '#/me' },
+    ],
+  },
+  {
+    version: '0.107.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 10: Active is light, with today on top, goals with a path and milestones on a shelf.', href: '#/flow' },
+      { text: 'Activity and «More about meditation» show a suggestion for today that you can set as a challenge.', href: '#/flow' },
+      { text: 'The meditation log opens on an overview with a 13-week calendar; a new page «Patterns» shows records and what helped.', href: '#/flow' },
+    ],
+  },
+  {
+    version: '0.106.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 9: Packing shows your bags as one list; tap a bag and its items open below.', href: '#/pack' },
+      { text: 'Swap, charge the evening before, still to decide, trip facts and end the trip are light windows.', href: '#/pack' },
+      { text: 'On the way shows the day in blocks with what to wear, eat and drink now, and the weather hour by hour.', href: '#/ride' },
+    ],
+  },
+  {
+    version: '0.105.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 8: Bikes is light, with the drawing and the bags open on the page and «More» as plain rows.', href: '#/bikes' },
+      { text: 'Bike care shows what is due on top; a chosen bike opens as its own page with a path back.', href: '#/bikes?tab=care' },
+      { text: 'Part, start values, workshop visit, order, import, receipts and equipment use the same light windows.', href: '#/bikes?tab=care' },
     ],
   },
   {

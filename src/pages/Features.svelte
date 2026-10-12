@@ -9,23 +9,15 @@
    * your data. A search field and chips (wrapping on a phone) narrow the list. #/features?f=<id> opens at one function.
    */
   import { liveQuery } from 'dexie';
-  import { db } from '../lib/db.js';
-  import { usedTips, TIPS_KEY } from '../lib/tips.js';
-  import { catalogue, seenOf, findFeatures, FEATURE_GROUPS, PAGE_GROUPS } from '../lib/features.js';
+  import { catalogue, findFeatures, FEATURE_GROUPS, PAGE_GROUPS } from '../lib/features.js';
   import { goFeature } from '../lib/know/featureRun.js';
-  import { HOME_PLACE } from '../lib/know.js';
-  import { paceOf, PACE_KEY } from '../lib/pace.js';
-  import { TEMPLATES_KEY } from '../lib/templates.js';
-  import { SETS_KEY } from '../lib/sets.js';
-  import { LAST_BACKUP } from '../lib/backup.js';
-  import { demoState } from '../lib/demo.js';
+  import { featureData, usedOf } from '../lib/know/featureData.js';
   import { nextTrip } from '../lib/debrief.js';
   import { sortBikes } from '../lib/bikes.js';
-  import { standalone } from '../lib/install.js';
   import { localDay } from '../lib/localday.js';
   import { t } from '../lib/i18n.svelte.js';
   import { Check, ChevronRight, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search } from '@lucide/svelte';
-  import PageHead from '../lib/ui/PageHead.svelte';
+  import VeloHead from '../lib/bikes/VeloHead.svelte';
   import TipButton from '../lib/know/TipButton.svelte';
   import WhatsNew from '../lib/know/WhatsNew.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
@@ -34,34 +26,10 @@
   /** Rows shown per group before «All n ›». */
   const SHOWN = 4;
 
-  const dataQ = liveQuery(async () => {
-    const [trips, items, bikes, visits, debriefs, notesN, setting, file, folder, demo, counts] = await Promise.all([
-      db.trips.toArray(),
-      db.items.toArray(),
-      db.bikes.toArray(),
-      db.visits.toArray(),
-      db.debriefs.toArray(),
-      db.notes.count(),
-      db.settings.bulkGet([TIPS_KEY, HOME_PLACE, PACE_KEY, TEMPLATES_KEY, SETS_KEY]),
-      db.meta.get(LAST_BACKUP),
-      db.meta.get('backupFolder'),
-      demoState(db),
-      Promise.all([db.rides.count(), db.events.count(), db.learnings.count(), db.kmBook.filter((r) => !!r.importId).count(), db.maintenance.count(), db.flowLog.count(), db.flowChecks.count(), db.flowStars.count(), db.flowSessions.count()]),
-    ]);
-    const [tips, home, pace, tpl, sets] = setting.map((r) => r?.value ?? null);
-    const [rides, events, learnings, imports, problems, flowLog, flowChecks, flowStars, flowSessions] = counts;
-    const n = { trips: trips.length, rides, events, learnings, imports, problems, visits: visits.length, flowLog, flowChecks, flowStars, flowSessions, notes: notesN };
-    return { trips, items, bikes, visits, debriefs, notesN, tips, homePlace: home, pace: paceOf(pace), templates: tpl ?? [], sets: sets ?? [], lastBackup: file?.at ?? folder?.lastWrite ?? null, demo, counts: n, folder: !!folder };
-  });
-  const langSet = (() => {
-    try {
-      return localStorage.getItem('lang') != null;
-    } catch {
-      return false;
-    }
-  })();
+  // v0.110.0: the reading moved to know/featureData.js (shared with Ich › Was ist neu), unchanged
+  const dataQ = liveQuery(featureData);
   const d = $derived($dataQ);
-  const used = $derived(d ? new Set([...usedTips({ ...d, langSet, standalone: standalone() }), ...seenOf({ counts: d.counts, folder: d.folder, play: !!d.demo?.play })]) : new Set());
+  const used = $derived(usedOf(d));
   let by = $state('situation');
   const all = $derived(d ? catalogue(d.tips, used, by) : null);
   const next = $derived(d ? nextTrip(d.trips, localDay()) : null);
@@ -125,7 +93,9 @@
 {/snippet}
 
 <div class="feat">
-  <PageHead title={t('What the app can do')} sub={all ? t('{total} functions · you use {n}', { total: all.total, n: all.used }) : ''} />
+  <!-- Design-Refresh P9 (I7 neu, Noah 12.10.2026 «Runde 20 freigegeben»: «Seite lassen wie sie ist, nur neues
+       Design»): the path back to Ich, the same parts as before in the new style. -->
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('What the app can do')} sub={all ? t('{total} functions · you use {n}', { total: all.total, n: all.used }) : ''} />
   <div class="cols">
     <div class="mainc">
       <label class="ffind">
@@ -231,26 +201,21 @@
   }
   .fby {
     display: flex;
-    width: fit-content;
-    gap: var(--sp-1);
-    padding: var(--sp-1);
-    border: 1.5px solid var(--line);
-    border-radius: 999px;
-    background: var(--paper);
-    margin-bottom: var(--sp-2);
+    flex-wrap: wrap;
+    gap: var(--sp-2);
   }
   .fbyb {
     min-height: 44px;
     padding: 0 var(--sp-4);
-    border: 0;
+    border: 1px solid var(--line);
     border-radius: 999px;
-    background: transparent;
+    background: var(--paper);
     color: var(--ink);
-    font: 600 var(--fs-label) var(--font-body);
+    font: 500 var(--fs-label) var(--font-body);
     cursor: pointer;
   }
   .fbyb[aria-pressed='true'] {
-    background: var(--accent);
+    background: var(--ink);
     color: var(--paper);
   }
   .fchips {
@@ -261,18 +226,19 @@
   .fchip {
     flex: none;
     min-height: 44px;
-    padding: 0 var(--sp-4);
-    border: 1.5px solid var(--line);
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--line);
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink);
-    font: 600 var(--fs-label) var(--font-body);
+    font: 500 var(--fs-small) var(--font-body);
     cursor: pointer;
   }
   .fchip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--accent-soft);
+    border-color: var(--accent-soft);
+    color: var(--ink);
+    font-weight: 600;
   }
   .fnone {
     margin: var(--sp-2) 0;
@@ -302,13 +268,13 @@
   .fgi {
     flex: none;
     display: inline-flex;
-    color: var(--hi);
+    color: var(--ink-2);
   }
   .fgh h2 {
     flex: 1;
     min-width: 0;
     margin: 0;
-    font: 700 var(--fs-sub)/1.25 var(--font-body);
+    font: 600 var(--fs-sub)/1.25 var(--font-body);
     overflow-wrap: break-word;
   }
   .fgn {
@@ -343,7 +309,7 @@
     justify-items: start;
   }
   .ft {
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1.3;
     overflow-wrap: break-word;
   }
@@ -375,21 +341,17 @@
   }
   .fa :global(.fgo) {
     min-height: 44px;
-    border-color: var(--accent);
-    color: var(--accent);
-    font-weight: 600;
-  }
-  .used .fa :global(.fgo) {
     border-color: var(--line);
-    color: var(--ink-3);
+    color: var(--ink);
+    font-weight: 500;
   }
   .ftry {
     min-height: 44px;
     padding: 0 var(--sp-1);
     border: 0;
     background: none;
-    color: var(--hi);
-    font: 600 var(--fs-small) var(--font-body);
+    color: var(--ink);
+    font: 500 var(--fs-small) var(--font-body);
     cursor: pointer;
   }
   .fall {
@@ -400,8 +362,8 @@
     padding: 0;
     border: 0;
     background: none;
-    color: var(--accent);
-    font: 600 var(--fs-label) var(--font-body);
+    color: var(--ink);
+    font: 500 var(--fs-label) var(--font-body);
     cursor: pointer;
   }
   .howto {
@@ -412,7 +374,7 @@
   }
   .howto h2 {
     margin: 0 0 var(--sp-2);
-    font: 700 var(--fs-sub)/1.25 var(--font-body);
+    font: 600 var(--fs-sub)/1.25 var(--font-body);
   }
   .howto p {
     margin: 0;

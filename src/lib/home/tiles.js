@@ -40,7 +40,8 @@ export const TILES = [
   { id: 'important', area: 'today', label: 'Important today', icon: 'alert', sizes: ['w', 'l', 'long'], size: 'l', pitch: 'What is due today: a bike job, the backup, a debrief.' },
   { id: 'flow', area: 'flow', label: 'In the flow', icon: 'flow', sizes: ['l', 'long'], size: 'l', pitch: 'Tick off today, your rings and the daily check.' },
   { id: 'series', area: 'flow', label: 'Series and milestones', icon: 'flame', sizes: ['w', 'l'], size: 'w', since: '0.94.0', pitch: 'Weeks in a row with anything: a ride, a trip, meditation, yoga …' },
-  { id: 'news', area: 'app', label: 'New in the app', icon: 'sparkles', sizes: ['s', 'w'], size: 'w', since: '0.94.0', pitch: 'What the last update brought, with «Try it».' },
+  // v0.110.0 Design-Refresh P10 (I11e): also a whole row, as it sits on top for 14 days after an update
+  { id: 'news', area: 'app', label: 'New in the app', icon: 'sparkles', sizes: ['s', 'w', 'long'], size: 'w', since: '0.94.0', pitch: 'What the last update brought, with «Try it».' },
   { id: 'meditation', area: 'flow', label: 'Meditation', icon: 'lotus', sizes: ['s', 'w'], size: 's', since: '0.94.0', pitch: 'Start a meditation like last time, in one tap.' },
   { id: 'play', area: 'app', label: 'Playground', icon: 'flask', sizes: ['s', 'w'], size: 's', since: '0.88.0', pitch: 'Try everything with made-up data; afterwards all is as before.' },
   ...FUNCTIONS.map((f) => ({ id: `fn:${f.id}`, fn: f.id, area: FN_AREA[f.id] ?? 'app', label: f.label, icon: f.icon, sizes: ['s', 'w'], size: 's', pitch: f.pitch })),

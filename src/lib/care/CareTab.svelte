@@ -2,7 +2,10 @@
   import { localDay } from '../localday.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { sortBikes } from '../bikes.js';
+  import { sortBikes, bikesHash } from '../bikes.js';
+  import VeloHead from '../bikes/VeloHead.svelte';
+  import '../bikes/velo-dlg.css';
+  import { X } from '@lucide/svelte';
   import { nextId } from '../gear.js';
   import { chainWish } from '../quickcare.js';
   import { tick } from 'svelte';
@@ -14,6 +17,7 @@
   import { shopSkip } from './last.js';
   import BikeCare from './BikeCare.svelte';
   import CareOverview from './CareOverview.svelte';
+  import ProblemList from './ProblemList.svelte';
   import StartValues from './StartValues.svelte';
   import StartPointDialog from './StartPointDialog.svelte';
   import { partStart } from '../kmbook.js';
@@ -315,7 +319,8 @@
     openId = id;
     onbike?.(id);
     await tick();
-    document.getElementById(`care-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // V7: the bike is its own page now: back to the top of it (the path and the title).
+    document.querySelector('.care')?.scrollIntoView({ block: 'start' });
   }
   $effect(() => {
     if (open && bikeId && bikes.some((b) => b.id === bikeId)) {
@@ -328,12 +333,26 @@
     // v0.48.0 (Pflege C): the overview is on top; a bike is open only when it was chosen.
     if (openId === undefined && bikes.length) openId = bikes.some((b) => b.id === bikeId) ? bikeId : null;
   });
+  // Design-Refresh P7 (V6/V7): no bike chosen any more (the path «Pflege») → the overview again.
+  // svelte-ignore state_referenced_locally
+  let lastBikeId = bikeId;
+  $effect(() => {
+    const b = bikeId;
+    if (b === lastBikeId) return;
+    lastBikeId = b;
+    if (!b) openId = null;
+  });
+  // V6: the overview page; V7: one bike's care page (the other bikes stay one row each below).
+  const openC = $derived(openId ? checks.find((c) => c.bike.id === openId) ?? null : null);
+  const dueAll = $derived(checks.reduce((n, c) => n + c.care.rows.filter((r) => r.kind !== 'repair').length, 0));
   const toggled = (id, isOpen) => {
-    openId = isOpen ? id : null;
-    if (isOpen) onbike?.(id);
+    if (isOpen) openBike(id);
+    else openId = null;
   };
-  const next = $derived(trips[0] ?? null);
-  const later = $derived(trips.slice(1));
+  // V7: on one bike's page only the trips with that bike.
+  const tripsShown = $derived(openC ? trips.filter((x) => x.trip.bikeId === openC.bike.id) : trips);
+  const next = $derived(tripsShown[0] ?? null);
+  const later = $derived(tripsShown.slice(1));
   // v0.22.0 (AP06): #/bikes?tab=care&trip=<id> (Home, Pack) goes to that trip's preparation.
   let laterOpen = $state(false);
   let wentTo = null;
@@ -348,9 +367,25 @@
 <!-- v0.31.0 (Velopflege redesign, mockup v3-pflege): a filter, the next trip as one folded row,
      then one bike open and the others as one row each. -->
 <div class="care">
+  {#if openC}
+    <!-- Design-Refresh P7 (V7): one bike's care page: «‹ Velo › Pflege › Gravel Blau». -->
+    <VeloHead
+      crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup', bike: openC.bike.id }) }, { label: t('Care|tab'), href: bikesHash({ tab: 'care' }) }]}
+      title={openC.bike.name}
+      sub={[t('Bike care'), typeof openC.bike.km === 'number' ? `${num(openC.bike.km)} km` : '', t('as of today')].filter(Boolean).join(' · ')}
+    />
+  {:else}
+    <VeloHead
+      crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }]}
+      here={t('Care|tab')}
+      title={t('Bike care')}
+      sub={[tn(bikes.length, '{n} bike', '{n} bikes'), dueAll ? tn(dueAll, '{n} due', '{n} due') : t('nothing due')].join(' · ')}
+    />
+  {/if}
   {#if !bikes.length && $bikesQ}
     <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
   {:else}
+    {#if !openC}
     <CareOverview
       {checks}
       problems={allBikeProblems}
@@ -365,6 +400,7 @@
       onrepair={repairResult}
       onwork={() => ((workBike = openId ?? bikes[0]?.id ?? null), (workOpen = true))}
     />
+    {/if}
 
     {#snippet trip(x)}
       <TripCare trip={x.trip} rows={x.rows} rules={x.rules} care={x.care} prep={x.prep} focus={x.trip.id === tripId} bikeName={bikeById[x.trip.bikeId]?.name} {today} order={orderOf[x.trip.bikeId]?.order} onorder={() => (orderOpen = x.trip.bikeId)} onresult={(r, result) => prepResult(x.trip, r, result)} onall={() => prepAll(x.trip, x.rows)} onundo={(r) => undoPrep(x.trip, r)} onevent={(on) => db.trips.update(x.trip.id, { event: on })} />
@@ -397,43 +433,54 @@
       <p class="rev-cta">{tn(review.length, '{n} task from the Excel (June) is not checked yet.', '{n} tasks from the Excel (June) are not checked yet.')} <button type="button" class="btn sm" onclick={() => (reviewing = true)}>{t('Go through them')}</button></p>
     {/if}
 
-    <div class="bhead">
-      <h2 class="zlabel">{t('Each bike')}</h2>
-      <div class="chips" role="group" aria-label={t('Show parts')}>
+    {#snippet bikeCare(c)}
+      <BikeCare
+        {c}
+        {tasks}
+        {visits}
+        {wished}
+        {filter}
+        {today}
+        kmMsg={kmMsg?.bikeId === c.bike.id ? kmMsg : null}
+        open={openId === c.bike.id}
+        ontoggle={(isOpen) => toggled(c.bike.id, isOpen)}
+        onkm={(text) => saveKm(c.bike, text)}
+        oncheck={(keys, action, note) => checkAndSay(c.bike, keys, action, note)}
+        ondone={(r) => checkAndSay(c.bike, [r.part], 'service', r.kind === 'time' ? r.name : '', 'self')}
+        onpart={(key) => (partOpen = { bikeId: c.bike.id, key })}
+        ontyre={(w, value) => setTyre(bikeById[c.bike.id], w, value)}
+        onvisit={(id) => (visitOpen = id)}
+        onorder={() => (orderOpen = c.bike.id)}
+        onwish={(s) => wishTime(c.bike, s)}
+        onrepair={repairResult}
+        onstart={() => (startOpen = c.bike.id)}
+        {kmEntries}
+        {bikes}
+        onstartpoint={(key, main) => (startPoint = { bikeId: c.bike.id, key, missing: main.filter((p) => !partStart(p)).map((p) => p.key) })}
+        onq1={(on) => setQ1(c.bike.id, on)}
+      />
+    {/snippet}
+    {#if openC}
+      <!-- Design-Refresh P7 (V7): the open bike is the page; «Show parts» above it, the other bikes
+           one row each below it (a tap opens that bike's page). -->
+      <div class="chips pgchips" role="group" aria-label={t('Show parts')}>
         {#each FILTERS as [k, label] (k)}
           <button type="button" class="chip" aria-pressed={filter === k} onclick={() => setFilter(k)}>{t(label)}</button>
         {/each}
       </div>
-    </div>
-    <section class="per-bike" aria-label={t('Each bike')}>
-      {#each checks as c (c.bike.id)}
-        <BikeCare
-          {c}
-          {tasks}
-          {visits}
-          {wished}
-          {filter}
-          {today}
-          kmMsg={kmMsg?.bikeId === c.bike.id ? kmMsg : null}
-          open={openId === c.bike.id}
-          ontoggle={(isOpen) => toggled(c.bike.id, isOpen)}
-          onkm={(text) => saveKm(c.bike, text)}
-          oncheck={(keys, action, note) => checkAndSay(c.bike, keys, action, note)}
-          ondone={(r) => checkAndSay(c.bike, [r.part], 'service', r.kind === 'time' ? r.name : '', 'self')}
-          onpart={(key) => (partOpen = { bikeId: c.bike.id, key })}
-          ontyre={(w, value) => setTyre(bikeById[c.bike.id], w, value)}
-          onvisit={(id) => (visitOpen = id)}
-          onorder={() => (orderOpen = c.bike.id)}
-          onwish={(s) => wishTime(c.bike, s)}
-          onrepair={repairResult}
-          onstart={() => (startOpen = c.bike.id)}
-          {kmEntries}
-          {bikes}
-          onstartpoint={(key, main) => (startPoint = { bikeId: c.bike.id, key, missing: main.filter((p) => !partStart(p)).map((p) => p.key) })}
-          onq1={(on) => setQ1(c.bike.id, on)}
-        />
-      {/each}
-    </section>
+      <!-- keyed: another bike is a fresh page (no part row left open from the bike before) -->
+      <section class="per-bike" aria-label={t('Each bike')}>{#key openC.bike.id}{@render bikeCare(openC)}{/key}</section>
+      <!-- The problems of this bike stay on its page (the overview lists those of every bike). -->
+      <ProblemList repairs={allBikeProblems.filter((x) => taskBike(x) === openC.bike.id)} bikes={[openC.bike]} {today} bikeIdOf={taskBike} onrepair={repairResult} />
+      {#if checks.length > 1}
+        <section class="per-bike others" aria-labelledby="others-h">
+          <h2 id="others-h" class="oh">{t('Other bikes')}</h2>
+          <div class="card orows">
+            {#each checks.filter((x) => x.bike.id !== openC.bike.id) as c (c.bike.id)}{@render bikeCare(c)}{/each}
+          </div>
+        </section>
+      {/if}
+    {/if}
 
     {#if otherRepairs.length}
       <div class="folds"><Fold label={t('Other')} summary={tn(otherRepairs.length, '{n} open task not on a bike', '{n} open tasks not on a bike')}>
@@ -484,19 +531,23 @@
 {#if workOpen}
   {@const wb = viewById[workBike] ?? views[0]}
   <!-- v0.48.0 (Pflege C): «Record work»: pick the bike and the part; the part then offers Replace and Service. -->
-  <dialog class="sheet" bind:this={workDialog} onclose={() => (workOpen = false)} aria-labelledby="work-h">
-    <h2 id="work-h" class="title">{t('Record work')}</h2>
+  <!-- Design-Refresh P7: «Record work» as a window of the bike pages (bike and part as chips). -->
+  <dialog class="sheet vdlg" bind:this={workDialog} onclose={() => (workOpen = false)} aria-labelledby="work-h">
+    <div class="vd-head">
+      <div class="vd-t"><h2 id="work-h" class="title">{t('Record work')}</h2><p class="vd-sub">{t('Pick the bike and the part')}</p></div>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => workDialog.close()}><X size={20} aria-hidden="true" /></button>
+    </div>
     {#if views.length > 1}
       <p class="lbl">{t('Bike')}</p>
-      <div class="wchips" role="group" aria-label={t('Bike')}>
-        {#each views as v (v.id)}<button type="button" class="wchip" aria-pressed={wb?.id === v.id} onclick={() => (workBike = v.id)}>{v.name}</button>{/each}
+      <div class="wchips vd-chips" role="group" aria-label={t('Bike')}>
+        {#each views as v (v.id)}<button type="button" class="wchip vd-chip" aria-pressed={wb?.id === v.id} onclick={() => (workBike = v.id)}>{v.name}</button>{/each}
       </div>
     {/if}
     <p class="lbl">{t('Part')}</p>
-    <div class="wchips" role="group" aria-label={t('Part')}>
-      {#each (wb?.parts ?? []).filter((p) => !isMore(p)) as p (p.key)}<button type="button" class="wchip" onclick={() => ((partOpen = { bikeId: wb.id, key: p.key, start: null }), workDialog.close())}>{nameOfPart(p)}</button>{/each}
+    <div class="wchips vd-chips" role="group" aria-label={t('Part')}>
+      {#each (wb?.parts ?? []).filter((p) => !isMore(p)) as p (p.key)}<button type="button" class="wchip vd-chip" onclick={() => ((partOpen = { bikeId: wb.id, key: p.key, start: null }), workDialog.close())}>{nameOfPart(p)}</button>{/each}
     </div>
-    <div class="wfoot"><button type="button" class="btn" onclick={() => workDialog.close()}>{t('Cancel')}</button></div>
+    <div class="wfoot vd-foot"><button type="button" class="btn" onclick={() => workDialog.close()}>{t('Cancel')}</button></div>
   </dialog>
 {/if}
 
@@ -559,19 +610,16 @@
   .per-bike {
     margin: 8px 0 20px;
   }
-  .bhead {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 16px;
-    margin: 18px 0 4px;
+  /* Design-Refresh P7 (V7): the other bikes as quiet rows in one card below the open bike. */
+  .others {
+    margin-top: 28px;
   }
-  .bhead .zlabel {
-    flex: 1 1 200px;
-    margin: 0;
+  .oh {
+    margin: 0 2px 10px;
+    font: 600 var(--fs-sub) / 1.25 var(--font-body);
   }
-  .bhead .chips {
-    margin: 0;
+  .orows {
+    padding: 0 16px;
   }
   .wchips {
     display: flex;
@@ -579,65 +627,35 @@
     gap: 8px;
     margin: 0 0 14px;
   }
-  .wchip {
-    min-height: 44px;
-    padding: 6px 14px;
-    border: 1.5px solid var(--line);
-    border-radius: 10px;
-    background: var(--paper);
-    font: 500 var(--fs-small) var(--font-body);
-    color: var(--ink);
-    cursor: pointer;
-  }
-  .wchip[aria-pressed='true'] {
-    border-color: var(--hi);
-    background: var(--hi-soft);
-  }
   .wfoot {
     display: flex;
     justify-content: flex-end;
   }
-  /* v0.31.0: the filter as chips (aria-pressed), 44 px high. */
-  /* v0.38.0 (Noah 5a): a segmented toggle in one line. */
+  /* Design-Refresh P7 (V7): «Show parts» as the light pill chips of the bike pages; the chosen one dark. */
   .chips {
-    display: grid;
-    grid-template-columns: repeat(4, auto);
-    gap: 2px;
-    width: max-content;
-    max-width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
     margin: 0 0 12px;
-    padding: 3px;
-    border-radius: 12px;
-    background: var(--paper-2);
   }
-  /* v0.47.0 (style sheet «Gletscher»): the soft segmented control of ui/Seg. */
   .chip {
     min-height: 44px;
-    min-width: 0;
-    padding: 4px 12px;
-    border: 0;
-    border-radius: 9px;
-    background: transparent;
-    font: 500 14px var(--font-body);
-    color: var(--ink-2);
+    padding: 0 16px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--paper);
+    font: 500 var(--fs-small) var(--font-body);
+    color: var(--ink);
     white-space: nowrap;
     cursor: pointer;
   }
-  .chip[aria-pressed='true'] {
-    background: var(--paper);
-    color: var(--ink);
-    font-weight: 600;
-    box-shadow: 0 1px 3px var(--shadow);
+  .chip:hover {
+    background: var(--paper-2);
   }
-  @media (max-width: 400px) {
-    .chips {
-      width: 100%;
-      grid-template-columns: repeat(4, minmax(0, auto));
-    }
-    .chip {
-      padding: 4px 8px;
-      font-size: 13px;
-    }
+  .chip[aria-pressed='true'] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
   }
   .folds {
     margin-bottom: 20px;

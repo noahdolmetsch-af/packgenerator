@@ -123,9 +123,9 @@
 </script>
 
 <div class="flow">
-  <div class="fh">
-    <h2 id="flow-h" class="title">{mode === 'replace' ? t('Replace {part}', { part: name }) : t('Service {part}', { part: name })}</h2>
-    <button type="button" class="x" aria-label={t('Close')} onclick={oncancel}><X size={20} aria-hidden="true" /></button>
+  <div class="fh vd-head">
+    <div class="vd-t"><h2 id="flow-h" class="title">{mode === 'replace' ? t('Replace {part}', { part: name }) : t('Service {part}', { part: name })}</h2><p class="vd-sub">{bike.name}</p></div>
+    <button type="button" class="x vd-x" aria-label={t('Close')} onclick={oncancel}><X size={20} aria-hidden="true" /></button>
   </div>
   {#if STEPS.length > 1}
     <ol class="steps" aria-label={t('Steps')}>

@@ -8,14 +8,71 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.106.0 Bausteine bearbeiten: Vorabend- und Schluss-Check
+  // 0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check
+  'Checks before and after': 'Checks davor und danach',
+  '«Packed» has an evening-before check, «Trip ended» an after-trip check, and both lists are yours.':
+    '«Gepackt» hat einen Vorabend-Check, «Tour beendet» einen Schluss-Check, und beide Listen gehören dir.',
   'New on «Packed»: the evening-before check, e.g. read the avalanche bulletin, route offline, charge the tracker.':
     'Neu auf «Gepackt»: der Vorabend-Check, z. B. Lawinenbulletin lesen, Route offline laden, Tracker laden.',
   'New on «Trip ended»: the after-trip check before the debrief, e.g. dry the skins, refill, charge.':
     'Neu auf «Tour beendet»: der Schluss-Check vor dem Rückblick, z. B. Felle trocknen, nachfüllen, laden.',
   'Both lists are yours: tick, remove, add and save them as the standard of the area. The evening reminder on Today opens the check.':
     'Beide Listen gehören dir: abhaken, entfernen, ergänzen und als Standard der Reiseart speichern. Die Abend-Erinnerung auf Heute öffnet den Check.',
-
+  'Open a packed trip: the evening-before check sits under «Until the start».':
+    'Eine gepackte Tour öffnen: Der Vorabend-Check steht unter «Bis zum Start».',
+  'Tick a point, add your own and save the list as the standard.':
+    'Einen Punkt abhaken, einen eigenen ergänzen und die Liste als Standard speichern.',
+  'End a trip: the after-trip check comes before the debrief.':
+    'Eine Tour beenden: Der Schluss-Check kommt vor dem Rückblick.',
+  // 0.110.0 Design-Refresh P10 «Was ist neu»
+  'Me › What is new shows the newest version, every function one by one and all versions by month.':
+    'Ich › Was ist neu zeigt die neueste Version, jede Funktion einzeln und alle Versionen nach Monat.',
+  'What is new lists every function: sort by newest, name, category, place, your top 10 or the most important 10, with a search.':
+    'Was ist neu listet jede Funktion: sortiert nach Neueste, Name, Kategorie, Ort, Deine Top 10 oder Wichtigste 10, mit Suche.',
+  '«Your top 10» counts how often you open a function, only on this device and never in the playground.':
+    '«Deine Top 10» zählt, wie oft du eine Funktion öffnest, nur auf diesem Gerät und nie auf der Spielwiese.',
+  'After an update a message says what is new; «Do not show again» holds until the next update.':
+    'Nach einem Update sagt eine Meldung, was neu ist; «Nicht mehr anzeigen» gilt bis zum nächsten Update.',
+  'For 14 days after an update the tile «New» sits on top of Today, with «Try it», «What is new» and «Take away».':
+    '14 Tage nach einem Update steht die Kachel «Neu» oben auf Heute, mit «Ausprobieren», «Was ist neu» und «Wegnehmen».',
+  'Open Me › What is new and tap «Your top 10».': 'Ich › Was ist neu öffnen und «Deine Top 10» antippen.',
+  'Tap «Go» at a function: its place opens.': 'Bei einer Funktion «Loslegen» antippen: Ihre Stelle öffnet sich.',
+  'Go back: the function now counts once more.': 'Zurückgehen: Die Funktion zählt jetzt einmal mehr.',
+  // 0.109.0 Design-Refresh P6 «Rückblick, Auswerten, Fahrten»
+  'The new look, step 12: the end of a trip and the debrief in two columns, with the items as chips by bag.':
+    'Das neue Aussehen, Schritt 12: Tour beendet und der Rückblick in zwei Spalten, die Teile als Chips nach Tasche.',
+  'Look back shows the last trip with number tiles, your 12 months and the comparison, and «More» as plain rows.':
+    'Rückblick zeigt die letzte Tour mit Zahlen-Kacheln, deine 12 Monate und den Vergleich, und «Mehr» als schlichte Zeilen.',
+  'Learned, your pace, the logbook with your best values, past trips and your rides use the same light cards.':
+    'Gelernt, Dein Tempo, das Logbuch mit deinen Bestwerten, Vergangene Touren und deine Fahrten nutzen dieselben hellen Karten.',
+  // 0.108.0 Design-Refresh P9 «Ich»
+  'The new look, step 11: Me is light, in four groups, with a band on top when a backup is due.':
+    'Das neue Aussehen, Schritt 11: Ich ist hell, in vier Gruppen, mit einem Band oben, wenn ein Backup fällig ist.',
+  'Data and backup is its own page with three status lights; «To the phone» shows a QR code with the app address.':
+    'Daten und Backup ist eine eigene Seite mit drei Status-Lichtern; «Aufs Handy» zeigt einen QR-Code mit der Adresse der App.',
+  'Inbox, filing, notes, the helper, report a problem, home place, shortcuts and the playground use the new light look.':
+    'Eingang, Ablegen, Notizen, Helfer, Problem melden, Wohnort, Tastenkürzel und Spielwiese sind im neuen hellen Aussehen.',
+  // 0.107.0 Design-Refresh P8 «Aktiv»
+  'The new look, step 10: Active is light, with today on top, goals with a path and milestones on a shelf.':
+    'Das neue Aussehen, Schritt 10: Aktiv ist hell, mit heute oben, Zielen mit Weg und Meilensteinen im Regal.',
+  'Activity and «More about meditation» show a suggestion for today that you can set as a challenge.':
+    'Aktivität und «Mehr zur Meditation» zeigen einen Vorschlag für heute, den du als Challenge setzen kannst.',
+  'The meditation log opens on an overview with a 13-week calendar; a new page «Patterns» shows records and what helped.':
+    'Das Meditations-Logbuch öffnet mit einer Übersicht und einem Kalender über 13 Wochen; die neue Seite «Muster» zeigt Rekorde und was geholfen hat.',
+  // 0.106.0 Design-Refresh P5 «Packen und Unterwegs»
+  'The new look, step 9: Packing shows your bags as one list; tap a bag and its items open below.':
+    'Das neue Aussehen, Schritt 9: Packen zeigt deine Taschen als eine Liste; tippe eine Tasche, und ihre Teile öffnen sich darunter.',
+  'Swap, charge the evening before, still to decide, trip facts and end the trip are light windows.':
+    'Tauschen, Am Vorabend laden, Noch zu entscheiden, Tour-Fakten und Tour beenden sind helle Fenster.',
+  'On the way shows the day in blocks with what to wear, eat and drink now, and the weather hour by hour.':
+    'Unterwegs zeigt den Tag in Blöcken mit dem, was du jetzt anziehst, isst und trinkst, und das Wetter Stunde für Stunde.',
+  // 0.105.0 Design-Refresh P7 «Velo»
+  'The new look, step 8: Bikes is light, with the drawing and the bags open on the page and «More» as plain rows.':
+    'Das neue Aussehen, Schritt 8: Velo ist hell, mit Zeichnung und Taschen offen auf der Seite und «Mehr» als schlichte Zeilen.',
+  'Bike care shows what is due on top; a chosen bike opens as its own page with a path back.':
+    'Die Velopflege zeigt oben, was fällig ist; ein gewähltes Velo öffnet sich als eigene Seite mit Weg zurück.',
+  'Part, start values, workshop visit, order, import, receipts and equipment use the same light windows.':
+    'Teil, Startwerte, Werkstattbesuch, Bestellung, Import, Belege und Ausstattung nutzen dieselben hellen Fenster.',
   // 0.104.0 Design-Refresh P4 «Touren»
   'The new look, step 7: Trips shows what to continue on top, light trip tiles with a packing bar and your best values.':
     'Das neue Aussehen, Schritt 7: Touren zeigt oben, wo du weitermachst, helle Tour-Kacheln mit Packbalken und deine Bestwerte.',

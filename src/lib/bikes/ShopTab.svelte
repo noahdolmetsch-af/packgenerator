@@ -12,7 +12,8 @@
   import VisitDialog from '../care/VisitDialog.svelte';
   import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
   import { t, tn, locale } from '../i18n.svelte.js';
-  import { ReceiptText, Wrench, ChevronRight, ClipboardList, ListChecks } from '@lucide/svelte';
+  import { ReceiptText, Wrench, ChevronRight, ClipboardList, ListChecks, Plus, Lightbulb, Image as ImageIcon } from '@lucide/svelte';
+  import VeloHead from './VeloHead.svelte';
 
   let { bikeId = null, visitId = null, onbike } = $props();
 
@@ -51,14 +52,15 @@
   };
 </script>
 
-<section class="shop" aria-labelledby="shop-h">
-  <div class="top">
-    <div>
-      <h2 id="shop-h" class="title">{t('Workshop & receipts')}</h2>
-      <p class="page-sub">{tn(visits.length, '{n} visit', '{n} visits')}{yearCost ? ` · ${t('{year}: CHF {chf}', { year, chf: chf(yearCost) })}` : ''}</p>
-    </div>
-    <button type="button" class="btn hi" onclick={() => (adding = true)}>+ {t('Log a workshop visit')}</button>
-  </div>
+<!-- Design-Refresh P7 (V13, Noah 12.10.2026 «v11-v14 freigegeben»): «‹ Velo › Pflege › Werkstatt & Belege»,
+     the bikes as chips; left what waits for the bike shop and the visits with their receipts, right
+     «+ Log a workshop visit» and the receipts. -->
+<section class="shop">
+  <VeloHead
+    crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup', bike: pick }) }, { label: t('Care|tab'), href: bikesHash({ tab: 'care', bike: pick, open: !!pick }) }]}
+    title={t('Workshop & receipts')}
+    sub={`${tn(visits.length, '{n} visit', '{n} visits')}${yearCost ? ` · ${t('{year}: CHF {chf}', { year, chf: chf(yearCost) })}` : ''}`}
+  />
 
   {#if bikes.length > 1}
     <div class="fchips" role="group" aria-label={t('Bike')}>
@@ -67,45 +69,63 @@
     </div>
   {/if}
 
-  <h3 class="zlabel">{t('For the bike shop')}</h3>
-  {#if pick}
-    <!-- v0.69.0 «Velo-Blätter» (V1 a): the order as a sheet before the visit, the check at the pick-up -->
-    <p class="sheetlinks">
-      <a class="btn" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'order', from: 'shop' })}><ClipboardList size={16} aria-hidden="true" />{t('Workshop order|sheet')}</a>
-      <a class="btn" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'pickup', from: 'shop' })}><ListChecks size={16} aria-hidden="true" />{t('Pick-up check')}</a>
-    </p>
-  {/if}
-  {#if orders.length}
-    <ul class="rowlist">
-      {#each orders as o (o.id)}
-        <li><a class="lrow" href={bikesHash({ tab: 'care', bike: o.bikeId, open: true })}><span class="ic"><Wrench size={18} aria-hidden="true" /></span><span class="m"><span class="t">{o.task}</span><span class="s">{names[o.bikeId] ?? ''}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-      {/each}
-    </ul>
-  {:else}
-    <p class="quiet">{t('Nothing waits for the bike shop. A problem marked «bike shop» in Care shows here.')}</p>
-  {/if}
+  <div class="scols">
+    <div class="smain">
+      <section class="ssec" aria-labelledby="forshop-h">
+        <h2 id="forshop-h" class="sh">{t('For the bike shop')}</h2>
+        {#if pick || orders.length}
+          <ul class="card srows">
+            {#if pick}
+              <!-- v0.69.0 «Velo-Blätter» (V1 a): the order as a sheet before the visit, the check at the pick-up -->
+              <li><a class="lrow" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'order', from: 'shop' })}><span class="ic"><ClipboardList size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Workshop order|sheet')}</span><span class="s">{names[pick]}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+              <li><a class="lrow" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'pickup', from: 'shop' })}><span class="ic"><ListChecks size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Pick-up check')}</span><span class="s">{names[pick]}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+            {/if}
+            {#each orders as o (o.id)}
+              <li><a class="lrow" href={bikesHash({ tab: 'care', bike: o.bikeId, open: true })}><span class="ic"><Wrench size={18} aria-hidden="true" /></span><span class="m"><span class="t">{o.task}</span><span class="s">{names[o.bikeId] ?? ''}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+            {/each}
+          </ul>
+        {/if}
+        {#if !orders.length}<p class="quiet">{t('Nothing waits for the bike shop. A problem marked «bike shop» in Care shows here.')}</p>{/if}
+      </section>
 
-  <h3 class="zlabel">{t('Visits and receipts')}</h3>
-  {#if !visits.length}
-    <p class="quiet">{t('No visit yet. A photo of a receipt in the Inbox becomes one with «File as … Receipt».')}</p>
-  {/if}
-  {#each months as m (m.key)}
-    <p class="mon">{monthName(m.key)}</p>
-    <ul class="rowlist">
-      {#each m.rows as v (v.id)}
-        <li>
-          <button type="button" class="lrow" data-visit-id={v.id} onclick={() => (open = v.id)}>
-            {#if v.photos?.[0]}<img class="rc" src={v.photos[0]} alt="" loading="lazy" />{:else}<span class="ic"><ReceiptText size={18} aria-hidden="true" /></span>{/if}
-            <span class="m"><span class="t">{v.shop || t('Workshop')}</span><span class="s">{dayName(v.date)}{pick ? '' : ` · ${names[v.bikeId] ?? ''}`}{v.km != null ? ` · ${v.km.toLocaleString('de-CH')} km` : ''}{(v.parts ?? []).length ? ` · ${tn(v.parts.length, '{n} job', '{n} jobs')}` : ''}</span></span>
-            <span class="v">{visitTotal(v) == null ? '' : chf(visitTotal(v))}</span>
-            <ChevronRight class="chev" size={18} aria-hidden="true" />
-          </button>
-        </li>
-      {/each}
-    </ul>
-  {/each}
+      <section class="ssec" aria-labelledby="visits-h">
+        <h2 id="visits-h" class="sh">{t('Visits and receipts')}</h2>
+        {#if !visits.length}
+          <p class="quiet">{t('No visit yet. A photo of a receipt in the Inbox becomes one with «File as … Receipt».')}</p>
+        {:else}
+          <ul class="card srows">
+            {#each months as m (m.key)}
+              <li class="mon">{monthName(m.key)}</li>
+              {#each m.rows as v (v.id)}
+                <li>
+                  <button type="button" class="lrow" data-visit-id={v.id} onclick={() => (open = v.id)}>
+                    {#if v.photos?.[0]}<img class="rc" src={v.photos[0]} alt="" loading="lazy" />{:else}<span class="ic"><ReceiptText size={18} aria-hidden="true" /></span>{/if}
+                    <span class="m"><span class="t">{v.shop || t('Workshop')}</span><span class="s">{dayName(v.date)}{pick ? '' : ` · ${names[v.bikeId] ?? ''}`}{v.km != null ? ` · ${v.km.toLocaleString('de-CH')} km` : ''}{(v.parts ?? []).length ? ` · ${tn(v.parts.length, '{n} job', '{n} jobs')}` : ''}</span></span>
+                    <span class="v">{visitTotal(v) == null ? '' : chf(visitTotal(v))}</span>
+                    <ChevronRight class="chev" size={18} aria-hidden="true" />
+                  </button>
+                </li>
+              {/each}
+            {/each}
+          </ul>
+        {/if}
+      </section>
+    </div>
+
+    <aside class="sside">
+      <button type="button" class="btn hi addv" onclick={() => (adding = true)}><Plus size={16} aria-hidden="true" />{t('Log a workshop visit')}</button>
+      {#if visits.length}
+        <section class="ssec" aria-labelledby="rc-h">
+          <h2 id="rc-h" class="sh">{t('Receipts')}</h2>
+          <ul class="card srows">
+            <li><span class="lrow still"><span class="ic"><ImageIcon size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Receipts with a photo')}</span></span><span class="v">{t('{n} of {all}', { n: visits.filter((v) => v.photos?.length).length, all: visits.length })}</span></span></li>
+          </ul>
+        </section>
+      {/if}
+      <p class="tip"><Lightbulb size={16} aria-hidden="true" />{t('A photo of a receipt in the Inbox becomes a visit with «File as … Receipt».')}</p>
+    </aside>
+  </div>
 </section>
-
 {#if shown}
   <VisitDialog visit={shown} bike={bikes.find((b) => b.id === shown.bikeId)} onclose={() => (open = null)} />
 {/if}
@@ -115,59 +135,89 @@
 
 <style>
   .shop {
-    max-width: 880px;
+    min-width: 0;
   }
-  .top {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px 16px;
+  .scols,
+  .smain,
+  .sside {
+    min-width: 0;
   }
-  .top .title {
+  @media (min-width: 1000px) {
+    .scols {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 24px;
+      align-items: start;
+    }
+  }
+  .ssec {
+    margin: 0 0 24px;
+  }
+  .sh {
+    margin: 0 2px 10px;
+    font: 600 var(--fs-sub) / 1.25 var(--font-body);
+  }
+  .srows {
+    list-style: none;
     margin: 0;
-    font-size: var(--fs-section);
+    padding: 4px 16px;
+  }
+  .srows > li + li {
+    border-top: 1px solid var(--line);
+  }
+  .srows .lrow {
+    width: 100%;
+    padding: 8px 0;
+  }
+  .srows .mon {
+    padding: 12px 0 2px;
+    color: var(--ink-3);
+    font: 600 var(--fs-tiny) / 1.3 var(--font-body);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .srows .mon + li {
+    border-top: 0;
   }
   .fchips {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin: 4px 0 6px;
+    gap: 8px;
+    margin: 0 0 20px;
   }
   .fchip {
     min-height: 44px;
-    padding: 4px 14px;
-    border: 1.5px solid var(--line);
+    padding: 0 16px;
+    border: 1px solid var(--line-strong);
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink);
     font: 500 var(--fs-small) var(--font-body);
     cursor: pointer;
   }
+  .fchip:hover {
+    background: var(--paper-2);
+  }
   .fchip[aria-pressed='true'] {
-    border-color: var(--hi);
-    background: var(--hi-soft);
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .addv {
+    margin: 0 0 20px;
   }
   .quiet {
-    margin: 4px 0 8px;
+    margin: 4px 2px 8px;
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  .mon {
-    margin: 10px 0 4px;
-    color: var(--ink-2);
-    font-weight: 600;
-    font-size: var(--fs-small);
-  }
-  .sheetlinks {
+  .tip {
     display: flex;
-    flex-wrap: wrap;
+    align-items: flex-start;
     gap: 8px;
-    margin: 4px 0 10px;
-  }
-  .sheetlinks .btn {
-    min-height: 44px;
-    text-decoration: none;
+    margin: 0 2px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .rc {
     flex: none;

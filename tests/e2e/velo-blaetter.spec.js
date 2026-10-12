@@ -180,7 +180,7 @@ test('Pick-up check from Care: ticks stay saved; the ticked work goes into care 
   await care.locator('nav.fline').getByRole('link', { name: 'Abhol-Check' }).click();
   const paper = page.locator('article.paper[data-sheet="pickup"]');
   await expect(paper.getByRole('heading', { name: 'Abhol-Check' })).toBeVisible();
-  await expect(page.getByRole('link', { name: /^Pflege: / })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Pfad' }).getByRole('link', { name: 'Pflege', exact: true })).toBeVisible(); // V5: the path back
   await expect(paper.getByRole('heading', { name: '1 · Auftrag erledigt?' })).toBeVisible();
   const take = page.getByRole('button', { name: 'Abgehakte Arbeiten in die Pflege übernehmen' });
   await expect(take).toBeDisabled();
