@@ -4,6 +4,7 @@
    * step bar, a tick with the title and one sentence, the key numbers (children), the line «Was
    * jetzt?», ONE main button and one quiet second way, and small print under it (foot).
    * On a computer it is one column of 560 px in the middle of the page (mockup Zwischen-Desktop).
+   * v0.100.0 Design-Refresh P1 (G7): the main button sits in the bar at the bottom with «Schritt n von 4».
    */
   import PageHead from './PageHead.svelte';
   import StepBar from './StepBar.svelte';
@@ -19,7 +20,7 @@
   <div class="head" id="between-h"><PageHead done {title} {text} {sub} /></div>
   {@render children?.()}
   {#if what}<p class="what"><span class="wl">{t('What now?')}</span> <span>{what}</span></p>{/if}
-  <MainBar {main} {second} />
+  <MainBar {main} {second} step={tabs.includes(current) ? t('Step {n} of {m}', { n: tabs.indexOf(current) + 1, m: tabs.length }) : ''} />
   {#if foot}<div class="foot">{@render foot()}</div>{/if}
 </article>
 

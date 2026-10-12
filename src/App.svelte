@@ -427,10 +427,16 @@
   main.bar:not(.calm) {
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
-  /* a trip page on a phone: its main button above the bottom bar */
-  @media (max-width: 719px) {
+  /* a trip page on a phone: its main button above the bottom bar (v0.100.0: up to 899 px) */
+  @media (max-width: 719px), (max-width: 899px) and (min-height: 501px) {
     main.bar.calm {
       padding-bottom: calc(150px + env(safe-area-inset-bottom));
+    }
+  }
+  /* v0.100.0 P1 (G7): on a computer room for the bar with the next step at the bottom of the window */
+  @media (min-width: 900px) and (min-height: 501px) {
+    main.calm {
+      padding-bottom: 120px;
     }
   }
   /* v0.30.1 (D6): sideways, less room above the page, and clear of a notch at the side. */

@@ -5,19 +5,22 @@
    * tone 'dark': inside the trip band; 'light': on an interstitial (a coloured rule above each step:
    * done green, the current one orange). current: the step shown (aria-current), or null.
    * status: tabStatus() of tabs.js; onpick(key): before the link opens (the trip becomes the open one).
+   * v0.100.0 Design-Refresh P1 (G7 «Schritte der Tour»): tone 'steps' (the trip pages, was the dark
+   * band): on a computer four white steps in one card, each with its number in a circle (done: a tick),
+   * the current one softly tinted; on a phone the name under a line, the current line in ink.
    */
   import { Check } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { TAB_NAMES, tabHref } from '../tabs.js';
 
-  let { trip, tabs, status, current = null, tone = 'dark', onpick = () => {} } = $props();
+  let { trip, tabs, status, current = null, tone = 'steps', onpick = () => {} } = $props();
 </script>
 
 <nav class="stepbar {tone}" aria-label={t('Steps of this trip')} style:--n={tabs.length}>
   {#each tabs as key (key)}
     {@const s = status[key] ?? { text: '', done: false }}
     <a href={tabHref(key, trip)} class:done={s.done} aria-current={key === current ? 'page' : undefined} onclick={() => onpick(key)}>
-      <span class="tn">{t(TAB_NAMES[key])}</span>
+      {#if tone === 'steps'}<span class="no" class:tick={s.done && key !== current} aria-hidden="true">{#if s.done && key !== current}<Check size={14} strokeWidth={2.6} />{/if}</span>{/if}<span class="tn">{t(TAB_NAMES[key])}</span>
       {#if s.text || s.done}<small>{#if s.done}<Check size={13} aria-hidden="true" />{/if}{#if s.text}{s.text}{:else}<span class="sr">{t('done|step')}</span>{/if}</small>{/if}
     </a>
   {/each}
@@ -49,37 +52,36 @@
     font-weight: 600;
   }
 
-  /* dark: inside the trip band, the current step underlined in orange */
-  .dark {
-    border-top: 1px solid color-mix(in srgb, var(--brand-ink) 12%, transparent);
+  /* steps (G7): on a phone the name under a line, the current line in ink */
+  .steps {
+    gap: 6px;
+    counter-reset: step;
   }
-  .dark a {
-    align-items: center;
-    justify-content: center;
-    padding: 6px 2px 8px;
-    color: var(--brand-ink-2);
-    text-align: center;
+  .steps a {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    column-gap: 4px;
+    padding: 8px 0 4px;
+    border-top: 3px solid var(--line);
+    color: var(--ink-3);
+    font-size: var(--fs-label);
   }
-  .dark a[aria-current='page'] {
-    color: var(--brand-ink);
+  .steps a[aria-current='page'] {
+    border-top-color: var(--ink);
+    color: var(--ink);
   }
-  .dark a[aria-current='page']::after {
-    content: '';
-    position: absolute;
-    left: 14%;
-    right: 14%;
-    bottom: 0;
-    height: 3px;
-    border-radius: 3px 3px 0 0;
-    background: var(--hi-bright);
+  .steps a.done {
+    color: var(--ink-2);
   }
-  .dark small {
-    color: var(--brand-ink-2);
+  /* on a phone the number would break «Unterwegs» (test HD12.4): the line above says where you are */
+  .steps .no {
+    display: none;
   }
-  .dark a:focus-visible {
-    outline-color: var(--focus-on-dark);
+  .steps small {
+    color: var(--ink-3);
   }
-
   /* light: on an interstitial, a rule above each step (done green, current orange) */
   .light {
     gap: 6px;
@@ -107,35 +109,77 @@
     a {
       font-size: var(--fs-label);
     }
-    .light {
+    .light,
+    .steps {
       gap: 3px;
     }
-    .light a {
+    .light a,
+    .steps a {
       font-size: var(--fs-tiny);
     }
   }
+  /* a computer: one white card, four steps with a number in a circle, the current one tinted */
   @media (min-width: 720px) {
-    .dark {
-      padding: 0 10px;
-      grid-template-columns: repeat(var(--n), minmax(0, 200px));
+    .steps {
+      gap: 0;
+      overflow: hidden;
+      border-radius: var(--radius-card);
+      background: var(--paper);
+      box-shadow: var(--card-shadow);
     }
-    .dark a {
-      flex-direction: row;
-      gap: 8px;
-      min-height: 52px;
+    .steps a {
+      grid-template-columns: 28px minmax(0, 1fr);
+      align-items: center;
+      column-gap: 12px;
+      min-height: 64px;
+      padding: 10px 16px;
+      border-top: 0;
+      border-left: 1px solid var(--line);
+      font-size: var(--fs-body);
     }
-    .dark small {
+    .steps a:first-child {
+      border-left: 0;
+    }
+    .steps a:hover {
+      background: var(--paper-2);
+    }
+    .steps a[aria-current='page'] {
+      background: var(--hi-soft);
+    }
+    .steps .no {
+      grid-row: span 2;
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--paper-2);
+      color: var(--ink-2);
+      font-size: var(--fs-small);
+      font-weight: 600;
+    }
+    /* the number comes from the order (a counter), so the link's text stays the step's name */
+    .steps .no:not(.tick)::before {
+      content: counter(step);
+    }
+    .steps a.done .no {
+      background: var(--ok-soft);
+      color: var(--ok);
+    }
+    .steps a[aria-current='page'] .no {
+      background: var(--hi);
+      color: var(--hi-ink);
+    }
+    .steps small {
+      grid-column: 2;
       margin: 0;
     }
   }
+  /* a phone turned sideways: the steps in one low row */
   @media (max-height: 500px) {
-    .dark {
-      padding: 0 4px;
-      grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-    }
-    .dark a {
+    .steps a {
       min-height: 44px;
-      padding: 2px 4px;
+      padding: 2px 8px;
     }
   }
 </style>

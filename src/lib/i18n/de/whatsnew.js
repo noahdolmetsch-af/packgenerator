@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.100.0 Design-Refresh P1 «Zurück, Schritte, Weiter-Leiste»
+  'The new look, step 4: a trip page is light, with «‹ Trips» above the name to go back.':
+    'Das neue Aussehen, Schritt 4: eine Tour-Seite ist hell, mit «‹ Touren» über dem Namen für den Weg zurück.',
+  'The four steps of a trip are numbered; on the computer each step is a white field, the current one tinted.':
+    'Die vier Schritte einer Tour sind nummeriert; am Computer ist jeder Schritt ein weisses Feld, der aktuelle leicht getönt.',
+  'The next step always sits in a bar at the bottom: «Step 1 of 4», «Back to Trips» and the main button.':
+    'Der nächste Schritt sitzt immer in einer Leiste unten: «Schritt 1 von 4», «Zurück zu Touren» und der Hauptknopf.',
   // 0.99.0 Design-Refresh R3 «Bausatz»
   'The new look, step 3: buttons, fields and badges have soft corners and one clear height everywhere.':
     'Das neue Aussehen, Schritt 3: Knöpfe, Felder und Abzeichen haben weiche Ecken und überall eine klare Höhe.',

@@ -620,8 +620,8 @@
   .dbox b { font: 700 var(--fs-section)/1 var(--font-body); }
   .reopen { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; }
   /* «Tour beenden …» in the band: quiet, never orange (U25a), a full tap target */
-  .endlink { min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--brand-ink); font: 500 var(--fs-small) var(--font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-  .endlink:focus-visible { outline: 2px solid var(--focus-on-dark); outline-offset: 2px; }
+  .endlink { min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--ink); font: 500 var(--fs-small) var(--font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .endlink:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   .col { min-width: 0; }
   .days { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0 0 12px; }
   .days .sum { flex-basis: 100%; }

@@ -159,5 +159,5 @@ main.calm .calm-pack.review-mode { max-width: 1200px; }
 .calm-pack .weight-grid span { color: var(--calm-muted); font-size: 14px; }
 .calm-pack .weight-grid b { font-size: 20px; font-weight: 500; }
 /* v0.29.0: focus on the dark trip band is light; the phone's next-step bar is light again. */
-.calm-pack .trip-band a:focus-visible, .calm-pack .trip-band button:focus-visible { outline: 3px solid var(--focus-on-dark); outline-offset: 2px; }
+.calm-pack .trip-band a:focus-visible, .calm-pack .trip-band button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 @media (max-width: 719px) { .calm-pack .trip-band .act button:focus-visible { outline-color: var(--focus); } }

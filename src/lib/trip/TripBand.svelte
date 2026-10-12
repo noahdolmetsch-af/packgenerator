@@ -11,9 +11,12 @@
    * v0.35.0 (AP29, Noah variant B): the pill "{n} more" on the kicker line opens the other trips in
    * progress (InProgress.svelte); after each change of the trip (or of its debrief) a quiet
    * "Saved ✓" shows at the end of the meta line for about 2 seconds (Noah 6b).
+   * v0.100.0 Design-Refresh P1 (G7 «Zurück und wo du bist», approved 11.10.2026): the band is light,
+   * without a dark box: «‹ Touren» above the name, the four steps as numbered cards, and the main
+   * button in the bar at the bottom («Schritt 2 von 4 · Zurück zu Touren · Weiter zu …»).
    */
   import { liveQuery } from 'dexie';
-  import { CalendarDays, Bike, Backpack, CloudSun, ShoppingBag, Check, Pencil, Clock3 } from '@lucide/svelte';
+  import { CalendarDays, Bike, Backpack, CloudSun, ShoppingBag, Check, Pencil, Clock3, ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { db } from '../db.js';
   import { offerRename } from '../ui/rename.svelte.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
@@ -21,6 +24,7 @@
   import { hasBike, domainOf, domainName } from '../domains.js';
   import { layerSuggest, openRows } from '../layers.js';
   import { openTrip } from '../nav.js';
+  import { phone } from '../media.svelte.js';
   import { localDay } from '../localday.js';
   import { tabsOf, tabStatus, tripDates } from '../tabs.js';
   import InProgress from './InProgress.svelte';
@@ -96,14 +100,17 @@
   const duration = $derived(tripDays === 1 ? (trip.hours ? t('{n} h', { n: num(trip.hours) }) : edit ? t('Set hours') : '') : tn(tripDays, '{n} day', '{n} days'));
   let factOpen = $state(null);
   const allBikes = $derived($bikesQ ?? []);
+  // G7: «Schritt 2 von 4» in the bar at the bottom
+  const stepLine = $derived(tabs.includes(tab) ? t('Step {n} of {m}', { n: tabs.indexOf(tab) + 1, m: tabs.length }) : '');
   const wx = $derived(trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C · ${t(RAIN[trip.wx.rain ?? 'none'])}` : '');
 </script>
 
 <section class="band trip-band" class:compact aria-label={t('Trip')}>
   <div class="who">
+    <nav class="crumb" aria-label={t('Where you are')}><a href="#/trips"><ChevronLeft size={18} aria-hidden="true" />{t('Trips|place')}</a>{#if !phone.matches}<span class="here" aria-hidden="true"><ChevronRight size={14} />{trip.title}</span>{/if}</nav>
     <div class="kline">
       {#if kicker}<p class="kick">{kicker}</p>{/if}
-      <InProgress current={trip.id} />
+      <InProgress current={trip.id} light />
       {@render extra?.()}
     </div>
     {#if naming}
@@ -132,7 +139,7 @@
   <!-- L7: no button (the debrief before the last day): no empty bar at the bottom of a phone.
        v0.67.0 (kit): the one main button sits in the MainBar of the kit (bottom of a phone). -->
   {#if action || aside || hint}
-    <MainBar place="band" {aside} {hint}>{@render action?.()}</MainBar>
+    <MainBar place="band" {aside} {hint} step={stepLine} second={{ label: t('Back to Trips'), href: '#/trips' }}>{@render action?.()}</MainBar>
   {/if}
   <!-- v0.67.0 (kit, Ü1 a): the steps are the kit's StepBar, the same as on the interstitials. -->
   <div class="steps"><StepBar {trip} {tabs} {status} current={tab} onpick={() => openTrip(trip.id)} /></div>
@@ -140,14 +147,46 @@
 {#if factOpen && edit}<FactSheet field={factOpen} {trip} bikes={allBikes} {edit} onclose={() => (factOpen = null)} />{/if}
 
 <style>
+  /* v0.100.0 P1 (G7): light, on the page ground, no dark box */
   .band {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    background: var(--brand);
-    color: var(--brand-ink);
-    border-radius: 12px;
-    padding: 16px 16px 0;
+    color: var(--ink);
     margin: 0 0 16px;
+  }
+  /* «‹ Touren › Name»: the way back and where you are (on a phone only «‹ Touren») */
+  .crumb {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    margin: 0 0 2px;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .crumb a {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    margin-left: -6px;
+    padding: 0 6px;
+    border-radius: var(--r-ctl);
+    color: var(--ink);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .crumb a:hover {
+    background: var(--paper-2);
+  }
+  .crumb .here {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .who {
     min-width: 0;
@@ -171,7 +210,7 @@
     min-width: 0;
     font-size: var(--fs-tiny);
     font-weight: 600;
-    color: var(--brand-ink-2);
+    color: var(--ink-3);
   }
   h1 {
     margin: 2px 0 6px;
@@ -190,7 +229,7 @@
     overflow-wrap: break-word;
   }
   h1 .name:focus-visible {
-    outline: 2px solid var(--focus-on-dark);
+    outline: 2px solid var(--focus);
     outline-offset: 2px;
   }
   h1 :global(.pen) {
@@ -209,8 +248,8 @@
     font: 700 var(--fs-section)/1.2 var(--font-body);
     color: var(--ink);
     background: var(--input);
-    border: 0;
-    border-radius: 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-ctl);
   }
   .meta {
     display: flex;
@@ -218,7 +257,7 @@
     gap: 4px 14px;
     margin: 0 0 6px;
     font-size: var(--fs-small);
-    color: var(--brand-ink-2);
+    color: var(--ink-3);
   }
   .meta span {
     display: inline-flex;
@@ -236,10 +275,10 @@
     min-height: 36px;
     margin: 0 -4px;
     padding: 4px 10px;
-    border: 1px solid color-mix(in srgb, var(--brand-ink) 22%, transparent);
+    border: 1px solid var(--line);
     border-radius: 999px;
-    background: color-mix(in srgb, var(--brand-ink) 8%, transparent);
-    color: var(--brand-ink);
+    background: var(--paper);
+    color: var(--ink);
     font: inherit;
     text-align: left;
     overflow-wrap: break-word;
@@ -247,15 +286,15 @@
   }
   @media (hover: hover) {
     .meta .fact:hover {
-      background: color-mix(in srgb, var(--brand-ink) 16%, transparent);
+      background: var(--paper-2);
     }
   }
   .meta .fact:focus-visible {
-    outline: 2px solid var(--focus-on-dark);
+    outline: 2px solid var(--focus);
     outline-offset: 2px;
   }
   .meta b {
-    color: var(--brand-ink);
+    color: var(--ink);
     font-weight: 600;
   }
   /* Noah 6b: small and quiet, gone after about 2 seconds (no time, nothing that stays). */
@@ -263,8 +302,8 @@
     gap: 4px;
     font-size: var(--fs-tiny);
     font-weight: 600;
-    color: var(--brand-ink);
-    background: color-mix(in srgb, var(--brand-ink) 12%, transparent);
+    color: var(--ok);
+    background: var(--ok-soft);
     border-radius: 99px;
     padding: 1px 8px 1px 6px;
     opacity: 0;
@@ -284,10 +323,10 @@
   }
   .badge {
     font-style: normal;
-    background: color-mix(in srgb, var(--brand-ink) 12%, transparent);
-    color: var(--brand-ink);
+    background: var(--warn-soft);
+    color: var(--warn);
     font-size: var(--fs-tiny);
-    font-weight: 500;
+    font-weight: 600;
     padding: 1px 7px;
     border-radius: 99px;
     white-space: nowrap;
@@ -311,7 +350,6 @@
     .band {
       grid-template-columns: minmax(0, 1fr) auto;
       column-gap: 24px;
-      padding: 22px 26px 0;
     }
     .meta {
       font-size: var(--fs-body);
@@ -322,9 +360,10 @@
   @media (max-height: 500px) {
     .band {
       column-gap: 16px;
-      padding: 8px 16px 0;
       margin-bottom: 10px;
-      border-radius: 10px;
+    }
+    .crumb {
+      display: none;
     }
     .kick {
       display: none;
@@ -374,12 +413,12 @@
   }
   /* v0.67.0 (kit): the step bar spans the band; the main bar is its right column on a computer. */
   .steps {
-    margin: 8px -16px 0;
+    margin: 8px 0 0;
   }
   @media (min-width: 720px) {
     .steps {
       grid-column: 1 / -1;
-      margin: 16px -26px 0;
+      margin: 16px 0 0;
     }
     .band > :global(.mainbar) {
       grid-column: 2;
@@ -388,7 +427,7 @@
   }
   @media (max-height: 500px) {
     .steps {
-      margin: 6px -16px 0;
+      margin: 6px 0 0;
     }
   }
   @media print {
