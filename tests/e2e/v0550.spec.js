@@ -19,6 +19,7 @@ const T = (en, vars) => {
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
 };
 const P = 'test_data_gtp_';
+const nameOf = async (page, k) => (await table(page, 'items')).find((i) => i.id === `${P}${k}`)?.nameDe ?? k; // the German UI shows nameDe
 const RAW = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
 const day = (n = 0) => new Date(Date.now() + n * 864e5).toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
 const tap = (loc, info) => (info.project.name === 'phone' ? loc.tap() : loc.click());
@@ -180,7 +181,7 @@ test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves
   expect(errors).toEqual([]);
 });
 
-test('a new trip: Biwak + Zelt by default, Reparatur and Laden pressed, Licht in the dark, Rennen on an event, Komfort only offered', async ({ page, context }, info) => {
+test('a new trip: Biwak + Zelt by default, Licht in the dark, Rennen on an event; v0.113.0: Reparatur, Laden and Komfort not by themselves', async ({ page, context }, info) => {
   const { errors } = await start(page, context, info);
   await tap(page.getByRole('button', { name: 'Neu', exact: true }).filter({ visible: true }), info);
   await tap(page.getByRole('dialog', { name: 'Neu' }).getByRole('button', { name: 'Tour planen' }), info);
@@ -196,39 +197,37 @@ test('a new trip: Biwak + Zelt by default, Reparatur and Laden pressed, Licht in
   // The night: three choices, Biwak + Zelt chosen.
   for (const name of ['Biwak', 'Biwak + Zelt', 'Hotel/Hütte']) await expect(dlg.getByRole('button', { name, exact: true })).toBeVisible();
   await expect(dlg.getByRole('button', { name: 'Biwak + Zelt', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  const box = dlg.getByRole('region', { name: 'So wird deine Packliste' });
-  await expect(box).toContainText(/Übernachtung \(Biwak \+ Zelt\): Biwak \d+, Zelt \d+/);
+  // v0.113.0 «Rahmenbedingungen» (4b): the whole list in the window, with the night's items.
+  const box = dlg.getByRole('region', { name: 'Deine Packliste' });
+  for (const k of ['SL01', 'SL02', 'SL03']) await expect(box).toContainText(await nameOf(page, k));
 
-  // The ride: Reparatur and Laden pressed; 4 h from 08:00 in daylight: no Licht.
-  const ride = dlg.getByRole('group', { name: T('Suggested for this ride') });
-  await expect(ride.getByRole('button', { name: /^Reparatur/ })).toHaveAttribute('aria-pressed', 'true');
-  await expect(ride.getByRole('button', { name: /^Laden/ })).toHaveAttribute('aria-pressed', 'true');
-  await expect(ride.getByRole('button', { name: /^Licht/ })).toHaveCount(0);
-  await expect(ride.getByRole('button', { name: /^Rennen/ })).toHaveCount(0);
+  // The ride: 4 h from 08:00 in daylight: no Licht. v0.113.0 (Noah «92 Teile … nur 10-20»): Reparatur and Laden
+  // no longer come by themselves, and the window has no building block chips (1a: only in Packen).
+  await expect(dlg.getByRole('group', { name: T('Suggested for this ride') })).toHaveCount(0);
+  await expect(box).not.toContainText(await nameOf(page, 'LI03'));
+  await expect(box).not.toContainText(await nameOf(page, 'WZ04'));
   // 14 h a day goes into the dark: Licht comes by itself.
   await dlg.getByLabel(T('Riding hours per day')).fill('14');
-  await expect(ride.getByRole('button', { name: /^Licht/ })).toHaveAttribute('aria-pressed', 'true');
-  // An event brings Rennen.
-  await dlg.getByLabel(T('Event (race or organised ride)')).check();
-  await expect(ride.getByRole('button', { name: /^Rennen/ })).toHaveAttribute('aria-pressed', 'true');
-  // Komfort: only an unticked offer, never an add-block chip.
-  const comfort = dlg.getByRole('group', { name: T('Comfort, if you like') });
-  await expect(comfort.getByRole('button', { name: /Kissen/ })).toHaveAttribute('aria-pressed', 'false');
-  await expect(dlg.getByRole('group', { name: T('Add building blocks') })).not.toContainText('Komfort');
-  // Laden off for this trip.
-  await tap(ride.getByRole('button', { name: /^Laden/ }), info);
-  await expect(ride.getByRole('button', { name: /^Laden/ })).toHaveAttribute('aria-pressed', 'false');
+  await expect(box).toContainText(await nameOf(page, 'LI03'));
+  // An event brings Rennen (5b: a hint and the block).
+  await dlg.getByLabel(T('Event: a race or organised ride')).check();
+  await expect(dlg.getByText(T('Block «Race»'), { exact: true })).toBeVisible();
+  await expect(box).toContainText(`${P} Startnummer`);
+  // Komfort: never in the window.
+  await expect(dlg.getByText(`${P} Kissen`)).toHaveCount(0);
   expect(await wide(page)).toBe(0);
   await shot(page, info, 'new-trip');
-  await tap(dlg.getByRole('button', { name: T('Create trip') }), info);
+  await tap(dlg.getByRole('button', { name: new RegExp(`^${T('Create trip')}`) }), info);
   await expect(dlg).toBeHidden();
 
   const trip = (await table(page, 'trips')).find((t) => t.title === title);
   expect(trip).toMatchObject({ overnight: 'outdoor', tent: true, dark: true, event: true });
   expect(trip.sets?.charge).toBe(false);
+  expect(trip.sets?.repair).toBe(false);
   const on = trip.entries.map((e) => e.itemId.replace(P, ''));
-  expect(on).toEqual(expect.arrayContaining(['SL01', 'SL02', 'SL03', 'LI03', 'WZ04', 'RC01'])); // tent, mat, bag, light, repair, race
-  expect(on).not.toContain('EL02'); // Laden taken off
+  expect(on).toEqual(expect.arrayContaining(['SL01', 'SL02', 'SL03', 'LI03', 'RC01'])); // tent, mat, bag, light, race
+  expect(on).not.toContain('WZ04'); // Reparatur not by itself
+  expect(on).not.toContain('EL02'); // Laden not by itself
   expect(on).not.toContain('LX01'); // Komfort not ticked
   expect(on).not.toContain('OF01'); // hotel-only
   expect(errors).toEqual([]);

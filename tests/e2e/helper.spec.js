@@ -384,11 +384,11 @@ test('7a: the monthly cap (429) pauses the helper calmly until next month; offli
   let capped = false;
   const seen = await fakeHelper(page, { reply: (b) => (capped && b.task !== 'status' ? { status: 429, body: { error: 'monthly_cap', code: 'monthly_cap', message: 'cap', spend: { month: month(), chf: 5.03, cap: 5 } } } : null) });
   await setUp(page);
-  // offline first: one calm line, nothing sent
-  let dlg = await openNewTrip(page);
+  // offline first: one calm line, nothing sent (v0.113.0: the helper comes into New trip with a question from the search)
   await context.setOffline(true);
-  await dlg.getByRole('textbox', { name: T('Ask the helper') }).fill('2 Tage Emmental');
-  await dlg.getByRole('button', { name: T('Get a suggestion') }).click();
+  await page.evaluate(() => localStorage.setItem('pack.helperAsk', '2 Tage Emmental'));
+  let dlg = await openNewTrip(page);
+  await expect(dlg.getByRole('textbox', { name: T('Ask the helper') })).toHaveValue('2 Tage Emmental');
   await expect(dlg.getByText(T('Offline right now. The helper answers again once you are online.'))).toBeVisible();
   await context.setOffline(false);
   expect(seen).toHaveLength(0);
@@ -401,6 +401,7 @@ test('7a: the monthly cap (429) pauses the helper calmly until next month; offli
   // From now on nothing is asked: the field says it pauses, the settings too.
   await page.keyboard.press('Escape');
   await expect(dlg).toBeHidden();
+  await page.evaluate(() => localStorage.setItem('pack.helperAsk', '2 Tage Emmental'));
   dlg = await openNewTrip(page);
   await expect(dlg.locator('.kh-ask .kh-msg')).toContainText('CHF 5.00');
   await expect(dlg.getByRole('button', { name: T('Get a suggestion') })).toHaveCount(0);

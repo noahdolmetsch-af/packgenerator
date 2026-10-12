@@ -146,8 +146,9 @@ test('template from a trip: update or save as new, and the new trip takes days a
   await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('New trip'), exact: true }).click();
   const nt = page.getByRole('dialog', { name: T('Conditions|newtrip') });
-  // v0.102.0 Design-Refresh P4 (T2): the templates are cards of the gallery «Packliste startet mit», in sight.
-  await nt.getByRole('button', { name: /^test_data_gtp_ Bivvy/ }).first().click();
+  // v0.113.0 «Rahmenbedingungen» (1a, B2): the templates as buttons under «Vorlage wählen».
+  await nt.getByRole('button', { name: new RegExp(T('Choose a template')) }).click();
+  await nt.getByRole('group', { name: T('Your templates') }).getByRole('button', { name: /^test_data_gtp_ Bivvy/ }).first().click();
   await expect(nt.getByLabel(T('Days')).first()).toHaveValue('3');
   await expect(nt.getByLabel(T('Riding hours per day'))).toHaveValue('4');
   await expect(nt.getByRole('button', { name: T('Bivouac + tent') })).toHaveAttribute('aria-pressed', 'true');

@@ -653,7 +653,7 @@
         <h4><span class="gic" aria-hidden="true">{#if g.key === 'warm'}<Snowflake size={16} />{:else if g.key === 'elec'}{@const E = catIcon('elec')}<E size={16} />{:else if g.key === 'clothes'}{@const C = catIcon('onbike')}<C size={16} />{:else}{@const G = catIcon('tools')}<G size={16} />{/if}</span><span>{t(g.name)}</span><small class="num">{tn(g.n, '{n} item', '{n} items')} · {knownWeight(g.w.g, g.w.missing)}</small></h4>
         {#if g.key === 'warm' && ctx.min != null}<p class="warmn">{t('Comes along: down to {n}°', { n: ctx.min })}</p>{/if}
         <ul>
-          {#each g.rows as r (r.entry.itemId + r.entry.slot)}{@const Icon = catIcon(r.item.category)}<li><span class="pic" aria-hidden="true"><Icon size={16} /></span><span class="nm">{nameOf(r.item)}{#if r.entry.qty > 1} {r.entry.qty}×{/if}</span><span class="wt num">{knownWeight(r.w.g, r.w.missing)}</span></li>{/each}
+          {#each g.rows as r (r.entry.itemId + r.entry.slot)}{@const Icon = catIcon(r.item.category)}<li><span class="pic" aria-hidden="true"><Icon size={16} /></span><span class="nm">{nameOf(r.item)}{#if r.entry.qty > 1}{' '}{r.entry.qty}×{/if}</span><span class="wt num">{knownWeight(r.w.g, r.w.missing)}</span></li>{/each}
         </ul>
       </div>
     {/each}

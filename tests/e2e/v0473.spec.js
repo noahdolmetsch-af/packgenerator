@@ -78,8 +78,8 @@ for (const forecast of [true, false]) {
     await expect(chilly).toHaveAttribute('aria-pressed', 'true');
     await expect(rain).toHaveAttribute('aria-pressed', 'true');
     await expect(wx.getByRole('button', { name: 'Trocken', exact: true })).toHaveAttribute('aria-pressed', 'false');
-    const box = dlg.getByRole('region', { name: 'So wird deine Packliste' });
-    await expect(box).not.toContainText('Fürs Wetter: nichts zusätzlich');
+    // v0.113.0 «Rahmenbedingungen» (4b): the whole list in the window (it was a summary «Fürs Wetter: …»).
+    const box = dlg.getByRole('region', { name: 'Deine Packliste' });
     for (const name of ['Langarmtrikot', 'Armlinge', 'Windweste', 'Buff', 'Regenjacke', 'Regenhandschuhe']) await expect(box).toContainText(`test_data_gtp_ ${name}`);
     await expect(box).not.toContainText('test_data_gtp_ Winterhandschuhe'); // below 6 °C: only with «Kalt»
     // «Trocken» takes the rain items off again, the cold ones stay.
@@ -91,7 +91,7 @@ for (const forecast of [true, false]) {
     await tap(none, info);
     await expect(none).toHaveAttribute('aria-pressed', 'true');
     await expect(chilly).toHaveAttribute('aria-pressed', 'false');
-    await expect(box).toContainText('Fürs Wetter: nichts zusätzlich');
+    for (const name of ['Langarmtrikot', 'Regenjacke']) await expect(box).not.toContainText(`test_data_gtp_ ${name}`);
     await tap(chilly, info);
     await tap(rain, info);
     await expect(none).toHaveAttribute('aria-pressed', 'false');

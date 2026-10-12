@@ -170,18 +170,18 @@ function record(caseId, info, page) {
 
 /* ---------- the way a human goes ---------- */
 
-/** New → Plan a trip → (start) ; returns the open "New trip" dialog. start: 'standard' | 'last' | template name. */
+/** New → Plan a trip → (start) ; returns the open "New trip" dialog. start: 'standard' | template name. */
 async function openNewTrip(page, rec, start = 'standard') {
   await rec.click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
   await rec.click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
   // v0.30.0 (Noah, finding 2): the window starts with the standard set; last trip and templates are folded in it.
   const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg).toBeVisible();
-  // v0.102.0 Design-Refresh P4 (T2): the last trip and the templates are cards of the gallery
-  // «Packliste startet mit», in sight after the standard (no fold any more).
-  const starts = dlg.getByRole('group', { name: T('Packing list starts with') });
-  if (start === 'last') await rec.click(starts.getByRole('button', { name: new RegExp(`^${esc(T('Last trip'))}`) }));
-  else if (start !== 'standard') await rec.click(starts.getByRole('button', { name: new RegExp(esc(start)) }));
+  // v0.113.0 «Rahmenbedingungen» (1a, B2): the templates as buttons under «Vorlage wählen»; never a past trip.
+  if (start !== 'standard') {
+    await rec.click(dlg.getByRole('button', { name: new RegExp(esc(T('Choose a template'))) }));
+    await rec.click(dlg.getByRole('group', { name: T('Your templates') }).getByRole('button', { name: new RegExp(esc(start)) }));
+  }
   return dlg;
 }
 
@@ -257,7 +257,12 @@ test('PF01: MTB, 2 h, 1 day, no overnight stay, Scott Scale: a list to check wit
   await fillTrip(dlg, rec, { title, bike: BIKE.scale, hours: 2 });
   // v0.30.0 (Noah, finding 2): the night is asked only from 2 days on; one day has none without a tap.
   await rec.check('1 day: no night without a tap', () => expect(dlg.getByRole('button', { name: T('None|overnight'), exact: true })).toHaveCount(0, { timeout: 2000 }));
-  await rec.check('the live box says night gear stays at home', () => expect(dlg.getByRole('region', { name: T('Your packing list|preview') })).toContainText(T('Not included: overnight gear, event preparation'), { timeout: 2000 }));
+  // v0.113.0 «Rahmenbedingungen» (4b): the whole list in the window; no night item on it.
+  await rec.check('the live list has no night gear', async () => {
+    const list = dlg.getByRole('region', { name: T('Your packing list') });
+    await expect(list).toContainText(T('From Standard, weather and duration. Everything can be changed.'), { timeout: 2000 });
+    for (const k of ['SL03', 'CO01', 'HY02']) await expect(list).not.toContainText(nm(k), { timeout: 2000 });
+  });
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
   await openAllBags(page); // v0.29.0 (Noah 5a): the bags start folded
   await expect(page.locator('.calm-pack .list-head h2')).toHaveText(T('Packing list'));
@@ -424,9 +429,12 @@ test('PF05: bikepacking, 3 days, outdoor, cooking: explicit sleep/cook choice, b
   });
   await rec.click(dlg.getByRole('button', { name: T('Bivouac + tent') }));
   await rec.click(dlg.getByRole('checkbox', { name: T('Cooking') }));
-  const box = dlg.getByRole('region', { name: T('Your packing list|preview') });
+  const box = dlg.getByRole('region', { name: T('Your packing list') });
   // v0.66.0: Base + Sleep are Bivouac, the tent its own block, Warm comes with the weather.
-  await rec.check('the live box names the night sets with counts (Bivouac, Tent, Cook)', () => expect(box).toContainText(new RegExp(`${esc(T('Bivouac'))} \\d+, ${esc(T('Tent|block'))} \\d+, [^,]+ 3`), { timeout: 2000 }));
+  // v0.113.0 «Rahmenbedingungen» (4b): the live list names the night items themselves (sleep and the 3 cook items).
+  await rec.check('the live list has the night items (Bivouac, Cook)', async () => {
+    for (const k of ['SL03', 'SL02', 'CO01', 'CO02', 'CO03']) await expect(box).toContainText(nm(k), { timeout: 2000 });
+  });
   await rec.click(dlg.getByRole('button', { name: T('Create trip') }));
   await openAllBags(page); // v0.29.0 (Noah 5a): the bags start folded
   await expect(page.locator('.calm-pack .list-head h2')).toHaveText(T('Packing list'));

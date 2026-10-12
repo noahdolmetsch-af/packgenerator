@@ -175,7 +175,9 @@ test('"+ block" in Add material adds the block once, with its amount, Undo takes
 });
 
 // v0.30.0 (Noah, finding 2): a new trip with Standard + Rain in 4 clicks (+, Plan a trip, the Rain chip, Create).
-test('New trip window: Standard + a building block in 4 clicks, the live count on the button', async ({ page, context }, info) => {
+// v0.113.0 «Rahmenbedingungen» (Noah 1a): building blocks are no longer in the New trip window (only in Packen);
+// the window shows the whole list and the button counts the bag items (7a).
+test('New trip window: Standard in 3 clicks, no building blocks in it, the live count on the button = the bag items', async ({ page, context }, info) => {
   const T = tr('de');
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -188,18 +190,15 @@ test('New trip window: Standard + a building block in 4 clicks, the live count o
   await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
   await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
   const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
-  await expect(dlg.getByRole('region', { name: T('Your packing list|preview') })).toContainText(T('always with you'));
-  const create = dlg.getByRole('button', { name: T('Create trip') });
+  const list = dlg.getByRole('region', { name: T('Your packing list') });
+  await expect(list).toBeVisible();
+  await expect(dlg.getByRole('button', { name: /^\+ test_data_gtp_ Regen/ })).toHaveCount(0);
+  await expect(dlg.getByText(T('Building blocks'), { exact: true })).toHaveCount(0);
+  const create = dlg.getByRole('button', { name: new RegExp(`^${T('Create trip')}`) });
   const count = async () => Number((await create.textContent()).match(/(\d+)/)?.[1] ?? 0);
   await expect(create).toContainText('·');
-  const before = await count();
-  // RG94 is gone: the chip offers 3 items; Regenhandschuhe twice (the block's amount).
-  const chip = dlg.getByRole('button', { name: /^\+ test_data_gtp_ Regen/ });
-  await expect(chip).toContainText('3 ·');
-  await click(chip);
-  await expect(chip).toHaveAttribute('aria-pressed', 'true');
-  await expect(dlg).toContainText('test_data_gtp_ Regen: test_data_gtp_ Regenhose');
-  await expect.poll(count).toBe(before + 3);
+  const shown = await list.locator('.grp li').count();
+  expect(await count()).toBe(shown);
   if (info.project.name === 'phone') {
     for (const width of [320, 390]) {
       await page.setViewportSize({ width, height: 740 });
@@ -209,13 +208,10 @@ test('New trip window: Standard + a building block in 4 clicks, the live count o
   }
   await click(create);
   await expect(dlg).toBeHidden();
-  expect(clicks, 'Standard + Rain in 4 clicks').toBe(4);
+  expect(clicks, 'Standard in 3 clicks').toBe(3);
   const made = (await table(page, 'trips')).find((t) => t.id !== 'trip-test_data_gtp_1');
-  expect(made.entries).toHaveLength(before + 3);
-  for (const id of ['RG91', 'RG92']) expect(made.entries.find((e) => e.itemId === id)).toMatchObject({ qty: 1, packed: false, src: 'set' });
-  expect(made.entries.find((e) => e.itemId === 'RG93')).toMatchObject({ qty: 2, src: 'set' });
-  expect(made.entries.find((e) => e.itemId === 'RG94')).toBeUndefined();
-  expect(made.entries.find((e) => e.itemId === 'RG91').slot).not.toBe('body');
+  expect(made.entries.length).toBeGreaterThanOrEqual(shown);
+  expect(made.entries.find((e) => e.itemId === 'RG91')).toBeUndefined(); // the block «Regen» only when chosen in Packen
   expect(errors).toEqual([]);
 });
 

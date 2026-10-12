@@ -143,27 +143,27 @@ test('Building blocks and What the app can do are rows; explanations behind "?"'
   expect(errors).toEqual([]);
 });
 
-test('New trip: the area chips with the last one pressed, the days field with "More", other starts in the gallery after the standard', async ({ page, context }, info) => {
+test('New trip: the sport chips with Fahrrad pressed, the days field with "More", the templates folded with Standard chosen', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/');
   await (await newButton(page, T('New'))).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
   const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
-  // v0.102.0 Design-Refresh P4 (T2): the areas as chips in sight (no fold), the last one chosen pressed.
-  await expect(dlg.getByRole('group', { name: T('Area') }).getByRole('button', { name: T('Bikepacking'), exact: true })).toHaveAttribute('aria-pressed', 'true');
+  // v0.102.0 Design-Refresh P4 (T2): the areas as chips in sight (no fold). v0.113.0 (2a): «Sportart», Fahrrad pressed.
+  await expect(dlg.getByRole('group', { name: T('Sport') }).getByRole('button', { name: T('Cycling|sport'), exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(dlg.getByRole('spinbutton', { name: T('Days') })).toHaveCount(0);
   await dlg.getByRole('button', { name: T('More'), exact: true }).click();
   await expect(dlg.getByRole('spinbutton', { name: T('Days') })).toBeFocused();
   await expect(dlg.getByRole('spinbutton', { name: T('Days') })).toHaveValue('3');
-  // The standard card comes before the other starts. v0.102.0 (T2): the starts are one gallery
-  // «Packliste startet mit», Standard first and chosen.
+  // v0.113.0 «Rahmenbedingungen» (1a, B2): «Vorlage wählen» folded before the packing list; open, Standard first and chosen.
   const order = await dlg.evaluate((d) => {
-    const std = d.querySelector('.plan');
-    const other = d.querySelector('fieldset.starts');
-    return std && other ? !!(std.compareDocumentPosition(other) & Node.DOCUMENT_POSITION_FOLLOWING) : null;
+    const tpl = d.querySelector('.tplbox');
+    const list = d.querySelector('.plist');
+    return tpl && list ? !!(tpl.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING) : null;
   });
   expect(order).toBe(true);
-  const starts = dlg.getByRole('group', { name: T('Packing list starts with') }).getByRole('button');
+  await dlg.getByRole('button', { name: new RegExp(T('Choose a template')) }).click();
+  const starts = dlg.getByRole('group', { name: T('Your templates') }).getByRole('button');
   await expect(starts.first()).toContainText(T('Standard'));
   await expect(starts.first()).toHaveAttribute('aria-pressed', 'true');
   await noSideways(page);

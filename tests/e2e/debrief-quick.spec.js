@@ -106,13 +106,15 @@ for (const lang of ['en', 'de']) {
     await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
     // v0.29.2 (Noah 7a): the templates are folded under "Start from a template" (one click more).
     const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
-    // v0.102.0 Design-Refresh P4 (T2): the templates are cards of the gallery «Packliste startet mit», in sight (two clicks fewer).
-    await click(dlg.getByRole('button', { name: new RegExp(`^${name}`) }));
+    // v0.102.0 Design-Refresh P4 (T2): the templates were cards in sight. v0.113.0 «Rahmenbedingungen» (1a): folded
+    // under «Vorlage wählen» again, as buttons (one click more).
+    await click(dlg.getByRole('button', { name: new RegExp(T('Choose a template')) }));
+    await click(dlg.getByRole('group', { name: T('Your templates') }).getByRole('button', { name: new RegExp(`^${name}`) }));
     await dlg.getByLabel(T('Name')).fill(`test_data_gtp_ next ${lang}`);
     await click(dlg.getByRole('button', { name: T('Create trip') }));
     await expect(dlg).toBeHidden();
     await expect(page.locator('.trip-band h1')).toHaveText(`test_data_gtp_ next ${lang}`);
-    expect(clicks).toBe(4);
+    expect(clicks).toBe(5);
     expect(errors).toEqual([]);
   });
 }
