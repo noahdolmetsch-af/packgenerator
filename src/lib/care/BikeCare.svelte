@@ -26,6 +26,7 @@
   import PartsTable from './PartsTable.svelte';
   import KmBook from './KmBook.svelte';
   import Q1Status from './Q1Status.svelte';
+  import StravaChanges from '../strava/StravaChanges.svelte';
   import SheetFolder from '../bikes/SheetFolder.svelte';
   import { partAreas } from './overview.js';
   import { isMore } from '../care.js';
@@ -275,6 +276,8 @@
       {/if}
       {#if kmMsg?.error}<p class="err" role="alert">{kmMsg.text}</p>{:else if kmMsg}<p class="saved" role="status">{kmMsg.text}</p>{/if}
       {#if words.text && c.care.status !== 'due'}<p class="quiet">{words.text}</p>{/if}
+      <!-- v0.116.0 «Strava-Verbindung» (4b): a ride of this bike got another bike in Strava: the question stays until you choose -->
+      <StravaChanges bikeId={bike.id} />
       {#if q1On}
         <Q1Status {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} parts={mainParts} {bikes} {today} onstart={(key) => onstartpoint?.(key, mainParts)} onhide={() => onq1?.(false)} />
       {/if}

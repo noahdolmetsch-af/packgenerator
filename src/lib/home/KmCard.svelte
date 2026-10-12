@@ -11,7 +11,7 @@
   import { sortBikes, bikesHash } from '../bikes.js';
   import { ensureParts, isMore, parseKm } from '../care.js';
   import { partAreas } from '../care/overview.js';
-  import { reconcile, matches, isoWeek, reasonText, makeEntry, monthReport, prevMonth, SOURCE_NAME, entryDetail, entryTitle } from '../kmbook.js';
+  import { reconcile, matches, isoWeek, reasonText, makeEntry, monthReport, prevMonth, SOURCE_NAME, entryDetail, entryTitle, waitsInStrava } from '../kmbook.js';
   import { addEntries, updateEntry, restoreEntries, KM_WEEK, KM_MONTH } from '../kmbookdb.js';
   import KmChips from '../care/KmChips.svelte';
   import { t, tn, num, dateOf, locale } from '../i18n.svelte.js';
@@ -31,7 +31,7 @@
   const off = $derived(recs.filter((r) => r.strava != null && !matches(r.diff)));
   const main = $derived(later ? null : off[0] ?? null);
   const rest = $derived(recs.filter((r) => r.strava != null && r !== main));
-  const open = $derived(entries.filter((e) => e.state === 'open').sort((a, b) => b.date.localeCompare(a.date)));
+  const open = $derived(entries.filter((e) => e.state === 'open' && !waitsInStrava(e)).sort((a, b) => b.date.localeCompare(a.date)));
   // the weekly reminder: a bike with a Strava value that is a week old, nothing else to do
   const stale = $derived(!later && !main && !open.length ? recs.find((r) => r.bike.strava?.at && Date.parse(`${today}T00:00:00Z`) - Date.parse(`${r.bike.strava.at}T00:00:00Z`) >= 7 * 864e5) ?? null : null);
   // the monthly report (first week of a month, until read)

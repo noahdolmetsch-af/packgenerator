@@ -8,6 +8,19 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.116.0 «Strava-Verbindung»
+  'Strava connection': 'Strava-Verbindung',
+  'Rides from Strava': 'Fahrten aus Strava',
+  'The app fetches your rides with their bike straight from Strava, so every ride lands on the right bike.': 'Die App holt deine Fahrten mit ihrem Velo direkt aus Strava, so landet jede Fahrt beim richtigen Velo.',
+  'Bike › Care › Strava: connect once, the app fetches all old rides without counting one twice and shows what it found.': 'Velo › Pflege › Strava: einmal verbinden, die App holt alle alten Fahrten, zählt keine doppelt und zeigt, was sie gefunden hat.',
+  'New rides come by themselves when the app opens, or only with «Fetch now». A ride without a bike waits in «To check» with a suggestion. The file import stays as the reserve.': 'Neue Fahrten kommen von selbst beim Öffnen, oder nur mit «Jetzt holen». Eine Fahrt ohne Velo wartet in «Zum Prüfen» mit einem Vorschlag. Der Datei-Import bleibt als Reserve.',
+  'A ride got another bike in Strava: Today and the bike ask «Take over» or «Keep». The tile «Strava» on Today shows the new rides.': 'Hat eine Fahrt in Strava ein anderes Velo bekommen, fragen Heute und das Velo: «Übernehmen» oder «Behalten». Die Kachel «Strava» auf Heute zeigt die neuen Fahrten.',
+  'Open Bike › Care › Strava and tap «Connect with Strava».': 'Öffne Velo › Pflege › Strava und tippe «Mit Strava verbinden».',
+  'Log in to Strava and allow it: the app shows how many rides it found.': 'Bei Strava einloggen und erlauben: die App zeigt, wie viele Fahrten sie gefunden hat.',
+  'Tap «Done», then «Fetch now»: the tile «Strava» on Today shows the result.': 'Tippe «Fertig», dann «Jetzt holen»: die Kachel «Strava» auf Heute zeigt das Ergebnis.',
+  'Rides with their bike from Strava, fetched by themselves; a changed bike asks first.': 'Fahrten mit ihrem Velo aus Strava, von selbst geholt; ein geändertes Velo fragt zuerst.',
+  'Heart rate from Strava, Ø and max per ride: in the ride log of the bike, the debrief, the trips table, Active, the ride page and «This week» on Today. Only observation, no rating.': 'Puls aus Strava, Ø und max pro Fahrt: im Fahrtenbuch des Velos, im Rückblick, in der Touren-Tabelle, bei Aktiv, auf der Fahrt-Seite und bei «Diese Woche» auf Heute. Nur Beobachtung, keine Bewertung.',
+  'Open the ride log of a bike: a ride with a heart rate monitor shows «Ø … · max … bpm».': 'Öffne das Fahrtenbuch eines Velos: eine Fahrt mit Pulsgurt zeigt «Ø … · max … Schläge/min».',
   // 0.115.0 Menü-Fix
   'Menus close easily': 'Menüs gehen leicht zu',
   'A tap next to an open ••• menu closes it, you no longer have to hit ••• a second time.':

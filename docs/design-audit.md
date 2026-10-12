@@ -73,6 +73,7 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 
 | Bereich | Screen oder Dialog | Letztes Audit | Note |
 |---|---|---|---|
+| Velos | Pflege › Strava (S1–S3), Zum Prüfen (S5) | 12.10.2026 (0.115 neu nach Mockups S1–S5) | – |
 | Heute | Startseite | 10.10.2026 (0.73 ruhiger nach Mockups heute-ruhig A und fotoalbum-neu A) | 4 |
 | Heute | Neu-Blatt, Mehr-Menü, Suche | – | – |
 | Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.52: Karte «Am Körper», Blatt «Tauschen») | 4 |
@@ -127,6 +128,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
+- 12.10.2026, 0.116.0 «Strava-Verbindung»: nach S1–S5 (`design/e3-strava/`, freigegeben 13:39). Gebaut aus den Bausteinen der Velo-Seiten (VeloHead, `vsec`/`vh`/`vlist`/`orow` wie Pflege-Übersicht, `.card`, `.btn`, Empty) und dem Kachelkopf von Heute (TileHead). Neue Dateien `src/lib/strava/*.svelte` streng im Stil-Lint, Routen `#/bikes?tab=care&view=strava` und `view=strava-check` streng im Konsistenz-Test. Abweichungen: Zuordnung zeigt «Hauptvelo in Strava» statt «Standard für …», Hinweis «Velo in Strava geändert» auf Heute als eigene Zeile über der Kachel-Wand. Puls P1–P6 (freigegeben 22:07 UTC): eine gemeinsame Zeile `HeartLine` (Herz-Icon, `--ink-2`, kleine Schrift) an allen sechs Orten, Spalte «Ø Puls» in der Touren-Tabelle nur, wenn eine Tour Puls hat.
 - 12.10.2026, 0.115.0 Menü-Fix: nur Verhalten, kein neues Aussehen. Alle •••-Menüs schliessen gleich (Tipp daneben, `ui/away.js`); Vorher/Nachher-Bilder auf «Offene Mockups 2» #menue-fix.
 - 12.10.2026, 0.111.0 «Bausteine bearbeiten» Teil 1: nach Mockups V1–V6 (`design/vorabend-check-3/`, Noah «v1-v4 ok» 22:34, «v5-6 ok» 22:39). Die Checks sind Zeilen der Abschnitte «Bis zum Start» und «Bevor du auspackst» (Symbol, Satz, kleiner Balken, Pfeil) und öffnen ein Fenster im Stil der Ladeliste (T8): `trip/CheckSheet.svelte` (Chips, Fortschritt, rundes Häkchen, Link-Pille mit 44 px Tippfläche, am Handy von unten, Link unter dem Text) und `trip/CheckEdit.svelte` (Griff, ×, Eingabe, Vorschläge, «Gilt für» als Chips). Neue Seite `pages/Checks.svelte` im Stil `ich/ich.css`. Alle drei streng im Stil-Lint, `#/me/checks` streng im Wächter. `TripCheck.svelte` ist weg.
 - 12.10.2026, 0.114.0 «Rahmenbedingungen»: nach B1–B3 (Projektordner `design/rahmenbedingungen/`). `pack/TripDialog.svelte` neu aufgebaut: Sportart-Chips mit Symbol, PLZ-Feld mit Prognose-Karte, Event-Kasten, «Vorlage wählen» mit Optionsknöpfen (44 px, gewählt grün mit Haken), Packliste in vier Gruppen-Karten (Symbol-Kachel pro Teil, Gewicht rechts, Namen umbrechen ganze Wörter), Fussknöpfe am Handy randbündig. Alle Schriftgrössen im Fenster jetzt über die Typ-Skala (Stil-Wächter: 13 → 0).

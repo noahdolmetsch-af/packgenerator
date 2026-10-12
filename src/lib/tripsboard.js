@@ -7,6 +7,8 @@
  */
 import { localDay } from './localday.js';
 import { addMonths } from './yearreview.js';
+import { tripEnd } from './debrief.js';
+import { heartBetween } from './kmbook.js';
 
 const pos = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null);
 const days = (t) => Math.max(1, Number(t?.days) || 1);
@@ -71,7 +73,7 @@ export function periodFrom(key, today = localDay()) {
  *     furthest: { km, title }, avg: [{ key, n, km, gainM, movingH, totalH, stops }], any }
  * Each best value is null when nothing counts.
  */
-export function bestValues({ trips = [], rides = [], today = localDay(), period = 'season' } = {}) {
+export function bestValues({ trips = [], rides = [], kmBook = [], today = localDay(), period = 'season' } = {}) {
   const from = periodFrom(period, today);
   const inP = (d) => !!d && d >= from && d <= today;
   const byId = Object.fromEntries(trips.map((t) => [t.id, t]));
@@ -93,6 +95,7 @@ export function bestValues({ trips = [], rides = [], today = localDay(), period 
         totalH: own.length ? sum('totalH') : null,
         stops: own.length ? own.reduce((s, r) => s + (r.pauses?.length ?? 0), 0) : null,
         rides: own.length,
+        heart: heartBetween(kmBook, t.startDate, tripEnd(t) ?? t.startDate, t.bikeId ?? null),
       };
     })
     .filter((x) => pos(x.km));
@@ -105,7 +108,9 @@ export function bestValues({ trips = [], rides = [], today = localDay(), period 
   const avg = KINDS.map((k) => {
     const list = per.filter((x) => kindOf(x.trip) === k.key && x.rides);
     const mean = (f) => (list.length ? list.reduce((s, x) => s + (f(x) ?? 0), 0) / list.length : null);
-    return { key: k.key, name: k.name, n: list.length, km: list.length ? Math.round(mean((x) => x.km)) : null, gainM: list.length ? Math.round(mean((x) => x.gainM)) : null, movingH: list.length ? r1(mean((x) => x.movingH)) : null, totalH: list.length ? r1(mean((x) => x.totalH)) : null, stops: list.length ? Math.round(mean((x) => x.stops)) : null };
+    const hs = list.filter((x) => x.heart);
+    const hrAvg = hs.length ? Math.round(hs.reduce((s, x) => s + x.heart.avg, 0) / hs.length) : null;
+    return { key: k.key, name: k.name, n: list.length, km: list.length ? Math.round(mean((x) => x.km)) : null, gainM: list.length ? Math.round(mean((x) => x.gainM)) : null, movingH: list.length ? r1(mean((x) => x.movingH)) : null, totalH: list.length ? r1(mean((x) => x.totalH)) : null, stops: list.length ? Math.round(mean((x) => x.stops)) : null, hrAvg };
   });
   return {
     longest: lt ? { km: Math.round(lt.km), title: lt.trip.title ?? '', days: days(lt.trip) } : null,

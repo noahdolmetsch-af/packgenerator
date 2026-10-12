@@ -33,7 +33,9 @@
   import GoalPath from '../lib/flow/kit/GoalPath.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { monthWeeks, seasonNow, goalPath } from '../lib/flow/aktiv.js';
-  import { msContext, allMilestones, TUNE_KEY } from '../lib/flowms.js';
+  import { msContext, allMilestones, TUNE_KEY, weekStart } from '../lib/flowms.js';
+  import { heartBetween } from '../lib/kmbook.js';
+  import HeartLine from '../lib/strava/HeartLine.svelte';
   import { msName, tileName } from '../lib/flow/hobby/words.js';
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
   import { isMedAct } from '../lib/flow/hobby/medstart.js';
@@ -92,6 +94,9 @@
   const seasonal = $derived(states.filter((s) => s.act.season));
   const ridesQ = liveQuery(() => db.rides.toArray());
   const km = $derived(monthWeeks($ridesQ ?? [], today));
+  // heart rate of this week's Strava rides (observation only, Noah 12.10.2026 «2a und b»)
+  const kmBookQ = liveQuery(() => db.kmBook.toArray());
+  const weekHeart = $derived(heartBetween($kmBookQ ?? [], weekStart(today), today));
   const prevMonth = $derived.by(() => {
     const [y, m] = today.split('-').map(Number);
     return new Date(Date.UTC(y, m - 2, 15)).toISOString().slice(0, 10);
@@ -273,6 +278,7 @@
               {:else}
                 <small>{t('No ride this month yet. Upload a ride ›')}</small>
               {/if}
+              {#if weekHeart}<small><HeartLine heart={weekHeart} label={t('Heart rate this week')} /></small>{/if}
             </a>
           </Sec>
         </div>

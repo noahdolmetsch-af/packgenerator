@@ -9,6 +9,10 @@
   import { actName } from '../flow/ui.svelte.js';
   import { weekDays, activeCount } from './bausteine.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
+  import { heartBetween } from '../kmbook.js';
+  import HeartLine from '../strava/HeartLine.svelte';
 
   let { today, rides = [], isnew = false } = $props();
   const q = $derived(flowQuery(today));
@@ -16,12 +20,15 @@
   const acts = $derived(Object.fromEntries((data?.acts ?? []).map((a) => [a.id, a])));
   const days = $derived(weekDays({ today, log: data?.log ?? [], rides }));
   const n = $derived(activeCount(days));
+  // heart rate of this week's Strava rides (observation only, Noah 12.10.2026 «2a»)
+  const kmQ = liveQuery(() => db.kmBook.toArray());
+  const heart = $derived(days.length ? heartBetween($kmQ ?? [], days[0].day, today) : null);
   const wd = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
 </script>
 
 <section class="wk surf" aria-labelledby="wk-h" data-section="week">
   <TileHead icon={Activity} id="wk-h" title={t('This week')} {isnew} />
-  <p class="sub">{tn(n, '{n} day active', '{n} days active')}</p>
+  <p class="sub">{tn(n, '{n} day active', '{n} days active')}{#if heart} · <HeartLine {heart} size={12} />{/if}</p>
   <ol class="days">
     {#each days as d (d.day)}
       <li class:now={d.day === today} class:future={d.future} data-day={d.day}>
