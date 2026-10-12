@@ -139,3 +139,28 @@ describe('«Zum Prüfen» stays in the Strava list (Noah «4b»)', () => {
     expect(reconcile([{ id: 'b1', name: 'Gravel Blau' }], entries)[0].open.map((e) => e.id)).toEqual(['b']);
   });
 });
+
+describe('Puls pro Fahrt (Noah 12.10.2026 «1b 2a und b»)', () => {
+  it('keeps the heart rate of a ride and adds it to rides already in the ledger', async () => {
+    const { planSync } = await import('../src/lib/stravasync.js');
+    const { makeEntry, heartOf, heartBetween, heartOfRide } = await import('../src/lib/kmbook.js');
+    const bikes = [{ id: 'gf', name: 'Gravel Factor LS' }];
+    const gear = [{ id: 'b1', name: 'Gravel Factor LS', km: 100, primary: true, retired: false }];
+    const old = makeEntry({ id: 'k1', bikeId: 'gf', date: '2026-10-05', km: 30, source: 'strava', stravaId: '5', gear: 'Gravel Factor LS' });
+    const acts = [
+      { id: 5, name: 'Alt', type: 'GravelRide', start: '2026-10-05T08:00:00Z', km: 30, gearId: 'b1', hrAvg: 130, hrMax: 160 },
+      { id: 6, name: 'Neu', type: 'GravelRide', start: '2026-10-06T08:00:00Z', km: 50, gearId: 'b1', hrAvg: 145, hrMax: 175 },
+    ];
+    const p = planSync({ activities: acts, gear, bikes, entries: [old], rules: [], now: new Date('2026-10-07T10:00:00Z') });
+    expect(p.updates).toContainEqual({ id: 'k1', changes: { hrAvg: 130, hrMax: 160 } });
+    const fresh = p.entries.find((e) => e.stravaId === '6');
+    expect([fresh.hrAvg, fresh.hrMax]).toEqual([145, 175]);
+    const both = [{ ...old, hrAvg: 130, hrMax: 160 }, fresh];
+    // weighted by km: (130·30 + 145·50) / 80 = 139.4
+    expect(heartOf(both)).toEqual({ avg: 139, max: 175, n: 2 });
+    expect(heartBetween(both, '2026-10-06', '2026-10-06')).toEqual({ avg: 145, max: 175, n: 1 });
+    expect(heartBetween(both, '2026-10-01', '2026-10-04')).toBeNull();
+    expect(heartOfRide(both, { date: '2026-10-06', km: 49.6, startAt: '2026-10-06T08:02:00Z' })).toEqual({ avg: 145, max: 175, n: 1 });
+    expect(heartOfRide(both, { date: '2026-10-06', km: 20 })).toBeNull();
+  });
+});

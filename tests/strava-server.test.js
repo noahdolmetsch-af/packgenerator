@@ -119,7 +119,7 @@ describe('Strava login', () => {
 });
 
 describe('Strava data', () => {
-  const activity = { id: 111, name: 'Abendrunde', sport_type: 'GravelRide', start_date: '2026-10-11T16:00:00Z', start_date_local: '2026-10-11T18:00:00Z', distance: 42345, total_elevation_gain: 512.4, moving_time: 6000, gear_id: 'b100', device_name: 'Garmin Edge 540', commute: false, trainer: false, map: { polyline: 'secret-route' } };
+  const activity = { id: 111, name: 'Abendrunde', sport_type: 'GravelRide', start_date: '2026-10-11T16:00:00Z', start_date_local: '2026-10-11T18:00:00Z', distance: 42345, total_elevation_gain: 512.4, moving_time: 6000, gear_id: 'b100', device_name: 'Garmin Edge 540', commute: false, trainer: false, has_heartrate: true, average_heartrate: 141.6, max_heartrate: 172, map: { polyline: 'secret-route' } };
 
   it('needs a device key', async () => {
     const w = world();
@@ -134,7 +134,7 @@ describe('Strava data', () => {
     const key = fragment(await connect(h, w)).get('key');
     const body = await (await h(get('/api/strava?step=activities&after=1700000000&page=2', { key }))).json();
     expect(body).toMatchObject({ ok: true, page: 2, more: false });
-    expect(body.activities[0]).toEqual({ id: '111', name: 'Abendrunde', type: 'GravelRide', start: '2026-10-11T16:00:00Z', startLocal: '2026-10-11T18:00:00Z', km: 42.3, hm: 512, movingS: 6000, gearId: 'b100', device: 'Garmin Edge 540', commute: false, trainer: false });
+    expect(body.activities[0]).toEqual({ id: '111', name: 'Abendrunde', type: 'GravelRide', start: '2026-10-11T16:00:00Z', startLocal: '2026-10-11T18:00:00Z', km: 42.3, hm: 512, movingS: 6000, gearId: 'b100', device: 'Garmin Edge 540', commute: false, trainer: false, hrAvg: 142, hrMax: 172 });
     expect(JSON.stringify(body)).not.toMatch(/secret-route/);
     const call = w.calls.find((c) => c.url.startsWith(`${API}/athlete/activities`));
     expect(call.url).toContain('page=2');

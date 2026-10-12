@@ -156,4 +156,13 @@ export default {
   'This server belongs to another Strava account.': 'Dieser Server gehört einem anderen Strava-Konto.',
   'The login took too long. Try again.': 'Das Login hat zu lange gedauert. Versuch es nochmals.',
   'Strava answered with an error. Try again later.': 'Strava hat mit einem Fehler geantwortet. Versuch es später nochmals.',
+  // Puls pro Fahrt (Noah 12.10.2026 «1b 2a und b», «1a 2a»): only observation
+  'Ø {avg} · max {max} bpm': 'Ø {avg} · max {max} Schläge/min',
+  'Ø {avg} bpm': 'Ø {avg} Schläge/min',
+  'Heart rate': 'Puls',
+  'from Strava · observation': 'aus Strava · Beobachtung',
+  'Ø heart rate': 'Ø Puls',
+  'Heart rate in bpm from Strava. Only observation, no rating.': 'Puls in Schlägen pro Minute aus Strava. Nur Beobachtung, keine Bewertung.',
+  'Heart rate this week': 'Puls diese Woche',
+  'Heart rate Ø / max · bpm': 'Puls Ø / max · Schläge/min',
 };

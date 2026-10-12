@@ -107,6 +107,8 @@ export function makeEntry(fields, now = new Date()) {
     gear: fields.gear ?? '',
     type: fields.type ?? '',
     stravaId: fields.stravaId ?? null,
+    hrAvg: fields.hrAvg ?? null,
+    hrMax: fields.hrMax ?? null,
     by: fields.by ?? null,
     sure: fields.sure ?? (fields.state === 'open' ? 'unclear' : 'user'),
     state: fields.state ?? 'counted',
@@ -801,4 +803,38 @@ export function entryDetail(e) {
   if (!parts.length && e.source === 'hand') return t('entered by hand');
   if (!parts.length && e.gear) return t('Strava bike {gear}', { gear: e.gear });
   return parts.join(' · ');
+}
+
+/* ---------- v0.112.0 Puls pro Fahrt (Noah 12.10.2026 «1b 2a und b», «1a 2a»): observation only ---------- */
+
+const hasHeart = (e) => Number(e?.hrAvg) > 0 && e?.state !== 'removed';
+
+/** Heart rate of rides: average of the ride averages (weighted by km), the highest max. Null without data. */
+export function heartOf(entries) {
+  const xs = (entries ?? []).filter(hasHeart);
+  if (!xs.length) return null;
+  const w = (e) => Number(e.km) > 0 ? Number(e.km) : 1;
+  const sum = xs.reduce((s, e) => s + w(e), 0);
+  const avg = Math.round(xs.reduce((s, e) => s + Number(e.hrAvg) * w(e), 0) / sum);
+  const max = Math.max(...xs.map((e) => Number(e.hrMax) || 0)) || null;
+  return { avg, max, n: xs.length };
+}
+
+/** Heart rate of the Strava rides from..to (days, inclusive), optionally of one bike. */
+export function heartBetween(entries, from, to, bikeId = null) {
+  return heartOf((entries ?? []).filter((e) => e.source === 'strava' && e.kind === 'ride' && e.date >= from && e.date <= to && (!bikeId || e.bikeId === bikeId)));
+}
+
+/** The Strava ride of an uploaded GPX/FIT ride: same day, about the same km (and start time, when both have one). */
+export function heartOfRide(entries, ride) {
+  if (!ride?.date) return null;
+  const km = Number(ride.km) || 0;
+  const start = ride.startAt ? Date.parse(ride.startAt) : NaN;
+  const near = (entries ?? []).filter((e) => {
+    if (e.source !== 'strava' || e.date !== ride.date || !hasHeart(e)) return false;
+    if (km && Math.abs((Number(e.km) || 0) - km) > Math.max(2, km * 0.1)) return false;
+    const t = e.time ? Date.parse(e.time) : NaN;
+    return !Number.isFinite(start) || !Number.isFinite(t) || Math.abs(t - start) <= 45 * 60 * 1000;
+  });
+  return near.length === 1 ? heartOf(near) : null;
 }

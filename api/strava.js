@@ -55,6 +55,8 @@ export function trimActivity(a) {
     device: a.device_name ?? '',
     commute: !!a.commute,
     trainer: !!a.trainer,
+    hrAvg: a.has_heartrate === false || !Number(a.average_heartrate) ? null : Math.round(Number(a.average_heartrate)),
+    hrMax: a.has_heartrate === false || !Number(a.max_heartrate) ? null : Math.round(Number(a.max_heartrate)),
   };
 }
 

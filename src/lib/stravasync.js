@@ -28,7 +28,7 @@ export function toRides(activities, bikes = []) {
       other++;
       continue;
     }
-    rides.push({ source: 'strava', date, time: a.start, km: a.km, name: a.name ?? '', type, gear, gearId: a.gearId ?? null, stravaId: String(a.id), device: a.device ?? '', profile: '', sensors: [] });
+    rides.push({ source: 'strava', date, time: a.start, km: a.km, name: a.name ?? '', type, gear, gearId: a.gearId ?? null, stravaId: String(a.id), device: a.device ?? '', profile: '', sensors: [], hrAvg: a.hrAvg ?? null, hrMax: a.hrMax ?? null });
   }
   return { rides, other };
 }
@@ -99,16 +99,18 @@ export function planSync({ activities = [], gear = [], bikes = [], rules = [], e
   const counts0 = { found: rides.length, known: 0, inStart: 0, assigned: 0, check: 0, other, ignored: 0 };
   const seen = [];
   const fresh = [];
+  const updates = [];
   for (const r of rides) {
     if (byId.has(r.stravaId)) {
       counts0.known++;
       seen.push(r);
+      const old = byId.get(r.stravaId);
+      if (r.hrAvg != null && (old.hrAvg ?? null) !== r.hrAvg) updates.push({ id: old.id, changes: { hrAvg: r.hrAvg, hrMax: r.hrMax } });
     } else if (r.gearId && skip.has(String(r.gearId))) counts0.ignored++;
     else fresh.push(r);
   }
 
   // a changed Strava bike (decision 4b), only on the days looked at again
-  const updates = [];
   const changes = [];
   const recent = checkFrom ? seen.filter((r) => r.date >= checkFrom) : [];
   for (const { entry, ride } of gearChanges([...byId.values()], recent)) {
@@ -130,7 +132,7 @@ export function planSync({ activities = [], gear = [], bikes = [], rules = [], e
   const perBike = {};
   const add = (row, fields) => {
     const r = row.ride;
-    const e = makeEntry({ date: r.date, time: r.time, km: r.km, kind: 'ride', source: 'strava', name: r.name, device: r.device, gear: r.gear, type: r.type ?? '', stravaId: r.stravaId, importId, ...fields }, now);
+    const e = makeEntry({ date: r.date, time: r.time, km: r.km, kind: 'ride', source: 'strava', name: r.name, device: r.device, gear: r.gear, type: r.type ?? '', stravaId: r.stravaId, hrAvg: r.hrAvg, hrMax: r.hrMax, importId, ...fields }, now);
     out.push(e);
     if (e.state === 'counted' && e.bikeId) {
       const p = (perBike[e.bikeId] ??= { n: 0, km: 0 });
@@ -146,7 +148,7 @@ export function planSync({ activities = [], gear = [], bikes = [], rules = [], e
     if (row.dup === 'known') {
       counts0.known++;
       const old = entries.find((e) => e.id === row.of);
-      if (old && !old.stravaId && !old.span) updates.push({ id: old.id, changes: { stravaId: row.ride.stravaId } });
+      if (old && !old.stravaId && !old.span) updates.push({ id: old.id, changes: { stravaId: row.ride.stravaId, ...(row.ride.hrAvg != null ? { hrAvg: row.ride.hrAvg, hrMax: row.ride.hrMax } : {}) } });
       continue;
     }
     if (!row.ride.gear) {
