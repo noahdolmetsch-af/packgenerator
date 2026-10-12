@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Design-Refresh P2 «Heute» (0.101.0)
+
+Nach den Mockups H1–H9 (freigegeben 12.10.2026 00:10 «h1-h6 freigeben» und 00:22 «h7-h9 freigegeben») und Noahs Wahl «10 Pakete» (P2 = Heute, früher R5+R6). «Foto weg von Heute» (Noah 11.10.2026 «bild wieder vom homescreen weg») kommt mit.
+
+- **Selbst entschieden (P2):** Die neuen Bausteine kommen als Kacheln dazu (H1): Diese Woche, Velo im Monat, Nächster Meilenstein, Vor einem Jahr. Eine gespeicherte Startseite bekommt sie einmal hinter «Im Flow»; wer eine wegnimmt, bekommt sie nicht wieder (Startseite neu als Version 2 gespeichert). Die Tour-Karte zeigt Stunden (und Tage, wenn mehr als 0) bis zum Start und die offenen Schritte als Zahlenfelder, darunter den Packbalken mit den nächsten drei Teilen; die Schritt-Linie bleibt, weil sie zeigt, wofür der Hauptknopf steht. Höhenprofil, Strecke und Höhenmeter nur, wenn die Tour eine Route hat. «Startseite anpassen» steht am Computer oben rechts, am Handy bleibt es unten. «Offen» zählt die offenen Schritte der Tour. Die Suche öffnet ihre Treffer über den Kacheln (Seitenleiste liegt jetzt darüber). Die Kachel «Inspiration» und der Vorschlag «Als Challenge setzen» (D1b/D5) kommen in eigenen kleinen Schritten, weil sie Inhalte von aussen bzw. einen Zähler mit Speicher brauchen.
+
 ## 12.10.2026: Design-Refresh P1 «Zurück, Schritte, Weiter-Leiste» (0.100.0)
 
 Nach Stilblatt G7 «Zurück und Schritte» (freigegeben 11.10.2026 23:10 «Runde 1 alles ★ und G1–G12 freigegeben») und Noahs Wahl «10 Pakete» vom 12.10.2026 (die übrigen 21 Releases in 10 Pakete gebündelt, eines pro Bereich; P1 = das frühere R4).

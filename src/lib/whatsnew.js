@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.101.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 5: Today is light and calm; the trip card shows the hours to go, the open steps and how much is packed.', href: '#/' },
+      { text: 'Four new tiles on Today: This week, Bike this month, Next milestone and A year ago.', href: '#/' },
+      { text: '«New» is sorted by area, each way with its own picture.', href: '#/' },
+      { text: 'The search results are light and open over the tiles.', href: '#/' },
+    ],
+  },
+  {
     version: '0.100.0',
     date: '2026-10-12',
     points: [

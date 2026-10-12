@@ -1,0 +1,31 @@
+// v0.101.0 Design-Refresh P2 «Heute» (H1–H9): the trip card with its number boxes and the packing bar,
+// the new tiles and the suggestion with «Als Challenge». Keys are the English texts. Swiss spelling (ss).
+export default {
+  'day|left': 'Tag',
+  'days|left': 'Tage',
+  'hour|left': 'Stunde',
+  'hours|left': 'Stunden',
+  'open|steps': 'offen',
+  '{n} of {m} packed': '{n} von {m} gepackt',
+  'Still: {list}': 'Noch: {list}',
+  // «Neu» (H7)
+  'What would you like to add?': 'Was möchtest du anlegen?',
+  'Note|group': 'Notiz',
+  // the new tiles
+  '{n} day active': '{n} Tag aktiv',
+  '{n} days active': '{n} Tage aktiv',
+  'Bike {km} km': 'Velo {km} km',
+  'Bike|ride': 'Velo',
+  'Bike in {month}': 'Velo im {month}',
+  'Bike this month': 'Velo in diesem Monat',
+  'Next milestone': 'Nächster Meilenstein',
+  '{left} km to {at} km · {bike}': '{left} km bis {at} km · {bike}',
+  'One more trip to your {at}th': 'Noch eine Tour bis zur {at}.',
+  '{n} more trips to your {at}th': 'Noch {n} Touren bis zur {at}.',
+  'Your first ride or trip starts the count.': 'Deine erste Fahrt oder Tour startet die Zählung.',
+  'No trip around this day last year.': 'Letztes Jahr um diese Zeit keine Tour.',
+  'Monday to Sunday: what you did each day, rides and Im Flow.': 'Montag bis Sonntag: was du an jedem Tag gemacht hast, Fahrten und Im Flow.',
+  'The km of this month, against last month.': 'Die km dieses Monats, verglichen mit dem letzten Monat.',
+  'How far to the next 1000 km of a bike, or the next number of trips.': 'Wie weit bis zu den nächsten 1000 km eines Velos oder zur nächsten Anzahl Touren.',
+  'The trip of this time last year, with a line from its debrief.': 'Die Tour von dieser Zeit letztes Jahr, mit einer Zeile aus ihrem Rückblick.',
+};

@@ -105,8 +105,8 @@ for (const [soon, button, step, wx] of [['2026-10-08', 'Pack|stage', 'Pack|stage
     await page.goto('./#/');
     const band = page.getByRole('region', { name: 'test_data_gtp_ sooner' });
     await expect(band).toBeVisible();
-    // exactly one strong button in the band
-    await expect(band.locator('.btn')).toHaveCount(1);
+    // exactly one strong button in the band (v0.101.0: the other ways are light framed buttons)
+    await expect(band.locator('.btn.hi')).toHaveCount(1);
     await band.getByRole('link', { name: T(button), exact: true }).click();
     await expect(page.locator('.trip-band h1')).toHaveText('test_data_gtp_ sooner');
     // the band's tab of that step is the current one

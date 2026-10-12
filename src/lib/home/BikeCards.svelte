@@ -138,15 +138,16 @@
     min-height: 64px;
     height: 100%;
     padding: 12px 14px;
-    border: 1px solid var(--line);
-    border-radius: 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
     background: var(--paper);
+    box-shadow: var(--card-shadow);
     color: var(--ink);
     text-decoration: none;
     box-sizing: border-box;
   }
   .bk:hover {
-    border-color: var(--line-strong);
+    background: var(--paper-2);
   }
   .nm {
     display: flex;

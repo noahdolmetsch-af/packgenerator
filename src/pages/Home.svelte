@@ -1,8 +1,3 @@
-<script module>
-  // v0.73.0 «Fotoband» (Noah 4a): one photo per app start, a different one on the next start.
-  const PICK = Math.random();
-</script>
-
 <script>
   /**
    * Today (Heute). v0.46.0 «Startseite neu» (Noah, 9.10.2026, answers 1a 2b 3a 4b 5a+menu 6-33a 34b):
@@ -11,7 +6,7 @@
    *  1. Greeting band: "Good morning, Noah." and the weather in one sentence (home forecast); beside it
    *     the suggestion of the day (a day ride when it stays dry, "Other bike").
    *  2. The next trip as a compact card: countdown, name, bike · items · weight · km, the steps as thin
-   *     bars, ONE button for the current step, a quiet setup photo; several trips: "+2 more trips ▾"
+   *     bars, ONE button for the current step; several trips: "+2 more trips ▾"
    *     (the 0.35 switcher) and a swipe on a phone. Test trips ("test" in the name) never lead here.
    *  3. "What do you want to do?": 12 buttons (phone 8), the last "All 16 functions" (lib/home/functions.js).
    *  4. "Important today" (at most 3 rows, urgent first, one action each; a bike job can be done right
@@ -73,7 +68,7 @@
   import { SETS_KEY } from '../lib/sets.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { standalone } from '../lib/install.js';
-  import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
+  import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, timeLeft, packedOf, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
   import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew } from '../lib/home/tiles.js';
   import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
@@ -91,13 +86,17 @@
   import TryCard from '../lib/home/TryCard.svelte';
   import BikeCards from '../lib/home/BikeCards.svelte';
   import YearRow from '../lib/home/YearRow.svelte';
+  import WeekTile from '../lib/home/WeekTile.svelte';
+  import MonthTile from '../lib/home/MonthTile.svelte';
+  import NextMsTile from '../lib/home/NextMsTile.svelte';
+  import YearAgoTile from '../lib/home/YearAgoTile.svelte';
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import KmCard from '../lib/home/KmCard.svelte';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
-  import TripPhoto from '../lib/home/TripPhoto.svelte';
-  import { tripToday, bandPhotos, pickPhoto, photoCaption } from '../lib/home/ruhig.js';
-  import { PartyPopper, Sun, Pencil, RotateCcw } from '@lucide/svelte';
+  import { tripToday } from '../lib/home/ruhig.js';
+  import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, TriangleAlert, SlidersHorizontal } from '@lucide/svelte';
+  import Profile from '../lib/ui/Profile.svelte';
 
   /* ---------- the records ---------- */
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -185,6 +184,7 @@
   });
   const hello = $derived(greeting(now.getHours(), S.userName ?? ''));
   const wx = $derived(fc ? weatherLine(fc, now) : null);
+  const shortDate = $derived(now.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' }));
   const dateLine = $derived([now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }), place?.name?.split(',')[0]].filter(Boolean).join(' · '));
   let placeOpen = $state(false);
 
@@ -259,16 +259,8 @@
   const stepNow = $derived(sched?.next ? stepWords(sched.next, shown, ctx, today) : null);
   const bars = $derived(sched ? sched.steps.filter((s) => s.key !== 'plan' && s.key !== 'debrief') : []);
   const cd = $derived(shown ? countdown(shown, now) : null);
-  // v0.73.0 «Fotoband» (Noah, Foto auf Heute 1a–4a): the trip's own photos, else its bike's photos;
-  // one of them per app start (PICK), sharp; a phone shows it as a band over the card, a computer
-  // on the right inside it. Only the photos of the trip shown and its bike are read.
-  const photoKey = $derived(shown ? `${shown.id}|${hasBike(shown) ? shown.bikeId ?? '' : ''}` : '');
-  const photosQ = $derived.by(() => {
-    const [tid, bid] = photoKey.split('|');
-    return liveQuery(() => (!tid ? [] : bid ? db.photos.where('bikeId').equals(bid).or('tripId').equals(tid).toArray() : db.photos.where('tripId').equals(tid).toArray()));
-  });
-  const photo = $derived(shown ? pickPhoto(bandPhotos(shown, shownBike, $photosQ ?? []), PICK) : null);
-  const caption = $derived(photo ? photoCaption(photo, { fallback: shownBike?.name ?? '', locale: locale() }) : '');
+  // 0.96.0 (Noah 11.10.2026 «bild wieder vom homescreen weg»): Heute shows no photo; the photos
+  // stay under Velos › Setup.
   const meta = $derived.by(() => {
     if (!shown || !stats) return '';
     const who = hasBike(shown) ? shown.bike : t(domainName(domainOf(shown)));
@@ -280,6 +272,12 @@
     const pct = pk ? t('{n} % packed', { n: Math.round((pk / es.length) * 100) }) : null;
     return [who, tn(stats.count, '{n} item', '{n} items'), w, km, pct].filter(Boolean).join(' · ');
   });
+  // v0.101.0 Design-Refresh P2 (H1): number boxes (days, hours, open steps), the packing bar and,
+  // with a route, its distance, climbing and profile on the right.
+  const left = $derived(shown && !ask ? timeLeft(shown, now) : null);
+  const openSteps = $derived(bars.filter((s) => s.state !== 'done' && s.state !== 'skip').length);
+  const packed = $derived(shown ? packedOf(shown, itemsById, nameOf) : null);
+  const prof = $derived(shown?.route?.km && shown.route.profile?.length > 1 ? shown.route.profile : null);
   const startLine = $derived(shown?.startDate ? new Date(`${shown.startDate}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'long' }) : '');
   function go(dir) {
     if (cardTrips.length < 2) return;
@@ -626,6 +624,7 @@
     await db.settings.put({ key: 'userName', value: nameIn.trim() });
   }
   const newTile = (id) => isNew(TILE[id], today);
+  const tripsDone = $derived(homeTrips(allTrips).filter((x) => tripDone(x, debriefs, today)).length);
   // a short line under a small function tile (a computer, or a wide tile)
   const gearN = $derived(items.filter(isInventory).length);
   function fnSub(id) {
@@ -693,15 +692,18 @@
 <!-- 1. greeting and weather, the suggestion of the day -->
 {#snippet greetingS()}
   <section class="greet" class:solo={!suggestion || slim} aria-labelledby="hello-h" data-section="greeting">
-    <div class="hi-text">
-      {#if !phone.matches}<span class="dl">{dateLine}</span>{/if}
-      <h1 id="hello-h" class="hello">{hello}{#if wx}{' '}<span class="wx" data-weather>{wx.text}</span>{/if}</h1>
-      {#if !wx && ready}
-        {#if !place}
-          <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
+    <div class="ghead">
+      <div class="hi-text">
+        <h1 id="hello-h" class="hello">{hello}</h1>
+        <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{/if}</p>
+        {#if !wx && ready}
+          {#if !place}
+            <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
+          {/if}
         {/if}
-      {/if}
-      {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
+        {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
+      </div>
+      {#if !phone.matches && !editing}<button type="button" class="btn adapt" onclick={() => (editing = true)}><SlidersHorizontal size={18} aria-hidden="true" />{t('Customise the start page')}</button>{/if}
     </div>
     {#if suggestion && !slim}
       <div class="sugg" data-suggestion>
@@ -720,15 +722,16 @@
 <!-- 2. the next trip -->
 {#snippet tripS()}
   {#if focus || shown}
-    {#if photo && phone.matches}<TripPhoto {photo} {caption} mode="band" />{/if}
-    <section class="trip noswipe" class:has-photo={!!photo && !phone.matches} class:on-band={!!photo && phone.matches} aria-labelledby="next-h" data-section="trip" data-trip={shown?.id} onpointerdown={pdown} onpointerup={pup} onpointercancel={() => (sx = null)}>
+    <section class="trip noswipe" class:wide2={!!prof} aria-labelledby="next-h" data-section="trip" data-trip={shown?.id} onpointerdown={pdown} onpointerup={pup} onpointercancel={() => (sx = null)}>
       <div class="tc">
         <div class="kl">
+          <Route size={16} aria-hidden="true" />
           {#if ask}
             <span class="cdn">{t('trip ended')}</span>
           {:else if cd}
+            <span class="sub">{isLead ? t('Next trip') : t('Later trip')}</span>
             <span class="cdn" class:near={cd.near} data-countdown>{cd.text}</span>
-            {#if !phone.matches && startLine && !cd.under}<span class="sub">{isLead ? t('Next trip') : t('Later trip')} · {startLine}</span>{/if}
+            {#if Number(shown.days) > 1 && !cd.under}<span class="sub">{tn(Number(shown.days), '{n} day', '{n} days')}</span>{/if}
           {/if}
           <span class="kr">
             {#if cardTrips.length > 1}
@@ -739,8 +742,23 @@
         </div>
         <div>
           <h2 id="next-h" class="tt">{ask ? t('How was {trip}?', { trip: shown.title }) : shown.title}</h2>
-          <p class="meta num">{meta}</p>
+          <p class="meta num">{meta}{#if startLine && !phone.matches} · {startLine}{/if}</p>
         </div>
+        {#if !ask && (left || openSteps)}
+          <dl class="boxes num" data-boxes>
+            {#if left}
+              {#if left.days}<div><dt>{left.days === 1 ? t('day|left') : t('days|left')}</dt><dd>{left.days}</dd></div>{/if}
+              <div><dt>{left.hours === 1 ? t('hour|left') : t('hours|left')}</dt><dd>{left.hours}</dd></div>
+            {/if}
+            <div><dt>{t('open|steps')}</dt><dd>{openSteps}</dd></div>
+          </dl>
+        {/if}
+        {#if !ask && packed}
+          <div class="packed" data-packed>
+            <div class="bar" role="progressbar" aria-label={t('Packed')} aria-valuemin="0" aria-valuemax={packed.of} aria-valuenow={packed.packed}><span style:width="{Math.round((packed.packed / packed.of) * 100)}%"></span></div>
+            <p class="pl"><b>{t('{n} of {m} packed', { n: packed.packed, m: packed.of })}</b>{#if packed.left.length}<span>{t('Still: {list}', { list: packed.left.join(', ') })}</span>{/if}</p>
+          </div>
+        {/if}
         {#if bars.length}
           <ol class="steps" aria-label={t('Trip schedule')}>
             {#each bars as s (s.key)}
@@ -754,18 +772,26 @@
         <div class="acts">
           {#if ask}
             <button type="button" class="btn hi main" onclick={() => allGood()}>{t('All good')}</button>
-            <a class="lk" href={focus.href} onclick={() => openTrip(shown.id)}>{t(focus.label)}</a>
+            <a class="btn" href={focus.href} onclick={() => openTrip(shown.id)}>{t(focus.label)}</a>
           {:else if stepNow}
-            <a class="btn hi main" href={stepNow.href} onclick={() => openTrip(shown.id)} data-step={sched.next.key}>{stepNow.button}</a>
-            {#each stepNow.links.slice(0, 1) as l (l.href)}<a class="lk" href={l.href} onclick={() => openTrip(shown.id)}>{l.label}</a>{/each}
-            {#if stepNow.href !== stepHere(shown).href}<a class="lk" href={stepHere(shown).href} onclick={() => openTrip(shown.id)}>{t('Open the trip')}</a>{/if}
+            <a class="btn hi main" href={stepNow.href} onclick={() => openTrip(shown.id)} data-step={sched.next.key}>{stepNow.button}<ChevronRight size={18} aria-hidden="true" /></a>
+            {#each stepNow.links.slice(0, 1) as l (l.href)}<a class="btn" href={l.href} onclick={() => openTrip(shown.id)}>{l.label}</a>{/each}
+            {#if stepNow.href !== stepHere(shown).href}<a class="btn" href={stepHere(shown).href} onclick={() => openTrip(shown.id)}>{t('Open the trip')}</a>{/if}
           {:else if focus && isLead}
             <a class="btn hi main" href={focus.href} onclick={() => openTrip(shown.id)}>{t(focus.label)}</a>
           {/if}
           {#if phone.matches}<InProgress current={shown?.id} light label={(n) => tn(n, '+{n} more trip', '+{n} more trips')} />{/if}
         </div>
       </div>
-      {#if photo && !phone.matches}<TripPhoto {photo} {caption} mode="side" />{/if}
+      {#if prof}
+        <div class="route" data-route>
+          <dl class="boxes sm num">
+            <div><dt>{t('Distance')}</dt><dd>{num(Math.round(shown.route.km))} km</dd></div>
+            {#if shown.route.gainM}<div><dt>{t('Climbing')}</dt><dd>{num(Math.round(shown.route.gainM))} m</dd></div>{/if}
+          </dl>
+          <Profile points={prof} />
+        </div>
+      {/if}
     </section>
     {#if slim}
       <div class="srow" data-suggestion data-slim>
@@ -790,7 +816,7 @@
 {#snippet todayS()}
   <div class="impw" data-section="today">
     <section class="imp" aria-labelledby="imp-h">
-      <h2 id="imp-h" class="kick">{t('Important today')}</h2>
+      <div class="ih"><span class="ico" aria-hidden="true"><TriangleAlert size={16} /></span><h2 id="imp-h">{t('Important today')}</h2>{#if important.length}<span class="cnt num" aria-hidden="true">{important.length}</span>{/if}</div>
       {#if notice}<p class="notice" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="btn sm" onclick={undoNotice}>{t('Undo')}</button>{/if}</p>{/if}
       {#if quick}
         <div class="notice" role="status"><span>{t('Saved: {trip}.', { trip: quick.trip.title })}</span>{#if quick.undo}<button type="button" class="btn sm" onclick={undoQuick}>{t('Undo')}</button>{/if}</div>
@@ -834,7 +860,7 @@
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
   {:else if x.id === 'news'}<NewsTile size={x.size} />
   {:else if x.id === 'meditation'}<MedTile {today} size={x.size} isnew={newTile('meditation')} />
-  {:else if x.id === 'play'}<SmallTile tile={TILE.play} size={x.size} dark isnew={newTile('play')} sub={$demoQ?.play ? t('The playground is running') : t('try without risk')} onclick={openPlay} />
+  {:else if x.id === 'play'}<SmallTile tile={TILE.play} size={x.size} isnew={newTile('play')} sub={$demoQ?.play ? t('The playground is running') : t('try without risk')} onclick={openPlay} />
   {:else if x.id === 'try'}<TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />
   {:else if x.id === 'bikes'}{#if ready}<div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>{/if}
   {:else if x.id === 'year'}<div data-section="year"><YearRow {today} /></div>
@@ -844,6 +870,10 @@
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
   {:else if x.id === 'inbox'}<SmallTile tile={TILE.inbox} size={x.size} href="#/inbox" badge={notes.length} />
   {:else if x.id === 'data'}<SmallTile tile={TILE.data} size={x.size} onclick={openData} badge={backup.due ? 1 : 0} />
+  {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
+  {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />
+  {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />
+  {:else if x.id === 'yearago'}<YearAgoTile trips={homeTrips(allTrips)} {debriefs} {today} isnew={newTile('yearago')} />
   {:else if TILE[x.id]?.fn}
     {@const f = FUNCTIONS.find((y) => y.id === TILE[x.id].fn)}
     <SmallTile tile={TILE[x.id]} size={x.size} fn={f.id} badge={badges[f.id] ?? 0} sub={fnSub(f.id)} onclick={() => runFn(f)} />
@@ -895,7 +925,7 @@
         <label><span class="lbl">{t('Your name for the greeting')}</span><input class="inp" type="text" bind:value={nameIn} autocomplete="given-name" maxlength="40" /></label>
         <button type="submit" class="btn">{t('Save name')}</button>
       </form>
-    {:else}
+    {:else if phone.matches}
       <button type="button" class="lkb" onclick={() => (editing = true)}><Pencil size={16} aria-hidden="true" />{t('Customise the start page')}</button>
     {/if}
   </div>
@@ -983,33 +1013,41 @@
       grid-template-columns: minmax(0, 1fr);
     }
   }
+  /* v0.101.0 Design-Refresh P2 (H1): the greeting alone in the heading, date and weather in one quiet
+     line under it, «Customise the start page» as a light button at the top right */
+  .ghead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 24px;
+    min-width: 0;
+  }
   .hi-text {
+    flex: 1 1 320px;
     display: flex;
     flex-direction: column;
     gap: 4px;
     min-width: 0;
   }
-  .dl {
-    color: var(--ink-2);
-  }
-  /* v0.73.0 (Noah 5a): the greeting in one line, at most 40 px */
   .hello {
     margin: 0;
-    font: 800 var(--fs-page) / 1.05 var(--font-brand);
-    letter-spacing: 0.005em;
+    font: 700 var(--fs-page) / 1.1 var(--font-body);
+    letter-spacing: -0.01em;
     overflow-wrap: break-word;
   }
-  .wx {
-    color: var(--head);
+  .dl {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .adapt {
+    flex: none;
+    background: var(--paper);
   }
   @media (max-width: 719px) {
     .hello {
-      font: 600 21px/1.25 var(--font-body);
-    }
-    .wx {
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--ink-2);
+      font-size: 26px;
     }
   }
   .pf {
@@ -1020,9 +1058,10 @@
     flex-direction: column;
     gap: 8px;
     padding: 16px 18px;
-    border: 1px solid var(--line);
-    border-radius: 18px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
     background: var(--paper);
+    box-shadow: var(--card-shadow);
   }
   .sugg .kick {
     font-size: 12.5px;
@@ -1074,19 +1113,97 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: 20px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
     background: var(--paper);
+    box-shadow: var(--card-shadow);
     touch-action: pan-y;
   }
-  .trip.has-photo {
-    grid-template-columns: minmax(0, 1fr) minmax(200px, 300px);
+  @media (min-width: 900px) {
+    .trip.wide2 {
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+    }
   }
-  /* v0.73.0 «Fotoband» (Noah 1a 3a): on a phone the card lies 34 px over the lower edge of the band */
-  .trip.on-band {
-    position: relative;
-    margin: -48px var(--sp-2) 0;
-    box-shadow: 0 6px 22px var(--shadow);
+  .route {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    padding: 0 14px 14px;
+  }
+  @media (min-width: 900px) {
+    .route {
+      padding: 22px 24px 18px 0;
+    }
+  }
+  /* the number boxes: days, hours and open steps; the route's distance and climbing */
+  .boxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+  }
+  .boxes div {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    padding: 10px 8px;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+  }
+  .boxes dd {
+    margin: 0;
+    font: 600 24px/1.15 var(--font-body);
+  }
+  .boxes dt {
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+  }
+  @media (max-width: 719px) {
+    .boxes div {
+      padding: 6px;
+    }
+    .boxes dd {
+      font-size: 20px;
+    }
+  }
+  .boxes.sm div {
+    align-items: flex-start;
+    padding: 8px 12px;
+  }
+  .boxes.sm dd {
+    font-size: 18px;
+  }
+  .packed {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .bar {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .bar span {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+    background: var(--hi);
+  }
+  .pl {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2px 16px;
+    margin: 0;
+    font-size: var(--fs-small);
+  }
+  .pl b {
+    font-weight: 600;
+  }
+  .pl span {
+    color: var(--ink-2);
   }
   .tc {
     display: flex;
@@ -1096,9 +1213,6 @@
     padding: 22px 28px;
   }
   @media (max-width: 719px) {
-    .trip {
-      border-radius: 16px;
-    }
     .tc {
       gap: 8px;
       padding: 12px 14px;
@@ -1108,8 +1222,12 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 4px 12px;
-    font-size: 15px;
+    gap: 4px 8px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .kl > :global(svg) {
+    flex: none;
   }
   .cdn {
     font-weight: 600;
@@ -1139,7 +1257,7 @@
   }
   .tt {
     margin: 0;
-    font: 600 clamp(21px, 1.6vw + 12px, 34px) / 1.12 var(--font-body);
+    font: 700 clamp(21px, 1vw + 14px, 28px) / 1.15 var(--font-body);
     overflow-wrap: break-word;
   }
   .meta {
@@ -1160,19 +1278,19 @@
     margin: 0;
     padding: 0;
     list-style: none;
-    font-size: 15px;
+    font-size: var(--fs-small);
   }
   .steps li {
     min-width: 0;
-    padding-top: 7px;
-    border-top: 4px solid var(--bar);
+    padding-top: 6px;
+    border-top: 3px solid var(--paper-2);
     color: var(--ink-2);
     overflow-wrap: break-word;
     hyphens: auto;
   }
   .steps li.done {
-    border-top-color: var(--accent);
-    color: var(--accent);
+    border-top-color: var(--ok);
+    color: var(--ink-2);
     font-weight: 500;
   }
   .steps li.skip {
@@ -1220,11 +1338,8 @@
     align-items: center;
     gap: 6px 18px;
   }
-  .btn.main {
-    min-height: 48px;
-    padding-inline: 22px;
-    border-radius: 12px;
-    font-size: 16px;
+  .acts {
+    gap: 8px 10px;
   }
   @media (max-width: 719px) {
     .btn.main {
@@ -1238,9 +1353,10 @@
     gap: var(--sp-2) var(--sp-3);
     min-height: 56px;
     padding: var(--sp-2) 18px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--card-line);
     border-radius: var(--radius-card);
     background: var(--paper);
+    box-shadow: var(--card-shadow);
   }
   .srow :global(svg) {
     flex: none;
@@ -1292,12 +1408,36 @@
     box-sizing: border-box;
     min-width: 0;
     padding: 14px 18px 8px;
-    border: 1px solid var(--line);
-    border-radius: 18px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
     background: var(--paper);
+    box-shadow: var(--card-shadow);
   }
-  .imp .kick {
-    margin-bottom: 4px;
+  /* v0.101.0 Design-Refresh P2 (H1): the tile head, an icon in a grey square, the name, the count */
+  .ih {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .ih h2 {
+    flex: 1;
+    margin: 0;
+    font: 600 var(--fs-body)/1.3 var(--font-body);
+  }
+  .ico {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .cnt {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .imp ul {
     list-style: none;

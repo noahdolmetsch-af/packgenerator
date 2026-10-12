@@ -64,6 +64,8 @@
   .in {
     position: sticky;
     top: 0;
+    /* v0.101.0: above the tiles of the page, so the search results open over them */
+    z-index: 6;
     display: flex;
     flex-direction: column;
     gap: var(--sp-3);

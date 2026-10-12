@@ -122,6 +122,29 @@ export function countdown(trip, now = new Date()) {
 }
 
 /**
+ * v0.101.0 Design-Refresh P2 (H1): the three number boxes of the trip card, days and hours until the
+ * trip starts (at START_HOUR on its first day). Null when it has no date or has started.
+ */
+export function timeLeft(trip, now = new Date()) {
+  if (!trip?.startDate) return null;
+  const [y, m, d] = trip.startDate.split('-').map(Number);
+  const h = Math.floor((new Date(y, m - 1, d, START_HOUR).getTime() - now.getTime()) / 36e5);
+  if (h < 1) return null;
+  return { days: Math.floor(h / 24), hours: h % 24 };
+}
+
+/**
+ * How far packing is: { packed, of, left: [names of the first 3 items not packed yet] }. Null for an
+ * empty list. name(item) gives an item's name.
+ */
+export function packedOf(trip, itemsById = {}, name = (i) => i?.name ?? '') {
+  const es = trip?.entries ?? [];
+  if (!es.length) return null;
+  const open = es.filter((e) => !e.packed);
+  return { packed: es.length - open.length, of: es.length, left: open.slice(0, 3).map((e) => (itemsById[e.itemId] ? name(itemsById[e.itemId]) : '')).filter(Boolean) };
+}
+
+/**
  * The trips Today can show in the trip card, soonest first: not archived, no test trip, not skipped
  * or finished, not over. The swipe goes through these (Noah 31a).
  */

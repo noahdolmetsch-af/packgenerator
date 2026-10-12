@@ -11,7 +11,7 @@ export default {
   'new|tile': 'neu',
   'New|tile': 'Neu',
   // what each tile is for (the catalog)
-  'Your next trip with its step, the countdown and a photo.': 'Deine nächste Tour mit ihrem Schritt, dem Countdown und einem Foto.',
+  'Your next trip with its step and the countdown.': 'Deine nächste Tour mit ihrem Schritt und dem Countdown.',
   'What is due today: a bike job, the backup, a debrief.': 'Was heute fällig ist: eine Velo-Arbeit, das Backup, ein Rückblick.',
   'Tick off today, your rings and the daily check.': 'Heute abhaken, deine Ringe und der Tagescheck.',
   'Series and milestones': 'Serie und Meilensteine',

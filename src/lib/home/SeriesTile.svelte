@@ -55,9 +55,10 @@
     gap: 6px;
     height: 100%;
     padding: 12px 14px;
-    border: 1px solid var(--card-line, var(--line));
-    border-radius: 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
     background: var(--paper);
+    box-shadow: var(--card-shadow);
   }
   .ser.party {
     border-color: var(--hi);
@@ -79,8 +80,8 @@
     width: 28px;
     height: 28px;
     border-radius: 8px;
-    background: var(--hi-soft);
-    color: var(--hi);
+    background: var(--paper-2);
+    color: var(--ink-2);
   }
   h2 {
     margin: 0;

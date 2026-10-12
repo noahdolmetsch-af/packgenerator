@@ -15,6 +15,7 @@
   import { parseKm } from '../care.js';
   import { setReading } from '../kmbookdb.js';
   import ProblemForm from './ProblemForm.svelte';
+  import { Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X } from '@lucide/svelte';
 
   let { mode = $bindable(null), onnote } = $props();
 
@@ -50,8 +51,11 @@
 
 <dialog class="sheet new" bind:this={dialog} use:backClose onclose={() => ((mode = null), (kmMsg = ''))} aria-labelledby="new-h">
   <div class="top">
-    <h2 id="new-h" class="title">{mode === 'km' ? t('km for a bike') : mode === 'problem' ? t('Problem with a bike') : t('New')}</h2>
-    <button type="button" class="btn sm" onclick={close}>{t('Close')}</button>
+    <div>
+      <h2 id="new-h" class="title">{mode === 'km' ? t('km for a bike') : mode === 'problem' ? t('Problem with a bike') : t('New')}</h2>
+      {#if mode !== 'km' && mode !== 'problem'}<p class="lead">{t('What would you like to add?')}</p>{/if}
+    </div>
+    <button type="button" class="x" onclick={close} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
   </div>
 
   {#if mode === 'problem'}
@@ -72,58 +76,98 @@
       <p class="small">{t('Or import your rides in Debrief: the km of a trip are added to its bike.')}</p>
     </form>
   {:else}
-    <ul class="opts grid">
-      <li><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard'))}><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></button></li>
+    <!-- v0.101.0 Design-Refresh P2 (H7): the same 9 ways, in groups by area, «Plan a trip» on top -->
+    <h3 class="ngrp">{t('Trips|place')}</h3>
+    <ul class="opts">
+      <li class="wide"><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard'))}><span class="ic" aria-hidden="true"><Route size={20} /></span><span class="tx"><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(dayRide)}><span class="ic" aria-hidden="true"><Bike size={20} /></span><span class="tx"><b>{t('Day ride now')}</b><span>{t('One tap, with Undo')}</span></span></button></li>
+      <li><a class="opt" href="#/debrief/ride" onclick={close}><span class="ic" aria-hidden="true"><Activity size={20} /></span><span class="tx"><b>{t('Upload ride')}</b><span>{t('GPX: pauses, planned vs real, learnings')}</span></span></a></li>
+      <li><a class="opt" href="#/pack/templates" onclick={close}><span class="ic" aria-hidden="true"><Backpack size={20} /></span><span class="tx"><b>{t('Template')}</b><span>{t('From the open trip, in Templates')}</span></span></a></li>
+    </ul>
+    <h3 class="ngrp">{t('Gear|place')}</h3>
+    <ul class="opts">
+      <li><button type="button" class="opt" onclick={() => run(addItem)}><span class="ic" aria-hidden="true"><Package size={20} /></span><span class="tx"><b>{t('Gear item')}</b><span>{t('Name, weight, bag')}</span></span></button></li>
+    </ul>
+    <h3 class="ngrp">{t('Bikes|place')}</h3>
+    <ul class="opts">
+      <li><button type="button" class="opt" onclick={() => (mode = 'km')}><span class="ic" aria-hidden="true"><Plus size={20} /></span><span class="tx"><b>{t('km for a bike')}</b><span>{t('What the counter says')}</span></span></button></li>
       <!-- v0.45.2 (Noah on the bike): several problems with one bike at once, into Bike care -->
-      {#if bikes.length}<li><button type="button" class="opt" onclick={() => (mode = 'problem')}><b>{t('Problem with a bike')}</b><span>{t('Air, saddle, battery: one per line')}</span></button></li>{/if}
-      <!-- v0.38.0 (Noah 8a, E): the day ride and "Note + photo" here too; Plan a trip stays the one orange row. -->
-      <li><button type="button" class="opt" onclick={() => run(dayRide)}><b>{t('Day ride now')}</b><span>{t('One tap, with Undo')}</span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(addItem)}><b>{t('Gear item')}</b><span>{t('Name, weight, bag')}</span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><b>{t('Note + photo')}</b><span>{t('"What was missing", "This is broken"')}</span></button></li>
-      <!-- v0.41.0 (Noah 1): a recorded ride (GPX): pauses, planned vs real, learnings -->
-      <li><a class="opt" href="#/debrief/ride" onclick={close}><b>{t('Upload ride')}</b><span>{t('GPX: pauses, planned vs real, learnings')}</span></a></li>
-      <li><button type="button" class="opt" onclick={() => (mode = 'km')}><b>{t('km for a bike')}</b><span>{t('What the counter says')}</span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(() => onnote(t('Workshop receipt: ')))}><b>{t('Workshop visit')}</b><span>{t('Photo of the receipt into the Inbox')}</span></button></li>
-      <li><a class="opt" href="#/pack/templates" onclick={close}><b>{t('Template')}</b><span>{t('From the open trip, in Templates')}</span></a></li>
+      {#if bikes.length}<li><button type="button" class="opt" onclick={() => (mode = 'problem')}><span class="ic" aria-hidden="true"><TriangleAlert size={20} /></span><span class="tx"><b>{t('Problem with a bike')}</b><span>{t('Air, saddle, battery: one per line')}</span></span></button></li>{/if}
+      <li><button type="button" class="opt" onclick={() => run(() => onnote(t('Workshop receipt: ')))}><span class="ic" aria-hidden="true"><Receipt size={20} /></span><span class="tx"><b>{t('Workshop visit')}</b><span>{t('Photo of the receipt into the Inbox')}</span></span></button></li>
+    </ul>
+    <h3 class="ngrp">{t('Note|group')}</h3>
+    <ul class="opts">
+      <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><span class="ic" aria-hidden="true"><StickyNote size={20} /></span><span class="tx"><b>{t('Note + photo')}</b><span>{t('"What was missing", "This is broken"')}</span></span></button></li>
     </ul>
   {/if}
 </dialog>
 
 <style>
   .new {
-    width: min(640px, calc(100vw - 24px));
+    width: min(760px, calc(100vw - 24px));
   }
   .top {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
   .top h2 {
     margin: 0;
   }
+  .lead {
+    margin: 2px 0 0;
+    color: var(--ink-2);
+  }
+  .x {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .x:hover {
+    background: var(--paper-2);
+  }
+  /* v0.101.0 Design-Refresh P2 (H7): small group heads, the ways as cards with an icon */
+  .ngrp {
+    margin: 14px 0 6px;
+    color: var(--ink-2);
+    font: 600 var(--fs-tiny)/1.4 var(--font-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
   .opts {
     list-style: none;
-    margin: 0 0 10px;
+    margin: 0;
     padding: 0;
     display: grid;
     gap: 8px;
   }
   @media (min-width: 560px) {
-    .opts.grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .opts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .opts .wide {
+      grid-column: 1 / -1;
     }
   }
   .opt {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    align-items: center;
+    gap: 12px;
     width: 100%;
-    min-height: 56px;
+    height: 100%;
+    min-height: 64px;
     padding: 10px 14px;
-    border: 2px solid var(--line);
-    border-radius: 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-ctl);
     background: var(--paper);
     color: var(--ink);
     font: inherit;
@@ -134,14 +178,40 @@
   }
   .opt:hover,
   .opt:focus-visible {
-    border-color: var(--ink);
+    border-color: var(--ink-3);
+    background: var(--paper-2);
   }
   .opt.hi {
-    border-color: var(--hi);
+    border-color: transparent;
+    background: var(--hi-soft);
   }
-  .opt span {
-    color: var(--ink-3);
-    font-size: 14px;
+  .ic {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .opt.hi .ic {
+    background: var(--hi);
+    color: var(--hi-ink);
+  }
+  .tx {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .tx b {
+    font-weight: 600;
+  }
+  .tx span {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
   }
   .km {
     display: grid;

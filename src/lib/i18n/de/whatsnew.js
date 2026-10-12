@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.101.0 Design-Refresh P2 «Heute»
+  'The new look, step 5: Today is light and calm; the trip card shows the hours to go, the open steps and how much is packed.':
+    'Das neue Aussehen, Schritt 5: Heute ist hell und ruhig; die Tour-Karte zeigt die Stunden bis zum Start, die offenen Schritte und wie viel gepackt ist.',
+  'Four new tiles on Today: This week, Bike this month, Next milestone and A year ago.':
+    'Vier neue Kacheln auf Heute: Diese Woche, Velo im Monat, Nächster Meilenstein und Vor einem Jahr.',
+  '«New» is sorted by area, each way with its own picture.': '«Neu» ist nach Bereichen geordnet, jeder Weg mit eigenem Symbol.',
+  'The search results are light and open over the tiles.': 'Die Treffer der Suche sind hell und öffnen sich über den Kacheln.',
   // 0.100.0 Design-Refresh P1 «Zurück, Schritte, Weiter-Leiste»
   'The new look, step 4: a trip page is light, with «‹ Trips» above the name to go back.':
     'Das neue Aussehen, Schritt 4: eine Tour-Seite ist hell, mit «‹ Touren» über dem Namen für den Weg zurück.',

@@ -36,7 +36,7 @@ const FN_AREA = { dayride: 'trips', trip: 'trips', wear: 'today', weigh: 'gear',
  * that brought it (idea 1: a «New» dot for two weeks); fn: one of the 16 functions (a small button).
  */
 export const TILES = [
-  { id: 'trip', area: 'trips', label: 'Next trip', icon: 'bag', sizes: ['long'], size: 'long', pitch: 'Your next trip with its step, the countdown and a photo.' },
+  { id: 'trip', area: 'trips', label: 'Next trip', icon: 'bag', sizes: ['long'], size: 'long', pitch: 'Your next trip with its step and the countdown.' },
   { id: 'important', area: 'today', label: 'Important today', icon: 'alert', sizes: ['w', 'l', 'long'], size: 'l', pitch: 'What is due today: a bike job, the backup, a debrief.' },
   { id: 'flow', area: 'flow', label: 'In the flow', icon: 'flow', sizes: ['l', 'long'], size: 'l', pitch: 'Tick off today, your rings and the daily check.' },
   { id: 'series', area: 'flow', label: 'Series and milestones', icon: 'flame', sizes: ['w', 'l'], size: 'w', since: '0.94.0', pitch: 'Weeks in a row with anything: a ride, a trip, meditation, yoga …' },
@@ -53,7 +53,14 @@ export const TILES = [
   { id: 'features', area: 'app', label: 'What the app can do', icon: 'info', sizes: ['s', 'w'], size: 's', pitch: 'Everything the app can do, and what is new.' },
   { id: 'inbox', area: 'today', label: 'Inbox', icon: 'inbox', sizes: ['s'], size: 's', pitch: 'Notes from on the way, to sort.' },
   { id: 'data', area: 'app', label: 'Data and backup', icon: 'data', sizes: ['s', 'w'], size: 's', pitch: 'Backup, restore and import (lives under Me).' },
+  // v0.101.0 Design-Refresh P2 (H1, Noah «h1-h6 freigeben»): new tiles, marked «neu» for two weeks
+  { id: 'week', area: 'flow', label: 'This week', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.101.0', pitch: 'Monday to Sunday: what you did each day, rides and Im Flow.' },
+  { id: 'month', area: 'bikes', label: 'Bike this month', icon: 'bike', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The km of this month, against last month.' },
+  { id: 'nextms', area: 'flow', label: 'Next milestone', icon: 'star', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'How far to the next 1000 km of a bike, or the next number of trips.' },
+  { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
 ];
+/** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
+export const ADDED_0101 = ['week', 'month', 'nextms', 'yearago'];
 export const TILE = Object.fromEntries(TILES.map((x) => [x.id, x]));
 
 /** The ready wall (mockup A, Noah 3a): the trip, what is important, Im Flow, the series, the news, then the buttons. */
@@ -61,6 +68,10 @@ export const READY = [
   ['trip', 'long'],
   ['important', 'l'],
   ['flow', 'l'],
+  ['week', 'l'],
+  ['month', 'w'],
+  ['nextms', 'w'],
+  ['yearago', 'w'],
   ['series', 'w'],
   ['news', 'w'],
   ['try', 'l'],
@@ -85,13 +96,21 @@ export const sizeFor = (id, size) => (TILE[id]?.sizes.includes(size) ? size : TI
 export function wallOf(value, legacy = null) {
   if (value && Array.isArray(value.tiles)) {
     const seen = new Set();
-    return value.tiles.filter((x) => x && TILE[x.id] && !seen.has(x.id) && seen.add(x.id)).map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) }));
+    const out = value.tiles.filter((x) => x && TILE[x.id] && !seen.has(x.id) && seen.add(x.id)).map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) }));
+    // v0.101.0 (H1 «neue Bausteine kommen als Kacheln dazu»): a wall stored before gets the new tiles
+    // once, after Im Flow (else at the end); taken away later, they stay away (the wall is v 2 then).
+    if ((value.v ?? 1) < 2) {
+      const add = ADDED_0101.filter((id) => !seen.has(id)).map((id) => ({ id, size: TILE[id].size }));
+      const at = out.findIndex((x) => x.id === 'flow');
+      out.splice(at < 0 ? out.length : at + 1, 0, ...add);
+    }
+    return out;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
 }
 /** The record to store. */
-export const wallRecord = (tiles) => ({ v: 1, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+export const wallRecord = (tiles) => ({ v: 2, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {

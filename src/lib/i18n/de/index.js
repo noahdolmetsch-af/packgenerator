@@ -56,5 +56,6 @@ import kachel from './kachel.js';
 import velokurz from './velokurz.js';
 import look from './look.js';
 import head from './head.js';
+import heute2 from './heute2.js';
 
-export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head };
+export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2 };
