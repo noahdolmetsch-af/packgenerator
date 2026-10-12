@@ -42,6 +42,7 @@ import { applyClock } from './lib/demo.js';
 import { trackChanges } from './lib/backup.js';
 import { folderBackupSupported, watchForChanges } from './lib/folderBackup.js';
 import { initTheme } from './lib/theme.svelte.js';
+import { takeReturn, watchAutoFetch } from './lib/strava/client.svelte.js';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
 // v0.97.0: also the font and the text size (Ich › Darstellung).
@@ -67,6 +68,11 @@ if (__PREVIEW__) {
   document.body.appendChild(bar);
 }
 
+// v0.116.0 «Strava-Verbindung»: back from the Strava login, the address carries this device's key once
+// (#…&strava=connected&key=…): stored in localStorage and taken out of the address before the app reads it.
+takeReturn();
+window.addEventListener('hashchange', () => takeReturn());
+
 // Svelte renders the App component into <div id="app"> in index.html.
 mount(App, { target: document.getElementById('app') });
 
@@ -75,4 +81,8 @@ mount(App, { target: document.getElementById('app') });
 navigator.storage?.persist?.();
 
 // One-time fixes for older data (brand/model split, bag list and bike setups).
-settling(() => tidyData(db)).catch((err) => console.warn('tidyData', err));
+settling(() => tidyData(db))
+  .catch((err) => console.warn('tidyData', err))
+  // v0.116.0 (decision 1a): fetch new rides from Strava when the app opens or comes back, at most every
+  // 15 minutes, only on a device with a Strava key and «Automatisch beim Öffnen» on.
+  .finally(() => watchAutoFetch());

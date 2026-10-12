@@ -12,7 +12,6 @@ import { readFileSync } from 'node:fs';
 import { READY } from '../../src/lib/home/tiles.js';
 
 const NEWEST = WHATS_NEW[0];
-// the function the newest version brought (v0.111.0: the checks), read from the app instead of a copy
 // the newest function (highest since-version) and whether the newest version brought it
 const SINCE_ALL = [...readFileSync(new URL('../../src/lib/know/wasneu.js', import.meta.url), 'utf8').matchAll(/'?([\w.]+)'?: '(\d+\.\d+\.\d+)'/g)].map((m) => [m[1], m[2]]);
 const vnum = (v) => v.split('.').reduce((a, n) => a * 1000 + Number(n), 0);
@@ -88,6 +87,7 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await expect(page.getByRole('group', { name: T('Sort') }).getByRole('button')).toHaveCount(SORTS.length);
   await expect(page.getByRole('button', { name: T('Newest'), exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.wn-rows > li')).toHaveCount(LIST_ROWS);
+  // the function of the newest version first, marked «new»
   expect((await rows(page))[0]).toBe(NEW_FN);
   // «New» marks the functions of the newest version only (v0.114.0 brings none of its own)
   if (NEW_IN_NEWEST) await expect(page.locator(`.wn-rows > li[data-feature="${NEW_FN}"] .wn-new`)).toBeVisible();

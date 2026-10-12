@@ -76,6 +76,9 @@ const ROUTES = [
   // v0.110.0 Design-Refresh P10 (I11, I11d): Ich › Was ist neu and the whole list, strict like their files
   ['#/me/news', 'Was ist neu'],
   ['#/me/news?all&sort=best', 'Was ist neu Wichtigste 10'],
+  // v0.116.0 «Strava-Verbindung»: Velo › Pflege › Strava (not connected on this device: S1) and «Zum Prüfen», strict like their files
+  ['#/bikes?tab=care&view=strava', 'Strava'],
+  ['#/bikes?tab=care&view=strava-check', 'Zum Prüfen'],
   // v0.111.0 (mockup V4): Ich › Checks pro Reiseart, strict like its file
   ['#/me/checks', 'Checks pro Reiseart'],
 ];

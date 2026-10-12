@@ -20,6 +20,8 @@
   import { paceOf, ruleOf } from '../pace.js';
   import { logEntries } from './logbook.js';
   import { openTrip } from '../nav.js';
+  import { heartBetween, heartOfRide } from '../kmbook.js';
+  import HeartLine from '../strava/HeartLine.svelte';
   import { localDay } from '../localday.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
   import Seg from '../ui/Seg.svelte';
@@ -58,6 +60,9 @@
   const stats = $derived(data ? periodStats(facts, data.learnings, mode, today) : null);
   const cmp = $derived(compareSet(facts, base, today));
   const last = $derived(facts[0] ?? null);
+  // heart rate from the Strava rides of the last tour (observation only, Noah 12.10.2026 «2a und b»)
+  const kmQ = liveQuery(() => db.kmBook.toArray());
+  const lastHeart = $derived(!last || !$kmQ ? null : last.kind === 'ride' ? heartOfRide($kmQ, last.rides?.[0]) : heartBetween($kmQ, last.start, last.end, last.trip?.bikeId ?? null));
   const lastPlan = $derived(last ? planVsReal(last).find((x) => x.key === 'movingH') ?? null : null);
   const pace = $derived(paceOf(data?.pace ?? null));
   const rule = $derived(ruleOf(pace.learned));
@@ -240,7 +245,11 @@
                 {#if last.special}<li class="sp"><Sparkles size={16} aria-hidden="true" />{last.special}</li>{/if}
               </ul>
             {/if}
-            <p class="later">{t('Heart rate, zones and watts come with Strava, as an observation without a score.')} <span class="pill">{t('later · S1')}</span></p>
+            {#if lastHeart}
+              <p class="heart"><HeartLine heart={lastHeart} size={16} label={t('Heart rate')} /> <span class="pill">{t('from Strava · observation')}</span></p>
+            {:else}
+              <p class="later">{t('Heart rate, zones and watts come with Strava, as an observation without a score.')} <span class="pill">{t('later · S1')}</span></p>
+            {/if}
             <div class="acts">
               {#if last.debrief === 'open' || last.debrief === 'draft'}
                 <a class="btn hi" href={last.href} onclick={() => last.trip && openTrip(last.trip.id)}>{last.debrief === 'draft' ? t('Continue the debrief') : t('Write the debrief')}<ChevronRight size={18} aria-hidden="true" /></a>
@@ -528,6 +537,14 @@
   }
   .learned .sp :global(svg) {
     color: var(--l4);
+  }
+  .heart {
+    margin: 12px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--fs-small);
   }
   .later {
     margin: 12px 0 0;

@@ -1,4 +1,4 @@
-// 0.115.1 (UI-Prüfung A1): a saved debrief from an old backup or the Excel import can come without
+// 0.116.1 (UI-Prüfung A1): a saved debrief from an old backup or the Excel import can come without
 // its list of not-used items (`items`) or without `missing`. Its Rückblick page stayed empty: the page
 // crashed on `debrief.items[…]`. Now such a debrief opens like any other, every item counted as used.
 // Fictional fixture plus one test_data_gtp_ trip; nothing leaves the preview.
