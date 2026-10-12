@@ -23,7 +23,7 @@
   import { endedTooEarly } from '../lib/tripsoverview.js';
   import { PLAY_WISH } from '../lib/play.js';
   import '../lib/trip/trip.css';
-  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, Route, Sun, NotebookPen } from '@lucide/svelte';
+  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, Route, Sun, NotebookPen, ChevronLeft } from '@lucide/svelte';
   import '../lib/review/review.css';
   import { ZONE, touched } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
@@ -631,9 +631,11 @@
 {:else if SUBS.includes(param)}
   <!-- v0.49.0 R1 (Noah 4a): Dein Tempo, Logbuch and Gelernt are one level below the Rückblick, each
        its own page; v0.61.0 R2 rebuilt all three. -->
-  <div class="over">
-    <nav class="crumb" aria-label={t('Path')}><a href="#/trips">{t('Trips|place')}</a><ChevronRight size={14} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={14} aria-hidden="true" /></nav>
-    <h1 class="title">{param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : t('Learned|review')}</h1>
+  <!-- v0.107.0 Design-Refresh P6 (T18–T20): the quiet path «‹ Touren › Rückblick › Gelernt» and the title -->
+  {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : t('Learned|review')}
+  <div class="over rv-page">
+    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{here}</span></nav>
+    <h1 class="title">{here}</h1>
     {#if param === 'pace'}
       <Pace />
     {:else if param === 'logbook'}
@@ -1071,26 +1073,36 @@
   .kh-msg {
     margin: 8px 2px 0;
   }
-  .over {
-    max-width: 880px;
-    margin: 0 auto;
+  .over .title {
+    margin: 0 0 14px;
   }
   .over :global(.sec-head) {
     margin-top: 16px;
   }
   .crumb {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 4px;
-    color: var(--ink-3);
+    gap: 0 2px;
+    color: var(--ink);
     font-size: var(--fs-small);
   }
   .crumb a {
     display: inline-flex;
     align-items: center;
+    gap: 2px;
     min-height: 44px;
     min-width: 44px;
-    color: var(--accent);
+    color: var(--ink-3);
+    text-decoration: none;
+  }
+  .crumb a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .crumb :global(svg) {
+    color: var(--ink-3);
   }
   .muted {
     color: var(--ink-3);

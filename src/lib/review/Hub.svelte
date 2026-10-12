@@ -332,7 +332,7 @@
 
       <!-- 4. one level below -->
       <div class="rv-col below">
-        <section class="rv-sec" aria-labelledby="pace-h">
+        <section class="rv-sec sub" aria-labelledby="pace-h">
           <div class="rv-h"><div><h2 id="pace-h">{t('Your pace')}</h2></div></div>
           <div class="rv-box">
             <p class="ptext">{rule ? t('On the flat you ride {kmh} km/h and need 1 h per {m} m of climbing.', { kmh: num(rule.kmh), m: num(rule.climbMh) }) : t('The riding time is guessed with {kmh} km/h and 1 h per {m} m of climbing.', { kmh: num(pace.kmh), m: num(pace.climbMh) })}<small>{pace.mine ? tn(pace.n, 'The riding time uses your rule (from {n} ride).', 'The riding time uses your rule (from {n} rides).') : pace.need ? tn(pace.need, '{n} more ride and your rule takes over the riding time.', '{n} more rides and your rule takes over the riding time.') : t('The riding time uses the standard rule, as you chose.')}</small></p>
