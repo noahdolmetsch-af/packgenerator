@@ -77,25 +77,25 @@
     </form>
   {:else}
     <!-- v0.101.0 Design-Refresh P2 (H7): the same 9 ways, in groups by area, «Plan a trip» on top -->
-    <h3 class="grp">{t('Trips|place')}</h3>
+    <h3 class="ngrp">{t('Trips|place')}</h3>
     <ul class="opts">
       <li class="wide"><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard'))}><span class="ic" aria-hidden="true"><Route size={20} /></span><span class="tx"><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></span></button></li>
       <li><button type="button" class="opt" onclick={() => run(dayRide)}><span class="ic" aria-hidden="true"><Bike size={20} /></span><span class="tx"><b>{t('Day ride now')}</b><span>{t('One tap, with Undo')}</span></span></button></li>
       <li><a class="opt" href="#/debrief/ride" onclick={close}><span class="ic" aria-hidden="true"><Activity size={20} /></span><span class="tx"><b>{t('Upload ride')}</b><span>{t('GPX: pauses, planned vs real, learnings')}</span></span></a></li>
       <li><a class="opt" href="#/pack/templates" onclick={close}><span class="ic" aria-hidden="true"><Backpack size={20} /></span><span class="tx"><b>{t('Template')}</b><span>{t('From the open trip, in Templates')}</span></span></a></li>
     </ul>
-    <h3 class="grp">{t('Gear|place')}</h3>
+    <h3 class="ngrp">{t('Gear|place')}</h3>
     <ul class="opts">
       <li><button type="button" class="opt" onclick={() => run(addItem)}><span class="ic" aria-hidden="true"><Package size={20} /></span><span class="tx"><b>{t('Gear item')}</b><span>{t('Name, weight, bag')}</span></span></button></li>
     </ul>
-    <h3 class="grp">{t('Bikes|place')}</h3>
+    <h3 class="ngrp">{t('Bikes|place')}</h3>
     <ul class="opts">
       <li><button type="button" class="opt" onclick={() => (mode = 'km')}><span class="ic" aria-hidden="true"><Plus size={20} /></span><span class="tx"><b>{t('km for a bike')}</b><span>{t('What the counter says')}</span></span></button></li>
       <!-- v0.45.2 (Noah on the bike): several problems with one bike at once, into Bike care -->
       {#if bikes.length}<li><button type="button" class="opt" onclick={() => (mode = 'problem')}><span class="ic" aria-hidden="true"><TriangleAlert size={20} /></span><span class="tx"><b>{t('Problem with a bike')}</b><span>{t('Air, saddle, battery: one per line')}</span></span></button></li>{/if}
       <li><button type="button" class="opt" onclick={() => run(() => onnote(t('Workshop receipt: ')))}><span class="ic" aria-hidden="true"><Receipt size={20} /></span><span class="tx"><b>{t('Workshop visit')}</b><span>{t('Photo of the receipt into the Inbox')}</span></span></button></li>
     </ul>
-    <h3 class="grp">{t('Note|group')}</h3>
+    <h3 class="ngrp">{t('Note|group')}</h3>
     <ul class="opts">
       <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><span class="ic" aria-hidden="true"><StickyNote size={20} /></span><span class="tx"><b>{t('Note + photo')}</b><span>{t('"What was missing", "This is broken"')}</span></span></button></li>
     </ul>
@@ -136,7 +136,7 @@
     background: var(--paper-2);
   }
   /* v0.101.0 Design-Refresh P2 (H7): small group heads, the ways as cards with an icon */
-  .grp {
+  .ngrp {
     margin: 14px 0 6px;
     color: var(--ink-2);
     font: 600 var(--fs-tiny)/1.4 var(--font-body);

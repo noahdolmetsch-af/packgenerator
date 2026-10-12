@@ -52,7 +52,7 @@ test('Heute in the new look: header, trip card, light tiles, new tiles, New by a
   const sheet = page.locator('dialog.sheet.new');
   if (!(await sheet.isVisible())) await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).first().click();
   await expect(sheet).toBeVisible();
-  await expect(sheet.locator('h3.grp')).toHaveText([T('Trips|place'), T('Gear|place'), T('Bikes|place'), T('Note|group')]);
+  await expect(sheet.locator('h3.ngrp')).toHaveText([T('Trips|place'), T('Gear|place'), T('Bikes|place'), T('Note|group')]);
   await expect(sheet.locator('.opt').first()).toContainText(T('Plan a trip'));
   await page.screenshot({ path: info.outputPath(`neu-${phone ? 390 : 1440}.png`) });
   expect(errors).toEqual([]);

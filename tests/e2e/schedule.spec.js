@@ -99,7 +99,8 @@ test('Today: two days before, shopping and charging; the list ticks and shares a
   await expect(main).toHaveAttribute('data-step', 'shop');
   await expect(main).toHaveText(T('Shopping list'));
   // one strong button, the charge list as a quiet link (part B makes #/pack?charge work)
-  await expect(band.locator('.btn')).toHaveCount(1);
+  // v0.101.0 Design-Refresh P2 (H1): the side links are light buttons now, so count the strong one
+  await expect(band.locator('.btn.hi')).toHaveCount(1);
   await expect(band.getByRole('link', { name: T('Charge devices') })).toHaveAttribute('href', '#/pack?charge');
   expect((await main.boundingBox()).height).toBeGreaterThanOrEqual(44);
 
@@ -174,6 +175,8 @@ test('Today: start day, all packed: On the way, the ready check as the side link
   const band = page.getByRole('region', { name: 'test_data_gtp_ Vorab' });
   await expect(band.locator('a.main')).toHaveAttribute('data-step', 'way');
   await expect(band.locator('a.main')).toHaveAttribute('href', '#/ride');
-  await expect(band.locator('a.lk')).toHaveText(T('Ready check'));
-  await expect(band.locator('a.lk')).toHaveAttribute('href', '#/pack?day');
+  // v0.101.0 Design-Refresh P2 (H1): the side link is a light button beside the main one
+  const side = band.locator('a.btn:not(.hi)');
+  await expect(side).toHaveText(T('Ready check'));
+  await expect(side).toHaveAttribute('href', '#/pack?day');
 });
