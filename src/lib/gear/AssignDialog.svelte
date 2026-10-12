@@ -11,7 +11,8 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { BAGS, BAG, CATEGORIES, CATEGORY } from '../gear.js';
+  import { BAGS, BAG, CATEGORIES, CATEGORY, namesList } from '../gear.js';
+  import { Check, X } from '@lucide/svelte';
   import { DOMAINS, domainName } from '../domains.js';
   import Seg from '../ui/Seg.svelte';
   import { TEMPLATES_KEY } from '../templates.js';
@@ -163,7 +164,11 @@
 
 <dialog class="sheet assign" bind:this={dialog} onclose={onclose} aria-labelledby="assign-h">
   <form onsubmit={apply} novalidate>
-    <h2 id="assign-h" class="title">{title}</h2>
+    <!-- v0.102.0 Design-Refresh P3 (M4): the title with a close button, the chosen items named below -->
+    <div class="ah">
+      <h2 id="assign-h" class="title">{title}</h2>
+      <button type="button" class="x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
+    </div>
     {#if item}
       <p class="now"><span class="lbl">{t('In:')}</span> {now}</p>
       <fieldset class="kinds">
@@ -173,7 +178,7 @@
         {/each}
       </fieldset>
     {:else}
-      <p class="sub">{tn(ids.length, '{n} item selected', '{n} items selected')}</p>
+      <p class="sub">{tn(ids.length, '{n} item selected', '{n} items selected')}{#if picked.length && picked.length <= 6}<span class="names">{namesList(picked.map((i) => nameOf(i)))}</span>{/if}</p>
     {/if}
 
     {#if kind === 'trip' && !options.length}
@@ -196,7 +201,7 @@
       {#if kind === 'area'}
         <div class="pick"><Seg label={t('How|area')} value={areaOnly} options={[{ key: 'add', name: t('Also this area') }, { key: 'only', name: t('Only this area') }]} onchange={(k) => (areaOnly = k)} /></div>
       {/if}
-      <p class="what">
+      <p class="what"><Check size={16} aria-hidden="true" /><span>
         {#if kind === 'area'}{areaOnly === 'only' ? t('The items belong only to this area; their other areas go.') : t('The items keep their areas and get this one too.')}
         {:else if kind === 'category'}{t('The IDs stay the same, so trips, templates and bags keep them.')}
         {:else if kind === 'bag'}{t('Where the item goes on new trips. On a trip you can still move it.')}
@@ -204,45 +209,116 @@
         {:else if kind === 'trip'}{t('Missing items go onto the trip in their usual bag. What is packed stays packed.')}
         {:else if kind === 'out'}{t('Only the building block changes; trips stay as they are.')}
         {:else}{t('Add the building block in Pack with one tap (Add material). Nothing is added twice.')}{/if}
-      </p>
+      </span></p>
     {/if}
     <p class="err" role="alert">{error}</p>
     {#if done}
       <p class="ok" role="status"><span>{done.text}</span>{#if done.snap}<button type="button" class="btn sm" onclick={undo}>{t('Undo')}</button>{/if}</p>
     {/if}
     <div class="foot">
-      <button type="submit" class="btn hi" disabled={busy || !options.length && !(kind === 'into')}>{t('Assign')}</button>
       <button type="button" class="btn" onclick={() => dialog.close()}>{done ? t('Close') : t('Cancel')}</button>
+      <button type="submit" class="btn hi" disabled={busy || !options.length && !(kind === 'into')}>{t('Assign')}</button>
     </div>
   </form>
 </dialog>
 
 <style>
+  .ah {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
   h2 {
     font-size: var(--fs-section);
-    margin: 0 0 8px;
+    margin: 0 0 4px;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .x {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .names {
+    display: block;
+    color: var(--ink-2);
     overflow-wrap: break-word;
   }
   .sub,
   .what,
   .empty {
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
     margin: 4px 0 10px;
+  }
+  /* v0.102.0 Design-Refresh P3 (M4): what happens, in a soft box with a check */
+  .what {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .what :global(svg) {
+    flex: none;
+    margin-top: 2px;
   }
   .now {
     margin: 0 0 12px;
-    padding: 6px 10px;
-    border-left: 3px solid var(--hi);
+    padding: 8px 12px;
+    border-radius: var(--r-ctl);
     background: var(--paper-2);
     overflow-wrap: break-word;
   }
+  /* v0.102.0 Design-Refresh P3 (M4): «Assign to» as chips in one row; the round button stays for the keyboard */
   .kinds {
     border: 0;
     padding: 0;
     margin: 0 0 12px;
-    display: grid;
-    gap: 2px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .kinds legend {
+    margin-bottom: 6px;
+  }
+  .kinds .cb {
+    position: relative;
+    min-height: 44px;
+    padding: 4px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .kinds .cb input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+  }
+  .kinds .cb:has(input:checked) {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    font-weight: 600;
+  }
+  .kinds .cb:has(input:focus-visible) {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
   }
   .cb {
     display: flex;
@@ -268,7 +344,7 @@
   .err {
     color: var(--bad);
     min-height: 1.2em;
-    font-size: 14px;
+    font-size: var(--fs-small);
     margin: 0;
   }
   .ok {
@@ -286,5 +362,6 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    justify-content: flex-end;
   }
 </style>
