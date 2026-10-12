@@ -27,6 +27,11 @@ export default {
   '{n} h riding a day': '{n} h Fahrzeit pro Tag',
   'No riding hours set': 'Keine Fahrstunden gesetzt',
   'Material rules': 'Materialregeln',
+  // T11 Alles gepackt
+  '{n} of {total}': '{n} von {total}',
+  '{trip} · all packed': '{trip} · fertig gepackt',
+  '{kg} kg in {n} bag': '{kg} kg in {n} Tasche',
+  '{kg} kg in {n} bags': '{kg} kg in {n} Taschen',
   // T10 Tour-Fakten
   'What the suggestions are based on. Every change can be undone.': 'Was die Vorschläge bestimmt. Jede Änderung lässt sich rückgängig machen.',
 };
