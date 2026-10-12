@@ -1,5 +1,5 @@
 /**
- * v0.112.0 «Strava-Verbindung» (E3, mockups S1–S5 approved by Noah 12.10.2026 13:39 «s1-s5 freigegeben»;
+ * v0.115.0 «Strava-Verbindung» (E3, mockups S1–S5 approved by Noah 12.10.2026 13:39 «s1-s5 freigegeben»;
  * decisions 1a 2a 3b 4b 5a, server answers «1a 2a 3a 4a 5b»): the app side of the Strava connection.
  *
  * - The device key: after the Strava login the server sends this device a key in the address

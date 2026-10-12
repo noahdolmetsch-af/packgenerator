@@ -227,7 +227,7 @@ test.describe('L9: first start on a German browser', () => {
 
     // Plan your first trip opens the New trip window.
     await first.getByRole('button', { name: T('Plan your first trip') }).click();
-    await expect(page.getByRole('dialog', { name: T('New trip') })).toBeVisible();
+    await expect(page.getByRole('dialog', { name: T('Conditions|newtrip') })).toBeVisible();
     await closeDialog(page); // its history entry gone, so the next address stays
     await page.goto('./#/');
 

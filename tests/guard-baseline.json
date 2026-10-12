@@ -128,9 +128,6 @@
     "src/lib/pack/TemplateDialog.svelte": {
       "fontsize": 2
     },
-    "src/lib/pack/TripDialog.svelte": {
-      "fontsize": 13
-    },
     "src/lib/pack/TripRoute.svelte": {
       "fontsize": 3
     },

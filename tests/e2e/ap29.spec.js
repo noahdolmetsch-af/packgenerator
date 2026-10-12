@@ -179,7 +179,7 @@ test('Gespeichert (saved) after a change on Pack, gone again after about 2 s', a
 test('nothing typed is lost: new trip, new item and quick note stay after closing; Verwerfen removes', async ({ page, context }, info) => {
   await start(page, context, info);
   const newTrip = () => page.evaluate(() => { localStorage.setItem('pack.startFrom', 'standard'); location.hash = '#/pack'; window.dispatchEvent(new Event('pg:newtrip')); });
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
 
   // Typed a name, then Escape: the trip is there and Pack opens it.
   await newTrip();

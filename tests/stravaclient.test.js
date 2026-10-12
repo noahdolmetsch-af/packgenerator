@@ -1,4 +1,4 @@
-// v0.112.0 «Strava-Verbindung»: the app side of the connection with a fake server and a test database.
+// v0.115.0 «Strava-Verbindung»: the app side of the connection with a fake server and a test database.
 // Fictional bikes and rides only («Gravel Blau», «MTB Rot»).
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach } from 'vitest';

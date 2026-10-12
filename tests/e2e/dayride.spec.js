@@ -147,7 +147,7 @@ test('New trip: Create without typing (name, date and bike are filled in)', asyn
   await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
   await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
   // v0.30.0: "Copy the last trip" is a row in the New trip window; L9: only offered when there is a last trip.
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg.getByRole('button', { name: T('Create trip') })).toBeVisible();
   await expect(dlg.getByRole('button', { name: T('Copy the last trip') })).toHaveCount(0);
   const name = dlg.getByLabel(T('Name'));
@@ -184,7 +184,7 @@ test('home place: the forecast chooses the weather in the dialog and for the day
   await start(page, context, info, 'de', { home: true });
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   // v0.47.1 (Noah d): the forecast's own range (17–25), no longer rounded to «Warm» 16–24.
   const warm = dlg.getByRole('button', { name: /^17–25°/ });
   await expect(warm).toHaveAttribute('aria-pressed', 'true');

@@ -8,7 +8,7 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.112.0 «Strava-Verbindung»
+  // 0.115.0 «Strava-Verbindung»
   'Strava connection': 'Strava-Verbindung',
   'Rides from Strava': 'Fahrten aus Strava',
   'The app fetches your rides with their bike straight from Strava, so every ride lands on the right bike.': 'Die App holt deine Fahrten mit ihrem Velo direkt aus Strava, so landet jede Fahrt beim richtigen Velo.',
@@ -21,6 +21,20 @@ export default {
   'Rides with their bike from Strava, fetched by themselves; a changed bike asks first.': 'Fahrten mit ihrem Velo aus Strava, von selbst geholt; ein geändertes Velo fragt zuerst.',
   'Heart rate from Strava, Ø and max per ride: in the ride log of the bike, the debrief, the trips table, Active, the ride page and «This week» on Today. Only observation, no rating.': 'Puls aus Strava, Ø und max pro Fahrt: im Fahrtenbuch des Velos, im Rückblick, in der Touren-Tabelle, bei Aktiv, auf der Fahrt-Seite und bei «Diese Woche» auf Heute. Nur Beobachtung, keine Bewertung.',
   'Open the ride log of a bike: a ride with a heart rate monitor shows «Ø … · max … bpm».': 'Öffne das Fahrtenbuch eines Velos: eine Fahrt mit Pulsgurt zeigt «Ø … · max … Schläge/min».',
+  // 0.114.0 «Rahmenbedingungen»
+  'A new trip asks sport, weather by postcode and event, and shows the list in groups.':
+    'Eine neue Tour fragt Sportart, Wetter per PLZ und Event und zeigt die Liste in Gruppen.',
+  'The window «Conditions»: sport (bike first), the weather suggested from a start postcode, the event with its hint.':
+    'Das Fenster «Rahmenbedingungen»: Sportart (Fahrrad zuerst), das Wetter als Vorschlag aus der Start-PLZ, der Event mit seinem Hinweis.',
+  'Choose a template as buttons: Standard, your own and two examples. Past trips no longer appear there.':
+    'Vorlage wählen als Knöpfe: Standard, deine eigenen und zwei Beispiele. Vergangene Touren erscheinen dort nicht mehr.',
+  'The packing list in four groups with a picture per item; the button counts only what goes into the bags.':
+    'Die Packliste in vier Gruppen mit einem Bild pro Teil; der Knopf zählt nur, was in die Taschen kommt.',
+  'Repair and Charging no longer come by themselves: switch them on when packing.':
+    'Reparatur und Laden kommen nicht mehr von selbst: Beim Packen schaltest du sie ein.',
+  'Open Trips and tap «New trip».': 'Touren öffnen und «Neue Tour» antippen.',
+  'Type your postcode under Weather: the forecast suggests the weather.': 'Unter Wetter deine PLZ eintippen: Die Prognose schlägt das Wetter vor.',
+  'Open «Choose a template» and tap «Weekend»: 2 days and Hotel/hut are set.': '«Vorlage wählen» öffnen und «Wochenende» antippen: 2 Tage und Hotel/Hütte sind gesetzt.',
 
   // 0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check (mockups V1–V6)
   'Checks before and after': 'Checks davor und danach',

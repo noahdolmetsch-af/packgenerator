@@ -42,7 +42,7 @@ export function gearChanges(known, rides) {
   return (rides ?? []).filter((r) => byId.has(r.stravaId) && (byId.get(r.stravaId).gear ?? '') !== (r.gear ?? '') && r.gear).map((r) => ({ entry: byId.get(r.stravaId), ride: r }));
 }
 
-/* ---------- v0.112.0 «Strava-Verbindung»: one fetch → ledger entries, questions, a summary ---------- */
+/* ---------- v0.115.0 «Strava-Verbindung»: one fetch → ledger entries, questions, a summary ---------- */
 
 /** Settings (decisions 1a and 2a, Noah 12.10.2026): how to fetch, what to do with a ride without a bike. */
 export const FETCH_MODES = ['auto', 'button'];

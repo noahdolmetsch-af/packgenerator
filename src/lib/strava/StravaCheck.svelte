@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.112.0 «Strava-Verbindung» (decision 2a, mockup S5): «Zum Prüfen», Velo › Pflege › Strava › Zum Prüfen.
+   * v0.115.0 «Strava-Verbindung» (decision 2a, mockup S5): «Zum Prüfen», Velo › Pflege › Strava › Zum Prüfen.
    * The rides from Strava that wait (no bike in Strava, an unknown Strava bike, a contradiction): each
    * with the suggested bike and one tap «Passt», or «Anderes Velo», or «Zählt nicht». They count only
    * after that. «Alle Vorschläge übernehmen» for all with a suggestion; every tap has «Undo».

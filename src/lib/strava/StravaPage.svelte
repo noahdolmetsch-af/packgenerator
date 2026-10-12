@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.112.0 «Strava-Verbindung» (E3, mockups S1–S3 approved by Noah 12.10.2026 13:39): Velo › Pflege › Strava.
+   * v0.115.0 «Strava-Verbindung» (E3, mockups S1–S3 approved by Noah 12.10.2026 13:39): Velo › Pflege › Strava.
    * - S1 not connected on this device: the three steps Garmin → Strava → Pack Generator, «Mit Strava
    *   verbinden», what happens afterwards, and «Mehr › Datei importieren (Reserve)» (decision 5a).
    * - S2 right after connecting: the first fetch takes every old ride (decision 3b) and shows what it

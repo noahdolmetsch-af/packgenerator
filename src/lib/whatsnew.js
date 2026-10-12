@@ -11,8 +11,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.112.0 «Strava-Verbindung» (E3, mockups S1–S5 approved by Noah 12.10.2026 13:39, heart rate P1–P6 22:07 UTC)
-    version: '0.112.0',
+    // v0.115.0 «Strava-Verbindung» (E3, mockups S1–S5 approved by Noah 12.10.2026 13:39, heart rate P1–P6 22:07 UTC)
+    version: '0.115.0',
     date: '2026-10-12',
     title: 'Rides from Strava',
     lead: 'The app fetches your rides with their bike straight from Strava, so every ride lands on the right bike.',
@@ -27,6 +27,24 @@ export const WHATS_NEW = [
       'Log in to Strava and allow it: the app shows how many rides it found.',
       'Tap «Done», then «Fetch now»: the tile «Strava» on Today shows the result.',
       'Open the ride log of a bike: a ride with a heart rate monitor shows «Ø … · max … bpm».',
+    ],
+  },
+  {
+    // v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved).
+    version: '0.114.0',
+    date: '2026-10-12',
+    title: 'Plan a trip',
+    lead: 'A new trip asks sport, weather by postcode and event, and shows the list in groups.',
+    points: [
+      { text: 'The window «Conditions»: sport (bike first), the weather suggested from a start postcode, the event with its hint.', href: '#/trips' },
+      { text: 'Choose a template as buttons: Standard, your own and two examples. Past trips no longer appear there.', href: '#/trips' },
+      { text: 'The packing list in four groups with a picture per item; the button counts only what goes into the bags.', href: '#/trips' },
+      { text: 'Repair and Charging no longer come by themselves: switch them on when packing.', href: '#/pack' },
+    ],
+    test: [
+      'Open Trips and tap «New trip».',
+      'Type your postcode under Weather: the forecast suggests the weather.',
+      'Open «Choose a template» and tap «Weekend»: 2 days and Hotel/hut are set.',
     ],
   },
   {

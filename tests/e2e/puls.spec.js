@@ -1,4 +1,4 @@
-// v0.112.0 Puls pro Fahrt (Noah 12.10.2026 «1b 2a und b», «1a 2a»): the heart rate of the Strava rides
+// v0.115.0 Puls pro Fahrt (Noah 12.10.2026 «1b 2a und b», «1a 2a»): the heart rate of the Strava rides
 // as a quiet observation in the bike's ride ledger, Rückblick (last tour), Touren (average per trip),
 // Aktiv (this week), one ride and Today's «This week». Fictional fixture (test_data_gtp_) plus Strava
 // ledger entries with heart rate; German, phone + desktop. PULS_SHOTS=<dir> also saves screenshots.

@@ -25,7 +25,7 @@ describe('every function has a version it came with', () => {
     expect(sinceOf('nope')).toBe('0.1.0');
     expect(SINCE['f.news']).toBe('0.110.0');
     expect(SINCE['f.tripcheck']).toBe('0.111.0');
-    expect(SINCE['f.strava']).toBe(WHATS_NEW[0].version); // v0.112.0 «Strava-Verbindung»
+    expect(SINCE['f.strava']).toBe(WHATS_NEW[0].version); // v0.115.0 «Strava-Verbindung»
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
     expect(BEST.length).toBe(10);
@@ -59,13 +59,13 @@ describe('the counts of «Your top 10»', () => {
 
 describe('the list and its sorts', () => {
   const used = new Set(['care']);
-  const rows = rowsOf(used, { backup: 5, templates: 9, 'f.plan': 2 }, WHATS_NEW[0].version);
+  const rows = rowsOf(used, { backup: 5, templates: 9, 'f.plan': 2 }, WHATS_NEW[0].version); // f.strava is new in 0.115.0
   it('each row: since, place, count and state (new, used, never)', () => {
     expect(rows.length).toBe(FEATURES.length);
     const by = Object.fromEntries(rows.map((r) => [r.id, r]));
     expect(by.backup).toMatchObject({ n: 5, used: true, state: 'used' });
     expect(by.care).toMatchObject({ n: 0, used: true, state: 'used' });
-    // v0.112.0: the newest function is «Strava connection»; the checks (0.111.0) are one never tried now
+    // v0.115.0: the newest function is «Strava connection»; the checks (0.111.0) are one never tried now
     expect(by['f.strava'].state).toBe('new');
     expect(by['f.tripcheck'].state).toBe('never');
     expect(by['f.theft'].state).toBe('never');

@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.112.0 «Strava-Verbindung» (decision 4b, mockups S4 and S5): «Velo in Strava geändert». A ride
+   * v0.115.0 «Strava-Verbindung» (decision 4b, mockups S4 and S5): «Velo in Strava geändert». A ride
    * the app already took got another bike in Strava: the app asks, clearly visible, on top of Today and
    * on the bike's care page, until you choose: «Übernehmen» (the km move to the bike Strava names now)
    * or «Behalten». bikeId: only the questions about this bike (from or to it); none: all of them.
