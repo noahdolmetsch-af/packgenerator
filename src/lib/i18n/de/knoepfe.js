@@ -1,6 +1,9 @@
 // v0.114.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 «n1-n4 freigeben»): short button labels
 // (at most 2 words) and what each button does (ui/explain.js, N4).
 export default {
+  // Ich › Was ist neu: the function
+  'Point at a button or hold it: it says what it does; «…» lists the rest, each with one line.':
+    'Maus darauf oder lange drücken: Der Knopf sagt, was er tut; «…» zeigt den Rest, je mit einer Zeile.',
   // labels
   'today|done': 'heute',
   'Open the bike': 'Velo öffnen',
