@@ -6,8 +6,10 @@
  */
 import { db } from '../db.js';
 import { USAGE_KEY, bumpUsage } from './functions.js';
+import { countHomeUse } from '../know/wasneuStore.js';
 
 export async function countUse(id) {
+  countHomeUse(id); // v0.110.0 Design-Refresh P10 (I11c): «Your top 10», only on this device
   try {
     await db.transaction('rw', db.settings, async () => {
       const cur = (await db.settings.get(USAGE_KEY))?.value ?? null;

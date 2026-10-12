@@ -13,6 +13,7 @@
   import { localDay } from '../localday.js';
   import { t, lang, setLang } from '../i18n.svelte.js';
   import HomePlaceForm from './HomePlaceForm.svelte';
+  import { countFeature } from './wasneuStore.js';
 
   // v0.40.0: children = the whole row as the button (#/features); without it the tile's short label.
   let { id, next = null, cls = 'btn sm go', children = null } = $props();
@@ -23,7 +24,8 @@
   // the trip pages open the next trip, when there is one
   const TRIP_PAGES = ['gpx', 'wxsuggest', 'bags', 'share'];
 
-  const tap = () => updateTips(db, (s) => tapTip(s, id, localDay()));
+  // v0.110.0 Design-Refresh P10 (I11c): every tap also counts for «Your top 10» on this device
+  const tap = () => (countFeature(id), updateTips(db, (s) => tapTip(s, id, localDay())));
   function follow() {
     if (next && TRIP_PAGES.includes(id)) openTrip(next.id);
     tap();
