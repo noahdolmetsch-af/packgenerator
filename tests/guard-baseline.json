@@ -153,11 +153,8 @@
     "src/lib/pack/TemplateDialog.svelte": {
       "fontsize": 2
     },
-    "src/lib/pack/TripBike.svelte": {
-      "fontsize": 9
-    },
     "src/lib/pack/TripDialog.svelte": {
-      "fontsize": 15
+      "fontsize": 13
     },
     "src/lib/pack/TripRoute.svelte": {
       "fontsize": 3
@@ -261,9 +258,6 @@
     },
     "src/pages/TemplateNew.svelte": {
       "fontsize": 12
-    },
-    "src/pages/Templates.svelte": {
-      "fontsize": 11
     },
     "src/pages/Wardrobe.svelte": {
       "fontsize": 25,

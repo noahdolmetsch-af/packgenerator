@@ -33,7 +33,7 @@ async function plan(page, id) {
   await expect(page.locator('.calm-pack')).toBeVisible();
 }
 
-test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenster and Bestwerte', async ({ page, context }) => {
+test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenster and Bestwerte', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context);
@@ -52,6 +52,13 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
   // only the band has the main colour
   await expect(page.locator('main .btn.hi')).toHaveCount(0);
   expect(await wide(page)).toBeLessThanOrEqual(0);
+  if (info.project.name === 'phone') {
+    // a small phone: nothing may make the page wider than the screen (a phone would zoom out, found
+    // in v0461 test 7: the band's content once asked for 340 px)
+    await page.setViewportSize({ width: 320, height: 760 });
+    await expect.poll(() => page.evaluate(() => innerWidth)).toBe(320);
+    expect(await wide(page)).toBeLessThanOrEqual(0);
+  }
   expect(errors).toEqual([]);
 });
 

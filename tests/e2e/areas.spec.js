@@ -48,15 +48,15 @@ for (const lang of ['en', 'de']) {
     await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
     const tripDlg = page.getByRole('dialog', { name: T('New trip') });
     await expect(tripDlg).toBeVisible();
-    // v0.40.0 (Noah 10a): the area is folded as one row with the last one chosen.
-    await expect(tripDlg.locator('.area-fold > summary')).toContainText(T('Bikepacking'));
-    await tripDlg.locator('.area-fold > summary').click();
-    await tripDlg.getByRole('group', { name: T('Area') }).getByRole('button', { name: T('Weekend'), exact: true }).click();
-    await expect(tripDlg.locator('.area-fold > summary')).toContainText(T('Weekend'));
+    // v0.102.0 Design-Refresh P4 (T2): the areas as chips in sight, the last one chosen pressed (was a fold).
+    const areaChip = (name) => tripDlg.getByRole('group', { name: T('Area') }).getByRole('button', { name: T(name), exact: true });
+    await expect(areaChip('Bikepacking')).toHaveAttribute('aria-pressed', 'true');
+    await areaChip('Weekend').click();
+    await expect(areaChip('Weekend')).toHaveAttribute('aria-pressed', 'true');
     await fits('New packing list, weekend');
 
     // 3. The trip dialog keeps Weekend and asks no bike.
-    await expect(tripDlg.locator('.area-fold > summary')).toContainText(T('Weekend')); // v0.40.0: folded, says the area
+    await expect(areaChip('Weekend')).toHaveAttribute('aria-pressed', 'true'); // v0.102.0: the chip stays pressed
     await expect(tripDlg.getByLabel(T('Bike'))).toHaveCount(0);
     await tripDlg.getByLabel(T('Name')).fill(title);
     await tripDlg.getByLabel(T('Start date')).fill(today());
