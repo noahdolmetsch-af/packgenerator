@@ -8,19 +8,27 @@
    * Only the next star of a milestone is shown. Stars reached stay for ever (flowStars).
    * v0.94.0 «Kachel-Wand» (Noah 4a): on top (all), the series over everything and the milestones of
    * trips and bikes (lib/home/MsHome.svelte): all areas on one page.
+   * v0.105.0 Design-Refresh P8 «Aktiv» (A8): two columns; main «Bald erreichbar» as rows, «Pro Aktivität»
+   * as rows, the cards; side the trophy shelf, the reward and the record wall; the numbers folded below.
    */
-  import { ChevronLeft } from '@lucide/svelte';
+  import { Lightbulb, Star } from '@lucide/svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
-  import MsBlock from '../../lib/flow/hobby/MsBlock.svelte';
+  import Crumb from '../../lib/flow/kit/Crumb.svelte';
+  import Sec from '../../lib/flow/kit/Sec.svelte';
+  import Rows from '../../lib/flow/kit/Rows.svelte';
+  import MsRows from '../../lib/flow/kit/MsRows.svelte';
+  import TrophyShelf from '../../lib/flow/kit/TrophyShelf.svelte';
+  import RewardRow from '../../lib/flow/hobby/RewardRow.svelte';
+  import RecordWall from '../../lib/flow/hobby/RecordWall.svelte';
   import MsCard from '../../lib/flow/hobby/MsCard.svelte';
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
   import MsHome from '../../lib/home/MsHome.svelte';
   import { db } from '../../lib/db.js';
   import { hobbyQuery, seedHobby } from '../../lib/flow/data.svelte.js';
-  import { msContext, allMilestones, newStars, nextPerAct, records as recordsOf, STAGES, TUNE_KEY, REWARD_KEY } from '../../lib/flowms.js';
+  import { msContext, allMilestones, newStars, nextPerAct, soonList, recentStars, records as recordsOf, STAGES, TUNE_KEY, REWARD_KEY } from '../../lib/flowms.js';
   import { favActs } from '../../lib/flowtiles.js';
   import { saveStars, putSetting } from '../../lib/flowdb.js';
-  import { tileName, msName } from '../../lib/flow/hobby/words.js';
+  import { tileName, msName, starLine, val, dayWord } from '../../lib/flow/hobby/words.js';
   import { localDay } from '../../lib/localday.js';
   import { t, num } from '../../lib/i18n.svelte.js';
 
@@ -62,6 +70,16 @@
   const recs = $derived(ctx ? recordsOf(ctx, data.rides) : []);
   const saveReward = (v) => putSetting(db, REWARD_KEY, v);
 
+  /* A8: the rows «Bald erreichbar» and «Pro Aktivität», the trophy shelf (the newest stars, the next open) */
+  const soon = $derived(soonList(scoped, 5));
+  const perActRows = $derived(perAct.map(({ a, r }) => ({ key: a.id, icon: Star, title: tileName(a), sub: `${msName(r.m)} · ${r.next ? starLine(r.next) : t('all stars')}`, value: r.next ? `${Math.round(r.progress * 100)} %` : '', href: `#/flow/milestones?act=${encodeURIComponent(a.id)}` })));
+  const nextUp = $derived(soonList(scoped, 1)[0] ?? scoped.filter((r) => r.next).sort((x, y) => y.progress - x.progress)[0] ?? null);
+  const shelf = $derived([
+    ...recentStars(scoped, 3).map((x) => ({ id: x.star.id, name: msName(x.r.m), when: dayWord(x.star.day, today), done: true })),
+    ...(nextUp ? [{ id: `next-${nextUp.id}`, name: msName(nextUp.m), when: starLine(nextUp.next), done: false }] : []),
+  ]);
+  const shelfNext = $derived(nextUp ? { name: msName(nextUp.m), value: val(nextUp.value, nextUp.m.unit), target: val(nextUp.target, nextUp.m.unit) } : null);
+
   /* change the numbers (flow.msTune): own thresholds, hide, back to the suggestion */
   const tuneOpen = $derived(params.get('tune') === '1');
   const tuneList = $derived(list.filter(inFilter));
@@ -86,38 +104,64 @@
 </script>
 
 <div class="hob">
-  <p class="back"><a href="#/flow/activity"><ChevronLeft size={16} aria-hidden="true" />{t('Back to Activity')}</a></p>
-  <PageHead title={t('Milestones')} />
+  <header class="ph">
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/activity', label: t('Activity|tab') }]} here={t('Milestones')} />
+    <PageHead title={t('Milestones')} text={t('Only the next star per milestone · stars reached stay · no ranking')} />
+  </header>
 
   {#if data}
-    <nav class="chips" aria-label={t('Filter by activity')}>
-      <a class="chip" href="#/flow/milestones" aria-current={filter === 'all' ? 'page' : undefined}>{t('All')}</a>
-      <a class="chip" href="#/flow/milestones?act=cross" aria-current={filter === 'cross' ? 'page' : undefined}>{t('Over all')}</a>
-      {#each chipActs as a (a.id)}<a class="chip" href="#/flow/milestones?act={encodeURIComponent(a.id)}" aria-current={filter === a.id ? 'page' : undefined}>{tileName(a)}</a>{/each}
-    </nav>
+    <div class="tools">
+      <nav class="chips" aria-label={t('Filter by activity')}>
+        <a class="chip" href="#/flow/milestones" aria-current={filter === 'all' ? 'page' : undefined}>{t('All')}</a>
+        <a class="chip" href="#/flow/milestones?act=cross" aria-current={filter === 'cross' ? 'page' : undefined}>{t('Over all')}</a>
+        {#each chipActs as a (a.id)}<a class="chip" href="#/flow/milestones?act={encodeURIComponent(a.id)}" aria-current={filter === a.id ? 'page' : undefined}>{tileName(a)}</a>{/each}
+      </nav>
+      <a class="btn" href="#/flow/milestones?{filter === 'all' ? '' : `act=${encodeURIComponent(filter)}&`}tune=1">{t('Change stages')}</a>
+    </div>
 
-    {#if filter === 'all'}<MsHome />{/if}
+    <div class="lay">
+      <div class="col">
+        <Sec id="soon-h" title={t('Soon within reach')} sub={t('from 80 %')}>
+          {#if soon.length}<MsRows list={soon} {label} />{:else}<p class="card none">{t('Nothing at 80 % yet. The next stars are under «All».')}</p>{/if}
+        </Sec>
 
-    <h2 class="zlabel hs">{#if actOf}{tileName(actOf)}{:else}{t('Milestones')} <span class="hsub">· {t('over all activities')}</span>{/if}</h2>
-    {#if cards.length || scoped.length}
-      <MsBlock list={scoped} all={cards} {label} records={filter === 'all' || filter === 'cross' ? recs : []} reward={data.reward} wishlist={data.wishlist} onreward={saveReward} {today} tuneHref="#/flow/milestones?{filter === 'all' ? '' : `act=${encodeURIComponent(filter)}&`}tune=1" />
-    {:else}
-      <p class="hint">{t('This activity has no milestones yet.')}</p>
-    {/if}
+        {#if perAct.length}
+          <Sec id="per-h" title={t('Per activity · next star')}>
+            <Rows rows={perActRows} />
+          </Sec>
+        {/if}
 
-    {#if perAct.length}
-      <h2 class="zlabel hs">{t('Per activity · next star')}</h2>
-      <div class="grid">{#each perAct as x (x.a.id)}<MsCard r={x.r} sub={tileName(x.a)} />{/each}</div>
-    {/if}
+        <Sec id="all-h" title={actOf ? tileName(actOf) : t('All milestones')} sub={actOf ? '' : t('over all activities')}>
+          {#if cards.length || scoped.length}
+            <div class="grid">{#each cards as r (r.id)}<MsCard {r} sub={label(r)} />{/each}</div>
+          {:else}
+            <p class="hint">{t('This activity has no milestones yet.')}</p>
+          {/if}
+        </Sec>
 
-    <h2 class="zlabel hs">{t('Stages')}</h2>
-    <section class="surf pad">
+        {#if filter === 'all'}<MsHome />{/if}
+      </div>
+
+      <aside class="col">
+        <Sec id="shelf-h" title={t('Trophy shelf')} sub={t('reached lately')}>
+          <div class="card shelf"><TrophyShelf items={shelf} next={shelfNext} /></div>
+        </Sec>
+        <Sec id="reward-h" title={t('Reward')}>
+          <RewardRow list={scoped.filter((r) => r.next)} reward={data.reward} wishlist={data.wishlist} onsave={saveReward} />
+        </Sec>
+        {#if (filter === 'all' || filter === 'cross') && recs.length}
+          <Sec id="rec-h" title={t('Record wall')}>
+            <RecordWall list={recs} {today} />
+          </Sec>
+        {/if}
+        <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('Only the next star per milestone. Stars reached stay, even when a streak breaks. No confetti, no ranking. The numbers are suggestions.')}</span></p>
+      </aside>
+    </div>
+
+    <details class="card tune" open={tuneOpen}>
+      <summary>{t('Change numbers and stages')}</summary>
       <ol class="stages">{#each STAGES as s, i (s)}<li>{i + 1} · {t(s)}</li>{/each}</ol>
       <p class="hint">{t('Every milestone has up to 7 stars with these names.')}</p>
-    </section>
-
-    <details class="surf pad tune" open={tuneOpen}>
-      <summary>{t('Change numbers and stages')}</summary>
       <p class="hint">{t('The numbers are suggestions. Separate them with commas; empty goes back to the suggestion. Stars reached stay.')}</p>
       <ul class="tl">
         {#each tuneList as r (r.id)}
@@ -136,89 +180,116 @@
 </div>
 
 <style>
+  /* v0.105.0 Design-Refresh P8 «Aktiv» (A8): two columns as on Aktiv, rows and white cards, the numbers folded */
   .hob {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    max-width: 1328px;
+    gap: var(--sp-4);
+    max-width: 1240px;
     margin: 0 auto;
     min-width: 0;
-  }
-  .back {
-    margin: 0;
-  }
-  .back a {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 44px;
-    color: var(--accent);
-    text-decoration: none;
-    font-size: var(--fs-small);
   }
   .hob :global(.pagehead) {
     margin: 0;
   }
+  .ph {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+  }
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2) var(--sp-3);
+  }
   .chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--sp-2);
+    min-width: 0;
   }
   .chip {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
     padding: 6px 14px;
-    border: 1.5px solid var(--line);
-    border-radius: 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 99px;
     background: var(--paper);
     color: var(--ink);
-    font: 500 var(--fs-small)/1.3 var(--font-body);
+    font: 500 var(--fs-small) / 1.3 var(--font-body);
     text-decoration: none;
   }
   .chip[aria-current='page'] {
-    border-color: var(--accent);
-    background: var(--accent-soft);
-    font-weight: 600;
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
   }
-  .hs {
-    margin: 18px 0 0;
-    color: var(--pc);
+  .lay {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-5);
+    align-items: start;
   }
-  .hsub {
+  @media (min-width: 1000px) {
+    .lay {
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    }
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-5);
+    min-width: 0;
+  }
+  .none {
+    margin: 0;
+    padding: var(--sp-3) var(--sp-4);
     color: var(--ink-3);
-    font-weight: 500;
+    font-size: var(--fs-small);
   }
   .grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-  }
-  @media (max-width: 899px) {
-    .grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-3);
   }
   @media (max-width: 599px) {
     .grid {
       grid-template-columns: minmax(0, 1fr);
     }
   }
-  .pad {
-    padding: 16px 18px;
+  .shelf {
+    padding: var(--sp-4);
+  }
+  .note {
+    display: flex;
+    gap: var(--sp-2);
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  .note :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  .tune {
+    padding: var(--sp-2) var(--sp-4) var(--sp-4);
     min-width: 0;
   }
   .stages {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin: 0 0 10px;
+    gap: var(--sp-2);
+    margin: var(--sp-2) 0 10px;
     padding: 0;
     list-style: none;
   }
   .stages li {
     padding: 2px 10px;
-    border-radius: 999px;
+    border-radius: 99px;
     background: var(--warn-soft);
     color: var(--warn);
     font-size: var(--fs-small);

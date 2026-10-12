@@ -2,10 +2,12 @@
   /**
    * v0.51.0 «Im Flow»: the three rings, rolling over the last 7 days: Bewegen (outside, orange),
    * Achtsam (teal), Erholung (inside, blue). legend: the three rows with the numbers beside them.
+   * v0.105.0 Design-Refresh P8 «Aktiv» (A1): `quiet` writes the numbers as a quiet line under the name
+   * («2 von 4 Ziele im Soll · letzte 7 Tage») instead of the big numbers.
    */
   import { ringFill } from '../flow.js';
   import { t } from '../i18n.svelte.js';
-  let { rings, size = 136, legend = true, compact = false } = $props();
+  let { rings, size = 136, legend = true, compact = false, quiet = false } = $props();
 
   const ROWS = [
     { key: 'move', name: 'Move|ring', unit: 'goals on track' },
@@ -17,7 +19,7 @@
   const label = $derived(ROWS.map((r) => `${t(r.name)} ${rings[r.key].n} / ${rings[r.key].of}`).join(', '));
 </script>
 
-<div class="rings" class:compact>
+<div class="rings" class:compact class:quiet>
   <svg width={size} height={size} viewBox="0 0 136 136" role="img" aria-label={label}>
     {#each ROWS as r, i (r.key)}
       {@const rad = radius(i)}
@@ -32,8 +34,12 @@
       {#each ROWS as r (r.key)}
         <li>
           <span class="dot {r.key}" aria-hidden="true"></span>
+          {#if quiet}
+            <span class="nm"><b>{t(r.name)}</b><small class="num">{rings[r.key].of ? `${t('{n} of {m}', { n: rings[r.key].n, m: rings[r.key].of })} ${t(r.unit)}` : '–'} · {t('last 7 days')}</small></span>
+          {:else}
           <span class="nm"><b>{t(r.name)}</b>{#if !compact}<small>{t(r.unit)}</small>{/if}</span>
           <span class="v {r.key} num">{rings[r.key].of ? rings[r.key].n : '–'}<span class="of">/{rings[r.key].of || '–'}</span></span>
+          {/if}
         </li>
       {/each}
     </ul>
@@ -98,6 +104,18 @@
   }
   .lg li:first-child {
     border-top: 0;
+  }
+  .quiet {
+    gap: var(--sp-5);
+  }
+  .quiet .lg li {
+    min-height: 0;
+    padding: 6px 0;
+    border-top: 0;
+  }
+  .quiet .nm small {
+    display: block;
+    color: var(--ink-3);
   }
   .compact .lg li {
     min-height: 34px;

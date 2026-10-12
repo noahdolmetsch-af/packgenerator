@@ -39,7 +39,8 @@ test('one tap ticks with Undo, a second tap takes it back', async ({ page, conte
   const push = page.locator('[data-act="pushups"]');
   await push.click();
   await expect(toast).toContainText(T('{name} · {n} ticked', { name: 'Liegestütze', n: 10 }));
-  await expect(page.locator('tr[data-row="pushups"] td.today')).toHaveClass(/done/);
+  // Design-Refresh P8: the goal grid left Aktiv (it lives on «Ziele»); the tile shows the goal reached
+  await expect(push).toHaveAttribute('aria-pressed', 'true');
   await push.click();
   await expect(toast).toContainText(T('{name} · taken back', { name: 'Liegestütze' }));
   await expect(push).toHaveAttribute('aria-pressed', 'false');
@@ -55,8 +56,9 @@ test('a long press picks the place: Yoga at home', async ({ page, context }) => 
   await sheet.getByRole('button', { name: T('Tick off'), exact: true }).click();
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   await expect(page.locator('[data-act="yoga"]')).toHaveAttribute('aria-pressed', 'true');
-  // the studio is still open, home is done: 1/2
-  await expect(page.locator('tr[data-row="yoga"] .st')).toHaveText('1/2');
+  // the studio is still open, home is done: 1/2 (Design-Refresh P8: the goal rows live on «Ziele»)
+  await page.goto('./#/flow/goals');
+  await expect(page.locator('li[data-row="yoga"] .st')).toHaveText('1 / 2');
 });
 
 test('the countdown runs to its target on a fake clock, small it keeps running, then ticks', async ({ page, context }, info) => {
@@ -124,10 +126,12 @@ test('editing an activity: name, goal and window', async ({ page, context }) => 
   await page.getByRole('button', { name: T('{n} days', { n: 10 }) }).click();
   await page.getByRole('button', { name: T('Save') }).click();
   await expect(page).toHaveURL(/#\/flow$/);
-  const row = page.locator('tr[data-row="stretch"]');
-  await expect(row).toContainText('Mobility');
-  await expect(row.locator('.st')).toHaveText('0/4');
   await expect(page.locator('[data-act="stretch"]')).toContainText('Mobility');
+  // Design-Refresh P8: the goal rows live on «Ziele»
+  await page.goto('./#/flow/goals');
+  const row = page.locator('li[data-row="stretch"]');
+  await expect(row).toContainText('Mobility');
+  await expect(row.locator('.st')).toHaveText('0 / 4');
 });
 
 test('the daily check: four taps, then it closes and Today shows the numbers', async ({ page, context }) => {

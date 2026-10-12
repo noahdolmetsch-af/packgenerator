@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.107.0 Design-Refresh P8 «Aktiv»
+  'The new look, step 10: Active is light, with today on top, goals with a path and milestones on a shelf.':
+    'Das neue Aussehen, Schritt 10: Aktiv ist hell, mit heute oben, Zielen mit Weg und Meilensteinen im Regal.',
+  'Activity and «More about meditation» show a suggestion for today that you can set as a challenge.':
+    'Aktivität und «Mehr zur Meditation» zeigen einen Vorschlag für heute, den du als Challenge setzen kannst.',
+  'The meditation log opens on an overview with a 13-week calendar; a new page «Patterns» shows records and what helped.':
+    'Das Meditations-Logbuch öffnet mit einer Übersicht und einem Kalender über 13 Wochen; die neue Seite «Muster» zeigt Rekorde und was geholfen hat.',
   // 0.106.0 Design-Refresh P5 «Packen und Unterwegs»
   'The new look, step 9: Packing shows your bags as one list; tap a bag and its items open below.':
     'Das neue Aussehen, Schritt 9: Packen zeigt deine Taschen als eine Liste; tippe eine Tasche, und ihre Teile öffnen sich darunter.',

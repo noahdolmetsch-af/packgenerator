@@ -7,8 +7,17 @@
    * ones), Links (own only), Alle Sterne (the milestones 6 + 4), Vorlagen verwalten. These are the blocks of
    * the old long page (hobby pages 2), moved here: nothing lost, only folded away.
    * v0.93.0: …/mehr?open=stars opens «Alle Sterne» (the milestone row of «Neue Sitzung»).
+   * v0.105.0 Design-Refresh P8 «Aktiv» (A13): the crumb, «Mehr zur Meditation», one white card of folds
+   * (Vorlagen first, the title with its quiet line, a triangle); at the side «Heute vielleicht» as a
+   * suggestion tile (the minutes challenge and the kinds suggested today, any of them as a challenge).
    */
-  import { ChevronLeft, ChevronRight, Play, X, Plus, Lightbulb, Link as LinkIcon, ExternalLink, Check, Music, Flower2, House, Quote, ArrowUpRight, Star, Settings } from '@lucide/svelte';
+  import { Play, X, Plus, Lightbulb, Link as LinkIcon, ExternalLink, Check, Zap } from '@lucide/svelte';
+  import { liveQuery } from 'dexie';
+  import Crumb from '../../lib/flow/kit/Crumb.svelte';
+  import Sec from '../../lib/flow/kit/Sec.svelte';
+  import SuggestTile from '../../lib/ui/SuggestTile.svelte';
+  import ChallengeSheet from '../../lib/ui/ChallengeSheet.svelte';
+  import { CHALLENGES_KEY, suggestKey, toggleTick, tickedToday, challengesOf, newChallenge, countOf, activeFor, stepChallenges, freshDone, monthEnd } from '../../lib/challenge.js';
   import MsBlock from '../../lib/flow/hobby/MsBlock.svelte';
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
   import { db } from '../../lib/db.js';
@@ -22,7 +31,6 @@
   import { beginMed, tplStart, medTemplates, lastStart } from '../../lib/flow/hobby/medstart.js';
   import { whenShort, tplName, artName } from '../../lib/flow/hobby/words.js';
   import { localDay } from '../../lib/localday.js';
-  import { phone } from '../../lib/media.svelte.js';
   import { t, tn, lang } from '../../lib/i18n.svelte.js';
 
   let { actId = 'meditation', params = new URLSearchParams() } = $props();
@@ -161,25 +169,91 @@
     stars: `${tn(msShown.length, '{n} milestone', '{n} milestones')} · ${t('{n} reached', { n: starsGot })}`,
     tpls: `${tn(tpls.length, '{n} template', '{n} templates')} · ${t('set the intervals')}`,
   });
+
+  /* v0.105.0 Design-Refresh P8 «Aktiv» (A13): «Heute vielleicht» as a suggestion tile (Noah «d1-d5»: any
+     suggestion can become a challenge). The options: the minutes challenge, the kinds suggested today and
+     own ones; ticking counts here only (the session itself is logged by the timer). */
+  const SG_KEY = suggestKey('med');
+  const sgQ = liveQuery(async () => {
+    const [s, c] = await Promise.all([db.settings.get(SG_KEY), db.settings.get(CHALLENGES_KEY)]);
+    return { s: s?.value ?? null, list: challengesOf(c?.value) };
+  });
+  const sg = $derived.by(() => {
+    const v = $sgQ?.s ?? {};
+    return { pick: v.pick ?? null, own: Array.isArray(v.own) ? v.own : [], ticks: v.ticks && typeof v.ticks === 'object' ? v.ticks : {} };
+  });
+  const chName = $derived(ch ? t('{n} min', { n: ch.target }) : null);
+  const sgKeep = $derived([sg.pick, ...($sgQ?.list ?? []).filter((c) => c.area === 'med' && !c.stopped && !c.doneOn).map((c) => c.what)].filter(Boolean));
+  const sgOptions = $derived([...new Set([...(chName ? [chName] : []), ...favArts.map(artName), ...sg.own, ...sgKeep])]);
+  const sgPick = $derived(sgOptions.includes(sg.pick) ? sg.pick : (sgOptions[0] ?? null));
+  const sgArt = $derived(favArts.find((a) => artName(a) === sgPick) ?? null);
+  const sgDone = $derived(!!sgPick && tickedToday(sg, sgPick, today));
+  const clist = $derived($sgQ?.list ?? []);
+  const running = $derived(sgPick ? activeFor(clist, sgPick, today, 'med') : null);
+  const chRun = $derived(running ? { ...running, n: countOf(running, sg) } : null);
+  const reached = $derived(freshDone(clist, today).find((c) => c.area === 'med' && c.what === sgPick) ?? null);
+  let sheet = $state(false);
+  const saveSg = (next) => putSetting(db, SG_KEY, next);
+  function addOwnSg(name) {
+    const n = name.trim().slice(0, 40);
+    if (n) saveSg({ ...sg, own: [...new Set([...sg.own, n])].slice(0, 8), pick: n });
+  }
+  async function tickSg() {
+    const next = { ...toggleTick(sg, sgPick, today), pick: sgPick };
+    await saveSg(next);
+    const r = stepChallenges(clist, { med: next }, today);
+    if (r.reached.length) await putSetting(db, CHALLENGES_KEY, r.list);
+  }
+  async function saveChallenge({ times, until }) {
+    const next = running ? clist.map((c) => (c.id === running.id ? { ...c, times, until } : c)) : [...clist, newChallenge({ area: 'med', what: sgPick, times, until, today })];
+    await putSetting(db, CHALLENGES_KEY, stepChallenges(next, { med: sg }, today).list);
+  }
+  const stopChallenge = () => putSetting(db, CHALLENGES_KEY, clist.map((c) => (c.id === running?.id ? { ...c, stopped: true } : c)));
 </script>
 
 <div class="mm">
-  <p class="back"><a href={base}><ChevronLeft size={16} aria-hidden="true" />{act ? actName(act) : t('Meditation')}</a></p>
-  <h1 class="h1" tabindex="-1" data-page-title>{phone.matches || !act ? t('More|meditation') : `${actName(act)} · ${t('More|meditation')}`}</h1>
-  <p class="sub">{t('Everything rare in one place. Closed, it keeps the page calm.')}</p>
+  <header class="ph">
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: base, label: act ? actName(act) : t('Meditation') }]} here={t('More|meditation')} />
+    <h1 class="h1" tabindex="-1" data-page-title>{!act || actId === 'meditation' ? t('More about meditation') : `${actName(act)} · ${t('More|meditation')}`}</h1>
+    <p class="sub">{t('Everything rare in one place · closed, the page stays calm')}</p>
+  </header>
 
   {#if data && act}
-    <div class="surf folds">
-      {#snippet head(Icon, title, sum)}
+   <div class="lay">
+    <div class="card folds">
+      {#snippet head(title, sum)}
         <summary>
-          <span class="ri" aria-hidden="true"><Icon size={20} /></span>
-          <span class="rt"><b>{title}</b><small>{sum}</small></span>
-          <ChevronRight size={18} class="chev" aria-hidden="true" />
+          <span class="rt"><b>{title}</b> <small>{sum}</small></span>
+          <span class="tri" aria-hidden="true"></span>
         </summary>
       {/snippet}
 
+      <details data-fold="templates">
+        {@render head(t('Templates'), sums.tpls)}
+        <div class="in">
+          <ul class="tpls card">
+            {#each tpls as x (x.id)}
+              <li data-tpl={x.id}>
+                <button type="button" class="play" aria-label={t('Start {name}', { name: tplName(x) })} onclick={() => start(tplStart(x))}><Zap size={18} aria-hidden="true" /></button>
+                <a class="tn" href="{base}/timer?tpl={encodeURIComponent(x.id)}">
+                  <b>{tplName(x)}</b>
+                  <small class="num">{x.minutes} min · {modeLine(x.bowl)}{#if x.art && artOf(x.art)}{' · '}{artName(artOf(x.art))}{/if}</small>
+                  <small>{x.usedAt ? t('last {when}', { when: whenShort(x.usedAt) }) : t('not used yet')}</small>
+                </a>
+              </li>
+            {:else}
+              <li class="none">{t('No template yet.')}</li>
+            {/each}
+          </ul>
+          <p class="links">
+            <a href="{base}/timer?new=1">{t('new template')}</a>
+            {#if ls}{' · '}<a href="{base}/timer?last=1">{t('adjust last time first')}</a>{/if}
+          </p>
+        </div>
+      </details>
+
       <details data-fold="sound">
-        {@render head(Music, t('Sound'), sums.sound)}
+        {@render head(t('Sounds'), sums.sound)}
         <div class="in">
           <p class="cap">{t('The sound in between; start and end: {name}', { name: t('Singing bowl deep') })}</p>
           <ul class="sounds">
@@ -195,7 +269,7 @@
       </details>
 
       <details data-fold="kinds">
-        {@render head(Flower2, t('Kinds'), sums.kinds)}
+        {@render head(t('Kinds'), sums.kinds)}
         <div class="in">
           <p class="cap">{t('Maybe today')}</p>
           <div class="favs">
@@ -210,14 +284,6 @@
               </div>
             {/each}
           </div>
-          {#if ch}
-            <p class="chal" data-challenge={ch.target}>
-              <Lightbulb size={18} aria-hidden="true" />
-              <span>{t('Can you do {n} minutes today? Your longest so far: {best}.', { n: ch.target, best: ch.best })}</span>
-              <a href="{base}/timer?min={ch.target}">{t('try it')}</a>
-              <button type="button" class="ib" aria-label={t('Not today')} onclick={hideChallenge}><X size={16} aria-hidden="true" /></button>
-            </p>
-          {/if}
           <p class="cap">{t('All kinds')}<Sugg /></p>
           <div class="chips">
             {#each arts.all as a (a.id)}
@@ -234,7 +300,7 @@
       </details>
 
       <details data-fold="places">
-        {@render head(House, t('Places and things'), sums.places)}
+        {@render head(t('Places and things'), sums.places)}
         <div class="in">
           <p class="cap">{t('Where do you sit?')}<Sugg /></p>
           <div class="chips">
@@ -260,7 +326,7 @@
       </details>
 
       <details data-fold="quotes">
-        {@render head(Quote, t('Quotes'), sums.quotes)}
+        {@render head(t('Quotes'), sums.quotes)}
         <div class="in">
           <ul class="quotes">
             {#each quotes.shown as x (x.id)}
@@ -303,7 +369,7 @@
       </details>
 
       <details data-fold="links">
-        {@render head(ArrowUpRight, t('Links'), sums.links)}
+        {@render head(t('Links'), sums.links)}
         <div class="in">
           {#if links.length}
             <ul class="lks">
@@ -331,70 +397,77 @@
       </details>
 
       <details data-fold="stars" open={params.get('open') === 'stars'}>
-        {@render head(Star, t('All stars'), sums.stars)}
+        {@render head(t('All stars'), sums.stars)}
         <div class="in">
           <MsBlock list={msShown} all={msShown} {today} compact tuneHref="#/flow/milestones?act={encodeURIComponent(actId)}&tune=1" />
         </div>
       </details>
-
-      <details data-fold="templates">
-        {@render head(Settings, t('Manage templates'), sums.tpls)}
-        <div class="in">
-          <ul class="tpls">
-            {#each tpls as x (x.id)}
-              <li data-tpl={x.id}>
-                <button type="button" class="play" aria-label={t('Start {name}', { name: tplName(x) })} onclick={() => start(tplStart(x))}><Play size={18} aria-hidden="true" /></button>
-                <a class="tn" href="{base}/timer?tpl={encodeURIComponent(x.id)}">
-                  <b>{tplName(x)}</b>
-                  <small class="num">{x.minutes} min · {modeLine(x.bowl)}{#if x.art && artOf(x.art)}{' · '}{artName(artOf(x.art))}{/if}</small>
-                  <small>{x.usedAt ? t('last {when}', { when: whenShort(x.usedAt) }) : t('not used yet')}</small>
-                </a>
-              </li>
-            {:else}
-              <li class="none">{t('No template yet.')}</li>
-            {/each}
-          </ul>
-          <p class="links">
-            <a href="{base}/timer?new=1">{t('new template')}</a>
-            {#if ls}{' · '}<a href="{base}/timer?last=1">{t('adjust last time first')}</a>{/if}
-          </p>
-        </div>
-      </details>
     </div>
+
+    <aside class="col">
+      {#if sgOptions.length}
+        <Sec id="maybe-h" title={t('Maybe today')}>
+          <SuggestTile icon={Lightbulb} id="sg-med" title={sgPick ?? ''} sub={ch && sgPick === chName ? t('Can you do {n} minutes today? Your longest so far: {best}.', { n: ch.target, best: ch.best }) : ''} options={sgOptions} pick={sgPick} done={sgDone} challenge={chRun} {reached} onpick={(o) => saveSg({ ...sg, pick: o })} onadd={addOwnSg} ontick={tickSg} onchallenge={() => (sheet = true)} />
+          <p class="go">
+            {#if sgArt}
+              <button type="button" class="btn" onclick={() => startArt(sgArt)}>{t('Maybe today|start')}</button>
+            {:else if ch && sgPick === chName}
+              <a class="btn" href="{base}/timer?min={ch.target}" data-challenge={ch.target}>{t('Maybe today|start')}</a>
+            {/if}
+            {#if ch && sgPick === chName}<button type="button" class="btn" onclick={hideChallenge}>{t('Not today')}</button>{/if}
+          </p>
+        </Sec>
+      {/if}
+    </aside>
+   </div>
   {/if}
 </div>
 
+<ChallengeSheet bind:open={sheet} what={sgPick ?? ''} times={running?.times ?? 10} until={running?.until ?? monthEnd(today)} min={today} running={!!running} onsave={saveChallenge} onstop={stopChallenge} />
+
 <style>
+  /* v0.105.0 Design-Refresh P8 «Aktiv» (A13): two columns, one white card of folds, the suggestion at the side */
   .mm {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    max-width: 760px;
+    gap: var(--sp-4);
+    max-width: 1240px;
+    margin: 0 auto;
     min-width: 0;
   }
-  .back {
-    margin: 0;
-  }
-  .back a {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 44px;
-    color: var(--accent);
-    text-decoration: none;
-    font-size: var(--fs-small);
+  .ph {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
   }
   .h1 {
     margin: 0;
     font: 800 var(--fs-page)/1.1 var(--font-brand);
   }
   .sub {
-    margin: 0 0 6px;
+    margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
+  .lay {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-5);
+    align-items: start;
+  }
+  @media (min-width: 1000px) {
+    .lay {
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    }
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-5);
+    min-width: 0;
+  }
   .folds {
-    padding: 4px 18px;
+    padding: 0 var(--sp-4);
     min-width: 0;
   }
   details + details {
@@ -403,55 +476,54 @@
   summary {
     display: flex;
     align-items: center;
-    gap: 14px;
-    min-height: 60px;
-    padding: 10px 0;
+    gap: var(--sp-3);
+    min-height: 52px;
+    padding: var(--sp-2) 0;
     cursor: pointer;
     list-style: none;
   }
   summary::-webkit-details-marker {
     display: none;
   }
-  summary :global(.chev) {
+  .tri {
     flex: none;
-    color: var(--ink-2);
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 7px solid var(--ink-2);
     transition: transform 0.15s;
   }
-  details[open] > summary :global(.chev) {
+  details[open] > summary .tri {
     transform: rotate(90deg);
-  }
-  .ri {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: var(--paper-2);
-    color: var(--ink);
   }
   .rt {
     flex: 1;
     min-width: 0;
-    line-height: 1.35;
+    line-height: 1.4;
   }
   .rt b {
-    display: block;
     font-weight: 600;
   }
   .rt small {
-    display: block;
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
-  .in {
-    padding: 0 0 16px 54px;
-    min-width: 0;
+  .go {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: var(--sp-2) 0 0;
   }
-  @media (max-width: 479px) {
-    .in {
-      padding-left: 0;
-    }
+  .go:empty {
+    display: none;
+  }
+  .go .btn {
+    min-height: 44px;
+  }
+  .in {
+    padding: 0 0 var(--sp-4);
+    min-width: 0;
   }
   .hint {
     margin: 8px 0 0;
@@ -465,8 +537,7 @@
     font-weight: 600;
   }
   .addrow + .cap,
-  .favs + .cap,
-  .chal + .cap {
+  .favs + .cap {
     margin-top: 14px;
   }
   .sounds,
@@ -568,27 +639,6 @@
   }
   .fb small {
     color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .chal {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 10px;
-    margin: 12px 0 0;
-    padding: 6px 6px 6px 14px;
-    border-radius: var(--radius-card);
-    background: var(--ok-soft);
-    color: var(--ink);
-  }
-  .chal span {
-    flex: 1 1 200px;
-  }
-  .chal a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    color: var(--accent);
     font-size: var(--fs-small);
   }
   .chips {
@@ -773,6 +823,9 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
+  .tpls.card {
+    padding: 0 var(--sp-3);
+  }
   .tpls li {
     display: flex;
     align-items: center;
@@ -790,9 +843,9 @@
     width: 44px;
     height: 44px;
     border: 0;
-    border-radius: 50%;
-    background: var(--ok-soft);
-    color: var(--accent);
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    color: var(--ink-2);
     cursor: pointer;
   }
   .tn {

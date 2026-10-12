@@ -7,18 +7,26 @@
    * Everything is a suggestion: names, favourites, lines, suggestions and ideas can be changed, hidden or
    * removed. A tile opens the activity's editor until its own page comes (H29a).
    */
-  import { ChevronLeft, ChevronUp, ChevronDown, Plus, EyeOff, X, Cloud, Activity as Pulse, CalendarDays, Sun, LineChart, Music } from '@lucide/svelte';
+  import { ChevronUp, ChevronDown, Plus, EyeOff, X, Cloud, Activity as Pulse, CalendarDays, Sun, LineChart, Music, Lightbulb, Star, Heart, Link } from '@lucide/svelte';
+  import { liveQuery } from 'dexie';
+  import Sec from '../../lib/flow/kit/Sec.svelte';
+  import Rows from '../../lib/flow/kit/Rows.svelte';
+  import Crumb from '../../lib/flow/kit/Crumb.svelte';
+  import WeekStrip from '../../lib/flow/kit/WeekStrip.svelte';
+  import SuggestTile from '../../lib/ui/SuggestTile.svelte';
+  import ChallengeSheet from '../../lib/ui/ChallengeSheet.svelte';
+  import { weekDays, activeCount } from '../../lib/home/bausteine.js';
+  import { CHALLENGES_KEY, suggestKey, toggleTick, tickedToday, challengesOf, newChallenge, countOf, activeFor, stepChallenges, freshDone, monthEnd } from '../../lib/challenge.js';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import RenameSheet from '../../lib/ui/RenameSheet.svelte';
   import { offerRename } from '../../lib/ui/rename.svelte.js';
   import ActTile from '../../lib/flow/hobby/ActTile.svelte';
   import RingsWeek from '../../lib/flow/hobby/RingsWeek.svelte';
-  import MsBlock from '../../lib/flow/hobby/MsBlock.svelte';
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
   import { db } from '../../lib/db.js';
   import { hobbyQuery, seedHobby } from '../../lib/flow/data.svelte.js';
   import { actState, flowStates, rings as ringsOf } from '../../lib/flow.js';
-  import { msContext, allMilestones, newStars, records as recordsOf, zurichHour, REWARD_KEY } from '../../lib/flowms.js';
+  import { msContext, allMilestones, newStars, zurichHour } from '../../lib/flowms.js';
   import { favActs, moveFav, tileLine, ringWeek, TILE_LINES, TILE_LINE_NAMES, lineOf, MAX_FAVS } from '../../lib/flowtiles.js';
   import { suggestions, openIdeas, actFromTemplate, connections, ALWAYS, HIDDEN_KEY } from '../../lib/flowsugg.js';
   import { saveStars, putSetting, putActs, deleteAct } from '../../lib/flowdb.js';
@@ -44,8 +52,6 @@
     if (fresh.length) saveStars(db, fresh);
   });
   const shown = $derived(list.filter((r) => !r.off));
-  const cross = $derived(shown.filter((r) => !r.m.actId));
-  const allCross = $derived(cross.slice().sort((a, b) => b.progress - a.progress));
 
   /* the tiles */
   const favs = $derived(data ? favActs(data.acts) : []);
@@ -87,9 +93,6 @@
   const week = $derived(data ? ringWeek(data.acts, data.log, today) : []);
   const ringNames = $derived(Object.fromEntries(['mind', 'move', 'rest'].map((r) => [r, states.filter((s) => s.act.ring === r && !s.resting).map((s) => tileName(s.act))])));
 
-  /* the records and the reward */
-  const recs = $derived(ctx ? recordsOf(ctx, data.rides) : []);
-  const saveReward = (v) => putSetting(db, REWARD_KEY, v);
 
   /* more actions, suggested by itself (H18a) */
   const sugg = $derived(data ? suggestions({ acts: data.acts, log: data.log, today, hour: zurichHour(new Date().toISOString()) ?? 12, dry: data.weather ? data.weather.rain === 'none' : null, rings, favs: favs.map((a) => a.id), hidden: data.hidden, tripDays: data.tripDays }) : []);
@@ -121,84 +124,154 @@
   const ICON = { strava: Pulse, fitbit: Pulse, ics: CalendarDays, weather: Sun, intervals: LineChart, media: Music };
   const STATE = { planned: 'planned', active: 'active', later: 'later', setup: 'not set up' };
 
+
+  /* v0.105.0 Design-Refresh P8 «Aktiv» (A7): this week (B18), «Vorschlag für heute» as a suggestion tile
+     with alternatives and a challenge (Noah «d1-d5 freigeben»: any suggestion can become a challenge),
+     the rest folded under «Mehr» */
+  const weekStrip = $derived(data ? weekDays({ today, log: data.log, rides: data.rides }) : []);
+  const SG_KEY = suggestKey('aktiv');
+  const sgQ = liveQuery(async () => {
+    const [s, c] = await Promise.all([db.settings.get(SG_KEY), db.settings.get(CHALLENGES_KEY)]);
+    return { s: s?.value ?? null, list: challengesOf(c?.value) };
+  });
+  const sg = $derived.by(() => {
+    const v = $sgQ?.s ?? {};
+    return {
+      pick: typeof v.pick === 'string' ? v.pick : null,
+      own: Array.isArray(v.own) ? v.own.filter((x) => typeof x === 'string' && x.trim()) : [],
+      ticks: v.ticks && typeof v.ticks === 'object' ? v.ticks : {},
+    };
+  });
+  // the chosen one and the running challenges stay among the options once ticked (the suggestion itself
+  // then drops out of the list, being done today)
+  const sgKeep = $derived([sg.pick, ...($sgQ?.list ?? []).filter((c) => c.area === 'aktiv' && !c.stopped && !c.doneOn).map((c) => c.what)].filter(Boolean));
+  const sgOptions = $derived([...new Set([...sugg.slice(0, 4).map(suggName), ...sg.own, ...sgKeep])]);
+  const sgPick = $derived(sgOptions.includes(sg.pick) ? sg.pick : (sgOptions[0] ?? null));
+  const sgSugg = $derived(sugg.find((s) => suggName(s) === sgPick) ?? null);
+  const sgReason = $derived(sgSugg ? `${t('suggested:')} ${t(sgSugg.key, sgSugg.vars)}` : '');
+  const sgDone = $derived(!!sgPick && tickedToday(sg, sgPick, today));
+  const clist = $derived($sgQ?.list ?? []);
+  const running = $derived(sgPick ? activeFor(clist, sgPick, today, 'aktiv') : null);
+  const challenge = $derived(running ? { ...running, n: countOf(running, sg) } : null);
+  const reached = $derived(freshDone(clist, today).find((c) => c.area === 'aktiv' && c.what === sgPick) ?? null);
+  let sheet = $state(false);
+  const saveSg = (next) => putSetting(db, SG_KEY, next);
+  function addOwnSg(name) {
+    const n = String(name ?? '').trim().slice(0, 40);
+    if (n) saveSg({ ...sg, own: [...new Set([...sg.own, n])].slice(0, 8), pick: n });
+  }
+  async function tickSg() {
+    const was = sgDone;
+    const next = { ...toggleTick(sg, sgPick, today), pick: sgPick };
+    await saveSg(next);
+    // the suggestion of an activity is ticked there too (once); an own one only counts here
+    if (!was && sgSugg) await doSugg(sgSugg);
+    const r = stepChallenges(clist, { aktiv: next }, today);
+    if (r.reached.length) await putSetting(db, CHALLENGES_KEY, r.list);
+  }
+  async function saveChallenge({ times, until }) {
+    const next = running ? clist.map((c) => (c.id === running.id ? { ...c, times, until } : c)) : [...clist, newChallenge({ area: 'aktiv', what: sgPick, times, until, today })];
+    await putSetting(db, CHALLENGES_KEY, stepChallenges(next, { aktiv: sg }, today).list);
+  }
+  const stopChallenge = () => putSetting(db, CHALLENGES_KEY, clist.map((c) => (c.id === running?.id ? { ...c, stopped: true } : c)));
+
+  let openRow = $state(null);
+  const toggle = (k) => (openRow = openRow === k ? null : k);
+  const soonN = $derived(shown.filter((r) => r.soon).length);
+  const moreRows = $derived([
+    { key: 'ms', icon: Star, title: t('Milestones'), sub: soonN ? tn(soonN, '{n} soon within reach', '{n} soon within reach') : t('over all activities'), href: '#/flow/milestones' },
+    { key: 'rings', icon: Pulse, title: t('Three rings'), sub: [t('Move|ring'), t('Mindful|ring'), t('Recovery|ring')].join(', '), onclick: () => toggle('rings'), expanded: openRow === 'rings' },
+    { key: 'sugg', icon: Lightbulb, title: t('More actions without their own page'), sub: tn(sugg.length, '{n} suggestion', '{n} suggestions'), onclick: () => toggle('sugg'), expanded: openRow === 'sugg' },
+    { key: 'fun', icon: Heart, title: t('Recovery and fun'), sub: always.map((a) => actName(a)).slice(0, 3).join(', '), onclick: () => toggle('fun'), expanded: openRow === 'fun' },
+    ...(conns.length ? [{ key: 'conn', icon: Link, title: t('Connections'), sub: conns.map((c) => (c.id === 'ics' || c.id === 'weather' ? t(c.name) : c.name)).join(', '), onclick: () => toggle('conn'), expanded: openRow === 'conn' }] : []),
+  ]);
 </script>
 
 <div class="hob">
-  <p class="back"><a href="#/flow"><ChevronLeft size={16} aria-hidden="true" />{t('In the flow')}</a></p>
-  <PageHead title={t('Activity|tab')} />
+  <header class="ph">
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Activity|tab')} />
+    <PageHead title={t('Activity|tab')} text={t('Over all activities · each tile shows one line instead of a date')} />
+  </header>
 
   {#if data}
-    <div class="intro">
-      <p>{tn(favs.length, 'Your favourite activity.', 'Your {n} favourite activities.')} {t('The names are playful suggestions, renamable any time.')}<Sugg /></p>
-      <button type="button" class="btn ibtn" aria-expanded={editing} onclick={() => (editing = !editing)}>{editing ? t('Done') : t('Change tiles')}</button>
-    </div>
+    <div class="lay">
+      <div class="col">
+        <Sec id="tiles-h" title={t('Your tiles')} sub={t('Tap opens · line: milestone, history, week, nudge, streak or best')} more={{ label: editing ? t('Done') : t('Change tiles'), onclick: () => (editing = !editing), expanded: editing }}>
+          {#if editing}
+            <section class="card ted" aria-labelledby="tiles-ed-h">
+              <h3 id="tiles-ed-h" class="sh">{t('Tiles: order, line, favourites')}</h3>
+              <ul class="ed">
+                {#each favs as a, i (a.id)}
+                  <li>
+                    <span class="en"><b>{tileName(a)}</b><small>{actName(a)} · <button type="button" class="lnk" onclick={() => (renaming = a)} aria-label={t('Rename {name}', { name: tileName(a) })}>{t('rename')}</button></small></span>
+                    <label class="el"><span class="sr">{t('Line on {name}', { name: tileName(a) })}</span>
+                      <select class="sel" value={lineOf(a)} onchange={(e) => setLine(a, e.currentTarget.value)}>
+                        {#each TILE_LINES as k (k)}<option value={k}>{t(TILE_LINE_NAMES[k])}</option>{/each}
+                      </select>
+                    </label>
+                    <button type="button" class="ib" disabled={i === 0} aria-label={t('Move {name} up', { name: tileName(a) })} onclick={() => moveTile(a, -1)}><ChevronUp size={18} aria-hidden="true" /></button>
+                    <button type="button" class="ib" disabled={i === favs.length - 1} aria-label={t('Move {name} down', { name: tileName(a) })} onclick={() => moveTile(a, 1)}><ChevronDown size={18} aria-hidden="true" /></button>
+                    <button type="button" class="ib" aria-label={t('Remove {name} from the tiles', { name: tileName(a) })} onclick={() => unfav(a)}><X size={18} aria-hidden="true" /></button>
+                  </li>
+                {/each}
+              </ul>
+              {#if favs.length < MAX_FAVS && others.length}
+                <p class="hint">{t('Add as a tile:')}</p>
+                <div class="chips">{#each others as a (a.id)}<button type="button" class="chip" onclick={() => addFav(a)}><Plus size={16} aria-hidden="true" />{tileName(a)}</button>{/each}</div>
+              {/if}
+            </section>
+          {/if}
+          <div class="tiles">
+            {#each tiles as x (x.state.act.id)}<ActTile state={x.state} line={x.line} href={hrefOf(x.state.act)} />{/each}
+            <a class="addt" href="#/flow/new"><Plus size={20} aria-hidden="true" /><span>{t('Activity')}</span></a>
+          </div>
+          <p class="hint">{t('The names are playful suggestions, renamable any time.')}<Sugg /></p>
+        </Sec>
 
-    {#if editing}
-      <section class="surf pad" aria-labelledby="tiles-ed-h">
-        <h2 id="tiles-ed-h" class="sh">{t('Tiles: order, line, favourites')}</h2>
-        <ul class="ed">
-          {#each favs as a, i (a.id)}
-            <li>
-              <span class="en"><b>{tileName(a)}</b><small>{actName(a)}</small></span>
-              <label class="el"><span class="sr">{t('Line on {name}', { name: tileName(a) })}</span>
-                <select class="sel" value={lineOf(a)} onchange={(e) => setLine(a, e.currentTarget.value)}>
-                  {#each TILE_LINES as k (k)}<option value={k}>{t(TILE_LINE_NAMES[k])}</option>{/each}
-                </select>
-              </label>
-              <button type="button" class="ib" disabled={i === 0} aria-label={t('Move {name} up', { name: tileName(a) })} onclick={() => moveTile(a, -1)}><ChevronUp size={18} aria-hidden="true" /></button>
-              <button type="button" class="ib" disabled={i === favs.length - 1} aria-label={t('Move {name} down', { name: tileName(a) })} onclick={() => moveTile(a, 1)}><ChevronDown size={18} aria-hidden="true" /></button>
-              <button type="button" class="ib" aria-label={t('Remove {name} from the tiles', { name: tileName(a) })} onclick={() => unfav(a)}><X size={18} aria-hidden="true" /></button>
-            </li>
-          {/each}
-        </ul>
-        {#if favs.length < MAX_FAVS && others.length}
-          <p class="hint">{t('Add as a tile:')}</p>
-          <div class="chips">{#each others as a (a.id)}<button type="button" class="chip" onclick={() => addFav(a)}><Plus size={16} aria-hidden="true" />{tileName(a)}</button>{/each}</div>
+        <Sec id="week-h" title={t('This week')} sub={t('Monday to Sunday · today framed')}>
+          <div class="card"><WeekStrip days={weekStrip} acts={data.acts} {today} label={t('This week: {n} active days', { n: activeCount(weekStrip) })} /></div>
+        </Sec>
+      </div>
+
+      <aside class="col">
+        {#if sugg.length || sg.own.length}
+          <Sec id="sg-h" title={t('Suggestion for today')} sub={t('by day, weather and rings')}>
+            <SuggestTile icon={Lightbulb} id="sg-aktiv" title={sgPick ?? ''} sub={sgReason} options={sgOptions} pick={sgPick} done={sgDone} {challenge} {reached} onpick={(o) => saveSg({ ...sg, pick: o })} onadd={addOwnSg} ontick={tickSg} onchallenge={() => (sheet = true)} />
+          </Sec>
         {/if}
-      </section>
-    {/if}
-
-    <div class="tiles">
-      {#each tiles as x (x.state.act.id)}<ActTile state={x.state} line={x.line} href={hrefOf(x.state.act)} onrename={(a) => (renaming = a)} />{/each}
-      <a class="addt" href="#/flow/new"><Plus size={20} aria-hidden="true" /><span>{t('Activity')}</span></a>
+        <Sec id="more-h" title={t('More|item')}>
+          <Rows rows={moreRows} open={moreOpen} />
+        </Sec>
+      </aside>
     </div>
-    <p class="hint">{t('Instead of a date each tile shows one line: milestone, history, week, nudge, streak or best.')}<Sugg /></p>
+  {/if}
+</div>
 
-    <h2 class="zlabel hs">{t('Three rings')}</h2>
-    <section class="surf pad"><RingsWeek {rings} {week} names={ringNames} /></section>
-
-    <h2 class="zlabel hs">{t('Milestones')} <span class="hsub">· {t('over all activities')}</span></h2>
-    <MsBlock list={cross} all={allCross.slice(0, 3)} allMore={{ href: '#/flow/milestones', label: tn(cross.length, 'the {n} and those per activity ›', 'all {n} and those per activity ›') }} records={recs} reward={data.reward} wishlist={data.wishlist} onreward={saveReward} {today} tuneHref="#/flow/milestones?tune=1" />
-
-    <h2 class="zlabel hs">{t('More actions without their own page')}</h2>
-    {#if sugg.length}
-      <ul class="sugg">
-        {#each sugg as s (s.id)}
-          {@const ring = s.act?.ring ?? s.tpl?.ring}
-          <li data-sugg={s.id}>
-            <span class="dot {ring}" aria-hidden="true"></span>
-            <span class="sn"><b>{suggName(s)}</b>{#if s.min}<span class="sm">{s.id === 'cold' ? t('1 tip') : `${s.min} min`}</span>{/if}<small>{t('suggested:')} {t(s.key, s.vars)}</small></span>
-            <button type="button" class="ib" aria-label={t('Hide {name}', { name: suggName(s) })} onclick={() => hide(s)}><EyeOff size={18} aria-hidden="true" /></button>
-            <button type="button" class="ib plus" aria-label={t('Tick {name}', { name: suggName(s) })} onclick={() => doSugg(s)}><Plus size={20} aria-hidden="true" /></button>
-          </li>
-        {/each}
-      </ul>
-    {:else}
-      <p class="hint">{t('No suggestion right now.')}</p>
-    {/if}
+{#snippet moreOpen(r)}
+  {#if r.key === 'rings'}
+    <RingsWeek {rings} {week} names={ringNames} />
+  {:else if r.key === 'sugg'}
+    <ul class="sugg">
+      {#each sugg as s (s.id)}
+        {@const ring = s.act?.ring ?? s.tpl?.ring}
+        <li data-sugg={s.id}>
+          <span class="dot {ring}" aria-hidden="true"></span>
+          <span class="sn"><b>{suggName(s)}</b>{#if s.min}<span class="sm">{s.id === 'cold' ? t('1 tip') : `${s.min} min`}</span>{/if}<small>{t('suggested:')} {t(s.key, s.vars)}</small></span>
+          <button type="button" class="ib" aria-label={t('Hide {name}', { name: suggName(s) })} onclick={() => hide(s)}><EyeOff size={18} aria-hidden="true" /></button>
+          <button type="button" class="ib plus" aria-label={t('Tick {name}', { name: suggName(s) })} onclick={() => doSugg(s)}><Plus size={20} aria-hidden="true" /></button>
+        </li>
+      {/each}
+    </ul>
+    {#if !sugg.length}<p class="hint">{t('No suggestion right now.')}</p>{/if}
     <p class="hint">{t('Suggested by itself by day, weather and rings.')}<Sugg />{#if data.hidden.length}{' · '}<button type="button" class="lnk" onclick={unhide}>{tn(data.hidden.length, 'show {n} hidden again', 'show {n} hidden again')}</button>{/if}</p>
-
-    <h2 class="zlabel hs">{t('Recovery and fun')}</h2>
-    <section class="surf pad">
-      <p class="cap">{t('Always there')}</p>
-      <div class="chips">{#each always as a (a.id)}<button type="button" class="chip" data-always={a.id} aria-label={t('Tick {name}', { name: tileName(a) })} onclick={() => tickAct(a)}><Plus size={16} aria-hidden="true" />{actName(a)}{#if tileName(a) !== actName(a)}{' '}«{tileName(a)}»{/if}</button>{/each}</div>
-      {#if ideas.length}
-        <p class="cap">{t('More ideas, tap to add')}<Sugg /></p>
-        <div class="chips">{#each ideas as i (i.id)}<button type="button" class="chip idea" data-idea={i.id} onclick={() => addIdea(i)}><Plus size={16} aria-hidden="true" />{ideaName(i)}</button>{/each}</div>
-      {/if}
-    </section>
-
-    {#if conns.length}<h2 class="zlabel hs">{t('Connections')}<Sugg /></h2>{/if}
+  {:else if r.key === 'fun'}
+    <p class="cap">{t('Always there')}</p>
+    <div class="chips">{#each always as a (a.id)}<button type="button" class="chip" data-always={a.id} aria-label={t('Tick {name}', { name: tileName(a) })} onclick={() => tickAct(a)}><Plus size={16} aria-hidden="true" />{actName(a)}{#if tileName(a) !== actName(a)}{' '}«{tileName(a)}»{/if}</button>{/each}</div>
+    {#if ideas.length}
+      <p class="cap">{t('More ideas, tap to add')}<Sugg /></p>
+      <div class="chips">{#each ideas as i (i.id)}<button type="button" class="chip idea" data-idea={i.id} onclick={() => addIdea(i)}><Plus size={16} aria-hidden="true" />{ideaName(i)}</button>{/each}</div>
+    {/if}
+  {:else if r.key === 'conn'}
     <ul class="conn">
       {#each conns as c (c.id)}
         {@const Icon = ICON[c.id] ?? Cloud}
@@ -209,73 +282,50 @@
       {/each}
     </ul>
   {/if}
-</div>
+{/snippet}
+
+<ChallengeSheet bind:open={sheet} what={sgPick ?? ''} times={running?.times ?? 10} until={running?.until ?? monthEnd(today)} min={today} running={!!running} onsave={saveChallenge} onstop={stopChallenge} />
 
 {#if renaming}
   <RenameSheet kicker={actName(renaming)} title={t('Rename tile')} value={tileName(renaming)} max={40} hint={t('Only the name on the tile. The activity, its goal and history stay.')} empty={t('Empty: the activity’s own name')} onsave={rename} onclose={() => (renaming = null)} />
 {/if}
 
 <style>
+  /* v0.105.0 Design-Refresh P8 «Aktiv» (A7): two columns as on Aktiv, white cards, the rest folded */
   .hob {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    max-width: 1328px;
+    gap: var(--sp-4);
+    max-width: 1240px;
     margin: 0 auto;
     min-width: 0;
-  }
-  .back {
-    margin: 0;
-  }
-  .back a {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 44px;
-    color: var(--accent);
-    text-decoration: none;
-    font-size: var(--fs-small);
   }
   .hob :global(.pagehead) {
     margin: 0;
   }
-  .intro {
+  .lay {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-5);
+    align-items: start;
+  }
+  @media (min-width: 1000px) {
+    .lay {
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    }
+  }
+  .col {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px 16px;
-  }
-  .intro p {
-    flex: 1 1 320px;
-    margin: 0;
-    color: var(--ink-2);
-  }
-  .ibtn {
-    min-height: 44px;
-    border-radius: 10px;
-  }
-  .pad {
-    padding: 16px 18px;
+    flex-direction: column;
+    gap: var(--sp-5);
     min-width: 0;
   }
-  @media (min-width: 720px) {
-    .pad {
-      padding: 20px 24px;
-    }
+  .ted {
+    margin-bottom: var(--sp-3);
   }
   .sh {
     margin: 0 0 10px;
-    font-size: var(--fs-sub);
-    font-weight: 600;
-  }
-  .hs {
-    margin: 18px 0 0;
-    color: var(--pc);
-  }
-  .hsub {
-    color: var(--ink-3);
-    font-weight: 500;
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
   }
   .tiles {
     display: grid;
@@ -305,6 +355,9 @@
     margin: 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .tiles + .hint {
+    margin-top: var(--sp-2);
   }
   .cap {
     margin: 0 0 8px;

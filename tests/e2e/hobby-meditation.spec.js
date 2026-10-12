@@ -164,7 +164,10 @@ test('Meditation einfach: start sheet → calm clock → gong → a sentence and
   // the log lists the session with its note; the filter «mit Notiz» keeps it; calendar and chart views
   await main.locator('[data-row="log"]').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation\/log$/);
-  await expect(main.getByRole('heading', { level: 1, name: T('Log') })).toBeVisible();
+  // Design-Refresh P8 (A14 «Logbuch neu»): the log opens on «Übersicht»; the list is the tab «Liste»
+  await expect(main.getByRole('heading', { level: 1, name: T('Logbook') })).toBeVisible();
+  await main.locator('[data-view="list"]').click();
+  await expect(page).toHaveURL(/log\?view=list$/);
   const row = main.locator('[data-session]');
   await expect(row).toHaveCount(1);
   await expect(row).toContainText('Am Anfang unruhig');
@@ -177,13 +180,14 @@ test('Meditation einfach: start sheet → calm clock → gong → a sentence and
   await main.getByRole('button', { name: T('reset {n} filters', { n: 2 }) }).click();
   await expect(row).toHaveCount(1);
   await fits(page, 'B4 Liste');
-  await main.locator('[data-view="cal"]').click();
-  await expect(main.locator('[data-day="2026-10-09"]')).toContainText('1');
+  // Design-Refresh P8 (A14): calendar (13 weeks) and minutes per week are on «Übersicht»
+  await main.locator('[data-view="over"]').click();
+  // the day with the 1-minute session: «Fr 9.10.: 1 min» (the minutes in its label)
+  expect(await main.locator('button[data-day="2026-10-09"]').getAttribute('aria-label')).toMatch(/: 1 \S+$/);
   if (phone) expect((await main.locator('button[data-day="2026-10-09"]').boundingBox()).width, 'a day is a 44 px target').toBeGreaterThanOrEqual(43.5);
-  await main.locator('[data-day="2026-10-09"]').click();
-  await expect(main.locator('[data-session]')).toHaveCount(1);
+  await main.locator('button[data-day="2026-10-09"]').click();
+  await expect(main.locator('.dh + .rows [data-session]')).toHaveCount(1);
   await fits(page, 'B6 Kalender');
-  await main.locator('[data-view="chart"]').click();
   await expect(main.getByRole('heading', { name: T('Minutes per week') })).toBeVisible();
   await fits(page, 'B6 Grafik');
   await main.locator('[data-view="list"]').click();

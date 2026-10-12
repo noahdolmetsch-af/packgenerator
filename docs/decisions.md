@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Design-Refresh P8 «Aktiv» (0.107.0)
+
+Nach den Mockups A1–A2, A4–A6 (Noah 12.10.2026 02:40 «a1-a6 freigeben»), A7–A8 (02:47 «A7 - A9 freigabe»), A13 (03:06), A14 und A14c «Muster» (03:15 «freigabe für a14 und a14c»); A3 und A9–A12 bleiben wie heute (Noah 02:44, 02:47, 02:51). Challenge-Regel nach D1b/D5 («d1-d5 freigeben» 03:59).
+
+- **Selbst entschieden (P8):** Der Seitentitel heisst «Aktiv» (vorher «Im Flow»). Stoppuhr als Zeile unter «Mehr». Die Erholungs-Karte fällt weg (die Ringe zeigen sie). Tagescheck bleibt 1–10, Abhaken 15/30/45/60 Min. Der Ziel-Weg nutzt den nächsten Meilenstein (es gibt kein Saison- oder Jahresziel). Aktivität: Antippen öffnet die Kachel, Umbenennen unter «Kacheln ändern», die Meilensteine ziehen auf die Seite Meilensteine. Vorschläge mit `SuggestTile`/`ChallengeSheet` auf Aktivität («Vorschlag für heute») und Meditation «Mehr» («Heute vielleicht»). Logbuch: Kalender als 13 Wochen; alte Links mit view=cal/chart öffnen die Übersicht. Muster: Rekorde über alle Sitzungen, Kurven über 13 Wochen; kein wertender Satz. Nicht gebaut, weil ohne Daten oder neu: Jahreskreis (B34), Saison- und Jahresziele, «Pendeln zählt», Teilen als Bild, Ziel- und Trendlinie, «Als Tipp vor dem Start zeigen».
+
 ## 12.10.2026: Design-Refresh P5 «Packen und Unterwegs» (0.106.0)
 
 Nach den Mockups T6–T13 (Noah 12.10.2026, alle Seiten «Runde 20 freigegeben») und «10 Pakete» (P5 = R10+R11). Nur das Aussehen ist neu.
