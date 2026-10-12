@@ -34,6 +34,15 @@ export default {
   'nothing chosen': 'nichts gewählt',
   'Pause or delete': 'Pause oder löschen',
   'Pause: rests without a goal · delete asks first': 'Pause: ruht ohne Ziel · Löschen fragt nach',
+  // A7 Aktivität
+  'Over all activities · each tile shows one line instead of a date': 'Über alle Aktivitäten · jede Kachel zeigt eine Zeile statt eines Datums',
+  'Your tiles': 'Deine Kacheln',
+  'Tap opens · line: milestone, history, week, nudge, streak or best': 'Antippen öffnet · Zeile: Meilenstein, Verlauf, Woche, Stupser, Serie oder Bestwert',
+  'Monday to Sunday · today framed': 'Montag bis Sonntag · heute umrahmt',
+  'This week: {n} active days': 'Diese Woche: {n} aktive Tage',
+  'Suggestion for today': 'Vorschlag für heute',
+  'by day, weather and rings': 'nach Tag, Wetter und Ringen',
+  '{n} soon within reach': '{n} bald erreichbar',
   // B22 Ziel-Pfad
   '{value} of {target}, {n} stations to go': '{value} von {target}, noch {n} Stationen',
   '{left} to go': 'noch {left}',
