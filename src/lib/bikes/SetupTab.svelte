@@ -16,7 +16,7 @@
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
-  import { Briefcase, Plus, ChevronRight, Scale, Bike, Gauge, Camera, User, Columns3, Wrench, Ruler, Upload, MoreHorizontal } from '@lucide/svelte';
+  import { Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
   import SetupDrawing from './SetupDrawing.svelte';
   import SetupFold from './SetupFold.svelte';
@@ -81,22 +81,23 @@
   // v0.95.0 «Velo kurz» (App einfach D, Noah 4a/5a, mockup D): the bike page is short: three rows
   // (care, bags, equipment), «Import rides» as the one button, everything else under «More».
   const careWords = $derived(care ? bikeCareWords(care) : null);
-  let bagsOpen = $state(false);
-  // A deep link from Today («Album ›», «Idea saved → Open») lands inside «More»: open it so the fold can show itself.
-  const wished = () => {
-    try {
-      return !!(localStorage.getItem('bikes.photos') || localStorage.getItem('bikes.ideas'));
-    } catch {
-      return false;
-    }
-  };
-  let moreOpen = $state(wished());
-  // «&open=1» (a sheet's «Folder», «enter» or «Change values») lands on what lives under «More».
+  // Design-Refresh P7 (V1): the drawing and the bags stand open; «More» is a card of rows (folder,
+  // photos, compare, profile and settings, ideas), each opens in place.
+  let folderOpen = $state(false);
+  let profileOpen = $state(false);
+  // «&open=1» (a sheet's «Folder», «enter» or «Change values») lands on the folder and the measures.
   $effect(() => {
     if (!more) return;
-    moreOpen = true;
+    folderOpen = true;
+    profileOpen = true;
     onopened?.();
   });
+  // «3 bikes · Gravel as the next one»: the bike of the next trip, when there is one.
+  const nextOn = $derived.by(() => {
+    const n = nextTrip(($tripsQ ?? []).filter((x) => x.bikeId));
+    return n ? bikes.find((b) => b.id === n.bikeId) ?? null : null;
+  });
+  const sub = $derived([tn(bikes.length, '{n} bike', '{n} bikes'), nextOn ? t('{bike} as the next one', { bike: nextOn.name }) : ''].filter(Boolean).join(' · '));
   const chf = (n) => `CHF ${Math.round(n).toLocaleString('de-CH')}`;
 
   /* ---------- setup photos (Noah, 4.10.2026, answers 1a-6a) ---------- */
@@ -293,34 +294,11 @@
       <!-- v0.23.0 (AP07): or add one right here -->
       <button type="button" class="btn hi addfirst" onclick={() => (bikeDialog = { bike: null })}>{t('Add bike')}</button></p>
   {:else if bike}
-    <SetupBand {bikes} {bike} {setup} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeRename = bike)} />
+    <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeRename = bike)} />
 
-    <!-- v0.95.0 «Velo kurz» (App einfach D, mockup D): three rows and one button; the rest opens below. -->
-    <div class="vk">
-      <ul class="card vk-rows" aria-label={t('{bike} at a glance', { bike: bike.name })}>
-        <li><a class="vk-row" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><span class="ib care" class:late={careWords?.tone === 'late' || careWords?.tone === 'due'}><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bike care')}</b><small>{careWords?.text || careWords?.tag || ''}</small></span>{#if care?.rows.length}<i class="tp-badge warn">{careWords.tag}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-        <li><button type="button" class="vk-row" aria-expanded={bagsOpen} aria-controls="vk-bags" onclick={() => (bagsOpen = !bagsOpen)}><span class="ib"><Briefcase size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bags')}</b><small>{places.filter((p) => p.bag).map((p) => p.bag.name).join(', ') || t('no bag yet')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button></li>
-        <li><a class="vk-row" href={bikesHash({ tab: 'compare', bike: bike.id })}><span class="ib"><Ruler size={18} aria-hidden="true" /></span><span class="m"><b>{t('Equipment|tab')}</b><small>{t('Measures and parts')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-      </ul>
-      <div class="vk-side">
-        <!-- the coordinator 11.10.2026: Noah could not find the Strava import (it was three taps deep in Care) -->
-        <a class="btn ink vk-go" href={bikesHash({ tab: 'care', bike: bike.id, view: 'import' })}><Upload size={18} aria-hidden="true" />{t('Import rides')}<small>{t('Strava, Garmin')}</small></a>
-        <button type="button" class="card vk-row vk-more" aria-expanded={moreOpen} aria-controls="vk-more" onclick={() => (moreOpen = !moreOpen)}><span class="ib"><MoreHorizontal size={18} aria-hidden="true" /></span><span class="m"><b>{t('More')}</b><small>{t('Sheets (bike pass, service plan …), measures, mounts, photos, profile, settings')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
-      </div>
-    </div>
-
-    {#if moreOpen}
-    <div id="vk-more">
-    <!-- v0.69.0 «Velo-Blätter» (Noah V1 a, mockup a-mappe): the bike's folder of sheets, below the band. -->
-    <SheetFolder {bike} />
-
-    <!-- v0.65.0 «Velo-Masse» (Noah): the fit and setup numbers. -->
-    {#key bike.id}<FitCard {bike} />{/key}
-    </div>
-    {/if}
-
-    {#if bagsOpen || moreOpen}
-    <div class="cols" class:solo={!moreOpen}>
+    <!-- Design-Refresh P7 «Velo» (V1): the drawing and the bags left; care and equipment, «Import rides»
+         and «More» right; on a phone one after the other. Everything from «Velo kurz» stays. -->
+    <div class="cols">
       <div class="main" id="vk-bags">
         <section class="card draw" aria-label={t('{bike} with its bags', { bike: bike.name })}>
           <SetupDrawing {places} mounts={editMounts} active={activeSlot} label={t('{bike} with its bags', { bike: bike.name })} onpick={pick} />
@@ -333,121 +311,145 @@
           </div>
         </section>
 
-        <section class="card std" aria-labelledby="std-h">
-          <div class="std-head">
-            <h2 id="std-h">{editMounts ? t('Mounts') : t('Standard bags')}<span class="r">{editMounts ? t('{n} of {all} places', { n: bike.slots.filter((k) => MOUNTS.some((m) => m.key === k)).length, all: MOUNTS.length }) : t('every new trip')}</span></h2>
-            {#if !editMounts}<Help label={t('Standard bags')}><p>{t('Pack starts every new trip on this bike with them; a trip can change its own.')}</p></Help>{/if}
+        <section class="std" aria-labelledby="std-h">
+          <div class="vh">
+            <div class="vh-t">
+              <h2 id="std-h">{editMounts ? t('Mounts') : t('Bags')}</h2>
+              <p class="vh-s">{editMounts ? t('{n} of {all} places', { n: bike.slots.filter((k) => MOUNTS.some((m) => m.key === k)).length, all: MOUNTS.length }) : [t('Standard for every new trip on this bike'), tn(setup.bagCount, '{n} bag', '{n} bags'), setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : ''].filter(Boolean).join(' · ')}</p>
+            </div>
+            {#if !editMounts}<button type="button" class="vh-a" onclick={() => (dialog = { bag: null })}>{t('Add bag')}<ChevronRight size={16} aria-hidden="true" /></button>{/if}
           </div>
-          <ul class="slots">
-            {#each editMounts ? rows : rows.filter((s) => !isEmpty(s)) as s (s.key)}
-              {@const on = bike.slots.includes(s.key)}
-              {@const bag = on ? bags.find((b) => b.id === bike.setup?.[s.key]) : null}
-              {@const other = on ? tripBag(s.key) : null}
-              <li class:active={activeSlot === s.key}>
-                {#if editMounts}
-                  <div class="row">
-                    <span class="ibox" class:empty={!on}><Briefcase size={18} aria-hidden="true" /></span>
-                    <span class="nm"><b>{t(s.name)}</b><small>{t(s.where)}</small></span>
-                    <button type="button" class="switch" role="switch" aria-checked={on} aria-label={t('Mount: {place}', { place: t(s.name) })} onclick={() => toggleMount(s.key)}><span class="knob"></span></button>
-                  </div>
-                {:else}
-                  {@render slotRow(s, bag, other)}
-                {/if}
-              </li>
-            {:else}
-              {#if !rows.length}<li class="quiet none">{t('No mounts on this bike yet. Tap "Edit mounts".')}</li>{/if}
-            {/each}
-            {#if !editMounts}{@render empties(rows.filter((s) => isEmpty(s)))}{/if}
-          </ul>
-          {#if wornRows.length}
-            <!-- v0.37.0 (Noah 2a): the worn places, a light header; their weight counts to On me. -->
-            <h3 class="worn-h">{t('On me')}<span class="r">{t('not part of the bike weight')}</span></h3>
+          <div class="card vlist">
             <ul class="slots">
-              {#each wornRows.filter((s) => !isEmpty(s)) as s (s.key)}
-                {@const bag = bags.find((b) => b.id === bike.setup?.[s.key])}
-                {@const other = tripBag(s.key)}
-                <li class:active={activeSlot === s.key}>{@render slotRow(s, bag, other)}</li>
+              {#each editMounts ? rows : rows.filter((s) => !isEmpty(s)) as s (s.key)}
+                {@const on = bike.slots.includes(s.key)}
+                {@const bag = on ? bags.find((b) => b.id === bike.setup?.[s.key]) : null}
+                {@const other = on ? tripBag(s.key) : null}
+                <li class:active={activeSlot === s.key}>
+                  {#if editMounts}
+                    <div class="row">
+                      <span class="ibox" class:empty={!on}><Briefcase size={18} aria-hidden="true" /></span>
+                      <span class="nm"><b>{t(s.name)}</b><small>{t(s.where)}</small></span>
+                      <button type="button" class="switch" role="switch" aria-checked={on} aria-label={t('Mount: {place}', { place: t(s.name) })} onclick={() => toggleMount(s.key)}><span class="knob"></span></button>
+                    </div>
+                  {:else}
+                    {@render slotRow(s, bag, other)}
+                  {/if}
+                </li>
+              {:else}
+                {#if !rows.length}<li class="quiet none">{t('No mounts on this bike yet. Tap "Edit mounts".')}</li>{/if}
               {/each}
-              {@render empties(wornRows.filter((s) => isEmpty(s)))}
+              {#if !editMounts}{@render empties(rows.filter((s) => isEmpty(s)))}{/if}
             </ul>
-          {/if}
+            {#if wornRows.length}
+              <!-- v0.37.0 (Noah 2a): the worn places, a light header; their weight counts to On me. -->
+              <h3 class="worn-h">{t('On me')}<span class="r">{t('not part of the bike weight')}</span></h3>
+              <ul class="slots">
+                {#each wornRows.filter((s) => !isEmpty(s)) as s (s.key)}
+                  {@const bag = bags.find((b) => b.id === bike.setup?.[s.key])}
+                  {@const other = tripBag(s.key)}
+                  <li class:active={activeSlot === s.key}>{@render slotRow(s, bag, other)}</li>
+                {/each}
+                {@render empties(wornRows.filter((s) => isEmpty(s)))}
+              </ul>
+            {/if}
+            <div class="vfold">{@render yourBags()}</div>
+          </div>
         </section>
       </div>
 
-      {#if moreOpen}
       <div class="side">
-        <!-- v0.40.0 (design check): "Who works on it" only once there is something in it (WhoCard). -->
-        <WhoCard bike={view} {visits} {tasks} year={today.slice(0, 4)} per={profile?.per} next={forShop} onorder={() => (orderOpen = true)} />
+        <section class="vsec" aria-labelledby="pa-h">
+          <div class="vh"><div class="vh-t"><h2 id="pa-h">{t('Care and equipment')}</h2><p class="vh-s num">{[bike.name, bike.km != null ? `${num(bike.km)} km` : '', bike.weightG ? `${bikeKind === 'estimate' ? '~' : ''}${formatWeight(bike.weightG)}` : ''].filter(Boolean).join(' · ')}</p></div></div>
+          <ul class="card vlist vk-rows" aria-label={t('{bike} at a glance', { bike: bike.name })}>
+            <li><a class="vk-row" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><span class="ib care" class:late={careWords?.tone === 'late' || careWords?.tone === 'due'}><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bike care')}</b><small>{careWords?.text || careWords?.tag || ''}</small></span>{#if care?.rows.length}<i class="pill warn">{careWords.tag}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+            <li>
+              <SetupFold flat icon={Package} label={t('Always mounted')} summary={[(bike.fixtures ?? []).map((f) => (itemsById[f] ? nameOf(itemsById[f]) : f)).join(', ') || t('nothing'), weightWords].join(' · ')}>
+                <div class="details-in">
+                  <label class="wlabel">
+                    <span class="lbl">{t('Bike weight (g)')}</span>
+                    {#key bike.id}<input class="inp num" type="text" inputmode="numeric" value={bike.weightG ?? ''} onchange={saveBikeWeight} placeholder={t('not weighed')} />{/key}
+                    {#if bike.weightNote}<small class="hintw">{bike.weightNote}</small>{/if}
+                    <small class="hintw">{t('Without bags, with Garmin mount, Quad Lock and bottle cages.')}</small>
+                  </label>
+                  <div class="fix">
+                    <span class="lbl">{t('Always mounted')}</span>
+                    <div class="chips">
+                      {#each bike.fixtures ?? [] as f (f)}
+                        <span class="chip">{itemsById[f] ? nameOf(itemsById[f]) : f}<button type="button" aria-label={t('Remove {name}', { name: itemsById[f] ? nameOf(itemsById[f]) : f })} onclick={() => setFixtures((bike.fixtures ?? []).filter((x) => x !== f))}>×</button></span>
+                      {:else}
+                        <span class="quiet">{t('nothing')}</span>
+                      {/each}
+                    </div>
+                    <select class="sel mini" aria-label={t('Add something that is always mounted')} value="" onchange={(e) => { if (e.currentTarget.value) setFixtures([...(bike.fixtures ?? []), e.currentTarget.value]); e.currentTarget.value = ''; }}>
+                      <option value="">{t('+ add')}</option>
+                      {#each items.filter((i) => i.category === 'bike' && !(bike.fixtures ?? []).includes(i.id) && i.ownership !== 'gone') as i (i.id)}<option value={i.id}>{nameOf(i)}</option>{/each}
+                    </select>
+                  </div>
+                </div>
+                {#if message}<p class="msg" role="status">{message}</p>{/if}
+              </SetupFold>
+            </li>
+            <li><a class="vk-row" href={bikesHash({ tab: 'compare', bike: bike.id })}><span class="ib"><Scale size={18} aria-hidden="true" /></span><span class="m"><b>{t('Equipment|tab')}</b><small>{t('Measures, parts, geometry')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+          </ul>
+        </section>
 
-        <!-- v0.48.0 (Noah): all bikes' parts, values and geometry side by side, two taps from Bikes. -->
-        <a class="cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 class="ic" size={20} aria-hidden="true" /><span class="cl">{t('Compare bikes')}</span><span class="sum">{t('Fit, parts, values, geometry')}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+        <!-- the coordinator 11.10.2026: Noah could not find the Strava import (it was three taps deep in Care) -->
+        <div class="card vk-imp">
+          <a class="btn hi vk-go" href={bikesHash({ tab: 'care', bike: bike.id, view: 'import' })}><Route size={18} aria-hidden="true" />{t('Import rides')}</a>
+          <p class="vk-imp-s">{t('Strava file or GPX · counts the km for every part')}</p>
+        </div>
 
-        <SetupFold icon={Bike} label={t('Bike details')} summary={`${weightWords} · ${tn((bike.fixtures ?? []).length, '{n} thing always mounted', '{n} things always mounted')}`}>
-          <div class="details-in">
-            <label class="wlabel">
-              <span class="lbl">{t('Bike weight (g)')}</span>
-              {#key bike.id}<input class="inp num" type="text" inputmode="numeric" value={bike.weightG ?? ''} onchange={saveBikeWeight} placeholder={t('not weighed')} />{/key}
-              {#if bike.weightNote}<small class="hintw">{bike.weightNote}</small>{/if}
-              <small class="hintw">{t('Without bags, with Garmin mount, Quad Lock and bottle cages.')}</small>
-            </label>
-            <div class="fix">
-              <span class="lbl">{t('Always mounted')}</span>
-              <div class="chips">
-                {#each bike.fixtures ?? [] as f (f)}
-                  <span class="chip">{itemsById[f] ? nameOf(itemsById[f]) : f}<button type="button" aria-label={t('Remove {name}', { name: itemsById[f] ? nameOf(itemsById[f]) : f })} onclick={() => setFixtures((bike.fixtures ?? []).filter((x) => x !== f))}>×</button></span>
-                {:else}
-                  <span class="quiet">{t('nothing')}</span>
+        <section class="vsec" aria-labelledby="vm-h">
+          <div class="vh"><div class="vh-t"><h2 id="vm-h">{t('More')}</h2></div></div>
+          <div class="card vlist vm" id="vk-more">
+            <!-- v0.69.0 «Velo-Blätter» (Noah V1 a, mockup a-mappe): the bike's folder of sheets. -->
+            <SetupFold flat cls="vm-folder" icon={BookOpen} bind:open={folderOpen} label={t('Folder|sheets')} summary={t('Bike pass, service plan …')}>
+              <SheetFolder {bike} />
+            </SetupFold>
+            <div bind:this={photosEl}></div>
+            <SetupFold flat icon={ImageIcon} bind:open={photosOpen} label={t('Photos')} summary={`${gallery.length ? tn(gallery.length, '{n} photo', '{n} photos') : t('no photo yet')}${gallery.find((p) => p.main) ? ` · ${t('in Pack: {name}', { name: gallery.find((p) => p.main).name })}` : ''}`}>
+              <div class="gal" aria-label={t('Photos of the {bike}', { bike: bike.name })}>
+                {#each gallery as p, n (p.id)}
+                  <button type="button" class="th" class:main={p.main} onclick={() => (shown = n)} aria-label={p.main ? t('Open photo {name}, shown in Pack', { name: p.name }) : t('Open photo {name}', { name: p.name })}>
+                    <img src={p.src} alt="" loading="lazy" />
+                    <span>{p.name}</span>
+                  </button>
                 {/each}
+                <label class="th add">{adding ? t('Reading…') : t('+ Photo')}<input type="file" accept="image/*" multiple onchange={addPhotos} hidden disabled={adding} /></label>
               </div>
-              <select class="sel mini" aria-label={t('Add something that is always mounted')} value="" onchange={(e) => { if (e.currentTarget.value) setFixtures([...(bike.fixtures ?? []), e.currentTarget.value]); e.currentTarget.value = ''; }}>
-                <option value="">{t('+ add')}</option>
-                {#each items.filter((i) => i.category === 'bike' && !(bike.fixtures ?? []).includes(i.id) && i.ownership !== 'gone') as i (i.id)}<option value={i.id}>{nameOf(i)}</option>{/each}
-              </select>
-            </div>
+              <p class="note">{t('Open a photo to show it in Pack, rename it or keep it for one trip.')}</p>
+              <!-- v0.27.0 (AP22): below the gallery, so a long message wraps instead of scrolling sideways. -->
+              {#if photoMsg}<p class="photo-err" role="alert">{photoMsg}</p>{/if}
+            </SetupFold>
+            <!-- v0.48.0 (Noah): all bikes' parts, values and geometry side by side, two taps from Bikes. -->
+            <a class="vk-row cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><span class="ib"><ArrowLeftRight size={18} aria-hidden="true" /></span><span class="m"><b class="cl">{t('Compare bikes')}</b><small class="sum">{t('Fit, parts, values, geometry')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+            <SetupFold flat cls="vm-profile" icon={MoreHorizontal} bind:open={profileOpen} label={t('Profile and settings')} summary={t('Rider {weight} · rear wheel hint over {pct} %', { weight: $riderQ?.value ? formatWeight($riderQ.value) : t('not set'), pct: $rearQ?.value ?? 60 })}>
+              {#if profile}
+                <dl class="profile" aria-label={t('Profile of the {bike}', { bike: bike.name })}>
+                  <div><dt>km</dt><dd class="num">{profile.km == null ? t('not set') : num(profile.km)}{#if profile.kmDate}<small>{t('set {date}', { date: dateOf(profile.kmDate) })}</small>{/if}</dd></div>
+                  <div><dt>{t('Workshop {year}', { year: today.slice(0, 4) })}</dt><dd class="num">{profile.year ? (profile.year.unknown === profile.year.visits ? t('cost unknown') : chf(profile.year.chf)) : 'CHF 0'}{#if profile.year}<small>{tn(profile.year.visits, '{n} visit', '{n} visits')}</small>{/if}</dd></div>
+                  <div><dt>{t('Per 1000 km')}</dt><dd class="num">{profile.per?.chf != null ? chf(profile.per.chf) : '–'}<small>{profile.per?.chf != null ? t('over {km} km', { km: num(profile.per.km) }) : profile.per?.wait ? t('after {km} more km', { km: num(profile.per.wait) }) : t('needs km at a visit')}</small></dd></div>
+                  <div class:late={profile.next[0]?.late}><dt>{profile.next[0]?.late ? t('Due now') : t('Next')}</dt><dd>{#each profile.next as n (n.name)}<span>{n.name}<small>{n.detail}</small></span>{:else}<span>{t('nothing recorded')}</span>{/each}</dd></div>
+                  <div><dt>{t('Last workshop')}</dt><dd>{#if profile.last}<span>{dateOf(profile.last.date)}<small>{profile.last.shop}{profile.last.chf != null ? ` · ${chf(profile.last.chf)}` : ''}</small></span>{:else}<span>{t('none yet')}</span>{/if}</dd></div>
+                </dl>
+                <p class="to-care"><a class="link" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}>{t('Bike care for the {bike}', { bike: bike.name })}</a></p>
+              {/if}
+              <!-- v0.40.0 (design check): "Who works on it" only once there is something in it (WhoCard). -->
+              <WhoCard bike={view} {visits} {tasks} year={today.slice(0, 4)} per={profile?.per} next={forShop} onorder={() => (orderOpen = true)} />
+              <!-- v0.65.0 «Velo-Masse» (Noah): the fit and setup numbers. -->
+              {#key bike.id}<FitCard {bike} />{/key}
+              {@render settings()}
+            </SetupFold>
+            <!-- v0.25.1 (Noah 2b): "Was geil wäre", the bike's own ideas -->
+            {#key bike.id}<IdeasFold {bike} flat />{/key}
           </div>
-          {#if message}<p class="msg" role="status">{message}</p>{/if}
-        </SetupFold>
-
-        {#if profile}
-          <SetupFold icon={Gauge} label={t('Profile')} late={profile.next[0]?.late} summary={`${profile.km == null ? t('km not set') : `${num(profile.km)} km`} · ${profile.next[0] ? `${profile.next[0].late ? t('Due now') : t('Next')}: ${profile.next[0].name}` : t('nothing recorded')}`}>
-            <dl class="profile" aria-label={t('Profile of the {bike}', { bike: bike.name })}>
-              <div><dt>km</dt><dd class="num">{profile.km == null ? t('not set') : num(profile.km)}{#if profile.kmDate}<small>{t('set {date}', { date: dateOf(profile.kmDate) })}</small>{/if}</dd></div>
-              <div><dt>{t('Workshop {year}', { year: today.slice(0, 4) })}</dt><dd class="num">{profile.year ? (profile.year.unknown === profile.year.visits ? t('cost unknown') : chf(profile.year.chf)) : 'CHF 0'}{#if profile.year}<small>{tn(profile.year.visits, '{n} visit', '{n} visits')}</small>{/if}</dd></div>
-              <div><dt>{t('Per 1000 km')}</dt><dd class="num">{profile.per?.chf != null ? chf(profile.per.chf) : '–'}<small>{profile.per?.chf != null ? t('over {km} km', { km: num(profile.per.km) }) : profile.per?.wait ? t('after {km} more km', { km: num(profile.per.wait) }) : t('needs km at a visit')}</small></dd></div>
-              <div class:late={profile.next[0]?.late}><dt>{profile.next[0]?.late ? t('Due now') : t('Next')}</dt><dd>{#each profile.next as n (n.name)}<span>{n.name}<small>{n.detail}</small></span>{:else}<span>{t('nothing recorded')}</span>{/each}</dd></div>
-              <div><dt>{t('Last workshop')}</dt><dd>{#if profile.last}<span>{dateOf(profile.last.date)}<small>{profile.last.shop}{profile.last.chf != null ? ` · ${chf(profile.last.chf)}` : ''}</small></span>{:else}<span>{t('none yet')}</span>{/if}</dd></div>
-            </dl>
-            <p class="to-care"><a class="link" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}>{t('Bike care for the {bike}', { bike: bike.name })}</a></p>
-          </SetupFold>
-        {/if}
-
-        <div bind:this={photosEl}></div>
-        <SetupFold icon={Camera} bind:open={photosOpen} label={t('Photos')} summary={`${gallery.length ? tn(gallery.length, '{n} photo', '{n} photos') : t('no photo yet')}${gallery.find((p) => p.main) ? ` · ${t('in Pack: {name}', { name: gallery.find((p) => p.main).name })}` : ''}`}>
-          <div class="gal" aria-label={t('Photos of the {bike}', { bike: bike.name })}>
-            {#each gallery as p, n (p.id)}
-              <button type="button" class="th" class:main={p.main} onclick={() => (shown = n)} aria-label={p.main ? t('Open photo {name}, shown in Pack', { name: p.name }) : t('Open photo {name}', { name: p.name })}>
-                <img src={p.src} alt="" loading="lazy" />
-                <span>{p.name}</span>
-              </button>
-            {/each}
-            <label class="th add">{adding ? t('Reading…') : t('+ Photo')}<input type="file" accept="image/*" multiple onchange={addPhotos} hidden disabled={adding} /></label>
-          </div>
-          <p class="note">{t('Open a photo to show it in Pack, rename it or keep it for one trip.')}</p>
-          <!-- v0.27.0 (AP22): below the gallery, so a long message wraps instead of scrolling sideways. -->
-          {#if photoMsg}<p class="photo-err" role="alert">{photoMsg}</p>{/if}
-        </SetupFold>
-
-        <!-- v0.25.1 (Noah 2b): "Was geil wäre", the bike's own ideas -->
-        {#key bike.id}<IdeasFold {bike} />{/key}
-        {@render rest()}
+        </section>
       </div>
-      {/if}
     </div>
-    {/if}
   {/if}
-  {#if !bike}{@render rest()}{/if}
+  {#if !bike}{@render settings()}{@render yourBags()}{/if}
 </div>
-
 
 <!-- v0.40.0 (design check R1/R2): the empty places as one row "4 places empty ›"; open, each one as before. -->
 {#snippet empties(list)}
@@ -466,7 +468,7 @@
 {#snippet slotRow(s, bag, other)}
                   <button type="button" class="row" id="slot-{s.key}" onclick={() => pick(s.key)}>
                     <span class="ibox" class:empty={!bag}>{#if bag}<Briefcase size={18} aria-hidden="true" />{:else}<Plus size={18} aria-hidden="true" />{/if}</span>
-                    <span class="nm"><small>{t(s.name)} · {t(s.where)}</small>{#if bag}<b>{bagName(bag.name)}</b>{:else}<b class="quiet">{t('empty · choose a bag')}</b>{/if}</span>
+                    <span class="nm">{#if bag}<b>{bagName(bag.name)}</b>{:else}<b class="quiet">{t('empty · choose a bag')}</b>{/if}<small>{t(s.name)} · {t(s.where)}</small></span>
                     {#if bag}<span class="w num">{[bag.volumeL ? formatVolume(bag.volumeL) : '', bagWeight(bag) != null ? formatWeight(bagWeight(bag)) : ''].filter(Boolean).join(' · ')}{#if bagWeight(bag) == null}<span class="nw" title={t('not weighed')}><Scale size={14} aria-hidden="true" /><span class="sr">{t('not weighed')}</span></span>{/if}</span>{/if}
                     <ChevronRight class="chev" size={18} aria-hidden="true" />
                   </button>
@@ -475,26 +477,37 @@
                   {/if}
 {/snippet}
 
-<!-- Settings and the bag list are there also without a bike. -->
-{#snippet rest()}
-  <SetupFold icon={User} label={t('Settings')} summary={t('Rider {weight} · rear wheel hint over {pct} %', { weight: $riderQ?.value ? formatWeight($riderQ.value) : t('not set'), pct: $rearQ?.value ?? 60 })}>
-    <div class="set-in">
-      <label class="rider">
-        <span class="lbl">{t('Rider weight (kg)')}</span>
-        <input class="inp num" type="text" inputmode="decimal" value={$riderQ?.value ? $riderQ.value / 1000 : ''} onchange={saveRider} placeholder={t('e.g. 64')} />
-      </label>
-      <label class="rider">
-        <span class="lbl">{t('Hint when rear is over (%)')}</span>
-        <input class="inp num" type="text" inputmode="numeric" value={$rearQ?.value ?? ''} onchange={saveRear} placeholder="60" />
-      </label>
-    </div>
-    {#if message}<p class="msg" role="status">{message}</p>{/if}
-  </SetupFold>
+{#snippet settingsIn()}
+  <div class="set-in">
+    <label class="rider">
+      <span class="lbl">{t('Rider weight (kg)')}</span>
+      <input class="inp num" type="text" inputmode="decimal" value={$riderQ?.value ? $riderQ.value / 1000 : ''} onchange={saveRider} placeholder={t('e.g. 64')} />
+    </label>
+    <label class="rider">
+      <span class="lbl">{t('Hint when rear is over (%)')}</span>
+      <input class="inp num" type="text" inputmode="numeric" value={$rearQ?.value ?? ''} onchange={saveRear} placeholder="60" />
+    </label>
+  </div>
+  {#if message}<p class="msg" role="status">{message}</p>{/if}
+{/snippet}
 
-  <SetupFold icon={Briefcase} label={t('Your bags')} summary={tn(bags.length, '{n} bag or cage', '{n} bags and cages')}>
+<!-- Settings and the bag list are there also without a bike. With a bike the settings live in «Profile and settings». -->
+{#snippet settings()}
+  {#if bike}
+    <h3 class="set-h">{t('Settings')}</h3>
+    {@render settingsIn()}
+  {:else}
+    <SetupFold icon={User} label={t('Settings')} summary={t('Rider {weight} · rear wheel hint over {pct} %', { weight: $riderQ?.value ? formatWeight($riderQ.value) : t('not set'), pct: $rearQ?.value ?? 60 })}>
+      {@render settingsIn()}
+    </SetupFold>
+  {/if}
+{/snippet}
+
+{#snippet yourBags()}
+  <SetupFold flat={!!bike} icon={Briefcase} label={t('Your bags')} summary={tn(bags.length, '{n} bag or cage', '{n} bags and cages')}>
     <div class="bl-h">
       <p class="note">{t('Every bag, cage and backpack. The weight comes from the linked gear item or from the bag itself.')}</p>
-      <button type="button" class="btn hi" onclick={() => (dialog = { bag: null })}>{t('Add bag')}</button>
+      <button type="button" class="btn" onclick={() => (dialog = { bag: null })}>{t('Add bag')}</button>
     </div>
     {#each bagsBySlot as g (g.slot.key)}
       <h3 class="slot-h">{t(g.slot.name)} <small>{t(g.slot.where)}</small></h3>
@@ -583,57 +596,159 @@
   .setup {
     min-width: 0;
   }
-  /* v0.48.0: the link to «Compare bikes», drawn like a closed SetupFold row. */
-  .cmplink {
-    display: flex;
-    align-items: center;
-    gap: 4px 12px;
-    min-height: 56px;
-    margin: 0 0 8px;
-    padding: 8px 14px 8px 16px;
-    box-sizing: border-box;
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    color: var(--ink);
-    text-decoration: none;
-  }
-  .cmplink:visited {
-    color: var(--ink);
-  }
-  .cmplink:hover {
-    background: var(--paper-2);
-  }
-  .cmplink :global(.ic),
-  .cmplink :global(.chev) {
-    flex: none;
-    color: var(--ink-3);
-  }
-  .cmplink .cl {
-    flex: none;
-    margin: 0;
-    font-size: var(--fs-body);
-    font-weight: 600;
-    color: var(--ink);
-  }
-  .cmplink .sum {
-    flex: 1;
-    min-width: 0;
-    text-align: right;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
   .cols,
   .main,
   .side {
     min-width: 0;
   }
-  .card {
-    border-radius: 12px;
+  @media (min-width: 1000px) {
+    .cols {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 24px;
+      align-items: start;
+    }
+  }
+  /* Design-Refresh P7 (V1): a section title with its quiet line above each card, an action right. */
+  .vh {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin: 0 2px 10px;
+  }
+  .vh-t {
+    min-width: 0;
+  }
+  .vh h2 {
+    margin: 0;
+    font: 600 var(--fs-sub) / 1.25 var(--font-body);
+    color: var(--ink);
+  }
+  .vh-s {
+    margin: 2px 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    overflow-wrap: break-word;
+  }
+  .vh-a {
+    position: relative;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.3 var(--font-body);
+    cursor: pointer;
+  }
+  .vh-a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .vsec,
+  .std {
+    margin: 0 0 24px;
+  }
+  /* A card of rows: the rows divided by a quiet line. */
+  .vlist {
+    list-style: none;
+    margin: 0;
+    padding: 4px 16px;
+  }
+  .vlist > li + li,
+  .vm > :global(* + *),
+  .vlist .vfold {
+    border-top: 1px solid var(--line);
+  }
+  .vm > :global(div:empty) {
+    display: none;
+  }
+  .vm > :global(div:empty + *) {
+    border-top: 0;
+  }
+  .vk-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 60px;
+    padding: 8px 0;
+    box-sizing: border-box;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .vk-row:visited {
+    color: var(--ink);
+  }
+  @media (hover: hover) {
+    .vk-row:hover b {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+  .vk-row .ib {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex: none;
+    border-radius: var(--radius);
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .vk-row .ib.late {
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  .vk-row .m {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+  .vk-row .m b {
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .vk-row .m small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    line-height: 1.35;
+    overflow-wrap: break-word;
+  }
+  .vk-row :global(.chev) {
+    flex: none;
+    color: var(--ink-3);
+  }
+  .vk-row i.pill {
+    font-style: normal;
+  }
+  .vk-imp {
+    display: grid;
+    gap: 10px;
+    margin: 0 0 24px;
+  }
+  .vk-go {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .vk-imp-s {
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
   }
   .draw {
     padding: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 24px;
   }
   .drawfoot {
     display: flex;
@@ -645,45 +760,33 @@
   }
   .hint {
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .mountbtn {
     min-height: 44px;
-  }
-  .std {
-    margin-bottom: 12px;
   }
   .worn-h {
     display: flex;
     align-items: baseline;
     gap: 8px;
-    margin: 14px 0 2px;
-    font-size: 15px;
+    margin: 0;
+    padding: 12px 0 2px;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-small);
     font-weight: 600;
     color: var(--ink-2);
   }
   .worn-h .r {
     margin-left: auto;
-    font-size: 13px;
     font-weight: 400;
     color: var(--ink-3);
   }
-  .std h2,
   .slot-h {
     display: flex;
     align-items: baseline;
     gap: 8px;
     margin: 0 0 4px;
-    font-size: 18px;
-    font-weight: 600;
     line-height: 1.25;
-  }
-  .std h2 .r {
-    margin-left: auto;
-    font-size: 14px;
-    font-weight: 400;
-    color: var(--ink-3);
-    text-align: right;
   }
   .slots {
     list-style: none;
@@ -699,9 +802,9 @@
     gap: 12px;
     width: 100%;
     min-height: 60px;
-    padding: 6px 4px;
+    padding: 8px 0;
     border: 0;
-    border-radius: 6px;
+    border-radius: 0;
     background: none;
     color: var(--ink);
     font: inherit;
@@ -711,8 +814,9 @@
     cursor: pointer;
   }
   @media (hover: hover) {
-    button.row:hover {
-      background: var(--paper-2);
+    button.row:hover b {
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
   }
   .slots li.active .row {
@@ -722,9 +826,9 @@
     flex: none;
     display: grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius);
     background: var(--paper-2);
     color: var(--ink-2);
   }
@@ -740,18 +844,6 @@
     flex-direction: column;
     overflow-wrap: break-word;
   }
-  .std-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 8px;
-    margin: 0 0 4px;
-  }
-  .std-head h2 {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-  }
   .erow {
     list-style: none;
     cursor: pointer;
@@ -765,16 +857,6 @@
   .slots.inner {
     padding-left: 12px;
     border-top: 1px solid var(--line);
-  }
-  /* v0.40.0 (design check R3): litres and weight stay in the right column on a phone too. */
-  @media (max-width: 400px) {
-    .ibox {
-      width: 34px;
-      height: 34px;
-    }
-    .row {
-      gap: 10px;
-    }
   }
   /* v0.45.1 (G009): under 360 px litres and weight go under the bag's name when both do not fit,
      so "Rahmentasche" never breaks in the middle of the word. */
@@ -791,24 +873,21 @@
     }
   }
   .nm small {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .nm b {
-    font-weight: 600;
+    font-weight: 500;
   }
   .quiet {
     color: var(--ink-3);
-  }
-  .nm b.quiet {
-    font-weight: 500;
   }
   .w {
     flex: none;
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     text-align: right;
     white-space: nowrap;
@@ -826,22 +905,22 @@
     flex-wrap: wrap;
     align-items: baseline;
     gap: 4px 10px;
-    margin: 0 0 8px 56px;
-    font-size: 13px;
+    margin: 0 0 8px 46px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
     overflow-wrap: break-word;
   }
   .none {
     padding: 12px 0;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .note {
     margin: 8px 0 0;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .msg {
-    font-weight: 700;
+    font-weight: 600;
     margin: 8px 0 0;
   }
   /* A mount on or off: a switch, not a word. */
@@ -879,7 +958,7 @@
     transition: left 0.15s;
   }
   .switch[aria-checked='true']::before {
-    background: var(--ok);
+    background: var(--hi);
   }
   .switch[aria-checked='true'] .knob {
     left: 25px;
@@ -890,7 +969,7 @@
     background: none;
     padding: 0;
     font: inherit;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink);
     text-decoration: underline;
     cursor: pointer;
@@ -930,7 +1009,7 @@
   .hintw {
     display: block;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
     max-width: 220px;
   }
   .fix {
@@ -946,11 +1025,11 @@
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    padding: 2px 2px 2px 10px;
+    padding: 2px 2px 2px 12px;
     border: 1px solid var(--line);
     border-radius: 999px;
     background: var(--paper);
-    font-size: 14px;
+    font-size: var(--fs-small);
     overflow-wrap: break-word;
   }
   .chip button {
@@ -965,7 +1044,7 @@
   .sel.mini {
     width: auto;
     max-width: 100%;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .profile {
     display: grid;
@@ -975,15 +1054,15 @@
   }
   .profile > div {
     background: var(--paper-2);
-    border-radius: 8px;
-    padding: 8px 10px;
+    border-radius: var(--r-ctl);
+    padding: 10px 12px;
     min-width: 0;
   }
   .profile .late {
     box-shadow: inset 3px 0 0 var(--bad);
   }
   .profile dt {
-    font-size: 13px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     color: var(--ink-3);
   }
@@ -1002,12 +1081,17 @@
   }
   .profile small {
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .to-care {
-    margin: 10px 0 0;
-    font-size: 14px;
+    margin: 10px 0 14px;
+    font-size: var(--fs-small);
+  }
+  .set-h {
+    margin: 16px 0 8px;
+    font: 600 var(--fs-small) / 1.3 var(--font-body);
+    color: var(--ink-2);
   }
   .gal {
     display: flex;
@@ -1022,11 +1106,11 @@
     gap: 2px;
     width: 104px;
     padding: 0;
-    border: 1.5px solid var(--line);
-    border-radius: 6px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-ctl);
     background: var(--paper);
     color: var(--ink-2);
-    font: 600 13px var(--font-body);
+    font: 500 13px var(--font-body);
     text-align: left;
     cursor: pointer;
     overflow: hidden;
@@ -1051,21 +1135,21 @@
     justify-content: center;
     min-height: 92px;
     border-style: dashed;
-    font-size: 14px;
+    font-size: var(--fs-small);
     text-align: center;
   }
   .photo-err {
     margin: 8px 0 0;
     overflow-wrap: break-word;
     color: var(--bad);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .lbtn,
   .lsel {
     min-height: 44px;
     padding: 0 12px;
     border: 1.5px solid #f4f6f2;
-    border-radius: 6px;
+    border-radius: var(--r-ctl);
     background: none;
     color: #f4f6f2;
     font: 600 14px var(--font-body);
@@ -1093,16 +1177,14 @@
     margin: 0;
     flex: 1 1 220px;
   }
-  .bl-h .btn {
-    min-height: 44px;
-  }
-  /* The bag list: a quiet section header with a rule, numbers right-aligned in one column. */
+  /* The bag list: a quiet section header, numbers right-aligned in one column. */
   .slot-h {
     margin: 16px 0 0;
-    padding: 6px 8px;
-    border-radius: 6px;
+    padding: 6px 10px;
+    border-radius: var(--radius);
     background: var(--paper-2);
     font-size: 15px;
+    font-weight: 600;
   }
   .slot-h small {
     font-size: 13px;
@@ -1157,100 +1239,6 @@
     justify-content: flex-end;
     color: var(--ink);
     font-weight: 600;
-  }
-  @media (min-width: 1000px) {
-    .cols {
-      display: grid;
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: 20px;
-      align-items: start;
-    }
-    .cols.solo {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    }
-    .vk {
-      display: grid;
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: 20px;
-      align-items: start;
-    }
-  }
-  /* v0.95.0 «Velo kurz»: three rows, one button, «More». */
-  .vk {
-    margin-bottom: 12px;
-  }
-  .vk-rows {
-    list-style: none;
-    margin: 0 0 12px;
-    padding: 4px 16px;
-  }
-  .vk-rows li + li {
-    border-top: 1px solid var(--line);
-  }
-  .vk-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    min-height: 64px;
-    padding: 8px 0;
-    box-sizing: border-box;
-    border: 0;
-    background: none;
-    color: var(--ink);
-    font: inherit;
-    text-align: left;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  .vk-row .ib {
-    display: inline-grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    flex: none;
-    border-radius: 10px;
-    background: var(--paper-2);
-    color: var(--ink-2);
-  }
-  .vk-row .ib.late {
-    background: var(--warn-soft);
-    color: var(--warn);
-  }
-  .vk-row .m {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 0;
-  }
-  .vk-row .m small {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-    overflow-wrap: break-word;
-  }
-  .vk-row :global(.chev) {
-    flex: none;
-    color: var(--ink-3);
-    transition: transform 0.15s;
-  }
-  .vk-row[aria-expanded='true'] :global(.chev) {
-    transform: rotate(90deg);
-  }
-  .vk-side {
-    display: grid;
-    gap: 12px;
-  }
-  .vk-go {
-    justify-content: center;
-    min-height: 56px;
-    gap: 8px;
-  }
-  .vk-go small {
-    font-weight: 400;
-    opacity: 0.8;
-  }
-  .vk-more {
-    padding: 8px 16px;
   }
   /* v0.45.1 (G009): under 360 px the bag list puts litres and weight on a line below the name. */
   @media (max-width: 359px) {
