@@ -956,7 +956,7 @@ Alle Seiten freigegeben (Stilblatt G1–G12 am 11.10.2026 23:10 «Runde 1 alles 
 
 ## 12.10.2026: E3 «Strava-Verbindung» bauen (0.112.0)
 
-Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von Noah am 12.10.2026 13:39 «s1-s5 freigegeben». Antworten 11:30 UTC «1 a und b möglich 2 a und b möglich 3b 4b wobei der hinweis im frontend ersichtlich sein muss für den nutzer, sonst a 5a»; Server-Fragen 18:27 «1a 2a 3a 4a 5b». Ersetzt den Entscheid (4a) vom 12.10.2026 «Alle Fahrten aus Strava bleibt ein Datei-Import»: die echte Verbindung ist jetzt da, der Datei-Import bleibt als Reserve.
+Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von Noah am 12.10.2026 13:39 «s1-s5 freigegeben»; die Fassung v2 aus der gebauten App (Offene Mockups 2 #strava-v2, mit Bild 4 nach «4b») am 12.10.2026 21:05 «S1–S5 v2 freigegeben». Antworten 11:30 UTC «1 a und b möglich 2 a und b möglich 3b 4b wobei der hinweis im frontend ersichtlich sein muss für den nutzer, sonst a 5a»; Server-Fragen 18:27 «1a 2a 3a 4a 5b». Ersetzt den Entscheid (4a) vom 12.10.2026 «Alle Fahrten aus Strava bleibt ein Datei-Import»: die echte Verbindung ist jetzt da, der Datei-Import bleibt als Reserve.
 
 - **(1 a und b)** Fahrten holen: beides wählbar. Standard «Automatisch beim Öffnen» (höchstens alle 15 Minuten, wenn die App aufgeht oder wieder sichtbar wird); «Nur per Knopf». «Jetzt holen» geht immer.
 - **(2 a und b)** Fahrt ohne Velo in Strava: Standard «Zum Prüfen mit Vorschlag» (ein Tipp «Passt», «Anderes Velo», «Zählt nicht»); oder «App ordnet selbst nach Fahrtart zu» (Fahrt-Typ-Regel, sonst das Velo mit den meisten Fahrten dieses Typs; ohne Vorschlag trotzdem zum Prüfen).
