@@ -26,7 +26,7 @@
   i {
     width: 9px;
     height: 9px;
-    border-radius: 2px;
+    border-radius: 50%; /* v0.102.0 Design-Refresh P3: round like the dots */
     box-sizing: border-box;
   }
   .used {

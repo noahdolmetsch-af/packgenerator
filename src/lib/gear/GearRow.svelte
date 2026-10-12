@@ -9,13 +9,16 @@
    * - Computer: ••• is quiet; on hover and on keyboard focus the actions show written out.
    */
   import FavStar from './FavStar.svelte';
+  import Dots from './Dots.svelte';
   import { db } from '../db.js';
   import { BAG, formatWeight, itemWeight } from '../gear.js';
   import { direction, release, drag, leftActions, ACTION_W } from './swipe.js';
   import { t, nameOf } from '../i18n.svelte.js';
   import { Star, Layers, Archive, Trash, Ellipsis } from '@lucide/svelte';
 
-  let { item, showBag = false, used = false, touch = false, swiped = null, onswipe, onopen, onmenu, onassign, onarchive, ondelete } = $props();
+  // v0.102.0 Design-Refresh P3 (M1): u (the usage of materialStats) adds the last trip and a dot per trip;
+  // selected marks the item shown in the right column.
+  let { item, u = null, selected = false, showBag = false, used = false, touch = false, swiped = null, onswipe, onopen, onmenu, onassign, onarchive, ondelete } = $props();
 
   let offset = $state(0);
   let rest = $state(0);
@@ -101,7 +104,7 @@
   };
 </script>
 
-<li class="fr gr noswipe" class:open={rest !== 0} data-item={item.id}>
+<li class="fr gr noswipe" class:open={rest !== 0} class:chosen={selected} data-item={item.id}>
   {#if touch}
     <!-- the actions under the row, shown by the swipe (also reachable through •••) -->
     <div class="under ul" aria-hidden={rest <= 0} inert={rest <= 0}>
@@ -129,9 +132,10 @@
     onclickcapture={guardClick}
   >
     <FavStar {item} describedby="gn-{item.id}" />
-    <button type="button" class="main" class:bagcol={showBag} onclick={() => onopen(item)}>
+    <button type="button" class="main" onclick={() => onopen(item)}>
       <span class="nm" id="gn-{item.id}">{nameOf(item)}{#if item.qty > 1}<small> × {item.qty}</small>{/if}</span>
-      {#if showBag}<span class="bg">{BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–'}</span>{/if}
+      {#if showBag || u?.last}<span class="sub">{#if showBag}<span class="bg">{BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–'}</span>{/if}{#if showBag && u?.last}{' · '}{/if}{#if u?.last}<span class="last">{t('last: {trip}', { trip: u.last.title })}</span>{/if}</span>{/if}
+      {#if u?.dots?.length}<span class="dw"><Dots dots={u.dots} /></span>{/if}
       {#if item.weightG == null}<span class="w num nw"><span aria-hidden="true">–</span><span class="sr">{t('not weighed')}</span></span>{:else}<span class="w num">{formatWeight(itemWeight(item))}</span>{/if}
     </button>
     {#if !touch}
@@ -171,9 +175,9 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: 2px 12px;
+    gap: 2px 14px;
     min-height: 44px;
-    padding: 9px 4px 9px 2px;
+    padding: 10px 4px 10px 2px;
     border: 0;
     background: none;
     color: inherit;
@@ -181,18 +185,19 @@
     text-align: left;
     cursor: pointer;
   }
-  .main.bagcol {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
   .nm {
+    grid-column: 1;
     min-width: 0;
     overflow-wrap: break-word;
   }
-  .bg {
+  /* v0.102.0 Design-Refresh P3 (M1): one quiet line under the name: the bag (with «With bag») and the last trip */
+  .sub {
     grid-column: 1;
     grid-row: 2;
+    min-width: 0;
     font-size: var(--fs-small);
     color: var(--ink-3);
+    overflow-wrap: break-word;
   }
   .w {
     grid-column: 2;
@@ -205,19 +210,26 @@
     color: var(--ink-3);
     font-weight: 500;
   }
+  /* the dots only where there is room (computer); the phone keeps name and weight */
+  .dw {
+    display: none;
+  }
   @media (min-width: 720px) {
-    .main.bagcol {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 170px) 80px;
+    .main {
+      grid-template-columns: minmax(0, 1fr) auto 72px;
     }
-    .main.bagcol .bg {
+    .dw {
+      display: inline-flex;
       grid-column: 2;
-      grid-row: 1;
-      font-size: 15px;
+      grid-row: 1 / span 2;
     }
-    .main.bagcol .w {
+    .w {
       grid-column: 3;
-      grid-row: 1;
     }
+  }
+  .chosen .face,
+  .chosen .main {
+    background: var(--paper-2);
   }
   @media (hover: hover) {
     .main:hover {
@@ -268,7 +280,7 @@
     border-radius: 6px;
     background: var(--paper);
     color: var(--ink);
-    font: 500 14px var(--font-body);
+    font: 500 var(--fs-small) var(--font-body);
     white-space: nowrap;
     cursor: pointer;
   }
@@ -300,7 +312,7 @@
     width: 88px;
     border: 0;
     color: var(--paper);
-    font: 600 13px/1.2 var(--font-body);
+    font: 600 var(--fs-tiny)/1.2 var(--font-body);
     text-align: center;
     cursor: pointer;
   }
