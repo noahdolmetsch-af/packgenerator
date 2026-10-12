@@ -13,6 +13,11 @@ import { READY } from '../../src/lib/home/tiles.js';
 
 const NEWEST = WHATS_NEW[0];
 // the function the newest version brought (v0.111.0: the checks), read from the app instead of a copy
+// the newest function (highest since-version) and whether the newest version brought it
+const SINCE_ALL = [...readFileSync(new URL('../../src/lib/know/wasneu.js', import.meta.url), 'utf8').matchAll(/'?([\w.]+)'?: '(\d+\.\d+\.\d+)'/g)].map((m) => [m[1], m[2]]);
+const vnum = (v) => v.split('.').reduce((a, n) => a * 1000 + Number(n), 0);
+const NEW_FN = SINCE_ALL.reduce((a, b) => (vnum(b[1]) > vnum(a[1]) ? b : a))[0];
+const NEW_IN_NEWEST = SINCE_ALL.some(([, v]) => v === NEWEST.version);
 const V = shortVersion(NEWEST.version);
 const BEFORE = WHATS_NEW[1].version;
 // the lists of the page, read from the app source (wasneu.js imports the catalogue, which needs the app's runtime)
@@ -22,12 +27,6 @@ const SORTS = [...SRC.match(/export const SORTS = \[([\s\S]*?)\n\];/)[1].matchAl
 const num = (name) => Number(SRC.match(new RegExp(`export const ${name} = (\\d+);`))[1]);
 const LIST_ROWS = num('LIST_ROWS');
 const TILE_DAYS = num('TILE_DAYS');
-// v0.113.0: the function that came with the newest version, or null when that version brought none
-// (a fix release like 0.113.0 «Menü-Fix»); NEWEST_SINCE is the function of the newest version that brought one.
-const SINCE_PAIRS = [...SRC.match(/export const SINCE = \{([\s\S]*?)\n\};/)[1].matchAll(/'?([\w.]+)'?: '([\d.]+)'/g)].map((m) => [m[1], m[2]]);
-const vnum = (v) => v.split('.').reduce((a, n) => a * 1000 + Number(n), 0);
-const NEWEST_FN = SINCE_PAIRS.find(([, v]) => v === NEWEST.version)?.[0] ?? null;
-const NEWEST_SINCE = SINCE_PAIRS.reduce((a, b) => (vnum(b[1]) > vnum(a[1]) ? b : a))[0];
 const USES_KEY = SRC.match(/export const USES_KEY = '([^']+)'/)[1];
 const FEATURE_N = (() => {
   const f = readFileSync(new URL('../../src/lib/features.js', import.meta.url), 'utf8');
@@ -89,9 +88,9 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await expect(page.getByRole('group', { name: T('Sort') }).getByRole('button')).toHaveCount(SORTS.length);
   await expect(page.getByRole('button', { name: T('Newest'), exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.wn-rows > li')).toHaveCount(LIST_ROWS);
-  // the function of the newest version first, marked «new» only when the newest version brought it
-  expect((await rows(page))[0]).toBe(NEWEST_SINCE);
-  if (NEWEST_FN) await expect(page.locator(`.wn-rows > li[data-feature="${NEWEST_FN}"] .wn-new`)).toBeVisible();
+  expect((await rows(page))[0]).toBe(NEW_FN);
+  // «New» marks the functions of the newest version only (v0.114.0 brings none of its own)
+  if (NEW_IN_NEWEST) await expect(page.locator(`.wn-rows > li[data-feature="${NEW_FN}"] .wn-new`)).toBeVisible();
   else await expect(page.locator('.wn-rows .wn-new')).toHaveCount(0);
   await expect(page.getByRole('link', { name: new RegExp(T('All {n} functions', { n: FEATURE_N })) })).toHaveAttribute('href', '#/me/news?all&sort=new');
   await page.getByRole('button', { name: T('Name A–Z'), exact: true }).click();
@@ -112,8 +111,13 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   const sw = page.getByRole('switch', { name: new RegExp(T('Show the message for {v}', { v: V })) });
   await expect(sw).toBeChecked();
   await expect(page.getByRole('heading', { name: T('Since your last visit') })).toBeVisible();
-  if (NEWEST_FN) await expect(page.locator(`section[aria-labelledby="wn-since-h"] [data-feature="${NEWEST_FN}"]`)).toBeVisible();
-  else await expect(page.locator('section[aria-labelledby="wn-since-h"] [data-feature]')).toHaveCount(0);
+  // the functions newer than the version before (none when the newest version brings no function of its own)
+  const newer = (a, b) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i]; return false; };
+  const sinceIds = [...SRC.matchAll(/'?([\w.]+)'?: '([\d.]+)'/g)].filter((m) => newer(m[2], BEFORE)).map((m) => m[1]);
+  const sinceSec = page.locator('section[aria-labelledby="wn-since-h"]');
+  await expect(sinceSec.getByText(sinceIds.length === 1 ? T('{n} new function since {v}', { n: 1, v: shortVersion(BEFORE) }) : T('{n} new functions since {v}', { n: sinceIds.length, v: shortVersion(BEFORE) }))).toBeVisible();
+  if (sinceIds.includes(NEW_FN)) await expect(sinceSec.locator(`[data-feature="${NEW_FN}"]`)).toBeVisible();
+  else await expect(sinceSec.locator('[data-feature]')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: T('How to test {v}', { v: V }) })).toBeVisible();
   await expect(page.getByRole('heading', { name: T('Planned next') })).toBeVisible();
   await noSideways(page);

@@ -43,7 +43,7 @@ async function start(page, context, info, lang) {
 async function newTrip(page, T, title, days = 1) {
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await dlg.getByLabel(T('Name')).fill(title);
   await dlg.getByLabel(T('Start date')).fill(today());
   // v0.40.0: the days field only after "More".

@@ -68,7 +68,7 @@ for (const lang of ['en', 'de']) {
     await sheet.getByRole('button', { name: T('Plan a trip') }).click(); // v0.30.0: the window starts with the standard set
 
     // 3. The trip dialog: name + today's date → Create trip.
-    const tripDlg = page.getByRole('dialog', { name: T('New trip') });
+    const tripDlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
     await expect(tripDlg).toBeVisible();
     await tripDlg.getByLabel(T('Name')).fill(title);
     await tripDlg.getByLabel(T('Start date')).fill(today());

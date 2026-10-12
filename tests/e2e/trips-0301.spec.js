@@ -248,7 +248,7 @@ test('N8, N9: rename a past trip in its band; past trips are easy to find', asyn
   expect(errors).toEqual([]);
 });
 
-test('N10, N11, v0.102.0: New trip has «Letzte Tour: name» in the gallery after the standard; templates in building blocks', async ({ page, context }, info) => {
+test('N10, N11, v0.114.0: New trip offers no past trip as a start (bug «Letzte Tour»); templates in building blocks', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const std = ['EL01', 'EL02', 'EL03', 'LI01', 'LI02', 'ON01', 'ON02', 'OF01', 'RA01', 'RA02', 'TO01', 'TO02', 'TO03', 'HY02'];
@@ -277,22 +277,22 @@ test('N10, N11, v0.102.0: New trip has «Letzte Tour: name» in the gallery afte
     };
   }), value);
   await page.evaluate(() => { localStorage.setItem('pack.startFrom', 'standard'); location.hash = '#/pack'; window.dispatchEvent(new Event('pg:newtrip')); });
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
-  // v0.102.0 Design-Refresh P4 (T2): the starts are one gallery «Packliste startet mit»: the standard
-  // first (chosen), then the last trip with its name, then the templates with their building blocks.
-  const starts = dlg.getByRole('group', { name: T('Packing list starts with') }).getByRole('button');
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
+  // v0.114.0 «Rahmenbedingungen» (B2, the bug «Letzte Tour»): under «Vorlage wählen» Standard first (chosen), then
+  // the templates; a past trip is never offered as a start. A chosen template says its building blocks.
+  await dlg.getByRole('button', { name: new RegExp(T('Choose a template')) }).click();
+  const starts = dlg.getByRole('group', { name: T('Your templates') }).getByRole('button');
   await expect(starts.first()).toContainText(T('Standard'));
   await expect(starts.first()).toHaveAttribute('aria-pressed', 'true');
-  await expect(dlg.locator('.plan')).toContainText(T('Standard'));
-  const copy = starts.filter({ hasText: T('Last trip') });
-  await expect(copy).toContainText('test_data_gtp_ Letzte');
-  await copy.click();
-  await expect(copy).toHaveAttribute('aria-pressed', 'true');
-  await expect(starts.first()).toHaveAttribute('aria-pressed', 'false');
-  await expect(dlg.locator('.plan')).toContainText(T('Copy: {title}', { title: 'test_data_gtp_ Letzte' }));
+  await expect(dlg.getByText(T('Last trip'), { exact: true })).toHaveCount(0);
+  await expect(dlg.getByText('test_data_gtp_ Letzte')).toHaveCount(0);
   const card = starts.filter({ hasText: 'test_data_gtp_ Regenrunde' });
-  await expect(card).toContainText(/Standard \+ test_data_gtp_ Regen \+ 1 Extra$/);
-  await expect(card).toContainText(`${T('{n} day', { n: 1 })} · ${T('{n} h', { n: '2' })}`);
+  await card.click();
+  await expect(card).toHaveAttribute('aria-pressed', 'true');
+  await expect(starts.first()).toHaveAttribute('aria-pressed', 'false');
+  const info_ = dlg.locator('.tplinfo');
+  await expect(info_).toContainText(/Standard \+ test_data_gtp_ Regen \+ 1 Extra/);
+  await expect(info_).toContainText(`${T('{n} day', { n: 1 })} · ${T('{n} h', { n: '2' })}`);
   await page.screenshot({ path: info.outputPath('new-trip.png') });
   expect(errors).toEqual([]);
 });

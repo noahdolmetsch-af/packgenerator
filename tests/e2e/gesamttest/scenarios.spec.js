@@ -211,7 +211,7 @@ test('S3 event with preparation tasks and workshop order', async ({ page, contex
   await dlg.getByRole('button', { name: T('2 days'), exact: true }).click();
   await dlg.getByRole('button', { name: T('Hotel/hut'), exact: true }).click();
   await dlg.getByLabel(T('Name')).fill(`${P} S3 Rennen`);
-  await dlg.getByLabel(T('Event (race or organised ride)')).check();
+  await dlg.getByRole('checkbox', { name: T('Event: a race or organised ride') }).check();
   await dlg.getByRole('button', { name: new RegExp(`^${esc(T('Create trip'))}`) }).click();
   await expect(dlg).toBeHidden();
   const trip = await lastTrip(page);
@@ -320,16 +320,21 @@ test('S4 new item, weigh, wardrobe, block, trip', async ({ page, context }, info
   await assign.getByRole('button', { name: /^(Zuordnen|Assign)$/ }).click();
   await expect.poll(async () => (await table(page, 'items')).find((i) => i.id === item.id).sets ?? []).toContain(rain.key);
 
-  // trip: a new trip with that block
+  // trip: a new trip, then that block in Packen (v0.114.0, Noah 1a: building blocks only in Packen)
   await page.goto('./#/');
   const nt = await newTrip(page);
-  await nt.getByRole('button', { name: new RegExp(`^\\+ ${esc(rain.name)}`) }).click();
   await nt.getByLabel(T('Name')).fill(`${P} S4 Tour`);
   await nt.getByRole('button', { name: new RegExp(`^${esc(T('Create trip'))}`) }).click();
   await expect(nt).toBeHidden();
   const trip = await lastTrip(page);
   expect(trip.title).toBe(`${P} S4 Tour`);
-  expect(trip.entries.map((e) => e.itemId), 'the new item comes with its block').toContain(item.id);
+  await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), trip.id);
+  await page.goto('./#/pack');
+  await page.reload();
+  await page.getByRole('button', { name: T('Add material') }).first().click();
+  const sheet = page.getByRole('dialog', { name: T('Add material') });
+  await sheet.locator('button').filter({ hasText: new RegExp(`^\\+ ${esc(rain.name)} \\(`) }).click();
+  await expect.poll(async () => (await table(page, 'trips')).find((t) => t.id === trip.id).entries.map((e) => e.itemId), { message: 'the new item comes with its block' }).toContain(item.id);
   await noProblems(page, 'S4');
   expect(errors).toEqual([]);
 });

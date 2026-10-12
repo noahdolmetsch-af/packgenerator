@@ -7,7 +7,7 @@
   let { label, actions } = $props();
   // v0.46.1 (Noah's phone: "Priorität über ••• ändern: nicht möglich"): near the bottom of the screen
   // the menu opened under the bottom bar. v0.47.3: ui/inview.js keeps it in the screen (flips it up,
-  // moves it sideways), the same for every ••• menu. v0.113.0: a tap outside closes it (ui/away.js).
+  // moves it sideways), the same for every ••• menu. v0.115.0: a tap outside closes it (ui/away.js).
 </script>
 
 <details class="more" use:away>

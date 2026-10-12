@@ -1,5 +1,5 @@
 /**
- * v0.113.0 (Noah 12.10.2026: «erst beim zweiten Klick geht das Menü wieder weg»): a small ••• menu
+ * v0.115.0 (Noah 12.10.2026: «erst beim zweiten Klick geht das Menü wieder weg»): a small ••• menu
  * closes when a tap or click lands anywhere outside it, the same for every ••• menu. Before, the
  * <details> menus (Bike care «Probleme», bike check before a trip, packing list) and the trip rows'
  * ••• stayed open until their own button was hit again, and an open menu covered the next row's •••.

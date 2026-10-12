@@ -1,4 +1,4 @@
-// v0.113.0 (Noah 12.10.2026: «erst bei zweitem Klick geht Menü wieder weg», Velopflege › Probleme):
+// v0.115.0 (Noah 12.10.2026: «erst bei zweitem Klick geht Menü wieder weg», Velopflege › Probleme):
 // a ••• menu closes when a tap or click lands outside it (before, it stayed open until its own •••
 // was hit again, and covered the next row's •••). Bike care problems and the packing list's •••.
 // No ••• in the test titles: Playwright puts them in the output folder, and the file upload then fails.

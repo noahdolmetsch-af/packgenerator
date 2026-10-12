@@ -4,25 +4,27 @@
   import '../trip/trip.css';
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { Check, ChevronRight, Bike as BikeIcon } from '@lucide/svelte';
+  import { Check, ChevronRight, ChevronDown, Bike as BikeIcon, Plus, MapPin, Sun, Star, Flag, Info, MountainSnow, Footprints, Briefcase, Hotel, Snowflake } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { newTrip, lastTripOn, switchBike, WX_PRESETS, bagItemIds, touched } from '../trips.js';
+  import { newTrip, switchBike, WX_PRESETS, bagItemIds, touched } from '../trips.js';
   import { newBikeRecord } from '../bikes.js';
-  import { AID_KEY, aidLevel, aidFits } from '../firstaid.js';
-  import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly, NIGHT_CHOICES, nightFields, nightName, NIGHT_BLOCKS, rideSets, OFFER_ONLY, hasTent } from '../context.js';
+  import { contextSummary, startEntries, applyContext, hasContext, contextSets, dropNightOnly, NIGHT_CHOICES, nightFields, OFFER_ONLY, hasTent } from '../context.js';
   import { ridesIntoDark } from '../blockplan.js';
   import { isEvent } from '../care.js';
   import { tripFromTemplate, templateDefaults, tplDomain, templateParts } from '../templates.js';
-  import { t, tn, num, nameOf, locale } from '../i18n.svelte.js';
-  import { TRIP_DOMAINS, DOMAIN, BIKEPACKING, domainName, lastDomain, rememberDomain, newPackTrip, lastTripIn, readyKey, inDomain, hasBike } from '../domains.js';
-  import { isInventory, knownWeight, formatWeight } from '../gear.js';
+  import { t, tn, num, nameOf } from '../i18n.svelte.js';
+  import { TRIP_DOMAINS, DOMAIN, BIKEPACKING, domainName, rememberDomain, newPackTrip, readyKey, inDomain, hasBike } from '../domains.js';
+  import { groupEntries, examplesFor, EXAMPLES_HIDDEN } from '../packgroups.js';
+  import { coldLayer } from '../layers.js';
+  import { searchPlace } from '../weather.js';
+  import { catIcon } from '../gear/caticon.js';
+  import { isInventory, knownWeight, formatWeight, CATEGORY } from '../gear.js';
   import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks, blocksLine, blockLabel } from '../sets.js';
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
   import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
   import { X } from '@lucide/svelte';
   import TripAsk from '../helper/TripAsk.svelte';
-  import HelperNotice from '../helper/HelperNotice.svelte';
   import { helper, isSetUp, isOn } from '../helper/client.svelte.js';
   import { addHelperItems } from '../helper/logic.js';
   import { take } from '../nav.js';
@@ -46,6 +48,13 @@
    * window: title with one sentence, the kind of trip as chips (the area), the name right under it, the
    * bike chips with a bike, when and how long, «Packliste startet mit» as a gallery (standard, the last
    * trip, the templates), the helper's notice at the end and «Abbrechen · Tour anlegen» on the right.
+   * v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, B1–B3 approved «b1 ok», «b3 ok», «b2 b4 b5 ok»): the title
+   * «Rahmenbedingungen» without the hint line; «Sportart» Fahrrad (default) · Skitour · Wandern · + Andere;
+   * the weather from a start postcode (Open-Meteo, free); the event with its hint and the block «Rennen»;
+   * «Vorlage wählen» folded, as buttons: Standard, own templates and two examples, never a past trip
+   * (the bug: «Letzte Tour» showed test and future trips); the whole list in four groups with a picture
+   * per item, worn items apart; building blocks only in Packen (Repair and Charging no longer by
+   * themselves: switch them on in Packen). The helper only comes with a question from the search.
    */
   let { trip, trips: allTrips, bikes, items, bags = [], templates = [], startFrom = 'standard', domain = null, defaultBikeId = null, onclose, oncreated, onchange = null } = $props();
 
@@ -100,7 +109,7 @@
   }
   /** The context fields to store (only for bike trips). */
   // v0.66.0 (Noah 7a, 9a): dark: the ride goes into the dark (Light comes); sets: the ride blocks taken off here.
-  const ctxFields = () => ({ hours: hoursOk ? hoursNum : null, overnight: night, cook: night === 'outdoor' && ctx.cook, tent: night === 'outdoor' && ctx.tent, wx: wxOut, event: ctx.event, dark, ...(isNew && off.length ? { sets: Object.fromEntries(off.map((k) => [k, false])) } : {}) });
+  const ctxFields = () => ({ hours: hoursOk ? hoursNum : null, overnight: night, cook: night === 'outdoor' && ctx.cook, tent: night === 'outdoor' && ctx.tent, wx: wxOut, event: ctx.event, dark, ...(isNew && off.length ? { sets: Object.fromEntries(off.map((k) => [k, false])) } : {}), ...(isNew && wxPlace ? { place: wxPlace } : {}) });
   // v0.66.0 (Noah 8a): the night as one choice: none, Bivouac, Bivouac + tent, Hotel/hut.
   const choice = $derived(night === 'outdoor' ? (ctx.tent ? 'tent' : 'bivy') : night === 'lodging' ? 'hotel' : night);
   function pickNight(key) {
@@ -110,12 +119,16 @@
   }
   // v0.66.0 (Noah 7a): Light comes by itself when the ride goes into the dark (sunset at the trip's or the home place).
   const homeQ = liveQuery(() => db.settings.get('homePlace'));
-  const darkPlace = $derived(trip?.place ?? homeOf($homeQ?.value) ?? null);
+  const darkPlace = $derived(trip?.place ?? wxPlace ?? homeOf($homeQ?.value) ?? null);
   const dark = $derived(ridesIntoDark({ ...(trip ?? {}), startDate: draft.startDate, days, hours: hoursOk ? hoursNum : null }, darkPlace));
   // v0.66.0 (Noah 9a): the ride blocks the window suggests, taken off with a tap (a visible suggestion, never forced).
-  let off = $state([]);
+  // v0.114.0 (Noah: «92 Teile … nur 10-20»): Repair (36 tools) and Charging no longer come by themselves
+  // with a new trip; they stay one switch away in Packen (answer 1a: building blocks only when packing).
   // svelte-ignore state_referenced_locally
-  let start = $state(startFrom);
+  let off = $state(isNew ? ['repair', 'charge'] : []);
+  // v0.114.0 (bug «Letzte Tour»): a new trip never starts from a past trip here, only Standard or a template.
+  // svelte-ignore state_referenced_locally
+  let start = $state(startFrom === 'last' ? 'standard' : startFrom);
   // v0.26.1 (AP18, Noah 17b): a template brings its days, riding hours, overnight stay (+ cooking) and
   // bike as the dialog's defaults; everything stays changeable here.
   function useTemplate(id) {
@@ -131,27 +144,51 @@
   // svelte-ignore state_referenced_locally
   const startTpl = templates.find((x) => x.id === startFrom);
   // svelte-ignore state_referenced_locally
-  let area = $state(startTpl ? tplDomain(startTpl) : DOMAIN[domain] && DOMAIN[domain].trip !== false ? domain : lastDomain());
+  // v0.114.0 (Noah): a new trip starts as Fahrrad, unless it comes from a template or an area's page.
+  // svelte-ignore state_referenced_locally
+  let area = $state(startTpl ? tplDomain(startTpl) : DOMAIN[domain] && DOMAIN[domain].trip !== false ? domain : BIKEPACKING);
+  // v0.114.0 (answer 2a): «Sportart» Fahrrad · Skitour · Wandern in sight, the other areas behind «+ Andere».
+  const SPORTS = [
+    { key: BIKEPACKING, name: 'Cycling|sport', icon: BikeIcon },
+    { key: 'ski', name: 'Ski touring', icon: MountainSnow },
+    { key: 'hiking', name: 'Hiking', icon: Footprints },
+  ].filter((x) => DOMAIN[x.key]);
+  const otherAreas = TRIP_DOMAINS.filter((d) => !SPORTS.some((x) => x.key === d.key));
+  // svelte-ignore state_referenced_locally
+  let othersOpen = $state(otherAreas.some((d) => d.key === area));
+  // v0.114.0 (answer 3b, B2): two example templates per kind of trip; they can be hidden.
+  let example = $state(null);
+  let tplOpen = $state(false);
+  const hiddenQ = liveQuery(() => db.settings.get(EXAMPLES_HIDDEN));
+  const examples = $derived($hiddenQ?.value ? [] : examplesFor(area));
+  const chosenEx = $derived(examples.find((x) => x.id === example) ?? null);
+  function pickExample(ex) {
+    start = 'standard';
+    example = ex.id;
+    draft.days = ex.days;
+    moreWanted = ex.days >= 3;
+    if (ex.hours != null) ctx.hours = String(ex.hours);
+    if (ex.overnight) (ctx.overnight = ex.overnight), (ctx.cook = false);
+  }
+  async function hideExamples() {
+    example = null;
+    await db.settings.put({ key: EXAMPLES_HIDDEN, value: true });
+  }
   // v0.39.0 (Noah 6a): archived templates are not offered; only the ones of the chosen area.
   const areaTemplates = $derived(templates.filter((x) => !x.archivedAt && tplDomain(x) === area));
   const chosenTpl = $derived(templates.find((x) => x.id === start) ?? null);
   const byBike = $derived(isNew ? !!DOMAIN[area]?.bike : hasBike(trip));
-  const fromArea = $derived(isNew && !byBike ? lastTripIn(area, trips) : null);
   const areaItems = $derived(items.filter((i) => isInventory(i) && inDomain(i, area)).length);
   // A template of another area does not fit: back to the standard (the area's items).
   // v0.28.0 (Noah 8.10.2026): a new trip starts with the standard set; templates are optional.
   $effect(() => {
     const tp = templates.find((x) => x.id === start);
     if (tp && tplDomain(tp) !== area) start = 'standard';
+    if (example && !examplesFor(area).some((x) => x.id === example)) example = null;
   });
   let error = $state('');
   let dialog;
   const bike = $derived(bikes.find((b) => b.id === draft.bikeId));
-  const from = $derived(isNew && bike ? lastTripOn(bike.id, trips) : null);
-  // L9: "Copy the last trip" is only offered with a last trip; without one the start is the standard set.
-  $effect(() => {
-    if (isNew && byBike && start === 'last' && !from) start = 'standard';
-  });
   $effect(() => {
     if (autoName) draft.title = rideName({ bike: byBike ? bike?.name : '', label: byBike ? '' : t(domainName(area)), date: draft.startDate, days });
   });
@@ -163,10 +200,43 @@
   let wxTouched = $state(false);
   const fcWx = $derived(isNew && byBike ? forecastPreset(forecast, draft.startDate) : null);
   const fromForecast = $derived(!!fcWx && ctx.min === fcWx.min && ctx.max === fcWx.max && ctx.rain === fcWx.rain);
+  // v0.114.0 (Noah: «Wettervorschlag … mit PLZ, kostenlos»): the start place, from the settings' home place,
+  // changeable here by postcode or name (Open-Meteo's free place search). Kept on the trip (trip.place).
+  let wxPlace = $state.raw(null);
+  let placeText = $state('');
+  let placeTyped = $state(false);
+  let placeBusy = $state(false);
+  let placeErr = $state('');
+  $effect(() => {
+    const home = homeOf($homeQ?.value);
+    if (isNew && !placeTyped && !wxPlace && home) placeText = home.name ?? '';
+  });
+  async function findPlace() {
+    const q = placeText.trim();
+    if (!q || placeBusy) return;
+    placeBusy = true;
+    placeErr = '';
+    try {
+      const [p] = await searchPlace(q);
+      if (p) {
+        wxPlace = { name: p.name, lat: p.lat, lon: p.lon };
+        placeText = p.name;
+        wxTouched = false; // a new place: its forecast may set the weather again
+      } else placeErr = t('No place found for «{q}».', { q });
+    } catch {
+      placeErr = t('No connection: the weather stays as chosen.');
+    } finally {
+      placeBusy = false;
+    }
+  }
   $effect(() => {
     if (!isNew) return;
+    const p = wxPlace;
     let gone = false;
-    db.settings.get('homePlace').then((r) => (homeOf(r?.value) ? fetchHomeForecast(r.value) : null)).then((fc) => !gone && fc && (forecast = fc)).catch(() => {});
+    (p ? Promise.resolve(p) : db.settings.get('homePlace').then((r) => homeOf(r?.value)))
+      .then((pl) => (pl ? fetchHomeForecast(pl) : null))
+      .then((fc) => !gone && fc && (forecast = fc))
+      .catch(() => {});
     return () => (gone = true);
   });
   $effect(() => {
@@ -196,12 +266,9 @@
     const start = fromCopy ? startEntries(trip, items) : base.entries;
     const sum = contextSummary(start, trip, items);
     const list = dropNightOnly(start, trip, items).filter((e) => byId.has(e.itemId));
-    const copied = fromCopy ? trips.find((x) => x.id === base.copiedFrom) : null;
-    return { tpl, copied, ...sum, w: entriesWeight(list, items), names: list.map((e) => nameOf(byId.get(e.itemId))) };
+    return { tpl, ...sum, w: entriesWeight(list, items), n: list.length };
   });
-  const setName = (key) => sets.find((s) => s.key === key)?.label ?? key;
   const byId = $derived(new Map(items.map((i) => [i.id, i])));
-  let namesOpen = $state(false);
 
   // v0.30.0 (Noah, finding 2): the new trip as "Create trip" will make it, live (count on the button).
   const built = $derived(isNew && byBike && bike ? buildBikeTrip({ draft: { ...draft }, bike, start, templates, trips, items, fields: ctxFields(), sets: setsValue }, 0) : null);
@@ -226,34 +293,21 @@
       .sort((a, b) => b.tip - a.tip); // the tips first
   });
   const chosen = $derived(blocks.filter((s) => picked.includes(s.key)));
-  // v0.66.0 (Noah 9a): the ride blocks that come by themselves (Repair, Charging, Light in the dark,
-  // Race on an event), as pressed chips: one tap takes one off for this trip.
-  const rideChips = $derived.by(() => {
-    if (!built) return [];
-    return rideSets({ dark, event: ctx.event }).map((key) => {
-      const s = sets.find((x) => x.key === key);
-      // v0.72.0 (Noah 10a): first aid counts only its set (a day trip: the small one).
-      const its = items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes(key) && !skip.has(i.id) && (key !== AID_KEY || aidFits(i, aidLevel({ overnight: night }))));
-      const w = entriesWeight(its.map((i) => ({ itemId: i.id, qty: 1 })), items);
-      return s ? { ...s, n: its.length, weight: w.missing && !w.g ? formatWeight(null) : knownWeight(w.g, w.missing) } : null;
-    }).filter((s) => s && s.n > 0);
-  });
-  const flipOff = (key) => (off = off.includes(key) ? off.filter((k) => k !== key) : [...off, key]);
-  // v0.66.0 (Noah 9a): Comfort, nice to have: its items only as unticked suggestions, one tap each.
-  let comfortPicked = $state([]);
-  const comfortItems = $derived(built ? items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes('comfort') && !skip.has(i.id) && !built.entries.some((e) => e.itemId === i.id)) : []);
-  const flipComfort = (id) => (comfortPicked = comfortPicked.includes(id) ? comfortPicked.filter((x) => x !== id) : [...comfortPicked, id]);
-  const tips = $derived(blocks.filter((s) => s.tip).length);
   const pick = (key) => (picked = picked.includes(key) ? picked.filter((k) => k !== key) : [...picked, key]);
   /** The trip with the chosen blocks, each into its usual bag (Pack: tripSlot with the trip's setup). */
   const withBlocksOnly = (nt) => {
     const out = chosen.reduce((cur, s) => ({ ...cur, entries: addSetEntries(cur, items, s, { skip, slotOf: (i) => tripSlot(i, cur.setup) }).entries }), nt);
-    const have = new Set(out.entries.map((e) => e.itemId));
-    const extra = comfortPicked.filter((id) => !have.has(id) && byId.has(id)).map((id) => ({ itemId: id, slot: tripSlot(byId.get(id), out.setup), qty: 1, packed: false, src: 'set' }));
-    return extra.length ? { ...out, entries: [...out.entries, ...extra] } : out;
+    return out;
   };
   const withBlocks = (nt) => withExtras(withBlocksOnly(nt));
-  const total = $derived(built ? withBlocks(built).entries.length : 0);
+  // v0.114.0 (answers 4b, 7a): the list in four groups; the button counts what goes into the bags.
+  const warmIds = $derived(new Set((preview?.weather ?? []).filter((i) => coldLayer(i)).map((i) => i.id)));
+  const packList = $derived(built ? groupEntries(withBlocks(built).entries, items, warmIds) : null);
+  const total = $derived(packList ? packList.bag : 0);
+  // v0.114.0 (answer 5b, B3): the event brings the block «Rennen»; its items named in the hint.
+  const raceItems = $derived(items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes('race') && !skip.has(i.id)));
+  const RACE_COLOR = CATEGORY.cook.color;
+  const raceW = $derived(entriesWeight(raceItems.map((i) => ({ itemId: i.id, qty: 1 })), items));
 
   /* ---------- v0.77.0 (answer 1a): «Frag den Helfer» ---------- */
   // From the search («Als Packliste vorschlagen», answer 2a): the question comes along and is asked at once.
@@ -315,6 +369,7 @@
   }
   function pickStart(id) {
     start = id;
+    example = null;
     useTemplate(id);
   }
 
@@ -431,7 +486,7 @@
   // Every change of a field (after a name was typed) saves again, a moment after the last key.
   $effect(() => {
     if (!isNew) return;
-    JSON.stringify([draft, ctx, start, picked, area, autoName, off, comfortPicked, dark, extras]); // what the trip is made of
+    JSON.stringify([draft, ctx, start, picked, area, autoName, off, dark, extras, wxPlace]); // what the trip is made of
     if (!autoKeep({ isNew, name: draft.title, changed: !autoName })) return;
     clearTimeout(autoTimer);
     autoTimer = setTimeout(autoSave, 300);
@@ -487,6 +542,23 @@
 {#snippet weather()}
   <fieldset class="ctx">
     <legend class="lbl">{t('Weather')}</legend>
+    {#if isNew}
+      <!-- v0.114.0 (B1): the start place by postcode or name; the forecast for it as a suggestion (Open-Meteo, free). -->
+      <div class="plz">
+        <label class="plzin"><MapPin size={18} aria-hidden="true" /><input class="inp" bind:value={placeText} oninput={() => (placeTyped = true)} onblur={() => placeTyped && findPlace()} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), findPlace())} placeholder={t('e.g. 3011 Bern')} aria-label={t('Start postcode or place')} enterkeyhint="search" /></label>
+        <p class="note small">{placeBusy ? t('Looking up the place …') : placeErr || (wxPlace ? t('Start place for this trip') : t('Start postcode, from your settings. Changeable here.'))}</p>
+      </div>
+      {#if fcWx}
+        <div class="fcard" aria-live="polite">
+          <Sun size={22} aria-hidden="true" />
+          <div class="fct">
+            <b>{t('Forecast suggestion: {min}–{max}°, {rain}', { min: fcWx.min, max: fcWx.max, rain: fcWx.rain === 'rain' ? t('Rain') : fcWx.rain === 'showers' ? t('showers') : t('dry') })}</b>
+            <small>{t('{place} · free from Open-Meteo', { place: forecast?.place?.name ?? '' })}</small>
+          </div>
+          {#if !fromForecast}<button type="button" class="btn sm" onclick={() => ((wxTouched = false), Object.assign(ctx, { min: fcWx.min, max: fcWx.max, rain: fcWx.rain }))}>{t('Use|forecast')}</button>{/if}
+        </div>
+      {/if}
+    {/if}
     <div class="chips">
       <!-- v0.47.1 (Noah d): the forecast's own range, when it is not one of the presets (it used to be rounded to one). -->
       {#if fcWx && !WX_PRESETS.some((p) => p.min === fcWx.min && p.max === fcWx.max)}<button type="button" class="toggle" aria-pressed={ctx.min === fcWx.min && ctx.max === fcWx.max} onclick={() => pickWx({ min: fcWx.min, max: fcWx.max })}>{fcWx.min}–{fcWx.max}° <small class="fcmark">{t('from forecast')}</small></button>{/if}
@@ -500,7 +572,7 @@
       <button type="button" class="toggle" aria-pressed={noWx(ctx)} onclick={() => pickWx({ none: true })}>{t('No weather|chip')}</button>
     </div>
     {#if fromForecast}<p class="note small fc">{t('From the forecast for {place}', { place: forecast.place?.name ?? '' })}</p>
-    {:else}<p class="note small">{t('or get the forecast later in Pack (Edit trip conditions)')}</p>{/if}
+    {:else if !isNew}<p class="note small">{t('or get the forecast later in Pack (Edit trip conditions)')}</p>{/if}
   </fieldset>
 {/snippet}
 
@@ -515,29 +587,100 @@
   {/if}
 {/snippet}
 
-{#snippet art(n)}
-  <!-- v0.102.0 P4 (T2): the gallery picture, three calm mountain tints in turn -->
-  <svg class="art t{n % 3}" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true"><rect width="120" height="40" class="sky" /><circle cx="94" cy="11" r="5" class="sun" /><path d="M0 34 L22 16 L38 28 L60 8 L80 26 L96 18 L120 32 L120 40 L0 40 Z" class="m1" /><path d="M0 40 L0 32 L26 24 L52 33 L78 25 L120 34 L120 40 Z" class="m2" /></svg>
+{#snippet exIcon(icon)}
+  {#if icon === 'bag'}<Briefcase size={18} aria-hidden="true" />{:else if icon === 'hut'}<Hotel size={18} aria-hidden="true" />{:else if icon === 'ski'}<MountainSnow size={18} aria-hidden="true" />{:else if icon === 'walk'}<Footprints size={18} aria-hidden="true" />{:else}<BikeIcon size={18} aria-hidden="true" />{/if}
+{/snippet}
+
+{#snippet templatesFold()}
+  <!-- v0.114.0 (answers 1a, 3b, B2): «Vorlage wählen» folded; the starts as buttons: Standard, own templates,
+       two examples of this kind of trip. Never a past trip (the bug «Letzte Tour»). -->
+  <section class="tplbox" class:open={tplOpen}>
+    <button type="button" class="tplhead" aria-expanded={tplOpen} aria-controls="tpl-body" onclick={() => (tplOpen = !tplOpen)}>
+      <span class="tplic" aria-hidden="true"><Star size={18} /></span>
+      <span class="tplt"><b>{t('Choose a template')}</b><small>{tplOpen ? t('The packing list starts with it. Only templates, no past trips.') : t('{name} chosen · {own} own, {ex} examples', { name: chosenTpl ? chosenTpl.name : chosenEx ? t(chosenEx.name) : t('Standard'), own: areaTemplates.length, ex: examples.length })}</small></span>
+      {#if tplOpen}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
+    </button>
+    {#if tplOpen}
+      <div id="tpl-body" class="tplbody">
+        <p class="grp-l">{t('Your templates')}</p>
+        <div class="obtns" role="group" aria-label={t('Your templates')}>
+          <button type="button" class="obtn" aria-pressed={start === 'standard' && !example} onclick={() => ((start = 'standard'), (example = null))}>{#if start === 'standard' && !example}<Check size={18} aria-hidden="true" />{/if}<span>{t('Standard')}</span></button>
+          {#each areaTemplates as tp (tp.id)}<button type="button" class="obtn" aria-pressed={start === tp.id} title={tplLine(tp)} onclick={() => pickStart(tp.id)}>{#if start === tp.id}<Check size={18} aria-hidden="true" />{:else}<Star size={18} aria-hidden="true" />{/if}<span>{tp.name}</span></button>{/each}
+        </div>
+        {#if examples.length}
+          <p class="grp-l">{t('Examples {sport}', { sport: t(SPORTS.find((x) => x.key === area)?.name ?? domainName(area)) })}</p>
+          <div class="obtns" role="group" aria-label={t('Examples')}>
+            {#each examples as ex (ex.id)}<button type="button" class="obtn" aria-pressed={example === ex.id} onclick={() => pickExample(ex)}>{#if example === ex.id}<Check size={18} aria-hidden="true" />{:else}{@render exIcon(ex.icon)}{/if}<span>{t(ex.name)}</span></button>{/each}
+          </div>
+        {/if}
+        <p class="tplinfo"><Info size={16} aria-hidden="true" /><span>
+          {#if chosenTpl}<b>{chosenTpl.name}</b> · {tplLine(chosenTpl)}
+          {:else if chosenEx}<b>{t(chosenEx.name)}</b> · {tn(chosenEx.days, '{n} day', '{n} days')}{#if chosenEx.hours != null} · {t('{n} h', { n: num(chosenEx.hours) })}{/if} · {t('from Standard')}
+          {:else}<b>{t('Standard')}</b>{#if preview} · {tn(preview.n, '{n} item', '{n} items')} · {knownWeight(preview.w.g, preview.w.missing)}{/if} · {t('always with you')}{/if}
+        </span></p>
+        <p class="note small">{t('Save your own templates from a trip with «Save as template».')}{#if examples.length} <button type="button" class="tp-link" onclick={hideExamples}>{t('Hide examples')}</button>{/if}</p>
+      </div>
+    {/if}
+  </section>
+{/snippet}
+
+{#snippet eventBox()}
+  <!-- v0.114.0 (answer 5b, B3): the event as a box with its hint; ticked, the block «Rennen» with its items. -->
+  <section class="evbox" class:on={ctx.event}>
+    <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event: a race or organised ride')}</label>
+    <p class="note small evn">{ctx.event ? t('For a race or an organised ride the block «Race» comes along. You can take it off again when packing.') : raceItems.length ? t('Ticked, the block «Race» comes along ({names}).', { names: raceItems.slice(0, 3).map((i) => nameOf(i)).join(', ') }) : t('Ticked, the block «Race» comes along.')}</p>
+    {#if ctx.event && raceItems.length}
+      <div class="grp race">
+        <h4><span class="gic" style:--c={RACE_COLOR} aria-hidden="true"><Flag size={16} /></span><span>{t('Block «Race»')}</span><small class="num">{tn(raceItems.length, '{n} item', '{n} items')} · {knownWeight(raceW.g, raceW.missing)}</small></h4>
+        <ul>
+          {#each raceItems as i (i.id)}{@const Icon = catIcon(i.category)}<li><span class="pic" aria-hidden="true"><Icon size={16} /></span><span class="nm">{nameOf(i)}</span><span class="wt num">{formatWeight(i.weightG == null ? null : i.weightG * (i.qty || 1))}</span></li>{/each}
+        </ul>
+      </div>
+    {/if}
+  </section>
+{/snippet}
+
+{#snippet packListView()}
+  <!-- v0.114.0 (answers 4b, 7a, B1): the whole list in four groups, a picture per item, long names wrap, weight on the right. -->
+  <section class="plist" aria-labelledby="plist-h" aria-live="polite">
+    <div class="plh">
+      <h3 id="plist-h">{t('Your packing list')}</h3>
+      <span class="num">{tn(packList.bag, '{n} item to pack', '{n} items to pack')} · {knownWeight(packList.w.g, packList.w.missing)}</span>
+    </div>
+    <p class="note small">{t('From Standard, weather and duration. Everything can be changed.')}{#if packList.worn.length}{' '}{tn(packList.worn.length, 'Plus {n} item on the body ({names}), counted apart.', 'Plus {n} items on the body ({names}), counted apart.', { names: packList.worn.slice(0, 2).map((i) => nameOf(i)).join(', ') + (packList.worn.length > 2 ? ' …' : '') })}{/if}</p>
+    {#each packList.groups as g (g.key)}
+      <div class="grp" style:--c={g.color}>
+        <h4><span class="gic" aria-hidden="true">{#if g.key === 'warm'}<Snowflake size={16} />{:else if g.key === 'elec'}{@const E = catIcon('elec')}<E size={16} />{:else if g.key === 'clothes'}{@const C = catIcon('onbike')}<C size={16} />{:else}{@const G = catIcon('tools')}<G size={16} />{/if}</span><span>{t(g.name)}</span><small class="num">{tn(g.n, '{n} item', '{n} items')} · {knownWeight(g.w.g, g.w.missing)}</small></h4>
+        {#if g.key === 'warm' && ctx.min != null}<p class="warmn">{t('Comes along: down to {n}°', { n: ctx.min })}</p>{/if}
+        <ul>
+          {#each g.rows as r (r.entry.itemId + r.entry.slot)}{@const Icon = catIcon(r.item.category)}<li><span class="pic" aria-hidden="true"><Icon size={16} /></span><span class="nm">{nameOf(r.item)}{#if r.entry.qty > 1}{' '}{r.entry.qty}×{/if}</span><span class="wt num">{knownWeight(r.w.g, r.w.missing)}</span></li>{/each}
+        </ul>
+      </div>
+    {/each}
+  </section>
 {/snippet}
 
 <dialog class="sheet trip-dlg" bind:this={dialog} use:backClose={keepOnBack} onclose={closed} aria-labelledby="trip-h">
   <form onsubmit={save} novalidate>
-    <!-- v0.102.0 P4 (T2): a light head with one sentence (the dark band is gone). -->
+    <!-- v0.114.0 (Noah): «Rahmenbedingungen», no hint line under it. -->
     <header class="dh">
-      <h2 id="trip-h">{isNew ? t('New trip') : t('Trip details')}</h2>
-      {#if isNew}<p class="dsub">{t('Name, date, bike and packing list. Everything can be changed later.')}</p>{/if}
+      <h2 id="trip-h">{isNew ? t('Conditions|newtrip') : t('Trip details')}</h2>
     </header>
-    <!-- v0.77.0 (answers 1a, 8a): «Frag den Helfer» on top once it is set up. Before the setup its calm notice is at the end. -->
-    {#if isNew && helper.loaded && isSetUp() && isOn()}
+    <!-- v0.114.0 (Noah: «KI helfer soll raus»): the helper only with a question from the search («Als Packliste vorschlagen»). -->
+    {#if isNew && askPrefill && helper.loaded && isSetUp() && isOn()}
       <TripAsk {items} {bikes} {sets} areas={askAreas} prefill={askPrefill} onapply={takeProposal} />
     {/if}
     {#if isNew}
-      <!-- v0.21.0 (package 5): the area first; it decides bike or own bags. The last chosen area preselected.
-           v0.102.0 P4 (T2): the kinds of trip as chips in sight («Tourart»), no fold. -->
+      <!-- v0.114.0 (answer 2a): «Sportart», Fahrrad first; the other areas behind «+ Andere». -->
       <fieldset class="ctx area">
-        <legend class="lbl">{t('Area')}</legend>
+        <legend class="lbl">{t('Sport')}</legend>
         <div class="tp-chips areas">
-          {#each TRIP_DOMAINS as d (d.key)}<button type="button" class="tp-chip" aria-pressed={area === d.key} onclick={() => (area = d.key)}>{t(d.name)}</button>{/each}
+          {#each SPORTS as d (d.key)}{@const Icon = d.icon}<button type="button" class="tp-chip" aria-pressed={area === d.key} onclick={() => (area = d.key)}><Icon size={16} aria-hidden="true" />{t(d.name)}</button>{/each}
+          {#if othersOpen}
+            {#each otherAreas as d (d.key)}<button type="button" class="tp-chip" aria-pressed={area === d.key} onclick={() => (area = d.key)}>{t(d.name)}</button>{/each}
+          {:else if otherAreas.length}
+            <button type="button" class="tp-chip more" aria-expanded="false" onclick={() => (othersOpen = true)}><Plus size={16} aria-hidden="true" />{t('Other|sport')}</button>
+          {/if}
         </div>
       </fieldset>
     {/if}
@@ -588,70 +731,10 @@
       </fieldset>
       {#if days > 1}{@render overnight()}{/if}
       {@render weather()}
-      {#if preview}
-        <section class="plan" aria-label={t('Your packing list|preview')} aria-live="polite">
-          <div class="tp-card std">
-            <h3>
-              <Check size={18} aria-hidden="true" />
-              <span class="what">{preview.tpl ? t('Template: {name}', { name: preview.tpl.name }) : preview.copied ? t('Copy: {title}', { title: preview.copied.title }) : t('Standard')}</span>
-              {#if !preview.tpl && !preview.copied}<i class="tp-badge ok">{t('always with you')}</i>{/if}
-              <span class="r num">{tn(preview.start, '{n} item', '{n} items')} · {knownWeight(preview.w.g, preview.w.missing)}</span>
-            </h3>
-            {#if preview.names.length}<!-- the names are the visible text; a short name for screen readers (a list of 20+ names is no button name) -->
-            <button type="button" class="names" class:open={namesOpen} aria-expanded={namesOpen} aria-label={tn(preview.names.length, 'The {n} item on the list', 'The {n} items on the list')} onclick={() => (namesOpen = !namesOpen)}>{preview.names.join(' · ')}</button>{/if}
-            {#if start !== 'standard'}<button type="button" class="tp-link" onclick={() => (start = 'standard')}>{t('Back to Standard')}</button>{/if}
-          </div>
-          <ul class="auto">
-            <li>{#if preview.weather.length}{t('For the weather, comes by itself')}: {preview.weather.map((i) => nameOf(i)).join(' · ')}{:else}{t('For the weather: nothing extra')}{/if}</li>
-            {#if preview.amounts.length}<li>{t('By duration')}: {#each preview.amounts as a, n (a.item.id)}{n ? ', ' : ''}{nameOf(a.item)} <b>{a.qty}</b>{/each}</li>{/if}
-            {#if night === 'lodging' || night === 'outdoor'}<li>{t('Overnight ({night}): {sets}', { night: t(nightName({ overnight: night, tent: ctx.tent })), sets: preview.sets.filter((x) => NIGHT_BLOCKS.includes(x.key) && (x.n || x.key !== 'firstaid')).map((x) => `${setName(x.key)} ${x.n}`).join(', ') })}</li>{/if}
-            {#if preview.left.length}<li class="tp-muted">{preview.left.includes('overnight') && preview.left.includes('event') ? t('Not included: overnight gear, event preparation') : preview.left.includes('overnight') ? t('Not included: overnight gear') : t('Not included: event preparation')}</li>{/if}
-          </ul>
-        </section>
-      {/if}
-      <!-- L9: only real choices: no last trip, no "Copy the last trip"; nothing to choose, no "Start from".
-           v0.40.0 (Noah 10a, Funde 7a): the standard first; the last trip and the templates folded below
-           it as one row "Start differently ›". -->
-      <!-- v0.40.0 (Noah 10a, Funde 7a): the standard first, the last trip and the templates as other starts.
-           v0.102.0 P4 (T2, Vorlagen-Galerie G10): «Packliste startet mit» as a gallery in sight; one tap. -->
-      {#if from || areaTemplates.length}
-        <fieldset class="ctx starts">
-          <legend class="lbl">{t('Packing list starts with')}</legend>
-          <ul class="gal">
-            <li><button type="button" class="gcard" aria-pressed={start === 'standard'} onclick={() => (start = 'standard')}>{@render art(0)}<b>{t('Standard')}</b><small>{t('always with you')}</small></button></li>
-            {#if from}<li><button type="button" class="gcard" aria-pressed={start === 'last'} onclick={() => (start = 'last')}>{@render art(1)}<b>{t('Last trip')}</b><small>{from.title}</small></button></li>{/if}
-            {#each areaTemplates as tp, n (tp.id)}<li><button type="button" class="gcard" aria-pressed={start === tp.id} onclick={() => pickStart(tp.id)}>{@render art(n + 2)}<b>{tp.name}</b><small>{tplLine(tp)}</small></button></li>{/each}
-          </ul>
-        </fieldset>
-      {/if}
-      {#if rideChips.length || blocks.length || comfortItems.length}
-        <section class="blocks" aria-labelledby="blocks-h">
-          <h3 id="blocks-h">{t('Building blocks')}{#if tips}<span class="tp-muted">{` · ${tn(tips, '{n} tip', '{n} tips')}`}</span>{/if}</h3>
-          <!-- v0.66.0 (Noah 7a, 9a): what the ride suggests is pressed already; one tap takes it off. -->
-          {#if rideChips.length}
-            <p class="note small sub">{t('Suggested for this ride')}</p>
-            <div class="tp-chips" role="group" aria-label={t('Suggested for this ride')}>
-              {#each rideChips as b (b.key)}<button type="button" class="tp-chip blk" aria-pressed={!off.includes(b.key)} onclick={() => flipOff(b.key)}><span class="bn">{b.label}</span> <small class="num">{b.n} · {b.weight}</small></button>{/each}
-            </div>
-          {/if}
-          {#if blocks.length}
-            <p class="note small sub">{t('Add building blocks')}</p>
-            <div class="tp-chips" role="group" aria-label={t('Add building blocks')}>
-              {#each blocks as b (b.key)}<button type="button" class="tp-chip blk" aria-pressed={picked.includes(b.key)} onclick={() => pick(b.key)}><span class="bn">+ {b.label}</span> <small class="num">{b.n} · {b.weight}</small>{#if b.tip}<i class="tp-badge">{t('Tip')}</i>{/if}</button>{/each}
-            </div>
-            <p class="note small" aria-live="polite">{#if chosen.length}{chosen.map((b) => `${b.label}: ${b.names.join(', ')}`).join(' · ')}{/if}</p>
-          {/if}
-          <!-- v0.66.0 (Noah 9a): Comfort only ever as unticked suggestions, one item at a time. -->
-          {#if comfortItems.length}
-            <p class="note small sub">{t('Comfort, if you like')}</p>
-            <div class="tp-chips" role="group" aria-label={t('Comfort, if you like')}>
-              {#each comfortItems as i (i.id)}<button type="button" class="tp-chip" aria-pressed={comfortPicked.includes(i.id)} onclick={() => flipComfort(i.id)}>+ {nameOf(i)}</button>{/each}
-            </div>
-          {/if}
-        </section>
-      {/if}
+      {@render eventBox()}
+      {@render templatesFold()}
       {@render helperItems()}
-      <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
+      {#if packList}{@render packListView()}{/if}
     {:else}
       <div class="grid">
         <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
@@ -682,20 +765,11 @@
         <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
       {/if}
       {#if isNew}
-        {#if fromArea || areaTemplates.length}
-          <label class="start"><span class="lbl">{t('Start from')}</span>
-            <select class="sel" bind:value={start}>
-              {#if fromArea}<option value="last">{t('Last {area} trip: {title}', { area: t(domainName(area)), title: fromArea.title })}</option>{/if}
-              <option value="standard">{t('Items of this area')}</option>
-              <!-- v0.39.0 (AP28): templates of an area without a bike -->
-              {#each areaTemplates as tp (tp.id)}<option value={tp.id}>{t('Template: {name}', { name: tp.name })}</option>{/each}
-            </select>
-          </label>
-        {/if}
+        <!-- v0.114.0 (bug «Letzte Tour»): no past trip as a start; templates and examples as buttons. -->
+        {@render templatesFold()}
         {@render helperItems()}
         <p class="note">
           {#if chosenTpl}{t('From the template {name}. Bags: {bags}.', { name: chosenTpl.name, bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}
-          {:else if fromArea && start !== 'standard'}{t('A copy of {title}. Nothing is ticked off yet.', { title: fromArea.title })}
           {:else if areaItems}{t('Starts with the {area} items in Standard. Bags: {bags}.', { area: t(domainName(area)), bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}
           {:else}{t('No items for {area} yet, so the list starts empty. Add items in Pack (search finds all your gear), or in Gear: open an item and tick {area} under Areas.', { area: t(domainName(area)) })}{/if}
         </p>
@@ -703,15 +777,12 @@
         <p class="note">{t('The trip takes the bags of the new bike. Items in a place without a bag move to the seat pack.')}</p>
       {/if}
     {/if}
-    {#if isNew && helper.loaded && !isSetUp()}
-      <section class="kh-setup"><p class="lbl">{t('Ask the helper')}</p><HelperNotice onsetup={() => dialog.close()} /></section>
-    {/if}
     <p class="err" role="alert">{error}</p>
-    <div class="foot">
+    <div class="foot" class:fnew={isNew}>
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete trip')}</button>{/if}
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
       {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
-      <!-- v0.30.0 (Noah, finding 2): the live item count on the one orange button. -->
+      <!-- v0.30.0 (Noah, finding 2): the live item count on the one orange button; v0.114.0 (7a): bag items only. -->
       <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}{#if total}<span class="cnt">{` · ${tn(total, '{n} item', '{n} items')}`}</span>{/if}</button>
     </div>
   </form>
@@ -762,7 +833,7 @@
     gap: 2px;
   }
   .sub {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
   }
   .chips {
@@ -791,19 +862,11 @@
   }
   .warn {
     color: var(--bad);
-    font-size: 14px;
+    font-size: var(--fs-small);
     margin: 6px 0 0;
   }
-  .plan {
-    margin-top: 16px;
-  }
   .small {
-    font-size: 13px;
-  }
-  .start {
-    display: grid;
-    gap: 4px;
-    margin-top: 12px;
+    font-size: var(--fs-small);
   }
   h2 {
     font-size: var(--fs-section);
@@ -822,86 +885,10 @@
   .dh {
     margin: 0 0 4px;
   }
-  .dsub {
-    margin: 4px 0 0;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
   .area .areas {
     gap: 6px;
   }
-  .gal {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 8px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .gcard {
-    display: grid;
-    gap: 2px;
-    width: 100%;
-    height: 100%;
-    padding: 0 0 8px;
-    overflow: hidden;
-    border: 2px solid transparent;
-    border-radius: var(--r-ctl);
-    background: var(--paper);
-    color: var(--ink);
-    text-align: left;
-    cursor: pointer;
-  }
-  .gcard[aria-pressed='true'] {
-    border-color: var(--ink);
-  }
-  .gcard b,
-  .gcard small {
-    padding: 0 8px;
-    overflow-wrap: break-word;
-  }
-  .gcard b {
-    margin-top: 6px;
-    font-size: var(--fs-small);
-    font-weight: 600;
-  }
-  .gcard small {
-    color: var(--ink-2);
-    font-size: var(--fs-tiny);
-  }
-  .art {
-    display: block;
-    width: 100%;
-    height: 56px;
-  }
-  .art .sky {
-    fill: var(--hi-soft);
-  }
-  .art .sun {
-    fill: var(--paper);
-  }
-  .art .m1 {
-    fill: var(--l3);
-    opacity: 0.55;
-  }
-  .art .m2 {
-    fill: var(--hi);
-  }
-  .art.t1 .sky {
-    fill: var(--info-soft);
-  }
-  .art.t1 .m2 {
-    fill: var(--ink-3);
-  }
-  .art.t2 .sky {
-    fill: var(--warn-soft);
-  }
-  .art.t2 .m1 {
-    fill: var(--l2);
-  }
-  .art.t2 .m2 {
-    fill: var(--warn);
-  }
+
   .ctx .tp-chips {
     align-items: center;
   }
@@ -916,100 +903,12 @@
   .grid.two {
     margin-top: 8px;
   }
-  .std {
-    margin: 0 0 8px;
-    padding: 12px 14px;
-  }
-  .std h3 {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 8px;
-    margin: 0;
-    font: 600 17px/1.25 var(--font-body);
-  }
-  .std h3 :global(svg) {
-    color: var(--ok);
-  }
-  .std .r {
-    margin-left: auto;
-    font-size: 14px;
-    font-weight: 400;
-    color: var(--ink-3);
-  }
-  .names {
-    display: block;
-    width: 100%;
-    min-height: 44px;
-    margin-top: 4px;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--ink-2);
-    font: 400 14px/1.45 var(--font-body);
-    text-align: left;
-    cursor: pointer;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .names.open {
-    white-space: normal;
-  }
-  .auto {
-    list-style: none;
-    padding: 0 2px;
-    margin: 0;
-    display: grid;
-    gap: 4px;
-    font-size: 14px;
-    color: var(--ink-2);
-  }
-  /* v0.77.0: the helper's notice before the setup, like the «Frag den Helfer» field after it */
-  .kh-setup {
-    margin: 16px 0 0;
-  }
   .blocks {
     margin-top: 16px;
   }
   .blocks h3 {
     margin: 0 0 8px;
-    font: 600 17px/1.25 var(--font-body);
-  }
-  .blocks .sub {
-    margin: 8px 0 4px;
-  }
-  .blk small {
-    font-size: 13px;
-    opacity: 0.85;
-  }
-  .row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    min-height: 56px;
-    padding: 6px 16px;
-    color: var(--ink);
-    font: 500 16px var(--font-body);
-    text-align: left;
-    cursor: pointer;
-  }
-  .row[aria-pressed='true'] {
-    border-color: var(--ink);
-  }
-  .row .rt {
-    display: grid;
-    min-width: 0;
-    overflow-wrap: break-word;
-  }
-  .row b {
-    font-weight: 500;
-  }
-  .row :global(.chev) {
-    margin-left: auto;
-    flex: none;
-    color: var(--ink-3);
+    font: 600 var(--fs-sub)/1.25 var(--font-body);
   }
   .name {
     display: grid;
@@ -1034,7 +933,7 @@
     }
   }
   .note {
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink-2);
     margin: 12px 0 0;
   }
@@ -1055,7 +954,7 @@
   .err {
     color: var(--bad);
     min-height: 1.2em;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .foot {
     display: flex;
@@ -1068,12 +967,298 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   .del {
     margin-right: auto;
     border-color: var(--bad);
     color: var(--bad);
+  }
+  /* v0.114.0 «Rahmenbedingungen» (B1–B3): the sport chips with their icon, «+ Andere» dashed. */
+  .areas .tp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .areas .more {
+    border-style: dashed;
+    color: var(--ink-2);
+  }
+  /* the start place and the forecast suggestion */
+  .plz {
+    display: grid;
+    grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .plz .note {
+    margin: 0;
+  }
+  .plzin {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    padding-left: 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-ctl);
+    background: var(--paper);
+  }
+  .plzin .inp {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    border: 0;
+    padding-left: 0;
+  }
+  .fcard {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0 0 10px;
+    padding: 12px 14px;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+  }
+  .fcard > :global(svg) {
+    flex: none;
+    color: var(--warn);
+  }
+  .fct {
+    display: grid;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+  .fct small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  /* the event box */
+  .evbox {
+    margin-top: 16px;
+    padding: 4px 14px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+  }
+  .evbox.on {
+    border-color: var(--bad);
+  }
+  .evbox .ev {
+    margin-top: 4px;
+  }
+  .evn {
+    margin: 0 0 0 28px;
+  }
+  .evbox .grp {
+    margin: 10px 0 0 28px;
+  }
+  /* «Vorlage wählen», folded; the starts as option buttons (the Knöpfe pattern N1–N4: 44 px, chosen green with a tick) */
+  .tplbox {
+    margin-top: 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+  }
+  .tplbox.open {
+    border-color: var(--ink);
+  }
+  .tplhead {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 14px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+  }
+  .tplic {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--paper-2);
+  }
+  .tplt {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+  .tplt small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .tplbody {
+    padding: 0 14px 12px;
+  }
+  .grp-l {
+    margin: 10px 0 6px;
+    font-size: var(--fs-tiny);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .obtns {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+  }
+  .obtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 6px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-ctl);
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-small) var(--font-body);
+    cursor: pointer;
+  }
+  .obtn span {
+    overflow-wrap: break-word;
+  }
+  .obtn :global(svg) {
+    flex: none;
+  }
+  .obtn[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--paper);
+  }
+  .tplinfo {
+    display: flex;
+    gap: 8px;
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    font-size: var(--fs-small);
+  }
+  .tplinfo :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  /* «Deine Packliste» in four groups: a picture per item, long names wrap, the weight stays right */
+  .plist {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+  }
+  .plh {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+  }
+  .plh h3 {
+    margin: 0;
+    font: 600 var(--fs-sub)/1.25 var(--font-body);
+  }
+  .plh .num {
+    font-weight: 600;
+  }
+  .plist > .note {
+    margin-top: 4px;
+  }
+  .grp {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+  }
+  .grp h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 4px;
+    font: 600 var(--fs-body)/1.25 var(--font-body);
+  }
+  .grp h4 small {
+    margin-left: auto;
+    font-weight: 400;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .gic,
+  .pic {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    color: var(--c, var(--ink-2));
+    background: color-mix(in srgb, var(--c, var(--ink-3)) 14%, var(--paper));
+  }
+  .grp ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .grp li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 4px 0;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-body);
+  }
+  .grp li:first-child {
+    border-top: 0;
+  }
+  .grp .nm {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .grp .wt {
+    flex: none;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    white-space: nowrap;
+  }
+  .warmn {
+    margin: 4px 0;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--warn-soft);
+    font-size: var(--fs-small);
+  }
+  /* v0.114.0 (Noah): on the phone the two buttons of a new trip fill the row edge to edge */
+  @media (max-width: 600px) {
+    .foot.fnew {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+    .foot.fnew .kept {
+      grid-column: 1 / -1;
+    }
+    .foot.fnew .btn {
+      width: 100%;
+      justify-content: center;
+      white-space: nowrap;
+    }
+    .foot.fnew .btn.hi {
+      grid-column: 2;
+    }
+    .plz {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
