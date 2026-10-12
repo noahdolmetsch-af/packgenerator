@@ -124,3 +124,18 @@ describe('planSync', () => {
     expect(errorText('whatever')).toMatch(/error/);
   });
 });
+
+describe('«Zum Prüfen» stays in the Strava list (Noah «4b»)', () => {
+  it('an open Strava ride is not in the ledger rows, counts or the reconcile list', async () => {
+    const { ledgerRows, ledgerCounts, reconcile, waitsInStrava } = await import('../src/lib/kmbook.js');
+    const entries = [
+      { id: 'a', bikeId: 'b1', kind: 'ride', source: 'strava', state: 'open', km: 10, date: '2026-10-10' },
+      { id: 'b', bikeId: 'b1', kind: 'ride', source: 'csv', state: 'open', km: 12, date: '2026-10-09' },
+      { id: 'c', bikeId: 'b1', kind: 'ride', source: 'strava', state: 'counted', km: 20, date: '2026-10-08' },
+    ];
+    expect(waitsInStrava(entries[0])).toBe(true);
+    expect(ledgerRows(entries, 'b1').map((r) => r.id)).toEqual(['b', 'c']);
+    expect(ledgerCounts(entries, 'b1').open.map((e) => e.id)).toEqual(['b']);
+    expect(reconcile([{ id: 'b1', name: 'Gravel Blau' }], entries)[0].open.map((e) => e.id)).toEqual(['b']);
+  });
+});

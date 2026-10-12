@@ -33,6 +33,12 @@ export const newestFirst = (a, b) => (b.date ?? '').localeCompare(a.date ?? '') 
 
 /** The entries of one bike. */
 export const ofBike = (entries, bikeId) => (entries ?? []).filter((e) => e.bikeId === bikeId);
+/**
+ * 0.112.0 (Noah «4b»): a Strava ride without a bike waits only in Velo › Pflege › Strava › «Zum
+ * Prüfen», not in the bike's ride ledger or the weekly card on Today.
+ */
+export const waitsInStrava = (e) => e?.source === 'strava' && e?.state === 'open';
+const inLedger = (entries, bikeId) => ofBike(entries, bikeId).filter((e) => !waitsInStrava(e));
 
 /** The km of a bike: the sum of its counted entries (one decimal), and the date of the newest. */
 export function bikeKm(entries, bikeId) {
@@ -54,7 +60,7 @@ export function kmOn(entries, bikeId, date) {
  * entries only; an open or left-out entry has after = null).
  */
 export function ledgerRows(entries, bikeId) {
-  const mine = ofBike(entries, bikeId);
+  const mine = inLedger(entries, bikeId);
   const oldest = [...mine].sort((a, b) => -newestFirst(a, b));
   let run = 0;
   const after = new Map();
@@ -68,7 +74,7 @@ export function ledgerRows(entries, bikeId) {
 
 /** How many entries of each kind a ledger has: rides, hand entries, corrections, open, left out. */
 export function ledgerCounts(entries, bikeId) {
-  const mine = ofBike(entries, bikeId);
+  const mine = inLedger(entries, bikeId);
   return {
     rides: mine.filter((e) => e.kind === 'ride' && counts(e)).length,
     hand: mine.filter((e) => e.source === 'hand' && e.kind !== 'start' && e.kind !== 'correction' && counts(e)).length,
@@ -675,7 +681,7 @@ export function reconcile(bikes, entries) {
     const app = bikeKm(entries, bike.id).exact;
     const st = bike.strava ?? null;
     const diff = st && app != null ? r1(st.km - app) : null;
-    const open = ofBike(entries, bike.id).filter((e) => e.state === 'open');
+    const open = inLedger(entries, bike.id).filter((e) => e.state === 'open');
     const openKm = r1(open.reduce((s, e) => s + e.km, 0));
     return { bike, app, strava: st?.km ?? null, date: st?.date ?? null, diff, open, explained: diff != null && open.length > 0 && Math.abs(openKm - diff) < 1 };
   });
