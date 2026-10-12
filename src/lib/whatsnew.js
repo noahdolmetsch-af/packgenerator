@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.102.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'New tile on Today: «Swim or sauna today?» with alternatives to choose from, also your own.', href: '#/' },
+      { text: 'Any suggestion can become a challenge: how often and until when; it counts by itself when you tick it off.', href: '#/' },
+      { text: 'A challenge reached is celebrated as a milestone under «Important today».', href: '#/' },
+    ],
+  },
+  {
     version: '0.101.0',
     date: '2026-10-12',
     points: [
