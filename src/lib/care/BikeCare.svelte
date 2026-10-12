@@ -173,7 +173,7 @@
     else if (input.value.trim() === '') input.value = bike.km ?? '';
   }
   /**
-   * v0.114.0 «Knöpfe neu» (N1/N2, answer 3a): the actions of a due part row, the main one first:
+   * v0.116.0 «Knöpfe neu» (N1/N2, answer 3a): the actions of a due part row, the main one first:
    * Done (a service by time or km) or Record …; then Record …, the wishlist when it is due soon.
    */
   function dueActs(r, x, wish) {
@@ -225,7 +225,7 @@
     <span class="wear">{@render bar(r.st)}</span>
     <span class="act">
       {#if x}
-        <!-- v0.114.0 «Knöpfe neu» (N1/N2): one main button, the rest behind «…» with an explanation each. -->
+        <!-- v0.116.0 «Knöpfe neu» (N1/N2): one main button, the rest behind «…» with an explanation each. -->
         {@const acts = dueActs(r, x, wish)}
         {#if x.by === 'shop'}{@render shop()}{/if}
         <span class="rowacts">
@@ -1191,7 +1191,7 @@
   .duecards .pt.due {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    /* v0.114.0 «Knöpfe neu» (N1, answer 1a): the actions as the card's last line, right-aligned (phone: full width) */
+    /* v0.116.0 «Knöpfe neu» (N1, answer 1a): the actions as the card's last line, right-aligned (phone: full width) */
     grid-template-areas:
       'pn st'
       'last last'

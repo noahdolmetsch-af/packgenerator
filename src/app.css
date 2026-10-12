@@ -903,7 +903,7 @@ h1.title {
   cursor: default;
 }
 /*
- * v0.114.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 «n1-n4 freigeben», answers 1a 2a 3a 4a 5b).
+ * v0.116.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 «n1-n4 freigeben», answers 1a 2a 3a 4a 5b).
  * - .btn.k (ui/Btn.svelte): a label of 1–2 words that never wraps (N3 rule 4).
  * - .btn.dots: the «…» button (.dots), 44 px square (ui/MoreActions.svelte).
  * - .rowacts: the actions of a row. Computer: right-aligned, every row ends at the same right edge,

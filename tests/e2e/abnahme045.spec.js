@@ -115,7 +115,7 @@ test('5. keyboard: after Create trip the focus is on the new trip name', async (
   await load(page, context, info);
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   const title = `${P}Fokus Runde`;
   await dlg.getByLabel(T('Name')).fill(title);
   await dlg.getByRole('button', { name: T('Create trip') }).focus();

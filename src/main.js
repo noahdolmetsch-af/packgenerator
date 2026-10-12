@@ -68,7 +68,7 @@ if (__PREVIEW__) {
   document.body.appendChild(bar);
 }
 
-// v0.114.0 «Knöpfe neu» (N1, answer 2a): every button explains itself on hover, keyboard focus and a
+// v0.116.0 «Knöpfe neu» (N1, answer 2a): every button explains itself on hover, keyboard focus and a
 // long press, with one listener for the whole app (ui/explain.js).
 installExplain();
 

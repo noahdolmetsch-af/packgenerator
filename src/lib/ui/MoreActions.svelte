@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.114.0 «Knöpfe neu» (mockup N2, answer 3a): the «…» button of a row with all its other actions.
+   * v0.116.0 «Knöpfe neu» (mockup N2, answer 3a): the «…» button of a row with all its other actions.
    * Every entry has a title (1–2 words) and a one-line explanation. On a computer the list opens under
    * the «…» (kept inside the screen by ui/inview.js); on a phone it opens as a sheet from the bottom.
    *
@@ -13,14 +13,15 @@
    * actions  [{ name, explain?, icon?, run, current? }]; `current` marks the row's main action (shaded)
    * small    a «…» of the old small size (32 px, 44 on touch) for dense rows
    *
-   * It closes after a choice, on Escape (focus back on «…»), when the focus leaves it (a click
-   * elsewhere), on the sheet's dark background and on the phone's back key.
+   * It closes after a choice, on Escape (focus back on «…»), on a tap next to it (ui/away.js, 0.115.0),
+   * when the focus leaves it, on the sheet's dark background and on the phone's back key.
    */
   import { tick } from 'svelte';
   import { Ellipsis } from '@lucide/svelte';
   import { phone } from '../media.svelte.js';
   import { inView } from './inview.js';
   import { backClose } from './backclose.js';
+  import { away } from './away.js';
 
   let { title = '', label = '', actions = [], small = false, class: cls = '' } = $props();
   let open = $state(false);
@@ -72,7 +73,8 @@
   }
 </script>
 
-<span class="ma {cls}" bind:this={wrap} onfocusout={left}>
+<!-- v0.115.0 Menü-Fix: a tap anywhere next to the open list closes it (ui/away.js); the phone sheet closes on its background -->
+<span class="ma {cls}" bind:this={wrap} onfocusout={left} use:away={() => open && !phone.matches && close(false)}>
   <button type="button" class="btn dots" class:sm={small} bind:this={btn} aria-label={label} aria-haspopup="menu" aria-expanded={open} aria-controls={open ? uid : undefined} onclick={toggle}><Ellipsis size={18} aria-hidden="true" /></button>
   {#if open && !phone.matches}
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->

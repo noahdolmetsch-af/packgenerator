@@ -62,20 +62,24 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
   expect(errors).toEqual([]);
 });
 
-test('Neue Tour: kinds of trip as chips, «Packliste startet mit» as a gallery, footer with «Tour anlegen»', async ({ page, context }) => {
+// v0.114.0 «Rahmenbedingungen» (B1, B2): the title without the hint line, «Sportart» as chips, «Vorlage wählen»
+// folded with the starts as buttons (the gallery «Packliste startet mit» is gone, with its «Letzte Tour»).
+test('Rahmenbedingungen: sport as chips, «Vorlage wählen» with the starts as buttons', async ({ page, context }) => {
   await start(page, context);
   await page.goto('./#/trips');
   await page.locator('#trips-planning').locator('..').getByRole('button', { name: new RegExp(esc(T('New trip'))) }).click();
-  const dlg = page.getByRole('dialog');
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg).toBeVisible();
-  await expect(dlg.getByText(T('Name, date, bike and packing list. Everything can be changed later.'))).toBeVisible();
-  await expect(dlg.getByRole('group', { name: T('Area') })).toBeVisible();
-  const gal = dlg.getByRole('group', { name: T('Packing list starts with') });
-  const cards = gal.getByRole('button');
-  expect(await cards.count()).toBeGreaterThanOrEqual(2);
+  await expect(dlg.getByText(T('Name, date, bike and packing list. Everything can be changed later.'))).toHaveCount(0);
+  await expect(dlg.getByRole('group', { name: T('Sport') })).toBeVisible();
+  await expect(dlg.getByRole('group', { name: T('Packing list starts with') })).toHaveCount(0);
+  await dlg.getByRole('button', { name: new RegExp(esc(T('Choose a template'))) }).click();
+  const cards = dlg.getByRole('group', { name: T('Your templates') }).getByRole('button');
   await expect(cards.first()).toHaveAttribute('aria-pressed', 'true');
-  await cards.nth(1).click();
-  await expect(cards.nth(1)).toHaveAttribute('aria-pressed', 'true');
+  const ex = dlg.getByRole('group', { name: T('Examples') }).getByRole('button');
+  expect(await ex.count()).toBe(2);
+  await ex.first().click();
+  await expect(ex.first()).toHaveAttribute('aria-pressed', 'true');
   await expect(cards.first()).toHaveAttribute('aria-pressed', 'false');
   expect(await wide(page)).toBeLessThanOrEqual(0);
 });

@@ -38,6 +38,7 @@
   import { hasContext, nightName } from '../context.js';
   import { rainOf } from '../layers.js';
   import { inView } from '../ui/inview.js';
+  import { away } from '../ui/away.js';
   import { rainChance } from '../wardrobe.js';
   import { pastTrips } from '../hubs.js';
   import { localDay } from '../localday.js';
@@ -265,7 +266,7 @@
             <!-- v0.27.0 (Noah 1a): Undo is announced when it appears (a live region). -->
             <span class="undo-live" role="status" aria-live="polite">{#if canUndo}<button class="tp-link undo" onclick={actions.undo}><Undo2 size={18} aria-hidden="true" />{t('Undo')}</button>{/if}</span>
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-            <details class="list-menu" bind:this={menuEl} onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}><summary aria-label={t('More: other trip, edit trip, templates, print')}><MoreHorizontal size={24} aria-hidden="true" /></summary>
+            <details class="list-menu" bind:this={menuEl} use:away onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}><summary aria-label={t('More: other trip, edit trip, templates, print')}><MoreHorizontal size={24} aria-hidden="true" /></summary>
               <div class="list-menu-content" use:inView>
                 {#if isOn()}<button class="kh-menu-check" onclick={menu(openCheck)}><Sparkles size={16} aria-hidden="true" />{t('Check the list')}</button>{/if}
                 <label>{t('Open another trip')}<select class="sel" value={trip.id} onchange={(e) => { changeTrip(e.currentTarget.value); menuEl.open = false; }}>{#each trips as tr}<option value={tr.id}>{tr.title}</option>{/each}</select></label>

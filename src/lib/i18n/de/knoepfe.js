@@ -1,4 +1,4 @@
-// v0.114.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 «n1-n4 freigeben»): short button labels
+// v0.116.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 «n1-n4 freigeben»): short button labels
 // (at most 2 words) and what each button does (ui/explain.js, N4).
 export default {
   // Ich › Was ist neu: the function

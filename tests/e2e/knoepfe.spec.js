@@ -1,4 +1,4 @@
-// v0.114.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 22:47 «n1-n4 freigeben», answers 1a 2a 3a 4a 5b):
+// v0.116.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 22:47 «n1-n4 freigeben», answers 1a 2a 3a 4a 5b):
 // - every button explains itself: a bubble on hover and keyboard focus (computer), on a long press
 //   (phone) without running the button;
 // - a row's actions: one main button + «…»; right-aligned on a computer (same right edge, main button

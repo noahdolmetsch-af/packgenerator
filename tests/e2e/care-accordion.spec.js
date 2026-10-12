@@ -120,7 +120,7 @@ test('accordion: one bike open, the others one row; last work per part with me /
   await expect(spark.locator('summary').filter({ hasText: '1’000-km-Check' })).toBeVisible();
   await expect(spark.locator('summary').filter({ hasText: 'Logbuch' })).toBeVisible();
   // For the bike shop and the year: one folded row "Velomech & 2026".
-  // v0.114.0 «Knöpfe neu» (N4, changed on purpose): «Werkstattauftrag senden» is «Senden» with its explanation.
+  // v0.116.0 «Knöpfe neu» (N4, changed on purpose): «Werkstattauftrag senden» is «Senden» with its explanation.
   await expect(spark.getByRole('button', { name: 'Senden', exact: true })).toHaveCount(0);
   await spark.locator('summary').filter({ hasText: /Velomech & \d{4}/ }).click();
   await expect(spark.getByRole('button', { name: 'Senden', exact: true })).toBeVisible();

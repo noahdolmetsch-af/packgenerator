@@ -70,7 +70,7 @@ const TIP_PLAY = { bags: 'pack', share: 'pack', ride: 'ride', debrief: 'after' }
 /** The functions that are not a tip. */
 const OWN = [
   // Before the trip
-  { id: 'f.plan', group: 'before', title: 'Plan a trip', text: 'One window: when, how long, the weather, building blocks and the night.', run: 'trip', seen: 'trips', words: 'tour planen neue tour new trip' },
+  { id: 'f.plan', group: 'before', title: 'Plan a trip', text: 'One window «Conditions»: sport, when, how long, the weather from your postcode, the event and the packing list in groups.', run: 'trip', seen: 'trips', words: 'tour planen neue tour new trip' },
   { id: 'f.wear', group: 'before', title: 'What do I wear?', text: 'Clothing for the coldest hour of a day ride, from your own wardrobe.', run: 'wear', words: 'anziehen kleider outfit' },
   { id: 'f.onion', group: 'before', title: 'Layer check', text: 'Checks every layer for the coldest riding hour and suggests the kit.', href: '#/pack', play: 'pack', words: 'zwiebel schicht kit temperatur' },
   { id: 'f.shop', group: 'before', title: 'Shopping and charging list', text: 'What you buy and charge 2 days before the trip.', href: '#/pack?shop', play: 'pack', words: 'einkauf einkaufsliste laden ladeliste akku' },
@@ -133,7 +133,7 @@ const OWN = [
   { id: 'f.shortcuts', group: 'data', title: 'Keyboard shortcuts', text: 'g h, g t … switch places, n = New, / = search, ? = the list.', href: '#/me', words: 'tastenkürzel tastatur' },
   { id: 'f.theme', group: 'data', title: 'Light, dark and colours', text: 'Font, colour world, text size and light or dark, under Me › Appearance.', href: '#/me/look', words: 'hell dunkel farben stil schrift grösse darstellung' },
   // v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu, the newest version, every function and all versions
-  // v0.114.0 «Knöpfe neu» (N1–N4): every button explains itself; «…» lists the rest with a line each
+  // v0.116.0 «Knöpfe neu» (N1–N4): every button explains itself; «…» lists the rest with a line each
   { id: 'f.explain', group: 'data', title: 'Buttons explain', text: 'Point at a button or hold it: it says what it does; «…» lists the rest, each with one line.', href: '#/bikes?tab=care', words: 'knöpfe erklärung tooltip lange drücken mehr rückgängig' },
   { id: 'f.news', group: 'data', title: 'What is new', text: 'The newest version, every function one by one and all versions by month.', href: '#/me/news', words: 'neu neuigkeiten update version was ist neu top 10' },
 ];

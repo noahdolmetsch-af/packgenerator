@@ -23,6 +23,7 @@ describe('every function has a version it came with', () => {
     }
     for (const id of Object.keys(SINCE)) expect(FEATURES.some((f) => f.id === id), id).toBe(true);
     expect(sinceOf('nope')).toBe('0.1.0');
+    expect(SINCE['f.tripcheck']).toBe('0.111.0'); // v0.114.0: a release need not bring a new function
     expect(SINCE['f.explain']).toBe(WHATS_NEW[0].version);
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
@@ -57,13 +58,16 @@ describe('the counts of «Your top 10»', () => {
 
 describe('the list and its sorts', () => {
   const used = new Set(['care']);
-  const rows = rowsOf(used, { backup: 5, templates: 9, 'f.plan': 2 }, WHATS_NEW[0].version);
+  const rows = rowsOf(used, { backup: 5, templates: 9, 'f.plan': 2 }, '0.111.0'); // f.tripcheck is new in 0.111.0
   it('each row: since, place, count and state (new, used, never)', () => {
     expect(rows.length).toBe(FEATURES.length);
     const by = Object.fromEntries(rows.map((r) => [r.id, r]));
     expect(by.backup).toMatchObject({ n: 5, used: true, state: 'used' });
     expect(by.care).toMatchObject({ n: 0, used: true, state: 'used' });
-    expect(by['f.explain'].state).toBe('new');
+    // «What is new» (0.110.0) is no longer new, one never tried now
+    expect(by['f.news'].state).toBe('never');
+    expect(by['f.explain'].state).toBe('never'); // newer than the 0.111.0 these rows are made for
+    expect(rowsOf().find((r) => r.id === 'f.explain').state).toBe('new'); // new in this version
     expect(by['f.theft'].state).toBe('never');
     for (const r of rows) {
       expect(FEATURE_GROUPS.some((g) => g.key === r.group), r.id).toBe(true);
@@ -72,7 +76,7 @@ describe('the list and its sorts', () => {
   });
   it('newest first; name A–Z; by category and by place in their order', () => {
     const newest = sortRows(rows, 'new');
-    expect(newest[0].id).toBe('f.explain'); // v0.114.0 brought «Knöpfe neu», the newest function
+    expect(newest[0].id).toBe('f.explain'); // v0.116.0 brought «Knöpfe neu», the newest function
     for (let i = 1; i < newest.length; i++) expect(compareVersions(newest[i - 1].since, newest[i].since)).toBeGreaterThanOrEqual(0);
     const abc = sortRows(rows, 'name').map((r) => r.title);
     expect(abc).toEqual([...abc].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })));

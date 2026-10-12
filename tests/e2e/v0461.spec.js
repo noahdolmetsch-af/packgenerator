@@ -104,7 +104,7 @@ test('2 + 3: newest problems on top; the priority changes in two taps, also thro
 
   // Through ••• on the last problem, scrolled to just above the bottom bar: every answer can be tapped.
   const last = care.locator('li.prob').filter({ hasText: `${P}Sattel zu tief` });
-  // v0.114.0 «Knöpfe neu» (N2, changed on purpose): «…» is a button; its list (a sheet on the phone) has
+  // v0.116.0 «Knöpfe neu» (N2, changed on purpose): «…» is a button; its list (a sheet on the phone) has
   // a title and an explanation per answer.
   const summary = last.locator('.btn.dots');
   await summary.evaluate((el) => {

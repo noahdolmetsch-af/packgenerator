@@ -151,7 +151,7 @@ test('dialogs: focus in, Tab stays inside, Escape closes, focus back', async ({ 
   const newBtn = (await newButton(page, T('New')));
   await newBtn.focus();
   await page.keyboard.press('Enter');
-  await dialogKeys(page, page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }), page.getByRole('dialog', { name: T('New trip') }), newBtn);
+  await dialogKeys(page, page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }), page.getByRole('dialog', { name: T('Conditions|newtrip') }), newBtn);
 
   // Item dialog from the gear list
   await view(page, '#/gear');

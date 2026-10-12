@@ -46,7 +46,7 @@
   const chf = (n) => n.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const LOG_ICON = { replace: ArrowLeftRight, service: Droplet, check: Check, wash: Droplet, repair: Wrench, milestone: Trophy };
   /**
-   * v0.114.0 «Knöpfe neu» (N1/N2, answer 3a): the actions of a «Due now» row, the main one first.
+   * v0.116.0 «Knöpfe neu» (N1/N2, answer 3a): the actions of a «Due now» row, the main one first.
    * Same actions as before (Done, Record …, Replace, Check, Look at the check), plus «Open the bike».
    */
   function rowActs(d) {
@@ -93,7 +93,7 @@
                 <span class="udot" class:warn={d.row.kind !== 'part'} aria-hidden="true"></span>
                 <span class="m"><b class="dn">{d.row.name}</b><small class="dd">{[short(d.bike.name), d.row.detail].filter(Boolean).join(' · ')}</small></span>
                 <span class="sr">{when(d.row)}</span>
-                <!-- v0.114.0 «Knöpfe neu» (N1/N2): one main button, the rest behind «…», each with its explanation. -->
+                <!-- v0.116.0 «Knöpfe neu» (N1/N2): one main button, the rest behind «…», each with its explanation. -->
                 <span class="rowacts">
                   <Btn kind={acts[0].kind} icon={acts[0].icon} label={acts[0].name} explain={acts[0].explain} sub={acts[0].sub} onclick={acts[0].run} />
                   <MoreActions title={[d.row.name, short(d.bike.name)].join(' · ')} label={t('More for {title}', { title: d.row.name })} actions={acts.map((a, n) => ({ ...a, current: n === 0 }))} />

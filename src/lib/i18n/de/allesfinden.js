@@ -35,7 +35,7 @@ export default {
   'See all {n} functions': 'Alle {n} Funktionen ansehen',
   Functions: 'Funktionen',
   // the functions: before the trip
-  'One window: when, how long, the weather, building blocks and the night.': 'Ein Fenster: wann, wie lang, Wetter, Bausteine und die Nacht.',
+  'One window «Conditions»: sport, when, how long, the weather from your postcode, the event and the packing list in groups.': 'Ein Fenster «Rahmenbedingungen»: Sportart, wann, wie lang, Wetter aus deiner PLZ, Event und die Packliste in Gruppen.',
   'Clothing for the coldest hour of a day ride, from your own wardrobe.': 'Kleidung für die kälteste Stunde einer Tagestour, aus deinem Kleiderschrank.',
   'Layer check': 'Zwiebel-Check',
   'Checks every layer for the coldest riding hour and suggests the kit.': 'Prüft jede Schicht für die kälteste Fahrstunde und schlägt das Kit vor.',

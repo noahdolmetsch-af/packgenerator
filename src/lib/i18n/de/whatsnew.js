@@ -8,7 +8,7 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.114.0 Knöpfe neu (mockups N1–N4)
+  // 0.116.0 Knöpfe neu (mockups N1–N4)
   'Buttons explain': 'Knöpfe erklären sich',
   'Every button says what it does: point at it on a computer, hold it on the phone.':
     'Jeder Knopf sagt, was er tut: am Computer mit der Maus darauf, am Handy lange drücken.',
@@ -26,6 +26,31 @@ export default {
     'In einer Zeile auf «…» tippen: jede Aktion mit einer Zeile; am Handy kommt die Liste von unten.',
   'Tap «Done»: the line at the bottom says what was saved; tap «Undo».':
     'Auf «Erledigt» tippen: Die Zeile unten sagt, was gespeichert wurde; auf «Rückgängig» tippen.',
+  // 0.115.0 Menü-Fix
+  'Menus close easily': 'Menüs gehen leicht zu',
+  'A tap next to an open ••• menu closes it, you no longer have to hit ••• a second time.':
+    'Ein Tipp neben ein offenes •••-Menü schliesst es, du musst nicht mehr ein zweites Mal auf ••• tippen.',
+  'Open Bikes › Care and tap ••• at a problem.': 'Öffne Velos › Pflege und tippe bei einem Problem auf •••.',
+  'Tap anywhere next to the menu: it closes at once.': 'Tippe irgendwo neben das Menü: Es schliesst sofort.',
+  'Tap ••• and pick an answer: it still works.': 'Tippe auf ••• und wähle eine Antwort: Sie funktioniert weiterhin.',
+  'A ••• menu now closes with one tap anywhere next to it, for example at the problems in Bike care.':
+    'Ein •••-Menü schliesst jetzt mit einem Tipp irgendwo daneben, zum Beispiel bei den Problemen in der Velopflege.',
+  'The same for the ••• of the packing list and of the trips in progress: one tap next to it is enough.':
+    'Genauso beim ••• der Packliste und der laufenden Touren: Ein Tipp daneben genügt.',
+  // 0.114.0 «Rahmenbedingungen»
+  'A new trip asks sport, weather by postcode and event, and shows the list in groups.':
+    'Eine neue Tour fragt Sportart, Wetter per PLZ und Event und zeigt die Liste in Gruppen.',
+  'The window «Conditions»: sport (bike first), the weather suggested from a start postcode, the event with its hint.':
+    'Das Fenster «Rahmenbedingungen»: Sportart (Fahrrad zuerst), das Wetter als Vorschlag aus der Start-PLZ, der Event mit seinem Hinweis.',
+  'Choose a template as buttons: Standard, your own and two examples. Past trips no longer appear there.':
+    'Vorlage wählen als Knöpfe: Standard, deine eigenen und zwei Beispiele. Vergangene Touren erscheinen dort nicht mehr.',
+  'The packing list in four groups with a picture per item; the button counts only what goes into the bags.':
+    'Die Packliste in vier Gruppen mit einem Bild pro Teil; der Knopf zählt nur, was in die Taschen kommt.',
+  'Repair and Charging no longer come by themselves: switch them on when packing.':
+    'Reparatur und Laden kommen nicht mehr von selbst: Beim Packen schaltest du sie ein.',
+  'Open Trips and tap «New trip».': 'Touren öffnen und «Neue Tour» antippen.',
+  'Type your postcode under Weather: the forecast suggests the weather.': 'Unter Wetter deine PLZ eintippen: Die Prognose schlägt das Wetter vor.',
+  'Open «Choose a template» and tap «Weekend»: 2 days and Hotel/hut are set.': '«Vorlage wählen» öffnen und «Wochenende» antippen: 2 Tage und Hotel/Hütte sind gesetzt.',
 
   // 0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check (mockups V1–V6)
   'Checks before and after': 'Checks davor und danach',

@@ -73,7 +73,7 @@
                 {#if r.finished}
                   <button type="button" class="link" data-explain={explain('Undo')} onclick={() => onundo(r)}>{t('Undo')}</button>
                 {:else}
-                  <!-- v0.114.0 «Knöpfe neu» (N1/N2): Done as the main button, the other answers behind «…» with an explanation -->
+                  <!-- v0.116.0 «Knöpfe neu» (N1/N2): Done as the main button, the other answers behind «…» with an explanation -->
                   <Btn kind="hi" icon={Check} label={t('Done|task')} explain={explain('Done|task')} sub={r.task.task} class="sm" onclick={() => onresult(r, 'done')} />
                   <MoreMenu label={r.task.task} actions={[{ name: t('Done|task'), explain: explain('Done|task'), icon: Check, run: () => onresult(r, 'done'), current: true }, { name: t('All OK|task'), explain: explain('All OK|task'), icon: ListChecks, run: () => onresult(r, 'ok') }, { name: t('Work needed'), explain: explain('Work needed'), icon: Wrench, run: () => onresult(r, 'needed') }]} />
                 {/if}

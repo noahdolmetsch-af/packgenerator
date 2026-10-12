@@ -862,7 +862,7 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
-## 12.10.2026: Knöpfe neu (0.114.0)
+## 12.10.2026: Knöpfe neu (0.116.0)
 
 Mockups N1–N4 (`design/knoepfe-neu/`, Noahs Wunsch 12.10.2026 22:31: Knöpfe erklären ihre Aktion, lange Texte verschieben nichts, Knöpfe rechtsbündig). **Freigabe Noah 12.10.2026 22:47 «n1-n4 freigeben»**, Antworten **«1a 2a 3a 4a 5b»**:
 
@@ -878,11 +878,17 @@ Mockups N1–N4 (`design/knoepfe-neu/`, Noahs Wunsch 12.10.2026 22:31: Knöpfe e
   - Im «…» steht die Hauptaktion der Zeile als erster, hinterlegter Eintrag (wie N2). Die Einträge «Für den Velomech» und «Nicht mehr nötig» aus N2 fehlen in «Jetzt fällig»: die App kann eine fällige Wartung heute weder auf den Auftrag setzen noch wegnehmen, und neue Funktionen gehören nicht in dieses Paket. Neu im «…» ist «Velo öffnen» (die Seite gab es schon).
   - «Jetzt fällig» zeigt weiter höchstens 3 Zeilen (N1 zeigte 5); keine Änderung am Verhalten.
   - «Erledigt» und «Alle ok» in der Velopflege nutzen das bestehende Rückgängig eines gespeicherten Teil-Ablaufs (die Teile wie vorher). Der Text der Bestätigung bleibt «Gespeichert: …» (statt «… als erledigt markiert»), Aussehen wie N2: dunkle Leiste, Häkchen, unterstrichenes «Rückgängig».
-  - Das alte •••-Menü (`care/MoreMenu.svelte`) nutzt jetzt `ui/MoreActions` (gleiche Schnittstelle). Es schliesst bei einer Wahl, mit Escape, wenn der Fokus es verlässt (ein Klick daneben), am Handy auch beim Tipp auf den dunklen Hintergrund und mit der Zurück-Taste. Das Schliessen der übrigen •••-Menüs beim Tipp daneben bringt PR #138 «Menü-Fix»; beim Zusammenführen ist in `MoreMenu.svelte` und `tests/e2e/menu-close.spec.js` von Hand zu entscheiden.
+  - Das alte •••-Menü (`care/MoreMenu.svelte`) nutzt jetzt `ui/MoreActions` (gleiche Schnittstelle). Es schliesst bei einer Wahl, mit Escape, wenn der Fokus es verlässt (ein Klick daneben), am Handy auch beim Tipp auf den dunklen Hintergrund und mit der Zurück-Taste. Beim Zusammenführen mit dem Menü-Fix (0.115.0) bleibt `MoreMenu.svelte` die Hülle um `ui/MoreActions`.
   - Velopflege-Texte nach N4: «Erfassen …» → «Eintragen …», «Werkstattauftrag senden» → «Senden», «Abhol-Check» → «Abholen», «Check ansehen» → «Ansehen», «Alles geprüft, OK» → «Alle ok», «Auf die Wunschliste» → «Wunschliste»; «Als Aufgabe merken» → «Merken» (bei den Helfer-Karten im «…», Hauptknopf dort «Erledigt»). In der Übersicht ist «Erledigt» jetzt grün (N1); der Test v048 folgt.
   - 50 Knöpfe auf 25 Seiten und Fenstern (Material, Packen, Touren, Vorlagen, Velo-Blätter, Eingang, Heute, Kleiderschrank, Import, Meditation …) haben höchstens 2 Wörter; ihr bisheriger langer Text ist die Erklärung. Bewusst länger bleiben: Knöpfe mit Daten im Text (Tourname, Suchwort, °C, CHF, Minuten, Kit-Bereich), «Alle Daten ersetzen» (eine Bestätigung, die nicht rückgängig geht, nennt, was sie tut), die zwei Antworten im Teil-Fenster («Ersetzen oder Arbeit nötig», «Ersetzt oder erledigt»), «Sortieren und filtern», «Was ist neu» (Name einer Seite) und «So testest du es» (frisch freigegebenes Mockup). `TripDialog.svelte` ist nicht angefasst («Neue Tour überarbeiten»).
-  - Neue Funktion «Knöpfe erklären sich» im Katalog von Was ist neu (jetzt 87), seit 0.114.0.
-  - Version 0.114.0: 0.112.0 hat PR #137, 0.113.0 PR #138.
+  - Neue Funktion «Knöpfe erklären sich» im Katalog von Was ist neu, seit 0.116.0.
+  - Version 0.116.0: main ist 0.115.0 (0.114.0 «Rahmenbedingungen», 0.115.0 «Menü-Fix»). Nach dem Menü-Fix nutzt auch `ui/MoreActions` (und damit das alte •••-Menü der Velopflege) `ui/away.js`: ein Tipp daneben schliesst die Liste am Computer.
+## 12.10.2026: Menü-Fix (0.115.0)
+
+Noah 12.10.2026 22:22: «erst bei zweitem Klick geht Menü wieder weg», dringend. Vorher/Nachher freigegeben 23:02 «menü fix freigeben».
+
+- Jedes •••-Menü schliesst mit einem Tipp daneben, überall gleich (`ui/away.js`, wie schon `tpl/Menu.svelte`). Der Tipp daneben wird nicht verschluckt: Er tut auch, was er trifft.
+- **Selbst entschieden:** nur Verhalten, kein neues Aussehen; Material und Kleiderschrank (eigene Lösung mit Klick daneben) bleiben, wie sie sind.
 
 ## 12.10.2026: Bausteine bearbeiten, Teil 1: Vorabend- und Schluss-Check (0.111.0)
 
@@ -907,6 +913,22 @@ Noah 12.10.2026 18:22 zur ersten Fassung: «passt nicht ins design … jede art 
 - **V3:** Liste anpassen mit Sortieren, Entfernen, eigenem Punkt, Vorschlägen und «Gilt für: Nur diese Tour / Alle {Reiseart}» (vorgewählt «Alle», wie im Mockup).
 - **V4:** Ich › Checks pro Reiseart; jede Reiseart hat eigene Vorschläge (Texte aus V4 und V6).
 - **Selbst entschieden (nur zeigen, wofür die App Daten hat):** «Dein Morgen», «Verhältnisse», «Plan und echt», «Dein Material» und «Aktivität von der Uhr» aus den Mockups fehlen: die App hat dafür keine Daten (keine Zeiten, keine Lawinenstufe, keine Uhr-Anbindung). Chips und Zeilen zeigen nur Wetter, Route, Ladeliste, Notizen und «Rückblick wartet». Links nur, wo eine Seite existiert (SLF, MeteoSchweiz, Ladeliste); «3×3 Öffnen», «Teilen», «Senden» und «Einkaufsliste» folgen, wenn es die Funktionen gibt. «Eigene Reiseart» (V4) gibt es noch nicht. Die Lernzeile kommt aus «Was hat gefehlt?» früherer Rückblicke derselben Reiseart. Die Statistik «in X von Y Touren erledigt» zählt nur Touren, die schon begonnen haben. Zeilen auf Ich › Checks pro Reiseart haben keinen Pfeil: «Anpassen» öffnet die Liste. Regeln wie «Tee ab −5° 1 L» und Erinnerungszeiten (V4 rechts) kommen mit dem Regel-Editor (F). Der Hinweis «neu» (gestrichelter Rahmen) gehört nur zum Mockup. Sortieren auch mit Pfeiltasten auf dem Griff. «Vorschlag wiederherstellen» auf Ich › Checks löscht den eigenen Standard der Reiseart.
+
+## 12.10.2026: «Rahmenbedingungen» statt «Neue Tour» (0.114.0)
+
+Nach Noahs Wunsch (12.10.2026 19:42, Prio hoch) und den Mockups B1–B5 (Galerie «Offene Mockups 2» #rahmenbedingungen, Trello FONIq38q): B1 «b1 ok» 20:42, B3 «b3 ok» 20:43, B2/B4/B5 «b2 b4 b5 ok» 20:55. Antworten «1a 2a 3b 4b 5b», «6a», 7a.
+
+- **Fehler «Letzte Tour»:** seit 0.104.0 stand die neueste Tour mit dem Velo (auch Test- und künftige Touren) als Start in der Galerie. Neu startet eine Tour nie mehr aus einer vergangenen Tour in diesem Fenster; nur Standard, eigene Vorlagen und Beispiele. Daten waren nicht betroffen.
+- **«92 Teile»:** Reparatur (36 Werkzeuge) und Laden kamen seit 0.66.0 bei jeder Fahrt von selbst. Neu kommen sie bei einer neuen Tour nicht mehr von selbst (gespeichert als `sets.repair/charge: false`), beim Packen sind sie einen Schalter entfernt. Die schlanke «Reparatur unterwegs» (6a, B5) kommt mit Release 2.
+- **1a:** Vorlagen zugeklappt im Fenster, Bausteine nur beim Packen (Release 2: B4).
+- **2a:** «Sportart» Fahrrad · Skitour · Wandern, «+ Andere» öffnet Wochenende und Weltreise. Standard bei neuer Tour: Fahrrad (vorher: die zuletzt gewählte).
+- **3b:** je zwei Beispiel-Vorlagen pro Sportart (Fahrrad: Tagestour, Wochenende; Skitour: Tagestour, Hüttentour; Wandern: Tageswanderung, Hüttenwanderung). Ein Beispiel setzt Tage, Fahrstunden und Übernachtung und startet aus Standard. «Beispiele ausblenden» (Einstellung `tplExamplesHidden`).
+- **4b:** die ganze Packliste im Fenster, in vier Gruppen: Kleider (Kategorien am Velo, neben dem Velo, Schuhe, Regen & Kälte), Elektronik (Elektronik, Licht), Extra warm (Kälteschichten, die das Wetter bringt), Ausrüstung (alles andere). Bild = Symbol der Kategorie.
+- **5b:** Event = Hinweis und Baustein «Rennen», keine Folgeschritte.
+- **7a:** der Knopf «Tour erstellen · n Teile» zählt nur Teile für die Taschen; Teile am Körper stehen als eigener Satz.
+- **Wetter (Noah: «mit PLZ, kostenlos»):** Start-PLZ oder Ort, vorbelegt mit dem Wohnort, Suche über Open-Meteo (kostenlos, ohne Schlüssel). Ein eigener Ort wird als `trip.place` gespeichert und gilt auch fürs Dunkelwerden.
+- **KI-Helfer:** aus dem Fenster raus (auch die Einrichtungs-Notiz). Nur wenn die Suche «Als Packliste vorschlagen» mit einer Frage öffnet, erscheint «Frag den Helfer» noch, damit dieser Weg nicht ins Leere führt. Das Ausblenden an den anderen Orten (K1–K4) macht der Thread «Design-Refresh».
+- **Selbst entschieden:** Übernachtung bleibt als Knöpfe (wie bisher) statt Feld; Optionsknöpfe der Vorlagen lokal im Fenster gebaut, die gemeinsame Knopf-Komponente (N1–N4) baut der Thread «Design-Refresh»; Knopftext bleibt «Tour erstellen».
 
 ## 12.10.2026: Design-Refresh P10 «Was ist neu» (0.110.0)
 
