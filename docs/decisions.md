@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Design-Refresh P5 «Packen und Unterwegs» (0.106.0)
+
+Nach den Mockups T6–T13 (Noah 12.10.2026, alle Seiten «Runde 20 freigegeben») und «10 Pakete» (P5 = R10+R11). Nur das Aussehen ist neu.
+
+- **Selbst entschieden (P5):** Packen zeigt «Taschen» als eine Liste, die offene Tasche darunter; der Ring bleibt nur in der Handy-Leiste. Unterwegs: Basischeck links, «Was ist wo» zählt Taschen, das Wetter Stunde für Stunde bleibt offen, «Heute Abend laden» als eigene Liste. **Tour beenden:** «Tour beenden» ist jetzt der grüne Hauptknopf (wie im Mockup T13), «Weiterfahren» bleibt zuerst; das ersetzt «rot darunter» aus U25a. Die Gründe bleiben Wetter, Panne, Müde, Plan geändert. Nicht gebaut, weil neu: «Ziel unter 12 kg», Ausgelegt-Bild, Erinnerung am Vorabend, ein gemeinsames Fakten-Blatt, Licht-Bogen, «Doch heute starten», Unterwegs-Modus mit grossen Knöpfen, Regen-Hinweis, Namen der Herkunfts-Touren bei Learnings.
+
 ## 12.10.2026: Design-Refresh P7 «Velo» (0.105.0)
 
 Nach den Mockups V1–V14 (Noah 12.10.2026 «v1-v4 freigabe», 02:30 «v5-v10 freigabe», 02:36 «v11-v14 freigegeben») und «10 Pakete» (P7 = R18+R19). Nur das Aussehen ist neu.

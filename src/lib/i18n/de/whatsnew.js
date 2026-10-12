@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.106.0 Design-Refresh P5 «Packen und Unterwegs»
+  'The new look, step 9: Packing shows your bags as one list; tap a bag and its items open below.':
+    'Das neue Aussehen, Schritt 9: Packen zeigt deine Taschen als eine Liste; tippe eine Tasche, und ihre Teile öffnen sich darunter.',
+  'Swap, charge the evening before, still to decide, trip facts and end the trip are light windows.':
+    'Tauschen, Am Vorabend laden, Noch zu entscheiden, Tour-Fakten und Tour beenden sind helle Fenster.',
+  'On the way shows the day in blocks with what to wear, eat and drink now, and the weather hour by hour.':
+    'Unterwegs zeigt den Tag in Blöcken mit dem, was du jetzt anziehst, isst und trinkst, und das Wetter Stunde für Stunde.',
   // 0.105.0 Design-Refresh P7 «Velo»
   'The new look, step 8: Bikes is light, with the drawing and the bags open on the page and «More» as plain rows.':
     'Das neue Aussehen, Schritt 8: Velo ist hell, mit Zeichnung und Taschen offen auf der Seite und «Mehr» als schlichte Zeilen.',

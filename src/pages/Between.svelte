@@ -25,7 +25,11 @@
   import Interstitial from '../lib/ui/Interstitial.svelte';
   import Celebrate from '../lib/ui/Celebrate.svelte';
   import Empty from '../lib/ui/Empty.svelte';
-  import { Bell, Pencil, X, Minus, Plus, Route, Check, Undo2 } from '@lucide/svelte';
+  import { Bell, Pencil, X, Minus, Plus, Route, Check, Undo2, Zap, ChevronRight, Briefcase } from '@lucide/svelte';
+  import StepBar from '../lib/ui/StepBar.svelte';
+  import PageHead from '../lib/ui/PageHead.svelte';
+  import MainBar from '../lib/ui/MainBar.svelte';
+  import { chargeList, chargeCount } from '../lib/charge.js';
 
   let { id, kind } = $props();
 
@@ -60,6 +64,10 @@
   const startText = $derived(until == null ? '' : until <= 0 ? t('Start today') : until === 1 ? t('Start tomorrow') : tn(until, 'Start in {n} day', 'Start in {n} days'));
   const wx = $derived(trip?.wx?.min != null && trip?.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C, ${t(RAIN[trip.wx.rain ?? 'none'])}` : '');
   const eveDay = $derived(trip?.startDate ? (() => { const d = new Date(`${trip.startDate}T12:00:00`); d.setDate(d.getDate() - 1); return localDay(d); })() : null);
+  // v0.105.0 P5 (T11): «11.1 kg in 5 Taschen», what is left to charge
+  const kgLine = $derived(stats && stats.gearG + stats.onMeG ? tn(bags.length, '{kg} kg in {n} bag', '{kg} kg in {n} bags', { kg: kg(stats.gearG + stats.onMeG) }) : '');
+  const charge = $derived(trip ? chargeList(trip, items) : []);
+  const charged = $derived(trip ? chargeCount(trip, charge) : { done: 0, total: 0 });
   async function setRemind(on) {
     await db.trips.update(trip.id, { remindEve: on, updatedAt: new Date().toISOString() });
   }
@@ -137,41 +145,37 @@
   <h1 class="lost">{t('Trip not found')}</h1>
   <Empty icon={Route} text={t('This trip does not exist any more.')} action={{ label: t('Back to Trips'), href: '#/trips' }} />
 {:else if kind === 'packed'}
-  <Interstitial {trip} {tabs} {status} {current} {context} onpick={pick}
-    title={all ? t('Packed') : t('Almost packed')}
-    text={all ? (until > 0 ? t('Everything is in the bags. They can stay like that until {day}.', { day: weekday(trip.startDate) }) : t('Everything is in the bags.')) : tn(left, '{n} thing is not ticked yet. That is fine, you decide.', '{n} things are not ticked yet. That is fine, you decide.')}
-    what={until > 0 ? t('On {day} it starts. Until then there is nothing to do.', { day: weekday(trip.startDate) }) : t('Today it starts. Have a good trip!')}
-    main={packedMain} second={{ label: t('See the packing list'), href: '#/pack?day', onclick: pick }}>
-    {#if stats}
-      <section class="card bc nums" aria-label={t('Packed')}>
-        <div class="stats">
-          <p><b class="num">{stats.count}</b><small>{t('items')}</small></p>
-          {#if stats.baseG}<p><b class="num">{kg(stats.baseG)}<i> kg</i></b><small>{hasBike(trip) ? t('base on the bike') : t('base')}</small></p>{/if}
-          {#if stats.gearG + stats.onMeG}<p><b class="num">{kg(stats.gearG + stats.onMeG)}<i> kg</i></b><small>{t('total with food')}</small></p>{/if}
-        </div>
-        {#if bags.length}
-          <ul class="rows">
-            {#each bags as z (z.key)}<li><span class="nm">{zoneName(z)}</span><span class="tp-muted num">{tn(z.entries.length, '{n} item', '{n} items')}</span><span class="num">{z.grams ? `${kg(z.grams)} kg` : '–'}</span></li>{/each}
-          </ul>
+  <!-- v0.106.0 Design-Refresh P5 (T11 «Alles gepackt», approved 12.10.2026): the steps on top, one card in
+       the middle with the count tile, the celebration and what happens next, «Bis zum Start» under it. -->
+  <article class="pk" aria-labelledby="pk-h">
+    <p class="trip">{context}</p>
+    <StepBar {trip} {tabs} {status} {current} tone="light" onpick={pick} />
+    <section class="card hero" id="pk-h">
+      {#if stats?.count}
+        <p class="tally"><b class="num">{t('{n} of {total}', { n: stats.count - left, total: stats.count })}</b><small>{all ? t('{trip} · all packed', { trip: trip.title }) : trip.title}</small></p>
+      {/if}
+      <PageHead done title={all ? t('Packed') : t('Almost packed')}
+        text={all ? (until > 0 ? t('Everything is in the bags. They can stay like that until {day}.', { day: weekday(trip.startDate) }) : t('Everything is in the bags.')) : tn(left, '{n} thing is not ticked yet. That is fine, you decide.', '{n} things are not ticked yet. That is fine, you decide.')}
+        sub={kgLine} />
+      <p class="what">{until > 0 ? (hasBike(trip) ? t('On the way opens by itself on {day}.', { day: weekday(trip.startDate) }) : t('On {day} it starts. Until then there is nothing to do.', { day: weekday(trip.startDate) })) : t('Today it starts. Have a good trip!')}</p>
+    </section>
+
+    <section class="until" aria-labelledby="until-h">
+      <h2 id="until-h" class="sh">{t('Until the start')}</h2>
+      {#if until != null && until >= 0}<p class="ssub">{startText}{wx ? ` · ${wx}` : ''}</p>{/if}
+      <ul class="card rows">
+        {#if charge.length}
+          <li><a class="row" href="#/pack?charge" onclick={pick}><span class="ic" aria-hidden="true"><Zap size={18} /></span><span class="bt"><b>{t('Charge the evening before')}</b><small class="num">{t('{done} of {n} charged', { done: charged.done, n: charged.total })}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
         {/if}
-      </section>
-    {/if}
-    {#if until != null && until >= 0}
-      <section class="card bc start">
-        <span class="dbox" aria-hidden="true"><small>{new Date(`${trip.startDate}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short' })}</small><b class="num">{new Date(`${trip.startDate}T12:00:00`).getDate()}</b></span>
-        <div><b>{startText}</b>{#if wx}<small>{wx}</small>{/if}</div>
-      </section>
-    {/if}
-    {#if until > 0}
-      <!-- U21a: the reminder the evening before, as a switch (on by default; Today shows it from 18:00) -->
-      <label class="card bc remind">
-        <Bell size={20} aria-hidden="true" />
-        <span><b>{t('Reminder the evening before')}</b><small>{t('{day}, from 18:00 at the top of Today', { day: longDay(eveDay) })}</small></span>
-        <input type="checkbox" role="switch" checked={trip.remindEve !== false} onchange={(e) => setRemind(e.currentTarget.checked)} />
-      </label>
-    {/if}
-    {#snippet foot()}{#if hasBike(trip) && until > 0}<span>{t('On the way opens by itself on {day}.', { day: weekday(trip.startDate) })}</span>{/if}{/snippet}
-  </Interstitial>
+        {#if until > 0}
+          <!-- U21a: the reminder the evening before, as a switch (on by default; Today shows it from 18:00) -->
+          <li><label class="row"><span class="ic" aria-hidden="true"><Bell size={18} /></span><span class="bt"><b>{t('Reminder the evening before')}</b><small>{t('{day}, from 18:00 at the top of Today', { day: longDay(eveDay) })}</small></span><input type="checkbox" role="switch" checked={trip.remindEve !== false} onchange={(e) => setRemind(e.currentTarget.checked)} /></label></li>
+        {/if}
+        <li><a class="row" href="#/pack?day" onclick={pick}><span class="ic" aria-hidden="true"><Briefcase size={18} /></span><span class="bt"><b>{t('See the packing list')}</b>{#if stats}<small class="num">{tn(bags.length, '{n} bag', '{n} bags')} · {tn(stats.count, '{n} item', '{n} items')}</small>{/if}</span><ChevronRight size={18} aria-hidden="true" /></a></li>
+      </ul>
+    </section>
+    <MainBar main={packedMain} second={{ label: t('Back to Trips'), href: '#/trips' }} step={tabs.includes(current) ? t('Step {n} of {m}', { n: tabs.indexOf(current) + 1, m: tabs.length }) : ''} />
+  </article>
 {:else if kind === 'ended'}
   <Interstitial {trip} {tabs} {status} {current} {context} onpick={pick}
     title={t('Trip ended')} text={endedText}
@@ -224,6 +228,120 @@
 {/if}
 
 <style>
+  /* v0.105.0 P5 (T11): «Gepackt» */
+  .pk {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 0 24px;
+  }
+  .trip {
+    margin: 0 0 8px;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--ink-2);
+    overflow-wrap: break-word;
+  }
+  .hero {
+    max-width: 620px;
+    margin: 20px auto 0;
+    text-align: center;
+  }
+  .tally {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    max-width: 340px;
+    margin: 0 auto 4px;
+    padding: 18px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+  }
+  .tally b {
+    font: 700 var(--fs-section) / 1.1 var(--font-body);
+  }
+  .tally small {
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+    overflow-wrap: break-word;
+  }
+  .hero .what {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .until {
+    max-width: 620px;
+    margin: 24px auto 0;
+  }
+  .sh {
+    margin: 0;
+    font: 600 var(--fs-sub) / 1.3 var(--font-body);
+  }
+  .ssub {
+    margin: 2px 0 8px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .until .rows {
+    list-style: none;
+    margin: 8px 0 0;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  .until .rows li {
+    display: block;
+    min-height: 0;
+    padding: 0;
+    border-top: 0;
+  }
+  .until .rows li + li {
+    border-top: 1px solid var(--line);
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 60px;
+    padding: 6px 0;
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .row :global(svg) {
+    flex: none;
+  }
+  .row > :global(svg) {
+    color: var(--ink-3);
+  }
+  .ic {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .bt {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .bt b {
+    display: block;
+    font-weight: 500;
+  }
+  .bt small {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  @media (max-width: 719px) {
+    .pk {
+      padding-bottom: 96px;
+    }
+  }
   .lost {
     margin: 0 0 12px;
     font: 700 var(--fs-title)/1.2 var(--font-body);
@@ -286,52 +404,7 @@
     margin: 8px 0 0;
     font-size: var(--fs-small);
   }
-  .start {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .start div {
-    display: grid;
-    gap: 2px;
-    min-width: 0;
-  }
-  .start small,
-  .remind small {
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-  }
-  .dbox {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 56px;
-    height: 60px;
-    border-radius: 10px;
-    background: var(--paper-2);
-    color: var(--ink);
-  }
-  .dbox small {
-    font-size: var(--fs-tiny);
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }
-  .dbox b {
-    font: 700 var(--fs-section)/1 var(--font-body);
-  }
-  .remind {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 44px;
-    cursor: pointer;
-  }
-  .remind span {
-    display: grid;
-    flex: 1;
-    min-width: 0;
-  }
-  .remind input {
+  .row input[role='switch'] {
     flex: none;
     width: 52px;
     height: 30px;
@@ -342,7 +415,7 @@
     position: relative;
     cursor: pointer;
   }
-  .remind input::after {
+  .row input[role='switch']::after {
     content: '';
     position: absolute;
     top: 3px;
@@ -353,13 +426,13 @@
     background: var(--paper);
     transition: transform 0.15s;
   }
-  .remind input:checked {
+  .row input[role='switch']:checked {
     background: var(--accent);
   }
-  .remind input:checked::after {
+  .row input[role='switch']:checked::after {
     transform: translateX(22px);
   }
-  .remind input:focus-visible {
+  .row input[role='switch']:focus-visible {
     outline: var(--focus-ring);
     outline-offset: 2px;
   }
@@ -401,7 +474,7 @@
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .remind input::after {
+    .row input[role='switch']::after {
       transition: none;
     }
   }

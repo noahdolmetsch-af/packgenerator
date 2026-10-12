@@ -120,9 +120,6 @@
     "src/lib/pack/Onion.svelte": {
       "fontsize": 4
     },
-    "src/lib/pack/PackDay.svelte": {
-      "fontsize": 15
-    },
     "src/lib/pack/PackStage.svelte": {
       "fontsize": 5
     },
@@ -142,7 +139,7 @@
       "fontsize": 3
     },
     "src/lib/pack/calm-pack.css": {
-      "fontsize": 46
+      "fontsize": 19
     },
     "src/lib/tpl/BagSplit.svelte": {
       "fontsize": 6
@@ -159,15 +156,8 @@
     "src/lib/tpl/ReadyFields.svelte": {
       "fontsize": 1
     },
-    "src/lib/trip/BaseCheck.svelte": {
-      "fontsize": 2
-    },
     "src/lib/trip/ChargeList.svelte": {
-      "fontsize": 2,
       "global": 1
-    },
-    "src/lib/trip/ChargeSheet.svelte": {
-      "fontsize": 1
     },
     "src/lib/trip/InProgress.svelte": {
       "colour": 2,
@@ -224,9 +214,6 @@
     },
     "src/pages/Pack.svelte": {
       "fontsize": 10
-    },
-    "src/pages/Ride.svelte": {
-      "fontsize": 19
     },
     "src/pages/Rides.svelte": {
       "fontsize": 6
