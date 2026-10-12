@@ -19,7 +19,8 @@
   import { localDay } from '../lib/localday.js';
   import { t, tn, num } from '../lib/i18n.svelte.js';
   import Seg from '../lib/ui/Seg.svelte';
-  import { ChevronRight, Upload, Search, ListFilter, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Check } from '@lucide/svelte';
+  import '../lib/review/review.css';
+  import { ChevronLeft, ChevronRight, Upload, Search, ListFilter, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Check } from '@lucide/svelte';
 
   const today = localDay();
   const dataQ = liveQuery(() => loadReview(db));
@@ -88,8 +89,11 @@
   {#if r.rain.wet === true}<span class="wx wet"><CloudRain size={16} aria-hidden="true" />{rainText(r.rain, r.days)}</span>{:else if r.rain.wet === false}<span class="wx"><Sun size={16} aria-hidden="true" />{rainText(r.rain, r.days)}</span>{:else}<span class="wx"><Cloud size={16} aria-hidden="true" />{DASH}</span>{/if}
 {/snippet}
 
-<div class="past">
-  <nav class="crumb" aria-label={t('Path')}><a href="#/trips">{t('Trips|place')}</a><ChevronRight size={14} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={14} aria-hidden="true" /></nav>
+<!-- v0.108.0 Design-Refresh P6 (T21 «Vergangene Touren», approved 12.10.2026): the quiet path, the search over
+     the full width, «Art» and «Zeitraum» in one line, «In diesem Zeitraum» as number tiles in one card, the
+     table in a white card and the hint with its icon. The table keeps all its columns, so it stays full width. -->
+<div class="past rv-page">
+  <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Past trips')}</span></nav>
   <header class="head">
     <div>
       <h1 class="title">{t('Past trips')}</h1>
@@ -99,25 +103,16 @@
   </header>
 
   {#if $dataQ && !facts.length}
-    <div class="card empty">
+    <div class="rv-box pad empty">
       <b>{t('No finished trips yet.')}</b>
       <p>{t('A trip shows up here the day after it ends, or as soon as you end it on the ride day.')}</p>
       <a class="btn" href="#/trips">{t('Open Trips')}</a>
     </div>
   {:else if $dataQ}
-    <ul class="tiles" aria-label={t('Sum of the rows shown')}>
-      <li><b class="bignum num">{num(rows.length)}</b><span>{tn(rows.length, 'trip|unit', 'trips|unit')}</span></li>
-      <li><b class="bignum num">{n0(sums.km)}</b><span>km</span></li>
-      <li><b class="bignum num">{n0(sums.gainM)}</b><span>{t('Climbing|hm')}</span></li>
-      <li><b class="bignum num">{sums.movingH == null ? DASH : n0(sums.movingH)}</b><span>{t('h moving')}</span></li>
-      <li><b class="bignum num">{num(sums.wet)}</b><span>{t('with rain')}</span></li>
-    </ul>
-
+    <label class="rv-search find"><Search size={18} aria-hidden="true" /><input type="search" bind:value={q} placeholder={t('Trip, place or learning')} aria-label={t('Search trips and learnings')} /></label>
     <div class="tools">
-      <label class="find"><Search size={18} aria-hidden="true" /><input class="inp" type="search" bind:value={q} placeholder={t('Trip, place or learning')} aria-label={t('Search trips and learnings')} /></label>
-      <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={(v) => (mode = v)} />
       <div class="artpick">
-        <button type="button" class="btn" class:on={art !== 'all'} aria-haspopup="true" aria-expanded={artOpen} onclick={() => (artOpen = !artOpen)}><ListFilter size={18} aria-hidden="true" />{t('Kind')}: {artLabel}</button>
+        <button type="button" class="rv-chip" class:on={art !== 'all'} aria-haspopup="true" aria-expanded={artOpen} onclick={() => (artOpen = !artOpen)}><ListFilter size={16} aria-hidden="true" />{t('Kind')}: {artLabel}</button>
         {#if artOpen}
           <ul class="artlist" aria-label={t('Kind')}>
             <li><button type="button" aria-pressed={art === 'all'} onclick={() => pickArt('all')}>{#if art === 'all'}<Check size={16} aria-hidden="true" />{/if}{t('All|art')}</button></li>
@@ -125,10 +120,22 @@
           </ul>
         {/if}
       </div>
+      <div class="per"><span class="rv-lbl" aria-hidden="true">{t('Period')}</span><Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={(v) => (mode = v)} /></div>
     </div>
 
+    <section class="rv-sec sums" aria-labelledby="sum-h">
+      <div class="rv-h"><div><h2 id="sum-h">{t('In this period')}</h2></div></div>
+      <ul class="rv-box rv-tiles tiles" aria-label={t('Sum of the rows shown')}>
+        <li class="rv-tile"><b class="num">{num(rows.length)}</b><small>{tn(rows.length, 'trip|unit', 'trips|unit')}</small></li>
+        <li class="rv-tile"><b class="num">{n0(sums.km)}</b><small>km</small></li>
+        <li class="rv-tile"><b class="num">{n0(sums.gainM)}</b><small>{t('Climbing|hm')}</small></li>
+        <li class="rv-tile"><b class="num">{sums.movingH == null ? DASH : n0(sums.movingH)}</b><small>{t('h moving')}</small></li>
+        <li class="rv-tile"><b class="num">{num(sums.wet)}</b><small>{t('with rain')}</small></li>
+      </ul>
+    </section>
+
     {#if !rows.length}
-      <div class="card empty">
+      <div class="rv-box pad empty">
         <b>{t('No trip matches.')}</b>
         <p>{filtered ? t('Try another word or kind.') : t('No trip in this period.')}</p>
         {#if filtered}<button type="button" class="btn" onclick={reset}>{t('Show all kinds')}</button>{:else if mode !== 'all'}<button type="button" class="btn" onclick={() => (mode = 'all')}>{t('Show all years')}</button>{/if}
@@ -176,16 +183,12 @@
           {/each}
         </table>
       </div>
-      <p class="hint">{t('Temperature and rain from the forecast saved with the trip; time in motion from uploaded rides.')}</p>
+      <p class="rv-note hint"><Sun size={16} aria-hidden="true" /><span>{t('Temperature and rain from the forecast saved with the trip; time in motion from uploaded rides.')}</span></p>
     {/if}
   {/if}
 </div>
 
 <style>
-  .past {
-    max-width: 1400px;
-    margin: 0 auto;
-  }
   .crumb {
     display: flex;
     align-items: center;
@@ -197,8 +200,15 @@
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    min-width: 44px;
-    color: var(--accent);
+    color: var(--ink-3);
+    text-decoration: none;
+  }
+  .crumb a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+  .crumb [aria-current] {
+    color: var(--ink);
   }
   .head {
     display: flex;
@@ -212,9 +222,11 @@
     align-items: center;
     gap: 6px;
     min-height: 44px;
-    color: var(--accent);
+    color: var(--ink);
     font-weight: 500;
-    text-decoration: none;
+    font-size: var(--fs-small);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .empty {
     display: grid;
@@ -226,68 +238,32 @@
     margin: 0;
     color: var(--ink-2);
   }
-  .tiles {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 10px;
-    margin: 4px 0 14px;
-    padding: 0;
-    list-style: none;
-  }
-  @media (max-width: 719px) {
-    .tiles {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  .tiles li {
-    display: grid;
-    padding: 10px 12px;
-    border: 1px solid var(--card-line);
-    border-radius: var(--radius-card);
-    background: var(--paper);
-    box-shadow: var(--card-shadow);
-    min-width: 0;
-  }
-  .tiles span {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
   .tools {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px 12px;
-    margin-bottom: 12px;
+    gap: 8px 20px;
+    margin: 12px 0 22px;
   }
-  .find {
-    position: relative;
-    flex: 1 1 240px;
-    max-width: 380px;
+  .artpick,
+  .per {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
+    gap: 8px;
   }
-  .find :global(svg) {
-    position: absolute;
-    left: 12px;
+  .tools .rv-lbl {
     color: var(--ink-3);
-    pointer-events: none;
+    font-size: var(--fs-small);
+    font-weight: 600;
   }
-  .find .inp {
-    width: 100%;
-    min-height: 44px;
-    padding-left: 40px;
-    box-sizing: border-box;
+  .artpick .rv-chip.on {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
   }
   .artpick {
     position: relative;
-  }
-  .artpick > .btn {
-    min-height: 44px;
-  }
-  .artpick > .btn.on {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
   }
   .artlist {
     position: absolute;
@@ -340,6 +316,28 @@
     border-radius: var(--radius-card);
     background: var(--paper);
     box-shadow: var(--card-shadow);
+  }
+  .sums {
+    margin-bottom: 22px;
+  }
+  .tiles {
+    list-style: none;
+    margin: 0;
+  }
+  .rv-tile b {
+    font-size: var(--fs-section);
+  }
+  @media (min-width: 380px) and (max-width: 719px) {
+    .tiles {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      padding: 12px;
+    }
+    .tiles .rv-tile {
+      padding: 10px;
+    }
+  }
+  .rv-note.hint {
+    margin-top: 12px;
   }
   .tt {
     width: 100%;
@@ -477,9 +475,12 @@
     min-height: 44px;
     color: var(--ink-3);
   }
-  .hint {
-    margin: 8px 0 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
+
+  .head {
+    margin-bottom: 14px;
+  }
+  .tt .mrow th,
+  .tt .mrow td {
+    font-size: var(--fs-tiny);
   }
 </style>

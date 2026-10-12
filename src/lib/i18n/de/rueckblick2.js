@@ -13,4 +13,6 @@ export default {
   'Strava, Garmin or GPX': 'Strava, Garmin oder GPX',
   // T20 Logbuch
   'from all trips': 'aus allen Touren',
+  // T21 Vergangene Touren
+  'In this period': 'In diesem Zeitraum',
 };
