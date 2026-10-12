@@ -58,6 +58,11 @@ export default {
   'goes to the archive tonight · «Undo» until then': 'geht heute Nacht ins Archiv · «Rückgängig» bis dahin',
   'Tap + on any page when something comes up.': 'Auf jeder Seite + tippen, wenn dir etwas einfällt.',
 
+  /* ---------- I5 Notizen, I6 Notiz ---------- */
+  'also in the normal backup': 'auch im normalen Backup',
+  '{done} of {total} done': '{done} von {total} erledigt',
+  'a trip idea, a wish or a bike problem · the note links to it': 'Tour-Idee, Wunsch oder Velo-Problem · die Notiz verlinkt darauf',
+
   /* ---------- I10 Dein Wohnort ---------- */
   'Only for the weather · stays on this device': 'nur fürs Wetter · bleibt auf diesem Gerät',
   'Now: {place}': 'Jetzt: {place}',
