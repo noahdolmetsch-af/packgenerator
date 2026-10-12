@@ -146,9 +146,7 @@ test('template from a trip: update or save as new, and the new trip takes days a
   await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('New trip'), exact: true }).click();
   const nt = page.getByRole('dialog', { name: T('New trip') });
-  // v0.30.0: the templates are folded in the New trip window; v0.40.0: under "Start differently".
-  await nt.getByText(T('Start differently')).click();
-  await nt.getByText(T('Start from a template')).click();
+  // v0.102.0 Design-Refresh P4 (T2): the templates are cards of the gallery «Packliste startet mit», in sight.
   await nt.getByRole('button', { name: /^test_data_gtp_ Bivvy/ }).first().click();
   await expect(nt.getByLabel(T('Days')).first()).toHaveValue('3');
   await expect(nt.getByLabel(T('Riding hours per day'))).toHaveValue('4');

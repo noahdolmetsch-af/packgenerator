@@ -177,14 +177,11 @@ async function openNewTrip(page, rec, start = 'standard') {
   // v0.30.0 (Noah, finding 2): the window starts with the standard set; last trip and templates are folded in it.
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await expect(dlg).toBeVisible();
-  // v0.40.0 (Noah 10a): the last trip and the templates are folded under "Start differently", below the standard.
-  if (start !== 'standard') await rec.click(dlg.getByText(T('Start differently')));
-  if (start === 'last') await rec.click(dlg.getByRole('button', { name: T('Copy the last trip') }));
-  else if (start !== 'standard') {
-    // v0.29.2 (Noah 7a): the templates are folded under "Start from a template".
-    await rec.click(dlg.getByText(T('Start from a template')));
-    await rec.click(dlg.getByRole('button', { name: new RegExp(esc(start)) }));
-  }
+  // v0.102.0 Design-Refresh P4 (T2): the last trip and the templates are cards of the gallery
+  // «Packliste startet mit», in sight after the standard (no fold any more).
+  const starts = dlg.getByRole('group', { name: T('Packing list starts with') });
+  if (start === 'last') await rec.click(starts.getByRole('button', { name: new RegExp(`^${esc(T('Last trip'))}`) }));
+  else if (start !== 'standard') await rec.click(starts.getByRole('button', { name: new RegExp(esc(start)) }));
   return dlg;
 }
 
@@ -832,7 +829,6 @@ test('PF14: missing weights and litres; empty search, no bike, no weather: hones
   // v0.30.0: the area is chosen in the New trip window.
   const wd = page.getByRole('dialog', { name: T('New trip') });
   await expect(wd).toBeVisible();
-  await wd.locator('.area-fold > summary').click(); // v0.40.0: the area is folded
   await wd.locator('.areas button').nth(2).click();
   await rec.check('no bike: the New trip dialog asks no bike and says what the list starts with', async () => {
     await expect(wd.locator(`select:has(option[value="${BIKE.scale}"])`)).toHaveCount(0, { timeout: 2000 });

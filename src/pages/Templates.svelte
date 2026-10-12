@@ -9,9 +9,13 @@
    *   8a  "New trip" in the ••• (phone) and on hover or focus (computer); always inside the template.
    * Desktop: a table with Weight, Last, Trips (the header once). Archived templates fold away below.
    * #/pack/templates/new opens the 3 steps of a new template, #/pack/templates/<id> one template.
+   * v0.102.0 Design-Refresh P4 «Touren» (T24, approved 12.10.2026 «T24 ok»): the new look. The sentence
+   * with «Neue Vorlage», the areas as chips, «Deine Vorlagen» as a gallery (the three used last), «Alle
+   * Vorlagen» as rows in a card, each with «Neue Tour» in sight and •••; on the side «Aus der aktuellen
+   * Tour» (save it as a template) and the archived ones with «Zurückholen».
    */
   import { liveQuery } from 'dexie';
-  import { Archive, Plus, Route } from '@lucide/svelte';
+  import { Archive, Plus, Backpack, ChevronRight, Ellipsis } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { TEMPLATES_KEY, saveTemplates, templateUse, isStale, templateAreas, tplDomain, templateWeight, duplicateTemplate, freeName } from '../lib/templates.js';
   import { SETS_KEY } from '../lib/sets.js';
@@ -94,6 +98,18 @@
   };
   const weight = (w) => (w.n ? knownWeight(w.g, w.missing) : '–');
   const useLine = (use) => (use.n ? `${t('last {date}', { date: day(use.last) })} · ${tn(use.n, '{n} trip', '{n} trips')}` : t('not used yet'));
+  const lastUsed = $derived(rows.find((r) => r.use.n) ?? null);
+  // the trip Pack opens (the one chosen last on this device, else the next one): «save it as a template»
+  const current = $derived.by(() => {
+    let id = null;
+    try {
+      id = localStorage.getItem('pack.currentTrip');
+    } catch {
+      /* private mode */
+    }
+    const live = trips.filter((x) => !x.skipped && x.entries?.length);
+    return live.find((x) => x.id === id) ?? live.filter((x) => (x.startDate ?? '') >= today).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null;
+  });
   const newHref = $derived(`#/pack/templates/new${showSwitch && area !== 'all' ? `?area=${area}` : areas.length === 1 ? `?area=${areas[0].key}` : ''}`);
 
   /* ---------- actions, each with Undo for a few seconds (tpl/toast.svelte.js) ---------- */
@@ -130,6 +146,7 @@
   function saveCurrent() {
     try {
       localStorage.setItem('pack.saveTemplate', '1');
+      if (current) localStorage.setItem('pack.currentTrip', current.id);
     } catch {
       /* private mode: Pack opens without the dialog */
     }
@@ -137,231 +154,374 @@
   }
 </script>
 
+{#snippet art(n)}
+  <!-- v0.102.0 P4 (T24): the gallery picture (the same three calm tints as in «Neue Tour») -->
+  <svg class="art t{n % 3}" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true"><rect width="120" height="40" class="sky" /><circle cx="94" cy="11" r="5" class="sun" /><path d="M0 34 L22 16 L38 28 L60 8 L80 26 L96 18 L120 32 L120 40 L0 40 Z" class="m1" /><path d="M0 40 L0 32 L26 24 L52 33 L78 25 L120 34 L120 40 Z" class="m2" /></svg>
+{/snippet}
+
 {#if isNew}
   <TemplateNew area={newArea} />
 {:else if editId}
   <TemplateEdit id={editId} />
 {:else}
   <div class="tpls">
-    <p class="back"><a href="#/pack">← {t('Trips|place')}</a></p>
     <div class="head">
       <h1 class="title big">{t('Templates')}</h1>
-      <a class="btn hi new" href={newHref}><Plus size={18} aria-hidden="true" /> {t('New template')}</a>
     </div>
-    <p class="lead">{t('Building blocks plus single items. Change a building block and the templates change with it.')}</p>
+    <div class="cols">
+      <div class="mainc">
+        <div class="intro">
+          <p class="lead">{t('A template is building blocks plus single items, so the next trip starts packed.')}</p>
+          <a class="btn hi new" href={newHref}><Plus size={18} aria-hidden="true" /> {t('New template')}</a>
+        </div>
 
-    {#if showSwitch}
-      <div class="seg" role="group" aria-label={t('Area')}>
-        {#each areas as a (a.key)}<button type="button" aria-pressed={area === a.key} onclick={() => pickArea(a.key)}>{t(domainName(a.key))}<small class="num">{a.n}</small></button>{/each}
-        <button type="button" aria-pressed={area === 'all'} onclick={() => pickArea('all')}>{t('All|areas')}<small class="num">{active.length}</small></button>
+        {#if showSwitch}
+          <div class="areas">
+            <span class="albl" id="tpl-area">{t('Area')}</span>
+            <div class="chips" role="group" aria-labelledby="tpl-area">
+              {#each areas as a (a.key)}<button type="button" class="chip" aria-pressed={area === a.key} onclick={() => pickArea(a.key)}>{t(domainName(a.key))}<small class="num">{a.n}</small></button>{/each}
+              <button type="button" class="chip" aria-pressed={area === 'all'} onclick={() => pickArea('all')}>{t('All|areas')}<small class="num">{active.length}</small></button>
+            </div>
+          </div>
+        {/if}
+
+        {#if rows.length}
+          <section class="sect" aria-labelledby="tpl-gal-h">
+            <h2 class="sh" id="tpl-gal-h">{t('Your templates')}</h2>
+            <p class="ss">{[tn(rows.length, '{n} active', '{n} active'), lastUsed ? t('last {name}', { name: lastUsed.tp.name }) : ''].filter(Boolean).join(' · ')}</p>
+            <div class="card galc">
+              <ul class="gal">
+                {#each rows.slice(0, 3) as r, n (r.tp.id)}
+                  <li><a class="gcard" href="#/pack/templates/{encodeURIComponent(r.tp.id)}">{@render art(n)}<b>{r.tp.name}</b><small>{[tn(r.w.n, '{n} item', '{n} items'), weight(r.w)].join(' · ')}</small></a></li>
+                {/each}
+              </ul>
+              {#if lastUsed}<p class="gl">{t('Last used: {name}', { name: lastUsed.tp.name })}{lastUsed.use.trips[0]?.title ? ` (${lastUsed.use.trips[0].title})` : ''}</p>{/if}
+            </div>
+          </section>
+
+          <section class="sect" aria-labelledby="tpl-all-h">
+            <h2 class="sh" id="tpl-all-h">{t('All templates')}</h2>
+            <ul class="list card">
+              {#each rows as r (r.tp.id)}
+                <li class="row" data-tpl={r.tp.id}>
+                  <span class="ic" aria-hidden="true"><Backpack size={16} /></span>
+                  <a class="main" href="#/pack/templates/{encodeURIComponent(r.tp.id)}">
+                    <span class="nm">{r.tp.name}</span>
+                    <span class="comp">{[r.line, weight(r.w), r.use.n ? useLine(r.use) : ''].filter(Boolean).join(' · ')}{#if r.hints}<i class="pill">{tn(r.hints, '{n} suggestion', '{n} suggestions')}</i>{/if}</span>
+                  </a>
+                  <span class="acts">
+                    {#if r.stale}<i class="pill warn">{t('long not used')}</i>{:else if !r.use.n}<i class="never">{t('not used yet')}</i>{/if}
+                    <button type="button" class="btn sm" onclick={() => start(r.tp)}>{t('New trip')}</button>
+                    <Menu label={t('More for {name}', { name: r.tp.name })} actions={menuOf(r.tp)} onpick={(k) => pick(r.tp, k)} />
+                  </span>
+                  {#if r.stale}
+                    <div class="stale">
+                      <Archive size={16} aria-hidden="true" /><span>{t('«{name}» long not used: keep or archive. Nothing is deleted.', { name: r.tp.name })}</span>
+                      <button type="button" class="lnk" onclick={() => keep(r.tp)}>{t('Keep')}</button>
+                      <button type="button" class="lnk" onclick={() => archive(r.tp)}>{t('Archive')}</button>
+                    </div>
+                  {/if}
+                </li>
+              {/each}
+            </ul>
+          </section>
+        {:else if !archived.length}
+          <div class="card empty">
+            <b>{t('No templates yet.')}</b>
+            <p>{t('A template is building blocks plus single items, so the next trip starts packed.')}</p>
+            <button type="button" class="btn" onclick={saveCurrent}>{t('Save the current trip as a template')}</button>
+          </div>
+        {/if}
       </div>
-    {/if}
 
-    {#if rows.length}
-      <div class="thead" aria-hidden="true"><span>{t('Template')}</span><span class="r">{t('Weight')}</span><span class="r">{t('Last')}</span><span class="r">{t('Trips|place')}</span><span></span></div>
-      <ul class="list">
-        {#each rows as r (r.tp.id)}
-          <li class="row" data-tpl={r.tp.id}>
-            <a class="main" href="#/pack/templates/{encodeURIComponent(r.tp.id)}">
-              <span class="l1"><span class="nm">{r.tp.name}</span><span class="w num ph">{weight(r.w)}</span></span>
-              <span class="comp">{r.line}{#if r.hints}<i class="badge">{tn(r.hints, '{n} suggestion', '{n} suggestions')}</i>{/if}</span>
-              <span class="use num ph">{useLine(r.use)}</span>
-            </a>
-            <span class="c-w num dk">{weight(r.w)}</span>
-            <span class="c-last num dk">{r.use.n ? day(r.use.last) : '–'}</span>
-            <span class="c-n num dk">{r.use.n}</span>
-            <span class="acts">
-              <button type="button" class="btn sm dk" onclick={() => start(r.tp)}><Route size={16} aria-hidden="true" /> {t('New trip')}</button>
-              <Menu label={t('More for {name}', { name: r.tp.name })} actions={menuOf(r.tp)} onpick={(k) => pick(r.tp, k)} />
-            </span>
-            {#if r.stale}
-              <div class="stale">
-                <Archive size={16} aria-hidden="true" /><span>{t('long not used')}</span>
-                <button type="button" class="lnk" onclick={() => keep(r.tp)}>{t('Keep')}</button>
-                <button type="button" class="lnk" onclick={() => archive(r.tp)}>{t('Archive')}</button>
-              </div>
-            {/if}
-          </li>
-        {/each}
-      </ul>
-    {:else if !archived.length}
-      <div class="empty">
-        <b>{t('No templates yet.')}</b>
-        <p>{t('A template is building blocks plus single items, so the next trip starts packed.')}</p>
-        <button type="button" class="btn" onclick={saveCurrent}>{t('Save the current trip as a template')}</button>
-      </div>
-    {/if}
-
-    {#if archived.length}
-      <details class="fold">
-        <summary>{t('Archived')} <small class="num">{archived.length}</small></summary>
-        <p class="note">{t('Archived templates are not offered in "New trip". Nothing is deleted.')}</p>
-        <ul class="list">
-          {#each archived as tp (tp.id)}
-            <li class="row arch">
-              <a class="main" href="#/pack/templates/{encodeURIComponent(tp.id)}"><span class="l1"><span class="nm">{tp.name}</span></span><span class="comp">{lineOf(tp, setsValue)}</span></a>
-              <span class="acts">
-                <button type="button" class="btn sm" onclick={() => restore(tp)}>{t('Bring back')}</button>
-                <Menu label={t('More for {name}', { name: tp.name })} actions={menuOf(tp)} onpick={(k) => pick(tp, k)} />
-              </span>
-            </li>
-          {/each}
-        </ul>
-      </details>
-    {/if}
+      <aside class="side">
+        {#if current}
+          <section class="sect" aria-labelledby="tpl-cur-h">
+            <h2 class="sh" id="tpl-cur-h">{t('From the current trip')}</h2>
+            <button type="button" class="card saverow" onclick={saveCurrent}>
+              <span class="ic" aria-hidden="true"><Plus size={16} /></span>
+              <span class="st"><b>{t('Save {name} as a template', { name: current.title })}</b><small>{tn(current.entries?.length ?? 0, '{n} item', '{n} items')}</small></span>
+              <ChevronRight size={18} aria-hidden="true" />
+            </button>
+          </section>
+        {/if}
+        {#if archived.length}
+          <section class="sect" aria-labelledby="tpl-arch-h">
+            <h2 class="sh" id="tpl-arch-h">{t('Archived')}</h2>
+            <p class="ss">{t('{n} · not offered in «New trip»', { n: archived.length })}</p>
+            <ul class="list card">
+              {#each archived as tp (tp.id)}
+                <li class="row arch">
+                  <span class="ic" aria-hidden="true"><Archive size={16} /></span>
+                  <a class="main" href="#/pack/templates/{encodeURIComponent(tp.id)}"><span class="nm">{tp.name}</span><span class="comp">{lineOf(tp, setsValue)}</span></a>
+                  <span class="acts">
+                    <button type="button" class="btn sm btn-link" onclick={() => restore(tp)}>{t('Bring back')}</button>
+                    <Menu label={t('More for {name}', { name: tp.name })} actions={menuOf(tp)} onpick={(k) => pick(tp, k)} />
+                  </span>
+                </li>
+              {/each}
+            </ul>
+          </section>
+        {/if}
+        <p class="hint"><Ellipsis size={16} aria-hidden="true" /><span>{t('In the menu of every template: duplicate, archive, delete. Trips made from a template stay, also when it is deleted.')}</span></p>
+      </aside>
+    </div>
   </div>
 {/if}
 <Toast />
 
 <style>
   .tpls {
-    max-width: 1040px;
-  }
-  .back {
-    margin: 0;
-  }
-  .head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px 16px;
-    margin: 4px 0;
+    max-width: 1240px;
   }
   .head h1 {
-    flex: 1 1 auto;
-    min-width: 0;
+    margin: 0;
   }
   .big {
     font-size: var(--fs-page);
     line-height: var(--lh-title);
   }
-  .new {
-    min-height: 44px;
+  .cols {
+    display: grid;
+    gap: var(--sp-5);
+    margin-top: var(--sp-4);
+  }
+  @media (min-width: 1100px) {
+    .cols {
+      grid-template-columns: minmax(0, 1fr) 400px;
+      align-items: start;
+    }
+  }
+  .mainc,
+  .side {
+    display: grid;
+    gap: var(--sp-5);
+    min-width: 0;
+  }
+  .intro {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--sp-3) var(--sp-4);
   }
   .lead {
-    margin: 4px 0 0;
-    color: var(--ink-3);
-    font-size: 15px;
-    max-width: 60ch;
+    flex: 1 1 280px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-body);
+    line-height: 1.45;
   }
-  /* Segmented toggle (Noah 4a/5a). */
-  .seg {
-    display: inline-flex;
+  .new {
+    flex: none;
+  }
+  .areas {
+    display: flex;
     flex-wrap: wrap;
-    max-width: 100%;
-    margin: 16px 0 4px;
-    border: 1.5px solid var(--line-strong);
-    border-radius: 8px;
-    overflow: hidden;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-3);
   }
-  .seg button {
+  .albl {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     min-height: 44px;
-    padding: 0 12px;
-    border: 0;
-    border-right: 1.5px solid var(--line-strong);
+    padding: 0 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
     background: var(--paper);
     color: var(--ink);
-    font: 600 15px var(--font-body);
+    font: 500 var(--fs-small) var(--font-body);
     cursor: pointer;
   }
-  .seg button:last-child {
-    border-right: 0;
-  }
-  .seg button[aria-pressed='true'] {
+  .chip[aria-pressed='true'] {
+    border-color: var(--ink);
     background: var(--ink);
     color: var(--paper);
   }
-  .seg small {
-    margin-left: 5px;
-    font-weight: 500;
+  .chip small {
+    font-weight: 400;
     opacity: 0.8;
   }
-  /* One row per template, no box per row. */
-  .thead {
-    display: none;
+  .sh {
+    margin: 0;
+    font: 600 var(--fs-sub) / 1.3 var(--font-body);
   }
-  .list {
-    list-style: none;
-    margin: 8px 0 0;
-    padding: 0;
-    border-top: 1px solid var(--line);
+  .ss {
+    margin: 2px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
-  .row {
+  .sh + .card,
+  .ss + .card {
+    margin-top: var(--sp-2);
+  }
+  .galc {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 2px 8px;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--line);
+    gap: var(--sp-3);
   }
-  .main {
-    min-width: 0;
+  .gal {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--sp-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .gcard {
     display: grid;
     gap: 2px;
+    height: 100%;
+    padding: 0 0 var(--sp-2);
+    overflow: hidden;
+    border-radius: var(--r-ctl);
+    color: var(--ink);
     text-decoration: none;
-    color: var(--ink);
-    min-height: 44px;
   }
-  .main:visited {
-    color: var(--ink);
+  .gcard:hover b {
+    text-decoration: underline;
   }
-  .l1 {
-    display: flex;
-    gap: 8px;
-    align-items: baseline;
-  }
-  .nm {
-    font-weight: 600;
-    font-size: 16px;
-    overflow-wrap: break-word;
-    flex: 1;
-    min-width: 0;
-  }
-  .w {
-    text-align: right;
-    white-space: nowrap;
-    font-size: 15px;
-  }
-  .comp {
-    font-size: 15px;
-    color: var(--ink-2);
+  .gcard b,
+  .gcard small {
+    padding: 0 var(--sp-2);
     overflow-wrap: break-word;
   }
-  .use {
-    font-size: 14px;
-    color: var(--ink-3);
-  }
-  .badge {
-    display: inline-block;
-    margin-left: 8px;
-    font-style: normal;
-    font-size: 12px;
+  .gcard b {
+    margin-top: 6px;
+    font-size: var(--fs-small);
     font-weight: 600;
-    padding: 1px 8px;
-    border-radius: 99px;
-    background: var(--paper-2);
+  }
+  .gcard small {
     color: var(--ink-2);
-    white-space: nowrap;
+    font-size: var(--fs-tiny);
   }
-  .acts {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    justify-content: flex-end;
+  .art {
+    display: block;
+    width: 100%;
+    height: 64px;
+    border-radius: var(--r-ctl);
   }
-  .dk {
-    display: none;
+  .art .sky {
+    fill: var(--hi-soft);
   }
-  .stale {
-    grid-column: 1 / -1;
+  .art .sun {
+    fill: var(--paper);
+  }
+  .art .m1 {
+    fill: var(--l3);
+    opacity: 0.55;
+  }
+  .art .m2 {
+    fill: var(--hi);
+  }
+  .art.t1 .sky {
+    fill: var(--info-soft);
+  }
+  .art.t1 .m2 {
+    fill: var(--ink-3);
+  }
+  .art.t2 .sky {
+    fill: var(--warn-soft);
+  }
+  .art.t2 .m1 {
+    fill: var(--l2);
+  }
+  .art.t2 .m2 {
+    fill: var(--warn);
+  }
+  .gl {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .list {
+    margin: 0;
+    padding: 0 var(--sp-4);
+    list-style: none;
+  }
+  .row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 4px 8px;
-    font-size: 14px;
-    color: var(--ink-3);
+    gap: var(--sp-2) var(--sp-3);
+    min-height: 64px;
+    padding: var(--sp-2) 0;
+    border-top: 1px solid var(--line);
+  }
+  .row:first-child {
+    border-top: 0;
+  }
+  .ic {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .main {
+    display: grid;
+    flex: 1 1 200px;
+    gap: 2px;
+    min-width: 0;
+    min-height: 44px;
+    align-content: center;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .main:hover .nm {
+    text-decoration: underline;
+  }
+  .nm {
+    font-size: var(--fs-body);
+    font-weight: 500;
+    overflow-wrap: break-word;
+  }
+  .comp {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .comp .pill {
+    margin-left: var(--sp-2);
+  }
+  .acts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px var(--sp-2);
+    margin-left: auto;
+  }
+  .never {
+    color: var(--ink);
+    font-size: var(--fs-tiny);
+    font-style: normal;
+    font-weight: 600;
+  }
+  .stale {
+    display: flex;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px var(--sp-2);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .stale span {
+    flex: 1 1 200px;
     margin-right: auto;
   }
   .lnk {
@@ -370,7 +530,7 @@
     border: 0;
     background: none;
     color: var(--ink);
-    font: 500 14px var(--font-body);
+    font: 500 var(--fs-small) var(--font-body);
     text-decoration: underline;
     text-underline-offset: 2px;
     cursor: pointer;
@@ -378,28 +538,44 @@
   .arch .comp {
     color: var(--ink-3);
   }
-  .fold {
-    margin-top: 16px;
-  }
-  .fold summary {
-    min-height: 44px;
+  .saverow {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    color: var(--ink-2);
+    gap: var(--sp-3);
+    width: 100%;
+    min-height: 64px;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
     cursor: pointer;
   }
-  .fold summary small {
-    color: var(--ink-3);
+  .st {
+    display: grid;
+    flex: 1;
+    min-width: 0;
   }
-  .note {
-    margin: 0 0 4px;
+  .st b {
+    font-weight: 500;
+    overflow-wrap: break-word;
+  }
+  .st small {
+    color: var(--ink-2);
     font-size: var(--fs-small);
-    color: var(--ink-3);
+  }
+  .hint {
+    display: flex;
+    gap: var(--sp-2);
+    margin: 0;
+    padding: 0 var(--sp-3);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  .hint :global(svg) {
+    flex: none;
+    margin-top: 2px;
   }
   .empty {
-    margin-top: 16px;
     display: grid;
     gap: 6px;
     justify-items: start;
@@ -407,67 +583,5 @@
   .empty p {
     margin: 0;
     color: var(--ink-2);
-  }
-  @media (min-width: 720px) {
-    .thead {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 90px 120px 70px 180px;
-      gap: 12px;
-      margin-top: 12px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--ink-3);
-      padding: 0 8px 4px;
-    }
-    .thead .r {
-      text-align: right;
-    }
-    .thead + .list {
-      margin-top: 0;
-      border-top: 1px solid var(--line-strong);
-    }
-    .row {
-      grid-template-columns: minmax(0, 1fr) 90px 120px 70px 180px;
-      gap: 4px 12px;
-      padding: 6px 8px;
-      min-height: 56px;
-    }
-    .row.arch {
-      grid-template-columns: minmax(0, 1fr) auto;
-    }
-    .row:hover,
-    .row:focus-within {
-      background: var(--paper);
-    }
-    .ph {
-      display: none;
-    }
-    .dk {
-      display: inline-flex;
-    }
-    .c-w,
-    .c-last,
-    .c-n {
-      justify-content: flex-end;
-      font-size: 15px;
-    }
-    .c-last,
-    .c-n {
-      color: var(--ink-2);
-    }
-    /* Row actions: quiet, full on hover and on keyboard focus. */
-    .row:not(.arch) .acts {
-      opacity: 0;
-    }
-    .row:hover .acts,
-    .row:focus-within .acts {
-      opacity: 1;
-    }
-  }
-  /* A touch screen has no hover: the ••• stays visible. */
-  @media (hover: none) {
-    .row .acts {
-      opacity: 1 !important;
-    }
   }
 </style>

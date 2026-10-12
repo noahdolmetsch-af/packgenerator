@@ -248,7 +248,7 @@ test('N8, N9: rename a past trip in its band; past trips are easy to find', asyn
   expect(errors).toEqual([]);
 });
 
-test('N10, N11, v0.40.0: New trip has "Copy the last trip: name" under "Start differently"; templates in building blocks', async ({ page, context }, info) => {
+test('N10, N11, v0.102.0: New trip has «Letzte Tour: name» in the gallery after the standard; templates in building blocks', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const std = ['EL01', 'EL02', 'EL03', 'LI01', 'LI02', 'ON01', 'ON02', 'OF01', 'RA01', 'RA02', 'TO01', 'TO02', 'TO03', 'HY02'];
@@ -278,23 +278,21 @@ test('N10, N11, v0.40.0: New trip has "Copy the last trip: name" under "Start di
   }), value);
   await page.evaluate(() => { localStorage.setItem('pack.startFrom', 'standard'); location.hash = '#/pack'; window.dispatchEvent(new Event('pg:newtrip')); });
   const dlg = page.getByRole('dialog', { name: T('New trip') });
-  // v0.40.0 (Noah 10a, Funde 7a): the standard first; the other starts folded below it as one row.
-  const other = dlg.locator('details.starts > summary');
-  await expect(other).toContainText(T('Start differently'));
+  // v0.102.0 Design-Refresh P4 (T2): the starts are one gallery «Packliste startet mit»: the standard
+  // first (chosen), then the last trip with its name, then the templates with their building blocks.
+  const starts = dlg.getByRole('group', { name: T('Packing list starts with') }).getByRole('button');
+  await expect(starts.first()).toContainText(T('Standard'));
+  await expect(starts.first()).toHaveAttribute('aria-pressed', 'true');
   await expect(dlg.locator('.plan')).toContainText(T('Standard'));
-  const copy = dlg.getByRole('button', { name: T('Copy the last trip: {title}', { title: 'test_data_gtp_ Letzte' }) });
-  await expect(copy).toBeHidden();
-  await other.click();
-  await expect(copy).toBeVisible();
+  const copy = starts.filter({ hasText: T('Last trip') });
+  await expect(copy).toContainText('test_data_gtp_ Letzte');
   await copy.click();
-  await expect(other).toContainText(T('Copy|start'));
-  await expect(dlg.locator('.plan')).toContainText(T('Copy: {title}', { title: 'test_data_gtp_ Letzte' }));
-  // Templates stay folded; open, the row says what is in it in building blocks.
-  await other.click();
   await expect(copy).toHaveAttribute('aria-pressed', 'true');
-  await dlg.locator('details summary').filter({ hasText: T('Start from a template') }).click();
-  await expect(dlg.locator('.opt').filter({ hasText: 'test_data_gtp_ Regenrunde' })).toContainText(/Standard \+ test_data_gtp_ Regen \+ 1 Extra$/);
-  await expect(dlg.locator('.opt').filter({ hasText: 'test_data_gtp_ Regenrunde' })).toContainText(`${T('{n} day', { n: 1 })} · ${T('{n} h', { n: '2' })}`);
+  await expect(starts.first()).toHaveAttribute('aria-pressed', 'false');
+  await expect(dlg.locator('.plan')).toContainText(T('Copy: {title}', { title: 'test_data_gtp_ Letzte' }));
+  const card = starts.filter({ hasText: 'test_data_gtp_ Regenrunde' });
+  await expect(card).toContainText(/Standard \+ test_data_gtp_ Regen \+ 1 Extra$/);
+  await expect(card).toContainText(`${T('{n} day', { n: 1 })} · ${T('{n} h', { n: '2' })}`);
   await page.screenshot({ path: info.outputPath('new-trip.png') });
   expect(errors).toEqual([]);
 });
