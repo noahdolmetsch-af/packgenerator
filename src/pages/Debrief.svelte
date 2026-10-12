@@ -23,7 +23,8 @@
   import { endedTooEarly } from '../lib/tripsoverview.js';
   import { PLAY_WISH } from '../lib/play.js';
   import '../lib/trip/trip.css';
-  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, Route } from '@lucide/svelte';
+  import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, Route, Sun, NotebookPen } from '@lucide/svelte';
+  import '../lib/review/review.css';
   import { ZONE, touched } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
@@ -36,7 +37,6 @@
   import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
-  import { phone } from '../lib/media.svelte.js';
   import Seg from '../lib/ui/Seg.svelte';
   import { CLOTHING, CLOTHING_OFFSET, offsetRecord, chooseKit, tempKits, coldest, tempRange } from '../lib/wardrobe.js';
   import { SETS_KEY } from '../lib/sets.js';
@@ -278,11 +278,9 @@
   async function summaryFromDraft(text, edit) {
     d.note = text;
     await persist();
-    const fold = document.querySelector('details.note-fold');
-    if (fold) fold.open = true;
     if (edit) {
       await tick();
-      const area = fold?.querySelector('textarea');
+      const area = document.querySelector('.sentence textarea');
       area?.scrollIntoView({ block: 'center' });
       area?.focus();
     }
@@ -305,6 +303,11 @@
   const more = $derived(sugg.filter((x) => x !== top));
   const used = $derived(d && trip ? trip.entries.filter((e) => byId[e.itemId] && !d.items[e.itemId]).length : 0);
   // v0.92.0 (Noah 4a): one chip per packed item, in the order of the trip; the tally counts what stayed in the bag.
+  // v0.107.0 Design-Refresh P6 (T15): the chips by bag, in the order of the trip, each item once.
+  const chipGroups = $derived.by(() => {
+    const seen = new Set();
+    return groups.map((g) => ({ ...g, rows: g.rows.filter(({ e }) => !seen.has(e.itemId) && seen.add(e.itemId)) })).filter((g) => g.rows.length);
+  });
   const chips = $derived(trip ? trip.entries.filter((e, i, all) => byId[e.itemId] && all.findIndex((x) => x.itemId === e.itemId) === i).map((e) => ({ e, item: byId[e.itemId] })) : []);
   const unusedN = $derived(d ? chips.filter(({ e }) => d.items[e.itemId] === 'unused').length : 0);
   const unusedG = $derived(d ? chips.reduce((g, { e, item }) => g + (d.items[e.itemId] === 'unused' && item.weightG != null ? item.weightG * (e.qty || 1) : 0), 0) : 0);
@@ -317,8 +320,6 @@
     { key: 'template', name: 'Template' },
   ];
   const ticked = (s) => ticks[s.id] ?? true;
-  // Open on a big screen when shown; afterwards it stays as you leave it (an attribute would shut it on every change).
-  const openOnce = (node, open) => { node.open = open; };
 
   // v0.30.1 (Noah C3): "Yes, remember" saved nothing (the suggestion was ticked already, so the tap
   // changed nothing). Now it applies this one suggestion at once, the way "Save debrief" applies the
@@ -454,26 +455,51 @@
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
         <TripSaved {trip} {d} {bike} {trips} {debriefs} rides={$ridesQ ?? []} {learnings} {items} containers={$bagsQ ?? []} bikes={$bikesQ ?? []} {counts} {sugg} {offer} onreopen={reopen} />
       {:else}
-      <!-- v0.92.0 «Rückblick antippen» (App einfach C, Noah 4a, mockup C): «not needed» as chips on top,
-           the rest as three rows below (what was missing, how it was, for next time), the button «Done». -->
-      <div class="tp-grid2 r">
-        <div class="col">
-          <section class="tp-card unneeded" aria-labelledby="unneeded-h">
-            <h2 id="unneeded-h">{t('What did you not need?')}</h2>
-            <p class="tp-muted sub">{t('Tap what stayed in the bag. The app learns it for next time.')}</p>
-            <div class="chips" role="group" aria-labelledby="unneeded-h">
-              {#each chips as { e, item } (e.itemId)}
-                {@const st = d.items[e.itemId] ?? 'used'}
-                <button type="button" class="chip {st}" aria-pressed={st !== 'used'} aria-label={t('{name}: {state}. Tap to change.', { name: nameOf(item), state: t(STATE[st]) })} onclick={() => mark(e.itemId, st === 'used' ? 'unused' : 'used')}>{nameOf(item)}{#if e.qty > 1}<small> × {e.qty}</small>{/if}{#if st === 'broken'}<small class="br"> · {t('Broken')}</small>{/if}</button>
-              {/each}
+      <!-- v0.107.0 Design-Refresh P6 (T15 «Rückblick ausfüllen», approved 12.10.2026): two columns as in the
+           mockup. Left: what stayed in the bag (chips by bag, «Alle ✓ · Alle –»), what was missing with the
+           suggestion for next time and the one sentence. Right: the notes on the way, upload a ride, «Mehr»
+           (how it was, all items by bag). Everything the page could do stays; nothing is new. -->
+      <div class="rv-lay dbf">
+        <div class="rv-col">
+          <section class="rv-sec unneeded" aria-labelledby="unneeded-h">
+            <div class="rv-h"><div><h2 id="unneeded-h">{t('What did you not need?')}</h2><p class="rv-sub">{t('Tap what stayed in the bag. The app learns it for next time.')}</p></div></div>
+            <div class="rv-box pad">
+              <div class="bags" role="group" aria-labelledby="unneeded-h">
+                {#each chipGroups as g (g.slot)}
+                  <div class="cbag">
+                    {#if chipGroups.length > 1 || g.name}<p class="cbh"><b>{t(g.name)}</b>
+                      <span class="alls">
+                        <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All ✓')}</button>
+                        <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('All –')}</button>
+                      </span></p>{/if}
+                    <div class="chips">
+                      {#each g.rows as { e, item } (e.itemId)}
+                        {@const st = d.items[e.itemId] ?? 'used'}
+                        <button type="button" class="chip {st}" aria-pressed={st !== 'used'} aria-label={t('{name}: {state}. Tap to change.', { name: nameOf(item), state: t(STATE[st]) })} title={before[e.itemId] ? tn(before[e.itemId], 'not used on {n} trip before', 'not used on {n} trips before') : undefined} onclick={() => mark(e.itemId, st === 'used' ? 'unused' : 'used')}>{#if st === 'used'}<Check size={14} aria-hidden="true" />{:else if st === 'unused'}<Minus size={14} aria-hidden="true" />{:else}<X size={14} aria-hidden="true" />{/if}{nameOf(item)}{#if e.qty > 1}<small> × {e.qty}</small>{/if}{#if st === 'broken'}<small class="br"> · {t('Broken')}</small>{/if}</button>
+                      {/each}
+                    </div>
+                  </div>
+                {/each}
+              </div>
+              <p class="tally" role="status">{#if unusedN}<b>{tn(unusedN, '{n} not used', '{n} not used')}</b>{#if unusedG > 0}{' · '}{t('{weight} less next time?', { weight: formatWeight(unusedG) })}{/if}{:else}{t('Nothing tapped: everything counts as used.')}{/if}</p>
             </div>
-            <p class="tally" role="status">{#if unusedN}<b>{tn(unusedN, '{n} not used', '{n} not used')}</b>{#if unusedG > 0}{' · '}{t('{weight} less next time?', { weight: formatWeight(unusedG) })}{/if}{:else}{t('Nothing tapped: everything counts as used.')}{/if}</p>
           </section>
-        </div>
-        <div class="col">
-          <details class="tp-fold more-row miss-fold" use:openOnce={!phone.matches}>
-            <summary><span class="two"><b>{t('What was missing?')}</b><small>{d.missing.length ? d.missing.map((m) => m.name).join(', ') : t('e.g. Headlamp')}</small></span><span class="r"><i class="tp-badge">{t('More')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-            <div class="in">
+
+          <section class="rv-sec miss-fold next-fold" aria-labelledby="miss-h">
+            <div class="rv-h"><div><h2 id="miss-h">{t('What was missing?')}</h2>{#if d.missing.length}<p class="rv-sub">{d.missing.map((m) => m.name).join(', ')}</p>{/if}</div></div>
+            <div class="rv-box pad">
+              {#if rememberMsg}<p class="remembered" role="status"><Check size={16} aria-hidden="true" />{rememberMsg}</p>{/if}
+              {#if top}
+                <!-- Noah 9a: one suggestion for next time, with its reason; «Ja, merken» saves it at once. -->
+                <div class="learn" role="group" aria-labelledby="learn-h1">
+                  <span class="rv-ic" aria-hidden="true"><Star size={18} /></span>
+                  <span class="rv-m"><span class="rv-t" id="learn-h1">{top.label}</span><span class="rv-s">{top.detail}</span></span>
+                  <span class="yn">
+                    <button type="button" class="btn sm yes" disabled={remembering} onclick={() => remember(top)}>{t('Yes, remember')}</button>
+                    <button type="button" class="btn sm" disabled={remembering} onclick={() => ((ticks[top.id] = false), (rememberMsg = ''))}>{t('No')}</button>
+                  </span>
+                </div>
+              {/if}
               {#if d.missing.length}
                 <ul class="exc">
                   {#each d.missing as m (m.id)}
@@ -491,82 +517,11 @@
               {#if similar.length}<p class="similar"><span>{t('In your gear:')}</span>{#each similar as i (i.id)}<button type="button" class="btn sm" onclick={() => addItem(i)}>{nameOf(i)}</button>{/each}</p>{/if}
               {#if missQ && !exactMiss}<p class="similar"><button type="button" class="btn sm" onclick={addMissing}>+ {t('Add "{q}" as new (not in your gear)', { q: missQ })}</button></p>{/if}
               <datalist id="gear-names">{#each notOnTrip as i (i.id)}<option value={i.name}></option>{/each}</datalist>
-            </div>
-          </details>
-
-          <!-- Noah 9a: filled in; change only what was not so. -->
-          <details class="tp-fold more-row how-fold">
-            <summary><span class="two"><b>{t("How was it?")}</b><small>{byBike ? t('Weather, clothing, food, km, ride') : t('Weather, clothing, food, bags')}</small></span><span class="r"><i class="tp-badge">{t('More')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-            <div class="in">
-              {#if freeNotes.length}
-                <div class="ridenotes">
-                  <span class="lbl">{t('Notes on the way')}</span>
-                  <ul>{#each freeNotes as n (n.key)}<li><small class="num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</small> {n.text}</li>{/each}</ul>
-                  <!-- v0.77.0 (answer 3a): the helper's draft only on request -->
-                  {#if isOn() && !draft}
-                    <p class="kh-getdraft"><button type="button" class="btn sm" disabled={draftBusy} onclick={getDraft}><Sparkles size={16} aria-hidden="true" />{draftBusy ? t('The helper is thinking …') : t('Get a draft')}</button></p>
-                    {#if draftMsg}<p class="kh-msg" role="status">{draftMsg}</p>{/if}
-                  {/if}
-                </div>
-              {/if}
-              {#if draft}<DebriefDraft {draft} notes={freeNotes} days={trip.days ?? 1} onlearn={learnFromDraft} onsummary={summaryFromDraft} onclose={() => (draft = null)} />{/if}
-              <!-- v0.40.0 (Noah 4a): segmented toggles instead of drop-downs: one tap, the answer in sight. -->
-              <div class="qa">
-                <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={WEATHER.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('weather', v)} /></div>
-                <!-- v0.42.0 (Noah 6): how the clothing was; it slowly shifts the borders of the temperature kits. -->
-                <div class="segq"><span class="lbl" id="q-cloth">{t('Clothing')}</span><Seg labelledby="q-cloth" value={d.clothing ?? null} options={CLOTHING.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('clothing', v)} />
-                  <p class="tp-muted tp-small clothhint">{tripKit ? t('Slowly shifts the borders of your temperature kits (here kit {range}).', { range: tempRange(tripKit.minC, tripKit.maxC, t) }) : t('Slowly shifts the borders of your temperature kits.')}</p></div>
-                <div class="segq"><span class="lbl" id="q-amount">{t('Amount of food and drink')}</span><Seg labelledby="q-amount" value={d.amount} options={AMOUNT.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('amount', v)} /></div>
-                <div class="segq"><span class="lbl" id="q-bags">{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><Seg labelledby="q-bags" value={d.bags} options={BAGS_OK.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('bags', v)} /></div>
-                {#if bike}
-                  <label><span>{t('km for {bike}', { bike: bike.name })} <small>{bike.km != null ? t('now {km} km', { km: num(bike.km) }) : ''}</small></span><span class="kmin"><input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder={t('e.g. 303')} aria-label={t('km of this trip')} /> km</span></label>
-                {/if}
-              </div>
-              {#if bike}
-                <p class="tp-muted tp-small kmsrc">{trip.route?.km && d.km === Math.round(trip.route.km) ? t('km from the route.') : ''}</p>
-                {#if rideMsg}<p class="hint ride" role="status">{rideMsg}</p>{/if}
-                <details class="howto">
-                  <summary>{t('Import from Strava or Garmin')}</summary>
-                  <span class="btn sm imp"><Upload size={16} aria-hidden="true" />{t('Choose files')}<input type="file" accept=".csv,.gpx,.tcx,text/csv,application/gpx+xml" multiple onchange={importRides} aria-label={t('Import from Strava or Garmin')} /></span>
-                  <p><b>Strava:</b> {t('on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).')}</p>
-                  <p><b>Garmin Connect:</b> {t('on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).')}</p>
-                  <p>{t('Several files at once are fine (one per day). Only rides on the days of this trip count.')}</p>
-                </details>
-              {/if}
-              <!-- v0.41.0 (Noah 1, 3): the recorded ride of this trip: planned vs real and its learnings -->
-              <ul class="rowlist ridelink">
-                {#each tripRides as r (r.id)}
-                  <li><a class="lrow" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}><span class="ic"><Route size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Planned vs real')}</span><span class="s">{r.name}</span></span><span class="v num">{num(r.km)} km</span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-                {:else}
-                  <li><a class="lrow" href="#/debrief/ride"><span class="ic"><Upload size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Upload ride')}</span><span class="s">{t('GPX: pauses, planned vs real, learnings')}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-                {/each}
-              </ul>
-              <!-- v0.40.0 (design check R1): folded as a row; open when there is a sentence already. -->
-              <details class="note-fold" use:openOnce={!!d.note}>
-                <summary><span>{t('One sentence for next time')}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
-                <textarea class="inp" rows="2" bind:value={d.note} oninput={persist} placeholder={t('e.g. Heatwave, the rain gear was never used')} aria-label={t('One sentence for next time')}></textarea>
-              </details>
-            </div>
-          </details>
-
-          {#if top || more.length || rememberMsg}
-            <details class="tp-fold more-row next-fold">
-              <summary><span class="two"><b>{t('For next time')}</b><small>{top ? top.label : t('Nothing more to suggest.')}</small></span><span class="r"><i class="tp-badge">{tn(sugg.filter(ticked).length, '{n} ticked', '{n} ticked')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-              <div class="in">
-                {#if rememberMsg}<p class="card ok remembered" role="status">{rememberMsg}</p>{/if}
-                {#if top}
-                  <!-- Noah 9a: one suggestion for next time, with its reason. -->
-                  <section class="tp-card learn" aria-labelledby="learn-h1">
-                    <h2 id="learn-h1"><Star size={18} aria-hidden="true" />{t('For next time')}</h2>
-                    <p><b>{top.label}</b><br />{top.detail}</p>
-                    <div class="tp-chips" role="group" aria-label={top.label}>
-                      <button type="button" class="btn yes" disabled={remembering} onclick={() => remember(top)}>{t('Yes, remember')}</button>
-                      <button type="button" class="btn" disabled={remembering} onclick={() => ((ticks[top.id] = false), (rememberMsg = ''))}>{t('No')}</button>
-                    </div>
-                  </section>
-                {/if}
-                {#if more.length}
-                  <p class="lbl moresug">{t('More suggestions')}</p>
+              <label class="sentence"><span>{t('One sentence for next time')}</span>
+                <textarea class="inp" rows="2" bind:value={d.note} oninput={persist} placeholder={t('e.g. Heatwave, the rain gear was never used')}></textarea></label>
+              {#if more.length}
+                <details class="moresugs">
+                  <summary><span>{t('More suggestions')}</span><span class="rv-v">{tn(sugg.filter(ticked).length, '{n} ticked', '{n} ticked')}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></summary>
                   {#each GROUPS as grp (grp.key)}
                     {@const list = more.filter((x) => x.group === grp.key)}
                     {#if list.length}
@@ -575,34 +530,99 @@
                     {/if}
                   {/each}
                   <p class="hint tp-small">{t('Nothing changes without a tick.')}</p>
-                {/if}
-              </div>
-            </details>
+                </details>
+              {/if}
+            </div>
+          </section>
+        </div>
+
+        <div class="rv-col">
+          {#if freeNotes.length}
+            <section class="rv-sec ridenotes" aria-labelledby="notes-h">
+              <div class="rv-h"><div><h2 id="notes-h">{t('Notes on the way')}</h2><p class="rv-sub">{tn(freeNotes.length, '{n} · waiting here', '{n} · waiting here')}</p></div></div>
+              <ul class="rv-box">
+                {#each freeNotes as n (n.key)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><NotebookPen size={18} /></span><span class="rv-m"><span class="rv-t">{n.text}</span><span class="rv-s num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</span></span></li>{/each}
+              </ul>
+            </section>
           {/if}
 
-          <!-- Noah 9a: every item counts as used; a tap on an item changes it: used → not used → broken. -->
-          <details class="tp-fold more-row items-fold">
-            <summary><span class="two"><b>{tn(used, '{n} item used', '{n} items used')}</b><small>{t('All items by bag, also broken')}</small></span><span class="r"><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-            <div class="in">
-              <p class="tp-muted tp-small cyc">{t('used → not used → broken')}</p>
-              {#each groups as g (g.slot)}
-                <section class="bag" aria-label={t(g.name)}>
-                  <h3><Briefcase size={16} aria-hidden="true" />{t(g.name)} <span class="tp-muted">{tn(g.rows.length, '{n} item', '{n} items')}</span>
-                    <span class="alls">
-                      <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All ✓')}</button>
-                      <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('All –')}</button>
-                    </span></h3>
-                  <ul class="exc">
-                    {#each g.rows as { e, item } (e.itemId)}
-                      {@const st = d.items[e.itemId] ?? 'used'}
-                      <li><span class="nm">{nameOf(item)}{#if e.qty > 1}<small class="q">{' '}× {e.qty}</small>{/if}{#if before[e.itemId]}<small>{tn(before[e.itemId], 'not used on {n} trip before', 'not used on {n} trips before')}</small>{/if}</span>
-                        <button type="button" class="state {st}" aria-label={t('{name}: {state}. Tap to change.', { name: nameOf(item), state: t(STATE[st]) })} onclick={() => cycle(e.itemId)}>{#if st === 'used'}<Check size={16} aria-hidden="true" />{:else if st === 'unused'}<Minus size={16} aria-hidden="true" />{:else}<X size={16} aria-hidden="true" />{/if}{t(STATE[st])}</button></li>
-                    {/each}
-                  </ul>
-                </section>
+          <section class="rv-sec" aria-labelledby="upload-h">
+            <div class="rv-h"><div><h2 id="upload-h">{t('Upload ride')}</h2><p class="rv-sub">{t('optional: pauses, plan and reality')}</p></div></div>
+            <ul class="rv-box ridelink">
+              {#if bike}
+                <li>
+                  <label class="rv-row imp"><span class="rv-ic" aria-hidden="true"><Route size={18} /></span><span class="rv-m"><span class="rv-t">{t('Import from Strava or Garmin')}</span><span class="rv-s">{t('one file per day')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /><input type="file" accept=".csv,.gpx,.tcx,text/csv,application/gpx+xml" multiple onchange={importRides} aria-label={t('Import from Strava or Garmin')} /></label>
+                  {#if rideMsg}<p class="hint ride" role="status">{rideMsg}</p>{/if}
+                  <details class="howto">
+                    <summary>{t('How it works')}</summary>
+                    <p><b>Strava:</b> {t('on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).')}</p>
+                    <p><b>Garmin Connect:</b> {t('on a ride → ⚙ → Export to GPX or TCX, or Activities → Export CSV (the list).')}</p>
+                    <p>{t('Several files at once are fine (one per day). Only rides on the days of this trip count.')}</p>
+                  </details>
+                </li>
+              {/if}
+              <!-- v0.41.0 (Noah 1, 3): the recorded ride of this trip: planned vs real and its learnings -->
+              {#each tripRides as r (r.id)}
+                <li><a class="rv-row" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}><span class="rv-ic" aria-hidden="true"><Route size={18} /></span><span class="rv-m"><span class="rv-t">{t('Planned vs real')}</span><span class="rv-s">{r.name}</span></span><span class="rv-v">{num(r.km)} km</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+              {:else}
+                <li><a class="rv-row" href="#/debrief/ride"><span class="rv-ic" aria-hidden="true"><Upload size={18} /></span><span class="rv-m"><span class="rv-t">{t('Choose a GPX file')}</span><span class="rv-s">{t('GPX: pauses, planned vs real, learnings')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
               {/each}
+            </ul>
+          </section>
+
+          <section class="rv-sec" aria-labelledby="more-h">
+            <div class="rv-h"><div><h2 id="more-h">{t('More')}</h2></div></div>
+            <div class="rv-box">
+              <!-- Noah 9a: filled in; change only what was not so. -->
+              <details class="how-fold">
+                <summary class="rv-row"><span class="rv-ic" aria-hidden="true"><Sun size={18} /></span><span class="rv-m"><span class="rv-t">{t('How was it?')}</span><span class="rv-s">{byBike ? t('Weather, clothing, food, km') : t('Weather, clothing, food, bags')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></summary>
+                <div class="in">
+                  <!-- v0.40.0 (Noah 4a): segmented toggles instead of drop-downs: one tap, the answer in sight. -->
+                  <div class="qa">
+                    <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={WEATHER.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('weather', v)} /></div>
+                    <!-- v0.42.0 (Noah 6): how the clothing was; it slowly shifts the borders of the temperature kits. -->
+                    <div class="segq"><span class="lbl" id="q-cloth">{t('Clothing')}</span><Seg labelledby="q-cloth" value={d.clothing ?? null} options={CLOTHING.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('clothing', v)} />
+                      <p class="tp-muted tp-small clothhint">{tripKit ? t('Slowly shifts the borders of your temperature kits (here kit {range}).', { range: tempRange(tripKit.minC, tripKit.maxC, t) }) : t('Slowly shifts the borders of your temperature kits.')}</p></div>
+                    <div class="segq"><span class="lbl" id="q-amount">{t('Amount of food and drink')}</span><Seg labelledby="q-amount" value={d.amount} options={AMOUNT.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('amount', v)} /></div>
+                    <div class="segq"><span class="lbl" id="q-bags">{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><Seg labelledby="q-bags" value={d.bags} options={BAGS_OK.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('bags', v)} /></div>
+                    {#if bike}
+                      <label><span>{t('km for {bike}', { bike: bike.name })} <small>{bike.km != null ? t('now {km} km', { km: num(bike.km) }) : ''}</small></span><span class="kmin"><input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder={t('e.g. 303')} aria-label={t('km of this trip')} /> km</span></label>
+                    {/if}
+                  </div>
+                  {#if bike}<p class="tp-muted tp-small kmsrc">{trip.route?.km && d.km === Math.round(trip.route.km) ? t('km from the route.') : ''}</p>{/if}
+                </div>
+              </details>
+              <!-- Noah 9a: every item counts as used; a tap on an item changes it: used → not used → broken. -->
+              <details class="items-fold">
+                <summary class="rv-row"><span class="rv-ic" aria-hidden="true"><Briefcase size={18} /></span><span class="rv-m"><span class="rv-t">{tn(used, '{n} item used', '{n} items used')}</span><span class="rv-s">{t('All items by bag, also broken')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></summary>
+                <div class="in">
+                  <p class="tp-muted tp-small cyc">{t('used → not used → broken')}</p>
+                  {#each groups as g (g.slot)}
+                    <section class="bag" aria-label={t(g.name)}>
+                      <h3>{t(g.name)} <span class="tp-muted">{tn(g.rows.length, '{n} item', '{n} items')}</span>
+                        <span class="alls">
+                          <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'used')} aria-label={t('All used: {bag}', { bag: t(g.name) })}>{t('All ✓')}</button>
+                          <button type="button" class="tp-link" onclick={() => markAll(g.rows, 'unused')} aria-label={t('None used: {bag}', { bag: t(g.name) })}>{t('All –')}</button>
+                        </span></h3>
+                      <ul class="exc">
+                        {#each g.rows as { e, item } (e.itemId)}
+                          {@const st = d.items[e.itemId] ?? 'used'}
+                          <li><span class="nm">{nameOf(item)}{#if e.qty > 1}<small class="q">{' '}× {e.qty}</small>{/if}{#if before[e.itemId]}<small>{tn(before[e.itemId], 'not used on {n} trip before', 'not used on {n} trips before')}</small>{/if}</span>
+                            <button type="button" class="state {st}" aria-label={t('{name}: {state}. Tap to change.', { name: nameOf(item), state: t(STATE[st]) })} onclick={() => cycle(e.itemId)}>{#if st === 'used'}<Check size={16} aria-hidden="true" />{:else if st === 'unused'}<Minus size={16} aria-hidden="true" />{:else}<X size={16} aria-hidden="true" />{/if}{t(STATE[st])}</button></li>
+                        {/each}
+                      </ul>
+                    </section>
+                  {/each}
+                </div>
+              </details>
+              {#if isOn() && freeNotes.length && !draft}
+                <!-- v0.77.0 (answer 3a): the helper's draft only on request -->
+                <button type="button" class="rv-row kh-getdraft" disabled={draftBusy} onclick={getDraft}><span class="rv-ic" aria-hidden="true"><Sparkles size={18} /></span><span class="rv-m"><span class="rv-t">{draftBusy ? t('The helper is thinking …') : t('With the helper')}</span><span class="rv-s">{t('Get a draft, optional')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></button>
+              {/if}
             </div>
-          </details>
+            {#if draftMsg}<p class="kh-msg" role="status">{draftMsg}</p>{/if}
+          </section>
+          {#if draft}<DebriefDraft {draft} notes={freeNotes} days={trip.days ?? 1} onlearn={learnFromDraft} onsummary={summaryFromDraft} onclose={() => (draft = null)} />{/if}
         </div>
       </div>
       {/if}
@@ -640,68 +660,202 @@
     min-height: 48px;
     justify-content: center;
   }
-
-  .ridelink {
-    margin: 4px 0 8px;
+  /* v0.107.0 Design-Refresh P6 (T15): the debrief in two columns, as in the mockup */
+  .dbf {
+    margin-top: 6px;
   }
-  /* v0.92.0 «Rückblick antippen»: the packed items as chips; a tapped one stayed in the bag. */
-  .unneeded .sub {
-    margin: 4px 0 12px;
+  .bags {
+    display: grid;
+    gap: 4px;
+  }
+  .cbag + .cbag {
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .cbh {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 8px;
+    margin: 0 0 6px;
+  }
+  .cbh b {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: 600;
+    overflow-wrap: break-word;
   }
   .chips {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    padding-bottom: 6px;
   }
   .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     min-height: 44px;
-    padding: 8px 14px;
-    border: 1px solid var(--line-strong);
+    padding: 6px 14px;
+    border: 1px solid transparent;
     border-radius: 999px;
-    background: var(--paper);
+    background: var(--ok-soft);
     color: var(--ink);
-    font: 500 var(--fs-body) var(--font-body);
+    font: 500 var(--fs-small) var(--font-body);
     cursor: pointer;
     max-width: 100%;
     overflow-wrap: break-word;
     text-align: left;
   }
+  .chip :global(svg) {
+    flex: none;
+    color: var(--ink-3);
+  }
   .chip small {
     color: var(--ink-3);
-    font-size: var(--fs-small);
+    font-size: var(--fs-tiny);
   }
   .chip.unused {
-    background: var(--paper-2);
-    border-color: transparent;
+    background: var(--paper);
+    border-color: var(--line-strong);
     color: var(--ink-3);
     text-decoration: line-through;
   }
   .chip.broken {
-    background: var(--bad-soft);
-    border-color: transparent;
-    color: var(--bad);
-    text-decoration: line-through;
+    background: var(--warn-soft);
+    color: var(--ink);
   }
   .chip.broken small.br {
-    color: var(--bad);
+    color: var(--ink-2);
   }
   .tally {
-    margin: 14px 0 0;
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
   .tally b {
     color: var(--ink);
   }
-  .moresug {
+  .learn {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 2px 0 12px;
+  }
+  .learn .rv-m {
+    flex: 1 1 14em;
+  }
+  .yn {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .yn .btn {
+    min-height: 44px;
+  }
+  .yn .btn.yes {
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
+    font-weight: 600;
+  }
+  .remembered {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 10px;
+    padding: 10px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--ok-soft);
+    color: var(--ink);
+    font-size: var(--fs-small);
+  }
+  .sentence {
+    display: grid;
+    gap: 6px;
+    margin-top: 14px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .moresugs {
     margin-top: 12px;
+    border-top: 1px solid var(--line);
   }
-  .flow .tp-card > h2 {
-    margin-bottom: 10px;
+  .moresugs summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    list-style: none;
+    cursor: pointer;
+    font-weight: 500;
   }
-  .flow .tp-card > h2 .r {
-    white-space: normal;
-    text-align: right;
+  .moresugs summary > span:first-child {
+    flex: 1;
+    min-width: 0;
+  }
+  .moresugs summary::-webkit-details-marker {
+    display: none;
+  }
+  details[open] > summary :global(.rv-chev) {
+    transform: rotate(90deg);
+  }
+  .rv-box > details + details,
+  .rv-box > details + .rv-row {
+    border-top: 1px solid var(--line);
+  }
+  summary.rv-row {
+    list-style: none;
+    cursor: pointer;
+  }
+  summary.rv-row::-webkit-details-marker {
+    display: none;
+  }
+  details > .in {
+    padding: 0 0 14px;
+  }
+  button.rv-row:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+  .imp {
+    position: relative;
+  }
+  .imp input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .imp:focus-within {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+  }
+  .ride {
+    margin: 0 0 6px;
+  }
+  .howto {
+    margin: 0 0 8px;
+    padding-left: 46px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .howto summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .howto p {
+    margin: 6px 0;
   }
   .exc {
     list-style: none;
@@ -719,6 +873,9 @@
   .exc li:first-child {
     border-top: 0;
   }
+  .learn + .exc li:first-child {
+    border-top: 1px solid var(--line);
+  }
   .nm {
     flex: 1;
     min-width: 0;
@@ -728,7 +885,7 @@
   .nm small {
     display: block;
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .nm small.q {
     display: inline;
@@ -743,7 +900,7 @@
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink-2);
-    font: 500 14px var(--font-body);
+    font: 500 var(--fs-small) var(--font-body);
     white-space: nowrap;
     cursor: pointer;
     flex: none;
@@ -802,9 +959,6 @@
     padding: 4px 0;
     border-top: 1px solid var(--line);
   }
-  .qa label:first-child {
-    border-top: 0;
-  }
   .qa label > span:first-child {
     min-width: 0;
     overflow-wrap: break-word;
@@ -828,29 +982,6 @@
     font-weight: 500;
     color: var(--ink-3);
   }
-  .note-fold {
-    margin-top: 8px;
-    border-top: 1px solid var(--line);
-  }
-  .note-fold summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 48px;
-    list-style: none;
-    cursor: pointer;
-    font-weight: 500;
-  }
-  .note-fold summary::-webkit-details-marker {
-    display: none;
-  }
-  .note-fold :global(.chev) {
-    color: var(--ink-3);
-    transition: transform 0.15s;
-  }
-  .note-fold[open] :global(.chev) {
-    transform: rotate(90deg);
-  }
   .cyc {
     margin: 0 0 4px;
   }
@@ -869,33 +1000,6 @@
   .kmsrc {
     margin: 2px 0 0;
   }
-  .imp {
-    position: relative;
-    overflow: hidden;
-    min-height: 44px;
-  }
-  .imp input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-  .ride {
-    margin: 6px 0;
-  }
-  .howto {
-    margin: 0 0 8px;
-    font-size: 14px;
-    color: var(--ink-2);
-  }
-  .howto summary {
-    cursor: pointer;
-    text-decoration: underline;
-    padding: 11px 0;
-  }
-  .howto p {
-    margin: 6px 0;
-  }
   .similar {
     display: flex;
     flex-wrap: wrap;
@@ -905,30 +1009,7 @@
   }
   .similar span {
     color: var(--ink-3);
-    font-size: 14px;
-  }
-  .ridenotes {
-    margin: 12px 0 0;
-    padding: 8px 12px;
-    border-radius: 6px;
-    background: var(--paper-2);
-  }
-  .ridenotes ul {
-    margin: 4px 0 0;
-    padding-left: 18px;
-  }
-  .ridenotes small {
-    color: var(--ink-3);
-  }
-  .note {
-    display: grid;
-    gap: 6px;
-    margin-top: 8px;
-    font-weight: 600;
-  }
-  .note small {
-    font-weight: 400;
-    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   textarea {
     width: 100%;
@@ -940,48 +1021,6 @@
     color: var(--ink-2);
     margin: 0 0 8px;
   }
-  .learn {
-    background: var(--brand);
-    border-color: var(--brand);
-    color: var(--brand-ink);
-  }
-  .learn h2 {
-    color: var(--brand-ink);
-  }
-  .learn h2 :global(svg) {
-    color: var(--hi-bright);
-  }
-  .learn p {
-    margin: 10px 0 12px;
-    color: var(--brand-ink-2);
-  }
-  .learn p b {
-    color: var(--brand-ink);
-  }
-  .learn .btn {
-    min-height: 44px;
-    background: transparent;
-    border-color: rgba(255, 255, 255, 0.35);
-    color: var(--brand-ink);
-  }
-  .learn .btn.yes {
-    background: var(--brand-ink);
-    border-color: var(--brand-ink);
-    color: var(--brand);
-  }
-  .learn :global(:focus-visible) {
-    outline-color: var(--focus-on-dark);
-  }
-  .more-row .two {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-  .more-row .two small {
-    font-size: 13px;
-    font-weight: 400;
-    color: var(--ink-3);
-  }
   .bag {
     margin-top: 10px;
   }
@@ -991,12 +1030,12 @@
     flex-wrap: wrap;
     gap: 4px 8px;
     margin: 0;
-    font-size: 15px;
+    font-size: var(--fs-body);
     font-weight: 600;
   }
   .bag h3 .tp-muted {
     font-weight: 400;
-    font-size: 13px;
+    font-size: var(--fs-small);
   }
   .alls {
     margin-left: auto;
@@ -1006,6 +1045,7 @@
   /* v0.44.1 (AP21): "All ✓" and "All –" are 44 px wide targets, not only 44 px high */
   .alls .tp-link {
     min-width: 44px;
+    min-height: 44px;
     justify-content: center;
   }
   .chk {
@@ -1026,11 +1066,10 @@
   .chk small {
     display: block;
     color: var(--ink-3);
-    font-size: 12.5px;
+    font-size: var(--fs-small);
   }
-  .card.ok {
-    border-color: var(--ok);
-    margin-top: 12px;
+  .kh-msg {
+    margin: 8px 2px 0;
   }
   .over {
     max-width: 880px;
