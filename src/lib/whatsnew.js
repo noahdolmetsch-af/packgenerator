@@ -11,6 +11,25 @@
 
 export const WHATS_NEW = [
   {
+    // v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved).
+    version: '0.114.0',
+    date: '2026-10-12',
+    title: 'Plan a trip',
+    lead: 'A new trip asks sport, weather by postcode and event, and shows the list in groups.',
+    points: [
+      { text: 'The window «Conditions»: sport (bike first), the weather suggested from a start postcode, the event with its hint.', href: '#/trips' },
+      { text: 'Choose a template as buttons: Standard, your own and two examples. Past trips no longer appear there.', href: '#/trips' },
+      { text: 'The packing list in four groups with a picture per item; the button counts only what goes into the bags.', href: '#/trips' },
+      { text: 'Repair and Charging no longer come by themselves: switch them on when packing.', href: '#/pack' },
+    ],
+    test: [
+      'Open Trips and tap «New trip».',
+      'Type your postcode under Weather: the forecast suggests the weather.',
+      'Open «Choose a template» and tap «Weekend»: 2 days and Hotel/hut are set.',
+    ],
+  },
+  {
+    // v0.111.0 Bausteine bearbeiten: evening-before and after-trip check (mockups V1–V6)
     version: '0.111.0',
     date: '2026-10-12',
     title: 'Checks before and after',

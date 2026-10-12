@@ -61,12 +61,13 @@ const CASES = [
   // v0.76.0 «Fünf Orte»: New trip opens from Trips («+ New trip»), no longer from the list's ••• menu.
   { id: 'helper', hash: '#/helper' },
   {
-    id: 'new-trip-helper',
+    // v0.114.0 «Rahmenbedingungen»: no helper in New trip any more; the window with «Vorlage wählen» open.
+    id: 'new-trip',
     hash: '#/trips',
     act: async (page, T) => {
       // v0.102.0 Design-Refresh P4 (T1): the dashed tile «Neue Tour oder aus einer Vorlage» in the planning group
       await tap(page.locator('main').getByRole('button', { name: new RegExp(`^${T('New trip')}`) }));
-      await tap(page.getByRole('dialog', { name: T('New trip') }).getByText(T('What goes to Claude?')));
+      await tap(page.getByRole('dialog', { name: T('Conditions|newtrip') }).getByRole('button', { name: new RegExp(T('Choose a template')) }));
     },
   },
   { id: 'plan-event', hash: '#/pack', trip: TRIP.event },

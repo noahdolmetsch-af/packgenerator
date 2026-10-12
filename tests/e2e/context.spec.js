@@ -62,7 +62,7 @@ const ids = async (page, title) => ((await stored(page, title))?.entries ?? []).
 async function openNew(page, T, click) {
   await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
   await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
-  return page.getByRole('dialog', { name: T('New trip') });
+  return page.getByRole('dialog', { name: T('Conditions|newtrip') });
 }
 
 for (const lang of ['de', 'en']) {
@@ -84,11 +84,11 @@ for (const lang of ['de', 'en']) {
     // 1 day: no night (v0.30.0: the question only comes from 2 days on; overnight 'none' is checked below).
     await expect(dlg.getByRole('button', { name: T('None|overnight'), exact: true })).toHaveCount(0);
     await click(dlg.getByRole('button', { name: new RegExp(`^${T('Chilly')}`) }));
-    // The live box says what the list will be.
-    const box = dlg.getByRole('region', { name: T('Your packing list|preview') });
-    await expect(box).toContainText(`${T('By duration')}: test_data_gtp_ Gel 2`);
+    // The live list says what it will be (v0.114.0 «Rahmenbedingungen»: the whole list in groups).
+    const box = dlg.getByRole('region', { name: T('Your packing list') });
+    await expect(box).toContainText('test_data_gtp_ Gel 2×');
     await expect(box).toContainText('test_data_gtp_ Beinlinge');
-    await expect(box).toContainText(T('Not included: overnight gear, event preparation'));
+    for (const night of ['Biwaksack', 'Kocher', 'Duschgel']) await expect(box).not.toContainText(`test_data_gtp_ ${night}`);
     await click(dlg.getByRole('button', { name: T('Create trip') }));
     await expect(dlg).toBeHidden();
     // v0.29.0 (Noah 5a): the bags are folded; the gel's bag opens with a tap.

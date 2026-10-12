@@ -46,11 +46,13 @@ for (const lang of ['en', 'de']) {
     // 2. New → Plan a trip → the area: Weekend (v0.30.0: in the New trip window; it starts with the area's items).
     await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
     await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-    const tripDlg = page.getByRole('dialog', { name: T('New trip') });
+    const tripDlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
     await expect(tripDlg).toBeVisible();
-    // v0.102.0 Design-Refresh P4 (T2): the areas as chips in sight, the last one chosen pressed (was a fold).
-    const areaChip = (name) => tripDlg.getByRole('group', { name: T('Area') }).getByRole('button', { name: T(name), exact: true });
-    await expect(areaChip('Bikepacking')).toHaveAttribute('aria-pressed', 'true');
+    // v0.102.0 Design-Refresh P4 (T2): the areas as chips in sight. v0.114.0 «Rahmenbedingungen» (2a): «Sportart»,
+    // Fahrrad first and pressed; Weekend behind «+ Andere».
+    const areaChip = (name) => tripDlg.getByRole('group', { name: T('Sport') }).getByRole('button', { name: T(name), exact: true });
+    await expect(areaChip('Cycling|sport')).toHaveAttribute('aria-pressed', 'true');
+    await areaChip('Other|sport').click();
     await areaChip('Weekend').click();
     await expect(areaChip('Weekend')).toHaveAttribute('aria-pressed', 'true');
     await fits('New packing list, weekend');

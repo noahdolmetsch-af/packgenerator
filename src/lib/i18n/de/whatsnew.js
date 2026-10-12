@@ -8,6 +8,21 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.114.0 «Rahmenbedingungen»
+  'A new trip asks sport, weather by postcode and event, and shows the list in groups.':
+    'Eine neue Tour fragt Sportart, Wetter per PLZ und Event und zeigt die Liste in Gruppen.',
+  'The window «Conditions»: sport (bike first), the weather suggested from a start postcode, the event with its hint.':
+    'Das Fenster «Rahmenbedingungen»: Sportart (Fahrrad zuerst), das Wetter als Vorschlag aus der Start-PLZ, der Event mit seinem Hinweis.',
+  'Choose a template as buttons: Standard, your own and two examples. Past trips no longer appear there.':
+    'Vorlage wählen als Knöpfe: Standard, deine eigenen und zwei Beispiele. Vergangene Touren erscheinen dort nicht mehr.',
+  'The packing list in four groups with a picture per item; the button counts only what goes into the bags.':
+    'Die Packliste in vier Gruppen mit einem Bild pro Teil; der Knopf zählt nur, was in die Taschen kommt.',
+  'Repair and Charging no longer come by themselves: switch them on when packing.':
+    'Reparatur und Laden kommen nicht mehr von selbst: Beim Packen schaltest du sie ein.',
+  'Open Trips and tap «New trip».': 'Touren öffnen und «Neue Tour» antippen.',
+  'Type your postcode under Weather: the forecast suggests the weather.': 'Unter Wetter deine PLZ eintippen: Die Prognose schlägt das Wetter vor.',
+  'Open «Choose a template» and tap «Weekend»: 2 days and Hotel/hut are set.': '«Vorlage wählen» öffnen und «Wochenende» antippen: 2 Tage und Hotel/Hütte sind gesetzt.',
+
   // 0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check (mockups V1–V6)
   'Checks before and after': 'Checks davor und danach',
   'The evening before and back home: one tap on the row opens the check, and every trip type has its own list.':

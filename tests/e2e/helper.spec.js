@@ -130,7 +130,7 @@ async function setUp(page) {
 async function openNewTrip(page) {
   await page.goto('./#/trips');
   await page.locator('main').getByRole('button', { name: new RegExp(`^${esc(T('New trip'))}`) }).click();
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg).toBeVisible();
   return dlg;
 }
@@ -144,19 +144,20 @@ function private_(seen) {
   }
 }
 
-test('8a: before the setup, a calm notice only in New trip and in the settings; nothing is sent', async ({ page, context }, info) => {
+test('8a: before the setup, a calm notice only in the settings (v0.114.0: no longer in New trip); nothing is sent', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   const seen = await fakeHelper(page);
+  // v0.114.0 «Rahmenbedingungen» (Noah: «KI helfer soll raus»): the window for a new trip has no helper notice.
   const dlg = await openNewTrip(page);
-  const notice = dlg.getByRole('region', { name: T('Helper') });
-  await expect(notice.getByText(T('The helper is not set up yet'))).toBeVisible();
-  await expect(notice.getByRole('button', { name: T('Set up') })).toBeVisible();
-  await notice.getByText(T('What goes to Claude?')).click();
-  await expect(notice.getByText(T('Only your question and the names it needs from the list and your gear, plus your notes. Never photos, receipts or health data.'))).toBeVisible();
-  await notice.getByRole('button', { name: T('Set up') }).click();
-  await expect(page).toHaveURL(/#\/helper/);
+  await expect(dlg.getByText(T('The helper is not set up yet'))).toHaveCount(0);
+  await expect(dlg.getByText(T('Ask the helper'))).toHaveCount(0);
+  await dlg.getByRole('button', { name: T('Cancel') }).click();
+  await expect(dlg).toBeHidden();
+  await page.goto('./#/helper');
   await expect(page.getByRole('heading', { level: 1, name: T('Helper') })).toBeVisible();
   await expect(page.getByText(T('The helper is not set up yet'))).toBeVisible();
+  await page.getByText(T('What goes to Claude?')).first().click();
+  await expect(page.getByText(T('Only your question and the names it needs from the list and your gear, plus your notes. Never photos, receipts or health data.')).first()).toBeVisible();
   await page.getByRole('button', { name: T('Set up') }).click();
   await expect(page.getByLabel(T('Helper code'))).toBeFocused();
   // K1a: Ich › Helfer, its own row with the state
@@ -184,7 +185,7 @@ test('8a: before the setup, a calm notice only in New trip and in the settings; 
   expect(errors).toEqual([]);
 });
 
-test('1a + 7a: the code in the settings, the check, then «Frag den Helfer» in New trip with chips, blocks and own items', async ({ page, context }, info) => {
+test('1a + 7a: the code in the settings, the check, then «Frag den Helfer» in New trip (with a question from the search) with chips, blocks and own items', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   const seen = await fakeHelper(page);
   await setUp(page);
@@ -194,11 +195,11 @@ test('1a + 7a: the code in the settings, the check, then «Frag den Helfer» in 
   await expect(page.getByText(T('Helper switched on'))).toBeVisible();
   await noSideways(page);
 
+  // v0.114.0: «Frag den Helfer» only comes into the window with a question from the search (proposeTrip).
+  await page.evaluate(() => localStorage.setItem('pack.helperAsk', '3 Tage Jura, 5 °C, Biwak'));
   const dlg = await openNewTrip(page);
   await expect(dlg.getByText(T('The helper is not set up yet'))).toHaveCount(0);
-  const field = dlg.getByRole('textbox', { name: T('Ask the helper') });
-  await field.fill('3 Tage Jura, 5 °C, Biwak');
-  await dlg.getByRole('button', { name: T('Get a suggestion') }).click();
+  await expect(dlg.getByRole('textbox', { name: T('Ask the helper') })).toHaveValue('3 Tage Jura, 5 °C, Biwak');
   const card = dlg.getByRole('region', { name: T('Suggestion from the helper') });
   await expect(card).toBeVisible();
   await expect(card.getByText(T('A suggestion, you can change everything.'))).toBeVisible();
@@ -263,7 +264,7 @@ test('2a: the search answers a question only, above the hits; «Als Packliste vo
   await expect.poll(() => seen.filter((r) => r.task === 'search').length).toBe(2);
   await noSideways(page);
   await res.getByRole('button', { name: T('Suggest as a packing list') }).click();
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg).toBeVisible();
   await expect(dlg.getByRole('textbox', { name: T('Ask the helper') })).toHaveValue('wie viel wiegt meine Regenjacke');
   await expect(dlg.getByRole('region', { name: T('Suggestion from the helper') })).toBeVisible();
@@ -383,11 +384,11 @@ test('7a: the monthly cap (429) pauses the helper calmly until next month; offli
   let capped = false;
   const seen = await fakeHelper(page, { reply: (b) => (capped && b.task !== 'status' ? { status: 429, body: { error: 'monthly_cap', code: 'monthly_cap', message: 'cap', spend: { month: month(), chf: 5.03, cap: 5 } } } : null) });
   await setUp(page);
-  // offline first: one calm line, nothing sent
-  let dlg = await openNewTrip(page);
+  // offline first: one calm line, nothing sent (v0.114.0: the helper comes into New trip with a question from the search)
   await context.setOffline(true);
-  await dlg.getByRole('textbox', { name: T('Ask the helper') }).fill('2 Tage Emmental');
-  await dlg.getByRole('button', { name: T('Get a suggestion') }).click();
+  await page.evaluate(() => localStorage.setItem('pack.helperAsk', '2 Tage Emmental'));
+  let dlg = await openNewTrip(page);
+  await expect(dlg.getByRole('textbox', { name: T('Ask the helper') })).toHaveValue('2 Tage Emmental');
   await expect(dlg.getByText(T('Offline right now. The helper answers again once you are online.'))).toBeVisible();
   await context.setOffline(false);
   expect(seen).toHaveLength(0);
@@ -400,6 +401,7 @@ test('7a: the monthly cap (429) pauses the helper calmly until next month; offli
   // From now on nothing is asked: the field says it pauses, the settings too.
   await page.keyboard.press('Escape');
   await expect(dlg).toBeHidden();
+  await page.evaluate(() => localStorage.setItem('pack.helperAsk', '2 Tage Emmental'));
   dlg = await openNewTrip(page);
   await expect(dlg.locator('.kh-ask .kh-msg')).toContainText('CHF 5.00');
   await expect(dlg.getByRole('button', { name: T('Get a suggestion') })).toHaveCount(0);
