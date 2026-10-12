@@ -8,6 +8,17 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.115.0 Menü-Fix
+  'Menus close easily': 'Menüs gehen leicht zu',
+  'A tap next to an open ••• menu closes it, you no longer have to hit ••• a second time.':
+    'Ein Tipp neben ein offenes •••-Menü schliesst es, du musst nicht mehr ein zweites Mal auf ••• tippen.',
+  'Open Bikes › Care and tap ••• at a problem.': 'Öffne Velos › Pflege und tippe bei einem Problem auf •••.',
+  'Tap anywhere next to the menu: it closes at once.': 'Tippe irgendwo neben das Menü: Es schliesst sofort.',
+  'Tap ••• and pick an answer: it still works.': 'Tippe auf ••• und wähle eine Antwort: Sie funktioniert weiterhin.',
+  'A ••• menu now closes with one tap anywhere next to it, for example at the problems in Bike care.':
+    'Ein •••-Menü schliesst jetzt mit einem Tipp irgendwo daneben, zum Beispiel bei den Problemen in der Velopflege.',
+  'The same for the ••• of the packing list and of the trips in progress: one tap next to it is enough.':
+    'Genauso beim ••• der Packliste und der laufenden Touren: Ein Tipp daneben genügt.',
   // 0.114.0 «Rahmenbedingungen»
   'A new trip asks sport, weather by postcode and event, and shows the list in groups.':
     'Eine neue Tour fragt Sportart, Wetter per PLZ und Event und zeigt die Liste in Gruppen.',

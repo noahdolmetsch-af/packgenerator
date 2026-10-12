@@ -862,6 +862,13 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Menü-Fix (0.115.0)
+
+Noah 12.10.2026 22:22: «erst bei zweitem Klick geht Menü wieder weg», dringend. Vorher/Nachher freigegeben 23:02 «menü fix freigeben».
+
+- Jedes •••-Menü schliesst mit einem Tipp daneben, überall gleich (`ui/away.js`, wie schon `tpl/Menu.svelte`). Der Tipp daneben wird nicht verschluckt: Er tut auch, was er trifft.
+- **Selbst entschieden:** nur Verhalten, kein neues Aussehen; Material und Kleiderschrank (eigene Lösung mit Klick daneben) bleiben, wie sie sind.
+
 ## 12.10.2026: Bausteine bearbeiten, Teil 1: Vorabend- und Schluss-Check (0.111.0)
 
 Nach den Mockups A–F «Bausteine bearbeiten» (Offene Mockups #bausteine-bearbeiten, Trello «Bausteine bearbeiten»), Noah im Thread 12.10.2026 «freigabe 1-5a: bausteine bearbeiten und ansehen». Das sind Antworten auf die a/b-Fragen, noch keine Freigabe der Bilder: Die Mockups A und B brauchen Noahs ausdrückliche Freigabe, bevor der PR bereit ist (gefragt 12.10.2026). Noah 12.10.2026 16:18 «4b»: der Thread «Design-Refresh alle Seiten» übernimmt den PR, neu als 0.111.0 nach dem Design-Refresh.

@@ -61,7 +61,11 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.86.0 | Meditation einfach (Noah «1-5 a»): Startblatt aus «Heute abhaken» (Jetzt {n} Min, Dauer, Nur abhaken), kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant» und Wisch-Hinweis weg | PR offen |
 | 0.97.0 | Design-Refresh R1 «Darstellung» (G1 neu freigegeben 11.10. 23:10, Noah 12.10. «1a 2a 3b 4a 5a»): Farbwelt Salbei und Schrift Inter als neuer Standard; Ich › Darstellung mit 8 Schriften, 7 Farbwelten (die bisherigen bleiben), Schriftgrösse Klein/Normal/Gross, hell oder dunkel, Vorschau am Computer | live |
 | 0.98.0 | Design-Refresh R2 «Heller Kopf» (G4/G5 A★): heller Kopf und helle Seitenleiste, «Neu» oben neben der Suche statt rundem Knopf, «Ich» als Karte unten in der Seitenleiste | live |
+<<<<<<< HEAD
+| 0.115.0 | Menü-Fix (Noah «dringend»): jedes •••-Menü schliesst mit einem Tipp daneben, nicht erst beim zweiten Tipp auf ••• (Velopflege › Probleme, Velo-Check, Packliste, laufende Touren). | live seit 12.10.2026 |
+=======
 | 0.114.0 | «Rahmenbedingungen» (B1–B3): Fenster für eine neue Tour mit Sportart, Wetter aus der PLZ, Event, Vorlagen als Knöpfe (keine «Letzte Tour»), Packliste in vier Gruppen; Reparatur und Laden nicht mehr von selbst | PR offen |
+>>>>>>> origin/main
 | 0.111.0 | Bausteine bearbeiten Teil 1 (Mockups V1–V6, Noah «v1-v4 ok» und «v5-6 ok» 12.10.2026): Vorabend-Check als Zeile auf «Gepackt» mit eigenem Fenster, Schluss-Check unter «Bevor du auspackst» auf «Tour beendet», «Liste anpassen» (sortieren, entfernen, Eigenes, Vorschläge aus früheren Rückblicken, für diese Tour oder alle der Reiseart), neue Seite Ich › Checks pro Reiseart | PR offen |
 | 0.110.0 | Design-Refresh P10 «Was ist neu» (I11, I11b–I11e): Ich › Was ist neu mit neuester Version, allen Funktionen (Neueste, Name, Kategorie, Ort, Deine Top 10, Wichtigste 10, Suche) und Versionen nach Monat; Meldung nach Update mit «Nicht mehr anzeigen»; Kachel «Neu» 14 Tage oben auf Heute | live |
 | 0.109.0 | Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (T14–T23): Tour beendet, Rückblick in zwei Spalten, Übersicht, Gelernt, Tempo, Logbuch, Vergangene Touren, Fahrten im neuen Stil | live |
