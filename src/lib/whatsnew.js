@@ -14,8 +14,8 @@ export const WHATS_NEW = [
     // v0.113.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved).
     version: '0.113.0',
     date: '2026-10-12',
-    title: 'Conditions',
-    lead: 'A new trip starts with its conditions: sport, weather from your postcode, event and a clear packing list.',
+    title: 'Plan a trip',
+    lead: 'A new trip asks sport, weather by postcode and event, and shows the list in groups.',
     points: [
       { text: 'The window «Conditions»: sport (bike first), the weather suggested from a start postcode, the event with its hint.', href: '#/trips' },
       { text: 'Choose a template as buttons: Standard, your own and two examples. Past trips no longer appear there.', href: '#/trips' },

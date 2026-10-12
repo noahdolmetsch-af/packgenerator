@@ -138,7 +138,7 @@ test('Rahmenbedingungen: Sportart, no past trip, templates as buttons, weather b
   expect(wide).toBe(0);
   const vp = page.viewportSize();
   await page.setViewportSize({ width: vp.width, height: 4200 });
-  await dlg.screenshot({ path: `qa/rahmen-${info.project.name}.png` });
+  await dlg.screenshot({ path: info.outputPath('rahmen.png') });
   await page.setViewportSize(vp);
 
   // the trip: the start place, the event, Repair and Charging not by themselves

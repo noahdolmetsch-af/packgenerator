@@ -9,9 +9,8 @@ export default {
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
   // 0.113.0 «Rahmenbedingungen»
-  Conditions: 'Rahmenbedingungen',
-  'A new trip starts with its conditions: sport, weather from your postcode, event and a clear packing list.':
-    'Eine neue Tour startet mit ihren Rahmenbedingungen: Sportart, Wetter aus deiner PLZ, Event und eine übersichtliche Packliste.',
+  'A new trip asks sport, weather by postcode and event, and shows the list in groups.':
+    'Eine neue Tour fragt Sportart, Wetter per PLZ und Event und zeigt die Liste in Gruppen.',
   'The window «Conditions»: sport (bike first), the weather suggested from a start postcode, the event with its hint.':
     'Das Fenster «Rahmenbedingungen»: Sportart (Fahrrad zuerst), das Wetter als Vorschlag aus der Start-PLZ, der Event mit seinem Hinweis.',
   'Choose a template as buttons: Standard, your own and two examples. Past trips no longer appear there.':
