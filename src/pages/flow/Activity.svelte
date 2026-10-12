@@ -142,7 +142,10 @@
       ticks: v.ticks && typeof v.ticks === 'object' ? v.ticks : {},
     };
   });
-  const sgOptions = $derived([...new Set([...sugg.slice(0, 4).map(suggName), ...sg.own])]);
+  // the chosen one and the running challenges stay among the options once ticked (the suggestion itself
+  // then drops out of the list, being done today)
+  const sgKeep = $derived([sg.pick, ...($sgQ?.list ?? []).filter((c) => c.area === 'aktiv' && !c.stopped && !c.doneOn).map((c) => c.what)].filter(Boolean));
+  const sgOptions = $derived([...new Set([...sugg.slice(0, 4).map(suggName), ...sg.own, ...sgKeep])]);
   const sgPick = $derived(sgOptions.includes(sg.pick) ? sg.pick : (sgOptions[0] ?? null));
   const sgSugg = $derived(sugg.find((s) => suggName(s) === sgPick) ?? null);
   const sgReason = $derived(sgSugg ? `${t('suggested:')} ${t(sgSugg.key, sgSugg.vars)}` : '');
@@ -159,7 +162,7 @@
   }
   async function tickSg() {
     const was = sgDone;
-    const next = toggleTick(sg, sgPick, today);
+    const next = { ...toggleTick(sg, sgPick, today), pick: sgPick };
     await saveSg(next);
     // the suggestion of an activity is ticked there too (once); an own one only counts here
     if (!was && sgSugg) await doSugg(sgSugg);

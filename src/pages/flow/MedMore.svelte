@@ -183,7 +183,8 @@
     return { pick: v.pick ?? null, own: Array.isArray(v.own) ? v.own : [], ticks: v.ticks && typeof v.ticks === 'object' ? v.ticks : {} };
   });
   const chName = $derived(ch ? t('{n} min', { n: ch.target }) : null);
-  const sgOptions = $derived([...new Set([...(chName ? [chName] : []), ...favArts.map(artName), ...sg.own])]);
+  const sgKeep = $derived([sg.pick, ...($sgQ?.list ?? []).filter((c) => c.area === 'med' && !c.stopped && !c.doneOn).map((c) => c.what)].filter(Boolean));
+  const sgOptions = $derived([...new Set([...(chName ? [chName] : []), ...favArts.map(artName), ...sg.own, ...sgKeep])]);
   const sgPick = $derived(sgOptions.includes(sg.pick) ? sg.pick : (sgOptions[0] ?? null));
   const sgArt = $derived(favArts.find((a) => artName(a) === sgPick) ?? null);
   const sgDone = $derived(!!sgPick && tickedToday(sg, sgPick, today));
@@ -198,7 +199,7 @@
     if (n) saveSg({ ...sg, own: [...new Set([...sg.own, n])].slice(0, 8), pick: n });
   }
   async function tickSg() {
-    const next = toggleTick(sg, sgPick, today);
+    const next = { ...toggleTick(sg, sgPick, today), pick: sgPick };
     await saveSg(next);
     const r = stepChallenges(clist, { med: next }, today);
     if (r.reached.length) await putSetting(db, CHALLENGES_KEY, r.list);
