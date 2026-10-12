@@ -80,33 +80,37 @@ test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea
   // the six favourites with their playful names, in the seed order
   const tiles = main.locator('[data-tile]');
   await expect(tiles).toHaveCount(6);
-  await expect(tiles.locator('.tn b')).toHaveText(FAV_SEED.map((f) => f.nickDe));
+  // Design-Refresh P8 (A7): light tiles, the name in .tn; the kind of the line is in the tile's label
+  await expect(tiles.locator('.tn')).toHaveText(FAV_SEED.map((f) => f.nickDe));
   await expect(main.getByText(T('Suggestion|tag')).first()).toBeVisible();
-  await expect(main.locator('[data-tile="pushups"] .kind')).toHaveText(new RegExp(esc(T('Personal best')), 'i'));
+  await expect(main.locator('[data-tile="pushups"]')).toHaveAttribute('aria-label', new RegExp(esc(T('Personal best')), 'i'));
   await fits(page, 'Aktivität');
 
   // rename a tile in the one rename sheet; the activity keeps its own name
-  await main.locator('[data-tile="tennis"]').getByRole('button', { name: T('Rename {name}', { name: 'Filzball' }) }).click();
+  // (Design-Refresh P8 A7: a tap on a tile opens it; renaming moved under «Kacheln ändern»)
+  await main.getByRole('button', { name: T('Change tiles') }).click();
+  await main.getByRole('button', { name: T('Rename {name}', { name: 'Filzball' }) }).click();
   const sheet = page.locator('dialog.rename[open]');
   await sheet.locator('input').fill('Gelbe Kugel');
   await sheet.getByRole('button', { name: T('Save'), exact: true }).click();
-  await expect(main.locator('[data-tile="tennis"] .tn b')).toHaveText('Gelbe Kugel');
-  await expect(main.locator('[data-tile="tennis"] .own')).toContainText('Tennis spielen');
+  await expect(main.locator('[data-tile="tennis"] .tn')).toHaveText('Gelbe Kugel');
+  await expect(main.locator('.ted').getByText('Tennis spielen')).toBeVisible();
 
   // change the tiles: Pedal-Glück one up, then done
-  await main.getByRole('button', { name: T('Change tiles') }).click();
   await main.getByRole('button', { name: T('Move {name} up', { name: 'Pedal-Glück' }) }).click();
   await expect(tiles.first()).toHaveAttribute('data-tile', 'bike');
   await main.getByRole('button', { name: T('Done'), exact: true }).click();
 
   // a tile without its own page opens the editor (H29a), and its back link leads here again
-  await main.locator('[data-tile="yoga"] a.tl').click();
+  await main.locator('[data-tile="yoga"]').click(); // Design-Refresh P8: the tile itself is the link
   await expect(page).toHaveURL(/#\/flow\/edit\/yoga\?from=activity$/);
   await expect(tabs.getByRole('link', { name: T('Activity|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
-  await main.locator('a[href="#/flow/activity"]:not(.ptabs a)').click(); // the editor's own back link
+  await main.locator('a[href="#/flow/activity"]:not(.ptabs a)').first().click(); // the editor's own back link (Design-Refresh P8: the crumb; «Abbrechen» leads there too)
   await expect(page).toHaveURL(/#\/flow\/activity$/);
 
   // a suggestion that is not an activity yet: one tap makes it one and ticks it
+  // (Design-Refresh P8 A7: the suggestions, recovery and fun and the connections fold under «Mehr»)
+  await main.locator('[data-row="sugg"] button').click();
   const breath = main.locator('[data-sugg="breath"]');
   await expect(breath).toBeVisible();
   await breath.getByRole('button', { name: T('Tick {name}', { name: 'Atemübung' }) }).click();
@@ -120,6 +124,7 @@ test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea
   await expect(main.locator(`[data-sugg="${id}"]`)).toHaveCount(1);
 
   // recovery and fun: Sauna and Spaziergang always there, an idea is added and moves up
+  await main.locator('[data-row="fun"] button').click();
   await expect(main.locator('[data-always="sauna"]')).toBeVisible();
   await expect(main.locator('[data-always="walk"]')).toBeVisible();
   const nap = FUN_IDEAS.find((i) => i.id === 'nap');
@@ -130,6 +135,7 @@ test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea
 
   // connections: v0.86.0 «Meditation einfach» (Noah «1-5 a»): only what works (the weather), no grey
   // «geplant» rows and no «Diese Seite kann» any more
+  await main.locator('[data-row="conn"] button').click();
   await expect(main.locator('[data-conn="weather"]')).toBeVisible();
   await expect(main.locator('[data-conn="strava"]')).toHaveCount(0);
   await expect(main.getByText(T('planned'), { exact: true })).toHaveCount(0);
@@ -149,21 +155,25 @@ test('Meilensteine: a fictional history counts, stars stay, filter, own numbers,
   await put(page, { flowLog: log, items: [{ id: 'test_wish_1', name: 'Fictional trail shoes', nameDe: 'Erfundene Trailschuhe', category: 'clothing', ownership: 'wishlist', qty: 1, weightG: null, domains: [], sets: [], kits: [] }] });
   await page.reload();
   const main = page.locator('main');
+  // Design-Refresh P8 (A7, A8): the milestones moved from Aktivität to their page, behind «Mehr › Meilensteine»;
+  // «Zuletzt erreicht» is the trophy shelf there
+  await main.locator('[data-row="ms"] a').click();
+  await expect(page).toHaveURL(/#\/flow\/milestones$/);
   // over all: «Neues ausprobiert» star 1 reached today
-  await expect(main.getByText(T('Recently reached'))).toBeVisible();
-  await expect(main.locator('.recent')).toContainText(T('Tried something new'));
+  await expect(main.getByRole('heading', { level: 2, name: T('Trophy shelf') })).toBeVisible();
+  // the shelf shows the three newest stars (today first); «Neues ausprobiert» star 1 is among all milestones
+  await expect(main.locator('.ts li:not(.open)').first()).toContainText(T('today'));
+  await expect(main.locator('.grid').getByText(T('Tried something new'))).toBeVisible();
   await expect.poll(() => count(page, 'flowStars')).toBeGreaterThan(2);
 
   // A2, filtered to Kissenzeit: Täglich 12 days in a row, next star 3 at 14 (86 %) is «soon»
-  await main.getByRole('link', { name: new RegExp(esc(T('all {n} and those per activity ›', { n: 9 }).replace(' ›', ''))) }).click();
-  await expect(page).toHaveURL(/#\/flow\/milestones$/);
   await expect(main.getByRole('heading', { level: 1, name: T('Milestones') })).toBeVisible();
   await expect(main.locator('.chips a[aria-current="page"]')).toHaveText(T('All'));
   await main.locator('.chips').getByRole('link', { name: 'Kissenzeit' }).click();
   await expect(page).toHaveURL(/act=meditation/);
   const daily = main.locator('.grid [data-ms="meditation.daily"]').first();
   await expect(daily).toContainText(T('Star {k} · {stage}', { k: 3, stage: T('Devotion|stage') }));
-  await expect(main.locator('.mscard.soon[data-ms="meditation.daily"]')).toBeVisible();
+  await expect(main.locator('.msr li.soon[data-ms="meditation.daily"]')).toBeVisible(); // Design-Refresh P8: «Bald erreichbar» as rows
   await fits(page, 'Meilensteine');
 
   // own numbers: 3, 7, 12 → all stars, «Weg»; back to the suggestion
@@ -197,7 +207,7 @@ test('Meilensteine: a fictional history counts, stars stay, filter, own numbers,
     db.close();
   });
   await page.reload();
-  await expect(page.locator('main .recent')).toBeVisible();
+  await expect(page.locator('main .ts li:not(.open)').first()).toBeVisible(); // Design-Refresh P8: the trophy shelf
   expect(await count(page, 'flowStars')).toBe(before);
   expect(errors).toEqual([]);
 });
