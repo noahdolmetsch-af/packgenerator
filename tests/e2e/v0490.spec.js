@@ -146,7 +146,8 @@ test('c) Past trips: one table, the name fixed, filters and a search that finds 
   await expect(table.locator('tbody th[scope="row"]')).toHaveCount(1);
   await expect(row('Passfahrt')).toBeVisible();
   await main.getByRole('button', { name: /^Art: Rennen/ }).click();
-  await main.getByRole('button', { name: 'Alle', exact: true }).last().click();
+  // v0.108.0 Design-Refresh P6: «Art» stands before «Zeitraum» now, so the list's own «Alle»
+  await main.getByRole('list', { name: 'Art' }).getByRole('button', { name: 'Alle', exact: true }).click();
   // period: Alle shows the older trips too
   await main.getByRole('group', { name: 'Zeitraum' }).getByRole('button', { name: 'Alle' }).click();
   await expect(row('Alte Seerunde')).toBeVisible();
@@ -166,7 +167,9 @@ test("d) a trip's saved Rückblick tells what the trip was", async ({ page, cont
   await page.goto(`./#/debrief/${P}herbst`);
   const main = page.locator('main');
   const ride = main.locator('section.ride');
-  await expect(ride.getByRole('heading', { level: 2, name: 'Herbsttour Hochland' })).toBeVisible();
+  // v0.108.0 Design-Refresh P6: the card says «Fertig. Gute Tour!»; the trip's name is the line under it
+  await expect(ride.getByRole('heading', { level: 2, name: 'Fertig. Gute Tour!' })).toBeVisible();
+  await expect(ride.locator('.kick')).toContainText('Herbsttour Hochland');
   for (const v of ['148', '2’210', '11:05', '13.4', '4–15°', 'Regen Tag 2', 'Gravel Grau', 'Tag 1', 'Tag 2']) await expect(ride).toContainText(v);
   const pvr = main.locator('section', { has: page.getByRole('heading', { name: 'Plan und Wirklichkeit' }) });
   await expect(pvr).toContainText('142 km');
