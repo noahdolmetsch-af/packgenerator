@@ -876,6 +876,16 @@ Nach den Mockups A–F «Bausteine bearbeiten» (Offene Mockups #bausteine-bearb
 - **Selbst entschieden (Übernahme 0.111.0):** Seit P5 und P6 haben «Gepackt» und «Tour beendet» das neue Aussehen. Der Vorabend-Check steht jetzt unter «Bis zum Start», der Schluss-Check direkt unter der Karte «Tour beendet», vor «Unterwegs notiert». Neue Funktion «Checks davor und danach» im Katalog von Was ist neu (jetzt 86), seit 0.111.0.
 - **Selbst entschieden:** Kleine Releases (Regel «eine sichtbare Sache»): 0.111.0 nur A+B. Die Tour speichert ihre Liste erst bei der ersten Änderung; bis dahin zeigt sie den Standard bzw. Vorschlag (spätere Standard-Änderungen wirken so auch auf geplante, unberührte Touren). Der Vorabend-Check steht auf «Gepackt» bis zum Starttag, die Abend-Erinnerung auf Heute führt dorthin (statt zum Packtag). Die Vorschläge kommen aus dem Content-Doc (Skitour, Wandern) und sind für Bikepacking, Weekend und Weltreise kurz gehalten.
 
+### 12.10.2026 abends: Vorabend- und Schluss-Check nach den Mockups V1–V6 (0.111.0)
+
+Noah 12.10.2026 18:22 zur ersten Fassung: «passt nicht ins design … jede art soll eigene vorabend checks haben». Neue Mockups V1–V6 (`design/vorabend-check-3/`, Offene Mockups 2). Freigaben: **V1–V4 12.10.2026 22:34 «v1-v4 ok»**, **V5–V6 12.10.2026 22:39 «v5-6 ok»**; beide im selben PR #131 als 0.111.0 gebaut. Ersetzt die Karte `TripCheck` (Mockups A und B).
+
+- **V1/V5:** Der Check ist eine Zeile auf «Gepackt» («Bis zum Start») bzw. «Tour beendet» («Bevor du auspackst») und öffnet ein Fenster wie die Ladeliste (T8).
+- **V2/V6:** Fenster mit Chips, Fortschritt, Zeilen mit Link und rundem Häkchen; «Liste anpassen», «Später», «Fertig» bzw. «Fertig, zum Rückblick».
+- **V3:** Liste anpassen mit Sortieren, Entfernen, eigenem Punkt, Vorschlägen und «Gilt für: Nur diese Tour / Alle {Reiseart}» (vorgewählt «Alle», wie im Mockup).
+- **V4:** Ich › Checks pro Reiseart; jede Reiseart hat eigene Vorschläge (Texte aus V4 und V6).
+- **Selbst entschieden (nur zeigen, wofür die App Daten hat):** «Dein Morgen», «Verhältnisse», «Plan und echt», «Dein Material» und «Aktivität von der Uhr» aus den Mockups fehlen: die App hat dafür keine Daten (keine Zeiten, keine Lawinenstufe, keine Uhr-Anbindung). Chips und Zeilen zeigen nur Wetter, Route, Ladeliste, Notizen und «Rückblick wartet». Links nur, wo eine Seite existiert (SLF, MeteoSchweiz, Ladeliste); «3×3 Öffnen», «Teilen», «Senden» und «Einkaufsliste» folgen, wenn es die Funktionen gibt. «Eigene Reiseart» (V4) gibt es noch nicht. Die Lernzeile kommt aus «Was hat gefehlt?» früherer Rückblicke derselben Reiseart. Die Statistik «in X von Y Touren erledigt» zählt nur Touren, die schon begonnen haben. Zeilen auf Ich › Checks pro Reiseart haben keinen Pfeil: «Anpassen» öffnet die Liste. Regeln wie «Tee ab −5° 1 L» und Erinnerungszeiten (V4 rechts) kommen mit dem Regel-Editor (F). Der Hinweis «neu» (gestrichelter Rahmen) gehört nur zum Mockup. Sortieren auch mit Pfeiltasten auf dem Griff. «Vorschlag wiederherstellen» auf Ich › Checks löscht den eigenen Standard der Reiseart.
+
 ## 12.10.2026: Design-Refresh P10 «Was ist neu» (0.110.0)
 
 Nach den Mockups I11 (v2), I11b (v2), I11c, I11d und I11e (Noah 12.10.2026 03:50 «Runde 20 freigegeben»; Antworten 03:45 «1 beides, 2b, 3 beides, 4a, 5b»).

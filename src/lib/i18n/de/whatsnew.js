@@ -8,22 +8,26 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check
+  // 0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check (mockups V1–V6)
   'Checks before and after': 'Checks davor und danach',
-  '«Packed» has an evening-before check, «Trip ended» an after-trip check, and both lists are yours.':
-    '«Gepackt» hat einen Vorabend-Check, «Tour beendet» einen Schluss-Check, und beide Listen gehören dir.',
-  'New on «Packed»: the evening-before check, e.g. read the avalanche bulletin, route offline, charge the tracker.':
-    'Neu auf «Gepackt»: der Vorabend-Check, z. B. Lawinenbulletin lesen, Route offline laden, Tracker laden.',
-  'New on «Trip ended»: the after-trip check before the debrief, e.g. dry the skins, refill, charge.':
-    'Neu auf «Tour beendet»: der Schluss-Check vor dem Rückblick, z. B. Felle trocknen, nachfüllen, laden.',
-  'Both lists are yours: tick, remove, add and save them as the standard of the area. The evening reminder on Today opens the check.':
-    'Beide Listen gehören dir: abhaken, entfernen, ergänzen und als Standard der Reiseart speichern. Die Abend-Erinnerung auf Heute öffnet den Check.',
-  'Open a packed trip: the evening-before check sits under «Until the start».':
-    'Eine gepackte Tour öffnen: Der Vorabend-Check steht unter «Bis zum Start».',
-  'Tick a point, add your own and save the list as the standard.':
-    'Einen Punkt abhaken, einen eigenen ergänzen und die Liste als Standard speichern.',
-  'End a trip: the after-trip check comes before the debrief.':
-    'Eine Tour beenden: Der Schluss-Check kommt vor dem Rückblick.',
+  'The evening before and back home: one tap on the row opens the check, and every trip type has its own list.':
+    'Am Vorabend und wieder zu Hause: Ein Tipp auf die Zeile öffnet den Check, und jede Reiseart hat ihre eigene Liste.',
+  'New on «Packed»: the row «Evening-before check» opens a window with your points, e.g. read the avalanche bulletin, route offline, charge.':
+    'Neu auf «Gepackt»: Die Zeile «Vorabend-Check» öffnet ein Fenster mit deinen Punkten, z. B. Lawinenbulletin lesen, Route offline, laden.',
+  'New on «Trip ended»: «Before you unpack» with the after-trip check, e.g. dry the skins, refill, charge; then on to the debrief.':
+    'Neu auf «Tour beendet»: «Bevor du auspackst» mit dem Schluss-Check, z. B. Felle trocknen, auffüllen, laden; dann weiter zum Rückblick.',
+  '«Adjust the list»: sort, remove, add your own or a suggestion from an earlier debrief, for this trip or all trips of the type.':
+    '«Liste anpassen»: sortieren, entfernen, Eigenes oder einen Vorschlag aus einem früheren Rückblick dazunehmen, für diese Tour oder alle Touren der Reiseart.',
+  'Me › Checks per trip type shows the lists of every type and how often you ticked each point.':
+    'Ich › Checks pro Reiseart zeigt die Listen jeder Reiseart und wie oft du jeden Punkt erledigt hast.',
+  'Open a packed trip: tap «Evening-before check» under «Until the start» and tick a point.':
+    'Eine gepackte Tour öffnen: Unter «Bis zum Start» auf «Vorabend-Check» tippen und einen Punkt abhaken.',
+  'Tap «Adjust the list», add your own point and save it for all trips of the type.':
+    'Auf «Liste anpassen» tippen, einen eigenen Punkt dazunehmen und für alle Touren der Reiseart speichern.',
+  'End a trip: tap the after-trip check under «Before you unpack».':
+    'Eine Tour beenden: Unter «Bevor du auspackst» auf den Schluss-Check tippen.',
+  'Open Me › Checks per trip type and choose another type.':
+    'Ich › Checks pro Reiseart öffnen und eine andere Reiseart wählen.',
   // 0.110.0 Design-Refresh P10 «Was ist neu»
   'Me › What is new shows the newest version, every function one by one and all versions by month.':
     'Ich › Was ist neu zeigt die neueste Version, jede Funktion einzeln und alle Versionen nach Monat.',

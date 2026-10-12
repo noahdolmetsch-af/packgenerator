@@ -4,6 +4,7 @@
    * of Today, before the rest of the page (which E1 rebuilds later):
    * - from 18:00 the evening before a start: «Morgen geht's los: …» (when its reminder is on, U21a);
    *   v0.106.0 (Noah 1-5a): it opens «Gepackt» with the evening-before check (was the packing day);
+   *   v0.111.0 (mockups V1–V2): «?check» opens the check's sheet right away;
    * - on the evening of a trip's last day: «Letzter Abend: … Tour abschliessen» (the interstitial);
    * - «Weitermachen: Tour X · Packen, Schritt 2 von 4»: always the next planned trip (U24b), else a
    *   trip still waiting for its debrief. One tap opens exactly that step (phase.js stepOf).
@@ -33,7 +34,7 @@
 {#if eve || last || (lead && step)}
   <div class="continue" data-section="continue">
     {#if eve}
-      <a class="row eve" href={betweenHref(eve, 'packed')} onclick={() => openTrip(eve.id)} data-row="eve">
+      <a class="row eve" href={`${betweenHref(eve, 'packed')}?check`} onclick={() => openTrip(eve.id)} data-row="eve">
         <Moon size={20} aria-hidden="true" />
         <span class="tx"><b>{t("Tomorrow it starts: {trip}", { trip: eve.title })}</b><small>{t('Your evening-before check is waiting.')}</small></span>
         <ChevronRight size={18} aria-hidden="true" />

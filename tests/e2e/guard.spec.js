@@ -76,6 +76,8 @@ const ROUTES = [
   // v0.110.0 Design-Refresh P10 (I11, I11d): Ich › Was ist neu and the whole list, strict like their files
   ['#/me/news', 'Was ist neu'],
   ['#/me/news?all&sort=best', 'Was ist neu Wichtigste 10'],
+  // v0.111.0 (mockup V4): Ich › Checks pro Reiseart, strict like its file
+  ['#/me/checks', 'Checks pro Reiseart'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

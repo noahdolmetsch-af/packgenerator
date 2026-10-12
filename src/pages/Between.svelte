@@ -14,7 +14,7 @@
   import { db } from '../lib/db.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { tripStats, zoneName, RAIN } from '../lib/trips.js';
-  import { hasBike } from '../lib/domains.js';
+  import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { tabsOf, tabStatus, tripDates } from '../lib/tabs.js';
   import { tripEnd, quickDebrief } from '../lib/debrief.js';
   import { tripNotes } from '../lib/notes.js';
@@ -23,10 +23,13 @@
   import { packedAll, isDayTrip, daysFrom, canReopen } from '../lib/phase.js';
   import { takeUndo, reopenTrip } from '../lib/trip/ending.js';
   import Interstitial from '../lib/ui/Interstitial.svelte';
-  import TripCheck from '../lib/trip/TripCheck.svelte';
+  import CheckSheet from '../lib/trip/CheckSheet.svelte';
+  import CheckEdit from '../lib/trip/CheckEdit.svelte';
+  import { checkKey, checkOf, checkCount, nextOpen } from '../lib/checks.js';
+  import { typeIcon } from '../lib/trip/checkicons.js';
   import Celebrate from '../lib/ui/Celebrate.svelte';
   import Empty from '../lib/ui/Empty.svelte';
-  import { Bell, Pencil, X, Minus, Plus, Route, Check, Undo2, Zap, ChevronRight, Briefcase } from '@lucide/svelte';
+  import { Bell, X, Minus, Plus, Route, Check, Undo2, Zap, ChevronRight, Briefcase, NotebookPen } from '@lucide/svelte';
   import StepBar from '../lib/ui/StepBar.svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import MainBar from '../lib/ui/MainBar.svelte';
@@ -57,6 +60,22 @@
   const weekday = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'long' });
   const longDay = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' });
   const context = $derived(trip ? `${trip.title} · ${tripDates(trip)}` : '');
+
+  /* ---------- v0.111.0 the check of the page (mockups V1–V6): a row that opens its sheet ---------- */
+  const checkKind = $derived(kind === 'packed' ? 'eve' : 'after');
+  const stdQ = liveQuery(() => db.settings.where('key').startsWithAnyOf(['eveStandard', 'afterStandard']).toArray());
+  const domain = $derived(trip ? domainOf(trip) : null);
+  const standard = $derived(domain ? (($stdQ ?? []).find((r) => r.key === checkKey(checkKind, domain))?.value ?? null) : null);
+  const checkList = $derived(trip ? checkOf(trip, checkKind, standard) : []);
+  const checkN = $derived(checkCount(checkList));
+  const checkNext = $derived(nextOpen(checkList));
+  const checkLine = $derived([t('{done} of {n} done', { done: checkN.done, n: checkN.total }), checkNext ? t('next: {name}', { name: t(checkNext.label) }) : null].filter(Boolean).join(' · '));
+  const area = $derived(domain ? t(domainName(domain)) : '');
+  const TypeIcon = $derived(typeIcon(domain));
+  // Today's evening row comes with «?check»: the sheet opens right away (and a reload does not again)
+  const askCheck = /\?check\b/.test(location.hash);
+  if (askCheck) history.replaceState(history.state, '', location.href.replace(/\?check\b/, ''));
+  let sheet = $state(askCheck ? 'check' : null); // 'check' | 'edit' | null
 
   /* ---------- Gepackt ---------- */
   const all = $derived(trip ? packedAll(trip) : false);
@@ -93,7 +112,6 @@
   const km = $derived(debrief?.km ?? trip?.route?.km ?? null);
   const gain = $derived(trip?.route?.gainM ?? null);
   const notes = $derived(trip ? tripNotes(debrief, $notesQ ?? [], trip.id) : []);
-  const NOTE_ICON = { missing: X, unused: Minus, broken: X };
   const endedText = $derived(!trip ? '' : early ? t('Ended after day {n} of {total}. Good to be back.', { n: ridden, total: Number(trip.days) || 1 }) : (Number(trip.days) || 1) > 1 ? tn(ridden, '{n} day on the way. Good to be back.', '{n} days on the way. Good to be back.') : t('Good to be back.'));
   const day = $derived(trip ? isDayTrip(trip) : false);
   const quickDone = $derived(debrief?.status === 'done');
@@ -166,6 +184,10 @@
       <h2 id="until-h" class="sh">{t('Until the start')}</h2>
       {#if until != null && until >= 0}<p class="ssub">{startText}{wx ? ` · ${wx}` : ''}</p>{/if}
       <ul class="card rows">
+        {#if until != null && until >= 0}
+          <!-- v0.111.0 mockup V1 (Noah «v1-v4 ok»): the evening-before check, its sheet on a tap -->
+          <li><button type="button" class="row" aria-haspopup="dialog" data-row="check" onclick={() => (sheet = 'check')}><span class="ic" aria-hidden="true"><TypeIcon size={18} /></span><span class="bt"><b>{t('Evening-before check {area}', { area })}</b><small class="num">{checkLine}</small></span><span class="mini" aria-hidden="true"><i style:width="{checkN.total ? (checkN.done / checkN.total) * 100 : 0}%"></i></span><ChevronRight size={18} aria-hidden="true" /></button></li>
+        {/if}
         {#if charge.length}
           <li><a class="row" href="#/pack?charge" onclick={pick}><span class="ic" aria-hidden="true"><Zap size={18} /></span><span class="bt"><b>{t('Charge the evening before')}</b><small class="num">{t('{done} of {n} charged', { done: charged.done, n: charged.total })}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
         {/if}
@@ -176,10 +198,6 @@
         <li><a class="row" href="#/pack?day" onclick={pick}><span class="ic" aria-hidden="true"><Briefcase size={18} /></span><span class="bt"><b>{t('See the packing list')}</b>{#if stats}<small class="num">{tn(bags.length, '{n} bag', '{n} bags')} · {tn(stats.count, '{n} item', '{n} items')}</small>{/if}</span><ChevronRight size={18} aria-hidden="true" /></a></li>
       </ul>
     </section>
-    {#if until != null && until >= 0}
-      <!-- v0.111.0 «Bausteine bearbeiten» (Noah 1-5a, mockup A): the evening-before check of the trip's area -->
-      <TripCheck {trip} kind="eve" />
-    {/if}
     <MainBar main={packedMain} second={{ label: t('Back to Trips'), href: '#/trips' }} step={tabs.includes(current) ? t('Step {n} of {m}', { n: tabs.indexOf(current) + 1, m: tabs.length }) : ''} />
   </article>
 {:else if kind === 'ended'}
@@ -195,24 +213,23 @@
         <small class="num">{[trip.title, km ? tn(ridden, '{n} day', '{n} days') : null, gain ? `${num(Math.round(gain))} ${t('m up|short')}` : null].filter(Boolean).join(' · ')}</small>
       </p>
       <PageHead done title={t('Trip ended')} text={endedText} />
-      <p class="what">{day ? (quickDone ? t('Nothing more. The debrief is saved.') : t('A short debrief: «All good» when nothing was different.')) : t('Debrief, about 3 minutes. Best today, while everything is fresh.')}</p>
+      <p class="what">{day ? (quickDone ? t('Nothing more. The debrief is saved.') : t('A short debrief: «All good» when nothing was different.')) : t('First the after-trip check, then the debrief, about 3 minutes.')}</p>
       {#if !km && (gain || ridden)}<p class="what small">{t('Numbers from your route. With an uploaded ride they get exact.')}</p>{/if}
       {#if day && quickDone}
         <div class="saved"><Celebrate title={t('Debrief saved')} text={t('Every item counts as used.')} />{#if quickUndo}<button type="button" class="tp-link" onclick={undoQuick}>{t('Undo')}</button>{/if}</div>
       {/if}
     </section>
-    <!-- v0.111.0 «Bausteine bearbeiten» (Noah 1-5a, mockup B): the after-trip check, before the debrief -->
-    <TripCheck {trip} kind="after" />
-    {#if notes.length}
-      <section class="until rv-sec" aria-labelledby="noted-h">
-        <div class="rv-h"><div><h2 id="noted-h">{tn(notes.length, 'Noted on the way · {n}', 'Noted on the way · {n}')}</h2><p class="rv-sub">{t('It goes into the debrief, nothing to copy.')}</p></div></div>
-        <ul class="rv-box">
-          {#each notes.slice(0, 4) as n (n.key)}{@const Icon = NOTE_ICON[n.kind] ?? Pencil}
-            <li class="rv-row"><span class="rv-ic" aria-hidden="true"><Icon size={18} /></span><span class="rv-m"><span class="rv-t">{n.text}</span><span class="rv-s">{t('Day {n}', { n: (n.day ?? 0) + 1 })}</span></span></li>
-          {/each}
-        </ul>
-      </section>
-    {/if}
+    <!-- v0.111.0 mockup V5 (Noah «v5-6 ok»): «Bevor du auspackst», the after-trip check and the notes on the way -->
+    <section class="until" aria-labelledby="unpack-h">
+      <h2 id="unpack-h" class="sh">{t('Before you unpack')}</h2>
+      <p class="ssub">{t('At home, before everything goes into the cupboard')}</p>
+      <ul class="card rows">
+        <li><button type="button" class="row" aria-haspopup="dialog" data-row="check" onclick={() => (sheet = 'check')}><span class="ic" aria-hidden="true"><TypeIcon size={18} /></span><span class="bt"><b>{t('After-trip check {area}', { area })}</b><small class="num">{checkLine}</small></span><span class="mini" aria-hidden="true"><i style:width="{checkN.total ? (checkN.done / checkN.total) * 100 : 0}%"></i></span><ChevronRight size={18} aria-hidden="true" /></button></li>
+        {#if notes.length}
+          <li><a class="row" href={debriefHref} onclick={pick} data-row="noted"><span class="ic" aria-hidden="true"><NotebookPen size={18} /></span><span class="bt"><b>{t('Noted on the way')}</b><small>{[tn(notes.length, '{n} note', '{n} notes'), notes.slice(0, 2).map((n) => `«${n.text}»`).join(', ')].join(' · ')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
+        {/if}
+      </ul>
+    </section>
     <MainBar main={endedMain} second={endedSecond} step={tabs.includes(current) ? t('Step {n} of {m}', { n: tabs.indexOf(current) + 1, m: tabs.length }) : ''} />
     <div class="foot">
       {#if !day}<span>{t('With «Later», Today reminds you tomorrow.')}</span>{:else if !quickDone}<a class="tp-link" href="#/">{t('Later')}</a>{/if}
@@ -236,6 +253,12 @@
     </section>
     {#snippet foot()}<a class="tp-link" href={debriefHref} onclick={pick}>{t('See the debrief')}</a>{/snippet}
   </Interstitial>
+{/if}
+
+{#if trip && kind !== 'debriefed' && sheet === 'check'}
+  <CheckSheet {trip} kind={checkKind} {items} trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {standard} notes={notes.length} debriefDone={debrief?.status === 'done'} debriefHref={kind === 'ended' && !day ? debriefHref : ''} onedit={() => (sheet = 'edit')} onclose={() => (sheet = null)} />
+{:else if trip && kind !== 'debriefed' && sheet === 'edit'}
+  <CheckEdit kind={checkKind} {domain} {trip} list={checkList} {items} trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} onclose={() => (sheet = 'check')} />
 {/if}
 
 <style>
@@ -340,6 +363,27 @@
   }
   .row :global(svg) {
     flex: none;
+  }
+  button.row {
+    width: 100%;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: left;
+  }
+  /* v0.111.0 (V1, V5): the small bar of a check row */
+  .mini {
+    flex: none;
+    width: 60px;
+    height: 6px;
+    border-radius: 99px;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .mini i {
+    display: block;
+    height: 100%;
+    background: var(--hi);
   }
   .row > :global(svg) {
     color: var(--ink-3);
