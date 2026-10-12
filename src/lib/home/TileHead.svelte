@@ -16,10 +16,13 @@
 </div>
 
 <style>
+  /* a narrow tile on a phone: the name moves under the icon or the «neu» sign under the name, a word
+     is never broken in the middle */
   .th {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: 6px 10px;
     min-width: 0;
   }
   .ico {
@@ -33,8 +36,8 @@
     color: var(--ink-2);
   }
   h2 {
-    flex: 1;
-    min-width: 0;
+    flex: 1 1 0;
+    min-width: min-content;
     margin: 0;
     font: 600 var(--fs-body)/1.3 var(--font-body);
     overflow-wrap: break-word;
