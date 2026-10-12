@@ -161,8 +161,9 @@ for (const lang of ['en', 'de']) {
     await fs.getByRole('group', { name: T('Area') }).getByRole('button', { name: new RegExp(`^${esc(T('Weekend'))}`) }).click();
     await page.keyboard.press('Escape');
     await expect(fs).toBeHidden();
-    await expect(page.locator('.cards').getByText('Paperback book')).toBeVisible();
-    await expect(page.locator('.cards').getByText('Bib shorts')).toHaveCount(0);
+    // v0.102.0 Design-Refresh P3: the list comes first (Noah «5a»), the groups instead of the cards
+    await expect(page.locator('.cats').getByText('Paperback book')).toBeVisible();
+    await expect(page.locator('.cats').getByText('Bib shorts')).toHaveCount(0);
     await fits('Gear');
 
     // 10. All my favourite things, by area.

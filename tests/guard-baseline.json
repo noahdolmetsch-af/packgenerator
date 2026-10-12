@@ -71,20 +71,14 @@
     "src/lib/debrief/TemplateOffer.svelte": {
       "fontsize": 2
     },
-    "src/lib/gear/AssignDialog.svelte": {
-      "fontsize": 2
-    },
     "src/lib/gear/FavStar.svelte": {
       "fontsize": 2
-    },
-    "src/lib/gear/GearRow.svelte": {
-      "fontsize": 3
     },
     "src/lib/gear/ItemDialog.svelte": {
       "fontsize": 12
     },
     "src/lib/gear/MergeSheet.svelte": {
-      "fontsize": 4,
+      "fontsize": 2,
       "global": 1
     },
     "src/lib/gear/ReviewMode.svelte": {
@@ -92,7 +86,6 @@
       "global": 1
     },
     "src/lib/gear/WeighMode.svelte": {
-      "fontsize": 4,
       "global": 2
     },
     "src/lib/gear/WeightOverview.svelte": {
@@ -241,7 +234,7 @@
       "fontsize": 3
     },
     "src/pages/Gear.svelte": {
-      "fontsize": 20
+      "fontsize": 8
     },
     "src/pages/GearImport.svelte": {
       "fontsize": 4,

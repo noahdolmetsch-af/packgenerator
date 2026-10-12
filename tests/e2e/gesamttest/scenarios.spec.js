@@ -373,6 +373,9 @@ test('S5 empty app, gear import step 1, merge, step 2, first trip', async ({ pag
     await page.reload();
     const dlg = page.locator('dialog[open]');
     await expect(dlg).toBeVisible();
+    // v0.102.0 Design-Refresh P3: «Merge with …» moved into the last row «More» of the item window
+    const more = dlg.locator('details.fold[data-fold="more"]');
+    if (!(await more.evaluate((d) => d.open))) await more.locator('> summary').click();
     await dlg.getByRole('button', { name: T('Merge with …') }).click();
     const sheet = page.locator('dialog[open]').last();
     await sheet.getByRole('button', { name: T('Merge|items'), exact: true }).click();
