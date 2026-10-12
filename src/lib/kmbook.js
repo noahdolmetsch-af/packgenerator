@@ -34,7 +34,7 @@ export const newestFirst = (a, b) => (b.date ?? '').localeCompare(a.date ?? '') 
 /** The entries of one bike. */
 export const ofBike = (entries, bikeId) => (entries ?? []).filter((e) => e.bikeId === bikeId);
 /**
- * 0.115.0 (Noah «4b»): a Strava ride without a bike waits only in Velo › Pflege › Strava › «Zum
+ * 0.116.0 (Noah «4b»): a Strava ride without a bike waits only in Velo › Pflege › Strava › «Zum
  * Prüfen», not in the bike's ride ledger or the weekly card on Today.
  */
 export const waitsInStrava = (e) => e?.source === 'strava' && e?.state === 'open';
@@ -805,7 +805,7 @@ export function entryDetail(e) {
   return parts.join(' · ');
 }
 
-/* ---------- v0.115.0 Puls pro Fahrt (Noah 12.10.2026 «1b 2a und b», «1a 2a»): observation only ---------- */
+/* ---------- v0.116.0 Puls pro Fahrt (Noah 12.10.2026 «1b 2a und b», «1a 2a»): observation only ---------- */
 
 const hasHeart = (e) => Number(e?.hrAvg) > 0 && e?.state !== 'removed';
 

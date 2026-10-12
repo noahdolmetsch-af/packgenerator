@@ -862,6 +862,13 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Menü-Fix (0.115.0)
+
+Noah 12.10.2026 22:22: «erst bei zweitem Klick geht Menü wieder weg», dringend. Vorher/Nachher freigegeben 23:02 «menü fix freigeben».
+
+- Jedes •••-Menü schliesst mit einem Tipp daneben, überall gleich (`ui/away.js`, wie schon `tpl/Menu.svelte`). Der Tipp daneben wird nicht verschluckt: Er tut auch, was er trifft.
+- **Selbst entschieden:** nur Verhalten, kein neues Aussehen; Material und Kleiderschrank (eigene Lösung mit Klick daneben) bleiben, wie sie sind.
+
 ## 12.10.2026: Bausteine bearbeiten, Teil 1: Vorabend- und Schluss-Check (0.111.0)
 
 Nach den Mockups A–F «Bausteine bearbeiten» (Offene Mockups #bausteine-bearbeiten, Trello «Bausteine bearbeiten»), Noah im Thread 12.10.2026 «freigabe 1-5a: bausteine bearbeiten und ansehen». Das sind Antworten auf die a/b-Fragen, noch keine Freigabe der Bilder: Die Mockups A und B brauchen Noahs ausdrückliche Freigabe, bevor der PR bereit ist (gefragt 12.10.2026). Noah 12.10.2026 16:18 «4b»: der Thread «Design-Refresh alle Seiten» übernimmt den PR, neu als 0.111.0 nach dem Design-Refresh.
@@ -994,7 +1001,7 @@ Alle Seiten freigegeben (Stilblatt G1–G12 am 11.10.2026 23:10 «Runde 1 alles 
 - **(5a)** Alle anderen Bauten pausieren, bis Welle 1 (R1–R4) und Heute live sind.
 - **Selbst entschieden (R1):** Die dunklen Versionen von Salbei, Fels, Sand und Gletscher sanft sind aus den hellen abgeleitet und auf Kontrast geprüft. Wer den alten Standard Gletscher gespeichert hat, bekommt einmal Salbei (Gletscher bleibt wählbar und bleibt dann). Die schmale Titelschrift fällt weg, Titel nehmen die gewählte Schrift. Grössen: Klein 15 px, Normal 16 px, Gross 18 px Grundschrift, die anderen Stufen ziehen mit. Die Vorschau zeigt sich erst ab 1100 px Breite, am Handy ändert sich die ganze App sofort. Die Farbwelten zeigen nur ihren Namen und vier Punkte wie im Mockup.
 
-## 12.10.2026: E3 «Strava-Verbindung» bauen (0.115.0)
+## 12.10.2026: E3 «Strava-Verbindung» bauen (0.116.0)
 
 Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von Noah am 12.10.2026 13:39 «s1-s5 freigegeben»; die Fassung v2 aus der gebauten App (Offene Mockups 2 #strava-v2, mit Bild 4 nach «4b») am 12.10.2026 21:05 «S1–S5 v2 freigegeben». Antworten 11:30 UTC «1 a und b möglich 2 a und b möglich 3b 4b wobei der hinweis im frontend ersichtlich sein muss für den nutzer, sonst a 5a»; Server-Fragen 18:27 «1a 2a 3a 4a 5b». Ersetzt den Entscheid (4a) vom 12.10.2026 «Alle Fahrten aus Strava bleibt ein Datei-Import»: die echte Verbindung ist jetzt da, der Datei-Import bleibt als Reserve.
 
@@ -1006,5 +1013,5 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Server (1a 2a 3a 4a 5b):** Trennen lässt Google verbunden; ein zweites Gerät (Handy) verbindet sich mit einem neuen Strava-Login; jedes Holen prüft die letzten 30 Tage nochmals auf ein geändertes Velo (Strava meldet das nicht von selbst); private Fahrten werden auch geholt (read_all); Google in Produktion.
 - **Selbst entschieden:** Der Geräte-Schlüssel liegt nur in localStorage (`pg.strava.key`), nie in IndexedDB und nie im Backup; Einstellungen, Fragen und das letzte Holen liegen in `db.settings` (`strava`, `strava.changes`, `strava.last`) und reisen im Backup mit. Fahrten zum Prüfen sind offene Einträge (Quelle Strava), stehen aber nur in «Zum Prüfen», nicht im Fahrten-Buch und nicht in der Wochenkarte (Noah «4b»). Eine eigene Zuordnung «Velo in Strava ↔ Velo in der App» ist eine Strava-Velo-Regel des Imports (gilt auch für Dateien); «Zählt nicht» merkt sich die Strava-Velo-ID. Eine Fahrt, die auf «Zum Prüfen» wartet und in Strava ein Velo bekommt, zählt ohne Frage für dieses Velo. «Behalten» merkt sich den neuen Strava-Namen, damit dieselbe Frage nicht wiederkommt. Die Kachel «Strava» kommt einmal oben auf Heute, wenn ein Gerät sich verbindet (wegnehmbar, Noah «3a»). Statt «Standard für «Gravel Ride»» (Strava liefert das nicht) zeigt die Zuordnung «Hauptvelo in Strava» und die km in Strava (Noah «1 ok»). Trennen fragt: «Fahrten behalten» (★) oder «geholte Fahrten entfernen» (Noah «2 ok»). «Alle Vorschläge übernehmen» bleibt (Noah «5a»). Antworten zu den Abweichungen: 12.10.2026 18:32 «Strava: 1 ok 2ok» und 18:38 «3a 4b 5a». Bike-Gesamt-km aus Strava setzen den Wochenabgleich nicht (Strava rundet pro Velo auf ganze km).
 - **Puls pro Fahrt (P1–P6, Offene Mockups 2 #puls-pro-fahrt):** freigegeben «P1–P6 freigegeben 1a, veröffentlichen» (12.10.2026 22:07 UTC). Antworten «1b 2a und b» (in #137, an allen Orten) und «1a 2a 3a 4a 5a» (sechs Orte: Fahrtenbuch des Velos, Rückblick letzte Tour, Touren-Tabelle, Aktiv diese Woche, Fahrt-Seite, «Diese Woche» auf Heute). Später, eigene Pakete: Puls auf gleicher Strecke vergleichen, Skitouren mit Puls im Tourenbuch (Skitour), Puls neben dem Ruhepuls im Tages-Check (Google-Teil).
-- **Q1 = a:** Strava-Fahrten zählen bald auch in «Diese Woche» und «Velo in diesem Monat»; das kommt als kleines eigenes Release nach 0.115.0.
+- **Q1 = a:** Strava-Fahrten zählen bald auch in «Diese Woche» und «Velo in diesem Monat»; das kommt als kleines eigenes Release nach 0.116.0.
 - **Selbst entschieden:** Eine hochgeladene GPX-Fahrt bekommt den Puls der Strava-Fahrt nur, wenn genau eine passt (gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Der Wochen- und Tour-Puls ist ein km-gewichteter Schnitt der Fahrten, max der höchste Wert.

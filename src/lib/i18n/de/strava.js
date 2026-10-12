@@ -1,5 +1,5 @@
 /**
- * v0.115.0 «Strava-Verbindung» (E3, mockups S1–S5): the Strava page, «Zum Prüfen», the notice
+ * v0.116.0 «Strava-Verbindung» (E3, mockups S1–S5): the Strava page, «Zum Prüfen», the notice
  * «Velo in Strava geändert» and the tile on Today. Keys are the English texts. Swiss spelling (ss).
  */
 export default {

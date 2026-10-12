@@ -68,7 +68,7 @@ if (__PREVIEW__) {
   document.body.appendChild(bar);
 }
 
-// v0.115.0 «Strava-Verbindung»: back from the Strava login, the address carries this device's key once
+// v0.116.0 «Strava-Verbindung»: back from the Strava login, the address carries this device's key once
 // (#…&strava=connected&key=…): stored in localStorage and taken out of the address before the app reads it.
 takeReturn();
 window.addEventListener('hashchange', () => takeReturn());
@@ -83,6 +83,6 @@ navigator.storage?.persist?.();
 // One-time fixes for older data (brand/model split, bag list and bike setups).
 settling(() => tidyData(db))
   .catch((err) => console.warn('tidyData', err))
-  // v0.115.0 (decision 1a): fetch new rides from Strava when the app opens or comes back, at most every
+  // v0.116.0 (decision 1a): fetch new rides from Strava when the app opens or comes back, at most every
   // 15 minutes, only on a device with a Strava key and «Automatisch beim Öffnen» on.
   .finally(() => watchAutoFetch());

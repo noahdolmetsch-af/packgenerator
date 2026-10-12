@@ -61,10 +61,10 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.86.0 | Meditation einfach (Noah «1-5 a»): Startblatt aus «Heute abhaken» (Jetzt {n} Min, Dauer, Nur abhaken), kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant» und Wisch-Hinweis weg | PR offen |
 | 0.97.0 | Design-Refresh R1 «Darstellung» (G1 neu freigegeben 11.10. 23:10, Noah 12.10. «1a 2a 3b 4a 5a»): Farbwelt Salbei und Schrift Inter als neuer Standard; Ich › Darstellung mit 8 Schriften, 7 Farbwelten (die bisherigen bleiben), Schriftgrösse Klein/Normal/Gross, hell oder dunkel, Vorschau am Computer | live |
 | 0.98.0 | Design-Refresh R2 «Heller Kopf» (G4/G5 A★): heller Kopf und helle Seitenleiste, «Neu» oben neben der Suche statt rundem Knopf, «Ich» als Karte unten in der Seitenleiste | live |
-| 0.115.0 | E3 «Strava-Verbindung» (S1–S5): Velo › Pflege › Strava verbinden, alle alten Fahrten holen ohne Doppelte, automatisch beim Öffnen oder per Knopf, Fahrt ohne Velo zum Prüfen mit Vorschlag, «Velo in Strava geändert» auf Heute und beim Velo, Kachel «Strava», Datei-Import als Reserve; Puls Ø/max pro Fahrt an sechs Orten (P1–P6) | PR offen |
+| 0.116.0 | E3 «Strava-Verbindung» (S1–S5): Velo › Pflege › Strava verbinden, alle alten Fahrten holen ohne Doppelte, automatisch beim Öffnen oder per Knopf, Fahrt ohne Velo zum Prüfen mit Vorschlag, «Velo in Strava geändert» auf Heute und beim Velo, Kachel «Strava», Datei-Import als Reserve; Puls Ø/max pro Fahrt an sechs Orten (P1–P6) | PR offen |
+| 0.115.0 | Menü-Fix (Noah «dringend»): jedes •••-Menü schliesst mit einem Tipp daneben, nicht erst beim zweiten Tipp auf ••• (Velopflege › Probleme, Velo-Check, Packliste, laufende Touren). | live seit 12.10.2026 |
+| 0.114.0 | «Rahmenbedingungen» (B1–B3): Fenster für eine neue Tour mit Sportart, Wetter aus der PLZ, Event, Vorlagen als Knöpfe (keine «Letzte Tour»), Packliste in vier Gruppen; Reparatur und Laden nicht mehr von selbst | live |
 | 0.111.0 | Bausteine bearbeiten Teil 1 (Mockups V1–V6, Noah «v1-v4 ok» und «v5-6 ok» 12.10.2026): Vorabend-Check als Zeile auf «Gepackt» mit eigenem Fenster, Schluss-Check unter «Bevor du auspackst» auf «Tour beendet», «Liste anpassen» (sortieren, entfernen, Eigenes, Vorschläge aus früheren Rückblicken, für diese Tour oder alle der Reiseart), neue Seite Ich › Checks pro Reiseart | live |
-| 0.114.0 | «Rahmenbedingungen» (B1–B3): Fenster für eine neue Tour mit Sportart, Wetter aus der PLZ, Event, Vorlagen als Knöpfe (keine «Letzte Tour»), Packliste in vier Gruppen; Reparatur und Laden nicht mehr von selbst | PR offen |
-| 0.111.0 | Bausteine bearbeiten Teil 1 (Mockups V1–V6, Noah «v1-v4 ok» und «v5-6 ok» 12.10.2026): Vorabend-Check als Zeile auf «Gepackt» mit eigenem Fenster, Schluss-Check unter «Bevor du auspackst» auf «Tour beendet», «Liste anpassen» (sortieren, entfernen, Eigenes, Vorschläge aus früheren Rückblicken, für diese Tour oder alle der Reiseart), neue Seite Ich › Checks pro Reiseart | PR offen |
 | 0.110.0 | Design-Refresh P10 «Was ist neu» (I11, I11b–I11e): Ich › Was ist neu mit neuester Version, allen Funktionen (Neueste, Name, Kategorie, Ort, Deine Top 10, Wichtigste 10, Suche) und Versionen nach Monat; Meldung nach Update mit «Nicht mehr anzeigen»; Kachel «Neu» 14 Tage oben auf Heute | live |
 | 0.109.0 | Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (T14–T23): Tour beendet, Rückblick in zwei Spalten, Übersicht, Gelernt, Tempo, Logbuch, Vergangene Touren, Fahrten im neuen Stil | live |
 | 0.108.0 | Design-Refresh P9 «Ich» (I1–I10, I12, I13, B20, B35): Ich in vier Gruppen, Daten und Backup mit Status-Lichtern, Aufs Handy mit QR-Code, Eingang, Notizen, Helfer, Wohnort, Spielwiese im neuen Stil | live |
@@ -106,7 +106,6 @@ Seit 10.10.2026, 09:30 gilt **Prinzip Nr. 1** (siehe [arbeitsweise.md](arbeitswe
 Alle Mockups liegen ausserhalb des Repos im Projektordner (`design/…`). Sie sind nur hell und nutzen erfundene Daten.
 
 | Paket | Ordner | Stand |
-| --- | --- | --- |
 | E1–E4 Startseite & Integrationen | `design/startseite` | 24 Bilder, Fragen 1–9 beantwortet |
 | KI-Helfer | `design/ki-helfer`, neu in Fünf Orte `design/ki-helfer/neu` | 1–8 a und K1–K3 a, gebaut (0.77.0) |
 | Fünf Orte | `design/d3-fuenf-orte` | 15 Bilder, 5 Fragen offen |
@@ -153,7 +152,7 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **E4 Anreise in der App:** SBB-Verbindungen direkt in der App (transport.opendata.ch), nächster Zug nach Hause.
 - **Take me home:** Knopf während der Fahrt. Er nimmt den aktuellen Standort und öffnet den schnellsten Weg zur Heimat-PLZ: ÖV über die SBB-App, Auto über Google Maps.
 - **Beispiel:** Samstag 7 Uhr, Tour Jura geplant: die Startseite zeigt «Startklar: 2 Teile fehlen», Wetter Start 6 °C, Ziel 9 °C, und den Zug 7:32 ab Zürich HB. Am Nachmittag, platt in Le Brassus: «Take me home» zeigt den nächsten Zug.
-- **Stand:** Konzept fertig und beantwortet, Mockups für alle Etappen werden gezeichnet (nur hell). **12.10.2026:** E3 Strava-Teil als 0.115.0 gebaut (PR offen, Mockups S1–S5 freigegeben 13:39); Einrichtung in [strava-verbinden.md](strava-verbinden.md). Aktivitätsmosaik und Google-Teil folgen. **11.10.2026:** E1 wird zur «Kachel-Wand» (0.94.0, PR offen): Noah stellt Heute selbst aus Kacheln zusammen; der Entwurf «Startseite dicht» (#111) ist abgelöst. Danach K6 und K7 (Mockups zuerst), dann E2–E4.
+- **Stand:** Konzept fertig und beantwortet, Mockups für alle Etappen werden gezeichnet (nur hell). **12.10.2026:** E3 Strava-Teil als 0.116.0 gebaut (PR offen, Mockups S1–S5 freigegeben 13:39); Einrichtung in [strava-verbinden.md](strava-verbinden.md). Aktivitätsmosaik und Google-Teil folgen. **11.10.2026:** E1 wird zur «Kachel-Wand» (0.94.0, PR offen): Noah stellt Heute selbst aus Kacheln zusammen; der Entwurf «Startseite dicht» (#111) ist abgelöst. Danach K6 und K7 (Mockups zuerst), dann E2–E4.
 
 ### 4. Design-Pakete D1–D6
 
@@ -297,7 +296,6 @@ Kurzfassung, verbindlich ist [arbeitsweise.md](arbeitsweise.md).
 ## Technik und Dienste
 
 | Teil | Was | Kosten |
-| --- | --- | --- |
 | App | Svelte 5, Vite, Dexie (IndexedDB), PWA, offline | gratis |
 | Hosting App | GitHub Pages (Repo ist öffentlich) | gratis |
 | Server | Vercel Functions im selben Repo (`api/`), Upstash Redis für Tokens und Zähler | gratis (Free Tier) |

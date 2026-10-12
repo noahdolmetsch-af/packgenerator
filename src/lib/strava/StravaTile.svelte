@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.115.0 «Strava-Verbindung» (mockup S4): the tile «Strava» on Today. The last fetch: «3 neue
+   * v0.116.0 «Strava-Verbindung» (mockup S4): the tile «Strava» on Today. The last fetch: «3 neue
    * Fahrten geholt · +118 km», the km per bike, «alle zugeordnet» or how many wait in «Zum Prüfen».
    * Without a connection on this device: one line and the way to the Strava page.
    */

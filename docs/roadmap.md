@@ -81,7 +81,6 @@ Die AP-IDs, fachlichen Verträge und ursprünglichen Abhängigkeiten bleiben erh
 - Alte Etappen A–D/Paket-5-Planung ist historische Planung. Bereits ausgelieferte Reisearten bleiben erhalten; offene Fragen daraus sind keine zweite aktive Roadmap. Die erste echte Arbeitsweg-Tour mit Rückblick ist ein Nutzungstest innerhalb AP23 und später AP25.
 
 | Reihenfolge ab jetzt | Konkretes Ergebnis | Erfolgskriterium / Nachweis | Abhängigkeit |
-|---|---|---|---|
 | 1. Abnahme der ausgelieferten Screens | Entscheidung und Packliste mit MTB/Alpin/Bikepacking prüfen | Bestätigung/Abbruch verständlich; Packkontrolle erreichbar; offene Punkte pro AP protokolliert | AP13–15/AP19; AP21/AP23 |
 | 2. Grundlagen nachziehen | AP01/AP02 technisch zugeordnet, Restore-Belege und Auswahlrangfolge vollständig | IDs/Mengen/Haken nach Rundlauf erhalten; jede Prioritätsregel mit Beispiel | Grundlage für die nächsten Softwareänderungen |
 | 3. Eventmodus abnehmen | Integrierten PR #31 nach Dokumentabgleich fachlich abnehmen; keine alte Pack-Ansicht zurückbringen | Kurzfahrt ohne Eventwarnlast; Eventfahrplan bleibt; vorhandene bestätigte Aufgaben sichtbar | AP06/AP12/AP16; erneute CI/Browserprüfung |
@@ -468,7 +467,6 @@ Bei jeder Arbeitsrunde die betroffenen Zeilen aktualisieren; eine Zeile „verif
 ## Abdeckung des gesamten abgenommenen Konzepts
 
 | Empfehlung aus der Analyse | Umsetzung / Prüfung |
-|---|---|
 | Tourvorbereitungs-Assistent als Produktkern; bewusste Grenzen | Global Constraints, AP02/AP07/AP12/AP13 |
 | Material, Setups, Bausteine, Vorlagen und Packlisten verständlich verbinden | AP02/AP09/AP10/AP11/AP18 |
 | Tourkontext vor Standardset; Übernachtungsmethode/Kochen | AP12/AP13, PF01/PF05/PF06 |
@@ -503,7 +501,6 @@ Früherer Text (7.10.2026): Ausgelieferte Screens mit den Alltagstouren abnehmen
 Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgelegt. Wie und wann sie eingebaut werden, wird noch mit ihm besprochen. Bis dahin gelten sie als offene Pflicht-APs. (Nachtrag 08.10.2026: Reihenfolge festgelegt, siehe „Stand und nächste Pakete“.)
 
 | AP | Wunsch | Was es heute schon gibt (Stand v0.30.2) | Was fehlt |
-|---|---|---|---|
 | AP27 | **GPX einer abgeschlossenen Aktivität hochladen und als Learning nutzen** | Rückblick → «Dein Tempo» lernt Geschwindigkeit und Höhenmeter pro Stunde aus GPX-Fahrten (`src/lib/pace.js`, `debrief/Pace.svelte`). Der Rückblick liest GPX/TCX/CSV für km und Fahrten (`src/lib/activities.js`). | Erledigt in 0.41.0: Fahrt hochladen (auch ohne Tour, auch über Android-Teilen), Pausen, geplant gegen echt, 1–3 Learnings mit einem Tippen (`src/lib/gpx.js`, `src/pages/Rides.svelte`). Wetter und Verpflegung bleiben im Rückblick. |
 | AP28 (erledigt in 0.39.0) | **Seite Vorlagen grundlegend überarbeiten**, in Design und Nutzen; neue Vorlagen direkt erstellen | Vorlagen entstehen nur aus einer Tour («Als Vorlage speichern») und werden in `TemplateEdit.svelte` bearbeitet. | Neue Vorlage von Grund auf (aus Bausteinen + Extra-Teilen), klare Anzeige «Standard + Regen + 2 Extra», Nutzen sichtbar (wann zuletzt benutzt, welche Touren). Baut auf 0.32–0.33 auf (Begriffe Bausteine/Vorlagen). |
 | AP29 (erledigt in 0.35.0) | **Entwürfe beim Packen**: überall sichtbar «Entwurf gespeichert», jederzeit unterbrechen und später fortsetzen; mehrere Events/Fahrten gleichzeitig planen; unter **Touren** eine Liste aller Entwürfe bzw. Packvorgänge in Bearbeitung | Alles wird sofort gespeichert; mehrere Touren können parallel existieren. | Sichtbarer Hinweis «gespeichert, du kannst jederzeit aufhören» auf jeder Tour-Seite; Liste «In Bearbeitung» unter Touren mit Stand (z. B. «Packen 12/30») und «Fortsetzen». |
@@ -513,8 +510,11 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 12.10.2026 (v0.115.0, PR offen):** E3 «Strava-Verbindung» (S1–S5): Velo › Pflege › Strava verbinden, erstes Holen aller Fahrten mit Zusammenfassung, Einstellungen (automatisch / per Knopf, Fahrt ohne Velo zum Prüfen / selbst nach Fahrtart), Zuordnung Strava-Velo ↔ App-Velo, «Velo in Strava geändert» auf Heute und beim Velo, Kachel «Strava», «Zum Prüfen». Q1 «Jeder km zählt» bekommt damit die automatische Quelle; Kontrolle App-km = Strava-km einen Monat nach E3. Dazu Puls pro Fahrt aus Strava an sechs Orten (P1–P6). Als Nächstes: Strava-Fahrten zählen in «Diese Woche» und «Velo in diesem Monat» (Q1 = a), danach der Google-Teil mit Schlaf und Aktivzonen-Minuten.
-**Nachtrag 12.10.2026 (v0.114.0, PR offen):** «Rahmenbedingungen» (B1–B3): neues Fenster für eine neue Tour mit Sportart, Wetter aus der PLZ, Event-Hinweis, Vorlagen als Knöpfe ohne «Letzte Tour» und der Packliste in vier Gruppen; Reparatur und Laden nicht mehr von selbst. Als Nächstes Release 2 (B4 Bausteine beim Packen, B5 «Reparatur unterwegs») nach #131.
+**Nachtrag 12.10.2026 (v0.116.0, PR offen):** E3 «Strava-Verbindung» (S1–S5): Velo › Pflege › Strava verbinden, erstes Holen aller Fahrten mit Zusammenfassung, Einstellungen (automatisch / per Knopf, Fahrt ohne Velo zum Prüfen / selbst nach Fahrtart), Zuordnung Strava-Velo ↔ App-Velo, «Velo in Strava geändert» auf Heute und beim Velo, Kachel «Strava», «Zum Prüfen». Q1 «Jeder km zählt» bekommt damit die automatische Quelle; Kontrolle App-km = Strava-km einen Monat nach E3. Dazu Puls pro Fahrt aus Strava an sechs Orten (P1–P6). Als Nächstes: Strava-Fahrten zählen in «Diese Woche» und «Velo in diesem Monat» (Q1 = a), danach der Google-Teil mit Schlaf und Aktivzonen-Minuten.
+
+**Nachtrag 12.10.2026 (v0.115.0, live):** Menü-Fix: jedes •••-Menü schliesst mit einem Tipp daneben (Velopflege › Probleme, Velo-Check, Packliste, laufende Touren).
+
+**Nachtrag 12.10.2026 (v0.114.0, live):** «Rahmenbedingungen» (B1–B3): neues Fenster für eine neue Tour mit Sportart, Wetter aus der PLZ, Event-Hinweis, Vorlagen als Knöpfe ohne «Letzte Tour» und der Packliste in vier Gruppen; Reparatur und Laden nicht mehr von selbst. Als Nächstes Release 2 (B4 Bausteine beim Packen, B5 «Reparatur unterwegs») nach #131.
 
 **Nachtrag 12.10.2026 (v0.111.0, PR offen):** «Bausteine bearbeiten» Teil 1 nach den Mockups V1–V6 (Noah «v1-v4 ok», «v5-6 ok»): Vorabend-Check als Zeile auf «Gepackt» mit Fenster, Schluss-Check unter «Bevor du auspackst», «Liste anpassen» für diese Tour oder alle der Reiseart, neue Seite Ich › Checks pro Reiseart. Danach C «Meist vergessen», D+E Temperaturbereich und Learnings, F Regel-Editor (Release 2).
 
@@ -610,7 +610,6 @@ Excel-Import Schritt 1: Noahs bereinigte Material-Excel (privat, nicht im Repo) 
 0.36 Import prüfen (veröffentlicht), 0.37 Rucksäcke (erledigt), 0.37.1 Zusammenlegen (erledigt), 0.38 Heute und Menü (erledigt), 0.39 AP28 Vorlagen (erledigt), 0.40 Ruhige Nebenseiten (erledigt in 0.40.0; Design-Prüfung 9.10.: Inbox, Rückblick, Vergangene Touren, Bausteine, Was die App kann, Planen am Computer, Unterwegs), 0.41 AP27 GPX → Learning (erledigt in 0.41.0), 0.42 Excel-Import Schritt 2 (alte Touren nur als Notiz, Temperatur-Kits als Vorschlag, Aufgaben nur vor Events und Bikepacking über 4 Nächte) mit Kleiderschrank (nach Schicht, dann Zone) und Zwiebel-Check (erledigt in 0.42.0; die echte Datei erzeugt Noah selbst), 0.43 Wiege-Modus und Mehrfachauswahl (Kategorie, Tasche, Baustein, Bereich, Archivieren; erledigt in 0.43.0), 0.44 Rückblick 12 Monate (rollend statt Jahresrückblick im Dezember; erledigt in 0.44.0), danach Abnahme-Bericht AP21–24 (erstellt 9.10.2026 mit 0.44.1). 0.45.2 Problem am Velo aus dem Plus-Menü und Basischeck (erledigt in 0.45.2). 0.45 Kleiderschrank 2 (Reihenfolge warm → kalt, Lücken → Wunschliste, Outfit als Kit, Foto, Verschiebung sichtbar, „Was ziehe ich heute an?“ auf Heute, Alltag nur unter Alltag; erledigt in 0.45.0) mit den Abnahme-Nachträgen (44-px-Knöpfe auf Touch, Tippflächen der Velo-Zeichnung, Fokus nach „Tour erstellen“, Kategorie-Köpfe bei 320 px). 0.46 Startseite neu (Gruss mit Wetter und Vorschlag, kompakte Tourkarte, „Was willst du tun?“ mit 16 Funktionen, „Heute wichtig“ und „Schon probiert?“, Testtouren aufräumen, Suche als Befehlszeile, Farbwelten Gletscher/Sandstein/Klassisch hell und dunkel; erledigt in 0.46.0). AP30 Foto-KI ist gestrichen (nur noch Idee), AP26: Geräte bleiben beim Backup von Hand. Die Versionsnummern sind geplant, nicht fix.
 
 | Nr. | Paket | Inhalt | Hinweis |
-|---|---|---|---|
 | 1 (0.37, erledigt) | **Rucksäcke** (erledigt in 0.37.0) | Echte getragene Taschen mit Litern und Gewicht. Am Velo gibt es zwei getragene Plätze „Rücken“ und „Hüfte“; ihr Gewicht zählt zu „Am Körper“, nicht zum Velo. Touren ohne Velo nutzen die echten Rucksäcke statt allgemeiner Namen, die App schlägt pro Reiseart passende vor. Warnung, wenn der Inhalt mehr Liter braucht, als die Tasche fasst. Eine Warnweste kann Kleidung und Tasche zugleich sein | Noah, 8.10.2026 |
 | 2 (0.38, erledigt) | **Heute und Menü** (erledigt in 0.38.0) | Schnelle Knöpfe mit Rückgängig (Kette geölt, Verschleiss, geputzt, Dichtmilch, Reifendruck, km, Tagestour, Quick note), Sprünge (fällig, Totes Gewicht, Vor einem Jahr, Wochenend-Wetter, Neu in der App), Saison in Zahlen, Bereit-Ampel pro Velo; Menü Heute/Touren/Material/Velos mit + und „Mehr“, Suche findet Seiten; Wischen im Material, Taschen-Hinweis nur bei Bedarf, Velopflege als dichte Liste; ganze Update-Geschichte | Noah, 8.10.2026; Entwurf mit Bildern zuerst |
 | 3 (0.39, erledigt) | **AP28 Vorlagen-Seite neu** (erledigt in 0.39.0) | Neues Design; neue Vorlage von Grund auf aus Bausteinen und einzelnen Teilen; sichtbar, wann und für welche Touren eine Vorlage benutzt wurde | Baut auf 0.32/0.33 auf |
@@ -626,8 +625,6 @@ Excel-Import Schritt 1: Noahs bereinigte Material-Excel (privat, nicht im Repo) 
 
 Diese Reihenfolge gilt ab jetzt und ersetzt die offenen Punkte der Tabelle oben (Noah, 9.10.2026).
 
-| Nr. | Paket | Inhalt | Hinweis |
-|---|---|---|---|
 | 1 | **0.45.1 Gesamttest Runde 1: Fehler behoben** (dieser PR) | Doppelte Zeilen im Material-Import, feste Velo-Teile in vergangenen Touren, Wörter mitten im Wort umbrochen, Material am Computer schneller; dazu die drei Ideen: Velopflege bei kurzen Tagestouren als eine ruhige Zeile, Zusammenlegen auch am Handy, kein Tipp-Speicher im Backup | Befunde G001–G015 aus dem Gesamttest |
 | 2 | **0.46 Neue Startseite** | Mischung aus Cockpit und Tagesblatt; Farbpalette «Gletscher» als Standard, «Sandstein» und «Klassisch» wählbar; dunkler Modus automatisch und im Menü; Suche als Befehlszeile | In Arbeit in einem parallelen Branch; behebt auch G003, G010, G011 |
 | 2a | **0.46.1 Noahs Handytest von 0.45.2** (erledigt) | Ein Problem pro Eintrag (Komma, «und»), neueste Probleme zuoberst, Priorität in der Zeile ändern, keine Regensachen und Nachtbrille auf trockener Tagestour, Suche am Handy als Blatt, «Packlisten» im Menü «Mehr», «Touren» öffnet eine Übersicht aller Touren (`#/trips`) | Navigation als Ganzes und die volle Touren-Einstiegsseite bleiben für D3 |
@@ -667,7 +664,6 @@ Ganz geplant, gebaut erst nach allem oben.
 ## Änderungshistorie dieses Plans
 
 | Version | Datum | Änderung |
-|---|---|---|
 | 1.0 | 07.10.2026 | Abgenommenes Konzept in AP01–AP26, PF01–PF16 und Meilensteine übersetzt; noch keine Umsetzung |
 | 1.1 | 07.10.2026 | Mit PR #30/#32 und Live abgeglichen; vorgezogene Screens, offenen PR #31 und parallele Branchintegration, Teilnachweise und Quellen verbindlich verknüpft |
 | 1.2 | 08.10.2026 | Stand v0.35.0 nachgetragen: Fortschrittsregister pro Release, AP29 erledigt, Abschnitt „Stand und nächste Pakete“ mit Reihenfolge nach 0.36 (neu 0.37 Rucksäcke) |

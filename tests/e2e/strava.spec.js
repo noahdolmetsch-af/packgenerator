@@ -1,4 +1,4 @@
-// v0.115.0 «Strava-Verbindung» (E3, mockups S1–S5 approved by Noah 12.10.2026 13:39): connect (the way
+// v0.116.0 «Strava-Verbindung» (E3, mockups S1–S5 approved by Noah 12.10.2026 13:39): connect (the way
 // back from the Strava login carries the device key), the first fetch with its summary (S2), the
 // settings (S3), «Zum Prüfen» with «Passt» (S5) and a changed Strava bike asked on Today (S4) with
 // «Übernehmen». The server (packgen-three.vercel.app/api/strava) and the Strava login are answered by

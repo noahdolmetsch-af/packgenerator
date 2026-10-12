@@ -91,7 +91,7 @@ export const STRICT_STYLE = [
   // v0.99.0 Design-Refresh R3: the notes with Undo
   'src/lib/tpl/Toast.svelte',
   'src/lib/ui/RenameToast.svelte',
-  // v0.115.0 «Strava-Verbindung»: the Strava page, «Zum Prüfen», the notice and the tile (all new, all strict)
+  // v0.116.0 «Strava-Verbindung»: the Strava page, «Zum Prüfen», the notice and the tile (all new, all strict)
   'src/lib/strava/StravaPage.svelte',
   'src/lib/strava/StravaCheck.svelte',
   'src/lib/strava/StravaChanges.svelte',

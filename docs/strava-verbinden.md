@@ -1,4 +1,4 @@
-# Strava verbinden (ab 0.115.0)
+# Strava verbinden (ab 0.116.0)
 
 So holt die App deine Fahrten mit ihrem Velo direkt aus Strava. Freiwillig, jederzeit trennbar. Die App liest nur, sie schreibt nichts in Strava.
 

@@ -955,7 +955,7 @@
       </span>
     </div>
   {/if}
-  <!-- v0.115.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
+  <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
   <Wall tiles={wall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveWall} onadd={() => (catalogOpen = true)} />
 

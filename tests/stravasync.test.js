@@ -39,7 +39,7 @@ describe('gearChanges', () => {
   });
 });
 
-// v0.115.0 «Strava-Verbindung»: one fetch planned (decisions 2a, 3b, 4b; server answer 3a)
+// v0.116.0 «Strava-Verbindung»: one fetch planned (decisions 2a, 3b, 4b; server answer 3a)
 import { planSync, suggestBike, recheckFrom, mergeChanges, errorText } from '../src/lib/stravasync.js';
 import { makeEntry } from '../src/lib/kmbook.js';
 

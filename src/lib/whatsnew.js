@@ -11,8 +11,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.115.0 «Strava-Verbindung» (E3, mockups S1–S5 approved by Noah 12.10.2026 13:39, heart rate P1–P6 22:07 UTC)
-    version: '0.115.0',
+    // v0.116.0 «Strava-Verbindung» (E3, mockups S1–S5 approved by Noah 12.10.2026 13:39, heart rate P1–P6 22:07 UTC)
+    version: '0.116.0',
     date: '2026-10-12',
     title: 'Rides from Strava',
     lead: 'The app fetches your rides with their bike straight from Strava, so every ride lands on the right bike.',
@@ -30,6 +30,23 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.115.0 Menü-Fix (Noah 12.10.2026): a ••• menu closes with one tap outside it.
+    version: '0.115.0',
+    date: '2026-10-12',
+    title: 'Menus close easily',
+    lead: 'A tap next to an open ••• menu closes it, you no longer have to hit ••• a second time.',
+    points: [
+      { text: 'A ••• menu now closes with one tap anywhere next to it, for example at the problems in Bike care.', href: '#/bikes?tab=care' },
+      { text: 'The same for the ••• of the packing list and of the trips in progress: one tap next to it is enough.', href: '#/pack' },
+    ],
+    test: [
+      'Open Bikes › Care and tap ••• at a problem.',
+      'Tap anywhere next to the menu: it closes at once.',
+      'Tap ••• and pick an answer: it still works.',
+    ],
+  },
+  {
+    // v0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check (mockups V1–V6)
     // v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved).
     version: '0.114.0',
     date: '2026-10-12',

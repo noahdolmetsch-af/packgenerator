@@ -8,7 +8,7 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.115.0 «Strava-Verbindung»
+  // 0.116.0 «Strava-Verbindung»
   'Strava connection': 'Strava-Verbindung',
   'Rides from Strava': 'Fahrten aus Strava',
   'The app fetches your rides with their bike straight from Strava, so every ride lands on the right bike.': 'Die App holt deine Fahrten mit ihrem Velo direkt aus Strava, so landet jede Fahrt beim richtigen Velo.',
@@ -21,6 +21,17 @@ export default {
   'Rides with their bike from Strava, fetched by themselves; a changed bike asks first.': 'Fahrten mit ihrem Velo aus Strava, von selbst geholt; ein geändertes Velo fragt zuerst.',
   'Heart rate from Strava, Ø and max per ride: in the ride log of the bike, the debrief, the trips table, Active, the ride page and «This week» on Today. Only observation, no rating.': 'Puls aus Strava, Ø und max pro Fahrt: im Fahrtenbuch des Velos, im Rückblick, in der Touren-Tabelle, bei Aktiv, auf der Fahrt-Seite und bei «Diese Woche» auf Heute. Nur Beobachtung, keine Bewertung.',
   'Open the ride log of a bike: a ride with a heart rate monitor shows «Ø … · max … bpm».': 'Öffne das Fahrtenbuch eines Velos: eine Fahrt mit Pulsgurt zeigt «Ø … · max … Schläge/min».',
+  // 0.115.0 Menü-Fix
+  'Menus close easily': 'Menüs gehen leicht zu',
+  'A tap next to an open ••• menu closes it, you no longer have to hit ••• a second time.':
+    'Ein Tipp neben ein offenes •••-Menü schliesst es, du musst nicht mehr ein zweites Mal auf ••• tippen.',
+  'Open Bikes › Care and tap ••• at a problem.': 'Öffne Velos › Pflege und tippe bei einem Problem auf •••.',
+  'Tap anywhere next to the menu: it closes at once.': 'Tippe irgendwo neben das Menü: Es schliesst sofort.',
+  'Tap ••• and pick an answer: it still works.': 'Tippe auf ••• und wähle eine Antwort: Sie funktioniert weiterhin.',
+  'A ••• menu now closes with one tap anywhere next to it, for example at the problems in Bike care.':
+    'Ein •••-Menü schliesst jetzt mit einem Tipp irgendwo daneben, zum Beispiel bei den Problemen in der Velopflege.',
+  'The same for the ••• of the packing list and of the trips in progress: one tap next to it is enough.':
+    'Genauso beim ••• der Packliste und der laufenden Touren: Ein Tipp daneben genügt.',
   // 0.114.0 «Rahmenbedingungen»
   'A new trip asks sport, weather by postcode and event, and shows the list in groups.':
     'Eine neue Tour fragt Sportart, Wetter per PLZ und Event und zeigt die Liste in Gruppen.',
