@@ -1,13 +1,16 @@
 <script>
-  /** v0.72.0 «Feinschliff»: the toast of rename.svelte.js, «Renamed to "…" · Undo». */
+  /** v0.72.0 «Feinschliff»: the toast of rename.svelte.js, «Renamed to "…" · Undo».
+   * v0.99.0 Design-Refresh R3 (G3): a tick in front, the arrow before «Rückgängig», like every note. */
+  import { Check, Undo2 } from '@lucide/svelte';
   import { renamed, undoRename } from './rename.svelte.js';
   import { t } from '../i18n.svelte.js';
 </script>
 
 {#if renamed.v}
   <div class="rtoast" role="status">
+    <Check size={18} aria-hidden="true" />
     <span>{renamed.v.text}</span>
-    {#if renamed.v.undo}<button type="button" class="undo" onclick={undoRename}>{t('Undo')}</button>{/if}
+    {#if renamed.v.undo}<button type="button" class="undo" onclick={undoRename}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
   </div>
 {/if}
 
@@ -35,6 +38,9 @@
     overflow-wrap: break-word;
   }
   .undo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     flex: none;
     min-height: 44px;
     padding: 0 12px;

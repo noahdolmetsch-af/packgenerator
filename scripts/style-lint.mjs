@@ -89,6 +89,9 @@ export const STRICT_STYLE = [
   'src/pages/Trips.svelte',
   // v0.97.0 Design-Refresh R1: Ich › Darstellung
   'src/pages/Look.svelte',
+  // v0.99.0 Design-Refresh R3: the notes with Undo
+  'src/lib/tpl/Toast.svelte',
+  'src/lib/ui/RenameToast.svelte',
 ];
 /** The routes of the trip pages and interstitials (tests/e2e/guard.spec.js), strict in the same way. */
 export const STRICT_ROUTES = ['#/pack', '#/pack?day', '#/ride', '#/debrief/test_data_gtp_Napf', '#/trip/test_data_gtp_Herbstrunde/packed', '#/trip/test_data_gtp_Napf/ended', '#/trip/test_data_gtp_Napf/debriefed', '#/bikes?tab=care&view=import&bike=test_data_gtp_spark', '#/bikes?bike=test_data_gtp_spark&sheet=all', '#/bikes?bike=test_data_gtp_spark&sheet=pass', '#/bikes?bike=test_data_gtp_spark&sheet=order', '#/bikes?bike=test_data_gtp_spark&sheet=pickup', '#/me', '#/me/look', '#/flow/activity', '#/flow/milestones', '#/flow/act/meditation', '#/flow/act/meditation/timer?new=1', '#/flow/act/meditation/log', '#/flow/act/meditation/log?view=cal', '#/flow/act/meditation/log?view=chart'];

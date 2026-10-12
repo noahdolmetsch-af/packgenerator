@@ -8,6 +8,15 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.99.0 Design-Refresh R3 «Bausatz»
+  'The new look, step 3: buttons, fields and badges have soft corners and one clear height everywhere.':
+    'Das neue Aussehen, Schritt 3: Knöpfe, Felder und Abzeichen haben weiche Ecken und überall eine klare Höhe.',
+  'Empty pages show a calm card with a picture, one sentence and what you can do next.':
+    'Leere Seiten zeigen eine ruhige Karte mit Bild, einem Satz und dem, was du als Nächstes tun kannst.',
+  'When everything is packed, a short burst of confetti celebrates; with «reduce motion» it stays the quiet tick.':
+    'Wenn alles gepackt ist, feiert ein kurzer Konfetti-Moment; mit «Bewegung reduzieren» bleibt es beim ruhigen Haken.',
+  'The notes with «Undo» at the bottom are dark and calm, with a tick in front.':
+    'Die Hinweise mit «Rückgängig» unten sind dunkel und ruhig, mit einem Haken vorne.',
   // 0.98.0 Design-Refresh R2 «Heller Kopf»
   'The new look, step 2: the top bar and the sidebar are light and calm.':
     'Das neue Aussehen, Schritt 2: die Kopfleiste und die Seitenleiste sind hell und ruhig.',

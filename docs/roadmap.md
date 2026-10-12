@@ -513,7 +513,9 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 12.10.2026 (v0.98.0, PR offen):** Design-Refresh R2 «Heller Kopf» (G4/G5 A★): heller Kopf und helle Seitenleiste, «Neu» oben neben der Suche, kein runder Knopf mehr über der Seite, «Ich» als Karte unten in der Seitenleiste. Als Nächstes R3 Knöpfe, Karten, Zeilen und Zustände (mit Konfetti), dann R4 Zurück und Schritte.
+**Nachtrag 12.10.2026 (v0.99.0, PR offen):** Design-Refresh R3 «Bausatz» (G2/G3, Noah 3b): Knöpfe, Felder und Abzeichen einheitlich mit weicher Ecke und 44 px, leere Seiten als ruhige Karte, Konfetti beim grossen Feier-Moment, Hinweise mit Haken und «Rückgängig». Als Nächstes R4 Zurück, Schritte und Weiter-Leiste.
+
+**Nachtrag 12.10.2026 (v0.98.0, live):** Design-Refresh R2 «Heller Kopf» (G4/G5 A★): heller Kopf und helle Seitenleiste, «Neu» oben neben der Suche, kein runder Knopf mehr über der Seite, «Ich» als Karte unten in der Seitenleiste. Als Nächstes R3 Knöpfe, Karten, Zeilen und Zustände (mit Konfetti), dann R4 Zurück und Schritte.
 
 **Nachtrag 12.10.2026 (v0.97.0, live):** Design-Refresh R1 «Darstellung» (G1 neu, Noah «1a 2a 3b 4a 5a»): Salbei und Inter als Standard, Ich › Darstellung mit Schrift, Farbwelt, Grösse und hell/dunkel. Danach R2 heller Kopf und Seitenleiste, R3 Bausteine, R4 Zurück und Schritte; alle anderen Bauten pausieren bis Welle 1 und Heute live sind.
 **Nachtrag 11.10.2026 (v0.96.0, PR offen):** F1 «Alles finden» (Noah «1-5 a», Mockups A/B): «Was die App kann» zeigt alle 84 Funktionen nach Situation, nie Benutztes zuerst, mit «Hinbringen» und «Ausprobieren»; die Suche zeigt Befehle zum Ausprobieren und findet Funktionen. Danach die Kalender-Bausteine Kal1–Kal5 neben D5 (je eine Mockup-Runde).

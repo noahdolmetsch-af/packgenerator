@@ -215,7 +215,7 @@
   <div class="grid">
     <div class="main">
       {#if !plan}
-        <Empty text={t('Choose the Strava export activities.csv (Strava › Settings › Download your data) and/or FIT files from your Garmin. The file stays on this device.')} action={{ label: t('Choose files'), onclick: () => input?.click() }} />
+        <Empty icon={Upload} text={t('Choose the Strava export activities.csv (Strava › Settings › Download your data) and/or FIT files from your Garmin. The file stays on this device.')} action={{ label: t('Choose files'), onclick: () => input?.click() }} />
       {:else}
         {#if checkRows.length}
           <section class="check surf" aria-labelledby="chk-h">

@@ -61,6 +61,8 @@
   --sp-5: 24px;
   --sp-6: 32px;
   --radius: 8px;
+  /* v0.99.0 Design-Refresh R3 (G2): buttons, fields and filter chips share one soft corner. */
+  --r-ctl: 10px;
   --gut: 16px;
   /* v0.46.0 (Noah 4b, 5a): tokens of the new start page, also set by every palette below. */
   --hi-hover: #a03605;
@@ -836,7 +838,8 @@ h1.title {
   font-family: var(--font-brand);
   font-weight: 800;
 }
-/* v0.22.0 (AP03): cards are quiet surfaces with a thin line; not every section needs one. */
+/* v0.22.0 (AP03): cards are quiet surfaces with a thin line; not every section needs one.
+   v0.99.0 Design-Refresh R3 (G2): a white card with a soft shadow, the corner from the colour world. */
 .card {
   background: var(--paper);
   border: 1px solid var(--card-line);
@@ -848,12 +851,13 @@ h1.title {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   font: 500 15px/1.25 var(--font-body);
-  min-height: 40px;
-  padding: 8px 14px;
-  border-radius: 6px;
-  border: 1.5px solid var(--line-strong);
+  /* v0.99.0 Design-Refresh R3 (G2): one height (44 px), a soft corner and a thin frame */
+  min-height: 44px;
+  padding: 8px 18px;
+  border-radius: var(--r-ctl);
+  border: 1px solid var(--line-strong);
   background: var(--paper);
   color: var(--ink);
   cursor: pointer;
@@ -881,7 +885,18 @@ h1.title {
 .btn.sm {
   font-size: var(--fs-small);
   min-height: 32px;
-  padding: 4px 10px;
+  padding: 4px 12px;
+}
+/* v0.99.0 Design-Refresh R3 (G2): the quiet third kind, an underlined word («Später», «Nochmals versuchen»). */
+.btn.btn-link {
+  border-color: transparent;
+  background: transparent;
+  padding-inline: 8px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.btn.btn-link:hover {
+  background: var(--paper-2);
 }
 .btn:disabled {
   opacity: 0.5;
@@ -890,9 +905,9 @@ h1.title {
 .inp,
 .sel {
   font: 400 16px var(--font-body);
-  padding: 8px 10px;
-  border: 1.5px solid var(--line-strong);
-  border-radius: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-ctl);
   background: var(--input);
   color: var(--ink);
   width: 100%;
@@ -1224,16 +1239,17 @@ details[open] > summary.lrow .chev {
   background: var(--temp-scale);
   background-size: 72px 100%;
 }
-/* Small soft badges ("17 offen", "neu", "3 fällig"). */
+/* Small soft badges ("17 offen", "neu", "3 fällig").
+   v0.99.0 Design-Refresh R3 (G2): small and bold, never a whole red row; ok, warn, bad and act. */
 .pill {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 1px 9px;
+  padding: 2px 8px;
   border-radius: 999px;
   background: var(--paper-2);
   color: var(--ink-2);
-  font: 500 12.5px/1.6 var(--font-body);
+  font: 600 12px/1.5 var(--font-body);
   white-space: nowrap;
 }
 .pill.act {
@@ -1247,6 +1263,10 @@ details[open] > summary.lrow .chev {
 .pill.warn {
   background: var(--warn-soft);
   color: var(--warn);
+}
+.pill.bad {
+  background: var(--bad-soft);
+  color: var(--bad);
 }
 
 /* v0.51.0 «Im Flow»: a sheet that comes from below on a phone (tick, countdown, daily check). */
