@@ -102,8 +102,7 @@
       "fontsize": 3
     },
     "src/lib/home/TryCard.svelte": {
-      "colour": 1,
-      "fontsize": 5
+      "fontsize": 4
     },
     "src/lib/home/WearToday.svelte": {
       "global": 2
@@ -252,7 +251,7 @@
       "global": 3
     },
     "src/pages/Home.svelte": {
-      "fontsize": 22
+      "fontsize": 21
     },
     "src/pages/Pack.svelte": {
       "fontsize": 10

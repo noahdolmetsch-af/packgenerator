@@ -100,6 +100,9 @@ test('drag a tile by its handle onto another place', async ({ page, context }, i
   const T = await openHome(page, context, info);
   await page.getByRole('button', { name: T('Customise the start page') }).click();
   const grip = page.getByRole('button', { name: T('Drag {name}', { name: T('Meditation') }) });
+  // v0.101.0: «Customise» sits at the top now; bring the two tiles into the screen before dragging
+  await page.locator('.wall [data-tile="series"]').scrollIntoViewIfNeeded();
+  await grip.scrollIntoViewIfNeeded();
   const target = await page.locator('.wall [data-tile="series"]').boundingBox();
   const g = await grip.boundingBox();
   await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2);

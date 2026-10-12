@@ -73,9 +73,10 @@
     gap: 12px 24px;
     align-items: center;
     padding: 16px 20px;
-    border: 1px solid var(--line);
-    border-radius: 18px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
     background: var(--paper);
+    box-shadow: var(--card-shadow);
   }
   @media (min-width: 720px) {
     .card2 {
@@ -131,8 +132,10 @@
     justify-content: center;
     gap: 2px;
     padding: 16px 20px;
-    border-radius: 18px;
-    background: var(--accent-soft);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
     color: var(--ink);
   }
   .streak b {

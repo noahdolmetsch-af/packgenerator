@@ -13,10 +13,12 @@
    * v0.94.0 «Kachel-Wand» (mockup A): a small tile, one button: icon, word, a short line under it
    * (on a computer or when wide), a number where something waits, and a «New» dot (idea 1).
    * href: a link; else onclick. size: 's' or 'w'.
+   * v0.101.0 Design-Refresh P2 (H1): a light card with a soft shadow, the icon in a quiet grey square;
+   * the dark tile is gone.
    */
   import { t, num } from '../i18n.svelte.js';
 
-  let { tile, size = 's', href = null, onclick = null, sub = '', badge = 0, isnew = false, hot = false, dark = false, fn = null } = $props();
+  let { tile, size = 's', href = null, onclick = null, sub = '', badge = 0, isnew = false, hot = false, fn = null } = $props();
   const Icon = $derived(ICON[tile.icon] ?? Sparkles);
   const label = $derived(badge ? `${t(tile.label)}, ${t('{n} to do', { n: badge })}` : isnew ? `${t(tile.label)}, ${t('new|tile')}` : t(tile.label));
 </script>
@@ -29,9 +31,9 @@
 {/snippet}
 
 {#if href}
-  <a class="st {size}" class:hot class:dark {href} data-fn={fn} aria-label={label} onclick={onclick}>{@render inner()}</a>
+  <a class="st {size}" class:hot {href} data-fn={fn} aria-label={label} onclick={onclick}>{@render inner()}</a>
 {:else}
-  <button type="button" class="st {size}" class:hot class:dark data-fn={fn} aria-label={label} {onclick}>{@render inner()}</button>
+  <button type="button" class="st {size}" class:hot data-fn={fn} aria-label={label} {onclick}>{@render inner()}</button>
 {/if}
 
 <style>
@@ -46,10 +48,11 @@
     height: 100%;
     min-width: 0;
     min-height: 84px;
-    padding: 10px 12px;
-    border: 1px solid var(--line);
-    border-radius: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
     background: var(--paper);
+    box-shadow: var(--card-shadow);
     color: var(--ink);
     font: 500 var(--fs-small)/1.2 var(--font-body);
     text-align: left;
@@ -57,7 +60,6 @@
     cursor: pointer;
   }
   .st:hover {
-    border-color: var(--line-strong);
     background: var(--paper-2);
   }
   .ic {
@@ -67,8 +69,8 @@
     height: 30px;
     margin-bottom: auto;
     border-radius: 8px;
-    background: var(--accent-soft);
-    color: var(--accent);
+    background: var(--paper-2);
+    color: var(--ink-2);
   }
   .lb {
     font-weight: 600;
@@ -104,22 +106,11 @@
     background: var(--hi-soft);
     color: var(--hi);
   }
-  .dark {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
-  }
-  .dark .su {
-    color: color-mix(in srgb, var(--paper) 75%, transparent);
-  }
-  .dark:hover {
-    background: var(--ink);
-    opacity: 0.92;
-  }
   /* a phone: the small tile is a square of a quarter width, icon over the word, no line under it */
   @media (max-width: 719px) {
     .st.s {
       align-items: center;
+      border-radius: 14px;
       justify-content: center;
       gap: 4px;
       padding: 8px 1px;

@@ -1,0 +1,57 @@
+<script>
+  /**
+   * v0.101.0 Design-Refresh P2 (H1): «Bike in October» on Today: the km of this month from the rides,
+   * and the change against the same days of last month. A tap opens the rides.
+   */
+  import { Bike } from '@lucide/svelte';
+  import TileHead from './TileHead.svelte';
+  import { monthKm } from './bausteine.js';
+  import { t, num, locale } from '../i18n.svelte.js';
+
+  let { today, rides = [], isnew = false } = $props();
+  const m = $derived(monthKm(rides, today));
+  const month = $derived(new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { month: 'long', timeZone: 'UTC' }));
+</script>
+
+<a class="mo surf" href="#/debrief/ride" aria-labelledby="mo-h" data-section="month">
+  <TileHead icon={Bike} id="mo-h" title={t('Bike in {month}', { month })} {isnew} />
+  <p class="big num"><b>{num(m.km)}</b> km{#if m.pct != null}<span class="ch" class:down={m.pct < 0}>{m.pct >= 0 ? '▲' : '▼'} {num(Math.abs(m.pct))} %</span>{/if}</p>
+</a>
+
+<style>
+  .mo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+    padding: 14px 18px;
+    box-sizing: border-box;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .mo:hover {
+    background: var(--paper-2);
+  }
+  .big {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    margin: 0;
+    font-size: var(--fs-body);
+  }
+  .big b {
+    font: 700 var(--fs-title)/1.1 var(--font-body);
+  }
+  .ch {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--ok-soft);
+    color: var(--ok);
+    font: 600 var(--fs-tiny)/1.6 var(--font-body);
+  }
+  .ch.down {
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+</style>

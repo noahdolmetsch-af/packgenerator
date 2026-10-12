@@ -25,10 +25,11 @@
     gap: 4px;
     height: 100%;
     min-height: 84px;
-    padding: 10px 12px;
-    border: 1px solid var(--hi-soft);
-    border-radius: 14px;
-    background: color-mix(in srgb, var(--hi-soft) 45%, var(--paper));
+    padding: 12px 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
     color: var(--ink);
     text-decoration: none;
     overflow: hidden;

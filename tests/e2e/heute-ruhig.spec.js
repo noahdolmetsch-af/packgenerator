@@ -1,6 +1,6 @@
 // v0.73.0 «Ruhige Startseite + Fotoband» (Noah 10.10.2026, Heute ruhiger 1–5 a, Foto auf Heute 1–4 a):
-// the photo on Today is sharp (a 140 px band over the trip card on a phone, 300 px inside the card on a
-// computer), the 8 buttons stay in the first screen of a 390×844 phone, the greeting is one line, the
+// 0.96.0 (Noah 11.10.2026 «bild wieder vom homescreen weg»): Today shows no photo, even when the bike
+// has photos; they stay under Velos › Setup. The 8 buttons stay in the first screen of a 390×844 phone, the greeting is one line, the
 // suggestion is one slim row under a trip of today (big beside the greeting without one), and
 // «Weitermachen» is left out for the trip the card already shows. Fictional data only (test_data_gtp_),
 // the clock on Friday 9 October 2026 (Europe/Zurich), Open-Meteo mocked; SHOTS=<folder> saves screenshots.
@@ -40,7 +40,7 @@ async function shot(page, info, name) {
   await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 }
 
-test('a trip today: sharp photo, band on a phone, the 8 buttons in the first screen, the slim suggestion, no double Continue', async ({ page, context }, info) => {
+test('a trip today: no photo although the bike has one, the 8 buttons in the first screen, the slim suggestion, no double Continue', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const phone = info.project.name === 'phone';
@@ -50,27 +50,10 @@ test('a trip today: sharp photo, band on a phone, the 8 buttons in the first scr
   // Noah 2a: «Weitermachen» would show the same trip: left out
   await expect(page.locator('[data-row="continue"]')).toHaveCount(0);
 
-  // the photo: sharp (no pale layer), place and month
-  const ph = page.locator(`[data-photo="${phone ? 'band' : 'side'}"]`);
-  await expect(ph).toBeVisible();
-  await expect(page.locator('[data-photo]')).toHaveCount(1);
-  await expect(ph).toContainText('test_data_gtp_ Seeufer · Juli 2025');
-  for (const el of [ph, ph.locator('img')]) expect(await el.evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
-  await expect(ph).toHaveAttribute('href', '#/bikes?bike=bike-test');
-  const box = await ph.boundingBox();
+  // 0.96.0: no photo on Today (the bike has one), the trip card without the band offset
+  await expect(page.locator('[data-photo]')).toHaveCount(0);
+  await expect(page.locator('section.trip img')).toHaveCount(0);
   const card = await page.locator('section.trip').boundingBox();
-  if (phone) {
-    // a band of 140 px, the trip card lies over its lower edge
-    expect(Math.round(box.height)).toBe(140);
-    await expect(ph).toContainText(T('Album'));
-    expect(card.y).toBeLessThan(box.y + box.height);
-    expect(card.y).toBeGreaterThan(box.y + 80);
-  } else {
-    // right inside the trip card, about 300 px wide
-    expect(Math.round(box.width)).toBeGreaterThanOrEqual(280);
-    expect(Math.round(box.width)).toBeLessThanOrEqual(300);
-    expect(box.x + box.width).toBeLessThanOrEqual(card.x + card.width + 1);
-  }
 
   // Noah 5a: the greeting in one line on a computer (no line break in it)
   await expect(page.locator('#hello-h br')).toHaveCount(0);
@@ -95,14 +78,14 @@ test('a trip today: sharp photo, band on a phone, the 8 buttons in the first scr
   expect(await firstScreen(page.locator('section.trip h2, #next-h').first())).toBe(true);
   await shot(page, info, 'heute-mit-tour');
 
-  // «Album ›» opens the bike's photos in Setup
-  await ph.click();
-  await expect(page).toHaveURL(/#\/bikes\?bike=bike-test$/);
-  await expect(page.locator('details.sfold[open]').filter({ has: page.locator('.gal') })).toHaveCount(1);
+  // the photo is still there, under Velos › Setup › More
+  await page.goto('./#/bikes?bike=bike-test');
+  await page.locator('.vk-more').click();
+  await expect(page.getByText(/test_data_gtp_ Seeufer/).first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 
-test('no trip today: the suggestion stays big beside the greeting; no photo, no band; Continue for another trip', async ({ page, context }, info) => {
+test('no trip today: the suggestion stays big beside the greeting; no photo; Continue for another trip', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const data = homeFixture();

@@ -1,6 +1,6 @@
 // v0.94.0 «Kachel-Wand» (Noah 11.10.2026, Trello nLi5yNmS «1-5 a»): the wall of tiles (tiles.js).
 import { describe, it, expect } from 'vitest';
-import { TILES, TILE, READY, SIZES, AREAS, wallOf, wallRecord, moveTile, stepTile, nextSize, resizeTile, removeTile, addTile, catalog, isNew, sizeFor } from '../src/lib/home/tiles.js';
+import { TILES, TILE, READY, SIZES, AREAS, wallOf, wallRecord, ADDED_0101, moveTile, stepTile, nextSize, resizeTile, removeTile, addTile, catalog, isNew, sizeFor } from '../src/lib/home/tiles.js';
 import { FUNCTIONS } from '../src/lib/home/fnlist.js';
 
 describe('the tiles', () => {
@@ -32,10 +32,17 @@ describe('the stored wall', () => {
     expect(w.some((x) => x.id === 'bikes')).toBe(true);
   });
   it('drops unknown tiles and doubles, fixes sizes', () => {
-    const w = wallOf({ v: 1, tiles: [{ id: 'news', size: 'long' }, { id: 'nope', size: 's' }, { id: 'news', size: 's' }, null, { id: 'year', size: 'long' }] });
+    const w = wallOf({ v: 2, tiles: [{ id: 'news', size: 'long' }, { id: 'nope', size: 's' }, { id: 'news', size: 's' }, null, { id: 'year', size: 'long' }] });
     expect(w).toEqual([{ id: 'news', size: 'w' }, { id: 'year', size: 'long' }]);
-    expect(wallRecord(w)).toEqual({ v: 1, tiles: w });
-    expect(wallOf({ v: 1, tiles: [] })).toEqual([]);
+    expect(wallRecord(w)).toEqual({ v: 2, tiles: w });
+    expect(wallOf({ v: 2, tiles: [] })).toEqual([]);
+  });
+  it('v0.101.0: a wall stored before gets the new tiles once, after Im Flow', () => {
+    const old = wallOf({ v: 1, tiles: [{ id: 'trip', size: 'long' }, { id: 'flow', size: 'l' }, { id: 'month', size: 'l' }, { id: 'year', size: 'long' }] });
+    expect(old.map((x) => x.id)).toEqual(['trip', 'flow', 'week', 'nextms', 'yearago', 'month', 'year']);
+    expect(wallOf({ tiles: [{ id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['year', ...ADDED_0101]);
+    // taken away after that, they stay away
+    expect(wallOf(wallRecord(old.filter((x) => x.id !== 'week'))).map((x) => x.id)).not.toContain('week');
   });
   it('moves, steps, resizes, removes and adds', () => {
     const w = [{ id: 'trip', size: 'long' }, { id: 'news', size: 'w' }, { id: 'play', size: 's' }];
