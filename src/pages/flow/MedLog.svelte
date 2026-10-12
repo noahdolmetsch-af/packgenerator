@@ -675,11 +675,12 @@
     }
     .heat {
       grid-template-rows: none;
-      grid-template-columns: repeat(7, 44px);
+      grid-template-columns: repeat(7, minmax(0, 44px));
       grid-auto-flow: row;
       gap: 3px;
     }
     .hc {
+      aspect-ratio: auto;
       min-height: 44px;
     }
   }
