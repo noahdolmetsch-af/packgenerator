@@ -43,7 +43,8 @@ async function start(page, context, info) {
 test('Ausstattung: groups with name, weight and price; a part gets its price in the sheet', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=compare&bike=${SPARK}`);
-  await expect(page.getByRole('heading', { level: 2, name: `${P} Scott Spark 960` })).toBeVisible();
+  // Design-Refresh P7 (V14): the bike's name is in the page title «Ausstattung …» now.
+  await expect(page.getByRole('heading', { level: 1, name: `Ausstattung ${P} Scott Spark 960` })).toBeVisible();
   // The place tab is called «Ausstattung» (A1a).
   await expect(page.locator('nav.ptabs').getByRole('link', { name: 'Ausstattung' })).toHaveAttribute('aria-current', /page|true/);
   // Noah's four measurements on top, the rest behind «+ n weitere Masse».
@@ -79,7 +80,7 @@ test('Ausstattung: groups with name, weight and price; a part gets its price in 
 test('Ausstattung: another bike, a bike without parts, the area filter', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=compare&bike=${GOAT}`);
-  await expect(page.getByRole('heading', { level: 2, name: `${P} Bergziege 29` })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: `Ausstattung ${P} Bergziege 29` })).toBeVisible();
   await expect(page.getByText('0 Teile erfasst')).toBeVisible();
   await expect(page.getByText('Noch keine Preise. Tippe auf ein Teil, um den Preis einzutragen.')).toBeVisible();
   // The area filter shows one group.

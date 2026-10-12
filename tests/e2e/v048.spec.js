@@ -81,7 +81,8 @@ test('Pflege overview: a ring per bike, at most 3 due cards, problems as one fla
   await expect(ov.locator('.ring')).toHaveCount(4);
   await expect(ov.getByRole('button', { name: `${P} Bergziege 29: noch keine Daten` })).toBeVisible();
   expect(await ov.locator('.dcard').count()).toBeLessThanOrEqual(3);
-  await expect(ov.locator('.btn.hi')).toHaveCount(1);
+  // Design-Refresh P7 (V6): no main button in the overview any more («Arbeit eintragen» is a row under «Mehr»).
+  await expect(ov.locator('.btn.hi')).toHaveCount(0);
   for (const p of ['Bremse hinten schleift', 'Kette knackt am Berg', 'Steuersatz hat Spiel']) await expect(ov).toContainText(p);
   // The Bergziege has no part data: its section offers the start values.
   await page.goto(`./#/bikes?tab=care&bike=${GOAT}&open=1`);

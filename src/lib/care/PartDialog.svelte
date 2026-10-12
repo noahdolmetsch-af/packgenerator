@@ -3,8 +3,9 @@
   import { partInfo, wear, replaceHint, kmSince, lastReplace, EXTRA, partName, attrsOf, PART } from '../care.js';
   import { readValue, targetPressure } from '../bikespecs.js';
   import PartFlow from './PartFlow.svelte';
-  import { ArrowLeftRight, Wrench, ChevronRight } from '@lucide/svelte';
-  import { t, num as fmtNum, dateOf } from '../i18n.svelte.js';
+  import { ArrowLeftRight, Wrench, ChevronRight, X } from '@lucide/svelte';
+  import '../bikes/velo-dlg.css';
+  import { t, tn, num as fmtNum, dateOf } from '../i18n.svelte.js';
   import { historyNewest } from './last.js';
   import { UserRound, Store } from '@lucide/svelte';
 
@@ -91,13 +92,19 @@
   const state = $derived(wear(part));
 </script>
 
-<dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby={flow ? 'flow-h' : 'part-h'}>
+<!-- Design-Refresh P7 (V8, Noah 12.10.2026 «v5-v10 freigabe»): the part as a window of the bike pages:
+     the name, «bike · model» below, ✕ top right; «Done by» as chips; the history folded. -->
+<dialog class="sheet vdlg partdlg" bind:this={dialog} onclose={onclose} aria-labelledby={flow ? 'flow-h' : 'part-h'}>
   {#if flow}
     <PartFlow {part} {bike} mode={flow} {shops} {by} onsave={flowSave} oncancel={() => (start ? dialog?.close() : (flow = null))} />
   {:else}
-  <p class="meta">{bike.name}</p>
-  <h2 id="part-h" class="title">{partName(part)}</h2>
-  {#if part.model}<p class="model">{part.model}</p>{/if}
+  <div class="vd-head">
+    <div class="vd-t">
+      <h2 id="part-h">{partName(part)}</h2>
+      <p class="vd-sub">{[bike.name, part.model].filter(Boolean).join(' · ')}</p>
+    </div>
+    <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog?.close()}><X size={20} aria-hidden="true" /></button>
+  </div>
   {#if p.hint}<p class="hint">{t(p.hint)}</p>{/if}
   <p class="facts num">
     {#if state}<span class="badge {state}">{state === 'ok' ? t('OK') : state === 'warn' ? t('Soon') : t('Worn|part')}</span>{/if}
@@ -137,12 +144,12 @@
   {#if hint}<p class="warnbox soft">{hint}</p>{/if}
   <div class="who" role="group" aria-labelledby="who-l">
     <span class="lbl" id="who-l">{t('Done by')}</span>
-    <span class="seg">
-      <button type="button" aria-pressed={who === 'self'} onclick={() => pick('self')}><UserRound size={16} aria-hidden="true" />{t('me|by')}</button>
-      <button type="button" aria-pressed={who === 'shop'} onclick={() => pick('shop')}><Store size={16} aria-hidden="true" />{t('bike shop|by')}</button>
+    <span class="vd-chips">
+      <button type="button" class="vd-chip" aria-pressed={who === 'self'} onclick={() => pick('self')}><UserRound size={16} aria-hidden="true" />{t('me|by')}</button>
+      <button type="button" class="vd-chip" aria-pressed={who === 'shop'} onclick={() => pick('shop')}><Store size={16} aria-hidden="true" />{t('bike shop|by')}</button>
     </span>
   </div>
-  <div class="foot">
+  <div class="foot vd-foot acts">
     <button type="button" class="btn" onclick={() => log('check', 'ok')}>{t('OK')}</button>
     <button type="button" class="btn" onclick={() => log('check', 'needed')}>{t('Replace or work needed')}</button>
     <button type="button" class="btn hi" onclick={() => log('replace', 'done')}>{t('Replaced or done')}</button>
@@ -163,7 +170,8 @@
     </details>
   {/if}
 
-  <h3>{t('History')}</h3>
+  <details class="spec histf">
+    <summary><span>{t('History')}</span><span class="n">{tn(part.history?.length ?? 0, '{n} entry', '{n} entries')}</span><ChevronRight size={18} aria-hidden="true" /></summary>
   {#if part.history?.length}
     <ol class="hist">
       {#each historyNewest(part.history) as h, n (n)}
@@ -177,15 +185,12 @@
   {:else}
     <p class="hint">{t('Nothing recorded yet.')}</p>
   {/if}
-  <div class="foot"><button type="button" class="btn" onclick={() => dialog?.close()}>{t('Close')}</button></div>
+  </details>
+  <div class="vd-foot"><button type="button" class="btn" onclick={() => dialog?.close()}>{t('Close')}</button></div>
   {/if}
 </dialog>
 
 <style>
-  .model {
-    margin: -2px 0 8px;
-    color: var(--ink-2);
-  }
   .tiles {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -262,11 +267,11 @@
   .spec[open] summary :global(svg) {
     transform: rotate(90deg);
   }
-  .meta {
-    margin: 0;
-    font-size: var(--fs-small);
-    font-weight: 700;
-    color: var(--ink-3);
+  .who .vd-chip {
+    gap: 6px;
+  }
+  .histf {
+    margin-top: 0;
   }
   h2 {
     font-size: var(--fs-section);

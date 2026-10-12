@@ -18,7 +18,8 @@
   import { AREAS } from '../care.js';
   import { formatWeight } from '../gear.js';
   import { t, num } from '../i18n.svelte.js';
-  import { ChevronLeft, ChevronDown, ChevronRight } from '@lucide/svelte';
+  import { ChevronDown, ChevronRight } from '@lucide/svelte';
+  import VeloHead from './VeloHead.svelte';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bikes = $derived(sortBikes($bikesQ ?? []));
@@ -67,9 +68,14 @@
 </script>
 
 <div class="cmp">
-  <p class="back"><a href={bikesHash({ tab: 'compare' })}><ChevronLeft size={18} aria-hidden="true" />{t('Equipment|tab')}</a></p>
-  <h2 class="title">{t('Compare bikes')}</h2>
-  <p class="page-sub">{t('Fit, parts, values and geometry of every bike side by side. Tap a cell to fill it in.')}</p>
+  <!-- Design-Refresh P7 (V14b, Noah 12.10.2026 «v11-v14 freigegeben»): «‹ Velo › Ausstattung › Vergleichen»,
+       the bikes as dark chips, the table with the rows where the bikes differ marked. -->
+  <VeloHead
+    crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup' }) }, { label: t('Equipment|tab'), href: bikesHash({ tab: 'compare' }) }]}
+    here={t('Compare|verb')}
+    title={t('Compare bikes')}
+    sub={t('Fit, parts, values and geometry of every bike side by side. Tap a cell to fill it in.')}
+  />
 
   {#if !bikes.length && $bikesQ}
     <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a>.</p>
@@ -173,21 +179,6 @@
 {/if}
 
 <style>
-  .back {
-    margin: 0 0 4px;
-  }
-  .back a {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 44px;
-    color: var(--ink-2);
-    text-decoration: none;
-    font-weight: 500;
-  }
-  .cmp .title {
-    font-size: var(--fs-section);
-  }
   .wrap {
     max-width: 100%;
     overflow-x: auto;

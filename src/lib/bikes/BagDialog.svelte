@@ -2,7 +2,8 @@
   import { backClose } from '../ui/backclose.js';
   import { offerRename } from '../ui/rename.svelte.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
-  import { Pencil } from '@lucide/svelte';
+  import { Pencil, X } from '@lucide/svelte';
+  import './velo-dlg.css';
   import { db } from '../db.js';
   import { SLOTS, SLOT, isWornSlot } from '../bikes.js';
   import { formatWeight, parseGrams } from '../gear.js';
@@ -23,6 +24,9 @@
   const wornPlaces = SLOTS.filter((s) => s.worn);
   let error = $state('');
   let dialog;
+  // The bikes this bag sits on («am Gravel Blau»).
+  // svelte-ignore state_referenced_locally
+  const onBikes = bag ? bikes.filter((b) => Object.values(b.setup ?? {}).includes(bag.id)).map((b) => b.name) : [];
 
   // Gear items that can hold the weight of a bag: bags first, then bike parts.
   // v0.23.0 (AP09): the item already linked stays in the list, also after its category changed,
@@ -111,10 +115,16 @@
   }
 </script>
 
-<dialog class="sheet" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bag-h">
+<dialog class="sheet vdlg" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bag-h">
   <form onsubmit={save} novalidate>
-    <p class="meta">{t(SLOT[draft.slot]?.name ?? 'Bag')}</p>
-    <h2 id="bag-h" class="title">{#if isNew}{t('Add bag')}{:else}<span>{shownName}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: shownName })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={18} aria-hidden="true" /></button>{/if}</h2>
+    <!-- Design-Refresh P7 (V3): the name as the title, place and bikes in the quiet line, ✕ top right. -->
+    <div class="vd-head">
+      <div class="vd-t">
+        <h2 id="bag-h">{#if isNew}{t('Add bag')}{:else}<span>{shownName}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: shownName })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={16} aria-hidden="true" /></button>{/if}</h2>
+        <p class="vd-sub meta">{[t(SLOT[draft.slot]?.name ?? 'Bag'), onBikes.length ? t('on {bike}', { bike: onBikes.join(', ') }) : ''].filter(Boolean).join(' · ')}</p>
+      </div>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+    </div>
     <div class="grid">
       <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required enterkeyhint="done" /></label>
       <label>
@@ -138,10 +148,12 @@
         <!-- v0.37.0 (Noah 3a): the areas a worn bag is made for; trips of that area suggest it. -->
         <fieldset class="wide areas">
           <legend class="lbl">{t('For these areas')}</legend>
-          {#each TRIP_DOMAINS as d (d.key)}
-            {@const on = draft.domains.includes(d.key)}
-            <label class="cb"><input type="checkbox" checked={on} onchange={(e) => (draft.domains = e.currentTarget.checked ? [...draft.domains, d.key] : draft.domains.filter((x) => x !== d.key))} /> {t(d.name)}</label>
-          {/each}
+          <div class="vd-chips">
+            {#each TRIP_DOMAINS as d (d.key)}
+              {@const on = draft.domains.includes(d.key)}
+              <label class="vd-chip"><input type="checkbox" checked={on} onchange={(e) => (draft.domains = e.currentTarget.checked ? [...draft.domains, d.key] : draft.domains.filter((x) => x !== d.key))} /> {t(d.name)}</label>
+            {/each}
+          </div>
         </fieldset>
       {/if}
       <label class="wide"><span class="lbl">{t('Note')}</span><input class="inp" bind:value={draft.note} /></label>
@@ -153,10 +165,10 @@
       {#if worn}<br /><span class="quiet">{t('Worn bags count to On me, not to the bike.')}</span>{/if}
     </p>
     <p class="err" role="alert">{error}</p>
-    <div class="foot">
-      <button type="submit" class="btn hi">{t('Save')}</button>
-      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+    <div class="vd-foot">
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete')}</button>{/if}
+      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+      <button type="submit" class="btn hi">{t('Save')}</button>
     </div>
   </form>
 </dialog>
@@ -171,26 +183,16 @@
     place-items: center;
     width: 44px;
     height: 44px;
-    margin: -8px 0 -8px 4px;
+    margin: -8px 0;
     border: 0;
-    border-radius: 10px;
+    border-radius: var(--r-ctl);
     background: none;
-    color: var(--ink-2);
-    vertical-align: middle;
+    color: var(--ink-3);
     cursor: pointer;
   }
   h2 .pen:hover {
     background: var(--paper-2);
-  }
-  .meta {
-    margin: 0;
-    font-size: var(--fs-small);
-    font-weight: 700;
-    color: var(--ink-3);
-  }
-  h2 {
-    font-size: var(--fs-section);
-    margin: 4px 0 14px;
+    color: var(--ink);
   }
   .grid {
     display: grid;
@@ -206,43 +208,33 @@
     }
   }
   .note {
-    font-size: 14px;
-    color: var(--ink-2);
+    font-size: var(--fs-small);
+    color: var(--ink-3);
     margin: 12px 0 0;
+  }
+  .note b {
+    color: var(--ink-2);
   }
   .err {
     color: var(--bad);
-    min-height: 1.2em;
-    font-size: 14px;
+    margin: 8px 0 0;
+    font-size: var(--fs-small);
   }
-  .foot {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+  .err:empty {
+    display: none;
   }
   .areas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 16px;
     margin: 0;
     padding: 0;
     border: 0;
   }
   .areas legend {
-    margin-bottom: 4px;
-  }
-  .cb {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 44px;
+    margin-bottom: 6px;
   }
   .quiet {
     color: var(--ink-3);
   }
   .del {
-    margin-left: auto;
-    border-color: var(--bad);
     color: var(--bad);
   }
 </style>

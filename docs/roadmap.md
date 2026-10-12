@@ -513,7 +513,9 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 12.10.2026 (v0.104.0, PR offen):** Design-Refresh P4 «Touren» (T1–T5, T24, Karte und Etappen): Übersicht, Neue Tour, Vorlagen, Planen mit Karte, Höhenprofil, Gewicht nach Ort, Etappen und Wetter an den Zeltplätzen.
+**Nachtrag 12.10.2026 (v0.105.0, PR offen):** Design-Refresh P7 «Velo» (V1–V14): Velo-Seite, Fenster, Mappe, Pflege-Übersicht und ein Velo als eigene Seite, Import, Werkstatt und Belege, Ausstattung, Vergleich.
+
+**Nachtrag 12.10.2026 (v0.104.0, live):** Design-Refresh P4 «Touren» (T1–T5, T24, Karte und Etappen): Übersicht, Neue Tour, Vorlagen, Planen mit Karte, Höhenprofil, Gewicht nach Ort, Etappen und Wetter an den Zeltplätzen.
 
 **Nachtrag 12.10.2026 (v0.103.0, live):** Design-Refresh P3 «Material» (M1–M6): Liste zuerst, eine Werkzeugzeile, Ansichten rechts, Fenster und Blätter im neuen Stil. Danach P3b Material M7–M14, P4 Touren, P7 Velo.
 

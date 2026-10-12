@@ -9,7 +9,8 @@
    * Nothing is taken over before «Take over»; afterwards «Undo» on the bike page takes it all back.
    */
   import { liveQuery } from 'dexie';
-  import { ChevronDown, ChevronRight, X, Upload } from '@lucide/svelte';
+  import { ChevronDown, ChevronRight, X, Upload, Check } from '@lucide/svelte';
+  import VeloHead from '../bikes/VeloHead.svelte';
   import { db } from '../db.js';
   import { sortBikes, bikesHash } from '../bikes.js';
   import { parseStravaCsv, parseFit, planImport, importEntries, reasonText, sensorShort, signals, entryId, typeHints, dupOf } from '../kmbook.js';
@@ -204,9 +205,17 @@
   </li>
 {/snippet}
 
+<!-- Design-Refresh P7 (V12, Noah 12.10.2026 «v11-v14 freigegeben»): «‹ Velo › Pflege › Fahrten importieren»,
+     the title, one quiet line, the three steps Files · Check · Take over; the rides left, files, rules and
+     «Take over» right. -->
 <div class="kmi">
-  <p class="crumb"><a href={back}>‹ {t('Care')}</a> · {t('Import rides')}</p>
-  <h2 class="title">{t('Import rides')}</h2>
+  <VeloHead crumbs={[{ label: t('Bike'), href: bikesHash({ tab: 'setup', bike: bikeId }) }, { label: t('Care|tab'), href: back }]} title={t('Import rides')} sub={t('Strava export or Garmin files · the file stays on this device')} />
+  <ol class="ksteps" aria-label={t('Steps')}>
+    {#each [t('Files'), t('Check'), t('Take over')] as name, i (i)}
+      {@const at = done ? 3 : plan ? 1 : 0}
+      <li class:done={at > i} class:now={at === i} aria-current={at === i ? 'step' : undefined}><span class="kn" aria-hidden="true">{#if at > i}<Check size={14} />{:else}{i + 1}{/if}</span>{name}</li>
+    {/each}
+  </ol>
   <p class="sub">
     {#if plan}{tn(plan.rows.length, '{n} ride read.', '{n} rides read.')}{/if}
     {t('Every ride gets a bike. Tap to change it. Nothing is taken over before you tap «Take over».')}
@@ -348,19 +357,60 @@
   .kmi {
     margin: 0 0 24px;
   }
-  .crumb {
-    margin: 0 0 6px;
-    font-size: var(--fs-small);
-    color: var(--ink-2);
+  /* V12: the three steps as one light bar, the current one green. */
+  .ksteps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0 0 16px;
+    padding: 0;
+    list-style: none;
+    overflow: hidden;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
   }
-  .crumb a {
-    display: inline-flex;
+  .ksteps li {
+    display: flex;
     align-items: center;
+    gap: 10px;
+    min-width: 0;
     min-height: 44px;
+    padding: 0 14px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .ksteps li.now {
+    background: var(--hi-soft);
+    color: var(--ink);
     font-weight: 600;
   }
-  .kmi > .title {
-    margin: 0;
+  .kn {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+  }
+  .now .kn,
+  .done .kn {
+    background: var(--hi);
+    color: var(--hi-ink);
+  }
+  @media (max-width: 560px) {
+    .ksteps li {
+      gap: 6px;
+      padding: 0 8px;
+      font-size: var(--fs-tiny);
+    }
+    .kn {
+      width: 20px;
+      height: 20px;
+    }
   }
   .sub {
     margin: 4px 0 16px;

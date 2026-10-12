@@ -1,0 +1,134 @@
+/* Design-Refresh P7 «Velo» (V2–V4, V8–V11, Noah 12.10.2026): the windows of the bike pages in the new
+   look (style sheet G2/G6). A white window with a big soft corner, the title with a quiet line below it,
+   «✕» in a soft square top right, small labels over the fields, the buttons right (the main one last).
+   Only for windows marked .vdlg, so other windows keep their look until their own release. */
+dialog.sheet.vdlg {
+  width: min(640px, calc(100vw - 24px));
+  padding: 20px 20px 18px;
+  border: 0;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px var(--shadow);
+}
+.vdlg .vd-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+.vdlg .vd-t {
+  flex: 1;
+  min-width: 0;
+}
+.vdlg .vd-t h2,
+.vdlg h2.vd-title {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  font: 600 var(--fs-section) / 1.25 var(--font-body);
+  color: var(--ink);
+  overflow-wrap: break-word;
+}
+.vdlg .vd-sub {
+  margin: 2px 0 0;
+  color: var(--ink-3);
+  font-size: var(--fs-small);
+  overflow-wrap: break-word;
+}
+.vdlg .vd-x {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-ctl);
+  background: var(--paper-2);
+  color: var(--ink);
+  cursor: pointer;
+}
+.vdlg .vd-x:hover {
+  background: var(--line);
+}
+.vdlg .vd-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+/* A soft grey panel of rows inside a window («Was gemacht wurde», the start values, the order). */
+.vdlg .vd-panel {
+  list-style: none;
+  margin: 0;
+  padding: 4px 16px;
+  border-radius: 14px;
+  background: var(--paper-2);
+}
+.vdlg .vd-panel > li + li {
+  border-top: 1px solid var(--line);
+}
+/* A note in a soft box (a warning before deleting). */
+.vdlg .vd-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: var(--r-ctl);
+  background: var(--paper-2);
+  color: var(--ink-2);
+  font-size: var(--fs-small);
+}
+/* Choice chips: the chosen one dark («Am Velo», «ich», «neu»). */
+.vd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.vd-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 6px 14px;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 500 var(--fs-small) / 1.25 var(--font-body);
+  cursor: pointer;
+}
+.vd-chip[aria-pressed='true'],
+.vd-chip[aria-checked='true'],
+.vd-chip:has(input:checked) {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+.vd-chip input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.vd-chip:has(input:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .vd-chip {
+    min-height: 44px;
+  }
+}
+@media (max-width: 719px) {
+  dialog.sheet.vdlg {
+    padding: 18px 16px 16px;
+  }
+  .vdlg .vd-t h2,
+  .vdlg h2.vd-title {
+    font-size: var(--fs-sub);
+  }
+}

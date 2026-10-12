@@ -23,7 +23,9 @@
   import { markSeen } from './seen.js';
   import SheetMore from './SheetMore.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
-  import { ChevronLeft, Copy, Printer, Pencil } from '@lucide/svelte';
+  import { Copy, Printer, Pencil, Share2, Check } from '@lucide/svelte';
+  import VeloHead from './VeloHead.svelte';
+  import SheetFolder from './SheetFolder.svelte';
 
   let { bikeId, sheet = 'pass', from = null } = $props();
 
@@ -59,6 +61,13 @@
         ? { href: bikesHash({ tab: 'shop', bike: bikeId }), label: t('Workshop & receipts') }
         : { href: bikesHash({ tab: 'setup', bike: bikeId, open: true }), label: t('Folder {bike}', { bike: bike?.name ?? '' }) },
   );
+  // Design-Refresh P7 (V5): «‹ Velo › Gravel Blau › Mappe» (or Care / Workshop when opened there).
+  const crumbs = $derived([
+    { label: t('Bike'), href: bikesHash({ tab: 'setup', bike: bikeId }) },
+    from === 'care' ? { label: t('Care|tab'), href: back.href } : from === 'shop' ? { label: t('Workshop & receipts'), href: back.href } : { label: bike?.name ?? '', href: back.href },
+    ...(sheet === 'all' ? [] : [{ label: t('Folder|sheets'), href: bikesHash({ tab: 'setup', bike: bikeId, sheet: 'all', from }) }]),
+  ]);
+  let choosing = $state(false);
   const EDIT = { pass: 'setup', plan: 'care', order: 'care', pickup: 'setup', breakin: 'setup', kit: 'gear', warranty: 'form', theft: 'form' };
   const editHref = $derived(sheet === 'all' || EDIT[sheet] === 'form' ? null : EDIT[sheet] === 'gear' ? '#/gear' : EDIT[sheet] === 'setup' ? bikesHash({ tab: 'setup', bike: bikeId, open: true }) : bikesHash({ tab: 'care', bike: bikeId, open: true }));
 
@@ -274,25 +283,39 @@
   {#if !$bikesQ}
     <p class="quiet">…</p>
   {:else if !bike || !data}
+    <h1 class="title sr">{t('Folder|sheets')}</h1>
     <p class="card">{t('This bike is not here any more.')} <a href={bikesHash({ tab: 'setup' })}>{t('Bikes')}</a></p>
   {:else}
-    <div class="bar noprint">
-      <a class="backl" href={back.href}><ChevronLeft size={18} aria-hidden="true" />{back.label}</a>
-      <span class="grow"></span>
-      {#if editHref}<a class="btn" href={editHref}><Pencil size={16} aria-hidden="true" />{t('Change values')}</a>
-      {:else if EDIT[sheet] === 'form'}<button type="button" class="btn" aria-pressed={editing} onclick={() => (editing = !editing)}><Pencil size={16} aria-hidden="true" />{t('Change values')}</button>{/if}
-      <button type="button" class="btn" onclick={copy}><Copy size={16} aria-hidden="true" />{t('Copy text')}</button>
-      <button type="button" class="btn ink" onclick={pdf}><Printer size={16} aria-hidden="true" />{t('Share as PDF')}</button>
-    </div>
+    <!-- Design-Refresh P7 (V5): the path back, «Folder Gravel Blau», the whole folder as PDF and «Choose sheets»
+         on top; the sheet left with its buttons below it, the sheets of the folder right. -->
+    <VeloHead crumbs={crumbs} here={sheet === 'all' ? t('Folder|sheets') : t(SHEET[sheet].name)} title={t('Folder {bike}', { bike: bike.name })} sub={t('The app fills every sheet from your data · view it, share it as a PDF or copy the text')}>
+      {#if sheet === 'all'}<button type="button" class="btn hi" onclick={pdf}><Printer size={16} aria-hidden="true" />{t('Share as PDF')}</button>
+      {:else}<a class="btn hi" href={bikesHash({ tab: 'setup', bike: bikeId, sheet: 'all', from })}><Printer size={16} aria-hidden="true" />{t('Whole folder as PDF')}</a>{/if}
+      <button type="button" class="btn" aria-expanded={choosing} onclick={() => (choosing = !choosing)}>{t('Choose sheets')}</button>
+    </VeloHead>
     {#if said}<p class="said noprint" role="status">{said}</p>{/if}
-    {#if !kinds.length}<p class="card">{t('All sheets are hidden. «Choose sheets» in the folder shows them again.')}</p>{/if}
-    <div class="papers">
-      {#each kinds as kind (kind)}
-        <article class="paper" data-sheet={kind} aria-label={t(SHEET[kind].name)}>
-          {#if MORE.includes(kind)}<SheetMore {kind} {bike} {data} {more} items={$itemsQ ?? []} {today} {kmNow} visits={$visitsQ ?? []} bind:editing />
-          {:else if kind === 'pass'}{@render pass()}{:else if kind === 'plan'}{@render plan()}{:else if kind === 'order'}{@render order()}{:else}{@render pickup()}{/if}
-        </article>
-      {/each}
+    <div class="svcols">
+      <div class="svmain">
+        {#if !kinds.length}<p class="card">{t('All sheets are hidden. «Choose sheets» in the folder shows them again.')}</p>{/if}
+        <div class="papers">
+          {#each kinds as kind (kind)}
+            <article class="paper" data-sheet={kind} aria-label={t(SHEET[kind].name)}>
+              {#if MORE.includes(kind)}<SheetMore {kind} {bike} {data} {more} items={$itemsQ ?? []} {today} {kmNow} visits={$visitsQ ?? []} bind:editing />
+              {:else if kind === 'pass'}{@render pass()}{:else if kind === 'plan'}{@render plan()}{:else if kind === 'order'}{@render order()}{:else}{@render pickup()}{/if}
+            </article>
+          {/each}
+        </div>
+        <div class="bar noprint">
+          <button type="button" class="btn" onclick={copy}><Copy size={16} aria-hidden="true" />{t('Copy text')}</button>
+          {#if sheet !== 'all'}<button type="button" class="btn" onclick={pdf}><Share2 size={16} aria-hidden="true" />{t('Share as PDF')}</button>{/if}
+          {#if editHref}<a class="btn" href={editHref}><Pencil size={16} aria-hidden="true" />{t('Change values')}</a>
+          {:else if EDIT[sheet] === 'form'}<button type="button" class="btn" aria-pressed={editing} onclick={() => (editing = !editing)}><Pencil size={16} aria-hidden="true" />{t('Change values')}</button>{/if}
+        </div>
+      </div>
+      <aside class="svside noprint">
+        <SheetFolder {bike} {from} current={sheet} acts={false} bind:choosing />
+        <p class="svnote"><Check size={16} aria-hidden="true" />{t('Pack Generator · all values are suggestions and can be changed')}</p>
+      </aside>
     </div>
   {/if}
 </div>
@@ -303,30 +326,48 @@
 
 <style>
   .sheetview {
-    max-width: 820px;
-    margin: 0 auto;
+    min-width: 0;
+  }
+  /* Design-Refresh P7 (V5): the sheet left, the folder's sheets right; one column on a phone. */
+  .svcols,
+  .svmain,
+  .svside {
+    min-width: 0;
+  }
+  @media (min-width: 1000px) {
+    .svcols {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 24px;
+      align-items: start;
+    }
+  }
+  .svside {
+    margin-top: 24px;
+  }
+  @media (min-width: 1000px) {
+    .svside {
+      margin-top: 0;
+    }
+  }
+  .svnote {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 14px 2px 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .bar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-    margin: 0 0 10px;
+    margin: 12px 0 0;
   }
   .bar .btn {
     min-height: 44px;
     text-decoration: none;
-  }
-  .grow {
-    flex: 1;
-  }
-  .backl {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 44px;
-    color: var(--accent);
-    font: 600 var(--fs-body) var(--font-body);
   }
   .said {
     margin: 0 0 10px;
@@ -339,9 +380,9 @@
     gap: 20px;
   }
   .paper {
-    padding: 40px 44px 28px;
-    border: 1px solid var(--line);
-    border-radius: 4px;
+    padding: 28px 28px 20px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
     background: var(--paper);
     box-shadow: var(--card-shadow);
   }
@@ -685,6 +726,9 @@
     .noprint,
     .notice {
       display: none !important;
+    }
+    .svcols {
+      display: block;
     }
     .sheetview {
       max-width: none;

@@ -15,32 +15,14 @@
     "src/lib/QuickNote.svelte": {
       "fontsize": 6
     },
-    "src/lib/bikes/BagDialog.svelte": {
-      "fontsize": 2
-    },
-    "src/lib/bikes/BagSheet.svelte": {
-      "fontsize": 3
-    },
-    "src/lib/bikes/BikeDialog.svelte": {
-      "fontsize": 1
-    },
     "src/lib/bikes/IdeasFold.svelte": {
       "fontsize": 1
-    },
-    "src/lib/bikes/SetupBand.svelte": {
-      "colour": 8,
-      "fontsize": 11
     },
     "src/lib/bikes/SetupDrawing.svelte": {
       "fontsize": 6
     },
-    "src/lib/bikes/SetupFold.svelte": {
-      "fontsize": 3
-    },
     "src/lib/bikes/SetupTab.svelte": {
-      "colour": 2,
-      "fontsize": 26,
-      "global": 1
+      "colour": 2
     },
     "src/lib/bikes/WhoCard.svelte": {
       "colour": 1,
@@ -52,11 +34,11 @@
     },
     "src/lib/care/CareTab.svelte": {
       "colour": 1,
-      "fontsize": 8
+      "fontsize": 6
     },
     "src/lib/care/OrderDialog.svelte": {
       "colour": 4,
-      "fontsize": 7
+      "fontsize": 6
     },
     "src/lib/care/PartDialog.svelte": {
       "fontsize": 7
@@ -66,7 +48,7 @@
       "global": 2
     },
     "src/lib/care/VisitDialog.svelte": {
-      "fontsize": 6
+      "fontsize": 5
     },
     "src/lib/debrief/TemplateOffer.svelte": {
       "fontsize": 2

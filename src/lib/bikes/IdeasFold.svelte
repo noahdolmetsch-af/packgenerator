@@ -11,7 +11,7 @@
   import { addIdea, toggleIdea, removeIdea, sortIdeas, openIdeas, IDEAS_KEY } from '../hubs.js';
   import { t, tn, locale } from '../i18n.svelte.js';
 
-  let { bike } = $props();
+  let { bike, flat = false } = $props();
 
   const list = $derived(sortIdeas(bike.ideas));
   const open = $derived(openIdeas(bike.ideas));
@@ -48,7 +48,7 @@
 </script>
 
 <div class="ideas-wrap" bind:this={el}>
-  <SetupFold icon={Sparkles} label={t('Ideas|bike')} summary={list.length ? `${tn(open, '{n} open idea', '{n} open ideas')}${list.length > open ? ` · ${t('{n} done', { n: list.length - open })}` : ''}` : t('none yet')} bind:open={shown}>
+  <SetupFold {flat} icon={Sparkles} label={t('Ideas|bike')} summary={list.length ? `${tn(open, '{n} open idea', '{n} open ideas')}${list.length > open ? ` · ${t('{n} done', { n: list.length - open })}` : ''}` : t('none yet')} bind:open={shown}>
     <p class="hint">{t('What would be great: your own list of ideas for this bike, not the Gear wishlist.')}</p>
     {#if list.length}
       <ul class="ideas" aria-label={t('Ideas for the {bike}', { bike: bike.name })}>

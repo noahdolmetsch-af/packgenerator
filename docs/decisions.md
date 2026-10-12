@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Design-Refresh P7 «Velo» (0.105.0)
+
+Nach den Mockups V1–V14 (Noah 12.10.2026 «v1-v4 freigabe», 02:30 «v5-v10 freigabe», 02:36 «v11-v14 freigegeben») und «10 Pakete» (P7 = R18+R19). Nur das Aussehen ist neu.
+
+- **Selbst entschieden (P7):** Ein gewähltes Velo in der Pflege öffnet sich als eigene Seite (Weg «Pflege» zurück zur Übersicht), auch aus Setup; dort nur die Touren mit diesem Velo. Die Übersicht zeigt die Velos als Zeilen statt der Liste «Jedes Velo». Die Pflege eines Velos bleibt das bisherige Akkordeon mit neuem Kopf (keine eigenen Karten «Verschleiss», «Lückenlose km», «Werkstatt»). «Arbeit eintragen» ist eine Zeile unter «Mehr». Im Fenster «Teil» bleiben die drei Knöpfe, «Gemacht von» als Chips. Nicht gebaut, weil neu oder ohne Daten: Teil-Punkte in der Zeichnung, Kosten «pro 1000 km», «Teile mit Garantie», Seitenkarte «Auf einen Blick» und Schalter bei Ausstattung.
+
 ## 12.10.2026: Design-Refresh P4 «Touren» (0.104.0)
 
 Nach den Mockups T1–T5 und T24 (Noah 12.10.2026, alle Seiten «Runde 20 freigegeben»), den Bausteinen 2 «Karte mit Strecke» und 26 «Etappen-Teiler» (11.10.2026 «Bausteine 1–35 freigegeben») und «10 Pakete» (P4 = R7+R8+R9).

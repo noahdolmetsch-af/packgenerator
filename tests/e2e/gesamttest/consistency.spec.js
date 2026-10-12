@@ -50,11 +50,12 @@ test('due counts: Today, Plan, Bike care and the bar agree', async ({ page, cont
   }
   expect(fromRows, 'Important today = the bike cards (bikes with something due)').toEqual(Object.fromEntries(Object.entries(today).filter(([, n]) => n > 0)));
 
-  // Bike care
-  await page.goto('./#/bikes?tab=care');
-  await page.reload();
+  // Bike care (v0.105.0 Design-Refresh P7, V6/V7: the overview lists the bikes as rows; each bike's
+  // care page carries its section with the count)
   const care = {};
   for (const id of summary.bikeIds) {
+    await page.goto(`./#/bikes?tab=care&bike=${id}`);
+    await page.reload();
     const sec = page.locator(`section.acc[id="care-${id}"]`);
     await expect(sec).toBeVisible();
     care[nameOf[id]] = num(await sec.locator('.ah .r .badge').first().textContent());

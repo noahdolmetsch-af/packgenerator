@@ -193,8 +193,9 @@ test('Wer schraubt: ich and Velomech this year, the last jobs, next for the Velo
   await expect(order).toContainText(T('Fork service'));
   await page.keyboard.press('Escape');
 
-  // The folded rows are all there.
-  for (const name of ['Bike details', 'Profile', 'Photos', 'Ideas|bike', 'Settings', 'Your bags']) {
+  // Design-Refresh P7 (V1): the folded rows of the new bike page are all there (the old «Velo-Details»,
+  // «Profil» and «Einstellungen» are «Immer montiert» and «Profil und Einstellungen» now).
+  for (const name of ['Always mounted', 'Folder|sheets', 'Photos', 'Profile and settings', 'Ideas|bike', 'Your bags']) {
     await expect(page.locator('details.fold summary .lbl', { hasText: new RegExp(`^${T(name)}$`) })).toBeVisible();
   }
   await noSideScroll(page);

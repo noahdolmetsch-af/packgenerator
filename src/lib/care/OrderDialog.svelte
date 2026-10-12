@@ -6,6 +6,8 @@
    */
   import { orderSum, orderText } from '../workshop.js';
   import { t, locale } from '../i18n.svelte.js';
+  import { X } from '@lucide/svelte';
+  import '../bikes/velo-dlg.css';
 
   let { order, bike, trip = null, bikeNames = {}, onclose } = $props();
   let dialog;
@@ -68,9 +70,16 @@
   }
 </script>
 
-<dialog class="sheet" bind:this={dialog} onclose={onclose} aria-labelledby="order-h">
-  <p class="meta">{bike.name} · {t('Workshop order')}</p>
-  <h2 id="order-h" class="title">{trip?.startDate ? t('Before {trip}', { trip: trip.title }) : t('Due now')}</h2>
+<!-- Design-Refresh P7 (V11, Noah 12.10.2026 «v11-v14 freigegeben»): the workshop order as a window of the
+     bike pages: the jobs with their prices in a soft panel, the message, «Print · Close · Send or copy» right. -->
+<dialog class="sheet vdlg" bind:this={dialog} onclose={onclose} aria-labelledby="order-h">
+  <div class="vd-head">
+    <div class="vd-t">
+      <h2 id="order-h" class="title">{trip?.startDate ? t('Before {trip}', { trip: trip.title }) : t('Due now')}</h2>
+      <p class="vd-sub">{bike.name} · {t('Workshop order')}</p>
+    </div>
+    <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
+  </div>
   <p class="facts num"><b>{t('about CHF {chf}', { chf: sum.total })}</b>{#if sum.unknown}{` · ${t('{n} without a price', { n: sum.unknown })}`}{/if}{#if order.shop}{` · ${order.shop}`}{/if}</p>
 
   <!-- v0.24.0 (Noah, "select all"): every job on or off in one tap. -->
@@ -80,7 +89,7 @@
       <button type="button" class="link" disabled={off.size === order.rows.length} onclick={() => (off = new Set(order.rows.map((r) => r.key)))}>{t('Select none')}</button>
     </p>
   {/if}
-  <ul class="jobs">
+  <ul class="jobs vd-panel">
     {#each order.rows as r (r.key)}
       <li class:off={off.has(r.key)}>
         <label>
@@ -97,20 +106,14 @@
   <textarea class="inp msg" readonly rows="8" value={text}></textarea>
   {#if note}<p class="hint" role="status">{note}</p>{/if}
 
-  <div class="foot">
-    <button type="button" class="btn hi" onclick={send} disabled={!picked.length}>{t('Send or copy')}</button>
+  <div class="foot vd-foot">
     <button type="button" class="btn" onclick={print} disabled={!picked.length}>{t('Print')}</button>
-    <button type="button" class="link" onclick={() => dialog.close()}>{t('Close')}</button>
+    <button type="button" class="btn" onclick={() => dialog.close()}>{t('Close')}</button>
+    <button type="button" class="btn hi" onclick={send} disabled={!picked.length}>{t('Send or copy')}</button>
   </div>
 </dialog>
 
 <style>
-  .meta {
-    margin: 0;
-    font-size: var(--fs-small);
-    font-weight: 700;
-    color: var(--ink-3);
-  }
   h2 {
     font-size: var(--fs-section);
     margin: 4px 0 4px;
@@ -131,15 +134,17 @@
   .jobs {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 4px 16px;
   }
   .jobs li {
     display: flex;
     justify-content: space-between;
     gap: 10px;
-    padding: 6px 0;
+    padding: 8px 0;
+    font-size: var(--fs-small);
+  }
+  .jobs li + li {
     border-top: 1px solid var(--line);
-    font-size: 14px;
   }
   .jobs li.off {
     opacity: 0.5;

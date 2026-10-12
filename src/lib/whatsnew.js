@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.105.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 8: Bikes is light, with the drawing and the bags open on the page and «More» as plain rows.', href: '#/bikes' },
+      { text: 'Bike care shows what is due on top; a chosen bike opens as its own page with a path back.', href: '#/bikes?tab=care' },
+      { text: 'Part, start values, workshop visit, order, import, receipts and equipment use the same light windows.', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
     version: '0.104.0',
     date: '2026-10-12',
     points: [

@@ -96,7 +96,8 @@ test('the folder: eight sheets on a new bike, the Break-in plan first and marked
   // opened once, a new sheet is no longer «neu»
   await folder.locator('a[data-sheet="kit"]').click();
   await expect(page.locator('article.paper[data-sheet="kit"]')).toBeVisible();
-  await page.getByRole('link', { name: 'Mappe Demo XC' }).click();
+  // Design-Refresh P7 (V5): the way back is the path «‹ Velo › Demo XC › Mappe › …» now.
+  await page.getByRole('navigation', { name: 'Pfad' }).getByRole('link', { name: 'Demo XC', exact: true }).click();
   await expect(folder.locator('a[data-sheet="kit"] .new')).toHaveCount(0);
 
   // an old bike: no Break-in plan, but «Blätter wählen» can switch it on
