@@ -56,13 +56,13 @@ for (const lang of ['en', 'de']) {
     await expect(data.getByText(T('Imported {name} (replaced all data).', { name: 'fixture.json' }))).toBeVisible();
     await fits('start page');
 
-    // 2. New → Packing list → Standard set (desktop: "New" in the top bar; phone: "+" in the bottom bar).
+    // 2. New → Packing list → Standard set (desktop: "+ Neu" in the sidebar; phone: "+" in the top bar).
     const newBtn = page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true });
     await expect(newBtn).toHaveCount(1);
     const box = await newBtn.boundingBox();
-    if (info.project.name === 'phone') expect(box.y, '"+" sits in the bottom bar').toBeGreaterThan(page.viewportSize().height / 2);
+    // v0.98.0 Design-Refresh R2 (G4/G5): on a phone «+» sits in the top bar next to the search;
     // v0.76.0 «Fünf Orte»: on a computer «+ Neu» sits at the top of the sidebar
-    else expect(box.y, '"New" sits at the top of the sidebar').toBeLessThan(200);
+    expect(box.y, '"New" sits at the top').toBeLessThan(200);
     await newBtn.click();
     const sheet = page.getByRole('dialog', { name: T('New') });
     await sheet.getByRole('button', { name: T('Plan a trip') }).click(); // v0.30.0: the window starts with the standard set
