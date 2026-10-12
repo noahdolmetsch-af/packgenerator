@@ -7,4 +7,9 @@ export default {
   'Measures, parts, geometry': 'Masse, Teile, Geometrie',
   'Strava file or GPX · counts the km for every part': 'Strava-Datei oder GPX · zählt die km für jedes Teil',
   'Bike pass, service plan …': 'Velo-Pass, Service-Plan …',
+  // V2–V4 windows
+  'on {bike}': 'am {bike}',
+  'choose one bag': 'eine Tasche wählen',
+  'You can delete it once no trip uses this bike. {n} trip uses it.': 'Löschen geht erst, wenn keine Tour mehr dieses Velo nutzt. {n} Tour nutzt es.',
+  'You can delete it once no trip uses this bike. {n} trips use it.': 'Löschen geht erst, wenn keine Tour mehr dieses Velo nutzt. {n} Touren nutzen es.',
 };

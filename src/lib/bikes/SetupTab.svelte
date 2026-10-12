@@ -1037,7 +1037,7 @@
     min-height: 36px;
     border: 0;
     background: none;
-    font-size: 18px;
+    font-size: var(--fs-sub);
     cursor: pointer;
     color: var(--ink-2);
   }
@@ -1069,7 +1069,7 @@
   .profile dd {
     margin: 2px 0 0;
     font-weight: 600;
-    font-size: 15px;
+    font-size: var(--fs-body);
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -1110,7 +1110,7 @@
     border-radius: var(--r-ctl);
     background: var(--paper);
     color: var(--ink-2);
-    font: 500 13px var(--font-body);
+    font: 500 var(--fs-tiny) var(--font-body);
     text-align: left;
     cursor: pointer;
     overflow: hidden;
@@ -1152,7 +1152,7 @@
     border-radius: var(--r-ctl);
     background: none;
     color: #f4f6f2;
-    font: 600 14px var(--font-body);
+    font: 600 var(--fs-small) var(--font-body);
     cursor: pointer;
   }
   .lsel option {
@@ -1183,11 +1183,11 @@
     padding: 6px 10px;
     border-radius: var(--radius);
     background: var(--paper-2);
-    font-size: 15px;
+    font-size: var(--fs-small);
     font-weight: 600;
   }
   .slot-h small {
-    font-size: 13px;
+    font-size: var(--fs-tiny);
     font-weight: 400;
     color: var(--ink-3);
   }
@@ -1223,7 +1223,7 @@
   .rows .bg {
     grid-column: 1;
     grid-row: 2;
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     overflow-wrap: break-word;
   }

@@ -86,7 +86,7 @@
   }
   .strip .bn {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .strip button[aria-selected='true'] {
     background: var(--ink);

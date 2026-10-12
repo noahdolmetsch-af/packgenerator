@@ -3,7 +3,10 @@
   import { db } from '../db.js';
   import { SLOTS, renameBike } from '../bikes.js';
   import { shrinkImage } from '../photo.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, tn, num } from '../i18n.svelte.js';
+  import { liveQuery } from 'dexie';
+  import { X, Bike, TriangleAlert } from '@lucide/svelte';
+  import './velo-dlg.css';
 
   /** bike: the bike to edit, or null for "Add bike". */
   let { bike, bikes, oncreated, onsaved = null, onclose } = $props();
@@ -28,6 +31,9 @@
     }
   }
   let error = $state('');
+  // V2: «Delete» works only once no trip uses the bike; the window says so up front.
+  const usedQ = liveQuery(() => (bike ? db.trips.filter((x) => x.bikeId === bike.id).count() : 0));
+  const used = $derived($usedQ ?? 0);
   let dialog;
 
   $effect(() => {
@@ -70,73 +76,98 @@
   }
 </script>
 
-<dialog class="sheet" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bike-dlg-h">
+<dialog class="sheet vdlg" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bike-dlg-h">
   <form onsubmit={save} novalidate>
-    <h2 id="bike-dlg-h" class="title">{isNew ? t('Add bike') : t('Bike details')}</h2>
+    <!-- Design-Refresh P7 (V2): title and a quiet line, ✕ top right, «Delete bike» next to «Cancel». -->
+    <div class="vd-head">
+      <div class="vd-t">
+        <h2 id="bike-dlg-h">{isNew ? t('Add bike') : t('Bike details')}</h2>
+        {#if !isNew}<p class="vd-sub num">{[bike.name, bike.km != null ? `${num(bike.km)} km` : ''].filter(Boolean).join(' · ')}</p>{/if}
+      </div>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+    </div>
     <div class="grid">
       <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required enterkeyhint="done" /></label>
       <label class="wide"><span class="lbl">{t('Type')}</span><input class="inp" bind:value={draft.type} placeholder={t('e.g. Full suspension')} /></label>
       <label class="wide"><span class="lbl">{t('What you use it for')}</span><input class="inp" bind:value={draft.use} /></label>
       <div class="wide photo">
-        <span class="lbl">{t('Photo')} <small>{t('shown in Pack behind the bags; side view works best')}</small></span>
-        {#if draft.photo}<img src={draft.photo} alt="{draft.name}" />{/if}
-        <div class="pacts">
-          <label class="btn sm">{reading ? t('Reading…') : draft.photo ? t('Other photo') : t('Choose photo')}<input type="file" accept="image/*" onchange={pickPhoto} hidden /></label>
-          {#if draft.photo}<button type="button" class="btn sm" onclick={() => (draft.photo = null)}>{t('Remove photo')}</button>{/if}
+        <span class="lbl">{t('Photo')}</span>
+        <div class="prow">
+          <span class="pthumb">{#if draft.photo}<img src={draft.photo} alt={draft.name} />{:else}<Bike size={22} aria-hidden="true" />{/if}</span>
+          <div class="pside">
+            <small>{t('shown in Pack behind the bags; side view works best')}</small>
+            <div class="pacts">
+              <label class="btn sm">{reading ? t('Reading…') : draft.photo ? t('Other photo') : t('Choose photo')}<input type="file" accept="image/*" onchange={pickPhoto} hidden /></label>
+              {#if draft.photo}<button type="button" class="btn sm" onclick={() => (draft.photo = null)}>{t('Remove photo')}</button>{/if}
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    {#if !isNew && used}<p class="vd-note"><TriangleAlert size={16} aria-hidden="true" />{tn(used, 'You can delete it once no trip uses this bike. {n} trip uses it.', 'You can delete it once no trip uses this bike. {n} trips use it.')}</p>{/if}
     <p class="err" role="alert">{error}</p>
-    <div class="foot">
-      <button type="submit" class="btn hi">{isNew ? t('Add bike') : t('Save')}</button>
-      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+    <div class="vd-foot">
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete bike')}</button>{/if}
+      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+      <button type="submit" class="btn hi">{isNew ? t('Add bike') : t('Save')}</button>
     </div>
   </form>
 </dialog>
 
 <style>
-  h2 {
-    font-size: var(--fs-section);
-    margin: 0 0 14px;
-  }
   .grid {
     display: grid;
     gap: 12px;
   }
   .photo {
     display: grid;
+    gap: 2px;
+  }
+  .prow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .pthumb {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 120px;
+    height: 56px;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    color: var(--ink-2);
+    overflow: hidden;
+  }
+  .pthumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pside {
+    flex: 1;
+    min-width: 0;
+    display: grid;
     gap: 6px;
   }
-  .photo small {
-    text-transform: none;
-    letter-spacing: 0;
-    font-weight: 400;
-  }
-  .photo img {
-    width: 100%;
-    max-height: 220px;
-    object-fit: contain;
-    border-radius: 6px;
-    background: var(--paper-2);
+  .pside small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .pacts {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
   }
   .err {
     color: var(--bad);
-    min-height: 1.2em;
-    font-size: 14px;
+    margin: 8px 0 0;
+    font-size: var(--fs-small);
   }
-  .foot {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+  .err:empty {
+    display: none;
   }
   .del {
-    margin-left: auto;
-    border-color: var(--bad);
     color: var(--bad);
   }
 </style>
