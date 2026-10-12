@@ -19,4 +19,14 @@ export default {
   // T2 Neue Tour
   'Name, date, bike and packing list. Everything can be changed later.': 'Name, Datum, Velo und Packliste. Alles später änderbar.',
   'Packing list starts with': 'Packliste startet mit',
+  // T24 Vorlagen
+  'Your templates': 'Deine Vorlagen',
+  '{n} active': '{n} aktiv',
+  'last {name}': 'zuletzt {name}',
+  'Last used: {name}': 'Zuletzt benutzt: {name}',
+  'From the current trip': 'Aus der aktuellen Tour',
+  'Save {name} as a template': '{name} als Vorlage speichern',
+  '{n} · not offered in «New trip»': '{n} · nicht unter «Neue Tour»',
+  'In the menu of every template: duplicate, archive, delete. Trips made from a template stay, also when it is deleted.': 'Im Menü jeder Vorlage: Duplizieren, Archivieren, Löschen. Touren aus einer Vorlage bleiben, auch wenn sie gelöscht wird.',
+  '«{name}» long not used: keep or archive. Nothing is deleted.': '«{name}» lange nicht benutzt: Behalten oder Archivieren. Nichts wird gelöscht.',
 };
