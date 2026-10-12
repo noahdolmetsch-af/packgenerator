@@ -8,6 +8,17 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.116.1 UI-Prüfung A1: alte Rückblicke öffnen wieder
+  'Old trips open again': 'Alte Touren öffnen wieder',
+  'The debrief of an older trip opened an empty page; now it opens like any other.':
+    'Der Rückblick einer älteren Tour öffnete eine leere Seite; jetzt öffnet er wie jeder andere.',
+  'Fixed: the debrief of an older trip (from an old backup or the Excel import) opened an empty page. It opens again, every item counted as used.':
+    'Behoben: Der Rückblick einer älteren Tour (aus einem alten Backup oder dem Excel-Import) öffnete eine leere Seite. Er öffnet wieder, alle Teile zählen als gebraucht.',
+  'Open Trips › Look back › Past trips and tap an older trip.':
+    'Touren › Rückblick › Vergangene Touren öffnen und eine ältere Tour antippen.',
+  'The debrief opens with its numbers and «Not used».':
+    'Der Rückblick öffnet sich mit seinen Zahlen und «Nicht gebraucht».',
+
   // 0.116.0 «Strava-Verbindung»
   'Strava connection': 'Strava-Verbindung',
   'Rides from Strava': 'Fahrten aus Strava',
