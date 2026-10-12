@@ -12,6 +12,8 @@
   import { kmOn, partStart, partKm } from '../kmbook.js';
   import { parseKm, partName, ensureParts } from '../care.js';
   import { t, num } from '../i18n.svelte.js';
+  import { X } from '@lucide/svelte';
+  import '../bikes/velo-dlg.css';
 
   let { bike, part, bikes = [], entries = [], missing = [], onsave, onnext, onclose } = $props();
 
@@ -56,8 +58,15 @@
   }
 </script>
 
-<dialog class="sheet spd" bind:this={dialog} use:backClose onclose={onclose} aria-labelledby="sp-h">
-  <h2 id="sp-h" class="title">{t('Start point: {part}', { part: partName(part) })}</h2>
+<!-- Design-Refresh P7 (V9): a window of the bike pages, ✕ top right, the buttons right (the main one last). -->
+<dialog class="sheet spd vdlg" bind:this={dialog} use:backClose onclose={onclose} aria-labelledby="sp-h">
+  <div class="vd-head">
+    <div class="vd-t">
+      <h2 id="sp-h" class="title">{t('Start point: {part}', { part: partName(part) })}</h2>
+      <p class="vd-sub">{bike.name}</p>
+    </div>
+    <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
+  </div>
   <p class="quiet">{t('When was it mounted, and how many km did {bike} have then? From this the app counts the km of the part, also across bikes.', { bike: bike.name })}</p>
   <div class="fields">
     <label><span class="lbl">{t('Mounted on')}</span><DateInput bind:value={date} /></label>
@@ -74,10 +83,10 @@
     {/if}
   </div>
   {#if err}<p class="err" role="alert">{err}</p>{/if}
-  <div class="fb">
-    {#if nextKey}<button type="button" class="btn hi" onclick={() => save(true)}>{t('Save and next')}</button><button type="button" class="btn" onclick={() => save(false)}>{t('Save')}</button>
-    {:else}<button type="button" class="btn hi" onclick={() => save(false)}>{t('Save')}</button>{/if}
+  <div class="fb vd-foot">
     <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+    {#if nextKey}<button type="button" class="btn" onclick={() => save(false)}>{t('Save')}</button><button type="button" class="btn hi" onclick={() => save(true)}>{t('Save and next')}</button>
+    {:else}<button type="button" class="btn hi" onclick={() => save(false)}>{t('Save')}</button>{/if}
   </div>
 </dialog>
 

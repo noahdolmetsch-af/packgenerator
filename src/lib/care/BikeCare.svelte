@@ -10,7 +10,7 @@
    * - "me" is no longer on every row: only the bike shop's work gets a small shop sign, explained once;
    * - folded rows: parts without data, the 1000 km check, the log, "Bike shop & 2026".
    */
-  import { Check, ChevronDown, ChevronRight, Store, Info, ListChecks, BookOpen } from '@lucide/svelte';
+  import { Check, ChevronDown, ChevronRight, ChevronUp, Store, Info, ListChecks, BookOpen } from '@lucide/svelte';
   import { CHECK_KM, bikeLog, EXTRA, needsWork, PART } from '../care.js';
   import { visitTotal, costByYear, costByPart } from '../workshop.js';
   import { GROUPS, groupOf, lastWork, lastLine, partStatus, usualBy, isDueState, yearSummary, newestFirst } from './last.js';
@@ -239,7 +239,9 @@
   <div class="ah">
     <div class="grow">
       <h2 class="name" id="care-h-{bike.id}">
-        <button type="button" class="ah-btn" aria-expanded={open} aria-controls="care-in-{bike.id}" onclick={() => ontoggle?.(!open)}>{bike.name}</button>
+        <!-- Design-Refresh P7 (V7): the open bike is the page (its name is the h1 above): here only a
+             small «close» button, named after the bike for screen readers. -->
+        <button type="button" class="ah-btn" aria-expanded={open} aria-controls="care-in-{bike.id}" title={open ? t('Close') : undefined} onclick={() => ontoggle?.(!open)}>{#if open}<span class="sr">{bike.name}</span><ChevronUp size={20} aria-hidden="true" />{:else}{bike.name}{/if}</button>
       </h2>
       <small class="sub num">
         {#if bike.km != null}{num(bike.km)} km{:else}{t('km not set')}{/if}
@@ -326,7 +328,7 @@
       {/if}
       {#if filter === 'all'}
         <!-- v0.48.0 «Teile pro Velo»: all parts of the one list by area, the rest under «More». -->
-        <PartsTable {bike} time={c.time} {today} onpart={onpart} q1={q1On} {bikes} onstartpoint={(key) => onstartpoint?.(key, mainParts)} />
+        <div class="ptcard"><PartsTable {bike} time={c.time} {today} onpart={onpart} q1={q1On} {bikes} onstartpoint={(key) => onstartpoint?.(key, mainParts)} /></div>
       {:else}
       {#if soon.length || ok.length}
           <p class="zlabel">{t('Wear|list')}</p>
@@ -1357,5 +1359,78 @@
     font: 500 12px/1.3 var(--font-body);
     letter-spacing: 0.06em;
     text-transform: uppercase;
+  }
+  /* ---------- Design-Refresh P7 (V7): the open bike is the page (path and title above) ---------- */
+  .acc:not(.open):last-child {
+    border-bottom: 0;
+  }
+  .acc.open {
+    border-bottom: 0;
+  }
+  .acc.open .ah {
+    min-height: 0;
+    padding: 0 0 6px;
+    border-bottom: 0;
+  }
+  .acc.open .grow {
+    display: contents;
+  }
+  .acc.open .sub {
+    order: 1;
+    flex: 1;
+    min-width: 0;
+    font-size: var(--fs-body);
+  }
+  .acc.open .r {
+    order: 2;
+  }
+  .acc.open .r .chev {
+    display: none;
+  }
+  .acc.open .name {
+    order: 3;
+    margin: 0;
+  }
+  .acc.open .ah-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-ctl);
+    background: var(--paper);
+    color: var(--ink-2);
+  }
+  .acc.open .ah-btn:hover {
+    background: var(--paper-2);
+  }
+  .acc.open .ah-btn::after {
+    content: none;
+  }
+  .acc.open .ah-btn:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+  }
+  .ptcard,
+  .acc.open .folds {
+    margin: 14px 0;
+    padding: 4px 16px 8px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
+  }
+  .acc.open .folds {
+    padding: 0 16px;
+  }
+  .acc.open .folds > .fold:last-child {
+    border-bottom: 0;
+  }
+  .acc.open .duecards .pt,
+  .acc.open .duecards .pt.due {
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
   }
 </style>
