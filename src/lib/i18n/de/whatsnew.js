@@ -8,6 +8,26 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check (mockups V1–V6)
+  'Checks before and after': 'Checks davor und danach',
+  'The evening before and back home: one tap on the row opens the check, and every trip type has its own list.':
+    'Am Vorabend und wieder zu Hause: Ein Tipp auf die Zeile öffnet den Check, und jede Reiseart hat ihre eigene Liste.',
+  'New on «Packed»: the row «Evening-before check» opens a window with your points, e.g. read the avalanche bulletin, route offline, charge.':
+    'Neu auf «Gepackt»: Die Zeile «Vorabend-Check» öffnet ein Fenster mit deinen Punkten, z. B. Lawinenbulletin lesen, Route offline, laden.',
+  'New on «Trip ended»: «Before you unpack» with the after-trip check, e.g. dry the skins, refill, charge; then on to the debrief.':
+    'Neu auf «Tour beendet»: «Bevor du auspackst» mit dem Schluss-Check, z. B. Felle trocknen, auffüllen, laden; dann weiter zum Rückblick.',
+  '«Adjust the list»: sort, remove, add your own or a suggestion from an earlier debrief, for this trip or all trips of the type.':
+    '«Liste anpassen»: sortieren, entfernen, Eigenes oder einen Vorschlag aus einem früheren Rückblick dazunehmen, für diese Tour oder alle Touren der Reiseart.',
+  'Me › Checks per trip type shows the lists of every type and how often you ticked each point.':
+    'Ich › Checks pro Reiseart zeigt die Listen jeder Reiseart und wie oft du jeden Punkt erledigt hast.',
+  'Open a packed trip: tap «Evening-before check» under «Until the start» and tick a point.':
+    'Eine gepackte Tour öffnen: Unter «Bis zum Start» auf «Vorabend-Check» tippen und einen Punkt abhaken.',
+  'Tap «Adjust the list», add your own point and save it for all trips of the type.':
+    'Auf «Liste anpassen» tippen, einen eigenen Punkt dazunehmen und für alle Touren der Reiseart speichern.',
+  'End a trip: tap the after-trip check under «Before you unpack».':
+    'Eine Tour beenden: Unter «Bevor du auspackst» auf den Schluss-Check tippen.',
+  'Open Me › Checks per trip type and choose another type.':
+    'Ich › Checks pro Reiseart öffnen und eine andere Reiseart wählen.',
   // 0.110.0 Design-Refresh P10 «Was ist neu»
   'Me › What is new shows the newest version, every function one by one and all versions by month.':
     'Ich › Was ist neu zeigt die neueste Version, jede Funktion einzeln und alle Versionen nach Monat.',

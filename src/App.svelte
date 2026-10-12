@@ -37,6 +37,7 @@
   import Data from './pages/Data.svelte';
   import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
+  import Checks from './pages/Checks.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -307,6 +308,9 @@
   {:else if page === 'phone'}
     <!-- Design-Refresh P9 (B35): Ich › Daten › Aufs Handy, the QR code -->
     <Phone />
+  {:else if page === 'checks'}
+    <!-- v0.111.0 (mockup V4): Ich › Checks pro Reiseart -->
+    <Checks />
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />
