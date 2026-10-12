@@ -1553,7 +1553,8 @@
   }
   @media (min-width: 720px) {
     .wish .rows button {
-      grid-template-columns: 90px 1fr 200px 110px;
+      /* v0.102.0 Design-Refresh P3: the list column is narrower beside the views; the name keeps the room */
+      grid-template-columns: auto minmax(0, 1fr) minmax(0, 140px) 80px;
     }
     .wish .nm,
     .wish .bg,

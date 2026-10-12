@@ -216,12 +216,15 @@
   }
   @media (min-width: 720px) {
     .main {
-      grid-template-columns: minmax(0, 1fr) auto 72px;
+      /* the dots at most 108 px wide (they wrap into a second row with many trips), the name keeps its room */
+      grid-template-columns: minmax(0, 1fr) minmax(0, 108px) 72px;
     }
     .dw {
       display: inline-flex;
+      justify-content: flex-end;
       grid-column: 2;
       grid-row: 1 / span 2;
+      min-width: 0;
     }
     .w {
       grid-column: 3;
