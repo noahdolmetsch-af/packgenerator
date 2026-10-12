@@ -27,4 +27,6 @@ export default {
   '{n} h riding a day': '{n} h Fahrzeit pro Tag',
   'No riding hours set': 'Keine Fahrstunden gesetzt',
   'Material rules': 'Materialregeln',
+  // T10 Tour-Fakten
+  'What the suggestions are based on. Every change can be undone.': 'Was die Vorschläge bestimmt. Jede Änderung lässt sich rückgängig machen.',
 };

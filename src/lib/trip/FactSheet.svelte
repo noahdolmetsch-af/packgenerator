@@ -4,9 +4,12 @@
    * sheet with only that field. Every tap goes through the page's change logic (Pack.svelte change /
    * changeContext), so the packing amounts follow at once and Undo takes it back.
    * edit: { date(iso), hours(n), days(n), wx(patch), bike(bike), more(), compare(), undo(), canUndo }
+   * v0.105.0 Design-Refresh P5 (T10 «Tour-Fakten», approved 12.10.2026): the light look of the mockup:
+   * the title with one line «Was die Vorschläge bestimmt …» and «×» on top, the field's chips under a
+   * small label, «Rückgängig» and «Fertig» at the bottom right. Still one field per sheet.
    */
   import DateInput from '../ui/DateInput.svelte';
-  import { Undo2 } from '@lucide/svelte';
+  import { Undo2, X, Bike } from '@lucide/svelte';
   import { t, tn, num } from '../i18n.svelte.js';
   import { WX_PRESETS } from '../trips.js';
   import { wxSource, noWx } from '../dayride.js';
@@ -37,7 +40,10 @@
 </script>
 
 <dialog class="fact-sheet" bind:this={el} onclose={onclose} aria-labelledby="fact-h">
-  <header><h2 id="fact-h">{t(TITLES[field])}</h2><button type="button" class="tp-link" onclick={close}>{t('Close')}</button></header>
+  <header>
+    <div class="tt"><h2 id="fact-h">{t(TITLES[field])}</h2><p class="sub">{t('What the suggestions are based on. Every change can be undone.')}</p></div>
+    <button type="button" class="x" aria-label={t('Close')} onclick={close}><X size={20} aria-hidden="true" /></button>
+  </header>
   {#if field === 'date'}
     <div class="tp-chips" role="group" aria-label={t('Start date')}>
       <button type="button" class="tp-chip" aria-pressed={trip.startDate === localDay()} onclick={() => edit.date(localDay())}>{t('Today')}</button>
@@ -63,6 +69,7 @@
     {/if}
     <p class="more"><button type="button" class="tp-link" onclick={() => { close(); edit.more(); }}>{oneDay ? t('More days or a night: Edit trip') : t('Overnight stay: Edit trip')}</button></p>
   {:else if field === 'weather'}
+    <span class="lbl">{t('Weather presets')}</span>
     <div class="tp-chips" role="group" aria-label={t('Weather presets')}>
       {#each WX_PRESETS as p (p.name)}<button type="button" class="tp-chip" aria-pressed={wx.min === p.min && wx.max === p.max} onclick={() => edit.wx({ min: p.min, max: p.max })}>{t(p.name)} <small>{p.min}–{p.max}°</small></button>{/each}
     </div>
@@ -78,24 +85,25 @@
     </div>
     {#if wxSource(trip)}<p class="src tp-muted" data-wx-source>{wxSource(trip)}</p>{/if}
   {:else if field === 'bike'}
+    <span class="lbl">{t('Bike')}</span>
     <div class="tp-chips" role="group" aria-label={t('Bike')}>
-      {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={trip.bikeId === b.id} onclick={() => edit.bike(b)}>{b.name}</button>{/each}
+      {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={trip.bikeId === b.id} onclick={() => edit.bike(b)}><Bike size={16} aria-hidden="true" />{b.name}</button>{/each}
+      {#if bikes.length > 1}<button type="button" class="tp-link cmp" onclick={() => { close(); edit.compare(); }}>{t('Compare bikes')}</button>{/if}
     </div>
-    {#if bikes.length > 1}<p class="more"><button type="button" class="tp-link" onclick={() => { close(); edit.compare(); }}>{t('Compare bikes')}</button></p>{/if}
   {/if}
   <footer>
-    <button type="button" class="btn ink" onclick={close}>{t('Done')}</button>
-    <span role="status">{#if edit.canUndo}<button type="button" class="tp-link" onclick={edit.undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</span>
+    <span role="status">{#if edit.canUndo}<button type="button" class="btn" onclick={edit.undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}</span>
+    <button type="button" class="btn hi" onclick={close}>{t('Done')}</button>
   </footer>
 </dialog>
 
 <style>
   .fact-sheet {
-    width: min(440px, calc(100vw - 32px));
+    width: min(640px, calc(100vw - 32px));
     max-height: calc(100dvh - 40px);
     box-sizing: border-box;
-    padding: 18px 20px 20px;
-    border: 1px solid var(--line-strong);
+    padding: 20px;
+    border: 1px solid var(--card-line);
     border-radius: var(--radius-card);
     background: var(--paper);
     color: var(--ink);
@@ -106,20 +114,40 @@
   }
   header {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 4px 16px;
+    align-items: flex-start;
+    gap: 12px;
     margin-bottom: 14px;
+  }
+  .tt {
+    flex: 1;
+    min-width: 0;
   }
   h2 {
     margin: 0;
-    min-width: 0;
-    font-size: var(--fs-sub);
-    font-weight: 600;
+    font: 600 var(--fs-section) / 1.25 var(--font-body);
+    overflow-wrap: break-word;
   }
-  header .tp-link {
-    margin-left: auto;
+  .sub {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .x {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .cmp {
+    padding: 0 6px;
+    font-size: var(--fs-small);
+    text-decoration: none;
   }
   .field {
     display: block;
@@ -159,12 +187,9 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px 18px;
-    margin-top: 18px;
-  }
-  footer .btn {
-    min-height: 44px;
-    padding: 8px 22px;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px;
   }
   @media (max-width: 719px) {
     .fact-sheet {
