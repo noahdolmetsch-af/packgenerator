@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.97.0 Design-Refresh R1 «Darstellung»
+  'The new look starts: the calm colour world «Sage» and the clear font Inter for the whole app.':
+    'Das neue Aussehen beginnt: die ruhige Farbwelt «Salbei» und die klare Schrift Inter für die ganze App.',
+  'Me › Appearance: choose one of 8 fonts, a colour world (the earlier ones stay), small, normal or large text and light or dark, with a preview on the computer.':
+    'Ich › Darstellung: wähle eine von 8 Schriften, eine Farbwelt (die bisherigen bleiben), kleine, normale oder grosse Schrift und hell oder dunkel, mit Vorschau auf dem Computer.',
+  'Dark mode stays, also for the new colour worlds. Everything is only on this device and can be changed back at any time.':
+    'Der Dunkelmodus bleibt, auch für die neuen Farbwelten. Alles gilt nur auf diesem Gerät und lässt sich jederzeit zurückstellen.',
   // 0.96.0 «Alles finden»
   '«What the app can do» shows every function by situation (before the trip, on the way, after the trip …) or, switched, by page of the app. What you never used is on top.':
     '«Was die App alles kann» zeigt jede Funktion nach Situation (vor der Tour, unterwegs, nach der Tour …) oder, umgestellt, nach Seite der App. Was du noch nie benutzt hast, steht oben.',

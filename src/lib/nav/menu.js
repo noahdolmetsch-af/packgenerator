@@ -64,9 +64,11 @@ export const PAGE_GROUPS = [
       { id: 'data', title: 'Your data', action: 'data', icon: 'data', words: 'your data deine daten backup sicherung import export restore wiederherstellen' },
       // v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer.
       { id: 'helper', title: 'Helper', href: '#/helper', icon: 'sparkles', words: 'helper helfer ki ai claude assistant assistent settings einstellungen code limit vorschlag suggestion' },
+      // v0.97.0 Design-Refresh R1: Ich › Darstellung.
+      { id: 'look', title: 'Appearance', href: '#/me/look', icon: 'palette', words: 'appearance darstellung font schrift schriftart colours farben farbwelt salbei sage size grösse gross klein dark dunkel light hell theme stil style' },
       { id: 'features', title: 'What the app can do', href: '#/features', icon: 'sparkles', words: 'what the app can do was die app kann features funktionen tips tipps updates neuerungen' },
-      // v0.76.0: «Ich» itself, with the language, light or dark and the colour world.
-      { id: 'me', title: 'Me|place', href: '#/me', icon: 'user', words: 'me ich settings einstellungen language sprache deutsch english dark dunkel light hell colours farben stil style theme home place heimat keyboard shortcuts tastenkürzel help hilfe version' },
+      // v0.76.0: «Ich» itself, with the language (v0.97.0: the look has its own page).
+      { id: 'me', title: 'Me|place', href: '#/me', icon: 'user', words: 'me ich settings einstellungen language sprache deutsch english home place heimat keyboard shortcuts tastenkürzel help hilfe version' },
     ],
   },
 ];

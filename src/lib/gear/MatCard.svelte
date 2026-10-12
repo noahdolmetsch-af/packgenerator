@@ -124,6 +124,9 @@
     color: var(--ink-3);
     font-weight: 400;
     font-size: var(--fs-small);
+    /* v0.97.0 (Inter is wider): «nicht gewogen» on two lines on a small phone, so the name keeps its room */
+    max-width: 4.5em;
+    white-space: normal;
   }
   .use,
   .dw,

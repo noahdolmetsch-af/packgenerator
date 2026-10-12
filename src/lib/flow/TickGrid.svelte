@@ -47,6 +47,10 @@
     padding: 0;
     list-style: none;
   }
+  /* v0.97.0 (Inter, a little wider than Fira Sans): a narrow tile measures itself, see the end */
+  li {
+    container-type: inline-size;
+  }
   .tile {
     display: flex;
     align-items: center;
@@ -113,6 +117,13 @@
   }
   .tile.done small {
     color: var(--accent);
+  }
+  /* a narrow tile (two per row on a phone, the 150 px ones next to the sidebar): the name one step
+     smaller, so «Spaziergang» and «Liegestütze» stay whole */
+  @container (max-width: 179px) {
+    .tx b {
+      font-size: var(--fs-label);
+    }
   }
   /* a small phone: the words need the room, the symbol goes (a done button keeps its tick) */
   @media (max-width: 359px) {

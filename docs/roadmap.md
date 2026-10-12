@@ -513,6 +513,7 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 12.10.2026 (v0.97.0, PR offen):** Design-Refresh R1 «Darstellung» (G1 neu, Noah «1a 2a 3b 4a 5a»): Salbei und Inter als Standard, Ich › Darstellung mit Schrift, Farbwelt, Grösse und hell/dunkel. Danach R2 heller Kopf und Seitenleiste, R3 Bausteine, R4 Zurück und Schritte; alle anderen Bauten pausieren bis Welle 1 und Heute live sind.
 **Nachtrag 11.10.2026 (v0.96.0, PR offen):** F1 «Alles finden» (Noah «1-5 a», Mockups A/B): «Was die App kann» zeigt alle 84 Funktionen nach Situation, nie Benutztes zuerst, mit «Hinbringen» und «Ausprobieren»; die Suche zeigt Befehle zum Ausprobieren und findet Funktionen. Danach die Kalender-Bausteine Kal1–Kal5 neben D5 (je eine Mockup-Runde).
 **Nachtrag 11.10.2026 (v0.95.0, PR offen):** «Velo kurz» (App einfach D, Noah 5a): Velos › Übersicht mit drei Zeilen, «Fahrten importieren» als Knopf und «Mehr»; Ausstattung ohne orange Hinweise. Danach E «Material Liste zuerst» zusammen mit «Bereiche trennen» B2 (zuerst Mockups).
 

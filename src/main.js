@@ -1,16 +1,36 @@
 import { mount } from 'svelte';
-// Keep the existing typefaces available offline and independent of Google Fonts.
+// Keep the typefaces available offline and independent of Google Fonts.
 // v0.30.1 (Noah B1): the full sets with their unicode ranges (before: only "latin", without a range),
-// so letters like č, ł, ő, ș in an item name come from Fira Sans too instead of the phone's own font in
-// the middle of the name. The browser only loads a set when a page uses one of its letters.
+// so letters like č, ł, ő, ș in an item name come from the chosen font too instead of the phone's own font
+// in the middle of the name. The browser only loads a set when a page uses one of its letters.
+// v0.97.0 Design-Refresh R1 (G1 neu, Noah 11.10 23:10): one font for the whole app, chosen under
+// Ich › Darstellung; Inter by default, the condensed title face is gone. The service worker keeps the
+// latin files of all eight offline (vite.config.js).
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
 import '@fontsource/fira-sans/400.css';
 import '@fontsource/fira-sans/500.css';
 import '@fontsource/fira-sans/600.css';
 import '@fontsource/fira-sans/700.css';
-import '@fontsource/sofia-sans-extra-condensed/latin-600.css';
-import '@fontsource/sofia-sans-extra-condensed/latin-700.css';
-import '@fontsource/sofia-sans-extra-condensed/latin-800.css';
-import '@fontsource/sofia-sans-extra-condensed/latin-900.css';
+import '@fontsource/source-sans-3/400.css';
+import '@fontsource/source-sans-3/600.css';
+import '@fontsource/source-sans-3/700.css';
+import '@fontsource/nunito-sans/400.css';
+import '@fontsource/nunito-sans/600.css';
+import '@fontsource/nunito-sans/700.css';
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import '@fontsource/ibm-plex-sans/700.css';
+import '@fontsource/dm-sans/400.css';
+import '@fontsource/dm-sans/600.css';
+import '@fontsource/dm-sans/700.css';
+import '@fontsource/manrope/400.css';
+import '@fontsource/manrope/600.css';
+import '@fontsource/manrope/700.css';
+import '@fontsource/atkinson-hyperlegible/400.css';
+import '@fontsource/atkinson-hyperlegible/700.css';
 import './app.css';
 // v0.72.0 (D3a): the invisible 44 px tap area of the small buttons on a touch screen
 import './lib/ui/touch.css';
@@ -24,6 +44,7 @@ import { folderBackupSupported, watchForChanges } from './lib/folderBackup.js';
 import { initTheme } from './lib/theme.svelte.js';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
+// v0.97.0: also the font and the text size (Ich › Darstellung).
 initTheme();
 
 // Demo day: the app acts as if it were another day (only while a demo runs).

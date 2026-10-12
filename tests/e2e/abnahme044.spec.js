@@ -137,13 +137,13 @@ test.describe('with the service worker', () => {
     await page.getByRole('searchbox', { name: T('Search gear') }).fill('Multitool');
     const font = () => page.evaluate(async () => {
       try {
-        const faces = await document.fonts.load('600 16px "Fira Sans"', 'Ä');
+        const faces = await document.fonts.load('600 16px "Inter"', 'Ä');
         return faces.length > 0 && faces.every((f) => f.status === 'loaded');
       } catch {
         return false;
       }
     });
-    expect(await font(), 'Fira Sans loads offline').toBe(true);
+    expect(await font(), 'Inter (v0.97.0, the font of the app) loads offline').toBe(true);
     await page.getByRole('button', { name: T('Mark as favourite') }).first().click();
     await page.waitForTimeout(300);
     await page.reload();
