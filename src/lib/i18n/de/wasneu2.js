@@ -23,7 +23,9 @@ export default {
   'Used|count': 'Genutzt',
   'New|news': 'Neu',
   'Never|used': 'Noch nie',
-  'Nothing counted yet: open a function with «Take me there», and it counts here.': 'Noch nichts gezählt: Öffne eine Funktion mit «Hinbringen», dann zählt sie hier.',
+  // v0.110.0 (Noah 12.10.2026 «3 loslegen / eng. go»): the button on What is new says «Loslegen»
+  'Go|news': 'Loslegen',
+  'Nothing counted yet: open a function with «Go», and it counts here.': 'Noch nichts gezählt: Öffne eine Funktion mit «Loslegen», dann zählt sie hier.',
   'Counted only on this device, how often you open a function. Nothing leaves it.': 'Gezählt wird nur auf diesem Gerät, wie oft du eine Funktion öffnest. Nichts geht weg.',
   'Chosen once: what brings the most when packing, riding and caring. Beside it «Your top 10», which counts what you use.':
     'Fest ausgewählt: was beim Packen, Fahren und Pflegen am meisten bringt. Daneben «Deine Top 10», die zählt, was du nutzt.',
@@ -62,7 +64,7 @@ export default {
   'Other sorts': 'Andere Sortierungen',
   'Two rankings': 'Zwei Ranglisten',
   'what brings the most, chosen once': 'was am meisten bringt, fest ausgewählt',
-  'Each row leads with «Take me there» straight to its place in the app.': 'Jede Zeile führt mit «Hinbringen» direkt an die Stelle in der App.',
+  'Each row leads with «Go» straight to its place in the app.': 'Jede Zeile führt mit «Loslegen» direkt an die Stelle in der App.',
 
   /* ---------- I11b the message after an update ---------- */
   'New in {v}: {name}': 'Neu in {v}: {name}',

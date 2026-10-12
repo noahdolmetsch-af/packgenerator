@@ -20,7 +20,7 @@ export default {
   'For 14 days after an update the tile «New» sits on top of Today, with «Try it», «What is new» and «Take away».':
     '14 Tage nach einem Update steht die Kachel «Neu» oben auf Heute, mit «Ausprobieren», «Was ist neu» und «Wegnehmen».',
   'Open Me › What is new and tap «Your top 10».': 'Ich › Was ist neu öffnen und «Deine Top 10» antippen.',
-  'Tap «Take me there» at a function: its place opens.': 'Bei einer Funktion «Hinbringen» antippen: Ihre Stelle öffnet sich.',
+  'Tap «Go» at a function: its place opens.': 'Bei einer Funktion «Loslegen» antippen: Ihre Stelle öffnet sich.',
   'Go back: the function now counts once more.': 'Zurückgehen: Die Funktion zählt jetzt einmal mehr.',
   // 0.109.0 Design-Refresh P6 «Rückblick, Auswerten, Fahrten»
   'The new look, step 12: the end of a trip and the debrief in two columns, with the items as chips by bag.':

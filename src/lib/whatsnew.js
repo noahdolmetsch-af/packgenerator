@@ -25,7 +25,7 @@ export const WHATS_NEW = [
     ],
     test: [
       'Open Me › What is new and tap «Your top 10».',
-      'Tap «Take me there» at a function: its place opens.',
+      'Tap «Go» at a function: its place opens.',
       'Go back: the function now counts once more.',
     ],
   },

@@ -127,9 +127,9 @@
 
 {#snippet takeMe(r)}
   {#if r.tip}
-    <TipButton id={r.tip} {next} cls="btn sm wn-go">{t('Take me there')}<ChevronRight size={16} aria-hidden="true" /></TipButton>
+    <TipButton id={r.tip} {next} cls="btn sm wn-go">{t('Go|news')}<ChevronRight size={16} aria-hidden="true" /></TipButton>
   {:else}
-    <button type="button" class="btn sm wn-go" onclick={() => goFeature(r, { bikeId })}>{t('Take me there')}<ChevronRight size={16} aria-hidden="true" /></button>
+    <button type="button" class="btn sm wn-go" onclick={() => goFeature(r, { bikeId })}>{t('Go|news')}<ChevronRight size={16} aria-hidden="true" /></button>
   {/if}
 {/snippet}
 
@@ -216,7 +216,7 @@
             {/each}
           </ol>
           {#if !shown.length}
-            <p class="wn-none" role="status">{by === 'top' && !q.trim() ? t('Nothing counted yet: open a function with «Take me there», and it counts here.') : t('No function found for «{q}».', { q: q.trim() })}</p>
+            <p class="wn-none" role="status">{by === 'top' && !q.trim() ? t('Nothing counted yet: open a function with «Go», and it counts here.') : t('No function found for «{q}».', { q: q.trim() })}</p>
           {/if}
           {#if by === 'top'}
             <p class="wn-foot">{t('Counted only on this device, how often you open a function. Nothing leaves it.')}</p>
@@ -282,7 +282,7 @@
               {/each}
             </ul>
           </section>
-          <p class="ich-fine"><Lightbulb size={16} aria-hidden="true" /><span>{t('Each row leads with «Take me there» straight to its place in the app.')}</span></p>
+          <p class="ich-fine"><Lightbulb size={16} aria-hidden="true" /><span>{t('Each row leads with «Go» straight to its place in the app.')}</span></p>
         {/if}
       {:else}
         <!-- I11b: the message after an update, switched here -->

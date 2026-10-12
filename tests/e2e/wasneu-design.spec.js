@@ -120,15 +120,15 @@ test('I11c and I11d: the whole list by Your top 10 (counted on this device) and 
   await expect(page.getByRole('button', { name: T('Your top 10'), exact: true })).toHaveAttribute('aria-pressed', 'true');
   // nothing counted yet: a calm line, no rows
   await expect(page.locator('.wn-rows > li')).toHaveCount(0);
-  await expect(page.getByText(T('Nothing counted yet: open a function with «Take me there», and it counts here.'))).toBeVisible();
+  await expect(page.getByText(T('Nothing counted yet: open a function with «Go», and it counts here.'))).toBeVisible();
 
-  // «Take me there» opens the place and counts once, only in this browser (localStorage)
+  // «Loslegen» («Go») opens the place and counts once, only in this browser (localStorage)
   await page.getByRole('button', { name: T('Most important 10'), exact: true }).click();
   expect(await rows(page)).toEqual(BEST);
   await expect(page.locator('.wn-rank')).toHaveCount(BEST.length);
   await expect(page.getByRole('heading', { name: T('Two rankings') })).toBeVisible();
   await shot(page, info, 'I11d-wichtigste10');
-  await page.locator('.wn-rows > li[data-feature="f.basecheck"]').getByRole('button', { name: T('Take me there') }).click();
+  await page.locator('.wn-rows > li[data-feature="f.basecheck"]').getByRole('button', { name: T('Go|news') }).click();
   await expect(page).toHaveURL(/#\/ride/);
   await expect.poll(() => page.evaluate((k) => JSON.parse(localStorage.getItem(k)), USES_KEY)).toEqual({ 'f.basecheck': 1 });
   await page.goto('./#/me/news?all&sort=top');
