@@ -73,6 +73,7 @@ Note = tiefste Kriteriumsnote im letzten Audit (– = noch nicht geprüft).
 
 | Bereich | Screen oder Dialog | Letztes Audit | Note |
 |---|---|---|---|
+| Velos | Pflege › Strava (S1–S3), Zum Prüfen (S5) | 12.10.2026 (0.112 neu nach Mockups S1–S5) | – |
 | Heute | Startseite | 10.10.2026 (0.73 ruhiger nach Mockups heute-ruhig A und fotoalbum-neu A) | 4 |
 | Heute | Neu-Blatt, Mehr-Menü, Suche | – | – |
 | Touren | Tour/Packen (Liste, Packtag, Velozeichnung, Taschen) | 9.10.2026 (0.52: Karte «Am Körper», Blatt «Tauschen») | 4 |
@@ -127,6 +128,7 @@ Nach der Mitziehen-Regel: was in 0.47 noch nicht auf dem neuen Stand ist, mit Zi
 - Heute, Touren-Übersicht, Rückblick, Unterwegs: Karten-Token wirken schon, Kopf und Zahlen noch nicht nach Stilblatt. Ziel D2/D3.
 
 ## Protokoll
+- 12.10.2026, 0.112.0 «Strava-Verbindung»: nach S1–S5 (`design/e3-strava/`, freigegeben 13:39). Gebaut aus den Bausteinen der Velo-Seiten (VeloHead, `vsec`/`vh`/`vlist`/`orow` wie Pflege-Übersicht, `.card`, `.btn`, Empty) und dem Kachelkopf von Heute (TileHead). Neue Dateien `src/lib/strava/*.svelte` streng im Stil-Lint, Routen `#/bikes?tab=care&view=strava` und `view=strava-check` streng im Konsistenz-Test. Abweichungen: Zuordnung zeigt «Hauptvelo in Strava» statt «Standard für …», Hinweis «Velo in Strava geändert» auf Heute als eigene Zeile über der Kachel-Wand.
 - 12.10.2026, 0.110.0 Design-Refresh P10 «Was ist neu»: nach I11 v2, I11b v2, I11c, I11d, I11e (`design/refresh-2026-10/runde20-ich/`). Neue Seite `pages/WasNeu.svelte` (Stil `ich/ich.css`), Meldung `know/NewsSheet.svelte` im Fenster-Look (`vdlg`, am Handy von unten), Kachel `home/NewsTile.svelte` getönt mit drei Knöpfen. Regeln in `know/wasneu.js`, Gerätespeicher `know/wasneuStore.js`. Deutsche Texte in `i18n/de/wasneu2.js`. Wächter: `#/me/news` und `#/me/news?all&sort=best` streng.
 - 12.10.2026, 0.109.0 Design-Refresh P6 «Rückblick, Auswerten, Fahrten»: nach T14–T23 (`design/refresh-2026-10/runde6-touren/`, `runde7-touren/`). Gemeinsamer Stil `review/review.css` (rv-*), das alte `review/Band.svelte` ist weg; Debrief und Fahrten ohne lose Farben und Schriftgrössen (Stil-Baseline kleiner). Deutsche Texte in `i18n/de/rueckblick2.js`.
 - 12.10.2026, 0.108.0 Design-Refresh P9 «Ich»: nach I1–I10, I12, I13 (`design/refresh-2026-10/runde16-aktiv-ich/`, `runde19-ich/`, `runde20-ich/`) und B20/B35. Neue Seiten `pages/Data.svelte`, Aufs Handy mit `ich/QrCode.svelte`, Fenster `ich/HomePlaceSheet.svelte`, gemeinsamer Stil `ich/ich.css`. Deutsche Texte in `i18n/de/ich2.js`.
