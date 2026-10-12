@@ -14,13 +14,12 @@ export const WHATS_NEW = [
     // v0.112.0 «Strava-Verbindung» (E3, mockups S1–S5 approved by Noah 12.10.2026 13:39)
     version: '0.112.0',
     date: '2026-10-12',
-    title: 'Strava connection',
+    title: 'Rides from Strava',
     lead: 'The app fetches your rides with their bike straight from Strava, so every ride lands on the right bike.',
     points: [
       { text: 'Bike › Care › Strava: connect once, the app fetches all old rides without counting one twice and shows what it found.', href: '#/bikes?tab=care&view=strava' },
-      { text: 'New rides come by themselves when the app opens, or only with «Fetch now». A ride without a bike waits in «To check» with a suggestion.', href: '#/bikes?tab=care&view=strava' },
+      { text: 'New rides come by themselves when the app opens, or only with «Fetch now». A ride without a bike waits in «To check» with a suggestion. The file import stays as the reserve.', href: '#/bikes?tab=care&view=strava' },
       { text: 'A ride got another bike in Strava: Today and the bike ask «Take over» or «Keep». The tile «Strava» on Today shows the new rides.', href: '#/' },
-      { text: 'The file import stays as the reserve under Strava › More.', href: '#/bikes?tab=care&view=import' },
     ],
     test: [
       'Open Bike › Care › Strava and tap «Connect with Strava».',

@@ -21,6 +21,8 @@ const SORTS = [...SRC.match(/export const SORTS = \[([\s\S]*?)\n\];/)[1].matchAl
 const num = (name) => Number(SRC.match(new RegExp(`export const ${name} = (\\d+);`))[1]);
 const LIST_ROWS = num('LIST_ROWS');
 const TILE_DAYS = num('TILE_DAYS');
+// v0.112.0: the function that came with the newest version (SINCE in wasneu.js)
+const NEWEST_FN = SRC.match(new RegExp(`'([\\w.]+)': '${NEWEST.version.replace(/\./g, '\\.')}'`))[1];
 const USES_KEY = SRC.match(/export const USES_KEY = '([^']+)'/)[1];
 const FEATURE_N = (() => {
   const f = readFileSync(new URL('../../src/lib/features.js', import.meta.url), 'utf8');
@@ -82,8 +84,9 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await expect(page.getByRole('group', { name: T('Sort') }).getByRole('button')).toHaveCount(SORTS.length);
   await expect(page.getByRole('button', { name: T('Newest'), exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.wn-rows > li')).toHaveCount(LIST_ROWS);
-  expect((await rows(page))[0]).toBe('f.news');
-  await expect(page.locator('.wn-rows > li[data-feature="f.news"] .wn-new')).toBeVisible();
+  // the function of the newest version first, marked «new» (v0.112.0: «Strava connection»)
+  expect((await rows(page))[0]).toBe(NEWEST_FN);
+  await expect(page.locator(`.wn-rows > li[data-feature="${NEWEST_FN}"] .wn-new`)).toBeVisible();
   await expect(page.getByRole('link', { name: new RegExp(T('All {n} functions', { n: FEATURE_N })) })).toHaveAttribute('href', '#/me/news?all&sort=new');
   await page.getByRole('button', { name: T('Name A–Z'), exact: true }).click();
   await expect(page.locator('.wn-rows > li')).toHaveCount(LIST_ROWS);
@@ -103,7 +106,7 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   const sw = page.getByRole('switch', { name: new RegExp(T('Show the message for {v}', { v: V })) });
   await expect(sw).toBeChecked();
   await expect(page.getByRole('heading', { name: T('Since your last visit') })).toBeVisible();
-  await expect(page.locator('section[aria-labelledby="wn-since-h"] [data-feature="f.news"]')).toBeVisible();
+  await expect(page.locator(`section[aria-labelledby="wn-since-h"] [data-feature="${NEWEST_FN}"]`)).toBeVisible();
   await expect(page.getByRole('heading', { name: T('How to test {v}', { v: V }) })).toBeVisible();
   await expect(page.getByRole('heading', { name: T('Planned next') })).toBeVisible();
   await noSideways(page);
