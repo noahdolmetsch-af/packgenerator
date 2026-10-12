@@ -32,8 +32,10 @@ describe('the stored wall', () => {
     expect(w.some((x) => x.id === 'bikes')).toBe(true);
   });
   it('drops unknown tiles and doubles, fixes sizes', () => {
-    const w = wallOf({ v: 3, tiles: [{ id: 'news', size: 'long' }, { id: 'nope', size: 's' }, { id: 'news', size: 's' }, null, { id: 'year', size: 'long' }] });
-    expect(w).toEqual([{ id: 'news', size: 'w' }, { id: 'year', size: 'long' }]);
+    // v0.110.0 (I11e): «New in the app» may be a whole row now; the playground still may not
+    const w = wallOf({ v: 3, tiles: [{ id: 'play', size: 'long' }, { id: 'nope', size: 's' }, { id: 'play', size: 'w' }, null, { id: 'year', size: 'long' }] });
+    expect(w).toEqual([{ id: 'play', size: 's' }, { id: 'year', size: 'long' }]);
+    expect(wallOf({ v: 3, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }]);
     expect(wallRecord(w)).toEqual({ v: 3, tiles: w });
     expect(wallOf({ v: 3, tiles: [] })).toEqual([]);
   });
@@ -61,12 +63,13 @@ describe('the stored wall', () => {
     expect(stepTile(w, 'news', -1).map((x) => x.id)).toEqual(['news', 'trip', 'play']);
     expect(stepTile(w, 'trip', -1).map((x) => x.id)).toEqual(['trip', 'news', 'play']);
     expect(resizeTile(w, 'news', 's')[1].size).toBe('s');
-    expect(resizeTile(w, 'news', 'long')[1].size).toBe('w');
+    expect(resizeTile(w, 'news', 'l')[1].size).toBe('w'); // v0.110.0: 'long' is a size of «New» now, 'l' is not
     expect(removeTile(w, 'news').map((x) => x.id)).toEqual(['trip', 'play']);
     expect(addTile(w, 'milestones').at(-1)).toEqual({ id: 'milestones', size: 's' });
     expect(addTile(w, 'news')).toBe(w);
     expect(addTile(w, 'nope')).toBe(w);
-    expect(nextSize('news', 'w')).toBe('s');
+    expect(nextSize('news', 'w')).toBe('long'); // v0.110.0 (I11e): s → w → whole row → s
+    expect(nextSize('news', 'long')).toBe('s');
     expect(nextSize('series', 'w')).toBe('l');
     expect(sizeFor('nope', 'l')).toBe('s');
   });
