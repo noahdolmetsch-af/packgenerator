@@ -862,6 +862,16 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 13.10.2026: UI-Prüfung der Live-App und Fehler-Fix 0.111.1
+
+Claude hat 0.110.0 und 0.111.0 aus Nutzersicht durchgeklickt (alle Seiten, Computer und Handy, rund 700 Knöpfe, erfundene Testdaten). Bericht mit 15 Befunden: https://claude.ai/artifact/ABifxRDhYYkvEaAyFCDgM4. Noah 13.10.2026 00:13/00:14 Zürich «1a 2a» und «3a4a 5a»:
+
+- **1a:** Der Absturz A1 (alte Rückblicke ohne Teileliste öffnen eine leere Seite) kommt sofort als kleiner Fix ohne sichtbare Änderung: 0.111.1.
+- **2a:** «Zahlen stimmen» (gleiche Zahl, gleicher Wert auf allen Seiten) als kleiner Release in Bündel A, mit Mockup vorher/nachher (Thread «Design-Refresh»).
+- **3a:** Die Unterwegs-Ansicht (Heute und Packen zeigen während der Tour den Tag statt Pack-Aufgaben) und die zwei Leisten unten am Handy kommen mit Skitour-Erlebnis (Bündel C).
+- **4a:** Heute aufräumen (doppelte Kacheln, abgeschnittene Knöpfe der Kachel «Neu» am Handy) kommt mit «Was ist neu 2» (W1–W3) im Design-Refresh.
+- **5a:** Der Kleinkram (Texte, Silbentrennung im Kleiderschrank, Tabelle am Handy, «Nicht gebraucht»-Häkchen, Backup-Satz, «Problem melden») fährt in Bündel A mit, ein Mockup-Blatt vorher/nachher.
+
 ## 12.10.2026: Bausteine bearbeiten, Teil 1: Vorabend- und Schluss-Check (0.111.0)
 
 Nach den Mockups A–F «Bausteine bearbeiten» (Offene Mockups #bausteine-bearbeiten, Trello «Bausteine bearbeiten»), Noah im Thread 12.10.2026 «freigabe 1-5a: bausteine bearbeiten und ansehen». Das sind Antworten auf die a/b-Fragen, noch keine Freigabe der Bilder: Die Mockups A und B brauchen Noahs ausdrückliche Freigabe, bevor der PR bereit ist (gefragt 12.10.2026). Noah 12.10.2026 16:18 «4b»: der Thread «Design-Refresh alle Seiten» übernimmt den PR, neu als 0.111.0 nach dem Design-Refresh.

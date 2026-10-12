@@ -11,6 +11,20 @@
 
 export const WHATS_NEW = [
   {
+    // 0.111.1 (UI-Prüfung A1): an old debrief without its item list opened an empty page.
+    version: '0.111.1',
+    date: '2026-10-13',
+    title: 'Old trips open again',
+    lead: 'The debrief of an older trip opened an empty page; now it opens like any other.',
+    points: [
+      { text: 'Fixed: the debrief of an older trip (from an old backup or the Excel import) opened an empty page. It opens again, every item counted as used.', href: '#/pack/past' },
+    ],
+    test: [
+      'Open Trips › Look back › Past trips and tap an older trip.',
+      'The debrief opens with its numbers and «Not used».',
+    ],
+  },
+  {
     version: '0.111.0',
     date: '2026-10-12',
     title: 'Checks before and after',
