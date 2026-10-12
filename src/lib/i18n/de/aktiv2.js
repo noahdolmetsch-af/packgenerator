@@ -43,6 +43,14 @@ export default {
   'Suggestion for today': 'Vorschlag für heute',
   'by day, weather and rings': 'nach Tag, Wetter und Ringen',
   '{n} soon within reach': '{n} bald erreichbar',
+  // A8 Meilensteine
+  'all stars': 'alle Sterne',
+  'Only the next star per milestone · stars reached stay · no ranking': 'Nur der nächste Stern pro Meilenstein · erreichte Sterne bleiben · keine Rangliste',
+  'Change stages': 'Stufen ändern',
+  'from 80 %': 'ab 80 %',
+  'All milestones': 'Alle Meilensteine',
+  'Trophy shelf': 'Trophäen-Regal',
+  'reached lately': 'zuletzt erreicht',
   // B22 Ziel-Pfad
   '{value} of {target}, {n} stations to go': '{value} von {target}, noch {n} Stationen',
   '{left} to go': 'noch {left}',
