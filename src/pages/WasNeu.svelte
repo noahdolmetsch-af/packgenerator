@@ -316,7 +316,7 @@
             <ul class="card ich-list">
               {#each never as r (r.id)}
                 {@const Icon = GROUP_ICON[GROUP[r.group].icon]}
-                <li class="ich-row" data-feature={r.id}><span class="ich-ib"><Icon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(r.title)}</b><small>{t(GROUP[r.group].label)}</small></span><button type="button" class="btn sm" onclick={() => (play = r.play)}>{t('Try it')}</button></li>
+                <li class="ich-row ich-wrap" data-feature={r.id}><span class="ich-ib"><Icon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(r.title)}</b><small>{t(GROUP[r.group].label)}</small></span><button type="button" class="btn sm" onclick={() => (play = r.play)}>{t('Try it')}</button></li>
               {/each}
             </ul>
           </section>
@@ -485,6 +485,12 @@
   .wn-head {
     display: none;
   }
+  /* a small phone: the name over the whole row, the state and the button below it */
+  @media (max-width: 419px) {
+    .wn-row {
+      grid-template-areas: 'fn fn' 'use act';
+    }
+  }
   .wn-fn {
     grid-area: fn;
     display: flex;
@@ -592,7 +598,7 @@
   }
   @media (min-width: 720px) {
     .wn-row {
-      grid-template-columns: minmax(0, 2.6fr) minmax(0, 1.2fr) minmax(0, 0.6fr) minmax(0, 0.9fr) auto;
+      grid-template-columns: minmax(0, 2.6fr) minmax(0, 1.2fr) minmax(68px, 0.7fr) minmax(0, 0.9fr) auto;
       grid-template-areas: 'fn cat third use act';
     }
     .wn-head {
