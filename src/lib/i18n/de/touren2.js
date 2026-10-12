@@ -16,4 +16,7 @@ export default {
   'No forecast right now. It needs the internet once.': 'Gerade keine Vorhersage. Dafür braucht es einmal Internet.',
   'All|best': 'Alle',
   'and': 'und',
+  // T2 Neue Tour
+  'Name, date, bike and packing list. Everything can be changed later.': 'Name, Datum, Velo und Packliste. Alles später änderbar.',
+  'Packing list starts with': 'Packliste startet mit',
 };

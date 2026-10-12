@@ -4,7 +4,7 @@
   import '../trip/trip.css';
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { Check, ChevronRight } from '@lucide/svelte';
+  import { Check, ChevronRight, Bike as BikeIcon } from '@lucide/svelte';
   import { db } from '../db.js';
   import { newTrip, lastTripOn, switchBike, WX_PRESETS, bagItemIds, touched } from '../trips.js';
   import { newBikeRecord } from '../bikes.js';
@@ -42,6 +42,10 @@
    * itself, building blocks to add (Rain, Light, own blocks …), template or last trip folded away,
    * and "Create trip · n items". Standard + Rain = 4 clicks (+, Plan a trip, Rain, Create).
    * bags: the containers (Pack's), so a block skips the bags themselves like Pack's block chips.
+   * v0.102.0 Design-Refresh P4 «Touren» (T2, approved 12.10.2026 «Touren T1–T6 freigegeben»): a light
+   * window: title with one sentence, the kind of trip as chips (the area), the name right under it, the
+   * bike chips with a bike, when and how long, «Packliste startet mit» as a gallery (standard, the last
+   * trip, the templates), the helper's notice at the end and «Abbrechen · Tour anlegen» on the right.
    */
   let { trip, trips: allTrips, bikes, items, bags = [], templates = [], startFrom = 'standard', domain = null, defaultBikeId = null, onclose, oncreated, onchange = null } = $props();
 
@@ -296,9 +300,6 @@
       daysInput?.focus();
     }
   }
-  // v0.40.0 (Noah 10a): the area and the other starts are folded.
-  let areaOpen = $state(false);
-  let startsOpen = $state(false);
   // Templates in words: "1 day · 2 h · Standard + Rain", else their item count.
   const stdIds = $derived(bike ? newTrip({ title: '', startDate: '', days: 1, bike, overnight: 'none' }, [], items, 0).entries.map((e) => e.itemId) : []);
   function tplLine(tp) {
@@ -312,12 +313,9 @@
     parts.push(linked ? blocksLine(linked, blockLabel) : blocksLine(templateBlocks((tp.entries ?? []).map((e) => e.itemId), stdIds, sets, items), (s) => s.label));
     return parts.join(' · ');
   }
-  let tplOpen = $state(false);
   function pickStart(id) {
     start = id;
     useTemplate(id);
-    tplOpen = false;
-    startsOpen = false;
   }
 
   // L9: "+ Add a bike" inside the dialog when there is no bike (it was a dead end: "Choose a bike." without a choice).
@@ -517,38 +515,40 @@
   {/if}
 {/snippet}
 
+{#snippet art(n)}
+  <!-- v0.102.0 P4 (T2): the gallery picture, three calm mountain tints in turn -->
+  <svg class="art t{n % 3}" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true"><rect width="120" height="40" class="sky" /><circle cx="94" cy="11" r="5" class="sun" /><path d="M0 34 L22 16 L38 28 L60 8 L80 26 L96 18 L120 32 L120 40 L0 40 Z" class="m1" /><path d="M0 40 L0 32 L26 24 L52 33 L78 25 L120 34 L120 40 Z" class="m2" /></svg>
+{/snippet}
+
 <dialog class="sheet trip-dlg" bind:this={dialog} use:backClose={keepOnBack} onclose={closed} aria-labelledby="trip-h">
   <form onsubmit={save} novalidate>
-    <!-- v0.30.0 (Noah, finding 2): the dark band of the trip pages on top. -->
-    <div class="band"><h2 id="trip-h" class="title">{isNew ? t('New trip') : t('Trip details')}</h2></div>
-    <!-- v0.77.0 (answers 1a, 8a): «Frag den Helfer» on top; before the setup a calm notice, switched off nothing. -->
-    {#if isNew && helper.loaded}
-      {#if !isSetUp()}
-        <section class="kh-setup"><p class="lbl">{t('Ask the helper')}</p><HelperNotice onsetup={() => dialog.close()} /></section>
-      {:else if isOn()}
-        <TripAsk {items} {bikes} {sets} areas={askAreas} prefill={askPrefill} onapply={takeProposal} />
-      {/if}
+    <!-- v0.102.0 P4 (T2): a light head with one sentence (the dark band is gone). -->
+    <header class="dh">
+      <h2 id="trip-h">{isNew ? t('New trip') : t('Trip details')}</h2>
+      {#if isNew}<p class="dsub">{t('Name, date, bike and packing list. Everything can be changed later.')}</p>{/if}
+    </header>
+    <!-- v0.77.0 (answers 1a, 8a): «Frag den Helfer» on top once it is set up. Before the setup its calm notice is at the end. -->
+    {#if isNew && helper.loaded && isSetUp() && isOn()}
+      <TripAsk {items} {bikes} {sets} areas={askAreas} prefill={askPrefill} onapply={takeProposal} />
     {/if}
     {#if isNew}
-      <!-- v0.21.0 (package 5): the area first; it decides bike or own bags.
-           v0.40.0 (Noah 10a): folded as one row "Area · Bikepacking ›", the last chosen area preselected. -->
-      <details class="tp-fold area-fold" bind:open={areaOpen}>
-        <summary><span>{t('Area')}</span><span class="r"><b class="cur">{t(domainName(area))}</b></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
-        <fieldset class="area in">
-          <legend class="sr">{t('Area')}</legend>
-          <div class="areas">
-            {#each TRIP_DOMAINS as d (d.key)}<button type="button" class="toggle" aria-pressed={area === d.key} onclick={() => ((area = d.key), (areaOpen = false))}>{t(d.name)}</button>{/each}
-          </div>
-        </fieldset>
-      </details>
+      <!-- v0.21.0 (package 5): the area first; it decides bike or own bags. The last chosen area preselected.
+           v0.102.0 P4 (T2): the kinds of trip as chips in sight («Tourart»), no fold. -->
+      <fieldset class="ctx area">
+        <legend class="lbl">{t('Area')}</legend>
+        <div class="tp-chips areas">
+          {#each TRIP_DOMAINS as d (d.key)}<button type="button" class="tp-chip" aria-pressed={area === d.key} onclick={() => (area = d.key)}>{t(d.name)}</button>{/each}
+        </div>
+      </fieldset>
     {/if}
     {#if isNew && byBike}
+      <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
       <!-- v0.30.0 (Noah, finding 2): the whole new bike trip in one window. -->
       {#if bikes.length}
         <fieldset class="ctx">
           <legend class="lbl">{t('Bike')}</legend>
           <div class="tp-chips">
-            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => (draft.bikeId = b.id)}>{b.name}</button>{/each}
+            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => (draft.bikeId = b.id)}><BikeIcon size={16} aria-hidden="true" />{b.name}</button>{/each}
           </div>
         </fieldset>
       {:else}
@@ -612,21 +612,17 @@
       <!-- L9: only real choices: no last trip, no "Copy the last trip"; nothing to choose, no "Start from".
            v0.40.0 (Noah 10a, Funde 7a): the standard first; the last trip and the templates folded below
            it as one row "Start differently ›". -->
+      <!-- v0.40.0 (Noah 10a, Funde 7a): the standard first, the last trip and the templates as other starts.
+           v0.102.0 P4 (T2, Vorlagen-Galerie G10): «Packliste startet mit» as a gallery in sight; one tap. -->
       {#if from || areaTemplates.length}
-        <details class="tp-fold starts" bind:open={startsOpen}>
-          <summary><span>{t('Start differently')}</span><span class="r">{#if start !== 'standard'}<b>{chosenTpl ? chosenTpl.name : t('Copy|start')}</b>{/if}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
-          <div class="in">
-            {#if from}<button type="button" class="opt" aria-pressed={start === 'last'} onclick={() => ((start = 'last'), (startsOpen = false))}><b>{t('Copy the last trip: {title}', { title: from.title })}</b></button>{/if}
-            {#if areaTemplates.length}
-              <details class="tp-fold tpls" bind:open={tplOpen}>
-                <summary><span>{t('Start from a template')}</span><span class="r"><span class="num">{areaTemplates.length}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
-                <ul class="in opts">
-                  {#each areaTemplates as tp (tp.id)}<li><button type="button" class="opt" aria-pressed={start === tp.id} onclick={() => pickStart(tp.id)}><b>{tp.name}</b><span>{tplLine(tp)}</span></button></li>{/each}
-                </ul>
-              </details>
-            {/if}
-          </div>
-        </details>
+        <fieldset class="ctx starts">
+          <legend class="lbl">{t('Packing list starts with')}</legend>
+          <ul class="gal">
+            <li><button type="button" class="gcard" aria-pressed={start === 'standard'} onclick={() => (start = 'standard')}>{@render art(0)}<b>{t('Standard')}</b><small>{t('always with you')}</small></button></li>
+            {#if from}<li><button type="button" class="gcard" aria-pressed={start === 'last'} onclick={() => (start = 'last')}>{@render art(1)}<b>{t('Last trip')}</b><small>{from.title}</small></button></li>{/if}
+            {#each areaTemplates as tp, n (tp.id)}<li><button type="button" class="gcard" aria-pressed={start === tp.id} onclick={() => pickStart(tp.id)}>{@render art(n + 2)}<b>{tp.name}</b><small>{tplLine(tp)}</small></button></li>{/each}
+          </ul>
+        </fieldset>
       {/if}
       {#if rideChips.length || blocks.length || comfortItems.length}
         <section class="blocks" aria-labelledby="blocks-h">
@@ -655,7 +651,6 @@
         </section>
       {/if}
       {@render helperItems()}
-      <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
       <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
     {:else}
       <div class="grid">
@@ -708,13 +703,16 @@
         <p class="note">{t('The trip takes the bags of the new bike. Items in a place without a bag move to the seat pack.')}</p>
       {/if}
     {/if}
+    {#if isNew && helper.loaded && !isSetUp()}
+      <section class="kh-setup"><p class="lbl">{t('Ask the helper')}</p><HelperNotice onsetup={() => dialog.close()} /></section>
+    {/if}
     <p class="err" role="alert">{error}</p>
     <div class="foot">
+      {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete trip')}</button>{/if}
+      {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
+      {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
       <!-- v0.30.0 (Noah, finding 2): the live item count on the one orange button. -->
       <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}{#if total}<span class="cnt">{` · ${tn(total, '{n} item', '{n} items')}`}</span>{/if}</button>
-      {#if isNew && autoId}<button type="button" class="btn" onclick={discard}>{t('Discard')}</button><span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span>
-      {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
-      {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete trip')}</button>{/if}
     </div>
   </form>
 </dialog>
@@ -732,11 +730,11 @@
   }
   .toggle {
     min-height: 44px;
-    border: 1.5px solid var(--ink-3);
+    border: 1px solid var(--line-strong);
     background: var(--paper);
     border-radius: 999px;
     padding: 5px 14px;
-    font: 600 15px var(--font-body);
+    font: 500 var(--fs-small) var(--font-body);
     color: var(--ink);
     cursor: pointer;
   }
@@ -816,11 +814,93 @@
   .trip-dlg {
     width: min(600px, calc(100vw - 24px));
   }
-  .band {
-    margin: -18px -18px 14px;
-    padding: 14px 18px;
-    background: var(--brand);
-    color: var(--brand-ink);
+  /* v0.102.0 P4 (T2): the light head of the window */
+  .trip-dlg {
+    padding: 22px 22px 18px;
+    border-radius: var(--radius-card);
+  }
+  .dh {
+    margin: 0 0 4px;
+  }
+  .dsub {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .area .areas {
+    gap: 6px;
+  }
+  .gal {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .gcard {
+    display: grid;
+    gap: 2px;
+    width: 100%;
+    height: 100%;
+    padding: 0 0 8px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: var(--r-ctl);
+    background: var(--paper);
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+  }
+  .gcard[aria-pressed='true'] {
+    border-color: var(--ink);
+  }
+  .gcard b,
+  .gcard small {
+    padding: 0 8px;
+    overflow-wrap: break-word;
+  }
+  .gcard b {
+    margin-top: 6px;
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .gcard small {
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+  }
+  .art {
+    display: block;
+    width: 100%;
+    height: 56px;
+  }
+  .art .sky {
+    fill: var(--hi-soft);
+  }
+  .art .sun {
+    fill: var(--paper);
+  }
+  .art .m1 {
+    fill: var(--l3);
+    opacity: 0.55;
+  }
+  .art .m2 {
+    fill: var(--hi);
+  }
+  .art.t1 .sky {
+    fill: var(--info-soft);
+  }
+  .art.t1 .m2 {
+    fill: var(--ink-3);
+  }
+  .art.t2 .sky {
+    fill: var(--warn-soft);
+  }
+  .art.t2 .m1 {
+    fill: var(--l2);
+  }
+  .art.t2 .m2 {
+    fill: var(--warn);
   }
   .ctx .tp-chips {
     align-items: center;
@@ -887,7 +967,7 @@
   }
   /* v0.77.0: the helper's notice before the setup, like the «Frag den Helfer» field after it */
   .kh-setup {
-    margin: 4px 0 16px;
+    margin: 16px 0 0;
   }
   .blocks {
     margin-top: 16px;
@@ -902,51 +982,6 @@
   .blk small {
     font-size: 13px;
     opacity: 0.85;
-  }
-  .starts {
-    margin-top: 12px;
-  }
-  .starts > .in {
-    display: grid;
-    gap: 8px;
-  }
-  .starts .tpls {
-    margin: 0;
-  }
-  .area-fold {
-    margin-bottom: 4px;
-  }
-  .area-fold .cur {
-    color: var(--ink);
-    font-weight: 600;
-  }
-  .starts .opts {
-    list-style: none;
-    margin: 0;
-    display: grid;
-    gap: 8px;
-  }
-  .opt {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    width: 100%;
-    min-height: 56px;
-    padding: 10px 14px;
-    border: 1.5px solid var(--line);
-    border-radius: 10px;
-    background: var(--paper);
-    color: var(--ink);
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-  .opt[aria-pressed='true'] {
-    border-color: var(--ink);
-  }
-  .opt span {
-    color: var(--ink-3);
-    font-size: 14px;
   }
   .row {
     display: flex;
@@ -1026,6 +1061,8 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
   }
   .kept {
     display: inline-flex;
@@ -1035,7 +1072,7 @@
     color: var(--ink-3);
   }
   .del {
-    margin-left: auto;
+    margin-right: auto;
     border-color: var(--bad);
     color: var(--bad);
   }
