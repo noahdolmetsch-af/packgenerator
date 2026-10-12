@@ -862,6 +862,22 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: «Rahmenbedingungen» statt «Neue Tour» (0.113.0)
+
+Nach Noahs Wunsch (12.10.2026 19:42, Prio hoch) und den Mockups B1–B5 (Galerie «Offene Mockups 2» #rahmenbedingungen, Trello FONIq38q): B1 «b1 ok» 20:42, B3 «b3 ok» 20:43, B2/B4/B5 «b2 b4 b5 ok» 20:55. Antworten «1a 2a 3b 4b 5b», «6a», 7a.
+
+- **Fehler «Letzte Tour»:** seit 0.104.0 stand die neueste Tour mit dem Velo (auch Test- und künftige Touren) als Start in der Galerie. Neu startet eine Tour nie mehr aus einer vergangenen Tour in diesem Fenster; nur Standard, eigene Vorlagen und Beispiele. Daten waren nicht betroffen.
+- **«92 Teile»:** Reparatur (36 Werkzeuge) und Laden kamen seit 0.66.0 bei jeder Fahrt von selbst. Neu kommen sie bei einer neuen Tour nicht mehr von selbst (gespeichert als `sets.repair/charge: false`), beim Packen sind sie einen Schalter entfernt. Die schlanke «Reparatur unterwegs» (6a, B5) kommt mit Release 2.
+- **1a:** Vorlagen zugeklappt im Fenster, Bausteine nur beim Packen (Release 2: B4).
+- **2a:** «Sportart» Fahrrad · Skitour · Wandern, «+ Andere» öffnet Wochenende und Weltreise. Standard bei neuer Tour: Fahrrad (vorher: die zuletzt gewählte).
+- **3b:** je zwei Beispiel-Vorlagen pro Sportart (Fahrrad: Tagestour, Wochenende; Skitour: Tagestour, Hüttentour; Wandern: Tageswanderung, Hüttenwanderung). Ein Beispiel setzt Tage, Fahrstunden und Übernachtung und startet aus Standard. «Beispiele ausblenden» (Einstellung `tplExamplesHidden`).
+- **4b:** die ganze Packliste im Fenster, in vier Gruppen: Kleider (Kategorien am Velo, neben dem Velo, Schuhe, Regen & Kälte), Elektronik (Elektronik, Licht), Extra warm (Kälteschichten, die das Wetter bringt), Ausrüstung (alles andere). Bild = Symbol der Kategorie.
+- **5b:** Event = Hinweis und Baustein «Rennen», keine Folgeschritte.
+- **7a:** der Knopf «Tour erstellen · n Teile» zählt nur Teile für die Taschen; Teile am Körper stehen als eigener Satz.
+- **Wetter (Noah: «mit PLZ, kostenlos»):** Start-PLZ oder Ort, vorbelegt mit dem Wohnort, Suche über Open-Meteo (kostenlos, ohne Schlüssel). Ein eigener Ort wird als `trip.place` gespeichert und gilt auch fürs Dunkelwerden.
+- **KI-Helfer:** aus dem Fenster raus (auch die Einrichtungs-Notiz). Nur wenn die Suche «Als Packliste vorschlagen» mit einer Frage öffnet, erscheint «Frag den Helfer» noch, damit dieser Weg nicht ins Leere führt. Das Ausblenden an den anderen Orten (K1–K4) macht der Thread «Design-Refresh».
+- **Selbst entschieden:** Übernachtung bleibt als Knöpfe (wie bisher) statt Feld; Optionsknöpfe der Vorlagen lokal im Fenster gebaut, die gemeinsame Knopf-Komponente (N1–N4) baut der Thread «Design-Refresh»; Knopftext bleibt «Tour erstellen».
+
 ## 12.10.2026: Design-Refresh P10 «Was ist neu» (0.110.0)
 
 Nach den Mockups I11 (v2), I11b (v2), I11c, I11d und I11e (Noah 12.10.2026 03:50 «Runde 20 freigegeben»; Antworten 03:45 «1 beides, 2b, 3 beides, 4a, 5b»).

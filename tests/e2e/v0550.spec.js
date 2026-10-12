@@ -184,7 +184,7 @@ test('a new trip: Biwak + Zelt by default, Reparatur and Laden pressed, Licht in
   const { errors } = await start(page, context, info);
   await tap(page.getByRole('button', { name: 'Neu', exact: true }).filter({ visible: true }), info);
   await tap(page.getByRole('dialog', { name: 'Neu' }).getByRole('button', { name: 'Tour planen' }), info);
-  const dlg = page.getByRole('dialog', { name: 'Neue Tour' });
+  const dlg = page.getByRole('dialog', { name: 'Rahmenbedingungen' });
   await expect(dlg).toBeVisible();
   const title = `${P} Jura`;
   await dlg.getByLabel(T('Name')).fill(title);

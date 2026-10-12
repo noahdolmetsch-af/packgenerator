@@ -145,7 +145,7 @@ test('template from a trip: update or save as new, and the new trip takes days a
   // A new trip from the template: 3 days, Outdoor with cooking, 4 h per day as defaults (still changeable).
   await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('New trip'), exact: true }).click();
-  const nt = page.getByRole('dialog', { name: T('New trip') });
+  const nt = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   // v0.102.0 Design-Refresh P4 (T2): the templates are cards of the gallery «Packliste startet mit», in sight.
   await nt.getByRole('button', { name: /^test_data_gtp_ Bivvy/ }).first().click();
   await expect(nt.getByLabel(T('Days')).first()).toHaveValue('3');

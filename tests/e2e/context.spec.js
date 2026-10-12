@@ -62,7 +62,7 @@ const ids = async (page, title) => ((await stored(page, title))?.entries ?? []).
 async function openNew(page, T, click) {
   await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
   await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
-  return page.getByRole('dialog', { name: T('New trip') });
+  return page.getByRole('dialog', { name: T('Conditions|newtrip') });
 }
 
 for (const lang of ['de', 'en']) {

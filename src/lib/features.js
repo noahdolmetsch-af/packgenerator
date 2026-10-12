@@ -70,7 +70,7 @@ const TIP_PLAY = { bags: 'pack', share: 'pack', ride: 'ride', debrief: 'after' }
 /** The functions that are not a tip. */
 const OWN = [
   // Before the trip
-  { id: 'f.plan', group: 'before', title: 'Plan a trip', text: 'One window: when, how long, the weather, building blocks and the night.', run: 'trip', seen: 'trips', words: 'tour planen neue tour new trip' },
+  { id: 'f.plan', group: 'before', title: 'Plan a trip', text: 'One window «Conditions»: sport, when, how long, the weather from your postcode, the event and the packing list in groups.', run: 'trip', seen: 'trips', words: 'tour planen neue tour new trip' },
   { id: 'f.wear', group: 'before', title: 'What do I wear?', text: 'Clothing for the coldest hour of a day ride, from your own wardrobe.', run: 'wear', words: 'anziehen kleider outfit' },
   { id: 'f.onion', group: 'before', title: 'Layer check', text: 'Checks every layer for the coldest riding hour and suggests the kit.', href: '#/pack', play: 'pack', words: 'zwiebel schicht kit temperatur' },
   { id: 'f.shop', group: 'before', title: 'Shopping and charging list', text: 'What you buy and charge 2 days before the trip.', href: '#/pack?shop', play: 'pack', words: 'einkauf einkaufsliste laden ladeliste akku' },

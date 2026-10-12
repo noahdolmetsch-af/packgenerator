@@ -105,7 +105,7 @@ for (const lang of ['en', 'de']) {
     await click((await newButton(page, T('New'))));
     await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
     // v0.29.2 (Noah 7a): the templates are folded under "Start from a template" (one click more).
-    const dlg = page.getByRole('dialog', { name: T('New trip') });
+    const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
     // v0.102.0 Design-Refresh P4 (T2): the templates are cards of the gallery «Packliste startet mit», in sight (two clicks fewer).
     await click(dlg.getByRole('button', { name: new RegExp(`^${name}`) }));
     await dlg.getByLabel(T('Name')).fill(`test_data_gtp_ next ${lang}`);

@@ -148,7 +148,7 @@ test('New trip: the area chips with the last one pressed, the days field with "M
   await page.goto('./#/');
   await (await newButton(page, T('New'))).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   // v0.102.0 Design-Refresh P4 (T2): the areas as chips in sight (no fold), the last one chosen pressed.
   await expect(dlg.getByRole('group', { name: T('Area') }).getByRole('button', { name: T('Bikepacking'), exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(dlg.getByRole('spinbutton', { name: T('Days') })).toHaveCount(0);

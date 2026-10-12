@@ -11,6 +11,24 @@
 
 export const WHATS_NEW = [
   {
+    // v0.113.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved).
+    version: '0.113.0',
+    date: '2026-10-12',
+    title: 'Conditions',
+    lead: 'A new trip starts with its conditions: sport, weather from your postcode, event and a clear packing list.',
+    points: [
+      { text: 'The window «Conditions»: sport (bike first), the weather suggested from a start postcode, the event with its hint.', href: '#/trips' },
+      { text: 'Choose a template as buttons: Standard, your own and two examples. Past trips no longer appear there.', href: '#/trips' },
+      { text: 'The packing list in four groups with a picture per item; the button counts only what goes into the bags.', href: '#/trips' },
+      { text: 'Repair and Charging no longer come by themselves: switch them on when packing.', href: '#/pack' },
+    ],
+    test: [
+      'Open Trips and tap «New trip».',
+      'Type your postcode under Weather: the forecast suggests the weather.',
+      'Open «Choose a template» and tap «Weekend»: 2 days and Hotel/hut are set.',
+    ],
+  },
+  {
     // v0.110.0 Design-Refresh P10 (I11): the newest version also has a name, one sentence and the
     // steps «How to test it» (the card on top of Ich › Was ist neu); older versions do without.
     version: '0.110.0',

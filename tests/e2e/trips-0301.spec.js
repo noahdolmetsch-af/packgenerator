@@ -277,7 +277,7 @@ test('N10, N11, v0.102.0: New trip has «Letzte Tour: name» in the gallery afte
     };
   }), value);
   await page.evaluate(() => { localStorage.setItem('pack.startFrom', 'standard'); location.hash = '#/pack'; window.dispatchEvent(new Event('pg:newtrip')); });
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   // v0.102.0 Design-Refresh P4 (T2): the starts are one gallery «Packliste startet mit»: the standard
   // first (chosen), then the last trip with its name, then the templates with their building blocks.
   const starts = dlg.getByRole('group', { name: T('Packing list starts with') }).getByRole('button');

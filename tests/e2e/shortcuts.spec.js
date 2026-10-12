@@ -55,7 +55,7 @@ for (const lang of ['de', 'en']) {
     // New → Plan a trip (v0.30.0: the window starts with the standard set); a day ride says the base set stays at home.
     await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
     await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
-    const dlg = page.getByRole('dialog', { name: T('New trip') });
+    const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
     await dlg.getByLabel(T('Name')).fill(title);
     await dlg.getByLabel(T('Start date')).fill(today());
     // v0.25.0 (M3): the live "Your packing list" says the overnight gear stays at home.
@@ -92,7 +92,7 @@ test('Pack bag by bag with Whole bag packed, and select all in the debrief', asy
   const title = 'test_data_gtp_ Taschen';
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await dlg.getByLabel(T('Name')).fill(title);
   await dlg.getByLabel(T('Start date')).fill(today());
   await dlg.getByRole('button', { name: T('2 days'), exact: true }).click(); // v0.40.0: the days field only after "More"
@@ -162,7 +162,7 @@ test('create what the search does not find', async ({ page, context }, info) => 
   // A trip, then "Add material" → search → "Add … as a new item and pack it".
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await dlg.getByLabel(T('Name')).fill('test_data_gtp_ Suche');
   await dlg.getByLabel(T('Start date')).fill(today());
   await dlg.getByRole('button', { name: T('Create trip') }).click();

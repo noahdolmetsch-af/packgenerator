@@ -187,7 +187,7 @@ test('New trip window: Standard + a building block in 4 clicks, the live count o
   };
   await click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
   await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg.getByRole('region', { name: T('Your packing list|preview') })).toContainText(T('always with you'));
   const create = dlg.getByRole('button', { name: T('Create trip') });
   const count = async () => Number((await create.textContent()).match(/(\d+)/)?.[1] ?? 0);

@@ -148,7 +148,7 @@ test('first aid: the small set on a day ride (v0.72.0), the full set with a 1-ni
   // v0.28.0 (Noah 8.10.2026): a fresh "New trip" dialog starts with the standard set
   await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('New trip'), exact: true }).click();
-  const fresh = page.getByRole('dialog', { name: T('New trip') });
+  const fresh = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   // v0.30.0 (Noah, finding 2): the start is the "Standard" card; template and last trip are folded.
   await expect(fresh.getByRole('region', { name: T('Your packing list|preview') })).toContainText(T('always with you'));
   await fresh.getByRole('button', { name: T('Cancel') }).click();
@@ -158,7 +158,7 @@ test('first aid: the small set on a day ride (v0.72.0), the full set with a 1-ni
   const title = 'test_data_gtp_ Hotelnacht';
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await dlg.getByLabel(T('Name')).fill(title);
   await dlg.getByLabel(T('Start date')).fill(today());
   await dlg.getByRole('button', { name: T('2 days'), exact: true }).click(); // v0.40.0: the days field only after "More"

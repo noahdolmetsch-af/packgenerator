@@ -175,7 +175,7 @@ async function openNewTrip(page, rec, start = 'standard') {
   await rec.click(page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }));
   await rec.click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
   // v0.30.0 (Noah, finding 2): the window starts with the standard set; last trip and templates are folded in it.
-  const dlg = page.getByRole('dialog', { name: T('New trip') });
+  const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg).toBeVisible();
   // v0.102.0 Design-Refresh P4 (T2): the last trip and the templates are cards of the gallery
   // «Packliste startet mit», in sight after the standard (no fold any more).
@@ -828,7 +828,7 @@ test('PF14: missing weights and litres; empty search, no bike, no weather: hones
   await page.getByRole('button', { name: T('New'), exact: true }).filter({ visible: true }).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
   // v0.30.0: the area is chosen in the New trip window.
-  const wd = page.getByRole('dialog', { name: T('New trip') });
+  const wd = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(wd).toBeVisible();
   await wd.locator('.areas button').nth(2).click();
   await rec.check('no bike: the New trip dialog asks no bike and says what the list starts with', async () => {

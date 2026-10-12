@@ -118,7 +118,7 @@ test('a trip starts from a template, with its area; hiking without a bike', asyn
   // From the template page: "New trip from it".
   await page.goto('./#/pack/templates/tpl-jura');
   await page.getByRole('button', { name: T('New trip from it') }).click();
-  let dlg = page.getByRole('dialog', { name: T('New trip') });
+  let dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg).toBeVisible();
   await dlg.getByRole('textbox', { name: T('Name') }).filter({ visible: true }).fill('test_data_gtp_ Jura im Oktober');
   await dlg.getByRole('button', { name: new RegExp(T('Create trip')) }).click();
@@ -133,7 +133,7 @@ test('a trip starts from a template, with its area; hiking without a bike', asyn
   await page.getByRole('group', { name: T('Area') }).getByRole('button', { name: new RegExp(`^${T('Hiking')}`) }).click();
   await page.locator('[data-tpl="tpl-rigi"]').getByRole('button', { name: T('More for {name}', { name: 'test_data_gtp_ Rigi-Wanderung' }) }).click();
   await page.getByRole('menuitem', { name: T('New trip') }).click();
-  dlg = page.getByRole('dialog', { name: T('New trip') });
+  dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg).toBeVisible();
   await expect(dlg.getByRole('group', { name: T('Area') }).getByRole('button', { name: T('Hiking'), exact: true })).toHaveAttribute('aria-pressed', 'true'); // v0.102.0 (T2): the area chips in sight
   await dlg.getByRole('textbox', { name: T('Name') }).filter({ visible: true }).fill('test_data_gtp_ Rigi im Herbst');
