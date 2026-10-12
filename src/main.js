@@ -42,6 +42,7 @@ import { applyClock } from './lib/demo.js';
 import { trackChanges } from './lib/backup.js';
 import { folderBackupSupported, watchForChanges } from './lib/folderBackup.js';
 import { initTheme } from './lib/theme.svelte.js';
+import { installExplain } from './lib/ui/explain.js';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
 // v0.97.0: also the font and the text size (Ich › Darstellung).
@@ -66,6 +67,10 @@ if (__PREVIEW__) {
   bar.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;padding:4px 12px calc(4px + env(safe-area-inset-bottom,0px));background:#7a5a00;color:#fff;font:600 13px/1.4 system-ui,sans-serif;text-align:center;pointer-events:none';
   document.body.appendChild(bar);
 }
+
+// v0.114.0 «Knöpfe neu» (N1, answer 2a): every button explains itself on hover, keyboard focus and a
+// long press, with one listener for the whole app (ui/explain.js).
+installExplain();
 
 // Svelte renders the App component into <div id="app"> in index.html.
 mount(App, { target: document.getElementById('app') });

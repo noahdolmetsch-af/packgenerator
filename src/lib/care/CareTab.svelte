@@ -5,7 +5,8 @@
   import { sortBikes, bikesHash } from '../bikes.js';
   import VeloHead from '../bikes/VeloHead.svelte';
   import '../bikes/velo-dlg.css';
-  import { X } from '@lucide/svelte';
+  import { X, Check as CheckIcon } from '@lucide/svelte';
+  import { explain } from '../ui/explain.js';
   import { nextId } from '../gear.js';
   import { chainWish } from '../quickcare.js';
   import { tick } from 'svelte';
@@ -256,9 +257,12 @@
     if (undo?.itemId) text += ` ${t('The chain is on the wishlist.')}`;
     say(text, undo);
   }
+  // v0.114.0 «Knöpfe neu» (N2, answer 2a): «Done» and «All checked» can be taken back like a saved
+  // flow (the same undo: the parts as they were before).
   async function checkAndSay(view, keys, action, note, who = by) {
+    const prev = $state.snapshot(bikeById[view.id]?.parts ?? []);
     const entry = await checkParts(view, keys, action, note, who);
-    saved(view, keys, entry);
+    saved(view, keys, entry, { bikeId: view.id, prev, itemId: null });
   }
 
   // v0.30.1 (D1): km typed the Swiss or German way ("2'287", "2.287", "2 287") are saved and said.
@@ -502,7 +506,7 @@
 </div>
 
 {#if notice}
-  {#key notice.id}<p class="notice" role="status"><span>{notice.text}</span>{#if notice.undo}<button type="button" class="undo" onclick={undoSave}>{t('Undo')}</button>{/if}</p>{/key}
+  {#key notice.id}<p class="notice" role="status"><CheckIcon size={16} aria-hidden="true" /><span class="nt">{notice.text}</span>{#if notice.undo}<button type="button" class="undo" data-explain={explain('Undo')} onclick={undoSave}>{t('Undo')}</button>{/if}</p>{/key}
 {/if}
 
 {#if partOpen}
@@ -565,15 +569,18 @@
 
 <style>
   /* v0.30.1 (D2): a short line after a save, above the bottom bar, so it is seen wherever the page is scrolled. */
+  /* v0.114.0 «Knöpfe neu» (N2): a dark bar with a tick, the text and an underlined «Rückgängig». */
   .notice .undo {
-    margin-left: 12px;
-    min-height: 36px;
-    padding: 0 10px;
-    border: 1px solid rgb(255 255 255 / 0.5);
-    border-radius: 6px;
+    flex: none;
+    min-height: 44px;
+    padding: 0 6px;
+    border: 0;
     background: none;
     color: var(--paper);
-    font: 600 14px var(--font-body);
+    font: 600 14.5px var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    white-space: nowrap;
     cursor: pointer;
   }
   .notice {
@@ -582,19 +589,29 @@
     transform: translateX(-50%);
     bottom: calc(16px + env(safe-area-inset-bottom));
     z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     width: max-content;
     max-width: min(560px, calc(100vw - 32px));
+    box-sizing: border-box;
     margin: 0;
-    padding: 10px 14px;
-    border-radius: 8px;
+    padding: 6px 12px 6px 16px;
+    min-height: 48px;
+    border-radius: 12px;
     background: var(--ink);
     color: var(--paper);
-    font-size: 15px;
+    font-size: 14.5px;
     box-shadow: 0 4px 16px var(--shadow);
+  }
+  .notice .nt {
+    flex: 1 1 auto;
+    min-width: 0;
   }
   @media (max-width: 719px) {
     .notice {
       bottom: calc(84px + env(safe-area-inset-bottom));
+      width: calc(100vw - 32px);
     }
   }
   .rows {

@@ -6,6 +6,9 @@
    */
   import { Flag, ChevronRight } from '@lucide/svelte';
   import MoreMenu from './MoreMenu.svelte';
+  import Btn from '../ui/Btn.svelte';
+  import { explain } from '../ui/explain.js';
+  import { Check, ListChecks, Wrench } from '@lucide/svelte';
   import { prepSummary, isEvent } from '../care.js';
   import { t, locale, dateOf } from '../i18n.svelte.js';
   import { bikeCareLine, eventPrepLine } from '../readiness.js';
@@ -43,7 +46,7 @@
       {:else if care.status === 'nodata'}
         <p class="nd">{t('No data: enter km and record a check or service, then the app can tell.')}</p>
       {/if}
-      {#if order?.rows.length}<button type="button" class="btn sm" onclick={onorder}>{t('Workshop order · about CHF {chf}', { chf: order.total })}</button>{/if}
+      {#if order?.rows.length}<button type="button" class="btn sm" data-explain={explain('Send|order')} onclick={onorder}>{t('Workshop order · about CHF {chf}', { chf: order.total })}</button>{/if}
     </div>
   {/if}
   <!-- v0.22.0 (Noah 4b): the Excel preparation only for events. -->
@@ -59,19 +62,20 @@
           <p class="rule"><span class="lbl">{r.from <= today ? t('Rule now') : t('Rule from {date}', { date: dueLabel(r.from) })}</span>{r.task.task}</p>
         {/each}
         {#if onall && rows.filter((r) => !r.finished).length > 1}
-          <p class="all"><button type="button" class="btn sm" onclick={onall}>{t('All {n} open tasks done', { n: rows.filter((r) => !r.finished).length })}</button></p>
+          <p class="all"><button type="button" class="btn sm" data-explain={t('Mark every open task as done')} onclick={onall}>{t('All {n} open tasks done', { n: rows.filter((r) => !r.finished).length })}</button></p>
         {/if}
         <ul class="rows">
           {#each rows as r (r.task.id)}
             <li class:done={r.finished} class:late={r.overdue} class:need={r.needed}>
               <span class="when num">{dueLabel(r.due)}</span>
               <span class="txt">{r.task.task}{#if r.state}<small>{r.needed ? t('Work needed') : r.state.result === 'ok' ? t('OK') : t('Done|task')} · {dateOf(r.state.date)}{r.state.by === 'shop' ? ` · ${t('bike shop')}` : ''}</small>{/if}</span>
-              <span class="acts">
+              <span class="acts rowacts">
                 {#if r.finished}
-                  <button type="button" class="link" onclick={() => onundo(r)}>{t('Undo')}</button>
+                  <button type="button" class="link" data-explain={explain('Undo')} onclick={() => onundo(r)}>{t('Undo')}</button>
                 {:else}
-                  <button type="button" class="btn sm hi" onclick={() => onresult(r, 'done')}>{t('Done|task')}</button>
-                  <MoreMenu label={r.task.task} actions={[{ name: t('Checked, all OK'), run: () => onresult(r, 'ok') }, { name: t('Work needed'), run: () => onresult(r, 'needed') }]} />
+                  <!-- v0.114.0 «Knöpfe neu» (N1/N2): Done as the main button, the other answers behind «…» with an explanation -->
+                  <Btn kind="hi" icon={Check} label={t('Done|task')} explain={explain('Done|task')} sub={r.task.task} class="sm" onclick={() => onresult(r, 'done')} />
+                  <MoreMenu label={r.task.task} actions={[{ name: t('Done|task'), explain: explain('Done|task'), icon: Check, run: () => onresult(r, 'done'), current: true }, { name: t('All OK|task'), explain: explain('All OK|task'), icon: ListChecks, run: () => onresult(r, 'ok') }, { name: t('Work needed'), explain: explain('Work needed'), icon: Wrench, run: () => onresult(r, 'needed') }]} />
                 {/if}
               </span>
             </li>
@@ -273,8 +277,7 @@
       grid-template-columns: 52px 1fr;
     }
     .rows .acts {
-      grid-column: 2;
-      justify-content: start;
+      grid-column: 1 / -1;
     }
   }
   .btn.sm {

@@ -120,9 +120,10 @@ test('accordion: one bike open, the others one row; last work per part with me /
   await expect(spark.locator('summary').filter({ hasText: '1’000-km-Check' })).toBeVisible();
   await expect(spark.locator('summary').filter({ hasText: 'Logbuch' })).toBeVisible();
   // For the bike shop and the year: one folded row "Velomech & 2026".
-  await expect(spark.getByRole('button', { name: 'Werkstattauftrag senden' })).toHaveCount(0);
+  // v0.114.0 «Knöpfe neu» (N4, changed on purpose): «Werkstattauftrag senden» is «Senden» with its explanation.
+  await expect(spark.getByRole('button', { name: 'Senden', exact: true })).toHaveCount(0);
   await spark.locator('summary').filter({ hasText: /Velomech & \d{4}/ }).click();
-  await expect(spark.getByRole('button', { name: 'Werkstattauftrag senden' })).toBeVisible();
+  await expect(spark.getByRole('button', { name: 'Senden', exact: true })).toBeVisible();
   await expect(spark.getByRole('region', { name: /an diesem Velo/ })).toContainText('Velomech');
   await expect(spark).toContainText(SHOP);
   await noSideways(page);
@@ -204,7 +205,7 @@ test('"Done by: me / bike shop" is chosen in the dialog, the last choice presele
   const spark = page.locator(`#care-${SPARK}`);
   // v0.38.0: a tap on the part opens its row; "Record …" opens the dialog.
   await spark.locator('li.pt').getByRole('button', { name: /^Kette/ }).first().click();
-  await spark.locator('li.pt.x').getByRole('button', { name: 'Erfassen …' }).click();
+  await spark.locator('li.pt.x').getByRole('button', { name: 'Eintragen …' }).click(); // v0.114.0 (N4): was «Erfassen …»
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Kette' }) });
   const who = dlg.getByRole('group', { name: 'Gemacht von' });
   await expect(who.getByRole('button', { name: 'ich' })).toHaveAttribute('aria-pressed', 'true');

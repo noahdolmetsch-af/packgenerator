@@ -902,6 +902,114 @@ h1.title {
   opacity: 0.5;
   cursor: default;
 }
+/*
+ * v0.114.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 «n1-n4 freigeben», answers 1a 2a 3a 4a 5b).
+ * - .btn.k (ui/Btn.svelte): a label of 1–2 words that never wraps (N3 rule 4).
+ * - .btn.dots: the «…» button (.dots), 44 px square (ui/MoreActions.svelte).
+ * - .rowacts: the actions of a row. Computer: right-aligned, every row ends at the same right edge,
+ *   the main button at least 128 px wide. Phone: under the row's text, the main button as wide as the
+ *   card, «…» beside it (answer 1a).
+ * - .xtip: the explanation bubble (ui/explain.js), on hover, keyboard focus and a long press.
+ */
+.btn.k,
+.rowacts .btn {
+  white-space: nowrap;
+}
+.btn.k,
+.btn.dots {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn.dots {
+  flex: none;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+}
+.btn.dots.sm {
+  width: 36px;
+  min-width: 36px;
+  height: 32px;
+}
+@media (pointer: coarse) {
+  .btn.dots.sm {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+  }
+}
+.rowacts {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+.rowacts > .btn:not(.dots):not(.btn-link) {
+  min-width: 128px;
+}
+@media (max-width: 719px) {
+  .rowacts {
+    flex: 1 0 100%;
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-left: 0;
+  }
+  .rowacts > .btn:not(.dots) {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+.xtip {
+  position: fixed;
+  inset: auto;
+  z-index: 1000;
+  margin: 0;
+  max-width: min(320px, calc(100vw - 16px));
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 0 8px 24px var(--shadow);
+  font: 400 14px/1.35 var(--font-body);
+  text-align: left;
+  pointer-events: none;
+  overflow: visible;
+  display: none;
+}
+.xtip.on {
+  display: block;
+}
+.xtip b {
+  display: block;
+  font-weight: 600;
+}
+.xtip small {
+  display: block;
+  margin-top: 1px;
+  font-size: 12.5px;
+  opacity: 0.78;
+}
+.xtip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: var(--ax, 50%);
+  margin-left: -7px;
+  border: 7px solid transparent;
+  border-bottom-color: var(--ink);
+}
+.xtip.up::after {
+  top: 100%;
+  bottom: auto;
+  border-bottom-color: transparent;
+  border-top-color: var(--ink);
+}
 .inp,
 .sel {
   font: 400 16px var(--font-body);

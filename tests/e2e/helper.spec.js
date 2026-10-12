@@ -359,7 +359,9 @@ test('5a + 6a: bike care: suggestions inside «Jetzt fällig», a concrete check
   // «Als Aufgabe merken» on a helper card (or the merged line of a card due anyway): a task, source Helper
   const tyreCard = due.locator('li.kh-pt').filter({ hasText: 'Milch nachfüllen' });
   if (await tyreCard.count()) {
-    await tyreCard.getByRole('button', { name: T('Remember as a task') }).click();
+    // v0.114.0 «Knöpfe neu» (N2): «Merken» sits behind «…» with its explanation (changed on purpose)
+    await tyreCard.locator('.btn.dots').click();
+    await page.getByRole('menuitem', { name: T('Remember|task') }).click();
     await expect.poll(async () => (await table(page, 'maintenance')).find((m) => m.source === 'Helper')).toMatchObject({ bikeId: SPARK, status: 'open' });
     await expect(page.getByText(T('Remembered as a task: {part}', { part: T('Tyres') }), { exact: false })).toBeVisible();
   }

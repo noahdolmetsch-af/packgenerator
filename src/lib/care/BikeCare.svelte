@@ -10,7 +10,10 @@
    * - "me" is no longer on every row: only the bike shop's work gets a small shop sign, explained once;
    * - folded rows: parts without data, the 1000 km check, the log, "Bike shop & 2026".
    */
-  import { Check, ChevronDown, ChevronRight, ChevronUp, Store, Info, ListChecks, BookOpen } from '@lucide/svelte';
+  import { Check, ChevronDown, ChevronRight, ChevronUp, Store, Info, ListChecks, BookOpen, Eye, PenLine, Heart } from '@lucide/svelte';
+  import Btn from '../ui/Btn.svelte';
+  import MoreActions from '../ui/MoreActions.svelte';
+  import { explain } from '../ui/explain.js';
   import { CHECK_KM, bikeLog, EXTRA, needsWork, PART } from '../care.js';
   import { visitTotal, costByYear, costByPart } from '../workshop.js';
   import { GROUPS, groupOf, lastWork, lastLine, partStatus, usualBy, isDueState, yearSummary, newestFirst } from './last.js';
@@ -169,6 +172,20 @@
     if (n != null) input.value = n;
     else if (input.value.trim() === '') input.value = bike.km ?? '';
   }
+  /**
+   * v0.114.0 «Knöpfe neu» (N1/N2, answer 3a): the actions of a due part row, the main one first:
+   * Done (a service by time or km) or Record …; then Record …, the wishlist when it is due soon.
+   */
+  function dueActs(r, x, wish) {
+    const key = r.part.key;
+    const record = { name: t('Record …|care'), explain: explain('Record …|care'), icon: PenLine, run: () => onpart(key) };
+    const wishA = wish ? [{ name: t('Wishlist|put'), explain: explain('Wishlist|put'), icon: Heart, run: () => onwish(wish) }] : [];
+    if (x.by !== 'shop' && x.d && (x.d.kind === 'time' || x.d.kind === 'km')) {
+      const ctx = [partName(r), t('today|done'), bike.km != null ? `${num(bike.km)} km` : ''].filter(Boolean).join(' · ');
+      return [{ kind: 'hi', name: t('Done|task'), explain: explain('Done|task'), sub: ctx, icon: Check, run: () => ondone(x.d) }, record, ...wishA];
+    }
+    return [{ ...record, sub: partName(r) }, ...wishA];
+  }
   const wishable = (r) => {
     const s = c.time.find((x) => x.key === r.part.key);
     return s && !s.never && (s.overdue || s.days <= 30) ? s : null;
@@ -208,14 +225,13 @@
     <span class="wear">{@render bar(r.st)}</span>
     <span class="act">
       {#if x}
-        {#if x.by === 'shop'}
-          {@render shop()}
-          <button type="button" class="btn sm" onclick={() => onpart(key)}>{t('Record')}</button>
-        {:else if x.d && (x.d.kind === 'time' || x.d.kind === 'km')}
-          <button type="button" class="btn sm" onclick={() => ondone(x.d)}><Check size={16} aria-hidden="true" />{t('Done|task')}</button>
-        {:else}
-          <button type="button" class="btn sm" onclick={() => onpart(key)}>{t('Record')}</button>
-        {/if}
+        <!-- v0.114.0 «Knöpfe neu» (N1/N2): one main button, the rest behind «…» with an explanation each. -->
+        {@const acts = dueActs(r, x, wish)}
+        {#if x.by === 'shop'}{@render shop()}{/if}
+        <span class="rowacts">
+          <Btn kind={acts[0].kind} icon={acts[0].icon} label={acts[0].name} explain={acts[0].explain} sub={acts[0].sub} onclick={acts[0].run} />
+          <MoreActions title={[partName(r), bike.name].join(' · ')} label={t('More for {title}', { title: partName(r) })} actions={acts.map((a, n) => ({ ...a, current: n === 0 }))} />
+        </span>
       {/if}
     </span>
     {#if x && hmap.get(key)}
@@ -225,9 +241,9 @@
     {#if isOpen}
       <div class="extra" id="px-{bike.id}-{key}">
         {#if key === 'tyres'}{@render tyres()}{/if}
-        <button type="button" class="btn sm" onclick={() => onpart(key)}>{t('Record …')}</button>
+        <Btn label={t('Record …|care')} explain={explain('Record …|care')} class="sm" onclick={() => onpart(key)} />
         {#if wish}
-          <button type="button" class="btn sm" onclick={() => onwish(wish)}>{t('Put on the wishlist')}</button>
+          <Btn label={t('Wishlist|put')} explain={explain('Wishlist|put')} class="sm" onclick={() => onwish(wish)} />
           {#if wished[`${bike.id}.${wish.key}`]}<small role="status">{wished[`${bike.id}.${wish.key}`]}</small>{/if}
         {/if}
       </div>
@@ -299,7 +315,13 @@
               <span class="last"><span class="lt">{x.d.detail}</span></span>
               <span class="next late">{checkLate.join(', ') || '–'}</span>
               <span class="wear"></span>
-              <span class="act"><button type="button" class="btn sm" onclick={showCheck}>{t('Look at the check')}</button></span>
+              <span class="act"><span class="rowacts">
+                <Btn icon={Eye} label={t('Look|check')} explain={explain('Look|check')} sub={t('{km} km check', { km: num(CHECK_KM) })} onclick={showCheck} />
+                <MoreActions title={[t('{km} km check', { km: num(CHECK_KM) }), bike.name].join(' · ')} label={t('More for {title}', { title: t('{km} km check', { km: num(CHECK_KM) }) })} actions={[
+                  { name: t('Look|check'), explain: explain('Look|check'), icon: Eye, run: showCheck, current: true },
+                  { name: t('All OK|check'), explain: explain('All OK|check'), icon: ListChecks, run: () => oncheck(c.check.rows.map((r) => r.key), 'check', t('{km} km check', { km: CHECK_KM })) },
+                ]} />
+              </span></span>
             </li>
           {/if}
         {/each}
@@ -308,11 +330,14 @@
             <span class="pn"><span class="kh-ic"><Sparkles size={16} aria-hidden="true" /><span class="sr">{t('Suggestion from the helper')}: </span></span><span class="kh-pn">{hname(h.key)}</span></span>
             <span class="st"><span class="badge {h.status === 'soon' ? 'warn' : 'n'}">{t(HSTATUS[h.status])}</span></span>
             <span class="last"><span class="lt">{h.reason}{#if h.check} → {h.check}{/if}</span></span>
-            <span class="act kh-care-acts">
-              <button type="button" class="btn sm" onclick={() => htask(h)}>{t('Remember as a task')}</button>
-              <button type="button" class="btn sm" onclick={() => hmark('done', h)}><Check size={16} aria-hidden="true" />{t('Done|task')}</button>
-              <button type="button" class="kh-x" aria-label={t('Drop the suggestion for {part}', { part: hname(h.key) })} onclick={() => hmark('dismissed', h)}><XIcon size={18} aria-hidden="true" /></button>
-            </span>
+            <span class="act kh-care-acts"><span class="rowacts">
+              <Btn icon={Check} label={t('Done|task')} explain={explain('Done|task')} sub={hname(h.key)} onclick={() => hmark('done', h)} />
+              <MoreActions title={[hname(h.key), bike.name].join(' · ')} label={t('More for {title}', { title: hname(h.key) })} actions={[
+                { name: t('Done|task'), explain: explain('Done|task'), icon: Check, run: () => hmark('done', h), current: true },
+                { name: t('Remember|task'), explain: explain('Remember|task'), icon: ListChecks, run: () => htask(h) },
+                { name: t('Drop it|suggestion'), explain: t('Drop the suggestion for {part}', { part: hname(h.key) }), icon: XIcon, run: () => hmark('dismissed', h) },
+              ]} />
+            </span></span>
           </li>
         {/each}
       </ul>
@@ -370,7 +395,7 @@
                 <li class:late={r.due}><span>{r.name}</span><span class="num m">{needsWork(bike.parts.find((p) => p.key === r.key)) ? t('work needed') : r.unknown ? (bike.km == null ? t('set km') : t('not recorded')) : t('{km} km ago', { km: num(r.since) })}</span></li>
               {/each}
             </ul>
-            <button type="button" class="btn sm" onclick={() => oncheck(c.check.rows.map((r) => r.key), 'check', t('{km} km check', { km: CHECK_KM }))}>{t('All checked, OK')}</button>
+            <Btn label={t('All OK|check')} explain={explain('All OK|check')} class="sm" onclick={() => oncheck(c.check.rows.map((r) => r.key), 'check', t('{km} km check', { km: CHECK_KM }))} />
             <p class="hint">{t('Something not OK? Open the part and tap "Replace or work needed".')}</p>
           {/if}
         </details>
@@ -398,14 +423,14 @@
               <h3 id="shop-h-{bike.id}" class="ch">{t('For the bike shop')}</h3>
               {#if c.order?.rows.length}
                 <p class="quiet">{c.order.rows.map((r) => r.name).join(' · ')}{#if c.order.total} · {t('about CHF {chf}', { chf: c.order.total })}{c.order.unknown ? ` + ${t('unknown')}` : ''}{/if}</p>
-                <button type="button" class="btn" onclick={onorder}>{t('Send workshop order')}</button>
+                <Btn label={t('Send|order')} explain={explain('Send|order')} onclick={onorder} />
               {:else}
                 <p class="quiet">{t('Nothing for the bike shop right now.')}</p>
               {/if}
               <!-- v0.69.0 «Velo-Blätter» (V1 a): the order as a sheet, and the check at the pick-up -->
               <p class="sheetlinks">
                 <a class="btn" href={bikesHash({ tab: 'setup', bike: bike.id, sheet: 'order', from: 'care' })}>{t('Workshop order|sheet')}</a>
-                <a class="btn" href={bikesHash({ tab: 'setup', bike: bike.id, sheet: 'pickup', from: 'care' })}>{t('Pick-up check')}</a>
+                <Btn href={bikesHash({ tab: 'setup', bike: bike.id, sheet: 'pickup', from: 'care' })} label={t('Pick-up')} explain={explain('Pick-up')} />
               </p>
             </section>
             <section class="sub-sec" aria-labelledby="year-h-{bike.id}">
@@ -1166,11 +1191,12 @@
   .duecards .pt.due {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
+    /* v0.114.0 «Knöpfe neu» (N1, answer 1a): the actions as the card's last line, right-aligned (phone: full width) */
     grid-template-areas:
-      'pn act'
-      'st act'
+      'pn st'
       'last last'
-      'next wear';
+      'next wear'
+      'act act';
     gap: 2px 10px;
     min-height: 0;
     padding: 12px 14px;
@@ -1179,7 +1205,11 @@
     background: var(--paper-2);
   }
   .duecards .st {
-    justify-self: start;
+    justify-self: end;
+  }
+  .duecards .act {
+    margin-top: 8px;
+    flex-wrap: nowrap;
   }
   .duecards .last {
     display: block;
