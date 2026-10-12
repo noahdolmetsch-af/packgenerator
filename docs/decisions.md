@@ -862,11 +862,11 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
-## 13.10.2026: UI-Prüfung der Live-App und Fehler-Fix 0.111.1
+## 13.10.2026: UI-Prüfung der Live-App und Fehler-Fix 0.114.1
 
 Claude hat 0.110.0 und 0.111.0 aus Nutzersicht durchgeklickt (alle Seiten, Computer und Handy, rund 700 Knöpfe, erfundene Testdaten). Bericht mit 15 Befunden: https://claude.ai/artifact/ABifxRDhYYkvEaAyFCDgM4. Noah 13.10.2026 00:13/00:14 Zürich «1a 2a» und «3a4a 5a»:
 
-- **1a:** Der Absturz A1 (alte Rückblicke ohne Teileliste öffnen eine leere Seite) kommt sofort als kleiner Fix ohne sichtbare Änderung: 0.111.1.
+- **1a:** Der Absturz A1 (alte Rückblicke ohne Teileliste öffnen eine leere Seite) kommt sofort als kleiner Fix ohne sichtbare Änderung: 0.114.1.
 - **2a:** «Zahlen stimmen» (gleiche Zahl, gleicher Wert auf allen Seiten) als kleiner Release in Bündel A, mit Mockup vorher/nachher (Thread «Design-Refresh»).
 - **3a:** Die Unterwegs-Ansicht (Heute und Packen zeigen während der Tour den Tag statt Pack-Aufgaben) und die zwei Leisten unten am Handy kommen mit Skitour-Erlebnis (Bündel C).
 - **4a:** Heute aufräumen (doppelte Kacheln, abgeschnittene Knöpfe der Kachel «Neu» am Handy) kommt mit «Was ist neu 2» (W1–W3) im Design-Refresh.
@@ -895,6 +895,22 @@ Noah 12.10.2026 18:22 zur ersten Fassung: «passt nicht ins design … jede art 
 - **V3:** Liste anpassen mit Sortieren, Entfernen, eigenem Punkt, Vorschlägen und «Gilt für: Nur diese Tour / Alle {Reiseart}» (vorgewählt «Alle», wie im Mockup).
 - **V4:** Ich › Checks pro Reiseart; jede Reiseart hat eigene Vorschläge (Texte aus V4 und V6).
 - **Selbst entschieden (nur zeigen, wofür die App Daten hat):** «Dein Morgen», «Verhältnisse», «Plan und echt», «Dein Material» und «Aktivität von der Uhr» aus den Mockups fehlen: die App hat dafür keine Daten (keine Zeiten, keine Lawinenstufe, keine Uhr-Anbindung). Chips und Zeilen zeigen nur Wetter, Route, Ladeliste, Notizen und «Rückblick wartet». Links nur, wo eine Seite existiert (SLF, MeteoSchweiz, Ladeliste); «3×3 Öffnen», «Teilen», «Senden» und «Einkaufsliste» folgen, wenn es die Funktionen gibt. «Eigene Reiseart» (V4) gibt es noch nicht. Die Lernzeile kommt aus «Was hat gefehlt?» früherer Rückblicke derselben Reiseart. Die Statistik «in X von Y Touren erledigt» zählt nur Touren, die schon begonnen haben. Zeilen auf Ich › Checks pro Reiseart haben keinen Pfeil: «Anpassen» öffnet die Liste. Regeln wie «Tee ab −5° 1 L» und Erinnerungszeiten (V4 rechts) kommen mit dem Regel-Editor (F). Der Hinweis «neu» (gestrichelter Rahmen) gehört nur zum Mockup. Sortieren auch mit Pfeiltasten auf dem Griff. «Vorschlag wiederherstellen» auf Ich › Checks löscht den eigenen Standard der Reiseart.
+
+## 12.10.2026: «Rahmenbedingungen» statt «Neue Tour» (0.114.0)
+
+Nach Noahs Wunsch (12.10.2026 19:42, Prio hoch) und den Mockups B1–B5 (Galerie «Offene Mockups 2» #rahmenbedingungen, Trello FONIq38q): B1 «b1 ok» 20:42, B3 «b3 ok» 20:43, B2/B4/B5 «b2 b4 b5 ok» 20:55. Antworten «1a 2a 3b 4b 5b», «6a», 7a.
+
+- **Fehler «Letzte Tour»:** seit 0.104.0 stand die neueste Tour mit dem Velo (auch Test- und künftige Touren) als Start in der Galerie. Neu startet eine Tour nie mehr aus einer vergangenen Tour in diesem Fenster; nur Standard, eigene Vorlagen und Beispiele. Daten waren nicht betroffen.
+- **«92 Teile»:** Reparatur (36 Werkzeuge) und Laden kamen seit 0.66.0 bei jeder Fahrt von selbst. Neu kommen sie bei einer neuen Tour nicht mehr von selbst (gespeichert als `sets.repair/charge: false`), beim Packen sind sie einen Schalter entfernt. Die schlanke «Reparatur unterwegs» (6a, B5) kommt mit Release 2.
+- **1a:** Vorlagen zugeklappt im Fenster, Bausteine nur beim Packen (Release 2: B4).
+- **2a:** «Sportart» Fahrrad · Skitour · Wandern, «+ Andere» öffnet Wochenende und Weltreise. Standard bei neuer Tour: Fahrrad (vorher: die zuletzt gewählte).
+- **3b:** je zwei Beispiel-Vorlagen pro Sportart (Fahrrad: Tagestour, Wochenende; Skitour: Tagestour, Hüttentour; Wandern: Tageswanderung, Hüttenwanderung). Ein Beispiel setzt Tage, Fahrstunden und Übernachtung und startet aus Standard. «Beispiele ausblenden» (Einstellung `tplExamplesHidden`).
+- **4b:** die ganze Packliste im Fenster, in vier Gruppen: Kleider (Kategorien am Velo, neben dem Velo, Schuhe, Regen & Kälte), Elektronik (Elektronik, Licht), Extra warm (Kälteschichten, die das Wetter bringt), Ausrüstung (alles andere). Bild = Symbol der Kategorie.
+- **5b:** Event = Hinweis und Baustein «Rennen», keine Folgeschritte.
+- **7a:** der Knopf «Tour erstellen · n Teile» zählt nur Teile für die Taschen; Teile am Körper stehen als eigener Satz.
+- **Wetter (Noah: «mit PLZ, kostenlos»):** Start-PLZ oder Ort, vorbelegt mit dem Wohnort, Suche über Open-Meteo (kostenlos, ohne Schlüssel). Ein eigener Ort wird als `trip.place` gespeichert und gilt auch fürs Dunkelwerden.
+- **KI-Helfer:** aus dem Fenster raus (auch die Einrichtungs-Notiz). Nur wenn die Suche «Als Packliste vorschlagen» mit einer Frage öffnet, erscheint «Frag den Helfer» noch, damit dieser Weg nicht ins Leere führt. Das Ausblenden an den anderen Orten (K1–K4) macht der Thread «Design-Refresh».
+- **Selbst entschieden:** Übernachtung bleibt als Knöpfe (wie bisher) statt Feld; Optionsknöpfe der Vorlagen lokal im Fenster gebaut, die gemeinsame Knopf-Komponente (N1–N4) baut der Thread «Design-Refresh»; Knopftext bleibt «Tour erstellen».
 
 ## 12.10.2026: Design-Refresh P10 «Was ist neu» (0.110.0)
 

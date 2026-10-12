@@ -8,16 +8,31 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.111.1 UI-Prüfung A1: alte Rückblicke öffnen wieder
+  // 0.114.1 UI-Prüfung A1: alte Rückblicke öffnen wieder
   'Old trips open again': 'Alte Touren öffnen wieder',
   'The debrief of an older trip opened an empty page; now it opens like any other.':
     'Der Rückblick einer älteren Tour öffnete eine leere Seite; jetzt öffnet er wie jeder andere.',
+  'Fixed: the debrief of an older trip (from an old backup or the Excel import) opened an empty page. It opens again, every item counted as used.':
+    'Behoben: Der Rückblick einer älteren Tour (aus einem alten Backup oder dem Excel-Import) öffnete eine leere Seite. Er öffnet wieder, alle Teile zählen als gebraucht.',
   'Open Trips › Look back › Past trips and tap an older trip.':
     'Touren › Rückblick › Vergangene Touren öffnen und eine ältere Tour antippen.',
   'The debrief opens with its numbers and «Not used».':
     'Der Rückblick öffnet sich mit seinen Zahlen und «Nicht gebraucht».',
-  'Fixed: the debrief of an older trip (from an old backup or the Excel import) opened an empty page. It opens again, every item counted as used.':
-    'Behoben: Der Rückblick einer älteren Tour (aus einem alten Backup oder dem Excel-Import) öffnete eine leere Seite. Er öffnet wieder, alle Teile zählen als gebraucht.',
+
+  // 0.114.0 «Rahmenbedingungen»
+  'A new trip asks sport, weather by postcode and event, and shows the list in groups.':
+    'Eine neue Tour fragt Sportart, Wetter per PLZ und Event und zeigt die Liste in Gruppen.',
+  'The window «Conditions»: sport (bike first), the weather suggested from a start postcode, the event with its hint.':
+    'Das Fenster «Rahmenbedingungen»: Sportart (Fahrrad zuerst), das Wetter als Vorschlag aus der Start-PLZ, der Event mit seinem Hinweis.',
+  'Choose a template as buttons: Standard, your own and two examples. Past trips no longer appear there.':
+    'Vorlage wählen als Knöpfe: Standard, deine eigenen und zwei Beispiele. Vergangene Touren erscheinen dort nicht mehr.',
+  'The packing list in four groups with a picture per item; the button counts only what goes into the bags.':
+    'Die Packliste in vier Gruppen mit einem Bild pro Teil; der Knopf zählt nur, was in die Taschen kommt.',
+  'Repair and Charging no longer come by themselves: switch them on when packing.':
+    'Reparatur und Laden kommen nicht mehr von selbst: Beim Packen schaltest du sie ein.',
+  'Open Trips and tap «New trip».': 'Touren öffnen und «Neue Tour» antippen.',
+  'Type your postcode under Weather: the forecast suggests the weather.': 'Unter Wetter deine PLZ eintippen: Die Prognose schlägt das Wetter vor.',
+  'Open «Choose a template» and tap «Weekend»: 2 days and Hotel/hut are set.': '«Vorlage wählen» öffnen und «Wochenende» antippen: 2 Tage und Hotel/Hütte sind gesetzt.',
 
   // 0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check (mockups V1–V6)
   'Checks before and after': 'Checks davor und danach',
