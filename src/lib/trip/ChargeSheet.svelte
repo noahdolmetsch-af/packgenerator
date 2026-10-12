@@ -2,7 +2,7 @@
   /**
    * v0.34.0 (L4): the charge list as a sheet over Pack (#/pack?charge, and the ready-check point
    * "Devices charged"). The list itself is ChargeList.
-   * v0.105.0 Design-Refresh P5 (T8, approved 12.10.2026): title and one line on top with «×», the list
+   * v0.106.0 Design-Refresh P5 (T8, approved 12.10.2026): title and one line on top with «×», the list
    * with its bar, a hint box and «Schliessen» / «Alles geladen» at the bottom right.
    */
   import { db } from '../db.js';

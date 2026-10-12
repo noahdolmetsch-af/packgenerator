@@ -1,4 +1,4 @@
-// v0.105.0 Design-Refresh P5 «Packen und Unterwegs» (T6–T13): the new texts of Packen, its sheets,
+// v0.106.0 Design-Refresh P5 «Packen und Unterwegs» (T6–T13): the new texts of Packen, its sheets,
 // «Gepackt» and Unterwegs.
 export default {
   // T6 Packen

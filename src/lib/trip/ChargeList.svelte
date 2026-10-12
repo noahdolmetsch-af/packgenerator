@@ -3,7 +3,7 @@
    * v0.34.0 (L4, L8): the devices of this trip to charge, with ticks. The evening before the trip
    * (night null: trip.charge) or an evening on the way (night: the date, trip.chargeNight[date]).
    * The ticks are saved on the trip right away; the items never change (charge.js).
-   * v0.105.0 Design-Refresh P5 (T8, approved 12.10.2026): rows with a check box, the bag under the
+   * v0.106.0 Design-Refresh P5 (T8, approved 12.10.2026): rows with a check box, the bag under the
    * name and a small bolt; in the sheet (head) «2 von 6 geladen» with a bar on top, «Alles geladen»
    * is the sheet's button.
    */

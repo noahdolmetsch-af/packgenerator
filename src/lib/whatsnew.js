@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.106.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 9: Packing shows your bags as one list; tap a bag and its items open below.', href: '#/pack' },
+      { text: 'Swap, charge the evening before, still to decide, trip facts and end the trip are light windows.', href: '#/pack' },
+      { text: 'On the way shows the day in blocks with what to wear, eat and drink now, and the weather hour by hour.', href: '#/ride' },
+    ],
+  },
+  {
     version: '0.105.0',
     date: '2026-10-12',
     points: [

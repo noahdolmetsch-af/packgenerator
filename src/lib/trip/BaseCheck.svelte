@@ -24,7 +24,7 @@
   const all = () => save(tickReady($state.snapshot(trip.ready)));
 </script>
 
-<!-- v0.105.0 Design-Refresh P5 (T12, approved 12.10.2026): one light card, the name on the left, the chips
+<!-- v0.106.0 Design-Refresh P5 (T12, approved 12.10.2026): one light card, the name on the left, the chips
      in the middle, «1 von 2» on the right (on the phone one under the other). -->
 {#if rows.length}
   <section class="card bc" class:ok={!open.length} aria-labelledby="bc-h-{trip.id}">

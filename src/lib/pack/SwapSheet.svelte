@@ -48,7 +48,7 @@
 </script>
 
 <dialog class="calm-sheet swap-sheet" bind:this={el} onclose={onclose} aria-labelledby="swap-h">
-  <!-- v0.105.0 Design-Refresh P5 (T7, approved 12.10.2026): «{piece} tauschen», the zone and the trip
+  <!-- v0.106.0 Design-Refresh P5 (T7, approved 12.10.2026): «{piece} tauschen», the zone and the trip
        weather in one line, «Jetzt auf der Liste», «Aus deinem Kleiderschrank» with «Tauschen» per row,
        a hint box and the quiet actions at the bottom right. -->
   <header class="sh">

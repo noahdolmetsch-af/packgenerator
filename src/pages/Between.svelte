@@ -145,7 +145,7 @@
   <h1 class="lost">{t('Trip not found')}</h1>
   <Empty icon={Route} text={t('This trip does not exist any more.')} action={{ label: t('Back to Trips'), href: '#/trips' }} />
 {:else if kind === 'packed'}
-  <!-- v0.105.0 Design-Refresh P5 (T11 «Alles gepackt», approved 12.10.2026): the steps on top, one card in
+  <!-- v0.106.0 Design-Refresh P5 (T11 «Alles gepackt», approved 12.10.2026): the steps on top, one card in
        the middle with the count tile, the celebration and what happens next, «Bis zum Start» under it. -->
   <article class="pk" aria-labelledby="pk-h">
     <p class="trip">{context}</p>

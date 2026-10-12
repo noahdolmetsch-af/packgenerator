@@ -57,7 +57,7 @@ const openBag = (page) => page.locator('.pd .pbag.cur');
 const row = (page, name) => openBag(page).locator('button.it').filter({ hasText: name });
 /** A finger on the screen at the middle of a row (it stays there while the rows move). */
 async function spot(loc) {
-  // v0.105.0 Design-Refresh P5: the open bag stands under the list of bags (T6 mockup), so on a phone
+  // v0.106.0 Design-Refresh P5: the open bag stands under the list of bags (T6 mockup), so on a phone
   // it may start below the fold; a finger taps what is on the screen
   await loc.scrollIntoViewIfNeeded();
   const b = await loc.boundingBox();

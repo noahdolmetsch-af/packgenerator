@@ -4,7 +4,7 @@
    * sheet with only that field. Every tap goes through the page's change logic (Pack.svelte change /
    * changeContext), so the packing amounts follow at once and Undo takes it back.
    * edit: { date(iso), hours(n), days(n), wx(patch), bike(bike), more(), compare(), undo(), canUndo }
-   * v0.105.0 Design-Refresh P5 (T10 «Tour-Fakten», approved 12.10.2026): the light look of the mockup:
+   * v0.106.0 Design-Refresh P5 (T10 «Tour-Fakten», approved 12.10.2026): the light look of the mockup:
    * the title with one line «Was die Vorschläge bestimmt …» and «×» on top, the field's chips under a
    * small label, «Rückgängig» and «Fertig» at the bottom right. Still one field per sheet.
    */

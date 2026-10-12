@@ -398,7 +398,7 @@
     <!-- v0.67.0 (U005): ended by mistake? Until the next day it can be taken back. -->
     <p class="tp-status reopen">{t('Trip ended.')} <button type="button" class="tp-link" onclick={() => reopenTrip($state.snapshot(trip))}>{t('Still on the way? Reopen the trip')}</button></p>
   {/if}
-  <!-- v0.105.0 Design-Refresh P5 (T12 «Unterwegs», approved 12.10.2026): left the base check, the days, the
+  <!-- v0.106.0 Design-Refresh P5 (T12 «Unterwegs», approved 12.10.2026): left the base check, the days, the
        day in blocks with the block of now and the weather hour by hour; right the note for the debrief,
        tonight's charging and «Mehr» (what is where, the evening, the stage). -->
   <div class="tp-grid2 r">
@@ -625,7 +625,7 @@
 {/if}
 
 <style>
-  /* v0.105.0 Design-Refresh P5 (T12): headings above light cards, as on the other trip pages; every
+  /* v0.106.0 Design-Refresh P5 (T12): headings above light cards, as on the other trip pages; every
      font size is a type-scale token. */
   .col { min-width: 0; }
   .col > section { margin: 0 0 24px; }

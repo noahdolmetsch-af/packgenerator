@@ -1,4 +1,4 @@
-// v0.105.0 Design-Refresh P5 «Packen und Unterwegs» (T6–T13, approved 12.10.2026): Packen with «Taschen»,
+// v0.106.0 Design-Refresh P5 «Packen und Unterwegs» (T6–T13, approved 12.10.2026): Packen with «Taschen»,
 // the open bag and «Gewicht nach Taschen»; «Am Vorabend laden»; «Gepackt» with «Bis zum Start»;
 // Unterwegs with the base check, «Der Tag in Blöcken», «Heute Abend laden» and «Mehr»; «Tour jetzt
 // beenden?». Fictional fixture (test_data_gtp_), German, phone + desktop, no horizontal scroll.

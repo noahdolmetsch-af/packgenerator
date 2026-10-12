@@ -227,7 +227,7 @@ test('packing day: packed and ready counted apart, kept after a reload; a raised
   const stored = (await table(page, 'trips')).find((x) => x.id === OUT);
   const total = stored.entries.length;
   const checks = stored.ready.length;
-  // v0.105.0 Design-Refresh P5: the count stands under «Taschen» (T6 mockup); the ring is only the phone's bar
+  // v0.106.0 Design-Refresh P5: the count stands under «Taschen» (T6 mockup); the ring is only the phone's bar
   const ring = pd.locator('.packed-count').filter({ hasText: new RegExp(`^${T('{n} of {total} packed', { n: 1, total })}$`) });
   await expect(ring).toBeVisible();
   // The ready check is its own count: still none done.

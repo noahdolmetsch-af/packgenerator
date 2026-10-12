@@ -2,7 +2,7 @@
   /**
    * «Noch zu entscheiden»: the suggestions from the trip, the weather and the material rules; nothing
    * goes on the list until Noah confirms.
-   * v0.105.0 Design-Refresh P5 (T9, approved 12.10.2026 «Runde 20 freigegeben»): the suggestions as one
+   * v0.106.0 Design-Refresh P5 (T9, approved 12.10.2026 «Runde 20 freigegeben»): the suggestions as one
    * light list (check box, what and why, a small tag «freiwillig», «Alternative» or «Menge prüfen»),
    * «Alle · Keine · Auswahl übernehmen» under it, «Material bereits auf deiner Liste» below, and on the
    * right «Woher die Vorschläge kommen» (trip weather, days and hours, the rules) with «Tourbedingungen

@@ -46,7 +46,7 @@
   }
 </script>
 
-<!-- v0.105.0 Design-Refresh P5 (T13, approved 12.10.2026): a light sheet with «×» on top, the optional why
+<!-- v0.106.0 Design-Refresh P5 (T13, approved 12.10.2026): a light sheet with «×» on top, the optional why
      as chips, the way back in a hint box, «Weiterfahren» and «Tour beenden» at the bottom right (U25a: riding
      on still comes first). -->
 <dialog class="sheet endsheet" bind:this={dialog} use:backClose onclose={() => onclose?.()} aria-labelledby="end-h">

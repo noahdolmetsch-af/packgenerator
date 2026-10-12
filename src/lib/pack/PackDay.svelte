@@ -10,7 +10,7 @@
    * steps: from packSteps(). ontoggle(itemId), onready(row), onpack(itemIds | null), onreadyall(): save.
    * onnext(): the next step (On the way, or the debrief for a trip without a bike). onundo(): the page's Undo.
    *
-   * v0.105.0 Design-Refresh P5 «Packen» (T6, approved 12.10.2026 «Runde 20 freigegeben»): «Taschen» as one
+   * v0.106.0 Design-Refresh P5 «Packen» (T6, approved 12.10.2026 «Runde 20 freigegeben»): «Taschen» as one
    * light list (each bag with its items, weight and a small bar, the open one tinted), the open bag below
    * it as its own section with check boxes, and on the right «Gewicht nach Taschen» (the scale of P4),
    * «Aus früheren Touren» and «Mehr» (Laden). The open bag keeps its classes (.pbag.cur, #pb-<key>).
@@ -413,7 +413,7 @@
 </dialog>
 
 <style>
-  /* v0.105.0 Design-Refresh P5 (T6): light sections with a title and a short line, white cards. */
+  /* v0.106.0 Design-Refresh P5 (T6): light sections with a title and a short line, white cards. */
   .alldone { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px 14px; margin: 0 0 16px; padding: 18px 16px; border: 1px solid var(--card-line); border-radius: var(--radius-card); background: var(--ok-soft); scroll-margin-top: 72px; }
   .alldone:focus { outline: none; }
   .okbig { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--ok); color: var(--paper); }

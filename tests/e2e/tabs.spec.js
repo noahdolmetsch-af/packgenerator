@@ -163,7 +163,7 @@ test('Pack: "Whole bag packed" in one tap, and Undo takes it back', async ({ pag
   await cur.getByRole('button', { name: T('Whole bag packed') }).click();
   await expect(cur.locator('.bagh b')).not.toHaveText(first);
   await expect.poll(async () => (await stored(page, title)).entries.filter((e) => e.packed).length).toBe(n);
-  // v0.105.0 Design-Refresh P5: the count stands under «Taschen» (T6 mockup); the ring is only the phone's bar
+  // v0.106.0 Design-Refresh P5: the count stands under «Taschen» (T6 mockup); the ring is only the phone's bar
   await expect(page.locator('.pd .packed-count').filter({ hasText: new RegExp(`^${T('{n} of {total} packed', { n, total: (await stored(page, title)).entries.length })}$`) })).toBeVisible();
   // Undo (in the bag's card) unpacks the whole bag again.
   await cur.getByRole('button', { name: T('Undo'), exact: true }).click();

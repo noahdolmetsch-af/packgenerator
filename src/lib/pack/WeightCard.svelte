@@ -10,7 +10,7 @@
   import { zoneName } from '../trips.js';
   import { t, tn, locale, nameOf } from '../i18n.svelte.js';
 
-  // v0.105.0 Design-Refresh P5 (T6 «Gewicht nach Taschen»): the same card on Packen, with its own title.
+  // v0.106.0 Design-Refresh P5 (T6 «Gewicht nach Taschen»): the same card on Packen, with its own title.
   let { trip, stats, itemsById, title = '', sub = '' } = $props();
 
   const COLORS = ['var(--hi)', 'var(--hi-bright)', 'var(--bar)', 'var(--l2)', 'var(--line)', 'var(--l3)', 'var(--l1)'];

@@ -102,7 +102,7 @@ test('charge list from #/pack?charge, ticks on the trip; evening block on day 1 
   await expect.poll(async () => (await theTrip(page)).charge).toEqual({ EL01: true });
   await fits(page, info);
   await shot(page, info, 'charge-list');
-  // v0.105.0 Design-Refresh P5: the sheet also has «×» («Fenster schliessen») on top (T8 mockup)
+  // v0.106.0 Design-Refresh P5: the sheet also has «×» («Fenster schliessen») on top (T8 mockup)
   await sheet.getByRole('button', { name: T('Close'), exact: true }).click();
   await expect(sheet).toBeHidden();
   // The entry point in Plan says where it stands; the item records never change.
@@ -119,7 +119,7 @@ test('charge list from #/pack?charge, ticks on the trip; evening block on day 1 
   await expect(eve).toContainText(T('Lay out for tomorrow'));
   await expect(eve).toContainText('test_data_gtp_ Weste');
   await expect(eve).toContainText(T('Tomorrow morning'));
-  // v0.105.0 Design-Refresh P5: tonight's list stands as «Heute Abend laden» next to the evening fold (T12 mockup)
+  // v0.106.0 Design-Refresh P5: tonight's list stands as «Heute Abend laden» next to the evening fold (T12 mockup)
   await page.getByRole('region', { name: T('Charge tonight') }).getByRole('button', { name: /Powerbank|Power bank/ }).click();
   await expect.poll(async () => (await theTrip(page)).chargeNight).toEqual({ [day(0)]: { EL02: true } });
   expect((await theTrip(page)).charge).toEqual({ EL01: true });
