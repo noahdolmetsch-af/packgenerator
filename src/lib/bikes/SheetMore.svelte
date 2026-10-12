@@ -484,6 +484,14 @@
     color: var(--ink-2);
     overflow-wrap: break-word;
   }
+  /* v0.97.0 (Inter is a little wider): on a small phone (320 px) «Rahmennummer» does not fit half the
+     sheet: label above value, like the Velo-Pass (SheetView, v0.69.1 G001) */
+  @media (max-width: 359px) {
+    .vr {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2px;
+    }
+  }
   .vr dd {
     margin: 0;
     font-weight: 600;
