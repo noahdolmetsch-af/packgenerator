@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.103.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 6: Gear shows the list first, with one row of tools and the views on the right.', href: '#/gear' },
+      { text: 'An item opens with flat rows; rename, merge and delete wait under «More».', href: '#/gear' },
+      { text: 'Sort and filter, assign, merge and weighing are light cards with clear buttons at the bottom.', href: '#/gear' },
+    ],
+  },
+  {
     version: '0.102.0',
     date: '2026-10-12',
     points: [

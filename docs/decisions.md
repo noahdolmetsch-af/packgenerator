@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Design-Refresh P3 «Material» (0.103.0)
+
+Nach den Mockups M1–M6 (Runde 9, Noah 12.10.2026 «M1-M6 freigegeben», alle Seiten nochmals «Runde 20 freigegeben») und «10 Pakete»: nur das Aussehen ist neu, keine neuen Funktionen.
+
+- **Selbst entschieden (P3):** Die Liste ist die erste Ansicht (Noah «5a»), Karten bleiben wählbar und werden gemerkt. Eine Zeile am Computer öffnet das Teil weiter direkt und wird zugleich rechts als gewähltes Teil gezeigt. Die linke Filterspalte und die Handy-Kürzel «Kategorie»/«Tasche» sind in «Sortieren und filtern» (Knopf mit Zeichen, wenn ein Filter aktiv ist). «Wägen» ist im ••• und in der Zeile «n ohne Gewicht · wiegen». «Ansichten» behält die 7 bestehenden Ansichten. Im Fenster «Teil» liegen Umbenennen, Zusammenlegen und Löschen unter «Mehr». Nicht gebaut, weil neu: Filter «Im Baustein», «Wohin?»-Reiter beim Zuordnen, Gründe bei Vorschlägen, Tabelle «Alle Teile» und «Auch wiegen» beim Wiegen.
+
 ## 12.10.2026: Vorschlag und Challenge (0.102.0)
 
 Nach den Mockups D1b und D5 (Thread «Mein Überblick», freigegeben 12.10.2026 03:59 UTC «d1-d5 freigeben») und Noahs Regel für alle Bereiche (12.10.2026, Prio hoch): Vorschläge immer zeigen, wählbar, als Challenge setzbar, nie Pflicht.

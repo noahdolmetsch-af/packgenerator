@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.103.0 Design-Refresh P3 «Material»
+  'The new look, step 6: Gear shows the list first, with one row of tools and the views on the right.':
+    'Das neue Aussehen, Schritt 6: Material zeigt zuerst die Liste, mit einer Werkzeugzeile und den Ansichten rechts.',
+  'An item opens with flat rows; rename, merge and delete wait under «More».':
+    'Ein Teil öffnet sich mit flachen Zeilen; Umbenennen, Zusammenlegen und Löschen warten unter «Mehr».',
+  'Sort and filter, assign, merge and weighing are light cards with clear buttons at the bottom.':
+    'Sortieren und filtern, Zuordnen, Zusammenlegen und Wiegen sind helle Karten mit klaren Knöpfen unten.',
   // 0.102.0 «Vorschlag und Challenge»
   'New tile on Today: «Swim or sauna today?» with alternatives to choose from, also your own.':
     'Neue Kachel auf Heute: «Heute baden oder Sauna?» mit Alternativen zum Wählen, auch eigenen.',
