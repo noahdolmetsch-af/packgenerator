@@ -56,7 +56,8 @@ const CASES = [
     id: 'new-trip-helper',
     hash: '#/trips',
     act: async (page, T) => {
-      await tap(page.locator('main').getByRole('button', { name: T('New trip'), exact: true }));
+      // v0.102.0 Design-Refresh P4 (T1): the dashed tile «Neue Tour oder aus einer Vorlage» in the planning group
+      await tap(page.locator('main').getByRole('button', { name: new RegExp(`^${T('New trip')}`) }));
       await tap(page.getByRole('dialog', { name: T('New trip') }).getByText(T('What goes to Claude?')));
     },
   },

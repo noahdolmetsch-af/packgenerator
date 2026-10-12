@@ -125,10 +125,11 @@ async function setUp(page) {
   await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'helper')?.value).toMatchObject({ code: CODE, on: true });
 }
 
-/** v0.76.0 «Fünf Orte»: New trip opens from Touren («+ Neue Tour»), as a person does. */
+/** v0.76.0 «Fünf Orte»: New trip opens from Touren, as a person does. v0.102.0 Design-Refresh P4 (T1):
+ *  the dashed tile «Neue Tour oder aus einer Vorlage» in the planning group (the header button is gone). */
 async function openNewTrip(page) {
   await page.goto('./#/trips');
-  await page.locator('main').getByRole('button', { name: T('New trip'), exact: true }).click();
+  await page.locator('main').getByRole('button', { name: new RegExp(`^${esc(T('New trip'))}`) }).click();
   const dlg = page.getByRole('dialog', { name: T('New trip') });
   await expect(dlg).toBeVisible();
   return dlg;
