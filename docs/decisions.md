@@ -862,6 +862,15 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Design-Refresh P10 «Was ist neu» (0.110.0)
+
+Nach den Mockups I11 (v2), I11b (v2), I11c, I11d und I11e (Noah 12.10.2026 03:50 «Runde 20 freigegeben»; Antworten 03:45 «1 beides, 2b, 3 beides, 4a, 5b»).
+
+- **Meldung nach einem Update (2b):** kommt bei jedem Start nach einem Update, bis «Nicht mehr anzeigen» angekreuzt ist; das gilt bis zum nächsten Update und lässt sich unter Ich › Was ist neu wieder einschalten. «Später», ✕, «Alle Neuigkeiten» und «Ausprobieren» schliessen nur für diesen Start. Ersetzt «einmal pro Update» (0.78.0).
+- **Deine Top 10 und Wichtigste 10 (1 beides):** gezählt wird nur auf diesem Gerät (localStorage), nie im Backup, nicht auf der Spielwiese. Es zählen «Hinbringen» bei einer Funktion, die Knöpfe auf Heute und die Such-Befehle. Wichtigste 10 ist eine feste Auswahl.
+- **Kachel «Neu» (5b):** nach einem Update 14 Kalendertage oben auf der Kachel-Wand als ganze Zeile; danach zurück an ihren Platz (oder weg, wenn sie vorher nicht da war), ausser sie wurde von Hand verschoben, vergrössert oder weggenommen. Die Kachel kann jetzt auch «Ganze Zeile» sein.
+- **Selbst entschieden (P10):** neue Adresse `#/me/news` (Zeile in Ich › Die App); `#/features?news` bleibt wie es war. Neue Funktion «Was ist neu» im Katalog (jetzt 85). «Seit» jeder Funktion aus der Liste der Neuigkeiten abgeleitet. Ältere Versionen haben keinen Namen: die Versionsliste zeigt den ersten Punkt. Die Seite zeigt 10 Funktionen, «Alle 85 Funktionen ›» öffnet die ganze Liste; im neuesten Monat 6 Versionen, der Rest mit «Alle n Updates». Knopftext bleibt «Hinbringen» wie auf «Was die App kann» (Mockup: «Hinführen»). Die Häkchen von «So testest du» bleiben auf dem Gerät. «Als Nächstes geplant»: Skitour als Fahrplan, Merken und Agenda, Reisearten neu.
+
 ## 12.10.2026: Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (0.109.0)
 
 Nach den Mockups T14–T18 (Noah 12.10.2026 01:00 «T13–T18»), T19 (01:42 «t19 ok») und T20–T23 (01:51 «T20–T23 freigegeben») und «10 Pakete» (P6 = R12+R13+R14). Nur das Aussehen ist neu.
