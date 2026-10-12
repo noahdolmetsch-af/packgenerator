@@ -26,9 +26,9 @@
     min-width: 0;
   }
   i {
-    width: 8px;
-    height: 8px;
-    border-radius: 2px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%; /* v0.102.0 Design-Refresh P3 (M1): round dots */
     box-sizing: border-box;
   }
   .lg {
@@ -37,7 +37,7 @@
   .lg i {
     width: 14px;
     height: 14px;
-    border-radius: 3px;
+    border-radius: 50%;
   }
   .used {
     background: var(--accent);

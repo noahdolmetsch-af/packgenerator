@@ -8,6 +8,8 @@ const NAMES = { all: 'Alle', most: 'Meist genutzt', proven: 'Bewährt', fav: 'Li
 
 async function openGear(page, context, info, hash = '#/gear') {
   await openHome(page, context, info, { data: materialFixture() });
+  // v0.102.0 Design-Refresh P3: the list comes first now (Noah «5a»); these checks are about the cards
+  await page.evaluate(() => localStorage.setItem('gear.display', 'cards'));
   await page.goto(`./${hash}`);
   await expect(page.getByRole('heading', { level: 1, name: 'Material' })).toBeVisible();
 }

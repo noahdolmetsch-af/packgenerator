@@ -19,7 +19,7 @@
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
-  import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2, Pencil } from '@lucide/svelte';
+  import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2, Pencil, Ellipsis } from '@lucide/svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import { isClothing } from '../wardrobe.js';
@@ -370,7 +370,8 @@
 <!-- v0.63.0 (Noah 1a): one row that folds away; only one is open at a time (onFold). -->
 {#snippet fold(key, Icon, title, value, body, badge = '')}
   <details class="fold" data-fold={key} open={openFold === key} ontoggle={(e) => onFold(key, e.currentTarget.open)}>
-    <summary><Icon size={18} aria-hidden="true" /><span class="ft">{title}</span>{#if badge}<span class="fbadge">{badge}</span>{/if}<span class="fv">{value}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+    <!-- v0.102.0 Design-Refresh P3 (M2): flat rows, a title and its short value, the icon gives way -->
+    <summary><span class="ft">{title}</span>{#if badge}<span class="fbadge">{badge}</span>{/if}<span class="fv">{value}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
     <div class="fbody">{@render body()}</div>
   </details>
 {/snippet}
@@ -615,6 +616,15 @@
 {/snippet}
 
 <!-- v0.72.0 (Noah 1a): the rows in Noah's order: weight, where, blocks, weather, its history, name …, templates. -->
+<!-- v0.102.0 Design-Refresh P3 (M2): the rarer actions in one last row «More» (rename, merge, delete) -->
+{#snippet moreBody()}
+  <div class="moreacts">
+    <button type="button" class="btn" onclick={() => (renaming = true)}><Pencil size={16} aria-hidden="true" />{t('Rename')}</button>
+    {#if canMerge}<button type="button" class="btn" onclick={() => (mergeOpen = true)}>{t('Merge with …')}</button>{/if}
+    {#if !readOnly}<button type="button" class="btn del" onclick={remove}>{t('Delete')}</button>{/if}
+  </div>
+{/snippet}
+
 {#snippet rows()}
   {#if !isNew}{@render fold('weight', Scale, t('Weight'), weightSum, weightBody, suggested.length ? tn(suggested.length, '{n} suggestion', '{n} suggestions') : '')}{/if}
   {@render fold('where', MapPin, t('Where it goes'), placeName(draft), whereBody)}
@@ -623,6 +633,7 @@
   {#if !isNew && life}{@render fold('life', CalendarClock, t('History|item'), lifeSum, lifeBody)}{/if}
   {@render fold('details', FileText, isNew ? t('Brand, model, note') : t('Name, brand, note'), detailLine || t(CATEGORY[draft.category]?.name ?? ''), detailsBody)}
   {#if !isNew}{@render fold('templates', Layers, t('In templates'), `${where.templates.length}${where.trip ? ` · ${t('on the current trip')}` : ''}`, templatesBody)}{/if}
+  {#if !isNew}{@render fold('more', Ellipsis, t('More|item'), [t('Rename'), canMerge ? t('Merge with …') : '', readOnly ? '' : t('Delete')].filter(Boolean).join(', '), moreBody)}{/if}
 {/snippet}
 
 <dialog class="sheet" bind:this={dialog} use:backClose={keepOnBack} onclose={closed} aria-labelledby="item-h">
@@ -641,6 +652,8 @@
       {t(CATEGORY[draft.category]?.name ?? '')}{draft.id ? ` · ${draft.id}` : ''}
     </p>
     <h2 id="item-h" class="title">{#if isNew}{t('Add item')}{:else}<span>{shownName}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: shownName })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={18} aria-hidden="true" /></button>{/if}</h2>
+    <!-- v0.102.0 Design-Refresh P3 (M2): close at the top right (after the title, so the focus starts at the name) -->
+    <button type="button" class="x" aria-label={t('Close')} onclick={() => (isNew ? discard() : dialog.close())}><X size={20} aria-hidden="true" /></button>
 
     {#if isNew}
       <!-- v0.23.0 (AP08): the four main fields first; the rest folds away under "More details". -->
@@ -665,12 +678,11 @@
     {/if}
 
     <p class="err" role="alert">{error}</p>
+    <!-- v0.102.0 Design-Refresh P3 (M2): «Cancel» and «Save» at the bottom right; merge and delete are in «More» -->
     <div class="foot">
-      <button type="submit" class="btn hi">{t('Save')}</button>
-      {#if isNew && autoId}<button type="button" class="btn" onclick={discard}>{t('Discard')}</button><span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span>
+      {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
       {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
-      {#if canMerge}<button type="button" class="btn quiet" onclick={() => (mergeOpen = true)}>{t('Merge with …')}</button>{/if}
-      {#if !isNew && !readOnly}<button type="button" class="btn del" onclick={remove}>{t('Delete')}</button>{/if}
+      <button type="submit" class="btn hi">{t('Save')}</button>
     </div>
   </form>
   {/if}
@@ -976,7 +988,8 @@
   .rows {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
+    gap: 0;
+    border-top: 1px solid var(--line);
   }
   .rows .fold {
     margin-top: 0;
@@ -1129,19 +1142,21 @@
     font-size: 14px;
     cursor: pointer;
   }
+  /* v0.102.0 Design-Refresh P3 (M2): flat rows with a line between, the title bold and its value beside it */
   .fold {
-    margin-top: 8px;
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
+    margin-top: 0;
+    border-bottom: 1px solid var(--line);
     background: var(--paper);
   }
   .fold summary {
     list-style: none;
     display: flex;
-    align-items: center;
-    gap: 10px;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 2px 10px;
     min-height: 48px;
-    padding: 6px 12px;
+    padding: 12px 28px 12px 0;
+    position: relative;
     cursor: pointer;
   }
   .fold summary::-webkit-details-marker {
@@ -1153,16 +1168,19 @@
     white-space: nowrap;
   }
   .fv {
-    flex: 1 1 0;
-    margin-left: auto;
+    flex: 1 1 12em;
     color: var(--ink-3);
     font-size: var(--fs-small);
-    text-align: right;
     font-variant-numeric: tabular-nums;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .fold summary :global(.chev) {
+    position: absolute;
+    right: 2px;
+    top: 15px;
   }
   .fold :global(.chev) {
     flex: none;
@@ -1173,7 +1191,40 @@
     transform: rotate(90deg);
   }
   .fbody {
-    padding: 4px 12px 12px;
+    padding: 0 0 14px;
+  }
+  .moreacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .moreacts .del {
+    margin-left: 0;
+  }
+  /* the close button top right */
+  form {
+    position: relative;
+  }
+  .x {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .x:hover {
+    background: var(--line);
+  }
+  .meta,
+  form > h2 {
+    padding-right: 52px;
   }
   .wl {
     margin: 0 0 8px;
@@ -1268,6 +1319,8 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
   }
   .kept {
     display: inline-flex;

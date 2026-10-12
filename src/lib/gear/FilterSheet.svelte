@@ -4,7 +4,6 @@
    * last along, name), category, bag or building block, area and "Comes along". Every tap applies at
    * once; the main button closes the sheet and names how many items the list shows.
    */
-  import Seg from '../ui/Seg.svelte';
   import { phone } from '../media.svelte.js';
   import { t, tn } from '../i18n.svelte.js';
   import { X } from '@lucide/svelte';
@@ -12,8 +11,10 @@
   /**
    * value: { sort, category, bag, domain, role }; onchange(patch); count: items shown;
    * cats/bags/areas: [{ key, name, n }] (names translated); onclose.
+   * v0.102.0 Design-Refresh P3 (M3): total (all items of the view) for the line «n of m items match»;
+   * every choice is a chip (sort and area too), the chosen one filled.
    */
-  let { value, onchange, count = 0, cats = [], bags = [], areas = [], onclose } = $props();
+  let { value, onchange, count = 0, total = null, cats = [], bags = [], areas = [], onclose } = $props();
   let dlg = $state();
   $effect(() => {
     dlg?.showModal();
@@ -37,12 +38,17 @@
 
 <dialog class="sheet fsheet" class:phone={phone.matches} bind:this={dlg} onclose={() => onclose?.()} aria-labelledby="fs-h">
   <div class="fh">
-    <h2 id="fs-h" class="title">{t('Sort and filter')}</h2>
+    <div class="fht">
+      <h2 id="fs-h" class="title">{t('Sort and filter')}</h2>
+      {#if total != null}<p class="fsub num">{tn(count, '{n} of {m} items matches', '{n} of {m} items match', { m: total })}</p>{/if}
+    </div>
     <button type="button" class="x" aria-label={t('Close')} onclick={() => dlg.close()}><X size={20} aria-hidden="true" /></button>
   </div>
 
   <h3 class="lbl" id="fs-sort">{t('Sort')}</h3>
-  <Seg labelledby="fs-sort" options={SORTS} value={value.sort} onchange={(k) => onchange({ sort: k })} />
+  <div class="fchips" role="group" aria-labelledby="fs-sort">
+    {#each SORTS as o (o.key)}<button type="button" class="fchip" aria-pressed={value.sort === o.key} onclick={() => onchange({ sort: o.key })}>{o.name}</button>{/each}
+  </div>
 
   <h3 class="lbl" id="fs-cat">{t('Category')}</h3>
   <div class="fchips" role="group" aria-labelledby="fs-cat">
@@ -60,7 +66,9 @@
 
   {#if areas.length > 1}
     <h3 class="lbl" id="fs-area">{t('Area')}</h3>
-    <Seg labelledby="fs-area" options={[{ key: '', name: t('All') }, ...areas]} value={value.domain} onchange={(k) => onchange({ domain: k })} />
+    <div class="fchips" role="group" aria-labelledby="fs-area">
+      {#each [{ key: '', name: t('All') }, ...areas] as a (a.key)}<button type="button" class="fchip" aria-pressed={value.domain === a.key} onclick={() => onchange({ domain: a.key })}>{a.name}{#if a.n != null} <small class="num">{a.n}</small>{/if}</button>{/each}
+    </div>
   {/if}
 
   <h3 class="lbl" id="fs-role">{t('Comes along')}</h3>
@@ -69,8 +77,8 @@
   </div>
 
   <div class="ff">
-    <button type="button" class="btn hi" onclick={() => dlg.close()}>{tn(count, 'Show {n} item', 'Show {n} items')}</button>
     {#if active}<button type="button" class="btn" onclick={() => onchange({ category: '', bag: '', domain: '', role: '' })}>{t('Reset filters')}</button>{/if}
+    <button type="button" class="btn hi" onclick={() => dlg.close()}>{tn(count, 'Show {n} item', 'Show {n} items')}</button>
   </div>
 </dialog>
 
@@ -88,26 +96,37 @@
   }
   .fh {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
   }
   .fh .title {
     font-size: var(--fs-section);
   }
+  .fht {
+    min-width: 0;
+  }
+  .fsub {
+    margin: 2px 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
   .x {
+    flex: none;
     display: grid;
     place-items: center;
     width: 44px;
     height: 44px;
     border: 0;
-    border-radius: 50%;
+    border-radius: var(--r-ctl);
     background: var(--paper-2);
     color: var(--ink);
     cursor: pointer;
   }
   h3.lbl {
-    margin: 16px 0 6px;
+    margin: 16px 0 8px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .fchips {
     display: flex;
@@ -124,26 +143,28 @@
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink);
-    font: 500 var(--fs-body) var(--font-body);
+    font: 500 var(--fs-small) var(--font-body);
     cursor: pointer;
   }
   .fchip small {
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
+  /* v0.102.0 Design-Refresh P3 (M3): the chosen chip filled in ink */
   .fchip[aria-pressed='true'] {
-    border-color: var(--hi);
-    background: var(--hi-soft);
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
     font-weight: 600;
+  }
+  .fchip[aria-pressed='true'] small {
+    color: var(--paper);
   }
   .ff {
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 8px;
     margin-top: 20px;
-  }
-  .ff .btn.hi {
-    flex: 1 1 auto;
-    min-height: 48px;
   }
 </style>

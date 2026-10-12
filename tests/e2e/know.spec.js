@@ -119,6 +119,8 @@ for (const lang of ['en', 'de']) {
     expect(keys.indexOf('backup')).toBeLessThan(3);
     expect(keys).toContain('unused');
     expect(keys.indexOf('unused')).toBeGreaterThan(keys.indexOf('backup'));
+    // v0.103.0 Design-Refresh P3: Gear shows the list first now (Noah «5a»); these checks count the cards
+    await page.evaluate(() => localStorage.setItem('gear.display', 'cards'));
     // the overview lists everything; "Long not used" from there (Noah 3a)
     await page.goto('./#/features');
     // Long not used → Look through: Gear shows exactly those items

@@ -28,9 +28,9 @@
   import ItemLife from '../lib/gear/ItemLife.svelte';
   import FilterSheet from '../lib/gear/FilterSheet.svelte';
   import Seg from '../lib/ui/Seg.svelte';
-  import { catIcon, catColor } from '../lib/gear/caticon.js';
+  import { catIcon } from '../lib/gear/caticon.js';
   import { localDay } from '../lib/localday.js';
-  import { List, TrendingUp, Trophy, Star, PackageX, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, Check } from '@lucide/svelte';
+  import { List, TrendingUp, Trophy, Star, PackageX, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, Check, Search, Ellipsis } from '@lucide/svelte';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
   import Sum from '../lib/ui/Sum.svelte';
@@ -124,7 +124,8 @@
    * opened from the page header and its ••• menu.
    */
   const VIEW_ICON = { all: List, most: TrendingUp, proven: Trophy, fav: Star, never: PackageX, unweighed: Scale, wish: Heart };
-  const VIcon = $derived(VIEW_ICON[view]);
+  // v0.102.0 Design-Refresh P3 (M1): one short line under each view in the card «Views»
+  const VIEW_SUB = { all: 'everything you own', most: 'used on at least half the trips', proven: 'nearly always used', fav: 'your best items', never: 'along often, never used', unweighed: 'no weight yet', wish: 'not owned yet, in no total' };
   const VIEW_NAME = { all: 'All', most: 'Most used', proven: 'Proven', fav: 'Favourite things', never: 'Never used', unweighed: 'Unweighed', wish: 'Wishlist' };
   function viewFrom(params) {
     const v = params.get('view');
@@ -163,9 +164,10 @@
   let display = $state(
     (() => {
       try {
-        return localStorage.getItem(DISPLAY) === 'list' ? 'list' : 'cards';
+        // v0.102.0 Design-Refresh P3 (M1, Noah «5a Liste zuerst»): the list first; the cards stay a choice
+        return localStorage.getItem(DISPLAY) === 'cards' ? 'cards' : 'list';
       } catch {
-        return 'cards';
+        return 'list';
       }
     })(),
   );
@@ -286,7 +288,8 @@
   const proven = (item) => inView('proven', item, usageOf(mstats, item.id), mstats.n);
   // Selecting works on the list (the rows have the boxes); the cards come back afterwards.
   const shownAs = $derived(selecting ? 'list' : display);
-  const showPanel = $derived(wideQ.current && shownAs === 'cards' && !mode);
+  // v0.102.0 Design-Refresh P3 (M1): the chosen item shows on the right in the list too (computer)
+  const showPanel = $derived(wideQ.current && !mode);
   const selItem = $derived(showPanel ? (sorted.find((i) => i.id === picked1) ?? sorted[0] ?? null) : null);
   function pickCard(item) {
     if (showPanel && picked1 !== item.id && selItem?.id !== item.id) return (picked1 = item.id);
@@ -308,11 +311,8 @@
     ...blocks.map((b) => ({ key: `set:${b.key}`, name: t('Set "{name}"', { name: b.builtIn ? t(b.name) : b.name }), n: base.filter((i) => i.sets?.includes(b.key)).length, set: true })),
   ].filter((b) => b.n));
   const areaOpts = $derived(areaKeys.map((k) => ({ key: k, name: t(domainName(k)), n: perArea[k] })));
-  let moreCats = $state(false);
   const activeN = $derived([filter.category, filter.bag, filter.domain, filter.role].filter(Boolean).length);
   const SORT_NAME = { taken: 'Most along', weight: 'Weight', last: 'Last along', name: 'Name' };
-  const catName = $derived(filter.category ? t(CATEGORY[filter.category]?.name ?? '') : t('all'));
-  const bagName = $derived(filter.bag ? (bagOpts.find((b) => b.key === filter.bag)?.name ?? '') : t('all'));
   const VIEW_TEXT = $derived({
     all: t('Everything you own. One dot per trip of the last 12 months.'),
     most: tn(mstats.n, 'Used on at least half of your {n} debriefed trip.', 'Used on at least half of your {n} debriefed trips.'),
@@ -345,6 +345,13 @@
     queueMicrotask(() => document.getElementById(`gh-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
   const open = (item) => (dialog = { item });
+  // v0.102.0 Design-Refresh P3 (M1): a row of the list opens the item as before and becomes the chosen one
+  // in the right column (computer).
+  const openRow = (item) => ((picked1 = item.id), open(item));
+  function showAnalysis() {
+    analysis = true;
+    queueMicrotask(() => document.getElementById('gear-analysis')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
   // v0.30.2 (test H1.11): a hit from the top bar search opens that item (?item=<id>).
   let wantItem = $state(hashQ.get('item') ?? '');
   $effect(() => {
@@ -511,35 +518,14 @@
 </script>
 
 <div class="gear">
+  <!-- v0.102.0 Design-Refresh P3 (M1): the title and one line of numbers; the actions sit in the toolbar -->
   <header class="head">
     <div class="ht">
       <h1 class="title">{t('Gear|page')}</h1>
-      <!-- v0.26.0 (Noah 2b): the building blocks page; v0.42.0: the wardrobe; v0.36.0: the quiet page actions -->
-      <span class="hlinks">
-        <a class="btn sm blk" href="#/blocks">{t('Building blocks')} →</a>
-        <a class="btn sm blk" href="#/wardrobe">{t('Wardrobe')} →</a>
-        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-        <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeGmore(e)}>
-          <summary class="btn sm" aria-label={t('More for Gear')}>•••</summary>
-          <div class="gmenu">
-            <!-- v0.43.0 (Wiege-Modus): weigh one thing after the other -->
-            <button type="button" onclick={startWeigh}>{t('Record weights')}{#if toWeigh}<i class="badge num">{toWeigh}</i>{/if}</button>
-            <!-- v0.47.2: "Check" was a tab; now a mode, one tap from here -->
-            <button type="button" onclick={startCheck}>{t('Check items')}{#if toReview}<i class="badge num">{toReview}</i>{/if}</button>
-            <!-- v0.66.0 (Noah 4a): «Bausteine prüfen» -->
-            <a href="#/blocks/check">{t('Check building blocks')}</a>
-            <a href="#/gear/import">{t('Check import')}{#if $stagedQ}<i class="badge num">{$stagedQ.data?.items?.length || t('Step 2')}</i>{/if}</a>
-          </div>
-        </details>
-      </span>
       <!-- v0.47.2 (Noah 6a): one line instead of three numbers: items, known weight, not weighed, debriefs -->
       <p class="page-sub num">
         {[tn(stats.inventory.length, '{n} item', '{n} items'), t('{w} weighed', { w: formatWeight(stats.total) }), stats.totalMissing ? t('{n} not weighed', { n: stats.totalMissing }) : '', debriefN ? tn(debriefN, 'learnt from {n} debrief', 'learnt from {n} debriefs') : ''].filter(Boolean).join(' · ')}
       </p>
-    </div>
-    <div class="hacts">
-      {#if !phone.matches}<button type="button" class="btn" onclick={startWeigh}><Scale size={18} aria-hidden="true" />{t('Weigh')}</button>{/if}
-      <button type="button" class="btn hi" onclick={() => addItem()}><Plus size={18} aria-hidden="true" />{t('Add item')}</button>
     </div>
   </header>
 
@@ -548,7 +534,8 @@
   {/if}
 
   {#if mode}
-    <p class="modeback"><button type="button" class="btn sm" onclick={() => setMode('')}>← {t('Back to all items')}</button></p>
+    <!-- v0.102.0 Design-Refresh P3 (M6): a quiet way back above the mode -->
+    <p class="modeback"><button type="button" class="btn btn-link" onclick={() => setMode('')}><ChevronLeft size={18} aria-hidden="true" />{t('Back to all items')}</button></p>
     {#if mode === 'weigh'}
       <WeighMode {items} extras onclose={() => setMode('')} />
     {:else}
@@ -556,48 +543,36 @@
     {/if}
   {:else}
     <div class="mat" class:panel={showPanel}>
-      {#if !phone.matches}
-        <!-- v0.47.2 (Noah 6a, 8a): the side column: views, categories, bags and building blocks -->
-        <nav class="side" aria-label={t('Views and filters')}>
-          <span class="zl" id="side-views">{t('Views')}</span>
-          {@render viewButtons('side')}
-          {#if catOpts.length}
-            <span class="zl" id="side-cats">{t('Category')}</span>
-            <div class="slist" role="group" aria-labelledby="side-cats">
-              {#each moreCats ? catOpts : catOpts.slice(0, 7) as c (c.key)}
-                <button type="button" aria-pressed={filter.category === c.key} onclick={() => pickCategory(c.key)}><span class="sw" style:background={c.color}></span><span class="n">{c.name}</span><small class="num">{c.n}</small></button>
-              {/each}
-              {#if catOpts.length > 7}<button type="button" class="more1" aria-expanded={moreCats} onclick={() => (moreCats = !moreCats)}>{moreCats ? t('Fewer') : t('+ {n} more', { n: catOpts.length - 7 })}</button>{/if}
-            </div>
-          {/if}
-          {#if bagOpts.length}
-            <span class="zl" id="side-bags">{t('Bag · set')}</span>
-            <div class="slist" role="group" aria-labelledby="side-bags">
-              {#each bagOpts as b (b.key)}
-                <button type="button" aria-pressed={filter.bag === b.key} onclick={() => (filter.bag = filter.bag === b.key ? '' : b.key)}><span class="n">{b.name}</span><small class="num">{b.n}</small></button>
-              {/each}
-            </div>
-          {/if}
-        </nav>
-      {/if}
-
       <div class="center">
+        <!-- v0.102.0 Design-Refresh P3 (M1): search, «Sort and filter» and «+ Item» in one row; the rest in ••• -->
         <div class="toolbar">
-          <label class="q"><span class="sr">{t('Search gear')}</span><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} bind:value={filter.q} bind:this={searchEl} /></label>
-          <button type="button" class="btn fbtn" onclick={() => (sheet = true)} aria-label={phone.matches ? t('Sort and filter') : undefined}>
-            <SlidersHorizontal size={18} aria-hidden="true" />{#if !phone.matches}{t('Sorted: {s}', { s: t(SORT_NAME[sort]) })}{/if}{#if activeN}<i class="badge num">{activeN}</i>{/if}
+          <label class="q"><span class="sr">{t('Search gear')}</span><Search class="qi" size={18} aria-hidden="true" /><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} bind:value={filter.q} bind:this={searchEl} /></label>
+          <button type="button" class="btn fbtn" onclick={() => (sheet = true)}>
+            <SlidersHorizontal size={18} aria-hidden="true" />{t('Sort and filter')}{#if activeN}<i class="badge num">{activeN}</i>{/if}
           </button>
-          {#if !phone.matches}{@render showAs()}{/if}
+          <button type="button" class="btn hi addb" aria-label={t('Add item')} onclick={() => addItem()}><Plus size={18} aria-hidden="true" />{t('Item|add')}</button>
+          <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+          <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeGmore(e)}>
+            <summary class="btn" aria-label={t('More for Gear')}><Ellipsis size={18} aria-hidden="true" /></summary>
+            <div class="gmenu">
+              <!-- v0.43.0 (Wiege-Modus): weigh one thing after the other -->
+              <button type="button" onclick={startWeigh}>{t('Record weights')}{#if toWeigh}<i class="badge num">{toWeigh}</i>{/if}</button>
+              <!-- v0.47.2: "Check" was a tab; now a mode, one tap from here -->
+              <button type="button" onclick={startCheck}>{t('Check items')}{#if toReview}<i class="badge num">{toReview}</i>{/if}</button>
+              <!-- v0.66.0 (Noah 4a): «Bausteine prüfen» -->
+              <a href="#/blocks/check">{t('Check building blocks')}</a>
+              <a href="#/gear/import">{t('Check import')}{#if $stagedQ}<i class="badge num">{$stagedQ.data?.items?.length || t('Step 2')}</i>{/if}</a>
+              <!-- v0.26.0 (Noah 2b) / v0.42.0: the building blocks and the wardrobe, also in the sub-navigation -->
+              <a href="#/blocks">{t('Building blocks')} →</a>
+              <a href="#/wardrobe">{t('Wardrobe')} →</a>
+            </div>
+          </details>
         </div>
-
-        {#if phone.matches}
-          {@render viewButtons('chips')}
-          <div class="quick">
-            <button type="button" class="btn sm" onclick={() => (sheet = true)}>{t('Category')}: {catName}</button>
-            {#if bagOpts.length}<button type="button" class="btn sm" onclick={() => (sheet = true)}>{t('Bag')}: {bagName}</button>{/if}
-            {@render showAs()}
-          </div>
-        {/if}
+        <!-- one quiet line: how it is sorted, list or cards, select -->
+        <div class="metaline">
+          <span class="sorted">{t('Sorted: {s}', { s: t(SORT_NAME[sort]) })}</span>
+          {@render showAs()}
+        </div>
 
         {#if fill}
           <p class="unused-f fillbar"><span>{t('Add to "{block}": tick the items, then "Into {block}" below. Only items not in it are shown.', { block: fill.name })}</span> <a class="btn sm" href="#/blocks" onclick={() => endFill()}>{t('Back to building blocks')}</a></p>
@@ -616,7 +591,6 @@
 
         <!-- v0.47.2 (Noah 6a): every view says in one sentence what it shows -->
         <section class="vhead" aria-labelledby="vh-h">
-          <span class="vic" aria-hidden="true"><VIcon size={20} /></span>
           <div class="vt">
             <h2 id="vh-h" class="title">{t(VIEW_NAME[view])}</h2>
             <p class="vs">{VIEW_TEXT[view]}</p>
@@ -664,10 +638,11 @@
           </div>
           <div class="cats">
             {#each groups as g (g.key)}
+              {@const GIcon = catIcon(g.key)}
               <section class="cat" aria-labelledby="gh-{g.key}">
                 <h2 id="gh-{g.key}" class="ch">
                   <button type="button" aria-expanded={isOpen(g.key)} disabled={searching} onclick={() => toggle(g.key)}>
-                    <span class="sw" style:background={g.color}></span>
+                    <span class="gic" aria-hidden="true"><GIcon size={18} /></span>
                     <span class="title">{t(g.name)}</span>
                     <b class="num k">{knownWeight(catStats[g.key].g, catStats[g.key].unweighed)}</b>
                     <span class="m">{tn(catStats[g.key].n, '{n} item', '{n} items')}{catStats[g.key].unweighed ? ` · ${t('{n} not weighed', { n: catStats[g.key].unweighed })}` : ''}{catStats[g.key].consumable ? ` · ${t('not in gear weight')}` : ''}</span>
@@ -685,7 +660,7 @@
                   <ul class="rows">
                     {#each rows as item (item.id)}
                       {#if !selecting}
-                        <GearRow {item} {showBag} {touch} {swiped} used={(usedN[item.id] ?? 0) > 0} onswipe={(id) => (swiped = id)} onopen={open} onmenu={(it) => (rowMenu = it)} onassign={assignOne} onarchive={archiveOne} ondelete={deleteOne} />
+                        <GearRow {item} {showBag} {touch} {swiped} u={usageOf(mstats, item.id)} selected={showPanel && selItem?.id === item.id} used={(usedN[item.id] ?? 0) > 0} onswipe={(id) => (swiped = id)} onopen={openRow} onmenu={(it) => (rowMenu = it)} onassign={assignOne} onarchive={archiveOne} ondelete={deleteOne} />
                       {:else}
                         <li class="fr">{@render pickRow(item, BAG[item.defaultBag] ? t(BAG[item.defaultBag]) : '–')}</li>
                       {/if}
@@ -700,6 +675,7 @@
               {#if items.length}{@render emptyView()}{/if}
             {/each}
           </div>
+          {#if mstats.months && groups.length}<div class="lgd"><DotsLegend /></div>{/if}
         {:else}
           <section class="wish" aria-labelledby="wish-h">
             <h2 id="wish-h" class="title">{t('Wishlist & to buy')}</h2>
@@ -738,44 +714,59 @@
         {/if}
         {#if view === 'all'}
           <!-- v0.23.0 (AP08): the analyses come after the list, in one fold that starts closed. -->
-          <details class="analysis" bind:open={analysis}>
+          <details class="analysis" id="gear-analysis" bind:open={analysis}>
             <summary><span class="title">{t('Analysis')}</span> <small>{t('Weight by category and the heaviest items')}</small></summary>
             {#if analysis}<WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />{/if}
           </details>
         {/if}
       </div>
 
-      {#if showPanel && selItem}
-        <!-- v0.47.2 (Noah 8a): the chosen card in detail; "Open" opens the item window -->
-        {@const DIcon = catIcon(selItem.category)}
-        <aside class="detail" aria-labelledby="det-h">
-          <div class="dh"><span class="zl">{t('Selected')}</span><button type="button" class="btn sm" onclick={() => open(selItem)}>{t('Open')}<ChevronRight size={16} aria-hidden="true" /></button></div>
-          <div class="dband" style:--c={catColor(selItem.category)} aria-hidden="true"><DIcon size={30} /></div>
-          <div class="dtitle">
-            <h2 id="det-h" class="title">{nameOf(selItem)}</h2>
-            <FavStar item={selItem} describedby="det-h" />
-          </div>
-          <p class="dsub">{[selItem.brand, t(CATEGORY[selItem.category]?.name ?? ''), BAG[selItem.defaultBag] ? t(BAG[selItem.defaultBag]) : ''].filter(Boolean).join(' · ')}</p>
-          <!-- v0.63.0 (Noah 1a): the numbers, one line on how it comes along, then rows that fold away -->
-          <ItemLife item={selItem} {items} stats={mstats} log={mlog} {today} compact folds line={comesLine(selItem, blocks)} />
-        </aside>
-      {/if}
+      <!-- v0.102.0 Design-Refresh P3 (M1): the right column: the chosen item, then the views as one card
+           (on a phone and a narrow window both come under the list) -->
+      <div class="rcol">
+        {#if showPanel && selItem}
+          <!-- v0.47.2 (Noah 8a): the chosen item in detail; "Open and edit" opens the item window -->
+          <aside class="detail" aria-labelledby="det-h">
+            <div class="dtitle">
+              <h2 id="det-h" class="title">{nameOf(selItem)}</h2>
+              <FavStar item={selItem} describedby="det-h" />
+            </div>
+            <p class="dsub">{[selItem.brand, t(CATEGORY[selItem.category]?.name ?? ''), BAG[selItem.defaultBag] ? t(BAG[selItem.defaultBag]) : '', proven(selItem) ? `★ ${t('Proven')}` : ''].filter(Boolean).join(' · ')}</p>
+            <div class="dcard">
+              <!-- v0.63.0 (Noah 1a): the numbers, one line on how it comes along, then rows that fold away -->
+              <ItemLife item={selItem} {items} stats={mstats} log={mlog} {today} compact folds line={comesLine(selItem, blocks)} />
+              <div class="dacts">
+                <button type="button" class="btn hi" onclick={() => open(selItem)}>{t('Open and edit')}</button>
+                <button type="button" class="btn" onclick={() => assignOne(selItem)}>{t('Assign …')}</button>
+              </div>
+            </div>
+          </aside>
+        {/if}
+        <section class="vcard" aria-labelledby="views-h">
+          <h2 id="views-h" class="title">{t('Views')}</h2>
+          {@render viewButtons('vrows')}
+        </section>
+      </div>
     </div>
   {/if}
 </div>
 
 {#snippet showAs()}
-  <span class="disp"><Seg label={t('Show as')} full={false} options={[{ key: 'cards', name: t('Cards') }, { key: 'list', name: t('List') }]} value={display} onchange={setDisplay} /></span>
+  <span class="disp"><Seg label={t('Show as')} full={false} small options={[{ key: 'list', name: t('List') }, { key: 'cards', name: t('Cards') }]} value={display} onchange={setDisplay} /></span>
   <!-- D4 «Material als Tabelle» adds a third choice here: Cards · List · Table -->
-  <button type="button" class="btn selbtn" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
+  <button type="button" class="btn btn-link selbtn" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
 {/snippet}
 
 {#snippet viewButtons(kind)}
   <div class="views {kind}" role="group" aria-label={t('Views')}>
     {#each VIEWS as v (v)}
       {@const I = VIEW_ICON[v]}
-      <button type="button" class="vbtn" data-view={v} aria-pressed={view === v} onclick={() => setView(v)}><I size={16} aria-hidden="true" /><span class="vn">{t(VIEW_NAME[v])}</span> <small class="num">{counts[v]}</small></button>
+      <button type="button" class="vbtn" data-view={v} aria-pressed={view === v} aria-describedby="vsub-{v}" onclick={() => setView(v)}><span class="vic" aria-hidden="true"><I size={18} /></span><span class="vm"><span class="vn">{t(VIEW_NAME[v])}</span><span class="vsub" id="vsub-{v}" aria-hidden="true">{t(VIEW_SUB[v])}</span></span> <small class="num">{counts[v]}</small></button>
     {/each}
+    {#if view === 'all'}
+      <!-- v0.23.0 (AP08): the analyses below the list, one tap from here -->
+      <button type="button" class="vbtn" aria-expanded={analysis} aria-controls="gear-analysis" onclick={showAnalysis}><span class="vic" aria-hidden="true"><Scale size={18} /></span><span class="vm"><span class="vn">{t('Weight by category')}</span><span class="vsub">{t('and the heaviest items')}</span></span><ChevronRight size={18} aria-hidden="true" /></button>
+    {/if}
   </div>
 {/snippet}
 
@@ -841,7 +832,7 @@
 {/snippet}
 
 {#if sheet}
-  <FilterSheet value={{ sort, category: filter.category, bag: filter.bag, domain: filter.domain, role: filter.role }} count={viewList.length} cats={catOpts} bags={bagOpts} areas={areaOpts} onchange={(p) => { if (p.sort) setSort(p.sort); for (const k of ['category', 'bag', 'domain', 'role']) if (k in p) filter[k] = p[k]; }} onclose={() => (sheet = false)} />
+  <FilterSheet value={{ sort, category: filter.category, bag: filter.bag, domain: filter.domain, role: filter.role }} count={viewList.length} total={base.length} cats={catOpts} bags={bagOpts} areas={areaOpts} onchange={(p) => { if (p.sort) setSort(p.sort); for (const k of ['category', 'bag', 'domain', 'role']) if (k in p) filter[k] = p[k]; }} onclose={() => (sheet = false)} />
 {/if}
 
 {#snippet nothing()}
@@ -982,7 +973,7 @@
     color: var(--ink);
   }
   .cat {
-    margin-bottom: 20px;
+    margin: 0;
   }
   /* v0.22.0 (AP03): a thin line under the category instead of a 3 px bar. */
   .ch {
@@ -1034,9 +1025,6 @@
     grid-column: 4;
     grid-row: 1;
     text-align: right;
-  }
-  .ch .sw {
-    align-self: center;
   }
   .ch .chev {
     grid-column: 5;
@@ -1489,17 +1477,6 @@
     overflow-wrap: break-word;
     text-align: left;
   }
-  /* Desktop: a side column to jump between categories, categories in two columns (G1). */
-
-  @media (min-width: 1200px) {
-    .cats {
-      columns: 2;
-      column-gap: 28px;
-    }
-    .cat {
-      break-inside: avoid;
-    }
-  }
   .gone summary {
     cursor: pointer;
     font-weight: 700;
@@ -1576,7 +1553,8 @@
   }
   @media (min-width: 720px) {
     .wish .rows button {
-      grid-template-columns: 90px 1fr 200px 110px;
+      /* v0.102.0 Design-Refresh P3: the list column is narrower beside the views; the name keeps the room */
+      grid-template-columns: auto minmax(0, 1fr) minmax(0, 140px) 80px;
     }
     .wish .nm,
     .wish .bg,
@@ -1765,9 +1743,6 @@
     gap: 6px 14px;
     min-width: 0;
   }
-  .blk {
-    text-decoration: none;
-  }
   /* v0.43.0 (Mehrfachauswahl): ••• in the bar opens a short list upwards, over the page. */
   .more {
     position: relative;
@@ -1860,13 +1835,16 @@
      A slim tab bar with small counts, the filter labels only for screen readers, the categories as
      calm white cards with a small colour dot, the numbers quiet and right-aligned. */
 
-  .cat {
-    margin-bottom: 18px;
-    padding: 4px 16px 6px;
+  /* v0.102.0 Design-Refresh P3 (M1): all groups in one white card, a thin line between them */
+  .cats {
+    padding: 4px 16px;
     background: var(--paper);
     border: 1px solid var(--card-line);
     border-radius: var(--radius-card);
     box-shadow: var(--card-shadow);
+  }
+  .cat + .cat {
+    border-top: 1px solid var(--line);
   }
   .ch {
     border-bottom: 0;
@@ -1878,16 +1856,15 @@
     padding: 6px 0;
   }
   .ch .title {
-    font-size: 18px;
-    font-weight: 500;
+    font-size: var(--fs-body);
+    font-weight: 600;
   }
   @media (max-width: 420px) {
     /* a long category name on a small phone stays at two calm lines */
-    .cat {
-      padding: 2px 12px 4px;
+    .cats {
+      padding: 2px 12px;
     }
     .ch .title {
-      font-size: 16px;
       line-height: 1.2;
     }
     .ch button {
@@ -1896,29 +1873,20 @@
   }
   .ch .k {
     font-weight: 500;
-    color: var(--ink);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
-  .ch .sw {
-    width: 9px;
-    height: 9px;
+  .ch .gic {
+    display: grid;
+    place-items: center;
+    align-self: center;
+    color: var(--ink-2);
   }
   .rows {
     border-top: 1px solid var(--line);
   }
   .cat :global(.gr:last-child) {
     border-bottom: 0;
-  }
-  @media (min-width: 720px) {
-    .cat {
-      padding-left: 12px;
-      padding-right: 12px;
-    }
-  }
-  @media (min-width: 1440px) {
-    .cat {
-      padding-left: 16px;
-      padding-right: 16px;
-    }
   }
   @media (max-width: 719px) {
     .ht .title {
@@ -1960,256 +1928,167 @@
     font-weight: 700;
     color: var(--ink);
   }
+  /* ---------- v0.102.0 Design-Refresh P3 (M1, Noah «M1-M6 freigegeben» 12.10.): list first, one toolbar,
+     the chosen item and the views in a right column (computer), under the list on a phone ---------- */
   .head {
-    align-items: flex-end;
+    margin-bottom: 16px;
   }
   .ht {
-    flex: 1 1 320px;
-    align-items: center;
+    display: block;
+    min-width: 0;
   }
   .ht .page-sub {
-    flex-basis: 100%;
-    margin: 0;
-  }
-  .hlinks {
-    display: inline-flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 10px;
-  }
-  .hacts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    margin: 4px 0 0;
   }
   .modeback {
-    margin: 0 0 12px;
+    margin: 0 0 8px;
+  }
+  .modeback .btn {
+    padding-inline: 4px;
+    color: var(--ink-2);
+    text-decoration: none;
   }
   .mat {
     display: grid;
-    gap: 20px;
+    gap: 24px;
     align-items: start;
   }
-  @media (min-width: 720px) {
-    .mat {
-      grid-template-columns: 220px minmax(0, 1fr);
-    }
-  }
   @media (min-width: 1200px) {
-    .mat.panel {
-      grid-template-columns: 230px minmax(0, 1fr) 330px;
+    .mat {
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 400px);
+      gap: 24px 28px;
     }
   }
-  .center {
+  .center,
+  .rcol {
     min-width: 0;
-  }
-  .zl {
-    display: block;
-    margin: 14px 0 6px;
-    padding: 0 8px;
-    color: var(--ink-3);
-    font: 600 12px/1.3 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .side .zl:first-child {
-    margin-top: 0;
-  }
-  .views.side,
-  .slist {
-    display: grid;
-    gap: 2px;
-  }
-  .vbtn,
-  .slist button {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    min-height: 44px;
-    padding: 6px 10px;
-    border: 0;
-    border-radius: 10px;
-    background: none;
-    color: var(--ink);
-    font: 500 15px/1.25 var(--font-body);
-    text-align: left;
-    cursor: pointer;
-  }
-  .vbtn .vn,
-  .slist .n {
-    flex: 1;
-    min-width: 0;
-    overflow-wrap: break-word;
-  }
-  .vbtn small,
-  .slist small {
-    color: var(--ink-3);
-    font-size: 13px;
-  }
-  .vbtn :global(svg) {
-    flex: none;
-    color: var(--ink-3);
-  }
-  @media (hover: hover) {
-    .vbtn:hover,
-    .slist button:hover {
-      background: var(--paper-2);
-    }
-  }
-  .vbtn[aria-pressed='true'],
-  .slist button[aria-pressed='true'] {
-    background: var(--paper);
-    box-shadow: var(--card-shadow), 0 0 0 1px var(--card-line);
-    font-weight: 600;
-  }
-  .vbtn[aria-pressed='true'] :global(svg) {
-    color: var(--hi);
-  }
-  .slist .more1 {
-    color: var(--ink-3);
-    font-size: 14px;
-  }
-  /* The phone: the views as chips that wrap. */
-  .views.chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 10px 0;
-  }
-  .chips .vbtn {
-    width: auto;
-    gap: 6px;
-    padding: 4px 12px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: var(--paper);
-  }
-  .chips .vbtn .vn {
-    flex: none;
-  }
-  .chips .vbtn[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
-    box-shadow: none;
-  }
-  .chips .vbtn[aria-pressed='true'] small,
-  .chips .vbtn[aria-pressed='true'] :global(svg) {
-    color: var(--paper);
-  }
-  .quick {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0 0 12px;
   }
   .toolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
   .toolbar .q {
-    flex: 1 1 220px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1 1 260px;
     min-width: 0;
   }
+  .toolbar .q :global(.qi) {
+    position: absolute;
+    left: 12px;
+    color: var(--ink-3);
+    pointer-events: none;
+  }
   .toolbar .inp {
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: var(--paper);
     min-height: 44px;
+    padding-left: 38px;
+    border-radius: var(--r-ctl);
+    background: var(--paper);
   }
   .fbtn,
+  .addb {
+    white-space: nowrap;
+  }
+  @media (max-width: 719px) {
+    .toolbar .q {
+      flex-basis: 100%;
+    }
+  }
+  .gmore > summary {
+    padding-inline: 10px;
+  }
+  .metaline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin: 0 0 12px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
   .selbtn {
-    min-height: 44px;
-    border-color: var(--line);
-    border-radius: 12px;
+    color: var(--ink-2);
   }
   .selbtn[aria-pressed='true'] {
     background: var(--ink);
     border-color: var(--ink);
     color: var(--paper);
+    text-decoration: none;
   }
   .badge {
     font-style: normal;
-    font-size: 12px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     padding: 1px 7px;
     border-radius: 99px;
     background: var(--badge);
     color: var(--badge-ink);
   }
-  @media (max-width: 719px) {
-    .toolbar .q {
-      flex: 1 1 calc(100% - 64px);
-    }
-    .quick {
-      align-items: center;
-    }
+  .zl {
+    display: block;
+    margin: 14px 0 6px;
+    color: var(--ink-2);
+    font: 600 var(--fs-tiny) / 1.3 var(--font-body);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
+  /* every view says in one sentence what it shows: quiet, above the list */
   .vhead {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 4px 12px;
     align-items: start;
-    margin: 6px 0 12px;
-  }
-  .vic {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: var(--hi-soft);
-    color: var(--hi);
+    margin: 0 0 12px;
   }
   .vt .title {
-    font-size: var(--fs-section);
-    font-weight: 500;
+    font-size: var(--fs-sub);
+    font-weight: 600;
   }
   .vs {
     margin: 2px 0 0;
-    color: var(--ink-2);
-    font-size: 14.5px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .vs.small {
     margin: -4px 0 10px;
-    color: var(--ink-3);
   }
   .vstats {
-    grid-column: 1 / -1;
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin: 6px 0 0;
+    margin: 4px 0 0;
   }
   .vstats div {
     display: flex;
     flex-direction: column-reverse;
     padding: 6px 12px;
-    border-radius: 10px;
-    background: var(--paper);
-    border: 1px solid var(--card-line);
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
   }
   .vstats dt {
-    color: var(--ink-3);
-    font-size: 12.5px;
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
   }
   .vstats dd {
     margin: 0;
-    font: 800 20px/1.1 var(--font-brand);
+    font: 700 var(--fs-sub) / 1.1 var(--font-brand);
   }
-  /* v0.76.0: the sidebar (252 px) takes room from 900 px on, so the numbers move next to the title only
-     where the middle column still has room for both */
   @media (min-width: 1452px) {
     .vhead {
-      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr) auto;
     }
     .vstats {
-      grid-column: 3;
+      grid-column: 2;
       margin: 0;
+    }
+  }
+  @media (max-width: 719px) {
+    .vstats {
+      display: none;
     }
   }
   .note {
@@ -2221,6 +2100,7 @@
     border-radius: var(--radius-card);
     overflow: hidden;
     background: var(--paper);
+    box-shadow: var(--card-shadow);
   }
   .cards :global(.mcard:last-child) {
     border-bottom: 0;
@@ -2233,6 +2113,7 @@
       border-radius: 0;
       overflow: visible;
       background: none;
+      box-shadow: none;
     }
   }
   .cfoot {
@@ -2243,76 +2124,123 @@
     gap: 8px 16px;
     margin: 10px 0 0;
   }
-  .detail {
-    position: sticky;
-    top: 70px;
-    max-height: calc(100vh - 86px);
-    overflow-y: auto;
-    padding: 16px;
-    background: var(--paper);
-    border: 1px solid var(--card-line);
-    border-radius: var(--radius-card);
-    box-shadow: var(--card-shadow);
+  .lgd {
+    margin: 4px 0 0;
   }
-  .dh {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 10px;
+  @media (max-width: 719px) {
+    .lgd {
+      display: none;
+    }
   }
-  .dh .zl {
-    margin: 0;
-    padding: 0;
-  }
-  .dband {
+  /* the right column */
+  .rcol {
     display: grid;
-    place-items: center;
-    height: 96px;
-    border-radius: 10px;
-    background: color-mix(in srgb, var(--c) 16%, var(--paper));
-    color: color-mix(in srgb, var(--c) 80%, var(--ink));
+    gap: 24px;
+    align-content: start;
   }
   .dtitle {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    margin-top: 12px;
   }
-  .dtitle .title {
-    font: 800 30px/1 var(--font-brand);
+  .dtitle .title,
+  .vcard > .title {
+    margin: 0;
+    font-size: var(--fs-sub);
+    font-weight: 600;
+    overflow-wrap: break-word;
   }
   .dsub {
-    margin: 2px 0 12px;
+    margin: 2px 0 10px;
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
-  /* The phone: title and "Add item" on one line, the numbers of a view are in the head line already. */
-  @media (max-width: 719px) {
-    .head {
-      align-items: center;
-      gap: 8px 12px;
+  .dcard {
+    padding: 16px;
+    background: var(--paper);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--card-shadow);
+  }
+  .dacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .vcard > .title {
+    margin-bottom: 10px;
+  }
+  .views.vrows {
+    display: grid;
+    padding: 4px 16px;
+    background: var(--paper);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--card-shadow);
+  }
+  .vbtn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 60px;
+    padding: 8px 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .vbtn:first-child {
+    border-top: 0;
+  }
+  .vic {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .vm {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .vn {
+    font-weight: 500;
+    overflow-wrap: break-word;
+  }
+  .vsub {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    line-height: 1.35;
+  }
+  .vbtn small {
+    color: var(--ink-2);
+    font-size: var(--fs-body);
+  }
+  .vbtn > :global(svg) {
+    flex: none;
+    color: var(--ink-3);
+  }
+  @media (hover: hover) {
+    .vbtn:hover .vn {
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
-    .ht {
-      display: contents;
-    }
-    .ht .title {
-      flex: 1 1 auto;
-      flex-basis: auto;
-    }
-    .hacts {
-      order: 1;
-    }
-    .hlinks {
-      order: 2;
-      flex-basis: 100%;
-    }
-    .ht .page-sub {
-      order: 3;
-    }
-    .vstats {
-      display: none;
-    }
+  }
+  .vbtn[aria-pressed='true'] .vn {
+    font-weight: 700;
+  }
+  .vbtn[aria-pressed='true'] .vic {
+    background: var(--accent-soft);
+    color: var(--accent);
   }
 </style>

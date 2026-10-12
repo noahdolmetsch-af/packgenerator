@@ -8,7 +8,7 @@
    * item: the item that goes away. items: all items. imported: propose only imported items (sourceId).
    * onmerged(snap, targets): after the merge. onclose(): the sheet closed.
    */
-  import { Check, Search } from '@lucide/svelte';
+  import { Check, Search, X, Undo2 } from '@lucide/svelte';
   import { db } from '../db.js';
   import { counterparts, fold } from '../gearimport.js';
   import { mergeItems } from './mergeitems.js';
@@ -76,14 +76,18 @@
   </li>
 {/snippet}
 
-<dialog class="sheet merge" bind:this={dialog} onclose={onclose} aria-labelledby="merge-h">
+<!-- v0.102.0 Design-Refresh P3 (M5): «Merge» as the title, the item in the line below, suggestions in a soft box -->
+<dialog class="sheet merge" bind:this={dialog} onclose={onclose} aria-labelledby="merge-h merge-n">
   <span class="grab" aria-hidden="true"></span>
-  <p class="meta">{t('Merge|items')}</p>
-  <h2 id="merge-h">{nameOf(item)}</h2>
-  <p class="lead">{t('Is the same as … (several for a collection)')}</p>
+  <div class="mh">
+    <h2 id="merge-h">{t('Merge|items')}</h2>
+    <button type="button" class="x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
+  </div>
+  <p class="lead" id="merge-n">{t('"{name}" is the same as …', { name: nameOf(item) })} <small>{t('(several for a collection)')}</small></p>
 
   {#if proposed.length || extra.length}
-    <ul class="opts" aria-label={t('Suggestions')}>
+    <p class="lbl sugh" aria-hidden="true">{t('Suggestions')}</p>
+    <ul class="opts box" aria-label={t('Suggestions')}>
       {#each extra as i (i.id)}{@render row(i, false)}{/each}
       {#each proposed as p (p.item.id)}{@render row(p.item, true)}{/each}
     </ul>
@@ -96,18 +100,18 @@
     <input class="inp" type="search" bind:value={q} placeholder={t('Search all items')} aria-label={t('Search all items')} />
   </label>
   {#if found.length}
-    <ul class="opts" aria-label={t('Search results')}>
+    <ul class="opts box" aria-label={t('Search results')}>
       {#each found as i (i.id)}{@render row(i, false)}{/each}
     </ul>
   {:else if q.trim()}
     <p class="none">{t('No item found.')}</p>
   {/if}
 
-  <p class="what">{t('Replaces the item in templates, building blocks and bags. Past trips stay. Afterwards under Gone.')}</p>
+  <p class="what"><Undo2 size={16} aria-hidden="true" /><span>{t('Replaces the item in templates, building blocks and bags. Past trips stay. Afterwards under Gone.')}</span></p>
   {#if error}<p class="err" role="alert">{error}</p>{/if}
   <div class="foot">
-    <button type="button" class="btn hi" disabled={busy || !chosen.length} onclick={merge}>{t('Merge|items')}</button>
     <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+    <button type="button" class="btn hi" disabled={busy || !chosen.length} onclick={merge}>{t('Merge|items')}</button>
   </div>
 </dialog>
 
@@ -124,16 +128,47 @@
     background: var(--line);
     margin: 0 auto 10px;
   }
-  .meta {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink-3);
+  .mh {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
   }
   h2 {
     font-size: var(--fs-section);
     margin: 2px 0 4px;
+    min-width: 0;
     overflow-wrap: break-word;
+  }
+  .x {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .lead {
+    overflow-wrap: break-word;
+  }
+  .sugh {
+    margin: 12px 0 6px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  /* the choices in a soft box, a line between them */
+  .opts.box {
+    padding: 4px 12px;
+    border-radius: var(--radius-card);
+    background: var(--paper-2);
+  }
+  .opts.box .opt[aria-pressed='true'],
+  .opts.box .opt:hover {
+    background: none;
   }
   .lead,
   .none,
@@ -142,8 +177,20 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
+  /* v0.102.0 Design-Refresh P3 (M5): what happens, in a soft box with the Undo arrow */
   .what {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
     margin: 12px 0 0;
+    padding: 10px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .what :global(svg) {
+    flex: none;
+    margin-top: 2px;
   }
   .opts {
     list-style: none;
@@ -189,7 +236,9 @@
     color: var(--ok);
   }
   .opt[aria-pressed='true'] .box {
-    border-color: var(--ok);
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--paper);
   }
   .nm {
     flex: 1;
@@ -202,7 +251,7 @@
     font-weight: 600;
   }
   .nm small {
-    font-size: 13px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   /* Small neutral badge. */
@@ -251,6 +300,7 @@
   .foot {
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 8px;
     margin-top: 12px;
   }

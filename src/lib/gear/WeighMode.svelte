@@ -13,7 +13,7 @@
   import { weighQueue, orderQueue, readGrams, maxGrams, saveWeight, WEIGH_GROUPS } from '../weigh.js';
   import { undoBulk } from './bulk.js';
   import { t, nameOf } from '../i18n.svelte.js';
-  import { Undo2 } from '@lucide/svelte';
+  import { Undo2, Scale, Bike, Backpack } from '@lucide/svelte';
 
   let { items, extras = false, onclose = null } = $props();
 
@@ -41,6 +41,8 @@
 
   const groupName = (g) => t(WEIGH_GROUPS.find((x) => x.key === g)?.name ?? '');
   const kindLine = (c) => (c.kind === 'bike' ? t('Bike|weigh') : c.kind === 'bag' ? t('Bag|weigh') : [t(CATEGORY[c.rec.category]?.name ?? ''), c.group !== 'rest' && c.group !== 'bags' && c.group !== 'sleep' ? groupName(c.group) : ''].filter(Boolean).join(' · '));
+  // v0.102.0 Design-Refresh P3 (M6): one quiet icon per kind in a small square
+  const KIcon = (c) => (c.kind === 'bike' ? Bike : c.kind === 'bag' ? Backpack : Scale);
   const label = (c) => (c.kind === 'item' ? nameOf(c.rec) : c.name);
   // A weight that is there but not weighed (a bag from the logbook, a bike estimate).
   const before = (c) => (c.rec.weightG != null ? t('Now: {w} (not weighed)', { w: formatWeight(c.rec.weightG) }) : '');
@@ -106,21 +108,25 @@
   $effect(() => () => clearTimeout(timer));
 </script>
 
+<!-- v0.102.0 Design-Refresh P3 (M6): «one after the other» as a white card with the progress inside,
+     «Up next» as a list card beside it (computer) -->
 <section class="weigh" aria-labelledby="weigh-h">
   <div class="head">
     <h2 id="weigh-h" class="title">{t('Record weights')}</h2>
     {#if total}<span class="pos num" aria-live="polite">{t('{a} of {b}|weigh', { a: pos, b: total })}</span>{/if}
-    {#if onclose}<button type="button" class="btn" onclick={onclose}>{t('Done')}</button>{/if}
   </div>
-  {#if total}
-    <div class="pbar" aria-hidden="true"><i style:width="{Math.round((saved / total) * 100)}%"></i></div>
-  {/if}
 
   {#if current}
+    {@const CI = KIcon(current)}
     <div class="wrap">
-      <form class="card" onsubmit={save} novalidate>
-        <p class="kind">{#if current.kind === 'item'}<span class="sw" style:background={CATEGORY[current.rec.category]?.color}></span>{/if}{kindLine(current)}</p>
-        <p class="name">{label(current)}</p>
+      <form class="card wcard" onsubmit={save} novalidate>
+        <div class="who">
+          <span class="ic" aria-hidden="true"><CI size={18} /></span>
+          <div class="whot">
+            <p class="name">{label(current)}</p>
+            <p class="kind">{#if current.kind === 'item'}<span class="sw" style:background={CATEGORY[current.rec.category]?.color}></span>{/if}{kindLine(current)}</p>
+          </div>
+        </div>
         {#if current.rec.brand}<p class="sub">{current.rec.brand}</p>{/if}
         {#if current.qty > 1}<p class="sub">{t('Weigh all {n} pieces together.', { n: current.qty })}</p>{/if}
         {#if current.kind === 'bike'}<p class="sub">{t('Without bags, with mounts and bottle cages.')}</p>{/if}
@@ -135,15 +141,22 @@
         <div class="acts">
           <button type="submit" class="btn hi" disabled={busy}>{t('Save & next')}</button>
           <button type="button" class="btn" onclick={skip}>{t('Skip')}</button>
+          {#if onclose}<button type="button" class="btn" onclick={onclose}>{t('Done')}</button>{/if}
         </div>
+        {#if total}
+          <div class="pbar" aria-hidden="true"><i style:width="{Math.round((saved / total) * 100)}%"></i></div>
+        {/if}
       </form>
       {#if queue.length > 1}
-        <aside class="up" aria-label={t('Up next')}>
-          <span class="lbl">{t('Up next')}</span>
-          <ol>
-            {#each queue.slice(1, 6) as q (q.key)}<li><span class="nm">{label(q)}</span><small>{q.kind === 'item' ? t(CATEGORY[q.rec.category]?.name ?? '') : kindLine(q)}</small></li>{/each}
+        <aside class="up" aria-labelledby="up-h">
+          <h3 class="uph" id="up-h">{t('Up next')}</h3>
+          <ol class="card">
+            {#each queue.slice(1, 6) as q (q.key)}
+              {@const QI = KIcon(q)}
+              <li><span class="ic" aria-hidden="true"><QI size={16} /></span><span class="nm">{label(q)}<small>{q.kind === 'item' ? t(CATEGORY[q.rec.category]?.name ?? '') : kindLine(q)}</small></span></li>
+            {/each}
+            {#if queue.length > 6}<li class="more">{t('+{n} more', { n: queue.length - 6 })}</li>{/if}
           </ol>
-          {#if queue.length > 6}<p class="more">{t('+{n} more', { n: queue.length - 6 })}</p>{/if}
         </aside>
       {/if}
     </div>
@@ -165,76 +178,82 @@
 
 
 <style>
+  /* v0.102.0 Design-Refresh P3 (M6): the card «one after the other» and the list card «Up next» */
   .weigh {
-    max-width: 900px;
+    max-width: 1080px;
     min-width: 0;
   }
   .head {
     display: flex;
-    align-items: center;
-    gap: 8px 14px;
+    align-items: baseline;
+    gap: 4px 12px;
     flex-wrap: wrap;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
   .head .title {
-    font-size: var(--fs-section);
+    font-size: var(--fs-sub);
+    font-weight: 600;
     margin: 0;
   }
   .pos {
-    flex: 1;
-    color: var(--ink-2);
+    color: var(--ink-3);
+    font-size: var(--fs-small);
     font-variant-numeric: tabular-nums;
-  }
-  .pbar {
-    height: 4px;
-    border-radius: 2px;
-    background: var(--paper-2);
-    overflow: hidden;
-    margin-bottom: 14px;
-  }
-  .pbar i {
-    display: block;
-    height: 100%;
-    background: var(--ink-2);
   }
   .wrap {
     display: grid;
-    gap: 18px;
+    gap: 24px;
   }
   @media (min-width: 720px) {
     .wrap {
       grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
       align-items: start;
     }
-    form {
-      padding: 22px 26px;
-    }
+  }
+  .wcard {
+    min-width: 0;
+  }
+  .who {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .ic {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .whot {
+    min-width: 0;
+  }
+  .name {
+    margin: 0;
+    font-weight: 600;
+    font-size: var(--fs-sub);
+    line-height: 1.3;
+    overflow-wrap: break-word;
   }
   .kind {
     display: flex;
     align-items: center;
     gap: 6px;
-    margin: 0;
+    margin: 2px 0 0;
     font-size: var(--fs-small);
     color: var(--ink-3);
-    font-weight: 600;
   }
   .sw {
     width: 9px;
     height: 9px;
-    border-radius: 2px;
+    border-radius: 50%;
     flex: none;
   }
-  .name {
-    font-family: var(--font-title);
-    font-weight: 800;
-    font-size: 30px;
-    line-height: var(--lh-title);
-    margin: 6px 0;
-    overflow-wrap: break-word;
-  }
   .sub {
-    margin: 0 0 4px;
+    margin: 8px 0 0 42px;
     color: var(--ink-2);
   }
   .quiet {
@@ -251,56 +270,76 @@
     align-items: center;
   }
   .big {
-    font-size: 32px;
+    font-size: var(--fs-title);
+    font-weight: 600;
     min-height: 56px;
     width: 100%;
-    max-width: 200px;
-    text-align: right;
+    max-width: 180px;
     font-variant-numeric: tabular-nums;
   }
   .unit {
-    font-size: 22px;
-    font-weight: 700;
+    color: var(--ink-2);
   }
   .err {
     color: var(--bad);
     min-height: 1.2em;
     margin: 4px 0 8px;
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .acts {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
   }
-  .acts .btn {
-    min-height: 48px;
+  .pbar {
+    height: 6px;
+    margin-top: 16px;
+    border-radius: 3px;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .pbar i {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+  }
+  .uph {
+    margin: 0 0 8px;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--ink-2);
   }
   .up ol {
     list-style: none;
-    margin: 6px 0 0;
-    padding: 0;
+    margin: 0;
+    padding: 4px 16px;
   }
   .up li {
     display: flex;
-    gap: 8px;
-    align-items: baseline;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--line);
-    color: var(--ink-2);
+    gap: 12px;
+    align-items: center;
+    min-height: 56px;
+    padding: 6px 0;
+    border-top: 1px solid var(--line);
+  }
+  .up li:first-child {
+    border-top: 0;
   }
   .up .nm {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
     overflow-wrap: break-word;
   }
   .up small {
     color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .more {
     color: var(--ink-3);
     font-size: var(--fs-small);
-    margin: 6px 0 0;
   }
   .none {
     display: flex;

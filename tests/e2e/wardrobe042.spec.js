@@ -205,6 +205,8 @@ test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page
 
   // 2. Gear → "Kleiderschrank →" leads here too.
   await page.goto('./#/gear');
+  // v0.102.0 Design-Refresh P3 (M1): the link sits in the ••• of the toolbar now
+  await page.locator('details.gmore > summary').click();
   await page.getByRole('link', { name: `${T('Wardrobe')} →` }).click();
   await expect(page).toHaveURL(/#\/wardrobe$/);
 

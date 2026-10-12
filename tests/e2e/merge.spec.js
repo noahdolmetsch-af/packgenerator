@@ -180,6 +180,9 @@ test('Zusammenlegen: propose, confirm, undo; a collection into its pieces; past 
     await page.getByRole('button', { name: new RegExp(N('Garmin-Halterung')) }).first().click();
     const dlg = page.locator('dialog.sheet:not(.merge)');
     await expect(dlg.getByRole('heading', { name: old })).toBeVisible();
+    // v0.102.0 Design-Refresh P3: «Merge with …» moved into the last row «More» of the item window
+    const more = dlg.locator('details.fold[data-fold="more"]');
+    if (!(await more.evaluate((d) => d.open))) await more.locator('> summary').click();
     await dlg.getByRole('button', { name: T('Merge with …') }).click();
     const sheet3 = page.locator('dialog.merge');
     await expect(sheet3.getByRole('button', { name: new RegExp(N('Garmin Halterung')) })).toHaveAttribute('aria-pressed', 'true');
