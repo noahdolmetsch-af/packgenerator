@@ -57,10 +57,14 @@ export const TILES = [
   { id: 'week', area: 'flow', label: 'This week', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.101.0', pitch: 'Monday to Sunday: what you did each day, rides and Im Flow.' },
   { id: 'month', area: 'bikes', label: 'Bike this month', icon: 'bike', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The km of this month, against last month.' },
   { id: 'nextms', area: 'flow', label: 'Next milestone', icon: 'star', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'How far to the next 1000 km of a bike, or the next number of trips.' },
+  // v0.102.0 «Vorschlag und Challenge» (D1b, Noah «d1-d5 freigeben»)
+  { id: 'suggest', area: 'today', label: 'Swim or sauna today?', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.102.0', pitch: 'A suggestion for today with alternatives; any of them can become a challenge.' },
   { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */
 export const ADDED_0101 = ['week', 'month', 'nextms', 'yearago'];
+/** v0.102.0: the suggestion tile; a stored wall of before gets it once, after Im Flow. */
+export const ADDED_0102 = ['suggest'];
 export const TILE = Object.fromEntries(TILES.map((x) => [x.id, x]));
 
 /** The ready wall (mockup A, Noah 3a): the trip, what is important, Im Flow, the series, the news, then the buttons. */
@@ -68,6 +72,7 @@ export const READY = [
   ['trip', 'long'],
   ['important', 'l'],
   ['flow', 'l'],
+  ['suggest', 'l'],
   ['week', 'l'],
   ['month', 'w'],
   ['nextms', 'w'],
@@ -104,13 +109,18 @@ export function wallOf(value, legacy = null) {
       const at = out.findIndex((x) => x.id === 'flow');
       out.splice(at < 0 ? out.length : at + 1, 0, ...add);
     }
+    // v0.102.0: the suggestion tile once, right after Im Flow (else at the end)
+    if ((value.v ?? 1) < 3 && !seen.has('suggest')) {
+      const at = out.findIndex((x) => x.id === 'flow');
+      out.splice(at < 0 ? out.length : at + 1, 0, { id: 'suggest', size: TILE.suggest.size });
+    }
     return out;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
 }
 /** The record to store. */
-export const wallRecord = (tiles) => ({ v: 2, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+export const wallRecord = (tiles) => ({ v: 3, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {

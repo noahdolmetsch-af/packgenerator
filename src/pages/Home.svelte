@@ -87,6 +87,8 @@
   import BikeCards from '../lib/home/BikeCards.svelte';
   import YearRow from '../lib/home/YearRow.svelte';
   import WeekTile from '../lib/home/WeekTile.svelte';
+  import TodaySuggest from '../lib/home/TodaySuggest.svelte';
+  import { CHALLENGES_KEY, challengesOf, freshDone } from '../lib/challenge.js';
   import MonthTile from '../lib/home/MonthTile.svelte';
   import NextMsTile from '../lib/home/NextMsTile.svelte';
   import YearAgoTile from '../lib/home/YearAgoTile.svelte';
@@ -109,7 +111,7 @@
   const notesQ = liveQuery(() => db.notes.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
-  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY];
+  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -519,6 +521,8 @@
     if (!ready) return [];
     const rows = [];
     for (const m of milestones) rows.push({ key: `ms:${m.key}:${m.bikeId ?? ''}:${m.day}`, tone: 'party', text: milestoneText(m) });
+    // v0.102.0 (D1b/D5): a challenge reached becomes a milestone
+    for (const c of freshDone(challengesOf(S[CHALLENGES_KEY]), today)) rows.push({ key: `ch:${c.id}`, tone: 'party', text: t('Challenge reached: {n}× {what}', { n: num(c.times), what: t(c.what) }) });
     if (evening) {
       // Noah 32a: in the evening the day's review and charging come first
       const endedToday = trips.filter((x) => !x.skipped && x.entries?.length && endedOn(x) === today && !debriefs.some((d) => d.tripId === x.id && d.status === 'done'));
@@ -870,6 +874,7 @@
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
   {:else if x.id === 'inbox'}<SmallTile tile={TILE.inbox} size={x.size} href="#/inbox" badge={notes.length} />
   {:else if x.id === 'data'}<SmallTile tile={TILE.data} size={x.size} onclick={openData} badge={backup.due ? 1 : 0} />
+  {:else if x.id === 'suggest'}<TodaySuggest {today} />
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
   {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />

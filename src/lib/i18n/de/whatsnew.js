@@ -8,6 +8,12 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.102.0 «Vorschlag und Challenge»
+  'New tile on Today: «Swim or sauna today?» with alternatives to choose from, also your own.':
+    'Neue Kachel auf Heute: «Heute baden oder Sauna?» mit Alternativen zum Wählen, auch eigenen.',
+  'Any suggestion can become a challenge: how often and until when; it counts by itself when you tick it off.':
+    'Jeder Vorschlag kann eine Challenge werden: wie oft und bis wann; sie zählt von selbst, wenn du abhakst.',
+  'A challenge reached is celebrated as a milestone under «Important today».': 'Eine geschaffte Challenge wird als Meilenstein unter «Heute wichtig» gefeiert.',
   // 0.101.0 Design-Refresh P2 «Heute»
   'The new look, step 5: Today is light and calm; the trip card shows the hours to go, the open steps and how much is packed.':
     'Das neue Aussehen, Schritt 5: Heute ist hell und ruhig; die Tour-Karte zeigt die Stunden bis zum Start, die offenen Schritte und wie viel gepackt ist.',

@@ -32,10 +32,10 @@ describe('the stored wall', () => {
     expect(w.some((x) => x.id === 'bikes')).toBe(true);
   });
   it('drops unknown tiles and doubles, fixes sizes', () => {
-    const w = wallOf({ v: 2, tiles: [{ id: 'news', size: 'long' }, { id: 'nope', size: 's' }, { id: 'news', size: 's' }, null, { id: 'year', size: 'long' }] });
+    const w = wallOf({ v: 3, tiles: [{ id: 'news', size: 'long' }, { id: 'nope', size: 's' }, { id: 'news', size: 's' }, null, { id: 'year', size: 'long' }] });
     expect(w).toEqual([{ id: 'news', size: 'w' }, { id: 'year', size: 'long' }]);
-    expect(wallRecord(w)).toEqual({ v: 2, tiles: w });
-    expect(wallOf({ v: 2, tiles: [] })).toEqual([]);
+    expect(wallRecord(w)).toEqual({ v: 3, tiles: w });
+    expect(wallOf({ v: 3, tiles: [] })).toEqual([]);
   });
   it('v0.101.0: the new tiles are marked «neu» for two weeks from the release', () => {
     for (const id of ADDED_0101) {
@@ -45,8 +45,11 @@ describe('the stored wall', () => {
   });
   it('v0.101.0: a wall stored before gets the new tiles once, after Im Flow', () => {
     const old = wallOf({ v: 1, tiles: [{ id: 'trip', size: 'long' }, { id: 'flow', size: 'l' }, { id: 'month', size: 'l' }, { id: 'year', size: 'long' }] });
-    expect(old.map((x) => x.id)).toEqual(['trip', 'flow', 'week', 'nextms', 'yearago', 'month', 'year']);
-    expect(wallOf({ tiles: [{ id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['year', ...ADDED_0101]);
+    // v0.102.0: and the suggestion tile right after Im Flow (at the end without it)
+    expect(old.map((x) => x.id)).toEqual(['trip', 'flow', 'suggest', 'week', 'nextms', 'yearago', 'month', 'year']);
+    expect(wallOf({ tiles: [{ id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['year', ...ADDED_0101, 'suggest']);
+    // a wall of 0.101 (v 2) gets only the suggestion
+    expect(wallOf({ v: 2, tiles: [{ id: 'trip', size: 'long' }, { id: 'flow', size: 'l' }] }).map((x) => x.id)).toEqual(['trip', 'flow', 'suggest']);
     // taken away after that, they stay away
     expect(wallOf(wallRecord(old.filter((x) => x.id !== 'week'))).map((x) => x.id)).not.toContain('week');
   });
