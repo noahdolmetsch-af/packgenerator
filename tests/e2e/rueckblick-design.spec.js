@@ -65,8 +65,10 @@ test('Tour beendet (T14): the number tile in the card, the notes of the way as r
   await page.goto(`./#/trip/${ENDED}/ended`);
   await expect(page.getByRole('heading', { level: 1, name: T('Trip ended') })).toBeVisible();
   await expect(page.locator('section.hero .tally')).toBeVisible();
-  const notes = page.locator('section.until');
-  if (await notes.count()) await expect(notes.locator('li.rv-row').first()).toBeVisible();
+  // v0.111.0 (mockup V5): «Bevor du auspackst», the after-trip check and the notes of the way as rows
+  const unpack = page.locator('section.until');
+  await expect(unpack.locator('[data-row="check"]')).toBeVisible();
+  if (await unpack.locator('[data-row="noted"]').count()) await expect(unpack.locator('[data-row="noted"]')).toContainText(T('Noted on the way'));
   await expect(page.locator('main .mainbar .btn.hi')).toHaveCount(1);
   await targets(page);
   await fits(page, info);

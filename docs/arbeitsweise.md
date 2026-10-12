@@ -26,7 +26,7 @@ Kein Release wird gebaut, bevor diese Schritte erledigt sind:
 
 1. **Mockups** für jeden Screen, Dialog und Zustand, den der Release neu macht oder sichtbar ändert. Computer (1440) und Handy (390), nur hell (Noah 10.10.2026; den Dunkelmodus prüft er in der App). Auch kleine Änderungen an bestehenden Seiten bekommen ein Mockup.
 2. **Noah prüft** die Mockups. **So zeigt Claude sie (Noah, 10.10.2026, Priorität 1, «extrem wichtig»):**
-   - Alle Bilder jeder Runde kommen auf die eine Seite «Offene Mockups»: https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv.
+   - Alle Bilder jeder Runde kommen auf die eine Seite «Offene Mockups 2»: https://claude.ai/artifact/3j2eefXk4fHn6txJsp4i36 (seit 12.10.2026, Noah «ab sofort einen neuen Ort»; die erste Seite https://claude.ai/artifact/1EtKR7y8fYJheMwCeyWQyv ist voll, dort offene Runden bleiben dort).
    - Jede Runde hat dort einen eigenen Abschnitt. Computer und Handy stehen nebeneinander, und ein Tipp zeigt das Bild gross.
    - Jeder Abschnitt hat eine Zeile «★ ist …» und einen Link zur Fragen-Karte auf Trello.
    - Die Trello-Karte («PG · Dokumente und Fragen») verlinkt auf ihren Abschnitt, und die Antwort im Thread nennt den Link.

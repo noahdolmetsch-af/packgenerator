@@ -79,6 +79,8 @@ const ROUTES = [
   // v0.112.0 «Strava-Verbindung»: Velo › Pflege › Strava (not connected on this device: S1) and «Zum Prüfen», strict like their files
   ['#/bikes?tab=care&view=strava', 'Strava'],
   ['#/bikes?tab=care&view=strava-check', 'Zum Prüfen'],
+  // v0.111.0 (mockup V4): Ich › Checks pro Reiseart, strict like its file
+  ['#/me/checks', 'Checks pro Reiseart'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];

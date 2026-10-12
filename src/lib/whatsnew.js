@@ -28,6 +28,25 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.111.0 Bausteine bearbeiten: evening-before and after-trip check (mockups V1–V6)
+    version: '0.111.0',
+    date: '2026-10-12',
+    title: 'Checks before and after',
+    lead: 'The evening before and back home: one tap on the row opens the check, and every trip type has its own list.',
+    points: [
+      { text: 'New on «Packed»: the row «Evening-before check» opens a window with your points, e.g. read the avalanche bulletin, route offline, charge.', href: '#/trips' },
+      { text: 'New on «Trip ended»: «Before you unpack» with the after-trip check, e.g. dry the skins, refill, charge; then on to the debrief.', href: '#/trips' },
+      { text: '«Adjust the list»: sort, remove, add your own or a suggestion from an earlier debrief, for this trip or all trips of the type.', href: '#/trips' },
+      { text: 'Me › Checks per trip type shows the lists of every type and how often you ticked each point.', href: '#/me/checks' },
+    ],
+    test: [
+      'Open a packed trip: tap «Evening-before check» under «Until the start» and tick a point.',
+      'Tap «Adjust the list», add your own point and save it for all trips of the type.',
+      'End a trip: tap the after-trip check under «Before you unpack».',
+      'Open Me › Checks per trip type and choose another type.',
+    ],
+  },
+  {
     // v0.110.0 Design-Refresh P10 (I11): the newest version also has a name, one sentence and the
     // steps «How to test it» (the card on top of Ich › Was ist neu); older versions do without.
     version: '0.110.0',
