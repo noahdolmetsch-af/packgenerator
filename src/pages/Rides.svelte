@@ -11,9 +11,10 @@
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { analyseRide, tripsOn, tripFromRide, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, speedOf, hm, PAUSE_MIN, RIDE_MAX_MB, SHARE_CACHE, SHARE_KEY } from '../lib/gpx.js';
   import { PACE_KEY, paceOf } from '../lib/pace.js';
-  import { sortBikes } from '../lib/bikes.js';
+  import { sortBikes, bikesHash } from '../lib/bikes.js';
+  import '../lib/review/review.css';
   import Seg from '../lib/ui/Seg.svelte';
-  import { Upload, ChevronRight, Check, Route } from '@lucide/svelte';
+  import { Upload, ChevronLeft, ChevronRight, Check, Route, Plus, Gauge, Coffee, Lightbulb, BookOpen, TriangleAlert } from '@lucide/svelte';
 
   let { sub = '' } = $props();
 
@@ -33,6 +34,7 @@
 
   const day = (iso) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '');
   const clock = (iso) => new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
+  const firstBike = $derived(sortBikes($bikesQ ?? [])[0] ?? null);
   const tripOf = (r) => (r?.tripId ? trips.find((x) => x.id === r.tripId) ?? null : null);
 
   /* ---------- upload: read the file, show it, save it ---------- */
@@ -198,7 +200,7 @@
 
 {#snippet stats(r, skip = [])}
   <!-- skip: the numbers "Planned vs real" already shows (no label twice) -->
-  <ul class="rowlist stats">
+  <ul class="stats">
     {#if !skip.includes('km')}<li class="srow"><span>{t('Distance')}</span><b class="num">{num(r.km)} km</b></li>{/if}
     {#if !skip.includes('gain')}<li class="srow"><span>{t('Climbing')}</span><b class="num">{num(r.gainM)} m</b></li>{/if}
     {#if !skip.includes('moving')}<li class="srow"><span>{t('Moving time')}</span><b class="num">{hm(r.movingH)}</b></li>{/if}
@@ -218,123 +220,215 @@
   <p class="foot">{t('A stop of {n} minutes or more is a pause; shorter stops count as moving time.', { n: PAUSE_MIN })}</p>
 {/snippet}
 
-<div class="rides">
+<!-- v0.109.0 Design-Refresh P6 (T22 «Fahrten», T23 «Fahrt: geplant gegen echt», approved 12.10.2026): the quiet
+     path; two columns on a computer. T22: the dashed card to choose a GPX file, the saved rides as rows, on
+     the right «Gut zu wissen» (only what the app really does) and «Mehr». T23: numbered sections (numbers,
+     pauses, planned vs real, learnings), on the right where the ride is saved, «counts for your pace» and
+     delete. -->
+<div class="rides rv-page">
   {#if rideId}
-    <p class="back"><a href="#/debrief/ride">← {t('Upload ride')}</a></p>
+    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief/ride">{t('Upload ride')}</a>{#if ride}<ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{day(ride.date)}</span>{/if}</nav>
     {#if !$ridesQ}
       <p class="foot">{t('Loading…')}</p>
     {:else if !ride}
-      <p class="card">{t('This ride does not exist any more.')}</p>
+      <p class="rv-box pad">{t('This ride does not exist any more.')}</p>
     {:else}
       {@const trip = tripOf(ride)}
+      {@const parts = ['num', 'pz', rows.length ? 'cmp' : '', suggs.length ? 'lr' : ''].filter(Boolean)}
+      {@const no = (k) => `${parts.indexOf(k) + 1} · `}
       <h1 class="title">{ride.name}</h1>
-      <p class="page-sub">{[day(ride.date), trip?.title].filter(Boolean).join(' · ')}</p>
-      {#if rideMsg}<p class="card ok" role="status">{rideMsg}</p>{/if}
+      <p class="page-sub">{[day(ride.date), t('Start {time}', { time: clock(ride.startAt) }), trip?.title].filter(Boolean).join(' · ')}</p>
+      {#if rideMsg}<p class="okmsg" role="status">{rideMsg}</p>{/if}
 
-      {#if suggs.length}
-        <h2 class="sec-head" id="lr-h"><span>{t('Learnings from this ride')}</span><span class="n">{suggs.length}</span></h2>
-        <ul class="rowlist learn" aria-labelledby="lr-h">
-          {#each suggs as s (s.id)}
-            {@const a = ride.answers?.[s.id]}
-            <li class="lr">
-              <span class="m"><span class="t">{s.label}</span><span class="s">{s.detail}</span></span>
-              {#if a?.yes}
-                <span class="nbadge"><span class="udot ok" aria-hidden="true"></span>{t('Remembered')}</span>
-              {:else if a}
-                <span class="nbadge">{t('Not kept')}</span>
+      <div class="rv-lay">
+        <div class="rv-col">
+          <section class="rv-sec" aria-labelledby="st-h">
+            <div class="rv-h"><div><h2 id="st-h">{no('num')}{t('Numbers')}</h2></div></div>
+            <dl class="rv-box rv-tiles nums">
+              <div class="rv-tile"><dd><b class="num">{num(ride.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
+              <div class="rv-tile"><dd><b class="num">{num(ride.gainM)} m</b></dd><dt><small>{t('Climbing')}</small></dt></div>
+              <div class="rv-tile"><dd><b class="num">{hm(ride.movingH)}</b></dd><dt><small>{t('Moving time')}</small></dt></div>
+              <div class="rv-tile"><dd><b class="num">{speedOf(ride) != null ? `${num(speedOf(ride))} km/h` : '–'}</b></dd><dt><small>{t('Average speed')}</small></dt></div>
+            </dl>
+          </section>
+
+          <section class="rv-sec" aria-labelledby="pz-h">
+            <div class="rv-h"><div><h2 id="pz-h">{no('pz')}{t('Pauses')}</h2><p class="rv-sub">{t('A stop of {n} minutes or more is a pause; shorter stops count as moving time.', { n: PAUSE_MIN })}</p></div></div>
+            <ul class="rv-box plist2">
+              {#each ride.pauses as p, i (i)}
+                <li class="rv-row"><span class="rv-ic" aria-hidden="true"><Coffee size={16} /></span><span class="rv-m"><span class="rv-t num">{t('km {km}', { km: num(Math.round(p.km)) })}</span><span class="rv-s num">{clock(p.at)}</span></span><b class="rv-v num">{t('{min} min', { min: p.min })}</b></li>
               {:else}
-                <span class="acts" role="group" aria-label={s.label}>
-                  <button type="button" class="btn" disabled={saving} onclick={() => answer(s, true)}><Check size={16} aria-hidden="true" />{t('Remember')}</button>
-                  <button type="button" class="btn" disabled={saving} onclick={() => answer(s, false)}>{t('No')}</button>
-                </span>
+                <li class="rv-row"><span class="rv-ic" aria-hidden="true"><Coffee size={16} /></span><span class="rv-m"><span class="rv-t">{t('none|pauses')}</span></span></li>
+              {/each}
+              <li class="rv-row tot"><span class="rv-m"><span class="rv-t">{t('Total time')}</span>{#if ride.pauses.length}<span class="rv-s num">{t('Pauses')} {hm(ride.pauseH)}</span>{/if}</span><b class="rv-v num">{hm(ride.totalH)}</b></li>
+            </ul>
+          </section>
+
+          {#if rows.length}
+            <section class="rv-sec" aria-labelledby="cmp-h">
+              <div class="rv-h"><div><h2 id="cmp-h">{no('cmp')}{t('Planned vs real')}</h2><p class="rv-sub">{ride.plan?.source === 'plan' ? t('from the time plan') : ride.plan?.source === 'hours' ? t('from your riding hours') : t('from the route')}</p></div></div>
+              <div class="rv-box">
+                <table class="cmp" aria-labelledby="cmp-h">
+                  <thead><tr><th scope="col"><span class="sr">{t('What')}</span></th><th scope="col">{t('Planned')}</th><th scope="col">{t('Real')}</th><th scope="col"><span class="sr">{t('Difference')}</span></th></tr></thead>
+                  <tbody>
+                    {#each rows as r (r.key)}
+                      <tr><th scope="row">{t(ROW[r.key])}</th><td class="num">{fmt(r.key, r.plan)}</td><td class="num">{fmt(r.key, r.real)}</td><td class="num d">{sign(r.key, r.diff)}</td></tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          {/if}
+
+          {#if suggs.length}
+            <section class="rv-sec" aria-labelledby="lr-h">
+              <div class="rv-h"><div><h2 id="lr-h">{no('lr')}{t('Learnings from this ride')}</h2><p class="rv-sub">{t('Nothing is kept without a tap. Kept learnings show up in Debrief → Learnings.')}</p></div></div>
+              <ul class="rv-box learn" aria-labelledby="lr-h">
+                {#each suggs as s (s.id)}
+                  {@const a = ride.answers?.[s.id]}
+                  <li class="rv-row lr">
+                    <span class="rv-ic" aria-hidden="true"><Lightbulb size={16} /></span>
+                    <span class="rv-m"><span class="rv-t">{s.label}</span><span class="rv-s">{s.detail}</span></span>
+                    {#if a?.yes}
+                      <span class="rv-tag">{t('Remembered')}</span>
+                    {:else if a}
+                      <span class="rv-tag warn">{t('Not kept')}</span>
+                    {:else}
+                      <span class="acts" role="group" aria-label={s.label}>
+                        <button type="button" class="btn" disabled={saving} onclick={() => answer(s, true)}><Check size={16} aria-hidden="true" />{t('Remember')}</button>
+                        <button type="button" class="btn" disabled={saving} onclick={() => answer(s, false)}>{t('No')}</button>
+                      </span>
+                    {/if}
+                  </li>
+                {/each}
+              </ul>
+            </section>
+          {/if}
+        </div>
+
+        <div class="rv-col">
+          <section class="rv-sec" aria-labelledby="tr-h">
+            <div class="rv-h"><div><h2 id="tr-h">{t('Saved with')}</h2></div></div>
+            <div class="rv-box box">
+              {#if trip}
+                <a class="rv-row" href={trip.fromRide ? '#/pack/past' : `#/debrief/${encodeURIComponent(trip.id)}`}><span class="rv-ic" aria-hidden="true"><Route size={18} /></span><span class="rv-m"><span class="rv-t">{trip.title}</span><span class="rv-s">{trip.fromRide ? t('Past trip made from this ride') : t('Open its debrief')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a>
+              {:else}
+                <div class="attach">
+                  <p class="foot">{attachMatches.length ? t('A trip on this day:') : t('No trip on this day. Make it a past trip?')}</p>
+                  {#if attachOptions.length > 1}<Seg label={t('Save to')} value={attachChoice} options={attachOptions} onchange={(v) => (attachTo = v)} />{/if}
+                  <p><button type="button" class="btn" onclick={attach}>{attachChoice === 'new' ? t('Make a past trip') : t('Attach to the trip')}</button></p>
+                </div>
               {/if}
-            </li>
-          {/each}
-        </ul>
-        <p class="foot">{t('Nothing is kept without a tap. Kept learnings show up in Debrief → Learnings.')}</p>
-      {/if}
-
-      {#if rows.length}
-        <h2 class="sec-head" id="cmp-h"><span>{t('Planned vs real')}</span><span class="n">{ride.plan?.source === 'plan' ? t('from the time plan') : ride.plan?.source === 'hours' ? t('from your riding hours') : t('from the route')}</span></h2>
-        <table class="cmp" aria-labelledby="cmp-h">
-          <thead><tr><th scope="col"><span class="sr">{t('What')}</span></th><th scope="col">{t('Planned')}</th><th scope="col">{t('Real')}</th><th scope="col"><span class="sr">{t('Difference')}</span></th></tr></thead>
-          <tbody>
-            {#each rows as r (r.key)}
-              <tr><th scope="row">{t(ROW[r.key])}</th><td class="num">{fmt(r.key, r.plan)}</td><td class="num">{fmt(r.key, r.real)}</td><td class="num d">{sign(r.key, r.diff)}</td></tr>
-            {/each}
-          </tbody>
-        </table>
-      {/if}
-
-      <h2 class="sec-head" id="st-h"><span>{t('The ride')}</span><span class="n">{t('Start {time}', { time: clock(ride.startAt) })}</span></h2>
-      {@render stats(ride, rows.map((x) => x.key))}
-
-      <h2 class="sec-head" id="tr-h"><span>{t('Trip')}</span></h2>
-      <div class="box">
-        {#if trip}
-          <a class="lrow" href={trip.fromRide ? '#/pack/past' : `#/debrief/${encodeURIComponent(trip.id)}`}><span class="ic"><Route size={18} aria-hidden="true" /></span><span class="m"><span class="t">{trip.title}</span><span class="s">{trip.fromRide ? t('Past trip made from this ride') : t('Open its debrief')}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
-        {:else}
-          <p class="foot">{attachMatches.length ? t('A trip on this day:') : t('No trip on this day. Make it a past trip?')}</p>
-          {#if attachOptions.length > 1}<Seg label={t('Save to')} value={attachChoice} options={attachOptions} onchange={(v) => (attachTo = v)} />{/if}
-          <p><button type="button" class="btn" onclick={attach}>{attachChoice === 'new' ? t('Make a past trip') : t('Attach to the trip')}</button></p>
-        {/if}
-        <label class="chk"><input type="checkbox" checked={ride.pace !== false} onchange={(e) => togglePace(e.currentTarget.checked)} /><span>{t('Counts for your pace')}<small>{pace.mine ? t('Your pace now: {kmh} km/h', { kmh: num(pace.kmh) }) : t('Rides of 20 km or more count.')}</small></span></label>
+              <label class="rv-row chk"><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t('Counts for your pace')}</span><span class="rv-s">{pace.mine ? t('Your pace now: {kmh} km/h', { kmh: num(pace.kmh) }) : t('Rides of 20 km or more count.')}</span></span><input type="checkbox" checked={ride.pace !== false} onchange={(e) => togglePace(e.currentTarget.checked)} /></label>
+            </div>
+          </section>
+          <p class="del"><button type="button" class="link" onclick={remove}>{t('Delete ride')}</button></p>
+        </div>
       </div>
-      <p class="del"><button type="button" class="link" onclick={remove}>{t('Delete ride')}</button></p>
     {/if}
   {:else}
-    <p class="back"><a href="#/debrief">← {t('Debrief')}</a></p>
+    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Upload ride')}</span></nav>
     <h1 class="title">{t('Upload ride')}</h1>
     <p class="page-sub">{t('A recorded ride as GPX: pauses, planned vs real, learnings. Read on this device.')}</p>
 
-    <section class="up" aria-label={t('Upload ride')}>
-      <label class="btn pickbtn" class:hi={!draft}><Upload size={18} aria-hidden="true" />{busy && !draft ? t('Reading …') : draft ? t('Choose another file') : t('Choose GPX file')}<input type="file" accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml" onchange={pick} disabled={busy} /></label>
-      {#if msg}<p class="card warn" role="status">{msg}</p>{/if}
-      {#if !draft}<p class="foot">{t('Garmin, Wahoo, Strava or Komoot: a ride → Export GPX. On Android you can also share the file to Pack Generator.')}</p>{/if}
-    </section>
+    <div class="rv-lay">
+      <div class="rv-col">
+        <section class="up" aria-label={t('Upload ride')}>
+          <div class="drop">
+            <span class="rv-ic" aria-hidden="true"><Plus size={18} /></span>
+            <span class="rv-m"><span class="rv-t">{t('Choose a GPX file')}</span>{#if !draft}<span class="rv-s">{t('Garmin, Wahoo, Strava or Komoot: a ride → Export GPX. On Android you can also share the file to Pack Generator.')}</span>{/if}</span>
+            <label class="btn pickbtn" class:hi={!draft}><Upload size={18} aria-hidden="true" />{busy && !draft ? t('Reading …') : draft ? t('Choose another file') : t('Choose file')}<input type="file" accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml" onchange={pick} disabled={busy} /></label>
+          </div>
+          {#if msg}<p class="warnmsg" role="status">{msg}</p>{/if}
+        </section>
 
-    {#if draft}
-      <h2 class="sec-head" id="pv-h"><span>{draft.name}</span><span class="n">{day(draft.date)}</span></h2>
-      {@render stats(draft)}
-      {#if dup}
-        <p class="card">{t('This ride is saved already.')} <a href={`#/debrief/ride/${encodeURIComponent(dup.id)}`}>{t('Open it')}</a></p>
-      {:else}
-        <div class="savebox">
-          <span class="lbl" id="to-h">{t('Save to')}</span>
-          <Seg labelledby="to-h" value={to} {options} onchange={(v) => (picked = v)} />
-          <p class="foot">{to.startsWith('trip:') ? t('Planned vs real with this trip.') : to === 'new' ? t('A past trip of one day with this ride as its route.') : t('Saved on its own; you can attach it later.')}</p>
-          <label class="chk"><input type="checkbox" bind:checked={usePace} /><span>{t('Counts for your pace')}<small>{t('The riding-time guess learns your speed.')}</small></span></label>
-          <p class="acts2"><button type="button" class="btn hi" disabled={busy} onclick={save}>{t('Save ride')}</button><button type="button" class="link" onclick={discard}>{t('Discard')}</button></p>
-        </div>
-      {/if}
-    {/if}
+        {#if draft}
+          <section class="rv-sec" aria-labelledby="pv-h">
+            <div class="rv-h"><div><h2 id="pv-h">{draft.name}</h2><p class="rv-sub">{day(draft.date)}</p></div></div>
+            <div class="rv-box">
+              {@render stats(draft)}
+            </div>
+            {#if dup}
+              <p class="rv-box pad dupmsg">{t('This ride is saved already.')} <a href={`#/debrief/ride/${encodeURIComponent(dup.id)}`}>{t('Open it')}</a></p>
+            {:else}
+              <div class="rv-box pad savebox">
+                <span class="rv-lbl" id="to-h">{t('Save to')}</span>
+                <Seg labelledby="to-h" value={to} {options} onchange={(v) => (picked = v)} />
+                <p class="foot">{to.startsWith('trip:') ? t('Planned vs real with this trip.') : to === 'new' ? t('A past trip of one day with this ride as its route.') : t('Saved on its own; you can attach it later.')}</p>
+                <label class="chk2"><input type="checkbox" bind:checked={usePace} /><span>{t('Counts for your pace')}<small>{t('The riding-time guess learns your speed.')}</small></span></label>
+                <p class="acts2"><button type="button" class="btn hi" disabled={busy} onclick={save}>{t('Save ride')}</button><button type="button" class="link" onclick={discard}>{t('Discard')}</button></p>
+              </div>
+            {/if}
+          </section>
+        {/if}
 
-    {#if rides.length}
-      <h2 class="sec-head" id="saved-h"><span>{t('Saved rides')}</span><span class="n">{rides.length}</span></h2>
-      <ul class="rowlist" aria-labelledby="saved-h">
-        {#each rides as r (r.id)}
-          {@const open = rideLearnings(r, r.plan, r.basis ?? pace).filter((s) => !r.answers?.[s.id]).length}
-          <li>
-            <a class="lrow" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}>
-              <span class="m"><span class="t">{r.name}</span><span class="s">{[day(r.date), tripOf(r)?.title, tn(r.pauses.length, '{n} pause', '{n} pauses')].filter(Boolean).join(' · ')}</span></span>
-              {#if open}<span class="nbadge">{tn(open, '{n} learning', '{n} learnings')}</span>{/if}
-              <span class="v num">{num(r.km)} km</span>
-              <ChevronRight class="chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-        {/each}
-      </ul>
-    {/if}
+        {#if rides.length}
+          <section class="rv-sec" aria-labelledby="saved-h">
+            <div class="rv-h"><div><h2 id="saved-h">{t('Saved rides')}</h2><p class="rv-sub num">{tn(rides.length, '{n} ride', '{n} rides')}</p></div></div>
+            <ul class="rv-box" aria-labelledby="saved-h">
+              {#each rides as r (r.id)}
+                {@const open = rideLearnings(r, r.plan, r.basis ?? pace).filter((s) => !r.answers?.[s.id]).length}
+                <li>
+                  <a class="rv-row" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}>
+                    <span class="rv-ic" aria-hidden="true"><Route size={18} /></span>
+                    <span class="rv-m"><span class="rv-t">{r.name}</span><span class="rv-s num">{[day(r.date), `${num(r.km)} km`, tripOf(r)?.title, tn(r.pauses.length, '{n} pause', '{n} pauses')].filter(Boolean).join(' · ')}</span>{#if open}<span class="rv-tag warn lt">{tn(open, '{n} learning', '{n} learnings')}</span>{/if}</span>
+                    <ChevronRight class="rv-chev" size={18} aria-hidden="true" />
+                  </a>
+                </li>
+              {/each}
+            </ul>
+          </section>
+        {/if}
+      </div>
+
+      <div class="rv-col">
+        <section class="rv-sec" aria-labelledby="know-h">
+          <div class="rv-h"><div><h2 id="know-h">{t('Good to know')}</h2></div></div>
+          <ul class="rv-box">
+            <li class="rv-row"><span class="rv-ic" aria-hidden="true"><Gauge size={16} /></span><span class="rv-m"><span class="rv-t">{t('From 20 km a ride counts for your pace')}</span><span class="rv-s">{t('shorter rides stay saved')}</span></span></li>
+            <li class="rv-row"><span class="rv-ic" aria-hidden="true"><Coffee size={16} /></span><span class="rv-m"><span class="rv-t">{t('A stop of {n} minutes or more is a pause', { n: PAUSE_MIN })}</span><span class="rv-s">{t('shorter stops count as moving time')}</span></span></li>
+            <li class="rv-row"><span class="rv-ic" aria-hidden="true"><Route size={16} /></span><span class="rv-m"><span class="rv-t">{t('A ride on a trip day goes to that trip')}</span><span class="rv-s">{t('chosen for you, you can change it')}</span></span></li>
+            <li class="rv-row"><span class="rv-ic" aria-hidden="true"><TriangleAlert size={16} /></span><span class="rv-m"><span class="rv-t">{t('Your file stays on this device')}</span><span class="rv-s">{t('nothing is uploaded')}</span></span></li>
+          </ul>
+        </section>
+        <section class="rv-sec" aria-labelledby="rmore-h">
+          <div class="rv-h"><div><h2 id="rmore-h">{t('More')}</h2></div></div>
+          <ul class="rv-box">
+            <li><a class="rv-row" href="#/debrief/pace"><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t('Your pace')}</span>{#if pace.mine}<span class="rv-s num">{t('Your pace now: {kmh} km/h', { kmh: num(pace.kmh) })}</span>{/if}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/logbook"><span class="rv-ic" aria-hidden="true"><BookOpen size={18} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            {#if firstBike}<li><a class="rv-row" href={bikesHash({ tab: 'care', bike: firstBike.id, view: 'import' })}><span class="rv-ic" aria-hidden="true"><Plus size={18} /></span><span class="rv-m"><span class="rv-t">{t('Import rides')}</span><span class="rv-s">{t('Strava export or Garmin files · the file stays on this device')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>{/if}
+          </ul>
+        </section>
+      </div>
+    </div>
   {/if}
 </div>
 
 <style>
-  .rides {
-    max-width: 760px;
-    margin: 0 auto;
+  .crumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 4px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
-  .back {
-    margin: 0 0 6px;
+  .crumb a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ink-3);
+    text-decoration: none;
+  }
+  .crumb a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+  .crumb [aria-current] {
+    color: var(--ink);
+  }
+  .rides > .page-sub {
+    margin-bottom: 18px;
   }
   .foot {
     margin: 6px 2px 0;
@@ -344,12 +438,31 @@
   .up {
     display: grid;
     gap: 8px;
-    margin: 8px 0 4px;
+  }
+  /* the dashed card: choose a GPX file */
+  .drop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 14px;
+    padding: 16px;
+    border: 1.5px dashed var(--line-strong);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+  }
+  .drop .rv-m {
+    flex: 1 1 260px;
+  }
+  .drop .rv-t {
+    font-weight: 600;
+  }
+  .drop .rv-ic {
+    background: var(--hi-soft);
+    color: var(--ink);
   }
   .pickbtn {
     position: relative;
-    justify-self: start;
-    min-height: 48px;
+    min-height: 44px;
     padding: 10px 18px;
     overflow: hidden;
   }
@@ -360,22 +473,31 @@
     opacity: 0;
     cursor: pointer;
   }
-  .card.warn {
+  .warnmsg,
+  .okmsg {
     margin: 0;
+    padding: 12px 16px;
+    border-radius: var(--radius-card);
     background: var(--warn-soft);
-    border-color: transparent;
   }
-  .card.ok {
+  .okmsg {
+    margin: 0 0 18px;
     background: var(--ok-soft);
-    border-color: transparent;
-    margin: 8px 0;
+  }
+  .stats {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .stats > li + li {
+    border-top: 1px solid var(--line);
   }
   .srow {
     display: flex;
     align-items: center;
     gap: 10px;
     min-height: 44px;
-    padding: 6px 12px;
+    padding: 6px 0;
   }
   .srow > span:first-child {
     flex: 1;
@@ -391,9 +513,8 @@
     color: var(--ink-3);
     font-weight: 500;
   }
-  .sec-head + .rowlist.stats,
-  .sec-head + .rowlist {
-    border-radius: 0 0 8px 8px;
+  .stats + .foot {
+    margin: 0 0 10px;
   }
   .pz > summary {
     list-style: none;
@@ -413,7 +534,7 @@
   .plist {
     list-style: none;
     margin: 0;
-    padding: 0 12px 8px 24px;
+    padding: 0 0 8px 12px;
   }
   .plist li {
     display: grid;
@@ -421,7 +542,7 @@
     gap: 12px;
     padding: 4px 0;
     border-top: 1px solid var(--line);
-    font-size: 15px;
+    font-size: var(--fs-small);
   }
   .plist .q {
     color: var(--ink-3);
@@ -431,32 +552,21 @@
     min-width: 56px;
     font-weight: 500;
   }
-  .savebox,
-  .box {
+  .savebox {
     display: grid;
     gap: 8px;
-    padding: 12px;
-    border: 1px solid var(--line);
-    border-radius: 0 0 8px 8px;
-    background: var(--paper);
-  }
-  .savebox {
     margin-top: 12px;
-    border-radius: 8px;
-  }
-  .savebox .lbl {
-    margin: 0;
   }
   .savebox .foot {
     margin-top: 0;
   }
-  .box .lrow {
-    padding: 4px 0;
-  }
-  .box p {
+  .savebox p {
     margin: 0;
   }
-  .chk {
+  .dupmsg {
+    margin: 12px 0 0;
+  }
+  .chk2 {
     display: flex;
     align-items: flex-start;
     gap: 10px;
@@ -464,24 +574,24 @@
     padding: 6px 0;
     cursor: pointer;
   }
+  .chk2 input,
   .chk input {
     width: 22px;
     height: 22px;
     margin: 1px 0 0;
     flex: none;
-    accent-color: var(--brand);
+    accent-color: var(--ink);
   }
-  .chk small {
+  .chk2 small {
     display: block;
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: var(--fs-small);
   }
   .acts2 {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 8px 16px;
-    margin: 4px 0 0;
   }
   .acts2 .btn {
     min-height: 48px;
@@ -494,34 +604,43 @@
     background: none;
     color: var(--ink-2);
     font: inherit;
+    font-size: var(--fs-small);
     text-decoration: underline;
+    text-underline-offset: 3px;
     cursor: pointer;
   }
-  .lr {
+  .nums {
+    margin: 0;
+  }
+  .nums dd,
+  .nums dt {
+    margin: 0;
+  }
+  .nums .rv-tile {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 12px;
-    padding: 10px 12px;
+    flex-direction: column;
+    gap: 4px;
   }
-  .lr .m {
-    flex: 1 1 220px;
-    min-width: 0;
+  .rv-tag.lt {
+    margin-top: 4px;
   }
-  .lr .t {
-    display: block;
+  .tot .rv-t {
     font-weight: 600;
-    line-height: 1.3;
-    overflow-wrap: break-word;
   }
-  .lr .s {
-    display: block;
-    font-size: 14px;
-    color: var(--ink-3);
+  .tot .rv-v {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .lr {
+    flex-wrap: wrap;
+  }
+  .lr .rv-m {
+    flex: 1 1 200px;
   }
   .lr .acts {
     display: flex;
     gap: 8px;
+    margin-left: auto;
   }
   .lr .btn {
     min-height: 44px;
@@ -529,27 +648,31 @@
   .cmp {
     width: 100%;
     border-collapse: collapse;
-    background: var(--paper);
-    border: 1px solid var(--line);
-    font-size: 15px;
+    font-size: var(--fs-small);
   }
   .cmp th,
   .cmp td {
-    padding: 10px 12px;
-    border-top: 1px solid var(--line);
+    padding: 10px 8px;
     text-align: right;
     white-space: nowrap;
   }
+  .cmp tbody tr {
+    border-top: 1px solid var(--line);
+  }
   .cmp th[scope='row'] {
+    padding-left: 0;
     text-align: left;
-    font-weight: 500;
+    color: var(--ink-2);
+    font-weight: 400;
     white-space: normal;
   }
   .cmp thead th {
-    border-top: 0;
-    font-size: 13px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     color: var(--ink-3);
+  }
+  .cmp td:last-child {
+    padding-right: 0;
   }
   .cmp .d {
     color: var(--ink-3);
@@ -557,18 +680,23 @@
   @media (max-width: 400px) {
     .cmp th,
     .cmp td {
-      padding: 8px 6px;
-      font-size: 14px;
+      padding: 8px 4px;
     }
   }
-  /* v0.97.0 (Inter is a little wider): at 320 px the four columns need the last few pixels */
-  @media (max-width: 359px) {
-    .cmp th,
-    .cmp td {
-      padding-inline: 4px;
-    }
+  .box .rv-row + .rv-row,
+  .box .attach + .rv-row {
+    border-top: 1px solid var(--line);
+  }
+  .attach {
+    display: grid;
+    gap: 8px;
+    padding: 12px 0;
+  }
+  .attach p {
+    margin: 0;
   }
   .del {
-    margin: 18px 0 0;
+    margin: 0;
+    padding: 0 12px;
   }
 </style>

@@ -190,8 +190,6 @@
       "global": 1
     },
     "src/pages/Debrief.svelte": {
-      "colour": 1,
-      "fontsize": 8,
       "global": 1
     },
     "src/pages/Favorites.svelte": {
@@ -210,9 +208,6 @@
     },
     "src/pages/Pack.svelte": {
       "fontsize": 10
-    },
-    "src/pages/Rides.svelte": {
-      "fontsize": 6
     },
     "src/pages/Share.svelte": {
       "colour": 2,

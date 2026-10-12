@@ -30,6 +30,7 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import MainBar from '../lib/ui/MainBar.svelte';
   import { chargeList, chargeCount } from '../lib/charge.js';
+  import '../lib/review/review.css';
 
   let { id, kind } = $props();
 
@@ -177,38 +178,41 @@
     <MainBar main={packedMain} second={{ label: t('Back to Trips'), href: '#/trips' }} step={tabs.includes(current) ? t('Step {n} of {m}', { n: tabs.indexOf(current) + 1, m: tabs.length }) : ''} />
   </article>
 {:else if kind === 'ended'}
-  <Interstitial {trip} {tabs} {status} {current} {context} onpick={pick}
-    title={t('Trip ended')} text={endedText}
-    what={day ? (quickDone ? t('Nothing more. The debrief is saved.') : t('A short debrief: «All good» when nothing was different.')) : t('Debrief, about 3 minutes. Best today, while everything is fresh.')}
-    main={endedMain} second={endedSecond}>
-    {#if km || gain || ridden}
-      <section class="card bc nums">
-        <div class="stats">
-          {#if km}<p><b class="num">{num(Math.round(km))}<i> km</i></b><small>{t('ridden|km')}</small></p>{/if}
-          {#if gain}<p><b class="num">{num(Math.round(gain))}<i> {t('m up|short')}</i></b><small>{t('climbed|stat')}</small></p>{/if}
-          <p><b class="num">{ridden}</b><small>{tn(ridden, 'day', 'days')}</small></p>
-        </div>
-        {#if !km}<p class="tp-muted small">{t('Numbers from your route. With an uploaded ride they get exact.')}</p>{/if}
-      </section>
-    {/if}
+  <!-- v0.109.0 Design-Refresh P6 (T14 «Tour zu Ende», approved 12.10.2026): like «Gepackt» (T11): the steps on
+       top, one card with the number tile, the celebration and what comes next, the notes on the way as rows
+       under it; the main button stays in the bar at the bottom (G7). -->
+  <article class="pk" aria-labelledby="end-h">
+    <p class="trip">{context}</p>
+    <StepBar {trip} {tabs} {status} {current} tone="light" onpick={pick} />
+    <section class="card hero" id="end-h">
+      <p class="tally">
+        {#if km}<b class="num">{num(Math.round(km))} km</b>{:else}<b class="num">{tn(ridden, '{n} day', '{n} days')}</b>{/if}
+        <small class="num">{[trip.title, km ? tn(ridden, '{n} day', '{n} days') : null, gain ? `${num(Math.round(gain))} ${t('m up|short')}` : null].filter(Boolean).join(' · ')}</small>
+      </p>
+      <PageHead done title={t('Trip ended')} text={endedText} />
+      <p class="what">{day ? (quickDone ? t('Nothing more. The debrief is saved.') : t('A short debrief: «All good» when nothing was different.')) : t('Debrief, about 3 minutes. Best today, while everything is fresh.')}</p>
+      {#if !km && (gain || ridden)}<p class="what small">{t('Numbers from your route. With an uploaded ride they get exact.')}</p>{/if}
+      {#if day && quickDone}
+        <div class="saved"><Celebrate title={t('Debrief saved')} text={t('Every item counts as used.')} />{#if quickUndo}<button type="button" class="tp-link" onclick={undoQuick}>{t('Undo')}</button>{/if}</div>
+      {/if}
+    </section>
     {#if notes.length}
-      <section class="card bc notes" aria-labelledby="noted-h">
-        <h2 id="noted-h" class="kick">{tn(notes.length, 'Noted on the way · {n}', 'Noted on the way · {n}')}</h2>
-        <ul class="rows">
-          {#each notes.slice(0, 4) as n (n.key)}{@const Icon = NOTE_ICON[n.kind] ?? Pencil}<li><Icon size={16} aria-hidden="true" /><span class="nm">{n.text}</span><span class="tp-muted">{t('Day {n}', { n: (n.day ?? 0) + 1 })}</span></li>{/each}
+      <section class="until rv-sec" aria-labelledby="noted-h">
+        <div class="rv-h"><div><h2 id="noted-h">{tn(notes.length, 'Noted on the way · {n}', 'Noted on the way · {n}')}</h2><p class="rv-sub">{t('It goes into the debrief, nothing to copy.')}</p></div></div>
+        <ul class="rv-box">
+          {#each notes.slice(0, 4) as n (n.key)}{@const Icon = NOTE_ICON[n.kind] ?? Pencil}
+            <li class="rv-row"><span class="rv-ic" aria-hidden="true"><Icon size={18} /></span><span class="rv-m"><span class="rv-t">{n.text}</span><span class="rv-s">{t('Day {n}', { n: (n.day ?? 0) + 1 })}</span></span></li>
+          {/each}
         </ul>
-        <p class="tp-muted small">{t('It goes into the debrief, nothing to copy.')}</p>
       </section>
     {/if}
-    {#if day && quickDone}
-      <div class="card bc"><Celebrate title={t('Debrief saved')} text={t('Every item counts as used.')} />{#if quickUndo}<button type="button" class="tp-link" onclick={undoQuick}>{t('Undo')}</button>{/if}</div>
-    {/if}
-    {#snippet foot()}
+    <MainBar main={endedMain} second={endedSecond} step={tabs.includes(current) ? t('Step {n} of {m}', { n: tabs.indexOf(current) + 1, m: tabs.length }) : ''} />
+    <div class="foot">
       {#if !day}<span>{t('With «Later», Today reminds you tomorrow.')}</span>{:else if !quickDone}<a class="tp-link" href="#/">{t('Later')}</a>{/if}
       {#if canReopen(trip, today) && !quickDone}<button type="button" class="tp-link" onclick={() => reopenTrip($state.snapshot(trip))}>{t('Still on the way? Reopen the trip')}</button>
       {:else if !trip.finished && hasBike(trip)}<a class="tp-link" href="#/ride" onclick={pick}>{t('Still on the way? Back to On the way')}</a>{/if}
-    {/snippet}
-  </Interstitial>
+    </div>
+  </article>
   {#if undo}
     <div class="toast" role="status"><Check size={18} aria-hidden="true" /><span>{t('{trip} ended.', { trip: trip.title })}</span><button type="button" class="undo" onclick={undoEnd}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button></div>
   {/if}
@@ -268,6 +272,26 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .hero .what.small {
+    margin-top: 6px;
+    font-size: var(--fs-tiny);
+  }
+  .saved {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    margin-top: 14px;
+  }
+  .foot {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    max-width: 620px;
+    margin: 18px auto 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    text-align: center;
   }
   .until {
     max-width: 620px;
@@ -348,28 +372,6 @@
   }
   .bc {
     margin: 0 0 12px;
-  }
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-  }
-  .stats p {
-    display: grid;
-    margin: 0;
-  }
-  .stats b {
-    font: 800 var(--fs-page)/1 var(--font-brand);
-    color: var(--ink);
-  }
-  .stats i {
-    font: 500 var(--fs-body) var(--font-body);
-    font-style: normal;
-    color: var(--ink-2);
-  }
-  .stats small {
-    font-size: var(--fs-small);
-    color: var(--ink-2);
   }
   .rows {
     list-style: none;

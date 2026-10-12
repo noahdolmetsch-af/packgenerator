@@ -211,8 +211,9 @@ for (const lang of ['de', 'en']) {
     await expect(diff.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Multi tool', state: T('Not used') }) })).toBeVisible();
     await expect(diff.getByRole('button', { name: T('{name}: {state}. Tap to change.', { name: 'Spare tube', state: T('Broken') }) })).toBeVisible();
     await openRow(page, 'miss-fold');
-    await expect(page.locator('details.miss-fold li').filter({ hasText: 'test_data_gtp_ Sitzcreme' })).toContainText(T('Was missing'));
-    await expect(page.locator('details.miss-fold li').filter({ hasText: 'test_data_gtp_ Sitzcreme' })).toContainText(T('from your note on the way, {time}', { time: '' }).replace(/[,\s]+$/, ''));
+    // v0.109.0 Design-Refresh P6: «Was hat gefehlt?» is an open section (section.miss-fold)
+    await expect(page.locator('.miss-fold li').filter({ hasText: 'test_data_gtp_ Sitzcreme' })).toContainText(T('Was missing'));
+    await expect(page.locator('.miss-fold li').filter({ hasText: 'test_data_gtp_ Sitzcreme' })).toContainText(T('from your note on the way, {time}', { time: '' }).replace(/[,\s]+$/, ''));
     // In the full list one tap changes an item: not used → broken.
     await openRow(page, 'items-fold');
     const all = page.locator('details.items-fold');
@@ -256,7 +257,9 @@ test('the debrief is one page: nothing different = one tap', async ({ page, cont
   expect(d).toMatchObject({ status: 'done', weather: 'planned', amount: 'right', bags: 'fine', items: {}, missing: [] });
   // The tab now says "saved".
   await expect(tab(page, T, 'Debrief')).toContainText(T('saved'));
-  await expect(go(page)).toHaveText(T('Back to Trips')); // v0.67.0: the loop is closed (phase.js mainStep)
+  // v0.109.0 Design-Refresh P6 (T16, approved mockup): the band of a saved debrief offers «Antworten ändern»;
+  // the way back to Touren is the path above
+  await expect(go(page)).toHaveText(T('Change answers'));
 });
 
 test('weather: applied by itself, each changed row says why and has its own Undo, plus one for the whole change', async ({ page, context }, info) => {

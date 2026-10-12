@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.109.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 12: the end of a trip and the debrief in two columns, with the items as chips by bag.', href: '#/debrief' },
+      { text: 'Look back shows the last trip with number tiles, your 12 months and the comparison, and «More» as plain rows.', href: '#/debrief' },
+      { text: 'Learned, your pace, the logbook with your best values, past trips and your rides use the same light cards.', href: '#/debrief/logbook' },
+    ],
+  },
+  {
     version: '0.108.0',
     date: '2026-10-12',
     points: [

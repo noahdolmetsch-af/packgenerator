@@ -41,7 +41,8 @@ test('Rueckblick antippen: chips on top, the rest below, Fertig', async ({ page,
 
   const card = page.getByRole('region', { name: T('What did you not need?') });
   await expect(card).toBeVisible();
-  const chips = card.getByRole('group', { name: T('What did you not need?') }).getByRole('button');
+  // v0.109.0 Design-Refresh P6: each bag has «Alle ✓ · Alle –» in the group now; the chips are the item buttons
+  const chips = card.getByRole('group', { name: T('What did you not need?') }).locator('button.chip');
   await expect(chips).toHaveCount(items.length);
   await expect(card.getByRole('status')).toHaveText(T('Nothing tapped: everything counts as used.'));
   // The first chip is the first thing on the page below the band: no scrolling to «not needed».
@@ -65,7 +66,8 @@ test('Rueckblick antippen: chips on top, the rest below, Fertig', async ({ page,
   await expect(howSum).toContainText(T('How was it?'));
   await howSum.click();
   await expect(page.getByRole('group', { name: T('Weather') })).toBeVisible();
-  await expect(page.locator('details.miss-fold > summary')).toContainText(T('What was missing?'));
+  // v0.109.0 Design-Refresh P6: «Was hat gefehlt?» is an open section beside the chips, not a fold
+  await expect(page.locator('section.miss-fold h2')).toContainText(T('What was missing?'));
 
   // No sideways scroll, and «Fertig» saves.
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);

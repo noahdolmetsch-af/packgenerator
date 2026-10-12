@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (0.109.0)
+
+Nach den Mockups T14–T18 (Noah 12.10.2026 01:00 «T13–T18»), T19 (01:42 «t19 ok») und T20–T23 (01:51 «T20–T23 freigegeben») und «10 Pakete» (P6 = R12+R13+R14). Nur das Aussehen ist neu.
+
+- **Selbst entschieden (P6):** Die Titel «Tour beendet» und «Fahrt hochladen» bleiben. Hauptknöpfe bleiben in der Weiter-Leiste wie in P5. «Weitere Vorschläge» unter «Was hat gefehlt?» bleiben sichtbar statt zugeklappt, damit man sieht, was mit «Fertig» übernommen wird. Vergangene Touren behalten alle 9 Spalten; «In diesem Zeitraum» als 5 Kacheln darüber. Im gespeicherten Rückblick steht im Band «Antworten ändern» (wie T16), zurück geht es über den Pfad oben. Strava bleibt Datei-Import (Noah «4a»). Nicht gebaut, weil neu oder ohne Daten: Stimmungs-Skala, «Deine schönsten Touren», Fotostreifen, Band-Profil, Vergleich zweier Touren, Wisch-Karte bei Gelernt, Tempo-Regeln mit/ohne Gepäck, eigene Logbuch-Kacheln und Diagramm, «Alte Tour nachtragen», «Was war anders als letztes Mal?», Monats-Kacheln bei Fahrten, Karte, Puls und Leistung einer Fahrt.
+
 ## 12.10.2026: Design-Refresh P9 «Ich» (0.108.0)
 
 Nach den Mockups I1–I3 (Noah 12.10.2026 03:06), I4–I6, I8, I9 (03:20), I7 neu, I10, I12, I13 (03:50 «Runde 20 freigegeben») und den Bausteinen 20 «Status-Ampel» und 35 «QR-Code» (11.10.2026). I11 «Was ist neu» kommt mit P10.

@@ -15,9 +15,10 @@
   import { domainName, BIKEPACKING } from '../domains.js';
   import { openTrip } from '../nav.js';
   import { localDay } from '../localday.js';
-  import { t, tn, locale } from '../i18n.svelte.js';
-  import Seg from '../ui/Seg.svelte';
-  import { ChevronRight, CloudRain, Sun } from '@lucide/svelte';
+  import { t, tn, num, locale } from '../i18n.svelte.js';
+  import { bestValues, hmm } from '../tripsboard.js';
+  import { ChevronRight, CloudRain, Sun, Search, Trophy, Lightbulb, Gauge, Route } from '@lucide/svelte';
+  import './review.css';
 
   const today = localDay();
   const dataQ = liveQuery(async () => ({ ...(await loadReview(db)), events: await db.events.toArray(), notes: await db.notes.toArray() }));
@@ -30,6 +31,8 @@
   let area = $state('all');
   let q = $state('');
   const shown = $derived(logFilter(entries, { year, area, q }));
+  // v0.109.0 Design-Refresh P6 (T20): the best values of all trips, the same as on Touren
+  const best = $derived(data ? bestValues({ trips: data.trips, rides: data.rides, today, period: 'all' }) : null);
   const AREAS = $derived([{ key: 'all', name: t('All|period') }, ...areas.map((a) => ({ key: a, name: t(domainName(a)) }))]);
 
   /** A year shows as it is ("2025"), a full date as month and year; no date: –. */
@@ -43,105 +46,127 @@
     ].filter(Boolean);
 </script>
 
-<section id="logbook" class="logbook" aria-labelledby="log-h">
-  <h2 id="log-h" class="sr">{t('Logbook')}</h2>
-  <div class="filters">
-    <label class="yr"><span class="lbl">{t('Year')}</span>
-      <select class="sel" bind:value={year} aria-label={t('Year')}>
-        <option value="all">{t('All years')}</option>
-        {#each years as y (y)}<option value={y}>{y}</option>{/each}
-      </select>
-    </label>
-    {#if areas.length > 1}<Seg full={false} label={t('Area')} value={area} options={AREAS} onchange={(v) => (area = v)} />{/if}
-    {#if entries.length > 5}<input class="inp q" type="search" placeholder={t('Search the logbook')} bind:value={q} aria-label={t('Search the logbook')} />{/if}
-  </div>
-  <p class="count num" role="status">{tn(shown.length, '{n} entry', '{n} entries')}{year !== 'all' || area !== 'all' || q.trim() ? ` · ${t('of {n}', { n: entries.length })}` : ''}</p>
+<!-- v0.109.0 Design-Refresh P6 (T20 «Logbuch», approved 12.10.2026): two columns on a computer. Left the search,
+     Jahr and Reiseart as chips, the count and the list in one card; right the best values from all trips
+     (the same as on Touren) and «Mehr». -->
+<div class="rv-lay lb">
+  <section id="logbook" class="logbook rv-col" aria-labelledby="log-h">
+    <h2 id="log-h" class="sr">{t('Logbook')}</h2>
+    {#if entries.length > 5}<label class="rv-search"><Search size={18} aria-hidden="true" /><input type="search" placeholder={t('Search the logbook')} bind:value={q} aria-label={t('Search the logbook')} /></label>{/if}
+    <div class="filters">
+      <label class="yr"><span class="rv-lbl">{t('Year')}</span>
+        <select class="sel" bind:value={year} aria-label={t('Year')}>
+          <option value="all">{t('All years')}</option>
+          {#each years as y (y)}<option value={y}>{y}</option>{/each}
+        </select>
+      </label>
+      {#if areas.length > 1}
+        <div class="rv-chips" role="group" aria-label={t('Area')}>
+          <span class="rv-lbl" aria-hidden="true">{t('Area')}</span>
+          {#each AREAS as a (a.key)}<button type="button" class="rv-chip" aria-pressed={area === a.key} onclick={() => (area = a.key)}>{a.name}</button>{/each}
+        </div>
+      {/if}
+    </div>
+    <div>
+      <p class="count num" role="status">{tn(shown.length, '{n} entry', '{n} entries')}{year !== 'all' || area !== 'all' || q.trim() ? ` · ${t('of {n}', { n: entries.length })}` : ''}</p>
 
-  {#if !data}
-    <p class="muted">{t('Loading…')}</p>
-  {:else}
-    <ul class="log">
-      {#each shown as e (e.id)}
-        {@const fs = factsOf(e)}
-        {@const wx = rainText(e.rain, e.days)}
-        <li class="e {e.kind}">
-          {#if e.fact}
-            <a class="row" href={e.fact.href} onclick={() => e.fact.trip && openTrip(e.fact.trip.id)}>
-              <span class="when num">{dates(e.date, e.end)}</span>
-              <span class="body">
-                <span class="tt"><b>{e.title || DASH}</b>{#if e.domain !== BIKEPACKING}<span class="pill">{t(domainName(e.domain))}</span>{/if}{#if e.kind === 'ride'}<span class="pill">{t('Uploaded ride')}</span>{/if}</span>
-                {#if fs.length || wx !== DASH}<span class="facts num">{#if wx !== DASH}<span class="wx">{#if e.rain?.wet}<CloudRain size={14} aria-hidden="true" />{:else}<Sun size={14} aria-hidden="true" />{/if}{wx}</span>{/if}{fs.join(' · ')}</span>{/if}
-                {#each e.notes as n (n)}<span class="note">{n}</span>{/each}
-              </span>
-              <ChevronRight class="chev" size={18} aria-hidden="true" />
-            </a>
-          {:else if e.ev.source === 'excel'}
-            <div class="row ro">
-              <span class="when ld num">{evDate(e.ev)}</span>
-              <span class="body">
-                <span class="tt lt"><b>{e.title}</b></span>
-                {#each e.notes as n (n)}<span class="note ln">{n}</span>{/each}
-                <span class="lsrc">{t('from Excel')}</span>
-              </span>
-            </div>
-          {:else}
-            <details class="row ev">
-              <summary><span class="when num">{e.ev.dateText ?? evDate(e.ev)}</span><span class="body"><span class="tt"><b>{e.title}</b></span>{#if e.ev.type}<span class="facts">{e.ev.type}</span>{/if}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
-              <dl>
-                {#if e.ev.bike && e.ev.bike !== '–'}<dt>{t('Bike')}</dt><dd>{e.ev.bike}</dd>{/if}
-                {#if e.ev.bags && e.ev.bags !== '–'}<dt>{t('Bags')}</dt><dd>{e.ev.bags}</dd>{/if}
-                {#if e.ev.result}<dt>{t('What worked')}</dt><dd>{e.ev.result}</dd>{/if}
-                {#if e.ev.learnings}<dt>{t('Learnings')}</dt><dd>{e.ev.learnings}</dd>{/if}
-                {#if e.ev.note}<dt>{t('Note')}</dt><dd>{e.ev.note}</dd>{/if}
-              </dl>
-            </details>
-          {/if}
-        </li>
+      {#if !data}
+        <p class="muted">{t('Loading…')}</p>
       {:else}
-        <li class="none"><p class="muted">{entries.length ? t('Nothing matches.') : t('No entries yet.')}</p></li>
-      {/each}
-    </ul>
-  {/if}
-</section>
+        <ul class="log rv-box">
+          {#each shown as e (e.id)}
+            {@const fs = factsOf(e)}
+            {@const wx = rainText(e.rain, e.days)}
+            <li class="e {e.kind}">
+              {#if e.fact}
+                <a class="row" href={e.fact.href} onclick={() => e.fact.trip && openTrip(e.fact.trip.id)}>
+                  <span class="when num">{dates(e.date, e.end)}</span>
+                  <span class="body">
+                    <span class="tt"><b>{e.title || DASH}</b>{#if e.domain !== BIKEPACKING}<span class="rv-tag">{t(domainName(e.domain))}</span>{/if}{#if e.kind === 'ride'}<span class="rv-tag">{t('Uploaded ride')}</span>{/if}</span>
+                    {#if fs.length || wx !== DASH}<span class="facts num">{#if wx !== DASH}<span class="wx">{#if e.rain?.wet}<CloudRain size={14} aria-hidden="true" />{:else}<Sun size={14} aria-hidden="true" />{/if}{wx}</span>{/if}{fs.join(' · ')}</span>{/if}
+                    {#each e.notes as n (n)}<span class="note">{n}</span>{/each}
+                  </span>
+                  <ChevronRight class="chev" size={18} aria-hidden="true" />
+                </a>
+              {:else if e.ev.source === 'excel'}
+                <div class="row ro">
+                  <span class="when ld num">{evDate(e.ev)}</span>
+                  <span class="body">
+                    <span class="tt lt"><b>{e.title}</b><span class="lsrc">{t('from Excel')}</span></span>
+                    {#each e.notes as n (n)}<span class="note ln">{n}</span>{/each}
+                  </span>
+                </div>
+              {:else}
+                <details class="row ev">
+                  <summary><span class="when num">{e.ev.dateText ?? evDate(e.ev)}</span><span class="body"><span class="tt"><b>{e.title}</b></span>{#if e.ev.type}<span class="facts">{e.ev.type}</span>{/if}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+                  <dl>
+                    {#if e.ev.bike && e.ev.bike !== '–'}<dt>{t('Bike')}</dt><dd>{e.ev.bike}</dd>{/if}
+                    {#if e.ev.bags && e.ev.bags !== '–'}<dt>{t('Bags')}</dt><dd>{e.ev.bags}</dd>{/if}
+                    {#if e.ev.result}<dt>{t('What worked')}</dt><dd>{e.ev.result}</dd>{/if}
+                    {#if e.ev.learnings}<dt>{t('Learnings')}</dt><dd>{e.ev.learnings}</dd>{/if}
+                    {#if e.ev.note}<dt>{t('Note')}</dt><dd>{e.ev.note}</dd>{/if}
+                  </dl>
+                </details>
+              {/if}
+            </li>
+          {:else}
+            <li class="none"><p class="muted">{entries.length ? t('Nothing matches.') : t('No entries yet.')}</p></li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
+  </section>
+
+  <div class="rv-col">
+    {#if best?.any}
+      <section class="rv-sec best" aria-labelledby="best-h">
+        <div class="rv-h"><div><h2 id="best-h">{t('Best values')}</h2><p class="rv-sub">{t('from all trips')}</p></div></div>
+        <ul class="rv-box">
+          {#if best.longest}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Longest trip')}</span><span class="rv-s">{best.longest.title}{best.longest.days > 1 ? ` · ${tn(best.longest.days, '{n} day', '{n} days')}` : ''}</span></span><b class="rv-v num">{num(best.longest.km)} km</b></li>{/if}
+          {#if best.climb}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Most climbing')}</span><span class="rv-s">{best.climb.title}</span></span><b class="rv-v num">{num(best.climb.m)} Hm</b></li>{/if}
+          {#if best.time}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Longest riding time')}</span><span class="rv-s">{best.time.title}</span></span><b class="rv-v num">{hmm(best.time.h)} h</b></li>{/if}
+          {#if best.furthest}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Trophy size={16} /></span><span class="rv-m"><span class="rv-t">{t('Furthest day')}</span><span class="rv-s">{best.furthest.title}</span></span><b class="rv-v num">{num(best.furthest.km)} km</b></li>{/if}
+        </ul>
+      </section>
+    {/if}
+    <section class="rv-sec" aria-labelledby="lbmore-h">
+      <div class="rv-h"><div><h2 id="lbmore-h">{t('More')}</h2></div></div>
+      <ul class="rv-box">
+        <li><a class="rv-row" href="#/debrief/learnings"><span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span><span class="rv-m"><span class="rv-t">{t('Learned|review')}</span>{#if data}<span class="rv-s num">{tn(data.learnings.length, '{n} learning', '{n} learnings')}</span>{/if}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+        <li><a class="rv-row" href="#/debrief/pace"><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t('Your pace')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+        <li><a class="rv-row" href="#/pack/past"><span class="rv-ic" aria-hidden="true"><Route size={18} /></span><span class="rv-m"><span class="rv-t">{t('All past trips')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+      </ul>
+    </section>
+  </div>
+</div>
 
 <style>
   .filters {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px 12px;
+    gap: 8px 16px;
   }
   .yr {
     display: inline-flex;
     align-items: center;
     gap: 8px;
   }
-  .yr .lbl {
-    align-self: center;
+  .yr .rv-lbl {
     color: var(--ink-3);
     font-size: var(--fs-small);
+    font-weight: 600;
   }
   .yr .sel {
     min-height: 44px;
   }
-  .q {
-    flex: 1 1 200px;
-    min-width: 0;
-    min-height: 44px;
-    box-sizing: border-box;
-  }
   .count {
-    margin: 8px 0 8px;
+    margin: 0 2px 8px;
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
   .log {
-    list-style: none;
-    margin: 0;
     padding: 0;
-    background: var(--paper);
-    border: 1px solid var(--card-line);
-    border-radius: var(--radius-card);
     overflow: hidden;
   }
   .e + .e {
@@ -153,7 +178,7 @@
     gap: 2px 12px;
     align-items: start;
     min-height: 44px;
-    padding: 12px 14px;
+    padding: 12px 16px;
     box-sizing: border-box;
     color: var(--ink);
     text-decoration: none;
@@ -209,7 +234,7 @@
     }
   }
   .when {
-    color: var(--ink-3);
+    color: var(--ink-2);
     font-size: var(--fs-small);
     padding-top: 2px;
   }
@@ -253,8 +278,9 @@
     overflow-wrap: break-word;
   }
   .lsrc {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+    font-weight: 600;
   }
   .row :global(.chev) {
     color: var(--ink-3);
@@ -277,9 +303,14 @@
     overflow-wrap: break-word;
   }
   .none {
-    padding: 12px 14px;
+    padding: 12px 16px;
   }
   .muted {
     color: var(--ink-3);
+  }
+  .best .rv-v {
+    color: var(--ink);
+    font-size: var(--fs-body);
+    font-weight: 600;
   }
 </style>
