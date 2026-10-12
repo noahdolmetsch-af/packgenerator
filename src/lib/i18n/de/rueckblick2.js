@@ -9,4 +9,6 @@ export default {
   'Weather, clothing, food, km': 'Wetter, Kleidung, Essen, km',
   'With the helper': 'Mit dem Helfer',
   'Get a draft, optional': 'Entwurf holen, freiwillig',
+  // T17 Rückblick
+  'Strava, Garmin or GPX': 'Strava, Garmin oder GPX',
 };
