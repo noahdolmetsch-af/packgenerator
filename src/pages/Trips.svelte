@@ -3,49 +3,44 @@
    * v0.46.1 (Noah: «Touren» opened the last trip at Packen): #/trips, the calm overview of all trips
    * behind «Touren». #/pack and #/pack?… still open a trip directly.
    * v0.78.0 «Fünf Orte» 2 / «Übergänge 2» (Noah T1–T20 a, U1–U5 a, mockup uebergaenge2/touren): the
-   * Touren page proper. On top the four steps of every trip in short, then «Weitermachen» (the same
-   * block as on Today), then the trips as tiles grouped by state (tripsoverview.js), each with the
-   * drawing of its route and one button named by its next step; a dashed tile starts a new trip.
-   * On the side the templates to start quickly and the best values and averages from the uploaded
-   * rides (tripsboard.js). Heart rate, zones and power come later with Strava, as a grey note.
+   * Touren page proper: «Weitermachen», the trips as tiles grouped by state (tripsoverview.js), each with
+   * the drawing of its route and one button named by its next step; a dashed tile starts a new trip.
    * v0.88.0 (Noah 0.88 5a): a trip ended before its start date gets «Wieder planen» (trip/ending.js).
+   * v0.102.0 Design-Refresh P4 «Touren» (T1, approved 12.10.2026 «Touren T1–T6 freigegeben»): the new look.
+   * Under the title one line with the counts; «Weitermachen» as a soft band (the page's one main action);
+   * the tiles with a tinted route, a small sign («in 5 Tagen», «Rückblick offen») and the packing bar;
+   * on the side the «Wetter-Fenster» (the next 7 days at home, the best days framed) and the best values
+   * as a list with «Alle» for the period and the averages. The four steps and the template tiles are gone
+   * from here (the steps are on every trip, the templates have their own tab).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { tripsOverview, GROUPS, RIDDEN_SHOWN } from '../lib/tripsoverview.js';
+  import { tripsOverview, GROUPS } from '../lib/tripsoverview.js';
   import { routeOf, routePath, bestValues, PERIODS, hmm } from '../lib/tripsboard.js';
-  import { TEMPLATES_KEY, templateEntries } from '../lib/templates.js';
-  import { SETS_KEY } from '../lib/sets.js';
-  import { switchTrip, openNew, newTrip } from '../lib/nav.js';
+  import { overviewCounts, weatherWindow, daysTo } from '../lib/touren.js';
+  import { homeForecast } from '../lib/home-weather.js';
+  import { HOME_PLACE } from '../lib/know.js';
+  import { switchTrip, openNew } from '../lib/nav.js';
   import { planAgain } from '../lib/trip/ending.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import Continue from '../lib/home/Continue.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import PlaceIcon from '../lib/nav/PlaceIcon.svelte';
-  import { Plus, ArrowRight, ChevronRight, ListChecks, Trophy, Lock, Upload } from '@lucide/svelte';
+  import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
+  import { Plus, ChevronRight, Trophy, Upload, Sun, CloudSun, CloudRain, MapPin } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
-  const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
-  const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
-  const itemsQ = liveQuery(() => db.items.toArray());
+  const placeQ = liveQuery(() => db.settings.get(HOME_PLACE));
   const loaded = $derived(!!$tripsQ && !!$debriefsQ);
   const today = localDay();
   const view = $derived(loaded ? tripsOverview($tripsQ, $debriefsQ, today) : null);
+  const counts = $derived(overviewCounts(view));
   const rides = $derived($ridesQ ?? []);
   const byId = $derived(Object.fromEntries(($tripsQ ?? []).map((x) => [x.id, x])));
   const routes = $derived(Object.fromEntries(($tripsQ ?? []).map((x) => [x.id, routeOf(x, rides)])));
-
-  // Templates to start quickly (the four used last); a tap makes a trip from it.
-  const templates = $derived(
-    ($tplQ?.value ?? [])
-      .filter((x) => !x.archivedAt)
-      .slice(0, 4)
-      .map((tp) => ({ tp, n: templateEntries(tp, $itemsQ ?? [], $setsQ?.value ?? []).length, nights: Math.max(1, Number(tp.days) || 1) - 1 })),
-  );
-  const tplLine = (x) => [x.nights ? tn(x.nights, '{n} night', '{n} nights') : t('no night'), tn(x.n, '{n} item', '{n} items')].join(' · ');
 
   // The best values: this season by default; the choice is kept on this device.
   const PERIOD_KEY = 'trips.period';
@@ -66,13 +61,30 @@
     }
   }
   const best = $derived(loaded ? bestValues({ trips: $tripsQ, rides, today, period }) : null);
+  const periodName = $derived(t(PERIODS.find((p) => p.key === period)?.name ?? 'This season'));
+  let allOpen = $state(false);
 
-  const STEPS = [
-    { name: 'Plan|stage', sub: 'when, where, which bike' },
-    { name: 'Pack|stage', sub: 'the list stands, tick it off' },
-    { name: 'On the way', sub: 'weather, notes, home' },
-    { name: 'Look back|page', sub: 'what fitted, what was missing' },
-  ];
+  // The weather window: the saved home forecast (fetched at most every 3 hours, home-weather.js).
+  let forecast = $state(null);
+  let wxTried = $state(false);
+  let placeOpen = $state(false);
+  async function loadWx() {
+    try {
+      forecast = await homeForecast(db);
+    } catch {
+      forecast = null;
+    } finally {
+      wxTried = true;
+    }
+  }
+  $effect(() => {
+    // again when the home place is set or changed
+    void $placeQ;
+    loadWx();
+  });
+  const wxw = $derived(weatherWindow(forecast, today));
+  const wd = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
+  const bestText = $derived(wxw?.best.length ? wxw.best.map(wd).join(` ${t('and')} `) : '');
 
   const thisYear = String(new Date().getFullYear());
   const day = (iso) => {
@@ -80,35 +92,77 @@
     const y = iso.slice(0, 4) !== thisYear ? { year: 'numeric' } : {};
     return new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', ...y });
   };
-  const line = (r) => [day(r.date), r.bike, typeof r.km === 'number' ? `${num(r.km)} km` : ''].filter(Boolean).join(' · ');
-  const kmLine = (rt) => [rt?.km ? `${num(Math.round(rt.km))} km` : '', rt?.gainM ? `${num(Math.round(rt.gainM))} Hm` : ''].filter(Boolean).join(' · ');
+  const tripDays = (id) => Math.max(1, Number(byId[id]?.days) || 1);
+  const line = (r, km = false) => [day(r.date), tn(tripDays(r.tripId), '{n} day', '{n} days'), r.bike, km && typeof r.km === 'number' ? `${num(r.km)} km` : ''].filter(Boolean).join(' · ');
+  const when = (iso) => {
+    const n = daysTo(iso, today);
+    if (n == null || n < 0) return '';
+    return n === 0 ? t('Today') : n === 1 ? t('Tomorrow') : tn(n, 'in {n} day', 'in {n} days');
+  };
+  const sign = (g, r) => (g === 'debrief' ? t('Debrief open') : g === 'soon' || g === 'planning' ? when(r.date) : '');
   const go = (r) => switchTrip(r.tripId, r.go.href);
+  const pct = (s) => (s?.total ? Math.round((100 * (s.done ?? 0)) / s.total) : null);
+  // the debrief and the ended-early groups stand side by side on a computer, as in the mockup
+  const pair = $derived(!!view && view.debrief.length > 0 && view.replan.length > 0);
 </script>
 
-{#snippet map(id, small = false)}
-  {@const rt = routes[id]}
-  {@const p = rt ? routePath(rt.line, 260, small ? 96 : 128) : null}
-  <div class="map" class:small class:none={!p}>
+{#snippet map(g, r)}
+  {@const rt = routes[r.tripId]}
+  {@const p = rt ? routePath(rt.line, 260, 96) : null}
+  {@const s = sign(g, r)}
+  <div class="map" class:warm={g === 'debrief'} class:none={!p}>
     {#if p}
-      <svg viewBox="0 0 260 {small ? 96 : 128}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="rt" d={p.d} /><circle class="end" cx={p.end[0]} cy={p.end[1]} r="4.5" /></svg>
-      {#if !small && kmLine(rt)}<span class="kmb num">{kmLine(rt)}</span>{/if}
+      <svg viewBox="0 0 260 96" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="rt" d={p.d} /><circle class="end" cx={p.end[0]} cy={p.end[1]} r="4.5" /></svg>
     {:else}
-      <span class="nomap" aria-hidden="true"><PlaceIcon place="trips" size={small ? 22 : 28} /></span>
+      <span class="nomap" aria-hidden="true"><PlaceIcon place="trips" size={24} /></span>
     {/if}
+    {#if s}<span class="sign">{s}</span>{/if}
   </div>
 {/snippet}
 
+{#snippet group(g)}
+  <section class="grp" aria-labelledby="trips-{g.key}">
+    <h2 class="gh" id="trips-{g.key}"><span>{t(g.name)}</span><span class="n num">{g.key === 'ridden' ? view.riddenTotal : view[g.key].length}</span></h2>
+    <ul class="tiles" class:one={pair && (g.key === 'debrief' || g.key === 'replan')}>
+      {#each view[g.key] as r (r.id)}
+        {#if g.key === 'ridden'}
+          <li class="tile">
+            <a class="whole" href={r.go.href} onclick={(e) => (e.preventDefault(), go(r))} aria-label="{t(r.go.label)}: {r.title}">
+              {@render map(g.key, r)}
+              <span class="body"><span class="tt">{r.title}</span><span class="s">{line(r, true)}</span></span>
+            </a>
+          </li>
+        {:else}
+          {@const p = g.key === 'soon' || g.key === 'planning' ? pct(r.state) : null}
+          <li class="tile">
+            {@render map(g.key, r)}
+            <div class="body">
+              <h3 class="tt">{r.title}</h3>
+              <p class="s">{g.key === 'replan' ? `${day(r.date)} · ${t(r.state.label, r.state)}` : line(r)}</p>
+              {#if p != null}<span class="bar" role="img" aria-label={t('{done} of {n} packed', { done: r.state.done ?? 0, n: r.state.total })}><i style:width="{p}%"></i></span>
+              {:else if g.key !== 'replan' && g.key !== 'debrief'}<p class="st">{t(r.state.label, r.state)}</p>{/if}
+              {#if g.key === 'replan'}
+                <button type="button" class="btn go" onclick={() => planAgain(byId[r.tripId])} aria-label="{t(r.go.label)}: {r.title}">{t(r.go.label)}</button>
+              {:else}
+                <a class="btn go" href={r.go.href} onclick={(e) => (e.preventDefault(), go(r))} aria-label="{t(r.go.label)}: {r.title}">{t(r.go.label)}</a>
+              {/if}
+            </div>
+          </li>
+        {/if}
+      {/each}
+      {#if g.key === 'planning'}
+        <li class="tile add"><button type="button" class="addb" onclick={() => openNew('list')}><Plus size={22} aria-hidden="true" /><b>{t('New trip')}</b><small>{t('or from a template')}</small></button></li>
+      {/if}
+    </ul>
+    {#if g.key === 'ridden' && view.riddenTotal > view.ridden.length}<a class="all" href="#/pack/past">{t('All {n} ridden trips', { n: view.riddenTotal })}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
+  </section>
+{/snippet}
+
 <div class="trips">
-  <div class="ph">
-    <div>
-      <h1 class="title">{t('Trips|place')}</h1>
-      <p class="lead">{t('Every trip goes in four steps. The bar on top of every trip shows where you are.')}</p>
-    </div>
-    {#if view && !view.empty}<button type="button" class="btn hi" onclick={() => openNew('list')}><Plus size={18} aria-hidden="true" />{t('New trip')}</button>{/if}
-  </div>
-  <ol class="steps">
-    {#each STEPS as s, i (s.name)}<li><span class="sn num" aria-hidden="true">{i + 1}</span><span class="sx"><b>{t(s.name)}</b><small>{t(s.sub)}</small></span></li>{/each}
-  </ol>
+  <header class="ph">
+    <h1 class="title">{t('Trips|place')}</h1>
+    {#if counts}<p class="cnt num">{[tn(counts.planning, '{n} in planning', '{n} in planning'), tn(counts.debrief, '{n} debrief open', '{n} debriefs open'), tn(counts.ridden, '{n} ridden', '{n} ridden')].join(' · ')}</p>{/if}
+  </header>
   {#if view}
     {#if view.empty}
       <div class="card empty">
@@ -117,82 +171,78 @@
         <p class="quiet">{t('Best values come after your first ride with a GPX file.')} <a href="#/debrief/ride">{t('Upload a ride')}</a></p>
       </div>
     {:else}
-      <Continue trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {today} hour={new Date().getHours()} />
+      <Continue trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {today} hour={new Date().getHours()} banner />
       <div class="cols">
         <div class="groups">
-          {#each GROUPS as g (g.key)}
-            {#if view[g.key].length || g.key === 'planning'}
-              <h2 class="sec-head" id="trips-{g.key}"><span>{t(g.name)}</span><span class="n">{g.key === 'ridden' ? view.riddenTotal : view[g.key].length}</span>{#if g.key === 'ridden' && view.riddenTotal > RIDDEN_SHOWN}<a class="all" href="#/pack/past">{t('All {n}', { n: view.riddenTotal })}<ChevronRight size={16} aria-hidden="true" /></a>{/if}</h2>
-              <ul class="tiles" class:small={g.key === 'ridden'} aria-labelledby="trips-{g.key}">
-                {#each view[g.key] as r (r.id)}
-                  {#if g.key === 'ridden'}
-                    <li class="tile">
-                      <a class="whole" href={r.go.href} onclick={(e) => (e.preventDefault(), go(r))} aria-label="{t(r.go.label)}: {r.title}">
-                        {@render map(r.tripId, true)}
-                        <span class="body"><span class="t">{r.title}</span><span class="s">{line(r)}</span></span>
-                      </a>
-                    </li>
-                  {:else}
-                    <li class="tile">
-                      {@render map(r.tripId)}
-                      <div class="body">
-                        <h3 class="t">{r.title}</h3>
-                        <p class="s">{line({ ...r, km: null })}</p>
-                        <p class="st">{#if g.key === 'debrief'}<span class="udot" aria-hidden="true"></span>{/if}{t(r.state.label, r.state)}</p>
-                        {#if g.key === 'replan'}
-                          <button type="button" class="btn sm go hi" onclick={() => planAgain(byId[r.tripId])} aria-label="{t(r.go.label)}: {r.title}">{t(r.go.label)}<ArrowRight size={16} aria-hidden="true" /></button>
-                        {:else}
-                        <a class="btn sm go" class:hi={g.key === 'soon' && !view.replan.length || g.key === 'planning' && r === view.planning[0]} href={r.go.href} onclick={(e) => (e.preventDefault(), go(r))} aria-label="{t(r.go.label)}: {r.title}">{t(r.go.label)}<ArrowRight size={16} aria-hidden="true" /></a>
-                        {/if}
-                      </div>
-                    </li>
-                  {/if}
-                {/each}
-                {#if g.key === 'planning'}
-                  <li class="tile add"><button type="button" class="addb" onclick={() => openNew('list')}><Plus size={24} aria-hidden="true" /><b>{t('New trip')}</b><small>{t('or from a template')}</small></button></li>
-                {/if}
-              </ul>
+          {#each GROUPS.filter((g) => !(pair && g.key === 'replan')) as g (g.key)}
+            {#if pair && g.key === 'debrief'}
+              <div class="pair">{@render group(g)}{@render group(GROUPS.find((x) => x.key === 'replan'))}</div>
+            {:else if view[g.key].length || g.key === 'planning'}
+              {@render group(g)}
             {/if}
           {/each}
         </div>
         <aside class="side-col">
-          {#if templates.length}
-            <section class="card box" aria-labelledby="tpl-h">
-              <h2 class="bh" id="tpl-h"><ListChecks size={20} aria-hidden="true" /><span>{t('Templates')}</span><small>{t('start quickly')}</small></h2>
-              <ul class="tpls">
-                {#each templates as x (x.tp.id)}
-                  <li><button type="button" class="tpl" onclick={() => newTrip(x.tp.id)}><b>{x.tp.name}</b><small>{tplLine(x)}</small></button></li>
-                {/each}
-              </ul>
-              <a class="lk" href="#/pack/templates">{t('Edit templates')}<ChevronRight size={16} aria-hidden="true" /></a>
-            </section>
-          {/if}
-          <section class="card box" aria-labelledby="best-h">
-            <h2 class="bh" id="best-h"><Trophy size={20} aria-hidden="true" /><span>{t('Best values and average')}</span></h2>
-            <Seg small full={false} label={t('Period')} value={period} options={PERIODS.map((p) => ({ key: p.key, name: t(p.name) }))} onchange={pickPeriod} />
-            {#if best?.any}
-              <dl class="stats">
-                {#if best.longest}<div><dt>{t('Longest trip')}</dt><dd><b class="big num">{num(best.longest.km)}</b> km</dd><dd class="w">{best.longest.title}{best.longest.days > 1 ? `, ${tn(best.longest.days, '{n} day', '{n} days')}` : ''}</dd></div>{/if}
-                {#if best.climb}<div><dt>{t('Most climbing')}</dt><dd><b class="big num">{num(best.climb.m)}</b> Hm</dd><dd class="w">{best.climb.title}</dd></div>{/if}
-                {#if best.time}<div><dt>{t('Longest riding time')}</dt><dd><b class="big num">{hmm(best.time.h)}</b> h</dd><dd class="w">{best.time.totalH ? t('in one day · {h} h in all', { h: hmm(best.time.totalH) }) : best.time.title}</dd></div>{/if}
-                {#if best.furthest}<div><dt>{t('Furthest day')}</dt><dd><b class="big num">{num(best.furthest.km)}</b> km</dd><dd class="w">{best.furthest.title}</dd></div>{/if}
-              </dl>
-              {#if best.avg.some((a) => a.n)}
-                <h3 class="th">{t('Average per trip, from GPX')}</h3>
-                <table class="avg">
-                  <thead><tr><th scope="col">{t('Kind|trip')}</th><th scope="col">km</th><th scope="col">Hm</th><th scope="col">{t('moving|col')}</th><th scope="col">{t('in all')}</th><th scope="col">{t('Stops')}</th></tr></thead>
-                  <tbody>
-                    {#each best.avg.filter((a) => a.n) as a (a.key)}
-                      <tr><th scope="row">{t(a.name)}</th><td class="num">{num(a.km)}</td><td class="num">{num(a.gainM)}</td><td class="num">{hmm(a.movingH)}</td><td class="num">{hmm(a.totalH)}</td><td class="num">{a.stops}</td></tr>
-                    {/each}
-                  </tbody>
-                </table>
+          <section class="sbox" aria-labelledby="wx-h">
+            <h2 class="bh" id="wx-h">{t('Weather window')}</h2>
+            <p class="bs">{t('best days for a trip · Open-Meteo')}</p>
+            <div class="card wxc">
+              {#if wxw}
+                <ol class="wdays">
+                  {#each wxw.days as d (d.date)}
+                    {@const Icon = d.rain === 'rain' ? CloudRain : d.rain === 'showers' ? CloudSun : Sun}
+                    <li class:wet={d.rain !== 'none'} class:best={d.best}><b>{wd(d.date)}</b><Icon size={16} aria-hidden="true" /><span class="num">{d.max}°</span></li>
+                  {/each}
+                </ol>
+                <p class="wl">{#if bestText}<b>{t('Best days: {days}', { days: bestText })}</b> · {t('dry')}{:else}{t('No dry day in sight.')}{/if}</p>
+              {:else if !wxTried}
+                <p class="quiet">{t('Loading…')}</p>
+              {:else if !$placeQ?.value}
+                <p class="quiet">{t('Set your home place, then the best days for a ride show here.')}</p>
+                {#if placeOpen}<HomePlaceForm onchosen={() => (placeOpen = false)} />{:else}<button type="button" class="btn" onclick={() => (placeOpen = true)}><MapPin size={16} aria-hidden="true" />{t('Set home place')}</button>{/if}
+              {:else}
+                <p class="quiet">{t('No forecast right now. It needs the internet once.')}</p>
               {/if}
-            {:else}
-              <p class="quiet">{t('Best values come after your first ride with a GPX file.')}</p>
-            {/if}
-            <p class="later"><Lock size={16} aria-hidden="true" /><span>{t('Heart rate, zones and power come later with Strava. Only observation, no rating.')}</span></p>
-            <a class="lk" href="#/debrief/ride"><Upload size={16} aria-hidden="true" />{t('Upload a ride')}</a>
+            </div>
+          </section>
+          <section class="sbox" aria-labelledby="best-h">
+            <div class="bhr">
+              <div>
+                <h2 class="bh" id="best-h">{t('Best values')}</h2>
+                <p class="bs">{periodName}</p>
+              </div>
+              <button type="button" class="btn btn-link more" aria-expanded={allOpen} onclick={() => (allOpen = !allOpen)}>{t('All|best')}<ChevronRight size={16} aria-hidden="true" /></button>
+            </div>
+            <div class="card bestc">
+              {#if best?.any}
+                <ul class="brows">
+                  {#if best.longest}<li><span class="ti" aria-hidden="true"><Trophy size={16} /></span><span class="bt"><b>{t('Longest trip')}</b><small>{best.longest.title}{best.longest.days > 1 ? ` · ${tn(best.longest.days, '{n} day', '{n} days')}` : ''}</small></span><span class="bv num">{num(best.longest.km)} km</span></li>{/if}
+                  {#if best.climb}<li><span class="ti" aria-hidden="true"><Trophy size={16} /></span><span class="bt"><b>{t('Most climbing')}</b><small>{best.climb.title}</small></span><span class="bv num">{num(best.climb.m)} Hm</span></li>{/if}
+                  {#if best.time}<li><span class="ti" aria-hidden="true"><Trophy size={16} /></span><span class="bt"><b>{t('Longest riding time')}</b><small>{best.time.totalH ? t('in one day · {h} h in all', { h: hmm(best.time.totalH) }) : best.time.title}</small></span><span class="bv num">{hmm(best.time.h)} h</span></li>{/if}
+                  {#if best.furthest}<li><span class="ti" aria-hidden="true"><Trophy size={16} /></span><span class="bt"><b>{t('Furthest day')}</b><small>{best.furthest.title}</small></span><span class="bv num">{num(best.furthest.km)} km</span></li>{/if}
+                </ul>
+              {:else}
+                <p class="quiet">{t('Best values come after your first ride with a GPX file.')}</p>
+              {/if}
+              {#if allOpen}
+                <div class="allp">
+                  <Seg small full={false} label={t('Period')} value={period} options={PERIODS.map((p) => ({ key: p.key, name: t(p.name) }))} onchange={pickPeriod} />
+                  {#if best?.avg.some((a) => a.n)}
+                    <h3 class="th">{t('Average per trip, from GPX')}</h3>
+                    <table class="avg">
+                      <thead><tr><th scope="col">{t('Kind|trip')}</th><th scope="col">km</th><th scope="col">Hm</th><th scope="col">{t('moving|col')}</th><th scope="col">{t('in all')}</th><th scope="col">{t('Stops')}</th></tr></thead>
+                      <tbody>
+                        {#each best.avg.filter((a) => a.n) as a (a.key)}
+                          <tr><th scope="row">{t(a.name)}</th><td class="num">{num(a.km)}</td><td class="num">{num(a.gainM)}</td><td class="num">{hmm(a.movingH)}</td><td class="num">{hmm(a.totalH)}</td><td class="num">{a.stops}</td></tr>
+                        {/each}
+                      </tbody>
+                    </table>
+                  {/if}
+                  <p class="quiet">{t('Heart rate, zones and power come later with Strava. Only observation, no rating.')}</p>
+                </div>
+              {/if}
+              <a class="lk" href="#/debrief/ride"><Upload size={16} aria-hidden="true" />{t('Upload a ride')}</a>
+            </div>
           </section>
         </aside>
       </div>
@@ -206,120 +256,92 @@
     margin: 0 auto;
   }
   .ph {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: var(--sp-2) var(--sp-4);
+    margin: 0 0 var(--sp-4);
   }
   .ph .title {
     margin: 0;
   }
-  .lead {
+  .cnt {
     margin: var(--sp-1) 0 0;
     color: var(--ink-2);
     font: 400 var(--fs-body) / 1.45 var(--font-body);
   }
-  .btn.hi {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 44px;
-  }
-  .steps {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--sp-2);
-    margin: var(--sp-4) 0;
-    padding: 0;
-    list-style: none;
-  }
-  .steps li {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--sp-2);
-    padding: var(--sp-2) var(--sp-3);
-    border-radius: 10px;
-    background: var(--paper-2);
-  }
-  .sn {
-    display: grid;
-    place-items: center;
-    flex: 0 0 auto;
-    width: 22px;
-    height: 22px;
-    border-radius: 11px;
-    background: var(--paper);
-    font: 700 var(--fs-tiny) / 1 var(--font-body);
-  }
-  .sx {
-    display: grid;
-    min-width: 0;
-  }
-  .sx b {
-    font: 600 var(--fs-body) / 1.3 var(--font-body);
-  }
-  .sx small {
-    color: var(--ink-2);
-    font: 400 var(--fs-tiny) / 1.35 var(--font-body);
-  }
-  @media (max-width: 719px) {
-    .steps {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
   .cols {
     display: grid;
     gap: var(--sp-5);
+    margin-top: var(--sp-4);
   }
   @media (min-width: 1100px) {
     .cols {
-      grid-template-columns: minmax(0, 1fr) 360px;
+      grid-template-columns: minmax(0, 1fr) 400px;
       align-items: start;
     }
   }
-  .sec-head .all {
-    display: inline-flex;
+  .groups {
+    display: grid;
+    gap: var(--sp-5);
+    min-width: 0;
+  }
+  .grp {
+    min-width: 0;
+  }
+  .pair {
+    display: grid;
+    gap: var(--sp-5);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  }
+  .gh {
+    display: flex;
     align-items: center;
-    min-height: 44px;
-    margin-left: auto;
-    color: var(--ink);
+    gap: var(--sp-2);
+    margin: 0 0 var(--sp-2);
+    color: var(--ink-2);
+    font: 600 var(--fs-small) / 1.3 var(--font-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .gh .n {
+    padding: 0 var(--sp-2);
+    border-radius: 999px;
+    background: var(--paper-2);
+    font: 600 var(--fs-tiny) / 1.6 var(--font-body);
+    letter-spacing: 0;
   }
   .tiles {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: var(--sp-3);
-    margin: var(--sp-2) 0 var(--sp-5);
+    margin: 0;
     padding: 0;
     list-style: none;
   }
-  .tiles.small {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  .tiles.one {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (max-width: 719px) {
+    .tiles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   .tile {
     display: flex;
     flex-direction: column;
     min-width: 0;
     overflow: hidden;
-    border-radius: 14px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
     background: var(--paper);
-    box-shadow: 0 1px 3px var(--shadow);
+    box-shadow: var(--card-shadow);
   }
   .map {
     position: relative;
     display: grid;
     place-items: center;
-    height: 128px;
-    background: var(--paper-2);
+    height: 74px;
+    background: var(--hi-soft);
   }
-  .map.small {
-    height: 96px;
-  }
-  /* on a phone, a trip without a route gets a slim band, not a tall empty box */
-  @media (max-width: 719px) {
-    .map.none {
-      height: 56px;
-    }
+  .map.warm {
+    background: var(--warn-soft);
   }
   .map svg {
     width: 100%;
@@ -327,37 +349,40 @@
   }
   .rt {
     fill: none;
-    stroke: var(--pc-trips);
+    stroke: var(--hi);
     stroke-width: 3;
     stroke-linejoin: round;
     stroke-linecap: round;
   }
   .end {
-    fill: var(--pc-today);
+    fill: var(--ink);
     stroke: var(--paper);
-    stroke-width: 2;
+    stroke-width: 1.5;
   }
   .nomap {
     color: var(--ink-3);
   }
-  .kmb {
+  .sign {
     position: absolute;
-    right: var(--sp-2);
-    bottom: var(--sp-2);
+    top: var(--sp-2);
+    left: var(--sp-2);
     padding: 2px var(--sp-2);
-    border-radius: 6px;
+    border-radius: 999px;
     background: var(--paper);
-    font: 700 var(--fs-tiny) / 1.3 var(--font-body);
+    color: var(--ink);
+    font: 600 var(--fs-tiny) / 1.4 var(--font-body);
   }
   .body {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 2px;
+    flex: 1;
     padding: var(--sp-3) var(--sp-3) var(--sp-3);
     min-width: 0;
   }
-  .body .t {
+  .body .tt {
     margin: 0;
-    font: 700 var(--fs-body) / 1.3 var(--font-body);
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
     overflow-wrap: break-word;
   }
   .body .s,
@@ -367,13 +392,29 @@
     font: 400 var(--fs-small) / 1.4 var(--font-body);
     overflow-wrap: break-word;
   }
+  .bar {
+    display: block;
+    height: 6px;
+    margin: var(--sp-2) 0 0;
+    border-radius: 3px;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .bar i {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--hi);
+  }
   .go {
-    display: inline-flex;
-    align-items: center;
-    justify-self: start;
-    gap: var(--sp-1);
-    min-height: 44px;
-    margin-top: var(--sp-2);
+    align-self: flex-start;
+    margin-top: auto;
+    max-width: 100%;
+  }
+  .body .s + .go,
+  .bar + .go,
+  .st + .go {
+    margin-top: var(--sp-3);
   }
   .whole {
     display: flex;
@@ -382,7 +423,12 @@
     color: var(--ink);
     text-decoration: none;
   }
+  .whole:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: -3px;
+  }
   .tile.add {
+    border: 0;
     background: none;
     box-shadow: none;
   }
@@ -391,10 +437,11 @@
     place-items: center;
     align-content: center;
     gap: var(--sp-1);
-    min-height: 220px;
+    min-height: 200px;
     height: 100%;
-    border: 2px dashed var(--line);
-    border-radius: 14px;
+    padding: var(--sp-3);
+    border: 2px dashed var(--line-strong);
+    border-radius: var(--radius-card);
     background: none;
     color: var(--ink-2);
     font: 400 var(--fs-small) / 1.3 var(--font-body);
@@ -402,95 +449,144 @@
   }
   .addb b {
     color: var(--ink);
-    font: 600 var(--fs-body) / 1.3 var(--font-body);
+    font: 500 var(--fs-body) / 1.3 var(--font-body);
+  }
+  .all {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    margin-top: var(--sp-1);
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.3 var(--font-body);
+    text-decoration: none;
   }
   .side-col {
     display: grid;
-    gap: var(--sp-4);
+    gap: var(--sp-5);
+    min-width: 0;
   }
-  .box {
-    display: grid;
-    gap: var(--sp-3);
-    padding: var(--sp-4);
+  .sbox {
+    min-width: 0;
+  }
+  .bhr {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--sp-2);
   }
   .bh {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-2);
     margin: 0;
-    font: 700 var(--fs-sub) / 1.25 var(--font-body);
+    font: 600 var(--fs-sub) / 1.3 var(--font-body);
   }
-  .bh small {
-    margin-left: auto;
+  .bs {
+    margin: 2px 0 var(--sp-2);
     color: var(--ink-2);
     font: 400 var(--fs-small) / 1.3 var(--font-body);
   }
-  .tpls {
+  .more {
+    margin-bottom: var(--sp-1);
+    text-decoration: none;
+  }
+  .wxc,
+  .bestc {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--sp-2);
+    gap: var(--sp-3);
+  }
+  .wdays {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--sp-1);
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .tpl {
+  .wdays li {
     display: grid;
+    justify-items: center;
     gap: 2px;
-    width: 100%;
-    min-height: 64px;
-    padding: var(--sp-2) var(--sp-3);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: var(--paper);
-    color: var(--ink);
-    text-align: left;
-    cursor: pointer;
-  }
-  .tpl b {
-    font: 600 var(--fs-body) / 1.3 var(--font-body);
-    overflow-wrap: break-word;
-  }
-  .tpl small {
-    color: var(--ink-2);
-    font: 400 var(--fs-tiny) / 1.35 var(--font-body);
-  }
-  .lk {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sp-1);
-    justify-self: start;
-    min-height: 44px;
-    color: var(--ink);
-  }
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--sp-3);
-    margin: 0;
-  }
-  .stats div {
     min-width: 0;
-  }
-  .stats dt {
+    padding: var(--sp-2) 0;
+    border: 2px solid transparent;
+    border-radius: var(--r-ctl);
+    background: var(--warn-soft);
     color: var(--ink-2);
     font: 400 var(--fs-tiny) / 1.3 var(--font-body);
   }
-  .stats dd {
+  .wdays li.wet {
+    background: var(--info-soft);
+  }
+  .wdays li.best {
+    border-color: var(--hi);
+    background: var(--hi-soft);
+  }
+  .wdays b {
+    color: var(--ink);
+    font: 600 var(--fs-tiny) / 1.3 var(--font-body);
+  }
+  .wl {
     margin: 0;
-    font: 400 var(--fs-small) / 1.3 var(--font-body);
-  }
-  .stats .big {
-    font: 700 var(--fs-title) / 1.1 var(--font-brand);
-  }
-  .stats .w {
     color: var(--ink-2);
-    font-size: var(--fs-tiny);
+    font: 400 var(--fs-small) / 1.4 var(--font-body);
+  }
+  .wl b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .brows {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .brows li {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    min-height: 52px;
+    padding: var(--sp-2) 0;
+    border-top: 1px solid var(--line);
+  }
+  .brows li:first-child {
+    border-top: 0;
+  }
+  .ti {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--hi-soft);
+    color: var(--hi);
+  }
+  .bt {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+  .bt b {
+    font: 500 var(--fs-body) / 1.3 var(--font-body);
+  }
+  .bt small {
+    color: var(--ink-2);
+    font: 400 var(--fs-tiny) / 1.35 var(--font-body);
     overflow-wrap: break-word;
+  }
+  .bv {
+    flex: none;
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
+  }
+  .allp {
+    display: grid;
+    gap: var(--sp-3);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--line);
   }
   .th {
     margin: 0;
     color: var(--ink-2);
-    font: 700 var(--fs-tiny) / 1.3 var(--font-body);
+    font: 600 var(--fs-tiny) / 1.3 var(--font-body);
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
@@ -514,15 +610,14 @@
     text-align: left;
     font-weight: 400;
   }
-  .later {
-    display: flex;
-    gap: var(--sp-2);
-    margin: 0;
-    padding: var(--sp-2) var(--sp-3);
-    border-radius: 10px;
-    background: var(--paper-2);
-    color: var(--ink-2);
-    font: 400 var(--fs-tiny) / 1.4 var(--font-body);
+  .lk {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+    justify-self: start;
+    min-height: 44px;
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.3 var(--font-body);
   }
   .quiet {
     margin: 0;
