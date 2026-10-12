@@ -30,4 +30,12 @@ export default {
   'Step {n} of {all}': 'Schritt {n} von {all}',
   'km today': 'km heute',
   'What is new': 'Was ist neu',
+  // V12 import rides
+  'Strava export or Garmin files · the file stays on this device': 'Strava-Export oder Garmin-Dateien · die Datei bleibt auf diesem Gerät',
+  // V13 workshop & receipts
+  'Receipts with a photo': 'Belege mit Foto',
+  'A photo of a receipt in the Inbox becomes a visit with «File as … Receipt».': 'Ein Foto einer Quittung im Eingang wird mit «Ablegen als … Beleg» zu einem Besuch.',
+  // V14 equipment, V14b compare
+  'Equipment {bike}': 'Ausstattung {bike}',
+  'Compare|verb': 'Vergleichen',
 };

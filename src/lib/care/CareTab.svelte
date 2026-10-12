@@ -333,6 +333,7 @@
     if (openId === undefined && bikes.length) openId = bikes.some((b) => b.id === bikeId) ? bikeId : null;
   });
   // Design-Refresh P7 (V6/V7): no bike chosen any more (the path «Pflege») → the overview again.
+  // svelte-ignore state_referenced_locally
   let lastBikeId = bikeId;
   $effect(() => {
     const b = bikeId;
