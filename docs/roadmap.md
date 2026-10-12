@@ -513,6 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 12.10.2026 (v0.109.0, PR folgt):** Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (T14–T23): Tour beendet, Rückblick ausfüllen und gespeichert, Rückblick-Übersicht, Gelernt, Dein Tempo, Logbuch, Vergangene Touren, Fahrten und eine Fahrt im neuen Stil. Danach P10 Was ist neu.
+
 **Nachtrag 12.10.2026 (v0.108.0, PR offen):** Design-Refresh P9 «Ich» (I1–I10, I12, I13): Ich in vier Gruppen, Daten und Backup als eigene Seite mit Status-Lichtern, Aufs Handy mit QR-Code, Eingang, Ablegen, Notizen, Helfer, Problem melden, Wohnort, Tastenkürzel, Spielwiese. Danach P6 Rückblick und P10 Was ist neu.
 
 **Nachtrag 12.10.2026 (v0.107.0, live):** Design-Refresh P8 «Aktiv» (A1–A8, A13, A14, A14c): Aktiv heute, Ziele, Aktivität, Meilensteine, Meditation «Mehr», Logbuch und neue Seite «Muster»; Vorschläge als Challenge.
