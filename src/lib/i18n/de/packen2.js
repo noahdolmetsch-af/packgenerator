@@ -17,4 +17,14 @@ export default {
   'Everything from Electronics and Lights on this trip, without cables and chargers.': 'Alles aus Elektronik und Licht auf dieser Tour, ohne Kabel und Ladegeräte.',
   'On a trip of several days, On the way has the list for every evening.': 'Bei mehrtägigen Touren hat «Unterwegs» die Liste für jeden Abend.',
   'Close the window': 'Fenster schliessen',
+  // T9 Noch zu entscheiden
+  'Check amount': 'Menge prüfen',
+  'Alternative|tag': 'Alternative',
+  'All|select': 'Alle',
+  'None|select': 'Keine',
+  'Where the suggestions come from': 'Woher die Vorschläge kommen',
+  'Trip weather|source': 'Tourwetter',
+  '{n} h riding a day': '{n} h Fahrzeit pro Tag',
+  'No riding hours set': 'Keine Fahrstunden gesetzt',
+  'Material rules': 'Materialregeln',
 };
