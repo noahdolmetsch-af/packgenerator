@@ -50,6 +50,14 @@ export default {
   'Last backup file': 'Letzte Backup-Datei',
   'made on this device': 'auf diesem Gerät gemacht',
 
+  /* ---------- I3 Eingang, I4 Ablegen ---------- */
+  'Notes from on the way, to file': 'Notizen von unterwegs, zum Ablegen',
+  'To file': 'Zum Ablegen',
+  'A suggestion is with each · tap «File»': 'Ein Vorschlag steht dabei · «Ablegen» antippen',
+  'Recently filed': 'Kürzlich abgelegt',
+  'goes to the archive tonight · «Undo» until then': 'geht heute Nacht ins Archiv · «Rückgängig» bis dahin',
+  'Tap + on any page when something comes up.': 'Auf jeder Seite + tippen, wenn dir etwas einfällt.',
+
   /* ---------- I10 Dein Wohnort ---------- */
   'Only for the weather · stays on this device': 'nur fürs Wetter · bleibt auf diesem Gerät',
   'Now: {place}': 'Jetzt: {place}',
