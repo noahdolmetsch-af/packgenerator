@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.116.0 «Knöpfe neu» (mockup N2, answer 3a): the «…» button of a row with all its other actions.
+   * v0.117.0 «Knöpfe neu» (mockup N2, answer 3a): the «…» button of a row with all its other actions.
    * Every entry has a title (1–2 words) and a one-line explanation. On a computer the list opens under
    * the «…» (kept inside the screen by ui/inview.js); on a phone it opens as a sheet from the bottom.
    *

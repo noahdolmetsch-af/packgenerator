@@ -142,7 +142,7 @@
                       <small>{when(n.at)}{where(n)}</small>
                       <small class="sug"><Sparkles size={13} aria-hidden="true" />{t('Suggestion: {what}', { what: t(TARGET[sug].name) })}</small>
                     </span>
-                    <!-- v0.116.0 «Knöpfe neu» (N3): «Ablegen» + «…» with its explanations; right-aligned, on a phone under the text -->
+                    <!-- v0.117.0 «Knöpfe neu» (N3): «Ablegen» + «…» with its explanations; right-aligned, on a phone under the text -->
                     <span class="acts rowacts">
                       <Btn label={t('File')} explain={t('Put it where it belongs: a bike, a trip or your gear')} sub={t('Suggestion: {what}', { what: t(TARGET[sug].name) })} class="sm" onclick={() => (filing = n)} />
                       <MoreActions small title={n.text} label={t('More for this note')} actions={[

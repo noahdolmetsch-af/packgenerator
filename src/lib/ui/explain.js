@@ -1,5 +1,5 @@
 /**
- * v0.116.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 22:47 «n1-n4 freigeben», answers 1a 2a 3a 4a 5b):
+ * v0.117.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 22:47 «n1-n4 freigeben», answers 1a 2a 3a 4a 5b):
  * every button explains what it does.
  *
  * - Computer: the explanation shows as a dark bubble under the button on mouse hover and on keyboard

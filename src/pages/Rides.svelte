@@ -8,6 +8,7 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
+  import { heartOfRide } from '../lib/kmbook.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { analyseRide, tripsOn, tripFromRide, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, speedOf, hm, PAUSE_MIN, RIDE_MAX_MB, SHARE_CACHE, SHARE_KEY } from '../lib/gpx.js';
   import { PACE_KEY, paceOf } from '../lib/pace.js';
@@ -23,6 +24,8 @@
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
+  // heart rate of the same ride in Strava (observation only, Noah 12.10.2026 «1a»)
+  const kmBookQ = liveQuery(() => db.kmBook.toArray());
 
   const rides = $derived([...($ridesQ ?? [])].sort((a, b) => (b.startAt ?? '').localeCompare(a.startAt ?? '')));
   const trips = $derived($tripsQ ?? []);
@@ -31,6 +34,7 @@
   const shared = $derived(sub === 'shared');
   const rideId = $derived(sub && sub !== 'shared' ? sub : null);
   const ride = $derived(rideId ? rides.find((r) => r.id === rideId) ?? null : null);
+  const heart = $derived(ride ? heartOfRide($kmBookQ ?? [], ride) : null);
 
   const day = (iso) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '');
   const clock = (iso) => new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
@@ -249,6 +253,7 @@
               <div class="rv-tile"><dd><b class="num">{num(ride.gainM)} m</b></dd><dt><small>{t('Climbing')}</small></dt></div>
               <div class="rv-tile"><dd><b class="num">{hm(ride.movingH)}</b></dd><dt><small>{t('Moving time')}</small></dt></div>
               <div class="rv-tile"><dd><b class="num">{speedOf(ride) != null ? `${num(speedOf(ride))} km/h` : '–'}</b></dd><dt><small>{t('Average speed')}</small></dt></div>
+              {#if heart}<div class="rv-tile"><dd><b class="num">{heart.avg} / {heart.max ?? '–'}</b></dd><dt><small>{t('Heart rate Ø / max · bpm')}</small></dt></div>{/if}
             </dl>
           </section>
 

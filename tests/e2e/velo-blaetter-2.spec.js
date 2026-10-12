@@ -214,7 +214,7 @@ test('the Repair kit: per kind of ride, sizes from the parts, a missing item add
 
   // W5 a: on the packing list of the next trip, each item can be deselected
   const before = (await stored(page, 'trips', XC_TRIP)).entries.length;
-  // v0.116.0 «Knöpfe neu» (changed on purpose): the label is «Packliste …», the trip is in its explanation
+  // v0.117.0 «Knöpfe neu» (changed on purpose): the label is «Packliste …», the trip is in its explanation
   const toList = paper.getByRole('button', { name: 'Packliste …', exact: true });
   await expect(toList).toHaveAttribute('data-explain', /^Auf die Packliste «.*Demo-Tour Jura» …$/);
   await toList.click();

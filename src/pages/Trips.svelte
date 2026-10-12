@@ -33,6 +33,7 @@
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
+  const kmQ = liveQuery(() => db.kmBook.toArray());
   const placeQ = liveQuery(() => db.settings.get(HOME_PLACE));
   const loaded = $derived(!!$tripsQ && !!$debriefsQ);
   const today = localDay();
@@ -60,7 +61,8 @@
       /* private mode */
     }
   }
-  const best = $derived(loaded ? bestValues({ trips: $tripsQ, rides, today, period }) : null);
+  const best = $derived(loaded ? bestValues({ trips: $tripsQ, rides, kmBook: $kmQ ?? [], today, period }) : null);
+  const hasHeart = $derived(!!best?.avg.some((a) => a.n && a.hrAvg));
   const periodName = $derived(t(PERIODS.find((p) => p.key === period)?.name ?? 'This season'));
   let allOpen = $state(false);
 
@@ -230,15 +232,19 @@
                   {#if best?.avg.some((a) => a.n)}
                     <h3 class="th">{t('Average per trip, from GPX')}</h3>
                     <table class="avg">
-                      <thead><tr><th scope="col">{t('Kind|trip')}</th><th scope="col">km</th><th scope="col">Hm</th><th scope="col">{t('moving|col')}</th><th scope="col">{t('in all')}</th><th scope="col">{t('Stops')}</th></tr></thead>
+                      <thead><tr><th scope="col">{t('Kind|trip')}</th><th scope="col">km</th><th scope="col">Hm</th><th scope="col">{t('moving|col')}</th><th scope="col">{t('in all')}</th><th scope="col">{t('Stops')}</th>{#if hasHeart}<th scope="col">{t('Ø heart rate')}</th>{/if}</tr></thead>
                       <tbody>
                         {#each best.avg.filter((a) => a.n) as a (a.key)}
-                          <tr><th scope="row">{t(a.name)}</th><td class="num">{num(a.km)}</td><td class="num">{num(a.gainM)}</td><td class="num">{hmm(a.movingH)}</td><td class="num">{hmm(a.totalH)}</td><td class="num">{a.stops}</td></tr>
+                          <tr><th scope="row">{t(a.name)}</th><td class="num">{num(a.km)}</td><td class="num">{num(a.gainM)}</td><td class="num">{hmm(a.movingH)}</td><td class="num">{hmm(a.totalH)}</td><td class="num">{a.stops}</td>{#if hasHeart}<td class="num">{a.hrAvg ?? '–'}</td>{/if}</tr>
                         {/each}
                       </tbody>
                     </table>
                   {/if}
-                  <p class="quiet">{t('Heart rate, zones and power come later with Strava. Only observation, no rating.')}</p>
+                  {#if hasHeart}
+                    <p class="quiet">{t('Heart rate in bpm from Strava. Only observation, no rating.')}</p>
+                  {:else}
+                    <p class="quiet">{t('Heart rate, zones and power come later with Strava. Only observation, no rating.')}</p>
+                  {/if}
                 </div>
               {/if}
               <a class="lk" href="#/debrief/ride"><Upload size={16} aria-hidden="true" />{t('Upload a ride')}</a>

@@ -257,7 +257,7 @@
     if (undo?.itemId) text += ` ${t('The chain is on the wishlist.')}`;
     say(text, undo);
   }
-  // v0.116.0 «Knöpfe neu» (N2, answer 2a): «Done» and «All checked» can be taken back like a saved
+  // v0.117.0 «Knöpfe neu» (N2, answer 2a): «Done» and «All checked» can be taken back like a saved
   // flow (the same undo: the parts as they were before).
   async function checkAndSay(view, keys, action, note, who = by) {
     const prev = $state.snapshot(bikeById[view.id]?.parts ?? []);
@@ -569,7 +569,7 @@
 
 <style>
   /* v0.30.1 (D2): a short line after a save, above the bottom bar, so it is seen wherever the page is scrolled. */
-  /* v0.116.0 «Knöpfe neu» (N2): a dark bar with a tick, the text and an underlined «Rückgängig». */
+  /* v0.117.0 «Knöpfe neu» (N2): a dark bar with a tick, the text and an underlined «Rückgängig». */
   .notice .undo {
     flex: none;
     min-height: 44px;

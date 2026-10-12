@@ -8,7 +8,7 @@
    *   breakdown»), km since the last check as bars;
    * - beside: for the bike shop (the order), the costs of the year, the bike diary.
    */
-  import { Trophy, Droplet, Wrench, Check, ChevronRight, BookOpen, ArrowLeftRight, Ruler, Tag, Bike, Package, TriangleAlert, Image as ImageIcon } from '@lucide/svelte';
+  import { Trophy, Droplet, Wrench, Check, ChevronRight, BookOpen, ArrowLeftRight, Ruler, Tag, Bike, Package, TriangleAlert, RefreshCw, Image as ImageIcon } from '@lucide/svelte';
   import { ringScore, ringTone, dueCards, kmSinceService, calmWeeks, diary, costYear } from './overview.js';
   import { whoYear } from '../bikes/who.js';
   import ProblemList from './ProblemList.svelte';
@@ -46,7 +46,7 @@
   const chf = (n) => n.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const LOG_ICON = { replace: ArrowLeftRight, service: Droplet, check: Check, wash: Droplet, repair: Wrench, milestone: Trophy };
   /**
-   * v0.116.0 «Knöpfe neu» (N1/N2, answer 3a): the actions of a «Due now» row, the main one first.
+   * v0.117.0 «Knöpfe neu» (N1/N2, answer 3a): the actions of a «Due now» row, the main one first.
    * Same actions as before (Done, Record …, Replace, Check, Look at the check), plus «Open the bike».
    */
   function rowActs(d) {
@@ -93,7 +93,7 @@
                 <span class="udot" class:warn={d.row.kind !== 'part'} aria-hidden="true"></span>
                 <span class="m"><b class="dn">{d.row.name}</b><small class="dd">{[short(d.bike.name), d.row.detail].filter(Boolean).join(' · ')}</small></span>
                 <span class="sr">{when(d.row)}</span>
-                <!-- v0.116.0 «Knöpfe neu» (N1/N2): one main button, the rest behind «…», each with its explanation. -->
+                <!-- v0.117.0 «Knöpfe neu» (N1/N2): one main button, the rest behind «…», each with its explanation. -->
                 <span class="rowacts">
                   <Btn kind={acts[0].kind} icon={acts[0].icon} label={acts[0].name} explain={acts[0].explain} sub={acts[0].sub} onclick={acts[0].run} />
                   <MoreActions title={[d.row.name, short(d.bike.name)].join(' · ')} label={t('More for {title}', { title: d.row.name })} actions={acts.map((a, n) => ({ ...a, current: n === 0 }))} />
@@ -192,6 +192,8 @@
               <p class="quiet">{t('Nothing recorded yet.')}</p>
             {/if}
           </details>
+          <!-- v0.116.0 «Strava-Verbindung»: rides with their bike from Strava -->
+          <a class="orow" href={bikesHash({ tab: 'care', view: 'strava' })}><span class="ib"><RefreshCw size={18} aria-hidden="true" /></span><span class="m"><b>Strava</b><small>{t('Rides with their bike, fetched by themselves')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
           <button type="button" class="orow" onclick={() => openNew('problem')}><span class="ib"><TriangleAlert size={18} aria-hidden="true" /></span><span class="m"><b>{t('Report a problem')}</b><small>{t('Noise, play, damage')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
           <button type="button" class="orow" onclick={onwork}><span class="ib"><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Record work')}</b><small>{t('Pick the bike and the part')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
           <a class="orow" href={bikesHash({ tab: 'shop' })}><span class="ib"><ImageIcon size={18} aria-hidden="true" /></span><span class="m"><b>{t('Workshop & receipts')}</b></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>

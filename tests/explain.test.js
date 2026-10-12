@@ -1,4 +1,4 @@
-// v0.116.0 «Knöpfe neu» (N1–N4): what the explanation bubble shows and where it goes.
+// v0.117.0 «Knöpfe neu» (N1–N4): what the explanation bubble shows and where it goes.
 import { describe, it, expect } from 'vitest';
 import { explainFor, place, hasWords, EXPLAIN, explain } from '../src/lib/ui/explain.js';
 import DE from '../src/lib/i18n/de/index.js';

@@ -39,7 +39,7 @@ async function start(page, context, info) {
 }
 
 test('Bike care problems: a tap outside closes the more menu, at once', async ({ page, context }, info) => {
-  // v0.116.0 «Knöpfe neu»: the menu is ui/MoreActions.svelte (a list under the button on a computer,
+  // v0.117.0 «Knöpfe neu»: the menu is ui/MoreActions.svelte (a list under the button on a computer,
   // a sheet from the bottom on a phone); open or closed is read from the button's aria-expanded.
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${BIKE}&open=1`);

@@ -97,6 +97,9 @@
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import KmCard from '../lib/home/KmCard.svelte';
+  import StravaChanges from '../lib/strava/StravaChanges.svelte';
+  import StravaTile from '../lib/strava/StravaTile.svelte';
+  import { strava } from '../lib/strava/client.svelte.js';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { tripToday } from '../lib/home/ruhig.js';
   import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, TriangleAlert, SlidersHorizontal } from '@lucide/svelte';
@@ -728,7 +731,7 @@
     <div class="ghead">
       <div class="hi-text">
         <h1 id="hello-h" class="hello">{hello}</h1>
-        <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{/if}</p>
+        <p class="dl">{phone.matches ? shortDate : dateLine}{#if wx}<span aria-hidden="true">{'\u00a0· '}</span><span class="wx" data-weather>{wx.text}</span>{/if}{#if strava.changes.length}<span aria-hidden="true">{'\u00a0· '}</span><span data-strava-questions>{tn(strava.changes.length, '{n} question from Strava', '{n} questions from Strava')}</span>{/if}</p>
         {#if !wx && ready}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
@@ -907,6 +910,7 @@
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
   {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />
+  {:else if x.id === 'strava'}<StravaTile isnew={newTile('strava')} />
   {:else if x.id === 'yearago'}<YearAgoTile trips={homeTrips(allTrips)} {debriefs} {today} isnew={newTile('yearago')} />
   {:else if TILE[x.id]?.fn}
     {@const f = FUNCTIONS.find((y) => y.id === TILE[x.id].fn)}
@@ -951,6 +955,8 @@
       </span>
     </div>
   {/if}
+  <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
+  {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
   <Wall tiles={wall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveWall} onadd={() => (catalogOpen = true)} />
 
   <div class="custom">

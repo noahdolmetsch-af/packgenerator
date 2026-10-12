@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.116.0 «Knöpfe neu» (mockup N3, Noah 12.10.2026 «n1-n4 freigeben»): the one button of the app.
+   * v0.117.0 «Knöpfe neu» (mockup N3, Noah 12.10.2026 «n1-n4 freigeben»): the one button of the app.
    *
    *   <Btn kind="hi" icon={Check} label={t('Done|task')} explain={explain('Done|task')} sub="Gabel-Service · heute" onclick={…} />
    *

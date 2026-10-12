@@ -29,6 +29,7 @@
   import PartsTable from './PartsTable.svelte';
   import KmBook from './KmBook.svelte';
   import Q1Status from './Q1Status.svelte';
+  import StravaChanges from '../strava/StravaChanges.svelte';
   import SheetFolder from '../bikes/SheetFolder.svelte';
   import { partAreas } from './overview.js';
   import { isMore } from '../care.js';
@@ -173,7 +174,7 @@
     else if (input.value.trim() === '') input.value = bike.km ?? '';
   }
   /**
-   * v0.116.0 «Knöpfe neu» (N1/N2, answer 3a): the actions of a due part row, the main one first:
+   * v0.117.0 «Knöpfe neu» (N1/N2, answer 3a): the actions of a due part row, the main one first:
    * Done (a service by time or km) or Record …; then Record …, the wishlist when it is due soon.
    */
   function dueActs(r, x, wish) {
@@ -225,7 +226,7 @@
     <span class="wear">{@render bar(r.st)}</span>
     <span class="act">
       {#if x}
-        <!-- v0.116.0 «Knöpfe neu» (N1/N2): one main button, the rest behind «…» with an explanation each. -->
+        <!-- v0.117.0 «Knöpfe neu» (N1/N2): one main button, the rest behind «…» with an explanation each. -->
         {@const acts = dueActs(r, x, wish)}
         {#if x.by === 'shop'}{@render shop()}{/if}
         <span class="rowacts">
@@ -291,6 +292,8 @@
       {/if}
       {#if kmMsg?.error}<p class="err" role="alert">{kmMsg.text}</p>{:else if kmMsg}<p class="saved" role="status">{kmMsg.text}</p>{/if}
       {#if words.text && c.care.status !== 'due'}<p class="quiet">{words.text}</p>{/if}
+      <!-- v0.116.0 «Strava-Verbindung» (4b): a ride of this bike got another bike in Strava: the question stays until you choose -->
+      <StravaChanges bikeId={bike.id} />
       {#if q1On}
         <Q1Status {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} parts={mainParts} {bikes} {today} onstart={(key) => onstartpoint?.(key, mainParts)} onhide={() => onq1?.(false)} />
       {/if}
@@ -1191,7 +1194,7 @@
   .duecards .pt.due {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    /* v0.116.0 «Knöpfe neu» (N1, answer 1a): the actions as the card's last line, right-aligned (phone: full width) */
+    /* v0.117.0 «Knöpfe neu» (N1, answer 1a): the actions as the card's last line, right-aligned (phone: full width) */
     grid-template-areas:
       'pn st'
       'last last'

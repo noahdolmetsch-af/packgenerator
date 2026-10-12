@@ -71,7 +71,7 @@
             </span>
           </div>
           {#if isOpen(task)}<span class="acts rowacts">
-            <!-- v0.116.0 «Knöpfe neu» (N1/N2): Done, the other answers behind «…», each with its explanation -->
+            <!-- v0.117.0 «Knöpfe neu» (N1/N2): Done, the other answers behind «…», each with its explanation -->
             <Btn icon={Check} label={t('Done|task')} explain={explain('Done|task')} sub={task.task} class="sm" onclick={() => onrepair(task, 'done')} />
             <MoreMenu label={task.task} actions={[
               { name: t('Done|task'), explain: explain('Done|task'), icon: Check, run: () => onrepair(task, 'done'), current: true },

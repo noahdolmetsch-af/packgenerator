@@ -13,7 +13,8 @@
   import { localDay } from '../localday.js';
   import { parseKm } from '../care.js';
   import { bikesHash } from '../bikes.js';
-  import { ledgerRows, ledgerCounts, bikeKm, reasonText, entryTitle, entryDetail, makeEntry } from '../kmbook.js';
+  import { ledgerRows, ledgerCounts, bikeKm, reasonText, entryTitle, entryDetail, makeEntry, heartOf } from '../kmbook.js';
+  import HeartLine from '../strava/HeartLine.svelte';
   import { addEntries, updateEntry, restoreEntries, deleteEntries, undoImport, LAST_KM_IMPORT } from '../kmbookdb.js';
   import KmChips from './KmChips.svelte';
   import DateInput from '../ui/DateInput.svelte';
@@ -148,6 +149,7 @@
       <button type="button" class="btn hi" aria-expanded={form === 'ride'} onclick={() => openForm('ride')}>{t('Enter km')}</button>
       <button type="button" class="btn" aria-expanded={form === 'corr'} onclick={() => openForm('corr')}>{t('Correction')}</button>
       <a class="btn" href={bikesHash({ tab: 'care', bike: bike.id, view: 'import' })}>{t('Import rides')}</a>
+      <a class="btn" href={bikesHash({ tab: 'care', bike: bike.id, view: 'strava' })}>Strava</a>
     </div>
     <div class="filt" role="group" aria-label={t('Show entries')}>
       {#each FILTERS as f (f)}
@@ -178,6 +180,7 @@
           <span class="w">
             <b>{entryTitle(r)}</b>
             {#if entryDetail(r)}<small>{entryDetail(r)}</small>{/if}
+            {#if heartOf([r])}<small><HeartLine heart={heartOf([r])} size={12} /></small>{/if}
             {#if r.state === 'open'}
               <small class="why">{t('Counts only after you confirm it.')} {reasonText(r.reason, nameOf)}</small>
               <span class="pick" role="group" aria-label={t('Which bike?')}>

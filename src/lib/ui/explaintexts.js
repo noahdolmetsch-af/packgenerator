@@ -1,4 +1,4 @@
-// v0.116.0 «Knöpfe neu» (N4): plain data without imports, so tests can read it too (ui/explain.js uses it).
+// v0.117.0 «Knöpfe neu» (N4): plain data without imports, so tests can read it too (ui/explain.js uses it).
 /** N4: what each button does, keyed by the button's English label key (German in i18n/de/knoepfe.js). */
 export const EXPLAIN = {
   // Velopflege

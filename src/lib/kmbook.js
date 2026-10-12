@@ -33,6 +33,12 @@ export const newestFirst = (a, b) => (b.date ?? '').localeCompare(a.date ?? '') 
 
 /** The entries of one bike. */
 export const ofBike = (entries, bikeId) => (entries ?? []).filter((e) => e.bikeId === bikeId);
+/**
+ * 0.116.0 (Noah «4b»): a Strava ride without a bike waits only in Velo › Pflege › Strava › «Zum
+ * Prüfen», not in the bike's ride ledger or the weekly card on Today.
+ */
+export const waitsInStrava = (e) => e?.source === 'strava' && e?.state === 'open';
+const inLedger = (entries, bikeId) => ofBike(entries, bikeId).filter((e) => !waitsInStrava(e));
 
 /** The km of a bike: the sum of its counted entries (one decimal), and the date of the newest. */
 export function bikeKm(entries, bikeId) {
@@ -54,7 +60,7 @@ export function kmOn(entries, bikeId, date) {
  * entries only; an open or left-out entry has after = null).
  */
 export function ledgerRows(entries, bikeId) {
-  const mine = ofBike(entries, bikeId);
+  const mine = inLedger(entries, bikeId);
   const oldest = [...mine].sort((a, b) => -newestFirst(a, b));
   let run = 0;
   const after = new Map();
@@ -68,7 +74,7 @@ export function ledgerRows(entries, bikeId) {
 
 /** How many entries of each kind a ledger has: rides, hand entries, corrections, open, left out. */
 export function ledgerCounts(entries, bikeId) {
-  const mine = ofBike(entries, bikeId);
+  const mine = inLedger(entries, bikeId);
   return {
     rides: mine.filter((e) => e.kind === 'ride' && counts(e)).length,
     hand: mine.filter((e) => e.source === 'hand' && e.kind !== 'start' && e.kind !== 'correction' && counts(e)).length,
@@ -101,6 +107,8 @@ export function makeEntry(fields, now = new Date()) {
     gear: fields.gear ?? '',
     type: fields.type ?? '',
     stravaId: fields.stravaId ?? null,
+    hrAvg: fields.hrAvg ?? null,
+    hrMax: fields.hrMax ?? null,
     by: fields.by ?? null,
     sure: fields.sure ?? (fields.state === 'open' ? 'unclear' : 'user'),
     state: fields.state ?? 'counted',
@@ -675,7 +683,7 @@ export function reconcile(bikes, entries) {
     const app = bikeKm(entries, bike.id).exact;
     const st = bike.strava ?? null;
     const diff = st && app != null ? r1(st.km - app) : null;
-    const open = ofBike(entries, bike.id).filter((e) => e.state === 'open');
+    const open = inLedger(entries, bike.id).filter((e) => e.state === 'open');
     const openKm = r1(open.reduce((s, e) => s + e.km, 0));
     return { bike, app, strava: st?.km ?? null, date: st?.date ?? null, diff, open, explained: diff != null && open.length > 0 && Math.abs(openKm - diff) < 1 };
   });
@@ -795,4 +803,38 @@ export function entryDetail(e) {
   if (!parts.length && e.source === 'hand') return t('entered by hand');
   if (!parts.length && e.gear) return t('Strava bike {gear}', { gear: e.gear });
   return parts.join(' · ');
+}
+
+/* ---------- v0.116.0 Puls pro Fahrt (Noah 12.10.2026 «1b 2a und b», «1a 2a»): observation only ---------- */
+
+const hasHeart = (e) => Number(e?.hrAvg) > 0 && e?.state !== 'removed';
+
+/** Heart rate of rides: average of the ride averages (weighted by km), the highest max. Null without data. */
+export function heartOf(entries) {
+  const xs = (entries ?? []).filter(hasHeart);
+  if (!xs.length) return null;
+  const w = (e) => Number(e.km) > 0 ? Number(e.km) : 1;
+  const sum = xs.reduce((s, e) => s + w(e), 0);
+  const avg = Math.round(xs.reduce((s, e) => s + Number(e.hrAvg) * w(e), 0) / sum);
+  const max = Math.max(...xs.map((e) => Number(e.hrMax) || 0)) || null;
+  return { avg, max, n: xs.length };
+}
+
+/** Heart rate of the Strava rides from..to (days, inclusive), optionally of one bike. */
+export function heartBetween(entries, from, to, bikeId = null) {
+  return heartOf((entries ?? []).filter((e) => e.source === 'strava' && e.kind === 'ride' && e.date >= from && e.date <= to && (!bikeId || e.bikeId === bikeId)));
+}
+
+/** The Strava ride of an uploaded GPX/FIT ride: same day, about the same km (and start time, when both have one). */
+export function heartOfRide(entries, ride) {
+  if (!ride?.date) return null;
+  const km = Number(ride.km) || 0;
+  const start = ride.startAt ? Date.parse(ride.startAt) : NaN;
+  const near = (entries ?? []).filter((e) => {
+    if (e.source !== 'strava' || e.date !== ride.date || !hasHeart(e)) return false;
+    if (km && Math.abs((Number(e.km) || 0) - km) > Math.max(2, km * 0.1)) return false;
+    const t = e.time ? Date.parse(e.time) : NaN;
+    return !Number.isFinite(start) || !Number.isFinite(t) || Math.abs(t - start) <= 45 * 60 * 1000;
+  });
+  return near.length === 1 ? heartOf(near) : null;
 }
