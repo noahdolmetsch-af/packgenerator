@@ -11,4 +11,6 @@ export default {
   'Get a draft, optional': 'Entwurf holen, freiwillig',
   // T17 Rückblick
   'Strava, Garmin or GPX': 'Strava, Garmin oder GPX',
+  // T20 Logbuch
+  'from all trips': 'aus allen Touren',
 };
