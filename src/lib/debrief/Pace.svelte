@@ -120,7 +120,7 @@
   });
 </script>
 
-<!-- v0.108.0 Design-Refresh P6 (T19 «Dein Tempo», approved 12.10.2026): two columns on a computer. Left the
+<!-- v0.109.0 Design-Refresh P6 (T19 «Dein Tempo», approved 12.10.2026): two columns on a computer. Left the
      rule as a white card (quiet caps line, the sentence), what the riding time uses now under it, then the
      small charts; right «Deine Fahrten» as rows with their checkbox, «Fahrten hinzufügen (GPX)» and the hint. -->
 <div class="tempo rv-lay">

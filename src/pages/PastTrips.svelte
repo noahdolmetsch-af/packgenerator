@@ -89,7 +89,7 @@
   {#if r.rain.wet === true}<span class="wx wet"><CloudRain size={16} aria-hidden="true" />{rainText(r.rain, r.days)}</span>{:else if r.rain.wet === false}<span class="wx"><Sun size={16} aria-hidden="true" />{rainText(r.rain, r.days)}</span>{:else}<span class="wx"><Cloud size={16} aria-hidden="true" />{DASH}</span>{/if}
 {/snippet}
 
-<!-- v0.108.0 Design-Refresh P6 (T21 «Vergangene Touren», approved 12.10.2026): the quiet path, the search over
+<!-- v0.109.0 Design-Refresh P6 (T21 «Vergangene Touren», approved 12.10.2026): the quiet path, the search over
      the full width, «Art» and «Zeitraum» in one line, «In diesem Zeitraum» as number tiles in one card, the
      table in a white card and the hint with its icon. The table keeps all its columns, so it stays full width. -->
 <div class="past rv-page">

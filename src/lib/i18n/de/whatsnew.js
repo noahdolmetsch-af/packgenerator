@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.109.0 Design-Refresh P6 «Rückblick, Auswerten, Fahrten»
+  'The new look, step 12: the end of a trip and the debrief in two columns, with the items as chips by bag.':
+    'Das neue Aussehen, Schritt 12: Tour beendet und der Rückblick in zwei Spalten, die Teile als Chips nach Tasche.',
+  'Look back shows the last trip with number tiles, your 12 months and the comparison, and «More» as plain rows.':
+    'Rückblick zeigt die letzte Tour mit Zahlen-Kacheln, deine 12 Monate und den Vergleich, und «Mehr» als schlichte Zeilen.',
+  'Learned, your pace, the logbook with your best values, past trips and your rides use the same light cards.':
+    'Gelernt, Dein Tempo, das Logbuch mit deinen Bestwerten, Vergangene Touren und deine Fahrten nutzen dieselben hellen Karten.',
   // 0.108.0 Design-Refresh P9 «Ich»
   'The new look, step 11: Me is light, in four groups, with a band on top when a backup is due.':
     'Das neue Aussehen, Schritt 11: Ich ist hell, in vier Gruppen, mit einem Band oben, wenn ein Backup fällig ist.',

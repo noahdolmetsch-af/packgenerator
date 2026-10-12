@@ -1,4 +1,4 @@
-/** v0.108.0 Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (T14–T23): the new texts of the look-back pages. */
+/** v0.109.0 Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (T14–T23): the new texts of the look-back pages. */
 export default {
   // T15 Rückblick ausfüllen
   '{n} · waiting here': '{n} · warten hier',

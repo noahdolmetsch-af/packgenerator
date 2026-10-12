@@ -31,7 +31,7 @@
   let area = $state('all');
   let q = $state('');
   const shown = $derived(logFilter(entries, { year, area, q }));
-  // v0.108.0 Design-Refresh P6 (T20): the best values of all trips, the same as on Touren
+  // v0.109.0 Design-Refresh P6 (T20): the best values of all trips, the same as on Touren
   const best = $derived(data ? bestValues({ trips: data.trips, rides: data.rides, today, period: 'all' }) : null);
   const AREAS = $derived([{ key: 'all', name: t('All|period') }, ...areas.map((a) => ({ key: a, name: t(domainName(a)) }))]);
 
@@ -46,7 +46,7 @@
     ].filter(Boolean);
 </script>
 
-<!-- v0.108.0 Design-Refresh P6 (T20 «Logbuch», approved 12.10.2026): two columns on a computer. Left the search,
+<!-- v0.109.0 Design-Refresh P6 (T20 «Logbuch», approved 12.10.2026): two columns on a computer. Left the search,
      Jahr and Reiseart as chips, the count and the list in one card; right the best values from all trips
      (the same as on Touren) and «Mehr». -->
 <div class="rv-lay lb">

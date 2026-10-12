@@ -220,7 +220,7 @@
   <p class="foot">{t('A stop of {n} minutes or more is a pause; shorter stops count as moving time.', { n: PAUSE_MIN })}</p>
 {/snippet}
 
-<!-- v0.108.0 Design-Refresh P6 (T22 «Fahrten», T23 «Fahrt: geplant gegen echt», approved 12.10.2026): the quiet
+<!-- v0.109.0 Design-Refresh P6 (T22 «Fahrten», T23 «Fahrt: geplant gegen echt», approved 12.10.2026): the quiet
      path; two columns on a computer. T22: the dashed card to choose a GPX file, the saved rides as rows, on
      the right «Gut zu wissen» (only what the app really does) and «Mehr». T23: numbered sections (numbers,
      pauses, planned vs real, learnings), on the right where the ride is saved, «counts for your pace» and

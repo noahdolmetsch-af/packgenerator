@@ -178,7 +178,7 @@
     <MainBar main={packedMain} second={{ label: t('Back to Trips'), href: '#/trips' }} step={tabs.includes(current) ? t('Step {n} of {m}', { n: tabs.indexOf(current) + 1, m: tabs.length }) : ''} />
   </article>
 {:else if kind === 'ended'}
-  <!-- v0.108.0 Design-Refresh P6 (T14 «Tour zu Ende», approved 12.10.2026): like «Gepackt» (T11): the steps on
+  <!-- v0.109.0 Design-Refresh P6 (T14 «Tour zu Ende», approved 12.10.2026): like «Gepackt» (T11): the steps on
        top, one card with the number tile, the celebration and what comes next, the notes on the way as rows
        under it; the main button stays in the bar at the bottom (G7). -->
   <article class="pk" aria-labelledby="end-h">

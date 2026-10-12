@@ -1,4 +1,4 @@
-// v0.108.0 Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (T14–T23, approved 12.10.2026): «Tour beendet»,
+// v0.109.0 Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (T14–T23, approved 12.10.2026): «Tour beendet»,
 // the debrief in two columns, the saved debrief, Rückblick, Gelernt, Dein Tempo, Logbuch, Vergangene Touren,
 // Fahrten and one ride. Fictional fixture (test_data_gtp_), German, phone + desktop, no horizontal scroll,
 // 44 px tap targets.
