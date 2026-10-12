@@ -86,8 +86,8 @@
   <p class="lead" id="merge-n">{t('"{name}" is the same as …', { name: nameOf(item) })} <small>{t('(several for a collection)')}</small></p>
 
   {#if proposed.length || extra.length}
-    <h3 class="lbl" id="merge-sug">{t('Suggestions')}</h3>
-    <ul class="opts box" aria-labelledby="merge-sug">
+    <p class="lbl sugh" aria-hidden="true">{t('Suggestions')}</p>
+    <ul class="opts box" aria-label={t('Suggestions')}>
       {#each extra as i (i.id)}{@render row(i, false)}{/each}
       {#each proposed as p (p.item.id)}{@render row(p.item, true)}{/each}
     </ul>
@@ -155,7 +155,7 @@
   .lead {
     overflow-wrap: break-word;
   }
-  h3.lbl {
+  .sugh {
     margin: 12px 0 6px;
     color: var(--ink-2);
     font-size: var(--fs-small);
