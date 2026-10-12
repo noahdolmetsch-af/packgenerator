@@ -227,15 +227,16 @@ test('packing day: packed and ready counted apart, kept after a reload; a raised
   const stored = (await table(page, 'trips')).find((x) => x.id === OUT);
   const total = stored.entries.length;
   const checks = stored.ready.length;
-  const ring = pd.getByRole('img', { name: T('{n} of {total} items packed', { n: 1, total }) });
-  await expect(ring.filter({ visible: true }).first()).toBeVisible();
+  // v0.105.0 Design-Refresh P5: the count stands under «Taschen» (T6 mockup); the ring is only the phone's bar
+  const ring = pd.locator('.packed-count').filter({ hasText: new RegExp(`^${T('{n} of {total} packed', { n: 1, total })}$`) });
+  await expect(ring).toBeVisible();
   // The ready check is its own count: still none done.
   await expect(pd.locator('.bagh').filter({ hasText: T('Ready check') })).toContainText(`0/${checks}`);
 
   await page.goto('./#/');
   await page.reload();
   await page.goto('./#/pack?day');
-  await expect(ring.filter({ visible: true }).first()).toBeVisible();
+  await expect(ring).toBeVisible();
   await page.goto('./#/pack');
 
   // Noah 18b: one more Multi tool keeps it packed.

@@ -707,7 +707,8 @@ test('PF12: tick some, navigate and reload; save as template and start a new tri
   await rec.check('after Today and a reload the same 2 are ticked', async () => expect((await tripNamed(page, title)).entries.filter((e) => e.packed).map((e) => e.itemId).sort()).toEqual(ticked));
   await rec.click(tab(page, 'Pack|stage'));
   const total = (await tripNamed(page, title)).entries.length;
-  await rec.check('Pack says "2 of N packed"', () => expect(pd.getByRole('img', { name: T('{n} of {total} items packed', { n: 2, total }) }).filter({ visible: true }).first()).toBeVisible({ timeout: 3000 }));
+  // v0.105.0 Design-Refresh P5: the count stands under «Taschen» (T6 mockup); the ring is only the phone's bar
+  await rec.check('Pack says "2 of N packed"', () => expect(pd.locator('.packed-count').filter({ hasText: new RegExp(`^${T('{n} of {total} packed', { n: 2, total })}$`) })).toBeVisible({ timeout: 3000 }));
   await rec.click(tab(page, 'Plan|stage'));
   // Save as template, then a new trip from it.
   const tplName = `${P} PF12 tpl ${info.project.name}`;
