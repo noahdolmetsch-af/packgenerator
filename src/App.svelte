@@ -32,6 +32,7 @@
   import { db } from './lib/db.js';
   import { wide, phone } from './lib/media.svelte.js';
   import Me from './pages/Me.svelte';
+  import Look from './pages/Look.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -287,6 +288,9 @@
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <Me />
+  {:else if page === 'look'}
+    <!-- v0.97.0 Design-Refresh R1: Ich › Darstellung -->
+    <Look />
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />

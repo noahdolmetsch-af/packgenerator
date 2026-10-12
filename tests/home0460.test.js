@@ -213,9 +213,10 @@ describe('the command line (Noah 14a)', () => {
 
 describe('colour worlds (Noah 4b, 5a)', () => {
   it('a stored choice or the default; System follows the device', () => {
-    expect(DEFAULT_PALETTE).toBe('gletscher');
+    // v0.97.0 Design-Refresh R1 (Noah 2a): Salbei is the default now, the earlier worlds stay
+    expect(DEFAULT_PALETTE).toBe('salbei');
     expect(paletteOf('sandstein')).toBe('sandstein');
-    expect(paletteOf('pink')).toBe('gletscher');
+    expect(paletteOf('pink')).toBe('salbei');
     expect(modeOf(null)).toBe('system');
     expect(resolveMode('system', true)).toBe('dark');
     expect(resolveMode('system', false)).toBe('light');

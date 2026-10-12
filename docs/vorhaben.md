@@ -38,7 +38,7 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (11.10.2026)
+## Stand heute (12.10.2026)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
@@ -59,6 +59,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.81.0 | Hobby-Seiten Teil 2 «Kissenzeit»: Meditations-Seite (Vorlagen, Wie letztes Mal, Arten, Herausforderung, Meilensteine, Klänge, Zitate, Links, Orte), Intervalle mit Marken auf der Uhr, Sitzung im ganzen Bildschirm | PR offen |
 | 0.84.0 | Hobby-Seiten Teil 3 «Nach dem Gong»: Auswertung mit Notiz, Tiefe, Stimmung und «Als Nächstes» (.ics), Protokoll mit Filtern, Serien-Wärmebild, Kalender und Grafik, Sitzung im Detail mit «Wieder so starten» | PR offen |
 | 0.86.0 | Meditation einfach (Noah «1-5 a»): Startblatt aus «Heute abhaken» (Jetzt {n} Min, Dauer, Nur abhaken), kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant» und Wisch-Hinweis weg | PR offen |
+| 0.97.0 | Design-Refresh R1 «Darstellung» (G1 neu freigegeben 11.10. 23:10, Noah 12.10. «1a 2a 3b 4a 5a»): Farbwelt Salbei und Schrift Inter als neuer Standard; Ich › Darstellung mit 8 Schriften, 7 Farbwelten (die bisherigen bleiben), Schriftgrösse Klein/Normal/Gross, hell oder dunkel, Vorschau am Computer | PR offen |
 | 0.96.0 | F1 Alles finden (Noah «1-5 a», Mockups A/B): «Was die App kann» mit 84 Funktionen in 6 Gruppen nach Situation, nie Benutztes zuerst, «Hinbringen» und «Ausprobieren», Suchfeld und Chips; die Suche zeigt 3 Befehle, letzte Suchen und findet Funktionen | PR offen |
 | 0.95.0 | Velo kurz (App einfach 5a, Mockup D): Velos › Übersicht mit drei Zeilen (Velopflege, Taschen, Ausstattung), Knopf «Fahrten importieren» (Strava, Garmin) und «Mehr» für alles andere; Ausstattung ohne orange Hinweise | PR offen |
 | 0.94.0 | Kachel-Wand (Noah «1-5 a», «ok a», Mockups A–D): Heute als Wand aus Kacheln in vier Grössen, anpassbar (auch lange drücken), «+» mit Katalog, «Neu»-Punkt, eine Serie über alles mit Ruhewoche, alle Meilensteine auf einer Seite, Daten und Backup unter Ich; ersetzt den Entwurf «Startseite dicht». Später K6/K7 mit Mockups | live, PR #111 |
@@ -210,7 +211,16 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
 - **Beispiel:** «Ersatz-Schaltauge bestellen» steht oben in Merken; darunter «Jura-Runde: Einkauf und Laden (−2 Tage)» und «Dichtmilch fällig».
 - **Stand:** entschieden, noch nicht gebaut. Vorschlag https://claude.ai/artifact/TuvocwdUios23adoGp6e5D, Inventar im Projektordner `notes/funktionen-kalender-2026-10-11/inventar.md`.
 
+### 12. Design-Refresh: neues Aussehen für alle Seiten (R1–R24)
+
+- **Warum:** Die App soll ruhig und einheitlich aussehen (Ziel: schön und einfach). Noah hat alle Seiten als Mockups freigegeben (Stilblatt G1–G12 am 11.10.2026, alle Seiten am 12.10.2026 «Runde 20 freigegeben») und will den Bau allem anderen vorziehen (12.10.2026, «prio high»).
+- **Was:** 24 kleine Releases, ohne Änderung an der Datenbank. Welle 1 (nacheinander): R1 Salbei, Inter, Ich › Darstellung · R2 heller Kopf und helle Seitenleiste · R3 Knöpfe, Karten, Zeilen, Zustände · R4 Zurück, Schritte und Weiter-Leiste. Danach je zwei Releases gleichzeitig in getrennten Bereichen (Heute ∥ Material, Touren ∥ Aktiv, Touren ∥ Velo, Ich ∥ Teilen), am Ende «Was ist neu» mit Meldung nach jedem Update.
+- **Entscheide (Noah 12.10.2026 «1a 2a 3b 4a 5a»):** Dunkelmodus bleibt · die bisherigen Farbwelten bleiben wählbar, Salbei ist Standard · Feier-Moment mit Konfetti · «Alle Fahrten aus Strava» bleibt Datei-Import · alle anderen Bauten pausieren, bis Welle 1 und Heute live sind.
+- **Stand:** R1 als 0.97.0 gebaut (PR offen). Bauplan im Projektordner `design/refresh-2026-10/bauplan.md`.
+
 ## Reihenfolge
+
+**Neu seit dem 12.10.2026 (gilt vor allem anderen, Noah «prio high» und 5a):** zuerst der Design-Refresh (Vorhaben 12), Welle 1 und Heute; alle anderen Bauten pausieren so lange. Die Skitour als Fahrplan kommt nach den neuen Touren-Seiten, gleich im neuen Stil.
 
 Taktgeber ist echte Nutzung: Eine grössere Version kommt erst, wenn die letzte im Alltag oder auf einer Tour benutzt wurde.
 

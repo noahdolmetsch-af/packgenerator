@@ -36,10 +36,11 @@
   --focus: #b83e08;
   --focus-on-dark: #ffb38f;
   --focus-ring: 3px solid var(--focus);
-  /* Type: Fira Sans for content and controls; the condensed face only for the logo and a few big numbers. */
-  --font-body: 'Fira Sans', 'Segoe UI', system-ui, sans-serif;
+  /* Type: v0.97.0 Design-Refresh R1 (G1 neu): one font for everything, also titles, the logo and big
+     numbers (no condensed face any more); Inter by default, data-font below for the other seven. */
+  --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
   --font-title: var(--font-body);
-  --font-brand: 'Sofia Sans Extra Condensed', 'Arial Narrow', sans-serif;
+  --font-brand: var(--font-body);
   --fs-page: clamp(30px, 2.4vw + 20px, 40px);
   --fs-section: 22px;
   --fs-sub: 18px;
@@ -91,7 +92,7 @@
 }
 
 /* ---------- v0.46.0 «Startseite neu» (Noah 4b, 5a + menu): three colour worlds, light and dark ----------
-   theme.js sets data-palette (gletscher | sandstein | klassisch) and data-theme (light | dark; "System"
+   theme.js sets data-palette (gletscher | sandstein | klassisch; since 0.97 also salbei | fels | sand | gletscher-sanft) and data-theme (light | dark; "System"
    follows prefers-color-scheme) on <html>. Each set fills the same tokens, so every page follows.
    Values of Gletscher and Sandstein from the approved mockup (Mix-Desktop, renderVals); every
    text/background pair checked for 4.5:1 (controls and the logo 3:1). */
@@ -319,6 +320,403 @@
   --l3-soft: #17303d;
   --l4-soft: #2a2238;
   --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
+}
+
+/* ---------- v0.97.0 Design-Refresh R1 (G1 neu, Noah 11.10 23:10; 12.10 «1a 2a»): four calm colour worlds ----------
+   Salbei (the default), Fels, Sand and Gletscher sanft, from the approved mockup (G1 Farben); each also
+   dark. The three older worlds above stay. Every text/background pair checked for 4.5:1 (controls 3:1). */
+:root[data-palette='salbei'] {
+  --ground: #f4f5f1;
+  --paper: #ffffff;
+  --paper-2: #eaede6;
+  --ink: #1f2a24;
+  --ink-2: #3e4a3f;
+  --ink-3: #63705f;
+  --line: #dfe3da;
+  --line-strong: #899088;
+  --brand: #1f2a24;
+  --brand-ink: #f4f5f1;
+  --brand-ink-2: #b4b8b3;
+  --hi: #4a7360;
+  --hi-ink: #ffffff;
+  --hi-bright: #89a498;
+  --hi-soft: #e3ece5;
+  --hi-hover: #3f6252;
+  --ok: #3d6b56;
+  --ok-soft: #e3ece5;
+  --warn: #8a621d;
+  --warn-soft: #f5ecd8;
+  --bad: #b3261e;
+  --bad-soft: #f6dcd8;
+  --focus: #4a7360;
+  --focus-on-dark: #aec0b7;
+  --input: #ffffff;
+  --accent: #3d6b56;
+  --accent-soft: #e3ece5;
+  --head: #3d6b56;
+  --badge: #e3ece5;
+  --badge-ink: #395648;
+  --bar: #d0d4cb;
+  --shadow: rgba(31, 42, 36, 0.2);
+  --scrim: rgba(31, 42, 36, 0.45);
+  --info-soft: #e3edf2;
+  --card-line: transparent;
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.05);
+  --radius-card: 16px;
+}
+:root[data-palette='salbei'][data-theme='dark'] {
+  color-scheme: dark;
+  --ground: #101613;
+  --paper: #18201c;
+  --paper-2: #202a25;
+  --ink: #e8edea;
+  --ink-2: #bcc8c1;
+  --ink-3: #a1afa8;
+  --line: #2e3833;
+  --line-strong: #71847a;
+  --brand: #0b0f0d;
+  --brand-ink: #e8edea;
+  --brand-ink-2: #a1afa8;
+  --hi: #9bb2a8;
+  --hi-ink: #101613;
+  --hi-bright: #9bb2a8;
+  --hi-soft: #2c3531;
+  --hi-hover: #afc1b9;
+  --ok: #94aea2;
+  --ok-soft: #28312d;
+  --warn: #e3b465;
+  --warn-soft: #382c15;
+  --bad: #ff8a80;
+  --bad-soft: #3d1e1b;
+  --focus: #afc1b9;
+  --focus-on-dark: #afc1b9;
+  --input: #101613;
+  --accent: #94aea2;
+  --accent-soft: #28312d;
+  --head: #94aea2;
+  --badge: #2c3531;
+  --badge-ink: #b9c9c2;
+  --bar: #37433d;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.6);
+  --info-soft: #1b2c35;
+  --card-line: transparent;
+  --card-shadow: none;
+  --radius-card: 16px;
+  --l1: #4fc3b0;
+  --l2: #f0b860;
+  --l3: #6fa8e0;
+  --l4: #b398dc;
+  --l1-soft: #173533;
+  --l2-soft: #3a2c12;
+  --l3-soft: #17303d;
+  --l4-soft: #2a2238;
+  --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
+}
+:root[data-palette='fels'] {
+  --ground: #f3f4f5;
+  --paper: #ffffff;
+  --paper-2: #e8ebee;
+  --ink: #1e252b;
+  --ink-2: #3c454c;
+  --ink-3: #616b74;
+  --line: #dde1e5;
+  --line-strong: #878c91;
+  --brand: #1e252b;
+  --brand-ink: #f3f4f5;
+  --brand-ink-2: #b3b6b8;
+  --hi: #3e5c74;
+  --hi-ink: #ffffff;
+  --hi-bright: #8295a5;
+  --hi-soft: #e1e8ee;
+  --hi-hover: #354e63;
+  --ok: #3d7461;
+  --ok-soft: #e0ede7;
+  --warn: #88611d;
+  --warn-soft: #f5ecd8;
+  --bad: #b3261e;
+  --bad-soft: #f6dcd8;
+  --focus: #3e5c74;
+  --focus-on-dark: #a8b6c0;
+  --input: #ffffff;
+  --accent: #3d7461;
+  --accent-soft: #e0ede7;
+  --head: #3d7461;
+  --badge: #e1e8ee;
+  --badge-ink: #314657;
+  --bar: #ced2d6;
+  --shadow: rgba(30, 37, 43, 0.2);
+  --scrim: rgba(30, 37, 43, 0.45);
+  --info-soft: #e3edf2;
+  --card-line: transparent;
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.05);
+  --radius-card: 16px;
+}
+:root[data-palette='fels'][data-theme='dark'] {
+  color-scheme: dark;
+  --ground: #101317;
+  --paper: #181c21;
+  --paper-2: #20252a;
+  --ink: #e8ebed;
+  --ink-2: #bcc2c8;
+  --ink-3: #a1a9af;
+  --line: #2e3338;
+  --line-strong: #717b84;
+  --brand: #0b0d0f;
+  --brand-ink: #e8ebed;
+  --brand-ink-2: #a1a9af;
+  --hi: #95a5b3;
+  --hi-ink: #101317;
+  --hi-bright: #95a5b3;
+  --hi-soft: #2b3036;
+  --hi-hover: #aab7c2;
+  --ok: #94b3a8;
+  --ok-soft: #283031;
+  --warn: #e3b465;
+  --warn-soft: #382c15;
+  --bad: #ff8a80;
+  --bad-soft: #3d1e1b;
+  --focus: #aab7c2;
+  --focus-on-dark: #aab7c2;
+  --input: #101317;
+  --accent: #94b3a8;
+  --accent-soft: #283031;
+  --head: #94b3a8;
+  --badge: #2b3036;
+  --badge-ink: #b5c0ca;
+  --bar: #373e43;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.6);
+  --info-soft: #1b2c35;
+  --card-line: transparent;
+  --card-shadow: none;
+  --radius-card: 16px;
+  --l1: #4fc3b0;
+  --l2: #f0b860;
+  --l3: #6fa8e0;
+  --l4: #b398dc;
+  --l1-soft: #173533;
+  --l2-soft: #3a2c12;
+  --l3-soft: #17303d;
+  --l4-soft: #2a2238;
+  --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
+}
+:root[data-palette='sand'] {
+  --ground: #f6f3ec;
+  --paper: #fffdf9;
+  --paper-2: #efe9de;
+  --ink: #2b2622;
+  --ink-2: #49423c;
+  --ink-3: #6d655c;
+  --line: #e4ddd0;
+  --line-strong: #918b82;
+  --brand: #2b2622;
+  --brand-ink: #f6f3ec;
+  --brand-ink-2: #b9b5af;
+  --hi: #9a5b3e;
+  --hi-ink: #ffffff;
+  --hi-bright: #bd9482;
+  --hi-soft: #f1e3d9;
+  --hi-hover: #834d35;
+  --ok: #4f7a5a;
+  --ok-soft: #e3ede3;
+  --warn: #88601a;
+  --warn-soft: #f5ead3;
+  --bad: #b3261e;
+  --bad-soft: #f6dcd8;
+  --focus: #9a5b3e;
+  --focus-on-dark: #d2b5a8;
+  --input: #fffdf9;
+  --accent: #4f7a5a;
+  --accent-soft: #e3ede3;
+  --head: #4f7a5a;
+  --badge: #f1e3d9;
+  --badge-ink: #6e4633;
+  --bar: #d5cec2;
+  --shadow: rgba(43, 38, 34, 0.2);
+  --scrim: rgba(43, 38, 34, 0.45);
+  --info-soft: #e3edf2;
+  --card-line: transparent;
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.05);
+  --radius-card: 16px;
+}
+:root[data-palette='sand'][data-theme='dark'] {
+  color-scheme: dark;
+  --ground: #151311;
+  --paper: #1f1c19;
+  --paper-2: #292421;
+  --ink: #edeae8;
+  --ink-2: #c8c1bc;
+  --ink-3: #afa8a1;
+  --line: #38322e;
+  --line-strong: #847971;
+  --brand: #0f0d0b;
+  --brand-ink: #edeae8;
+  --brand-ink-2: #afa8a1;
+  --hi: #c7a595;
+  --hi-ink: #151311;
+  --hi-bright: #c7a595;
+  --hi-soft: #39302b;
+  --hi-hover: #d2b7aa;
+  --ok: #9eb6a4;
+  --ok-soft: #2e302b;
+  --warn: #e3b465;
+  --warn-soft: #382c15;
+  --bad: #ff8a80;
+  --bad-soft: #3d1e1b;
+  --focus: #d2b7aa;
+  --focus-on-dark: #d2b7aa;
+  --input: #151311;
+  --accent: #9eb6a4;
+  --accent-soft: #2e302b;
+  --head: #9eb6a4;
+  --badge: #39302b;
+  --badge-ink: #d8c0b5;
+  --bar: #433d37;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.6);
+  --info-soft: #1b2c35;
+  --card-line: transparent;
+  --card-shadow: none;
+  --radius-card: 16px;
+  --l1: #4fc3b0;
+  --l2: #f0b860;
+  --l3: #6fa8e0;
+  --l4: #b398dc;
+  --l1-soft: #173533;
+  --l2-soft: #3a2c12;
+  --l3-soft: #17303d;
+  --l4-soft: #2a2238;
+  --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
+}
+:root[data-palette='gletscher-sanft'] {
+  --ground: #f2f5f6;
+  --paper: #ffffff;
+  --paper-2: #e6eef0;
+  --ink: #16242c;
+  --ink-2: #37464f;
+  --ink-3: #5f6f79;
+  --line: #dce4e8;
+  --line-strong: #838e93;
+  --brand: #16242c;
+  --brand-ink: #f2f5f6;
+  --brand-ink-2: #b0b6b9;
+  --hi: #2f6b70;
+  --hi-ink: #ffffff;
+  --hi-bright: #789fa2;
+  --hi-soft: #dcecec;
+  --hi-hover: #285b5f;
+  --ok: #2f6b70;
+  --ok-soft: #dcecec;
+  --warn: #88611d;
+  --warn-soft: #f5ecd8;
+  --bad: #b3261e;
+  --bad-soft: #f6dcd8;
+  --focus: #2f6b70;
+  --focus-on-dark: #a1bcbf;
+  --input: #ffffff;
+  --accent: #2f6b70;
+  --accent-soft: #dcecec;
+  --head: #2f6b70;
+  --badge: #dcecec;
+  --badge-ink: #254f55;
+  --bar: #ccd5d9;
+  --shadow: rgba(22, 36, 44, 0.2);
+  --scrim: rgba(22, 36, 44, 0.45);
+  --info-soft: #e3edf2;
+  --card-line: transparent;
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.05);
+  --radius-card: 16px;
+}
+:root[data-palette='gletscher-sanft'][data-theme='dark'] {
+  color-scheme: dark;
+  --ground: #101417;
+  --paper: #181d21;
+  --paper-2: #20262a;
+  --ink: #e8ebed;
+  --ink-2: #bcc3c8;
+  --ink-3: #a1aaaf;
+  --line: #2e3438;
+  --line-strong: #717d84;
+  --brand: #0b0d0f;
+  --brand-ink: #e8ebed;
+  --brand-ink-2: #a1aaaf;
+  --hi: #8daeb0;
+  --hi-ink: #101417;
+  --hi-bright: #8daeb0;
+  --hi-soft: #293336;
+  --hi-hover: #a4bec0;
+  --ok: #8daeb0;
+  --ok-soft: #273033;
+  --warn: #e3b465;
+  --warn-soft: #382c15;
+  --bad: #ff8a80;
+  --bad-soft: #3d1e1b;
+  --focus: #a4bec0;
+  --focus-on-dark: #a4bec0;
+  --input: #101417;
+  --accent: #8daeb0;
+  --accent-soft: #273033;
+  --head: #8daeb0;
+  --badge: #293336;
+  --badge-ink: #afc6c8;
+  --bar: #373f43;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.6);
+  --info-soft: #1b2c35;
+  --card-line: transparent;
+  --card-shadow: none;
+  --radius-card: 16px;
+  --l1: #4fc3b0;
+  --l2: #f0b860;
+  --l3: #6fa8e0;
+  --l4: #b398dc;
+  --l1-soft: #173533;
+  --l2-soft: #3a2c12;
+  --l3-soft: #17303d;
+  --l4-soft: #2a2238;
+  --temp-scale: linear-gradient(90deg, #6fa8e0 0%, #4fc3b0 35%, #f0b860 70%, #ff7a4d 100%);
+}
+
+/* v0.97.0 R1: the font (Ich › Darstellung); Inter is the default in :root. */
+:root[data-font='fira'] {
+  --font-body: 'Fira Sans', 'Segoe UI', system-ui, sans-serif;
+}
+:root[data-font='source'] {
+  --font-body: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+}
+:root[data-font='nunito'] {
+  --font-body: 'Nunito Sans', 'Segoe UI', system-ui, sans-serif;
+}
+:root[data-font='plex'] {
+  --font-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+}
+:root[data-font='dm'] {
+  --font-body: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+}
+:root[data-font='manrope'] {
+  --font-body: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+}
+:root[data-font='atkinson'] {
+  --font-body: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* v0.97.0 R1: the text size (Ich › Darstellung): small, normal (the scale above) or large («Gross hilft
+   unterwegs»). Only the reading sizes change; page titles keep their own scale. */
+:root[data-size='small'] {
+  --fs-section: 20px;
+  --fs-sub: 17px;
+  --fs-body: 15px;
+  --fs-label: 13px;
+  --fs-small: 13px;
+}
+:root[data-size='large'] {
+  --fs-section: 24px;
+  --fs-sub: 20px;
+  --fs-body: 18px;
+  --fs-label: 16px;
+  --fs-small: 16px;
+  --fs-tiny: 14px;
 }
 
 /* ---------- v0.76.0 «Fünf Orte» 1 (Noah 10.10.2026): each place has a light colour ----------

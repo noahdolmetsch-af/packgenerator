@@ -18,11 +18,11 @@
   import { HOME_PLACE } from '../lib/know.js';
   import DataPanel from '../lib/DataPanel.svelte';
   import { t, tn, lang, setLang } from '../lib/i18n.svelte.js';
-  import { theme, PALETTES, MODES, setPalette, setMode } from '../lib/theme.svelte.js';
+  import { lookLine } from '../lib/theme.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
-  import { Globe, SunMoon, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles } from '@lucide/svelte';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { Archive, FlaskConical } from '@lucide/svelte';
   import { testDataState } from '../lib/testdatadb.js';
@@ -69,16 +69,12 @@
       <span class="nm" id="me-lang">{t('Language')}</span>
       <Seg labelledby="me-lang" full={false} value={lang.v} options={[{ key: 'de', name: 'Deutsch' }, { key: 'en', name: 'English' }]} onchange={setLang} />
     </div>
-    <div class="row set">
-      <SunMoon size={20} aria-hidden="true" />
-      <span class="nm" id="me-mode">{t('Light or dark')}</span>
-      <Seg labelledby="me-mode" full={false} value={theme.mode} options={MODES.map((m) => ({ key: m.key, name: t(m.name) }))} onchange={setMode} />
-    </div>
-    <div class="row set">
+    <!-- v0.97.0 Design-Refresh R1: font, colour world, text size and light or dark on their own page -->
+    <a class="row go set" href="#/me/look">
       <Palette size={20} aria-hidden="true" />
-      <span class="nm" id="me-pal">{t('Colours')}</span>
-      <Seg labelledby="me-pal" full={false} value={theme.palette} options={PALETTES.map((p) => ({ key: p.key, name: t(p.name) }))} onchange={setPalette} />
-    </div>
+      <span class="nm">{t('Appearance')}<small>{lookLine(t)}</small></span>
+      <ChevronRight class="chev" size={18} aria-hidden="true" />
+    </a>
   </section>
 
   <section class="grp" aria-label={t('The app')}>

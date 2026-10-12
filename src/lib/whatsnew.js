@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.97.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look starts: the calm colour world «Sage» and the clear font Inter for the whole app.', href: '#/me/look' },
+      { text: 'Me › Appearance: choose one of 8 fonts, a colour world (the earlier ones stay), small, normal or large text and light or dark, with a preview on the computer.', href: '#/me/look' },
+      { text: 'Dark mode stays, also for the new colour worlds. Everything is only on this device and can be changed back at any time.', href: '#/me/look' },
+    ],
+  },
+  {
     version: '0.96.0',
     date: '2026-10-11',
     points: [

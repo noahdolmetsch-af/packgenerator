@@ -861,3 +861,14 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - Erinnerung am Handy: wenn möglich Push. Das braucht einen kleinen Push-Dienst und kommt später; bis dahin «Heute» und .ics mit Alarm im Google-Kalender.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
+
+## 12.10.2026: Design-Refresh bauen, R1 «Darstellung» (0.97.0)
+
+Alle Seiten freigegeben (Stilblatt G1–G12 am 11.10.2026 23:10 «Runde 1 alles ★ und G1–G12 freigegeben», alle Seiten am 12.10.2026 03:50 «Runde 20 freigegeben»). Noah 12.10.2026 03:56: «allem anderen vorziehen … rasche Umsetzung mit Prio high». Bauplan mit 24 Releases (Projektordner `design/refresh-2026-10/bauplan.md`), Antworten «1a 2a 3b 4a 5a»:
+
+- **(1a)** Der Dunkelmodus bleibt wählbar; jede neue Farbwelt bekommt eine dunkle Version.
+- **(2a)** Gletscher, Sandstein und Klassisch bleiben unter Ich › Darstellung wählbar; Salbei ist der neue Standard.
+- **(3b)** Der Feier-Moment kommt mit Konfetti (ersetzt die alte Regel «kein Konfetti»; gebaut mit dem Release der Zustände).
+- **(4a)** «Alle Fahrten aus Strava» bleibt ein Datei-Import; eine echte Strava-Verbindung kommt später als eigenes Paket.
+- **(5a)** Alle anderen Bauten pausieren, bis Welle 1 (R1–R4) und Heute live sind.
+- **Selbst entschieden (R1):** Die dunklen Versionen von Salbei, Fels, Sand und Gletscher sanft sind aus den hellen abgeleitet und auf Kontrast geprüft. Wer den alten Standard Gletscher gespeichert hat, bekommt einmal Salbei (Gletscher bleibt wählbar und bleibt dann). Die schmale Titelschrift fällt weg, Titel nehmen die gewählte Schrift. Grössen: Klein 15 px, Normal 16 px, Gross 18 px Grundschrift, die anderen Stufen ziehen mit. Die Vorschau zeigt sich erst ab 1100 px Breite, am Handy ändert sich die ganze App sofort. Die Farbwelten zeigen nur ihren Namen und vier Punkte wie im Mockup.

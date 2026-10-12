@@ -126,7 +126,8 @@ test('test trips: hidden as next trip, cleaned up after a question on the page, 
 test('colour worlds and dark mode in More; every choice stays', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
   const html = page.locator('html');
-  await expect(html).toHaveAttribute('data-palette', 'gletscher');
+  // v0.97.0 Design-Refresh R1 (Noah 2a): Salbei is the default, the earlier worlds stay under Ich › Darstellung
+  await expect(html).toHaveAttribute('data-palette', 'salbei');
   await expect(html).toHaveAttribute('data-theme', 'light');
   // v0.76.0 «Fünf Orte»: the page ground is tinted a breath by the place; the colour world sets --ground.
   const bg = () => page.evaluate(() => {
@@ -136,13 +137,15 @@ test('colour worlds and dark mode in More; every choice stays', async ({ page, c
     d.remove();
     return c;
   });
-  expect(await bg()).toBe('rgb(238, 242, 244)');
+  expect(await bg()).toBe('rgb(244, 245, 241)');
 
   // v0.76.0: the colour world and light or dark are in «Ich» (top right), no longer in «More».
   await page.getByRole('link', { name: /^(Me|Ich)\b/ }).first().click();
   await expect(page).toHaveURL(/#\/me$/);
+  await page.getByRole('link', { name: new RegExp(T('Appearance')) }).click();
+  await expect(page).toHaveURL(/#\/me\/look$/);
   const more = page.locator('main');
-  await more.getByRole('group', { name: T('Colours') }).getByRole('button', { name: T('Sandstone|palette') }).click();
+  await more.getByRole('group', { name: T('Colour world') }).getByRole('button', { name: T('Sandstone|palette') }).click();
   await expect(html).toHaveAttribute('data-palette', 'sandstein');
   expect(await bg()).toBe('rgb(244, 239, 230)');
   await more.getByRole('group', { name: T('Light or dark') }).getByRole('button', { name: T('Dark|theme') }).click();

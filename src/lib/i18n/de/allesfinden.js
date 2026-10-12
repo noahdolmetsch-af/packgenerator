@@ -124,5 +124,5 @@ export default {
   'The code stays on this device, with a monthly limit; you see what goes to Claude.': 'Der Code bleibt auf diesem Gerät, mit Monatslimit; du siehst, was an Claude geht.',
   'g h, g t … switch places, n = New, / = search, ? = the list.': 'g h, g t … wechselt den Ort, n = Neu, / = Suche, ? = die Liste.',
   'Light, dark and colours': 'Hell, dunkel und Farben',
-  'Light or dark, and the colour worlds glacier, sandstone and classic.': 'Hell oder dunkel, und die Farbwelten Gletscher, Sandstein und Klassisch.',
+  'Font, colour world, text size and light or dark, under Me › Appearance.': 'Schrift, Farbwelt, Schriftgrösse und hell oder dunkel, unter Ich › Darstellung.',
 };
