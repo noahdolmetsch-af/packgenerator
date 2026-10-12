@@ -513,9 +513,9 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 12.10.2026 (v0.103.0, PR folgt):** Design-Refresh P3 «Material» (M1–M6): Liste zuerst, eine Werkzeugzeile, Ansichten rechts, Fenster und Blätter im neuen Stil. Danach P3b Material M7–M14, P4 Touren, P7 Velo.
+**Nachtrag 12.10.2026 (v0.103.0, PR offen):** Design-Refresh P3 «Material» (M1–M6): Liste zuerst, eine Werkzeugzeile, Ansichten rechts, Fenster und Blätter im neuen Stil. Danach P3b Material M7–M14, P4 Touren, P7 Velo.
 
-**Nachtrag 12.10.2026 (v0.102.0, PR offen):** «Vorschlag und Challenge» (D1b/D5): Kachel «Heute baden oder Sauna?» mit Alternativen und «Als Challenge setzen», zählt von selbst, geschafft = Meilenstein. Dieselbe Kachel kommt mit P8 nach Aktiv; Wasser/Luft-Werte mit der Daten-Zentrale.
+**Nachtrag 12.10.2026 (v0.102.0, live):** «Vorschlag und Challenge» (D1b/D5): Kachel «Heute baden oder Sauna?» mit Alternativen und «Als Challenge setzen», zählt von selbst, geschafft = Meilenstein. Dieselbe Kachel kommt mit P8 nach Aktiv; Wasser/Luft-Werte mit der Daten-Zentrale.
 
 **Nachtrag 12.10.2026 (v0.101.0, live):** Design-Refresh P2 «Heute» (H1–H9): heller Kopf, Tour-Karte mit Zahlen und Packbalken ohne Foto, helle Kacheln, vier neue Kacheln, «Neu» nach Bereichen, helle Suche. Danach als kleine Schritte: «Als Challenge setzen» (D1b/D5) und «Inspiration». Parallel P3 Material.
 
