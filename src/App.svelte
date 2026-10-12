@@ -34,6 +34,8 @@
   import { Plus } from '@lucide/svelte';
   import Me from './pages/Me.svelte';
   import Look from './pages/Look.svelte';
+  import Data from './pages/Data.svelte';
+  import Phone from './pages/Phone.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -295,6 +297,12 @@
   {:else if page === 'look'}
     <!-- v0.97.0 Design-Refresh R1: Ich › Darstellung -->
     <Look />
+  {:else if page === 'data'}
+    <!-- Design-Refresh P9 (I2): Ich › Daten und Backup, its own page -->
+    <Data />
+  {:else if page === 'phone'}
+    <!-- Design-Refresh P9 (B35): Ich › Daten › Aufs Handy, the QR code -->
+    <Phone />
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />

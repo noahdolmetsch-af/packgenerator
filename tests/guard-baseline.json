@@ -4,10 +4,6 @@
     "src/app.css": {
       "fontsize": 10
     },
-    "src/lib/DataPanel.svelte": {
-      "fontsize": 5,
-      "global": 3
-    },
     "src/lib/DemoBar.svelte": {
       "colour": 3,
       "fontsize": 3
