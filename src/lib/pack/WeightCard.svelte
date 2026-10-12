@@ -10,7 +10,8 @@
   import { zoneName } from '../trips.js';
   import { t, tn, locale, nameOf } from '../i18n.svelte.js';
 
-  let { trip, stats, itemsById } = $props();
+  // v0.105.0 Design-Refresh P5 (T6 «Gewicht nach Taschen»): the same card on Packen, with its own title.
+  let { trip, stats, itemsById, title = '', sub = '' } = $props();
 
   const COLORS = ['var(--hi)', 'var(--hi-bright)', 'var(--bar)', 'var(--l2)', 'var(--line)', 'var(--l3)', 'var(--l1)'];
   const kgN = (g) => (g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -22,8 +23,8 @@
 </script>
 
 <section class="wc" aria-labelledby="wc-h">
-  <h2 id="wc-h">{t('Weight')}</h2>
-  <p class="sub">{t('without food and water')}</p>
+  <h2 id="wc-h">{title || t('Weight')}</h2>
+  <p class="sub">{sub || t('without food and water')}</p>
   <div class="card body">
     <p class="big num"><b>{w.missing ? '~' : ''}{kgN(w.total)}</b> kg</p>
     {#if w.total > 0}

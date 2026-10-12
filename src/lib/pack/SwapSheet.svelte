@@ -5,8 +5,7 @@
    * a star), then the ones picked before, «Fits less» quieter below but still one tap (a suggestion is
    * never forced). One tap swaps and closes; the message has Undo. «Take off» leaves the piece out.
    */
-  import { X, Thermometer, CloudSun, CloudRain, Clock3, Minus, Shirt, Star } from '@lucide/svelte';
-  import TempBar from '../ui/TempBar.svelte';
+  import { X, Shirt, ArrowLeftRight } from '@lucide/svelte';
   import { t, tn, nameOf, num } from '../i18n.svelte.js';
   import { formatWeight, itemWeight } from '../gear.js';
   import { ZONES, LAYERS, tempRange } from '../wardrobe.js';
@@ -27,6 +26,13 @@
   const whyText = (why) => (!why ? '' : why.key === 'cool' ? t('only from {n}°', { n: why.n }) : why.key === 'warm' ? t('only up to {n}°', { n: why.n }) : why.key === 'rain' ? t('only for rain') : t('keeps no rain out'));
   const memText = (m) => (!m ? '' : typeof m.c === 'number' ? t('last at {n}°', { n: m.c }) : t('picked before'));
   const g = (i) => (i.weightG == null ? '–' : formatWeight(itemWeight(i)));
+  // v0.105.0 P5 (T7): «Oberkörper · Basis · Tourwetter 6–18°, trocken» and where the piece is now
+  const wxLine = $derived(rangeText ? t('trip weather {range}, {rain}', { range: rangeText, rain: rain === 'wet' ? t('rain') : t('dry') }) : '');
+  const placeOf = $derived.by(() => {
+    const slot = trip.entries?.find((e) => e.itemId === item.id)?.slot;
+    return !slot || slot === 'body' ? t('On me') : places.find((p) => p.key === slot)?.name ?? '';
+  });
+  let moving = $state(false);
   function pick(to) {
     el.close();
     onpick(to);
@@ -42,107 +48,109 @@
 </script>
 
 <dialog class="calm-sheet swap-sheet" bind:this={el} onclose={onclose} aria-labelledby="swap-h">
+  <!-- v0.105.0 Design-Refresh P5 (T7, approved 12.10.2026): «{piece} tauschen», the zone and the trip
+       weather in one line, «Jetzt auf der Liste», «Aus deinem Kleiderschrank» with «Tauschen» per row,
+       a hint box and the quiet actions at the bottom right. -->
   <header class="sh">
     <span class="st">
-      {#if kicker}<small class="kick">{kicker}</small>{/if}
-      <h2 id="swap-h">{t('Swap')}</h2>
-      <span class="facts num">
-        {#if rangeText}<span><Thermometer size={16} aria-hidden="true" />{rangeText}</span>{/if}
-        <span>{#if rain === 'wet'}<CloudRain size={16} aria-hidden="true" />{t('Rain')}{:else}<CloudSun size={16} aria-hidden="true" />{t('Dry|weather')}{/if}</span>
-        {#if trip.hours}<span><Clock3 size={16} aria-hidden="true" />{t('{n} h', { n: num(trip.hours) })}</span>{/if}
-      </span>
+      <h2 id="swap-h">{t('Swap {name}', { name: nameOf(item) })}</h2>
+      <span class="facts num">{[kicker, wxLine].filter(Boolean).join(' · ')}</span>
     </span>
-    <button type="button" class="x" aria-label={t('Close')} onclick={() => el.close()}><X size={22} aria-hidden="true" /></button>
+    <button type="button" class="x" aria-label={t('Close')} onclick={() => el.close()}><X size={20} aria-hidden="true" /></button>
   </header>
 
-  <div class="now">
-    <small>{t('On the list now')}</small>
-    <p class="row0"><span class="nm">{nameOf(item)}</span><span class="w num">{g(item)}</span></p>
-    <p class="tl"><TempBar {item} mark={range} width={84} /><small class="num">{range0(item)}</small>{#if !now.ok}<small class="why">{whyText(now.why)}</small>{/if}</p>
+  <h3 class="zh">{t('On the list now|swap')}</h3>
+  <div class="card now">
+    <span class="ic" aria-hidden="true"><Shirt size={18} /></span>
+    <span class="mid"><span class="nm">{nameOf(item)}</span><small class="num">{[range0(item) ? t('fits {range}', { range: range0(item) }) : '', !now.ok ? whyText(now.why) : '', placeOf].filter(Boolean).join(' · ')}</small></span>
+    <span class="w num">{g(item)}</span>
   </div>
 
+  <h3 class="zh">{t('From your wardrobe')}</h3>
+  <p class="zsub">{t('same zone and layer · sorted by fit')}</p>
   {#if !choices.fits.length && !choices.less.length}
-    <p class="empty">{t('No other piece of this zone and layer in your wardrobe yet.')}</p>
-  {/if}
-  {#if choices.fits.length}
-    <h3 class="zlabel">{rangeText ? t('Fits {range}', { range: rangeText }) : t('From your wardrobe')}</h3>
-    <ul class="alts">
-      {#each choices.fits as r, n (r.item.id)}
-        {@render alt(r, n === 0 && choices.fits.length > 1)}
-      {/each}
-    </ul>
-  {/if}
-  {#if choices.less.length}
-    <h3 class="zlabel">{t('Fits less')} · {choices.less.length}</h3>
-    <ul class="alts less">
-      {#each choices.less as r (r.item.id)}
-        {@render alt(r, false)}
-      {/each}
-    </ul>
+    <p class="card empty">{t('No other piece of this zone and layer in your wardrobe yet.')}</p>
+  {:else}
+    <div class="card list">
+      {#if choices.fits.length}
+        <ul class="alts">
+          {#each choices.fits as r, n (r.item.id)}
+            {@render alt(r, n === 0 && choices.fits.length > 1, n === 0)}
+          {/each}
+        </ul>
+      {/if}
+      {#if choices.less.length}
+        <p class="zlabel">{t('Fits less')} · {choices.less.length}</p>
+        <ul class="alts less">
+          {#each choices.less as r (r.item.id)}
+            {@render alt(r, false, false)}
+          {/each}
+        </ul>
+      {/if}
+    </div>
   {/if}
 
-  <footer class="sf">
-    <button type="button" class="btn" onclick={takeOff}><Minus size={18} aria-hidden="true" />{t('Leave it off')}</button>
-    <a class="btn" href={wardrobeHref} onclick={() => el.close()}><Shirt size={18} aria-hidden="true" />{t('Wardrobe')}</a>
-  </footer>
-  {#if places.length}
+  <p class="hint"><ArrowLeftRight size={16} aria-hidden="true" /><span>{t('One tap swaps and closes. Undo is in the message.')}</span></p>
+  {#if moving && places.length}
     <!-- the piece is not worn but packed (the jacket in the saddle bag): the old row menu's «Move to» -->
     <label class="mv"><span>{t('Pack it in')}</span><select class="sel" value="" onchange={(e) => e.currentTarget.value && move(e.currentTarget.value)}><option value="">{t('Choose a bag')}</option>{#each places as p (p.key)}<option value={p.key}>{p.name}</option>{/each}</select></label>
   {/if}
-  <p class="hint">{t('One tap swaps and closes. Undo is in the message.')}</p>
+  <footer class="sf">
+    <a class="btn btn-link" href={wardrobeHref} onclick={() => el.close()}>{t('Wardrobe')}</a>
+    {#if places.length}<button type="button" class="btn" aria-expanded={moving} onclick={() => (moving = !moving)}>{t('Choose another bag')}</button>{/if}
+    <button type="button" class="btn" onclick={takeOff}>{t('Leave it off')}</button>
+  </footer>
 </dialog>
 
-{#snippet alt(r, best)}
+{#snippet alt(r, best, first)}
   <li>
     <button type="button" class="alt" aria-label={t('Swap for {name}', { name: nameOf(r.item) })} onclick={() => pick(r.item.id)}>
-      <span class="ring" aria-hidden="true"></span>
+      <span class="ic" aria-hidden="true"><Shirt size={18} /></span>
       <span class="mid">
-        <span class="nm">{nameOf(r.item)}{#if best}<i class="pill ok best"><Star size={12} aria-hidden="true" />{t('fits best')}</i>{/if}</span>
-        <span class="tl"><TempBar item={r.item} mark={range} width={64} /><small class="num">{range0(r.item)}</small>{#if !r.fit.ok}<small class="why">{whyText(r.fit.why)}</small>{:else if r.mem}<small>{memText(r.mem)}{r.mem.n > 1 ? ` · ${r.mem.n}×` : ''}</small>{/if}</span>
+        <span class="nm">{nameOf(r.item)}{#if best}<i class="pill ok best">{t('fits best')}</i>{:else if !r.fit.ok}<i class="pill warn best">{t('fits less')}</i>{/if}</span>
+        <small class="num">{[range0(r.item) ? t('fits {range}', { range: range0(r.item) }) : '', !r.fit.ok ? whyText(r.fit.why) : r.mem ? `${memText(r.mem)}${r.mem.n > 1 ? ` · ${r.mem.n}×` : ''}` : ''].filter(Boolean).join(' · ')}</small>
       </span>
       <span class="w num">{g(r.item)}</span>
+      <span class="go" class:first aria-hidden="true">{t('Swap')}</span>
     </button>
   </li>
 {/snippet}
 
 <style>
-  .swap-sheet { max-width: 560px; padding: 18px 18px 14px; }
-  .sh { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .swap-sheet { max-width: 640px; padding: 20px 20px 16px; }
+  .sh { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 4px; }
   .st { flex: 1; min-width: 0; display: grid; gap: 2px; }
-  .kick { color: var(--ink-3); font: 600 var(--fs-label)/1.3 var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; }
-  .st h2 { margin: 0; font-size: var(--fs-section); }
-  .facts { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--ink-2); font-size: var(--fs-small); }
-  .facts span { display: inline-flex; align-items: center; gap: 5px; }
-  .facts :global(svg) { color: var(--ink-3); }
-  .x { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--paper-2); color: var(--ink); cursor: pointer; }
-  .now { padding: 10px 12px; border-radius: 10px; background: var(--paper-2); }
-  .now small { color: var(--ink-3); font-size: var(--fs-small); }
-  .now p { margin: 2px 0 0; }
-  .row0 { display: flex; align-items: baseline; gap: 10px; }
-  .row0 .nm { flex: 1; min-width: 0; font-weight: 600; overflow-wrap: break-word; }
+  .st h2 { margin: 0; font: 600 var(--fs-section) / 1.25 var(--font-body); overflow-wrap: break-word; }
+  .facts { color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
+  .x { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: var(--r-ctl); background: var(--paper-2); color: var(--ink); cursor: pointer; }
+  .zh { margin: 16px 0 8px; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
+  .zsub { margin: -6px 0 8px; color: var(--ink-2); font-size: var(--fs-small); }
+  .now { display: flex; align-items: center; gap: 12px; padding-top: 12px; padding-bottom: 12px; }
+  .list { padding-top: 4px; padding-bottom: 4px; }
+  .ic { display: grid; flex: none; place-items: center; width: 34px; height: 34px; border-radius: 8px; background: var(--paper-2); color: var(--ink-2); }
+  .mid { flex: 1; min-width: 0; display: grid; gap: 2px; }
+  .mid small { color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
+  .nm { font-weight: 500; overflow-wrap: break-word; }
+  .best { margin-left: 8px; vertical-align: 1px; font-style: normal; }
+  .w { flex: none; color: var(--ink); font-size: var(--fs-body); }
   .alts { list-style: none; margin: 0; padding: 0; }
-  .alts li { border-top: 1px solid var(--line); }
-  .alts li:first-child { border-top: 0; }
-  .alt { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 6px 4px; border: 0; border-radius: 8px; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
-  @media (hover: hover) { .alt:hover { background: var(--paper-2); } }
-  .ring { flex: none; width: 22px; height: 22px; border: 2px solid var(--line-strong); border-radius: 50%; box-sizing: border-box; }
-  .mid { flex: 1; min-width: 0; display: grid; gap: 4px; }
-  .nm { font-weight: 500; overflow-wrap: break-word; hyphens: auto; }
-  .best { margin-left: 8px; vertical-align: 1px; }
-  .tl { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
-  .tl small { color: var(--ink-3); font-size: var(--fs-small); }
-  .tl .why { color: var(--badge-ink); }
-  .w { flex: none; color: var(--ink-2); font-size: var(--fs-small); }
-  .less .alt { color: var(--ink-2); }
-  .less .nm { font-weight: 400; }
-  .empty { margin: 12px 0; color: var(--ink-2); }
-  .sf { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
-  .sf .btn { justify-content: center; gap: 8px; min-height: 48px; }
+  .alts li + li { border-top: 1px solid var(--line); }
+  .alt { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 8px 0; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+  .go { flex: none; display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: var(--r-ctl); background: var(--paper); color: var(--ink); font-weight: 500; font-size: var(--fs-small); }
+  .go.first { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); font-weight: 600; }
+  @media (hover: hover) { .alt:hover .go:not(.first) { background: var(--paper-2); } }
+  .zlabel { margin: 0; padding: 8px 0 4px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: var(--fs-small); font-weight: 600; }
+  .alts:first-child + .zlabel, .zlabel:first-child { border-top: 0; }
+  .empty { margin: 0; color: var(--ink-2); }
+  .hint { display: flex; align-items: flex-start; gap: 10px; margin: 12px 0 0; padding: 10px 12px; border-radius: var(--r-ctl); background: var(--paper-2); color: var(--ink-2); font-size: var(--fs-small); }
+  .hint :global(svg) { flex: none; margin-top: 2px; }
   .mv { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 10px; color: var(--ink-2); font-size: var(--fs-small); }
   .mv select { flex: 1 1 10em; min-width: 0; min-height: 44px; }
-  .hint { margin: 8px 0 0; text-align: center; color: var(--ink-3); font-size: var(--fs-small); }
+  .sf { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+  .sf .btn-link { margin-right: auto; }
   @media (max-width: 719px) {
     /* a sheet from the bottom on a phone, thumb height */
-    .swap-sheet { margin: auto 0 0; width: 100vw; max-width: 100vw; max-height: 88dvh; border-radius: 16px 16px 0 0; border-bottom: 0; box-sizing: border-box; }
+    .swap-sheet { margin: auto 0 0; width: 100vw; max-width: 100vw; max-height: 88dvh; border-radius: 16px 16px 0 0; border-bottom: 0; box-sizing: border-box; padding: 16px; }
   }
+  @media (max-width: 389px) { .go { display: none; } }
 </style>
