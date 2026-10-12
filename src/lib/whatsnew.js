@@ -11,8 +11,8 @@
 
 export const WHATS_NEW = [
   {
-    // 0.114.1 (UI-Prüfung A1): an old debrief without its item list opened an empty page.
-    version: '0.114.1',
+    // 0.115.1 (UI-Prüfung A1): an old debrief without its item list opened an empty page.
+    version: '0.115.1',
     date: '2026-10-13',
     title: 'Old trips open again',
     lead: 'The debrief of an older trip opened an empty page; now it opens like any other.',
@@ -25,6 +25,23 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.115.0 Menü-Fix (Noah 12.10.2026): a ••• menu closes with one tap outside it.
+    version: '0.115.0',
+    date: '2026-10-12',
+    title: 'Menus close easily',
+    lead: 'A tap next to an open ••• menu closes it, you no longer have to hit ••• a second time.',
+    points: [
+      { text: 'A ••• menu now closes with one tap anywhere next to it, for example at the problems in Bike care.', href: '#/bikes?tab=care' },
+      { text: 'The same for the ••• of the packing list and of the trips in progress: one tap next to it is enough.', href: '#/pack' },
+    ],
+    test: [
+      'Open Bikes › Care and tap ••• at a problem.',
+      'Tap anywhere next to the menu: it closes at once.',
+      'Tap ••• and pick an answer: it still works.',
+    ],
+  },
+  {
+    // v0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check (mockups V1–V6)
     // v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved).
     version: '0.114.0',
     date: '2026-10-12',

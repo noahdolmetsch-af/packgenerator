@@ -10,6 +10,7 @@
    */
   import { ChevronRight, Check, Ellipsis } from '@lucide/svelte';
   import { inView } from '../ui/inview.js';
+  import { away } from '../ui/away.js';
   import { t, locale } from '../i18n.svelte.js';
   import { rowActions, hasWork } from '../drafts.js';
 
@@ -63,7 +64,7 @@
           </span>
           {#if !cur}<ChevronRight class="chev" size={18} aria-hidden="true" />{:else}<span class="chev" aria-hidden="true"></span>{/if}
         </a>
-        <div class="mw">
+        <div class="mw" use:away={() => menu === row.id && (menu = null)}>
           <button type="button" class="more" aria-label={t('More for {title}', { title: row.title })} aria-haspopup="menu" aria-expanded={menu === row.id} onkeydown={menuKey} onclick={() => (menu = menu === row.id ? null : row.id)}><Ellipsis size={20} aria-hidden="true" /></button>
           {#if menu === row.id}
             <div class="menu" role="menu" use:inView>

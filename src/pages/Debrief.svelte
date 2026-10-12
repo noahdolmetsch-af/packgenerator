@@ -164,7 +164,7 @@
     x.amount ??= 'right';
     x.bags ??= 'fine';
     x.applied ??= []; // v0.40.0: an imported debrief may come without it
-    // 0.114.1 (UI-Prüfung A1): an old backup's debrief can lack the item list; the page stayed empty
+    // 0.115.1 (UI-Prüfung A1): an old backup's debrief can lack the item list; the page stayed empty
     x.items ??= {};
     x.missing ??= [];
     if (x.km == null && bike && trip.route?.km) x.km = Math.round(trip.route.km);

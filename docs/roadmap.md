@@ -513,9 +513,10 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 13.10.2026 (v0.114.1, PR #140):** Fehler-Fix aus der UI-Prüfung: alte Rückblicke ohne Teileliste öffnen wieder. Die übrigen Befunde fahren in Bündel A (Zahlen, Heute, Kleinkram) und C (Unterwegs) mit (Noah «1a 2a 3a 4a 5a»).
+**Nachtrag 13.10.2026 (v0.115.1, PR #140):** Fehler-Fix aus der UI-Prüfung: alte Rückblicke ohne Teileliste öffnen wieder. Die übrigen Befunde fahren in Bündel A (Zahlen, Heute, Kleinkram) und C (Unterwegs) mit (Noah «1a 2a 3a 4a 5a»).
 
-**Nachtrag 12.10.2026 (v0.114.0, PR offen):** «Rahmenbedingungen» (B1–B3): neues Fenster für eine neue Tour mit Sportart, Wetter aus der PLZ, Event-Hinweis, Vorlagen als Knöpfe ohne «Letzte Tour» und der Packliste in vier Gruppen; Reparatur und Laden nicht mehr von selbst. Als Nächstes Release 2 (B4 Bausteine beim Packen, B5 «Reparatur unterwegs») nach #131.
+**Nachtrag 12.10.2026 (v0.115.0, live):** Menü-Fix: jedes •••-Menü schliesst mit einem Tipp daneben (Velopflege › Probleme, Velo-Check, Packliste, laufende Touren).
+**Nachtrag 12.10.2026 (v0.114.0, live):** «Rahmenbedingungen» (B1–B3): neues Fenster für eine neue Tour mit Sportart, Wetter aus der PLZ, Event-Hinweis, Vorlagen als Knöpfe ohne «Letzte Tour» und der Packliste in vier Gruppen; Reparatur und Laden nicht mehr von selbst. Als Nächstes Release 2 (B4 Bausteine beim Packen, B5 «Reparatur unterwegs») nach #131.
 
 **Nachtrag 12.10.2026 (v0.111.0, PR offen):** «Bausteine bearbeiten» Teil 1 nach den Mockups V1–V6 (Noah «v1-v4 ok», «v5-6 ok»): Vorabend-Check als Zeile auf «Gepackt» mit Fenster, Schluss-Check unter «Bevor du auspackst», «Liste anpassen» für diese Tour oder alle der Reiseart, neue Seite Ich › Checks pro Reiseart. Danach C «Meist vergessen», D+E Temperaturbereich und Learnings, F Regel-Editor (Release 2).
 

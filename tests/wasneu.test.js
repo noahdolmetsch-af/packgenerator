@@ -63,7 +63,8 @@ describe('the list and its sorts', () => {
     const by = Object.fromEntries(rows.map((r) => [r.id, r]));
     expect(by.backup).toMatchObject({ n: 5, used: true, state: 'used' });
     expect(by.care).toMatchObject({ n: 0, used: true, state: 'used' });
-    expect(by['f.tripcheck'].state).toBe('new');
+    // «What is new» (0.110.0) is no longer new, one never tried now
+    expect(by['f.news'].state).toBe('never');
     expect(by['f.theft'].state).toBe('never');
     for (const r of rows) {
       expect(FEATURE_GROUPS.some((g) => g.key === r.group), r.id).toBe(true);
