@@ -864,7 +864,7 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 
 ## 12.10.2026: Menü-Fix (0.113.0)
 
-Noah 12.10.2026 22:22: «erst bei zweitem Klick geht Menü wieder weg», dringend.
+Noah 12.10.2026 22:22: «erst bei zweitem Klick geht Menü wieder weg», dringend. Vorher/Nachher freigegeben 23:02 «menü fix freigeben».
 
 - Jedes •••-Menü schliesst mit einem Tipp daneben, überall gleich (`ui/away.js`, wie schon `tpl/Menu.svelte`). Der Tipp daneben wird nicht verschluckt: Er tut auch, was er trifft.
 - **Selbst entschieden:** nur Verhalten, kein neues Aussehen; Material und Kleiderschrank (eigene Lösung mit Klick daneben) bleiben, wie sie sind.
