@@ -17,6 +17,7 @@
   import { shopSkip } from './last.js';
   import BikeCare from './BikeCare.svelte';
   import CareOverview from './CareOverview.svelte';
+  import ProblemList from './ProblemList.svelte';
   import StartValues from './StartValues.svelte';
   import StartPointDialog from './StartPointDialog.svelte';
   import { partStart } from '../kmbook.js';
@@ -467,7 +468,10 @@
           <button type="button" class="chip" aria-pressed={filter === k} onclick={() => setFilter(k)}>{t(label)}</button>
         {/each}
       </div>
-      <div class="per-bike">{@render bikeCare(openC)}</div>
+      <!-- keyed: another bike is a fresh page (no part row left open from the bike before) -->
+      <section class="per-bike" aria-label={t('Each bike')}>{#key openC.bike.id}{@render bikeCare(openC)}{/key}</section>
+      <!-- The problems of this bike stay on its page (the overview lists those of every bike). -->
+      <ProblemList repairs={allBikeProblems.filter((x) => taskBike(x) === openC.bike.id)} bikes={[openC.bike]} {today} bikeIdOf={taskBike} onrepair={repairResult} />
       {#if checks.length > 1}
         <section class="per-bike others" aria-labelledby="others-h">
           <h2 id="others-h" class="oh">{t('Other bikes')}</h2>
