@@ -2,7 +2,6 @@
 // «Gepackt» and Unterwegs.
 export default {
   // T6 Packen
-  '{n} of {total} packed': '{n} von {total} gepackt',
   'tap a bag': 'tippe eine Tasche',
   '{done} of {n} · a full bag jumps to the next one': '{done} von {n} · eine volle Tasche springt zur nächsten',
   'Weight by bag': 'Gewicht nach Taschen',
@@ -32,6 +31,11 @@ export default {
   '{trip} · all packed': '{trip} · fertig gepackt',
   '{kg} kg in {n} bag': '{kg} kg in {n} Tasche',
   '{kg} kg in {n} bags': '{kg} kg in {n} Taschen',
+  // T12 Unterwegs
+  'All blocks of the day': 'Alle Blöcke des Tages',
+  'Start and finish of the day': 'Start und Ziel des Tages',
+  'lands in the debrief and in the Inbox': 'landet im Rückblick und im Eingang',
+  'Every evening on the way': 'Jeden Abend unterwegs',
   // T10 Tour-Fakten
   'What the suggestions are based on. Every change can be undone.': 'Was die Vorschläge bestimmt. Jede Änderung lässt sich rückgängig machen.',
 };

@@ -35,7 +35,7 @@
   import { endTrip as endTripNow, reopenTrip } from '../lib/trip/ending.js';
   import EndTripSheet from '../lib/trip/EndTripSheet.svelte';
   import '../lib/trip/trip.css';
-  import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, BatteryCharging } from '@lucide/svelte';
+  import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -346,6 +346,8 @@
   const kicker = $derived(!trip ? '' : tripStarted ? (days > 1 ? t('On the way · day {n} of {total}', { n: cur + 1, total: days }) : t('On the way|step')) : t('On the way · from {date}', { date: dateOf(0) }));
   // Opened once when shown; afterwards it stays as you leave it.
   const openOnce = (node, open) => { node.open = open; };
+  // v0.105.0 P5 (T12): «So wird gerechnet» opens under the heading
+  let how = $state(false);
   const goNote = () => document.getElementById('note-h')?.scrollIntoView({ block: 'center' });
 
   // Keep the screen on while the page is open (where the browser allows it).
@@ -384,7 +386,7 @@
   {#if ahead}
     <!-- v0.67.0 (U002, Ü4a): before the start On the way is a calm waiting state, not a loop back to Pack. -->
     {@const n = daysFrom(today, trip.startDate)}
-    <section class="tp-card wait" aria-labelledby="wait-h">
+    <section class="card wait" aria-labelledby="wait-h">
       <span class="dbox" aria-hidden="true"><small>{new Date(`${trip.startDate}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short' })}</small><b class="num">{new Date(`${trip.startDate}T12:00:00`).getDate()}</b></span>
       <div>
         <h2 id="wait-h">{n === 1 ? t('Start tomorrow') : tn(n, 'Start in {n} day', 'Start in {n} days')}</h2>
@@ -396,9 +398,12 @@
     <!-- v0.67.0 (U005): ended by mistake? Until the next day it can be taken back. -->
     <p class="tp-status reopen">{t('Trip ended.')} <button type="button" class="tp-link" onclick={() => reopenTrip($state.snapshot(trip))}>{t('Still on the way? Reopen the trip')}</button></p>
   {/if}
-  {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} />{/if}
+  <!-- v0.105.0 Design-Refresh P5 (T12 «Unterwegs», approved 12.10.2026): left the base check, the days, the
+       day in blocks with the block of now and the weather hour by hour; right the note for the debrief,
+       tonight's charging and «Mehr» (what is where, the evening, the stage). -->
   <div class="tp-grid2 r">
     <div class="col">
+      {#if !trip.finished && !Array.isArray(trip.packs)}<BaseCheck {trip} {bike} />{/if}
       <!-- Noah 7a: the days, then the block of now, on top. -->
       <div class="days">
         {#if days > 1}
@@ -412,198 +417,207 @@
       </div>
 
       {#if nowB}
-        <section class="tp-card now" aria-labelledby="now-h">
-          <div class="nowh">
-            <div>
-              <p class="tt">{isNow ? t('Now') : nowIdx === 0 ? t('First block') : t('Last block')} · {t('Block {n} of {total}', { n: nowIdx + 1, total: rows.length })}</p>
-              <h2 id="now-h" class="num">{t('{span} h', { span: span(nowB) })}</h2>
-              <span class="tp-muted tp-small num">{nowB.rest ? t('stop at km {km}', { km: nowB.kmTo }) : where(nowB)}{nowB.name && !/^(Block|Etappe) \d/.test(nowB.name) ? ` · ${nowB.name}` : ''}</span>
+        <section class="now" aria-labelledby="now-h">
+          <div class="shead">
+            <div class="sht">
+              <h2 id="now-h" class="sh">{t('The day in blocks')}</h2>
+              <p class="tt num">{isNow ? t('Now') : nowIdx === 0 ? t('First block') : t('Last block')} · {t('Block {n} of {total}', { n: nowIdx + 1, total: rows.length })} · {t('{span} h', { span: span(nowB) })} · {nowB.rest ? t('stop at km {km}', { km: nowB.kmTo }) : where(nowB)}{nowB.name && !/^(Block|Etappe) \d/.test(nowB.name) ? ` · ${nowB.name}` : ''}</p>
             </div>
-            {#if nowB.temp}<div class="wxp"><b class="num">{tempText(nowB)}</b>{nowB.wet ? t('rain likely') : t('dry')}{#if nowB.wxFrom === 'trip'}<small>{t('trip weather')}</small>{/if}</div>{/if}
+            <button type="button" class="tp-link howb" aria-expanded={how} onclick={() => (how = !how)}>{t('How this is worked out')}<ChevronRight size={16} aria-hidden="true" /></button>
           </div>
-          {#if nowB.note}<p class="bn tp-small">{nowB.note}</p>{/if}
-          {#if !nowB.rest}
-            <ul class="do">
-              <li><span class="k"><Shirt size={20} aria-hidden="true" /></span><div><span class="lab">{t('Wear')}</span><span class="val">{wearText(nowB, nowIdx)}</span></div></li>
-              <li><span class="k"><Utensils size={20} aria-hidden="true" /></span><div><span class="lab">{t('Eat')}</span><span class="val">{foodText(nowB)}</span>{#if nowB.food.some((f) => f.short)}<small class="warn">{t('Not enough on the bike: from here on, buy {list} on the way', { list: nowB.food.filter((f) => f.short).map((f) => `${f.short} × ${f.name}`).join(', ') })}</small>{/if}</div></li>
-              <li><span class="k"><Droplet size={20} aria-hidden="true" /></span><div><span class="lab">{t('Drink')}</span><span class="val num">{t('about {n} L to drink', { n: num(nowB.drinkL) })}{#if refillText(nowB)} <small>· {refillText(nowB)}</small>{/if}</span></div></li>
-              <li><span class="k"><Lightbulb size={20} aria-hidden="true" /></span><div><span class="lab">{t('Light')}</span><span class="val" class:warn={nowB.light && !bp.lights.length}>{lightText(nowB)}{#if !nowB.light && sunset} <small>· {t('Sunset {time}', { time: sunset })}</small>{:else if nowB.light && !bp.lights.length} <small>· {t('no light on this trip')}</small>{:else if nowB.light} <small>· {names(bp.lights)}</small>{/if}</span></div></li>
-            </ul>
+          {#if how}
+            <p class="tp-muted tp-small howp">{nonstop && trip.plan?.schedule?.length ? t('Your time plan from the logbook.') : t('Blocks of 3 hours.')} {#if st.km}{t('km at {kmh} km/h, the same guess as the riding time', { kmh: Math.round((st.km / st.hours) * 10) / 10 })}{pace.mine ? ` ${tn(pace.n, '(your pace from {n} ride)', '(your pace from {n} rides)')}` : ''}.{:else}{st.hoursGuess ? t('No route and no riding hours: {n} h assumed from the start.', { n: st.hours }) : t('No route: {n} h riding from the start (riding hours of the trip).', { n: num(st.hours) })}{/if} {t('Drinking {l} L per hour ({hot} L from {c} °C) is a guess', { l: DRINK_L_PER_H, hot: DRINK_L_PER_H + HOT_EXTRA_L, c: HOT_C })}{bp.capL ? t('; your bottles hold {n} L', { n: Math.round(bp.capL * 10) / 10 }) : t('; no bottle on this trip')}. {t('Sunset and sunrise are computed for the start of the day.')}{saved ? '' : ` ${t('Load the forecast below for the weather per block.')}`}</p>
           {/if}
+          <div class="card nowc">
+            {#if nowB.temp}<p class="wxp"><b class="num">{tempText(nowB)}</b> · {nowB.wet ? t('rain likely') : t('dry')}{#if nowB.wxFrom === 'trip'}<small>{' · '}{t('trip weather')}</small>{/if}</p>{/if}
+            {#if nowB.note}<p class="bn tp-small">{nowB.note}</p>{/if}
+            {#if !nowB.rest}
+              <ul class="do">
+                <li><span class="k"><Shirt size={18} aria-hidden="true" /></span><div><span class="lab">{t('Wear')}</span><span class="val">{wearText(nowB, nowIdx)}</span></div></li>
+                <li><span class="k"><Utensils size={18} aria-hidden="true" /></span><div><span class="lab">{t('Eat')}</span><span class="val">{foodText(nowB)}</span>{#if nowB.food.some((f) => f.short)}<small class="warn">{t('Not enough on the bike: from here on, buy {list} on the way', { list: nowB.food.filter((f) => f.short).map((f) => `${f.short} × ${f.name}`).join(', ') })}</small>{/if}</div></li>
+                <li><span class="k"><Droplet size={18} aria-hidden="true" /></span><div><span class="lab">{t('Drink')}</span><span class="val num">{t('about {n} L to drink', { n: num(nowB.drinkL) })}{#if refillText(nowB)}{' '}<small>· {refillText(nowB)}</small>{/if}</span></div></li>
+                <li><span class="k"><Lightbulb size={18} aria-hidden="true" /></span><div><span class="lab">{t('Light')}</span><span class="val" class:warn={nowB.light && !bp.lights.length}>{lightText(nowB)}{#if !nowB.light && sunset}{' '}<small>· {t('Sunset {time}', { time: sunset })}</small>{:else if nowB.light && !bp.lights.length}{' '}<small>· {t('no light on this trip')}</small>{:else if nowB.light}{' '}<small>· {names(bp.lights)}</small>{/if}</span></div></li>
+              </ul>
+            {/if}
+          </div>
         </section>
         {#if nextB}
-          <div class="tp-card after"><span class="tt num">{t('Then {span}', { span: span(nextB) })}</span><div class="tp-small">{nextB.rest ? t('stop at km {km}', { km: nextB.kmTo }) : [wearText(nextB, nowIdx + 1), foodText(nextB), t('about {n} L to drink', { n: num(nextB.drinkL) }), nextB.light ? lightText(nextB) : ''].filter(Boolean).join(' · ')}</div></div>
+          <p class="after"><span class="tt num">{t('Then {span}', { span: span(nextB) })}</span><span class="tp-small">{nextB.rest ? t('stop at km {km}', { km: nextB.kmTo }) : [wearText(nextB, nowIdx + 1), foodText(nextB), t('about {n} L to drink', { n: num(nextB.drinkL) }), nextB.light ? lightText(nextB) : ''].filter(Boolean).join(' · ')}</span></p>
         {/if}
-      {:else if !st.km}
-        <p class="tp-card tp-muted">{t('No route yet. Load the GPX in')} <a href="#/pack">{t('Plan|stage')}</a> {t('under "Trip conditions" (••• menu).')}</p>
-      {/if}
-
-      {#if eve}
-        <!-- v0.34.0 (L8): the evening, folded; it opens by itself once the day's riding is over. -->
-        <details class="tp-fold eve" use:openOnce={!!st.endAt && clock >= st.endAt}>
-          <summary><Moon size={20} aria-hidden="true" /><span id="eve-h">{t('Evening')}</span><span class="r">{#if eve.overnight}<i class="tp-badge">{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}</i>{/if}{#if eve.charge.length}<i class="tp-badge num" class:ok={eveCharged.done === eveCharged.total}>{t('Charge {done}/{n}', { done: eveCharged.done, n: eveCharged.total })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-          <ul class="do">
-            <li><span class="k"><BedDouble size={20} aria-hidden="true" /></span><div><span class="lab">{t('Night')}</span><span class="val">{#if eve.overnight}{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}{:else}<span class="tp-muted">{t('Not set')}</span>{' '}<small>· <a href="#/pack" onclick={() => openTrip(trip.id)}>{t('Set it in Plan')}</a></small>{/if}</span></div></li>
-            <li><span class="k"><BatteryCharging size={20} aria-hidden="true" /></span><div><span class="lab">{t('Charge tonight')}</span><ChargeList {trip} {items} night={eve.date} /></div></li>
-            <li><span class="k"><Shirt size={20} aria-hidden="true" /></span><div><span class="lab">{t('Lay out for tomorrow')}</span><span class="val">{eve.layOut.length ? names(eve.layOut) : eve.everyRide ? t('Every-ride clothes') : t('Not known yet')}</span></div></li>
-            <li><span class="k"><CloudSun size={20} aria-hidden="true" /></span><div><span class="lab">{t('Tomorrow morning')}</span>
-              {#if eve.morning}<span class="val num">{t('{span} h', { span: span(eve.morning) })}{#if eve.morning.temp}{` · ${tempText(eve.morning)} · ${eve.morning.wet ? t('rain likely') : t('dry')}`}{/if}{#if eve.morning.wxFrom === 'trip'}{' '}<small>· {t('trip weather')}</small>{:else if !eve.morning.temp}{' '}<small>· {t('no weather yet')}</small>{/if}</span>
-              {:else}<span class="val tp-muted">{t('Not known yet')}</span>{/if}
-              {#if nextSt?.date && !nextSaved && !nextTooEarly && (nextSt.from ?? trip.place)}<button type="button" class="tp-link" disabled={nextBusy || !online} onclick={loadNextWx}>{nextBusy ? t('Loading …') : t("Load tomorrow's forecast")}</button>{/if}
-              {#if nextMsg}<small class="warn" role="status">{nextMsg}</small>{/if}
-            </div></li>
-          </ul>
-        </details>
-      {/if}
-    </div>
-
-    <div class="col">
-      <!-- Noah 8a: quick notes for the debrief: two taps, no typing. -->
-      <section class="tp-card" aria-labelledby="note-h">
-        <h2 id="note-h"><Pencil size={18} aria-hidden="true" />{t('Note for the debrief')}</h2>
-        <div class="tp-chips qn" role="group" aria-label={t('Quick note')}>
-          {#each DEBRIEF_KINDS as k (k.key)}
-            <button type="button" class="tp-chip" aria-pressed={quick === k.key} aria-expanded={quick === k.key} onclick={() => (quick = quick === k.key ? null : k.key)}>{#if k.key === 'missing'}<Plus size={16} aria-hidden="true" />{:else if k.key === 'unused'}<Minus size={16} aria-hidden="true" />{:else}<X size={16} aria-hidden="true" />{/if}{t(k.name)}</button>
-          {/each}
-          <button type="button" class="tp-chip quiet" aria-pressed={quick === 'text'} aria-expanded={quick === 'text'} onclick={() => (quick = quick === 'text' ? null : 'text')}><Mic size={16} aria-hidden="true" />{t('Free text')}</button>
-        </div>
-        {#if quick === 'unused' || quick === 'broken'}
-          <div class="pick" role="group" aria-label={quick === 'unused' ? t('What did you not need?') : t('What broke?')}>
-            <p class="tp-small tp-muted">{quick === 'unused' ? t('What did you not need?') : t('What broke?')}</p>
-            {#each bags as z (z.key)}
-              <span class="lbl">{placeName(trip, z)}</span>
-              <div class="tp-chips">{#each z.entries.filter((e) => itemsById[e.itemId]) as e (e.itemId)}<button type="button" class="tp-chip" onclick={() => quickItem(quick, itemsById[e.itemId])}>{nameOf(itemsById[e.itemId])}</button>{/each}</div>
-            {/each}
-          </div>
-        {:else if quick === 'missing'}
-          <form class="noteform" onsubmit={quickMissing}>
-            <input class="inp" list="ride-gear" bind:value={missName} placeholder={t('What was missing, e.g. Chamois cream')} aria-label={t('What was missing')} />
-            <datalist id="ride-gear">{#each notOnTrip as i (i.id)}<option value={nameOf(i)}></option>{/each}</datalist>
-            <button type="submit" class="btn ink" disabled={!missName.trim()}>{t('Save note')}</button>
-          </form>
-        {:else if quick === 'text'}
-          <form class="noteform" onsubmit={saveNote}>
-            <textarea class="inp" rows="2" bind:value={note} placeholder={t('e.g. Puncture at km 80, the rain gloves were too thin')} aria-label={t('Note for the debrief')}></textarea>
-            <button type="submit" class="btn ink" disabled={!note.trim()}>{t('Save note')}</button>
-          </form>
-        {/if}
-        <p class="ok tp-small" role="status">{noteMsg}</p>
-        {#if notes.length}
-          <ul class="notes">
-            {#each notes as n (n.key)}
-              <li><i class="tp-badge num">{days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{time(n.at)}</i><span>{n.text}</span><button type="button" class="tp-link" onclick={() => dropNote(n)} aria-label={t('Remove this note')}>{t('Remove')}</button></li>
-            {/each}
-          </ul>
-        {/if}
-      </section>
-
-      {#if bp}
         <!-- v0.19.5 (answer 4b): every block with clothing, food and drink, light; the current one marked. -->
-        <section class="tp-card" aria-labelledby="blocks-h">
-          <h2 id="blocks-h"><Clock size={18} aria-hidden="true" />{t('The day in blocks')}<span class="r">{nonstop && trip.plan?.schedule?.length ? t('your time plan') : t('3 h each')}</span></h2>
-          <ol class="timeline blocks">
-            <!-- v0.40.0 (design check R2): one short line per block (time · °C · one word); the whole
-                 block (clothes, food, drink, light) opens with a tap, so the Now card is not repeated. -->
-            {#each bp.rows as b, n (b.startAt)}
-              {@const key = keyword(b, n)}
-              <li class:cur={n === nowIdx} class:rest={b.rest} aria-current={n === nowIdx && isNow ? 'time' : undefined}>
-                <details>
-                  <summary><span class="num tm">{dayName(b.startAt)} {span(b)}</span><span class="one"><b class="num">{b.rest ? t('stop at km {km}', { km: b.kmTo }) : where(b)}</b>{#if b.temp}{' · '}<span class="num">{tempText(b)}</span>{/if}{#if key}{' · '}{key}{/if}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
-                  {#if !b.rest}<p class="full">{wearText(b, n)} · {foodText(b)} · {t('about {n} L to drink', { n: num(b.drinkL) })}{#if refillText(b)}{' · '}{refillText(b)}{/if}{#if b.light}{' · '}{lightText(b)}{/if}</p>{/if}
-                  {#if b.note}<small>{b.note}</small>{/if}
-                </details>
-              </li>
-            {/each}
-          </ol>
-          <details class="how">
-            <summary>{t('How this is worked out')}</summary>
-            <p class="tp-muted tp-small">{nonstop && trip.plan?.schedule?.length ? t('Your time plan from the logbook.') : t('Blocks of 3 hours.')} {#if st.km}{t('km at {kmh} km/h, the same guess as the riding time', { kmh: Math.round((st.km / st.hours) * 10) / 10 })}{pace.mine ? ` ${tn(pace.n, '(your pace from {n} ride)', '(your pace from {n} rides)')}` : ''}.{:else}{st.hoursGuess ? t('No route and no riding hours: {n} h assumed from the start.', { n: st.hours }) : t('No route: {n} h riding from the start (riding hours of the trip).', { n: num(st.hours) })}{/if} {t('Drinking {l} L per hour ({hot} L from {c} °C) is a guess', { l: DRINK_L_PER_H, hot: DRINK_L_PER_H + HOT_EXTRA_L, c: HOT_C })}{bp.capL ? t('; your bottles hold {n} L', { n: Math.round(bp.capL * 10) / 10 }) : t('; no bottle on this trip')}. {t('Sunset and sunrise are computed for the start of the day.')}{saved ? '' : ` ${t('Load the forecast below for the weather per block.')}`}</p>
-          </details>
-          {#if nonstop && planHours(trip) > st.hours + 1}<p class="tp-small warn">{t('Your time plan has {plan} h of riding, the route about {route} h. The plan ends where the route ends; is the GPX the whole route?', { plan: Math.round(planHours(trip)), route: st.hours })}</p>{/if}
-        </section>
-      {/if}
-
-      <!-- Answer 4a: the day's stage: start time, nonstop, profile. -->
-      <!-- v0.30.1 (Noah C1): also without a route, for the start time of the day. -->
-      {#if st.km || st.hours}
-      <details class="tp-fold" use:openOnce={!bp}>
-        <summary><RouteIcon size={20} aria-hidden="true" /><span>{nonstop ? t('Nonstop') : days > 1 ? t('Stage {n}', { n: cur + 1 }) : t('Stage')}</span><span class="r num">{st.hours ? `${t('Start')} ${st.start}` : ''}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-        <div class="in">
-          {#if st.km}
-            <label class="ns"><input type="checkbox" checked={nonstop} onchange={(e) => setNonstop(e.currentTarget.checked)} /> {t('Nonstop: one stage through the night')}</label>
-            <div class="nums">
-              <div><b class="num">{num(st.km)}</b><span>km</span></div>
-              <div><b class="num">{st.gainM ?? '–'}</b><span>{t('m up')}</span></div>
-              <div><b class="num">{st.hours}</b><span>{t('h riding')}</span></div>
-            </div>
-            <div class="times">
-              <label>{t('Start')} <input class="inp" type="time" value={st.start} onchange={(e) => setStart(e.currentTarget.value)} /></label>
-              <p>{t('Arrive about')} <b class="num">{st.arrive}</b> <small>{pace.mine ? t('without breaks, at your pace') : t('without breaks')}</small></p>
-              {#if pace.stops && st.hours}<p>{t('With your usual stops')} <b class="num">{addTime(st.start, st.hours * pace.stops)}</b></p>{/if}
-            </div>
-            {#if prof}<div class="prof"><Profile points={prof.points} from={days > 1 ? prof.from : null} to={prof.to} label={days > 1 ? t('Elevation, stage {n} dark', { n: cur + 1 }) : t('Elevation')} /></div>
-            {:else}<p class="tp-muted tp-small">{t('Load the GPX again in Pack to see the elevation profile.')}</p>{/if}
-            {#if days > 1 && !nonstop}<p class="tp-muted tp-small">{prof ? t('The route is shared out evenly over {n} days (dark: this stage).', { n: days }) : t('The route is shared out evenly over {n} days.', { n: days })}</p>{/if}
-          {:else}
-            <div class="times">
-              <label>{t('Start')} <input class="inp" type="time" value={st.start} onchange={(e) => setStart(e.currentTarget.value)} /></label>
-              <p>{t('Back about')} <b class="num">{st.arrive}</b> <small>{st.hoursGuess ? t('{n} h assumed', { n: num(st.hours) }) : t('{n} h riding', { n: num(st.hours) })}</small></p>
-            </div>
-            <p class="tp-muted">{t('No route yet. Load the GPX in')} <a href="#/pack">{t('Plan|stage')}</a> {t('under "Trip conditions" (••• menu).')}</p>
-          {/if}
-        </div>
-      </details>
+        <details class="tp-fold allb">
+          <summary><Clock size={20} aria-hidden="true" /><span id="blocks-h">{t('All blocks of the day')}</span><span class="r">{nonstop && trip.plan?.schedule?.length ? t('your time plan') : t('3 h each')}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <div class="in">
+            <ol class="timeline blocks">
+              <!-- v0.40.0 (design check R2): one short line per block (time · °C · one word); the whole
+                   block (clothes, food, drink, light) opens with a tap, so the Now card is not repeated. -->
+              {#each bp.rows as b, n (b.startAt)}
+                {@const key = keyword(b, n)}
+                <li class:cur={n === nowIdx} class:rest={b.rest} aria-current={n === nowIdx && isNow ? 'time' : undefined}>
+                  <details>
+                    <summary><span class="num tm">{dayName(b.startAt)} {span(b)}</span><span class="one"><b class="num">{b.rest ? t('stop at km {km}', { km: b.kmTo }) : where(b)}</b>{#if b.temp}{' · '}<span class="num">{tempText(b)}</span>{/if}{#if key}{' · '}{key}{/if}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+                    {#if !b.rest}<p class="full">{wearText(b, n)} · {foodText(b)} · {t('about {n} L to drink', { n: num(b.drinkL) })}{#if refillText(b)}{' · '}{refillText(b)}{/if}{#if b.light}{' · '}{lightText(b)}{/if}</p>{/if}
+                    {#if b.note}<small>{b.note}</small>{/if}
+                  </details>
+                </li>
+              {/each}
+            </ol>
+            {#if nonstop && planHours(trip) > st.hours + 1}<p class="tp-small warn">{t('Your time plan has {plan} h of riding, the route about {route} h. The plan ends where the route ends; is the GPX the whole route?', { plan: Math.round(planHours(trip)), route: st.hours })}</p>{/if}
+          </div>
+        </details>
+      {:else if !st.km}
+        <p class="card tp-muted noroute">{t('No route yet. Load the GPX in')} <a href="#/pack">{t('Plan|stage')}</a> {t('under "Trip conditions" (••• menu).')}</p>
       {/if}
 
       <!-- Answer 3a: the weather hour by hour, start and finish. Answer 5a: saved for offline. -->
-      <details class="tp-fold wxfold">
-        <summary><CloudSun size={20} aria-hidden="true" /><span id="wx-h">{t('Weather hour by hour')}</span><span class="r">{saved ? ageText(saved.fetchedAt) : ''}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-        <div class="in">
+      <section class="wxs" aria-labelledby="wx-h">
+        <h2 id="wx-h" class="sh">{t('Weather hour by hour')}</h2>
+        <p class="ssub">{saved ? t('Loaded {ago}', { ago: ageText(saved.fetchedAt) }) : t('Start and finish of the day')}{online ? '' : ` · ${t('offline')}`}</p>
+        <div class="card wxc">
           {#if !wxPlaces.length}
             <p class="tp-muted">{t('No place yet. Add the start place or the GPX in')} <a href="#/pack">{t('Plan|stage')}</a>.</p>
           {:else if tooEarly && !saved}
             <p class="tp-muted">{t('The hourly forecast comes {n} days before the day.', { n: FORECAST_DAYS })}</p>
           {:else}
             {#if saved}
-              <div class="wx">
-                {#each saved.places as p (p.name)}
-                  {@const hrs = rideHours(p.hours, st.startAt, st.endAt)}
-                  <div class="wxp2">
-                    <h3>{t(p.name)}</h3>
-                    <p class="sum">{wxSummary(hrs)}</p>
-                    <table>
-                      <thead><tr><th>h</th><th>°C</th><th>{t('Rain')}</th><th>{t('Wind')}</th></tr></thead>
-                      <tbody>
-                        {#each hrs as x (x.h)}
-                          <tr class:wet={(x.rainMm ?? 0) >= 0.5 || (x.rainPct ?? 0) >= 50} class:newday={x.h === 0}><td class="num">{x.h === 0 || x === hrs[0] ? `${dayName(x.t)} ` : ''}{x.h}</td><td class="num">{x.temp != null ? Math.round(x.temp) : '–'}</td><td class="num">{x.rainMm ? `${x.rainMm} mm` : ''} <small>{dir(x.rainPct)}</small></td><td class="num">{x.wind != null ? Math.round(x.wind) : '–'}{#if x.gust != null && x.gust >= 30}<small> ({Math.round(x.gust)})</small>{/if}</td></tr>
-                        {/each}
-                      </tbody>
-                    </table>
-                  </div>
-                {/each}
-              </div>
+              {#each saved.places as p (p.name)}
+                {@const hrs = rideHours(p.hours, st.startAt, st.endAt)}
+                <div class="wxp2">
+                  <h3>{t(p.name)}</h3>
+                  <p class="wsum">{wxSummary(hrs)}</p>
+                  <ul class="hours">
+                    {#each hrs as x (x.t)}
+                      <li class:wet={(x.rainMm ?? 0) >= 0.5 || (x.rainPct ?? 0) >= 50} class:newday={x.h === 0}><span class="hh num">{x.h === 0 || x === hrs[0] ? `${dayName(x.t)} ` : ''}{x.h}</span><b class="num">{x.temp != null ? `${Math.round(x.temp)}°` : '–'}</b><small class="num">{x.rainMm ? `${x.rainMm} mm` : dir(x.rainPct) || '–'}</small><small class="num">{x.wind != null ? `${Math.round(x.wind)} km/h` : '–'}</small>{#if x.gust != null && x.gust >= 30}<small class="num">({Math.round(x.gust)})</small>{/if}</li>
+                    {/each}
+                  </ul>
+                </div>
+              {/each}
             {/if}
             <p class="wxbar">
-              {#if saved}<span class="tp-muted">{t('Loaded {ago}', { ago: ageText(saved.fetchedAt) })}{online ? '' : ` · ${t('offline')}`}</span>{/if}
               <button type="button" class="btn sm" disabled={wxBusy || !online} onclick={loadWx}>{wxBusy ? t('Loading …') : saved ? t('Update') : t('Load the forecast')}</button>
             </p>
             {#if wxMsg}<p class="warn" role="status">{wxMsg}</p>{/if}
           {/if}
         </div>
-      </details>
+      </section>
+    </div>
 
-      <!-- Answer 2b: every bag with what is in it. -->
-      <details class="tp-fold">
-        <summary><Search size={20} aria-hidden="true" /><span id="where-h">{t('What is where')}</span><span class="r num">{tn(stats.count, '{n} item', '{n} items')}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
-        <div class="in bags">
-          {#each bags as z (z.key)}
-            <div class="bag">
-              <b>{placeName(trip, z)} <span class="num tp-muted">{z.entries.length}</span></b>
-              <ul>{#each z.entries as e (e.itemId)}<li>{itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId}{#if (e.qty || 1) > 1}<small> × {e.qty}</small>{/if}</li>{/each}</ul>
+    <div class="col">
+      <!-- Noah 8a: quick notes for the debrief: two taps, no typing. -->
+      <section class="notesec" aria-labelledby="note-h">
+        <h2 id="note-h" class="sh">{t('Note for the debrief')}</h2>
+        <p class="ssub">{t('lands in the debrief and in the Inbox')}</p>
+        <div class="card">
+          <div class="tp-chips qn" role="group" aria-label={t('Quick note')}>
+            {#each DEBRIEF_KINDS as k (k.key)}
+              <button type="button" class="tp-chip" aria-pressed={quick === k.key} aria-expanded={quick === k.key} onclick={() => (quick = quick === k.key ? null : k.key)}>{#if k.key === 'missing'}<Plus size={16} aria-hidden="true" />{:else if k.key === 'unused'}<Minus size={16} aria-hidden="true" />{:else}<X size={16} aria-hidden="true" />{/if}{t(k.name)}</button>
+            {/each}
+            <button type="button" class="tp-chip quiet" aria-pressed={quick === 'text'} aria-expanded={quick === 'text'} onclick={() => (quick = quick === 'text' ? null : 'text')}><Mic size={16} aria-hidden="true" />{t('Free text')}</button>
+          </div>
+          {#if quick === 'unused' || quick === 'broken'}
+            <div class="pick" role="group" aria-label={quick === 'unused' ? t('What did you not need?') : t('What broke?')}>
+              <p class="tp-small tp-muted">{quick === 'unused' ? t('What did you not need?') : t('What broke?')}</p>
+              {#each bags as z (z.key)}
+                <span class="lbl">{placeName(trip, z)}</span>
+                <div class="tp-chips">{#each z.entries.filter((e) => itemsById[e.itemId]) as e (e.itemId)}<button type="button" class="tp-chip" onclick={() => quickItem(quick, itemsById[e.itemId])}>{nameOf(itemsById[e.itemId])}</button>{/each}</div>
+              {/each}
             </div>
-          {/each}
+          {:else if quick === 'missing'}
+            <form class="noteform" onsubmit={quickMissing}>
+              <input class="inp" list="ride-gear" bind:value={missName} placeholder={t('What was missing, e.g. Chamois cream')} aria-label={t('What was missing')} />
+              <datalist id="ride-gear">{#each notOnTrip as i (i.id)}<option value={nameOf(i)}></option>{/each}</datalist>
+              <button type="submit" class="btn ink" disabled={!missName.trim()}>{t('Save note')}</button>
+            </form>
+          {:else if quick === 'text'}
+            <form class="noteform" onsubmit={saveNote}>
+              <textarea class="inp" rows="2" bind:value={note} placeholder={t('e.g. Puncture at km 80, the rain gloves were too thin')} aria-label={t('Note for the debrief')}></textarea>
+              <button type="submit" class="btn ink" disabled={!note.trim()}>{t('Save note')}</button>
+            </form>
+          {/if}
+          <p class="ok tp-small" role="status">{noteMsg}</p>
+          {#if notes.length}
+            <ul class="notes">
+              {#each notes as n (n.key)}
+                <li><b class="when num">{days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{time(n.at)}</b><span>{n.text}</span><button type="button" class="tp-link" onclick={() => dropNote(n)} aria-label={t('Remove this note')}>{t('Remove')}</button></li>
+              {/each}
+            </ul>
+          {/if}
         </div>
-      </details>
+      </section>
+
+      {#if eve?.charge.length}
+        <!-- v0.105.0 P5 (T12): tonight's charging as its own list (was inside the evening fold) -->
+        <section class="chg" aria-labelledby="chg-h">
+          <h2 id="chg-h" class="sh">{t('Charge tonight')}</h2>
+          <p class="ssub">{eve.overnight ? t(nightName({ overnight: eve.overnight, tent: trip?.tent })) : t('Every evening on the way')}</p>
+          <ChargeList {trip} {items} night={eve.date} head />
+        </section>
+      {/if}
+
+      <section class="more" aria-labelledby="more-h">
+        <h2 id="more-h" class="sh">{t('More')}</h2>
+        <!-- Answer 2b: every bag with what is in it. -->
+        <details class="tp-fold">
+          <summary><Search size={20} aria-hidden="true" /><span id="where-h">{t('What is where')}</span><span class="r num">{tn(bags.length, '{n} bag', '{n} bags')}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <div class="in bags">
+            {#each bags as z (z.key)}
+              <div class="bag">
+                <b>{placeName(trip, z)} <span class="num tp-muted">{z.entries.length}</span></b>
+                <ul>{#each z.entries as e (e.itemId)}<li>{itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId}{#if (e.qty || 1) > 1}<small> × {e.qty}</small>{/if}</li>{/each}</ul>
+              </div>
+            {/each}
+          </div>
+        </details>
+
+        {#if eve}
+          <!-- v0.34.0 (L8): the evening, folded; it opens by itself once the day's riding is over. -->
+          <details class="tp-fold eve" use:openOnce={!!st.endAt && clock >= st.endAt}>
+            <summary><Moon size={20} aria-hidden="true" /><span id="eve-h">{t('Evening')}</span><span class="r">{#if eve.overnight}<i class="tp-badge">{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}</i>{/if}{#if eve.charge.length}<i class="tp-badge num" class:ok={eveCharged.done === eveCharged.total}>{t('Charge {done}/{n}', { done: eveCharged.done, n: eveCharged.total })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+            <ul class="do">
+              <li><span class="k"><BedDouble size={18} aria-hidden="true" /></span><div><span class="lab">{t('Night')}</span><span class="val">{#if eve.overnight}{t(nightName({ overnight: eve.overnight, tent: trip?.tent }))}{:else}<span class="tp-muted">{t('Not set')}</span>{' '}<small>· <a href="#/pack" onclick={() => openTrip(trip.id)}>{t('Set it in Plan')}</a></small>{/if}</span></div></li>
+              <li><span class="k"><Shirt size={18} aria-hidden="true" /></span><div><span class="lab">{t('Lay out for tomorrow')}</span><span class="val">{eve.layOut.length ? names(eve.layOut) : eve.everyRide ? t('Every-ride clothes') : t('Not known yet')}</span></div></li>
+              <li><span class="k"><CloudSun size={18} aria-hidden="true" /></span><div><span class="lab">{t('Tomorrow morning')}</span>
+                {#if eve.morning}<span class="val num">{t('{span} h', { span: span(eve.morning) })}{#if eve.morning.temp}{` · ${tempText(eve.morning)} · ${eve.morning.wet ? t('rain likely') : t('dry')}`}{/if}{#if eve.morning.wxFrom === 'trip'}{' '}<small>· {t('trip weather')}</small>{:else if !eve.morning.temp}{' '}<small>· {t('no weather yet')}</small>{/if}</span>
+                {:else}<span class="val tp-muted">{t('Not known yet')}</span>{/if}
+                {#if nextSt?.date && !nextSaved && !nextTooEarly && (nextSt.from ?? trip.place)}<button type="button" class="tp-link" disabled={nextBusy || !online} onclick={loadNextWx}>{nextBusy ? t('Loading …') : t("Load tomorrow's forecast")}</button>{/if}
+                {#if nextMsg}<small class="warn" role="status">{nextMsg}</small>{/if}
+              </div></li>
+            </ul>
+          </details>
+        {/if}
+
+        <!-- Answer 4a: the day's stage: start time, nonstop, profile. -->
+        <!-- v0.30.1 (Noah C1): also without a route, for the start time of the day. -->
+        {#if st.km || st.hours}
+        <details class="tp-fold" use:openOnce={!bp}>
+          <summary><RouteIcon size={20} aria-hidden="true" /><span>{nonstop ? t('Nonstop') : days > 1 ? t('Stage {n}', { n: cur + 1 }) : t('Stage')}</span><span class="r num">{st.hours ? `${t('Start')} ${st.start}` : ''}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <div class="in">
+            {#if st.km}
+              <label class="ns"><input type="checkbox" checked={nonstop} onchange={(e) => setNonstop(e.currentTarget.checked)} /> {t('Nonstop: one stage through the night')}</label>
+              <div class="nums">
+                <div><b class="num">{num(st.km)}</b><span>km</span></div>
+                <div><b class="num">{st.gainM ?? '–'}</b><span>{t('m up')}</span></div>
+                <div><b class="num">{st.hours}</b><span>{t('h riding')}</span></div>
+              </div>
+              <div class="times">
+                <label>{t('Start')} <input class="inp" type="time" value={st.start} onchange={(e) => setStart(e.currentTarget.value)} /></label>
+                <p>{t('Arrive about')} <b class="num">{st.arrive}</b> <small>{pace.mine ? t('without breaks, at your pace') : t('without breaks')}</small></p>
+                {#if pace.stops && st.hours}<p>{t('With your usual stops')} <b class="num">{addTime(st.start, st.hours * pace.stops)}</b></p>{/if}
+              </div>
+              {#if prof}<div class="prof"><Profile points={prof.points} from={days > 1 ? prof.from : null} to={prof.to} label={days > 1 ? t('Elevation, stage {n} dark', { n: cur + 1 }) : t('Elevation')} /></div>
+              {:else}<p class="tp-muted tp-small">{t('Load the GPX again in Pack to see the elevation profile.')}</p>{/if}
+              {#if days > 1 && !nonstop}<p class="tp-muted tp-small">{prof ? t('The route is shared out evenly over {n} days (dark: this stage).', { n: days }) : t('The route is shared out evenly over {n} days.', { n: days })}</p>{/if}
+            {:else}
+              <div class="times">
+                <label>{t('Start')} <input class="inp" type="time" value={st.start} onchange={(e) => setStart(e.currentTarget.value)} /></label>
+                <p>{t('Back about')} <b class="num">{st.arrive}</b> <small>{st.hoursGuess ? t('{n} h assumed', { n: num(st.hours) }) : t('{n} h riding', { n: num(st.hours) })}</small></p>
+              </div>
+              <p class="tp-muted">{t('No route yet. Load the GPX in')} <a href="#/pack">{t('Plan|stage')}</a> {t('under "Trip conditions" (••• menu).')}</p>
+            {/if}
+          </div>
+        </details>
+        {/if}
+      </section>
     </div>
   </div>
 </div>
@@ -611,40 +625,51 @@
 {/if}
 
 <style>
+  /* v0.105.0 Design-Refresh P5 (T12): headings above light cards, as on the other trip pages; every
+     font size is a type-scale token. */
+  .col { min-width: 0; }
+  .col > section { margin: 0 0 24px; }
+  .sh { display: flex; align-items: center; gap: 8px; margin: 0; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
+  .ssub { margin: 2px 0 8px; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
   /* v0.67.0 (Ü4a): the waiting state before the start: the date box and the countdown. */
-  .wait { display: flex; align-items: center; gap: 14px; }
-  .wait h2 { margin: 0 0 4px; }
+  .wait { display: flex; align-items: center; gap: 14px; margin: 0 0 16px; }
+  .wait h2 { margin: 0 0 4px; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
   .wait p { margin: 0; }
-  .dbox { display: grid; place-items: center; flex: none; width: 56px; height: 60px; border-radius: 10px; background: var(--paper-2); color: var(--ink); }
+  .dbox { display: grid; place-items: center; flex: none; width: 56px; height: 60px; border-radius: var(--r-ctl); background: var(--paper-2); color: var(--ink); }
   .dbox small { font-size: var(--fs-tiny); text-transform: uppercase; color: var(--ink-3); }
   .dbox b { font: 700 var(--fs-section)/1 var(--font-body); }
   .reopen { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; }
   /* «Tour beenden …» in the band: quiet, never orange (U25a), a full tap target */
   .endlink { min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--ink); font: 500 var(--fs-small) var(--font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   .endlink:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-  .col { min-width: 0; }
-  .days { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0 0 12px; }
+  .days { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 0 0 20px; }
   .days .sum { flex-basis: 100%; }
   @media (min-width: 900px) { .days .sum { flex-basis: auto; } }
-  .now { border: 2px solid var(--ink); padding: 0; overflow: hidden; }
-  .nowh { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px 12px; padding: 14px 16px 10px; }
-  .nowh > div:first-child { flex: 1 1 160px; min-width: 0; }
-  .tt { margin: 0; font-size: 13px; font-weight: 600; color: var(--ok); }
-  .nowh h2 { margin: 0; font: 700 24px/1.2 var(--font-body); }
-  .wxp { margin-left: auto; text-align: right; font-size: 14px; color: var(--ink-2); }
-  .wxp b { display: block; font-size: 22px; color: var(--ink); }
-  .wxp small { display: block; color: var(--ink-3); font-size: 12px; }
-  .bn { margin: 0; padding: 0 16px 10px; color: var(--ink-3); }
+  /* the day in blocks: the block of now */
+  .now { margin: 0 0 8px; }
+  .shead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 0 12px; margin: 0 0 8px; }
+  .sht { flex: 1 1 220px; min-width: 0; }
+  .tt { margin: 2px 0 0; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
+  .howb { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; font-size: var(--fs-small); }
+  .howp { margin: 0 0 8px; }
+  .nowc { padding-top: 4px; padding-bottom: 4px; }
+  .wxp { margin: 8px 0 4px; color: var(--ink-2); font-size: var(--fs-small); }
+  .wxp b { color: var(--ink); }
+  .bn { margin: 4px 0; color: var(--ink-3); }
   .do { list-style: none; margin: 0; padding: 0; }
-  .do li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 10px; padding: 12px 16px; border-top: 1px solid var(--paper-2); align-items: start; }
-  .k { width: 40px; height: 40px; border-radius: 10px; background: var(--paper-2); display: grid; place-items: center; color: var(--ink-2); }
-  .lab { display: block; font-size: 13px; font-weight: 500; color: var(--ink-3); }
-  .val { display: block; font-size: 17px; font-weight: 600; line-height: 1.3; overflow-wrap: break-word; }
-  .val small, .do small { font-weight: 400; font-size: 14px; color: var(--ink-2); }
+  .do li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; padding: 12px 0; align-items: start; }
+  .do li + li, .wxp + .do li:first-child, .bn + .do li:first-child { border-top: 1px solid var(--line); }
+  .k { width: 34px; height: 34px; border-radius: 8px; background: var(--paper-2); display: grid; place-items: center; color: var(--ink-2); }
+  .lab { display: block; font-size: var(--fs-tiny); color: var(--ink-2); }
+  .val { display: block; font-size: var(--fs-body); line-height: 1.35; overflow-wrap: break-word; }
+  .val small, .do small { font-size: var(--fs-small); color: var(--ink-2); }
   .do small.warn { display: block; }
-  .after { display: flex; gap: 12px; align-items: flex-start; }
-  .after .tt { color: var(--ink-3); white-space: nowrap; padding-top: 1px; }
-  .qn { margin-top: 10px; }
+  .after { display: flex; gap: 12px; align-items: baseline; margin: 0 0 12px; padding: 0 2px; overflow-wrap: break-word; }
+  .after .tt { margin: 0; color: var(--ink-3); white-space: nowrap; }
+  .allb { margin: 0 0 24px; }
+  .noroute { margin: 0 0 24px; }
+  /* the quick notes */
+  .qn { margin: 0; }
   .pick { margin-top: 12px; display: grid; gap: 6px; }
   .pick p { margin: 0; }
   .pick .lbl { margin: 6px 0 0; }
@@ -652,11 +677,18 @@
   .noteform .btn { justify-self: start; min-height: 44px; }
   .ok { margin: 8px 0 0; color: var(--ink-2); font-weight: 600; }
   .ok:empty { display: none; }
-  .notes { list-style: none; margin: 10px 0 0; padding: 0; font-size: 15px; }
-  .notes li { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; padding: 6px 0; border-top: 1px solid var(--paper-2); }
-  .notes li span { flex: 1 1 50%; min-width: 0; overflow-wrap: break-word; }
-  .timeline { list-style: none; margin: 10px 0 0; padding: 0; }
-  .timeline li { padding: 0; border-top: 1px solid var(--paper-2); font-size: 14px; overflow-wrap: break-word; }
+  .notes { list-style: none; margin: 12px 0 0; padding: 0; font-size: var(--fs-body); }
+  .notes li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 4px 0; border-top: 1px solid var(--line); }
+  .notes .when { flex: none; font-size: var(--fs-tiny); font-weight: 600; }
+  .notes li span { min-width: 0; overflow-wrap: break-word; }
+  .notes .tp-link { min-height: 44px; }
+  @media (max-width: 479px) {
+    .notes li { grid-template-columns: minmax(0, 1fr) auto; padding-top: 8px; }
+    .notes .when { grid-column: 1 / -1; }
+  }
+  /* every block of the day */
+  .timeline { list-style: none; margin: 0; padding: 0; }
+  .timeline li { padding: 0; border-top: 1px solid var(--line); font-size: var(--fs-small); overflow-wrap: break-word; }
   .timeline summary { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 44px; padding: 6px 0; list-style: none; cursor: pointer; }
   .timeline summary::-webkit-details-marker { display: none; }
   .timeline summary :global(.chev) { color: var(--ink-3); transition: transform 0.15s; }
@@ -664,43 +696,46 @@
   .timeline .full { margin: 0 0 10px 102px; color: var(--ink-2); }
   @media (max-width: 479px) { .timeline .full { margin-left: 0; } }
   .timeline li .tm { color: var(--ink-3); }
-  .timeline li.cur { background: var(--paper-2); margin: 0 -16px; padding: 0 16px 0 13px; border-left: 3px solid var(--ink); }
+  .timeline li.cur { background: var(--hi-soft); margin: 0 -16px; padding: 0 16px 0 13px; border-left: 3px solid var(--hi); }
   .timeline li.cur .tm { color: var(--ink); font-weight: 700; }
   .timeline li.rest { color: var(--ink-3); }
   .timeline small { display: block; color: var(--ink-3); }
-  .how summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--ink-2); font-size: 14px; text-decoration: underline; }
-  .how p { margin: 0 0 8px; }
+  /* the stage */
   .ns { display: flex; gap: 8px; align-items: center; min-height: 44px; margin-bottom: 6px; }
   .ns input { width: 22px; height: 22px; }
   .nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .nums div { display: flex; flex-direction: column; }
-  .nums b { font: 700 26px/1.2 var(--font-body); }
-  .nums span { color: var(--ink-3); font-size: 14px; }
+  .nums b { font: 700 var(--fs-section)/1.2 var(--font-body); }
+  .nums span { color: var(--ink-3); font-size: var(--fs-small); }
   .times { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 20px; margin-top: 12px; }
   .times label { display: flex; gap: 8px; align-items: center; }
-  .times input { min-height: 44px; font-size: 17px; width: auto; }
+  .times input { min-height: 44px; font-size: var(--fs-body); width: auto; }
   .times p { margin: 0; }
-  .times small { color: var(--ink-3); font-size: 14px; }
+  .times small { color: var(--ink-3); font-size: var(--fs-small); }
   .prof { margin-top: 12px; }
-  .wx { display: grid; gap: 14px; }
-  @media (min-width: 640px) { .wx { grid-template-columns: 1fr 1fr; } }
+  /* the weather hour by hour: one tile per hour, the wet ones blue */
+  .wxc { display: grid; gap: 14px; }
   .wxp2 { min-width: 0; }
-  .wxp2 h3 { margin: 0; font-size: 16px; }
-  .sum { margin: 2px 0 6px; font-weight: 600; }
-  table { width: 100%; border-collapse: collapse; font-size: 15px; }
-  th { text-align: left; font-size: 13px; color: var(--ink-3); font-weight: 600; }
-  td, th { padding: 3px 4px; border-bottom: 1px solid var(--paper-2); }
-  tr.wet td { background: var(--info-soft); }
-  tr.newday td { border-top: 2px solid var(--ink-3); }
-  td small { color: var(--ink-3); }
-  .wxbar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; margin: 10px 0 0; }
+  .wxp2 h3 { margin: 0; font-size: var(--fs-small); font-weight: 600; color: var(--ink-2); }
+  .wsum { margin: 2px 0 8px; font-size: var(--fs-small); }
+  .hours { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 4px; }
+  .hours li { display: grid; justify-items: center; gap: 2px; padding: 8px 2px; border-radius: 8px; text-align: center; }
+  .hours li.wet { background: var(--info-soft); }
+  .hours li.newday { box-shadow: inset 2px 0 0 var(--ink-3); }
+  .hours .hh { color: var(--ink-2); font-size: var(--fs-tiny); }
+  .hours b { font-size: var(--fs-body); }
+  .hours small { color: var(--ink-3); font-size: var(--fs-tiny); }
+  .wxbar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: flex-end; margin: 0; }
+  .wxc > p { margin: 0; }
+  /* «Mehr» */
+  .more .sh { margin-bottom: 8px; }
   .bags { display: grid; gap: 10px; }
   @media (min-width: 640px) { .bags { grid-template-columns: 1fr 1fr; } }
   .bag { min-width: 0; }
   .bag ul { margin: 4px 0 0; padding-left: 20px; overflow-wrap: break-word; }
   .warn { color: var(--warn); }
-  /* v0.34.0 (L8): the evening is quiet: smaller values than the block of now. */
-  .eve .do li:first-child { border-top: 1px solid var(--paper-2); }
-  .eve .val { font-size: 16px; font-weight: 500; }
+  /* v0.34.0 (L8): the evening is quiet. */
+  .eve .do { padding: 0 16px 4px; }
+  .eve .do li:first-child { border-top: 1px solid var(--line); }
   .eve .do small a { color: inherit; }
 </style>

@@ -80,7 +80,7 @@
         </ul>
       {/if}
       {#if choices.less.length}
-        <p class="zlabel">{t('Fits less')} · {choices.less.length}</p>
+        <p class="lessh">{t('Fits less')} · {choices.less.length}</p>
         <ul class="alts less">
           {#each choices.less as r (r.item.id)}
             {@render alt(r, false, false)}
@@ -139,8 +139,8 @@
   .go { flex: none; display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: var(--r-ctl); background: var(--paper); color: var(--ink); font-weight: 500; font-size: var(--fs-small); }
   .go.first { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); font-weight: 600; }
   @media (hover: hover) { .alt:hover .go:not(.first) { background: var(--paper-2); } }
-  .zlabel { margin: 0; padding: 8px 0 4px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: var(--fs-small); font-weight: 600; }
-  .alts:first-child + .zlabel, .zlabel:first-child { border-top: 0; }
+  .lessh { margin: 0; padding: 8px 0 4px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: var(--fs-small); font-weight: 600; }
+  .alts:first-child + .lessh, .lessh:first-child { border-top: 0; }
   .empty { margin: 0; color: var(--ink-2); }
   .hint { display: flex; align-items: flex-start; gap: 10px; margin: 12px 0 0; padding: 10px 12px; border-radius: var(--r-ctl); background: var(--paper-2); color: var(--ink-2); font-size: var(--fs-small); }
   .hint :global(svg) { flex: none; margin-top: 2px; }

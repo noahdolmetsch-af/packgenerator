@@ -76,7 +76,7 @@
   .bar { flex: 1; height: 6px; border-radius: 9px; background: var(--paper-2); overflow: hidden; }
   .bar i { display: block; height: 100%; background: var(--hi); }
   .rows { list-style: none; margin: 0; padding: 0; }
-  .rows.card { padding-top: 4px; padding-bottom: 4px; }
+  .rows.card { padding: 4px var(--sp-4); }
   li + li .it { border-top: 1px solid var(--line); }
   .it { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 6px 0; border: 0; background: none; color: var(--ink); font: 400 var(--fs-body) / 1.3 var(--font-body); text-align: left; cursor: pointer; }
   .box { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; border: 1.5px solid var(--line-strong); background: var(--paper); }
