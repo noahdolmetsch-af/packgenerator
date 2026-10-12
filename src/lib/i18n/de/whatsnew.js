@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.105.0 Design-Refresh P7 «Velo»
+  'The new look, step 8: Bikes is light, with the drawing and the bags open on the page and «More» as plain rows.':
+    'Das neue Aussehen, Schritt 8: Velo ist hell, mit Zeichnung und Taschen offen auf der Seite und «Mehr» als schlichte Zeilen.',
+  'Bike care shows what is due on top; a chosen bike opens as its own page with a path back.':
+    'Die Velopflege zeigt oben, was fällig ist; ein gewähltes Velo öffnet sich als eigene Seite mit Weg zurück.',
+  'Part, start values, workshop visit, order, import, receipts and equipment use the same light windows.':
+    'Teil, Startwerte, Werkstattbesuch, Bestellung, Import, Belege und Ausstattung nutzen dieselben hellen Fenster.',
   // 0.104.0 Design-Refresh P4 «Touren»
   'The new look, step 7: Trips shows what to continue on top, light trip tiles with a packing bar and your best values.':
     'Das neue Aussehen, Schritt 7: Touren zeigt oben, wo du weitermachst, helle Tour-Kacheln mit Packbalken und deine Bestwerte.',
