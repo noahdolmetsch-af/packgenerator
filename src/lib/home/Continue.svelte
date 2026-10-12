@@ -66,6 +66,7 @@
 <style>
   .continue {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 8px;
     margin: 0 0 14px;
   }
@@ -111,6 +112,7 @@
   }
   /* v0.102.0 P4 (T1): the soft band on Touren */
   .row.band {
+    min-width: 0;
     gap: 14px;
     min-height: 68px;
     padding: 12px 14px 12px 16px;
@@ -151,6 +153,16 @@
   }
   .row.band .gob :global(svg) {
     color: var(--hi-ink);
+  }
+  /* a small phone: the text gets the room of the icon */
+  @media (max-width: 379px) {
+    .row.band {
+      gap: 10px;
+      padding-inline: 12px;
+    }
+    .row.band .ic {
+      display: none;
+    }
   }
   .row:focus-visible {
     outline: var(--focus-ring);
