@@ -822,11 +822,13 @@ a:visited {
   margin: 0;
 }
 /* v0.47.0 (style sheet «Gletscher»): the page title in the condensed display face, big and calm. */
+/* v0.97.0 Design-Refresh R1 (G1 neu): the condensed face is gone; the title takes the app's font at the
+   page size of the mockup instead of the display size. */
 h1.title {
   font-family: var(--font-brand);
-  font-weight: 800;
-  font-size: var(--fs-display);
-  line-height: 0.98;
+  font-weight: 700;
+  font-size: var(--fs-page);
+  line-height: 1.1;
   letter-spacing: 0;
 }
 /* The condensed face for the logo and a few big numbers. */
@@ -1195,8 +1197,10 @@ details[open] > summary.lrow .chev {
   background: var(--line);
 }
 /* A big condensed number ("21", "6,8 kg"). */
+/* v0.97.0 Design-Refresh R1: the condensed face is gone, so the big numbers are a little smaller in the
+   one font of the app (Inter is much wider); a small phone gets the smallest step. */
 .bignum {
-  font: 800 34px/1 var(--font-brand);
+  font: 700 clamp(22px, 1.2vw + 18px, 30px)/1.1 var(--font-brand);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
 }

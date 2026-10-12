@@ -1328,10 +1328,13 @@
     hyphens: auto;
     overflow-wrap: break-word;
   }
+  /* v0.97.0 (Inter has wider digits than Fira Sans): in the four narrow columns the weight wraps under
+     the temperatures instead of sticking out */
   .tl {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 0 8px;
   }
   .tl .tbar {
     width: 64px;

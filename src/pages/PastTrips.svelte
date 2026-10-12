@@ -241,7 +241,7 @@
   }
   .tiles li {
     display: grid;
-    padding: 10px 14px;
+    padding: 10px 12px;
     border: 1px solid var(--card-line);
     border-radius: var(--radius-card);
     background: var(--paper);
