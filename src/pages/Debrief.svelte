@@ -491,14 +491,14 @@
               {#if rememberMsg}<p class="remembered" role="status"><Check size={16} aria-hidden="true" />{rememberMsg}</p>{/if}
               {#if top}
                 <!-- Noah 9a: one suggestion for next time, with its reason; «Ja, merken» saves it at once. -->
-                <div class="learn" role="group" aria-labelledby="learn-h1">
+                <section class="learn" aria-labelledby="learn-h1">
                   <span class="rv-ic" aria-hidden="true"><Star size={18} /></span>
                   <span class="rv-m"><span class="rv-t" id="learn-h1">{top.label}</span><span class="rv-s">{top.detail}</span></span>
                   <span class="yn">
                     <button type="button" class="btn sm yes" disabled={remembering} onclick={() => remember(top)}>{t('Yes, remember')}</button>
                     <button type="button" class="btn sm" disabled={remembering} onclick={() => ((ticks[top.id] = false), (rememberMsg = ''))}>{t('No')}</button>
                   </span>
-                </div>
+                </section>
               {/if}
               {#if d.missing.length}
                 <ul class="exc">
@@ -520,8 +520,9 @@
               <label class="sentence"><span>{t('One sentence for next time')}</span>
                 <textarea class="inp" rows="2" bind:value={d.note} oninput={persist} placeholder={t('e.g. Heatwave, the rain gear was never used')}></textarea></label>
               {#if more.length}
-                <details class="moresugs">
-                  <summary><span>{t('More suggestions')}</span><span class="rv-v">{tn(sugg.filter(ticked).length, '{n} ticked', '{n} ticked')}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></summary>
+                <!-- the other suggestions stay in sight: what is ticked is applied with «Fertig» -->
+                <div class="moresugs">
+                  <p class="mh"><span>{t('More suggestions')}</span><span class="rv-v">{tn(sugg.filter(ticked).length, '{n} ticked', '{n} ticked')}</span></p>
                   {#each GROUPS as grp (grp.key)}
                     {@const list = more.filter((x) => x.group === grp.key)}
                     {#if list.length}
@@ -530,7 +531,7 @@
                     {/if}
                   {/each}
                   <p class="hint tp-small">{t('Nothing changes without a tick.')}</p>
-                </details>
+                </div>
               {/if}
             </div>
           </section>
@@ -788,21 +789,17 @@
     margin-top: 12px;
     border-top: 1px solid var(--line);
   }
-  .moresugs summary {
+  .moresugs .mh {
     display: flex;
     align-items: center;
     gap: 10px;
-    min-height: 48px;
-    list-style: none;
-    cursor: pointer;
+    margin: 0;
+    padding: 12px 0 4px;
     font-weight: 500;
   }
-  .moresugs summary > span:first-child {
+  .moresugs .mh > span:first-child {
     flex: 1;
     min-width: 0;
-  }
-  .moresugs summary::-webkit-details-marker {
-    display: none;
   }
   details[open] > summary :global(.rv-chev) {
     transform: rotate(90deg);
