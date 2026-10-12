@@ -19,6 +19,8 @@ export default {
   'Log in to Strava and allow it: the app shows how many rides it found.': 'Bei Strava einloggen und erlauben: die App zeigt, wie viele Fahrten sie gefunden hat.',
   'Tap «Done», then «Fetch now»: the tile «Strava» on Today shows the result.': 'Tippe «Fertig», dann «Jetzt holen»: die Kachel «Strava» auf Heute zeigt das Ergebnis.',
   'Rides with their bike from Strava, fetched by themselves; a changed bike asks first.': 'Fahrten mit ihrem Velo aus Strava, von selbst geholt; ein geändertes Velo fragt zuerst.',
+  'Heart rate from Strava, Ø and max per ride: in the ride log of the bike, the debrief, the trips table, Active, the ride page and «This week» on Today. Only observation, no rating.': 'Puls aus Strava, Ø und max pro Fahrt: im Fahrtenbuch des Velos, im Rückblick, in der Touren-Tabelle, bei Aktiv, auf der Fahrt-Seite und bei «Diese Woche» auf Heute. Nur Beobachtung, keine Bewertung.',
+  'Open the ride log of a bike: a ride with a heart rate monitor shows «Ø … · max … bpm».': 'Öffne das Fahrtenbuch eines Velos: eine Fahrt mit Pulsgurt zeigt «Ø … · max … Schläge/min».',
 
   // 0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check (mockups V1–V6)
   'Checks before and after': 'Checks davor und danach',

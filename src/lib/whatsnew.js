@@ -11,7 +11,7 @@
 
 export const WHATS_NEW = [
   {
-    // v0.112.0 «Strava-Verbindung» (E3, mockups S1–S5 approved by Noah 12.10.2026 13:39)
+    // v0.112.0 «Strava-Verbindung» (E3, mockups S1–S5 approved by Noah 12.10.2026 13:39, heart rate P1–P6 22:07 UTC)
     version: '0.112.0',
     date: '2026-10-12',
     title: 'Rides from Strava',
@@ -20,11 +20,13 @@ export const WHATS_NEW = [
       { text: 'Bike › Care › Strava: connect once, the app fetches all old rides without counting one twice and shows what it found.', href: '#/bikes?tab=care&view=strava' },
       { text: 'New rides come by themselves when the app opens, or only with «Fetch now». A ride without a bike waits in «To check» with a suggestion. The file import stays as the reserve.', href: '#/bikes?tab=care&view=strava' },
       { text: 'A ride got another bike in Strava: Today and the bike ask «Take over» or «Keep». The tile «Strava» on Today shows the new rides.', href: '#/' },
+      { text: 'Heart rate from Strava, Ø and max per ride: in the ride log of the bike, the debrief, the trips table, Active, the ride page and «This week» on Today. Only observation, no rating.', href: '#/flow' },
     ],
     test: [
       'Open Bike › Care › Strava and tap «Connect with Strava».',
       'Log in to Strava and allow it: the app shows how many rides it found.',
       'Tap «Done», then «Fetch now»: the tile «Strava» on Today shows the result.',
+      'Open the ride log of a bike: a ride with a heart rate monitor shows «Ø … · max … bpm».',
     ],
   },
   {
