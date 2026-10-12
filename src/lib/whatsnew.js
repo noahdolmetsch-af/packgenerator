@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.104.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 7: Trips shows what to continue on top, light trip tiles with a packing bar and your best values.', href: '#/trips' },
+      { text: 'A new trip starts in one light window: area, name, bike and what the packing list starts with.', href: '#/trips' },
+      { text: 'Planning a trip shows the route on a small map with the height profile, the weight by place and the stages, with the weather at the campsites when online.', href: '#/pack' },
+    ],
+  },
+  {
     version: '0.103.0',
     date: '2026-10-12',
     points: [

@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Design-Refresh P4 «Touren» (0.104.0)
+
+Nach den Mockups T1–T5 und T24 (Noah 12.10.2026, alle Seiten «Runde 20 freigegeben»), den Bausteinen 2 «Karte mit Strecke» und 26 «Etappen-Teiler» (11.10.2026 «Bausteine 1–35 freigegeben») und «10 Pakete» (P4 = R7+R8+R9).
+
+- **Selbst entschieden (P4):** Eigene kleine Karte (OpenStreetMap-Kacheln unter einer Linie) statt einer Karten-Bibliothek; Kacheln nur online, offline nur die Linie. Etappen als neues freiwilliges Feld `trip.stages` (kein neues Schema, mit Rückgängig); Unterwegs nimmt dieselben Tage. Wetter an den Zeltplätzen nur online und nur bis 16 Tage voraus (Open-Meteo, nur Kartenpunkte, keine Namen). «Bis zum Start» zeigt Tage (Touren haben keine Startzeit). Learnings auf «Planen» nur zum Lesen. Touren ohne die vier Schritte und ohne Vorlagen-Kasten, «Neue Tour» als gestrichelte Kachel. Nicht gebaut, weil neu: «Ziel unter 12 kg», «Mit wem», «Andere Tourarten», «Hinzufügen» in den Wetterkarten.
+
 ## 12.10.2026: Design-Refresh P3 «Material» (0.103.0)
 
 Nach den Mockups M1–M6 (Runde 9, Noah 12.10.2026 «M1-M6 freigegeben», alle Seiten nochmals «Runde 20 freigegeben») und «10 Pakete»: nur das Aussehen ist neu, keine neuen Funktionen.

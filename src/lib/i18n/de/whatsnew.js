@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.104.0 Design-Refresh P4 «Touren»
+  'The new look, step 7: Trips shows what to continue on top, light trip tiles with a packing bar and your best values.':
+    'Das neue Aussehen, Schritt 7: Touren zeigt oben, wo du weitermachst, helle Tour-Kacheln mit Packbalken und deine Bestwerte.',
+  'A new trip starts in one light window: area, name, bike and what the packing list starts with.':
+    'Eine neue Tour startet in einem hellen Fenster: Reiseart, Name, Velo und womit die Packliste startet.',
+  'Planning a trip shows the route on a small map with the height profile, the weight by place and the stages, with the weather at the campsites when online.':
+    'Beim Planen zeigt die Tour die Strecke auf einer kleinen Karte mit Höhenprofil, das Gewicht nach Ort und die Etappen, online mit dem Wetter an den Zeltplätzen.',
   // 0.103.0 Design-Refresh P3 «Material»
   'The new look, step 6: Gear shows the list first, with one row of tools and the views on the right.':
     'Das neue Aussehen, Schritt 6: Material zeigt zuerst die Liste, mit einer Werkzeugzeile und den Ansichten rechts.',
