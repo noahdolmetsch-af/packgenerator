@@ -102,9 +102,15 @@ export async function start(page, context, info, { lang = 'de', data = null } = 
   // v0.76.0: the fictional data has a trip running today with a ride block 18–21 h. In the evening
   // Today opens Unterwegs by itself, once a day: let that happen here, so the tests find Today later.
   // v0.80.0: wait for Today's decision (html data-today, tests/e2e/settle.js) instead of 1.5 s.
-  await page.goto('./#/');
-  await page.locator('main').waitFor();
-  await settle(page);
+  // v0.109.0: after 18 h the fictional data also has a trip on its last evening, so Today can move on
+  // twice, each once a day: first to Unterwegs, then, back on Today, to «Tour beendet». Go back to
+  // Today until it stays, so every test finds Today afterwards, whatever the time of day.
+  for (let i = 0; i < 3; i++) {
+    await page.goto('./#/');
+    await page.locator('main').waitFor();
+    await settle(page);
+    if (await page.evaluate(() => /^#?\/?(\?.*)?$/.test(location.hash))) break;
+  }
   return errors;
 }
 
