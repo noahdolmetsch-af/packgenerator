@@ -365,12 +365,12 @@
     width: min(420px, 90vw);
     max-height: 70vh;
     overflow: auto;
-    padding: 8px;
-    border: 1.5px solid var(--line-strong);
-    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
     background: var(--paper);
     color: var(--ink);
-    box-shadow: 0 10px 30px var(--shadow);
+    box-shadow: 0 16px 40px var(--shadow);
     z-index: 30;
     box-sizing: border-box;
   }
@@ -379,6 +379,7 @@
   .short .res {
     left: 0;
     right: auto;
+    width: min(640px, calc(100vw - 290px));
   }
   .sheet .res {
     position: static;
@@ -388,10 +389,13 @@
     overflow: visible;
     box-shadow: none;
   }
+  /* v0.101.0 Design-Refresh P2 (H8): small group heads, rows with a soft corner, «Do it now» tinted */
   .gh {
-    margin: 8px 6px 2px;
-    font: 600 13px var(--font-body);
-    color: var(--ink-3);
+    margin: 10px 8px 4px;
+    font: 600 var(--fs-tiny) var(--font-body);
+    color: var(--ink-2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
   ul {
     list-style: none;
@@ -404,10 +408,10 @@
     align-items: center;
     gap: 12px;
     width: 100%;
-    min-height: 44px;
-    padding: 6px 8px;
+    min-height: 48px;
+    padding: 6px 10px;
     border: 0;
-    border-radius: 6px;
+    border-radius: var(--r-ctl);
     background: none;
     color: var(--ink);
     font: 500 15px var(--font-body);
@@ -436,9 +440,16 @@
     font-size: var(--fs-small);
   }
   /* v0.46.0: the actions first, each with a quiet ↵ (Enter does the first one). */
+  .cmds li + li {
+    margin-top: 4px;
+  }
   .cmds li button {
-    border-left: 3px solid var(--accent);
-    border-radius: 0 6px 6px 0;
+    background: var(--hi-soft);
+  }
+  .cmds li button:hover,
+  .cmds li button:focus-visible {
+    background: var(--hi-soft);
+    box-shadow: inset 0 0 0 1px var(--hi);
   }
   .go {
     flex: none;
@@ -473,7 +484,7 @@
   .rchip {
     min-height: 44px;
     padding: 0 var(--sp-3);
-    border: 1.5px solid var(--line);
+    border: 1px solid var(--line);
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink);
@@ -485,9 +496,10 @@
     align-items: center;
     min-height: 44px;
     margin: 4px 6px 0;
-    color: var(--accent);
+    color: var(--ink);
     font-weight: 600;
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
   .add {
     display: block;

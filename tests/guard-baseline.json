@@ -124,9 +124,6 @@
       "breakword": 1,
       "fontsize": 4
     },
-    "src/lib/nav/NewSheet.svelte": {
-      "fontsize": 1
-    },
     "src/lib/nav/ProblemForm.svelte": {
       "breakword": 1,
       "fontsize": 9,
@@ -134,7 +131,7 @@
     },
     "src/lib/nav/Search.svelte": {
       "breakword": 1,
-      "fontsize": 6
+      "fontsize": 5
     },
     "src/lib/pack/BikeChoice.svelte": {
       "fontsize": 2

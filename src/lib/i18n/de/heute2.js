@@ -8,6 +8,9 @@ export default {
   'open|steps': 'offen',
   '{n} of {m} packed': '{n} von {m} gepackt',
   'Still: {list}': 'Noch: {list}',
+  // «Neu» (H7)
+  'What would you like to add?': 'Was möchtest du anlegen?',
+  'Note|group': 'Notiz',
   // the new tiles
   '{n} day active': '{n} Tag aktiv',
   '{n} days active': '{n} Tage aktiv',
