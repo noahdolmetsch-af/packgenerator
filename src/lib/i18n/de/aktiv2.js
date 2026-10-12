@@ -51,6 +51,10 @@ export default {
   'All milestones': 'Alle Meilensteine',
   'Trophy shelf': 'Trophäen-Regal',
   'reached lately': 'zuletzt erreicht',
+  // A13 Mehr zur Meditation
+  'More about meditation': 'Mehr zur Meditation',
+  'Everything rare in one place · closed, the page stays calm': 'Alles Seltene an einem Ort · zugeklappt bleibt die Seite ruhig',
+  'Maybe today|start': 'Vielleicht heute',
   // B22 Ziel-Pfad
   '{value} of {target}, {n} stations to go': '{value} von {target}, noch {n} Stationen',
   '{left} to go': 'noch {left}',
