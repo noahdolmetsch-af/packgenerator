@@ -14,11 +14,11 @@ export const WHATS_NEW = [
     // v0.113.0 Menü-Fix (Noah 12.10.2026): a ••• menu closes with one tap outside it.
     version: '0.113.0',
     date: '2026-10-12',
-    title: 'Menus close with one tap',
+    title: 'Menus close easily',
     lead: 'A tap next to an open ••• menu closes it, you no longer have to hit ••• a second time.',
     points: [
       { text: 'A ••• menu now closes with one tap anywhere next to it, for example at the problems in Bike care.', href: '#/bikes?tab=care' },
-      { text: 'The same for the ••• of the packing list and of the trips in progress.', href: '#/pack' },
+      { text: 'The same for the ••• of the packing list and of the trips in progress: one tap next to it is enough.', href: '#/pack' },
     ],
     test: [
       'Open Bikes › Care and tap ••• at a problem.',

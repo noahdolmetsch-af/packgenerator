@@ -9,7 +9,7 @@ export default {
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
   // 0.113.0 Menü-Fix
-  'Menus close with one tap': 'Menüs schliessen mit einem Tipp',
+  'Menus close easily': 'Menüs gehen leicht zu',
   'A tap next to an open ••• menu closes it, you no longer have to hit ••• a second time.':
     'Ein Tipp neben ein offenes •••-Menü schliesst es, du musst nicht mehr ein zweites Mal auf ••• tippen.',
   'Open Bikes › Care and tap ••• at a problem.': 'Öffne Velos › Pflege und tippe bei einem Problem auf •••.',
@@ -17,8 +17,8 @@ export default {
   'Tap ••• and pick an answer: it still works.': 'Tippe auf ••• und wähle eine Antwort: Sie funktioniert weiterhin.',
   'A ••• menu now closes with one tap anywhere next to it, for example at the problems in Bike care.':
     'Ein •••-Menü schliesst jetzt mit einem Tipp irgendwo daneben, zum Beispiel bei den Problemen in der Velopflege.',
-  'The same for the ••• of the packing list and of the trips in progress.':
-    'Genauso beim ••• der Packliste und der laufenden Touren.',
+  'The same for the ••• of the packing list and of the trips in progress: one tap next to it is enough.':
+    'Genauso beim ••• der Packliste und der laufenden Touren: Ein Tipp daneben genügt.',
 
   // 0.110.0 Design-Refresh P10 «Was ist neu»
   'Me › What is new shows the newest version, every function one by one and all versions by month.':
