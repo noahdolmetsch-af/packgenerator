@@ -37,6 +37,12 @@ describe('the stored wall', () => {
     expect(wallRecord(w)).toEqual({ v: 2, tiles: w });
     expect(wallOf({ v: 2, tiles: [] })).toEqual([]);
   });
+  it('v0.101.0: the new tiles are marked «neu» for two weeks from the release', () => {
+    for (const id of ADDED_0101) {
+      expect(isNew(TILE[id], '2026-10-12')).toBe(true);
+      expect(isNew(TILE[id], '2026-10-30')).toBe(false);
+    }
+  });
   it('v0.101.0: a wall stored before gets the new tiles once, after Im Flow', () => {
     const old = wallOf({ v: 1, tiles: [{ id: 'trip', size: 'long' }, { id: 'flow', size: 'l' }, { id: 'month', size: 'l' }, { id: 'year', size: 'long' }] });
     expect(old.map((x) => x.id)).toEqual(['trip', 'flow', 'week', 'nextms', 'yearago', 'month', 'year']);

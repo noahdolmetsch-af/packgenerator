@@ -513,6 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 12.10.2026 (v0.101.0, PR folgt):** Design-Refresh P2 «Heute» (H1–H9): heller Kopf, Tour-Karte mit Zahlen und Packbalken ohne Foto, helle Kacheln, vier neue Kacheln, «Neu» nach Bereichen, helle Suche. Danach als kleine Schritte: «Als Challenge setzen» (D1b/D5) und «Inspiration». Parallel P3 Material.
+
 **Nachtrag 12.10.2026 (v0.100.0, PR offen):** Design-Refresh P1 «Zurück, Schritte, Weiter-Leiste» (G7): heller Tour-Kopf mit «‹ Touren › Name», nummerierte Schritte, Weiter-Leiste unten mit «Schritt n von m». Noah hat am 12.10.2026 «10 Pakete» gewählt: Als Nächstes P2 Heute ∥ P3 Material, dann P4 Touren ∥ P8 Aktiv, P5 Packen/Unterwegs ∥ P7 Velo, P6 Rückblick ∥ P9 Ich+Teilen, am Ende P10 «Was ist neu».
 
 **Nachtrag 12.10.2026 (v0.99.0, live):** Design-Refresh R3 «Bausatz» (G2/G3, Noah 3b): Knöpfe, Felder und Abzeichen einheitlich mit weicher Ecke und 44 px, leere Seiten als ruhige Karte, Konfetti beim grossen Feier-Moment, Hinweise mit Haken und «Rückgängig». Als Nächstes R4 Zurück, Schritte und Weiter-Leiste.
