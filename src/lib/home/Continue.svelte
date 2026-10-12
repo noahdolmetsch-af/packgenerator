@@ -3,6 +3,7 @@
    * v0.67.0 «Übergänge 1» (rule U3, Noah U24b, Ü6a, U22b; flow audit U007): one small block at the top
    * of Today, before the rest of the page (which E1 rebuilds later):
    * - from 18:00 the evening before a start: «Morgen geht's los: …» (when its reminder is on, U21a);
+   *   v0.106.0 (Noah 1-5a): it opens «Gepackt» with the evening-before check (was the packing day);
    * - on the evening of a trip's last day: «Letzter Abend: … Tour abschliessen» (the interstitial);
    * - «Weitermachen: Tour X · Packen, Schritt 2 von 4»: always the next planned trip (U24b), else a
    *   trip still waiting for its debrief. One tap opens exactly that step (phase.js stepOf).
@@ -32,9 +33,9 @@
 {#if eve || last || (lead && step)}
   <div class="continue" data-section="continue">
     {#if eve}
-      <a class="row eve" href="#/pack?day" onclick={() => openTrip(eve.id)} data-row="eve">
+      <a class="row eve" href={betweenHref(eve, 'packed')} onclick={() => openTrip(eve.id)} data-row="eve">
         <Moon size={20} aria-hidden="true" />
-        <span class="tx"><b>{t("Tomorrow it starts: {trip}", { trip: eve.title })}</b><small>{t('Charge the batteries, look at the weather, fill the bottles.')}</small></span>
+        <span class="tx"><b>{t("Tomorrow it starts: {trip}", { trip: eve.title })}</b><small>{t('Your evening-before check is waiting.')}</small></span>
         <ChevronRight size={18} aria-hidden="true" />
       </a>
     {/if}

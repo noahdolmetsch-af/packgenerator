@@ -23,6 +23,7 @@
   import { packedAll, isDayTrip, daysFrom, canReopen } from '../lib/phase.js';
   import { takeUndo, reopenTrip } from '../lib/trip/ending.js';
   import Interstitial from '../lib/ui/Interstitial.svelte';
+  import TripCheck from '../lib/trip/TripCheck.svelte';
   import Celebrate from '../lib/ui/Celebrate.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { Bell, Pencil, X, Minus, Plus, Route, Check, Undo2 } from '@lucide/svelte';
@@ -170,6 +171,10 @@
         <input type="checkbox" role="switch" checked={trip.remindEve !== false} onchange={(e) => setRemind(e.currentTarget.checked)} />
       </label>
     {/if}
+    {#if until != null && until >= 0}
+      <!-- v0.106.0 «Bausteine bearbeiten» (Noah 1-5a, mockup A): the evening-before check of the trip's area -->
+      <TripCheck {trip} kind="eve" />
+    {/if}
     {#snippet foot()}{#if hasBike(trip) && until > 0}<span>{t('On the way opens by itself on {day}.', { day: weekday(trip.startDate) })}</span>{/if}{/snippet}
   </Interstitial>
 {:else if kind === 'ended'}
@@ -187,6 +192,8 @@
         {#if !km}<p class="tp-muted small">{t('Numbers from your route. With an uploaded ride they get exact.')}</p>{/if}
       </section>
     {/if}
+    <!-- v0.106.0 «Bausteine bearbeiten» (Noah 1-5a, mockup B): the after-trip check, before the debrief -->
+    <TripCheck {trip} kind="after" />
     {#if notes.length}
       <section class="card bc notes" aria-labelledby="noted-h">
         <h2 id="noted-h" class="kick">{tn(notes.length, 'Noted on the way · {n}', 'Noted on the way · {n}')}</h2>

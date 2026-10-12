@@ -8,6 +8,14 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.106.0 Bausteine bearbeiten: Vorabend- und Schluss-Check
+  'New on «Packed»: the evening-before check, e.g. read the avalanche bulletin, route offline, charge the tracker.':
+    'Neu auf «Gepackt»: der Vorabend-Check, z. B. Lawinenbulletin lesen, Route offline laden, Tracker laden.',
+  'New on «Trip ended»: the after-trip check before the debrief, e.g. dry the skins, refill, charge.':
+    'Neu auf «Tour beendet»: der Schluss-Check vor dem Rückblick, z. B. Felle trocknen, nachfüllen, laden.',
+  'Both lists are yours: tick, remove, add and save them as the standard of the area. The evening reminder on Today opens the check.':
+    'Beide Listen gehören dir: abhaken, entfernen, ergänzen und als Standard der Reiseart speichern. Die Abend-Erinnerung auf Heute öffnet den Check.',
+
   // 0.104.0 Design-Refresh P4 «Touren»
   'The new look, step 7: Trips shows what to continue on top, light trip tiles with a packing bar and your best values.':
     'Das neue Aussehen, Schritt 7: Touren zeigt oben, wo du weitermachst, helle Tour-Kacheln mit Packbalken und deine Bestwerte.',

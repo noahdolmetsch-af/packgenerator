@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.106.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'New on «Packed»: the evening-before check, e.g. read the avalanche bulletin, route offline, charge the tracker.', href: '#/trips' },
+      { text: 'New on «Trip ended»: the after-trip check before the debrief, e.g. dry the skins, refill, charge.', href: '#/trips' },
+      { text: 'Both lists are yours: tick, remove, add and save them as the standard of the area. The evening reminder on Today opens the check.', href: '#/trips' },
+    ],
+  },
+  {
     version: '0.104.0',
     date: '2026-10-12',
     points: [

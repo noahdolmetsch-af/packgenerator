@@ -862,6 +862,17 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Bausteine bearbeiten, Teil 1: Vorabend- und Schluss-Check (0.106.0)
+
+Nach den Mockups A–F «Bausteine bearbeiten» (Offene Mockups #bausteine-bearbeiten, Trello «Bausteine bearbeiten»), Noah im Thread 12.10.2026 «freigabe 1-5a: bausteine bearbeiten und ansehen».
+
+- **1a:** Checks bearbeitet man direkt in der Tour (wie den Start-Check) und speichert sie als Standard pro Reiseart.
+- **2a:** «Meist vergessen» zählt automatisch aus allen Rückblicken der Reiseart; anheften, ändern, aus der Liste nehmen; Top 3 oben beim Packen (kommt als eigener Release).
+- **3a:** Der Schluss-Check steht auf «Tour beendet», vor dem Rückblick.
+- **4a:** Learnings werden wirklich gelöscht, mit Rückgängig (kommt mit D/E).
+- **5a:** Der Regel-Editor startet mit den 10 Regeln aus dem Content-Doc, Zahlen änderbar, eigene Regeln dazu; Regeln schlagen nur vor (Release 2).
+- **Selbst entschieden:** Kleine Releases (Regel «eine sichtbare Sache»): 0.106.0 nur A+B. Die Tour speichert ihre Liste erst bei der ersten Änderung; bis dahin zeigt sie den Standard bzw. Vorschlag (spätere Standard-Änderungen wirken so auch auf geplante, unberührte Touren). Der Vorabend-Check steht auf «Gepackt» bis zum Starttag, die Abend-Erinnerung auf Heute führt dorthin (statt zum Packtag). Die Vorschläge kommen aus dem Content-Doc (Skitour, Wandern) und sind für Bikepacking, Weekend und Weltreise kurz gehalten.
+
 ## 12.10.2026: Design-Refresh P4 «Touren» (0.104.0)
 
 Nach den Mockups T1–T5 und T24 (Noah 12.10.2026, alle Seiten «Runde 20 freigegeben»), den Bausteinen 2 «Karte mit Strecke» und 26 «Etappen-Teiler» (11.10.2026 «Bausteine 1–35 freigegeben») und «10 Pakete» (P4 = R7+R8+R9).

@@ -513,6 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 12.10.2026 (v0.106.0, PR offen):** «Bausteine bearbeiten» Teil 1 (A+B): Vorabend-Check auf «Gepackt», Schluss-Check auf «Tour beendet», beide bearbeitbar und als Standard pro Reiseart speicherbar. Danach C «Meist vergessen», D+E Temperaturbereich und Learnings, F Regel-Editor (Release 2).
+
 **Nachtrag 12.10.2026 (v0.104.0, PR offen):** Design-Refresh P4 «Touren» (T1–T5, T24, Karte und Etappen): Übersicht, Neue Tour, Vorlagen, Planen mit Karte, Höhenprofil, Gewicht nach Ort, Etappen und Wetter an den Zeltplätzen.
 
 **Nachtrag 12.10.2026 (v0.103.0, live):** Design-Refresh P3 «Material» (M1–M6): Liste zuerst, eine Werkzeugzeile, Ansichten rechts, Fenster und Blätter im neuen Stil. Danach P3b Material M7–M14, P4 Touren, P7 Velo.
