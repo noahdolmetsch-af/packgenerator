@@ -561,6 +561,13 @@
       font-size: 14px;
     }
   }
+  /* v0.97.0 (Inter is a little wider): at 320 px the four columns need the last few pixels */
+  @media (max-width: 359px) {
+    .cmp th,
+    .cmp td {
+      padding-inline: 4px;
+    }
+  }
   .del {
     margin: 18px 0 0;
   }

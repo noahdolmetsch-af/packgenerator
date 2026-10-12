@@ -241,15 +241,25 @@
     background: var(--paper-2);
   }
   /* computer: the actions written out, quiet until the row is hovered or has the keyboard focus */
+  /* v0.97.0 (Inter is wider than Fira Sans): the hidden actions took room from the name in a narrow
+     column; now they lie over the right end of the row (before •••) and take no room at all */
   .acts {
+    position: absolute;
+    top: 50%;
+    right: 44px;
     display: flex;
     gap: 4px;
+    padding-left: 8px;
+    background: var(--paper);
     opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%);
     transition: opacity 0.12s;
   }
   .gr:hover .acts,
   .gr:focus-within .acts {
     opacity: 1;
+    pointer-events: auto;
   }
   .ra {
     min-height: 32px;
