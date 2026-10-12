@@ -14,7 +14,7 @@
   import { localDay } from '../localday.js';
   import { openTrip } from '../nav.js';
   import { t } from '../i18n.svelte.js';
-  import Seg from '../ui/Seg.svelte';
+  import '../bikes/velo-dlg.css';
   import { ArrowRight } from '@lucide/svelte';
 
   // v0.96.0 «F1 Alles finden»: «Try it» on «What the app can do» opens the sheet on a day (pack, ride, after).
@@ -50,59 +50,87 @@
   }
 </script>
 
-<dialog class="sheet playsheet" bind:this={dialog} use:backClose onclose={() => onclose?.()} aria-labelledby="play-h">
-  <div class="head">
-    <h2 id="play-h">{t('Try it out')}</h2>
-    <button type="button" class="tp-link" onclick={() => dialog.close()}>{t('Close')}</button>
+
+<!-- Design-Refresh P9 (I13, Noah 12.10.2026 «Runde 20 freigegeben»): the window look of the new style:
+     «Start with» and «Play the day» as chips (the chosen one dark), below how the bar on top looks while
+     it runs (a picture, not the bar itself), the buttons bottom right. The same playground as before. -->
+<dialog class="sheet playsheet vdlg" bind:this={dialog} use:backClose onclose={() => onclose?.()} aria-labelledby="play-h">
+  <div class="vd-head">
+    <div class="vd-t">
+      <h2 id="play-h">{t('Try it out')}</h2>
+      <p class="vd-sub">{t('Playground with a made-up trip and made-up gear')}</p>
+    </div>
   </div>
   <p class="lead">{t('A playground with a made-up trip and gear. Try everything, debriefs too. When you end it, everything is exactly as before.')}</p>
   {#if running}
     <p class="msg">{t('The playground is running. «End» in the bar on top puts your data back.')}</p>
   {:else}
-    <p class="plbl" id="play-kind">{t('Start with|play')}</p>
-    <Seg labelledby="play-kind" value={kind} onchange={(k) => (kind = k)} options={KINDS.map((k) => ({ key: k, name: t(KIND_NAMES[k]) }))} />
+    <p class="lbl pl" id="play-kind">{t('Start with|play')}</p>
+    <div class="vd-chips" role="group" aria-labelledby="play-kind">
+      {#each KINDS as k (k)}<button type="button" class="vd-chip" aria-pressed={kind === k} onclick={() => (kind = k)}>{t(KIND_NAMES[k])}</button>{/each}
+    </div>
     {#if kind !== 'empty'}
-      <p class="plbl" id="play-day">{t('Play the day')}</p>
-      <Seg labelledby="play-day" value={day} onchange={(k) => (day = k)} options={DAYS.map((k) => ({ key: k, name: t(DAY_NAMES[k]) }))} />
+      <p class="lbl pl" id="play-day">{t('Play the day')}</p>
+      <div class="vd-chips" role="group" aria-labelledby="play-day">
+        {#each DAYS as k (k)}<button type="button" class="vd-chip" aria-pressed={day === k} onclick={() => (day = k)}>{t(DAY_NAMES[k])}</button>{/each}
+      </div>
     {:else}
       <p class="small">{t('Empty: play with your own data; afterwards it is exactly as before.')}</p>
     {/if}
-    <button type="button" class="btn hi big" disabled={busy} onclick={start}>{t('Start the playground')}<ArrowRight size={18} aria-hidden="true" /></button>
+    <p class="lh">{t('This is how it looks while it runs')}</p>
+    <div class="preview" aria-hidden="true">
+      <span><b>{t('Playground')}</b> · {t('your data is safe · nothing counts')}</span>
+      <span class="pv-btn">{t('End|playground')}</span>
+    </div>
     <p class="small">{t('Backups are off meanwhile, so nothing made up gets into them.')}</p>
     {#if msg}<p class="msg" role="alert">{msg}</p>{/if}
   {/if}
+  <div class="vd-foot">
+    <button type="button" class="btn" onclick={() => dialog.close()}>{t('Close')}</button>
+    {#if !running}<button type="button" class="btn hi" disabled={busy} onclick={start}>{t('Start the playground')}<ArrowRight size={18} aria-hidden="true" /></button>{/if}
+  </div>
 </dialog>
 
 <style>
-  .head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-  }
-  h2 {
-    margin: 0;
-    font: 700 var(--fs-section)/1.2 var(--font-body);
-  }
   .lead {
-    margin: 6px 0 14px;
-    color: var(--ink-2);
+    margin: 0 0 6px;
+    color: var(--ink);
   }
-  .plbl {
+  .pl {
     margin: 14px 0 6px;
-    font-size: var(--fs-small);
-    font-weight: 600;
-    color: var(--ink-2);
   }
-  .big {
-    width: 100%;
-    min-height: 52px;
-    margin-top: 18px;
-    justify-content: center;
+  /* 44px to tap */
+  .vd-chip {
+    min-height: 44px;
+  }
+  .lh {
+    margin: 16px 0 6px;
+    color: var(--ink);
+  }
+  /* a picture of the yellow bar on top (DemoBar), not the bar itself */
+  .preview {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+    padding: 10px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--warn-soft);
+    color: var(--ink);
+    font-size: var(--fs-small);
+  }
+  .preview b {
+    color: var(--warn);
+  }
+  .pv-btn {
+    padding: 4px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-ctl);
+    background: var(--paper);
   }
   .small {
-    margin: 10px 0 0;
-    text-align: center;
+    margin: 8px 0 0;
     font-size: var(--fs-small);
     color: var(--ink-3);
   }

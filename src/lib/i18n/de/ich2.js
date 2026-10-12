@@ -83,4 +83,15 @@ export default {
   'Weather of a ride from home': 'Wetter einer Fahrt ab zuhause',
   'for trips without a start place': 'bei Touren ohne Startort',
   'The search needs the internet. Only the place is saved, no location.': 'Die Suche braucht Internet. Gespeichert wird nur der Ort, kein Standort.',
+
+  /* ---------- I9 Problem melden ---------- */
+  'Photo (optional)': 'Foto (freiwillig)',
+  'e.g. of the damage': 'z. B. vom Schaden',
+
+  /* ---------- I12 Tastenkürzel ---------- */
+  'On a phone without a keyboard you need no shortcuts: the bar at the bottom and «+» on top do the same.': 'Am Handy ohne Tastatur brauchst du keine Kürzel: die Leiste unten und «+» oben machen dasselbe.',
+
+  /* ---------- I13 Spielwiese ---------- */
+  'Playground with a made-up trip and made-up gear': 'Spielwiese mit erfundener Tour und erfundener Ausrüstung',
+  'This is how it looks while it runs': 'So sieht es aus, solange sie läuft',
 };

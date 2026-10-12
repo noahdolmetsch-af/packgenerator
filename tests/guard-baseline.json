@@ -97,7 +97,7 @@
     },
     "src/lib/nav/ProblemForm.svelte": {
       "breakword": 1,
-      "fontsize": 9,
+      "fontsize": 8,
       "global": 1
     },
     "src/lib/nav/Search.svelte": {

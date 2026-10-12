@@ -10,7 +10,8 @@
   import { testDataState, tidyTestData, undoTestData } from '../testdatadb.js';
   import { GROUPS, debriefCount } from '../testdata.js';
   import { t, tn } from '../i18n.svelte.js';
-  import { ChevronRight, Check } from '@lucide/svelte';
+  import { ChevronRight, Check, Archive } from '@lucide/svelte';
+  import '../bikes/velo-dlg.css';
 
   let { onclose } = $props();
   let dialog = $state();
@@ -71,17 +72,22 @@
   }
 </script>
 
-<dialog class="sheet tdsheet" bind:this={dialog} use:backClose onclose={() => onclose?.()} aria-labelledby="td-h">
-  <div class="head">
-    <h2 id="td-h">{t('Clean up test data')}</h2>
-    <button type="button" class="tp-link" onclick={() => dialog.close()}>{t('Close')}</button>
+
+<!-- Design-Refresh P9 (I13b, Noah 12.10.2026 «Runde 20 freigegeben»): the window look of the new style:
+     the groups with their tick on a soft panel (tap the text to see the entries), the note «Archived,
+     not deleted», the buttons bottom right (the main one last). The same clean-up as before. -->
+<dialog class="sheet tdsheet vdlg" bind:this={dialog} use:backClose onclose={() => onclose?.()} aria-labelledby="td-h">
+  <div class="vd-head">
+    <div class="vd-t">
+      <h2 id="td-h">{t('Clean up test data')}</h2>
+      {#if st?.found.n}<p class="vd-sub">{t('Found: everything with «test» in its name. Untick what should stay.')}</p>{/if}
+    </div>
   </div>
   {#if !st}
     <p class="lead">{t('Loading…')}</p>
   {:else}
     {#if st.found.n}
-      <p class="lead">{t('Found: everything with «test» in its name. Untick what should stay.')}</p>
-      <ul class="groups">
+      <ul class="vd-panel groups">
         {#each groups as g (g)}
           <li>
             <div class="grow">
@@ -90,7 +96,7 @@
                 <b>{tn(st.found[g].length, ...NAMES[g])}</b>
                 <small>{g === 'trips' && nDebriefs ? tn(nDebriefs, 'with {n} debrief: no longer counts for learning', 'with {n} debriefs: no longer count for learning') : sample(g)}</small>
               </button>
-              <ChevronRight class="chev" size={18} aria-hidden="true" />
+              <span class="chev" class:down={open === g}><ChevronRight size={18} aria-hidden="true" /></span>
             </div>
             {#if open === g}
               <ul class="entries">
@@ -102,31 +108,26 @@
           </li>
         {/each}
       </ul>
-      <div class="note"><b>{t('Archived, not deleted')}</b><span>{t('The app no longer learns from it. «Undo» in Ich › Clean up test data, at any time.')}</span></div>
-      <button type="button" class="btn hi big" disabled={busy || !nChosen} onclick={archive}>{tn(nChosen, 'Archive {n} thing', 'Archive {n} things')}</button>
+      <div class="vd-note"><Archive size={16} aria-hidden="true" /><span><b>{t('Archived, not deleted')}</b> {t('The app no longer learns from it. «Undo» in Ich › Clean up test data, at any time.')}</span></div>
     {:else}
       <p class="lead">{t('Nothing with «test» in its name left.')}</p>
     {/if}
     {#if msg}<p class="msg" role="status">{msg}</p>{/if}
-    {#if st.tidied}
-      <button type="button" class="btn undo" disabled={busy} onclick={undo}>{tn(st.tidied, 'Undo: bring {n} thing back', 'Undo: bring {n} things back')}</button>
-    {/if}
   {/if}
+  <div class="vd-foot">
+    <button type="button" class="btn" onclick={() => dialog.close()}>{t('Close')}</button>
+    {#if st?.tidied}
+      <button type="button" class="btn" disabled={busy} onclick={undo}>{tn(st.tidied, 'Undo: bring {n} thing back', 'Undo: bring {n} things back')}</button>
+    {/if}
+    {#if st?.found.n}
+      <button type="button" class="btn hi" disabled={busy || !nChosen} onclick={archive}>{tn(nChosen, 'Archive {n} thing', 'Archive {n} things')}</button>
+    {/if}
+  </div>
 </dialog>
 
 <style>
-  .head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-  }
-  h2 {
-    margin: 0;
-    font: 700 var(--fs-section)/1.2 var(--font-body);
-  }
   .lead {
-    margin: 6px 0 12px;
+    margin: 0;
     color: var(--ink-2);
   }
   .groups,
@@ -135,14 +136,14 @@
     margin: 0;
     padding: 0;
   }
-  .groups > li {
-    border-top: 1px solid var(--line);
+  .groups {
+    padding: 4px 12px;
   }
   .grow {
     display: flex;
     align-items: center;
-    gap: 12px;
-    min-height: 56px;
+    gap: 8px;
+    min-height: 60px;
   }
   .check {
     flex: none;
@@ -164,34 +165,48 @@
   .check::after {
     content: '';
     position: absolute;
-    inset: 9px;
-    border: 2px solid var(--line-strong);
-    border-radius: 7px;
+    inset: 11px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 6px;
     background: var(--paper);
   }
   .check.on::after {
-    border-color: var(--ok);
-    background: var(--ok);
+    border-color: var(--ink);
+    background: var(--ink);
   }
   .what {
     flex: 1;
     min-width: 0;
     display: grid;
     gap: 2px;
+    min-height: 44px;
     padding: 8px 0;
     border: 0;
     background: none;
-    color: inherit;
+    color: var(--ink);
     font: inherit;
     text-align: left;
     cursor: pointer;
   }
+  .what b {
+    font-weight: 600;
+  }
   .what small {
-    color: var(--ink-2);
+    color: var(--ink-3);
+    font-size: var(--fs-small);
     overflow-wrap: break-word;
   }
+  .chev {
+    flex: none;
+    display: grid;
+    color: var(--ink-3);
+    transition: transform 0.15s;
+  }
+  .chev.down {
+    transform: rotate(90deg);
+  }
   .entries {
-    padding: 0 0 10px 56px;
+    padding: 0 0 10px 52px;
   }
   .entries label {
     display: flex;
@@ -200,31 +215,16 @@
     min-height: 44px;
     overflow-wrap: break-word;
   }
-  .note {
-    display: grid;
-    gap: 2px;
-    margin: 14px 0;
-    padding: 12px 14px;
-    border-radius: 12px;
-    background: var(--ok-soft);
+  .vd-note :global(svg) {
+    flex: none;
+    margin-top: 2px;
   }
-  .note span {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .big {
-    width: 100%;
-    min-height: 52px;
-    justify-content: center;
-  }
-  .undo {
-    width: 100%;
-    margin-top: 10px;
-    min-height: 48px;
-    justify-content: center;
+  .vd-note b {
+    color: var(--ink);
+    font-weight: 600;
   }
   .msg {
-    margin: 10px 0 0;
+    margin: 12px 0 0;
     color: var(--ink-2);
   }
 </style>
