@@ -13,6 +13,7 @@ import { distKm, ridingHours, climb } from './route.js';
 import { zoneName } from './trips.js';
 import { newDebrief } from './debrief.js';
 import { t } from './i18n.svelte.js';
+import { ownStages, dayRange, gainBetween, pointAtKm } from './stages.js';
 
 const addDays = (date, n) => {
   const d = new Date(`${date}T00:00:00Z`);
@@ -95,6 +96,15 @@ export function stage(trip, day = 0, pace = null, { today = null, nowStart = nul
     const set = Number(trip?.hours) > 0 ? Number(trip.hours) : null;
     const hours = trip?.startDate ? set ?? NO_ROUTE_HOURS : null;
     return { day, date, km: null, gainM: null, hours, hoursGuess: hours != null && set == null, from: trip?.place ?? null, to: null, start, arrive: addTime(start, hours), startAt, endAt: startAt && hours != null ? addHours(startAt, hours) : null };
+  }
+  // v0.102.0 Design-Refresh P4 (T3 «Etappen»): the stages set with «Einteilen» (stages.js), else the even split
+  const own = days > 1 && ownStages(trip) ? dayRange(trip, day) : null;
+  if (own) {
+    const part = { km: Math.round((own.toKm - own.fromKm) * 10) / 10, gainM: gainBetween(r, own.fromKm, own.toKm) };
+    const hrs = ridingHours({ km: part.km, gainM: part.gainM ?? 0 }, 1, pace);
+    const a = day === 0 ? (r.start ?? pointAt(r.line, 0)) : pointAtKm(r.line, own.fromKm, r.km);
+    const b = day === days - 1 ? (r.end ?? pointAt(r.line, 1)) : pointAtKm(r.line, own.toKm, r.km);
+    return { day, date, ...part, hours: hrs, from: a, to: b, start, arrive: addTime(start, hrs), startAt, endAt: startAt && hrs != null ? addHours(startAt, hrs) : null };
   }
   const share = { km: Math.round((r.km / days) * 10) / 10, gainM: dayGain(r, day, days) };
   const hours = ridingHours({ km: share.km, gainM: share.gainM ?? 0 }, 1, pace);

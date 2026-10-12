@@ -17,6 +17,14 @@
   import SwapSheet from './SwapSheet.svelte';
   import { wornClothes, tripRange, tripRain } from '../swap.js';
   import TripBike from './TripBike.svelte';
+  import RouteCard from './RouteCard.svelte';
+  import WeightCard from './WeightCard.svelte';
+  import StagesCard from './StagesCard.svelte';
+  import EventStart from './EventStart.svelte';
+  import TripWeather from './TripWeather.svelte';
+  import LessonsCard from './LessonsCard.svelte';
+  import { hasStages } from '../stages.js';
+  import { isEvent } from '../care.js';
   import TripBand from '../trip/TripBand.svelte';
   import Sum from '../ui/Sum.svelte';
   import { planningGroups } from '../preparation.js';
@@ -38,7 +46,7 @@
   import { Sparkles } from '@lucide/svelte';
   import ListCheck from '../helper/ListCheck.svelte';
   import { isOn } from '../helper/client.svelte.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {} } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, lessons = [] } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -153,6 +161,13 @@
     setTimeout(() => document.querySelector('.kh-check')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   }
   const checkHere = $derived(isOn() && main.href === '#/pack?day');
+  // v0.102.0 Design-Refresh P4 «Touren» (T3–T5, approved 12.10.2026): the top of Plan in two columns:
+  // the route with map and height profile, the bike with its bags, the weather at the campsites (left);
+  // the weight, the stages, the learnings (right). An event starts with «Bis zum Start» and its weather.
+  const ev = $derived(bikeTrip && isEvent(trip));
+  const showRoute = $derived(bikeTrip || !!trip.route);
+  const camps = $derived(!over && hasStages(trip) && trip.route?.line?.length > 1);
+  const planTop = $derived(showRoute || (bikeTrip && bike) || hasStages(trip) || ev);
 </script>
 
 {#snippet go()}
@@ -173,7 +188,22 @@
     {@render notice?.()}
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
     <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
-    {#if bikeTrip && bike}<TripBike {trip} {stats} {bike} {photo} onbag={openBag} onphoto={actions.photo} />{/if}
+    {#if planTop}
+      <div class="plan-top">
+        <div class="pcol">
+          {#if ev}<EventStart {trip} prep={prep?.prep} open={prep?.open ?? []} />{/if}
+          {#if showRoute}<RouteCard {trip} onchange={edit ? onroute : null} />{/if}
+          {#if bikeTrip && bike}<TripBike {trip} {stats} {bike} {photo} onbag={openBag} onphoto={actions.photo} onbags={() => show('bags')} />{/if}
+          {#if camps && !ev}<TripWeather {trip} kind="camps" />{/if}
+        </div>
+        <div class="pcol">
+          {#if ev}<TripWeather {trip} kind="event" />{/if}
+          {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
+          {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
+          <LessonsCard {lessons} />
+        </div>
+      </div>
+    {/if}
     <div class="tp-grid2">
       <div class="left">
         <!-- Noah: the conditions as four fields; a tap changes them. A template is one way to start, not a must. -->
@@ -365,6 +395,9 @@
 
 <style>
   .left, .right { min-width: 0; }
+  .plan-top { display: grid; gap: var(--sp-5); margin: 0 0 var(--sp-5); }
+  .pcol { display: grid; gap: var(--sp-5); align-content: start; min-width: 0; }
+  @media (min-width: 900px) { .plan-top { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } }
   .cond { padding: 6px; }
   .cgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px; }
   .cell { display: flex; gap: 10px; align-items: center; min-height: 56px; padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: var(--ink); font: 500 15px/1.25 var(--font-body); text-align: left; text-decoration: none; cursor: pointer; min-width: 0; overflow-wrap: break-word; }

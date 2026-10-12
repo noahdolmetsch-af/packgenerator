@@ -47,3 +47,31 @@ export function daysTo(iso, today) {
   if (!iso || !today) return null;
   return Math.round((Date.parse(`${iso}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 864e5);
 }
+
+/**
+ * T3 «Gewicht»: the gear of a trip by place (each bag, the bike, on me), without food and water, the
+ * heaviest place first; plus the heaviest single item. stats: trips.js tripStats; itemsById: id → item.
+ * → { rows: [{ key, g, missing }], total, missing, heaviest: { item, g } | null, food }
+ */
+export function weightByPlace(stats, itemsById, eats = () => false) {
+  const rows = [];
+  let heaviest = null;
+  for (const z of stats?.zones ?? []) {
+    let g = 0;
+    let missing = 0;
+    for (const e of z.entries) {
+      const it = itemsById[e.itemId];
+      if (!it || eats(it)) continue;
+      if (it.weightG == null) {
+        missing++;
+        continue;
+      }
+      const w = it.weightG * (e.qty || 1);
+      g += w;
+      if (!heaviest || it.weightG > heaviest.g) heaviest = { item: it, g: it.weightG };
+    }
+    if (g > 0 || missing) rows.push({ key: z.key, g, missing });
+  }
+  rows.sort((a, b) => b.g - a.g);
+  return { rows, total: rows.reduce((s, r) => s + r.g, 0), missing: rows.reduce((s, r) => s + r.missing, 0), heaviest, food: stats?.consumablesG ?? 0 };
+}
