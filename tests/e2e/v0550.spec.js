@@ -181,7 +181,7 @@ test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves
   expect(errors).toEqual([]);
 });
 
-test('a new trip: Biwak + Zelt by default, Licht in the dark, Rennen on an event; v0.113.0: Reparatur, Laden and Komfort not by themselves', async ({ page, context }, info) => {
+test('a new trip: Biwak + Zelt by default, Licht in the dark, Rennen on an event; v0.114.0: Reparatur, Laden and Komfort not by themselves', async ({ page, context }, info) => {
   const { errors } = await start(page, context, info);
   await tap(page.getByRole('button', { name: 'Neu', exact: true }).filter({ visible: true }), info);
   await tap(page.getByRole('dialog', { name: 'Neu' }).getByRole('button', { name: 'Tour planen' }), info);
@@ -197,11 +197,11 @@ test('a new trip: Biwak + Zelt by default, Licht in the dark, Rennen on an event
   // The night: three choices, Biwak + Zelt chosen.
   for (const name of ['Biwak', 'Biwak + Zelt', 'Hotel/Hütte']) await expect(dlg.getByRole('button', { name, exact: true })).toBeVisible();
   await expect(dlg.getByRole('button', { name: 'Biwak + Zelt', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  // v0.113.0 «Rahmenbedingungen» (4b): the whole list in the window, with the night's items.
+  // v0.114.0 «Rahmenbedingungen» (4b): the whole list in the window, with the night's items.
   const box = dlg.getByRole('region', { name: 'Deine Packliste' });
   for (const k of ['SL01', 'SL02', 'SL03']) await expect(box).toContainText(await nameOf(page, k));
 
-  // The ride: 4 h from 08:00 in daylight: no Licht. v0.113.0 (Noah «92 Teile … nur 10-20»): Reparatur and Laden
+  // The ride: 4 h from 08:00 in daylight: no Licht. v0.114.0 (Noah «92 Teile … nur 10-20»): Reparatur and Laden
   // no longer come by themselves, and the window has no building block chips (1a: only in Packen).
   await expect(dlg.getByRole('group', { name: T('Suggested for this ride') })).toHaveCount(0);
   await expect(box).not.toContainText(await nameOf(page, 'LI03'));

@@ -177,7 +177,7 @@ async function openNewTrip(page, rec, start = 'standard') {
   // v0.30.0 (Noah, finding 2): the window starts with the standard set; last trip and templates are folded in it.
   const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
   await expect(dlg).toBeVisible();
-  // v0.113.0 «Rahmenbedingungen» (1a, B2): the templates as buttons under «Vorlage wählen»; never a past trip.
+  // v0.114.0 «Rahmenbedingungen» (1a, B2): the templates as buttons under «Vorlage wählen»; never a past trip.
   if (start !== 'standard') {
     await rec.click(dlg.getByRole('button', { name: new RegExp(esc(T('Choose a template'))) }));
     await rec.click(dlg.getByRole('group', { name: T('Your templates') }).getByRole('button', { name: new RegExp(esc(start)) }));
@@ -257,7 +257,7 @@ test('PF01: MTB, 2 h, 1 day, no overnight stay, Scott Scale: a list to check wit
   await fillTrip(dlg, rec, { title, bike: BIKE.scale, hours: 2 });
   // v0.30.0 (Noah, finding 2): the night is asked only from 2 days on; one day has none without a tap.
   await rec.check('1 day: no night without a tap', () => expect(dlg.getByRole('button', { name: T('None|overnight'), exact: true })).toHaveCount(0, { timeout: 2000 }));
-  // v0.113.0 «Rahmenbedingungen» (4b): the whole list in the window; no night item on it.
+  // v0.114.0 «Rahmenbedingungen» (4b): the whole list in the window; no night item on it.
   await rec.check('the live list has no night gear', async () => {
     const list = dlg.getByRole('region', { name: T('Your packing list') });
     await expect(list).toContainText(T('From Standard, weather and duration. Everything can be changed.'), { timeout: 2000 });
@@ -431,7 +431,7 @@ test('PF05: bikepacking, 3 days, outdoor, cooking: explicit sleep/cook choice, b
   await rec.click(dlg.getByRole('checkbox', { name: T('Cooking') }));
   const box = dlg.getByRole('region', { name: T('Your packing list') });
   // v0.66.0: Base + Sleep are Bivouac, the tent its own block, Warm comes with the weather.
-  // v0.113.0 «Rahmenbedingungen» (4b): the live list names the night items themselves (sleep and the 3 cook items).
+  // v0.114.0 «Rahmenbedingungen» (4b): the live list names the night items themselves (sleep and the 3 cook items).
   await rec.check('the live list has the night items (Bivouac, Cook)', async () => {
     for (const k of ['SL03', 'SL02', 'CO01', 'CO02', 'CO03']) await expect(box).toContainText(nm(k), { timeout: 2000 });
   });

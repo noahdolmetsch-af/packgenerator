@@ -48,7 +48,7 @@
    * window: title with one sentence, the kind of trip as chips (the area), the name right under it, the
    * bike chips with a bike, when and how long, «Packliste startet mit» as a gallery (standard, the last
    * trip, the templates), the helper's notice at the end and «Abbrechen · Tour anlegen» on the right.
-   * v0.113.0 «Rahmenbedingungen» (Noah 12.10.2026, B1–B3 approved «b1 ok», «b3 ok», «b2 b4 b5 ok»): the title
+   * v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, B1–B3 approved «b1 ok», «b3 ok», «b2 b4 b5 ok»): the title
    * «Rahmenbedingungen» without the hint line; «Sportart» Fahrrad (default) · Skitour · Wandern · + Andere;
    * the weather from a start postcode (Open-Meteo, free); the event with its hint and the block «Rennen»;
    * «Vorlage wählen» folded, as buttons: Standard, own templates and two examples, never a past trip
@@ -122,11 +122,11 @@
   const darkPlace = $derived(trip?.place ?? wxPlace ?? homeOf($homeQ?.value) ?? null);
   const dark = $derived(ridesIntoDark({ ...(trip ?? {}), startDate: draft.startDate, days, hours: hoursOk ? hoursNum : null }, darkPlace));
   // v0.66.0 (Noah 9a): the ride blocks the window suggests, taken off with a tap (a visible suggestion, never forced).
-  // v0.113.0 (Noah: «92 Teile … nur 10-20»): Repair (36 tools) and Charging no longer come by themselves
+  // v0.114.0 (Noah: «92 Teile … nur 10-20»): Repair (36 tools) and Charging no longer come by themselves
   // with a new trip; they stay one switch away in Packen (answer 1a: building blocks only when packing).
   // svelte-ignore state_referenced_locally
   let off = $state(isNew ? ['repair', 'charge'] : []);
-  // v0.113.0 (bug «Letzte Tour»): a new trip never starts from a past trip here, only Standard or a template.
+  // v0.114.0 (bug «Letzte Tour»): a new trip never starts from a past trip here, only Standard or a template.
   // svelte-ignore state_referenced_locally
   let start = $state(startFrom === 'last' ? 'standard' : startFrom);
   // v0.26.1 (AP18, Noah 17b): a template brings its days, riding hours, overnight stay (+ cooking) and
@@ -144,10 +144,10 @@
   // svelte-ignore state_referenced_locally
   const startTpl = templates.find((x) => x.id === startFrom);
   // svelte-ignore state_referenced_locally
-  // v0.113.0 (Noah): a new trip starts as Fahrrad, unless it comes from a template or an area's page.
+  // v0.114.0 (Noah): a new trip starts as Fahrrad, unless it comes from a template or an area's page.
   // svelte-ignore state_referenced_locally
   let area = $state(startTpl ? tplDomain(startTpl) : DOMAIN[domain] && DOMAIN[domain].trip !== false ? domain : BIKEPACKING);
-  // v0.113.0 (answer 2a): «Sportart» Fahrrad · Skitour · Wandern in sight, the other areas behind «+ Andere».
+  // v0.114.0 (answer 2a): «Sportart» Fahrrad · Skitour · Wandern in sight, the other areas behind «+ Andere».
   const SPORTS = [
     { key: BIKEPACKING, name: 'Cycling|sport', icon: BikeIcon },
     { key: 'ski', name: 'Ski touring', icon: MountainSnow },
@@ -156,7 +156,7 @@
   const otherAreas = TRIP_DOMAINS.filter((d) => !SPORTS.some((x) => x.key === d.key));
   // svelte-ignore state_referenced_locally
   let othersOpen = $state(otherAreas.some((d) => d.key === area));
-  // v0.113.0 (answer 3b, B2): two example templates per kind of trip; they can be hidden.
+  // v0.114.0 (answer 3b, B2): two example templates per kind of trip; they can be hidden.
   let example = $state(null);
   let tplOpen = $state(false);
   const hiddenQ = liveQuery(() => db.settings.get(EXAMPLES_HIDDEN));
@@ -200,7 +200,7 @@
   let wxTouched = $state(false);
   const fcWx = $derived(isNew && byBike ? forecastPreset(forecast, draft.startDate) : null);
   const fromForecast = $derived(!!fcWx && ctx.min === fcWx.min && ctx.max === fcWx.max && ctx.rain === fcWx.rain);
-  // v0.113.0 (Noah: «Wettervorschlag … mit PLZ, kostenlos»): the start place, from the settings' home place,
+  // v0.114.0 (Noah: «Wettervorschlag … mit PLZ, kostenlos»): the start place, from the settings' home place,
   // changeable here by postcode or name (Open-Meteo's free place search). Kept on the trip (trip.place).
   let wxPlace = $state.raw(null);
   let placeText = $state('');
@@ -300,11 +300,11 @@
     return out;
   };
   const withBlocks = (nt) => withExtras(withBlocksOnly(nt));
-  // v0.113.0 (answers 4b, 7a): the list in four groups; the button counts what goes into the bags.
+  // v0.114.0 (answers 4b, 7a): the list in four groups; the button counts what goes into the bags.
   const warmIds = $derived(new Set((preview?.weather ?? []).filter((i) => coldLayer(i)).map((i) => i.id)));
   const packList = $derived(built ? groupEntries(withBlocks(built).entries, items, warmIds) : null);
   const total = $derived(packList ? packList.bag : 0);
-  // v0.113.0 (answer 5b, B3): the event brings the block «Rennen»; its items named in the hint.
+  // v0.114.0 (answer 5b, B3): the event brings the block «Rennen»; its items named in the hint.
   const raceItems = $derived(items.filter((i) => isInventory(i) && inDomain(i, BIKEPACKING) && i.sets?.includes('race') && !skip.has(i.id)));
   const RACE_COLOR = CATEGORY.cook.color;
   const raceW = $derived(entriesWeight(raceItems.map((i) => ({ itemId: i.id, qty: 1 })), items));
@@ -543,7 +543,7 @@
   <fieldset class="ctx">
     <legend class="lbl">{t('Weather')}</legend>
     {#if isNew}
-      <!-- v0.113.0 (B1): the start place by postcode or name; the forecast for it as a suggestion (Open-Meteo, free). -->
+      <!-- v0.114.0 (B1): the start place by postcode or name; the forecast for it as a suggestion (Open-Meteo, free). -->
       <div class="plz">
         <label class="plzin"><MapPin size={18} aria-hidden="true" /><input class="inp" bind:value={placeText} oninput={() => (placeTyped = true)} onblur={() => placeTyped && findPlace()} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), findPlace())} placeholder={t('e.g. 3011 Bern')} aria-label={t('Start postcode or place')} enterkeyhint="search" /></label>
         <p class="note small">{placeBusy ? t('Looking up the place …') : placeErr || (wxPlace ? t('Start place for this trip') : t('Start postcode, from your settings. Changeable here.'))}</p>
@@ -592,7 +592,7 @@
 {/snippet}
 
 {#snippet templatesFold()}
-  <!-- v0.113.0 (answers 1a, 3b, B2): «Vorlage wählen» folded; the starts as buttons: Standard, own templates,
+  <!-- v0.114.0 (answers 1a, 3b, B2): «Vorlage wählen» folded; the starts as buttons: Standard, own templates,
        two examples of this kind of trip. Never a past trip (the bug «Letzte Tour»). -->
   <section class="tplbox" class:open={tplOpen}>
     <button type="button" class="tplhead" aria-expanded={tplOpen} aria-controls="tpl-body" onclick={() => (tplOpen = !tplOpen)}>
@@ -625,7 +625,7 @@
 {/snippet}
 
 {#snippet eventBox()}
-  <!-- v0.113.0 (answer 5b, B3): the event as a box with its hint; ticked, the block «Rennen» with its items. -->
+  <!-- v0.114.0 (answer 5b, B3): the event as a box with its hint; ticked, the block «Rennen» with its items. -->
   <section class="evbox" class:on={ctx.event}>
     <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event: a race or organised ride')}</label>
     <p class="note small evn">{ctx.event ? t('For a race or an organised ride the block «Race» comes along. You can take it off again when packing.') : raceItems.length ? t('Ticked, the block «Race» comes along ({names}).', { names: raceItems.slice(0, 3).map((i) => nameOf(i)).join(', ') }) : t('Ticked, the block «Race» comes along.')}</p>
@@ -641,7 +641,7 @@
 {/snippet}
 
 {#snippet packListView()}
-  <!-- v0.113.0 (answers 4b, 7a, B1): the whole list in four groups, a picture per item, long names wrap, weight on the right. -->
+  <!-- v0.114.0 (answers 4b, 7a, B1): the whole list in four groups, a picture per item, long names wrap, weight on the right. -->
   <section class="plist" aria-labelledby="plist-h" aria-live="polite">
     <div class="plh">
       <h3 id="plist-h">{t('Your packing list')}</h3>
@@ -662,16 +662,16 @@
 
 <dialog class="sheet trip-dlg" bind:this={dialog} use:backClose={keepOnBack} onclose={closed} aria-labelledby="trip-h">
   <form onsubmit={save} novalidate>
-    <!-- v0.113.0 (Noah): «Rahmenbedingungen», no hint line under it. -->
+    <!-- v0.114.0 (Noah): «Rahmenbedingungen», no hint line under it. -->
     <header class="dh">
       <h2 id="trip-h">{isNew ? t('Conditions|newtrip') : t('Trip details')}</h2>
     </header>
-    <!-- v0.113.0 (Noah: «KI helfer soll raus»): the helper only with a question from the search («Als Packliste vorschlagen»). -->
+    <!-- v0.114.0 (Noah: «KI helfer soll raus»): the helper only with a question from the search («Als Packliste vorschlagen»). -->
     {#if isNew && askPrefill && helper.loaded && isSetUp() && isOn()}
       <TripAsk {items} {bikes} {sets} areas={askAreas} prefill={askPrefill} onapply={takeProposal} />
     {/if}
     {#if isNew}
-      <!-- v0.113.0 (answer 2a): «Sportart», Fahrrad first; the other areas behind «+ Andere». -->
+      <!-- v0.114.0 (answer 2a): «Sportart», Fahrrad first; the other areas behind «+ Andere». -->
       <fieldset class="ctx area">
         <legend class="lbl">{t('Sport')}</legend>
         <div class="tp-chips areas">
@@ -765,7 +765,7 @@
         <label class="ck ev"><input type="checkbox" bind:checked={ctx.event} /> {t('Event (race or organised ride)')}</label>
       {/if}
       {#if isNew}
-        <!-- v0.113.0 (bug «Letzte Tour»): no past trip as a start; templates and examples as buttons. -->
+        <!-- v0.114.0 (bug «Letzte Tour»): no past trip as a start; templates and examples as buttons. -->
         {@render templatesFold()}
         {@render helperItems()}
         <p class="note">
@@ -782,7 +782,7 @@
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete trip')}</button>{/if}
       {#if isNew && autoId}<span class="kept" role="status"><Check size={14} aria-hidden="true" />{t('Saved')}</span><button type="button" class="btn" onclick={discard}>{t('Discard')}</button>
       {:else}<button type="button" class="btn" onclick={() => (isNew ? discard() : dialog.close())}>{t('Cancel')}</button>{/if}
-      <!-- v0.30.0 (Noah, finding 2): the live item count on the one orange button; v0.113.0 (7a): bag items only. -->
+      <!-- v0.30.0 (Noah, finding 2): the live item count on the one orange button; v0.114.0 (7a): bag items only. -->
       <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}{#if total}<span class="cnt">{` · ${tn(total, '{n} item', '{n} items')}`}</span>{/if}</button>
     </div>
   </form>
@@ -975,7 +975,7 @@
     border-color: var(--bad);
     color: var(--bad);
   }
-  /* v0.113.0 «Rahmenbedingungen» (B1–B3): the sport chips with their icon, «+ Andere» dashed. */
+  /* v0.114.0 «Rahmenbedingungen» (B1–B3): the sport chips with their icon, «+ Andere» dashed. */
   .areas .tp-chip {
     display: inline-flex;
     align-items: center;
@@ -1240,7 +1240,7 @@
     background: var(--warn-soft);
     font-size: var(--fs-small);
   }
-  /* v0.113.0 (Noah): on the phone the two buttons of a new trip fill the row edge to edge */
+  /* v0.114.0 (Noah): on the phone the two buttons of a new trip fill the row edge to edge */
   @media (max-width: 600px) {
     .foot.fnew {
       display: grid;

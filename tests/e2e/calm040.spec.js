@@ -149,13 +149,13 @@ test('New trip: the sport chips with Fahrrad pressed, the days field with "More"
   await (await newButton(page, T('New'))).click();
   await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
   const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
-  // v0.102.0 Design-Refresh P4 (T2): the areas as chips in sight (no fold). v0.113.0 (2a): «Sportart», Fahrrad pressed.
+  // v0.102.0 Design-Refresh P4 (T2): the areas as chips in sight (no fold). v0.114.0 (2a): «Sportart», Fahrrad pressed.
   await expect(dlg.getByRole('group', { name: T('Sport') }).getByRole('button', { name: T('Cycling|sport'), exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(dlg.getByRole('spinbutton', { name: T('Days') })).toHaveCount(0);
   await dlg.getByRole('button', { name: T('More'), exact: true }).click();
   await expect(dlg.getByRole('spinbutton', { name: T('Days') })).toBeFocused();
   await expect(dlg.getByRole('spinbutton', { name: T('Days') })).toHaveValue('3');
-  // v0.113.0 «Rahmenbedingungen» (1a, B2): «Vorlage wählen» folded before the packing list; open, Standard first and chosen.
+  // v0.114.0 «Rahmenbedingungen» (1a, B2): «Vorlage wählen» folded before the packing list; open, Standard first and chosen.
   const order = await dlg.evaluate((d) => {
     const tpl = d.querySelector('.tplbox');
     const list = d.querySelector('.plist');

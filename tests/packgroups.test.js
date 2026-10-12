@@ -1,4 +1,4 @@
-// v0.113.0 «Rahmenbedingungen» (Noah 12.10.2026, answers 4b, 7a, 3b): the new trip's list in four groups,
+// v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, answers 4b, 7a, 3b): the new trip's list in four groups,
 // worn items apart, and two example templates per kind of trip. Fictional items only.
 import { describe, it, expect } from 'vitest';
 import { groupOf, groupEntries, PACK_GROUPS, EXAMPLES, examplesFor } from '../src/lib/packgroups.js';

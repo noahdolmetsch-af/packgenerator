@@ -1,4 +1,4 @@
-// v0.113.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved «b1 ok», «b3 ok», «b2 b4 b5 ok»):
+// v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved «b1 ok», «b3 ok», «b2 b4 b5 ok»):
 // the window for a new trip. Title «Rahmenbedingungen» without the hint line, «Sportart» with Fahrrad first
 // and «+ Andere», no «Letzte Tour» (the bug: a future test trip showed up as a start), «Vorlage wählen»
 // folded with Standard, own templates and two examples as buttons, the weather from a start postcode

@@ -58,7 +58,7 @@ for (const lang of ['de', 'en']) {
     const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
     await dlg.getByLabel(T('Name')).fill(title);
     await dlg.getByLabel(T('Start date')).fill(today());
-    // v0.25.0 (M3): the live "Your packing list" leaves the overnight gear at home (v0.113.0: the whole list in the window).
+    // v0.25.0 (M3): the live "Your packing list" leaves the overnight gear at home (v0.114.0: the whole list in the window).
     await expect(dlg.getByRole('region', { name: T('Your packing list') })).toBeVisible();
     await expect(dlg.getByRole('region', { name: T('Your packing list') })).not.toContainText('test_data_gtp_ Zahnbürste');
     await click(dlg.getByRole('button', { name: T('Create trip') }));

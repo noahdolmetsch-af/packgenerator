@@ -320,7 +320,7 @@ test('S4 new item, weigh, wardrobe, block, trip', async ({ page, context }, info
   await assign.getByRole('button', { name: /^(Zuordnen|Assign)$/ }).click();
   await expect.poll(async () => (await table(page, 'items')).find((i) => i.id === item.id).sets ?? []).toContain(rain.key);
 
-  // trip: a new trip, then that block in Packen (v0.113.0, Noah 1a: building blocks only in Packen)
+  // trip: a new trip, then that block in Packen (v0.114.0, Noah 1a: building blocks only in Packen)
   await page.goto('./#/');
   const nt = await newTrip(page);
   await nt.getByLabel(T('Name')).fill(`${P} S4 Tour`);

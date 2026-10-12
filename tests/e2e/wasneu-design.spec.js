@@ -12,6 +12,12 @@ import { readFileSync } from 'node:fs';
 import { READY } from '../../src/lib/home/tiles.js';
 
 const NEWEST = WHATS_NEW[0];
+// the function the newest version brought (v0.111.0: the checks), read from the app instead of a copy
+// the newest function (highest since-version) and whether the newest version brought it
+const SINCE_ALL = [...readFileSync(new URL('../../src/lib/know/wasneu.js', import.meta.url), 'utf8').matchAll(/'?([\w.]+)'?: '(\d+\.\d+\.\d+)'/g)].map((m) => [m[1], m[2]]);
+const vnum = (v) => v.split('.').reduce((a, n) => a * 1000 + Number(n), 0);
+const NEW_FN = SINCE_ALL.reduce((a, b) => (vnum(b[1]) > vnum(a[1]) ? b : a))[0];
+const NEW_IN_NEWEST = SINCE_ALL.some(([, v]) => v === NEWEST.version);
 const V = shortVersion(NEWEST.version);
 const BEFORE = WHATS_NEW[1].version;
 // the lists of the page, read from the app source (wasneu.js imports the catalogue, which needs the app's runtime)
@@ -82,11 +88,10 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await expect(page.getByRole('group', { name: T('Sort') }).getByRole('button')).toHaveCount(SORTS.length);
   await expect(page.getByRole('button', { name: T('Newest'), exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.wn-rows > li')).toHaveCount(LIST_ROWS);
-  expect((await rows(page))[0]).toBe('f.news');
-  // «New» marks the functions of the newest version only (v0.113.0 brings none of its own: f.news is from 0.110.0)
-  const newIds = [...SRC.matchAll(/'?([\w.]+)'?: '([\d.]+)'/g)].filter((m) => m[2] === NEWEST.version).map((m) => m[1]);
-  if (newIds.includes('f.news')) await expect(page.locator('.wn-rows > li[data-feature="f.news"] .wn-new')).toBeVisible();
-  else await expect(page.locator('.wn-rows > li[data-feature="f.news"] .wn-new')).toHaveCount(0);
+  expect((await rows(page))[0]).toBe(NEW_FN);
+  // «New» marks the functions of the newest version only (v0.114.0 brings none of its own)
+  if (NEW_IN_NEWEST) await expect(page.locator(`.wn-rows > li[data-feature="${NEW_FN}"] .wn-new`)).toBeVisible();
+  else await expect(page.locator('.wn-rows .wn-new')).toHaveCount(0);
   await expect(page.getByRole('link', { name: new RegExp(T('All {n} functions', { n: FEATURE_N })) })).toHaveAttribute('href', '#/me/news?all&sort=new');
   await page.getByRole('button', { name: T('Name A–Z'), exact: true }).click();
   await expect(page.locator('.wn-rows > li')).toHaveCount(LIST_ROWS);
@@ -111,7 +116,7 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   const sinceIds = [...SRC.matchAll(/'?([\w.]+)'?: '([\d.]+)'/g)].filter((m) => newer(m[2], BEFORE)).map((m) => m[1]);
   const sinceSec = page.locator('section[aria-labelledby="wn-since-h"]');
   await expect(sinceSec.getByText(sinceIds.length === 1 ? T('{n} new function since {v}', { n: 1, v: shortVersion(BEFORE) }) : T('{n} new functions since {v}', { n: sinceIds.length, v: shortVersion(BEFORE) }))).toBeVisible();
-  if (sinceIds.includes('f.news')) await expect(sinceSec.locator('[data-feature="f.news"]')).toBeVisible();
+  if (sinceIds.includes(NEW_FN)) await expect(sinceSec.locator(`[data-feature="${NEW_FN}"]`)).toBeVisible();
   else await expect(sinceSec.locator('[data-feature]')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: T('How to test {v}', { v: V }) })).toBeVisible();
   await expect(page.getByRole('heading', { name: T('Planned next') })).toBeVisible();

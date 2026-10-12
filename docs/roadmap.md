@@ -513,9 +513,11 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 12.10.2026 (v0.113.0, PR offen):** «Rahmenbedingungen» (B1–B3): neues Fenster für eine neue Tour mit Sportart, Wetter aus der PLZ, Event-Hinweis, Vorlagen als Knöpfe ohne «Letzte Tour» und der Packliste in vier Gruppen; Reparatur und Laden nicht mehr von selbst. Als Nächstes Release 2 (B4 Bausteine beim Packen, B5 «Reparatur unterwegs») nach #131.
+**Nachtrag 12.10.2026 (v0.114.0, PR offen):** «Rahmenbedingungen» (B1–B3): neues Fenster für eine neue Tour mit Sportart, Wetter aus der PLZ, Event-Hinweis, Vorlagen als Knöpfe ohne «Letzte Tour» und der Packliste in vier Gruppen; Reparatur und Laden nicht mehr von selbst. Als Nächstes Release 2 (B4 Bausteine beim Packen, B5 «Reparatur unterwegs») nach #131.
 
-**Nachtrag 12.10.2026 (v0.110.0, PR offen):** Design-Refresh P10 «Was ist neu» (I11, I11b–I11e): Ich › Was ist neu mit neuester Version, allen Funktionen (sortierbar, Deine Top 10, Wichtigste 10, Suche) und allen Versionen nach Monat; Meldung nach Update mit «Nicht mehr anzeigen»; Kachel «Neu» 14 Tage oben auf Heute. Damit sind alle 10 Pakete des Design-Refresh gebaut.
+**Nachtrag 12.10.2026 (v0.111.0, PR offen):** «Bausteine bearbeiten» Teil 1 nach den Mockups V1–V6 (Noah «v1-v4 ok», «v5-6 ok»): Vorabend-Check als Zeile auf «Gepackt» mit Fenster, Schluss-Check unter «Bevor du auspackst», «Liste anpassen» für diese Tour oder alle der Reiseart, neue Seite Ich › Checks pro Reiseart. Danach C «Meist vergessen», D+E Temperaturbereich und Learnings, F Regel-Editor (Release 2).
+
+**Nachtrag 12.10.2026 (v0.110.0, live):** Design-Refresh P10 «Was ist neu» (I11, I11b–I11e): Ich › Was ist neu mit neuester Version, allen Funktionen (sortierbar, Deine Top 10, Wichtigste 10, Suche) und allen Versionen nach Monat; Meldung nach Update mit «Nicht mehr anzeigen»; Kachel «Neu» 14 Tage oben auf Heute. Damit sind alle 10 Pakete des Design-Refresh gebaut.
 
 **Nachtrag 12.10.2026 (v0.109.0, live):** Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (T14–T23): Tour beendet, Rückblick ausfüllen und gespeichert, Rückblick-Übersicht, Gelernt, Dein Tempo, Logbuch, Vergangene Touren, Fahrten und eine Fahrt im neuen Stil. Danach P10 Was ist neu.
 

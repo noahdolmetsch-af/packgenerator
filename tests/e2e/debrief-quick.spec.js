@@ -106,7 +106,7 @@ for (const lang of ['en', 'de']) {
     await click(page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }));
     // v0.29.2 (Noah 7a): the templates are folded under "Start from a template" (one click more).
     const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
-    // v0.102.0 Design-Refresh P4 (T2): the templates were cards in sight. v0.113.0 «Rahmenbedingungen» (1a): folded
+    // v0.102.0 Design-Refresh P4 (T2): the templates were cards in sight. v0.114.0 «Rahmenbedingungen» (1a): folded
     // under «Vorlage wählen» again, as buttons (one click more).
     await click(dlg.getByRole('button', { name: new RegExp(T('Choose a template')) }));
     await click(dlg.getByRole('group', { name: T('Your templates') }).getByRole('button', { name: new RegExp(`^${name}`) }));

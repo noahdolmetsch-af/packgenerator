@@ -175,7 +175,7 @@ test('"+ block" in Add material adds the block once, with its amount, Undo takes
 });
 
 // v0.30.0 (Noah, finding 2): a new trip with Standard + Rain in 4 clicks (+, Plan a trip, the Rain chip, Create).
-// v0.113.0 «Rahmenbedingungen» (Noah 1a): building blocks are no longer in the New trip window (only in Packen);
+// v0.114.0 «Rahmenbedingungen» (Noah 1a): building blocks are no longer in the New trip window (only in Packen);
 // the window shows the whole list and the button counts the bag items (7a).
 test('New trip window: Standard in 3 clicks, no building blocks in it, the live count on the button = the bag items', async ({ page, context }, info) => {
   const T = tr('de');

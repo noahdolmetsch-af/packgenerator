@@ -53,12 +53,15 @@ const CASES = [
   // v0.110.0 Design-Refresh P10 (I11, I11c): Ich › Was ist neu and the whole list by «Your top 10»
   { id: 'me-news', hash: '#/me/news' },
   { id: 'me-news-top', hash: '#/me/news?all&sort=top' },
+  // v0.111.0 (mockup V4): Ich › Checks pro Reiseart, and its editor open
+  { id: 'me-checks', hash: '#/me/checks?ski' },
+  { id: 'me-checks-edit', hash: '#/me/checks?ski', act: async (page, T) => tap(page.locator('main').getByRole('button', { name: T('Adjust: {name}', { name: T('The evening before') }) })) },
   { id: 'features', hash: '#/features' },
   // v0.77.0 KI-Helfer: Ich › Helfer and New trip before the setup (the notice with «What goes to Claude?» open).
   // v0.76.0 «Fünf Orte»: New trip opens from Trips («+ New trip»), no longer from the list's ••• menu.
   { id: 'helper', hash: '#/helper' },
   {
-    // v0.113.0 «Rahmenbedingungen»: no helper in New trip any more; the window with «Vorlage wählen» open.
+    // v0.114.0 «Rahmenbedingungen»: no helper in New trip any more; the window with «Vorlage wählen» open.
     id: 'new-trip',
     hash: '#/trips',
     act: async (page, T) => {

@@ -78,7 +78,7 @@ for (const forecast of [true, false]) {
     await expect(chilly).toHaveAttribute('aria-pressed', 'true');
     await expect(rain).toHaveAttribute('aria-pressed', 'true');
     await expect(wx.getByRole('button', { name: 'Trocken', exact: true })).toHaveAttribute('aria-pressed', 'false');
-    // v0.113.0 «Rahmenbedingungen» (4b): the whole list in the window (it was a summary «Fürs Wetter: …»).
+    // v0.114.0 «Rahmenbedingungen» (4b): the whole list in the window (it was a summary «Fürs Wetter: …»).
     const box = dlg.getByRole('region', { name: 'Deine Packliste' });
     for (const name of ['Langarmtrikot', 'Armlinge', 'Windweste', 'Buff', 'Regenjacke', 'Regenhandschuhe']) await expect(box).toContainText(`test_data_gtp_ ${name}`);
     await expect(box).not.toContainText('test_data_gtp_ Winterhandschuhe'); // below 6 °C: only with «Kalt»

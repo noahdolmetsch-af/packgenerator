@@ -48,7 +48,7 @@ for (const lang of ['en', 'de']) {
     await page.getByRole('dialog', { name: T('New') }).getByRole('button', { name: T('Plan a trip') }).click();
     const tripDlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
     await expect(tripDlg).toBeVisible();
-    // v0.102.0 Design-Refresh P4 (T2): the areas as chips in sight. v0.113.0 «Rahmenbedingungen» (2a): «Sportart»,
+    // v0.102.0 Design-Refresh P4 (T2): the areas as chips in sight. v0.114.0 «Rahmenbedingungen» (2a): «Sportart»,
     // Fahrrad first and pressed; Weekend behind «+ Andere».
     const areaChip = (name) => tripDlg.getByRole('group', { name: T('Sport') }).getByRole('button', { name: T(name), exact: true });
     await expect(areaChip('Cycling|sport')).toHaveAttribute('aria-pressed', 'true');

@@ -62,7 +62,7 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
   expect(errors).toEqual([]);
 });
 
-// v0.113.0 «Rahmenbedingungen» (B1, B2): the title without the hint line, «Sportart» as chips, «Vorlage wählen»
+// v0.114.0 «Rahmenbedingungen» (B1, B2): the title without the hint line, «Sportart» as chips, «Vorlage wählen»
 // folded with the starts as buttons (the gallery «Packliste startet mit» is gone, with its «Letzte Tour»).
 test('Rahmenbedingungen: sport as chips, «Vorlage wählen» with the starts as buttons', async ({ page, context }) => {
   await start(page, context);

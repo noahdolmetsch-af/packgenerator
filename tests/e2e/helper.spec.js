@@ -144,10 +144,10 @@ function private_(seen) {
   }
 }
 
-test('8a: before the setup, a calm notice only in the settings (v0.113.0: no longer in New trip); nothing is sent', async ({ page, context }, info) => {
+test('8a: before the setup, a calm notice only in the settings (v0.114.0: no longer in New trip); nothing is sent', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   const seen = await fakeHelper(page);
-  // v0.113.0 «Rahmenbedingungen» (Noah: «KI helfer soll raus»): the window for a new trip has no helper notice.
+  // v0.114.0 «Rahmenbedingungen» (Noah: «KI helfer soll raus»): the window for a new trip has no helper notice.
   const dlg = await openNewTrip(page);
   await expect(dlg.getByText(T('The helper is not set up yet'))).toHaveCount(0);
   await expect(dlg.getByText(T('Ask the helper'))).toHaveCount(0);
@@ -195,7 +195,7 @@ test('1a + 7a: the code in the settings, the check, then «Frag den Helfer» in 
   await expect(page.getByText(T('Helper switched on'))).toBeVisible();
   await noSideways(page);
 
-  // v0.113.0: «Frag den Helfer» only comes into the window with a question from the search (proposeTrip).
+  // v0.114.0: «Frag den Helfer» only comes into the window with a question from the search (proposeTrip).
   await page.evaluate(() => localStorage.setItem('pack.helperAsk', '3 Tage Jura, 5 °C, Biwak'));
   const dlg = await openNewTrip(page);
   await expect(dlg.getByText(T('The helper is not set up yet'))).toHaveCount(0);
@@ -384,7 +384,7 @@ test('7a: the monthly cap (429) pauses the helper calmly until next month; offli
   let capped = false;
   const seen = await fakeHelper(page, { reply: (b) => (capped && b.task !== 'status' ? { status: 429, body: { error: 'monthly_cap', code: 'monthly_cap', message: 'cap', spend: { month: month(), chf: 5.03, cap: 5 } } } : null) });
   await setUp(page);
-  // offline first: one calm line, nothing sent (v0.113.0: the helper comes into New trip with a question from the search)
+  // offline first: one calm line, nothing sent (v0.114.0: the helper comes into New trip with a question from the search)
   await context.setOffline(true);
   await page.evaluate(() => localStorage.setItem('pack.helperAsk', '2 Tage Emmental'));
   let dlg = await openNewTrip(page);

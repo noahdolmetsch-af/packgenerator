@@ -1,4 +1,4 @@
-// v0.113.0 «Rahmenbedingungen» (Noah 12.10.2026, B1–B3): the window for a new trip.
+// v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, B1–B3): the window for a new trip.
 export default {
   'Conditions|newtrip': 'Rahmenbedingungen',
   Sport: 'Sportart',

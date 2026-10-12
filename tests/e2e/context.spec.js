@@ -84,7 +84,7 @@ for (const lang of ['de', 'en']) {
     // 1 day: no night (v0.30.0: the question only comes from 2 days on; overnight 'none' is checked below).
     await expect(dlg.getByRole('button', { name: T('None|overnight'), exact: true })).toHaveCount(0);
     await click(dlg.getByRole('button', { name: new RegExp(`^${T('Chilly')}`) }));
-    // The live list says what it will be (v0.113.0 «Rahmenbedingungen»: the whole list in groups).
+    // The live list says what it will be (v0.114.0 «Rahmenbedingungen»: the whole list in groups).
     const box = dlg.getByRole('region', { name: T('Your packing list') });
     await expect(box).toContainText('test_data_gtp_ Gel 2×');
     await expect(box).toContainText('test_data_gtp_ Beinlinge');

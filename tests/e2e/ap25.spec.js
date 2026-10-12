@@ -149,7 +149,7 @@ test('first aid: the small set on a day ride (v0.72.0), the full set with a 1-ni
   await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('New trip'), exact: true }).click();
   const fresh = page.getByRole('dialog', { name: T('Conditions|newtrip') });
-  // v0.30.0 (Noah, finding 2): the start is the "Standard" card; v0.113.0: under «Vorlage wählen», Standard pressed.
+  // v0.30.0 (Noah, finding 2): the start is the "Standard" card; v0.114.0: under «Vorlage wählen», Standard pressed.
   await fresh.getByRole('button', { name: new RegExp(T('Choose a template')) }).click();
   await expect(fresh.getByRole('group', { name: T('Your templates') }).getByRole('button', { name: T('Standard'), exact: true })).toHaveAttribute('aria-pressed', 'true');
   await fresh.getByRole('button', { name: T('Cancel') }).click();

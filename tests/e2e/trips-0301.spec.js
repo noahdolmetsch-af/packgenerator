@@ -248,7 +248,7 @@ test('N8, N9: rename a past trip in its band; past trips are easy to find', asyn
   expect(errors).toEqual([]);
 });
 
-test('N10, N11, v0.113.0: New trip offers no past trip as a start (bug «Letzte Tour»); templates in building blocks', async ({ page, context }, info) => {
+test('N10, N11, v0.114.0: New trip offers no past trip as a start (bug «Letzte Tour»); templates in building blocks', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const std = ['EL01', 'EL02', 'EL03', 'LI01', 'LI02', 'ON01', 'ON02', 'OF01', 'RA01', 'RA02', 'TO01', 'TO02', 'TO03', 'HY02'];
@@ -278,7 +278,7 @@ test('N10, N11, v0.113.0: New trip offers no past trip as a start (bug «Letzte 
   }), value);
   await page.evaluate(() => { localStorage.setItem('pack.startFrom', 'standard'); location.hash = '#/pack'; window.dispatchEvent(new Event('pg:newtrip')); });
   const dlg = page.getByRole('dialog', { name: T('Conditions|newtrip') });
-  // v0.113.0 «Rahmenbedingungen» (B2, the bug «Letzte Tour»): under «Vorlage wählen» Standard first (chosen), then
+  // v0.114.0 «Rahmenbedingungen» (B2, the bug «Letzte Tour»): under «Vorlage wählen» Standard first (chosen), then
   // the templates; a past trip is never offered as a start. A chosen template says its building blocks.
   await dlg.getByRole('button', { name: new RegExp(T('Choose a template')) }).click();
   const starts = dlg.getByRole('group', { name: T('Your templates') }).getByRole('button');

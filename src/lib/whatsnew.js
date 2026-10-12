@@ -11,8 +11,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.113.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved).
-    version: '0.113.0',
+    // v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved).
+    version: '0.114.0',
     date: '2026-10-12',
     title: 'Plan a trip',
     lead: 'A new trip asks sport, weather by postcode and event, and shows the list in groups.',
@@ -26,6 +26,25 @@ export const WHATS_NEW = [
       'Open Trips and tap «New trip».',
       'Type your postcode under Weather: the forecast suggests the weather.',
       'Open «Choose a template» and tap «Weekend»: 2 days and Hotel/hut are set.',
+    ],
+  },
+  {
+    // v0.111.0 Bausteine bearbeiten: evening-before and after-trip check (mockups V1–V6)
+    version: '0.111.0',
+    date: '2026-10-12',
+    title: 'Checks before and after',
+    lead: 'The evening before and back home: one tap on the row opens the check, and every trip type has its own list.',
+    points: [
+      { text: 'New on «Packed»: the row «Evening-before check» opens a window with your points, e.g. read the avalanche bulletin, route offline, charge.', href: '#/trips' },
+      { text: 'New on «Trip ended»: «Before you unpack» with the after-trip check, e.g. dry the skins, refill, charge; then on to the debrief.', href: '#/trips' },
+      { text: '«Adjust the list»: sort, remove, add your own or a suggestion from an earlier debrief, for this trip or all trips of the type.', href: '#/trips' },
+      { text: 'Me › Checks per trip type shows the lists of every type and how often you ticked each point.', href: '#/me/checks' },
+    ],
+    test: [
+      'Open a packed trip: tap «Evening-before check» under «Until the start» and tick a point.',
+      'Tap «Adjust the list», add your own point and save it for all trips of the type.',
+      'End a trip: tap the after-trip check under «Before you unpack».',
+      'Open Me › Checks per trip type and choose another type.',
     ],
   },
   {

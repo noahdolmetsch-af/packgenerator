@@ -1,5 +1,5 @@
 /**
- * v0.113.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved «b1 ok», «b3 ok», «b2 b4 b5 ok»):
+ * v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved «b1 ok», «b3 ok», «b2 b4 b5 ok»):
  * the packing list of a new trip in four groups (answer 4b): Clothing, Gear, Electronics and
  * Extra warm (the cold layers the weather brings). Items worn on the body are counted apart (answer 7a):
  * the button «Tour anlegen · n Teile» counts only what goes into the bags.
