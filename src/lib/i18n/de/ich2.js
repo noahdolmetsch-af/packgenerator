@@ -1,0 +1,97 @@
+// Design-Refresh P9a «Ich» (I1–I10, I12, I13, I13b; Noah 12.10.2026 «Runde 20 freigegeben»)
+export default {
+  /* ---------- I1 Ich ---------- */
+  'auto-backup set up': 'automatisches Backup eingerichtet',
+  'no backup yet': 'noch kein Backup',
+  'everything is only on this device': 'alles liegt nur auf diesem Gerät',
+  'Make a backup': 'Backup machen',
+  Data: 'Daten',
+  'Notes from on the way': 'Notizen von unterwegs',
+  'last backup {n} day ago': 'letztes Backup vor {n} Tag',
+  'last backup {n} days ago': 'letztes Backup vor {n} Tagen',
+
+  /* ---------- I2 Daten und Backup, B20 Status-Ampel ---------- */
+  'Everything is stored in this browser on this device': 'Alles ist in diesem Browser auf diesem Gerät gespeichert',
+  'Everything in order?': 'Alles in Ordnung?',
+  '{n} of {all} green': '{n} von {all} grün',
+  'If something is yellow, its button is beside it.': 'Wenn etwas gelb ist, steht der Knopf daneben.',
+  'in order': 'in Ordnung',
+  'to do': 'zu tun',
+  'off|backup': 'aus',
+  'Now|do': 'Jetzt',
+  Storage: 'Speicher',
+  '{pct} % used · {mb} MB': '{pct} % belegt · {mb} MB',
+  'After every change the newest backup, plus one file per day.': 'Nach jeder Änderung das neueste Backup, dazu eine Datei pro Tag.',
+  'Other data': 'Andere Daten',
+  'Open the app on the phone with a code': 'die App mit einem Code am Handy öffnen',
+  'Bike spec sheet': 'Velo-Datenblatt',
+  'Fit and geometry from a file': 'Sitzposition und Geometrie aus einer Datei',
+  'Favourites from a list': 'Favoriten aus einer Liste',
+  'Stars and a template from a list': 'Sterne und Vorlage aus einer Liste',
+  'Demo from a file': 'Demo aus einer Datei',
+  'The yellow bar on top brings your data back': 'die gelbe Leiste oben bringt deine Daten zurück',
+  'Nothing leaves the device unless you send a backup yourself.': 'Nichts verlässt das Gerät, ausser du sendest ein Backup selbst.',
+
+  /* ---------- B35 Aufs Handy ---------- */
+  'To the phone': 'Aufs Handy',
+  'No account and no internet server': 'Ohne Konto und ohne Internet-Server',
+  Scan: 'Scannen',
+  'Open the camera on the phone': 'Kamera am Handy öffnen',
+  'QR code': 'QR-Code',
+  'QR code with the address of the app': 'QR-Code mit der Adresse der App',
+  'Scan with the phone': 'Mit dem Handy scannen',
+  'The code holds only the address of the app, never your data.': 'Der Code enthält nur die Adresse der App, nie deine Daten.',
+  'The code could not be drawn.': 'Der Code konnte nicht gezeichnet werden.',
+  'How it works': 'So geht es',
+  '3 steps': '3 Schritte',
+  'Scan the code: the app opens on the phone': 'Code scannen: die App öffnet sich am Handy',
+  'Here: send the backup file to the phone': 'Hier: die Backup-Datei ans Handy senden',
+  'On the phone: Me › Data and backup › Import backup': 'Am Handy: Ich › Daten und Backup › Backup importieren',
+  'Last backup file': 'Letzte Backup-Datei',
+  'made on this device': 'auf diesem Gerät gemacht',
+
+  /* ---------- I3 Eingang, I4 Ablegen ---------- */
+  'Notes from on the way, to file': 'Notizen von unterwegs, zum Ablegen',
+  'To file': 'Zum Ablegen',
+  'A suggestion is with each · tap «File»': 'Ein Vorschlag steht dabei · «Ablegen» antippen',
+  'Recently filed': 'Kürzlich abgelegt',
+  'goes to the archive tonight · «Undo» until then': 'geht heute Nacht ins Archiv · «Rückgängig» bis dahin',
+  'Tap + on any page when something comes up.': 'Auf jeder Seite + tippen, wenn dir etwas einfällt.',
+
+  /* ---------- I5 Notizen, I6 Notiz ---------- */
+  'also in the normal backup': 'auch im normalen Backup',
+  '{done} of {total} done': '{done} von {total} erledigt',
+  'a trip idea, a wish or a bike problem · the note links to it': 'Tour-Idee, Wunsch oder Velo-Problem · die Notiz verlinkt darauf',
+
+  /* ---------- I8 KI-Helfer ---------- */
+  'of {chf}': 'von {chf}',
+  'Per request only what is needed': 'Pro Anfrage nur das Nötige',
+  'Never|claude': 'Nie',
+  'never to Claude': 'nie an Claude',
+  'The helper only suggests when you ask.': 'Der Helfer schlägt nur vor, wenn du ihn fragst.',
+
+  /* ---------- I10 Dein Wohnort ---------- */
+  'Only for the weather · stays on this device': 'nur fürs Wetter · bleibt auf diesem Gerät',
+  'Now: {place}': 'Jetzt: {place}',
+  'Search the place and tap it first.': 'Such zuerst den Ort und tipp ihn an.',
+  'Places found': 'Gefundene Orte',
+  'What the app needs your home place for': 'Dafür braucht die App deinen Wohnort',
+  'Weather at the weekend': 'Wetter am Wochenende',
+  'Tile on Today': 'Kachel auf Heute',
+  'What should I wear?': 'Was ziehe ich an?',
+  'for the coldest hour of a ride': 'für die kälteste Stunde einer Fahrt',
+  'Weather of a ride from home': 'Wetter einer Fahrt ab zuhause',
+  'for trips without a start place': 'bei Touren ohne Startort',
+  'The search needs the internet. Only the place is saved, no location.': 'Die Suche braucht Internet. Gespeichert wird nur der Ort, kein Standort.',
+
+  /* ---------- I9 Problem melden ---------- */
+  'Photo (optional)': 'Foto (freiwillig)',
+  'e.g. of the damage': 'z. B. vom Schaden',
+
+  /* ---------- I12 Tastenkürzel ---------- */
+  'On a phone without a keyboard you need no shortcuts: the bar at the bottom and «+» on top do the same.': 'Am Handy ohne Tastatur brauchst du keine Kürzel: die Leiste unten und «+» oben machen dasselbe.',
+
+  /* ---------- I13 Spielwiese ---------- */
+  'Playground with a made-up trip and made-up gear': 'Spielwiese mit erfundener Tour und erfundener Ausrüstung',
+  'This is how it looks while it runs': 'So sieht es aus, solange sie läuft',
+};

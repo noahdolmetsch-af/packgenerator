@@ -5,267 +5,218 @@
    * places of the app: home place, Inbox, notes, your data, what the app can do and has learned, help
    * and keyboard shortcuts. Numbers only where something waits (the Inbox, «Backup due»).
    * v0.77.0 KI-Helfer (K1a): its own row «Helfer» with the state (set up, switched off, paused, not set up).
-   * v0.88.0 «Aufräumen und Ausprobieren» (Noah 0.88 alle a, mockups F, G): under «Data and backup» two
-   * rows: «Clean up test data» (how many found, the sheet archives them with Undo) and «Try it out»
-   * (the playground; the debrief's «Lieber in der Spielwiese probieren» opens it here once).
-   * v0.94.0 «Kachel-Wand» (Noah 5a): «Data and backup» (backup, restore, import, export) opens right
-   * here, no longer at the bottom of Today; nav.js openData leads here from anywhere.
+   * v0.88.0 «Aufräumen und Ausprobieren» (Noah 0.88 alle a, mockups F, G): two rows «Clean up test data»
+   * (how many found, the sheet archives them with Undo) and «Try it out» (the playground; the debrief's
+   * «Lieber in der Spielwiese probieren» opens it here once).
+   * Design-Refresh P9 (I1, Noah 12.10.2026 «Runde 16 freigegeben»): on top only what is due (Backup);
+   * then four groups as in the mockup: Data (Data and backup, Inbox, Notes), Settings (Appearance,
+   * Home place, Language), The app (what it can do, help, Helper, what it has learned) and More (try it
+   * out, clean up test data, report a problem). «Data and backup» is its own page now (#/me/data, I2),
+   * the home place a window (I10). Everything that was here stays.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { LAST_BACKUP, backupDue } from '../lib/backup.js';
   import { demoState } from '../lib/demo.js';
   import { HOME_PLACE } from '../lib/know.js';
-  import DataPanel from '../lib/DataPanel.svelte';
   import { t, tn, lang, setLang } from '../lib/i18n.svelte.js';
   import { lookLine } from '../lib/theme.svelte.js';
-  import PageHead from '../lib/ui/PageHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
-  import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles } from '@lucide/svelte';
+  import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert } from '@lucide/svelte';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
-  import { Archive, FlaskConical } from '@lucide/svelte';
   import { testDataState } from '../lib/testdatadb.js';
   import { PLAY_WISH } from '../lib/play.js';
-  import { take } from '../lib/nav.js';
+  import { take, openNew } from '../lib/nav.js';
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
+  import '../lib/ich/ich.css';
 
   const waitQ = liveQuery(async () => {
-    const [notes, file, folder, n, demo, place] = await Promise.all([db.notes.where('status').equals('open').count(), db.meta.get(LAST_BACKUP), db.meta.get('backupFolder'), db.items.count(), demoState(db), db.settings.get(HOME_PLACE)]);
+    const [notes, file, folder, n, demo, place, bikes] = await Promise.all([db.notes.where('status').equals('open').count(), db.meta.get(LAST_BACKUP), db.meta.get('backupFolder'), db.items.count(), demoState(db), db.settings.get(HOME_PLACE), db.bikes.count()]);
     const last = [file?.at, folder?.lastWrite].filter(Boolean).sort().at(-1) ?? null;
-    return { inbox: notes, backup: n && !demo ? backupDue(last).due : false, home: place?.value?.name ?? '', demo: !!demo, play: !!demo?.play };
+    const due = backupDue(last);
+    return { inbox: notes, backup: n && !demo ? due.due : false, days: due.days, folder: !!folder?.name, home: place?.value?.name ?? '', demo: !!demo, play: !!demo?.play, bikes };
   });
   const testQ = liveQuery(() => testDataState(db));
   let tidyOpen = $state(false);
   let playOpen = $state(take(PLAY_WISH) === '1');
-  let dataOpen = $state(take('me.data') === '1');
-  let dataEl = $state();
   $effect(() => {
-    if (dataOpen && dataEl) queueMicrotask(() => dataEl?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }));
-  });
-  $effect(() => {
-    const onData = () => take('me.data') && (dataOpen = true);
     const onPlay = () => take(PLAY_WISH) && (playOpen = true);
-    window.addEventListener('pg:data', onData);
     window.addEventListener('pg:play', onPlay);
-    return () => {
-      window.removeEventListener('pg:data', onData);
-      window.removeEventListener('pg:play', onPlay);
-    };
+    return () => window.removeEventListener('pg:play', onPlay);
   });
   let placeOpen = $state(false);
   const keys = () => window.dispatchEvent(new Event('pg:keys'));
   const helperState = $derived(!helper.loaded ? '' : !isSetUp() ? t('not set up') : !helper.on ? t('switched off') : isPaused() ? t('paused until next month') : t('set up'));
   const version = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
+  const sub = $derived([t('Settings and the app, only on this device'), version ? t('Version {v}', { v: version }) : ''].filter(Boolean).join(' · '));
+  const dataLine = $derived([t('Backup, restore, import'), $waitQ?.folder ? t('auto-backup set up') : ''].filter(Boolean).join(' · '));
 </script>
 
-<div class="mepage">
-  <PageHead title={t('Me|place')} text={t('Settings and the app, only on this device')} />
+<div class="mepage ich-page">
+  <VeloHead title={t('Me|place')} {sub} />
 
-  <section class="grp" aria-label={t('Settings')}>
-    <div class="row set">
-      <Globe size={20} aria-hidden="true" />
-      <span class="nm" id="me-lang">{t('Language')}</span>
-      <Seg labelledby="me-lang" full={false} value={lang.v} options={[{ key: 'de', name: 'Deutsch' }, { key: 'en', name: 'English' }]} onchange={setLang} />
+  {#if $waitQ?.backup}
+    <!-- I1: on top only what is due -->
+    <section class="ich-due" aria-labelledby="due-h">
+      <div>
+        <h2 id="due-h">{t('Backup due')}</h2>
+        <p>{$waitQ.days != null ? tn($waitQ.days, 'last backup {n} day ago', 'last backup {n} days ago') : t('no backup yet')} · {t('everything is only on this device')}</p>
+      </div>
+      <a class="btn hi" href="#/me/data">{t('Make a backup')}</a>
+    </section>
+  {/if}
+
+  <div class="ich-cols">
+    <div class="ich-main">
+      <section class="ich-sec" aria-labelledby="me-data-h">
+        <div class="ich-h"><div><h2 id="me-data-h">{t('Data')}</h2></div></div>
+        <ul class="card ich-list">
+          <li>
+            <a class="ich-row" href="#/me/data">
+              <span class="ich-ib"><Database size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Data and backup')}</b><small>{dataLine}</small></span>
+              {#if $waitQ?.backup}<span class="pill warn duepill">{t('Backup due')}</span>{/if}
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <a class="ich-row" href="#/inbox">
+              <span class="ich-ib"><Inbox size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Inbox')}</b><small>{$waitQ?.inbox ? `${t('{n} to sort', { n: $waitQ.inbox })} · ${t('Notes from on the way')}` : t('Notes from on the way, to sort')}</small></span>
+              {#if $waitQ?.inbox}<span class="pill act num" aria-hidden="true">{$waitQ.inbox}</span>{/if}
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <a class="ich-row" href="#/notes">
+              <span class="ich-ib"><NotebookPen size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Notes')}</b><small>{t('Kept notes, topics and checklists')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <section class="ich-sec" aria-labelledby="me-set-h">
+        <div class="ich-h"><div><h2 id="me-set-h">{t('Settings')}</h2></div></div>
+        <ul class="card ich-list">
+          <li>
+            <!-- v0.97.0 Design-Refresh R1: font, colour world, text size and light or dark on their own page -->
+            <a class="ich-row" href="#/me/look">
+              <span class="ich-ib"><Palette size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Appearance')}</b><small>{lookLine(t)}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <button type="button" class="ich-row" aria-haspopup="dialog" onclick={() => (placeOpen = true)}>
+              <span class="ich-ib"><House size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Home place')}</b><small>{$waitQ?.home || t('Not set yet: for the weather of a ride from home')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </button>
+          </li>
+          <li class="ich-row ich-wrap lang">
+            <span class="ich-ib"><Globe size={18} aria-hidden="true" /></span>
+            <span class="ich-m"><b id="me-lang">{t('Language')}</b></span>
+            <Seg labelledby="me-lang" full={false} value={lang.v} options={[{ key: 'de', name: 'Deutsch' }, { key: 'en', name: 'English' }]} onchange={setLang} />
+          </li>
+        </ul>
+      </section>
     </div>
-    <!-- v0.97.0 Design-Refresh R1: font, colour world, text size and light or dark on their own page -->
-    <a class="row go set" href="#/me/look">
-      <Palette size={20} aria-hidden="true" />
-      <span class="nm">{t('Appearance')}<small>{lookLine(t)}</small></span>
-      <ChevronRight class="chev" size={18} aria-hidden="true" />
-    </a>
-  </section>
 
-  <section class="grp" aria-label={t('The app')}>
-    <ul>
-      <li>
-        <button type="button" class="row go" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>
-          <House size={20} aria-hidden="true" />
-          <span class="nm">{t('Home place')}<small>{$waitQ?.home || t('Not set yet: for the weather of a ride from home')}</small></span>
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </button>
-        {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
-      </li>
-      <li>
-        <a class="row go" href="#/inbox">
-          <Inbox size={20} aria-hidden="true" />
-          <span class="nm">{t('Inbox')}<small>{t('Notes from on the way, to sort')}</small></span>
-          {#if $waitQ?.inbox}<span class="badge num"><span class="sr">{t('{n} to sort', { n: $waitQ.inbox })}</span><span aria-hidden="true">{$waitQ.inbox}</span></span>{/if}
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </a>
-      </li>
-      <li>
-        <a class="row go" href="#/notes">
-          <NotebookPen size={20} aria-hidden="true" />
-          <span class="nm">{t('Notes')}<small>{t('Kept notes, topics and checklists')}</small></span>
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </a>
-      </li>
-      <li>
-        <details class="data" bind:this={dataEl} bind:open={dataOpen}>
-          <summary class="row go">
-            <Database size={20} aria-hidden="true" />
-            <span class="nm">{t('Data and backup')}<small>{t('Backup, restore, import')}</small></span>
-            {#if $waitQ?.backup}<span class="badge warn">{t('Backup due')}</span>{/if}
-            <ChevronRight class="chev" size={18} aria-hidden="true" />
-          </summary>
-          {#if dataOpen}<div class="dp"><DataPanel /></div>{/if}
-        </details>
-      </li>
-      <li>
-        <button type="button" class="row go" onclick={() => (tidyOpen = true)} aria-haspopup="dialog">
-          <Archive size={20} aria-hidden="true" />
-          <span class="nm">{t('Clean up test data')}<small>{$testQ?.found.n ? tn($testQ.found.n, '{n} thing with «test» in its name', '{n} things with «test» in their name') : $testQ?.tidied ? t('Archived; «Undo» is here') : t('Nothing with «test» in its name')}</small></span>
-          {#if $testQ?.found.n}<span class="badge num"><span class="sr">{t('{n} to clean up', { n: $testQ.found.n })}</span><span aria-hidden="true">{$testQ.found.n}</span></span>{/if}
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </button>
-      </li>
-      <li>
-        <button type="button" class="row go" onclick={() => (playOpen = true)} aria-haspopup="dialog">
-          <FlaskConical size={20} aria-hidden="true" />
-          <span class="nm">{t('Try it out')}<small>{$waitQ?.play ? t('The playground is running') : t('Playground: try everything, afterwards all is as before')}</small></span>
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </button>
-      </li>
-      <li>
-        <a class="row go" href="#/helper">
-          <Sparkles size={20} aria-hidden="true" />
-          <span class="nm">{t('Helper')}<small>{helperState || t('Suggestions from Claude, only on request')}</small></span>
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </a>
-      </li>
-      <li>
-        <a class="row go" href="#/features">
-          <Info size={20} aria-hidden="true" />
-          <span class="nm">{t('What the app can do')}</span>
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </a>
-      </li>
-      <li>
-        <a class="row go" href="#/debrief/learnings">
-          <Lightbulb size={20} aria-hidden="true" />
-          <span class="nm">{t('What the app has learned')}</span>
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </a>
-      </li>
-      <li>
-        <button type="button" class="row go" onclick={keys} aria-haspopup="dialog">
-          <Keyboard size={20} aria-hidden="true" />
-          <span class="nm">{t('Help and keyboard shortcuts')}</span>
-          <ChevronRight class="chev" size={18} aria-hidden="true" />
-        </button>
-      </li>
-    </ul>
-  </section>
+    <div class="ich-side">
+      <section class="ich-sec" aria-labelledby="me-app-h">
+        <div class="ich-h"><div><h2 id="me-app-h">{t('The app')}</h2></div></div>
+        <ul class="card ich-list">
+          <li>
+            <a class="ich-row" href="#/features">
+              <span class="ich-ib"><Info size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('What the app can do')}</b></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <button type="button" class="ich-row" onclick={keys} aria-haspopup="dialog">
+              <span class="ich-ib"><Keyboard size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Help and keyboard shortcuts')}</b></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </button>
+          </li>
+          <li>
+            <a class="ich-row" href="#/helper">
+              <span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Helper')}</b><small>{helperState || t('Suggestions from Claude, only on request')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <a class="ich-row" href="#/debrief/learnings">
+              <span class="ich-ib"><Lightbulb size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('What the app has learned')}</b></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <section class="ich-sec" aria-labelledby="me-more-h">
+        <div class="ich-h"><div><h2 id="me-more-h">{t('More')}</h2></div></div>
+        <ul class="card ich-list">
+          <li>
+            <button type="button" class="ich-row" onclick={() => (playOpen = true)} aria-haspopup="dialog">
+              <span class="ich-ib"><FlaskConical size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Try it out')}</b><small>{$waitQ?.play ? t('The playground is running') : t('Playground: try everything, afterwards all is as before')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </button>
+          </li>
+          <li>
+            <button type="button" class="ich-row" onclick={() => (tidyOpen = true)} aria-haspopup="dialog">
+              <span class="ich-ib"><Archive size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Clean up test data')}</b><small>{$testQ?.found.n ? tn($testQ.found.n, '{n} thing with «test» in its name', '{n} things with «test» in their name') : $testQ?.tidied ? t('Archived; «Undo» is here') : t('Nothing with «test» in its name')}</small></span>
+              {#if $testQ?.found.n}<span class="pill act num" aria-hidden="true">{$testQ.found.n}</span>{/if}
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </button>
+          </li>
+          {#if $waitQ?.bikes}
+            <li>
+              <!-- the same window as Velo › Pflege › «Report a problem» and «Neu» › «Problem with a bike» -->
+              <button type="button" class="ich-row" onclick={() => openNew('problem')} aria-haspopup="dialog">
+                <span class="ich-ib"><TriangleAlert size={18} aria-hidden="true" /></span>
+                <span class="ich-m"><b>{t('Report a problem')}</b><small>{t('Noise, play, damage')}</small></span>
+                <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+              </button>
+            </li>
+          {/if}
+        </ul>
+      </section>
+    </div>
+  </div>
 
   {#if tidyOpen}<TestDataSheet onclose={() => (tidyOpen = false)} />{/if}
   {#if playOpen}<PlaySheet running={!!$waitQ?.demo} onclose={() => (playOpen = false)} />{/if}
-
-  {#if version}<p class="ver num">{t('Version {v}', { v: version })} · {t('Data only on this device')}</p>{/if}
+  {#if placeOpen}<HomePlaceSheet current={$waitQ?.home || null} onclose={() => (placeOpen = false)} />{/if}
 </div>
 
 <style>
   .mepage {
-    max-width: 680px;
+    max-width: 1100px;
   }
-  .grp {
-    margin: 0 0 var(--sp-4);
-    padding: var(--sp-2) var(--sp-4);
-    border: 1px solid var(--card-line);
-    border-radius: var(--radius-card);
-    background: var(--paper);
-    box-shadow: var(--card-shadow);
+  .lang {
+    min-height: 60px;
   }
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  li + li,
-  .set + .set {
-    border-top: 1px solid var(--line);
-  }
-  .row {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-3);
-    width: 100%;
-    min-height: 52px;
-    padding: var(--sp-2) 0;
-    border: 0;
-    background: none;
-    color: var(--ink);
-    font: 400 var(--fs-body) var(--font-body);
-    text-align: left;
-    text-decoration: none;
-  }
-  .row > :global(svg:first-child) {
-    flex: none;
-    color: var(--ink-2);
-  }
-  .set {
-    flex-wrap: wrap;
-  }
-  /* A phone: the choice under its name, the whole width. */
-  @media (max-width: 719px) {
-    .set > :global(.seg) {
-      flex-basis: 100%;
+  /* on a narrow phone the band on top already says it; the row keeps its words whole */
+  @media (max-width: 419px) {
+    .duepill {
+      display: none;
     }
   }
-  .go {
-    cursor: pointer;
-  }
-  .go:hover .nm {
-    text-decoration: underline;
-  }
-  .nm {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-width: 0;
-    overflow-wrap: break-word;
-  }
-  .nm small {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .row :global(.chev) {
-    flex: none;
-    color: var(--ink-3);
-  }
-  .badge {
-    flex: none;
-    padding: 1px 8px;
-    border-radius: 999px;
-    background: var(--hi-soft);
-    color: var(--badge-ink);
-    font: 600 var(--fs-small) / 1.5 var(--font-body);
-  }
-  .badge.warn {
-    background: var(--warn-soft);
-    color: var(--warn);
-  }
-  .pf {
-    padding: 0 0 var(--sp-3);
-  }
-  .data summary {
-    list-style: none;
-    cursor: pointer;
-  }
-  .data summary::-webkit-details-marker {
-    display: none;
-  }
-  .data[open] :global(.chev) {
-    transform: rotate(90deg);
-  }
-  .dp {
-    padding: 0 0 var(--sp-3);
-  }
-  .ver {
-    margin: 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-    text-align: center;
+  /* A phone: the language choice under its name, the whole width. */
+  @media (max-width: 719px) {
+    .lang > :global(.seg) {
+      flex-basis: 100%;
+    }
   }
 </style>

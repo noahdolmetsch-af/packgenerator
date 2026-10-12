@@ -10,6 +10,10 @@
    *   filter chips.
    * Earlier (v0.19.3 … v0.47.1): one light button per note, the rest behind •••; a sorted note opens
    * what it became. Old filed notes (repair, learning, trip, done) keep showing with their target.
+   * Design-Refresh P9 (I3, Noah 12.10.2026 «Runde 16 freigegeben»): the path back to Ich, «To file · n»
+   * and «Filed» as two chips, «+ Quick note» right. Left the open notes (by day, the suggestion in the
+   * line, «File» in the row); right «Recently filed» (the ones filed today, with the chip where they
+   * went and «Undo» until midnight) and the tip about «+». The same functions as before.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -20,11 +24,12 @@
   import { sortBikes } from '../lib/bikes.js';
   import { localDay } from '../lib/localday.js';
   import FileSheet from '../lib/inbox/FileSheet.svelte';
-  import Seg from '../lib/ui/Seg.svelte';
+  import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import '../lib/ich/ich.css';
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { flip } from '../lib/ui/flip.js';
-  import { Check, Undo2, ChevronRight, Sparkles, Search } from '@lucide/svelte';
+  import { Check, Undo2, ChevronRight, Sparkles, Search, Plus, Lightbulb } from '@lucide/svelte';
 
   let { onnew } = $props();
 
@@ -37,7 +42,8 @@
 
   const today = localDay();
   const notes = $derived($notesQ ?? []);
-  const groups = $derived(inboxGroups(notes, today));
+  const groups = $derived(inboxGroups(notes, today).map((g) => ({ ...g, rows: g.rows.filter((n) => !n.filed) })).filter((g) => g.rows.length));
+  const recent = $derived(notes.filter((n) => filedToday(n, today)).map((n) => ({ ...n, filed: true })).sort((a, b) => (b.sortedAt ?? '').localeCompare(a.sortedAt ?? '')));
   const openN = $derived(notes.filter((n) => n.status === 'open').length);
   const todayN = $derived(notes.filter((n) => filedToday(n, today)).length);
   const bikes = $derived(sortBikes($bikesQ ?? []));
@@ -93,64 +99,87 @@
   const MOVE = reduced ? 0 : 150;
 </script>
 
-<div class="inbox">
-  <header class="head">
-    <div>
-      <h1 class="title">{t('Inbox')}</h1>
-      {#if $notesQ}<p class="page-sub">{tn(openN, '{n} open', '{n} open')}{todayN ? ` · ${tn(todayN, '{n} filed today', '{n} filed today')}` : ''} · {t('newest on top')}</p>{/if}
+
+<div class="inbox ich-page">
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Inbox')} sub={$notesQ ? `${t('Notes from on the way, to file')} · ${t('newest on top')}` : ''} />
+  <div class="bar">
+    <div class="vchips" role="group" aria-label={t('Show')}>
+      <button type="button" class="vchip" aria-pressed={view === 'open'} onclick={() => (view = 'open')}><span>{t('To file')}{#if openN}{' · '}<span class="num">{openN}</span>{/if}</span></button>
+      <button type="button" class="vchip" aria-pressed={view === 'filed'} onclick={() => (view = 'filed')}><span>{t('Filed')}{#if filedAll}{' · '}<span class="num">{filedAll}</span>{/if}</span></button>
     </div>
-    <div class="hr">
-      <Seg label={t('Show')} value={view} options={[{ key: 'open', name: t('Open|inbox'), n: openN }, { key: 'filed', name: t('Filed'), n: filedAll }]} onchange={(v) => (view = v)} />
-    </div>
-  </header>
+    {#if view === 'filed' || !$notesQ || openN || !notes.length}<button type="button" class="btn hi" onclick={onnew}><Plus size={16} aria-hidden="true" />{t('Quick note')}</button>{/if}
+  </div>
   {#if msg}<p class="err" role="alert">{msg}</p>{/if}
 
   {#if view === 'open'}
-    {#if $notesQ && !notes.length}
-      <p class="card empty">{t('No notes yet. Tap + at the bottom right on any page when something comes up.')}</p>
-    {:else if $notesQ && !openN}
-      <p class="card alldone" id="inbox-done" tabindex="-1"><Check size={18} aria-hidden="true" /><span>{t('All notes are sorted.')}</span><button type="button" class="btn sm" onclick={onnew}>+ {t('Quick note')}</button></p>
-    {/if}
-    {#each groups as g (g.key)}
-      <h2 class="zlabel">{t(g.name)}</h2>
-      <ul class="rowlist list" aria-label={t(g.name)}>
-        {#each g.rows as n (n.id)}
-          {@const sug = n.filed ? n.to?.kind : guessTarget(n)}
-          {@const Icon = ICONS[sug] ?? ICONS.keep}
-          <li class:filed={n.filed} data-note-id={n.id} animate:flip={{ duration: MOVE }}>
-            <div class="lrow">
-              {#if n.photo && !n.filed}
-                <button type="button" class="th" onclick={() => (shown = n.photo)} aria-label={t('Open photo')}><img src={n.photo} alt="" /></button>
-              {:else}
-                <span class="ic"><Icon size={18} aria-hidden="true" /></span>
-              {/if}
-              <div class="m">
-                <span class="t">{n.text}</span>
-                {#if n.filed}
-                  {@const href = targetHref(n.to, ctx)}
-                  {#if href}<a class="tchip" {href}><Icon size={14} aria-hidden="true" />{chipText(n)}<ChevronRight size={14} aria-hidden="true" /></a>{:else}<span class="tchip">{chipText(n)}</span>{/if}
-                  <span class="s">{t('filed {time} · goes to the archive tonight', { time: time(n.sortedAt) })}</span>
-                {:else}
-                  <span class="s">{when(n.at)}{where(n)}</span>
-                  <span class="sug"><Sparkles size={13} aria-hidden="true" />{t('Suggestion: {what}', { what: t(TARGET[sug].name) })}</span>
-                {/if}
-              </div>
-              <span class="acts">
-                {#if n.filed}
-                  <button type="button" class="undo" aria-label={t('Undo: back to the inbox')} title={t('Undo')} onclick={() => undo(n)}><Undo2 size={18} aria-hidden="true" /></button>
-                {:else}
-                  <button type="button" class="btn sm" onclick={() => (filing = n)}>{t('File')}</button>
-                  <details class="more">
-                    <summary aria-label={t('More for this note')}>•••</summary>
-                    <div class="more-in"><button type="button" class="btn sm" onclick={() => remove(n)}>{t('Delete')}</button></div>
-                  </details>
-                {/if}
-              </span>
-            </div>
-          </li>
-        {/each}
-      </ul>
-    {/each}
+    <div class="ich-cols">
+      <div class="ich-main">
+        <section class="ich-sec" aria-labelledby="tofile-h">
+          <div class="ich-h"><div><h2 id="tofile-h">{t('To file')}</h2><p class="ich-hs">{todayN ? `${tn(todayN, '{n} filed today', '{n} filed today')} · ` : ''}{t('A suggestion is with each · tap «File»')}</p></div></div>
+          {#if $notesQ && !notes.length}
+            <p class="card empty">{t('No notes yet. Tap + at the bottom right on any page when something comes up.')}</p>
+          {:else if $notesQ && !openN}
+            <p class="card alldone" id="inbox-done" tabindex="-1"><Check size={18} aria-hidden="true" /><span>{t('All notes are sorted.')}</span><button type="button" class="btn sm" onclick={onnew}>+ {t('Quick note')}</button></p>
+          {/if}
+          {#each groups as g (g.key)}
+            <h3 class="day">{t(g.name)}</h3>
+            <ul class="card ich-list list" aria-label={t(g.name)}>
+              {#each g.rows as n (n.id)}
+                {@const sug = guessTarget(n)}
+                {@const Icon = ICONS[sug] ?? ICONS.keep}
+                <li data-note-id={n.id} animate:flip={{ duration: MOVE }}>
+                  <div class="ich-row ich-wrap nrow">
+                    {#if n.photo}
+                      <button type="button" class="th" onclick={() => (shown = n.photo)} aria-label={t('Open photo')}><img src={n.photo} alt="" /></button>
+                    {:else}
+                      <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
+                    {/if}
+                    <span class="ich-m">
+                      <b>{n.text}</b>
+                      <small>{when(n.at)}{where(n)}</small>
+                      <small class="sug"><Sparkles size={13} aria-hidden="true" />{t('Suggestion: {what}', { what: t(TARGET[sug].name) })}</small>
+                    </span>
+                    <span class="acts">
+                      <button type="button" class="btn sm" onclick={() => (filing = n)}>{t('File')}</button>
+                      <details class="more">
+                        <summary aria-label={t('More for this note')}>•••</summary>
+                        <div class="more-in"><button type="button" class="btn sm" onclick={() => remove(n)}>{t('Delete')}</button></div>
+                      </details>
+                    </span>
+                  </div>
+                </li>
+              {/each}
+            </ul>
+          {/each}
+        </section>
+      </div>
+
+      <div class="ich-side">
+        {#if recent.length}
+          <section class="ich-sec" aria-labelledby="recent-h">
+            <div class="ich-h"><div><h2 id="recent-h">{t('Recently filed')}</h2><p class="ich-hs">{t('goes to the archive tonight · «Undo» until then')}</p></div></div>
+            <ul class="card ich-list">
+              {#each recent as n (n.id)}
+                {@const Icon = ICONS[n.to?.kind] ?? ICONS.keep}
+                {@const href = targetHref(n.to, ctx)}
+                <li class="filed" data-note-id={n.id}>
+                  <div class="ich-row ich-wrap nrow">
+                    <span class="ich-ib"><Check size={18} aria-hidden="true" /></span>
+                    <span class="ich-m">
+                      <b class="t">{n.text}</b>
+                      {#if href}<a class="tchip" {href}><Icon size={14} aria-hidden="true" />{chipText(n)}<ChevronRight size={14} aria-hidden="true" /></a>{:else}<span class="tchip">{chipText(n)}</span>{/if}
+                      <small>{t('filed {time} · goes to the archive tonight', { time: time(n.sortedAt) })}</small>
+                    </span>
+                    <button type="button" class="btn btn-link" aria-label={t('Undo: back to the inbox')} onclick={() => undo(n)}>{t('Undo')}</button>
+                  </div>
+                </li>
+              {/each}
+            </ul>
+          </section>
+        {/if}
+        <p class="ich-fine"><Lightbulb size={16} aria-hidden="true" /><span>{t('Tap + on any page when something comes up.')}</span></p>
+      </div>
+    </div>
   {:else}
     <label class="search">
       <Search size={18} aria-hidden="true" />
@@ -158,22 +187,22 @@
       <input class="inp" type="search" bind:value={query} placeholder={t('Search: text, shop, bike, amount')} />
     </label>
     <div class="fchips" role="group" aria-label={t('Filter')}>
-      {#each FILED_FILTERS as f (f.key)}<button type="button" class="fchip" aria-pressed={filter === f.key} onclick={() => (filter = f.key)}>{t(f.name)}</button>{/each}
+      {#each FILED_FILTERS as f (f.key)}<button type="button" class="vchip" aria-pressed={filter === f.key} onclick={() => (filter = f.key)}>{t(f.name)}</button>{/each}
     </div>
     {#if !filed.length}
       <p class="card empty">{query || filter !== 'all' ? t('Nothing found.') : t('Nothing filed yet.')}</p>
     {:else}
-      <ul class="rowlist" aria-label={t('Filed')}>
+      <ul class="card ich-list" aria-label={t('Filed')}>
         {#each filed as n (n.id)}
           {@const Icon = ICONS[n.to.kind] ?? ICONS.keep}
           {@const href = targetHref(n.to, ctx)}
           <li>
-            <svelte:element this={href ? 'a' : 'div'} class="lrow frow" {href}>
+            <svelte:element this={href ? 'a' : 'div'} class="ich-row frow" {href}>
               <span class="d num">{dayShort(n.at)}</span>
-              <span class="ic"><Icon size={18} aria-hidden="true" /></span>
-              <span class="m"><span class="t">{n.text}</span><span class="s">{chipText(n)}</span></span>
-              {#if n.to.chf != null}<span class="v">{chf(n.to.chf)}</span>{/if}
-              {#if href}<ChevronRight class="chev" size={18} aria-hidden="true" />{/if}
+              <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{n.text}</b><small>{chipText(n)}</small></span>
+              {#if n.to.chf != null}<span class="v num">{chf(n.to.chf)}</span>{/if}
+              {#if href}<ChevronRight class="ich-chev" size={18} aria-hidden="true" />{/if}
             </svelte:element>
           </li>
         {/each}
@@ -199,23 +228,49 @@
 
 <style>
   .inbox {
-    max-width: 880px;
-    margin: 0 auto;
+    max-width: 1100px;
   }
-  .head {
+  .bar {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px 12px;
     flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 12px;
+    margin: -4px 0 20px;
   }
-  .hr {
-    margin-top: 6px;
+  .vchips,
+  .fchips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .fchips {
+    margin: 0 0 14px;
+  }
+  /* The chosen view or filter dark, the others light (style sheet G2 «Filter»). */
+  .vchip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 4px 16px;
+    box-sizing: border-box;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.25 var(--font-body);
+    cursor: pointer;
+  }
+  .vchip[aria-pressed='true'] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
   }
   .err {
     color: var(--bad);
   }
   .empty {
+    margin: 0;
     color: var(--ink-3);
   }
   .alldone {
@@ -223,6 +278,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 8px 12px;
+    margin: 0;
     color: var(--ink-2);
   }
   .alldone :global(svg) {
@@ -231,15 +287,23 @@
   .alldone span {
     flex: 1;
   }
+  .day {
+    margin: 14px 2px 6px;
+    color: var(--ink-3);
+    font: 500 var(--fs-small) / 1.3 var(--font-body);
+  }
+  .day:first-of-type {
+    margin-top: 0;
+  }
   .list {
     overflow: visible;
   }
-  .list .lrow {
-    flex-wrap: wrap;
+  .nrow {
     align-items: flex-start;
   }
-  .list .m {
-    flex: 1 1 180px;
+  .nrow > .ich-ib,
+  .nrow > .th {
+    margin-top: 2px;
   }
   .th {
     flex: none;
@@ -250,19 +314,16 @@
   }
   .th img {
     display: block;
-    width: 44px;
-    height: 52px;
+    width: 34px;
+    height: 44px;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: var(--radius);
     border: 1px solid var(--line);
   }
   .sug {
     display: flex;
     align-items: center;
     gap: 5px;
-    margin-top: 2px;
-    color: var(--accent);
-    font-size: var(--fs-small);
   }
   .acts {
     flex: none;
@@ -271,16 +332,11 @@
     gap: 4px;
     margin-left: auto;
   }
-  /* A filed entry stays in its place until midnight, faint, with the chip where it went. */
   .filed .t {
-    font-weight: 400;
-    color: var(--ink-3);
-    text-decoration: line-through;
-  }
-  .filed .ic {
-    opacity: 0.7;
+    color: var(--ink-2);
   }
   .tchip {
+    align-self: flex-start;
     display: inline-flex;
     align-items: center;
     gap: 5px;
@@ -299,20 +355,6 @@
       min-height: 44px;
     }
   }
-  .undo {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    border: 0;
-    border-radius: 10px;
-    background: none;
-    color: var(--ink-2);
-    cursor: pointer;
-  }
-  .undo:hover {
-    background: var(--paper-2);
-  }
   .more {
     position: relative;
   }
@@ -322,8 +364,8 @@
     place-items: center;
     min-width: 44px;
     min-height: 44px;
-    border-radius: 8px;
-    color: var(--ink-2);
+    border-radius: var(--r-ctl);
+    color: var(--ink-3);
     font-weight: 700;
     letter-spacing: 1px;
     cursor: pointer;
@@ -338,14 +380,15 @@
     right: 0;
     padding: 8px;
     background: var(--paper);
-    border: 1.5px solid var(--ink);
-    border-radius: 8px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-ctl);
+    box-shadow: 0 8px 24px var(--shadow);
     width: max-content;
   }
   .search {
     position: relative;
     display: block;
-    margin: 4px 0 10px;
+    margin: 0 0 10px;
   }
   .search :global(svg) {
     position: absolute;
@@ -357,30 +400,15 @@
   .search .inp {
     padding-left: 38px;
   }
-  .fchips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 0 0 12px;
-  }
-  .fchip {
-    min-height: 44px;
-    padding: 4px 14px;
-    border: 1.5px solid var(--line);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 500 var(--fs-small) var(--font-body);
-    cursor: pointer;
-  }
-  .fchip[aria-pressed='true'] {
-    border-color: var(--hi);
-    background: var(--hi-soft);
-  }
   .frow .d {
     flex: none;
     width: 4.2em;
     color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .frow .v {
+    flex: none;
+    color: var(--ink-2);
     font-size: var(--fs-small);
   }
   @media (max-width: 480px) {

@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.108.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 11: Me is light, in four groups, with a band on top when a backup is due.', href: '#/me' },
+      { text: 'Data and backup is its own page with three status lights; «To the phone» shows a QR code with the app address.', href: '#/me/data' },
+      { text: 'Inbox, filing, notes, the helper, report a problem, home place, shortcuts and the playground use the new light look.', href: '#/me' },
+    ],
+  },
+  {
     version: '0.107.0',
     date: '2026-10-12',
     points: [

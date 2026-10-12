@@ -267,7 +267,8 @@ test('extras: «Ich» shows a dot, the Inbox is newest first and a sorted note o
   await expect(rows.filter({ hasText: `${P} Neue Handschuhe` })).toHaveAttribute('href', `#/gear?item=${encodeURIComponent(`${P}KL13`)}`);
   await expect(page.locator('div.frow').filter({ hasText: `${P} Erledigt schon` })).toHaveCount(1);
   expect(await noSideScroll(page)).toBe(true);
-  await page.getByRole('group', { name: 'Anzeigen' }).getByRole('button', { name: /Offen/ }).click();
+  // Design-Refresh P9 (I3): the view chips are «Zum Ablegen» and «Abgelegt»
+  await page.getByRole('group', { name: 'Anzeigen' }).getByRole('button', { name: /Zum Ablegen/ }).click();
   await tap(page.locator(`li.filed[data-note-id="${P}n3"] a.tchip`), info);
   await expect(page).toHaveURL(/#\/bikes\?tab=care/);
   await expect(page.locator('section.problems')).toContainText(`${P} Bremse quietscht`);

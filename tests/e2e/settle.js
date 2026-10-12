@@ -59,20 +59,20 @@ export async function settle(page, { sameTrips = true } = {}) {
 }
 
 /**
- * «Data and backup» open. v0.94.0 «Kachel-Wand» (Noah 5a): it lives under Me (#/me), no longer at
- * the bottom of Today. The page is settled first (the tidy-up done, Today's auto-open decided).
+ * «Data and backup» open. v0.94.0 «Kachel-Wand» (Noah 5a): it lives under Me, no longer at the bottom
+ * of Today. Design-Refresh P9 (I2): its own page #/me/data instead of a fold on Ich; the panel is the
+ * page's .datapanel. The page is settled first (the tidy-up done, Today's auto-open decided).
  */
 export async function openData(page) {
-  if (/^#\/me(\?|$)/.test(new URL(page.url()).hash)) await settle(page, { sameTrips: false });
+  if (/^#\/me\/data(\?|$)/.test(new URL(page.url()).hash)) await settle(page, { sameTrips: false });
   else {
     // a page that is still settling (an import, a demo start) finishes first; a fresh page needs no wait
     if (page.url().startsWith('http')) await settle(page, { sameTrips: false });
-    await page.goto('./#/me');
+    await page.goto('./#/me/data');
     await settle(page, { sameTrips: false });
   }
-  const panel = page.locator('details.data');
-  if (!(await panel.evaluate((d) => d.open))) await panel.locator('summary').click();
-  await expect(panel).toHaveJSProperty('open', true);
+  const panel = page.locator('.datapanel');
+  await expect(panel).toBeVisible();
   await expect(panel.locator('input[type="file"]').first()).toBeAttached();
   return panel;
 }
