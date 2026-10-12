@@ -78,7 +78,7 @@
             <a class="ich-row" href="#/me/data">
               <span class="ich-ib"><Database size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Data and backup')}</b><small>{dataLine}</small></span>
-              {#if $waitQ?.backup}<span class="pill warn">{t('Backup due')}</span>{/if}
+              {#if $waitQ?.backup}<span class="pill warn duepill">{t('Backup due')}</span>{/if}
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -206,6 +206,12 @@
   }
   .lang {
     min-height: 60px;
+  }
+  /* on a narrow phone the band on top already says it; the row keeps its words whole */
+  @media (max-width: 419px) {
+    .duepill {
+      display: none;
+    }
   }
   /* A phone: the language choice under its name, the whole width. */
   @media (max-width: 719px) {

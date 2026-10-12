@@ -60,7 +60,8 @@
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Helper')} sub={t('Suggestions from Claude for packing lists, learnings and bike care. Everything stays changeable.')} />
 
   {#snippet codeSec()}
-    <section class="ich-sec" aria-labelledby="hp-code-h">
+    <!-- no region name: «Helper code» names the field below, once -->
+    <section class="ich-sec">
       <div class="ich-h"><div><h2 id="hp-code-h">{t('Helper code')}</h2><p class="ich-hs">{t('Stored only on this device. It never goes into a backup, an export or a shared list.')}</p></div></div>
       <div class="card ich-body">
         {#if !setUp}<div class="hp-notice"><HelperNotice onsetup={() => codeEl?.focus()} /></div>{/if}

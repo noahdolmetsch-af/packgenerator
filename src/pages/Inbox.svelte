@@ -104,8 +104,8 @@
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Inbox')} sub={$notesQ ? `${t('Notes from on the way, to file')} · ${t('newest on top')}` : ''} />
   <div class="bar">
     <div class="vchips" role="group" aria-label={t('Show')}>
-      <button type="button" class="vchip" aria-pressed={view === 'open'} onclick={() => (view = 'open')}>{t('To file')}{#if openN} · <span class="num">{openN}</span>{/if}</button>
-      <button type="button" class="vchip" aria-pressed={view === 'filed'} onclick={() => (view = 'filed')}>{t('Filed')}{#if filedAll} · <span class="num">{filedAll}</span>{/if}</button>
+      <button type="button" class="vchip" aria-pressed={view === 'open'} onclick={() => (view = 'open')}><span>{t('To file')}{#if openN}{' · '}<span class="num">{openN}</span>{/if}</span></button>
+      <button type="button" class="vchip" aria-pressed={view === 'filed'} onclick={() => (view = 'filed')}><span>{t('Filed')}{#if filedAll}{' · '}<span class="num">{filedAll}</span>{/if}</span></button>
     </div>
     {#if view === 'filed' || !$notesQ || openN || !notes.length}<button type="button" class="btn hi" onclick={onnew}><Plus size={16} aria-hidden="true" />{t('Quick note')}</button>{/if}
   </div>
