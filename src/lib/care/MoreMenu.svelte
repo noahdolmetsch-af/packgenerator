@@ -2,14 +2,15 @@
   /** Design audit C2: one main button per row, the other answers behind •••. (v0.21.0: own component.) */
   import { t } from '../i18n.svelte.js';
   import { inView } from '../ui/inview.js';
+  import { away } from '../ui/away.js';
 
   let { label, actions } = $props();
   // v0.46.1 (Noah's phone: "Priorität über ••• ändern: nicht möglich"): near the bottom of the screen
   // the menu opened under the bottom bar. v0.47.3: ui/inview.js keeps it in the screen (flips it up,
-  // moves it sideways), the same for every ••• menu.
+  // moves it sideways), the same for every ••• menu. v0.113.0: a tap outside closes it (ui/away.js).
 </script>
 
-<details class="more">
+<details class="more" use:away>
   <summary aria-label={t('More answers for {label}', { label })}>•••</summary>
   <div class="more-in" use:inView>{#each actions as a (a.name)}<button type="button" class="btn sm" onclick={(ev) => (ev.currentTarget.closest('details').open = false, a.run())}>{a.name}</button>{/each}</div>
 </details>

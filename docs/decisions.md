@@ -862,6 +862,13 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Menü-Fix (0.113.0)
+
+Noah 12.10.2026 22:22: «erst bei zweitem Klick geht Menü wieder weg», dringend.
+
+- Jedes •••-Menü schliesst mit einem Tipp daneben, überall gleich (`ui/away.js`, wie schon `tpl/Menu.svelte`). Der Tipp daneben wird nicht verschluckt: Er tut auch, was er trifft.
+- **Selbst entschieden:** nur Verhalten, kein neues Aussehen; Material und Kleiderschrank (eigene Lösung mit Klick daneben) bleiben, wie sie sind.
+
 ## 12.10.2026: Design-Refresh P10 «Was ist neu» (0.110.0)
 
 Nach den Mockups I11 (v2), I11b (v2), I11c, I11d und I11e (Noah 12.10.2026 03:50 «Runde 20 freigegeben»; Antworten 03:45 «1 beides, 2b, 3 beides, 4a, 5b»).

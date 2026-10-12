@@ -513,6 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 12.10.2026 (v0.113.0, PR offen):** Menü-Fix: jedes •••-Menü schliesst mit einem Tipp daneben (Velopflege › Probleme, Velo-Check, Packliste, laufende Touren).
+
 **Nachtrag 12.10.2026 (v0.110.0, PR offen):** Design-Refresh P10 «Was ist neu» (I11, I11b–I11e): Ich › Was ist neu mit neuester Version, allen Funktionen (sortierbar, Deine Top 10, Wichtigste 10, Suche) und allen Versionen nach Monat; Meldung nach Update mit «Nicht mehr anzeigen»; Kachel «Neu» 14 Tage oben auf Heute. Damit sind alle 10 Pakete des Design-Refresh gebaut.
 
 **Nachtrag 12.10.2026 (v0.109.0, live):** Design-Refresh P6 «Rückblick, Auswerten, Fahrten» (T14–T23): Tour beendet, Rückblick ausfüllen und gespeichert, Rückblick-Übersicht, Gelernt, Dein Tempo, Logbuch, Vergangene Touren, Fahrten und eine Fahrt im neuen Stil. Danach P10 Was ist neu.

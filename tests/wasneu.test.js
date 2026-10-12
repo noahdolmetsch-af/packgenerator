@@ -23,7 +23,7 @@ describe('every function has a version it came with', () => {
     }
     for (const id of Object.keys(SINCE)) expect(FEATURES.some((f) => f.id === id), id).toBe(true);
     expect(sinceOf('nope')).toBe('0.1.0');
-    expect(SINCE['f.news']).toBe(WHATS_NEW[0].version);
+    expect(SINCE['f.news']).toBe('0.110.0'); // v0.113.0 Menü-Fix brings no new function
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
     expect(BEST.length).toBe(10);
@@ -63,7 +63,8 @@ describe('the list and its sorts', () => {
     const by = Object.fromEntries(rows.map((r) => [r.id, r]));
     expect(by.backup).toMatchObject({ n: 5, used: true, state: 'used' });
     expect(by.care).toMatchObject({ n: 0, used: true, state: 'used' });
-    expect(by['f.news'].state).toBe('new');
+    // v0.113.0 (Menü-Fix, no new function): «What is new» (0.110.0) is no longer new, one never tried now
+    expect(by['f.news'].state).toBe('never');
     expect(by['f.theft'].state).toBe('never');
     for (const r of rows) {
       expect(FEATURE_GROUPS.some((g) => g.key === r.group), r.id).toBe(true);

@@ -11,6 +11,22 @@
 
 export const WHATS_NEW = [
   {
+    // v0.113.0 Menü-Fix (Noah 12.10.2026): a ••• menu closes with one tap outside it.
+    version: '0.113.0',
+    date: '2026-10-12',
+    title: 'Menus close with one tap',
+    lead: 'A tap next to an open ••• menu closes it, you no longer have to hit ••• a second time.',
+    points: [
+      { text: 'A ••• menu now closes with one tap anywhere next to it, for example at the problems in Bike care.', href: '#/bikes?tab=care' },
+      { text: 'The same for the ••• of the packing list and of the trips in progress.', href: '#/pack' },
+    ],
+    test: [
+      'Open Bikes › Care and tap ••• at a problem.',
+      'Tap anywhere next to the menu: it closes at once.',
+      'Tap ••• and pick an answer: it still works.',
+    ],
+  },
+  {
     // v0.110.0 Design-Refresh P10 (I11): the newest version also has a name, one sentence and the
     // steps «How to test it» (the card on top of Ich › Was ist neu); older versions do without.
     version: '0.110.0',
