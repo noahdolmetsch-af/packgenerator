@@ -6,17 +6,18 @@
    * next question moves up by itself; after the 4th answer the check closes. «Later» keeps the row
    * on Today.
    */
-  import { X, Check, Pencil, Plus, Trash2 } from '@lucide/svelte';
+  import { X, Check, Plus, Trash2 } from '@lucide/svelte';
   import { db } from '../db.js';
   import { ui, qText } from './ui.svelte.js';
   import { saveCheck, saveQuestions } from '../flowdb.js';
-  import { FIXED, KEYS, rotating, checkOf, answer, answered, nextOpen, yesterdayOf, complete } from '../flowcheck.js';
-  import { t, tn, locale } from '../i18n.svelte.js';
+  import { FIXED, rotating, checkOf, answer, answered, nextOpen, yesterdayOf, complete } from '../flowcheck.js';
+  import { t } from '../i18n.svelte.js';
 
   let { checks = [], pool = [], today } = $props();
   let dlg = $state();
   let editing = $state(false);
-  let showAll = $state(false);
+
+
   let draft = $state([]);
 
   const rot = $derived(rotating(pool, today));
@@ -64,28 +65,27 @@
     if (clean.length) await saveQuestions(db, clean);
     editing = false;
   }
-  const dateLine = $derived(new Date(`${today}T12:00:00`).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }));
 </script>
 
 <dialog class="sheet from-below check" bind:this={dlg} onclose={() => (ui.checkOpen = false)} aria-labelledby="chk-h">
   {#if ui.checkOpen}
-    <div class="bar">
-      <button type="button" class="ic" onclick={close} aria-label={t('Close')}><X size={22} aria-hidden="true" /></button>
-      <span class="bt">{t('Daily check')}</span>
-      <span class="cnt num">{t('{n} of {m}', { n: Math.min(4, answered(cur) + (open ? 1 : 0)), m: 4 })}</span>
+    <!-- v0.105.0 Design-Refresh P8 «Aktiv» (A4): a light window: the title, how many are answered, the
+         close button; the questions numbered, yesterday's answer at the right; «Später», «Bearbeiten»
+         (the rotating questions) and «Speichern» (the answers are saved at once, it closes) -->
+    <div class="hd">
+      <div class="ht">
+        <h2 id="chk-h">{t('Daily check')}</h2>
+        <p class="dl">{t('How are you today?')} · <span class="num">{t('{n} of {m} answered', { n: answered(cur), m: 4 })}</span></p>
+      </div>
+      <button type="button" class="ic" onclick={close} aria-label={t('Close')}><X size={18} aria-hidden="true" /></button>
     </div>
-    <div class="prog" aria-hidden="true">
-      {#each KEYS as k (k)}<i class:on={cur[k] != null} class:now={open === k}></i>{/each}
-    </div>
-    <h2 id="chk-h" class="title">{t('How are you today?')}</h2>
-    <p class="dl">{dateLine} · {t('one tap per question')}</p>
 
-    {#each qs as q (q.key)}
+    {#each qs as q, i (q.key)}
       {@const y = yesterdayOf(checks, today, q.key, q.qid)}
       <section class="q" class:now={open === q.key} id="chk-{q.key}" aria-labelledby="chk-q-{q.key}">
         <div class="qh">
-          <h3 id="chk-q-{q.key}">{q.text}</h3>
-          {#if cur[q.key] != null}<Check size={20} class="ok" aria-label={t('answered')} />{:else if q.rotates}<span class="pill">{t('changes daily')}</span>{/if}
+          <h3 id="chk-q-{q.key}">{i + 1}. {q.text}</h3>
+          {#if cur[q.key] != null}<Check size={18} class="ok" aria-label={t('answered')} />{:else if y != null}<small class="num">{t('{n}, yesterday', { n: y })}</small>{:else if q.rotates}<span class="pill">{t('changes daily')}</span>{/if}
         </div>
         <div class="scale" role="group" aria-labelledby="chk-q-{q.key}">
           {#each Array.from({ length: 10 }, (_, i) => i + 1) as v (v)}
@@ -95,143 +95,99 @@
         <div class="ends"><span>{q.lo}</span><span>{q.hi}</span></div>
       </section>
     {/each}
+    <p class="obs">{t('Question 4 changes every day. Only for you, an observation, no rating.')}</p>
 
-    <button type="button" class="later" onclick={close}>{t('Later')}</button>
+    {#if editing}
+      <section class="pool" aria-labelledby="pool-h">
+        <div class="ph">
+          <h3 id="pool-h">{t('Rotating questions')} <span class="n num">{pool.length}</span></h3>
+        </div>
+          <ol class="ed">
+            {#each draft as p, i (p.id)}
+              <li>
+                <input class="inp" type="text" bind:value={p.text} aria-label={t('Question {n}', { n: i + 1 })} />
+                <button type="button" class="ic" onclick={() => (draft = draft.filter((x) => x.id !== p.id))} aria-label={t('Remove question {n}', { n: i + 1 })} disabled={draft.length < 2}><Trash2 size={18} aria-hidden="true" /></button>
+              </li>
+            {/each}
+          </ol>
+          <button type="button" class="lk" onclick={() => (draft = [...draft, { id: `q-${Date.now().toString(36)}`, text: '', lo: '', hi: '' }])}><Plus size={16} aria-hidden="true" />{t('Question')}</button>
+      </section>
+    {/if}
 
-    <section class="pool" aria-labelledby="pool-h">
-      <div class="ph">
-        <h3 id="pool-h">{t('Rotating questions')} <span class="n num">{pool.length}</span></h3>
-        {#if editing}
-          <button type="button" class="lk" onclick={saveEdit}><Check size={16} aria-hidden="true" />{t('Save')}</button>
-        {:else}
-          <button type="button" class="lk" onclick={startEdit}><Pencil size={16} aria-hidden="true" />{t('Edit')}</button>
-        {/if}
-      </div>
-      {#if editing}
-        <ol class="ed">
-          {#each draft as p, i (p.id)}
-            <li>
-              <input class="inp" type="text" bind:value={p.text} aria-label={t('Question {n}', { n: i + 1 })} />
-              <button type="button" class="ic" onclick={() => (draft = draft.filter((x) => x.id !== p.id))} aria-label={t('Remove question {n}', { n: i + 1 })} disabled={draft.length < 2}><Trash2 size={18} aria-hidden="true" /></button>
-            </li>
-          {/each}
-        </ol>
-        <button type="button" class="lk" onclick={() => (draft = [...draft, { id: `q-${Date.now().toString(36)}`, text: '', lo: '', hi: '' }])}><Plus size={16} aria-hidden="true" />{t('Question')}</button>
-      {:else}
-        <ol class="ql">
-          {#each showAll ? pool : pool.slice(0, 5) as p, i (p.id)}
-            <li class:today={p.id === rot.q.id}><span class="nr num">{i + 1}</span><span class="qt">{qText(p)}</span>{#if p.id === rot.q.id}<span class="pill act">{t('today')}</span>{/if}</li>
-          {/each}
-        </ol>
-        {#if pool.length > 5}<button type="button" class="lk quiet" aria-expanded={showAll} onclick={() => (showAll = !showAll)}>{showAll ? t('Show fewer') : tn(pool.length - 5, '… and {n} more · in turn, each every {d} days', '… and {n} more · in turn, each every {d} days', { d: pool.length })}</button>{/if}
-      {/if}
-    </section>
+    <div class="acts">
+      <button type="button" class="btn" onclick={close}>{t('Later')}</button>
+      {#if !editing}<button type="button" class="btn" onclick={startEdit}>{t('Edit')}</button>{/if}
+      <button type="button" class="btn hi" onclick={editing ? saveEdit : close}>{t('Save')}</button>
+    </div>
   {/if}
 </dialog>
 
 <style>
   .check {
     width: min(640px, calc(100vw - 24px));
-    padding: 0 16px 20px;
-    background: var(--ground);
+    padding: var(--sp-5);
+    border-color: var(--card-line);
+    border-radius: var(--radius-card);
   }
   @media (max-width: 719px) {
     .check {
       max-height: 100dvh;
-      height: 100dvh;
-      border-radius: 0;
+      padding: var(--sp-4);
     }
   }
-  .bar {
-    position: sticky;
-    top: 0;
-    z-index: 1;
+  .hd {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 -16px;
-    padding: 6px 12px 6px 6px;
-    background: var(--brand);
-    color: var(--brand-ink);
+    align-items: flex-start;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-2);
   }
-  .bar .ic {
-    color: var(--brand-ink);
-  }
-  .bt {
+  .ht {
     flex: 1;
-    font-family: var(--font-brand);
-    font-weight: 800;
-    font-size: var(--fs-section);
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+    min-width: 0;
   }
-  .cnt {
-    color: var(--brand-ink-2);
+  h2 {
+    margin: 0;
+    font: 600 var(--fs-sub) / 1.3 var(--font-body);
+  }
+  .dl {
+    margin: 2px 0 0;
+    color: var(--ink-3);
     font-size: var(--fs-small);
   }
   .ic {
     display: grid;
+    flex: none;
     place-items: center;
     width: 44px;
     height: 44px;
     border: 0;
-    background: none;
-    color: var(--ink-2);
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    color: var(--ink);
     cursor: pointer;
   }
   .ic:disabled {
     opacity: 0.4;
   }
-  .prog {
-    display: flex;
-    gap: 6px;
-    margin: 12px 0 10px;
-  }
-  .prog i {
-    flex: 1;
-    height: 5px;
-    border-radius: 3px;
-    background: var(--line);
-  }
-  .prog i.on {
-    background: var(--accent);
-  }
-  .prog i.now {
-    background: var(--hi);
-  }
-  h2.title {
-    font-family: var(--font-brand);
-    font-weight: 800;
-    font-size: var(--fs-page);
-  }
-  .dl {
-    margin: 4px 0 12px;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
   .q {
-    margin-top: 10px;
-    padding: 12px 12px 10px;
-    border: 1.5px solid transparent;
-    border-radius: var(--radius-card);
-    background: var(--paper);
-    box-shadow: var(--card-shadow);
-  }
-  .q.now {
-    border-color: var(--hi);
+    padding: var(--sp-3) 0;
+    border-top: 1px solid var(--line);
   }
   .qh {
     display: flex;
-    align-items: flex-start;
+    align-items: baseline;
     justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-2);
   }
   .qh h3 {
     margin: 0;
-    font-size: var(--fs-sub);
-    font-weight: 500;
-    line-height: 1.3;
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
+  }
+  .qh small {
+    flex: none;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
   }
   .qh :global(.ok) {
     flex: none;
@@ -240,29 +196,28 @@
   .scale {
     display: grid;
     grid-template-columns: repeat(10, minmax(0, 1fr));
-    gap: 3px;
+    gap: 4px;
   }
   .sv {
     position: relative;
     min-width: 0;
-    height: 48px;
+    height: 44px;
     padding: 0;
-    border: 0;
-    border-radius: 8px;
-    background: var(--paper-2);
-    color: var(--ink);
-    font: inherit;
-    font-size: var(--fs-body);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-ctl);
+    background: var(--paper);
+    color: var(--ink-2);
+    font: 600 var(--fs-body) / 1 var(--font-body);
     cursor: pointer;
   }
   .sv:hover {
-    background: var(--line);
+    background: var(--paper-2);
   }
   .sv.y::after {
     content: '';
     position: absolute;
     left: 50%;
-    bottom: 6px;
+    bottom: 4px;
     width: 4px;
     height: 4px;
     margin-left: -2px;
@@ -270,58 +225,51 @@
     background: var(--ink-3);
   }
   .sv[aria-pressed='true'] {
-    background: var(--accent);
-    color: var(--paper);
-    font-weight: 600;
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .sv[aria-pressed='true'].y::after {
-    background: var(--paper);
+    background: var(--hi-ink);
   }
   @media (max-width: 359px) {
     .scale {
       gap: 2px;
     }
     .sv {
-      height: 54px;
+      height: 52px;
       font-size: var(--fs-small);
     }
   }
   .ends {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
-    margin-top: 6px;
+    gap: var(--sp-3);
+    margin-top: 4px;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  .obs {
+    margin: var(--sp-2) 0 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  .later {
-    display: block;
-    min-height: 44px;
-    margin: 10px auto;
-    padding: 0 16px;
-    border: 0;
-    background: none;
-    color: var(--accent);
-    font: inherit;
-    cursor: pointer;
+  .acts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--sp-2);
+    margin-top: var(--sp-4);
   }
   .pool {
-    margin-top: 8px;
-    padding: 12px 14px;
+    margin-top: var(--sp-3);
+    padding: var(--sp-3) var(--sp-4);
     border-radius: var(--radius-card);
-    background: var(--paper);
-    box-shadow: var(--card-shadow);
-  }
-  .ph {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    background: var(--paper-2);
   }
   .ph h3 {
     margin: 0;
-    font-size: var(--fs-sub);
-    font-weight: 500;
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
   }
   .ph .n {
     color: var(--ink-3);
@@ -335,46 +283,23 @@
     padding: 0 4px;
     border: 0;
     background: none;
-    color: var(--accent);
+    color: var(--ink);
     font: inherit;
     cursor: pointer;
   }
-  .lk.quiet {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .ql,
   .ed {
     margin: 4px 0 0;
     padding: 0;
     list-style: none;
-  }
-  .ql li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 44px;
-    border-top: 1px solid var(--line);
-  }
-  .ql li:first-child {
-    border-top: 0;
-  }
-  .nr {
-    width: 18px;
-    color: var(--ink-3);
-  }
-  .ql li.today .nr {
-    color: var(--hi);
-    font-weight: 600;
-  }
-  .qt {
-    flex: 1;
-    min-width: 0;
   }
   .ed li {
     display: flex;
     align-items: center;
     gap: 6px;
     margin-top: 6px;
+  }
+  .ed .inp {
+    flex: 1;
+    min-width: 0;
   }
 </style>

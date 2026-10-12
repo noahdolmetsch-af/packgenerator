@@ -15,17 +15,25 @@
    *   …/mehr             v0.86.0 «Meditation einfach»: «Mehr», the rare things folded (MedMore.svelte, C)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
-  import { ChevronLeft, ChevronRight, Pencil, Plus, Sun, Timer, GripVertical, Snowflake, Sparkles } from '@lucide/svelte';
+  import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer } from '@lucide/svelte';
+  import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
-  import { flowStates, rings as ringsOf, summary, lastDays, activeGoals, halfOf, halfEnds, halfSince, restsUntil, moveAct } from '../lib/flow.js';
+  import { flowStates, rings as ringsOf, summary, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow } from '../lib/flow.js';
   import { averages, checkOf, complete, rotating, FIXED } from '../lib/flowcheck.js';
   import { saveOrder } from '../lib/flowdb.js';
   import { ui, openTimer, actName, goalName, qText } from '../lib/flow/ui.svelte.js';
-  import { actGoalText, goalsText, dayShort, wd } from '../lib/flow/words.js';
+  import { actGoalText, goalsText, dayShort } from '../lib/flow/words.js';
   import Rings from '../lib/flow/Rings.svelte';
   import TickGrid from '../lib/flow/TickGrid.svelte';
-  import GoalGrid from '../lib/flow/GoalGrid.svelte';
+  import Sec from '../lib/flow/kit/Sec.svelte';
+  import Rows from '../lib/flow/kit/Rows.svelte';
+  import Crumb from '../lib/flow/kit/Crumb.svelte';
+  import GoalPath from '../lib/flow/kit/GoalPath.svelte';
+  import Empty from '../lib/ui/Empty.svelte';
+  import { monthWeeks, seasonNow, goalPath } from '../lib/flow/aktiv.js';
+  import { msContext, allMilestones, TUNE_KEY } from '../lib/flowms.js';
+  import { msName, tileName } from '../lib/flow/hobby/words.js';
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
   import { isMedAct } from '../lib/flow/hobby/medstart.js';
   import ActIcon from '../lib/flow/ActIcon.svelte';
@@ -40,7 +48,7 @@
   import MedMore from './flow/MedMore.svelte';
   import { localDay } from '../lib/localday.js';
   import { phone } from '../lib/media.svelte.js';
-  import { t, tn, locale, lang } from '../lib/i18n.svelte.js';
+  import { t, locale, lang, num } from '../lib/i18n.svelte.js';
 
   let { sub = '' } = $props();
   const today = localDay();
@@ -55,8 +63,6 @@
   const sum = $derived(summary(states));
   const week = lastDays(today, 7);
   const fmt = (d, o) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
-  // «Sa 3. – Fr 9. Okt.»
-  const range = $derived(`${wd(week[0])} ${fmt(week[0], { day: 'numeric' })} – ${wd(today)} ${fmt(today, { day: 'numeric', month: 'short' })}`);
   const list = (names) => (names.length ? new Intl.ListFormat(locale(), { type: 'conjunction' }).format(names) : '');
   const sumLine = $derived.by(() => {
     const met = sum.met.map(actName);
@@ -79,10 +85,54 @@
   const avg = $derived(averages(data?.checks ?? [], today, 7));
   const n1 = (v) => (v == null ? '–' : v.toLocaleString(lang.v === 'de' ? 'de-DE' : 'en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
 
-  /* recovery and seasons (computer) */
-  const restStates = $derived(states.filter((s) => s.act.ring === 'rest'));
-  const lastOf = (id) => (data?.log ?? []).filter((e) => e.actId === id).sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''))[0] ?? null;
+  /* v0.105.0 Design-Refresh P8 «Aktiv» (A1): the season, the bike month, the «Mehr» rows */
+  const season = $derived(data ? seasonNow(data.acts, today) : null);
   const seasonal = $derived(states.filter((s) => s.act.season));
+  const ridesQ = liveQuery(() => db.rides.toArray());
+  const km = $derived(monthWeeks($ridesQ ?? [], today));
+  const prevMonth = $derived.by(() => {
+    const [y, m] = today.split('-').map(Number);
+    return new Date(Date.UTC(y, m - 2, 15)).toISOString().slice(0, 10);
+  });
+  // the line of the weeks so far: x from week 1 to week 4, y from the most km
+  const pts = $derived.by(() => {
+    const w = km.weeks.filter((v) => v != null);
+    const max = Math.max(1, ...w);
+    return w.map((v, i) => [(i * 300) / 3, 56 - (v / max) * 48]);
+  });
+  const sparkLine = $derived(pts.map(([x, y]) => `${x},${y}`).join(' '));
+  const sparkArea = $derived(pts.length ? `M0,60 ${pts.map(([x, y]) => `L${x},${y}`).join(' ')} L${pts.at(-1)[0]},60 Z` : '');
+  let seasonOpen = $state(false);
+  const medAct = $derived(live.find((s) => isMedAct(s.act))?.act ?? (data?.acts ?? []).find((a) => isMedAct(a) && !a.paused) ?? null);
+  const moreRows = $derived([
+    { key: 'goals', icon: Pulse, title: t('Goals × days'), sub: rings.move.of ? t('{n} of {m} movement goals on track', { n: rings.move.n, m: rings.move.of }) : '', href: '#/flow/goals' },
+    ...(medAct ? [{ key: 'med', icon: Lightbulb, title: actName(medAct), sub: t('start, log, more'), href: `#/flow/act/${encodeURIComponent(medAct.id)}` }] : []),
+    { key: 'activity', icon: Star, title: t('Activity and milestones'), href: '#/flow/activity' },
+    { key: 'timer', icon: Timer, title: t('Stopwatch'), sub: t('runs until you are done, then ticks off'), onclick: () => openTimer() },
+    ...(season ? [{ key: 'season', icon: Sun, title: t('Season'), sub: `${season.half === 'summer' ? t('Summer since {date}', { date: dayShort(season.since) }) : t('Winter since {date}', { date: dayShort(season.since) })}${season.next ? ` · ${season.half === 'summer' ? t('Winter from {date}', { date: dayShort(season.next) }) : t('Summer from {date}', { date: dayShort(season.next) })}` : ''}`, onclick: () => (seasonOpen = !seasonOpen), expanded: seasonOpen }] : []),
+  ]);
+
+  /* A5 «Ziele»: the filter by ring, the state of each activity and the next star as a path (B22) */
+  const RING_FILTER = [
+    { key: 'all', name: 'All goals' },
+    { key: 'move', name: 'Move|ring' },
+    { key: 'mind', name: 'Mindful|ring' },
+    { key: 'rest', name: 'Recovery|ring' },
+  ];
+  let ringF = $state('all');
+  const stateOf = $derived(new Map(states.map((s) => [s.act.id, s])));
+  const msQ = liveQuery(async () => {
+    const [log, sessions, stars, tune] = await Promise.all([db.flowLog.toArray(), db.flowSessions.toArray(), db.flowStars.toArray(), db.settings.get(TUNE_KEY)]);
+    return { log, sessions, stars, tune: tune?.value ?? {} };
+  });
+  const pathMs = $derived.by(() => {
+    if (!data || !$msQ || route[0] !== 'goals') return null;
+    const ctx = msContext({ acts: data.acts, log: $msQ.log, sessions: $msQ.sessions, today, tripDays: data.tripDays });
+    const stored = new Map($msQ.stars.map((x) => [x.id, x.day]));
+    return allMilestones(ctx, stored, $msQ.tune).filter((r) => !r.off && r.next && r.value > 0).sort((a, b) => b.progress - a.progress)[0] ?? null;
+  });
+  const path = $derived(goalPath(pathMs));
+  const pathName = $derived(pathMs ? `${msName(pathMs.m)}${pathMs.m.actId ? ` · ${tileName(data.acts.find((a) => a.id === pathMs.m.actId))}` : ''}` : '');
 
   /* the list of all activities: order by the grip */
   let dragId = $state(null);
@@ -137,137 +187,105 @@
 {:else if editId}
   {#if data}<ActEditor id={editId} acts={data.acts} log={data.log} {today} tripDays={data.tripDays} back={params.get('from') === 'activity' ? '#/flow/activity' : ''} />{/if}
 {:else if route[0] === 'goals'}
-  <div class="flow narrow">
-    <p class="back"><a href="#/flow"><ChevronLeft size={16} aria-hidden="true" />{t('In the flow')}</a></p>
-    <h1 class="title">{t('Goals|flow')}</h1>
-    <section class="surf card-pad" aria-labelledby="acts-h">
-      <h2 id="acts-h" class="sh">{t('Activities')} <span class="cnt num">{all.length}</span></h2>
-      <ul class="acts" bind:this={listEl}>
-        {#each all as a, i (a.id)}
-          <li data-id={a.id} class:drag={dragId === a.id}>
-            <a class="ar" href="#/flow/edit/{encodeURIComponent(a.id)}">
-              <ActIcon icon={a.icon} ring={a.ring} dim={a.paused} />
-              <span class="m"><b>{actName(a)}</b><small>{a.paused ? t('paused') : actGoalText(a, today)}{#if !a.paused && !activeGoals(a, today).length && a.season}{" · "}{t('rests until {date}', { date: dayShort(restsUntil(a, today)) })}{/if}</small></span>
-            </a>
-            <button type="button" class="grip noswipe" data-grip={a.id} aria-label={t('Move {name}: arrow keys', { name: actName(a) })} onkeydown={(e) => gripKey(e, a, i)} onpointerdown={(e) => gripDown(e, a)} onpointermove={gripMove} onpointerup={gripUp} onpointercancel={gripUp}><GripVertical size={18} aria-hidden="true" /></button>
-            <a class="chev" href="#/flow/edit/{encodeURIComponent(a.id)}" aria-hidden="true" tabindex="-1"><ChevronRight size={18} /></a>
-          </li>
-        {/each}
-      </ul>
-      <p class="hint">{t('The order here is the order of «Tick off today».')}</p>
-    </section>
-    <a class="btn wide-btn" href="#/flow/new"><Plus size={18} aria-hidden="true" />{t('New activity')}</a>
+  <div class="flow">
+    <header class="ph">
+      <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Goals|flow')} />
+      <h1 class="title">{t('Goals|flow')}</h1>
+      <p class="sub">{t('Rolling: always counts the last days, whatever the weekday')}{#if season}{' · '}{season.half === 'summer' ? t('Summer') : t('Winter')}{/if}</p>
+    </header>
+    <div class="tools">
+      <div class="seg" role="group" aria-label={t('Filter by ring')}>
+        {#each RING_FILTER as r (r.key)}<button type="button" class="sg" aria-pressed={ringF === r.key} onclick={() => (ringF = r.key)}>{t(r.name)}</button>{/each}
+      </div>
+      <a class="btn" href="#/flow/new"><Plus size={18} aria-hidden="true" />{t('New activity')}</a>
+    </div>
+    <div class="lay">
+      <div class="col">
+        <Sec id="acts-h" title={t('Goals × days')} sub={t('Dots = last 7 days · today on the right')}>
+          <ul class="acts card" bind:this={listEl}>
+            {#each all as a, i (a.id)}
+              {@const s = stateOf.get(a.id)}
+              {#if ringF === 'all' || a.ring === ringF}
+                <li data-id={a.id} data-row={a.id} class:drag={dragId === a.id}>
+                  <a class="ar" href="#/flow/edit/{encodeURIComponent(a.id)}">
+                    <span class="aico"><ActIcon icon={a.icon} ring={a.ring} dim={a.paused || s?.resting} /></span>
+                    <span class="m"><b>{actName(a)}</b><small>{a.paused ? t('paused') : s?.resting ? t('rests until {date}', { date: dayShort(s.restUntil) }) : actGoalText(a, today)}{#if !a.paused && !s?.resting && a.counts.includes('commute')}{' · '}{t('commuting counts')}{/if}</small></span>
+                    {#if s && !s.resting}
+                      <span class="d7" aria-hidden="true">{#each gridRow(s, data.log, week, today, data.tripDays) as c, k (k)}<i class={c}></i>{/each}</span>
+                      <span class="st num">{s.stand.n} / {s.stand.of}</span>
+                      <span class="bdw"><span class="pill {s.met || (s.daily && !s.open) ? 'ok' : 'warn'}">{s.met || (s.daily && !s.open) ? t('on track') : t('open today')}</span></span>
+                    {:else}
+                      <span class="d7 rest" aria-hidden="true">{#each week as d (d)}<i></i>{/each}</span>
+                      <span class="st num">–</span>
+                      <span class="bdw"><span class="pill">{a.paused ? t('paused') : t('rests')}</span></span>
+                    {/if}
+                  </a>
+                  <button type="button" class="grip noswipe" data-grip={a.id} aria-label={t('Move {name}: arrow keys', { name: actName(a) })} onkeydown={(e) => gripKey(e, a, i)} onpointerdown={(e) => gripDown(e, a)} onpointermove={gripMove} onpointerup={gripUp} onpointercancel={gripUp}><GripVertical size={18} aria-hidden="true" /></button>
+                </li>
+              {/if}
+            {/each}
+          </ul>
+        </Sec>
+      </div>
+      <aside class="col">
+        {#if path}
+          <Sec id="path-h" title={t('Next goal: {name}', { name: pathName })} sub={t('your next star, station by station')}>
+            <div class="card"><GoalPath {path} unit={pathMs.m.unit} label={pathName} /></div>
+          </Sec>
+        {/if}
+        <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit, drag the grip to move.')}</span></p>
+      </aside>
+    </div>
   </div>
 {:else}
   <div class="flow">
     <header class="ph">
-      <div class="ht">
-        <p class="back"><a href="#/"><ChevronLeft size={16} aria-hidden="true" />{t('Today|place')}</a></p>
-        <h1 class="title">{t('In the flow')}</h1>
-        <p class="page-sub">{t('Last 7 days')} · {range}{#if !phone.matches && rings.move.of}{' · '}{t('{n} of {m} movement goals on track', { n: rings.move.n, m: rings.move.of })}{/if}</p>
-      </div>
-      {#if !phone.matches}
-        <div class="hb">
-          <button type="button" class="btn" onclick={() => (ui.checkOpen = true)}><Sun size={18} aria-hidden="true" />{t('Daily check')}</button>
-          <button type="button" class="btn" onclick={() => openTimer()}><Timer size={18} aria-hidden="true" />{t('Stopwatch')}</button>
-          <a class="btn" href="#/flow/activity" data-to="activity"><Sparkles size={18} aria-hidden="true" />{t('Activity|tab')}</a>
-        </div>
-      {/if}
+      <h1 class="title">{t('Active|place')}</h1>
+      <p class="sub">{t('Today, {date}', { date: fmt(today, { weekday: 'long', day: 'numeric', month: 'short' }) })}{#if season?.since}{' · '}{season.half === 'summer' ? t('Summer since {date}', { date: dayShort(season.since) }) : t('Winter since {date}', { date: dayShort(season.since) })}{/if}</p>
     </header>
 
     {#if data && !states.length}
-      <section class="surf card-pad empty">
-        <p>{t('No activities yet. Add the first one: name, goal, done.')}</p>
-        <a class="btn hi" href="#/flow/new"><Plus size={18} aria-hidden="true" />{t('New activity')}</a>
-      </section>
+      <Empty icon={Plus} text={t('No activities yet. Add the first one: name, goal, done.')} action={{ label: t('New activity'), href: '#/flow/new' }} />
     {:else if data}
-      <div class="top">
-        <section class="surf card-pad ringc" aria-label={t('Rings')}>
-          <Rings {rings} size={phone.matches ? 136 : 180} />
-          {#if sumLine}<p class="sumline">{sumLine}</p>{/if}
-        </section>
-        <section class="surf card-pad" aria-labelledby="tick-h">
-          <div class="sh-row">
-            <h2 id="tick-h" class="sh">{t('Tick off today')}</h2>
-            <span class="quiet">{phone.matches ? t('one tap') : t('one click ticks · right click: duration, place, stopwatch')}</span>
-          </div>
-          <TickGrid states={live} {today} cols={phone.matches ? 2 : 5} onmed={(s) => (medFor = s.act.id)} />
-          {#if phone.matches}
-            <p class="hint">{#if hasMed}{t('Tap Meditation: start or tick off.')}{' '}{/if}{t('Long press: duration, place (Studio / At home) or the stopwatch.')}</p>
-          {:else}
+      <div class="lay">
+        <div class="col">
+          <Sec id="tick-h" title={t('Tick off today')} sub={phone.matches ? t('One tap ticks · long press: duration, place or stopwatch') : t('One click ticks · right click: duration, place or stopwatch')}>
+            <TickGrid states={live} {today} cols={phone.matches ? 2 : 3} big onmed={(s) => (medFor = s.act.id)} />
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
-            {@render checkRow()}
-          {/if}
-        </section>
-      </div>
-
-      <section class="surf card-pad" aria-labelledby="grid-h">
-        <div class="sh-row">
-          <h2 id="grid-h" class="sh">{t('Goals × days')}{#if !phone.matches} <span class="quiet">{t('last {n} days', { n: 14 })}</span>{/if}</h2>
-          {#if phone.matches}
-            <a class="lk" href="#/flow/goals"><Pencil size={16} aria-hidden="true" />{t('Edit')}</a>
-          {:else}
-            <a class="btn sm" href="#/flow/new"><Plus size={16} aria-hidden="true" />{t('Activity')}</a>
-          {/if}
+          </Sec>
+          <Sec id="ring-h" title={t('Rings')} sub={t('last 7 days against your goals')}>
+            <div class="card ringc"><Rings {rings} size={phone.matches ? 112 : 140} quiet /></div>
+          </Sec>
+          <Sec id="km-h" title={t('Bike this month')} sub={t('from your uploaded rides')}>
+            <a class="card kmc" href="#/debrief/ride" data-section="km">
+              <small>{t('{month} until today', { month: fmt(today, { month: 'long' }) })}</small>
+              <span class="kmn"><b class="num">{num(km.km)} km</b>{#if km.pct != null}<span class="pill {km.pct >= 0 ? 'ok' : ''} num">{km.pct >= 0 ? '↑' : '↓'} {t('{n} % vs {month}', { n: num(Math.abs(km.pct)), month: fmt(prevMonth, { month: 'short' }) })}</span>{/if}</span>
+              {#if km.weeks.some((v) => v)}
+                <svg class="spark" viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true">
+                  <path class="area" d={sparkArea} />
+                  <polyline class="line" points={sparkLine} />
+                </svg>
+                <span class="wk" aria-hidden="true">{#each km.weeks as _, i (i)}<span>{t('W {n}', { n: i + 1 })}</span>{/each}</span>
+              {:else}
+                <small>{t('No ride this month yet. Upload a ride ›')}</small>
+              {/if}
+            </a>
+          </Sec>
         </div>
-        <GoalGrid {states} log={data.log} {today} tripDays={data.tripDays} wide={!phone.matches} />
-      </section>
-
-      <div class="bottom">
-        <section class="surf card-pad" aria-labelledby="chk-card-h">
-          <div class="sh-row"><h2 id="chk-card-h" class="sh">{t('Daily check')}</h2><span class="quiet">{t('⌀ 7 days')}</span></div>
-          {#if phone.matches}{@render checkRow()}{/if}
-          {#if phone.matches}
-            <div class="avg">
-              {#each FIXED as f (f.key)}<div><span class="bignum num">{n1(avg[f.key].mean)}</span><small>{t(f.short)}</small></div>{/each}
-            </div>
-          {:else}
-            <ul class="bars">
-              {#each FIXED as f (f.key)}
-                <li>
-                  <span class="bn">{t(f.short)}</span>
-                  <span class="bs" aria-hidden="true">{#each avg[f.key].series as v, i (i)}<i class:last={i === 6} style:height="{v ? 6 + v * 2.4 : 3}px"></i>{/each}</span>
-                  <span class="bv num">{n1(avg[f.key].mean)}</span>
-                </li>
-              {/each}
-            </ul>
-            {#if rot}<p class="hint">{t('Plus a rotating 4th question each day, today: «{q}»', { q: qText(rot.q) })}</p>{/if}
+        <aside class="col">
+          <Sec id="chk-h" title={t('Daily check')} sub={t('4 questions · one tap per question')}>
+            <div class="card">{@render checkRow()}</div>
+          </Sec>
+          {#if sumLine}
+            <Sec id="open-h" title={t('Still open today|aktiv')}>
+              <p class="card sumline">{sumLine}</p>
+            </Sec>
           {/if}
-        </section>
-        {#if !phone.matches}
-          <section class="surf card-pad" aria-labelledby="rest-h">
-            <div class="sh-row"><h2 id="rest-h" class="sh">{t('Recovery|ring')}</h2>{#if rings.rest.of}<span class="pill warn num">{t('{n} of {m}', { n: rings.rest.n, m: rings.rest.of })}</span>{/if}</div>
-            <ul class="rl">
-              {#each restStates as s (s.act.id)}
-                {@const e = lastOf(s.act.id)}
-                <li><ActIcon icon={s.act.icon} ring="rest" /><span class="m"><b>{actName(s.act)}</b><small>{e ? fmt(e.day, { weekday: 'short', day: 'numeric', month: 'short' }) : t('not ticked yet')} · {actGoalText(s.act, today)}</small></span>{#if e?.min}<span class="v num">{e.min} min</span>{/if}</li>
-              {/each}
-            </ul>
-            <p class="hint">{t('Recovery is its own ring: the units of the last 7 days against your goals.')}</p>
-          </section>
-          <section class="surf card-pad" aria-labelledby="season-h">
-            <div class="sh-row"><h2 id="season-h" class="sh">{t('Season')}</h2><span class="quiet">{t('per sport')}</span></div>
-            <ul class="rl">
-              {#each seasonal as s (s.act.id)}
-                {@const half = halfOf(s.act, today)}
-                <li>
-                  <ActIcon icon={s.act.icon} ring={s.act.ring} dim={s.resting} />
-                  <span class="m"><b>{actName(s.act)}</b><small>{s.resting ? t('starts {date}', { date: dayShort(s.restUntil) }) : `${goalsText(s.act.goals)} · ${t('Winter')} ${goalsText(s.act.season.winter)}`}</small></span>
-                  <span class="v">{#if s.resting}{t('rests')}{:else if half === 'summer'}{t('Summer until {date}', { date: dayShort(halfEnds(s.act, today)) })}{:else}{t('Winter since {date}', { date: dayShort(halfSince(s.act, today)) })}{/if}</span>
-                </li>
-              {/each}
-            </ul>
-          </section>
-        {/if}
+          <Sec id="more-h" title={t('More|item')}>
+            <Rows rows={moreRows} open={seasonList} />
+          </Sec>
+        </aside>
       </div>
-
-      {#if phone.matches}
-        <div class="foot">
-          <a class="btn" href="#/flow/new"><Plus size={16} aria-hidden="true" />{t('Activity')}</a>
-          <a class="lk" href="#/flow/goals">{t('All goals')}<ChevronRight size={16} aria-hidden="true" /></a>
-          <a class="lk" href="#/flow/activity" data-to="activity">{t('Activity|tab')}<ChevronRight size={16} aria-hidden="true" /></a>
-        </div>
-      {/if}
     {/if}
   </div>
 {/if}
@@ -277,233 +295,146 @@
 {#snippet checkRow()}
   {#if complete(check)}
     <div class="crow done">
-      <Sun size={20} aria-hidden="true" />
       <span class="ct"><b>{t('Daily check done')}</b><small>{FIXED.map((f) => `${t(f.short)} ${check[f.key]}`).join(' · ')} · {qText(data.pool.find((x) => x.id === check.q) ?? rot?.q, 'short') || t('4th')} {check.extra}</small></span>
-      <button type="button" class="btn sm" onclick={() => (ui.checkOpen = true)}>{t('Change')}</button>
+      <button type="button" class="btn" onclick={() => (ui.checkOpen = true)}>{t('Change')}</button>
     </div>
   {:else}
     <div class="crow">
-      <Sun size={20} aria-hidden="true" />
-      <span class="ct"><b>{t('Still open today')}</b><small>{t('4 questions · one tap per question')}</small></span>
-      <button type="button" class="btn start" onclick={() => (ui.checkOpen = true)}>{t('Start|check')}</button>
+      <span class="ct"><b>{t('Still open today')}</b>{#if rot}<small>{t('today also: «{q}»', { q: qText(rot.q) })}</small>{/if}</span>
+      <button type="button" class="btn hi" onclick={() => (ui.checkOpen = true)}>{t('Start|check')}</button>
     </div>
   {/if}
+  {#if FIXED.some((f) => avg[f.key].mean != null)}<p class="avg num">{t('⌀ 7 days')}: {FIXED.map((f) => `${t(f.short)} ${n1(avg[f.key].mean)}`).join(' · ')}</p>{/if}
+{/snippet}
+
+{#snippet seasonList()}
+  <ul class="rl">
+    {#each seasonal as s (s.act.id)}
+      {@const half = halfOf(s.act, today)}
+      <li>
+        <ActIcon icon={s.act.icon} ring={s.act.ring} dim={s.resting} />
+        <span class="m"><b>{actName(s.act)}</b><small>{s.resting ? t('starts {date}', { date: dayShort(s.restUntil) }) : `${goalsText(s.act.goals)} · ${t('Winter')} ${goalsText(s.act.season.winter)}`}</small></span>
+        <span class="v">{#if s.resting}{t('rests')}{:else if half === 'summer'}{t('Summer until {date}', { date: dayShort(halfEnds(s.act, today)) })}{:else}{t('Winter since {date}', { date: dayShort(halfSince(s.act, today)) })}{/if}</span>
+      </li>
+    {/each}
+  </ul>
 {/snippet}
 
 <style>
+  /* v0.105.0 Design-Refresh P8 «Aktiv» (A1, A5): the page head, two columns (the main column and the
+     side column), white cards; one column on a phone */
   .flow {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    max-width: 1328px;
+    gap: var(--sp-4);
+    max-width: 1240px;
     margin: 0 auto;
-  }
-  .flow.narrow {
-    max-width: 640px;
-    gap: 14px;
-  }
-  @media (max-width: 719px) {
-    .flow {
-      gap: 14px;
-    }
-  }
-  .back {
-    margin: 0;
-  }
-  .back a {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 32px;
-    color: var(--accent);
-    text-decoration: none;
-    font-size: var(--fs-small);
-  }
-  .ph {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .ht {
     min-width: 0;
   }
-  .ht .page-sub {
-    margin-bottom: 0;
+  .ph .sub {
+    margin: var(--sp-1) 0 0;
+    color: var(--ink-3);
+    font: 400 var(--fs-body) / 1.45 var(--font-body);
   }
-  .hb {
-    display: flex;
-    gap: 10px;
-  }
-  .hb .btn {
-    min-height: 44px;
-    border-radius: 12px;
-    border-color: var(--line);
-  }
-  .card-pad {
-    padding: 16px 18px;
-    min-width: 0;
-  }
-  @media (max-width: 359px) {
-    .card-pad {
-      padding: 14px 12px;
-    }
-  }
-  @media (min-width: 720px) {
-    .card-pad {
-      padding: 20px 24px;
-    }
-  }
-  .top {
+  .lay {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
+    gap: var(--sp-5);
+    align-items: start;
   }
   @media (min-width: 1000px) {
-    .top {
-      grid-template-columns: minmax(340px, 420px) minmax(0, 1fr);
-      gap: 24px;
+    .lay {
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
     }
   }
-  .ringc {
+  .col {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--sp-5);
+    min-width: 0;
   }
-  .sumline {
-    margin: 0;
+  .hint {
+    margin: var(--sp-2) 2px 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .ringc {
+    padding: var(--sp-4) var(--sp-5);
+  }
+  .kmc {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .kmc:hover {
+    background: var(--paper-2);
+  }
+  .kmc small {
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
-  .sh-row {
+  .kmn {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    gap: var(--sp-2) var(--sp-3);
+  }
+  .kmn b {
+    font: 700 var(--fs-title) / 1.15 var(--font-body);
+  }
+  .spark {
+    display: block;
+    width: 100%;
+    height: 48px;
+    margin-top: var(--sp-3);
+  }
+  .spark .area {
+    fill: var(--hi-soft);
+  }
+  .spark .line {
+    fill: none;
+    stroke: var(--hi);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+  .wk {
+    display: flex;
     justify-content: space-between;
-    gap: 4px 12px;
-    margin-bottom: 12px;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
   }
-  .sh {
+  .sumline {
     margin: 0;
-    font-size: var(--fs-section);
-    font-weight: 500;
-    line-height: 1.2;
-  }
-  .sh .quiet {
-    margin-left: 8px;
-  }
-  .quiet {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-    font-weight: 400;
-  }
-  .hint {
-    margin: 10px 0 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .lk {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    color: var(--accent);
-    font-weight: 500;
-    text-decoration: none;
+    font-size: var(--fs-body);
+    line-height: 1.45;
   }
   .crow {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
-    margin-top: 12px;
-    padding: 10px 10px 10px 14px;
-    border-radius: 14px;
-    background: var(--paper-2);
-    color: var(--warn);
-  }
-  .crow.done {
-    color: var(--ok);
+    gap: var(--sp-2) var(--sp-3);
   }
   .ct {
-    flex: 1;
+    flex: 1 1 160px;
     min-width: 0;
-    color: var(--ink);
-    line-height: 1.3;
+    line-height: 1.35;
   }
   .ct b {
     display: block;
     font-weight: 500;
   }
   .ct small {
-    color: var(--ink-2);
+    color: var(--ink-3);
     font-size: var(--fs-small);
-  }
-  .start {
-    min-height: 44px;
-    border-color: transparent;
-    border-radius: 10px;
-    box-shadow: var(--card-shadow);
   }
   .avg {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    margin-top: 14px;
-  }
-  .avg small {
-    display: block;
-    color: var(--ink-2);
+    margin: var(--sp-3) 0 0;
+    padding-top: var(--sp-2);
+    border-top: 1px solid var(--line);
+    color: var(--ink-3);
     font-size: var(--fs-small);
-  }
-  .bottom {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-  }
-  @media (min-width: 1000px) {
-    .bottom {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 24px;
-    }
-  }
-  .bars {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .bars li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 46px;
-  }
-  .bn {
-    width: 84px;
-    font-size: var(--fs-small);
-  }
-  .bs {
-    flex: 1;
-    display: flex;
-    align-items: flex-end;
-    gap: 3px;
-    height: 30px;
-    border-bottom: 1px solid var(--line);
-  }
-  .bs i {
-    flex: 1;
-    border-radius: 3px 3px 0 0;
-    background: var(--bar);
-  }
-  .bs i.last {
-    background: var(--accent);
-  }
-  .bv {
-    width: 40px;
-    text-align: right;
-    font-family: var(--font-brand);
-    font-weight: 800;
-    font-size: var(--fs-section);
   }
   .rl {
     margin: 0;
@@ -513,12 +444,9 @@
   .rl li {
     display: flex;
     align-items: center;
-    gap: 12px;
-    min-height: 56px;
+    gap: var(--sp-3);
+    min-height: 52px;
     border-top: 1px solid var(--line);
-  }
-  .rl li:first-child {
-    border-top: 0;
   }
   .m {
     flex: 1;
@@ -528,6 +456,7 @@
   .m b {
     display: block;
     font-weight: 500;
+    overflow-wrap: break-word;
   }
   .m small {
     color: var(--ink-3);
@@ -535,44 +464,49 @@
   }
   .v {
     flex: none;
+    max-width: 45%;
     text-align: right;
-    color: var(--ink);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
-  .foot {
+  /* A5 «Ziele» */
+  .tools {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px 18px;
+    justify-content: space-between;
+    gap: var(--sp-2) var(--sp-3);
   }
-  .foot .btn {
-    min-height: 44px;
-    border-radius: 12px;
-    border-color: var(--line);
-  }
-  .empty {
+  .seg {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 6px;
   }
-  .empty p {
-    margin: 0;
+  .sg {
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1 var(--font-body);
+    cursor: pointer;
   }
-  .cnt {
-    color: var(--ink-3);
-    font-weight: 400;
+  .sg[aria-pressed='true'] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
   }
   .acts {
-    margin: 8px 0 0;
-    padding: 0;
+    margin: 0;
+    padding: 0 var(--sp-2) 0 var(--sp-4);
     list-style: none;
   }
   .acts li {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     border-top: 1px solid var(--line);
-    background: var(--paper);
   }
   .acts li:first-child {
     border-top: 0;
@@ -584,11 +518,47 @@
     flex: 1;
     min-width: 0;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
-    min-height: 56px;
+    gap: var(--sp-2) var(--sp-3);
+    min-height: 60px;
+    padding: var(--sp-2) 0;
     color: var(--ink);
     text-decoration: none;
+  }
+  .aico {
+    display: flex;
+  }
+  .ar .m {
+    flex: 1 1 140px;
+  }
+  .d7 {
+    display: flex;
+    gap: 4px;
+  }
+  .d7 i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--paper-2);
+    box-sizing: border-box;
+  }
+  .d7 i.done {
+    background: var(--hi);
+  }
+  .d7 i.open {
+    border: 2px dashed var(--warn);
+    background: transparent;
+  }
+  .bdw {
+    display: flex;
+    justify-content: flex-end;
+    min-width: 92px;
+  }
+  .st {
+    min-width: 56px;
+    text-align: right;
+    font-size: var(--fs-small);
   }
   .grip {
     flex: none;
@@ -602,19 +572,24 @@
     cursor: grab;
     touch-action: none;
   }
-  .chev {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 28px;
-    height: 44px;
-    color: var(--ink-3);
+  /* a phone: the dots go under the name, the stand and the word stay on the right */
+  @media (max-width: 719px) {
+    .d7 {
+      order: 3;
+      flex-basis: 100%;
+      padding-left: 46px;
+    }
   }
-  .wide-btn {
-    min-height: 48px;
-    border-radius: 12px;
-    border-color: var(--line);
-    background: var(--paper);
-    font-weight: 500;
+  .note {
+    display: flex;
+    gap: var(--sp-2);
+    margin: 0 var(--sp-3);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+  .note :global(svg) {
+    flex: none;
+    margin-top: 2px;
   }
 </style>

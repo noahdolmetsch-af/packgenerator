@@ -1,0 +1,42 @@
+// v0.105.0 Design-Refresh P8 «Aktiv» (A1–A14c): the German texts of the new Aktiv pages.
+export default {
+  // A1 Aktiv heute
+  'Today, {date}': 'Heute, {date}',
+  'Summer since {date}': 'Sommer seit {date}',
+  'Winter from {date}': 'Winter ab {date}',
+  'Summer from {date}': 'Sommer ab {date}',
+  'One tap ticks · long press: duration, place or stopwatch': 'Ein Tipp hakt ab · lange drücken: Dauer, Ort oder Stoppuhr',
+  'One click ticks · right click: duration, place or stopwatch': 'Ein Klick hakt ab · Rechtsklick: Dauer, Ort oder Stoppuhr',
+  'last 7 days against your goals': 'letzte 7 Tage gegen deine Ziele',
+  'from your uploaded rides': 'aus deinen hochgeladenen Fahrten',
+  '{month} until today': '{month} bis heute',
+  '{n} % vs {month}': '{n} % zu {month}',
+  'W {n}': 'W {n}',
+  'No ride this month yet. Upload a ride ›': 'Noch keine Fahrt in diesem Monat. Fahrt hochladen ›',
+  'Still open today|aktiv': 'Noch offen heute',
+  'today also: «{q}»': 'heute dazu: «{q}»',
+  'start, log, more': 'starten, Logbuch, Mehr',
+  'Activity and milestones': 'Aktivität und Meilensteine',
+  'runs until you are done, then ticks off': 'läuft, bis du fertig bist, und hakt dann ab',
+  // A4 Tagescheck
+  '{n} of {m} answered': '{n} von {m} beantwortet',
+  'Question 4 changes every day. Only for you, an observation, no rating.': 'Frage 4 wechselt jeden Tag. Nur für dich, eine Beobachtung, keine Bewertung.',
+  // A5 Ziele
+  'Rolling: always counts the last days, whatever the weekday': 'Rollend: zählt immer die letzten Tage, egal welcher Wochentag',
+  'Filter by ring': 'Nach Ring filtern',
+  'Dots = last 7 days · today on the right': 'Punkte = letzte 7 Tage · heute ganz rechts',
+  'Next goal: {name}': 'Nächstes Ziel: {name}',
+  'your next star, station by station': 'dein nächster Stern, Station für Station',
+  'Tap to edit, drag the grip to move.': 'Antippen zum Bearbeiten, am Griff ziehen zum Verschieben.',
+  // A6 Ziel bearbeiten
+  'the same goal all year': 'das ganze Jahr das gleiche Ziel',
+  'Another goal in summer than in winter': 'Im Sommer ein anderes Ziel als im Winter',
+  'nothing chosen': 'nichts gewählt',
+  'Pause or delete': 'Pause oder löschen',
+  'Pause: rests without a goal · delete asks first': 'Pause: ruht ohne Ziel · Löschen fragt nach',
+  // B22 Ziel-Pfad
+  '{value} of {target}, {n} stations to go': '{value} von {target}, noch {n} Stationen',
+  '{left} to go': 'noch {left}',
+  '{n} station': '{n} Station',
+  '{n} stations': '{n} Stationen',
+};
