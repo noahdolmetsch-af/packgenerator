@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Design-Refresh P9 «Ich» (0.108.0)
+
+Nach den Mockups I1–I3 (Noah 12.10.2026 03:06), I4–I6, I8, I9 (03:20), I7 neu, I10, I12, I13 (03:50 «Runde 20 freigegeben») und den Bausteinen 20 «Status-Ampel» und 35 «QR-Code» (11.10.2026). I11 «Was ist neu» kommt mit P10.
+
+- **Selbst entschieden (P9):** «Daten und Backup» ist eine eigene Seite `#/me/data`, «Aufs Handy» eine eigene Seite `#/me/phone` mit QR-Code (nur die Adresse der App; Daten reisen weiter per Backup-Datei). Für den QR-Code kommt die kleine, freie Bibliothek `qrcode-generator` dazu (läuft auf dem Gerät, kein Dienst). Drei Lichter: Backup, Ordner, Speicher; ein ausgeschaltetes Ordner-Backup ist grau, weil es nur ein Vorschlag ist. Namen bleiben «Helfer» und «Heimat», die Sprache bleibt ein Schalter in der Zeile. «Problem melden» erscheint nur mit Velos. Nicht gebaut, weil neu: Lichter für Strava, Wetter und Handy-Abgleich, Abgleich über den QR-Code, Felder «Art» und «Wer macht es», Abhaken direkt in der Notizen-Liste, ein Umschalter beim Import-Check.
+
 ## 12.10.2026: Design-Refresh P8 «Aktiv» (0.107.0)
 
 Nach den Mockups A1–A2, A4–A6 (Noah 12.10.2026 02:40 «a1-a6 freigeben»), A7–A8 (02:47 «A7 - A9 freigabe»), A13 (03:06), A14 und A14c «Muster» (03:15 «freigabe für a14 und a14c»); A3 und A9–A12 bleiben wie heute (Noah 02:44, 02:47, 02:51). Challenge-Regel nach D1b/D5 («d1-d5 freigeben» 03:59).

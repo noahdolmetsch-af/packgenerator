@@ -513,6 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 12.10.2026 (v0.108.0, PR folgt):** Design-Refresh P9 «Ich» (I1–I10, I12, I13): Ich in vier Gruppen, Daten und Backup als eigene Seite mit Status-Lichtern, Aufs Handy mit QR-Code, Eingang, Ablegen, Notizen, Helfer, Problem melden, Wohnort, Tastenkürzel, Spielwiese. Danach P6 Rückblick und P10 Was ist neu.
+
 **Nachtrag 12.10.2026 (v0.107.0, PR offen):** Design-Refresh P8 «Aktiv» (A1–A8, A13, A14, A14c): Aktiv heute, Ziele, Aktivität, Meilensteine, Meditation «Mehr», Logbuch und neue Seite «Muster»; Vorschläge als Challenge.
 
 **Nachtrag 12.10.2026 (v0.106.0, live):** Design-Refresh P5 «Packen und Unterwegs» (T6–T13): Taschen als eine Liste, helle Fenster für Tauschen, Laden, Entscheiden, Fakten und Tour beenden, Unterwegs mit dem Tag in Blöcken und Stunden-Wetter.

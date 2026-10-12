@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.108.0 Design-Refresh P9 «Ich»
+  'The new look, step 11: Me is light, in four groups, with a band on top when a backup is due.':
+    'Das neue Aussehen, Schritt 11: Ich ist hell, in vier Gruppen, mit einem Band oben, wenn ein Backup fällig ist.',
+  'Data and backup is its own page with three status lights; «To the phone» shows a QR code with the app address.':
+    'Daten und Backup ist eine eigene Seite mit drei Status-Lichtern; «Aufs Handy» zeigt einen QR-Code mit der Adresse der App.',
+  'Inbox, filing, notes, the helper, report a problem, home place, shortcuts and the playground use the new light look.':
+    'Eingang, Ablegen, Notizen, Helfer, Problem melden, Wohnort, Tastenkürzel und Spielwiese sind im neuen hellen Aussehen.',
   // 0.107.0 Design-Refresh P8 «Aktiv»
   'The new look, step 10: Active is light, with today on top, goals with a path and milestones on a shelf.':
     'Das neue Aussehen, Schritt 10: Aktiv ist hell, mit heute oben, Zielen mit Weg und Meilensteinen im Regal.',
