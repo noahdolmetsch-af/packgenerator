@@ -147,9 +147,18 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
   return last;
 }
 
-/** «Jetzt holen» (and the automatic fetch): never throws; an error stays in strava.error. */
-export async function fetchNow({ db = appDb, c = call, now = new Date() } = {}) {
-  if (strava.busy || !readKey()) return null;
+let running = null;
+/**
+ * «Jetzt holen» (and the automatic fetch): never throws; an error stays in strava.error. While a fetch
+ * runs, a second call gets the same result (the first fetch after connecting and the automatic one).
+ */
+export function fetchNow(opts = {}) {
+  if (running) return running;
+  if (!readKey()) return Promise.resolve(null);
+  running = fetchOnce(opts).finally(() => (running = null));
+  return running;
+}
+async function fetchOnce({ db = appDb, c = call, now = new Date() } = {}) {
   strava.busy = true;
   strava.error = '';
   try {

@@ -91,9 +91,14 @@ export const STRICT_STYLE = [
   // v0.99.0 Design-Refresh R3: the notes with Undo
   'src/lib/tpl/Toast.svelte',
   'src/lib/ui/RenameToast.svelte',
+  // v0.112.0 «Strava-Verbindung»: the Strava page, «Zum Prüfen», the notice and the tile (all new, all strict)
+  'src/lib/strava/StravaPage.svelte',
+  'src/lib/strava/StravaCheck.svelte',
+  'src/lib/strava/StravaChanges.svelte',
+  'src/lib/strava/StravaTile.svelte',
 ];
 /** The routes of the trip pages and interstitials (tests/e2e/guard.spec.js), strict in the same way. */
-export const STRICT_ROUTES = ['#/pack', '#/pack?day', '#/ride', '#/debrief/test_data_gtp_Napf', '#/trip/test_data_gtp_Herbstrunde/packed', '#/trip/test_data_gtp_Napf/ended', '#/trip/test_data_gtp_Napf/debriefed', '#/bikes?tab=care&view=import&bike=test_data_gtp_spark', '#/bikes?bike=test_data_gtp_spark&sheet=all', '#/bikes?bike=test_data_gtp_spark&sheet=pass', '#/bikes?bike=test_data_gtp_spark&sheet=order', '#/bikes?bike=test_data_gtp_spark&sheet=pickup', '#/me', '#/me/look', '#/flow/activity', '#/flow/milestones', '#/flow/act/meditation', '#/flow/act/meditation/timer?new=1', '#/flow/act/meditation/log', '#/flow/act/meditation/log?view=cal', '#/flow/act/meditation/log?view=chart'];
+export const STRICT_ROUTES = ['#/pack', '#/pack?day', '#/ride', '#/debrief/test_data_gtp_Napf', '#/trip/test_data_gtp_Herbstrunde/packed', '#/trip/test_data_gtp_Napf/ended', '#/trip/test_data_gtp_Napf/debriefed', '#/bikes?tab=care&view=import&bike=test_data_gtp_spark', '#/bikes?bike=test_data_gtp_spark&sheet=all', '#/bikes?bike=test_data_gtp_spark&sheet=pass', '#/bikes?bike=test_data_gtp_spark&sheet=order', '#/bikes?bike=test_data_gtp_spark&sheet=pickup', '#/me', '#/me/look', '#/flow/activity', '#/flow/milestones', '#/flow/act/meditation', '#/flow/act/meditation/timer?new=1', '#/flow/act/meditation/log', '#/flow/act/meditation/log?view=cal', '#/flow/act/meditation/log?view=chart', '#/bikes?tab=care&view=strava', '#/bikes?tab=care&view=strava-check'];
 /** «noch umbauen»: every file the baseline still lists (not strict), most violations first. */
 export const stillToRebuild = (base = {}) =>
   Object.entries(base)

@@ -148,6 +148,7 @@
       <button type="button" class="btn hi" aria-expanded={form === 'ride'} onclick={() => openForm('ride')}>{t('Enter km')}</button>
       <button type="button" class="btn" aria-expanded={form === 'corr'} onclick={() => openForm('corr')}>{t('Correction')}</button>
       <a class="btn" href={bikesHash({ tab: 'care', bike: bike.id, view: 'import' })}>{t('Import rides')}</a>
+      <a class="btn" href={bikesHash({ tab: 'care', bike: bike.id, view: 'strava' })}>Strava</a>
     </div>
     <div class="filt" role="group" aria-label={t('Show entries')}>
       {#each FILTERS as f (f)}

@@ -12,6 +12,8 @@
   import Equipment from '../lib/bikes/Equipment.svelte';
   import ShopTab from '../lib/bikes/ShopTab.svelte';
   import KmImport from '../lib/care/KmImport.svelte';
+  import StravaPage from '../lib/strava/StravaPage.svelte';
+  import StravaCheck from '../lib/strava/StravaCheck.svelte';
   import SheetView from '../lib/bikes/SheetView.svelte';
   import { t } from '../lib/i18n.svelte.js';
 
@@ -54,6 +56,12 @@
     <Equipment bikeId={route.bike} onbike={pickBike} />
   {:else if route.tab === 'shop'}
     <ShopTab bikeId={route.bike} visitId={route.visit ?? null} onbike={pickBike} />
+  {:else if route.tab === 'care' && route.view === 'strava'}
+    <!-- v0.112.0 «Strava-Verbindung» (S1–S3): connect, the first fetch, the settings -->
+    <StravaPage bikeId={route.bike} />
+  {:else if route.tab === 'care' && route.view === 'strava-check'}
+    <!-- v0.112.0 (S5): the rides from Strava that wait for a bike -->
+    <StravaCheck bikeId={route.bike} />
   {:else if route.tab === 'care' && route.view === 'import'}
     <!-- v0.68.0 «Q1 Jeder km zählt» (Q1.3 a): import rides, «Check» first, then per bike -->
     <KmImport bikeId={route.bike} />

@@ -240,7 +240,8 @@ export function parseBikesHash(hash = '') {
   // v0.22.0 (AP06): &trip=<id> on Care opens that trip's event preparation.
   if (tab === 'care' && q.get('trip')) out.trip = q.get('trip');
   // v0.68.0 «Q1 Jeder km zählt»: &view=import on Care is «Import rides».
-  if (tab === 'care' && q.get('view') === 'import') out.view = 'import';
+  // v0.112.0 «Strava-Verbindung»: &view=strava is the Strava page (S1–S3), &view=strava-check «Zum Prüfen» (S5).
+  if (tab === 'care' && ['import', 'strava', 'strava-check'].includes(q.get('view'))) out.view = q.get('view');
   // v0.83.0 «Ausstattung»: tab=compare is the bike's equipment; &view=all is «Compare bikes».
   if (tab === 'compare' && q.get('view') === 'all') out.view = 'all';
   // v0.69.0 «Velo-Blätter»: &sheet=<key> on Setup shows one sheet of the bike's folder (sheets.js);
@@ -256,7 +257,7 @@ export function parseBikesHash(hash = '') {
 export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null, view = null, sheet = null, from = null } = {}) {
   const q = new URLSearchParams();
   if (tab === 'care' || tab === 'compare' || tab === 'shop') q.set('tab', tab);
-  if (view === 'import' && tab === 'care') q.set('view', 'import');
+  if (['import', 'strava', 'strava-check'].includes(view) && tab === 'care') q.set('view', view);
   if (view === 'all' && tab === 'compare') q.set('view', 'all');
   if (bike) q.set('bike', bike);
   if (open && bike) q.set('open', '1');

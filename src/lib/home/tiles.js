@@ -60,6 +60,8 @@ export const TILES = [
   { id: 'nextms', area: 'flow', label: 'Next milestone', icon: 'star', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'How far to the next 1000 km of a bike, or the next number of trips.' },
   // v0.102.0 «Vorschlag und Challenge» (D1b, Noah «d1-d5 freigeben»)
   { id: 'suggest', area: 'today', label: 'Swim or sauna today?', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.102.0', pitch: 'A suggestion for today with alternatives; any of them can become a challenge.' },
+  // v0.112.0 «Strava-Verbindung» (S4): the last fetch from Strava; it goes on top of the wall once, when this device connects
+  { id: 'strava', area: 'bikes', label: 'Strava', icon: 'bike', sizes: ['w', 'l'], size: 'w', since: '0.112.0', pitch: 'New rides from Strava with their km, fetched by themselves.' },
   { id: 'yearago', area: 'trips', label: 'A year ago', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trip of this time last year, with a line from its debrief.' },
 ];
 /** v0.101.0: the tiles that came with the Design-Refresh; a stored wall of before gets them once. */

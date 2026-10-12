@@ -76,6 +76,9 @@ const ROUTES = [
   // v0.110.0 Design-Refresh P10 (I11, I11d): Ich › Was ist neu and the whole list, strict like their files
   ['#/me/news', 'Was ist neu'],
   ['#/me/news?all&sort=best', 'Was ist neu Wichtigste 10'],
+  // v0.112.0 «Strava-Verbindung»: Velo › Pflege › Strava (not connected on this device: S1) and «Zum Prüfen», strict like their files
+  ['#/bikes?tab=care&view=strava', 'Strava'],
+  ['#/bikes?tab=care&view=strava-check', 'Zum Prüfen'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];
