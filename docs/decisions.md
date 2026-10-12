@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Design-Refresh R2 «Heller Kopf» (0.98.0)
+
+Nach Mockup G4/G5 A★ (freigegeben 11.10.2026 23:10 mit dem Stilblatt). Heller Kopf und helle Seitenleiste, «Neu» oben neben der Suche statt rundem Knopf über der Seite.
+
+- **Selbst entschieden (R2):** Die Seitenleiste zeigt nur die Unterseiten des gewählten Orts (wie im Mockup); die anderen Orte öffnen ihre Unterseiten beim Antippen. «Ich» in der Seitenleiste ist eine Karte unten mit einem ruhigen Gesichts-Symbol statt eines Buchstabens (die App kennt keinen Namen) und behält den Punkt für den Eingang, ohne Zahl (Regel v0.47.1). Die Symbole der Orte sind schlicht, ohne farbiges Kästchen; der Seitengrund bleibt pro Ort leicht getönt, auch hinter dem Kopf. Der Timer (Mockups Z1–Z5) ist auf Noahs Wunsch vom 12.10.2026 geparkt.
+
 ## 12.10.2026: Design-Refresh bauen, R1 «Darstellung» (0.97.0)
 
 Alle Seiten freigegeben (Stilblatt G1–G12 am 11.10.2026 23:10 «Runde 1 alles ★ und G1–G12 freigegeben», alle Seiten am 12.10.2026 03:50 «Runde 20 freigegeben»). Noah 12.10.2026 03:56: «allem anderen vorziehen … rasche Umsetzung mit Prio high». Bauplan mit 24 Releases (Projektordner `design/refresh-2026-10/bauplan.md`), Antworten «1a 2a 3b 4a 5a»:

@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.98.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 2: the top bar and the sidebar are light and calm.', href: '#/' },
+      { text: 'On the phone «New» (+) sits at the top next to the search; the round button over the page is gone.', href: '#/' },
+      { text: 'On the computer the sidebar shows the pages of the chosen place, and «Me» is a card at the bottom.', href: '#/me' },
+    ],
+  },
+  {
     version: '0.97.0',
     date: '2026-10-12',
     points: [

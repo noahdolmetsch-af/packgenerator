@@ -30,7 +30,8 @@
   import { parseBikesHash } from './lib/bikes.js';
   import { liveQuery } from 'dexie';
   import { db } from './lib/db.js';
-  import { wide, phone } from './lib/media.svelte.js';
+  import { wide } from './lib/media.svelte.js';
+  import { Plus } from '@lucide/svelte';
   import Me from './pages/Me.svelte';
   import Look from './pages/Look.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
@@ -222,15 +223,18 @@
      v0.76.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): five places. On a computer a sidebar on the left
      (logo, search, Ich, + Neu, the places with their pages); on a phone the top bar with search and
      «Ich», the places at the bottom and a round + above them. «More» is gone: its pages are under
-     their place or in «Ich». -->
+     their place or in «Ich».
+     v0.98.0 Design-Refresh R2 (G4/G5 A★): the top bar and the sidebar are light; on a phone the + sits
+     in the top bar next to the search (never over the page), the round + above the bottom bar is gone. -->
 <div class="shell" class:wide={wide.matches}>
 {#if wide.matches}
   <SideBar {place} {hash} due={$dueQ ?? 0} inbox={$inboxQ ?? 0} shownew={page !== 'share'} onnew={() => (newMode = 'all')} />
 {:else}
   <header class="top">
-    <a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="long">Pack Generator</span><span class="short" aria-hidden="true">PG</span></a>
+    <a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true">PG</span><span class="long">Pack Generator</span></a>
     <div class="tools">
       <Search compact />
+      {#if page !== 'share'}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
       <MeButton inbox={$inboxQ ?? 0} current={place === 'me'} />
     </div>
   </header>
@@ -238,7 +242,7 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:fab={!wide.matches && !calm && page !== 'share'} class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches}>
   {#if !calm && page !== 'share'}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   {#key switchN}
   {#if page === 'gear'}
@@ -317,8 +321,8 @@
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <Keys bind:open={keysOpen} />
 {#if !wide.matches}
-  <!-- v0.76.0: the five places at the bottom (also under a shared list, there without +). -->
-  <PlaceBar {place} {hash} due={$dueQ ?? 0} fab={page !== 'share'} high={calm && phone.matches} onnew={() => (newMode = 'all')} />
+  <!-- v0.76.0: the five places at the bottom (also under a shared list). -->
+  <PlaceBar {place} {hash} due={$dueQ ?? 0} />
 {/if}
 </div>
 </div>
@@ -346,8 +350,8 @@
     min-height: 56px;
     gap: 6px 10px;
     padding: calc(6px + env(safe-area-inset-top)) var(--gut) 6px;
-    background: var(--brand);
-    color: var(--brand-ink);
+    background: var(--tint, var(--ground));
+    color: var(--ink);
   }
   /* v0.46.1: the open search sheet (in the top bar) covers the page's bottom bars too. */
   :global(body.search-open) .top {
@@ -357,17 +361,39 @@
   .top .brand {
     display: inline-flex;
     align-items: center;
+    gap: 10px;
     min-height: 44px;
     min-width: 44px; /* v0.44.1 (AP21): "PG" on a phone is a 44 px target too */
-    font: 900 var(--fs-section) / 1 var(--font-brand);
-    color: var(--hi-bright);
+    color: var(--ink);
+    font: 600 var(--fs-body) / 1 var(--font-brand);
     text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
   }
-  /* Focus on the dark bar: a light ring that shows against it. */
-  .top :focus-visible {
-    outline-color: var(--focus-on-dark);
+  .top .mark {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: var(--brand);
+    color: var(--brand-ink);
+    font: 700 var(--fs-small) / 1 var(--font-brand);
+    letter-spacing: 0.02em;
+  }
+  /* v0.98.0 R2: «Neu» in the top bar, round, between the search and «Ich» */
+  .plus {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--hi);
+    color: var(--hi-ink);
+    cursor: pointer;
+  }
+  .plus:hover {
+    background: var(--hi-hover);
   }
   .tools {
     display: flex;
@@ -376,15 +402,9 @@
     min-width: 0;
     margin-left: auto;
   }
-  .top .short {
-    display: none;
-  }
   @media (max-width: 719px) {
     .top .long {
       display: none;
-    }
-    .top .short {
-      display: inline;
     }
   }
   /* A phone turned sideways: a low top bar. */
@@ -403,18 +423,15 @@
   main.wide {
     max-width: 1600px;
   }
-  /* Room for the bottom bar, and for the round + on the right (v0.76.0). */
+  /* Room for the bottom bar (v0.98.0 R2: the round + above it is gone). */
   main.bar:not(.calm) {
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
-  /* a trip page on a phone: its main button at the bottom, the round + above it */
+  /* a trip page on a phone: its main button above the bottom bar */
   @media (max-width: 719px) {
     main.bar.calm {
-      padding-bottom: calc(214px + env(safe-area-inset-bottom));
+      padding-bottom: calc(150px + env(safe-area-inset-bottom));
     }
-  }
-  main.bar.fab {
-    padding-bottom: calc(150px + env(safe-area-inset-bottom));
   }
   /* v0.30.1 (D6): sideways, less room above the page, and clear of a notch at the side. */
   @media (max-height: 500px) {

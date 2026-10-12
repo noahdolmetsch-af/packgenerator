@@ -8,6 +8,13 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.98.0 Design-Refresh R2 «Heller Kopf»
+  'The new look, step 2: the top bar and the sidebar are light and calm.':
+    'Das neue Aussehen, Schritt 2: die Kopfleiste und die Seitenleiste sind hell und ruhig.',
+  'On the phone «New» (+) sits at the top next to the search; the round button over the page is gone.':
+    'Am Handy sitzt «Neu» (+) oben neben der Suche; der runde Knopf über der Seite ist weg.',
+  'On the computer the sidebar shows the pages of the chosen place, and «Me» is a card at the bottom.':
+    'Am Computer zeigt die Seitenleiste die Unterseiten des gewählten Orts, und «Ich» ist eine Karte ganz unten.',
   // 0.97.0 Design-Refresh R1 «Darstellung»
   'The new look starts: the calm colour world «Sage» and the clear font Inter for the whole app.':
     'Das neue Aussehen beginnt: die ruhige Farbwelt «Salbei» und die klare Schrift Inter für die ganze App.',
