@@ -13,11 +13,10 @@
   import { openTrip } from '../nav.js';
   import { localDay } from '../localday.js';
   import { tripEnd } from '../debrief.js';
-  import Band from './Band.svelte';
   import TemplateOffer from '../debrief/TemplateOffer.svelte';
-  import { Check, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Briefcase, Wrench, X, Minus, ChevronRight, Pencil } from '@lucide/svelte';
+  import { Check, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Briefcase, Wrench, X, Minus, Plus, ChevronRight, Package } from '@lucide/svelte';
 
-  let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], offer = null, onreopen } = $props();
+  let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], offer = null } = $props();
 
   const today = localDay();
   const byId = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
@@ -48,153 +47,153 @@
   {#if rain?.wet === true}<CloudRain size={16} aria-hidden="true" />{:else if rain?.wet === false}<Sun size={16} aria-hidden="true" />{:else}<Cloud size={16} aria-hidden="true" />{/if}
 {/snippet}
 
+<!-- v0.107.0 Design-Refresh P6 (T16 «Gespeicherter Rückblick», approved 12.10.2026): two columns as in the
+     mockup. Left: «Fertig. Gute Tour!» with the four number tiles, plan and reality, not used. Right: what it
+     means for the next trip, Gelernt, broken, missing and the bike. «Antworten ändern» is the button of the band. -->
 <div class="saved">
-  <section class="status saved-card" aria-labelledby="saved-h"><span class="tp-okdot"><Check size={16} aria-hidden="true" /></span><span><h2 id="saved-h">{t('Saved')}</h2><small role="status">{[savedOn ? t('Debrief saved on {date}', { date: savedOn }) : t('Debrief saved'), d.applied?.length ? tn(d.applied.length, '{n} change made', '{n} changes made') : '', d.kmApplied ? (bike?.name ? t('{km} km added to {bike}', { km: num(d.kmApplied), bike: bike.name }) : t('{km} km added to the bike', { km: num(d.kmApplied) })) : ''].filter(Boolean).join(' · ')}</small></span></section>
+  <section class="status saved-card" aria-labelledby="saved-h"><span class="tp-okdot"><Check size={16} aria-hidden="true" /></span><span><h2 id="saved-h">{t('Saved')}</h2><small role="status">{[savedOn ? t('Debrief saved on {date}', { date: savedOn }) : t('Debrief saved'), d.applied?.length ? tn(d.applied.length, '{n} change made', '{n} changes made') : ''].filter(Boolean).join(' · ')}</small></span></section>
 
-  <div class="tp-grid2 r">
-    <div class="col">
+  <div class="rv-lay">
+    <div class="rv-col">
       <!-- the trip in numbers -->
-      <section class="tp-card ride" aria-labelledby="sv-h">
-        {#if row?.profile}<div class="bw"><Band points={row.profile} /><span class="pill ok tag"><Check size={14} aria-hidden="true" />{t('Debrief saved')}</span></div>{/if}
-        <div class="in">
-          <p class="kick">{[dates(trip.startDate, tripEnd(trip)), trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : t('Day ride|art')].join(' · ')}</p>
-          <h2 id="sv-h" class="lt">{trip.title}</h2>
-          <dl class="big">
-            <div><dt>{t('Distance')}</dt><dd><b class="bignum">{n0(row?.km)}</b> <span class="u">km</span></dd></div>
-            <div><dt>{t('Climbing|hm')}</dt><dd><b class="bignum">{n0(row?.gainM)}</b> <span class="u">Hm</span></dd></div>
-            <div><dt>{row?.totalH && row?.movingH && row.totalH > row.movingH ? t('moving · {h} total', { h: hours(row.totalH) }) : t('moving')}</dt><dd><b class="bignum">{hours(row?.movingH)}</b> <span class="u">h</span></dd></div>
-            <div><dt>{t('average while moving')}</dt><dd><b class="bignum">{n1(row?.kmh)}</b> <span class="u">km/h</span></dd></div>
-          </dl>
-          <ul class="facts">
-            <li>{@render rainIcon(row?.rain)}{rainText(row?.rain, trip.days)}</li>
-            <li><Thermometer size={16} aria-hidden="true" />{temps(row?.tmin, row?.tmax)}</li>
-            <li><Bike size={16} aria-hidden="true" />{trip.bike ?? bike?.name ?? DASH}</li>
-            {#if row?.baseG}<li><Briefcase size={16} aria-hidden="true" />{t('Base {w}', { w: kg(row.baseG) })}</li>{/if}
+      <section class="rv-box pad ride" aria-labelledby="sv-h">
+        <div class="hero"><span class="tp-okdot" aria-hidden="true"><Check size={16} /></span><h2 id="sv-h">{t('Done. Good trip!')}</h2></div>
+        <p class="kick">{[trip.title, dates(trip.startDate, tripEnd(trip)), trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : t('Day ride|art')].join(' · ')}</p>
+        <dl class="rv-tiles big">
+          <div class="rv-tile"><dd><b>{n0(row?.km)} km</b></dd><dt><small>{t('Distance')}</small></dt></div>
+          <div class="rv-tile"><dd><b>{n0(row?.gainM)} Hm</b></dd><dt><small>{t('Climbing|hm')}</small></dt></div>
+          <div class="rv-tile"><dd><b>{hours(row?.movingH)} h</b></dd><dt><small>{row?.totalH && row?.movingH && row.totalH > row.movingH ? t('moving · {h} total', { h: hours(row.totalH) }) : t('moving')}</small></dt></div>
+          <div class="rv-tile"><dd><b>{n1(row?.kmh)} km/h</b></dd><dt><small>{t('average while moving')}</small></dt></div>
+        </dl>
+        <ul class="facts">
+          <li>{@render rainIcon(row?.rain)}{rainText(row?.rain, trip.days)}</li>
+          <li><Thermometer size={16} aria-hidden="true" />{temps(row?.tmin, row?.tmax)}</li>
+          <li><Bike size={16} aria-hidden="true" />{trip.bike ?? bike?.name ?? DASH}</li>
+          {#if row?.baseG}<li><Briefcase size={16} aria-hidden="true" />{t('Base {w}', { w: kg(row.baseG) })}</li>{/if}
+        </ul>
+        {#if days.length}
+          <ul class="days">
+            {#each days as x (x.n)}
+              <li>
+                <span class="dn">{t('Day {n}', { n: x.n })}</span>
+                <span class="dk num"><b>{n0(x.km)}</b> km</span>
+                <span class="dm num">{n0(x.gainM)} Hm · {hours(x.movingH)} h</span>
+                <span class="dw">{#if x.rain != null}{#if x.rain >= 1}<CloudRain size={14} aria-hidden="true" />{t('rain')}{:else}<Sun size={14} aria-hidden="true" />{t('dry|weather')}{/if}{/if} {temps(x.tmin, x.tmax)}</span>
+              </li>
+            {/each}
           </ul>
-          {#if days.length}
-            <ul class="days">
-              {#each days as x (x.n)}
-                <li>
-                  <span class="dn">{t('Day {n}', { n: x.n })}</span>
-                  <span class="dk num"><b>{n0(x.km)}</b> km</span>
-                  <span class="dm num">{n0(x.gainM)} Hm · {hours(x.movingH)} h</span>
-                  <span class="dw">{#if x.rain != null}{#if x.rain >= 1}<CloudRain size={14} aria-hidden="true" />{t('rain')}{:else}<Sun size={14} aria-hidden="true" />{t('dry|weather')}{/if}{/if} {temps(x.tmin, x.tmax)}</span>
-                </li>
-              {/each}
-            </ul>
-          {/if}
-          {#if row?.special}<p class="special"><Sparkles size={18} aria-hidden="true" /><span>{row.special}</span></p>{/if}
-        </div>
+        {/if}
+        {#if row?.special}<p class="special"><Sparkles size={18} aria-hidden="true" /><span>{row.special}</span></p>{/if}
+        {#if sugg.length}<p class="open">{tn(sugg.length, '{n} more suggestion is open. Change your answers to see it.', '{n} more suggestions are open. Change your answers to see them.')}</p>{/if}
       </section>
 
       <!-- plan against real -->
       {#if pvr.length}
-        <section class="tp-card" aria-labelledby="pvr-h">
-          <h2 id="pvr-h">{t('Plan and reality')}</h2>
-          {#if timeRow}
-            {@const mins = Math.round(timeRow.diff * 60)}
-            <p class="lead">{mins < 0 ? t('Your plan was {n} min off, in your favour.', { n: -mins }) : mins > 0 ? t('You needed {n} min more than planned.', { n: mins }) : t('Right on time, as planned.')}</p>
-          {/if}
-          <p class="legend"><i class="k pl"></i>{t('planned')} <i class="k re"></i>{t('ridden')}</p>
-          <ul class="pvr">
-            {#each pvr as x (x.key)}
-              {@const top = Math.max(x.plan, x.real) || 1}
-              <li>
-                <span class="pl-l">{t(LABEL[x.key])}</span>
-                <span class="pl-b"><i class="pl" style:width="{(x.plan / top) * 100}%"></i><i class="re" style:width="{(x.real / top) * 100}%"></i></span>
-                <span class="pl-v num">{fmtV(x.key, x.plan)}<br />{fmtV(x.key, x.real)}</span>
-                <span class="pl-d num" class:good={good(x) === true} class:bad={good(x) === false}>{fmtD(x.key, x.diff)}</span>
-              </li>
-            {/each}
-          </ul>
+        <section class="rv-sec" aria-labelledby="pvr-h">
+          <div class="rv-h"><div><h2 id="pvr-h">{t('Plan and reality')}</h2>
+            {#if timeRow}
+              {@const mins = Math.round(timeRow.diff * 60)}
+              <p class="rv-sub">{mins < 0 ? t('Your plan was {n} min off, in your favour.', { n: -mins }) : mins > 0 ? t('You needed {n} min more than planned.', { n: mins }) : t('Right on time, as planned.')}</p>
+            {/if}</div></div>
+          <div class="rv-box pad">
+            <p class="legend"><i class="k pl"></i>{t('planned')} <i class="k re"></i>{t('ridden')}</p>
+            <ul class="pvr">
+              {#each pvr as x (x.key)}
+                {@const top = Math.max(x.plan, x.real) || 1}
+                <li>
+                  <span class="pl-l">{t(LABEL[x.key])}</span>
+                  <span class="pl-b"><i class="pl" style:width="{(x.plan / top) * 100}%"></i><i class="re" style:width="{(x.real / top) * 100}%"></i></span>
+                  <span class="pl-v num">{fmtV(x.key, x.plan)}<br />{fmtV(x.key, x.real)}</span>
+                  <span class="pl-d num" class:good={good(x) === true} class:bad={good(x) === false}>{fmtD(x.key, x.diff)}</span>
+                </li>
+              {/each}
+            </ul>
+          </div>
         </section>
       {/if}
 
       <!-- used and not used -->
-      <section class="tp-card" aria-labelledby="un-h">
-        <h2 id="un-h">{t('Not used')} <span class="r num">{t('{used} of {total} items used', { used: usedN, total: totalN })}</span></h2>
-        {#if unused.length}
-          {#if counts.unusedG}<p class="save"><b class="bignum">−{formatWeight(counts.unusedG)}</b><span>{t('you can save')}{#if counts.unusedUnweighed} · {t('{n} not weighed', { n: counts.unusedUnweighed })}{/if}</span></p>{/if}
-          <ul class="il">
-            {#each unused as e (e.itemId)}
-              <li><Minus size={16} aria-hidden="true" /><span class="nm">{nameOf(byId[e.itemId])}</span><span class="num g">{w(e) == null ? DASH : formatWeight(w(e))}</span></li>
-            {/each}
-          </ul>
-          <!-- v0.47.2: the same idea across all trips is the Gear view «Nie gebraucht» -->
-          <a class="tap" href="#/gear?view=never">{t('All never used items in Gear')}</a>
-        {:else}
-          <p class="tp-muted">{t('Everything on the list was used.')}</p>
-        {/if}
+      <section class="rv-sec" aria-labelledby="un-h">
+        <div class="rv-h"><div><h2 id="un-h">{t('Not used')}</h2><p class="rv-sub num">{t('{used} of {total} items used', { used: usedN, total: totalN })}</p></div></div>
+        <div class="rv-box">
+          {#if unused.length}
+            {#if counts.unusedG}<p class="save"><b class="num">−{formatWeight(counts.unusedG)}</b><span>{t('you can save')}{#if counts.unusedUnweighed} · {t('{n} not weighed', { n: counts.unusedUnweighed })}{/if}</span></p>{/if}
+            <ul class="il">
+              {#each unused as e (e.itemId)}
+                <li class="rv-row"><span class="rv-ic" aria-hidden="true"><Minus size={18} /></span><span class="rv-m"><span class="rv-t">{nameOf(byId[e.itemId])}</span></span><span class="rv-v">{w(e) == null ? DASH : formatWeight(w(e))}</span></li>
+              {/each}
+            </ul>
+            <!-- v0.47.2: the same idea across all trips is the Gear view «Nie gebraucht» -->
+            <a class="rv-row" href="#/gear?view=never"><span class="rv-ic" aria-hidden="true"><Package size={18} /></span><span class="rv-m"><span class="rv-t">{t('All never used items in Gear')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a>
+          {:else}
+            <p class="rv-row empty">{t('Everything on the list was used.')}</p>
+          {/if}
+        </div>
       </section>
     </div>
 
-    <div class="col">
+    <div class="rv-col">
       <!-- what it means for the next trip -->
-      <section class="tp-card nextc" aria-labelledby="nx-h">
-        <p class="eyebrow">{next ? t('Works on the next trip') : t('For next time')}</p>
-        {#if next}
-          <h2 id="nx-h" class="nt">{next.title}</h2>
-          <p class="tp-muted tp-small">{[dates(next.startDate, tripEnd(next)), next.bike].filter(Boolean).join(' · ')}</p>
-        {:else}
-          <h2 id="nx-h" class="sr">{t('For next time')}</h2>
-        {/if}
-        {#if hints.length}
-          <ul class="hints">
-            {#each hints as h, i (i)}
-              <li>
-                <span class="hi-ic {h.kind}">{#if h.kind === 'unused'}<Minus size={16} aria-hidden="true" />{:else if h.kind === 'broken'}<Wrench size={16} aria-hidden="true" />{:else if h.kind === 'missing'}<X size={16} aria-hidden="true" />{:else}<Lightbulb size={16} aria-hidden="true" />{/if}</span>
-                <span class="m"><b>{h.item ? nameOf(h.item) : h.text}</b><small>{h.kind === 'unused' ? t('Packed again for {trip}, not used this time', { trip: next.title }) : h.kind === 'missing' ? (h.packed ? t('Was missing; it is on the next list') : t('Was missing')) : t(DAYKIND[h.kind])}</small></span>
-              </li>
-            {/each}
-          </ul>
-        {:else}
-          <p class="tp-muted">{t('Nothing to change: the trip went as planned.')}</p>
-        {/if}
-        {#if next}<a class="btn" href="#/pack" onclick={() => openTrip(next.id)}>{t('Packing list {trip}', { trip: next.title })}<ChevronRight size={18} aria-hidden="true" /></a>{/if}
+      <section class="rv-sec nextc" aria-labelledby="nx-h">
+        <div class="rv-h"><div><h2 id="nx-h">{next ? t('Works on the next trip') : t('For next time')}</h2>{#if next}<p class="rv-sub">{[next.title, dates(next.startDate, tripEnd(next)), next.bike].filter(Boolean).join(' · ')}</p>{/if}</div></div>
+        <ul class="rv-box">
+          {#each hints as h, i (i)}
+            <li class="rv-row">
+              <span class="rv-ic {h.kind}" aria-hidden="true">{#if h.kind === 'unused'}<Minus size={18} />{:else if h.kind === 'broken'}<Wrench size={18} />{:else if h.kind === 'missing'}<Plus size={18} />{:else}<Lightbulb size={18} />{/if}</span>
+              <span class="rv-m"><span class="rv-t">{h.item ? nameOf(h.item) : h.text}</span><span class="rv-s">{h.kind === 'unused' ? t('Packed again for {trip}, not used this time', { trip: next.title }) : h.kind === 'missing' ? (h.packed ? t('Was missing; it is on the next list') : t('Was missing')) : t(DAYKIND[h.kind])}</span></span>
+            </li>
+          {:else}
+            <li class="rv-row empty">{t('Nothing to change: the trip went as planned.')}</li>
+          {/each}
+          {#if next}<li><a class="rv-row" href="#/pack" onclick={() => openTrip(next.id)}><span class="rv-ic" aria-hidden="true"><Briefcase size={18} /></span><span class="rv-m"><span class="rv-t">{t('Packing list {trip}', { trip: next.title })}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>{/if}
+        </ul>
       </section>
 
-      <section class="tp-card" aria-labelledby="ln-h">
-        <h2 id="ln-h"><Lightbulb size={18} aria-hidden="true" />{t('Learned|review')} <span class="r num">{num(row?.learnings.length ?? 0)}</span></h2>
-        {#if row?.learnings.length}
-          <ul class="il lrn">{#each row.learnings as l (l.id)}<li><span class="nm">{l.rule}{#if l.topic}<small>{t(l.topic)}</small>{/if}</span></li>{/each}</ul>
-        {:else}
-          <p class="tp-muted">{t('No learning from this trip.')}</p>
-        {/if}
-        <a class="lnk" href="#/debrief/learnings">{t('All learnings')}<ChevronRight size={16} aria-hidden="true" /></a>
+      <section class="rv-sec" aria-labelledby="ln-h">
+        <div class="rv-h"><div><h2 id="ln-h">{t('Learned|review')}</h2><p class="rv-sub num">{tn(row?.learnings.length ?? 0, '{n} learning', '{n} learnings')}</p></div><a class="rv-more" href="#/debrief/learnings">{t('All learnings')}<ChevronRight size={16} aria-hidden="true" /></a></div>
+        <ul class="rv-box">
+          {#each row?.learnings ?? [] as l (l.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span><span class="rv-m"><span class="rv-t">{l.rule}</span>{#if l.topic}<span class="rv-s">{t(l.topic)}</span>{/if}</span></li>
+          {:else}<li class="rv-row empty">{t('No learning from this trip.')}</li>{/each}
+        </ul>
       </section>
 
       {#if broken.length}
-        <section class="tp-card" aria-labelledby="br-h">
-          <h2 id="br-h"><Wrench size={18} aria-hidden="true" />{t('Broken|debrief')} <span class="r num">{num(broken.length)}</span></h2>
-          <ul class="il">{#each broken as e (e.itemId)}<li><span class="nm">{nameOf(byId[e.itemId])}</span></li>{/each}</ul>
+        <section class="rv-sec" aria-labelledby="br-h">
+          <div class="rv-h"><div><h2 id="br-h">{t('Broken|debrief')}</h2><p class="rv-sub num">{num(broken.length)}</p></div></div>
+          <ul class="rv-box">{#each broken as e (e.itemId)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><X size={18} /></span><span class="rv-m"><span class="rv-t">{nameOf(byId[e.itemId])}</span></span></li>{/each}</ul>
         </section>
       {/if}
       {#if d.missing?.length}
-        <section class="tp-card" aria-labelledby="ms-h">
-          <h2 id="ms-h"><X size={18} aria-hidden="true" />{t('Was missing')} <span class="r num">{num(d.missing.length)}</span></h2>
-          <ul class="il">{#each d.missing as m (m.id)}<li><span class="nm">{m.name}<small>{m.itemId ? t('in your gear') : t('on the wishlist')}</small></span></li>{/each}</ul>
+        <section class="rv-sec" aria-labelledby="ms-h">
+          <div class="rv-h"><div><h2 id="ms-h">{t('Was missing')}</h2><p class="rv-sub num">{num(d.missing.length)}</p></div></div>
+          <ul class="rv-box">{#each d.missing as m (m.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Plus size={18} /></span><span class="rv-m"><span class="rv-t">{m.name}</span><span class="rv-s">{m.itemId ? t('in your gear') : t('on the wishlist')}</span></span></li>{/each}</ul>
+        </section>
+      {/if}
+      {#if d.kmApplied}
+        <section class="rv-sec" aria-labelledby="bk-h">
+          <div class="rv-h"><div><h2 id="bk-h">{t('Bike')}</h2></div></div>
+          <div class="rv-box"><p class="rv-row"><span class="rv-ic" aria-hidden="true"><Bike size={18} /></span><span class="rv-m"><span class="rv-t">{bike?.name ? t('{km} km added to {bike}', { km: num(d.kmApplied), bike: bike.name }) : t('{km} km added to the bike', { km: num(d.kmApplied) })}</span>{#if bike?.km != null}<span class="rv-s">{t('now {km} km', { km: num(bike.km) })}</span>{/if}</span></p></div>
         </section>
       {/if}
       {#if offer}<TemplateOffer {trip} name={offer} />{/if}
     </div>
   </div>
-
-  <section class="tp-card foot" aria-label={t('Debrief')}>
-    <span class="m"><b>{t('Done. Good trip!')}</b>{#if sugg.length}<small>{tn(sugg.length, '{n} more suggestion is open. Change your answers to see it.', '{n} more suggestions are open. Change your answers to see them.')}</small>{/if}</span>
-    <button type="button" class="tp-link" onclick={onreopen}><Pencil size={16} aria-hidden="true" />{t('Change answers')}</button>
-  </section>
 </div>
 
 <style>
+  .saved {
+    margin-top: 6px;
+  }
   .status {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin: 0 0 12px;
+    margin: 0 0 16px;
     padding: 10px 14px;
     border: 1px solid var(--card-line);
     border-radius: var(--radius-card);
     background: var(--paper);
+    box-shadow: var(--card-shadow);
   }
   .status h2 {
     margin: 0;
@@ -205,78 +204,40 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  .ride {
-    padding: 0;
-    overflow: hidden;
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
-  .bw {
-    position: relative;
-  }
-  .tag {
-    position: absolute;
-    top: 10px;
-    left: 12px;
-  }
-  .ride .in {
-    padding: 14px 16px 16px;
-  }
-  .kick,
-  .eyebrow {
+  .hero h2 {
     margin: 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .eyebrow {
-    color: var(--hi);
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .lt,
-  .nt {
-    margin: 2px 0 10px;
-    font-family: var(--font-brand);
-    font-weight: 800;
-    font-size: var(--fs-page);
-    line-height: 1.05;
+    font: 600 var(--fs-sub) / 1.3 var(--font-body);
     overflow-wrap: break-word;
   }
-  .nt {
-    font-size: var(--fs-section);
-    margin-bottom: 2px;
+  .kick {
+    margin: 6px 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
   }
   .big {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px 16px;
-    margin: 0;
-  }
-  @media (max-width: 559px) {
-    .big {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    margin: 4px -16px 0;
   }
   .big div {
     display: flex;
-    flex-direction: column-reverse;
-    min-width: 0;
+    flex-direction: column;
   }
-  .big dt,
-  .u {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .big dd {
+  .big dd,
+  .big dt {
     margin: 0;
-    white-space: nowrap;
   }
   .facts {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 16px;
-    margin: 12px 0 0;
-    padding: 0;
+    gap: 6px 16px;
     list-style: none;
+    margin: 0;
+    padding: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
@@ -289,54 +250,58 @@
     color: var(--ink-3);
   }
   .days {
-    display: grid;
-    gap: 6px;
-    margin: 12px 0 0;
-    padding: 10px 12px;
-    border-radius: var(--radius);
-    background: var(--paper-2);
     list-style: none;
-    font-size: var(--fs-small);
+    margin: 12px 0 0;
+    padding: 4px 12px;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
   }
   .days li {
     display: grid;
     grid-template-columns: auto auto minmax(0, 1fr);
-    gap: 2px 12px;
     align-items: baseline;
+    gap: 2px 12px;
+    padding: 8px 0;
+  }
+  .days li + li {
+    border-top: 1px solid var(--line);
   }
   .dn {
     font-weight: 600;
   }
   .dk b {
-    font-family: var(--font-brand);
-    font-size: var(--fs-sub);
+    font-size: var(--fs-body);
   }
   .dm {
     color: var(--ink-2);
+    font-size: var(--fs-small);
     text-align: right;
   }
   .dw {
-    grid-column: 2 / -1;
+    grid-column: 1 / -1;
     display: inline-flex;
     align-items: center;
     gap: 4px;
     color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .special {
     display: flex;
     gap: 10px;
-    align-items: flex-start;
     margin: 12px 0 0;
     padding: 10px 12px;
-    border-radius: var(--radius);
-    background: var(--l4-soft);
+    border-radius: var(--r-ctl);
+    background: var(--hi-soft);
+    overflow-wrap: break-word;
   }
   .special :global(svg) {
     flex: none;
-    color: var(--l4);
+    color: var(--hi);
   }
-  .lead {
-    margin: 0 0 8px;
+  .open {
+    margin: 12px 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .legend {
     display: flex;
@@ -356,33 +321,37 @@
     margin-left: 10px;
   }
   .pl {
-    background: var(--bar);
+    background: var(--line-strong);
   }
   .re {
-    background: var(--accent);
+    background: var(--hi);
   }
   .pvr {
+    list-style: none;
     margin: 0;
     padding: 0;
-    list-style: none;
   }
   .pvr li {
     display: grid;
-    grid-template-columns: minmax(80px, 1fr) minmax(0, 2fr) auto 56px;
-    gap: 4px 12px;
+    grid-template-columns: minmax(0, 7em) minmax(0, 1fr) auto 4em;
     align-items: center;
-    padding: 10px 0;
+    gap: 12px;
+    min-height: 56px;
+    padding: 6px 0;
     border-top: 1px solid var(--line);
-    font-size: var(--fs-small);
   }
-  @media (max-width: 479px) {
+  @media (max-width: 559px) {
     .pvr li {
-      grid-template-columns: minmax(0, 1fr) auto 56px;
+      grid-template-columns: minmax(0, 1fr) auto 3.6em;
     }
     .pl-b {
       grid-column: 1 / -1;
       grid-row: 2;
     }
+  }
+  .pl-l {
+    overflow-wrap: break-word;
+    min-width: 0;
   }
   .pl-b {
     display: grid;
@@ -392,17 +361,15 @@
     display: block;
     height: 5px;
     border-radius: 3px;
-    min-width: 2px;
   }
   .pl-v {
-    color: var(--ink-3);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
     text-align: right;
-    white-space: nowrap;
   }
   .pl-d {
-    text-align: right;
     font-weight: 600;
-    color: var(--ink-2);
+    text-align: right;
   }
   .pl-d.good {
     color: var(--ok);
@@ -413,126 +380,38 @@
   .save {
     display: flex;
     align-items: baseline;
-    gap: 10px;
-    margin: 0 0 8px;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    margin: 0;
+    padding: 12px 0 6px;
   }
-  .save .bignum {
-    color: var(--hi);
+  .save b {
+    font: 700 var(--fs-section) / 1.1 var(--font-body);
+    color: var(--ink);
   }
   .save span {
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
   .il {
+    list-style: none;
     margin: 0;
     padding: 0;
-    list-style: none;
   }
-  .il li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 44px;
+  .il li + li,
+  .il + .rv-row,
+  .save + .il {
     border-top: 1px solid var(--line);
   }
-  .il li:first-child {
-    border-top: 0;
-  }
-  .il :global(svg) {
-    flex: none;
-    color: var(--warn);
-  }
-  .nm {
-    flex: 1;
-    min-width: 0;
-    overflow-wrap: break-word;
-  }
-  .nm small {
-    display: block;
+  .rv-row.empty {
+    margin: 0;
     color: var(--ink-3);
-    font-size: var(--fs-small);
   }
-  .g {
-    color: var(--ink-2);
-    white-space: nowrap;
+  p.rv-row {
+    margin: 0;
   }
-  .nextc {
-    border: 2px solid var(--accent);
-  }
-  .hints {
-    display: grid;
-    gap: 2px;
-    margin: 10px 0 12px;
-    padding: 0;
-    list-style: none;
-  }
-  .hints li {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    padding: 8px 0;
-    border-top: 1px solid var(--line);
-  }
-  .hints li:first-child {
-    border-top: 0;
-  }
-  .hi-ic {
-    display: inline-grid;
-    place-items: center;
-    flex: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: var(--paper-2);
-    color: var(--ink-2);
-  }
-  .hi-ic.broken,
-  .hi-ic.unused {
+  .rv-ic.broken,
+  .rv-ic.unused {
     background: var(--warn-soft);
-    color: var(--warn);
-  }
-  .hints .m {
-    display: grid;
-    min-width: 0;
-  }
-  .hints .m b {
-    font-weight: 500;
-    overflow-wrap: break-word;
-  }
-  .hints small {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .nextc .btn {
-    min-height: 44px;
-    width: 100%;
-    justify-content: space-between;
-  }
-  .lnk {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    color: var(--accent);
-    font-weight: 500;
-    text-decoration: none;
-  }
-  .lrn small {
-    margin-top: 1px;
-  }
-  .foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px 16px;
-  }
-  .foot .m {
-    display: grid;
-    min-width: 0;
-  }
-  .foot small {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
 </style>
