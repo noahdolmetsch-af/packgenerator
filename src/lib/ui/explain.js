@@ -84,6 +84,7 @@ let pressTimer = 0;
 let hideTimer = 0;
 let press = null; // { el, x, y }
 let swallow = 0; // time until which the next click is swallowed (after a long press)
+let ownDesc = null; // the anchor's own aria-describedby, given back on hide
 
 function bubble() {
   if (tip?.isConnected) return tip;
@@ -125,16 +126,28 @@ function show(el, touch) {
   b.style.top = `${p.top}px`;
   b.style.setProperty('--ax', `${p.arrow}px`);
   b.classList.toggle('up', p.above);
-  if (anchor && anchor !== el) anchor.removeAttribute('aria-describedby');
+  if (anchor && anchor !== el) giveBack();
+  if (anchor !== el && what.title !== el.getAttribute('aria-label')) {
+    ownDesc = el.getAttribute('aria-describedby');
+    el.setAttribute('aria-describedby', ownDesc ? `${ownDesc} ${b.id}` : b.id);
+  }
   anchor = el;
-  if (what.title !== el.getAttribute('aria-label')) el.setAttribute('aria-describedby', b.id);
   if (touch) hideTimer = setTimeout(hide, 4000);
+}
+
+/** The anchor gets its own description back (or none). */
+function giveBack() {
+  if (anchor?.getAttribute('aria-describedby')?.includes('xtip-bubble')) {
+    if (ownDesc) anchor.setAttribute('aria-describedby', ownDesc);
+    else anchor.removeAttribute('aria-describedby');
+  }
+  ownDesc = null;
 }
 
 export function hide() {
   clearTimeout(hoverTimer);
   clearTimeout(hideTimer);
-  if (anchor?.getAttribute('aria-describedby') === 'xtip-bubble') anchor.removeAttribute('aria-describedby');
+  giveBack();
   anchor = null;
   if (!tip) return;
   tip.classList.remove('on');
