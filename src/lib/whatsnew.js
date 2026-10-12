@@ -10,6 +10,16 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.99.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 3: buttons, fields and badges have soft corners and one clear height everywhere.', href: '#/' },
+      { text: 'Empty pages show a calm card with a picture, one sentence and what you can do next.', href: '#/pack' },
+      { text: 'When everything is packed, a short burst of confetti celebrates; with «reduce motion» it stays the quiet tick.', href: '#/pack' },
+      { text: 'The notes with «Undo» at the bottom are dark and calm, with a tick in front.', href: '#/gear' },
+    ],
+  },
+  {
     version: '0.98.0',
     date: '2026-10-12',
     points: [

@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Design-Refresh R3 «Bausatz» (0.99.0)
+
+Nach dem Stilblatt G2 «Bausteine» und G3 «Zustände» (freigegeben 11.10.2026 23:10 «Runde 1 alles ★ und G1–G12 freigegeben») und der Antwort 3b vom 12.10.2026 (Feier-Moment mit Konfetti).
+
+- **Selbst entschieden (R3):** Knöpfe überall 44 px hoch mit weicher Ecke (10 px) und dünnem Rahmen, kleine Knöpfe bleiben am Computer kompakt. Der leise dritte Knopf heisst `btn-link` (unterstrichenes Wort), weil `plain`/`tx` schon in Seiten vergeben sind. Konfetti nur beim grossen Feier-Moment (Zwischenseiten wie «Gepackt», «Tour beendet»), 28 Stücke in den Farben der Farbwelt, etwa 1,5 s, immer gleich (kein Zufall), fängt keine Tipps und macht die Seite nie breiter; mit «Bewegung reduzieren» bleibt nur der Haken. Der Text der Meditations-Meilensteine («kein Konfetti») bleibt, weil dort nichts gefeiert wird. Hinweise mit «Rückgängig» bekommen einen Haken vorne und «Rückgängig» als helles Wort mit Pfeil (gemeinsamer Hinweis, Umbenennen, Tour beendet); die übrigen Seiten-Hinweise folgen mit ihren Seiten. Zeilen 56 px und Filter-Chips kommen mit den Seiten, die sie brauchen (R5 ff.).
+
 ## 12.10.2026: Design-Refresh R2 «Heller Kopf» (0.98.0)
 
 Nach Mockup G4/G5 A★ (freigegeben 11.10.2026 23:10 mit dem Stilblatt). Heller Kopf und helle Seitenleiste, «Neu» oben neben der Suche statt rundem Knopf über der Seite.

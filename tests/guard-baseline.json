@@ -191,9 +191,6 @@
     "src/lib/tpl/ReadyFields.svelte": {
       "fontsize": 1
     },
-    "src/lib/tpl/Toast.svelte": {
-      "fontsize": 1
-    },
     "src/lib/trip/BaseCheck.svelte": {
       "fontsize": 2
     },

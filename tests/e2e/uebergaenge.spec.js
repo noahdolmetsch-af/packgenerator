@@ -147,7 +147,9 @@ test('main button by phase on a fixed clock: under way, ending early asks, Undo 
   await expect(page).toHaveURL(new RegExp(`#/trip/${ID('Jura')}/ended$`));
   await expect(page.getByRole('heading', { level: 1, name: T('Trip ended') })).toBeVisible();
   await expect(main(page)).toHaveText(T('Continue to Debrief'));
-  // Undo for a few seconds
+  // Undo for a few seconds; v0.99.0 R3 (G3): a tick in front, «Rückgängig» a light word, no frame
+  await expect(page.locator('.toast > svg')).toBeVisible();
+  expect(await page.locator('.toast .undo').evaluate((el) => getComputedStyle(el).borderTopWidth)).toBe('0px');
   await page.locator('.toast').getByRole('button', { name: T('Undo') }).click();
   await expect(page).toHaveURL(/#\/ride$/);
   await expect(page.locator('.trip-band .btn.hi')).toHaveCount(0);
@@ -319,4 +321,34 @@ test('the back key closes a dialog first and keeps the inputs; the page stays (�
   await expect(item).toBeHidden();
   await expect(page).toHaveURL(/#\/gear$/);
   await expect(page.locator('main')).toContainText('test_data_gtp_ Spork');
+});
+
+// v0.99.0 Design-Refresh R3 (G2/G3, Noah 11.10 23:10 «G1–G12 freigegeben», 12.10 «3b» = with confetti)
+test('the kit: soft 44 px buttons, the empty card with its picture, confetti once on «Gepackt», none with reduce motion', async ({ page, context }, info) => {
+  await open(page, context, info, [trip('Leer', day(3), { entries: [], days: 1 }), trip('Alpen', day(4))], { current: ID('Leer') });
+  await patchTrip(page, ID('Leer'), { entries: [] });
+  await go(page, '#/pack?day');
+  const empty = page.locator('.empty');
+  await expect(empty.locator('.ring svg')).toBeVisible();
+  const btn = empty.locator('.btn');
+  const look = await btn.evaluate((el) => ({ r: getComputedStyle(el).borderTopLeftRadius, h: el.getBoundingClientRect().height }));
+  expect(look.r).toBe('10px');
+  expect(look.h).toBeGreaterThanOrEqual(44);
+
+  await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), ID('Alpen'));
+  await go(page, '#/pack?day');
+  await page.getByRole('button', { name: T('Everything is packed') }).click();
+  await expect(page.getByRole('button', { name: T('Everything is packed') })).toHaveCount(0); // ticks saved before the next tap
+  await main(page).click();
+  await expect(page).toHaveURL(new RegExp(`#/trip/${ID('Alpen')}/packed$`));
+  const confetti = page.locator('.confetti');
+  await expect(confetti.locator('i')).toHaveCount(28);
+  // it never takes a tap and never makes the page wider
+  expect(await confetti.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
+  await expect(main(page)).toBeEnabled();
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(confetti).toBeHidden();
+  await expect(page.getByRole('heading', { level: 1, name: T('Packed') })).toBeVisible();
 });

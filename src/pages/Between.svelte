@@ -25,7 +25,7 @@
   import Interstitial from '../lib/ui/Interstitial.svelte';
   import Celebrate from '../lib/ui/Celebrate.svelte';
   import Empty from '../lib/ui/Empty.svelte';
-  import { Bell, Pencil, X, Minus, Plus } from '@lucide/svelte';
+  import { Bell, Pencil, X, Minus, Plus, Route, Check, Undo2 } from '@lucide/svelte';
 
   let { id, kind } = $props();
 
@@ -135,7 +135,7 @@
   <p class="tp-muted">{t('Loading…')}</p>
 {:else if !trip}
   <h1 class="lost">{t('Trip not found')}</h1>
-  <Empty text={t('This trip does not exist any more.')} action={{ label: t('Back to Trips'), href: '#/trips' }} />
+  <Empty icon={Route} text={t('This trip does not exist any more.')} action={{ label: t('Back to Trips'), href: '#/trips' }} />
 {:else if kind === 'packed'}
   <Interstitial {trip} {tabs} {status} {current} {context} onpick={pick}
     title={all ? t('Packed') : t('Almost packed')}
@@ -206,7 +206,7 @@
     {/snippet}
   </Interstitial>
   {#if undo}
-    <div class="toast" role="status"><span>{t('{trip} ended.', { trip: trip.title })}</span><button type="button" class="tp-link" onclick={undoEnd}>{t('Undo')}</button></div>
+    <div class="toast" role="status"><Check size={18} aria-hidden="true" /><span>{t('{trip} ended.', { trip: trip.title })}</span><button type="button" class="undo" onclick={undoEnd}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button></div>
   {/if}
 {:else}
   <Interstitial {trip} {tabs} {status} {current} {context} onpick={pick}
@@ -381,9 +381,19 @@
     box-shadow: 0 8px 24px var(--shadow);
     overflow-wrap: break-word;
   }
-  .toast .tp-link {
-    color: var(--paper);
-    font-weight: 600;
+  /* v0.99.0 Design-Refresh R3 (G3): «Rückgängig» a light word with its arrow, like every note */
+  .toast .undo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: var(--r-ctl);
+    background: transparent;
+    color: var(--hi-bright);
+    font: 600 var(--fs-body) var(--font-body);
+    cursor: pointer;
   }
   @media (min-width: 720px) {
     .toast {
