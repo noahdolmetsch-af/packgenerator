@@ -323,6 +323,13 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
+  /* v0.104.0 Design-Refresh P4 (T1): on a 320 px phone a tile is only 112 px wide and a long trip name
+     breaks mid-word: there the tiles stand one under the other */
+  @media (max-width: 359px) {
+    .tiles {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
   .tile {
     display: flex;
     flex-direction: column;
