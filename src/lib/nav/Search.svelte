@@ -298,9 +298,9 @@
     width: min(460px, 32vw);
     height: 40px;
     padding: 0 12px;
-    border-radius: 8px;
-    background: var(--paper);
-    color: var(--ink);
+    border-radius: 10px;
+    background: var(--ground);
+    color: var(--ink-3);
     box-sizing: border-box;
   }
   .field input {
@@ -312,13 +312,10 @@
     color: var(--ink);
     font: 400 15px var(--font-body);
   }
-  /* v0.22.0 (AP03): the ring sits on the whole field (light on the dark bar, orange on a phone). */
+  /* v0.22.0 (AP03): the ring sits on the whole field. v0.98.0 R2: the bars are light, one ring colour. */
   .field:has(input:focus-visible) {
-    outline: 3px solid var(--focus-on-dark);
+    outline: 3px solid var(--focus);
     outline-offset: 2px;
-  }
-  .ph .field:has(input:focus-visible) {
-    outline-color: var(--focus);
   }
   .icon {
     display: inline-flex;
@@ -328,7 +325,7 @@
     height: 44px;
     border: 0;
     background: none;
-    color: var(--brand-ink);
+    color: var(--ink);
     cursor: pointer;
   }
   /* v0.46.1: phone: one sheet under the top bar, full width, the page dimmed below it. */
@@ -354,6 +351,7 @@
     width: 100%;
     height: 48px;
     border: 1.5px solid var(--line-strong);
+    background: var(--paper);
   }
   .tip {
     margin: 4px 2px;

@@ -116,6 +116,8 @@ test('the search and the sidebar lead to the look back page', async ({ page, con
   const errors = await start(page, context, info);
   await page.goto('./#/');
   if (info.project.name === 'desktop') {
+    // v0.98.0 R2 (G4/G5): the sidebar shows the pages of the chosen place only
+    await page.locator('.side li[data-place="trips"] > a.pa').click();
     await page.locator('.side li[data-place="trips"] .tabs').getByRole('link', { name: 'Rückblick' }).click();
     await expect(page).toHaveURL(/#\/debrief$/);
     await page.goto('./#/');

@@ -169,7 +169,11 @@ test('6 (v0.46.3, Noah: "unschön"; v0.76.0): Ich is calm, no trip rows; the lis
   await expect(main.getByRole('heading', { name: 'Packlisten', exact: true })).toHaveCount(0);
   await expect(main.getByRole('button', { name: /Jura event/ })).toHaveCount(0);
   await shot(page, info, 'menu-calm-after');
-  if (info.project.name === 'desktop') await page.locator('.side li[data-place="trips"] .tabs').getByRole('link', { name: 'Vorlagen' }).click();
+  // v0.98.0 R2 (G4/G5): the sidebar shows the pages of the chosen place only
+  if (info.project.name === 'desktop') {
+    await page.locator('.side li[data-place="trips"] > a.pa').click();
+    await page.locator('.side li[data-place="trips"] .tabs').getByRole('link', { name: 'Vorlagen' }).click();
+  }
   else await page.goto('./#/pack/templates');
   await expect(page).toHaveURL(/#\/pack\/templates/);
   // The packing list of a trip: Touren → its row.
