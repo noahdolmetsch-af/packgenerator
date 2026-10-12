@@ -166,7 +166,7 @@ test('dialogs: focus in, Tab stays inside, Escape closes, focus back', async ({ 
   // v0.47.2: "Select" shows the list (the rows have the boxes); open its categories
   await expandAll(page);
   await page.getByRole('checkbox', { name: LONG }).check();
-  await dialogKeys(page, page.getByRole('button', { name: T('Into a building block …') }), page.locator('dialog[open]'));
+  await dialogKeys(page, page.getByRole('button', { name: T('Into block …') }), page.locator('dialog[open]'));
 
   // v0.29.0: Pack is a page now; its dialog is "{n} things are not ticked yet. Go anyway?" on the one orange button.
   await view(page, '#/pack?day');

@@ -715,7 +715,7 @@ test('PF12: tick some, navigate and reload; save as template and start a new tri
   await packMenu(page, rec, 'Save as template');
   const td = page.getByRole('dialog', { name: T('Template') });
   await rec.fill(td.getByLabel(T('Name')), tplName);
-  await rec.click(td.getByRole('button', { name: T('Save template') }).or(td.getByRole('button', { name: T('Save as new template') })));
+  await rec.click(td.getByRole('button', { name: T('Save template') }).or(td.getByRole('button', { name: T('New template|save') })));
   await expect(td).toBeHidden();
   const tpl = (await setting(page, 'templates')).find((x) => x.name === tplName);
   await rec.check('the template keeps no ticks', () => expect(tpl.entries.every((e) => !('packed' in e))).toBe(true));
@@ -1049,7 +1049,7 @@ async function packingDay(page, rec, title) {
     await rec.click(whole);
     await expect(pd.locator('.pbag.cur .bagh b')).not.toHaveText(bag);
   }
-  const checks = pd.getByRole('button', { name: T('Tick all checks') });
+  const checks = pd.getByRole('button', { name: T('Tick all') });
   if (await checks.count()) await rec.click(checks);
   // v0.67.0 (U001): these trips start in three days: «Alles drin.», no «Gute Fahrt!» yet
   await expect(pd.locator('#alldone-h')).toHaveText(T('Everything is in.'));
@@ -1268,8 +1268,8 @@ test('Scenario 5: adapt an existing list: from the template, change it, update t
   const changed = await tripNamed(page, title);
   await packMenu(page, rec, 'Save as template');
   const td = page.getByRole('dialog', { name: T('Template') });
-  await rec.check('the dialog offers to update the template it came from', () => expect(td.getByRole('button', { name: T('Update template «{name}»', { name: tplName }) })).toBeVisible({ timeout: 2000 }));
-  await rec.click(td.getByRole('button', { name: T('Update template «{name}»', { name: tplName }) }));
+  await rec.check('the dialog offers to update the template it came from', () => expect(td.getByRole('button', { name: T('Update|template') })).toBeVisible({ timeout: 2000 }));
+  await rec.click(td.getByRole('button', { name: T('Update|template') }));
   await expect(td).toBeHidden();
   rec.stop();
   const tpl = (await setting(page, 'templates')).find((x) => x.id === 'tpl-gtp-evening');

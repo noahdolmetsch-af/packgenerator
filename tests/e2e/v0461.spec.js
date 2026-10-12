@@ -191,7 +191,7 @@ test('7: Touren opens the overview of all trips; a row opens its trip at the nex
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await page.goto('./#/trips');
   await expect(page.getByRole('heading', { name: 'Touren', level: 1 })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Erste Tour anlegen' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Tour anlegen' })).toBeVisible();
   const errors = await start(page, context, info);
   for (const width of info.project.name === 'phone' ? [320, 390] : [1440]) {
     if (info.project.name === 'phone') await page.setViewportSize({ width, height: 844 });

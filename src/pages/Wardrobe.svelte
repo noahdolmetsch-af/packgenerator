@@ -304,7 +304,7 @@
         <Seg small full={false} label={t('Rain|wardrobe trip')} value={rainSel} options={RAIN_OPTS.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(k) => (rainPick = k)} />
         <Seg small full={false} label={t('Show|wardrobe trip')} value={fitMode} options={[{ key: 'fits', name: tripR ? t('Fits {range}', { range: `${tripR.min}–${tripR.max}°` }) : t('Fits the trip'), n: w.n - hidden.size }, { key: 'all', name: t('All|wardrobe'), n: w.n }]} onchange={(k) => (fitMode = k)} />
       </div>
-      <p class="tb-back"><a class="btn sm" href="#/pack"><ChevronLeft size={16} aria-hidden="true" />{t('Back to the packing list')}</a></p>
+      <p class="tb-back"><a class="btn sm" href="#/pack" data-explain={t('Back to the packing list')}><ChevronLeft size={16} aria-hidden="true" />{t('To the list|pack')}</a></p>
     </section>
   {/if}
 
@@ -359,7 +359,7 @@
                 <li>{#if r.item}<span class="d" style="background: var(--l{LN[r.item.layer] ?? 4})" aria-hidden="true"></span>{nameOf(r.item)}{:else}<span class="miss">{t(r.name)}: {r.rain ? t('nothing waterproof') : t('nothing warm enough')}</span>{/if}</li>
               {/each}
             </ul>
-            {#if suggestIds.length}<button type="button" class="btn sm ghost" onclick={saveSuggestion}>{t('Save as kit …')}</button>{/if}
+            {#if suggestIds.length}<button type="button" class="btn sm ghost" onclick={saveSuggestion} data-explain={t('Save as kit …')}>{t('As kit …')}</button>{/if}
           {:else}
             <p class="th" id="w-today-h"><Sparkles size={16} aria-hidden="true" />{t('What do I wear today?')}</p>
             <p class="tmsg">{suggestion.state === 'noplace' ? t('Set your home place: then Today says what to wear for a ride.') : t('No forecast for {place} right now. It loads when you are online.', { place: suggestion.place.name.split(',')[0] })}</p>
@@ -430,7 +430,7 @@
           {#if selecting}<button type="button" class="btn sm" disabled={chosen.length === w.all.length} onclick={() => w.all.forEach((i) => picked.add(i.id))}>{t('Select all')}</button>{/if}
           <button type="button" class="btn sm" aria-pressed={selecting} onclick={() => setSelecting(!selecting)}>{selecting ? t('Done') : t('Select')}</button>
           <!-- v0.45.0 (decision 5): an outfit as a temperature kit (select pieces or take today's suggestion). -->
-          {#if !kit}<button type="button" class="btn sm" onclick={openKit}><Layers size={16} aria-hidden="true" />{t('Save as kit …')}</button>{/if}
+          {#if !kit}<button type="button" class="btn sm" onclick={openKit} data-explain={t('Save as kit …')}><Layers size={16} aria-hidden="true" />{t('As kit …')}</button>{/if}
         {/if}
       </div>
 
@@ -497,7 +497,7 @@
                   <Thermometer size={16} aria-hidden="true" />
                   <span class="gt num">{gapText(z.gap)}</span>
                   {#if z.gap.wished}<span class="gw"><Check size={14} aria-hidden="true" />{t('On the wishlist: {name}', { name: nameOf(z.gap.wished) })}</span>
-                  {:else}<button type="button" class="btn sm" onclick={() => addWish(z.gap)}><Heart size={15} aria-hidden="true" />{t('Add to wishlist')}</button>{/if}
+                  {:else}<button type="button" class="btn sm" onclick={() => addWish(z.gap)} data-explain={t('Add to wishlist')}><Heart size={15} aria-hidden="true" />{t('Wishlist|put')}</button>{/if}
                 </p>
               {/if}
             {/each}

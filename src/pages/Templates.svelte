@@ -229,7 +229,7 @@
           <div class="card empty">
             <b>{t('No templates yet.')}</b>
             <p>{t('A template is building blocks plus single items, so the next trip starts packed.')}</p>
-            <button type="button" class="btn" onclick={saveCurrent}>{t('Save the current trip as a template')}</button>
+            <button type="button" class="btn" onclick={saveCurrent} data-explain={t('Save the current trip as a template')}>{t('As template|save')}</button>
           </div>
         {/if}
       </div>

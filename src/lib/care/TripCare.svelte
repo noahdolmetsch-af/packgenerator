@@ -62,7 +62,7 @@
           <p class="rule"><span class="lbl">{r.from <= today ? t('Rule now') : t('Rule from {date}', { date: dueLabel(r.from) })}</span>{r.task.task}</p>
         {/each}
         {#if onall && rows.filter((r) => !r.finished).length > 1}
-          <p class="all"><button type="button" class="btn sm" data-explain={t('Mark every open task as done')} onclick={onall}>{t('All {n} open tasks done', { n: rows.filter((r) => !r.finished).length })}</button></p>
+          <p class="all"><button type="button" class="btn sm" onclick={onall} data-explain={t('All {n} open tasks done', { n: rows.filter((r) => !r.finished).length })}>{t('All done|tasks')}</button></p>
         {/if}
         <ul class="rows">
           {#each rows as r (r.task.id)}

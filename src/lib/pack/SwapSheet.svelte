@@ -97,7 +97,7 @@
   {/if}
   <footer class="sf">
     <a class="btn btn-link" href={wardrobeHref} onclick={() => el.close()}>{t('Wardrobe')}</a>
-    {#if places.length}<button type="button" class="btn" aria-expanded={moving} onclick={() => (moving = !moving)}>{t('Choose another bag')}</button>{/if}
+    {#if places.length}<button type="button" class="btn" aria-expanded={moving} onclick={() => (moving = !moving)} data-explain={t('Choose another bag')}>{t('Other bag')}</button>{/if}
     <button type="button" class="btn" onclick={takeOff}>{t('Leave it off')}</button>
   </footer>
 </dialog>

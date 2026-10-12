@@ -428,8 +428,8 @@
         <div class="row">
           <button type="button" class="btn hi" onclick={() => repairResult(rv, 'done')}>{t('Done|task')}</button>
           <button type="button" class="btn" onclick={() => repairResult(rv, 'open')}>{t('Still open')}</button>
-          <button type="button" class="btn" onclick={() => repairResult(rv, 'needed')}>{t('Work needed soon')}</button>
-          <button type="button" class="btn" onclick={() => repairResult(rv, 'gone')}>{t('Not needed any more')}</button>
+          <button type="button" class="btn" onclick={() => repairResult(rv, 'needed')} data-explain={t('Work needed soon')}>{t('Soon needed|work')}</button>
+          <button type="button" class="btn" onclick={() => repairResult(rv, 'gone')} data-explain={t('Not needed any more')}>{t('Not needed|care')}</button>
           <button type="button" class="link" onclick={() => (skipped = [...skipped.filter((x) => x !== rv.id), rv.id])}>{t('Skip')}</button>
         </div>
       </section>

@@ -314,7 +314,7 @@ test('S4 new item, weigh, wardrobe, block, trip', async ({ page, context }, info
   await page.reload();
   await page.getByRole('button', { name: T('Select'), exact: true }).click();
   await page.getByRole('checkbox', { name: NAME }).check();
-  await page.getByRole('button', { name: T('Into a building block …') }).click();
+  await page.getByRole('button', { name: T('Into block …') }).click();
   const assign = page.locator('dialog[open]');
   await assign.getByRole('combobox').first().selectOption({ label: rain.name });
   await assign.getByRole('button', { name: /^(Zuordnen|Assign)$/ }).click();
@@ -345,7 +345,7 @@ test('S5 empty app, gear import step 1, merge, step 2, first trip', async ({ pag
   await shot(page, 's5-step1');
   // G001 (fixed in 0.45.1): the second line of the same item waits under "Unsure", never a second item
   await expect(page.locator('ul.rows.unsure li').filter({ hasText: T('is twice in the file') })).toHaveCount(3);
-  await page.getByRole('button', { name: T('Apply all safe ones') }).click();
+  await page.getByRole('button', { name: T('Apply safe') }).click();
   await expect(page.getByRole('button', { name: T('Undo') }).first()).toBeVisible();
   const items = await table(page, 'items');
   // the broken row without a name is left out; everything else is there once
@@ -672,10 +672,10 @@ test('S10 Velo-Blaetter: every sheet, copy as text, pick-up check into care, und
   await page.goto(`./#/bikes?bike=${GRAVEL}&sheet=pickup`);
   const boxes = page.locator('main label.ck input[type=checkbox]');
   await boxes.first().check();
-  await expect(page.getByRole('button', { name: T('Take the ticked work into care') })).toBeEnabled();
+  await expect(page.getByRole('button', { name: T('Take over|care') })).toBeEnabled();
   const histories = async () => ((await table(page, 'bikes')).find((b) => b.id === GRAVEL).parts ?? []).reduce((n, p) => n + (p.history ?? []).length, 0);
   const h0 = await histories();
-  await page.getByRole('button', { name: T('Take the ticked work into care') }).click();
+  await page.getByRole('button', { name: T('Take over|care') }).click();
   await expect.poll(histories).toBeGreaterThan(h0);
   await page.getByRole('button', { name: T('Undo') }).first().click();
   await expect.poll(histories).toBe(h0);

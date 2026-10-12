@@ -46,7 +46,7 @@ test('M1: the list first in one card, one toolbar, the views as a card', async (
     expect(vc.x, 'the views on the right of the list').toBeGreaterThan(list.x + list.width);
     // the chosen item on the right, with «Open and edit» and «Assign …»
     const panel = page.getByRole('complementary', { name: 'Bike computer' });
-    await expect(panel.getByRole('button', { name: 'Öffnen und bearbeiten' })).toBeVisible();
+    await expect(panel.getByRole('button', { name: 'Öffnen' })).toBeVisible();
     await expect(panel.getByRole('button', { name: 'Zuordnen …' })).toBeVisible();
     // a row of the list opens the item as before and becomes the chosen one
     await page.locator('li.gr[data-item="RA01"] button.main').click();

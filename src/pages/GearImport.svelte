@@ -204,7 +204,7 @@
       <div class="acts">
         <button type="button" class="btn" disabled={busy} onclick={undo}>{t('Undo')}</button>
         <a class="btn" href="#/gear">{t('To the gear')}</a>
-        <button type="button" class="btn link" disabled={busy} onclick={() => keepImport(db)}>{t('Keep, forget the backup')}</button>
+        <button type="button" class="btn link" disabled={busy} onclick={() => keepImport(db)} data-explain={t('Keep, forget the backup')}>{t('Keep|import')}</button>
       </div>
     </div>
   {/if}
@@ -217,8 +217,8 @@
       </p>
       <div class="acts">
         <button type="button" class="btn" disabled={busy} onclick={undo2}>{t('Undo')}</button>
-        <a class="btn" href="#/blocks">{t('To the building blocks')}</a>
-        <button type="button" class="btn link" disabled={busy} onclick={() => keepStep2(db)}>{t('Keep, forget the backup')}</button>
+        <a class="btn" href="#/blocks" data-explain={t('To the building blocks')}>{t('Building blocks|back')}</a>
+        <button type="button" class="btn link" disabled={busy} onclick={() => keepStep2(db)} data-explain={t('Keep, forget the backup')}>{t('Keep|import')}</button>
       </div>
     </div>
   {/if}
@@ -319,7 +319,7 @@
     {:else}
 
     <div class="main">
-      <button type="button" class="btn hi" disabled={busy || !!$demoQ || !(safeN + decided)} onclick={applySafe}>{t('Apply all safe ones')}</button>
+      <button type="button" class="btn hi" disabled={busy || !!$demoQ || !(safeN + decided)} onclick={applySafe} data-explain={t('Apply all safe ones')}>{t('Apply safe')}</button>
       <p class="hint">
         {t('Takes "Already there" and "New"')}{#if decided}{' '}{tn(decided, 'and {n} decided item', 'and {n} decided items')}{/if}.
         {t('A backup comes first; you can undo it.')}

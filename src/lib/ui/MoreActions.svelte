@@ -129,7 +129,7 @@
     margin: 0;
     padding: 8px 12px 6px;
     color: var(--ink-3);
-    font: 600 12.5px/1.3 var(--font-body);
+    font: 600 var(--fs-tiny)/1.3 var(--font-body);
     overflow-wrap: break-word;
   }
   .ma-i {
@@ -170,12 +170,12 @@
   }
   .ma-t b {
     font-weight: 600;
-    font-size: 15px;
+    font-size: var(--fs-body);
     line-height: 1.3;
   }
   .ma-t small {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: var(--fs-small);
     line-height: 1.35;
     overflow-wrap: break-word;
   }
@@ -208,16 +208,10 @@
     background: var(--line);
   }
   .ma-sheet .ma-h {
-    font-size: 14px;
+    font-size: var(--fs-small);
     padding: 6px 16px 8px;
   }
   .ma-sheet .ma-i {
     padding: 10px 16px;
-  }
-  .ma-sheet .ma-t b {
-    font-size: 16px;
-  }
-  .ma-sheet .ma-t small {
-    font-size: 14px;
   }
 </style>

@@ -138,7 +138,7 @@
       <div class="rv-box pad empty">
         <b>{t('No trip matches.')}</b>
         <p>{filtered ? t('Try another word or kind.') : t('No trip in this period.')}</p>
-        {#if filtered}<button type="button" class="btn" onclick={reset}>{t('Show all kinds')}</button>{:else if mode !== 'all'}<button type="button" class="btn" onclick={() => (mode = 'all')}>{t('Show all years')}</button>{/if}
+        {#if filtered}<button type="button" class="btn" onclick={reset} data-explain={t('Show all kinds')}>{t('Show all|filter')}</button>{:else if mode !== 'all'}<button type="button" class="btn" onclick={() => (mode = 'all')} data-explain={t('Show all years')}>{t('Show all|filter')}</button>{/if}
       </div>
     {:else}
       <div class="tbox" role="region" aria-label={t('Past trips')} tabindex="0">

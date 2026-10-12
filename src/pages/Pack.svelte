@@ -862,9 +862,9 @@
         <button type="submit" class="btn">{t('Add')}</button>
       </form>
       <p class="ready-acts">
-        {#if readyCount < readyTotal}<button type="button" class="btn hi" onclick={tickAllReady}>{t('Tick all checks')}</button>{/if}
+        {#if readyCount < readyTotal}<button type="button" class="btn hi" onclick={tickAllReady} data-explain={t('Tick all checks')}>{t('Tick all')}</button>{/if}
         {#if readyChanged}
-          <button type="button" class="btn" onclick={saveStandard}>{t('Save as my standard')}</button>
+          <button type="button" class="btn" onclick={saveStandard} data-explain={t('Save as my standard')}>{t('As standard')}</button>
           <button type="button" class="link" onclick={resetReady}>{t('Back to my standard list')}</button>
         {/if}
       </p>

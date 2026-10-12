@@ -232,7 +232,7 @@
     </section>
   {/each}
   <div class="apply noprint">
-    <button type="button" class="btn ink" disabled={!plan.toApply} onclick={breakinIntoCare}>{t('Take the ticked into care')}</button>
+    <button type="button" class="btn ink" disabled={!plan.toApply} onclick={breakinIntoCare} data-explain={t('Take the ticked into care')}>{t('Take over|care')}</button>
     <small>{t('Each tick becomes a care entry «by me», with the day and the km from the ride ledger. What is due later reminds you on Today.')}</small>
   </div>
   <label class="opt noprint"><input type="checkbox" checked={plan.remind} onchange={(e) => remindBreakin(e.currentTarget.checked)} /><span>{t('Remind me on Today when a step is due')}</span></label>
@@ -258,10 +258,10 @@
   <p class="total"><span>{t('Total packed')}</span><b>{num(kit.g)} g</b></p>
   <div class="apply noprint">
     {#if data.trip}
-      <button type="button" class="btn ink" aria-expanded={!!choosing} onclick={() => (choosing ? (choosing = null) : openChoose())}>{t('On the packing list «{trip}» …', { trip: data.trip.title })}</button>
+      <button type="button" class="btn ink" aria-expanded={!!choosing} onclick={() => (choosing ? (choosing = null) : openChoose())} data-explain={t('On the packing list «{trip}» …', { trip: data.trip.title })}>{t('Packing list …|to')}</button>
       <small>{t('Puts the items that are not on it yet on the packing list of the next trip with this bike. You can take each one off again.')}</small>
     {:else}
-      <button type="button" class="btn" disabled>{t('On the packing list …')}</button>
+      <button type="button" class="btn" disabled data-explain={t('On the packing list …')}>{t('Packing list …|to')}</button>
       <small>{t('No trip planned with this bike yet. Plan one, then the kit can go on its packing list.')}</small>
     {/if}
   </div>

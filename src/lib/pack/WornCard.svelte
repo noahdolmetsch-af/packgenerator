@@ -51,7 +51,7 @@
     </ul>
   {/each}
   <p class="foot">
-    <a class="btn wbtn" href={wardrobeHref}><Shirt size={18} aria-hidden="true" />{t('Open in the wardrobe')}</a>
+    <a class="btn wbtn" href={wardrobeHref} data-explain={t('Open in the wardrobe')}><Shirt size={18} aria-hidden="true" />{t('Wardrobe|open')}</a>
   </p>
   <p class="legend">
     {#each [['base', 'Base|layer'], ['mid', 'Mid|layer'], ['outer', 'Outer|layer'], ['accessory', 'Accessories|layer']] as [k, name] (k)}<span><i style="background: var(--l{LN[k]})" aria-hidden="true"></i>{t(name)}</span>{/each}

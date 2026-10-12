@@ -65,7 +65,7 @@
       {#if acts}
         <div class="acts">
           <button type="button" class="btn" aria-expanded={choosing} aria-controls="folder-pick-{bike.id}" onclick={() => (choosing = !choosing)}>{t('Choose sheets')}</button>
-          {#if shown.length}<a class="btn" href={href('all')}>{t('Whole folder as PDF')}</a>{/if}
+          {#if shown.length}<a class="btn" href={href('all')} data-explain={t('Whole folder as PDF')}>{t('Whole folder')}</a>{/if}
         </div>
       {/if}
     </div>

@@ -247,7 +247,7 @@
             {/if}
             {#if changeNote}
               <!-- v0.27.0 (PF03): what the last change of the trip did to the list, one Undo for all of it. -->
-              <div class="wxfoot"><p class="change-note tp-small" role="status">{t('Changed: {list}', { list: changeNote })}</p><button type="button" class="btn sm" onclick={actions.undoWx}><Undo2 size={16} aria-hidden="true" />{t('Undo the whole change')}</button></div>
+              <div class="wxfoot"><p class="change-note tp-small" role="status">{t('Changed: {list}', { list: changeNote })}</p><button type="button" class="btn sm" onclick={actions.undoWx} data-explain={t('Undo the whole change')}><Undo2 size={16} aria-hidden="true" />{t('Undo all')}</button></div>
             {:else if ctxChanged}
               <!-- v0.30.1 (Noah A2): a change that brings nothing says so (it used to look like a dead button). -->
               <p class="tp-muted tp-small wxnote" role="status">{trip.wx?.rain === 'rain' || trip.wx?.rain === 'showers' ? t('Nothing on the list changes. Rain gear comes along by itself when it is set to "When it rains" in Gear, or is in a building block named Rain.') : t('Nothing on the list changes with this.')}</p>

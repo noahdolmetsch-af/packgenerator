@@ -117,7 +117,7 @@ test('a trip starts from a template, with its area; hiking without a bike', asyn
   await start(page, context);
   // From the template page: "New trip from it".
   await page.goto('./#/pack/templates/tpl-jura');
-  await page.getByRole('button', { name: T('New trip from it') }).click();
+  await page.getByRole('button', { name: T('New trip') }).click();
   let dlg = page.getByRole('dialog', { name: T('New trip') });
   await expect(dlg).toBeVisible();
   await dlg.getByRole('textbox', { name: T('Name') }).filter({ visible: true }).fill('test_data_gtp_ Jura im Oktober');

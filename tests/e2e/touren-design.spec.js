@@ -144,7 +144,7 @@ test('Event: «Bis zum Start», the route with map and height profile, own km pe
   await expect(stages.locator('li').first()).toContainText('50 km');
   await expect(stages.locator('li').nth(1)).toContainText('85 km');
   await stages.getByRole('button', { name: new RegExp(esc(T('Divide|stages'))) }).click();
-  await page.getByRole('dialog', { name: T('Divide into stages') }).getByRole('button', { name: T('Share out evenly again') }).click();
+  await page.getByRole('dialog', { name: T('Divide into stages') }).getByRole('button', { name: T('Even out') }).click();
   await expect(stages.locator('li').first()).toContainText('68 km');
   expect(await wide(page)).toBeLessThanOrEqual(0);
 });

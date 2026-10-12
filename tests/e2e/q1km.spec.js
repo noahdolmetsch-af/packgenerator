@@ -206,7 +206,7 @@ test('start points: Q1 status on top, a part without one shows without start poi
   const dlg = page.getByRole('dialog', { name: 'Startpunkt: Bremsbeläge hinten' });
   await expect(dlg).toBeVisible();
   await expect(dlg.getByText(/Aus dem Fahrten-Buch: \d/)).toBeVisible();
-  await dlg.getByRole('button', { name: 'Speichern und weiter' }).click();
+  await dlg.getByRole('button', { name: 'Weiter' }).click();
   // next: the grips, they came from another bike with their km
   const dlg2 = page.getByRole('dialog', { name: 'Startpunkt: Griffe' });
   await expect(dlg2).toBeVisible();

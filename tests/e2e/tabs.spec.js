@@ -297,7 +297,7 @@ test('weather: applied by itself, each changed row says why and has its own Undo
   // Colder again, and "Undo the whole change" puts the trip back as it was (list and weather).
   await weather('Cold');
   await expect.poll(async () => (await stored(page, title)).entries.map((e) => e.itemId)).toContain('GTP90');
-  await card.getByRole('button', { name: T('Undo the whole change') }).click();
+  await card.getByRole('button', { name: T('Undo all') }).click();
   await expect.poll(async () => (await stored(page, title)).entries.map((e) => e.itemId)).not.toContain('GTP90');
   expect((await stored(page, title)).wx).toMatchObject({ min: 6, max: 12 });
   expect(errors).toEqual([]);

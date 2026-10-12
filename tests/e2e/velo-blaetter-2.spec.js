@@ -139,7 +139,7 @@ test('the Break-in plan: ticks with km, taken into care with Undo, a due step on
   const sag = paper.locator('.checks li').filter({ hasText: 'Sag vorne und hinten messen' });
   await expect(sag.locator('.cv')).toHaveText('85 / 190 psi');
   await expect(paper.locator('.checks li').filter({ hasText: 'Erstinspektion beim Velomech' }).getByRole('link', { name: 'Werkstatt-Auftrag' })).toBeVisible();
-  const take = paper.getByRole('button', { name: 'Abgehakte in die Pflege übernehmen' });
+  const take = paper.getByRole('button', { name: 'Übernehmen' });
   await expect(take).toBeDisabled();
 
   // tick step 1: stored with the day and the km
@@ -214,7 +214,10 @@ test('the Repair kit: per kind of ride, sizes from the parts, a missing item add
 
   // W5 a: on the packing list of the next trip, each item can be deselected
   const before = (await stored(page, 'trips', XC_TRIP)).entries.length;
-  await paper.getByRole('button', { name: /^Auf die Packliste «.*Demo-Tour Jura» …$/ }).click();
+  // v0.114.0 «Knöpfe neu» (changed on purpose): the label is «Packliste …», the trip is in its explanation
+  const toList = paper.getByRole('button', { name: 'Packliste …', exact: true });
+  await expect(toList).toHaveAttribute('data-explain', /^Auf die Packliste «.*Demo-Tour Jura» …$/);
+  await toList.click();
   const choose = paper.locator('fieldset.choose');
   const boxes = choose.getByRole('checkbox');
   const n = await boxes.count();
@@ -298,7 +301,7 @@ test('the Theft sheet: «eintragen» opens the form, the frame number is in the 
   const text = await copied(page);
   expect(text).toContain('Rahmennummer: DEMO 0000 XC');
   expect(text).toContain('1. Polizei: Anzeige machen');
-  await page.getByRole('button', { name: 'Als PDF teilen' }).click();
+  await page.getByRole('button', { name: 'PDF teilen' }).click();
   expect(await page.evaluate(() => window.__printed)).toBe(1);
   expect(errors).toEqual([]);
 });

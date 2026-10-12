@@ -82,9 +82,9 @@ test('the folder of a bike: its sheets, each can be hidden and shown again; whol
   await expect(folder.locator('a.sheet')).toHaveCount(OLD.length);
 
   // the whole folder: every shown sheet one after the other, «Als PDF teilen» opens the print dialog
-  await folder.getByRole('link', { name: 'Ganze Mappe als PDF' }).click();
+  await folder.getByRole('link', { name: 'Ganze Mappe' }).click();
   await expect(page.locator('article.paper')).toHaveCount(OLD.length);
-  await page.getByRole('button', { name: 'Als PDF teilen' }).click();
+  await page.getByRole('button', { name: 'PDF teilen' }).click();
   expect(await page.evaluate(() => window.__printed)).toBe(1);
   // only the paper prints: the toolbar and the page head are hidden in print
   await page.emulateMedia({ media: 'print' });
@@ -182,7 +182,7 @@ test('Pick-up check from Care: ticks stay saved; the ticked work goes into care 
   await expect(paper.getByRole('heading', { name: 'Abhol-Check' })).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Pfad' }).getByRole('link', { name: 'Pflege', exact: true })).toBeVisible(); // V5: the path back
   await expect(paper.getByRole('heading', { name: '1 · Auftrag erledigt?' })).toBeVisible();
-  const take = page.getByRole('button', { name: 'Abgehakte Arbeiten in die Pflege übernehmen' });
+  const take = page.getByRole('button', { name: 'Übernehmen' });
   await expect(take).toBeDisabled();
 
   const job = (re) => paper.locator('section').first().locator('.checks li').filter({ hasText: re });

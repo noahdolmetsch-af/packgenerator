@@ -252,7 +252,7 @@
   {#if applied}
     <div class="done noprint" role="status">
       <p>{t('Taken into care on {date}. The ticks of this check stay saved.', { date: dateOf(applied) })}</p>
-      <button type="button" class="btn" onclick={newPickup}>{t('Start a new pick-up check')}</button>
+      <button type="button" class="btn" onclick={newPickup} data-explain={t('Start a new pick-up check')}>{t('Start again|pickup')}</button>
     </div>
   {/if}
   {#each data.pickup.sections as sec (sec.key)}
@@ -272,7 +272,7 @@
   <div class="sign"><span>{t('Date, picked up')}</span><span>{t('Remarks')}</span></div>
   {#if !applied}
     <div class="apply noprint">
-      <button type="button" class="btn ink" disabled={!jobsTicked} onclick={takeIntoCare}>{t('Take the ticked work into care')}</button>
+      <button type="button" class="btn ink" disabled={!jobsTicked} onclick={takeIntoCare} data-explain={t('Take the ticked work into care')}>{t('Take over|care')}</button>
       <small>{t('Each ticked job becomes a care entry by the bike shop, today at {km}. A replaced part gets its start point.', { km: kmLine })}</small>
     </div>
   {/if}
@@ -289,8 +289,8 @@
     <!-- Design-Refresh P7 (V5): the path back, «Folder Gravel Blau», the whole folder as PDF and «Choose sheets»
          on top; the sheet left with its buttons below it, the sheets of the folder right. -->
     <VeloHead crumbs={crumbs} here={sheet === 'all' ? t('Folder|sheets') : t(SHEET[sheet].name)} title={t('Folder {bike}', { bike: bike.name })} sub={t('The app fills every sheet from your data · view it, share it as a PDF or copy the text')}>
-      {#if sheet === 'all'}<button type="button" class="btn hi" onclick={pdf}><Printer size={16} aria-hidden="true" />{t('Share as PDF')}</button>
-      {:else}<a class="btn hi" href={bikesHash({ tab: 'setup', bike: bikeId, sheet: 'all', from })}><Printer size={16} aria-hidden="true" />{t('Whole folder as PDF')}</a>{/if}
+      {#if sheet === 'all'}<button type="button" class="btn hi" onclick={pdf} data-explain={t('Share as PDF')}><Printer size={16} aria-hidden="true" />{t('Share PDF')}</button>
+      {:else}<a class="btn hi" href={bikesHash({ tab: 'setup', bike: bikeId, sheet: 'all', from })} data-explain={t('Whole folder as PDF')}><Printer size={16} aria-hidden="true" />{t('Whole folder')}</a>{/if}
       <button type="button" class="btn" aria-expanded={choosing} onclick={() => (choosing = !choosing)}>{t('Choose sheets')}</button>
     </VeloHead>
     {#if said}<p class="said noprint" role="status">{said}</p>{/if}
@@ -307,7 +307,7 @@
         </div>
         <div class="bar noprint">
           <button type="button" class="btn" onclick={copy}><Copy size={16} aria-hidden="true" />{t('Copy text')}</button>
-          {#if sheet !== 'all'}<button type="button" class="btn" onclick={pdf}><Share2 size={16} aria-hidden="true" />{t('Share as PDF')}</button>{/if}
+          {#if sheet !== 'all'}<button type="button" class="btn" onclick={pdf} data-explain={t('Share as PDF')}><Share2 size={16} aria-hidden="true" />{t('Share PDF')}</button>{/if}
           {#if editHref}<a class="btn" href={editHref}><Pencil size={16} aria-hidden="true" />{t('Change values')}</a>
           {:else if EDIT[sheet] === 'form'}<button type="button" class="btn" aria-pressed={editing} onclick={() => (editing = !editing)}><Pencil size={16} aria-hidden="true" />{t('Change values')}</button>{/if}
         </div>

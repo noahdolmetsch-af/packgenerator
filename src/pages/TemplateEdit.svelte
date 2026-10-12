@@ -193,7 +193,7 @@
       {#if tpl.note}<p class="tnote">{tpl.note}</p>{/if}
     </header>
     <div class="cta">
-      <button type="button" class="btn hi" onclick={() => newTrip(tpl.id)}><Route size={18} aria-hidden="true" /> {t('New trip from it')}</button>
+      <button type="button" class="btn hi" onclick={() => newTrip(tpl.id)} data-explain={t('New trip from it')}><Route size={18} aria-hidden="true" /> {t('New trip')}</button>
     </div>
 
     <div class="dgrid">
