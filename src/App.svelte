@@ -35,6 +35,7 @@
   import Me from './pages/Me.svelte';
   import Look from './pages/Look.svelte';
   import Data from './pages/Data.svelte';
+  import WasNeu from './pages/WasNeu.svelte';
   import Phone from './pages/Phone.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
@@ -300,6 +301,9 @@
   {:else if page === 'data'}
     <!-- Design-Refresh P9 (I2): Ich › Daten und Backup, its own page -->
     <Data />
+  {:else if page === 'news'}
+    <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
+    {#key hash}<WasNeu />{/key}
   {:else if page === 'phone'}
     <!-- Design-Refresh P9 (B35): Ich › Daten › Aufs Handy, the QR code -->
     <Phone />

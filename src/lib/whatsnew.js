@@ -4,11 +4,31 @@
  * at the top: version, date, 1-4 points in plain words (English keys for t(), German in
  * i18n/de/whatsnew.js), each with the address of the exact place ("Try it"), or no address when
  * the place no longer exists (older versions). The list goes back to the first version (0.1.0).
+ * v0.110.0 (I11): an entry may also have title, lead (one sentence) and test (the steps «How to test it»).
  * action 'data': the place is "Data and backup" (under Me since v0.94.0, nav.js openData) instead of an address.
  * Pure, tested in tests/whatsnew.test.js.
  */
 
 export const WHATS_NEW = [
+  {
+    // v0.110.0 Design-Refresh P10 (I11): the newest version also has a name, one sentence and the
+    // steps «How to test it» (the card on top of Ich › Was ist neu); older versions do without.
+    version: '0.110.0',
+    date: '2026-10-12',
+    title: 'What is new',
+    lead: 'Me › What is new shows the newest version, every function one by one and all versions by month.',
+    points: [
+      { text: 'What is new lists every function: sort by newest, name, category, place, your top 10 or the most important 10, with a search.', href: '#/me/news?all&sort=top' },
+      { text: '«Your top 10» counts how often you open a function, only on this device and never in the playground.', href: '#/me/news' },
+      { text: 'After an update a message says what is new; «Do not show again» holds until the next update.', href: '#/me/news' },
+      { text: 'For 14 days after an update the tile «New» sits on top of Today, with «Try it», «What is new» and «Take away».', href: '#/' },
+    ],
+    test: [
+      'Open Me › What is new and tap «Your top 10».',
+      'Tap «Go» at a function: its place opens.',
+      'Go back: the function now counts once more.',
+    ],
+  },
   {
     version: '0.109.0',
     date: '2026-10-12',

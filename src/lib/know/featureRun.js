@@ -12,9 +12,10 @@ import { PLAY_WISH } from '../play.js';
 import { dayRide, openNew, openNote, openData, openWear } from '../nav.js';
 import { localDay } from '../localday.js';
 import { t, lang, setLang } from '../i18n.svelte.js';
+import { countFeature } from './wasneuStore.js';
 
-/** Count the function as used. */
-export const tapFeature = (id) => updateTips(db, (s) => tapTip(s, id, localDay()));
+/** Count the function as used. v0.110.0 Design-Refresh P10 (I11c): and once more for «Your top 10» on this device. */
+export const tapFeature = (id) => (countFeature(id), updateTips(db, (s) => tapTip(s, id, localDay())));
 
 /** The run of an entry (its own, or its tip's), or null for a page. */
 export const runOf = (f) => (f.tip ? (TIP[f.tip].go.run ?? null) : (f.run ?? null));

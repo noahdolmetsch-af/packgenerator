@@ -24,7 +24,8 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert } from '@lucide/svelte';
+  import { Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, Sparkles, Archive, FlaskConical, TriangleAlert, Star } from '@lucide/svelte';
+  import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
   import { PLAY_WISH } from '../lib/play.js';
@@ -135,6 +136,14 @@
             <a class="ich-row" href="#/features">
               <span class="ich-ib"><Info size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('What the app can do')}</b></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
+            <a class="ich-row" href="#/me/news">
+              <span class="ich-ib"><Star size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('What is new')}</b><small>{t('New in {version}', { version: shortVersion(WHATS_NEW[0].version) })}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

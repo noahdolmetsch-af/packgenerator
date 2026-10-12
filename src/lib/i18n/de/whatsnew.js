@@ -8,6 +8,20 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.110.0 Design-Refresh P10 «Was ist neu»
+  'Me › What is new shows the newest version, every function one by one and all versions by month.':
+    'Ich › Was ist neu zeigt die neueste Version, jede Funktion einzeln und alle Versionen nach Monat.',
+  'What is new lists every function: sort by newest, name, category, place, your top 10 or the most important 10, with a search.':
+    'Was ist neu listet jede Funktion: sortiert nach Neueste, Name, Kategorie, Ort, Deine Top 10 oder Wichtigste 10, mit Suche.',
+  '«Your top 10» counts how often you open a function, only on this device and never in the playground.':
+    '«Deine Top 10» zählt, wie oft du eine Funktion öffnest, nur auf diesem Gerät und nie auf der Spielwiese.',
+  'After an update a message says what is new; «Do not show again» holds until the next update.':
+    'Nach einem Update sagt eine Meldung, was neu ist; «Nicht mehr anzeigen» gilt bis zum nächsten Update.',
+  'For 14 days after an update the tile «New» sits on top of Today, with «Try it», «What is new» and «Take away».':
+    '14 Tage nach einem Update steht die Kachel «Neu» oben auf Heute, mit «Ausprobieren», «Was ist neu» und «Wegnehmen».',
+  'Open Me › What is new and tap «Your top 10».': 'Ich › Was ist neu öffnen und «Deine Top 10» antippen.',
+  'Tap «Go» at a function: its place opens.': 'Bei einer Funktion «Loslegen» antippen: Ihre Stelle öffnet sich.',
+  'Go back: the function now counts once more.': 'Zurückgehen: Die Funktion zählt jetzt einmal mehr.',
   // 0.109.0 Design-Refresh P6 «Rückblick, Auswerten, Fahrten»
   'The new look, step 12: the end of a trip and the debrief in two columns, with the items as chips by bag.':
     'Das neue Aussehen, Schritt 12: Tour beendet und der Rückblick in zwei Spalten, die Teile als Chips nach Tasche.',

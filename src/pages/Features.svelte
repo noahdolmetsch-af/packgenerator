@@ -9,19 +9,11 @@
    * your data. A search field and chips (wrapping on a phone) narrow the list. #/features?f=<id> opens at one function.
    */
   import { liveQuery } from 'dexie';
-  import { db } from '../lib/db.js';
-  import { usedTips, TIPS_KEY } from '../lib/tips.js';
-  import { catalogue, seenOf, findFeatures, FEATURE_GROUPS, PAGE_GROUPS } from '../lib/features.js';
+  import { catalogue, findFeatures, FEATURE_GROUPS, PAGE_GROUPS } from '../lib/features.js';
   import { goFeature } from '../lib/know/featureRun.js';
-  import { HOME_PLACE } from '../lib/know.js';
-  import { paceOf, PACE_KEY } from '../lib/pace.js';
-  import { TEMPLATES_KEY } from '../lib/templates.js';
-  import { SETS_KEY } from '../lib/sets.js';
-  import { LAST_BACKUP } from '../lib/backup.js';
-  import { demoState } from '../lib/demo.js';
+  import { featureData, usedOf } from '../lib/know/featureData.js';
   import { nextTrip } from '../lib/debrief.js';
   import { sortBikes } from '../lib/bikes.js';
-  import { standalone } from '../lib/install.js';
   import { localDay } from '../lib/localday.js';
   import { t } from '../lib/i18n.svelte.js';
   import { Check, ChevronRight, Compass, Backpack, BookOpen, Bike, Leaf, Save, Search } from '@lucide/svelte';
@@ -34,34 +26,10 @@
   /** Rows shown per group before «All n ›». */
   const SHOWN = 4;
 
-  const dataQ = liveQuery(async () => {
-    const [trips, items, bikes, visits, debriefs, notesN, setting, file, folder, demo, counts] = await Promise.all([
-      db.trips.toArray(),
-      db.items.toArray(),
-      db.bikes.toArray(),
-      db.visits.toArray(),
-      db.debriefs.toArray(),
-      db.notes.count(),
-      db.settings.bulkGet([TIPS_KEY, HOME_PLACE, PACE_KEY, TEMPLATES_KEY, SETS_KEY]),
-      db.meta.get(LAST_BACKUP),
-      db.meta.get('backupFolder'),
-      demoState(db),
-      Promise.all([db.rides.count(), db.events.count(), db.learnings.count(), db.kmBook.filter((r) => !!r.importId).count(), db.maintenance.count(), db.flowLog.count(), db.flowChecks.count(), db.flowStars.count(), db.flowSessions.count()]),
-    ]);
-    const [tips, home, pace, tpl, sets] = setting.map((r) => r?.value ?? null);
-    const [rides, events, learnings, imports, problems, flowLog, flowChecks, flowStars, flowSessions] = counts;
-    const n = { trips: trips.length, rides, events, learnings, imports, problems, visits: visits.length, flowLog, flowChecks, flowStars, flowSessions, notes: notesN };
-    return { trips, items, bikes, visits, debriefs, notesN, tips, homePlace: home, pace: paceOf(pace), templates: tpl ?? [], sets: sets ?? [], lastBackup: file?.at ?? folder?.lastWrite ?? null, demo, counts: n, folder: !!folder };
-  });
-  const langSet = (() => {
-    try {
-      return localStorage.getItem('lang') != null;
-    } catch {
-      return false;
-    }
-  })();
+  // v0.110.0: the reading moved to know/featureData.js (shared with Ich › Was ist neu), unchanged
+  const dataQ = liveQuery(featureData);
   const d = $derived($dataQ);
-  const used = $derived(d ? new Set([...usedTips({ ...d, langSet, standalone: standalone() }), ...seenOf({ counts: d.counts, folder: d.folder, play: !!d.demo?.play })]) : new Set());
+  const used = $derived(usedOf(d));
   let by = $state('situation');
   const all = $derived(d ? catalogue(d.tips, used, by) : null);
   const next = $derived(d ? nextTrip(d.trips, localDay()) : null);

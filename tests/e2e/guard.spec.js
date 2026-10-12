@@ -73,6 +73,9 @@ const ROUTES = [
   ['#/flow/act/meditation/log?view=cal', 'Protokoll Kalender'],
   ['#/flow/act/meditation/log?view=chart', 'Protokoll Grafik'],
   ['#/me', 'Ich'], // v0.76.0 «Fünf Orte»: strict like its file
+  // v0.110.0 Design-Refresh P10 (I11, I11d): Ich › Was ist neu and the whole list, strict like their files
+  ['#/me/news', 'Was ist neu'],
+  ['#/me/news?all&sort=best', 'Was ist neu Wichtigste 10'],
 ];
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];
