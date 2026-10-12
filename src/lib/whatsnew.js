@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.100.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 4: a trip page is light, with «‹ Trips» above the name to go back.', href: '#/pack' },
+      { text: 'The four steps of a trip are numbered; on the computer each step is a white field, the current one tinted.', href: '#/pack' },
+      { text: 'The next step always sits in a bar at the bottom: «Step 1 of 4», «Back to Trips» and the main button.', href: '#/pack' },
+    ],
+  },
+  {
     version: '0.99.0',
     date: '2026-10-12',
     points: [

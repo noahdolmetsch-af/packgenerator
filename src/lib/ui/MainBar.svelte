@@ -10,13 +10,18 @@
    * aside: a small extra next to the main button on a phone (+, the packing ring, the pencil).
    * hint: a short line under the button on a computer.
    * place: 'band' (right column of the trip band on a computer) | 'page' (a row at the end of the page).
+   * v0.100.0 Design-Refresh P1 (G7 «Was als Nächstes kommt, immer unten»): on a computer the bar sits
+   * at the bottom of the window, light, next to the sidebar: step: «Schritt 2 von 4» on the left, the
+   * quiet way back and the main button on the right. Between 720 and 899 px it sits above the bottom bar
+   * like on a phone; a phone turned sideways keeps it in the trip band.
    */
   import { ArrowRight } from '@lucide/svelte';
 
-  let { main = null, second = null, aside = null, hint = '', place = 'page', children = null } = $props();
+  let { main = null, second = null, aside = null, hint = '', step = '', place = 'page', children = null } = $props();
 </script>
 
 <div class="mainbar {place}">
+  {#if step || hint}<span class="lead">{#if step}<span class="step">{step}</span>{/if}{#if hint}<small class="hint">{hint}</small>{/if}</span>{/if}
   {#if aside}<span class="aside">{@render aside()}</span>{/if}
   {#if children}{@render children()}
   {:else if main}
@@ -24,10 +29,9 @@
     {:else}<button type="button" class="btn hi go" disabled={main.disabled} onclick={main.onclick}>{main.label}{#if main.arrow !== false}<ArrowRight size={20} aria-hidden="true" />{/if}</button>{/if}
   {/if}
   {#if second}
-    {#if second.href}<a class="btn second" href={second.href} onclick={second.onclick}>{second.label}</a>
-    {:else}<button type="button" class="btn second" onclick={second.onclick}>{second.label}</button>{/if}
+    {#if second.href}<a class="btn btn-link second" href={second.href} onclick={second.onclick}>{second.label}</a>
+    {:else}<button type="button" class="btn btn-link second" onclick={second.onclick}>{second.label}</button>{/if}
   {/if}
-  {#if hint}<small class="hint">{hint}</small>{/if}
 </div>
 
 <style>
@@ -35,14 +39,14 @@
     min-height: 52px;
     padding: 10px 20px;
     font-size: var(--fs-sub);
-    border-radius: 8px;
+    border-radius: var(--r-ctl);
     gap: 8px;
   }
   .second {
     min-height: 52px;
     padding: 10px 18px;
     font-size: var(--fs-body);
-    border-radius: 8px;
+    border-radius: var(--r-ctl);
   }
   .hint {
     font-size: var(--fs-small);
@@ -58,8 +62,20 @@
     gap: 10px 12px;
     margin: 20px 0 0;
   }
-  .page .hint {
+  .page .lead {
     flex-basis: 100%;
+    order: 3;
+    color: var(--ink-3);
+  }
+  .lead {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 8px;
+    min-width: 0;
+  }
+  .step {
+    display: none;
+    font-size: var(--fs-small);
     color: var(--ink-3);
   }
   /* band, on a computer: the right column of the dark trip band */
@@ -70,20 +86,22 @@
     justify-content: center;
     gap: 6px;
   }
-  .band .hint {
-    color: var(--brand-ink-2);
+  .band .lead {
+    justify-content: flex-end;
+    color: var(--ink-3);
     text-align: right;
   }
-  .band :global(:focus-visible) {
-    outline-color: var(--focus-on-dark);
+  .band .second {
+    display: none;
   }
   @media (min-width: 720px) {
     .band :global(.btn.hi) {
       min-width: 260px;
     }
   }
-  /* Phone (rule U1): the next step stays at the bottom, above the bottom bar. */
-  @media (max-width: 719px) {
+  /* Phone (rule U1): the next step stays at the bottom, above the bottom bar (v0.100.0: also up to
+     899 px, where the bottom bar is too). */
+  @media (max-width: 899px) and (min-height: 501px), (max-width: 719px) {
     .mainbar {
       position: fixed;
       left: 0;
@@ -97,7 +115,7 @@
       align-items: center;
       margin: 0;
       padding: 10px var(--gut);
-      background: color-mix(in srgb, var(--ground) 97%, transparent);
+      background: var(--paper);
       border-top: 1px solid var(--line);
       color: var(--ink);
     }
@@ -116,7 +134,7 @@
     .aside {
       display: contents;
     }
-    .hint {
+    .lead {
       display: none;
     }
     .mainbar :global(:focus-visible) {
@@ -136,6 +154,55 @@
     }
     .hint {
       display: none;
+    }
+  }
+  /* v0.100.0 P1 (G7): a computer: a light bar at the bottom of the window, next to the sidebar;
+     «Schritt 2 von 4» and the short hint on the left, the quiet way back and the main button right. */
+  @media (min-width: 900px) and (min-height: 501px) {
+    .mainbar {
+      position: fixed;
+      left: 252px;
+      right: 0;
+      bottom: 0;
+      z-index: 5;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      margin: 0;
+      padding: 12px max(var(--gut), 48px);
+      background: var(--paper);
+      border-top: 1px solid var(--line);
+    }
+    .lead,
+    .band .lead {
+      flex: 1;
+      flex-basis: auto;
+      order: 0;
+      justify-content: flex-start;
+      text-align: left;
+      color: var(--ink-3);
+    }
+    .step {
+      display: inline;
+    }
+    .step + .hint::before {
+      content: '· ';
+    }
+    .second,
+    .band .second {
+      display: inline-flex;
+      order: 1;
+    }
+    .mainbar :global(.btn.hi) {
+      order: 2;
+      min-width: 0;
+      min-height: 48px;
+    }
+    .band :global(.btn.hi) {
+      min-width: 0;
     }
   }
   @media (max-height: 500px) and (max-width: 719px) {

@@ -513,7 +513,9 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 12.10.2026 (v0.99.0, PR offen):** Design-Refresh R3 «Bausatz» (G2/G3, Noah 3b): Knöpfe, Felder und Abzeichen einheitlich mit weicher Ecke und 44 px, leere Seiten als ruhige Karte, Konfetti beim grossen Feier-Moment, Hinweise mit Haken und «Rückgängig». Als Nächstes R4 Zurück, Schritte und Weiter-Leiste.
+**Nachtrag 12.10.2026 (v0.100.0, PR offen):** Design-Refresh P1 «Zurück, Schritte, Weiter-Leiste» (G7): heller Tour-Kopf mit «‹ Touren › Name», nummerierte Schritte, Weiter-Leiste unten mit «Schritt n von m». Noah hat am 12.10.2026 «10 Pakete» gewählt: Als Nächstes P2 Heute ∥ P3 Material, dann P4 Touren ∥ P8 Aktiv, P5 Packen/Unterwegs ∥ P7 Velo, P6 Rückblick ∥ P9 Ich+Teilen, am Ende P10 «Was ist neu».
+
+**Nachtrag 12.10.2026 (v0.99.0, live):** Design-Refresh R3 «Bausatz» (G2/G3, Noah 3b): Knöpfe, Felder und Abzeichen einheitlich mit weicher Ecke und 44 px, leere Seiten als ruhige Karte, Konfetti beim grossen Feier-Moment, Hinweise mit Haken und «Rückgängig». Als Nächstes R4 Zurück, Schritte und Weiter-Leiste.
 
 **Nachtrag 12.10.2026 (v0.98.0, live):** Design-Refresh R2 «Heller Kopf» (G4/G5 A★): heller Kopf und helle Seitenleiste, «Neu» oben neben der Suche, kein runder Knopf mehr über der Seite, «Ich» als Karte unten in der Seitenleiste. Als Nächstes R3 Knöpfe, Karten, Zeilen und Zustände (mit Konfetti), dann R4 Zurück und Schritte.
 

@@ -862,6 +862,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 12.10.2026: Design-Refresh P1 «Zurück, Schritte, Weiter-Leiste» (0.100.0)
+
+Nach Stilblatt G7 «Zurück und Schritte» (freigegeben 11.10.2026 23:10 «Runde 1 alles ★ und G1–G12 freigegeben») und Noahs Wahl «10 Pakete» vom 12.10.2026 (die übrigen 21 Releases in 10 Pakete gebündelt, eines pro Bereich; P1 = das frühere R4).
+
+- **Selbst entschieden (P1):** Der Tour-Kopf ist hell (kein farbiges Band mehr) mit «‹ Touren › Name» oben; am Handy steht nur «‹ Touren», weil der Name gleich darunter gross steht. Die Schritte zeigen am Computer nummerierte Kreise (erledigt mit Haken), am Handy nur die dünne Linie mit dem Namen, damit «Unterwegs» bei 320 px nicht bricht. Die Weiter-Leiste liegt am Computer fest unten rechts neben der Seitenleiste mit «Schritt n von m · Hinweis», «Zurück zu Touren» und dem Hauptknopf; zwischen 720 und 899 px verhält sie sich wie am Handy (über der unteren Leiste). Die Zahlen der Schritte kommen aus einem CSS-Zähler, damit der Linktext gleich bleibt (Tests und Vorlesen).
+
 ## 12.10.2026: Design-Refresh R3 «Bausatz» (0.99.0)
 
 Nach dem Stilblatt G2 «Bausteine» und G3 «Zustände» (freigegeben 11.10.2026 23:10 «Runde 1 alles ★ und G1–G12 freigegeben») und der Antwort 3b vom 12.10.2026 (Feier-Moment mit Konfetti).
