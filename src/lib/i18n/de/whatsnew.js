@@ -8,6 +8,18 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.112.0 «Strava-Verbindung»
+  'Strava connection': 'Strava-Verbindung',
+  'The app fetches your rides with their bike straight from Strava, so every ride lands on the right bike.': 'Die App holt deine Fahrten mit ihrem Velo direkt aus Strava, so landet jede Fahrt beim richtigen Velo.',
+  'Bike › Care › Strava: connect once, the app fetches all old rides without counting one twice and shows what it found.': 'Velo › Pflege › Strava: einmal verbinden, die App holt alle alten Fahrten, zählt keine doppelt und zeigt, was sie gefunden hat.',
+  'New rides come by themselves when the app opens, or only with «Fetch now». A ride without a bike waits in «To check» with a suggestion.': 'Neue Fahrten kommen von selbst beim Öffnen, oder nur mit «Jetzt holen». Eine Fahrt ohne Velo wartet in «Zum Prüfen» mit einem Vorschlag.',
+  'A ride got another bike in Strava: Today and the bike ask «Take over» or «Keep». The tile «Strava» on Today shows the new rides.': 'Hat eine Fahrt in Strava ein anderes Velo bekommen, fragen Heute und das Velo: «Übernehmen» oder «Behalten». Die Kachel «Strava» auf Heute zeigt die neuen Fahrten.',
+  'The file import stays as the reserve under Strava › More.': 'Der Datei-Import bleibt als Reserve unter Strava › Mehr.',
+  'Open Bike › Care › Strava and tap «Connect with Strava».': 'Öffne Velo › Pflege › Strava und tippe «Mit Strava verbinden».',
+  'Log in to Strava and allow it: the app shows how many rides it found.': 'Bei Strava einloggen und erlauben: die App zeigt, wie viele Fahrten sie gefunden hat.',
+  'Tap «Done», then «Fetch now»: the tile «Strava» on Today shows the result.': 'Tippe «Fertig», dann «Jetzt holen»: die Kachel «Strava» auf Heute zeigt das Ergebnis.',
+  'Rides with their bike from Strava, fetched by themselves; a changed bike asks first.': 'Fahrten mit ihrem Velo aus Strava, von selbst geholt; ein geändertes Velo fragt zuerst.',
+
   // 0.110.0 Design-Refresh P10 «Was ist neu»
   'Me › What is new shows the newest version, every function one by one and all versions by month.':
     'Ich › Was ist neu zeigt die neueste Version, jede Funktion einzeln und alle Versionen nach Monat.',
