@@ -871,6 +871,7 @@ Nach den Mockups A–F «Bausteine bearbeiten» (Offene Mockups #bausteine-bearb
 - **3a:** Der Schluss-Check steht auf «Tour beendet», vor dem Rückblick.
 - **4a:** Learnings werden wirklich gelöscht, mit Rückgängig (kommt mit D/E).
 - **5a:** Der Regel-Editor startet mit den 10 Regeln aus dem Content-Doc, Zahlen änderbar, eigene Regeln dazu; Regeln schlagen nur vor (Release 2).
+- **Neue Mockup-Ablage (Noah 12.10.2026 «bitte ab sofort einen neuen Ort zur Ablage für Mockups verwenden»):** Die Seite «Offene Mockups» hat die Grenze von 512 Dateien erreicht. Neue Runden kommen auf «Offene Mockups 2» (https://claude.ai/artifact/3j2eefXk4fHn6txJsp4i36); die erste Seite verweist oben darauf, ihre offenen Runden bleiben dort.
 - **Selbst entschieden:** Kleine Releases (Regel «eine sichtbare Sache»): 0.106.0 nur A+B. Die Tour speichert ihre Liste erst bei der ersten Änderung; bis dahin zeigt sie den Standard bzw. Vorschlag (spätere Standard-Änderungen wirken so auch auf geplante, unberührte Touren). Der Vorabend-Check steht auf «Gepackt» bis zum Starttag, die Abend-Erinnerung auf Heute führt dorthin (statt zum Packtag). Die Vorschläge kommen aus dem Content-Doc (Skitour, Wandern) und sind für Bikepacking, Weekend und Weltreise kurz gehalten.
 
 ## 12.10.2026: Design-Refresh P4 «Touren» (0.104.0)
