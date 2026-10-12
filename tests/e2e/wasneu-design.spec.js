@@ -12,6 +12,7 @@ import { readFileSync } from 'node:fs';
 import { READY } from '../../src/lib/home/tiles.js';
 
 const NEWEST = WHATS_NEW[0];
+// the function the newest version brought (v0.111.0: the checks), read from the app instead of a copy
 const V = shortVersion(NEWEST.version);
 const BEFORE = WHATS_NEW[1].version;
 // the lists of the page, read from the app source (wasneu.js imports the catalogue, which needs the app's runtime)

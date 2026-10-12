@@ -23,7 +23,8 @@ describe('every function has a version it came with', () => {
     }
     for (const id of Object.keys(SINCE)) expect(FEATURES.some((f) => f.id === id), id).toBe(true);
     expect(sinceOf('nope')).toBe('0.1.0');
-    expect(SINCE['f.news']).toBe('0.110.0'); // v0.113.0 Menü-Fix brings no new function
+    expect(SINCE['f.news']).toBe('0.110.0');
+    expect(SINCE['f.tripcheck']).toBe('0.111.0'); // v0.113.0 Menü-Fix brings no new function
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
     expect(BEST.length).toBe(10);
@@ -73,7 +74,7 @@ describe('the list and its sorts', () => {
   });
   it('newest first; name A–Z; by category and by place in their order', () => {
     const newest = sortRows(rows, 'new');
-    expect(newest[0].id).toBe('f.news');
+    expect(newest[0].id).toBe('f.tripcheck'); // v0.111.0 brought the checks, the newest function
     for (let i = 1; i < newest.length; i++) expect(compareVersions(newest[i - 1].since, newest[i].since)).toBeGreaterThanOrEqual(0);
     const abc = sortRows(rows, 'name').map((r) => r.title);
     expect(abc).toEqual([...abc].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })));
@@ -100,9 +101,9 @@ describe('the list and its sorts', () => {
     expect(searchRows(rows, '  ').length).toBe(rows.length);
   });
   it('since your last visit: newer than the version before the update; never tried: with a playground day, unused', () => {
-    expect(ids(newSince(rows, '0.108.0'))).toEqual(['f.news']);
+    expect(ids(newSince(rows, '0.108.0'))).toEqual(['f.tripcheck', 'f.news']);
     expect(newSince(rows, null)).toEqual([]);
-    expect(ids(newSince(rows, '0.90.0'))).toEqual(['f.news', 'f.unneeded']);
+    expect(ids(newSince(rows, '0.90.0'))).toEqual(['f.tripcheck', 'f.news', 'f.unneeded']);
     const never = neverTried(rows);
     expect(never.length).toBeLessThanOrEqual(3);
     for (const r of never) expect(r.play && !r.used).toBeTruthy();
