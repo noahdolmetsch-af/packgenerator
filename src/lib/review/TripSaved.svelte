@@ -47,7 +47,7 @@
   {#if rain?.wet === true}<CloudRain size={16} aria-hidden="true" />{:else if rain?.wet === false}<Sun size={16} aria-hidden="true" />{:else}<Cloud size={16} aria-hidden="true" />{/if}
 {/snippet}
 
-<!-- v0.107.0 Design-Refresh P6 (T16 «Gespeicherter Rückblick», approved 12.10.2026): two columns as in the
+<!-- v0.108.0 Design-Refresh P6 (T16 «Gespeicherter Rückblick», approved 12.10.2026): two columns as in the
      mockup. Left: «Fertig. Gute Tour!» with the four number tiles, plan and reality, not used. Right: what it
      means for the next trip, Gelernt, broken, missing and the bike. «Antworten ändern» is the button of the band. -->
 <div class="saved">

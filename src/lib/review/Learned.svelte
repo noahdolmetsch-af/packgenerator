@@ -31,7 +31,7 @@
   const meta = (l) => [l.source === 'import' ? t('From the import') : l.source, learnedOn(l) ? dayLong(learnedOn(l)) : ''].filter(Boolean).join(' · ');
 </script>
 
-<!-- v0.107.0 Design-Refresh P6 (T18 «Gelernt», approved 12.10.2026): the count line, the search with its icon,
+<!-- v0.108.0 Design-Refresh P6 (T18 «Gelernt», approved 12.10.2026): the count line, the search with its icon,
      then one section per topic (name, «n Learnings») with the learnings as rows: icon, the rule, where it
      comes from, «hoch» and «n× bestätigt» on the right. -->
 <section id="learnings" class="learned" aria-labelledby="learn-h">

@@ -303,7 +303,7 @@
   const more = $derived(sugg.filter((x) => x !== top));
   const used = $derived(d && trip ? trip.entries.filter((e) => byId[e.itemId] && !d.items[e.itemId]).length : 0);
   // v0.92.0 (Noah 4a): one chip per packed item, in the order of the trip; the tally counts what stayed in the bag.
-  // v0.107.0 Design-Refresh P6 (T15): the chips by bag, in the order of the trip, each item once.
+  // v0.108.0 Design-Refresh P6 (T15): the chips by bag, in the order of the trip, each item once.
   const chipGroups = $derived.by(() => {
     const seen = new Set();
     return groups.map((g) => ({ ...g, rows: g.rows.filter(({ e }) => !seen.has(e.itemId) && seen.add(e.itemId)) })).filter((g) => g.rows.length);
@@ -455,7 +455,7 @@
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
         <TripSaved {trip} {d} {bike} {trips} {debriefs} rides={$ridesQ ?? []} {learnings} {items} containers={$bagsQ ?? []} bikes={$bikesQ ?? []} {counts} {sugg} {offer} />
       {:else}
-      <!-- v0.107.0 Design-Refresh P6 (T15 «Rückblick ausfüllen», approved 12.10.2026): two columns as in the
+      <!-- v0.108.0 Design-Refresh P6 (T15 «Rückblick ausfüllen», approved 12.10.2026): two columns as in the
            mockup. Left: what stayed in the bag (chips by bag, «Alle ✓ · Alle –»), what was missing with the
            suggestion for next time and the one sentence. Right: the notes on the way, upload a ride, «Mehr»
            (how it was, all items by bag). Everything the page could do stays; nothing is new. -->
@@ -631,7 +631,7 @@
 {:else if SUBS.includes(param)}
   <!-- v0.49.0 R1 (Noah 4a): Dein Tempo, Logbuch and Gelernt are one level below the Rückblick, each
        its own page; v0.61.0 R2 rebuilt all three. -->
-  <!-- v0.107.0 Design-Refresh P6 (T18–T20): the quiet path «‹ Touren › Rückblick › Gelernt» and the title -->
+  <!-- v0.108.0 Design-Refresh P6 (T18–T20): the quiet path «‹ Touren › Rückblick › Gelernt» and the title -->
   {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : t('Learned|review')}
   <div class="over rv-page">
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{here}</span></nav>
@@ -662,7 +662,7 @@
     min-height: 48px;
     justify-content: center;
   }
-  /* v0.107.0 Design-Refresh P6 (T15): the debrief in two columns, as in the mockup */
+  /* v0.108.0 Design-Refresh P6 (T15): the debrief in two columns, as in the mockup */
   .dbf {
     margin-top: 6px;
   }

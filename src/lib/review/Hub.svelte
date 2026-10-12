@@ -171,7 +171,7 @@
   {#if rain?.wet === true}<CloudRain size={16} aria-hidden="true" />{:else if rain?.wet === false}<Sun size={16} aria-hidden="true" />{:else}<Cloud size={16} aria-hidden="true" />{/if}
 {/snippet}
 
-<!-- v0.107.0 Design-Refresh P6 (T17 «Rückblick», approved 12.10.2026): the open debriefs as a soft band on top,
+<!-- v0.108.0 Design-Refresh P6 (T17 «Rückblick», approved 12.10.2026): the open debriefs as a soft band on top,
      then two columns as in the mockup. Left: the last trip with its number tiles, the 12 months with the bars
      (B14 Diagramme), trips compared. Right: your pace, Gelernt and «Mehr» (Logbuch, past trips, upload). -->
 <div class="hub rv-page">
@@ -810,7 +810,7 @@
   }
   /* 4. one level below */
 
-  /* v0.107.0 Design-Refresh P6 (T17) */
+  /* v0.108.0 Design-Refresh P6 (T17) */
   .openlist {
     margin: 0 0 22px;
   }
