@@ -513,6 +513,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 12.10.2026 (v0.107.0, PR folgt):** Design-Refresh P8 «Aktiv» (A1–A8, A13, A14, A14c): Aktiv heute, Ziele, Aktivität, Meilensteine, Meditation «Mehr», Logbuch und neue Seite «Muster»; Vorschläge als Challenge.
+
 **Nachtrag 12.10.2026 (v0.106.0, PR offen):** Design-Refresh P5 «Packen und Unterwegs» (T6–T13): Taschen als eine Liste, helle Fenster für Tauschen, Laden, Entscheiden, Fakten und Tour beenden, Unterwegs mit dem Tag in Blöcken und Stunden-Wetter.
 
 **Nachtrag 12.10.2026 (v0.105.0, live):** Design-Refresh P7 «Velo» (V1–V14): Velo-Seite, Fenster, Mappe, Pflege-Übersicht und ein Velo als eigene Seite, Import, Werkstatt und Belege, Ausstattung, Vergleich.

@@ -10,6 +10,15 @@
 
 export const WHATS_NEW = [
   {
+    version: '0.107.0',
+    date: '2026-10-12',
+    points: [
+      { text: 'The new look, step 10: Active is light, with today on top, goals with a path and milestones on a shelf.', href: '#/flow' },
+      { text: 'Activity and «More about meditation» show a suggestion for today that you can set as a challenge.', href: '#/flow' },
+      { text: 'The meditation log opens on an overview with a 13-week calendar; a new page «Patterns» shows records and what helped.', href: '#/flow' },
+    ],
+  },
+  {
     version: '0.106.0',
     date: '2026-10-12',
     points: [
