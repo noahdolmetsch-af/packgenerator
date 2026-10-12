@@ -138,3 +138,22 @@ export function isoWeek(day) {
   const first = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
   return 1 + Math.round(((d - first) / 864e5 - 3 + ((first.getUTCDay() + 6) % 7)) / 7);
 }
+
+/**
+ * A14c «Wann es am tiefsten geht»: per hour of the day (Zurich) the sessions and their mean depth (only
+ * sessions with a depth count for it). rows: flowmed logRows. → [{ h, n, depth | null }] for 0–23.
+ */
+export function hourDepth(rows = []) {
+  return Array.from({ length: 24 }, (_, h) => {
+    const list = rows.filter((r) => r.hour === h);
+    const deep = list.filter((r) => r.depth);
+    return { h, n: list.length, depth: deep.length ? Math.round((deep.reduce((s, r) => s + r.depth, 0) / deep.length) * 10) / 10 : null };
+  });
+}
+
+/** A14 «meist um»: the hour of the day with the most sessions (the earlier one on a tie), or null. */
+export function usualHour(rows = []) {
+  let best = null;
+  for (const x of hourDepth(rows)) if (x.n && (!best || x.n > best.n)) best = x;
+  return best ? best.h : null;
+}

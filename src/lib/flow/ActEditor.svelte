@@ -184,7 +184,7 @@
       <button type="button" class="lk" onclick={addSub}><Plus size={16} aria-hidden="true" />{goals.length ? t('Sub-goal') : t('Goal')}</button>
       <p class="hint">{t('Always counts the last {n} days, whatever the weekday.', { n: goals[0]?.days ?? 7 })}</p>
       <p class="lbl" id="ed-min">{t('Minimum duration')}</p>
-      <Seg chips full={false} labelledby="ed-min" value={minKey} onchange={(k) => (k === 'own' ? (minOwn = String(a.minMin || 20)) : ((minOwn = ''), (a.minMin = k)))} options={[{ key: 0, name: t('none|duration') }, { key: 15, name: '15 min' }, { key: 30, name: '30 min' }, { key: 'own', name: t('own|duration') }]} />
+      <Seg chips full={false} labelledby="ed-min" value={minKey} onchange={(k) => (k === 'own' ? (minOwn = String(a.minMin || 20)) : ((minOwn = ''), (a.minMin = k)))} options={[{ key: 0, name: t('none|duration') }, { key: 15, name: t('{n} min', { n: 15 }) }, { key: 30, name: t('{n} min', { n: 30 }) }, { key: 'own', name: t('own|duration') }]} />
       {#if minKey === 'own'}<label class="inl"><input class="inp n" type="number" min="1" inputmode="numeric" bind:value={minOwn} aria-label={t('Minimum duration')} /> min</label>{/if}
       <label class="inl tap"><span>{t('One tap counts')}</span><input class="inp n" type="number" min="1" inputmode="numeric" value={a.perTap} oninput={(e) => (a.perTap = Math.max(1, Math.round(Number(e.currentTarget.value) || 1)))} /></label>
     </section>

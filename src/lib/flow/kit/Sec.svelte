@@ -55,6 +55,7 @@
     align-items: center;
     gap: 2px;
     min-height: 44px;
+    margin: -12px 0 -10px;
     padding: 0 0 0 8px;
     border: 0;
     background: none;
