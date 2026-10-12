@@ -63,6 +63,13 @@ export default {
   '{done} of {total} done': '{done} von {total} erledigt',
   'a trip idea, a wish or a bike problem · the note links to it': 'Tour-Idee, Wunsch oder Velo-Problem · die Notiz verlinkt darauf',
 
+  /* ---------- I8 KI-Helfer ---------- */
+  'of {chf}': 'von {chf}',
+  'Per request only what is needed': 'Pro Anfrage nur das Nötige',
+  'Never|claude': 'Nie',
+  'never to Claude': 'nie an Claude',
+  'The helper only suggests when you ask.': 'Der Helfer schlägt nur vor, wenn du ihn fragst.',
+
   /* ---------- I10 Dein Wohnort ---------- */
   'Only for the weather · stays on this device': 'nur fürs Wetter · bleibt auf diesem Gerät',
   'Now: {place}': 'Jetzt: {place}',
