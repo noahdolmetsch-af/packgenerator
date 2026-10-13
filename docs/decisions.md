@@ -871,6 +871,7 @@ Gesamtprüfung 13.10.2026, Vorschläge A-U5, A-U2, A-U1 (`design/audit-2026-10-1
 - **A-U1 Update-Hinweis als Banner:** Nach einem Update kein Fenster mehr (W1 von 0.118.0 ersetzt, `know/NewsSheet.svelte` entfernt), sondern `know/NewsBanner.svelte` oben auf Heute: «Neu in 0.127», die Titel der neuen Versionen, «Ansehen» (öffnet Ich › Was ist neu) und ×. Weg nach × oder «Ansehen» (bis zum nächsten Update) oder nach 7 Kalendertagen. Der Schalter unter Ich › Was ist neu schaltet das Banner wieder ein. «Später» gibt es nicht mehr.
 - **Selbst entschieden:**
   - «Ansehen» schliesst das Banner ebenfalls (wer die Neuigkeiten gesehen hat, braucht es nicht mehr).
+  - **Noah 13.10.2026 17:22 UTC (Entscheidungskarte «Nur das Banner ★»):** höchstens ein «Neu» auf Heute; solange das Banner steht, wartet die Kachel «Neu» (bleibt gespeichert, nach × oder «Ansehen» steht sie wieder zuoberst).
   - Banner zeigt höchstens 3 Versionstitel, mehr mit «…».
   - Schalter unter Ich: wieder eingeschaltet nach Ablauf der 7 Tage, zählen die 7 Tage ab heute neu.
   - Fahrstunden: Median der letzten 3 gleich langen Velotouren (Vorlage oder Beispiel überschreiben den Vorschlag; Tippen auch).

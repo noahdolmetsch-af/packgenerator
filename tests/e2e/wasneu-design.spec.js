@@ -218,6 +218,10 @@ test('I11e: the tile New on top of Today for 14 days, Take away and back in its 
   await updated(page);
   await expect(page.locator('[data-news-banner]')).toBeVisible(); // v0.127.0 A-U1: the banner, no window
   const tile = page.locator('.wall [data-tile="news"]');
+  // A-U1 (Noah «Nur das Banner ★», 13.10.2026): one «new» on Today; while the banner shows, the tile waits
+  await expect(tile).toHaveCount(0);
+  await page.locator('[data-news-banner]').getByRole('button', { name: T('Close the hint') }).click();
+  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
   await expect.poll(async () => (await ids(page))[0]).toBe('news');
   await expect(tile).toHaveAttribute('data-size', 'long');
   await expect(tile.getByText(T('New in {v} · {n} days left', { v: V, n: TILE_DAYS }))).toBeVisible();

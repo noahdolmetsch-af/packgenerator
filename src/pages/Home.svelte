@@ -680,7 +680,8 @@
   let catalogOpen = $state(false);
   const saveWall = (tiles) => db.settings.put({ key: WALL_KEY, value: wallRecord(tiles) });
   // v0.118.0 «KI-Helfer ausblenden» (K4): while the AI helper is off its tile leaves the wall, but stays stored
-  const hiddenTiles = $derived(isShown() ? [] : HELPER_TILES);
+  // A-U1 (Noah ★ «Nur das Banner»): at most one «new» on Today; while the banner shows, the tile «New» waits
+  const hiddenTiles = $derived([...(isShown() ? [] : HELPER_TILES), ...(newsBanner.length && !editing ? ['news'] : [])]);
   const shownWall = $derived(hideTiles(wall, hiddenTiles));
   const saveShown = (tiles) => saveWall(keepHidden(tiles, wall, hiddenTiles));
   const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
