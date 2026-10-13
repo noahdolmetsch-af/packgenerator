@@ -53,6 +53,56 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.127.0 Gesamtprüfung A-U1, A-U2, A-U5 (mockups)
+  'Less typing, no pop-up': 'Weniger tippen, kein Fenster',
+  'A new trip fills in what the app already knows, the news wait in a calm banner, and an error never shows a white page.':
+    'Eine neue Tour füllt aus, was die App schon weiss, Neuigkeiten warten in einem ruhigen Banner, und ein Fehler zeigt nie eine weisse Seite.',
+  'A new trip suggests the riding hours of your similar trips and your home place as the start, on a green field that says where from.':
+    'Eine neue Tour schlägt die Fahrstunden deiner ähnlichen Touren und deine Heimat als Start vor, auf einem grünen Feld mit der Herkunft.',
+  'After an update a calm banner on Today instead of a window: «View» opens the news, × closes it, after 7 days it goes by itself.':
+    'Nach einem Update ein ruhiges Banner auf Heute statt eines Fensters: «Ansehen» öffnet die Neuigkeiten, × schliesst es, nach 7 Tagen geht es von selbst.',
+  'Empty lists look the same everywhere, with the next step; while loading calm grey placeholders.':
+    'Leere Listen sehen überall gleich aus, mit dem nächsten Schritt; beim Laden ruhige graue Platzhalter.',
+  'A trip name that already exists says so at the field, with a free name to take': 'Ein Tourname, den es schon gibt, steht direkt am Feld, mit einem freien Namen zum Übernehmen',
+  'A page that breaks shows «Something went wrong here» with To Today, Reload and Report a problem':
+    'Eine Seite mit Fehler zeigt «Hier ist etwas schiefgelaufen» mit Zu Heute, Neu laden und Problem melden',
+  'Plan a new trip of 2 days: «Riding hours per day» is green with «like your last … two-day trips»; type another number.':
+    'Eine neue Tour mit 2 Tagen planen: «Fahrstunden pro Tag» ist grün mit «wie deine letzten … Zweitagestouren»; eine andere Zahl eintippen.',
+  'Type the name of an existing trip: below the field «This name already exists» with a suggestion to tap.':
+    'Den Namen einer bestehenden Tour eintippen: Unter dem Feld steht «Name gibt es schon» mit einem Vorschlag zum Antippen.',
+  'After the next update: Today shows a banner on top; tap × and it stays away.': 'Nach dem nächsten Update: Heute zeigt oben ein Banner; × tippen und es bleibt weg.',
+
+  // 0.126.0 Zustand sichtbar (mockups TZ1–TZ2)
+  'Every trip has a state': 'Jede Tour hat einen Zustand',
+  'Blue is planned, grey is ridden, green is rated: every trip shows where it stands.': 'Blau ist geplant, grau ist gefahren, grün ist bewertet: Jede Tour zeigt, wo sie steht.',
+  'Trips are grouped by state, with chips to show only one state and a short legend «Three states».':
+    'Touren sind nach Zustand gruppiert, mit Chips für nur einen Zustand und einer kurzen Legende «Drei Zustände».',
+  'The trip header shows the state with a small extra, like «Planned · tomorrow» or «Completed · debrief missing».':
+    'Der Tour-Kopf zeigt den Zustand mit einem kleinen Zusatz, etwa «Geplant · Morgen» oder «Abgeschlossen · Rückblick fehlt».',
+  'Today shows the state of the next trip and of an open debrief.': 'Heute zeigt den Zustand der nächsten Tour und eines offenen Rückblicks.',
+  'An uploaded ride is a completed trip with «GPX» on its pill': 'Eine hochgeladene Fahrt ist eine abgeschlossene Tour mit «GPX» auf der Pille',
+  'Open Touren: under the title «n planned · n completed · n rated», then the chips. Tap «Completed»: only those trips show.':
+    'Öffne Touren: Unter dem Titel steht «n geplant · n abgeschlossen · n bewertet», darunter die Chips. Tippe «Abgeschlossen»: Nur diese Touren bleiben.',
+  'Open a trip that is still ahead: at the top the blue pill «Planned» with when it starts.': 'Öffne eine Tour, die noch vor dir liegt: Oben steht die blaue Pille «Geplant» mit dem Start.',
+  'Open Heute: the next trip has the pill «Planned».': 'Öffne Heute: Die nächste Tour hat die Pille «Geplant».',
+
+  // 0.125.0 A-J1 Ein Weg zum Erfassen (mockup A-J1)
+  'Straight to the workshop': 'Direkt in die Werkstatt',
+  'The visit to the bike shop now opens straight from New, with the km and the last shop already filled in.':
+    'Der Besuch beim Velomech geht jetzt direkt aus Neu, mit km und letzter Werkstatt schon eingetragen.',
+  'Workshop visit in New saves a real visit on the bike, no note in the Inbox any more.':
+    'Werkstattbesuch in Neu speichert einen echten Besuch beim Velo, keine Notiz mehr im Eingang.',
+  'The km come from the km book and the workshop from your last visit, on a green field that says where from; change anything.':
+    'Die km kommen aus dem km-Buch und die Werkstatt vom letzten Besuch, auf einem grünen Feld mit der Herkunft; alles änderbar.',
+  'Report a problem lives in New and at the bike; Me points the way for 30 days.': 'Problem melden gibt es in Neu und am Velo; Ich zeigt 30 Tage lang den Weg.',
+  'Tick what was done (chain, pads, tyres …) right in the visit': 'Was gemacht wurde (Kette, Beläge, Reifen …) direkt im Besuch antippen',
+  'After saving: «Workshop visit saved.» with Undo': 'Nach dem Speichern: «Werkstattbesuch gespeichert.» mit Rückgängig',
+  'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».':
+    '+ (Neu) › Werkstattbesuch tippen: Die km und die letzte Werkstatt stehen auf einem grünen Feld mit «aus …».',
+  "Tick «Chain replaced», type a cost and tap «Save»: the bike's Workshop & receipts shows the visit.":
+    '«Kette ersetzt» antippen, Kosten eintippen und «Speichern» tippen: Werkstatt & Belege des Velos zeigt den Besuch.',
+  'Tap «Undo» in the message: the visit is gone again.': 'In der Meldung «Rückgängig» tippen: Der Besuch ist wieder weg.',
+
   // 0.124.0 Neue Tour Teil 2 (mockups B4/B5)
   'Blocks you can tap': 'Bausteine zum Antippen',
   'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.': 'In Packen ist jeder Baustein jetzt ein grosser Knopf, und Reparatur reist leicht mit höchstens 8 Teilen.',

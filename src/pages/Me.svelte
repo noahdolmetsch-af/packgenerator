@@ -29,10 +29,30 @@
   import { helper, isSetUp, isPaused } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
   import { PLAY_WISH } from '../lib/play.js';
-  import { take, openNew } from '../lib/nav.js';
+  import { take } from '../lib/nav.js';
+  import { movedHint } from '../lib/visitprefill.js';
+  import { localDay } from '../lib/localday.js';
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
   import '../lib/ich/ich.css';
+
+  // v0.125.0 A-J1: the hint «now under + New and at the bike» shows for 30 days from the first time
+  const MOVED_KEY = 'aj1.problemMoved';
+  const moved = (() => {
+    let since = null;
+    try {
+      since = localStorage.getItem(MOVED_KEY);
+    } catch {
+      /* private mode: the hint just shows */
+    }
+    const m = movedHint(since, localDay());
+    try {
+      if (m.since !== since) localStorage.setItem(MOVED_KEY, m.since);
+    } catch {
+      /* ignore */
+    }
+    return m;
+  })();
 
   const waitQ = liveQuery(async () => {
     const [notes, file, folder, n, demo, place, bikes] = await Promise.all([db.notes.where('status').equals('open').count(), db.meta.get(LAST_BACKUP), db.meta.get('backupFolder'), db.items.count(), demoState(db), db.settings.get(HOME_PLACE), db.bikes.count()]);
@@ -198,17 +218,11 @@
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </button>
           </li>
-          {#if $waitQ?.bikes}
-            <li>
-              <!-- the same window as Velo › Pflege › «Report a problem» and «Neu» › «Problem with a bike» -->
-              <button type="button" class="ich-row" onclick={() => openNew('problem')} aria-haspopup="dialog">
-                <span class="ich-ib"><TriangleAlert size={18} aria-hidden="true" /></span>
-                <span class="ich-m"><b>{t('Report a problem')}</b><small>{t('Noise, play, damage')}</small></span>
-                <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-              </button>
-            </li>
-          {/if}
         </ul>
+        <!-- v0.125.0 A-J1: «Report a problem» left Me; for 30 days a quiet line says where it is now -->
+        {#if $waitQ?.bikes && moved.show}
+          <p class="moved" role="note"><TriangleAlert size={16} aria-hidden="true" /><span>{t('Looking for «Report a problem»? It is now under + New and at the bike:')} <a href="#/bikes?tab=care">{t('Bike care')}</a></span></p>
+        {/if}
       </section>
     </div>
   </div>
@@ -219,6 +233,18 @@
 </div>
 
 <style>
+  .moved {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 8px 4px 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .moved :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
   .mepage {
     max-width: 1100px;
   }

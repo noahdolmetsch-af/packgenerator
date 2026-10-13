@@ -26,6 +26,8 @@
   import { t, tn, num, locale } from '../i18n.svelte.js';
   import Seg from '../ui/Seg.svelte';
   import MiniBars from './MiniBars.svelte';
+  import Empty from '../ui/Empty.svelte';
+  import Skeleton from '../ui/Skeleton.svelte';
   import { Upload, ChevronRight, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Clock, Gauge, BookOpen, Notebook, Mountain, Route } from '@lucide/svelte';
   import './review.css';
 
@@ -192,13 +194,10 @@
   </header>
 
   {#if !data}
-    <p class="page-sub">{t('Loading…')}</p>
+    <!-- v0.127.0 A-U2: a calm placeholder while loading, the one empty building block when there is nothing -->
+    <Skeleton rows={3} />
   {:else if !facts.length}
-    <section class="rv-box pad empty">
-      <b>{t('Nothing to look back on yet.')}</b>
-      <p>{t('A trip shows up here the day after it ends, an uploaded ride at once.')}</p>
-      <a class="btn" href="#/debrief/ride"><Upload size={18} aria-hidden="true" />{t('Upload ride')}</a>
-    </section>
+    <Empty icon={Upload} title={t('Nothing to look back on yet.')} text={t('A trip shows up here the day after it ends, an uploaded ride at once.')} action={{ label: t('Upload ride'), href: '#/debrief/ride' }} />
   {:else}
     {#if openList.length}
       <!-- v0.78.0 (O2.4a): «Rückblick offen» on top -->
@@ -439,15 +438,6 @@
   }
   .muted {
     color: var(--ink-3);
-  }
-  .empty {
-    display: grid;
-    gap: 8px;
-    justify-items: start;
-  }
-  .empty p {
-    margin: 0;
-    color: var(--ink-2);
   }
   .ch {
     display: flex;

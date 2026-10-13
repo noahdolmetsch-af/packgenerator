@@ -23,7 +23,7 @@
  */
 import { isInventory, isConsumable } from './gear.js';
 import { isWorn, inStandard } from './blocks2026.js';
-import { isOver } from './debrief.js';
+import { tripState, happened } from './tripstate.js';
 import { tripStats } from './trips.js';
 import { itemUsage, deadWeight } from './insights.js';
 import { learnPace } from './pace.js';
@@ -59,10 +59,14 @@ export function reviewWindow(today = localDay()) {
 }
 const inside = (date, from, to) => !!date && date >= from && date <= to;
 
-/** A trip that happened: not skipped, started by today, and debriefed, marked done or over. */
+/**
+ * A trip that happened: started by today and completed or rated (tripstate.js, since v0.126.0 TZ-1;
+ * the same as before: not skipped, and debriefed, marked done or over).
+ */
 export function tripDone(trip, debriefs = [], today = localDay()) {
-  if (!trip || trip.skipped || !trip.startDate || trip.startDate > today) return false;
-  return trip.status === 'done' || !!trip.finished || isOver(trip, today) || debriefs.some((d) => d.tripId === trip.id && d.status === 'done');
+  if (!trip || !trip.startDate || trip.startDate > today) return false;
+  const debrief = debriefs.find((d) => d.tripId === trip.id && d.status === 'done') ?? null;
+  return happened(tripState(trip, { debrief, today }));
 }
 
 const days = (t) => Math.max(1, Number(t.days) || 1);

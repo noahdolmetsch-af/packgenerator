@@ -17,12 +17,12 @@ export const USES_KEY = 'wasneu.uses';
 export const MUTE_KEY = 'wasneu.mute';
 /** localStorage: { v, from, at } the last update this device got: its version, the one before, the day. */
 export const UPDATE_KEY = 'wasneu.update';
-/** sessionStorage: «Later» closed the message for this start. */
-export const LATER_KEY = 'wasneu.later';
 /** localStorage: { v, from, done } the tile «New» put on top of the wall for this version. */
 export const PIN_KEY = 'wasneu.pin';
 /** localStorage: { version: [step indexes] } the ticks of «How to test it». */
 export const TESTED_KEY = 'wasneu.tested';
+/** v0.127.0 A-U1: the banner on Today stays this many days after an update (or until ×). */
+export const BANNER_DAYS = 7;
 /** The tile «New» stays on top this many days after an update. */
 export const TILE_DAYS = 14;
 /** Rows of the list before «All n functions ›». */
@@ -45,7 +45,7 @@ export const SINCE = {
   'f.folder': '0.69.0', 'f.breakin': '0.70.0', 'f.repairkit': '0.70.0', 'f.warranty': '0.70.0', 'f.theft': '0.70.0', 'f.partstart': '0.68.0', 'f.prep': '0.18.0',
   'f.tick': '0.51.0', 'f.check': '0.51.0', 'f.stopwatch': '0.51.0', 'f.goals': '0.51.0', 'f.milestones': '0.79.0', 'f.meditation': '0.81.0', 'f.medlog': '0.84.0', 'f.medmore': '0.86.0',
   backup: '0.2.0', install: '0.1.0', lang: '0.20.0', demo: '0.18.0', 'f.search': '0.46.0', 'f.inbox': '0.19.3', 'f.notes': '0.57.0', 'f.autobackup': '0.2.0', 'f.tidy': '0.88.0', 'f.playground': '0.88.0',
-  'f.helper': '0.77.0', 'f.shortcuts': '0.76.0', 'f.theme': '0.46.0', 'f.news': '0.110.0', 'f.tripcheck': '0.111.0', 'f.strava': '0.116.0', 'f.explain': '0.117.0', 'f.quickstart': '0.119.0', 'f.packblocks': '0.124.0',
+  'f.helper': '0.77.0', 'f.shortcuts': '0.76.0', 'f.theme': '0.46.0', 'f.news': '0.110.0', 'f.tripcheck': '0.111.0', 'f.strava': '0.116.0', 'f.explain': '0.117.0', 'f.quickstart': '0.119.0', 'f.packblocks': '0.124.0', 'f.tripstate': '0.126.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 
@@ -152,14 +152,13 @@ export function daysBetween(from, to) {
 }
 
 /**
- * The message after an update (I11b): show it when this device got the update to `current`, it was
- * not silenced for that version and «Later» did not close it in this start.
+ * v0.127.0 A-U1 (mockup A-U1, Noah 13.10.2026 answer 3a): the hint after an update is a calm banner on
+ * Today, no window any more (it replaces I11b/W1's message). It shows when this device got the update to
+ * `current`, × or «View» did not close it for that version (mute) and the update is less than
+ * BANNER_DAYS calendar days old (today: 'YYYY-MM-DD'; without it the days are not counted).
  */
-export const showMessage = ({ update = null, mute = null, later = null, current = WHATS_NEW[0]?.version } = {}) =>
-  !!update && update.v === current && mute !== current && later !== current;
-
-/** The switch «Show the message for x» on the page: on while it would come at the next start. */
-export const messageOn = ({ update = null, mute = null, current = WHATS_NEW[0]?.version } = {}) => !!update && update.v === current && mute !== current;
+export const messageOn = ({ update = null, mute = null, current = WHATS_NEW[0]?.version, today = null } = {}) =>
+  !!update && update.v === current && mute !== current && (!today || !update.at || daysBetween(update.at, today) < BANNER_DAYS);
 
 /** The days the tile «New» still stays on top (TILE_DAYS … 1), or 0 when the time is over. */
 export function tileDaysLeft(update, today, current = WHATS_NEW[0]?.version) {

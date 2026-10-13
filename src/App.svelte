@@ -50,8 +50,9 @@
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
   import { checkPart } from './lib/flowcheck.js';
-  import { pageOf, placeOf, redirectOf, tabOf, keepTab } from './lib/nav.js';
+  import { pageOf, placeOf, redirectOf, tabOf, keepTab, PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
+  import ErrorPage from './lib/ui/ErrorPage.svelte';
   import { t, lang } from './lib/i18n.svelte.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
@@ -70,11 +71,30 @@
     return r.hash;
   };
   let hash = $state(follow(location.hash));
+  // v0.127.0 A-U2 (mockup «Fehlerseite»): a page that throws shows the error page, never a white page.
+  // failReset: the boundary's reset while the error page shows; failName: the page's name in the text.
+  let failReset = null;
+  const onfail = (e, reset) => {
+    failReset = reset;
+    console.error(e);
+  };
+  const failName = $derived.by(() => {
+    if (place === 'me') return t('Me|place');
+    const tabEntry = (PLACE_TABS[place] ?? []).find((x) => x.key === tab);
+    const p = PLACES.find((x) => x.key === place);
+    return tabEntry && p ? `${t(p.label)} › ${t(tabEntry.label)}` : p ? t(p.label) : '';
+  });
   $effect(() => {
     const update = () => {
       spot = '';
       moved = null;
       hash = follow(location.hash);
+      // v0.127.0 A-U2: another address leaves the error page; the new page is built afresh
+      if (failReset) {
+        const r = failReset;
+        failReset = null;
+        r();
+      }
       window.scrollTo(0, 0);
     };
     window.addEventListener('hashchange', update);
@@ -251,6 +271,7 @@
 
 <main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'check'} class:bar={!wide.matches}>
   {#if !calm && page !== 'share'}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
+  <svelte:boundary onerror={onfail}>
   {#key switchN}
   {#if page === 'gear'}
     <Gear />
@@ -335,6 +356,8 @@
     <Home />
   {/if}
   {/key}
+  {#snippet failed(error, reset)}<ErrorPage {error} name={failName} onreset={() => ((failReset = null), reset())} />{/snippet}
+  </svelte:boundary>
 </main>
 
 {#if page !== 'share'}

@@ -28,6 +28,7 @@
    * brings the ready wall back. Stored in «homeWall» (in every backup). «Your data» lives under Me now.
    */
   import { todayNotes } from '../lib/notebook.js';
+  import Skeleton from '../lib/ui/Skeleton.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { localDay } from '../lib/localday.js';
@@ -54,9 +55,9 @@
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
   import { newsHint, newerThan, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
-  import { showMessage, tileDaysLeft, pinNews, unpinNews } from '../lib/know/wasneu.js';
-  import { readUpdate, writeUpdate, readMute, readLater, readPin, writePin } from '../lib/know/wasneuStore.js';
-  import NewsSheet from '../lib/know/NewsSheet.svelte';
+  import { messageOn, tileDaysLeft, pinNews, unpinNews } from '../lib/know/wasneu.js';
+  import { readUpdate, writeUpdate, readMute, readPin, writePin } from '../lib/know/wasneuStore.js';
+  import NewsBanner from '../lib/know/NewsBanner.svelte';
   import { HOME_PLACE, HOME_FORECAST, usable, needsFetch, knowCards, wearWhat } from '../lib/know.js';
   import { openTodos } from '../lib/todos.js';
   import { weightText } from '../lib/gear.js';
@@ -81,6 +82,8 @@
   import { countUse } from '../lib/home/usage.js';
   import { recordCare, undoCare } from '../lib/home/care-tap.js';
   import { yearReview, tripDone } from '../lib/yearreview.js';
+  import { tripState } from '../lib/tripstate.js';
+  import TripState from '../lib/ui/TripState.svelte';
   import InProgress from '../lib/trip/InProgress.svelte';
   import Wall from '../lib/home/Wall.svelte';
   import TileCatalog from '../lib/home/TileCatalog.svelte';
@@ -165,7 +168,7 @@
   // version, the one before, the day); the message comes at each start until «Do not show again»
   // (until the next update) and the tile «New» goes on top of the wall for 14 days.
   let newsN = $state(0);
-  let newsSheet = $state([]);
+  let newsBanner = $state([]);
   let newsChecked = false;
   let newsUpdate = $state(readUpdate());
   $effect(() => {
@@ -192,7 +195,8 @@
       pinNewsTile();
     } else newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + e.points.length, 0) : 0;
     const u = readUpdate();
-    if (showMessage({ update: u, mute: readMute(), later: readLater() })) newsSheet = newerThan(u.from ?? BEFORE);
+    // v0.127.0 A-U1 (Noah 3a): a calm banner on top instead of the window, for 7 days or until ×
+    if (messageOn({ update: u, mute: readMute(), today: localDay() })) newsBanner = newerThan(u.from ?? BEFORE);
     unpinNewsTile();
   });
   const newsDays = $derived(tileDaysLeft(newsUpdate, today));
@@ -302,6 +306,8 @@
   const shown = $derived(cardTrips.length ? cardTrips[Math.min(cardIdx, cardTrips.length - 1)] : null);
   const isLead = $derived(!!shown && !!lead && shown.id === lead.id);
   const ask = $derived(isLead && !!focus?.ask);
+  // v0.126.0 TZ-1 «Zustand sichtbar» (mockup TZ2 Heute): the state pill of the trip on the card
+  const shownState = $derived(shown ? tripState(shown, { debrief: debriefs.find((d) => d.tripId === shown.id) ?? null, rides: $ridesQ ?? [], today }) : null);
   const shownBike = $derived(shown ? bikes.find((b) => b.id === shown.bikeId) ?? null : null);
   const stats = $derived(shown ? tripStats(shown, items, $bagsQ ?? [], shownBike, S.riderWeightG) : null);
   // The facts the schedule needs (schedule.js is pure), as in v0.34.0, for the trip shown.
@@ -598,7 +604,7 @@
         if (c.total > c.done) rows.push({ key: 'charge', tone: 'eve', text: tn(c.total - c.done, 'Charge batteries: {n} device for {trip}', 'Charge batteries: {n} devices for {trip}', { trip: soon.title }), act: { label: t('Charge list'), href: '#/pack?charge', trip: soon.id } });
       }
     }
-    if (debrief) rows.push({ key: 'debrief', tone: 'warn', text: t('Debrief still open: {title}', { title: debrief.title }), act: { label: t('All good'), run: () => allGood(debrief) }, act2: { label: t('Open the debrief'), href: `#/debrief/${encodeURIComponent(debrief.id)}`, trip: debrief.id } }); // v0.67.0 (U011): also the way to the whole debrief
+    if (debrief) rows.push({ key: 'debrief', tone: 'warn', st: 'done', text: t('Debrief still open: {title}', { title: debrief.title }), act: { label: t('All good'), run: () => allGood(debrief) }, act2: { label: t('Open the debrief'), href: `#/debrief/${encodeURIComponent(debrief.id)}`, trip: debrief.id } }); // v0.67.0 (U011): also the way to the whole debrief
     if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true } });
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
     if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
@@ -678,7 +684,8 @@
   let catalogOpen = $state(false);
   const saveWall = (tiles) => db.settings.put({ key: WALL_KEY, value: wallRecord(tiles) });
   // v0.118.0 «KI-Helfer ausblenden» (K4): while the AI helper is off its tile leaves the wall, but stays stored
-  const hiddenTiles = $derived(isShown() ? [] : HELPER_TILES);
+  // A-U1 (Noah ★ «Nur das Banner»): at most one «new» on Today; while the banner shows, the tile «New» waits
+  const hiddenTiles = $derived([...(isShown() ? [] : HELPER_TILES), ...(newsBanner.length && !editing ? ['news'] : [])]);
   const shownWall = $derived(hideTiles(wall, hiddenTiles));
   const saveShown = (tiles) => saveWall(keepHidden(tiles, wall, hiddenTiles));
   const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
@@ -801,6 +808,7 @@
       <div class="tc">
         <div class="kl">
           <Route size={16} aria-hidden="true" />
+          <TripState state={shownState} />
           {#if ask}
             <span class="cdn">{t('trip ended')}</span>
           {:else if cd}
@@ -906,7 +914,7 @@
                 <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
                 <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
               {:else}
-                <span class="tx">{r.text}</span>
+                <span class="tx">{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{r.text}</span>
                 {#if r.act}
                   {#if r.act.href}<a class="lk" href={r.act.href} onclick={() => act(r)}>{r.act.label}</a>
                   {:else if r.act.care}<button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button>
@@ -961,6 +969,7 @@
 {/snippet}
 
 <div class="home">
+  {#if newsBanner.length}<NewsBanner entries={newsBanner} onclose={() => (newsBanner = [])} />{/if}
   <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top. -->
   {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
   <!-- «Sporttasche» (mockup AK3, 4a): the evening before a fixed date, «Morgen Yoga 07:00: Tasche packen» -->
@@ -1009,7 +1018,9 @@
       <button type="button" class="lpx" aria-label={t('Close the tip')} onclick={closeHint}><X size={18} aria-hidden="true" /></button>
     </p>
   {/if}
-  <Wall tiles={shownWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
+  <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
+  {#if ready}<Wall tiles={shownWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
+  {:else}<Skeleton kind="home" rows={2} />{/if}
 
   <div class="custom">
     {#if editing}
@@ -1028,7 +1039,6 @@
   </footer>
 </div>
 
-{#if newsSheet.length}<NewsSheet entries={newsSheet} onclose={() => (newsSheet = [])} />{/if}
 <!-- v0.119.0 «Schnellstart» (mockup Q2a): what one click made, Noah stays on Today -->
 {#if made}
   <div class="qmade" role="status" data-quick-made>
@@ -1416,6 +1426,11 @@
   }
   .kl > :global(svg) {
     flex: none;
+  }
+  /* v0.126.0 TZ-1: the state pill on its own line above the text of a row in «Heute wichtig» */
+  .tsw {
+    display: flex;
+    margin-bottom: 2px;
   }
   .cdn {
     font-weight: 600;

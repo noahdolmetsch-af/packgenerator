@@ -10,13 +10,14 @@
    * the trip's other bags, photos, ideas, the rider settings and the bag list.
    */
   import { localDay } from '../localday.js';
+  import Empty from '../ui/Empty.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf, renameBike } from '../bikes.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
-  import { Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight } from '@lucide/svelte';
+  import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
   import SetupDrawing from './SetupDrawing.svelte';
   import SetupFold from './SetupFold.svelte';
@@ -298,9 +299,8 @@
 
 <div class="setup">
   {#if !bikes.length && $bikesQ}
-    <p class="card">{t('No bikes yet. Import your data on the')} <a href="#/">{t('start page')}</a> {t('(Your data → Import backup).')}
-      <!-- v0.23.0 (AP07): or add one right here -->
-      <button type="button" class="btn hi addfirst" onclick={() => (bikeDialog = { bike: null })}>{t('Add bike')}</button></p>
+    <!-- v0.127.0 A-U2: the one empty building block -->
+    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else if bike}
     <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeRename = bike)} />
 
@@ -532,7 +532,7 @@
         {/each}
       </ul>
     {:else}
-      <p class="card">{t('No bags yet. Import your data, or add a bag.')}</p>
+      <Empty icon={Briefcase} text={t('No bags yet. Import your data, or add a bag.')} />
     {/each}
   </SetupFold>
 {/snippet}
@@ -996,10 +996,6 @@
     margin-top: 10px;
     min-height: 44px;
     color: var(--accent);
-  }
-  .addfirst {
-    display: flex;
-    margin-top: 12px;
   }
   .details-in {
     display: flex;

@@ -894,6 +894,62 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden (Sporttasche):** «oft vergessen» ab 2×: ein Teil zählt als vergessen, wenn die Tasche für einen Tag teilweise gepackt war und es draussen blieb (eine unberührte Tasche zählt nichts). Die Erinnerung beginnt um 17:00 statt fix 20:00 (wie «Morgen geht's los» auf Heute). Taschen nur mit festem Termin aus «Woche» erinnern; ohne Termin packt man für heute.
 - **Erholung (AK2, im selben Paket)** (Mockup-Freigabe: AK2 «ich gebe hiermit alle mockups frei» Noah 13.10.2026 16:17 UTC im Projekt-Chat, Antworten «1-5a» 16:02 UTC im Thread «Mein Überblick», Offene Mockups 2 #aktiv-ausweiten): Seite «Erholung» (#/flow/rest) mit dem Erholungs-Ring der Woche (derselbe wie auf Aktiv), Tipp nach 3 aktiven Tagen in Folge (antippen = abhaken, «Heute nicht» blendet für heute aus), Erholung abhaken (zweites Tippen nimmt zurück), Ideen hinzufügen, die letzten 14 Tage als Punkte.
 - **Selbst entschieden (Erholung):** Schlaf, Ruhepuls und HRV und der 14-Nächte-Schlaf aus dem Mockup kommen mit der Fitbit-Verbindung (Antwort 3a); bis dahin ein Hinweis statt erfundener Werte, und statt des Schlaf-Diagramms die Erholungs- und Aktiv-Tage der letzten 14 Tage. Höchstens 4 Ideen auf einmal, «Früh schlafen» als neue Idee zuerst. Kein eigenes Wochenziel: der Ring nutzt die Ziele der Erholungs-Aktivitäten.
+## 13.10.2026: Formulare, Leer/Laden/Fehler, Update-Banner, A-U5 + A-U2 + A-U1 (0.127.0)
+
+Gesamtprüfung 13.10.2026, Vorschläge A-U5, A-U2, A-U1 (`design/audit-2026-10-13/`). **Mockup-Freigabe: A-U1–A-U5 «A-D1–A-D5 und A-U1–A-U5 freigeben» 13.10.2026 16:04 UTC (Mein Überblick, cmsg_018WAR7H251KvEyztXFE5y9QSrnbx2M9TfQHMNXXx7fa2K)**; Antworten 2a (vorbelegte Felder grün mit «aus …», änderbar) und 3a (Update-Hinweis als ruhiges Banner auf Heute statt Fenster).
+
+- **A-U5 Formulare nutzen vorhandene Daten (Regel für alle Formulare):** Was die App schon weiss, steht vorbelegt auf grünem Feld (`.inp.pre`) mit Herkunftszeile (`.prefrom`, «aus …»/«wie …»), immer änderbar; Prüfungen stehen am Feld vor dem Speichern (`.fieldmsg`). Zentral in `app.css` und `lib/formprefill.js`; das Werkstatt-Fenster von A-J1 nutzt dieselbe Regel. Neue Tour: Fahrstunden pro Tag aus den letzten 3 Velotouren mit gleich vielen Tagen (Mittelwert der Mitte, auf halbe Stunden), Start = Heimat, Velo mit Herkunftszeile; ein Tourname, den es schon gibt, steht rot am Feld mit einem freien Namen zum Antippen. Werkstatt: km aus dem km-Buch und letzte Werkstatt als Chip kamen schon mit A-J1.
+- **A-U2 Leer, Laden, Fehler:** `<svelte:boundary>` um den Seiteninhalt in App.svelte; ein Fehler zeigt `ui/ErrorPage.svelte` («Hier ist etwas schiefgelaufen», Zu Heute, Neu laden, Problem melden) statt einer weissen Seite; die Daten bleiben unverändert. `ui/Empty.svelte` ist der eine Leer-Baustein (jetzt mit zweitem Knopf, Zusatzzeile und Überschrift-Stufe), in 22 weiteren Dateien eingesetzt (29 insgesamt). `ui/Skeleton.svelte` zeigt beim Laden ruhige Platzhalter auf Heute, Touren, Rückblick, Logbuch, Unterwegs, Tour-Rückblick, Fahrt, Bausteine prüfen und Übergängen.
+- **A-U1 Update-Hinweis als Banner:** Nach einem Update kein Fenster mehr (W1 von 0.118.0 ersetzt, `know/NewsSheet.svelte` entfernt), sondern `know/NewsBanner.svelte` oben auf Heute: «Neu in 0.127», die Titel der neuen Versionen, «Ansehen» (öffnet Ich › Was ist neu) und ×. Weg nach × oder «Ansehen» (bis zum nächsten Update) oder nach 7 Kalendertagen. Der Schalter unter Ich › Was ist neu schaltet das Banner wieder ein. «Später» gibt es nicht mehr.
+- **Selbst entschieden:**
+  - «Ansehen» schliesst das Banner ebenfalls (wer die Neuigkeiten gesehen hat, braucht es nicht mehr).
+  - **Noah 13.10.2026 17:22 UTC (Entscheidungskarte «Nur das Banner ★»):** höchstens ein «Neu» auf Heute; solange das Banner steht, wartet die Kachel «Neu» (bleibt gespeichert, nach × oder «Ansehen» steht sie wieder zuoberst).
+  - Banner zeigt höchstens 3 Versionstitel, mehr mit «…».
+  - Schalter unter Ich: wieder eingeschaltet nach Ablauf der 7 Tage, zählen die 7 Tage ab heute neu.
+  - Fahrstunden: Median der letzten 3 gleich langen Velotouren (Vorlage oder Beispiel überschreiben den Vorschlag; Tippen auch).
+  - Velo-Herkunft als Zeile unter den Chips («das Velo der offenen Tour» bzw. «deiner letzten Tour»), die Chips selbst bleiben ohne Grün.
+  - Ein automatisch gebildeter Tourname ist immer frei («… (2)», wie bei der Tagestour); der Vorschlag beim doppelten Namen nutzt dieselbe Schreibweise «Jura (2)» statt «Jura 2» aus dem Mockup.
+  - Doppelter Name blockiert das Speichern nicht (alles bleibt Vorschlag); die Meldung steht auch beim Bearbeiten einer Tour.
+  - Fehlerseite: «Problem melden» öffnet eine Notiz im Eingang mit Seite, Version und Fehlertext (nichts verlässt das Gerät); Seitenname = Ort › Tab.
+  - Leer-Baustein: der erste Knopf ist der Hauptknopf (grün), wie im Mockup; leere Kleiderschrank-Seite mit «Teil hinzufügen» ohne «Beispiele» (gibt es dort nicht).
+  - Klasse `.prefrom` statt `.from` (die Teile-Tabelle nutzt `small.from` schon anders).
+- **Nicht gebaut:** Reihenfolge der Felder im Neue-Tour-Fenster wie im Mockup (Tage, Stunden, Start, Velo, Name); das Fenster behält seinen Aufbau von 0.114.0. Die Kachel «Neu» auf Heute (I11e, 14 Tage oben) bleibt; zusammen mit dem Banner sind es zwei «neu»-Markierungen (Frage an Noah).
+
+## 13.10.2026: Drei Tour-Zustände, TZ-1 «Zustand sichtbar» (0.126.0)
+
+Auftrag Noah 13.10.2026 14:52 («unterscheiden zwischen einer abgeschlossenen Aktivität … und einer Aktivität, die wir in der App planen … und ob wir eine Tour bewertet haben»). Mockups TZ0–TZ3 (`design/tour-zustaende/`). **Mockup-Freigabe: TZ1–TZ3 «TZ1–TZ3 freigegeben» 13.10.2026 15:38 UTC, Antworten «1-5 a» 15:37 UTC.**
+
+- **Namen (1a):** Geplant · Abgeschlossen · Bewertet, überall gleich.
+- **Farben (2a):** Blau (Stift) · Grau (Fahne) · Grün (gefüllter Stern); Orange bleibt für «fällig». Eigene Tokens `--st-*`, unabhängig von der Farbwelt.
+- **Hochgeladene Fahrt ohne Packliste (3a):** eine Tour im Zustand Abgeschlossen (Zusatz «GPX» bzw. «Strava»); «Kurz bewerten» kommt mit TZ-3.
+- **Strava-Fahrten ohne Tour (4a):** bleiben im Fahrtenbuch, nicht unter Touren (TZ-3).
+- **Wieder öffnen (5a):** mit einer Rückfrage; kommt mit TZ-2.
+- **Eine Regel:** `tripState()` in `src/lib/tripstate.js` (Reihenfolge der Spezifikation, Abschnitt 2). Keine Migration. `tripEnd` lebt jetzt dort (debrief.js gibt es weiter), `endedTooEarly` ebenfalls (tripsoverview.js gibt es weiter). Ersetzt in diesem Paket: die Gruppen der Touren-Übersicht (`tripsoverview.js`, vorher In Planung / Rückblick offen / Gefahren / Beendet, bevor sie begann), `tripDone` (`yearreview.js`, Verhalten gleich, Test über alle 480 Kombinationen) und `endedTooEarly`. Noch nicht ersetzt, weil sich das Verhalten ändern würde (kommt mit TZ-2/TZ-3): `isOver` (debrief.js), `pastTrips` (hubs.js), `tripRow` (drafts.js), `finishedTrips` (know.js), `templateUse` (templates.js).
+- **Selbst entschieden:**
+  - Eine Tour, deren Datum vorbei ist, die aber nie beendet wurde, zeigt «Abgeschlossen · Datum vorbei» (Mockup: «gefahren?» mit «Ja / Nicht gefahren»): die Frage mit den zwei Knöpfen kommt erst mit TZ-2, bis dahin keine Frage ohne Antwortmöglichkeit.
+  - Heute: die Zeile «Rückblick noch offen» behält Text und Knöpfe («Alles gut», «Rückblick öffnen») und bekommt die Pille Abgeschlossen; die Frage «Bist du gefahren?» kommt mit TZ-2.
+  - Touren-Übersicht: Abgeschlossen zeigt alle mit offenem Rückblick und dazu die 5 neuesten ohne Rückblick, Bewertet die 5 neuesten; je «Alle n …» führt zu Vergangene Touren. Ein zweiter Tipp auf einen gewählten Chip zeigt wieder alle.
+  - Zusatz der Pille: Geplant «Heute / Morgen / in n Tagen / unterwegs»; Abgeschlossen «Datum vorbei», «GPX», im Tour-Kopf auch «Rückblick angefangen» bzw. «Rückblick fehlt» (auf der Kachel sagt das schon der Knopf «Rückblick»; die Pille bleibt kurz, nur der Zusatz wird auf schmalen Kacheln mit «…» gekürzt); Bewertet im Tour-Kopf das Datum des Rückblicks.
+  - Die Gruppenüberschrift heisst nur «Abgeschlossen» (Mockup «Abgeschlossen · Rückblick fehlt»), weil dort auch hochgeladene Fahrten ohne Rückblick stehen.
+  - Linienfarben dunkel (nicht in der Spezifikation): `#6a9fd6`, `#8e9aa6`, `#5fb185`.
+
+## 13.10.2026: Ein Weg zum Erfassen, A-J1 (0.125.0)
+
+Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup-Freigabe: A-J1 «aj-aj5 ok» 13.10.2026 17:19 Zurich (Projekt-Chat)**; Antwort 1a: «+ › Werkstattbesuch» öffnet den echten Besuch, keine Notiz mehr.
+
+- **Neu › Werkstattbesuch** öffnet das Fenster «Werkstattbesuch erfassen» (dasselbe wie unter Heute und Werkstatt & Belege) statt einer Notiz «Werkstatt-Quittung:» im Eingang. Nach dem Speichern: Werkstatt & Belege des Velos mit «Werkstattbesuch gespeichert.» und Rückgängig.
+- **Vorausgefüllt (A-U5-Look, nur in diesem Fenster):** km des Tages aus dem km-Buch (ohne Eintrag: Zähler des Velos, nur für heute) und die Werkstatt des letzten Besuchs dieses Velos (sonst irgendeines Velos), grün hinterlegt mit «aus …». Wer tippt, überschreibt; dann ist das Feld nicht mehr grün.
+- **Problem melden** nur noch in Neu und am Velo (Velos › Pflege); der Eintrag unter Ich ist weg, dort steht 30 Tage ab dem ersten Ansehen ein ruhiger Hinweis mit Link.
+- **Selbst entschieden:**
+  - Bekannte Werkstätten als Chips unter dem Feld (die vorgeschlagene mit «(zuletzt)»), nur wenn es mehr als eine gibt; «+ neu» braucht es nicht, das Feld bleibt frei beschreibbar.
+  - «Was wurde gemacht?» (optional) mit denselben Chips wie «Ablegen als … Beleg» (`VISIT_JOBS` in inbox.js, geteilt); die Arbeiten landen als Teile des Besuchs.
+  - Velo bleibt eine Auswahlliste ohne Grün (Vorschlag wie bei Problem melden: zuletzt gewähltes Velo).
+  - Werkstattbesuch steht in Neu › Velos jetzt zuoberst (dann Problem, dann km) und nur, wenn es ein Velo gibt.
+  - Die Meldung mit Rückgängig nutzt den Toast von «Umbenennen» (`offerDone` in ui/rename.svelte.js).
+  - Nach dem Speichern Werkstatt & Belege statt Pflege: In der Pflege steht zuoberst das km-Buch, der neue Besuch wäre nicht zu sehen; unter Werkstatt & Belege steht er gleich oben.
+  - Der Satz in «Was ist neu» nennt «Velomech» statt «Werkstattbesuch», weil das lange Wort auf der Heute-Kachel am Handy umbricht (Wächter-Test).
+- **Nicht gebaut (Mockup zeigt es, A-J1 verlangt es nicht):** neue Gruppen im Neu-Blatt («Neu / Am Velo / Sonst», Schild «neu»), neues Problem-Formular und Pflege-Ansicht nach dem Speichern. Die Zeile «Problem melden» unter den Velo-Karten auf Heute bleibt (Frage an Noah).
+
 ## 13.10.2026: Neue Tour Teil 2 (0.124.0)
 
 Mockups B4 und B5 (`design/rahmenbedingungen/`, Galerie «Offene Mockups 2» #rahmenbedingungen). **Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★** («Ja, schlank dabei», 13.10.2026 00:00 Zurich). Antworten der Runde: 1a (Bausteine nur beim Packen), 6a (schlanke Reparatur ≤ 8).
