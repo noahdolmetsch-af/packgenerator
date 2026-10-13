@@ -296,7 +296,7 @@
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <Flow sub={hash.split('/').slice(2).join('/')} />
   {:else if page === 'check'}
-    <!-- v0.124.0 «Tages-Check» 1: #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
+    <!-- v0.127.0 «Tages-Check» 1: #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
     {#key hash}<Check part={checkPart(hash)} />{/key}
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->

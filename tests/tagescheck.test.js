@@ -1,4 +1,4 @@
-// v0.124.0 «Tages-Check» 1: the morning check and the evening review (mockups T1, T2). The rules are
+// v0.127.0 «Tages-Check» 1: the morning check and the evening review (mockups T1, T2). The rules are
 // pure: old rows read fine, Q11 filled in from rides, Q12/Q13 take turns, Q14 found from meditation,
 // the highlights of the week, the suggestion, the entry from 20:30. Fictional data only.
 import 'fake-indexeddb/auto';

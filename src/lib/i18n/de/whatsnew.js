@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.124.0 Tages-Check 1
+  // 0.127.0 Tages-Check 1
   'Good morning, how was your day?': 'Guten Morgen, wie war dein Tag?',
   'The daily check is now a calm page: a morning check and, from 20:30, a short evening review. Every question can be skipped.': 'Der Tagescheck ist jetzt eine ruhige Seite: ein Morgen-Check und ab 20:30 ein kurzer Abend-Rückblick. Jede Frage darfst du auslassen.',
   'Morning check: sleep, energy, mood, what you look forward to, your goal for today, with a suggestion for the day': 'Morgen-Check: Schlaf, Energie, Stimmung, worauf du dich freust, dein Ziel für heute, mit einem Vorschlag für den Tag',

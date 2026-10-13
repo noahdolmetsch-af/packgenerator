@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.124.0 «Tages-Check» 1 (mockups T1, T2): one question on a scale 1–10, one tap. A line under a
+   * v0.127.0 «Tages-Check» 1 (mockups T1, T2): one question on a scale 1–10, one tap. A line under a
    * number marks yesterday's answer; a tap on the chosen number takes it back (every question can be
    * skipped). label: the id of the question's heading.
    */

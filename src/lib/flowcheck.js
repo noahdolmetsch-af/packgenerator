@@ -3,7 +3,7 @@
  * fourth that rotates through a pool of ten, taken in turn (each one every ten days); the pool is
  * editable. One tap per question on a scale 1–10, a dot marks yesterday's answer.
  * A check: { day, sleep, energy, mood, q (pool id of the 4th), extra }  (table flowChecks).
- * v0.124.0 «Tages-Check» 1: plus joy, goal, last, sugg (morning) and sat, best, story, goalDone, outside,
+ * v0.127.0 «Tages-Check» 1: plus joy, goal, last, sugg (morning) and sat, best, story, goalDone, outside,
  * people, fun, mindful (evening), all optional; see checkOf.
  * The pool lives in the settings record 'flowQuestions': [{ id, text, textDe?, lo, loDe?, hi, hiDe?, short, shortDe? }].
  */
@@ -51,7 +51,7 @@ const v10 = (x) => (x != null && x !== '' && Number.isInteger(Number(x)) && Numb
 const ids = (x) => (Array.isArray(x) ? [...new Set(x.filter((y) => typeof y === 'string' && y.trim()))] : []);
 const oneOf = (x, list) => (list.includes(x) ? x : null);
 /**
- * A check made whole (each answer 1–10 or null). v0.124.0 «Tages-Check» 1: the same row of the day
+ * A check made whole (each answer 1–10 or null). v0.127.0 «Tages-Check» 1: the same row of the day
  * holds the new morning and evening answers too, all optional (an old row reads with them empty).
  */
 export function checkOf(c, day) {
@@ -115,7 +115,7 @@ export function averages(checks = [], today, n = 7) {
   return out;
 }
 
-/* ---------- v0.124.0 «Tages-Check» step 1: morning check (T1) and evening review (T2) ---------- */
+/* ---------- v0.127.0 «Tages-Check» step 1: morning check (T1) and evening review (T2) ---------- */
 /**
  * Noah 13.10.2026 «ich gebe hiermit alle mockups frei»: questions 1–14 of the 15 (the Sunday one comes
  * later). Every question is optional and skippable; what the app already knows (meditation, rides) it

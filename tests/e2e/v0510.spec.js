@@ -1,6 +1,6 @@
 // v0.51.0 «Im Flow – kleiner Start»: one tap ticks with Undo, a second tap takes it back, the long
 // press picks the place, the countdown runs on a fake clock to its end, an activity is edited, the
-// daily check answers four questions (v0.124.0: on its own page). The app seeds its own fictional activities; no personal data.
+// daily check answers four questions (v0.127.0: on its own page). The app seeds its own fictional activities; no personal data.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 
@@ -135,7 +135,7 @@ test('editing an activity: name, goal and window', async ({ page, context }) => 
 });
 
 test('the daily check: four taps on its page, then Today shows the numbers', async ({ page, context }) => {
-  // v0.124.0 «Tages-Check» 1: the check is a page now (#/check/morning), «Fertig» goes back to Today
+  // v0.127.0 «Tages-Check» 1: the check is a page now (#/check/morning), «Fertig» goes back to Today
   await open(page, context, '#/');
   const card = page.locator('[data-section="flow"]');
   await card.getByRole('link', { name: T('Start|check') }).click();

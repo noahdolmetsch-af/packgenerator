@@ -1,4 +1,4 @@
-// v0.124.0 «Tages-Check» 1 (mockups T1 and T2, Noah 13.10.2026 «ich gebe hiermit alle mockups frei»):
+// v0.127.0 «Tages-Check» 1 (mockups T1 and T2, Noah 13.10.2026 «ich gebe hiermit alle mockups frei»):
 // on a phone and a computer, in German, with a fixed clock in Europe/Zurich.
 // 1. Morning (07:52): the check row on Heute opens #/check/morning; the four numbers (yesterday's
 //    line under the number), «Worauf freust du dich?» with an own chip, the goal, «Gestern Abend»,

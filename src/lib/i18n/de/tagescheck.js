@@ -1,4 +1,4 @@
-// v0.124.0 «Tages-Check» 1: the morning check (T1) and the evening review (T2) as pages of Heute
+// v0.127.0 «Tages-Check» 1: the morning check (T1) and the evening review (T2) as pages of Heute
 export default {
   // the head of the two pages and the entry on Heute
   'Morning check': 'Morgen-Check',

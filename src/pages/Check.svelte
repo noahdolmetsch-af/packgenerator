@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.124.0 «Tages-Check» 1 (mockups T1 and T2, Noah 13.10.2026 «ich gebe hiermit alle mockups frei»):
+   * v0.127.0 «Tages-Check» 1 (mockups T1 and T2, Noah 13.10.2026 «ich gebe hiermit alle mockups frei»):
    * the morning check (#/check/morning) and the evening review (#/check/evening) as pages of Heute.
    *   Morning: 1–3 sleep, energy, mood (as since v0.51.0, the line under a number is yesterday), 4 the
    *   rotating question of the editable pool, 6 «Worauf freust du dich?», 7 the goal of the day, and

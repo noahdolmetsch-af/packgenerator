@@ -29,7 +29,7 @@ export const RULES = ['colour', 'breakword', 'global', 'fontsize'];
  * button). Everything still in the baseline is «noch umbauen» (docs/design-audit.md), one release at a time.
  */
 export const STRICT_STYLE = [
-  // v0.124.0 «Tages-Check» 1: the morning check and the evening review (all new, all strict)
+  // v0.127.0 «Tages-Check» 1: the morning check and the evening review (all new, all strict)
   'src/pages/Check.svelte',
   'src/lib/flow/check/Scale.svelte',
   'src/lib/flow/check/Chips.svelte',

@@ -2,7 +2,7 @@
   /**
    * v0.51.0 «Im Flow»: the flow windows over every page (App.svelte): the tick sheet of a long press,
    * the countdown and its small floating version (bottom right, it keeps running on every page) and
-   * the «Rückgängig» toast (v0.124.0: the daily check is a page now, #/check/morning). The «Stoppuhr» button floats on Today and on Im Flow.
+   * the «Rückgängig» toast (v0.127.0: the daily check is a page now, #/check/morning). The «Stoppuhr» button floats on Today and on Im Flow.
    * Hobby pages 2: a meditation session runs in its own full view (B7, SessionView); the mini clock
    * opens that view again.
    */

@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.124.0 «Tages-Check» 1 (mockups T1, T2): a row of chips. multi: several at once (a list of ids),
+   * v0.127.0 «Tages-Check» 1 (mockups T1, T2): a row of chips. multi: several at once (a list of ids),
    * else one (a tap on the chosen one takes it back). own: «+ eigenes» opens a small field; the text
    * typed becomes a chip of its own (stored as its text). items: [{ id, label }] with labels in words.
    */

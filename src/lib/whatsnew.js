@@ -16,8 +16,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.124.0 «Tages-Check» 1 (mockups T1–T2, Noah 13.10.2026 «ich gebe hiermit alle mockups frei»)
-    version: '0.124.0',
+    // v0.127.0 «Tages-Check» 1 (mockups T1–T2, Noah 13.10.2026 «ich gebe hiermit alle mockups frei»)
+    version: '0.127.0',
     date: '2026-10-13',
     title: 'Good morning, how was your day?',
     lead: 'The daily check is now a calm page: a morning check and, from 20:30, a short evening review. Every question can be skipped.',

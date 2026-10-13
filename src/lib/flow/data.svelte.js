@@ -165,7 +165,7 @@ export async function seedMed(data, actId) {
   }
 }
 
-/* ---------- v0.124.0 «Tages-Check» 1: the morning check and the evening review ---------- */
+/* ---------- v0.127.0 «Tages-Check» 1: the morning check and the evening review ---------- */
 /**
  * What the two check pages read: the flow records (activities, the log of 70 days, the checks of 30
  * days, the question pool), today's rides (files and counted Strava rides), the trips to come and

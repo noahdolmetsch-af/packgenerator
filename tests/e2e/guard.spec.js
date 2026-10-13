@@ -60,7 +60,7 @@ const ROUTES = [
   ['#/bikes?bike=test_data_gtp_spark&sheet=order', 'Werkstatt-Auftrag'],
   ['#/bikes?bike=test_data_gtp_spark&sheet=pickup', 'Abhol-Check'],
   ['#/flow', 'Im Flow'],
-  // v0.124.0 «Tages-Check» 1: the morning check and the evening review, strict like their files
+  // v0.127.0 «Tages-Check» 1: the morning check and the evening review, strict like their files
   ['#/check/morning', 'Morgen-Check'],
   ['#/check/evening', 'Abend-Rückblick'],
   // hobby pages 1: Aktiv › Aktivität and Meilensteine, strict like their files

@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.124.0 «Tages-Check» 1: the rotating questions (question 4) edited on the morning page; before
+   * v0.127.0 «Tages-Check» 1: the rotating questions (question 4) edited on the morning page; before
    * they were edited in the daily-check window (v0.51.0), which the page replaces. Each one is a
    * suggestion: change the words, remove one, add your own. At least one stays.
    */

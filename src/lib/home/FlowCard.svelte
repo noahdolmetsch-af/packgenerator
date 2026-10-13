@@ -4,7 +4,7 @@
    * rings (rolling 7 days), what is still open today as one-tap buttons (daily goals), the daily
    * check (Start, or the four numbers when done), «Im Flow ›» and a commute in one tap.
    * v0.94.0 «Kachel-Wand»: a tap on Meditation opens its start sheet here too, as on Aktiv (Q5 a).
-   * v0.124.0 «Tages-Check» 1: the check row opens the morning check page; from 20:30 the evening review.
+   * v0.127.0 «Tages-Check» 1: the check row opens the morning check page; from 20:30 the evening review.
    */
   import { ChevronRight, Sun, Moon, Bike, Check } from '@lucide/svelte';
   import Rings from '../flow/Rings.svelte';
@@ -30,7 +30,7 @@
   const commuter = $derived(states.find((s) => !s.resting && s.act.counts.includes('commute')) ?? null);
   const check = $derived(checkOf(data?.checks.find((c) => c.day === today), today));
   const rot = $derived(data ? rotating(data.pool, today) : null);
-  // v0.124.0 «Tages-Check» 1: from 20:30 local time the check row offers the evening review
+  // v0.127.0 «Tages-Check» 1: from 20:30 local time the check row offers the evening review
   let evening = $state(isEvening());
   $effect(() => {
     const id = setInterval(() => (evening = isEvening()), 60_000);
@@ -54,7 +54,7 @@
           <TickGrid states={openToday} {today} cols={2} onmed={(s) => (medFor = s.act.id)} />
         {/if}
         {#if evening}
-          <!-- v0.124.0 «Tages-Check» 1: from 20:30 the entry offers the evening review (page T2) -->
+          <!-- v0.127.0 «Tages-Check» 1: from 20:30 the entry offers the evening review (page T2) -->
           <div class="crow" class:done={eveningDone(check)} data-check-entry="evening">
             <Moon size={20} aria-hidden="true" />
             <span class="ct"><b>{t('Evening review')}</b><small>{eveningDone(check) ? t('Satisfaction {n} of 10', { n: check.sat }) : t('How was your day? · about 30 seconds')}</small></span>
