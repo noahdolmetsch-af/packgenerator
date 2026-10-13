@@ -1,5 +1,5 @@
 /**
- * v0.120.0 «Neue Tour Teil 2», B5 «Reparatur unterwegs» (mockup B5, Noah 12.10.2026 «b2 b4 b5 ok», answer 6a:
+ * v0.124.0 «Neue Tour Teil 2», B5 «Reparatur unterwegs» (mockup B5, Noah 12.10.2026 «b2 b4 b5 ok», answer 6a:
  * at most 8 of the tools): the block «Repair» often holds the whole workshop (36 tools, 7.9 kg). For the
  * ride the app suggests at most SLIM_MAX light parts (tube, pump, multitool …); one tap keeps them and the
  * rest leaves the block (the items stay in Gear, nothing is deleted; Gear › Building blocks › Repair puts
@@ -82,6 +82,6 @@ export function undoSlim(items, workshop, now = new Date().toISOString()) {
 
 /**
  * The ride blocks a new trip leaves off (TripDialog). v0.114.0: Repair and Charging no longer by
- * themselves (Noah «92 Teile … nur 10-20»). v0.120.0 (B5 a ★): a slim Repair (at most SLIM_MAX) comes again.
+ * themselves (Noah «92 Teile … nur 10-20»). v0.124.0 (B5 a ★): a slim Repair (at most SLIM_MAX) comes again.
  */
 export const newTripOff = (items) => (needsSlim(items) ? [REPAIR, 'charge'] : ['charge']);

@@ -746,6 +746,32 @@
   --pc-me: #c9d6dd;
   --pc-ink: #0e171d;
 }
+/* v0.126.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», spec tour-zustaende 5): the three trip states,
+   the same in every colour world so «blue = planned» holds everywhere. Text on its soft ground 5.4–6.2:1
+   (light), 7.8–8.0:1 (dark); text on paper at least 6.3:1. Never colour alone: always icon and word
+   (ui/TripState.svelte). Orange stays for «due» and warnings. */
+:root {
+  --st-plan: #245f9e;
+  --st-plan-soft: #e4eef8;
+  --st-plan-line: #3f7fbf;
+  --st-done: #4d5964;
+  --st-done-soft: #eceff1;
+  --st-done-line: #7b8794;
+  --st-rated: #2f6b4a;
+  --st-rated-soft: #e1f0e6;
+  --st-rated-line: #3f8a5f;
+}
+:root[data-theme='dark'] {
+  --st-plan: #9cc4ee;
+  --st-plan-soft: #1a2c3f;
+  --st-plan-line: #6a9fd6;
+  --st-done: #c3ccd4;
+  --st-done-soft: #2a3238;
+  --st-done-line: #8e9aa6;
+  --st-rated: #93d6ad;
+  --st-rated-soft: #183526;
+  --st-rated-line: #5fb185;
+}
 :root {
   --pc: var(--pc-today);
 }

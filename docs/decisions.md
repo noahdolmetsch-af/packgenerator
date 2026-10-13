@@ -882,7 +882,25 @@ Gesamtprüfung 13.10.2026, Vorschläge A-U5, A-U2, A-U1 (`design/audit-2026-10-1
   - Klasse `.prefrom` statt `.from` (die Teile-Tabelle nutzt `small.from` schon anders).
 - **Nicht gebaut:** Reihenfolge der Felder im Neue-Tour-Fenster wie im Mockup (Tage, Stunden, Start, Velo, Name); das Fenster behält seinen Aufbau von 0.114.0. Die Kachel «Neu» auf Heute (I11e, 14 Tage oben) bleibt; zusammen mit dem Banner sind es zwei «neu»-Markierungen (Frage an Noah).
 
-## 13.10.2026: Ein Weg zum Erfassen, A-J1 (0.122.0)
+## 13.10.2026: Drei Tour-Zustände, TZ-1 «Zustand sichtbar» (0.126.0)
+
+Auftrag Noah 13.10.2026 14:52 («unterscheiden zwischen einer abgeschlossenen Aktivität … und einer Aktivität, die wir in der App planen … und ob wir eine Tour bewertet haben»). Mockups TZ0–TZ3 (`design/tour-zustaende/`). **Mockup-Freigabe: TZ1–TZ3 «TZ1–TZ3 freigegeben» 13.10.2026 15:38 UTC, Antworten «1-5 a» 15:37 UTC.**
+
+- **Namen (1a):** Geplant · Abgeschlossen · Bewertet, überall gleich.
+- **Farben (2a):** Blau (Stift) · Grau (Fahne) · Grün (gefüllter Stern); Orange bleibt für «fällig». Eigene Tokens `--st-*`, unabhängig von der Farbwelt.
+- **Hochgeladene Fahrt ohne Packliste (3a):** eine Tour im Zustand Abgeschlossen (Zusatz «GPX» bzw. «Strava»); «Kurz bewerten» kommt mit TZ-3.
+- **Strava-Fahrten ohne Tour (4a):** bleiben im Fahrtenbuch, nicht unter Touren (TZ-3).
+- **Wieder öffnen (5a):** mit einer Rückfrage; kommt mit TZ-2.
+- **Eine Regel:** `tripState()` in `src/lib/tripstate.js` (Reihenfolge der Spezifikation, Abschnitt 2). Keine Migration. `tripEnd` lebt jetzt dort (debrief.js gibt es weiter), `endedTooEarly` ebenfalls (tripsoverview.js gibt es weiter). Ersetzt in diesem Paket: die Gruppen der Touren-Übersicht (`tripsoverview.js`, vorher In Planung / Rückblick offen / Gefahren / Beendet, bevor sie begann), `tripDone` (`yearreview.js`, Verhalten gleich, Test über alle 480 Kombinationen) und `endedTooEarly`. Noch nicht ersetzt, weil sich das Verhalten ändern würde (kommt mit TZ-2/TZ-3): `isOver` (debrief.js), `pastTrips` (hubs.js), `tripRow` (drafts.js), `finishedTrips` (know.js), `templateUse` (templates.js).
+- **Selbst entschieden:**
+  - Eine Tour, deren Datum vorbei ist, die aber nie beendet wurde, zeigt «Abgeschlossen · Datum vorbei» (Mockup: «gefahren?» mit «Ja / Nicht gefahren»): die Frage mit den zwei Knöpfen kommt erst mit TZ-2, bis dahin keine Frage ohne Antwortmöglichkeit.
+  - Heute: die Zeile «Rückblick noch offen» behält Text und Knöpfe («Alles gut», «Rückblick öffnen») und bekommt die Pille Abgeschlossen; die Frage «Bist du gefahren?» kommt mit TZ-2.
+  - Touren-Übersicht: Abgeschlossen zeigt alle mit offenem Rückblick und dazu die 5 neuesten ohne Rückblick, Bewertet die 5 neuesten; je «Alle n …» führt zu Vergangene Touren. Ein zweiter Tipp auf einen gewählten Chip zeigt wieder alle.
+  - Zusatz der Pille: Geplant «Heute / Morgen / in n Tagen / unterwegs»; Abgeschlossen «Datum vorbei», «GPX», im Tour-Kopf auch «Rückblick angefangen» bzw. «Rückblick fehlt» (auf der Kachel sagt das schon der Knopf «Rückblick»; die Pille bleibt kurz, nur der Zusatz wird auf schmalen Kacheln mit «…» gekürzt); Bewertet im Tour-Kopf das Datum des Rückblicks.
+  - Die Gruppenüberschrift heisst nur «Abgeschlossen» (Mockup «Abgeschlossen · Rückblick fehlt»), weil dort auch hochgeladene Fahrten ohne Rückblick stehen.
+  - Linienfarben dunkel (nicht in der Spezifikation): `#6a9fd6`, `#8e9aa6`, `#5fb185`.
+
+## 13.10.2026: Ein Weg zum Erfassen, A-J1 (0.125.0)
 
 Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup-Freigabe: A-J1 «aj-aj5 ok» 13.10.2026 17:19 Zurich (Projekt-Chat)**; Antwort 1a: «+ › Werkstattbesuch» öffnet den echten Besuch, keine Notiz mehr.
 
@@ -899,7 +917,7 @@ Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup
   - Der Satz in «Was ist neu» nennt «Velomech» statt «Werkstattbesuch», weil das lange Wort auf der Heute-Kachel am Handy umbricht (Wächter-Test).
 - **Nicht gebaut (Mockup zeigt es, A-J1 verlangt es nicht):** neue Gruppen im Neu-Blatt («Neu / Am Velo / Sonst», Schild «neu»), neues Problem-Formular und Pflege-Ansicht nach dem Speichern. Die Zeile «Problem melden» unter den Velo-Karten auf Heute bleibt (Frage an Noah).
 
-## 13.10.2026: Neue Tour Teil 2 (0.120.0)
+## 13.10.2026: Neue Tour Teil 2 (0.124.0)
 
 Mockups B4 und B5 (`design/rahmenbedingungen/`, Galerie «Offene Mockups 2» #rahmenbedingungen). **Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★** («Ja, schlank dabei», 13.10.2026 00:00 Zurich). Antworten der Runde: 1a (Bausteine nur beim Packen), 6a (schlanke Reparatur ≤ 8).
 
@@ -916,6 +934,16 @@ Mockups B4 und B5 (`design/rahmenbedingungen/`, Galerie «Offene Mockups 2» #ra
   - Im Fenster zeigt «Bleibt in der Werkstatt» 6 Teile, «… und n weitere» zeigt alle. Am Handy ist das Fenster bildschirmfüllend mit den zwei Knöpfen unten.
   - Hat eine Tour schon die volle Reparatur «Dabei», steht unter den Knöpfen ein Link «Reparatur hat n Teile: 8 für unterwegs wählen».
   - Schnellstart (0.119.0) bleibt unverändert (bringt Reparatur und Laden wie bisher); eine Frage für die nächste Runde.
+
+## 13.10.2026: Trophäen-Vitrine (0.123.0)
+
+- (Mockup-Freigabe: TV1–TV2 «tv1-tv2 freigeben» Noah 13.10.2026 15:57 UTC im Thread «Mein Überblick», Antworten «1-5a» 15:50 UTC). TV1: eigene Seite «Trophäen-Vitrine» (#/flow/trophies) mit allen erreichten Sternen nach Bereich (Über alle, dann jede Aktivität) und Jahr, Filter oben, rechts «Nach Jahr» und «Als Nächstes erreichbar». TV2: Link «Alle Trophäen ansehen ›» unter dem Trophäen-Regal (Meilensteine und Meditations-Protokoll).
+- **Selbst entschieden:** nur die Sterne, die es heute gibt (flowms.js); Velo/Strava- und Gesundheitssterne kommen mit Bündel B, Tages-Check-Sterne mit D, je im eigenen Paket. Bereiche ohne Stern stehen als eine Zeile «Noch ohne Stern: …» statt als leere Karten. Pro Meilenstein ein Abzeichen mit dem höchsten Stern (Stufe und Monat); der nächste Stern pro Bereich gestrichelt. Der Link im Meditations-Protokoll öffnet die Vitrine gefiltert auf Meditation. Version 0.123.0, weil 0.122.0 (Dateneingabe) vorher.
+
+## 13.10.2026: Dateneingabe D1–D4 (0.122.0)
+
+- (Mockup-Freigabe: D1–D4 «D1–D4 freigegeben» 13.10.2026, Antworten «1a 2a 3b 4b 5a», D1 als Variante D1a ★ Wert-Karten). D1: direkt im Blatt tippen; D2: eigene Seite «Werte erfassen» mit «Weiter» ins nächste Feld; D3 (3b): «Felder wählen» gilt für alle Velos; D4 (4b): ausgeblendet nur auf «Werte erfassen»; 5a: eigene Felder mit Name und Einheit.
+- **Selbst entschieden:** Werte im Abhol-Check haben kein Kästchen mehr, eine gespeicherte Karte gilt als erledigt; «Wie vorher» übernimmt den alten Wert mit einem Tipp; eigene Felder lassen sich umbenennen und löschen, ihre Werte bleiben am Velo und kommen beim Wiederanlegen zurück; − und + in Schritten von 0,1 bar bzw. 1; Version 0.122.0, weil 0.121.0 (Strava-Fahrten zählen mit) vorher live ging; Noah wählte D1a ausdrücklich («D1a D1–D4 freigegeben», 15:26 UTC).
 
 ## 13.10.2026: Schnellstart (0.119.0)
 
@@ -1150,3 +1178,10 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Puls pro Fahrt (P1–P6, Offene Mockups 2 #puls-pro-fahrt):** freigegeben «P1–P6 freigegeben 1a, veröffentlichen» (12.10.2026 22:07 UTC). Antworten «1b 2a und b» (in #137, an allen Orten) und «1a 2a 3a 4a 5a» (sechs Orte: Fahrtenbuch des Velos, Rückblick letzte Tour, Touren-Tabelle, Aktiv diese Woche, Fahrt-Seite, «Diese Woche» auf Heute). Später, eigene Pakete: Puls auf gleicher Strecke vergleichen, Skitouren mit Puls im Tourenbuch (Skitour), Puls neben dem Ruhepuls im Tages-Check (Google-Teil).
 - **Q1 = a:** Strava-Fahrten zählen bald auch in «Diese Woche» und «Velo in diesem Monat»; das kommt als kleines eigenes Release nach 0.116.0.
 - **Selbst entschieden:** Eine hochgeladene GPX-Fahrt bekommt den Puls der Strava-Fahrt nur, wenn genau eine passt (gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Der Wochen- und Tour-Puls ist ein km-gewichteter Schnitt der Fahrten, max der höchste Wert.
+
+## 13.10.2026: Strava-Fahrten zählen mit (0.121.0)
+
+- **Q1 = a (12.10.2026), Mockups SZ1–SZ2 freigegeben (Noah 13.10.2026 14:57 UTC «sz1-sz2 freigeben»):** Bestätigte Strava-Fahrten zählen in Heute «Diese Woche», Heute «Velo im {Monat}» und Aktiv «Velo in diesem Monat».
+- **Selbst entschieden:** Eine Fahrt, die als Datei und als Strava-Eintrag da ist, zählt einmal als Datei (gleiche Regel wie beim Puls: gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Offene Fahrten in «Zum Prüfen» zählen erst nach «Passt». Der Aktiv-Untertitel heisst jetzt «aus deinen Fahrten und Strava».
+- **Bewusst nicht:** keine sichtbare Unterscheidung «geplant / abgeschlossen / bewertet» in diesem Release; das kommt nach Spezifikation und Mockups aus dem Design-Refresh (Noah 13.10.2026).
+

@@ -1,5 +1,5 @@
 /**
- * v0.122.0 A-J1 «Ein Weg zum Erfassen» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok», answer 1a):
+ * v0.125.0 A-J1 «Ein Weg zum Erfassen» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok», answer 1a):
  * «New › Workshop visit» opens the real visit window, with the km and the last workshop filled in.
  * Everything is a suggestion: the window shows where each value comes from and any field can be changed.
  * Pure functions only, tested in tests/visitprefill.test.js.

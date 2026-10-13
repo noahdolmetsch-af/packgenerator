@@ -35,6 +35,7 @@ export const STRICT_STYLE = [
   'src/lib/ui/Empty.svelte',
   'src/lib/ui/Celebrate.svelte',
   'src/lib/ui/Interstitial.svelte',
+  'src/lib/ui/TripState.svelte',
   'src/lib/trip/TripBand.svelte',
   'src/lib/trip/EndTripSheet.svelte',
   'src/lib/home/Continue.svelte',

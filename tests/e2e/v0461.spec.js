@@ -202,9 +202,10 @@ test('7: Touren opens the overview of all trips; a row opens its trip at the nex
     // v0.78.0 «Fünf Orte» 2 / «Übergänge 2»: tiles by state, best values on the side.
     // v0.102.0 Design-Refresh P4 (T1): a count line instead of the four steps, «Neue Tour» as the dashed
     // tile in the planning group, «Bestwerte» as a list (the average behind «Alle»).
-    await expect(page.getByText(/\d+ in Planung/).first()).toBeVisible();
+    // v0.126.0 TZ-1 «Zustand sichtbar»: the count line and the groups are the three trip states
+    await expect(page.getByText(/\d+ geplant/).first()).toBeVisible();
     await expect(page.getByRole('button', { name: /^Neue Tour/ }).first()).toBeVisible();
-    await expect(page.locator('.groups').getByRole('heading', { level: 2 })).toHaveText([/In Planung/, /Rückblick offen/]);
+    await expect(page.locator('.groups').getByRole('heading', { level: 2 })).toHaveText([/Geplant/, /Abgeschlossen/]);
     await expect(page.getByRole('heading', { level: 2, name: 'Bestwerte', exact: true })).toBeVisible();
     expect(await noSideScroll(page)).toBe(true);
     for (const b of await page.locator('.trips .go, .trips .btn.hi').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);

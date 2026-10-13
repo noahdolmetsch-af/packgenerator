@@ -36,7 +36,7 @@
   import PlaySheet from '../lib/testdata/PlaySheet.svelte';
   import '../lib/ich/ich.css';
 
-  // v0.122.0 A-J1: the hint «now under + New and at the bike» shows for 30 days from the first time
+  // v0.125.0 A-J1: the hint «now under + New and at the bike» shows for 30 days from the first time
   const MOVED_KEY = 'aj1.problemMoved';
   const moved = (() => {
     let since = null;
@@ -219,7 +219,7 @@
             </button>
           </li>
         </ul>
-        <!-- v0.122.0 A-J1: «Report a problem» left Me; for 30 days a quiet line says where it is now -->
+        <!-- v0.125.0 A-J1: «Report a problem» left Me; for 30 days a quiet line says where it is now -->
         {#if $waitQ?.bikes && moved.show}
           <p class="moved" role="note"><TriangleAlert size={16} aria-hidden="true" /><span>{t('Looking for «Report a problem»? It is now under + New and at the bike:')} <a href="#/bikes?tab=care">{t('Bike care')}</a></span></p>
         {/if}

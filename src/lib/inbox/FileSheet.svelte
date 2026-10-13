@@ -31,7 +31,7 @@
   };
   /** The main button of each form, named by where the entry lands (U1). */
   const SAVE = { receipt: 'File as workshop visit', problem: 'Into bike care', material: 'Into Gear', wish: 'Onto the wishlist', idea: 'Save as idea', tour: 'Into the debrief', keep: 'Keep as note' };
-  /** Jobs a receipt often lists (optional); since v0.122.0 shared with the workshop visit window (inbox.js). */
+  /** Jobs a receipt often lists (optional); since v0.125.0 shared with the workshop visit window (inbox.js). */
   const JOBS = VISIT_JOBS;
 
   let dialog;

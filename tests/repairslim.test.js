@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { SLIM_MAX, needsSlim, roadRank, slimSuggest, applySlim, undoSlim, newTripOff, repairItems } from '../src/lib/repairslim.js';
 
-// v0.120.0 «Neue Tour Teil 2», B5 «Reparatur unterwegs»: fictional workshop only.
+// v0.124.0 «Neue Tour Teil 2», B5 «Reparatur unterwegs»: fictional workshop only.
 const it0 = (id, name, weightG, extra = {}) => ({ id, name, weightG, category: 'tools', ownership: 'owned', sets: ['repair'], ...extra });
 const WORKSHOP = [
   it0('t1', 'test_data_gtp_ Ersatzschlauch', 110),

@@ -1,4 +1,4 @@
-// v0.122.0 A-J1 «Ein Weg zum Erfassen»: what the workshop visit window suggests (fictional data only).
+// v0.125.0 A-J1 «Ein Weg zum Erfassen»: what the workshop visit window suggests (fictional data only).
 import { describe, it, expect } from 'vitest';
 import { visitPrefill, movedHint } from '../src/lib/visitprefill.js';
 import { VISIT_JOBS } from '../src/lib/inbox.js';

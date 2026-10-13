@@ -18,7 +18,7 @@
   import { t, num } from '../i18n.svelte.js';
   import FitCard from './FitCard.svelte';
   import Seg from '../ui/Seg.svelte';
-  import { Columns3, ChevronRight, ChevronDown, Bike as BikeIcon } from '@lucide/svelte';
+  import { Columns3, ChevronRight, ChevronDown, PencilLine, Bike as BikeIcon } from '@lucide/svelte';
   import { wantBike } from '../nav.js';
   import VeloHead from './VeloHead.svelte';
 
@@ -82,6 +82,7 @@
       title={t('Equipment {bike}', { bike: bike.name })}
       sub={[bike.type ? t(bikeTypeName(bike.type)) : '', t('{n} parts recorded', { n: totals.count }), totals.weightG ? `${kg(totals.weightG)} ${t('parts|weight')}` : '', totals.priceChf ? `${chf(totals.priceChf)} ${t('purchase value')}` : ''].filter(Boolean).join(' · ')}
     >
+      <a class="btn hi cmplink" href={bikesHash({ tab: 'compare', view: 'enter', bike: bike.id })}><PencilLine size={16} aria-hidden="true" />{t('Enter values')}</a>
       <a class="btn cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><Columns3 size={16} aria-hidden="true" />{t('Compare bikes')}</a>
     </VeloHead>
     {#if bikes.length > 1}

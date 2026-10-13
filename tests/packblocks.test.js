@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { blockRows, wetTrip, PACK_BLOCKS } from '../src/lib/packblocks.js';
 import { NIGHT_SETS } from '../src/lib/trips.js';
 
-// v0.120.0 «Neue Tour Teil 2», B4 «Bausteine beim Packen»: fictional items only.
+// v0.124.0 «Neue Tour Teil 2», B4 «Bausteine beim Packen»: fictional items only.
 const item = (id, sets, weightG = 100, extra = {}) => ({ id, name: `test_data_gtp_ ${id}`, weightG, category: 'tools', ownership: 'owned', sets, ...extra });
 const SETS = [{ key: 'u-regen', name: 'test_data_gtp_ Regen' }, { key: 'u-kit', name: 'test_data_gtp_ Kit', minC: 0, maxC: 8 }];
 const ITEMS = [
