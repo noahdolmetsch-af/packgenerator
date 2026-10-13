@@ -200,7 +200,7 @@ test('C3, C5: "Yes, remember" saves the suggestion; a debrief saved early makes 
   // v0.49.0 R1: one table; km in its own column.
   const doneRow = page.locator('table.tt tbody tr').filter({ hasText: 'test_data_gtp_ Morgen' });
   await expect(doneRow).toContainText('42');
-  await expect(doneRow.locator('.nbadge')).toHaveCount(0);
+  await expect(doneRow.locator('td.go .btn')).toHaveCount(0); // SN4: no «Bewerten» in the row
   await page.goto('./#/');
   await expect(page.locator('#next-h')).toHaveText(T('No trip planned'));
   expect(errors).toEqual([]);

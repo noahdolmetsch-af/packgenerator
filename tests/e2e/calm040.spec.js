@@ -75,7 +75,7 @@ test('Past trips: one table with the debrief state and the km; Debrief links to 
   await expect(herbst).toContainText('140');
   await expect(sommer).toContainText('210');
   // done rows have no badge; a row opens the debrief
-  await expect(sommer.locator('.nbadge')).toHaveCount(0);
+  await expect(sommer.locator('td.go .btn')).toHaveCount(0); // SN4: no «Bewerten» in the row
   await expect(sommer.getByRole('link').first()).toHaveAttribute('href', `#/debrief/${P}sommer`);
   await noSideways(page);
   await shot(page, info, 'vergangen');
