@@ -865,7 +865,7 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 ## 13.10.2026: Dateneingabe D1–D4 (0.122.0)
 
 - (Mockup-Freigabe: D1–D4 «D1–D4 freigegeben» 13.10.2026, Antworten «1a 2a 3b 4b 5a», D1 als Variante D1a ★ Wert-Karten). D1: direkt im Blatt tippen; D2: eigene Seite «Werte erfassen» mit «Weiter» ins nächste Feld; D3 (3b): «Felder wählen» gilt für alle Velos; D4 (4b): ausgeblendet nur auf «Werte erfassen»; 5a: eigene Felder mit Name und Einheit.
-- **Selbst entschieden:** Werte im Abhol-Check haben kein Kästchen mehr, eine gespeicherte Karte gilt als erledigt; «Wie vorher» übernimmt den alten Wert mit einem Tipp; eigene Felder lassen sich umbenennen und löschen, ihre Werte bleiben am Velo und kommen beim Wiederanlegen zurück; − und + in Schritten von 0,1 bar bzw. 1; Version 0.122.0, weil 0.120.0 und 0.121.0 (Strava-Fahrten zählen mit) vorher kommen.
+- **Selbst entschieden:** Werte im Abhol-Check haben kein Kästchen mehr, eine gespeicherte Karte gilt als erledigt; «Wie vorher» übernimmt den alten Wert mit einem Tipp; eigene Felder lassen sich umbenennen und löschen, ihre Werte bleiben am Velo und kommen beim Wiederanlegen zurück; − und + in Schritten von 0,1 bar bzw. 1; Version 0.122.0, weil 0.121.0 (Strava-Fahrten zählen mit) vorher live ging; Noah wählte D1a ausdrücklich («D1a D1–D4 freigegeben», 15:26 UTC).
 
 ## 13.10.2026: Schnellstart (0.119.0)
 
@@ -1100,3 +1100,10 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Puls pro Fahrt (P1–P6, Offene Mockups 2 #puls-pro-fahrt):** freigegeben «P1–P6 freigegeben 1a, veröffentlichen» (12.10.2026 22:07 UTC). Antworten «1b 2a und b» (in #137, an allen Orten) und «1a 2a 3a 4a 5a» (sechs Orte: Fahrtenbuch des Velos, Rückblick letzte Tour, Touren-Tabelle, Aktiv diese Woche, Fahrt-Seite, «Diese Woche» auf Heute). Später, eigene Pakete: Puls auf gleicher Strecke vergleichen, Skitouren mit Puls im Tourenbuch (Skitour), Puls neben dem Ruhepuls im Tages-Check (Google-Teil).
 - **Q1 = a:** Strava-Fahrten zählen bald auch in «Diese Woche» und «Velo in diesem Monat»; das kommt als kleines eigenes Release nach 0.116.0.
 - **Selbst entschieden:** Eine hochgeladene GPX-Fahrt bekommt den Puls der Strava-Fahrt nur, wenn genau eine passt (gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Der Wochen- und Tour-Puls ist ein km-gewichteter Schnitt der Fahrten, max der höchste Wert.
+
+## 13.10.2026: Strava-Fahrten zählen mit (0.121.0)
+
+- **Q1 = a (12.10.2026), Mockups SZ1–SZ2 freigegeben (Noah 13.10.2026 14:57 UTC «sz1-sz2 freigeben»):** Bestätigte Strava-Fahrten zählen in Heute «Diese Woche», Heute «Velo im {Monat}» und Aktiv «Velo in diesem Monat».
+- **Selbst entschieden:** Eine Fahrt, die als Datei und als Strava-Eintrag da ist, zählt einmal als Datei (gleiche Regel wie beim Puls: gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Offene Fahrten in «Zum Prüfen» zählen erst nach «Passt». Der Aktiv-Untertitel heisst jetzt «aus deinen Fahrten und Strava».
+- **Bewusst nicht:** keine sichtbare Unterscheidung «geplant / abgeschlossen / bewertet» in diesem Release; das kommt nach Spezifikation und Mockups aus dem Design-Refresh (Noah 13.10.2026).
+

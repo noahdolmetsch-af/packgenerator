@@ -74,8 +74,8 @@ describe('the list and its sorts', () => {
     expect(by['f.explain'].state).toBe('never'); // newer than the 0.116.0 these rows are made for
     expect(by['f.quickstart'].state).toBe('never');
     expect(rowsOf().find((r) => r.id === 'f.explain').state).toBe('never'); // 0.117.0, older than this version
-    expect(rowsOf(new Set(), {}, '0.119.0').find((r) => r.id === 'f.quickstart').state).toBe('new'); // new in 0.119.0
-    expect(rowsOf().find((r) => r.id === 'f.quickstart').state).toBe('never'); // older than this version
+    expect(rowsOf(undefined, undefined, '0.119.0').find((r) => r.id === 'f.quickstart').state).toBe('new'); // new in its version
+    expect(rowsOf().find((r) => r.id === 'f.quickstart').state).toBe('never'); // 0.121.0 brought no new function
     expect(by['f.theft'].state).toBe('never');
     for (const r of rows) {
       expect(FEATURE_GROUPS.some((g) => g.key === r.group), r.id).toBe(true);

@@ -11,17 +11,18 @@
   import { t, tn, num, locale } from '../i18n.svelte.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { heartBetween } from '../kmbook.js';
+  import { heartBetween, withStravaRides } from '../kmbook.js';
   import HeartLine from '../strava/HeartLine.svelte';
 
   let { today, rides = [], isnew = false } = $props();
   const q = $derived(flowQuery(today));
   const data = $derived($q);
   const acts = $derived(Object.fromEntries((data?.acts ?? []).map((a) => [a.id, a])));
-  const days = $derived(weekDays({ today, log: data?.log ?? [], rides }));
-  const n = $derived(activeCount(days));
   // heart rate of this week's Strava rides (observation only, Noah 12.10.2026 «2a»)
   const kmQ = liveQuery(() => db.kmBook.toArray());
+  // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
+  const days = $derived(weekDays({ today, log: data?.log ?? [], rides: withStravaRides(rides, $kmQ ?? []) }));
+  const n = $derived(activeCount(days));
   const heart = $derived(days.length ? heartBetween($kmQ ?? [], days[0].day, today) : null);
   const wd = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
 </script>
