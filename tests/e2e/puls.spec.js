@@ -93,6 +93,6 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
 
   // P6 Today: «This week» with the heart rate of this week's rides
   await page.goto('./');
-  await expect(page.locator('[data-section="week"] .sub')).toContainText(line(141, 168));
+  await expect(page.locator('[data-section="week"] [data-week-values]')).toContainText(line(141, 168));
   await shot(page, info, 'P6-heute');
 });

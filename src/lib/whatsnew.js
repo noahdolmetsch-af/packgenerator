@@ -16,44 +16,32 @@
 
 export const WHATS_NEW = [
   {
-    // v0.127.0 «Tages-Check» 1 and 2 (mockups T1–T4, Noah 13.10.2026 «ich gebe hiermit alle mockups frei», «T1–T4 freigegeben»)
-    version: '0.127.0',
+    // v0.125.0 «Tagespaket 13.10.»: Tages-Check 1+2 (#151), Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152),
+    // Werte überall + Strava verbinden WU1–WU4, SV1 (#153); mockups approved by Noah 13.10.2026 («ich gebe alle bild mockups frei»)
+    version: '0.125.0',
     date: '2026-10-13',
-    title: 'Good morning, how was your day?',
-    lead: 'The daily check is now a calm page: a morning check and, from 20:30, a short evening review. Every question can be skipped.',
+    title: 'Day package 13.10.',
+    lead: 'A bigger update in one go: a daily check, a week in Aktiv, values everywhere, trip states and less typing.',
     points: [
-      { text: 'Morning check: sleep, energy, mood, what you look forward to, your goal for today, with a suggestion for the day', href: '#/check/morning' },
-      { text: 'Evening review: satisfaction, the best part of the day, time outside filled in from your ride, meditation counts by itself', href: '#/check/evening' },
-      { text: 'Your balance on Today: nine areas of your last 7 days in one ring; «Your 15 questions» shows where each one counts, and each one can be switched off', href: '#/check/questions' },
+      { text: 'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today', href: '#/check/morning' },
+      { text: 'Aktiv: a week with fixed dates and suggestions, a page for recovery and a short packing list for each sport', href: '#/flow/week' },
+      { text: 'Metres climbed and heart rate next to your km, a year goal for each value, and «Connect Strava» on Today', href: '#/flow/goals' },
     ],
     small: [
-      { box: 'new', text: 'On Sundays the evening asks: did you get closer to your vision?', href: '#/check/evening' },
-      { box: 'new', text: 'Press a tile long: its sizes show at once', href: '#/' },
-      { box: 'new', text: '«Speak» for a few words, where the browser can', href: '#/check/evening' },
+      { box: 'new', text: 'Every trip shows its state: planned, completed or rated', href: '#/trips' },
+      { box: 'new', text: 'Workshop visit in New saves a real visit on the bike, no note in the Inbox any more.', href: '#/bikes?tab=shop' },
+      { box: 'nicer', text: 'A new trip fills in what the app knows, news wait in a calm banner, an error never shows a white page', href: '#/trips' },
     ],
     test: [
       'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».',
-      'After 20:30 the row offers the evening review; or open it directly. Ride or meditate before: the answers are filled in.',
       'On Today: «Your balance» shows the ring; tap «Your 15 questions» and switch a question off: the check no longer asks it.',
+      'Open Aktiv › Heute and tap the card «Week».',
+      'Open «Sport bag», tick a thing, then «All in».',
+      'Open Aktiv › Goals: on the right «Year goals» with three rows; switch one off and tap a goal number to change it.',
+      'Open Touren: under the title «n planned · n completed · n rated», then the chips. Tap «Completed»: only those trips show.',
+      'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».',
+      'After the next update: Today shows a banner on top; tap × and it stays away.',
     ],
-  },
-  {
-    // v0.130.0 «Woche» + «Erholung» + «Sporttasche» (mockups AK1–AK3, Noah 13.10.2026 «1-5a», «ich gebe hiermit alle mockups frei»)
-    version: '0.130.0',
-    date: '2026-10-13',
-    title: 'Your week, your bag',
-    lead: 'Aktiv has a week page with fixed dates and suggestions, a page for recovery and a short packing list for each sport.',
-    points: [
-      { text: 'Week: Monday to Sunday with suggestions, tap one to plan it', href: '#/flow/week' },
-      { text: 'Sport bag: a short list per sport, Heute reminds you the evening before', href: '#/flow/bags' },
-      { text: 'Recovery: the ring of the week, a pause hint after 3 active days', href: '#/flow/rest' },
-    ],
-    small: [
-      { box: 'new', text: 'Fixed dates: enter once, they come back every week', href: '#/flow/week' },
-      { box: 'new', text: '«More in Active» on Aktiv › Heute leads to the week', href: '#/flow' },
-      { box: 'new', text: 'Fixed and planned dates into your calendar (.ics)', href: '#/flow/week' },
-    ],
-    test: ['Open Aktiv › Heute and tap the card «Week».', 'Add a fixed date, then tap a suggestion: it is planned.', 'Open «Sport bag», tick a thing, then «All in».', 'Open «Recovery» and tick the sauna.'],
   },
   {
     // v0.124.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
