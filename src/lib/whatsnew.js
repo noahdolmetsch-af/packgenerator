@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.122.0 «Bugfix Dateneingabe» D1–D4 (Noah 13.10.2026 «D1–D4 freigegeben», answers «1a 2a 3b 4b 5a», D1a ★)
+    version: '0.122.0',
+    date: '2026-10-13',
+    title: 'Values in one go',
+    lead: 'Bike values go in right where you are: on the sheet or on one page, field after field.',
+    points: [
+      { text: 'The Pick-up check shows each value as a card: tap it, type, and «Next» opens the next one. − and + help, and «As before» keeps the old value.', href: '#/bikes' },
+      { text: 'New page «Enter values» under Equipment: all values of a bike in four groups, every entry saves at once.', href: '#/bikes?tab=compare' },
+      { text: '«Choose fields» hides fields you never need, for all bikes; «Own field» adds a value with name and unit.', href: '#/bikes?tab=compare' },
+    ],
+    test: [
+      'Open a bike › Workshop › Pick-up check: tap a value, type a number and press Enter: the card is ticked and the next one opens.',
+      'Go to Equipment › «Enter values»: type a value and press Enter, the next field gets the cursor.',
+      'Tap «Choose fields», switch a field off: it is gone here, the Bike pass still shows it.',
+    ],
+  },
+  {
     // v0.121.0 «Strava-Fahrten zählen mit» (mockups SZ1–SZ2, Noah 13.10.2026 «sz1-sz2 freigeben»)
     version: '0.121.0',
     date: '2026-10-13',

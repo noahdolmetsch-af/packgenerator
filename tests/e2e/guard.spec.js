@@ -40,6 +40,7 @@ const ROUTES = [
   ['#/bikes?tab=care', 'Velos Pflege'],
   ['#/bikes?tab=compare', 'Velos Ausstattung'], // v0.83.0 «Ausstattung» (was «Velos vergleichen»)
   ['#/bikes?tab=compare&view=all', 'Velos vergleichen'], // v0.48.0, v0.83.0 behind &view=all
+  ['#/bikes?tab=compare&view=enter&bike=test_data_gtp_spark', 'Werte erfassen'], // Bugfix Dateneingabe D2
   ['#/bikes?tab=shop', 'Werkstatt & Belege'], // v0.48.0
   ['#/inbox', 'Eingang'],
   ['#/notes', 'Notizen'], // v0.48.0
