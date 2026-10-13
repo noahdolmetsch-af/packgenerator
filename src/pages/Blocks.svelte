@@ -15,10 +15,14 @@
    * SN3 «Seiten neu» (Noah 13.10.2026 «ich gebe alle bild mockups frei»): the head with its path,
    * «Prüfen» as a normal button and «Neuer Baustein» as the main one; the groups as sections with a
    * white card, each block one row: its icon, the first names (or «noch leer»), count · weight right.
+   * SN3+ «Bausteine je nach Lage» (mockups SN3e-a, SN3f; Noah 13.10.2026 «SN3e–SN3g freigegeben»): a fifth
+   * group «Je nach Lage» with the seven blocks of situation.js, open; each row says when it comes
+   * («kommt mit: unter 5 °C») and opens the rule sheet (RuleSheet.svelte). The other groups fold to one
+   * row (answer «aufklappbar b»). Right: where the app knows the situation from and the look in Packen.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { formatWeight, itemWeight, OWNERSHIP, isInventory, sumKnown } from '../lib/gear.js';
+  import { formatWeight, itemWeight, OWNERSHIP, isInventory, sumKnown, knownWeight } from '../lib/gear.js';
   import { SETS_KEY, allSets, setView, setUse, qtyOf, addSet, blockLabel } from '../lib/sets.js';
   import { TEMPLATES_KEY, templatesWith } from '../lib/templates.js';
   import { tempRange } from '../lib/wardrobe.js';
@@ -28,12 +32,17 @@
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet } from '../lib/gear/assign.js';
   import { undoBulk } from '../lib/gear/bulk.js';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
-  import { Plus, X, Minus, Layers, ChevronRight, UserRound, Scale, ListChecks, Info } from '@lucide/svelte';
+  import { Plus, X, Minus, Layers, ChevronRight, UserRound, Scale, ListChecks, Info, CloudRain, CloudSun, Route, MapPin, Hand, Zap, ZapOff } from '@lucide/svelte';
   import Help from '../lib/ui/Help.svelte';
   import PathHead from '../lib/ui/PathHead.svelte';
   import Section from '../lib/ui/Section.svelte';
   import Btn from '../lib/ui/Btn.svelte';
-  import { blockIcon } from '../lib/blockicons.js';
+  import { blockIcon, blockTone } from '../lib/blockicons.js';
+  import { RAIN_WORDS } from '../lib/packblocks.js';
+  import { SITUATION_BLOCKS, rulesOf, setRule } from '../lib/situation.js';
+  import { ruleLine, hitBadge } from '../lib/situationtext.js';
+  import OptionButton from '../lib/ui/OptionButton.svelte';
+  import RuleSheet from '../lib/gear/RuleSheet.svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
   import { SvelteSet } from 'svelte/reactivity';
 
@@ -50,6 +59,26 @@
   const reviewQ = liveQuery(() => db.settings.get(REVIEW_KEY));
   const toCheck = $derived(reviewOpen($reviewQ?.value));
   const addCards = $derived(cards.filter((c) => c.kind === 'add'));
+  // SN3+: the seven blocks «je nach Lage», their rules, an own rain block that follows the rule Regen
+  const sitCards = $derived(SITUATION_BLOCKS.map((k) => cards.find((c) => c.key === k)).filter(Boolean));
+  const rules = $derived(rulesOf($setsQ?.value));
+  const ownRain = $derived(addCards.filter((c) => !c.builtIn && RAIN_WORDS.test(c.name)));
+  const sample = $derived(sitCards.find((c) => c.key === 'cold') ?? null);
+  /** A folded group's line: what it does · its first three names … */
+  const groupSub = (what, list) => [what, list.slice(0, 3).map(blockLabel).join(', ') + (list.length > 3 ? ' …' : '')].filter(Boolean).join(' · ');
+  let ruling = $state(null); // the key of the block whose rule sheet is open
+  const rulingCard = $derived(ruling ? cards.find((c) => c.key === ruling) ?? null : null);
+  // Save the rule (on the block's record) and take out the items crossed out in the sheet; one Undo.
+  async function saveRule(s, { rule, out }) {
+    const res = await editSets(db, (v) => ({ value: setRule(v, s.key, rule) }));
+    if (res.error) return;
+    let snap = res.snap;
+    if (out.length) {
+      const r2 = await assignSet(db, out, s.key, { out: true });
+      snap = { ...snap, items: r2.snap?.items ?? [] };
+    }
+    offer(t('{block}: saved.', { block: blockLabel(s) }), snap);
+  }
   const tplCount = $derived(($tplQ?.value ?? []).length);
   // v0.39.0 (AP28, Noah 3a): templates are linked to their blocks; a quiet line says how many a change reaches.
   const inTemplates = (key) => templatesWith($tplQ?.value ?? [], key).length;
@@ -82,6 +111,7 @@
 
   // "+ New building block"
   let adding = $state(false);
+  let addOpen = $state(false); // SN3+: the folded group «Zum Dazunehmen»
   let newName = $state('');
   async function create(event) {
     event.preventDefault();
@@ -90,6 +120,7 @@
     const res = await editSets(db, (v) => addSet(v, name));
     if (res.error) return (error = errText(res.error, name));
     offer(t('Building block "{name}" made.', { name }), res.snap);
+    addOpen = true; // SN3+: the new block shows in its group, which opens for it
     newName = '';
     adding = false;
   }
@@ -174,6 +205,25 @@
   </summary>
 {/snippet}
 
+{#snippet sitRow(s)}
+  {@const Icon = blockIcon(s.key, s.name)}
+  {@const r = rules[s.key]}
+  <!-- SN3+: one row per block «je nach Lage»: icon, names, when it comes; a tap opens its rule -->
+  <li class="blk" aria-labelledby="blk-{s.key}">
+    <button type="button" class="srow sitrow" aria-haspopup="dialog" onclick={() => (ruling = s.key)}>
+      <span class="sib tone-{blockTone(s.key, s.name)}" aria-hidden="true"><Icon size={18} /></span>
+      <span class="sm">
+        <b><span class="nm" id="blk-{s.key}">{blockLabel(s)}</span></b>
+        <small>{#if s.inventory.length}{namesOf(s.inventory, s).join(', ')}{:else}{t('still empty')}{/if}</small>
+        <span class="rchip" class:off={!r.on}>{#if r.on}<Zap size={14} aria-hidden="true" />{t('comes along:')} <b>{ruleLine(s.key, r)}</b>{:else}<ZapOff size={14} aria-hidden="true" />{t('Suggestion off')} · {ruleLine(s.key, r)}{/if}</span>
+      </span>
+      <span class="sv num" aria-hidden="true">{#if s.inventory.length}{s.inventory.length}{' · '}{#if s.missing === s.inventory.length}<Scale size={15} class="scale" />{:else}{s.missing ? '~' : ''}{formatWeight(s.g)}{/if}{:else}–{/if}</span>
+      <span class="sr">{tn(s.inventory.length, '{n} item', '{n} items')}</span>
+      <ChevronRight class="schev" size={18} aria-hidden="true" />
+    </button>
+  </li>
+{/snippet}
+
 {#snippet blockCard(s)}
   <li class="blk" aria-labelledby="blk-{s.key}">
     <details class="edit">
@@ -242,9 +292,12 @@
   {/if}
   {#if error}<p class="err" role="alert">{error}</p>{/if}
 
+  <!-- SN3+ «Bausteine je nach Lage» (mockup SN3e-a, answers 1a and «aufklappbar b»): only «Je nach Lage» is
+       open; the other groups are one row each (name, the first names, the count), one tap opens them.
+       Right on a computer (under it on a phone): where the app knows the situation from, and the look in Packen. -->
   <div class="groups">
-    <div class="grp">
-      <Section title={t('Always with you')} sub={t('in every new trip')} id="g-always">
+    <div class="gcol">
+      <Section fold title={t('Always with you')} sub={`${t('in every new trip')} · ${t('Standard|block')}`} count={1} id="g-always">
         <ul class="card slist">
           <li class="blk std" aria-labelledby="blk-standard">
             <details class="edit">
@@ -269,29 +322,54 @@
           </li>
         </ul>
       </Section>
-      <Section title={t('On the ride')} sub={t('suggested, you can take it off')} id="g-ride">
+
+      <Section title={t('Depending on the situation')} sub={`${t('come as a suggestion when the trip fits')} · ${tn(sitCards.length, '{n} building block', '{n} building blocks')}`} id="g-situation">
+        <ul class="card slist">
+          {#each sitCards as s (s.key)}{@render sitRow(s)}{/each}
+        </ul>
+        {#if ownRain.length}<p class="shint"><CloudRain size={15} aria-hidden="true" /><span>{t('Your own block {names} follows the rule of {rain} too.', { names: ownRain.map((c) => `«${c.name}»`).join(', '), rain: blockLabel(sitCards.find((c) => c.key === 'rain') ?? { name: t('Rain|block') }) })}</span></p>{/if}
+        <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Tap a block to change its rule, limit and items, or to switch the suggestion off. Never a must: in Pack it is dashed and can be left out.')}</span></p>
+      </Section>
+
+      <Section fold title={t('On the ride')} sub={groupSub(t('suggested, you can take it off'), rideCards)} count={rideCards.length} id="g-ride">
         <ul class="card slist">
           {#each rideCards as s (s.key)}{@render blockCard(s)}{/each}
         </ul>
       </Section>
-    </div>
 
-    <div class="grp">
-      <Section title={t('With the night')} sub={t('come by themselves')} id="g-night">
+      <Section fold title={t('With the night')} sub={groupSub(t('come by themselves'), nightCards)} count={nightCards.length} id="g-night">
         <ul class="card slist">
           {#each nightCards as s (s.key)}{@render blockCard(s)}{/each}
         </ul>
       </Section>
-    </div>
 
-    <div class="grp">
-      <Section title={t('To add')} sub={t('one tap when you make a trip')} id="g-add">
+      <Section fold title={t('To add')} sub={groupSub(t('one tap when you make a trip'), addCards)} count={addCards.length} id="g-add" bind:open={addOpen}>
         <ul class="card slist">
           {#each addCards as s (s.key)}{@render blockCard(s)}{/each}
         </ul>
         <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Empty building blocks do not disturb: they only come along once an item is in them.')}</span></p>
         <p class="shint tl"><Layers size={15} aria-hidden="true" /><a class="tlink" href="#/pack/templates">{t('Templates')} <span class="num">({tplCount})</span></a></p>
       </Section>
+    </div>
+
+    <div class="gcol aside">
+      <Section title={t('Where the app knows the situation from')} sub={t('only from what is already in the trip')} id="g-source">
+        <ul class="card slist">
+          <li class="srow"><span class="sib info" aria-hidden="true"><CloudSun size={18} /></span><span class="sm"><b>{t('Weather in Plan')}</b><small>{t('Cold, Heat, Rain · lowest and highest forecast over the days of the trip')}</small></span></li>
+          <li class="srow"><span class="sib" aria-hidden="true"><Route size={18} /></span><span class="sm"><b>{t('Route (GPX)')}</b><small>{t('Pass & climbing, Long ride · climbing, highest point, riding time')}</small></span></li>
+          <li class="srow"><span class="sib" aria-hidden="true"><MapPin size={18} /></span><span class="sm"><b>{t('Three buttons in Plan')}</b><small>{t('Pass, Abroad, Train · «Pass», the country, «Getting there: bike · train · car»')}</small></span></li>
+        </ul>
+      </Section>
+      {#if sample}
+        <Section title={t('How it looks in Pack')} sub={t('A block that fits comes as a dashed suggestion')} id="g-look">
+          <div class="card look">
+            <div class="lookbtn" inert aria-hidden="true">
+              <OptionButton size="lg" pressed={false} icon={blockIcon(sample.key, sample.name)} tone={blockTone(sample.key, sample.name)} label={blockLabel(sample)} sub={sample.inventory.length ? `${tn(sample.inventory.length, '{n} item', '{n} items')} · ${knownWeight(sample.g, sample.missing)}` : t('still empty')} badge={hitBadge({ kind: 'cold', c: 3 })} />
+            </div>
+            <p class="shint"><Hand size={15} aria-hidden="true" /><span>{t('One tap adds it, another tap takes it off again.')}</span></p>
+          </div>
+        </Section>
+      {/if}
     </div>
   </div>
 </div>
@@ -325,6 +403,11 @@
     <span>{undo.text}</span>
     {#if undo.snap}<button type="button" class="btn hi" onclick={doUndo}>{t('Undo')}</button>{/if}
   </div>
+{/if}
+
+{#if rulingCard}
+  {@const s = rulingCard}
+  <RuleSheet block={{ ...s, name: blockLabel(s) }} rule={s.rule ?? null} onsave={(res) => saveRule(s, res)} onrename={() => ((ruling = null), (renaming = s))} onclose={() => (ruling = null)} />
 {/if}
 
 {#if renaming}
@@ -366,20 +449,65 @@
   .err {
     color: var(--bad);
   }
+  /* SN3+: the groups left (one column), where the app knows the situation from right */
   .groups {
     display: grid;
     gap: var(--sp-5);
   }
   @media (min-width: 1000px) {
     .groups {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
       align-items: start;
     }
   }
-  .grp {
+  .gcol {
     display: grid;
     gap: var(--sp-5);
     min-width: 0;
+  }
+  .sitrow {
+    width: 100%;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .sitrow .sib.tone-blue {
+    background: var(--info-soft);
+  }
+  .sitrow .sib.tone-amber {
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
+  .rchip {
+    display: inline-block;
+    max-width: 100%;
+    margin-top: 6px;
+    padding: 2px 10px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .rchip :global(svg) {
+    margin-right: 4px;
+    vertical-align: -2px;
+  }
+  .sitrow .sm .rchip b {
+    display: inline;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .rchip.off {
+    border: 1px dashed var(--line-strong);
+    background: transparent;
+  }
+  .look .lookbtn {
+    padding-top: 10px;
   }
   .newset {
     margin: 0 0 var(--sp-5);

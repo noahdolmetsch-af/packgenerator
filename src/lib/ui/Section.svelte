@@ -14,12 +14,28 @@
    * and quiet line), .sv (a value right, tabular), .schev (the chevron), .shint (a quiet line with an icon
    * under a card). On a phone a row's actions (.rowacts, app.css) go under its text, full width.
    * more: a snippet right of the title (e.g. a quiet link).
+   * SN3+ (answer «aufklappbar b»): fold: the section is one white row (title, quiet line, the count right,
+   * a chevron); one tap opens it. open: bindable, closed at the start. count: the number in the row.
    */
-  let { title, sub = '', id = undefined, more = null, children } = $props();
+  import { ChevronDown } from '@lucide/svelte';
+
+  let { title, sub = '', id = undefined, more = null, fold = false, open = $bindable(false), count = null, children } = $props();
   // svelte-ignore state_referenced_locally
   const hid = id ?? `sec-${Math.random().toString(36).slice(2, 8)}`;
 </script>
 
+{#if fold}
+<section class="ssec sfold" aria-labelledby={hid}>
+  <details bind:open>
+    <summary class="sfs card">
+      <div class="sst"><h2 id={hid}>{title}</h2>{#if sub}<p>{sub}</p>{/if}</div>
+      {#if count != null}<span class="scount num">{count}</span>{/if}
+      <ChevronDown class="sfc" size={20} aria-hidden="true" />
+    </summary>
+    {#if open}<div class="sfb">{@render children()}</div>{/if}
+  </details>
+</section>
+{:else}
 <section class="ssec" aria-labelledby={hid}>
   <div class="ssh">
     <div class="sst"><h2 id={hid}>{title}</h2>{#if sub}<p>{sub}</p>{/if}</div>
@@ -27,6 +43,7 @@
   </div>
   {@render children()}
 </section>
+{/if}
 
 <style>
   .ssec {
@@ -52,6 +69,57 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
     overflow-wrap: break-word;
+  }
+  /* SN3+: a folded section: one white row with the count and a chevron */
+  .sfs {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    min-height: 64px;
+    padding: 12px var(--sp-4);
+    cursor: pointer;
+    list-style: none;
+  }
+  .sfs::-webkit-details-marker {
+    display: none;
+  }
+  .sfs .sst {
+    flex: 1 1 auto;
+  }
+  .sfs h2 {
+    margin: 0;
+    font: 600 var(--fs-sub) / 1.25 var(--font-body);
+    overflow-wrap: break-word;
+  }
+  .sfs p {
+    margin: 2px 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .scount {
+    flex: none;
+    display: grid;
+    place-items: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .sfs :global(.sfc) {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 0.15s;
+  }
+  details[open] > .sfs :global(.sfc) {
+    transform: rotate(180deg);
+  }
+  .sfb {
+    margin-top: 10px;
   }
   .ssec :global(.slist) {
     margin: 0;

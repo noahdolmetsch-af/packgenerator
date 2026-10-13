@@ -7,6 +7,13 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
 
+// SN3+ «Bausteine je nach Lage» (answer «aufklappbar b»): only «Je nach Lage» is open on Bausteine; open the other groups
+const openGroups = async (page) => {
+  const shut = page.locator('main section.sfold > details:not([open]) > summary');
+  while (await shut.count()) await shut.first().click();
+};
+
+
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
@@ -98,6 +105,7 @@ for (const lang of ['de', 'en']) {
 
     // The building blocks page shows the 3 items, the gone one never.
     await page.goto('./#/blocks');
+    await openGroups(page);
     const card = page.getByRole('listitem', { name: 'test_data_gtp_ Regen' });
     await expect(card).toContainText(T('{n} items', { n: 3 }));
     for (const id of RAIN) await expect(card).toContainText(NAMES[id]);
@@ -220,6 +228,7 @@ test('building blocks page on a 320 px phone: gone item greyed, amount, rename b
   const T = tr('de');
   await start(page, context, info, 'de', { block: true }, { width: 320, height: 640 });
   await page.goto('./#/blocks');
+  await openGroups(page);
   const card = page.getByRole('listitem', { name: 'test_data_gtp_ Regen' });
   // v0.32.0 (finding 5): the card shows the names; rows and changes fold away under "Change".
   await expect(card).toContainText('test_data_gtp_ Handschuhe × 2');
@@ -271,6 +280,7 @@ test('kits become templates after the start; the rain kit becomes a building blo
   await page.goto('./#/pack/templates/tpl-kit-D');
   await expect(page.getByText('test_data_gtp_ short rides up to 3 h')).toBeVisible();
   await page.goto('./#/blocks');
+  await openGroups(page);
   await expect(page.getByRole('listitem', { name: 'test_data_gtp_ Rain setup' })).toContainText(T('{n} items', { n: 3 }));
 });
 

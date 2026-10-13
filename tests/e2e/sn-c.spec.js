@@ -8,6 +8,13 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
 import { openMore } from './bike-more.js';
 
+// SN3+ «Bausteine je nach Lage» (answer «aufklappbar b»): only «Je nach Lage» is open on Bausteine; open the other groups
+const openGroups = async (page) => {
+  const shut = page.locator('main section.sfold > details:not([open]) > summary');
+  while (await shut.count()) await shut.first().click();
+};
+
+
 const P = 'test_data_gtp_';
 const TPL = fileURLToPath(new URL('./templates-fixture.json', import.meta.url));
 const PF = readFileSync(fileURLToPath(new URL('./pf-fixture.json', import.meta.url)), 'utf8');
@@ -106,6 +113,7 @@ test('SN3 Vorlage bearbeiten: blocks as option buttons, a tap adds or leaves one
 test('SN3 Bausteine: grouped sections of rows, «Prüfen» and «Neuer Baustein» in the head', async ({ page, context }, info) => {
   const errors = await load(page, context, TPL);
   await page.goto('./#/blocks');
+  await openGroups(page);
   await expect(page.getByRole('heading', { level: 1, name: T('Building blocks') })).toBeVisible();
   for (const name of [T('Always with you'), T('With the night'), T('To add')]) await expect(page.getByRole('region', { name })).toBeVisible();
   expect(await page.locator('details.edit > summary.srow').count()).toBeGreaterThanOrEqual(5);
