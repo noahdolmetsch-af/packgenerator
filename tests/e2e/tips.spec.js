@@ -85,7 +85,7 @@ test('Tried it yet? with one idea and Next; the overview with ticks and progress
   await noSideScroll(page);
   // «Take me there» starts the thing: the weigh tab of Gear, marked as used
   const weigh = page.locator('[data-feature="weigh"]');
-  await weigh.getByRole('link', { name: T('Take me there') }).click();
+  await weigh.locator('.fmain').click(); // SN6 (changed on purpose): the row itself takes you there
   await expect(page).toHaveURL(/#\/gear\?tab=weigh$/);
   await expect.poll(async () => (await tipsState(page))?.tapped?.weigh ?? null).not.toBeNull();
   expect(errors).toEqual([]);

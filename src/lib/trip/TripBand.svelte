@@ -40,7 +40,8 @@
 
   // weighHint: false hides the "6 not weighed" badge (v0.30.1, Noah E4: not next to the green "Day ride created" card).
   // v0.47.1 (Noah a): edit (Plan only) turns date, duration, weather and bike into chips that change the value in place.
-  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true, edit = null, extra = null } = $props();
+  // SN1: stateMore adds to the pill's extra («unterwegs, Tag 2 von 3»); stepText replaces «Schritt 3 von 4» in the bar.
+  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true, edit = null, extra = null, stateMore = '', stepText = '' } = $props();
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const bagsQ = liveQuery(() => db.containers.toArray());
@@ -119,7 +120,7 @@
   <div class="who">
     <nav class="crumb" aria-label={t('Where you are')}><a href="#/trips"><ChevronLeft size={18} aria-hidden="true" />{t('Trips|place')}</a>{#if !phone.matches}<span class="here" aria-hidden="true"><ChevronRight size={14} />{trip.title}</span>{/if}</nav>
     <div class="kline">
-      {#if stInfo?.state}<TripState state={stInfo.state} size="md" extra={stExtra} />{/if}
+      {#if stInfo?.state}<TripState state={stInfo.state} size="md" extra={stExtra && stateMore ? `${stExtra}, ${stateMore}` : stExtra} />{/if}
       {#if kicker}<p class="kick">{kicker}</p>{/if}
       <InProgress current={trip.id} light />
       {@render extra?.()}
@@ -150,7 +151,7 @@
   <!-- L7: no button (the debrief before the last day): no empty bar at the bottom of a phone.
        v0.67.0 (kit): the one main button sits in the MainBar of the kit (bottom of a phone). -->
   {#if action || aside || hint}
-    <MainBar place="band" {aside} {hint} step={stepLine} second={{ label: t('Back to Trips'), href: '#/trips' }}>{@render action?.()}</MainBar>
+    <MainBar place="band" {aside} {hint} step={stepText || stepLine} second={{ label: t('Back to Trips'), href: '#/trips' }}>{@render action?.()}</MainBar>
   {/if}
   <!-- v0.67.0 (kit, Ü1 a): the steps are the kit's StepBar, the same as on the interstitials. -->
   <div class="steps"><StepBar {trip} {tabs} {status} current={tab} onpick={() => openTrip(trip.id)} /></div>
