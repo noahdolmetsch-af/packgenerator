@@ -11,6 +11,11 @@ export default {
   'Evening review: satisfaction, the best part of the day, time outside filled in from your ride, meditation counts by itself': 'Abend-Rückblick: Zufriedenheit, das Coolste des Tages, Zeit draussen schon ausgefüllt aus deiner Fahrt, Meditation zählt von selbst',
   'At the side: the day in numbers, morning → evening and your week': 'Daneben: der Tag in Zahlen, Morgen → Abend und deine Woche',
   '«Speak» for a few words, where the browser can': '«Sprechen» für ein paar Worte, wo der Browser es kann',
+  // 0.127.0 Tages-Check 2
+  'Your balance on Today: nine areas of your last 7 days in one ring; «Your 15 questions» shows where each one counts, and each one can be switched off': 'Deine Balance auf Heute: neun Bereiche deiner letzten 7 Tage in einem Ring; «Deine 15 Fragen» zeigt, wo jede zählt, und jede lässt sich abschalten',
+  'On Sundays the evening asks: did you get closer to your vision?': 'Am Sonntag fragt der Abend: Bist du deiner Vision näher gekommen?',
+  'Press a tile long: its sizes show at once': 'Eine Kachel lange drücken: Ihre Grössen erscheinen sofort',
+  'On Today: «Your balance» shows the ring; tap «Your 15 questions» and switch a question off: the check no longer asks it.': 'Auf Heute: «Deine Balance» zeigt den Ring; tippe «Deine 15 Fragen» und schalte eine Frage aus: Der Check fragt sie nicht mehr.',
   'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».': 'Auf Heute in der Check-Zeile «Starten» tippen: Der Morgen-Check öffnet sich. Ein paar Fragen beantworten, «Fertig» tippen.',
   'After 20:30 the row offers the evening review; or open it directly. Ride or meditate before: the answers are filled in.': 'Nach 20:30 bietet die Zeile den Abend-Rückblick an. Vorher fahren oder meditieren: Die Antworten sind schon ausgefüllt.',
 

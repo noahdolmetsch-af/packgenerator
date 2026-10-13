@@ -88,6 +88,9 @@
   import SeriesTile from '../lib/home/SeriesTile.svelte';
   import NewsTile from '../lib/home/NewsTile.svelte';
   import MedTile from '../lib/home/MedTile.svelte';
+  import BalanceTile from '../lib/home/BalanceTile.svelte';
+  import MorningCheckTile from '../lib/home/MorningCheckTile.svelte';
+  import QuestionsTile from '../lib/home/QuestionsTile.svelte';
   import { checkHref } from '../lib/flowcheck.js';
   import TryCard from '../lib/home/TryCard.svelte';
   import BikeCards from '../lib/home/BikeCards.svelte';
@@ -107,7 +110,7 @@
   import { isShown } from '../lib/helper/client.svelte.js';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { tripToday } from '../lib/home/ruhig.js';
-  import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, TriangleAlert, SlidersHorizontal } from '@lucide/svelte';
+  import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, TriangleAlert, SlidersHorizontal, Hand, X } from '@lucide/svelte';
   import Profile from '../lib/ui/Profile.svelte';
 
   /* ---------- the records ---------- */
@@ -121,7 +124,7 @@
   const notesQ = liveQuery(() => db.notes.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   const learnQ = liveQuery(() => db.learnings.toArray());
-  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY];
+  const SKEYS = ['riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress'];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -692,6 +695,9 @@
     await db.settings.put({ key: 'userName', value: nameIn.trim() });
   }
   const newTile = (id) => isNew(TILE[id], today);
+  // v0.127.0 «Tages-Check» 2: the hint to the long press shows until it is closed (settings, in every backup)
+  const HINT_KEY = 'homeHintLongPress';
+  const closeHint = () => db.settings.put({ key: HINT_KEY, value: true });
   const tripsDone = $derived(homeTrips(allTrips).filter((x) => tripDone(x, debriefs, today)).length);
   // a short line under a small function tile (a computer, or a wide tile)
   const gearN = $derived(items.filter(isInventory).length);
@@ -943,6 +949,9 @@
   {:else if x.id === 'month'}<MonthTile {today} rides={$ridesQ ?? []} isnew={newTile('month')} />
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />
   {:else if x.id === 'strava'}<StravaTile isnew={newTile('strava')} />
+  {:else if x.id === 'balance'}<BalanceTile {today} size={x.size} isnew={newTile('balance')} />
+  {:else if x.id === 'morningcheck'}<MorningCheckTile {today} size={x.size} isnew={newTile('morningcheck')} />
+  {:else if x.id === 'questions'}<QuestionsTile {today} isnew={newTile('questions')} />
   {:else if x.id === 'yearago'}<YearAgoTile trips={homeTrips(allTrips)} {debriefs} {today} isnew={newTile('yearago')} />
   {:else if TILE[x.id]?.fn}
     {@const f = FUNCTIONS.find((y) => y.id === TILE[x.id].fn)}
@@ -989,6 +998,14 @@
   {/if}
   <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
+  <!-- v0.127.0 «Tages-Check» 2 (mockup T3): the hint to the long press, once, until it is closed -->
+  {#if !editing && $setQ && !S[HINT_KEY]}
+    <p class="lphint" role="note" data-hint="longpress">
+      <Hand size={18} aria-hidden="true" />
+      <span><b>{t('Tip:')}</b> {t('Press a tile long to change its size. Or «{customise}».', { customise: t('Customise the start page') })}</span>
+      <button type="button" class="lpx" aria-label={t('Close the tip')} onclick={closeHint}><X size={18} aria-hidden="true" /></button>
+    </p>
+  {/if}
   <Wall tiles={shownWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
 
   <div class="custom">
@@ -1031,6 +1048,41 @@
 </dialog>
 
 <style>
+  /* v0.127.0 «Tages-Check» 2 (mockup T3): the hint to the long press, a calm yellow line */
+  .lphint {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px;
+    padding: 4px 4px 4px 14px;
+    border: 1px solid color-mix(in srgb, var(--warn) 25%, var(--paper));
+    border-radius: 14px;
+    background: var(--warn-soft);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .lphint > :global(svg) {
+    flex: none;
+    color: var(--warn);
+  }
+  .lphint span {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 0;
+  }
+  .lpx {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--ink-3);
+    cursor: pointer;
+  }
   /* v0.119.0 «Schnellstart» (mockup Q2a): the green card after one click, above the page */
   .qmade {
     position: fixed;

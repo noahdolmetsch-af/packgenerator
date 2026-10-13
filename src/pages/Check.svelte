@@ -11,16 +11,18 @@
    *   (they take turns), 14 a mindful moment (found by itself from today's meditation). At the side: the
    *   day in numbers, morning → evening, the week so far.
    * Every answer is saved at once in the day's row of flowChecks; every question can be skipped.
+   * v0.127.0 «Tages-Check» 2 (T4): a question switched off in «Deine 15 Fragen» (#/check/questions) is
+   * not asked; on Sundays the evening asks question 15 «Bist du deiner Vision näher gekommen?».
    */
-  import { Sun, Clock, Route, Lightbulb, PenLine, Mic, Square, Flower2, Pencil } from '@lucide/svelte';
+  import { Sun, Clock, Route, Lightbulb, PenLine, Mic, Square, Flower2, Pencil, ListChecks, ChevronRight } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import Scale from '../lib/flow/check/Scale.svelte';
   import Chips from '../lib/flow/check/Chips.svelte';
   import PoolEditor from '../lib/flow/check/PoolEditor.svelte';
   import { db } from '../lib/db.js';
-  import { checkQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
+  import { checkQuery, seedIfNeeded, offQuery } from '../lib/flow/data.svelte.js';
   import { saveCheck } from '../lib/flowdb.js';
-  import { FIXED, rotating, checkOf, patchCheck, yesterdayOf, JOYS, BEST, GOALS, LAST_EVENING, OUTSIDE, PEOPLE, GOAL_DONE, toggleId, outsideFromRides, eveningTurn, mindfulFound, weekHighlights, suggestion } from '../lib/flowcheck.js';
+  import { FIXED, rotatingFor, isOn, eveningTurnFor, visionToday, checkOf, patchCheck, yesterdayOf, JOYS, BEST, GOALS, LAST_EVENING, OUTSIDE, PEOPLE, GOAL_DONE, toggleId, outsideFromRides, eveningTurn, mindfulFound, weekHighlights, suggestion } from '../lib/flowcheck.js';
   import { flowStates } from '../lib/flow.js';
   import { streaks, zurichTime } from '../lib/flowmed.js';
   import { soonTrips } from '../lib/home/heute.js';
@@ -33,6 +35,9 @@
   const today = localDay();
   const q = checkQuery(today);
   const data = $derived($q);
+  const offQ = offQuery();
+  const off = $derived($offQ ?? []);
+  const on = (n) => isOn(off, n);
   $effect(() => {
     seedIfNeeded(data);
   });
@@ -43,11 +48,13 @@
     if (data && !cur) cur = checkOf(data.checks.find((c) => c.day === today), today);
   });
   function set(fields) {
+    // the time the morning was first answered (the «Morgen-Check» tile on Heute shows it)
+    if (part === 'morning' && !cur.mAt) fields = { ...fields, mAt: new Date().toISOString() };
     cur = patchCheck(cur, fields, today);
     saveCheck(db, $state.snapshot(cur));
   }
   const evening = $derived(part === 'evening');
-  const rot = $derived(data ? rotating(data.pool, today) : null);
+  const rot = $derived(data ? rotatingFor(data.pool, off, today) : null);
   const ydot = (key, qid = null) => yesterdayOf(data?.checks ?? [], today, key, qid);
   const dateLong = new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
   const dateShort = new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
@@ -59,7 +66,7 @@
   const withOwn = (list, chosen = []) => [...list.map((x) => ({ id: x.id, label: t(x.label) })), ...chosen.filter((id) => !list.some((x) => x.id === id)).map((id) => ({ id, label: id }))];
 
   /* ---------- morning ---------- */
-  const fixedQs = $derived(FIXED.map((f) => ({ key: f.key, text: t(f.text), lo: t(f.lo), hi: t(f.hi) })));
+  const fixedQs = $derived(FIXED.map((f, i) => ({ n: i + 1, key: f.key, text: t(f.text), lo: t(f.lo), hi: t(f.hi) })).filter((f) => on(f.n)));
   let editPool = $state(false);
   const goalText = (g) => (g?.id ? label(GOALS, g.id) : (g?.text ?? ''));
   const goalItems = $derived([...GOALS.map((g) => ({ id: g.id, label: t(g.label) })), ...(cur?.goal?.text ? [{ id: 'own', label: cur.goal.text }] : [])]);
@@ -87,7 +94,8 @@
   /* ---------- evening ---------- */
   const outsidePre = $derived(data ? outsideFromRides(data.rides, today) : null);
   const outsideNow = $derived(cur?.outside ?? outsidePre?.step ?? null);
-  const turn = eveningTurn(today);
+  const turn = $derived(eveningTurnFor(today, off));
+  const vision = $derived(visionToday(today, off));
   const OUT_LABEL = { 0: '0', lt30: 'up to 30 min', '30-90': '30–90 min', gt90: 'over 90 min' };
   const PEOPLE_LABEL = { no: 'No|people', short: 'Briefly', lots: 'A lot|people' };
   const DONE_LABEL = { yes: 'Yes|goal', part: 'Partly', no: 'No|goal' };
@@ -102,7 +110,7 @@
     if (evening && cur) {
       const fields = {};
       if (cur.outside == null && outsidePre) fields.outside = outsidePre.step;
-      if (cur.mindful == null && medToday) fields.mindful = 'auto';
+      if (cur.mindful == null && medToday && on(14)) fields.mindful = 'auto';
       if (Object.keys(fields).length) await saveCheck(db, patchCheck($state.snapshot(cur), fields, today));
     }
     location.hash = '#/';
@@ -186,15 +194,15 @@
 
 {#snippet morningQs()}
   <section class="card qs" aria-label={t('Morning check')}>
-    {#each fixedQs as f, i (f.key)}
+    {#each fixedQs as f (f.key)}
       <div class="q" data-q={f.key}>
-        {@render head(i + 1, `cq-${f.key}`, f.text, `${f.lo} … ${f.hi}`, t('daily|check'))}
+        {@render head(f.n, `cq-${f.key}`, f.text, `${f.lo} … ${f.hi}`, t('daily|check'))}
         <Scale value={cur[f.key]} yesterday={ydot(f.key)} label="cq-{f.key}" onpick={(v) => set({ [f.key]: v })} />
       </div>
     {/each}
     {#if rot}
       <div class="q" data-q="extra">
-        {@render head(4, 'cq-extra', qText(rot.q), [qText(rot.q, 'lo'), qText(rot.q, 'hi')].filter(Boolean).join(' … ') + ` · ${t('changes daily')}`, t('today|check'))}
+        {@render head(rot.q.id === 'calm' ? 5 : 4, 'cq-extra', qText(rot.q), [qText(rot.q, 'lo'), qText(rot.q, 'hi')].filter(Boolean).join(' … ') + ` · ${t('changes daily')}`, t('today|check'))}
         <Scale value={cur.q === rot.q.id || cur.q == null ? cur.extra : null} yesterday={ydot('extra', rot.q.id)} label="cq-extra" onpick={(v) => set({ extra: v, q: rot.q.id })} />
         {#if editPool}
           <div class="pe"><PoolEditor pool={data.pool} onclose={() => (editPool = false)} /></div>
@@ -203,14 +211,19 @@
         {/if}
       </div>
     {/if}
+    {#if on(6)}
     <div class="q" data-q="joy">
       {@render head(6, 'cq-joy', t('What are you looking forward to today?'), t('several possible'), t('daily|check'))}
       <Chips name="joy" label="cq-joy" multi items={withOwn(JOYS, cur.joy)} value={cur.joy} own={t('own|chip')} onpick={(id) => set({ joy: toggleId(cur.joy, id) })} onown={(s) => set({ joy: cur.joy.includes(s) ? cur.joy : [...cur.joy, s] })} />
     </div>
+    {/if}
+    {#if on(7)}
     <div class="q" data-q="goal">
       {@render head(7, 'cq-goal', t('Your most important goal for today'), t('a suggestion or one sentence of your own'), t('daily|check'))}
       <Chips name="goal" label="cq-goal" items={goalItems} value={goalValue} own={t('own sentence')} onpick={pickGoal} onown={(s) => set({ goal: { text: s } })} />
     </div>
+    {/if}
+    {@render allQs()}
   </section>
 {/snippet}
 
@@ -267,10 +280,13 @@
 
 {#snippet eveningQs()}
   <section class="card qs" aria-label={t('Evening review')}>
+    {#if on(8)}
     <div class="q" data-q="sat">
       {@render head(8, 'cq-sat', t('How happy are you with the day?'), `${t('not at all|sat')} … ${t('very|sat')}`, t('daily|check'))}
       <Scale value={cur.sat} yesterday={ydot('sat')} label="cq-sat" onpick={(v) => set({ sat: v })} />
     </div>
+    {/if}
+    {#if on(9)}
     <div class="q" data-q="best">
       {@render head(9, 'cq-best', t('What was the best part of today?'), t('several possible'), t('daily|check'))}
       <Chips name="best" label="cq-best" multi items={withOwn(BEST, cur.best)} value={cur.best} own={t('own|chip')} onpick={(id) => set({ best: toggleId(cur.best, id) })} onown={(s) => set({ best: cur.best.includes(s) ? cur.best : [...cur.best, s] })} />
@@ -282,28 +298,33 @@
         {/if}
       </div>
     </div>
-    {#if cur.goal}
+    {/if}
+    {#if cur.goal && on(10)}
       <div class="q" data-q="goalDone">
         {@render head(10, 'cq-gd', t('Goal from this morning: «{goal}»', { goal: goalText(cur.goal) }), t('reached?'), t('daily|check'))}
         <Chips name="goalDone" label="cq-gd" items={GOAL_DONE.map((x) => ({ id: x, label: t(DONE_LABEL[x]) }))} value={cur.goalDone} onpick={(id) => set({ goalDone: cur.goalDone === id ? null : id })} />
       </div>
     {/if}
+    {#if on(11)}
     <div class="q" data-q="outside">
       {@render head(11, 'cq-out', t('How long were you outside?'), outsidePre && cur.outside == null ? t('filled in from your ride, changeable') : '', t('daily|check'))}
       <Chips name="outside" label="cq-out" items={OUTSIDE.map((x) => ({ id: x, label: t(OUT_LABEL[x]) }))} value={outsideNow} onpick={(id) => set({ outside: outsideNow === id && cur.outside != null ? null : id })} />
     </div>
+    {/if}
     {#if turn === 'people'}
       <div class="q" data-q="people">
-        {@render head(12, 'cq-ppl', t('Time with friends or family?'), t('takes turns with question 13'), t('today|check'))}
+        {@render head(12, 'cq-ppl', t('Time with friends or family?'), on(13) ? t('takes turns with question 13') : '', t('today|check'))}
         <Chips name="people" label="cq-ppl" items={PEOPLE.map((x) => ({ id: x, label: t(PEOPLE_LABEL[x]) }))} value={cur.people} onpick={(id) => set({ people: cur.people === id ? null : id })} />
       </div>
-    {:else}
+    {:else if turn === 'fun'}
       <div class="q" data-q="fun">
-        {@render head(13, 'cq-fun', t('How much fun did you have?'), `${t('little|fun')} … ${t('a lot|fun')} · ${t('takes turns with question 12')}`, t('today|check'))}
+        {@render head(13, 'cq-fun', t('How much fun did you have?'), `${t('little|fun')} … ${t('a lot|fun')}${on(12) ? ` · ${t('takes turns with question 12')}` : ''}`, t('today|check'))}
         <Scale value={cur.fun} label="cq-fun" onpick={(v) => set({ fun: v })} />
       </div>
     {/if}
-    {#if medToday}
+    {#if !on(14)}
+      <!-- question 14 switched off -->
+    {:else if medToday}
       <div class="q" data-q="mindful">
         <div class="auto" data-mindful-auto>
           <Flower2 size={18} aria-hidden="true" />
@@ -317,7 +338,23 @@
         <Chips name="mindful" label="cq-mind" items={[{ id: 'yes', label: t('Yes|goal') }, { id: 'no', label: t('No|goal') }]} value={cur.mindful} onpick={(id) => set({ mindful: cur.mindful === id ? null : id })} />
       </div>
     {/if}
+    {#if vision}
+      <!-- v0.127.0 «Tages-Check» 2: question 15, on Sundays -->
+      <div class="q" data-q="vision">
+        {@render head(15, 'cq-vis', t('Did you get closer to your vision?'), `${t('not at all|vision')} … ${t('a big step')}`, t('Sunday|check'))}
+        <Scale value={cur.vision} label="cq-vis" onpick={(v) => set({ vision: v })} />
+        <div class="more">
+          <PenLine size={16} aria-hidden="true" />
+          <textarea class="st" rows="1" placeholder={t('One sentence about it')} aria-label={t('One sentence about your vision')} value={cur.visionNote} onchange={(e) => set({ visionNote: e.currentTarget.value })} data-vision-note></textarea>
+        </div>
+      </div>
+    {/if}
+    {@render allQs()}
   </section>
+{/snippet}
+
+{#snippet allQs()}
+  <a class="lk all" href="#/check/questions" data-all-questions><ListChecks size={16} aria-hidden="true" />{t('Your 15 questions')}<ChevronRight size={16} aria-hidden="true" /></a>
 {/snippet}
 
 {#snippet dayNumbers()}

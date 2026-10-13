@@ -6,7 +6,7 @@
 import { liveQuery } from 'dexie';
 import { db } from '../db.js';
 import { addDays, normAct, tripDays } from '../flow.js';
-import { QUESTIONS_KEY, poolOf } from '../flowcheck.js';
+import { QUESTIONS_KEY, poolOf, OFF_KEY, offOf } from '../flowcheck.js';
 import { BOWL_KEY, bowlOf } from '../flowbowl.js';
 import { homeTrips } from '../home/heute.js';
 import { ensureSeed, ensureSeed2, ensureMedSeed } from '../flowdb.js';
@@ -199,3 +199,34 @@ export function checkQuery(today) {
     };
   });
 }
+
+/* ---------- v0.127.0 «Tages-Check» 2: the tiles on Heute and the 15 questions ---------- */
+/**
+ * What «Deine Balance», «Morgen-Check» and «Deine 15 Fragen» read: the checks and the log of the last
+ * 7 days, the activities (their ring), the rides of those days (files and counted Strava rides), the
+ * pool and the questions switched off.
+ */
+export function balanceQuery(today) {
+  const from = addDays(today, -6);
+  return liveQuery(async () => {
+    const [acts, log, checks, rides, book, pool, off] = await Promise.all([
+      db.flowActs.toArray(),
+      db.flowLog.where('day').aboveOrEqual(from).toArray(),
+      db.flowChecks.where('day').aboveOrEqual(from).toArray(),
+      db.rides.where('date').aboveOrEqual(from).toArray(),
+      db.kmBook.where('date').aboveOrEqual(from).toArray(),
+      db.settings.get(QUESTIONS_KEY),
+      db.settings.get(OFF_KEY),
+    ]);
+    return {
+      acts: acts.map(normAct),
+      log: log.filter((e) => e.day <= today),
+      checks: checks.filter((c) => c.day <= today),
+      rides: withStravaRides(rides, book).filter((r) => r.date <= today).map((r) => ({ date: r.date, km: r.km, movingH: r.movingH ?? null, totalH: r.totalH ?? null })),
+      pool: poolOf(pool?.value),
+      off: offOf(off?.value),
+    };
+  });
+}
+/** The questions switched off, live (the two check pages and the catalogue). */
+export const offQuery = () => liveQuery(async () => offOf((await db.settings.get(OFF_KEY))?.value));

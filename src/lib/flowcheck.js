@@ -77,6 +77,10 @@ export function checkOf(c, day) {
     people: oneOf(c?.people, PEOPLE),
     fun: v10(c?.fun),
     mindful: oneOf(c?.mindful, ['yes', 'no', 'auto']),
+    // v0.127.0 «Tages-Check» 2: Q15 on Sundays (1–10 and one sentence), when the morning was first answered
+    vision: v10(c?.vision),
+    visionNote: typeof c?.visionNote === 'string' ? c.visionNote : '',
+    mAt: typeof c?.mAt === 'string' ? c.mAt : null,
   };
 }
 /** Some answers of the day set at once (the rest kept). */
@@ -207,7 +211,7 @@ export const isEvening = (d = new Date()) => d.getHours() * 60 + d.getMinutes() 
 /** Where the check entry leads now: the morning check, from 20:30 the evening review. */
 export const checkHref = (d = new Date()) => (isEvening(d) ? '#/check/evening' : '#/check/morning');
 /** The part of the check an address shows ('morning' or 'evening'). */
-export const checkPart = (hash = '') => (/^#\/check\/evening\b/.test(hash) ? 'evening' : 'morning');
+export const checkPart = (hash = '') => (/^#\/check\/evening\b/.test(hash) ? 'evening' : /^#\/check\/questions\b/.test(hash) ? 'questions' : 'morning');
 /** How many of the evening questions are answered (for the entry on Heute). */
 export const eveningDone = (c) => checkOf(c).sat != null;
 
@@ -227,4 +231,88 @@ export function suggestion({ sleep = null, energy = null, joy = [], weather = nu
   if (dry === false) return { id: 'indoor', text: 'Wet outside: something indoors today?', opts: [{ id: 'yoga', label: 'Yoga 30 min' }, med] };
   if (joy.includes('friends')) return { id: 'friends', text: 'You look forward to friends: arrange something small?', opts: [{ id: 'meet', label: 'Meet up' }, walk] };
   return { id: 'walk', text: 'A little time outside does most days good.', opts: [walk, { id: 'ride', label: 'Ride 1 h' }] };
+}
+
+/* ---------- v0.127.0 «Tages-Check» step 2: the 15 questions (T4), switches, the Sunday question ---------- */
+/**
+ * Noah 13.10.2026 «T1–T4 freigegeben»: the catalogue of the 15 questions (#/check/questions). Each one
+ * can be switched off (settings record 'checkQuestionsOff': [numbers]); a switched-off question no longer
+ * shows on the morning or evening page. Labels are English keys for t(); cat is a key of balance.js CATS.
+ * Questions 4 and 5 are the rotating question of the morning (the pool ids 'body' and 'calm').
+ */
+export const OFF_KEY = 'checkQuestionsOff';
+export const QUESTIONS = [
+  { n: 1, part: 'morning', text: 'How well did you sleep?', often: 'daily|often', answer: '1–10', cat: 'rest' },
+  { n: 2, part: 'morning', text: 'How much energy do you have?', often: 'daily|often', answer: '1–10', cat: 'rest' },
+  { n: 3, part: 'morning', text: 'How is your mood?', often: 'daily|often', answer: '1–10', cat: 'fun' },
+  { n: 4, part: 'morning', text: 'Body and legs?', often: 'rotating|often', answer: '1–10', cat: 'sport', pool: 'body' },
+  { n: 5, part: 'morning', text: 'How calm is your mind?', often: 'rotating|often', answer: '1–10', cat: 'mind', pool: 'calm' },
+  { n: 6, part: 'morning', text: 'What are you looking forward to?', often: 'daily|often', answer: 'Choice|answer', cat: 'fun' },
+  { n: 7, part: 'morning', text: 'Most important goal today', often: 'daily|often', answer: 'Choice or sentence', cat: 'goals' },
+  { n: 8, part: 'evening', text: 'How happy with the day?', often: 'daily|often', answer: '1–10', cat: 'done' },
+  { n: 9, part: 'evening', text: 'What was the best part?', often: 'daily|often', answer: 'Choice + tell more', cat: 'fun' },
+  { n: 10, part: 'evening', text: 'Goal reached?', often: 'daily|often', answer: 'yes · partly · no', cat: 'done' },
+  { n: 11, part: 'evening', text: 'How long outside?', often: 'daily, filled in', answer: 'Choice|answer', cat: 'nature' },
+  { n: 12, part: 'evening', text: 'Time with friends or family?', often: 'rotating|often', answer: 'no · briefly · a lot', cat: 'friends' },
+  { n: 13, part: 'evening', text: 'How much fun?', often: 'rotating|often', answer: '1–10', cat: 'fun' },
+  { n: 14, part: 'evening', text: 'Mindful moment?', often: 'rotating, meditation counts by itself', answer: 'yes · no', cat: 'mind' },
+  { n: 15, part: 'sunday', text: 'Closer to your vision?', often: 'weekly|often', answer: '1–10 + 1 sentence', cat: 'vision' },
+];
+/** The stored list of switched-off questions made safe: numbers 1–15, each once. */
+export const offOf = (value) => [...new Set((Array.isArray(value) ? value : []).map(Number).filter((n) => Number.isInteger(n) && n >= 1 && n <= 15))].sort((a, b) => a - b);
+/** Is question n on? */
+export const isOn = (off = [], n) => !offOf(off).includes(n);
+/** Switch question n on or off → the new list. */
+export const switchQuestion = (off = [], n, on) => offOf(on ? offOf(off).filter((x) => x !== n) : [...offOf(off), n]);
+/** The rotating pool without the questions switched off (4: 'body', 5: 'calm'). */
+export const poolFor = (pool, off = []) => {
+  const gone = QUESTIONS.filter((q) => q.pool && !isOn(off, q.n)).map((q) => q.pool);
+  return poolOf(pool).filter((x) => !gone.includes(x.id));
+};
+/** The rotating question of a day with the switches: null when every pool question is off. */
+export const rotatingFor = (pool, off, day) => {
+  const list = poolFor(pool, off);
+  return list.length ? rotating(list, day) : null;
+};
+/** Q12 or Q13 of the evening with the switches: when one is off the other comes every day; null when both are. */
+export function eveningTurnFor(day, off = []) {
+  const p = isOn(off, 12);
+  const f = isOn(off, 13);
+  if (p && f) return eveningTurn(day);
+  return p ? 'people' : f ? 'fun' : null;
+}
+/** Is a calendar day (YYYY-MM-DD, a local day) a Sunday? */
+export const isSunday = (day) => new Date(`${day}T12:00:00Z`).getUTCDay() === 0;
+/** Days to the next Sunday (0 on a Sunday). */
+export const daysToSunday = (day) => (7 - new Date(`${day}T12:00:00Z`).getUTCDay()) % 7;
+/** Q15 shows in the evening review on Sundays, when it is on. */
+export const visionToday = (day, off = []) => isSunday(day) && isOn(off, 15);
+
+/**
+ * «Deine 15 Fragen» on Heute: how many of today's questions (morning or evening part, the ones on and
+ * asked today) are answered → { part, done, of }.
+ */
+export function answeredToday(c, { day, off = [], evening = false, pool = null, mindfulAuto = false } = {}) {
+  const x = checkOf(c, day);
+  const on = (n) => isOn(off, n);
+  const asked = [];
+  if (!evening) {
+    if (on(1)) asked.push(x.sleep != null);
+    if (on(2)) asked.push(x.energy != null);
+    if (on(3)) asked.push(x.mood != null);
+    if (rotatingFor(pool, off, day)) asked.push(x.extra != null);
+    if (on(6)) asked.push(x.joy.length > 0);
+    if (on(7)) asked.push(!!x.goal);
+  } else {
+    if (on(8)) asked.push(x.sat != null);
+    if (on(9)) asked.push(x.best.length > 0 || !!x.story.trim());
+    if (on(10) && x.goal) asked.push(x.goalDone != null);
+    if (on(11)) asked.push(x.outside != null);
+    const turn = eveningTurnFor(day, off);
+    if (turn === 'people') asked.push(x.people != null);
+    if (turn === 'fun') asked.push(x.fun != null);
+    if (on(14)) asked.push(x.mindful != null || mindfulAuto);
+    if (visionToday(day, off)) asked.push(x.vision != null);
+  }
+  return { part: evening ? 'evening' : 'morning', done: asked.filter(Boolean).length, of: asked.length };
 }

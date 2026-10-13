@@ -21,6 +21,7 @@
   import Wardrobe from './pages/Wardrobe.svelte';
   import Flow from './pages/Flow.svelte';
   import Check from './pages/Check.svelte';
+  import CheckQuestions from './pages/CheckQuestions.svelte';
   import Between from './pages/Between.svelte';
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
@@ -297,7 +298,8 @@
     <Flow sub={hash.split('/').slice(2).join('/')} />
   {:else if page === 'check'}
     <!-- v0.127.0 «Tages-Check» 1: #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
-    {#key hash}<Check part={checkPart(hash)} />{/key}
+    <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
+    {#key hash}{#if checkPart(hash) === 'questions'}<CheckQuestions />{:else}<Check part={checkPart(hash)} />{/if}{/key}
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <Me />

@@ -8,6 +8,8 @@
 //    Q14 found from today's meditation, Q10 asks about the morning's goal; the side shows the day in
 //    numbers, morning → evening and the week; «Sprechen» only where the browser can; «Fertig» keeps
 //    the filled-in answers. No sideways scroll, no page errors. Fictional data only.
+// 3. Step 2 (T3, T4): the balance ring, the morning-check tile and «Deine 15 Fragen» on Heute, the
+//    catalogue with its switches, question 15 on Sundays, the tip about the long press and the long press.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { eveningTurn } from '../../src/lib/flowcheck.js';
@@ -187,4 +189,160 @@ test('«Sprechen» shows where the browser can turn speech into text', async ({ 
   await open(page, context, '21:00', { speech: true });
   await page.goto('./#/check/evening');
   await expect(page.locator('[data-speak]')).toHaveText(T('Speak'));
+});
+
+/* ---------- v0.127.0 «Tages-Check» 2 (mockups T3, T4, Noah 13.10.2026 «T1–T4 freigegeben») ---------- */
+const setting = (page, key) =>
+  page.evaluate(
+    (key) =>
+      new Promise((res) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const g = r.result.transaction('settings').objectStore('settings').get(key);
+          g.onsuccess = () => (res(g.result?.value ?? null), r.result.close());
+        };
+      }),
+    key,
+  );
+
+test('Heute: «Deine Balance» ring from the answers and the meditation, the morning-check tile, «Deine 15 Fragen»', async ({ page, context }) => {
+  const errors = await open(page, context, '07:52');
+  await put(page, rows());
+  await page.reload();
+  await ready(page);
+
+  const ring = page.locator('[data-section="balance"]');
+  await expect(ring.getByRole('heading', { name: T('Your balance') })).toBeVisible();
+  await expect(ring).toContainText(T('last 7 days · from questions and your data'));
+  // meditation on 6 of the last 7 days: Achtsamkeit full; nothing about visions: empty, never invented
+  await expect(ring.locator('[data-cat="mind"] em')).toHaveText('100');
+  await expect(ring.locator('[data-cat="vision"] em')).toHaveText('–');
+  await expect(ring.locator('[data-cat="friends"] em')).toHaveText('–');
+  // one segment per category with a value, the least one with a gentle suggestion
+  const known = await ring.locator('.lg em').evaluateAll((els) => els.filter((e) => e.textContent !== '–').length);
+  await expect(ring.locator('path[data-seg]')).toHaveCount(known);
+  await expect(ring.locator('[data-least]')).toContainText(T('Least:'));
+  await expect(ring.getByRole('img')).toHaveAttribute('aria-label', new RegExp(T('Mindfulness|cat') + ' 100'));
+
+  // the morning-check tile: not yet today → it starts the check; afterwards it shows the numbers
+  const mc = page.locator('[data-section="morningcheck"]');
+  await expect(mc).toHaveAttribute('data-done', 'false');
+  await expect(mc).toContainText(T('not yet today · about 40 seconds'));
+  // «Deine 15 Fragen»: 0 of the morning, question 15 on Sunday (15.10.2026 is a Thursday)
+  const qs = page.locator('[data-section="questions"]');
+  await expect(qs).toContainText(T('{n} of {m} this morning', { n: 0, m: 6 }));
+  await expect(qs).toContainText(T('Sunday comes question 15'));
+
+  await mc.click();
+  await expect(page).toHaveURL(/#\/check\/morning$/);
+  for (const [k, v] of [['sleep', 6], ['energy', 5], ['mood', 7]]) await page.locator(`[data-q="${k}"] .sv`).nth(v - 1).click();
+  await page.locator('[data-chips="goal"]').getByRole('button', { name: T('Ride after work') }).click();
+  await page.locator('[data-check-done]').click();
+  await expect(page).toHaveURL(/#\/$/);
+  await expect(mc).toHaveAttribute('data-done', 'true');
+  await expect(mc).toContainText(T('done {time}', { time: '07:52' }));
+  await expect(mc).toContainText(T('Goal: {goal}', { goal: T('Ride after work') }));
+  await expect(mc.locator('[data-val="mood"] b')).toHaveText('7');
+  await expect(mc).toContainText(T('From 20:30 the evening review comes here.'));
+  await expect(qs).toContainText(T('{n} of {m} this morning', { n: 4, m: 6 }));
+  expect(await noScroll(page)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('«Deine 15 Fragen»: the table by part, a switch hides the question in the check and stays', async ({ page, context }, info) => {
+  const errors = await open(page, context, '07:52');
+  await page.locator('[data-section="questions"]').click();
+  await expect(page).toHaveURL(/#\/check\/questions$/);
+  await expect(page.getByRole('heading', { level: 1, name: T('Your 15 questions') })).toBeVisible();
+  await expect(page.locator('tr[data-question]')).toHaveCount(15);
+  await expect(page.getByText(T('Comes by itself'))).toBeVisible();
+  await expect(page.getByText(T('with Fitbit/Google, later'))).toBeVisible();
+  // a phone leaves the columns «Wie oft» and «Antwort» away
+  await expect(page.getByRole('columnheader', { name: T('How often') })).toHaveCount(info.project.name === 'phone' ? 0 : 1);
+  await expect(page.getByRole('columnheader', { name: T('Answer|table') })).toHaveCount(info.project.name === 'phone' ? 0 : 1);
+  expect(await noScroll(page)).toBe(true);
+
+  // question 6 off: the morning check no longer asks it; the choice stays after a reload
+  const sw = page.locator('tr[data-question="6"]').getByRole('switch');
+  await expect(sw).toHaveAttribute('aria-checked', 'true');
+  await sw.click();
+  await expect(sw).toHaveAttribute('aria-checked', 'false');
+  await expect(page.locator('tr.g').first()).toContainText(T('Morning · {n} taps', { n: 5 }));
+  await expect.poll(() => setting(page, 'checkQuestionsOff')).toEqual([6]);
+  await page.reload();
+  await expect(page.locator('tr[data-question="6"]').getByRole('switch')).toHaveAttribute('aria-checked', 'false');
+  await page.goto('./#/check/morning');
+  await expect(page.locator('[data-q="sleep"]')).toBeVisible();
+  await expect(page.locator('[data-q="joy"]')).toHaveCount(0);
+  await expect(page.locator('[data-q="goal"]')).toBeVisible();
+  // the morning page leads to the catalogue too; on again, the question is back
+  await page.locator('[data-all-questions]').click();
+  await expect(page).toHaveURL(/#\/check\/questions$/);
+  await page.locator('tr[data-question="6"]').getByRole('switch').click();
+  await page.goto('./#/check/morning');
+  await expect(page.locator('[data-q="joy"]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('question 15 on a Sunday evening: 1–10 and one sentence, saved', async ({ page, context }) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.clock.install({ time: new Date('2026-10-18T21:00:00+02:00') }); // a Sunday
+  await page.goto('./#/check/evening');
+  const q15 = page.locator('[data-q="vision"]');
+  await expect(q15).toContainText(T('Did you get closer to your vision?'));
+  await q15.locator('.sv').nth(6).click();
+  await page.locator('[data-vision-note]').fill('Ein fiktiver Schritt.');
+  await page.locator('[data-vision-note]').blur();
+  await expect
+    .poll(() => page.evaluate(() => new Promise((res) => {
+      const r = indexedDB.open('pack-generator');
+      r.onsuccess = () => {
+        const g = r.result.transaction('flowChecks').objectStore('flowChecks').get('2026-10-18');
+        g.onsuccess = () => (res(g.result ? { vision: g.result.vision, visionNote: g.result.visionNote } : null), r.result.close());
+      };
+    })))
+    .toEqual({ vision: 7, visionNote: 'Ein fiktiver Schritt.' });
+  // not on a weekday
+  await page.clock.setSystemTime(new Date('2026-10-19T21:00:00+02:00'));
+  await page.reload();
+  await expect(page.locator('[data-q="sat"]')).toBeVisible();
+  await expect(page.locator('[data-q="vision"]')).toHaveCount(0);
+});
+
+test('the tip about the long press closes for good; a long press shows the sizes of the tile', async ({ page, context }, info) => {
+  const errors = await open(page, context, '07:52');
+  const hint = page.locator('[data-hint="longpress"]');
+  await expect(hint).toContainText(T('Press a tile long to change its size. Or «{customise}».', { customise: T('Customise the start page') }));
+  await hint.getByRole('button', { name: T('Close the tip') }).click();
+  await expect(hint).toHaveCount(0);
+  await expect.poll(() => setting(page, 'homeHintLongPress')).toBe(true);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-section="balance"]')).toBeVisible();
+  await expect(hint).toHaveCount(0);
+
+  // a long press (finger on a phone, mouse on a computer) on «Deine Balance»: its sizes at once
+  const tile = page.locator('.wall [data-tile="balance"]');
+  await tile.scrollIntoViewIfNeeded();
+  const b = await tile.boundingBox();
+  const ev = { pointerType: info.project.name === 'phone' ? 'touch' : 'mouse', clientX: b.x + 20, clientY: b.y + 20, isPrimary: true, button: 0 };
+  await tile.dispatchEvent('pointerdown', ev);
+  await page.waitForTimeout(700);
+  await tile.dispatchEvent('pointerup', ev);
+  await expect(page.getByRole('region', { name: T('Customise the start page') })).toBeVisible();
+  const tools = page.locator('[data-tools="balance"]');
+  await expect(tools).toBeVisible();
+  await tools.getByRole('button', { name: T('Whole row|tile') }).click();
+  await expect(tile).toHaveAttribute('data-size', 'long');
+  // a short tap is still a tap: no customising
+  await page.getByRole('button', { name: T('Done|customise') }).click();
+  await expect(page.locator('[data-tools]')).toHaveCount(0);
+  const mc = page.locator('.wall [data-tile="morningcheck"]');
+  const m = await mc.boundingBox();
+  await mc.dispatchEvent('pointerdown', { ...ev, clientX: m.x + 20, clientY: m.y + 20 });
+  await mc.dispatchEvent('pointerup', { ...ev, clientX: m.x + 20, clientY: m.y + 20 });
+  await page.waitForTimeout(700);
+  await expect(page.getByRole('region', { name: T('Customise the start page') })).toHaveCount(0);
+  expect(errors).toEqual([]);
 });

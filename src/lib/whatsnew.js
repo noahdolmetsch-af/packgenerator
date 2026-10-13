@@ -16,7 +16,7 @@
 
 export const WHATS_NEW = [
   {
-    // v0.127.0 «Tages-Check» 1 (mockups T1–T2, Noah 13.10.2026 «ich gebe hiermit alle mockups frei»)
+    // v0.127.0 «Tages-Check» 1 and 2 (mockups T1–T4, Noah 13.10.2026 «ich gebe hiermit alle mockups frei», «T1–T4 freigegeben»)
     version: '0.127.0',
     date: '2026-10-13',
     title: 'Good morning, how was your day?',
@@ -24,12 +24,17 @@ export const WHATS_NEW = [
     points: [
       { text: 'Morning check: sleep, energy, mood, what you look forward to, your goal for today, with a suggestion for the day', href: '#/check/morning' },
       { text: 'Evening review: satisfaction, the best part of the day, time outside filled in from your ride, meditation counts by itself', href: '#/check/evening' },
-      { text: 'At the side: the day in numbers, morning → evening and your week', href: '#/check/evening' },
+      { text: 'Your balance on Today: nine areas of your last 7 days in one ring; «Your 15 questions» shows where each one counts, and each one can be switched off', href: '#/check/questions' },
     ],
-    small: [{ box: 'new', text: '«Speak» for a few words, where the browser can', href: '#/check/evening' }],
+    small: [
+      { box: 'new', text: 'On Sundays the evening asks: did you get closer to your vision?', href: '#/check/evening' },
+      { box: 'new', text: 'Press a tile long: its sizes show at once', href: '#/' },
+      { box: 'new', text: '«Speak» for a few words, where the browser can', href: '#/check/evening' },
+    ],
     test: [
       'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».',
       'After 20:30 the row offers the evening review; or open it directly. Ride or meditate before: the answers are filled in.',
+      'On Today: «Your balance» shows the ring; tap «Your 15 questions» and switch a question off: the check no longer asks it.',
     ],
   },
   {
