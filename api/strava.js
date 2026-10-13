@@ -11,8 +11,9 @@
  *   GET  ?step=gear         Bearer              → { bikes: [{ id, name, km, primary, retired }] }
  *   GET  ?step=activities   Bearer, &after=<unix s>&before=<unix s>&page=1 → { activities, page, more }
  *   GET  ?step=zones        Bearer              → { hr: [{ min, max }], custom } (Training TR, Noah 13.10.2026 «1-5a»)
- *   GET  ?step=detail       Bearer, &id=<activity id> → { kcal, hist, curve } (the heart rate per second as a
- *                           histogram { bpm: seconds } and a short curve [[minute, bpm]], never the route)
+ *   GET  ?step=detail       Bearer, &id=<activity id> → { kcal, hist, curve, w20 } (the heart rate per second as a
+ *                           histogram { bpm: seconds }, a short curve [[minute, bpm]] and the best 20 minutes of
+ *                           power from a power meter; never the route)
  *   POST ?step=disconnect   Bearer              → { ok } (Strava access withdrawn; device keys stay for Google)
  *
  * Environment (names only; values only in the Vercel project «packgen», never in code or chat):
@@ -61,6 +62,10 @@ export function trimActivity(a) {
     trainer: !!a.trainer,
     hrAvg: a.has_heartrate === false || !Number(a.average_heartrate) ? null : Math.round(Number(a.average_heartrate)),
     hrMax: a.has_heartrate === false || !Number(a.max_heartrate) ? null : Math.round(Number(a.max_heartrate)),
+    // power (Noah 13.10.2026 «a»): Ø and max watts; device false = Strava's estimate (no max then)
+    wAvg: Number(a.average_watts) > 0 ? Math.round(Number(a.average_watts)) : null,
+    wMax: Number(a.max_watts) > 0 ? Math.round(Number(a.max_watts)) : null,
+    wDevice: !!a.device_watts,
   };
 }
 
@@ -75,10 +80,35 @@ const CURVE_POINTS = 120;
  * The heart rate of one activity, reduced: seconds per beat (for the zones, so a changed zone needs
  * no new call) and at most CURVE_POINTS averages for the chart. Nothing about the route.
  */
+/**
+ * The best 20 minutes of power in watts: the highest average over 1200 moving seconds (a gap of more
+ * than 30 s is a pause and does not count). null when the ride has no power stream or is shorter.
+ */
+export function best20(time, watts, span = 1200) {
+  if (!Array.isArray(time) || !Array.isArray(watts) || watts.length < 2) return null;
+  const sec = [];
+  for (let i = 0; i < watts.length - 1; i++) {
+    const dt = Number(time[i + 1]) - Number(time[i]);
+    if (!(dt > 0 && dt <= 30)) continue;
+    const w = Math.max(0, Number(watts[i]) || 0);
+    for (let k = 0; k < dt; k++) sec.push(w);
+  }
+  if (sec.length < span) return null;
+  let sum = 0;
+  for (let i = 0; i < span; i++) sum += sec[i];
+  let best = sum;
+  for (let i = span; i < sec.length; i++) {
+    sum += sec[i] - sec[i - span];
+    if (sum > best) best = sum;
+  }
+  return Math.round(best / span);
+}
+
 export function trimStreams(streams) {
   const time = streams?.time?.data;
   const hr = streams?.heartrate?.data;
-  if (!Array.isArray(time) || !Array.isArray(hr) || hr.length < 2) return { hist: null, curve: [] };
+  const w20 = best20(time, streams?.watts?.data);
+  if (!Array.isArray(time) || !Array.isArray(hr) || hr.length < 2) return { hist: null, curve: [], w20 };
   const hist = {};
   for (let i = 0; i < hr.length - 1; i++) {
     const dt = Number(time[i + 1]) - Number(time[i]);
@@ -96,7 +126,7 @@ export function trimStreams(streams) {
     for (let i = a; i < e; i++) if (Number(hr[i]) > 0) (sum += Number(hr[i])), c++;
     if (c) curve.push([Math.round(Number(time[a]) / 6) / 10, Math.round(sum / c)]);
   }
-  return { hist, curve };
+  return { hist, curve, w20 };
 }
 
 export function trimBike(b) {
@@ -210,7 +240,7 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           const id = url.searchParams.get('id') ?? '';
           if (!/^\d{1,20}$/.test(id)) throw new ApiError(400, 'bad_request', 'id must be an activity number.');
           const one = await stravaGet(cfg, store, `/activities/${id}`);
-          const streams = one.has_heartrate === false ? null : await stravaGet(cfg, store, `/activities/${id}/streams?keys=time,heartrate&key_by_type=true`);
+          const streams = one.has_heartrate === false && !one.device_watts ? null : await stravaGet(cfg, store, `/activities/${id}/streams?keys=time,heartrate,watts&key_by_type=true`);
           return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, ...trimStreams(streams) });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');

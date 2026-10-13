@@ -3,7 +3,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { isoWeek, mondayOf, weekOf, cleanSession, planOf, goalOf, weeksTo, doneBy, copyWeek, prunePlan, weekNumbers, kindOf, actRecord, zonesOf, zoneSecs, mainZone, shares, hmm, speed, sameRoute, kindCounts, monthsOf, needDetail, boundsOfStrava, validBounds, DEFAULT_BOUNDS, zoneRange, typeKey } from '../src/lib/training.js';
-import { trimZones, trimStreams } from '../api/strava.js';
+import { trimZones, trimStreams, best20, trimActivity } from '../api/strava.js';
 import { createDb } from '../src/lib/db.js';
 import { keepActivities, fetchTraining, loadDetail } from '../src/lib/strava/client.svelte.js';
 
@@ -84,7 +84,21 @@ describe('the server', () => {
     expect(curve.length).toBe(120);
     expect(curve[0]).toEqual([0, 120]);
     expect(curve.at(-1)[1]).toBe(150);
-    expect(trimStreams(null)).toEqual({ hist: null, curve: [] });
+    expect(trimStreams(null)).toEqual({ hist: null, curve: [], w20: null });
+  });
+  it('power: Ø and max from Strava, the best 20 minutes from a power meter', () => {
+    expect(trimActivity({ id: 1, average_watts: 187.6, max_watts: 612, device_watts: true })).toMatchObject({ wAvg: 188, wMax: 612, wDevice: true });
+    expect(trimActivity({ id: 2, average_watts: 150.2, device_watts: false })).toMatchObject({ wAvg: 150, wMax: null, wDevice: false });
+    // 40 min at 200 W with 20 min at 260 W in the middle, a 10 min pause before
+    const time = [];
+    const watts = [];
+    for (let s = 0; s < 3000; s++) {
+      time.push(s < 600 ? s : s + 600);
+      watts.push(s >= 1000 && s < 2200 ? 260 : 200);
+    }
+    expect(best20(time, watts)).toBe(260);
+    expect(best20(time.slice(0, 600), watts.slice(0, 600))).toBe(null);
+    expect(trimStreams({ time: { data: time }, watts: { data: watts } }).w20).toBe(260);
   });
 });
 

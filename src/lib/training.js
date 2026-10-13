@@ -60,18 +60,21 @@ export function actRecord(a) {
     hrMax: fin(a.hrMax),
     commute: !!a.commute,
     trainer: !!a.trainer,
+    wAvg: fin(a.wAvg),
+    wMax: fin(a.wMax),
+    wDevice: !!a.wDevice,
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */
-export const KEEP = ['kcal', 'hist', 'curve', 'detail', 'note'];
+export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'detail', 'note'];
 
 /** Newest first. */
 export const byNewest = (a, b) => `${b.day} ${b.time}`.localeCompare(`${a.day} ${a.time}`);
 
-/** The activities whose details (heart rate, kcal) are worth fetching now: newest first, with heart rate, recent. */
+/** The activities whose details (heart rate, kcal, best 20 min) are worth fetching now: newest first, with heart rate or a power meter, recent. */
 export function needDetail(acts, today, { max = DETAIL_MAX, days = DETAIL_DAYS } = {}) {
   const from = shiftDay(today, -days);
-  return acts.filter((a) => !a.detail && a.hrAvg != null && a.day >= from).sort(byNewest).slice(0, max);
+  return acts.filter((a) => !a.detail && (a.hrAvg != null || a.wDevice) && a.day >= from).sort(byNewest).slice(0, max);
 }
 
 /** A calendar day ± n days (no clock involved). */

@@ -3,7 +3,8 @@
    * «Training» TR3 (Noah 13.10.2026 «1-5a», «tr1-4 ok»): one activity, #/flow/training/a/<id>. Its
    * numbers, the time in each heart rate zone (Strava's zones or own ones, 3a), the heart rate over
    * the time with the zone bounds, «Gleiche Strecke» (same name and kind, distance within 10 %),
-   * a note and «In Strava öffnen». The heart rate of an older activity is fetched when it opens.
+   * a note and «In Strava öffnen». Power (Noah 13.10.2026 «a», «überall»): Ø, max and the best 20 minutes;
+   * without a power meter Strava's estimate of Ø only. The heart rate of an older activity is fetched when it opens.
    * Observation only: no value is rated.
    */
   import { liveQuery } from 'dexie';
@@ -41,7 +42,7 @@
   let asked = $state('');
   let fetchErr = $state('');
   $effect(() => {
-    if (!act || act.detail || act.hrAvg == null || !strava.key || asked === act.id) return;
+    if (!act || act.detail || (act.hrAvg == null && !act.wDevice) || !strava.key || asked === act.id) return;
     asked = act.id;
     loadDetail(db, act.id).catch((e) => (fetchErr = e?.code === 'strava_busy' ? t('Strava is busy right now; the heart rate comes with the next fetch.') : t('The heart rate could not be fetched just now.')));
   });
@@ -87,6 +88,9 @@
           {#if act.hrAvg != null}<span><b>{act.hrAvg}</b><small>{t('Ø heart rate')}</small></span>{/if}
           {#if act.hrMax != null}<span><b>{act.hrMax}</b><small>{t('max heart rate')}</small></span>{/if}
           {#if act.kcal}<span><b>{num(act.kcal)}</b><small>kcal</small></span>{/if}
+          {#if act.wAvg != null}<span data-power="avg"><b>{act.wAvg} W</b><small>{act.wDevice ? t('Ø power') : t('Ø power (Strava estimate)')}</small></span>{/if}
+          {#if act.wMax != null}<span data-power="max"><b>{act.wMax} W</b><small>{t('max power')}</small></span>{/if}
+          {#if act.w20 != null}<span data-power="w20"><b>{act.w20} W</b><small>{t('best 20 min')}</small></span>{/if}
         </div>
 
         <Sec id="zones-h" title={t('Time in heart rate zones')} sub={source} more={{ label: t('change zones'), href: '#/flow/training?zones=1' }}>

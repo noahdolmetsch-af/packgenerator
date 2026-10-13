@@ -16,7 +16,7 @@ const day = (n) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().sl
 const gear = [{ id: 'g1', name: `${P}Gravel Blau`, km: 6142, primary: true, retired: false }];
 const act = (id, f) => ({ id, name: `${P}Runde ${id}`, type: 'GravelRide', start: `${f.d}T06:00:00Z`, startLocal: `${f.d}T${f.at ?? '08:00'}:00Z`, km: 42.3, hm: 680, movingS: 6120, elapsedS: 6500, gearId: 'g1', device: '', commute: false, trainer: false, hrAvg: 138, hrMax: 171, ...f });
 const ACTS = [
-  act('2001', { d: day(-1), at: '17:05', name: `${P}Abendrunde` }),
+  act('2001', { d: day(-1), at: '17:05', name: `${P}Abendrunde`, wAvg: 188, wMax: 612, wDevice: true }),
   act('2002', { d: day(-3), name: `${P}Lauf am See`, type: 'Run', km: 9.1, hm: 85, movingS: 2880, elapsedS: 2900, gearId: null, hrAvg: 149 }),
   act('2003', { d: day(-5), name: `${P}Wanderung`, type: 'Hike', km: 14.2, hm: 980, movingS: 14700, gearId: null, hrAvg: null, hrMax: null }),
   act('2004', { d: day(-20), name: `${P}Abendrunde`, movingS: 6500, hrAvg: 141 }),
@@ -40,7 +40,7 @@ async function start(page, context, server) {
     if (step === 'gear') return body({ bikes: gear });
     if (step === 'activities') return body({ page: 1, more: false, activities: ACTS });
     if (step === 'zones') return body({ hr: ZONES, custom: false });
-    if (step === 'detail') return body({ id: url.searchParams.get('id'), kcal: 890, hist: HIST, curve: [[0, 110], [20, 128], [40, 141], [60, 150], [80, 166], [102, 131]] });
+    if (step === 'detail') return body({ id: url.searchParams.get('id'), kcal: 890, hist: HIST, curve: [[0, 110], [20, 128], [40, 141], [60, 150], [80, 166], [102, 131]], w20: 231 });
     return route.fulfill({ status: 400, headers: cors, body: '{}' });
   });
   await context.route(/www\.strava\.com\/oauth\/authorize/, (route) =>
@@ -96,6 +96,10 @@ test('Training: the tile «Letzte Aktivität», every activity with its zones, o
   await expect(values).toContainText('Dauer (Bewegung 1:42)');
   await expect(values).toContainText('890');
   await expect(values).toContainText('171');
+  await expect(values.locator('[data-power="avg"]')).toContainText('188 W');
+  await expect(values.locator('[data-power="max"]')).toContainText('612 W');
+  await expect(values.locator('[data-power="w20"]')).toContainText('231 W');
+  await expect(values.locator('[data-power="w20"]')).toContainText('beste 20 Min');
   const zt = page.locator('[data-section="zone-time"]');
   await expect(zt.locator('li[data-zone]')).toHaveCount(5);
   await expect(zt.locator('li[data-zone="2"]')).toContainText('Grundlage');
