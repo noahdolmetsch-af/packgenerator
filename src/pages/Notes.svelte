@@ -17,6 +17,7 @@
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { Mic, Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen } from '@lucide/svelte';
+  import Empty from '../lib/ui/Empty.svelte';
   import '../lib/ich/ich.css';
 
   const notesQ = liveQuery(() => db.notes.toArray());
@@ -164,7 +165,8 @@
   <div class="ich-cols">
     <div class="ich-main">
       {#if $notesQ && !counts.all}
-        <p class="card empty">{t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')}</p>
+        <!-- v0.127.0 A-U2: the one empty building block -->
+        <div class="nonote"><Empty icon={NotebookPen} text={t('No notes yet. Write one above, or keep an entry from the Inbox with «Just keep».')} /></div>
       {/if}
       {#if pinned.length}
         <section class="ich-sec" aria-labelledby="pin-h">
@@ -178,7 +180,7 @@
           <ul class="card ich-list">{#each rest as n (n.id)}{@render row(n)}{/each}</ul>
         </section>
       {:else if counts.all && !pinned.length}
-        <p class="card empty">{t('Nothing found.')}</p>
+        <div class="nonote"><Empty icon={Search} text={t('Nothing found.')} /></div>
       {/if}
     </div>
 
@@ -379,9 +381,8 @@
     margin: 6px 0 0;
     color: var(--accent);
   }
-  .empty {
+  .nonote {
     margin: 0 0 24px;
-    color: var(--ink-3);
   }
   .toast {
     position: fixed;

@@ -9,6 +9,25 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.127.0 Gesamtprüfung A-U1, A-U2, A-U5 (mockups)
+  'Less typing, no pop-up': 'Weniger tippen, kein Fenster',
+  'A new trip fills in what the app already knows, the news wait in a calm banner, and an error never shows a white page.':
+    'Eine neue Tour füllt aus, was die App schon weiss, Neuigkeiten warten in einem ruhigen Banner, und ein Fehler zeigt nie eine weisse Seite.',
+  'A new trip suggests the riding hours of your similar trips and your home place as the start, on a green field that says where from.':
+    'Eine neue Tour schlägt die Fahrstunden deiner ähnlichen Touren und deine Heimat als Start vor, auf einem grünen Feld mit der Herkunft.',
+  'After an update a calm banner on Today instead of a window: «View» opens the news, × closes it, after 7 days it goes by itself.':
+    'Nach einem Update ein ruhiges Banner auf Heute statt eines Fensters: «Ansehen» öffnet die Neuigkeiten, × schliesst es, nach 7 Tagen geht es von selbst.',
+  'Empty lists look the same everywhere, with the next step; while loading calm grey placeholders.':
+    'Leere Listen sehen überall gleich aus, mit dem nächsten Schritt; beim Laden ruhige graue Platzhalter.',
+  'A trip name that already exists says so at the field, with a free name to take': 'Ein Tourname, den es schon gibt, steht direkt am Feld, mit einem freien Namen zum Übernehmen',
+  'A page that breaks shows «Something went wrong here» with To Today, Reload and Report a problem':
+    'Eine Seite mit Fehler zeigt «Hier ist etwas schiefgelaufen» mit Zu Heute, Neu laden und Problem melden',
+  'Plan a new trip of 2 days: «Riding hours per day» is green with «like your last … two-day trips»; type another number.':
+    'Eine neue Tour mit 2 Tagen planen: «Fahrstunden pro Tag» ist grün mit «wie deine letzten … Zweitagestouren»; eine andere Zahl eintippen.',
+  'Type the name of an existing trip: below the field «This name already exists» with a suggestion to tap.':
+    'Den Namen einer bestehenden Tour eintippen: Unter dem Feld steht «Name gibt es schon» mit einem Vorschlag zum Antippen.',
+  'After the next update: Today shows a banner on top; tap × and it stays away.': 'Nach dem nächsten Update: Heute zeigt oben ein Banner; × tippen und es bleibt weg.',
+
   // 0.122.0 A-J1 Ein Weg zum Erfassen (mockup A-J1)
   'Straight to the workshop': 'Direkt in die Werkstatt',
   'The visit to the bike shop now opens straight from New, with the km and the last shop already filled in.':

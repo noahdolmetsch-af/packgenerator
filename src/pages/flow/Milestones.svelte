@@ -12,6 +12,7 @@
    * as rows, the cards; side the trophy shelf, the reward and the record wall; the numbers folded below.
    */
   import { Lightbulb, Star } from '@lucide/svelte';
+  import Empty from '../../lib/ui/Empty.svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
@@ -122,7 +123,7 @@
     <div class="lay">
       <div class="col">
         <Sec id="soon-h" title={t('Soon within reach')} sub={t('from 80 %')}>
-          {#if soon.length}<MsRows list={soon} {label} />{:else}<p class="card none">{t('Nothing at 80 % yet. The next stars are under «All».')}</p>{/if}
+          {#if soon.length}<MsRows list={soon} {label} />{:else}<Empty text={t('Nothing at 80 % yet. The next stars are under «All».')} />{/if}
         </Sec>
 
         {#if perAct.length}
@@ -135,7 +136,7 @@
           {#if cards.length || scoped.length}
             <div class="grid">{#each cards as r (r.id)}<MsCard {r} sub={label(r)} />{/each}</div>
           {:else}
-            <p class="hint">{t('This activity has no milestones yet.')}</p>
+            <Empty text={t('This activity has no milestones yet.')} />
           {/if}
         </Sec>
 
@@ -243,12 +244,6 @@
     flex-direction: column;
     gap: var(--sp-5);
     min-width: 0;
-  }
-  .none {
-    margin: 0;
-    padding: var(--sp-3) var(--sp-4);
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
   .grid {
     display: grid;

@@ -84,7 +84,10 @@ export const STRICT_STYLE = [
   'src/pages/Me.svelte',
   // v0.78.0 «Fünf Orte» 2: the tabs of each place
   'src/lib/nav/PlaceTabs.svelte',
-  'src/lib/know/NewsSheet.svelte',
+  // v0.127.0 A-U1: the banner replaced the window (know/NewsSheet.svelte, gone); A-U2: error page, placeholders
+  'src/lib/know/NewsBanner.svelte',
+  'src/lib/ui/ErrorPage.svelte',
+  'src/lib/ui/Skeleton.svelte',
   'src/pages/Trips.svelte',
   // v0.97.0 Design-Refresh R1: Ich › Darstellung
   'src/pages/Look.svelte',

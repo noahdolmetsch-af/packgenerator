@@ -862,6 +862,26 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 13.10.2026: Formulare, Leer/Laden/Fehler, Update-Banner, A-U5 + A-U2 + A-U1 (0.127.0)
+
+Gesamtprüfung 13.10.2026, Vorschläge A-U5, A-U2, A-U1 (`design/audit-2026-10-13/`). **Mockup-Freigabe: A-U1–A-U5 «A-D1–A-D5 und A-U1–A-U5 freigeben» 13.10.2026 16:04 UTC (Mein Überblick, cmsg_018WAR7H251KvEyztXFE5y9QSrnbx2M9TfQHMNXXx7fa2K)**; Antworten 2a (vorbelegte Felder grün mit «aus …», änderbar) und 3a (Update-Hinweis als ruhiges Banner auf Heute statt Fenster).
+
+- **A-U5 Formulare nutzen vorhandene Daten (Regel für alle Formulare):** Was die App schon weiss, steht vorbelegt auf grünem Feld (`.inp.pre`) mit Herkunftszeile (`.prefrom`, «aus …»/«wie …»), immer änderbar; Prüfungen stehen am Feld vor dem Speichern (`.fieldmsg`). Zentral in `app.css` und `lib/formprefill.js`; das Werkstatt-Fenster von A-J1 nutzt dieselbe Regel. Neue Tour: Fahrstunden pro Tag aus den letzten 3 Velotouren mit gleich vielen Tagen (Mittelwert der Mitte, auf halbe Stunden), Start = Heimat, Velo mit Herkunftszeile; ein Tourname, den es schon gibt, steht rot am Feld mit einem freien Namen zum Antippen. Werkstatt: km aus dem km-Buch und letzte Werkstatt als Chip kamen schon mit A-J1.
+- **A-U2 Leer, Laden, Fehler:** `<svelte:boundary>` um den Seiteninhalt in App.svelte; ein Fehler zeigt `ui/ErrorPage.svelte` («Hier ist etwas schiefgelaufen», Zu Heute, Neu laden, Problem melden) statt einer weissen Seite; die Daten bleiben unverändert. `ui/Empty.svelte` ist der eine Leer-Baustein (jetzt mit zweitem Knopf, Zusatzzeile und Überschrift-Stufe), in 22 weiteren Dateien eingesetzt (29 insgesamt). `ui/Skeleton.svelte` zeigt beim Laden ruhige Platzhalter auf Heute, Touren, Rückblick, Logbuch, Unterwegs, Tour-Rückblick, Fahrt, Bausteine prüfen und Übergängen.
+- **A-U1 Update-Hinweis als Banner:** Nach einem Update kein Fenster mehr (W1 von 0.118.0 ersetzt, `know/NewsSheet.svelte` entfernt), sondern `know/NewsBanner.svelte` oben auf Heute: «Neu in 0.127», die Titel der neuen Versionen, «Ansehen» (öffnet Ich › Was ist neu) und ×. Weg nach × oder «Ansehen» (bis zum nächsten Update) oder nach 7 Kalendertagen. Der Schalter unter Ich › Was ist neu schaltet das Banner wieder ein. «Später» gibt es nicht mehr.
+- **Selbst entschieden:**
+  - «Ansehen» schliesst das Banner ebenfalls (wer die Neuigkeiten gesehen hat, braucht es nicht mehr).
+  - Banner zeigt höchstens 3 Versionstitel, mehr mit «…».
+  - Schalter unter Ich: wieder eingeschaltet nach Ablauf der 7 Tage, zählen die 7 Tage ab heute neu.
+  - Fahrstunden: Median der letzten 3 gleich langen Velotouren (Vorlage oder Beispiel überschreiben den Vorschlag; Tippen auch).
+  - Velo-Herkunft als Zeile unter den Chips («das Velo der offenen Tour» bzw. «deiner letzten Tour»), die Chips selbst bleiben ohne Grün.
+  - Ein automatisch gebildeter Tourname ist immer frei («… (2)», wie bei der Tagestour); der Vorschlag beim doppelten Namen nutzt dieselbe Schreibweise «Jura (2)» statt «Jura 2» aus dem Mockup.
+  - Doppelter Name blockiert das Speichern nicht (alles bleibt Vorschlag); die Meldung steht auch beim Bearbeiten einer Tour.
+  - Fehlerseite: «Problem melden» öffnet eine Notiz im Eingang mit Seite, Version und Fehlertext (nichts verlässt das Gerät); Seitenname = Ort › Tab.
+  - Leer-Baustein: der erste Knopf ist der Hauptknopf (grün), wie im Mockup; leere Kleiderschrank-Seite mit «Teil hinzufügen» ohne «Beispiele» (gibt es dort nicht).
+  - Klasse `.prefrom` statt `.from` (die Teile-Tabelle nutzt `small.from` schon anders).
+- **Nicht gebaut:** Reihenfolge der Felder im Neue-Tour-Fenster wie im Mockup (Tage, Stunden, Start, Velo, Name); das Fenster behält seinen Aufbau von 0.114.0. Die Kachel «Neu» auf Heute (I11e, 14 Tage oben) bleibt; zusammen mit dem Banner sind es zwei «neu»-Markierungen (Frage an Noah).
+
 ## 13.10.2026: Ein Weg zum Erfassen, A-J1 (0.122.0)
 
 Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup-Freigabe: A-J1 «aj-aj5 ok» 13.10.2026 17:19 Zurich (Projekt-Chat)**; Antwort 1a: «+ › Werkstattbesuch» öffnet den echten Besuch, keine Notiz mehr.

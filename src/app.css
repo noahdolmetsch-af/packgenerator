@@ -1028,6 +1028,30 @@ h1.title {
   outline: var(--focus-ring);
   outline-offset: 1px;
 }
+/* v0.127.0 A-U5 (Noah 2a, rule since A-J1): a value the app filled in sits on a green field with its
+   origin below («from …»); it stays changeable. A problem shows at the field, before saving. */
+.inp.pre,
+.sel.pre {
+  background: var(--ok-soft);
+  border-color: var(--ok);
+}
+.prefrom {
+  display: block;
+  margin-top: 4px;
+  color: var(--ok);
+  font-size: var(--fs-small);
+}
+.fieldmsg {
+  margin: 4px 0 0;
+  color: var(--bad);
+  font-size: var(--fs-small);
+}
+.fieldmsg .tp-link,
+.fieldmsg button {
+  min-height: 0;
+  color: inherit;
+  font-size: inherit;
+}
 /* v0.22.0 (AP03): labels in sentence case, 14 px, no letter-spacing. */
 .lbl {
   display: block;

@@ -11,6 +11,7 @@
    * Ü4a: the app opens it only right after the step; afterwards the trip shows its waiting state.
    */
   import { liveQuery } from 'dexie';
+  import Skeleton from '../lib/ui/Skeleton.svelte';
   import { db } from '../lib/db.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { tripStats, zoneName, RAIN } from '../lib/trips.js';
@@ -160,7 +161,7 @@
 </script>
 
 {#if !$tripsQ}
-  <p class="tp-muted">{t('Loading…')}</p>
+  <Skeleton rows={3} />
 {:else if !trip}
   <h1 class="lost">{t('Trip not found')}</h1>
   <Empty icon={Route} text={t('This trip does not exist any more.')} action={{ label: t('Back to Trips'), href: '#/trips' }} />

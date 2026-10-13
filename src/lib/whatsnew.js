@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.127.0 Gesamtprüfung A-U1, A-U2, A-U5 (mockups, Noah 13.10.2026 «A-U1–A-U5 freigeben», answers 2a 3a)
+    version: '0.127.0',
+    date: '2026-10-13',
+    title: 'Less typing, no pop-up',
+    lead: 'A new trip fills in what the app already knows, the news wait in a calm banner, and an error never shows a white page.',
+    points: [
+      { text: 'A new trip suggests the riding hours of your similar trips and your home place as the start, on a green field that says where from.', href: '#/trips' },
+      { text: 'After an update a calm banner on Today instead of a window: «View» opens the news, × closes it, after 7 days it goes by itself.', href: '#/me/news' },
+      { text: 'Empty lists look the same everywhere, with the next step; while loading calm grey placeholders.', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'A trip name that already exists says so at the field, with a free name to take', href: '#/trips' },
+      { box: 'fixed', text: 'A page that breaks shows «Something went wrong here» with To Today, Reload and Report a problem' },
+    ],
+    test: [
+      'Plan a new trip of 2 days: «Riding hours per day» is green with «like your last … two-day trips»; type another number.',
+      'Type the name of an existing trip: below the field «This name already exists» with a suggestion to tap.',
+      'After the next update: Today shows a banner on top; tap × and it stays away.',
+    ],
+  },
+  {
     // v0.122.0 A-J1 «Ein Weg zum Erfassen» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok», answer 1a)
     version: '0.122.0',
     date: '2026-10-13',

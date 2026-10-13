@@ -7,7 +7,7 @@ import { t, lang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';
 import {
   SINCE, BEST, SORTS, PLANNED, HOME_FEATURE, sinceOf, sortKey, usesOf, bumpUse, rowsOf, sortRows, searchRows, newSince, neverTried, byMonth,
-  daysBetween, showMessage, messageOn, tileDaysLeft, pinNews, unpinNews, TILE_DAYS,
+  daysBetween, messageOn, BANNER_DAYS, tileDaysLeft, pinNews, unpinNews, TILE_DAYS,
 } from '../src/lib/know/wasneu.js';
 
 // v0.110.0 Design-Refresh P10 «Was ist neu» (I11–I11e)
@@ -147,15 +147,18 @@ describe('all versions by month', () => {
 describe('the message after an update (I11b) and the tile «New» (I11e)', () => {
   const v = '0.110.0';
   const update = { v, from: '0.108.0', at: '2026-10-12' };
-  it('comes at each start after the update until «Do not show again»; «Later» only for this start', () => {
-    expect(showMessage({ update, mute: null, later: null, current: v })).toBe(true);
-    expect(showMessage({ update, mute: v, later: null, current: v })).toBe(false);
-    expect(showMessage({ update, mute: '0.108.0', later: null, current: v })).toBe(true); // the next update brings it back
-    expect(showMessage({ update, mute: null, later: v, current: v })).toBe(false);
-    expect(showMessage({ update: null, current: v })).toBe(false); // a first install
-    expect(showMessage({ update: { ...update, v: '0.108.0' }, current: v })).toBe(false);
-    expect(messageOn({ update, mute: null, current: v })).toBe(true);
-    expect(messageOn({ update, mute: v, current: v })).toBe(false);
+  // v0.127.0 A-U1 (changed on purpose): a banner on Today instead of the window; × or «View» closes it until
+  // the next update, after BANNER_DAYS calendar days it goes by itself; no «Later» any more
+  it('the banner shows after the update until × and for 7 calendar days', () => {
+    expect(BANNER_DAYS).toBe(7);
+    expect(messageOn({ update, mute: null, current: v, today: '2026-10-12' })).toBe(true);
+    expect(messageOn({ update, mute: v, current: v, today: '2026-10-12' })).toBe(false);
+    expect(messageOn({ update, mute: '0.108.0', current: v, today: '2026-10-12' })).toBe(true); // the next update brings it back
+    expect(messageOn({ update: null, current: v, today: '2026-10-12' })).toBe(false); // a first install
+    expect(messageOn({ update: { ...update, v: '0.108.0' }, current: v })).toBe(false);
+    expect(messageOn({ update, mute: null, current: v, today: '2026-10-18' })).toBe(true); // day 6
+    expect(messageOn({ update, mute: null, current: v, today: '2026-10-19' })).toBe(false); // day 7: gone
+    expect(messageOn({ update, mute: null, current: v })).toBe(true); // without a day: not counted
   });
   it('the tile stays 14 days, counted by the calendar (over the change to winter time too)', () => {
     expect(daysBetween('2026-10-12', '2026-10-26')).toBe(14);

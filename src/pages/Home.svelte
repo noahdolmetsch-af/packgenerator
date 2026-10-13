@@ -28,6 +28,7 @@
    * brings the ready wall back. Stored in «homeWall» (in every backup). «Your data» lives under Me now.
    */
   import { todayNotes } from '../lib/notebook.js';
+  import Skeleton from '../lib/ui/Skeleton.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { localDay } from '../lib/localday.js';
@@ -54,9 +55,9 @@
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
   import { newsHint, newerThan, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
-  import { showMessage, tileDaysLeft, pinNews, unpinNews } from '../lib/know/wasneu.js';
-  import { readUpdate, writeUpdate, readMute, readLater, readPin, writePin } from '../lib/know/wasneuStore.js';
-  import NewsSheet from '../lib/know/NewsSheet.svelte';
+  import { messageOn, tileDaysLeft, pinNews, unpinNews } from '../lib/know/wasneu.js';
+  import { readUpdate, writeUpdate, readMute, readPin, writePin } from '../lib/know/wasneuStore.js';
+  import NewsBanner from '../lib/know/NewsBanner.svelte';
   import { HOME_PLACE, HOME_FORECAST, usable, needsFetch, knowCards, wearWhat } from '../lib/know.js';
   import { openTodos } from '../lib/todos.js';
   import { weightText } from '../lib/gear.js';
@@ -161,7 +162,7 @@
   // version, the one before, the day); the message comes at each start until «Do not show again»
   // (until the next update) and the tile «New» goes on top of the wall for 14 days.
   let newsN = $state(0);
-  let newsSheet = $state([]);
+  let newsBanner = $state([]);
   let newsChecked = false;
   let newsUpdate = $state(readUpdate());
   $effect(() => {
@@ -188,7 +189,8 @@
       pinNewsTile();
     } else newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + e.points.length, 0) : 0;
     const u = readUpdate();
-    if (showMessage({ update: u, mute: readMute(), later: readLater() })) newsSheet = newerThan(u.from ?? BEFORE);
+    // v0.127.0 A-U1 (Noah 3a): a calm banner on top instead of the window, for 7 days or until ×
+    if (messageOn({ update: u, mute: readMute(), today: localDay() })) newsBanner = newerThan(u.from ?? BEFORE);
     unpinNewsTile();
   });
   const newsDays = $derived(tileDaysLeft(newsUpdate, today));
@@ -951,6 +953,7 @@
 {/snippet}
 
 <div class="home">
+  {#if newsBanner.length}<NewsBanner entries={newsBanner} onclose={() => (newsBanner = [])} />{/if}
   <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top. -->
   {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->
@@ -989,7 +992,9 @@
   {/if}
   <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
-  <Wall tiles={shownWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
+  <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
+  {#if ready}<Wall tiles={shownWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
+  {:else}<Skeleton kind="home" rows={2} />{/if}
 
   <div class="custom">
     {#if editing}
@@ -1008,7 +1013,6 @@
   </footer>
 </div>
 
-{#if newsSheet.length}<NewsSheet entries={newsSheet} onclose={() => (newsSheet = [])} />{/if}
 <!-- v0.119.0 «Schnellstart» (mockup Q2a): what one click made, Noah stays on Today -->
 {#if made}
   <div class="qmade" role="status" data-quick-made>

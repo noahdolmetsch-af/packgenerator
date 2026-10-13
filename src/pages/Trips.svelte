@@ -14,6 +14,7 @@
    * from here (the steps are on every trip, the templates have their own tab).
    */
   import { liveQuery } from 'dexie';
+  import Skeleton from '../lib/ui/Skeleton.svelte';
   import { db } from '../lib/db.js';
   import { tripsOverview, GROUPS } from '../lib/tripsoverview.js';
   import { routeOf, routePath, bestValues, PERIODS, hmm } from '../lib/tripsboard.js';
@@ -25,10 +26,11 @@
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import Continue from '../lib/home/Continue.svelte';
+  import Empty from '../lib/ui/Empty.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import PlaceIcon from '../lib/nav/PlaceIcon.svelte';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
-  import { Plus, ChevronRight, Trophy, Upload, Sun, CloudSun, CloudRain, MapPin } from '@lucide/svelte';
+  import { Plus, ChevronRight, Route, Trophy, Upload, Sun, CloudSun, CloudRain, MapPin } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
@@ -167,11 +169,10 @@
   </header>
   {#if view}
     {#if view.empty}
-      <div class="card empty">
-        <p>{t('No trips yet. A trip is the packing list for one ride or journey.')}</p>
-        <button type="button" class="btn hi" onclick={() => openNew('list')} data-explain={t('Create the first trip')}><Plus size={18} aria-hidden="true" />{t('Create a trip|first')}</button>
-        <p class="quiet">{t('Best values come after your first ride with a GPX file.')} <a href="#/debrief/ride">{t('Upload a ride')}</a></p>
-      </div>
+      <!-- v0.127.0 A-U2: the one empty building block -->
+      <Empty icon={Route} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip|first'), onclick: () => openNew('list'), explain: t('Create the first trip') }}>
+        {t('Best values come after your first ride with a GPX file.')} <a href="#/debrief/ride">{t('Upload a ride')}</a>
+      </Empty>
     {:else}
       <Continue trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {today} hour={new Date().getHours()} banner />
       <div class="cols">
@@ -253,6 +254,9 @@
         </aside>
       </div>
     {/if}
+  {:else}
+    <!-- v0.127.0 A-U2: a calm placeholder while the trips load -->
+    <Skeleton rows={4} />
   {/if}
 </div>
 
@@ -636,15 +640,5 @@
     margin: 0;
     color: var(--ink-2);
     font: 400 var(--fs-small) / 1.4 var(--font-body);
-  }
-  .empty {
-    display: grid;
-    gap: 10px;
-    justify-items: start;
-    margin-top: 12px;
-  }
-  .empty p {
-    margin: 0;
-    color: var(--ink-2);
   }
 </style>

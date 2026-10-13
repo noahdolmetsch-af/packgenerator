@@ -61,7 +61,8 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
   await updated(page);
-  await page.locator('dialog.news[open]').getByRole('button', { name: T('Later') }).click();
+  // v0.127.0 A-U1 (changed on purpose): a banner on Today instead of the window, nothing to close first
+  await expect(page.locator('[data-news-banner]')).toBeVisible();
   await page.goto('./#/me');
   await page.locator('main').getByRole('link', { name: new RegExp(T('What is new')) }).click();
   await expect(page).toHaveURL(/#\/me\/news$/);
@@ -175,53 +176,37 @@ test('I11c and I11d: the whole list by Your top 10 (counted on this device) and 
   expect(errors).toEqual([]);
 });
 
-test('I11b: the message after an update: Later for this start, Do not show again until the next update, back on under Ich', async ({ page, context }, info) => {
+// v0.127.0 A-U1 (changed on purpose, mockup A-U1, Noah 13.10.2026 answer 3a): the window became a calm banner on
+// Today (tests/e2e/au.spec.js covers it in full); here the switch under Ich that brings it back
+test('I11b: the message after an update: the banner closes with × until the next update, back on under Ich', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
   await updated(page);
-  // v0.118.0 «Was ist neu 2» (W1, changed on purpose): «New since your last visit», every version since then
-  // fully open, each line a link to its place (no «n more»)
-  const sheet = page.locator('dialog.news[open]');
-  await expect(sheet.getByRole('heading', { name: T('New since your last visit') })).toBeVisible();
-  await expect(sheet.getByRole('heading', { name: T(NEWEST.title) })).toBeVisible();
-  await expect(sheet.locator('article[data-version]')).toHaveCount(1);
-  await expect(sheet.locator('.vn-pts li')).toHaveCount(NEWEST.points.length);
-  await expect(sheet.locator('.vn-pts a').first()).toHaveAttribute('href', NEWEST.points[0].href);
-  await expect(sheet.getByRole('button', { name: T("Let's go|news") })).toBeVisible();
-  await expect(sheet.getByRole('link', { name: T('All news') })).toHaveAttribute('href', '#/me/news');
+  await expect(page.locator('dialog.news[open]')).toHaveCount(0);
+  const banner = page.locator('[data-news-banner]');
+  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: V }) })).toBeVisible();
+  await expect(banner.getByText(T(NEWEST.title))).toBeVisible();
   await shot(page, info, 'I11b-meldung');
   await noSideways(page);
-  // «Later»: gone for this start, also after a reload
-  await sheet.getByRole('button', { name: T('Later') }).click();
-  await expect(page.locator('dialog.news[open]')).toHaveCount(0);
-  await page.reload();
-  await expect(page.locator('.home')).toBeVisible();
-  await expect(page.locator('dialog.news[open]')).toHaveCount(0);
-
-  // the next start (a new tab): it comes again; tick «Do not show again»
+  await banner.getByRole('button', { name: T('Close the hint') }).click();
+  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem('wasneu.mute'))).toBe(NEWEST.version);
+  // the next start (a new tab): it stays away
   const next = await context.newPage();
   await next.goto('./#/');
-  const again = next.locator('dialog.news[open]');
-  await expect(again).toBeVisible();
-  await again.getByRole('checkbox', { name: new RegExp(T('Do not show again')) }).check();
-  await again.getByRole('button', { name: T('Close') }).click();
-  await expect(next.locator('dialog.news[open]')).toHaveCount(0);
-  expect(await next.evaluate(() => localStorage.getItem('wasneu.mute'))).toBe(NEWEST.version);
-  const third = await context.newPage();
-  await third.goto('./#/');
-  await expect(third.locator('.home')).toBeVisible();
-  await expect(third.locator('dialog.news[open]')).toHaveCount(0);
+  await expect(next.locator('.home')).toBeVisible();
+  await expect(next.locator('[data-news-banner]')).toHaveCount(0);
 
   // switched on again under Ich › Was ist neu: the next start shows it
-  await third.goto('./#/me/news');
-  const sw = third.getByRole('switch', { name: new RegExp(T('Show the message after updates')) });
+  await next.goto('./#/me/news');
+  const sw = next.getByRole('switch', { name: new RegExp(T('Show the message after updates')) });
   await expect(sw).not.toBeChecked();
   await sw.check();
   await expect(sw).toBeChecked();
-  const fourth = await context.newPage();
-  await fourth.goto('./#/');
-  await expect(fourth.locator('dialog.news[open]')).toBeVisible();
+  const third = await context.newPage();
+  await third.goto('./#/');
+  await expect(third.locator('[data-news-banner]')).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -231,7 +216,7 @@ test('I11e: the tile New on top of Today for 14 days, Take away and back in its 
   const T = await openHome(page, context, info);
   expect(await ids(page)).toEqual(READY.map((x) => x.id));
   await updated(page);
-  await page.locator('dialog.news[open]').getByRole('button', { name: T('Later') }).click();
+  await expect(page.locator('[data-news-banner]')).toBeVisible(); // v0.127.0 A-U1: the banner, no window
   const tile = page.locator('.wall [data-tile="news"]');
   await expect.poll(async () => (await ids(page))[0]).toBe('news');
   await expect(tile).toHaveAttribute('data-size', 'long');

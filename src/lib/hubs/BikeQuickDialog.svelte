@@ -151,12 +151,12 @@
         <label class="field"><span class="lbl">{t('Date')}</span><DateInput bind:value={date} max={today} /></label>
         <div class="field">
           <label class="field in"><span class="lbl">{t('km at the visit')}</span><input class="inp num" class:pre={kmPre} type="text" inputmode="numeric" bind:value={km} oninput={() => (kmOwn = true)} placeholder={t('not known')} aria-describedby={kmPre ? 'bq-kmfrom' : undefined} /></label>
-          {#if kmPre}<small class="from" id="bq-kmfrom">{pre.kmFrom === 'book' ? t('from the km book · you can change it') : t("from the bike's counter · you can change it")}</small>{/if}
+          {#if kmPre}<small class="prefrom" id="bq-kmfrom">{pre.kmFrom === 'book' ? t('from the km book · you can change it') : t("from the bike's counter · you can change it")}</small>{/if}
         </div>
       </div>
       <div class="field">
         <label class="field in"><span class="lbl">{t('Bike shop')}</span><input class="inp" class:pre={shopPre} type="text" bind:value={shop} oninput={() => (shopOwn = true)} autocomplete="off" placeholder={t('Name of the shop')} aria-describedby={shopPre ? 'bq-shopfrom' : undefined} /></label>
-        {#if shopPre}<small class="from" id="bq-shopfrom">{t('from your last visit on {date} · you can change it', { date: dateOf(pre.shopDate) })}</small>{/if}
+        {#if shopPre}<small class="prefrom" id="bq-shopfrom">{t('from your last visit on {date} · you can change it', { date: dateOf(pre.shopDate) })}</small>{/if}
         {#if pre?.shops.length > 1}
           <div class="vd-chips chips" role="group" aria-label={t('Known bike shops')}>
             {#each pre.shops as s (s.shop)}<button type="button" class="vd-chip" aria-pressed={shop === s.shop} onclick={() => ((shop = s.shop), (shopOwn = true))}>{s.shop}{#if s.last}<small class="n">{t('(last)')}</small>{/if}</button>{/each}
@@ -192,15 +192,7 @@
 </dialog>
 
 <style>
-  /* A-J1 (A-U5 look, only here): a suggested value sits on a green field with its origin below */
-  .inp.pre {
-    background: var(--ok-soft);
-    border-color: var(--ok);
-  }
-  .from {
-    color: var(--ok);
-    font-size: var(--fs-small);
-  }
+  /* A-J1: the green field with its origin (.inp.pre, .prefrom) is the shared rule in app.css since v0.127.0 A-U5 */
   .field.in {
     margin: 0;
   }
