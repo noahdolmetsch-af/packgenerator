@@ -1,4 +1,4 @@
-// «Training» TR1–TR3 (Noah 13.10.2026 «1-5a», «tr1-4 ok»): the tile «Letzte Aktivität» on Today, Aktiv ›
+// «Training» TR1–TR4 (Noah 13.10.2026 «1-5a», «tr1-4 ok»): the tile «Letzte Aktivität» on Today, Aktiv ›
 // Training with every Strava activity and its zones, one activity, own zones. The server
 // (packgen-three.vercel.app/api/strava) and the Strava login are answered by the test; everything else
 // outside the preview server is blocked. Fictional activities only.
@@ -112,7 +112,7 @@ test('Training: the tile «Letzte Aktivität», every activity with its zones, o
   await shot(page, info, 'TR3');
 
   // TR2: Aktiv › Training, every activity (the run and the hike too); a chip filters
-  await page.goto('./#/flow/training');
+  await page.goto('./#/flow/training?view=list');
   await expect(page.getByRole('heading', { level: 1, name: 'Training' })).toBeVisible();
   const rows = page.locator('[data-section="activities"] a[data-activity]');
   await expect(rows).toHaveCount(4);
@@ -138,5 +138,57 @@ test('Training: the tile «Letzte Aktivität», every activity with its zones, o
   await expect(page.locator('[data-section="zone-time"] li[data-zone="1"]')).toContainText('40 Min');
   await expect(page.locator('[data-note]')).toHaveValue('Beine gut, Wind am Pass');
   expect(server.log.filter((x) => x.step === 'detail').length).toBe(details);
+  expect(errors).toEqual([]);
+});
+
+test('Training › Woche: an optional goal, plan the week, «Wie letzte Woche», the look back', async ({ page, context, baseURL }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const server = { log: [], app: baseURL };
+  await start(page, context, server);
+  await page.goto('./#/flow/training');
+  await expect(page.getByRole('button', { name: 'Woche', exact: true })).toHaveAttribute('aria-pressed', 'true');
+
+  // the goal: all optional
+  const goal = page.locator('[data-section="goal"]');
+  await expect(goal).toContainText('Ein Ziel für dein Training?');
+  await goal.getByRole('button', { name: 'Ziel setzen' }).click();
+  await goal.locator('[data-goal-name]').fill(`${P}Jura im Juni`);
+  await goal.locator('[data-goal-hours]').fill('8');
+  await goal.getByRole('button', { name: 'Speichern' }).click();
+  await expect(goal).toContainText(`Ziel: ${P}Jura im Juni`);
+  await expect(goal).toContainText('8 Std. pro Woche · 80 % in Z1–Z2');
+
+  // plan a session today: dashed, with duration and zone
+  const plan = page.locator('[data-section="week-plan"]');
+  await plan.locator(`[data-add="${day(0)}"]`).click();
+  const form = plan.locator('[data-session-form]');
+  await form.locator('[data-session-name]').fill(`${P}Intervalle`);
+  await form.locator('[data-session-mins]').fill('75');
+  await form.locator('[data-session-zone]').selectOption('4');
+  await form.getByRole('button', { name: 'Speichern' }).click();
+  const chip = plan.locator('[data-planned]').filter({ hasText: `${P}Intervalle` });
+  await expect(chip).toContainText('1:15');
+  await expect(chip).toContainText('Z4');
+  await expect(page.locator('#plan-h').locator('..').locator('..')).toContainText('geplant 1:15 von 8:00 Std.');
+  await shot(page, info, 'TR4');
+
+  // the look back: six weeks, this week with the goal
+  const back = page.locator('[data-section="look-back"]');
+  await expect(back.locator('li[data-week]')).toHaveCount(6);
+  await expect(back.locator('[data-this-week]')).toContainText('von 8:00 Std.');
+  await expect(back).toContainText('mit Fitbit');
+
+  // next week: «Wie letzte Woche» takes the plan over, a tap changes or removes a session
+  await plan.getByRole('button', { name: 'Woche danach' }).click();
+  await expect(plan.locator('[data-planned]')).toHaveCount(0);
+  await plan.getByRole('button', { name: 'Wie letzte Woche (1 Einheit)' }).click();
+  await expect(plan.locator('[data-planned]')).toHaveCount(1);
+  await plan.locator('[data-planned]').click();
+  await plan.locator('[data-session-form]').getByRole('button', { name: 'Entfernen' }).click();
+  await expect(plan.locator('[data-planned]')).toHaveCount(0);
+  await plan.getByRole('button', { name: 'Diese Woche' }).click();
+  await expect(plan.locator('[data-planned]')).toHaveCount(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });

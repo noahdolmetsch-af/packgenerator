@@ -68,14 +68,14 @@
 
 <div class="ta">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/training', label: t('Training|tab') }]} here={act?.name ?? ''} />
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/training?view=list', label: t('Training|tab') }]} here={act?.name ?? ''} />
     {#if act}<PageHead title={act.name || t(typeKey(act.type))} sub={[`${longDay}, ${act.time}`, act.kind === 'bike' && gearName ? gearName : t(typeKey(act.type))].join(' · ')} />{/if}
   </header>
 
   {#if act === undefined}
     <p class="hint" role="status">{t('Loading …')}</p>
   {:else if !act}
-    <Empty text={t('This activity is not here (any more).')} action={{ label: t('All activities'), href: '#/flow/training' }} />
+    <Empty text={t('This activity is not here (any more).')} action={{ label: t('All activities'), href: '#/flow/training?view=list' }} />
   {:else}
     <div class="lay">
       <div class="col">

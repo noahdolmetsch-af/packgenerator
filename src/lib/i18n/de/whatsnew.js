@@ -4,17 +4,19 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.126.0 Training (TR1–TR3)
+  // 0.126.0 Training (TR1–TR4)
   'Your heart rate, zone by zone': 'Dein Puls, Zone für Zone',
   'Every activity from Strava now has its own page, with the time in each heart rate zone.': 'Jede Aktivität aus Strava hat jetzt ihre eigene Seite, mit der Zeit in jeder Pulszone.',
   'Today: the tile «Last activity» with time, km, Hm, heart rate and zones': 'Heute: die Kachel «Letzte Aktivität» mit Dauer, km, Hm, Puls und Pulszonen',
   'Aktiv › Training: every activity from Strava, runs and hikes too': 'Aktiv › Training: jede Aktivität aus Strava, auch Läufe und Wanderungen',
   'One activity: minutes per zone, the heart rate over time and the same route': 'Eine Aktivität: Minuten pro Zone, Puls über die Zeit und die gleiche Strecke',
   'Heart rate zones from Strava, changeable': 'Pulszonen aus Strava, änderbar',
-  'A note on each activity, only in the app': 'Eine Notiz zu jeder Aktivität, nur in der App',
+  'Plan your week with duration and zone; what you did comes from Strava': 'Plane deine Woche mit Dauer und Zone; was du gemacht hast, kommt aus Strava',
+  'A training goal and the look back over six weeks, all optional': 'Ein Trainingsziel und der Rückblick über sechs Wochen, alles freiwillig',
+  'Open Aktiv › Training › Week: tap + on a day, plan 60 minutes in Z2 and save.': 'Öffne Aktiv › Training › Woche: tippe bei einem Tag auf +, plane 60 Minuten in Z2 und speichere.',
+  'Tap «Activities»: tap «Run» or a month to filter; «change» under Heart rate zones sets your own.': 'Tippe «Aktivitäten»: «Laufen» oder ein Monat filtert; «ändern» bei Pulszonen setzt eigene.',
   'On Today the tile «Last activity» shows your newest activity from Strava; tap it.': 'Auf Heute zeigt die Kachel «Letzte Aktivität» deine neuste Aktivität aus Strava; tippe sie an.',
   'On its page: the minutes in each zone and the heart rate over time.': 'Auf ihrer Seite: die Minuten in jeder Zone und der Puls über die Zeit.',
-  "Open Aktiv › Training: tap «Run» or a month to filter; «change» under Heart rate zones sets your own.": 'Öffne Aktiv › Training: tippe «Laufen» oder einen Monat zum Filtern; «ändern» bei Pulszonen setzt eigene.',
   // 0.125.0 Werte überall + Strava verbinden (WU1–WU4, SV1)
   'Every metre counts': 'Jeder Meter zählt',
   'Metres climbed and heart rate now stand next to your km, and each value can have its own year goal.': 'Höhenmeter und Puls stehen jetzt neben deinen km, und jeder Wert kann sein eigenes Jahresziel haben.',

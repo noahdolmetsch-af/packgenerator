@@ -56,7 +56,7 @@
     </a>
     {#if secs}<div class="zn"><ZoneBar {secs} legend /></div>{/if}
     <div class="ft">
-      <a class="go" href="#/flow/training">{t('All activities')}<ChevronRight size={16} aria-hidden="true" /></a>
+      <a class="go" href="#/flow/training?view=list">{t('All activities')}<ChevronRight size={16} aria-hidden="true" /></a>
       {#if waiting}<a class="go" href={CHECK_HASH}>{tn(waiting, '{n} to check', '{n} to check')} ›</a>{/if}
     </div>
   {:else}

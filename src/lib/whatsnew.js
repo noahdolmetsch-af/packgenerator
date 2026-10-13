@@ -16,24 +16,26 @@
 
 export const WHATS_NEW = [
   {
-    // «Training» TR1–TR3 (mockups TR1–TR4, Noah 13.10.2026 «1-5a», «tr1-4 ok»); TR4 week plan comes next
+    // «Training» TR1–TR4 (mockups TR1–TR4, Noah 13.10.2026 «1-5a», «tr1-4 ok»)
     version: '0.126.0',
     date: '2026-10-14',
     title: 'Your heart rate, zone by zone',
     lead: 'Every activity from Strava now has its own page, with the time in each heart rate zone.',
     points: [
-      { text: 'Aktiv › Training: every activity from Strava, runs and hikes too', href: '#/flow/training' },
+      { text: 'Aktiv › Training: every activity from Strava, runs and hikes too', href: '#/flow/training?view=list' },
       { text: 'Today: the tile «Last activity» with time, km, Hm, heart rate and zones', href: '#/' },
-      { text: 'One activity: minutes per zone, the heart rate over time and the same route', href: '#/flow/training' },
+      { text: 'Plan your week with duration and zone; what you did comes from Strava', href: '#/flow/training' },
     ],
     small: [
+      { box: 'new', text: 'One activity: minutes per zone, the heart rate over time and the same route', href: '#/flow/training?view=list' },
       { box: 'new', text: 'Heart rate zones from Strava, changeable', href: '#/flow/training?zones=1' },
-      { box: 'new', text: 'A note on each activity, only in the app', href: '#/flow/training' },
+      { box: 'new', text: 'A training goal and the look back over six weeks, all optional', href: '#/flow/training' },
     ],
     test: [
       'On Today the tile «Last activity» shows your newest activity from Strava; tap it.',
       'On its page: the minutes in each zone and the heart rate over time.',
-      'Open Aktiv › Training: tap «Run» or a month to filter; «change» under Heart rate zones sets your own.',
+      'Open Aktiv › Training › Week: tap + on a day, plan 60 minutes in Z2 and save.',
+      'Tap «Activities»: tap «Run» or a month to filter; «change» under Heart rate zones sets your own.',
     ],
   },
   {

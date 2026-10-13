@@ -510,7 +510,7 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
-**Nachtrag 13.10.2026 (v0.126.0):** «Training» TR1–TR3 (Mockup-Freigabe: TR1–TR4 «tr1-4 ok» Noah 13.10.2026 18:07 UTC im Thread «Strava-Ausrüstung prüfen»; Antworten «1-5a» 18:06 UTC; Offene Mockups 2 #training): Kachel «Letzte Aktivität», Aktiv › Training mit allen Strava-Aktivitäten und Pulszonen, eine Aktivität im Detail. Nächster Schritt TR4: Woche planen und Rückblick (baut auf AK1 Woche auf). Ziel «Eine App, die mich im Alltag unterstützt».
+**Nachtrag 13.10.2026 (v0.126.0):** «Training» TR1–TR4 (Mockup-Freigabe: TR1–TR4 «tr1-4 ok» Noah 13.10.2026 18:07 UTC im Thread «Strava-Ausrüstung prüfen»; Antworten «1-5a» 18:06 UTC; Offene Mockups 2 #training): Kachel «Letzte Aktivität», Aktiv › Training mit allen Strava-Aktivitäten und Pulszonen, eine Aktivität im Detail, Woche planen mit Ziel und Rückblick. Feste Termine aus AK1 Woche kommen mit «Aktiv ausweiten». Ziel «Eine App, die mich im Alltag unterstützt».
 
 **Nachtrag 13.10.2026 (v0.125.0):** «Werte überall» + «Strava verbinden» (Mockup-Freigabe: WU1–WU4 und SV1 «ich gebe alle bild mockups frei» Noah 13.10.2026 17:18 UTC im Projekt-Chat; Antworten «1-5a» 16:31 UTC; Offene Mockups 2 #werte-ueberall und #strava-verbinden): Höhenmeter und Puls auf Heute, Aktiv und als Jahresziel, Fussabdruck, Höhenmeter je Teil, Karte «Strava verbinden». Aktivzonenminuten folgen mit Fitbit (Bündel B). Ziel «Eine App, die mich im Alltag unterstützt».
 

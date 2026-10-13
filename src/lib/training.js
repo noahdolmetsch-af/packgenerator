@@ -1,5 +1,5 @@
 /**
- * «Training» (mockups TR1–TR3, Noah 13.10.2026 «1-5a», «tr1-4 ok»): every Strava activity with its
+ * «Training» (mockups TR1–TR4, Noah 13.10.2026 «1-5a», «tr1-4 ok»): every Strava activity with its
  * time in the heart rate zones. Pure rules; the page is pages/flow/Training.svelte, one activity
  * pages/flow/TrainingAct.svelte, the tile on Today lib/strava/StravaTile.svelte.
  *
@@ -164,4 +164,82 @@ export const monthsOf = (acts) => [...new Set(acts.map((a) => a.day.slice(0, 7))
 /** The second line of an activity: the bike (rides) or the kind of sport. */
 export function subOf(a, { bikeName = null } = {}) {
   return a.kind === 'bike' && bikeName ? { bike: bikeName } : { type: typeKey(a.type) };
+}
+
+/* ---------- TR4: the week plan and the look back (Noah «1-5a» 4a: sessions with duration and zone per day) ---------- */
+export const PLAN_KEY = 'training.plan'; // { sessions: [{ id, day, kind, name, mins, zone }] }
+export const GOAL_KEY = 'training.goal'; // { name, hours, base, until } or null
+export const PLAN_KEEP_DAYS = 120;
+const KIND_KEYS = ['bike', 'run', 'hike', 'other'];
+
+/** Monday of the week of a day. */
+export function mondayOf(day) {
+  const d = new Date(`${day}T12:00:00Z`);
+  return shiftDay(day, -((d.getUTCDay() + 6) % 7));
+}
+/** The ISO calendar week (KW) of a day. */
+export function isoWeek(day) {
+  const d = new Date(`${day}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  return Math.ceil(((d - Date.UTC(d.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7);
+}
+export const weekOf = (monday) => Array.from({ length: 7 }, (_, i) => shiftDay(monday, i));
+
+/** One planned session, cleaned; null when it is no session. */
+export function cleanSession(s) {
+  const mins = Math.round(Number(s?.mins));
+  const zone = Math.round(Number(s?.zone));
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s?.day ?? '')) || !(mins > 0 && mins <= 24 * 60)) return null;
+  return { id: String(s.id || `s${Math.random().toString(36).slice(2, 9)}`), day: s.day, kind: KIND_KEYS.includes(s.kind) ? s.kind : 'bike', name: String(s.name ?? '').trim().slice(0, 60), mins, zone: zone >= 1 && zone <= 5 ? zone : null };
+}
+export const planOf = (v) => (Array.isArray(v?.sessions) ? v.sessions.map(cleanSession).filter(Boolean) : []);
+
+/** The goal, cleaned: hours per week (0.5–40), base share in % (0–100), a name and an end day; all optional. */
+export function goalOf(v) {
+  if (!v || typeof v !== 'object') return null;
+  const given = (x) => x !== '' && x != null;
+  const hours = given(v.hours) ? Number(v.hours) : NaN;
+  const base = given(v.base) ? Math.round(Number(v.base)) : NaN;
+  const g = {
+    name: String(v.name ?? '').trim().slice(0, 80),
+    hours: hours >= 0.5 && hours <= 40 ? Math.round(hours * 4) / 4 : null,
+    base: base >= 0 && base <= 100 ? base : null,
+    until: /^\d{4}-\d{2}-\d{2}$/.test(String(v.until ?? '')) ? v.until : null,
+  };
+  return g.name || g.hours || g.base != null || g.until ? g : null;
+}
+/** Whole weeks from today to the goal's day (0 when passed), or null. */
+export const weeksTo = (until, today) => (until ? Math.max(0, Math.ceil((Date.parse(`${until}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / (7 * 864e5))) : null);
+
+/** A planned session is done when an activity of its kind is on its day. */
+export const doneBy = (s, acts) => acts.find((a) => a.day === s.day && (a.kind === s.kind || s.kind === 'other')) ?? null;
+
+/** The plan for a new week from last week's, each session 7 days later (new ids). */
+export const copyWeek = (sessions, monday) =>
+  sessions.filter((s) => s.day >= shiftDay(monday, -7) && s.day < monday).map((s) => cleanSession({ ...s, id: '', day: shiftDay(s.day, 7) }));
+
+/** Old sessions go after PLAN_KEEP_DAYS. */
+export const prunePlan = (sessions, today) => sessions.filter((s) => s.day >= shiftDay(today, -PLAN_KEEP_DAYS));
+
+/**
+ * One week in numbers: seconds per zone (activities with heart rate), the moving seconds of those
+ * without (unknown), all seconds, the planned minutes. → { zones, unknown, secs, planned }
+ */
+export function weekNumbers(acts, sessions, monday, bounds) {
+  const end = shiftDay(monday, 7);
+  const zones = [0, 0, 0, 0, 0];
+  let unknown = 0;
+  let secs = 0;
+  for (const a of acts) {
+    if (a.day < monday || a.day >= end) continue;
+    secs += a.movingS || 0;
+    const z = zoneSecs(a.hist, bounds);
+    if (z) {
+      const sum = z.reduce((s, x) => s + x, 0);
+      // the zones share the moving time (the beats can count a little more or less than it)
+      z.forEach((x, i) => (zones[i] += sum ? (x / sum) * (a.movingS || sum) : 0));
+    } else unknown += a.movingS || 0;
+  }
+  const planned = sessions.filter((s) => s.day >= monday && s.day < end).reduce((s, x) => s + x.mins, 0);
+  return { zones, unknown, secs, planned };
 }

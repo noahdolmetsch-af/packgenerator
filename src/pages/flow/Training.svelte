@@ -4,7 +4,8 @@
    * (rides, runs, hikes …, 2a; only rides count for the bikes) with date, time, km, Hm, Ø heart rate
    * and the time in the zones. Chips by kind and a month; a tap opens one activity (TR3,
    * #/flow/training/a/<id>). The zones come from Strava and can be changed here (3a, ?zones=1).
-   * The week plan and the look back (TR4) come in the next step.
+   * TR4: «Woche» (the default view) plans the week and looks back (TrainingWeek.svelte); «Aktivitäten»
+   * (?view=list) is the list.
    * Observation only: no value is rated.
    */
   import { untrack } from 'svelte';
@@ -14,6 +15,8 @@
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
+  import Seg from '../../lib/ui/Seg.svelte';
+  import TrainingWeek from './TrainingWeek.svelte';
   import ZoneBar from '../../lib/strava/ZoneBar.svelte';
   import KindIcon from '../../lib/strava/KindIcon.svelte';
   import { db } from '../../lib/db.js';
@@ -26,6 +29,8 @@
   let { params = new URLSearchParams() } = $props();
 
   const PAGE = 40;
+  const view = $derived(params.get('view') === 'list' ? 'list' : 'week');
+  const setView = (v) => (location.hash = v === 'list' ? '#/flow/training?view=list' : '#/flow/training');
   const actsQ = liveQuery(async () => (await db.activities.toArray()).sort(byNewest));
   const acts = $derived($actsQ ?? []);
   let kind = $state('all');
@@ -79,7 +84,11 @@
     <PageHead title={t('Training|tab')} text={t('Every activity from Strava with the time in your heart rate zones')} />
   </header>
 
-  {#if !acts.length}
+  <div class="vw"><Seg full={false} label={t('View')} value={view} onchange={setView} options={[{ key: 'week', name: t('Week|training') }, { key: 'list', name: t('Activities') }]} /></div>
+
+  {#if view === 'week'}
+    <TrainingWeek {acts} />
+  {:else if !acts.length}
     <Empty icon={RefreshCw} title={t('No activities yet')} text={strava.key ? t('The next fetch from Strava brings them, with their heart rate.') : t('Connect Strava once: then every activity comes by itself.')} action={{ label: strava.key ? t('To Strava') : t('Connect Strava'), href: STRAVA_HASH }} />
   {:else}
     <div class="tools">
@@ -161,6 +170,9 @@
   }
   .tr :global(.pagehead) {
     margin: 0;
+  }
+  .vw {
+    align-self: flex-start;
   }
   .tools {
     display: flex;

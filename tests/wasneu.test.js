@@ -30,7 +30,7 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.quickstart']).toBe('0.119.0'); // v0.119.0 «Schnellstart»
     expect(SINCE['f.packblocks']).toBe('0.124.0'); // v0.124.0 «Neue Tour Teil 2»
     expect(SINCE['f.yeargoals']).toBe('0.125.0'); // v0.125.0 «Werte überall»
-    expect(SINCE['f.training']).toBe(WHATS_NEW[0].version); // «Training» TR1–TR3
+    expect(SINCE['f.training']).toBe(WHATS_NEW[0].version); // «Training» TR1–TR4
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
     expect(BEST.length).toBe(10);

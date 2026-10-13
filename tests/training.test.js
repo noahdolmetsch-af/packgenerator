@@ -1,8 +1,8 @@
-// «Training» TR1–TR3 (Noah 13.10.2026 «1-5a», «tr1-4 ok»): the rules of lib/training.js, the server's
+// «Training» TR1–TR4 (Noah 13.10.2026 «1-5a», «tr1-4 ok»): the rules of lib/training.js, the server's
 // zones and heart rate per beat (api/strava.js), and the fetch keeping every activity. Fictional only.
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
-import { kindOf, actRecord, zonesOf, zoneSecs, mainZone, shares, hmm, speed, sameRoute, kindCounts, monthsOf, needDetail, boundsOfStrava, validBounds, DEFAULT_BOUNDS, zoneRange, typeKey } from '../src/lib/training.js';
+import { isoWeek, mondayOf, weekOf, cleanSession, planOf, goalOf, weeksTo, doneBy, copyWeek, prunePlan, weekNumbers, kindOf, actRecord, zonesOf, zoneSecs, mainZone, shares, hmm, speed, sameRoute, kindCounts, monthsOf, needDetail, boundsOfStrava, validBounds, DEFAULT_BOUNDS, zoneRange, typeKey } from '../src/lib/training.js';
 import { trimZones, trimStreams } from '../api/strava.js';
 import { createDb } from '../src/lib/db.js';
 import { keepActivities, fetchTraining, loadDetail } from '../src/lib/strava/client.svelte.js';
@@ -117,5 +117,46 @@ describe('the fetch keeps every activity', () => {
     const db = createDb(`training-${Math.random()}`);
     await keepActivities(db, [{ id: '21', type: 'Ride', startLocal: '2026-10-12T07:00:00Z', hrAvg: 140 }]);
     await expect(fetchTraining(db, async () => { throw Object.assign(new Error('x'), { code: 'strava_busy' }); }, new Date('2026-10-13T08:00:00Z'))).resolves.toBeUndefined();
+  });
+});
+
+describe('TR4: the week plan', () => {
+  it('Monday, the seven days, a clean session', () => {
+    expect(mondayOf('2026-10-13')).toBe('2026-10-12');
+    expect(['2026-10-12', '2026-01-01', '2025-12-29', '2027-01-03'].map(isoWeek)).toEqual([42, 1, 1, 53]);
+    expect(mondayOf('2026-10-18')).toBe('2026-10-12');
+    expect(weekOf('2026-10-12')).toEqual(['2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15', '2026-10-16', '2026-10-17', '2026-10-18']);
+    expect(cleanSession({ id: 'a', day: '2026-10-14', kind: 'swim', name: ' Locker ', mins: '30', zone: 9 })).toEqual({ id: 'a', day: '2026-10-14', kind: 'bike', name: 'Locker', mins: 30, zone: null });
+    expect(cleanSession({ day: 'x', mins: 30 })).toBe(null);
+    expect(cleanSession({ day: '2026-10-14', mins: 0 })).toBe(null);
+    expect(planOf({ sessions: [{ id: 'a', day: '2026-10-14', mins: 30, zone: 2 }, { day: 'nope' }] }).length).toBe(1);
+    expect(planOf(null)).toEqual([]);
+  });
+  it('the goal is optional in every part', () => {
+    expect(goalOf({ name: 'Jura', hours: '8', base: '80', until: '2027-06-01' })).toEqual({ name: 'Jura', hours: 8, base: 80, until: '2027-06-01' });
+    expect(goalOf({ hours: 100 })).toBe(null);
+    expect(goalOf({ name: '', hours: '', base: '', until: '' })).toBe(null);
+    expect(goalOf({ base: '0' })).toEqual({ name: '', hours: null, base: 0, until: null });
+    expect(goalOf(null)).toBe(null);
+    expect(weeksTo('2026-10-27', '2026-10-13')).toBe(2);
+    expect(weeksTo('2026-01-01', '2026-10-13')).toBe(0);
+  });
+  it('done by an activity of its kind that day; «Wie letzte Woche»; old ones go', () => {
+    const s = { id: 'a', day: '2026-10-07', kind: 'bike', name: 'Intervalle', mins: 75, zone: 4 };
+    const run = rec('9', { type: 'Run', startLocal: '2026-10-07T07:00:00Z' });
+    const ride = rec('8', { startLocal: '2026-10-07T17:00:00Z' });
+    expect(doneBy(s, [run])).toBe(null);
+    expect(doneBy(s, [run, ride])?.id).toBe('8');
+    const next = copyWeek([s, { ...s, id: 'b', day: '2026-09-30' }], '2026-10-12');
+    expect(next.map((x) => [x.day, x.name, x.mins, x.zone])).toEqual([['2026-10-14', 'Intervalle', 75, 4]]);
+    expect(next[0].id).not.toBe('a');
+    expect(prunePlan([s, { ...s, day: '2026-01-01' }], '2026-10-13')).toEqual([s]);
+  });
+  it('a week in numbers: zones share the moving time, the rest unknown, the plan in minutes', () => {
+    const a = rec('1', { startLocal: '2026-10-13T07:00:00Z', movingS: 3600, extra: { hist: { 120: 1800, 140: 1800 } } });
+    const b = rec('2', { startLocal: '2026-10-14T07:00:00Z', movingS: 1200 });
+    const c = rec('3', { startLocal: '2026-10-05T07:00:00Z', movingS: 999 });
+    const n = weekNumbers([a, b, c], [{ day: '2026-10-15', mins: 90 }, { day: '2026-10-20', mins: 30 }], '2026-10-12', [115, 135, 150, 165]);
+    expect(n).toEqual({ zones: [0, 1800, 1800, 0, 0], unknown: 1200, secs: 4800, planned: 90 });
   });
 });
