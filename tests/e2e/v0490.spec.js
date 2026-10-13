@@ -121,8 +121,9 @@ test('c) Past trips: one table, the name fixed, filters and a search that finds 
   await expect(main.getByRole('heading', { level: 1, name: 'Vergangene Touren' })).toBeVisible();
   const table = main.locator('table.tt');
   const row = (name) => table.locator('tbody tr').filter({ has: page.getByRole('rowheader', { name: new RegExp(name) }) });
-  // SN4 «Seiten neu»: a column Zustand; Hm, time and the learning column gave way (the learning stands under the name)
-  if (info.project.name === 'desktop') await expect(table.getByRole('columnheader')).toHaveText(['Tour', 'Zustand', 'km', 'Wetter', 'Temp.', 'Velo', 'Öffnen']);
+  // SN4 «Seiten neu»: a column Zustand; the learning stands under the name.
+  // SN4+ «SN4 plus» (answer 2, 3b): Hm, Fahrzeit, Verstrichen, Ø km/h, Ø Puls, Max. Puls, Velo (its type), Wetter, Temp., Strava-Kommentar
+  if (info.project.name === 'desktop') await expect(table.getByRole('columnheader')).toHaveText(['Tour', 'Zustand', 'km', 'Hm', 'Fahrzeit', 'Verstrichen', 'Ø km/h', 'Ø Puls', 'Max. Puls', 'Velo', 'Wetter', 'Temp.', 'Strava-Kommentar', 'Öffnen']);
   await expect(row('Herbsttour Hochland')).toContainText('148');
   await expect(row('Herbsttour Hochland')).toContainText('Regen Tag 2');
   await expect(row('Herbsttour Hochland')).toContainText('4–15°');

@@ -63,3 +63,41 @@ export async function loadWerte(db) {
 
 /** Your own zones saved, or back to the standard (null). */
 export const saveZones = (db, bounds) => (bounds ? db.settings.put({ key: ZONES_KEY, value: { bounds: bounds.map(Number), at: new Date().toISOString() } }) : db.settings.delete(ZONES_KEY));
+
+/* ---------- SN4+ «SN4 plus»: the columns of «Vergangene Touren» ---------- */
+
+const pos = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null);
+
+/**
+ * SN4+: one activity in the shape «Vergangene Touren» reads: { id, day, startAt, km, movingS, elapsedS,
+ * desc, hist, hrAvg, hrMax }. desc undefined: the comment is not loaded from Strava yet («Kommentar laden»);
+ * '' or null: loaded and empty («–»).
+ */
+// SN4+: wire to training.js when the Training PR lands (its activity fields: movingS, elapsedS, desc, hist)
+export function actOf(a) {
+  return {
+    id: a?.id ?? null,
+    day: a?.day ?? a?.date ?? null,
+    startAt: a?.startAt ?? a?.start ?? null,
+    km: pos(a?.km),
+    movingS: pos(a?.movingS) ?? (pos(a?.movingH) ? a.movingH * 3600 : null),
+    elapsedS: pos(a?.elapsedS) ?? (pos(a?.elapsedH) ? a.elapsedH * 3600 : null),
+    desc: a && 'desc' in a ? a.desc ?? '' : undefined,
+    hist: a?.hist ?? null,
+    hrAvg: a?.hrAvg ?? null,
+    hrMax: a?.hrMax ?? null,
+  };
+}
+
+/** SN4+: the activities in the shape of actOf, or [] without the table. */
+export const loadPastActs = async (db) => (await loadActs(db)).map(actOf);
+
+/**
+ * SN4+ «Kommentar laden»: fetch the comment of these activities once from Strava. Until the Training PR
+ * lands there is nothing to fetch it with: it gives false and the row keeps «Kommentar laden».
+ */
+// SN4+: wire to training.js when the Training PR lands (loadDetail(db, id) for each id)
+export async function loadComments(db, ids = []) {
+  if (!hasActivities(db) || !ids.length) return false;
+  return false;
+}

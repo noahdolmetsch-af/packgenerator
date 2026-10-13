@@ -12,6 +12,12 @@
    * Rückblick on this year; filter chips Alle / Abgeschlossen / Bewertet beside «Art»; a column Zustand
    * with the pill; a trip whose debrief is missing has «Bewerten» right in its row. On a phone each trip
    * is a card. Planned trips are not here (Touren › Übersicht).
+   * SN4+ «SN4 plus» (mockups SN4e and SN4f-a approved 13.10.2026: 1a, 2 «Wetter und Temperatur immer an, plus
+   * Max. Puls», 3b, 4a, 5a): the table gets Hm, Fahrzeit, Verstrichen, Ø km/h, Ø Puls, Max. Puls, the bike's
+   * type, Wetter, Temp. and the Strava comment (one line; a tap shows it whole, «weniger» folds it). It scrolls
+   * sideways, Tour and Zustand stay on the left. «Spalten» chooses the columns (all on at first, remembered in
+   * settings 'pastView'). On a phone each trip is a card with these values. Under the table «In Zahlen»: 10
+   * blocks in 4 groups that follow the period and filters (review/InZahlen.svelte).
    */
   import { homeTrips } from '../lib/home/heute.js';
   import { liveQuery } from 'dexie';
@@ -23,7 +29,7 @@
   import TripState from '../lib/ui/TripState.svelte';
   import StateChips from '../lib/ui/StateChips.svelte';
   import Btn from '../lib/ui/Btn.svelte';
-  import { n0, hours, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
+  import { n0, n1, hours, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
   import { openTrip } from '../lib/nav.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num } from '../lib/i18n.svelte.js';
@@ -31,6 +37,13 @@
   import '../lib/review/review.css';
   import { ChevronLeft, ChevronRight, Upload, Search, ListFilter, Lightbulb, Sun, CloudRain, Cloud, Check, Info, CalendarHeart } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  // SN4+ «SN4 plus»: the columns from Strava, «Spalten» and «In Zahlen»
+  import { loadPastActs, loadComments, zonesOf, ZONES_KEY } from '../lib/review/actdata.js';
+  import { rowValues, viewOf, shownCols, VIEW_KEY } from '../lib/review/inzahlen.js';
+  import { bikeTypeName } from '../lib/bikes.js';
+  import PastColumns from '../lib/review/PastColumns.svelte';
+  import InZahlen from '../lib/review/InZahlen.svelte';
+  import { Columns3, Bike, MessageSquareText, Download, ChevronUp } from '@lucide/svelte';
 
   const today = localDay();
   const dataQ = liveQuery(() => loadReview(db));
@@ -88,6 +101,42 @@
     st = 'all';
     q = '';
   };
+  /* ---- SN4+ «SN4 plus» ---- */
+  // the activities (Training PR; [] until then), the ride ledger (heart rate) and the zones
+  const moreQ = liveQuery(async () => {
+    const [acts, entries, zones] = await Promise.all([loadPastActs(db), db.kmBook.toArray(), db.settings.get(ZONES_KEY)]);
+    return { acts, entries, zones: zonesOf(zones?.value ?? null, entries, acts) };
+  });
+  const viewQ = liveQuery(() => db.settings.get(VIEW_KEY));
+  let viewNow = $state(null);
+  const view = $derived(viewOf(viewNow ?? $viewQ?.value ?? null));
+  // a plain copy (IndexedDB cannot store the $state proxy)
+  function saveView(next) {
+    const plain = viewOf($state.snapshot(next));
+    db.settings.put({ key: VIEW_KEY, value: { ...plain, at: new Date().toISOString() } });
+    viewNow = plain;
+  }
+  const cols = $derived(shownCols(view));
+  const on = (k) => !view.hide.includes(k);
+  const vals = $derived($dataQ && $moreQ ? Object.fromEntries(facts.map((r) => [r.id, rowValues(r, { acts: $moreQ.acts, entries: $moreQ.entries, bikes: $dataQ.bikes, bounds: $moreQ.zones?.bounds ?? null })])) : {});
+  let colsOpen = $state(false);
+  let openC = $state(null);
+  const typeOf = (v) => (v?.type ? t(bikeTypeName(v.type)) : DASH);
+  const secs = (s) => hours(s ? s / 3600 : null);
+  // SN4+: wire to training.js loadDetail when the Training PR lands (until then nothing is fetched)
+  let loading = $state(null);
+  async function loadC(r) {
+    loading = r.id;
+    try {
+      await loadComments(db, vals[r.id]?.comment.ids ?? []);
+    } finally {
+      loading = null;
+    }
+  }
+  const scope = $derived([PERIODS.find((p) => p.key === mode)?.name, art === 'all' && st === 'all' && !q.trim() ? t('all trips') : t('filtered')].filter(Boolean).join(', '));
+  const nCols = $derived(cols.length + 3);
+  let c1 = $state(200);
+
   // the Art list closes on Escape and on a tap outside
   $effect(() => {
     if (!artOpen) return;
@@ -104,6 +153,20 @@
 
 {#snippet rainCell(r)}
   {#if r.rain.wet === true}<span class="wx wet"><CloudRain size={16} aria-hidden="true" />{rainText(r.rain, r.days)}</span>{:else if r.rain.wet === false}<span class="wx"><Sun size={16} aria-hidden="true" />{rainText(r.rain, r.days)}</span>{:else}<span class="wx"><Cloud size={16} aria-hidden="true" />{DASH}</span>{/if}
+{/snippet}
+
+<!-- SN4+ the Strava comment: one line, a tap shows it whole («weniger» folds it); «Kommentar laden» when it
+     is not loaded yet; «–» when it is empty or the row has no Strava data. card: the phone card's line. -->
+{#snippet comment(r, v, card)}
+  {@const c = v?.comment}
+  {#if c?.state === 'text'}
+    {#if openC === r.id}<button type="button" class="ctog open" aria-expanded="true" onclick={() => (openC = null)}><ChevronUp size={14} aria-hidden="true" />{t('less|comment')}</button>{#if card}<span class="cwhole">{c.text}</span>{/if}
+    {:else}<button type="button" class="ctog" aria-expanded="false" aria-label={t('Show the whole comment of {trip}', { trip: r.title })} onclick={() => (openC = r.id)}><span class="c1">{c.text}</span></button>{/if}
+  {:else if c?.state === 'load'}
+    <button type="button" class="cload" disabled={loading === r.id} onclick={() => loadC(r)}><Download size={14} aria-hidden="true" />{t('Load comment')}</button>
+  {:else}
+    <span class="cnone">{#if card}<MessageSquareText size={16} aria-hidden="true" />{/if}{DASH}</span>
+  {/if}
 {/snippet}
 
 <!-- v0.109.0 Design-Refresh P6 (T21 «Vergangene Touren», approved 12.10.2026): the quiet path, the search over
@@ -152,6 +215,7 @@
         {/if}
       </div>
     </StateChips>
+    {#if colsOpen}<PastColumns hide={view.hide} onchange={(hide) => saveView({ ...view, hide })} onclose={() => (colsOpen = false)} />{/if}
 
     <section class="sums" aria-labelledby="sum-h">
       <h2 id="sum-h" class="sr">{t('In this period')}</h2>
@@ -166,34 +230,59 @@
     {#if !rows.length}
       <div class="nopast"><Empty icon={Search} title={t('No trip matches.')} text={filtered ? t('Try another word or kind.') : t('No trip in this period.')} action={filtered ? { label: t('Show all|filter'), onclick: reset, explain: t('Show all kinds') } : mode !== 'all' ? { label: t('Show all|filter'), onclick: () => (mode = 'all'), explain: t('Show all years') } : null} /></div>
     {:else}
+      <!-- SN4+ SN4e: the columns from Strava, «Spalten», sideways with Tour and Zustand fixed -->
+      <div class="ttop">
+        <p class="tsub">{t('{trips} · {cols} columns · scrolls sideways, trip and state stay', { trips: tn(rows.length, '{n} trip', '{n} trips'), cols: num(cols.length + 2) })}</p>
+        <Btn icon={Columns3} label={t('Columns')} onclick={() => (colsOpen = true)} aria-haspopup="dialog" data-columns />
+      </div>
       <div class="tbox" role="region" aria-label={t('Past trips')}>
-        <table class="tt">
+        <table class="tt" style:--c1="{c1}px">
           <thead>
             <tr>
-              <th scope="col" class="first">{t('Trip')}</th>
-              <th scope="col">{t('State|trip')}</th>
-              <th scope="col" class="n">km</th>
-              <th scope="col">{t('Weather')}</th>
-              <th scope="col" class="n">{t('Temp.')}</th>
-              <th scope="col">{t('Bike')}</th>
+              <th scope="col" class="first" bind:offsetWidth={c1}>{t('Trip')}</th>
+              <th scope="col" class="stc">{t('State|trip')}</th>
+              {#each cols as c (c.key)}<th scope="col" class:n={c.n} data-col={c.key}>{t(c.head)}</th>{/each}
               <th scope="col" class="go"><span class="sr">{t('Open')}</span></th>
             </tr>
           </thead>
           {#each groups as g (g.month)}
             <tbody>
-              <tr class="mrow"><th scope="rowgroup" colspan="7">{monthLong(g.month)}</th></tr>
+              <tr class="mrow"><th scope="rowgroup" colspan={nCols}><span class="ms">{monthLong(g.month)}</span></th></tr>
               {#each g.rows as r (r.id)}
                 {@const s = states[r.id]}
+                {@const v = vals[r.id]}
                 <tr data-state={s?.state}>
                   <th scope="row" class="first">
-                    <a href={r.href} onclick={() => go(r)}><span class="tn">{r.title}</span><small>{dates(r.start, r.end)} · {what(r)}</small></a>
+                    <a href={r.href} onclick={() => go(r)}><span class="tn">{r.title}</span><small>{dates(r.start, r.end)} · {what(r)}{#if on('wx') && r.rain.wet != null}<span class="ph">{` · ${rainText(r.rain, r.days)}`}</span>{/if}{#if on('temp') && (r.tmin != null || r.tmax != null)}<span class="ph">{` · ${temps(r.tmin, r.tmax)}`}</span>{/if}</small></a>
                     {#if r.learning}<span class="l1"><Lightbulb size={14} aria-hidden="true" />{r.learning}</span>{/if}
                   </th>
                   <td class="stc"><TripState state={s?.state} extra={stateExtraText(s?.extra)} /></td>
-                  <td class="n num km">{n0(r.km)}</td>
-                  <td class="wxc">{@render rainCell(r)}</td>
-                  <td class="n num tc">{temps(r.tmin, r.tmax)}</td>
-                  <td class="bk">{r.bike ?? DASH}</td>
+                  {#each cols as c (c.key)}
+                    {#if c.key === 'km'}<td class="col n num km">{n0(r.km)}</td>
+                    {:else if c.key === 'gainM'}<td class="col n num">{n0(v?.gainM)}</td>
+                    {:else if c.key === 'moving'}<td class="col n num">{secs(v?.movingS)}</td>
+                    {:else if c.key === 'elapsed'}<td class="col n num">{secs(v?.elapsedS)}</td>
+                    {:else if c.key === 'kmh'}<td class="col n num">{n1(v?.kmh)}</td>
+                    {:else if c.key === 'hrAvg'}<td class="col n num">{n0(v?.hrAvg)}</td>
+                    {:else if c.key === 'hrMax'}<td class="col n num">{n0(v?.hrMax)}</td>
+                    {:else if c.key === 'type'}<td class="col bk">{typeOf(v)}</td>
+                    {:else if c.key === 'wx'}<td class="col wxc">{@render rainCell(r)}</td>
+                    {:else if c.key === 'temp'}<td class="col n num tc">{temps(r.tmin, r.tmax)}</td>
+                    {:else if c.key === 'comment'}<td class="col cm">{@render comment(r, v, false)}</td>{/if}
+                  {/each}
+                  <td class="pc">
+                    {#if [on('km'), on('gainM'), on('moving'), on('hrAvg'), on('hrMax')].some(Boolean)}
+                      <span class="pl num">
+                        {#if on('km')}<span><b>{n0(r.km)}</b> km</span>{/if}
+                        {#if on('gainM')}<span><b>{n0(v?.gainM)}</b> {t('Hm|col')}</span>{/if}
+                        {#if on('moving')}<span><b>{secs(v?.movingS)}</b> h</span>{/if}
+                        {#if on('hrAvg')}<span><b>{n0(v?.hrAvg)}</b> {t('Ø heart rate')}</span>{/if}
+                        {#if on('hrMax')}<span><b>{n0(v?.hrMax)}</b> {t('max ♥')}</span>{/if}
+                      </span>
+                    {/if}
+                    {#if on('type')}<span class="pt"><Bike size={16} aria-hidden="true" />{typeOf(v)}</span>{/if}
+                    {#if on('comment')}<span class="pt pcm">{@render comment(r, v, true)}</span>{/if}
+                  </td>
                   <td class="go">
                     {#if s?.open}
                       <Btn label={t('Rate|debrief')} href={r.href} onclick={() => go(r)} aria="{t('Rate|debrief')}: {r.title}" />
@@ -202,14 +291,22 @@
                     {/if}
                   </td>
                 </tr>
+                {#if openC === r.id && on('comment') && v?.comment.state === 'text'}
+                  <tr class="cmt" data-comment-for={r.id}>
+                    <td colspan={nCols}>
+                      <div class="cfull"><MessageSquareText size={18} aria-hidden="true" /><div><p>{v.comment.text}</p><small>{t('from Strava · {date}', { date: dates(r.start, r.end) })}</small></div></div>
+                    </td>
+                  </tr>
+                {/if}
               {/each}
             </tbody>
           {/each}
         </table>
       </div>
+      <p class="rv-note hint"><Info size={16} aria-hidden="true" /><span>{t('Heart rate, max. heart rate, moving time, elapsed time, Ø km/h and the comment come from Strava; times without Strava from the uploaded ride. Weather and temp. from the forecast saved with the trip. Ø km/h = km over moving time. Without a value it says «–». Tap a comment to see it whole.')}</span></p>
       <p class="rv-note hint"><Info size={16} aria-hidden="true" /><span>{t('Planned trips are not here but under Trips › Overview. «Not ridden» and archived trips count nowhere.')}</span></p>
-      <p class="rv-note hint"><Sun size={16} aria-hidden="true" /><span>{t('Temperature and rain from the forecast saved with the trip; time in motion from uploaded rides.')}</span></p>
     {/if}
+    <InZahlen {rows} {facts} {vals} {mode} {today} {scope} bikes={$dataQ.bikes} items={$dataQ.items} containers={$dataQ.containers} entries={$moreQ?.entries ?? []} {view} onview={saveView} hrefOf={(id) => facts.find((x) => x.id === id)?.href ?? null} go={(id) => go(facts.find((x) => x.id === id) ?? {})} />
   {/if}
 </div>
 
@@ -358,7 +455,8 @@
   .rv-tile b {
     font-size: var(--fs-section);
   }
-  /* position: the screen-reader text inside stays clipped by the box (it would widen the page) */
+  /* position: the screen-reader text inside stays clipped by the box (it would widen the page).
+     SN4+ SN4e: the table scrolls sideways inside the card; Tour and Zustand stay on the left. */
   .tbox {
     position: relative;
     padding: 4px 16px 8px;
@@ -366,6 +464,22 @@
     border-radius: var(--radius-card);
     background: var(--paper);
     box-shadow: var(--card-shadow);
+    overflow-x: auto;
+  }
+  .ttop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin: 0 0 10px;
+  }
+  .tsub {
+    flex: 1 1 240px;
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
   }
   .rv-note.hint {
     margin-top: 12px;
@@ -386,6 +500,9 @@
   .tt .n {
     text-align: right;
   }
+  .tt thead th.n {
+    text-align: right;
+  }
   .tt tbody th,
   .tt td {
     padding: 10px 10px 10px 0;
@@ -400,6 +517,12 @@
   }
   .tt .first {
     min-width: 180px;
+  }
+  .tt td.pc {
+    display: none;
+  }
+  .ph {
+    display: none;
   }
   /* the trip's name and date are one link, at least 44 px high (a touch target) */
   .tt tbody th a {
@@ -432,6 +555,10 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
     white-space: nowrap;
+  }
+  .ms {
+    position: sticky;
+    left: 0;
   }
   .wx {
     display: inline-flex;
@@ -466,6 +593,82 @@
     margin-top: 2px;
     color: var(--warn);
   }
+  /* SN4+ the Strava comment: one line in the table, the whole text in the row under it */
+  .tt td.cm {
+    max-width: 240px;
+    min-width: 140px;
+  }
+  .ctog,
+  .cload {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .c1 {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .ctog.open {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .cload {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .cload:disabled {
+    color: var(--ink-3);
+    cursor: progress;
+  }
+  .cnone {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink-3);
+  }
+  .tt tr.cmt td {
+    padding: 0 0 12px;
+    border-top: 0;
+  }
+  .cfull {
+    position: sticky;
+    left: 0;
+    display: flex;
+    gap: 10px;
+    max-width: min(900px, 80vw);
+    padding: 12px 14px;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+  .cfull :global(svg) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--ink-3);
+  }
+  .cfull p {
+    margin: 0;
+    font-size: var(--fs-body);
+    white-space: pre-line;
+    overflow-wrap: break-word;
+  }
+  .cfull small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
   .tt .go {
     padding-right: 0;
     text-align: right;
@@ -478,15 +681,41 @@
     min-height: 44px;
     color: var(--ink-3);
   }
-  /* phone: each trip a card (name, date, km on the right, the pill, «Bewerten» across) */
+  /* computer: Tour and Zustand stay on the left while the other columns scroll */
+  @media (min-width: 720px) {
+    .tt {
+      min-width: max-content;
+    }
+    .tt .first,
+    .tt .stc {
+      position: sticky;
+      z-index: 1;
+      background: var(--paper);
+    }
+    .tt .first {
+      left: 0;
+      width: 200px;
+      max-width: 220px;
+    }
+    .tt .stc {
+      left: var(--c1);
+      box-shadow: 6px 0 6px -6px var(--shadow);
+    }
+    .tt td.stc {
+      white-space: nowrap;
+    }
+  }
+  /* phone: each trip a card (name, date · weather · temp., the pill, the values, the type, the comment, «Bewerten») */
   @media (max-width: 719px) {
+    .tbox {
+      overflow-x: visible;
+    }
     .tt thead {
       display: none;
     }
-    .tt tbody tr:not(.mrow) {
+    .tt tbody tr:not(.mrow):not(.cmt) {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      column-gap: 12px;
+      grid-template-columns: minmax(0, 1fr);
       padding: 10px 0;
       border-top: 1px solid var(--line);
     }
@@ -501,29 +730,62 @@
     .tt .mrow th {
       padding: 14px 0 4px;
     }
-    .tt .first {
-      grid-column: 1;
-      grid-row: 1;
-      min-width: 0;
-    }
-    .tt td.km {
-      grid-column: 2;
-      grid-row: 1;
-      align-self: center;
-    }
-    .tt td.stc {
-      grid-column: 1 / -1;
-      grid-row: 2;
-      margin-top: 4px;
-    }
-    .tt td.wxc,
-    .tt td.tc,
-    .tt td.bk {
+    .tt tr.cmt {
       display: none;
     }
+    .ph {
+      display: inline;
+    }
+    .tt .first {
+      min-width: 0;
+    }
+    .tt td.stc {
+      margin-top: 4px;
+    }
+    .tt td.col {
+      display: none;
+    }
+    .tt td.pc {
+      display: grid;
+      gap: 2px;
+      margin-top: 6px;
+      min-width: 0;
+    }
+    .pl {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px 10px;
+      color: var(--ink-3);
+    }
+    .pl b {
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .pt {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      color: var(--ink-2);
+    }
+    .pt > :global(svg) {
+      flex: none;
+      color: var(--ink-3);
+    }
+    .pcm {
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .pcm .ctog {
+      width: 100%;
+    }
+    .cwhole {
+      display: block;
+      color: var(--ink);
+      white-space: pre-line;
+      overflow-wrap: break-word;
+    }
     .tt td.go {
-      grid-column: 1 / -1;
-      grid-row: 3;
       text-align: left;
     }
     .tt td.go:has(a.chev) {
