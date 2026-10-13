@@ -103,6 +103,7 @@
   import KmCard from '../lib/home/KmCard.svelte';
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
   import StravaTile from '../lib/strava/StravaTile.svelte';
+  import StravaConnect from '../lib/strava/StravaConnect.svelte';
   import { strava } from '../lib/strava/client.svelte.js';
   import { isShown } from '../lib/helper/client.svelte.js';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
@@ -989,6 +990,8 @@
   {/if}
   <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
+  <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card on top -->
+  {#if !editing}<StravaConnect wide={!phone.matches} />{/if}
   <Wall tiles={shownWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
 
   <div class="custom">

@@ -120,7 +120,10 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
   const prefs = prefsOf((await db.settings.get(PREFS_KEY))?.value);
   const first = !prefs.lastSync;
   const gear = (await c('gear')).bikes ?? [];
-  const after = first ? null : Math.floor((Date.parse(prefs.lastSync) - RECHECK_DAYS * 864e5) / 1000);
+  const entries = await db.kmBook.toArray();
+  // «Werte überall»: rides fetched before the app kept their climbing (no «hm» field) are fetched once more, all of them
+  const noHm = entries.some((e) => e.source === 'strava' && e.stravaId && !('hm' in e));
+  const after = first || noHm ? null : Math.floor((Date.parse(prefs.lastSync) - RECHECK_DAYS * 864e5) / 1000);
   const activities = [];
   for (let page = 1; page <= 100; page++) {
     const res = await c('activities', { params: { page: String(page), ...(after != null ? { after: String(Math.max(0, after)) } : {}) } });
@@ -129,7 +132,6 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
   }
   const bikes = await db.bikes.toArray();
   const rules = await loadRules(db);
-  const entries = await db.kmBook.toArray();
   const importId = `strava-${now.getTime().toString(36)}`;
   const plan = planSync({ activities, gear, bikes, rules, entries, noBike: prefs.noBike, ignore: prefs.ignore, checkFrom: recheckFrom(first ? now.toISOString() : prefs.lastSync), importId }, now);
   if (plan.entries.length) {

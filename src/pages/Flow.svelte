@@ -29,6 +29,7 @@
   import Rings from '../lib/flow/Rings.svelte';
   import TickGrid from '../lib/flow/TickGrid.svelte';
   import Sec from '../lib/flow/kit/Sec.svelte';
+  import YearGoals from '../lib/flow/YearGoals.svelte';
   import Rows from '../lib/flow/kit/Rows.svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import GoalPath from '../lib/flow/kit/GoalPath.svelte';
@@ -247,6 +248,8 @@
             <div class="card"><GoalPath {path} unit={pathMs.m.unit} label={pathName} /></div>
           </Sec>
         {/if}
+        <!-- «Werte überall» WU3: the year goals and the footprint -->
+        <YearGoals {today} />
         <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Tap to edit, drag the grip to move.')}</span></p>
       </aside>
     </div>
