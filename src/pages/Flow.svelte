@@ -17,7 +17,7 @@
    *   …/mehr             v0.86.0 «Meditation einfach»: «Mehr», the rare things folded (MedMore.svelte, C)
    * The rules are pure and tested (lib/flow.js, flowcheck.js, flowtimer.js, flowbowl.js).
    */
-  import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer } from '@lucide/svelte';
+  import { Plus, Sun, GripVertical, Activity as Pulse, Lightbulb, Star, Timer, Mountain } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
@@ -274,6 +274,8 @@
             <a class="card kmc" href="#/debrief/ride" data-section="km">
               <small>{t('{month} until today', { month: fmt(today, { month: 'long' }) })}</small>
               <span class="kmn"><b class="num">{num(km.km)} km</b>{#if km.pct != null}<span class="pill {km.pct >= 0 ? 'ok' : ''} num">{km.pct >= 0 ? '↑' : '↓'} {t('{n} % vs {month}', { n: num(Math.abs(km.pct)), month: fmt(prevMonth, { month: 'short' }) })}</span>{/if}</span>
+              <!-- «Werte überall» WU2 (Noah 13.10.2026 «1-5a»): the metres climbed this month, with the Everest as a picture -->
+              {#if km.hm}<small class="kmhm" data-month-hm><Mountain size={14} aria-hidden="true" /><b class="num">{t('{n} m climbed', { n: num(km.hm) })}</b>{#if km.hm >= 885}{' · '}{t('≈ {x}× Everest', { x: num(Math.round((km.hm / 8849) * 10) / 10) })}{/if}</small>{/if}
               {#if km.weeks.some((v) => v)}
                 <svg class="spark" viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true">
                   <path class="area" d={sparkArea} />
@@ -285,6 +287,10 @@
               {/if}
               {#if weekHeart}<small><HeartLine heart={weekHeart} label={t('Heart rate this week')} /></small>{/if}
             </a>
+          </Sec>
+          <!-- «Werte überall» WU2: the active zone minutes come with Fitbit (bundle B); until then a quiet place -->
+          <Sec id="azm-h" title={t('Active zone minutes')} sub={t('weekly goal 150 min, changeable')}>
+            <p class="card azm" data-section="azm"><Timer size={18} aria-hidden="true" /><span>{t('Come with Fitbit: then the minutes of every activity count here.')}</span></p>
           </Sec>
         </div>
         <aside class="col">
@@ -389,6 +395,18 @@
   .kmc small {
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .kmc .kmhm {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .azm {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin: 0;
+    color: var(--ink-3);
   }
   .kmn {
     display: flex;
