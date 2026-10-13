@@ -243,7 +243,7 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           const streams = one.has_heartrate === false && !one.device_watts ? null : await stravaGet(cfg, store, `/activities/${id}/streams?keys=time,heartrate,watts&key_by_type=true`);
           const s = trimStreams(streams);
           // best 20 min only from a power meter (Strava's estimate has no stream worth a best effort)
-          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, ...s, w20: one.device_watts ? s.w20 : null });
+          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, desc: typeof one.description === 'string' ? one.description.trim().slice(0, 2000) : '', ...s, w20: one.device_watts ? s.w20 : null });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');
       },

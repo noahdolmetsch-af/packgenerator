@@ -112,7 +112,7 @@ describe('the fetch keeps every activity', () => {
     const c = async (step, { params = {} } = {}) => {
       log.push([step, params.id]);
       if (step === 'zones') return { ok: true, hr: STRAVA_Z.hr, custom: false };
-      if (step === 'detail') return { ok: true, id: params.id, kcal: 512, hist: { 150: 2800 }, curve: [[0, 140], [48, 152]] };
+      if (step === 'detail') return { ok: true, id: params.id, kcal: 512, desc: 'test_data_gtp_ lockere Runde', hist: { 150: 2800 }, curve: [[0, 140], [48, 152]] };
       return { ok: true };
     };
     const now = new Date('2026-10-13T08:00:00Z');
@@ -121,7 +121,7 @@ describe('the fetch keeps every activity', () => {
     expect((await db.activities.get('11')).kcal).toBe(512);
     await db.activities.update('11', { note: 'Beine gut' });
     await keepActivities(db, [{ ...acts[0], name: 'Lauf am See' }]);
-    expect(await db.activities.get('11')).toMatchObject({ name: 'Lauf am See', kcal: 512, note: 'Beine gut', hist: { 150: 2800 } });
+    expect(await db.activities.get('11')).toMatchObject({ name: 'Lauf am See', kcal: 512, desc: 'test_data_gtp_ lockere Runde', note: 'Beine gut', hist: { 150: 2800 } });
     await fetchTraining(db, c, new Date('2026-10-13T09:00:00Z'));
     expect(log.length).toBe(2); // zones fresh, details there
     await loadDetail(db, '12', { call: c, now });

@@ -66,7 +66,7 @@ export function actRecord(a) {
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */
-export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'detail', 'note'];
+export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'desc', 'detail', 'note'];
 
 /** Newest first. */
 export const byNewest = (a, b) => `${b.day} ${b.time}`.localeCompare(`${a.day} ${a.time}`);
