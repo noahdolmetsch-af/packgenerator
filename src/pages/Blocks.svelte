@@ -19,6 +19,9 @@
    * group «Je nach Lage» with the seven blocks of situation.js, open; each row says when it comes
    * («kommt mit: unter 5 °C») and opens the rule sheet (RuleSheet.svelte). The other groups fold to one
    * row (answer «aufklappbar b»). Right: where the app knows the situation from and the look in Packen.
+   * SN5+ F4 (Noah 13.10.2026 answer 3a): a block saved from the favourites is a copy; when the stars of its
+   * trip kind change later, its row says so quietly («n Favoriten haben sich geändert · übernehmen?»):
+   * one tap takes the changes over (Undo), «nein» only forgets them.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -32,7 +35,7 @@
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet } from '../lib/gear/assign.js';
   import { undoBulk } from '../lib/gear/bulk.js';
   import { t, tn, nameOf } from '../lib/i18n.svelte.js';
-  import { Plus, X, Minus, Layers, ChevronRight, UserRound, Scale, ListChecks, Info, CloudRain, CloudSun, Route, MapPin, Hand, Zap, ZapOff } from '@lucide/svelte';
+  import { Plus, X, Minus, Layers, ChevronRight, UserRound, Scale, ListChecks, Info, CloudRain, CloudSun, Route, MapPin, Hand, Zap, ZapOff, Star } from '@lucide/svelte';
   import Help from '../lib/ui/Help.svelte';
   import PathHead from '../lib/ui/PathHead.svelte';
   import Section from '../lib/ui/Section.svelte';
@@ -45,6 +48,7 @@
   import RuleSheet from '../lib/gear/RuleSheet.svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
   import { SvelteSet } from 'svelte/reactivity';
+  import { favDrift, takeDrift } from '../lib/favplus.js';
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
@@ -180,6 +184,12 @@
     });
     return list.length > NAMES_SHOWN ? [...shown, `+${list.length - NAMES_SHOWN}`] : shown;
   };
+  // SN5+ F4: take over (or forget) what changed in the favourites of a block made from them.
+  async function drift(s, keep = false) {
+    const res = await takeDrift(db, s.key, { keep });
+    if (!res.snap) return;
+    offer(keep ? t('{block}: the changes are not taken over.', { block: blockLabel(s) }) : tn(res.n, '{block}: {n} change taken over.', '{block}: {n} changes taken over.', { block: blockLabel(s) }), res.snap);
+  }
   // SN3: the main button of the head opens the name field of a new block right under it.
   async function startNew() {
     adding = true;
@@ -274,6 +284,16 @@
         </div>
       </div>
     </details>
+    {#if !s.builtIn && s.fav}
+      {@const d = favDrift(s, items)}
+      {#if d?.n}
+        <!-- SN5+ F4: the stars of its kind changed since the copy; a quiet line, never a must -->
+        <p class="drift" role="note"><Star size={14} aria-hidden="true" /><span>{tn(d.n, '{n} favourite has changed', '{n} favourites have changed')} ·</span>
+          <button type="button" class="dlink" onclick={() => drift(s)} aria-label={t('Take over the changed favourites into {block}', { block: blockLabel(s) })}>{t('take over?')}</button>
+          <button type="button" class="dlink quiet" onclick={() => drift(s, true)} aria-label={t('Do not take over the changed favourites into {block}', { block: blockLabel(s) })}>{t('no|drift')}</button>
+        </p>
+      {/if}
+    {/if}
   </li>
 {/snippet}
 
@@ -753,6 +773,37 @@
     .undo {
       bottom: calc(76px + env(safe-area-inset-bottom));
       padding-bottom: 8px;
+    }
+  }
+  /* SN5+ F4: the quiet line of a block made from the favourites whose stars changed */
+  .drift {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 8px;
+    margin: -4px 0 8px 48px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .dlink {
+    min-height: 32px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .dlink.quiet {
+    color: var(--ink-3);
+    font-weight: 400;
+  }
+  @media (pointer: coarse) {
+    .dlink {
+      min-height: 44px;
     }
   }
 </style>
