@@ -12,8 +12,8 @@
    * Numbers: review/rueckblick.js (tested); unknown is a calm «–».
    * SN2 «Seiten neu» (mockup approved 13.10.2026, ★ 2a): the state pills Abgeschlossen · n, Bewertet · n
    * in the head; on top the trip whose debrief is missing with the one main button «Bewerten» and a
-   * quiet «Nicht gefahren» (with Undo); the period as four tiles and the bars, the long table folded
-   * behind «Alle Kennzahlen»; «Touren im Vergleich» with a column Zustand (on a phone the pill under
+   * quiet «Nicht gefahren» (with Undo); the period as four tiles and the bars, the long table open
+   * under «Alle Kennzahlen» (answer 2b, it can be folded); «Touren im Vergleich» with a column Zustand (on a phone the pill under
    * the name), the small charts and all columns folded; the last ride's details folded at the end.
    */
   import { liveQuery } from 'dexie';
@@ -100,7 +100,7 @@
   const counts = $derived(stats ? factCounts(stats.rows.filter((r) => r.kind === 'trip'), states) : { all: 0, done: 0, rated: 0 });
   const periodShort = $derived(mode === 'year' ? year : mode === 'all' ? t('All|period') : t('12 months'));
   const extraOf = (id) => stateExtraText(states[id]?.extra);
-  let allFigures = $state(false);
+  let allFigures = $state(true); // SN2 answer 2b (Noah 13.10.2026): the long table is open as before
   let allColumns = $state(false);
   let lastOpen = $state(false);
   // SN2: «Nicht gefahren» on the trip whose debrief is missing: it leaves every count (skipped), with Undo

@@ -1,6 +1,6 @@
 // SN2 + SN4 «Seiten neu» (mockups approved 13.10.2026, ★ 2a and 4a): Rückblick, Logbuch, Dein Tempo and
 // Vergangene Touren with the trip states. The Rückblick: state pills in the head, the trip whose debrief is
-// missing on top with «Bewerten» and «Nicht gefahren» (Undo), the long table folded behind «Alle Kennzahlen»,
+// missing on top with «Bewerten» and «Nicht gefahren» (Undo), the long table open under «Alle Kennzahlen» (answer 2b),
 // a column Zustand; Logbuch: a pill per row, chips per state, the year as a toggle; Tempo: one line, five
 // marks, «Fahrt hochladen»; Vergangene Touren: the card «Dein 2026», chips per state, «Bewerten» in the row,
 // cards on a phone. Fictional fixture (test_data_gtp_), German, phone + desktop, no horizontal scroll. The
@@ -63,13 +63,15 @@ test('Rückblick: state pills, the missing debrief on top with Undo, the figures
   await expect(page.locator('.hub .btn.hi:visible')).toHaveCount(1);
   await shot(page, info, 'SN2-rueckblick');
 
-  // the long table is folded behind «Alle Kennzahlen»
-  await expect(page.locator('.kz')).toHaveCount(0);
+  // the long table is open under «Alle Kennzahlen» as before (answer 2b) and can be folded
   const fold = page.getByRole('button', { name: T('All figures') });
-  await expect(fold).toHaveAttribute('aria-expanded', 'false');
-  await fold.click();
+  await expect(fold).toHaveAttribute('aria-expanded', 'true');
   await expect(page.locator('.kz')).toBeVisible();
   await expect(page.locator('.kz').getByRole('rowheader', { name: T('Distance') })).toBeVisible();
+  await fold.click();
+  await expect(page.locator('.kz')).toHaveCount(0);
+  await fold.click();
+  await expect(page.locator('.kz')).toBeVisible();
 
   // «Touren im Vergleich»: every row with its state pill (on a phone under the name)
   const rows = page.locator('#compare table.st tbody tr');

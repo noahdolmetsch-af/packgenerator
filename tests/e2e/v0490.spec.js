@@ -63,10 +63,10 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   await expect(last).toContainText('9–14°');
   await expect(last).toContainText(/Geplant .* min schneller/);
   await expect(main.locator('.btn.hi')).toHaveCount(1);
-  // 2. the 12 months with Vorjahr, Durchschnitt, Bestwert (folded behind «Alle Kennzahlen»); switch to Alle
+  // 2. the 12 months with Vorjahr, Durchschnitt, Bestwert (open under «Alle Kennzahlen», answer 2b); switch to Alle
   const per = main.locator('section.period');
   await expect(per.getByRole('heading', { level: 2, name: 'Letzte 12 Monate' })).toBeVisible();
-  await per.getByRole('button', { name: 'Alle Kennzahlen' }).click();
+  await expect(per.getByRole('button', { name: 'Alle Kennzahlen' })).toHaveAttribute('aria-expanded', 'true');
   const km = per.getByRole('row').filter({ has: page.getByRole('rowheader', { name: 'Distanz' }) });
   await expect(km).toContainText('1’541');
   await expect(km).toContainText('Ø 171 km');
