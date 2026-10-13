@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.124.0 Woche
+  'Your week at a glance': 'Deine Woche auf einen Blick',
+  'Aktiv has a week page: what you did, fixed dates and suggestions by your goals and the weather.': 'Aktiv hat eine Wochenseite: was du gemacht hast, feste Termine und Vorschläge nach deinen Zielen und dem Wetter.',
+  'Week: Monday to Sunday with suggestions, tap one to plan it': 'Woche: Montag bis Sonntag mit Vorschlägen, antippen = einplanen',
+  'Fixed dates: enter once, they come back every week': 'Feste Termine: einmal eintragen, sie kommen jede Woche wieder',
+  '«More in Active» on Aktiv › Heute leads to the week': '«Mehr in Aktiv» auf Aktiv › Heute führt zur Woche',
+  'Fixed and planned dates into your calendar (.ics)': 'Feste und eingeplante Termine in deinen Kalender (.ics)',
+  'Open Aktiv › Heute and tap the card «Week».': 'Öffne Aktiv › Heute und tippe auf die Karte «Woche».',
+  'Add a fixed date, then tap a suggestion: it is planned.': 'Trag einen festen Termin ein und tippe dann einen Vorschlag an: er ist eingeplant.',
   // 0.123.0 Trophäen-Vitrine
   'All your stars in one showcase': 'Alle deine Sterne in einer Vitrine',
   'Every star you reached, by area and year, on one page. Reached ones stay.': 'Jeder Stern, den du erreicht hast, nach Bereich und Jahr auf einer Seite. Erreichte bleiben.',

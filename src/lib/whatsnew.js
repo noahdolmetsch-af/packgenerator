@@ -16,6 +16,22 @@
 
 export const WHATS_NEW = [
   {
+    // v0.124.0 «Woche» (mockup AK1, Noah 13.10.2026 «1-5a», «ich gebe hiermit alle mockups frei»)
+    version: '0.124.0',
+    date: '2026-10-13',
+    title: 'Your week at a glance',
+    lead: 'Aktiv has a week page: what you did, fixed dates and suggestions by your goals and the weather.',
+    points: [
+      { text: 'Week: Monday to Sunday with suggestions, tap one to plan it', href: '#/flow/week' },
+      { text: 'Fixed dates: enter once, they come back every week', href: '#/flow/week' },
+    ],
+    small: [
+      { box: 'new', text: '«More in Active» on Aktiv › Heute leads to the week', href: '#/flow' },
+      { box: 'new', text: 'Fixed and planned dates into your calendar (.ics)', href: '#/flow/week' },
+    ],
+    test: ['Open Aktiv › Heute and tap the card «Week».', 'Add a fixed date, then tap a suggestion: it is planned.'],
+  },
+  {
     // v0.123.0 «Trophäen-Vitrine» (mockups TV1–TV2, Noah 13.10.2026 «tv1-tv2 freigeben»)
     version: '0.123.0',
     date: '2026-10-13',
