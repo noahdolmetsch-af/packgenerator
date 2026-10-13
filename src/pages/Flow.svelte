@@ -34,7 +34,7 @@
   import Empty from '../lib/ui/Empty.svelte';
   import { monthWeeks, seasonNow, goalPath } from '../lib/flow/aktiv.js';
   import { msContext, allMilestones, TUNE_KEY, weekStart } from '../lib/flowms.js';
-  import { heartBetween } from '../lib/kmbook.js';
+  import { heartBetween, withStravaRides } from '../lib/kmbook.js';
   import HeartLine from '../lib/strava/HeartLine.svelte';
   import { msName, tileName } from '../lib/flow/hobby/words.js';
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
@@ -93,9 +93,10 @@
   const season = $derived(data ? seasonNow(data.acts, today) : null);
   const seasonal = $derived(states.filter((s) => s.act.season));
   const ridesQ = liveQuery(() => db.rides.toArray());
-  const km = $derived(monthWeeks($ridesQ ?? [], today));
   // heart rate of this week's Strava rides (observation only, Noah 12.10.2026 «2a und b»)
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
+  // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
+  const km = $derived(monthWeeks(withStravaRides($ridesQ ?? [], $kmBookQ ?? []), today));
   const weekHeart = $derived(heartBetween($kmBookQ ?? [], weekStart(today), today));
   const prevMonth = $derived.by(() => {
     const [y, m] = today.split('-').map(Number);
@@ -265,7 +266,7 @@
           <Sec id="ring-h" title={t('Rings')} sub={t('last 7 days against your goals')}>
             <div class="card ringc"><Rings {rings} size={phone.matches ? 112 : 140} quiet /></div>
           </Sec>
-          <Sec id="km-h" title={t('Bike this month')} sub={t('from your uploaded rides')}>
+          <Sec id="km-h" title={t('Bike this month')} sub={t('from your rides and Strava')}>
             <a class="card kmc" href="#/debrief/ride" data-section="km">
               <small>{t('{month} until today', { month: fmt(today, { month: 'long' }) })}</small>
               <span class="kmn"><b class="num">{num(km.km)} km</b>{#if km.pct != null}<span class="pill {km.pct >= 0 ? 'ok' : ''} num">{km.pct >= 0 ? '↑' : '↓'} {t('{n} % vs {month}', { n: num(Math.abs(km.pct)), month: fmt(prevMonth, { month: 'short' }) })}</span>{/if}</span>

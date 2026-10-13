@@ -16,6 +16,24 @@
 
 export const WHATS_NEW = [
   {
+    // v0.121.0 «Strava-Fahrten zählen mit» (mockups SZ1–SZ2, Noah 13.10.2026 «sz1-sz2 freigeben»)
+    version: '0.121.0',
+    date: '2026-10-13',
+    title: 'Strava rides count along',
+    lead: 'Your Strava rides now count in «This week» and «Bike this month», each ride once.',
+    points: [
+      { text: 'Today: «This week» and «Bike this month» count your Strava rides', href: '#/' },
+      { text: 'Aktiv: «Bike this month» from your rides and Strava', href: '#/flow' },
+    ],
+    small: [
+      { box: 'nicer', text: 'A ride in «To check» counts after «Fits»', href: '#/bikes' },
+    ],
+    test: [
+      'Connect Strava and ride once: on Today «This week» shows the day as active.',
+      'Open Aktiv: «Bike this month» adds the Strava kilometres.',
+    ],
+  },
+  {
     // v0.119.0 «Schnellstart» (mockups Q1–Q3, Noah 13.10.2026 00:05 «Q1–Q3 freigegeben»)
     version: '0.119.0',
     date: '2026-10-13',

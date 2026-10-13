@@ -27,7 +27,7 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.tripcheck']).toBe('0.111.0');
     expect(SINCE['f.strava']).toBe('0.116.0'); // v0.116.0 «Strava-Verbindung»
     expect(SINCE['f.explain']).toBe('0.117.0'); // v0.117.0 «Knöpfe neu»
-    expect(SINCE['f.quickstart']).toBe(WHATS_NEW[0].version); // v0.119.0 «Schnellstart»
+    expect(SINCE['f.quickstart']).toBe('0.119.0'); // v0.119.0 «Schnellstart»
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
     expect(BEST.length).toBe(10);
@@ -74,7 +74,8 @@ describe('the list and its sorts', () => {
     expect(by['f.explain'].state).toBe('never'); // newer than the 0.116.0 these rows are made for
     expect(by['f.quickstart'].state).toBe('never');
     expect(rowsOf().find((r) => r.id === 'f.explain').state).toBe('never'); // 0.117.0, older than this version
-    expect(rowsOf().find((r) => r.id === 'f.quickstart').state).toBe('new'); // new in this version
+    expect(rowsOf(undefined, undefined, '0.119.0').find((r) => r.id === 'f.quickstart').state).toBe('new'); // new in its version
+    expect(rowsOf().find((r) => r.id === 'f.quickstart').state).toBe('never'); // 0.121.0 brought no new function
     expect(by['f.theft'].state).toBe('never');
     for (const r of rows) {
       expect(FEATURE_GROUPS.some((g) => g.key === r.group), r.id).toBe(true);
