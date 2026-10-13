@@ -27,8 +27,7 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.tripcheck']).toBe('0.111.0');
     expect(SINCE['f.strava']).toBe('0.116.0'); // v0.116.0 «Strava-Verbindung»
     expect(SINCE['f.explain']).toBe('0.117.0'); // v0.117.0 «Knöpfe neu»
-    // v0.118.0 «Was ist neu 2» and «KI-Helfer ausblenden» change existing functions (f.news, f.helper), none of their own
-    expect(Object.values(SINCE)).not.toContain(WHATS_NEW[0].version);
+    expect(SINCE['f.quickstart']).toBe(WHATS_NEW[0].version); // v0.119.0 «Schnellstart»
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
     expect(BEST.length).toBe(10);
@@ -73,9 +72,9 @@ describe('the list and its sorts', () => {
     expect(by['f.tripcheck'].state).toBe('never');
     expect(by['f.news'].state).toBe('never');
     expect(by['f.explain'].state).toBe('never'); // newer than the 0.116.0 these rows are made for
-    expect(rowsOf(new Set(), {}, '0.117.0').find((r) => r.id === 'f.explain').state).toBe('new'); // new in 0.117.0
-    expect(rowsOf().find((r) => r.id === 'f.explain').state).toBe('never'); // and no longer the newest
-    expect(rowsOf().filter((r) => r.state === 'new')).toEqual([]); // v0.118.0 brings no function of its own
+    expect(by['f.quickstart'].state).toBe('never');
+    expect(rowsOf().find((r) => r.id === 'f.explain').state).toBe('never'); // 0.117.0, older than this version
+    expect(rowsOf().find((r) => r.id === 'f.quickstart').state).toBe('new'); // new in this version
     expect(by['f.theft'].state).toBe('never');
     for (const r of rows) {
       expect(FEATURE_GROUPS.some((g) => g.key === r.group), r.id).toBe(true);
@@ -84,7 +83,7 @@ describe('the list and its sorts', () => {
   });
   it('newest first; name A–Z; by category and by place in their order', () => {
     const newest = sortRows(rows, 'new');
-    expect(ids(newest.slice(0, 4))).toEqual(['f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
+    expect(ids(newest.slice(0, 5))).toEqual(['f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
     for (let i = 1; i < newest.length; i++) expect(compareVersions(newest[i - 1].since, newest[i].since)).toBeGreaterThanOrEqual(0);
     const abc = sortRows(rows, 'name').map((r) => r.title);
     expect(abc).toEqual([...abc].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })));
@@ -111,11 +110,11 @@ describe('the list and its sorts', () => {
     expect(searchRows(rows, '  ').length).toBe(rows.length);
   });
   it('since your last visit: newer than the version before the update; never tried: with a playground day, unused', () => {
-    expect(ids(newSince(rows, '0.111.0'))).toEqual(['f.explain', 'f.strava']);
-    expect(ids(newSince(rows, '0.110.0'))).toEqual(['f.explain', 'f.strava', 'f.tripcheck']);
-    expect(ids(newSince(rows, '0.108.0'))).toEqual(['f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
+    expect(ids(newSince(rows, '0.111.0'))).toEqual(['f.quickstart', 'f.explain', 'f.strava']);
+    expect(ids(newSince(rows, '0.110.0'))).toEqual(['f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck']);
+    expect(ids(newSince(rows, '0.108.0'))).toEqual(['f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news']);
     expect(newSince(rows, null)).toEqual([]);
-    expect(ids(newSince(rows, '0.90.0'))).toEqual(['f.explain', 'f.strava', 'f.tripcheck', 'f.news', 'f.unneeded']);
+    expect(ids(newSince(rows, '0.90.0'))).toEqual(['f.quickstart', 'f.explain', 'f.strava', 'f.tripcheck', 'f.news', 'f.unneeded']);
     const never = neverTried(rows);
     expect(never.length).toBeLessThanOrEqual(3);
     for (const r of never) expect(r.play && !r.used).toBeTruthy();

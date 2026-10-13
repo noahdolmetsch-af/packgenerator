@@ -41,7 +41,7 @@ const PAGE_OF = [
   [/^#\/bikes/, 'bikes'],
   [/^#\/flow/, 'flow'],
 ];
-const RUN_PAGE = { trip: 'trips', wear: 'gear', problem: 'bikes', km: 'bikes', receipt: 'bikes' };
+const RUN_PAGE = { quick: 'trips', trip: 'trips', wear: 'gear', problem: 'bikes', km: 'bikes', receipt: 'bikes' };
 
 /**
  * The place a function lives on (a key of PAGE_GROUPS): from where it leads, else its action;
@@ -70,6 +70,8 @@ const TIP_PLAY = { bags: 'pack', share: 'pack', ride: 'ride', debrief: 'after' }
 /** The functions that are not a tip. */
 const OWN = [
   // Before the trip
+  // v0.119.0 «Schnellstart» (Q1–Q3): one click on Today plans a ride for today; «Take me there» opens Today
+  { id: 'f.quickstart', group: 'before', title: 'Quick start', text: 'One click on Today plans a ride for today: 2.5 h, the bike you rode last, the standard items and the weather.', run: 'quick', words: 'schnellstart quick start tagestour sofort ein klick heute' },
   { id: 'f.plan', group: 'before', title: 'Plan a trip', text: 'One window «Conditions»: sport, when, how long, the weather from your postcode, the event and the packing list in groups.', run: 'trip', seen: 'trips', words: 'tour planen neue tour new trip' },
   { id: 'f.wear', group: 'before', title: 'What do I wear?', text: 'Clothing for the coldest hour of a day ride, from your own wardrobe.', run: 'wear', words: 'anziehen kleider outfit' },
   { id: 'f.onion', group: 'before', title: 'Layer check', text: 'Checks every layer for the coldest riding hour and suggests the kit.', href: '#/pack', play: 'pack', words: 'zwiebel schicht kit temperatur' },

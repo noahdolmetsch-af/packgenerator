@@ -8,7 +8,7 @@ import { openHome } from './home0460-fixture.js';
 
 /** id → where it must lead: an address, or a window ([selector of the open dialog], and the address). */
 const EXPECTED = {
-  dayride: { url: /#\/pack$/ },
+  dayride: { url: /#\/$/, card: '[data-quick-made]' }, // v0.119.0 «Schnellstart»: the trip is made, Today stays
   trip: { url: /#\/pack$/, dialog: 'dialog.trip-dlg[open]' },
   wear: { dialog: 'dialog.wear[open]' },
   weigh: { url: /#\/gear\?tab=weigh$/ },
@@ -57,6 +57,7 @@ test('all 16 functions: two taps from Today at most, each page opens without an 
     taps[id] = 1;
     if (want.url) await expect(page, `${id} leads to its page`).toHaveURL(want.url);
     if (want.dialog) await expect(page.locator(want.dialog), `${id} opens its window`).toBeVisible();
+    if (want.card) await expect(page.locator(want.card), `${id} shows what it made`).toBeVisible();
     if (want.url && !want.dialog) await expect(page.locator('main h1').first(), `${id}: the page has its title`).toBeVisible();
     await page.waitForTimeout(300); // errors of the page's first load
     expect(errors.slice(before), `${id}: no console error`).toEqual([]);

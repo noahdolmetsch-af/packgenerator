@@ -71,7 +71,7 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   await expect(page.locator('[data-year-row] .bars span')).toHaveCount(12);
   await expect(page.locator('[data-year-row]')).toContainText(T('{n} weeks in a row', { n: 3 }));
   await expect(page.getByRole('button', { name: T('Customise the start page') })).toBeVisible();
-  if (!phone) await expect(page.locator('[data-suggestion]')).toContainText(T('Start day ride'));
+  if (!phone) await expect(page.locator('[data-suggestion]')).toContainText(T('Quick start')); // v0.119.0 «Schnellstart»
 
   // the bike card opens the bike in Bikes → Care
   await expect(page.locator('[data-bike="test_data_gtp_spark"]')).toHaveAttribute('href', '#/bikes?tab=care&bike=test_data_gtp_spark&open=1');

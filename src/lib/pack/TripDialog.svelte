@@ -22,6 +22,7 @@
   import { SETS_KEY, allSets, addSetEntries, tripSlot, entriesWeight, isBlockTip, templateBlocks, blocksLine, blockLabel } from '../sets.js';
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
+  import { selectAll } from '../ui/selectall.js';
   import { rideName, rideDate, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
   import { X } from '@lucide/svelte';
   import TripAsk from '../helper/TripAsk.svelte';
@@ -685,7 +686,7 @@
       </fieldset>
     {/if}
     {#if isNew && byBike}
-      <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
+      <label class="name"><span class="lbl">{t('Name')}</span><input class="inp" use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
       <!-- v0.30.0 (Noah, finding 2): the whole new bike trip in one window. -->
       {#if bikes.length}
         <fieldset class="ctx">
@@ -737,7 +738,7 @@
       {#if packList}{@render packListView()}{/if}
     {:else}
       <div class="grid">
-        <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
+        <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" use:selectAll bind:value={draft.title} oninput={() => (autoName = false)} placeholder={t('e.g. Jura weekend')} required /></label>
         <label><span class="lbl">{t('Start date')}</span><DateInput bind:value={draft.startDate} /></label>
         {#if byBike}
           <label>

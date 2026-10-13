@@ -62,7 +62,11 @@
   import { weightText } from '../lib/gear.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { toWx } from '../lib/weather.js';
-  import { dayRidePlan, daySource, rideDate, lastBikeId } from '../lib/dayride.js';
+  import { lastBikeId } from '../lib/dayride.js';
+  import { quickPlan, quickStart } from '../lib/quickstart.js';
+  import { RAIN } from '../lib/trips.js';
+  import Btn from '../lib/ui/Btn.svelte';
+  import { explain } from '../lib/ui/explain.js';
   import { readyLight, quickHints, dueAll } from '../lib/quickcare.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import { TIPS, TIPS_KEY, tipPossible, usedTips, isUsed, tapTip, updateTips } from '../lib/tips.js';
@@ -223,11 +227,11 @@
   const dateLine = $derived([now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }), place?.name?.split(',')[0]].filter(Boolean).join(' · '));
   let placeOpen = $state(false);
 
-  // The suggestion of the day: a day ride when the day of the ride stays dry (before 14:00 today, else
-  // tomorrow), on the bike of the last ride or the best ready one; "Other bike" goes round the bikes.
+  // The suggestion of the day: a ride when today stays dry, on the bike of the last ride or the best
+  // ready one; "Other bike" goes round the bikes.
+  // v0.119.0 «Schnellstart» (Noah Q1 1a): always today (the day ride's «after 14:00 tomorrow» is gone).
   let otherBike = $state(null);
-  const rideDay = $derived(rideDate(now));
-  const tripOnRideDay = $derived(trips.some((x) => !x.skipped && !x.finished && x.startDate && onTripDay(x, rideDay)));
+  const tripOnRideDay = $derived(trips.some((x) => !x.skipped && !x.finished && x.startDate && onTripDay(x, today)));
   const suggestBikeId = $derived.by(() => {
     if (otherBike && bikes.some((b) => b.id === otherBike)) return otherBike;
     const last = lastBikeId(trips, bikes, today);
@@ -238,19 +242,42 @@
   });
   const suggestion = $derived.by(() => {
     if (!ready || !bikes.length || tripOnRideDay || !fc) return null;
-    if (!dayDry(fc, rideDay, rideDay === today ? now.getHours() : 9)) return null;
-    const plan = dayRidePlan(trips, bikes, { now, bikeId: suggestBikeId });
-    if (!plan) return null;
-    const src = daySource(trips);
-    return { bike: plan.bike, hours: plan.hours, n: src?.entries?.length ?? 0, fromLast: !!src, tomorrow: rideDay !== today };
+    if (!dayDry(fc, today, now.getHours())) return null;
+    const plan = quickPlan(trips, bikes, { now, bikeId: suggestBikeId });
+    return plan ? { bike: plan.bike, hours: plan.hours } : null;
   });
   // v0.73.0 (Noah, Heute ruhiger 1a 3a): with a trip today the suggestion is one slim row under the
   // trip card; without one it stays big beside the greeting (then it is the main thing).
   const slim = $derived(!!suggestion && on('trip') && tripToday(trips, today));
-  function startDayRide() {
+  // v0.119.0 «Schnellstart» (mockups Q1, Q2a): one click makes the trip and Noah stays on Today; the
+  // green card says what was made, «Open» goes to it, «Undo» deletes it again.
+  let made = $state(null); // { id, title, line }
+  // the hours as in the approved mockup («2,5 Std.»; de-CH would write 2.5)
+  const hrs = (n) => (lang.v === 'de' ? String(n).replace('.', ',') : num(n));
+  let quickBusy = false;
+  async function startQuick() {
+    if (quickBusy) return;
+    quickBusy = true;
     countUse('dayride');
-    dayRide(suggestion?.bike?.id ?? null);
+    try {
+      // offline: no weather (Noah 1a); online the home forecast (saved when fresh, else fetched)
+      const forecast = navigator.onLine ? await homeForecast(db).catch(() => null) : null;
+      const raw = sortBikes(($bikesQ ?? []).map((b) => ({ ...b })));
+      const trip = await quickStart(db, { trips: allTrips.map((x) => ({ ...x })), bikes: raw, items: items.map((x) => ({ ...x })), forecast, bikeId: suggestion?.bike?.id ?? suggestBikeId });
+      if (!trip) return openNew('list'); // no bike yet: the New trip window says why
+      const w = trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C ${t(RAIN[trip.wx.rain ?? 'none'])}` : t('no weather|quick');
+      const weather = w && trip.wxFrom === 'forecast' && place?.name ? t('{weather} (forecast {place})', { weather: w, place: place.name.split(',')[0] }) : w;
+      made = { id: trip.id, title: trip.title, line: t('Today · {h} h · {weather} · listed under Trips › Planned', { h: hrs(trip.hours), weather }) };
+    } finally {
+      quickBusy = false;
+    }
   }
+  async function undoQuickStart() {
+    const m = made;
+    made = null;
+    if (m) await db.trips.delete(m.id);
+  }
+  const madeTrip = $derived(made ? allTrips.find((x) => x.id === made.id) ?? null : null);
   function nextBike() {
     const i = bikes.findIndex((b) => b.id === suggestion?.bike?.id);
     otherBike = bikes[(i + 1) % bikes.length]?.id ?? null;
@@ -419,7 +446,7 @@
       return;
     }
     const what = f.go.run;
-    if (what === 'dayride') dayRide(suggestion?.bike?.id ?? null);
+    if (what === 'dayride') startQuick();
     else if (what === 'trip') openNew('list');
     else if (what === 'wear') wearOpen = true;
     else if (what === 'note') notes.length ? (location.hash = '#/inbox') : openNote('');
@@ -669,7 +696,7 @@
   // a short line under a small function tile (a computer, or a wide tile)
   const gearN = $derived(items.filter(isInventory).length);
   function fnSub(id) {
-    if (id === 'dayride') return suggestion ? t('{h} h ride, dry', { h: num(suggestion.hours) }) : '';
+    if (id === 'dayride') return suggestion ? t('{h} h ride, dry', { h: hrs(suggestion.hours) }) : '';
     if (id === 'gear') return gearN ? tn(gearN, '{n} item', '{n} items') : '';
     return '';
   }
@@ -748,11 +775,11 @@
     </div>
     {#if suggestion && !slim}
       <div class="sugg" data-suggestion>
-        <span class="kick">{suggestion.tomorrow ? t('Idea for tomorrow') : t('Idea for today')}</span>
-        <span class="sq">{t('{h} h ride with the {bike}?', { h: num(suggestion.hours), bike: suggestion.bike.name })}</span>
-        {#if !phone.matches}<span class="ss">{suggestion.fromLast ? tn(suggestion.n, 'List from your last day ride · {n} item · the weather fits', 'List from your last day ride · {n} items · the weather fits') : t('Standard list · the weather fits')}</span>{/if}
+        <span class="kick">{t('Idea for today')}</span>
+        <span class="sq">{t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name })}</span>
+        {#if !phone.matches}<span class="ss">{t('One click: standard items, weather from the forecast, all planned')}</span>{/if}
         <span class="sa">
-          <button type="button" class="btn hi" onclick={startDayRide}>{t('Start day ride')}</button>
+          <Btn kind="hi" label={t('Quick start')} explain={explain('Quick start')} onclick={startQuick} data-quickstart />
           {#if bikes.length > 1}<button type="button" class="linkq" onclick={nextBike}>{t('Other bike')}</button>{/if}
         </span>
       </div>
@@ -837,8 +864,8 @@
     {#if slim}
       <div class="srow" data-suggestion data-slim>
         <Sun size={20} aria-hidden="true" />
-        <span class="st"><b>{suggestion.tomorrow ? t('Dry tomorrow') : t('Dry today')}:</b> <span>{t('{h} h ride with the {bike}?', { h: num(suggestion.hours), bike: suggestion.bike.name })}</span></span>
-        <button type="button" class="btn" onclick={startDayRide}>{phone.matches ? t('Start|dayride') : t('Start day ride')}</button>
+        <span class="st"><b>{t('Dry today')}:</b> <span>{t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name })}</span></span>
+        <Btn label={t('Quick start')} explain={explain('Quick start')} onclick={startQuick} data-quickstart />
         {#if bikes.length > 1 && !phone.matches}<button type="button" class="linkq" onclick={nextBike}>{t('Other bike')}</button>{/if}
       </div>
     {/if}
@@ -982,6 +1009,18 @@
 </div>
 
 {#if newsSheet.length}<NewsSheet entries={newsSheet} onclose={() => (newsSheet = [])} />{/if}
+<!-- v0.119.0 «Schnellstart» (mockup Q2a): what one click made, Noah stays on Today -->
+{#if made}
+  <div class="qmade" role="status" data-quick-made>
+    <p class="qt"><span aria-hidden="true">✓{'\u00a0'}</span>{t('Trip planned: {name}', { name: made.title })}</p>
+    <p class="qs">{made.line}</p>
+    <div class="qa">
+      <Btn kind="hi" label={t('Open')} explain={explain('Open|quick')} href={madeTrip ? stepHere(madeTrip).href : '#/pack'} onclick={() => (openTrip(made.id), (made = null))} />
+      <Btn label={t('Undo')} explain={explain('Undo|quick')} onclick={undoQuickStart} />
+    </div>
+    <button type="button" class="qx" aria-label={t('Close')} onclick={() => (made = null)}>×</button>
+  </div>
+{/if}
 {#if catalogOpen}<TileCatalog on={onWall} hidden={hiddenTiles} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
 <dialog class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
   <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
@@ -992,6 +1031,55 @@
 </dialog>
 
 <style>
+  /* v0.119.0 «Schnellstart» (mockup Q2a): the green card after one click, above the page */
+  .qmade {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 96px;
+    z-index: 40;
+    width: min(520px, calc(100vw - 32px));
+    padding: 14px 48px 14px 16px;
+    border: 1px solid color-mix(in srgb, var(--ok) 40%, var(--ok-soft));
+    border-radius: 14px;
+    background: var(--ok-soft);
+    box-shadow: 0 6px 24px var(--shadow);
+  }
+  .qmade p {
+    margin: 0;
+    overflow-wrap: break-word;
+  }
+  .qmade .qt {
+    font-weight: 600;
+  }
+  .qmade .qs {
+    margin-top: 2px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .qmade .qa {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .qmade .qx {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font-size: var(--fs-section);
+    cursor: pointer;
+  }
+  @media (max-width: 719px) {
+    .qmade {
+      bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+  }
   .home {
     display: flex;
     flex-direction: column;

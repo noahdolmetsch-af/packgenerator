@@ -1070,11 +1070,15 @@ test('Scenario 1: 2 h MTB after work: Day ride on Today, change to the Scale, pa
   await page.goto('./#/');
   // v0.38.0 (Noah 8a): "Day ride now" in the quick row under the bikes on Today.
   // v0.46.0: the first button of "What do you want to do?".
+  // v0.119.0 «Schnellstart» (Noah Q1–Q3): the tile makes the trip on Today (green card), «Öffnen» goes to it.
   await rec.click(page.locator('.wall [data-fn="dayride"]'));
-  const bar = page.locator('.made-card');
+  const bar = page.locator('[data-quick-made]');
   await expect(bar).toBeVisible();
-  // The day ride copies the last day ride (gravel, 3 h): change it to the Scale and 2 h.
-  await rec.click(bar.getByRole('button', { name: T('Change') }));
+  await rec.click(bar.getByRole('link', { name: T('Open'), exact: true }));
+  // a trip of today opens in its step «Packen»; the trip's details are in «Planen»
+  await rec.click(page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link').first());
+  // The quick start takes the bike ridden last and 2.5 h: change it to the Scale and 2 h.
+  await packMenu(page, rec, 'Edit trip');
   const edit = page.getByRole('dialog', { name: T('Trip details') });
   // L7: ridden today (after 14:00 the day ride is made for tomorrow, and before its day there is no debrief yet).
   await fillTrip(edit, rec, { bike: BIKE.scale, hours: 2, date: day(0) });

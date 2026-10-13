@@ -8,6 +8,20 @@ export default {
   'Version {v}': 'Version {v}',
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
+
+  // 0.119.0 Schnellstart (mockups Q1–Q3)
+  'Trip in one click': 'Tour mit 1 Klick',
+  'One click on Today plans a ride for today, and you stay on Today.': 'Ein Klick auf Heute plant eine Tour für heute, und du bleibst auf Heute.',
+  'Quick start replaces the day ride: today, 2.5 hours, the bike you rode last, the standard items and the weather of the forecast.':
+    'Schnellstart ersetzt die Tagestour: heute, 2,5 Stunden, das zuletzt gefahrene Velo, die Standardteile und das Wetter aus der Vorhersage.',
+  'The trip is called by the time you made it, like 202610130000; a green card has «Open» and «Undo».':
+    'Die Tour heisst wie die Zeit, zu der du sie machst, etwa 202610130000; eine grüne Karte hat «Öffnen» und «Rückgängig».',
+  'A trip name field marks its whole name when you tap into it, so typing writes over it.':
+    'Ein Feld für den Tournamen markiert beim Hineintippen den ganzen Namen, so schreibst du direkt darüber.',
+  'On Today tap «Quick start»: you stay on Today, the green card says «Trip planned» with the time as the name.':
+    'Auf Heute «Schnellstart» tippen: Du bleibst auf Heute, die grüne Karte sagt «Tour geplant» mit der Zeit als Namen.',
+  'Tap «Undo»: the trip is gone again.': 'Auf «Rückgängig» tippen: Die Tour ist wieder weg.',
+  'Open a trip and tap its name: the whole name is marked; type a new one.': 'Eine Tour öffnen und auf ihren Namen tippen: Der ganze Name ist markiert; einen neuen tippen.',
   'Buttons explain': 'Knöpfe erklären sich',
   'Open Bike care and point at «Done» (computer) or hold it (phone): the explanation shows, nothing is saved.': 'Velopflege öffnen und mit der Maus auf «Erledigt» zeigen (Computer) oder lange drücken (Handy): Die Erklärung kommt, nichts wird gespeichert.',
   'Tap «…» in a row: every action with one line; on the phone the list opens from the bottom.': 'In einer Zeile auf «…» tippen: jede Aktion mit einer Zeile; am Handy kommt die Liste von unten.',

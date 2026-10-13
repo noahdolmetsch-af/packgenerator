@@ -7,7 +7,8 @@
  * pitch: one sentence for "Tried it yet?".
  */
 export const FUNCTIONS = [
-  { id: 'dayride', label: 'Day ride', icon: 'zap', go: { run: 'dayride' }, pitch: 'A day ride in one tap: the list of your last one, with the weather.' },
+  // v0.119.0 «Schnellstart» (Noah Q1): the day ride became the quick start (one click, stays on Today); the id stays for the counts.
+  { id: 'dayride', label: 'Quick start', icon: 'zap', go: { run: 'dayride' }, pitch: 'Quick start: one click plans a ride for today with the standard items and the weather.' },
   { id: 'trip', label: 'Plan a trip', icon: 'bag', go: { run: 'trip' }, pitch: 'Plan a trip: name, date and bike, the packing list follows.' },
   { id: 'wear', label: 'What do I wear?', icon: 'shirt', go: { run: 'wear' }, pitch: 'What do I wear? Your clothes for the coldest hour of the ride.' },
   { id: 'weigh', label: 'Weigh|function', icon: 'scale', go: { href: '#/gear?tab=weigh' }, pitch: 'Weigh your items one after the other: then every total is exact.' },
