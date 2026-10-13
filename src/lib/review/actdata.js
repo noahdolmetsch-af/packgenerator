@@ -7,6 +7,7 @@
  */
 import { PACE_KEY } from '../pace.js';
 import { TEMPLATES_KEY } from '../templates.js';
+import { SETS_KEY } from '../sets.js';
 import { standardZones, validBounds, tempoRides, paceGrid } from './werte.js';
 
 /** settings key: your own zone bounds { bounds: [Z1–Z4 upper bpm], at } (exported with the backup). */
@@ -100,4 +101,36 @@ export const loadPastActs = async (db) => (await loadActs(db)).map(actOf);
 export async function loadComments(db, ids = []) {
   if (!hasActivities(db) || !ids.length) return false;
   return false;
+}
+
+/* ---------- SN2x «SN2 extra»: the whole Rückblick of one trip ---------- */
+
+/**
+ * SN2x: the settings key of the body weight (grams), the one Packen already reads for the rider.
+ * SN2x: wire to training.js when the Training PR lands (TR6 adds the weight under Ich › Meine Daten).
+ */
+export const WEIGHT_KEY = 'riderWeightG';
+/** The weight in kg from the setting's value (grams; a value under 400 is taken as kg), or null. */
+export function kgOf(value) {
+  const v = Number(value);
+  if (!Number.isFinite(v) || v <= 0) return null;
+  return v < 400 ? v : Math.round(v / 100) / 10;
+}
+
+/**
+ * SN2x: everything the whole Rückblick reads besides the page's own data, in one go (for a liveQuery):
+ * { acts, entries, zones, templates, sets, kg, checks }. checks: the daily checks (Stimmung und Energie).
+ */
+// SN2x: wire to training.js when the Training PR lands (the activities with loadDetail(db, id): pHist, pCurve, pauses, segs, best)
+export async function loadGanz(db) {
+  const [acts, entries, zs, tpl, sets, w, checks] = await Promise.all([
+    loadActs(db),
+    db.kmBook.toArray(),
+    db.settings.get(ZONES_KEY),
+    db.settings.get(TEMPLATES_KEY),
+    db.settings.get(SETS_KEY),
+    db.settings.get(WEIGHT_KEY),
+    db.flowChecks.toArray().catch(() => []),
+  ]);
+  return { acts, entries, zones: zonesOf(zs?.value ?? null, entries, acts), templates: tpl?.value ?? [], sets: sets?.value ?? [], kg: kgOf(w?.value), checks };
 }

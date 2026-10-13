@@ -29,7 +29,7 @@
   import { localDay } from '../localday.js';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false } = $props();
   // TZ-2 «Fest nach der Fahrt» (mockup TZ2, Noah 5a): a completed or rated trip (fixed) shows its bags as
   // packed then, to read: no ticks, no «Whole bag packed»; the band under the steps says why and offers
   // «Wieder öffnen».
@@ -392,7 +392,7 @@
       {#if stats}<WeightCard {trip} {stats} {itemsById} title={t('Weight by bag')} />{/if}
       <!-- v0.30.2 (test R6.6): what earlier debriefs taught. v0.40.0: a learning that already stands
            under its item is not repeated here. -->
-      <LessonsCard lessons={newLessons} />
+      <LessonsCard lessons={newLessons} {reminders} />
       {#if oncharge}
         <section class="psec" aria-labelledby="more-h">
           <h2 id="more-h" class="sh">{t('More')}</h2>

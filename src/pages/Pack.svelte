@@ -30,6 +30,7 @@
   import RepairSlim from '../lib/pack/RepairSlim.svelte';
   import { blockRows } from '../lib/packblocks.js';
   import { rulesOf, COUNTRIES, ARRIVALS, HOME_COUNTRY } from '../lib/situation.js';
+  import { remindersFor } from '../lib/review/ganz.js';
   import { countryName } from '../lib/situationtext.js';
   import OptionButton from '../lib/ui/OptionButton.svelte';
   import { needsSlim, repairItems, applySlim, undoSlim, REPAIR } from '../lib/repairslim.js';
@@ -742,6 +743,8 @@
   // v0.25.0 (M3, Noah 9b): on a trip with its context a change of weather or hours applies at once (Undo).
   // v0.66.0 (Noah 7a): the dark follows date, days and hours (Light comes or goes with it).
   const homeQ = liveQuery(() => db.settings.get('homePlace'));
+  // SN2x U6 «Für nächstes Mal» (answer 7 «immer nur wenn relevant»): the points of earlier debriefs that fit this trip
+  const reminders = $derived(trip && !over && trip.status !== 'done' ? remindersFor(trip, { debriefs: $debriefsQ ?? [], trips: $tripsQ ?? [], sets: $setsQ?.value ?? null, place: trip.place ?? homeOf($homeQ?.value) ?? null }) : []);
   const changeContext = (fn) => change((cur) => {
     const patch0 = fn(cur);
     const dark = ridesIntoDark({ ...cur, ...patch0 }, cur.place ?? homeOf($homeQ?.value) ?? null);
@@ -972,9 +975,9 @@
   {/if}{/snippet}
   {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   {#if packTab}
-    <PackDay top={fixed ? null : blocksCard} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
+    <PackDay top={fixed ? null : blocksCard} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} lessons={learningsFor(trip, $learnQ ?? [], 3)} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).

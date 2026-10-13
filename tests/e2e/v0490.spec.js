@@ -171,18 +171,21 @@ test("d) a trip's saved Rückblick tells what the trip was", async ({ page, cont
   // v0.109.0 Design-Refresh P6: the card says «Fertig. Gute Tour!»; the trip's name is the line under it
   await expect(ride.getByRole('heading', { level: 2, name: 'Fertig. Gute Tour!' })).toBeVisible();
   await expect(ride.locator('.kick')).toContainText('Herbsttour Hochland');
-  for (const v of ['148', '2’210', '11:05', '13.4', '4–15°', 'Regen Tag 2', 'Gravel Grau', 'Tag 1', 'Tag 2']) await expect(ride).toContainText(v);
-  const pvr = main.locator('section', { has: page.getByRole('heading', { name: 'Plan und Wirklichkeit' }) });
+  for (const v of ['148', '2’210', '11:05', '13.4', '4–15°', 'Regen Tag 2', 'Gravel Grau']) await expect(ride).toContainText(v);
+  // SN2x: the days of a multi-day trip are a table under «Strecke»; the other groups fold open
+  for (const v of ['Tag 1', 'Tag 2']) await expect(main.locator('[data-day-table]')).toContainText(v);
+  for (const key of ['pack', 'next']) await main.locator(`section[data-group="${key}"] button.gb`).click();
+  const pvr = main.locator('section:not([data-group])', { has: page.getByRole('heading', { name: 'Plan und Wirklichkeit' }) });
   await expect(pvr).toContainText('142 km');
   await expect(pvr).toContainText('zu deinen Gunsten');
-  const unused = main.locator('section', { has: page.getByRole('heading', { name: /Nicht gebraucht/ }) });
+  const unused = main.locator('section:not([data-group])', { has: page.getByRole('heading', { name: /Nicht gebraucht/ }) });
   await expect(unused).toContainText('kannst du sparen');
   await expect(unused).toContainText('Hoodie');
   const next = main.locator('section.nextc');
   await expect(next).toContainText('Wirkt auf die nächste Tour');
   await expect(next).toContainText('Wochenende Hochland');
   await expect(next).toContainText('Buff');
-  const learned = main.locator('section', { has: page.getByRole('heading', { name: /Gelernt/ }) });
+  const learned = main.locator('section:not([data-group])', { has: page.getByRole('heading', { name: /Gelernt/ }) });
   await expect(learned).toContainText('Licht-Akku reicht bei Kälte nur 2 h');
   await noSideways(page);
   await shot(page, info, 'tour-rueckblick');

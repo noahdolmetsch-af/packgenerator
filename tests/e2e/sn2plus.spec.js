@@ -70,25 +70,27 @@ async function start(page, context, info) {
 test('a) Rückblick: «Puls und Leistung» from the ride ledger, «Aus Vorlage» with Undo', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/debrief/${encodeURIComponent(HERBST)}`);
-  const card = page.locator('section[data-heart-power]');
+  // SN2x (answer 1a, folding groups): the card stands first in the group «Körper und Leistung»
+  await page.locator('section[data-group="body"] button.gb').click();
+  const card = page.locator('section[data-group="body"] section[data-heart-power]');
   await expect(card.getByRole('heading', { level: 2, name: T('Heart rate and power') })).toBeVisible();
-  // right under «Fertig. Gute Tour!» (answer 1a)
-  expect(await card.evaluate((el) => el.previousElementSibling?.classList.contains('ride'))).toBe(true);
   // the heart rate of the trip's Strava rides: the average weighted by km, the highest max
   const trip = DATA.tables.trips.find((x) => x.id === HERBST);
   const mine = DATA.tables.kmBook.filter((e) => e.date >= trip.startDate && e.date <= day(-13 + trip.days - 1) && e.bikeId === trip.bikeId);
   expect(mine.length).toBe(2);
   const avg = Math.round(mine.reduce((s, e) => s + e.hrAvg * e.km, 0) / mine.reduce((s, e) => s + e.km, 0));
   const max = Math.max(...mine.map((e) => e.hrMax));
-  await expect(card.locator('.rv-tile').nth(0)).toContainText(String(avg));
-  await expect(card.locator('.rv-tile').nth(0)).toContainText(T('Ø heart rate'));
-  await expect(card.locator('.rv-tile').nth(1)).toContainText(String(max));
+  await expect(card.locator('[data-hr] .rv-tile').nth(0)).toContainText(String(avg));
+  await expect(card.locator('[data-hr] .rv-tile').nth(0)).toContainText(T('Ø heart rate'));
+  await expect(card.locator('[data-hr] .rv-tile').nth(1)).toContainText(String(max));
   // no activities yet: no zones and no power, the source says Strava
   await expect(card.locator('.zbar')).toHaveCount(0);
   await expect(card.getByText(T('Ø power'))).toHaveCount(0);
   await expect(card.locator('.src')).toHaveText(T('Strava'));
 
   // «Nicht gebraucht»: an item of the template has «Aus Vorlage», one only on this trip has none
+  // SN2x: it sits in the folding group «Gepäck und Velo»
+  await page.locator('section[data-group="pack"] button.gb').click();
   const tpl = (await setting(page, 'templates')).find((x) => x.id === TPL);
   const book = page.locator('[data-unused="LX01"]');
   await expect(book.getByRole('button', { name: new RegExp(T('Out of template')) })).toBeVisible();
