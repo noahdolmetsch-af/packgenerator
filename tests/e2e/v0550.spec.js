@@ -115,8 +115,10 @@ test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves
   await expect(main.getByRole('heading', { name: T('On the ride') })).toBeVisible();
   for (const name of ['Biwak', 'Zelt', 'Hotel/Hütte', 'Reparatur', 'Laden', 'Licht']) await expect(main).toContainText(name);
   await expect(main).not.toContainText('Nacht: Warm');
-  const check = main.getByRole('link', { name: new RegExp(T('Check building blocks')) });
-  await expect(check).toContainText(T('to check|blocks'));
+  // SN3: the head button reads «Prüfen» (its explain bubble: «Bausteine prüfen» · «zu prüfen»).
+  const check = main.getByRole('link', { name: new RegExp(`^${T('Check|blocks')}`) });
+  await expect(check).toHaveAttribute('data-explain', T('Check building blocks'));
+  await expect(check).toHaveAttribute('data-explain-sub', T('to check|blocks'));
   expect(await wide(page)).toBe(0);
   await shot(page, info, 'blocks');
 
