@@ -862,7 +862,7 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
-## 13.10.2026: Drei Tour-Zustände, TZ-1 «Zustand sichtbar» (0.124.0)
+## 13.10.2026: Drei Tour-Zustände, TZ-1 «Zustand sichtbar» (0.126.0)
 
 Auftrag Noah 13.10.2026 14:52 («unterscheiden zwischen einer abgeschlossenen Aktivität … und einer Aktivität, die wir in der App planen … und ob wir eine Tour bewertet haben»). Mockups TZ0–TZ3 (`design/tour-zustaende/`). **Mockup-Freigabe: TZ1–TZ3 «TZ1–TZ3 freigegeben» 13.10.2026 15:38 UTC, Antworten «1-5 a» 15:37 UTC.**
 
@@ -880,7 +880,24 @@ Auftrag Noah 13.10.2026 14:52 («unterscheiden zwischen einer abgeschlossenen Ak
   - Die Gruppenüberschrift heisst nur «Abgeschlossen» (Mockup «Abgeschlossen · Rückblick fehlt»), weil dort auch hochgeladene Fahrten ohne Rückblick stehen.
   - Linienfarben dunkel (nicht in der Spezifikation): `#6a9fd6`, `#8e9aa6`, `#5fb185`.
 
-## 13.10.2026: Neue Tour Teil 2 (0.120.0)
+## 13.10.2026: Ein Weg zum Erfassen, A-J1 (0.125.0)
+
+Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup-Freigabe: A-J1 «aj-aj5 ok» 13.10.2026 17:19 Zurich (Projekt-Chat)**; Antwort 1a: «+ › Werkstattbesuch» öffnet den echten Besuch, keine Notiz mehr.
+
+- **Neu › Werkstattbesuch** öffnet das Fenster «Werkstattbesuch erfassen» (dasselbe wie unter Heute und Werkstatt & Belege) statt einer Notiz «Werkstatt-Quittung:» im Eingang. Nach dem Speichern: Werkstatt & Belege des Velos mit «Werkstattbesuch gespeichert.» und Rückgängig.
+- **Vorausgefüllt (A-U5-Look, nur in diesem Fenster):** km des Tages aus dem km-Buch (ohne Eintrag: Zähler des Velos, nur für heute) und die Werkstatt des letzten Besuchs dieses Velos (sonst irgendeines Velos), grün hinterlegt mit «aus …». Wer tippt, überschreibt; dann ist das Feld nicht mehr grün.
+- **Problem melden** nur noch in Neu und am Velo (Velos › Pflege); der Eintrag unter Ich ist weg, dort steht 30 Tage ab dem ersten Ansehen ein ruhiger Hinweis mit Link.
+- **Selbst entschieden:**
+  - Bekannte Werkstätten als Chips unter dem Feld (die vorgeschlagene mit «(zuletzt)»), nur wenn es mehr als eine gibt; «+ neu» braucht es nicht, das Feld bleibt frei beschreibbar.
+  - «Was wurde gemacht?» (optional) mit denselben Chips wie «Ablegen als … Beleg» (`VISIT_JOBS` in inbox.js, geteilt); die Arbeiten landen als Teile des Besuchs.
+  - Velo bleibt eine Auswahlliste ohne Grün (Vorschlag wie bei Problem melden: zuletzt gewähltes Velo).
+  - Werkstattbesuch steht in Neu › Velos jetzt zuoberst (dann Problem, dann km) und nur, wenn es ein Velo gibt.
+  - Die Meldung mit Rückgängig nutzt den Toast von «Umbenennen» (`offerDone` in ui/rename.svelte.js).
+  - Nach dem Speichern Werkstatt & Belege statt Pflege: In der Pflege steht zuoberst das km-Buch, der neue Besuch wäre nicht zu sehen; unter Werkstatt & Belege steht er gleich oben.
+  - Der Satz in «Was ist neu» nennt «Velomech» statt «Werkstattbesuch», weil das lange Wort auf der Heute-Kachel am Handy umbricht (Wächter-Test).
+- **Nicht gebaut (Mockup zeigt es, A-J1 verlangt es nicht):** neue Gruppen im Neu-Blatt («Neu / Am Velo / Sonst», Schild «neu»), neues Problem-Formular und Pflege-Ansicht nach dem Speichern. Die Zeile «Problem melden» unter den Velo-Karten auf Heute bleibt (Frage an Noah).
+
+## 13.10.2026: Neue Tour Teil 2 (0.124.0)
 
 Mockups B4 und B5 (`design/rahmenbedingungen/`, Galerie «Offene Mockups 2» #rahmenbedingungen). **Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★** («Ja, schlank dabei», 13.10.2026 00:00 Zurich). Antworten der Runde: 1a (Bausteine nur beim Packen), 6a (schlanke Reparatur ≤ 8).
 
@@ -897,6 +914,16 @@ Mockups B4 und B5 (`design/rahmenbedingungen/`, Galerie «Offene Mockups 2» #ra
   - Im Fenster zeigt «Bleibt in der Werkstatt» 6 Teile, «… und n weitere» zeigt alle. Am Handy ist das Fenster bildschirmfüllend mit den zwei Knöpfen unten.
   - Hat eine Tour schon die volle Reparatur «Dabei», steht unter den Knöpfen ein Link «Reparatur hat n Teile: 8 für unterwegs wählen».
   - Schnellstart (0.119.0) bleibt unverändert (bringt Reparatur und Laden wie bisher); eine Frage für die nächste Runde.
+
+## 13.10.2026: Trophäen-Vitrine (0.123.0)
+
+- (Mockup-Freigabe: TV1–TV2 «tv1-tv2 freigeben» Noah 13.10.2026 15:57 UTC im Thread «Mein Überblick», Antworten «1-5a» 15:50 UTC). TV1: eigene Seite «Trophäen-Vitrine» (#/flow/trophies) mit allen erreichten Sternen nach Bereich (Über alle, dann jede Aktivität) und Jahr, Filter oben, rechts «Nach Jahr» und «Als Nächstes erreichbar». TV2: Link «Alle Trophäen ansehen ›» unter dem Trophäen-Regal (Meilensteine und Meditations-Protokoll).
+- **Selbst entschieden:** nur die Sterne, die es heute gibt (flowms.js); Velo/Strava- und Gesundheitssterne kommen mit Bündel B, Tages-Check-Sterne mit D, je im eigenen Paket. Bereiche ohne Stern stehen als eine Zeile «Noch ohne Stern: …» statt als leere Karten. Pro Meilenstein ein Abzeichen mit dem höchsten Stern (Stufe und Monat); der nächste Stern pro Bereich gestrichelt. Der Link im Meditations-Protokoll öffnet die Vitrine gefiltert auf Meditation. Version 0.123.0, weil 0.122.0 (Dateneingabe) vorher.
+
+## 13.10.2026: Dateneingabe D1–D4 (0.122.0)
+
+- (Mockup-Freigabe: D1–D4 «D1–D4 freigegeben» 13.10.2026, Antworten «1a 2a 3b 4b 5a», D1 als Variante D1a ★ Wert-Karten). D1: direkt im Blatt tippen; D2: eigene Seite «Werte erfassen» mit «Weiter» ins nächste Feld; D3 (3b): «Felder wählen» gilt für alle Velos; D4 (4b): ausgeblendet nur auf «Werte erfassen»; 5a: eigene Felder mit Name und Einheit.
+- **Selbst entschieden:** Werte im Abhol-Check haben kein Kästchen mehr, eine gespeicherte Karte gilt als erledigt; «Wie vorher» übernimmt den alten Wert mit einem Tipp; eigene Felder lassen sich umbenennen und löschen, ihre Werte bleiben am Velo und kommen beim Wiederanlegen zurück; − und + in Schritten von 0,1 bar bzw. 1; Version 0.122.0, weil 0.121.0 (Strava-Fahrten zählen mit) vorher live ging; Noah wählte D1a ausdrücklich («D1a D1–D4 freigegeben», 15:26 UTC).
 
 ## 13.10.2026: Schnellstart (0.119.0)
 
@@ -1131,3 +1158,10 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Puls pro Fahrt (P1–P6, Offene Mockups 2 #puls-pro-fahrt):** freigegeben «P1–P6 freigegeben 1a, veröffentlichen» (12.10.2026 22:07 UTC). Antworten «1b 2a und b» (in #137, an allen Orten) und «1a 2a 3a 4a 5a» (sechs Orte: Fahrtenbuch des Velos, Rückblick letzte Tour, Touren-Tabelle, Aktiv diese Woche, Fahrt-Seite, «Diese Woche» auf Heute). Später, eigene Pakete: Puls auf gleicher Strecke vergleichen, Skitouren mit Puls im Tourenbuch (Skitour), Puls neben dem Ruhepuls im Tages-Check (Google-Teil).
 - **Q1 = a:** Strava-Fahrten zählen bald auch in «Diese Woche» und «Velo in diesem Monat»; das kommt als kleines eigenes Release nach 0.116.0.
 - **Selbst entschieden:** Eine hochgeladene GPX-Fahrt bekommt den Puls der Strava-Fahrt nur, wenn genau eine passt (gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Der Wochen- und Tour-Puls ist ein km-gewichteter Schnitt der Fahrten, max der höchste Wert.
+
+## 13.10.2026: Strava-Fahrten zählen mit (0.121.0)
+
+- **Q1 = a (12.10.2026), Mockups SZ1–SZ2 freigegeben (Noah 13.10.2026 14:57 UTC «sz1-sz2 freigeben»):** Bestätigte Strava-Fahrten zählen in Heute «Diese Woche», Heute «Velo im {Monat}» und Aktiv «Velo in diesem Monat».
+- **Selbst entschieden:** Eine Fahrt, die als Datei und als Strava-Eintrag da ist, zählt einmal als Datei (gleiche Regel wie beim Puls: gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Offene Fahrten in «Zum Prüfen» zählen erst nach «Passt». Der Aktiv-Untertitel heisst jetzt «aus deinen Fahrten und Strava».
+- **Bewusst nicht:** keine sichtbare Unterscheidung «geplant / abgeschlossen / bewertet» in diesem Release; das kommt nach Spezifikation und Mockups aus dem Design-Refresh (Noah 13.10.2026).
+

@@ -40,11 +40,11 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
   await page.goto('./#/trips');
   await expect(page.getByRole('heading', { level: 1, name: T('Trips|place') })).toBeVisible();
   await expect(page.locator('h1').first()).toHaveCount(1);
-  // v0.124.0 TZ-1: the count line by the three trip states (tests/e2e/tz1.spec.js checks the numbers)
+  // v0.126.0 TZ-1: the count line by the three trip states (tests/e2e/tz1.spec.js checks the numbers)
   await expect(page.getByText(new RegExp(esc(T('{n} planned', { n: 'X' })).replace('X', '\\d+'))).first()).toBeVisible();
   // the band names the next trip and goes on with one main button
   await expect(page.getByText(T('Continue|go'), { exact: false }).first()).toBeVisible();
-  // the tiles of the planned trips (v0.124.0 TZ-1: the group «Geplant»), with a packing bar, and the dashed tile for a new trip
+  // the tiles of the planned trips (v0.126.0 TZ-1: the group «Geplant»), with a packing bar, and the dashed tile for a new trip
   const planning = page.locator('section.grp').filter({ has: page.locator('#trips-plan') });
   await expect(planning.locator('li.tile:not(.add)').first()).toBeVisible();
   await expect(planning.getByRole('button', { name: new RegExp(esc(T('New trip'))) })).toBeVisible();

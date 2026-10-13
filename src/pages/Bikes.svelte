@@ -10,6 +10,7 @@
   import CareTab from '../lib/care/CareTab.svelte';
   import Compare from '../lib/bikes/Compare.svelte';
   import Equipment from '../lib/bikes/Equipment.svelte';
+  import ValuesPage from '../lib/bikes/ValuesPage.svelte';
   import ShopTab from '../lib/bikes/ShopTab.svelte';
   import KmImport from '../lib/care/KmImport.svelte';
   import StravaPage from '../lib/strava/StravaPage.svelte';
@@ -52,6 +53,9 @@
   {:else if route.tab === 'compare' && route.view === 'all'}
     <!-- Bugfix Dateneingabe: «enter» on a sheet opens one value of its bike here, then goes back -->
     <Compare bikeId={route.bike} target={route.edit ?? null} back={route.back ?? null} from={route.from ?? null} />
+  {:else if route.tab === 'compare' && route.view === 'enter'}
+    <!-- «Bugfix Dateneingabe» D2–D4: every value of one bike on one page, «Next» goes to the next field -->
+    <ValuesPage bikeId={route.bike} onbike={pickBike} />
   {:else if route.tab === 'compare'}
     <!-- v0.83.0 «Ausstattung» (A1–A5 a): every part of one bike in groups, «Compare bikes» one tap away -->
     <Equipment bikeId={route.bike} onbike={pickBike} />

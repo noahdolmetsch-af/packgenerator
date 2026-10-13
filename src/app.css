@@ -746,7 +746,7 @@
   --pc-me: #c9d6dd;
   --pc-ink: #0e171d;
 }
-/* v0.124.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», spec tour-zustaende 5): the three trip states,
+/* v0.126.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», spec tour-zustaende 5): the three trip states,
    the same in every colour world so «blue = planned» holds everywhere. Text on its soft ground 5.4–6.2:1
    (light), 7.8–8.0:1 (dark); text on paper at least 6.3:1. Never colour alone: always icon and word
    (ui/TripState.svelte). Orange stays for «due» and warnings. */

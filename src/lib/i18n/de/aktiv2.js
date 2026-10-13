@@ -8,7 +8,7 @@ export default {
   'One tap ticks · long press: duration, place or stopwatch': 'Ein Tipp hakt ab · lange drücken: Dauer, Ort oder Stoppuhr',
   'One click ticks · right click: duration, place or stopwatch': 'Ein Klick hakt ab · Rechtsklick: Dauer, Ort oder Stoppuhr',
   'last 7 days against your goals': 'letzte 7 Tage gegen deine Ziele',
-  'from your uploaded rides': 'aus deinen hochgeladenen Fahrten',
+  'from your rides and Strava': 'aus deinen Fahrten und Strava',
   '{month} until today': '{month} bis heute',
   '{n} % vs {month}': '{n} % zu {month}',
   'W {n}': 'W {n}',

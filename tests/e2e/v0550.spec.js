@@ -181,7 +181,7 @@ test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves
   expect(errors).toEqual([]);
 });
 
-test('a new trip: Biwak + Zelt by default, Licht in the dark, Rennen on an event; v0.114.0: Laden and Komfort not by themselves; v0.120.0: a slim Reparatur comes', async ({ page, context }, info) => {
+test('a new trip: Biwak + Zelt by default, Licht in the dark, Rennen on an event; v0.114.0: Laden and Komfort not by themselves; v0.124.0: a slim Reparatur comes', async ({ page, context }, info) => {
   const { errors } = await start(page, context, info);
   await tap(page.getByRole('button', { name: 'Neu', exact: true }).filter({ visible: true }), info);
   await tap(page.getByRole('dialog', { name: 'Neu' }).getByRole('button', { name: 'Tour planen' }), info);
@@ -205,7 +205,7 @@ test('a new trip: Biwak + Zelt by default, Licht in the dark, Rennen on an event
   // no longer come by themselves, and the window has no building block chips (1a: only in Packen).
   await expect(dlg.getByRole('group', { name: T('Suggested for this ride') })).toHaveCount(0);
   await expect(box).not.toContainText(await nameOf(page, 'LI03'));
-  // v0.120.0 B5 (changed on purpose, Noah «a ★ Ja, schlank dabei»): a Reparatur with at most 8 parts comes as a suggestion.
+  // v0.124.0 B5 (changed on purpose, Noah «a ★ Ja, schlank dabei»): a Reparatur with at most 8 parts comes as a suggestion.
   await expect(box).toContainText(await nameOf(page, 'WZ04'));
   // 14 h a day goes into the dark: Licht comes by itself.
   await dlg.getByLabel(T('Riding hours per day')).fill('14');
@@ -224,10 +224,10 @@ test('a new trip: Biwak + Zelt by default, Licht in the dark, Rennen on an event
   const trip = (await table(page, 'trips')).find((t) => t.title === title);
   expect(trip).toMatchObject({ overnight: 'outdoor', tent: true, dark: true, event: true });
   expect(trip.sets?.charge).toBe(false);
-  expect(trip.sets?.repair).toBeUndefined(); // v0.120.0 B5: the slim Reparatur stays on
+  expect(trip.sets?.repair).toBeUndefined(); // v0.124.0 B5: the slim Reparatur stays on
   const on = trip.entries.map((e) => e.itemId.replace(P, ''));
   expect(on).toEqual(expect.arrayContaining(['SL01', 'SL02', 'SL03', 'LI03', 'RC01'])); // tent, mat, bag, light, race
-  expect(on).toContain('WZ04'); // v0.120.0 B5: slim Reparatur by default
+  expect(on).toContain('WZ04'); // v0.124.0 B5: slim Reparatur by default
   expect(on).not.toContain('EL02'); // Laden not by itself
   expect(on).not.toContain('LX01'); // Komfort not ticked
   expect(on).not.toContain('OF01'); // hotel-only

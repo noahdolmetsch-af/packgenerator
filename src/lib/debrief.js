@@ -53,7 +53,7 @@ export function unusedTimes(debriefs, tripId = null) {
   return out;
 }
 
-/** Last day of a trip (YYYY-MM-DD), or null without a start date. Since v0.124.0 in tripstate.js. */
+/** Last day of a trip (YYYY-MM-DD), or null without a start date. Since v0.126.0 in tripstate.js. */
 export { tripEnd };
 
 /** Is the trip over (its last day is before today, or it was ended on the ride day)? Answer 4a: the debrief shows up the day after. */

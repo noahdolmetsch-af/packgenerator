@@ -1,5 +1,5 @@
 /**
- * v0.124.0 TZ-1 «Zustand sichtbar»: the words of a trip state's small extra (tripstate.js stateExtra),
+ * v0.126.0 TZ-1 «Zustand sichtbar»: the words of a trip state's small extra (tripstate.js stateExtra),
  * apart from tripstate.js so that file stays free of the language (the browser tests read it in Node).
  */
 import { t, tn, locale } from './i18n.svelte.js';

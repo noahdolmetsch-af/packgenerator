@@ -12,7 +12,7 @@
    * on the side the «Wetter-Fenster» (the next 7 days at home, the best days framed) and the best values
    * as a list with «Alle» for the period and the averages. The four steps and the template tiles are gone
    * from here (the steps are on every trip, the templates have their own tab).
-   * v0.124.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», mockup TZ1): the groups are the three trip
+   * v0.126.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», mockup TZ1): the groups are the three trip
    * states (tripstate.js): Geplant, Abgeschlossen, Bewertet. Filter chips «Alle · Geplant · Abgeschlossen ·
    * Bewertet» with their numbers, the state pill on every tile (ui/TripState.svelte, icon + word + extra),
    * the tile's map in the state's colour, and the legend «Drei Zustände» (on the side; on a phone folded
@@ -48,7 +48,7 @@
   const rides = $derived($ridesQ ?? []);
   const view = $derived(loaded ? tripsOverview($tripsQ, $debriefsQ, today, rides) : null);
   const counts = $derived(overviewCounts(view));
-  // v0.124.0 TZ-1: the filter chips (all, or one state); kept while the page is open
+  // v0.126.0 TZ-1: the filter chips (all, or one state); kept while the page is open
   let filter = $state('all');
   const GICON = { plan: Pencil, done: Flag, rated: Star };
   const debriefOf = $derived(Object.fromEntries(($debriefsQ ?? []).map((d) => [d.tripId, d])));
@@ -350,7 +350,7 @@
   .gh.st-rated {
     color: var(--st-rated);
   }
-  /* v0.124.0 TZ-1: the filter chips «Alle · Geplant · Abgeschlossen · Bewertet» */
+  /* v0.126.0 TZ-1: the filter chips «Alle · Geplant · Abgeschlossen · Bewertet» */
   .fchips {
     display: flex;
     flex-wrap: wrap;
@@ -488,7 +488,7 @@
     box-sizing: border-box;
     background: var(--paper-2);
   }
-  /* v0.124.0 TZ-1: the map in the colour of the trip's state, the route in its line colour */
+  /* v0.126.0 TZ-1: the map in the colour of the trip's state, the route in its line colour */
   .map.st-plan {
     --st-l: var(--st-plan-line);
     background: var(--st-plan-soft);

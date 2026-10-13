@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { overviewCounts, weatherWindow, daysTo, weightByPlace } from '../src/lib/touren.js';
 
 describe('touren', () => {
-  it('counts by the three trip states (v0.124.0 TZ-1)', () => {
+  it('counts by the three trip states (v0.126.0 TZ-1)', () => {
     expect(overviewCounts({ counts: { plan: 3, done: 1, rated: 9, all: 13 } })).toEqual({ plan: 3, done: 1, rated: 9, all: 13 });
     expect(overviewCounts({ empty: true })).toBeNull();
   });

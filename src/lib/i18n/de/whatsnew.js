@@ -4,12 +4,28 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.123.0 Trophäen-Vitrine
+  'All your stars in one showcase': 'Alle deine Sterne in einer Vitrine',
+  'Every star you reached, by area and year, on one page. Reached ones stay.': 'Jeder Stern, den du erreicht hast, nach Bereich und Jahr auf einer Seite. Erreichte bleiben.',
+  'Trophy showcase: all stars by area and year': 'Trophäen-Vitrine: alle Sterne nach Bereich und Jahr',
+  'Trophy shelf: «See all trophies» opens it': 'Trophäen-Regal: «Alle Trophäen ansehen» öffnet sie',
+  'Next within reach: the three closest stars': 'Als Nächstes erreichbar: die drei nächsten Sterne',
+  'Open Aktiv › Aktivität › Milestones and tap «See all trophies» under the trophy shelf.': 'Öffne Aktiv › Aktivität › Meilensteine und tippe unter dem Trophäen-Regal auf «Alle Trophäen ansehen».',
+  'Tap a year: only the stars of that year stay.': 'Tippe ein Jahr an: nur die Sterne dieses Jahres bleiben.',
+  // 0.121.0 Strava-Fahrten zählen mit
+  'Strava rides count along': 'Strava-Fahrten zählen mit',
+  'Your Strava rides now count in «This week» and «Bike this month», each ride once.': 'Deine Strava-Fahrten zählen jetzt bei «Diese Woche» und «Velo in diesem Monat» mit, jede Fahrt nur einmal.',
+  'Today: «This week» and «Bike this month» count your Strava rides': 'Heute: «Diese Woche» und «Velo in diesem Monat» zählen deine Strava-Fahrten',
+  'Aktiv: «Bike this month» from your rides and Strava': 'Aktiv: «Velo in diesem Monat» aus deinen Fahrten und Strava',
+  'A ride in «To check» counts after «Fits»': 'Eine Fahrt in «Zum Prüfen» zählt nach «Passt»',
+  'Connect Strava and ride once: on Today «This week» shows the day as active.': 'Strava verbinden und einmal fahren: Auf Heute zeigt «Diese Woche» den Tag als aktiv.',
+  'Open Aktiv: «Bike this month» adds the Strava kilometres.': 'Aktiv öffnen: «Velo in diesem Monat» zählt die Strava-Kilometer dazu.',
   'Older updates': 'Ältere Updates',
   'Version {v}': 'Version {v}',
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.124.0 Zustand sichtbar (mockups TZ1–TZ2)
+  // 0.126.0 Zustand sichtbar (mockups TZ1–TZ2)
   'Every trip has a state': 'Jede Tour hat einen Zustand',
   'Blue is planned, grey is ridden, green is rated: every trip shows where it stands.': 'Blau ist geplant, grau ist gefahren, grün ist bewertet: Jede Tour zeigt, wo sie steht.',
   'Trips are grouped by state, with chips to show only one state and a short legend «Three states».':
@@ -23,7 +39,24 @@ export default {
   'Open a trip that is still ahead: at the top the blue pill «Planned» with when it starts.': 'Öffne eine Tour, die noch vor dir liegt: Oben steht die blaue Pille «Geplant» mit dem Start.',
   'Open Heute: the next trip has the pill «Planned».': 'Öffne Heute: Die nächste Tour hat die Pille «Geplant».',
 
-  // 0.120.0 Neue Tour Teil 2 (mockups B4/B5)
+  // 0.125.0 A-J1 Ein Weg zum Erfassen (mockup A-J1)
+  'Straight to the workshop': 'Direkt in die Werkstatt',
+  'The visit to the bike shop now opens straight from New, with the km and the last shop already filled in.':
+    'Der Besuch beim Velomech geht jetzt direkt aus Neu, mit km und letzter Werkstatt schon eingetragen.',
+  'Workshop visit in New saves a real visit on the bike, no note in the Inbox any more.':
+    'Werkstattbesuch in Neu speichert einen echten Besuch beim Velo, keine Notiz mehr im Eingang.',
+  'The km come from the km book and the workshop from your last visit, on a green field that says where from; change anything.':
+    'Die km kommen aus dem km-Buch und die Werkstatt vom letzten Besuch, auf einem grünen Feld mit der Herkunft; alles änderbar.',
+  'Report a problem lives in New and at the bike; Me points the way for 30 days.': 'Problem melden gibt es in Neu und am Velo; Ich zeigt 30 Tage lang den Weg.',
+  'Tick what was done (chain, pads, tyres …) right in the visit': 'Was gemacht wurde (Kette, Beläge, Reifen …) direkt im Besuch antippen',
+  'After saving: «Workshop visit saved.» with Undo': 'Nach dem Speichern: «Werkstattbesuch gespeichert.» mit Rückgängig',
+  'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».':
+    '+ (Neu) › Werkstattbesuch tippen: Die km und die letzte Werkstatt stehen auf einem grünen Feld mit «aus …».',
+  "Tick «Chain replaced», type a cost and tap «Save»: the bike's Workshop & receipts shows the visit.":
+    '«Kette ersetzt» antippen, Kosten eintippen und «Speichern» tippen: Werkstatt & Belege des Velos zeigt den Besuch.',
+  'Tap «Undo» in the message: the visit is gone again.': 'In der Meldung «Rückgängig» tippen: Der Besuch ist wieder weg.',
+
+  // 0.124.0 Neue Tour Teil 2 (mockups B4/B5)
   'Blocks you can tap': 'Bausteine zum Antippen',
   'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.': 'In Packen ist jeder Baustein jetzt ein grosser Knopf, und Reparatur reist leicht mit höchstens 8 Teilen.',
   'Building blocks as big buttons at the top of Packen: green with a check is on the trip, white with + can be added.':
@@ -38,6 +71,22 @@ export default {
     'Tippe einen weissen Baustein mit + an: Er wird grün mit Haken und seine Teile sind auf der Liste. Tippe nochmals: Sie gehen wieder.',
   'With a Repair of more than 8 parts tap its dashed button: choose the parts and tap «Take 8 parts».':
     'Hat Reparatur mehr als 8 Teile, tippe ihren gestrichelten Knopf an: Wähle die Teile und tippe «8 Teile übernehmen».',
+  // 0.122.0 Dateneingabe (D1–D4)
+  'Values in one go': 'Werte in einem Zug',
+  'Bike values go in right where you are: on the sheet or on one page, field after field.':
+    'Velowerte trägst du gleich dort ein, wo du bist: im Blatt oder auf einer Seite, Feld für Feld.',
+  'The Pick-up check shows each value as a card: tap it, type, and «Next» opens the next one. − and + help, and «As before» keeps the old value.':
+    'Der Abhol-Check zeigt jeden Wert als Karte: antippen, tippen, und «Weiter» öffnet die nächste. − und + helfen, «Wie vorher» behält den alten Wert.',
+  'New page «Enter values» under Equipment: all values of a bike in four groups, every entry saves at once.':
+    'Neue Seite «Werte erfassen» unter Ausstattung: alle Werte eines Velos in vier Gruppen, jede Eingabe speichert sofort.',
+  '«Choose fields» hides fields you never need, for all bikes; «Own field» adds a value with name and unit.':
+    '«Felder wählen» blendet Felder aus, die du nie brauchst, für alle Velos; «Eigenes Feld» fügt einen Wert mit Name und Einheit hinzu.',
+  'Open a bike › Workshop › Pick-up check: tap a value, type a number and press Enter: the card is ticked and the next one opens.':
+    'Ein Velo öffnen › Werkstatt › Abhol-Check: einen Wert antippen, eine Zahl tippen und Enter drücken: Die Karte ist abgehakt, die nächste geht auf.',
+  'Go to Equipment › «Enter values»: type a value and press Enter, the next field gets the cursor.':
+    'Zu Ausstattung › «Werte erfassen»: einen Wert tippen und Enter drücken, das nächste Feld bekommt den Cursor.',
+  'Tap «Choose fields», switch a field off: it is gone here, the Bike pass still shows it.':
+    '«Felder wählen» tippen, ein Feld ausschalten: Hier ist es weg, der Velo-Pass zeigt es weiter.',
 
   // 0.119.0 Schnellstart (mockups Q1–Q3)
   'Trip in one click': 'Tour mit 1 Klick',

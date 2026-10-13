@@ -1,4 +1,4 @@
-// v0.124.0 TZ-1 «Zustand sichtbar» (mockups TZ1–TZ2, Noah 13.10.2026 «1-5 a», «TZ1–TZ3 freigegeben»):
+// v0.126.0 TZ-1 «Zustand sichtbar» (mockups TZ1–TZ2, Noah 13.10.2026 «1-5 a», «TZ1–TZ3 freigegeben»):
 // the three trip states Geplant, Abgeschlossen, Bewertet (tripstate.js, ui/TripState.svelte), on Touren,
 // in the trip header and on Heute.
 export default {

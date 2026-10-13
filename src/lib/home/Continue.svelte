@@ -12,7 +12,7 @@
    * leads with the same trip (cardId); it stays for another trip and for the evening rows.
    * v0.102.0 Design-Refresh P4 (T1, approved 12.10.2026): banner on Touren: «Weitermachen» as a soft band
    * with the step's icon, the trip, how far it is packed and «Weiter ›» on the right (the page's one main action).
-   * v0.124.0 TZ-1 «Zustand sichtbar» (mockup TZ1): the trip's state pill (ui/TripState.svelte) before the step.
+   * v0.126.0 TZ-1 «Zustand sichtbar» (mockup TZ1): the trip's state pill (ui/TripState.svelte) before the step.
    */
   import { ChevronRight, Moon, Flag, Backpack, Map as MapIcon, Bike, NotebookPen } from '@lucide/svelte';
   import { t, tn } from '../i18n.svelte.js';
@@ -116,7 +116,7 @@
     color: var(--hi);
     font-weight: 600;
   }
-  /* v0.124.0 TZ-1: the state pill and the step on one line (wrapping on a narrow phone) */
+  /* v0.126.0 TZ-1: the state pill and the step on one line (wrapping on a narrow phone) */
   .sl {
     display: flex;
     flex-wrap: wrap;

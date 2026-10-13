@@ -6,7 +6,7 @@
 import { toWx } from './weather.js';
 
 /**
- * The numbers of the line under «Touren»: v0.124.0 TZ-1 (mockup TZ1) by the three trip states
+ * The numbers of the line under «Touren»: v0.126.0 TZ-1 (mockup TZ1) by the three trip states
  * (tripstate.js): planned, completed, rated; all for the chip «All».
  */
 export function overviewCounts(view) {

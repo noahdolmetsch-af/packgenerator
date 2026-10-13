@@ -7,6 +7,7 @@
    *   #/flow/edit/<id>   edit one activity; #/flow/new a new one (the same form, empty)
    *   #/flow/activity    hobby pages 1: Aktiv › Aktivität (pages/flow/Activity.svelte)
    *   #/flow/milestones  hobby pages 1: all milestones (pages/flow/Milestones.svelte), ?act=, ?tune=1
+   *   #/flow/trophies    v0.123.0 the trophy showcase, all stars by area and year (pages/flow/Trophies.svelte)
    *   #/flow/act/<id>    hobby pages 2: an activity's own page (Meditation.svelte, B1); …/timer the
    *                      intervals (MedTimer.svelte, B2); the running session is in FlowLayer (B7)
    *   …/done/<sid>       hobby pages 3: the evaluation after the gong (MedDone.svelte, B3)
@@ -34,7 +35,7 @@
   import Empty from '../lib/ui/Empty.svelte';
   import { monthWeeks, seasonNow, goalPath } from '../lib/flow/aktiv.js';
   import { msContext, allMilestones, TUNE_KEY, weekStart } from '../lib/flowms.js';
-  import { heartBetween } from '../lib/kmbook.js';
+  import { heartBetween, withStravaRides } from '../lib/kmbook.js';
   import HeartLine from '../lib/strava/HeartLine.svelte';
   import { msName, tileName } from '../lib/flow/hobby/words.js';
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
@@ -43,6 +44,7 @@
   import ActEditor from '../lib/flow/ActEditor.svelte';
   import Activity from './flow/Activity.svelte';
   import Milestones from './flow/Milestones.svelte';
+  import Trophies from './flow/Trophies.svelte';
   import Meditation from './flow/Meditation.svelte';
   import MedTimer from './flow/MedTimer.svelte';
   import MedDone from './flow/MedDone.svelte';
@@ -93,9 +95,10 @@
   const season = $derived(data ? seasonNow(data.acts, today) : null);
   const seasonal = $derived(states.filter((s) => s.act.season));
   const ridesQ = liveQuery(() => db.rides.toArray());
-  const km = $derived(monthWeeks($ridesQ ?? [], today));
   // heart rate of this week's Strava rides (observation only, Noah 12.10.2026 «2a und b»)
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
+  // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
+  const km = $derived(monthWeeks(withStravaRides($ridesQ ?? [], $kmBookQ ?? []), today));
   const weekHeart = $derived(heartBetween($kmBookQ ?? [], weekStart(today), today));
   const prevMonth = $derived.by(() => {
     const [y, m] = today.split('-').map(Number);
@@ -179,6 +182,8 @@
   <Activity />
 {:else if route[0] === 'milestones'}
   <Milestones {params} />
+{:else if route[0] === 'trophies'}
+  <Trophies {params} />
 {:else if route[0] === 'act' && route[2] === 'done'}
   {#key sub}<MedDone actId={decodeURIComponent(route[1] ?? '')} id={decodeURIComponent(route[3] ?? '')} {params} />{/key}
 {:else if route[0] === 'act' && route[2] === 'log'}
@@ -265,7 +270,7 @@
           <Sec id="ring-h" title={t('Rings')} sub={t('last 7 days against your goals')}>
             <div class="card ringc"><Rings {rings} size={phone.matches ? 112 : 140} quiet /></div>
           </Sec>
-          <Sec id="km-h" title={t('Bike this month')} sub={t('from your uploaded rides')}>
+          <Sec id="km-h" title={t('Bike this month')} sub={t('from your rides and Strava')}>
             <a class="card kmc" href="#/debrief/ride" data-section="km">
               <small>{t('{month} until today', { month: fmt(today, { month: 'long' }) })}</small>
               <span class="kmn"><b class="num">{num(km.km)} km</b>{#if km.pct != null}<span class="pill {km.pct >= 0 ? 'ok' : ''} num">{km.pct >= 0 ? '↑' : '↓'} {t('{n} % vs {month}', { n: num(Math.abs(km.pct)), month: fmt(prevMonth, { month: 'short' }) })}</span>{/if}</span>
