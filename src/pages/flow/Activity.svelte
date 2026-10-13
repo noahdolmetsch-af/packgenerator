@@ -129,7 +129,7 @@
   /* v0.105.0 Design-Refresh P8 «Aktiv» (A7): this week (B18), «Vorschlag für heute» as a suggestion tile
      with alternatives and a challenge (Noah «d1-d5 freigeben»: any suggestion can become a challenge),
      the rest folded under «Mehr» */
-  // v0.119.0 (Noah «1a»): the counted Strava rides count too
+  // v0.121.0 (Noah «1a»): the counted Strava rides count too
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
   const weekStrip = $derived(data ? weekDays({ today, log: data.log, rides: withStravaRides(data.rides, $kmBookQ ?? []) }) : []);
   const SG_KEY = suggestKey('aktiv');

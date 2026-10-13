@@ -16,8 +16,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.119.0 «Strava-Fahrten zählen mit» (mockups SZ1–SZ2, Noah 13.10.2026 «sz1-sz2 freigeben»)
-    version: '0.119.0',
+    // v0.121.0 «Strava-Fahrten zählen mit» (mockups SZ1–SZ2, Noah 13.10.2026 «sz1-sz2 freigeben»)
+    version: '0.121.0',
     date: '2026-10-13',
     title: 'Strava rides count along',
     lead: 'Your Strava rides now count in «This week» and «Bike this month», each ride once.',
@@ -31,6 +31,23 @@ export const WHATS_NEW = [
     test: [
       'Connect Strava and ride once: on Today «This week» shows the day as active.',
       'Open Aktiv: «Bike this month» adds the Strava kilometres.',
+    ],
+  },
+  {
+    // v0.119.0 «Schnellstart» (mockups Q1–Q3, Noah 13.10.2026 00:05 «Q1–Q3 freigegeben»)
+    version: '0.119.0',
+    date: '2026-10-13',
+    title: 'Trip in one click',
+    lead: 'One click on Today plans a ride for today, and you stay on Today.',
+    points: [
+      { text: 'Quick start replaces the day ride: today, 2.5 hours, the bike you rode last, the standard items and the weather of the forecast.', href: '#/' },
+      { text: 'The trip is called by the time you made it, like 202610130000; a green card has «Open» and «Undo».', href: '#/' },
+      { text: 'A trip name field marks its whole name when you tap into it, so typing writes over it.', href: '#/trips' },
+    ],
+    test: [
+      'On Today tap «Quick start»: you stay on Today, the green card says «Trip planned» with the time as the name.',
+      'Tap «Undo»: the trip is gone again.',
+      'Open a trip and tap its name: the whole name is marked; type a new one.',
     ],
   },
   {

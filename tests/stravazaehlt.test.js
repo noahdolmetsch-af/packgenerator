@@ -1,4 +1,4 @@
-// v0.119.0 «Strava-Fahrten zählen mit» (SZ1–SZ2): withStravaRides adds the counted Strava rides to the
+// v0.121.0 «Strava-Fahrten zählen mit» (SZ1–SZ2): withStravaRides adds the counted Strava rides to the
 // uploaded rides; a ride that is both a file and a Strava entry counts once. Fictional data.
 import { describe, it, expect } from 'vitest';
 import { withStravaRides } from '../src/lib/kmbook.js';

@@ -41,7 +41,7 @@ async function shot(page, info, name) {
   await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 }
 
-test('a trip today: no photo although the bike has one, the 8 buttons in the first screen, the slim suggestion, no double Continue', async ({ page, context }, info) => {
+test('a trip today: no photo although the bike has one, the 8 buttons in the first screen, no suggestion, no double Continue', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const phone = info.project.name === 'phone';
@@ -60,15 +60,10 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   await expect(page.locator('#hello-h br')).toHaveCount(0);
   if (!phone) expect((await page.locator('#hello-h').boundingBox()).height).toBeLessThan(60);
 
-  // Noah 1a: the suggestion for tomorrow is one slim row under the trip card, with a light button
-  const row = page.locator('[data-suggestion][data-slim]');
-  await expect(row).toBeVisible();
-  await expect(page.locator('[data-suggestion]')).toHaveCount(1);
-  await expect(row).toContainText(T('Dry tomorrow'));
-  expect((await row.boundingBox()).height).toBeLessThanOrEqual(72);
-  expect((await row.boundingBox()).y).toBeGreaterThan(card.y + card.height - 1);
-  await expect(row.locator('.btn.hi')).toHaveCount(0);
-  await expect(row.getByRole('button', { name: phone ? T('Start|dayride') : T('Start day ride'), exact: true })).toBeVisible();
+  // v0.119.0 «Schnellstart» (Noah Q1 1a): the suggestion is always for today, so with a trip today
+  // there is none (it was «Idea for tomorrow» as a slim row under the trip card until 0.117)
+  await expect(page.locator('[data-suggestion]')).toHaveCount(0);
+  expect(card.height).toBeGreaterThan(0);
 
   // the rule of 0.46: greeting and trip card without scrolling, on a 390×844 phone (v0.94.0 «Kachel-Wand»,
   // mockup A: the 16 functions are small tiles further down the wall)
@@ -106,7 +101,7 @@ test('no trip today: the suggestion stays big beside the greeting; no photo; Con
   const sugg = page.locator('[data-suggestion]');
   await expect(sugg).toHaveCount(1);
   await expect(sugg).not.toHaveAttribute('data-slim');
-  await expect(page.locator('.greet [data-suggestion]')).toContainText(T('Start day ride'));
+  await expect(page.locator('.greet [data-suggestion]')).toContainText(T('Quick start'));
   await expect(page.locator('#hello-h br')).toHaveCount(0);
   await shot(page, info, 'heute-ohne-tour');
   expect(errors).toEqual([]);

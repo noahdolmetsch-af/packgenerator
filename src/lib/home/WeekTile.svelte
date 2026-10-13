@@ -20,7 +20,7 @@
   const acts = $derived(Object.fromEntries((data?.acts ?? []).map((a) => [a.id, a])));
   // heart rate of this week's Strava rides (observation only, Noah 12.10.2026 «2a»)
   const kmQ = liveQuery(() => db.kmBook.toArray());
-  // v0.119.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
+  // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
   const days = $derived(weekDays({ today, log: data?.log ?? [], rides: withStravaRides(rides, $kmQ ?? []) }));
   const n = $derived(activeCount(days));
   const heart = $derived(days.length ? heartBetween($kmQ ?? [], days[0].day, today) : null);

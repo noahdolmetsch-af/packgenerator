@@ -1,4 +1,4 @@
-// v0.119.0 Strava-Fahrten zählen mit (Noah 12.10.2026 «1a»): the counted Strava rides count in Today's
+// v0.121.0 Strava-Fahrten zählen mit (Noah 12.10.2026 «1a»): the counted Strava rides count in Today's
 // «This week» and «Bike this month» and in Aktiv's «Bike this month»; a Strava ride that was also
 // uploaded as a file counts once. Fictional fixture (test_data_gtp_) plus Strava ledger entries; German,
 // phone + desktop. ZAEHLT_SHOTS=<dir> also saves screenshots.

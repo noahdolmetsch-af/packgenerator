@@ -12,7 +12,7 @@
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { today, rides = [], isnew = false } = $props();
-  // v0.119.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
+  // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
   const kmQ = liveQuery(() => db.kmBook.toArray());
   const m = $derived(monthKm(withStravaRides(rides, $kmQ ?? []), today));
   const month = $derived(new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { month: 'long', timeZone: 'UTC' }));

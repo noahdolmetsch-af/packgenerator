@@ -29,4 +29,8 @@ export const EXPLAIN = {
   More: 'Opens the list with everything else',
   Edit: 'Change name, date and note',
   New: 'New trip, new part or new note',
+  // v0.119.0 «Schnellstart» (Today)
+  'Quick start': 'Plans a ride for today in one click, you stay here',
+  'Open|quick': 'Opens the new trip',
+  'Undo|quick': 'Deletes the new trip again',
 };

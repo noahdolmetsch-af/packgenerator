@@ -862,6 +862,23 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 13.10.2026: Schnellstart (0.119.0)
+
+Mockups Q1–Q3 (`design/schnellstart/`). **Mockup-Freigabe: Q1–Q3 «Q1–Q3 freigegeben» 13.10.2026 00:05 Zurich**, Antworten **«1-5a»**:
+
+- **Q1 Schnellstart ersetzt die Tagestour auf Heute:** der Knopf im Vorschlag (und die Kachel «Tagestour») heisst «Schnellstart». Ein Klick, kein Fenster: immer heute und sofort (die Regel «ab 14 Uhr morgen» gilt hier nicht mehr), 2,5 Std., das zuletzt gefahrene Velo (bzw. das, das der Vorschlag zeigt), nur die Standardteile (keine Kopie der letzten Tagestour, keine Vorlage), Wetter aus der Wohnort-Vorhersage für heute, offline kein Wetter.
+- **Name:** lokaler Zeitstempel JJJJMMTTHHmm (z. B. 202610130000); ein zweiter in derselben Minute bekommt « (2)» (`freeTitle`).
+- **Q2a Auf Heute bleiben:** kein Sprung zu Packen; grüne Karte «Tour geplant: <Name>» mit «Heute · 2,5 Std. · <Wetter> · steht unter Touren › Geplant», «Öffnen» und «Rückgängig» (löscht die Tour). Auf Touren steht die Tour unter «Bald unterwegs» (so lassen).
+- **Q3 Tourname markiert:** jedes Feld für den Tournamen markiert beim Fokus (Tippen, Klick, Tastatur) den ganzen Namen, Tippen überschreibt; ein Klick ins schon aktive Feld setzt den Cursor normal.
+- **Selbst entschieden:**
+  - Die Karte hat zusätzlich ein «×» (Schliessen, 44 px), damit sie ohne Öffnen oder Rückgängig weggeht; sie schwebt unten über der Seite wie im Mockup.
+  - «Öffnen» führt in den Schritt, in dem die Tour gerade ist (wie «Tour öffnen» auf Heute, U007): für eine Tour von heute ist das «Packen».
+  - Mit einer Tour heute zeigt Heute keinen Vorschlag mehr (früher: «Vorschlag für morgen» als schmale Zeile), weil der Schnellstart immer für heute ist.
+  - Die Stunden schreiben sich im Deutschen «2,5» wie im Mockup.
+  - «Tagestour jetzt» im Neu-Menü, in der Suche («tagestour») und unter «Kennst du schon?» bleibt der bisherige Weg (macht die Tour in Packen mit «Ändern»); das ist eine Frage für die nächste Runde.
+  - Der Funktions-Schlüssel der Kachel bleibt `dayride` (damit Zählung und Anordnung der Kacheln bleiben); im Katalog von Was ist neu kommt die neue Funktion `f.quickstart` (seit 0.119.0) dazu, die Kachel zählt für sie.
+  - Version 0.119.0: 0.118.0 ist ein anderes Release, das vorher gemergt wird.
+
 ## 13.10.2026: Was ist neu 2 und KI-Helfer ausblenden (0.118.0)
 
 **Mockup-Freigabe:** W1–W3 Noah 13.10.2026 00:02 Zürich «w1-w3 freigeben», Antworten «1a 2a 3a 4a 5a» (12.10.2026 20:58). K1–K4 Noah 12.10.2026 21:50 «k1-k4 ok» (Antwort a ★), Q4 1a: zusammen mit Was ist neu ausliefern.
@@ -1079,7 +1096,7 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Q1 = a:** Strava-Fahrten zählen bald auch in «Diese Woche» und «Velo in diesem Monat»; das kommt als kleines eigenes Release nach 0.116.0.
 - **Selbst entschieden:** Eine hochgeladene GPX-Fahrt bekommt den Puls der Strava-Fahrt nur, wenn genau eine passt (gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Der Wochen- und Tour-Puls ist ein km-gewichteter Schnitt der Fahrten, max der höchste Wert.
 
-## 13.10.2026: Strava-Fahrten zählen mit (0.119.0)
+## 13.10.2026: Strava-Fahrten zählen mit (0.121.0)
 
 - **Q1 = a (12.10.2026), Mockups SZ1–SZ2 freigegeben (Noah 13.10.2026 14:57 UTC «sz1-sz2 freigeben»):** Bestätigte Strava-Fahrten zählen in Heute «Diese Woche», Heute «Velo im {Monat}» und Aktiv «Velo in diesem Monat».
 - **Selbst entschieden:** Eine Fahrt, die als Datei und als Strava-Eintrag da ist, zählt einmal als Datei (gleiche Regel wie beim Puls: gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Offene Fahrten in «Zum Prüfen» zählen erst nach «Passt». Der Aktiv-Untertitel heisst jetzt «aus deinen Fahrten und Strava».

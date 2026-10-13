@@ -95,7 +95,7 @@
   const ridesQ = liveQuery(() => db.rides.toArray());
   // heart rate of this week's Strava rides (observation only, Noah 12.10.2026 «2a und b»)
   const kmBookQ = liveQuery(() => db.kmBook.toArray());
-  // v0.119.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
+  // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
   const km = $derived(monthWeeks(withStravaRides($ridesQ ?? [], $kmBookQ ?? []), today));
   const weekHeart = $derived(heartBetween($kmBookQ ?? [], weekStart(today), today));
   const prevMonth = $derived.by(() => {
