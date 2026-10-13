@@ -20,7 +20,10 @@
   import { loadWerte } from '../review/actdata.js';
   import { paceFor, usualSurface, surfaceName } from '../review/werte.js';
   import { db } from '../db.js';
-  import { t, num, locale } from '../i18n.svelte.js';
+  import { t, num, locale, lang } from '../i18n.svelte.js';
+  import Woanders from '../sk/Woanders.svelte'; // SK X3, X6, X10, X12 (SKX2, SKX4)
+  import { swisstopoUrl, meteoUrl, sbbUrl, schweizMobilUrl, slfUrl } from '../sk/links.js';
+  import { domainOf, hasBike } from '../domains.js';
 
   let { trip, onchange } = $props();
 
@@ -148,6 +151,12 @@
       <p class="hint">{t('From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.')}</p>
     {/if}
     {#if routeMsg}<p class="warn" role="alert">{routeMsg}</p>{/if}
+    <!-- SK X10 (the route on the national map), X12 (an idea from SchweizMobil, bike trips), X6 (ski tours only) -->
+    <Woanders context={trip.title ?? ''} links={[
+      ...(trip.route || trip.place ? [{ kind: 'x10', href: swisstopoUrl(trip.place), icon: 'map', sub: t('The route on the national map') }] : []),
+      ...(hasBike(trip) && !trip.route ? [{ kind: 'x12', href: schweizMobilUrl(lang.v), icon: 'signpost', sub: t('Official cycling routes of Switzerland') }] : []),
+      ...(domainOf(trip) === 'ski' ? [{ kind: 'x6', href: slfUrl(lang.v), icon: 'mountain', sub: t('SLF · the evening before and on the day') }] : []),
+    ]} />
   </div>
 
   <div class="part">
@@ -189,6 +198,8 @@
         <p class="acts"><button type="button" class="btn sm" disabled={loading || !online} onclick={() => load()}>{loading ? t('Loading…') : t('Get forecast')}</button>{#if !online}<span class="hint">{t('Needs the internet.')}</span>{/if}</p>
       {/if}
       {#if wxMsg}<p class="warn" role="alert">{wxMsg}</p>{/if}
+      <!-- SK X3 (SKX2): the forecast map and the train to the start on the trip's day; only the place and the day go out -->
+      <Woanders context={trip.place.name} links={[{ kind: 'x3m', href: meteoUrl(lang.v), icon: 'cloudsun', sub: t('Forecast map') }, { kind: 'x3s', href: sbbUrl(trip.place, trip.startDate, lang.v), icon: 'train', sub: [t('to {place}', { place: trip.place.name }), trip.startDate ? longDay(trip.startDate) : ''].filter(Boolean).join(' · ') }]} />
     {/if}
   </div>
 </div>

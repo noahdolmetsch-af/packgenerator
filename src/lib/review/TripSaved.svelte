@@ -27,7 +27,12 @@
   import { Undo2 } from '@lucide/svelte';
   import { Check, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Briefcase, Wrench, X, Minus, Plus, ChevronRight, Package } from '@lucide/svelte';
 
+  import Woanders from '../sk/Woanders.svelte'; // SK X2 + X14 (SKX2)
+  import { slotOf, stravaRideUrl, komootUrl } from '../sk/links.js';
   let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], offer = null } = $props();
+  // SK X2: a ride of the trip that came from Strava (its id in the ride ledger) opens there
+  const stravaQ = liveQuery(() => (trip?.startDate ? db.kmBook.where('date').between(trip.startDate, tripEnd(trip) ?? trip.startDate, true, true).toArray() : []));
+  const stravaId = $derived(($stravaQ ?? []).find((e) => e.stravaId && e.state !== 'removed')?.stravaId ?? null);
 
   const today = localDay();
   const byId = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
@@ -110,6 +115,11 @@
           <div class="rv-tile"><dd><b>{hours(row?.movingH)} h</b></dd><dt><small>{row?.totalH && row?.movingH && row.totalH > row.movingH ? t('moving · {h} total', { h: hours(row.totalH) }) : t('moving')}</small></dt></div>
           <div class="rv-tile"><dd><b>{n1(row?.kmh)} km/h</b></dd><dt><small>{t('average while moving')}</small></dt></div>
         </dl>
+        <Woanders context={trip.title ?? ''} links={[
+          { kind: 'x2s', href: stravaRideUrl(stravaId), icon: 'flow', sub: stravaId ? t('the ride with its comments') : t('your training log') },
+          { kind: 'x2k', href: komootUrl(trip.place ?? trip.route?.start), icon: 'map', sub: t('plan or find the route') },
+          { kind: 'x14', slot: slotOf('x14', trip.id), icon: 'image', sub: t('the photos stay there') },
+        ]} />
         <ul class="facts">
           <li>{@render rainIcon(row?.rain)}{rainText(row?.rain, trip.days)}</li>
           <li><Thermometer size={16} aria-hidden="true" />{temps(row?.tmin, row?.tmax)}</li>

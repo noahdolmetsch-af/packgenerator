@@ -37,6 +37,10 @@
     if (phone.matches) sheet?.showModal();
     (phone.matches ? sheet : wrap)?.querySelector('[role="menuitem"]')?.focus();
   }
+  /** SK: open the list from outside (a long press on a page tile, SK6). */
+  export function show() {
+    if (!open) toggle();
+  }
   function close(refocus = true) {
     if (!open) return;
     open = false;

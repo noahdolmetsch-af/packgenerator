@@ -31,6 +31,7 @@
   import '../lib/review/review.css';
   import { ChevronLeft, ChevronRight, Upload, Search, ListFilter, Lightbulb, Sun, CloudRain, Cloud, Check, Info, CalendarHeart } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: the tile row at the page end
 
   const today = localDay();
   const dataQ = liveQuery(() => loadReview(db));
@@ -212,6 +213,8 @@
     {/if}
   {/if}
 </div>
+
+<PageTiles page="past" />
 
 <style>
   .crumb {

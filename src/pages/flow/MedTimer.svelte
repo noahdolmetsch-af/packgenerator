@@ -28,6 +28,8 @@
   import { localDay } from '../../lib/localday.js';
   import { phone } from '../../lib/media.svelte.js';
   import { t } from '../../lib/i18n.svelte.js';
+  import Woanders from '../../lib/sk/Woanders.svelte'; // SK X8 (SKX4)
+  import { slotOf } from '../../lib/sk/links.js';
 
   let { actId = 'meditation', params = new URLSearchParams() } = $props();
   const today = localDay();
@@ -334,6 +336,8 @@
         {/if}
 
         <button type="button" class="btn hi go" onclick={start} data-start="timer"><Play size={22} aria-hidden="true" />{running ? t('Open the running session') : t('Start · {n} min', { n: minutes })}</button>
+        <!-- SK X8 (SKX4): «Meine Musik», your own link (e.g. a playlist), under «Start» -->
+        <Woanders stack links={[{ kind: 'x8', slot: slotOf('x8'), icon: 'music', sub: t('your playlist') }]} />
       </div>
     </div>
   {/if}
