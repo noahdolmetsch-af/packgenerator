@@ -27,6 +27,8 @@ const RUN = {
   trip: () => openNew('list'),
   newTrip: () => openNew('list'),
   dayRide: () => dayRide(),
+  // v0.119.0 «Schnellstart»: the button lives on Today
+  quick: () => (location.hash = '#/'),
   wear: () => openWear(),
   note: () => openNote(''),
   receipt: () => openNote(t('Workshop receipt: ')),

@@ -45,7 +45,7 @@ export const SINCE = {
   'f.folder': '0.69.0', 'f.breakin': '0.70.0', 'f.repairkit': '0.70.0', 'f.warranty': '0.70.0', 'f.theft': '0.70.0', 'f.partstart': '0.68.0', 'f.prep': '0.18.0',
   'f.tick': '0.51.0', 'f.check': '0.51.0', 'f.stopwatch': '0.51.0', 'f.goals': '0.51.0', 'f.milestones': '0.79.0', 'f.meditation': '0.81.0', 'f.medlog': '0.84.0', 'f.medmore': '0.86.0',
   backup: '0.2.0', install: '0.1.0', lang: '0.20.0', demo: '0.18.0', 'f.search': '0.46.0', 'f.inbox': '0.19.3', 'f.notes': '0.57.0', 'f.autobackup': '0.2.0', 'f.tidy': '0.88.0', 'f.playground': '0.88.0',
-  'f.helper': '0.77.0', 'f.shortcuts': '0.76.0', 'f.theme': '0.46.0', 'f.news': '0.110.0', 'f.tripcheck': '0.111.0', 'f.strava': '0.116.0', 'f.explain': '0.117.0',
+  'f.helper': '0.77.0', 'f.shortcuts': '0.76.0', 'f.theme': '0.46.0', 'f.news': '0.110.0', 'f.tripcheck': '0.111.0', 'f.strava': '0.116.0', 'f.explain': '0.117.0', 'f.quickstart': '0.119.0',
 };
 export const sinceOf = (id) => SINCE[id] ?? '0.1.0';
 
@@ -81,7 +81,7 @@ export function usesOf(value) {
 export const bumpUse = (value, id) => (KNOWN.has(id) ? { ...usesOf(value), [id]: (usesOf(value)[id] ?? 0) + 1 } : usesOf(value));
 
 /** The 16 buttons of Today (home/fnlist.js) and the search commands count for these functions. */
-export const HOME_FEATURE = { dayride: 'dayride', trip: 'f.plan', wear: 'f.wear', weigh: 'weigh', care: 'care', ride: 'f.upload', gear: 'unused', wardrobe: 'f.wardrobe', templates: 'templates', wish: 'wish', review: 'f.past', note: 'note', km: 'km', blocks: 'blocks', favorites: 'fav', debriefs: 'debrief' };
+export const HOME_FEATURE = { dayride: 'f.quickstart', trip: 'f.plan', wear: 'f.wear', weigh: 'weigh', care: 'care', ride: 'f.upload', gear: 'unused', wardrobe: 'f.wardrobe', templates: 'templates', wish: 'wish', review: 'f.past', note: 'note', km: 'km', blocks: 'blocks', favorites: 'fav', debriefs: 'debrief' };
 
 /**
  * The rows of the list: every function with its category, place, since, uses and state.
