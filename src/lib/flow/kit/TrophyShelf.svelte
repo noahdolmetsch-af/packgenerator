@@ -3,7 +3,7 @@
    * v0.105.0 Design-Refresh P8 «Aktiv» (B12 «Trophäen-Regal», A8 and A14): the stars reached lately as
    * round badges with their name and when, the next one dashed; under it «Nächstes» with how far.
    * items: [{ id, name, when, done }]; next: { name, value, target } | null (value and target already as words, e.g. val()).
-   * v0.122.0 «Trophäen-Vitrine» (TV2): more: the address of the showcase; a link «See all trophies ›» under it.
+   * v0.123.0 «Trophäen-Vitrine» (TV2): more: the address of the showcase; a link «See all trophies ›» under it.
    */
   import { Star, ChevronRight } from '@lucide/svelte';
   import { t } from '../../i18n.svelte.js';

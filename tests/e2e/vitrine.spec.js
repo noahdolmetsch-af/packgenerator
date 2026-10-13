@@ -1,4 +1,4 @@
-// v0.122.0 «Trophäen-Vitrine» (mockups TV1–TV2, Noah 13.10.2026 «tv1-tv2 freigeben»): the link «Alle
+// v0.123.0 «Trophäen-Vitrine» (mockups TV1–TV2, Noah 13.10.2026 «tv1-tv2 freigeben»): the link «Alle
 // Trophäen ansehen» under the trophy shelf, the showcase with the stars by area (over all, Meditation),
 // the year and area filters, «Nach Jahr» and «Als Nächstes erreichbar», on a phone and a computer, in
 // German. No sideways scroll, no page errors. Fictional data only.

@@ -1,4 +1,4 @@
-// v0.122.0 «Trophäen-Vitrine» (mockups TV1–TV2, Noah 13.10.2026 «tv1-tv2 freigeben»): all stars by area and year.
+// v0.123.0 «Trophäen-Vitrine» (mockups TV1–TV2, Noah 13.10.2026 «tv1-tv2 freigeben»): all stars by area and year.
 export default {
   'Trophy showcase': 'Trophäen-Vitrine',
   'All your stars in one place · by area and year · reached ones stay · no ranking': 'Alle deine Sterne an einem Ort · nach Bereich und Jahr · erreichte bleiben · keine Rangliste',

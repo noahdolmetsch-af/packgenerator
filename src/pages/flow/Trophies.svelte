@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.122.0 «Trophäen-Vitrine» (mockup TV1, Noah 13.10.2026 «tv1-tv2 freigeben»): all stars reached
+   * v0.123.0 «Trophäen-Vitrine» (mockup TV1, Noah 13.10.2026 «tv1-tv2 freigeben»): all stars reached
    * in one place, by area (over all, then each activity) and by year. Per milestone its highest star as
    * a round badge, per area the next open star dashed. Right: the years and the next stars within reach.
    *   #/flow/trophies            all
