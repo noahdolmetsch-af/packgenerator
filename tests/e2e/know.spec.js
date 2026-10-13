@@ -127,7 +127,7 @@ for (const lang of ['en', 'de']) {
     // v0.96.0 «F1 Alles finden»: «Take me there» starts it; it may wait behind «All n» of its group.
     const unusedRow = page.locator('[data-feature="unused"]');
     if (!(await unusedRow.isVisible())) await page.locator('section[data-group="before"] .fall').click();
-    await unusedRow.getByRole('link', { name: T('Take me there') }).click();
+    await unusedRow.locator('.fmain').click(); // SN6 (changed on purpose): the row itself takes you there
     await expect(page).toHaveURL(/#\/gear\?unused=1/);
     await expect(page.getByText(T('Only items on no trip for 12 months'))).toBeVisible();
     // the sleeping bag (last on a trip 400 days ago) is one of them; standard items are not
