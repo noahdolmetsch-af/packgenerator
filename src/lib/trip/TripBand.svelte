@@ -389,6 +389,15 @@
     .kline {
       order: 2;
     }
+    /* TZ-1: sideways the state pill is small and shows only its word (the extra stays in its title), so the
+       name keeps its line and the band stays low (D6) */
+    .kline :global(.tst.md) {
+      padding: 1px var(--sp-2);
+      font-size: var(--fs-tiny);
+    }
+    .kline :global(.tst .x) {
+      display: none;
+    }
     h1 {
       flex: 1 1 0;
       min-width: 0;
