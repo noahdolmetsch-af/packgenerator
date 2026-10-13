@@ -7,6 +7,11 @@
  *
  * Without a code everything works as before (answer 8a): the helper's UI hides itself, only New
  * trip and the settings say calmly that it is not set up. With the switch off it hides too.
+ * v0.118.0 «KI-Helfer ausblenden» (mockups K1–K4, Noah 12.10.2026 «k1-k4 ok», answer a ★): the helper is
+ * completely off by default. ONE switch, Ich › KI-Helfer «Show the AI helper in the app» (`show`, default
+ * false), brings every place back at once: Packen «Check the list», the debrief draft, bike care, the
+ * search answer, the tile on Today and «Ask the helper» in New trip. The code, the limit and the old
+ * `on` stay stored as they are; switched off, nothing is asked and nothing goes to Claude.
  * The monthly limit (answer 7a, default CHF 5) pauses it until next month; the server has its own.
  */
 import { liveQuery } from 'dexie';
@@ -23,7 +28,7 @@ const TIMEOUT = 90_000;
 export const thisMonth = (day = localDay()) => day.slice(0, 7);
 
 /** The settings as stored, with the defaults filled in. */
-export const settingsOf = (value) => ({ code: typeof value?.code === 'string' ? value.code : '', on: value?.on !== false, capChf: Number(value?.capChf) > 0 ? Number(value.capChf) : DEFAULT_CAP });
+export const settingsOf = (value) => ({ code: typeof value?.code === 'string' ? value.code : '', show: value?.show === true, capChf: Number(value?.capChf) > 0 ? Number(value.capChf) : DEFAULT_CAP });
 
 /** Paused by the limit: this month's spend reached the device's cap or the server's. */
 export function pausedBy(settings, spend, month = thisMonth()) {
@@ -33,11 +38,13 @@ export function pausedBy(settings, spend, month = thisMonth()) {
 }
 
 /** The live state for the components. */
-export const helper = $state({ loaded: false, code: '', on: true, capChf: DEFAULT_CAP, spend: null });
+export const helper = $state({ loaded: false, code: '', show: false, capChf: DEFAULT_CAP, spend: null });
 export const isSetUp = () => !!helper.code;
 export const isPaused = () => pausedBy(helper, helper.spend);
-/** Show the helper's buttons: set up and switched on (paused shows a calm line instead). */
-export const isOn = () => !!helper.code && helper.on;
+/** v0.118.0: the one switch «Show the AI helper in the app» (default off). */
+export const isShown = () => helper.show;
+/** Show the helper's buttons: shown and set up (paused shows a calm line instead). */
+export const isOn = () => !!helper.code && helper.show;
 
 if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
   liveQuery(async () => [await db.settings.get(HELPER_KEY), await db.meta.get(SPEND_KEY)]).subscribe({
@@ -50,7 +57,7 @@ if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
   });
 }
 
-/** Save part of the settings ({ code } / { on } / { capChf }). */
+/** Save part of the settings ({ code } / { show } / { capChf }); the other fields stay as stored. */
 export async function saveSettings(patch) {
   const cur = settingsOf((await db.settings.get(HELPER_KEY))?.value);
   await db.settings.put({ key: HELPER_KEY, value: { ...cur, ...patch } });
@@ -74,7 +81,7 @@ async function keepSpend(spend, capped = false) {
  */
 export async function ask(task, input, { fetchFn = (...a) => fetch(...a) } = {}) {
   const s = settingsOf((await db.settings.get(HELPER_KEY).catch(() => null))?.value);
-  if (!s.code || (!s.on && task !== 'status')) return { ok: false, error: 'off' };
+  if (!s.code || (!s.show && task !== 'status')) return { ok: false, error: 'off' };
   const spend = (await db.meta.get(SPEND_KEY).catch(() => null))?.value ?? null;
   if (task !== 'status' && pausedBy(s, spend)) return { ok: false, error: 'paused' };
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return { ok: false, error: 'offline' };

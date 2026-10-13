@@ -63,7 +63,7 @@ export const PAGE_GROUPS = [
       { id: 'notes', title: 'Notes', href: '#/notes', icon: 'notes', words: 'notes notizen notiz merken checkliste checklist thema topics pinned angeheftet' },
       { id: 'data', title: 'Your data', action: 'data', icon: 'data', words: 'your data deine daten backup sicherung import export restore wiederherstellen' },
       // v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer.
-      { id: 'helper', title: 'Helper', href: '#/helper', icon: 'sparkles', words: 'helper helfer ki ai claude assistant assistent settings einstellungen code limit vorschlag suggestion' },
+      { id: 'helper', title: 'AI helper', href: '#/helper', icon: 'sparkles', words: 'helper helfer ki ai claude assistant assistent settings einstellungen code limit vorschlag suggestion' },
       // v0.97.0 Design-Refresh R1: Ich › Darstellung.
       { id: 'look', title: 'Appearance', href: '#/me/look', icon: 'palette', words: 'appearance darstellung font schrift schriftart colours farben farbwelt salbei sage size grösse gross klein dark dunkel light hell theme stil style' },
       { id: 'features', title: 'What the app can do', href: '#/features', icon: 'sparkles', words: 'what the app can do was die app kann features funktionen tips tipps updates neuerungen' },

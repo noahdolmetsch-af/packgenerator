@@ -1,40 +1,49 @@
 <script>
   /**
    * v0.77.0 «KI-Helfer» (answers 7a, 8a): the helper's settings (#/helper, Ich › Helfer, K1a).
-   * Status, the Helfer-Code (only on this device, never in a backup or an export), the switch, the
-   * monthly limit (default CHF 5) with this month's spend, and «Was geht an Claude?».
+   * v0.118.0 «KI-Helfer ausblenden» (mockup K4, Noah 12.10.2026 «k1-k4 ok», answer a ★): Ich › KI-Helfer.
+   * On top ONE switch «Show the AI helper in the app» (default off): off, the helper shows nowhere; on,
+   * every place comes back at once. Below the six places with «on»/«off». Beside it «Setup», which stays
+   * when it is off: the key (code, check), the monthly limit with this month's spend, «What goes to Claude?».
+   * The code is only on this device, never in a backup or an export.
    */
-  import { Sparkles, Check, ChevronRight } from '@lucide/svelte';
-  import { t, num } from '../lib/i18n.svelte.js';
+  import { Sparkles, Check, ChevronRight, Route, Backpack, BookOpen, Bike, Search, Sun, Scale, TriangleAlert, KeyRound } from '@lucide/svelte';
+  import { t } from '../lib/i18n.svelte.js';
   import { helper, saveSettings, ask, errorText, isPaused, thisMonth, DEFAULT_CAP } from '../lib/helper/client.svelte.js';
+  import { HELPER_PLACES } from '../lib/helper/places.js';
   import HelperNotice from '../lib/helper/HelperNotice.svelte';
   import '../lib/helper/helper.css';
   import '../lib/ich/ich.css';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
 
+  const PLACE_ICON = { route: Route, backpack: Backpack, book: BookOpen, bike: Bike, search: Search, sun: Sun };
   let code = $state('');
-  let show = $state(false);
+  let reveal = $state(false);
   let cap = $state('');
   let msg = $state('');
   let testMsg = $state('');
   let testing = $state(false);
   let codeEl = $state();
+  let keyFold = $state();
   let seeded = false;
   $effect(() => {
     if (helper.loaded && !seeded) {
       seeded = true;
       code = helper.code;
       cap = String(helper.capChf);
+      if (!helper.code && keyFold) keyFold.open = true;
     }
   });
   const setUp = $derived(!!helper.code);
+  const shown = $derived(helper.show);
   const spentChf = $derived(helper.spend?.month === thisMonth() ? helper.spend.chf : 0);
   const chf = (n) => `CHF ${Number(n).toFixed(2)}`;
+  const capLine = $derived(isPaused() ? t('paused until next month') : spentChf > 0 ? t('{chf} used this month', { chf: chf(spentChf) }) : t('as set · nothing used this month'));
 
   async function saveCode(e) {
     e?.preventDefault();
     const c = code.trim();
-    await saveSettings({ code: c, ...(c && !helper.code ? { on: true } : {}) });
+    await saveSettings({ code: c });
     msg = c ? t('Saved on this device.') : t('Helper code removed.');
     testMsg = '';
   }
@@ -51,75 +60,98 @@
     testing = false;
     testMsg = r.ok ? t('Connected. This month: {chf}.', { chf: chf(r.spend?.chf ?? 0) }) : errorText(r.error, { capChf: helper.capChf });
   }
+  function setupKey() {
+    if (keyFold) keyFold.open = true;
+    codeEl?.focus();
+  }
 </script>
 
-<!-- Design-Refresh P9 (I8, Noah 12.10.2026 «Runde 19 freigegeben»): the path back to Ich; left Status (with
-     this month's spend as a bar), Monthly limit and Helper code (before it is set up the code comes first),
-     right «What goes to Claude?» with «Never» open, and the promise. The same settings as before. -->
 <div class="kh helper-page ich-page">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Helper')} sub={t('Suggestions from Claude for packing lists, learnings and bike care. Everything stays changeable.')} />
-
-  {#snippet codeSec()}
-    <!-- no region name: «Helper code» names the field below, once -->
-    <section class="ich-sec">
-      <div class="ich-h"><div><h2 id="hp-code-h">{t('Helper code')}</h2><p class="ich-hs">{t('Stored only on this device. It never goes into a backup, an export or a shared list.')}</p></div></div>
-      <div class="card ich-body">
-        {#if !setUp}<div class="hp-notice"><HelperNotice onsetup={() => codeEl?.focus()} /></div>{/if}
-        <form class="hp-row" onsubmit={saveCode}>
-          <label class="hp-field"><span class="lbl">{t('Helper code')}</span>
-            <input class="inp" bind:this={codeEl} type={show ? 'text' : 'password'} bind:value={code} autocomplete="off" spellcheck="false" placeholder={t('the long code from Vercel (HELPER_TOKEN)')} /></label>
-          <button type="button" class="btn" onclick={() => (show = !show)} aria-pressed={show}>{show ? t('Hide') : t('Show')}</button>
-          <button type="submit" class="btn">{t('Save')}</button>
-          {#if setUp}<button type="button" class="btn" onclick={() => ((code = ''), saveCode())}>{t('Remove')}</button>{/if}
-        </form>
-      </div>
-    </section>
-  {/snippet}
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('AI helper')} sub={t('Suggestions from Claude, only if you want them. Without it everything works as before.')} />
 
   <div class="ich-cols">
     <div class="ich-main">
-      {#if !setUp}{@render codeSec()}{/if}
-
-      <section class="ich-sec" aria-labelledby="hp-status-h">
-        <div class="ich-h"><div><h2 id="hp-status-h">{t('Status')}</h2></div></div>
-        <div class="card ich-body">
-          <div class="hp-st">
-            <span class="hp-dot" class:on={setUp && helper.on && !isPaused()} class:warn={setUp && isPaused()} aria-hidden="true"></span>
-            <span class="ich-m"><b>{#if setUp}{helper.on ? (isPaused() ? t('paused until next month') : t('set up')) : t('switched off')}{:else}{t('not set up')}{/if}</b><small><span class="num">{t('this month: {chf}', { chf: chf(spentChf) })}</span> · {t('of {chf}', { chf: chf(helper.capChf ?? DEFAULT_CAP) })} · {t('A request costs a few centimes.')}</small></span>
-            {#if setUp}<button type="button" class="btn" disabled={testing} onclick={test}>{testing ? t('Checking …') : t('Check the connection')}</button>{/if}
-          </div>
-          <div class="hp-bar" aria-hidden="true"><i style:width="{Math.min(100, Math.round((spentChf / (helper.capChf || DEFAULT_CAP)) * 100))}%"></i></div>
-          {#if setUp}<label class="hp-switch"><input type="checkbox" checked={helper.on} onchange={(e) => saveSettings({ on: e.currentTarget.checked })} /> {t('Helper switched on')}</label>{/if}
-          {#if testMsg}<p class="kh-msg" role="status">{testMsg}</p>{/if}
+      <!-- K4: the one switch -->
+      <section class="ich-sec" aria-labelledby="hp-show-h">
+        <div class="ich-h"><div><h2 id="hp-show-h">{t('AI helper')}</h2></div></div>
+        <div class="card hp-card ich-list">
+          <label class="ich-row hp-show">
+            <span class="ich-ib hp-spark"><Sparkles size={18} aria-hidden="true" /></span>
+            <span class="ich-m"><b>{t('Show the AI helper in the app')}</b><small>{shown ? (setUp ? t('On: it shows in the places below.') : t('On: it shows as soon as the key is saved.')) : t('Off: it shows nowhere. Your key and your settings stay stored.')}</small></span>
+            <input type="checkbox" role="switch" class="hp-sw" checked={shown} disabled={!helper.loaded} onchange={(e) => saveSettings({ show: e.currentTarget.checked })} />
+          </label>
         </div>
       </section>
 
-      <section class="ich-sec" aria-labelledby="hp-cap-h">
-        <div class="ich-h"><div><h2 id="hp-cap-h">{t('Monthly limit')}</h2><p class="ich-hs">{t('When the limit is reached, the helper pauses until next month. The server has its own limit as well.')}</p></div></div>
-        <div class="card ich-body">
-          <div class="hp-row">
-            <label class="hp-field hp-cap"><span class="lbl">{t('Limit per month (CHF)')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={cap} placeholder={String(DEFAULT_CAP)} /></label>
-            <button type="button" class="btn" onclick={saveCap}>{t('Save')}</button>
-          </div>
-          {#if isPaused()}<p class="kh-msg" role="status">{errorText('paused', { capChf: helper.capChf })}</p>{/if}
-        </div>
+      <!-- K4: the places, all at once -->
+      <section class="ich-sec" aria-labelledby="hp-where-h">
+        <div class="ich-h"><div><h2 id="hp-where-h">{t('Where it shows when it is on')}</h2><p class="ich-hs">{shown ? t('{n} places · all shown', { n: HELPER_PLACES.length }) : t('{n} places · all hidden now', { n: HELPER_PLACES.length })}</p></div></div>
+        <ul class="card hp-card ich-list hp-places" class:off={!shown}>
+          {#each HELPER_PLACES as p (p.key)}
+            {@const Icon = PLACE_ICON[p.icon]}
+            <li class="ich-row" data-helper-place={p.key}>
+              <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t(p.name)}</b><small>{t(p.what)}</small></span>
+              <span class="pill hp-pill" class:on={shown}>{shown ? t('on|helper') : t('off|helper')}</span>
+            </li>
+          {/each}
+        </ul>
       </section>
-
-      {#if setUp}{@render codeSec()}{/if}
       {#if msg}<p class="kh-msg" role="status"><Check size={14} aria-hidden="true" /> {msg}</p>{/if}
     </div>
 
     <div class="ich-side">
-      <section class="ich-sec" aria-labelledby="hp-what-h">
-        <div class="ich-h"><div><h2 id="hp-what-h">{t('What goes to Claude?')}</h2></div></div>
-        <div class="card ich-list">
-          <details class="hp-fold">
-            <summary><b>{t('Per request only what is needed')}</b><ChevronRight class="ich-chev" size={16} aria-hidden="true" /></summary>
-            <p>{t('Per request only what that task needs: names, categories and weights of your items, building blocks, temperature ranges, the trip conditions, your learnings and notes, and for bike care the parts with their km, intervals and last service dates. No money amounts, no shop names, no documents, never the helper code.')}</p>
+      <!-- K4: the setup stays, also when it is off -->
+      <section class="ich-sec" aria-labelledby="hp-setup-h">
+        <div class="ich-h"><div><h2 id="hp-setup-h">{t('Setup|helper')}</h2><p class="ich-hs">{t('stays, even when it is off')}</p></div></div>
+        <div class="card hp-card ich-list">
+          <details class="hp-fold" bind:this={keyFold}>
+            <summary class="ich-row">
+              <span class="ich-ib">{#if setUp}<Check size={18} aria-hidden="true" />{:else}<KeyRound size={18} aria-hidden="true" />{/if}</span>
+              <span class="ich-m"><b>{setUp ? t('Key saved') : t('No key yet')}</b><small>{setUp ? t('set up') : t('not set up')}</small></span>
+              <ChevronRight class="ich-chev hp-tri" size={18} aria-hidden="true" />
+            </summary>
+            <div class="hp-in">
+              {#if !setUp}<div class="hp-notice"><HelperNotice onsetup={setupKey} /></div>{/if}
+              <p class="hp-help">{t('Stored only on this device. It never goes into a backup, an export or a shared list.')}</p>
+              <form class="hp-row" onsubmit={saveCode}>
+                <label class="hp-field"><span class="lbl">{t('Helper code')}</span>
+                  <input class="inp" bind:this={codeEl} type={reveal ? 'text' : 'password'} bind:value={code} autocomplete="off" spellcheck="false" placeholder={t('the long code from Vercel (HELPER_TOKEN)')} /></label>
+                <button type="button" class="btn" onclick={() => (reveal = !reveal)} aria-pressed={reveal}>{reveal ? t('Hide') : t('Show')}</button>
+                <button type="submit" class="btn">{t('Save')}</button>
+                {#if setUp}<button type="button" class="btn" onclick={() => ((code = ''), saveCode())}>{t('Remove')}</button>{/if}
+              </form>
+              {#if setUp}<div class="ich-acts hp-check"><button type="button" class="btn" disabled={testing} onclick={test}>{testing ? t('Checking …') : t('Check the connection')}</button></div>{/if}
+              {#if testMsg}<p class="kh-msg" role="status">{testMsg}</p>{/if}
+            </div>
           </details>
-          <details class="hp-fold" open>
-            <summary><b>{t('Never|claude')}</b><small>{t('never to Claude')}</small><ChevronRight class="ich-chev" size={16} aria-hidden="true" /></summary>
-            <p>{t('Only your question and the names it needs from the list and your gear, plus your notes. Never photos, receipts or health data.')}</p>
+          <details class="hp-fold" open={isPaused()}>
+            <summary class="ich-row">
+              <span class="ich-ib"><Scale size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Monthly limit')}</b><small>{capLine}</small></span>
+              <ChevronRight class="ich-chev hp-tri" size={18} aria-hidden="true" />
+            </summary>
+            <div class="hp-in">
+              <p class="hp-help"><span class="num">{t('this month: {chf}', { chf: chf(spentChf) })}</span> · {t('of {chf}', { chf: chf(helper.capChf ?? DEFAULT_CAP) })} · {t('A request costs a few centimes.')}</p>
+              <div class="hp-bar" aria-hidden="true"><i style:width="{Math.min(100, Math.round((spentChf / (helper.capChf || DEFAULT_CAP)) * 100))}%"></i></div>
+              <p class="hp-help">{t('When the limit is reached, the helper pauses until next month. The server has its own limit as well.')}</p>
+              <div class="hp-row">
+                <label class="hp-field hp-cap"><span class="lbl">{t('Limit per month (CHF)')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={cap} placeholder={String(DEFAULT_CAP)} /></label>
+                <button type="button" class="btn" onclick={saveCap}>{t('Save')}</button>
+              </div>
+              {#if isPaused()}<p class="kh-msg" role="status">{errorText('paused', { capChf: helper.capChf })}</p>{/if}
+            </div>
+          </details>
+          <details class="hp-fold">
+            <summary class="ich-row">
+              <span class="ich-ib"><TriangleAlert size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('What goes to Claude?')}</b><small>{t('only your question and the names it needs')}</small></span>
+              <ChevronRight class="ich-chev hp-tri" size={18} aria-hidden="true" />
+            </summary>
+            <div class="hp-in">
+              <p class="hp-help">{t('Per request only what that task needs: names, categories and weights of your items, building blocks, temperature ranges, the trip conditions, your learnings and notes, and for bike care the parts with their km, intervals and last service dates. No money amounts, no shop names, no documents, never the helper code.')}</p>
+              <p class="hp-help"><b>{t('Never|claude')}</b> · {t('Only your question and the names it needs from the list and your gear, plus your notes. Never photos, receipts or health data.')}</p>
+            </div>
           </details>
         </div>
       </section>
@@ -132,8 +164,84 @@
   .helper-page {
     max-width: 1100px;
   }
+  .hp-card {
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--card-shadow);
+    background: var(--paper);
+  }
+  .hp-show {
+    cursor: pointer;
+  }
+  .hp-spark {
+    background: var(--hi-soft);
+    color: var(--hi);
+  }
+  .hp-sw {
+    appearance: none;
+    flex: none;
+    position: relative;
+    width: 44px;
+    height: 26px;
+    margin: 0;
+    border-radius: 999px;
+    background: var(--line);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .hp-sw::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: var(--paper);
+    box-shadow: 0 1px 2px var(--shadow);
+    transition: transform 0.15s;
+  }
+  .hp-sw:checked {
+    background: var(--hi);
+  }
+  .hp-sw:checked::after {
+    transform: translateX(18px);
+  }
+  .hp-sw:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+  }
+  .hp-places.off .ich-m,
+  .hp-places.off .ich-ib {
+    opacity: 0.72;
+  }
+  .hp-pill {
+    flex: none;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .hp-pill.on {
+    background: var(--hi-soft);
+    color: var(--hi);
+  }
+  .hp-fold[open] > summary :global(.hp-tri) {
+    transform: rotate(90deg);
+  }
+  .hp-in {
+    padding: 0 0 14px;
+  }
+  .hp-help {
+    margin: 0 0 10px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
   .hp-notice {
     margin: 0 0 12px;
+  }
+  .hp-check {
+    margin-top: 10px;
   }
   .hp-row {
     display: flex;
@@ -142,34 +250,15 @@
     gap: 8px;
   }
   .hp-field {
-    flex: 1 1 240px;
+    flex: 1 1 200px;
     min-width: 0;
   }
   .hp-cap {
     flex: 0 1 200px;
   }
-  .hp-st {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 12px;
-  }
-  .hp-dot {
-    flex: none;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--line);
-  }
-  .hp-dot.on {
-    background: var(--ok);
-  }
-  .hp-dot.warn {
-    background: var(--warn);
-  }
   .hp-bar {
     height: 8px;
-    margin: 12px 0 0;
+    margin: 0 0 12px;
     border-radius: 4px;
     background: var(--paper-2);
     overflow: hidden;
@@ -179,50 +268,5 @@
     height: 100%;
     border-radius: 4px;
     background: var(--accent);
-  }
-  .hp-switch {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 44px;
-    margin-top: 8px;
-  }
-  .hp-fold + .hp-fold {
-    border-top: 1px solid var(--line);
-  }
-  .hp-fold summary {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 2px 10px;
-    min-height: 52px;
-    padding: 8px 0;
-    box-sizing: border-box;
-    list-style: none;
-    cursor: pointer;
-  }
-  .hp-fold summary::-webkit-details-marker {
-    display: none;
-  }
-  .hp-fold summary b {
-    font-weight: 600;
-  }
-  .hp-fold summary small {
-    flex: 1;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .hp-fold summary :global(.ich-chev) {
-    margin-left: auto;
-    color: var(--ink-3);
-  }
-  .hp-fold[open] summary :global(.ich-chev) {
-    transform: rotate(90deg);
-  }
-  .hp-fold p {
-    margin: 0 0 14px;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-    line-height: 1.5;
   }
 </style>

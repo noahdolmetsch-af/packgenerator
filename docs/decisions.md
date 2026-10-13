@@ -879,6 +879,31 @@ Mockups Q1–Q3 (`design/schnellstart/`). **Mockup-Freigabe: Q1–Q3 «Q1–Q3 f
   - Der Funktions-Schlüssel der Kachel bleibt `dayride` (damit Zählung und Anordnung der Kacheln bleiben); im Katalog von Was ist neu kommt die neue Funktion `f.quickstart` (seit 0.119.0) dazu, die Kachel zählt für sie.
   - Version 0.119.0: 0.118.0 ist ein anderes Release, das vorher gemergt wird.
 
+## 13.10.2026: Was ist neu 2 und KI-Helfer ausblenden (0.118.0)
+
+**Mockup-Freigabe:** W1–W3 Noah 13.10.2026 00:02 Zürich «w1-w3 freigeben», Antworten «1a 2a 3a 4a 5a» (12.10.2026 20:58). K1–K4 Noah 12.10.2026 21:50 «k1-k4 ok» (Antwort a ★), Q4 1a: zusammen mit Was ist neu ausliefern.
+
+- **1a Ton:** locker mit Augenzwinkern, höchstens ein Emoji pro Version.
+- **2a Kleinkram:** in den Kästchen Neu, Schöner, Repariert, Schneller.
+- **3a «Looos»:** nur im Fenster nach einem Update.
+- **4a Liste:** alle Versionen offen, nach Monat gruppiert.
+- **5a Reihenfolge:** nach #131.
+- **Noahs Wunsch:** im Fenster ist jede Neuigkeit offen, jede Zeile antippbar (›), kein «n weitere». Alle Versionstexte einmal neu, Englisch und Deutsch; Versionen, Daten, Adressen und Testschritte bleiben.
+- **KI-Helfer (a ★):** von Anfang an ganz aus; ein Schalter unter Ich › KI-Helfer «KI-Helfer in der App zeigen» schaltet alle Stellen auf einmal ein. Schlüssel und Einstellungen bleiben gespeichert.
+- **Selbst entschieden:**
+  - W2: «Alle Funktionen» ist eine Zeile; die Funktionsliste steht unverändert unter `#/me/news?all`. Die Seitenteile «Nie ausprobiert», «So testest du» und «Geplant» bleiben.
+  - Schalter «Meldung nach Updates zeigen»: neue Beschriftung, die Erklärung darunter bleibt.
+  - Alle bisherigen Versionen sind im Oktober 2026, darum gibt es heute eine einzige Monatsgruppe.
+  - Das Bild einer Zeile kommt aus ihrer Adresse (`iconOf`), keine Liste pro Punkt.
+  - Kein neuer Eintrag im Funktionskatalog (`SINCE`); «Was ist neu» und der Helfer sind schon dort.
+  - K4 «So steht es unter Ich»: als Zeile auf Ich umgesetzt («aus · einschalten unter Ich › KI-Helfer», «an · nicht eingerichtet», «pausiert bis nächsten Monat», «an»), nicht als Vorschau auf der Seite.
+  - Neue Tour: der Text der Stelle beschreibt, was die App heute tut (eine Frage aus der Suche).
+  - Den Schlüssel speichern schaltet den Helfer nicht ein; der Schalter allein entscheidet. Das alte Feld `on` wird nicht mehr gelesen, bleibt aber gespeichert.
+  - Die Heute-Kachel «KI-Helfer» ist versteckt, solange der Helfer aus ist (auch im Kachel-Katalog), und bleibt an ihrem Platz in der Wand gespeichert.
+  - Menüeintrag heisst jetzt «KI-Helfer» (vorher «Helfer»).
+  - Titel 0.118.0 «Was neu ist, neu erzählt», damit die Heute-Kachel am Handy nicht mitten im Wort umbricht.
+  - Kein Ausblenden am Rand der Scrollfläche im Fenster.
+
 ## 12.10.2026: Knöpfe neu (0.117.0)
 
 Mockups N1–N4 (`design/knoepfe-neu/`, Noahs Wunsch 12.10.2026 22:31: Knöpfe erklären ihre Aktion, lange Texte verschieben nichts, Knöpfe rechtsbündig). **Freigabe Noah 12.10.2026 22:47 «n1-n4 freigeben»**, Antworten **«1a 2a 3a 4a 5b»**:

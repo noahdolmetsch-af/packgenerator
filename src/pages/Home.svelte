@@ -75,7 +75,7 @@
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { standalone } from '../lib/install.js';
   import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, timeLeft, packedOf, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
-  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew } from '../lib/home/tiles.js';
+  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden } from '../lib/home/tiles.js';
   import { activeDays, seriesOf, restOf, REST_KEY, SERIES_STEPS } from '../lib/home/series.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions, levelOf, untried } from '../lib/home/functions.js';
   import { countUse } from '../lib/home/usage.js';
@@ -104,6 +104,7 @@
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
   import StravaTile from '../lib/strava/StravaTile.svelte';
   import { strava } from '../lib/strava/client.svelte.js';
+  import { isShown } from '../lib/helper/client.svelte.js';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { tripToday } from '../lib/home/ruhig.js';
   import { PartyPopper, Sun, Pencil, RotateCcw, Route, ChevronRight, TriangleAlert, SlidersHorizontal } from '@lucide/svelte';
@@ -672,6 +673,10 @@
   let editing = $state(false);
   let catalogOpen = $state(false);
   const saveWall = (tiles) => db.settings.put({ key: WALL_KEY, value: wallRecord(tiles) });
+  // v0.118.0 «KI-Helfer ausblenden» (K4): while the AI helper is off its tile leaves the wall, but stays stored
+  const hiddenTiles = $derived(isShown() ? [] : HELPER_TILES);
+  const shownWall = $derived(hideTiles(wall, hiddenTiles));
+  const saveShown = (tiles) => saveWall(keepHidden(tiles, wall, hiddenTiles));
   const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
   // «Reset» (Noah 3a): the ready wall again; the old layout no longer counts after that
   async function resetWall() {
@@ -984,7 +989,7 @@
   {/if}
   <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
-  <Wall tiles={wall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveWall} onadd={() => (catalogOpen = true)} />
+  <Wall tiles={shownWall} body={tileBody} {editing} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
 
   <div class="custom">
     {#if editing}
@@ -1016,7 +1021,7 @@
     <button type="button" class="qx" aria-label={t('Close')} onclick={() => (made = null)}>×</button>
   </div>
 {/if}
-{#if catalogOpen}<TileCatalog on={onWall} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
+{#if catalogOpen}<TileCatalog on={onWall} hidden={hiddenTiles} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
 <dialog class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
   <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
   {#if wearOpen}
