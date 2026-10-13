@@ -2,7 +2,7 @@
 // zones and heart rate per beat (api/strava.js), and the fetch keeping every activity. Fictional only.
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
-import { isoWeek, mondayOf, weekOf, cleanSession, planOf, goalOf, weeksTo, doneBy, copyWeek, prunePlan, weekNumbers, kindOf, actRecord, zonesOf, zoneSecs, mainZone, shares, hmm, speed, sameRoute, kindCounts, monthsOf, needDetail, boundsOfStrava, validBounds, DEFAULT_BOUNDS, zoneRange, typeKey } from '../src/lib/training.js';
+import { activitiesForTrip, isoWeek, mondayOf, weekOf, cleanSession, planOf, goalOf, weeksTo, doneBy, copyWeek, prunePlan, weekNumbers, kindOf, actRecord, zonesOf, zoneSecs, mainZone, shares, hmm, speed, sameRoute, kindCounts, monthsOf, needDetail, boundsOfStrava, validBounds, DEFAULT_BOUNDS, zoneRange, typeKey } from '../src/lib/training.js';
 import { trimZones, trimStreams, best20, trimActivity } from '../api/strava.js';
 import { createDb } from '../src/lib/db.js';
 import { keepActivities, fetchTraining, loadDetail } from '../src/lib/strava/client.svelte.js';
@@ -172,5 +172,18 @@ describe('TR4: the week plan', () => {
     const c = rec('3', { startLocal: '2026-10-05T07:00:00Z', movingS: 999 });
     const n = weekNumbers([a, b, c], [{ day: '2026-10-15', mins: 90 }, { day: '2026-10-20', mins: 30 }], '2026-10-12', [115, 135, 150, 165]);
     expect(n).toEqual({ zones: [0, 1800, 1800, 0, 0], unknown: 1200, secs: 4800, planned: 90 });
+  });
+});
+
+describe('the activities of a trip', () => {
+  it('the rides booked to the trip and every bike activity of its days, in order', () => {
+    const trip = { id: 't1', startDate: '2026-10-10', days: 2 };
+    const a = rec('1', { startLocal: '2026-10-10T08:00:00Z' });
+    const b = rec('2', { startLocal: '2026-10-11T08:00:00Z' });
+    const c = rec('3', { type: 'Run', startLocal: '2026-10-11T07:00:00Z' });
+    const d = rec('4', { startLocal: '2026-10-12T08:00:00Z' });
+    const e = rec('5', { startLocal: '2026-10-09T18:00:00Z' });
+    expect(activitiesForTrip(trip, [d, c, b, a, e], [{ tripId: 't1', stravaId: '5' }]).map((x) => x.id)).toEqual(['5', '1', '2']);
+    expect(activitiesForTrip({ id: 'x' }, [a])).toEqual([]);
   });
 });

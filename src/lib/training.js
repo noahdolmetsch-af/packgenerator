@@ -246,3 +246,15 @@ export function weekNumbers(acts, sessions, monday, bounds) {
   const planned = sessions.filter((s) => s.day >= monday && s.day < end).reduce((s, x) => s + x.mins, 0);
   return { zones, unknown, secs, planned };
 }
+
+/**
+ * The bike activities of a trip (for the trip's look back and Tempo, thread «Design-Refresh»): those
+ * whose ride in the ledger belongs to the trip (kmBook tripId, matched by stravaId) and every bike
+ * activity from the first to the last day. Each once, in order.
+ */
+export function activitiesForTrip(trip, acts = [], kmBook = []) {
+  if (!trip?.startDate) return [];
+  const end = shiftDay(trip.startDate, Math.max(1, Number(trip.days) || 1) - 1);
+  const ids = new Set(kmBook.filter((e) => e.tripId === trip.id && e.stravaId).map((e) => String(e.stravaId)));
+  return acts.filter((a) => ids.has(a.id) || (a.kind === 'bike' && a.day >= trip.startDate && a.day <= end)).sort((a, b) => `${a.day} ${a.time}`.localeCompare(`${b.day} ${b.time}`));
+}
