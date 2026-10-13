@@ -35,6 +35,21 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.124.0 Neue Tour Teil 2 (mockups B4/B5)
+  'Blocks you can tap': 'Bausteine zum Antippen',
+  'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.': 'In Packen ist jeder Baustein jetzt ein grosser Knopf, und Reparatur reist leicht mit höchstens 8 Teilen.',
+  'Building blocks as big buttons at the top of Packen: green with a check is on the trip, white with + can be added.':
+    'Bausteine als grosse Knöpfe oben in Packen: Grün mit Haken ist dabei, weiss mit + kannst du dazunehmen.',
+  'Repair on the way: the app suggests at most 8 light parts, the rest stays in the workshop and in your gear.':
+    'Reparatur unterwegs: Die App schlägt höchstens 8 leichte Teile vor, der Rest bleibt in der Werkstatt und in deinem Material.',
+  'A slim Repair comes with every new trip as a suggestion; one tap takes it off.': 'Eine schlanke Reparatur kommt mit jeder neuen Tour als Vorschlag mit; ein Tipp nimmt sie weg.',
+  'Hover or hold a block: it shows what is inside': 'Maus darüber oder lange drücken: Der Baustein zeigt, was drin ist',
+  'The template buttons of a new trip use the same option buttons': 'Die Vorlagen-Knöpfe einer neuen Tour nutzen dieselben Auswahl-Knöpfe',
+  'Open a bike trip and go to Packen: at the top «Building blocks · n on · m to choose».': 'Öffne eine Velotour und geh zu Packen: Oben steht «Bausteine · n dabei · m zur Wahl».',
+  'Tap a white block with +: it turns green with a check and its items are on the list. Tap it again: they go.':
+    'Tippe einen weissen Baustein mit + an: Er wird grün mit Haken und seine Teile sind auf der Liste. Tippe nochmals: Sie gehen wieder.',
+  'With a Repair of more than 8 parts tap its dashed button: choose the parts and tap «Take 8 parts».':
+    'Hat Reparatur mehr als 8 Teile, tippe ihren gestrichelten Knopf an: Wähle die Teile und tippe «8 Teile übernehmen».',
   // 0.122.0 Dateneingabe (D1–D4)
   'Values in one go': 'Werte in einem Zug',
   'Bike values go in right where you are: on the sheet or on one page, field after field.':

@@ -33,6 +33,27 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.124.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
+    version: '0.124.0',
+    date: '2026-10-13',
+    title: 'Blocks you can tap',
+    lead: 'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.',
+    points: [
+      { text: 'Building blocks as big buttons at the top of Packen: green with a check is on the trip, white with + can be added.', href: '#/pack?day' },
+      { text: 'Repair on the way: the app suggests at most 8 light parts, the rest stays in the workshop and in your gear.', href: '#/pack?day' },
+      { text: 'A slim Repair comes with every new trip as a suggestion; one tap takes it off.', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'Hover or hold a block: it shows what is inside', href: '#/pack?day' },
+      { box: 'nicer', text: 'The template buttons of a new trip use the same option buttons', href: '#/trips' },
+    ],
+    test: [
+      'Open a bike trip and go to Packen: at the top «Building blocks · n on · m to choose».',
+      'Tap a white block with +: it turns green with a check and its items are on the list. Tap it again: they go.',
+      'With a Repair of more than 8 parts tap its dashed button: choose the parts and tap «Take 8 parts».',
+    ],
+  },
+  {
     // v0.123.0 «Trophäen-Vitrine» (mockups TV1–TV2, Noah 13.10.2026 «tv1-tv2 freigeben»)
     version: '0.123.0',
     date: '2026-10-13',
@@ -72,8 +93,9 @@ export const WHATS_NEW = [
     title: 'Strava rides count along',
     lead: 'Your Strava rides now count in «This week» and «Bike this month», each ride once.',
     points: [
-      { text: 'Today: «This week» and «Bike this month» count your Strava rides', href: '#/' },
+      // «Try it» takes the first point; '#/' does nothing when you are on Today already, so Aktiv comes first
       { text: 'Aktiv: «Bike this month» from your rides and Strava', href: '#/flow' },
+      { text: 'Today: «This week» and «Bike this month» count your Strava rides', href: '#/' },
     ],
     small: [
       { box: 'nicer', text: 'A ride in «To check» counts after «Fits»', href: '#/bikes' },
