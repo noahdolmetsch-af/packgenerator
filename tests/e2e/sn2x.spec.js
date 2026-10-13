@@ -105,6 +105,11 @@ test('a) a day trip: five groups that fold, map, timeline, notes, quiet lines an
   const notes = tour.locator('[data-notes]');
   for (const n of mine) await expect(notes).toContainText(n.text);
   await expect(notes).toContainText(T('after the trip'));
+  // SK merged in: «Woanders» under the number tiles inside «Die Tour»; the tile row at the very end, outside the groups
+  await expect(tour.locator('section.ride [data-sk-woanders] [data-sk-link="x2s"]')).toBeVisible();
+  await expect(page.locator('[data-sk="debrief"]')).toHaveCount(1);
+  await expect(page.locator('.groups [data-sk="debrief"]')).toHaveCount(0);
+  expect(await page.evaluate(() => !!(document.querySelector('.saved .groups').compareDocumentPosition(document.querySelector('[data-sk="debrief"]')) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
   await noSideways(page);
   await shot(page, info, 'SN2j-tagestour-oben');
 
@@ -165,6 +170,7 @@ test('b) a 3-day trip: the day switch for the whole page, one day, and «Verglei
   const ride = tour.locator('section.ride');
   await expect(ride).toContainText(T('Day {n} of {all}', { n: 2, all: trip.days }));
   await expect(ride).toContainText('Bergdorf – Seeweiler');
+  await expect(ride.locator('[data-sk-woanders] [data-sk-link="x2k"]')).toBeVisible();
   const r2 = DATA.tables.rides.find((r) => r.tripId === LOOP && r.date === day(-42 + 1));
   await expect(ride.locator('.rv-tile').first()).toContainText(`${Math.round(r2.km)} km`);
   await expect(tour.locator('[data-day-table]')).toHaveCount(0);
