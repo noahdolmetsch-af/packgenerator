@@ -825,16 +825,31 @@ export function heartBetween(entries, from, to, bikeId = null) {
   return heartOf((entries ?? []).filter((e) => e.source === 'strava' && e.kind === 'ride' && e.date >= from && e.date <= to && (!bikeId || e.bikeId === bikeId)));
 }
 
+/** One ride as file and as ledger entry: an uploaded GPX/FIT ride and a ledger entry on the same day, about the same km (and start time, when both have one). */
+function sameFileRide(e, ride) {
+  if (!ride?.date || e.date !== String(ride.date).slice(0, 10)) return false;
+  const km = Number(ride.km) || 0;
+  if (km && Math.abs((Number(e.km) || 0) - km) > Math.max(2, km * 0.1)) return false;
+  const start = ride.startAt ? Date.parse(ride.startAt) : NaN;
+  const t = e.time ? Date.parse(e.time) : NaN;
+  return !Number.isFinite(start) || !Number.isFinite(t) || Math.abs(t - start) <= 45 * 60 * 1000;
+}
+
 /** The Strava ride of an uploaded GPX/FIT ride: same day, about the same km (and start time, when both have one). */
 export function heartOfRide(entries, ride) {
   if (!ride?.date) return null;
-  const km = Number(ride.km) || 0;
-  const start = ride.startAt ? Date.parse(ride.startAt) : NaN;
-  const near = (entries ?? []).filter((e) => {
-    if (e.source !== 'strava' || e.date !== ride.date || !hasHeart(e)) return false;
-    if (km && Math.abs((Number(e.km) || 0) - km) > Math.max(2, km * 0.1)) return false;
-    const t = e.time ? Date.parse(e.time) : NaN;
-    return !Number.isFinite(start) || !Number.isFinite(t) || Math.abs(t - start) <= 45 * 60 * 1000;
-  });
+  const near = (entries ?? []).filter((e) => e.source === 'strava' && hasHeart(e) && sameFileRide(e, ride));
   return near.length === 1 ? heartOf(near) : null;
+}
+
+/**
+ * v0.117.0 (Noah 12.10.2026 «1a»): the uploaded rides plus the counted Strava rides, for «This week» and
+ * «Bike this month». A Strava ride that was also uploaded as a file counts once (the file).
+ */
+export function withStravaRides(rides = [], entries = []) {
+  const files = rides ?? [];
+  const extra = (entries ?? [])
+    .filter((e) => e.source === 'strava' && e.kind === 'ride' && counts(e) && !files.some((r) => sameFileRide(e, r)))
+    .map((e) => ({ id: e.id, date: e.date, km: Number(e.km) || 0, bikeId: e.bikeId, source: 'strava' }));
+  return [...files, ...extra];
 }

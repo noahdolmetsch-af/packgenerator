@@ -5,11 +5,16 @@
    */
   import { Bike } from '@lucide/svelte';
   import TileHead from './TileHead.svelte';
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
   import { monthKm } from './bausteine.js';
+  import { withStravaRides } from '../kmbook.js';
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { today, rides = [], isnew = false } = $props();
-  const m = $derived(monthKm(rides, today));
+  // v0.117.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
+  const kmQ = liveQuery(() => db.kmBook.toArray());
+  const m = $derived(monthKm(withStravaRides(rides, $kmQ ?? []), today));
   const month = $derived(new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { month: 'long', timeZone: 'UTC' }));
 </script>
 
