@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.122.0 A-J1 «Ein Weg zum Erfassen» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok», answer 1a)
+    version: '0.122.0',
+    date: '2026-10-13',
+    title: 'Straight to the workshop',
+    lead: 'The visit to the bike shop now opens straight from New, with the km and the last shop already filled in.',
+    points: [
+      { text: 'Workshop visit in New saves a real visit on the bike, no note in the Inbox any more.', href: '#/bikes?tab=shop' },
+      { text: 'The km come from the km book and the workshop from your last visit, on a green field that says where from; change anything.', href: '#/bikes?tab=shop' },
+      { text: 'Report a problem lives in New and at the bike; Me points the way for 30 days.', href: '#/bikes?tab=care' },
+    ],
+    small: [
+      { box: 'new', text: 'Tick what was done (chain, pads, tyres …) right in the visit', href: '#/bikes?tab=shop' },
+      { box: 'nicer', text: 'After saving: «Workshop visit saved.» with Undo', href: '#/bikes?tab=shop' },
+    ],
+    test: [
+      'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».',
+      'Tick «Chain replaced», type a cost and tap «Save»: the bike\'s Workshop & receipts shows the visit.',
+      'Tap «Undo» in the message: the visit is gone again.',
+    ],
+  },
+  {
     // v0.120.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
     version: '0.120.0',
     date: '2026-10-13',

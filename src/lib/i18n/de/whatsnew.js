@@ -9,6 +9,23 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.122.0 A-J1 Ein Weg zum Erfassen (mockup A-J1)
+  'Straight to the workshop': 'Direkt in die Werkstatt',
+  'The visit to the bike shop now opens straight from New, with the km and the last shop already filled in.':
+    'Der Besuch beim Velomech geht jetzt direkt aus Neu, mit km und letzter Werkstatt schon eingetragen.',
+  'Workshop visit in New saves a real visit on the bike, no note in the Inbox any more.':
+    'Werkstattbesuch in Neu speichert einen echten Besuch beim Velo, keine Notiz mehr im Eingang.',
+  'The km come from the km book and the workshop from your last visit, on a green field that says where from; change anything.':
+    'Die km kommen aus dem km-Buch und die Werkstatt vom letzten Besuch, auf einem grünen Feld mit der Herkunft; alles änderbar.',
+  'Report a problem lives in New and at the bike; Me points the way for 30 days.': 'Problem melden gibt es in Neu und am Velo; Ich zeigt 30 Tage lang den Weg.',
+  'Tick what was done (chain, pads, tyres …) right in the visit': 'Was gemacht wurde (Kette, Beläge, Reifen …) direkt im Besuch antippen',
+  'After saving: «Workshop visit saved.» with Undo': 'Nach dem Speichern: «Werkstattbesuch gespeichert.» mit Rückgängig',
+  'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».':
+    '+ (Neu) › Werkstattbesuch tippen: Die km und die letzte Werkstatt stehen auf einem grünen Feld mit «aus …».',
+  "Tick «Chain replaced», type a cost and tap «Save»: the bike's Workshop & receipts shows the visit.":
+    '«Kette ersetzt» antippen, Kosten eintippen und «Speichern» tippen: Werkstatt & Belege des Velos zeigt den Besuch.',
+  'Tap «Undo» in the message: the visit is gone again.': 'In der Meldung «Rückgängig» tippen: Der Besuch ist wieder weg.',
+
   // 0.120.0 Neue Tour Teil 2 (mockups B4/B5)
   'Blocks you can tap': 'Bausteine zum Antippen',
   'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.': 'In Packen ist jeder Baustein jetzt ein grosser Knopf, und Reparatur reist leicht mit höchstens 8 Teilen.',

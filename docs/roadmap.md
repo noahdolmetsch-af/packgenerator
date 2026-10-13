@@ -510,6 +510,7 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 13.10.2026 (v0.122.0, Branch):** A-J1 «Ein Weg zum Erfassen» aus der Gesamtprüfung (Mockup-Freigabe: A-J1 «aj-aj5 ok» 13.10.2026 17:19 Zurich (Projekt-Chat)): Werkstattbesuch aus Neu ist ein echter Besuch mit km und letzter Werkstatt vorausgefüllt; Problem melden nur in Neu und am Velo. Als Nächstes laut Reihenfolge 5a: A-U5, A-U2 (+A-U1 mit W1–W3). Ziel 2 «Velo im Griff».
 **Nachtrag 13.10.2026 (v0.120.0, Branch):** «Neue Tour Teil 2» nach den Mockups B4/B5 (Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★): Bausteine als grosse Knöpfe in Packen, «Reparatur unterwegs» mit höchstens 8 Teilen, schlanke Reparatur wieder Standard bei neuen Touren. Offen: «Neues Teil direkt beim Packen» (NP1, Mockup wartet auf Freigabe). Ziel 1 «Schneller packen».
 **Nachtrag 13.10.2026 (v0.119.0, Branch):** «Schnellstart» nach den Mockups Q1–Q3 (Mockup-Freigabe: Q1–Q3 «Q1–Q3 freigegeben» 13.10.2026 00:05 Zurich, «1-5a»): ein Klick auf Heute plant eine Tour für heute (2,5 Std., letztes Velo, Standardteile, Wetter aus der Vorhersage), Name = Zeitstempel, man bleibt auf Heute mit grüner Karte «Öffnen»/«Rückgängig»; Tournamen-Felder markieren beim Fokus den ganzen Namen. Ziel 1 «Schneller packen» und Ziel 3.
 

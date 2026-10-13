@@ -6,7 +6,7 @@
    * and becomes a workshop visit with the photo. «Anderes Ziel wählen» goes back to the list.
    */
   import DateInput from '../ui/DateInput.svelte';
-  import { TARGETS, TARGET, guessTarget, shopsOf, receiptName, TOPICS, guessTopic } from '../inbox.js';
+  import { TARGETS, TARGET, guessTarget, shopsOf, receiptName, TOPICS, guessTopic, VISIT_JOBS } from '../inbox.js';
   import { fileTo } from '../inboxdb.js';
   import { guessBike } from '../notes.js';
   import { parseChf } from '../hubs.js';
@@ -31,16 +31,8 @@
   };
   /** The main button of each form, named by where the entry lands (U1). */
   const SAVE = { receipt: 'File as workshop visit', problem: 'Into bike care', material: 'Into Gear', wish: 'Onto the wishlist', idea: 'Save as idea', tour: 'Into the debrief', keep: 'Keep as note' };
-  /** Jobs a receipt often lists (optional). */
-  const JOBS = [
-    { part: 'chain', action: 'replace', name: 'Chain replaced' },
-    { part: 'cassette', action: 'replace', name: 'Cassette replaced' },
-    { part: 'padsF', action: 'replace', name: 'Front pads replaced' },
-    { part: 'padsR', action: 'replace', name: 'Rear pads replaced' },
-    { part: 'tyres', action: 'replace', name: 'Tyres replaced' },
-    { part: 'brakeR', action: 'service', name: 'Brakes bled' },
-    { part: 'fork', action: 'service', name: 'Fork serviced' },
-  ];
+  /** Jobs a receipt often lists (optional); since v0.122.0 shared with the workshop visit window (inbox.js). */
+  const JOBS = VISIT_JOBS;
 
   let dialog;
   // svelte-ignore state_referenced_locally

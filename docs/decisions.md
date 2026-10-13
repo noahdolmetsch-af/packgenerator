@@ -862,6 +862,23 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 13.10.2026: Ein Weg zum Erfassen, A-J1 (0.122.0)
+
+Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup-Freigabe: A-J1 «aj-aj5 ok» 13.10.2026 17:19 Zurich (Projekt-Chat)**; Antwort 1a: «+ › Werkstattbesuch» öffnet den echten Besuch, keine Notiz mehr.
+
+- **Neu › Werkstattbesuch** öffnet das Fenster «Werkstattbesuch erfassen» (dasselbe wie unter Heute und Werkstatt & Belege) statt einer Notiz «Werkstatt-Quittung:» im Eingang. Nach dem Speichern: Werkstatt & Belege des Velos mit «Werkstattbesuch gespeichert.» und Rückgängig.
+- **Vorausgefüllt (A-U5-Look, nur in diesem Fenster):** km des Tages aus dem km-Buch (ohne Eintrag: Zähler des Velos, nur für heute) und die Werkstatt des letzten Besuchs dieses Velos (sonst irgendeines Velos), grün hinterlegt mit «aus …». Wer tippt, überschreibt; dann ist das Feld nicht mehr grün.
+- **Problem melden** nur noch in Neu und am Velo (Velos › Pflege); der Eintrag unter Ich ist weg, dort steht 30 Tage ab dem ersten Ansehen ein ruhiger Hinweis mit Link.
+- **Selbst entschieden:**
+  - Bekannte Werkstätten als Chips unter dem Feld (die vorgeschlagene mit «(zuletzt)»), nur wenn es mehr als eine gibt; «+ neu» braucht es nicht, das Feld bleibt frei beschreibbar.
+  - «Was wurde gemacht?» (optional) mit denselben Chips wie «Ablegen als … Beleg» (`VISIT_JOBS` in inbox.js, geteilt); die Arbeiten landen als Teile des Besuchs.
+  - Velo bleibt eine Auswahlliste ohne Grün (Vorschlag wie bei Problem melden: zuletzt gewähltes Velo).
+  - Werkstattbesuch steht in Neu › Velos jetzt zuoberst (dann Problem, dann km) und nur, wenn es ein Velo gibt.
+  - Die Meldung mit Rückgängig nutzt den Toast von «Umbenennen» (`offerDone` in ui/rename.svelte.js).
+  - Nach dem Speichern Werkstatt & Belege statt Pflege: In der Pflege steht zuoberst das km-Buch, der neue Besuch wäre nicht zu sehen; unter Werkstatt & Belege steht er gleich oben.
+  - Der Satz in «Was ist neu» nennt «Velomech» statt «Werkstattbesuch», weil das lange Wort auf der Heute-Kachel am Handy umbricht (Wächter-Test).
+- **Nicht gebaut (Mockup zeigt es, A-J1 verlangt es nicht):** neue Gruppen im Neu-Blatt («Neu / Am Velo / Sonst», Schild «neu»), neues Problem-Formular und Pflege-Ansicht nach dem Speichern. Die Zeile «Problem melden» unter den Velo-Karten auf Heute bleibt (Frage an Noah).
+
 ## 13.10.2026: Neue Tour Teil 2 (0.120.0)
 
 Mockups B4 und B5 (`design/rahmenbedingungen/`, Galerie «Offene Mockups 2» #rahmenbedingungen). **Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★** («Ja, schlank dabei», 13.10.2026 00:00 Zurich). Antworten der Runde: 1a (Bausteine nur beim Packen), 6a (schlanke Reparatur ≤ 8).
