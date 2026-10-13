@@ -147,10 +147,25 @@ export const removeTile = (tiles, id) => tiles.filter((x) => x.id !== id);
 export const addTile = (tiles, id) => (!TILE[id] || tiles.some((x) => x.id === id) ? tiles : [...tiles, { id, size: TILE[id].size }]);
 
 /** The catalog, by area, filtered by a search word (label and pitch, already translated by `tr`). */
-export function catalog(query = '', tr = (s) => s) {
+export function catalog(query = '', tr = (s) => s, hidden = []) {
   const q = query.trim().toLowerCase();
   const hit = (x) => !q || `${tr(x.label)} ${tr(x.pitch ?? '')}`.toLowerCase().includes(q);
-  return AREAS.map((a) => ({ ...a, tiles: TILES.filter((x) => x.area === a.key && hit(x)) })).filter((a) => a.tiles.length);
+  return AREAS.map((a) => ({ ...a, tiles: TILES.filter((x) => x.area === a.key && hit(x) && !hidden.includes(x.id)) })).filter((a) => a.tiles.length);
+}
+
+/**
+ * v0.118.0 «KI-Helfer ausblenden» (K4): tiles hidden by a switch (the helper's tile while the AI helper
+ * is off) leave the wall that shows, but stay stored. keepHidden puts them back where they stood when
+ * the shown wall is saved (moved, resized, a tile added or taken away).
+ */
+export const HELPER_TILES = ['helper'];
+export const hideTiles = (tiles, hidden = []) => (hidden.length ? tiles.filter((x) => !hidden.includes(x.id)) : tiles);
+export function keepHidden(next, stored, hidden = []) {
+  const out = next.filter((x) => !hidden.includes(x.id));
+  stored.forEach((x, i) => {
+    if (hidden.includes(x.id)) out.splice(Math.min(i, out.length), 0, x);
+  });
+  return out;
 }
 
 /** Idea 1: a «New» dot for two weeks after the version that brought the tile. */

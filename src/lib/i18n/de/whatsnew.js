@@ -1,31 +1,17 @@
 /**
- * German texts for "New in the last updates" (whatsnew.js, know/WhatsNew.svelte, Today's line),
- * from v0.35.0 back to the first version. Keys are the English texts. Swiss spelling (ss).
+ * German texts for «What is new» (whatsnew.js, know/NewsSheet.svelte, pages/WasNeu.svelte, Today's tile),
+ * from the newest version back to the first. Keys are the English texts. Swiss spelling (ss).
+ * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
   'Older updates': 'Ältere Updates',
   'Version {v}': 'Version {v}',
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
-
-  // 0.117.0 Knöpfe neu (mockups N1–N4)
   'Buttons explain': 'Knöpfe erklären sich',
-  'Every button says what it does: point at it on a computer, hold it on the phone.':
-    'Jeder Knopf sagt, was er tut: am Computer mit der Maus darauf, am Handy lange drücken.',
-  'Bike care: one main button per row, the rest behind «…», each with one line that says what it does.':
-    'Velopflege: pro Zeile ein Hauptknopf, der Rest hinter «…», je mit einer Zeile, was er tut.',
-  'After «Done» a short line says what was saved, with «Undo».':
-    'Nach «Erledigt» sagt eine kurze Zeile, was gespeichert wurde, mit «Rückgängig».',
-  'Button labels have at most two words; the long text shows when you point at the button or hold it.':
-    'Knöpfe haben höchstens zwei Wörter; der lange Text kommt, wenn du mit der Maus darauf zeigst oder lange drückst.',
-  'On the phone the buttons of a row sit under its text, as wide as the card.':
-    'Am Handy stehen die Knöpfe einer Zeile unter ihrem Text, so breit wie die Karte.',
-  'Open Bike care and point at «Done» (computer) or hold it (phone): the explanation shows, nothing is saved.':
-    'Velopflege öffnen und mit der Maus auf «Erledigt» zeigen (Computer) oder lange drücken (Handy): Die Erklärung kommt, nichts wird gespeichert.',
-  'Tap «…» in a row: every action with one line; on the phone the list opens from the bottom.':
-    'In einer Zeile auf «…» tippen: jede Aktion mit einer Zeile; am Handy kommt die Liste von unten.',
-  'Tap «Done»: the line at the bottom says what was saved; tap «Undo».':
-    'Auf «Erledigt» tippen: Die Zeile unten sagt, was gespeichert wurde; auf «Rückgängig» tippen.',
+  'Open Bike care and point at «Done» (computer) or hold it (phone): the explanation shows, nothing is saved.': 'Velopflege öffnen und mit der Maus auf «Erledigt» zeigen (Computer) oder lange drücken (Handy): Die Erklärung kommt, nichts wird gespeichert.',
+  'Tap «…» in a row: every action with one line; on the phone the list opens from the bottom.': 'In einer Zeile auf «…» tippen: jede Aktion mit einer Zeile; am Handy kommt die Liste von unten.',
+  'Tap «Done»: the line at the bottom says what was saved; tap «Undo».': 'Auf «Erledigt» tippen: Die Zeile unten sagt, was gespeichert wurde; auf «Rückgängig» tippen.',
   // 0.116.1 UI-Prüfung A1: alte Rückblicke öffnen wieder
   'Enter bike values where you are': 'Velo-Werte dort eintragen, wo du bist',
   '«Enter» on a sheet of the bike folder opens exactly that value, and saving brings you back to the sheet.':
@@ -48,858 +34,848 @@ export default {
   'The debrief opens with its numbers and «Not used».':
     'Der Rückblick öffnet sich mit seinen Zahlen und «Nicht gebraucht».',
 
-  // 0.116.0 «Strava-Verbindung»
   'Strava connection': 'Strava-Verbindung',
-  'Rides from Strava': 'Fahrten aus Strava',
-  'The app fetches your rides with their bike straight from Strava, so every ride lands on the right bike.': 'Die App holt deine Fahrten mit ihrem Velo direkt aus Strava, so landet jede Fahrt beim richtigen Velo.',
-  'Bike › Care › Strava: connect once, the app fetches all old rides without counting one twice and shows what it found.': 'Velo › Pflege › Strava: einmal verbinden, die App holt alle alten Fahrten, zählt keine doppelt und zeigt, was sie gefunden hat.',
-  'New rides come by themselves when the app opens, or only with «Fetch now». A ride without a bike waits in «To check» with a suggestion. The file import stays as the reserve.': 'Neue Fahrten kommen von selbst beim Öffnen, oder nur mit «Jetzt holen». Eine Fahrt ohne Velo wartet in «Zum Prüfen» mit einem Vorschlag. Der Datei-Import bleibt als Reserve.',
-  'A ride got another bike in Strava: Today and the bike ask «Take over» or «Keep». The tile «Strava» on Today shows the new rides.': 'Hat eine Fahrt in Strava ein anderes Velo bekommen, fragen Heute und das Velo: «Übernehmen» oder «Behalten». Die Kachel «Strava» auf Heute zeigt die neuen Fahrten.',
   'Open Bike › Care › Strava and tap «Connect with Strava».': 'Öffne Velo › Pflege › Strava und tippe «Mit Strava verbinden».',
   'Log in to Strava and allow it: the app shows how many rides it found.': 'Bei Strava einloggen und erlauben: die App zeigt, wie viele Fahrten sie gefunden hat.',
   'Tap «Done», then «Fetch now»: the tile «Strava» on Today shows the result.': 'Tippe «Fertig», dann «Jetzt holen»: die Kachel «Strava» auf Heute zeigt das Ergebnis.',
   'Rides with their bike from Strava, fetched by themselves; a changed bike asks first.': 'Fahrten mit ihrem Velo aus Strava, von selbst geholt; ein geändertes Velo fragt zuerst.',
-  'Heart rate from Strava, Ø and max per ride: in the ride log of the bike, the debrief, the trips table, Active, the ride page and «This week» on Today. Only observation, no rating.': 'Puls aus Strava, Ø und max pro Fahrt: im Fahrtenbuch des Velos, im Rückblick, in der Touren-Tabelle, bei Aktiv, auf der Fahrt-Seite und bei «Diese Woche» auf Heute. Nur Beobachtung, keine Bewertung.',
   'Open the ride log of a bike: a ride with a heart rate monitor shows «Ø … · max … bpm».': 'Öffne das Fahrtenbuch eines Velos: eine Fahrt mit Pulsgurt zeigt «Ø … · max … Schläge/min».',
-  // 0.115.0 Menü-Fix
-  'Menus close easily': 'Menüs gehen leicht zu',
-  'A tap next to an open ••• menu closes it, you no longer have to hit ••• a second time.':
-    'Ein Tipp neben ein offenes •••-Menü schliesst es, du musst nicht mehr ein zweites Mal auf ••• tippen.',
   'Open Bikes › Care and tap ••• at a problem.': 'Öffne Velos › Pflege und tippe bei einem Problem auf •••.',
   'Tap anywhere next to the menu: it closes at once.': 'Tippe irgendwo neben das Menü: Es schliesst sofort.',
   'Tap ••• and pick an answer: it still works.': 'Tippe auf ••• und wähle eine Antwort: Sie funktioniert weiterhin.',
-  'A ••• menu now closes with one tap anywhere next to it, for example at the problems in Bike care.':
-    'Ein •••-Menü schliesst jetzt mit einem Tipp irgendwo daneben, zum Beispiel bei den Problemen in der Velopflege.',
-  'The same for the ••• of the packing list and of the trips in progress: one tap next to it is enough.':
-    'Genauso beim ••• der Packliste und der laufenden Touren: Ein Tipp daneben genügt.',
-  // 0.114.0 «Rahmenbedingungen»
-  'A new trip asks sport, weather by postcode and event, and shows the list in groups.':
-    'Eine neue Tour fragt Sportart, Wetter per PLZ und Event und zeigt die Liste in Gruppen.',
-  'The window «Conditions»: sport (bike first), the weather suggested from a start postcode, the event with its hint.':
-    'Das Fenster «Rahmenbedingungen»: Sportart (Fahrrad zuerst), das Wetter als Vorschlag aus der Start-PLZ, der Event mit seinem Hinweis.',
-  'Choose a template as buttons: Standard, your own and two examples. Past trips no longer appear there.':
-    'Vorlage wählen als Knöpfe: Standard, deine eigenen und zwei Beispiele. Vergangene Touren erscheinen dort nicht mehr.',
-  'The packing list in four groups with a picture per item; the button counts only what goes into the bags.':
-    'Die Packliste in vier Gruppen mit einem Bild pro Teil; der Knopf zählt nur, was in die Taschen kommt.',
-  'Repair and Charging no longer come by themselves: switch them on when packing.':
-    'Reparatur und Laden kommen nicht mehr von selbst: Beim Packen schaltest du sie ein.',
   'Open Trips and tap «New trip».': 'Touren öffnen und «Neue Tour» antippen.',
   'Type your postcode under Weather: the forecast suggests the weather.': 'Unter Wetter deine PLZ eintippen: Die Prognose schlägt das Wetter vor.',
   'Open «Choose a template» and tap «Weekend»: 2 days and Hotel/hut are set.': '«Vorlage wählen» öffnen und «Wochenende» antippen: 2 Tage und Hotel/Hütte sind gesetzt.',
-
-  // 0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check (mockups V1–V6)
   'Checks before and after': 'Checks davor und danach',
-  'The evening before and back home: one tap on the row opens the check, and every trip type has its own list.':
-    'Am Vorabend und wieder zu Hause: Ein Tipp auf die Zeile öffnet den Check, und jede Reiseart hat ihre eigene Liste.',
-  'New on «Packed»: the row «Evening-before check» opens a window with your points, e.g. read the avalanche bulletin, route offline, charge.':
-    'Neu auf «Gepackt»: Die Zeile «Vorabend-Check» öffnet ein Fenster mit deinen Punkten, z. B. Lawinenbulletin lesen, Route offline, laden.',
-  'New on «Trip ended»: «Before you unpack» with the after-trip check, e.g. dry the skins, refill, charge; then on to the debrief.':
-    'Neu auf «Tour beendet»: «Bevor du auspackst» mit dem Schluss-Check, z. B. Felle trocknen, auffüllen, laden; dann weiter zum Rückblick.',
-  '«Adjust the list»: sort, remove, add your own or a suggestion from an earlier debrief, for this trip or all trips of the type.':
-    '«Liste anpassen»: sortieren, entfernen, Eigenes oder einen Vorschlag aus einem früheren Rückblick dazunehmen, für diese Tour oder alle Touren der Reiseart.',
-  'Me › Checks per trip type shows the lists of every type and how often you ticked each point.':
-    'Ich › Checks pro Reiseart zeigt die Listen jeder Reiseart und wie oft du jeden Punkt erledigt hast.',
-  'Open a packed trip: tap «Evening-before check» under «Until the start» and tick a point.':
-    'Eine gepackte Tour öffnen: Unter «Bis zum Start» auf «Vorabend-Check» tippen und einen Punkt abhaken.',
-  'Tap «Adjust the list», add your own point and save it for all trips of the type.':
-    'Auf «Liste anpassen» tippen, einen eigenen Punkt dazunehmen und für alle Touren der Reiseart speichern.',
-  'End a trip: tap the after-trip check under «Before you unpack».':
-    'Eine Tour beenden: Unter «Bevor du auspackst» auf den Schluss-Check tippen.',
-  'Open Me › Checks per trip type and choose another type.':
-    'Ich › Checks pro Reiseart öffnen und eine andere Reiseart wählen.',
-  // 0.110.0 Design-Refresh P10 «Was ist neu»
-  'Me › What is new shows the newest version, every function one by one and all versions by month.':
-    'Ich › Was ist neu zeigt die neueste Version, jede Funktion einzeln und alle Versionen nach Monat.',
-  'What is new lists every function: sort by newest, name, category, place, your top 10 or the most important 10, with a search.':
-    'Was ist neu listet jede Funktion: sortiert nach Neueste, Name, Kategorie, Ort, Deine Top 10 oder Wichtigste 10, mit Suche.',
-  '«Your top 10» counts how often you open a function, only on this device and never in the playground.':
-    '«Deine Top 10» zählt, wie oft du eine Funktion öffnest, nur auf diesem Gerät und nie auf der Spielwiese.',
-  'After an update a message says what is new; «Do not show again» holds until the next update.':
-    'Nach einem Update sagt eine Meldung, was neu ist; «Nicht mehr anzeigen» gilt bis zum nächsten Update.',
-  'For 14 days after an update the tile «New» sits on top of Today, with «Try it», «What is new» and «Take away».':
-    '14 Tage nach einem Update steht die Kachel «Neu» oben auf Heute, mit «Ausprobieren», «Was ist neu» und «Wegnehmen».',
+  'Open a packed trip: tap «Evening-before check» under «Until the start» and tick a point.': 'Eine gepackte Tour öffnen: Unter «Bis zum Start» auf «Vorabend-Check» tippen und einen Punkt abhaken.',
+  'Tap «Adjust the list», add your own point and save it for all trips of the type.': 'Auf «Liste anpassen» tippen, einen eigenen Punkt dazunehmen und für alle Touren der Reiseart speichern.',
+  'End a trip: tap the after-trip check under «Before you unpack».': 'Eine Tour beenden: Unter «Bevor du auspackst» auf den Schluss-Check tippen.',
+  'Open Me › Checks per trip type and choose another type.': 'Ich › Checks pro Reiseart öffnen und eine andere Reiseart wählen.',
   'Open Me › What is new and tap «Your top 10».': 'Ich › Was ist neu öffnen und «Deine Top 10» antippen.',
   'Tap «Go» at a function: its place opens.': 'Bei einer Funktion «Loslegen» antippen: Ihre Stelle öffnet sich.',
   'Go back: the function now counts once more.': 'Zurückgehen: Die Funktion zählt jetzt einmal mehr.',
-  // 0.109.0 Design-Refresh P6 «Rückblick, Auswerten, Fahrten»
-  'The new look, step 12: the end of a trip and the debrief in two columns, with the items as chips by bag.':
-    'Das neue Aussehen, Schritt 12: Tour beendet und der Rückblick in zwei Spalten, die Teile als Chips nach Tasche.',
-  'Look back shows the last trip with number tiles, your 12 months and the comparison, and «More» as plain rows.':
-    'Rückblick zeigt die letzte Tour mit Zahlen-Kacheln, deine 12 Monate und den Vergleich, und «Mehr» als schlichte Zeilen.',
-  'Learned, your pace, the logbook with your best values, past trips and your rides use the same light cards.':
-    'Gelernt, Dein Tempo, das Logbuch mit deinen Bestwerten, Vergangene Touren und deine Fahrten nutzen dieselben hellen Karten.',
-  // 0.108.0 Design-Refresh P9 «Ich»
-  'The new look, step 11: Me is light, in four groups, with a band on top when a backup is due.':
-    'Das neue Aussehen, Schritt 11: Ich ist hell, in vier Gruppen, mit einem Band oben, wenn ein Backup fällig ist.',
-  'Data and backup is its own page with three status lights; «To the phone» shows a QR code with the app address.':
-    'Daten und Backup ist eine eigene Seite mit drei Status-Lichtern; «Aufs Handy» zeigt einen QR-Code mit der Adresse der App.',
-  'Inbox, filing, notes, the helper, report a problem, home place, shortcuts and the playground use the new light look.':
-    'Eingang, Ablegen, Notizen, Helfer, Problem melden, Wohnort, Tastenkürzel und Spielwiese sind im neuen hellen Aussehen.',
-  // 0.107.0 Design-Refresh P8 «Aktiv»
-  'The new look, step 10: Active is light, with today on top, goals with a path and milestones on a shelf.':
-    'Das neue Aussehen, Schritt 10: Aktiv ist hell, mit heute oben, Zielen mit Weg und Meilensteinen im Regal.',
-  'Activity and «More about meditation» show a suggestion for today that you can set as a challenge.':
-    'Aktivität und «Mehr zur Meditation» zeigen einen Vorschlag für heute, den du als Challenge setzen kannst.',
-  'The meditation log opens on an overview with a 13-week calendar; a new page «Patterns» shows records and what helped.':
-    'Das Meditations-Logbuch öffnet mit einer Übersicht und einem Kalender über 13 Wochen; die neue Seite «Muster» zeigt Rekorde und was geholfen hat.',
-  // 0.106.0 Design-Refresh P5 «Packen und Unterwegs»
-  'The new look, step 9: Packing shows your bags as one list; tap a bag and its items open below.':
-    'Das neue Aussehen, Schritt 9: Packen zeigt deine Taschen als eine Liste; tippe eine Tasche, und ihre Teile öffnen sich darunter.',
-  'Swap, charge the evening before, still to decide, trip facts and end the trip are light windows.':
-    'Tauschen, Am Vorabend laden, Noch zu entscheiden, Tour-Fakten und Tour beenden sind helle Fenster.',
-  'On the way shows the day in blocks with what to wear, eat and drink now, and the weather hour by hour.':
-    'Unterwegs zeigt den Tag in Blöcken mit dem, was du jetzt anziehst, isst und trinkst, und das Wetter Stunde für Stunde.',
-  // 0.105.0 Design-Refresh P7 «Velo»
-  'The new look, step 8: Bikes is light, with the drawing and the bags open on the page and «More» as plain rows.':
-    'Das neue Aussehen, Schritt 8: Velo ist hell, mit Zeichnung und Taschen offen auf der Seite und «Mehr» als schlichte Zeilen.',
-  'Bike care shows what is due on top; a chosen bike opens as its own page with a path back.':
-    'Die Velopflege zeigt oben, was fällig ist; ein gewähltes Velo öffnet sich als eigene Seite mit Weg zurück.',
-  'Part, start values, workshop visit, order, import, receipts and equipment use the same light windows.':
-    'Teil, Startwerte, Werkstattbesuch, Bestellung, Import, Belege und Ausstattung nutzen dieselben hellen Fenster.',
-  // 0.104.0 Design-Refresh P4 «Touren»
-  'The new look, step 7: Trips shows what to continue on top, light trip tiles with a packing bar and your best values.':
-    'Das neue Aussehen, Schritt 7: Touren zeigt oben, wo du weitermachst, helle Tour-Kacheln mit Packbalken und deine Bestwerte.',
-  'A new trip starts in one light window: area, name, bike and what the packing list starts with.':
-    'Eine neue Tour startet in einem hellen Fenster: Reiseart, Name, Velo und womit die Packliste startet.',
-  'Planning a trip shows the route on a small map with the height profile, the weight by place and the stages, with the weather at the campsites when online.':
-    'Beim Planen zeigt die Tour die Strecke auf einer kleinen Karte mit Höhenprofil, das Gewicht nach Ort und die Etappen, online mit dem Wetter an den Zeltplätzen.',
-  // 0.103.0 Design-Refresh P3 «Material»
-  'The new look, step 6: Gear shows the list first, with one row of tools and the views on the right.':
-    'Das neue Aussehen, Schritt 6: Material zeigt zuerst die Liste, mit einer Werkzeugzeile und den Ansichten rechts.',
-  'An item opens with flat rows; rename, merge and delete wait under «More».':
-    'Ein Teil öffnet sich mit flachen Zeilen; Umbenennen, Zusammenlegen und Löschen warten unter «Mehr».',
-  'Sort and filter, assign, merge and weighing are light cards with clear buttons at the bottom.':
-    'Sortieren und filtern, Zuordnen, Zusammenlegen und Wiegen sind helle Karten mit klaren Knöpfen unten.',
-  // 0.102.0 «Vorschlag und Challenge»
-  'New tile on Today: «Swim or sauna today?» with alternatives to choose from, also your own.':
-    'Neue Kachel auf Heute: «Heute baden oder Sauna?» mit Alternativen zum Wählen, auch eigenen.',
-  'Any suggestion can become a challenge: how often and until when; it counts by itself when you tick it off.':
-    'Jeder Vorschlag kann eine Challenge werden: wie oft und bis wann; sie zählt von selbst, wenn du abhakst.',
-  'A challenge reached is celebrated as a milestone under «Important today».': 'Eine geschaffte Challenge wird als Meilenstein unter «Heute wichtig» gefeiert.',
-  // 0.101.0 Design-Refresh P2 «Heute»
-  'The new look, step 5: Today is light and calm; the trip card shows the hours to go, the open steps and how much is packed.':
-    'Das neue Aussehen, Schritt 5: Heute ist hell und ruhig; die Tour-Karte zeigt die Stunden bis zum Start, die offenen Schritte und wie viel gepackt ist.',
-  'Four new tiles on Today: This week, Bike this month, Next milestone and A year ago.':
-    'Vier neue Kacheln auf Heute: Diese Woche, Velo im Monat, Nächster Meilenstein und Vor einem Jahr.',
-  '«New» is sorted by area, each way with its own picture.': '«Neu» ist nach Bereichen geordnet, jeder Weg mit eigenem Symbol.',
-  'The search results are light and open over the tiles.': 'Die Treffer der Suche sind hell und öffnen sich über den Kacheln.',
-  // 0.100.0 Design-Refresh P1 «Zurück, Schritte, Weiter-Leiste»
-  'The new look, step 4: a trip page is light, with «‹ Trips» above the name to go back.':
-    'Das neue Aussehen, Schritt 4: eine Tour-Seite ist hell, mit «‹ Touren» über dem Namen für den Weg zurück.',
-  'The four steps of a trip are numbered; on the computer each step is a white field, the current one tinted.':
-    'Die vier Schritte einer Tour sind nummeriert; am Computer ist jeder Schritt ein weisses Feld, der aktuelle leicht getönt.',
-  'The next step always sits in a bar at the bottom: «Step 1 of 4», «Back to Trips» and the main button.':
-    'Der nächste Schritt sitzt immer in einer Leiste unten: «Schritt 1 von 4», «Zurück zu Touren» und der Hauptknopf.',
-  // 0.99.0 Design-Refresh R3 «Bausatz»
-  'The new look, step 3: buttons, fields and badges have soft corners and one clear height everywhere.':
-    'Das neue Aussehen, Schritt 3: Knöpfe, Felder und Abzeichen haben weiche Ecken und überall eine klare Höhe.',
-  'Empty pages show a calm card with a picture, one sentence and what you can do next.':
-    'Leere Seiten zeigen eine ruhige Karte mit Bild, einem Satz und dem, was du als Nächstes tun kannst.',
-  'When everything is packed, a short burst of confetti celebrates; with «reduce motion» it stays the quiet tick.':
-    'Wenn alles gepackt ist, feiert ein kurzer Konfetti-Moment; mit «Bewegung reduzieren» bleibt es beim ruhigen Haken.',
-  'The notes with «Undo» at the bottom are dark and calm, with a tick in front.':
-    'Die Hinweise mit «Rückgängig» unten sind dunkel und ruhig, mit einem Haken vorne.',
-  // 0.98.0 Design-Refresh R2 «Heller Kopf»
-  'The new look, step 2: the top bar and the sidebar are light and calm.':
-    'Das neue Aussehen, Schritt 2: die Kopfleiste und die Seitenleiste sind hell und ruhig.',
-  'On the phone «New» (+) sits at the top next to the search; the round button over the page is gone.':
-    'Am Handy sitzt «Neu» (+) oben neben der Suche; der runde Knopf über der Seite ist weg.',
-  'On the computer the sidebar shows the pages of the chosen place, and «Me» is a card at the bottom.':
-    'Am Computer zeigt die Seitenleiste die Unterseiten des gewählten Orts, und «Ich» ist eine Karte ganz unten.',
-  // 0.97.0 Design-Refresh R1 «Darstellung»
-  'The new look starts: the calm colour world «Sage» and the clear font Inter for the whole app.':
-    'Das neue Aussehen beginnt: die ruhige Farbwelt «Salbei» und die klare Schrift Inter für die ganze App.',
-  'Me › Appearance: choose one of 8 fonts, a colour world (the earlier ones stay), small, normal or large text and light or dark, with a preview on the computer.':
-    'Ich › Darstellung: wähle eine von 8 Schriften, eine Farbwelt (die bisherigen bleiben), kleine, normale oder grosse Schrift und hell oder dunkel, mit Vorschau auf dem Computer.',
-  'Dark mode stays, also for the new colour worlds. Everything is only on this device and can be changed back at any time.':
-    'Der Dunkelmodus bleibt, auch für die neuen Farbwelten. Alles gilt nur auf diesem Gerät und lässt sich jederzeit zurückstellen.',
-  // 0.96.0 «Alles finden»
-  '«What the app can do» shows every function by situation (before the trip, on the way, after the trip …) or, switched, by page of the app. What you never used is on top.':
-    '«Was die App alles kann» zeigt jede Funktion nach Situation (vor der Tour, unterwegs, nach der Tour …) oder, umgestellt, nach Seite der App. Was du noch nie benutzt hast, steht oben.',
-  'Each function has «Take me there» to its place in the app, and many have «Try it» in the playground; a field and chips narrow the list.':
-    'Jede Funktion hat «Hinbringen» zu ihrer Stelle in der App, viele auch «Ausprobieren» in der Spielwiese; ein Suchfeld und Chips machen die Liste kürzer.',
-  'The search shows 3 commands to try, your last searches and «See all functions», and finds functions too, for example «warranty».':
-    'Die Suche zeigt 3 Befehle zum Ausprobieren, deine letzten Suchen und «Alle Funktionen ansehen» und findet auch Funktionen, zum Beispiel «Garantie».',
-  // 0.95.0 «Velo kurz»
-  'Bikes › Overview is short: bike care, bags and equipment as three rows, everything else under «More».':
-    'Velos › Übersicht ist kurz: Velopflege, Taschen und Ausstattung als drei Zeilen, alles andere unter «Mehr».',
-  '«Import rides» (Strava, Garmin) is now a big button right on the bike page.':
-    '«Fahrten importieren» (Strava, Garmin) ist jetzt ein grosser Knopf direkt auf der Velo-Seite.',
-  'Equipment: a missing weight or price is a quiet grey hint instead of orange on every part.':
-    'Ausstattung: ein fehlendes Gewicht oder ein fehlender Preis ist ein ruhiger grauer Hinweis statt orange bei jedem Teil.',
-
-  // 0.94.0 «Kachel-Wand»
-  'Today is a wall of tiles: «Customise the start page» (or a long press on a phone) moves tiles, gives them one of four sizes or takes them away; «Reset» brings the ready wall back.':
-    'Heute ist eine Kachel-Wand: «Startseite anpassen» (oder auf dem Handy lange drücken) verschiebt Kacheln, gibt ihnen eine von vier Grössen oder nimmt sie weg; «Zurücksetzen» bringt die fertige Wand zurück.',
-  '«+» adds any tile, by area or with a search: a function, meditation, the playground, the milestones and more. New tiles carry a «New» dot for two weeks.':
-    '«+» fügt jede Kachel hinzu, nach Bereich oder mit der Suche: eine Funktion, Meditation, die Spielwiese, die Meilensteine und mehr. Neue Kacheln tragen zwei Wochen lang einen «Neu»-Punkt.',
-  'One series over everything: weeks in a row with a ride, a trip or any activity. A rest week keeps it, and all milestones are on one page.':
-    'Eine Serie über alles: Wochen am Stück mit einer Fahrt, einer Tour oder irgendeiner Aktivität. Eine Ruhewoche hält sie, und alle Meilensteine stehen auf einer Seite.',
-  '«Data and backup» lives under Me now; the backup reminder stays in «Important today».':
-    '«Daten und Backup» wohnt jetzt unter Ich; die Backup-Erinnerung bleibt in «Heute wichtig».',
-
-  // 0.93.0 «Meditation Wünsche»
-  'Meditation › «New session»: 10 · 15 · 20 · 30 · 45 · 60 minutes or any number, sounds in between «none · at random · own» (every N minutes or at chosen minutes), and your next star on top.':
-    'Meditation › «Neue Sitzung»: 10 · 15 · 20 · 30 · 45 · 60 Minuten oder frei, Klänge dazwischen «keine · zufällig · eigene» (alle N Minuten oder an gewählten Minuten), und dein nächster Stern zuoberst.',
-  '«Save as a template?» suggests a name from kind, duration and sounds; one tap and it starts next time from the meditation page.':
-    '«Als Vorlage speichern?» schlägt einen Namen aus Art, Dauer und Klängen vor; ein Tipp, und sie startet nächstes Mal von der Meditations-Seite.',
-  'Four clocks for a running session: ring, hourglass, moon or only the number. The app remembers yours, and the hourglass can hide the time.':
-    'Vier Uhren für die laufende Sitzung: Ring, Sanduhr, Mond oder nur die Zahl. Die App merkt sich deine, und die Sanduhr kann die Zeit ausblenden.',
-  // 0.92.0 «Rückblick antippen»
-  'The debrief starts with «What did you not need?»: every packed item as a chip, tap what stayed in the bag. Below it counts how much lighter you could go next time.':
-    'Der Rückblick beginnt mit «Was hast du nicht gebraucht?»: jedes gepackte Teil als Chip, antippen, was in der Tasche blieb. Darunter steht, wie viel leichter du nächstes Mal fahren könntest.',
-  '«What was missing?», «How was it?» and the suggestions are short rows under it; the button says «Done».':
-    '«Was hat gefehlt?», «Wie war\'s?» und die Vorschläge sind kurze Zeilen darunter; der Knopf heisst «Fertig».',
-  // 0.91.0 «Import: alte Fahrten»
-  'Importing a Strava export: old rides without a bike, whose km are already in your bikes, are set aside as «Older rides without a bike» instead of waiting in «Check».':
-    'Strava-Export importieren: Alte Fahrten ohne Velo, deren km schon in deinen Velos stecken, liegen als «Ältere Fahrten ohne Velo» zur Seite statt unter «Prüfen».',
-  "Picking a bike by hand checks its start value too: a ride already in that bike's km is not counted twice.":
-    'Wählst du ein Velo von Hand, prüft die App auch dessen Startwert: Eine Fahrt, die schon in den km dieses Velos steckt, zählt nicht doppelt.',
-
-  // 0.88.0 «Aufräumen und Ausprobieren»
-  'Ich › «Clean up test data»: everything with «test» in its name at a glance, untick what stays, archive the rest. Nothing is deleted, «Undo» brings it back, and the app no longer learns from it.':
-    'Ich › «Testdaten aufräumen»: alles mit «test» im Namen auf einen Blick, abwählen was bleibt, den Rest archivieren. Nichts wird gelöscht, «Rückgängig» holt es zurück, und die App lernt nicht mehr daraus.',
-  'Ich › «Try it out»: a playground with a made-up trip; play the packing day, the ride or the debrief. When you end it, your data is exactly as before.':
-    'Ich › «Ausprobieren»: eine Spielwiese mit erfundener Tour; spiel den Packtag, die Fahrt oder den Rückblick. Beim Beenden sind deine Daten genau wie vorher.',
-  'A trip ended before its date asks before a debrief, and on Trips it comes back with «Plan again».':
-    'Eine Tour, die vor ihrem Datum beendet wurde, fragt vor dem Rückblick nach und kommt unter Touren mit «Wieder planen» zurück.',
-
-  // 0.86.0 «Meditation einfach»
-  'Meditation in two taps: tap it in «Tick off today» and start at once, choose the minutes, or only tick it off.':
-    'Meditation in zwei Tipps: in «Heute abhaken» antippen und sofort starten, die Minuten wählen oder nur abhaken.',
-  'The meditation page is short: start like last time or from a template, this week, the log and the next star; everything else under «More».':
-    'Die Meditations-Seite ist kurz: wie letztes Mal oder aus einer Vorlage starten, diese Woche, das Protokoll und der nächste Stern; alles andere unter «Mehr».',
-  'After the gong only a sentence, the depth and «Done»; mood and more on request. The running clock is calmer: the time left once, the next gong below.':
-    'Nach dem Gong nur ein Satz, die Tiefe und «Fertig»; Stimmung und mehr auf Wunsch. Die laufende Uhr ist ruhiger: die Restzeit einmal, darunter der nächste Gong.',
-
-  // 0.84.0 «Nach dem Gong» (hobby pages 3)
-  'After the gong a calm evaluation opens: a note with depth and mood, what helped, your streak, a comparison and a suggestion for next time with a calendar file.':
-    'Nach dem Gong öffnet eine ruhige Auswertung: Notiz mit Tiefe und Stimmung, was geholfen hat, deine Serie, ein Vergleich und ein Vorschlag fürs nächste Mal mit Kalender-Datei.',
-  'The meditation log: every session opens in full, with filters, a streak heatmap, the best time of day and a month comparison; also as a calendar and as charts.':
-    'Das Meditations-Protokoll: jede Sitzung öffnet sich ganz, mit Filtern, Serien-Wärmebild, bester Tageszeit und Monatsvergleich; auch als Kalender und als Grafik.',
-  'Start a past session like this again in one tap, or save it as a template.':
-    'Eine frühere Sitzung mit einem Tipp wieder so starten oder als Vorlage speichern.',
-
-  // 0.83.0 «Ausstattung» (Velos)
-  'Bikes has a new tab «Equipment»: every part of a bike in groups like a bike maker’s spec list, with name, details, weight and price.': 'Velos hat einen neuen Tab «Ausstattung»: jedes Teil eines Velos in Gruppen wie beim Hersteller, mit Name, Details, Gewicht und Preis.',
-  'Your four key measurements sit on top as tiles; parts without details fold into one line, and a tap on a part edits its name, weight and price.': 'Deine vier wichtigsten Masse stehen oben als Kacheln. Teile ohne Angaben sind in einer Zeile eingeklappt, ein Tipp auf ein Teil ändert Name, Gewicht und Preis.',
-  '«Compare bikes» now shows only rows with a value; on a phone two bikes sit side by side and you pick which.': '«Velos vergleichen» zeigt nur noch Zeilen mit Werten. Am Handy stehen zwei Velos nebeneinander, du wählst welche.',
-  // 0.81.0 «Kissenzeit» (hobby pages 2)
-  'Kissenzeit has its own meditation page: start from a template or like last time, kinds, milestones, sounds, quotes, places and your own links.':
-    'Kissenzeit hat eine eigene Meditations-Seite: aus Vorlage oder wie letztes Mal starten, Arten, Meilensteine, Klänge, Zitate, Orte und eigene Links.',
-  'Intervals made simple: choose the duration, then none, every 5, every 10, at random or your own marks set right on the round clock. Seven built-in sounds.':
-    'Intervalle ganz einfach: Dauer wählen, dann keine, alle 5, alle 10, zufällig oder eigene Marken direkt auf der runden Uhr. Sieben eingebaute Klänge.',
-  'While you sit the whole screen is a calm clock with pause and end; the session is saved and counts for your milestones.':
-    'Beim Sitzen ist der ganze Bildschirm eine ruhige Uhr mit Pause und Beenden; die Sitzung wird gespeichert und zählt für deine Meilensteine.',
-
-  // 0.80.0 «Tests stabil»
-  'Behind the scenes: the automatic checks are steadier, so new versions come faster.':
-    'Im Hintergrund: Die automatischen Prüfungen laufen stabiler, so kommen neue Versionen schneller.',
-
-  // 0.79.0 Hobby-Seiten 1
-  'Aktiv has a new tab «Activity»: your six favourite activities as tiles with playful names you can change, each with one line about where you stand.':
-    'Aktiv hat einen neuen Tab «Aktivität»: deine sechs Lieblings-Aktivitäten als Kacheln mit verspielten Namen, die du ändern kannst, jede mit einer Zeile, wo du stehst.',
-  'Milestones over all activities: stages from «Anfang» to «Weg», only the next star is shown, a reached star stays. Your own numbers and a reward from the wishlist.':
-    'Meilensteine über alle Aktivitäten: Stufen von «Anfang» bis «Weg», nur der nächste Stern wird gezeigt, ein erreichter Stern bleibt. Eigene Zahlen und eine Belohnung von der Wunschliste.',
-  'The page suggests more on its own: a few more activities to tick, recovery and fun like sauna or a walk, and ideas. Hide what you do not want.':
-    'Die Seite schlägt selbst mehr vor: ein paar weitere Aktivitäten zum Abhaken, Erholung und Spass wie Sauna oder Spaziergang, und Ideen. Blende aus, was du nicht willst.',
-
-  // 0.78.0 «Fünf Orte» 2
-  'Each place has its tabs on top. On a phone you swipe sideways to the next tab; a place opens at the tab you had open last.':
-    'Jeder Ort hat oben seine Tabs. Am Handy wischst du seitwärts zum nächsten Tab; ein Ort öffnet sich beim Tab, den du zuletzt offen hattest.',
-  'Trips shows all trips as tiles with their route, grouped by state, with templates to start quickly and your best values from GPX.':
-    'Touren zeigt alle Touren als Kacheln mit ihrer Route, nach Zustand geordnet, dazu Vorlagen zum schnellen Start und deine Bestwerte aus GPX.',
-  'Look back starts with the debriefs still open. Gear has a tab «Shopping» with your wishlist.':
-    'Der Rückblick beginnt mit den offenen Rückblicken. Material hat einen Tab «Einkauf» mit deiner Wunschliste.',
-  'After an update a calm sheet says once what is new. An old link like #/care says where it leads now.':
-    'Nach einem Update sagt ein ruhiges Blatt einmal, was neu ist. Ein alter Link wie #/care sagt, wohin er jetzt führt.',
-
-  // 0.77.0 «KI-Helfer»
-  'The helper (Claude) makes suggestions, only when you ask: «Ask the helper» on top of New trip and a question in the search turn a few words into a packing list proposal.':
-    'Der Helfer (Claude) macht Vorschläge, nur wenn du fragst: «Frag den Helfer» oben in «Neue Tour» und eine Frage in der Suche machen aus ein paar Wörtern einen Packlisten-Vorschlag.',
-  '«Check the list» next to «Continue to Pack» shows what may be missing, what is double and what is heavy. «Get a draft» in the Rückblick writes learnings from your notes on the way.':
-    '«Liste prüfen» neben «Weiter zu Packen» zeigt, was vielleicht fehlt, was doppelt und was schwer ist. «Entwurf holen» im Rückblick schreibt Learnings aus deinen Notizen unterwegs.',
-  'In bike care the helper adds suggestions to «Due now». Everything is a suggestion: take it over, ignore it or change it.':
-    'In der Velopflege setzt der Helfer Vorschläge in «Jetzt fällig». Alles ist ein Vorschlag: übernehmen, ignorieren oder ändern.',
-  'Me › Helper: the helper code stays only on this device, with a monthly limit (CHF 5) and what goes to Claude. Without the code the app works as before.':
-    'Ich › Helfer: Der Helfer-Code bleibt nur auf diesem Gerät, mit Monatslimit (CHF 5) und was an Claude geht. Ohne Code funktioniert die App wie bisher.',
-
-  // 0.76.0 «Fünf Orte» 1
-  'Five places: Today, Trips, Gear, Bikes and Active. On a phone they sit at the bottom, on a computer in a sidebar on the left with the pages of each place.':
-    'Fünf Orte: Heute, Touren, Material, Velos und Aktiv. Am Handy unten, am Computer in einer Seitenleiste links, mit den Seiten jedes Orts.',
-  '«More» is gone. «Me» top right holds the language, light or dark, the colour world, your home place, the Inbox, your data and the help.':
-    '«Mehr» ist weg. «Ich» oben rechts hat Sprache, Hell oder dunkel, Farbwelt, Heimat, Inbox, deine Daten und die Hilfe.',
-  '«New» is a round + bottom right on a phone. Each place has a light colour of its own.':
-    '«Neu» ist am Handy ein runder Knopf + unten rechts. Jeder Ort hat eine leichte eigene Farbe.',
-  'Keyboard shortcuts on a computer: g and a letter opens a place, n is New, / searches, ? shows them all.':
-    'Tastenkürzel am Computer: g und ein Buchstabe öffnet einen Ort, n ist Neu, / sucht, ? zeigt alle.',
-
+  // 0.118.0
+  'What is new, retold': 'Was neu ist, neu erzählt',
+  'After an update every news item sits open and each line takes you there. And the AI helper takes a break until you call it.': 'Nach einem Update steht jede Neuigkeit offen da, und jede Zeile bringt dich hin. Und der KI-Helfer macht Pause, bis du ihn rufst.',
+  'Every version with its own title, one sentence and its main points': 'Jede Version mit eigenem Titel, einem Satz und ihren Hauptpunkten',
+  'Small things sorted into New, Nicer, Fixed and Faster': 'Kleinkram sortiert in Neu, Schöner, Repariert und Schneller',
+  'AI helper off by default: one switch under Me brings it back everywhere': 'KI-Helfer ab Werk aus: ein Schalter unter Ich holt ihn überall zurück',
+  'All versions open, grouped by month': 'Alle Versionen offen, nach Monat gruppiert',
+  // 0.117.0
+  'Buttons that explain themselves': 'Knöpfe, die sich erklären',
+  'Not sure what a button does? Point at it on the computer or hold it on the phone, and it tells you.': 'Unsicher, was ein Knopf tut? Am Computer mit der Maus darauf zeigen oder am Handy lange drücken, und er sagt es dir.',
+  'Bike care: one main button per row, the rest behind «…»': 'Velopflege: ein Hauptknopf pro Zeile, der Rest hinter «…»',
+  'After «Done» one line says what was saved, with «Undo»': 'Nach «Erledigt» sagt eine Zeile, was gespeichert ist, mit «Rückgängig»',
+  'Button labels with at most two words, the long text on hover': 'Knöpfe mit höchstens zwei Wörtern, der lange Text beim Zeigen',
+  'On the phone the buttons of a row sit under its text, card-wide': 'Am Handy stehen die Knöpfe einer Zeile unter dem Text, kartenbreit',
+  // 0.116.0
+  'Strava, come on in 🚴': 'Strava, komm rein 🚴',
+  'Connect once, and your rides arrive with their bike, so every kilometre lands on the right one.': 'Einmal verbinden, und deine Fahrten kommen mit ihrem Velo, so landet jeder Kilometer am richtigen Ort.',
+  'Connect Strava once: all old rides come, none counted twice': 'Strava einmal verbinden: alle alten Fahrten kommen, keine doppelt',
+  'New rides come by themselves, or with «Fetch now»': 'Neue Fahrten kommen von selbst, oder mit «Jetzt holen»',
+  'Another bike in Strava? Today asks «Take over» or «Keep»': 'Anderes Velo in Strava? Heute fragt «Übernehmen» oder «Behalten»',
+  'Heart rate per ride, Ø and max, only to look at': 'Puls pro Fahrt, Ø und max, nur zum Anschauen',
+  'A ride without a bike waits in «To check» with a suggestion': 'Eine Fahrt ohne Velo wartet in «Zum Prüfen» mit einem Vorschlag',
+  // 0.115.0
+  'Menus that take a hint': 'Menüs, die verstehen',
+  'A tap next to an open ••• menu closes it. No more hunting for the same ••• twice.': 'Ein Tipp neben ein offenes •••-Menü schliesst es. Kein zweites Zielen auf dasselbe ••• mehr.',
+  'Bike care: the ••• of a problem closes with one tap beside it': 'Velopflege: das ••• bei einem Problem schliesst mit einem Tipp daneben',
+  'Same for the packing list and the trips in progress': 'Genauso bei der Packliste und den laufenden Touren',
+  // 0.114.0
+  'A new trip, nicely framed': 'Neue Tour, gut eingerahmt',
+  'Sport, weather from your postcode and the event: the new trip asks the right things and sorts the list into groups.': 'Sportart, Wetter aus deiner PLZ und der Event: Die neue Tour fragt das Richtige und ordnet die Liste in Gruppen.',
+  '«Conditions»: sport, weather from the start postcode, the event': '«Rahmenbedingungen»: Sportart, Wetter aus der Start-PLZ, der Event',
+  'Templates as buttons: Standard, yours and two examples': 'Vorlagen als Knöpfe: Standard, deine und zwei Beispiele',
+  'The packing list in four groups, with a picture per item': 'Die Packliste in vier Gruppen, mit einem Bild pro Teil',
+  'Repair and Charging only come when you switch them on': 'Reparatur und Laden kommen nur, wenn du sie einschaltest',
+  // 0.111.0
+  'Tick off at night, head out in the morning': 'Abends abhaken, morgens losziehen',
+  'Bulletin read, skins packed, alarm set? The evening-before check asks, so you can sleep easy.': 'Bulletin gelesen, Felle dabei, Wecker gestellt? Der Vorabend-Check fragt nach, damit du ruhig schläfst.',
+  'Evening-before check on «Packed», each trip type with its own list': 'Vorabend-Check auf «Gepackt», jede Reiseart mit eigener Liste',
+  'After-trip check: dry the skins before they get musty': 'Schluss-Check nach der Tour: Felle trocknen, bevor sie muffeln',
+  '«Adjust the list»: your own points or ideas from earlier debriefs': '«Liste anpassen»: eigene Punkte oder Ideen aus früheren Rückblicken',
+  'Checks per trip type now live under Me': 'Checks pro Reiseart findest du jetzt unter Ich',
+  // 0.110.0
+  'What is new? Well, exactly this.': 'Was ist neu? Na, genau das hier.',
+  'Every function one by one, sorted the way you like. Your top 10 counts quietly, only on this device.': 'Jede Funktion einzeln, sortiert wie du magst. Deine Top 10 zählt still mit, nur auf diesem Gerät.',
+  'All functions with a search and six sorts': 'Alle Funktionen mit Suche und sechs Sortierungen',
+  'The tile «New» waves at you on Today for 14 days': 'Die Kachel «Neu» winkt dir 14 Tage lang auf Heute',
+  '«Do not show again» holds until the next update': '«Nicht mehr anzeigen» hält bis zum nächsten Update',
+  '«Your top 10» counts what you open, never in the playground': '«Deine Top 10» zählt, was du öffnest, nie auf der Spielwiese',
+  // 0.109.0
+  'Debrief, freshly showered 🚿': 'Rückblick, frisch geduscht 🚿',
+  'Trip over, legs tired, head full: the debrief now sorts it into two columns.': 'Tour vorbei, Beine müde, Kopf voll: der Rückblick sortiert das jetzt in zwei Spalten.',
+  'Trip ended and debrief in two columns, items as chips by bag': 'Tour beendet und Rückblick in zwei Spalten, Teile als Chips nach Tasche',
+  'Debrief with number tiles, your 12 months and the comparison': 'Rückblick mit Zahlen-Kacheln, deinen 12 Monaten und dem Vergleich',
+  'Learned, pace, logbook, past trips and rides in light cards': 'Gelernt, Tempo, Logbuch, Vergangene Touren und Fahrten in hellen Karten',
+  // 0.108.0
+  'Me, finally tidied up': 'Ich, endlich aufgeräumt',
+  'Four groups instead of a jumble box. And when the backup is due, a band on top tells you kindly.': 'Vier Gruppen statt Wühlkiste. Und ist das Backup fällig, sagt dir ein Band oben freundlich Bescheid.',
+  'Me in four groups, with a backup band on top': 'Ich in vier Gruppen, mit Backup-Band oben',
+  'Data and backup with three lights and a QR code for the phone': 'Daten und Backup mit drei Lichtern und QR-Code fürs Handy',
+  'Inbox, notes, helper, home place, shortcuts and playground in the light look': 'Eingang, Notizen, Helfer, Wohnort, Tastenkürzel und Spielwiese im hellen Look',
+  // 0.107.0
+  'Active turns the lights on': 'Aktiv macht das Licht an',
+  'Today on top, goals with a path, milestones on a shelf. Plus a suggestion you can take as a challenge. Or not.': 'Heute oben, Ziele mit Weg, Meilensteine im Regal. Dazu ein Vorschlag, den du als Challenge annehmen kannst. Oder eben nicht.',
+  'Active in light: today on top, goals with a path, milestones on a shelf': 'Aktiv hell: heute oben, Ziele mit Weg, Meilensteine im Regal',
+  'A suggestion for today, as a challenge if you like': 'Vorschlag für heute, auf Wunsch als Challenge',
+  'Page «Patterns»: records and what helped': 'Seite «Muster»: Rekorde und was geholfen hat',
+  'Meditation log with a 13-week calendar': 'Meditations-Log mit 13-Wochen-Kalender',
+  // 0.106.0
+  'Packing, bag by bag': 'Packen, Tasche für Tasche',
+  'Your bags as one tidy list: tap one, and its items unfold right below.': 'Deine Taschen als eine ordentliche Liste: eine antippen, und ihre Teile klappen gleich darunter auf.',
+  'Packing shows your bags as one list, items open below': 'Packen zeigt deine Taschen als eine Liste, die Teile öffnen sich darunter',
+  'On the way: the day in blocks, what to wear, eat and drink now': 'Unterwegs: der Tag in Blöcken, was du jetzt anziehst, isst und trinkst',
+  'Swap, charging, still to decide and end the trip as light windows': 'Tauschen, Laden, Noch zu entscheiden und Tour beenden als helle Fenster',
+  // 0.105.0
+  'Bikes, polished up': 'Velos, frisch poliert',
+  'The drawing and the bags open right on the page. Bike care says on top what is due.': 'Zeichnung und Taschen offen direkt auf der Seite. Die Velopflege sagt oben, was fällig ist.',
+  'Bikes in light, drawing and bags open on the page': 'Velos hell, Zeichnung und Taschen offen auf der Seite',
+  'Bike care: what is due on top, each bike its own page': 'Velopflege: Fälliges oben, jedes Velo eine eigene Seite',
+  'Part, workshop visit, order, import and receipts in light windows': 'Teil, Werkstattbesuch, Bestellung, Import und Belege in hellen Fenstern',
+  // 0.104.0
+  'Trips, with a view': 'Touren mit Aussicht',
+  'Where you left off sits on top, and planning shows the route on a small map with the height profile.': 'Wo du weitermachst, steht oben, und beim Planen siehst du die Strecke auf einer kleinen Karte mit Höhenprofil.',
+  'Trips: continue on top, light tiles with a packing bar': 'Touren: Weitermachen oben, helle Kacheln mit Packbalken',
+  'Route on a small map, height profile and stages': 'Strecke auf kleiner Karte, Höhenprofil und Etappen',
+  'A new trip starts in one light window': 'Eine neue Tour startet in einem hellen Fenster',
+  // 0.103.0
+  'Gear, list first': 'Material, Liste zuerst',
+  'Less chrome, more stuff: the list comes first, the tools in one row.': 'Weniger Drumherum, mehr Zeug: die Liste kommt zuerst, die Werkzeuge in einer Zeile.',
+  'Gear shows the list first, the views on the right': 'Material zeigt zuerst die Liste, die Ansichten rechts',
+  'An item opens with flat rows, the rare things under «More»': 'Ein Teil öffnet mit flachen Zeilen, Seltenes unter «Mehr»',
+  'Sort, filter, assign, merge and weigh as light cards': 'Sortieren, Filtern, Zuordnen, Zusammenlegen und Wiegen als helle Karten',
+  // 0.102.0
+  'Swim or sauna?': 'Baden oder Sauna?',
+  'A new tile asks the important questions of life. And any suggestion can become a challenge.': 'Eine neue Kachel stellt die wichtigen Fragen des Lebens. Und jeder Vorschlag kann eine Challenge werden.',
+  'Tile «Swim or sauna today?» with your own alternatives': 'Kachel «Heute baden oder Sauna?» mit eigenen Alternativen',
+  'Any suggestion becomes a challenge that counts by itself': 'Jeder Vorschlag wird eine Challenge, die von selbst zählt',
+  'A challenge reached is celebrated as a milestone': 'Eine geschaffte Challenge wird als Meilenstein gefeiert',
+  // 0.101.0
+  'Today, calm and bright': 'Heute, hell und ruhig',
+  'The trip card counts the hours to go, and four new tiles keep you posted.': 'Die Tour-Karte zählt die Stunden bis zum Start, und vier neue Kacheln halten dich auf dem Laufenden.',
+  'Trip card with hours to go, open steps and packing status': 'Tour-Karte mit Stunden bis zum Start, offenen Schritten und Packstand',
+  'New tiles: This week, Bike this month, Next milestone, A year ago': 'Neue Kacheln: Diese Woche, Velo im Monat, Nächster Meilenstein, Vor einem Jahr',
+  '«New» sorted by area, each way with its own picture': '«Neu» nach Bereichen geordnet, jeder Weg mit eigenem Symbol',
+  'Search results in light, over the tiles': 'Suchtreffer hell, über den Kacheln',
+  // 0.100.0
+  'Step by step': 'Schritt für Schritt',
+  'A trip now counts its four steps, and the next one always waits in the bar at the bottom.': 'Eine Tour zählt jetzt ihre vier Schritte, und der nächste wartet immer in der Leiste unten.',
+  'The four steps of a trip, numbered': 'Die vier Schritte einer Tour, nummeriert',
+  'Bar at the bottom: «Step 1 of 4» and the main button': 'Leiste unten: «Schritt 1 von 4» und der Hauptknopf',
+  'Trip page in light, with «‹ Trips» to go back': 'Tour-Seite hell, mit «‹ Touren» für den Weg zurück',
+  // 0.99.0
+  'Soft corners, confetti included 🎉': 'Weiche Ecken, Konfetti inklusive 🎉',
+  'Buttons and fields got rounder, empty pages got friendlier, and a full bag gets a little party.': 'Knöpfe und Felder sind runder, leere Seiten freundlicher, und eine volle Tasche bekommt ein kleines Fest.',
+  'Everything packed? A short burst of confetti': 'Alles gepackt? Ein kurzer Konfetti-Moment',
+  'Empty pages with a picture and what to do next': 'Leere Seiten mit Bild und dem nächsten Schritt',
+  'Buttons, fields and badges with soft corners and one height': 'Knöpfe, Felder und Abzeichen mit weichen Ecken und einer Höhe',
+  '«Undo» notes at the bottom, dark and calm': '«Rückgängig»-Hinweise unten, dunkel und ruhig',
+  // 0.98.0
+  'Light up top, light on the side': 'Oben hell, seitlich hell',
+  'The top bar and the sidebar got a fresh coat of paint, and «New» moved to the top on the phone.': 'Kopfleiste und Seitenleiste haben frische Farbe bekommen, und «Neu» ist am Handy nach oben gezogen.',
+  'On the phone «New» (+) sits up top next to the search': 'Am Handy sitzt «Neu» (+) oben neben der Suche',
+  'Computer: sidebar with the pages of a place, «Me» at the bottom': 'Computer: Seitenleiste mit den Seiten eines Orts, «Ich» ganz unten',
+  'Top bar and sidebar light and calm': 'Kopfleiste und Seitenleiste hell und ruhig',
+  // 0.97.0
+  'Sage and Inter move in': 'Salbei und Inter ziehen ein',
+  'A calm colour world and a clear font for the whole app. Prefer it your way? Me › Appearance.': 'Eine ruhige Farbwelt und eine klare Schrift für die ganze App. Lieber anders? Ich › Darstellung.',
+  'New look: colour world «Sage» and the font Inter': 'Neuer Look: Farbwelt «Salbei» und die Schrift Inter',
+  'Me › Appearance: 8 fonts, colour world, text size, light or dark': 'Ich › Darstellung: 8 Schriften, Farbwelt, Schriftgrösse, hell oder dunkel',
+  'Dark mode stays, only on this device': 'Dunkelmodus bleibt, nur auf diesem Gerät',
+  // 0.96.0
+  'Everything the app can do': 'Alles, was die App kann',
+  'Every function by situation, what you never tried on top, and «Take me there» to its place.': 'Jede Funktion nach Situation, Ungenutztes oben, und «Hinbringen» zu ihrem Ort.',
+  'Functions by situation or by page, never used on top': 'Funktionen nach Situation oder nach Seite, Ungenutztes oben',
+  '«Take me there» and «Try it» in the playground': '«Hinbringen» und «Ausprobieren» in der Spielwiese',
+  'The search finds functions too, for example «warranty»': 'Die Suche findet auch Funktionen, zum Beispiel «Garantie»',
+  // 0.95.0
+  'Bikes, short and sweet': 'Velos, kurz und knackig',
+  'Three rows instead of a long page, and importing rides got a big button.': 'Drei Zeilen statt einer langen Seite, und das Importieren von Fahrten hat einen grossen Knopf.',
+  'Overview: care, bags and equipment as three rows': 'Übersicht: Pflege, Taschen und Ausstattung als drei Zeilen',
+  '«Import rides» as a big button on the bike page': '«Fahrten importieren» als grosser Knopf auf der Velo-Seite',
+  'A missing weight or price is a quiet grey hint': 'Fehlendes Gewicht oder fehlender Preis ist ein ruhiger grauer Hinweis',
+  // 0.94.0
+  'Today, your way': 'Heute, wie du willst',
+  'Today is a wall of tiles: move them, resize them, take them away. And one series counts everything you do.': 'Heute ist eine Kachel-Wand: verschieben, Grösse ändern, wegnehmen. Und eine Serie zählt alles, was du machst.',
+  'Customise Today: move, resize or remove tiles': 'Heute anpassen: Kacheln verschieben, Grösse ändern oder wegnehmen',
+  '«+» adds any tile, with a «New» dot for two weeks': '«+» fügt jede Kachel hinzu, mit «Neu»-Punkt für zwei Wochen',
+  'One series over everything, all milestones on one page': 'Eine Serie über alles, alle Meilensteine auf einer Seite',
+  '«Data and backup» now lives under Me': '«Daten und Backup» wohnt jetzt unter Ich',
+  // 0.93.0
+  'Sit down, the clock knows the rest 🧘': 'Hinsetzen, die Uhr weiss den Rest 🧘',
+  'A new session in a few taps: minutes, sounds in between, and the clock you like to look at.': 'Eine neue Sitzung in wenigen Tipps: Minuten, Klänge dazwischen und die Uhr, die du gern anschaust.',
+  '«New session»: 10 to 60 minutes or any, sounds in between': '«Neue Sitzung»: 10 bis 60 Minuten oder frei, Klänge dazwischen',
+  'Four clocks: ring, hourglass, moon or only the number': 'Vier Uhren: Ring, Sanduhr, Mond oder nur die Zahl',
+  '«Save as a template?» suggests a name by itself': '«Als Vorlage speichern?» schlägt selbst einen Namen vor',
+  // 0.92.0
+  'What stayed in the bag?': 'Was blieb in der Tasche?',
+  'The debrief starts with the honest question, and counts how much lighter you could ride next time.': 'Der Rückblick beginnt mit der ehrlichen Frage und zählt, wie viel leichter du nächstes Mal fahren könntest.',
+  'Debrief: tap what you did not need, see what you save': 'Rückblick: antippen, was du nicht gebraucht hast, sehen, was du sparst',
+  '«What was missing?» and «How was it?» as short rows, button «Done»': '«Was hat gefehlt?» und «Wie war\'s?» als kurze Zeilen, Knopf «Fertig»',
+  // 0.91.0
+  'No ride counted twice': 'Keine Fahrt doppelt',
+  'Old rides whose kilometres are already in your bikes now politely step aside.': 'Alte Fahrten, deren Kilometer schon in deinen Velos stecken, treten jetzt höflich zur Seite.',
+  'Strava export: old rides without a bike are set aside': 'Strava-Export: alte Fahrten ohne Velo liegen zur Seite',
+  'A bike picked by hand checks its start value too': 'Ein Velo von Hand gewählt prüft auch seinen Startwert',
+  // 0.88.0
+  'A playground for trying things': 'Eine Spielwiese zum Ausprobieren',
+  'Play a made-up trip from packing to debrief. When you stop, your data is exactly as before.': 'Spiel eine erfundene Tour vom Packen bis zum Rückblick. Beim Beenden sind deine Daten genau wie vorher.',
+  'Me › «Try it out»: packing day, ride or debrief with a made-up trip': 'Ich › «Ausprobieren»: Packtag, Fahrt oder Rückblick mit erfundener Tour',
+  'Me › «Clean up test data»: archive, never delete': 'Ich › «Testdaten aufräumen»: archivieren, nie löschen',
+  'A trip ended early asks first and comes back with «Plan again»': 'Eine früh beendete Tour fragt zuerst und kommt mit «Wieder planen» zurück',
+  // 0.86.0
+  'Meditation in two taps': 'Meditation in zwei Tipps',
+  'Tap, sit, done. The meditation page got shorter and the running clock got quieter.': 'Antippen, sitzen, fertig. Die Meditations-Seite ist kürzer und die laufende Uhr leiser.',
+  'From «Tick off today» straight into a session': 'Aus «Heute abhaken» direkt in eine Sitzung',
+  'Short page: like last time, a template, this week, the log': 'Kurze Seite: wie letztes Mal, Vorlage, diese Woche, Protokoll',
+  'After the gong one sentence, the depth and «Done»': 'Nach dem Gong ein Satz, die Tiefe und «Fertig»',
+  // 0.84.0
+  'After the gong': 'Nach dem Gong',
+  'A calm look back at each session, and a log that remembers everything without being nosy.': 'Ein ruhiger Blick zurück auf jede Sitzung, und ein Protokoll, das alles weiss, ohne neugierig zu sein.',
+  'Evaluation after the gong: depth, mood, what helped': 'Auswertung nach dem Gong: Tiefe, Stimmung, was geholfen hat',
+  'The log with filters, heatmap and month comparison': 'Das Protokoll mit Filtern, Wärmebild und Monatsvergleich',
+  'Start a past session again in one tap': 'Eine frühere Sitzung mit einem Tipp wieder starten',
+  // 0.83.0
+  'Every screw in its place': 'Jede Schraube am Platz',
+  'The new tab «Equipment» lists your bike like a maker\'s spec sheet, with weight and price.': 'Der neue Tab «Ausstattung» listet dein Velo wie das Datenblatt des Herstellers, mit Gewicht und Preis.',
+  'Tab «Equipment»: every part in groups, with weight and price': 'Tab «Ausstattung»: jedes Teil in Gruppen, mit Gewicht und Preis',
+  'Your four key measurements as tiles on top': 'Deine vier wichtigsten Masse als Kacheln oben',
+  '«Compare bikes» only shows rows with a value': '«Velos vergleichen» zeigt nur Zeilen mit Wert',
+  // 0.81.0
+  'Cushion time': 'Kissenzeit',
+  'Meditation gets its own page, with intervals right on the round clock and seven built-in sounds.': 'Meditation bekommt eine eigene Seite, mit Intervallen direkt auf der runden Uhr und sieben eingebauten Klängen.',
+  'Own meditation page: templates, kinds, sounds, places': 'Eigene Meditations-Seite: Vorlagen, Arten, Klänge, Orte',
+  'Intervals right on the round clock': 'Intervalle direkt auf der runden Uhr',
+  'Full screen while sitting, counts for your milestones': 'Vollbild beim Sitzen, zählt für deine Meilensteine',
+  // 0.80.0
+  'Behind the scenes': 'Hinter den Kulissen',
+  'Nothing to see, but a lot to gain: new versions now reach you faster.': 'Nichts zu sehen, aber viel gewonnen: neue Versionen kommen jetzt schneller zu dir.',
+  'The automatic checks run more steadily': 'Die automatischen Prüfungen laufen stabiler',
+  'New versions arrive sooner': 'Neue Versionen kommen früher',
+  // 0.79.0
+  'Stars for showing up ⭐': 'Sterne fürs Dranbleiben ⭐',
+  'Your six favourite activities as tiles, and milestones that only show the next star.': 'Deine sechs Lieblings-Aktivitäten als Kacheln, und Meilensteine, die nur den nächsten Stern zeigen.',
+  'Tab «Activity»: six favourites with playful names': 'Tab «Aktivität»: sechs Lieblinge mit verspielten Namen',
+  'Milestones over all activities, a reached star stays': 'Meilensteine über alle Aktivitäten, ein erreichter Stern bleibt',
+  'More ideas to tick off, hide what you do not want': 'Mehr Ideen zum Abhaken, ausblenden, was du nicht willst',
+  // 0.78.0
+  'Every place, its tabs': 'Jeder Ort, seine Tabs',
+  'Swipe sideways to the next tab, and every place remembers where you were.': 'Wisch seitwärts zum nächsten Tab, und jeder Ort merkt sich, wo du warst.',
+  'Tabs on top of every place, swipe on the phone': 'Tabs oben an jedem Ort, wischen am Handy',
+  'Trips as tiles with their route, ordered by state': 'Touren als Kacheln mit ihrer Route, nach Zustand geordnet',
+  'Debrief starts with what is open; Gear has «Shopping»': 'Rückblick beginnt mit Offenem; Material hat «Einkauf»',
+  'After an update a calm sheet says what is new': 'Nach einem Update sagt ein ruhiges Blatt, was neu ist',
+  // 0.77.0
+  'A helper, only when you ask': 'Ein Helfer, nur wenn du fragst',
+  'Claude suggests packing lists, learnings and bike care. Without the code everything stays as before.': 'Claude schlägt Packlisten, Learnings und Velopflege vor. Ohne Code bleibt alles wie bisher.',
+  'A few words become a packing list suggestion': 'Aus ein paar Wörtern wird ein Packlisten-Vorschlag',
+  '«Check the list» and a debrief draft from your notes': '«Liste prüfen» und ein Rückblick-Entwurf aus deinen Notizen',
+  'Suggestions in «Due now», all just suggestions': 'Vorschläge in «Jetzt fällig», alles nur Vorschläge',
+  'Me › Helper: code only on this device, monthly limit CHF 5': 'Ich › Helfer: Code nur auf diesem Gerät, Monatslimit CHF 5',
+  // 0.76.0
+  'Five places': 'Fünf Orte',
+  'Today, Trips, Gear, Bikes and Active: at the bottom on the phone, in a sidebar on the computer.': 'Heute, Touren, Material, Velos und Aktiv: am Handy unten, am Computer in einer Seitenleiste.',
+  'Five places with their own pages': 'Fünf Orte mit ihren eigenen Seiten',
+  '«More» is gone, «Me» has language, theme, inbox and your data': '«Mehr» ist weg, «Ich» hat Sprache, Farbwelt, Inbox und deine Daten',
+  '«New» as a round + on the phone, each place with its colour': '«Neu» als rundes + am Handy, jeder Ort mit eigener Farbe',
+  'Keyboard shortcuts: g plus a letter, n, / and ?': 'Tastenkürzel: g plus Buchstabe, n, / und ?',
   // 0.75.0
-  'Renaming is the same everywhere: the pencil opens one small sheet, the keyboard key saves, and «Undo» stays for 10 seconds. Gear items can be renamed on the phone too.':
-    'Umbenennen geht überall gleich: Der Stift öffnet ein kleines Blatt, die Taste der Tastatur speichert, und «Rückgängig» bleibt 10 Sekunden. Material kannst du jetzt auch am Handy umbenennen.',
-  'The back button keeps what you typed in a window, like «Save».':
-    'Die Zurück-Taste behält, was du in einem Fenster getippt hast, wie «Speichern».',
-  'Import rides asks once which bike a new ride type belongs to and remembers it as a rule.':
-    'Fahrten importieren fragt einmal, zu welchem Velo eine neue Fahrtart gehört, und merkt es sich als Regel.',
-  'Gear items show one summary line and lighter alternatives under «Weight»; first aid comes on every trip, the small set on a day ride.':
-    'Material zeigt eine Zusammenfassung in einer Zeile und leichtere Alternativen unter «Gewicht»; Erste Hilfe kommt auf jede Tour mit, auf einer Tagestour das kleine Set.',
-
+  'Renaming, the same everywhere': 'Umbenennen, überall gleich',
+  'The pencil opens a small sheet, Enter saves, «Undo» waits 10 seconds. Also for gear on the phone.': 'Der Stift öffnet ein kleines Blatt, Enter speichert, «Rückgängig» wartet 10 Sekunden. Auch für Material am Handy.',
+  'Rename everywhere the same way, with «Undo»': 'Überall gleich umbenennen, mit «Rückgängig»',
+  'Importing rides learns which bike a ride type belongs to': 'Fahrten importieren lernt, zu welchem Velo eine Fahrtart gehört',
+  'The back key keeps what you typed in a window': 'Die Zurück-Taste behält, was du in einem Fenster getippt hast',
+  'Gear summary in one line, lighter options under «Weight»': 'Material-Zusammenfassung in einer Zeile, leichtere Alternativen unter «Gewicht»',
   // 0.73.0
-  'Today is calmer: the greeting is one line, the next trip comes right after it, and «Continue» only appears for another trip than the card shows.':
-    'Heute ist ruhiger: Der Gruss steht in einer Zeile, die nächste Tour kommt direkt danach, und «Weitermachen» erscheint nur noch für eine andere Tour als die Karte.',
-  "The photo on Today is sharp now. On the phone it is a narrow band above the trip card with place and month; «Album ›» opens the bike's photos.":
-    'Das Foto auf Heute ist jetzt scharf. Am Handy ist es ein schmales Band über der Tourkarte mit Ort und Monat; «Album ›» öffnet die Fotos des Velos.',
-  'With a trip today, «Idea for tomorrow» is one slim row under the trip card; without one it stays big beside the greeting.':
-    'Mit einer Tour heute ist «Vorschlag für morgen» eine schmale Zeile unter der Tourkarte; ohne Tour bleibt er gross neben dem Gruss.',
-
+  'Today, a little quieter': 'Heute, etwas leiser',
+  'The greeting fits in one line, the next trip follows right after, and the photo is sharp now.': 'Der Gruss passt in eine Zeile, die nächste Tour folgt gleich danach, und das Foto ist jetzt scharf.',
+  'Greeting in one line, the next trip right after it': 'Gruss in einer Zeile, die nächste Tour gleich danach',
+  'A sharp photo, on the phone as a slim band': 'Ein scharfes Foto, am Handy als schmales Band',
+  '«Suggestion for tomorrow» as a slim row on a trip day': '«Vorschlag für morgen» als schmale Zeile an einem Tourtag',
   // 0.70.0
-  'The folder of each bike has four more sheets: Break-in plan, Repair kit, Warranty & receipts and Theft sheet.':
-    'Die Mappe jedes Velos hat vier Blätter mehr: Einfahr-Plan, Repair-Kit, Garantie & Belege und Diebstahl-Blatt.',
-  'A new bike gets its Break-in plan by itself: four steps up to the first service. Tick what is done and take it into care; a due step reminds you on Today.':
-    'Ein neues Velo bekommt seinen Einfahr-Plan von selbst: vier Schritte bis zum ersten Service. Abhaken, was erledigt ist, und in die Pflege übernehmen; ein fälliger Schritt erinnert dich auf Heute.',
-  'The Repair kit matches the parts of the bike, per kind of ride. What is missing in the gear list you add with one tap, the rest goes on the packing list of the next trip.':
-    'Das Repair-Kit passt zu den Teilen des Velos, pro Art der Fahrt. Was im Material fehlt, fügst du mit einem Tipp hinzu, der Rest kommt auf die Packliste der nächsten Tour.',
-  'Warranty & receipts reminds you 30 days before a warranty ends; the Theft sheet keeps the frame number, photos and insurance ready for the police.':
-    'Garantie & Belege erinnert dich 30 Tage bevor eine Garantie endet; das Diebstahl-Blatt hält Rahmennummer, Fotos und Versicherung für die Polizei bereit.',
-
+  'Four more sheets for your bike': 'Vier Blätter mehr fürs Velo',
+  'Break-in plan, repair kit, warranty and a theft sheet: hopefully you only ever need three of them.': 'Einfahr-Plan, Repair-Kit, Garantie und Diebstahl-Blatt: hoffentlich brauchst du nur drei davon.',
+  'New sheets: break-in plan, repair kit, warranty, theft': 'Neue Blätter: Einfahr-Plan, Repair-Kit, Garantie, Diebstahl',
+  'A new bike gets its break-in plan by itself': 'Ein neues Velo bekommt seinen Einfahr-Plan von selbst',
+  'Repair kit that fits the parts of the bike': 'Repair-Kit passend zu den Teilen des Velos',
+  'Reminder 30 days before a warranty ends': 'Erinnerung 30 Tage bevor eine Garantie endet',
   // 0.69.1
-  'Import rides knows a new rule: a ride type (for example «Gravel Ride») belongs to one bike. You make the rule yourself in «Rules»; a contradiction still goes to «Check».':
-    'Fahrten importieren kennt eine neue Regel: Ein Fahrt-Typ (zum Beispiel «Gravel Ride») gehört zu einem Velo. Die Regel legst du selbst unter «Regeln» an; ein Widerspruch kommt weiterhin zu «Prüfen».',
-  'A full test of every page and flow: long words on the Bike pass and in the flow no longer break in the middle of a word, and the flow summary names each activity once.':
-    'Ein Gesamttest aller Seiten und Abläufe: Lange Wörter im Velo-Pass und in Im Flow brechen nicht mehr mitten im Wort um, und die Zusammenfassung in Im Flow nennt jede Aktivität nur einmal.',
-
+  'Rules for rides': 'Regeln für Fahrten',
+  'Tell the app once which bike a ride type belongs to, and it remembers.': 'Sag der App einmal, zu welchem Velo eine Fahrtart gehört, und sie merkt es sich.',
+  'Your own rule: a ride type belongs to a bike': 'Eigene Regel: eine Fahrtart gehört zu einem Velo',
+  'Long words no longer break in the middle': 'Lange Wörter brechen nicht mehr mitten im Wort',
   // 0.69.0
-  'Every bike has a folder of sheets: Bike pass, Service plan, Workshop order and Pick-up check. The app fills them from your data; a missing value is an empty line with «enter».':
-    'Jedes Velo hat eine Mappe mit Blättern: Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check. Die App füllt sie aus deinen Daten; ein fehlender Wert ist eine leere Zeile mit «eintragen».',
-  'View a sheet, share it as a PDF or copy it as text for an email or a message to the bike shop.':
-    'Ein Blatt ansehen, als PDF teilen oder als Text kopieren, für eine Mail oder eine Nachricht an den Velomech.',
-  'Workshop order and Pick-up check also sit in Care and in Workshop & receipts. The ticks stay saved; the ticked work goes into care, a replaced part gets its start point.':
-    'Werkstatt-Auftrag und Abhol-Check gibt es auch in der Pflege und in Werkstatt & Belege. Die Häkchen bleiben gespeichert; abgehakte Arbeiten kommen in die Pflege, ein ersetztes Teil bekommt seinen Startpunkt.',
-
+  'A folder per bike': 'Eine Mappe pro Velo',
+  'Bike pass, service plan, workshop order and pick-up check, filled in from your data.': 'Velo-Pass, Service-Plan, Werkstatt-Auftrag und Abhol-Check, ausgefüllt aus deinen Daten.',
+  'Every bike has a folder with sheets, filled in by the app': 'Jedes Velo hat eine Mappe mit Blättern, von der App ausgefüllt',
+  'Share a sheet as a PDF or copy it as text': 'Ein Blatt als PDF teilen oder als Text kopieren',
+  'Ticked workshop jobs go straight into bike care': 'Abgehakte Werkstatt-Arbeiten gehen direkt in die Velopflege',
   // 0.68.0
-  'Every bike has a ride ledger: its km are the sum of its rides. Unclear rides are marked red and count only after you pick the bike. Everything can be undone.':
-    'Jedes Velo hat ein Fahrten-Buch: seine km sind die Summe seiner Fahrten. Unklare Fahrten sind rot markiert und zählen erst, wenn du das Velo wählst. Alles lässt sich rückgängig machen.',
-  'Import rides: a Strava export (activities.csv) or Garmin FIT files. The app assigns them by sensor, Strava bike or your rules, asks once which bike an unknown sensor belongs to and merges duplicates.':
-    'Fahrten importieren: ein Strava-Export (activities.csv) oder Garmin-FIT-Dateien. Die App ordnet sie nach Sensor, Strava-Velo oder deinen Regeln zu, fragt einmal, zu welchem Velo ein unbekannter Sensor gehört, und führt Doppelte zusammen.',
-  'Once a week Today compares the km with Strava and shows rides still to assign; at the start of a month a short report.':
-    'Einmal pro Woche gleicht Heute die km mit Strava ab und zeigt Fahrten, die noch zuzuordnen sind; am Monatsanfang ein kurzer Bericht.',
-  'Parts get a start point: mounted when and at which km, also from another bike. From it the app counts the km of each part.':
-    'Teile bekommen einen Startpunkt: wann und bei wie vielen km montiert, auch von einem anderen Velo. Daraus zählt die App die km jedes Teils.',
-
+  'Every kilometre accounted for': 'Jeder Kilometer gezählt',
+  'A ride log per bike: its kilometres are simply the sum of its rides.': 'Ein Fahrtenbuch pro Velo: seine Kilometer sind einfach die Summe seiner Fahrten.',
+  'Ride log per bike, unclear rides marked': 'Fahrtenbuch pro Velo, unklare Fahrten markiert',
+  'Import a Strava export or Garmin files': 'Strava-Export oder Garmin-Dateien importieren',
+  'Parts get a start point and count their own km': 'Teile bekommen einen Startpunkt und zählen ihre eigenen km',
+  'Once a week Today compares the km with Strava': 'Einmal pro Woche gleicht Heute die km mit Strava ab',
   // 0.67.1
-  'Date fields show the date like the rest of the app, with the weekday, for example «Sat, Oct 10, 2026». Tapping still opens the calendar.':
-    'Datumsfelder zeigen das Datum wie überall in der App, mit Wochentag, zum Beispiel «Sa., 10. Okt. 2026». Antippen öffnet weiterhin den Kalender.',
-  'Bike types appear as words: Full suspension, Hardtail, Gravel bike, Road bike.':
-    'Velo-Typen erscheinen als Wörter: Fully, Hardtail, Gravelbike, Rennvelo.',
-  'In the flow has its icon in the menu.': 'Im Flow hat im Menü sein Symbol.',
-
+  'Small fixes, big smile': 'Kleine Fixes, grosses Lächeln',
+  'Dates read like dates, bike types read like words.': 'Daten lesen sich wie Daten, Velo-Typen wie Wörter.',
+  'Dates with the weekday, like «Sat, 10 Oct 2026»': 'Daten mit Wochentag, wie «Sa., 10. Okt. 2026»',
+  'Bike types as words: full suspension, hardtail, gravel': 'Velo-Typen als Wörter: Fully, Hardtail, Gravelbike',
+  'Im Flow has its icon in the menu': 'Im Flow hat sein Symbol im Menü',
   // 0.67.0
-  'After packing, after the trip and after the debrief a calm page shows what is done and the one next step. «Later» always works.':
-    'Nach dem Packen, nach der Tour und nach dem Rückblick zeigt eine ruhige Seite, was erledigt ist, und den einen nächsten Schritt. «Später» geht immer.',
-  'The orange button of a trip follows the date: before the start «To the start page» once everything is packed, under way On the way, afterwards the debrief.':
-    'Der orange Knopf einer Tour folgt dem Datum: vor dem Start «Zur Startseite», sobald alles gepackt ist, während der Tour Unterwegs, danach der Rückblick.',
-  '«Continue» at the top of Today opens the step the next trip is in. From 18:00 the evening before the start a reminder sits there too.':
-    '«Weitermachen» zuoberst auf Heute öffnet den Schritt, in dem die nächste Tour steht. Ab 18 Uhr am Vorabend des Starts steht dort auch eine Erinnerung.',
-  'Ending a trip early asks first and can be undone. The back key closes an open window first and keeps what you typed.':
-    'Eine Tour früher beenden fragt zuerst nach und lässt sich rückgängig machen. Die Zurück-Taste schliesst zuerst ein offenes Fenster und behält, was du getippt hast.',
-
+  'Always one next step': 'Immer ein nächster Schritt',
+  'After packing, after the trip and after the debrief a calm page says what is done and what comes next.': 'Nach dem Packen, nach der Tour und nach dem Rückblick sagt eine ruhige Seite, was erledigt ist und was kommt.',
+  'A calm page between the steps, «Later» always works': 'Eine ruhige Seite zwischen den Schritten, «Später» geht immer',
+  'The main button follows the date of the trip': 'Der Hauptknopf folgt dem Datum der Tour',
+  '«Continue» on Today opens the step you are in': '«Weitermachen» auf Heute öffnet deinen Schritt',
+  'Ending a trip early asks first and can be undone': 'Eine Tour früher beenden fragt zuerst und lässt sich rückgängig machen',
   // 0.66.0
-  'New building blocks: Bivouac, Tent and Hotel/hut for the night, Repair, Charging, Light and Race for the ride, Food, Hygiene and Comfort to add. Your items moved along by themselves, nothing was lost.':
-    'Neue Bausteine: Biwak, Zelt und Hotel/Hütte für die Nacht, Reparatur, Laden, Licht und Rennen für die Fahrt, Verpflegung, Hygiene und Komfort zum Dazunehmen. Deine Sachen sind von selbst mitgezogen, nichts ging verloren.',
-  'A new trip with nights asks: Bivouac, Bivouac + tent or Hotel/hut. Repair and Charging come on every ride, Light by itself when you ride into the dark; each can be taken off. Comfort is only offered, never ticked.':
-    'Eine neue Tour mit Nächten fragt: Biwak, Biwak + Zelt oder Hotel/Hütte. Reparatur und Laden kommen auf jede Fahrt, Licht von selbst, wenn du in die Dunkelheit fährst; alles lässt sich abwählen. Komfort wird nur angeboten, nie angehakt.',
-  'Check building blocks: one block after the other with weight and total, per item Keep, Out or Elsewhere, and what is probably missing, one tap to add. Every step can be undone.':
-    'Bausteine prüfen: ein Baustein nach dem anderen mit Gewicht und Total, pro Sache Behalten, Raus oder Woanders, und was wohl fehlt, mit einem Tipp dazu. Jeder Schritt lässt sich rückgängig machen.',
-  'Warm is no block any more: its items come with the weather (below 10 °C unless they had their own temperature). Check them first in Check building blocks.':
-    'Warm ist kein Baustein mehr: Seine Sachen kommen mit dem Wetter (unter 10 °C, ausser sie hatten schon eine eigene Temperatur). Prüfe sie zuerst in Bausteine prüfen.',
-
+  'New building blocks': 'Neue Bausteine',
+  'Bivouac, tent or hut, repair, charging and light: the list knows what a trip needs. Your stuff moved along, nothing got lost.': 'Biwak, Zelt oder Hütte, Reparatur, Laden und Licht: die Liste weiss, was eine Tour braucht. Deine Sachen sind mitgezogen, nichts ging verloren.',
+  'Blocks for the night, the ride and comfort': 'Bausteine für die Nacht, die Fahrt und Komfort',
+  'A trip with nights asks: bivouac, tent or hut': 'Eine Tour mit Nächten fragt: Biwak, Zelt oder Hütte',
+  'Check the blocks: keep, out or elsewhere, one by one': 'Bausteine prüfen: behalten, raus oder woanders, einer nach dem anderen',
+  '«Warm» is no block any more, its things come with the weather': '«Warm» ist kein Baustein mehr, seine Sachen kommen mit dem Wetter',
   // 0.65.0
-  'Every bike shows its fit and setup at the top: saddle height, target tyre pressure, bar width and more. Tap a value to change it.':
-    'Jedes Velo zeigt oben seine Masse: Sitzhöhe, Solldruck der Reifen, Lenkerbreite und mehr. Tippe auf einen Wert, um ihn zu ändern.',
-  '"Compare bikes" starts with these numbers for all bikes.': '«Velos vergleichen» beginnt mit diesen Werten für alle Velos.',
-  'Checking the tyre pressure shows the target beside the last value and fills it in; the base check names it too.':
-    'Beim Reifendruck-Prüfen steht der Solldruck neben dem letzten Wert und ist schon eingetragen; auch der Basischeck nennt ihn.',
+  'Your measurements on top': 'Deine Masse oben',
+  'Saddle height, tyre pressure, bar width: every bike shows its numbers on top. Tap one to change it.': 'Sitzhöhe, Reifendruck, Lenkerbreite: jedes Velo zeigt oben seine Zahlen. Antippen zum Ändern.',
+  'Measurements on top of every bike': 'Masse oben bei jedem Velo',
+  '«Compare bikes» starts with these values': '«Velos vergleichen» beginnt mit diesen Werten',
+  'The tyre check already knows your target pressure': 'Der Reifen-Check kennt deinen Solldruck schon',
   // 0.63.0
-  'An item opens short: its name, its weight and one line on how it comes along. Everything else is a row that opens with one tap, one at a time.':
-    'Ein Teil öffnet kurz: Name, Gewicht und eine Zeile, wie es mitkommt. Alles andere ist eine Zeile, die sich mit einem Tipp öffnet, immer nur eine.',
-  'Lighter alternatives from your own gear: the one you linked first, then up to two suggestions. "Doesn\'t fit" hides one, with Undo.':
-    'Leichtere Alternativen aus deinem Material: zuerst die verknüpfte, dann bis zu zwei Vorschläge. «Passt nicht» blendet einen aus, mit Rückgängig.',
-  '"Never used" explains its rule when it is empty and shows what is on the way there: taken once or twice and never used.':
-    '«Nie gebraucht» erklärt leer seine Regel und zeigt, was auf dem Weg dahin ist: ein- oder zweimal dabei und nie gebraucht.',
+  'An item, at a glance': 'Ein Teil auf einen Blick',
+  'Name, weight and how it comes along. Everything else waits one tap away.': 'Name, Gewicht und wie es mitkommt. Alles andere wartet einen Tipp entfernt.',
+  'An item opens short, one row opens at a time': 'Ein Teil öffnet kurz, immer nur eine Zeile offen',
+  'Lighter options from your own gear': 'Leichtere Alternativen aus deinem Material',
+  '«Never used» explains its rule when empty': '«Nie gebraucht» erklärt leer seine Regel',
   // 0.61.0
-  '"Your pace" says your rule in one sentence. From 5 rides it guesses the riding time everywhere by itself, and "Back to the standard rule" undoes that with one tap.':
-    '«Dein Tempo» sagt deine Regel in einem Satz. Ab 5 Fahrten schätzt sie die Fahrzeit überall von selbst, und «Zurück zur Standardregel» macht das mit einem Tipp rückgängig.',
-  'Under the sentence, three small charts: your speed per ride, from flat to hilly, and the climbing per km, for 12 months or all.':
-    'Unter dem Satz drei kleine Diagramme: dein Tempo pro Fahrt, von flach bis hügelig, und die Höhenmeter pro km, für 12 Monate oder alle.',
-  'The logbook is a diary of all your trips, newest first: km, Hm, time, weather and your notes, with a filter by year and kind of trip. A tap opens the trip.':
-    'Das Logbuch ist ein Tagebuch aller deiner Touren, neueste zuerst: km, Hm, Zeit, Wetter und deine Notizen, mit Filter nach Jahr und Reiseart. Antippen öffnet die Tour.',
-  '"Learned" lists every learning by topic, nothing folded away.':
-    '«Gelernt» listet alle Learnings nach Thema, nichts mehr zugeklappt.',
-
+  'Your pace, in one sentence': 'Dein Tempo in einem Satz',
+  'From 5 rides on the app guesses your riding time by itself. And the logbook becomes a real diary.': 'Ab 5 Fahrten schätzt die App deine Fahrzeit selbst. Und das Logbuch wird ein richtiges Tagebuch.',
+  '«Your pace» as one sentence, with three small charts': '«Dein Tempo» als ein Satz, mit drei kleinen Diagrammen',
+  'The logbook as a diary of all your trips': 'Das Logbuch als Tagebuch aller deiner Touren',
+  '«Back to the standard rule» in one tap': '«Zurück zur Standardregel» mit einem Tipp',
+  '«Learned» lists everything by topic, nothing folded': '«Gelernt» listet alles nach Thema, nichts zugeklappt',
   // 0.59.0
-  'The packing list shows what you wear as the first card "On me", head to feet. A tap on a piece opens "Swap": the pieces of the same zone and layer, those that fit the weather first. One tap swaps, Undo takes it back.':
-    'Die Packliste zeigt, was du trägst, als erste Karte «Am Körper», von Kopf bis Füsse. Ein Tipp auf ein Teil öffnet «Tauschen»: die Teile derselben Zone und Schicht, zuerst die, die zum Wetter passen. Ein Tipp tauscht, «Rückgängig» nimmt es zurück.',
-  'The app remembers what you picked, so it comes first next time. Pieces without a °C range get their bar from warm, medium or cold.':
-    'Die App merkt sich, was du gewählt hast, und zeigt es beim nächsten Mal zuerst. Teile ohne °C-Bereich bekommen ihren Balken aus warm, mittel oder kalt.',
-  '"Open in the wardrobe" shows the wardrobe for the trip: its temperature, dry, rain or any, and pieces that do not fit hidden when a fitting one is there.':
-    '«Im Kleiderschrank öffnen» zeigt den Kleiderschrank für die Tour: ihre Temperatur, trocken, Regen oder egal, und blendet unpassende Teile aus, wenn ein passendes da ist.',
-  // 0.48.0
-  'Bike care starts with an overview: a ring per bike, at most three cards for what is due, all problems in one list. Replacing or servicing a part is a short guided flow.':
-    'Die Velopflege beginnt mit einer Übersicht: ein Ring pro Velo, höchstens drei Karten für Fälliges, alle Probleme in einer Liste. Ein Teil ersetzen oder warten ist ein kurzer geführter Ablauf.',
-  'Every bike has the same part list with a spec sheet and its geometry. "Compare bikes" puts them side by side; an empty cell is filled with one tap.':
-    'Jedes Velo hat dieselbe Teileliste mit Datenblatt und Geometrie. «Velos vergleichen» stellt sie nebeneinander; ein leeres Feld füllst du mit einem Tipp.',
-  'The Inbox is now "Eingang": grouped by day, one button "File" with seven targets. A receipt photo becomes a workshop visit, found under Bikes → Workshop.':
-    'Die Inbox heisst jetzt «Eingang»: nach Tagen gruppiert, ein Knopf «Ablegen» mit sieben Zielen. Ein Foto einer Rechnung wird ein Werkstattbesuch, zu finden unter Velos → Werkstatt.',
-  'New page Notes: write, dictate, add a photo, a link or a checklist; topics, pinned notes and "Turn the note into …" a trip idea, a wish or a problem.':
-    'Neue Seite Notizen: schreiben, diktieren, Foto, Link oder Checkliste anhängen; Themen, angeheftete Notizen und «Aus Notiz wird …» eine Tour-Idee, ein Wunsch oder ein Problem.',
-  // 0.49.0
-  'One page "Look back" instead of five: your last ride, the last 12 months with the year before, average and best, and your trips compared in 7 small charts and a table.':
-    'Eine Seite «Rückblick» statt fünf: deine letzte Fahrt, die letzten 12 Monate mit Vorjahr, Durchschnitt und Bestwert, und deine Touren im Vergleich in 7 kleinen Diagrammen und einer Tabelle.',
-  'Past trips is one table, on the phone too: km, Hm, time, rain, temperature, bike and one learning per trip. The name stays put while the other columns scroll; period, "Kind" and a search that finds learnings.':
-    '«Vergangene Touren» ist eine Tabelle, auch auf dem Handy: km, Hm, Zeit, Regen, Temperatur, Velo und ein Learning pro Tour. Der Name bleibt stehen, die anderen Spalten scrollen; Zeitraum, «Art» und eine Suche, die auch Learnings findet.',
-  "A trip's saved debrief now tells what the trip was: numbers and weather per day, plan against real, what you can leave at home, learnings and what it means for the next trip.":
-    'Der gespeicherte Rückblick einer Tour erzählt jetzt, wie die Tour war: Zahlen und Wetter pro Tag, Plan gegen Wirklichkeit, was zuhause bleiben kann, Learnings und was das für die nächste Tour heisst.',
+  'What are you wearing?': 'Was trägst du?',
+  '«On me» from head to toe as the first card. One tap swaps an item for one that fits the weather.': '«Am Körper» von Kopf bis Fuss als erste Karte. Ein Tipp tauscht ein Teil gegen eines, das zum Wetter passt.',
+  '«On me» as the first card, tap to swap': '«Am Körper» als erste Karte, antippen zum Tauschen',
+  'Open the wardrobe for this trip and its weather': 'Den Kleiderschrank für diese Tour und ihr Wetter öffnen',
+  'The app remembers what you chose last time': 'Die App merkt sich, was du letztes Mal gewählt hast',
+  // 0.57.0
+  'Bike care with an overview': 'Velopflege mit Überblick',
+  'One ring per bike, at most three cards for what is due, and all problems in one list.': 'Ein Ring pro Velo, höchstens drei Karten für Fälliges, und alle Probleme in einer Liste.',
+  'Overview with a ring per bike and guided part changes': 'Übersicht mit Ring pro Velo und geführtem Teilewechsel',
+  'The same parts list per bike, «Compare bikes» side by side': 'Dieselbe Teileliste pro Velo, «Velos vergleichen» nebeneinander',
+  'New page Notes: write, dictate, photo, checklist': 'Neue Seite Notizen: schreiben, diktieren, Foto, Checkliste',
+  'The inbox is now «Incoming», with «File» and seven places': 'Die Inbox heisst jetzt «Eingang», mit «Ablegen» und sieben Zielen',
+  // 0.56.0
+  'One debrief instead of five': 'Ein Rückblick statt fünf',
+  'Your last ride, the last 12 months and your trips compared, on one page.': 'Deine letzte Fahrt, die letzten 12 Monate und deine Touren im Vergleich, auf einer Seite.',
+  'One page: last ride, 12 months, trips compared': 'Eine Seite: letzte Fahrt, 12 Monate, Touren im Vergleich',
+  '«Past trips» as a table, also on the phone': '«Vergangene Touren» als Tabelle, auch am Handy',
+  'A saved debrief tells how the trip really was': 'Ein gespeicherter Rückblick erzählt, wie die Tour wirklich war',
   // 0.51.0
-  "Tap a button on Today or on In the flow to tick an activity: one tap with Undo, tap again to take it back. A long press picks the place (Yoga studio or at home), the amount or the duration.":
-    "Ein Tipp auf Heute oder in Im Flow hakt eine Aktivität ab, mit Rückgängig; nochmals tippen nimmt es zurück. Lange drücken wählt Ort (Yoga Studio oder Zuhause), Menge oder Dauer.",
-  "In the flow: three rings over the last 7 days (move, mindful, recovery) and goals × days, every goal a rolling window (daily, 7, 10 or 30 days). Sports with a season rest until their months come.":
-    "Im Flow: drei Ringe über die letzten 7 Tage (Bewegen, Achtsam, Erholung) und Ziele × Tage, jedes Ziel gleitend (täglich, 7, 10 oder 30 Tage). Sportarten mit Saison ruhen, bis ihre Monate kommen.",
-  "The stopwatch counts down to your target time, with a singing bowl at the start and the end and, if you like, in between (regularly, at chosen minutes or at random). Made small, it keeps running on every page.":
-    "Die Stoppuhr zählt auf deine Zielzeit herunter, mit Klangschale am Anfang und Ende und auf Wunsch dazwischen (regelmässig, zu gewählten Minuten oder zufällig). Verkleinert läuft sie auf jeder Seite weiter.",
-  "Daily check: sleep, energy, mood and a fourth question that changes each day, one tap each on 1–10. Every activity can be edited: name, symbol, ring, goal, minimum duration, season and what else counts.":
-    "Tagescheck: Schlaf, Energie, Stimmung und eine 4. Frage, die täglich wechselt, je ein Tipp auf 1–10. Jede Aktivität ist bearbeitbar: Name, Symbol, Ring, Ziel, Mindestdauer, Saison und was auch zählt.",
-
+  'In the flow': 'Im Flow',
+  'Tick off an activity with one tap, three rings over 7 days, and a stopwatch with a singing bowl.': 'Eine Aktivität mit einem Tipp abhaken, drei Ringe über 7 Tage und eine Stoppuhr mit Klangschale.',
+  'One tap ticks off an activity, with «Undo»': 'Ein Tipp hakt eine Aktivität ab, mit «Rückgängig»',
+  'Three rings: move, mindful, recovery': 'Drei Ringe: Bewegen, Achtsam, Erholung',
+  'Stopwatch with a singing bowl, keeps running on every page': 'Stoppuhr mit Klangschale, läuft auf jeder Seite weiter',
+  'Daily check: sleep, energy, mood and one more question': 'Tagescheck: Schlaf, Energie, Stimmung und eine Frage mehr',
   // 0.47.3
-  'In a new trip, "Chilly" and "Rain" stay chosen when you tap them, also when the forecast chose them already, so the list gets the cold and the rain items. Dry or rain are two chips, as on the trip page.':
-    'Bei einer neuen Tour bleiben «Kühl» und «Regen» gewählt, wenn du sie antippst, auch wenn die Wettervorhersage sie schon gewählt hat; die Liste bekommt die Sachen für Kälte und Regen. Trocken oder Regen sind zwei Chips, wie auf der Tourseite.',
-  'The ••• menus (packing list, templates, trips in progress, bike care) stay fully on the screen on a phone: they move aside or open upwards.':
-    'Die •••-Menüs (Packliste, Vorlagen, Touren in Bearbeitung, Velopflege) bleiben am Handy ganz im Bild: Sie rücken zur Seite oder öffnen nach oben.',
-  '"No weather" takes the weather off again, in a new trip and on the trip page, also when the forecast chose it.':
-    '«Ohne Wetter» nimmt das Wetter wieder weg, bei einer neuen Tour und auf der Tourseite, auch wenn die Wettervorhersage es gewählt hat.',
-
+  'The weather listens to you': 'Das Wetter hört auf dich',
+  'Tap «Cool» or «Rain» and it stays, even when the forecast thought otherwise.': 'Tippst du «Kühl» oder «Regen», bleibt es, auch wenn die Vorhersage anders dachte.',
+  '«Cool» and «Rain» stay chosen when you tap them': '«Kühl» und «Regen» bleiben gewählt, wenn du sie antippst',
+  '«No weather» takes the weather away again': '«Ohne Wetter» nimmt das Wetter wieder weg',
+  '••• menus stay fully on the phone screen': '•••-Menüs bleiben am Handy ganz im Bild',
   // 0.47.2
-  'Gear has seven views, each with its count: All, Most used, Proven, Favourite things, Never used, Unweighed and Wishlist.':
-    'Material hat sieben Ansichten, jede mit ihrer Zahl: Alle, Meist genutzt, Bewährt, Lieblingssachen, Nie gebraucht, Ungewogen und Wunschliste.',
-  '"Dead weight" is now called "Never used", with one plain sentence per item: "Taken 4 times, never used".':
-    '«Totes Gewicht» heisst jetzt «Nie gebraucht», mit einem klaren Satz pro Teil: «4 Mal mitgenommen, nie gebraucht».',
-  'Every item shows its trips as dots: used, along but not used, at home. On the computer the chosen card opens on the right; sorting and filters are in one sheet.':
-    'Jedes Teil zeigt seine Touren als Punkte: gebraucht, dabei, aber nicht gebraucht, zuhause. Am Computer öffnet sich die gewählte Karte rechts; Sortieren und Filter sind in einem Blatt.',
-  'An item tells its year on tour, a rule learnt from your debriefs (like "Below 9 °C always used"), its last trips and a lighter alternative from your own gear.':
-    'Ein Teil erzählt sein Jahr auf Tour, eine Regel aus deinen Rückblicken (etwa «Unter 9 °C immer gebraucht»), seine letzten Touren und eine leichtere Alternative aus deinem Material.',
-
+  'Seven ways to look at your gear': 'Sieben Blicke aufs Material',
+  'All, most used, proven, favourites, never used, unweighed and the wishlist, each with its number.': 'Alle, meist genutzt, bewährt, Lieblinge, nie gebraucht, ungewogen und die Wunschliste, jede mit ihrer Zahl.',
+  'Gear with seven views, each with its count': 'Material mit sieben Ansichten, jede mit ihrer Zahl',
+  '«Dead weight» is now «Never used», with a clear sentence': '«Totes Gewicht» heisst jetzt «Nie gebraucht», mit klarem Satz',
+  'Each item shows its trips as dots': 'Jedes Teil zeigt seine Touren als Punkte',
+  'An item tells its year on tour and a rule from your debriefs': 'Ein Teil erzählt sein Jahr auf Tour und eine Regel aus deinen Rückblicken',
   // 0.47.1
-  'The top card of a trip shows the ride time. Tap date, duration, weather or bike to change it right there; the list follows, Undo takes it back. A day ride no longer shows "1 day, no overnight stay".':
-    'Die oberste Karte einer Tour zeigt die Fahrzeit. Tippe auf Datum, Dauer, Wetter oder Velo, um es gleich dort zu ändern; die Liste zieht mit, «Rückgängig» nimmt es zurück. Eine Tagestour zeigt nicht mehr «1 Tag, keine Übernachtung».',
-  '"Fitted to the weather" switches between cold, chilly, mild, warm and hot, dry or rain, in one tap. The forecast keeps its own range (10–16 °C stays 10–16), and the card says where the range comes from.':
-    '«Ans Wetter angepasst» wechselt mit einem Tipp zwischen kalt, kühl, mild, warm und heiss, trocken oder Regen. Die Wettervorhersage behält ihren Bereich (10–16 °C bleibt 10–16), und die Karte sagt, woher der Bereich kommt.',
-  'The Inbox shows the newest note on top, and a sorted note opens what it became (the repair, the wish). "More" shows only a small dot when notes wait.':
-    'Die Inbox zeigt die neueste Notiz zuoberst, und eine eingeordnete Notiz öffnet, was aus ihr wurde (die Reparatur, den Wunsch). «Mehr» zeigt nur noch einen kleinen Punkt, wenn Notizen warten.',
-  'Bike care shows the problems of all bikes in one list, newest on top, each with a chip for the bike and the way to fix it. Parts and their history show the newest work first.':
-    'Die Velopflege zeigt die Probleme aller Velos in einer Liste, neueste zuoberst, jedes mit einem Chip für das Velo und den Weg zur Lösung. Teile und ihr Verlauf zeigen die neueste Arbeit zuerst.',
+  'Change it right where it is': 'Gleich dort ändern',
+  'Tap the date, the duration, the weather or the bike on the trip card, and it changes on the spot.': 'Datum, Dauer, Wetter oder Velo auf der Tour-Karte antippen, und es ändert sich an Ort und Stelle.',
+  'Trip card: change date, duration, weather or bike in place': 'Tour-Karte: Datum, Dauer, Wetter oder Velo an Ort und Stelle ändern',
+  '«Adapted to the weather» switches with one tap': '«Ans Wetter angepasst» wechselt mit einem Tipp',
+  'Inbox: the newest note on top': 'Inbox: die neueste Notiz zuoberst',
+  'All problems of all bikes in one list, newest first': 'Alle Probleme aller Velos in einer Liste, neueste zuerst',
   // 0.47.0
-  'Wardrobe in the new look: the onion figure on the left filters by zone or layer and marks gaps with a pin, four narrow layer columns with a temperature bar per piece. "Still to sort" is a short list with one tap per row: a sorted row leaves, the next one moves up, Undo brings it back.':
-    'Kleiderschrank im neuen Kleid: Die Zwiebel-Figur links filtert nach Zone oder Schicht und zeigt Lücken mit einer Markierung, vier schmale Schicht-Spalten mit einem Temperaturbalken pro Teil. «Noch einordnen» ist eine kurze Liste mit einem Tipp pro Zeile: Eine eingeordnete Zeile verschwindet, die nächste rückt nach, «Rückgängig» holt sie zurück.',
-  'A bike trip shows the bike drawing with each bag and its weight on top (or the setup photo, if there is one), next to it the weight in one dark card: base on the bike, on me, food and water.':
-    'Eine Velotour zeigt oben die Velozeichnung mit jeder Tasche und ihrem Gewicht (oder das Setup-Foto, wenn es eines gibt), daneben das Gewicht in einer dunklen Karte: Basis am Velo, am Körper, Essen und Wasser.',
-  'Gear has a slim tab bar with small counters, round category dots and calmer cards. In the Inbox a sorted note leaves the list, the next one gets the focus, Undo puts it back.':
-    'Material hat eine schlanke Reiterleiste mit kleinen Zählern, runde Kategorie-Punkte und ruhigere Karten. In der Inbox verschwindet eine eingeordnete Notiz, die nächste kommt an die Reihe, «Rückgängig» holt sie zurück.',
-  'Bike care reads calmer: one style for titles, rows, badges and numbers, links in quiet teal, no bold lists. What is due now stands as cards on top.':
-    'Die Velopflege liest sich ruhiger: ein Stil für Titel, Zeilen, Abzeichen und Zahlen, Links in ruhigem Petrol, keine fetten Listen. Was jetzt fällig ist, steht als Karten zuoberst.',
+  'A wardrobe in a new dress': 'Kleiderschrank im neuen Kleid',
+  'The onion figure filters by zone or layer, and «Still to sort» gets shorter with every tap.': 'Die Zwiebel-Figur filtert nach Zone oder Schicht, und «Noch einordnen» wird mit jedem Tipp kürzer.',
+  'Wardrobe with onion figure and «Still to sort»': 'Kleiderschrank mit Zwiebel-Figur und «Noch einordnen»',
+  'A bike trip shows the drawing with every bag and its weight': 'Eine Velotour zeigt die Zeichnung mit jeder Tasche und ihrem Gewicht',
+  'Gear with a slim tab bar and calmer cards': 'Material mit schlanker Reiterleiste und ruhigeren Karten',
+  'Bike care reads calmer, what is due on top': 'Velopflege liest sich ruhiger, Fälliges zuoberst',
   // 0.46.3
-  '"More" is calm again: the packing lists of your trips no longer stand on top as single rows. You find them under "Trips"; templates are under Plan, past trips under Look back.':
-    '«Mehr» ist wieder ruhig: Die Packlisten deiner Touren stehen nicht mehr einzeln zuoberst. Du findest sie unter «Touren»; Vorlagen stehen unter Planen, vergangene Touren unter Rückblick.',
-
+  '«More» takes a breath': '«Mehr» atmet durch',
+  'Your packing lists no longer crowd the top. You find them under «Trips».': 'Deine Packlisten drängeln nicht mehr oben. Du findest sie unter «Touren».',
+  'Packing lists under «Trips», templates under Plan': 'Packlisten unter «Touren», Vorlagen unter Planen',
   // 0.46.2
-  '"Customise the start page" shows each section name readable on its line again (on the phone the names stood letter by letter in a narrow column).':
-    '«Startseite anpassen» zeigt jeden Abschnitt wieder lesbar in seiner Zeile (am Handy standen die Namen Buchstabe für Buchstabe in einer schmalen Spalte).',
-
+  'Readable again': 'Wieder lesbar',
+  'On the phone the section names no longer stood letter by letter.': 'Am Handy stehen die Abschnittsnamen nicht mehr Buchstabe für Buchstabe.',
+  '«Customise the start page» shows every section on its line': '«Startseite anpassen» zeigt jeden Abschnitt in seiner Zeile',
   // 0.46.1
-  'Problem with a bike: several problems in one line, separated by commas or "and", become single repairs, each ticked off on its own. Under the field you see what will be saved.':
-    'Problem am Velo: Mehrere Probleme in einer Zeile, mit Komma oder «und» getrennt, werden einzelne Reparaturen, die du einzeln abhakst. Unter dem Feld siehst du, was gespeichert wird.',
-  'Bike care shows the newest problems on top. The priority is a button in the row: tap it, then High, Medium or Low. The ••• menu opens upwards when there is no room below.':
-    'Die Velopflege zeigt die neuesten Probleme zuoberst. Die Priorität ist ein Knopf in der Zeile: antippen, dann Hoch, Mittel oder Tief. Das •••-Menü öffnet sich nach oben, wenn unten kein Platz ist.',
-  'A dry day ride no longer brings rain gear (rain socks, latex gloves) because it is cold, and glasses for the dark only come in the rain or when the ride runs into the dark. A new day ride takes the temperatures of the last one, never its rain.':
-    'Eine trockene Tagestour bringt keine Regensachen (Regensocken, Latex-Handschuhe) mehr, nur weil es kalt ist, und die Brille für die Dunkelheit kommt nur bei Regen oder wenn die Fahrt in die Dunkelheit geht. Eine neue Tagestour übernimmt die Temperaturen der letzten, nie ihren Regen.',
-  '"Trips" opens an overview of all trips by state (soon on the way, in planning, debrief open, ridden), each with one button to its next step. More → Packing lists has the lists, templates and past trips. The search on the phone opens as a clean page under the top bar.':
-    '«Touren» öffnet eine Übersicht aller Touren nach Stand (Bald unterwegs, In Planung, Rückblick offen, Gefahren), jede mit einem Knopf zum nächsten Schritt. Mehr → Packlisten zeigt die Listen, Vorlagen und vergangene Touren. Die Suche auf dem Handy öffnet sich als ruhige Seite unter der oberen Leiste.',
-
+  'One problem per line': 'Ein Problem pro Zeile',
+  'Several problems in one line become separate repairs, each to tick off on its own.': 'Mehrere Probleme in einer Zeile werden einzelne Reparaturen, jede für sich abzuhaken.',
+  'Several problems split into single repairs': 'Mehrere Probleme werden einzelne Reparaturen',
+  '«Trips» opens an overview by state': '«Touren» öffnet eine Übersicht nach Stand',
+  'Priority as a button in the row': 'Priorität als Knopf in der Zeile',
+  'A dry day trip no longer brings rain gear because it is cold': 'Eine trockene Tagestour bringt keine Regensachen mehr, nur weil es kalt ist',
   // 0.46.0
-  'Today is new: a greeting with the weather and an idea for a day ride, the next trip in one compact card, and "What do you want to do?" with the functions you use most in front.':
-    'Heute ist neu: ein Gruss mit dem Wetter und ein Vorschlag für eine Tagestour, die nächste Tour in einer kompakten Karte und «Was willst du tun?» mit deinen meistgenutzten Funktionen vorne.',
-  '"Important today" shows at most three things, with "Lubed ✓" right in the row; next to it "Tried it yet?" shows a function you have not used yet. Test trips no longer count as the next trip.':
-    '«Heute wichtig» zeigt höchstens drei Dinge, mit «Geölt ✓» direkt in der Zeile; daneben zeigt «Schon probiert?» eine Funktion, die du noch nicht genutzt hast. Testtouren zählen nicht mehr als nächste Tour.',
-  'The search at the top also does things: type "weigh", "day ride factor" or "chain lubed spark" and press Enter.':
-    'Die Suche oben macht auch Dinge: tippe «wiegen», «tagestour factor» oder «kette geölt spark» und drücke Enter.',
-  'Three colour worlds, Glacier, Sandstone and Classic, each light or dark: More → Colours.':
-    'Drei Farbwelten, Gletscher, Sandstein und Klassisch, je hell oder dunkel: Mehr → Farbwelt.',
-
+  'Good morning, Today': 'Guten Morgen, Heute',
+  'A greeting with the weather, the next trip in a compact card, and a search that does things.': 'Ein Gruss mit dem Wetter, die nächste Tour in einer kompakten Karte und eine Suche, die Dinge erledigt.',
+  'Greeting with weather and a day-trip suggestion': 'Gruss mit Wetter und Vorschlag für eine Tagestour',
+  '«Important today» shows at most three things, «Oiled ✓» right in the row': '«Heute wichtig» zeigt höchstens drei Dinge, «Geölt ✓» direkt in der Zeile',
+  'The search does things: «weigh», «chain oiled spark»': 'Die Suche erledigt Dinge: «wiegen», «kette geölt spark»',
+  'Three colour worlds, Glacier, Sandstone and Classic': 'Drei Farbwelten, Gletscher, Sandstein und Klassisch',
+  // 0.45.2
+  'Something wrong with the bike?': 'Etwas am Velo?',
+  'Problem on a bike from the plus menu: one line per problem, the app sorts out who fixes it.': 'Problem am Velo im Plus-Menü: eine Zeile pro Problem, die App ordnet ein, wer es löst.',
+  '«Problem on a bike»: one line per problem, priority, photo': '«Problem am Velo»: eine Zeile pro Problem, Priorität, Foto',
+  'Each problem sorted: yourself, guide, workshop or part': 'Jedes Problem eingeordnet: selber, Anleitung, Werkstatt oder Teil',
+  'Basic check before every ride: lock, bottle, helmet and more': 'Basischeck vor jeder Fahrt: Schloss, Flasche, Helm und mehr',
   // 0.45.1
-  'Problem with a bike from the + menu: choose the bike with one tap, one problem per line (or quick buttons like "Saddle too low"), a priority (required), a deadline if you like, an optional photo. Each line becomes its own open repair in Bike care, with Undo.':
-    'Problem am Velo im Plus-Menü: Velo mit einem Tipp wählen, ein Problem pro Zeile (oder Schnellknöpfe wie «Sattel zu tief»), eine Priorität (Pflicht), auf Wunsch eine Deadline, freiwillig ein Foto. Jede Zeile wird eine eigene offene Reparatur in der Velopflege, mit Rückgängig.',
-
-  'The app sorts each problem: myself (with the first step, e.g. "Pump to your pressure"), with a guide, bike shop (into the order for the shop) or part needed (onto the wishlist). One tap changes it; the same problem twice in 30 days brings a lasting fix.':
-    'Die App ordnet jedes Problem ein: selber (mit dem ersten Schritt, z. B. «Auf deinen Druck pumpen»), mit Anleitung, Werkstatt (in den Auftrag für die Werkstatt) oder Teil nötig (auf die Wunschliste). Ein Tipp ändert das; dasselbe Problem zweimal in 30 Tagen bringt eine dauerhafte Lösung.',
-  'Base check before every ride: lock, mini backpack, bottle, sunglasses, cap, wind jacket, plus helmet, charged devices, tyre pressure, phone and keys. It waits on the ride page until everything is with you.':
-    'Basischeck vor jeder Fahrt: Schloss, Mini-Rucksack, Flasche, Sonnenbrille, Cap, Windjacke, dazu Helm, geladene Geräte, Reifendruck, Handy und Schlüssel. Er wartet auf der Seite Unterwegs, bis alles dabei ist.',
-
-  'Check import: a line that is twice in the file waits under "Unsure" (is twice in the file) instead of becoming a second item. "Merge with …" now works on the phone too.':
-    'Import prüfen: eine Zeile, die zweimal in der Datei steht, wartet unter «Unsicher» (steht zweimal in der Datei), statt ein zweites Teil zu werden. «Zusammenlegen mit …» geht jetzt auch am Handy.',
-  'Plan of a short day ride: when something is due at the bike, one quiet line with the number and a link to its bike care.':
-    'Planen einer kurzen Tagestour: ist am Velo etwas fällig, steht eine ruhige Zeile mit der Zahl und einem Link zur Velopflege.',
-  'Backups hold only your data: two backups without a change are the same (the tips of the day stay on the device). Past and finished trips keep their list exactly as packed.':
-    'Backups enthalten nur deine Daten: zwei Backups ohne Änderung sind gleich (die Tipps des Tages bleiben auf dem Gerät). Vergangene und abgeschlossene Touren behalten ihre Liste genau wie gepackt.',
-  'Small phones: words no longer break in the middle, the wishlist shows long names without the extra tag. Gear on the computer opens faster: each category first shows 12 items, then "Show all".':
-    'Kleine Handys: Wörter brechen nicht mehr mitten im Wort, die Wunschliste zeigt lange Namen ohne das zusätzliche Schild. Material am Computer öffnet schneller: jede Kategorie zeigt zuerst 12 Teile, dann «Alle zeigen».',
-
+  'Tidy imports, honest backups': 'Saubere Importe, ehrliche Backups',
+  'A line that appears twice in the file waits instead of becoming a second item.': 'Eine Zeile, die zweimal in der Datei steht, wartet, statt ein zweites Teil zu werden.',
+  'Double lines wait under «Unsure»': 'Doppelte Zeilen warten unter «Unsicher»',
+  'A day trip mentions what is due on the bike': 'Eine Tagestour nennt, was am Velo fällig ist',
+  'Two backups without changes are the same': 'Zwei Backups ohne Änderung sind gleich',
+  'Gear on the computer opens faster': 'Material am Computer öffnet schneller',
   // 0.45.0
-  'Wardrobe: warm to cold within a zone, quiet gaps like "No gloves below 5 °C" with "Add to wishlist", a photo per piece and "Save as kit …" for an outfit that Plan then suggests. Everyday-only clothes show only under Everyday; what the debriefs taught ("You run cold: +2 °C") is in the header with Reset.':
-    'Kleiderschrank: in jeder Zone von warm nach kalt, ruhige Lücken wie «Keine Handschuhe unter 5 °C» mit «Auf die Wunschliste», ein Foto pro Teil und «Als Kit speichern …» für ein Outfit, das Planen dann vorschlägt. Reine Alltagskleider stehen nur unter Alltag; was die Rückblicke gelernt haben («Du frierst eher: +2 °C»), steht oben mit Zurücksetzen.',
-  'On Today "What do I wear today?": for a day ride at your home place, one piece per layer and zone from your own clothes; a tap opens the wardrobe.':
-    'Auf Heute «Was ziehe ich heute an?»: für eine Tagestour am Wohnort ein Teil pro Schicht und Zone aus deinen eigenen Kleidern; ein Tipp öffnet den Kleiderschrank.',
-  'Check import: after "Apply all safe ones" the line under the file says when it was applied, and an apply that adds nothing says so in words.':
-    'Import prüfen: nach «Alle sicheren übernehmen» sagt die Zeile unter der Datei, wann übernommen wurde, und eine Übernahme ohne Neues sagt das in Worten.',
-  "Phone and keyboard: small buttons and the places on the bike drawing have 44 px tap areas, gear category heads stay on two lines at 320 px, and after \"Create trip\" the focus goes to the new trip's name.":
-    'Handy und Tastatur: kleine Knöpfe und die Plätze auf der Velo-Zeichnung haben 44 px Tippflächen, die Kategorie-Köpfe im Material bleiben bei 320 px zweizeilig, und nach «Tour erstellen» geht der Fokus auf den Namen der neuen Tour.',
-
+  'Warm to cold': 'Von warm bis kalt',
+  'The wardrobe shows gaps like «No gloves below 5 °C» and saves an outfit as a kit.': 'Der Kleiderschrank zeigt Lücken wie «Keine Handschuhe unter 5 °C» und speichert ein Outfit als Kit.',
+  'Wardrobe from warm to cold, with gaps and kits': 'Kleiderschrank von warm bis kalt, mit Lücken und Kits',
+  '«What do I wear today?» on Today': '«Was ziehe ich heute an?» auf Heute',
+  'Import check says in words when it took over': 'Import prüfen sagt in Worten, wann übernommen wurde',
+  'Bigger tap targets on the phone': 'Grössere Tippflächen am Handy',
   // 0.44.1
-  'Keyboard: Escape in the phone search gives the focus back to the magnifier, and Escape closes an open row in the packing list.':
-    'Tastatur: Escape in der Suche am Handy gibt den Fokus an die Lupe zurück, und Escape schliesst eine offene Zeile in der Packliste.',
-  'Bigger tap areas on the phone: the gear category heads, "PG" at the top, "All ✓" and "All –" in the debrief and the bike care link in Plan.':
-    'Grössere Tippflächen am Handy: die Kategorie-Köpfe im Material, «PG» oben, «Alle ✓» und «Alle –» im Rückblick und der Link zur Velopflege im Planen.',
-  'Clearer words: Import backup says "1 trip" and "1 learning", and an empty ride file is called empty.':
-    'Klarere Worte: Backup importieren sagt «1 Tour» und «1 Learning», und eine leere Fahrt-Datei heisst leer.',
-  'Offline the app keeps its own font (it fell back to the system font before).':
-    'Offline behält die App ihre eigene Schrift (vorher kam die Systemschrift).',
-
+  'Fingers and keys': 'Finger und Tasten',
+  'Bigger tap targets, Escape where you expect it, and the app keeps its font offline.': 'Grössere Tippflächen, Escape, wo du es erwartest, und offline behält die App ihre Schrift.',
+  'Escape closes an open row in the packing list': 'Escape schliesst eine offene Zeile in der Packliste',
+  'Backup import speaks plainly: «1 trip», «1 learning»': 'Backup-Import spricht klar: «1 Tour», «1 Learning»',
+  'Offline the app keeps its own font': 'Offline behält die App ihre eigene Schrift',
   // 0.44.0
-  'Last 12 months: always the 12 months up to today, not a calendar year. Riding, packing, learned and bikes on one page, with small differences to the 12 months before.':
-    'Letzte 12 Monate: immer die 12 Monate bis heute, kein Kalenderjahr. Fahren, Packen, Gelernt und Velos auf einer Seite, mit kleinen Unterschieden zu den 12 Monaten davor.',
-  'On Today a calm card with trips, km, nights outside and the base weight change, and the most interesting fact. It shows once a trip or a ride is in the 12 months.':
-    'Auf Heute eine ruhige Karte mit Touren, km, Nächten draussen und der Änderung beim Basisgewicht, dazu die spannendste Zahl. Sie erscheint, sobald eine Tour oder Fahrt in den 12 Monaten liegt.',
-  'Two small charts drawn to scale: km per month and the base weight per trip. Reached from Today, from Debrief and from More → Look back.':
-    'Zwei kleine Diagramme im richtigen Massstab: km pro Monat und Basisgewicht pro Tour. Erreichbar von Heute, vom Rückblick und über Mehr → Rückblick.',
-
+  'Your last 12 months': 'Deine letzten 12 Monate',
+  'Always the 12 months up to today: riding, packing, learned and bikes on one page.': 'Immer die 12 Monate bis heute: Fahren, Packen, Gelernt und Velos auf einer Seite.',
+  'Last 12 months with small differences to the year before': 'Letzte 12 Monate mit kleinen Unterschieden zum Jahr davor',
+  'A calm card on Today with the most exciting number': 'Eine ruhige Karte auf Heute mit der spannendsten Zahl',
+  'Two small charts: km per month, base weight per trip': 'Zwei kleine Diagramme: km pro Monat, Basisgewicht pro Tour',
   // 0.43.0
-  'Record weights (Gear → •••, or the quiet line "… without weight · weigh"): one thing per screen with a big grams field, "Save & next", "Skip" and Undo. Bikes and bags come first.':
-    'Gewichte erfassen (Material → •••, oder die leise Zeile «… ohne Gewicht · wiegen»): ein Teil pro Bildschirm mit grossem Grammfeld, «Speichern & weiter», «Überspringen» und Rückgängig. Velos und Taschen kommen zuerst.',
-  'The order of weighing: bags, sleep, outer and mid layers, then the rest; in each group what you take most often first.':
-    'Die Reihenfolge beim Wiegen: Taschen, Schlafen, Aussen- und Mittelschicht, dann der Rest; in jeder Gruppe zuerst, was du am häufigsten mitnimmst.',
-  'Select in Gear: the most used actions in the bar, the rest under •••. New: area and archive for many items at once, each with Undo.':
-    'Auswählen in Material: die häufigsten Aktionen in der Leiste, der Rest unter •••. Neu: Reiseart und Archivieren für viele Teile auf einmal, jedes mit Rückgängig.',
-  'Select in the wardrobe (layer and zone for many pieces) and in an open building block (remove many at once).':
-    'Auswählen im Kleiderschrank (Schicht und Zone für viele Stücke) und in einem offenen Baustein (viele auf einmal entfernen).',
-
+  'On the scale': 'Ab auf die Waage',
+  'One item per screen, a big gram field, «Save & next». Bags and bikes first.': 'Ein Teil pro Bildschirm, ein grosses Grammfeld, «Speichern & weiter». Taschen und Velos zuerst.',
+  'Weigh one item after the other, with «Undo»': 'Ein Teil nach dem anderen wiegen, mit «Rückgängig»',
+  'Select in Gear: trip type and archive for many at once': 'Auswählen im Material: Reiseart und Archivieren für viele auf einmal',
+  'A smart order: bags, sleeping, layers, then the rest': 'Eine schlaue Reihenfolge: Taschen, Schlafen, Schichten, dann der Rest',
+  'Select in the wardrobe and in a block too': 'Auswählen auch im Kleiderschrank und in einem Baustein',
   // 0.42.0
-  "The wardrobe (More → Gear, or Gear → Wardrobe): your clothing by layer and body zone, °C on the right; new clothing waits in \"To sort\" with a guess from the name.":
-    "Der Kleiderschrank (Mehr → Material, oder Material → Kleiderschrank): deine Kleider nach Schicht und Körperzone, °C rechts; neue Kleider warten unter «Noch einordnen» mit einem Vorschlag aus dem Namen.",
-  "In Plan, one quiet line under the weather checks the onion: each layer and zone ✓ or a gap, with \"+ … in\" for your best item. From 30 % rain, rain protection belongs in it.":
-    "Im Planen prüft eine leise Zeile unter dem Wetter die Zwiebel: jede Schicht und Zone ✓ oder eine Lücke, mit «+ … dazu» für dein bestes Teil. Ab 30 % Regen gehört Regenschutz dazu.",
-  "Temperature kits from your Excel are building blocks: Plan suggests the kit for the coldest riding hour and adds its missing items with one tap, with Undo. The debrief asks \"Too cold | Fitted | Too warm\" and slowly shifts the kit borders.":
-    "Temperatur-Kits aus deiner Excel sind Bausteine: Planen schlägt das Kit zur kältesten Fahrstunde vor und fügt die fehlenden Teile mit einem Tippen ein, mit Rückgängig. Der Rückblick fragt «Zu kalt | Passte | Zu warm» und verschiebt die Kit-Grenzen langsam.",
-  "Check import, step 2: kits, building blocks (merge from 70 % of the same items), tasks as one preparation list (only before events and bikepacking of more than 4 nights) and old trips as notes in the Logbook.":
-    "Import prüfen, Schritt 2: Kits, Bausteine (zusammenlegen ab 70 % gleichen Teilen), Aufgaben als eine Vorbereitungsliste (nur vor Events und Bikepacking über 4 Nächte) und alte Touren als Notizen im Logbuch.",
+  'The onion principle 🧅': 'Das Zwiebelprinzip 🧅',
+  'Your clothes by layer and body zone, and planning checks that every layer is there.': 'Deine Kleider nach Schicht und Körperzone, und das Planen prüft, ob jede Schicht dabei ist.',
+  'The wardrobe: clothes by layer and body zone': 'Der Kleiderschrank: Kleider nach Schicht und Körperzone',
+  'Planning checks the onion and fills gaps in one tap': 'Planen prüft die Zwiebel und füllt Lücken mit einem Tipp',
+  'Temperature kits as blocks, adjusted by your debriefs': 'Temperatur-Kits als Bausteine, angepasst durch deine Rückblicke',
+  'Import step 2: kits, blocks, tasks and old trips': 'Import Schritt 2: Kits, Bausteine, Aufgaben und alte Touren',
   // 0.41.0
-  'Upload a ride (GPX) from New or from Debrief: distance, climbing, moving time and every pause of 5 minutes or more.':
-    'Eine Fahrt hochladen (GPX), über Neu oder im Rückblick: Distanz, Höhenmeter, Fahrzeit und jede Pause ab 5 Minuten.',
-  'Planned vs real: with the trip of that day, the app compares distance, climbing, moving time and speed with the plan.':
-    'Geplant gegen echt: Mit der Tour dieses Tages vergleicht die App Distanz, Höhenmeter, Fahrzeit und Tempo mit dem Plan.',
-  'Up to 3 learnings per ride, like "You ride faster than planned"; each is kept with one tap, nothing without one.':
-    'Bis zu 3 Learnings pro Fahrt, etwa «Du fährst schneller als geplant»; jedes wird mit einem Tippen gemerkt, nichts ohne.',
-  'On Android, share a GPX file to Pack Generator and it opens the upload. Without a trip the ride is saved on its own or becomes a past trip.':
-    'Auf Android eine GPX-Datei an Pack Generator teilen öffnet das Hochladen. Ohne Tour wird die Fahrt für sich gespeichert oder zur vergangenen Tour.',
+  'Planned versus real': 'Geplant gegen echt',
+  'Upload a ride and see how it compares with the plan. Faster than planned? The app notices.': 'Lade eine Fahrt hoch und sieh, wie sie zum Plan passt. Schneller als geplant? Die App merkt es.',
+  'Upload a GPX ride: distance, climbing, time, breaks': 'GPX-Fahrt hochladen: Distanz, Höhenmeter, Zeit, Pausen',
+  'Planned versus real for the trip of that day': 'Geplant gegen echt für die Tour dieses Tages',
+  'Up to 3 learnings per ride, only kept with a tap': 'Bis zu 3 Learnings pro Fahrt, nur mit einem Tipp gemerkt',
+  'Share a GPX file from Android straight to the app': 'GPX-Datei von Android direkt an die App teilen',
   // 0.40.0
-  'Calmer side pages: Inbox, Past trips, Debrief, Building blocks and What the app can do as short rows; explanations behind a small "?".':
-    'Ruhigere Nebenseiten: Inbox, Vergangene Touren, Rückblick, Bausteine und Was die App kann als kurze Zeilen; Erklärungen hinter einem kleinen «?».',
-  'Past trips is one list with the debrief state and the km on the right; Debrief keeps learnings, comparison and pace.':
-    'Vergangene Touren ist eine Liste mit dem Stand des Rückblicks und den km rechts; der Rückblick behält Learnings, Vergleich und Tempo.',
-  'Chain wear at the replace limit (Today or Bike care) marks the chain as work needed and puts it on the wishlist, with Undo.':
-    'Kettenverschleiss an der Ersetzen-Grenze (Heute oder Velopflege) markiert die Kette als Arbeit nötig und setzt sie auf die Wunschliste, mit Rückgängig.',
-  'New trip: the area and the other starts are folded, the standard comes first; Plan and the ride use the full width on a computer.':
-    'Neue Tour: Reiseart und die anderen Starts sind zugeklappt, der Standard kommt zuerst; Planen und Unterwegs nutzen am Computer die ganze Breite.',
+  'Calmer side pages': 'Ruhigere Nebenseiten',
+  'Short rows instead of walls of text. The explanations wait behind a small «?».': 'Kurze Zeilen statt Textwände. Die Erklärungen warten hinter einem kleinen «?».',
+  'Side pages as short rows, help behind «?»': 'Nebenseiten als kurze Zeilen, Hilfe hinter «?»',
+  'Past trips as a list with the debrief state': 'Vergangene Touren als Liste mit Stand des Rückblicks',
+  'A worn chain goes onto the wishlist by itself': 'Eine verschlissene Kette kommt von selbst auf die Wunschliste',
+  'New trip: the standard first, the rest folded': 'Neue Tour: Standard zuerst, der Rest zugeklappt',
   // 0.39.0
-  'Templates are linked to your building blocks: change a building block and every template with it changes too.':
-    'Vorlagen sind mit deinen Bausteinen verbunden: Änderst du einen Baustein, ändert sich jede Vorlage mit ihm.',
-  'A new template in 3 steps: building blocks, single items, then the bike (optional) and its bags.':
-    'Eine neue Vorlage in 3 Schritten: Bausteine, einzelne Teile, dann das Velo (freiwillig) und seine Taschen.',
-  'The template list shows what is in each one, its weight, when you last used it and how often; a switch per area.':
-    'Die Vorlagenliste zeigt, was drin ist, das Gewicht, wann du sie zuletzt benutzt hast und wie oft; dazu ein Umschalter pro Bereich.',
-  'Templates you have not used for a year get a quiet hint: keep or archive them. Nothing is deleted.':
-    'Vorlagen, die du ein Jahr nicht benutzt hast, bekommen einen leisen Hinweis: behalten oder archivieren. Nichts wird gelöscht.',
-  // 0.38
-  'Today: a ready light per bike and quick buttons: chain lubed, wear measured, washed, sealant, tyre pressure, km. Each with Undo.':
-    'Heute: eine Bereit-Ampel pro Velo und Schnellknöpfe: Kette geölt, Verschleiss gemessen, geputzt, Dichtmilch, Reifendruck, km. Jeder mit Rückgängig.',
-  '"Jump to" on Today: what is due, never used items, a year ago, the weekend and what is new.':
-    '«Springen zu» auf Heute: was fällig ist, nie Gebrauchtes, vor einem Jahr, das Wochenende und was neu ist.',
-  'The menu "More" at the top right holds the rarer pages and the Inbox; the search also finds pages.':
-    'Das Menü «Mehr» oben rechts hat die selteneren Seiten und die Inbox; die Suche findet auch Seiten.',
-  'Compact rows in Gear (the bag on wish) with swipe on a phone, and Bike care as one list: due first, the rest folded.':
-    'Kompakte Zeilen im Material (Tasche auf Wunsch) mit Wischen auf dem Handy, und die Velopflege als eine Liste: Fälliges zuerst, der Rest zugeklappt.',
-
+  'Templates that keep up': 'Vorlagen, die mitziehen',
+  'Change a block, and every template changes with it. No more copying around.': 'Änderst du einen Baustein, ändert sich jede Vorlage mit. Kein Herumkopieren mehr.',
+  'Templates are linked to your blocks': 'Vorlagen sind mit deinen Bausteinen verbunden',
+  'A new template in 3 steps': 'Eine neue Vorlage in 3 Schritten',
+  'The list shows content, weight and how often used': 'Die Liste zeigt Inhalt, Gewicht und wie oft benutzt',
+  'A quiet hint for templates unused for a year': 'Ein leiser Hinweis für Vorlagen, ein Jahr unbenutzt',
+  // 0.38.0
+  'Ready to roll?': 'Startklar?',
+  'A ready light per bike and quick buttons: chain oiled, wear measured, cleaned. Each with «Undo».': 'Eine Bereit-Ampel pro Velo und Schnellknöpfe: Kette geölt, Verschleiss gemessen, geputzt. Jeder mit «Rückgängig».',
+  'Ready light per bike with quick buttons': 'Bereit-Ampel pro Velo mit Schnellknöpfen',
+  '«Jump to» on Today: due, never used, a year ago': '«Springen zu» auf Heute: fällig, nie gebraucht, vor einem Jahr',
+  'Menu «More» top right, the search finds pages': 'Menü «Mehr» oben rechts, die Suche findet Seiten',
+  'Compact rows in Gear, swipe on the phone': 'Kompakte Zeilen im Material, wischen am Handy',
   // 0.37.1
-  'Merge items: a double or a collection item goes into the imported item(s); the app proposes the counterpart.':
-    'Zusammenlegen: Ein doppeltes Teil oder ein Sammelteil geht in das importierte Teil (oder mehrere); die App schlägt das Gegenstück vor.',
-  'Templates, building blocks, bags and planned trips then use the new item; past trips stay complete.':
-    'Vorlagen, Bausteine, Taschen und geplante Touren nehmen dann das neue Teil; vergangene Touren bleiben vollständig.',
-  'Archived items no longer come into a new trip, also not from a template or a copy.': 'Archivierte Teile kommen nicht mehr in eine neue Tour, auch nicht aus einer Vorlage oder Kopie.',
-  'In the item window: "Merge with …" for any double.': 'Im Material-Fenster: «Zusammenlegen mit …» für jedes doppelte Teil.',
-  // 0.35
-  'Switch between your trips: the small "more" button in the dark band lists every trip and debrief still in progress.':
-    'Zwischen Touren wechseln: Das kleine Feld «weitere» im dunklen Band zeigt alle Touren und Rückblicke, die noch in Bearbeitung sind.',
-  'After every change the band says "Saved ✓" for a moment.': 'Nach jeder Änderung steht im Band kurz «Gespeichert ✓».',
-  'Nothing typed is lost: a new trip, a new item and a quick note are kept as soon as you type, also when you close the window.':
-    'Nichts Getipptes geht verloren: Neue Tour, neues Material und Notiz bleiben, sobald du tippst, auch wenn du das Fenster schliesst.',
-  'This list: what is new, with a button to try each point.': 'Diese Liste: was neu ist, mit einem Knopf zum Ausprobieren.',
-  // 0.34
-  'Today shows the next step until the trip, with a small timeline.': 'Heute zeigt den nächsten Schritt bis zur Tour, mit einer kleinen Zeitleiste.',
-  'A shopping list and a charge list for the days before the trip.': 'Eine Einkaufsliste und eine Ladeliste für die Tage vor der Tour.',
-  'On a trip of several days, On the way has a block for the evening.': 'Bei einer Tour über mehrere Tage hat Unterwegs einen Block für den Abend.',
-  'Send the backup to your other device; an import says whether it is newer or older.': 'Backup ans andere Gerät senden; beim Import steht, ob es neuer oder älter ist.',
-  // 0.33
-  'Every new trip brings everything in Standard, also from a template or a copy.': 'Jede neue Tour bringt alles aus Standard mit, auch aus einer Vorlage oder einer Kopie.',
-  '"Leave at home" really takes the item out of Standard.': '«Zu Hause lassen» nimmt das Teil wirklich aus Standard.',
-  'Standard items you did not use show on the ballast card (tools and what you wear never).':
-    'Standard-Teile, die du nicht gebraucht hast, stehen auf der Ballast-Karte (Werkzeug und «Am Körper» nie).',
-  // 0.32
-  'The same words everywhere: building blocks, templates, "On me".': 'Überall dieselben Wörter: Bausteine, Vorlagen, «Am Körper».',
-  'The item window has two switches: Standard and On me.': 'Das Material-Fenster hat zwei Schalter: Standard und Am Körper.',
-  'In Gear, the filter "Comes along" (computer): Standard, On me, in a building block, stays at home.':
-    'Im Material der Filter «Kommt mit» (Computer): Standard, Am Körper, in einem Baustein, bleibt zu Hause.',
-  'The building blocks page in three groups.': 'Die Seite Bausteine in drei Gruppen.',
-  // 0.31
-  'Bike care shows one bike at a time, with at most three lines "Due now".': 'Velopflege zeigt immer ein Velo offen, mit höchstens drei Zeilen «Jetzt fällig».',
-  'Each part shows its last job (date, km, cost, who did it) and when it is due next.':
-    'Jedes Teil zeigt die letzte Arbeit (Datum, km, Kosten, wer sie gemacht hat) und wann es wieder fällig ist.',
-  'Setup: your bikes as tabs in the dark band, a large drawing and your standard bags.': 'Setup: deine Velos als Tabs im dunklen Band, eine grosse Zeichnung und deine Standardtaschen.',
-  'Whether you or the bike shop did the work, you choose when you log it.': 'Ob du oder der Velomech geschraubt hat, wählst du beim Eintragen der Arbeit.',
+  'Two become one': 'Aus zwei wird eins',
+  'A double item merges into the imported one, and everything that used it follows along.': 'Ein doppeltes Teil geht im importierten auf, und alles, was es benutzt hat, zieht mit.',
+  'Merge a double item into the imported one': 'Ein doppeltes Teil ins importierte zusammenlegen',
+  'Templates, blocks and planned trips take the new item': 'Vorlagen, Bausteine und geplante Touren nehmen das neue Teil',
+  'Archived items no longer come into a new trip': 'Archivierte Teile kommen nicht mehr in eine neue Tour',
+  '«Merge with …» in the gear window': '«Zusammenlegen mit …» im Material-Fenster',
+  // 0.37.0
+  'Real backpacks': 'Echte Rucksäcke',
+  'Backpacks, hip bags and vests are bags with litres and weight now.': 'Rucksäcke, Hüfttaschen und Westen sind jetzt Taschen mit Litern und Gewicht.',
+  'Backpacks, hip bags and vests in Your bags': 'Rucksäcke, Hüfttaschen und Westen unter Deine Taschen',
+  'A trip without a bike suggests a backpack by litres': 'Eine Tour ohne Velo schlägt einen Rucksack nach Litern vor',
+  'Back and Hip count to «On me», not to the bike': 'Rücken und Hüfte zählen zu «Am Körper», nicht zum Velo',
+  'A quiet note when the bag is too small': 'Ein leiser Hinweis, wenn die Tasche zu klein ist',
+  // 0.36.0
+  'Check before it counts': 'Erst prüfen, dann zählen',
+  'Your gear list waits on its own page. Nothing goes into Gear before you have looked at it.': 'Deine Materialliste wartet auf einer eigenen Seite. Nichts kommt ins Material, bevor du es angeschaut hast.',
+  '«Check import»: nothing goes in unchecked': '«Import prüfen»: nichts kommt ungeprüft hinein',
+  'One button for the safe ones, a backup first': 'Ein Knopf für die sicheren, zuerst ein Backup',
+  'Items the list does not name can be archived': 'Teile, die die Liste nicht nennt, lassen sich archivieren',
+  'New areas: Cycling, Hiking and Everyday': 'Neue Bereiche: Velo, Wandern und Alltag',
+  // 0.35.0
+  'Nothing gets lost': 'Nichts geht verloren',
+  'Typed is kept: new trip, new item and note stay, even if you close the window.': 'Getippt ist gespeichert: neue Tour, neues Teil und Notiz bleiben, auch wenn du das Fenster schliesst.',
+  'Switch between trips in the dark band': 'Im dunklen Band zwischen Touren wechseln',
+  'Nothing typed gets lost when you close a window': 'Nichts Getipptes geht verloren, wenn du ein Fenster schliesst',
+  '«Saved ✓» shows briefly after every change': '«Gespeichert ✓» kurz nach jeder Änderung',
+  'This list: what is new, with «Try it»': 'Diese Liste: was neu ist, mit «Ausprobieren»',
+  // 0.34.0
+  'The days before the trip': 'Die Tage vor der Tour',
+  'Today shows the next step towards your trip, plus a shopping and a charging list.': 'Heute zeigt den nächsten Schritt zu deiner Tour, dazu eine Einkaufs- und eine Ladeliste.',
+  'The next step to the trip, with a small timeline': 'Der nächste Schritt zur Tour, mit kleiner Zeitleiste',
+  'A shopping list and a charging list': 'Eine Einkaufsliste und eine Ladeliste',
+  'An evening block on multi-day trips': 'Ein Abend-Block bei mehrtägigen Touren',
+  'Send a backup to the other device': 'Backup ans andere Gerät senden',
+  // 0.33.0
+  'Standard for real': 'Standard, aber richtig',
+  'Every new trip brings everything from Standard, also from a template or a copy.': 'Jede neue Tour bringt alles aus Standard mit, auch aus einer Vorlage oder einer Kopie.',
+  'Every new trip brings all of Standard': 'Jede neue Tour bringt den ganzen Standard mit',
+  'Unused standard items land on the ballast card': 'Ungenutzte Standard-Teile landen auf der Ballast-Karte',
+  '«Leave at home» really takes the item out of Standard': '«Zu Hause lassen» nimmt das Teil wirklich aus Standard',
+  // 0.32.0
+  'Same words everywhere': 'Überall dieselben Wörter',
+  'Blocks, templates and «On me»: one word for one thing, all over the app.': 'Bausteine, Vorlagen und «Am Körper»: ein Wort für eine Sache, in der ganzen App.',
+  'The same words everywhere, blocks in three groups': 'Überall dieselben Wörter, Bausteine in drei Gruppen',
+  'Two switches in the gear window: Standard and On me': 'Zwei Schalter im Material-Fenster: Standard und Am Körper',
+  'Filter «Comes along» on the computer': 'Filter «Kommt mit» am Computer',
+  'The blocks page in three groups': 'Die Seite Bausteine in drei Gruppen',
+  // 0.31.0
+  'Who did the wrenching?': 'Wer hat geschraubt?',
+  'Every part shows its last job, when it is due again and whether you or the bike shop did it.': 'Jedes Teil zeigt seine letzte Arbeit, wann es wieder fällig ist und ob du oder die Werkstatt geschraubt hat.',
+  'Bike care with one bike open, at most three «Due now»': 'Velopflege mit einem Velo offen, höchstens drei «Jetzt fällig»',
+  'Last job per part: date, km, cost and who': 'Letzte Arbeit pro Teil: Datum, km, Kosten und wer',
+  'Setup with your bikes as tabs and a big drawing': 'Setup mit deinen Velos als Tabs und grosser Zeichnung',
+  'You or the bike shop, chosen when you log a job': 'Du oder die Werkstatt, gewählt beim Eintragen',
   // 0.30.2
-  'A search result opens the item straight away.': 'Ein Suchtreffer öffnet das Teil direkt.',
-  'While packing, rows stay in place, so a quick tap never hits the wrong item.': 'Beim Packen bleiben die Zeilen am Platz, damit ein schneller Tipp nie das falsche Teil trifft.',
-  'New learnings come first on Today; the packing day shows "From earlier trips".': 'Neue Learnings stehen zuerst auf Heute; der Packtag zeigt «Aus früheren Touren».',
-  'Plan a new trip also without a bike, with help for the first steps.': 'Eine neue Tour auch ohne Velo planen, mit Hilfe für die ersten Schritte.',
+  'Steady fingers': 'Ruhige Finger',
+  'Rows stay put while you pack, so a quick tap never hits the wrong item.': 'Die Zeilen bleiben beim Packen stehen, so trifft ein schneller Tipp nie das falsche Teil.',
+  'Rows stay in place while packing': 'Die Zeilen bleiben beim Packen am Platz',
+  'Plan a trip without a bike too': 'Eine Tour auch ohne Velo planen',
+  'A search hit opens the item directly': 'Ein Suchtreffer öffnet das Teil direkt',
+  'New learnings first on Today': 'Neue Learnings zuerst auf Heute',
   // 0.30.1
-  'A quick double tap counts once; Undo after "Whole bag packed" opens the bag again.': 'Ein schneller Doppeltipp zählt einmal; Undo nach «Ganze Tasche gepackt» öffnet die Tasche wieder.',
-  'Rename a trip by tapping its name.': 'Eine Tour umbenennen: auf ihren Namen tippen.',
-  'Kilometres can be typed with an apostrophe or a point between the thousands.': 'Kilometer lassen sich mit Apostroph oder Punkt zwischen den Tausendern eintippen.',
-  'Templates read like "Standard + Rain + 3 single items".': 'Vorlagen lesen sich wie «Standard + Regen + 3 einzelne Teile».',
+  'Double tap, single count': 'Doppeltipp, einfach gezählt',
+  'A quick double tap counts once, and «Undo» after a whole bag opens it again.': 'Ein schneller Doppeltipp zählt einmal, und «Rückgängig» nach einer ganzen Tasche öffnet sie wieder.',
+  'A quick double tap counts once': 'Ein schneller Doppeltipp zählt einmal',
+  'Rename a trip by tapping its name': 'Eine Tour umbenennen: auf ihren Namen tippen',
+  'Kilometres with an apostrophe or a point between thousands': 'Kilometer mit Apostroph oder Punkt zwischen den Tausendern',
+  'Templates read like «Standard + Rain + 3 items»': 'Vorlagen lesen sich wie «Standard + Regen + 3 Teile»',
   // 0.30.0
-  '"Plan a trip" opens one window: when, how long, weather, the Standard card and building blocks as chips.':
-    '«Tour planen» öffnet ein Fenster: wann, wie lange, Wetter, die Standard-Karte und Bausteine als Chips.',
-  'Standard plus rain gear in four taps.': 'Standard plus Regensachen mit vier Tipps.',
-  '"Good to know" shows up to three important cards, then tips "Did you know?".': '«Gut zu wissen» zeigt bis zu drei wichtige Karten, danach Tipps «Wusstest du?».',
-  'A new page: what the app can do.': 'Eine neue Seite: Was die App alles kann.',
+  'Plan a trip': 'Tour planen',
+  'When, how long, weather, the standard card and blocks as chips: one window, and the list is ready.': 'Wann, wie lange, Wetter, die Standard-Karte und Bausteine als Chips: ein Fenster, und die Liste steht.',
+  '«Plan a trip» in one window': '«Tour planen» in einem Fenster',
+  'Standard plus rain gear in four taps': 'Standard plus Regensachen mit vier Tipps',
+  '«Good to know» with up to three important cards': '«Gut zu wissen» mit bis zu drei wichtigen Karten',
+  'A new page: what the app can do': 'Eine neue Seite: was die App alles kann',
   // 0.29.2
-  'A new trip starts with the standard set; templates sit folded under "Start from a template".':
-    'Eine neue Tour startet mit dem Standard-Set; Vorlagen sind unter «Aus Vorlage starten» zugeklappt.',
-  '"Day ride" packs the standard set plus the weather on the bike of your last trip.': '«Tagestour» packt das Standard-Set plus Wetter auf dem Velo deiner letzten Tour.',
-  'A green card shows the new trip: name, bike, date, number of items and where to find it, with Change and Undo.':
-    'Eine grüne Karte zeigt die neue Tour: Name, Velo, Datum, Anzahl Teile und wo sie zu finden ist, mit Ändern und Undo.',
+  'Standard as a start': 'Standard als Start',
+  'A new trip starts with the standard set, and «Day trip» packs it on the bike of your last trip.': 'Eine neue Tour startet mit dem Standard-Set, und «Tagestour» packt es aufs Velo deiner letzten Tour.',
+  'A new trip starts with the standard set': 'Eine neue Tour startet mit dem Standard-Set',
+  '«Day trip» packs standard plus weather': '«Tagestour» packt Standard plus Wetter',
+  'A green card shows the new trip, with change and undo': 'Eine grüne Karte zeigt die neue Tour, mit Ändern und Undo',
   // 0.29.1
-  'Packing is reliable: a quick second tap no longer takes the item out again.': 'Packen ist zuverlässig: Ein schneller zweiter Tipp nimmt das Teil nicht mehr heraus.',
-  'A bag moves on only when it is really full.': 'Eine Tasche springt erst weiter, wenn sie wirklich voll ist.',
+  'Packing you can trust': 'Packen, auf das du zählen kannst',
+  'A quick second tap no longer takes the item out again. Phew.': 'Ein schneller zweiter Tipp nimmt das Teil nicht mehr heraus. Puh.',
+  'A quick second tap no longer unpacks': 'Ein schneller zweiter Tipp packt nicht mehr aus',
+  'A bag only moves on when it is really full': 'Eine Tasche springt erst weiter, wenn sie wirklich voll ist',
   // 0.29.0
-  'Plan, Pack, On the way and Debrief share one dark band with tabs and an orange button to the next step.':
-    'Planen, Packen, Unterwegs und Rückblick teilen ein dunkles Band mit Tabs und einem orangen Knopf zum nächsten Schritt.',
-  'Plan shows weather changes with a reason and Undo on each line.': 'Planen zeigt Wetteränderungen mit Grund und Undo pro Zeile.',
-  'On the way starts with "Now", notes in one tap.': 'Unterwegs beginnt mit «Jetzt», Notizen mit einem Tipp.',
-  'The debrief comes filled in: one tap when all went as planned.': 'Der Rückblick ist vorausgefüllt: ein Tipp, wenn alles wie geplant lief.',
-  // 0.28
-  'Template suggestions are questions with their source, such as "unused on 3 of 3 trips".': 'Vorschläge für Vorlagen sind Fragen mit Quelle, etwa «3 von 3 Touren ungenutzt».',
-  '"Not now" rests until three more debriefs; a history shows earlier decisions.': '«Jetzt nicht» ruht bis drei weitere Rückblicke; ein Verlauf zeigt frühere Entscheide.',
-  'Rain and cold items only count on trips with that weather.': 'Regen- und Kälteteile zählen nur auf Touren mit diesem Wetter.',
-  'First aid is its own building block and comes along only with a night out.': 'Erste Hilfe ist ein eigener Baustein und kommt nur mit Übernachtung mit.',
-  // 0.27
-  'Each packing line names its reason, such as "Below 6 °C".': 'Jede Packzeile nennt ihren Grund, etwa «Unter 6 °C».',
-  'Windows keep the keyboard focus; tap areas on a touch screen are at least 44 px.': 'Fenster halten den Tastaturfokus; Tippflächen am Touchscreen sind mindestens 44 px gross.',
-  'Before an import you see what will be replaced.': 'Vor einem Import siehst du, was ersetzt wird.',
-  'Clear messages for broken photos, empty or very large GPX files and long links.': 'Klare Meldungen bei kaputten Fotos, leeren oder sehr grossen GPX-Dateien und langen Links.',
+  'One band for the whole trip': 'Ein Band für die ganze Tour',
+  'Plan, pack, ride and debrief share a dark band with tabs and one button to the next step.': 'Planen, Packen, Unterwegs und Rückblick teilen ein dunkles Band mit Tabs und einem Knopf zum nächsten Schritt.',
+  'A dark band with tabs and the next step': 'Ein dunkles Band mit Tabs und dem nächsten Schritt',
+  'On the way starts with «Now», notes in one tap': 'Unterwegs beginnt mit «Jetzt», Notizen mit einem Tipp',
+  'Weather changes with a reason and undo per row': 'Wetteränderungen mit Grund und Undo pro Zeile',
+  'Debrief prefilled: one tap if all went to plan': 'Rückblick vorausgefüllt: ein Tipp, wenn alles nach Plan lief',
+  // 0.28.0
+  'Suggestions with a source': 'Vorschläge mit Quelle',
+  'The templates ask instead of decide, and say why, for example «unused on 3 of 3 trips».': 'Die Vorlagen fragen, statt zu entscheiden, und sagen warum, etwa «3 von 3 Touren ungenutzt».',
+  'Template suggestions as questions with a source': 'Vorlagen-Vorschläge als Fragen mit Quelle',
+  'First aid is its own block, only with a night out': 'Erste Hilfe ist ein eigener Baustein, nur mit Übernachtung',
+  '«Not now» rests until three more debriefs': '«Jetzt nicht» ruht bis drei weitere Rückblicke',
+  'Rain and cold items only count on trips with that weather': 'Regen- und Kälteteile zählen nur auf Touren mit diesem Wetter',
+  // 0.27.0
+  'Every row has its reason': 'Jede Zeile hat ihren Grund',
+  'Why is this on the list? Every packing row now says it, for example «Below 6 °C».': 'Warum steht das auf der Liste? Jede Packzeile sagt es jetzt, etwa «Unter 6 °C».',
+  'Each packing row names its reason': 'Jede Packzeile nennt ihren Grund',
+  'Before an import you see what gets replaced': 'Vor einem Import siehst du, was ersetzt wird',
+  'Windows keep the keyboard focus, tap targets 44 px': 'Fenster halten den Tastaturfokus, Tippflächen 44 px',
+  'Clear messages for broken photos and odd GPX files': 'Klare Meldungen bei kaputten Fotos und seltsamen GPX-Dateien',
   // 0.26.1
-  '"Your data" opens by itself only once.': '«Deine Daten» öffnet sich nur einmal von selbst.',
-  'A building block for the light at night.': 'Ein Baustein für das Licht in der Nacht.',
+  'Light for the night': 'Licht für die Nacht',
+  'A block for riding into the dark, and «Your data» only opens by itself once.': 'Ein Baustein fürs Fahren in die Dunkelheit, und «Deine Daten» öffnet sich nur einmal von selbst.',
+  'A block for the light at night': 'Ein Baustein für das Licht in der Nacht',
+  '«Your data» opens by itself only once': '«Deine Daten» öffnet sich nur einmal von selbst',
   // 0.26.0
-  'A new page Building blocks: make your own and rename them.': 'Neue Seite Bausteine: eigene anlegen und umbenennen.',
-  'In Gear, "Select" puts many items at once into a building block, a trip or a template, with Undo.':
-    'Im Material legt «Auswählen» viele Teile auf einmal in einen Baustein, eine Tour oder eine Vorlage, mit Undo.',
-  'Templates ask "update or new" and remember days, night and bike.': 'Vorlagen fragen «aktualisieren oder neu» und merken sich Tage, Übernachtung und Velo.',
-  'Notes on the way belong to the trip and the day.': 'Notizen unterwegs gehören zur Tour und zum Tag.',
+  'Build your own blocks': 'Eigene Bausteine bauen',
+  'Create and rename blocks, and drop many items into one at once.': 'Bausteine anlegen und umbenennen, und viele Teile auf einmal hineinlegen.',
+  'New page Blocks: create and rename your own': 'Neue Seite Bausteine: eigene anlegen und umbenennen',
+  '«Select» puts many items into a block, trip or template': '«Auswählen» legt viele Teile in einen Baustein, eine Tour oder Vorlage',
+  'Templates ask «update or new»': 'Vorlagen fragen «aktualisieren oder neu»',
+  'Notes on the way belong to the trip and the day': 'Notizen unterwegs gehören zur Tour und zum Tag',
   // 0.25.1
-  '"Day ride" on Today makes the trip at once, with name, date and weather filled in.': '«Tagestour» auf Heute erstellt die Tour sofort, mit Name, Datum und Wetter.',
-  'The Trips and Bikes tiles have four buttons plus "More", such as entering km or a workshop visit.':
-    'Die Kacheln Touren und Velos haben vier Knöpfe plus «Mehr», etwa km eintragen oder Werkstattbesuch.',
-  '"Good to know" shows only cards with content, urgent ones first.': '«Gut zu wissen» zeigt nur Karten mit Inhalt, Dringendes zuerst.',
-  '"Today" is right between midnight and 2 am too.': '«Heute» stimmt jetzt auch zwischen Mitternacht und 2 Uhr.',
+  'A day trip in one tap': 'Tagestour mit einem Tipp',
+  '«Day trip» on Today creates the trip right away, with name, date and weather.': '«Tagestour» auf Heute erstellt die Tour sofort, mit Name, Datum und Wetter.',
+  '«Day trip» creates the trip at once': '«Tagestour» erstellt die Tour sofort',
+  'Tiles Trips and Bikes with four buttons plus «More»': 'Kacheln Touren und Velos mit vier Knöpfen plus «Mehr»',
+  '«Good to know» only with content, urgent first': '«Gut zu wissen» nur mit Inhalt, Dringendes zuerst',
+  '«Today» is right between midnight and 2 am too': '«Heute» stimmt auch zwischen Mitternacht und 2 Uhr',
   // 0.25.0
-  'A new trip asks for days, riding hours, night, weather and event, with a preview of what goes on the list.':
-    'Eine neue Tour fragt nach Tagen, Fahrstunden, Übernachtung, Wetter und Event, mit einer Vorschau, was auf die Liste kommt.',
-  'Later changes apply at once with Undo; amounts you set by hand stay.': 'Spätere Änderungen wirken sofort, mit Undo; von Hand gesetzte Mengen bleiben.',
-  'Short rides without an event show no bike care before the start.': 'Kurze Fahrten ohne Event zeigen vor dem Start keine Velopflege.',
+  'A new trip asks first': 'Eine neue Tour fragt zuerst',
+  'Days, riding hours, night, weather and event, with a preview of what lands on the list.': 'Tage, Fahrstunden, Übernachtung, Wetter und Event, mit Vorschau, was auf die Liste kommt.',
+  'New trip asks days, hours, night, weather and event': 'Neue Tour fragt Tage, Stunden, Nacht, Wetter und Event',
+  'Later changes work at once, with undo': 'Spätere Änderungen wirken sofort, mit Undo',
+  'Short rides without an event skip bike care before the start': 'Kurze Fahrten ohne Event zeigen vor dem Start keine Velopflege',
   // 0.24.1
-  'Packing lines show only name, count and weight; a tap opens the rest.': 'Packzeilen zeigen nur Name, Anzahl und Gewicht; ein Tipp öffnet den Rest.',
-  'Debrief right from Today: "All good" with Undo.': 'Rückblick direkt von Heute: «Alles gut» mit Undo.',
-  'Select many items in Gear to change the category, move them to the wishlist or delete them.':
-    'Im Material mehrere Teile auswählen, um die Kategorie zu ändern, sie auf die Wunschliste zu setzen oder zu löschen.',
-  'A day ride from "New" to debrief: 8 clicks instead of 65.': 'Eine Tagestour von «Neu» bis zum Rückblick: 8 Klicks statt 65.',
+  'From 65 clicks to 8': 'Von 65 Klicks auf 8',
+  'A day trip from «New» to the debrief now takes 8 clicks. Your thumb says thanks.': 'Eine Tagestour von «Neu» bis zum Rückblick braucht jetzt 8 Klicks. Dein Daumen sagt danke.',
+  'Packing rows show only name, count and weight': 'Packzeilen zeigen nur Name, Anzahl und Gewicht',
+  'Debrief right from Today: «All good»': 'Rückblick direkt von Heute: «Alles gut»',
+  'Select several items in Gear at once': 'Mehrere Teile im Material auf einmal auswählen',
+  'A day trip in 8 clicks instead of 65': 'Eine Tagestour mit 8 Klicks statt 65',
   // 0.24.0
-  '"All in, next" for each bag and "Everything packed" on the packing day.': '«Alles drin, weiter» pro Tasche und «Alles gepackt» am Packtag.',
-  '"All as planned" in the debrief and "All / none" for weather suggestions.': '«Alles wie geplant» im Rückblick und «Alle / keine» bei Wettervorschlägen.',
-  'Make a new item straight from the search.': 'Ein neues Teil direkt aus der Suche anlegen.',
-  'One-day trips start without the overnight basics.': 'Eintägige Touren starten ohne Übernachtungs-Grundset.',
+  'All in, onwards': 'Alles drin, weiter',
+  'One tap per bag on packing day, and «All as planned» in the debrief.': 'Ein Tipp pro Tasche am Packtag und «Alles wie geplant» im Rückblick.',
+  '«All in, next» per bag and «All packed»': '«Alles drin, weiter» pro Tasche und «Alles gepackt»',
+  '«All as planned» in the debrief': '«Alles wie geplant» im Rückblick',
+  'A new item straight from the search': 'Ein neues Teil direkt aus der Suche',
+  'One-day trips start without the overnight set': 'Eintägige Touren starten ohne Übernachtungs-Set',
   // 0.23.1
-  'The language is in the profile menu.': 'Die Sprache findest du im Profilmenü.',
-  'Today folds on the phone; the category of an item can be changed on the phone too.': 'Heute ist am Phone zugeklappt; die Kategorie eines Teils lässt sich auch am Phone ändern.',
+  'Small things for the phone': 'Kleinigkeiten fürs Handy',
+  'Today folds up on the phone, and the language lives in the profile menu.': 'Heute klappt am Handy zu, und die Sprache wohnt im Profilmenü.',
+  'Today folded on the phone, item category changeable there too': 'Heute zugeklappt am Handy, Kategorie auch dort änderbar',
+  'The language is in the profile menu': 'Die Sprache findest du im Profilmenü',
   // 0.23.0
-  'One navigation on every page: Today, Trips, Gear, Bikes; on the phone at the bottom with + in the middle.':
-    'Eine Navigation auf jeder Seite: Heute, Touren, Material, Velos; am Phone unten mit + in der Mitte.',
-  'Today shows the next trip with exactly one main action.': 'Heute zeigt die nächste Tour mit genau einer Hauptaktion.',
-  'Gear starts with search, filter and list; a new item needs only name, category and status.':
-    'Material beginnt mit Suche, Filter und Liste; ein neues Teil braucht nur Name, Kategorie und Status.',
-  'The category of an item can be changed; all its links stay.': 'Die Kategorie eines Teils ist änderbar; alle Verknüpfungen bleiben.',
+  'One navigation for all': 'Eine Navigation für alle',
+  'Today, Trips, Gear and Bikes on every page; on the phone at the bottom with + in the middle.': 'Heute, Touren, Material und Velos auf jeder Seite; am Handy unten mit + in der Mitte.',
+  'One navigation on every page': 'Eine Navigation auf jeder Seite',
+  'Today shows the next trip with one main action': 'Heute zeigt die nächste Tour mit einer Hauptaktion',
+  'Gear starts with search, filter and list': 'Material beginnt mit Suche, Filter und Liste',
+  'The category of an item can change, links stay': 'Die Kategorie eines Teils ist änderbar, Verknüpfungen bleiben',
   // 0.22.1
-  'Overdue is said in words, such as "for 3 weeks".': 'Überfällig steht in Worten, etwa «seit 3 Wochen».',
-  'The event preparation shows only on trips marked "Event".': 'Die Eventvorbereitung erscheint nur bei Touren mit Häkchen «Event».',
-  'Gear fits a 390 px phone screen again.': 'Material passt am Phone wieder auf 390 px.',
+  'Overdue, in words': 'Überfällig, in Worten',
+  '«For 3 weeks» says more than a date. And Gear fits the phone again.': '«Seit 3 Wochen» sagt mehr als ein Datum. Und Material passt wieder aufs Handy.',
+  'Event preparation only for trips marked «Event»': 'Eventvorbereitung nur bei Touren mit «Event»',
+  'Overdue in words, like «for 3 weeks»': 'Überfällig in Worten, etwa «seit 3 Wochen»',
+  'Gear fits 390 px on the phone again': 'Material passt am Handy wieder auf 390 px',
   // 0.22.0
-  'Calmer type and colours; only the current main action is orange, with a visible focus ring.':
-    'Ruhigere Schrift und Farben; nur die aktuelle Hauptaktion ist orange, mit sichtbarem Fokusrahmen.',
-  'Honest weights: sums say "known" and how many weights are missing.': 'Ehrliche Gewichte: Summen heissen «bekannt» und zeigen, wie viele Gewichte fehlen.',
-  'A star before every item marks a favourite in one tap.': 'Ein Stern vor jedem Teil markiert einen Favoriten mit einem Tipp.',
-  'Today, Pack and Bike care show the same readiness.': 'Heute, Pack und Velopflege zeigen denselben Stand der Bereitschaft.',
-  // 0.21
-  'Today lists what is still missing so the app can calculate for you, such as weighing bikes or loading a GPX.':
-    'Heute zeigt, was noch fehlt, damit die App für dich rechnen kann, etwa Velos wägen oder ein GPX laden.',
-  'Bikes and bike care on one page, with the tabs Setup and Care.': 'Velos und Velopflege auf einer Seite, mit den Tabs Setup und Pflege.',
-  'Kinds of travel besides bikepacking: ski touring, weekend and long journeys, each with its own bags.':
-    'Reisearten neben Bikepacking: Skitour, Wochenende und Weltreise, jede mit eigenen Taschen.',
-  'A page with all your favourite things, by kind of travel and ready to print.': 'Eine Seite mit all deinen Lieblingsteilen, nach Reiseart und druckbar.',
+  'Honest weights': 'Ehrliche Gewichte',
+  'Totals are called «known» and say how many weights are missing. Plus a star for your favourites.': 'Summen heissen «bekannt» und sagen, wie viele Gewichte fehlen. Dazu ein Stern für deine Lieblinge.',
+  'Totals say «known» and how many weights are missing': 'Summen sagen «bekannt» und wie viele Gewichte fehlen',
+  'A star marks a favourite in one tap': 'Ein Stern markiert einen Favoriten mit einem Tipp',
+  'Calmer type and colours, only the main action orange': 'Ruhigere Schrift und Farben, nur die Hauptaktion orange',
+  'Today, Pack and bike care show the same readiness': 'Heute, Pack und Velopflege zeigen dieselbe Bereitschaft',
+  // 0.21.0
+  'Ski tour, weekend, world trip': 'Skitour, Wochenende, Weltreise',
+  'More than bikepacking: new trip types, each with its own bags.': 'Mehr als Bikepacking: neue Reisearten, jede mit eigenen Taschen.',
+  'Trip types: ski tour, weekend and world trip': 'Reisearten: Skitour, Wochenende und Weltreise',
+  'Bikes and bike care on one page': 'Velos und Velopflege auf einer Seite',
+  'Today shows what the app still needs to calculate for you': 'Heute zeigt, was die App noch braucht, um für dich zu rechnen',
+  'A printable page with all your favourite items': 'Eine druckbare Seite mit all deinen Lieblingsteilen',
   // 0.20.2
-  'A big orange button takes you to the next step of the trip: packing day, on the way, debrief.':
-    'Ein grosser oranger Knopf führt zum nächsten Schritt der Tour: Packtag, Unterwegs, Rückblick.',
+  'The big button': 'Der grosse Knopf',
+  'Always clear what comes next: one big button leads to the next step of the trip.': 'Immer klar, was als Nächstes kommt: ein grosser Knopf führt zum nächsten Schritt der Tour.',
+  'One big button to the next step: packing day, ride, debrief': 'Ein grosser Knopf zum nächsten Schritt: Packtag, Unterwegs, Rückblick',
   // 0.20.1
-  'A whole trip plays through: new list, pack, on the way, end the trip, debrief.': 'Eine ganze Tour lässt sich durchspielen: neue Liste, packen, unterwegs, Tour beenden, Rückblick.',
-  '"End trip and debrief" ends the trip at once, not only the next day.': '«Tour beenden und Rückblick» beendet die Tour sofort, nicht erst am nächsten Tag.',
+  'A trip from start to finish': 'Eine Tour von A bis Z',
+  'New list, pack, ride, end the trip, debrief: everything plays through in one go.': 'Neue Liste, packen, unterwegs, Tour beenden, Rückblick: alles läuft am Stück durch.',
+  'Play a whole trip from list to debrief': 'Eine ganze Tour von der Liste bis zum Rückblick durchspielen',
+  '«End the trip» ends it at once, not the next day': '«Tour beenden» beendet sie sofort, nicht erst am nächsten Tag',
   // 0.20.0
-  'German and English: you choose the language for each device.': 'Deutsch und Englisch: Die Sprache wählst du pro Gerät.',
-  'Buttons, dates and numbers switch with the language; what you wrote yourself stays as it is.':
-    'Knöpfe, Daten und Zahlen wechseln mit der Sprache; was du selbst geschrieben hast, bleibt, wie es ist.',
+  'Grüezi and hello': 'Grüezi und hello',
+  'German and English, chosen per device. What you wrote yourself stays as it is.': 'Deutsch und Englisch, pro Gerät gewählt. Was du selbst geschrieben hast, bleibt, wie es ist.',
+  'German and English, per device': 'Deutsch und Englisch, pro Gerät',
+  'Dates and numbers follow the language': 'Daten und Zahlen folgen der Sprache',
   // 0.19.6
-  'A new start page: the next trip in a dark band with a countdown, below it trips, gear and bikes.':
-    'Eine neue Startseite: die nächste Tour als dunkles Band mit Countdown, darunter Touren, Material und Velos.',
-  'Search across everything and a "New" button on every page.': 'Suche über alles und ein Knopf «Neu» auf jeder Seite.',
-  '"Good to know": weather and sun times, a learning, your pace and the backup.': '«Gut zu wissen»: Wetter und Sonnenzeiten, ein Learning, dein Tempo und das Backup.',
+  'A new start page': 'Eine neue Startseite',
+  'The next trip as a dark band with a countdown, below it Trips, Gear and Bikes.': 'Die nächste Tour als dunkles Band mit Countdown, darunter Touren, Material und Velos.',
+  'The next trip with a countdown on the start page': 'Die nächste Tour mit Countdown auf der Startseite',
+  'Search over everything, «New» on every page': 'Suche über alles, «Neu» auf jeder Seite',
+  '«Good to know»: weather, sun times, a learning, your pace': '«Gut zu wissen»: Wetter, Sonnenzeiten, ein Learning, dein Tempo',
   // 0.19.5
-  'The ballast card: what came along but was not needed the last times, with "Leave at home" and "Keep".':
-    'Die Ballast-Karte: was dabei war, aber die letzten Male nicht gebraucht wurde, mit «Zu Hause lassen» und «Behalten».',
-  'Short marks at an item, such as "3× not used" or "Missed last time".': 'Kurze Marken beim Teil, etwa «3× nicht gebraucht» oder «Fehlte letztes Mal».',
-  'On the way goes block by block: what to put on and take off, what to eat and drink, when you need light.':
-    'Unterwegs geht Block für Block: was anziehen und ausziehen, wie viel essen und trinken, ab wann Licht.',
+  'Ballast, begone': 'Ballast, ade',
+  'What came along but was not needed the last few times gets a gentle «Leave at home?».': 'Was dabei war, aber die letzten Male nicht gebraucht wurde, bekommt ein sanftes «Zu Hause lassen?».',
+  'The ballast card: leave at home or keep': 'Die Ballast-Karte: zu Hause lassen oder behalten',
+  'On the way block by block: wear, eat, drink, light': 'Unterwegs Block für Block: anziehen, essen, trinken, Licht',
+  'Short marks like «3× not needed»': 'Kurze Marken wie «3× nicht gebraucht»',
   // 0.19.4
-  'Load your favourites from a file: every favourite gets a star.': 'Deine Favoriten aus einer Datei laden: Jedes Lieblingsteil bekommt einen Stern.',
-  'Gear has a "Favourites" button; favourites come first when you add items.': 'Material hat einen Knopf «Favoriten»; beim Hinzufügen stehen Favoriten zuoberst.',
+  'Favourites get a star': 'Lieblinge bekommen einen Stern',
+  'Load your favourites from a file, and they come first when you add items.': 'Lade deine Favoriten aus einer Datei, und sie stehen beim Hinzufügen zuoberst.',
+  'Load favourites from a file': 'Favoriten aus einer Datei laden',
+  'A «Favourites» button, favourites first when adding': 'Ein Knopf «Favoriten», Favoriten zuoberst beim Hinzufügen',
   // 0.19.3
-  'Workshop order: everything due before the next trip as one order, to send as a message or print.':
-    'Werkstattauftrag: alles, was bis zur nächsten Tour fällig ist, als ein Auftrag zum Senden oder Drucken.',
-  'A profile for each bike: km, workshop costs this year and what is due next.': 'Ein Steckbrief pro Velo: km, Werkstattkosten dieses Jahr und was als Nächstes fällig ist.',
-  'Compare your bikes side by side for a trip and switch with one tap.': 'Deine Velos für eine Tour nebeneinander vergleichen und mit einem Tipp wechseln.',
-  'A quick note from any page, with an optional photo; sort the notes later in the Inbox.': 'Eine Notiz von jeder Seite, Foto nach Wunsch; einordnen später in der Inbox.',
+  'Off to the workshop': 'Ab in die Werkstatt',
+  'Everything due before the next trip as one order, ready to send or print.': 'Alles, was bis zur nächsten Tour fällig ist, als ein Auftrag zum Senden oder Drucken.',
+  'Workshop order with everything due before the trip': 'Werkstattauftrag mit allem, was bis zur Tour fällig ist',
+  'A profile per bike: km, costs, what is due next': 'Ein Steckbrief pro Velo: km, Kosten, was als Nächstes fällig ist',
+  'Compare your bikes for a trip and switch in one tap': 'Deine Velos für eine Tour vergleichen und mit einem Tipp wechseln',
+  'A note from any page, sort it later in the inbox': 'Eine Notiz von jeder Seite, später in der Inbox einordnen',
   // 0.19.2
-  'Your trips compared: luggage per trip, used and not used, with a trend.': 'Deine Touren im Vergleich: Gepäck pro Tour, gebraucht und nicht gebraucht, mit Trend.',
-  'Gear shows what you never used: taken along, never needed.': 'Material zeigt, was du nie gebraucht hast: mitgenommen, aber nie gebraucht.',
-  'The wishlist with a reason, sorted by benefit.': 'Die Wunschliste mit Grund, nach Nutzen sortiert.',
-  'Mark a trip "Not riding": it stays, but no longer counts as the next trip.': 'Eine Tour als «Nicht fahren» markieren: Sie bleibt, zählt aber nicht mehr als nächste Tour.',
+  'Never needed?': 'Nie gebraucht?',
+  'Gear shows what you took along but never used. Honest, but kind.': 'Material zeigt, was du mitgenommen, aber nie gebraucht hast. Ehrlich, aber freundlich.',
+  'Your trips compared: luggage, used and not used': 'Deine Touren im Vergleich: Gepäck, gebraucht und nicht gebraucht',
+  'Gear shows what you never used': 'Material zeigt, was du nie gebraucht hast',
+  'The wishlist with a reason, sorted by use': 'Die Wunschliste mit Grund, nach Nutzen sortiert',
+  'Mark a trip as «Not riding»': 'Eine Tour als «Nicht fahren» markieren',
   // 0.19.0
-  'Load GPX rides and the app works out your pace, with climbing and breaks.': 'GPX-Fahrten laden, und die App rechnet dein Tempo, mit Höhenmetern und Pausen.',
-  'Pack and On the way estimate riding time and arrival with your pace.': 'Pack und Unterwegs schätzen Fahrzeit und Ankunft mit deinem Tempo.',
-  'After three debriefs, templates suggest what can go and what should come along.': 'Nach drei Rückblicken schlagen die Vorlagen vor, was raus kann und was mit soll.',
+  'Your own pace': 'Dein eigenes Tempo',
+  'Load GPX rides, and the app learns how fast you really are, with climbing and breaks.': 'Lade GPX-Fahrten, und die App lernt, wie schnell du wirklich bist, mit Höhenmetern und Pausen.',
+  'GPX rides teach the app your pace': 'GPX-Fahrten bringen der App dein Tempo bei',
+  'Riding time and arrival with your pace': 'Fahrzeit und Ankunft mit deinem Tempo',
+  'After three debriefs the templates suggest changes': 'Nach drei Rückblicken schlagen die Vorlagen Änderungen vor',
   // 0.18.2
-  'One list "Before the trip" with the same count on Today, Pack and Bike care.': 'Eine Liste «Vor der Tour» mit derselben Zahl auf Heute, Pack und Velopflege.',
-  'Overdue comes first and in red.': 'Überfälliges steht zuerst und in Rot.',
+  'Before the trip': 'Vor der Tour',
+  'One list «Before the trip», with the same number on Today, Pack and bike care.': 'Eine Liste «Vor der Tour», mit derselben Zahl auf Heute, Pack und Velopflege.',
+  'A list «Before the trip», the same number everywhere': 'Eine Liste «Vor der Tour», überall dieselbe Zahl',
+  'Overdue first and in red': 'Überfälliges zuerst und in Rot',
   // 0.18.1
-  'The packing day warns when the forecast is colder or wetter than what you packed.': 'Der Packtag warnt, wenn die Vorhersage kälter oder nasser ist als gepackt.',
-  'In the debrief, "missed" suggests similar items from your gear.': 'Im Rückblick schlägt «fehlte» ähnliche Teile aus deinem Material vor.',
-  'The packing day fits the phone without sideways scrolling.': 'Der Packtag passt aufs Phone, ohne seitlich zu scrollen.',
+  'Colder than packed?': 'Kälter als gepackt?',
+  'The packing day warns when the forecast is colder or wetter than your bags.': 'Der Packtag warnt, wenn die Vorhersage kälter oder nasser ist als deine Taschen.',
+  'Packing day warns about colder or wetter weather': 'Packtag warnt bei kälterem oder nasserem Wetter',
+  '«Was missing» suggests similar items from your gear': '«Fehlte» schlägt ähnliche Teile aus deinem Material vor',
+  'Packing day fits the phone without sideways scrolling': 'Packtag passt aufs Handy, ohne seitlich zu scrollen',
   // 0.18.0
-  'On the way: all bags, the stage with km, climbing, riding time and an elevation profile.': 'Unterwegs: alle Taschen, die Etappe mit km, Höhenmetern, Fahrzeit und Höhenprofil.',
-  'Hour by hour weather at the start and at the finish, still visible offline.': 'Wetter Stunde für Stunde am Start und am Ziel, auch offline sichtbar.',
-  'From 14 days before a trip you see what the workshop still has to do.': 'Ab 14 Tagen vor einer Tour siehst du, was die Werkstatt noch machen muss.',
-  'A demo file starts a demo mode; "End demo" resets everything.': 'Eine Demo-Datei startet einen Demo-Modus; «Demo beenden» setzt alles zurück.',
+  'On the way': 'Unterwegs',
+  'All bags, the stage with height profile, and the weather hour by hour, offline too.': 'Alle Taschen, die Etappe mit Höhenprofil und das Wetter Stunde für Stunde, auch offline.',
+  'On the way: bags, stage, height profile': 'Unterwegs: Taschen, Etappe, Höhenprofil',
+  'Weather hour by hour at start and finish, offline too': 'Wetter Stunde für Stunde an Start und Ziel, auch offline',
+  'From 14 days before a trip: what the workshop still has to do': 'Ab 14 Tagen vor einer Tour: was die Werkstatt noch machen muss',
+  'A demo mode, «End demo» resets everything': 'Ein Demo-Modus, «Demo beenden» setzt alles zurück',
   // 0.17.1
-  'A workshop visit without prices says "cost unknown" instead of CHF 0.': 'Ein Werkstattbesuch ohne Preise zeigt «Kosten unbekannt» statt CHF 0.',
-  'The cost per 1000 km counts only once there is enough data.': 'Die Kosten pro 1000 km zählen erst, wenn genug Daten da sind.',
+  'Unknown is not zero': 'Unbekannt ist nicht null',
+  'A workshop visit without prices says «cost unknown» instead of CHF 0.': 'Ein Werkstattbesuch ohne Preise sagt «Kosten unbekannt» statt CHF 0.',
+  'Cost unknown instead of CHF 0': 'Kosten unbekannt statt CHF 0',
+  'Cost per 1000 km only counts with enough data': 'Kosten pro 1000 km zählen erst mit genug Daten',
   // 0.17.0
-  'Workshop visits for each bike: amount, work done, photos of the receipts and km.': 'Werkstattbesuche pro Velo: Betrag, Arbeiten, Fotos der Belege und km.',
-  'Coming up: services such as the yearly fork service and sealant every three months.': 'Was ansteht: Services wie der jährliche Gabelservice und Dichtmilch alle drei Monate.',
-  'Costs per year and per 1000 km.': 'Kosten pro Jahr und pro 1000 km.',
-  'A photo gallery for each bike.': 'Eine Fotogalerie pro Velo.',
-  // 0.16
-  'A logbook of your past trips.': 'Ein Logbuch deiner früheren Touren.',
-  'Import rides from Strava or Garmin as a file; the km add up.': 'Fahrten aus Strava oder Garmin als Datei importieren; die km werden zusammengezählt.',
-  'Share a read-only link to the packing list, or save it as a PDF.': 'Einen Link zur Packliste teilen (nur lesen) oder sie als PDF speichern.',
-  // 0.15
-  'Load a GPX route: distance, climbing and estimated riding hours.': 'Eine GPX-Route laden: Distanz, Höhenmeter und geschätzte Fahrstunden.',
-  'A weather forecast for each day of the trip; one click packs for it.': 'Eine Wettervorhersage für jeden Tourtag; ein Klick packt dafür.',
-  'The last forecast stays visible offline.': 'Die letzte Vorhersage bleibt offline sichtbar.',
-  'A photo of your bike behind the bags.': 'Ein Foto deines Velos hinter den Taschen.',
-  // 0.14
-  'Packing day: full screen, bag by bag, in large type; the screen stays on.': 'Packtag: Vollbild, Tasche für Tasche, in grosser Schrift; der Bildschirm bleibt an.',
-  'Learnings show as a small hint at the matching item.': 'Learnings stehen als kleiner Hinweis beim passenden Teil.',
-  'The debrief asks for the km and adds them to the bike.': 'Der Rückblick fragt nach den km und zählt sie zum Velo.',
-  'A reminder when the last backup is older than 14 days.': 'Eine Erinnerung, wenn das letzte Backup älter als 14 Tage ist.',
-  // 0.13
-  'The debrief in three steps: how it was, go through the items, a summary with suggestions.':
-    'Der Rückblick in drei Schritten: Wie war es, Teile durchgehen, Zusammenfassung mit Vorschlägen.',
-  'All learnings in one place, with a search.': 'Alle Learnings an einem Ort, mit Suche.',
-  'The start page shows the next trip with a countdown and what is still open.': 'Die Startseite zeigt die nächste Tour mit Countdown und was noch offen ist.',
-  // 0.12
-  'Bags show their contents right on the bike.': 'Taschen zeigen ihren Inhalt direkt auf dem Velo.',
-  'Move items between bags, with Undo.': 'Teile zwischen Taschen verschieben, mit Undo.',
-  'Calmer colours and a calmer header.': 'Ruhigere Farben und ein ruhigerer Kopf.',
-  // 0.11
-  'Weights in one line; the weather folds away.': 'Gewichte in einer Zeile; das Wetter klappt zu.',
-  'Drag items between bags; short names in the drawing.': 'Teile zwischen Taschen ziehen; kurze Namen in der Zeichnung.',
-  'Edit templates directly.': 'Vorlagen direkt bearbeiten.',
-  // 0.10
-  'Templates: save a packing setup, update it and start new trips from it.': 'Vorlagen: ein Pack-Setup speichern, aktualisieren und neue Touren daraus starten.',
-  'A page with all your templates.': 'Eine Seite mit all deinen Vorlagen.',
+  'Workshop visits': 'Werkstattbesuche',
+  'Amount, jobs, photos of the receipts and km per bike, and what is coming up.': 'Betrag, Arbeiten, Fotos der Belege und km pro Velo, und was ansteht.',
+  'Workshop visits per bike with receipts': 'Werkstattbesuche pro Velo mit Belegen',
+  'Services like the yearly fork service': 'Services wie der jährliche Gabelservice',
+  'Costs per year and per 1000 km': 'Kosten pro Jahr und pro 1000 km',
+  'A photo gallery per bike': 'Eine Fotogalerie pro Velo',
+  // 0.16.0
+  'A logbook and a link': 'Ein Logbuch und ein Link',
+  'Your past trips in a logbook, rides from Strava or Garmin, and a packing list to share.': 'Deine früheren Touren in einem Logbuch, Fahrten aus Strava oder Garmin und eine Packliste zum Teilen.',
+  'A logbook of your past trips': 'Ein Logbuch deiner früheren Touren',
+  'Import rides from Strava or Garmin': 'Fahrten aus Strava oder Garmin importieren',
+  'Share the packing list as a link or a PDF': 'Packliste als Link oder PDF teilen',
+  // 0.15.0
+  'Route and weather': 'Route und Wetter',
+  'Load a GPX route, and the forecast for every trip day packs along.': 'Lade eine GPX-Route, und die Vorhersage für jeden Tourtag packt mit.',
+  'Load a GPX route: distance, climbing, riding hours': 'GPX-Route laden: Distanz, Höhenmeter, Fahrstunden',
+  'Forecast for every trip day, one click packs for it': 'Vorhersage für jeden Tourtag, ein Klick packt dafür',
+  'The last forecast stays visible offline': 'Die letzte Vorhersage bleibt offline sichtbar',
+  'A photo of your bike behind the bags': 'Ein Foto deines Velos hinter den Taschen',
+  // 0.14.0
+  'Packing day, full screen': 'Packtag im Vollbild',
+  'Bag by bag in big letters, and the screen stays on while your hands are busy.': 'Tasche für Tasche in grosser Schrift, und der Bildschirm bleibt an, während die Hände beschäftigt sind.',
+  'Packing day full screen, the screen stays on': 'Packtag im Vollbild, der Bildschirm bleibt an',
+  'Learnings as a small hint at the right item': 'Learnings als kleiner Hinweis beim passenden Teil',
+  'The debrief adds the km to the bike': 'Der Rückblick zählt die km zum Velo',
+  'A reminder when the last backup is older than 14 days': 'Eine Erinnerung, wenn das letzte Backup älter als 14 Tage ist',
+  // 0.13.0
+  'The first debrief': 'Der erste Rückblick',
+  'How was it, go through the items, a summary with suggestions: three steps to learn from every trip.': 'Wie war es, Teile durchgehen, Zusammenfassung mit Vorschlägen: drei Schritte, um aus jeder Tour zu lernen.',
+  'The debrief in three steps': 'Der Rückblick in drei Schritten',
+  'All learnings in one place, with a search': 'Alle Learnings an einem Ort, mit Suche',
+  'The start page shows the next trip with a countdown': 'Die Startseite zeigt die nächste Tour mit Countdown',
+  // 0.12.0
+  'Bags on the bike': 'Taschen am Velo',
+  'Bags show their contents right on the bike, and items move between them.': 'Taschen zeigen ihren Inhalt direkt am Velo, und Teile wandern zwischen ihnen.',
+  'Bags show their contents on the bike': 'Taschen zeigen ihren Inhalt am Velo',
+  'Move items between bags, with undo': 'Teile zwischen Taschen verschieben, mit Undo',
+  'Calmer colours and a calmer header': 'Ruhigere Farben und ein ruhigerer Kopf',
+  // 0.11.0
+  'Drag and drop': 'Ziehen und ablegen',
+  'Drag items between bags, and edit templates right where they are.': 'Teile zwischen Taschen ziehen, und Vorlagen direkt bearbeiten.',
+  'Drag items between bags': 'Teile zwischen Taschen ziehen',
+  'Edit templates directly': 'Vorlagen direkt bearbeiten',
+  'Weights in one line, the weather folds away': 'Gewichte in einer Zeile, das Wetter klappt zu',
+  // 0.10.0
+  'Templates are born': 'Vorlagen sind geboren',
+  'Save a packing setup once and start new trips from it.': 'Ein Pack-Setup einmal speichern und neue Touren daraus starten.',
+  'Save a packing setup as a template': 'Ein Pack-Setup als Vorlage speichern',
+  'One page with all your templates': 'Eine Seite mit all deinen Vorlagen',
   // 0.9.1
-  'Smaller + buttons and only one category open at a time.': 'Kleinere +-Knöpfe und immer nur eine Kategorie offen.',
-  'The kind of ride as buttons that show what they add.': 'Die Art der Fahrt als Knöpfe, die zeigen, was sie dazunehmen.',
+  'Tidier packing': 'Aufgeräumter packen',
+  'Smaller + buttons, only one category open, and the kind of ride as buttons.': 'Kleinere +-Knöpfe, nur eine Kategorie offen und die Art der Fahrt als Knöpfe.',
+  'The kind of ride as buttons that show what they add': 'Die Art der Fahrt als Knöpfe, die zeigen, was sie dazunehmen',
+  'Smaller + buttons, one category open at a time': 'Kleinere +-Knöpfe, immer nur eine Kategorie offen',
   // 0.9.0
-  'The ready check is one short list, with "Tick all checks" and "Save as my standard".': 'Der Startcheck ist eine kurze Liste, mit «Alle Checks abhaken» und «Als meinen Standard speichern».',
-  'Items can be marked "On every trip".': 'Teile lassen sich als «Auf jeder Tour» markieren.',
-  // 0.8
-  'A new Pack layout in three columns; the items not packed yet are folded by category.': 'Ein neues Pack-Layout in drei Spalten; was noch nicht gepackt ist, steht zugeklappt nach Kategorie.',
-  'Add with + or by dragging onto a bag; bag tiles with a fill bar.': 'Mit + oder Ziehen auf eine Tasche hinzufügen; Taschen-Kacheln mit Füllbalken.',
-  'On the phone a fixed bar shows which bag you are adding to.': 'Am Phone zeigt eine feste Leiste, in welche Tasche du gerade hinzufügst.',
+  'The start check': 'Der Startcheck',
+  'A short list before you go, and items marked «On every trip».': 'Eine kurze Liste vor dem Losfahren, und Teile mit «Auf jeder Tour».',
+  'Start check as a short list, saved as your standard': 'Startcheck als kurze Liste, als dein Standard gespeichert',
+  'Mark items as «On every trip»': 'Teile als «Auf jeder Tour» markieren',
+  // 0.8.0
+  'Three columns': 'Drei Spalten',
+  'A new packing layout: what is not packed yet waits folded by category.': 'Ein neues Pack-Layout: was noch nicht gepackt ist, wartet zugeklappt nach Kategorie.',
+  'Packing in three columns, unpacked by category': 'Packen in drei Spalten, Ungepacktes nach Kategorie',
+  'Add with + or by dragging, bags with a fill bar': 'Mit + oder Ziehen hinzufügen, Taschen mit Füllbalken',
+  'On the phone a bar shows the bag you are filling': 'Am Handy zeigt eine Leiste, welche Tasche du füllst',
   // 0.7.1
-  'Tyre pressure and sealant for each bike.': 'Reifendruck und Dichtmilch pro Velo.',
-  'A list of what was done when.': 'Eine Liste, was wann gemacht wurde.',
-  'The wear limit of the brake rotors for each bike.': 'Die Verschleissgrenze der Bremsscheiben pro Velo.',
+  'Pressure and sealant': 'Druck und Dichtmilch',
+  'Tyre pressure and sealant per bike, and a list of what was done when.': 'Reifendruck und Dichtmilch pro Velo, und eine Liste, was wann gemacht wurde.',
+  'Tyre pressure and sealant per bike': 'Reifendruck und Dichtmilch pro Velo',
+  'A list of what was done when': 'Eine Liste, was wann gemacht wurde',
+  'Brake disc wear limit per bike': 'Verschleissgrenze der Bremsscheiben pro Velo',
   // 0.7.0
-  'Bike care: the parts of each bike with their history.': 'Velopflege: die Teile jedes Velos mit ihrer Geschichte.',
-  'Reminders by distance, such as a check every 1000 km or chain wax every 150 km.': 'Erinnerungen nach Distanz, etwa ein Check alle 1000 km oder Kettenwachs alle 150 km.',
-  'Preparation tasks for each trip.': 'Vorbereitungsaufgaben pro Tour.',
-  // 0.6
-  'Weather with a clothing suggestion, for cold and rain too.': 'Wetter mit Kleidervorschlag, auch für Kälte und Regen.',
-  'A warning when a bag is too full, with a suggestion for another bag.': 'Eine Warnung, wenn eine Tasche zu voll ist, mit Vorschlag für eine andere Tasche.',
-  'Weigh and print right from Pack; the load on the front and rear wheel.': 'Wägen und Drucken direkt aus Pack; das Gewicht auf Vorder- und Hinterrad.',
-  'An inventory check of your gear.': 'Ein Inventar-Check deines Materials.',
-  // 0.5
-  'Bikes: your own bag list, bike setups with a drawing, bike and rider weight.': 'Velos: eigene Taschenliste, Velo-Setups mit Zeichnung, Velo- und Fahrergewicht.',
-  'Pack: pick a trip or start a new one, choose a bag on the drawing and add items.': 'Pack: Tour wählen oder neu anlegen, Tasche auf der Zeichnung wählen und Teile hinzufügen.',
-  'Tick items off bag by bag, with a ready check and the system weight.': 'Teile Tasche für Tasche abhaken, mit Startcheck und Systemgewicht.',
-  // 0.4
-  'Gear categories fold open and shut.': 'Die Kategorien im Material klappen auf und zu.',
-  'The gear weight leaves out food and water; brand and model are separate.': 'Das Materialgewicht zählt ohne Essen und Wasser; Marke und Modell sind getrennt.',
-  'Weighing starts with the items for every trip.': 'Das Wägen beginnt mit den Teilen für jede Tour.',
-  // 0.3
-  'The Gear page: key figures, weight by category, the heaviest items, search and filter.': 'Die Seite Material: Kennzahlen, Gewicht nach Kategorie, die schwersten Teile, Suche und Filter.',
-  'Add, edit and delete items; the wishlist kept apart.': 'Teile hinzufügen, bearbeiten und löschen; die Wunschliste getrennt.',
-  'Weigh mode: one item after the other, type the grams, save and next.': 'Wägemodus: ein Teil nach dem anderen, Gramm eintippen, speichern und weiter.',
-  // 0.2
-  'Your data stays on your device, in a local database.': 'Deine Daten bleiben auf deinem Gerät, in einer lokalen Datenbank.',
-  '"Your data": export and import a backup, replace or merge.': '«Deine Daten»: Backup exportieren und importieren, ersetzen oder zusammenführen.',
-  'An automatic backup into a folder on the computer.': 'Eine automatische Sicherung in einen Ordner am Computer.',
-  'Your packing spreadsheet can be converted for the app.': 'Deine Pack-Tabelle lässt sich für die App umwandeln.',
-  // 0.1
-  'The app starts: install it on your phone and use it offline.': 'Die App startet: aufs Phone installieren und offline nutzen.',
-  'Open it in the browser, on any device.': 'Im Browser öffnen, auf jedem Gerät.',
+  'Bike care is here 🔧': 'Die Velopflege ist da 🔧',
+  'The parts of every bike with their history, and reminders by distance.': 'Die Teile jedes Velos mit ihrer Geschichte, und Erinnerungen nach Distanz.',
+  'The parts of each bike with their history': 'Die Teile jedes Velos mit ihrer Geschichte',
+  'Reminders by distance, like chain wax every 150 km': 'Erinnerungen nach Distanz, etwa Kettenwachs alle 150 km',
+  'Preparation tasks per trip': 'Vorbereitungsaufgaben pro Tour',
+  // 0.6.0
+  'Weather-wise': 'Wetterfest',
+  'Clothing suggestions for cold and rain, and a warning when a bag is too full.': 'Kleidervorschläge für Kälte und Regen, und eine Warnung, wenn eine Tasche zu voll ist.',
+  'Weather with clothing suggestions': 'Wetter mit Kleidervorschlag',
+  'A warning when a bag is too full': 'Eine Warnung, wenn eine Tasche zu voll ist',
+  'Weigh and print from Pack, weight front and rear': 'Wägen und Drucken aus Pack, Gewicht vorne und hinten',
+  'An inventory check of your gear': 'Ein Inventar-Check deines Materials',
+  // 0.5.0
+  'Bikes and bags': 'Velos und Taschen',
+  'Your own bags, bike setups with a drawing, and packing bag by bag.': 'Eigene Taschen, Velo-Setups mit Zeichnung und packen Tasche für Tasche.',
+  'Bikes: own bags, setups with a drawing, weights': 'Velos: eigene Taschen, Setups mit Zeichnung, Gewichte',
+  'Pack: choose a bag on the drawing and add items': 'Pack: Tasche auf der Zeichnung wählen und Teile hinzufügen',
+  'Tick off bag by bag, with start check and system weight': 'Tasche für Tasche abhaken, mit Startcheck und Systemgewicht',
+  // 0.4.0
+  'Neater gear': 'Ordentlicheres Material',
+  'Categories fold, brand and model are separate, and weighing starts with what always comes along.': 'Kategorien klappen, Marke und Modell sind getrennt, und das Wägen beginnt mit dem, was immer mitkommt.',
+  'Gear weight without food and water, brand and model separate': 'Materialgewicht ohne Essen und Wasser, Marke und Modell getrennt',
+  'Categories fold open and shut': 'Kategorien klappen auf und zu',
+  'Weighing starts with the items for every trip': 'Das Wägen beginnt mit den Teilen für jede Tour',
+  // 0.3.0
+  'Gear, the page': 'Material, die Seite',
+  'Key figures, weight by category, the heaviest items, and a weigh mode.': 'Kennzahlen, Gewicht nach Kategorie, die schwersten Teile und ein Wägemodus.',
+  'Gear with key figures, heaviest items, search and filter': 'Material mit Kennzahlen, schwersten Teilen, Suche und Filter',
+  'Add, edit and delete items, the wishlist apart': 'Teile hinzufügen, bearbeiten und löschen, die Wunschliste getrennt',
+  'Weigh mode: grams in, save, next': 'Wägemodus: Gramm rein, speichern, weiter',
+  // 0.2.0
+  'Your data stays with you': 'Deine Daten bleiben bei dir',
+  'Everything in a local database on your device, with backups you control.': 'Alles in einer lokalen Datenbank auf deinem Gerät, mit Backups, die du steuerst.',
+  'Data stays on your device': 'Die Daten bleiben auf deinem Gerät',
+  'Export and import a backup, replace or merge': 'Backup exportieren und importieren, ersetzen oder zusammenführen',
+  'Automatic backup into a folder on the computer': 'Automatische Sicherung in einen Ordner am Computer',
+  'Your packing spreadsheet converts for the app': 'Deine Pack-Tabelle lässt sich für die App umwandeln',
+  // 0.1.0
+  'Hello, Pack Generator 👋': 'Hallo, Pack Generator 👋',
+  'It all started here: an app for packing, on the phone and offline.': 'Hier fing alles an: eine App fürs Packen, am Handy und offline.',
+  'Install it on your phone and use it offline': 'Aufs Handy installieren und offline nutzen',
+  'Open it in the browser, on any device': 'Im Browser öffnen, auf jedem Gerät',
+  // v0.118.0 test steps
+  'Open Me › What is new: every version is open, grouped by month.': 'Öffne Ich › Was ist neu: Jede Version ist offen, nach Monat gruppiert.',
+  'Tap a line of a version: its place opens.': 'Tippe eine Zeile einer Version an: Ihr Ort öffnet sich.',
+  'Open Me › AI helper: the switch is off. Switch it on: the six places say «on».': 'Öffne Ich › KI-Helfer: Der Schalter ist aus. Schalte ihn ein: Die sechs Stellen sagen «an».',
 };

@@ -101,9 +101,12 @@ describe('the Helfer-Code stays on this device (answer 8a)', () => {
 });
 
 describe('settings and the monthly limit (answer 7a)', () => {
-  it('defaults: no code, on, CHF 5', () => {
-    expect(settingsOf(undefined)).toEqual({ code: '', on: true, capChf: 5 });
-    expect(settingsOf({ code: 'x', on: false, capChf: '3.5' })).toEqual({ code: 'x', on: false, capChf: 3.5 });
+  // v0.118.0 «KI-Helfer ausblenden» (changed on purpose, Noah answer a ★): off by default, one switch `show`
+  it('defaults: no code, not shown, CHF 5; only show: true shows it (the old `on` no longer counts)', () => {
+    expect(settingsOf(undefined)).toEqual({ code: '', show: false, capChf: 5 });
+    expect(settingsOf({ code: 'x', on: true, capChf: '3.5' })).toEqual({ code: 'x', show: false, capChf: 3.5 });
+    expect(settingsOf({ code: 'x', show: true })).toEqual({ code: 'x', show: true, capChf: 5 });
+    expect(settingsOf({ code: 'x', show: 'yes' }).show).toBe(false);
   });
   it('pauses from the lower of the two limits, this month only', () => {
     const s = settingsOf({ code: 'x', capChf: 2 });
