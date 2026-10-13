@@ -18,6 +18,7 @@
  */
 import { NIGHT_BLOCKS, RIDE_BLOCKS } from '../context.js';
 import { STANDARD, inStandard, isWorn, leaveHome } from '../blocks2026.js';
+import { isSituation } from '../situation.js';
 
 const withStd = (d) => (d?.sets?.includes(STANDARD) ? [...d.sets] : [...(d?.sets ?? []), STANDARD]);
 const withoutStd = (d) => (d?.sets ?? []).filter((k) => k !== STANDARD);
@@ -53,7 +54,8 @@ export const leaveHomeFields = (d) => ({ role: 'optional', leaveHome: true, sets
  * The kinds of building blocks: 'always' (Standard), 'night' (come with the night), 'ride' (v0.66.0:
  * suggested on the ride, deselectable per trip: repair, charge, lights, race) or 'add'.
  */
-export const blockKind = (key) => (key === STANDARD ? 'always' : NIGHT_BLOCKS.includes(key) ? 'night' : RIDE_BLOCKS.includes(key) ? 'ride' : 'add');
+// SN3+: the seven blocks «je nach Lage» (situation.js) are their own kind.
+export const blockKind = (key) => (key === STANDARD ? 'always' : NIGHT_BLOCKS.includes(key) ? 'night' : RIDE_BLOCKS.includes(key) ? 'ride' : isSituation(key) ? 'situation' : 'add');
 
 /** The items of the block "Standard" (with the ones On me), in the order given. */
 export const standardItems = (items) => items.filter((i) => comesOf(i).standard);
