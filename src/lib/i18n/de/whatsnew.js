@@ -6,7 +6,9 @@
 export default {
   // 0.130.0 Woche + Sporttasche
   'Your week, your bag': 'Deine Woche, deine Tasche',
-  'Aktiv has a week page with fixed dates and suggestions, and a short packing list for each sport.': 'Aktiv hat eine Wochenseite mit festen Terminen und Vorschlägen und eine kurze Packliste für jeden Sport.',
+  'Aktiv has a week page with fixed dates and suggestions, a page for recovery and a short packing list for each sport.': 'Aktiv hat eine Wochenseite mit festen Terminen und Vorschlägen, eine Seite für die Erholung und eine kurze Packliste für jeden Sport.',
+  'Recovery: the ring of the week, a pause hint after 3 active days': 'Erholung: der Ring der Woche, ein Pausen-Tipp nach 3 aktiven Tagen',
+  'Open «Recovery» and tick the sauna.': 'Öffne «Erholung» und hake die Sauna ab.',
   'Sport bag: a short list per sport, Heute reminds you the evening before': 'Sporttasche: eine kurze Liste pro Sport, Heute erinnert am Vorabend',
   'Open «Sport bag», tick a thing, then «All in».': 'Öffne «Sporttasche», hake ein Teil ab, dann «Alles drin».',
   'Week: Monday to Sunday with suggestions, tap one to plan it': 'Woche: Montag bis Sonntag mit Vorschlägen, antippen = einplanen',

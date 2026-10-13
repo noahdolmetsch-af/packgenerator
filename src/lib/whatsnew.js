@@ -16,21 +16,22 @@
 
 export const WHATS_NEW = [
   {
-    // v0.130.0 «Woche» + «Sporttasche» (mockups AK1, AK3, Noah 13.10.2026 «1-5a», «ich gebe hiermit alle mockups frei»)
+    // v0.130.0 «Woche» + «Erholung» + «Sporttasche» (mockups AK1–AK3, Noah 13.10.2026 «1-5a», «ich gebe hiermit alle mockups frei»)
     version: '0.130.0',
     date: '2026-10-13',
     title: 'Your week, your bag',
-    lead: 'Aktiv has a week page with fixed dates and suggestions, and a short packing list for each sport.',
+    lead: 'Aktiv has a week page with fixed dates and suggestions, a page for recovery and a short packing list for each sport.',
     points: [
       { text: 'Week: Monday to Sunday with suggestions, tap one to plan it', href: '#/flow/week' },
       { text: 'Fixed dates: enter once, they come back every week', href: '#/flow/week' },
       { text: 'Sport bag: a short list per sport, Heute reminds you the evening before', href: '#/flow/bags' },
+      { text: 'Recovery: the ring of the week, a pause hint after 3 active days', href: '#/flow/rest' },
     ],
     small: [
       { box: 'new', text: '«More in Active» on Aktiv › Heute leads to the week', href: '#/flow' },
       { box: 'new', text: 'Fixed and planned dates into your calendar (.ics)', href: '#/flow/week' },
     ],
-    test: ['Open Aktiv › Heute and tap the card «Week».', 'Add a fixed date, then tap a suggestion: it is planned.', 'Open «Sport bag», tick a thing, then «All in».'],
+    test: ['Open Aktiv › Heute and tap the card «Week».', 'Add a fixed date, then tap a suggestion: it is planned.', 'Open «Sport bag», tick a thing, then «All in».', 'Open «Recovery» and tick the sauna.'],
   },
   {
     // v0.123.0 «Trophäen-Vitrine» (mockups TV1–TV2, Noah 13.10.2026 «tv1-tv2 freigeben»)
