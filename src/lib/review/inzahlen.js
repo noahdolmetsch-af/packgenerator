@@ -19,6 +19,7 @@ import { tripStats } from '../trips.js';
 import { addMonths } from '../yearreview.js';
 import { monthKeys } from './werte.js';
 import { COLS, COL_KEYS, GROUPS, GROUP_KEYS, BLOCK_KEYS } from './pastcols.js';
+import { tripPower } from './power.js';
 
 export { VIEW_KEY, COLS, COL_KEYS, COL_GROUPS, BLOCKS, BLOCK_KEYS, GROUPS, GROUP_KEYS } from './pastcols.js';
 
@@ -65,7 +66,8 @@ export function commentOf(acts = []) {
 }
 
 /**
- * The values of one row of the table: { gainM, movingS, elapsedS, kmh, hrAvg, hrMax, type, comment, startAt }.
+ * The values of one row of the table: { gainM, movingS, elapsedS, kmh, hrAvg, hrMax, type, comment, startAt }
+ * (SN4g: plus bikeId, sport, surface, watts, wAvg, wMax, wNorm, tempAvg; watts only from a power meter).
  * acts: all activities (actOf shape), entries: the ride ledger, bikes: for the type (bike.type, raw).
  * Without activities the times come from the uploaded rides (moving, and moving plus pauses), the heart rate
  * from the ledger (kmBook hrAvg / hrMax), and the comment is «–».
@@ -83,11 +85,17 @@ export function rowValues(row, { acts = [], entries = [], bikes = [], bounds = n
   const bikeId = row.trip?.bikeId ?? ents.find((e) => e.bikeId)?.bikeId ?? null;
   const bike = bikeId ? bikes.find((b) => b.id === bikeId) ?? null : null;
   const startAt = row.rides?.find((r) => r.startAt)?.startAt ?? mine.find((a) => a.startAt)?.startAt ?? ents.find((e) => e.time)?.time ?? null;
+  // SN4g: power only from a power meter (Strava's estimate counts as «ohne Wattwerte»), NP with it
+  // SN4g: wire to training.js when the Training PR lands
+  const pw = tripPower({ acts: mine });
+  const watts = !!pw?.measured;
+  const temp = sumOf(mine.filter((a) => typeof a.tempAvg === 'number'), (a) => a.tempAvg);
+  const nTemp = mine.filter((a) => typeof a.tempAvg === 'number').length;
   return {
     gainM: row.gainM ?? null,
     movingS,
     elapsedS: elapsedS && movingS && elapsedS < movingS ? movingS : elapsedS,
-    kmh: moving && actKm ? r1(actKm / (moving / 3600)) : row.kmh ?? null,
+    kmh: moving && actKm ? r1(actKm / (moving / 3600)) : row.kmh ?? (mine.length === 1 && pos(mine[0].spdAvg) ? r1(mine[0].spdAvg) : null),
     hrAvg: heart?.hrAvg ?? null,
     hrMax: heart?.hrMax ?? null,
     type: bike?.type ? String(bike.type).trim() || null : null,
@@ -95,6 +103,15 @@ export function rowValues(row, { acts = [], entries = [], bikes = [], bounds = n
     zones: heart?.zones ?? null,
     startAt,
     acts: mine,
+    // SN4g
+    bikeId,
+    sport: mine.find((a) => a.type)?.type ?? ents.find((e) => e.type)?.type ?? null,
+    surface: ents.find((e) => e.surface)?.surface ?? null,
+    watts,
+    wAvg: watts ? pw.avg : null,
+    wMax: watts ? pw.max : null,
+    wNorm: watts ? pw.np ?? null : null,
+    tempAvg: nTemp ? Math.round(temp / nTemp) : null,
   };
 }
 

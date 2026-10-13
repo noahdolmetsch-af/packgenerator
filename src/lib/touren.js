@@ -79,3 +79,31 @@ export function weightByPlace(stats, itemsById, eats = () => false) {
   rows.sort((a, b) => b.g - a.g);
   return { rows, total: rows.reduce((s, r) => s + r.g, 0), missing: rows.reduce((s, r) => s + r.missing, 0), heaviest, food: stats?.consumablesG ?? 0 };
 }
+
+/** SN4g: where «Packmodus öffnen» goes (the packing day of the trip, today.js STEP.pack). */
+export const PACK_HREF = '#/pack?day';
+
+/**
+ * SN4g «Packmodus» band (Noah 13.10.2026, answer 1b: a narrow band above the list, two states): a planned
+ * trip with a packing list is a pack draft. The trip open in Packen (current) comes first, else the first
+ * planned trip in the overview's order. planRows: tripsOverview().plan; trips: all trips.
+ * → { state: 'draft', tripId, title, row, done, total } or { state: 'none' }.
+ */
+export function packBand(planRows = [], trips = [], current = null) {
+  const byId = Object.fromEntries(trips.map((x) => [x.id, x]));
+  const cands = planRows.filter((r) => r.kind === 'trip' && (byId[r.tripId]?.entries ?? []).length);
+  const pick = cands.find((r) => r.tripId === current) ?? cands[0] ?? null;
+  if (!pick) return { state: 'none' };
+  const entries = byId[pick.tripId].entries;
+  return { state: 'draft', tripId: pick.tripId, title: pick.title, row: pick, done: entries.filter((e) => e.packed).length, total: entries.length };
+}
+
+/**
+ * SN4i: what the tiles at the end of the page read (Noah 13.10.2026, second answer 2b): «Offene Rückblicke»
+ * (DG-O2) and «Karte aller Touren» (DG-O5) follow the filters, the rows shown; «Gute Tage für eine Tour»
+ * (DG-O1) never does (it reads the forecast only). rows: the rows shown (period, chips, filters);
+ * states: review/state.js factStates. → { open: [rows without a Rückblick], map: [rows for the map] }.
+ */
+export function tileRows(rows = [], states = {}) {
+  return { open: rows.filter((r) => states[r.id]?.state === 'done'), map: rows };
+}

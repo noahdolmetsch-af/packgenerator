@@ -11,21 +11,35 @@
    * rows: the facts of the table; facts: all facts (for V6); vals: { [id]: inzahlen.js rowValues() };
    * mode: '12m' | 'year' | 'all'; scope: the words of the period and filters; view: inzahlen.js viewOf();
    * onview(view) saves; hrefOf(id) / go(id) open a trip.
+   * SN4h (Touren › Übersicht, Noah 13.10.2026 «SN4g–SN4i freigegeben», answer 2): with tours the five groups of
+   * pastcols.js TOUR_GROUPS / TOUR_BLOCKS (the SN2 plus and Rückblick blocks added, the map V7 is the tile
+   * DG-O5 below): every group open at first, its numbers in its head, a jump bar that stays on top while
+   * scrolling, «Alle zuklappen» and «Blöcke». states: review/state.js factStates (for C1).
    */
   import { t, tn, num, nameOf, locale } from '../i18n.svelte.js';
   import { n0, n1, hours, kg, monthLong, dayLong, signedNum, signedHours, DASH } from './fmt.js';
   import { hm } from '../gpx.js';
-  import { BLOCKS, GROUPS, BLOCK_KEYS, toggled, monthsOf, monthSums, bestValues, lastYear, whenBuckets, PARTS, routeMap, perBike, packStats, zoneMonths, weatherSum, footprint, heartAll } from './inzahlen.js';
+  import { BLOCKS as PAST_BLOCKS, GROUPS as PAST_GROUPS, toggled, monthsOf, monthSums, bestValues, lastYear, whenBuckets, PARTS, routeMap, perBike, packStats, zoneMonths, weatherSum, footprint, heartAll } from './inzahlen.js';
   import { bikeTypeName } from '../bikes.js';
   import RouteMap from './RouteMap.svelte';
   import { backClose } from '../ui/backclose.js';
   import './zones.css';
   import { LayoutGrid, Route, Bike, HeartPulse, Trophy, ChevronDown, ChevronUp, ChartColumn, Map as MapIcon, Clock, Backpack, Medal, CalendarRange, CloudRain, Leaf, X, Undo2 } from '@lucide/svelte';
+  // SN4h: the blocks of Touren › Übersicht
+  import { TOUR_BLOCKS, TOUR_GROUPS } from './pastcols.js';
+  import { valueMonths, newestOf, rowsGrid, wearPerBike, compareGroups } from './tourzahlen.js';
+  import { plannedRidden, SURFACES } from './werte.js';
+  import { Gauge, Wrench, GitCompareArrows, ChevronsUp, ChevronsDown } from '@lucide/svelte';
 
-  let { rows = [], facts = [], vals = {}, mode = '12m', today, scope = '', bikes = [], items = [], containers = [], entries = [], view, onview, hrefOf = () => null, go = () => {} } = $props();
+  let { rows = [], facts = [], vals = {}, mode = '12m', today, scope = '', bikes = [], items = [], containers = [], entries = [], view, onview, hrefOf = () => null, go = () => {}, tours = false, states = {} } = $props();
 
-  const GICON = { dist: Route, bikes: Bike, body: HeartPulse, records: Trophy };
-  const BICON = { V1: ChartColumn, V7: MapIcon, V10: Clock, V3: Bike, V12: Backpack, V8: HeartPulse, V2: Medal, V6: CalendarRange, V9: CloudRain, V11: Leaf };
+  // SN4h: the lists of the page (Vergangene Touren: 10 blocks in 4 groups; Touren: 15 blocks in 5 groups)
+  const BLOCKS = $derived(tours ? TOUR_BLOCKS : PAST_BLOCKS);
+  const GROUPS = $derived(tours ? TOUR_GROUPS : PAST_GROUPS);
+  const BLOCK_KEYS = $derived(BLOCKS.map((b) => b.key));
+  const WIDE = $derived(tours ? ['T3', 'U2'] : ['V10']);
+  const GICON = { dist: Route, tempo: Gauge, bikes: Bike, body: HeartPulse, records: Trophy };
+  const BICON = { V1: ChartColumn, V7: MapIcon, V10: Clock, V3: Bike, V12: Backpack, V8: HeartPulse, V2: Medal, V6: CalendarRange, V9: CloudRain, V11: Leaf, T1: Gauge, T2: Bike, T3: Clock, U2: Wrench, P1: HeartPulse, C1: GitCompareArrows };
   const on = (k) => !view.off.includes(k);
   const blocksOf = (g) => BLOCKS.filter((b) => b.group === g && on(b.key));
 
@@ -52,6 +66,22 @@
   const wx = $derived(weatherSum(rows));
   const foot = $derived(footprint(rows));
   const kmAll = $derived(sums.reduce((s, m) => s + m.km, 0));
+  // SN4h: the SN2 plus and Rückblick blocks over the rows (tourzahlen.js); only computed on Touren
+  const vm = $derived(tours ? valueMonths(rows, months, vals) : []);
+  const vmTop = (key) => Math.max(0, ...vm.map((m) => m[key] ?? 0)) || 1;
+  const vmAny = (key) => vm.some((m) => m[key] != null);
+  const grid = $derived(tours ? rowsGrid(rows, vals, bikes) : []);
+  const pr = $derived(tours ? plannedRidden(rows) : { rows: [], avgMin: null });
+  const wear = $derived(tours ? wearPerBike(rows, bikes, vals) : []);
+  const cmp = $derived(tours ? compareGroups(rows, bikes, states) : []);
+  const wattRows = $derived(rows.filter((r) => vals[r.id]?.watts).length);
+  const PART_NAME = { chain: 'Chain', tyres: 'Tyres', pads: 'Brake pads' };
+  const P1_ROWS = [
+    { key: 'hrAvg', name: 'Ø heart rate', unit: 'bpm' },
+    { key: 'hrMax', name: 'Highest heart rate', unit: 'bpm' },
+    { key: 'wAvg', name: 'Ø power', unit: 'W' },
+    { key: 'wMax', name: 'Max. power', unit: 'W' },
+  ];
   const gainAll = $derived(sums.reduce((s, m) => s + m.gainM, 0));
 
   // with many months only the newest and the highest month carry their number (the others in the title)
@@ -69,11 +99,23 @@
     const nb = tn(n, '{n} block', '{n} blocks');
     if (g === 'dist') return [rows.length ? `${n0(kmAll)} km · ${n0(gainAll)} ${t('Hm|col')}` : '', nb];
     if (g === 'bikes') return [bikesRows[0] ? `${bikesRows[0].name} ${tn(bikesRows[0].n, '{n} trip', '{n} trips')}` : '', pack.avgG ? t('Ø {kg} luggage', { kg: kg(pack.avgG) }) : '', nb];
-    if (g === 'body') return [zoneAll ? t('{h} h with heart rate', { h: hm(zoneAll / 3600) }) : heart ? `${t('Ø heart rate')} ${num(heart.avg)}` : '', nb];
+    if (g === 'body') return [zoneAll ? t('{h} h with heart rate', { h: hm(zoneAll / 3600) }) : heart ? `${t('Ø heart rate')} ${num(heart.avg)}` : '', tours ? tn(wattRows, '{n} trip with power values', '{n} trips with power values') : '', nb];
+    if (g === 'tempo') {
+      const k = vm.filter((m) => m.kmh != null);
+      const avg = k.length ? Math.round((k.reduce((s, m) => s + m.kmh, 0) / k.length) * 10) / 10 : null;
+      return [avg != null ? t('Ø {kmh} km/h in motion', { kmh: n1(avg) }) : '', pr.avgMin != null ? t('on average {n} min beside the plan', { n: num(pr.avgMin) }) : '', nb];
+    }
     return [blocksOf(g).map((b) => t(b.name)).join(' · '), nb];
   };
   const isOpen = (g) => view.open.includes(g);
   const setView = (patch) => onview?.({ ...view, ...patch });
+  // SN4h: the jump bar opens a group and scrolls to it; «Alle zuklappen» / «Alle aufklappen»
+  const shownGroups = $derived(GROUPS.filter((g) => blocksOf(g.key).length));
+  const anyOpen = $derived(shownGroups.some((g) => isOpen(g.key)));
+  function jumpTo(g) {
+    if (!isOpen(g)) setView({ open: [...view.open, g] });
+    requestAnimationFrame(() => document.getElementById(`izg-${g}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
 
   /* ---- «Blöcke»: switch single blocks off and on ---- */
   let pick = $state(false);
@@ -104,7 +146,7 @@
 {/snippet}
 
 {#snippet block(b)}
-  <article class="blk" class:wide={b.key === 'V10'} data-block={b.key} aria-labelledby="bk-{b.key}">
+  <article class="blk" class:wide={WIDE.includes(b.key)} data-block={b.key} aria-labelledby="bk-{b.key}">
     {#if b.key === 'V1'}
       {@render head(b, newest ? t('km and climbing · {month} last', { month: monthLong(newest) }) : t('km and climbing'))}
       {#if !view.shut.includes(b.key)}
@@ -224,6 +266,99 @@
           </ul>
         {/if}
       {/if}
+    {:else if b.key === 'T1'}
+      <!-- SN4h: «Tempo über die Monate» (SN2 plus SN2i) over the rows -->
+      {@const l = newestOf(vm, 'kmh')}
+      {@render head(b, t('Ø km/h in motion per month, with Ø heart rate · only to look at'))}
+      {#if !view.shut.includes(b.key)}
+        {#if !vmAny('kmh')}{@render quiet(t('No moving time in this period.'))}{:else}
+          <div class="mscroll">
+            <div class="mc" style:--n={vm.length}>
+              <span class="ax">km/h</span>
+              <ol class="bars">{#each vm as m (m.ym)}<li data-month={m.ym} title="{monthLong(m.ym)}: {n1(m.kmh)} km/h">{#if m.kmh != null}<span class="bv num">{n1(m.kmh)}</span><i class="bar" class:last={m.ym === l?.ym} style:height="{(m.kmh / vmTop('kmh')) * 100}%"></i>{/if}</li>{/each}</ol>
+              {#if vmAny('hrAvg')}
+                <span class="ax">{t('Ø heart rate, bpm')}</span>
+                <ol class="ml hrl">{#each vm as m (m.ym)}<li>{m.hrAvg != null ? num(m.hrAvg) : ''}</li>{/each}</ol>
+              {/if}
+              <ol class="ml" aria-hidden="true">{#each vm as m (m.ym)}<li>{letter(m.ym)}</li>{/each}</ol>
+            </div>
+          </div>
+          <p class="foot">{t('Months without a trip stay empty.')}</p>
+        {/if}
+      {/if}
+    {:else if b.key === 'T2'}
+      <!-- SN4h: «Pro Velo und Untergrund» (SN2 plus SN2h) over the rows -->
+      {@render head(b, t('Ø km/h in motion · these trips'))}
+      {#if !view.shut.includes(b.key)}
+        {#if !grid.length}{@render quiet(t('From 20 km and half an hour in motion a trip counts here.'))}{:else}
+          <div class="tsc"><table class="ly pg">
+            <thead><tr><th scope="col"><span class="sr">{t('Bike')}</span></th>{#each SURFACES as sf (sf.key)}<th scope="col" class="n">{t(sf.name)}</th>{/each}</tr></thead>
+            <tbody>
+              {#each grid as g (g.bike.id)}
+                <tr data-grid-bike={g.bike.id}><th scope="row">{g.bike.name}</th>{#each SURFACES as sf (sf.key)}{@const c = g.cells[sf.key]}<td class="n num">{#if c.n}<b>{n1(c.kmh)}</b> <small>km/h · {tn(c.n, '{n} trip', '{n} trips')}</small>{:else}<small>{t('no trip')}</small>{/if}</td>{/each}</tr>
+              {/each}
+            </tbody>
+          </table></div>
+        {/if}
+      {/if}
+    {:else if b.key === 'T3'}
+      <!-- SN4h: «Geplant und gefahren» (SN2 plus SN2h) over the rows, the difference in grey -->
+      {@render head(b, pr.avgMin != null ? t('Moving time per trip · on average {n} min beside the plan', { n: num(pr.avgMin) }) : t('Moving time per trip'))}
+      {#if !view.shut.includes(b.key)}
+        {#if !pr.rows.length}{@render quiet(t('No trip with a planned and a ridden time in this period.'))}{:else}
+          <div class="tsc"><table class="ly">
+            <thead><tr><th scope="col">{t('Trip')}</th><th scope="col" class="n">{t('Planned|time')}</th><th scope="col" class="n">{t('Ridden|time')}</th><th scope="col" class="n">{t('Difference')}</th></tr></thead>
+            <tbody>
+              {#each pr.rows as x (x.id)}
+                <tr data-pr={x.id}><th scope="row">{@render trip(x, x.title)}</th><td class="n num">{hours(x.planH)}</td><td class="n num">{hours(x.realH)}</td><td class="n num diff">{signedHours(x.diffMin / 60)}</td></tr>
+              {/each}
+            </tbody>
+          </table></div>
+        {/if}
+      {/if}
+    {:else if b.key === 'U2'}
+      <!-- SN4h: «Abnutzung» (Rückblick extras DG-U2): what these trips added to the parts of each bike -->
+      {@render head(b, t('What these trips add to the parts'))}
+      {#if !view.shut.includes(b.key)}
+        {#if !wear.length}{@render quiet(t('No trip with a bike and km in this period.'))}{:else}
+          {#each wear as w (w.bike.id)}
+            <p class="sh" data-wear={w.bike.id}>{w.bike.name} <small class="wn">{tn(w.n, '{n} trip', '{n} trips')}</small></p>
+            <ul class="wear">
+              {#each w.parts as x (x.key)}
+                <li><span>{t(PART_NAME[x.key])}</span><b class="num">{x.addKm != null ? `+${n0(x.addKm)} km` : `+${n0(x.addHm)} ${t('Hm|col')}`}</b>{#if x.nowKm != null}<small>{t('now {km} km', { km: n0(x.nowKm) })}</small>{/if}</li>
+              {/each}
+            </ul>
+          {/each}
+          <p class="foot">{t('Changes to the parts are entered in bike care.')} <a href="#/bikes?tab=care">{t('Bike care')}</a></p>
+        {/if}
+      {/if}
+    {:else if b.key === 'P1'}
+      <!-- SN4h: «Puls und Leistung pro Monat» (SN2 plus SN2i) over the rows, without «best 20 min» -->
+      {@render head(b, t('the newest month on the right · only to look at'))}
+      {#if !view.shut.includes(b.key)}
+        {#if !P1_ROWS.some((r) => vmAny(r.key))}{@render quiet(t('No heart rate or power in this period.'))}{:else}
+          <ul class="pm">
+            {#each P1_ROWS.filter((r) => vmAny(r.key)) as r (r.key)}
+              {@const l = newestOf(vm, r.key)}
+              <li data-p1={r.key}><span>{t(r.name)}</span><span class="pmb" style:--n={vm.length}>{#each vm as m (m.ym)}<i class:last={m.ym === l?.ym} class:none={m[r.key] == null} style:height="{m[r.key] ? Math.max(8, (m[r.key] / vmTop(r.key)) * 100) : 8}%"></i>{/each}</span><b class="num">{l ? num(l.v) : DASH} <small>{t(r.unit)}</small></b></li>
+            {/each}
+          </ul>
+          <p class="foot">{t('Power only from trips with a power meter. Zones, power curve and FTP are in the trip’s Rückblick.')}</p>
+        {/if}
+      {/if}
+    {:else if b.key === 'C1'}
+      <!-- SN4h: «Vergleichsgruppen» (Rückblick extras SN2j): within a group the Rückblick compares -->
+      {@render head(b, t('within a group the Rückblick compares'))}
+      {#if !view.shut.includes(b.key)}
+        {#if !cmp.length}{@render quiet(t('No bike yet.'))}{:else}
+          <ul class="kv">
+            {#each cmp as g (g.key)}
+              <li data-cmp={g.key}><span class="ln"><b>{g.key === 'bikepacking' ? t('Bikepacking') : g.name}</b>{#if g.last}<small>{t('last: {trip}', { trip: g.last })}</small>{/if}</span><b class="num">{g.rated ? tn(g.rated, '{n} trip with a Rückblick', '{n} trips with a Rückblick') : t('no trip with a Rückblick yet')}</b></li>
+            {/each}
+          </ul>
+          <p class="foot">{t('Similar means: km and Hm each at most 20 % apart.')}</p>
+        {/if}
+      {/if}
     {:else if b.key === 'V11'}
       {@render head(b, t('Bike instead of car'))}
       {#if !view.shut.includes(b.key)}
@@ -236,22 +371,34 @@
   </article>
 {/snippet}
 
-<section class="iz" aria-labelledby="iz-h" data-in-numbers>
+<section class="iz" class:tours aria-labelledby="iz-h" data-in-numbers data-tours={tours || null}>
   <div class="izh">
     <div>
       <h2 id="iz-h">{t('In numbers')}</h2>
-      <p class="rv-sub">{t('{n} blocks · follow the period and filters above · now: {scope}', { n: BLOCK_KEYS.filter(on).length, scope })}</p>
+      <p class="rv-sub">{tours ? t('follows the period, chips and filters above · now: {scope}', { scope }) : t('{n} blocks · follow the period and filters above · now: {scope}', { n: BLOCK_KEYS.filter(on).length, scope })}</p>
     </div>
-    <button type="button" class="btn k" onclick={() => (pick = true)} aria-haspopup="dialog"><LayoutGrid size={17} aria-hidden="true" /><span class="kl">{t('Blocks')}</span></button>
+    <div class="izt">
+      {#if tours && shownGroups.length}<button type="button" class="btn btn-link fall" data-fold-all onclick={() => setView({ open: anyOpen ? [] : shownGroups.map((g) => g.key) })}>{#if anyOpen}<ChevronsUp size={17} aria-hidden="true" />{t('Close all')}{:else}<ChevronsDown size={17} aria-hidden="true" />{t('Open all')}{/if}</button>{/if}
+      <button type="button" class="btn k" onclick={() => (pick = true)} aria-haspopup="dialog"><LayoutGrid size={17} aria-hidden="true" /><span class="kl">{t('Blocks')}</span></button>
+    </div>
   </div>
-  {#each GROUPS.filter((g) => blocksOf(g.key).length) as g (g.key)}
+  {#if tours && shownGroups.length}
+    <!-- SN4h: the jump bar, it stays on top while the long page scrolls -->
+    <nav class="jump" aria-label={t('Jump to a group')} data-jump>
+      {#each shownGroups as g (g.key)}
+        {@const Icon = GICON[g.key]}
+        <button type="button" data-jump-to={g.key} onclick={() => jumpTo(g.key)}><Icon size={15} aria-hidden="true" />{t(g.name)}</button>
+      {/each}
+    </nav>
+  {/if}
+  {#each shownGroups as g (g.key)}
     {@const Icon = GICON[g.key]}
     {@const open = isOpen(g.key)}
-    <div class="grp" class:open data-group={g.key}>
+    <div class="grp" class:open data-group={g.key} id="izg-{g.key}">
       <h3 class="gh">
         <button type="button" aria-expanded={open} onclick={() => setView({ open: toggled(view.open, g.key) })}>
           <span class="gic" aria-hidden="true"><Icon size={20} /></span>
-          <span class="gm"><b>{t(g.name)}</b><small data-summary>{open ? tn(blocksOf(g.key).length, '{n} block', '{n} blocks') : summary(g.key).filter(Boolean).join(' · ')}</small></span>
+          <span class="gm"><b>{t(g.name)}</b><small data-summary>{open && !tours ? tn(blocksOf(g.key).length, '{n} block', '{n} blocks') : summary(g.key).filter(Boolean).join(' · ')}</small></span>
           {#if open}<ChevronUp size={20} aria-hidden="true" />{:else}<ChevronDown size={20} aria-hidden="true" />{/if}
         </button>
       </h3>
@@ -743,6 +890,161 @@
   .fp > div > small {
     color: var(--ink-3);
     font-size: var(--fs-small);
+    font-weight: 400;
+  }
+  /* SN4h: Touren › Übersicht: the tools, the jump bar on top, two blocks side by side */
+  .izt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+  }
+  .fall {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+  }
+  .jump {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: flex;
+    gap: 6px;
+    margin: 0 0 12px;
+    padding: 6px;
+    overflow-x: auto;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
+  }
+  @media (max-width: 899px), (max-height: 500px) {
+    .jump {
+      top: calc(56px + env(safe-area-inset-top));
+    }
+  }
+  .jump button {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.2 var(--font-body);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .jump button:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+  }
+  .tours .grp {
+    scroll-margin-top: 72px;
+  }
+  @media (max-width: 899px), (max-height: 500px) {
+    .tours .grp {
+      scroll-margin-top: 128px;
+    }
+  }
+  @media (min-width: 900px) {
+    .tours .blocks {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .hrl li {
+    color: var(--ink-2);
+  }
+  .pg small,
+  .wn {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+    font-weight: 400;
+  }
+  .pg td,
+  .pg th {
+    vertical-align: top;
+  }
+  /* SN4h: on a phone the count goes under the pace, and a narrow table scrolls on its own, never the page */
+  .tsc {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .pg .n {
+    white-space: normal;
+  }
+  .pg small {
+    display: block;
+  }
+  @media (max-width: 380px) {
+    .tours .code {
+      display: none;
+    }
+  }
+  .wear {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .wear li {
+    display: grid;
+    gap: 2px;
+    padding: 8px 10px;
+    border-radius: var(--r-ctl);
+    background: var(--paper-2);
+    font-size: var(--fs-small);
+  }
+  .wear small {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  .pm {
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pm li {
+    display: grid;
+    grid-template-columns: minmax(0, 7em) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+  }
+  .pm li + li {
+    border-top: 1px solid var(--line);
+  }
+  .pm li > span:first-child {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .pmb {
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    align-items: end;
+    gap: 2px;
+    height: 28px;
+  }
+  .pmb i {
+    display: block;
+    border-radius: 2px 2px 0 0;
+    background: var(--line-strong);
+  }
+  .pmb i.none {
+    background: var(--line);
+  }
+  .pmb i.last {
+    background: var(--hi);
+  }
+  .pm b small {
+    color: var(--ink-3);
     font-weight: 400;
   }
   /* «Blöcke» */
