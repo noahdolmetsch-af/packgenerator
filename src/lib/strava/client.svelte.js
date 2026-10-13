@@ -312,7 +312,7 @@ export async function keepActivities(db, list) {
 /** One activity's heart rate per beat and kcal from the server, kept on the activity. */
 export async function loadDetail(db, id, { call: c = call, now = new Date() } = {}) {
   const d = await c('detail', { params: { id: String(id) } });
-  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, desc: typeof d.desc === 'string' ? d.desc : '', detail: now.toISOString() });
+  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], w20: Number.isFinite(d.w20) ? d.w20 : null, pHist: d.pHist ?? null, pCurve: Array.isArray(d.pCurve) ? d.pCurve : null, pauses: d.pauses ?? null, segs: Array.isArray(d.segs) ? d.segs : [], best: Array.isArray(d.best) ? d.best : [], desc: typeof d.desc === 'string' ? d.desc : '', detail: now.toISOString() });
   return d;
 }
 

@@ -134,7 +134,7 @@ describe('Strava data', () => {
     const key = fragment(await connect(h, w)).get('key');
     const body = await (await h(get('/api/strava?step=activities&after=1700000000&page=2', { key }))).json();
     expect(body).toMatchObject({ ok: true, page: 2, more: false });
-    expect(body.activities[0]).toEqual({ id: '111', name: 'Abendrunde', type: 'GravelRide', start: '2026-10-11T16:00:00Z', startLocal: '2026-10-11T18:00:00Z', km: 42.3, hm: 512, movingS: 6000, elapsedS: 6300, gearId: 'b100', device: 'Garmin Edge 540', commute: false, trainer: false, hrAvg: 142, hrMax: 172, wAvg: null, wMax: null, wDevice: false });
+    expect(body.activities[0]).toEqual({ id: '111', name: 'Abendrunde', type: 'GravelRide', start: '2026-10-11T16:00:00Z', startLocal: '2026-10-11T18:00:00Z', km: 42.3, hm: 512, movingS: 6000, elapsedS: 6300, gearId: 'b100', device: 'Garmin Edge 540', commute: false, trainer: false, hrAvg: 142, hrMax: 172, wAvg: null, wMax: null, wDevice: false, spdAvg: null, spdMax: null, cad: null, tempAvg: null, wNorm: null, kj: null, effort: null });
     expect(JSON.stringify(body)).not.toMatch(/secret-route/);
     const call = w.calls.find((c) => c.url.startsWith(`${API}/athlete/activities`));
     expect(call.url).toContain('page=2');

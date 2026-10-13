@@ -63,10 +63,17 @@ export function actRecord(a) {
     wAvg: fin(a.wAvg),
     wMax: fin(a.wMax),
     wDevice: !!a.wDevice,
+    spdAvg: fin(a.spdAvg),
+    spdMax: fin(a.spdMax),
+    cad: fin(a.cad),
+    tempAvg: fin(a.tempAvg),
+    wNorm: fin(a.wNorm),
+    kj: fin(a.kj),
+    effort: fin(a.effort),
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */
-export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'desc', 'detail', 'note'];
+export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note'];
 
 /** Newest first. */
 export const byNewest = (a, b) => `${b.day} ${b.time}`.localeCompare(`${a.day} ${a.time}`);
@@ -258,3 +265,41 @@ export function activitiesForTrip(trip, acts = [], kmBook = []) {
   const ids = new Set(kmBook.filter((e) => e.tripId === trip.id && e.stravaId).map((e) => String(e.stravaId)));
   return acts.filter((a) => ids.has(a.id) || (a.kind === 'bike' && a.day >= trip.startDate && a.day <= end)).sort((a, b) => `${a.day} ${a.time}`.localeCompare(`${b.day} ${b.time}`));
 }
+
+/*
+ * Power (Noah 13.10.2026 «a und b»): with a power meter NP, Ø and max, time in the power zones, the
+ * power curve and an estimated FTP; the load both as Strava's Relative Effort and from power ÷ FTP.
+ */
+export const FTP_DAYS = 90;
+/** Estimated FTP: 95 % of the best 20 minutes (power meter) of the last FTP_DAYS days, or null. */
+export function ftpEstimate(acts, today, days = FTP_DAYS) {
+  const from = shiftDay(today, -days);
+  const best = Math.max(0, ...acts.filter((a) => a.day >= from && a.day <= today && Number.isFinite(a.w20)).map((a) => a.w20));
+  return best > 0 ? Math.round(best * 0.95) : null;
+}
+
+/** The power zones (Coggan, 7): upper ends in watts of zones 1–6, as share of the FTP. */
+export const POWER_ZONE_SHARES = [0.55, 0.75, 0.9, 1.05, 1.2, 1.5];
+export const powerBounds = (ftp) => (ftp > 0 ? POWER_ZONE_SHARES.map((p) => Math.round(ftp * p)) : null);
+
+/** Seconds per power zone from the 10 W histogram; null without histogram or FTP. */
+export function powerZoneSecs(pHist, ftp) {
+  const bounds = powerBounds(ftp);
+  if (!pHist || !bounds) return null;
+  const secs = Array(7).fill(0);
+  for (const [w, n] of Object.entries(pHist)) {
+    const i = bounds.findIndex((b) => Number(w) + 5 <= b); // the middle of the 10 W bin
+    secs[i === -1 ? 6 : i] += n;
+  }
+  return secs;
+}
+
+/** Intensity (NP ÷ FTP) and load ((NP ÷ FTP)² × hours × 100); null without NP or FTP. */
+export function powerLoad(a, ftp) {
+  if (!(a?.wNorm > 0) || !(ftp > 0) || !(a.movingS > 0)) return null;
+  const f = a.wNorm / ftp;
+  return { intensity: Math.round(f * 100) / 100, load: Math.round(f * f * (a.movingS / 3600) * 100) };
+}
+
+/** Watts per kg with one decimal; the weight stays on the device. */
+export const wkg = (w, kg) => (w > 0 && kg > 0 ? Math.round((w / kg) * 10) / 10 : null);

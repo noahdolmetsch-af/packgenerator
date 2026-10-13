@@ -2,8 +2,8 @@
 // zones and heart rate per beat (api/strava.js), and the fetch keeping every activity. Fictional only.
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
-import { activitiesForTrip, isoWeek, mondayOf, weekOf, cleanSession, planOf, goalOf, weeksTo, doneBy, copyWeek, prunePlan, weekNumbers, kindOf, actRecord, zonesOf, zoneSecs, mainZone, shares, hmm, speed, sameRoute, kindCounts, monthsOf, needDetail, boundsOfStrava, validBounds, DEFAULT_BOUNDS, zoneRange, typeKey } from '../src/lib/training.js';
-import { trimZones, trimStreams, best20, trimActivity } from '../api/strava.js';
+import { ftpEstimate, powerBounds, powerZoneSecs, powerLoad, wkg, activitiesForTrip, isoWeek, mondayOf, weekOf, cleanSession, planOf, goalOf, weeksTo, doneBy, copyWeek, prunePlan, weekNumbers, kindOf, actRecord, zonesOf, zoneSecs, mainZone, shares, hmm, speed, sameRoute, kindCounts, monthsOf, needDetail, boundsOfStrava, validBounds, DEFAULT_BOUNDS, zoneRange, typeKey } from '../src/lib/training.js';
+import { trimZones, trimStreams, best20, trimActivity, trimPower, pausesOf, trimEfforts } from '../api/strava.js';
 import { createDb } from '../src/lib/db.js';
 import { keepActivities, fetchTraining, loadDetail } from '../src/lib/strava/client.svelte.js';
 
@@ -84,7 +84,7 @@ describe('the server', () => {
     expect(curve.length).toBe(120);
     expect(curve[0]).toEqual([0, 120]);
     expect(curve.at(-1)[1]).toBe(150);
-    expect(trimStreams(null)).toEqual({ hist: null, curve: [], w20: null });
+    expect(trimStreams(null)).toEqual({ hist: null, curve: [], w20: null, pHist: null, pCurve: null, pauses: null });
   });
   it('power: Ø and max from Strava, the best 20 minutes from a power meter', () => {
     expect(trimActivity({ id: 1, average_watts: 187.6, max_watts: 612, device_watts: true })).toMatchObject({ wAvg: 188, wMax: 612, wDevice: true });
@@ -100,6 +100,28 @@ describe('the server', () => {
     expect(best20(time.slice(0, 600), watts.slice(0, 600))).toBe(null);
     expect(trimStreams({ time: { data: time }, watts: { data: watts } }).w20).toBe(260);
   });
+  it('tour look back: speed, cadence, temperature, NP, kJ and Relative Effort from the list', () => {
+    expect(trimActivity({ id: 3, average_speed: 6.25, max_speed: 15.1, average_cadence: 84.6, average_temp: 14.4, weighted_average_watts: 211.4, kilojoules: 1520.6, device_watts: true, suffer_score: 87 }))
+      .toMatchObject({ spdAvg: 22.5, spdMax: 54.4, cad: 85, tempAvg: 14, wNorm: 211, kj: 1521, effort: 87 });
+    expect(trimActivity({ id: 4, weighted_average_watts: 180, kilojoules: 900, device_watts: false, average_temp: 0 }))
+      .toMatchObject({ spdAvg: null, cad: null, tempAvg: 0, wNorm: null, kj: null, effort: null });
+  });
+  it('power curve and seconds per 10 W; breaks; own segment times, records first', () => {
+    const time = Array.from({ length: 400 }, (_, i) => i);
+    const watts = time.map((i) => (i < 300 ? 204 : 316));
+    const { pHist, pCurve } = trimPower(time, watts);
+    expect(pHist).toEqual({ 200: 300, 310: 99 });
+    expect(pCurve).toEqual([[5, 316], [60, 316], [300, 241], [1200, null], [3600, null]]);
+    expect(trimPower([], [])).toEqual({ pHist: null, pCurve: null });
+    // a stop of 90 s (moving false), a short one of 20 s (not a break), a gap of 5 min in the data
+    const t = Array.from({ length: 600 }, (_, i) => (i < 500 ? i : i + 300));
+    const moving = t.map((_, i) => !((i >= 100 && i < 190) || (i >= 300 && i < 320)));
+    expect(pausesOf(t, moving)).toEqual({ n: 2, secs: 90 + 301 });
+    expect(pausesOf(null, null)).toBe(null);
+    const segs = trimEfforts([{ name: 'test_data_gtp_ Anstieg', moving_time: 412, pr_rank: null }, { name: 'test_data_gtp_ Sprint', elapsed_time: 31, pr_rank: 1, segment: { start_latlng: [47, 8] } }, { name: '', moving_time: 5 }]);
+    expect(segs).toEqual([{ name: 'test_data_gtp_ Sprint', s: 31, pr: 1 }, { name: 'test_data_gtp_ Anstieg', s: 412, pr: null }]);
+    expect(trimEfforts(undefined)).toEqual([]);
+  });
 });
 
 describe('the fetch keeps every activity', () => {
@@ -112,7 +134,7 @@ describe('the fetch keeps every activity', () => {
     const c = async (step, { params = {} } = {}) => {
       log.push([step, params.id]);
       if (step === 'zones') return { ok: true, hr: STRAVA_Z.hr, custom: false };
-      if (step === 'detail') return { ok: true, id: params.id, kcal: 512, desc: 'test_data_gtp_ lockere Runde', hist: { 150: 2800 }, curve: [[0, 140], [48, 152]] };
+      if (step === 'detail') return { ok: true, id: params.id, kcal: 512, desc: 'test_data_gtp_ lockere Runde', hist: { 150: 2800 }, curve: [[0, 140], [48, 152]], pauses: { n: 1, secs: 240 }, segs: [{ name: 'test_data_gtp_ Seeweg', s: 300, pr: 2 }] };
       return { ok: true };
     };
     const now = new Date('2026-10-13T08:00:00Z');
@@ -121,7 +143,7 @@ describe('the fetch keeps every activity', () => {
     expect((await db.activities.get('11')).kcal).toBe(512);
     await db.activities.update('11', { note: 'Beine gut' });
     await keepActivities(db, [{ ...acts[0], name: 'Lauf am See' }]);
-    expect(await db.activities.get('11')).toMatchObject({ name: 'Lauf am See', kcal: 512, desc: 'test_data_gtp_ lockere Runde', note: 'Beine gut', hist: { 150: 2800 } });
+    expect(await db.activities.get('11')).toMatchObject({ name: 'Lauf am See', kcal: 512, desc: 'test_data_gtp_ lockere Runde', pauses: { n: 1, secs: 240 }, segs: [{ name: 'test_data_gtp_ Seeweg', s: 300, pr: 2 }], note: 'Beine gut', hist: { 150: 2800 } });
     await fetchTraining(db, c, new Date('2026-10-13T09:00:00Z'));
     expect(log.length).toBe(2); // zones fresh, details there
     await loadDetail(db, '12', { call: c, now });
@@ -185,5 +207,25 @@ describe('the activities of a trip', () => {
     const e = rec('5', { startLocal: '2026-10-09T18:00:00Z' });
     expect(activitiesForTrip(trip, [d, c, b, a, e], [{ tripId: 't1', stravaId: '5' }]).map((x) => x.id)).toEqual(['5', '1', '2']);
     expect(activitiesForTrip({ id: 'x' }, [a])).toEqual([]);
+  });
+});
+
+describe('power: FTP, zones, load, W/kg (Noah 13.10.2026 «a und b», «a»)', () => {
+  it('estimated FTP is 95 % of the best 20 minutes of the last 90 days', () => {
+    const acts = [{ day: '2026-10-01', w20: 250 }, { day: '2026-06-01', w20: 300 }, { day: '2026-10-10', w20: null }];
+    expect(ftpEstimate(acts, '2026-10-13')).toBe(238);
+    expect(ftpEstimate([], '2026-10-13')).toBe(null);
+  });
+  it('seven power zones from the 10 W histogram', () => {
+    expect(powerBounds(200)).toEqual([110, 150, 180, 210, 240, 300]);
+    expect(powerZoneSecs({ 100: 10, 140: 20, 200: 30, 400: 5 }, 200)).toEqual([10, 20, 0, 30, 0, 0, 5]);
+    expect(powerZoneSecs(null, 200)).toBe(null);
+    expect(powerZoneSecs({ 100: 1 }, null)).toBe(null);
+  });
+  it('load from NP and FTP; W/kg', () => {
+    expect(powerLoad({ wNorm: 200, movingS: 7200 }, 250)).toEqual({ intensity: 0.8, load: 128 });
+    expect(powerLoad({ wNorm: null, movingS: 7200 }, 250)).toBe(null);
+    expect(wkg(238, 72)).toBe(3.3);
+    expect(wkg(238, null)).toBe(null);
   });
 });
