@@ -119,10 +119,13 @@ test('I5 and I6: Notes as rows, pinned first; the note window folds Turn the not
 test('I8: the Helper with its path, the code first while it is not set up', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/helper');
-  await onePage(page, T('Helper'));
+  // v0.118.0 «KI-Helfer ausblenden» (K4, changed on purpose): «AI helper», the one switch, the setup beside it;
+  // the key opens by itself while it is not set up
+  await onePage(page, T('AI helper'));
   await expect(path(page).getByRole('link', { name: T('Me|place') })).toBeVisible();
-  await expect(page.getByRole('heading', { name: T('Helper code') })).toBeVisible();
-  await expect(page.getByRole('heading', { name: T('What goes to Claude?') })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('Setup|helper') })).toBeVisible();
+  await expect(page.getByLabel(T('Helper code'))).toBeVisible();
+  await expect(page.getByText(T('What goes to Claude?')).first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 

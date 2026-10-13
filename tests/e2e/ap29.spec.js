@@ -265,9 +265,11 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   // v0.78.0 (Übergänge 2, Noah Ü9a): after a real update a calm sheet «New in …» with the points.
   // v0.110.0 Design-Refresh P10 (I11b, changed on purpose): «New in 0.110: name», «Try it ›», «Later» and
   // «All news» to Ich › Was ist neu; «Later» closes it for this start (the quiet row stays for a first visit).
+  // v0.118.0 «Was ist neu 2» (W1, changed on purpose): «New since your last visit», every version open, «Looos ›»
   const sheet = page.locator('dialog.news[open]');
-  await expect(sheet.getByRole('heading', { name: WHATS_NEW[0].title ? T('New in {v}: {name}', { v: short(WHATS_NEW[0].version), name: T(WHATS_NEW[0].title) }) : T('New in {version}', { version: short(WHATS_NEW[0].version) }) })).toBeVisible();
-  await expect(sheet.getByRole('button', { name: T('Try it') })).toBeVisible();
+  await expect(sheet.getByRole('heading', { name: T('New since your last visit') })).toBeVisible();
+  await expect(sheet.getByRole('heading', { name: T(WHATS_NEW[0].title) })).toBeVisible();
+  await expect(sheet.getByRole('button', { name: T("Let's go|news") })).toBeVisible();
   await expect(sheet.getByRole('link', { name: T('All news') })).toHaveAttribute('href', '#/me/news');
   await shot(page, info, 'today-hint');
   expect(await page.evaluate(() => localStorage.getItem('whatsnew.seen'))).toBe(WHATS_NEW[0].version);

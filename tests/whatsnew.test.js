@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
-import { WHATS_NEW, SHOWN, BEFORE, compareVersions, splitNews, groupOlder, shortVersion, newsHint, newerThan } from '../src/lib/whatsnew.js';
+import { WHATS_NEW, SHOWN, BEFORE, BOXES, compareVersions, splitNews, groupOlder, shortVersion, newsHint, newerThan, itemsOf, iconOf } from '../src/lib/whatsnew.js';
 import { pageOf } from '../src/lib/nav.js';
 import { t, lang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';
@@ -33,9 +33,10 @@ describe('the list of what is new', () => {
       expect(e.date, e.version).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(Number.isNaN(Date.parse(e.date)), e.version).toBe(false);
       expect(e.points.length, e.version).toBeGreaterThanOrEqual(1);
-      expect(e.points.length, e.version).toBeLessThanOrEqual(4);
+      // v0.118.0 «Was ist neu 2» (changed on purpose, answer 2a): 1–3 main points, the small things in boxes
+      expect(e.points.length, e.version).toBeLessThanOrEqual(3);
       expect(new Set(e.points.map((p) => p.text)).size, e.version).toBe(e.points.length);
-      for (const p of e.points) {
+      for (const p of itemsOf(e)) {
         expect(DE[p.text], p.text).toBeTruthy();
         expect(DE[p.text], p.text).not.toMatch(/[ß—]/);
         expect(p.text, p.text).not.toMatch(/—/);
@@ -55,7 +56,7 @@ describe('the list of what is new', () => {
       .map((f) => readFileSync(new URL(f, src), 'utf8'))
       .join('\n');
     for (const e of WHATS_NEW) {
-      for (const p of e.points) {
+      for (const p of itemsOf(e)) {
         if (p.href == null) {
           expect(p.action, p.text).toBeUndefined();
           continue;
@@ -98,41 +99,72 @@ describe('the list of what is new', () => {
   });
 
   it('0.46.0 «Startseite neu»: Today, the command search and the colour worlds, each with Try it', () => {
+    // v0.118.0 (changed on purpose): the colour worlds are a small thing in the box «New»
     const e = WHATS_NEW.find((x) => x.version === '0.46.0');
-    expect(e.points.length).toBeGreaterThanOrEqual(3);
-    expect(e.points.length).toBeLessThanOrEqual(4);
-    for (const p of e.points) {
+    const all = itemsOf(e);
+    expect(all.length).toBeGreaterThanOrEqual(3);
+    expect(all.length).toBeLessThanOrEqual(4);
+    for (const p of all) {
       expect(p.href).toBe('#/');
       expect(DE[p.text], p.text).toBeTruthy();
     }
     lang.v = 'de';
-    expect(t(e.points[3].text)).toContain('Gletscher, Sandstein und Klassisch');
+    expect(t(all[3].text)).toContain('Gletscher, Sandstein und Klassisch');
+    expect(e.small[0].box).toBe('new');
   });
 
   it('0.47.0 «Aufpimpen»: wardrobe, bike trip, gear and bike care, each with Try it', () => {
     const e = WHATS_NEW.find((x) => x.version === '0.47.0');
-    expect(e.points.length).toBeLessThanOrEqual(4);
-    expect(e.points.map((p) => p.href)).toEqual(['#/wardrobe', '#/pack', '#/gear', '#/bikes?tab=care']);
-    for (const p of e.points) expect(DE[p.text], p.text).toBeTruthy();
+    const all = itemsOf(e);
+    expect(all.length).toBeLessThanOrEqual(4);
+    expect(all.map((p) => p.href)).toEqual(['#/wardrobe', '#/pack', '#/gear', '#/bikes?tab=care']);
+    for (const p of all) expect(DE[p.text], p.text).toBeTruthy();
     lang.v = 'de';
-    expect(t(e.points[0].text)).toContain('Noch einordnen');
-    expect(t(e.points[3].text)).toContain('Velopflege');
+    expect(t(all[0].text)).toContain('Noch einordnen');
+    expect(t(all[3].text)).toContain('Velopflege');
   });
 
   it('0.47.2 «Material-Ansichten»: views, never used, dots and the item, each with Try it', () => {
     const e = WHATS_NEW.find((x) => x.version === '0.47.2');
-    expect(e.points.length).toBeLessThanOrEqual(4);
-    expect(e.points.map((p) => p.href)).toEqual(['#/gear', '#/gear?view=never', '#/gear', '#/gear']);
-    for (const p of e.points) expect(DE[p.text], p.text).toBeTruthy();
+    const all = itemsOf(e);
+    expect(all.length).toBeLessThanOrEqual(4);
+    expect(all.map((p) => p.href)).toEqual(['#/gear', '#/gear?view=never', '#/gear', '#/gear']);
+    for (const p of all) expect(DE[p.text], p.text).toBeTruthy();
     lang.v = 'de';
-    expect(t(e.points[1].text)).toContain('Nie gebraucht');
+    expect(t(all[1].text)).toContain('Nie gebraucht');
+  });
+
+  it('v0.118.0 «Was ist neu 2»: every version has its own title and one sentence, small things in the four boxes, at most one emoji', () => {
+    const titles = new Set();
+    const emoji = /\p{Extended_Pictographic}/gu;
+    for (const e of WHATS_NEW) {
+      expect(e.title, e.version).toBeTruthy();
+      expect(e.lead, e.version).toBeTruthy();
+      expect(titles.has(e.title), `${e.version}: ${e.title}`).toBe(false);
+      titles.add(e.title);
+      for (const k of [e.title, e.lead]) {
+        expect(DE[k], k).toBeTruthy();
+        expect(DE[k], k).not.toMatch(/[ß—]/);
+      }
+      for (const s of e.small ?? []) expect(BOXES.map((b) => b.key), `${e.version}: ${s.box}`).toContain(s.box);
+      expect((e.small ?? []).length, e.version).toBeLessThanOrEqual(3);
+      const en = [e.title, e.lead, ...itemsOf(e).map((p) => p.text)].join(' ');
+      const de = [e.title, e.lead, ...itemsOf(e).map((p) => p.text)].map((k) => DE[k]).join(' ');
+      expect((en.match(emoji) ?? []).length, e.version).toBeLessThanOrEqual(1);
+      expect((de.match(emoji) ?? []).length, e.version).toBeLessThanOrEqual(1);
+      for (const p of itemsOf(e)) expect(typeof iconOf(p), p.text).toBe('string');
+    }
+    lang.v = 'de';
+    for (const b of BOXES) expect(t(b.label)).not.toBe(b.label);
+    expect(t('New|box')).toBe('Neu');
+    expect(t('Fixed|box')).toBe('Repariert');
   });
 
   it('compares versions by number, not by text', () => {
     expect(compareVersions('0.35.0', '0.34.0')).toBe(1);
     expect(compareVersions('0.9.0', '0.10.0')).toBe(-1);
     expect(compareVersions('0.35', '0.35.0')).toBe(0);
-    expect(newerThan('0.33.0').map((e) => e.version)).toEqual(['0.117.0', '0.116.0', '0.115.0', '0.114.0', '0.111.0', '0.110.0', '0.109.0', '0.108.0', '0.107.0', '0.106.0', '0.105.0', '0.104.0', '0.103.0', '0.102.0', '0.101.0', '0.100.0', '0.99.0', '0.98.0', '0.97.0', '0.96.0', '0.95.0', '0.94.0', '0.93.0', '0.92.0', '0.91.0', '0.88.0', '0.86.0', '0.84.0', '0.83.0', '0.81.0', '0.80.0', '0.79.0', '0.78.0', '0.77.0', '0.76.0', '0.75.0', '0.73.0', '0.70.0', '0.69.1', '0.69.0', '0.68.0', '0.67.1', '0.67.0', '0.66.0', '0.65.0', '0.63.0', '0.61.0', '0.59.0', '0.57.0', '0.56.0', '0.51.0', '0.47.3', '0.47.2', '0.47.1', '0.47.0', '0.46.3', '0.46.2', '0.46.1', '0.46.0', '0.45.2', '0.45.1', '0.45.0', '0.44.1', '0.44.0', '0.43.0', '0.42.0', '0.41.0', '0.40.0', '0.39.0', '0.38.0', '0.37.1', '0.37.0', '0.36.0', '0.35.0', '0.34.0']);
+    expect(newerThan('0.33.0').map((e) => e.version)).toEqual(['0.118.0', '0.117.0', '0.116.0', '0.115.0', '0.114.0', '0.111.0', '0.110.0', '0.109.0', '0.108.0', '0.107.0', '0.106.0', '0.105.0', '0.104.0', '0.103.0', '0.102.0', '0.101.0', '0.100.0', '0.99.0', '0.98.0', '0.97.0', '0.96.0', '0.95.0', '0.94.0', '0.93.0', '0.92.0', '0.91.0', '0.88.0', '0.86.0', '0.84.0', '0.83.0', '0.81.0', '0.80.0', '0.79.0', '0.78.0', '0.77.0', '0.76.0', '0.75.0', '0.73.0', '0.70.0', '0.69.1', '0.69.0', '0.68.0', '0.67.1', '0.67.0', '0.66.0', '0.65.0', '0.63.0', '0.61.0', '0.59.0', '0.57.0', '0.56.0', '0.51.0', '0.47.3', '0.47.2', '0.47.1', '0.47.0', '0.46.3', '0.46.2', '0.46.1', '0.46.0', '0.45.2', '0.45.1', '0.45.0', '0.44.1', '0.44.0', '0.43.0', '0.42.0', '0.41.0', '0.40.0', '0.39.0', '0.38.0', '0.37.1', '0.37.0', '0.36.0', '0.35.0', '0.34.0']);
   });
 });
 

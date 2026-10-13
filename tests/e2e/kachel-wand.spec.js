@@ -7,7 +7,7 @@
 // mocked; SHOTS=<folder> saves screenshots.
 import { test, expect } from '@playwright/test';
 import { D0, openHome } from './home0460-fixture.js';
-import { READY, TILE, TILES, isNew } from '../../src/lib/home/tiles.js';
+import { READY, TILE, TILES, HELPER_TILES, isNew } from '../../src/lib/home/tiles.js';
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;
@@ -134,7 +134,8 @@ test('plus adds any tile from the catalog by area, with a search; the tick takes
   const sheet = page.getByRole('dialog', { name: T('Add a tile') });
   await expect(sheet).toBeVisible();
   // every tile of the app is in the catalog
-  await expect(sheet.locator('[data-add]')).toHaveCount(TILES.length);
+  // v0.118.0 «KI-Helfer ausblenden» (changed on purpose): the helper's tile only while the AI helper is shown
+  await expect(sheet.locator('[data-add]')).toHaveCount(TILES.length - HELPER_TILES.length);
   await shot(page, info, 'C-Kachel-hinzufuegen');
   await sheet.getByRole('searchbox', { name: T('Search tiles') }).fill(T(TILE.milestones.label).slice(0, 6));
   const add = sheet.locator('[data-add="milestones"]');

@@ -70,11 +70,13 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await expect(page.getByRole('navigation', { name: T('Path') }).getByRole('link', { name: T('Me|place') })).toHaveAttribute('href', '#/me');
 
   // the newest version as a card: name, one sentence, every point, «Try it» and «How to test it»
+  // v0.118.0 «Was ist neu 2» (W2, changed on purpose): the points as rows to their place, the small things in boxes
   const top = page.locator('.wn-top');
   await expect(top).toHaveAttribute('data-newest', NEWEST.version);
   await expect(top.getByRole('heading', { name: T(NEWEST.title) })).toBeVisible();
   await expect(top.getByText(T(NEWEST.lead))).toBeVisible();
-  await expect(top.locator('.wn-checks li')).toHaveCount(NEWEST.points.length);
+  await expect(top.locator('.vn-pts li')).toHaveCount(NEWEST.points.length);
+  await expect(top.locator('.vn-small li')).toHaveCount(NEWEST.small?.length ?? 0);
   await expect(top.getByRole('link', { name: T('Try it') })).toHaveAttribute('href', NEWEST.points[0].href);
   await top.getByRole('button', { name: T('How to test it') }).click();
   await expect(page.locator('#wn-test')).toBeInViewport();
@@ -83,32 +85,44 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await page.reload();
   await expect(page.locator('#wn-test input').first()).toBeChecked(); // the ticks stay on this device
 
-  // every function: 10 rows sorted by newest, «All n functions», the six sorts and the search
+  // every function: v0.118.0 (W2, changed on purpose) one row «All functions» to the whole list, which is unchanged:
+  // sorted by newest, the six sorts and the search
+  const allRow = page.locator('a.wn-allrow');
+  await expect(allRow).toHaveAttribute('href', '#/me/news?all&sort=new');
+  await expect(allRow).toContainText(T('{n} · sortable, with a search', { n: FEATURE_N }));
+  await expect(page.locator('.wn-rows')).toHaveCount(0);
+  await allRow.click();
+  await expect(page).toHaveURL(/#\/me\/news\?all&sort=new$/);
   await expect(page.getByRole('group', { name: T('Sort') }).getByRole('button')).toHaveCount(SORTS.length);
   await expect(page.getByRole('button', { name: T('Newest'), exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('.wn-rows > li')).toHaveCount(LIST_ROWS);
+  await expect(page.locator('.wn-rows > li')).toHaveCount(FEATURE_N);
+  expect(LIST_ROWS).toBeLessThan(FEATURE_N);
   // the function of the newest version first, marked «new»
   expect((await rows(page))[0]).toBe(NEW_FN);
   // «New» marks the functions of the newest version only (v0.114.0 brings none of its own)
   if (NEW_IN_NEWEST) await expect(page.locator(`.wn-rows > li[data-feature="${NEW_FN}"] .wn-new`)).toBeVisible();
   else await expect(page.locator('.wn-rows .wn-new')).toHaveCount(0);
-  await expect(page.getByRole('link', { name: new RegExp(T('All {n} functions', { n: FEATURE_N })) })).toHaveAttribute('href', '#/me/news?all&sort=new');
   await page.getByRole('button', { name: T('Name A–Z'), exact: true }).click();
-  await expect(page.locator('.wn-rows > li')).toHaveCount(LIST_ROWS);
+  await expect(page.locator('.wn-rows > li')).toHaveCount(FEATURE_N);
   await page.getByRole('searchbox', { name: T('Find a function') }).fill('Diebstahl');
   await expect(page.locator('.wn-rows > li')).toHaveCount(1);
   await expect(page.locator('.wn-rows > li').first()).toHaveAttribute('data-feature', 'f.theft');
   await page.getByRole('searchbox', { name: T('Find a function') }).fill('');
+  await page.goBack();
+  await expect(page).toHaveURL(/#\/me\/news$/);
 
-  // all versions by month, the newest month open; a version opens its points
+  // all versions open, grouped by month (v0.118.0 W2, answer 4a): every version after the newest as a card
   const vers = page.locator('.wn-vers');
   await expect(vers.getByRole('heading', { name: T('All versions') })).toBeVisible();
-  const first = vers.locator(`details[data-version="${NEWEST.version}"]`);
-  await first.locator('summary').click();
-  await expect(first.locator('.wn-pts li')).toHaveCount(NEWEST.points.length);
+  await expect(vers.locator('article[data-version]')).toHaveCount(WHATS_NEW.length - 1);
+  await expect(vers.locator(`[data-version="${NEWEST.version}"]`)).toHaveCount(0);
+  const first = vers.locator(`article[data-version="${WHATS_NEW[1].version}"]`);
+  await expect(first.getByRole('heading', { name: T(WHATS_NEW[1].title) })).toBeVisible();
+  await expect(first.locator('.vn-pts li')).toHaveCount(WHATS_NEW[1].points.length);
+  await expect(vers.locator('article[data-version="0.1.0"]')).toBeAttached();
 
   // the side column: the message switch, since your last visit, how to test, planned next
-  const sw = page.getByRole('switch', { name: new RegExp(T('Show the message for {v}', { v: V })) });
+  const sw = page.getByRole('switch', { name: new RegExp(T('Show the message after updates')) });
   await expect(sw).toBeChecked();
   await expect(page.getByRole('heading', { name: T('Since your last visit') })).toBeVisible();
   // the functions newer than the version before (none when the newest version brings no function of its own)
@@ -166,10 +180,15 @@ test('I11b: the message after an update: Later for this start, Do not show again
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
   await updated(page);
+  // v0.118.0 «Was ist neu 2» (W1, changed on purpose): «New since your last visit», every version since then
+  // fully open, each line a link to its place (no «n more»)
   const sheet = page.locator('dialog.news[open]');
-  await expect(sheet.getByRole('heading', { name: T('New in {v}: {name}', { v: V, name: T(NEWEST.title) }) })).toBeVisible();
-  await expect(sheet.getByText(T('at each start after an update, on computer and phone'))).toBeVisible();
-  await expect(sheet.locator('.pts li')).toHaveCount(Math.min(4, NEWEST.points.length));
+  await expect(sheet.getByRole('heading', { name: T('New since your last visit') })).toBeVisible();
+  await expect(sheet.getByRole('heading', { name: T(NEWEST.title) })).toBeVisible();
+  await expect(sheet.locator('article[data-version]')).toHaveCount(1);
+  await expect(sheet.locator('.vn-pts li')).toHaveCount(NEWEST.points.length);
+  await expect(sheet.locator('.vn-pts a').first()).toHaveAttribute('href', NEWEST.points[0].href);
+  await expect(sheet.getByRole('button', { name: T("Let's go|news") })).toBeVisible();
   await expect(sheet.getByRole('link', { name: T('All news') })).toHaveAttribute('href', '#/me/news');
   await shot(page, info, 'I11b-meldung');
   await noSideways(page);
@@ -196,7 +215,7 @@ test('I11b: the message after an update: Later for this start, Do not show again
 
   // switched on again under Ich › Was ist neu: the next start shows it
   await third.goto('./#/me/news');
-  const sw = third.getByRole('switch', { name: new RegExp(T('Show the message for {v}', { v: V })) });
+  const sw = third.getByRole('switch', { name: new RegExp(T('Show the message after updates')) });
   await expect(sw).not.toBeChecked();
   await sw.check();
   await expect(sw).toBeChecked();
@@ -243,6 +262,9 @@ test('English: the page reads in English too', async ({ page, context }, info) =
   const T = await openHome(page, context, info, { lang: 'en' });
   await page.goto('./#/me/news');
   await expect(page.getByRole('heading', { level: 1, name: 'What is new', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: NEWEST.title, level: 2 })).toBeVisible();
+  await expect(page.locator('a.wn-allrow')).toContainText('All functions');
+  await page.goto('./#/me/news?all&sort=new');
   await expect(page.getByRole('heading', { name: 'All functions' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Your top 10', exact: true })).toBeVisible();
   expect(T('Later')).toBe('Later');
