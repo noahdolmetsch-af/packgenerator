@@ -99,7 +99,7 @@
             <span class="nost" data-set><i class="pill warn">{t('without start point')}</i> <u>{t('set|start')}</u></span>
           {/if}
         </span>
-        <span class="sn num">{r.onPart != null ? `${num(r.onPart)} km` : '?'}</span>
+        <span class="sn num">{r.onPart != null ? `${num(r.onPart)} km` : '?'}{#if r.last && r.hm}<small class="hm">{t('{n} m climbed', { n: num(r.hm) })}</small>{/if}</span>
       {:else}
       <span class="lw">{#if r.last}<L size={15} aria-hidden="true" /><span>{workWords(r.part.key, r.last.main)} {dateOf(r.last.main.date)}</span>{:else}<span class="m">–</span>{/if}</span>
       <span class="sn num">{r.last ? sinceText(r) : ''}{#if r.last && r.hm}<small class="hm">{t('{n} m climbed', { n: num(r.hm) })}</small>{/if}</span>

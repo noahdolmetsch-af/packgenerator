@@ -4,6 +4,17 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.125.0 Werte überall + Strava verbinden (WU1–WU4, SV1)
+  'Every metre counts': 'Jeder Meter zählt',
+  'Metres climbed and heart rate now stand next to your km, and each value can have its own year goal.': 'Höhenmeter und Puls stehen jetzt neben deinen km, und jeder Wert kann sein eigenes Jahresziel haben.',
+  'Year goals for km, metres climbed and minutes, each can be switched off; plus your footprint': 'Jahresziele für km, Höhenmeter und Minuten, jedes abwählbar; dazu dein Fussabdruck',
+  'Aktiv: «Bike this month» with the metres climbed': 'Aktiv: «Velo in diesem Monat» mit den Höhenmetern',
+  'Today: «This week» with km, metres climbed and heart rate in one line': 'Heute: «Diese Woche» mit km, Höhenmetern und Puls in einer Zeile',
+  'Bike care: metres climbed since each part was last done': 'Velopflege: Höhenmeter seit dem letzten Wechsel jedes Teils',
+  'Today: a card «Connect Strava» until you are connected': 'Heute: eine Karte «Strava verbinden», bis du verbunden bist',
+  'Open Aktiv › Goals: on the right «Year goals» with three rows; switch one off and tap a goal number to change it.': 'Öffne Aktiv › Ziele: rechts «Jahresziele» mit drei Zeilen; schalte eine aus und tippe eine Zielzahl an, um sie zu ändern.',
+  'Below it «Footprint»: the km of this year and the CO₂ saved.': 'Darunter «Fussabdruck»: die km dieses Jahres und das gesparte CO₂.',
+  'On Today «This week» shows km and metres climbed under the days.': 'Auf Heute zeigt «Diese Woche» unter den Tagen km und Höhenmeter.',
   // 0.123.0 Trophäen-Vitrine
   'All your stars in one showcase': 'Alle deine Sterne in einer Vitrine',
   'Every star you reached, by area and year, on one page. Reached ones stay.': 'Jeder Stern, den du erreicht hast, nach Bereich und Jahr auf einer Seite. Erreichte bleiben.',

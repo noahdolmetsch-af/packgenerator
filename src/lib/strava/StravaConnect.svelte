@@ -13,7 +13,7 @@
 
   const STRAVA_CARD_KEY = 'strava.card';
   let { wide = true } = $props();
-  const cardQ = liveQuery(() => db.settings.get(STRAVA_CARD_KEY));
+  const cardQ = liveQuery(async () => (await db.settings.get(STRAVA_CARD_KEY)) ?? null);
   // undefined while the settings load: nothing shows, so the card never flashes after «Later»
   const later = $derived($cardQ === undefined ? null : $cardQ?.value === 'later');
   const show = $derived(!strava.key && later === false);
@@ -22,15 +22,14 @@
 
 {#if show}
   <section class="sc surf" class:wide aria-labelledby="sc-h" data-section="strava-connect">
-    <span class="si" aria-hidden="true"><Bike size={24} /></span>
+    <span class="si" aria-hidden="true"><Bike size={20} /></span>
     <div class="m">
       <h2 id="sc-h">{t('Connect Strava')}</h2>
-      <p>{t('Then every ride lands on the right bike by itself and counts in «This week».')}</p>
-      <div class="acts">
-        <a class="btn hi" href={STRAVA_HASH}><Link2 size={18} aria-hidden="true" />{t('Connect')}</a>
-        <button type="button" class="btn btn-link" onclick={hide}>{t('Later')}</button>
-      </div>
-      <p class="lk"><Lock size={14} aria-hidden="true" />{t('Read only, disconnect at any time. Goes away once you are connected.')}</p>
+      <p>{t('Then every ride lands on the right bike by itself and counts in «This week».')} <span class="lk"><Lock size={12} aria-hidden="true" />{t('Read only, disconnect at any time. Goes away once you are connected.')}</span></p>
+    </div>
+    <div class="acts">
+      <a class="btn hi sm" href={STRAVA_HASH}><Link2 size={16} aria-hidden="true" />{t('Connect')}</a>
+      <button type="button" class="btn btn-link sm" onclick={hide}>{t('Later')}</button>
     </div>
   </section>
 {/if}
@@ -38,43 +37,59 @@
 <style>
   .sc {
     display: flex;
-    gap: 16px;
-    align-items: flex-start;
-    margin-bottom: 16px;
-    padding: 16px 18px;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 10px 14px;
   }
   .si {
     display: grid;
     flex: none;
     place-items: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     background: var(--warn-soft);
     color: var(--warn);
   }
   .m {
+    flex: 1 1 260px;
     min-width: 0;
   }
   h2 {
     margin: 0;
-    font: 600 var(--fs-sub) / 1.25 var(--font-body);
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
   }
   p {
-    margin: 4px 0 0;
+    margin: 2px 0 0;
     color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .lk {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
   }
   .acts {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-  }
-  .lk {
-    display: flex;
-    align-items: center;
     gap: 6px;
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
+    align-items: center;
+  }
+  /* phone: one slim row (title, Connect, Later), so the trip card stays in the first screen (Noah 2b) */
+  @media (max-width: 719px) {
+    .sc {
+      flex-wrap: nowrap;
+      padding: 6px 6px 6px 12px;
+    }
+    .si,
+    p {
+      display: none;
+    }
+    .m {
+      flex: 1 1 auto;
+    }
   }
 </style>

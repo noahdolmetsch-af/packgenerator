@@ -38,7 +38,7 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (13.10.2026)
+## Stand heute (13.10.2026, 0.125.0)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
@@ -61,6 +61,7 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.86.0 | Meditation einfach (Noah «1-5 a»): Startblatt aus «Heute abhaken» (Jetzt {n} Min, Dauer, Nur abhaken), kurze Meditations-Seite mit «Mehr», nach dem Gong nur Satz, Tiefe und «Fertig», ruhige Uhr; «Diese Seite kann», «geplant» und Wisch-Hinweis weg | PR offen |
 | 0.97.0 | Design-Refresh R1 «Darstellung» (G1 neu freigegeben 11.10. 23:10, Noah 12.10. «1a 2a 3b 4a 5a»): Farbwelt Salbei und Schrift Inter als neuer Standard; Ich › Darstellung mit 8 Schriften, 7 Farbwelten (die bisherigen bleiben), Schriftgrösse Klein/Normal/Gross, hell oder dunkel, Vorschau am Computer | live |
 | 0.98.0 | Design-Refresh R2 «Heller Kopf» (G4/G5 A★): heller Kopf und helle Seitenleiste, «Neu» oben neben der Suche statt rundem Knopf, «Ich» als Karte unten in der Seitenleiste | live |
+| 0.125.0 | Werte überall WU1–WU4 + Strava verbinden SV1 (Mockup-Freigabe: WU1–WU4 und SV1 «ich gebe alle bild mockups frei» Noah 13.10.2026 17:18 UTC im Projekt-Chat; Antworten «1-5a» 16:31 UTC; Offene Mockups 2 #werte-ueberall und #strava-verbinden): Höhenmeter und Puls auf Heute, Aktiv, Jahresziele, Fussabdruck, Höhenmeter je Teil, Karte «Strava verbinden» | PR, Tagespaket |
 | 0.124.0 | Neue Tour Teil 2 (Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★): Bausteine als grosse Auswahl-Knöpfe in Packen, «Reparatur unterwegs» mit höchstens 8 Teilen, schlanke Reparatur kommt mit neuen Touren als Vorschlag; NP1 «Neues Teil beim Packen» wartet auf Mockup-Freigabe | Branch fertig, PR folgt |
 | 0.123.0 | Trophäen-Vitrine TV1–TV2 (Mockup-Freigabe: TV1–TV2 «tv1-tv2 freigeben» Noah 13.10.2026 15:57 UTC im Thread «Mein Überblick», Antworten «1-5a» 15:50 UTC): alle Sterne nach Bereich und Jahr, Link im Trophäen-Regal | live nach Merge |
 | 0.122.0 | Dateneingabe D1–D4 (Mockup-Freigabe: D1–D4 «D1–D4 freigegeben» 13.10.2026, Antworten «1a 2a 3b 4b 5a», D1 als Variante D1a ★ Wert-Karten): Werte im Abhol-Check als Karten zum direkt Tippen (− +, «Wie vorher», Weiter), Seite «Werte erfassen» unter Ausstattung, «Felder wählen» für alle Velos, eigene Felder mit Name und Einheit | PR offen |

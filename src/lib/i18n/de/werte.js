@@ -27,6 +27,9 @@ export default {
   '≈ {n} kg CO₂ saved': '≈ {n} kg CO₂ gespart',
   '{km} km by bike instead of by car': '{km} km Velo statt Auto',
   'Estimated with {kg} kg CO₂ per car km.': 'Geschätzt mit {kg} kg CO₂ pro Auto-km.',
+  // «What the app can do»
+  'Year goals and footprint': 'Jahresziele und Fussabdruck',
+  'One year goal each for km, metres climbed and minutes, each can be switched off; the CO₂ your rides saved.': 'Je ein Jahresziel für km, Höhenmeter und Minuten, jedes abwählbar; das CO₂, das deine Fahrten gespart haben.',
   // SV1 «Strava verbinden» on Today
   'Then every ride lands on the right bike by itself and counts in «This week».': 'Dann landet jede Fahrt von selbst beim richtigen Velo und zählt bei «Diese Woche» mit.',
   'Read only, disconnect at any time. Goes away once you are connected.': 'Nur lesen, jederzeit trennbar. Verschwindet, sobald du verbunden bist.',

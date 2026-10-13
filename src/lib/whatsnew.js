@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.125.0 «Werte überall» + «Strava verbinden» (mockups WU1–WU4 and SV1, Noah 13.10.2026 «1-5a», «ich gebe alle bild mockups frei»)
+    version: '0.125.0',
+    date: '2026-10-13',
+    title: 'Every metre counts',
+    lead: 'Metres climbed and heart rate now stand next to your km, and each value can have its own year goal.',
+    points: [
+      { text: 'Year goals for km, metres climbed and minutes, each can be switched off; plus your footprint', href: '#/flow/goals' },
+      { text: 'Aktiv: «Bike this month» with the metres climbed', href: '#/flow' },
+      { text: 'Today: «This week» with km, metres climbed and heart rate in one line', href: '#/' },
+    ],
+    small: [
+      { box: 'new', text: 'Bike care: metres climbed since each part was last done', href: '#/bikes?tab=care' },
+      { box: 'new', text: 'Today: a card «Connect Strava» until you are connected', href: '#/bikes?tab=care&view=strava' },
+    ],
+    test: [
+      'Open Aktiv › Goals: on the right «Year goals» with three rows; switch one off and tap a goal number to change it.',
+      'Below it «Footprint»: the km of this year and the CO₂ saved.',
+      'On Today «This week» shows km and metres climbed under the days.',
+    ],
+  },
+  {
     // v0.124.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
     version: '0.124.0',
     date: '2026-10-13',
