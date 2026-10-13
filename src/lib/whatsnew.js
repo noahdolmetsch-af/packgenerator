@@ -11,6 +11,21 @@
 
 export const WHATS_NEW = [
   {
+    // 0.116.2 «Bugfix Dateneingabe» (Noah 13.10.2026): «enter» on a sheet jumped to other pages.
+    version: '0.116.2',
+    date: '2026-10-13',
+    title: 'Enter bike values where you are',
+    lead: '«Enter» on a sheet of the bike folder opens exactly that value, and saving brings you back to the sheet.',
+    points: [
+      { text: 'Fixed: «enter» on the Bike pass, the Pick-up check and the other sheets led to the top of another page. Now it opens just that value of this bike for typing, Save or Cancel brings you back to the sheet.', href: '#/bikes' },
+      { text: '«Change values» on the Bike pass and the Pick-up check opens the bike\'s Equipment, where the measurements and parts are.', href: '#/bikes?tab=compare' },
+    ],
+    test: [
+      'Open Bike › More › Folder › Pick-up check and tap «enter» next to Saddle height.',
+      'Type a number and tap Save: you are back on the Pick-up check and the value is there.',
+    ],
+  },
+  {
     // 0.116.1 (UI-Prüfung A1): an old debrief without its item list opened an empty page.
     version: '0.116.1',
     date: '2026-10-13',

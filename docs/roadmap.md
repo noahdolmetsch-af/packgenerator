@@ -510,6 +510,8 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 13.10.2026 (v0.116.2, PR offen):** «Bugfix Dateneingabe»: «eintragen» auf den Velo-Blättern öffnet genau diesen Wert und führt zurück aufs Blatt. Felder ein-/ausblenden und Eingabe direkt im Blatt folgen nach Mockup-Freigabe.
+
 **Nachtrag 13.10.2026 (v0.116.1, PR #140):** Fehler-Fix aus der UI-Prüfung: alte Rückblicke ohne Teileliste öffnen wieder. Die übrigen Befunde fahren in Bündel A (Zahlen, Heute, Kleinkram) und C (Unterwegs) mit (Noah «1a 2a 3a 4a 5a»).
 
 **Nachtrag 12.10.2026 (v0.116.0, PR offen):** E3 «Strava-Verbindung» (S1–S5): Velo › Pflege › Strava verbinden, erstes Holen aller Fahrten mit Zusammenfassung, Einstellungen (automatisch / per Knopf, Fahrt ohne Velo zum Prüfen / selbst nach Fahrtart), Zuordnung Strava-Velo ↔ App-Velo, «Velo in Strava geändert» auf Heute und beim Velo, Kachel «Strava», «Zum Prüfen». Q1 «Jeder km zählt» bekommt damit die automatische Quelle; Kontrolle App-km = Strava-km einen Monat nach E3. Dazu Puls pro Fahrt aus Strava an sechs Orten (P1–P6). Als Nächstes: Strava-Fahrten zählen in «Diese Woche» und «Velo in diesem Monat» (Q1 = a), danach der Google-Teil mit Schlaf und Aktivzonen-Minuten.

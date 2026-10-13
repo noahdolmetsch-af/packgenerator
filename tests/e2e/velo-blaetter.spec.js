@@ -118,10 +118,14 @@ test('the Bike pass: values from Setup and the parts, an empty line «eintragen�
   expect(text).toContain('Gabeldruck: 72 psi');
   expect(text).toContain('Lenkerbreite: –');
 
-  // «eintragen» goes to Setup, where the fit values are edited
+  // Bugfix Dateneingabe (13.10.2026): «eintragen» opens exactly this value for typing, then back on the pass
   await row('Lenkerbreite').getByRole('link', { name: 'eintragen' }).click();
-  await expect(page).toHaveURL(new RegExp(`#/bikes\\?bike=${TRAIL}$`));
-  await expect(page.locator('section.fit')).toBeVisible();
+  const dlg = page.locator('dialog[open]');
+  await expect(dlg.getByRole('heading')).toHaveText(/Lenkerbreite/);
+  await dlg.locator('input').fill('760');
+  await dlg.getByRole('button', { name: 'Speichern' }).click();
+  await expect(page).toHaveURL(new RegExp(`#/bikes\\?bike=${TRAIL}&sheet=pass$`));
+  await expect(row('Lenkerbreite')).toHaveText('760 mm');
   expect(errors).toEqual([]);
 });
 

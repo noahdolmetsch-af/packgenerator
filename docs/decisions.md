@@ -869,6 +869,13 @@ Noah 12.10.2026 22:22: «erst bei zweitem Klick geht Menü wieder weg», dringen
 - Jedes •••-Menü schliesst mit einem Tipp daneben, überall gleich (`ui/away.js`, wie schon `tpl/Menu.svelte`). Der Tipp daneben wird nicht verschluckt: Er tut auch, was er trifft.
 - **Selbst entschieden:** nur Verhalten, kein neues Aussehen; Material und Kleiderschrank (eigene Lösung mit Klick daneben) bleiben, wie sie sind.
 
+## 13.10.2026: Bugfix Dateneingabe 0.116.2
+
+Noah 13.10.2026 11:15 Zürich: beim Velo-Abholen liessen sich die Werte in der App nicht eintragen, man landete immer auf anderen Seiten. Ziel: alle Werte am Handy bequem eingeben und bearbeiten, einzelne Felder ein- und ausblenden.
+
+- **Selbst entschieden (keine Oberfläche):** «eintragen» öffnet genau den einen Wert dieses Velos zum Tippen (im bestehenden Eingabefenster von «Velos vergleichen») und führt nach Speichern oder Abbrechen zurück aufs Blatt. «Werte ändern» auf Velo-Pass und Abhol-Check öffnet die Ausstattung des Velos.
+- **Offen, als Mockup-Runde:** Eingabe direkt im Blatt (ohne Seitenwechsel) und Felder ein-/ausblenden. Gebaut wird erst nach Noahs ausdrücklicher Freigabe.
+
 ## 13.10.2026: UI-Prüfung der Live-App und Fehler-Fix 0.116.1
 
 Claude hat 0.110.0 und 0.111.0 aus Nutzersicht durchgeklickt (alle Seiten, Computer und Handy, rund 700 Knöpfe, erfundene Testdaten). Bericht mit 15 Befunden: https://claude.ai/artifact/ABifxRDhYYkvEaAyFCDgM4. Noah 13.10.2026 00:13/00:14 Zürich «1a 2a» und «3a4a 5a»:

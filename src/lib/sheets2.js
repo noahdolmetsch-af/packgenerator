@@ -25,7 +25,7 @@
  */
 import { PART, CHECK_PARTS, ensureParts, logPart, fits } from './care.js';
 import { fitValue, hasSuspension, specValue } from './bikespecs.js';
-import { bikesHash, bikeWeightKind, bikeTypeName } from './bikes.js';
+import { bikesHash, editHash, bikeWeightKind, bikeTypeName } from './bikes.js';
 import { itemWeight, nextId } from './gear.js';
 import { slotFor } from './trips.js';
 import { sheetsOf, sheetText, bikeLine, isShown, firstServiceDone, NEW_KM } from './sheets.js';
@@ -173,7 +173,8 @@ export function breakIn(bike, { tyres = null, today, visits = [] }) {
           label: t(r.label),
           hint,
           value: r.link ? '' : value,
-          edit: setupHref,
+          // Bugfix Dateneingabe: an empty pressure opens that value for typing, not the top of the bike page
+          edit: r.value === 'susp' ? editHash(b.id, fitValue(b, 'forkPressure') == null ? 'fit:forkPressure' : 'fit:shockPressure') : r.value === 'tyres' ? editHash(b.id, fitValue(b, 'pressureF') == null ? 'fit:pressureF' : 'fit:pressureR') : setupHref,
           link: r.link ? { href: bikesHash({ tab: 'setup', bike: b.id, sheet: r.link }), label: t(LINK_NAME[r.link]) } : null,
           tick,
           applied: applied[id] ?? null,
@@ -604,7 +605,7 @@ export function theftSheet(bike, { photos = [], gallery = [], visits = [] } = {}
   const id = [
     row('frameNo'),
     { id: 'model', label: t('Brand and model'), value: [b.name, b.type ? t(bikeTypeName(b.type)) : ''].filter(Boolean).join(' · ') || null, edit: bikesHash({ tab: 'setup', bike: b.id }) },
-    { id: 'size', label: t('Frame size · wheels'), value: size || null, edit: bikesHash({ tab: 'compare', view: 'all' }) },
+    { id: 'size', label: t('Frame size · wheels'), value: size || null, edit: editHash(b.id, 'fit:frameSize') },
     row('colour'),
     { id: 'weight', label: t('Weight'), value: b.weightG ? `${num(Math.round(b.weightG / 100) / 10)} kg${kind === 'measured' ? ` ${t('measured')}` : ''}` : null, edit: bikesHash({ tab: 'setup', bike: b.id }) },
     { id: 'price', label: t('Purchase price'), value: chf(typeof w.price === 'number' ? w.price : null), edit: bikesHash({ tab: 'setup', bike: b.id, sheet: 'warranty' }), href: buy ? { href: bikesHash({ tab: 'shop', bike: b.id, visit: buy.id }), label: t('Receipt') } : null },

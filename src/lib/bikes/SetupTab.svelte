@@ -91,6 +91,14 @@
     folderOpen = true;
     profileOpen = true;
     onopened?.();
+    // Bugfix Dateneingabe: and shows them, instead of the top of the page far above them
+    let tries = 0;
+    const show = () => {
+      const el = document.getElementById('vk-more');
+      if (el) el.scrollIntoView({ block: 'start' });
+      else if (tries++ < 20) setTimeout(show, 50);
+    };
+    setTimeout(show, 0);
   });
   // «3 bikes · Gravel as the next one»: the bike of the next trip, when there is one.
   const nextOn = $derived.by(() => {
