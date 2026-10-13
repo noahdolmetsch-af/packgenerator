@@ -38,7 +38,7 @@ Die geplanten Vorhaben verfolgen vier Ziele:
 
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
-## Stand heute (12.10.2026)
+## Stand heute (13.10.2026)
 
 | Version | Inhalt | Stand |
 | --- | --- | --- |
@@ -62,6 +62,8 @@ Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änder
 | 0.97.0 | Design-Refresh R1 «Darstellung» (G1 neu freigegeben 11.10. 23:10, Noah 12.10. «1a 2a 3b 4a 5a»): Farbwelt Salbei und Schrift Inter als neuer Standard; Ich › Darstellung mit 8 Schriften, 7 Farbwelten (die bisherigen bleiben), Schriftgrösse Klein/Normal/Gross, hell oder dunkel, Vorschau am Computer | live |
 | 0.98.0 | Design-Refresh R2 «Heller Kopf» (G4/G5 A★): heller Kopf und helle Seitenleiste, «Neu» oben neben der Suche statt rundem Knopf, «Ich» als Karte unten in der Seitenleiste | live |
 | 0.117.0 | Knöpfe neu (Mockups N1–N4, Noah «n1-n4 freigeben» 12.10.2026, «1a 2a 3a 4a 5b»): jeder Knopf erklärt sich (Maus, Tastatur, langes Drücken), ein Hauptknopf plus «…» mit Erklärzeilen, Knöpfe rechtsbündig bzw. am Handy unter dem Text, Knopftext höchstens 2 Wörter auf allen Seiten | Branch fertig, PR wartet auf Noahs Freigabe zum Veröffentlichen |
+| 0.116.2 | «Bugfix Dateneingabe» (Noah 13.10.2026): «eintragen» auf den Velo-Blättern öffnet genau diesen Wert dieses Velos zum Tippen und führt danach zurück aufs Blatt, statt auf andere Seiten zu springen; keine Oberfläche. Felder ein-/ausblenden und Eingabe direkt im Blatt als Mockup-Runde | PR offen |
+| 0.116.1 | Fehler-Fix aus der UI-Prüfung (Noah «1a»): alte Rückblicke ohne Teileliste öffnen wieder statt einer leeren Seite; keine Oberfläche | live |
 | 0.116.0 | E3 «Strava-Verbindung» (S1–S5): Velo › Pflege › Strava verbinden, alle alten Fahrten holen ohne Doppelte, automatisch beim Öffnen oder per Knopf, Fahrt ohne Velo zum Prüfen mit Vorschlag, «Velo in Strava geändert» auf Heute und beim Velo, Kachel «Strava», Datei-Import als Reserve; Puls Ø/max pro Fahrt an sechs Orten (P1–P6) | PR offen |
 | 0.115.0 | Menü-Fix (Noah «dringend»): jedes •••-Menü schliesst mit einem Tipp daneben, nicht erst beim zweiten Tipp auf ••• (Velopflege › Probleme, Velo-Check, Packliste, laufende Touren). | live seit 12.10.2026 |
 | 0.114.0 | «Rahmenbedingungen» (B1–B3): Fenster für eine neue Tour mit Sportart, Wetter aus der PLZ, Event, Vorlagen als Knöpfe (keine «Letzte Tour»), Packliste in vier Gruppen; Reparatur und Laden nicht mehr von selbst | live |

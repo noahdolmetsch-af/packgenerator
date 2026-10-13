@@ -21,11 +21,18 @@
   import { ChevronDown, ChevronRight } from '@lucide/svelte';
   import VeloHead from './VeloHead.svelte';
 
+  // Bugfix Dateneingabe: bikeId (the bike it was opened for) is always one of the columns; target
+  // ('<part>:<field>') opens that value of the bike for typing at once; closing it goes back to the
+  // sheet it came from (back, from), else stays here.
+  let { bikeId = null, target = null, back = null, from = null } = $props();
+
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bikes = $derived(sortBikes($bikesQ ?? []));
   const narrow = typeof matchMedia === 'function' && matchMedia('(max-width: 719px)').matches;
   let picked = $state(null); // Set of bike ids, null = the default (all; two on a phone)
-  const cols = $derived(picked ? bikes.filter((b) => picked.has(b.id)) : narrow ? bikes.slice(0, 2) : bikes);
+  const own = $derived(bikes.find((b) => b.id === bikeId) ?? null);
+  const first = $derived(own ? [own, ...bikes.filter((b) => b.id !== own.id)] : bikes);
+  const cols = $derived(picked ? bikes.filter((b) => picked.has(b.id)) : narrow ? (own ? bikes.filter((b) => first.slice(0, 2).includes(b)) : bikes.slice(0, 2)) : bikes);
   function togglePick(id) {
     const s = new Set(cols.map((b) => b.id));
     if (s.has(id)) {
@@ -55,6 +62,33 @@
   function open(bike, r) {
     const v = specValue(bike, r.key, r.field);
     edit = { bikeId: bike.id, bikeName: bike.name, row: r, value: v == null ? '' : String(v) };
+  }
+  // the value asked for in the address: opened once the bikes are read (its row from this bike alone,
+  // so a row hidden in the table, empty or under «More», opens all the same)
+  let asked = false;
+  let returning = $state(false);
+  $effect(() => {
+    if (asked || !target || !own) return;
+    asked = true;
+    const c = compareRows([own]);
+    const r = [c.fit, { rows: c.top }, ...c.main, c.geo, ...c.more].flatMap((g) => g.rows).find((x) => x.id === target);
+    if (r) {
+      returning = !!back;
+      open(own, r);
+    } else leave();
+  });
+  /** Done with the value asked for: back to the sheet, or the plain address of this table. */
+  function leave() {
+    // replace: the browser's back button then goes to where the sheet was opened, not into this value again
+    if (back) location.replace(bikesHash({ tab: 'setup', bike: bikeId, sheet: back, from }));
+    else history.replaceState(null, '', bikesHash({ tab: 'compare', view: 'all', bike: bikeId }));
+  }
+  function closed() {
+    edit = null;
+    if (returning) {
+      returning = false;
+      leave();
+    }
   }
   async function save(clear = false) {
     const e = edit;
@@ -160,7 +194,7 @@
 </div>
 
 {#if edit}
-  <dialog class="sheet" bind:this={dialog} onclose={() => (edit = null)} aria-labelledby="cmp-h">
+  <dialog class="sheet" bind:this={dialog} onclose={closed} aria-labelledby="cmp-h">
     <p class="meta">{edit.bikeName}</p>
     <h2 id="cmp-h" class="title">{cellLabel(edit.row)}</h2>
     <form method="dialog" onsubmit={(e) => (e.preventDefault(), save())}>
