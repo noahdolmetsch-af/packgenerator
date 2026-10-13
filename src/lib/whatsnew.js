@@ -16,6 +16,22 @@
 
 export const WHATS_NEW = [
   {
+    // v0.123.0 «Trophäen-Vitrine» (mockups TV1–TV2, Noah 13.10.2026 «tv1-tv2 freigeben»)
+    version: '0.123.0',
+    date: '2026-10-13',
+    title: 'All your stars in one showcase',
+    lead: 'Every star you reached, by area and year, on one page. Reached ones stay.',
+    points: [
+      { text: 'Trophy showcase: all stars by area and year', href: '#/flow/trophies' },
+      { text: 'Trophy shelf: «See all trophies» opens it', href: '#/flow/milestones' },
+    ],
+    small: [{ box: 'new', text: 'Next within reach: the three closest stars', href: '#/flow/trophies' }],
+    test: [
+      'Open Aktiv › Aktivität › Milestones and tap «See all trophies» under the trophy shelf.',
+      'Tap a year: only the stars of that year stay.',
+    ],
+  },
+  {
     // v0.122.0 «Bugfix Dateneingabe» D1–D4 (Noah 13.10.2026 «D1–D4 freigegeben», answers «1a 2a 3b 4b 5a», D1a ★)
     version: '0.122.0',
     date: '2026-10-13',

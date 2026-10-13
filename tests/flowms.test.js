@@ -6,7 +6,7 @@ import 'fake-indexeddb/auto';
 import Dexie from 'dexie';
 import { describe, it, expect } from 'vitest';
 import { seedActs, normAct, addDays, rings as ringsOf, flowStates } from '../src/lib/flow.js';
-import { STAGES, msContext, crossMilestones, actMilestones, evaluate, allMilestones, newStars, soonList, recentStars, yearSummary, nextPerAct, records, rewardState, stepsOf, weekStart, zurichHour, SOON } from '../src/lib/flowms.js';
+import { STAGES, msContext, crossMilestones, actMilestones, evaluate, allMilestones, newStars, soonList, recentStars, yearSummary, nextPerAct, showcase, records, rewardState, stepsOf, weekStart, zurichHour, SOON } from '../src/lib/flowms.js';
 import { seed2Plan, favActs, moveFav, tileLine, ringWeek, FAV_SEED, WALK, SEED2_KEY } from '../src/lib/flowtiles.js';
 import { suggestions, actFromTemplate, openIdeas, FUN_IDEAS, connections, MAX_SUGG } from '../src/lib/flowsugg.js';
 import { createDb, DATA_TABLES, SCHEMA_VERSION } from '../src/lib/db.js';
@@ -303,5 +303,38 @@ describe('the database: version 8', () => {
     await deleteAct(other, 'meditation');
     expect(await other.flowSessions.count()).toBe(0);
     expect(await other.flowStars.count()).toBe(1);
+  });
+});
+
+describe('the trophy showcase (TV1)', () => {
+  const r = (id, actId, reached, extra = {}) => ({ id, m: { id, actId }, reached: reached.map(([star, day]) => ({ id: `${id}:${star}`, star, day })), next: 3, progress: 0.5, target: 10, off: false, ...extra });
+  const list = [
+    r('cross.days', null, [[1, '2025-03-02'], [2, '2026-05-01']], { progress: 0.9 }),
+    r('meditation.daily', 'meditation', [[1, '2025-01-05'], [2, '2025-02-01'], [3, '2026-09-30']], { progress: 0.6 }),
+    r('yoga.count', 'yoga', [], { progress: 0.2 }),
+    r('cross.hidden', null, [[1, '2026-01-01']], { off: true }),
+  ];
+  it('groups by area: over all first, one badge per milestone (its highest star), stars counted, the next open one; areas without a star wait', () => {
+    const s = showcase(list);
+    expect(s.groups.map((g) => g.key)).toEqual(['cross', 'meditation']);
+    const medG = s.groups[1];
+    expect(medG.count).toBe(3);
+    expect(medG.items.map((x) => [x.id, x.star])).toEqual([['meditation.daily:3', 3]]);
+    expect(s.groups[0].count).toBe(2); // the hidden milestone does not count
+    expect(s.waiting).toEqual(['yoga']); // nothing reached yet: no area, only named
+    expect(s.groups[1].next.id).toBe('meditation.daily');
+  });
+  it('by year: stars per year with the area that has most, newest year first; a year filter keeps only its stars', () => {
+    const s = showcase(list);
+    expect(s.years).toEqual([
+      { year: '2026', count: 2, top: 'cross' },
+      { year: '2025', count: 3, top: 'meditation' },
+    ]);
+    const y = showcase(list, '2025');
+    expect(y.groups.map((g) => [g.key, g.count])).toEqual([['cross', 1], ['meditation', 2]]);
+    expect(y.groups[1].items[0].star).toBe(2); // the highest star of 2025
+  });
+  it('soon: the three closest open milestones', () => {
+    expect(showcase(list).soon.map((x) => x.id)).toEqual(['cross.days', 'meditation.daily', 'yoga.count']);
   });
 });

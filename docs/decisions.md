@@ -862,6 +862,11 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 13.10.2026: Trophäen-Vitrine (0.123.0)
+
+- (Mockup-Freigabe: TV1–TV2 «tv1-tv2 freigeben» Noah 13.10.2026 15:57 UTC im Thread «Mein Überblick», Antworten «1-5a» 15:50 UTC). TV1: eigene Seite «Trophäen-Vitrine» (#/flow/trophies) mit allen erreichten Sternen nach Bereich (Über alle, dann jede Aktivität) und Jahr, Filter oben, rechts «Nach Jahr» und «Als Nächstes erreichbar». TV2: Link «Alle Trophäen ansehen ›» unter dem Trophäen-Regal (Meilensteine und Meditations-Protokoll).
+- **Selbst entschieden:** nur die Sterne, die es heute gibt (flowms.js); Velo/Strava- und Gesundheitssterne kommen mit Bündel B, Tages-Check-Sterne mit D, je im eigenen Paket. Bereiche ohne Stern stehen als eine Zeile «Noch ohne Stern: …» statt als leere Karten. Pro Meilenstein ein Abzeichen mit dem höchsten Stern (Stufe und Monat); der nächste Stern pro Bereich gestrichelt. Der Link im Meditations-Protokoll öffnet die Vitrine gefiltert auf Meditation. Version 0.123.0, weil 0.122.0 (Dateneingabe) vorher.
+
 ## 13.10.2026: Dateneingabe D1–D4 (0.122.0)
 
 - (Mockup-Freigabe: D1–D4 «D1–D4 freigegeben» 13.10.2026, Antworten «1a 2a 3b 4b 5a», D1 als Variante D1a ★ Wert-Karten). D1: direkt im Blatt tippen; D2: eigene Seite «Werte erfassen» mit «Weiter» ins nächste Feld; D3 (3b): «Felder wählen» gilt für alle Velos; D4 (4b): ausgeblendet nur auf «Werte erfassen»; 5a: eigene Felder mit Name und Einheit.
