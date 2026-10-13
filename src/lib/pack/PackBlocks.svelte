@@ -9,19 +9,18 @@
    * the whole block (Pack's change(), so Undo works). onslim(): opens «Reparatur unterwegs» (B5).
    * slimN: the parts of a Repair that is on the trip but not slim yet (0: none). note / onundo: the last switch.
    */
-  import { Wrench, Zap, Lightbulb, Flag, Cross, CookingPot, Apple, Droplet, CloudRain, Package } from '@lucide/svelte';
+  import { Wrench } from '@lucide/svelte';
   import OptionButton from '../ui/OptionButton.svelte';
   import { t, tn, nameOf } from '../i18n.svelte.js';
   import { knownWeight } from '../gear.js';
-  import { RAIN_WORDS } from '../packblocks.js';
+  import { blockIcon, blockTone } from '../blockicons.js';
   import { SLIM_MAX } from '../repairslim.js';
 
   let { rows, itemsById, ontoggle, onslim, slimN = 0, note = '', onundo = null } = $props();
 
-  const ICON = { repair: Wrench, charge: Zap, lights: Lightbulb, race: Flag, firstaid: Cross, cook: CookingPot, food: Apple, hygiene: Droplet };
-  const TONE = { lights: 'amber', race: 'purple', charge: 'amber' };
-  const iconOf = (r) => ICON[r.key] ?? (RAIN_WORDS.test(r.name) ? CloudRain : Package);
-  const toneOf = (r) => TONE[r.key] ?? (RAIN_WORDS.test(r.name) ? 'blue' : 'green');
+  // SN3: the icons and colours of the blocks are shared with Bausteine and the templates (blockicons.js)
+  const iconOf = (r) => blockIcon(r.key, r.name);
+  const toneOf = (r) => blockTone(r.key, r.name);
   const weightOf = (r) => (r.missing === r.n ? t('not weighed') : knownWeight(r.g, r.missing));
   const subOf = (r) => `${tn(r.n, '{n} item', '{n} items')} · ${weightOf(r)}`;
   const namesOf = (r) => r.ids.map((id) => (itemsById[id] ? nameOf(itemsById[id]) : id)).join(' · ');

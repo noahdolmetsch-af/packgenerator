@@ -122,3 +122,32 @@ export function zonesOf(tpl, items, setsValue = [], bags = []) {
     })
     .filter((z) => z.bag || z.n);
 }
+
+/**
+ * SN3 «Seiten neu»: the trips to make a template from («Aus deinen Touren»): the next planned ones
+ * (up to 2) and the last ridden ones (up to 3), only trips with a packing list and not already the
+ * source of a template. A completed trip (not rated) shows too: it can be saved after its debrief.
+ * infos: tripstate.js tripStates(); templates: the template list. → [{ trip, state }]
+ */
+export function tripSources(trips, infos, templates = [], today = '') {
+  const made = new Set((templates ?? []).filter((x) => !x.archivedAt && x.fromTrip).map((x) => x.fromTrip));
+  const live = (trips ?? []).filter((x) => x.entries?.length && !made.has(x.id) && infos?.[x.id]?.state);
+  const plan = live.filter((x) => infos[x.id].state === 'plan').sort((a, b) => (a.startDate ?? '9999').localeCompare(b.startDate ?? '9999'));
+  const past = live
+    .filter((x) => infos[x.id].state !== 'plan' && (x.startDate ?? '') <= (today || '9999'))
+    .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''));
+  return [...plan.slice(0, 2), ...past.slice(0, 3)].map((trip) => ({ trip, state: infos[trip.id].state }));
+}
+
+/**
+ * SN3: a block that is not in the template but was on most trips made from it gets a suggestion
+ * («auf 2 von 2 Touren dabei»): from 2 trips on and at least half of them. used: templateUse().trips;
+ * active(trip): the blocks of a trip (context.js activeBlocks). → { [key]: { n, of } }
+ */
+export function blockHints(tpl, used = [], active = () => []) {
+  const of = used.length;
+  if (!tpl || of < 2) return {};
+  const n = {};
+  for (const trip of used) for (const key of new Set(active(trip))) if (!tpl.blocks?.includes(key)) n[key] = (n[key] ?? 0) + 1;
+  return Object.fromEntries(Object.entries(n).filter(([, c]) => c >= 2 && c * 2 >= of).map(([key, c]) => [key, { n: c, of }]));
+}

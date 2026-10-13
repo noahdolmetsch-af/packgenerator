@@ -516,7 +516,10 @@ export function planGearImport(data, items, learnings = [], now = new Date().toI
  * rows Noah decided (decisions: { [key]: 'new' | <app item id> }). Several imports on one app item
  * are applied one after the other (each only fills what is still empty).
  * Returns { items: [records to put], learnings: { add, update }, done: [keys applied], counts }.
+ * SN5 «Import prüfen»: a new row Noah tapped off («Übernehmen» not pressed: decisions[key] === SKIP)
+ * is not added; it stays in the import for later (counts.left).
  */
+export const SKIP = 'skip';
 export function buildWrites(data, items, learnings = [], decisions = {}, now = new Date().toISOString()) {
   const plan = planGearImport(data, items, learnings, now);
   const byId = new Map(items.map((i) => [i.id, { ...i }]));
@@ -524,7 +527,7 @@ export function buildWrites(data, items, learnings = [], decisions = {}, now = n
   const all = [...items];
   const added = [];
   const done = [];
-  const counts = { enriched: 0, unchanged: 0, added: 0, wishlist: 0, merged: 0, open: 0 };
+  const counts = { enriched: 0, unchanged: 0, added: 0, wishlist: 0, merged: 0, open: 0, left: 0 };
   const into = (id, imp) => {
     const cur = byId.get(id);
     const { changes } = enrich(cur, imp, now);
@@ -555,6 +558,10 @@ export function buildWrites(data, items, learnings = [], decisions = {}, now = n
     done.push(r.key);
   }
   for (const r of plan.fresh) {
+    if (decisions[r.key] === SKIP) {
+      counts.left++;
+      continue;
+    }
     lineTo.set(r.key, fresh(r.imp));
     done.push(r.key);
   }

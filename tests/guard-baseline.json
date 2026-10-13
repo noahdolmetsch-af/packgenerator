@@ -37,7 +37,7 @@
       "fontsize": 6
     },
     "src/lib/care/PartDialog.svelte": {
-      "fontsize": 7
+      "fontsize": 6
     },
     "src/lib/care/TripCare.svelte": {
       "fontsize": 10,
@@ -183,15 +183,10 @@
       "fontsize": 2
     },
     "src/pages/Blocks.svelte": {
-      "fontsize": 4,
-      "global": 1
+      "fontsize": 4
     },
     "src/pages/Debrief.svelte": {
       "global": 1
-    },
-    "src/pages/Favorites.svelte": {
-      "colour": 2,
-      "fontsize": 3
     },
     "src/pages/Gear.svelte": {
       "fontsize": 8
@@ -209,9 +204,6 @@
     "src/pages/Share.svelte": {
       "colour": 2,
       "fontsize": 2
-    },
-    "src/pages/TemplateEdit.svelte": {
-      "fontsize": 15
     },
     "src/pages/TemplateNew.svelte": {
       "fontsize": 12

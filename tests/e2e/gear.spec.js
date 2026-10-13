@@ -177,7 +177,7 @@ test('gear: change the category, links survive a reload', async ({ page, context
   await yours.getByRole('button', { name: /test_data_gtp_ Roll bag/ }).click();
   const bagDlg = page.getByRole('dialog', { name: /test_data_gtp_ Roll bag/ });
   await expect(bagDlg.getByLabel(T('Weight from gear item'))).toHaveValue(BAG);
-  await expect(bagDlg.getByText('600 g')).toBeVisible();
+  await expect(bagDlg.getByLabel(T('Weight'), { exact: true })).toHaveValue('600 g'); // SN7 «Seiten neu»: the weight shown in its field, read only
   await bagDlg.getByRole('button', { name: T('Save') }).click();
   await expect(bagDlg).toBeHidden();
   expect((await table(page, 'containers')).find((c) => c.id === 'bag-test_data_gtp_roll').itemId).toBe(BAG);

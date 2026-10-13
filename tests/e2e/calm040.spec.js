@@ -127,7 +127,7 @@ test('Building blocks and What the app can do are rows; explanations behind "?"'
   await help.click();
   await expect(page.getByRole('note')).toBeVisible();
   // a row per block, the whole row opens it; no "Edit · Built-in" footer
-  const rows = page.locator('details.edit > summary.lrow');
+  const rows = page.locator('details.edit > summary.srow') // SN3 «Seiten neu»: the rows of the new sections;
   expect(await rows.count()).toBeGreaterThanOrEqual(5);
   await expect(page.getByText(T('Comes with an Outdoor overnight stay'), { exact: true })).toBeHidden();
   await noSideways(page);
@@ -183,8 +183,11 @@ test('Chain wear at the limit in Bike care: work needed, on the wishlist, Undo i
   // v0.48.0: a row of the part table opens the part.
   await spark.locator('button.prow').filter({ has: page.locator('.nm').getByText(T('Chain'), { exact: true }) }).click();
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Kette' }) });
+  // SN7 «Seiten neu»: measuring sits in the fold «Messen und Modell»; choose what you did, then «Eintragen».
+  await dlg.locator('details[data-fold="measure"] > summary').click();
   await dlg.getByLabel(new RegExp(`^${esc(T('Measured'))}`)).fill('0.6');
-  await dlg.getByRole('button', { name: T('OK'), exact: true }).click();
+  await dlg.locator('[data-did="ok"]').click();
+  await dlg.getByRole('button', { name: T('Enter|part'), exact: true }).click();
   await expect(dlg).toBeHidden();
   await expect.poll(async () => (await chainLast(page))?.result).toBe('needed');
   await expect.poll(async () => (await chainWishes(page)).length).toBe(1);
