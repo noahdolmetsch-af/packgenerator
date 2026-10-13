@@ -10,6 +10,9 @@
  *   GET  ?step=status       Bearer <device key> → { connected, athlete, scope }
  *   GET  ?step=gear         Bearer              → { bikes: [{ id, name, km, primary, retired }] }
  *   GET  ?step=activities   Bearer, &after=<unix s>&before=<unix s>&page=1 → { activities, page, more }
+ *   GET  ?step=zones        Bearer              → { hr: [{ min, max }], custom } (Training TR, Noah 13.10.2026 «1-5a»)
+ *   GET  ?step=detail       Bearer, &id=<activity id> → { kcal, hist, curve } (the heart rate per second as a
+ *                           histogram { bpm: seconds } and a short curve [[minute, bpm]], never the route)
  *   POST ?step=disconnect   Bearer              → { ok } (Strava access withdrawn; device keys stay for Google)
  *
  * Environment (names only; values only in the Vercel project «packgen», never in code or chat):
@@ -51,6 +54,7 @@ export function trimActivity(a) {
     km: Math.round((Number(a.distance) || 0) / 100) / 10,
     hm: Math.round(Number(a.total_elevation_gain) || 0),
     movingS: Number(a.moving_time) || 0,
+    elapsedS: Number(a.elapsed_time) || 0,
     gearId: a.gear_id ?? null,
     device: a.device_name ?? '',
     commute: !!a.commute,
@@ -58,6 +62,41 @@ export function trimActivity(a) {
     hrAvg: a.has_heartrate === false || !Number(a.average_heartrate) ? null : Math.round(Number(a.average_heartrate)),
     hrMax: a.has_heartrate === false || !Number(a.max_heartrate) ? null : Math.round(Number(a.max_heartrate)),
   };
+}
+
+/** Strava's heart rate zones: the upper bounds in order, the last open (max -1). */
+export function trimZones(z) {
+  const list = Array.isArray(z?.heart_rate?.zones) ? z.heart_rate.zones : [];
+  return { hr: list.map((x) => ({ min: Math.round(Number(x.min) || 0), max: Number.isFinite(Number(x.max)) ? Math.round(Number(x.max)) : -1 })), custom: !!z?.heart_rate?.custom_zones };
+}
+
+const CURVE_POINTS = 120;
+/**
+ * The heart rate of one activity, reduced: seconds per beat (for the zones, so a changed zone needs
+ * no new call) and at most CURVE_POINTS averages for the chart. Nothing about the route.
+ */
+export function trimStreams(streams) {
+  const time = streams?.time?.data;
+  const hr = streams?.heartrate?.data;
+  if (!Array.isArray(time) || !Array.isArray(hr) || hr.length < 2) return { hist: null, curve: [] };
+  const hist = {};
+  for (let i = 0; i < hr.length - 1; i++) {
+    const dt = Number(time[i + 1]) - Number(time[i]);
+    const b = Math.round(Number(hr[i]));
+    if (!(dt > 0 && dt <= 30) || !(b > 0)) continue; // a pause: not counted
+    hist[b] = (hist[b] ?? 0) + dt;
+  }
+  const n = Math.min(CURVE_POINTS, hr.length);
+  const curve = [];
+  for (let k = 0; k < n; k++) {
+    const a = Math.floor((k * hr.length) / n);
+    const e = Math.max(a + 1, Math.floor(((k + 1) * hr.length) / n));
+    let sum = 0;
+    let c = 0;
+    for (let i = a; i < e; i++) if (Number(hr[i]) > 0) (sum += Number(hr[i])), c++;
+    if (c) curve.push([Math.round(Number(time[a]) / 6) / 10, Math.round(sum / c)]);
+  }
+  return { hist, curve };
 }
 
 export function trimBike(b) {
@@ -163,6 +202,16 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           const list = await stravaGet(cfg, store, `/athlete/activities?${q}`);
           const arr = Array.isArray(list) ? list : [];
           return json(request, 200, { ok: true, page, more: arr.length === PER_PAGE, activities: arr.map(trimActivity) });
+        }
+        if (step === 'zones') {
+          return json(request, 200, { ok: true, ...trimZones(await stravaGet(cfg, store, '/athlete/zones')) });
+        }
+        if (step === 'detail') {
+          const id = url.searchParams.get('id') ?? '';
+          if (!/^\d{1,20}$/.test(id)) throw new ApiError(400, 'bad_request', 'id must be an activity number.');
+          const one = await stravaGet(cfg, store, `/activities/${id}`);
+          const streams = one.has_heartrate === false ? null : await stravaGet(cfg, store, `/activities/${id}/streams?keys=time,heartrate&key_by_type=true`);
+          return json(request, 200, { ok: true, id, kcal: Number(one.calories) > 0 ? Math.round(Number(one.calories)) : null, ...trimStreams(streams) });
         }
         throw new ApiError(400, 'bad_request', 'Unknown step.');
       },

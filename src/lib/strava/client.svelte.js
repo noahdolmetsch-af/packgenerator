@@ -20,6 +20,8 @@ import { t, tn } from '../i18n.svelte.js';
 import { loadRules, applyImport, updateEntry, deleteEntries } from '../kmbookdb.js';
 import { planSync, mergeChanges, recheckFrom, FETCH_MODES, NO_BIKE_MODES, AUTO_EVERY_MS, RECHECK_DAYS } from '../stravasync.js';
 import { WALL_KEY, wallOf, wallRecord } from '../home/tiles.js';
+import { actRecord, KEEP, needDetail, ZONES_KEY } from '../training.js';
+import { localDay } from '../localday.js';
 
 export const STRAVA_URL = 'https://packgen-three.vercel.app/api/strava';
 /** localStorage (this device only): the device key the server gave after the Strava login. */
@@ -123,7 +125,9 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
   const entries = await db.kmBook.toArray();
   // «Werte überall»: rides fetched before the app kept their climbing (no «hm» field) are fetched once more, all of them
   const noHm = entries.some((e) => e.source === 'strava' && e.stravaId && !('hm' in e));
-  const after = first || noHm ? null : Math.floor((Date.parse(prefs.lastSync) - RECHECK_DAYS * 864e5) / 1000);
+  // «Training»: every activity is kept since then; a device that fetched before gets them all once
+  const noActs = !(await db.activities.count());
+  const after = first || noHm || noActs ? null : Math.floor((Date.parse(prefs.lastSync) - RECHECK_DAYS * 864e5) / 1000);
   const activities = [];
   for (let page = 1; page <= 100; page++) {
     const res = await c('activities', { params: { page: String(page), ...(after != null ? { after: String(Math.max(0, after)) } : {}) } });
@@ -143,6 +147,8 @@ export async function runSync(db, { call: c = call, now = new Date() } = {}) {
     const old = (await db.settings.get(CHANGES_KEY))?.value ?? [];
     await db.settings.put({ key: CHANGES_KEY, value: mergeChanges(old, plan.changes) });
   }
+  await keepActivities(db, activities);
+  await fetchTraining(db, c, now);
   const last = { at: now.toISOString(), first, counts: plan.counts, perBike: plan.perBike, km: plan.km, n: plan.entries.length, assigned: plan.counts.assigned, check: plan.counts.check, changes: plan.changes.length };
   await db.settings.put({ key: LAST_KEY, value: last });
   await savePrefs(db, { lastSync: now.toISOString(), gear: gear.map((b) => ({ id: String(b.id), name: b.name ?? '', km: b.km ?? null, primary: !!b.primary, retired: !!b.retired })) });
@@ -287,11 +293,45 @@ export async function disconnect({ removeRides = false, db = appDb, c = call } =
   if (removeRides) {
     const ids = (await db.kmBook.toArray()).filter((e) => e.source === 'strava').map((e) => e.id);
     if (ids.length) await deleteEntries(db, ids);
+    await db.activities.clear();
   }
   await savePrefs(db, { lastSync: null });
   await db.settings.put({ key: CHANGES_KEY, value: [] });
   await db.settings.delete(LAST_KEY);
   return true;
+}
+
+/** «Training»: every fetched activity into db.activities; what the app added (details, note) stays. */
+export async function keepActivities(db, list) {
+  if (!list.length) return;
+  const recs = list.map(actRecord);
+  const old = await db.activities.bulkGet(recs.map((r) => r.id));
+  await db.activities.bulkPut(recs.map((r, i) => ({ ...r, ...Object.fromEntries(KEEP.filter((k) => old[i] && k in old[i]).map((k) => [k, old[i][k]])) })));
+}
+
+/** One activity's heart rate per beat and kcal from the server, kept on the activity. */
+export async function loadDetail(db, id, { call: c = call, now = new Date() } = {}) {
+  const d = await c('detail', { params: { id: String(id) } });
+  await db.activities.update(String(id), { kcal: d.kcal ?? null, hist: d.hist ?? null, curve: Array.isArray(d.curve) ? d.curve : [], detail: now.toISOString() });
+  return d;
+}
+
+/**
+ * After a fetch: the zones from Strava (once a day) and the details of the newest activities with
+ * heart rate (at most DETAIL_MAX, Strava allows 100 calls per 15 minutes). An error here never
+ * spoils the fetch: what is missing comes next time or when the activity is opened.
+ */
+export async function fetchTraining(db, c = call, now = new Date()) {
+  try {
+    const z = (await db.settings.get(ZONES_KEY))?.value;
+    if (!z?.at || Date.parse(z.at) < now.getTime() - 864e5) {
+      const res = await c('zones');
+      if (Array.isArray(res?.hr)) await db.settings.put({ key: ZONES_KEY, value: { hr: res.hr, custom: !!res.custom, at: now.toISOString() } });
+    }
+    for (const a of needDetail(await db.activities.toArray(), localDay(now))) await loadDetail(db, a.id, { call: c, now });
+  } catch {
+    /* next time */
+  }
 }
 
 /** «Übernehmen» (the km move to the bike Strava names now) or «Behalten» (the bike stays). */

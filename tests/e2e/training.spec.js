@@ -1,0 +1,142 @@
+// «Training» TR1–TR3 (Noah 13.10.2026 «1-5a», «tr1-4 ok»): the tile «Letzte Aktivität» on Today, Aktiv ›
+// Training with every Strava activity and its zones, one activity, own zones. The server
+// (packgen-three.vercel.app/api/strava) and the Strava login are answered by the test; everything else
+// outside the preview server is blocked. Fictional activities only.
+import { test, expect } from '@playwright/test';
+import { ready } from './settle.js';
+
+const P = 'test_data_gtp_';
+const shot = async (page, info, name) => {
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
+};
+// calendar days in Zurich (never now + n × 24 h)
+const zurichToday = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
+const day = (n) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${zurichToday()}T12:00:00Z`));
+
+const gear = [{ id: 'g1', name: `${P}Gravel Blau`, km: 6142, primary: true, retired: false }];
+const act = (id, f) => ({ id, name: `${P}Runde ${id}`, type: 'GravelRide', start: `${f.d}T06:00:00Z`, startLocal: `${f.d}T${f.at ?? '08:00'}:00Z`, km: 42.3, hm: 680, movingS: 6120, elapsedS: 6500, gearId: 'g1', device: '', commute: false, trainer: false, hrAvg: 138, hrMax: 171, ...f });
+const ACTS = [
+  act('2001', { d: day(-1), at: '17:05', name: `${P}Abendrunde` }),
+  act('2002', { d: day(-3), name: `${P}Lauf am See`, type: 'Run', km: 9.1, hm: 85, movingS: 2880, elapsedS: 2900, gearId: null, hrAvg: 149 }),
+  act('2003', { d: day(-5), name: `${P}Wanderung`, type: 'Hike', km: 14.2, hm: 980, movingS: 14700, gearId: null, hrAvg: null, hrMax: null }),
+  act('2004', { d: day(-20), name: `${P}Abendrunde`, movingS: 6500, hrAvg: 141 }),
+];
+// Z1 10 min, Z2 30, Z3 15, Z4 5, Z5 1 with Strava's zones 115 / 135 / 150 / 165
+const HIST = { 100: 600, 120: 1800, 140: 900, 155: 300, 170: 60 };
+const ZONES = [{ min: 0, max: 115 }, { min: 115, max: 135 }, { min: 135, max: 150 }, { min: 150, max: 165 }, { min: 165, max: -1 }];
+
+async function start(page, context, server) {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
+  await context.route(/packgen-three\.vercel\.app\/api\/strava/, async (route) => {
+    const req = route.request();
+    if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+    const url = new URL(req.url());
+    const step = url.searchParams.get('step');
+    server.log.push({ step, id: url.searchParams.get('id') });
+    const body = (b) => route.fulfill({ status: 200, headers: { ...cors, 'content-type': 'application/json' }, body: JSON.stringify({ ok: true, ...b }) });
+    if (step === 'start') return body({ url: 'https://www.strava.com/oauth/authorize?client_id=1&state=x' });
+    if (step === 'status') return body({ connected: true, athlete: { firstname: 'Beispiel' } });
+    if (step === 'gear') return body({ bikes: gear });
+    if (step === 'activities') return body({ page: 1, more: false, activities: ACTS });
+    if (step === 'zones') return body({ hr: ZONES, custom: false });
+    if (step === 'detail') return body({ id: url.searchParams.get('id'), kcal: 890, hist: HIST, curve: [[0, 110], [20, 128], [40, 141], [60, 150], [80, 166], [102, 131]] });
+    return route.fulfill({ status: 400, headers: cors, body: '{}' });
+  });
+  await context.route(/www\.strava\.com\/oauth\/authorize/, (route) =>
+    route.fulfill({ status: 302, headers: { location: `${server.app}#/bikes?tab=care&view=strava&strava=connected&key=${P}key` } }),
+  );
+  await context.addInitScript(() => {
+    if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
+    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
+  });
+  await page.goto('./');
+  await ready(page);
+  await page.evaluate((b) => new Promise((ok) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => {
+      const tx = r.result.transaction('bikes', 'readwrite');
+      tx.objectStore('bikes').put(b);
+      tx.oncomplete = () => (r.result.close(), ok());
+    };
+  }), { id: `${P}gb`, name: `${P}Gravel Blau`, type: 'Gravel bike', slots: [], setup: {}, fixtures: [], km: 6000 });
+  await page.reload();
+  await ready(page);
+  await page.goto('./#/bikes?tab=care&view=strava');
+  await page.getByRole('button', { name: 'Mit Strava verbinden' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Alle Fahrten geholt' })).toBeVisible();
+}
+
+test('Training: the tile «Letzte Aktivität», every activity with its zones, one activity, own zones', async ({ page, context, baseURL }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const server = { log: [], app: baseURL };
+  await start(page, context, server);
+  // the zones once, the heart rate of the newest activities with heart rate (the hike has none)
+  expect(server.log.filter((x) => x.step === 'zones').length).toBe(1);
+  expect(server.log.filter((x) => x.step === 'detail').map((x) => x.id)).toEqual(['2001', '2002', '2004']);
+
+  // TR1: on Today the newest activity, its numbers and its zones
+  await page.goto('./#/');
+  const tile = page.locator('[data-section="strava"]');
+  await expect(tile).toContainText('Letzte Aktivität');
+  await expect(tile).toContainText(`${P}Abendrunde`);
+  await expect(tile).toContainText(`Gestern 17:05 · ${P}Gravel Blau · Grundlage`);
+  await expect(tile.locator('.vals')).toContainText('1:42');
+  await expect(tile.locator('.vals')).toContainText('42.3');
+  await expect(tile.locator('.vals')).toContainText('680');
+  await expect(tile.locator('.vals')).toContainText('138');
+  await expect(tile.locator('[data-zones]')).toHaveAttribute('aria-label', /Z1 10 Min, Z2 30 Min, Z3 15 Min, Z4 5 Min, Z5 1 Min/);
+  await shot(page, info, 'TR1');
+
+  // TR3: a tap opens the activity
+  await tile.locator('[data-last-activity]').click();
+  await expect(page.getByRole('heading', { level: 1, name: `${P}Abendrunde` })).toBeVisible();
+  const values = page.locator('[data-section="values"]');
+  await expect(values).toContainText('Dauer (Bewegung 1:42)');
+  await expect(values).toContainText('890');
+  await expect(values).toContainText('171');
+  const zt = page.locator('[data-section="zone-time"]');
+  await expect(zt.locator('li[data-zone]')).toHaveCount(5);
+  await expect(zt.locator('li[data-zone="2"]')).toContainText('Grundlage');
+  await expect(zt.locator('li[data-zone="2"]')).toContainText('115–134 Schläge');
+  await expect(zt.locator('li[data-zone="2"]')).toContainText('30 Min');
+  await expect(zt).toContainText('Grundlage (Z1–Z2) 66 % · intensiv (Z4–Z5) 10 %');
+  await expect(page.locator('[data-section="curve"] svg')).toBeVisible();
+  const same = page.locator('[data-section="same-route"]');
+  await expect(same.locator('li')).toHaveCount(2);
+  await expect(same.locator('li').first()).toContainText('schnellste');
+  await page.locator('[data-note]').fill('Beine gut, Wind am Pass');
+  await page.locator('[data-note]').blur();
+  await expect(page.getByRole('link', { name: 'In Strava öffnen' })).toHaveAttribute('href', 'https://www.strava.com/activities/2001');
+  await shot(page, info, 'TR3');
+
+  // TR2: Aktiv › Training, every activity (the run and the hike too); a chip filters
+  await page.goto('./#/flow/training');
+  await expect(page.getByRole('heading', { level: 1, name: 'Training' })).toBeVisible();
+  const rows = page.locator('[data-section="activities"] a[data-activity]');
+  await expect(rows).toHaveCount(4);
+  await expect(rows.first()).toContainText(`${P}Abendrunde`);
+  await expect(page.locator('a[data-activity="2002"]')).toContainText('Laufen');
+  await expect(page.locator('a[data-activity="2003"]')).toContainText('Wandern');
+  await page.getByRole('button', { name: /Laufen 1/ }).click();
+  await expect(rows).toHaveCount(1);
+  await page.getByRole('button', { name: /Alle 4/ }).click();
+  await expect(rows).toHaveCount(4);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
+  await shot(page, info, 'TR2');
+
+  // 3a: the zones from Strava, changeable; the minutes follow without a new call
+  const zs = page.locator('[data-section="zones"]');
+  await expect(page.getByText('deine Zonen aus Strava')).toBeVisible();
+  await page.getByRole('button', { name: 'ändern' }).click();
+  for (const [i, v] of [125, 145, 160, 175].entries()) await zs.locator(`[data-bound="${i}"]`).fill(String(v));
+  await zs.getByRole('button', { name: 'Speichern' }).click();
+  await expect(page.getByText('deine eigenen Zonen')).toBeVisible();
+  const details = server.log.filter((x) => x.step === 'detail').length;
+  await page.locator('a[data-activity="2001"]').click();
+  await expect(page.locator('[data-section="zone-time"] li[data-zone="1"]')).toContainText('40 Min');
+  await expect(page.locator('[data-note]')).toHaveValue('Beine gut, Wind am Pass');
+  expect(server.log.filter((x) => x.step === 'detail').length).toBe(details);
+  expect(errors).toEqual([]);
+});
