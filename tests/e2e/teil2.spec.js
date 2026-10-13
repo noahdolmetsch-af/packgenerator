@@ -1,4 +1,4 @@
-// v0.120.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default «a ★ Ja, schlank dabei»):
+// v0.122.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default «a ★ Ja, schlank dabei»):
 // B4  Packen shows the trip's building blocks as big option buttons: «Bausteine · n dabei · m zur Wahl»,
 //     «Dabei» green with ✓, «Dazunehmen» white with +, a suggestion dashed with a label (rain when wet,
 //     Repair when it holds more than 8 parts). One tap switches the whole block (Undo); hover (computer)

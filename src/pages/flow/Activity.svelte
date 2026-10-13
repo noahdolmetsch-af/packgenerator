@@ -33,6 +33,7 @@
   import { tickWith, toast, actName } from '../../lib/flow/ui.svelte.js';
   import { tileName } from '../../lib/flow/hobby/words.js';
   import { localDay } from '../../lib/localday.js';
+  import { withStravaRides } from '../../lib/kmbook.js';
   import { t, tn, lang } from '../../lib/i18n.svelte.js';
 
   const today = localDay();
@@ -128,7 +129,9 @@
   /* v0.105.0 Design-Refresh P8 «Aktiv» (A7): this week (B18), «Vorschlag für heute» as a suggestion tile
      with alternatives and a challenge (Noah «d1-d5 freigeben»: any suggestion can become a challenge),
      the rest folded under «Mehr» */
-  const weekStrip = $derived(data ? weekDays({ today, log: data.log, rides: data.rides }) : []);
+  // v0.121.0 (Noah «1a»): the counted Strava rides count too
+  const kmBookQ = liveQuery(() => db.kmBook.toArray());
+  const weekStrip = $derived(data ? weekDays({ today, log: data.log, rides: withStravaRides(data.rides, $kmBookQ ?? []) }) : []);
   const SG_KEY = suggestKey('aktiv');
   const sgQ = liveQuery(async () => {
     const [s, c] = await Promise.all([db.settings.get(SG_KEY), db.settings.get(CHALLENGES_KEY)]);

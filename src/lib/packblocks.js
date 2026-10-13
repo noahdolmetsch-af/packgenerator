@@ -1,5 +1,5 @@
 /**
- * v0.120.0 «Neue Tour Teil 2», B4 «Bausteine beim Packen» (mockup B4, Noah 12.10.2026 «b2 b4 b5 ok»):
+ * v0.122.0 «Neue Tour Teil 2», B4 «Bausteine beim Packen» (mockup B4, Noah 12.10.2026 «b2 b4 b5 ok»):
  * the building blocks of a trip as big option buttons in Packen. «Dabei» (on the trip, green with ✓):
  * what the trip's context brings or what was switched on; «Dazunehmen» (white with +): the other blocks
  * with items. A suggestion gets a dashed frame and a small label: an own rain block when the weather is
