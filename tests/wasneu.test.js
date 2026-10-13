@@ -28,7 +28,7 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.strava']).toBe('0.116.0'); // v0.116.0 «Strava-Verbindung»
     expect(SINCE['f.explain']).toBe('0.117.0'); // v0.117.0 «Knöpfe neu»
     expect(SINCE['f.quickstart']).toBe('0.119.0'); // v0.119.0 «Schnellstart»
-    expect(SINCE['f.packblocks']).toBe(WHATS_NEW[0].version); // v0.124.0 «Neue Tour Teil 2»
+    expect(SINCE['f.packblocks']).toBe('0.124.0'); // v0.124.0 «Neue Tour Teil 2»
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
     expect(BEST.length).toBe(10);
