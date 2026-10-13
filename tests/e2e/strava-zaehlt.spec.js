@@ -1,4 +1,4 @@
-// v0.117.0 Strava-Fahrten zählen mit (Noah 12.10.2026 «1a»): the counted Strava rides count in Today's
+// v0.119.0 Strava-Fahrten zählen mit (Noah 12.10.2026 «1a»): the counted Strava rides count in Today's
 // «This week» and «Bike this month» and in Aktiv's «Bike this month»; a Strava ride that was also
 // uploaded as a file counts once. Fictional fixture (test_data_gtp_) plus Strava ledger entries; German,
 // phone + desktop. ZAEHLT_SHOTS=<dir> also saves screenshots.
@@ -62,17 +62,17 @@ async function shot(page, info, name, sel) {
 test('Strava rides count in This week and Bike this month, a file ride once', async ({ page, context }, info) => {
   await start(page, context, info);
 
-  // Z1 Today: «This week» counts the 3 days with Strava rides
+  // SZ1 Today: «This week» counts the 3 days with Strava rides
   await page.goto('./');
   const week = page.locator('[data-section="week"]');
   await expect(week.locator('.sub')).toContainText(T('{n} days active', { n: 3 }));
-  await shot(page, info, 'Z1-heute-woche', '[data-section="week"]');
+  await shot(page, info, 'SZ1-heute-woche', '[data-section="week"]');
 
-  // Z2 Aktiv: «Bike this month» from the rides and Strava: 280 km, +40 % against September
+  // SZ2 Aktiv: «Bike this month» from the rides and Strava: 280 km, +40 % against September
   await page.goto('./#/flow');
   const km = page.locator('[data-section="km"]');
   await expect(km).toContainText('280 km');
   await expect(km).toContainText('40 %');
   await expect(page.getByText(T('from your rides and Strava'))).toBeVisible();
-  await shot(page, info, 'Z2-aktiv-monat', '[data-section="km"]');
+  await shot(page, info, 'SZ2-aktiv-monat', '[data-section="km"]');
 });

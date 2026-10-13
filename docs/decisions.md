@@ -1078,3 +1078,10 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Puls pro Fahrt (P1–P6, Offene Mockups 2 #puls-pro-fahrt):** freigegeben «P1–P6 freigegeben 1a, veröffentlichen» (12.10.2026 22:07 UTC). Antworten «1b 2a und b» (in #137, an allen Orten) und «1a 2a 3a 4a 5a» (sechs Orte: Fahrtenbuch des Velos, Rückblick letzte Tour, Touren-Tabelle, Aktiv diese Woche, Fahrt-Seite, «Diese Woche» auf Heute). Später, eigene Pakete: Puls auf gleicher Strecke vergleichen, Skitouren mit Puls im Tourenbuch (Skitour), Puls neben dem Ruhepuls im Tages-Check (Google-Teil).
 - **Q1 = a:** Strava-Fahrten zählen bald auch in «Diese Woche» und «Velo in diesem Monat»; das kommt als kleines eigenes Release nach 0.116.0.
 - **Selbst entschieden:** Eine hochgeladene GPX-Fahrt bekommt den Puls der Strava-Fahrt nur, wenn genau eine passt (gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Der Wochen- und Tour-Puls ist ein km-gewichteter Schnitt der Fahrten, max der höchste Wert.
+
+## 13.10.2026: Strava-Fahrten zählen mit (0.119.0)
+
+- **Q1 = a (12.10.2026), Mockups SZ1–SZ2 freigegeben (Noah 13.10.2026 14:57 UTC «sz1-sz2 freigeben»):** Bestätigte Strava-Fahrten zählen in Heute «Diese Woche», Heute «Velo im {Monat}» und Aktiv «Velo in diesem Monat».
+- **Selbst entschieden:** Eine Fahrt, die als Datei und als Strava-Eintrag da ist, zählt einmal als Datei (gleiche Regel wie beim Puls: gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Offene Fahrten in «Zum Prüfen» zählen erst nach «Passt». Der Aktiv-Untertitel heisst jetzt «aus deinen Fahrten und Strava».
+- **Bewusst nicht:** keine sichtbare Unterscheidung «geplant / abgeschlossen / bewertet» in diesem Release; das kommt nach Spezifikation und Mockups aus dem Design-Refresh (Noah 13.10.2026).
+

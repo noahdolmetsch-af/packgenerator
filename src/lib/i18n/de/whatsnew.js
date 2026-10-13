@@ -4,6 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.119.0 Strava-Fahrten zählen mit
+  'Strava rides count along': 'Strava-Fahrten zählen mit',
+  'Your Strava rides now count in «This week» and «Bike this month», each ride once.': 'Deine Strava-Fahrten zählen jetzt bei «Diese Woche» und «Velo in diesem Monat» mit, jede Fahrt nur einmal.',
+  'Today: «This week» and «Bike this month» count your Strava rides': 'Heute: «Diese Woche» und «Velo in diesem Monat» zählen deine Strava-Fahrten',
+  'Aktiv: «Bike this month» from your rides and Strava': 'Aktiv: «Velo in diesem Monat» aus deinen Fahrten und Strava',
+  'A ride in «To check» counts after «Fits»': 'Eine Fahrt in «Zum Prüfen» zählt nach «Passt»',
+  'Connect Strava and ride once: on Today «This week» shows the day as active.': 'Strava verbinden und einmal fahren: Auf Heute zeigt «Diese Woche» den Tag als aktiv.',
+  'Open Aktiv: «Bike this month» adds the Strava kilometres.': 'Aktiv öffnen: «Velo in diesem Monat» zählt die Strava-Kilometer dazu.',
   'Older updates': 'Ältere Updates',
   'Version {v}': 'Version {v}',
   '{from} to {to}|versions': '{from} bis {to}',

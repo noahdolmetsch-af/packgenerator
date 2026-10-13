@@ -843,7 +843,7 @@ export function heartOfRide(entries, ride) {
 }
 
 /**
- * v0.117.0 (Noah 12.10.2026 «1a»): the uploaded rides plus the counted Strava rides, for «This week» and
+ * v0.119.0 (Noah 12.10.2026 «1a», mockups SZ1–SZ2): the uploaded rides plus the counted Strava rides, for «This week» and
  * «Bike this month». A Strava ride that was also uploaded as a file counts once (the file).
  */
 export function withStravaRides(rides = [], entries = []) {
