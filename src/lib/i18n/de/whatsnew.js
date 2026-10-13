@@ -9,6 +9,17 @@ export default {
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
   // 0.116.1 UI-Prüfung A1: alte Rückblicke öffnen wieder
+  'Enter bike values where you are': 'Velo-Werte dort eintragen, wo du bist',
+  '«Enter» on a sheet of the bike folder opens exactly that value, and saving brings you back to the sheet.':
+    '«eintragen» auf einem Blatt der Velo-Mappe öffnet genau diesen Wert, und Speichern bringt dich zurück aufs Blatt.',
+  'Fixed: «enter» on the Bike pass, the Pick-up check and the other sheets led to the top of another page. Now it opens just that value of this bike for typing, Save or Cancel brings you back to the sheet.':
+    'Behoben: «eintragen» auf dem Velo-Pass, dem Abhol-Check und den anderen Blättern führte an den Anfang einer anderen Seite. Jetzt öffnet es genau diesen Wert dieses Velos zum Tippen, Speichern oder Abbrechen bringt dich zurück aufs Blatt.',
+  '«Change values» on the Bike pass and the Pick-up check opens the bike\'s Equipment, where the measurements and parts are.':
+    '«Werte ändern» auf dem Velo-Pass und dem Abhol-Check öffnet die Ausstattung des Velos, wo Masse und Teile stehen.',
+  'Open Bike › More › Folder › Pick-up check and tap «enter» next to Saddle height.':
+    'Velo › Mehr › Mappe › Abhol-Check öffnen und neben Sitzhöhe auf «eintragen» tippen.',
+  'Type a number and tap Save: you are back on the Pick-up check and the value is there.':
+    'Eine Zahl tippen und Speichern: Du bist zurück auf dem Abhol-Check, und der Wert steht da.',
   'Old trips open again': 'Alte Touren öffnen wieder',
   'The debrief of an older trip opened an empty page; now it opens like any other.':
     'Der Rückblick einer älteren Tour öffnete eine leere Seite; jetzt öffnet er wie jeder andere.',

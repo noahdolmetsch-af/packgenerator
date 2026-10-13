@@ -14,7 +14,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { localDay } from '../localday.js';
-  import { bikesHash } from '../bikes.js';
+  import { bikesHash, withBack } from '../bikes.js';
   import { kmOn } from '../kmbook.js';
   import { PART } from '../care.js';
   import { SHEET, sheetsOf, shownSheets, sheetData, keepValues, orderSheetText, sheetText, bikeLine, tickPickup, pickupEntries } from '../sheets.js';
@@ -68,8 +68,10 @@
     ...(sheet === 'all' ? [] : [{ label: t('Folder|sheets'), href: bikesHash({ tab: 'setup', bike: bikeId, sheet: 'all', from }) }]),
   ]);
   let choosing = $state(false);
-  const EDIT = { pass: 'setup', plan: 'care', order: 'care', pickup: 'setup', breakin: 'setup', kit: 'gear', warranty: 'form', theft: 'form' };
-  const editHref = $derived(sheet === 'all' || EDIT[sheet] === 'form' ? null : EDIT[sheet] === 'gear' ? '#/gear' : EDIT[sheet] === 'setup' ? bikesHash({ tab: 'setup', bike: bikeId, open: true }) : bikesHash({ tab: 'care', bike: bikeId, open: true }));
+  const EDIT = { pass: 'equipment', plan: 'care', order: 'care', pickup: 'equipment', breakin: 'setup', kit: 'gear', warranty: 'form', theft: 'form' };
+  // Bugfix Dateneingabe: the values of the Bike pass and the Pick-up check are typed on the bike's Equipment
+  // (fit values on top, every part below), not on the top of the bike page far from them.
+  const editHref = $derived(sheet === 'all' || EDIT[sheet] === 'form' ? null : EDIT[sheet] === 'gear' ? '#/gear' : EDIT[sheet] === 'equipment' ? bikesHash({ tab: 'compare', bike: bikeId }) : EDIT[sheet] === 'setup' ? bikesHash({ tab: 'setup', bike: bikeId, open: true }) : bikesHash({ tab: 'care', bike: bikeId, open: true }));
 
   /* ---------- storing on the bike (plain data: Dexie cannot store a state proxy) ---------- */
   async function store(changes) {
@@ -161,7 +163,8 @@
 </script>
 
 {#snippet enter(href)}
-  <a class="enter" {href}>{t('enter|value')}</a>
+  <!-- Bugfix Dateneingabe: opens that one value for typing; closing it comes back to this sheet -->
+  <a class="enter" href={withBack(href, sheet, from)}>{t('enter|value')}</a>
 {/snippet}
 
 {#snippet bar(r)}
@@ -300,7 +303,7 @@
         <div class="papers">
           {#each kinds as kind (kind)}
             <article class="paper" data-sheet={kind} aria-label={t(SHEET[kind].name)}>
-              {#if MORE.includes(kind)}<SheetMore {kind} {bike} {data} {more} items={$itemsQ ?? []} {today} {kmNow} visits={$visitsQ ?? []} bind:editing />
+              {#if MORE.includes(kind)}<SheetMore {kind} {bike} {data} {more} items={$itemsQ ?? []} {today} {kmNow} visits={$visitsQ ?? []} back={sheet} {from} bind:editing />
               {:else if kind === 'pass'}{@render pass()}{:else if kind === 'plan'}{@render plan()}{:else if kind === 'order'}{@render order()}{:else}{@render pickup()}{/if}
             </article>
           {/each}

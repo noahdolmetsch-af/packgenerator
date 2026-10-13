@@ -13,7 +13,7 @@
    */
   import { tick as settle } from 'svelte';
   import { db } from '../db.js';
-  import { bikesHash } from '../bikes.js';
+  import { bikesHash, withBack } from '../bikes.js';
   import { shrinkImage } from '../photo.js';
   import { PART } from '../care.js';
   import { sheetsOf, bikeLine, isShown, NEW_KM } from '../sheets.js';
@@ -23,7 +23,7 @@
   import { t, tn, num, dateOf, isDe } from '../i18n.svelte.js';
   import { Camera, ReceiptText, Download } from '@lucide/svelte';
 
-  let { kind, bike, data, more, items = [], today, kmNow = null, visits = [], editing = $bindable(false) } = $props();
+  let { kind, bike, data, more, items = [], today, kmNow = null, visits = [], editing = $bindable(false), back = null, from = null } = $props();
 
   const s = $derived(sheetsOf(bike));
   const STAND = () => t('As of {date}', { date: dateOf(today) });
@@ -178,7 +178,7 @@
 {/snippet}
 
 {#snippet enter(href)}
-  <a class="enter" {href}>{t('enter|value')}</a>
+  <a class="enter" href={withBack(href, back ?? kind, from)}>{t('enter|value')}</a>
 {/snippet}
 
 {#snippet enterHere(key)}

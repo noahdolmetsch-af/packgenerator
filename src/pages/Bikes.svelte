@@ -27,7 +27,7 @@
   });
   // Old links (#/care) and "open this bike" are written back as the plain address of the tab.
   $effect(() => {
-    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit, view: route.view, sheet: route.sheet, from: route.from });
+    const want = bikesHash({ tab: route.tab, bike: route.bike, open: route.open, trip: route.trip, visit: route.visit, view: route.view, sheet: route.sheet, from: route.from, edit: route.edit, back: route.back });
     if (location.hash !== want && !route.open) history.replaceState(null, '', want);
   });
 
@@ -50,7 +50,8 @@
     <!-- v0.69.0 «Velo-Blätter»: one sheet of the bike's folder (or the whole folder) -->
     <SheetView bikeId={route.bike} sheet={route.sheet} from={route.from ?? null} />
   {:else if route.tab === 'compare' && route.view === 'all'}
-    <Compare />
+    <!-- Bugfix Dateneingabe: «enter» on a sheet opens one value of its bike here, then goes back -->
+    <Compare bikeId={route.bike} target={route.edit ?? null} back={route.back ?? null} from={route.from ?? null} />
   {:else if route.tab === 'compare'}
     <!-- v0.83.0 «Ausstattung» (A1–A5 a): every part of one bike in groups, «Compare bikes» one tap away -->
     <Equipment bikeId={route.bike} onbike={pickBike} />
