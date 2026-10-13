@@ -23,15 +23,36 @@ export const WHATS_NEW = [
     lead: 'Aktiv has a week page with fixed dates and suggestions, a page for recovery and a short packing list for each sport.',
     points: [
       { text: 'Week: Monday to Sunday with suggestions, tap one to plan it', href: '#/flow/week' },
-      { text: 'Fixed dates: enter once, they come back every week', href: '#/flow/week' },
       { text: 'Sport bag: a short list per sport, Heute reminds you the evening before', href: '#/flow/bags' },
       { text: 'Recovery: the ring of the week, a pause hint after 3 active days', href: '#/flow/rest' },
     ],
     small: [
+      { box: 'new', text: 'Fixed dates: enter once, they come back every week', href: '#/flow/week' },
       { box: 'new', text: '«More in Active» on Aktiv › Heute leads to the week', href: '#/flow' },
       { box: 'new', text: 'Fixed and planned dates into your calendar (.ics)', href: '#/flow/week' },
     ],
     test: ['Open Aktiv › Heute and tap the card «Week».', 'Add a fixed date, then tap a suggestion: it is planned.', 'Open «Sport bag», tick a thing, then «All in».', 'Open «Recovery» and tick the sauna.'],
+  },
+  {
+    // v0.124.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
+    version: '0.124.0',
+    date: '2026-10-13',
+    title: 'Blocks you can tap',
+    lead: 'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.',
+    points: [
+      { text: 'Building blocks as big buttons at the top of Packen: green with a check is on the trip, white with + can be added.', href: '#/pack?day' },
+      { text: 'Repair on the way: the app suggests at most 8 light parts, the rest stays in the workshop and in your gear.', href: '#/pack?day' },
+      { text: 'A slim Repair comes with every new trip as a suggestion; one tap takes it off.', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'Hover or hold a block: it shows what is inside', href: '#/pack?day' },
+      { box: 'nicer', text: 'The template buttons of a new trip use the same option buttons', href: '#/trips' },
+    ],
+    test: [
+      'Open a bike trip and go to Packen: at the top «Building blocks · n on · m to choose».',
+      'Tap a white block with +: it turns green with a check and its items are on the list. Tap it again: they go.',
+      'With a Repair of more than 8 parts tap its dashed button: choose the parts and tap «Take 8 parts».',
+    ],
   },
   {
     // v0.123.0 «Trophäen-Vitrine» (mockups TV1–TV2, Noah 13.10.2026 «tv1-tv2 freigeben»)
@@ -73,8 +94,9 @@ export const WHATS_NEW = [
     title: 'Strava rides count along',
     lead: 'Your Strava rides now count in «This week» and «Bike this month», each ride once.',
     points: [
-      { text: 'Today: «This week» and «Bike this month» count your Strava rides', href: '#/' },
+      // «Try it» takes the first point; '#/' does nothing when you are on Today already, so Aktiv comes first
       { text: 'Aktiv: «Bike this month» from your rides and Strava', href: '#/flow' },
+      { text: 'Today: «This week» and «Bike this month» count your Strava rides', href: '#/' },
     ],
     small: [
       { box: 'nicer', text: 'A ride in «To check» counts after «Fits»', href: '#/bikes' },

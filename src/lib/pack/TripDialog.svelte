@@ -29,6 +29,8 @@
   import { helper, isSetUp, isOn } from '../helper/client.svelte.js';
   import { addHelperItems } from '../helper/logic.js';
   import { take } from '../nav.js';
+  import OptionButton from '../ui/OptionButton.svelte';
+  import { newTripOff } from '../repairslim.js';
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -125,8 +127,10 @@
   // v0.66.0 (Noah 9a): the ride blocks the window suggests, taken off with a tap (a visible suggestion, never forced).
   // v0.114.0 (Noah: «92 Teile … nur 10-20»): Repair (36 tools) and Charging no longer come by themselves
   // with a new trip; they stay one switch away in Packen (answer 1a: building blocks only when packing).
+  // v0.124.0 B5 (Noah «a ★ Ja, schlank dabei»): a slim Repair (at most 8 parts) comes again by itself,
+  // a suggestion that Packen takes off with one tap; a Repair that is not slim yet stays off (repairslim.js).
   // svelte-ignore state_referenced_locally
-  let off = $state(isNew ? ['repair', 'charge'] : []);
+  let off = $state(isNew ? newTripOff(items) : []);
   // v0.114.0 (bug «Letzte Tour»): a new trip never starts from a past trip here, only Standard or a template.
   // svelte-ignore state_referenced_locally
   let start = $state(startFrom === 'last' ? 'standard' : startFrom);
@@ -160,6 +164,8 @@
   // v0.114.0 (answer 3b, B2): two example templates per kind of trip; they can be hidden.
   let example = $state(null);
   let tplOpen = $state(false);
+  // v0.124.0: the examples' icons for the shared option button (ui/OptionButton.svelte).
+  const EX_ICON = { bag: Briefcase, hut: Hotel, ski: MountainSnow, walk: Footprints, bike: BikeIcon };
   const hiddenQ = liveQuery(() => db.settings.get(EXAMPLES_HIDDEN));
   const examples = $derived($hiddenQ?.value ? [] : examplesFor(area));
   const chosenEx = $derived(examples.find((x) => x.id === example) ?? null);
@@ -588,9 +594,6 @@
   {/if}
 {/snippet}
 
-{#snippet exIcon(icon)}
-  {#if icon === 'bag'}<Briefcase size={18} aria-hidden="true" />{:else if icon === 'hut'}<Hotel size={18} aria-hidden="true" />{:else if icon === 'ski'}<MountainSnow size={18} aria-hidden="true" />{:else if icon === 'walk'}<Footprints size={18} aria-hidden="true" />{:else}<BikeIcon size={18} aria-hidden="true" />{/if}
-{/snippet}
 
 {#snippet templatesFold()}
   <!-- v0.114.0 (answers 1a, 3b, B2): «Vorlage wählen» folded; the starts as buttons: Standard, own templates,
@@ -605,13 +608,13 @@
       <div id="tpl-body" class="tplbody">
         <p class="grp-l">{t('Your templates')}</p>
         <div class="obtns" role="group" aria-label={t('Your templates')}>
-          <button type="button" class="obtn" aria-pressed={start === 'standard' && !example} onclick={() => ((start = 'standard'), (example = null))}>{#if start === 'standard' && !example}<Check size={18} aria-hidden="true" />{/if}<span>{t('Standard')}</span></button>
-          {#each areaTemplates as tp (tp.id)}<button type="button" class="obtn" aria-pressed={start === tp.id} title={tplLine(tp)} onclick={() => pickStart(tp.id)}>{#if start === tp.id}<Check size={18} aria-hidden="true" />{:else}<Star size={18} aria-hidden="true" />{/if}<span>{tp.name}</span></button>{/each}
+          <OptionButton pressed={start === 'standard' && !example} label={t('Standard')} onclick={() => ((start = 'standard'), (example = null))} />
+          {#each areaTemplates as tp (tp.id)}<OptionButton pressed={start === tp.id} icon={Star} label={tp.name} title={tplLine(tp)} onclick={() => pickStart(tp.id)} />{/each}
         </div>
         {#if examples.length}
           <p class="grp-l">{t('Examples {sport}', { sport: t(SPORTS.find((x) => x.key === area)?.name ?? domainName(area)) })}</p>
           <div class="obtns" role="group" aria-label={t('Examples')}>
-            {#each examples as ex (ex.id)}<button type="button" class="obtn" aria-pressed={example === ex.id} onclick={() => pickExample(ex)}>{#if example === ex.id}<Check size={18} aria-hidden="true" />{:else}{@render exIcon(ex.icon)}{/if}<span>{t(ex.name)}</span></button>{/each}
+            {#each examples as ex (ex.id)}<OptionButton pressed={example === ex.id} icon={EX_ICON[ex.icon] ?? BikeIcon} label={t(ex.name)} onclick={() => pickExample(ex)} />{/each}
           </div>
         {/if}
         <p class="tplinfo"><Info size={16} aria-hidden="true" /><span>
@@ -1112,31 +1115,6 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 8px;
-  }
-  .obtn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 44px;
-    padding: 6px 12px;
-    border: 1px solid var(--line-strong);
-    border-radius: var(--r-ctl);
-    background: var(--paper);
-    color: var(--ink);
-    font: 500 var(--fs-small) var(--font-body);
-    cursor: pointer;
-  }
-  .obtn span {
-    overflow-wrap: break-word;
-  }
-  .obtn :global(svg) {
-    flex: none;
-  }
-  .obtn[aria-pressed='true'] {
-    border-color: var(--accent);
-    background: var(--accent);
-    color: var(--paper);
   }
   .tplinfo {
     display: flex;
