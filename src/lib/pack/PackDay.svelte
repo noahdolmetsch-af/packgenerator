@@ -20,6 +20,7 @@
   import LessonsCard from './LessonsCard.svelte';
   import { tick as settle, untrack } from 'svelte';
   import TripBand from '../trip/TripBand.svelte';
+  import { askReopen } from '../trip/reopen.svelte.js';
   import Empty from '../ui/Empty.svelte';
   import { formatWeight } from '../gear.js';
   import { readyDone, RAIN } from '../trips.js';
@@ -28,7 +29,10 @@
   import { localDay } from '../localday.js';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], oncharge = null, pressure = '', stats = null, charge = null, top = null } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false } = $props();
+  // TZ-2 «Fest nach der Fahrt» (mockup TZ2, Noah 5a): a completed or rated trip (fixed) shows its bags as
+  // packed then, to read: no ticks, no «Whole bag packed»; the band under the steps says why and offers
+  // «Wieder öffnen».
   // v0.124.0 B4 (mockup «Bausteine beim Packen»): top: the building blocks as big buttons (Pack's PackBlocks), above the bags.
   // v0.105.0 P5 (T6): stats for «Gewicht nach Taschen»; charge { names, done, total } for the row «Laden» in «Mehr».
   // v0.65.0 «Velo-Masse»: pressure: the trip bike's target pressure («1.6 / 1.7 bar»), named in the tyre row.
@@ -273,10 +277,11 @@
 {/snippet}
 
 <div class="pd trip-page" aria-label={t('Packing day: {title}', { title: trip.title })}>
-  <TripBand {trip} tab="pack" {kicker} action={main.kind ? go : null} {aside} hint={missing ? tn(missing, '{n} still missing', '{n} still missing') : t('Everything is in.')} />
+  <TripBand {trip} tab="pack" kicker={fixed ? t('Packing list as ridden') : kicker} action={main.kind ? go : null} {aside} hint={fixed ? '' : missing ? tn(missing, '{n} still missing', '{n} still missing') : t('Everything is in.')} note />
   {@render top?.()}
   <!-- v0.67.0 (U014, kit Empty): an empty list says so and leads to adding gear (never «Alles gepackt»). -->
-  {#if total === 0}<Empty icon={ListChecks} text={t('The packing list is still empty. Add gear in Plan first, then pack here.')} action={{ label: t('Add material'), href: '#/pack?add' }} />{/if}
+  {#if total === 0 && fixed}<Empty icon={ListChecks} text={t('It was ridden without a list from the app. Reopen it to add one.')} action={{ label: t('Reopen'), onclick: () => askReopen(trip) }} />
+  {:else if total === 0}<Empty icon={ListChecks} text={t('The packing list is still empty. Add gear in Plan first, then pack here.')} action={{ label: t('Add material'), href: '#/pack?add' }} />{/if}
 
   {#if wxGap}
     <div class="card wxgap" role="note">
@@ -288,7 +293,7 @@
   <!-- v0.30.1 (B6): read out here, shown in the bag's foot: a line appearing above the bags pushed the
        open bag down under the finger, so a quick second tap closed it. -->
   <p class="sr" role="status">{status}</p>
-  {#if finished}
+  {#if finished && !fixed}
     <!-- v0.30.1 (Noah B10): the end of packing is a card of its own at the top, with the next step. -->
     <section class="alldone" bind:this={doneEl} role="status" aria-labelledby="alldone-h" tabindex="-1">
       <span class="okbig" aria-hidden="true"><Check size={28} strokeWidth={2.5} /></span>
@@ -337,7 +342,7 @@
                   {@const it = itemsById[e.itemId]}
                   {@const hint = hintOf(e.itemId)}
                   <li class:in={e.packed}>
-                    <button type="button" class="it" aria-pressed={!!e.packed} onclick={(ev) => tick(s, e, ev)}>
+                    <button type="button" class="it" aria-pressed={!!e.packed} disabled={fixed} onclick={(ev) => tick(s, e, ev)}>
                       <span class="box" aria-hidden="true">{#if e.packed}<Check size={16} strokeWidth={2.5} />{/if}</span>
                       <span class="nm">{it ? nameOf(it) : e.itemId}{#if (e.qty || 1) > 1}<b class="q">{' '}× {e.qty}</b>{/if}{#if hint}<small>{hint}</small>{/if}</span>
                       <span class="w num">{it?.weightG != null ? formatWeight(it.weightG * (e.qty || 1)) : t('not weighed')}</span>
@@ -346,8 +351,8 @@
                 {/each}
               </ul>
               <div class="bagfoot">
-                {#if !done}<button type="button" class="tp-link" onclick={() => wholeBag(s)}>{t('Whole bag packed')}</button>{:else}<span class="tp-muted tp-small packed-note" aria-hidden={status && note?.from === s.key ? 'true' : undefined}>{status && note?.from === s.key ? status : t('all in')}</span>{/if}
-                {#if canUndo}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
+                {#if !done && !fixed}<button type="button" class="tp-link" onclick={() => wholeBag(s)}>{t('Whole bag packed')}</button>{:else}<span class="tp-muted tp-small packed-note" aria-hidden={status && note?.from === s.key ? 'true' : undefined}>{status && note?.from === s.key ? status : t('all in')}</span>{/if}
+                {#if canUndo && !fixed}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
               </div>
             </div>
           </section>
@@ -364,7 +369,7 @@
               {#each ready as r (r.id)}
                 {@const ok = readyDone(r, trip)}
                 <li class:in={ok}>
-                  <button type="button" class="it" aria-pressed={ok} disabled={!!r.itemId && ok} onclick={() => readyTick(r)}>
+                  <button type="button" class="it" aria-pressed={ok} disabled={fixed || (!!r.itemId && ok)} onclick={() => readyTick(r)}>
                     <span class="box" aria-hidden="true">{#if ok}<Check size={16} strokeWidth={2.5} />{/if}</span>
                     <span class="nm">{readyLabel(r)}</span>
                   </button>
@@ -374,13 +379,13 @@
               {/each}
             </ul>
             <div class="bagfoot">
-              {#if !readyAll}<button type="button" class="tp-link" onclick={readyAllTick}>{t('Tick all checks')}</button>{:else}<span class="tp-muted tp-small">{t('all in')}</span>{/if}
-              {#if canUndo}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
+              {#if !readyAll && !fixed}<button type="button" class="tp-link" onclick={readyAllTick}>{t('Tick all checks')}</button>{:else if readyAll}<span class="tp-muted tp-small">{t('all in')}</span>{/if}
+              {#if canUndo && !fixed}<button type="button" class="tp-link" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
             </div>
           </div>
         </section>
       {/if}
-      {#if packed < total || !readyAll}<p class="all"><button type="button" class="tp-link" onclick={everything}>{t('Everything is packed')}</button></p>{/if}
+      {#if !fixed && (packed < total || !readyAll)}<p class="all"><button type="button" class="tp-link" onclick={everything}>{t('Everything is packed')}</button></p>{/if}
     </div>
 
     <div class="pside">
@@ -459,6 +464,8 @@
   .items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
   .items li + li { border-top: 1px solid var(--line); }
   .it { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 6px 0; border: 0; background: none; color: var(--ink); font: 400 var(--fs-body) / 1.3 var(--font-body); text-align: left; cursor: pointer; }
+  /* TZ-2: a fixed list is to read: the ticks as they were, no hand */
+  .it:disabled { cursor: default; }
   .box { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; border: 1.5px solid var(--line-strong); background: var(--paper); }
   /* v0.30.1 (Noah B1): every item name in the same face, size and weight; × n and the hint only quieter. */
   .nm { flex: 1; min-width: 0; overflow-wrap: break-word; font: inherit; }

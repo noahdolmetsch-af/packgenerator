@@ -53,6 +53,9 @@
   import { take } from '../lib/nav.js';
   import { mainStep, afterPacking, endNeedsAsk } from '../lib/phase.js';
   import { endTrip as endTripNow } from '../lib/trip/ending.js';
+  import { tripStateInfo } from '../lib/tripstate.js';
+  import { isFixed } from '../lib/trip/fixed.js';
+  import { askReopen } from '../lib/trip/reopen.svelte.js';
   import EndTripSheet from '../lib/trip/EndTripSheet.svelte';
   import ChargeSheet from '../lib/trip/ChargeSheet.svelte';
   import ChargeList from '../lib/trip/ChargeList.svelte';
@@ -189,6 +192,13 @@
   }
   // Design audit P4: after the trip, Pack leads to the debrief.
   const over = $derived(trip ? isOver(trip) : false);
+  // TZ-2 «Fest nach der Fahrt» (spec tour-zustaende §4, Noah 5a): a completed or rated trip keeps its
+  // packing list as ridden (fixed); «Wieder öffnen» makes it planned again, then everything is open,
+  // the facts too (date, bike), also when its date has passed.
+  const ridesQ = liveQuery(() => db.rides.toArray());
+  const stInfo = $derived(trip && $debriefsQ ? tripStateInfo(trip, { debrief: $debriefsQ.find((d) => d.tripId === trip.id) ?? null, rides: $ridesQ ?? [], today }) : null);
+  const fixed = $derived(isFixed(stInfo));
+  const locked = $derived(fixed || (over && !stInfo?.reopened));
   // Start page "Print list": #/pack?print opens the print dialog once the trip is there.
   let printed = false;
   $effect(() => {
@@ -253,9 +263,10 @@
   }
   const debriefDone = $derived(!!trip && ($debriefsQ ?? []).some((d) => d.tripId === trip.id && d.status === 'done'));
   const phaseOpts = $derived({ debriefDone });
-  const toggleIn = (itemId) => change((t) => ({ entries: togglePacked(t.entries, itemId) }));
+  // TZ-2: a fixed list does not change (the page shows no way to, this is the safety net)
+  const toggleIn = (itemId) => !fixed && change((t) => ({ entries: togglePacked(t.entries, itemId) }));
   // v0.24.0: a whole bag (or, with null, the whole trip) in one tap.
-  const packIn = (ids) => change((t) => ({ entries: packAll(t.entries, ids) }));
+  const packIn = (ids) => !fixed && change((t) => ({ entries: packAll(t.entries, ids) }));
   // Answer 14: the list as a link (the list travels inside the address, nothing is uploaded).
   let shareNote = $state('');
   async function shareList() {
@@ -452,7 +463,7 @@
     if (last.ctx) wxChange = null;
     await db.trips.put(touched(last.before));
   }
-  const setEntries = (fn) => change((t) => ({ entries: fn(t.entries) }));
+  const setEntries = (fn) => (fixed ? Promise.resolve() : change((t) => ({ entries: fn(t.entries) })));
   // v0.26.1 (AP17, Noah 14a): better places for sleep and cook items on an outdoor trip; one change() each (Undo).
   const placeRows = $derived(trip && bikeTrip && !over ? suggestPlaces(trip, items, bags, bike) : []);
   const applyRows = (rows) => change((t) => applyPlaces(t, rows));
@@ -936,9 +947,9 @@
   {/if}{/snippet}
   {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   {#if packTab}
-    <PackDay top={blocksCard} {trip} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
+    <PackDay top={fixed ? null : blocksCard} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={over ? null : factEdit} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} lessons={learningsFor(trip, $learnQ ?? [], 3)} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} lessons={learningsFor(trip, $learnQ ?? [], 3)} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
@@ -949,6 +960,7 @@
       pack: goPack, ride: goRide, packAndGo, end: endTrip,
       photo: () => shownPhoto = Math.max(0, gallery.findIndex(p => p.id === shot?.id)), compare: () => choosing = true, template: () => saveTpl = true, share: shareList, resetPacked,
       skip: () => change(() => ({ skipped: !trip.skipped })),
+      reopen: () => askReopen(trip),
     }}>
     {#snippet onion()}{#if onionCk}<Onion check={onionCk} {kit} plan={kitP} {offset} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} />{/if}{/snippet}
     {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{/snippet}
