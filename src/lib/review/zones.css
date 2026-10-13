@@ -1,0 +1,17 @@
+/* SN2+ «SN2 plus»: the heart rate zones in one calm grey-blue ramp (observation only, no colour for good
+   or bad). Built from the ink and paper of the theme, so it works in light and dark. */
+.zc-1 {
+  background: color-mix(in srgb, var(--ink-3) 22%, var(--paper));
+}
+.zc-2 {
+  background: color-mix(in srgb, var(--ink-3) 40%, var(--paper));
+}
+.zc-3 {
+  background: color-mix(in srgb, var(--ink-3) 58%, var(--paper));
+}
+.zc-4 {
+  background: color-mix(in srgb, var(--ink-2) 72%, var(--paper));
+}
+.zc-5 {
+  background: color-mix(in srgb, var(--ink-2) 92%, var(--paper));
+}

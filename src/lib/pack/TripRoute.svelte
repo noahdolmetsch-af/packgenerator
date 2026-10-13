@@ -17,6 +17,8 @@
   import { stageCount } from '../ride.js';
   import { liveQuery } from 'dexie';
   import { paceOf, PACE_KEY } from '../pace.js';
+  import { loadWerte } from '../review/actdata.js';
+  import { paceFor, usualSurface, surfaceName } from '../review/werte.js';
   import { db } from '../db.js';
   import { t, num, locale } from '../i18n.svelte.js';
 
@@ -39,7 +41,10 @@
   const stages = $derived(stageCount(trip));
   // v0.19.0: your pace from your rides when learned (Debrief → Your pace).
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
-  const pace = $derived(paceOf($paceQ?.value));
+  // SN2+ SN2h (answer 4b): the bike's own pace on its surface from 5 rides, else the rule
+  const werteQ = liveQuery(() => loadWerte(db));
+  const tripBike = $derived(($werteQ?.bikes ?? []).find((b) => b.id === trip.bikeId) ?? null);
+  const pace = $derived(paceFor(paceOf($paceQ?.value), $werteQ?.grid ?? [], trip.bikeId ?? null, tripBike ? usualSurface(tripBike, $werteQ?.rides ?? []) : null));
   const hours = $derived(ridingHours(trip.route, stages, pace));
   async function pickGpx(event) {
     const file = event.currentTarget.files[0];
@@ -137,7 +142,7 @@
         <label class="link">{t('Other GPX')}<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
         <button type="button" class="link" onclick={dropRoute}>{t('Remove')}</button>
       </p>
-      {#if hours != null}<p class="hint">{#if pace.mine}{t('Your pace from {n} rides: {kmh} km/h plus 1 h per {m} m climbing.', { n: pace.n, kmh: pace.kmh, m: pace.climbMh })} <a href="#/debrief/pace">{t('Change')}</a>{:else}{t('Guess with luggage: {kmh} km/h plus 1 h per {m} m climbing.', { kmh: SPEED_KMH, m: CLIMB_MH })} <a href="#/debrief/pace">{pace.standard && !pace.need ? t('Your pace') : t('Learn your pace')}</a>{/if}</p>{/if}
+      {#if hours != null}<p class="hint">{#if pace.cell}{t('Your pace on {bike}, {surface}, from {n} rides: {kmh} km/h plus 1 h per {m} m climbing.', { bike: tripBike?.name ?? '', surface: t(surfaceName(pace.cell.surface)), n: pace.cell.n, kmh: pace.kmh, m: pace.climbMh })} <a href="#/debrief/pace">{t('Change')}</a>{:else if pace.mine}{t('Your pace from {n} rides: {kmh} km/h plus 1 h per {m} m climbing.', { n: pace.n, kmh: pace.kmh, m: pace.climbMh })} <a href="#/debrief/pace">{t('Change')}</a>{:else}{t('Guess with luggage: {kmh} km/h plus 1 h per {m} m climbing.', { kmh: SPEED_KMH, m: CLIMB_MH })} <a href="#/debrief/pace">{pace.standard && !pace.need ? t('Your pace') : t('Learn your pace')}</a>{/if}</p>{/if}
     {:else}
       <label class="btn sm">{t('Add GPX route')}<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
       <p class="hint">{t('From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.')}</p>

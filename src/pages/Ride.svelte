@@ -20,6 +20,8 @@
   import { ageText, FORECAST_DAYS } from '../lib/weather.js';
   import Profile from '../lib/ui/Profile.svelte';
   import { paceOf, PACE_KEY } from '../lib/pace.js';
+  import { loadWerte } from '../lib/review/actdata.js';
+  import { paceFor, usualSurface } from '../lib/review/werte.js';
   import { blockPlan, eveningPlan, DRINK_L_PER_H, HOT_C, HOT_EXTRA_L } from '../lib/blockplan.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import ChargeList from '../lib/trip/ChargeList.svelte';
@@ -50,7 +52,8 @@
   const notesQ = liveQuery(() => db.notes.toArray());
   // v0.19.0: your pace from your rides (Debrief → Your pace), else the standard guess.
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
-  const pace = $derived(paceOf($paceQ?.value));
+  // SN2+ SN2h (answer 4b): the bike's own pace on its surface from 5 rides, else the rule
+  const werteQ = liveQuery(() => loadWerte(db));
 
   const today = localDay();
   const trips = $derived($tripsQ ?? []);
@@ -66,6 +69,7 @@
   const items = $derived($itemsQ ?? []);
   const itemsById = $derived(Object.fromEntries(items.map((i) => [i.id, i])));
   const bike = $derived(trip ? ($bikesQ ?? []).find((b) => b.id === trip.bikeId) ?? null : null);
+  const pace = $derived(paceFor(paceOf($paceQ?.value), $werteQ?.grid ?? [], trip?.bikeId ?? null, bike ? usualSurface(bike, $werteQ?.rides ?? []) : null));
   const stats = $derived(trip ? tripStats(trip, items, $bagsQ ?? [], bike, 0) : null);
   const days = $derived(stageCount(trip));
   const nonstop = $derived(isNonstop(trip));

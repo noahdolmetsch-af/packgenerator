@@ -14,6 +14,17 @@
   import { localDay } from '../localday.js';
   import { tripEnd } from '../debrief.js';
   import TemplateOffer from '../debrief/TemplateOffer.svelte';
+  // SN2+ SN2e/SN2f: «Puls und Leistung» and «Aus Vorlage» in «Nicht gebraucht»
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
+  import { SETS_KEY } from '../sets.js';
+  import { TEMPLATES_KEY, updateTemplate } from '../templates.js';
+  import { loadActs, zonesOf, ZONES_KEY } from './actdata.js';
+  import { tripValues, tripEntries, tripActs } from './werte.js';
+  import { tripTemplate, inTemplate, dropItem, putBack, unusedBefore } from './fromtemplate.js';
+  import HeartPower from './HeartPower.svelte';
+  import UndoToast from './UndoToast.svelte';
+  import { Undo2 } from '@lucide/svelte';
   import { Check, Lightbulb, Sparkles, Sun, CloudRain, Cloud, Thermometer, Bike, Briefcase, Wrench, X, Minus, Plus, ChevronRight, Package } from '@lucide/svelte';
 
   let { trip, d, bike = null, trips = [], debriefs = [], rides = [], learnings = [], items = [], containers = [], bikes = [], counts, sugg = [], offer = null } = $props();
@@ -30,7 +41,7 @@
   const broken = $derived(trip.entries.filter((e) => d.items?.[e.itemId] === 'broken' && byId[e.itemId]));
   const usedN = $derived(trip.entries.filter((e) => byId[e.itemId] && !d.items?.[e.itemId]).length);
   const totalN = $derived(trip.entries.filter((e) => byId[e.itemId]).length);
-  const w = (e) => (byId[e.itemId]?.weightG == null ? null : byId[e.itemId].weightG * (e.qty || 1));
+  const wOf = (e) => (byId[e.itemId]?.weightG == null ? null : byId[e.itemId].weightG * (e.qty || 1));
   const savedOn = $derived(d.doneAt ? dayLong(d.doneAt.slice(0, 10)) : null);
 
   /* plan against real: two thin bars per row, drawn to the larger of both */
@@ -40,6 +51,40 @@
   // better: more km/Hm is neutral; less time or more speed is better
   const good = (x) => (x.key === 'movingH' ? x.diff < 0 : x.key === 'kmh' ? x.diff > 0 : null);
   const timeRow = $derived(pvr.find((x) => x.key === 'movingH') ?? null);
+  /* SN2+ SN2e: heart rate from the ledger (kmBook), zones and power from the activities when they are there */
+  const wQ = liveQuery(async () => {
+    const [acts, entries, zs, tpl, sets] = await Promise.all([loadActs(db), db.kmBook.toArray(), db.settings.get(ZONES_KEY), db.settings.get(TEMPLATES_KEY), db.settings.get(SETS_KEY)]);
+    return { acts, entries, zones: zonesOf(zs?.value ?? null, entries, acts), templates: tpl?.value ?? [], sets: sets?.value ?? [] };
+  });
+  const w = $derived($wQ ?? null);
+  const values = $derived(w ? tripValues({ acts: tripActs(w.acts, trip, tripEnd(trip)), entries: tripEntries(w.entries, trip, tripEnd(trip)), bounds: w.zones?.bounds ?? null }) : null);
+
+  /* SN2+ SN2f: «Aus Vorlage» per item, one at a time, with Undo; the item stays in Material and on this trip */
+  const tpl = $derived(w ? tripTemplate(trip, w.templates) : null);
+  const before = $derived(unusedBefore(debriefs, trips, trip));
+  let taken = $state({});
+  let note = $state(null);
+  let noteTimer;
+  async function fromTemplate(e) {
+    if (!tpl) return;
+    const id = tpl.id;
+    const out = dropItem($state.snapshot(tpl), e.itemId, items, w.sets);
+    if (!out) return;
+    await updateTemplate(db, id, () => out.tpl);
+    taken = { ...taken, [e.itemId]: { tplId: id, undo: out.undo } };
+    clearTimeout(noteTimer);
+    note = { itemId: e.itemId, text: t('{item} taken out of «{tpl}»', { item: nameOf(byId[e.itemId]), tpl: tpl.name }) };
+    noteTimer = setTimeout(() => (note = null), 8000);
+  }
+  async function undoTaken(itemId) {
+    const x = $state.snapshot(taken[itemId]);
+    if (!x) return;
+    // a plain copy: IndexedDB cannot store a reactive proxy
+    await updateTemplate(db, x.tplId, (cur) => putBack(cur, x.undo));
+    const { [itemId]: _gone, ...rest } = taken;
+    taken = rest;
+    if (note?.itemId === itemId) (clearTimeout(noteTimer), (note = null));
+  }
   const DAYKIND = { unused: 'Packed again for {trip}, not used this time', missing: 'Was missing', broken: 'Broke: check it before the next trip', note: 'Your sentence for next time' };
 </script>
 
@@ -87,6 +132,9 @@
         {#if sugg.length}<p class="open">{tn(sugg.length, '{n} more suggestion is open. Change your answers to see it.', '{n} more suggestions are open. Change your answers to see them.')}</p>{/if}
       </section>
 
+      <!-- SN2+ SN2e (answer 1a): «Puls und Leistung» right under «Fertig. Gute Tour!» -->
+      {#if w}<HeartPower {values} zones={w.zones?.source ?? null} bike={trip.bike ?? bike?.name ?? ''} />{/if}
+
       <!-- plan against real -->
       {#if pvr.length}
         <section class="rv-sec" aria-labelledby="pvr-h">
@@ -120,9 +168,25 @@
             {#if counts.unusedG}<p class="save"><b class="num">−{formatWeight(counts.unusedG)}</b><span>{t('you can save')}{#if counts.unusedUnweighed} · {t('{n} not weighed', { n: counts.unusedUnweighed })}{/if}</span></p>{/if}
             <ul class="il">
               {#each unused as e (e.itemId)}
-                <li class="rv-row"><span class="rv-ic" aria-hidden="true"><Minus size={18} /></span><span class="rv-m"><span class="rv-t">{nameOf(byId[e.itemId])}</span></span><span class="rv-v">{w(e) == null ? DASH : formatWeight(w(e))}</span></li>
+                {@const out = taken[e.itemId]}
+                {@const inTpl = !!tpl && inTemplate(tpl, e.itemId, items, w?.sets ?? [])}
+                {@const n = before[e.itemId] ?? 0}
+                <!-- SN2+ SN2f: «Aus Vorlage» per item; how often it was not used before -->
+                <li class="rv-row" class:out={!!out} data-unused={e.itemId}>
+                  <span class="rv-ic" class:done={!!out} aria-hidden="true">{#if out}<Check size={18} />{:else}<Minus size={18} />{/if}</span>
+                  <span class="rv-m"><span class="rv-t">{nameOf(byId[e.itemId])}</span>
+                    {#if out}<span class="rv-s">{t('Taken out of «{tpl}» · stays in Material and on this trip', { tpl: tpl?.name ?? '' })}</span>
+                    {:else if n}<span class="rv-s">{tn(n, 'also not used on {n} trip before', 'also not used on {n} trips before')}</span>
+                    {:else if tpl && !inTpl}<span class="rv-s">{t('only on this trip, not in the template')}</span>
+                    {:else if tpl}<span class="rv-s">{t('not used for the first time')}</span>{/if}
+                  </span>
+                  <span class="rv-v">{wOf(e) == null ? DASH : formatWeight(wOf(e))}</span>
+                  {#if out}<button type="button" class="tq" onclick={() => undoTaken(e.itemId)}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>
+                  {:else if inTpl}<button type="button" class="btn tb" onclick={() => fromTemplate(e)} aria-label={t('Out of template: {item}', { item: nameOf(byId[e.itemId]) })}><Minus size={16} aria-hidden="true" />{t('Out of template')}</button>{/if}
+                </li>
               {/each}
             </ul>
+            {#if tpl}<p class="rv-note tn"><Lightbulb size={16} aria-hidden="true" /><span>{t('Each item on its own, nothing happens by itself. Only the template «{tpl}» changes; the next trip from it starts without the item.', { tpl: tpl.name })}</span></p>{/if}
             <!-- v0.47.2: the same idea across all trips is the Gear view «Nie gebraucht» -->
             <a class="rv-row" href="#/gear?view=never"><span class="rv-ic" aria-hidden="true"><Package size={18} /></span><span class="rv-m"><span class="rv-t">{t('All never used items in Gear')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a>
           {:else}
@@ -179,6 +243,7 @@
     </div>
   </div>
 </div>
+{#if note}<UndoToast text={note.text} onundo={() => undoTaken(note.itemId)} />{/if}
 
 <style>
   .saved {
@@ -409,6 +474,47 @@
   }
   p.rv-row {
     margin: 0;
+  }
+  /* SN2+ SN2f: «Aus Vorlage» and the row after it */
+  .il .rv-row {
+    flex-wrap: wrap;
+  }
+  .il .rv-m {
+    flex: 1 1 140px;
+  }
+  .tb {
+    flex: none;
+    min-height: 44px;
+    gap: 6px;
+  }
+  .tq {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 500 var(--fs-small) var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .rv-ic.done {
+    background: var(--ok-soft);
+    color: var(--ok);
+  }
+  .tn {
+    padding: 10px 0 4px;
+    border-top: 1px solid var(--line);
+  }
+  @media (max-width: 559px) {
+    .il .tb,
+    .il .tq {
+      margin-left: 48px;
+    }
   }
   .rv-ic.broken,
   .rv-ic.unused {

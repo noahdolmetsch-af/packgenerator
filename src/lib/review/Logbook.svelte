@@ -7,6 +7,9 @@
    * SN2 «Seiten neu» (mockup approved 13.10.2026): every trip row carries its state pill (Abgeschlossen,
    * Bewertet) with a quiet icon in front, filter chips per state, the year as a toggle instead of a
    * drop-down, and one line under the title: how many entries, how many debriefs are missing.
+   * SN2+ SN2g (mockup approved 13.10.2026, answer 2b): two more chip rows, Velo and Reiseart, each with
+   * its count, combinable with the state chips, and «Filter löschen». Every row names its bike and kind.
+   * The chips are not remembered: the next visit shows «Alle» again.
    */
   import { liveQuery } from 'dexie';
   import Empty from '../ui/Empty.svelte';
@@ -17,7 +20,7 @@
   import { logEntries, logYears, logAreas, logFilter } from './logbook.js';
   import { homeTrips } from '../home/heute.js';
   import { n0, hours, temps, dates, rainText, DASH } from './fmt.js';
-  import { domainName, BIKEPACKING } from '../domains.js';
+  import { domainName } from '../domains.js';
   import { openTrip } from '../nav.js';
   import { localDay } from '../localday.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
@@ -29,6 +32,8 @@
   import { factStates, factCounts, matchesState } from './state.js';
   import { stateExtraText } from '../tripstatetext.js';
   import { paceOf } from '../pace.js';
+  import { chipCounts, logBikeOf } from './werte.js';
+  import { Bike, Tag, X } from '@lucide/svelte';
   import './review.css';
 
   const today = localDay();
@@ -47,13 +52,21 @@
   let year = $state('all');
   let area = $state('all');
   let q = $state('');
-  const base = $derived(logFilter(entries, { year, area, q }));
+  // SN2+ SN2g: the bike filter; every chip row counts with the other filters on (not remembered)
+  let bike = $state('all');
+  const base = $derived(logFilter(entries, { year, area, bike, q }));
+  const inState = (list) => list.filter((e) => matchesState(states, e.id, st));
+  const bikeChips = $derived(chipCounts(inState(logFilter(entries, { year, area, q })), logBikeOf));
+  const areaChips = $derived(chipCounts(inState(logFilter(entries, { year, bike, q })), (e) => e.domain));
+  const allBikes = $derived(chipCounts(entries, logBikeOf));
+  const filtered = $derived(st !== 'all' || bike !== 'all' || area !== 'all');
+  const clearFilters = () => ((st = 'all'), (bike = 'all'), (area = 'all'));
   const counts = $derived(factCounts(base, states));
   const shown = $derived(base.filter((e) => matchesState(states, e.id, st)));
   const YEARS = $derived([...years.map((y) => ({ key: y, name: y })), { key: 'all', name: t('All|period') }]);
   // v0.109.0 Design-Refresh P6 (T20): the best values of all trips, the same as on Touren
   const best = $derived(data ? bestValues({ trips: data.trips, rides: data.rides, today, period: 'all' }) : null);
-  const AREAS = $derived([{ key: 'all', name: t('All|period') }, ...areas.map((a) => ({ key: a, name: t(domainName(a)) }))]);
+  const AREAS = $derived([{ key: 'all', name: t('All|period'), n: null }, ...areas.map((a) => ({ key: a, name: t(domainName(a)), n: areaChips.find((x) => x.key === a)?.n ?? 0 }))]);
 
   /** A year shows as it is ("2025"), a full date as month and year; no date: –. */
   const evDate = (ev) => (!ev.date ? (ev.dateText ?? DASH) : /^\d{4}$/.test(ev.date) ? ev.date : /^\d{4}-\d{2}-\d{2}/.test(ev.date) ? new Date(`${ev.date.slice(0, 10)}T12:00:00`).toLocaleDateString(locale(), { month: 'short', year: 'numeric' }) : ev.date);
@@ -80,15 +93,27 @@
     </div>
     <div class="filters">
       {#if counts.done || counts.rated}<StateChips value={st} {counts} onchange={(v) => (st = v)} />{/if}
-      {#if areas.length > 1}
-        <div class="rv-chips" role="group" aria-label={t('Area')}>
-          <span class="rv-lbl" aria-hidden="true">{t('Area')}</span>
-          {#each AREAS as a (a.key)}<button type="button" class="rv-chip" aria-pressed={area === a.key} onclick={() => (area = a.key)}>{a.name}</button>{/each}
-        </div>
-      {/if}
     </div>
+    <!-- SN2+ SN2g: Velo and Reiseart, each with its count -->
+    {#if allBikes.length > 1 || areas.length > 1}
+      <div class="lbf">
+        {#if allBikes.length > 1}
+          <div class="rv-chips" role="group" aria-label={t('Bike')}>
+            <span class="rv-lbl lbl-i" aria-hidden="true"><Bike size={14} />{t('Bike')}</span>
+            <button type="button" class="rv-chip" aria-pressed={bike === 'all'} onclick={() => (bike = 'all')}>{t('All|period')}</button>
+            {#each allBikes as b (b.key)}<button type="button" class="rv-chip" aria-pressed={bike === b.key} onclick={() => (bike = bike === b.key ? 'all' : b.key)}>{b.key}<span class="cn num">{bikeChips.find((x) => x.key === b.key)?.n ?? 0}</span></button>{/each}
+          </div>
+        {/if}
+        {#if areas.length > 1}
+          <div class="rv-chips" role="group" aria-label={t('Area')}>
+            <span class="rv-lbl lbl-i" aria-hidden="true"><Tag size={14} />{t('Area')}</span>
+            {#each AREAS as a (a.key)}<button type="button" class="rv-chip" aria-pressed={area === a.key} onclick={() => (area = a.key !== 'all' && area === a.key ? 'all' : a.key)}>{a.name}{#if a.n != null}<span class="cn num">{a.n}</span>{/if}</button>{/each}
+          </div>
+        {/if}
+      </div>
+    {/if}
     <div>
-      {#if year !== 'all' || area !== 'all' || st !== 'all' || q.trim()}<p class="count num" role="status">{tn(shown.length, '{n} entry', '{n} entries')} · {t('of {n}', { n: entries.length })}</p>{/if}
+      {#if year !== 'all' || filtered || q.trim()}<div class="cline"><p class="count num" role="status">{tn(shown.length, '{n} entry', '{n} entries')} · {t('of {n}', { n: entries.length })}</p>{#if filtered}<button type="button" class="clr" onclick={clearFilters}><X size={14} aria-hidden="true" />{t('Clear filters')}</button>{/if}</div>{/if}
 
       {#if !data}
         <Skeleton rows={4} />
@@ -103,8 +128,8 @@
                 <a class="row" href={e.fact.href} onclick={() => e.fact.trip && openTrip(e.fact.trip.id)} data-state={s?.state}>
                   <span class="lic {s?.state}" aria-hidden="true">{#if s?.state === 'rated'}<Star size={18} />{:else}<Flag size={18} />{/if}</span>
                   <span class="body">
-                    <span class="tt"><b>{e.title || DASH}</b>{#if e.domain !== BIKEPACKING}<span class="rv-tag">{t(domainName(e.domain))}</span>{/if}{#if e.kind === 'ride'}<span class="rv-tag">{t('Uploaded ride')}</span>{/if}</span>
-                    <span class="facts num"><span class="when">{dates(e.date, e.end)}</span>{#if wx !== DASH}<span class="wx">{#if e.rain?.wet}<CloudRain size={14} aria-hidden="true" />{:else}<Sun size={14} aria-hidden="true" />{/if}{wx}</span>{/if}{#if fs.length}<span>{fs.join(' · ')}</span>{/if}</span>
+                    <span class="tt"><b>{e.title || DASH}</b>{#if e.kind === 'ride'}<span class="rv-tag">{t('Uploaded ride')}</span>{/if}</span>
+                    <span class="facts num"><span class="when">{dates(e.date, e.end)}</span>{#if e.fact.bike}<span class="bk">{e.fact.bike}</span>{/if}<span class="kd">{t(domainName(e.domain))}</span>{#if wx !== DASH}<span class="wx">{#if e.rain?.wet}<CloudRain size={14} aria-hidden="true" />{:else}<Sun size={14} aria-hidden="true" />{/if}{wx}</span>{/if}{#if fs.length}<span>{fs.join(' · ')}</span>{/if}</span>
                     {#each e.notes as n (n)}<span class="note">{n}</span>{/each}
                   </span>
                   <span class="lpill"><TripState state={s?.state} extra={stateExtraText(s?.extra)} /></span>
@@ -186,6 +211,48 @@
     align-items: center;
     gap: 8px 16px;
     margin: 12px 0 14px;
+  }
+  /* SN2+ SN2g: the two chip rows Velo and Reiseart, the count with «Filter löschen» */
+  .lbf {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+  .lbl-i {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 5.5em;
+  }
+  .cn {
+    color: inherit;
+    opacity: 0.7;
+    font-weight: 400;
+  }
+  .cline {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px 12px;
+  }
+  .cline .count {
+    margin-bottom: 0;
+  }
+  .clr {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: 500 var(--fs-small) var(--font-body);
+    cursor: pointer;
+  }
+  .clr:hover {
+    text-decoration: underline;
   }
   .count {
     margin: 0 2px 8px;

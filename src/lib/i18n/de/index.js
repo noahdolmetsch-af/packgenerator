@@ -92,10 +92,12 @@ import sna from './sna.js';
 import snb from './snb.js';
 // SN3, SN5, SN7 «Seiten neu»: Vorlagen, Bausteine, Import prüfen, Favoriten, the old windows
 import snc from './snc.js';
+// SN2+ «SN2 plus»: Puls und Leistung, Aus Vorlage, Logbuch-Filter, Tempo pro Velo und Untergrund, die Monate
+import sn2plus from './sn2plus.js';
 
 // Bugfix Dateneingabe D1–D4: values on the Pick-up check, «Enter values», own fields
 import dateneingabe from './dateneingabe.js';
 // v0.123.0 Trophäen-Vitrine: all stars by area and year
 import vitrine from './vitrine.js';
 
-export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...aj1, ...tz1, ...au, ...sna, ...snb, ...tz2, ...snc };
+export default { ...blocks, ...flow, ...home, ...today, ...care, ...ride, ...bikes, ...gear, ...pack, ...shell, ...common, ...tips, ...setup, ...evening, ...schedule, ...drafts, ...importgear, ...whatsnew, ...backpacks, ...merge, ...templates, ...calm, ...gpx, ...wardrobe, ...weigh, ...review, ...rueckblick, ...tempo, ...pflege, ...masse, ...uebergaenge, ...fix0671, ...kmbook, ...blaetter, ...fix0691, ...blaetter2, ...heuteruhig, ...feinschliffMaterial, ...feinschliff, ...orte, ...helfer, ...orte2, ...hobby, ...hobby2, ...hobby3, ...ausstattung, ...medeinfach, ...aufraeumen, ...rueckblickantippen, ...medwunsch, ...kachel, ...velokurz, ...allesfinden, ...look, ...head, ...heute2, ...challenge, ...material2, ...touren2, ...velo2, ...packen2, ...aktiv2, ...ich2, ...rueckblick2, ...wasneu2, ...checks, ...rahmen, ...strava, ...knoepfe, ...wasneu3, ...kiaus, ...schnellstart, ...dateneingabe, ...vitrine, ...teil2, ...aj1, ...tz1, ...au, ...sna, ...snb, ...tz2, ...snc, ...sn2plus };

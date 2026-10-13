@@ -10,6 +10,7 @@
   import FoldRow from '../ui/FoldRow.svelte';
   import Btn from '../ui/Btn.svelte';
   import './velo-dlg.css';
+  import { SURFACES } from '../review/werte.js';
 
   /** bike: the bike to edit, or null for "Add bike". */
   let { bike, bikes, oncreated, onsaved = null, onclose } = $props();
@@ -17,7 +18,8 @@
   // svelte-ignore state_referenced_locally
   const isNew = !bike;
   // svelte-ignore state_referenced_locally
-  let draft = $state(bike ? { name: bike.name, type: bike.type ?? '', use: bike.use ?? '', photo: bike.photo ?? null } : { name: '', type: '', use: '', photo: null });
+  // SN2+ SN2h (answer 3 «a und sonst b»): the bike's fixed surface, for rides without a Strava sport type
+  let draft = $state(bike ? { name: bike.name, type: bike.type ?? '', use: bike.use ?? '', photo: bike.photo ?? null, surface: bike.surface ?? '' } : { name: '', type: '', use: '', photo: null, surface: '' });
   let reading = $state(false);
   async function pickPhoto(event) {
     const file = event.currentTarget.files[0];
@@ -70,10 +72,10 @@
     if (!name) return (error = t('Give the bike a name.'));
     if (isNew) {
       const id = newId(name);
-      await db.bikes.put({ id, name, type: draft.type.trim(), use: draft.use.trim(), gearing: [], openPoints: '', weightG: null, slots: SLOTS.map((s) => s.key), setup: {}, fixtures: [], photo: draft.photo });
+      await db.bikes.put({ id, name, type: draft.type.trim(), use: draft.use.trim(), gearing: [], openPoints: '', weightG: null, slots: SLOTS.map((s) => s.key), setup: {}, fixtures: [], photo: draft.photo, surface: draft.surface || null });
       oncreated?.(id);
     } else {
-      await db.bikes.update(bike.id, { type: draft.type.trim(), use: draft.use.trim(), photo: draft.photo });
+      await db.bikes.update(bike.id, { type: draft.type.trim(), use: draft.use.trim(), photo: draft.photo, surface: draft.surface || null });
       if (name !== bike.name) await renameBike(db, bike.id, name);
       onsaved?.(bike.id);
     }
@@ -126,6 +128,7 @@
         <div class="grid">
           <label class="wide"><span class="lbl">{t('Type')}</span><input class="inp" bind:value={draft.type} placeholder={t('e.g. Full suspension')} /></label>
           <label class="wide"><span class="lbl">{t('What you use it for')}</span><input class="inp" bind:value={draft.use} /></label>
+          <label class="wide"><span class="lbl">{t('Surface|bike')}</span><select class="inp" bind:value={draft.surface}><option value="">{t('From the Strava sport type')}</option>{#each SURFACES as x (x.key)}<option value={x.key}>{t(x.name)}</option>{/each}</select><small class="hint">{t('Counts for rides without a Strava sport type. Each ride can be changed in Your pace.')}</small></label>
         </div>
       </FoldRow>
     </div>
@@ -179,6 +182,12 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+  }
+  .wide .hint {
+    display: block;
+    margin-top: 4px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .err {
     color: var(--bad);

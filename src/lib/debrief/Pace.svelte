@@ -9,6 +9,10 @@
    * SN2 «Seiten neu» (mockup approved 13.10.2026): one line under the title, the rule as a big short
    * line, five marks up to your own rule and the one main button «Fahrt hochladen» (the GPX picker);
    * right «Woher die Fahrten kommen» with the GPX file and your rides.
+   * SN2+ SN2h/SN2i (mockups approved 13.10.2026, answers 3, 4b, 5b): «Pro Velo und Untergrund» (from 5 rides
+   * the bike's own pace on that surface is used for the riding time), «Geplant und gefahren» per trip, the
+   * months since the first ride (km/h, Ø heart rate, power, zones) and «Deine Pulszonen». Every ride shows
+   * its bike and its surface, which can be changed per ride.
    */
   import { liveQuery } from 'dexie';
   import { t, tn, num } from '../i18n.svelte.js';
@@ -22,6 +26,17 @@
   import MiniBars from '../review/MiniBars.svelte';
   import { Gauge, Upload, FileUp, ChevronRight, Undo2, Check, TriangleAlert } from '@lucide/svelte';
   import '../review/review.css';
+  import { loadWerte, saveZones } from '../review/actdata.js';
+  import { loadReview } from '../review/load.js';
+  import { tripFacts } from '../review/rueckblick.js';
+  import { homeTrips } from '../home/heute.js';
+  import { plannedRidden, monthly, withUploads, usualSurface, surfaceName, surfaceOf, SURFACES } from '../review/werte.js';
+  import { updateEntry } from '../kmbookdb.js';
+  import PaceGrid from './PaceGrid.svelte';
+  import PlannedRidden from './PlannedRidden.svelte';
+  import PaceMonths from './PaceMonths.svelte';
+  import HeartZones from './HeartZones.svelte';
+  import { Bike } from '@lucide/svelte';
 
   const paceQ = liveQuery(() => db.settings.get(PACE_KEY));
   const saved = $derived($paceQ?.value ?? null);
@@ -39,6 +54,25 @@
 
   let msg = $state('');
   let busy = $state(false);
+
+  /* ---- SN2+ SN2h/SN2i: bikes, surfaces, planned and ridden, the months ---- */
+  const werteQ = liveQuery(async () => ({ ...(await loadWerte(db)), review: await loadReview(db) }));
+  const W = $derived($werteQ ?? null);
+  const facts = $derived(W ? tripFacts({ ...W.review, trips: homeTrips(W.review.trips), today: localDay() }) : []);
+  const pr = $derived(plannedRidden(facts));
+  const months = $derived(W ? monthly({ rides: withUploads(W.rides, W.review.rides), entries: W.entries, bounds: W.zones?.bounds ?? null, today: localDay() }) : []);
+  const bikeById = $derived(Object.fromEntries((W?.bikes ?? []).map((b) => [b.id, b])));
+  const prSurface = (r) => {
+    const s = bikeById[r.bikeId] ? usualSurface(bikeById[r.bikeId], W?.rides ?? []) : null;
+    return s ? t(surfaceName(s)) : '';
+  };
+  const tempoOf = (paceId) => W?.rides.find((x) => x.paceId === paceId) ?? null;
+  // the surface of one ride: on its ledger entry when it has one (Strava), else on the ride of «Dein Tempo»
+  async function setSurface(r, value) {
+    const x = tempoOf(r.id);
+    if (x?.entryId) await updateEntry(db, x.entryId, { surface: value || null });
+    else await store(saved.rides.map((y) => (y.id === r.id ? { ...y, surface: value || null } : y)));
+  }
 
   async function store(list) {
     const learned = learnPace(list);
@@ -161,6 +195,13 @@
       </div>
     </section>
 
+    <!-- SN2+ SN2h: per bike and surface, planned and ridden; SN2i: the months -->
+    {#if W}
+      <PaceGrid grid={W.grid} rule={pace.kmh} />
+      <PlannedRidden rows={pr.rows} avgMin={pr.avgMin} surfaceOf={prSurface} />
+      <PaceMonths {months} />
+    {/if}
+
     <!-- 2. a few calm small charts -->
     <section class="rv-sec charts" aria-labelledby="charts-h">
       <div class="rv-h">
@@ -203,15 +244,29 @@
         <div class="rv-h"><div><h2 id="rides-h">{t('Your rides')}</h2><p class="rv-sub num">{tn(pace.n, '{n} counts', '{n} count')}</p></div></div>
         <ul class="rv-box rides">
           {#each rides as r (r.id)}
-            <li class:off={r.use === false}>
+            {@const x = tempoOf(r.id)}
+            {@const rb = x?.bikeId ? bikeById[x.bikeId] ?? null : null}
+            {@const sf = x ? surfaceOf(x, rb) : null}
+            <li class:off={r.use === false} data-ride={r.id}>
               <label class="pick"><input type="checkbox" checked={r.use !== false} onchange={() => toggle(r.id)} /><span class="nm"><span class="rv-t">{r.name}</span><span class="rv-s num">{dayLong(r.date)} · {num(r.km)} km · ↑ {num(r.gainM)} m · {t('riding {time} h', { time: hm(r.movingH) })}{r.totalH > r.movingH + 0.05 ? ` ${t('({time} h with stops)', { time: hm(r.totalH) })}` : ''}{pace.mine ? ` · ${t('guess {time} h', { time: hm(guessFor(r, pace)) })}` : ''}{r.km < 20 ? ` · ${t('under 20 km, does not count')}` : ''}</span></span></label>
               <button type="button" class="rm" onclick={() => drop(r.id)} aria-label={t('Remove {name}', { name: r.name })}>{t('Remove')}</button>
+              <!-- SN2+ SN2h: the ride's bike and its surface, changeable per ride -->
+              {#if W}
+                <span class="tg">
+                  {#if rb}<span class="bchip"><Bike size={13} aria-hidden="true" />{rb.name}</span>{/if}
+                  <select class="schip" value={sf ?? ''} aria-label={t('Surface of {name}', { name: r.name })} onchange={(ev) => setSurface(r, ev.currentTarget.value)}>
+                    {#if !sf}<option value="">{t('Surface?')}</option>{/if}
+                    {#each SURFACES as so (so.key)}<option value={so.key}>{t(so.name)}</option>{/each}
+                  </select>
+                </span>
+              {/if}
             </li>
           {/each}
         </ul>
         <p class="rv-note"><TriangleAlert size={16} aria-hidden="true" /><span>{t('Untick a ride that does not fit, e.g. a race without luggage.')}</span></p>
       </section>
     {/if}
+    {#if W}<HeartZones zones={W.zones} onsave={(b) => saveZones(db, b)} />{/if}
   </div>
 </div>
 
@@ -348,8 +403,38 @@
   }
   .rides li {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 0 8px;
+  }
+  /* SN2+ SN2h: the bike and the surface of a ride, small under it */
+  .tg {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 0 0 10px 32px;
+  }
+  .bchip,
+  .schip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 32px;
+    padding: 2px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    font: 500 var(--fs-small) var(--font-body);
+  }
+  .schip {
+    min-height: 44px;
+    border-color: var(--line-strong);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
   }
   .pick {
     flex: 1;
