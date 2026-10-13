@@ -5,12 +5,21 @@
    * SN5 «Seiten neu» (Noah 13.10.2026 «ich gebe alle bild mockups frei»): the head with its path and
    * «Drucken»; one card per area with the weight right and «…» per item (open it, change the note,
    * take the star away with Undo).
+   * SN5+ (Noah 13.10.2026, answers 1a 2a 3a): F1 a bar per trip kind (the heaviest kind is full); F3 under
+   * each item «zuletzt dabei: <trip> · <date>» (a tap opens the trip) or a quiet «noch auf keiner Tour»;
+   * F2 «Oft dabei»: items on at least half of the trips of a kind without a star, «Favorit» stars it
+   * (Undo), «…» → «Nicht mehr vorschlagen»; F4 «Als Baustein» per kind opens FavBlockSheet (a copy).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { favoritesByDomain } from '../lib/domains.js';
+  import { favoritesByDomain, domainName } from '../lib/domains.js';
+  import { favBars, lastTrips, oftenTaken, saveFavBlock, suggestOff, FAV_OFF } from '../lib/favplus.js';
+  import { localDay } from '../lib/localday.js';
+  import { switchTrip } from '../lib/nav.js';
+  import { undoBulk } from '../lib/gear/bulk.js';
+  import FavBlockSheet from '../lib/gear/FavBlockSheet.svelte';
   import { formatWeight, itemWeight, CATEGORY } from '../lib/gear.js';
-  import { t, tn, nameOf } from '../lib/i18n.svelte.js';
+  import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import Empty from '../lib/ui/Empty.svelte';
   import PathHead from '../lib/ui/PathHead.svelte';
   import Section from '../lib/ui/Section.svelte';
@@ -18,11 +27,25 @@
   import MoreActions from '../lib/ui/MoreActions.svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
   import { catIcon } from '../lib/gear/caticon.js';
-  import { Star, Printer, StarOff, PenLine, ExternalLink } from '@lucide/svelte';
+  import { Star, Printer, StarOff, PenLine, ExternalLink, Flag, Blocks, Info, EyeOff } from '@lucide/svelte';
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const groups = $derived(favoritesByDomain($itemsQ ?? []));
   const count = $derived(new Set(groups.flatMap((g) => g.items.map((i) => i.id))).size);
+  // SN5+: the trips (zuletzt dabei, oft dabei) and the items not to suggest any more.
+  const tripsQ = liveQuery(() => db.trips.toArray());
+  const offQ = liveQuery(() => db.settings.get(FAV_OFF));
+  const today = localDay();
+  const bars = $derived(favBars(groups));
+  const last = $derived(lastTrips($tripsQ ?? [], today));
+  const often = $derived($itemsQ && $tripsQ ? oftenTaken($itemsQ, $tripsQ, today, { off: $offQ?.value ?? [] }) : []);
+  const anyTrips = $derived(($tripsQ ?? []).some((x) => !x.skipped && x.startDate && x.startDate <= today && (x.entries ?? []).length));
+  /** «7. Okt.» (the year only when it is not this year). */
+  const shortDay = (iso) => new Date(`${iso}T00:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', ...(iso.slice(0, 4) !== today.slice(0, 4) ? { year: 'numeric' } : {}), timeZone: 'UTC' });
+  const openTripAt = (e, trip) => {
+    e.preventDefault();
+    switchTrip(trip.id, '#/pack');
+  };
   const gearHref = (i) => `#/gear?q=${encodeURIComponent(i.name)}`;
   const wish = (i) => i.ownership === 'wishlist' || i.ownership === 'to-buy';
   const subOf = (i) => [CATEGORY[i.category] ? t(CATEGORY[i.category].name) : '', i.brand, i.model, wish(i) ? t('wishlist') : ''].filter(Boolean).join(' · ');
@@ -39,10 +62,37 @@
     timer = setTimeout(() => (undo = null), 10_000);
   }
   async function restar() {
-    const i = undo?.item;
+    const u = undo;
     clearTimeout(timer);
     undo = null;
-    if (i) await db.items.update(i.id, { favorite: true, updatedAt: stamp() });
+    if (u?.back) return u.back();
+    if (u?.item) await db.items.update(u.item.id, { favorite: true, updatedAt: stamp() });
+  }
+  const offer = (text, back) => {
+    clearTimeout(timer);
+    undo = { text, back };
+    timer = setTimeout(() => (undo = null), 10_000);
+  };
+  /* SN5+ F2: «Favorit» sets the star (Undo takes it back exactly) */
+  async function star(i) {
+    const was = { favorite: i.favorite ?? null, updatedAt: i.updatedAt ?? null };
+    await db.items.update(i.id, { favorite: true, updatedAt: stamp() });
+    offer(t('{name} is a favourite now.', { name: nameOf(i) }), () => db.items.update(i.id, was));
+  }
+  async function hideOften(i) {
+    await suggestOff(db, i.id, true);
+    offer(t('{name} is not suggested any more.', { name: nameOf(i) }), () => suggestOff(db, i.id, false));
+  }
+  const oftenActions = (i) => [
+    { name: t('Open|item'), explain: t('In Gear, with all its details'), icon: ExternalLink, run: () => (location.hash = gearHref(i)) },
+    { name: t('Do not suggest any more'), explain: t('It stays in your gear'), icon: EyeOff, run: () => hideOften(i) },
+  ];
+  /* SN5+ F4: «Als Baustein» per trip kind */
+  let blocking = $state(null); // the group whose sheet is open
+  async function saveBlock(g, name, ids) {
+    const res = await saveFavBlock(db, g.key, ids, name);
+    if (res.error) return res.error === 'taken' ? t('There is already a building block "{name}".', { name }) : t('Give the building block a name.');
+    offer(t('Building block "{name}" made.', { name }), () => undoBulk(db, res.snap));
   }
   $effect(() => () => clearTimeout(timer));
   const saveNote = (i, text) => db.items.update(i.id, { favNote: text.trim() || null, updatedAt: stamp() });
@@ -64,17 +114,22 @@
         {#each groups as g (g.key)}
           <div class="grp">
             <Section title={t(g.name)} sub={`${tn(g.items.length, '{n} item', '{n} items')}${g.grams ? ` · ${formatWeight(g.grams)}` : ''}`} id="fav-{g.key}">
+              {#snippet more()}<span class="no-print"><Btn icon={Blocks} label={t('As building block')} explain={t('Save the favourites of {kind} as a building block', { kind: t(g.name) })} aria={t('Save the favourites of {kind} as a building block', { kind: t(g.name) })} onclick={() => (blocking = g)} /></span>{/snippet}
+              <!-- SN5+ F1: this kind's favourite weight against the other kinds (the heaviest is full) -->
+              {#if groups.length > 1}<div class="fbar" role="img" aria-label={t('{w}: {p} % of the heaviest kind', { w: formatWeight(g.grams), p: Math.round((bars[g.key] ?? 0) * 100) })}><span style:width="{(bars[g.key] ?? 0) * 100}%"></span></div>{/if}
               <ul class="card slist">
                 {#each g.items as i (i.id)}
                   {@const Icon = catIcon(i.category)}
                   <!-- v0.40.0 (design check R2): the whole name opens the item; the category in words. -->
                   <li class="srow frow">
                     <span class="sib" aria-hidden="true"><Icon size={18} /></span>
-                    <a class="sm fname" href={gearHref(i)}>
+                    <span class="sm"><a class="fname" href={gearHref(i)}>
                       <b>{nameOf(i)}{#if i.qty > 1}<small class="qx"> × {i.qty}</small>{/if}</b>
                       {#if i.favNote}<small class="why">«{i.favNote}»</small>{/if}
                       {#if subOf(i)}<small class="sub">{subOf(i)}</small>{/if}
                     </a>
+                    <!-- SN5+ F3: the last trip it was on (a tap opens the trip) -->
+                    <small class="last no-print">{#if last[i.id]}<Flag size={13} aria-hidden="true" />{t('last on:')} <a href="#/pack" onclick={(e) => openTripAt(e, last[i.id].trip)}>{last[i.id].trip.title}</a> · {shortDay(last[i.id].date)}{:else}<Flag size={13} aria-hidden="true" />{t('not on any trip yet')}{/if}</small></span>
                     <span class="sv num" class:nw={i.weightG == null}>{i.weightG == null ? t('not weighed') : formatWeight(itemWeight(i))}</span>
                     <span class="rowacts no-print"><MoreActions title={nameOf(i)} label={t('More for {name}', { name: nameOf(i) })} actions={actionsOf(i)} /></span>
                   </li>
@@ -84,13 +139,45 @@
           </div>
         {/each}
       </div>
+      {@render oftenSec()}
       <p class="hint no-print"><Star size={15} aria-hidden="true" /><span>{t('You set the star in the item itself. Under «…»: remove the star, change the note.')}</span></p>
     {:else}
       <!-- v0.127.0 A-U2: the one empty building block -->
       <Empty icon={Star} title={t('No favourites yet')} text={t('No favourites yet. In Gear tap the ☆ in front of an item.')} action={{ label: t('Open Gear'), href: '#/gear' }} />
+      {#if often.length}{@render oftenSec()}{/if}
     {/if}
   {/if}
 </div>
+
+{#snippet oftenSec()}
+  <!-- SN5+ F2 «Oft dabei»: on at least half of the trips of a kind, no star yet; a suggestion only -->
+  <div class="often no-print">
+    <Section title={t('Often with you')} sub={often.length ? t('on many trips, but no star yet · a tap makes it a favourite') : ''} id="fav-often">
+      {#if often.length}
+        <ul class="card slist" data-sec="often">
+          {#each often as o (o.item.id)}
+            {@const i = o.item}
+            {@const Icon = catIcon(i.category)}
+            <li class="srow">
+              <span class="sib" aria-hidden="true"><Icon size={18} /></span>
+              <span class="sm"><b>{nameOf(i)}</b><small>{t('on {n} of {of} trips', { n: o.n, of: o.of })} · {t(domainName(o.domain))}</small></span>
+              <span class="sv num" class:nw={i.weightG == null}>{i.weightG == null ? t('not weighed') : formatWeight(itemWeight(i))}</span>
+              <span class="rowacts"><Btn icon={Star} label={t('Favourite|star')} aria={t('Make {name} a favourite', { name: nameOf(i) })} onclick={() => star(i)} /><MoreActions title={nameOf(i)} label={t('More for {name}', { name: nameOf(i) })} actions={oftenActions(i)} /></span>
+            </li>
+          {/each}
+        </ul>
+        <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('A suggestion from your past trips. Under «…»: do not suggest any more.')}</span></p>
+      {:else}
+        <p class="shint"><Info size={15} aria-hidden="true" /><span>{anyTrips ? t('Nothing yet that is often with you and has no star.') : t('After a few trips, what is often with you shows here.')}</span></p>
+      {/if}
+    </Section>
+  </div>
+{/snippet}
+
+{#if blocking}
+  {@const g = blocking}
+  <FavBlockSheet kind={t(g.name)} items={g.items} onsave={(name, ids) => saveBlock(g, name, ids)} onclose={() => (blocking = null)} />
+{/if}
 
 {#if undo}
   <div class="undo no-print" role="status">
@@ -126,8 +213,13 @@
     break-inside: avoid;
   }
   .fname {
+    display: block;
     color: var(--ink);
     text-decoration: none;
+  }
+  .fname:hover b {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .qx {
     display: inline;
@@ -135,6 +227,40 @@
   }
   .why {
     font-style: italic;
+  }
+  /* SN5+ F1 the bar, F3 «zuletzt dabei», F2 «Oft dabei» */
+  .fbar {
+    height: 6px;
+    margin: -4px 2px 10px;
+    border-radius: 99px;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .fbar span {
+    display: block;
+    height: 100%;
+    border-radius: 99px;
+    background: var(--brand, var(--ok));
+  }
+  .favs .last {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-top: 3px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .last :global(svg) {
+    flex: none;
+    margin-right: 2px;
+  }
+  .last a {
+    color: var(--ink-2);
+  }
+  .often {
+    margin-top: var(--sp-5);
   }
   .nw {
     color: var(--ink-3);

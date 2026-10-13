@@ -15,12 +15,17 @@
    * the one main button «Übernehmen»; four numbers on top; «Neu» open, each item with a pressed
    * «Übernehmen» (tap it off: it stays in the import for later); «Unsicher», «Schon da» and «Nicht im
    * Import» calm below; on the side «So geht es» and «Import verwerfen».
+   * SN5+ (Noah 13.10.2026, answers 4a 5b): I1 the weight before → after (only what is on «Übernehmen»);
+   * I3 each new item a pill «→ category · bag» that opens the category and bag as buttons (the bag is a
+   * suggestion from the category); I2 «Schon da» says what it gets and what stays (no source ID); I4
+   * «Letzte Importe»: the last three, each one with «Rückgängig» (what changed since stays, said quietly).
    */
   import { liveQuery } from 'dexie';
   import { SvelteSet } from 'svelte/reactivity';
   import { db } from '../lib/db.js';
   import { planGearImport, FIELD_NAMES, categoryName, isGearImportFile, stagedStatus, appliedNothing, SKIP } from '../lib/gearimport.js';
-  import { stageImport, decide, dropStaged, applyImport, undoImport, changedSince, lastApplied, keepImport, archiveItems, STAGED, UNDO, UNDO2, applyStep2, undoStep2, lastApplied2, keepStep2, choose2 } from '../lib/gear/importdb.js';
+  import { stageImport, decide, dropStaged, applyImport, undoImport, changedSince, lastApplied, keepImport, archiveItems, STAGED, UNDO, UNDO2, applyStep2, undoStep2, lastApplied2, keepStep2, choose2, setPlace, undoEntry } from '../lib/gear/importdb.js';
+  import { importWeight, changeLines, BAG_CHOICES, HISTORY } from '../lib/gear/importplus.js';
   import { hasStep2, planStep2, defaultChoice } from '../lib/importstep2.js';
   import { tempRange } from '../lib/wardrobe.js';
   import { SETS_KEY } from '../lib/sets.js';
@@ -28,7 +33,7 @@
   import { undoBulk } from '../lib/gear/bulk.js';
   import MergeSheet from '../lib/gear/MergeSheet.svelte';
   import { demoState } from '../lib/demo.js';
-  import { formatWeight, itemWeight } from '../lib/gear.js';
+  import { formatWeight, itemWeight, CATEGORIES, BAG } from '../lib/gear.js';
   import { domainName } from '../lib/domains.js';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import PathHead from '../lib/ui/PathHead.svelte';
@@ -36,7 +41,7 @@
   import Btn from '../lib/ui/Btn.svelte';
   import OptionButton from '../lib/ui/OptionButton.svelte';
   import { catIcon } from '../lib/gear/caticon.js';
-  import { Check, Archive, ChevronRight } from '@lucide/svelte';
+  import { Check, Archive, ChevronRight, ArrowRight, Pencil, Info, FileText, Undo2, Backpack } from '@lucide/svelte';
 
   const stagedQ = liveQuery(() => db.table('meta').get(STAGED));
   const undoQ = liveQuery(async () => ((await db.table('meta').get(UNDO)) ? lastApplied(db) : null));
@@ -53,7 +58,8 @@
   const staged = $derived($stagedQ ?? null);
   const data = $derived(staged?.data ?? null);
   // The plan follows the file and the gear as they are now (the decisions do not change it).
-  const plan = $derived(data && $itemsQ && $learnQ ? planGearImport(data, $itemsQ, $learnQ) : null);
+  // SN5+ (I3): the category and bag chosen for new items (staged.places) go into the plan.
+  const plan = $derived(data && $itemsQ && $learnQ ? planGearImport(data, $itemsQ, $learnQ, undefined, staged?.places ?? {}) : null);
   const decisions = $derived(staged?.decisions ?? {});
   const decided = $derived(plan ? plan.unsure.filter((r) => decisions[r.key]).length : 0);
   // SN5: a new item is taken unless it was tapped off (decisions[key] === SKIP, it stays in the import).
@@ -61,8 +67,32 @@
   const freshOn = $derived(plan ? plan.fresh.filter(takes).length : 0);
   const safeN = $derived(plan ? plan.same.length + freshOn : 0);
   const flipFresh = (r) => decide(db, r.key, takes(r) ? SKIP : null);
-  const sameWith = $derived(plan ? plan.same.filter((r) => r.adds.length) : []);
-  const sameNone = $derived(plan ? plan.same.filter((r) => !r.adds.length) : []);
+  // SN5+ (I2): what a «Schon da» item gets and what stays; only the source ID: nothing new to say.
+  const sameLines = $derived(plan ? plan.same.map((r) => ({ r, ...changeLines(r) })) : []);
+  const sameWith = $derived(sameLines.filter((x) => x.adds.length));
+  const sameNone = $derived(sameLines.filter((x) => !x.adds.length).map((x) => x.r));
+  // SN5+ (I1): the weight of the gear list before and after.
+  const weight = $derived(plan && $itemsQ ? importWeight(plan, $itemsQ, decisions, SKIP) : null);
+  const barNew = $derived(weight && weight.after > 0 ? Math.max(0, weight.delta) / weight.after : 0);
+  // SN5+ (I3): the place of a new item, opened under its row.
+  let placing = $state(null); // the key of the open row
+  const bagText = (key) => (key ? t(BAG[key] ?? key) : t('no bag'));
+  // A new category brings its suggested bag, unless a bag was chosen by hand (then that one stays).
+  const pickCat = (r, key) => setPlace(db, r.key, { category: key });
+  const pickBag = (r, key) => setPlace(db, r.key, { bag: r.item.defaultBag === key ? null : key });
+  // SN5+ (I4, 5b): the last imports, each one can be undone.
+  const histQ = liveQuery(async () => (await db.table('meta').get(HISTORY))?.list ?? []);
+  const plusWeight = (g) => (g ? `${g > 0 ? '+' : '−'}${formatWeight(Math.abs(g))}` : '');
+  const histLine = (e) => [when(e.at), [e.counts.added ? t('{n} new', { n: e.counts.added }) : '', e.counts.completed ? t('{n} completed|import', { n: e.counts.completed }) : ''].filter(Boolean).join(', '), plusWeight(e.grams)].filter(Boolean).join(' · ');
+  const keptText = (kept) => {
+    const names = kept.filter((k) => !k.learning).map((k) => k.name);
+    return names.length ? tn(names.length, '{n} item stays because it changed since: {names}.', '{n} items stay because they changed since: {names}.', { names: names.join(', ') }) : '';
+  };
+  const undoOne = (e) =>
+    run(async () => {
+      const res = await undoEntry(db, e.id);
+      message = [t('Undone: {name}.', { name: e.name || t('Gear list') }), keptText(res.kept)].filter(Boolean).join(' ');
+    });
 
   /* ---------- v0.42.0 step 2 ---------- */
   const two = $derived(!!data && hasStep2(data));
@@ -113,6 +143,16 @@
     return `${name}: ${a.value}`;
   };
   const catText = (key) => (key ? t(categoryName(key)) : t('No category'));
+  // SN5+ (I2): one change in words: «+ Reiseart Alltag», «+ Notiz «…»», «+ Gewicht 60 g».
+  const addText = (a) => {
+    if (a.field === 'domains') return a.value.map((d) => t('+ Trip kind {name}', { name: t(domainName(d)) })).join('  ');
+    if (a.field === 'note') return t('+ Note «{text}»', { text: a.value });
+    if (a.field === 'weightG') return t('+ Weight {w}', { w: formatWeight(a.value) });
+    if (a.field === 'category') return t('+ Category {name}', { name: catText(a.value) });
+    if (a.field === 'leaveHome') return `+ ${t('Optional')}`;
+    return `+ ${fieldText(a)}`;
+  };
+  const stayText = (s) => (s.field === 'weightG' ? t('Weight {w}', { w: formatWeight(s.value) }) : s.field === 'name' ? t('Name') : t('Category'));
   const pct = (s) => `${Math.round(s * 100)} %`;
 
   async function run(fn) {
@@ -257,6 +297,28 @@
         <label class="btn">{t('Choose file')}<input type="file" accept="application/json,.json,text/plain,.txt" onchange={pickFile} hidden /></label>
       </div>
     {/if}
+    <!-- SN5+ (I4, Noah 5b): the last three imports, each with «Rückgängig» -->
+    <div class="hist">
+      <Section title={t('Last imports')} sub={$histQ?.length ? t('the last three · each one can be undone') : ''} id="imp-history">
+        {#if $histQ?.length}
+          <ul class="card slist" data-sec="history">
+            {#each $histQ as e (e.id)}
+              <li class="srow">
+                <span class="sib" aria-hidden="true"><FileText size={18} /></span>
+                <span class="sm"><b>{e.name || t('Gear list')}</b><small class="num">{histLine(e)}</small>
+                  {#if e.undone}<small class="undone">{t('undone {when}', { when: when(e.undone) })}{#if e.kept?.length}{' · '}{tn(e.kept.length, '{n} item stayed', '{n} items stayed')}{/if}</small>{/if}
+                </span>
+                <!-- the newest import's «Rückgängig» is the card above while it shows (one button per import) -->
+                {#if !e.undone && e.id !== $undoQ?.histId}<span class="rowacts"><Btn icon={Undo2} label={t('Undo')} aria={t('Undo the import {name}', { name: e.name || t('Gear list') })} disabled={busy || !!$demoQ} onclick={() => undoOne(e)} /></span>{/if}
+              </li>
+            {/each}
+          </ul>
+          <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Undo takes back what this import brought. What you changed yourself since stays, and the app says so.')}</span></p>
+        {:else}
+          <p class="note">{t('No import yet.')}</p>
+        {/if}
+      </Section>
+    </div>
   {:else if plan}
 
     {#if two}
@@ -345,6 +407,19 @@
         <div><dd class="num">{notIn.length}</dd><dt>{t('not in the import, they stay')}</dt></div>
       </dl>
     </div>
+    {#if weight && (weight.delta || weight.unweighed.length)}
+      <!-- SN5+ (I1): the weight before and after; only what is on «Übernehmen» counts. -->
+      <div class="card wcard" data-sec="weight">
+        <span class="sib" aria-hidden="true"><Backpack size={18} /></span>
+        <div class="wtext">
+          <b class="num">{t('{w} in your gear list', { w: plusWeight(weight.delta) || formatWeight(0) })}</b>
+          <small class="num">{t('before {a} → after {b} · only what you apply counts', { a: formatWeight(weight.before), b: formatWeight(weight.after) })}</small>
+        </div>
+        <div class="wbar" aria-hidden="true"><span class="wnow" style:width="{(1 - barNew) * 100}%"></span><span class="wnew" style:width="{barNew * 100}%"></span></div>
+        <p class="wkey num" aria-hidden="true"><span><i class="dot now"></i>{t('today {w}', { w: formatWeight(weight.before) })}</span><span><i class="dot new"></i>{t('new {w}', { w: formatWeight(Math.max(0, weight.delta)) })}</span></p>
+        {#if weight.unweighed.length}<p class="shint wq"><Info size={15} aria-hidden="true" /><span>{tn(weight.unweighed.length, '{names} is not weighed and does not count.', '{names} are not weighed and do not count.', { names: weight.unweighed.join(', ') })}</span></p>{/if}
+      </div>
+    {/if}
     <p class="hint">
       {t('Takes "Already there" and "New"')}{#if decided}{' '}{tn(decided, 'and {n} decided item', 'and {n} decided items')}{/if}.
       {t('A backup comes first; you can undo it.')}
@@ -362,9 +437,25 @@
                 {@const Icon = catIcon(r.item.category)}
                 <li class="srow">
                   <span class="sib" aria-hidden="true"><Icon size={18} /></span>
-                  <span class="sm"><b>{r.item.name}{#if r.item.qty > 1}<small class="qx"> × {r.item.qty}</small>{/if}</b><small>{[catText(r.item.category), r.item.weightG == null ? '' : formatWeight(itemWeight(r.item))].filter(Boolean).join(' · ')}{#if r.item.ownership === 'wishlist'}{' · '}<i class="badge">{t('Wishlist')}</i>{/if}{#if r.item.leaveHome}{' · '}<i class="badge">{t('Optional')}</i>{/if}</small></span>
+                  <span class="sm"><b>{r.item.name}{#if r.item.qty > 1}<small class="qx"> × {r.item.qty}</small>{/if}</b><small>{r.item.weightG == null ? t('not weighed') : formatWeight(itemWeight(r.item))}{#if r.item.ownership === 'wishlist'}{' · '}<i class="badge">{t('Wishlist')}</i>{/if}{#if r.item.leaveHome}{' · '}<i class="badge">{t('Optional')}</i>{/if}</small>
+                    <!-- SN5+ (I3): where it goes, a suggestion from the category; a tap opens category and bag -->
+                    <button type="button" class="place" aria-expanded={placing === r.key} aria-controls="place-{r.key}" aria-label={t('Where {name} goes: {cat} · {bag}. Change', { name: r.item.name, cat: catText(r.item.category), bag: bagText(r.item.defaultBag) })} onclick={() => (placing = placing === r.key ? null : r.key)}><ArrowRight size={14} aria-hidden="true" /><span>{catText(r.item.category)} · {bagText(r.item.defaultBag)}</span><Pencil size={13} aria-hidden="true" /></button>
+                  </span>
                   <span class="rowacts"><OptionButton pressed={takes(r)} label={t('Apply|import')} aria-label={t('Apply {name}', { name: r.item.name })} disabled={busy} onclick={() => flipFresh(r)} /></span>
                 </li>
+                {#if placing === r.key}
+                  <li class="placebox" id="place-{r.key}">
+                    <p class="plbl">{t('Category')}</p>
+                    <div class="pick" role="group" aria-label={t('Category of {name}', { name: r.item.name })}>
+                      {#each CATEGORIES as c (c.key)}<button type="button" class="opt" aria-pressed={r.item.category === c.key} onclick={() => pickCat(r, c.key)}>{t(c.name)}</button>{/each}
+                    </div>
+                    <p class="plbl">{t('Bag')}</p>
+                    <div class="pick" role="group" aria-label={t('Bag of {name}', { name: r.item.name })}>
+                      {#each BAG_CHOICES as b (b)}<button type="button" class="opt" aria-pressed={r.item.defaultBag === b} onclick={() => pickBag(r, b)}>{t(BAG[b])}</button>{/each}
+                    </div>
+                    <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Suggested from the category. You can change it later in the item too.')}</span></p>
+                  </li>
+                {/if}
               {/each}
             </ul>
             {#if plan.learnings.add.length || plan.learnings.update.length}
@@ -402,11 +493,15 @@
           <Section title={t('Already there')} sub={t('gets completed, your weight stays')} id="imp-same">
             <div class="card isec" data-sec="same">
               <ul class="slist flat">
-                {#each sameWith as r (r.key)}
+                {#each sameWith as x (x.r.key)}
+                  {@const r = x.r}
                   {@const Icon = catIcon(r.item.category)}
+                  <!-- SN5+ (I2): what it gets («+ …») and, under it, what stays -->
                   <li class="srow">
                     <span class="sib" aria-hidden="true"><Icon size={18} /></span>
-                    <span class="sm"><b>{nameOf(r.item)}{#if r.via === 'name' && r.imp.name !== r.item.name}<small class="q">{r.imp.name}</small>{/if}</b><small class="add">{t('completed: {what}', { what: r.adds.map(fieldText).join(' · ') })}</small></span>
+                    <span class="sm"><b>{nameOf(r.item)}{#if r.via === 'name' && r.imp.name !== r.item.name}<small class="q">{r.imp.name}</small>{/if}</b>
+                      <span class="chg"><span class="adds">{#each x.adds as a, n (n)}<span class="plus">{addText(a)}</span>{/each}</span><small class="stays">{t('stays: {list}', { list: x.stays.map(stayText).join(', ') })}</small></span>
+                    </span>
                   </li>
                 {/each}
               </ul>
@@ -461,7 +556,7 @@
           <ol class="card how">
             <li><b>{t('Look')}</b><p>{t('New is chosen, unsure asks one by one.')}</p></li>
             <li><b>{t('Apply|import')}</b><p>{t('A backup is made first.')}</p></li>
-            <li><b>{t('Undo')}</b><p>{t('until the next import, with one tap.')}</p></li>
+            <li><b>{t('Undo')}</b><p>{t('each of the last three imports, with one tap.')}</p></li>
           </ol>
         </Section>
         <p class="foot"><Btn kind="quiet" label={t('Discard import')} disabled={busy} onclick={discard} /></p>
@@ -522,6 +617,134 @@
     .nums {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+  }
+  /* SN5+ (I1): the weight card */
+  .wcard {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 12px;
+    align-items: center;
+    margin: 0 0 var(--sp-3);
+    padding: 14px var(--sp-4);
+  }
+  .wtext {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .wtext small,
+  .wkey {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .wbar {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 2px;
+    height: 8px;
+    border-radius: 99px;
+    overflow: hidden;
+    background: var(--paper-2);
+  }
+  .wnow {
+    background: var(--line-strong);
+  }
+  .wnew {
+    background: var(--brand, var(--ok));
+  }
+  .wkey {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin: 0;
+  }
+  .dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 6px;
+    border-radius: 2px;
+  }
+  .dot.now {
+    background: var(--line-strong);
+  }
+  .dot.new {
+    background: var(--brand, var(--ok));
+  }
+  .wq {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-2);
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .wq :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  /* SN5+ (I3): the pill «→ category · bag» and its buttons */
+  .place {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    max-width: 100%;
+    min-height: 32px;
+    margin-top: 4px;
+    padding: 3px 12px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 99px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.25 var(--font-body);
+    text-align: left;
+    cursor: pointer;
+    overflow-wrap: break-word;
+  }
+  .place[aria-expanded='true'] {
+    background: var(--paper-2);
+  }
+  .placebox {
+    list-style: none;
+    margin: 0 0 6px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper-2);
+  }
+  .plbl {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  /* SN5+ (I2): what a «Schon da» item gets, and what stays */
+  .chg {
+    display: grid;
+    gap: 2px;
+    margin-top: 4px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--paper-2);
+  }
+  .adds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 14px;
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .stays,
+  .undone {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .hist {
+    margin-top: var(--sp-5);
   }
   .igrid {
     display: grid;
