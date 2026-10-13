@@ -30,6 +30,7 @@
   import { homeForecast } from '../lib/home-weather.js';
   import { HOME_PLACE } from '../lib/know.js';
   import { switchTrip, openNew } from '../lib/nav.js';
+  import KomootSign from '../lib/komoot/KomootSign.svelte'; // SN1d (answer 3b)
   import { planAgain } from '../lib/trip/ending.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
@@ -158,6 +159,7 @@
             <div class="body">
               <h3 class="tt">{r.title}</h3>
               <p class="s">{r.kind === 'replan' ? `${day(r.date)} · ${t(r.state.label, r.state)}` : line(r)}</p>
+              <KomootSign trip={byId[r.tripId]} small />
               {#if p != null}<span class="bar" role="img" aria-label={t('{done} of {n} packed', { done: r.state.done ?? 0, n: r.state.total })}><i style:width="{p}%"></i></span>
               {:else if r.kind === 'trip' || r.kind === 'ride'}<p class="st">{t(r.state.label, r.state)}</p>{/if}
               {#if r.kind === 'replan'}

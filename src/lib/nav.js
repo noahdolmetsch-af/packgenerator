@@ -136,6 +136,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/bikes') || h.startsWith('#/care')) return careTab ? 'care' : 'bikes';
   if (h.startsWith('#/trip/')) return 'between'; // v0.67.0 «Übergänge 1»: the interstitials of a trip
   if (h.startsWith('#/trips')) return 'trips'; // v0.46.1: the trips overview behind «Touren»
+  if (h.startsWith('#/komoot/shared')) return 'trips'; // SN1c: a shared komoot tour, its sheet over Touren
   if (h.startsWith('#/pack/templates')) return 'templates';
   if (h.startsWith('#/pack/past')) return 'past'; // v0.25.1 (Noah 3a): Past trips
   if (h.startsWith('#/pack')) return 'pack';

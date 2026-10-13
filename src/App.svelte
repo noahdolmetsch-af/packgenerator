@@ -26,6 +26,7 @@
   import DemoBar from './lib/DemoBar.svelte';
   import QuickNote from './lib/QuickNote.svelte';
   import NewSheet from './lib/nav/NewSheet.svelte';
+  import KomootSheet from './lib/komoot/KomootSheet.svelte';
   import Search from './lib/nav/Search.svelte';
   import { parseBikesHash } from './lib/bikes.js';
   import { liveQuery } from 'dexie';
@@ -234,6 +235,16 @@
     const today = localDay();
     return sortBikes(bikes).filter((b) => bikeCare(withVisits(b, visits), { tasks, visits, today })?.status === 'due').length;
   });
+  // SN1c «Tour aus komoot übernehmen»: a GPX without times shared to the app (public/share-target.js)
+  // opens #/komoot/shared; the sheet opens over Touren, where the new trip will be.
+  let komootOpen = $state(false);
+  $effect(() => {
+    if (hash === '#/komoot/shared') {
+      history.replaceState(null, '', `${location.pathname}#/trips`);
+      hash = '#/trips';
+      komootOpen = true;
+    }
+  });
   $effect(() => {
     if (hash === '#/inbox/new') {
       history.replaceState(null, '', '#/inbox');
@@ -359,6 +370,7 @@
 {/if}
 {#if page !== 'share'}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <Keys bind:open={keysOpen} />
+{#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if !wide.matches}
   <!-- v0.76.0: the five places at the bottom (also under a shared list). -->
   <PlaceBar {place} {hash} due={$dueQ ?? 0} />

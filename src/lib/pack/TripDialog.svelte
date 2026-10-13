@@ -30,6 +30,8 @@
   import { addHelperItems } from '../helper/logic.js';
   import { take } from '../nav.js';
   import OptionButton from '../ui/OptionButton.svelte';
+  import KomootRow from '../komoot/KomootRow.svelte'; // SN1b (answer 4a): «Tour aus komoot» next to the templates
+  import { komootSport } from '../komoot.js';
   import { newTripOff } from '../repairslim.js';
   import { similarHours, nameClash } from '../formprefill.js';
 
@@ -668,6 +670,11 @@
   </section>
 {/snippet}
 
+{#snippet komootRow()}
+  <!-- SN1b (answer 4a): «Tour aus komoot», a quiet row next to the templates; it only opens komoot -->
+  {#if komootSport(area, bike?.type)}<div class="kmbox"><KomootRow framed sport={komootSport(area, bike?.type)} /></div>{/if}
+{/snippet}
+
 {#snippet eventBox()}
   <!-- v0.114.0 (answer 5b, B3): the event as a box with its hint; ticked, the block «Rennen» with its items. -->
   <section class="evbox" class:on={ctx.event}>
@@ -779,7 +786,7 @@
       {#if days > 1}{@render overnight()}{/if}
       {@render weather()}
       {@render eventBox()}
-      {@render templatesFold()}
+      {@render templatesFold()}{@render komootRow()}
       {@render helperItems()}
       {#if packList}{@render packListView()}{/if}
     {:else}
@@ -814,7 +821,7 @@
       {/if}
       {#if isNew}
         <!-- v0.114.0 (bug «Letzte Tour»): no past trip as a start; templates and examples as buttons. -->
-        {@render templatesFold()}
+        {@render templatesFold()}{@render komootRow()}
         {@render helperItems()}
         <p class="note">
           {#if chosenTpl}{t('From the template {name}. Bags: {bags}.', { name: chosenTpl.name, bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}
@@ -1110,6 +1117,10 @@
   }
   .evbox .grp {
     margin: 10px 0 0 28px;
+  }
+  /* SN1b: «Tour aus komoot» under the templates */
+  .kmbox {
+    margin: 12px 0 0;
   }
   /* «Vorlage wählen», folded; the starts as option buttons (the Knöpfe pattern N1–N4: 44 px, chosen green with a tick) */
   .tplbox {
