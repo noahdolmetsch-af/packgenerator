@@ -20,7 +20,7 @@ export const WHATS_NEW = [
     // Werte überall + Strava verbinden WU1–WU4, SV1 (#153); mockups approved by Noah 13.10.2026 («ich gebe alle bild mockups frei»)
     version: '0.125.0',
     date: '2026-10-13',
-    title: 'Day package 13.10.',
+    title: 'Lots of new things at once',
     lead: 'A bigger update in one go: a daily check, a week in Aktiv, values everywhere, trip states and less typing.',
     points: [
       { text: 'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today', href: '#/check/morning' },

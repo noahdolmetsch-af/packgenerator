@@ -5,7 +5,7 @@
  */
 export default {
   // 0.125.0 Tagespaket 13.10. (Tages-Check, Aktiv ausweiten, Feinschliff A-J1/TZ-1/A-U, Werte überall + Strava verbinden)
-  'Day package 13.10.': 'Tagespaket 13.10.',
+  'Lots of new things at once': 'Viel Neues auf einmal',
   'A bigger update in one go: a daily check, a week in Aktiv, values everywhere, trip states and less typing.': 'Ein grösseres Update in einem Rutsch: ein Tagescheck, eine Woche in Aktiv, Werte überall, Tour-Zustände und weniger Tippen.',
   'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today': 'Tagescheck: ein Morgen-Check und ab 20:30 ein kurzer Abend-Rückblick; deine Balance aus neun Bereichen in einem Ring auf Heute',
   'Aktiv: a week with fixed dates and suggestions, a page for recovery and a short packing list for each sport': 'Aktiv: eine Woche mit festen Terminen und Vorschlägen, eine Seite für die Erholung und eine kurze Packliste für jeden Sport',
