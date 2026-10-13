@@ -229,6 +229,7 @@ export const sortBikes = (bikes) => [...bikes].sort((a, b) => bikeRank(a) - bike
  * Read the address of the Bikes page: #/bikes?tab=care&bike=<id>&open=1.
  * The old address #/care still lands on the Care tab. open: open that bike's care section.
  */
+const SHEET_KEYS = /^(pass|plan|order|pickup|breakin|kit|warranty|theft|all)$/;
 export function parseBikesHash(hash = '') {
   const [path, query = ''] = hash.replace(/^#/, '').split('?');
   const q = new URLSearchParams(query);
@@ -244,17 +245,38 @@ export function parseBikesHash(hash = '') {
   if (tab === 'care' && ['import', 'strava', 'strava-check'].includes(q.get('view'))) out.view = q.get('view');
   // v0.83.0 «Ausstattung»: tab=compare is the bike's equipment; &view=all is «Compare bikes».
   if (tab === 'compare' && q.get('view') === 'all') out.view = 'all';
+  // Bugfix Dateneingabe: &edit=<part>:<field> on «Compare bikes» opens that one value of the bike for
+  // typing at once; &back=<sheet> (and &from) goes back to that sheet of the folder when it is closed.
+  if (tab === 'compare' && out.view === 'all' && out.bike && /^[\w-]+:[\w.-]+$/.test(q.get('edit') ?? '')) {
+    out.edit = q.get('edit');
+    if (SHEET_KEYS.test(q.get('back') ?? '')) out.back = q.get('back');
+    if (['care', 'shop'].includes(q.get('from'))) out.from = q.get('from');
+  }
   // v0.69.0 «Velo-Blätter»: &sheet=<key> on Setup shows one sheet of the bike's folder (sheets.js);
   // &from=care|shop: the sheet was opened there, so «back» goes there. v0.70.0: four more sheets.
-  if (tab === 'setup' && /^(pass|plan|order|pickup|breakin|kit|warranty|theft|all)$/.test(q.get('sheet') ?? '')) {
+  if (tab === 'setup' && SHEET_KEYS.test(q.get('sheet') ?? '')) {
     out.sheet = q.get('sheet');
     if (['care', 'shop'].includes(q.get('from'))) out.from = q.get('from');
   }
   return out;
 }
 
+/**
+ * Bugfix Dateneingabe: the address that opens one value of a bike for typing (in «Compare bikes»,
+ * the one place every fit, part and geometry value can be typed). id: '<part>:<field>' as
+ * compareRows has it, e.g. 'fit:seatHeight', 'fork:attrs.travel'.
+ */
+export const editHash = (bike, id) => bikesHash({ tab: 'compare', view: 'all', bike, edit: id });
+
+/** The same address with the sheet to come back to (set by the sheet that links to it). */
+export function withBack(href, back, from = null) {
+  if (!href || !href.includes('edit=')) return href;
+  const r = parseBikesHash(href);
+  return r.edit ? bikesHash({ ...r, back, from }) : href;
+}
+
 /** The address for a tab (and bike): the canonical form of the Bikes page. */
-export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null, view = null, sheet = null, from = null } = {}) {
+export function bikesHash({ tab = 'setup', bike = null, open = false, trip = null, visit = null, view = null, sheet = null, from = null, edit = null, back = null } = {}) {
   const q = new URLSearchParams();
   if (tab === 'care' || tab === 'compare' || tab === 'shop') q.set('tab', tab);
   if (['import', 'strava', 'strava-check'].includes(view) && tab === 'care') q.set('view', view);
@@ -266,6 +288,11 @@ export function bikesHash({ tab = 'setup', bike = null, open = false, trip = nul
   if (sheet && tab === 'setup' && bike) {
     q.set('sheet', sheet);
     if (from === 'care' || from === 'shop') q.set('from', from);
+  }
+  if (edit && tab === 'compare' && view === 'all' && bike) {
+    q.set('edit', edit);
+    if (back) q.set('back', back);
+    if (back && (from === 'care' || from === 'shop')) q.set('from', from);
   }
   const s = q.toString();
   return `#/bikes${s ? `?${s}` : ''}`;

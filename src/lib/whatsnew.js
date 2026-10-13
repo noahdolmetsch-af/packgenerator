@@ -38,7 +38,7 @@ export const WHATS_NEW = [
   {
     // v0.117.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 «n1-n4 freigeben»)
     version: '0.117.0',
-    date: '2026-10-12',
+    date: '2026-10-13',
     title: 'Buttons that explain themselves',
     lead: 'Not sure what a button does? Point at it on the computer or hold it on the phone, and it tells you.',
     points: [
@@ -53,6 +53,35 @@ export const WHATS_NEW = [
       'Open Bike care and point at «Done» (computer) or hold it (phone): the explanation shows, nothing is saved.',
       'Tap «…» in a row: every action with one line; on the phone the list opens from the bottom.',
       'Tap «Done»: the line at the bottom says what was saved; tap «Undo».',
+    ],
+  },
+  {
+    // 0.116.2 «Bugfix Dateneingabe» (Noah 13.10.2026): «enter» on a sheet jumped to other pages.
+    version: '0.116.2',
+    date: '2026-10-13',
+    title: 'Enter bike values where you are',
+    lead: '«Enter» on a sheet of the bike folder opens exactly that value, and saving brings you back to the sheet.',
+    points: [
+      { text: 'Fixed: «enter» on the Bike pass, the Pick-up check and the other sheets led to the top of another page. Now it opens just that value of this bike for typing, Save or Cancel brings you back to the sheet.', href: '#/bikes' },
+      { text: '«Change values» on the Bike pass and the Pick-up check opens the bike\'s Equipment, where the measurements and parts are.', href: '#/bikes?tab=compare' },
+    ],
+    test: [
+      'Open Bike › More › Folder › Pick-up check and tap «enter» next to Saddle height.',
+      'Type a number and tap Save: you are back on the Pick-up check and the value is there.',
+    ],
+  },
+  {
+    // 0.116.1 (UI-Prüfung A1): an old debrief without its item list opened an empty page.
+    version: '0.116.1',
+    date: '2026-10-13',
+    title: 'Old trips open again',
+    lead: 'The debrief of an older trip opened an empty page; now it opens like any other.',
+    points: [
+      { text: 'Fixed: the debrief of an older trip (from an old backup or the Excel import) opened an empty page. It opens again, every item counted as used.', href: '#/pack/past' },
+    ],
+    test: [
+      'Open Trips › Look back › Past trips and tap an older trip.',
+      'The debrief opens with its numbers and «Not used».',
     ],
   },
   {

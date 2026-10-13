@@ -12,6 +12,28 @@ export default {
   'Open Bike care and point at «Done» (computer) or hold it (phone): the explanation shows, nothing is saved.': 'Velopflege öffnen und mit der Maus auf «Erledigt» zeigen (Computer) oder lange drücken (Handy): Die Erklärung kommt, nichts wird gespeichert.',
   'Tap «…» in a row: every action with one line; on the phone the list opens from the bottom.': 'In einer Zeile auf «…» tippen: jede Aktion mit einer Zeile; am Handy kommt die Liste von unten.',
   'Tap «Done»: the line at the bottom says what was saved; tap «Undo».': 'Auf «Erledigt» tippen: Die Zeile unten sagt, was gespeichert wurde; auf «Rückgängig» tippen.',
+  // 0.116.1 UI-Prüfung A1: alte Rückblicke öffnen wieder
+  'Enter bike values where you are': 'Velo-Werte dort eintragen, wo du bist',
+  '«Enter» on a sheet of the bike folder opens exactly that value, and saving brings you back to the sheet.':
+    '«eintragen» auf einem Blatt der Velo-Mappe öffnet genau diesen Wert, und Speichern bringt dich zurück aufs Blatt.',
+  'Fixed: «enter» on the Bike pass, the Pick-up check and the other sheets led to the top of another page. Now it opens just that value of this bike for typing, Save or Cancel brings you back to the sheet.':
+    'Behoben: «eintragen» auf dem Velo-Pass, dem Abhol-Check und den anderen Blättern führte an den Anfang einer anderen Seite. Jetzt öffnet es genau diesen Wert dieses Velos zum Tippen, Speichern oder Abbrechen bringt dich zurück aufs Blatt.',
+  '«Change values» on the Bike pass and the Pick-up check opens the bike\'s Equipment, where the measurements and parts are.':
+    '«Werte ändern» auf dem Velo-Pass und dem Abhol-Check öffnet die Ausstattung des Velos, wo Masse und Teile stehen.',
+  'Open Bike › More › Folder › Pick-up check and tap «enter» next to Saddle height.':
+    'Velo › Mehr › Mappe › Abhol-Check öffnen und neben Sitzhöhe auf «eintragen» tippen.',
+  'Type a number and tap Save: you are back on the Pick-up check and the value is there.':
+    'Eine Zahl tippen und Speichern: Du bist zurück auf dem Abhol-Check, und der Wert steht da.',
+  'Old trips open again': 'Alte Touren öffnen wieder',
+  'The debrief of an older trip opened an empty page; now it opens like any other.':
+    'Der Rückblick einer älteren Tour öffnete eine leere Seite; jetzt öffnet er wie jeder andere.',
+  'Fixed: the debrief of an older trip (from an old backup or the Excel import) opened an empty page. It opens again, every item counted as used.':
+    'Behoben: Der Rückblick einer älteren Tour (aus einem alten Backup oder dem Excel-Import) öffnete eine leere Seite. Er öffnet wieder, alle Teile zählen als gebraucht.',
+  'Open Trips › Look back › Past trips and tap an older trip.':
+    'Touren › Rückblick › Vergangene Touren öffnen und eine ältere Tour antippen.',
+  'The debrief opens with its numbers and «Not used».':
+    'Der Rückblick öffnet sich mit seinen Zahlen und «Nicht gebraucht».',
+
   'Strava connection': 'Strava-Verbindung',
   'Open Bike › Care › Strava and tap «Connect with Strava».': 'Öffne Velo › Pflege › Strava und tippe «Mit Strava verbinden».',
   'Log in to Strava and allow it: the app shows how many rides it found.': 'Bei Strava einloggen und erlauben: die App zeigt, wie viele Fahrten sie gefunden hat.',

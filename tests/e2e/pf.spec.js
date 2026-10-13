@@ -1057,7 +1057,8 @@ async function packingDay(page, rec, title) {
     await rec.click(whole);
     await expect(pd.locator('.pbag.cur .bagh b')).not.toHaveText(bag);
   }
-  const checks = pd.getByRole('button', { name: T('Tick all') });
+  // v0.117.0 «Knöpfe neu»: «Tick all» is now its own short label elsewhere, so name the packing day's button exactly
+  const checks = pd.getByRole('button', { name: T('Tick all checks') });
   if (await checks.count()) await rec.click(checks);
   // v0.67.0 (U001): these trips start in three days: «Alles drin.», no «Gute Fahrt!» yet
   await expect(pd.locator('#alldone-h')).toHaveText(T('Everything is in.'));
@@ -1221,7 +1222,9 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   await rec.check('Bike care: the workshop visit is listed for the Spark', () => expect(care).toContainText(`${P} Velo shop`, { timeout: 3000 }));
   // v0.38.0: a tap on the part opens its row, "Record …" the dialog.
   await rec.click(each.getByRole('button', { name: new RegExp(`^${esc(T('Chain'))}`) }).first());
-  await rec.click(each.locator('li.pt.x').getByRole('button', { name: T('Record …') }));
+  // v0.117.0 «Knöpfe neu» (N2, changed on purpose): a due row has one main button, «Record …» is behind «…»
+  await rec.click(each.locator('li.pt.x').getByRole('button', { name: T('More for {title}', { title: T('Chain') }) }));
+  await rec.click(page.getByRole('menuitem', { name: new RegExp(`^${esc(T('Record …|care'))}`) }));
   const part = page.getByRole('dialog').filter({ has: page.getByRole('button', { name: T('Waxed') }) });
   await rec.click(part.getByRole('button', { name: T('Waxed') }));
   await expect(part).toBeHidden();

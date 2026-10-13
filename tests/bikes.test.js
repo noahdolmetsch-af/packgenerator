@@ -52,7 +52,7 @@ describe('bikes and bags', () => {
   });
 });
 
-import { parseBikesHash, bikesHash } from '../src/lib/bikes.js';
+import { parseBikesHash, bikesHash, editHash, withBack } from '../src/lib/bikes.js';
 
 describe('Bikes page address (v0.21.0)', () => {
   it('reads the tab and the bike, the old #/care lands on Care', () => {
@@ -66,5 +66,21 @@ describe('Bikes page address (v0.21.0)', () => {
     expect(bikesHash({ tab: 'care' })).toBe('#/bikes?tab=care');
     expect(bikesHash({ tab: 'care', bike: 'factor-ls', open: true })).toBe('#/bikes?tab=care&bike=factor-ls&open=1');
     expect(parseBikesHash(bikesHash({ tab: 'care', bike: 'x y' })).bike).toBe('x y');
+  });
+});
+
+describe('Bugfix Dateneingabe: one value of a bike opened for typing, then back to the sheet', () => {
+  it('reads and writes edit, back and from on «Compare bikes»', () => {
+    const href = editHash('b1', 'fit:seatHeight');
+    expect(href).toBe('#/bikes?tab=compare&view=all&bike=b1&edit=fit%3AseatHeight');
+    expect(parseBikesHash(href)).toEqual({ tab: 'compare', bike: 'b1', open: false, view: 'all', edit: 'fit:seatHeight' });
+    const there = withBack(href, 'pickup', 'shop');
+    expect(parseBikesHash(there)).toEqual({ tab: 'compare', bike: 'b1', open: false, view: 'all', edit: 'fit:seatHeight', back: 'pickup', from: 'shop' });
+    expect(bikesHash(parseBikesHash(there))).toBe(there);
+  });
+  it('leaves other addresses alone and ignores a strange value', () => {
+    expect(withBack('#/bikes?bike=b1&open=1', 'pass')).toBe('#/bikes?bike=b1&open=1');
+    expect(parseBikesHash('#/bikes?tab=compare&view=all&bike=b1&edit=<x>').edit).toBeUndefined();
+    expect(parseBikesHash('#/bikes?tab=compare&view=all&edit=fit:seatHeight').edit).toBeUndefined();
   });
 });
