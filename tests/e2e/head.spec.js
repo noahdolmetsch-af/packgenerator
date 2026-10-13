@@ -56,7 +56,9 @@ test('the bars are light; «Neu» is at the top on a phone and in the sidebar on
     // «Ich» as a card at the bottom of the sidebar
     const me = side.locator('a.me');
     await expect(me).toContainText(T('Data, Inbox, Help'));
-    const [mb, sb] = [await me.boundingBox(), await side.boundingBox()];
+    // measured on the sticky inner column (one screen high): since A-U2 the empty Material page is taller
+    // than the screen, and the aside itself grows with the page
+    const [mb, sb] = [await me.boundingBox(), await side.locator('.in').boundingBox()];
     expect(sb.y + sb.height - (mb.y + mb.height)).toBeLessThan(24);
     // another place: its pages open, the others close
     await side.locator('li[data-place="trips"] > a.pa').click();
