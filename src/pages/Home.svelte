@@ -82,7 +82,9 @@
   import { countUse } from '../lib/home/usage.js';
   import { recordCare, undoCare } from '../lib/home/care-tap.js';
   import { yearReview, tripDone } from '../lib/yearreview.js';
-  import { tripState } from '../lib/tripstate.js';
+  import { tripState, tripStates } from '../lib/tripstate.js';
+  import { asksRide } from '../lib/trip/fixed.js';
+  import { answerRide } from '../lib/trip/reopen.svelte.js';
   import TripState from '../lib/ui/TripState.svelte';
   import InProgress from '../lib/trip/InProgress.svelte';
   import Wall from '../lib/home/Wall.svelte';
@@ -291,6 +293,13 @@
   // v0.67.0 (U007): «Open the trip» leads into the step the trip is in now, not always to Plan.
   const stepHere = (tr) => stepOf(tr, today, { debriefDone: debriefs.some((d) => d.tripId === tr.id && d.status === 'done') });
   const focus = $derived(loaded ? todayFocus(trips, debriefs, today) : null);
+  // TZ-2 «Fest nach der Fahrt» (mockup TZ2 Heute): a trip whose date passed but was never ended asks
+  // «Bist du gefahren?» (a row of its own) instead of waiting in the debrief row; a reopened trip does
+  // not wait for a debrief. The card's «How was …?» of a fresh trip stays («All good» says you rode).
+  const states = $derived(loaded && $ridesQ ? tripStates(trips, { debriefs, rides: $ridesQ, today }) : {});
+  const heroAsks = $derived(focus?.kind === 'debrief' ? focus.trip?.id : null);
+  const askTrips = $derived(trips.filter((x) => x.id !== heroAsks && asksRide(states[x.id])).sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '')));
+  const waitTrips = $derived(trips.filter((x) => !asksRide(states[x.id]) && !states[x.id]?.reopened));
   const lead = $derived(focus?.trip ?? null);
   const next = $derived(nextTrip(trips, today));
   // Noah 7a, 31a: the trip Today leads with, then the other trips still to come (swipe, "1 / 3 ›")
@@ -498,7 +507,13 @@
       backingUp = false;
     }
   }
-  const debrief = $derived(loaded ? openDebrief(focus, trips, debriefs, today) : null);
+  const debrief = $derived(loaded && focus?.kind !== 'debrief' ? openDebrief(null, waitTrips, debriefs, today) : null);
+  // TZ-2: «Ja» ends the trip on its last day, «Nicht gefahren» marks it skipped; both with Undo
+  async function rideAnswer(trip, yes) {
+    const undo = await answerRide($state.snapshot(trip), yes);
+    if (undo) say(yes ? t('Saved: you rode {trip}. The list is fixed now.', { trip: trip.title }) : t('{trip}: marked as not ridden.', { trip: trip.title }), undo);
+  }
+  const shortDay = (iso) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' }) : '');
   const alsoToday = $derived(trips.filter((x) => x !== lead && !x.skipped && !x.finished && !x.id.startsWith('demo') && onTripDay(x, today)));
   const prep = $derived.by(() => {
     const p = next && hasBike(next) ? eventPrep(next, tasks, today) : null;
@@ -600,7 +615,12 @@
         if (c.total > c.done) rows.push({ key: 'charge', tone: 'eve', text: tn(c.total - c.done, 'Charge batteries: {n} device for {trip}', 'Charge batteries: {n} devices for {trip}', { trip: soon.title }), act: { label: t('Charge list'), href: '#/pack?charge', trip: soon.id } });
       }
     }
-    if (debrief) rows.push({ key: 'debrief', tone: 'warn', st: 'done', text: t('Debrief still open: {title}', { title: debrief.title }), act: { label: t('All good'), run: () => allGood(debrief) }, act2: { label: t('Open the debrief'), href: `#/debrief/${encodeURIComponent(debrief.id)}`, trip: debrief.id } }); // v0.67.0 (U011): also the way to the whole debrief
+    // TZ-2 (mockup TZ2 Heute): «Jura-Höhen (1. Okt.): Rückblick ausfüllen · 2 Min.» with «Rückblick»; «All good»
+    // (v0.24.1, quickDebrief) stays beside it as a quiet second way
+    if (debrief) rows.push({ key: 'debrief', tone: 'warn', st: 'done', text: t('{title} ({date}): fill in the debrief · 2 min.', { title: debrief.title, date: shortDay(debrief.startDate) }), act: { label: t('Debrief'), trip: debrief.id, run: () => (location.hash = `#/debrief/${encodeURIComponent(debrief.id)}`) }, act2: { label: t('All good'), run: () => allGood(debrief), quiet: true } });
+    // TZ-2: the newest trip whose date passed without an end: «Datum vorbei. Bist du gefahren?» Ja · Nicht gefahren
+    const askT = askTrips[0];
+    if (askT) rows.push({ key: 'ride', tone: 'warn', st: 'done', text: hasBike(askT) ? t('{title} ({date}): date passed. Did you ride?', { title: askT.title, date: shortDay(askT.startDate) }) : t('{title} ({date}): date passed. Did you go?', { title: askT.title, date: shortDay(askT.startDate) }), act: { label: t('Yes|rode'), run: () => rideAnswer(askT, true) }, act2: { label: hasBike(askT) ? t('Not ridden|answer') : t('Did not happen'), run: () => rideAnswer(askT, false) } });
     if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true } });
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
     if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
@@ -908,12 +928,17 @@
                 <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
               {:else}
                 <span class="tx">{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{r.text}</span>
+                {#if r.act2?.run}
+                  <!-- TZ-2: two answers («Ja · Nicht gefahren», «Rückblick · Alles gut») stay together on one line -->
+                  <span class="ra"><button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button><button type="button" class={r.act2.quiet ? 'lkb' : 'btn sm'} onclick={r.act2.run}>{r.act2.label}</button></span>
+                {:else}
                 {#if r.act}
                   {#if r.act.href}<a class="lk" href={r.act.href} onclick={() => act(r)}>{r.act.label}</a>
                   {:else if r.act.care}<button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button>
                   {:else}<button type="button" class="btn sm" disabled={r.act.busy && backingUp} onclick={() => act(r)}>{r.act.label}</button>{/if}
                 {/if}
                 {#if r.act2}<a class="lk" href={r.act2.href} onclick={() => r.act2.trip && openTrip(r.act2.trip)}>{r.act2.label}</a>{/if}
+                {/if}
                 {#if r.later}<button type="button" class="lkb" onclick={r.later}>{t('later')}</button>{/if}
               {/if}
             </li>

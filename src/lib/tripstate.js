@@ -11,6 +11,8 @@
  * The order of the checks (spec tour-zustaende, section 2):
  *   1. skipped or archived → null;
  *   2. ended before its start date (endedTooEarly) → plan, with «Plan again» (the exception stays);
+ *      TZ-2: reopened («Wieder öffnen», trip.reopened) and not ended again → plan too, also with a saved
+ *      debrief (it stays) or a ride; ending it again (finished, or status 'done') closes it once more;
  *   3. the debrief saved (status 'done') → rated;
  *   4. ended in the app (finished, status 'done'), made from a ride (fromRide), or an uploaded ride
  *      belongs to it and its last day is over → done;
@@ -55,12 +57,14 @@ export const endedTooEarly = (trip, today = localDay()) => !!trip && !trip.skipp
  * source: the trip was made from an uploaded ride; draft: a debrief is started, not saved.
  */
 export function tripStateInfo(trip, { debrief = null, rides = [], today = localDay() } = {}) {
-  const none = { state: null, early: false, ask: false, source: null, draft: false, over: false };
+  const none = { state: null, early: false, ask: false, source: null, draft: false, over: false, reopened: false };
   if (!trip || trip.skipped || trip.archivedAt) return none;
   const end = tripEnd(trip);
   const over = !!end && end < today;
   const draft = !!debrief && debrief.status !== 'done';
   if (endedTooEarly(trip, today)) return { ...none, state: 'plan', early: true };
+  // TZ-2: «Wieder öffnen» makes a completed or rated trip planned again, until it is ended again
+  if (trip.reopened && !trip.finished && trip.status !== 'done') return { ...none, state: 'plan', reopened: true };
   const ride = trip.fromRide ? (rides ?? []).find((r) => r.id === trip.fromRide) ?? null : null;
   const source = trip.fromRide ? (ride?.source === 'strava' ? 'strava' : 'gpx') : null;
   if (debrief?.status === 'done') return { ...none, state: 'rated', source, over };
