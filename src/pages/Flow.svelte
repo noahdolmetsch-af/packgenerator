@@ -8,6 +8,7 @@
    *   #/flow/activity    hobby pages 1: Aktiv › Aktivität (pages/flow/Activity.svelte)
    *   #/flow/milestones  hobby pages 1: all milestones (pages/flow/Milestones.svelte), ?act=, ?tune=1
    *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
+   *   #/flow/bags        «Sporttasche» (mockup AK3): a packing list per sport (pages/flow/Bags.svelte)
    *   #/flow/trophies    v0.123.0 the trophy showcase, all stars by area and year (pages/flow/Trophies.svelte)
    *   #/flow/act/<id>    hobby pages 2: an activity's own page (Meditation.svelte, B1); …/timer the
    *                      intervals (MedTimer.svelte, B2); the running session is in FlowLayer (B7)
@@ -47,6 +48,7 @@
   import Milestones from './flow/Milestones.svelte';
   import Trophies from './flow/Trophies.svelte';
   import Week from './flow/Week.svelte';
+  import Bags from './flow/Bags.svelte';
   import MoreAktiv from '../lib/flow/kit/MoreAktiv.svelte';
   import { morePages } from '../lib/flow/morepages.js';
   import { weekGoals } from '../lib/flowweek.js';
@@ -193,6 +195,8 @@
   <Trophies {params} />
 {:else if route[0] === 'week'}
   <Week />
+{:else if route[0] === 'bags'}
+  <Bags {params} />
 {:else if route[0] === 'act' && route[2] === 'done'}
   {#key sub}<MedDone actId={decodeURIComponent(route[1] ?? '')} id={decodeURIComponent(route[3] ?? '')} {params} />{/key}
 {:else if route[0] === 'act' && route[2] === 'log'}

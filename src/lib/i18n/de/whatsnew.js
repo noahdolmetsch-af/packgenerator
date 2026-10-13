@@ -4,9 +4,11 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.130.0 Woche
-  'Your week at a glance': 'Deine Woche auf einen Blick',
-  'Aktiv has a week page: what you did, fixed dates and suggestions by your goals and the weather.': 'Aktiv hat eine Wochenseite: was du gemacht hast, feste Termine und Vorschläge nach deinen Zielen und dem Wetter.',
+  // 0.130.0 Woche + Sporttasche
+  'Your week, your bag': 'Deine Woche, deine Tasche',
+  'Aktiv has a week page with fixed dates and suggestions, and a short packing list for each sport.': 'Aktiv hat eine Wochenseite mit festen Terminen und Vorschlägen und eine kurze Packliste für jeden Sport.',
+  'Sport bag: a short list per sport, Heute reminds you the evening before': 'Sporttasche: eine kurze Liste pro Sport, Heute erinnert am Vorabend',
+  'Open «Sport bag», tick a thing, then «All in».': 'Öffne «Sporttasche», hake ein Teil ab, dann «Alles drin».',
   'Week: Monday to Sunday with suggestions, tap one to plan it': 'Woche: Montag bis Sonntag mit Vorschlägen, antippen = einplanen',
   'Fixed dates: enter once, they come back every week': 'Feste Termine: einmal eintragen, sie kommen jede Woche wieder',
   '«More in Active» on Aktiv › Heute leads to the week': '«Mehr in Aktiv» auf Aktiv › Heute führt zur Woche',
