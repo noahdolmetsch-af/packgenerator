@@ -43,6 +43,7 @@
   import StateNote from './StateNote.svelte';
   import ReopenSheet from './ReopenSheet.svelte';
   import { tz2 } from './reopen.svelte.js';
+  import KomootSign from '../komoot/KomootSign.svelte';
 
   // weighHint: false hides the "6 not weighed" badge (v0.30.1, Noah E4: not next to the green "Day ride created" card).
   // v0.47.1 (Noah a): edit (Plan only) turns date, duration, weather and bike into chips that change the value in place.
@@ -151,6 +152,8 @@
       {#if stats && stats.count}<span class="num"><ShoppingBag size={16} aria-hidden="true" /><b>{weight ? kg(weight) : '–'}</b>{#if stats.unweighed && weighHint}<i class="badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}</span>{/if}
       {#if wx}<span><CloudSun size={16} aria-hidden="true" />{wx}</span>{/if}
       {/if}
+      <!-- SN1d (Noah 13.10.2026): «In komoot öffnen», quiet, when the route came with a komoot link -->
+      {#if trip.route?.komoot}<span class="kmw"><KomootSign {trip} /></span>{/if}
       <span class="saved" class:on={saved} role="status">{#if shown}<Check size={14} aria-hidden="true" />{t('Saved')}{/if}</span>
     </p>
   </div>

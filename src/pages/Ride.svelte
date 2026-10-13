@@ -44,6 +44,9 @@
   import { tick } from 'svelte';
   import Woanders from '../lib/sk/Woanders.svelte'; // SK X11 + X16 (SKX4)
   import { windyUrl, bikeShopsUrl } from '../lib/sk/links.js';
+  import KomootRow from '../lib/komoot/KomootRow.svelte'; // SN1b «Tour aus komoot»
+  import { komootSport } from '../lib/komoot.js';
+  import { domainOf } from '../lib/domains.js';
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -674,8 +677,11 @@
             </ul>
           </details>
         {/if}
+        <!-- SN1b (answer 1a): «Tour aus komoot», a quiet last row; the location only when tapped -->
+        <div class="kmrow"><KomootRow sport={komootSport(domainOf(trip), bike?.type)} hint={false} /></div>
 
         </div>
+        <p class="kmhint"><MapPin size={16} aria-hidden="true" /><span>{t('The app asks for your location only when you tap. It goes only in the link to komoot and is not stored.')}</span></p>
       </section>
     </div>
   </div>
@@ -800,6 +806,10 @@
   .mlist { padding: 0; }
   .mlist .tp-fold { margin: 0; border: 0; border-radius: 0; box-shadow: none; background: none; }
   .mlist .tp-fold + .tp-fold { border-top: 1px solid var(--line); }
+  /* SN1b: «Tour aus komoot», the last row of «Mehr», and the line about the location under the card */
+  .kmrow { border-top: 1px solid var(--line); }
+  .kmhint { display: flex; gap: 8px; margin: 8px 0 0; color: var(--ink-3); font-size: var(--fs-small); line-height: 1.4; }
+  .kmhint :global(svg) { flex: none; margin-top: 2px; }
   .ib { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 8px; background: var(--paper-2); color: var(--ink-2); }
   .tw { display: flex; flex-direction: column; min-width: 0; overflow-wrap: break-word; }
   .tw small { color: var(--ink-2); font-size: var(--fs-small); font-weight: 400; }

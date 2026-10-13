@@ -37,6 +37,7 @@
   import { homeForecast } from '../lib/home-weather.js';
   import { HOME_PLACE } from '../lib/know.js';
   import { switchTrip, openNew, openTrip } from '../lib/nav.js';
+  import KomootSign from '../lib/komoot/KomootSign.svelte'; // SN1d (answer 3b)
   import { planAgain } from '../lib/trip/ending.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
@@ -283,6 +284,7 @@
                   <TripState state="plan" extra={extraOf(r)} />
                 </div>
                 <p class="ps">{r.kind === 'replan' ? `${day(r.date)} · ${t(r.state.label, r.state)}` : planLine(r)}</p>
+                <KomootSign trip={byId[r.tripId]} small />
                 {#if r.kind === 'replan'}
                   <button type="button" class="btn k rp" onclick={() => planAgain(byId[r.tripId])} aria-label="{t(r.go.label)}: {r.title}"><span class="kl">{t(r.go.label)}</span></button>
                 {:else if r.kind === 'trip' && ents.length}
@@ -474,6 +476,12 @@
   }
   .whole:focus-visible {
     outline: none;
+  }
+  /* SN1d: the komoot sign stays tappable above the whole-row link */
+  .pc :global(.kms) {
+    position: relative;
+    z-index: 1;
+    align-self: flex-start;
   }
   .whole:focus-visible::after {
     outline: var(--focus-ring);
