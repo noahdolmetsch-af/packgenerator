@@ -10,6 +10,13 @@ import { newButton } from './newbutton.js';
 import { P, SPARK, v038Start } from './v038-fixture.js';
 import { openRow } from './debrief-rows.js';
 
+// SN3+ «Bausteine je nach Lage» (answer «aufklappbar b»): only «Je nach Lage» is open on Bausteine; open the other groups
+const openGroups = async (page) => {
+  const shut = page.locator('main section.sfold > details:not([open]) > summary');
+  while (await shut.count()) await shut.first().click();
+};
+
+
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
@@ -122,6 +129,7 @@ test('Debrief of a trip: weather, amount and bags as segments', async ({ page, c
 test('Building blocks and What the app can do are rows; explanations behind "?"', async ({ page, context }, info) => {
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/blocks');
+  await openGroups(page);
   const help = page.getByRole('button', { name: new RegExp(`^${esc(T('Explain: {what}', { what: '' }))}`) }).first();
   await expect(help).toHaveAttribute('aria-expanded', 'false');
   await help.click();

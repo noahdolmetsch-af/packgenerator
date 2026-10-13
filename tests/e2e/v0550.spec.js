@@ -14,6 +14,13 @@ import { join } from 'node:path';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
 
+// SN3+ «Bausteine je nach Lage» (answer «aufklappbar b»): only «Je nach Lage» is open on Bausteine; open the other groups
+const openGroups = async (page) => {
+  const shut = page.locator('main section.sfold > details:not([open]) > summary');
+  while (await shut.count()) await shut.first().click();
+};
+
+
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
@@ -103,6 +110,7 @@ test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves
 
   // 2. The Bausteine page: the night blocks, «Auf der Fahrt», no Warm; the check is waiting.
   await page.goto('./#/blocks');
+  await openGroups(page);
   const main = page.locator('main');
   await expect(main.getByRole('heading', { name: T('On the ride') })).toBeVisible();
   for (const name of ['Biwak', 'Zelt', 'Hotel/Hütte', 'Reparatur', 'Laden', 'Licht']) await expect(main).toContainText(name);

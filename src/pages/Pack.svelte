@@ -29,6 +29,9 @@
   import PackBlocks from '../lib/pack/PackBlocks.svelte';
   import RepairSlim from '../lib/pack/RepairSlim.svelte';
   import { blockRows } from '../lib/packblocks.js';
+  import { rulesOf, COUNTRIES, ARRIVALS, HOME_COUNTRY } from '../lib/situation.js';
+  import { countryName } from '../lib/situationtext.js';
+  import OptionButton from '../lib/ui/OptionButton.svelte';
   import { needsSlim, repairItems, applySlim, undoSlim, REPAIR } from '../lib/repairslim.js';
   import NotPacked from '../lib/pack/NotPacked.svelte';
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
@@ -46,7 +49,7 @@
   import { withVisits, overdueFor } from '../lib/workshop.js';
   import { prepFor, isEvent } from '../lib/care.js';
   import { bikeCare, bikeCareLine, bikeCareWords, eventPrep, eventPrepLine, isShortRide } from '../lib/readiness.js';
-  import { Wrench, Package, ChevronRight, BatteryCharging, Undo2 } from '@lucide/svelte';
+  import { Wrench, Package, ChevronRight, BatteryCharging, Undo2, Mountain, Bike as BikeIc, TrainFront, Car } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
@@ -819,6 +822,7 @@
       <TripRoute {trip} onchange={changeContext} />
       <label class="hours"><span class="lbl">{stageCount(trip) > 1 ? t('Riding hours a day') : t('Riding hours')}</span><input class="inp num" type="text" inputmode="decimal" value={trip.hours ?? ''} onchange={(e) => typedHours(e.currentTarget.value)} placeholder={t('e.g. 6')} /></label>
       <p class="hint hrs">{t('Bottles and food come in amounts per hour (e.g. 1 bottle per 3 h).')}</p>
+      {@render lage()}
       <!-- Design answer 6a: the weather folds away once it is set. v0.27.0 (Noah 1a): decided once when
            the sheet opens (an action without update), so it does not fold shut while Min °C, Max °C and rain are typed. -->
       <details class="wxbox" use:openOnce={!wxSet}>
@@ -838,6 +842,27 @@
           </label>
         </div>
       </details>
+    {/snippet}
+
+    {#snippet lage()}
+      <!-- SN3+ «Bausteine je nach Lage» (answers 3b, 4b): a pass by hand, the country and how you get there.
+           Only facts of the trip; the blocks Pass, Ausland and Zug come as a suggestion in Packen, never by themselves. -->
+      <div class="lage" role="group" aria-labelledby="lage-h">
+        <span class="lbl" id="lage-h">{t('Pass, country and getting there')}</span>
+        <div class="lgrow">
+          <OptionButton pressed={trip.pass === true} icon={Mountain} label={t('Pass|trip')} explain={t('A pass on the route')} onclick={() => change((cur) => ({ pass: cur.pass !== true }))} />
+          <label class="lcountry"><span class="sub">{t('Country')}</span>
+            <select class="sel" value={COUNTRIES.includes(trip.country) ? trip.country : HOME_COUNTRY} onchange={(e) => { const v = e.currentTarget.value; change(() => ({ country: v === HOME_COUNTRY ? null : v })); }}>
+              {#each COUNTRIES as c (c)}<option value={c}>{countryName(c)}</option>{/each}
+            </select>
+          </label>
+        </div>
+        <div class="lgrow" role="group" aria-label={t('Getting there')}>
+          <span class="sub">{t('Getting there')}</span>
+          {#each ARRIVALS as a (a)}<OptionButton pressed={trip.arrival === a} icon={a === 'bike' ? BikeIc : a === 'train' ? TrainFront : Car} label={a === 'bike' ? t('Bike|arrival') : a === 'train' ? t('Train|arrival') : t('Car|arrival')} onclick={() => change((cur) => ({ arrival: cur.arrival === a ? null : a }))} />{/each}
+        </div>
+        <p class="hint">{t('Brings suggestions in Pack: Pass & climbing, Abroad, Train. Tap again to take it off.')}</p>
+      </div>
     {/snippet}
 
     {#snippet night()}
@@ -945,7 +970,7 @@
       </div>
     </div>
   {/if}{/snippet}
-  {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
+  {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} rules={rulesOf($setsQ?.value)} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   {#if packTab}
     <PackDay top={fixed ? null : blocksCard} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
@@ -1096,6 +1121,12 @@
   .wxin { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 12px; margin-top: 16px; }
   .hours { display: block; margin-top: 20px; }
   .hours input { max-width: 120px; }
+  /* SN3+: pass, country and getting there in the trip conditions */
+  .lage { display: grid; gap: 10px; margin-top: 20px; }
+  .lgrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .lgrow .sub { font-size: var(--fs-small); color: var(--ink-2); }
+  .lcountry { display: flex; align-items: center; gap: 8px; }
+  .lcountry .sel { max-width: 220px; }
   .hint { font-size: 14px; color: var(--ink-3); }
   .slots { list-style: none; padding: 0; }
   .slots li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 16px; align-items: center; padding: 8px 0; }
