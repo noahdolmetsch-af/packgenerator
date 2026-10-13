@@ -1,6 +1,6 @@
 // v0.51.0 «Im Flow – kleiner Start»: one tap ticks with Undo, a second tap takes it back, the long
 // press picks the place, the countdown runs on a fake clock to its end, an activity is edited, the
-// daily check answers four questions. The app seeds its own fictional activities; no personal data.
+// daily check answers four questions (v0.124.0: on its own page). The app seeds its own fictional activities; no personal data.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 
@@ -134,14 +134,14 @@ test('editing an activity: name, goal and window', async ({ page, context }) => 
   await expect(row.locator('.st')).toHaveText('0 / 4');
 });
 
-test('the daily check: four taps, then it closes and Today shows the numbers', async ({ page, context }) => {
+test('the daily check: four taps on its page, then Today shows the numbers', async ({ page, context }) => {
+  // v0.124.0 «Tages-Check» 1: the check is a page now (#/check/morning), «Fertig» goes back to Today
   await open(page, context, '#/');
   const card = page.locator('[data-section="flow"]');
-  await card.getByRole('button', { name: T('Start|check') }).click();
-  const dlg = page.locator('dialog.check[open]');
-  for (const [k, v] of [['sleep', 7], ['energy', 6], ['mood', 8], ['extra', 5]]) await dlg.locator(`#chk-${k} .sv`).nth(v - 1).click();
-  await page.clock.runFor(1000);
-  await expect(page.locator('dialog.check[open]')).toHaveCount(0);
+  await card.getByRole('link', { name: T('Start|check') }).click();
+  await expect(page).toHaveURL(/#\/check\/morning$/);
+  for (const [k, v] of [['sleep', 7], ['energy', 6], ['mood', 8], ['extra', 5]]) await page.locator(`[data-q="${k}"] .sv`).nth(v - 1).click();
+  await page.locator('[data-check-done]').click();
   await expect(card.locator('.nums')).toContainText('7');
   await expect(card.locator('.nums li')).toHaveCount(4);
 });

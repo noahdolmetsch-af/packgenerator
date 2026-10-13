@@ -4,14 +4,15 @@
    * rings (rolling 7 days), what is still open today as one-tap buttons (daily goals), the daily
    * check (Start, or the four numbers when done), «Im Flow ›» and a commute in one tap.
    * v0.94.0 «Kachel-Wand»: a tap on Meditation opens its start sheet here too, as on Aktiv (Q5 a).
+   * v0.124.0 «Tages-Check» 1: the check row opens the morning check page; from 20:30 the evening review.
    */
-  import { ChevronRight, Sun, Bike, Check } from '@lucide/svelte';
+  import { ChevronRight, Sun, Moon, Bike, Check } from '@lucide/svelte';
   import Rings from '../flow/Rings.svelte';
   import TickGrid from '../flow/TickGrid.svelte';
   import { flowQuery, seedIfNeeded } from '../flow/data.svelte.js';
   import { flowStates, rings as ringsOf } from '../flow.js';
-  import { checkOf, complete, rotating, FIXED } from '../flowcheck.js';
-  import { ui, tickWith, actName, qText } from '../flow/ui.svelte.js';
+  import { checkOf, complete, rotating, FIXED, isEvening, eveningDone } from '../flowcheck.js';
+  import { tickWith, actName, qText } from '../flow/ui.svelte.js';
   import { phone } from '../media.svelte.js';
   import MedStartSheet from '../flow/MedStartSheet.svelte';
   import { t } from '../i18n.svelte.js';
@@ -29,6 +30,12 @@
   const commuter = $derived(states.find((s) => !s.resting && s.act.counts.includes('commute')) ?? null);
   const check = $derived(checkOf(data?.checks.find((c) => c.day === today), today));
   const rot = $derived(data ? rotating(data.pool, today) : null);
+  // v0.124.0 «Tages-Check» 1: from 20:30 local time the check row offers the evening review
+  let evening = $state(isEvening());
+  $effect(() => {
+    const id = setInterval(() => (evening = isEvening()), 60_000);
+    return () => clearInterval(id);
+  });
   let medFor = $state(null);
   const medSt = $derived(medFor ? (states.find((s) => s.act.id === medFor) ?? null) : null);
 </script>
@@ -46,19 +53,27 @@
           <p class="kick">{t('Still today')}</p>
           <TickGrid states={openToday} {today} cols={2} onmed={(s) => (medFor = s.act.id)} />
         {/if}
-        {#if complete(check)}
-          <div class="crow done">
+        {#if evening}
+          <!-- v0.124.0 «Tages-Check» 1: from 20:30 the entry offers the evening review (page T2) -->
+          <div class="crow" class:done={eveningDone(check)} data-check-entry="evening">
+            <Moon size={20} aria-hidden="true" />
+            <span class="ct"><b>{t('Evening review')}</b><small>{eveningDone(check) ? t('Satisfaction {n} of 10', { n: check.sat }) : t('How was your day? · about 30 seconds')}</small></span>
+            <a class="btn start" href="#/check/evening">{eveningDone(check) ? t('Change') : t('Start|check')}</a>
+          </div>
+        {:else if complete(check)}
+          <div class="crow done" data-check-entry="morning">
             <Sun size={20} aria-hidden="true" />
             <ul class="nums">
               {#each FIXED as f (f.key)}<li><b class="num">{check[f.key]}</b><small>{t(f.short)}</small></li>{/each}
               <li><b class="num">{check.extra}</b><small>{qText(data.pool.find((x) => x.id === check.q) ?? rot?.q, 'short') || t('4th')}</small></li>
             </ul>
+            <a class="btn start" href="#/check/morning" aria-label={t('Change the morning check')}>{t('Change')}</a>
           </div>
         {:else}
-          <div class="crow">
+          <div class="crow" data-check-entry="morning">
             <Sun size={20} aria-hidden="true" />
-            <span class="ct"><b>{t('Daily check')}</b><small>{t('4 questions · one tap per question')}</small></span>
-            <button type="button" class="btn start" onclick={() => (ui.checkOpen = true)}>{t('Start|check')}</button>
+            <span class="ct"><b>{t('Morning check')}</b><small>{t('a few questions · one tap each')}</small></span>
+            <a class="btn start" href="#/check/morning">{t('Start|check')}</a>
           </div>
         {/if}
       </div>

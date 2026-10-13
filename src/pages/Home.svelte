@@ -88,7 +88,7 @@
   import SeriesTile from '../lib/home/SeriesTile.svelte';
   import NewsTile from '../lib/home/NewsTile.svelte';
   import MedTile from '../lib/home/MedTile.svelte';
-  import { ui as flowUi } from '../lib/flow/ui.svelte.js';
+  import { checkHref } from '../lib/flowcheck.js';
   import TryCard from '../lib/home/TryCard.svelte';
   import BikeCards from '../lib/home/BikeCards.svelte';
   import YearRow from '../lib/home/YearRow.svelte';
@@ -932,7 +932,7 @@
   {:else if x.id === 'try'}<TryCard list={tryList} used={used.size} total={FUNCTIONS.length} level={levelOf(used.size)} />
   {:else if x.id === 'bikes'}{#if ready}<div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>{/if}
   {:else if x.id === 'year'}<div data-section="year"><YearRow {today} /></div>
-  {:else if x.id === 'check'}<SmallTile tile={TILE.check} size={x.size} onclick={() => (flowUi.checkOpen = true)} />
+  {:else if x.id === 'check'}<SmallTile tile={TILE.check} size={x.size} href={checkHref(now)} />
   {:else if x.id === 'milestones'}<SmallTile tile={TILE.milestones} size={x.size} href="#/flow/milestones" />
   {:else if x.id === 'helper'}<SmallTile tile={TILE.helper} size={x.size} href="#/helper" />
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />

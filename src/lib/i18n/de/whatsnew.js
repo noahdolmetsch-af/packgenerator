@@ -4,6 +4,16 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.124.0 Tages-Check 1
+  'Good morning, how was your day?': 'Guten Morgen, wie war dein Tag?',
+  'The daily check is now a calm page: a morning check and, from 20:30, a short evening review. Every question can be skipped.': 'Der Tagescheck ist jetzt eine ruhige Seite: ein Morgen-Check und ab 20:30 ein kurzer Abend-Rückblick. Jede Frage darfst du auslassen.',
+  'Morning check: sleep, energy, mood, what you look forward to, your goal for today, with a suggestion for the day': 'Morgen-Check: Schlaf, Energie, Stimmung, worauf du dich freust, dein Ziel für heute, mit einem Vorschlag für den Tag',
+  'Evening review: satisfaction, the best part of the day, time outside filled in from your ride, meditation counts by itself': 'Abend-Rückblick: Zufriedenheit, das Coolste des Tages, Zeit draussen schon ausgefüllt aus deiner Fahrt, Meditation zählt von selbst',
+  'At the side: the day in numbers, morning → evening and your week': 'Daneben: der Tag in Zahlen, Morgen → Abend und deine Woche',
+  '«Speak» for a few words, where the browser can': '«Sprechen» für ein paar Worte, wo der Browser es kann',
+  'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».': 'Auf Heute in der Check-Zeile «Starten» tippen: Der Morgen-Check öffnet sich. Ein paar Fragen beantworten, «Fertig» tippen.',
+  'After 20:30 the row offers the evening review; or open it directly. Ride or meditate before: the answers are filled in.': 'Nach 20:30 bietet die Zeile den Abend-Rückblick an. Vorher fahren oder meditieren: Die Antworten sind schon ausgefüllt.',
+
   // 0.123.0 Trophäen-Vitrine
   'All your stars in one showcase': 'Alle deine Sterne in einer Vitrine',
   'Every star you reached, by area and year, on one page. Reached ones stay.': 'Jeder Stern, den du erreicht hast, nach Bereich und Jahr auf einer Seite. Erreichte bleiben.',

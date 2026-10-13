@@ -22,9 +22,9 @@
   import { db } from '../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { flowStates, rings as ringsOf, summary, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow } from '../lib/flow.js';
-  import { averages, checkOf, complete, rotating, FIXED } from '../lib/flowcheck.js';
+  import { averages, checkOf, complete, rotating, FIXED, checkHref, isEvening } from '../lib/flowcheck.js';
   import { saveOrder } from '../lib/flowdb.js';
-  import { ui, openTimer, actName, goalName, qText } from '../lib/flow/ui.svelte.js';
+  import { openTimer, actName, goalName, qText } from '../lib/flow/ui.svelte.js';
   import { actGoalText, goalsText, dayShort } from '../lib/flow/words.js';
   import Rings from '../lib/flow/Rings.svelte';
   import TickGrid from '../lib/flow/TickGrid.svelte';
@@ -311,12 +311,12 @@
   {#if complete(check)}
     <div class="crow done">
       <span class="ct"><b>{t('Daily check done')}</b><small>{FIXED.map((f) => `${t(f.short)} ${check[f.key]}`).join(' · ')} · {qText(data.pool.find((x) => x.id === check.q) ?? rot?.q, 'short') || t('4th')} {check.extra}</small></span>
-      <button type="button" class="btn" onclick={() => (ui.checkOpen = true)}>{t('Change')}</button>
+      <a class="btn" href={checkHref()}>{isEvening() ? t('Evening review') : t('Change')}</a>
     </div>
   {:else}
     <div class="crow">
       <span class="ct"><b>{t('Still open today')}</b>{#if rot}<small>{t('today also: «{q}»', { q: qText(rot.q) })}</small>{/if}</span>
-      <button type="button" class="btn hi" onclick={() => (ui.checkOpen = true)}>{t('Start|check')}</button>
+      <a class="btn hi" href={checkHref()}>{t('Start|check')}</a>
     </div>
   {/if}
   {#if FIXED.some((f) => avg[f.key].mean != null)}<p class="avg num">{t('⌀ 7 days')}: {FIXED.map((f) => `${t(f.short)} ${n1(avg[f.key].mean)}`).join(' · ')}</p>{/if}

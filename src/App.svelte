@@ -20,6 +20,7 @@
   import Rides from './pages/Rides.svelte';
   import Wardrobe from './pages/Wardrobe.svelte';
   import Flow from './pages/Flow.svelte';
+  import Check from './pages/Check.svelte';
   import Between from './pages/Between.svelte';
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
@@ -47,6 +48,7 @@
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
+  import { checkPart } from './lib/flowcheck.js';
   import { pageOf, placeOf, redirectOf, tabOf, keepTab } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import { t, lang } from './lib/i18n.svelte.js';
@@ -246,7 +248,7 @@
 <div class="col">
 <DemoBar />
 
-<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow'} class:bar={!wide.matches}>
+<main class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'blocks' || page === 'blockcheck' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'check'} class:bar={!wide.matches}>
   {#if !calm && page !== 'share'}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   {#key switchN}
   {#if page === 'gear'}
@@ -293,6 +295,9 @@
   {:else if page === 'flow'}
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <Flow sub={hash.split('/').slice(2).join('/')} />
+  {:else if page === 'check'}
+    <!-- v0.124.0 «Tages-Check» 1: #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
+    {#key hash}<Check part={checkPart(hash)} />{/key}
   {:else if page === 'me'}
     <!-- v0.76.0 «Fünf Orte» 1: «Ich», top right -->
     <Me />

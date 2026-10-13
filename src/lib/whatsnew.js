@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.124.0 «Tages-Check» 1 (mockups T1–T2, Noah 13.10.2026 «ich gebe hiermit alle mockups frei»)
+    version: '0.124.0',
+    date: '2026-10-13',
+    title: 'Good morning, how was your day?',
+    lead: 'The daily check is now a calm page: a morning check and, from 20:30, a short evening review. Every question can be skipped.',
+    points: [
+      { text: 'Morning check: sleep, energy, mood, what you look forward to, your goal for today, with a suggestion for the day', href: '#/check/morning' },
+      { text: 'Evening review: satisfaction, the best part of the day, time outside filled in from your ride, meditation counts by itself', href: '#/check/evening' },
+      { text: 'At the side: the day in numbers, morning → evening and your week', href: '#/check/evening' },
+    ],
+    small: [{ box: 'new', text: '«Speak» for a few words, where the browser can', href: '#/check/evening' }],
+    test: [
+      'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».',
+      'After 20:30 the row offers the evening review; or open it directly. Ride or meditate before: the answers are filled in.',
+    ],
+  },
+  {
     // v0.123.0 «Trophäen-Vitrine» (mockups TV1–TV2, Noah 13.10.2026 «tv1-tv2 freigeben»)
     version: '0.123.0',
     date: '2026-10-13',
