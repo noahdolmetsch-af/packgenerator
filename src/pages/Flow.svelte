@@ -7,6 +7,9 @@
    *   #/flow/edit/<id>   edit one activity; #/flow/new a new one (the same form, empty)
    *   #/flow/activity    hobby pages 1: Aktiv › Aktivität (pages/flow/Activity.svelte)
    *   #/flow/milestones  hobby pages 1: all milestones (pages/flow/Milestones.svelte), ?act=, ?tune=1
+   *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
+   *   #/flow/rest        «Erholung» (mockup AK2): the recovery ring, a pause hint, ticks (pages/flow/Rest.svelte)
+   *   #/flow/bags        «Sporttasche» (mockup AK3): a packing list per sport (pages/flow/Bags.svelte)
    *   #/flow/trophies    v0.123.0 the trophy showcase, all stars by area and year (pages/flow/Trophies.svelte)
    *   #/flow/act/<id>    hobby pages 2: an activity's own page (Meditation.svelte, B1); …/timer the
    *                      intervals (MedTimer.svelte, B2); the running session is in FlowLayer (B7)
@@ -45,6 +48,12 @@
   import Activity from './flow/Activity.svelte';
   import Milestones from './flow/Milestones.svelte';
   import Trophies from './flow/Trophies.svelte';
+  import Week from './flow/Week.svelte';
+  import Bags from './flow/Bags.svelte';
+  import Rest from './flow/Rest.svelte';
+  import MoreAktiv from '../lib/flow/kit/MoreAktiv.svelte';
+  import { morePages } from '../lib/flow/morepages.js';
+  import { weekGoals } from '../lib/flowweek.js';
   import Meditation from './flow/Meditation.svelte';
   import MedTimer from './flow/MedTimer.svelte';
   import MedDone from './flow/MedDone.svelte';
@@ -113,6 +122,8 @@
   const sparkLine = $derived(pts.map(([x, y]) => `${x},${y}`).join(' '));
   const sparkArea = $derived(pts.length ? `M0,60 ${pts.map(([x, y]) => `L${x},${y}`).join(' ')} L${pts.at(-1)[0]},60 Z` : '');
   let seasonOpen = $state(false);
+  // v0.130.0 «Mehr in Aktiv» (mockups AK1–AK3, Noah «1a»): the cards of Aktiv's own pages
+  const pages = $derived(morePages({ openGoals: weekGoals(states).filter((g) => !g.met).length }));
   const medAct = $derived(live.find((s) => isMedAct(s.act))?.act ?? (data?.acts ?? []).find((a) => isMedAct(a) && !a.paused) ?? null);
   const moreRows = $derived([
     { key: 'goals', icon: Pulse, title: t('Goals × days'), sub: rings.move.of ? t('{n} of {m} movement goals on track', { n: rings.move.n, m: rings.move.of }) : '', href: '#/flow/goals' },
@@ -184,6 +195,12 @@
   <Milestones {params} />
 {:else if route[0] === 'trophies'}
   <Trophies {params} />
+{:else if route[0] === 'week'}
+  <Week />
+{:else if route[0] === 'bags'}
+  <Bags {params} />
+{:else if route[0] === 'rest'}
+  <Rest />
 {:else if route[0] === 'act' && route[2] === 'done'}
   {#key sub}<MedDone actId={decodeURIComponent(route[1] ?? '')} id={decodeURIComponent(route[3] ?? '')} {params} />{/key}
 {:else if route[0] === 'act' && route[2] === 'log'}
@@ -261,6 +278,7 @@
     {#if data && !states.length}
       <Empty icon={Plus} text={t('No activities yet. Add the first one: name, goal, done.')} action={{ label: t('New activity'), href: '#/flow/new' }} />
     {:else if data}
+      <MoreAktiv items={pages} />
       <div class="lay">
         <div class="col">
           <Sec id="tick-h" title={t('Tick off today')} sub={phone.matches ? t('One tap ticks · long press: duration, place or stopwatch') : t('One click ticks · right click: duration, place or stopwatch')}>

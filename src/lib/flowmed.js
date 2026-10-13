@@ -450,13 +450,20 @@ export function nextUp({ log = [], tpls = [], session, today }) {
 const icsText = (s) => String(s ?? '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
 const icsLocal = (day, hm) => `${day.replace(/-/g, '')}T${hm.replace(':', '')}00`;
 /**
- * One event as a calendar file (.ics) in Zurich time, with the time zone's rules so every calendar
- * reads it the same. { uid, title, note?, day, time 'HH:MM', minutes, now (ms) } → the text (CRLF).
+ * Events as one calendar file (.ics) in Zurich time, with the time zone's rules so every calendar reads
+ * it the same. An event: { uid, title, note?, day, time? 'HH:MM', minutes?, rrule? } (no time: all day;
+ * rrule e.g. 'FREQ=WEEKLY;BYDAY=TH', v0.130.0 «Woche»). → the text (CRLF).
  */
-export function icsEvent({ uid, title, note = '', day, time, minutes, now = Date.now() }) {
-  const start = Date.parse(`${day}T${time}:00Z`);
-  const end = new Date(start + Math.max(1, Math.round(minutes)) * 60000).toISOString();
+export function icsCalendar(events = [], now = Date.now()) {
   const stamp = new Date(now).toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const ev = ({ uid, title, note = '', day, time, minutes = 60, rrule }) => {
+    let when;
+    if (time) {
+      const end = new Date(Date.parse(`${day}T${time}:00Z`) + Math.max(1, Math.round(minutes)) * 60000).toISOString();
+      when = [`DTSTART;TZID=Europe/Zurich:${icsLocal(day, time)}`, `DTEND;TZID=Europe/Zurich:${icsLocal(end.slice(0, 10), end.slice(11, 16))}`];
+    } else when = [`DTSTART;VALUE=DATE:${day.replace(/-/g, '')}`, `DTEND;VALUE=DATE:${new Date(Date.parse(`${day}T00:00:00Z`) + 864e5).toISOString().slice(0, 10).replace(/-/g, '')}`];
+    return ['BEGIN:VEVENT', `UID:${icsText(uid)}@packgenerator`, `DTSTAMP:${stamp}`, ...when, ...(rrule ? [`RRULE:${rrule}`] : []), `SUMMARY:${icsText(title)}`, ...(note ? [`DESCRIPTION:${icsText(note)}`] : []), 'END:VEVENT'];
+  };
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -480,18 +487,13 @@ export function icsEvent({ uid, title, note = '', day, time, minutes, now = Date
     'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',
     'END:STANDARD',
     'END:VTIMEZONE',
-    'BEGIN:VEVENT',
-    `UID:${icsText(uid)}@packgenerator`,
-    `DTSTAMP:${stamp}`,
-    `DTSTART;TZID=Europe/Zurich:${icsLocal(day, time)}`,
-    `DTEND;TZID=Europe/Zurich:${icsLocal(end.slice(0, 10), end.slice(11, 16))}`,
-    `SUMMARY:${icsText(title)}`,
-    ...(note ? [`DESCRIPTION:${icsText(note)}`] : []),
-    'END:VEVENT',
+    ...events.flatMap(ev),
     'END:VCALENDAR',
   ];
   return `${lines.join('\r\n')}\r\n`;
 }
+/** One event as a calendar file: { uid, title, note?, day, time 'HH:MM', minutes, now (ms) } → the text. */
+export const icsEvent = ({ now = Date.now(), ...e }) => icsCalendar([e], now);
 
 /* ---------- the log (B4): rows, filters ---------- */
 /** Time of day (by the hour in Zurich). */

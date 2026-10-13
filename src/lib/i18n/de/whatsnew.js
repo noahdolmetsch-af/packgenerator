@@ -19,6 +19,19 @@ export default {
   'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».': 'Auf Heute in der Check-Zeile «Starten» tippen: Der Morgen-Check öffnet sich. Ein paar Fragen beantworten, «Fertig» tippen.',
   'After 20:30 the row offers the evening review; or open it directly. Ride or meditate before: the answers are filled in.': 'Nach 20:30 bietet die Zeile den Abend-Rückblick an. Vorher fahren oder meditieren: Die Antworten sind schon ausgefüllt.',
 
+  // 0.130.0 Woche + Sporttasche
+  'Your week, your bag': 'Deine Woche, deine Tasche',
+  'Aktiv has a week page with fixed dates and suggestions, a page for recovery and a short packing list for each sport.': 'Aktiv hat eine Wochenseite mit festen Terminen und Vorschlägen, eine Seite für die Erholung und eine kurze Packliste für jeden Sport.',
+  'Recovery: the ring of the week, a pause hint after 3 active days': 'Erholung: der Ring der Woche, ein Pausen-Tipp nach 3 aktiven Tagen',
+  'Open «Recovery» and tick the sauna.': 'Öffne «Erholung» und hake die Sauna ab.',
+  'Sport bag: a short list per sport, Heute reminds you the evening before': 'Sporttasche: eine kurze Liste pro Sport, Heute erinnert am Vorabend',
+  'Open «Sport bag», tick a thing, then «All in».': 'Öffne «Sporttasche», hake ein Teil ab, dann «Alles drin».',
+  'Week: Monday to Sunday with suggestions, tap one to plan it': 'Woche: Montag bis Sonntag mit Vorschlägen, antippen = einplanen',
+  'Fixed dates: enter once, they come back every week': 'Feste Termine: einmal eintragen, sie kommen jede Woche wieder',
+  '«More in Active» on Aktiv › Heute leads to the week': '«Mehr in Aktiv» auf Aktiv › Heute führt zur Woche',
+  'Fixed and planned dates into your calendar (.ics)': 'Feste und eingeplante Termine in deinen Kalender (.ics)',
+  'Open Aktiv › Heute and tap the card «Week».': 'Öffne Aktiv › Heute und tippe auf die Karte «Woche».',
+  'Add a fixed date, then tap a suggestion: it is planned.': 'Trag einen festen Termin ein und tippe dann einen Vorschlag an: er ist eingeplant.',
   // 0.123.0 Trophäen-Vitrine
   'All your stars in one showcase': 'Alle deine Sterne in einer Vitrine',
   'Every star you reached, by area and year, on one page. Reached ones stay.': 'Jeder Stern, den du erreicht hast, nach Bereich und Jahr auf einer Seite. Erreichte bleiben.',
