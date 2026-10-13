@@ -862,6 +862,52 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 13.10.2026: Was ist neu 2 und KI-Helfer ausblenden (0.118.0)
+
+**Mockup-Freigabe:** W1–W3 Noah 13.10.2026 00:02 Zürich «w1-w3 freigeben», Antworten «1a 2a 3a 4a 5a» (12.10.2026 20:58). K1–K4 Noah 12.10.2026 21:50 «k1-k4 ok» (Antwort a ★), Q4 1a: zusammen mit Was ist neu ausliefern.
+
+- **1a Ton:** locker mit Augenzwinkern, höchstens ein Emoji pro Version.
+- **2a Kleinkram:** in den Kästchen Neu, Schöner, Repariert, Schneller.
+- **3a «Looos»:** nur im Fenster nach einem Update.
+- **4a Liste:** alle Versionen offen, nach Monat gruppiert.
+- **5a Reihenfolge:** nach #131.
+- **Noahs Wunsch:** im Fenster ist jede Neuigkeit offen, jede Zeile antippbar (›), kein «n weitere». Alle Versionstexte einmal neu, Englisch und Deutsch; Versionen, Daten, Adressen und Testschritte bleiben.
+- **KI-Helfer (a ★):** von Anfang an ganz aus; ein Schalter unter Ich › KI-Helfer «KI-Helfer in der App zeigen» schaltet alle Stellen auf einmal ein. Schlüssel und Einstellungen bleiben gespeichert.
+- **Selbst entschieden:**
+  - W2: «Alle Funktionen» ist eine Zeile; die Funktionsliste steht unverändert unter `#/me/news?all`. Die Seitenteile «Nie ausprobiert», «So testest du» und «Geplant» bleiben.
+  - Schalter «Meldung nach Updates zeigen»: neue Beschriftung, die Erklärung darunter bleibt.
+  - Alle bisherigen Versionen sind im Oktober 2026, darum gibt es heute eine einzige Monatsgruppe.
+  - Das Bild einer Zeile kommt aus ihrer Adresse (`iconOf`), keine Liste pro Punkt.
+  - Kein neuer Eintrag im Funktionskatalog (`SINCE`); «Was ist neu» und der Helfer sind schon dort.
+  - K4 «So steht es unter Ich»: als Zeile auf Ich umgesetzt («aus · einschalten unter Ich › KI-Helfer», «an · nicht eingerichtet», «pausiert bis nächsten Monat», «an»), nicht als Vorschau auf der Seite.
+  - Neue Tour: der Text der Stelle beschreibt, was die App heute tut (eine Frage aus der Suche).
+  - Den Schlüssel speichern schaltet den Helfer nicht ein; der Schalter allein entscheidet. Das alte Feld `on` wird nicht mehr gelesen, bleibt aber gespeichert.
+  - Die Heute-Kachel «KI-Helfer» ist versteckt, solange der Helfer aus ist (auch im Kachel-Katalog), und bleibt an ihrem Platz in der Wand gespeichert.
+  - Menüeintrag heisst jetzt «KI-Helfer» (vorher «Helfer»).
+  - Titel 0.118.0 «Was neu ist, neu erzählt», damit die Heute-Kachel am Handy nicht mitten im Wort umbricht.
+  - Kein Ausblenden am Rand der Scrollfläche im Fenster.
+
+## 12.10.2026: Knöpfe neu (0.117.0)
+
+Mockups N1–N4 (`design/knoepfe-neu/`, Noahs Wunsch 12.10.2026 22:31: Knöpfe erklären ihre Aktion, lange Texte verschieben nichts, Knöpfe rechtsbündig). **Freigabe Noah 12.10.2026 22:47 «n1-n4 freigeben»**, Antworten **«1a 2a 3a 4a 5b»**:
+
+- **1a Lage:** Handy: die Knöpfe einer Zeile stehen unter dem Text, der Hauptknopf so breit wie die Karte, «…» (44 px) daneben. Computer: rechtsbündig, alle Zeilen enden am selben Rand, Hauptknopf mindestens 128 px.
+- **2a Erklärung:** Computer: Blase beim Darüberfahren und bei Tastatur-Fokus (Titel und Kontextzeile). Handy: langes Drücken (~450 ms) zeigt dieselbe Blase, der Knopf löst dabei nicht aus. Nach einem Tipp, der Daten ändert, eine kurze Bestätigung mit «Rückgängig», wo die App ein Rückgängig hat.
+- **3a Mehr:** ein Hauptknopf pro Zeile, alles andere hinter «…»; jeder Eintrag mit Titel und einer Erklärzeile; am Handy als Blatt von unten.
+- **4a Text:** Knopftext höchstens 2 Wörter, bricht nie um; der lange Teil steht in der Erklärung.
+- **5b Umfang:** alle Seiten auf einmal, als eigenes Paket.
+- **N3-Regeln:** drei Arten (Haupt grün, höchstens einer pro Zeile oder Ansicht; Normal weiss mit feinem Rand; Leise unterstrichen), eine Höhe 44 px, «…» für den Rest, Nur-Symbol-Knöpfe immer mit Erklärung.
+- **Selbst entschieden:**
+  - Ein Listener für die ganze App (`ui/explain.js`, in `main.js` gestartet) statt Code pro Seite: Knöpfe mit `data-explain` (und `data-explain-sub`) zeigen ihre Erklärung, Knöpfe nur mit Symbol ihren Namen (aria-label). Ein Knopf mit eigenem `title` behält am Computer den Tooltip des Browsers; am Handy zeigt langes Drücken diesen Titel. Die Blase steht am Handy 4 s und verschwindet beim nächsten Tippen.
+  - Gemeinsame Bausteine mit klarer Schnittstelle für andere Pakete (z. B. «Neue Tour überarbeiten»): `ui/Btn.svelte` (kind hi/normal/quiet, icon, label, explain, sub, href), `ui/MoreActions.svelte` (title, label, actions mit name, explain, icon, run, current), `.rowacts` in `app.css`. Neue Klassennamen `.xtip`, `.btn.dots`, `.rowacts`, weil `.xb` und `.more` in Seiten schon vorkommen.
+  - Im «…» steht die Hauptaktion der Zeile als erster, hinterlegter Eintrag (wie N2). Die Einträge «Für den Velomech» und «Nicht mehr nötig» aus N2 fehlen in «Jetzt fällig»: die App kann eine fällige Wartung heute weder auf den Auftrag setzen noch wegnehmen, und neue Funktionen gehören nicht in dieses Paket. Neu im «…» ist «Velo öffnen» (die Seite gab es schon).
+  - «Jetzt fällig» zeigt weiter höchstens 3 Zeilen (N1 zeigte 5); keine Änderung am Verhalten.
+  - «Erledigt» und «Alle ok» in der Velopflege nutzen das bestehende Rückgängig eines gespeicherten Teil-Ablaufs (die Teile wie vorher). Der Text der Bestätigung bleibt «Gespeichert: …» (statt «… als erledigt markiert»), Aussehen wie N2: dunkle Leiste, Häkchen, unterstrichenes «Rückgängig».
+  - Das alte •••-Menü (`care/MoreMenu.svelte`) nutzt jetzt `ui/MoreActions` (gleiche Schnittstelle). Es schliesst bei einer Wahl, mit Escape, wenn der Fokus es verlässt (ein Klick daneben), am Handy auch beim Tipp auf den dunklen Hintergrund und mit der Zurück-Taste. Beim Zusammenführen mit dem Menü-Fix (0.115.0) bleibt `MoreMenu.svelte` die Hülle um `ui/MoreActions`.
+  - Velopflege-Texte nach N4: «Erfassen …» → «Eintragen …», «Werkstattauftrag senden» → «Senden», «Abhol-Check» → «Abholen», «Check ansehen» → «Ansehen», «Alles geprüft, OK» → «Alle ok», «Auf die Wunschliste» → «Wunschliste»; «Als Aufgabe merken» → «Merken» (bei den Helfer-Karten im «…», Hauptknopf dort «Erledigt»). In der Übersicht ist «Erledigt» jetzt grün (N1); der Test v048 folgt.
+  - 50 Knöpfe auf 25 Seiten und Fenstern (Material, Packen, Touren, Vorlagen, Velo-Blätter, Eingang, Heute, Kleiderschrank, Import, Meditation …) haben höchstens 2 Wörter; ihr bisheriger langer Text ist die Erklärung. Bewusst länger bleiben: Knöpfe mit Daten im Text (Tourname, Suchwort, °C, CHF, Minuten, Kit-Bereich), «Alle Daten ersetzen» (eine Bestätigung, die nicht rückgängig geht, nennt, was sie tut), die zwei Antworten im Teil-Fenster («Ersetzen oder Arbeit nötig», «Ersetzt oder erledigt»), «Sortieren und filtern», «Was ist neu» (Name einer Seite) und «So testest du es» (frisch freigegebenes Mockup). `TripDialog.svelte` ist nicht angefasst («Neue Tour überarbeiten»).
+  - Neue Funktion «Knöpfe erklären sich» im Katalog von Was ist neu, seit 0.117.0.
+  - Version 0.117.0: main ist 0.116.0 (0.114.0 «Rahmenbedingungen», 0.115.0 «Menü-Fix», 0.116.0 «Strava-Verbindung»). Nach dem Menü-Fix nutzt auch `ui/MoreActions` (und damit das alte •••-Menü der Velopflege) `ui/away.js`: ein Tipp daneben schliesst die Liste am Computer.
 ## 12.10.2026: Menü-Fix (0.115.0)
 
 Noah 12.10.2026 22:22: «erst bei zweitem Klick geht Menü wieder weg», dringend. Vorher/Nachher freigegeben 23:02 «menü fix freigeben».

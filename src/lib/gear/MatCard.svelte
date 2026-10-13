@@ -50,7 +50,7 @@
   <span class="fstar"><FavStar {item} describedby="mc-{item.id}" /></span>
   {#if view === 'never' && onhome}
     <div class="acts">
-      {#if leaveHome(item)}<span class="home">{t('Stays at home')}</span>{:else}<button type="button" class="btn sm" onclick={() => onhome(item)}>{t('Leave at home')}</button>{/if}
+      {#if leaveHome(item)}<span class="home">{t('Stays at home')}</span>{:else}<button type="button" class="btn sm" onclick={() => onhome(item)} data-explain={t('Leave at home')}>{t('Leave home|short')}</button>{/if}
     </div>
   {/if}
 </article>

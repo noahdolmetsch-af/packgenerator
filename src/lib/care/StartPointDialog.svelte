@@ -85,7 +85,7 @@
   {#if err}<p class="err" role="alert">{err}</p>{/if}
   <div class="fb vd-foot">
     <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
-    {#if nextKey}<button type="button" class="btn" onclick={() => save(false)}>{t('Save')}</button><button type="button" class="btn hi" onclick={() => save(true)}>{t('Save and next')}</button>
+    {#if nextKey}<button type="button" class="btn" onclick={() => save(false)}>{t('Save')}</button><button type="button" class="btn hi" onclick={() => save(true)} data-explain={t('Save and next')}>{t('Next|save')}</button>
     {:else}<button type="button" class="btn hi" onclick={() => save(false)}>{t('Save')}</button>{/if}
   </div>
 </dialog>

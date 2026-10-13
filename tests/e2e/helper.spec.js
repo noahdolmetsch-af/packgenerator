@@ -115,14 +115,20 @@ async function start(page, context, info) {
   return errors;
 }
 
-/** Settings › Helfer: type the code and save (on by itself). */
+/** Ich › KI-Helfer: type the code and save, then the one switch «Show the AI helper in the app».
+ *  v0.118.0 «KI-Helfer ausblenden» (changed on purpose, Noah answer a ★): saving the code no longer
+ *  switches it on; the helper is off until the switch is on. */
 async function setUp(page) {
   await page.goto('./#/helper');
-  await expect(page.getByRole('heading', { level: 1, name: T('Helper') })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: T('AI helper') })).toBeVisible();
   await page.getByLabel(T('Helper code')).fill(CODE);
   await page.getByRole('button', { name: T('Save'), exact: true }).first().click();
   await expect(page.getByText(T('Saved on this device.'), { exact: true })).toBeVisible();
-  await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'helper')?.value).toMatchObject({ code: CODE, on: true });
+  await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'helper')?.value).toMatchObject({ code: CODE });
+  const sw = page.getByRole('switch', { name: new RegExp(T('Show the AI helper in the app')) });
+  await expect(sw).not.toBeChecked();
+  await sw.check();
+  await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'helper')?.value).toMatchObject({ code: CODE, show: true });
 }
 
 /** v0.76.0 «Fünf Orte»: New trip opens from Touren, as a person does. v0.102.0 Design-Refresh P4 (T1):
@@ -154,7 +160,7 @@ test('8a: before the setup, a calm notice only in the settings (v0.114.0: no lon
   await dlg.getByRole('button', { name: T('Cancel') }).click();
   await expect(dlg).toBeHidden();
   await page.goto('./#/helper');
-  await expect(page.getByRole('heading', { level: 1, name: T('Helper') })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: T('AI helper') })).toBeVisible();
   await expect(page.getByText(T('The helper is not set up yet'))).toBeVisible();
   await page.getByText(T('What goes to Claude?')).first().click();
   await expect(page.getByText(T('Only your question and the names it needs from the list and your gear, plus your notes. Never photos, receipts or health data.')).first()).toBeVisible();
@@ -162,8 +168,9 @@ test('8a: before the setup, a calm notice only in the settings (v0.114.0: no lon
   await expect(page.getByLabel(T('Helper code'))).toBeFocused();
   // K1a: Ich › Helfer, its own row with the state
   await page.goto('./#/me');
-  const row = page.locator('main').getByRole('link', { name: new RegExp(`^${T('Helper')}`) });
-  await expect(row).toContainText(T('not set up'));
+  // v0.118.0 (K4): the row «AI helper» says it is off and where to switch it on
+  const row = page.locator('main').getByRole('link', { name: new RegExp(`^${T('AI helper')}`) });
+  await expect(row).toContainText(T('off · switch on under Me › AI helper'));
   await row.click();
   await expect(page).toHaveURL(/#\/helper/);
 
@@ -191,8 +198,9 @@ test('1a + 7a: the code in the settings, the check, then «Frag den Helfer» in 
   await setUp(page);
   await page.getByRole('button', { name: T('Check the connection') }).click();
   await expect(page.getByText(T('Connected. This month: {chf}.', { chf: 'CHF 0.12' }))).toBeVisible();
-  await expect(page.getByText(T('this month: {chf}', { chf: 'CHF 0.12' }), { exact: true })).toBeVisible();
-  await expect(page.getByText(T('Helper switched on'))).toBeVisible();
+  // v0.118.0 (K4, changed on purpose): this month's spend in the row «Monthly limit» of the setup
+  await expect(page.getByText(T('{chf} used this month', { chf: 'CHF 0.12' }), { exact: true })).toBeVisible();
+  await expect(page.getByRole('switch', { name: new RegExp(T('Show the AI helper in the app')) })).toBeChecked();
   await noSideways(page);
 
   // v0.114.0: «Frag den Helfer» only comes into the window with a question from the search (proposeTrip).
@@ -360,7 +368,9 @@ test('5a + 6a: bike care: suggestions inside «Jetzt fällig», a concrete check
   // «Als Aufgabe merken» on a helper card (or the merged line of a card due anyway): a task, source Helper
   const tyreCard = due.locator('li.kh-pt').filter({ hasText: 'Milch nachfüllen' });
   if (await tyreCard.count()) {
-    await tyreCard.getByRole('button', { name: T('Remember as a task') }).click();
+    // v0.117.0 «Knöpfe neu» (N2): «Merken» sits behind «…» with its explanation (changed on purpose)
+    await tyreCard.locator('.btn.dots').click();
+    await page.getByRole('menuitem', { name: T('Remember|task') }).click();
     await expect.poll(async () => (await table(page, 'maintenance')).find((m) => m.source === 'Helper')).toMatchObject({ bikeId: SPARK, status: 'open' });
     await expect(page.getByText(T('Remembered as a task: {part}', { part: T('Tyres') }), { exact: false })).toBeVisible();
   }

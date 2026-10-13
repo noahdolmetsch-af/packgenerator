@@ -120,11 +120,11 @@ test('template from a trip: update or save as new, and the new trip takes days a
   await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('Save as template') }).click();
   const dlg = page.getByRole('dialog', { name: T('Template') });
-  await expect(dlg.getByRole('button', { name: T('Update template «{name}»', { name: 'test_data_gtp_ Bivvy' }) })).toBeVisible();
-  await expect(dlg.getByRole('button', { name: T('Save as new template') })).toBeVisible();
+  await expect(dlg.getByRole('button', { name: T('Update|template') })).toBeVisible();
+  await expect(dlg.getByRole('button', { name: T('New template|save') })).toBeVisible();
   await expect(dlg.getByText(/Trips made from it before stay unchanged/)).toBeVisible();
   await noSideScroll(page);
-  await dlg.getByRole('button', { name: T('Update template «{name}»', { name: 'test_data_gtp_ Bivvy' }) }).click();
+  await dlg.getByRole('button', { name: T('Update|template') }).click();
   await expect(dlg).toBeHidden();
   let list = (await table(page, 'settings')).find((x) => x.key === 'templates').value;
   expect(list).toHaveLength(1);
@@ -137,7 +137,7 @@ test('template from a trip: update or save as new, and the new trip takes days a
   await page.getByLabel(T('More: other trip, edit trip, templates, print')).click();
   await page.getByRole('button', { name: T('Save as template') }).click();
   await dlg.getByLabel(T('Name')).fill('test_data_gtp_ Bivvy 2');
-  await dlg.getByRole('button', { name: T('Save as new template') }).click();
+  await dlg.getByRole('button', { name: T('New template|save') }).click();
   await expect(dlg).toBeHidden();
   list = (await table(page, 'settings')).find((x) => x.key === 'templates').value;
   expect(list.map((x) => x.name)).toEqual(['test_data_gtp_ Bivvy', 'test_data_gtp_ Bivvy 2']);

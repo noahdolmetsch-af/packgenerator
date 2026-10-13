@@ -109,7 +109,7 @@
   <div class="foot vd-foot">
     <button type="button" class="btn" onclick={print} disabled={!picked.length}>{t('Print')}</button>
     <button type="button" class="btn" onclick={() => dialog.close()}>{t('Close')}</button>
-    <button type="button" class="btn hi" onclick={send} disabled={!picked.length}>{t('Send or copy')}</button>
+    <button type="button" class="btn hi" onclick={send} disabled={!picked.length} data-explain={t('Send or copy')}>{t('Send|order')}</button>
   </div>
 </dialog>
 

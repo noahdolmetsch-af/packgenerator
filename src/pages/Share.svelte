@@ -27,7 +27,7 @@
     <p class="lbl">{t('Shared packing list')}</p>
     <h1 class="title big">{list.t}</h1>
     <p class="meta">{[when(list), list.b, tn(count(list), '{n} item', '{n} items'), list.w ? formatWeight(list.w) : ''].filter(Boolean).join(' · ')}</p>
-    <p class="acts no-print"><button type="button" class="btn" onclick={() => window.print()}>{t('Print or save as PDF')}</button><a class="link" href="#/">{t('Open Pack Generator')}</a></p>
+    <p class="acts no-print"><button type="button" class="btn" onclick={() => window.print()} data-explain={t('Print or save as PDF')}>{t('Print|pdf')}</button><a class="link" href="#/">{t('Open Pack Generator')}</a></p>
     <div class="bags">
       {#each list.g as [bag, its], n (n)}
         <section class="bag">

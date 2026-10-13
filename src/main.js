@@ -42,6 +42,7 @@ import { applyClock } from './lib/demo.js';
 import { trackChanges } from './lib/backup.js';
 import { folderBackupSupported, watchForChanges } from './lib/folderBackup.js';
 import { initTheme } from './lib/theme.svelte.js';
+import { installExplain } from './lib/ui/explain.js';
 import { takeReturn, watchAutoFetch } from './lib/strava/client.svelte.js';
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
@@ -68,6 +69,9 @@ if (__PREVIEW__) {
   document.body.appendChild(bar);
 }
 
+// v0.117.0 «Knöpfe neu» (N1, answer 2a): every button explains itself on hover, keyboard focus and a
+// long press, with one listener for the whole app (ui/explain.js).
+installExplain();
 // v0.116.0 «Strava-Verbindung»: back from the Strava login, the address carries this device's key once
 // (#…&strava=connected&key=…): stored in localStorage and taken out of the address before the app reads it.
 takeReturn();

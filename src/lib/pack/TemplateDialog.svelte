@@ -41,8 +41,8 @@
     <p class="err" role="alert">{error}</p>
     <div class="foot">
       {#if source}
-        <button type="button" class="btn hi" onclick={() => store(false)}>{t('Update template «{name}»', { name: source.name })}</button>
-        <button type="button" class="btn" onclick={() => store(true)}>{t('Save as new template')}</button>
+        <button type="button" class="btn hi" onclick={() => store(false)} data-explain={t('Update template «{name}»', { name: source.name })}>{t('Update|template')}</button>
+        <button type="button" class="btn" onclick={() => store(true)} data-explain={t('Save as new template')}>{t('New template|save')}</button>
       {:else}
         <button type="submit" class="btn hi">{t('Save template')}</button>
       {/if}

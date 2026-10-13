@@ -395,7 +395,7 @@
       <p class="shead"><Sparkles size={16} aria-hidden="true" /><span class="stag">{t('Suggestion')}</span><b class="sname">{nameOf(a.item)}</b><span class="sless num">{t('{g} g lighter', { g: -a.diffG })}</span></p>
       <p class="swhy">{whyText()}</p>
       <div class="sacts">
-        <button type="button" class="btn sm" onclick={() => linkAlt(a)}><ArrowLeftRight size={16} aria-hidden="true" />{t('Remember as alternative')}</button>
+        <button type="button" class="btn sm" onclick={() => linkAlt(a)} data-explain={t('Remember as alternative')}><ArrowLeftRight size={16} aria-hidden="true" />{t('As alternative')}</button>
         <button type="button" class="btn sm plain" aria-label={t("Doesn't fit: {name}", { name: nameOf(a.item) })} onclick={() => dismissAlt(a)}><X size={16} aria-hidden="true" />{t("Doesn't fit")}</button>
       </div>
     </div>

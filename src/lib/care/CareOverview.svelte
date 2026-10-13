@@ -12,6 +12,10 @@
   import { ringScore, ringTone, dueCards, kmSinceService, calmWeeks, diary, costYear } from './overview.js';
   import { whoYear } from '../bikes/who.js';
   import ProblemList from './ProblemList.svelte';
+  import Btn from '../ui/Btn.svelte';
+  import MoreActions from '../ui/MoreActions.svelte';
+  import { explain } from '../ui/explain.js';
+  import { Eye, PenLine } from '@lucide/svelte';
   import { bikesHash } from '../bikes.js';
   import { openNew } from '../nav.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
@@ -41,6 +45,33 @@
   const short = (name) => String(name ?? '');
   const chf = (n) => n.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const LOG_ICON = { replace: ArrowLeftRight, service: Droplet, check: Check, wash: Droplet, repair: Wrench, milestone: Trophy };
+  /**
+   * v0.117.0 «Knöpfe neu» (N1/N2, answer 3a): the actions of a «Due now» row, the main one first.
+   * Same actions as before (Done, Record …, Replace, Check, Look at the check), plus «Open the bike».
+   */
+  function rowActs(d) {
+    const { bike, row } = d;
+    const ctx = [row.name, t('today|done'), bike.km != null ? `${num(bike.km)} km` : ''].filter(Boolean).join(' · ');
+    const open = { name: t('Open the bike'), explain: t('All parts of {bike}', { bike: short(bike.name) }), icon: Bike, run: () => onopen(bike.id) };
+    if (row.kind === 'time' || row.kind === 'km')
+      return [
+        { kind: 'hi', name: t('Done|task'), explain: explain('Done|task'), sub: ctx, icon: Check, run: () => ondone(bike.id, row) },
+        ...(row.part
+          ? [
+              { name: t('Record …|care'), explain: explain('Record …|care'), icon: PenLine, run: () => onflow(bike.id, row.part, 'service') },
+              { name: t('Replace|part'), explain: explain('Replace|part'), icon: ArrowLeftRight, run: () => onflow(bike.id, row.part, 'replace') },
+            ]
+          : []),
+        open,
+      ];
+    if (row.kind === 'part' && row.part)
+      return [
+        { name: t('Replace|part'), explain: explain('Replace|part'), sub: row.name, icon: ArrowLeftRight, run: () => onflow(bike.id, row.part, 'replace') },
+        { name: t('Check|verb'), explain: explain('Check|verb'), icon: Eye, run: () => onflow(bike.id, row.part, 'service') },
+        open,
+      ];
+    return [{ name: t('Look|check'), explain: explain('Look|check'), sub: row.name, icon: Eye, run: () => onopen(bike.id, 'check') }, open];
+  }
   const when = (r) => (r.kind === 'part' ? t('now|due') : r.detail?.match(/overdue|überfällig/i) ? t('overdue|part') : t('due|part'));
 </script>
 
@@ -57,20 +88,15 @@
         {#if due.cards.length}
           <ul class="card vlist">
             {#each due.cards as d (`${d.bike.id}:${d.row.key}`)}
+              {@const acts = rowActs(d)}
               <li class="dcard {d.row.kind === 'part' ? 'bad' : 'warn'}">
                 <span class="udot" class:warn={d.row.kind !== 'part'} aria-hidden="true"></span>
                 <span class="m"><b class="dn">{d.row.name}</b><small class="dd">{[short(d.bike.name), d.row.detail].filter(Boolean).join(' · ')}</small></span>
                 <span class="sr">{when(d.row)}</span>
-                <span class="dacts">
-                  {#if d.row.kind === 'time' || d.row.kind === 'km'}
-                    <button type="button" class="btn sm" onclick={() => ondone(d.bike.id, d.row)}><Check size={16} aria-hidden="true" />{t('Done|task')}</button>
-                    {#if d.row.part}<button type="button" class="btn sm" onclick={() => onflow(d.bike.id, d.row.part, 'service')}>{t('Record …')}</button>{/if}
-                  {:else if d.row.kind === 'part' && d.row.part}
-                    <button type="button" class="btn sm" onclick={() => onflow(d.bike.id, d.row.part, 'replace')}>{t('Replace|part')}</button>
-                    <button type="button" class="btn sm" onclick={() => onflow(d.bike.id, d.row.part, 'service')}>{t('Check|verb')}</button>
-                  {:else}
-                    <button type="button" class="btn sm" onclick={() => onopen(d.bike.id, 'check')}>{t('Look at the check')}</button>
-                  {/if}
+                <!-- v0.117.0 «Knöpfe neu» (N1/N2): one main button, the rest behind «…», each with its explanation. -->
+                <span class="rowacts">
+                  <Btn kind={acts[0].kind} icon={acts[0].icon} label={acts[0].name} explain={acts[0].explain} sub={acts[0].sub} onclick={acts[0].run} />
+                  <MoreActions title={[d.row.name, short(d.bike.name)].join(' · ')} label={t('More for {title}', { title: d.row.name })} actions={acts.map((a, n) => ({ ...a, current: n === 0 }))} />
                 </span>
               </li>
             {/each}
@@ -246,9 +272,9 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px 12px;
+    gap: 8px 12px;
     min-height: 60px;
-    padding: 8px 0;
+    padding: 14px 0;
   }
   .dcard .udot {
     background: var(--bad);
@@ -272,12 +298,6 @@
     font-size: var(--fs-small);
     line-height: 1.35;
     overflow-wrap: break-word;
-  }
-  .dacts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-left: auto;
   }
   .more {
     margin: 8px 2px 0;

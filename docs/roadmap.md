@@ -510,6 +510,9 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 13.10.2026 (v0.118.0, Branch fertig, PR nach #141):** «Was ist neu 2» nach W1–W3 (Noah «w1-w3 freigeben», «1a 2a 3a 4a 5a»): alle Versionen neu erzählt (Titel, Satz, Hauptpunkte mit ›, Kleinkram in Kästchen), Fenster nach Update mit «Looos», Ich › Was ist neu nach Monat. Dazu «KI-Helfer ausblenden» nach K1–K4 (Noah «k1-k4 ok»): Helfer von Anfang an aus, ein Schalter für alle Stellen.
+
+**Nachtrag 12.10.2026 (v0.117.0, PR offen):** «Knöpfe neu» nach den Mockups N1–N4 (Noah «n1-n4 freigeben», «1a 2a 3a 4a 5b»): jeder Knopf erklärt sich (Maus, Tastatur, langes Drücken), ein Hauptknopf plus «…» pro Zeile, Knöpfe rechtsbündig bzw. am Handy unter dem Text, Knopftext höchstens 2 Wörter auf allen Seiten; «Erledigt» in der Velopflege mit «Rückgängig». Bausteine `ui/Btn`, `ui/MoreActions`, `ui/explain.js` für die nächsten Pakete.
 **Nachtrag 13.10.2026 (v0.116.2, PR offen):** «Bugfix Dateneingabe»: «eintragen» auf den Velo-Blättern öffnet genau diesen Wert und führt zurück aufs Blatt. Felder ein-/ausblenden und Eingabe direkt im Blatt folgen nach Mockup-Freigabe.
 
 **Nachtrag 13.10.2026 (v0.116.1, PR #140):** Fehler-Fix aus der UI-Prüfung: alte Rückblicke ohne Teileliste öffnen wieder. Die übrigen Befunde fahren in Bündel A (Zahlen, Heute, Kleinkram) und C (Unterwegs) mit (Noah «1a 2a 3a 4a 5a»).

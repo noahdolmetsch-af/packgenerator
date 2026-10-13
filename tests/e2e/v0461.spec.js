@@ -104,17 +104,20 @@ test('2 + 3: newest problems on top; the priority changes in two taps, also thro
 
   // Through ••• on the last problem, scrolled to just above the bottom bar: every answer can be tapped.
   const last = care.locator('li.prob').filter({ hasText: `${P}Sattel zu tief` });
-  const summary = last.locator('details.more summary');
+  // v0.117.0 «Knöpfe neu» (N2, changed on purpose): «…» is a button; its list (a sheet on the phone) has
+  // a title and an explanation per answer.
+  const summary = last.locator('.btn.dots');
   await summary.evaluate((el) => {
     const bar = document.querySelector('nav.bottom')?.getBoundingClientRect();
     const floor = bar && bar.height ? bar.top : window.innerHeight;
     window.scrollBy(0, el.getBoundingClientRect().bottom - floor + 10);
   });
   await tap(summary, info);
-  const hi = last.getByRole('button', { name: 'Priorität: Hoch' });
+  const menu = page.getByRole('menu', { name: /Sattel zu tief/ });
+  const hi = menu.getByRole('menuitem', { name: /^Priorität: Hoch/ });
   await expect(hi).toBeVisible();
   await shot(page, info, 'priority-menu-after');
-  for (const b of await last.locator('.more-in button').all()) {
+  for (const b of await menu.getByRole('menuitem').all()) {
     const free = await b.evaluate((el) => {
       const r = el.getBoundingClientRect();
       const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
@@ -188,7 +191,7 @@ test('7: Touren opens the overview of all trips; a row opens its trip at the nex
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await page.goto('./#/trips');
   await expect(page.getByRole('heading', { name: 'Touren', level: 1 })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Erste Tour anlegen' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Tour anlegen' })).toBeVisible();
   const errors = await start(page, context, info);
   for (const width of info.project.name === 'phone' ? [320, 390] : [1440]) {
     if (info.project.name === 'phone') await page.setViewportSize({ width, height: 844 });

@@ -169,7 +169,7 @@
     {#if view.empty}
       <div class="card empty">
         <p>{t('No trips yet. A trip is the packing list for one ride or journey.')}</p>
-        <button type="button" class="btn hi" onclick={() => openNew('list')}><Plus size={18} aria-hidden="true" />{t('Create the first trip')}</button>
+        <button type="button" class="btn hi" onclick={() => openNew('list')} data-explain={t('Create the first trip')}><Plus size={18} aria-hidden="true" />{t('Create a trip|first')}</button>
         <p class="quiet">{t('Best values come after your first ride with a GPX file.')} <a href="#/debrief/ride">{t('Upload a ride')}</a></p>
       </div>
     {:else}

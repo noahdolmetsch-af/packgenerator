@@ -90,7 +90,7 @@ test('V8 to V11: the care windows in the new window look', async ({ page, contex
   await page.getByRole('region', { name: T('Care overview') }).locator('.orow').first().click();
   const order = page.locator('dialog.vdlg[open]');
   await expect(order.locator('ul.jobs.vd-panel')).toBeVisible();
-  await expect(order.locator('.vd-foot .btn.hi')).toHaveText(T('Send or copy'));
+  await expect(order.locator('.vd-foot .btn.hi')).toHaveText(T('Send|order'));
   expect(errors).toEqual([]);
 });
 

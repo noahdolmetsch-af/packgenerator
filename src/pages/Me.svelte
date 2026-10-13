@@ -50,7 +50,8 @@
   });
   let placeOpen = $state(false);
   const keys = () => window.dispatchEvent(new Event('pg:keys'));
-  const helperState = $derived(!helper.loaded ? '' : !isSetUp() ? t('not set up') : !helper.on ? t('switched off') : isPaused() ? t('paused until next month') : t('set up'));
+  // v0.118.0 «KI-Helfer ausblenden» (K4): off by default; the row says where to switch it on
+  const helperState = $derived(!helper.loaded ? '' : !helper.show ? t('off · switch on under Me › AI helper') : !isSetUp() ? t('on · not set up') : isPaused() ? t('paused until next month') : t('on|helper'));
   const version = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
   const sub = $derived([t('Settings and the app, only on this device'), version ? t('Version {v}', { v: version }) : ''].filter(Boolean).join(' · '));
   const dataLine = $derived([t('Backup, restore, import'), $waitQ?.folder ? t('auto-backup set up') : ''].filter(Boolean).join(' · '));
@@ -165,7 +166,7 @@
           <li>
             <a class="ich-row" href="#/helper">
               <span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Helper')}</b><small>{helperState || t('Suggestions from Claude, only on request')}</small></span>
+              <span class="ich-m"><b>{t('AI helper')}</b><small>{helperState || t('Suggestions from Claude, only on request')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

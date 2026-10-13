@@ -46,7 +46,7 @@
           <dt>{t('Trips before')}</dt>
           <dd class="num">{r.trips}</dd>
         </dl>
-        {#if !r.current}<button type="button" class="btn sm" onclick={() => pick(r)}>{t('Use for this trip')}</button>{/if}
+        {#if !r.current}<button type="button" class="btn sm" onclick={() => pick(r)} data-explain={t('Use for this trip')}>{t('Use this|bike')}</button>{/if}
       </section>
     {/each}
   </div>

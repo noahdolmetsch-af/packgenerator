@@ -215,7 +215,7 @@ test.describe('L9: first start on a German browser', () => {
     await expect(first.getByRole('link', { name: T('Add your bike') })).toHaveAttribute('href', '#/bikes');
     await expect(first.getByRole('button', { name: T('Import backup') })).toBeVisible();
     await expect(first.getByRole('button', { name: T('Add item') })).toBeVisible();
-    await expect(first.getByRole('button', { name: T('Plan your first trip') })).toBeVisible();
+    await expect(first.getByRole('button', { name: T('Plan a trip|first') })).toBeVisible();
     for (const b of await first.locator('.step').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
     // in place of "No trip planned"; no "No bikes yet" line besides step 1
     await expect(page.locator('#next-h')).toHaveCount(0);
@@ -226,7 +226,7 @@ test.describe('L9: first start on a German browser', () => {
     await expect(page.getByRole('region', { name: T('Tried it yet?') }).locator('.tryb')).toHaveCount(1);
 
     // Plan your first trip opens the New trip window.
-    await first.getByRole('button', { name: T('Plan your first trip') }).click();
+    await first.getByRole('button', { name: T('Plan a trip|first') }).click();
     await expect(page.getByRole('dialog', { name: T('Conditions|newtrip') })).toBeVisible();
     await closeDialog(page); // its history entry gone, so the next address stays
     await page.goto('./#/');

@@ -109,7 +109,7 @@ test('a piece picked before ranks first among the fitting ones', async ({ page, 
 
 test('the wardrobe for the trip: band, unsuitable duplicates hidden with a hint', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
-  await tap(page.locator('.worn-card').getByRole('link', { name: 'Im Kleiderschrank öffnen' }), info);
+  await tap(page.locator('.worn-card').getByRole('link', { name: 'Kleiderschrank' }), info);
   await expect(page).toHaveURL(/#\/wardrobe\/trip\//);
   const band = page.locator('.tband');
   await expect(band).toContainText('Für deine Tour');
@@ -126,7 +126,7 @@ test('the wardrobe for the trip: band, unsuitable duplicates hidden with a hint'
   // «Alle zeigen» shows everything again
   await tap(page.getByRole('button', { name: 'Alle zeigen' }), info);
   await expect(page.locator('.cols').getByText(name('Trikot kurzarm schwarz'))).toBeVisible();
-  await tap(band.getByRole('link', { name: 'Zurück zur Packliste' }), info);
+  await tap(band.getByRole('link', { name: 'Zur Packliste' }), info);
   await expect(page.locator('.worn-card')).toBeVisible();
   expect(errors).toEqual([]);
 });

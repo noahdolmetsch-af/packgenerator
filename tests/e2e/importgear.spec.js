@@ -111,7 +111,7 @@ test('Import pruefen (Check import): choose the file, check, apply, see it in Ge
   }
 
   // 3. "Alle sicheren übernehmen": the main (orange) action.
-  const apply = page.getByRole('button', { name: T('Apply all safe ones') });
+  const apply = page.getByRole('button', { name: T('Apply safe') });
   await expect(apply).toHaveClass(/\bhi\b/);
   await apply.click();
   await expect(page.locator('.done')).toContainText(T('Import applied {when}.', { when: '' }).replace(/\s*\.$/, ''));

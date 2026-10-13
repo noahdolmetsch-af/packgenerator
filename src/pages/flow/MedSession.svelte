@@ -151,7 +151,7 @@
               <button type="submit" class="btn">{t('Save')}</button>
             </form>
           {:else}
-            <button type="button" class="btn big" onclick={openName} data-as-tpl><Copy size={18} aria-hidden="true" />{t('Save as a template')}</button>
+            <button type="button" class="btn big" onclick={openName} data-as-tpl data-explain={t('Save as a template')}><Copy size={18} aria-hidden="true" />{t('As template|save')}</button>
           {/if}
           <a class="btn big" href="{base}/done/{encodeURIComponent(id)}?edit=1"><Pencil size={18} aria-hidden="true" />{t('Edit')}</a>
           <button type="button" class="lnk del" onclick={remove} data-delete>{t('Delete')}</button>

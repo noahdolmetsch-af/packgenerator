@@ -535,7 +535,7 @@
 
   {#if mode}
     <!-- v0.102.0 Design-Refresh P3 (M6): a quiet way back above the mode -->
-    <p class="modeback"><button type="button" class="btn btn-link" onclick={() => setMode('')}><ChevronLeft size={18} aria-hidden="true" />{t('Back to all items')}</button></p>
+    <p class="modeback"><button type="button" class="btn btn-link" onclick={() => setMode('')} data-explain={t('Back to all items')}><ChevronLeft size={18} aria-hidden="true" />{t('All items|back')}</button></p>
     {#if mode === 'weigh'}
       <WeighMode {items} extras onclose={() => setMode('')} />
     {:else}
@@ -575,11 +575,11 @@
         </div>
 
         {#if fill}
-          <p class="unused-f fillbar"><span>{t('Add to "{block}": tick the items, then "Into {block}" below. Only items not in it are shown.', { block: fill.name })}</span> <a class="btn sm" href="#/blocks" onclick={() => endFill()}>{t('Back to building blocks')}</a></p>
+          <p class="unused-f fillbar"><span>{t('Add to "{block}": tick the items, then "Into {block}" below. Only items not in it are shown.', { block: fill.name })}</span> <a class="btn sm" href="#/blocks" onclick={() => endFill()} data-explain={t('Back to building blocks')}>{t('Building blocks|back')}</a></p>
         {/if}
         {#if unusedOnly}
           <!-- v0.25.1 (Noah 1a): the filter says what it shows and goes away with one tap -->
-          <p class="unused-f"><span>{unused?.full === false ? t('Only items on no trip since {date}', { date: new Date(`${unused.since}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) }) : t('Only items on no trip for 12 months')}</span> <button type="button" class="btn sm" onclick={() => setUnused(false)}>{t('Show all items')}</button></p>
+          <p class="unused-f"><span>{unused?.full === false ? t('Only items on no trip since {date}', { date: new Date(`${unused.since}T00:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) }) : t('Only items on no trip for 12 months')}</span> <button type="button" class="btn sm" onclick={() => setUnused(false)} data-explain={t('Show all items')}>{t('Show all|filter')}</button></p>
         {/if}
         {#if selecting}
           <div class="selrow">
@@ -603,7 +603,7 @@
           </dl>
         </section>
         {#if view === 'never' && sorted.length}<p class="vs small">{t('"Leave at home" makes it optional: new trips no longer pack it on their own.')}</p>{/if}
-        {#if view === 'unweighed' && toWeigh}<p class="weighrow"><button type="button" class="btn" onclick={startWeigh}><Scale size={18} aria-hidden="true" />{t('Weigh one after the other')}</button></p>{/if}
+        {#if view === 'unweighed' && toWeigh}<p class="weighrow"><button type="button" class="btn" onclick={startWeigh} data-explain={t('Weigh one after the other')}><Scale size={18} aria-hidden="true" />{t('Weigh in turn')}</button></p>{/if}
 
         {#if toWeigh && !selecting && !searching}
           <!-- v0.43.0 (Wiege-Modus): one quiet row, no alarm -->
@@ -736,7 +736,7 @@
               <!-- v0.63.0 (Noah 1a): the numbers, one line on how it comes along, then rows that fold away -->
               <ItemLife item={selItem} {items} stats={mstats} log={mlog} {today} compact folds line={comesLine(selItem, blocks)} />
               <div class="dacts">
-                <button type="button" class="btn hi" onclick={() => open(selItem)}>{t('Open and edit')}</button>
+                <button type="button" class="btn hi" onclick={() => open(selItem)} data-explain={t('Open and edit')}>{t('Open|item')}</button>
                 <button type="button" class="btn" onclick={() => assignOne(selItem)}>{t('Assign …')}</button>
               </div>
             </div>
@@ -808,14 +808,14 @@
                 {#if leaveHome(w.item)}
                   <span class="owhome">{t('Stays at home')}</span>
                 {:else}
-                  <button type="button" class="btn sm owgo" aria-label={t('Leave {name} at home', { name: nameOf(w.item) })} onclick={() => homeWithUndo(w.item)}>{t('Leave at home')}</button>
+                  <button type="button" class="btn sm owgo" aria-label={t('Leave {name} at home', { name: nameOf(w.item) })} onclick={() => homeWithUndo(w.item)} data-explain={t('Leave at home')}>{t('Leave home|short')}</button>
                 {/if}
               </li>
             {/each}
           </ul>
         </section>
       {/if}
-      <div class="acts"><button type="button" class="btn" onclick={() => setView('all')}>{t('Show all items')}</button></div>
+      <div class="acts"><button type="button" class="btn" onclick={() => setView('all')} data-explain={t('Show all items')}>{t('Show all|filter')}</button></div>
     </div>
   {:else}
     <div class="card none">
@@ -826,7 +826,7 @@
         {:else if view === 'most' || view === 'proven'}{t('Shows up once your debriefs say what you used.')}
         {:else}{t('Nothing found.')}{/if}
       </p>
-      {#if view !== 'all'}<div class="acts"><button type="button" class="btn" onclick={() => setView('all')}>{t('Show all items')}</button></div>{/if}
+      {#if view !== 'all'}<div class="acts"><button type="button" class="btn" onclick={() => setView('all')} data-explain={t('Show all items')}>{t('Show all|filter')}</button></div>{/if}
     </div>
   {/if}
 {/snippet}
@@ -841,7 +841,7 @@
     <p><b>{t('Nothing found.')}</b>{#if filter.q.trim()}{' '}{t('No item matches "{q}".', { q: filter.q.trim() })}{/if}</p>
     <div class="acts">
       {#if filter.q.trim()}<button type="button" class="btn hi" onclick={() => addItem({ name: filter.q.trim() })}>{t('Add "{q}" as a new item', { q: filter.q.trim() })}</button>{/if}
-      <button type="button" class="btn" onclick={clearFilters}>{t('Clear search and filters')}</button>
+      <button type="button" class="btn" onclick={clearFilters} data-explain={t('Clear search and filters')}>{t('Reset|filters')}</button>
     </div>
   </div>
 {/snippet}
@@ -871,7 +871,7 @@
           <button type="button" class="btn hi" disabled={!chosen.length || busy} onclick={fillIn}>{t('Into {block}', { block: fill.name })}</button>
         {:else}
           <!-- v0.43.0 (Mehrfachauswahl): the most used actions in sight, the rest under •••. -->
-          <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('into')}>{t('Into a building block …')}</button>
+          <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('into')} data-explain={t('Into a building block …')}>{t('Into block …')}</button>
           {#if !phone.matches}
             <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => openAssign('bag')}>{t('Default bag …')}</button>
             <button type="button" class="btn" disabled={!chosen.length || busy} onclick={archiveSel}>{t('Archive')}</button>
@@ -917,7 +917,7 @@
     <ul>
       <li><button type="button" onclick={() => favOne(rowMenu)}><span>{rowMenu.favorite ? t('Remove from favourites') : t('Mark as favourite')}</span></button></li>
       <li><button type="button" onclick={() => assignOne(rowMenu)}><span>{t('Assign …')}</span><small>{t('Building block, trip, bag')}</small></button></li>
-      <li><button type="button" onclick={() => ((dialog = { item: rowMenu }), (rowMenu = null))}><span>{t('Open and edit')}</span></button></li>
+      <li><button type="button" onclick={() => ((dialog = { item: rowMenu }), (rowMenu = null))} data-explain={t('Open and edit')}><span>{t('Open|item')}</span></button></li>
       {#if used}
         <li><button type="button" onclick={() => archiveOne(rowMenu)}><span>{t('Archive')}</span><small>{t('Status "Gone", stays in the look back')}</small></button></li>
       {:else}
