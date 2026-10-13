@@ -1,4 +1,4 @@
-// v0.124.0 «Woche» (mockup AK1, Noah 13.10.2026 «1-5a», «ich gebe hiermit alle mockups frei»): the card
+// v0.130.0 «Woche» (mockup AK1, Noah 13.10.2026 «1-5a», «ich gebe hiermit alle mockups frei»): the card
 // «Woche» under «Mehr in Aktiv» on Aktiv › Heute, the week Monday to Sunday with what was done, a fixed
 // date added once, a suggestion planned and unplanned, one hidden, the goals of the week and the calendar
 // file, on a phone and a computer, in German. No sideways scroll, no page errors. Fictional data only.

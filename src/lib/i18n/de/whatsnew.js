@@ -4,7 +4,7 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
-  // 0.124.0 Woche
+  // 0.130.0 Woche
   'Your week at a glance': 'Deine Woche auf einen Blick',
   'Aktiv has a week page: what you did, fixed dates and suggestions by your goals and the weather.': 'Aktiv hat eine Wochenseite: was du gemacht hast, feste Termine und Vorschläge nach deinen Zielen und dem Wetter.',
   'Week: Monday to Sunday with suggestions, tap one to plan it': 'Woche: Montag bis Sonntag mit Vorschlägen, antippen = einplanen',

@@ -16,8 +16,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.124.0 «Woche» (mockup AK1, Noah 13.10.2026 «1-5a», «ich gebe hiermit alle mockups frei»)
-    version: '0.124.0',
+    // v0.130.0 «Woche» (mockup AK1, Noah 13.10.2026 «1-5a», «ich gebe hiermit alle mockups frei»)
+    version: '0.130.0',
     date: '2026-10-13',
     title: 'Your week at a glance',
     lead: 'Aktiv has a week page: what you did, fixed dates and suggestions by your goals and the weather.',

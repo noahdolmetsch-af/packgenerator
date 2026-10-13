@@ -862,10 +862,10 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
-## 13.10.2026: Woche (0.124.0, Aktiv ausweiten AK1)
+## 13.10.2026: Woche (0.130.0, Aktiv ausweiten AK1)
 
 - (Mockup-Freigabe: AK1 «ich gebe hiermit alle mockups frei» Noah 13.10.2026 16:17 UTC im Projekt-Chat, Antworten «1-5a» 16:02 UTC im Thread «Mein Überblick», Offene Mockups 2 #aktiv-ausweiten). AK1: Seite «Woche» (#/flow/week) Montag bis Sonntag: Erledigtes, feste Termine, Eingeplantes und Vorschläge nach offenen Zielen und Wohnort-Wetter; antippen = einplanen, × blendet aus. Rechts «Ziele diese Woche» (rollend), «Feste Termine» (einmal eintragen, jede Woche), Tipp «bestes Wetter der Woche», Kalenderdatei (.ics). Einstieg: Karten «Mehr in Aktiv» auf Aktiv › Heute (Frage 1a).
-- **Selbst entschieden:** die drei Seiten kommen als drei kleine Releases (Woche, dann Sporttasche, dann Erholung); die Karten «Mehr in Aktiv» zeigen nur, was schon gebaut ist. Höchstens 2 Vorschläge pro Tag, damit die Woche lesbar bleibt. Die Tabs bleiben wie heute (Meditation als erster Tab gehört zum Paket «Meditation zentral»). Termin ohne «möglich»-Markierung und ohne «2 h frei» (kein Kalenderzugriff); eingeplante Vorschläge gehen als ganztägige Termine in die .ics-Datei. Am Handy zuerst die Ziele, dann die Tage (wie im Mockup).
+- **Selbst entschieden:** die drei Seiten kommen als drei kleine Releases (Woche, dann Sporttasche, dann Erholung); die Karten «Mehr in Aktiv» zeigen nur, was schon gebaut ist. Höchstens 2 Vorschläge pro Tag, damit die Woche lesbar bleibt. Die Tabs bleiben wie heute (Meditation als erster Tab gehört zum Paket «Meditation zentral»). Termin ohne «möglich»-Markierung und ohne «2 h frei» (kein Kalenderzugriff); eingeplante Vorschläge gehen als ganztägige Termine in die .ics-Datei. Am Handy zuerst die Ziele, dann die Tage (wie im Mockup). Version 0.130.0, weil 0.124.0 (#146) und 0.125.0–0.127.0+ (Design-Refresh, Tages-Check) schon vergeben sind.
 
 ## 13.10.2026: Trophäen-Vitrine (0.123.0)
 

@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.124.0 «Woche» (mockup AK1, Noah 13.10.2026 «1-5a», «ich gebe hiermit alle mockups frei»):
+   * v0.130.0 «Woche» (mockup AK1, Noah 13.10.2026 «1-5a», «ich gebe hiermit alle mockups frei»):
    *   #/flow/week   Monday to Sunday: what was done, the fixed dates, the planned ones and suggestions by
    *                 the open goals and the home weather (a tap plans one, × hides it). Right: the goals of
    *                 the week (rolling), the fixed dates (add, change, delete) and the calendar file (.ics).

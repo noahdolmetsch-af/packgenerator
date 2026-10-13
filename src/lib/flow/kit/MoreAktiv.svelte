@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.124.0 «Mehr in Aktiv» (mockups AK1–AK3, Noah 13.10.2026 «1a»): the cards of Aktiv's own pages
+   * v0.130.0 «Mehr in Aktiv» (mockups AK1–AK3, Noah 13.10.2026 «1a»): the cards of Aktiv's own pages
    * (Woche, later Erholung and Sporttasche) on Aktiv › Heute and on each of those pages; the open one
    * has a frame. items: [{ key, href, icon, title, sub }].
    */

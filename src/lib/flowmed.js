@@ -452,7 +452,7 @@ const icsLocal = (day, hm) => `${day.replace(/-/g, '')}T${hm.replace(':', '')}00
 /**
  * Events as one calendar file (.ics) in Zurich time, with the time zone's rules so every calendar reads
  * it the same. An event: { uid, title, note?, day, time? 'HH:MM', minutes?, rrule? } (no time: all day;
- * rrule e.g. 'FREQ=WEEKLY;BYDAY=TH', v0.124.0 «Woche»). → the text (CRLF).
+ * rrule e.g. 'FREQ=WEEKLY;BYDAY=TH', v0.130.0 «Woche»). → the text (CRLF).
  */
 export function icsCalendar(events = [], now = Date.now()) {
   const stamp = new Date(now).toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');

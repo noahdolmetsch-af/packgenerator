@@ -1,5 +1,5 @@
 /**
- * v0.124.0 «Woche» (mockup AK1, Noah 13.10.2026 «1-5a», «ich gebe hiermit alle mockups frei"): Aktiv's
+ * v0.130.0 «Woche» (mockup AK1, Noah 13.10.2026 «1-5a», «ich gebe hiermit alle mockups frei"): Aktiv's
  * week, Monday to Sunday. Per day what was done, the fixed dates, what was planned and suggestions by
  * the open goals and the home weather. Everything is a suggestion: a tap plans it, «no thanks» hides it.
  *

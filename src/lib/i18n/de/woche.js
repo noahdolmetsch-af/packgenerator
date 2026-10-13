@@ -1,4 +1,4 @@
-/** v0.124.0 «Woche» (mockup AK1) and the cards «Mehr in Aktiv». */
+/** v0.130.0 «Woche» (mockup AK1) and the cards «Mehr in Aktiv». */
 export default {
   'More in Active': 'Mehr in Aktiv',
   '{n} goal open': '{n} Ziel offen',

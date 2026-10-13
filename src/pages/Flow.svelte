@@ -7,7 +7,7 @@
    *   #/flow/edit/<id>   edit one activity; #/flow/new a new one (the same form, empty)
    *   #/flow/activity    hobby pages 1: Aktiv › Aktivität (pages/flow/Activity.svelte)
    *   #/flow/milestones  hobby pages 1: all milestones (pages/flow/Milestones.svelte), ?act=, ?tune=1
-   *   #/flow/week        v0.124.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
+   *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
    *   #/flow/trophies    v0.123.0 the trophy showcase, all stars by area and year (pages/flow/Trophies.svelte)
    *   #/flow/act/<id>    hobby pages 2: an activity's own page (Meditation.svelte, B1); …/timer the
    *                      intervals (MedTimer.svelte, B2); the running session is in FlowLayer (B7)
@@ -118,7 +118,7 @@
   const sparkLine = $derived(pts.map(([x, y]) => `${x},${y}`).join(' '));
   const sparkArea = $derived(pts.length ? `M0,60 ${pts.map(([x, y]) => `L${x},${y}`).join(' ')} L${pts.at(-1)[0]},60 Z` : '');
   let seasonOpen = $state(false);
-  // v0.124.0 «Mehr in Aktiv» (mockups AK1–AK3, Noah «1a»): the cards of Aktiv's own pages
+  // v0.130.0 «Mehr in Aktiv» (mockups AK1–AK3, Noah «1a»): the cards of Aktiv's own pages
   const pages = $derived(morePages({ openGoals: weekGoals(states).filter((g) => !g.met).length }));
   const medAct = $derived(live.find((s) => isMedAct(s.act))?.act ?? (data?.acts ?? []).find((a) => isMedAct(a) && !a.paused) ?? null);
   const moreRows = $derived([

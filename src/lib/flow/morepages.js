@@ -1,5 +1,5 @@
 /**
- * v0.124.0 «Mehr in Aktiv»: Aktiv's own pages for the cards (MoreAktiv.svelte). Woche comes first;
+ * v0.130.0 «Mehr in Aktiv»: Aktiv's own pages for the cards (MoreAktiv.svelte). Woche comes first;
  * Erholung and Sporttasche join with their releases (mockups AK2, AK3).
  * openGoals: how many goals of the week are still open (flowweek.js weekGoals).
  */
