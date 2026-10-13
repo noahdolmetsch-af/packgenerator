@@ -171,14 +171,14 @@ test('import: the status line after an apply, and an apply that adds nothing say
   await stage();
   const line = page.locator('[data-applied]');
   await expect(line).toHaveText(T('nothing applied yet'));
-  await page.getByRole('button', { name: T('Apply all safe ones') }).click();
+  await page.getByRole('button', { name: T('Apply safe') }).click();
   const applied = T('applied {when}').replace('{when}', '').trim();
   await expect(line).toContainText(applied);
   await expect(line).not.toContainText(T('nothing applied yet'));
   // The same file again: everything is there already.
   await stage();
   await expect(line).toHaveText(T('nothing applied yet'));
-  await page.getByRole('button', { name: T('Apply all safe ones') }).click();
+  await page.getByRole('button', { name: T('Apply safe') }).click();
   await expect(page.locator('[data-nothing]')).toHaveText(T('Nothing to add: all items were already complete.'));
   await expect(page.locator('.done')).not.toContainText(T('{enriched} completed, {added} new, {learn} learnings. A backup was made first.', { enriched: 0, added: 0, learn: 0 }));
   await expect(line).toContainText(applied);

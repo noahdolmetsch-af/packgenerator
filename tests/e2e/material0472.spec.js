@@ -50,7 +50,7 @@ test('Never used says it in one plain sentence, and Leave at home works', async 
   await expect(stove).toContainText('4 Mal mitgenommen, nie gebraucht');
   await expect(page.locator('.mcard[data-id="LX01"]')).toContainText('3 Mal mitgenommen, nie gebraucht');
   await expect(page.getByText('Totes Gewicht', { exact: true })).toHaveCount(0);
-  await stove.getByRole('button', { name: 'Zu Hause lassen' }).click();
+  await stove.getByRole('button', { name: 'Daheim lassen' }).click();
   await expect(stove).toContainText('Bleibt zu Hause');
 });
 

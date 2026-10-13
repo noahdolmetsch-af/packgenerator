@@ -198,7 +198,7 @@
     {/if}
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     <div class="vd-foot">
-      <button type="button" class="btn" onclick={() => (make = null)}><ChevronLeft size={16} aria-hidden="true" />{t('Back to the note')}</button>
+      <button type="button" class="btn" onclick={() => (make = null)} data-explain={t('Back to the note')}><ChevronLeft size={16} aria-hidden="true" />{t('Back|note')}</button>
       <button type="button" class="btn hi" disabled={busy} onclick={makeIt}>{t(SAVE[make])}</button>
     </div>
   {/if}

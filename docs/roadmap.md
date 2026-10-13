@@ -510,6 +510,7 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 12.10.2026 (v0.117.0, PR offen):** «Knöpfe neu» nach den Mockups N1–N4 (Noah «n1-n4 freigeben», «1a 2a 3a 4a 5b»): jeder Knopf erklärt sich (Maus, Tastatur, langes Drücken), ein Hauptknopf plus «…» pro Zeile, Knöpfe rechtsbündig bzw. am Handy unter dem Text, Knopftext höchstens 2 Wörter auf allen Seiten; «Erledigt» in der Velopflege mit «Rückgängig». Bausteine `ui/Btn`, `ui/MoreActions`, `ui/explain.js` für die nächsten Pakete.
 **Nachtrag 13.10.2026 (v0.116.2, PR offen):** «Bugfix Dateneingabe»: «eintragen» auf den Velo-Blättern öffnet genau diesen Wert und führt zurück aufs Blatt. Felder ein-/ausblenden und Eingabe direkt im Blatt folgen nach Mockup-Freigabe.
 
 **Nachtrag 13.10.2026 (v0.116.1, PR #140):** Fehler-Fix aus der UI-Prüfung: alte Rückblicke ohne Teileliste öffnen wieder. Die übrigen Befunde fahren in Bündel A (Zahlen, Heute, Kleinkram) und C (Unterwegs) mit (Noah «1a 2a 3a 4a 5a»).

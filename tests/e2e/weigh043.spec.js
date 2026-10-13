@@ -170,7 +170,7 @@ test('Mehrfachauswahl: 3 Teile in einen Baustein, Undo; im Baustein und im Kleid
   await shot(page, info, 'auswahl-leiste');
   await noSideScroll(page);
   await bar.getByLabel(T('More actions')).click();
-  await bar.getByRole('button', { name: T('Into a building block …') }).click();
+  await bar.getByRole('button', { name: T('Into block …') }).click();
   const dlg = page.getByRole('dialog', { name: T('Into a building block') });
   await dlg.getByLabel(T('Name of the new building block')).fill(`${P} Werkzeug`);
   await dlg.getByRole('button', { name: T('Assign'), exact: true }).click();
@@ -194,7 +194,7 @@ test('Mehrfachauswahl: 3 Teile in einen Baustein, Undo; im Baustein und im Kleid
 
   // Again into the block, then in the open block: select 2 and remove them at once, Undo.
   for (const n of PICK) await page.getByRole('checkbox', { name: n }).check();
-  await bar.getByRole('button', { name: T('Into a building block …') }).click();
+  await bar.getByRole('button', { name: T('Into block …') }).click();
   await dlg.getByLabel(T('Name of the new building block')).fill(`${P} Werkzeug`);
   await dlg.getByRole('button', { name: T('Assign'), exact: true }).click();
   await expect.poll(setsOf).toEqual([true, true, true]);

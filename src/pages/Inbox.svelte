@@ -29,7 +29,10 @@
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { flip } from '../lib/ui/flip.js';
-  import { Check, Undo2, ChevronRight, Sparkles, Search, Plus, Lightbulb } from '@lucide/svelte';
+  import { Check, Undo2, ChevronRight, Sparkles, Search, Plus, Lightbulb, Trash2 } from '@lucide/svelte';
+  import Btn from '../lib/ui/Btn.svelte';
+  import MoreActions from '../lib/ui/MoreActions.svelte';
+  import { explain } from '../lib/ui/explain.js';
 
   let { onnew } = $props();
 
@@ -139,12 +142,13 @@
                       <small>{when(n.at)}{where(n)}</small>
                       <small class="sug"><Sparkles size={13} aria-hidden="true" />{t('Suggestion: {what}', { what: t(TARGET[sug].name) })}</small>
                     </span>
-                    <span class="acts">
-                      <button type="button" class="btn sm" onclick={() => (filing = n)}>{t('File')}</button>
-                      <details class="more">
-                        <summary aria-label={t('More for this note')}>•••</summary>
-                        <div class="more-in"><button type="button" class="btn sm" onclick={() => remove(n)}>{t('Delete')}</button></div>
-                      </details>
+                    <!-- v0.117.0 «Knöpfe neu» (N3): «Ablegen» + «…» with its explanations; right-aligned, on a phone under the text -->
+                    <span class="acts rowacts">
+                      <Btn label={t('File')} explain={t('Put it where it belongs: a bike, a trip or your gear')} sub={t('Suggestion: {what}', { what: t(TARGET[sug].name) })} class="sm" onclick={() => (filing = n)} />
+                      <MoreActions small title={n.text} label={t('More for this note')} actions={[
+                        { name: t('File'), explain: t('Put it where it belongs: a bike, a trip or your gear'), icon: Check, run: () => (filing = n), current: true },
+                        { name: t('Delete'), explain: explain('Delete'), icon: Trash2, run: () => remove(n) },
+                      ]} />
                     </span>
                   </div>
                 </li>
@@ -325,13 +329,6 @@
     align-items: center;
     gap: 5px;
   }
-  .acts {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-left: auto;
-  }
   .filed .t {
     color: var(--ink-2);
   }
@@ -354,36 +351,6 @@
     .tchip {
       min-height: 44px;
     }
-  }
-  .more {
-    position: relative;
-  }
-  .more summary {
-    list-style: none;
-    display: grid;
-    place-items: center;
-    min-width: 44px;
-    min-height: 44px;
-    border-radius: var(--r-ctl);
-    color: var(--ink-3);
-    font-weight: 700;
-    letter-spacing: 1px;
-    cursor: pointer;
-  }
-  .more summary::-webkit-details-marker {
-    display: none;
-  }
-  .more-in {
-    position: absolute;
-    z-index: 3;
-    top: calc(100% + 4px);
-    right: 0;
-    padding: 8px;
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: var(--r-ctl);
-    box-shadow: 0 8px 24px var(--shadow);
-    width: max-content;
   }
   .search {
     position: relative;

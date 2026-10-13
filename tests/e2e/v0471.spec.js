@@ -191,7 +191,7 @@ test('c: «Ans Wetter angepasst» switches the range and dry/rain in one tap, wi
   await tap(quick.getByRole('button', { name: 'Regen' }), info);
   await expect.poll(async () => (await tripById(page, ride.id)).wx.rain).toBe('rain');
   await expect(quick.getByRole('button', { name: 'Regen' })).toHaveAttribute('aria-pressed', 'true');
-  await tap(card.getByRole('button', { name: 'Ganze Änderung rückgängig' }), info);
+  await tap(card.getByRole('button', { name: 'Alles rückgängig' }), info);
   await expect.poll(async () => (await tripById(page, ride.id)).wx).toMatchObject({ min: 6, max: 12, rain: 'none' });
   expect(await noSideScroll(page)).toBe(true);
   expect(errors).toEqual([]);

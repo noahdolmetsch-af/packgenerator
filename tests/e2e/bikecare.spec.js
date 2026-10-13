@@ -124,7 +124,7 @@ test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no l
   const sealantDue = (bike) => bike.locator('li.pt.due').filter({ has: page.getByRole('button', { name: /^Reifen \+ Dichtmilch/ }) });
   await expect(sealantDue(care)).toHaveCount(1);
   await sealantDue(care).getByRole('button', { name: /^Reifen \+ Dichtmilch/ }).click();
-  await care.locator('li.pt.x').getByRole('button', { name: 'Erfassen …' }).click();
+  await care.locator('li.pt.x').getByRole('button', { name: 'Eintragen …' }).click(); // v0.114.0 (N4): was «Erfassen …»
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Reifen + Dichtmilch' }) });
   await expect(dlg).toBeVisible();
   await dlg.getByRole('button', { name: 'Ersetzt oder erledigt' }).click();

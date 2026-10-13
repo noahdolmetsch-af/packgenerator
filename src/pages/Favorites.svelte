@@ -23,7 +23,7 @@
   {#if $itemsQ}
     <p class="meta">{tn(count, '{n} item', '{n} items')}{groups.length > 1 ? ` · ${tn(groups.length, '{n} area', '{n} areas')}` : ''}</p>
     {#if count}
-      <p class="no-print"><button type="button" class="btn" onclick={() => window.print()}>{t('Print or save as PDF')}</button></p>
+      <p class="no-print"><button type="button" class="btn" onclick={() => window.print()} data-explain={t('Print or save as PDF')}>{t('Print|pdf')}</button></p>
     {/if}
     {#each groups as g (g.key)}
       <section class="grp" aria-labelledby="fav-{g.key}">

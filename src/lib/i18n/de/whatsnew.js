@@ -8,6 +8,24 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.117.0 Knöpfe neu (mockups N1–N4)
+  'Buttons explain': 'Knöpfe erklären sich',
+  'Every button says what it does: point at it on a computer, hold it on the phone.':
+    'Jeder Knopf sagt, was er tut: am Computer mit der Maus darauf, am Handy lange drücken.',
+  'Bike care: one main button per row, the rest behind «…», each with one line that says what it does.':
+    'Velopflege: pro Zeile ein Hauptknopf, der Rest hinter «…», je mit einer Zeile, was er tut.',
+  'After «Done» a short line says what was saved, with «Undo».':
+    'Nach «Erledigt» sagt eine kurze Zeile, was gespeichert wurde, mit «Rückgängig».',
+  'Button labels have at most two words; the long text shows when you point at the button or hold it.':
+    'Knöpfe haben höchstens zwei Wörter; der lange Text kommt, wenn du mit der Maus darauf zeigst oder lange drückst.',
+  'On the phone the buttons of a row sit under its text, as wide as the card.':
+    'Am Handy stehen die Knöpfe einer Zeile unter ihrem Text, so breit wie die Karte.',
+  'Open Bike care and point at «Done» (computer) or hold it (phone): the explanation shows, nothing is saved.':
+    'Velopflege öffnen und mit der Maus auf «Erledigt» zeigen (Computer) oder lange drücken (Handy): Die Erklärung kommt, nichts wird gespeichert.',
+  'Tap «…» in a row: every action with one line; on the phone the list opens from the bottom.':
+    'In einer Zeile auf «…» tippen: jede Aktion mit einer Zeile; am Handy kommt die Liste von unten.',
+  'Tap «Done»: the line at the bottom says what was saved; tap «Undo».':
+    'Auf «Erledigt» tippen: Die Zeile unten sagt, was gespeichert wurde; auf «Rückgängig» tippen.',
   // 0.116.1 UI-Prüfung A1: alte Rückblicke öffnen wieder
   'Enter bike values where you are': 'Velo-Werte dort eintragen, wo du bist',
   '«Enter» on a sheet of the bike folder opens exactly that value, and saving brings you back to the sheet.':

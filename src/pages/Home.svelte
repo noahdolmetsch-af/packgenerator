@@ -842,7 +842,7 @@
       <div class="tc">
         <h2 id="next-h" class="tt">{t('No trip planned')}</h2>
         <p class="meta">{t('Start a packing list from a template, from your last trip or from Standard.')}</p>
-        <div class="acts"><button type="button" class="btn hi main" onclick={() => (countUse('trip'), openNew('list'))}>{t('Start a new trip')}</button></div>
+        <div class="acts"><button type="button" class="btn hi main" onclick={() => (countUse('trip'), openNew('list'))} data-explain={t('Start a new trip')}>{t('New trip')}</button></div>
       </div>
     </section>
   {/if}
@@ -938,7 +938,7 @@
         </li>
         <li class:done={steps.trip}>
           {@render mark(steps.trip, 3)}
-          {#if steps.trip}<span class="txt">{t('Plan your first trip')}</span>{:else}<button type="button" class="btn sm step" onclick={() => openNew('list')}>{t('Plan your first trip')}</button>{/if}
+          {#if steps.trip}<span class="txt">{t('Plan your first trip')}</span>{:else}<button type="button" class="btn sm step" onclick={() => openNew('list')} data-explain={t('Plan your first trip')}>{t('Plan a trip|first')}</button>{/if}
         </li>
       </ol>
     </section>

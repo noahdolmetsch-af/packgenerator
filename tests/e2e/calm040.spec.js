@@ -54,8 +54,9 @@ test('Inbox: one light button per note, the rest behind •••, the suggestio
   await expect(note.locator('.acts > .btn')).toHaveText(T('File'));
   await expect(note.locator('.btn.hi')).toHaveCount(0);
   await expect(note.locator('.sug')).toContainText(T('Suggestion: {what}', { what: T('Problem on a bike') }));
+  // v0.117.0 «Knöpfe neu» (N2, changed on purpose): «…» lists its actions with an explanation each
   await note.getByLabel(T('More for this note')).click();
-  await expect(note.getByRole('button', { name: T('Delete'), exact: true })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: new RegExp(`^${T('Delete')}`) })).toBeVisible();
   await noSideways(page);
   await shot(page, info, 'inbox');
   expect(errors).toEqual([]);

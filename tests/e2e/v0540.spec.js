@@ -109,7 +109,7 @@ test('lighter alternatives in the row Gewicht: linked first, suggestions with Al
   // nothing was chosen for the item
   expect((await table(page, 'items')).find((i) => i.id === 'CO03').altFor ?? null).toBe(null);
   // «Als Alternative merken» links them: the pot now stands in for this item, shown as linked; Undo unlinks
-  await cards.first().getByRole('button', { name: 'Als Alternative merken' }).click();
+  await cards.first().getByRole('button', { name: 'Als Alternative' }).click();
   await expect(w).toContainText('Leichteste Alternative: Titanium pot, 58 g weniger · von dir verknüpft');
   await expect(cards).toHaveCount(1);
   await expect.poll(async () => (await table(page, 'items')).find((i) => i.id === 'CO02').altFor).toBe('CO03');

@@ -116,7 +116,7 @@
           </p>
           <div class="acts">
             <button type="button" class="btn hi" onclick={() => takeStrava(main)}>{t('Take the Strava value')}</button>
-            <button type="button" class="btn" aria-expanded={corr} onclick={() => openCorr(main)}>{t('Correction with a reason')}</button>
+            <button type="button" class="btn" aria-expanded={corr} onclick={() => openCorr(main)} data-explain={t('Correction with a reason')}>{t('Correct|km')}</button>
             <button type="button" class="lnk" onclick={putOff}>{t('later')}</button>
           </div>
           {#if corr}

@@ -166,12 +166,12 @@ test('Kleiderschrank 2: order, gap to wishlist, offset reset, Alltag only, photo
   const gap = gaps.first();
   await expect(gap).toContainText(T('No gloves below {n} °C', { n: 4 }));
   await shot(page, info, 'kleiderschrank');
-  await gap.getByRole('button', { name: T('Add to wishlist') }).click();
+  await gap.getByRole('button', { name: T('Wishlist|put') }).click();
   await expect(gap).toContainText(T('On the wishlist: {name}', { name: T('Warm gloves') }));
   const wish = (await table(page, 'items')).find((i) => i.from === 'wardrobe');
   expect(wish).toMatchObject({ name: T('Warm gloves'), ownership: 'wishlist', layer: 'accessory', zone: 'hands', note: T('No gloves below {n} °C', { n: 4 }) });
   await page.getByRole('status').getByRole('button', { name: T('Undo') }).click();
-  await expect(gap.getByRole('button', { name: T('Add to wishlist') })).toBeVisible();
+  await expect(gap.getByRole('button', { name: T('Wishlist|put') })).toBeVisible();
   await expect.poll(async () => (await table(page, 'items')).some((i) => i.from === 'wardrobe')).toBe(false);
 
   // 6. A photo for a piece: in the item dialog, small in the wardrobe, removable.
@@ -196,7 +196,7 @@ test('Kleiderschrank 2: order, gap to wishlist, offset reset, Alltag only, photo
 
   // 5. Today's suggestion as a temperature kit (a building block with minC / maxC), with Undo.
   // v0.47.0: the today card in the side column has its own "Save as kit …"; this is the one in the bar
-  await page.locator('.wmain .bar').getByRole('button', { name: T('Save as kit …') }).click();
+  await page.locator('.wmain .bar').getByRole('button', { name: T('As kit …') }).click();
   const form = page.getByRole('form', { name: T('Save as kit') });
   await form.getByRole('button', { name: T("Today's suggestion ({c} °C)", { c: 4 }) }).click();
   await expect(page.locator('.selbar b.num')).toHaveText(T('{n} selected', { n: 7 }));

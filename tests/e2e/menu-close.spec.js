@@ -39,31 +39,39 @@ async function start(page, context, info) {
 }
 
 test('Bike care problems: a tap outside closes the more menu, at once', async ({ page, context }, info) => {
+  // v0.117.0 «Knöpfe neu»: the menu is ui/MoreActions.svelte (a list under the button on a computer,
+  // a sheet from the bottom on a phone); open or closed is read from the button's aria-expanded.
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${BIKE}&open=1`);
   const more = (task) => page.getByLabel(T('More answers for {label}', { label: task }));
-  const box = (task) => page.locator('details.more', { has: more(task) });
+  const sheet = page.locator('dialog.ma-sheet');
+  // outside the menu: the row's own text on a computer, the sheet's dark background on a phone
+  const outside = async (row) => ((await sheet.isVisible()) ? page.mouse.click(12, 12) : row.locator('.rn').click());
   const first = page.locator('.prob').first();
+  const air = page.locator('.prob', { hasText: AIR });
   await expect(first).toContainText(SADDLE); // newest first
   await more(SADDLE).scrollIntoViewIfNeeded();
   await more(SADDLE).click();
-  await expect(box(SADDLE)).toHaveAttribute('open', '');
-  // A tap on the row's own text, outside the menu: the menu closes at once.
-  await first.locator('.rn').click();
-  await expect(box(SADDLE)).not.toHaveAttribute('open', '');
-  // Open again, then a tap on the next problem's name: it closes too, and the next ••• opens alone.
+  await expect(more(SADDLE)).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByRole('menu')).toBeVisible();
+  // A tap outside the menu: it closes at once.
+  await outside(first);
+  await expect(more(SADDLE)).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByRole('menu')).toHaveCount(0);
+  // Open again, then a tap on the next problem: it closes too, and the next one opens alone.
   await more(SADDLE).click();
-  await page.locator('.prob', { hasText: AIR }).locator('.rn').click();
-  await expect(box(SADDLE)).not.toHaveAttribute('open', '');
+  await expect(more(SADDLE)).toHaveAttribute('aria-expanded', 'true');
+  await outside(air);
+  await expect(more(SADDLE)).toHaveAttribute('aria-expanded', 'false');
   await more(AIR).click();
-  await expect(box(AIR)).toHaveAttribute('open', '');
-  await expect(page.locator('details.more[open]')).toHaveCount(1);
-  // Its own ••• still closes it, and an answer still works.
+  await expect(more(AIR)).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByRole('menu')).toHaveCount(1);
+  // Escape closes it, and an answer still works.
+  await page.keyboard.press('Escape');
+  await expect(more(AIR)).toHaveAttribute('aria-expanded', 'false');
   await more(AIR).click();
-  await expect(box(AIR)).not.toHaveAttribute('open', '');
-  await more(AIR).click();
-  await box(AIR).getByRole('button', { name: T('Not needed any more') }).click();
-  await expect(page.locator('.prob', { hasText: AIR })).toHaveCount(0);
+  await page.getByRole('menuitem', { name: new RegExp(`^${T('Not needed any more')}`) }).click();
+  await expect(air).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

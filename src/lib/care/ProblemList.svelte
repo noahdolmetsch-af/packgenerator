@@ -5,7 +5,9 @@
    * the way to fix it (route: myself, with a guide, bike shop, part needed). The priority is a button
    * in the row (v0.46.1), Done and the other answers as before (••• menu).
    */
-  import { Check, ChevronDown } from '@lucide/svelte';
+  import { Check, ChevronDown, Flag, Wrench, X as XIcon } from '@lucide/svelte';
+  import Btn from '../ui/Btn.svelte';
+  import { explain } from '../ui/explain.js';
   import MoreMenu from './MoreMenu.svelte';
   import { FIXES, stepFor, PRIORITIES, PRIORITY_NAME, isLate } from '../problems.js';
   import { setFix } from '../problemsdb.js';
@@ -68,12 +70,14 @@
               <button type="button" class="prio" class:hi={task.priority === 'high'} aria-expanded={prioOpen === task.id} aria-controls="prio-{task.id}" onclick={() => ((prioOpen = prioOpen === task.id ? null : task.id), (prioSaved = null))}>{t('Priority: {p}', { p: t(PRIORITY_NAME[task.priority] ?? 'Medium') })}<ChevronDown size={14} aria-hidden="true" /></button>{#if task.dueDate} · {t('by {date}', { date: dateOf(task.dueDate) })}{:else if task.beforeRide} · {t('Before the next ride')}{/if}
             </span>
           </div>
-          {#if isOpen(task)}<span class="acts">
-            <button type="button" class="btn sm" onclick={() => onrepair(task, 'done')}><Check size={16} aria-hidden="true" />{t('Done|task')}</button>
+          {#if isOpen(task)}<span class="acts rowacts">
+            <!-- v0.117.0 «Knöpfe neu» (N1/N2): Done, the other answers behind «…», each with its explanation -->
+            <Btn icon={Check} label={t('Done|task')} explain={explain('Done|task')} sub={task.task} class="sm" onclick={() => onrepair(task, 'done')} />
             <MoreMenu label={task.task} actions={[
-              ...PRIORITIES.filter((p) => p !== task.priority).map((p) => ({ name: t('Priority: {p}', { p: t(PRIORITY_NAME[p]) }), run: () => setPriority(task, p) })),
-              ...Object.keys(FIXES).filter((f) => f !== (task.fix ?? '')).map((f) => ({ name: t('Fix: {how}', { how: t(FIXES[f]) }), run: () => setFix(task, f, bike) })),
-              { name: t('Work needed'), run: () => onrepair(task, 'needed') }, { name: t('Not needed any more'), run: () => onrepair(task, 'gone') }]} />
+              { name: t('Done|task'), explain: explain('Done|task'), icon: Check, run: () => onrepair(task, 'done'), current: true },
+              ...PRIORITIES.filter((p) => p !== task.priority).map((p) => ({ name: t('Priority: {p}', { p: t(PRIORITY_NAME[p]) }), explain: explain('Priority|task'), icon: Flag, run: () => setPriority(task, p) })),
+              ...Object.keys(FIXES).filter((f) => f !== (task.fix ?? '')).map((f) => ({ name: t('Fix: {how}', { how: t(FIXES[f]) }), explain: t('Who fixes it and how'), icon: Wrench, run: () => setFix(task, f, bike) })),
+              { name: t('Work needed'), explain: explain('Work needed'), icon: Wrench, run: () => onrepair(task, 'needed') }, { name: t('Not needed any more'), explain: t('Close the problem, nothing to do'), icon: XIcon, run: () => onrepair(task, 'gone') }]} />
           </span>{/if}
           {#if prioOpen === task.id}
             <div class="extra" id="prio-{task.id}">
@@ -169,11 +173,7 @@
     overflow-wrap: break-word;
   }
   .acts {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-left: auto;
+    align-self: center;
   }
   .acts :global(.btn.sm) {
     min-height: 44px;

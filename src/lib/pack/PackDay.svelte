@@ -279,7 +279,7 @@
   {#if wxGap}
     <div class="card wxgap" role="note">
       <p><b>{t('The forecast is {wx}.', { wx: wxText(wxGap.fc) })}</b> {t('This trip is packed for {wx}.', { wx: wxText(wxGap.have) })}</p>
-      <button type="button" class="btn" onclick={onwx}>{t('Pack for the forecast first')}</button>
+      <button type="button" class="btn" onclick={onwx} data-explain={t('Pack for the forecast first')}>{t('Forecast first')}</button>
     </div>
   {/if}
 

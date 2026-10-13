@@ -137,7 +137,7 @@ for (const lang of ['en', 'de']) {
     const n = await list.locator('.mcard').count();
     expect(n).toBeGreaterThan(0);
     await expect(list.getByText('Multi tool', { exact: true })).toHaveCount(0);
-    await page.getByRole('button', { name: T('Show all items') }).first().click();
+    await page.getByRole('button', { name: T('Show all|filter') }).first().click();
     // all items again (on the phone the categories fold shut again, so count instead of looking)
     await expect(page.getByText(T('Only items on no trip for 12 months'))).toHaveCount(0);
     await expect(list.locator('.mcard')).not.toHaveCount(n);

@@ -11,6 +11,24 @@
 
 export const WHATS_NEW = [
   {
+    // v0.117.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 «n1-n4 freigeben»)
+    version: '0.117.0',
+    date: '2026-10-13',
+    title: 'Buttons explain',
+    lead: 'Every button says what it does: point at it on a computer, hold it on the phone.',
+    points: [
+      { text: 'Bike care: one main button per row, the rest behind «…», each with one line that says what it does.', href: '#/bikes?tab=care' },
+      { text: 'After «Done» a short line says what was saved, with «Undo».', href: '#/bikes?tab=care' },
+      { text: 'Button labels have at most two words; the long text shows when you point at the button or hold it.', href: '#/gear' },
+      { text: 'On the phone the buttons of a row sit under its text, as wide as the card.', href: '#/inbox' },
+    ],
+    test: [
+      'Open Bike care and point at «Done» (computer) or hold it (phone): the explanation shows, nothing is saved.',
+      'Tap «…» in a row: every action with one line; on the phone the list opens from the bottom.',
+      'Tap «Done»: the line at the bottom says what was saved; tap «Undo».',
+    ],
+  },
+  {
     // 0.116.2 «Bugfix Dateneingabe» (Noah 13.10.2026): «enter» on a sheet jumped to other pages.
     version: '0.116.2',
     date: '2026-10-13',

@@ -84,7 +84,7 @@ for (const lang of ['de', 'en']) {
     await click(page.getByRole('button', { name: T('Select'), exact: true }));
     for (const id of RAIN) await click(page.getByRole('checkbox', { name: NAMES[id] }));
     const bar = page.getByRole('region', { name: T('Selected items') });
-    await click(bar.getByRole('button', { name: T('Into a building block …') }));
+    await click(bar.getByRole('button', { name: T('Into block …') }));
     const dlg = page.getByRole('dialog', { name: T('Into a building block') });
     // No own block yet: "New building block …" is chosen already.
     await expect(dlg.getByLabel(T('Building block'), { exact: true })).toHaveValue('__new');

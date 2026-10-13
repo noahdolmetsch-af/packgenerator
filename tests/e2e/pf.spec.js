@@ -723,7 +723,7 @@ test('PF12: tick some, navigate and reload; save as template and start a new tri
   await packMenu(page, rec, 'Save as template');
   const td = page.getByRole('dialog', { name: T('Template') });
   await rec.fill(td.getByLabel(T('Name')), tplName);
-  await rec.click(td.getByRole('button', { name: T('Save template') }).or(td.getByRole('button', { name: T('Save as new template') })));
+  await rec.click(td.getByRole('button', { name: T('Save template') }).or(td.getByRole('button', { name: T('New template|save') })));
   await expect(td).toBeHidden();
   const tpl = (await setting(page, 'templates')).find((x) => x.name === tplName);
   await rec.check('the template keeps no ticks', () => expect(tpl.entries.every((e) => !('packed' in e))).toBe(true));
@@ -1057,6 +1057,7 @@ async function packingDay(page, rec, title) {
     await rec.click(whole);
     await expect(pd.locator('.pbag.cur .bagh b')).not.toHaveText(bag);
   }
+  // v0.117.0 «Knöpfe neu»: «Tick all» is now its own short label elsewhere, so name the packing day's button exactly
   const checks = pd.getByRole('button', { name: T('Tick all checks') });
   if (await checks.count()) await rec.click(checks);
   // v0.67.0 (U001): these trips start in three days: «Alles drin.», no «Gute Fahrt!» yet
@@ -1221,7 +1222,9 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   await rec.check('Bike care: the workshop visit is listed for the Spark', () => expect(care).toContainText(`${P} Velo shop`, { timeout: 3000 }));
   // v0.38.0: a tap on the part opens its row, "Record …" the dialog.
   await rec.click(each.getByRole('button', { name: new RegExp(`^${esc(T('Chain'))}`) }).first());
-  await rec.click(each.locator('li.pt.x').getByRole('button', { name: T('Record …') }));
+  // v0.117.0 «Knöpfe neu» (N2, changed on purpose): a due row has one main button, «Record …» is behind «…»
+  await rec.click(each.locator('li.pt.x').getByRole('button', { name: T('More for {title}', { title: T('Chain') }) }));
+  await rec.click(page.getByRole('menuitem', { name: new RegExp(`^${esc(T('Record …|care'))}`) }));
   const part = page.getByRole('dialog').filter({ has: page.getByRole('button', { name: T('Waxed') }) });
   await rec.click(part.getByRole('button', { name: T('Waxed') }));
   await expect(part).toBeHidden();
@@ -1276,8 +1279,8 @@ test('Scenario 5: adapt an existing list: from the template, change it, update t
   const changed = await tripNamed(page, title);
   await packMenu(page, rec, 'Save as template');
   const td = page.getByRole('dialog', { name: T('Template') });
-  await rec.check('the dialog offers to update the template it came from', () => expect(td.getByRole('button', { name: T('Update template «{name}»', { name: tplName }) })).toBeVisible({ timeout: 2000 }));
-  await rec.click(td.getByRole('button', { name: T('Update template «{name}»', { name: tplName }) }));
+  await rec.check('the dialog offers to update the template it came from', () => expect(td.getByRole('button', { name: T('Update|template') })).toBeVisible({ timeout: 2000 }));
+  await rec.click(td.getByRole('button', { name: T('Update|template') }));
   await expect(td).toBeHidden();
   rec.stop();
   const tpl = (await setting(page, 'templates')).find((x) => x.id === 'tpl-gtp-evening');

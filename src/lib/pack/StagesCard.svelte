@@ -75,7 +75,7 @@
         </fieldset>
       {/each}
       <div class="foot">
-        {#if own}<button type="button" class="btn btn-link" onclick={reset}>{t('Share out evenly again')}</button>{/if}
+        {#if own}<button type="button" class="btn btn-link" onclick={reset} data-explain={t('Share out evenly again')}>{t('Even out')}</button>{/if}
         <button type="button" class="btn" onclick={() => el.close()}>{t('Cancel')}</button>
         <button type="submit" class="btn hi">{t('Save')}</button>
       </div>
