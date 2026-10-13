@@ -313,6 +313,11 @@ test('question 15 on a Sunday evening: 1–10 and one sentence, saved', async ({
 test('the tip about the long press closes for good; a long press shows the sizes of the tile', async ({ page, context }, info) => {
   const errors = await open(page, context, '07:52');
   const hint = page.locator('[data-hint="longpress"]');
+  // one hint on top at a time: while «Connect Strava» shows, the tip waits; «Later» brings it
+  const sc = page.locator('[data-section="strava-connect"]');
+  await expect(sc).toBeVisible();
+  await expect(hint).toHaveCount(0);
+  await sc.getByRole('button', { name: T('Later') }).click();
   await expect(hint).toContainText(T('Press a tile long to change its size. Or «{customise}».', { customise: T('Customise the start page') }));
   await hint.getByRole('button', { name: T('Close the tip') }).click();
   await expect(hint).toHaveCount(0);

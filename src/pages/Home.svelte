@@ -707,6 +707,8 @@
   // v0.127.0 «Tages-Check» 2: the hint to the long press shows until it is closed (settings, in every backup)
   const HINT_KEY = 'homeHintLongPress';
   const closeHint = () => db.settings.put({ key: HINT_KEY, value: true });
+  // 0.125.0 Tagespaket: one hint on top at a time, the tip waits while «Connect Strava» shows
+  let stravaCard = $state(false);
   const tripsDone = $derived(homeTrips(allTrips).filter((x) => tripDone(x, debriefs, today)).length);
   // a short line under a small function tile (a computer, or a wide tile)
   const gearN = $derived(items.filter(isInventory).length);
@@ -1012,9 +1014,9 @@
   <!-- v0.116.0 «Strava-Verbindung» (4b, S4): a changed Strava bike asks here, on top, until you choose -->
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
   <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card on top -->
-  {#if !editing}<StravaConnect wide={!phone.matches} />{/if}
+  {#if !editing}<StravaConnect wide={!phone.matches} bind:shown={stravaCard} />{/if}
   <!-- v0.127.0 «Tages-Check» 2 (mockup T3): the hint to the long press, once, until it is closed -->
-  {#if !editing && $setQ && !S[HINT_KEY]}
+  {#if !editing && $setQ && !S[HINT_KEY] && !stravaCard}
     <p class="lphint" role="note" data-hint="longpress">
       <Hand size={18} aria-hidden="true" />
       <span><b>{t('Tip:')}</b> {t('Press a tile long to change its size. Or «{customise}».', { customise: t('Customise the start page') })}</span>
