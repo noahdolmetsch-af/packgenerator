@@ -326,7 +326,7 @@
           </Sec>
 
           <Sec id="ms-h" title={t('Milestones')} more={{ href: `${base}/mehr?open=stars`, label: t('All') }}>
-            <div class="card pad"><TrophyShelf items={shelf} next={shelfNext} /></div>
+            <div class="card pad"><TrophyShelf items={shelf} next={shelfNext} more="#/flow/trophies?area={encodeURIComponent(actId)}" /></div>
           </Sec>
 
           {#if path}

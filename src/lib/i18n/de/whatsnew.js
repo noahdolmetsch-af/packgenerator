@@ -4,6 +4,14 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.123.0 Trophäen-Vitrine
+  'All your stars in one showcase': 'Alle deine Sterne in einer Vitrine',
+  'Every star you reached, by area and year, on one page. Reached ones stay.': 'Jeder Stern, den du erreicht hast, nach Bereich und Jahr auf einer Seite. Erreichte bleiben.',
+  'Trophy showcase: all stars by area and year': 'Trophäen-Vitrine: alle Sterne nach Bereich und Jahr',
+  'Trophy shelf: «See all trophies» opens it': 'Trophäen-Regal: «Alle Trophäen ansehen» öffnet sie',
+  'Next within reach: the three closest stars': 'Als Nächstes erreichbar: die drei nächsten Sterne',
+  'Open Aktiv › Aktivität › Milestones and tap «See all trophies» under the trophy shelf.': 'Öffne Aktiv › Aktivität › Meilensteine und tippe unter dem Trophäen-Regal auf «Alle Trophäen ansehen».',
+  'Tap a year: only the stars of that year stay.': 'Tippe ein Jahr an: nur die Sterne dieses Jahres bleiben.',
   // 0.121.0 Strava-Fahrten zählen mit
   'Strava rides count along': 'Strava-Fahrten zählen mit',
   'Your Strava rides now count in «This week» and «Bike this month», each ride once.': 'Deine Strava-Fahrten zählen jetzt bei «Diese Woche» und «Velo in diesem Monat» mit, jede Fahrt nur einmal.',
@@ -17,7 +25,7 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.123.0 Neue Tour Teil 2 (mockups B4/B5)
+  // 0.124.0 Neue Tour Teil 2 (mockups B4/B5)
   'Blocks you can tap': 'Bausteine zum Antippen',
   'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.': 'In Packen ist jeder Baustein jetzt ein grosser Knopf, und Reparatur reist leicht mit höchstens 8 Teilen.',
   'Building blocks as big buttons at the top of Packen: green with a check is on the trip, white with + can be added.':
