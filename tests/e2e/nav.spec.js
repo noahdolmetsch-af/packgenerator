@@ -49,8 +49,9 @@ for (const lang of ['en', 'de']) {
     const width = page.viewportSize().width;
     for (const [hash, place] of ROUTES) {
       await page.goto(`./${hash}`);
-      // v0.78.0: the tabs of a place (nav.ptabs) may also link to #/gear; this is the main navigation
-      const nav = page.locator('nav[aria-label]:not(.ptabs)').filter({ visible: true }).filter({ has: page.locator(`a[href="#/gear"]`) });
+      // v0.78.0: the tabs of a place (nav.ptabs) may also link to #/gear; this is the main navigation.
+      // SN5 (approved): a sub-page's path line (nav.pcrumbs, e.g. «Material › Favoriten») links back too.
+      const nav = page.locator('nav[aria-label]:not(.ptabs):not(.pcrumbs)').filter({ visible: true }).filter({ has: page.locator(`a[href="#/gear"]`) });
       await expect(nav, hash).toHaveCount(1);
       // the same places (v0.76.0: five, read from nav.js), in the same order, on every page (the sidebar also lists their pages)
       const places = page.locator('nav.bottom a, .side li.pl > a.pa');
