@@ -6,7 +6,7 @@
    *   in "All notes" as sorted, the repair lands in db.maintenance.
    * - 'idea': "Was geil wäre", the bike's own idea list (bike.ideas, hubs.js).
    * - 'visit': a workshop visit typed in by hand (date, shop, km, cost, receipt photo) → db.visits.
-   *   v0.124.0 A-J1 (mockup, Noah «aj-aj5 ok», 1a): also the window of «New › Workshop visit». The km
+   *   v0.125.0 A-J1 (mockup, Noah «aj-aj5 ok», 1a): also the window of «New › Workshop visit». The km
    *   (km book) and the last workshop are filled in, on a green field with where they come from; one
    *   tap on a known shop or a job chip («What was done?», optional) fills the rest. All can be changed.
    */

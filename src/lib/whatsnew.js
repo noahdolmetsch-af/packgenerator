@@ -16,8 +16,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.124.0 A-J1 «Ein Weg zum Erfassen» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok», answer 1a)
-    version: '0.124.0',
+    // v0.125.0 A-J1 «Ein Weg zum Erfassen» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok», answer 1a)
+    version: '0.125.0',
     date: '2026-10-13',
     title: 'Straight to the workshop',
     lead: 'The visit to the bike shop now opens straight from New, with the km and the last shop already filled in.',
@@ -37,8 +37,8 @@ export const WHATS_NEW = [
     ],
   },
   {
-    // v0.123.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
-    version: '0.123.0',
+    // v0.124.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
+    version: '0.124.0',
     date: '2026-10-13',
     title: 'Blocks you can tap',
     lead: 'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.',
@@ -55,6 +55,22 @@ export const WHATS_NEW = [
       'Open a bike trip and go to Packen: at the top «Building blocks · n on · m to choose».',
       'Tap a white block with +: it turns green with a check and its items are on the list. Tap it again: they go.',
       'With a Repair of more than 8 parts tap its dashed button: choose the parts and tap «Take 8 parts».',
+    ],
+  },
+  {
+    // v0.123.0 «Trophäen-Vitrine» (mockups TV1–TV2, Noah 13.10.2026 «tv1-tv2 freigeben»)
+    version: '0.123.0',
+    date: '2026-10-13',
+    title: 'All your stars in one showcase',
+    lead: 'Every star you reached, by area and year, on one page. Reached ones stay.',
+    points: [
+      { text: 'Trophy showcase: all stars by area and year', href: '#/flow/trophies' },
+      { text: 'Trophy shelf: «See all trophies» opens it', href: '#/flow/milestones' },
+    ],
+    small: [{ box: 'new', text: 'Next within reach: the three closest stars', href: '#/flow/trophies' }],
+    test: [
+      'Open Aktiv › Aktivität › Milestones and tap «See all trophies» under the trophy shelf.',
+      'Tap a year: only the stars of that year stay.',
     ],
   },
   {

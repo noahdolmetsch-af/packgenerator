@@ -29,7 +29,7 @@
   import '../trip/trip.css';
 
   let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], oncharge = null, pressure = '', stats = null, charge = null, top = null } = $props();
-  // v0.123.0 B4 (mockup «Bausteine beim Packen»): top: the building blocks as big buttons (Pack's PackBlocks), above the bags.
+  // v0.124.0 B4 (mockup «Bausteine beim Packen»): top: the building blocks as big buttons (Pack's PackBlocks), above the bags.
   // v0.105.0 P5 (T6): stats for «Gewicht nach Taschen»; charge { names, done, total } for the row «Laden» in «Mehr».
   // v0.65.0 «Velo-Masse»: pressure: the trip bike's target pressure («1.6 / 1.7 bar»), named in the tyre row.
   const readyLabel = (r) => (r.id === 'tyres' && pressure ? `${t(r.label)} · ${t('Target')} ${pressure}` : t(r.label));

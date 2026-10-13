@@ -141,7 +141,7 @@ test('Rahmenbedingungen: Sportart, no past trip, templates as buttons, weather b
   await dlg.screenshot({ path: info.outputPath('rahmen.png') });
   await page.setViewportSize(vp);
 
-  // the trip: the start place, the event, Charging not by themselves. v0.123.0 B5 (Noah «a ★ Ja, schlank
+  // the trip: the start place, the event, Charging not by themselves. v0.124.0 B5 (Noah «a ★ Ja, schlank
   // dabei»): the fixture's Repair is slim (4 parts, at most 8), so it comes again as a suggestion.
   await dlg.getByRole('textbox', { name: T('Name') }).fill('test_data_gtp_ Rahmen');
   await tap(submit, info);

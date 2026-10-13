@@ -293,6 +293,52 @@ export function nextPerAct(list) {
   return by;
 }
 
+/* ---------- the trophy showcase (TV1, Noah 13.10.2026 «tv1-tv2 freigeben») ---------- */
+/**
+ * All stars reached, by area and year. Area = 'cross' (over all) or the activity's id. year: 'YYYY' to
+ * keep only the stars of that year, or null. → { groups: [{ key, items: [{ id, r, star, day }] (per
+ * milestone its highest star, newest first), count (stars), next (the closest open milestone) }],
+ * years: [{ year, count, top (the area with most stars) }] newest first, soon: the 3 closest open ones,
+ * waiting: the areas without a star yet (their keys) }. An area shows only once it has a star.
+ * Only what is reached today; nothing is made up. Hidden milestones (off) drop out.
+ */
+export function showcase(list, year = null) {
+  const shown = list.filter((r) => !r.off);
+  const inYear = (s) => !year || s.day.startsWith(year);
+  const keyOf = (r) => r.m.actId ?? 'cross';
+  const by = new Map();
+  for (const r of shown) {
+    const k = keyOf(r);
+    if (!by.has(k)) by.set(k, { key: k, items: [], count: 0, next: null });
+    const g = by.get(k);
+    const got = r.reached.filter(inYear);
+    g.count += got.length;
+    if (got.length) {
+      const top = got.reduce((a, b) => (b.star > a.star ? b : a));
+      g.items.push({ id: top.id, r, star: top.star, day: top.day });
+    }
+    if (r.next && (!g.next || r.progress > g.next.progress)) g.next = r;
+  }
+  const groups = [...by.values()].filter((g) => g.count);
+  const waiting = [...by.values()].filter((g) => !g.count && !year).map((g) => g.key);
+  for (const g of groups) g.items.sort((a, b) => b.day.localeCompare(a.day) || b.star - a.star);
+  groups.sort((a, b) => (a.key === 'cross' ? -1 : b.key === 'cross' ? 1 : b.count - a.count));
+  const ys = new Map();
+  for (const r of shown)
+    for (const s of r.reached) {
+      const y = s.day.slice(0, 4);
+      if (!ys.has(y)) ys.set(y, { year: y, count: 0, per: new Map() });
+      const e = ys.get(y);
+      e.count++;
+      e.per.set(keyOf(r), (e.per.get(keyOf(r)) ?? 0) + 1);
+    }
+  const years = [...ys.values()]
+    .sort((a, b) => b.year.localeCompare(a.year))
+    .map((e) => ({ year: e.year, count: e.count, top: [...e.per.entries()].sort((a, b) => b[1] - a[1])[0][0] }));
+  const soon = shown.filter((r) => r.next).sort((a, b) => b.progress - a.progress || a.target - b.target).slice(0, 3);
+  return { groups, years, soon, waiting };
+}
+
 /* ---------- the record wall ---------- */
 /**
  * The personal bests that have data: [{ id, value, unit, what, day? }]. rides: the uploaded rides

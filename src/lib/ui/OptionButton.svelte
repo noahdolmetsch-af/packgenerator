@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.123.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»): the one option button of
+   * v0.124.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»): the one option button of
    * the app (pattern N1–N4). It was the local `.obtn` of the trip window (v0.114.0, templates and examples).
    *
    *   <OptionButton pressed={on} label={t('Standard')} onclick={…} />                         small (templates)
