@@ -26,6 +26,8 @@
   import { Copy, Printer, Pencil, Share2, Check } from '@lucide/svelte';
   import VeloHead from './VeloHead.svelte';
   import SheetFolder from './SheetFolder.svelte';
+  import ValueCard from './ValueCard.svelte';
+  import { FIT_KEY, fitValue, setFit, readValue } from '../bikespecs.js';
 
   let { bikeId, sheet = 'pass', from = null } = $props();
 
@@ -69,9 +71,9 @@
   ]);
   let choosing = $state(false);
   const EDIT = { pass: 'equipment', plan: 'care', order: 'care', pickup: 'equipment', breakin: 'setup', kit: 'gear', warranty: 'form', theft: 'form' };
-  // Bugfix Dateneingabe: the values of the Bike pass and the Pick-up check are typed on the bike's Equipment
-  // (fit values on top, every part below), not on the top of the bike page far from them.
-  const editHref = $derived(sheet === 'all' || EDIT[sheet] === 'form' ? null : EDIT[sheet] === 'gear' ? '#/gear' : EDIT[sheet] === 'equipment' ? bikesHash({ tab: 'compare', bike: bikeId }) : EDIT[sheet] === 'setup' ? bikesHash({ tab: 'setup', bike: bikeId, open: true }) : bikesHash({ tab: 'care', bike: bikeId, open: true }));
+  // Bugfix Dateneingabe: the values of the Bike pass and the Pick-up check are typed on «Enter values»
+  // (D2, every value of the bike on one page), not on the top of the bike page far from them.
+  const editHref = $derived(sheet === 'all' || EDIT[sheet] === 'form' ? null : EDIT[sheet] === 'gear' ? '#/gear' : EDIT[sheet] === 'equipment' ? bikesHash({ tab: 'compare', view: 'enter', bike: bikeId }) : EDIT[sheet] === 'setup' ? bikesHash({ tab: 'setup', bike: bikeId, open: true }) : bikesHash({ tab: 'care', bike: bikeId, open: true }));
 
   /* ---------- storing on the bike (plain data: Dexie cannot store a state proxy) ---------- */
   async function store(changes) {
@@ -83,6 +85,41 @@
   let wishes = $state(null); // the text while typing; null: as stored
   const saveWishes = () => wishes != null && store({ wishes: wishes.trim() });
   const tick = (id, on) => store({ pickup: tickPickup($state.snapshot(data.pickup.pickup), id, on) });
+
+  /* ---------- «Bugfix Dateneingabe» D1a: the values of the Pick-up check typed right on the sheet ---------- */
+  let openVal = $state(null); // the id of the open value card ('val:<fit key>')
+  const valRow = (r) => {
+    const k = r.id.slice(4);
+    const f = FIT_KEY[k];
+    return { id: r.id, label: f.name, unit: f.unit ?? '', num: !!f.num, value: bike ? fitValue(bike, k) : null };
+  };
+  const valRows = $derived(data ? data.pickup.sections.find((x) => x.key === 'values').rows.map(valRow) : []);
+  // the value before the pick-up: kept on the check the first time a value is changed there
+  const beforeOf = (r) => {
+    const b = data?.pickup.pickup.before ?? {};
+    return r.id in b ? b[r.id] : r.value;
+  };
+  const valDone = $derived(valRows.filter((r) => data.pickup.pickup.ticks?.[r.id]).length);
+  function nextVal(id) {
+    const n = valRows.findIndex((r) => r.id === id);
+    openVal = valRows.slice(n + 1).find((r) => !data.pickup.pickup.ticks?.[r.id])?.id ?? null;
+  }
+  async function saveVal(r, input) {
+    const stored = await db.bikes.get(bikeId);
+    if (!stored) return;
+    const k = r.id.slice(4);
+    const v = input == null || input === '' ? null : typeof input === 'string' ? readValue(input, r.num) : input;
+    const pickup = $state.snapshot(data.pickup.pickup);
+    const before = { ...(pickup.before ?? {}) };
+    if (!(r.id in before)) before[r.id] = fitValue(stored, k);
+    const changes = String(v ?? '') === String(fitValue(stored, k) ?? '') ? {} : setFit(stored, k, v);
+    await db.bikes.update(bikeId, { ...changes, sheets: { ...sheetsOf(stored), pickup: { ...tickPickup(pickup, r.id, true), before } } });
+    nextVal(r.id);
+  }
+  const skipVal = async (r) => {
+    await tick(r.id, true);
+    nextVal(r.id);
+  };
 
   /* ---------- the text of a sheet (V3 a) ---------- */
   const STAND = () => t('As of {date}', { date: dateOf(today) });
@@ -262,6 +299,14 @@
     <section class="psec" aria-label={sec.name}>
       <h3>{sec.name}</h3>
       {#if !sec.rows.length}<p class="quiet">{t('No job on the order.')}</p>{/if}
+      {#if sec.key === 'values' && sec.rows.length}
+        <p class="vprog"><span>{t('{n} of {all} entered', { n: valDone, all: valRows.length })}</span><span class="vbar" aria-hidden="true"><i style:width="{Math.round((valDone / valRows.length) * 100)}%"></i></span></p>
+        <ul class="vcards">
+          {#each valRows as r (r.id)}
+            <ValueCard row={r} before={beforeOf(r)} done={!!data.pickup.pickup.ticks?.[r.id]} open={openVal === r.id} disabled={!!applied} onopen={() => (openVal = r.id)} onsave={(v) => saveVal(r, v)} onskip={() => skipVal(r)} />
+          {/each}
+        </ul>
+      {:else}
       <ul class="checks">
         {#each sec.rows as r (r.id)}
           <li>
@@ -270,6 +315,7 @@
           </li>
         {/each}
       </ul>
+      {/if}
     </section>
   {/each}
   <div class="sign"><span>{t('Date, picked up')}</span><span>{t('Remarks')}</span></div>
@@ -438,6 +484,31 @@
   }
   .vals {
     margin: 0;
+  }
+  .vprog {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 2px 0 10px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .vbar {
+    flex: 1;
+    height: 6px;
+    border-radius: 99px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .vbar i {
+    display: block;
+    height: 100%;
+    border-radius: 99px;
+    background: var(--ok);
+  }
+  .vcards {
+    margin: 0;
+    padding: 0;
   }
   .vr {
     display: grid;
