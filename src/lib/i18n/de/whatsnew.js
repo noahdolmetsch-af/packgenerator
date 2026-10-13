@@ -4,12 +4,20 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.121.0 Strava-Fahrten zählen mit
+  'Strava rides count along': 'Strava-Fahrten zählen mit',
+  'Your Strava rides now count in «This week» and «Bike this month», each ride once.': 'Deine Strava-Fahrten zählen jetzt bei «Diese Woche» und «Velo in diesem Monat» mit, jede Fahrt nur einmal.',
+  'Today: «This week» and «Bike this month» count your Strava rides': 'Heute: «Diese Woche» und «Velo in diesem Monat» zählen deine Strava-Fahrten',
+  'Aktiv: «Bike this month» from your rides and Strava': 'Aktiv: «Velo in diesem Monat» aus deinen Fahrten und Strava',
+  'A ride in «To check» counts after «Fits»': 'Eine Fahrt in «Zum Prüfen» zählt nach «Passt»',
+  'Connect Strava and ride once: on Today «This week» shows the day as active.': 'Strava verbinden und einmal fahren: Auf Heute zeigt «Diese Woche» den Tag als aktiv.',
+  'Open Aktiv: «Bike this month» adds the Strava kilometres.': 'Aktiv öffnen: «Velo in diesem Monat» zählt die Strava-Kilometer dazu.',
   'Older updates': 'Ältere Updates',
   'Version {v}': 'Version {v}',
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
-  // 0.122.0 A-J1 Ein Weg zum Erfassen (mockup A-J1)
+  // 0.124.0 A-J1 Ein Weg zum Erfassen (mockup A-J1)
   'Straight to the workshop': 'Direkt in die Werkstatt',
   'The visit to the bike shop now opens straight from New, with the km and the last shop already filled in.':
     'Der Besuch beim Velomech geht jetzt direkt aus Neu, mit km und letzter Werkstatt schon eingetragen.',
@@ -26,7 +34,7 @@ export default {
     '«Kette ersetzt» antippen, Kosten eintippen und «Speichern» tippen: Werkstatt & Belege des Velos zeigt den Besuch.',
   'Tap «Undo» in the message: the visit is gone again.': 'In der Meldung «Rückgängig» tippen: Der Besuch ist wieder weg.',
 
-  // 0.120.0 Neue Tour Teil 2 (mockups B4/B5)
+  // 0.123.0 Neue Tour Teil 2 (mockups B4/B5)
   'Blocks you can tap': 'Bausteine zum Antippen',
   'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.': 'In Packen ist jeder Baustein jetzt ein grosser Knopf, und Reparatur reist leicht mit höchstens 8 Teilen.',
   'Building blocks as big buttons at the top of Packen: green with a check is on the trip, white with + can be added.':
@@ -41,6 +49,22 @@ export default {
     'Tippe einen weissen Baustein mit + an: Er wird grün mit Haken und seine Teile sind auf der Liste. Tippe nochmals: Sie gehen wieder.',
   'With a Repair of more than 8 parts tap its dashed button: choose the parts and tap «Take 8 parts».':
     'Hat Reparatur mehr als 8 Teile, tippe ihren gestrichelten Knopf an: Wähle die Teile und tippe «8 Teile übernehmen».',
+  // 0.122.0 Dateneingabe (D1–D4)
+  'Values in one go': 'Werte in einem Zug',
+  'Bike values go in right where you are: on the sheet or on one page, field after field.':
+    'Velowerte trägst du gleich dort ein, wo du bist: im Blatt oder auf einer Seite, Feld für Feld.',
+  'The Pick-up check shows each value as a card: tap it, type, and «Next» opens the next one. − and + help, and «As before» keeps the old value.':
+    'Der Abhol-Check zeigt jeden Wert als Karte: antippen, tippen, und «Weiter» öffnet die nächste. − und + helfen, «Wie vorher» behält den alten Wert.',
+  'New page «Enter values» under Equipment: all values of a bike in four groups, every entry saves at once.':
+    'Neue Seite «Werte erfassen» unter Ausstattung: alle Werte eines Velos in vier Gruppen, jede Eingabe speichert sofort.',
+  '«Choose fields» hides fields you never need, for all bikes; «Own field» adds a value with name and unit.':
+    '«Felder wählen» blendet Felder aus, die du nie brauchst, für alle Velos; «Eigenes Feld» fügt einen Wert mit Name und Einheit hinzu.',
+  'Open a bike › Workshop › Pick-up check: tap a value, type a number and press Enter: the card is ticked and the next one opens.':
+    'Ein Velo öffnen › Werkstatt › Abhol-Check: einen Wert antippen, eine Zahl tippen und Enter drücken: Die Karte ist abgehakt, die nächste geht auf.',
+  'Go to Equipment › «Enter values»: type a value and press Enter, the next field gets the cursor.':
+    'Zu Ausstattung › «Werte erfassen»: einen Wert tippen und Enter drücken, das nächste Feld bekommt den Cursor.',
+  'Tap «Choose fields», switch a field off: it is gone here, the Bike pass still shows it.':
+    '«Felder wählen» tippen, ein Feld ausschalten: Hier ist es weg, der Velo-Pass zeigt es weiter.',
 
   // 0.119.0 Schnellstart (mockups Q1–Q3)
   'Trip in one click': 'Tour mit 1 Klick',

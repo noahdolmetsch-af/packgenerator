@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.120.0 «Neue Tour Teil 2», B5 «Reparatur unterwegs» (mockup B5, Noah 12.10.2026 «b2 b4 b5 ok», answer 6a):
+   * v0.123.0 «Neue Tour Teil 2», B5 «Reparatur unterwegs» (mockup B5, Noah 12.10.2026 «b2 b4 b5 ok», answer 6a):
    * the block Repair holds the whole workshop; for the ride the app suggests at most 8 light parts as option
    * buttons (the same as the blocks in Packen, not a checklist). A tap moves a part between «Für unterwegs»
    * and «Bleibt in der Werkstatt». «Später» closes without a change; «8 Teile übernehmen» keeps them in the

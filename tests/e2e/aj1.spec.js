@@ -1,4 +1,4 @@
-// v0.122.0 A-J1 «Ein Weg zum Erfassen: Problem, km, Werkstatt» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok», answer 1a):
+// v0.124.0 A-J1 «Ein Weg zum Erfassen: Problem, km, Werkstatt» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok», answer 1a):
 // «Neu › Werkstattbesuch» opens the real visit window (no note in the Inbox any more), with the km from the
 // km book and the last workshop filled in on a green field with its origin, always changeable. After saving:
 // the bike's «Werkstatt & Belege» with «Werkstattbesuch gespeichert.» and Undo. «Problem melden» left Ich

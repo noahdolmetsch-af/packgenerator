@@ -1,4 +1,4 @@
-// v0.120.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»): the building blocks as big
+// v0.123.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»): the building blocks as big
 // buttons in Packen (B4) and «Reparatur unterwegs», at most 8 parts (B5).
 export default {
   // B4 Bausteine beim Packen

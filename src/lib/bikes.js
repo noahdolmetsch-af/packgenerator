@@ -244,7 +244,8 @@ export function parseBikesHash(hash = '') {
   // v0.116.0 «Strava-Verbindung»: &view=strava is the Strava page (S1–S3), &view=strava-check «Zum Prüfen» (S5).
   if (tab === 'care' && ['import', 'strava', 'strava-check'].includes(q.get('view'))) out.view = q.get('view');
   // v0.83.0 «Ausstattung»: tab=compare is the bike's equipment; &view=all is «Compare bikes».
-  if (tab === 'compare' && q.get('view') === 'all') out.view = 'all';
+  // «Bugfix Dateneingabe» D2: &view=enter is «Enter values», every value of one bike on one page.
+  if (tab === 'compare' && ['all', 'enter'].includes(q.get('view'))) out.view = q.get('view');
   // Bugfix Dateneingabe: &edit=<part>:<field> on «Compare bikes» opens that one value of the bike for
   // typing at once; &back=<sheet> (and &from) goes back to that sheet of the folder when it is closed.
   if (tab === 'compare' && out.view === 'all' && out.bike && /^[\w-]+:[\w.-]+$/.test(q.get('edit') ?? '')) {
@@ -280,7 +281,7 @@ export function bikesHash({ tab = 'setup', bike = null, open = false, trip = nul
   const q = new URLSearchParams();
   if (tab === 'care' || tab === 'compare' || tab === 'shop') q.set('tab', tab);
   if (['import', 'strava', 'strava-check'].includes(view) && tab === 'care') q.set('view', view);
-  if (view === 'all' && tab === 'compare') q.set('view', 'all');
+  if ((view === 'all' || view === 'enter') && tab === 'compare') q.set('view', view);
   if (bike) q.set('bike', bike);
   if (open && bike) q.set('open', '1');
   if (trip && tab === 'care') q.set('trip', trip);

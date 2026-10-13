@@ -6,7 +6,7 @@
    * Desktop: the orange "New" in the top bar; phone: the + in the middle of the bottom bar.
    * v0.30.0 (Noah, finding 2): "Plan a trip" opens the "New trip" window straight away with the
    * standard set; the area, a template or a copy of the last trip are chosen in that window.
-   * v0.122.0 A-J1 (mockup, Noah «aj-aj5 ok», answer 1a): «Workshop visit» opens the real visit window
+   * v0.124.0 A-J1 (mockup, Noah «aj-aj5 ok», answer 1a): «Workshop visit» opens the real visit window
    * (BikeQuickDialog 'visit', km and last workshop filled in), no note any more. After saving: the bike's
    * «Workshop & receipts» with «Workshop visit saved. · Undo».
    */
@@ -110,7 +110,7 @@
     </ul>
     <h3 class="ngrp">{t('Bikes|place')}</h3>
     <ul class="opts">
-      <!-- v0.122.0 A-J1: the visit first (the real window, no note), then the problem, then the km -->
+      <!-- v0.124.0 A-J1: the visit first (the real window, no note), then the problem, then the km -->
       {#if bikes.length}<li><button type="button" class="opt" onclick={() => run(() => (visitOpen = true))}><span class="ic" aria-hidden="true"><Receipt size={20} /></span><span class="tx"><b>{t('Workshop visit')}</b><span>{t('Opens the visit, km already filled in')}</span></span></button></li>{/if}
       <!-- v0.45.2 (Noah on the bike): several problems with one bike at once, into Bike care -->
       {#if bikes.length}<li><button type="button" class="opt" onclick={() => (mode = 'problem')}><span class="ic" aria-hidden="true"><TriangleAlert size={20} /></span><span class="tx"><b>{t('Problem with a bike')}</b><span>{t('Air, saddle, battery: one per line')}</span></span></button></li>{/if}

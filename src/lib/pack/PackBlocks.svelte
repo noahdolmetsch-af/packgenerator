@@ -1,6 +1,6 @@
 <script>
   /**
-   * v0.120.0 «Neue Tour Teil 2», B4 «Bausteine beim Packen» (mockup B4, Noah 12.10.2026 «b2 b4 b5 ok»):
+   * v0.123.0 «Neue Tour Teil 2», B4 «Bausteine beim Packen» (mockup B4, Noah 12.10.2026 «b2 b4 b5 ok»):
    * the trip's building blocks as big option buttons at the top of Packen. «Dabei» green with ✓,
    * «Dazunehmen» white with +, a suggestion dashed with a small label. Head «Bausteine · n dabei · m zur Wahl».
    * Hover (computer) or a long press (phone) shows what is in a block (the app's explain bubble, ui/explain.js).

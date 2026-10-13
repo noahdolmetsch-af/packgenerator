@@ -16,8 +16,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.122.0 A-J1 «Ein Weg zum Erfassen» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok», answer 1a)
-    version: '0.122.0',
+    // v0.124.0 A-J1 «Ein Weg zum Erfassen» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok», answer 1a)
+    version: '0.124.0',
     date: '2026-10-13',
     title: 'Straight to the workshop',
     lead: 'The visit to the bike shop now opens straight from New, with the km and the last shop already filled in.',
@@ -37,8 +37,8 @@ export const WHATS_NEW = [
     ],
   },
   {
-    // v0.120.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
-    version: '0.120.0',
+    // v0.123.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
+    version: '0.123.0',
     date: '2026-10-13',
     title: 'Blocks you can tap',
     lead: 'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.',
@@ -55,6 +55,41 @@ export const WHATS_NEW = [
       'Open a bike trip and go to Packen: at the top «Building blocks · n on · m to choose».',
       'Tap a white block with +: it turns green with a check and its items are on the list. Tap it again: they go.',
       'With a Repair of more than 8 parts tap its dashed button: choose the parts and tap «Take 8 parts».',
+    ],
+  },
+  {
+    // v0.122.0 «Bugfix Dateneingabe» D1–D4 (Noah 13.10.2026 «D1–D4 freigegeben», answers «1a 2a 3b 4b 5a», D1a ★)
+    version: '0.122.0',
+    date: '2026-10-13',
+    title: 'Values in one go',
+    lead: 'Bike values go in right where you are: on the sheet or on one page, field after field.',
+    points: [
+      { text: 'The Pick-up check shows each value as a card: tap it, type, and «Next» opens the next one. − and + help, and «As before» keeps the old value.', href: '#/bikes' },
+      { text: 'New page «Enter values» under Equipment: all values of a bike in four groups, every entry saves at once.', href: '#/bikes?tab=compare' },
+      { text: '«Choose fields» hides fields you never need, for all bikes; «Own field» adds a value with name and unit.', href: '#/bikes?tab=compare' },
+    ],
+    test: [
+      'Open a bike › Workshop › Pick-up check: tap a value, type a number and press Enter: the card is ticked and the next one opens.',
+      'Go to Equipment › «Enter values»: type a value and press Enter, the next field gets the cursor.',
+      'Tap «Choose fields», switch a field off: it is gone here, the Bike pass still shows it.',
+    ],
+  },
+  {
+    // v0.121.0 «Strava-Fahrten zählen mit» (mockups SZ1–SZ2, Noah 13.10.2026 «sz1-sz2 freigeben»)
+    version: '0.121.0',
+    date: '2026-10-13',
+    title: 'Strava rides count along',
+    lead: 'Your Strava rides now count in «This week» and «Bike this month», each ride once.',
+    points: [
+      { text: 'Today: «This week» and «Bike this month» count your Strava rides', href: '#/' },
+      { text: 'Aktiv: «Bike this month» from your rides and Strava', href: '#/flow' },
+    ],
+    small: [
+      { box: 'nicer', text: 'A ride in «To check» counts after «Fits»', href: '#/bikes' },
+    ],
+    test: [
+      'Connect Strava and ride once: on Today «This week» shows the day as active.',
+      'Open Aktiv: «Bike this month» adds the Strava kilometres.',
     ],
   },
   {

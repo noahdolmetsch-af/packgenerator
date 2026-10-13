@@ -1,5 +1,5 @@
 /**
- * v0.122.0 A-J1 «Ein Weg zum Erfassen: Problem, km, Werkstatt» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok»):
+ * v0.124.0 A-J1 «Ein Weg zum Erfassen: Problem, km, Werkstatt» (mockup A-J1, Noah 13.10.2026 «aj-aj5 ok»):
  * «Neu › Werkstattbesuch» opens the real visit with km and last workshop filled in. Swiss spelling (ss).
  */
 export default {

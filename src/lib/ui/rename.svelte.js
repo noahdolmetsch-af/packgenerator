@@ -39,7 +39,7 @@ export function offerRename(name, undo = null) {
 }
 
 /**
- * v0.122.0 A-J1: the same calm toast for any saved thing, «<text> · Undo» for 10 s
+ * v0.124.0 A-J1: the same calm toast for any saved thing, «<text> · Undo» for 10 s
  * (e.g. «Workshop visit saved.»). text: already translated; undo: async function or null.
  */
 export function offerDone(text, undo = null) {
