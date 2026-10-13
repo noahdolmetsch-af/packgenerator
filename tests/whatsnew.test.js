@@ -184,3 +184,14 @@ describe('Today: "New since your last visit", once after an update', () => {
     expect(newsHint('0.36.0', true, '0.35.0')).toEqual({ show: false, mark: '0.35.0' });
   });
 });
+
+describe('«Try it» leads somewhere', () => {
+  // v0.121.0 fix (Noah 13.10.2026): «Try it» on Today's tile takes the first point with a place; '#/' is Today
+  // itself, so the tap did nothing. From 0.121.0 on, the first place is never Today.
+  it('the first place of every version from 0.121.0 on is not Today itself', () => {
+    for (const e of WHATS_NEW.filter((x) => compareVersions(x.version, '0.121.0') >= 0)) {
+      const first = e.points.find((p) => p.href || p.action);
+      expect(first?.href, e.version).not.toBe('#/');
+    }
+  });
+});

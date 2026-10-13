@@ -76,8 +76,9 @@ export const WHATS_NEW = [
     title: 'Strava rides count along',
     lead: 'Your Strava rides now count in «This week» and «Bike this month», each ride once.',
     points: [
-      { text: 'Today: «This week» and «Bike this month» count your Strava rides', href: '#/' },
+      // «Try it» takes the first point; '#/' does nothing when you are on Today already, so Aktiv comes first
       { text: 'Aktiv: «Bike this month» from your rides and Strava', href: '#/flow' },
+      { text: 'Today: «This week» and «Bike this month» count your Strava rides', href: '#/' },
     ],
     small: [
       { box: 'nicer', text: 'A ride in «To check» counts after «Fits»', href: '#/bikes' },
