@@ -106,7 +106,7 @@ test('Quick care and base check name the target pressure; the pressure is prefil
   await page.goto(`./#/bikes?tab=care&bike=${SPARK}&open=1`);
   await page.locator('button.prow', { hasText: 'Reifen + Dichtmilch' }).click();
   const dlg = page.getByRole('dialog');
-  await dlg.locator('button.tile', { hasText: 'Warten' }).click();
+  await dlg.locator('[data-did="serviced"]').click(); // SN7: «Gewartet» opens the guided steps (was the tile «Warten»)
   await expect(dlg.getByTestId('pressure-target')).toContainText('Soll 1.5 / 1.6 bar');
   await expect(dlg.getByTestId('pressure-target')).toContainText('Zuletzt gemessen 1.4 / 1.55 bar');
   await dlg.getByRole('button', { name: 'Druck geprüft' }).click();

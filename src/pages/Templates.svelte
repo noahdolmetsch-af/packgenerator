@@ -13,10 +13,23 @@
    * with «Neue Vorlage», the areas as chips, «Deine Vorlagen» as a gallery (the three used last), «Alle
    * Vorlagen» as rows in a card, each with «Neue Tour» in sight and •••; on the side «Aus der aktuellen
    * Tour» (save it as a template) and the archived ones with «Zurückholen».
+   * SN3 «Seiten neu» (Noah 13.10.2026 «ich gebe alle bild mockups frei», answer 3a): the gallery is gone.
+   * The head with its path and «Neue Vorlage», one calm list «Deine Vorlagen» (last used first), each
+   * row with «Neue Tour» and «…» (edit, duplicate, keep, archive, delete). On the side «Aus deinen
+   * Touren»: a planned or rated trip can be saved as a template right here; a completed trip waits for
+   * its debrief («Bewerten»).
    */
   import { liveQuery } from 'dexie';
-  import { Archive, Plus, Backpack, ChevronRight, Ellipsis } from '@lucide/svelte';
+  import { Archive, Plus, Backpack, Ellipsis, Tent, BedDouble, Bike, Mountain, Pencil, Copy, Trash2, Route, Undo2, Check, Star } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import PathHead from '../lib/ui/PathHead.svelte';
+  import Section from '../lib/ui/Section.svelte';
+  import Btn from '../lib/ui/Btn.svelte';
+  import MoreActions from '../lib/ui/MoreActions.svelte';
+  import TripState from '../lib/ui/TripState.svelte';
+  import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
+  import { tripStates } from '../lib/tripstate.js';
+  import { offer } from '../lib/tpl/toast.svelte.js';
   import { db } from '../lib/db.js';
   import { TEMPLATES_KEY, saveTemplates, templateUse, isStale, templateAreas, tplDomain, templateWeight, duplicateTemplate, freeName } from '../lib/templates.js';
   import { SETS_KEY } from '../lib/sets.js';
@@ -27,11 +40,11 @@
   import Toast from '../lib/tpl/Toast.svelte';
   import { newTrip } from '../lib/nav.js';
   import { localDay } from '../lib/localday.js';
-  import { lineOf } from '../lib/tpl/view.js';
-  import Menu from '../lib/tpl/Menu.svelte';
+  import { lineOf, tripSources } from '../lib/tpl/view.js';
+  import { tplByBike } from '../lib/templates.js';
   import TemplateEdit from './TemplateEdit.svelte';
   import TemplateNew from './TemplateNew.svelte';
-  import { t, tn, locale } from '../lib/i18n.svelte.js';
+  import { t, tn } from '../lib/i18n.svelte.js';
 
   // #/pack/templates/<id> opens one template; #/pack/templates/new?area=… a new one.
   let hash = $state(location.hash);
@@ -50,6 +63,7 @@
   const setsQ = liveQuery(() => db.settings.get(SETS_KEY));
   const tripsQ = liveQuery(() => db.trips.toArray());
   const debriefsQ = liveQuery(() => db.debriefs.toArray());
+  const ridesQ = liveQuery(() => db.rides.toArray());
   const all = $derived($tplQ?.value ?? []);
   const items = $derived($itemsQ ?? []);
   const setsValue = $derived($setsQ?.value ?? []);
@@ -92,14 +106,7 @@
       })
       .sort((a, b) => (b.use.last ?? '').localeCompare(a.use.last ?? '') || (b.tp.createdAt ?? '').localeCompare(a.tp.createdAt ?? '') || a.tp.name.localeCompare(b.tp.name)),
   );
-  const day = (iso) => {
-    if (!iso) return '';
-    const d = new Date(`${iso}T12:00:00`);
-    return d.toLocaleDateString(locale(), { day: 'numeric', month: 'short', ...(iso.slice(0, 4) !== today.slice(0, 4) ? { year: 'numeric' } : {}) });
-  };
   const weight = (w) => (w.n ? knownWeight(w.g, w.missing) : '–');
-  const useLine = (use) => (use.n ? `${t('last {date}', { date: day(use.last) })} · ${tn(use.n, '{n} trip', '{n} trips')}` : t('not used yet'));
-  const lastUsed = $derived(rows.find((r) => r.use.n) ?? null);
   // the trip Pack opens (the one chosen last on this device, else the next one): «save it as a template»
   const current = $derived.by(() => {
     let id = null;
@@ -130,19 +137,27 @@
     location.hash = `#/pack/templates/${encodeURIComponent(id)}`;
   }
   const start = (tp) => newTrip(tp.id);
-  function pick(tp, key) {
-    if (key === 'trip') start(tp);
-    if (key === 'dup') duplicate(tp);
-    if (key === 'archive') archive(tp);
-    if (key === 'restore') restore(tp);
-    if (key === 'delete') remove(tp);
-  }
-  const menuOf = (tp) => [
-    ...(tp.archivedAt ? [{ key: 'restore', label: t('Bring back') }] : [{ key: 'trip', label: t('New trip') }]),
-    { key: 'dup', label: t('Duplicate') },
-    ...(tp.archivedAt ? [] : [{ key: 'archive', label: t('Archive') }]),
-    { key: 'delete', label: t('Delete'), bad: true },
-  ];
+  const open = (tp) => (location.hash = `#/pack/templates/${encodeURIComponent(tp.id)}`);
+  // SN3: «…» of a row (ui/MoreActions): edit, duplicate, keep (a long unused one), archive or bring back, delete.
+  const actionsOf = (r) => {
+    const tp = r.tp ?? r;
+    return [
+      ...(tp.archivedAt ? [{ name: t('Bring back'), icon: Undo2, run: () => restore(tp) }] : [{ name: t('New trip'), icon: Route, run: () => start(tp) }]),
+      { name: t('Edit|template'), explain: t('Blocks, single items, bike and days'), icon: Pencil, run: () => open(tp) },
+      { name: t('Duplicate'), icon: Copy, run: () => duplicate(tp) },
+      ...(r.stale ? [{ name: t('Keep'), explain: t('No hint for 12 months'), icon: Check, run: () => keep(tp) }] : []),
+      ...(tp.archivedAt ? [] : [{ name: t('Archive'), explain: t('Not offered for new trips any more; nothing is deleted'), icon: Archive, run: () => archive(tp) }]),
+      { name: t('Delete'), icon: Trash2, run: () => remove(tp) },
+    ];
+  };
+  // SN3: the icon of a template: the night it brings, else the bike or the backpack of its area.
+  const iconOf = (tp) => (tp.overnight === 'outdoor' ? Tent : tp.overnight === 'lodging' ? BedDouble : tplByBike(tp) ? Bike : Backpack);
+  const monthsSince = (iso) => (iso ? Math.max(12, Math.round((Date.parse(`${today}T12:00:00Z`) - Date.parse(`${iso.slice(0, 10)}T12:00:00Z`)) / (30.44 * 864e5))) : 12);
+
+  /* ---------- SN3 «Aus deinen Touren»: save a planned or rated trip as a template ---------- */
+  const infos = $derived(tripStates(trips, { debriefs: $debriefsQ ?? [], rides: $ridesQ ?? [], today }));
+  const sources = $derived(tripSources(trips, infos, all, today));
+  let saving = $state(null); // the trip whose «Save as template» window is open
   // Design audit T2: from the empty page straight to "Save as template" on Pack.
   function saveCurrent() {
     try {
@@ -155,77 +170,50 @@
   }
 </script>
 
-{#snippet art(n)}
-  <!-- v0.102.0 P4 (T24): the gallery picture (the same three calm tints as in «Neue Tour») -->
-  <svg class="art t{n % 3}" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true"><rect width="120" height="40" class="sky" /><circle cx="94" cy="11" r="5" class="sun" /><path d="M0 34 L22 16 L38 28 L60 8 L80 26 L96 18 L120 32 L120 40 L0 40 Z" class="m1" /><path d="M0 40 L0 32 L26 24 L52 33 L78 25 L120 34 L120 40 Z" class="m2" /></svg>
-{/snippet}
-
 {#if isNew}
   <TemplateNew area={newArea} />
 {:else if editId}
   <TemplateEdit id={editId} />
 {:else}
   <div class="tpls">
-    <div class="head">
-      <h1 class="title big">{t('Templates')}</h1>
-    </div>
+    <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Templates')} sub={[active.length ? tn(active.length, '{n} template', '{n} templates') : '', t('Building blocks plus single items, so the next trip starts packed')].filter(Boolean).join(' · ')}>
+      <!-- SN3: one main button; with no template yet the empty card below carries it -->
+      <Btn kind={rows.length || archived.length ? 'hi' : 'normal'} icon={Plus} label={t('New template')} href={newHref} />
+    </PathHead>
+
+    {#if showSwitch}
+      <div class="areas">
+        <span class="albl" id="tpl-area">{t('Area')}</span>
+        <div class="chips" role="group" aria-labelledby="tpl-area">
+          {#each areas as a (a.key)}<button type="button" class="chip" aria-pressed={area === a.key} onclick={() => pickArea(a.key)}>{t(domainName(a.key))}<small class="num">{a.n}</small></button>{/each}
+          <button type="button" class="chip" aria-pressed={area === 'all'} onclick={() => pickArea('all')}>{t('All|areas')}<small class="num">{active.length}</small></button>
+        </div>
+      </div>
+    {/if}
+
     <div class="cols">
       <div class="mainc">
-        <div class="intro">
-          <p class="lead">{t('A template is building blocks plus single items, so the next trip starts packed.')}</p>
-          <a class="btn hi new" href={newHref}><Plus size={18} aria-hidden="true" /> {t('New template')}</a>
-        </div>
-
-        {#if showSwitch}
-          <div class="areas">
-            <span class="albl" id="tpl-area">{t('Area')}</span>
-            <div class="chips" role="group" aria-labelledby="tpl-area">
-              {#each areas as a (a.key)}<button type="button" class="chip" aria-pressed={area === a.key} onclick={() => pickArea(a.key)}>{t(domainName(a.key))}<small class="num">{a.n}</small></button>{/each}
-              <button type="button" class="chip" aria-pressed={area === 'all'} onclick={() => pickArea('all')}>{t('All|areas')}<small class="num">{active.length}</small></button>
-            </div>
-          </div>
-        {/if}
-
         {#if rows.length}
-          <section class="sect" aria-labelledby="tpl-gal-h">
-            <h2 class="sh" id="tpl-gal-h">{t('Your templates')}</h2>
-            <p class="ss">{[tn(rows.length, '{n} active', '{n} active'), lastUsed ? t('last {name}', { name: lastUsed.tp.name }) : ''].filter(Boolean).join(' · ')}</p>
-            <div class="card galc">
-              <ul class="gal">
-                {#each rows.slice(0, 3) as r, n (r.tp.id)}
-                  <li><a class="gcard" href="#/pack/templates/{encodeURIComponent(r.tp.id)}">{@render art(n)}<b>{r.tp.name}</b><small>{[tn(r.w.n, '{n} item', '{n} items'), weight(r.w)].join(' · ')}</small></a></li>
-                {/each}
-              </ul>
-              {#if lastUsed}<p class="gl">{t('Last used: {name}', { name: lastUsed.tp.name })}{lastUsed.use.trips[0]?.title ? ` (${lastUsed.use.trips[0].title})` : ''}</p>{/if}
-            </div>
-          </section>
-
-          <section class="sect" aria-labelledby="tpl-all-h">
-            <h2 class="sh" id="tpl-all-h">{t('All templates')}</h2>
-            <ul class="list card">
+          <Section title={t('Your templates')} sub={t('last used first')} id="tpl-all-h">
+            <ul class="card slist">
               {#each rows as r (r.tp.id)}
-                <li class="row" data-tpl={r.tp.id}>
-                  <span class="ic" aria-hidden="true"><Backpack size={16} /></span>
-                  <a class="main" href="#/pack/templates/{encodeURIComponent(r.tp.id)}">
-                    <span class="nm">{r.tp.name}</span>
-                    <span class="comp">{[r.line, weight(r.w), r.use.n ? useLine(r.use) : ''].filter(Boolean).join(' · ')}{#if r.hints}<i class="pill">{tn(r.hints, '{n} suggestion', '{n} suggestions')}</i>{/if}</span>
+                {@const Icon = iconOf(r.tp)}
+                <li class="srow row" data-tpl={r.tp.id}>
+                  <span class="sib" class:ok={!r.stale} class:warn={r.stale} aria-hidden="true"><Icon size={18} /></span>
+                  <a class="sm main" href="#/pack/templates/{encodeURIComponent(r.tp.id)}">
+                    <b>{r.tp.name}</b>
+                    <small>{[r.line, r.w.n ? tn(r.w.n, '{n} item', '{n} items') : '', weight(r.w), r.stale ? `${t('long not used')} (${tn(monthsSince(r.use.last ?? r.tp.createdAt), '{n} month', '{n} months')})` : ''].filter(Boolean).join(' · ')}</small>
+                    {#if r.hints}<span class="spill"><i class="pill">{tn(r.hints, '{n} suggestion', '{n} suggestions')}</i></span>{/if}
                   </a>
-                  <span class="acts">
-                    {#if r.stale}<i class="pill warn">{t('long not used')}</i>{:else if !r.use.n}<i class="never">{t('not used yet')}</i>{/if}
-                    <button type="button" class="btn sm" onclick={() => start(r.tp)}>{t('New trip')}</button>
-                    <Menu label={t('More for {name}', { name: r.tp.name })} actions={menuOf(r.tp)} onpick={(k) => pick(r.tp, k)} />
+                  <span class="rowacts">
+                    <Btn label={t('New trip')} explain={t('New trip from it')} onclick={() => start(r.tp)} />
+                    <MoreActions title={r.tp.name} label={t('More for {name}', { name: r.tp.name })} actions={actionsOf(r)} />
                   </span>
-                  {#if r.stale}
-                    <div class="stale">
-                      <Archive size={16} aria-hidden="true" /><span>{t('«{name}» long not used: keep or archive. Nothing is deleted.', { name: r.tp.name })}</span>
-                      <button type="button" class="lnk" onclick={() => keep(r.tp)}>{t('Keep')}</button>
-                      <button type="button" class="lnk" onclick={() => archive(r.tp)}>{t('Archive')}</button>
-                    </div>
-                  {/if}
                 </li>
               {/each}
             </ul>
-          </section>
+            <p class="shint"><Ellipsis size={16} aria-hidden="true" /><span>{t('Under «…»: edit, duplicate, archive. Trips made from a template stay, also when it is gone.')}</span></p>
+          </Section>
         {:else if !archived.length}
           <!-- v0.127.0 A-U2: the one empty building block -->
           <Empty icon={Backpack} title={t('No templates yet.')} text={t('A template is building blocks plus single items, so the next trip starts packed.')} action={{ label: t('As template|save'), onclick: saveCurrent, explain: t('Save the current trip as a template') }} />
@@ -233,38 +221,48 @@
       </div>
 
       <aside class="side">
-        {#if current}
-          <section class="sect" aria-labelledby="tpl-cur-h">
-            <h2 class="sh" id="tpl-cur-h">{t('From the current trip')}</h2>
-            <button type="button" class="card saverow" onclick={saveCurrent}>
-              <span class="ic" aria-hidden="true"><Plus size={16} /></span>
-              <span class="st"><b>{t('Save {name} as a template', { name: current.title })}</b><small>{tn(current.entries?.length ?? 0, '{n} item', '{n} items')}</small></span>
-              <ChevronRight size={18} aria-hidden="true" />
-            </button>
-          </section>
-        {/if}
-        {#if archived.length}
-          <section class="sect" aria-labelledby="tpl-arch-h">
-            <h2 class="sh" id="tpl-arch-h">{t('Archived')}</h2>
-            <p class="ss">{t('{n} · not offered in «New trip»', { n: archived.length })}</p>
-            <ul class="list card">
-              {#each archived as tp (tp.id)}
-                <li class="row arch">
-                  <span class="ic" aria-hidden="true"><Archive size={16} /></span>
-                  <a class="main" href="#/pack/templates/{encodeURIComponent(tp.id)}"><span class="nm">{tp.name}</span><span class="comp">{lineOf(tp, setsValue)}</span></a>
-                  <span class="acts">
-                    <button type="button" class="btn sm btn-link" onclick={() => restore(tp)}>{t('Bring back')}</button>
-                    <Menu label={t('More for {name}', { name: tp.name })} actions={menuOf(tp)} onpick={(k) => pick(tp, k)} />
+        {#if sources.length}
+          <Section title={t('From your trips')} sub={t('only from Planned or Rated')} id="tpl-src-h">
+            <ul class="card slist">
+              {#each sources as s (s.trip.id)}
+                <li class="srow" data-src={s.trip.id}>
+                  <span class="sib {s.state}" aria-hidden="true">{#if s.state === 'plan'}<Pencil size={18} />{:else if s.state === 'rated'}<Star size={18} />{:else}<Mountain size={18} />{/if}</span>
+                  <span class="sm">
+                    <b>{s.trip.title}</b>
+                    <small>{s.state === 'done' ? t('possible after the debrief') : [tn(s.trip.entries?.length ?? 0, '{n} item', '{n} items'), s.state === 'plan' ? t('as planned') : t('as ridden')].join(' · ')}</small>
+                    <span class="spill"><TripState state={s.state} /></span>
+                  </span>
+                  <span class="rowacts">
+                    {#if s.state === 'done'}<Btn kind="quiet" label={t('Debrief')} href="#/debrief/{encodeURIComponent(s.trip.id)}" explain={t('Open the debrief')} />
+                    {:else}<Btn icon={Plus} label={t('Save|template')} explain={t('Save {name} as a template', { name: s.trip.title })} onclick={() => (saving = s.trip)} />{/if}
                   </span>
                 </li>
               {/each}
             </ul>
-          </section>
+          </Section>
         {/if}
-        <p class="hint"><Ellipsis size={16} aria-hidden="true" /><span>{t('In the menu of every template: duplicate, archive, delete. Trips made from a template stay, also when it is deleted.')}</span></p>
+        {#if archived.length}
+          <Section title={t('Archived')} sub={t('{n} · not offered in «New trip»', { n: archived.length })} id="tpl-arch-h">
+            <ul class="card slist">
+              {#each archived as tp (tp.id)}
+                <li class="srow row arch">
+                  <span class="sib" aria-hidden="true"><Archive size={18} /></span>
+                  <a class="sm main" href="#/pack/templates/{encodeURIComponent(tp.id)}"><b>{tp.name}</b><small>{lineOf(tp, setsValue)}</small></a>
+                  <span class="rowacts">
+                    <Btn kind="quiet" label={t('Bring back')} onclick={() => restore(tp)} />
+                    <MoreActions title={tp.name} label={t('More for {name}', { name: tp.name })} actions={actionsOf(tp)} />
+                  </span>
+                </li>
+              {/each}
+            </ul>
+          </Section>
+        {/if}
       </aside>
     </div>
   </div>
+{/if}
+{#if saving}
+  <TemplateDialog trip={saving} templates={all} onclose={() => (saving = null)} onsaved={(name) => offer(t('Saved as template "{name}".', { name }))} />
 {/if}
 <Toast />
 
@@ -272,52 +270,12 @@
   .tpls {
     max-width: 1240px;
   }
-  .head h1 {
-    margin: 0;
-  }
-  .big {
-    font-size: var(--fs-page);
-    line-height: var(--lh-title);
-  }
-  .cols {
-    display: grid;
-    gap: var(--sp-5);
-    margin-top: var(--sp-4);
-  }
-  @media (min-width: 1100px) {
-    .cols {
-      grid-template-columns: minmax(0, 1fr) 400px;
-      align-items: start;
-    }
-  }
-  .mainc,
-  .side {
-    display: grid;
-    gap: var(--sp-5);
-    min-width: 0;
-  }
-  .intro {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--sp-3) var(--sp-4);
-  }
-  .lead {
-    flex: 1 1 280px;
-    margin: 0;
-    color: var(--ink-2);
-    font-size: var(--fs-body);
-    line-height: 1.45;
-  }
-  .new {
-    flex: none;
-  }
   .areas {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--sp-2) var(--sp-3);
+    margin: 0 0 var(--sp-5);
   }
   .albl {
     color: var(--ink-2);
@@ -351,226 +309,29 @@
     font-weight: 400;
     opacity: 0.8;
   }
-  .sh {
-    margin: 0;
-    font: 600 var(--fs-sub) / 1.3 var(--font-body);
-  }
-  .ss {
-    margin: 2px 0 0;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .sh + .card,
-  .ss + .card {
-    margin-top: var(--sp-2);
-  }
-  .galc {
+  .cols {
     display: grid;
-    gap: var(--sp-3);
+    gap: var(--sp-5);
   }
-  .gal {
+  @media (min-width: 1100px) {
+    .cols {
+      grid-template-columns: minmax(0, 1fr) 420px;
+      align-items: start;
+    }
+  }
+  .mainc,
+  .side {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: var(--sp-2);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .gcard {
-    display: grid;
-    gap: 2px;
-    height: 100%;
-    padding: 0 0 var(--sp-2);
-    overflow: hidden;
-    border-radius: var(--r-ctl);
-    color: var(--ink);
-    text-decoration: none;
-  }
-  .gcard:hover b {
-    text-decoration: underline;
-  }
-  .gcard b,
-  .gcard small {
-    padding: 0 var(--sp-2);
-    overflow-wrap: break-word;
-  }
-  .gcard b {
-    margin-top: 6px;
-    font-size: var(--fs-small);
-    font-weight: 600;
-  }
-  .gcard small {
-    color: var(--ink-2);
-    font-size: var(--fs-tiny);
-  }
-  .art {
-    display: block;
-    width: 100%;
-    height: 64px;
-    border-radius: var(--r-ctl);
-  }
-  .art .sky {
-    fill: var(--hi-soft);
-  }
-  .art .sun {
-    fill: var(--paper);
-  }
-  .art .m1 {
-    fill: var(--l3);
-    opacity: 0.55;
-  }
-  .art .m2 {
-    fill: var(--hi);
-  }
-  .art.t1 .sky {
-    fill: var(--info-soft);
-  }
-  .art.t1 .m2 {
-    fill: var(--ink-3);
-  }
-  .art.t2 .sky {
-    fill: var(--warn-soft);
-  }
-  .art.t2 .m1 {
-    fill: var(--l2);
-  }
-  .art.t2 .m2 {
-    fill: var(--warn);
-  }
-  .gl {
-    margin: 0;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .list {
-    margin: 0;
-    padding: 0 var(--sp-4);
-    list-style: none;
-  }
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sp-2) var(--sp-3);
-    min-height: 64px;
-    padding: var(--sp-2) 0;
-    border-top: 1px solid var(--line);
-  }
-  .row:first-child {
-    border-top: 0;
-  }
-  .ic {
-    display: grid;
-    flex: none;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: var(--paper-2);
-    color: var(--ink-2);
+    gap: var(--sp-5);
+    min-width: 0;
   }
   .main {
-    display: grid;
-    flex: 1 1 200px;
-    gap: 2px;
-    min-width: 0;
+    display: block;
     min-height: 44px;
-    align-content: center;
     color: var(--ink);
     text-decoration: none;
   }
-  .main:hover .nm {
-    text-decoration: underline;
-  }
-  .nm {
-    font-size: var(--fs-body);
-    font-weight: 500;
-    overflow-wrap: break-word;
-  }
-  .comp {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-    overflow-wrap: break-word;
-  }
-  .comp .pill {
-    margin-left: var(--sp-2);
-  }
-  .acts {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 4px var(--sp-2);
-    margin-left: auto;
-  }
-  .never {
-    color: var(--ink);
-    font-size: var(--fs-tiny);
-    font-style: normal;
-    font-weight: 600;
-  }
-  .stale {
-    display: flex;
-    flex: 1 1 100%;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px var(--sp-2);
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .stale span {
-    flex: 1 1 200px;
-    margin-right: auto;
-  }
-  .lnk {
-    min-height: 44px;
-    padding: 0 6px;
-    border: 0;
-    background: none;
-    color: var(--ink);
-    font: 500 var(--fs-small) var(--font-body);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    cursor: pointer;
-  }
-  .arch .comp {
+  .arch .main small {
     color: var(--ink-3);
-  }
-  .saverow {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-3);
-    width: 100%;
-    min-height: 64px;
-    color: var(--ink);
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-  .st {
-    display: grid;
-    flex: 1;
-    min-width: 0;
-  }
-  .st b {
-    font-weight: 500;
-    overflow-wrap: break-word;
-  }
-  .st small {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .hint {
-    display: flex;
-    gap: var(--sp-2);
-    margin: 0;
-    padding: 0 var(--sp-3);
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-    line-height: 1.45;
-  }
-  .hint :global(svg) {
-    flex: none;
-    margin-top: 2px;
   }
 </style>

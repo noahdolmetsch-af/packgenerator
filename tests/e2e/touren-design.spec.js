@@ -94,7 +94,7 @@ test('Vorlagen: «Neue Vorlage», area chips, every template with «Neue Tour»,
   const rows = page.locator('li.row[data-tpl]:not(.arch)');
   expect(await rows.count()).toBeGreaterThan(0);
   await expect(rows.first().getByRole('button', { name: new RegExp(esc(T('New trip'))) }).or(rows.first().getByRole('link', { name: new RegExp(esc(T('New trip'))) }))).toBeVisible();
-  await expect(page.getByRole('heading', { name: T('From the current trip') })).toBeVisible();
+  await expect(page.getByRole('heading', { name: T('From your trips') })).toBeVisible(); // SN3 «Seiten neu»: was «From the current trip»
   expect(await wide(page)).toBeLessThanOrEqual(0);
 });
 

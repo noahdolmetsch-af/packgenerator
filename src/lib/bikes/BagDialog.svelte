@@ -2,7 +2,10 @@
   import { backClose } from '../ui/backclose.js';
   import { offerRename } from '../ui/rename.svelte.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
-  import { Pencil, X } from '@lucide/svelte';
+  import { Pencil, X, Link, StickyNote, MapPin } from '@lucide/svelte';
+  import OptionButton from '../ui/OptionButton.svelte';
+  import FoldRow from '../ui/FoldRow.svelte';
+  import Btn from '../ui/Btn.svelte';
   import './velo-dlg.css';
   import { db } from '../db.js';
   import { SLOTS, SLOT, isWornSlot } from '../bikes.js';
@@ -20,8 +23,16 @@
   let draft = $state(bag ? { ...bag, volumeL: bag.volumeL ?? '', itemId: bag.itemId ?? '', grams: bag.weightG ?? '', domains: [...(bag.domains ?? [])] } : { id: '', name: '', slot: slot && SLOT[slot] ? slot : 'seat', volumeL: '', itemId: '', pieces: 1, note: '', grams: '', domains: [] });
   // v0.37.0 (Noah 1a): a worn bag (Back, Hip) has its areas and, without a gear item, its own weight.
   const worn = $derived(isWornSlot(draft.slot));
-  const bikePlaces = SLOTS.filter((s) => !s.worn);
-  const wornPlaces = SLOTS.filter((s) => s.worn);
+  // SN7 «Seiten neu» (answer 5a): the place as option buttons: the common ones (and the place the bag
+  // has now) in front, every other place in the fold «More places». One place, always one chosen.
+  const COMMON = ['seat', 'frame', 'top', 'bar', 'fork', 'carry'];
+  // svelte-ignore state_referenced_locally
+  const firstPlaces = SLOTS.filter((s) => COMMON.includes(s.key) || s.key === draft.slot);
+  const otherPlaces = SLOTS.filter((s) => !firstPlaces.includes(s));
+  // svelte-ignore state_referenced_locally
+  let linkOpen = $state(!!draft.itemId);
+  // svelte-ignore state_referenced_locally
+  let noteOpen = $state(!!draft.note);
   let error = $state('');
   let dialog;
   // The bikes this bag sits on («am Gravel Blau»).
@@ -115,7 +126,7 @@
   }
 </script>
 
-<dialog class="sheet vdlg" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bag-h">
+<dialog class="sheet vdlg from-below" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bag-h">
   <form onsubmit={save} novalidate>
     <!-- Design-Refresh P7 (V3): the name as the title, place and bikes in the quiet line, ✕ top right. -->
     <div class="vd-head">
@@ -125,50 +136,62 @@
       </div>
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
     </div>
-    <div class="grid">
-      <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required enterkeyhint="done" /></label>
-      <label>
-        <span class="lbl">{t('Place')}</span>
-        <select class="sel" bind:value={draft.slot}>
-          <optgroup label={t('On the bike|places')}>{#each bikePlaces as s (s.key)}<option value={s.key}>{t(s.name)} ({t(s.where)})</option>{/each}</optgroup>
-          <optgroup label={t('On me')}>{#each wornPlaces as s (s.key)}<option value={s.key}>{t(s.name)} ({t(s.where)})</option>{/each}</optgroup>
-        </select>
-      </label>
-      <label><span class="lbl">{t('Volume (L)')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.volumeL} placeholder={t('unknown')} /></label>
-      <label>
-        <span class="lbl">{t('Weight from gear item')}</span>
-        <select class="sel" bind:value={draft.itemId}>
-          <option value="">{t('None')}</option>
-          {#each linkable as i (i.id)}<option value={i.id}>{nameOf(i)} · {i.id}</option>{/each}
-        </select>
-      </label>
-      {#if draft.itemId}<label><span class="lbl">{t('Pieces of that item')}</span><input class="inp num" type="number" min="1" bind:value={draft.pieces} /></label>
-      {:else}<label><span class="lbl">{t('Weight (g)')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>{/if}
-      {#if worn}
-        <!-- v0.37.0 (Noah 3a): the areas a worn bag is made for; trips of that area suggest it. -->
-        <fieldset class="wide areas">
-          <legend class="lbl">{t('For these areas')}</legend>
-          <div class="vd-chips">
-            {#each TRIP_DOMAINS as d (d.key)}
-              {@const on = draft.domains.includes(d.key)}
-              <label class="vd-chip"><input type="checkbox" checked={on} onchange={(e) => (draft.domains = e.currentTarget.checked ? [...draft.domains, d.key] : draft.domains.filter((x) => x !== d.key))} /> {t(d.name)}</label>
-            {/each}
+    <label class="vd-field"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required enterkeyhint="done" placeholder={t('e.g. Seat pack 10 L')} /></label>
+    <!-- SN7: the place as option buttons (was a list); the rare places in a fold -->
+    <span class="lbl vd-lbl" id="bag-place-l">{t('Place')}</span>
+    <div class="vd-opts" role="group" aria-labelledby="bag-place-l">
+      {#each firstPlaces as s (s.key)}<OptionButton pressed={draft.slot === s.key} label={t(s.name)} explain={t(s.where)} onclick={() => (draft.slot = s.key)} />{/each}
+    </div>
+    {#if otherPlaces.length}
+      <div class="vd-folds">
+        <FoldRow icon={MapPin} label={t('More places')} summary={otherPlaces.some((s) => s.key === draft.slot) ? t(SLOT[draft.slot].name) : otherPlaces.map((s) => t(s.name)).slice(0, 2).join(', ') + ' …'}>
+          <div class="vd-opts">
+            {#each otherPlaces as s (s.key)}<OptionButton pressed={draft.slot === s.key} label={t(s.name)} explain={t(s.where)} onclick={() => (draft.slot = s.key)} />{/each}
           </div>
-        </fieldset>
-      {/if}
-      <label class="wide"><span class="lbl">{t('Note')}</span><input class="inp" bind:value={draft.note} /></label>
+        </FoldRow>
+      </div>
+    {/if}
+    <div class="vd-pair">
+      <label><span class="lbl">{t('Volume (L)')}</span><input class="inp num" type="text" inputmode="decimal" bind:value={draft.volumeL} placeholder={t('unknown')} /></label>
+      {#if draft.itemId}<label><span class="lbl">{t('Weight')}</span><input class="inp num" type="text" readonly value={linked?.weightG == null ? t('not weighed') : formatWeight(linked.weightG * (Number(draft.pieces) || 1))} /></label>
+      {:else}<label><span class="lbl">{t('Weight (g)')}</span><input class="inp num" type="text" inputmode="numeric" bind:value={draft.grams} placeholder={t('not weighed')} /></label>{/if}
+    </div>
+    {#if worn}
+      <!-- v0.37.0 (Noah 3a): the areas a worn bag is made for; trips of that area suggest it. -->
+      <fieldset class="areas">
+        <legend class="lbl">{t('For these areas')}</legend>
+        <div class="vd-chips">
+          {#each TRIP_DOMAINS as d (d.key)}
+            {@const on = draft.domains.includes(d.key)}
+            <label class="vd-chip"><input type="checkbox" checked={on} onchange={(e) => (draft.domains = e.currentTarget.checked ? [...draft.domains, d.key] : draft.domains.filter((x) => x !== d.key))} /> {t(d.name)}</label>
+          {/each}
+        </div>
+      </fieldset>
+    {/if}
+    <div class="vd-folds">
+      <FoldRow icon={Link} label={t('Link to an item')} summary={linked ? nameOf(linked) : t('the weight then comes from the item')} bind:open={linkOpen} data-fold="link">
+        <div class="grid">
+          <label>
+            <span class="lbl">{t('Weight from gear item')}</span>
+            <select class="sel" bind:value={draft.itemId}>
+              <option value="">{t('None')}</option>
+              {#each linkable as i (i.id)}<option value={i.id}>{nameOf(i)} · {i.id}</option>{/each}
+            </select>
+          </label>
+          {#if draft.itemId}<label><span class="lbl">{t('Pieces of that item')}</span><input class="inp num" type="number" min="1" bind:value={draft.pieces} /></label>{/if}
+        </div>
+      </FoldRow>
+      <FoldRow icon={StickyNote} label={t('Note')} summary={draft.note?.trim() || t('optional')} bind:open={noteOpen} data-fold="note">
+        <label><span class="lbl sr">{t('Note')}</span><input class="inp" bind:value={draft.note} /></label>
+      </FoldRow>
     </div>
     <!-- v0.26.1 (Noah 15b): litres are optional; Pack only talks about volume when everything has litres. -->
-    <p class="note">{t('Litres are optional. Pack shows "used of litres" only when every bag in use and every item in it has litres.')}</p>
-    <p class="note">
-      {t('Weight:')} <b>{linked ? (linked.weightG == null ? t('not weighed yet (weigh it in Gear)') : formatWeight(linked.weightG * (Number(draft.pieces) || 1))) : String(draft.grams ?? '').trim() ? formatWeight(parseGrams(String(draft.grams))) : t('no gear item linked')}</b>
-      {#if worn}<br /><span class="quiet">{t('Worn bags count to On me, not to the bike.')}</span>{/if}
-    </p>
+    <p class="note">{t('Litres are optional. Pack shows "used of litres" only when every bag in use and every item in it has litres.')}{#if worn}<br /><span class="quiet">{t('Worn bags count to On me, not to the bike.')}</span>{/if}</p>
     <p class="err" role="alert">{error}</p>
-    <div class="vd-foot">
+    <div class="vd-foot sn7">
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete')}</button>{/if}
-      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
-      <button type="submit" class="btn hi">{t('Save')}</button>
+      <Btn kind="quiet" label={t('Cancel')} onclick={() => dialog.close()} />
+      <Btn kind="hi" type="submit" label={t('Save')} />
     </div>
   </form>
 </dialog>
@@ -196,24 +219,12 @@
   }
   .grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
     gap: 12px;
-  }
-  .wide {
-    grid-column: 1 / -1;
-  }
-  @media (max-width: 480px) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
   }
   .note {
     font-size: var(--fs-small);
     color: var(--ink-3);
     margin: 12px 0 0;
-  }
-  .note b {
-    color: var(--ink-2);
   }
   .err {
     color: var(--bad);
@@ -224,7 +235,7 @@
     display: none;
   }
   .areas {
-    margin: 0;
+    margin: 0 0 12px;
     padding: 0;
     border: 0;
   }

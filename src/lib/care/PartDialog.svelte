@@ -3,7 +3,12 @@
   import { partInfo, wear, replaceHint, kmSince, lastReplace, EXTRA, partName, attrsOf, PART } from '../care.js';
   import { readValue, targetPressure } from '../bikespecs.js';
   import PartFlow from './PartFlow.svelte';
-  import { ArrowLeftRight, Wrench, ChevronRight, X } from '@lucide/svelte';
+  import { ArrowLeftRight, Wrench, X, Droplet, CircleCheck, TriangleAlert, Ruler, FileText, History, Clock } from '@lucide/svelte';
+  import OptionButton from '../ui/OptionButton.svelte';
+  import FoldRow from '../ui/FoldRow.svelte';
+  import Btn from '../ui/Btn.svelte';
+  import { partStatus, isDueState } from './last.js';
+  import { timeDue } from '../workshop.js';
   import '../bikes/velo-dlg.css';
   import { t, tn, num as fmtNum, dateOf } from '../i18n.svelte.js';
   import { historyNewest } from './last.js';
@@ -90,34 +95,48 @@
   const targetOf = (k) => (k === 'pressureF' ? target?.f : k === 'pressureR' ? target?.r : null);
   const sinceNew = $derived(kmSince(bike, lastReplace(part)));
   const state = $derived(wear(part));
+
+  // SN7 «Seiten neu» (answer 5a): «What did you do?» as big option buttons, one chosen, then «Eintragen».
+  // The due point comes first and is chosen when it is due («Gewachst»); everything else is a tap away.
+  // «Replaced» and «Serviced» open the guided steps (PartFlow) when the page has them.
+  const st = $derived(partStatus(bike, part, timeDue(bike, tyres ?? undefined)));
+  const dueNow = $derived(isDueState(st.state) || st.state === 'soon');
+  const today = $derived([t('today'), typeof bike.km === 'number' ? `${fmtNum(bike.km)} km` : ''].filter(Boolean).join(' · '));
+  const options = $derived([
+    p.service ? { key: 'service', label: t(p.service), sub: today, icon: Droplet, tone: 'blue', run: () => log('service', 'done') } : null,
+    !p.service && p.due ? { key: 'due', label: t('{what}: done', { what: t(p.due) }), sub: today, icon: Clock, tone: 'blue', run: () => log('replace', 'done') } : null,
+    { key: 'ok', label: t('Checked, OK'), sub: t('nothing to do'), icon: CircleCheck, tone: 'green', run: () => log('check', 'ok') },
+    onflow ? { key: 'replace', label: t('Replaced'), sub: p.unit ? t('measure, decide, new part, km') : t('new part, km, who'), icon: ArrowLeftRight, tone: 'green', flow: 'replace' } : { key: 'replace', label: t('Replaced or done'), sub: today, icon: ArrowLeftRight, tone: 'green', run: () => log('replace', 'done') },
+    onflow ? { key: 'serviced', label: t('Serviced'), sub: t('what, when, km'), icon: Wrench, tone: 'amber', flow: 'service' } : null,
+    { key: 'problem', label: t('Problem|part'), sub: t('replace or work needed'), icon: TriangleAlert, tone: 'purple', run: () => log('check', 'needed') },
+  ].filter(Boolean));
+  // svelte-ignore state_referenced_locally
+  let chosen = $state(dueNow && (p.service || p.due) ? (p.service ? 'service' : 'due') : null);
+  const choose = (o) => (o.flow ? (flow = o.flow) : (chosen = o.key));
+  const enter = () => options.find((o) => o.key === chosen)?.run?.();
+  let measureOpen = $state(false);
+  const measureSum = $derived([model.trim(), String(value).trim() ? `${value} ${p.unit}` : '', p.hint ? t(p.hint) : ''].filter(Boolean)[0] ?? t('optional'));
 </script>
 
 <!-- Design-Refresh P7 (V8, Noah 12.10.2026 «v5-v10 freigabe»): the part as a window of the bike pages:
      the name, «bike · model» below, ✕ top right; «Done by» as chips; the history folded. -->
-<dialog class="sheet vdlg partdlg" bind:this={dialog} onclose={onclose} aria-labelledby={flow ? 'flow-h' : 'part-h'}>
+<dialog class="sheet vdlg partdlg from-below" bind:this={dialog} onclose={onclose} aria-labelledby={flow ? 'flow-h' : 'part-h'}>
   {#if flow}
     <PartFlow {part} {bike} mode={flow} {shops} {by} onsave={flowSave} oncancel={() => (start ? dialog?.close() : (flow = null))} />
   {:else}
   <div class="vd-head">
     <div class="vd-t">
       <h2 id="part-h">{partName(part)}</h2>
-      <p class="vd-sub">{[bike.name, part.model].filter(Boolean).join(' · ')}</p>
+      <p class="vd-sub num">{[bike.name, typeof bike.km === 'number' ? `${fmtNum(bike.km)} km` : '', part.model].filter(Boolean).join(' · ')}</p>
     </div>
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog?.close()}><X size={20} aria-hidden="true" /></button>
   </div>
-  {#if p.hint}<p class="hint">{t(p.hint)}</p>{/if}
+  <!-- SN7: what is due stands on top, in a soft box -->
+  {#if dueNow && st.next}<p class="duebox" data-due><Clock size={18} aria-hidden="true" /><span><b>{st.state === 'soon' ? t('Soon|part') : t('Due|part')}:</b> {st.next}</span></p>{/if}
   <p class="facts num">
     {#if state}<span class="badge {state}">{state === 'ok' ? t('OK') : state === 'warn' ? t('Soon') : t('Worn|part')}</span>{/if}
     {#if sinceNew != null}{t('{km} km since it was new', { km: fmtNum(sinceNew) })}{:else if bike.km == null}{t("Set the bike's km to count km per part")}{/if}
   </p>
-
-  {#if onflow}
-    <!-- v0.48.0 (Noah 11a): replace and service are guided. -->
-    <div class="tiles">
-      <button type="button" class="tile hi" onclick={() => (flow = 'replace')}><ArrowLeftRight size={20} aria-hidden="true" /><b>{t('Replace|part')}</b><small>{p.unit ? t('measure, decide, new part, km') : t('new part, km, who')}</small></button>
-      <button type="button" class="tile" onclick={() => (flow = 'service')}><Wrench size={20} aria-hidden="true" /><b>{t('Service|part')}</b><small>{t('what, when, km')}</small></button>
-    </div>
-  {/if}
   {#if part.key === 'tyres' && tyres && ontyre}
     <div class="tyres" role="group" aria-label={t('Tube or tubeless')}>
       {#each [['front', 'Front'], ['rear', 'Rear']] as [w, label] (w)}
@@ -130,17 +149,10 @@
       {/each}
     </div>
   {/if}
-  <h3 class="qh">{t('Quick entry')}</h3>
-  <div class="grid">
-    <label><span class="lbl">{t('Model')}</span><input class="inp" bind:value={model} placeholder={t('e.g. SRAM GX Eagle 12-speed')} /></label>
-    <label><span class="lbl">{t('Measured')}{p.unit ? ` (${p.unit})` : ''}</span><input class="inp num" type="text" inputmode="decimal" bind:value={value} placeholder={p.unit ? t('optional') : t('no measurement')} disabled={!p.unit} /></label>
-    {#if p.limit != null}<label><span class="lbl">{p.lowIsWorn ? t('Replace below ({unit}) on this bike', { unit: p.unit }) : t('Replace at ({unit}) on this bike', { unit: p.unit })}</span><input class="inp num" type="text" inputmode="decimal" bind:value={limit} /></label>{/if}
-    {#each p.extra ?? [] as k (k)}
-      <label><span class="lbl">{t(EXTRA[k].name)} ({EXTRA[k].unit})</span><input class="inp num" type="text" inputmode="decimal" bind:value={extra[k]} placeholder={targetOf(k) != null ? `${t('Target')} ${fmtNum(targetOf(k))}` : t('optional')} /></label>
-    {/each}
-    <label class="wide"><span class="lbl">{t('Note')}</span><input class="inp" bind:value={note} placeholder={t('optional')} /></label>
+  <span class="lbl vd-lbl" id="did-l">{t('What did you do?')}</span>
+  <div class="dids" role="group" aria-labelledby="did-l">
+    {#each options as o (o.key)}<OptionButton size="lg" pressed={chosen === o.key} icon={o.icon} tone={o.tone} label={o.label} sub={o.sub} data-did={o.key} onclick={() => choose(o)} />{/each}
   </div>
-  <p class="err" role="alert">{error}</p>
   {#if hint}<p class="warnbox soft">{hint}</p>{/if}
   <div class="who" role="group" aria-labelledby="who-l">
     <span class="lbl" id="who-l">{t('Done by')}</span>
@@ -149,83 +161,82 @@
       <button type="button" class="vd-chip" aria-pressed={who === 'shop'} onclick={() => pick('shop')}><Store size={16} aria-hidden="true" />{t('bike shop|by')}</button>
     </span>
   </div>
-  <div class="foot vd-foot acts">
-    <button type="button" class="btn" onclick={() => log('check', 'ok')}>{t('OK')}</button>
-    <button type="button" class="btn" onclick={() => log('check', 'needed')}>{t('Replace or work needed')}</button>
-    <button type="button" class="btn hi" onclick={() => log('replace', 'done')}>{t('Replaced or done')}</button>
-    {#if p.service}<button type="button" class="btn" onclick={() => log('service', 'done')}>{t(p.service)}</button>{/if}
-  </div>
-
-  {#if onspec && (PART[part.key]?.spec || part.key.startsWith('own-'))}
-    <!-- v0.48.0 «Teile pro Velo»: the spec sheet of this part (model, weight, material, its values). -->
-    <details class="spec" bind:open={specOpen}>
-      <summary><span>{t('Spec sheet')}</span><span class="n">{t('{n} of {all} filled', { n: specFilled, all: specFields.length })}</span><ChevronRight size={18} aria-hidden="true" /></summary>
-      {#if specOpen}
+  <div class="vd-folds">
+    <!-- SN7: measuring, the model and a note folded («Messen und Modell»); they go with «Eintragen» -->
+    <FoldRow icon={Ruler} label={t('Measure and model')} summary={measureSum} bind:open={measureOpen} data-fold="measure">
+      {#if p.hint}<p class="hint">{t(p.hint)}</p>{/if}
+      <div class="grid">
+        <label><span class="lbl">{t('Model')}</span><input class="inp" bind:value={model} placeholder={t('e.g. SRAM GX Eagle 12-speed')} /></label>
+        <label><span class="lbl">{t('Measured')}{p.unit ? ` (${p.unit})` : ''}</span><input class="inp num" type="text" inputmode="decimal" bind:value={value} placeholder={p.unit ? t('optional') : t('no measurement')} disabled={!p.unit} /></label>
+        {#if p.limit != null}<label><span class="lbl">{p.lowIsWorn ? t('Replace below ({unit}) on this bike', { unit: p.unit }) : t('Replace at ({unit}) on this bike', { unit: p.unit })}</span><input class="inp num" type="text" inputmode="decimal" bind:value={limit} /></label>{/if}
+        {#each p.extra ?? [] as k (k)}
+          <label><span class="lbl">{t(EXTRA[k].name)} ({EXTRA[k].unit})</span><input class="inp num" type="text" inputmode="decimal" bind:value={extra[k]} placeholder={targetOf(k) != null ? `${t('Target')} ${fmtNum(targetOf(k))}` : t('optional')} /></label>
+        {/each}
+        <label class="wide"><span class="lbl">{t('Note')}</span><input class="inp" bind:value={note} placeholder={t('optional')} /></label>
+      </div>
+    </FoldRow>
+    {#if onspec && (PART[part.key]?.spec || part.key.startsWith('own-'))}
+      <!-- v0.48.0 «Teile pro Velo»: the spec sheet of this part (model, weight, material, its values). -->
+      <FoldRow icon={FileText} label={t('Spec sheet')} summary={t('{n} of {all} filled', { n: specFilled, all: specFields.length })} bind:open={specOpen} data-fold="spec">
         <div class="grid">
           {#each specFields as f (f.key)}
             <label class:wide={f.wide}><span class="lbl">{t(f.name)}{f.unit ? ` (${f.unit})` : ''}</span><input class="inp" class:num={f.num} type="text" inputmode={f.num ? 'decimal' : 'text'} value={specOf(f)} placeholder="–" onchange={(e) => onspec(f.key, readValue(e.currentTarget.value, f.num))} /></label>
           {/each}
         </div>
+      </FoldRow>
+    {/if}
+    <FoldRow icon={History} label={t('History')} summary={tn(part.history?.length ?? 0, '{n} entry', '{n} entries')} data-fold="history">
+      {#if part.history?.length}
+        <ol class="hist">
+          {#each historyNewest(part.history) as h, n (n)}
+            <li>
+              <span class="num">{dateOf(h.date)}{h.km != null ? ` · ${fmtNum(h.km)} km` : ''}</span>
+              <b>{t(h.action === 'check' ? RESULT[h.result] : h.action === 'replace' && !p.unit ? 'Done' : ACTION[h.action])}{h.value != null ? ` · ${h.value} ${p.unit}` : ''}</b>
+              <span class="m">{[h.model, ...Object.keys(EXTRA).filter((k) => h[k] != null).map((k) => `${t(EXTRA[k].name.toLowerCase())} ${h[k]} ${EXTRA[k].unit}`), h.by === 'shop' ? t('bike shop') : h.by === 'self' ? t('me') : '', h.note, h.chf ? `CHF ${h.chf.toFixed(2)}` : ''].filter(Boolean).join(' · ')}</span>
+            </li>
+          {/each}
+        </ol>
+      {:else}
+        <p class="hint">{t('Nothing recorded yet.')}</p>
       {/if}
-    </details>
-  {/if}
-
-  <details class="spec histf">
-    <summary><span>{t('History')}</span><span class="n">{tn(part.history?.length ?? 0, '{n} entry', '{n} entries')}</span><ChevronRight size={18} aria-hidden="true" /></summary>
-  {#if part.history?.length}
-    <ol class="hist">
-      {#each historyNewest(part.history) as h, n (n)}
-        <li>
-          <span class="num">{dateOf(h.date)}{h.km != null ? ` · ${fmtNum(h.km)} km` : ''}</span>
-          <b>{t(h.action === 'check' ? RESULT[h.result] : h.action === 'replace' && !p.unit ? 'Done' : ACTION[h.action])}{h.value != null ? ` · ${h.value} ${p.unit}` : ''}</b>
-          <span class="m">{[h.model, ...Object.keys(EXTRA).filter((k) => h[k] != null).map((k) => `${t(EXTRA[k].name.toLowerCase())} ${h[k]} ${EXTRA[k].unit}`), h.by === 'shop' ? t('bike shop') : h.by === 'self' ? t('me') : '', h.note, h.chf ? `CHF ${h.chf.toFixed(2)}` : ''].filter(Boolean).join(' · ')}</span>
-        </li>
-      {/each}
-    </ol>
-  {:else}
-    <p class="hint">{t('Nothing recorded yet.')}</p>
-  {/if}
-  </details>
-  <div class="vd-foot"><button type="button" class="btn" onclick={() => dialog?.close()}>{t('Close')}</button></div>
+    </FoldRow>
+  </div>
+  <p class="err" role="alert">{error}</p>
+  <div class="vd-foot sn7">
+    <Btn kind="quiet" label={t('Cancel')} onclick={() => dialog?.close()} />
+    <Btn kind="hi" icon={CircleCheck} label={t('Enter|part')} disabled={!chosen} explain={chosen ? '' : t('Choose first what you did')} onclick={enter} />
+  </div>
   {/if}
 </dialog>
 
 <style>
-  .tiles {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin: 6px 0 12px;
-  }
-  .tile {
+  /* SN7: what is due, in a soft box on top; «What did you do?» as big option buttons, two per row */
+  .duebox {
     display: flex;
-    flex-direction: column;
     align-items: flex-start;
-    gap: 2px;
-    min-height: 76px;
-    padding: 10px 12px;
-    border: 1.5px solid var(--line);
-    border-radius: 12px;
-    background: var(--paper);
-    font: inherit;
+    gap: 10px;
+    margin: 0 0 12px;
+    padding: 10px 14px;
+    border-radius: var(--r-ctl);
+    background: var(--warn-soft);
     color: var(--ink);
-    text-align: left;
-    cursor: pointer;
-  }
-  .tile small {
-    color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  .tile.hi {
-    border-color: var(--hi);
-    background: var(--hi);
-    color: var(--hi-ink);
+  .duebox :global(svg) {
+    flex: none;
+    margin-top: 1px;
+    color: var(--warn);
   }
-  .tile.hi small {
-    color: var(--hi-ink);
+  .dids {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0 0 12px;
   }
-  .qh {
-    margin-top: 6px;
+  @media (max-width: 480px) {
+    .dids {
+      grid-template-columns: 1fr;
+    }
   }
   .tyres {
     display: flex;
@@ -241,45 +252,12 @@
   .tw .lbl {
     margin: 0;
   }
-  .spec {
-    margin: 14px 0 0;
-    border-top: 1px solid var(--line);
-  }
-  .spec summary {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 48px;
-    font-weight: 600;
-    cursor: pointer;
-    list-style: none;
-  }
-  .spec summary::-webkit-details-marker {
-    display: none;
-  }
-  .spec summary .n {
-    flex: 1;
-    text-align: right;
-    font-weight: 400;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .spec[open] summary :global(svg) {
-    transform: rotate(90deg);
-  }
   .who .vd-chip {
     gap: 6px;
-  }
-  .histf {
-    margin-top: 0;
   }
   h2 {
     font-size: var(--fs-section);
     margin: 4px 0 6px;
-  }
-  h3 {
-    margin: 18px 0 6px;
-    font-size: 16px;
   }
   .hint {
     font-size: 14px;
@@ -389,12 +367,6 @@
   .seg button[aria-pressed='true'] {
     background: var(--ink);
     color: var(--paper);
-  }
-  .foot {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 8px 0;
   }
   .hist {
     list-style: none;

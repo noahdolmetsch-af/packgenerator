@@ -11,11 +11,15 @@
    * temperature kits become building blocks, a similar favourite kit or Excel block gets Merge | New |
    * Leave out, the tasks become one preparation list, old trips go into the Logbook. One main button
    * "Apply"; a backup comes first and "Undo" puts it back. Rules: importstep2.js.
+   * SN5 «Seiten neu» (Noah 13.10.2026 «ich gebe alle bild mockups frei»): the head with its path and
+   * the one main button «Übernehmen»; four numbers on top; «Neu» open, each item with a pressed
+   * «Übernehmen» (tap it off: it stays in the import for later); «Unsicher», «Schon da» and «Nicht im
+   * Import» calm below; on the side «So geht es» and «Import verwerfen».
    */
   import { liveQuery } from 'dexie';
   import { SvelteSet } from 'svelte/reactivity';
   import { db } from '../lib/db.js';
-  import { planGearImport, FIELD_NAMES, categoryName, isGearImportFile, stagedStatus, appliedNothing } from '../lib/gearimport.js';
+  import { planGearImport, FIELD_NAMES, categoryName, isGearImportFile, stagedStatus, appliedNothing, SKIP } from '../lib/gearimport.js';
   import { stageImport, decide, dropStaged, applyImport, undoImport, changedSince, lastApplied, keepImport, archiveItems, STAGED, UNDO, UNDO2, applyStep2, undoStep2, lastApplied2, keepStep2, choose2 } from '../lib/gear/importdb.js';
   import { hasStep2, planStep2, defaultChoice } from '../lib/importstep2.js';
   import { tempRange } from '../lib/wardrobe.js';
@@ -27,6 +31,12 @@
   import { formatWeight, itemWeight } from '../lib/gear.js';
   import { domainName } from '../lib/domains.js';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
+  import PathHead from '../lib/ui/PathHead.svelte';
+  import Section from '../lib/ui/Section.svelte';
+  import Btn from '../lib/ui/Btn.svelte';
+  import OptionButton from '../lib/ui/OptionButton.svelte';
+  import { catIcon } from '../lib/gear/caticon.js';
+  import { Check, Archive, ChevronRight } from '@lucide/svelte';
 
   const stagedQ = liveQuery(() => db.table('meta').get(STAGED));
   const undoQ = liveQuery(async () => ((await db.table('meta').get(UNDO)) ? lastApplied(db) : null));
@@ -46,7 +56,11 @@
   const plan = $derived(data && $itemsQ && $learnQ ? planGearImport(data, $itemsQ, $learnQ) : null);
   const decisions = $derived(staged?.decisions ?? {});
   const decided = $derived(plan ? plan.unsure.filter((r) => decisions[r.key]).length : 0);
-  const safeN = $derived(plan ? plan.same.length + plan.fresh.length : 0);
+  // SN5: a new item is taken unless it was tapped off (decisions[key] === SKIP, it stays in the import).
+  const takes = (r) => decisions[r.key] !== SKIP;
+  const freshOn = $derived(plan ? plan.fresh.filter(takes).length : 0);
+  const safeN = $derived(plan ? plan.same.length + freshOn : 0);
+  const flipFresh = (r) => decide(db, r.key, takes(r) ? SKIP : null);
   const sameWith = $derived(plan ? plan.same.filter((r) => r.adds.length) : []);
   const sameNone = $derived(plan ? plan.same.filter((r) => !r.adds.length) : []);
 
@@ -128,6 +142,8 @@
   }
 
   const choose = (key, choice) => decide(db, key, decisions[key] === choice ? null : choice);
+  // SN5: the head's one main button: the safe ones (Gear) or the kits, blocks and tasks (step 2).
+  const canApply = $derived(!busy && !$demoQ && (shownTab === 'step2' ? !!plan2 && !plan2.empty : !!plan && safeN + decided > 0));
 
   const applySafe = () =>
     run(async () => {
@@ -188,9 +204,18 @@
     });
 </script>
 
+{#snippet headMeta()}
+  <!-- v0.45.0 (coordinator fix 1): after an apply the line says when, not "nothing applied yet" (SN5: in the head). -->
+  <p class="imeta">{staged.name || t('Gear list')} · {t('chosen {when}', { when: when(staged.at) })} · <span data-applied>{status.at ? t(status.text, { when: when(status.at) }) : t(status.text)}</span></p>
+{/snippet}
+
 <div class="imp">
-  <p class="back"><a href="#/gear">← {t('Gear')}</a></p>
-  <h1 class="title">{t('Check import')}</h1>
+  <PathHead crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} title={t('Check import')} extra={plan ? headMeta : null}>
+    {#if plan}
+      {#if shownTab === 'step2' && plan2}<Btn kind="hi" icon={Check} label={t('Apply|step2')} disabled={!canApply} onclick={apply2} />
+      {:else}<Btn kind="hi" icon={Check} label={t('Apply|import')} explain={t('Apply all safe ones')} disabled={!canApply} onclick={applySafe} />{/if}
+    {/if}
+  </PathHead>
 
   {#if $undoQ}
     <!-- After applying: what happened, and one tap back. -->
@@ -233,12 +258,6 @@
       </div>
     {/if}
   {:else if plan}
-    <p class="meta">
-      <span>{staged.name || t('Gear list')}</span>
-      <span>{t('chosen {when}', { when: when(staged.at) })}</span>
-      <!-- v0.45.0 (coordinator fix 1): after an apply the line says when, not "nothing applied yet". -->
-      <span data-applied>{status.at ? t(status.text, { when: when(status.at) }) : t(status.text)}</span>
-    </p>
 
     {#if two}
       <div class="tabs"><Seg label={t('Part of the import')} full={false} value={shownTab} options={[{ key: 'material', name: step1Done ? `${t('Gear|place')} ✓` : t('Gear|place') }, { key: 'step2', name: t('Kits, building blocks, tasks') }]} onchange={(v) => (tab = v)} /></div>
@@ -246,7 +265,6 @@
 
     {#if shownTab === 'step2' && plan2}
       <div class="main">
-        <button type="button" class="btn hi" disabled={busy || !!$demoQ || plan2.empty} onclick={apply2}>{t('Apply|step2')}</button>
         <p class="hint">
           {t('Makes {kits} kits and {blocks} building blocks, merges {merge}, {tasks} tasks go into the preparation list, {trips} old trips into the logbook.', { kits: counts2.newKits, blocks: counts2.newBlocks, merge: counts2.merge, tasks: counts2.tasks, trips: counts2.trips })}
           {t('A backup comes first; you can undo it.')}
@@ -316,111 +334,141 @@
       {#if plan2.notFound.length}
         <p class="note nf">{tn(plan2.notFound.length, '{n} item id not found (left out): {list}', '{n} item ids not found (left out): {list}', { list: plan2.notFound.slice(0, 12).join(', ') + (plan2.notFound.length > 12 ? ' …' : '') })}</p>
       {/if}
+      <p class="foot"><Btn kind="quiet" label={t('Discard import')} disabled={busy} onclick={discard} /></p>
     {:else}
 
-    <div class="main">
-      <button type="button" class="btn hi" disabled={busy || !!$demoQ || !(safeN + decided)} onclick={applySafe} data-explain={t('Apply all safe ones')}>{t('Apply safe')}</button>
-      <p class="hint">
-        {t('Takes "Already there" and "New"')}{#if decided}{' '}{tn(decided, 'and {n} decided item', 'and {n} decided items')}{/if}.
-        {t('A backup comes first; you can undo it.')}
-        {#if plan.unsure.length - decided}{' '}{tn(plan.unsure.length - decided, '{n} unsure item stays here until you decide.', '{n} unsure items stay here until you decide.')}{/if}
-      </p>
-      {#if $demoQ}<p class="hint">{t('End the running demo first.')}</p>{/if}
+    <div class="card tiles">
+      <dl class="nums">
+        <div><dd class="num">{plan.fresh.length}</dd><dt>{t('new|import')}</dt></div>
+        <div><dd class="num">{plan.same.length}</dd><dt>{t('already there, gets completed')}</dt></div>
+        <div><dd class="num">{plan.unsure.length}</dd><dt>{t('unsure|import')}</dt></div>
+        <div><dd class="num">{notIn.length}</dd><dt>{t('not in the import, they stay')}</dt></div>
+      </dl>
     </div>
+    <p class="hint">
+      {t('Takes "Already there" and "New"')}{#if decided}{' '}{tn(decided, 'and {n} decided item', 'and {n} decided items')}{/if}.
+      {t('A backup comes first; you can undo it.')}
+      {#if plan.unsure.length - decided}{' '}{tn(plan.unsure.length - decided, '{n} unsure item stays here until you decide.', '{n} unsure items stay here until you decide.')}{/if}
+    </p>
+    {#if $demoQ}<p class="hint">{t('End the running demo first.')}</p>{/if}
 
-    <!-- Schon da: what each item gets, said quietly; the ones with nothing new folded away. -->
-    <details class="sec">
-      <summary><span class="h">{t('Already there')}</span><span class="n num">{plan.same.length}</span></summary>
-      <p class="note">{t('Your item stays as it is. Only empty fields are filled; notes and areas are added.')}</p>
-      <ul class="rows">
-        {#each sameWith as r (r.key)}
-          <li>
-            <span class="nm">{nameOf(r.item)}{#if r.via === 'name' && r.imp.name !== r.item.name}<small class="q">{r.imp.name}</small>{/if}</span>
-            <span class="add">+ {r.adds.map(fieldText).join(' · ')}</span>
-          </li>
-        {/each}
-      </ul>
-      {#if sameNone.length}
-        <details class="sub">
-          <summary>{tn(sameNone.length, '{n} item without anything new', '{n} items without anything new')}</summary>
-          <ul class="rows">
-            {#each sameNone as r (r.key)}<li><span class="nm">{nameOf(r.item)}</span></li>{/each}
-          </ul>
-        </details>
-      {/if}
-    </details>
-
-    <!-- Neu -->
-    <details class="sec">
-      <summary><span class="h">{t('New')}</span><span class="n num">{plan.fresh.length}</span></summary>
-      <ul class="rows">
-        {#each plan.fresh as r (r.key)}
-          <li>
-            <span class="nm">{r.item.name}{#if r.item.qty > 1}<small> × {r.item.qty}</small>{/if}<small class="q">{catText(r.item.category)}</small></span>
-            <span class="tags">
-              {#if r.item.ownership === 'wishlist'}<i class="badge">{t('Wishlist')}</i>{/if}
-              {#if r.item.leaveHome}<i class="badge">{t('Optional')}</i>{/if}
-            </span>
-            <span class="w num">{r.item.weightG == null ? '–' : formatWeight(itemWeight(r.item))}</span>
-          </li>
-        {/each}
-      </ul>
-      {#if plan.learnings.add.length || plan.learnings.update.length}
-        <p class="note">{t('Learnings: {add} new, {upd} completed. They keep their original date.', { add: plan.learnings.add.length, upd: plan.learnings.update.length })}</p>
-      {/if}
-    </details>
-
-    <!-- Unsicher: one tap each -->
-    <details class="sec">
-      <summary><span class="h">{t('Unsure')}</span>{#if plan.unsure.length}<span class="s">{t('{a} of {b} decided', { a: decided, b: plan.unsure.length })}</span>{/if}<span class="n num">{plan.unsure.length}</span></summary>
-      <p class="note">{t('Maybe already in your gear. Tap the item it is, or "New item".')}</p>
-      <ul class="rows unsure">
-        {#each plan.unsure as r (r.key)}
-          <li>
-            <span class="nm">{r.imp.name}<small class="q">{catText(r.imp.category)}{r.reason === 'twice' ? ` · ${t('two lines point to the same item')}` : r.reason === 'file' ? ` · ${t('is twice in the file')}` : ''}</small></span>
-            <div class="pick" role="group" aria-label={t('What is {name}?', { name: r.imp.name })}>
-              {#each r.candidates as c (c.item.id)}
-                <button type="button" class="opt" aria-pressed={decisions[r.key] === c.item.id} onclick={() => choose(r.key, c.item.id)}>
-                  <span>{t('Same as {name}', { name: nameOf(c.item) })}</span><small class="num">{pct(c.score)}</small>
-                </button>
+    <div class="igrid">
+      <div class="icol">
+        <!-- Neu: open, every item pre-chosen; tap «Übernehmen» off and it stays in the import -->
+        {#if plan.fresh.length}
+          <Section title={t('New')} sub={`${tn(plan.fresh.length, '{n} item', '{n} items')} · ${t('all chosen, tap to leave one out')}`} id="imp-new">
+            <ul class="card slist isec" data-sec="fresh">
+              {#each plan.fresh as r (r.key)}
+                {@const Icon = catIcon(r.item.category)}
+                <li class="srow">
+                  <span class="sib" aria-hidden="true"><Icon size={18} /></span>
+                  <span class="sm"><b>{r.item.name}{#if r.item.qty > 1}<small class="qx"> × {r.item.qty}</small>{/if}</b><small>{[catText(r.item.category), r.item.weightG == null ? '' : formatWeight(itemWeight(r.item))].filter(Boolean).join(' · ')}{#if r.item.ownership === 'wishlist'}{' · '}<i class="badge">{t('Wishlist')}</i>{/if}{#if r.item.leaveHome}{' · '}<i class="badge">{t('Optional')}</i>{/if}</small></span>
+                  <span class="rowacts"><OptionButton pressed={takes(r)} label={t('Apply|import')} aria-label={t('Apply {name}', { name: r.item.name })} disabled={busy} onclick={() => flipFresh(r)} /></span>
+                </li>
               {/each}
-              <button type="button" class="opt" aria-pressed={decisions[r.key] === 'new'} onclick={() => choose(r.key, 'new')}><span>{t('New item')}</span></button>
+            </ul>
+            {#if plan.learnings.add.length || plan.learnings.update.length}
+              <p class="shint">{t('Learnings: {add} new, {upd} completed. They keep their original date.', { add: plan.learnings.add.length, upd: plan.learnings.update.length })}</p>
+            {/if}
+          </Section>
+        {/if}
+
+        <!-- Unsicher: one tap each -->
+        {#if plan.unsure.length}
+          <Section title={t('Unsure')} sub={t('{a} of {b} decided', { a: decided, b: plan.unsure.length })} id="imp-unsure">
+            <div class="card isec" data-sec="unsure">
+              <p class="note">{t('Maybe already in your gear. Tap the item it is, or "New item".')}</p>
+              <ul class="rows unsure">
+                {#each plan.unsure as r (r.key)}
+                  <li>
+                    <span class="nm">{r.imp.name}<small class="q">{catText(r.imp.category)}{r.reason === 'twice' ? ` · ${t('two lines point to the same item')}` : r.reason === 'file' ? ` · ${t('is twice in the file')}` : ''}</small></span>
+                    <div class="pick" role="group" aria-label={t('What is {name}?', { name: r.imp.name })}>
+                      {#each r.candidates as c (c.item.id)}
+                        <button type="button" class="opt" aria-pressed={decisions[r.key] === c.item.id} onclick={() => choose(r.key, c.item.id)}>
+                          <span>{t('Same as {name}', { name: nameOf(c.item) })}</span><small class="num">{pct(c.score)}</small>
+                        </button>
+                      {/each}
+                      <button type="button" class="opt" aria-pressed={decisions[r.key] === 'new'} onclick={() => choose(r.key, 'new')}><span>{t('New item')}</span></button>
+                    </div>
+                  </li>
+                {/each}
+              </ul>
             </div>
-          </li>
-        {/each}
-      </ul>
-    </details>
+          </Section>
+        {/if}
 
-    {#if plan.skipped.length}<p class="note">{tn(plan.skipped.length, '{n} line without a name is skipped.', '{n} lines without a name are skipped.')}</p>{/if}
+        <!-- Schon da: what each item gets, said quietly; the ones with nothing new folded away -->
+        {#if plan.same.length}
+          <Section title={t('Already there')} sub={t('gets completed, your weight stays')} id="imp-same">
+            <div class="card isec" data-sec="same">
+              <ul class="slist flat">
+                {#each sameWith as r (r.key)}
+                  {@const Icon = catIcon(r.item.category)}
+                  <li class="srow">
+                    <span class="sib" aria-hidden="true"><Icon size={18} /></span>
+                    <span class="sm"><b>{nameOf(r.item)}{#if r.via === 'name' && r.imp.name !== r.item.name}<small class="q">{r.imp.name}</small>{/if}</b><small class="add">{t('completed: {what}', { what: r.adds.map(fieldText).join(' · ') })}</small></span>
+                  </li>
+                {/each}
+              </ul>
+              {#if sameNone.length}
+                <details class="sub">
+                  <summary>{tn(sameNone.length, '{n} item without anything new', '{n} items without anything new')}</summary>
+                  <ul class="rows">
+                    {#each sameNone as r (r.key)}<li><span class="nm">{nameOf(r.item)}</span></li>{/each}
+                  </ul>
+                </details>
+              {/if}
+            </div>
+          </Section>
+        {/if}
 
-    <!-- 3b: what the list does not name. Archive only: trips keep the item. -->
-    <details class="sec">
-      <summary><span class="h">{t('Not in the import')}</span><span class="n num">{notIn.length}</span></summary>
-      <p class="note">{t('In your gear, but not in the list. Archived items move to Gear → Gone; past trips stay complete. Nothing is deleted.')}</p>
-      {#if notIn.length}
-        <div class="selbar">
-          <label class="all"><input type="checkbox" checked={notIn.length > 0 && chosen.length === notIn.length} onchange={(e) => notIn.forEach((i) => (e.currentTarget.checked ? picked.add(i.id) : picked.delete(i.id)))} /> {t('Select all')}</label>
-          <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => archive(chosen.map((i) => i.id))}>{chosen.length ? tn(chosen.length, 'Archive {n} item', 'Archive {n} items') : t('Archive selected')}</button>
-        </div>
-      {/if}
-      <ul class="rows notin">
-        {#each notIn as i (i.id)}
-          <li>
-            <label class="ck"><input type="checkbox" checked={picked.has(i.id)} onchange={() => flip(i.id)} aria-label={nameOf(i)} /></label>
-            <span class="nm">{nameOf(i)}<small class="q">{catText(i.category)}{i.ownership === 'wishlist' || i.ownership === 'to-buy' ? ` · ${t('Wishlist')}` : ''}</small></span>
-            <span class="row-acts">
-              <button type="button" class="btn sm row-act" disabled={busy} onclick={() => (merging = i)} aria-label={t('Merge {name}', { name: nameOf(i) })}>{t('Merge|items')}</button>
-              <button type="button" class="btn sm row-act" disabled={busy} onclick={() => archive([i.id])} aria-label={t('Archive {name}', { name: nameOf(i) })}>{t('Archive')}</button>
-            </span>
-          </li>
-        {/each}
-      </ul>
-      {#if archived}<p class="msg" role="status">{archived.text} <button type="button" class="btn sm" onclick={unarchive}>{t('Undo')}</button></p>{/if}
-    </details>
+        {#if plan.skipped.length}<p class="note">{tn(plan.skipped.length, '{n} line without a name is skipped.', '{n} lines without a name are skipped.')}</p>{/if}
 
+        <!-- 3b: what the list does not name. Archive only: trips keep the item. -->
+        <Section title={t('Not in the import')} sub={`${tn(notIn.length, '{n} item', '{n} items')} · ${t('they stay, nothing is deleted')}`} id="imp-notin">
+          <details class="card isec nifold" data-sec="notin">
+            <summary class="srow">
+              <span class="sib" aria-hidden="true"><Archive size={18} /></span>
+              <span class="sm"><b>{t('Look at them')}</b><small>{t('archive one by one, if you like')}</small></span>
+              <ChevronRight class="schev chev" size={18} aria-hidden="true" />
+            </summary>
+            <p class="note">{t('In your gear, but not in the list. Archived items move to Gear → Gone; past trips stay complete. Nothing is deleted.')}</p>
+            {#if notIn.length}
+              <div class="selbar">
+                <label class="all"><input type="checkbox" checked={notIn.length > 0 && chosen.length === notIn.length} onchange={(e) => notIn.forEach((i) => (e.currentTarget.checked ? picked.add(i.id) : picked.delete(i.id)))} /> {t('Select all')}</label>
+                <button type="button" class="btn" disabled={!chosen.length || busy} onclick={() => archive(chosen.map((i) => i.id))}>{chosen.length ? tn(chosen.length, 'Archive {n} item', 'Archive {n} items') : t('Archive selected')}</button>
+              </div>
+            {/if}
+            <ul class="rows notin">
+              {#each notIn as i (i.id)}
+                <li>
+                  <label class="ck"><input type="checkbox" checked={picked.has(i.id)} onchange={() => flip(i.id)} aria-label={nameOf(i)} /></label>
+                  <span class="nm">{nameOf(i)}<small class="q">{catText(i.category)}{i.ownership === 'wishlist' || i.ownership === 'to-buy' ? ` · ${t('Wishlist')}` : ''}</small></span>
+                  <span class="row-acts">
+                    <button type="button" class="btn sm row-act" disabled={busy} onclick={() => (merging = i)} aria-label={t('Merge {name}', { name: nameOf(i) })}>{t('Merge|items')}</button>
+                    <button type="button" class="btn sm row-act" disabled={busy} onclick={() => archive([i.id])} aria-label={t('Archive {name}', { name: nameOf(i) })}>{t('Archive')}</button>
+                  </span>
+                </li>
+              {/each}
+            </ul>
+            {#if archived}<p class="msg" role="status">{archived.text} <button type="button" class="btn sm" onclick={unarchive}>{t('Undo')}</button></p>{/if}
+          </details>
+        </Section>
+      </div>
+
+      <aside class="icol">
+        <Section title={t('How it works')} id="imp-how">
+          <ol class="card how">
+            <li><b>{t('Look')}</b><p>{t('New is chosen, unsure asks one by one.')}</p></li>
+            <li><b>{t('Apply|import')}</b><p>{t('A backup is made first.')}</p></li>
+            <li><b>{t('Undo')}</b><p>{t('until the next import, with one tap.')}</p></li>
+          </ol>
+        </Section>
+        <p class="foot"><Btn kind="quiet" label={t('Discard import')} disabled={busy} onclick={discard} /></p>
+      </aside>
+    </div>
     {/if}
 
-    <p class="foot"><button type="button" class="btn link" disabled={busy} onclick={discard}>{t('Discard import')}</button></p>
   {/if}
 </div>
 
@@ -433,26 +481,96 @@
 {/if}
 
 <style>
+  .imeta {
+    margin: 4px 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-body);
+    overflow-wrap: break-word;
+  }
   .imp {
-    max-width: 860px;
-    margin: 0 auto;
+    max-width: 1240px;
     min-width: 0;
   }
-  .back {
-    margin: 0 0 4px;
-    font-size: var(--fs-small);
+  /* SN5: four numbers on top, then the sections in two columns */
+  .tiles {
+    margin: 0 0 var(--sp-3);
+    padding: 14px var(--sp-4);
   }
-  h1 {
-    margin: 0 0 8px;
+  .nums {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--sp-2);
+    margin: 0;
   }
-  .meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px 14px;
-    margin: 0 0 16px;
+  .nums div {
+    min-width: 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--paper-2);
+  }
+  .nums dd {
+    margin: 0;
+    font: 700 var(--fs-section) / 1.15 var(--font-body);
+  }
+  .nums dt {
+    margin-top: 2px;
     color: var(--ink-3);
     font-size: var(--fs-small);
     overflow-wrap: break-word;
+  }
+  @media (max-width: 719px) {
+    .nums {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .igrid {
+    display: grid;
+    gap: var(--sp-5);
+    margin-top: var(--sp-5);
+  }
+  @media (min-width: 1100px) {
+    .igrid {
+      grid-template-columns: minmax(0, 1fr) 420px;
+      align-items: start;
+    }
+  }
+  .icol {
+    display: grid;
+    gap: var(--sp-5);
+    min-width: 0;
+  }
+  .flat {
+    padding: 0;
+  }
+  .qx {
+    display: inline;
+    font-weight: 400;
+  }
+  .nifold > summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .nifold > summary::-webkit-details-marker {
+    display: none;
+  }
+  .nifold > summary.srow {
+    border-top: 0;
+    min-height: 44px;
+    padding: 0;
+  }
+  .nifold[open] > summary :global(.chev) {
+    transform: rotate(90deg);
+  }
+  .how {
+    display: grid;
+    gap: var(--sp-3);
+    margin: 0;
+    padding: var(--sp-4) var(--sp-4) var(--sp-4) 36px;
+  }
+  .how p {
+    margin: 2px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .main {
     margin: 0 0 20px;
@@ -491,9 +609,6 @@
   }
   .nf {
     margin-top: 12px;
-  }
-  .main .btn.hi {
-    min-height: 44px;
   }
   .hint,
   .note {
@@ -603,10 +718,6 @@
     text-align: right;
     min-width: 5.5em;
     color: var(--ink-2);
-  }
-  .tags {
-    display: inline-flex;
-    gap: 4px;
   }
   /* Small neutral badges. */
   .badge {

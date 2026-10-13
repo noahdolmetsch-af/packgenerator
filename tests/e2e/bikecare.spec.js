@@ -127,7 +127,9 @@ test('D2: sealant "Ersetzt oder erledigt" is stored with date and km and is no l
   await care.locator('li.pt.x').getByRole('button', { name: 'Eintragen …' }).click(); // v0.114.0 (N4): was «Erfassen …»
   const dlg = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Reifen + Dichtmilch' }) });
   await expect(dlg).toBeVisible();
-  await dlg.getByRole('button', { name: 'Ersetzt oder erledigt' }).click();
+  // SN7 «Seiten neu»: the due point stands on top, chosen («Dichtmilch nachfüllen: erledigt»); «Eintragen» stores it.
+  await expect(dlg.locator('[data-did="due"]')).toHaveAttribute('aria-pressed', 'true');
+  await dlg.getByRole('button', { name: 'Eintragen', exact: true }).click();
   await expect(dlg).toBeHidden();
 
   // Stored: date and km.

@@ -7,10 +7,14 @@
    * undone (a stack, the last one first). First come what the update «Bausteine neu» left to check:
    * the items still to assign (old Lodging) and the temperature rules it set (old Warm, 10 °C).
    * Reached from the Blocks page and from Gear (••• menu) and in More.
+   * SN3 «Seiten neu»: the same head as the other pages (path, title, one line) and the shared buttons
+   * (ui/Btn) in the step bar at the bottom; the steps themselves stay as they are.
    */
   import { liveQuery } from 'dexie';
   import Empty from '../lib/ui/Empty.svelte';
   import Skeleton from '../lib/ui/Skeleton.svelte';
+  import PathHead from '../lib/ui/PathHead.svelte';
+  import Btn from '../lib/ui/Btn.svelte';
   import { db } from '../lib/db.js';
   import { formatWeight, itemWeight, OWNERSHIP, isInventory, knownWeight } from '../lib/gear.js';
   import { SETS_KEY, allSets, qtyOf, setUse, blockLabel } from '../lib/sets.js';
@@ -169,10 +173,8 @@
 {/snippet}
 
 <div class="bcheck">
-  <p class="back"><a href="#/blocks"><ChevronLeft size={16} aria-hidden="true" />{t('Building blocks')}</a></p>
-  <h1 class="title">{t('Check building blocks')}</h1>
-  <!-- v0.72.0 (Noah 4a): first the overview, then one block after the other. -->
-  <p class="page-sub">{t('The building blocks are newly arranged. First the overview, then one block after the other: keep, take out or move.')}</p>
+  <!-- v0.72.0 (Noah 4a): first the overview, then one block after the other. SN3: the shared head. -->
+  <PathHead crumbs={[{ label: t('Gear|place'), href: '#/gear' }, { label: t('Building blocks'), href: '#/blocks' }]} here={t('Check|blocks')} title={t('Check building blocks')} sub={t('The building blocks are newly arranged. First the overview, then one block after the other: keep, take out or move.')} />
 
   {#if !steps}
     <Skeleton rows={4} />
@@ -262,11 +264,12 @@
     </section>
 
     <nav class="stepnav" aria-label={t('Steps')}>
-      <button type="button" class="btn" disabled={at === 0} onclick={() => go(at - 1)}><ChevronLeft size={18} aria-hidden="true" />{t('Back')}</button>
+      <!-- SN3: the shared buttons (ui/Btn); the next step keeps its name, it wraps on a narrow phone -->
+      <Btn icon={ChevronLeft} label={t('Back')} disabled={at === 0} onclick={() => go(at - 1)} />
       {#if at < steps.length - 1}
-        <button type="button" class="btn hi" onclick={() => go(at + 1)}>{t('Next: {name}', { name: stepName(steps[at + 1]) })}<ChevronRight size={18} aria-hidden="true" /></button>
+        <Btn kind="hi" class="nextb" label={t('Next: {name}', { name: stepName(steps[at + 1]) })} onclick={() => go(at + 1)} />
       {:else}
-        <a class="btn hi" href="#/blocks">{t('Done')}</a>
+        <Btn kind="hi" label={t('Done')} href="#/blocks" />
       {/if}
     </nav>
   {/if}
@@ -284,17 +287,6 @@
   .bcheck {
     max-width: 760px;
     margin: 0 auto;
-  }
-  .back {
-    margin: 0 0 4px;
-    font-size: var(--fs-small);
-  }
-  .back a {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 44px;
-    color: var(--ink-2);
   }
   .progress {
     display: grid;
@@ -566,8 +558,9 @@
     gap: 8px;
     margin: 18px 0 12px;
   }
-  .stepnav .btn {
-    min-height: 44px;
+  .stepnav :global(.nextb) {
+    max-width: 100%;
+    white-space: normal;
   }
   .undopad {
     height: 80px;

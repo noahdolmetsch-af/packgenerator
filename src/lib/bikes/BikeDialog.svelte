@@ -5,7 +5,10 @@
   import { shrinkImage } from '../photo.js';
   import { t, tn, num } from '../i18n.svelte.js';
   import { liveQuery } from 'dexie';
-  import { X, Bike, TriangleAlert } from '@lucide/svelte';
+  import { X, Bike, TriangleAlert, Mountain, Building2, Zap, Image, SlidersHorizontal } from '@lucide/svelte';
+  import OptionButton from '../ui/OptionButton.svelte';
+  import FoldRow from '../ui/FoldRow.svelte';
+  import Btn from '../ui/Btn.svelte';
   import './velo-dlg.css';
 
   /** bike: the bike to edit, or null for "Add bike". */
@@ -30,6 +33,20 @@
       reading = false;
     }
   }
+  // SN7 «Seiten neu» (answer 5a): the kind of bike as option buttons (it fills «Type», tap again to
+  // clear it); the photo and the rare details (type in your own words, what for) fold away. Editing a
+  // bike (reached by «Type, use and photo») opens the details.
+  const KINDS = [
+    { word: 'Gravel|kind', icon: Bike },
+    { word: 'Road bike', icon: Bike },
+    { word: 'MTB', icon: Mountain },
+    { word: 'City bike', icon: Building2 },
+    { word: 'E-bike', icon: Zap },
+  ];
+  const kindOn = (k) => draft.type.trim().toLowerCase() === t(k.word).toLowerCase();
+  const pickKind = (k) => (draft.type = kindOn(k) ? '' : t(k.word));
+  // svelte-ignore state_referenced_locally
+  let moreOpen = $state(!isNew);
   let error = $state('');
   // V2: «Delete» works only once no trip uses the bike; the window says so up front.
   const usedQ = liveQuery(() => (bike ? db.trips.filter((x) => x.bikeId === bike.id).count() : 0));
@@ -76,22 +93,24 @@
   }
 </script>
 
-<dialog class="sheet vdlg" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bike-dlg-h">
+<dialog class="sheet vdlg from-below" bind:this={dialog} use:backClose={keepOnBack} {onclose} aria-labelledby="bike-dlg-h">
   <form onsubmit={save} novalidate>
     <!-- Design-Refresh P7 (V2): title and a quiet line, ✕ top right, «Delete bike» next to «Cancel». -->
     <div class="vd-head">
       <div class="vd-t">
         <h2 id="bike-dlg-h">{isNew ? t('Add bike') : t('Bike details')}</h2>
-        {#if !isNew}<p class="vd-sub num">{[bike.name, bike.km != null ? `${num(bike.km)} km` : ''].filter(Boolean).join(' · ')}</p>{/if}
+        <p class="vd-sub num">{isNew ? t('Only the name is needed, everything else later.') : [bike.name, bike.km != null ? `${num(bike.km)} km` : ''].filter(Boolean).join(' · ')}</p>
       </div>
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
     </div>
-    <div class="grid">
-      <label class="wide"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required enterkeyhint="done" /></label>
-      <label class="wide"><span class="lbl">{t('Type')}</span><input class="inp" bind:value={draft.type} placeholder={t('e.g. Full suspension')} /></label>
-      <label class="wide"><span class="lbl">{t('What you use it for')}</span><input class="inp" bind:value={draft.use} /></label>
-      <div class="wide photo">
-        <span class="lbl">{t('Photo')}</span>
+    <label class="vd-field"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required enterkeyhint="done" placeholder={t('e.g. Gravel Grinder')} /></label>
+    <!-- SN7: the kind as option buttons; a suggestion only: tap again and it is empty -->
+    <span class="lbl vd-lbl" id="bike-kind-l">{t('Kind|bike')}</span>
+    <div class="vd-opts" role="group" aria-labelledby="bike-kind-l">
+      {#each KINDS as k (k.word)}<OptionButton pressed={kindOn(k)} icon={k.icon} label={t(k.word)} onclick={() => pickKind(k)} />{/each}
+    </div>
+    <div class="vd-folds">
+      <FoldRow icon={Image} label={t('Photo')} summary={draft.photo ? t('chosen|photo') : t('side view works best')}>
         <div class="prow">
           <span class="pthumb">{#if draft.photo}<img src={draft.photo} alt={draft.name} />{:else}<Bike size={22} aria-hidden="true" />{/if}</span>
           <div class="pside">
@@ -102,14 +121,20 @@
             </div>
           </div>
         </div>
-      </div>
+      </FoldRow>
+      <FoldRow icon={SlidersHorizontal} label={t('More details')} summary={[draft.type.trim(), draft.use.trim()].filter(Boolean).join(' · ') || t('Type, what for')} bind:open={moreOpen}>
+        <div class="grid">
+          <label class="wide"><span class="lbl">{t('Type')}</span><input class="inp" bind:value={draft.type} placeholder={t('e.g. Full suspension')} /></label>
+          <label class="wide"><span class="lbl">{t('What you use it for')}</span><input class="inp" bind:value={draft.use} /></label>
+        </div>
+      </FoldRow>
     </div>
     {#if !isNew && used}<p class="vd-note"><TriangleAlert size={16} aria-hidden="true" />{tn(used, 'You can delete it once no trip uses this bike. {n} trip uses it.', 'You can delete it once no trip uses this bike. {n} trips use it.')}</p>{/if}
     <p class="err" role="alert">{error}</p>
-    <div class="vd-foot">
+    <div class="vd-foot sn7">
       {#if !isNew}<button type="button" class="btn del" onclick={remove}>{t('Delete bike')}</button>{/if}
-      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
-      <button type="submit" class="btn hi">{isNew ? t('Add bike') : t('Save')}</button>
+      <Btn kind="quiet" label={t('Cancel')} onclick={() => dialog.close()} />
+      <Btn kind="hi" type="submit" label={isNew ? t('Add|bike') : t('Save')} />
     </div>
   </form>
 </dialog>
@@ -118,10 +143,6 @@
   .grid {
     display: grid;
     gap: 12px;
-  }
-  .photo {
-    display: grid;
-    gap: 2px;
   }
   .prow {
     display: flex;
