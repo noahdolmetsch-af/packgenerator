@@ -862,6 +862,24 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 13.10.2026: Neue Tour Teil 2 (0.120.0)
+
+Mockups B4 und B5 (`design/rahmenbedingungen/`, Galerie «Offene Mockups 2» #rahmenbedingungen). **Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★** («Ja, schlank dabei», 13.10.2026 00:00 Zurich). Antworten der Runde: 1a (Bausteine nur beim Packen), 6a (schlanke Reparatur ≤ 8).
+
+- **B4 Bausteine beim Packen:** oben in Packen eine Karte «Bausteine · n dabei · m zur Wahl». «Dabei» grün mit Haken, «Dazunehmen» weiss mit +, ein Vorschlag gestrichelt mit kleinem Schild. Ein Tipp schaltet den ganzen Baustein (wie die bisherigen Schalter, mit Rückgängig). Maus darüber oder lange drücken zeigt den Inhalt (die Erklär-Blase von 0.117.0).
+- **B5 Reparatur unterwegs:** hat «Reparatur» mehr als 8 Teile, ist sie in Packen ein gestrichelter Vorschlag; der Tipp öffnet ein Fenster mit höchstens 8 vorgeschlagenen Teilen als Auswahl-Knöpfe, «Später» und «8 Teile übernehmen». Übernehmen: die übrigen Teile verlassen den Baustein (bleiben im Material, Rückgängig unter Material › Bausteine › Reparatur oder sofort mit «Rückgängig»), die 8 kommen auf die Tour.
+- **Standard B5 (a ★):** eine schlanke Reparatur (≤ 8 Teile) kommt mit jeder neuen Tour wieder von selbst, als abwählbarer Vorschlag. Eine Reparatur mit mehr als 8 Teilen bleibt bei neuen Touren aus (wie 0.114.0), bis sie schlank ist. Laden bleibt aus.
+- **Gemeinsamer Knopf:** `ui/OptionButton.svelte` (klein: die Vorlagen-Knöpfe der neuen Tour, vorher `.obtn` in TripDialog; gross: B4/B5).
+- **Nicht gebaut:** «Neues Teil direkt beim Packen» (NP1), noch nicht freigegeben.
+- **Selbst entschieden:**
+  - «Extra warm» ist kein Knopf: Warm ist seit 0.66.0 (Noah 6a) kein Baustein mehr, die warmen Schichten kommen mit dem Wetter («An das Wetter angepasst» in Planen).
+  - Welche Bausteine Knöpfe sind: die bisherigen Schalter (Erste Hilfe, Licht, Reparatur, Laden, Rennen, Kochen), dazu Verpflegung, Hygiene und eigene Bausteine; nur mit Teilen; ohne Temperatur-Kits und Komfort (wird Stück für Stück angeboten). Nur bei Velotouren, die nicht vorbei sind.
+  - Vorschlag «Regen»: ein eigener Baustein mit «Regen/Rain» im Namen, wenn die Tour Schauer/Regen hat oder die Regenwahrscheinlichkeit ab 30 % ist; das Schild nennt die Prozent, ohne Wochentag.
+  - Die 8 Vorschläge: Schlauch, Pumpe, Multitool, Reifenheber, Kettenschloss, Flickzeug, Tubeless, Kabelbinder (dann Klebeband, Ventil, Schaltauge, Speiche); Werkstatt-Werkzeug (Standpumpe, Montageständer, Drehmoment, Kassette, Nieter, «gross») und Unbenanntes über 400 g nie. Ein 9. Teil wird mit einer Zeile abgelehnt.
+  - Im Fenster zeigt «Bleibt in der Werkstatt» 6 Teile, «… und n weitere» zeigt alle. Am Handy ist das Fenster bildschirmfüllend mit den zwei Knöpfen unten.
+  - Hat eine Tour schon die volle Reparatur «Dabei», steht unter den Knöpfen ein Link «Reparatur hat n Teile: 8 für unterwegs wählen».
+  - Schnellstart (0.119.0) bleibt unverändert (bringt Reparatur und Laden wie bisher); eine Frage für die nächste Runde.
+
 ## 13.10.2026: Schnellstart (0.119.0)
 
 Mockups Q1–Q3 (`design/schnellstart/`). **Mockup-Freigabe: Q1–Q3 «Q1–Q3 freigegeben» 13.10.2026 00:05 Zurich**, Antworten **«1-5a»**:

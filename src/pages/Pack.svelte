@@ -26,6 +26,10 @@
   import '../lib/pack/calm-pack.css';
   let review = $state(false);
   import TripDialog from '../lib/pack/TripDialog.svelte';
+  import PackBlocks from '../lib/pack/PackBlocks.svelte';
+  import RepairSlim from '../lib/pack/RepairSlim.svelte';
+  import { blockRows } from '../lib/packblocks.js';
+  import { needsSlim, repairItems, applySlim, undoSlim, REPAIR } from '../lib/repairslim.js';
   import NotPacked from '../lib/pack/NotPacked.svelte';
   import TemplateDialog from '../lib/pack/TemplateDialog.svelte';
   import PackDay from '../lib/pack/PackDay.svelte';
@@ -676,6 +680,46 @@
   });
   const setCount = (key) => items.filter((i) => isInventory(i) && i.sets?.includes(key)).length;
 
+  // v0.120.0 B4 «Bausteine beim Packen» (mockup B4, Noah «b2 b4 b5 ok»): the blocks as big buttons in Packen;
+  // one tap switches the whole block (switchSet: one change, so Undo works). Only a bike trip that is not over.
+  const packRows = $derived(trip && bikeTrip && !over ? blockRows(trip, items, $setsQ?.value) : null);
+  let packNote = $state(''); // what the last tap on a block did
+  let packUndo = $state.raw(null); // { tripId, workshop? }: the Undo of that line
+  async function packToggle(row) {
+    const on = !row.on;
+    await switchSet(row.key);
+    packNote = on ? t('{block} added to this trip.', { block: row.name }) : t('{block} taken off this trip.', { block: row.name });
+    packUndo = { tripId: trip.id };
+  }
+  // v0.120.0 B5 «Reparatur unterwegs» (answer 6a): at most 8 parts of Repair for the ride; the rest leaves the
+  // block (the items stay in Gear). The trip gets the slim Repair at once (one change, so Undo works).
+  let slimOpen = $state(false);
+  const slimN = $derived(packRows?.on.some((r) => r.key === REPAIR) && needsSlim(items) ? repairItems(items).length : 0);
+  async function slimApply(keep) {
+    const before = items;
+    const r = applySlim(before, keep);
+    const changed = new Map(r.items.map((i) => [i.id, i]));
+    const after = before.map((i) => changed.get(i.id) ?? i);
+    if (r.items.length) await db.items.bulkPut(r.items);
+    await change((cur) => {
+      const active = activeBlocks(cur);
+      const off = toggleSet(cur, before, REPAIR, false, { active });
+      return toggleSet({ ...cur, ...off }, after, REPAIR, true, { active });
+    });
+    packNote = tn(keep.length, 'Repair is slim now: {n} part for the ride.', 'Repair is slim now: {n} parts for the ride.');
+    packUndo = { tripId: trip.id, workshop: r.workshop };
+  }
+  async function packUndoNow() {
+    const u = packUndo;
+    packUndo = null;
+    packNote = '';
+    if (u?.workshop?.length) {
+      const back = undoSlim(items, u.workshop);
+      if (back.length) await db.items.bulkPut(back);
+    }
+    await undoLast();
+  }
+
   // Answer 5 and round C answer 2: weather range, kind of ride and the layers they add.
   const wx = $derived(trip?.wx ?? null);
   const wxSet = $derived(wx?.min != null && wx?.max != null);
@@ -885,8 +929,9 @@
       </div>
     </div>
   {/if}{/snippet}
+  {#snippet blocksCard()}{#if packRows}<PackBlocks rows={packRows} {itemsById} ontoggle={packToggle} onslim={() => (slimOpen = true)} {slimN} note={packUndo?.tripId === trip.id ? packNote : ''} onundo={canUndo ? packUndoNow : null} />{/if}{/snippet}
   {#if packTab}
-    <PackDay {trip} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
+    <PackDay top={blocksCard} {trip} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip ? wxGap : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
   <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={over ? null : factEdit} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} prep={before} lessons={learningsFor(trip, $learnQ ?? [], 3)} bind:q bind:zoneKey bind:review
     actions={{
@@ -986,6 +1031,7 @@
       <ul>{#each ready as r (r.id)}<li>☐ {t(r.label)}</li>{/each}</ul>
     </section>{/if}
 {#if endAsk && trip}<EndTripSheet {trip} day={Math.max(1, Math.min(trip.days || 1, Math.round((Date.parse(`${today}T12:00:00Z`) - Date.parse(`${trip.startDate}T12:00:00Z`)) / 864e5) + 1))} days={Math.max(1, Number(trip.days) || 1)} onclose={() => (endAsk = false)} />{/if}
+{#if slimOpen}<RepairSlim {items} onapply={slimApply} onclose={() => (slimOpen = false)} />{/if}
 {#if dialog}
   <TripDialog trip={dialog.trip} {trips} {bikes} {items} {bags} {templates} startFrom={dialog.startFrom ?? 'standard'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={(id) => { dayMade = { id, before: chosen, day: false }; focusNew = id; choose(id); }} />
 {/if}

@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.120.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
+    version: '0.120.0',
+    date: '2026-10-13',
+    title: 'Blocks you can tap',
+    lead: 'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.',
+    points: [
+      { text: 'Building blocks as big buttons at the top of Packen: green with a check is on the trip, white with + can be added.', href: '#/pack?day' },
+      { text: 'Repair on the way: the app suggests at most 8 light parts, the rest stays in the workshop and in your gear.', href: '#/pack?day' },
+      { text: 'A slim Repair comes with every new trip as a suggestion; one tap takes it off.', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'Hover or hold a block: it shows what is inside', href: '#/pack?day' },
+      { box: 'nicer', text: 'The template buttons of a new trip use the same option buttons', href: '#/trips' },
+    ],
+    test: [
+      'Open a bike trip and go to Packen: at the top «Building blocks · n on · m to choose».',
+      'Tap a white block with +: it turns green with a check and its items are on the list. Tap it again: they go.',
+      'With a Repair of more than 8 parts tap its dashed button: choose the parts and tap «Take 8 parts».',
+    ],
+  },
+  {
     // v0.119.0 «Schnellstart» (mockups Q1–Q3, Noah 13.10.2026 00:05 «Q1–Q3 freigegeben»)
     version: '0.119.0',
     date: '2026-10-13',

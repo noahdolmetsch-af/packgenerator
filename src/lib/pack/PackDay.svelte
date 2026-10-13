@@ -28,7 +28,8 @@
   import { localDay } from '../localday.js';
   import '../trip/trip.css';
 
-  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], oncharge = null, pressure = '', stats = null, charge = null } = $props();
+  let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], oncharge = null, pressure = '', stats = null, charge = null, top = null } = $props();
+  // v0.120.0 B4 (mockup «Bausteine beim Packen»): top: the building blocks as big buttons (Pack's PackBlocks), above the bags.
   // v0.105.0 P5 (T6): stats for «Gewicht nach Taschen»; charge { names, done, total } for the row «Laden» in «Mehr».
   // v0.65.0 «Velo-Masse»: pressure: the trip bike's target pressure («1.6 / 1.7 bar»), named in the tyre row.
   const readyLabel = (r) => (r.id === 'tyres' && pressure ? `${t(r.label)} · ${t('Target')} ${pressure}` : t(r.label));
@@ -273,6 +274,7 @@
 
 <div class="pd trip-page" aria-label={t('Packing day: {title}', { title: trip.title })}>
   <TripBand {trip} tab="pack" {kicker} action={main.kind ? go : null} {aside} hint={missing ? tn(missing, '{n} still missing', '{n} still missing') : t('Everything is in.')} />
+  {@render top?.()}
   <!-- v0.67.0 (U014, kit Empty): an empty list says so and leads to adding gear (never «Alles gepackt»). -->
   {#if total === 0}<Empty icon={ListChecks} text={t('The packing list is still empty. Add gear in Plan first, then pack here.')} action={{ label: t('Add material'), href: '#/pack?add' }} />{/if}
 
