@@ -9,6 +9,23 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.122.0 Dateneingabe (D1–D4)
+  'Values in one go': 'Werte in einem Zug',
+  'Bike values go in right where you are: on the sheet or on one page, field after field.':
+    'Velowerte trägst du gleich dort ein, wo du bist: im Blatt oder auf einer Seite, Feld für Feld.',
+  'The Pick-up check shows each value as a card: tap it, type, and «Next» opens the next one. − and + help, and «As before» keeps the old value.':
+    'Der Abhol-Check zeigt jeden Wert als Karte: antippen, tippen, und «Weiter» öffnet die nächste. − und + helfen, «Wie vorher» behält den alten Wert.',
+  'New page «Enter values» under Equipment: all values of a bike in four groups, every entry saves at once.':
+    'Neue Seite «Werte erfassen» unter Ausstattung: alle Werte eines Velos in vier Gruppen, jede Eingabe speichert sofort.',
+  '«Choose fields» hides fields you never need, for all bikes; «Own field» adds a value with name and unit.':
+    '«Felder wählen» blendet Felder aus, die du nie brauchst, für alle Velos; «Eigenes Feld» fügt einen Wert mit Name und Einheit hinzu.',
+  'Open a bike › Workshop › Pick-up check: tap a value, type a number and press Enter: the card is ticked and the next one opens.':
+    'Ein Velo öffnen › Werkstatt › Abhol-Check: einen Wert antippen, eine Zahl tippen und Enter drücken: Die Karte ist abgehakt, die nächste geht auf.',
+  'Go to Equipment › «Enter values»: type a value and press Enter, the next field gets the cursor.':
+    'Zu Ausstattung › «Werte erfassen»: einen Wert tippen und Enter drücken, das nächste Feld bekommt den Cursor.',
+  'Tap «Choose fields», switch a field off: it is gone here, the Bike pass still shows it.':
+    '«Felder wählen» tippen, ein Feld ausschalten: Hier ist es weg, der Velo-Pass zeigt es weiter.',
+
   // 0.119.0 Schnellstart (mockups Q1–Q3)
   'Trip in one click': 'Tour mit 1 Klick',
   'One click on Today plans a ride for today, and you stay on Today.': 'Ein Klick auf Heute plant eine Tour für heute, und du bleibst auf Heute.',

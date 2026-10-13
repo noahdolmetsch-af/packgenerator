@@ -268,7 +268,7 @@
     border: 1px solid var(--line-strong);
     border-radius: 999px;
     color: var(--ink-2);
-    font-size: 11px;
+    font-size: var(--fs-tiny);
     font-weight: 600;
     vertical-align: middle;
   }
@@ -285,7 +285,7 @@
     border-radius: 10px;
     background: var(--input, var(--paper));
     color: var(--ink);
-    font: 17px var(--font-body);
+    font: var(--fs-sub) var(--font-body);
     font-variant-numeric: tabular-nums;
     text-align: right;
   }

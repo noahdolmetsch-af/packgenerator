@@ -62,7 +62,7 @@
     <button type="button" class="row" {disabled} aria-label="{t(row.label)}: {withUnit(row.value) || t('Enter|value')}" onclick={() => onopen?.()}>
       {#if done}<span class="ok" aria-hidden="true"><Check size={16} /></span>{:else}<span class="dot" aria-hidden="true"></span>{/if}
       <span class="l"><b>{t(row.label)}</b><small>{before != null ? (done && show(before) === show(row.value) ? t('as before') : t('before {value}', { value: withUnit(before) })) : t('no value yet')}</small></span>
-      <span class="pill" class:add={row.value == null}>{row.value != null ? withUnit(row.value) : t('Enter|value')}</span>
+      <span class="vpill" class:add={row.value == null}>{row.value != null ? withUnit(row.value) : t('Enter|value')}</span>
     </button>
   </li>
 {/if}
@@ -127,9 +127,9 @@
     height: 28px;
     border-radius: 50%;
     background: var(--ok);
-    color: #fff;
+    color: var(--hi-ink);
   }
-  .pill {
+  .vpill {
     flex: none;
     display: flex;
     align-items: center;
@@ -143,10 +143,10 @@
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
-  .done .pill {
+  .done .vpill {
     background: none;
   }
-  .pill.add {
+  .vpill.add {
     background: var(--hi-soft);
     color: var(--hi);
   }
@@ -198,14 +198,14 @@
     outline: 0;
     background: none;
     color: var(--ink);
-    font: 700 26px / 1 var(--font-body);
+    font: 700 var(--fs-section) / 1 var(--font-body);
     font-variant-numeric: tabular-nums;
     text-align: center;
   }
   .big small {
     flex: none;
     color: var(--ink-2);
-    font-size: 15px;
+    font-size: var(--fs-small);
   }
   .acts {
     display: flex;
@@ -229,7 +229,7 @@
   .chip.hi {
     border-color: var(--ok);
     background: var(--ok);
-    color: #fff;
+    color: var(--hi-ink);
   }
   @media print {
     .vcard {
@@ -238,7 +238,7 @@
       border-radius: 0;
       margin: 0;
     }
-    .pill {
+    .vpill {
       background: none;
     }
   }
