@@ -16,8 +16,8 @@
 
 export const WHATS_NEW = [
   {
-    // v0.122.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
-    version: '0.122.0',
+    // v0.123.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
+    version: '0.123.0',
     date: '2026-10-13',
     title: 'Blocks you can tap',
     lead: 'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.',
@@ -34,6 +34,23 @@ export const WHATS_NEW = [
       'Open a bike trip and go to Packen: at the top «Building blocks · n on · m to choose».',
       'Tap a white block with +: it turns green with a check and its items are on the list. Tap it again: they go.',
       'With a Repair of more than 8 parts tap its dashed button: choose the parts and tap «Take 8 parts».',
+    ],
+  },
+  {
+    // v0.122.0 «Bugfix Dateneingabe» D1–D4 (Noah 13.10.2026 «D1–D4 freigegeben», answers «1a 2a 3b 4b 5a», D1a ★)
+    version: '0.122.0',
+    date: '2026-10-13',
+    title: 'Values in one go',
+    lead: 'Bike values go in right where you are: on the sheet or on one page, field after field.',
+    points: [
+      { text: 'The Pick-up check shows each value as a card: tap it, type, and «Next» opens the next one. − and + help, and «As before» keeps the old value.', href: '#/bikes' },
+      { text: 'New page «Enter values» under Equipment: all values of a bike in four groups, every entry saves at once.', href: '#/bikes?tab=compare' },
+      { text: '«Choose fields» hides fields you never need, for all bikes; «Own field» adds a value with name and unit.', href: '#/bikes?tab=compare' },
+    ],
+    test: [
+      'Open a bike › Workshop › Pick-up check: tap a value, type a number and press Enter: the card is ticked and the next one opens.',
+      'Go to Equipment › «Enter values»: type a value and press Enter, the next field gets the cursor.',
+      'Tap «Choose fields», switch a field off: it is gone here, the Bike pass still shows it.',
     ],
   },
   {

@@ -862,7 +862,7 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
-## 13.10.2026: Neue Tour Teil 2 (0.122.0)
+## 13.10.2026: Neue Tour Teil 2 (0.123.0)
 
 Mockups B4 und B5 (`design/rahmenbedingungen/`, Galerie «Offene Mockups 2» #rahmenbedingungen). **Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★** («Ja, schlank dabei», 13.10.2026 00:00 Zurich). Antworten der Runde: 1a (Bausteine nur beim Packen), 6a (schlanke Reparatur ≤ 8).
 
@@ -879,6 +879,11 @@ Mockups B4 und B5 (`design/rahmenbedingungen/`, Galerie «Offene Mockups 2» #ra
   - Im Fenster zeigt «Bleibt in der Werkstatt» 6 Teile, «… und n weitere» zeigt alle. Am Handy ist das Fenster bildschirmfüllend mit den zwei Knöpfen unten.
   - Hat eine Tour schon die volle Reparatur «Dabei», steht unter den Knöpfen ein Link «Reparatur hat n Teile: 8 für unterwegs wählen».
   - Schnellstart (0.119.0) bleibt unverändert (bringt Reparatur und Laden wie bisher); eine Frage für die nächste Runde.
+
+## 13.10.2026: Dateneingabe D1–D4 (0.122.0)
+
+- (Mockup-Freigabe: D1–D4 «D1–D4 freigegeben» 13.10.2026, Antworten «1a 2a 3b 4b 5a», D1 als Variante D1a ★ Wert-Karten). D1: direkt im Blatt tippen; D2: eigene Seite «Werte erfassen» mit «Weiter» ins nächste Feld; D3 (3b): «Felder wählen» gilt für alle Velos; D4 (4b): ausgeblendet nur auf «Werte erfassen»; 5a: eigene Felder mit Name und Einheit.
+- **Selbst entschieden:** Werte im Abhol-Check haben kein Kästchen mehr, eine gespeicherte Karte gilt als erledigt; «Wie vorher» übernimmt den alten Wert mit einem Tipp; eigene Felder lassen sich umbenennen und löschen, ihre Werte bleiben am Velo und kommen beim Wiederanlegen zurück; − und + in Schritten von 0,1 bar bzw. 1; Version 0.122.0, weil 0.121.0 (Strava-Fahrten zählen mit) vorher live ging; Noah wählte D1a ausdrücklich («D1a D1–D4 freigegeben», 15:26 UTC).
 
 ## 13.10.2026: Schnellstart (0.119.0)
 

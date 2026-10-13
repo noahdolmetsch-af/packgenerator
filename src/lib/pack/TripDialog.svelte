@@ -127,7 +127,7 @@
   // v0.66.0 (Noah 9a): the ride blocks the window suggests, taken off with a tap (a visible suggestion, never forced).
   // v0.114.0 (Noah: «92 Teile … nur 10-20»): Repair (36 tools) and Charging no longer come by themselves
   // with a new trip; they stay one switch away in Packen (answer 1a: building blocks only when packing).
-  // v0.122.0 B5 (Noah «a ★ Ja, schlank dabei»): a slim Repair (at most 8 parts) comes again by itself,
+  // v0.123.0 B5 (Noah «a ★ Ja, schlank dabei»): a slim Repair (at most 8 parts) comes again by itself,
   // a suggestion that Packen takes off with one tap; a Repair that is not slim yet stays off (repairslim.js).
   // svelte-ignore state_referenced_locally
   let off = $state(isNew ? newTripOff(items) : []);
@@ -164,7 +164,7 @@
   // v0.114.0 (answer 3b, B2): two example templates per kind of trip; they can be hidden.
   let example = $state(null);
   let tplOpen = $state(false);
-  // v0.122.0: the examples' icons for the shared option button (ui/OptionButton.svelte).
+  // v0.123.0: the examples' icons for the shared option button (ui/OptionButton.svelte).
   const EX_ICON = { bag: Briefcase, hut: Hotel, ski: MountainSnow, walk: Footprints, bike: BikeIcon };
   const hiddenQ = liveQuery(() => db.settings.get(EXAMPLES_HIDDEN));
   const examples = $derived($hiddenQ?.value ? [] : examplesFor(area));

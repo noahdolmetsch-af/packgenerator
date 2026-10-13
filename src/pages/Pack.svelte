@@ -680,7 +680,7 @@
   });
   const setCount = (key) => items.filter((i) => isInventory(i) && i.sets?.includes(key)).length;
 
-  // v0.122.0 B4 «Bausteine beim Packen» (mockup B4, Noah «b2 b4 b5 ok»): the blocks as big buttons in Packen;
+  // v0.123.0 B4 «Bausteine beim Packen» (mockup B4, Noah «b2 b4 b5 ok»): the blocks as big buttons in Packen;
   // one tap switches the whole block (switchSet: one change, so Undo works). Only a bike trip that is not over.
   const packRows = $derived(trip && bikeTrip && !over ? blockRows(trip, items, $setsQ?.value) : null);
   let packNote = $state(''); // what the last tap on a block did
@@ -691,7 +691,7 @@
     packNote = on ? t('{block} added to this trip.', { block: row.name }) : t('{block} taken off this trip.', { block: row.name });
     packUndo = { tripId: trip.id };
   }
-  // v0.122.0 B5 «Reparatur unterwegs» (answer 6a): at most 8 parts of Repair for the ride; the rest leaves the
+  // v0.123.0 B5 «Reparatur unterwegs» (answer 6a): at most 8 parts of Repair for the ride; the rest leaves the
   // block (the items stay in Gear). The trip gets the slim Repair at once (one change, so Undo works).
   let slimOpen = $state(false);
   const slimN = $derived(packRows?.on.some((r) => r.key === REPAIR) && needsSlim(items) ? repairItems(items).length : 0);
