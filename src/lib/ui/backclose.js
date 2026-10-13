@@ -14,6 +14,9 @@
  * back by itself (CloseWatcher → `cancel` → close), without a popstate, so onBack never ran there and
  * the typed name was lost (tests used history.back(), which goes the popstate way). With onBack the
  * `cancel` event (Android back, Escape) now runs onBack too, like NoteSheet's oncancel: back keeps.
+ *
+ * SN integration: the entry is taken away on the `close` event (not on the `open` attribute), so a
+ * sheet that opens from another sheet's onclose takes the entry over before the old one checks it.
  */
 let seq = 0;
 /** Tokens of the dialogs open now. An entry whose dialog closed is stale and may be reused. */
@@ -68,7 +71,11 @@ export function backClose(node, onBack = null) {
       if (!ev.defaultPrevented && node.open) node.close();
     }
   };
-  const watch = new MutationObserver(() => (node.open ? push() : drop()));
+  // Opening is seen on the attribute; closing waits for the dialog's own `close` event. Chrome runs a
+  // timer queued at close() before that event, so dropping on the attribute let the entry go back
+  // before the page's onclose opened the next sheet («Liste anpassen» › Speichern → Vorabend-Check):
+  // the late popstate then closed the new sheet. The close event comes after the page's handler.
+  const watch = new MutationObserver(() => node.open && push());
   watch.observe(node, { attributes: true, attributeFilter: ['open'] });
   const onClose = () => drop();
   // Android back (CloseWatcher) and Escape: keep what was typed instead of closing without it
