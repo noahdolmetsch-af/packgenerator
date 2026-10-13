@@ -5,10 +5,14 @@
  */
 import { toWx } from './weather.js';
 
-/** The numbers of the line under «Touren»: in planning (soon on the way too), debrief open, ridden. */
+/**
+ * The numbers of the line under «Touren»: v0.124.0 TZ-1 (mockup TZ1) by the three trip states
+ * (tripstate.js): planned, completed, rated; all for the chip «All».
+ */
 export function overviewCounts(view) {
   if (!view || view.empty) return null;
-  return { planning: (view.planning?.length ?? 0) + (view.soon?.length ?? 0), debrief: view.debrief?.length ?? 0, ridden: view.riddenTotal ?? 0 };
+  const c = view.counts ?? {};
+  return { plan: c.plan ?? 0, done: c.done ?? 0, rated: c.rated ?? 0, all: c.all ?? 0 };
 }
 
 const addDays = (iso, n) => {

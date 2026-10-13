@@ -20,7 +20,7 @@
   import TripBand from '../lib/trip/TripBand.svelte';
   import { openTrip } from '../lib/nav.js';
   import { planAgain } from '../lib/trip/ending.js';
-  import { endedTooEarly } from '../lib/tripsoverview.js';
+  import { endedTooEarly } from '../lib/tripstate.js';
   import { PLAY_WISH } from '../lib/play.js';
   import '../lib/trip/trip.css';
   import { Check, Minus, X, Plus, ChevronRight, Star, ArrowRight, ArrowLeft, Briefcase, Upload, Route, Sun, NotebookPen, ChevronLeft } from '@lucide/svelte';

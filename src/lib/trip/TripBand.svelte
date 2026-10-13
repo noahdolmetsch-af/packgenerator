@@ -14,6 +14,8 @@
    * v0.100.0 Design-Refresh P1 (G7 «Zurück und wo du bist», approved 11.10.2026): the band is light,
    * without a dark box: «‹ Touren» above the name, the four steps as numbered cards, and the main
    * button in the bar at the bottom («Schritt 2 von 4 · Zurück zu Touren · Weiter zu …»).
+   * v0.124.0 TZ-1 «Zustand sichtbar» (mockup TZ2 Tour-Kopf): the trip's state pill (ui/TripState.svelte)
+   * first on the kicker line: «Geplant · morgen», «Abgeschlossen · Rückblick fehlt», «Bewertet · 6. Sept.».
    */
   import { liveQuery } from 'dexie';
   import { CalendarDays, Bike, Backpack, CloudSun, ShoppingBag, Check, Pencil, Clock3, ChevronLeft, ChevronRight } from '@lucide/svelte';
@@ -32,6 +34,9 @@
   import StepBar from '../ui/StepBar.svelte';
   import MainBar from '../ui/MainBar.svelte';
   import { selectAll } from '../ui/selectall.js';
+  import { tripStateInfo, stateExtra } from '../tripstate.js';
+  import { stateExtraText } from '../tripstatetext.js';
+  import TripState from '../ui/TripState.svelte';
 
   // weighHint: false hides the "6 not weighed" badge (v0.30.1, Noah E4: not next to the green "Day ride created" card).
   // v0.47.1 (Noah a): edit (Plan only) turns date, duration, weather and bike into chips that change the value in place.
@@ -46,6 +51,10 @@
   const bike = $derived(byBike ? ($bikesQ ?? []).find((b) => b.id === trip.bikeId) ?? null : null);
   const stats = $derived($itemsQ && $bagsQ ? tripStats(trip, items, $bagsQ, bike, 0) : null);
   const debrief = $derived(($debriefQ ?? []).find((d) => d.tripId === trip.id) ?? null);
+  const ridesQ = liveQuery(() => db.rides.toArray());
+  // v0.124.0 TZ-1: the state of the trip (tripstate.js) once the debriefs are read
+  const stInfo = $derived($debriefQ ? tripStateInfo(trip, { debrief, rides: $ridesQ ?? [], today: localDay() }) : null);
+  const stExtra = $derived(stInfo ? stateExtraText(stateExtra(stInfo, { trip, debrief, today: localDay(), head: true })) : '');
   const open = $derived(byBike && $itemsQ ? openRows(layerSuggest(trip, items), trip).length : 0);
   const km = $derived(debrief?.km ?? trip.route?.km ?? null);
   const status = $derived(tabStatus(trip, { open, debrief, today: localDay(), km }));
@@ -110,6 +119,7 @@
   <div class="who">
     <nav class="crumb" aria-label={t('Where you are')}><a href="#/trips"><ChevronLeft size={18} aria-hidden="true" />{t('Trips|place')}</a>{#if !phone.matches}<span class="here" aria-hidden="true"><ChevronRight size={14} />{trip.title}</span>{/if}</nav>
     <div class="kline">
+      {#if stInfo?.state}<TripState state={stInfo.state} size="md" extra={stExtra} />{/if}
       {#if kicker}<p class="kick">{kicker}</p>{/if}
       <InProgress current={trip.id} light />
       {@render extra?.()}
@@ -197,7 +207,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 4px 12px;
   }
   .kline:empty {

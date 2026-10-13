@@ -862,6 +862,24 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
 - **Selbst entschieden:** Agenda startet am Computer mit dem Monat, am Handy mit der Liste (Frage offen gelassen, änderbar).
 - **Neue Ideen (Claude, im Thread erklärt):** «Vor der Abfahrt»-Blatt (eine Seite für den Tourtag, offline: Ticket, Karte, Unterkunft, Notfallnummern), Nach-Tour-Merker, Saisonwechsel, Einkauf als To-do. Stehen als «Idee» auf «Mein Überblick».
 
+## 13.10.2026: Drei Tour-Zustände, TZ-1 «Zustand sichtbar» (0.124.0)
+
+Auftrag Noah 13.10.2026 14:52 («unterscheiden zwischen einer abgeschlossenen Aktivität … und einer Aktivität, die wir in der App planen … und ob wir eine Tour bewertet haben»). Mockups TZ0–TZ3 (`design/tour-zustaende/`). **Mockup-Freigabe: TZ1–TZ3 «TZ1–TZ3 freigegeben» 13.10.2026 15:38 UTC, Antworten «1-5 a» 15:37 UTC.**
+
+- **Namen (1a):** Geplant · Abgeschlossen · Bewertet, überall gleich.
+- **Farben (2a):** Blau (Stift) · Grau (Fahne) · Grün (gefüllter Stern); Orange bleibt für «fällig». Eigene Tokens `--st-*`, unabhängig von der Farbwelt.
+- **Hochgeladene Fahrt ohne Packliste (3a):** eine Tour im Zustand Abgeschlossen (Zusatz «GPX» bzw. «Strava»); «Kurz bewerten» kommt mit TZ-3.
+- **Strava-Fahrten ohne Tour (4a):** bleiben im Fahrtenbuch, nicht unter Touren (TZ-3).
+- **Wieder öffnen (5a):** mit einer Rückfrage; kommt mit TZ-2.
+- **Eine Regel:** `tripState()` in `src/lib/tripstate.js` (Reihenfolge der Spezifikation, Abschnitt 2). Keine Migration. `tripEnd` lebt jetzt dort (debrief.js gibt es weiter), `endedTooEarly` ebenfalls (tripsoverview.js gibt es weiter). Ersetzt in diesem Paket: die Gruppen der Touren-Übersicht (`tripsoverview.js`, vorher In Planung / Rückblick offen / Gefahren / Beendet, bevor sie begann), `tripDone` (`yearreview.js`, Verhalten gleich, Test über alle 480 Kombinationen) und `endedTooEarly`. Noch nicht ersetzt, weil sich das Verhalten ändern würde (kommt mit TZ-2/TZ-3): `isOver` (debrief.js), `pastTrips` (hubs.js), `tripRow` (drafts.js), `finishedTrips` (know.js), `templateUse` (templates.js).
+- **Selbst entschieden:**
+  - Eine Tour, deren Datum vorbei ist, die aber nie beendet wurde, zeigt «Abgeschlossen · Datum vorbei» (Mockup: «gefahren?» mit «Ja / Nicht gefahren»): die Frage mit den zwei Knöpfen kommt erst mit TZ-2, bis dahin keine Frage ohne Antwortmöglichkeit.
+  - Heute: die Zeile «Rückblick noch offen» behält Text und Knöpfe («Alles gut», «Rückblick öffnen») und bekommt die Pille Abgeschlossen; die Frage «Bist du gefahren?» kommt mit TZ-2.
+  - Touren-Übersicht: Abgeschlossen zeigt alle mit offenem Rückblick und dazu die 5 neuesten ohne Rückblick, Bewertet die 5 neuesten; je «Alle n …» führt zu Vergangene Touren. Ein zweiter Tipp auf einen gewählten Chip zeigt wieder alle.
+  - Zusatz der Pille: Geplant «Heute / Morgen / in n Tagen / unterwegs»; Abgeschlossen «Datum vorbei», «GPX», im Tour-Kopf auch «Rückblick angefangen» bzw. «Rückblick fehlt» (auf der Kachel sagt das schon der Knopf «Rückblick»; die Pille bleibt kurz, nur der Zusatz wird auf schmalen Kacheln mit «…» gekürzt); Bewertet im Tour-Kopf das Datum des Rückblicks.
+  - Die Gruppenüberschrift heisst nur «Abgeschlossen» (Mockup «Abgeschlossen · Rückblick fehlt»), weil dort auch hochgeladene Fahrten ohne Rückblick stehen.
+  - Linienfarben dunkel (nicht in der Spezifikation): `#6a9fd6`, `#8e9aa6`, `#5fb185`.
+
 ## 13.10.2026: Neue Tour Teil 2 (0.120.0)
 
 Mockups B4 und B5 (`design/rahmenbedingungen/`, Galerie «Offene Mockups 2» #rahmenbedingungen). **Mockup-Freigabe: B4/B5 «b2 b4 b5 ok» 12.10.2026 22:55 Zurich; B5 Standard a ★** («Ja, schlank dabei», 13.10.2026 00:00 Zurich). Antworten der Runde: 1a (Bausteine nur beim Packen), 6a (schlanke Reparatur ≤ 8).

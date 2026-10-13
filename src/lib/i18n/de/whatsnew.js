@@ -9,6 +9,20 @@ export default {
   '{from} to {to}|versions': '{from} bis {to}',
   'New since your last visit': 'Neu seit deinem letzten Besuch',
 
+  // 0.124.0 Zustand sichtbar (mockups TZ1–TZ2)
+  'Every trip has a state': 'Jede Tour hat einen Zustand',
+  'Blue is planned, grey is ridden, green is rated: every trip shows where it stands.': 'Blau ist geplant, grau ist gefahren, grün ist bewertet: Jede Tour zeigt, wo sie steht.',
+  'Trips are grouped by state, with chips to show only one state and a short legend «Three states».':
+    'Touren sind nach Zustand gruppiert, mit Chips für nur einen Zustand und einer kurzen Legende «Drei Zustände».',
+  'The trip header shows the state with a small extra, like «Planned · tomorrow» or «Completed · debrief missing».':
+    'Der Tour-Kopf zeigt den Zustand mit einem kleinen Zusatz, etwa «Geplant · Morgen» oder «Abgeschlossen · Rückblick fehlt».',
+  'Today shows the state of the next trip and of an open debrief.': 'Heute zeigt den Zustand der nächsten Tour und eines offenen Rückblicks.',
+  'An uploaded ride is a completed trip with «GPX» on its pill': 'Eine hochgeladene Fahrt ist eine abgeschlossene Tour mit «GPX» auf der Pille',
+  'Open Touren: under the title «n planned · n completed · n rated», then the chips. Tap «Completed»: only those trips show.':
+    'Öffne Touren: Unter dem Titel steht «n geplant · n abgeschlossen · n bewertet», darunter die Chips. Tippe «Abgeschlossen»: Nur diese Touren bleiben.',
+  'Open a trip that is still ahead: at the top the blue pill «Planned» with when it starts.': 'Öffne eine Tour, die noch vor dir liegt: Oben steht die blaue Pille «Geplant» mit dem Start.',
+  'Open Heute: the next trip has the pill «Planned».': 'Öffne Heute: Die nächste Tour hat die Pille «Geplant».',
+
   // 0.120.0 Neue Tour Teil 2 (mockups B4/B5)
   'Blocks you can tap': 'Bausteine zum Antippen',
   'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.': 'In Packen ist jeder Baustein jetzt ein grosser Knopf, und Reparatur reist leicht mit höchstens 8 Teilen.',

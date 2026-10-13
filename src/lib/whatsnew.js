@@ -16,6 +16,24 @@
 
 export const WHATS_NEW = [
   {
+    // v0.124.0 TZ-1 «Zustand sichtbar» (mockups TZ1–TZ2, Noah 13.10.2026 «1-5 a», «TZ1–TZ3 freigegeben»)
+    version: '0.124.0',
+    date: '2026-10-13',
+    title: 'Every trip has a state',
+    lead: 'Blue is planned, grey is ridden, green is rated: every trip shows where it stands.',
+    points: [
+      { text: 'Trips are grouped by state, with chips to show only one state and a short legend «Three states».', href: '#/trips' },
+      { text: 'The trip header shows the state with a small extra, like «Planned · tomorrow» or «Completed · debrief missing».', href: '#/pack' },
+      { text: 'Today shows the state of the next trip and of an open debrief.', href: '#/' },
+    ],
+    small: [{ box: 'nicer', text: 'An uploaded ride is a completed trip with «GPX» on its pill', href: '#/trips' }],
+    test: [
+      'Open Touren: under the title «n planned · n completed · n rated», then the chips. Tap «Completed»: only those trips show.',
+      'Open a trip that is still ahead: at the top the blue pill «Planned» with when it starts.',
+      'Open Heute: the next trip has the pill «Planned».',
+    ],
+  },
+  {
     // v0.120.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
     version: '0.120.0',
     date: '2026-10-13',

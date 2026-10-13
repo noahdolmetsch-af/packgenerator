@@ -81,6 +81,8 @@
   import { countUse } from '../lib/home/usage.js';
   import { recordCare, undoCare } from '../lib/home/care-tap.js';
   import { yearReview, tripDone } from '../lib/yearreview.js';
+  import { tripState } from '../lib/tripstate.js';
+  import TripState from '../lib/ui/TripState.svelte';
   import InProgress from '../lib/trip/InProgress.svelte';
   import Wall from '../lib/home/Wall.svelte';
   import TileCatalog from '../lib/home/TileCatalog.svelte';
@@ -298,6 +300,8 @@
   const shown = $derived(cardTrips.length ? cardTrips[Math.min(cardIdx, cardTrips.length - 1)] : null);
   const isLead = $derived(!!shown && !!lead && shown.id === lead.id);
   const ask = $derived(isLead && !!focus?.ask);
+  // v0.124.0 TZ-1 «Zustand sichtbar» (mockup TZ2 Heute): the state pill of the trip on the card
+  const shownState = $derived(shown ? tripState(shown, { debrief: debriefs.find((d) => d.tripId === shown.id) ?? null, rides: $ridesQ ?? [], today }) : null);
   const shownBike = $derived(shown ? bikes.find((b) => b.id === shown.bikeId) ?? null : null);
   const stats = $derived(shown ? tripStats(shown, items, $bagsQ ?? [], shownBike, S.riderWeightG) : null);
   // The facts the schedule needs (schedule.js is pure), as in v0.34.0, for the trip shown.
@@ -594,7 +598,7 @@
         if (c.total > c.done) rows.push({ key: 'charge', tone: 'eve', text: tn(c.total - c.done, 'Charge batteries: {n} device for {trip}', 'Charge batteries: {n} devices for {trip}', { trip: soon.title }), act: { label: t('Charge list'), href: '#/pack?charge', trip: soon.id } });
       }
     }
-    if (debrief) rows.push({ key: 'debrief', tone: 'warn', text: t('Debrief still open: {title}', { title: debrief.title }), act: { label: t('All good'), run: () => allGood(debrief) }, act2: { label: t('Open the debrief'), href: `#/debrief/${encodeURIComponent(debrief.id)}`, trip: debrief.id } }); // v0.67.0 (U011): also the way to the whole debrief
+    if (debrief) rows.push({ key: 'debrief', tone: 'warn', st: 'done', text: t('Debrief still open: {title}', { title: debrief.title }), act: { label: t('All good'), run: () => allGood(debrief) }, act2: { label: t('Open the debrief'), href: `#/debrief/${encodeURIComponent(debrief.id)}`, trip: debrief.id } }); // v0.67.0 (U011): also the way to the whole debrief
     if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true } });
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
     if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
@@ -794,6 +798,7 @@
       <div class="tc">
         <div class="kl">
           <Route size={16} aria-hidden="true" />
+          <TripState state={shownState} />
           {#if ask}
             <span class="cdn">{t('trip ended')}</span>
           {:else if cd}
@@ -899,7 +904,7 @@
                 <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
                 <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
               {:else}
-                <span class="tx">{r.text}</span>
+                <span class="tx">{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{r.text}</span>
                 {#if r.act}
                   {#if r.act.href}<a class="lk" href={r.act.href} onclick={() => act(r)}>{r.act.label}</a>
                   {:else if r.act.care}<button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button>
@@ -1361,6 +1366,11 @@
   }
   .kl > :global(svg) {
     flex: none;
+  }
+  /* v0.124.0 TZ-1: the state pill on its own line above the text of a row in «Heute wichtig» */
+  .tsw {
+    display: flex;
+    margin-bottom: 2px;
   }
   .cdn {
     font-weight: 600;
