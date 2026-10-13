@@ -68,21 +68,23 @@ test('a) Dein Tempo: one sentence, your rule from the 5th ride, one tap back', a
   const main = page.locator('main');
   await expect(main.getByRole('heading', { level: 1, name: 'Dein Tempo' })).toBeVisible();
   const rule = main.locator('section.rule');
-  await expect(rule.getByRole('heading', { level: 2 })).toHaveText(/^Im Flachen fährst du [\d.]+ km\/h und brauchst 1 h pro [\d’']+ Hm\.$/);
+  // SN2 «Seiten neu»: the rule as one short big line
+  await expect(rule.getByRole('heading', { level: 2 })).toHaveText(/^[\d.]+ km\/h und 1 h pro [\d’']+ Hm$/);
   // 4 rides: still the standard, 1 is missing
   await expect(rule).toContainText('Standardregel');
   await expect(rule).toContainText(/Die Höhenmeter bekommen ihre eigene Zeit: mit den Höhenmetern fahren deine Fahrten im Schnitt [\d.]+ km\/h\./);
-  await expect(rule.getByRole('status')).toContainText('Noch 1 Fahrt, dann übernimmt deine Regel die Fahrzeit.');
+  await expect(rule.locator('.state[role="status"]')).toContainText('4 von 5 Fahrten. Ab 5 Fahrten rechnet dein eigenes Tempo');
+  await expect(rule.locator('.marks i.on')).toHaveCount(4);
   await expect(main.locator('.mini')).toHaveCount(3);
   await shot(page, info, 'tempo-4');
   await noSideways(page);
   await targets(page, info);
 
   // the 5th ride (GPX): your rule takes over by itself, visibly
-  await main.locator('section.rides-c input[type=file]').setInputFiles({ name: 'fahrt.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(rideGpx({ name: 'Testfahrt Fünf', date: day(-1) })) });
+  await main.locator('section.rule label.btn input[type=file]').setInputFiles({ name: 'fahrt.gpx', mimeType: 'application/gpx+xml', buffer: Buffer.from(rideGpx({ name: 'Testfahrt Fünf', date: day(-1) })) });
   await expect(main.getByText('1 Fahrt hinzugefügt.')).toBeVisible();
   await expect(rule).toContainText('Deine Regel · aus 5 Fahrten');
-  await expect(rule.getByRole('status')).toContainText('Packen und Unterwegs schätzen die Fahrzeit jetzt mit deiner Regel');
+  await expect(rule.locator('.state[role="status"]')).toContainText('Packen und Unterwegs schätzen die Fahrzeit jetzt mit deiner Regel');
   expect(await paceSetting(page)).toMatchObject({ n: 5 });
   await shot(page, info, 'tempo-5');
   // the Rückblick says it too
@@ -92,7 +94,7 @@ test('a) Dein Tempo: one sentence, your rule from the 5th ride, one tap back', a
   // one tap back to the standard rule, stored; and back to your rule
   await page.goto('./#/debrief/pace');
   await rule.getByRole('button', { name: 'Zurück zur Standardregel' }).click();
-  await expect(rule.getByRole('status')).toContainText('wie von dir gewählt');
+  await expect(rule.locator('.state[role="status"]')).toContainText('wie von dir gewählt');
   await expect.poll(async () => (await paceSetting(page)).standard).toBe(true);
   await page.reload();
   await expect(rule).toContainText('Standardregel · von dir gewählt');
@@ -127,12 +129,13 @@ test('b) Logbuch: all trips newest first, filter by year and area, a tap opens t
   await targets(page, info);
 
   // the year
-  await log.getByLabel('Jahr').selectOption('2025');
+  // SN2: the year is a toggle
+  await log.getByRole('group', { name: 'Jahr' }).getByRole('button', { name: '2025' }).click();
   await expect(rows).toHaveCount(3);
   await expect(log).toContainText('3 Einträge · von 15');
   await expect(log).toContainText('Brevet 300 aus der Liste');
   // the area
-  await log.getByLabel('Jahr').selectOption('all');
+  await log.getByRole('group', { name: 'Jahr' }).getByRole('button', { name: 'Alle' }).click();
   await log.getByRole('group', { name: 'Reiseart' }).getByRole('button', { name: 'Skitour' }).click();
   await expect(rows).toHaveCount(1);
   await expect(rows.first()).toContainText('Skitour Hochgipfel');

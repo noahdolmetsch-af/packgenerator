@@ -83,9 +83,11 @@ test('Past trips lists the finished trip and opens it', async ({ page, context }
   const rows = page.locator('table.tt tbody tr:not(.mrow)');
   await expect(rows).toHaveCount(1); // the next trip is not past
   await expect(rows.first()).toContainText('test_data_gtp_ Jura');
-  await expect(rows.first().locator('.nbadge')).toHaveText(T('Debrief open'));
+  // SN4 «Seiten neu»: the state pill and «Bewerten» right in the row
+  await expect(rows.first().locator('[data-state="done"]')).toBeVisible();
+  await expect(rows.first().getByRole('link', { name: `${T('Rate|debrief')}: test_data_gtp_ Jura` })).toBeVisible();
   await expect(rows.first().getByRole('link').first()).toHaveAttribute('href', `#/debrief/${PAST}`);
-  await expect(page.locator('.page-sub')).toContainText(T('{n} debrief open', { n: 1 }));
+  await expect(page.locator('.page-sub')).toContainText(T('{n} without a debrief', { n: 1 }));
   await noSideways(page);
   await rows.first().getByRole('link', { name: /test_data_gtp_ Jura/ }).first().click();
   await expect(page).toHaveURL(new RegExp(`#/debrief/${PAST}$`));

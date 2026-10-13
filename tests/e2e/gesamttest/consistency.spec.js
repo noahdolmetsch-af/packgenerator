@@ -143,23 +143,24 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   await page.reload();
   const per = page.locator('main section.period');
   await expect(per).toBeVisible();
+  // SN2 «Seiten neu»: the long table is folded behind «Alle Kennzahlen»
+  await per.getByRole('button', { name: T('All figures') }).click();
   const rvVal = async (label) => num((await per.getByRole('row').filter({ has: page.getByRole('rowheader', { name: label, exact: true }) }).locator('td').first().textContent()).replace(/[’'\s]/g, ''));
   expect(await rvVal(T('Trips')), 'Today "Last 12 months" trips = Rückblick').toBe(yTrips);
   expect(await rvVal(T('Distance')), 'Today "Last 12 months" km = Rückblick').toBe(yKm);
 
   // Past trips: the open debriefs there = the open debriefs on the Rückblick page
-  const openOf = async () => {
-    const sub = (await page.locator('main .page-sub').first().textContent()) ?? '';
-    const om = sub.match(new RegExp(`(\\d+) (${esc(T('{n} debrief open', { n: '' }).trim())}|${esc(T('{n} debriefs open', { n: '' }).trim())})`));
-    return om ? Number(om[1]) : 0;
-  };
+  // (SN2/SN4 «Seiten neu»: each is a «Bewerten» button, in its row there and on top of the Rückblick)
+  const rateName = new RegExp(`^${esc(T('Rate|debrief'))}: `);
   await page.goto('./#/pack/past');
   await page.reload();
   await expect(page.locator('main table.tt a').filter({ hasText: 'test_data_gtp_' }).first()).toBeVisible();
-  const openPast = await openOf();
+  // the Rückblick lists every open debrief, Vergangene Touren those of its period: show all years
+  await page.getByRole('group', { name: T('Period') }).getByRole('button', { name: T('All|period') }).click();
+  const openPast = await page.locator('main table.tt').getByRole('link', { name: rateName }).count();
   await page.goto('./#/debrief');
   await page.reload();
-  // v0.47.0: read the line once the live data is in (it can show an earlier count for a moment)
+  const openOf = () => page.locator('main [data-open-debrief]').getByRole('link', { name: rateName }).count();
   await expect.poll(openOf, { message: `Past trips (${openPast} open) vs Rückblick` }).toBe(openPast);
   info.annotations.push({ type: 'past', description: `year ${yTrips} trips ${yKm} km, ${openPast} open debriefs, weigh ${weighToday}` });
 

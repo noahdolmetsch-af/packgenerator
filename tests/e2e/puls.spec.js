@@ -69,7 +69,9 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
   await shot(page, info, 'P1-fahrtenbuch');
 
   // P2 Rückblick: the last tour with its heart rate instead of «kommt später»
+  // (SN2 «Seiten neu»: the last ride's numbers are folded at the end of the Rückblick)
   await page.goto('./#/debrief');
+  await page.getByRole('button', { name: T('Numbers of the last ride') }).click();
   await expect(page.locator('main .heart').first()).toContainText(T('Heart rate'));
   await shot(page, info, 'P2-rueckblick');
 
