@@ -36,6 +36,7 @@
   import Learned from '../lib/review/Learned.svelte';
   import TripSaved from '../lib/review/TripSaved.svelte';
   import { packedList } from '../lib/review/ganz.js';
+  import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: the tile row at the page end
   import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import { domainOf, domainName, hasBike } from '../lib/domains.js';
@@ -468,6 +469,7 @@
         <!-- v0.49.0 R1 (drei «A»): the saved Rückblick tells what the trip was (TripSaved.svelte). -->
         <!-- SN2x «SN2 extra»: the whole Rückblick in five groups; «Für nächstes Mal» is stored on the debrief (onpatch) -->
         <TripSaved {trip} {d} {bike} {trips} {debriefs} rides={$ridesQ ?? []} {learnings} {items} containers={$bagsQ ?? []} bikes={$bikesQ ?? []} {counts} {sugg} {offer} notes={$notesQ ?? []} onpatch={patchSaved} />
+        <PageTiles page="debrief" />
       {:else}
       <!-- v0.109.0 Design-Refresh P6 (T15 «Rückblick ausfüllen», approved 12.10.2026): two columns as in the
            mockup. Left: what stayed in the bag (chips by bag, «Alle ✓ · Alle –»), what was missing with the
@@ -664,6 +666,7 @@
 {:else}
   <!-- v0.49.0 R1 (Noah 4a): one page «Rückblick»: the last ride, the 12 months, trips compared. -->
   <Hub {spot} />
+  <PageTiles page="debrief" />
 {/if}
 
 <style>

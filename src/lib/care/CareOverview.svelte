@@ -19,6 +19,8 @@
   import { bikesHash } from '../bikes.js';
   import { openNew } from '../nav.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
+  import Woanders from '../sk/Woanders.svelte'; // SK X5 + X15 (SKX3)
+  import { slotOf, PARKTOOL_URL } from '../sk/links.js';
 
   let { checks = [], problems = [], tasks = [], visits = [], today, bikeIdOf, onopen, ondone, onflow, onorder, onrepair, onwork } = $props();
 
@@ -99,6 +101,8 @@
                   <MoreActions title={[d.row.name, short(d.bike.name)].join(' · ')} label={t('More for {title}', { title: d.row.name })} actions={acts.map((a, n) => ({ ...a, current: n === 0 }))} />
                 </span>
               </li>
+              <!-- SK (SKX3): the workshop's online booking (your link, one for all bikes) and Park Tool's guide -->
+              <li class="skw"><Woanders context={[d.row.name, short(d.bike.name)].join(' · ')} links={[...(d.row.kind !== 'part' ? [{ kind: 'x15', slot: slotOf('x15'), icon: 'calendarcheck', sub: t('Online booking') }] : []), { kind: 'x5', href: PARKTOOL_URL, icon: 'wrench', sub: t('{what} · in English', { what: d.row.name }) }]} /></li>
             {/each}
           </ul>
           {#if due.total > due.cards.length}<p class="more">{tn(due.total - due.cards.length, '{n} more due: open the bike', '{n} more due: open the bike')}</p>{/if}
@@ -275,6 +279,13 @@
     gap: 8px 12px;
     min-height: 60px;
     padding: 14px 0;
+  }
+  .skw {
+    min-width: 0;
+    padding: 0 0 12px;
+  }
+  .skw :global(.sk-wo) {
+    margin-top: 0;
   }
   .dcard .udot {
     background: var(--bad);

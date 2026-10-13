@@ -36,6 +36,8 @@
    */
   // onkept (v0.35.0): called with the new item when the window closes without "Save" after it was
   // saved while typing (Pack puts it on the trip, a template takes it, like after "Save").
+  import Woanders from '../sk/Woanders.svelte'; // SK X1, X7, X13
+  import { slotOf, ifixitUrl } from '../sk/links.js';
   let { item, items: allItems, readOnly = false, preset = {}, onsaved = null, onkept = null, onclose } = $props();
 
   // svelte-ignore state_referenced_locally
@@ -632,6 +634,14 @@
   {@render fold('rules', Route, t('For weather and riding time'), ruleLine, rulesBody)}
   {#if !isNew && life}{@render fold('life', CalendarClock, t('History|item'), lifeSum, lifeBody)}{/if}
   {@render fold('details', FileText, isNew ? t('Brand, model, note') : t('Name, brand, note'), detailLine || t(CATEGORY[draft.category]?.name ?? ''), detailsBody)}
+  {#if !isNew}
+    <!-- SK X1 + X13 (SKX1): the maker's instructions (your link) and iFixit; X7 for a wish: the shop (your link) -->
+    {#if draft.ownership === 'wishlist' || draft.ownership === 'to-buy'}
+      <Woanders context={nameOf(item)} links={[{ kind: 'x7', slot: slotOf('x7', item.id), icon: 'shop', sub: '' }]} />
+    {:else}
+      <Woanders context={nameOf(item)} links={[{ kind: 'x1', slot: slotOf('x1', item.id), icon: 'book', sub: t('Care and washing') }, { kind: 'x13', href: ifixitUrl(item), icon: 'hammer', sub: t('Guide at iFixit') }]} />
+    {/if}
+  {/if}
   {#if !isNew}{@render fold('templates', Layers, t('In templates'), `${where.templates.length}${where.trip ? ` · ${t('on the current trip')}` : ''}`, templatesBody)}{/if}
   {#if !isNew}{@render fold('more', Ellipsis, t('More|item'), [t('Rename'), canMerge ? t('Merge with …') : '', readOnly ? '' : t('Delete')].filter(Boolean).join(', '), moreBody)}{/if}
 {/snippet}

@@ -44,6 +44,7 @@
   import PastColumns from '../lib/review/PastColumns.svelte';
   import InZahlen from '../lib/review/InZahlen.svelte';
   import { Columns3, Bike, MessageSquareText, Download, ChevronUp } from '@lucide/svelte';
+  import PageTiles from '../lib/sk/PageTiles.svelte'; // SK: the tile row at the page end
 
   const today = localDay();
   const dataQ = liveQuery(() => loadReview(db));
@@ -309,6 +310,8 @@
     <InZahlen {rows} {facts} {vals} {mode} {today} {scope} bikes={$dataQ.bikes} items={$dataQ.items} containers={$dataQ.containers} entries={$moreQ?.entries ?? []} {view} onview={saveView} hrefOf={(id) => facts.find((x) => x.id === id)?.href ?? null} go={(id) => go(facts.find((x) => x.id === id) ?? {})} />
   {/if}
 </div>
+
+<PageTiles page="past" />
 
 <style>
   .crumb {

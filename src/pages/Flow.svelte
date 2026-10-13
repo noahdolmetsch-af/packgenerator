@@ -53,6 +53,7 @@
   import MedMore from './flow/MedMore.svelte';
   import MedPatterns from './flow/MedPatterns.svelte';
   import { localDay } from '../lib/localday.js';
+  import PageTiles from '../lib/sk/PageTiles.svelte';
   import { phone } from '../lib/media.svelte.js';
   import { t, locale, lang, num } from '../lib/i18n.svelte.js';
 
@@ -301,6 +302,8 @@
           </Sec>
         </aside>
       </div>
+      <!-- SK: the tile row at the page end (SK5, SKX4 with Strava and GotCourts) -->
+      <PageTiles page="flow" />
     {/if}
   </div>
 {/if}

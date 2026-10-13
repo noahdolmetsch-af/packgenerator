@@ -38,6 +38,8 @@
   import { bikeCare, bikeCareWords } from '../readiness.js';
   import { nextForShop } from './who.js';
   import { t, tn, num, nameOf, bagName, dateOf } from '../i18n.svelte.js';
+  import Woanders from '../sk/Woanders.svelte'; // SK X9
+  import { slotOf } from '../sk/links.js';
   import { take } from '../nav.js';
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
@@ -303,6 +305,8 @@
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else if bike}
     <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeRename = bike)} />
+    <!-- SK X9 (SKX3): «Hersteller und Garantie», your own link for this bike, right under its name -->
+    <Woanders context={bike.name} links={[{ kind: 'x9', slot: slotOf('x9', bike.id), icon: 'shield', sub: t('Warranty and recalls') }]} />
 
     <!-- Design-Refresh P7 «Velo» (V1): the drawing and the bags left; care and equipment, «Import rides»
          and «More» right; on a phone one after the other. Everything from «Velo kurz» stays. -->

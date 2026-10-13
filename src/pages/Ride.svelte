@@ -13,7 +13,7 @@
    * and notes that go into the debrief. Works offline with what was saved last.
    */
   import { liveQuery } from 'dexie';
-  import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
+  import { t, tn, num, locale, nameOf, lang } from '../lib/i18n.svelte.js';
   import { db } from '../lib/db.js';
   import { nextTrip } from '../lib/debrief.js';
   import { tripStats, touched } from '../lib/trips.js';
@@ -42,6 +42,8 @@
   import MoreActions from '../lib/ui/MoreActions.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import { tick } from 'svelte';
+  import Woanders from '../lib/sk/Woanders.svelte'; // SK X11 + X16 (SKX4)
+  import { windyUrl, bikeShopsUrl } from '../lib/sk/links.js';
   import { Shirt, Utensils, Droplet, Lightbulb, Pencil, ArrowRight, ArrowLeft, Clock, CloudSun, Search, Route as RouteIcon, ChevronRight, Plus, Minus, X, Mic, Moon, BedDouble, MapPin, Flag } from '@lucide/svelte';
 
   const tripsQ = liveQuery(() => db.trips.toArray());
@@ -552,6 +554,8 @@
           {/if}
         </div>
       </section>
+      <!-- SK X11 + X16 (SKX4): bike shops around you (the location only when tapped) and the wind map -->
+      <Woanders stack context={trip.title ?? ''} links={[{ kind: 'x11', href: bikeShopsUrl(null, lang.v), icon: 'pin', sub: '', locate: true }, { kind: 'x16', href: windyUrl(st.from ?? trip.place), icon: 'wind', sub: t('Wind map for the route') }]} />
     </div>
 
     <div class="col">

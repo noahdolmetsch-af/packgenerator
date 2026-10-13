@@ -9,6 +9,7 @@
   import { t } from '../lib/i18n.svelte.js';
   import { theme, FONTS, PALETTES, SIZES, MODES, setFont, setPalette, setSize, setMode } from '../lib/theme.svelte.js';
   import PageHead from '../lib/ui/PageHead.svelte';
+  import LinksOff from '../lib/sk/LinksOff.svelte'; // SK: switched-off outside links come back here
   import Seg from '../lib/ui/Seg.svelte';
   import { ChevronLeft, ChevronRight, Check } from '@lucide/svelte';
 
@@ -63,6 +64,8 @@
           <Seg label={t('Light or dark')} value={theme.mode} options={MODES.map((m) => ({ key: m.key, name: t(m.name) }))} onchange={setMode} />
         </div>
       </section>
+
+      <LinksOff />
     </div>
 
     <!-- a picture of the choice, not a working page: hidden from screen readers and from the keyboard -->
