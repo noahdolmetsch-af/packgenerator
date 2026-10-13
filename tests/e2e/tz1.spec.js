@@ -10,9 +10,6 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { tripStates, stateCounts, STATES, STATE_NAMES } from '../../src/lib/tripstate.js';
 import { importAndSettle, settle } from './settle.js';
 
-// the groups of Touren are the states in their order (tests/tripsoverview.test.js checks GROUPS against STATES)
-const GROUPS = STATES.map((key) => ({ key }));
-
 const FIX = fileURLToPath(new URL('../fixtures/gesamttest/test_data_gtp_daten.json', import.meta.url));
 const TODAY = '2026-10-13'; // a Tuesday without a ride: Today does not move on to «On the way»
 const T = (en, vars) => {
@@ -61,7 +58,12 @@ async function openTrip(page, id) {
   await expect(page.locator('.trip-band h1')).toBeVisible();
 }
 
-test('Touren: the three states as groups, chips with numbers, a pill on every tile, the legend', async ({ page, context }, info) => {
+// SN4g «Touren-Seite, Runde 2» (Noah 13.10.2026 «SN4g–SN4i freigegeben»): the planned trips stand as cards in
+// «Geplant», the finished ones as rows of «Abgeschlossene Touren» with the chips Abgeschlossen / Bewertet and a
+// legend of the two colours; every card and row keeps its pill (icon + word, never colour alone).
+const LIST_STATES = STATES.filter((s) => s !== 'plan');
+
+test('Touren: the three states on cards and rows, chips with numbers, a pill on every trip, the legend', async ({ page, context }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context);
@@ -70,48 +72,47 @@ test('Touren: the three states as groups, chips with numbers, a pill on every ti
   expect(counts.plan * counts.done * counts.rated, 'the fixture has trips in every state').toBeGreaterThan(0);
   await expect(page.locator('.trips .ph .cnt')).toHaveText([T('{n} planned', { n: counts.plan }), T('{n} completed', { n: counts.done }), T('{n} rated', { n: counts.rated })].join(' · '));
 
-  // the chips: «Alle» and one per state with its number; «Alle» is on
-  const chips = page.getByRole('group', { name: T('Show trips') }).getByRole('button');
-  await expect(chips).toHaveCount(1 + STATES.length);
+  // «Geplant»: every card carries the pill «Geplant»; the next trip says «Morgen»
+  const planned = page.locator('section[data-planned]');
+  const more = planned.getByRole('button', { name: new RegExp(esc(T('All {n} planned trips', { n: 'X' })).replace('X', '\\d+')) });
+  if (await more.count()) await more.click();
+  const cards = planned.locator('li.pc');
+  const nCards = await cards.count();
+  expect(nCards).toBeGreaterThan(0);
+  await expect(planned.locator('li.pc .tst[data-state="plan"]')).toHaveCount(nCards);
+  await expect(planned.locator('li.pc .tst svg')).toHaveCount(nCards);
+  await expect(planned.locator('li.pc[data-trip="test_data_gtp_trip27"] .tst')).toHaveText(`${T('Planned|state')} · ${T('Tomorrow')}`);
+
+  // «Abgeschlossene Touren» over all years: the chips «Alle» and one per state of the list with its number
+  const done = page.locator('section[data-finished]');
+  await done.getByRole('button', { name: T('All|period'), exact: true }).click();
+  const chips = done.getByRole('group', { name: T('Show trips') }).getByRole('button');
+  await expect(chips).toHaveCount(1 + LIST_STATES.length);
   await expect(chips.first()).toHaveAttribute('aria-pressed', 'true');
-  await expect(chips.first()).toContainText(String(counts.all));
-  for (const [i, s] of STATES.entries()) await expect(chips.nth(i + 1)).toHaveText(new RegExp(`${esc(T(STATE_NAMES[s]))}\\s*${counts[s]}`));
-
-  // the groups in the order of the states, each heading with its word and number
-  await expect(page.locator('section.grp')).toHaveCount(GROUPS.length);
-  for (const g of GROUPS) {
-    const sec = page.locator(`section.grp[data-group="${g.key}"]`);
-    await expect(sec.locator('h2')).toContainText(T(STATE_NAMES[g.key]));
-    // every tile carries the pill of its own group's state: icon + word, never colour alone
-    const tiles = sec.locator('li.tile:not(.add)');
-    const n = await tiles.count();
+  const rows = done.locator('[data-trip-list] li[data-row]');
+  await expect(chips.first()).toContainText(String(await rows.count()));
+  for (const [i, s] of LIST_STATES.entries()) {
+    const n = await done.locator(`[data-trip-list] li[data-row][data-state="${s}"]`).count();
     expect(n).toBeGreaterThan(0);
-    await expect(sec.locator(`li.tile:not(.add) .tst[data-state="${g.key}"]`)).toHaveCount(n);
-    await expect(sec.locator('li.tile:not(.add) .tst svg')).toHaveCount(n);
+    await expect(chips.nth(i + 1)).toHaveText(new RegExp(`${esc(T(STATE_NAMES[s]))}\\s*${n}`));
+    // every row carries the pill of its own state: icon + word
+    await expect(done.locator(`[data-trip-list] li[data-row][data-state="${s}"] .tst[data-state="${s}"]`)).toHaveCount(n);
+    await expect(done.locator(`[data-trip-list] li[data-row][data-state="${s}"] .tst svg`)).toHaveCount(n);
   }
-  // the next trip (tomorrow), a date passed without an end, and the trip from an uploaded ride
-  await expect(page.locator('li.tile[data-trip="test_data_gtp_trip27"] .tst')).toHaveText(`${T('Planned|state')} · ${T('Tomorrow')}`);
-  await expect(page.locator('li.tile[data-trip="test_data_gtp_trip28"] .tst')).toHaveText(`${T('Completed|state')} · ${T('date passed')}`);
-  await expect(page.locator('li.tile[data-trip="test_data_gtp_trip90"] .tst')).toHaveText(`${T('Completed|state')} · GPX`);
-  await expect(page.locator('section.grp[data-group="rated"]').getByRole('link', { name: new RegExp(esc(T('All {n} rated trips', { n: counts.rated }))) })).toBeVisible();
+  // a date passed without an end, and the trip from an uploaded ride
+  await expect(done.locator('li[data-row="test_data_gtp_trip28"] .tst')).toHaveText(`${T('Completed|state')} · ${T('date passed')}`);
+  await expect(done.locator('li[data-row="test_data_gtp_trip90"] .tst')).toHaveText(`${T('Completed|state')} · GPX`);
 
-  // the legend: on the side of a computer, folded under the chips on a phone
-  if (info.project.name === 'phone') {
-    await expect(page.locator('.lgbox')).toBeHidden();
-    await page.getByText(T('What do the three states mean?')).click();
-    await expect(page.locator('.lgfold .lg li')).toHaveCount(STATES.length);
-  } else {
-    await expect(page.getByRole('heading', { name: T('Three states') })).toBeVisible();
-    await expect(page.locator('.lgbox .lg li')).toHaveCount(STATES.length);
-  }
+  // the legend of the two colours under the list
+  await expect(done.getByRole('list', { name: T('What the colours mean') }).getByRole('listitem')).toHaveCount(LIST_STATES.length);
 
   // one chip shows one state only; tapping it again shows all
-  await chips.nth(1 + STATES.indexOf('done')).click();
-  await expect(chips.nth(1 + STATES.indexOf('done'))).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('section.grp')).toHaveCount(1);
-  await expect(page.locator('section.grp[data-group="done"]')).toBeVisible();
-  await chips.nth(1 + STATES.indexOf('done')).click();
-  await expect(page.locator('section.grp')).toHaveCount(GROUPS.length);
+  const all = await rows.count();
+  await chips.nth(1 + LIST_STATES.indexOf('done')).click();
+  await expect(chips.nth(1 + LIST_STATES.indexOf('done'))).toHaveAttribute('aria-pressed', 'true');
+  await expect(done.locator('[data-trip-list] li[data-row]:not([data-state="done"])')).toHaveCount(0);
+  await chips.nth(1 + LIST_STATES.indexOf('done')).click();
+  await expect(rows).toHaveCount(all);
   expect(await wide(page)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });

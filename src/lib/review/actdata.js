@@ -71,7 +71,7 @@ const pos = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : n
 
 /**
  * SN4+: one activity in the shape «Vergangene Touren» reads: { id, day, startAt, km, movingS, elapsedS,
- * desc, hist, hrAvg, hrMax }. desc undefined: the comment is not loaded from Strava yet («Kommentar laden»);
+ * desc, hist, hrAvg, hrMax } (SN4g: plus type, wAvg, wMax, wNorm, wDevice, spdAvg, tempAvg). desc undefined: the comment is not loaded from Strava yet («Kommentar laden»);
  * '' or null: loaded and empty («–»).
  */
 // SN4+: wire to training.js when the Training PR lands (its activity fields: movingS, elapsedS, desc, hist)
@@ -87,6 +87,15 @@ export function actOf(a) {
     hist: a?.hist ?? null,
     hrAvg: a?.hrAvg ?? null,
     hrMax: a?.hrMax ?? null,
+    // SN4g: the values of «Abgeschlossene Touren» on Touren › Übersicht (Training PR fields; NP only with a power meter)
+    // SN4g: wire to training.js when the Training PR lands
+    type: a?.type ?? null,
+    wAvg: pos(a?.wAvg),
+    wMax: pos(a?.wMax),
+    wNorm: pos(a?.wNorm),
+    wDevice: a?.wDevice ?? null,
+    spdAvg: pos(a?.spdAvg),
+    tempAvg: typeof a?.tempAvg === 'number' && Number.isFinite(a.tempAvg) ? a.tempAvg : null,
   };
 }
 

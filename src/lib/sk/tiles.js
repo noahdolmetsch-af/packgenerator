@@ -13,6 +13,21 @@
  * Everything is a suggestion: «Wie am Anfang» goes back to the page's own tiles.
  */
 
+/**
+ * SN4i «Touren-Seite, Runde 2» (Noah 13.10.2026 «SN4g–SN4i freigegeben», answer 7): the content tiles at the
+ * end of Touren › Übersicht under «Weiter»: two middle ones and one large one (full width). They use the
+ * same page state as the tile rows (`sk.page.trips`: «…» › Ausblenden with Undo, «Wieder zeigen»), so there
+ * is no second system. filtered: the tile follows the filters of the list (second answer 2b); O1 does not.
+ * The material tiles DG-M1–M6 come later on the page Material.
+ */
+export const SK_BIG = {
+  trips: [
+    { id: 'o1', label: 'Good days for a trip', icon: 'cloudsun', size: 'mid', filtered: false },
+    { id: 'o2', label: 'Open debriefs|tile', icon: 'check', size: 'mid', filtered: true },
+    { id: 'o5', label: 'Map of all trips', icon: 'map', size: 'big', filtered: true },
+  ],
+};
+
 export const MAX_TILES = 7;
 /** Noah 13.10.2026 (answer 4 a): «by use» counts the last 4 weeks only. */
 export const USE_DAYS = 28;

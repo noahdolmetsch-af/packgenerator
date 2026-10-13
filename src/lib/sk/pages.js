@@ -63,7 +63,10 @@ export const SK_PAGES = {
   flow: [T.med, T.x4s, T.goals, T.kmbook, T.x4g, T.ms, T.lookback, T.daycheck],
 };
 /** The page names in the sheet's subtitle. */
-export const SK_PAGE_NAME = { past: 'Past trips', debrief: 'Look back|page', bikes: 'Bikes', gear: 'Gear|place', flow: 'Active|place' };
+export const SK_PAGE_NAME = { past: 'Past trips', debrief: 'Look back|page', bikes: 'Bikes', gear: 'Gear|place', flow: 'Active|place', trips: 'Trips|place' };
+
+// SN4i: the content tiles of Touren › Übersicht live in tiles.js (no imports: the browser tests read them)
+export { SK_BIG } from './tiles.js';
 
 /** The tables a page's hints read (only those are loaded). */
 export const SK_NEEDS = {
