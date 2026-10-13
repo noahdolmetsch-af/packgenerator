@@ -3,11 +3,12 @@
    * v0.105.0 Design-Refresh P8 «Aktiv» (B12 «Trophäen-Regal», A8 and A14): the stars reached lately as
    * round badges with their name and when, the next one dashed; under it «Nächstes» with how far.
    * items: [{ id, name, when, done }]; next: { name, value, target } | null (value and target already as words, e.g. val()).
+   * v0.122.0 «Trophäen-Vitrine» (TV2): more: the address of the showcase; a link «See all trophies ›» under it.
    */
-  import { Star } from '@lucide/svelte';
+  import { Star, ChevronRight } from '@lucide/svelte';
   import { t } from '../../i18n.svelte.js';
 
-  let { items = [], next = null } = $props();
+  let { items = [], next = null, more = '' } = $props();
 </script>
 
 <div class="ts">
@@ -21,6 +22,7 @@
     {/each}
   </ul>
   {#if next}<p class="nx"><span>{t('Next: {name}', { name: next.name })}</span><span class="num">{t('{n} of {m}', { n: next.value, m: next.target })}</span></p>{/if}
+  {#if more}<a class="more" href={more} data-trophies>{t('See all trophies')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
 </div>
 
 <style>
@@ -64,6 +66,16 @@
   small {
     color: var(--ink-3);
     font-size: var(--fs-tiny);
+  }
+  .more {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    margin-top: var(--sp-1);
+    color: var(--ink);
+    font-weight: 600;
+    font-size: var(--fs-small);
   }
   .nx {
     display: flex;

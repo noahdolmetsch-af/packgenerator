@@ -144,7 +144,7 @@
 
       <aside class="col">
         <Sec id="shelf-h" title={t('Trophy shelf')} sub={t('reached lately')}>
-          <div class="card shelf"><TrophyShelf items={shelf} next={shelfNext} /></div>
+          <div class="card shelf"><TrophyShelf items={shelf} next={shelfNext} more="#/flow/trophies" /></div>
         </Sec>
         <Sec id="reward-h" title={t('Reward')}>
           <RewardRow list={scoped.filter((r) => r.next)} reward={data.reward} wishlist={data.wishlist} onsave={saveReward} />
