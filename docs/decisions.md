@@ -875,6 +875,9 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
   - Ein Tag mit Antworten aus «Wi gaht's?» zählt die alte Regel «Morgen ohne Ziel = Ziele 0» nicht.
   - Zwei neue Funktionen im Katalog: «Wi gaht's?» (`f.abfragen`) und «Tour aus komoot» (`f.komoot`), je mit drei Schritten und Handbuch-Eintrag; drei Schritte auch für die Funktionen aus 0.132.0.
   - Die Regeln des alten Checks in `flowcheck.js` bleiben (alte Zeilen lesbar); Aufräumen später in einem kleinen Release.
+- **KT «Kacheln antippbar»** (Mockup-Freigabe: KT1–KT4, Antworten «1 a und b 2a 3a 4a» und «KT freigegeben» Noah 14.10.2026 10:31 UTC; Bilder `design/kachel-tipp/`): «Öffnen ›» auf jeder kleinen Kachel, › im Kopf von «Im Flow», ••• auf jeder Aktivität (wie langes Drücken) mit Hilfezeile auf Heute, kurze Einführung in drei Schritten (`homeIntroKT`), Anheben am Computer.
+  - Selbst entschieden: Die Einführung kommt nach einem Update (bestehende Nutzer) oder über Ich › «Einführung der Startseite nochmals zeigen», nicht bei einer ganz neuen Installation; ihr Ende schliesst auch den alten Tipp zum langen Drücken. Der › im Kopf von «Im Flow» ist für Bildschirmleser verborgen, der Link «Im Flow ›» unten bleibt.
+- **Auch:** Doppeltipp-Schutz auf den Vorschlag-Kacheln in Aktiv › Aktivität und Meditation › Mehr (wie Heute in 0.131.1); die Zeile «Tagescheck» von 0.132.0 in «Was ist neu» führt zu «Wi gaht's?»; Favoriten-Kopf bricht am schmalen Handy um statt ein Wort zu trennen.
 
 ## 14.10.2026: 0.131.1 «Abhaken wieder abwählbar»
 

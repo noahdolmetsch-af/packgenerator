@@ -31,6 +31,7 @@ export const WHATS_NEW = [
       { box: 'new', text: 'Tour from komoot: suggestions near you, a shared tour becomes a planned trip', href: '#/trips' },
       { box: 'nicer', text: 'Functions, Trips, Favourites and the import check in a calmer look', href: '#/features' },
       { box: 'nicer', text: 'On the phone the main buttons sit at the bottom; colours always come with a sign; «?» explains hard fields' },
+      { box: 'nicer', text: 'Tiles show «Open ›», every activity has a ••• button, and a short intro shows Today once' },
     ],
     test: [
       'Open Today: the greeting stands on top; tap «Wie gaht\'s? / Was häsch vor?», choose and save.',
@@ -39,6 +40,7 @@ export const WHATS_NEW = [
       'Open Me › Data › History and Analysis: the answers stand there, old daily checks too.',
       'In «New tour» tap «Tour from komoot»: komoot opens with suggestions near you.',
       'On the phone open Trips and Material: the main button sits at the bottom.',
+      'Open Today: the short intro shows three steps; tap «Skip». Tap ••• on an activity: duration, place and stopwatch open.',
     ],
   },
   {

@@ -19,6 +19,8 @@ export default {
   'Open Me › Data › History and Analysis: the answers stand there, old daily checks too.': 'Öffne Ich › Daten › Verlauf und Auswertung: Die Antworten stehen dort, alte Tageschecks auch.',
   'In «New tour» tap «Tour from komoot»: komoot opens with suggestions near you.': 'Tippe in «Neue Tour» auf «Tour aus komoot»: komoot öffnet sich mit Vorschlägen in deiner Nähe.',
   'On the phone open Trips and Material: the main button sits at the bottom.': 'Öffne am Handy Touren und Material: Der wichtigste Knopf sitzt unten.',
+  'Tiles show «Open ›», every activity has a ••• button, and a short intro shows Today once': 'Kacheln zeigen «Öffnen ›», jede Aktivität hat einen Knopf •••, und eine kurze Einführung zeigt Heute einmal',
+  'Open Today: the short intro shows three steps; tap «Skip». Tap ••• on an activity: duration, place and stopwatch open.': 'Öffne Heute: Die kurze Einführung zeigt drei Schritte; tippe «Überspringen». Tippe ••• bei einer Aktivität: Dauer, Ort und Stoppuhr öffnen sich.',
 
   // 0.132.0 Tagespaket (with the content of 0.125.0, which never went live): Tages-Check, Aktiv, Werte, Tour-Zustand, Velo-Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen, Kleine Apps
   'Lots of new things at once': 'Viel Neues auf einmal',
