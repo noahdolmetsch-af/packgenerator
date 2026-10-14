@@ -6,7 +6,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { TEMPLATES_KEY } from '../templates.js';
-  import { searchAll, commandActions } from '../search.js';
+  import { commandActions } from '../search.js';
   import { openTrip, addItem, openNew, openNote, dayRide, openData, openWear } from '../nav.js';
   import { sortBikes } from '../bikes.js';
   import { recordCare, undoCare } from '../home/care-tap.js';
@@ -14,6 +14,8 @@
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
   import SearchAnswer from '../helper/SearchAnswer.svelte';
+  import SearchFree from '../kisuche/SearchFree.svelte';
+  import { smartSearch } from '../kisuche/smart.js';
   import { findFeatures, FEATURE, FEATURES } from '../features.js';
   import { goFeature } from '../know/featureRun.js';
 
@@ -28,7 +30,9 @@
     const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
     return { items, trips, bikes, notes, templates: tpl?.value ?? [], events };
   });
-  const groups = $derived(q.trim().length >= 2 && $all ? searchAll(q, $all) : []);
+  // «Kluge Suche» (14.10.2026): similar words, small typos and short filters on top of searchAll.
+  const smart = $derived(q.trim().length >= 2 && $all ? smartSearch(q, $all) : { groups: [], also: [], fixed: null });
+  const groups = $derived(smart.groups);
   const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
   // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
   const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes) }) : []);
@@ -252,6 +256,7 @@
   {#if q.trim().length >= 2}
     <div class="res" role="region" aria-label={t('Search results')} aria-live="polite">
       <SearchAnswer bind:this={kh} {q} items={$all?.items ?? []} onpropose={() => { q = ''; open = false; }} />
+      <SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} />
       {#if cmds.length}
         <p class="gh">{t('Do it now')}</p>
         <ul class="cmds">
