@@ -25,7 +25,7 @@
   import { localDay } from '../localday.js';
   import { autoKeep, leaveWindow } from '../drafts.js';
   import { selectAll } from '../ui/selectall.js';
-  import { rideName, rideDate, freeTitle, lastBikeId, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
+  import { rideName, rideDate, freeTitle, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
   import { X } from '@lucide/svelte';
   import TripAsk from '../helper/TripAsk.svelte';
   import { helper, isSetUp, isOn } from '../helper/client.svelte.js';
@@ -37,6 +37,10 @@
   import { newTripOff } from '../repairslim.js';
   import { similarHours, nameClash } from '../formprefill.js';
   import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
+  import { tourBike, tourBikeId, standardBike, setTourBike, TOUR_BIKE } from '../tourbike.svelte.js';
+  import TourBikeAsk from '../bikes/TourBikeAsk.svelte';
+  import BikeOrderSheet from '../bikes/BikeOrderSheet.svelte';
+  import '../bikes/standardvelo.css';
 
   /**
    * trip: the trip to edit, or null for "New trip".
@@ -79,13 +83,17 @@
   let autoNow = null; // the trip's id and creation time, fixed at the first save
   let ended = false; // "Create trip" or "Discard": closing does nothing more
   const trips = $derived(allTrips.filter((x) => x.id !== autoId));
+  // VS1 (Noah 14.10.2026): «always the standard bike» wins over the bike of the open trip; with «the one
+  // ridden last» the open trip's bike comes first, as before
+  // svelte-ignore state_referenced_locally
+  const openBike = tourBike.mode === 'last' && bikes.some((b) => b.id === defaultBikeId);
   // svelte-ignore state_referenced_locally
   let draft = $state(
     trip
       ? { title: trip.title, startDate: trip.startDate ?? '', days: trip.days ?? 1, bikeId: trip.bikeId ?? bikes[0]?.id }
       : // v0.25.1 (Noah 2a): a new trip starts filled in: start date (today, after 14:00 tomorrow) and
         // the bike of the open or last trip; the name follows below. "Create trip" works untouched.
-        { title: '', startDate: rideDate(), days: 1, bikeId: bikes.some((b) => b.id === defaultBikeId) ? defaultBikeId : lastBikeId(trips, bikes) ?? bikes[0]?.id },
+        { title: '', startDate: rideDate(), days: 1, bikeId: openBike ? defaultBikeId : tourBikeId(trips, bikes) ?? bikes[0]?.id },
   );
   // v0.25.1 (Noah 2a): the name is made from bike, date and days until Noah types in it.
   let autoName = $state(isNew);
@@ -226,9 +234,33 @@
   // svelte-ignore state_referenced_locally
   const bikeAtStart = isNew && trips.some((x) => hasBike(x) && !x.skipped && x.bikeId === draft.bikeId) ? draft.bikeId : null;
   // svelte-ignore state_referenced_locally
-  const bikeFromOpen = bikes.some((b) => b.id === defaultBikeId);
+  const bikeFromOpen = openBike;
   let bikeOwn = $state(false);
   const bikePre = $derived(!!bikeAtStart && !bikeOwn && draft.bikeId === bikeAtStart && bikes.length > 1);
+  // VS1–VS4 (Noah 14.10.2026 «VS1–VS4 freigegeben», «1a 2b 3a»): the standard bike (first in the order)
+  // has a star and is chosen unless «the one ridden last» was picked; the app asks that once, here,
+  // at the first new trip with more than one bike. «Change standard» opens the order window.
+  const stdBike = $derived(standardBike(bikes));
+  const stdPre = $derived(!bikeFromOpen && !bikeOwn && tourBike.mode !== 'last' && draft.bikeId === stdBike?.id && bikes.length > 1);
+  let askTourBike = $state(false);
+  let orderOpen = $state(false);
+  $effect(() => {
+    // «bei der allerersten Tour, nur einmalig» (Noah 13.10.2026 21:33): only while no trip exists yet
+    if (!isNew || bikes.length < 2 || bikeFromOpen || (allTrips ?? []).length) return;
+    db.settings.get(TOUR_BIKE).then((row) => (askTourBike = !row));
+  });
+  // a new standard chosen in the order window comes along while no bike was tapped
+  let prevStd = null;
+  $effect(() => {
+    const id = stdBike?.id ?? null;
+    if (isNew && !bikeOwn && !bikeFromOpen && tourBike.mode !== 'last' && prevStd && id && id !== prevStd && draft.bikeId === prevStd) draft.bikeId = id;
+    prevStd = id;
+  });
+  async function answerTourBike(mode) {
+    askTourBike = false;
+    await setTourBike(db, mode);
+    if (!bikeOwn) draft.bikeId = tourBikeId(trips, bikes, mode) ?? draft.bikeId;
+  }
   // the check at the name field: another trip has this name → a free one to take with one tap
   const clash = $derived(nameClash(draft.title, trips, trip?.id ?? null));
   const clashWhen = $derived(clash?.trip.startDate ? new Date(`${clash.trip.startDate}T12:00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' }) : '');
@@ -743,9 +775,11 @@
         <fieldset class="ctx">
           <legend class="lbl">{t('Bike')}</legend>
           <div class="tp-chips">
-            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}</button>{/each}
+            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}{#if b.id === stdBike?.id && bikes.length > 1}<span class="sv-pill"><Star size={12} class="sv-star" aria-hidden="true" />{t('Standard')}</span>{/if}</button>{/each}
           </div>
-          {#if bikePre}<small class="prefrom">{bikeFromOpen ? t('the bike of the open trip · you can change it') : t('the bike of your last trip · you can change it')}</small>{/if}
+          {#if stdPre}
+            <p class="sv-hint std-pre"><Star size={14} class="sv-star" aria-hidden="true" /><span><b>{t('Standard bike')}</b> {t('is chosen. A tap on another bike counts only for this trip.')} <button type="button" class="std-link" onclick={() => (orderOpen = true)}>{t('Change standard')}</button></span></p>
+          {:else if bikePre}<small class="prefrom">{bikeFromOpen ? t('the bike of the open trip · you can change it') : t('the bike of your last trip · you can change it')}</small>{/if}
         </fieldset>
       {:else}
         <!-- L9: no bike yet: add one right here (only its name), it is chosen at once. -->
@@ -843,7 +877,30 @@
   </form>
 </dialog>
 
+{#if askTourBike}
+  <TourBikeAsk standard={stdBike} onanswer={answerTourBike} />
+{/if}
+{#if orderOpen}
+  <BikeOrderSheet {bikes} onclose={() => (orderOpen = false)} />
+{/if}
+
 <style>
+  .std-pre {
+    margin-top: 8px;
+  }
+  .std-pre b {
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+  .std-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+  }
   .area {
     border: 0;
     margin: 0;

@@ -4,7 +4,7 @@
  *
  *   - always today and right away (no «after 14:00 it is tomorrow» rule as the day ride had);
  *   - 2.5 riding hours;
- *   - the bike ridden last (dayride.js lastBikeId), or the one Today suggests;
+ *   - the bike a new trip brings (tourbike.svelte.js: the standard bike or the one ridden last), or the one Today suggests;
  *   - only the standard items (no copy of the last day ride, no template);
  *   - the weather from the home forecast for today; offline (or without a forecast) no weather;
  *   - the name is the local time stamp YYYYMMDDHHmm («202610130000»), a second one in the same
@@ -12,7 +12,8 @@
  * Everything stays a suggestion: the green card on Today has «Open» and «Undo» (deletes the trip).
  * The rules are pure functions (tests/quickstart.test.js); quickStart() writes the trip.
  */
-import { buildBikeTrip, freeTitle, lastBikeId, forecastPreset, homeOf } from './dayride.js';
+import { buildBikeTrip, freeTitle, forecastPreset, homeOf } from './dayride.js';
+import { tourBikeId } from './tourbike.svelte.js';
 import { ridesIntoDark } from './blockplan.js';
 import { rememberDomain, BIKEPACKING } from './domains.js';
 import { localDay } from './localday.js';
@@ -32,12 +33,13 @@ export const NO_WX = Object.freeze({ min: null, max: null, rain: 'none' });
 /**
  * Everything a quick start needs, without a dialog.
  * forecast: the home forecast ({ days: [{ date, min, max, rainMm, rainPct }] }) or null (offline).
- * bikeId: the bike Today suggests (else the bike ridden last, else the first bike).
+ * bikeId: the bike Today suggests (else the bike a new trip brings: the standard bike, or with
+ * mode 'last' the bike ridden last; mode defaults to the setting, tourbike.svelte.js).
  * → { bike, hours, wx, wxFrom, startDate, title } or null without a bike.
  */
-export function quickPlan(trips = [], bikes = [], { now = new Date(), forecast = null, bikeId = null } = {}) {
+export function quickPlan(trips = [], bikes = [], { now = new Date(), forecast = null, bikeId = null, mode = undefined } = {}) {
   const startDate = localDay(now);
-  const bike = (bikeId && bikes.find((b) => b.id === bikeId)) || bikes.find((b) => b.id === lastBikeId(trips, bikes, startDate)) || null;
+  const bike = (bikeId && bikes.find((b) => b.id === bikeId)) || bikes.find((b) => b.id === tourBikeId(trips, bikes, mode, startDate)) || null;
   if (!bike) return null;
   const fwx = forecast ? forecastPreset(forecast, startDate) : null;
   return {

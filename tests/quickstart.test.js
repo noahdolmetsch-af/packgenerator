@@ -4,8 +4,8 @@ import { describe, it, expect } from 'vitest';
 import { stampName, quickPlan, quickStart, QUICK_HOURS, NO_WX } from '../src/lib/quickstart.js';
 
 const bikes = [
-  { id: 'b1', name: 'test_data_gtp_ Scale', setup: { seat: 'bag1' }, slots: ['seat'] },
-  { id: 'b2', name: 'test_data_gtp_ Gravel', setup: { seat: 'bag1' }, slots: ['seat'] },
+  { id: 'b1', name: 'test_data_gtp_ Scale', setup: { seat: 'bag1' }, slots: ['seat'], order: 1 },
+  { id: 'b2', name: 'test_data_gtp_ Gravel', setup: { seat: 'bag1' }, slots: ['seat'], order: 2 },
 ];
 const trip = (id, f) => ({ id, title: id, bikeId: 'b1', startDate: '2026-09-01', days: 1, entries: [], ...f });
 // a forecast as home-weather.js gives it (days by local date)
@@ -22,9 +22,12 @@ describe('the name', () => {
 describe('quickPlan', () => {
   const now = new Date(2026, 9, 13, 21, 30); // late in the evening: still today (no 14:00 rule)
 
-  it('today, 2.5 h, the bike ridden last, the forecast for today', () => {
+  it('today, 2.5 h, the bike ridden last (setting «last»), the forecast for today', () => {
     const trips = [trip('old', { bikeId: 'b2', startDate: '2026-10-10', hours: 6, wx: { min: -2, max: 4, rain: 'rain' } })];
-    const p = quickPlan(trips, bikes, { now, forecast });
+    // VS1: with the setting «standard» (or not asked yet) the standard bike comes, the first in the order
+    expect(quickPlan(trips, bikes, { now, forecast, mode: 'standard' }).bike.id).toBe('b1');
+    expect(quickPlan(trips, bikes, { now, forecast, mode: null }).bike.id).toBe('b1');
+    const p = quickPlan(trips, bikes, { now, forecast, mode: 'last' });
     expect(p.startDate).toBe('2026-10-13');
     expect(p.hours).toBe(QUICK_HOURS);
     expect(QUICK_HOURS).toBe(2.5);

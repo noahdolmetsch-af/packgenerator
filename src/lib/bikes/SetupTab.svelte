@@ -28,6 +28,8 @@
   import Help from '../ui/Help.svelte';
   import BagDialog from './BagDialog.svelte';
   import BikeDialog from './BikeDialog.svelte';
+  import BikeOrderSheet from './BikeOrderSheet.svelte';
+  import NewStandardSheet from './NewStandardSheet.svelte';
   import { nextTrip } from '../debrief.js';
   import { bikePhotos, shrinkImage } from '../photo.js';
   import Lightbox from '../ui/Lightbox.svelte';
@@ -186,6 +188,10 @@
   let sheet = $state(null); // the place whose bag is being chosen
   let dialog = $state(null); // { bag } or { bag: null, slot }
   let bikeDialog = $state(null); // { bike } or { bike: null }
+  // VS3/VS4 (Noah 14.10.2026 «1a 2b 3a»): the order window, and after a new bike the question «New standard bike?»
+  let standardOpen = $state(false);
+  let newStd = $state(null); // { id, standard } of a bike just added while there were bikes before
+  const newBike = $derived(newStd && bikes.find((b) => b.id === newStd.id));
   // v0.23.0 (AP07): Today's "Add a bike" opens the dialog right away.
   if (take('bikes.add')) bikeDialog = { bike: null };
   $effect(() => {
@@ -296,7 +302,7 @@
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}>{t('Or import your data on the')} <a href="#/">{t('start page')}</a>.</Empty>
   {:else if bike}
-    <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} />
+    <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} />
     <!-- SK X9 (SKX3): «Hersteller und Garantie», your own link for this bike, right under its name -->
     <Woanders context={bike.name} links={[{ kind: 'x9', slot: slotOf('x9', bike.id), icon: 'shield', sub: t('Warranty and recalls') }]} />
 
@@ -546,8 +552,14 @@
   />
 {/if}
 
+{#if standardOpen}
+  <BikeOrderSheet {bikes} onclose={() => (standardOpen = false)} />
+{/if}
+{#if newBike && !bikeDialog}
+  <NewStandardSheet bike={newBike} standard={newStd.standard} {bikes} onclose={() => (newStd = null)} />
+{/if}
 {#if bikeDialog}
-  <BikeDialog bike={bikeDialog.bike} {bikes} oncreated={(id) => onbike?.(id)} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
+  <BikeDialog bike={bikeDialog.bike} {bikes} oncreated={(id) => { const others = bikes.filter((b) => b.id !== id); newStd = others.length ? { id, standard: others[0] } : null; onbike?.(id); }} onsaved={(id) => onbike?.(id)} onclose={() => (bikeDialog = null)} />
 {/if}
 
 {#if photoRename}
