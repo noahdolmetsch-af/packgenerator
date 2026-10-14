@@ -84,9 +84,11 @@ test('a) every Strava activity above «Packmodus»; a Packmodus trip is one row 
   await expect(herbst.locator('a.an')).toHaveText('Herbsttour Hochland');
   await expect(herbst.locator(`[data-pm="${HERBST}"]`)).toContainText(T('Pack mode: {name}', { name: 'Herbsttour Hochland' }));
   await expect(herbst.locator('.ak')).toContainText('115');
-  // the Packmodus row of that trip names its Strava activities instead of the values
+  // the Packmodus row of that trip also names its Strava activities
   const pm = pack.locator('li[data-row]').filter({ has: page.getByRole('link', { name: 'Herbsttour Hochland', exact: true }) });
   await expect(pm.locator('[data-strava-of="2"]')).toHaveText(T('Strava: {n} activities', { n: 2 }));
+  // answer 4a (14.10.2026 «1-5a»): the Packmodus row keeps its values (ride time, heart rate, weather …)
+  await expect(pm.locator('[data-values] dt', { hasText: T('Weather') })).toBeVisible();
   // the Strava type and the bike the ride ledger counted it for
   const one = row(page, `a:${A}1`);
   await expect(one.locator('[data-type="Ride"]')).toHaveText(T('Strava type «{type}»', { type: 'Ride' }));
