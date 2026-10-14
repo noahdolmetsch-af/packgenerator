@@ -366,6 +366,10 @@
     const pct = pk ? t('{n} % packed', { n: Math.round((pk / es.length) * 100) }) : null;
     return [who, tn(stats.count, '{n} item', '{n} items'), w, km, pct].filter(Boolean).join(' · ');
   });
+  // v0.137.0 (Durchklick H1, Noah 14.10.2026 «3a»): the big line keeps the weight as before; a small
+  // line under it gives the whole trip with food, water and worn items, the same as the trip head.
+  const kg1 = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`; // as the trip head
+  const packLine = $derived(shown && stats?.packG && stats.packG > stats.gearG ? t('with food, water and worn items {w}', { w: knownWeight(stats.packG, stats.packMissing, kg1) }) : '');
   // v0.101.0 Design-Refresh P2 (H1): number boxes (days, hours, open steps), the packing bar and,
   // with a route, its distance, climbing and profile on the right.
   const left = $derived(shown && !ask ? timeLeft(shown, now) : null);
@@ -885,6 +889,7 @@
         <div>
           <h2 id="next-h" class="tt">{ask ? t('How was {trip}?', { trip: shown.title }) : shown.title}</h2>
           <p class="meta num">{meta}{#if startLine && !phone.matches} · {startLine}{/if}</p>
+          {#if packLine && !ask}<p class="meta pack num" data-pack-weight>{packLine}</p>{/if}
         </div>
         {#if !ask && (left || openSteps)}
           <dl class="boxes num" data-boxes>
@@ -1543,6 +1548,11 @@
     margin: 4px 0 0;
     color: var(--ink-2);
     overflow-wrap: break-word;
+  }
+  .meta.pack {
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
   }
   @media (max-width: 719px) {
     .meta {

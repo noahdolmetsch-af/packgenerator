@@ -7,4 +7,6 @@ export default {
   'weighed|tile': 'gewogen',
   'Weigh bikes and bags': 'Velos und Taschen wiegen',
   'all together, with food and water': 'alles zusammen, mit Essen und Wasser',
+  // v0.137.0 Heute (H1, Noah «3a»): small line under the trip, the same total as the trip head
+  'with food, water and worn items {w}': 'mit Essen, Wasser, Getragenem {w}',
 };

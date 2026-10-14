@@ -17,6 +17,8 @@ export default {
   'Open Bikes › Care: under the title a line says what due means.': 'Öffne Velos › Pflege: Unter dem Titel steht eine Zeile, was fällig heisst.',
   'Report a problem on a bike with «Before the next ride»: it shows in Bike care as due, with «Done».': 'Melde bei einem Velo ein Problem mit «Vor der nächsten Fahrt»: Es steht in der Velopflege als fällig, mit «Erledigt».',
   'Compare the number in the menu with Bike care and Today: all three are the same.': 'Vergleiche die Zahl im Menü mit Velopflege und Heute: Alle drei sind gleich.',
+  'Today: under the next trip a small line gives its whole weight with food, water and worn items': 'Heute: Unter der nächsten Tour gibt eine kleine Zeile ihr ganzes Gewicht mit Essen, Wasser und Getragenem',
+  'Open Today: under the next trip a small line «with food, water and worn items» shows the same weight as the trip head.': 'Öffne Heute: Unter der nächsten Tour zeigt eine kleine Zeile «mit Essen, Wasser, Getragenem» dasselbe Gewicht wie der Tour-Kopf.',
   // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
   'A greeting and your questions': 'Ein Gruss und deine Fragen',
   'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.': 'Heute begrüsst dich mit Namen, «Wi gaht\'s?» stellt deine Fragen in einer Morgen- und einer Abend-Runde, und viele Seiten sind ruhiger.',

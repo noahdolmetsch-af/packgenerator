@@ -30,6 +30,7 @@ export const WHATS_NEW = [
     small: [
       { box: 'fixed', text: 'Bike care no longer says «nothing due» while a problem waits for the next ride' },
       { box: 'nicer', text: 'The number in the menu counts the points due, the same as on Bikes and Today' },
+      { box: 'nicer', text: 'Today: under the next trip a small line gives its whole weight with food, water and worn items', href: '#/' },
     ],
     test: [
       'Open Bikes › Care: under the title a line says what due means.',
@@ -37,6 +38,10 @@ export const WHATS_NEW = [
       'Compare the number in the menu with Bike care and Today: all three are the same.',
       'Open Gear: the line under the title and the view «Unweighed» show the same number.',
       'Open a trip: the weight in its head is the big number of the weight card; food and water is its own row.',
+      'Open Today: under the next trip a small line «with food, water and worn items» shows the same weight as the trip head.',
+    ],
+  },
+  {
     // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
     // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
     version: '0.133.0',
