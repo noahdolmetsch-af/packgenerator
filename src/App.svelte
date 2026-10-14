@@ -41,6 +41,8 @@
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
   import Pay from './pages/Pay.svelte';
+  import Invoices from './pages/Invoices.svelte';
+  import InvoiceNew from './pages/InvoiceNew.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -350,6 +352,12 @@
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
     <Pay />
+  {:else if page === 'invoices'}
+    <!-- Ich › Bezahlen › Rechnungen (mockups QR2 + QR7, Noah 14.10.2026 04:00 «a») -->
+    <Invoices />
+  {:else if page === 'invoice'}
+    <!-- Ich › Bezahlen › Rechnungen › Neue Rechnung or one invoice (mockups QR1 + QR4) -->
+    <InvoiceNew />
   {:else if page === 'helper'}
     <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
     <Helper />

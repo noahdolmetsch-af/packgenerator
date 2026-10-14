@@ -4,12 +4,23 @@
    * explains what the payment parts can already do (prepared, test mode only, nothing locked) and
    * what Noah could build on them. Ideas as cards on top, then prepared, costs, still missing.
    * Read only: no buttons that pay or switch anything on.
+   * Rechnungen (Noah 14.10.2026 03:39 «1a», mockups QR1–QR8 approved 04:00): the one row on top
+   * leads to the invoices without a provider (QR bill + TWINT).
    */
   import VeloHead from '../lib/bikes/VeloHead.svelte';
-  import { t } from '../lib/i18n.svelte.js';
+  import { t, tn } from '../lib/i18n.svelte.js';
   import { USE_CASES, PREPARED, COSTS, MISSING } from '../lib/pay/info.js';
   import { Info, Star, Volleyball, Route, Wrench, FileText, Gift, CreditCard, KeyRound, ShoppingBag, CalendarDays, Users, Check } from '@lucide/svelte';
+  import { listInvoices, openSummary } from '../lib/pay/invoices.js';
+  import { formatAmount } from '../lib/pay/qrbill.js';
+  import { ChevronRight, ReceiptText } from '@lucide/svelte';
   import '../lib/ich/ich.css';
+
+  let invLine = $state('');
+  listInvoices().then((list) => {
+    const s = openSummary(list);
+    invLine = list.length ? `${tn(s.count, '{n} open', '{n} open')} · ${t('{amount} CHF outstanding', { amount: formatAmount(s.sum) })}` : t('QR bill and TWINT, free');
+  });
 
   const ICONS = { star: Star, tennis: Volleyball, route: Route, wrench: Wrench, file: FileText, gift: Gift, card: CreditCard, key: KeyRound, bag: ShoppingBag, cal: CalendarDays, users: Users };
 </script>
@@ -21,6 +32,12 @@
     <Info size={18} aria-hidden="true" />
     <span><b>{t('Prepared, not active yet.')}</b> {t('Nothing in the app is locked and no money moves. Testing happens only in test mode with test cards.')}</span>
   </p>
+
+  <a class="card ich-row pay-inv" href="#/me/pay/invoices">
+    <span class="ich-ib"><ReceiptText size={18} aria-hidden="true" /></span>
+    <span class="ich-m"><b>{t('Invoices')}</b><small>{invLine || t('QR bill and TWINT, free')}</small></span>
+    <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+  </a>
 
   <section class="ich-sec" aria-labelledby="pay-uc-h">
     <div class="ich-h"><div><h2 id="pay-uc-h">{t('What you could use it for')}</h2></div></div>
@@ -169,6 +186,9 @@
   }
   .pay-cost .ich-fine {
     margin-top: 14px;
+  }
+  .pay-inv {
+    margin: 0 0 20px;
   }
   .pay-miss {
     margin: 0;
