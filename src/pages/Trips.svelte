@@ -29,7 +29,9 @@
   import { overviewCounts, weatherWindow } from '../lib/touren.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { HOME_PLACE } from '../lib/know.js';
-  import { switchTrip, openNew } from '../lib/nav.js';
+  import { switchTrip, openNew, newTrip } from '../lib/nav.js';
+  import { TEMPLATES_KEY, templateUse } from '../lib/templates.js';
+  import { riddenTrips } from '../lib/trips.js';
   import { planAgain } from '../lib/trip/ending.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
@@ -45,8 +47,20 @@
   const ridesQ = liveQuery(() => db.rides.toArray());
   const kmQ = liveQuery(() => db.kmBook.toArray());
   const placeQ = liveQuery(() => db.settings.get(HOME_PLACE));
+  // v0.143.0 WS3a (Release-Analyse F5, Noah 14.10.2026 «ws1-ws7 freigeben»): start quickly again, like the last
+  // trip ridden or from the two templates used last; «All templates» leads on.
+  const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const loaded = $derived(!!$tripsQ && !!$debriefsQ);
   const today = localDay();
+  const hasRidden = $derived(riddenTrips($tripsQ ?? [], today).some((x) => x.bikeId));
+  const recentTpls = $derived(
+    ($tplQ?.value ?? [])
+      .filter((x) => !x.archivedAt)
+      .map((tp) => ({ tp, use: templateUse(tp, $tripsQ ?? [], today) }))
+      .filter((r) => r.use.n)
+      .sort((a, b) => (b.use.last ?? '').localeCompare(a.use.last ?? ''))
+      .slice(0, 2),
+  );
   const rides = $derived($ridesQ ?? []);
   const view = $derived(loaded ? tripsOverview($tripsQ, $debriefsQ, today, rides) : null);
   const counts = $derived(overviewCounts(view));
@@ -201,6 +215,14 @@
         {@render legend()}
       </details>
       <Continue trips={$tripsQ ?? []} debriefs={$debriefsQ ?? []} {rides} {today} hour={new Date().getHours()} banner />
+      {#if hasRidden || recentTpls.length}
+        <div class="quick" role="group" aria-label={t('Start quickly')}>
+          <span class="ql">{t('Start quickly:')}</span>
+          {#if hasRidden}<button type="button" class="btn sm" onclick={() => newTrip('last')}>{t('Like the last trip')}</button>{/if}
+          {#each recentTpls as r (r.tp.id)}<button type="button" class="btn sm" onclick={() => newTrip(r.tp.id)}>{r.tp.name}</button>{/each}
+          <a class="qa" href="#/pack/templates">{t('All templates')}<ChevronRight size={16} aria-hidden="true" /></a>
+        </div>
+      {/if}
       <div class="cols">
         <div class="groups">
           {#each GROUPS.filter((g) => filter === 'all' || filter === g.key) as g (g.key)}
@@ -783,5 +805,24 @@
     margin: 0;
     color: var(--ink-2);
     font: 400 var(--fs-small) / 1.4 var(--font-body);
+  }
+  /* v0.143.0 WS3a: start quickly */
+  .quick {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0 16px;
+  }
+  .quick .ql {
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .quick .qa {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    margin-left: 4px;
   }
 </style>

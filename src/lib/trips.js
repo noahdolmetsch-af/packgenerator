@@ -59,6 +59,16 @@ export function standardEntries(items, setup, { overnight = true } = {}) {
     .map((i) => ({ itemId: i.id, slot: isWorn(i) ? 'body' : slotFor(i.defaultBag, setup), qty: 1, packed: false }));
 }
 
+/**
+ * v0.143.0 WS3 (Release-Analyse F5, Noah 14.10.2026 «1a»): the trips that were really ridden: started before
+ * today (or already finished today), not marked «Not riding» (skipped), not an idea, with a packing list.
+ * «Like the last trip» copies only from these, never a trip planned for later or for today and not ridden
+ * yet (the bug that took «Last trip» away in 0.114.0: it showed future and test trips).
+ */
+export function riddenTrips(trips = [], today = localDay()) {
+  return trips.filter((t) => t.startDate && (t.startDate < today || (t.startDate === today && t.finished)) && !t.skipped && !t.idea && t.entries?.length);
+}
+
 /** Last trip on this bike (by start date), or null. */
 export function lastTripOn(bikeId, trips) {
   return [...trips].filter((t) => t.bikeId === bikeId).sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))[0] ?? null;

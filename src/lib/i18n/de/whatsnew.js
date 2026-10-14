@@ -4,6 +4,16 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.143.0 Wie letzte Tour
+  'Like last time, please': 'Wie letztes Mal, bitte',
+  'A new trip can start as a copy of the last trip you really rode with that bike again.': 'Eine neue Tour kann wieder als Kopie der letzten Tour starten, die du mit diesem Velo wirklich gefahren bist.',
+  'Trips: «Start quickly» with «Like the last trip», your two templates used last and «All templates»': 'Touren: «Schnell starten» mit «Wie letzte Tour», deinen zwei zuletzt benutzten Vorlagen und «Alle Vorlagen»',
+  'New trip › Choose a template: «Like the last trip» on top, with name, date and bike': 'Neue Tour › Vorlage wählen: «Wie letzte Tour» zuoberst, mit Name, Datum und Velo',
+  'Only trips really ridden count, never one planned for later (that was why it went away in 0.114)': 'Es zählen nur wirklich gefahrene Touren, nie eine geplante (deshalb war es seit 0.114 weg)',
+  'Trips: under «Continue» tap «Like the last trip»: the new trip window opens, «Choose a template» says «Like the last trip chosen».': 'Touren: Unter «Weitermachen» auf «Wie letzte Tour» tippen: Das Fenster «Neue Tour» öffnet sich, bei «Vorlage wählen» steht «Wie letzte Tour gewählt».',
+  'Open «Choose a template»: on top the last trip ridden with the chosen bike, with date and bike; a trip planned for later never shows.': 'Öffne «Vorlage wählen»: Zuoberst steht die letzte gefahrene Tour mit dem gewählten Velo, mit Datum und Velo; eine geplante Tour erscheint nie.',
+  "Tap another bike: «Like the last trip» switches to that bike's last ridden trip.": 'Tippe ein anderes Velo an: «Wie letzte Tour» wechselt zur letzten gefahrenen Tour dieses Velos.',
+
   // 0.132.2 Velo draussen ohne falschen Haken (Fehler behoben)
   'Only ticked when ridden': 'Abgehakt erst nach der Fahrt',
   'A tour planned for today no longer ticks «Cycling outdoors» before you rode it.': 'Eine Tour für heute hakt «Velo draussen» nicht mehr ab, bevor du gefahren bist.',

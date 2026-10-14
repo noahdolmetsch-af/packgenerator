@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.143.0 «Wie letzte Tour» (WS3 from the Release-Analyse, F5; mockups WS3a/WS3b, Noah 14.10.2026 «1a 2b 3a ws1-ws7 freigeben»)
+    version: '0.143.0',
+    date: '2026-10-14',
+    title: 'Like last time, please',
+    lead: 'A new trip can start as a copy of the last trip you really rode with that bike again.',
+    points: [
+      { text: 'Trips: «Start quickly» with «Like the last trip», your two templates used last and «All templates»', href: '#/trips' },
+      { text: 'New trip › Choose a template: «Like the last trip» on top, with name, date and bike', href: '#/trips' },
+    ],
+    small: [{ box: 'fixed', text: 'Only trips really ridden count, never one planned for later (that was why it went away in 0.114)' }],
+    test: [
+      'Trips: under «Continue» tap «Like the last trip»: the new trip window opens, «Choose a template» says «Like the last trip chosen».',
+      'Open «Choose a template»: on top the last trip ridden with the chosen bike, with date and bike; a trip planned for later never shows.',
+      'Tap another bike: «Like the last trip» switches to that bike\'s last ridden trip.',
+    ],
+  },
+  {
     // v0.132.2 «Velo draussen ohne falschen Haken» (bug fix, Noah 14.10.2026; same look, so no mockup)
     version: '0.132.2',
     date: '2026-10-14',
