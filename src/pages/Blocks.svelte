@@ -38,6 +38,7 @@
   import { Plus, X, Minus, Layers, ChevronRight, UserRound, Scale, ListChecks, Info, CloudRain, CloudSun, Route, MapPin, Hand, Zap, ZapOff, Star } from '@lucide/svelte';
   import Help from '../lib/ui/Help.svelte';
   import PathHead from '../lib/ui/PathHead.svelte';
+  import ShareBar from '../lib/ui/ShareBar.svelte';
   import Section from '../lib/ui/Section.svelte';
   import Btn from '../lib/ui/Btn.svelte';
   import { blockIcon, blockTone } from '../lib/blockicons.js';
@@ -92,6 +93,15 @@
     const { g, missing } = sumKnown(its.map(itemWeight));
     return { items: its, g, missing };
   });
+  // 0.159.0 «UI-Regeln» Teil 1 (UI1 + UI8): where the weight of the blocks sits, one bar under the head.
+  const gOf = (kind) => cards.filter((c) => c.kind === kind).reduce((s, c) => s + (c.g || 0), 0);
+  const weightParts = $derived([
+    { key: 'always', label: t('Always with you'), g: standard.g || 0, color: 'var(--accent)' },
+    { key: 'situation', label: t('Depending on the situation'), g: gOf('situation'), color: 'var(--l2)' },
+    { key: 'ride', label: t('On the ride'), g: gOf('ride'), color: 'var(--l3)' },
+    { key: 'night', label: t('With the night'), g: gOf('night'), color: 'var(--l4)' },
+    { key: 'add', label: t('To add'), g: gOf('add'), color: 'var(--ink-3)' },
+  ]);
   const NAMES_SHOWN = 5;
   // v0.40.0: the blocks an Outdoor night brings get the quiet word "outdoor" (the head says "with the night").
   const OUTDOOR = OUTDOOR_BLOCKS;
@@ -403,6 +413,7 @@
     </Help>
     {#if toCheck}<i class="nbadge">{t('to check|blocks')}</i>{/if}
   </p>
+  <div class="bshare"><ShareBar label={t('Weight by group')} parts={weightParts} /></div>
 {/snippet}
 
 {#if selBlock}
@@ -456,6 +467,10 @@
   }
   .blocks {
     max-width: 1240px;
+  }
+  .bshare {
+    margin: 12px 0 0;
+    max-width: 640px;
   }
   .bsub {
     display: flex;
