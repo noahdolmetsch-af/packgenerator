@@ -959,6 +959,12 @@ Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup
 - **Mockup-Freigabe: WU1–WU4 und SV1 «ich gebe alle bild mockups frei» Noah 13.10.2026 17:18 UTC im Projekt-Chat; Antworten «1-5a» 16:31 UTC; Offene Mockups 2 #werte-ueberall und #strava-verbinden.** SV1 nach Noahs Hinweis 17:06 UTC (Strava-Knopf nicht gefunden) und «a» 17:07 UTC.
 - **Selbst entschieden:** SV1 als Karte über der Kachel-Wand statt als Kachel (keine Umstellung gespeicherter Wände nötig); zurück über die Kachel «Strava» oder Velo › Pflege › Strava. Startwerte der Jahresziele 5 000 km, 50 000 Hm, 7 800 Min (150 pro Woche). Fussabdruck zählt alle Fahrten mit 0,15 kg CO₂ pro Auto-km. Höhenmeter je Teil nur aus Strava-Fahrten (hochgeladene GPX-Fahrten haben kein Velo). Farbe der Strava-Karte aus Tokens (`--warn-soft`), nicht Strava-Orange. Am Handy ist die Karte eine schmale Zeile (Titel, «Verbinden», «Später»), damit die Tour-Karte im ersten Bild bleibt (Noah 2b).
 
+## 14.10.2026: 0.132.1 «Langer Name passt»
+
+- Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup
+- **Ursache:** `.tally` in `Between.svelte` ist ein zentriertes Grid (max. 340 px); sein `<small>` hat `min-width: auto` und wird nie schmaler als das längste Wort. `overflow-wrap: break-word` allein senkt diese Mindestbreite nicht.
+- **Selbst entschieden:** eigenes kleines Update statt im Tipps-Paket, damit der Fix sofort live gehen kann (Koordination: Mein Überblick).
+
 ## 14.10.2026: 0.131.1 «Abhaken wieder abwählbar»
 
 - (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC)
