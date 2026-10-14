@@ -94,7 +94,7 @@ describe('a trip ended before it began', () => {
     expect(endedTooEarly({ ...early, skipped: true }, today)).toBe(false);
     expect(endedTooEarly({ ...early, finished: null, status: 'planned' }, today)).toBe(false);
     const v = tripsOverview([early], [{ tripId: 'e1', status: 'done' }], today);
-    // v0.126.0 TZ-1: in the group «Planned», first, with «Plan again»; not completed, not rated
+    // v0.125.0 TZ-1: in the group «Planned», first, with «Plan again»; not completed, not rated
     expect(v.plan.filter((r) => r.kind === 'replan').map((r) => r.id)).toEqual(['e1']);
     expect(v.done).toEqual([]);
     expect(v.rated).toEqual([]);

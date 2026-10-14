@@ -1,5 +1,5 @@
 /**
- * v0.126.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026: «unterscheiden zwischen einer abgeschlossenen
+ * v0.125.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026: «unterscheiden zwischen einer abgeschlossenen
  * Aktivität … und einer Aktivität, die wir in der App planen … und ob wir eine Tour bewertet haben»;
  * answers «1-5 a», mockups TZ1–TZ3 approved): ONE rule decides the state of a trip.
  *

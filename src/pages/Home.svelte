@@ -311,7 +311,7 @@
   const shown = $derived(cardTrips.length ? cardTrips[Math.min(cardIdx, cardTrips.length - 1)] : null);
   const isLead = $derived(!!shown && !!lead && shown.id === lead.id);
   const ask = $derived(isLead && !!focus?.ask);
-  // v0.126.0 TZ-1 «Zustand sichtbar» (mockup TZ2 Heute): the state pill of the trip on the card
+  // v0.125.0 TZ-1 «Zustand sichtbar» (mockup TZ2 Heute): the state pill of the trip on the card
   const shownState = $derived(shown ? tripState(shown, { debrief: debriefs.find((d) => d.tripId === shown.id) ?? null, rides: $ridesQ ?? [], today }) : null);
   const shownBike = $derived(shown ? bikes.find((b) => b.id === shown.bikeId) ?? null : null);
   const stats = $derived(shown ? tripStats(shown, items, $bagsQ ?? [], shownBike, S.riderWeightG) : null);
@@ -1440,7 +1440,7 @@
   .kl > :global(svg) {
     flex: none;
   }
-  /* v0.126.0 TZ-1: the state pill on its own line above the text of a row in «Heute wichtig» */
+  /* v0.125.0 TZ-1: the state pill on its own line above the text of a row in «Heute wichtig» */
   .tsw {
     display: flex;
     margin-bottom: 2px;

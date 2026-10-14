@@ -60,7 +60,7 @@ export function reviewWindow(today = localDay()) {
 const inside = (date, from, to) => !!date && date >= from && date <= to;
 
 /**
- * A trip that happened: started by today and completed or rated (tripstate.js, since v0.126.0 TZ-1;
+ * A trip that happened: started by today and completed or rated (tripstate.js, since v0.125.0 TZ-1;
  * the same as before: not skipped, and debriefed, marked done or over).
  */
 export function tripDone(trip, debriefs = [], today = localDay()) {

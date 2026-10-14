@@ -81,7 +81,7 @@ import schnellstart from './schnellstart.js';
 import teil2 from './teil2.js';
 // v0.125.0 A-J1: one way to record a workshop visit
 import aj1 from './aj1.js';
-// v0.126.0 TZ-1 «Zustand sichtbar»: the three trip states
+// v0.125.0 TZ-1 «Zustand sichtbar»: the three trip states
 import tz1 from './tz1.js';
 import au from './au.js';
 // Data cleanup 14.10.2026: old fields and personal lists out of the code

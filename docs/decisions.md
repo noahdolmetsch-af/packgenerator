@@ -1228,7 +1228,7 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Bewusst nicht:** keine sichtbare Unterscheidung «geplant / abgeschlossen / bewertet» in diesem Release; das kommt nach Spezifikation und Mockups aus dem Design-Refresh (Noah 13.10.2026).
 
 
-## 14.10.2026: Velo-Setup neu (0.126.0)
+## 14.10.2026: Velo-Setup neu (0.132.0)
 
 - **UC3 «1-5a» (Noah 14.10.2026 00:34 UTC):** Mein Setup oben, eine Seite pro Velo, Rennrig-Links als grosse Galerie, «Dein Velo im Vergleich» bleibt, «Deine Rennen» bleibt auf dieser Seite. Ausbau «1 ja 2 ja 3ja» (00:35 UTC): Taschen-Plan, Setup-Logbuch, Gesamtgewicht. Mockup-Freigabe: UC3-1–UC3-3 «UC3-1-UC3-3 freigeben» Noah 14.10.2026 00:42 UTC.
 - **Selbst entschieden:** Reiter heisst «Setup» (5. Reiter unter Velos). Daten ohne neue Datenbank-Version: Links in `settings.rigLinks`, Logbuch und Vergleich am Velo (`setupLog`, `rigCompare`, `logSkipped`). «In Packen öffnen» statt «Für Packen übernehmen», weil «Verschieben» sofort speichert. «Verpflegung und Wasser» statt «Essen und Wasser». Kein «Standard»-Schild an den Velo-Chips, bis VS1–VS4 freigegeben sind. Zeitraum für Werkstatt-Angebote 180 Tage; «Zurück?» nach 3 schlechten Touren.
@@ -1246,9 +1246,9 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Gleiche Nachricht:** ein kurzes Benutzerhandbuch für jede Funktion (aufschalten, nutzen, Beispiel), im Repo und später in der App. Eine Quelle `src/lib/handbook.js` (ein Eintrag pro Funktion aus `features.js`, ein Test hält sie vollständig), daraus `docs/handbuch.md` (`node tools/handbuch.mjs`). Die Anzeige in der App («Was die App kann») kommt erst nach Mockup und Noahs Freigabe.
 - **Selbst entschieden:** Bezahlfunktion bleibt getrennt (Thread «Bezahlfunktion», `docs/bezahlen.md`); kleine Apps kosten nichts. Weitere kleine Apps nur mit eigener Freigabe.
 
-## 14.10.2026: Tagespaket 0.126.0 (ein Release mit 0.125.0 in PR #151)
+## 14.10.2026: Tagespaket 0.132.0 (ein Release mit 0.125.0 in PR #151)
 
-- **Ein Release:** Velo-Setup (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2–FE18, Bezahlen vorbereiten (#156), Kleine Apps + Handbuch (#157) und die Doku «Links nach aussen» (DG-X1–X16, nur Spezifikation) kommen als 0.126.0 auf PR #151 (0.125.0 bleibt als eigener Eintrag in «Was ist neu»).
+- **Ein Release:** Velo-Setup (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2–FE18, Bezahlen vorbereiten (#156), Kleine Apps + Handbuch (#157) und die Doku «Links nach aussen» (DG-X1–X16, nur Spezifikation) kommen als 0.132.0 auf PR #151 (zuerst 0.126.0; nach dem Merge von 0.131.0 «Daten einmal bereinigen» neu nummeriert) (0.125.0 bleibt als eigener Eintrag in «Was ist neu»).
 - **Selbst entschieden (Bedienung):** FE11/FE18 «App öffnen bei» hat **Heute** als Standard (★); «Wo ich zuletzt war» öffnet nie ein Fenster wieder, ein Link auf eine Seite gewinnt immer. FE2 «Hoher Kontrast (draussen)» ist aus als Standard und ein eigener Block am Ende von `app.css` (eigener Commit, kann einzeln zurückgehalten werden). Alle Hilfen sind Schalter in Ich › Darstellung › Bedienung, nur auf diesem Gerät.
 - **Selbst entschieden (App-Wartung):** Kopie vor jedem Update in einer eigenen IndexedDB (`pack-generator-snapshots`), nie im Export oder Backup, die letzten 3 bleiben; Zurückgehen behält zuerst den Stand jetzt. Monats-Check alle 30 Tage (Strava, Schlüssel mit Enddatum, Links über `api/linkcheck.js` mit fester Liste); offline heisst es «nicht geprüft», nie Fehler. Auf Heute höchstens eine ruhige Zeile ab 80 % Strava-Grenze oder bei einem Befund; sie wartet hinter «Strava verbinden», der Lang-drücken-Tipp wartet hinter ihr und in der Nachtruhe.
 - **Selbst entschieden (Suche):** Die Aktionen der Suche (FE17) bleiben zuoberst und Enter macht die erste; der Hinweis der Kluge Suche und «Claude fragen» stehen darunter, vor den Treffern. Die Treffer kommen aus `smartSearch` (ähnliche Wörter, Tippfehler, Filter), `searchAll` bleibt unverändert darunter.

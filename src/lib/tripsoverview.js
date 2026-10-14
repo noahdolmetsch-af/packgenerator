@@ -3,7 +3,7 @@
  * trips. Each row has one button named by its next step, which opens the trip at that step.
  * v0.88.0 «Aufräumen und Ausprobieren» (Noah 0.88 5a): a trip ended (or debriefed) before its start
  * date is not ridden: it gets «Wieder planen».
- * v0.126.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», mockup TZ1): the groups are the three
+ * v0.125.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», mockup TZ1): the groups are the three
  * trip states of tripstate.js, the same everywhere:
  *   plan   Planned:   ended before it began (first, with «Plan again»), then under way, soon, in planning;
  *   done   Completed: the debrief still open first (inProgress order), then the trips without one

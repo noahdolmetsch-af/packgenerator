@@ -31,7 +31,7 @@ describe('every function has a version it came with', () => {
     expect(SINCE['f.packblocks']).toBe('0.124.0'); // v0.124.0 «Neue Tour Teil 2»
     expect(SINCE['f.tripstate']).toBe('0.125.0'); // v0.125.0 Tagespaket: TZ-1 «Zustand sichtbar»
     expect(SINCE['f.yeargoals']).toBe('0.125.0'); // v0.125.0 Tagespaket: «Werte überall»
-    expect(SINCE['f.velosetup']).toBe(WHATS_NEW[0].version); // v0.126.0 «Velo-Setup»
+    expect(SINCE['f.velosetup']).toBe(WHATS_NEW[0].version); // v0.132.0 «Velo-Setup»
   });
   it('the 10 most important exist, without doubles; the 16 buttons of Today map to functions', () => {
     expect(BEST.length).toBe(10);
