@@ -41,6 +41,8 @@
   import Phone from './pages/Phone.svelte';
   import Checks from './pages/Checks.svelte';
   import Pay from './pages/Pay.svelte';
+  import Handbook from './pages/Handbook.svelte';
+  import MiniApps from './pages/MiniApps.svelte';
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
@@ -347,6 +349,12 @@
   {:else if page === 'checks'}
     <!-- v0.111.0 (mockup V4): Ich › Checks pro Reiseart -->
     <Checks />
+  {:else if page === 'handbook'}
+    <!-- Ich › Handbuch (mockup HB2, Noah 14.10.2026 «hb freigeben») -->
+    <Handbook />
+  {:else if page === 'miniapps'}
+    <!-- Ich › Kleine Apps (mockup HB2) -->
+    <MiniApps />
   {:else if page === 'pay'}
     <!-- Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026 «bz freigeben») -->
     <Pay />
