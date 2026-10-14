@@ -14,9 +14,6 @@
  * back by itself (CloseWatcher → `cancel` → close), without a popstate, so onBack never ran there and
  * the typed name was lost (tests used history.back(), which goes the popstate way). With onBack the
  * `cancel` event (Android back, Escape) now runs onBack too, like NoteSheet's oncancel: back keeps.
- *
- * SN integration: the entry is taken away on the `close` event (not on the `open` attribute), so a
- * sheet that opens from another sheet's onclose takes the entry over before the old one checks it.
  */
 let seq = 0;
 /** Tokens of the dialogs open now. An entry whose dialog closed is stale and may be reused. */
@@ -71,13 +68,25 @@ export function backClose(node, onBack = null) {
       if (!ev.defaultPrevented && node.open) node.close();
     }
   };
-  // Opening is seen on the attribute; closing waits for the dialog's own `close` event. Chrome runs a
-  // timer queued at close() before that event, so dropping on the attribute let the entry go back
-  // before the page's onclose opened the next sheet («Liste anpassen» › Speichern → Vorabend-Check):
-  // the late popstate then closed the new sheet. The close event comes after the page's handler.
-  const watch = new MutationObserver(() => node.open && push());
+  // Fix 14.10.2026 (flaky «Liste anpassen» on the phone): dialog.close() fires its `close` event in a
+  // later task, and the page opens the next dialog from that event. Dropping right away (from the
+  // observer) let our history.back() run before the next dialog took the entry over; the back then
+  // landed under the next dialog and closed it too. So the entry is dropped from the `close` event;
+  // only when the `open` attribute goes away without one, a short fallback drops it.
+  let fallback = null;
+  const watch = new MutationObserver(() => {
+    if (node.open) {
+      clearTimeout(fallback);
+      fallback = null;
+      push();
+    } else if (token && fallback == null) fallback = setTimeout(() => ((fallback = null), drop()), 50);
+  });
   watch.observe(node, { attributes: true, attributeFilter: ['open'] });
-  const onClose = () => drop();
+  const onClose = () => {
+    clearTimeout(fallback);
+    fallback = null;
+    drop();
+  };
   // Android back (CloseWatcher) and Escape: keep what was typed instead of closing without it
   const onCancel = (e) => {
     if (!back || e.defaultPrevented) return;
@@ -94,6 +103,7 @@ export function backClose(node, onBack = null) {
     },
     destroy() {
       watch.disconnect();
+      clearTimeout(fallback);
       node.removeEventListener('close', onClose);
       node.removeEventListener('cancel', onCancel);
       window.removeEventListener('popstate', onPop);

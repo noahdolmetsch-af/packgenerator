@@ -32,12 +32,25 @@ describe('data cleanup', () => {
     ];
     const ch = excelBikeChanges(bikes, tasks);
     expect(ch.bikes).toEqual([
-      ['scott-hardtail', { order: 1, aliases: ['hardtail', 'scale'] }],
-      ['canyon-world-cup', { order: 4, aliases: ['canyon', 'lux'] }],
+      ['canyon-world-cup', { order: 1, aliases: ['canyon', 'lux'] }],
+      ['scott-hardtail', { order: 3, aliases: ['hardtail', 'scale'] }],
     ]);
     expect(ch.tasks).toEqual([[1, { bikeId: 'scott-hardtail' }]]);
     // a value already set stays
     expect(excelBikeChanges([{ id: 'fully', order: 7, aliases: [] }], [])).toEqual({ bikes: [], tasks: [] });
+  });
+
+  it('the order of the first 0.131.0 run (Scale first) becomes Canyon Lux, Factor LS, Scale, Spark once (Noah «1a»)', () => {
+    const old = [
+      { id: 'scott-hardtail', order: 1, aliases: [] },
+      { id: 'fully', order: 2, aliases: [] },
+      { id: 'factor-ls', order: 3, aliases: [] },
+      { id: 'canyon-world-cup', order: 4, aliases: [] },
+    ];
+    const ch = excelBikeChanges(old, []);
+    const now = old.map((b) => ({ ...b, ...Object.fromEntries(ch.bikes)[b.id] }));
+    expect(sortBikes(now).map((b) => b.id)).toEqual(['canyon-world-cup', 'factor-ls', 'scott-hardtail', 'fully']);
+    expect(excelBikeChanges(now, [])).toEqual({ bikes: [], tasks: [] });
   });
 
   it('writes it once, keeps a copy first, and the screens read the data: order, note words, repairs', async () => {
@@ -53,7 +66,7 @@ describe('data cleanup', () => {
     const copy = await db.table('meta').get(CLEANUP_BACKUP);
     expect(copy.backup.tables.bikes.every((b) => b.order == null)).toBe(true); // the copy is from before
     const bikes = await db.bikes.toArray();
-    expect(sortBikes(bikes).map((b) => b.id)).toEqual(['fully', 'canyon-world-cup', 'test_data_gtp_bike']);
+    expect(sortBikes(bikes).map((b) => b.id)).toEqual(['canyon-world-cup', 'fully', 'test_data_gtp_bike']);
     expect(guessBike('the Spark creaks', bikes)).toBe('fully');
     expect(guessBike('lux tyre', bikes)).toBe('canyon-world-cup');
     expect(taskBike(await db.maintenance.get(1))).toBe('fully');

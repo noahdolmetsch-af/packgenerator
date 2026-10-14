@@ -22,6 +22,7 @@
   import { VISIT_JOBS } from '../inbox.js';
   import Btn from '../ui/Btn.svelte';
   import { explain } from '../ui/explain.js';
+  import PhotoPick from '../ui/PhotoPick.svelte';
   import { t, dateOf } from '../i18n.svelte.js';
   import '../ui/daumen.css'; // FE1: Save stays at the bottom edge of the window on a phone
   import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
@@ -67,10 +68,7 @@
     dialog.showModal();
   });
 
-  async function addPhoto(event) {
-    const file = event.currentTarget.files[0];
-    event.currentTarget.value = '';
-    if (!file) return;
+  async function addPhoto(file) {
     reading = true;
     msg = '';
     try {
@@ -180,7 +178,7 @@
 
     {#if kind !== 'idea'}
       <div class="row">
-        <label class="btn sm">{reading ? t('Reading…') : photo ? t('Other photo') : kind === 'visit' ? `+ ${t('Photo of the receipt')}` : `+ ${t('Photo')}`}<input type="file" accept="image/*" onchange={addPhoto} hidden disabled={reading} /></label>
+        <PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera={kind === 'visit' ? 'Photograph the receipt' : 'Take photo'} />
         {#if photo}<img class="th" src={photo} alt={kind === 'visit' ? t('Photo of the receipt') : t('Photo of the problem')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
       </div>
     {/if}

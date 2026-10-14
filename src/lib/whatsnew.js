@@ -79,6 +79,43 @@ export const WHATS_NEW = [
     ],
   },
   {
+    // v0.131.3 «Kamera-Knopf» (mockups K1–K4, Noah 14.10.2026 «K1–K4 freigegeben»)
+    version: '0.131.3',
+    date: '2026-10-14',
+    title: 'Receipt photo in one tap',
+    lead: 'On the phone the camera for a receipt opens with one tap, wherever a receipt is added.',
+    points: [
+      { text: 'Bikes › Workshop › Log a workshop visit: «Photograph the receipt» opens the camera', href: '#/bikes?tab=shop' },
+      { text: 'Inbox › File as … Receipt: a note without a photo gets its receipt photo here', href: '#/inbox' },
+    ],
+    small: [
+      { box: 'new', text: 'New › Workshop visit: the note shows «Photograph the receipt» too' },
+      { box: 'nicer', text: '«Gallery» next to it still takes a photo from the phone; the computer keeps «Choose photo»' },
+    ],
+    test: [
+      'On the phone, open Bikes › Workshop › «Log a workshop visit» and tap «Photograph the receipt»: the camera opens.',
+      'Take the photo: it shows small in the window; save the visit.',
+      'Write a note «Workshop receipt: …» without a photo, then Inbox › File › Receipt: «Photograph the receipt» is there.',
+    ],
+  },
+  {
+    // v0.131.2 «Velo-Reihenfolge» (Noah 13.10.2026 «1a», thread «Velo-Standard»; fix of the order 0.131.0 wrote)
+    version: '0.131.2',
+    date: '2026-10-14',
+    title: 'Bikes back in line',
+    lead: 'The bike tabs follow the order you chose again.',
+    points: [
+      { text: 'Bike tabs in your order, your main bike first.', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'fixed', text: 'The tidy-up of the last update had brought back the old order' },
+    ],
+    test: [
+      'Open Velos: the tabs start with your main bike, in the order you chose.',
+      'Open Velos › Pflege: the bikes come in the same order.',
+    ],
+  },
+  {
     // v0.131.1 «Abhaken wieder abwählbar» (bug fix, Noah 14.10.2026; same look, so no mockup)
     version: '0.131.1',
     date: '2026-10-14',
