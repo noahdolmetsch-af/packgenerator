@@ -141,14 +141,14 @@
     {#if k === 'wtime' && wt}
       <AnaCard key="wtime" sub={t('Dots = entries · line = mean over 7 days')}>
         <LineChart dots={wt.dots} line={wt.line} ticks={wt.ticks} labels={wt.labels} fmt={(v) => num(v)} label={t('Weight from {a} to {b} kg, mean over 7 days now {c} kg', { a: num(Math.min(...wt.dots.map((d) => d.y))), b: num(Math.max(...wt.dots.map((d) => d.y))), c: num(wt.now.mean) })} />
-        <p class="lg"><span><i class="sw ln"></i>{t('Mean 7 days')}</span><span><i class="sw dt"></i>{t('Entry')}</span></p>
+        <p class="lg"><span><i class="lsw ln"></i>{t('Mean 7 days')}</span><span><i class="lsw dt"></i>{t('Entry')}</span></p>
         <p class="cap">{t('Only your entries. No goal, no rating.')}</p>
       </AnaCard>
     {:else if k === 'wkgtime' && wk}
       <AnaCard key="wkgtime" sub={t('FTP estimated ÷ weight, per week')}>
         {#if wk.line}
           <LineChart line={wk.line} ticks={wk.ticks} labels={wk.labels} fmt={(v) => comma(v)} color="var(--ch-b)" label={t('Watts per kg now {n}', { n: comma(wk.now.wkg, 2) })} height={170} />
-          <p class="lg"><span><i class="sw or"></i>{t('W/kg (FTP ÷ weight)')}</span></p>
+          <p class="lg"><span><i class="lsw or"></i>{t('W/kg (FTP ÷ weight)')}</span></p>
         {/if}
         <p class="cap num">{t('Today {w} W ÷ {kg} kg = {r} W/kg. Weeks without a ride with a power meter keep the value of the week before.', { w: wkNow.ftp, kg: num(wkNow.kg), r: comma(wkNow.wkg, 2) })}</p>
       </AnaCard>
@@ -234,20 +234,20 @@
     align-items: center;
     gap: 6px;
   }
-  .sw {
+  .lsw {
     display: inline-block;
     width: 16px;
     height: 3px;
     border-radius: 2px;
   }
-  .sw.ln {
+  .lsw.ln {
     background: var(--hi);
   }
-  .sw.dt {
+  .lsw.dt {
     background: var(--hi);
     opacity: 0.45;
   }
-  .sw.or {
+  .lsw.or {
     background: var(--ch-b);
   }
   .hint {

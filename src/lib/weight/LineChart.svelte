@@ -48,7 +48,7 @@
   .yl,
   .xl {
     fill: var(--ink-3);
-    font: 400 12px var(--font-body);
+    font: 400 var(--fs-label) / 1 var(--font-body);
   }
   .dt {
     opacity: 0.45;
