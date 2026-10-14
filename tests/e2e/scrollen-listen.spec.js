@@ -4,6 +4,8 @@
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
 import { WHATS_NEW } from '../../src/lib/whatsnew.js';
+import { materialFixture } from './material0472-fixture.js';
+import { SHOW_ROWS } from '../../src/lib/list/listen.js';
 
 async function shot(page, info, name, full = false) {
   if (!process.env.SHOTS) return;
@@ -37,7 +39,7 @@ test('SL1 + SL4: Was ist neu by day, the jump bar, the head stays on top, back t
   await expect(bar).toBeInViewport();
   await expect(bar.locator('.ls-cur')).toBeVisible();
   await still(page);
-  await expect(nav.locator(`[data-jump="${id}"]`)).toHaveAttribute(info.project.name === 'phone' ? 'aria-pressed' : 'aria-current', 'true');
+  await expect(nav.locator(info.project.name === 'phone' ? '[aria-pressed="true"]' : '[aria-current="true"]')).toHaveCount(1);
   await shot(page, info, 'SL4-beim-scrollen');
   // after two screens, «Back to top» (the older group shown whole makes the page long enough)
   await last.locator('.ls-more').click();
@@ -49,5 +51,33 @@ test('SL1 + SL4: Was ist neu by day, the jump bar, the head stays on top, back t
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(5);
   await expect(top).toHaveCount(0);
   expect(WHATS_NEW.length).toBeGreaterThan(1);
+  expect(errors).toEqual([]);
+});
+
+test('SL2: Material: categories closed on every screen, the jump bar opens one, five rows and Show n more', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info, { data: materialFixture() });
+  await page.goto('./#/gear');
+  const cats = page.locator('section.cat');
+  await expect(cats.first()).toBeVisible();
+  await expect(page.locator('section.cat .rows')).toHaveCount(0);
+  const nav = info.project.name === 'phone' ? page.locator('.jump-ph') : page.locator('.jump-dt');
+  // the biggest category: it shows five rows and «Show n more»
+  const sizes = await cats.evaluateAll((els) => els.map((x) => [x.dataset.group, Number(x.querySelector('.m')?.textContent.match(/\d+/)?.[0] ?? 0)]));
+  const [key, n] = sizes.sort((a, b) => b[1] - a[1])[0];
+  await nav.locator(`[data-jump="${key}"]`).click();
+  const cat = page.locator(`section.cat[data-group="${key}"]`);
+  await expect(cat.locator('.rows > li')).toHaveCount(n > SHOW_ROWS + 1 ? SHOW_ROWS : n);
+  await still(page);
+  await noSideways(page);
+  await shot(page, info, 'SL2-material');
+  if (n > SHOW_ROWS + 1) {
+    await cat.locator('.allrows').click();
+    await expect(cat.locator('.rows > li')).toHaveCount(n);
+  }
+  // the category you opened last stays open next time
+  await page.reload();
+  await expect(page.locator(`section.cat[data-group="${key}"] .rows`)).toBeVisible();
   expect(errors).toEqual([]);
 });
