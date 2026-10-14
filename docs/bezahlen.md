@@ -16,6 +16,8 @@ Stand: 14.10.2026. Noahs Wunsch «ich möchte eine bezahlfunktion einführen» (
 
 ## Was gebaut ist
 
+- **Seite «Bezahlen»** unter Ich › Die App (`#/me/pay`, `src/pages/Pay.svelte`, Inhalt in `src/lib/pay/info.js`; Mockups BZ1 + BZ2b, Noah 14.10.2026 01:31 «1a 2b», «bz freigeben»): erklärt, was vorbereitet ist, was es kostet, was fehlt, und zeigt sechs Anwendungsfälle als Karten. Nur lesen, keine Knöpfe.
+
 - **Server** `api/pay.js` (Vercel «packgen»), Teile ohne Netz in `api/_lib/pay.js` und `api/_lib/shop.js`. Stripe über seine REST-Schnittstelle mit `fetch`, ohne SDK und ohne Grundgebühr.
 - **App** `src/lib/pay/licence.js` und `src/lib/pay/shop.js`: nur Funktionen, keine Knöpfe, keine Texte. `LOCKED = false`, also ist nichts gesperrt.
 - **Codes** `tools/pay-code.mjs`: Noah erzeugt Freischalt-Codes auf seinem Computer.
@@ -45,4 +47,4 @@ Stand: 14.10.2026. Noahs Wunsch «ich möchte eine bezahlfunktion einführen» (
 
 ## Bewusst noch nicht
 
-Keine sichtbaren Knöpfe oder Seiten (brauchen Mockups und Noahs «freigegeben»), kein Live-Modus, keine echten Preise und Artikel, keine Anmeldung per E-Mail-Link, kein Stripe-Webhook, kein Lager für Produkte.
+Keine Knöpfe zum Bezahlen (brauchen Mockups und Noahs «freigegeben»); sichtbar ist nur die Erklär-Seite, kein Live-Modus, keine echten Preise und Artikel, keine Anmeldung per E-Mail-Link, kein Stripe-Webhook, kein Lager für Produkte.

@@ -1136,3 +1136,4 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Noah 01:12–01:16 UTC:** «1a und b 2 a (einmal oder als abo) 3 a und b möglich 4 beides vorbereiten 5 kosten 0, mit testmodus starten», «für den nutzer bleibt es im Front End vorerst unsichtbar», «6 a und b», «7 beides vorbereiten». Details: [Bezahlen](bezahlen.md).
 - **Selbst entschieden:** Stripe (keine Grundgebühr, gratis Testmodus, Connect für andere Verkäufer); Lizenz als signierte Notiz statt Konto-Pflicht; Live-Schlüssel werden vom Server abgelehnt, bis Noah live gehen will; Preise und Artikel sind Platzhalter.
 - **Bewusst nicht:** nichts Sichtbares (Mockups zuerst), kein echtes Geld.
+- **Erklär-Seite (Noah 01:25 «doku … unter ich einsehbar», Mockups BZ1 + BZ2b, 01:31 «1a 2b», «bz freigeben»):** Zeile «Bezahlen» unter Ich › Die App, Seite `#/me/pay` mit Ideen als Karten zuoberst. Pro = Strava, Fitbit, Garmin (01:27 «1a»); Vorlagen-Verkauf vorbereitet (01:27 «2a»).
