@@ -197,7 +197,7 @@ export default {
   Fitbit: 'Fitbit',
 
   // AB1 / AB5 Ich › Deine Abfragen
-  'Your questions': 'Deine Abfragen',
+  'Your questions': 'Wi gaht\'s?', // Noah 14.10.2026 01:34:32 «oder besser "Wi gaht's?"»: the page name
   'What the app asks you and how often': 'Was die App dich fragt und wie oft',
   '{all} questions in {areas} areas, {on} of them on. Asked playfully, stored plainly. Every question has its own interval and can be switched off.':
     '{all} Fragen in {areas} Bereichen, {on} davon an. Lustig gefragt, nüchtern gespeichert. Jede Frage hat ihr eigenes Intervall und lässt sich abwählen.',
@@ -241,7 +241,7 @@ export default {
 
   // AB2 Eigene Frage anlegen
   'Change your own question': 'Eigene Frage ändern',
-  'Goes into «Your questions» and into the history under Data.': 'Kommt in «Deine Abfragen» und in den Verlauf unter Daten.',
+  'Goes into «Your questions» and into the history under Data.': 'Kommt in «Wi gaht\'s?» und in den Verlauf unter Daten.',
   'Name|question': 'Name',
   'e.g. Coffee': 'z.B. Kaffee',
   'no known source, the app asks you': 'keine Quelle bekannt, die App fragt dich',
