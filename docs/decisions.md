@@ -963,7 +963,7 @@ Gesamtprüfung 13.10.2026, Vorschlag A-J1 (`design/audit-2026-10-13/`). **Mockup
 
 - (Fehler von Noah 14.10.2026 18:46 UTC gemeldet; gleiches Aussehen, darum ohne Mockup)
 - **Ursache:** «Velo draussen» zählt auch «Velotour» (`counts: ['trip']`); `tripDays` nahm jeden Tour-Tag bis und mit heute, auch von nur geplanten Touren. Der Tour-Tag liess sich nicht antippen (ein Tipp setzt oder nimmt nur das eigene Häkchen), darum blieb der Haken stehen.
-- **Selbst entschieden:** Der heutige Tour-Tag zählt erst, wenn die Tour beendet ist (`finished`, `status: 'done'` oder aus einer Fahrt); vergangene Tage zählen wie bisher. Touren mit eigenen Taschen (`packs`, also Wandern, Reisen) zählen nicht als Velotour, wie im Editor «Velotour» heisst.
+- **Selbst entschieden:** Der heutige Tour-Tag zählt erst, wenn die Tour beendet ist (`finished`, `status: 'done'` oder aus einer Fahrt); vergangene Tage zählen wie bisher. Touren ohne Velo zählen nicht als Velotour: Wandern, Skitour, Wochenende und Reisen tragen ihre Rucksäcke als `packs` an der Tour, Velotouren (Bikepacking, Tagestour) nie, ihre Taschen hängen am Velo, wie im Editor «Velotour» heisst.
 
 ## 14.10.2026: 0.131.1 «Abhaken wieder abwählbar»
 

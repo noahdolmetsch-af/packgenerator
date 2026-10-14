@@ -25,7 +25,7 @@ export const WHATS_NEW = [
       { text: '«Cycling outdoors» is ticked by a bike tour only once the tour is ended; a tap ticks and unticks it again', href: '#/flow' },
     ],
     small: [
-      { box: 'fixed', text: 'Hiking and other trips with their own bags no longer count as a bike trip' },
+      { box: 'fixed', text: 'Hiking, ski tours and other trips without a bike no longer count as a bike trip' },
     ],
     test: [
       'Plan a bike tour for today and open Aktiv: «Cycling outdoors» is not ticked.',
