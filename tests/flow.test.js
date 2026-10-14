@@ -88,8 +88,20 @@ describe('rolling goals', () => {
     const withSpin = normAct({ ...A.bike, counts: ['spin'] });
     expect(entriesFor(withSpin, [e('spin', T)], []).length).toBe(1);
   });
-  it('trip days: every day of a trip up to today, skipped trips not', () => {
-    expect(tripDays([{ startDate: '2026-10-07', days: 3 }, { startDate: '2026-10-01', days: 1, skipped: true }], '2026-10-08')).toEqual(['2026-10-07', '2026-10-08']);
+  it('trip days: every day of a trip before today, skipped trips not', () => {
+    expect(tripDays([{ startDate: '2026-10-07', days: 3 }, { startDate: '2026-10-01', days: 1, skipped: true }], '2026-10-08')).toEqual(['2026-10-07']);
+  });
+  it('trip days: today only once the trip is ended, trips with own bags never (fix 14.10.)', () => {
+    const T0 = '2026-10-08';
+    expect(tripDays([{ startDate: T0, days: 1 }], T0)).toEqual([]);
+    expect(tripDays([{ startDate: T0, days: 1, finished: '2026-10-08T18:00:00Z' }], T0)).toEqual([T0]);
+    expect(tripDays([{ startDate: T0, days: 1, status: 'done' }], T0)).toEqual([T0]);
+    expect(tripDays([{ startDate: '2026-10-07', days: 2, packs: [{ key: 'pack' }], finished: '2026-10-08' }], T0)).toEqual([]);
+    // a tour planned for today: the tile is not ticked, one tap ticks it, the next takes it back
+    const bike = normAct(seedActs().find((a) => a.id === 'bike'));
+    const days = tripDays([{ startDate: T0, days: 1 }], T0);
+    expect(actState(bike, [], T0, days).todayDone).toBe(false);
+    expect(actState(bike, [e('bike', T0)], T0, days).todayDone).toBe(true);
   });
 });
 
