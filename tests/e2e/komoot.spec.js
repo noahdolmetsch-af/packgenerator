@@ -188,15 +188,15 @@ test('a shared GPX without times: the sheet, then the planned trip with In komoo
   await shot(page, info, 'SN1d-tour-komoot-link');
   // answer 3b: the small sign in the Touren row
   await page.goto('./#/trips');
-  const sign = page.locator(`li.tile[data-trip="${made.id}"] [data-komoot-open]`);
+  const sign = page.locator(`[data-planned] li.pc[data-trip="${made.id}"] [data-komoot-open]`);
   await expect(sign).toBeVisible();
   await expect(sign).toHaveAttribute('aria-label', T('Open in komoot: {name}', { name: made.title }));
   await expect(sign).toHaveAttribute('href', `${LINK}?ref=wtd`);
   await outside(sign);
   // a trip without a komoot link has no sign
-  await expect(page.locator(`li.tile[data-trip="${JURA}"] [data-komoot-open]`)).toHaveCount(0);
+  await expect(page.locator(`[data-planned] li.pc[data-trip="${JURA}"] [data-komoot-open]`)).toHaveCount(0);
   expect(await noSideways(page)).toBe(0);
-  await shot(page, info, 'SN1d-touren-komoot', page.locator(`li.tile[data-trip="${made.id}"]`));
+  await shot(page, info, 'SN1d-touren-komoot', page.locator(`[data-planned] li.pc[data-trip="${made.id}"]`));
   expect(errors).toEqual([]);
 });
 
