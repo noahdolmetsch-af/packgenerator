@@ -53,6 +53,8 @@
   import Bags from './flow/Bags.svelte';
   import Rest from './flow/Rest.svelte';
   import MoreAktiv from '../lib/flow/kit/MoreAktiv.svelte';
+  import TipLine from '../lib/pageinfo/TipLine.svelte';
+  import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { morePages } from '../lib/flow/morepages.js';
   import { weekGoals } from '../lib/flowweek.js';
   import Meditation from './flow/Meditation.svelte';
@@ -281,6 +283,8 @@
     {#if data && !states.length}
       <Empty icon={Plus} text={t('No activities yet. Add the first one: name, goal, done.')} action={{ label: t('New activity'), href: '#/flow/new' }} />
     {:else if data}
+      <!-- «Inhalte Flow» IF1 (Noah 14.10.2026, approved 04:32): the tip of the day, at the end the fold and the tiles -->
+      <TipLine page="aktiv" name={t('Active|place')} />
       <MoreAktiv items={pages} />
       <div class="lay">
         <div class="col">
@@ -328,6 +332,7 @@
           </Sec>
         </aside>
       </div>
+      <PageMore page="aktiv" name={t('Active|place')} />
     {/if}
   </div>
 {/if}
