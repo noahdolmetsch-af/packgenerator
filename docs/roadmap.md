@@ -74,6 +74,7 @@ Ursprünglich freigegebene Ausführungsreihenfolge: AP01–AP09 → AP12–AP16 
 ## Abgleich, Abweichungen und nächste Lieferfolge
 
 **14.10.2026, v0.131.3 «Kamera-Knopf»:** Belegfoto mit einem Tipp: «Beleg fotografieren» öffnet die Handy-Kamera direkt, überall wo ein Beleg dazukommt (Mockups K1–K4).
+**14.10.2026, v0.131.2 «Velo-Reihenfolge»:** kleine Korrektur nach 0.131.0; Standard-Velo (VS1–VS4) folgt nach Noahs Freigabe.
 
 **14.10.2026, v0.131.0 «Daten einmal bereinigen»:** Grundlage für das Profil «Standard»/«Noah» (Thread «Persönlich und Standard-Profil»): Daten und Listen aufgeräumt, Regeln in [daten.md](daten.md). Danach geht der Profil-Thread mit seinen Fragen weiter.
 
