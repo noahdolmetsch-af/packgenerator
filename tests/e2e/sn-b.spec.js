@@ -65,6 +65,11 @@ test('Rückblick: state pills, the missing debrief on top with Undo, the figures
 
   // the long table is open under «Alle Kennzahlen» as before (answer 2b) and can be folded
   const fold = page.getByRole('button', { name: T('All figures') });
+  // 0.159.1 (Noah 14.10.2026 «a»): on a phone the table starts closed, one tap opens it
+  if (info.project.name === 'phone') {
+    await expect(fold).toHaveAttribute('aria-expanded', 'false');
+    await fold.click();
+  }
   await expect(fold).toHaveAttribute('aria-expanded', 'true');
   await expect(page.locator('.kz')).toBeVisible();
   await expect(page.locator('.kz').getByRole('rowheader', { name: T('Distance') })).toBeVisible();

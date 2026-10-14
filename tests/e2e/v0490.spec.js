@@ -68,6 +68,8 @@ test('a) one Rückblick page: last ride, 12 months, trips compared, one level be
   // 2. the 12 months with Vorjahr, Durchschnitt, Bestwert (open under «Alle Kennzahlen», answer 2b); switch to Alle
   const per = main.locator('section.period');
   await expect(per.getByRole('heading', { level: 2, name: 'Letzte 12 Monate' })).toBeVisible();
+  // 0.159.1 (Noah 14.10.2026 «a»): on a phone the table starts closed, one tap opens it
+  if (info.project.name === 'phone') await per.getByRole('button', { name: 'Alle Kennzahlen' }).click();
   await expect(per.getByRole('button', { name: 'Alle Kennzahlen' })).toHaveAttribute('aria-expanded', 'true');
   const km = per.getByRole('row').filter({ has: page.getByRole('rowheader', { name: 'Distanz' }) });
   await expect(km).toContainText('1’541');

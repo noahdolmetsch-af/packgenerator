@@ -118,6 +118,8 @@ test('Rückblick: closed lines on a phone, open sections on a computer', async (
   const groups = page.locator('main [data-group^="rv-"]');
   if (info.project.name === 'phone') {
     await expect(groups).toHaveCount(4);
+    // Noah 14.10.2026 «a»: «Alle Kennzahlen» starts closed on a phone
+    await expect(page.locator('section.period .fold-btn')).toHaveAttribute('aria-expanded', 'false');
     for (const name of ['Trips compared', 'Last ride', 'Your pace', 'Learned|review']) {
       const head = page.getByRole('button', { name: new RegExp(`^${T(name)}`) });
       await expect(head).toHaveAttribute('aria-expanded', 'false');
@@ -141,6 +143,7 @@ test('Rückblick: closed lines on a phone, open sections on a computer', async (
     await expect(groups).toHaveCount(0);
     await expect(page.locator('#cmp-h')).toBeVisible();
     await expect(page.locator('#learn-h')).toBeVisible();
+    await expect(page.locator('section.period .fold-btn')).toHaveAttribute('aria-expanded', 'true');
   }
   await page.locator('main').evaluate(() => window.scrollTo(0, 0));
   await shot(page, info, 'UI-Teil2-Rueckblick', true);

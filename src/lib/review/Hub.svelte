@@ -102,7 +102,8 @@
   const counts = $derived(stats ? factCounts(stats.rows.filter((r) => r.kind === 'trip'), states) : { all: 0, done: 0, rated: 0 });
   const periodShort = $derived(mode === 'year' ? year : mode === 'all' ? t('All|period') : t('12 months'));
   const extraOf = (id) => stateExtraText(states[id]?.extra);
-  let allFigures = $state(true); // SN2 answer 2b (Noah 13.10.2026): the long table is open as before
+  // SN2 answer 2b (Noah 13.10.2026): the long table is open as before; 0.159.1 (Noah 14.10.2026 «a»): on a phone it starts closed
+  let allFigures = $state(!phone.matches);
   let allColumns = $state(false);
   let lastOpen = $state(false);
   // 0.159.1: the closed lines on a phone (all closed when the page opens)
