@@ -510,6 +510,7 @@ Noah hat diese vier Wünsche am 08.10.2026 als **zwingend umzusetzen** festgeleg
 
 ## Stand und nächste Pakete (8.10.2026)
 
+**Nachtrag 14.10.2026 (v0.126.0, Branch):** «Velo-Setup» nach UC3-1–UC3-3 (Mockup-Freigabe: UC3-1–UC3-3 «UC3-1-UC3-3 freigeben» Noah 14.10.2026 00:42 UTC, Antworten «1-5a» 00:34 UTC, Ausbau «1 ja 2 ja 3ja» 00:35 UTC): neuer Reiter Velos › Setup mit Mein Setup, Gesamtgewicht, Taschen-Plan pro Tour (`view=bags`), Setup-Logbuch (`view=log`), «Dein Velo im Vergleich», «Deine Rennen» und Galerie «Ideen von anderen». Ersetzt den Entwurf UC2-3.
 **Nachtrag 13.10.2026 (v0.125.0 «Tagespaket 13.10.»):** ein Release aus vier Paketen: Tages-Check Schritt 1+2 (#151), Aktiv ausweiten AK1–AK3 Woche/Sporttasche/Erholung (#150), Feinschliff A-J1 Werkstattbesuch, TZ-1 drei Tour-Zustände, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + Strava verbinden SV1 (#153).
 **Nachtrag 13.10.2026 (v0.125.0 Tagespaket):** «Tages-Check» Schritt 1 (Mockup-Freigabe: T1–T4 «ich gebe hiermit alle mockups frei» Noah 13.10.2026 16:17 UTC; gebaut T1–T2, T3–T4 folgen in Schritt 2): Morgen-Check und Abend-Rückblick als eigene Seiten unter Heute, Antworten in `flowChecks`, Meditation und Fahrten zählen von selbst. Schritt 2: Ring auf Heute (T3) und Fragen-Katalog (T4). Ziel «Eine App, die mich im Alltag unterstützt».
 **Nachtrag 13.10.2026 (v0.125.0 Tagespaket, Schritt 2):** «Tages-Check» Schritt 2 nach T3/T4 (Mockup-Freigabe: «T1–T4 freigegeben» Noah 13.10.2026): Balance-Ring der 9 Kategorien, Morgen-Check-Kachel und «Deine 15 Fragen» auf Heute, Fragen-Katalog mit Schaltern, Frage 15 am Sonntag, Tipp und langes Drücken für Kachelgrössen. Offen: Im-Flow-Ringe durch den grossen Ring ersetzen? (Frage an Noah), Beobachtungen nach 2 Wochen, Fitbit/Google.
@@ -711,6 +712,7 @@ Ganz geplant, gebaut erst nach allem oben.
 | 2.7 | 09.10.2026 | 0.61.0 R2 «Tempo + Logbuch» erledigt (Regel in einem Satz, eigene Regel ab 5 Fahrten mit Rückweg, Logbuch als Tagebuch aller Touren, Gelernt flach); Strava und Fotos bleiben geparkt |
 | 2.6 | 09.10.2026 | 0.63.0 «Material-Detail ruhig» erledigt (Klappzeilen, Alternativen-Vorschläge, «Auf dem Weg dahin») |
 | 2.7 | 09.10.2026 | 0.65.0 «Velo-Masse» erledigt |
+| 2.8 | 14.10.2026 | 0.126.0 «Velo-Setup» (UC3-1–UC3-3) gebaut, Nachtrag oben |
 | 2.6 | 09.10.2026 | 0.66.0 «Bausteine neu + Bausteine prüfen» erledigt |
 
 Die frühere gespeicherte Datei `2026-10-07-packgenerator-ablaufplan.md` wird als datierte Fassung dieses Gesamtplans weitergeführt. GitHub `docs/roadmap.md` ist die aktuelle Quelle. Historische Analysen und frühere Designs bleiben datierte Belege, keine parallelen Roadmaps.

@@ -22,6 +22,17 @@ export default {
   'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».': '+ (Neu) › Werkstattbesuch tippen: Die km und die letzte Werkstatt stehen auf einem grünen Feld mit «aus …».',
   'After the next update: Today shows a banner on top; tap × and it stays away.': 'Nach dem nächsten Update: Heute zeigt oben ein Banner; × tippen und es bleibt weg.',
 
+  // 0.126.0 Velo-Setup (mockups UC3-1 to UC3-3)
+  'Your setup, bag by bag': 'Dein Setup, Tasche für Tasche',
+  'Velos has a new tab «Setup»: photos, weight, a bag plan, a log and your race-rig links.': 'Velos hat einen neuen Reiter «Setup»: Fotos, Gewicht, ein Taschen-Plan, ein Logbuch und deine Rennrig-Links.',
+  'Setup per bike: your photos, the total weight and your own race-rig links with a drawn picture.': 'Setup pro Velo: deine Fotos, das Gesamtgewicht und deine eigenen Race-Rig-Links mit gezeichnetem Bild.',
+  'Bag plan: which bag sits where, weight front, middle and rear, and hints to move an item.': 'Taschen-Plan: welche Tasche wo sitzt, Gewicht vorne, Mitte und hinten, und Hinweise zum Umpacken.',
+  'Setup log: what you changed, the km since and how the first trip after it felt.': 'Setup-Logbuch: was du geändert hast, die km seither und wie sich die erste Tour danach angefühlt hat.',
+  'A workshop job that replaced a part asks «Into the log?»': 'Ein Werkstatt-Eintrag mit Teil-Wechsel fragt «Ins Logbuch?»',
+  '«Your bike compared»: your own rows, one tap sends a row to the inbox': '«Dein Velo im Vergleich»: deine eigenen Zeilen, ein Tipp schickt eine Zeile in den Eingang',
+  'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.': 'Öffne Velos › Setup: Fotos, Gesamtgewicht, Taschen-Plan, Logbuch, Vergleich, Rennen und Ideen von anderen.',
+  'Tap «Add link», paste a race-rig address and save: a card with a drawn picture appears.': 'Tippe auf «Link hinzufügen», füge eine Race-Rig-Adresse ein und speichere: Eine Karte mit gezeichnetem Bild erscheint.',
+  'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.': 'Tippe auf «Ganzer Taschen-Plan» und bei einem Hinweis auf «Verschieben»: Die Sache liegt in der anderen Tasche dieser Packliste.',
   // 0.123.0 Trophäen-Vitrine
   'All your stars in one showcase': 'Alle deine Sterne in einer Vitrine',
   'Every star you reached, by area and year, on one page. Reached ones stay.': 'Jeder Stern, den du erreicht hast, nach Bereich und Jahr auf einer Seite. Erreichte bleiben.',

@@ -16,6 +16,27 @@
 
 export const WHATS_NEW = [
   {
+    // v0.126.0 «Velo-Setup» (mockups UC3-1 to UC3-3, Noah 14.10.2026 «UC3-1-UC3-3 freigeben»)
+    version: '0.126.0',
+    date: '2026-10-14',
+    title: 'Your setup, bag by bag',
+    lead: 'Velos has a new tab «Setup»: photos, weight, a bag plan, a log and your race-rig links.',
+    points: [
+      { text: 'Setup per bike: your photos, the total weight and your own race-rig links with a drawn picture.', href: '#/bikes?tab=rig' },
+      { text: 'Bag plan: which bag sits where, weight front, middle and rear, and hints to move an item.', href: '#/bikes?tab=rig&view=bags' },
+      { text: 'Setup log: what you changed, the km since and how the first trip after it felt.', href: '#/bikes?tab=rig&view=log' },
+    ],
+    small: [
+      { box: 'new', text: 'A workshop job that replaced a part asks «Into the log?»', href: '#/bikes?tab=rig&view=log' },
+      { box: 'new', text: '«Your bike compared»: your own rows, one tap sends a row to the inbox', href: '#/bikes?tab=rig' },
+    ],
+    test: [
+      'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.',
+      'Tap «Add link», paste a race-rig address and save: a card with a drawn picture appears.',
+      'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.',
+      ],
+    },
+    {
     // v0.125.0 «Tagespaket 13.10.»: Tages-Check 1+2 (#151), Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152),
     // Werte überall + Strava verbinden WU1–WU4, SV1 (#153); mockups approved by Noah 13.10.2026 («ich gebe alle bild mockups frei»)
     version: '0.125.0',
