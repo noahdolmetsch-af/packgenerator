@@ -5,6 +5,9 @@
 import { test, expect } from '@playwright/test';
 import { tr } from './home0460-fixture.js';
 import { ready } from './settle.js';
+import { put } from './aktiv-fixture.js';
+import { camt054 } from '../fixtures/camt054.js';
+import { qrReference } from '../../src/lib/pay/qrbill.js';
 
 const T = tr('de');
 
@@ -79,4 +82,54 @@ test('write a QR invoice with TWINT, then mark it paid by amount and open it aga
   await page.getByRole('button', { name: T('Open {no} again').replace('{no}', 'R-0001') }).click();
   await expect(page.getByTestId('invoice-row').getByRole('button', { name: T('Paid'), exact: true })).toBeVisible();
   await expect(page.getByTestId('invoice-row').getByRole('button', { name: T('Paid + mail') })).toBeVisible();
+});
+
+// Step 1b (mockups QR2 + QR3 + QR8): a bank statement from the e-banking marks the recognised
+// invoices paid, asks about the payment without reference, and «Rückgängig» opens them again.
+test('upload a bank statement: recognised ones paid, the unclear one assigned, then undo', async ({ page }) => {
+  const inv = (seq, amount, extra = {}) => ({
+    id: `inv-${seq}`, seq, no: `R-000${seq}`, name: `Kunde ${seq}`, email: '', amount, purpose: `Stunde ${seq}`,
+    refType: 'QRR', ref: qrReference(`R-000${seq}`), ways: { qr: true, twint: true }, createdAt: `2026-10-0${seq}`, status: 'open', ...extra,
+  });
+  await put(page, { settings: [{ key: 'pay.invoices', value: [inv(1, 8000), inv(2, 500, { ref: '' }), inv(3, 8000), inv(4, 2500)] }] });
+  await page.goto('./#/me/pay/invoices');
+  await ready(page);
+  await expect(page.getByTestId('invoice-row')).toHaveCount(4);
+
+  const sw = page.getByRole('switch', { name: T('Reminder to check payments') });
+  await expect(sw).toHaveAttribute('aria-checked', 'true');
+
+  await page.locator('input[type=file][accept*=".xml"]').setInputFiles({ name: 'konto.xml', mimeType: 'application/xml', buffer: Buffer.from(camt054()) });
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Bank statement checked'));
+  await expect(page.locator('.st-res')).toContainText(T('{n} payments recognised', { n: 2 }));
+  await expect(page.locator('.st-res')).toContainText(T('{n} is unclear.', { n: 1 }));
+  await expect(page.locator('.st-ok')).toHaveCount(2);
+  await expect(page.locator('.st-ask')).toContainText('Noa Beispiel');
+  await expect(page.locator('.st-ask')).toContainText('Kunde 3');
+  await noSideways(page);
+
+  await page.getByRole('button', { name: T('Yes, assign') }).click();
+  await expect(page.locator('.st-ask')).toContainText(T('Assigned to {name}, {purpose}', { name: 'Kunde 3', purpose: 'Stunde 3' }));
+  const paid = () => page.evaluate(async () => {
+    const db = await new Promise((res) => { const r = indexedDB.open('pack-generator'); r.onsuccess = () => res(r.result); });
+    const row = await new Promise((res) => { const q = db.transaction('settings').objectStore('settings').get('pay.invoices'); q.onsuccess = () => res(q.result); });
+    db.close();
+    return row.value.filter((x) => x.status === 'paid').map((x) => x.no).sort();
+  });
+  await expect.poll(paid).toEqual(['R-0001', 'R-0002', 'R-0003']);
+
+  await page.getByRole('button', { name: T('Undo') }).click();
+  await expect.poll(paid).toEqual([]);
+  await page.getByRole('button', { name: T('To the invoices') }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Invoices'));
+  await expect(page.getByTestId('invoice-row')).toHaveCount(4);
+
+  // a file that is no camt is refused with a hint
+  await page.locator('input[type=file][accept*=".xml"]').setInputFiles({ name: 'liste.xml', mimeType: 'application/xml', buffer: Buffer.from('<x/>') });
+  await expect(page.getByRole('alert')).toContainText('camt');
+
+  // the Sunday reminder can be switched off
+  await sw.click();
+  await expect(sw).toHaveAttribute('aria-checked', 'false');
+  await expect(sw).toHaveText(T('off|switch'));
 });

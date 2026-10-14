@@ -59,7 +59,8 @@ export async function createInvoice(input, account, db = appDb) {
     const seqRow = await db.settings.get(NEXT_NO_KEY);
     const seq = Number(seqRow?.value) > 0 ? Number(seqRow.value) : 1;
     const no = invoiceNo(seq);
-    const { type, ref } = referenceFor(account?.iban ?? '', no);
+    // A bill made in the e-banking brings its own reference (uploaded QR code, step 1b).
+    const { type, ref } = input.ref ? { type: input.refType ?? 'QRR', ref: input.ref } : referenceFor(account?.iban ?? '', no);
     const inv = {
       id: crypto.randomUUID(),
       seq,
@@ -73,6 +74,7 @@ export async function createInvoice(input, account, db = appDb) {
       ways: { qr: input.ways?.qr !== false, twint: input.ways?.twint !== false && !!account?.twint },
       createdAt: localDay(),
       status: 'open',
+      ...(input.ref ? { from: 'ebanking' } : {}),
     };
     const list = await listInvoices(db);
     await saveAll(db, [inv, ...list]);
@@ -175,3 +177,72 @@ export function paidMail(inv, account, tr) {
 /** mailto: link (the mail program opens with the text filled in). */
 export const mailtoHref = (to, { subject, body }) =>
   `mailto:${encodeURIComponent(to ?? '')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+/* ---------- Step 1b: bank statement and the Sunday reminder (mockups QR3 + QR8) ---------- */
+
+export const REMIND_KEY = 'pay.remind';
+
+/** Mark several invoices paid at once (bank statement); returns the ids that changed. */
+export async function markManyPaid(ids, via = 'statement', db = appDb) {
+  return db.transaction('rw', db.settings, async () => {
+    const list = await listInvoices(db);
+    const changed = [];
+    for (const inv of list) {
+      if (ids.includes(inv.id) && inv.status === 'open') {
+        inv.status = 'paid';
+        inv.paidAt = localDay();
+        inv.paidVia = via;
+        changed.push(inv.id);
+      }
+    }
+    await saveAll(db, list);
+    return changed;
+  });
+}
+
+/** Open several again (undo of a statement check). */
+export async function markManyOpen(ids, db = appDb) {
+  return db.transaction('rw', db.settings, async () => {
+    const list = await listInvoices(db);
+    for (const inv of list) {
+      if (ids.includes(inv.id)) {
+        inv.status = 'open';
+        delete inv.paidAt;
+        delete inv.paidVia;
+      }
+    }
+    await saveAll(db, list);
+  });
+}
+
+/** The reminder setting: { on, lastCheck (ISO), snoozedDay (YYYY-MM-DD) }. On unless switched off. */
+export async function readReminder(db = appDb) {
+  const row = await db.settings.get(REMIND_KEY);
+  return { on: true, lastCheck: null, snoozedDay: null, ...(row?.value ?? {}) };
+}
+
+export async function writeReminder(patch, db = appDb) {
+  const now = await readReminder(db);
+  await db.settings.put({ key: REMIND_KEY, value: { ...now, ...patch } });
+}
+
+/** The last Sunday 18:00 (local time) at or before now. */
+export function lastSundayEvening(now = new Date()) {
+  const d = new Date(now);
+  d.setHours(18, 0, 0, 0);
+  d.setDate(d.getDate() - d.getDay());
+  if (d > now) d.setDate(d.getDate() - 7);
+  return d;
+}
+
+/**
+ * Is the Sunday card due? Only when on, when invoices are open, when no statement was checked since
+ * the last Sunday 18:00, and not snoozed for today («Später»).
+ */
+export function reminderDue(rem, openCount, now = new Date()) {
+  if (!rem?.on || !openCount) return false;
+  const since = lastSundayEvening(now);
+  if (rem.lastCheck && new Date(rem.lastCheck) >= since) return false;
+  if (rem.snoozedDay && rem.snoozedDay === localDay(now)) return false;
+  return now >= since;
+}

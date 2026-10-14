@@ -160,3 +160,88 @@ describe('the PDF', () => {
     offsets.forEach((o, i) => expect(text.slice(o, o + 7)).toBe(`${i + 1} 0 obj`));
   });
 });
+
+// ---------- Step 1b: bank statement, bill from the e-banking, Sunday reminder (mockups QR2, QR3, QR8) ----------
+import { isCamt, readCamt, matchPayments, namesInvoice, readQrPayload } from '../src/lib/pay/camt.js';
+import { markManyPaid, markManyOpen, readReminder, writeReminder, reminderDue, lastSundayEvening } from '../src/lib/pay/invoices.js';
+import { camt054 } from './fixtures/camt054.js';
+
+describe('the bank statement', () => {
+  it('reads the incoming payments of a camt.054, one line per payment', () => {
+    const xml = camt054();
+    expect(isCamt(xml)).toBe(true);
+    expect(isCamt('<html></html>')).toBe(false);
+    const pays = readCamt(xml);
+    expect(pays.map((p) => [p.amount, p.from])).toEqual([
+      [8000, 'Mia Beispiel'],
+      [500, 'Leo Muster'],
+      [8000, 'Noa Beispiel'],
+      [4000, 'Sara Test'],
+    ]);
+    expect(pays[0]).toMatchObject({ date: '2026-10-13', ref: qrReference('R-0001') });
+  });
+  it('finds the invoice number in a TWINT message', () => {
+    expect(namesInvoice('TWINT Mitteilung: r-0002', 'R-0002')).toBe(true);
+    expect(namesInvoice('R0317 danke', 'R-0317')).toBe(true);
+    expect(namesInvoice('R-03170', 'R-0317')).toBe(false);
+  });
+  it('recognises by reference and by message, suggests by amount, ignores the rest', () => {
+    const inv = (seq, amount, status = 'open', day = '2026-10-10') => ({ id: 'i' + seq, seq, no: 'R-000' + seq, ref: qrReference('R-000' + seq), amount, status, createdAt: day });
+    const list = [inv(1, 8000), inv(2, 500), inv(3, 8000, 'open', '2026-10-12'), inv(4, 8000, 'open', '2026-10-11'), inv(5, 9900, 'paid')];
+    const r = matchPayments(readCamt(camt054()), list);
+    expect(r.found.map((f) => [f.inv.no, f.how])).toEqual([
+      ['R-0001', 'ref'],
+      ['R-0002', 'text'],
+    ]);
+    expect(r.unclear).toHaveLength(1);
+    expect(r.unclear[0].pay.from).toBe('Noa Beispiel');
+    expect(r.unclear[0].suggest.no).toBe('R-0004'); // the oldest open one with the same amount
+    expect(r.ignored).toBe(1); // Sara's 40.00 matches nothing
+  });
+  it('marks many paid and opens them again', async () => {
+    const db = await freshDb();
+    const a = await createInvoice({ name: 'A', amount: 100, purpose: 'x' }, ACCOUNT, db);
+    const b = await createInvoice({ name: 'B', amount: 200, purpose: 'y' }, ACCOUNT, db);
+    expect(await markManyPaid([a.id, b.id], 'statement', db)).toEqual([b.id, a.id]);
+    expect((await listInvoices(db)).every((x) => x.status === 'paid' && x.paidVia === 'statement')).toBe(true);
+    await markManyOpen([a.id], db);
+    expect((await listInvoices(db)).find((x) => x.id === a.id).status).toBe('open');
+  });
+});
+
+describe('a bill from the e-banking', () => {
+  it('reads the fields of a Swiss QR code and keeps its reference in the list', async () => {
+    const text = payload(ACCOUNT, { amount: 4500, refType: 'QRR', ref: qrReference('777'), message: 'Velo-Service' });
+    const bill = readQrPayload(text);
+    expect(bill).toMatchObject({ iban: 'CH4431999123000889012', name: 'Beispiel Velo-Werkstatt', amount: 4500, refType: 'QRR', ref: qrReference('777'), message: 'Velo-Service' });
+    expect(readQrPayload('hello')).toBe(null);
+    const db = await freshDb();
+    const inv = await createInvoice({ name: 'Noa Beispiel', amount: bill.amount, purpose: bill.message, ref: bill.ref, refType: bill.refType, ways: { twint: false } }, null, db);
+    expect(inv).toMatchObject({ ref: qrReference('777'), refType: 'QRR', from: 'ebanking', no: 'R-0001' });
+  });
+});
+
+describe('the Sunday reminder', () => {
+  // Wednesday 14.10.2026, 10:00 local; the Sunday before is 11.10.2026
+  const wed = new Date(2026, 9, 14, 10, 0);
+  it('knows the last Sunday 18:00', () => {
+    expect(lastSundayEvening(wed)).toEqual(new Date(2026, 9, 11, 18, 0));
+    expect(lastSundayEvening(new Date(2026, 9, 18, 17, 0))).toEqual(new Date(2026, 9, 11, 18, 0));
+    expect(lastSundayEvening(new Date(2026, 9, 18, 18, 30))).toEqual(new Date(2026, 9, 18, 18, 0));
+  });
+  it('is due while invoices are open and nothing was checked since Sunday evening', () => {
+    expect(reminderDue({ on: true }, 2, wed)).toBe(true);
+    expect(reminderDue({ on: true }, 0, wed)).toBe(false);
+    expect(reminderDue({ on: false }, 2, wed)).toBe(false);
+    expect(reminderDue({ on: true, lastCheck: new Date(2026, 9, 12, 9, 0).toISOString() }, 2, wed)).toBe(false);
+    expect(reminderDue({ on: true, lastCheck: new Date(2026, 9, 11, 17, 0).toISOString() }, 2, wed)).toBe(true);
+    expect(reminderDue({ on: true, snoozedDay: '2026-10-14' }, 2, wed)).toBe(false);
+  });
+  it('keeps its setting in the settings table, on by default', async () => {
+    const db = await freshDb();
+    expect((await readReminder(db)).on).toBe(true);
+    await writeReminder({ on: false }, db);
+    await writeReminder({ snoozedDay: '2026-10-14' }, db);
+    expect(await readReminder(db)).toMatchObject({ on: false, snoozedDay: '2026-10-14' });
+  });
+});
