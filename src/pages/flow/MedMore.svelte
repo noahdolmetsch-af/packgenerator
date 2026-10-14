@@ -178,10 +178,8 @@
     const [s, c] = await Promise.all([db.settings.get(SG_KEY), db.settings.get(CHALLENGES_KEY)]);
     return { s: s?.value ?? null, list: challengesOf(c?.value) };
   });
-  const sg = $derived.by(() => {
-    const v = $sgQ?.s ?? {};
-    return { pick: v.pick ?? null, own: Array.isArray(v.own) ? v.own : [], ticks: v.ticks && typeof v.ticks === 'object' ? v.ticks : {} };
-  });
+  const sgOf = (v = {}) => ({ pick: v.pick ?? null, own: Array.isArray(v.own) ? v.own : [], ticks: v.ticks && typeof v.ticks === 'object' ? v.ticks : {} });
+  const sg = $derived(sgOf($sgQ?.s ?? {}));
   const chName = $derived(ch ? t('{n} min', { n: ch.target }) : null);
   const sgKeep = $derived([sg.pick, ...($sgQ?.list ?? []).filter((c) => c.area === 'med' && !c.stopped && !c.doneOn).map((c) => c.what)].filter(Boolean));
   const sgOptions = $derived([...new Set([...(chName ? [chName] : []), ...favArts.map(artName), ...sg.own, ...sgKeep])]);
@@ -198,11 +196,21 @@
     const n = name.trim().slice(0, 40);
     if (n) saveSg({ ...sg, own: [...new Set([...sg.own, n])].slice(0, 8), pick: n });
   }
+  // 0.133.0 (fix 14.10.): one tap at a time, toggled on the saved record (the live query lags behind,
+  // so a quick double tap ticked twice and the next tap could not take it back)
+  let sgTicking = false;
   async function tickSg() {
-    const next = { ...toggleTick(sg, sgPick, today), pick: sgPick };
-    await saveSg(next);
-    const r = stepChallenges(clist, { med: next }, today);
-    if (r.reached.length) await putSetting(db, CHALLENGES_KEY, r.list);
+    if (sgTicking) return;
+    sgTicking = true;
+    try {
+      const cur = sgOf((await db.settings.get(SG_KEY))?.value ?? {});
+      const next = { ...toggleTick(cur, sgPick, today), pick: sgPick };
+      await saveSg(next);
+      const r = stepChallenges(clist, { med: next }, today);
+      if (r.reached.length) await putSetting(db, CHALLENGES_KEY, r.list);
+    } finally {
+      sgTicking = false;
+    }
   }
   async function saveChallenge({ times, until }) {
     const next = running ? clist.map((c) => (c.id === running.id ? { ...c, times, until } : c)) : [...clist, newChallenge({ area: 'med', what: sgPick, times, until, today })];
