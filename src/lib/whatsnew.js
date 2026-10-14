@@ -16,6 +16,26 @@
 
 export const WHATS_NEW = [
   {
+    // v0.138.0 «Kamera-Knopf» (mockups K1–K4, Noah 14.10.2026 «K1–K4 freigegeben»; working number)
+    version: '0.138.0',
+    date: '2026-10-14',
+    title: 'Receipt photo in one tap',
+    lead: 'On the phone the camera for a receipt opens with one tap, wherever a receipt is added.',
+    points: [
+      { text: 'Bikes › Workshop › Log a workshop visit: «Photograph the receipt» opens the camera', href: '#/bikes?tab=shop' },
+      { text: 'Inbox › File as … Receipt: a note without a photo gets its receipt photo here', href: '#/inbox' },
+    ],
+    small: [
+      { box: 'new', text: 'New › Workshop visit: the note shows «Photograph the receipt» too' },
+      { box: 'nicer', text: '«Gallery» next to it still takes a photo from the phone; the computer keeps «Choose photo»' },
+    ],
+    test: [
+      'On the phone, open Bikes › Workshop › «Log a workshop visit» and tap «Photograph the receipt»: the camera opens.',
+      'Take the photo: it shows small in the window; save the visit.',
+      'Write a note «Workshop receipt: …» without a photo, then Inbox › File › Receipt: «Photograph the receipt» is there.',
+    ],
+  },
+  {
     // v0.131.0 «Daten einmal bereinigen» (Noah 14.10.2026 «1a», «2-5a»; nothing new on screen, so no mockups)
     version: '0.131.0',
     date: '2026-10-14',

@@ -65,6 +65,8 @@ Automatische Prüfungen bei jedem PR (Skill «packgenerator-einheitlich»), dami
 
 ### Noch umbauen
 
+14.10.2026 (v0.138.0 «Kamera-Knopf», Mockups K1–K4): neuer Baustein `src/lib/ui/PhotoPick.svelte` für Fotos (Handy: grüner Kameraknopf plus «Galerie», Computer: «Foto wählen»); er nutzt die bestehenden Knopfklassen `btn sm` und `btn sm hi`. Eingesetzt bei Werkstattbesuch, Notiz und «Ablegen als … Rechnungsbeleg»; die übrigen Fotostellen behalten ihren Knopf bis Noah entscheidet.
+
 14.10.2026 (v0.131.0 «Daten einmal bereinigen»): keine Änderung am Bildschirm, darum kein Audit; neu ist nur die Notiz «Gewichts-Prüfungen aus der Excel» auf der Notizen-Seite (bestehende Darstellung einer Notiz).
 
 Alle Dateien, die noch in `tests/guard-baseline.json` stehen (der Test druckt die Liste mit Zahlen, meist Schriftgrössen ohne Stufe). Nächste Ziele: Heute (`Home.svelte`, E1), die Tourseiten-Innereien (`Pack.svelte`, `PackDay.svelte`, `CalmPack.svelte`, `calm-pack.css`, `trip.css`, `Ride.svelte`, `Debrief.svelte`: Logik in 0.67 umgebaut, Schriftgrössen noch alt, Ziel Übergänge 2), die Dialoge (`QuickNote`, `NewSheet`, `TripDialog`, `ItemDialog`, `BikeDialog`: in 0.67 nur das Verhalten der Zurück-Taste, Ziel D3) und die älteren `src/lib/ui`-Teile (`Fold`, `Help`, `Lightbox`, `Profile`, `Seg`, `Sum`).

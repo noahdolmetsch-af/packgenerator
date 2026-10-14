@@ -239,7 +239,7 @@
     background: none;
     padding: 0;
     font: inherit;
-    font-size: 14px;
+    font-size: var(--fs-small);
     color: var(--ink);
     text-decoration: underline;
     cursor: pointer;

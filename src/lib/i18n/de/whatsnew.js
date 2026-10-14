@@ -4,6 +4,16 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.138.0 Kamera-Knopf
+  'Receipt photo in one tap': 'Belegfoto mit einem Tipp',
+  'On the phone the camera for a receipt opens with one tap, wherever a receipt is added.': 'Auf dem Handy geht die Kamera für einen Beleg mit einem Tipp auf, überall wo ein Beleg dazukommt.',
+  'Bikes › Workshop › Log a workshop visit: «Photograph the receipt» opens the camera': 'Velos › Werkstatt › Werkstattbesuch erfassen: «Beleg fotografieren» öffnet die Kamera',
+  'Inbox › File as … Receipt: a note without a photo gets its receipt photo here': 'Eingang › Ablegen als … Rechnungsbeleg: Eine Notiz ohne Foto bekommt hier ihr Belegfoto',
+  'New › Workshop visit: the note shows «Photograph the receipt» too': 'Neu › Werkstattbesuch: Die Notiz zeigt auch «Beleg fotografieren»',
+  '«Gallery» next to it still takes a photo from the phone; the computer keeps «Choose photo»': '«Galerie» daneben holt weiter ein Bild vom Telefon; am Computer bleibt «Foto wählen»',
+  'On the phone, open Bikes › Workshop › «Log a workshop visit» and tap «Photograph the receipt»: the camera opens.': 'Öffne auf dem Handy Velos › Werkstatt › «Werkstattbesuch erfassen» und tippe auf «Beleg fotografieren»: Die Kamera geht auf.',
+  'Take the photo: it shows small in the window; save the visit.': 'Mach das Foto: Es erscheint klein im Fenster; speichere den Besuch.',
+  'Write a note «Workshop receipt: …» without a photo, then Inbox › File › Receipt: «Photograph the receipt» is there.': 'Schreib eine Notiz «Werkstatt-Quittung: …» ohne Foto, dann Eingang › Ablegen › Rechnungsbeleg: «Beleg fotografieren» ist da.',
   // 0.131.0 Daten einmal bereinigen
   'Tidied up once': 'Mehr Ordnung',
   'Behind the scenes the app tidied up: old copies in your data moved into their new place, nothing got lost.': 'Im Hintergrund hat die App aufgeräumt: Alte Kopien in deinen Daten sind an ihren neuen Platz gezogen, nichts ging verloren.',
