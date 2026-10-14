@@ -879,6 +879,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
   - Selbst entschieden: Die Einführung kommt nach einem Update (bestehende Nutzer) oder über Ich › «Einführung der Startseite nochmals zeigen», nicht bei einer ganz neuen Installation; ihr Ende schliesst auch den alten Tipp zum langen Drücken. Der › im Kopf von «Im Flow» ist für Bildschirmleser verborgen, der Link «Im Flow ›» unten bleibt.
 - **Auch:** Doppeltipp-Schutz auf den Vorschlag-Kacheln in Aktiv › Aktivität und Meditation › Mehr (wie Heute in 0.131.1); die Zeile «Tagescheck» von 0.132.0 in «Was ist neu» führt zu «Wi gaht's?»; Favoriten-Kopf bricht am schmalen Handy um statt ein Wort zu trennen.
 
+## 14.10.2026: 0.132.1 «Langer Name passt»
+
+- Fehler von Noah 14.10.2026 18:41 UTC gemeldet, «BUG auf live version dringend»; gleiches Aussehen, darum ohne Mockup
+- **Ursache:** `.tally` in `Between.svelte` ist ein zentriertes Grid (max. 340 px); sein `<small>` hat `min-width: auto` und wird nie schmaler als das längste Wort. `overflow-wrap: break-word` allein senkt diese Mindestbreite nicht.
+- **Selbst entschieden:** eigenes kleines Update statt im Tipps-Paket, damit der Fix sofort live gehen kann (Koordination: Mein Überblick).
+
 ## 14.10.2026: 0.131.1 «Abhaken wieder abwählbar»
 
 - (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC)

@@ -21,6 +21,14 @@ export default {
   'Tiles show «Open ›», every activity a ••• button, a short intro shows Today once; on the phone the main buttons sit at the bottom': 'Kacheln zeigen «Öffnen ›», jede Aktivität einen Knopf •••, eine kurze Einführung zeigt Heute einmal; am Handy sitzen die wichtigsten Knöpfe unten',
   'Open Today: the short intro shows three steps; tap «Skip». Tap ••• on an activity: duration, place and stopwatch open.': 'Öffne Heute: Die kurze Einführung zeigt drei Schritte; tippe «Überspringen». Tippe ••• bei einer Aktivität: Dauer, Ort und Stoppuhr öffnen sich.',
 
+  // 0.132.1 Langer Name passt (Fehler behoben)
+  'Long names fit': 'Lange Namen passen',
+  'A long trip name no longer runs out of the box when a trip ends.': 'Ein langer Tourname läuft beim Tourende nicht mehr aus der Box.',
+  'On «Trip ended» a long trip name wraps inside the grey box': 'Bei «Tour beendet» bricht ein langer Tourname in der grauen Box um',
+  'Also on «All packed»: a name without spaces breaks inside the box': 'Auch bei «Alles gepackt»: Ein Name ohne Leerschläge bricht in der Box um',
+  'On a phone the name wraps over several lines, the page does not scroll sideways.': 'Am Handy bricht der Name über mehrere Zeilen um, die Seite scrollt nicht seitwärts.',
+  'Give a trip a very long name without spaces, end it: on «Trip ended» the name stays inside the grey box.': 'Gib einer Tour einen sehr langen Namen ohne Leerschläge und beende sie: Bei «Tour beendet» bleibt der Name in der grauen Box.',
+
   // 0.132.0 Tagespaket (with the content of 0.125.0, which never went live): Tages-Check, Aktiv, Werte, Tour-Zustand, Velo-Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen, Kleine Apps
   'Lots of new things at once': 'Viel Neues auf einmal',
   'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.': 'Ein grösseres Update in einem Rutsch: ein Tagescheck, eine Woche in Aktiv, dein Velo-Setup, eine klügere Suche und kleine Apps.',
