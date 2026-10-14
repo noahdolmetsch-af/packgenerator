@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.133.1 Handbuch und Kleine Apps
+  'A handbook and small apps': 'Ein Handbuch und kleine Apps',
+  'Under Me you now find how every function is switched on, and the small apps with their own icon.': 'Unter Ich steht jetzt, wie du jede Funktion aufschaltest, und die kleinen Apps mit eigenem Symbol.',
+  'Handbook: every function with how to switch it on, the steps and an example': 'Handbuch: jede Funktion mit Aufschalten, den Schritten und einem Beispiel',
+  'Small apps: open Meditation, Packing list or Bike care as their own app, same data': 'Kleine Apps: Meditation, Packliste oder Velopflege als eigene App öffnen, gleiche Daten',
+  '«Take me there» in the handbook opens the function right away': '«Hinbringen» im Handbuch öffnet die Funktion gleich',
+  'Open Me › Handbook: all functions stand folded; tap one: steps, an example and «Take me there».': 'Öffne Ich › Handbuch: Alle Funktionen stehen zugeklappt; tippe auf eine: Schritte, ein Beispiel und «Hinbringen».',
+  'Open Me › Small apps, tap «Open» on Meditation: the small app shows only its tabs and «Whole app».': 'Öffne Ich › Kleine Apps, tippe bei Meditation auf «Öffnen»: Die kleine App zeigt nur ihre Reiter und «Ganze App».',
+
   // 0.133.0 Design-Refresh (Begrüssung, «Wi gaht's?», komoot, ruhigere Seiten, Bedienung)
   'A greeting and your questions': 'Ein Gruss und deine Fragen',
   'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.': 'Heute begrüsst dich mit Namen, «Wi gaht\'s?» stellt deine Fragen in einer Morgen- und einer Abend-Runde, und viele Seiten sind ruhiger.',

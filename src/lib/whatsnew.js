@@ -16,6 +16,22 @@
 
 export const WHATS_NEW = [
   {
+    // v0.133.1 «Handbuch und Kleine Apps» (mockup HB2, Noah 14.10.2026 «1b 2b», «hb freigeben»)
+    version: '0.133.1',
+    date: '2026-10-14',
+    title: 'A handbook and small apps',
+    lead: 'Under Me you now find how every function is switched on, and the small apps with their own icon.',
+    points: [
+      { text: 'Handbook: every function with how to switch it on, the steps and an example', href: '#/me/handbook' },
+      { text: 'Small apps: open Meditation, Packing list or Bike care as their own app, same data', href: '#/me/apps' },
+    ],
+    small: [{ box: 'new', text: '«Take me there» in the handbook opens the function right away', href: '#/me/handbook' }],
+    test: [
+      'Open Me › Handbook: all functions stand folded; tap one: steps, an example and «Take me there».',
+      'Open Me › Small apps, tap «Open» on Meditation: the small app shows only its tabs and «Whole app».',
+    ],
+  },
+  {
     // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
     // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
     version: '0.133.0',
