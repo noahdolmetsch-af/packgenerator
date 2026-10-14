@@ -4,6 +4,16 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.131.0 Daten einmal bereinigen
+  'Tidied up once': 'Einmal aufgeräumt',
+  'Behind the scenes the app tidied up: old copies in your data moved into their new place, nothing got lost.': 'Im Hintergrund hat die App aufgeräumt: Alte Kopien in deinen Daten sind an ihren neuen Platz gezogen, nichts ging verloren.',
+  'The weight checks from the Excel are a note now: Notes › «Weight checks from the Excel».': 'Die Gewichts-Prüfungen aus der Excel sind jetzt eine Notiz: Notizen › «Gewichts-Prüfungen aus der Excel».',
+  'Old kits, old block marks and «On every trip» live in your building blocks; the old copies are gone.': 'Alte Kits, alte Baustein-Marken und «Auf jeder Tour» stecken in deinen Bausteinen; die alten Kopien sind weg.',
+  'Before tidying up, the app keeps a full copy of your data on this device': 'Vor dem Aufräumen behält die App eine ganze Kopie deiner Daten auf diesem Gerät',
+  'The order of your bikes and their extra names are part of your data now': 'Die Reihenfolge deiner Velos und ihre Zusatznamen gehören jetzt zu deinen Daten',
+  'Download a backup first: Ich › Daten › Backup.': 'Lade zuerst ein Backup herunter: Ich › Daten › Backup.',
+  'Open Notes: the note «Weight checks from the Excel» lists the weights from the Excel.': 'Öffne Notizen: Die Notiz «Gewichts-Prüfungen aus der Excel» zeigt die Gewichte aus der Excel.',
+  'Open Material and Bausteine: everything is in the same blocks as before; a new trip packs the same list.': 'Öffne Material und Bausteine: Alles ist in denselben Bausteinen wie vorher; eine neue Tour packt dieselbe Liste.',
   // 0.123.0 Trophäen-Vitrine
   'All your stars in one showcase': 'Alle deine Sterne in einer Vitrine',
   'Every star you reached, by area and year, on one page. Reached ones stay.': 'Jeder Stern, den du erreicht hast, nach Bereich und Jahr auf einer Seite. Erreichte bleiben.',

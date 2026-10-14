@@ -1130,3 +1130,11 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Selbst entschieden:** Eine Fahrt, die als Datei und als Strava-Eintrag da ist, zählt einmal als Datei (gleiche Regel wie beim Puls: gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Offene Fahrten in «Zum Prüfen» zählen erst nach «Passt». Der Aktiv-Untertitel heisst jetzt «aus deinen Fahrten und Strava».
 - **Bewusst nicht:** keine sichtbare Unterscheidung «geplant / abgeschlossen / bewertet» in diesem Release; das kommt nach Spezifikation und Mockups aus dem Design-Refresh (Noah 13.10.2026).
 
+## 14.10.2026: Daten einmal bereinigen (0.131.0)
+
+- **Persönliches raus aus dem Code (Noah 1a):** Echte Velos, km, Gewichte, Taschen und Gegenstände von Noah stehen nicht mehr im öffentlichen Code. Die einmaligen Umzüge dafür waren auf seinen Daten schon gelaufen und sind entfernt; eine Sicherung liegt privat. Der Import aus Noahs Excel bleibt als Werkzeug für genau diese Datei.
+- **Nur unsichtbar aufräumen (2a):** Das neutrale Standard-Paket baut der Thread «Persönlich und Standard-Profil».
+- **Alte Felder umziehen und löschen, mit Sicherung (3a):** `cleanup.js` macht vor der ersten Änderung eine Kopie aller Daten in `meta`; Kits und Gewichts-Prüfungen sind danach leer (die Tabellen bleiben im Schema, damit alte Backups aufgehen), `role` kennt nur noch «worn», `always` gibt es nicht mehr.
+- **Bereiche jetzt vereinheitlichen (4a):** Alles pro Bereich steht in `domains.js` (`DOMAINS`); «Sportarten neu» ergänzt dort später Einträge.
+- **Aufräumen zuerst (5a):** Die anderen Threads haben pausiert, bis dieser PR steht.
+- **Selbst entschieden:** Die Gewichts-Prüfungen aus der Excel werden eine Notiz (keine Seite zeigte sie); die Velo-Reihenfolge ist das Feld `bike.order` (gleiche Reihenfolge wie vorher); die Tabellen `kits` und `weightChecks` bleiben leer im Schema statt gelöscht zu werden (keine neue Datenbank-Version, kein Konflikt mit Version 9 aus «Wi gaht's?» und Strava Training).
