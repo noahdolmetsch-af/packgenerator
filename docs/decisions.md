@@ -1270,6 +1270,12 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Aufräumen zuerst (5a):** Die anderen Threads haben pausiert, bis dieser PR steht.
 - **Selbst entschieden:** Die Gewichts-Prüfungen aus der Excel werden eine Notiz (keine Seite zeigte sie); die Velo-Reihenfolge ist das Feld `bike.order` (gleiche Reihenfolge wie vorher); die Tabellen `kits` und `weightChecks` bleiben leer im Schema statt gelöscht zu werden (keine neue Datenbank-Version, kein Konflikt mit Version 9 aus «Wi gaht's?» und Strava Training).
 
+## 14.10.2026: Kamera-Knopf bei Belegen (0.131.3)
+
+- **Bei Belegen immer die Kamera** (Noah 14.10.2026 «bei belegen immer», Mockups K1–K4 «freigegeben»): Überall, wo ein Beleg dazukommt, steht auf dem Handy «Beleg fotografieren» (öffnet die Kamera direkt) und «Galerie». Am Computer (keine grobe Zeigereingabe) bleibt ein Knopf «Foto wählen», weil der Browser dort ohnehin den Dateidialog zeigt.
+- **Gebaut wie im Mockup:** Die vier Zusatzfragen (Knopf-Look, auch andere Fotostellen, Kamera von selbst, «Weitere Seite») hat Noah offen gelassen; gebaut ist genau, was K1–K4 zeigen. Die Fragen bleiben für später offen.
+- **Selbst entschieden:** Eine Notiz ohne Foto bekommt beim Ablegen als Rechnungsbeleg die Zeile «Foto der Quittung», damit der Beleg nie ohne Foto bleibt. Die Liste «Zu zahlen» (Bezahlfunktion) übernimmt die Komponente `PhotoPick` selbst.
+
 ## 14.10.2026: Velo-Reihenfolge (0.131.2)
 
 - **Reihenfolge der Velos (Noah 13.10.2026 «1a», Thread «Velo-Standard»):** zuerst das neue MTB, dann das Gravelbike, das Hardtail, das Fully. 0.131.0 hatte `bike.order` noch in der alten Reihenfolge aus dem Code geschrieben (Hardtail zuerst).

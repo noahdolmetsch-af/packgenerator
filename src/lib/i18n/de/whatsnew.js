@@ -28,6 +28,17 @@ export default {
   'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.': 'Öffne Ich › Darstellung › Bedienung: «Hoher Kontrast (draussen)» einschalten, wählen, wo die App öffnet.',
   'Open Me › Payments: it explains what is prepared; nothing is locked and no money moves.': 'Öffne Ich › Bezahlen: Es erklärt, was vorbereitet ist; nichts ist gesperrt und es fliesst kein Geld.',
 
+  // 0.131.3 Kamera-Knopf
+  'Receipt photo in one tap': 'Belegfoto mit einem Tipp',
+  'On the phone the camera for a receipt opens with one tap, wherever a receipt is added.': 'Auf dem Handy geht die Kamera für einen Beleg mit einem Tipp auf, überall wo ein Beleg dazukommt.',
+  'Bikes › Workshop › Log a workshop visit: «Photograph the receipt» opens the camera': 'Velos › Werkstatt › Werkstattbesuch erfassen: «Beleg fotografieren» öffnet die Kamera',
+  'Inbox › File as … Receipt: a note without a photo gets its receipt photo here': 'Eingang › Ablegen als … Rechnungsbeleg: Eine Notiz ohne Foto bekommt hier ihr Belegfoto',
+  'New › Workshop visit: the note shows «Photograph the receipt» too': 'Neu › Werkstattbesuch: Die Notiz zeigt auch «Beleg fotografieren»',
+  '«Gallery» next to it still takes a photo from the phone; the computer keeps «Choose photo»': '«Galerie» daneben holt weiter ein Bild vom Telefon; am Computer bleibt «Foto wählen»',
+  'On the phone, open Bikes › Workshop › «Log a workshop visit» and tap «Photograph the receipt»: the camera opens.': 'Öffne auf dem Handy Velos › Werkstatt › «Werkstattbesuch erfassen» und tippe auf «Beleg fotografieren»: Die Kamera geht auf.',
+  'Take the photo: it shows small in the window; save the visit.': 'Mach das Foto: Es erscheint klein im Fenster; speichere den Besuch.',
+  'Write a note «Workshop receipt: …» without a photo, then Inbox › File › Receipt: «Photograph the receipt» is there.': 'Schreib eine Notiz «Werkstatt-Quittung: …» ohne Foto, dann Eingang › Ablegen › Rechnungsbeleg: «Beleg fotografieren» ist da.',
+
   // 0.131.2 Velo-Reihenfolge
   'Bikes back in line': 'Velos wieder in Reih und Glied',
   'The bike tabs follow the order you chose again.': 'Die Velo-Reiter folgen wieder deiner Reihenfolge.',
