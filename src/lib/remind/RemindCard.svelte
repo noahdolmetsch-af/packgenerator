@@ -255,8 +255,11 @@
   }
   .solo {
     flex-direction: row;
-    width: min(420px, calc(100vw - 32px));
+    flex-wrap: wrap;
+    width: auto;
+    max-width: calc(100vw - 32px);
     padding: 6px 14px;
+    white-space: nowrap;
   }
   @media (max-width: 719px) {
     .rmc {
