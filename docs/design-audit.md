@@ -65,6 +65,7 @@ Automatische Prüfungen bei jedem PR (Skill «packgenerator-einheitlich»), dami
 
 ### Noch umbauen
 
+14.10.2026 (v0.131.3 «Kamera-Knopf», Mockups K1–K4): neuer Baustein `src/lib/ui/PhotoPick.svelte` für Fotos (Handy: grüner Kameraknopf plus «Galerie», Computer: «Foto wählen»); er nutzt die bestehenden Knopfklassen `btn sm` und `btn sm hi`. Eingesetzt bei Werkstattbesuch, Notiz und «Ablegen als … Rechnungsbeleg»; die übrigen Fotostellen behalten ihren Knopf bis Noah entscheidet.
 14.10.2026 (v0.131.2 «Velo-Reihenfolge»): nur die Reihenfolge der bestehenden Velo-Reiter ändert, darum kein Audit.
 
 14.10.2026 (v0.131.0 «Daten einmal bereinigen»): keine Änderung am Bildschirm, darum kein Audit; neu ist nur die Notiz «Gewichts-Prüfungen aus der Excel» auf der Notizen-Seite (bestehende Darstellung einer Notiz).

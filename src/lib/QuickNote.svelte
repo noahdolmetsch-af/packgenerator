@@ -14,6 +14,7 @@
   import { nextTrip } from './debrief.js';
   import { sortBikes } from './bikes.js';
   import { shrinkImage } from './photo.js';
+  import PhotoPick from './ui/PhotoPick.svelte';
   import { t } from './i18n.svelte.js';
 
   // v0.25.1 (Noah 3a): prefillBike = "Note on a bike" from Today, the bike already chosen.
@@ -56,10 +57,7 @@
     }
   });
 
-  async function addPhoto(event) {
-    const file = event.currentTarget.files[0];
-    event.currentTarget.value = '';
-    if (!file) return;
+  async function addPhoto(file) {
     reading = true;
     msg = '';
     try {
@@ -178,7 +176,7 @@
     <!-- svelte-ignore a11y_autofocus -->
     <textarea class="inp" bind:value={text} rows="4" placeholder={t('e.g. Rear brake squeaks on the Spark')} aria-label={t('Note')} autofocus></textarea>
     <div class="row">
-      <label class="btn sm">{reading ? t('Reading…') : photo ? t('Other photo') : `+ ${t('Photo')}`}<input type="file" accept="image/*" onchange={addPhoto} hidden disabled={reading} /></label>
+      <PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera={text.startsWith(t('Workshop receipt: ')) ? 'Photograph the receipt' : 'Take photo'} />
       {#if photo}<img class="th" src={photo} alt={t('Photo of the note')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
     </div>
     <p class="ctx">
