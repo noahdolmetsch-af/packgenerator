@@ -103,7 +103,7 @@ describe('SN4g filters FL1–FL8', () => {
     expect(sameFilter({ wx: ['rain'] }, { wx: ['rain'], watts: true })).toBe(false);
     // the page record: broken entries are dropped, the band is shown unless hidden
     expect(toursOf({ saved: [{ id: 'x', name: '' }, { id: 'y', name: 'Ok', f: { wx: ['rain'] } }], band: 'hidden' })).toMatchObject({ saved: [{ id: 'y', name: 'Ok' }], band: 'hidden' });
-    expect(toursOf(null)).toEqual({ saved: [], band: null });
+    expect(toursOf(null)).toEqual({ saved: [], actSaved: [], band: null });
   });
 });
 

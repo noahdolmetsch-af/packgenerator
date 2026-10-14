@@ -2,10 +2,11 @@
 import { describe, it, expect } from 'vitest';
 import { tourRows, actRow, fieldsOf, FIELDS, PAGE, inPeriodRows, sportCounts, byMonth, zoneParts, bikeMap, stravaOfTrip } from '../src/lib/touren/aktivitaeten.js';
 import { actRecord, DEFAULT_BOUNDS } from '../src/lib/training.js';
+import { emptyActFilter, normActFilter, filterActs, actChoiceCounts, actChips, withoutActChip, sameActFilter, saveActFilter, actSavedOf } from '../src/lib/touren/actfilter.js';
 
 // fictional activities, as the store keeps them (training.js actRecord) plus the detail fields
 const act = (id, day, o = {}) => ({
-  ...actRecord({ id, startLocal: `${day}T${o.time ?? '08:00'}:00`, name: o.name ?? `Fahrt ${id}`, type: o.type ?? 'Ride', km: o.km ?? 40, hm: o.hm ?? 500, movingS: o.movingS ?? 7200, elapsedS: o.elapsedS ?? 8000, hrAvg: o.hrAvg ?? 130, hrMax: o.hrMax ?? 165, cad: o.cad ?? 85, spdAvg: o.spdAvg ?? 20, spdMax: o.spdMax ?? 50, wAvg: o.wAvg ?? null, wMax: o.wMax ?? null, wDevice: o.wDevice ?? false, wNorm: o.wNorm ?? null }),
+  ...actRecord({ id, startLocal: `${day}T${o.time ?? '08:00'}:00`, name: o.name ?? `Fahrt ${id}`, type: o.type ?? 'Ride', km: o.km ?? 40, hm: o.hm ?? 500, movingS: o.movingS ?? 7200, elapsedS: o.elapsedS ?? 8000, hrAvg: o.hrAvg ?? 130, hrMax: o.hrMax ?? 165, cad: o.cad ?? 85, spdAvg: o.spdAvg ?? 20, spdMax: o.spdMax ?? 50, wAvg: o.wAvg ?? null, wMax: o.wMax ?? null, wDevice: o.wDevice ?? false, wNorm: o.wNorm ?? null, commute: o.commute ?? false }),
   ...(o.hist ? { hist: o.hist } : {}),
   ...(o.w20 ? { w20: o.w20 } : {}),
 });
@@ -109,5 +110,39 @@ describe('AT1 list (answer 4b)', () => {
     const t1 = trip('t1', '2026-10-06');
     expect(stravaOfTrip(t1, [act('1', '2026-10-06', { name: 'Napf' })])).toEqual({ n: 1, name: 'Napf' });
     expect(stravaOfTrip(t1, [])).toEqual({ n: 0, name: '' });
+  });
+});
+
+describe('AT1 part 2: the filter of the activities', () => {
+  const rows = tourRows(
+    [act('1', '2026-10-01', { wDevice: true, wNorm: 200, km: 80, hm: 1200 }), act('2', '2026-10-02', { commute: true, km: 9, hm: 50 }), act('3', '2026-10-03', { km: 45, hm: 400 })],
+    { kmBook: [{ stravaId: '1', bikeId: 'road' }, { stravaId: '2', bikeId: 'city' }] },
+  );
+  const ids = (f) => filterActs(rows, f).map((r) => r.id);
+
+  it('bike, commute, distance, climbing and power meter; fields together «and»', () => {
+    expect(ids(emptyActFilter())).toEqual(['a:3', 'a:2', 'a:1']);
+    expect(ids({ bikes: ['road', 'city'] })).toEqual(['a:2', 'a:1']);
+    expect(ids({ commute: 'without' })).toEqual(['a:3', 'a:1']);
+    expect(ids({ commute: 'only' })).toEqual(['a:2']);
+    expect(ids({ km: [40, null] })).toEqual(['a:3', 'a:1']);
+    expect(ids({ hm: [null, 500] })).toEqual(['a:3', 'a:2']);
+    expect(ids({ watts: true })).toEqual(['a:1']);
+    expect(ids({ commute: 'without', km: [null, 50] })).toEqual(['a:3']);
+  });
+
+  it('counts, chips to tap away, saved filters', () => {
+    expect(actChoiceCounts(rows)).toEqual({ bikes: { road: 1, city: 1 }, commute: { all: 3, without: 2, only: 1 }, watts: 1 });
+    const f = normActFilter({ bikes: ['road'], commute: 'without', km: [40, null], watts: true });
+    const chips = actChips(f, { road: 'Rennrad' });
+    expect(chips.map((c) => c.id)).toEqual(['bike:road', 'commute', 'km', 'watts']);
+    expect(chips[0].vars).toEqual({ name: 'Rennrad' });
+    expect(withoutActChip(f, chips[1]).commute).toBe('all');
+    expect(sameActFilter(f, { ...f, bikes: ['road'] })).toBe(true);
+    expect(normActFilter({ commute: 'nonsense', km: ['x', -1] })).toEqual(emptyActFilter());
+    const saved = saveActFilter([], 'Ohne Arbeitsweg', { commute: 'without' }, 'x1');
+    expect(saveActFilter(saved, 'ohne arbeitsweg', { commute: 'only' }, 'x2')).toEqual([{ id: 'x1', name: 'ohne arbeitsweg', f: normActFilter({ commute: 'only' }) }]);
+    expect(saveActFilter(saved, 'Leer', emptyActFilter())).toBe(saved);
+    expect(actSavedOf([{ id: 'a', name: ' ' }, ...saved])).toEqual(saved);
   });
 });

@@ -76,6 +76,8 @@ export function actRow(a, { bounds = null, ftp = null, bikeOf = () => null } = {
     w20: power ? fin(a.w20) : null,
     tss: power ? powerLoad(a, ftp)?.load ?? null : null,
     zones: bounds ? zoneSecs(a.hist, bounds) : null,
+    commute: !!a.commute,
+    power,
     pm: null,
   };
 }
@@ -122,6 +124,8 @@ export function mergeRows(rows, trip) {
     w20: max(list, 'w20'),
     tss: sum(list, 'tss'),
     zones,
+    commute: list.every((r) => r.commute),
+    power: list.some((r) => r.power),
     pm: null,
   };
 }

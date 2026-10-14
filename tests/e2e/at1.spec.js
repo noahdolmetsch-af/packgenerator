@@ -4,7 +4,8 @@
 //    (was «App-Touren»); a ride of a Packmodus trip shows once, with the mark, a multi-day trip is one row;
 // b) the values Noah named, 1a TSS only with a power meter, 2a the zones as a bar with min and %, 3b a run,
 //    a hike and yoga only with the values that fit;
-// c) the sport chips and the period; 4b the newest 20, «Mehr laden» shows 20 more.
+// c) the sport chips and the period; 4b the newest 20, «Mehr laden» shows 20 more;
+// d) part 2: «Filter» of the activities (bike, commute, distance, climbing, power meter), «Meine Filter».
 import { test, expect } from '@playwright/test';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -19,9 +20,9 @@ const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
 };
-const shot = async (page, info, name) => {
+const shot = async (page, info, name, fullPage = true) => {
   mkdirSync(SHOTS, { recursive: true });
-  await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
+  await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage });
 };
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 
@@ -155,5 +156,53 @@ test('c) sport chips and period; 4b: the newest 20, «Mehr laden» shows more', 
   await expect(acts(page).locator(`[data-act-row="a:${A}7"]`)).toBeVisible();
   await noSideways(page);
   await shot(page, info, 'AT1-touren-mehr');
+  expect(errors).toEqual([]);
+});
+
+test('d) part 2 «Filter»: commute, power meter, the chips to tap away, a saved filter under «Meine Filter»', async ({ page, context }, info) => {
+  const { errors } = await start(page, context, info);
+  const list = acts(page).locator('[data-act-row]');
+  await expect(list).toHaveCount(7);
+  const open = acts(page).locator('[data-act-filter-open]');
+  const sheet = page.locator('dialog[data-act-filter-sheet]');
+  // «Ohne Arbeitsweg»: the number on the button before it is applied, then one chip
+  await open.click();
+  await expect(sheet).toBeVisible();
+  await sheet.locator('[data-fs="AF2"] button[data-key="without"]').click();
+  await expect(sheet.locator('[data-apply]')).toHaveText(T('Show {n} activities', { n: 6 }));
+  await shot(page, info, 'AT1-filter', false);
+  // save it under a name, then apply
+  await sheet.locator('[data-save-name]').fill('Ohne Arbeitsweg');
+  await sheet.locator('[data-save]').click();
+  await expect(sheet.locator('.saved li')).toHaveText(['Ohne Arbeitsweg']);
+  await sheet.locator('[data-apply]').click();
+  await expect(sheet).toHaveCount(0);
+  await expect(list).toHaveCount(6);
+  await expect(acts(page).locator(`[data-act-row="a:${A}2"]`)).toHaveCount(0);
+  await expect(acts(page).locator('[data-act-filter-n]')).toHaveText('1');
+  const chip = acts(page).locator('[data-act-active-filters] [data-chip="commute"]');
+  await expect(chip).toHaveText(T('Without commute'));
+  const mine = acts(page).locator('[data-act-my-filters] [data-saved="Ohne Arbeitsweg"]');
+  await expect(mine).toHaveAttribute('aria-pressed', 'true');
+  await noSideways(page);
+  await shot(page, info, 'AT1-filter-aktiv');
+  // a tap on the chip takes it away; the saved filter stays after a reload and sets it again with one tap
+  await chip.click();
+  await expect(list).toHaveCount(7);
+  await page.reload();
+  await expect(mine).toHaveAttribute('aria-pressed', 'false');
+  await mine.click();
+  await expect(list).toHaveCount(6);
+  await acts(page).locator('[data-act-active-filters] [data-clear-filters]').click();
+  await expect(list).toHaveCount(7);
+  // only with a power meter: the one ride with watts
+  await open.click();
+  await sheet.locator('[data-watts]').check();
+  await expect(sheet.locator('[data-apply]')).toHaveText(T('Show {n} activity', { n: 1 }));
+  await sheet.locator('[data-apply]').click();
+  await expect(list).toHaveCount(1);
+  await expect(list.first()).toHaveAttribute('data-act-row', `a:${A}1`);
+  // the filters of the Packmodus stay its own
+  await expect(page.locator('section[data-packmode] [data-active-filters]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

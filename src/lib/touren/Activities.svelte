@@ -7,7 +7,10 @@
    * with min and % (2a). An activity of a trip packed in the app carries «Packmodus: <trip>» with its state;
    * several activities of one such trip are one row. The newest 20 show, «Mehr laden» adds 20 (4b). Rating
    * stays in the Packmodus (4b of the first round). Only to look at, no rating.
-   * rows: tourRows (aktivitaeten.js); bikes; today; periodOf: rueckblick.js periodOf.
+   * Part 2: «Filter» (ActFilterSheet.svelte, actfilter.js) beside the sport chips, the active filters as
+   * chips to tap away, the saved ones as «Meine Filter» above the list.
+   * rows: tourRows (aktivitaeten.js); bikes; today; periodOf: rueckblick.js periodOf; saved: the saved
+   * filters; onsave(name, filter); ondrop(id).
    */
   import { t, tn, num } from '../i18n.svelte.js';
   import Seg from '../ui/Seg.svelte';
@@ -19,10 +22,12 @@
   import { FIELD_HELP } from '../daumen.js'; // FE14: a difficult value explains itself
   import { typeKey, KIND_NAMES } from '../training.js';
   import { PAGE, fieldsOf, inPeriodRows, sportCounts, byMonth, zoneParts } from './aktivitaeten.js';
+  import { emptyActFilter, normActFilter, filterActs, actChips, withoutActChip, sameActFilter } from './actfilter.js';
+  import ActFilterSheet from './ActFilterSheet.svelte';
   import { n0, n1, hours, dates, monthLong, DASH } from '../review/fmt.js';
-  import { ChevronRight, Tag, ArrowRight, Bike, Backpack, HeartPulse, Info, Activity } from '@lucide/svelte';
+  import { ChevronRight, Tag, ArrowRight, Bike, Backpack, HeartPulse, Info, Activity, SlidersHorizontal, Bookmark, X, Search } from '@lucide/svelte';
 
-  let { rows = [], bikes = [], today, periodOf, connected = true } = $props();
+  let { rows = [], bikes = [], today, periodOf, connected = true, saved = [], onsave, ondrop } = $props();
 
   let mode = $state('12m');
   let kind = $state('all');
@@ -34,11 +39,17 @@
   ]);
   const inPeriod = $derived(inPeriodRows(rows, periodOf(mode, today)));
   const chips = $derived(sportCounts(inPeriod));
-  const list = $derived(kind === 'all' ? inPeriod : inPeriod.filter((r) => (r.kind in KIND_NAMES ? r.kind : 'other') === kind));
+  const ofKind = $derived(kind === 'all' ? inPeriod : inPeriod.filter((r) => (r.kind in KIND_NAMES ? r.kind : 'other') === kind));
+  let filter = $state(emptyActFilter());
+  let sheet = $state(false);
+  const list = $derived(filterActs(ofKind, filter));
   const groups = $derived(byMonth(list.slice(0, shown)));
   const bikeName = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
   const setMode = (v) => ((mode = v), (shown = PAGE));
   const setKind = (k) => ((kind = k), (shown = PAGE));
+  const setFilter = (f) => ((filter = normActFilter(f)), (shown = PAGE));
+  const fchips = $derived(actChips(filter, bikeName));
+  const setSaved = (x) => setFilter(sameActFilter(filter, x.f) ? emptyActFilter() : x.f);
 
   /** The label, the value and the unit of each field. */
   const secs = (s) => hours(s ? s / 3600 : null);
@@ -77,10 +88,26 @@
         </button>
       {/each}
     </div>{/if}
+    {#if rows.length}<button type="button" class="btn k fbtn" aria-haspopup="dialog" onclick={() => (sheet = true)} data-act-filter-open><SlidersHorizontal size={17} aria-hidden="true" /><span class="kl">{t('Filter')}</span>{#if fchips.length}<span class="fn num" data-act-filter-n>{fchips.length}</span>{/if}</button>{/if}
   </div>
+  {#if saved.length}
+    <div class="mine" role="group" aria-label={t('My filters')} data-act-my-filters>
+      <span class="al"><Bookmark size={14} aria-hidden="true" />{t('My filters')}</span>
+      {#each saved as x (x.id)}<button type="button" class="mf" aria-pressed={sameActFilter(filter, x.f)} onclick={() => setSaved(x)} data-saved={x.name}>{x.name}</button>{/each}
+    </div>
+  {/if}
+  {#if fchips.length}
+    <div class="active" data-act-active-filters>
+      <span class="al">{t('Active|filter')}</span>
+      {#each fchips as c (c.id)}<button type="button" class="ac" data-chip={c.id} aria-label={t('Remove filter {name}', { name: t(c.label, c.vars) })} onclick={() => setFilter(withoutActChip(filter, c))}>{t(c.label, c.vars)}<X size={15} aria-hidden="true" /></button>{/each}
+      <button type="button" class="btn btn-link clear" onclick={() => setFilter(emptyActFilter())} data-clear-filters>{t('Clear filters')}</button>
+    </div>
+  {/if}
 
   {#if !rows.length}
     <div class="none"><Empty icon={Activity} title={t('No Strava activities yet.')} text={connected ? t('They come with the next fetch from Strava.') : t('Connect Strava once, then every activity shows here.')}>{#if !connected}<a class="btn btn-link" href="#/flow/training" data-connect>{t('Connect Strava')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}</Empty></div>
+  {:else if !list.length && fchips.length}
+    <div class="none"><Empty icon={Search} title={t('No activity matches.')} text={t('Another filter or period shows more.')} action={{ label: t('Clear filters'), onclick: () => setFilter(emptyActFilter()), explain: t('Show all activities of the period') }} /></div>
   {:else if !list.length}
     <div class="none"><Empty icon={Activity} title={t('No activity in this period.')} text={t('Another period or sport shows more.')} action={mode !== 'all' ? { label: t('Show all|filter'), onclick: () => setMode('all'), explain: t('Show all years') } : null} /></div>
   {:else}
@@ -134,6 +161,10 @@
   {/if}
 </section>
 
+{#if sheet}
+  <ActFilterSheet {filter} rows={ofKind} {bikes} {saved} onapply={setFilter} {onsave} {ondrop} onclose={() => (sheet = false)} />
+{/if}
+
 <style>
   .acts {
     margin: 0 0 var(--sp-5);
@@ -168,6 +199,62 @@
     align-items: center;
     gap: 10px 14px;
     margin: 0 0 var(--sp-3);
+  }
+  .fbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    margin-left: auto;
+  }
+  .fn {
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--paper);
+    font: 600 var(--fs-tiny) / 1 var(--font-body);
+  }
+  .mine,
+  .active {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2);
+    margin: 0 0 var(--sp-2);
+  }
+  .al {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ink-2);
+    font: 500 var(--fs-small) / 1.3 var(--font-body);
+  }
+  .mf,
+  .ac {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.2 var(--font-body);
+    cursor: pointer;
+  }
+  .mf[aria-pressed='true'],
+  .ac {
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .clear {
+    min-height: 44px;
   }
   .kchips {
     display: flex;
@@ -431,6 +518,9 @@
     margin-top: var(--sp-3);
   }
   @media (max-width: 700px) {
+    .fbtn {
+      margin-left: 0;
+    }
     .list {
       padding: 4px 8px 8px;
     }
