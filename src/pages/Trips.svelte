@@ -22,7 +22,8 @@
    * AT1 «Abgeschlossene Touren aus Strava» (mockup AT1, Noah 14.10.2026 21:19 «1a 2a 3b 4b at1 freigeben»):
    * «Abgeschlossene Touren» is now every Strava activity with its values (touren/Activities.svelte); the
    * trips packed in the app follow as «Packmodus» (the name instead of «App-Touren»), the only place to rate.
-   * Their rows are short: the state, the things packed and the Strava activity of the trip.
+   * Their rows keep their values (Noah 14.10.2026 «1-5a», answer 4a of the release inventory: ride time,
+   * heart rate, power, weather and temp. stay) and add the things packed and the Strava activity of the trip.
    * Gone from here: «Weitermachen», the tile groups, the legend «Drei Zustände», the best values (now in
    * «Rekorde und Vergleich») and the Wetter-Fenster (now DG-O1). Health values only to look at.
    */
@@ -47,7 +48,9 @@
   import { planAgain } from '../lib/trip/ending.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
-  import { Plus, ChevronRight, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Info, Calendar, Backpack, Search, Activity } from '@lucide/svelte';
+  import Help from '../lib/ui/Help.svelte';
+  import { FIELD_HELP } from '../lib/daumen.js'; // FE14
+  import { Plus, ChevronRight, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search, Activity } from '@lucide/svelte';
   // SN4g: the rows, their values and the filters
   import { loadReview } from '../lib/review/load.js';
   import { tripFacts, periodOf } from '../lib/review/rueckblick.js';
@@ -57,7 +60,7 @@
   import { rowValues, linesOf, routeMap } from '../lib/review/inzahlen.js';
   import { TOUR_VIEW_KEY, TOUR_GROUP_KEYS } from '../lib/review/pastcols.js';
   import { tourViewOf, bikeOfRow } from '../lib/review/tourzahlen.js';
-  import { n0, dates, monthLong } from '../lib/review/fmt.js';
+  import { n0, n1, hours, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
   import { TOURS_KEY, KINDS, toursOf, emptyFilter, normFilter, filterRows, activeChips, withoutChip, kindOf, sameFilter, saveFilter, dropFilter } from '../lib/touren/filter.js';
   import InZahlen from '../lib/review/InZahlen.svelte';
   import PackBand from '../lib/touren/PackBand.svelte';
@@ -189,6 +192,8 @@
   const openRow = (r) => r.trip && openTrip(r.trip.id);
   // «Bewerten» opens the trip's Rückblick; an uploaded ride on its own opens its short one («Kurz bewerten»)
   const rateHref = (r) => (r.kind === 'ride' ? r.href : `#/debrief/${encodeURIComponent(r.id)}`);
+  const secs = (s) => hours(s ? s / 3600 : null);
+  const hasRide = (v) => !!v && [v.movingS, v.elapsedS, v.kmh, v.hrAvg, v.hrMax].some((x) => x != null);
 
   /* ---- SN4h: «In Zahlen» (all groups open at first; Blöcke and closed blocks remembered) ---- */
   const tvQ = liveQuery(() => db.settings.get(TOUR_VIEW_KEY));
@@ -237,8 +242,45 @@
   {/if}
 {/snippet}
 
+{#snippet cell(label, value, unit = '', help = '')}
+  <!-- FE14: a difficult value explains itself with a «?» (one sentence, in place) -->
+  <div class="vc"><dt>{label}{#if help}<Help {label} text={t(FIELD_HELP[help])} />{/if}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}</dd></div>
+{/snippet}
+
+{#snippet values(r)}
+  {@const v = vals[r.id]}
+  {@const ride = hasRide(v)}
+  {@const tempText = r.tmin != null || r.tmax != null ? temps(r.tmin, r.tmax) : v?.tempAvg != null ? `${v.tempAvg}°` : DASH}
+  <div class="vals" data-values>
+    <dl class="vg">
+      {#if ride}
+        {@render cell(t('Moving time|col'), secs(v.movingS), '', 'moving')}
+        {@render cell(t('Elapsed|col'), secs(v.elapsedS), '', 'elapsed')}
+        {@render cell(t('Ø pace'), n1(v.kmh), 'km/h')}
+        {@render cell(t('Ø heart rate'), n0(v.hrAvg), t('bpm'))}
+        {@render cell(t('Max. heart rate'), n0(v.hrMax), t('bpm'))}
+      {/if}
+      {@render cell(t('Weather'), rainText(r.rain, r.days))}
+      {@render cell(t('Temp.'), tempText)}
+    </dl>
+    {#if v?.watts}
+      <div class="pw" data-power>
+        <span class="pwh"><Zap size={15} aria-hidden="true" />{t('Power')}</span>
+        <dl class="vg">
+          {@render cell(t('Ø power'), n0(v.wAvg), 'W')}
+          {@render cell(t('Max. power'), n0(v.wMax), 'W')}
+          {@render cell(t('NP'), n0(v.wNorm), 'W', 'np')}
+        </dl>
+      </div>
+    {:else}
+      <p class="nw" data-no-power><ZapOff size={15} aria-hidden="true" /><span>{[t('without power values'), !ride ? t('No ride linked: times, pace and heart rate are missing.') : v.hrAvg == null ? t('No heart rate.') : ''].filter(Boolean).join(' · ')}</span></p>
+    {/if}
+    {@render packInfo(r)}
+  </div>
+{/snippet}
+
 {#snippet packInfo(r)}
-  <!-- AT1: the Packmodus row stays short: the things packed and the Strava activity of the trip -->
+  <!-- AT1: below the values of a Packmodus row: the things packed and the Strava activity of the trip -->
   {@const ents = r.trip?.entries ?? []}
   {@const sv = stravaOf(r)}
   <p class="pinfo" data-pack-info>
@@ -373,7 +415,7 @@
                       <div class="rr"><Btn label={r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')} href={rateHref(r)} onclick={() => openRow(r)} aria="{r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')}: {r.title}" data-rate={r.id} /></div>
                     {/if}
                     <span class="chev" aria-hidden="true"><ChevronRight size={18} /></span>
-                    {@render packInfo(r)}
+                    {@render values(r)}
                   </li>
                 {/each}
               </ul>
@@ -383,6 +425,7 @@
             <li><i class="lg rated"></i>{t('highlighted: with a Rückblick (Rated)')}</li>
             <li><i class="lg done"></i>{t('grey: no Rückblick yet (Completed), a tap opens it anyway')}</li>
           </ul>
+          <p class="rv-note hint"><Info size={16} aria-hidden="true" /><span>{t('Times, pace, heart rate and power come from Strava; without Strava the times come from the uploaded ride. Weather and temp. from the forecast saved with the trip. Without a value it says «–». Only to look at, no rating.')}</span></p>
         {/if}
       </section>
 
@@ -744,9 +787,80 @@
     align-self: center;
     color: var(--ink-3);
   }
-  /* AT1: the short line of a Packmodus row */
-  .pinfo {
+  .vals {
     grid-area: vals;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 20px;
+    min-width: 0;
+  }
+  .vg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    margin: 0;
+  }
+  .vc {
+    display: grid;
+    min-width: 64px;
+  }
+  .vc dt {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  /* FE14: the «?» of a value stays small; its sentence opens over the row, the full width of the values */
+  .vg {
+    position: relative;
+  }
+  .vc dt :global(.q) {
+    z-index: 1; /* above the link of the whole row */
+    width: 20px;
+    height: 20px;
+    font-size: var(--fs-tiny);
+  }
+  .vc dt :global(.help) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    box-shadow: 0 6px 18px var(--shadow);
+  }
+  .vc dd {
+    margin: 0;
+    font: 600 var(--fs-body) / 1.3 var(--font-body);
+  }
+  .vc dd small {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+    font-weight: 400;
+  }
+  .pw {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 20px;
+    padding-left: 16px;
+    border-left: 1px solid var(--line-strong);
+  }
+  .pwh,
+  .nw {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .nw {
+    color: var(--ink-3);
+  }
+  .nw :global(svg) {
+    flex: none;
+  }
+  /* AT1: below the values of a Packmodus row, a line of its own */
+  .pinfo {
+    flex-basis: 100%;
     display: flex;
     flex-wrap: wrap;
     gap: 4px 18px;
@@ -785,6 +899,9 @@
     background: var(--st-rated-soft);
     border-left: 3px solid var(--st-rated);
   }
+  .hint {
+    margin-top: var(--sp-3);
+  }
   @media (max-width: 719px) {
     .fbtn {
       margin-left: 0;
@@ -802,6 +919,32 @@
       display: inline-flex;
       align-items: baseline;
       gap: 4px;
+    }
+    .vals {
+      display: grid;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: var(--r-ctl);
+      background: var(--paper);
+    }
+    .vg {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .vc {
+      min-width: 0;
+    }
+    .pw {
+      display: grid;
+      gap: 6px;
+      padding: 8px 0 0;
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+    .pinfo {
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
     }
     .rr :global(.btn) {
       display: flex;

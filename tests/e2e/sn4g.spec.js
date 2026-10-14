@@ -2,8 +2,9 @@
 // freigegeben»), German UI, phone 390 and desktop 1440, fictional data (sn4plus-fixture.js plus one uploaded
 // ride on its own):
 // a) the band «Packmodus» in both states, «Geplant» as a short list, a tap on the band opens Packmodus;
-// b) «Packmodus» (AT1, 14.10.2026: was «Abgeschlossene Touren», the values moved to the Strava activities):
-//    all trips of the period by month, «Bewerten» / «Kurz bewerten» on the grey rows, every trip a card on a phone;
+// b) «Packmodus» (AT1, 14.10.2026: was «Abgeschlossene Touren», now the Strava activities): all trips of the period by month, the values of every row (Fahrzeit, Verstrichen,
+//    Ø Tempo, Ø and max. Puls, Wetter, Temp.), «ohne Wattwerte» without a power meter, «Bewerten» /
+//    «Kurz bewerten» on the grey rows, every trip a card on a phone;
 // c) «Filter»: a dialog / sheet with counts, the active filters as chips to tap away, «Filter löschen», a saved
 //    filter under «Meine Filter» (remembered after a reload);
 // d) «In Zahlen»: all five groups open, the jump bar, «Alle zuklappen»;
@@ -120,20 +121,23 @@ test('a2) nothing open: «Gerade wird keine Tour gepackt» with «Neue Tour» an
   expect(errors).toEqual([]);
 });
 
-test('b) every Packmodus trip of the period by month; grey rows keep «Bewerten» / «Kurz bewerten»', async ({ page, context }, info) => {
+test('b) every finished trip of the period by month with its values; grey rows keep «Bewerten» / «Kurz bewerten»', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   const phone = info.project.name === 'phone';
   // AT1 (Noah 14.10.2026 21:19): «Abgeschlossene Touren» lists the Strava activities (tests/e2e/at1.spec.js);
-  // the trips packed in the app are the section «Packmodus»
+  // the trips packed in the app are the section «Packmodus», with their values (answer 4a, 14.10.2026 «1-5a»)
   await expect(page.locator('section[data-finished]').getByRole('heading', { level: 2, name: T('Pack mode|section') })).toBeVisible();
   // the month heads, newest first
   const heads = await list(page).locator('h3.mh').allTextContents();
   expect(heads.length).toBeGreaterThan(3);
-  // a rated trip: highlighted, no button; AT1: the values moved to «Abgeschlossene Touren», a Packmodus row says
-  // what was packed and which Strava activity belongs to it (none in this fixture)
+  // a rated trip with its rides: all the values, highlighted, no button; no power meter: «ohne Wattwerte»
   const herbst = rowOf(page, 'Herbsttour Hochland');
   await expect(herbst).toHaveAttribute('data-state', 'rated');
-  await expect(herbst.locator('[data-values]')).toHaveCount(0);
+  for (const w of ['Moving time|col', 'Elapsed|col', 'Ø pace', 'Ø heart rate', 'Max. heart rate', 'Weather', 'Temp.']) await expect(herbst.locator('[data-values] dt', { hasText: T(w) }).first()).toBeVisible();
+  await expect(herbst.locator('[data-values] dd').first()).toHaveText(/^\d+:\d\d$/);
+  await expect(herbst.locator('[data-no-power]')).toContainText(T('without power values'));
+  await expect(herbst.locator('[data-power]')).toHaveCount(0);
+  // AT1: below the values, which Strava activity belongs to the trip (none in this fixture)
   await expect(herbst.locator('[data-strava-of="0"]')).toHaveText(T('no Strava activity'));
   await expect(herbst.locator('[data-rate]')).toHaveCount(0);
   // grey: a trip whose Rückblick is missing keeps «Bewerten», the uploaded ride on its own «Kurz bewerten»
@@ -143,7 +147,13 @@ test('b) every Packmodus trip of the period by month; grey rows keep «Bewerten�
   const solo = rowOf(page, 'Feierabend Seeufer');
   await expect(solo).toContainText(T('Ride from GPX|kind'));
   await expect(solo.getByRole('link', { name: `${T('Rate briefly')}: Feierabend Seeufer` })).toBeVisible();
+  // a trip without a ride: only weather and temp. and the quiet line
+  const ski = rowOf(page, 'Skitour Hochgipfel');
+  if (await ski.count()) await expect(ski.locator('[data-no-power]')).toContainText(T('No ride linked: times, pace and heart rate are missing.'));
   if (phone) {
+    // a card: the values in a box of 4 columns
+    const cols = await herbst.locator('[data-values] .vg').first().evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
+    expect(cols).toBe(4);
     expect((await abend.locator('[data-rate]').boundingBox()).width).toBeGreaterThan(300);
   }
   await expect(page.getByText(T('highlighted: with a Rückblick (Rated)'))).toBeVisible();
