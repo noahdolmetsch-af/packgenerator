@@ -16,6 +16,23 @@
 
 export const WHATS_NEW = [
   {
+    // v0.137.0 «Velo-Reihenfolge» (Noah 13.10.2026 «1a», thread «Velo-Standard»; fix of the order 0.131.0 wrote)
+    version: '0.137.0',
+    date: '2026-10-14',
+    title: 'Bikes back in line',
+    lead: 'The bike tabs follow the order you chose again.',
+    points: [
+      { text: 'Bike tabs in your order, your main bike first.', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'fixed', text: 'The tidy-up of the last update had brought back the old order' },
+    ],
+    test: [
+      'Open Velos: the tabs start with your main bike, in the order you chose.',
+      'Open Velos › Pflege: the bikes come in the same order.',
+    ],
+  },
+  {
     // v0.131.0 «Daten einmal bereinigen» (Noah 14.10.2026 «1a», «2-5a»; nothing new on screen, so no mockups)
     version: '0.131.0',
     date: '2026-10-14',

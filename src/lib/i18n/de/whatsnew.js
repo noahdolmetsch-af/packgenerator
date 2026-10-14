@@ -4,6 +4,13 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.137.0 Velo-Reihenfolge
+  'Bikes back in line': 'Velos wieder in Reih und Glied',
+  'The bike tabs follow the order you chose again.': 'Die Velo-Reiter folgen wieder deiner Reihenfolge.',
+  'Bike tabs in your order, your main bike first.': 'Velo-Reiter in deiner Reihenfolge, dein Haupt-Velo zuerst.',
+  'The tidy-up of the last update had brought back the old order': 'Das Aufräumen im letzten Update hatte die alte Reihenfolge zurückgebracht',
+  'Open Velos: the tabs start with your main bike, in the order you chose.': 'Öffne Velos: Die Reiter beginnen mit deinem Haupt-Velo, in deiner Reihenfolge.',
+  'Open Velos › Pflege: the bikes come in the same order.': 'Öffne Velos › Pflege: Die Velos kommen in derselben Reihenfolge.',
   // 0.131.0 Daten einmal bereinigen
   'Tidied up once': 'Mehr Ordnung',
   'Behind the scenes the app tidied up: old copies in your data moved into their new place, nothing got lost.': 'Im Hintergrund hat die App aufgeräumt: Alte Kopien in deinen Daten sind an ihren neuen Platz gezogen, nichts ging verloren.',

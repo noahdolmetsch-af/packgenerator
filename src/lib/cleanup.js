@@ -29,8 +29,8 @@ export const WEIGHT_NOTE_ID = 'note-weight-checks';
 
 /**
  * The bike IDs of the first Excel import. Only these IDs are matched, other data gets nothing.
- * order: their place on screen (array position; Noah 13.10.2026 «1a»: Canyon Lux, Factor LS, Scale,
- * Spark); aliases: words in a note that mean this bike; subjects: the bike names in the Excel sheet
+ * order: their place on screen (array position, Noah 13.10.2026 «1a»: the newest bike first, then the
+ * gravel bike, the hardtail, the fully); aliases: words in a note that mean this bike; subjects: the bike names in the Excel sheet
  * "Wartung". oldOrder: the order the first run of 0.131.0 wrote (Scale first, the old list in the
  * code); a bike that still has it gets the new place once. Can go once every device has run the cleanup.
  */
