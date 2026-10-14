@@ -2,6 +2,7 @@
 // FE8 night quiet, FE10 speak instead of type, FE7 short vibration, FE11/FE18 start place, FE17 search
 // can act, the switches and their defaults, German texts for every new English text.
 import { describe, it, expect, afterEach } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { quietNow, QUIET_FROM, QUIET_TO } from '../src/lib/quiet.js';
 import { speechApi, speechLang, heard, appendSpoken } from '../src/lib/speak.js';
 import { OPS, opOf, buzzNow, START_PLACES, DEFAULT_START, startOf, lastOf, startHash } from '../src/lib/bedienung.js';
@@ -56,8 +57,10 @@ describe('FE10 speak instead of type', () => {
 });
 
 describe('the switches', () => {
-  it('everything on by default; a stored 1 or 0 wins', () => {
+  it('everything on except high contrast; a stored 1 or 0 wins', () => {
     expect(OPS.filter((o) => o.on).map((o) => o.key)).toEqual(['speak', 'keys', 'buzz', 'quiet', 'search']);
+    expect(opOf('contrast', null)).toBe(false);
+    expect(opOf('contrast', '1')).toBe(true);
     expect(opOf('keys', null)).toBe(true);
     expect(opOf('keys', '0')).toBe(false);
     expect(opOf('nope', null)).toBe(false);
@@ -145,5 +148,10 @@ describe('German texts', () => {
   it('every switch, start place and new search title has its German entry', () => {
     const en = [...OPS.flatMap((o) => [o.name, o.text]), ...START_PLACES.map((p) => p.name), 'Handling', 'Small helps, each one can be switched off', 'Open the app at', 'Settings: appearance and handling', 'Open the {bike}', 'Speak', 'Stop|speak', 'Dictation did not work. Type instead.'];
     for (const k of en) expect(DE[k], k).toBeTruthy();
+  });
+  it('the high-contrast block only adds an override at the end of app.css', () => {
+    const css = readFileSync(new URL('../src/app.css', import.meta.url), 'utf8');
+    expect(css).toMatch(/html:root\[data-contrast='high'\]\[data-theme='light'\] \{[^}]*--ink: #000000;/);
+    expect(css.lastIndexOf("data-contrast='high'")).toBeGreaterThan(css.lastIndexOf("data-palette="));
   });
 });

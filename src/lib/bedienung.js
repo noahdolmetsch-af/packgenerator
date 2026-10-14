@@ -7,6 +7,7 @@
  * - buzz: a short vibration when ticking off while packing (FE7), on by default
  * - quiet: night quiet on Today, 22–06 no tips (FE8), on by default
  * - search: the search offers go-to actions too (FE17), on by default
+ * - contrast: high contrast for the sun outdoors (FE2), off by default
  * The pure part; bedienung.svelte.js holds the live state.
  */
 export const OPS = [
@@ -15,6 +16,7 @@ export const OPS = [
   { key: 'buzz', name: 'Short vibration when ticking', text: 'A short buzz when you tick off an item while packing, where the phone can.', on: true },
   { key: 'quiet', name: 'Night quiet', text: 'From 22:00 to 06:00 Today shows no tips.', on: true },
   { key: 'search', name: 'Search can act', text: 'The search also offers backup, settings, a quick note or a bike.', on: true },
+  { key: 'contrast', name: 'High contrast (outdoors)', text: 'Darker text and stronger lines, easier to read in the sun.', on: false },
 ];
 export const OPS_KEY = 'ops.';
 

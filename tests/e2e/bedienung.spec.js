@@ -1,6 +1,7 @@
 // Bedienung (Noah 13.10.2026 23:52 and 23:56, without mockups): the small helps in Ich › Darstellung ›
 // Bedienung, each one a switch. On a computer: «?» shows the shortcuts and «n» opens «Neu»; switched
-// off, the keys do nothing. Night quiet: at 23:00 Today keeps its tip back, switched off it shows. The search offers «Daten und
+// off, the keys do nothing. High contrast sets data-contrast on <html> and stays after a reload. Night
+// quiet: at 23:00 Today keeps its tip back, switched off it shows. The search offers «Daten und
 // Backup» on top and Enter opens it. The start place «Packen» opens the packing list after a reload.
 // German UI, the clock fixed in Europe/Zurich, no network, fictional data only (an empty app).
 import { test, expect } from '@playwright/test';
@@ -53,6 +54,36 @@ test('shortcuts on a computer: ? shows the list, n opens «Neu»; switched off n
   await page.keyboard.press('n');
   await expect(keys).toBeHidden();
   await expect(neu).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test('high contrast (outdoors): off by default, the switch sets data-contrast on <html>, it stays after a reload', async ({ page, context }) => {
+  const errors = await open(page, context, '10:00', '#/me/look');
+  const html = page.locator('html');
+  await expect(page.locator('#look-ops')).toHaveText(T('Handling'));
+  await expect(sw(page, 'contrast')).not.toBeChecked();
+  await expect(html).not.toHaveAttribute('data-contrast', /.*/);
+  // the ink as the browser resolves it (a colour on a probe element, whatever way the build writes it)
+  const ink = () =>
+    page.evaluate(() => {
+      const p = document.createElement('span');
+      p.style.color = 'var(--ink)';
+      document.body.append(p);
+      const c = getComputedStyle(p).color;
+      p.remove();
+      return c;
+    });
+  const inkBefore = await ink();
+  await sw(page, 'contrast').check();
+  await expect(html).toHaveAttribute('data-contrast', 'high');
+  expect(await ink()).toBe('rgb(0, 0, 0)');
+  expect(inkBefore).not.toBe('rgb(0, 0, 0)');
+  await page.reload();
+  await ready(page);
+  await expect(html).toHaveAttribute('data-contrast', 'high');
+  await sw(page, 'contrast').uncheck();
+  await expect(html).not.toHaveAttribute('data-contrast', /.*/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
   expect(errors).toEqual([]);
 });
 

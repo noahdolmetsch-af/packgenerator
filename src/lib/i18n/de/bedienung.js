@@ -14,6 +14,8 @@ export default {
   'From 22:00 to 06:00 Today shows no tips.': 'Von 22 bis 6 Uhr zeigt Heute keine Tipps.',
   'Search can act': 'Suche kann handeln',
   'The search also offers backup, settings, a quick note or a bike.': 'Die Suche bietet auch Backup, Einstellungen, eine schnelle Notiz oder ein Velo an.',
+  'High contrast (outdoors)': 'Hoher Kontrast (draussen)',
+  'Darker text and stronger lines, easier to read in the sun.': 'Dunklere Schrift und kräftigere Linien, besser lesbar in der Sonne.',
   'Settings: appearance and handling': 'Einstellungen: Darstellung und Bedienung',
   'Open the {bike}': '{bike} öffnen',
 };

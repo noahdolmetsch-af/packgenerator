@@ -1439,3 +1439,28 @@ details[open] > summary.lrow .chev {
     padding-bottom: calc(18px + env(safe-area-inset-bottom));
   }
 }
+
+/* FE2 «Sonnen-Kontrast» (Noah 13.10.2026 23:52): Ich › Darstellung › Bedienung › «High contrast (outdoors)»
+   sets data-contrast="high" on <html> (bedienung.svelte.js). Text nearly black (white in the dark), the
+   second and third ink darker, lines and card edges clearly visible, the paper pure. It comes after the
+   colour worlds and is one step more specific (html:root), so it wins in every world, light and dark. */
+html:root[data-contrast='high'][data-theme='light'] {
+  --ink: #000000;
+  --ink-2: #1d1f1e;
+  --ink-3: #2e3331;
+  --line: #6f7672;
+  --line-strong: #1d1f1e;
+  --card-line: #5a615d;
+  --paper: #ffffff;
+  --input: #ffffff;
+  --bar: #6f7672;
+}
+html:root[data-contrast='high'][data-theme='dark'] {
+  --ink: #ffffff;
+  --ink-2: #f0f2f1;
+  --ink-3: #dadfdc;
+  --line: #9aa29e;
+  --line-strong: #f0f2f1;
+  --card-line: #aeb5b1;
+  --bar: #9aa29e;
+}
