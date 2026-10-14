@@ -12,6 +12,7 @@
   import LinksOff from '../lib/sk/LinksOff.svelte'; // SK: switched-off outside links come back here
   import Seg from '../lib/ui/Seg.svelte';
   import { ChevronLeft, ChevronRight, Check } from '@lucide/svelte';
+  import NameSection from '../lib/home/NameSection.svelte'; // HG1c «Dein Name», the first section
 
   const FIRST = 4;
   let allFonts = $state(false);
@@ -26,6 +27,8 @@
 
   <div class="cols">
     <div class="sets">
+      <!-- HG1c «Name ändern»: the name for the greeting on Today, first -->
+      <NameSection />
       <section aria-labelledby="look-font">
         <h2 id="look-font">{t('Font')}</h2>
         <p class="note">{t('Applies to the whole app')}</p>

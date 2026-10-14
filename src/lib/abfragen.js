@@ -16,6 +16,7 @@
  *          yet, by hand until then), 'only' (only by hand possible), 'app'
  */
 import { addDays } from './flow.js';
+import { HELLO_QUESTIONS } from './home/hallo.js'; // HG1 2b: the two questions behind the greeting on Today
 
 /** The settings record of «Deine Abfragen»: { since, q: { [id]: { on, every, since } }, own: [question] }. */
 export const AB_KEY = 'abfragen';
@@ -121,7 +122,8 @@ export const QUESTIONS = [
   q('koerper', 'wochenschlaf', 'How was your sleep this week overall?', scale(), weekly(0, '19:00'), ['hand'], 'Sleep of the week'),
   q('koerper', 'bildschirm', 'How many hours did a screen look at you today?', number('h'), daily('20:00'), ['only'], 'own question «Screen time»'),
 ];
-export const QUESTION = Object.fromEntries(QUESTIONS.map((x) => [x.id, x]));
+// HG1 2b: the answers to the greeting on Today land in the same history, so the lookup knows their questions too
+export const QUESTION = Object.fromEntries([...QUESTIONS, ...HELLO_QUESTIONS].map((x) => [x.id, x]));
 
 /** Noah 14.10.2026 00:06:33: 31 of the 50 are on at the start, as drawn in AB5 (per area 4·4·3·3·2·3·2·3·4·3). */
 export const ON_AT_START = new Set([
