@@ -876,6 +876,12 @@ Für die Spezifikation von Kal1–Kal5, noch nichts gebaut.
   - Zwei neue Funktionen im Katalog: «Wi gaht's?» (`f.abfragen`) und «Tour aus komoot» (`f.komoot`), je mit drei Schritten und Handbuch-Eintrag; drei Schritte auch für die Funktionen aus 0.132.0.
   - Die Regeln des alten Checks in `flowcheck.js` bleiben (alte Zeilen lesbar); Aufräumen später in einem kleinen Release.
 
+## 14.10.2026: 0.131.1 «Abhaken wieder abwählbar»
+
+- (Fehler von Noah 14.10.2026 05:19 UTC gemeldet; gleiches Aussehen, darum ohne Mockup; GitHub-Freigabe nur für diesen Fix: «freigabe» 05:54 UTC)
+- **Ursache:** `tapAct` entschied aus `state.todayDone` (liveQuery, hinkt nach); ein zweiter Tipp vor dem Nachladen hakte nochmals ab, Abwählen nahm nur den letzten Eintrag zurück.
+- **Selbst entschieden:** Abwählen nimmt alle eigenen Häkchen des Tages zurück (räumt alte Doppel-Häkchen auf); Pendeln bleibt über die Pendel-Zeile zurücknehmbar; der gleiche Doppeltipp-Schutz bei Challenges auf den Aktiv-Seiten (MedMore, Activity) folgt mit 0.133.0 oder später.
+
 ## 13.10.2026: 0.125.0 «Tagespaket 13.10.», ein Release aus vier Paketen
 
 - **Entscheid:** Tages-Check Schritt 1+2 (#151), Aktiv ausweiten AK1–AK3 Woche/Sporttasche/Erholung (#150), Feinschliff A-J1 Werkstattbesuch, TZ-1 drei Tour-Zustände, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + Strava verbinden SV1 (#153) gehen als ein Release 0.125.0. Die Versionen 0.126.0, 0.127.0 und 0.130.0 der Einzel-Branches entfallen; «Was ist neu» hat einen Eintrag 0.125.0, die Funktionen «Tour-Zustand» und «Jahresziele» und die drei neuen Kacheln haben «seit 0.125.0».
