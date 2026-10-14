@@ -57,7 +57,7 @@ export function countRows(data) {
 }
 
 /** The field that identifies a record in each table (see db.js); "id" when not listed. */
-export const KEY_OF = { debriefs: 'tripId', settings: 'key', flowChecks: 'day' };
+export const KEY_OF = { debriefs: 'tripId', settings: 'key', flowChecks: 'day', healthDays: 'date' };
 
 /**
  * v0.27.0 (Noah 1a, AP22): what an import would do, shown BEFORE it runs.

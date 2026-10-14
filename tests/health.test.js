@@ -2,6 +2,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
+import { restoreBackup, APP_ID } from '../src/lib/backup.js';
 import { saveDays, syncHealth, rangeToFetch, normalOf, weekAzm, latest, addDays, HEALTH_KEY } from '../src/lib/health.js';
 
 let n = 0;
@@ -39,5 +40,13 @@ describe('health days', () => {
     expect(normalOf(rows.slice(0, 5), 'restingHr', today)).toBeNull();
     expect(weekAzm(rows, today)).toBe(20); // Monday and Tuesday
     expect(latest(rows, 'azm', today).date).toBe('2026-10-13');
+  });
+
+  it('the one-time Fitbit file comes in as a backup «Zusammenführen»', async () => {
+    const db = fresh();
+    await db.items.put({ id: 'X1', name: 'Pump' });
+    await restoreBackup(db, { app: APP_ID, schemaVersion: 12, exportedAt: 'x', tables: { healthDays: [{ date: '2026-10-01', restingHr: 50, src: 'file', at: 'x' }] } }, 'merge');
+    expect(await db.healthDays.count()).toBe(1);
+    expect(await db.items.count()).toBe(1);
   });
 });
