@@ -58,6 +58,7 @@
   import { messageOn, tileDaysLeft, pinNews, unpinNews } from '../lib/know/wasneu.js';
   import { readUpdate, writeUpdate, readMute, readPin, writePin } from '../lib/know/wasneuStore.js';
   import NewsBanner from '../lib/know/NewsBanner.svelte';
+  import MaintHint from '../lib/maintenance/MaintHint.svelte';
   import { HOME_PLACE, HOME_FORECAST, usable, needsFetch, knowCards, wearWhat } from '../lib/know.js';
   import { openTodos } from '../lib/todos.js';
   import { weightText } from '../lib/gear.js';
@@ -709,6 +710,8 @@
   const closeHint = () => db.settings.put({ key: HINT_KEY, value: true });
   // 0.125.0 Tagespaket: one hint on top at a time, the tip waits while «Connect Strava» shows
   let stravaCard = $state(false);
+  // «App-Wartung» (BF7, BF8): the maintenance line comes after «Connect Strava», the long-press tip after it
+  let maintHint = $state(false);
   const tripsDone = $derived(homeTrips(allTrips).filter((x) => tripDone(x, debriefs, today)).length);
   // a short line under a small function tile (a computer, or a wide tile)
   const gearN = $derived(items.filter(isInventory).length);
@@ -1015,8 +1018,10 @@
   {#if !editing}<StravaChanges wide={!phone.matches} />{/if}
   <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card on top -->
   {#if !editing}<StravaConnect wide={!phone.matches} bind:shown={stravaCard} />{/if}
+  <!-- «App-Wartung» (Noah 13.10.2026): one calm line when a key runs out, a link fails or Strava's limit is near -->
+  {#if !editing}<MaintHint blocked={stravaCard} bind:shown={maintHint} />{/if}
   <!-- v0.127.0 «Tages-Check» 2 (mockup T3): the hint to the long press, once, until it is closed -->
-  {#if !editing && $setQ && !S[HINT_KEY] && !stravaCard}
+  {#if !editing && $setQ && !S[HINT_KEY] && !stravaCard && !maintHint}
     <p class="lphint" role="note" data-hint="longpress">
       <Hand size={18} aria-hidden="true" />
       <span><b>{t('Tip:')}</b> {t('Press a tile long to change its size. Or «{customise}».', { customise: t('Customise the start page') })}</span>

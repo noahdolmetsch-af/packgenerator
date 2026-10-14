@@ -20,6 +20,7 @@ import { t, tn } from '../i18n.svelte.js';
 import { loadRules, applyImport, updateEntry, deleteEntries } from '../kmbookdb.js';
 import { planSync, mergeChanges, recheckFrom, FETCH_MODES, NO_BIKE_MODES, AUTO_EVERY_MS, RECHECK_DAYS } from '../stravasync.js';
 import { WALL_KEY, wallOf, wallRecord } from '../home/tiles.js';
+import { saveRate } from '../maintenance/rate.js';
 
 export const STRAVA_URL = 'https://packgen-three.vercel.app/api/strava';
 /** localStorage (this device only): the device key the server gave after the Strava login. */
@@ -103,6 +104,8 @@ export async function call(step, { method = 'GET', body = null, params = {}, key
     throw new StravaError('network');
   }
   const data = await res.json().catch(() => null);
+  // BF8 «Gratis-Grenzen»: the server passes Strava's request numbers along; the latest stay on this device
+  if (data?.rate && typeof indexedDB !== 'undefined') saveRate(appDb, data.rate);
   if (!res.ok || !data || data.ok === false) throw new StravaError(data?.code ?? data?.error ?? (res.status === 429 ? 'strava_busy' : 'server_error'));
   return data;
 }
