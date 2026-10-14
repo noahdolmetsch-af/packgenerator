@@ -65,6 +65,8 @@ Automatische Prüfungen bei jedem PR (Skill «packgenerator-einheitlich»), dami
 
 ### Noch umbauen
 
+14.10.2026 (v0.137.0 «Fällig überall gleich», Durchklick DK1/DK1b): Velopflege bekommt unter dem Kopf eine ruhige Erklärzeile `.why-due` (`--ink-2`, `--fs-small`, max. 68ch). Problem-Zeilen in der Pflege-Übersicht nutzen dieselbe Zeilen-Form wie Service-Zeilen, Hauptknopf «Erledigt». Keine neuen Tokens.
+
 14.10.2026 (v0.131.3 «Kamera-Knopf», Mockups K1–K4): neuer Baustein `src/lib/ui/PhotoPick.svelte` für Fotos (Handy: grüner Kameraknopf plus «Galerie», Computer: «Foto wählen»); er nutzt die bestehenden Knopfklassen `btn sm` und `btn sm hi`. Eingesetzt bei Werkstattbesuch, Notiz und «Ablegen als … Rechnungsbeleg»; die übrigen Fotostellen behalten ihren Knopf bis Noah entscheidet.
 14.10.2026 (v0.131.2 «Velo-Reihenfolge»): nur die Reihenfolge der bestehenden Velo-Reiter ändert, darum kein Audit.
 

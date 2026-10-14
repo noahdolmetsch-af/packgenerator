@@ -25,6 +25,14 @@ import { t, tn } from './i18n.svelte.js';
 import { localDay } from './localday.js';
 
 
+/**
+ * v0.137.0 «Fällig überall gleich» (Noah 14.10.2026, DK1 answer 1a): an open problem counts as due
+ * when it has to be fixed before the next ride, its date has come, or work is needed on it. The
+ * other open problems stay in the problem list, without a number. Care, Today, Bikes and the menu
+ * all count with this one rule (they used to differ: Care left all problems out, Today counted all).
+ */
+export const repairDue = (x, today = localDay()) => x.status === 'needed' || !!x.beforeRide || (!!x.dueDate && x.dueDate <= today);
+
 /** The kind of a bike row: 'time' (sealant, fork, shock), 'km' (wax the chain), 'check' (1000 km), 'part' (worn or work needed). */
 const kindOf = (r) => (r.worn ? 'part' : r.key === 'check' ? 'check' : PART[r.key]?.everyKm ? 'km' : 'time');
 
@@ -32,7 +40,7 @@ const kindOf = (r) => (r.worn ? 'part' : r.key === 'check' ? 'check' : PART[r.ke
  * Bike care for one bike. bike: from withVisits (parts with the workshop jobs).
  * trip (optional): adds `soon`, what becomes due before or on that trip (from 14 days before).
  * Returns { scope: 'bike', bikeId, bikeName, rows, soon, late, gaps, kmMissing, status, href } with
- * rows: [{ key, kind, part, name, detail, late, task? }] due now (services, check, worn parts, open repairs);
+ * rows: [{ key, kind, part, name, detail, late, task? }] due now (services, check, worn parts, problems due by repairDue);
  * status: 'due' (rows), 'nodata' (nothing due but nothing to judge by) or 'ok' (nothing due).
  * gaps: check points and services by time without any record.
  */
@@ -42,8 +50,9 @@ export function bikeCare(bike, { tasks = [], visits = [], trip = null, today = l
   const rows = bikeDue(bike, { startDate: today, days: 1 }, setup, today, today)
     .rows.filter((r) => r.late || r.worn)
     .map((r) => ({ key: `${kindOf(r)}:${r.key}`, kind: kindOf(r), part: r.key, name: r.name, detail: r.detail, late: true }));
-  for (const x of tasks.filter((x) => !isPrep(x) && taskBike(x) === bike.id && (x.status === 'open' || x.status === 'needed'))) {
-    rows.push({ key: `repair:${x.id}`, kind: 'repair', part: null, name: x.task, detail: x.status === 'needed' ? t('work needed') : t('open repair'), late: x.status === 'needed', task: x });
+  for (const x of tasks.filter((x) => !isPrep(x) && taskBike(x) === bike.id && (x.status === 'open' || x.status === 'needed') && repairDue(x, today))) {
+    const detail = x.status === 'needed' ? t('work needed') : x.beforeRide && !x.dueDate ? t('Before the next ride') : t('open repair');
+    rows.push({ key: `repair:${x.id}`, kind: 'repair', part: null, name: x.task, detail, late: x.status === 'needed', task: x });
   }
   const now = new Set(rows.map((r) => r.part).filter(Boolean));
   const soon = trip && trip.bikeId === bike.id

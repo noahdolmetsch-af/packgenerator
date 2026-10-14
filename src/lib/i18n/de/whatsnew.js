@@ -4,6 +4,15 @@
  * v0.118.0 «Was ist neu 2»: every version rewritten once (title, lead, points, small things).
  */
 export default {
+  // 0.137.0 Fällig überall gleich (DK1)
+  'One number for «due»': 'Eine Zahl für «fällig»',
+  'Bike care, Bikes, Today and the menu now count the same things as due.': 'Velopflege, Velos, Heute und das Menü zählen jetzt dasselbe als fällig.',
+  'Due means: a service is due, or a problem has to be fixed before the next ride; bike care lists both': 'Fällig heisst: ein Service ist fällig oder ein Problem muss vor der nächsten Fahrt behoben sein; die Velopflege zeigt beides',
+  'Bike care no longer says «nothing due» while a problem waits for the next ride': 'Die Velopflege sagt nicht mehr «nichts fällig», wenn ein Problem auf die nächste Fahrt wartet',
+  'The number in the menu counts the points due, the same as on Bikes and Today': 'Die Zahl im Menü zählt die fälligen Punkte, gleich wie bei Velos und Heute',
+  'Open Bikes › Care: under the title a line says what due means.': 'Öffne Velos › Pflege: Unter dem Titel steht eine Zeile, was fällig heisst.',
+  'Report a problem on a bike with «Before the next ride»: it shows in Bike care as due, with «Done».': 'Melde bei einem Velo ein Problem mit «Vor der nächsten Fahrt»: Es steht in der Velopflege als fällig, mit «Erledigt».',
+  'Compare the number in the menu with Bike care and Today: all three are the same.': 'Vergleiche die Zahl im Menü mit Velopflege und Heute: Alle drei sind gleich.',
   // 0.132.0 Tagespaket (with the content of 0.125.0, which never went live): Tages-Check, Aktiv, Werte, Tour-Zustand, Velo-Setup, Kluge Suche, App-Wartung, Bedienung, Bezahlen, Kleine Apps
   'Lots of new things at once': 'Viel Neues auf einmal',
   'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.': 'Ein grösseres Update in einem Rutsch: ein Tagescheck, eine Woche in Aktiv, dein Velo-Setup, eine klügere Suche und kleine Apps.',

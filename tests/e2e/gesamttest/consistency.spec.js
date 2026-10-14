@@ -62,8 +62,8 @@ test('due counts: Today, Plan, Bike care and the bar agree', async ({ page, cont
   }
   expect(care, 'Bike care per bike = Today per bike').toEqual(today);
 
-  // the bar: bikes with something due
-  const due = Object.values(care).filter((n) => n > 0).length;
+  // the bar: v0.137.0 (DK1) the points due over all bikes, the same number as Bike care
+  const due = Object.values(care).reduce((a, n) => a + n, 0);
   const bar = page.locator('a[href="#/bikes"] .due').first();
   if (due) await expect(bar).toContainText(String(due));
 

@@ -16,6 +16,25 @@
 
 export const WHATS_NEW = [
   {
+    // v0.137.0 «Fällig überall gleich» (Durchklick DK1/DK1b, Noah 14.10.2026 «1-5 freigeben», answer 1a)
+    version: '0.137.0',
+    date: '2026-10-14',
+    title: 'One number for «due»',
+    lead: 'Bike care, Bikes, Today and the menu now count the same things as due.',
+    points: [
+      { text: 'Due means: a service is due, or a problem has to be fixed before the next ride; bike care lists both', href: '#/bikes?tab=care' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Bike care no longer says «nothing due» while a problem waits for the next ride' },
+      { box: 'nicer', text: 'The number in the menu counts the points due, the same as on Bikes and Today' },
+    ],
+    test: [
+      'Open Bikes › Care: under the title a line says what due means.',
+      'Report a problem on a bike with «Before the next ride»: it shows in Bike care as due, with «Done».',
+      'Compare the number in the menu with Bike care and Today: all three are the same.',
+    ],
+  },
+  {
     // v0.132.0 «Tagespaket» (PR #151, first numbered 0.125.0 + 0.126.0; 0.125.0 never went live, so its content ships here):
     // Tages-Check 1+2, Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + SV1 (#153),
     // Velo-Setup UC3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen BZ1/BZ2b (#156),

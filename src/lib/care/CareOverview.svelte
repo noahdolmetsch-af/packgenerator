@@ -64,6 +64,9 @@
           : []),
         open,
       ];
+    // v0.137.0 (DK1): a problem due before the next ride: Done closes it, as in the problem list.
+    if (row.kind === 'repair' && row.task)
+      return [{ kind: 'hi', name: t('Done|task'), explain: explain('Done|task'), sub: row.name, icon: Check, run: () => onrepair(row.task, 'done') }, open];
     if (row.kind === 'part' && row.part)
       return [
         { name: t('Replace|part'), explain: explain('Replace|part'), sub: row.name, icon: ArrowLeftRight, run: () => onflow(bike.id, row.part, 'replace') },
@@ -111,7 +114,7 @@
         <div class="vh"><div class="vh-t"><h2 id="bikes-h">{t('Bikes')}</h2><p class="vh-s">{t('Bar = how much of the check interval is used')}</p></div></div>
         <ul class="card vlist" aria-label={t('Bikes')}>
           {#each rings as { c, ring, km } (c.bike.id)}
-            {@const n = c.care.rows.filter((r) => r.kind !== 'repair').length}
+            {@const n = c.care.rows.length}
             <li>
               <button type="button" class="ring" onclick={() => onopen(c.bike.id)} aria-label={ring.score == null ? t('{bike}: no data yet', { bike: c.bike.name }) : t('{bike}: {score} of 100', { bike: c.bike.name, score: ring.score })}>
                 <span class="ib"><Bike size={18} aria-hidden="true" /></span>

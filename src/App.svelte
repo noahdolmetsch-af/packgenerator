@@ -239,11 +239,12 @@
     return () => document.removeEventListener('keydown', trap);
   });
   const inboxQ = liveQuery(() => db.notes.where('status').equals('open').count());
-  // v0.38.0 (Noah E): a number only where something waits: how many bikes have something due (Bikes place).
+  // v0.38.0 (Noah E): a number only where something waits (Bikes place).
   const dueQ = liveQuery(async () => {
     const [bikes, tasks, visits] = await Promise.all([db.bikes.toArray(), db.maintenance.toArray(), db.visits.toArray()]);
     const today = localDay();
-    return sortBikes(bikes).filter((b) => bikeCare(withVisits(b, visits), { tasks, visits, today })?.status === 'due').length;
+    // v0.137.0 (DK1): the points due over all bikes, the same number as Bikes › Care.
+    return sortBikes(bikes).reduce((n, b) => n + (bikeCare(withVisits(b, visits), { tasks, visits, today })?.rows.length ?? 0), 0);
   });
   $effect(() => {
     if (hash === '#/inbox/new') {

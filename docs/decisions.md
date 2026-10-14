@@ -1280,3 +1280,8 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 
 - **Reihenfolge der Velos (Noah 13.10.2026 «1a», Thread «Velo-Standard»):** zuerst das neue MTB, dann das Gravelbike, das Hardtail, das Fully. 0.131.0 hatte `bike.order` noch in der alten Reihenfolge aus dem Code geschrieben (Hardtail zuerst).
 - **Selbst entschieden:** `cleanup.js` setzt die neue Reihenfolge einmal bei jedem Velo, das noch genau den Wert aus 0.131.0 trägt; ein anderer Wert bleibt. Ein zweiter Lauf ändert nichts. Standard-Velo, Reihenfolge ändern und die Fragen dazu kommen erst nach der Freigabe von VS1–VS4.
+
+## 14.10.2026: Fällig überall gleich (0.137.0, Durchklick DK1)
+
+- **Fällig (Noah 14.10.2026 «1-5 freigeben», Antwort 1a):** fällig ist ein Service, der fällig ist, oder ein Problem, das vor der nächsten Fahrt behoben sein muss (Status «braucht Arbeit», «Vor der nächsten Fahrt» oder Datum heute oder früher). Velopflege, Velos, Heute und die Zahl im Menü zählen dieselben Punkte.
+- **Selbst entschieden:** Die Zahl im Menü zählt jetzt Punkte statt Velos (wie im Mockup DK1). Probleme ohne «vor der nächsten Fahrt» und ohne Datum bleiben unter Probleme, zählen aber nicht als fällig. Der Text auf Heute «{n} Punkte fällig» wird «{n} fällig», sobald 0.133.0 auf main ist (Home.svelte wartet bis dann).
