@@ -1130,3 +1130,9 @@ Mockups S1–S5 (`design/e3-strava/`, Offene Mockups #e3-strava) freigegeben von
 - **Selbst entschieden:** Eine Fahrt, die als Datei und als Strava-Eintrag da ist, zählt einmal als Datei (gleiche Regel wie beim Puls: gleicher Tag, km höchstens 10 % oder 2 km daneben, Start höchstens 45 Minuten daneben). Offene Fahrten in «Zum Prüfen» zählen erst nach «Passt». Der Aktiv-Untertitel heisst jetzt «aus deinen Fahrten und Strava».
 - **Bewusst nicht:** keine sichtbare Unterscheidung «geplant / abgeschlossen / bewertet» in diesem Release; das kommt nach Spezifikation und Mockups aus dem Design-Refresh (Noah 13.10.2026).
 
+
+## 14.10.2026: Bezahlfunktion vorbereiten (unsichtbar, Testmodus)
+
+- **Noah 01:12–01:16 UTC:** «1a und b 2 a (einmal oder als abo) 3 a und b möglich 4 beides vorbereiten 5 kosten 0, mit testmodus starten», «für den nutzer bleibt es im Front End vorerst unsichtbar», «6 a und b», «7 beides vorbereiten». Details: [Bezahlen](bezahlen.md).
+- **Selbst entschieden:** Stripe (keine Grundgebühr, gratis Testmodus, Connect für andere Verkäufer); Lizenz als signierte Notiz statt Konto-Pflicht; Live-Schlüssel werden vom Server abgelehnt, bis Noah live gehen will; Preise und Artikel sind Platzhalter.
+- **Bewusst nicht:** nichts Sichtbares (Mockups zuerst), kein echtes Geld.
