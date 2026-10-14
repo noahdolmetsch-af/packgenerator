@@ -9,7 +9,7 @@ import { allSets, isBuiltIn } from '../src/lib/sets.js';
 import { blockKind } from '../src/lib/gear/comes.js';
 import { createDb } from '../src/lib/db.js';
 import { buildBackup, restoreBackup } from '../src/lib/backup.js';
-import { lang } from '../src/lib/i18n.svelte.js';
+import { lang, num } from '../src/lib/i18n.svelte.js';
 
 afterEach(() => (lang.v = 'en'));
 
@@ -151,10 +151,10 @@ describe('the suggestion in Packen (SN3g)', () => {
   it('the words', () => {
     lang.v = 'de';
     expect(ruleLine('cold', DEFAULT_RULES.cold)).toBe('unter 5\u00a0°C');
-    expect(ruleLine('climb', DEFAULT_RULES.climb)).toBe('ab 1’200\u00a0Hm pro Tag oder ein Pass');
+    expect(ruleLine('climb', DEFAULT_RULES.climb)).toBe(`ab ${num(1200)}\u00a0Hm pro Tag oder ein Pass`); // the thousands mark comes from the runtime (’ or ')
     expect(ruleLine('train', DEFAULT_RULES.train)).toBe('Anreise mit dem Zug');
     expect(hitBadge({ kind: 'cold', c: 3 })).toBe('Vorschlag: tiefste 3 °C');
-    expect(hitBadge({ kind: 'climb', by: 'top', m: 1650 })).toBe('Vorschlag: bis 1’650 m ü. M.');
+    expect(hitBadge({ kind: 'climb', by: 'top', m: 1650 })).toBe(`Vorschlag: bis ${num(1650)} m ü. M.`);
     expect(hitBadge({ kind: 'long', h: 6.5 })).toBe('Vorschlag: etwa 6.5 h Fahrzeit pro Tag');
     expect(hitBadge({ kind: 'abroad', country: 'FR' })).toBe('Vorschlag: Tour in Frankreich');
   });
