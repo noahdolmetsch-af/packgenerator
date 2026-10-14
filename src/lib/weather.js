@@ -11,6 +11,7 @@
  * "Use forecast" turns it into the packing weather trip.wx = { min, max, rain }.
  */
 import { t, tn } from './i18n.svelte.js';
+import { rainLimit } from './rainlimit.svelte.js';
 
 const GEO = 'https://geocoding-api.open-meteo.com/v1/search';
 const API = 'https://api.open-meteo.com/v1/forecast';
@@ -88,14 +89,15 @@ export function forecastForTrip(trip) {
 
 /**
  * The packing weather from the forecast days: coldest min, warmest max (rounded), and rain:
- * "rain" when a day has 5 mm or more, "showers" when a day has 1 mm or a chance of 50 % or more.
+ * "rain" when a day has 5 mm or more, "showers" when a day has 1 mm or a chance from the rain limit on
+ * (v0.144.0 RE: the one rain limit of the app, standard 30 %; was 50 %).
  */
-export function toWx(days) {
+export function toWx(days, limit = rainLimit()) {
   const mins = days.map((d) => d.min).filter((v) => v != null);
   const maxs = days.map((d) => d.max).filter((v) => v != null);
   if (!mins.length || !maxs.length) return null;
   const rainy = (d, mm, pct) => (d.rainMm ?? 0) >= mm || (pct != null && (d.rainPct ?? 0) >= pct);
-  const rain = days.some((d) => rainy(d, 5, null)) ? 'rain' : days.some((d) => rainy(d, 1, 50)) ? 'showers' : 'none';
+  const rain = days.some((d) => rainy(d, 5, null)) ? 'rain' : days.some((d) => rainy(d, 1, limit)) ? 'showers' : 'none';
   return { min: Math.floor(Math.min(...mins)), max: Math.ceil(Math.max(...maxs)), rain };
 }
 

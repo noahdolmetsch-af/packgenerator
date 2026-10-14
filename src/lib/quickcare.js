@@ -11,7 +11,7 @@
  * - bike washed: new, the bike's own list bike.washes (no part has it); the log shows it;
  * - km: the bike's km and the day they were set (the same as "change km" in Bike care).
  */
-import { logPart, PART, kmSince, lastValue, parseKm, wishFor } from './care.js';
+import { logPart, PART, partInfo, kmSince, lastValue, parseKm, wishFor } from './care.js';
 import { t as tr } from './i18n.svelte.js';
 import DE from './i18n/de/index.js';
 import { partStatus, yearSummary } from './care/last.js';
@@ -55,14 +55,15 @@ export function quickHints(bike, { visits = [], today } = {}) {
   const part = (key) => (bike.parts ?? []).find((p) => p.key === key) ?? null;
   const chain = part('chain');
   const since = chain ? kmSince(bike, [...(chain.history ?? [])].reverse().find(isWork)) : null;
-  const every = PART.chain.everyKm;
+  // v0.144.0 RE: the bike's own wax interval (Pflege für …); switched off: no chain hint.
+  const every = chain ? partInfo(chain).everyKm : PART.chain.everyKm;
   const setup = tyreSetup(bike, visits);
   const tubes = setup.front === 'tube' && setup.rear === 'tube';
   const sealant = tubes ? false : (timeDue(bike, setup, today).find((s) => s.key === 'tyres') ?? null);
   const tyres = part('tyres');
   const pressured = [...(tyres?.history ?? [])].reverse().find((h) => h.pressureF != null || h.pressureR != null) ?? null;
   return {
-    chain: since == null ? null : { left: every - since, every },
+    chain: since == null || !every ? null : { left: every - since, every },
     wear: chain ? (lastValue(chain)?.value ?? null) : null,
     sealant: sealant === false ? false : sealant && !sealant.never ? { days: sealant.days } : null,
     pressure: pressured ? { f: pressured.pressureF ?? null, r: pressured.pressureR ?? null } : null,
@@ -70,6 +71,12 @@ export function quickHints(bike, { visits = [], today } = {}) {
     km: typeof bike.km === 'number' ? bike.km : null,
   };
 }
+
+/** v0.144.0 RE: the chain's replace limit on this bike (own value, standard, or null when its care is off). */
+const limitOf = (parts) => {
+  const c = (parts ?? []).find((p) => p.key === 'chain');
+  return c ? partInfo(c).limit ?? null : PART.chain.limit;
+};
 
 /**
  * One tap on a bike button: the fields to store on the bike (from the bike AS STORED, not withVisits).
@@ -87,8 +94,8 @@ export function quickLog(stored, kind, { today, value = null } = {}) {
   if (kind === 'wear') {
     const v = Number(value);
     if (!Number.isFinite(v) || v < 0 || v > 5) return null;
-    const limit = parts.find((p) => p.key === 'chain')?.limit ?? PART.chain.limit;
-    const entry = { ...base, value: Math.round(v * 100) / 100, action: 'check', result: v >= limit ? 'needed' : 'ok' };
+    const limit = limitOf(parts);
+    const entry = { ...base, value: Math.round(v * 100) / 100, action: 'check', result: limit != null && v >= limit ? 'needed' : 'ok' };
     return { changes: { parts: logPart(parts, 'chain', entry) }, entry };
   }
   if (kind === 'sealant') {
@@ -115,9 +122,9 @@ export function quickLog(stored, kind, { today, value = null } = {}) {
  * bike: as stored (its name and parts); items: all gear; id: the next free gear id.
  */
 export function chainWish(bike, items = [], { id, value, limit = null, today, price = null } = {}) {
-  const lim = limit ?? (bike?.parts ?? []).find((p) => p.key === 'chain')?.limit ?? PART.chain.limit;
+  const lim = limit ?? limitOf(bike?.parts);
   const v = Number(value);
-  if (!bike || value == null || !Number.isFinite(v) || v < lim) return null;
+  if (!bike || value == null || lim == null || !Number.isFinite(v) || v < lim) return null;
   const open = (i) => i.ownership !== 'gone' && i.ownership !== 'owned';
   if (items.some((i) => open(i) && i.from === 'care' && i.bikeId === bike.id && i.part === 'chain')) return null;
   const part = (bike.parts ?? []).find((p) => p.key === 'chain') ?? { key: 'chain', history: [] };

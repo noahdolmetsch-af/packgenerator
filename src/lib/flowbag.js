@@ -12,14 +12,15 @@
  */
 import { addDays } from './flow.js';
 import { weekdayOf, nextOn } from './flowweek.js';
+import { DAY_CLOCK } from './dayclock.js';
 
 export const BAGS_KEY = 'flow.bags';
 export const PACK_KEY = 'flow.bagPack';
 export const REMIND_KEY = 'flow.bagRemind';
 /** From this many times forgotten a thing is «often forgotten». */
 export const OFTEN = 2;
-/** The reminder shows from this hour (Zurich) on the evening before. */
-export const REMIND_HOUR = 17;
+/** The reminder shows from this hour (Zurich) on the evening before (v0.144.0 RE: the evening of the one day clock, 18; was 17). */
+export const REMIND_HOUR = DAY_CLOCK.evening;
 
 const it = (id, name, nameDe, extra = {}) => ({ id, name, nameDe, forgot: 0, ...extra });
 /** The bags of the start, fictional and changeable (linked to the seeded activities by id). */

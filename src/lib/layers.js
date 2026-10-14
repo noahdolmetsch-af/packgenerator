@@ -17,6 +17,9 @@
 import { isInventory } from './gear.js';
 import { t } from './i18n.svelte.js';
 import { inStandard, isWorn, blockKeys } from './blocks2026.js';
+// v0.144.0 RE: the rain chance of the trip (only called inside functions, so the import cycle with wardrobe.js is safe).
+import { rainChance } from './wardrobe.js';
+import { rainLimit, wetPct } from './rainlimit.svelte.js';
 
 export const RIDES = [
   { key: 'every', name: 'Every ride' },
@@ -67,8 +70,13 @@ const hasTemps = (wx) => typeof wx?.min === 'number' && typeof wx?.max === 'numb
  * Cold layers are worn when even the warmest part of the day is colder than their limit,
  * and packed when only the coldest part is.
  */
-export function layerSuggest(trip, items) {
+export function layerSuggest(trip, items, limit = rainLimit()) {
   const rows = [];
+  // v0.144.0 RE «Regen überall gleich» (Noah 2a): the rain gear comes along by itself also when the rain
+  // chance reaches the one rain limit (Bausteine › Regen, standard 30 %), not only with «Regen/Schauer».
+  const pct = rainChance(trip);
+  const byPct = !wet(trip?.wx) && wetPct(pct, limit);
+  const rainy = wet(trip?.wx) || byPct;
   const rankOf = new Map(); // sort order, kept apart from the (translated) label
   const level = RIDE_RANK[trip?.ride] ?? -1;
   const wx = trip?.wx;
@@ -84,9 +92,10 @@ export function layerSuggest(trip, items) {
     } else if (coldLayer(i) && hasTemps(wx) && wx.min < i.coldBelow) {
       rows.push({ id: i.id, why: t('Below {n} °C', { n: i.coldBelow }), place: wx.max < i.coldBelow ? 'wear' : 'pack', qty, optional: false });
       rankOf.set(rows.at(-1), 3 + (40 - i.coldBelow) / 100);
-    } else if (rainOf(i) && wet(wx)) {
+    } else if (rainOf(i) && rainy) {
       const rain = rainOf(i);
-      rows.push({ id: i.id, why: t(RAIN_ITEM[rain] ?? 'Rain'), place: 'pack', qty, optional: rain === 'optional' });
+      const why = byPct ? t('{n} % rain · rain from {limit} %', { n: Math.round(pct), limit }) : t(RAIN_ITEM[rain] ?? 'Rain');
+      rows.push({ id: i.id, why, place: 'pack', qty, optional: rain === 'optional', ...(byPct ? { pct: Math.round(pct) } : {}) });
       rankOf.set(rows.at(-1), 4 + (rain === 'optional' ? 0.5 : 0));
     } else if (qty > 1 && (isWorn(i) || inStandard(i))) {
       // Every-ride food and drink: more pieces on a longer ride.

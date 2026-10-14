@@ -16,10 +16,11 @@ import { debriefedTrips } from '../insights.js';
 import { isInventory, isWish } from '../gear.js';
 import { isClothing } from '../wardrobe.js';
 import { t, tn } from '../i18n.svelte.js';
+import { NEVER_USED_MIN } from '../neverused.js';
 
 export const VIEWS = ['all', 'most', 'proven', 'fav', 'never', 'unweighed', 'wish'];
-/** Nie gebraucht: taken at least this often and never used (the approved design: «ab 3× dabei»). */
-export const NEVER_AFTER = 3;
+/** Nie gebraucht: taken at least this often and never used (the approved design: «ab 3× dabei»; v0.144.0 RE: the shared number). */
+export const NEVER_AFTER = NEVER_USED_MIN;
 /** Bewährt: taken at least this often … */
 export const PROVEN_AFTER = 5;
 /** … and used at least this share of those times. */

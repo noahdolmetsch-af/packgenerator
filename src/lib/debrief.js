@@ -14,6 +14,7 @@
  */
 import { isInventory, CLOTHING_CATEGORIES } from './gear.js';
 import { t, nameOf } from './i18n.svelte.js';
+import { NEVER_USED_MIN } from './neverused.js';
 import { domainOf, hasBike } from './domains.js';
 import { localDay } from './localday.js';
 import { tripEnd } from './tripstate.js';
@@ -42,8 +43,8 @@ export const ITEM_STATE = { used: 'Used', unused: 'Not used', broken: 'Broken' }
 // The clothing the cold question asks about: as before without shoes.
 const CLOTHING = CLOTHING_CATEGORIES.filter((c) => c !== 'shoes');
 export const WARM_LIMIT = 10;
-/** Answer 8b (4.10.2026): "leave at home" after an item was not used on 3 trips. */
-export const LEAVE_AFTER = 3;
+/** Answer 8b (4.10.2026): "leave at home" after an item was not used on 3 trips (v0.144.0 RE: the shared number). */
+export const LEAVE_AFTER = NEVER_USED_MIN;
 
 /** How often each item was "not used" in finished debriefs (other trips than tripId). */
 export function unusedTimes(debriefs, tripId = null) {
